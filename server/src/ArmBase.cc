@@ -269,9 +269,9 @@ void ArmBase::setCopyOnDemandEnabled(bool enable)
 	m_impl->isCopyOnDemandEnabled = enable;
 }
 
-void ArmBase::registerAvailableTrigger(ArmPollingResult type,
-				       TriggerIdType  trrigerId,
-				       HatoholError   hatoholError)
+void ArmBase::registerAvailableTrigger(const ArmPollingResult type,
+				       const TriggerIdType  trrigerId,
+				       const HatoholError   hatoholError)
 {
 	m_impl->ArmResultTriggerTable[type].statusType = TRIGGER_STATUS_UNKNOWN;
 	m_impl->ArmResultTriggerTable[type].triggerId = trrigerId;
@@ -280,7 +280,7 @@ void ArmBase::registerAvailableTrigger(ArmPollingResult type,
 
 void ArmBase::setInitialTriggerTable(void)
 {
-	for ( int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
+	for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
 		m_impl->ArmResultTriggerTable[i].statusType =
 			TRIGGER_STATUS_ALL;
 	}
@@ -349,7 +349,7 @@ void ArmBase::createEventInfo(const ArmResultTriggerInfo &resTrigger,
 	eventInfoList.push_back(eventInfo);
 }
 
-void ArmBase::setServerConnectStaus(bool enable, ArmPollingResult type)
+void ArmBase::setServerConnectStaus(const bool enable, const ArmPollingResult type)
 {
 	TriggerInfoList triggerInfoList;
 	EventInfoList eventInfoList;
