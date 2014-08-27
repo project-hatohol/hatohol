@@ -101,10 +101,31 @@ struct ZabbixAPIEmulator::PrivateContext {
 	  firstEventId(0),
 	  lastEventId(0)
 	{
+		initAPIHandlerMap();
 	}
 
 	virtual ~PrivateContext()
 	{
+	}
+
+	void initAPIHandlerMap(void)
+	{
+		apiHandlerMap["apiinfo.version"] =
+		  &ZabbixAPIEmulator::APIHandlerAPIVersion;
+		apiHandlerMap["user.login"] = 
+		  &ZabbixAPIEmulator::APIHandlerUserLogin;
+		apiHandlerMap["trigger.get"] = 
+		  &ZabbixAPIEmulator::APIHandlerTriggerGet;
+		apiHandlerMap["item.get"] = 
+		  &ZabbixAPIEmulator::APIHandlerItemGet;
+		apiHandlerMap["host.get"] = 
+		  &ZabbixAPIEmulator::APIHandlerHostGet;
+		apiHandlerMap["event.get"] = 
+		  &ZabbixAPIEmulator::APIHandlerEventGet;
+		apiHandlerMap["application.get"] = 
+		  &ZabbixAPIEmulator::APIHandlerApplicationGet;
+		apiHandlerMap["hostgroup.get"] =
+		  &ZabbixAPIEmulator::APIHandlerHostgroupGet;
 	}
 
 	void reset(void)
@@ -147,22 +168,6 @@ ZabbixAPIEmulator::ZabbixAPIEmulator(void)
 : HttpServerStub("ZabbixAPIEmulator"), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
-	m_ctx->apiHandlerMap["apiinfo.version"] =
-	  &ZabbixAPIEmulator::APIHandlerAPIVersion;
-	m_ctx->apiHandlerMap["user.login"] = 
-	  &ZabbixAPIEmulator::APIHandlerUserLogin;
-	m_ctx->apiHandlerMap["trigger.get"] = 
-	  &ZabbixAPIEmulator::APIHandlerTriggerGet;
-	m_ctx->apiHandlerMap["item.get"] = 
-	  &ZabbixAPIEmulator::APIHandlerItemGet;
-	m_ctx->apiHandlerMap["host.get"] = 
-	  &ZabbixAPIEmulator::APIHandlerHostGet;
-	m_ctx->apiHandlerMap["event.get"] = 
-	  &ZabbixAPIEmulator::APIHandlerEventGet;
-	m_ctx->apiHandlerMap["application.get"] = 
-	  &ZabbixAPIEmulator::APIHandlerApplicationGet;
-	m_ctx->apiHandlerMap["hostgroup.get"] =
-	  &ZabbixAPIEmulator::APIHandlerHostgroupGet;
 }
 
 ZabbixAPIEmulator::~ZabbixAPIEmulator()
