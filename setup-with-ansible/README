@@ -12,3 +12,20 @@ If you set up the machine on itself, the following can be acceptable.
 * run
 
   $ ansible-playbook -i hosts setup-hatohol-dev.yaml
+
+* Tips
+- When the command fails with the following message.
+
+    Received message too long 1349281121
+
+Create a file: ansible.cfg with the following content in the directory the command runs on
+
+    [ssh_connection]
+    scp_if_ssh=True
+
+- When the command fails with the following message.
+
+    Please login as the user "ubuntu" rather than the user "root".
+
+Replace 'user: root' into 'user: ubuntu' in setup-hatohol-dev.yaml.
+This problem happens when the target OS is Ubuntu for cloud.
