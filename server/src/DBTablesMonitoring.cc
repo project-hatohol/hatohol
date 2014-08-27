@@ -1383,9 +1383,7 @@ void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 	// condition
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	// get the result
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -1466,9 +1464,7 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	if (!arg.limit && arg.offset)
 		return;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -1522,9 +1518,7 @@ int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
 	    dbTermCodec->enc(serverId).c_str());
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -1613,9 +1607,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	if (!arg.limit && arg.offset)
 		return HTERR_OFFSET_WITHOUT_LIMIT;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -1737,9 +1729,7 @@ uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName, 
 	    dbTermCodec->enc(serverId).c_str());
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -1793,9 +1783,7 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	if (!arg.limit && arg.offset)
 		return;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -1858,9 +1846,7 @@ size_t DBTablesMonitoring::getNumberOfTriggers(
 		arg.condition += additionalCondition;
 	}
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -1910,9 +1896,7 @@ size_t DBTablesMonitoring::getNumberOfHosts(const TriggersQueryOption &option)
 	// condition
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -1950,9 +1934,7 @@ size_t DBTablesMonitoring::getNumberOfBadHosts(const TriggersQueryOption &option
 	    option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
 	    TRIGGER_STATUS_PROBLEM);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -1979,9 +1961,7 @@ size_t DBTablesMonitoring::getNumberOfItems(
 	// condition
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -2004,9 +1984,7 @@ HatoholError DBTablesMonitoring::getNumberOfMonitoredItemsPerSecond
 	    COLUMN_DEF_SERVERS[IDX_SERVERS_ID].columnName,
 	    serverStatus.serverId);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	// TODO: currently the folowing return 0 for Nagios servers
 	// We just return 0 instead of an error.
@@ -2070,9 +2048,7 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 	if (!arg.limit && arg.offset)
 		return HatoholError(HTERR_OFFSET_WITHOUT_LIMIT);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -2236,9 +2212,7 @@ HatoholError DBTablesMonitoring::getHostgroupInfoList
 	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
@@ -2270,9 +2244,7 @@ HatoholError DBTablesMonitoring::getHostgroupElementList
 	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
