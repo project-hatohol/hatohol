@@ -1,25 +1,8 @@
-TEST_DBS = testDatabase-hatohol.db
 if WITH_CUTTER
-noinst_DATA = $(TEST_DBS) FooTable.db
-noinst_PROGRAMS = mkTestDB
+noinst_DATA = FooTable.db
 endif
 
 noinst_SCRIPTS = mkFooTable.sh
-
-AM_CXXFLAGS = $(OPT_CXXFLAGS) -I .. -I ../../src $(GLIB_CFLAGS) $(MLPL_CFLAGS)
-LIBS = ../../src/libhatohol.la $(MLPL_LIBS) ../libTest.la
-
-mkTestDB_SOURCES = mkTestDB.cc
-mkTestDB_LDADD = $(LIBS)
-
-$(TEST_DBS): mkTestDB ../../src/libhatohol.la $(MLPL_LIBS) ../libTest.la
-
-# To make the creation time short, we create it on tmpfs.
-testDatabase-hatohol.db:
-	rm -f $@ /dev/shm/$@
-	./mkTestDB hatohol /dev/shm/$@
-	cp -f /dev/shm/$@ .
-
 FooTable.db: mkFooTable.sh
 	rm -f $@
 	./mkFooTable.sh $@

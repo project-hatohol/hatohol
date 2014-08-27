@@ -32,7 +32,6 @@ using namespace std;
 using namespace mlpl;
 
 static const unsigned int TEST_PORT = 53194;
-static const char *TEST_DB_HATOHOL_NAME = "testDatabase-hatohol.db";
 
 static FaceRest *g_faceRest = NULL;
 
@@ -45,9 +44,6 @@ void startFaceRest(void)
 			mutex.unlock();
 		}
 	} param;
-
-	string dbPathHatohol  = getFixturesDir() + TEST_DB_HATOHOL_NAME;
-	defineDBPath(DB_TABLES_ID_MONITORING, dbPathHatohol);
 
 	ConfigManager::getInstance()->setFaceRestPort(TEST_PORT);
 	g_faceRest = new FaceRest(&param);
