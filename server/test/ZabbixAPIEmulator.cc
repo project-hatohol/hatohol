@@ -20,6 +20,7 @@
 #include <set>
 #include <cstdio>
 #include <Logger.h>
+#include <SeparatorInjector.h>
 #include "ZabbixAPIEmulator.h"
 #include "JSONParserAgent.h"
 #include "JSONBuilderAgent.h"
@@ -488,10 +489,12 @@ void ZabbixAPIEmulator::APIHandlerHostgroupGet(APIHandlerArg &arg)
 void ZabbixAPIEmulator::PrivateContext::makeEventsJSONAscend(string &contents)
 {
 	int64_t numEvents = 0;
+	SeparatorInjector injector(",");
 	for (int64_t id = firstEventId; isInRange(id, numEvents + 1); ++id) {
 		ZabbixAPIEventMapIterator it = zbxEventMap.find(id);
 		if (it == zbxEventMap.end())
 			continue;
+		injector(contents);
 		contents += makeJSONString(it->second);
 		++numEvents;
 	}
@@ -500,10 +503,12 @@ void ZabbixAPIEmulator::PrivateContext::makeEventsJSONAscend(string &contents)
 void ZabbixAPIEmulator::PrivateContext::makeEventsJSONDescend(string &contents)
 {
 	int64_t numEvents = 0;
+	SeparatorInjector injector(",");
 	for (int64_t id = lastEventId; isInRange(id, numEvents + 1); --id) {
 		ZabbixAPIEventMapIterator it = zbxEventMap.find(id);
 		if (it == zbxEventMap.end())
 			continue;
+		injector(contents);
 		contents += makeJSONString(it->second);
 		++numEvents;
 	}
@@ -521,7 +526,6 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	} else if (m_ctx->paramEvent.sortOrder == "DESC") {
 		m_ctx->makeEventsJSONDescend(contents);
 	}
-	contents.erase(contents.end() - 1);
 	string sendData = addJSONResponse(contents, arg);
 	gsize length = sendData.size();
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
@@ -703,7 +707,7 @@ string ZabbixAPIEmulator::PrivateContext::makeJSONString(
 	if (apiVersion < API_VERSION_2_2_0)
 		json += StringUtils::sprintf(",\"value_changed\":\"%s\"",
 					     data.value_changed.c_str());
-	json += "},";
+	json += "}";
 	return json;
 }
 
