@@ -496,7 +496,7 @@ void DBTablesUser::init(void)
 void DBTablesUser::reset(void)
 {
 	// We share the connection information with CONFIG.
-	DBConnectInfo connInfo = getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
+	DBConnectInfo connInfo = getDBConnectInfo(DB_TABLES_ID_CONFIG);
 	setConnectInfo(DB_TABLES_ID_USER, connInfo);
 }
 

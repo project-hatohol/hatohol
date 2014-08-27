@@ -405,7 +405,7 @@ void DBTablesAction::reset(void)
 {
 	// Now we assume that a DB server for this class is the same as that
 	// for DBTablesConfig. So we copy the connectInfo of it.
-	DBConnectInfo connInfo = getDBConnectInfo(DB_DOMAIN_ID_CONFIG);
+	DBConnectInfo connInfo = getDBConnectInfo(DB_TABLES_ID_CONFIG);
 	setConnectInfo(DB_TABLES_ID_ACTION, connInfo);
 }
 
