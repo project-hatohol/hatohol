@@ -122,6 +122,12 @@ struct ArmBase::Impl
 		rwlock.unlock();
 	}
 
+	void setInitialTriggerTable(void)
+	{
+		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++)
+			ArmResultTriggerTable[i].statusType = TRIGGER_STATUS_ALL;
+	}
+
 	Signal updatedSignal;
 };
 
@@ -132,7 +138,7 @@ ArmBase::ArmBase(
   const string &name, const MonitoringServerInfo &serverInfo)
 : m_impl(new Impl(name, serverInfo))
 {
-	setInitialTriggerTable();
+	m_impl->setInitialTriggerTable();
 }
 
 ArmBase::~ArmBase()
@@ -276,14 +282,6 @@ void ArmBase::registerAvailableTrigger(const ArmPollingResult type,
 	m_impl->ArmResultTriggerTable[type].statusType = TRIGGER_STATUS_UNKNOWN;
 	m_impl->ArmResultTriggerTable[type].triggerId = trrigerId;
 	m_impl->ArmResultTriggerTable[type].msg = hatoholError.getMessage().c_str();
-}
-
-void ArmBase::setInitialTriggerTable(void)
-{
-	for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
-		m_impl->ArmResultTriggerTable[i].statusType =
-			TRIGGER_STATUS_ALL;
-	}
 }
 
 void ArmBase::setInitialTrrigerStaus(void)
