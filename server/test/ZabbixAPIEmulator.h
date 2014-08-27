@@ -56,11 +56,12 @@ public:
 	ZabbixAPIEmulator(void);
 	virtual ~ZabbixAPIEmulator();
 	void reset(void);
-	void setNumberOfEventSlices(size_t numSlices);
 
 	void setOperationMode(OperationMode mode);
 	void setAPIVersion(APIVersion version);
 	std::string getAPIVersionString(void);
+	void setExpectedFirstEventId(const EventIdType &id);
+	void setExpectedLastEventId(const EventIdType &id);
 
 	static std::string getAPIVersionString(APIVersion version);
 

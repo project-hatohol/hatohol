@@ -460,15 +460,11 @@ void test_getHosts(void)
 
 void test_getEvents(void)
 {
-	// We expect empty data for the last two times.
-	g_apiEmulator.setNumberOfEventSlices(NUM_TEST_READ_TIMES-2);
 	assertReceiveData(ArmZabbixAPITestee::GET_TEST_TYPE_EVENTS, 0);
 }
 
 void test_getEvents_2_2_0(void)
 {
-	// We expect empty data for the last two times.
-	g_apiEmulator.setNumberOfEventSlices(NUM_TEST_READ_TIMES-2);
 	assertReceiveData(ArmZabbixAPITestee::GET_TEST_TYPE_EVENTS, 0,
 			  ZabbixAPIEmulator::API_VERSION_2_2_0);
 }
@@ -733,6 +729,50 @@ void test_verifyEventsObtanedBySplitWay(void)
 	   armZbxApiTestee.m_numbersOfGotEvents.begin();
 	for (; itr != armZbxApiTestee.m_numbersOfGotEvents.end(); ++itr)
 		cppcut_assert_equal(true, *itr <= upperLimitOfEventsAtOneTime);
+}
+
+// for issue #447 (can't fetch one new event)
+void test_oneNewEvent(void)
+{
+	MonitoringServerInfo serverInfo = setupServer();
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	armZbxApiTestee.testOpenSession();
+
+	uint64_t expectedEventId = 8000;
+	g_apiEmulator.setExpectedLastEventId(expectedEventId);
+	armZbxApiTestee.callUpdateEvents();
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+        uint64_t actualEventId = dbMonitoring.getLastEventId(serverInfo.id);
+	cppcut_assert_equal(expectedEventId, actualEventId);
+
+	++expectedEventId;
+	g_apiEmulator.setExpectedLastEventId(expectedEventId);
+	armZbxApiTestee.callUpdateEvents();
+        actualEventId = dbMonitoring.getLastEventId(serverInfo.id);
+	cppcut_assert_equal(expectedEventId, actualEventId);
+}
+
+// for issue #252
+// (can't get events when the first event ID is bigger than 1000)
+void test_getStubbedEventList(void)
+{
+	MonitoringServerInfo serverInfo = setupServer();
+	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	armZbxApiTestee.testOpenSession();
+
+	uint64_t expectedFirstEventId = 2014;
+	uint64_t expectedLastEventId = 5000;
+	g_apiEmulator.setExpectedFirstEventId(expectedFirstEventId);
+	g_apiEmulator.setExpectedLastEventId(expectedLastEventId);
+	armZbxApiTestee.callUpdateEvents();
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	EventInfoList eventList;
+	EventsQueryOption option(USER_ID_SYSTEM);
+	dbMonitoring.getEventInfoList(eventList, option);
+	cppcut_assert_equal(expectedLastEventId - expectedFirstEventId + 1,
+			    static_cast<uint64_t>(eventList.size()));
 }
 
 } // namespace testArmZabbixAPI

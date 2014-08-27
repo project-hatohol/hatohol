@@ -20,6 +20,7 @@
 #include <set>
 #include <cstdio>
 #include <Logger.h>
+#include <SeparatorInjector.h>
 #include "ZabbixAPIEmulator.h"
 #include "JSONParserAgent.h"
 #include "JSONBuilderAgent.h"
@@ -59,6 +60,25 @@ struct ZabbixAPIEmulator::ParameterEventGet {
 	  eventIdTill(0)
 	{
 	}
+
+	void reset(void) {
+		output = "extend";
+		sortOrder = "ASC";
+		limit = 0;
+		eventIdFrom = 0;
+		eventIdTill = 0;
+	}
+
+	bool isInRange(const int64_t &id, const int64_t &num = 0)
+	{
+		if (limit != 0 && num > limit)
+			return false;
+		if (eventIdFrom != 0 && id < eventIdFrom)
+			return false;
+		if (eventIdTill != 0 && id > eventIdTill)
+			return false;
+		return true;
+	}
 };
 
 struct ZabbixAPIEmulator::ZabbixAPIEvent {
@@ -78,33 +98,87 @@ struct ZabbixAPIEmulator::PrivateContext {
 	APIVersion    apiVersion;
 	set<string>   authTokens;
 	APIHandlerMap apiHandlerMap;
-	size_t        numEventSlices;
-	size_t        currEventSliceIndex;
-	vector<string> slicedEventVector;
 	struct ParameterEventGet paramEvent;
 	ZabbixAPIEventMap zbxEventMap;
+	int64_t       firstEventId;
+	int64_t       lastEventId;
+	int64_t       expectedFirstEventId;
+	int64_t       expectedLastEventId;
 	
 	// methods
 	PrivateContext(void)
 	: operationMode(OPE_MODE_NORMAL),
 	  apiVersion(API_VERSION_2_0_4),
-	  numEventSlices(0),
-	  currEventSliceIndex(0)
+	  firstEventId(0),
+	  lastEventId(0),
+	  expectedFirstEventId(0),
+	  expectedLastEventId(0)
 	{
+		initAPIHandlerMap();
 	}
 
 	virtual ~PrivateContext()
 	{
 	}
 
-	void reset(void)
+	void initAPIHandlerMap(void)
 	{
-		apiVersion = API_VERSION_2_0_4;
-		numEventSlices = 0;
-		currEventSliceIndex = 0;
-		slicedEventVector.clear();
+		apiHandlerMap["apiinfo.version"] =
+		  &ZabbixAPIEmulator::APIHandlerAPIVersion;
+		apiHandlerMap["user.login"] = 
+		  &ZabbixAPIEmulator::APIHandlerUserLogin;
+		apiHandlerMap["trigger.get"] = 
+		  &ZabbixAPIEmulator::APIHandlerTriggerGet;
+		apiHandlerMap["item.get"] = 
+		  &ZabbixAPIEmulator::APIHandlerItemGet;
+		apiHandlerMap["host.get"] = 
+		  &ZabbixAPIEmulator::APIHandlerHostGet;
+		apiHandlerMap["event.get"] = 
+		  &ZabbixAPIEmulator::APIHandlerEventGet;
+		apiHandlerMap["application.get"] = 
+		  &ZabbixAPIEmulator::APIHandlerApplicationGet;
+		apiHandlerMap["hostgroup.get"] =
+		  &ZabbixAPIEmulator::APIHandlerHostgroupGet;
 	}
 
+	void reset(void)
+	{
+		operationMode = OPE_MODE_NORMAL;
+		apiVersion = API_VERSION_2_0_4;
+		paramEvent.reset();
+		firstEventId = 0;
+		lastEventId = 0;
+		expectedFirstEventId = 0;
+		expectedLastEventId = 0;
+	}
+
+	void setupEventRange(void)
+	{
+		firstEventId = zbxEventMap.begin()->first;
+		if (expectedFirstEventId > firstEventId)
+			firstEventId = expectedFirstEventId;
+		if (paramEvent.eventIdFrom > firstEventId)
+			firstEventId = paramEvent.eventIdFrom;
+
+		lastEventId = zbxEventMap.rbegin()->first;
+		if (expectedLastEventId > 0 &&
+		    expectedLastEventId < lastEventId) {
+			lastEventId = expectedLastEventId;
+		}
+		if (paramEvent.eventIdTill > 0 &&
+		    paramEvent.eventIdTill < lastEventId) {
+			lastEventId = paramEvent.eventIdTill;
+		}
+	}
+
+	bool isInRange(const int64_t &id, const int64_t &num = 0)
+	{
+		if (id < firstEventId)
+			return false;
+		if (id > lastEventId)
+			return false;
+		return paramEvent.isInRange(id, num);
+	}
 	void makeEventsJSONAscend(string &contents);
 	void makeEventsJSONDescend(string &contents);
 	string makeJSONString(const ZabbixAPIEvent &data);
@@ -117,22 +191,6 @@ ZabbixAPIEmulator::ZabbixAPIEmulator(void)
 : HttpServerStub("ZabbixAPIEmulator"), m_ctx(NULL)
 {
 	m_ctx = new PrivateContext();
-	m_ctx->apiHandlerMap["apiinfo.version"] =
-	  &ZabbixAPIEmulator::APIHandlerAPIVersion;
-	m_ctx->apiHandlerMap["user.login"] = 
-	  &ZabbixAPIEmulator::APIHandlerUserLogin;
-	m_ctx->apiHandlerMap["trigger.get"] = 
-	  &ZabbixAPIEmulator::APIHandlerTriggerGet;
-	m_ctx->apiHandlerMap["item.get"] = 
-	  &ZabbixAPIEmulator::APIHandlerItemGet;
-	m_ctx->apiHandlerMap["host.get"] = 
-	  &ZabbixAPIEmulator::APIHandlerHostGet;
-	m_ctx->apiHandlerMap["event.get"] = 
-	  &ZabbixAPIEmulator::APIHandlerEventGet;
-	m_ctx->apiHandlerMap["application.get"] = 
-	  &ZabbixAPIEmulator::APIHandlerApplicationGet;
-	m_ctx->apiHandlerMap["hostgroup.get"] =
-	  &ZabbixAPIEmulator::APIHandlerHostgroupGet;
 }
 
 ZabbixAPIEmulator::~ZabbixAPIEmulator()
@@ -143,11 +201,6 @@ ZabbixAPIEmulator::~ZabbixAPIEmulator()
 void ZabbixAPIEmulator::reset(void)
 {
 	m_ctx->reset();
-}
-
-void ZabbixAPIEmulator::setNumberOfEventSlices(size_t numSlices)
-{
-	m_ctx->numEventSlices = numSlices;
 }
 
 void ZabbixAPIEmulator::setOperationMode(OperationMode mode)
@@ -435,104 +488,37 @@ void ZabbixAPIEmulator::APIHandlerHostgroupGet(APIHandlerArg &arg)
 
 void ZabbixAPIEmulator::PrivateContext::makeEventsJSONAscend(string &contents)
 {
-	if (paramEvent.limit == 0) {	// no limit
-		if (paramEvent.eventIdFrom == 0 &&
-		    paramEvent.eventIdTill == 0) { // unlimit
-			ZabbixAPIEventMapIterator jit = zbxEventMap.begin();
-			for (; jit != zbxEventMap.end(); ++jit) {
-				const ZabbixAPIEvent &data = jit->second;
-				contents += makeJSONString(data);
-			}
-		} else {	// range specification
-			ZabbixAPIEventMapIterator jit
-			  = zbxEventMap.lower_bound(paramEvent.eventIdFrom);
-			ZabbixAPIEventMapIterator goalIterator
-			  = zbxEventMap.lower_bound(paramEvent.eventIdTill);
-			for (;jit != goalIterator; ++jit) {
-				const ZabbixAPIEvent &data = jit->second;
-				contents += makeJSONString(data);
-			}
-		}
-	} else {
-		if (paramEvent.eventIdFrom == 0 &&
-		    paramEvent.eventIdTill == 0) {	// no range specification
-			ZabbixAPIEventMapIterator jit = zbxEventMap.begin();
-			for (int64_t i = 0; i < paramEvent.limit ||
-				     jit != zbxEventMap.end(); ++jit, i++) {
-				const ZabbixAPIEvent &data = jit->second;
-				contents += makeJSONString(data);
-			}
-		} else {
-			ZabbixAPIEventMapIterator jit
-			  = zbxEventMap.lower_bound(paramEvent.eventIdFrom);
-			ZabbixAPIEventMapIterator goalIterator
-			  = zbxEventMap.lower_bound(paramEvent.eventIdTill);
-			for (int64_t i = 0; i < paramEvent.limit ||
-				     jit != goalIterator ||
-				     jit != zbxEventMap.end(); ++jit, i++) {
-				const ZabbixAPIEvent &data = jit->second;
-				contents += makeJSONString(data);
-			}
-		}
+	int64_t numEvents = 0;
+	SeparatorInjector injector(",");
+	for (int64_t id = firstEventId; isInRange(id, numEvents + 1); ++id) {
+		ZabbixAPIEventMapIterator it = zbxEventMap.find(id);
+		if (it == zbxEventMap.end())
+			continue;
+		injector(contents);
+		contents += makeJSONString(it->second);
+		++numEvents;
 	}
 }
 
 void ZabbixAPIEmulator::PrivateContext::makeEventsJSONDescend(string &contents)
 {
-	if (paramEvent.limit == 0) {	// no limit
-		if (paramEvent.eventIdFrom == 0 &&
-		    paramEvent.eventIdTill == 0) { // unlimit
-			ZabbixAPIEventMapReverseIterator rjit
-			  = zbxEventMap.rbegin();
-			for (; rjit != zbxEventMap.rend(); ++rjit) {
-				const ZabbixAPIEvent &data = rjit->second;
-				contents += makeJSONString(data);
-			}
-		} else {	// range specification
-			ZabbixAPIEventMapReverseIterator rjit(
-			  zbxEventMap.lower_bound(paramEvent.eventIdTill));
-			ZabbixAPIEventMapReverseIterator goalIterator(
-			  zbxEventMap.lower_bound(paramEvent.eventIdFrom));
-			for (; rjit != goalIterator; ++rjit) {
-				const ZabbixAPIEvent &data = rjit->second;
-				contents += makeJSONString(data);
-			}
-		}
-	} else {
-		if (paramEvent.eventIdFrom == 0 &&
-		    paramEvent.eventIdTill == 0) {
-			ZabbixAPIEventMapReverseIterator rjit
-			  = zbxEventMap.rbegin();
-			for (int64_t i = 0;
-			     i < paramEvent.limit || rjit != zbxEventMap.rend();
-			     ++rjit, i++)
-			{
-				const ZabbixAPIEvent &data = rjit->second;
-				contents += makeJSONString(data);
-			}
-		} else {
-			ZabbixAPIEventMapReverseIterator rjit(
-			  zbxEventMap.lower_bound(paramEvent.eventIdTill));
-			ZabbixAPIEventMapReverseIterator goalIterator(
-			  zbxEventMap.lower_bound(paramEvent.eventIdFrom));
-			for (int64_t i = 0;
-			     i < paramEvent.limit ||
-			       rjit != goalIterator ||
-			       rjit != zbxEventMap.rend();
-			     ++rjit, i++)
-			{
-				const ZabbixAPIEvent &data = rjit->second;
-				contents += makeJSONString(data);
-			}
-		}
+	int64_t numEvents = 0;
+	SeparatorInjector injector(",");
+	for (int64_t id = lastEventId; isInRange(id, numEvents + 1); --id) {
+		ZabbixAPIEventMapIterator it = zbxEventMap.find(id);
+		if (it == zbxEventMap.end())
+			continue;
+		injector(contents);
+		contents += makeJSONString(it->second);
+		++numEvents;
 	}
 }
 
 void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 {
 	loadTestEventsIfNeeded(arg);
-
 	parseEventGetParameter(arg);
+	m_ctx->setupEventRange();
 
 	string contents;
 	if (m_ctx->paramEvent.sortOrder == "ASC") {
@@ -540,7 +526,6 @@ void ZabbixAPIEmulator::APIHandlerEventGet(APIHandlerArg &arg)
 	} else if (m_ctx->paramEvent.sortOrder == "DESC") {
 		m_ctx->makeEventsJSONDescend(contents);
 	}
-	contents.erase(contents.end() - 1);
 	string sendData = addJSONResponse(contents, arg);
 	gsize length = sendData.size();
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
@@ -611,8 +596,20 @@ string ZabbixAPIEmulator::addJSONResponse(const string &slice,
 	return StringUtils::sprintf(fmt, slice.c_str(), arg.id);
 }
 
+void ZabbixAPIEmulator::setExpectedFirstEventId(const EventIdType &id)
+{
+	m_ctx->expectedFirstEventId = id;
+}
+
+void ZabbixAPIEmulator::setExpectedLastEventId(const EventIdType &id)
+{
+	m_ctx->expectedLastEventId = id;
+}
+
 void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 {
+	m_ctx->paramEvent.reset();
+
 	JSONParserAgent parser(arg.msg->request_body->data);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION("Error in parsing: %s",
@@ -710,7 +707,7 @@ string ZabbixAPIEmulator::PrivateContext::makeJSONString(
 	if (apiVersion < API_VERSION_2_2_0)
 		json += StringUtils::sprintf(",\"value_changed\":\"%s\"",
 					     data.value_changed.c_str());
-	json += "},";
+	json += "}";
 	return json;
 }
 

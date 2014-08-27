@@ -127,15 +127,15 @@ void ArmZabbixAPI::updateEvents(void)
 		eventIdOffset = dbLastEventId + 1;
 	}
 
-	while (eventIdOffset < serverLastEventId) {
+	while (eventIdOffset <= serverLastEventId) {
 		const EventIdType eventIdTill =
-		  eventIdOffset + NUMBER_OF_GET_EVENT_PER_ONCE;
+		  eventIdOffset + NUMBER_OF_GET_EVENT_PER_ONCE - 1;
 		ItemTablePtr eventsTablePtr =
 		  getEvents(eventIdOffset, eventIdTill);
 		makeHatoholEvents(eventsTablePtr);
 		onGotNewEvents(eventsTablePtr);
 
-		eventIdOffset = eventIdTill;
+		eventIdOffset = eventIdTill + 1;
 	}
 }
 
