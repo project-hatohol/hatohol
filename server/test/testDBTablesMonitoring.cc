@@ -811,6 +811,14 @@ void test_getLastEventId(gconstpointer data)
 	                    dbMonitoring.getLastEventId(serverid));
 }
 
+void test_getLastEventIdWithNoEvent(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	const ServerIdType serverid = 3;
+	cppcut_assert_equal(EVENT_NOT_FOUND,
+	                    dbMonitoring.getLastEventId(serverid));
+}
+
 void data_getHostInfoList(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
@@ -999,6 +1007,14 @@ void test_getNumberOfTriggersBySeverityWithoutPriviledge(void)
 		cppcut_assert_equal(expected, actual,
 		                    cut_message("severity: %d", i));
 	}
+}
+
+void test_getLastChangeTimeOfTriggerWithNoTrigger(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	const ServerIdType serverid = 3;
+	cppcut_assert_equal(
+	  0, dbMonitoring.getLastChangeTimeOfTrigger(serverid));
 }
 
 void test_getNumberOfGoodHosts(void)
