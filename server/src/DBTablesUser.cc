@@ -21,6 +21,7 @@
 #include "DBTablesUser.h"
 #include "DBTablesConfig.h"
 #include "ItemGroupStream.h"
+#include "DBHatohol.h"
 using namespace std;
 using namespace mlpl;
 
@@ -218,7 +219,7 @@ struct DBTablesUser::Impl {
 
 bool DBTablesUser::Impl::validUsernameChars[UINT8_MAX+1];
 
-static void updateAdminPrivilege(DBAgent *dbAgent,
+static void updateAdminPrivilege(DBAgent &dbAgent,
 				 const OperationPrivilegeType old_NUM_OPPRVLG)
 {
 	static const OperationPrivilegeFlag oldAdminFlags =
@@ -228,11 +229,11 @@ static void updateAdminPrivilege(DBAgent *dbAgent,
 	arg.condition = StringUtils::sprintf(
 	  "%s=%" FMT_OPPRVLG,
 	  COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName, oldAdminFlags);
-	dbAgent->update(arg);
+	dbAgent.update(arg);
 }
 
 static void createInitialUser(
-  DBAgent *dbAgent, const string &username, const string &password,
+  DBAgent &dbAgent, const string &username, const string &password,
   const OperationPrivilegeFlag &flags)
 {
 	DBAgent::InsertArg arg(tableProfileUsers);
@@ -242,7 +243,7 @@ static void createInitialUser(
 	arg.add(flags);
 
 	try {
-		dbAgent->insert(arg);
+		dbAgent.insert(arg);
 	} catch (...) {
 		MLPL_CRIT("Failed to create user: %s\n", username.c_str());
 		return;
@@ -250,13 +251,13 @@ static void createInitialUser(
 	MLPL_INFO("Created an initial user: %s\n", username.c_str());
 }
 
-static void tableUserInitializer(DBAgent *dbAgent, void *data)
+static void tableUserInitializer(DBAgent &dbAgent, void *data)
 {
 	createInitialUser(dbAgent, "admin", "hatohol", ALL_PRIVILEGES);
 	createInitialUser(dbAgent, "guest", "guest", 0);
 }
 
-static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
+static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 {
 	static OperationPrivilegeType old_NUM_OPPRVLG;
 
@@ -322,7 +323,7 @@ string UserQueryOption::getCondition(void) const
 	UserIdType userId = getUserId();
 	if (userId == INVALID_USER_ID) {
 		MLPL_WARN("INVALID_USER_ID\n");
-		return DBTablesUser::getAlwaysFalseCondition();
+		return DBHatohol::getAlwaysFalseCondition();
 	}
 
 	string condition;
@@ -380,11 +381,11 @@ string AccessInfoQueryOption::getCondition(void) const
 	UserIdType userId = getUserId();
 	if (userId == INVALID_USER_ID) {
 		MLPL_WARN("INVALID_USER_ID\n");
-		return DBTablesUser::getAlwaysFalseCondition();
+		return DBHatohol::getAlwaysFalseCondition();
 	}
 
 	if (!has(OPPRVLG_GET_ALL_USER) && getUserId() != m_impl->queryUserId) {
-		return DBTablesUser::getAlwaysFalseCondition();
+		return DBHatohol::getAlwaysFalseCondition();
 	}
 
 	return StringUtils::sprintf("%s=%" FMT_USER_ID,
@@ -457,29 +458,6 @@ string UserRoleQueryOption::getCondition(void) const
 // ---------------------------------------------------------------------------
 void DBTablesUser::init(void)
 {
-	static const DBSetupTableInfo DB_TABLE_INFO[] = {
-	{
-		&tableProfileUsers,
-		g_testMode ? NULL : tableUserInitializer,
-	}, {
-		&tableProfileAccessList,
-	}, {
-		&tableProfileUserRoles,
-	},
-	};
-	static const size_t NUM_TABLE_INFO =
-	sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
-
-	static const DBSetupFuncArg DB_SETUP_FUNC_ARG = {
-		USER_DB_VERSION,
-		NUM_TABLE_INFO,
-		DB_TABLE_INFO,
-		&updateDB,
-	};
-
-	registerSetupInfo(
-	  DB_TABLES_ID_USER, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
-
 	// set valid characters for the user name
 	for (uint8_t c = 'A'; c <= 'Z'; c++)
 		Impl::validUsernameChars[c] = true;
@@ -495,9 +473,7 @@ void DBTablesUser::init(void)
 
 void DBTablesUser::reset(void)
 {
-	// We share the connection information with CONFIG.
-	DBConnectInfo connInfo = getDBConnectInfo(DB_TABLES_ID_CONFIG);
-	setConnectInfo(DB_TABLES_ID_USER, connInfo);
+	getSetupInfo().initialized = false;
 }
 
 bool DBTablesUser::setTestMode(bool enable)
@@ -506,8 +482,8 @@ bool DBTablesUser::setTestMode(bool enable)
 	return g_testMode;
 }
 
-DBTablesUser::DBTablesUser(void)
-: DBClient(DB_TABLES_ID_USER),
+DBTablesUser::DBTablesUser(DBAgent &dbAgent)
+: DBTables(dbAgent, getSetupInfo()),
   m_impl(new Impl())
 {
 }
@@ -828,7 +804,7 @@ HatoholError DBTablesUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 	arg.add(IDX_ACCESS_LIST_HOST_GROUP_ID);
 	arg.condition = option.getCondition();
 
-	if (isAlwaysFalseCondition(arg.condition))
+	if (DBHatohol::isAlwaysFalseCondition(arg.condition))
 		return HTERR_NO_PRIVILEGE;
 
 	getDBAgent().runTransaction(arg);
@@ -1163,10 +1139,33 @@ bool DBTablesUser::isAccessible(const ServerIdType &serverId,
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+DBTables::SetupInfo &DBTablesUser::getSetupInfo(void)
+{
+	static const TableSetupInfo DB_TABLE_INFO[] = {
+	{
+		&tableProfileUsers,
+		g_testMode ? NULL : tableUserInitializer,
+	}, {
+		&tableProfileAccessList,
+	}, {
+		&tableProfileUserRoles,
+	},
+	};
+
+	static SetupInfo setupInfo = {
+		DB_TABLES_ID_USER,
+		USER_DB_VERSION,
+		ARRAY_SIZE(DB_TABLE_INFO),
+		DB_TABLE_INFO,
+		&updateDB,
+	};
+	return setupInfo;
+}
+
 void DBTablesUser::getUserInfoList(UserInfoList &userInfoList,
                                    const string &condition)
 {
-	if (isAlwaysFalseCondition(condition))
+	if (DBHatohol::isAlwaysFalseCondition(condition))
 		return;
 
 	DBAgent::SelectExArg arg(tableProfileUsers);

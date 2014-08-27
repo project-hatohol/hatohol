@@ -65,11 +65,8 @@ static const UserInfo findFirstTestUserInfoByFlag(
 namespace testDBTablesUser {
 
 #define DECLARE_DBTABLES_USER(VAR_NAME) \
-	DBTablesUser VAR_NAME;
-	/*** After DBTablesUse inherits DBTables, we use the following way.
 	DBHatohol _dbHatohol; \
-	DBTablesUer &VAR_NAME = _dbHatohol.getUse();
-	***/
+	DBTablesUser &VAR_NAME = _dbHatohol.getDBTablesUser();
 
 static void _assertUserInfo(const UserInfo &expect, const UserInfo &actual)
 {
@@ -308,30 +305,20 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_dbDomainId(void)
-{
-	DECLARE_DBTABLES_USER(dbUser);
-	cppcut_assert_equal(DB_TABLES_ID_USER,
-	                    dbUser.getDBAgent().getDBDomainId());
-}
-
-void test_createDB(void)
+void test_tablesVersion(void)
 {
 	// create an instance
 	// Tables in the DB will be automatically created.
 	DECLARE_DBTABLES_USER(dbUser);
-
-	// check the version
-	string statement = "select * from _dbclient_version";
-	string expect =
-	  StringUtils::sprintf(
-	    "%d|%d\n", DB_TABLES_ID_USER, DBTablesUser::USER_DB_VERSION);
-	assertDBContent(&dbUser.getDBAgent(), statement, expect);
+	assertDBTablesVersion(
+	  dbUser.getDBAgent(),
+	  DB_TABLES_ID_USER, DBTablesUser::USER_DB_VERSION);
 }
 
 void test_addUser(void)
 {
 	DECLARE_DBTABLES_USER(dbUser);
+	cppcut_assert_not_null(&dbUser); // To avoid the waring (unsed)
 	assertUsersInDB();
 }
 
@@ -568,6 +555,7 @@ void test_addAccessList(void)
 	loadTestDBAccessList();
 
 	DECLARE_DBTABLES_USER(dbUser);
+	cppcut_assert_not_null(&dbUser); // To avoid the waring (unsed)
 	assertAccessInfoInDB();
 }
 
@@ -1012,6 +1000,7 @@ void test_constructorOfUserRoleQueryOptionFromDataQueryContext(void)
 void test_addUserRole(void)
 {
 	DECLARE_DBTABLES_USER(dbUser);
+	cppcut_assert_not_null(&dbUser); // To avoid the waring (unsed)
 	assertUserRolesInDB();
 }
 
