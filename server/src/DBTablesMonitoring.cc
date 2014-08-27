@@ -1515,7 +1515,7 @@ int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 {
 	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	DBAgent::SelectExArg arg(tableProfileTriggers);
-	string stmt = StringUtils::sprintf("max(%s)", 
+	string stmt = StringUtils::sprintf("coalesce(max(%s), 0)",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName);
 	arg.add(stmt, COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
 	arg.condition = StringUtils::sprintf("%s=%s",
@@ -1525,10 +1525,6 @@ int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
-
-	// get the result
-	if (arg.dataTable->getNumberOfRows() == 0)
-		return 0;
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -1734,7 +1730,7 @@ uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 {
 	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
 	DBAgent::SelectExArg arg(tableProfileEvents);
-	string stmt = StringUtils::sprintf("max(%s)", 
+	string stmt = StringUtils::sprintf("coalesce(max(%s), -1)",
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
 	arg.add(stmt, COLUMN_DEF_EVENTS[IDX_EVENTS_ID].type);
 	arg.condition = StringUtils::sprintf("%s=%s",
@@ -1744,10 +1740,6 @@ uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 	DBCLIENT_TRANSACTION_BEGIN() {
 		select(arg);
 	} DBCLIENT_TRANSACTION_END();
-
-	// get the result
-	if (arg.dataTable->getNumberOfRows() == 0)
-		return EVENT_NOT_FOUND;
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
