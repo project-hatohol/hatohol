@@ -1840,18 +1840,42 @@ void DBTablesMonitoring::addHostgroupElementList(
 
 void DBTablesMonitoring::addHostInfo(HostInfo *hostInfo)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addHostInfoWithoutTransaction(*hostInfo);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		HostInfo *hostInfo;
+		
+		TrxProc(HostInfo *_hostInfo)
+		: hostInfo(_hostInfo)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addHostInfoWithoutTransaction(dbAgent, *hostInfo);
+		}
+	} trx(hostInfo);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 {
-	HostInfoListConstIterator it = hostInfoList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		for(; it != hostInfoList.end(); ++it)
-			addHostInfoWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		const HostInfoList &hostInfoList;
+		
+		TrxProc(const HostInfoList &_hostInfoList)
+		: hostInfoList(_hostInfoList)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			HostInfoListConstIterator it = hostInfoList.begin();
+			for(; it != hostInfoList.end(); ++it)
+				addHostInfoWithoutTransaction(dbAgent, *it);
+		}
+	} trx(hostInfoList);
+	getDBAgent().runTransaction(trx);
+
+
 }
 
 uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
@@ -2300,7 +2324,8 @@ void DBTablesMonitoring::addHostgroupElementWithoutTransaction(
 	}
 }
 
-void DBTablesMonitoring::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
+void DBTablesMonitoring::addHostInfoWithoutTransaction(
+  DBAgent &dbAgent, const HostInfo &hostInfo)
 {
 	DBAgent::InsertArg arg(tableProfileHosts);
 	arg.add(AUTO_INCREMENT_VALUE);
@@ -2308,7 +2333,7 @@ void DBTablesMonitoring::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 	arg.add(hostInfo.id);
 	arg.add(hostInfo.hostName);
 	arg.upsertOnDuplicate = true;
-	insert(arg);
+	dbAgent.insert(arg);
 }
 
 void DBTablesMonitoring::addMonitoringServerStatusWithoutTransaction(

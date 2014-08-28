@@ -414,7 +414,8 @@ protected:
 	  DBAgent &dbAgent, const HostgroupInfo &groupInfo);
 	static void addHostgroupElementWithoutTransaction(
 	  DBAgent &dbAgent, const HostgroupElement &hostgroupElement);
-	void addHostInfoWithoutTransaction(const HostInfo &hostInfo);
+	static void addHostInfoWithoutTransaction(
+	  DBAgent &dbAgent, const HostInfo &hostInfo);
 	void addMonitoringServerStatusWithoutTransaction(
 	  const MonitoringServerStatus &serverStatus);
 	void addIncidentInfoWithoutTransaction(
