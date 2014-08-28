@@ -27,5 +27,17 @@ Create a file: ansible.cfg with the following content in the directory the comma
 
     Please login as the user "ubuntu" rather than the user "root".
 
-Replace 'user: root' into 'user: ubuntu' in setup-hatohol-dev.yaml.
+Replace 'user: root' into 'user: ubuntu' and set sudo: True in setup-hatohol-dev.yaml as below.
+
+    user: ubutnu
+    sudo: True
+
 This problem happens when the target OS is Ubuntu for cloud.
+
+- When the command fails with the following message.
+
+  stderr: E: There are problems and -y was used without --force-yes
+
+It may be solved by doing the following command on the target machine.
+
+  $ sudo apt-get update
