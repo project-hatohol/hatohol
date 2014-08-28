@@ -2214,9 +2214,21 @@ void DBTablesMonitoring::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVecto
 
 void DBTablesMonitoring::addIncidentInfo(IncidentInfo *incidentInfo)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addIncidentInfoWithoutTransaction(*incidentInfo);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		IncidentInfo *incidentInfo;
+		
+		TrxProc(IncidentInfo *_incidentInfo)
+		: incidentInfo(_incidentInfo)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addIncidentInfoWithoutTransaction(
+			  dbAgent, *incidentInfo);
+		}
+	} trx(incidentInfo);
+	getDBAgent().runTransaction(trx);
 }
 
 HatoholError DBTablesMonitoring::getIncidentInfoVect(
@@ -2380,7 +2392,7 @@ void DBTablesMonitoring::addMonitoringServerStatusWithoutTransaction(
 }
 
 void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
-  const IncidentInfo &incidentInfo)
+  DBAgent &dbAgent, const IncidentInfo &incidentInfo)
 {
 	DBAgent::InsertArg arg(tableProfileIncidents);
 	arg.add(incidentInfo.trackerId);
@@ -2396,7 +2408,7 @@ void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
 	arg.add(incidentInfo.updatedAt.tv_sec);
 	arg.add(incidentInfo.updatedAt.tv_nsec);
 	arg.upsertOnDuplicate = true;
-	insert(arg);
+	dbAgent.insert(arg);
 }
 
 HatoholError DBTablesMonitoring::getHostgroupInfoList

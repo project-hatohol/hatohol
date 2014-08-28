@@ -419,8 +419,8 @@ protected:
 	  DBAgent &dbAgent, const HostInfo &hostInfo);
 	static void addMonitoringServerStatusWithoutTransaction(
 	  DBAgent &dbAgent, const MonitoringServerStatus &serverStatus);
-	void addIncidentInfoWithoutTransaction(
-	  const IncidentInfo &incidentInfo);
+	static void addIncidentInfoWithoutTransaction(
+	  DBAgent &dbAgent, const IncidentInfo &incidentInfo);
 	size_t getNumberOfTriggers(const TriggersQueryOption &option,
 				   const std::string &additionalCondition);
 
