@@ -309,6 +309,8 @@ var HatoholIncidentTrackerEditor = function(params) {
   }
 
   function validateParameters() {
+    var label;
+
     if ($("#editIncidentTrackerNickname").val() == "") {
       hatoholErrorMsgBox(gettext("Nickname is empty!"));
       return false;
@@ -325,7 +327,8 @@ var HatoholIncidentTrackerEditor = function(params) {
     }
 
     if ($("#editIncidentTrackerUserName").val() == "") {
-      hatoholErrorMsgBox(gettext("User name is empty!"));
+      label = $("label[for=editIncidentTrackerUserName]").text();
+      hatoholErrorMsgBox(label + gettext(" is empty!"));
       return false;
     }
 
@@ -387,7 +390,7 @@ HatoholIncidentTrackerEditor.prototype.createMainElement = function() {
   '<input id="editIncidentTrackerUserName" type="text" ' +
   '       class="input-xlarge">' +
   '</div>' +
-  '<div>' +
+  '<div id="editIncidentTrackerPasswordArea">' +
   '<label for="editIncidentTrackerPassword">' + gettext("Password") + '</label>' +
   '<input id="editIncidentTrackerPassword" type="password" ' +
   '       class="input-xlarge">' +
@@ -403,11 +406,21 @@ HatoholIncidentTrackerEditor.prototype.onAppendMainElement = function() {
 };
 
 HatoholIncidentTrackerEditor.prototype.resetWidgetState = function() {
-  var editPassword = !this.incidentTracker;
-  if (editPassword) {
-    $("#editIncidentTrackerPasswordCheckbox").hide();
+  // We always use API key for Redmine, and we're currently supporting only
+  // Redmine. So we don't need the password entry at this time.
+  var editPassword = false;
+  var showPasswordEntry = false;
+  if (showPasswordEntry) {
+    $("label[for=editIncidentTrackerUserName]").text(gettext("User name"));
+    $("#editIncidentTrackerPasswordArea").show();
+    if (editPassword) {
+      $("#editIncidentTrackerPasswordCheckbox").hide();
+    } else {
+      $("#editIncidentTrackerPasswordCheckbox").show();
+    }
   } else {
-    $("#editIncidentTrackerPasswordCheckbox").show();
+    $("label[for=editIncidentTrackerUserName]").text(gettext("API Key"));
+    $("#editIncidentTrackerPasswordArea").hide();
   }
   $("#editIncidentTrackerPasswordCheckbox").prop("checked", editPassword);
   $("#editIncidentTrackerPassword").attr("disabled", !editPassword);
