@@ -1988,9 +1988,21 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 void DBTablesMonitoring::addMonitoringServerStatus(
   MonitoringServerStatus *serverStatus)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addMonitoringServerStatusWithoutTransaction(*serverStatus);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		MonitoringServerStatus *serverStatus;
+		
+		TrxProc(MonitoringServerStatus *_serverStatus)
+		: serverStatus(_serverStatus)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addMonitoringServerStatusWithoutTransaction(
+			  dbAgent, *serverStatus);
+		}
+	} trx(serverStatus);
+	getDBAgent().runTransaction(trx);
 }
 
 size_t DBTablesMonitoring::getNumberOfTriggers(
@@ -2358,13 +2370,13 @@ void DBTablesMonitoring::addHostInfoWithoutTransaction(
 }
 
 void DBTablesMonitoring::addMonitoringServerStatusWithoutTransaction(
-  const MonitoringServerStatus &serverStatus)
+  DBAgent &dbAgent, const MonitoringServerStatus &serverStatus)
 {
 	DBAgent::InsertArg arg(tableProfileServers);
 	arg.add(serverStatus.serverId);
 	arg.add(serverStatus.nvps);
 	arg.upsertOnDuplicate = true;
-	insert(arg);
+	dbAgent.insert(arg);
 }
 
 void DBTablesMonitoring::addIncidentInfoWithoutTransaction(

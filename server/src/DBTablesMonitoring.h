@@ -417,8 +417,8 @@ protected:
 	  DBAgent &dbAgent, const HostgroupElement &hostgroupElement);
 	static void addHostInfoWithoutTransaction(
 	  DBAgent &dbAgent, const HostInfo &hostInfo);
-	void addMonitoringServerStatusWithoutTransaction(
-	  const MonitoringServerStatus &serverStatus);
+	static void addMonitoringServerStatusWithoutTransaction(
+	  DBAgent &dbAgent, const MonitoringServerStatus &serverStatus);
 	void addIncidentInfoWithoutTransaction(
 	  const IncidentInfo &incidentInfo);
 	size_t getNumberOfTriggers(const TriggersQueryOption &option,
