@@ -458,7 +458,7 @@ void test_addTriggerInfo(void)
 	// confirm with the command line tool
 	string sql = StringUtils::sprintf("SELECT * from triggers");
 	string expectedOut = makeTriggerOutput(*testInfo);
-	assertDBContent(dbMonitoring.getDBAgent(), sql, expectedOut);
+	assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
 }
 
 void test_getTriggerInfo(void)
@@ -1288,7 +1288,7 @@ void test_addHostgroupInfo(void)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	HostgroupInfoList hostgroupInfoList;
-	DBAgent *dbAgent = dbMonitoring.getDBAgent();
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
 	string statement = "select * from hostgroups;";
 	string expect;
 
@@ -1297,14 +1297,14 @@ void test_addHostgroupInfo(void)
 		expect += makeHostgroupsOutput(testHostgroupInfo[i], i);
 	}
 	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
-	assertDBContent(dbAgent, statement, expect);
+	assertDBContent(&dbAgent, statement, expect);
 }
 
 void test_addHostgroupElement(void)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	HostgroupElementList hostgroupElementList;
-	DBAgent *dbAgent = dbMonitoring.getDBAgent();
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
 	string statement = "select * from map_hosts_hostgroups";
 	string expect;
 
@@ -1314,14 +1314,14 @@ void test_addHostgroupElement(void)
 		            testHostgroupElement[i], i);
 	}
 	dbMonitoring.addHostgroupElementList(hostgroupElementList);
-	assertDBContent(dbAgent, statement, expect);
+	assertDBContent(&dbAgent, statement, expect);
 }
 
 void test_addHostInfo(void)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	HostInfoList hostInfoList;
-	DBAgent *dbAgent = dbMonitoring.getDBAgent();
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
 	string statement = "select * from hosts;";
 	string expect;
 
@@ -1330,13 +1330,13 @@ void test_addHostInfo(void)
 		expect += makeHostsOutput(testHostInfo[i], i);
 	}
 	dbMonitoring.addHostInfoList(hostInfoList);
-	assertDBContent(dbAgent, statement, expect);
+	assertDBContent(&dbAgent, statement, expect);
 }
 
 void test_addIncidentInfo(void)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	DBAgent *dbAgent = dbMonitoring.getDBAgent();
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
 	string statement = "select * from incidents;";
 	string expect;
 
@@ -1345,13 +1345,13 @@ void test_addIncidentInfo(void)
 		expect += makeIncidentOutput(expectedIncidentInfo);
 		dbMonitoring.addIncidentInfo(&testIncidentInfo[i]);
 	}
-	assertDBContent(dbAgent, statement, expect);
+	assertDBContent(&dbAgent, statement, expect);
 }
 
 void test_updateIncidentInfo(void)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	DBAgent *dbAgent = dbMonitoring.getDBAgent();
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
 
 	IncidentInfo incidentInfo = testIncidentInfo[0];
 	dbMonitoring.addIncidentInfo(&incidentInfo);
@@ -1363,7 +1363,7 @@ void test_updateIncidentInfo(void)
 
 	string statement("select * from incidents;");
 	string expect(makeIncidentOutput(incidentInfo));
-	assertDBContent(dbAgent, statement, expect);
+	assertDBContent(&dbAgent, statement, expect);
 }
 
 void test_getIncidentInfo(void)

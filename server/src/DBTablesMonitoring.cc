@@ -1383,9 +1383,7 @@ void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 	// condition
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	// get the result
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -1402,18 +1400,41 @@ void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 
 void DBTablesMonitoring::addTriggerInfo(TriggerInfo *triggerInfo)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addTriggerInfoWithoutTransaction(*triggerInfo);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		TriggerInfo *triggerInfo;
+
+		TrxProc(TriggerInfo *_triggerInfo)
+		: triggerInfo(_triggerInfo)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addTriggerInfoWithoutTransaction(dbAgent, *triggerInfo);
+		}
+	} trx(triggerInfo);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
 {
-	TriggerInfoListConstIterator it = triggerInfoList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		for (; it != triggerInfoList.end(); ++it)
-			addTriggerInfoWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		const TriggerInfoList &triggerInfoList;
+
+		TrxProc(const TriggerInfoList &_triggerInfoList)
+		: triggerInfoList(_triggerInfoList)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			TriggerInfoListConstIterator it =
+			  triggerInfoList.begin();
+			for (; it != triggerInfoList.end(); ++it)
+				addTriggerInfoWithoutTransaction(dbAgent, *it);
+		}
+	} trx(triggerInfoList);
+	getDBAgent().runTransaction(trx);
 }
 
 bool DBTablesMonitoring::getTriggerInfo(TriggerInfo &triggerInfo,
@@ -1466,9 +1487,7 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	if (!arg.limit && arg.offset)
 		return;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -1491,29 +1510,50 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	}
 }
 
-void DBTablesMonitoring::setTriggerInfoList(const TriggerInfoList &triggerInfoList,
-                                         const ServerIdType &serverId)
+// TODO: remove This method is not used
+void DBTablesMonitoring::setTriggerInfoList(
+  const TriggerInfoList &triggerInfoList, const ServerIdType &serverId)
 {
-	// TODO: This way is too rough and inefficient.
-	//       We should update only the changed triggers.
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	DBAgent::DeleteArg deleteArg(tableProfileTriggers);
-	deleteArg.condition =
-	  StringUtils::sprintf("%s=%s",
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
-	    dbTermCodec->enc(serverId).c_str());
+	struct TrxProc : public DBAgent::TransactionProc {
+		const TriggerInfoList &triggerInfoList;
+		const ServerIdType &serverId;
+		DBAgent::DeleteArg deleteArg;
 
-	TriggerInfoListConstIterator it = triggerInfoList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteRows(deleteArg);
-		for (; it != triggerInfoList.end(); ++it)
-			addTriggerInfoWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+		TrxProc(const TriggerInfoList &_triggerInfoList,
+		        const ServerIdType &_serverId)
+		: triggerInfoList(_triggerInfoList),
+		  serverId(_serverId),
+		  deleteArg(tableProfileTriggers)
+		{
+		}
+
+		virtual bool preproc(DBAgent &dbAgent) override
+		{
+			// TODO: This way is too rough and inefficient.
+			//       We should update only the changed triggers.
+			const DBTermCodec *dbTermCodec =
+			  dbAgent.getDBTermCodec();
+			deleteArg.condition = StringUtils::sprintf("%s=%s",
+			  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
+			  dbTermCodec->enc(serverId).c_str());
+			return true;
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(deleteArg);
+			TriggerInfoListConstIterator it =
+			  triggerInfoList.begin();
+			for (; it != triggerInfoList.end(); ++it)
+				addTriggerInfoWithoutTransaction(dbAgent, *it);
+		}
+	} trx(triggerInfoList, serverId);
+	getDBAgent().runTransaction(trx);
 }
 
 int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
+	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
 	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt = StringUtils::sprintf("coalesce(max(%s), 0)",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName);
@@ -1522,9 +1562,7 @@ int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
 	    dbTermCodec->enc(serverId).c_str());
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -1539,18 +1577,40 @@ int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 
 void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addEventInfoWithoutTransaction(*eventInfo);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		EventInfo *eventInfo;
+
+		TrxProc(EventInfo *_eventInfo)
+		: eventInfo(_eventInfo)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addEventInfoWithoutTransaction(dbAgent, *eventInfo);
+		}
+	} trx(eventInfo);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::addEventInfoList(const EventInfoList &eventInfoList)
 {
-	EventInfoListConstIterator it = eventInfoList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		for (; it != eventInfoList.end(); ++it)
-			addEventInfoWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		const EventInfoList &eventInfoList;
+
+		TrxProc(const EventInfoList &_eventInfoList)
+		: eventInfoList(_eventInfoList)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			EventInfoListConstIterator it = eventInfoList.begin();
+			for (; it != eventInfoList.end(); ++it)
+				addEventInfoWithoutTransaction(dbAgent, *it);
+		}
+	} trx(eventInfoList);
+	getDBAgent().runTransaction(trx);
 }
 
 HatoholError DBTablesMonitoring::getEventInfoList(
@@ -1613,9 +1673,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	if (!arg.limit && arg.offset)
 		return HTERR_OFFSET_WITHOUT_LIMIT;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -1658,77 +1716,169 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	return HatoholError(HTERR_OK);
 }
 
-void DBTablesMonitoring::setEventInfoList(const EventInfoList &eventInfoList,
-                                       const ServerIdType &serverId)
+// TODO: remove this fucntion (no longer used)
+void DBTablesMonitoring::setEventInfoList(
+  const EventInfoList &eventInfoList, const ServerIdType &serverId)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
-	DBAgent::DeleteArg deleteArg(tableProfileEvents);
-	deleteArg.condition =
-	  StringUtils::sprintf("%s=%s",
-	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
-	    dbTermCodec->enc(serverId).c_str());
+	struct TrxProc : public DBAgent::TransactionProc {
+		const EventInfoList &eventInfoList;
+		const ServerIdType &serverId;
+		DBAgent::DeleteArg deleteArg;
 
-	EventInfoListConstIterator it = eventInfoList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		deleteRows(deleteArg);
-		for (; it != eventInfoList.end(); ++it)
-			addEventInfoWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+		TrxProc(const EventInfoList &_eventInfoList,
+		        const ServerIdType &_serverId)
+		: eventInfoList(_eventInfoList),
+		  serverId(_serverId),
+		  deleteArg(tableProfileEvents)
+		{
+		}
+
+		virtual bool preproc(DBAgent &dbAgent) override
+		{
+			deleteArg.condition =
+			  StringUtils::sprintf("%s=%s",
+			    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
+			    dbAgent.getDBTermCodec()->enc(serverId).c_str());
+			return true;
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(deleteArg);
+			EventInfoListConstIterator it = eventInfoList.begin();
+			for (; it != eventInfoList.end(); ++it)
+				addEventInfoWithoutTransaction(dbAgent, *it);
+		}
+	} trx(eventInfoList, serverId);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::addHostgroupInfo(HostgroupInfo *groupInfo)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addHostgroupInfoWithoutTransaction(*groupInfo);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		HostgroupInfo *groupInfo;
+		
+		TrxProc(HostgroupInfo *_groupInfo)
+		: groupInfo(_groupInfo)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addHostgroupInfoWithoutTransaction(dbAgent, *groupInfo);
+		}
+	} trx(groupInfo);
+	getDBAgent().runTransaction(trx);
 }
 
-void DBTablesMonitoring::addHostgroupInfoList(const HostgroupInfoList &groupInfoList)
+void DBTablesMonitoring::addHostgroupInfoList(
+  const HostgroupInfoList &groupInfoList)
 {
-	HostgroupInfoListConstIterator it = groupInfoList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		for (; it != groupInfoList.end(); ++it)
-			addHostgroupInfoWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		const HostgroupInfoList &groupInfoList;
+		
+		TrxProc(const HostgroupInfoList &_groupInfoList)
+		: groupInfoList(_groupInfoList)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			HostgroupInfoListConstIterator it =
+			  groupInfoList.begin();
+			for (; it != groupInfoList.end(); ++it)
+				addHostgroupInfoWithoutTransaction(dbAgent, *it);
+		}
+	} trx(groupInfoList);
+	getDBAgent().runTransaction(trx);
+
 }
 
-void DBTablesMonitoring::addHostgroupElement
-  (HostgroupElement *hostgroupElement)
+void DBTablesMonitoring::addHostgroupElement(
+  HostgroupElement *hostgroupElement)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addHostgroupElementWithoutTransaction(*hostgroupElement);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		HostgroupElement *hostgroupElement;
+		
+		TrxProc(HostgroupElement *_hostgroupElement)
+		: hostgroupElement(_hostgroupElement)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addHostgroupElementWithoutTransaction(
+			  dbAgent, *hostgroupElement);
+		}
+	} trx(hostgroupElement);
+	getDBAgent().runTransaction(trx);
 }
 
-void DBTablesMonitoring::addHostgroupElementList
-  (const HostgroupElementList &hostgroupElementList)
+void DBTablesMonitoring::addHostgroupElementList(
+  const HostgroupElementList &hostgroupElementList)
 {
-	HostgroupElementListConstIterator it = hostgroupElementList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		for (; it != hostgroupElementList.end(); ++it)
-			addHostgroupElementWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		const HostgroupElementList &hostgroupElementList;
+		
+		TrxProc(const HostgroupElementList &_hostgroupElementList)
+		: hostgroupElementList(_hostgroupElementList)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			HostgroupElementListConstIterator it =
+			  hostgroupElementList.begin();
+			for (; it != hostgroupElementList.end(); ++it) {
+				addHostgroupElementWithoutTransaction(dbAgent,
+				                                      *it);
+			}
+		}
+	} trx(hostgroupElementList);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::addHostInfo(HostInfo *hostInfo)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addHostInfoWithoutTransaction(*hostInfo);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		HostInfo *hostInfo;
+		
+		TrxProc(HostInfo *_hostInfo)
+		: hostInfo(_hostInfo)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addHostInfoWithoutTransaction(dbAgent, *hostInfo);
+		}
+	} trx(hostInfo);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 {
-	HostInfoListConstIterator it = hostInfoList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		for(; it != hostInfoList.end(); ++it)
-			addHostInfoWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		const HostInfoList &hostInfoList;
+		
+		TrxProc(const HostInfoList &_hostInfoList)
+		: hostInfoList(_hostInfoList)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			HostInfoListConstIterator it = hostInfoList.begin();
+			for(; it != hostInfoList.end(); ++it)
+				addHostInfoWithoutTransaction(dbAgent, *it);
+		}
+	} trx(hostInfoList);
+	getDBAgent().runTransaction(trx);
 }
 
 uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
+	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
 	DBAgent::SelectExArg arg(tableProfileEvents);
 	string stmt = StringUtils::sprintf("coalesce(max(%s), -1)",
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
@@ -1737,9 +1887,7 @@ uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName, 
 	    dbTermCodec->enc(serverId).c_str());
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -1748,18 +1896,40 @@ uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 
 void DBTablesMonitoring::addItemInfo(ItemInfo *itemInfo)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addItemInfoWithoutTransaction(*itemInfo);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		ItemInfo *itemInfo;
+		
+		TrxProc(ItemInfo *_itemInfo)
+		: itemInfo(_itemInfo)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addItemInfoWithoutTransaction(dbAgent, *itemInfo);
+		}
+	} trx(itemInfo);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::addItemInfoList(const ItemInfoList &itemInfoList)
 {
-	ItemInfoListConstIterator it = itemInfoList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		for (; it != itemInfoList.end(); ++it)
-			addItemInfoWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		const ItemInfoList &itemInfoList;
+		
+		TrxProc(const ItemInfoList &_itemInfoList)
+		: itemInfoList(_itemInfoList)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			ItemInfoListConstIterator it = itemInfoList.begin();
+			for(; it != itemInfoList.end(); ++it)
+				addItemInfoWithoutTransaction(dbAgent, *it);
+		}
+	} trx(itemInfoList);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
@@ -1793,9 +1963,7 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	if (!arg.limit && arg.offset)
 		return;
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -1820,9 +1988,21 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 void DBTablesMonitoring::addMonitoringServerStatus(
   MonitoringServerStatus *serverStatus)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addMonitoringServerStatusWithoutTransaction(*serverStatus);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		MonitoringServerStatus *serverStatus;
+		
+		TrxProc(MonitoringServerStatus *_serverStatus)
+		: serverStatus(_serverStatus)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addMonitoringServerStatusWithoutTransaction(
+			  dbAgent, *serverStatus);
+		}
+	} trx(serverStatus);
+	getDBAgent().runTransaction(trx);
 }
 
 size_t DBTablesMonitoring::getNumberOfTriggers(
@@ -1858,9 +2038,7 @@ size_t DBTablesMonitoring::getNumberOfTriggers(
 		arg.condition += additionalCondition;
 	}
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -1910,9 +2088,7 @@ size_t DBTablesMonitoring::getNumberOfHosts(const TriggersQueryOption &option)
 	// condition
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -1950,9 +2126,7 @@ size_t DBTablesMonitoring::getNumberOfBadHosts(const TriggersQueryOption &option
 	    option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
 	    TRIGGER_STATUS_PROBLEM);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -1979,9 +2153,7 @@ size_t DBTablesMonitoring::getNumberOfItems(
 	// condition
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
@@ -2004,9 +2176,7 @@ HatoholError DBTablesMonitoring::getNumberOfMonitoredItemsPerSecond
 	    COLUMN_DEF_SERVERS[IDX_SERVERS_ID].columnName,
 	    serverStatus.serverId);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	// TODO: currently the folowing return 0 for Nagios servers
 	// We just return 0 instead of an error.
@@ -2023,30 +2193,59 @@ HatoholError DBTablesMonitoring::getNumberOfMonitoredItemsPerSecond
 	return HatoholError(HTERR_OK);
 }
 
-void DBTablesMonitoring::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
-                         const vector<uint64_t> &hostIdVector)
+void DBTablesMonitoring::pickupAbsentHostIds(
+  vector<uint64_t> &absentHostIdVector, const vector<uint64_t> &hostIdVector)
 {
-	string condition;
-	static const string tableName = TABLE_NAME_HOSTS;
-	static const string hostIdName =
-	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID].columnName;
-	DBCLIENT_TRANSACTION_BEGIN() {
-		for (size_t i = 0; i < hostIdVector.size(); i++) {
-			uint64_t id = hostIdVector[i];
-			condition = hostIdName;
+	struct TrxProc : public DBAgent::TransactionProc {
+		const string tableName;
+		const string hostIdName;
+		vector<uint64_t> &absentHostIdVector;
+		const vector<uint64_t> &hostIdVector;
+		
+		TrxProc(vector<uint64_t> &_absentHostIdVector,
+		        const vector<uint64_t> &_hostIdVector)
+		: tableName(TABLE_NAME_HOSTS),
+		  hostIdName(COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID].columnName),
+		  absentHostIdVector(_absentHostIdVector),
+		  hostIdVector(_hostIdVector)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			for (size_t i = 0; i < hostIdVector.size(); i++)
+				addHostId(dbAgent, hostIdVector[i]);
+		}
+
+		void addHostId(DBAgent &dbAgent, const uint64_t &id)
+		{
+			string condition = hostIdName;
 			condition += StringUtils::sprintf("=%" PRIu64, id);
-			if (isRecordExisting(tableName, condition))
-				continue;
+			if (dbAgent.isRecordExisting(tableName, condition))
+				return;
 			absentHostIdVector.push_back(id);
 		}
-	} DBCLIENT_TRANSACTION_END();
+	} trx(absentHostIdVector, hostIdVector);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::addIncidentInfo(IncidentInfo *incidentInfo)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addIncidentInfoWithoutTransaction(*incidentInfo);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		IncidentInfo *incidentInfo;
+		
+		TrxProc(IncidentInfo *_incidentInfo)
+		: incidentInfo(_incidentInfo)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addIncidentInfoWithoutTransaction(
+			  dbAgent, *incidentInfo);
+		}
+	} trx(incidentInfo);
+	getDBAgent().runTransaction(trx);
 }
 
 HatoholError DBTablesMonitoring::getIncidentInfoVect(
@@ -2070,9 +2269,7 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 	if (!arg.limit && arg.offset)
 		return HatoholError(HTERR_OFFSET_WITHOUT_LIMIT);
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -2102,7 +2299,7 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 // Protected methods
 // ---------------------------------------------------------------------------
 void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
-  const TriggerInfo &triggerInfo)
+  DBAgent &dbAgent, const TriggerInfo &triggerInfo)
 {
 	DBAgent::InsertArg arg(tableProfileTriggers);
 	arg.add(triggerInfo.serverId);
@@ -2115,10 +2312,11 @@ void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
 	arg.add(triggerInfo.hostName);
 	arg.add(triggerInfo.brief);
 	arg.upsertOnDuplicate = true;
-	insert(arg);
+	dbAgent.insert(arg);
 }
 
-void DBTablesMonitoring::addEventInfoWithoutTransaction(const EventInfo &eventInfo)
+void DBTablesMonitoring::addEventInfoWithoutTransaction(
+  DBAgent &dbAgent, const EventInfo &eventInfo)
 {
 	DBAgent::InsertArg arg(tableProfileEvents);
 	arg.add(AUTO_INCREMENT_VALUE_U64);
@@ -2134,10 +2332,11 @@ void DBTablesMonitoring::addEventInfoWithoutTransaction(const EventInfo &eventIn
 	arg.add(eventInfo.hostName);
 	arg.add(eventInfo.brief);
 	arg.upsertOnDuplicate = true;
-	insert(arg);
+	dbAgent.insert(arg);
 }
 
-void DBTablesMonitoring::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
+void DBTablesMonitoring::addItemInfoWithoutTransaction(
+  DBAgent &dbAgent, const ItemInfo &itemInfo)
 {
 	DBAgent::InsertArg arg(tableProfileItems);
 	arg.add(itemInfo.serverId);
@@ -2150,11 +2349,11 @@ void DBTablesMonitoring::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
 	arg.add(itemInfo.prevValue);
 	arg.add(itemInfo.itemGroupName);
 	arg.upsertOnDuplicate = true;
-	insert(arg);
+	dbAgent.insert(arg);
 }
 
 void DBTablesMonitoring::addHostgroupInfoWithoutTransaction(
-  const HostgroupInfo &groupInfo)
+  DBAgent &dbAgent, const HostgroupInfo &groupInfo)
 {
 	DBAgent::InsertArg arg(tableProfileHostgroups);
 	arg.add(groupInfo.id);
@@ -2162,30 +2361,33 @@ void DBTablesMonitoring::addHostgroupInfoWithoutTransaction(
 	arg.add(groupInfo.groupId);
 	arg.add(groupInfo.groupName);
 	arg.upsertOnDuplicate = true;
-	insert(arg);
+	dbAgent.insert(arg);
 }
 
 void DBTablesMonitoring::addHostgroupElementWithoutTransaction(
-  const HostgroupElement &hostgroupElement)
+  DBAgent &dbAgent, const HostgroupElement &hostgroupElement)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent()->getDBTermCodec();
+	// TODO: create the condition outside of the transaction.
+	const DBTermCodec *dbTermCodec = dbAgent.getDBTermCodec();
 	string condition = StringUtils::sprintf(
 	  "server_id=%s AND host_id=%s AND host_group_id=%s",
 	  dbTermCodec->enc(hostgroupElement.serverId).c_str(),
 	  dbTermCodec->enc(hostgroupElement.hostId).c_str(),
 	  dbTermCodec->enc(hostgroupElement.groupId).c_str());
 
-	if (!isRecordExisting(TABLE_NAME_MAP_HOSTS_HOSTGROUPS, condition)) {
+	if (!dbAgent.isRecordExisting(TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
+	                              condition)) {
 		DBAgent::InsertArg arg(tableProfileMapHostsHostgroups);
 		arg.add(hostgroupElement.id);
 		arg.add(hostgroupElement.serverId);
 		arg.add(hostgroupElement.hostId);
 		arg.add(hostgroupElement.groupId);
-		insert(arg);
+		dbAgent.insert(arg);
 	}
 }
 
-void DBTablesMonitoring::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
+void DBTablesMonitoring::addHostInfoWithoutTransaction(
+  DBAgent &dbAgent, const HostInfo &hostInfo)
 {
 	DBAgent::InsertArg arg(tableProfileHosts);
 	arg.add(AUTO_INCREMENT_VALUE);
@@ -2193,21 +2395,21 @@ void DBTablesMonitoring::addHostInfoWithoutTransaction(const HostInfo &hostInfo)
 	arg.add(hostInfo.id);
 	arg.add(hostInfo.hostName);
 	arg.upsertOnDuplicate = true;
-	insert(arg);
+	dbAgent.insert(arg);
 }
 
 void DBTablesMonitoring::addMonitoringServerStatusWithoutTransaction(
-  const MonitoringServerStatus &serverStatus)
+  DBAgent &dbAgent, const MonitoringServerStatus &serverStatus)
 {
 	DBAgent::InsertArg arg(tableProfileServers);
 	arg.add(serverStatus.serverId);
 	arg.add(serverStatus.nvps);
 	arg.upsertOnDuplicate = true;
-	insert(arg);
+	dbAgent.insert(arg);
 }
 
 void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
-  const IncidentInfo &incidentInfo)
+  DBAgent &dbAgent, const IncidentInfo &incidentInfo)
 {
 	DBAgent::InsertArg arg(tableProfileIncidents);
 	arg.add(incidentInfo.trackerId);
@@ -2223,7 +2425,7 @@ void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
 	arg.add(incidentInfo.updatedAt.tv_sec);
 	arg.add(incidentInfo.updatedAt.tv_nsec);
 	arg.upsertOnDuplicate = true;
-	insert(arg);
+	dbAgent.insert(arg);
 }
 
 HatoholError DBTablesMonitoring::getHostgroupInfoList
@@ -2236,9 +2438,7 @@ HatoholError DBTablesMonitoring::getHostgroupInfoList
 	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
@@ -2270,9 +2470,7 @@ HatoholError DBTablesMonitoring::getHostgroupElementList
 	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 	arg.condition = option.getCondition();
 
-	DBCLIENT_TRANSACTION_BEGIN() {
-		select(arg);
-	} DBCLIENT_TRANSACTION_END();
+	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();

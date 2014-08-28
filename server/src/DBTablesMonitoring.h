@@ -286,6 +286,13 @@ public:
 	static const char *TABLE_NAME_SERVER_STATUS;
 	static const char *TABLE_NAME_INCIDENTS;
 
+	// This is a temporary mesurement. We'll replace the base class with
+	// DBTables, which provides the method that returns a reference.
+	DBAgent &getDBAgent(void)
+	{
+		return *DBClient::getDBAgent();
+	}
+
 	DBTablesMonitoring(void);
 	virtual ~DBTablesMonitoring();
 
@@ -398,17 +405,22 @@ public:
 				      const IncidentsQueryOption &option);
 
 protected:
-	void addTriggerInfoWithoutTransaction(const TriggerInfo &triggerInfo);
-	void addEventInfoWithoutTransaction(const EventInfo &eventInfo);
-	void addItemInfoWithoutTransaction(const ItemInfo &itemInfo);
-	void addHostgroupInfoWithoutTransaction(const HostgroupInfo &groupInfo);
-	void addHostgroupElementWithoutTransaction(
-	  const HostgroupElement &hostgroupElement);
-	void addHostInfoWithoutTransaction(const HostInfo &hostInfo);
-	void addMonitoringServerStatusWithoutTransaction(
-	  const MonitoringServerStatus &serverStatus);
-	void addIncidentInfoWithoutTransaction(
-	  const IncidentInfo &incidentInfo);
+	static void addTriggerInfoWithoutTransaction(
+	  DBAgent &dbAgent, const TriggerInfo &triggerInfo);
+	static void addEventInfoWithoutTransaction(
+	  DBAgent &dbAgent, const EventInfo &eventInfo);
+	static void addItemInfoWithoutTransaction(
+	  DBAgent &dbAgent, const ItemInfo &itemInfo);
+	static void addHostgroupInfoWithoutTransaction(
+	  DBAgent &dbAgent, const HostgroupInfo &groupInfo);
+	static void addHostgroupElementWithoutTransaction(
+	  DBAgent &dbAgent, const HostgroupElement &hostgroupElement);
+	static void addHostInfoWithoutTransaction(
+	  DBAgent &dbAgent, const HostInfo &hostInfo);
+	static void addMonitoringServerStatusWithoutTransaction(
+	  DBAgent &dbAgent, const MonitoringServerStatus &serverStatus);
+	static void addIncidentInfoWithoutTransaction(
+	  DBAgent &dbAgent, const IncidentInfo &incidentInfo);
 	size_t getNumberOfTriggers(const TriggersQueryOption &option,
 				   const std::string &additionalCondition);
 
