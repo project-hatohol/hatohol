@@ -383,9 +383,9 @@ ItemTablePtr ZabbixAPI::getApplications(ItemTablePtr items)
 	return getApplications(appIdVector);
 }
 
-ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdOffset, uint64_t eventIdTill)
+ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdFrom, uint64_t eventIdTill)
 {
-	SoupMessage *msg = queryEvent(eventIdOffset, eventIdTill);
+	SoupMessage *msg = queryEvent(eventIdFrom, eventIdTill);
 	if (!msg)
 		THROW_DATA_STORE_EXCEPTION("Failed to query events.");
 
@@ -446,7 +446,7 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 	return returnValue;
 }
 
-SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
+SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdFrom, uint64_t eventIdTill)
 {
 	JSONBuilderAgent agent;
 	agent.startObject();
@@ -455,7 +455,7 @@ SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill)
 
 	agent.startObject("params");
 	agent.add("output", "extend");
-	string strEventIdFrom = StringUtils::sprintf("%" PRId64, eventIdOffset);
+	string strEventIdFrom = StringUtils::sprintf("%" PRId64, eventIdFrom);
 	agent.add("eventid_from", strEventIdFrom.c_str());
 	if (eventIdTill != UNLIMITED) {
 		string strEventIdTill = StringUtils::sprintf("%" PRId64,

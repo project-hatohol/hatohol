@@ -137,7 +137,7 @@ protected:
 	/**
 	 * Get the applications
 	 *
-	 * @param eventIdOffset
+	 * @param eventIdFrom
 	 * The first event ID to be obtained.
 	 *
 	 * @param eventIdTill
@@ -145,7 +145,7 @@ protected:
 	 *
 	 * @return The obtained events as an ItemTable format.
 	 */
-	ItemTablePtr getEvents(uint64_t eventIdOffset, uint64_t eventIdTill);
+	ItemTablePtr getEvents(uint64_t eventIdFrom, uint64_t eventIdTill);
 
 	/**
 	 * Get the first or last event ID the target Zabbix server has.
@@ -207,7 +207,7 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill);
+	SoupMessage *queryEvent(uint64_t eventIdFrom, uint64_t eventIdTill);
 
 	/**
 	 * Get the first or last event ID the target Zabbix server has.

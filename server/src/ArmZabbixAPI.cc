@@ -115,27 +115,19 @@ void ArmZabbixAPI::updateEvents(void)
 	const EventIdType dbLastEventId =
 	  m_impl->dbMonitoring.getLastEventId(m_impl->zabbixServerId);
 	MLPL_DBG("The last event ID in Hatohol DB: %" FMT_EVENT_ID "\n", dbLastEventId);
-	EventIdType eventIdOffset = 0;
+	EventIdType eventIdFrom = dbLastEventId == EVENT_ID_NOT_FOUND ?
+	                          getEndEventId(true) :
+	                          dbLastEventId + 1;
 
-	if (dbLastEventId == EVENT_NOT_FOUND) {
-		eventIdOffset = getEndEventId(true);
-		if (eventIdOffset == EVENT_ID_NOT_FOUND) {
-			MLPL_INFO("First event ID is not found\n");
-			return;
-		}
-	} else {
-		eventIdOffset = dbLastEventId + 1;
-	}
-
-	while (eventIdOffset <= serverLastEventId) {
+	while (eventIdFrom <= serverLastEventId) {
 		const EventIdType eventIdTill =
-		  eventIdOffset + NUMBER_OF_GET_EVENT_PER_ONCE - 1;
+		  eventIdFrom + NUMBER_OF_GET_EVENT_PER_ONCE - 1;
 		ItemTablePtr eventsTablePtr =
-		  getEvents(eventIdOffset, eventIdTill);
+		  getEvents(eventIdFrom, eventIdTill);
 		makeHatoholEvents(eventsTablePtr);
 		onGotNewEvents(eventsTablePtr);
 
-		eventIdOffset = eventIdTill + 1;
+		eventIdFrom = eventIdTill + 1;
 	}
 }
 
