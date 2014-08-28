@@ -1874,8 +1874,6 @@ void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 		}
 	} trx(hostInfoList);
 	getDBAgent().runTransaction(trx);
-
-
 }
 
 uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
