@@ -2193,23 +2193,40 @@ HatoholError DBTablesMonitoring::getNumberOfMonitoredItemsPerSecond
 	return HatoholError(HTERR_OK);
 }
 
-void DBTablesMonitoring::pickupAbsentHostIds(vector<uint64_t> &absentHostIdVector,
-                         const vector<uint64_t> &hostIdVector)
+void DBTablesMonitoring::pickupAbsentHostIds(
+  vector<uint64_t> &absentHostIdVector, const vector<uint64_t> &hostIdVector)
 {
-	string condition;
-	static const string tableName = TABLE_NAME_HOSTS;
-	static const string hostIdName =
-	  COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID].columnName;
-	DBCLIENT_TRANSACTION_BEGIN() {
-		for (size_t i = 0; i < hostIdVector.size(); i++) {
-			uint64_t id = hostIdVector[i];
-			condition = hostIdName;
+	struct TrxProc : public DBAgent::TransactionProc {
+		const string tableName;
+		const string hostIdName;
+		vector<uint64_t> &absentHostIdVector;
+		const vector<uint64_t> &hostIdVector;
+		
+		TrxProc(vector<uint64_t> &_absentHostIdVector,
+		        const vector<uint64_t> &_hostIdVector)
+		: tableName(TABLE_NAME_HOSTS),
+		  hostIdName(COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID].columnName),
+		  absentHostIdVector(_absentHostIdVector),
+		  hostIdVector(_hostIdVector)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			for (size_t i = 0; i < hostIdVector.size(); i++)
+				addHostId(dbAgent, hostIdVector[i]);
+		}
+
+		void addHostId(DBAgent &dbAgent, const uint64_t &id)
+		{
+			string condition = hostIdName;
 			condition += StringUtils::sprintf("=%" PRIu64, id);
-			if (isRecordExisting(tableName, condition))
-				continue;
+			if (dbAgent.isRecordExisting(tableName, condition))
+				return;
 			absentHostIdVector.push_back(id);
 		}
-	} DBCLIENT_TRANSACTION_END();
+	} trx(absentHostIdVector, hostIdVector);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::addIncidentInfo(IncidentInfo *incidentInfo)
