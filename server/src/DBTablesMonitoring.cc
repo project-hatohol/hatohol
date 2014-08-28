@@ -2281,6 +2281,7 @@ void DBTablesMonitoring::addHostgroupInfoWithoutTransaction(
 void DBTablesMonitoring::addHostgroupElementWithoutTransaction(
   DBAgent &dbAgent, const HostgroupElement &hostgroupElement)
 {
+	// TODO: create the condition outside of the transaction.
 	const DBTermCodec *dbTermCodec = dbAgent.getDBTermCodec();
 	string condition = StringUtils::sprintf(
 	  "server_id=%s AND host_id=%s AND host_group_id=%s",
