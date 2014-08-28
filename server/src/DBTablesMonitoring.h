@@ -409,7 +409,8 @@ protected:
 	  DBAgent &dbAgent, const TriggerInfo &triggerInfo);
 	static void addEventInfoWithoutTransaction(
 	  DBAgent &dbAgent, const EventInfo &eventInfo);
-	void addItemInfoWithoutTransaction(const ItemInfo &itemInfo);
+	static void addItemInfoWithoutTransaction(
+	  DBAgent &dbAgent, const ItemInfo &itemInfo);
 	static void addHostgroupInfoWithoutTransaction(
 	  DBAgent &dbAgent, const HostgroupInfo &groupInfo);
 	static void addHostgroupElementWithoutTransaction(

@@ -1896,18 +1896,40 @@ uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 
 void DBTablesMonitoring::addItemInfo(ItemInfo *itemInfo)
 {
-	DBCLIENT_TRANSACTION_BEGIN() {
-		addItemInfoWithoutTransaction(*itemInfo);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		ItemInfo *itemInfo;
+		
+		TrxProc(ItemInfo *_itemInfo)
+		: itemInfo(_itemInfo)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			addItemInfoWithoutTransaction(dbAgent, *itemInfo);
+		}
+	} trx(itemInfo);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::addItemInfoList(const ItemInfoList &itemInfoList)
 {
-	ItemInfoListConstIterator it = itemInfoList.begin();
-	DBCLIENT_TRANSACTION_BEGIN() {
-		for (; it != itemInfoList.end(); ++it)
-			addItemInfoWithoutTransaction(*it);
-	} DBCLIENT_TRANSACTION_END();
+	struct TrxProc : public DBAgent::TransactionProc {
+		const ItemInfoList &itemInfoList;
+		
+		TrxProc(const ItemInfoList &_itemInfoList)
+		: itemInfoList(_itemInfoList)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			ItemInfoListConstIterator it = itemInfoList.begin();
+			for(; it != itemInfoList.end(); ++it)
+				addItemInfoWithoutTransaction(dbAgent, *it);
+		}
+	} trx(itemInfoList);
+	getDBAgent().runTransaction(trx);
 }
 
 void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
@@ -2272,7 +2294,8 @@ void DBTablesMonitoring::addEventInfoWithoutTransaction(
 	dbAgent.insert(arg);
 }
 
-void DBTablesMonitoring::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
+void DBTablesMonitoring::addItemInfoWithoutTransaction(
+  DBAgent &dbAgent, const ItemInfo &itemInfo)
 {
 	DBAgent::InsertArg arg(tableProfileItems);
 	arg.add(itemInfo.serverId);
@@ -2285,7 +2308,7 @@ void DBTablesMonitoring::addItemInfoWithoutTransaction(const ItemInfo &itemInfo)
 	arg.add(itemInfo.prevValue);
 	arg.add(itemInfo.itemGroupName);
 	arg.upsertOnDuplicate = true;
-	insert(arg);
+	dbAgent.insert(arg);
 }
 
 void DBTablesMonitoring::addHostgroupInfoWithoutTransaction(
