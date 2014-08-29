@@ -68,10 +68,11 @@ struct ArmRedmine::Impl
 		addQuery("op[status_id]", "*"); // all
 
 		// Filter by created_on
+		// TODO: build date string from the last updated incident
 		/*
 		addQuery("f[]", "updated_on");
 		addQuery("op[updated_on]", ">=");
-		addQuery("v[updated_on]", "2014-08-25");
+		addQuery("v[updated_on][]", "2014-08-25");
 		*/
 	}
 };
