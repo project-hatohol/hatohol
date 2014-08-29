@@ -131,8 +131,6 @@ struct ThreadLocalDBCache::Impl {
 			dbClient = new DBTablesMonitoring();
 		else if (domainId == DB_TABLES_ID_CONFIG)
 			dbClient = new DBTablesConfig();
-		else if (domainId == DB_TABLES_ID_ACTION)
-			dbClient = new DBTablesAction();
 		HATOHOL_ASSERT(dbClient,
 		               "ptr is NULL. domainId: %d\n", domainId);
 		clientMap->insert(
@@ -276,7 +274,7 @@ DBTablesUser &ThreadLocalDBCache::getUser(void)
 
 DBTablesAction &ThreadLocalDBCache::getAction(void)
 {
-	return *get<DBTablesAction>(DB_TABLES_ID_ACTION);
+	return getDBHatohol().getDBTablesAction();
 }
 
 DBTablesMonitoring &ThreadLocalDBCache::getMonitoring(void)
