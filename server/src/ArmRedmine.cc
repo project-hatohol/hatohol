@@ -31,6 +31,7 @@ struct ArmRedmine::Impl
 {
 	IncidentTrackerInfo m_incidentTrackerInfo;
 	SoupSession *m_session;
+	string m_url;
 	GHashTable *m_query;
 
 	Impl(const IncidentTrackerInfo &trackerInfo)
@@ -43,7 +44,16 @@ struct ArmRedmine::Impl
 		m_query = g_hash_table_new_full(soup_str_case_hash,
 						soup_str_case_equal,
 						g_free, g_free);
+		buildURL();
 		buildQuery();
+	}
+
+	void buildURL(void)
+	{
+		m_url = m_incidentTrackerInfo.baseURL;
+		if (!StringUtils::hasSuffix(m_url, "/"))
+			m_url += "/";
+		m_url += "issues.json";
 	}
 
 	void addQuery(const char *key, const char *value)
@@ -89,11 +99,7 @@ ArmRedmine::~ArmRedmine()
 
 std::string ArmRedmine::getURL(void)
 {
-	string url = m_impl->m_incidentTrackerInfo.baseURL;
-	if (!StringUtils::hasSuffix(url, "/"))
-		url += "/";
-	url += "issues.json";
-	return url;
+	return m_impl->m_url;
 }
 
 gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
