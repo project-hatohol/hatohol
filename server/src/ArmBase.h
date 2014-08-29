@@ -74,8 +74,8 @@ public:
 
 	void setServerConnectStaus(const bool status, const ArmPollingResult type);
 
-	void registerAvailableTrigger(const ArmPollingResult type,
-				      const TriggerIdType  trrigerId,
+	void registerAvailableTrigger(const ArmPollingResult &type,
+				      const TriggerIdType  &trrigerId,
 				      const HatoholError   &hatholError);
 protected:
 	/**

@@ -277,8 +277,8 @@ void ArmBase::setCopyOnDemandEnabled(bool enable)
 	m_impl->isCopyOnDemandEnabled = enable;
 }
 
-void ArmBase::registerAvailableTrigger(const ArmPollingResult type,
-				       const TriggerIdType  trrigerId,
+void ArmBase::registerAvailableTrigger(const ArmPollingResult &type,
+				       const TriggerIdType  &trrigerId,
 				       const HatoholError   &hatoholError)
 {
 	m_impl->ArmResultTriggerTable[type].statusType = TRIGGER_STATUS_UNKNOWN;
