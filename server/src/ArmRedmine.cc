@@ -50,6 +50,12 @@ struct ArmRedmine::Impl
 		buildQuery();
 	}
 
+	virtual ~Impl()
+	{
+		g_object_unref(m_session);
+		g_hash_table_unref(m_query);
+	}
+
 	void connectSessionSignals(void)
 	{
 		g_signal_connect(m_session, "authenticate",
