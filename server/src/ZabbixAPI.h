@@ -210,7 +210,7 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill,
+	SoupMessage *queryEvent(uint64_t eventIdFrom, uint64_t eventIdTill,
 				HatoholError &queryRet);
 
 	/**

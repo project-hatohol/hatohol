@@ -438,7 +438,7 @@ ItemTablePtr ZabbixAPI::getApplications(ItemTablePtr items)
 ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdFrom, uint64_t eventIdTill)
 {
 	HatoholError queryRet;
-	SoupMessage *msg = queryEvent(eventIdOffset, eventIdTill, queryRet);
+	SoupMessage *msg = queryEvent(eventIdFrom, eventIdTill, queryRet);
 	if (!msg) {
 		if (queryRet == HTERR_FAILED_INTERNAL_ERROR) {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -512,7 +512,7 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 	return returnValue;
 }
 
-SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdOffset, uint64_t eventIdTill,
+SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdFrom, uint64_t eventIdTill,
 				   HatoholError &queryRet)
 {
 	JSONBuilderAgent agent;

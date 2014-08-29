@@ -24,6 +24,7 @@
 #include "Hatohol.h"
 #include "ArmBase.h"
 #include "Helpers.h"
+#include "DBTablesTest.h"
 using namespace std;
 using namespace mlpl;
 
@@ -85,10 +86,11 @@ protected:
 void cut_setup(void)
 {
 	hatoholInit();
-	deleteDBClientHatoholDB();
-	setupTestDBConfig(true, true);
-	setupTestDBUser(true, true);
-	setupTestDBAction(true, true);
+	setupTestDB();
+	loadTestDBTablesConfig();
+	loadTestDBTablesUser();
+	loadTestDBAction();
+
 }
 
 // ---------------------------------------------------------------------------

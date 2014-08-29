@@ -23,7 +23,7 @@
 #include "ActionManager.h"
 #include "ActorCollector.h"
 #include "DBTablesAction.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "NamedPipe.h"
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"

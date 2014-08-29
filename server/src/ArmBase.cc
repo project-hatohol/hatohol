@@ -24,8 +24,9 @@
 #include <AtomicValue.h>
 #include "ArmBase.h"
 #include "HatoholException.h"
-#include "DBClientHatohol.h"
+#include "DBTablesMonitoring.h"
 #include "UnifiedDataStore.h"
+
 
 using namespace std;
 using namespace mlpl;
@@ -46,7 +47,7 @@ struct ArmBase::Impl
 	string               lastFailureComment;
 	ArmWorkingStatus     lastFailureStatus;
 
-	DBClientHatohol      dbClientHatohol;
+	DBTablesMonitoring   dbTablesMonitoring;
 
 	ArmResultTriggerInfo ArmResultTriggerTable[NUM_COLLECT_NG_KIND];
 
@@ -295,7 +296,7 @@ void ArmBase::setInitialTrrigerStaus(void)
 	hostInfo.id = MONITORING_SERVER_SELF_ID;
 	hostInfo.hostName = 
 		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(), SERVER_SELF_CHARACTER);
-	m_impl->dbClientHatohol.addHostInfo(&hostInfo);
+	m_impl->dbTablesMonitoring.addHostInfo(&hostInfo);
 
 	TriggerInfo triggerInfo;
 	TriggerInfoList triggerInfoList;
@@ -306,7 +307,7 @@ void ArmBase::setInitialTrrigerStaus(void)
 			createTriggerInfo(trgInfo, triggerInfoList);
 		}
 	}
-	m_impl->dbClientHatohol.addTriggerInfoList(triggerInfoList);
+	m_impl->dbTablesMonitoring.addTriggerInfoList(triggerInfoList);
 }
 
 void ArmBase::createTriggerInfo(const ArmResultTriggerInfo &resTrigger,
@@ -398,7 +399,7 @@ void ArmBase::setServerConnectStaus(const bool status, const ArmPollingResult ty
 	}
 
 	if (!triggerInfoList.empty())
-		m_impl->dbClientHatohol.addTriggerInfoList(triggerInfoList);
+		m_impl->dbTablesMonitoring.addTriggerInfoList(triggerInfoList);
 	if (!eventInfoList.empty()) {
 		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 		dataStore->addEventList(eventInfoList);
