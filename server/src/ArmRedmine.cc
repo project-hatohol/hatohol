@@ -31,13 +31,48 @@ struct ArmRedmine::Impl
 {
 	IncidentTrackerInfo m_incidentTrackerInfo;
 	SoupSession *m_session;
+	GHashTable *m_query;
 
 	Impl(const IncidentTrackerInfo &trackerInfo)
 	: m_incidentTrackerInfo(trackerInfo),
-	  m_session(NULL)
+	  m_session(NULL),
+	  m_query(NULL)
 	{
 		m_session = soup_session_sync_new_with_options(
 			SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS, NULL);
+		m_query = g_hash_table_new_full(soup_str_case_hash,
+						soup_str_case_equal,
+						g_free, g_free);
+		buildQuery();
+	}
+
+	void addQuery(const char *key, const char *value)
+	{
+		g_hash_table_insert(m_query, g_strdup(key), g_strdup(value));
+	}
+
+	void buildQuery(void)
+	{
+		g_hash_table_remove_all(m_query);
+
+		string &projectId = m_incidentTrackerInfo.projectId;
+		string &trackerId = m_incidentTrackerInfo.trackerId;
+		addQuery("project_id", projectId.c_str());
+		if (!trackerId.empty())
+			addQuery("tracker_id", trackerId.c_str());
+		addQuery("limit", "100"); // 100 is max
+		addQuery("sort", "updated_on:desc");
+
+		// Filter by status_id
+		addQuery("f[]", "status_id");
+		addQuery("op[status_id]", "*"); // all
+
+		// Filter by created_on
+		/*
+		addQuery("f[]", "updated_on");
+		addQuery("op[updated_on]", ">=");
+		addQuery("v[updated_on]", "2014-08-25");
+		*/
 	}
 };
 
@@ -51,21 +86,12 @@ ArmRedmine::~ArmRedmine()
 {
 }
 
-std::string ArmRedmine::getQuery(void)
-{
-	// TODO: implement
-	return string();
-}
-
 std::string ArmRedmine::getURL(void)
 {
 	string url = m_impl->m_incidentTrackerInfo.baseURL;
-	string query = getQuery();
 	if (!StringUtils::hasSuffix(url, "/"))
 		url += "/";
 	url += "issues.json";
-	if (!query.empty())
-		url += "?" + query;
 	return url;
 }
 
@@ -77,7 +103,9 @@ gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
 bool ArmRedmine::mainThreadOneProc(void)
 {
 	string url = getURL();
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
+	SoupMessage *msg = soup_form_request_new_from_hash(SOUP_METHOD_GET,
+							   url.c_str(),
+							   m_impl->m_query);
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
 	guint sendResult = soup_session_send_message(m_impl->m_session, msg);

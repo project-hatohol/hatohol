@@ -34,7 +34,6 @@ protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg) override;
 	virtual bool mainThreadOneProc(void) override;
 
-	std::string getQuery(void);
 	std::string getURL(void);
 
 private:
