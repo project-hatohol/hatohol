@@ -563,7 +563,7 @@ bool ServerQueryOption::hasPrivilegeCondition(string &condition) const
 
 	if (userId == INVALID_USER_ID) {
 		MLPL_DBG("INVALID_USER_ID\n");
-		condition = DBTablesMonitoring::getAlwaysFalseCondition();
+		condition = DBHatohol::getAlwaysFalseCondition();
 		return true;
 	}
 
@@ -592,7 +592,7 @@ string ServerQueryOption::getCondition(void) const
 	size_t numServers = srvHostGrpSetMap.size();
 	if (numServers == 0) {
 		MLPL_DBG("No allowed server\n");
-		return DBTablesMonitoring::getAlwaysFalseCondition();
+		return DBHatohol::getAlwaysFalseCondition();
 	}
 
 	if (targetId != ALL_SERVERS &&
@@ -660,11 +660,11 @@ string IncidentTrackerQueryOption::getCondition(void) const
 
 	if (userId == INVALID_USER_ID) {
 		MLPL_DBG("INVALID_USER_ID\n");
-		return DBTablesMonitoring::getAlwaysFalseCondition();
+		return DBHatohol::getAlwaysFalseCondition();
 	}
 
 	if (userId != USER_ID_SYSTEM && !has(OPPRVLG_GET_ALL_INCIDENT_SETTINGS))
-		return DBTablesMonitoring::getAlwaysFalseCondition();
+		return DBHatohol::getAlwaysFalseCondition();
 
 	if (m_impl->targetId != ALL_INCIDENT_TRACKERS) {
 		const char *columnName

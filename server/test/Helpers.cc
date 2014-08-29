@@ -288,8 +288,13 @@ bool isVerboseMode(void)
 	return verboseMode;
 }
 
+// TODO: consider this method is still needed ?
 string getDBPathForDBClientHatohol(void)
 {
+	// TODO: Should we get the DB name from DBHatohol, although such API
+	//       hasn't been implemented yet.
+	static const string DEFAULT_DB_NAME = "hatohol";
+
 	struct callgate : public DBTablesMonitoring, public DBAgentSQLite3 {
 		static string getDBPath(void) {
 			return makeDBPathFromName(DEFAULT_DB_NAME);
@@ -306,12 +311,6 @@ string execSqlite3ForDBClient(const string &dbPath, const string &statement)
 	                       dbPath.c_str(), statement.c_str());
 	string result = executeCommand(commandLine);
 	return result;
-}
-
-string execSqlite3ForDBClientHatohol(const string &statement)
-{
-	string dbPath = getDBPathForDBClientHatohol();
-	return execSqlite3ForDBClient(dbPath, statement);
 }
 
 string execMySQL(const string &dbName, const string &statement, bool showHeader)

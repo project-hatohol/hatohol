@@ -26,6 +26,7 @@
 #include "DBClientJoinBuilder.h"
 #include "SQLUtils.h"
 #include "HatoholException.h"
+#include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;
 
@@ -357,7 +358,8 @@ static const DBAgent::TableProfile tableProfileStateHistory =
 struct ArmNagiosNDOUtils::Impl
 {
 	DBAgentMySQL        *dbAgent;
-	DBTablesMonitoring   dbMonitoring;
+	ThreadLocalDBCache   cache; // TODO: should not be a member. This is alive until the destruction.
+	DBTablesMonitoring  &dbMonitoring;
 	DBClientJoinBuilder  selectTriggerBuilder;
 	DBClientJoinBuilder  selectEventBuilder;
 	DBClientJoinBuilder  selectItemBuilder;
@@ -372,6 +374,7 @@ struct ArmNagiosNDOUtils::Impl
 	// methods
 	Impl(const MonitoringServerInfo &_serverInfo)
 	: dbAgent(NULL),
+	  dbMonitoring(cache.getMonitoring()),
 	  selectTriggerBuilder(tableProfileServices),
 	  selectEventBuilder(tableProfileStateHistory),
 	  selectItemBuilder(tableProfileServices),

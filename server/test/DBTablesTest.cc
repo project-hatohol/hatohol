@@ -1381,7 +1381,9 @@ void setupTestDB(void)
 
 	// Only when we use SQLite3 for DBTablesHatoho,
 	// the following line should be enabled.
-	deleteDBClientHatoholDB();
+	const bool dbHatoholUseSQLite3 = false;
+	if (dbHatoholUseSQLite3)
+		deleteDBClientHatoholDB();
 }
 
 void setupTestDBConfig(bool dbRecreate, bool loadTestData)

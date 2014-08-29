@@ -21,6 +21,7 @@
 #include "HostResourceQueryOption.h"
 #include "DBTablesMonitoring.h"
 #include "DBAgentSQLite3.h" // TODO: Shouldn't use explicitly
+#include "DBHatohol.h"
 using namespace std;
 using namespace mlpl;
 
@@ -84,8 +85,11 @@ struct HostResourceQueryOption::Impl {
 };
 
 // TODO: Use a more smart way
+static DBTermCodec _dbTermCodec;
 const DBTermCodec *HostResourceQueryOption::Impl::dbTermCodec =
-  DBAgentSQLite3::getDBTermCodecStatic();
+  &_dbTermCodec;
+// Use this if the backend DB is SQLite3:
+//  DBAgentSQLite3::getDBTermCodecStatic();
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -167,7 +171,7 @@ string HostResourceQueryOption::getCondition(void) const
 
 	if (userId == INVALID_USER_ID) {
 		MLPL_DBG("INVALID_USER_ID\n");
-		return DBTablesMonitoring::getAlwaysFalseCondition();
+		return DBHatohol::getAlwaysFalseCondition();
 	}
 
 	// If the subclass doesn't have a valid hostIdColumnIdx,
@@ -308,7 +312,7 @@ string HostResourceQueryOption::makeConditionServer(
   const ServerIdSet &serverIdSet, const std::string &serverIdColumnName)
 {
 	if (serverIdSet.empty())
-		return DBTablesMonitoring::getAlwaysFalseCondition();
+		return DBHatohol::getAlwaysFalseCondition();
 
 	string condition = StringUtils::sprintf(
 	  "%s IN (", serverIdColumnName.c_str());
@@ -372,13 +376,13 @@ string HostResourceQueryOption::makeCondition(
 	size_t numServers = srvHostGrpSetMap.size();
 	if (numServers == 0) {
 		MLPL_DBG("No allowed server\n");
-		return DBTablesMonitoring::getAlwaysFalseCondition();
+		return DBHatohol::getAlwaysFalseCondition();
 	}
 
 	if (targetServerId != ALL_SERVERS &&
 	    srvHostGrpSetMap.find(targetServerId) == srvHostGrpSetMap.end())
 	{
-		return DBTablesMonitoring::getAlwaysFalseCondition();
+		return DBHatohol::getAlwaysFalseCondition();
 	}
 
 	numServers = 0;

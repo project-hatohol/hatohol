@@ -21,7 +21,7 @@
 #define DBTablesMonitoring_h
 
 #include <list>
-#include "DBClient.h"
+#include "DBTables.h"
 #include "DataQueryOption.h"
 #include "DBTablesUser.h"
 #include "ItemGroupStream.h"
@@ -283,11 +283,10 @@ public:
 	IncidentsQueryOption(DataQueryContext *dataQueryContext);
 };
 
-class DBTablesMonitoring : public DBClient {
+class DBTablesMonitoring : public DBTables {
 public:
-	static const int         HATOHOL_DB_VERSION;
-	static const char       *DEFAULT_DB_NAME;
-	static void init(void);
+	static const int         MONITORING_DB_VERSION;
+	static void reset(void);
 
 	static const char *TABLE_NAME_TRIGGERS;
 	static const char *TABLE_NAME_EVENTS;
@@ -298,14 +297,7 @@ public:
 	static const char *TABLE_NAME_SERVER_STATUS;
 	static const char *TABLE_NAME_INCIDENTS;
 
-	// This is a temporary mesurement. We'll replace the base class with
-	// DBTables, which provides the method that returns a reference.
-	DBAgent &getDBAgent(void)
-	{
-		return *DBClient::getDBAgent();
-	}
-
-	DBTablesMonitoring(void);
+	DBTablesMonitoring(DBAgent &dbAgent);
 	virtual ~DBTablesMonitoring();
 
 	void getHostInfoList(HostInfoList &hostInfoList,
@@ -417,6 +409,8 @@ public:
 				      const IncidentsQueryOption &option);
 
 protected:
+	static SetupInfo &getSetupInfo(void);
+
 	static void addTriggerInfoWithoutTransaction(
 	  DBAgent &dbAgent, const TriggerInfo &triggerInfo);
 	static void addEventInfoWithoutTransaction(

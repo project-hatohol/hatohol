@@ -27,6 +27,12 @@
 #include "Params.h"
 #include "ItemGroupStream.h"
 #include "DBClientJoinBuilder.h"
+
+// TODO: rmeove the followin two include files!
+// This class should not be aware of it.
+#include "DBAgentSQLite3.h"
+#include "DBAgentMySQL.h"
+
 using namespace std;
 using namespace mlpl;
 
@@ -40,8 +46,7 @@ const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBTablesMonitoring::HATOHOL_DB_VERSION = 5;
-const char *DBTablesMonitoring::DEFAULT_DB_NAME = "hatohol";
+const int   DBTablesMonitoring::MONITORING_DB_VERSION = 5;
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -666,7 +671,7 @@ enum {
 	NUM_IDX_SERVERS,
 };
 
-static const DBAgent::TableProfile tableProfileServers =
+static const DBAgent::TableProfile tableProfileServerStatus =
   DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_SERVER_STATUS,
 			    COLUMN_DEF_SERVERS,
 			    NUM_IDX_SERVERS);
@@ -817,38 +822,6 @@ static const DBAgent::TableProfile tableProfileIncidents =
 			    NUM_IDX_INCIDENTS,
 			    indexDefsIncidents);
 
-static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
-{
-	&tableProfileTriggers,
-}, {
-	&tableProfileEvents,
-}, {
-	&tableProfileItems,
-}, {
-	&tableProfileHosts,
-}, {
-	&tableProfileHostgroups,
-}, {
-	&tableProfileMapHostsHostgroups,
-}, {
-	&tableProfileServers,
-}, {
-	&tableProfileIncidents,
-}
-};
-
-static const size_t NUM_TABLE_INFO =
-sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
-
-static bool updateDB(DBAgent *dbAgent, int oldVer, void *data);
-
-static const DBClient::DBSetupFuncArg DB_SETUP_FUNC_ARG = {
-	DBTablesMonitoring::HATOHOL_DB_VERSION,
-	NUM_TABLE_INFO,
-	DB_TABLE_INFO,
-	&updateDB,
-};
-
 struct DBTablesMonitoring::Impl
 {
 	Impl(void)
@@ -937,7 +910,7 @@ string EventsQueryOption::getCondition(void) const
 {
 	string condition = HostResourceQueryOption::getCondition();
 
-	if (DBClient::isAlwaysFalseCondition(condition))
+	if (DBHatohol::isAlwaysFalseCondition(condition))
 		return condition;
 
 	if (m_impl->limitOfUnifiedId) {
@@ -1106,7 +1079,7 @@ string TriggersQueryOption::getCondition(void) const
 {
 	string condition = HostResourceQueryOption::getCondition();
 
-	if (DBClient::isAlwaysFalseCondition(condition))
+	if (DBHatohol::isAlwaysFalseCondition(condition))
 		return condition;
 
 	if (m_impl->targetId != ALL_TRIGGERS) {
@@ -1221,7 +1194,7 @@ string ItemsQueryOption::getCondition(void) const
 {
 	string condition = HostResourceQueryOption::getCondition();
 
-	if (DBClient::isAlwaysFalseCondition(condition))
+	if (DBHatohol::isAlwaysFalseCondition(condition))
 		return condition;
 
 	if (m_impl->targetId != ALL_ITEMS) {
@@ -1353,14 +1326,13 @@ IncidentsQueryOption::IncidentsQueryOption(DataQueryContext *dataQueryContext)
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBTablesMonitoring::init(void)
+void DBTablesMonitoring::reset(void)
 {
-	registerSetupInfo(
-	  DB_TABLES_ID_MONITORING, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
+	getSetupInfo().initialized = false;
 }
 
-DBTablesMonitoring::DBTablesMonitoring(void)
-: DBClient(DB_TABLES_ID_MONITORING),
+DBTablesMonitoring::DBTablesMonitoring(DBAgent &dbAgent)
+: DBTables(dbAgent, getSetupInfo()),
   m_impl(new Impl())
 {
 }
@@ -1458,7 +1430,7 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 {
 	// build a condition
 	string condition = option.getCondition();
-	if (isAlwaysFalseCondition(condition))
+	if (DBHatohol::isAlwaysFalseCondition(condition))
 		return;
 
 	DBAgent::SelectExArg arg(tableProfileTriggers);
@@ -1658,7 +1630,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 
 	string optCond;
 	arg.condition.swap(optCond); // option.getCondition() must be set.
-	if (isAlwaysFalseCondition(optCond))
+	if (DBHatohol::isAlwaysFalseCondition(optCond))
 		return HatoholError(HTERR_OK);
 
 	arg.condition = optCond;
@@ -1951,7 +1923,7 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 
 	// condition
 	arg.condition = option.getCondition();
-	if (isAlwaysFalseCondition(arg.condition))
+	if (DBHatohol::isAlwaysFalseCondition(arg.condition))
 		return;
 
 	// Order By
@@ -2020,8 +1992,15 @@ size_t DBTablesMonitoring::getNumberOfTriggers(
 		// TODO: The statement depends on SQL implementations.
 		// We should remove this code after we improve the hostgroups
 		// incident by using sub query (github incident #168).
-		stmt = StringUtils::sprintf(
-		  "count(distinct %s || ',' || %s)",
+		const char *fmt = NULL;
+		const type_info &dbAgentType = typeid(getDBAgent());
+		if (dbAgentType == typeid(DBAgentSQLite3))
+			fmt = "count(distinct %s || ',' || %s)";
+		else if (dbAgentType == typeid(DBAgentMySQL))
+			fmt = "count(distinct %s,%s)";
+		HATOHOL_ASSERT(fmt, "fmt is NULL.");
+
+		stmt = StringUtils::sprintf(fmt,
 		  option.getColumnName(IDX_TRIGGERS_SERVER_ID).c_str(),
 		  option.getColumnName(IDX_TRIGGERS_ID).c_str());
 	}
@@ -2140,8 +2119,15 @@ size_t DBTablesMonitoring::getNumberOfItems(
 	string stmt = "count(*)";
 	if (option.isHostgroupUsed()) {
 		// TODO: It has a same incident with getNumberOfTriggers();
-		stmt = StringUtils::sprintf(
-		  "count(distinct %s || ',' || %s)",
+		const char *fmt = NULL;
+		const type_info &dbAgentType = typeid(getDBAgent());
+		if (dbAgentType == typeid(DBAgentSQLite3))
+			fmt = "count(distinct %s || ',' || %s)";
+		else if (dbAgentType == typeid(DBAgentMySQL))
+			fmt = "count(distinct %s,%s)";
+		HATOHOL_ASSERT(fmt, "fmt is NULL.");
+
+		stmt = StringUtils::sprintf(fmt,
 		  option.getColumnName(IDX_ITEMS_SERVER_ID).c_str(),
 		  option.getColumnName(IDX_ITEMS_ID).c_str());
 	}
@@ -2167,7 +2153,7 @@ HatoholError DBTablesMonitoring::getNumberOfMonitoredItemsPerSecond
 	if (!option.isValidServer(serverStatus.serverId))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
-	DBAgent::SelectExArg arg(tableProfileServers);
+	DBAgent::SelectExArg arg(tableProfileServerStatus);
 	string stmt = COLUMN_DEF_SERVERS[IDX_SERVERS_NVPS].columnName;
 	arg.add(stmt, SQL_COLUMN_TYPE_DOUBLE);
 
@@ -2257,7 +2243,7 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 
 	// condition
 	arg.condition = option.getCondition();
-	if (isAlwaysFalseCondition(arg.condition))
+	if (DBHatohol::isAlwaysFalseCondition(arg.condition))
 		return HatoholError(HTERR_OK);
 
 	// Order By
@@ -2298,6 +2284,40 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data);
+
+DBTables::SetupInfo &DBTablesMonitoring::getSetupInfo(void)
+{
+	static const TableSetupInfo DB_TABLE_INFO[] = {
+	{
+		&tableProfileTriggers,
+	}, {
+		&tableProfileEvents,
+	}, {
+		&tableProfileItems,
+	}, {
+		&tableProfileHosts,
+	}, {
+		&tableProfileHostgroups,
+	}, {
+		&tableProfileMapHostsHostgroups,
+	}, {
+		&tableProfileServerStatus,
+	}, {
+		&tableProfileIncidents,
+	}
+	};
+
+	static SetupInfo setupInfo = {
+		DB_TABLES_ID_MONITORING,
+		MONITORING_DB_VERSION,
+		ARRAY_SIZE(DB_TABLE_INFO),
+		DB_TABLE_INFO,
+		&updateDB,
+	};
+	return setupInfo;
+}
+
 void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
   DBAgent &dbAgent, const TriggerInfo &triggerInfo)
 {
@@ -2401,7 +2421,7 @@ void DBTablesMonitoring::addHostInfoWithoutTransaction(
 void DBTablesMonitoring::addMonitoringServerStatusWithoutTransaction(
   DBAgent &dbAgent, const MonitoringServerStatus &serverStatus)
 {
-	DBAgent::InsertArg arg(tableProfileServers);
+	DBAgent::InsertArg arg(tableProfileServerStatus);
 	arg.add(serverStatus.serverId);
 	arg.add(serverStatus.nvps);
 	arg.upsertOnDuplicate = true;
@@ -2487,13 +2507,14 @@ HatoholError DBTablesMonitoring::getHostgroupElementList
 	return HTERR_OK;
 }
 
-static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
+static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 {
 	if (oldVer == 4) {
 		const string oldTableName = "issues";
-		if (dbAgent->isTableExisting(oldTableName)) {
-			dbAgent->renameTable(
-			  oldTableName, DBTablesMonitoring::TABLE_NAME_INCIDENTS);
+		if (dbAgent.isTableExisting(oldTableName)) {
+			dbAgent.renameTable(
+			  oldTableName,
+			  DBTablesMonitoring::TABLE_NAME_INCIDENTS);
 		}
 	}
 	return true;

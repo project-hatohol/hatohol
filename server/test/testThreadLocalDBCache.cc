@@ -95,18 +95,6 @@ static bool deleteTestCacheServiceThread(TestCacheServiceThread *thr)
 	return !hasError;
 }
 
-// TODO: remove
-template<class T>
-static void _assertType(DBClient *dbClient)
-{
-	cppcut_assert_not_null(dbClient);
-	const type_info &expect = typeid(T);
-	const type_info &actual = typeid(*dbClient);
-	cppcut_assert_equal(true, expect == actual,
-	                    cut_message("expect: %s, actual: %s\n",
-	                      expect.name(), actual.name()));
-}
-
 template<class T>
 static void _assertType(DBTables &dbTables)
 {
@@ -195,7 +183,7 @@ void test_cleanupOnThreadExit(void)
 void test_getMonitoring(void)
 {
 	ThreadLocalDBCache cache;
-	assertType(DBTablesMonitoring, &cache.getMonitoring());
+	assertType(DBTablesMonitoring, cache.getMonitoring());
 }
 
 void test_getUser(void)

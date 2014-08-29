@@ -36,11 +36,8 @@ using namespace mlpl;
 namespace testDBTablesMonitoring {
 
 #define DECLARE_DBTABLES_MONITORING(VAR_NAME) \
-	DBTablesMonitoring VAR_NAME;
-	/*** After DBTablesMonitoring inherits DBTables, we use the following way.
 	DBHatohol _dbHatohol; \
-	DBTablesMonitoring &VAR_NAME = _dbHatohol.getMonitoring();
-	***/
+	DBTablesMonitoring &VAR_NAME = _dbHatohol.getDBTablesMonitoring();
 
 static const string serverIdColumnName = "server_id";
 static const string hostgroupIdColumnName = "host_group_id";
@@ -421,30 +418,25 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_createDB(void)
+void test_tablesVersion(void)
 {
-	// create an instance (the database will be automatically created)
+	// create an instance
+	// Tables in the DB will be automatically created.
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-
-	// check the version
-	string statement = "select * from _dbclient_version";
-	string output = execSqlite3ForDBClientHatohol(statement);
-	string expectedOut = StringUtils::sprintf("%d|%d\n",
-	                       DB_TABLES_ID_MONITORING,
-	                       DBTablesMonitoring::HATOHOL_DB_VERSION);
-	cppcut_assert_equal(expectedOut, output);
+	assertDBTablesVersion(
+	  dbMonitoring.getDBAgent(),
+	  DB_TABLES_ID_MONITORING, DBTablesMonitoring::MONITORING_DB_VERSION);
 }
+
 
 void test_createTableTrigger(void)
 {
-	const string tableName = "triggers";
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 
 	// check content
-	string statement = "select * from " + tableName;
-	string output = execSqlite3ForDBClientHatohol(statement);
+	string statement = "SELECT * FROM triggers";
 	string expectedOut = ""; // currently no data
-	cppcut_assert_equal(expectedOut, output);
+	assertDBContent(&dbMonitoring.getDBAgent(), statement, expectedOut);
 }
 
 void test_addTriggerInfo(void)
