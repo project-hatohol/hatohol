@@ -90,6 +90,7 @@ void test_baseQueryString(void)
 void test_oneProc(void)
 {
 	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[2];
+	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 	ArmRedmineTestee arm(tracker);
 	cppcut_assert_equal(true, arm.callOneProc());
 }
