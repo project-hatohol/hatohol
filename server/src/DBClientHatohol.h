@@ -80,15 +80,15 @@ typedef std::list<TriggerInfo>          TriggerInfoList;
 typedef TriggerInfoList::iterator       TriggerInfoListIterator;
 typedef TriggerInfoList::const_iterator TriggerInfoListConstIterator;
 
-static const TriggerIdType FAILED_CONNECT_ZABBIX_TRIGGERID = 0xF0000001;
-static const TriggerIdType FAILED_CONNECT_MYSQL_TRIGGERID = 0xF0000002;
-static const TriggerIdType FAILED_INTERNAL_ERROR_TRIGGERID = 0xF0000003;
-static const TriggerIdType FAILED_PARSER_ERROR_TRIGGERID = 0xF0000004;
+static const TriggerIdType FAILED_CONNECT_ZABBIX_TRIGGERID = LONG_MAX - 1;
+static const TriggerIdType FAILED_CONNECT_MYSQL_TRIGGERID = LONG_MAX - 2;
+static const TriggerIdType FAILED_INTERNAL_ERROR_TRIGGERID = LONG_MAX - 3;
+static const TriggerIdType FAILED_PARSER_ERROR_TRIGGERID = LONG_MAX - 4;
 
-// Define a special ID By using the 15 digit.
+// Define a special ID By using the LONG_MAX.
 // Because, it does not overlap with the hostID set by the Zabbix.
 // There is a possibility that depends on Zabbix version of this.
-static const HostIdType MONITORING_SERVER_SELF_ID_BASE = 1e15;
+static const HostIdType MONITORING_SERVER_SELF_ID = LONG_MAX;
 
 enum EventType {
 	EVENT_TYPE_GOOD,
