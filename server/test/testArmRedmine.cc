@@ -71,7 +71,7 @@ void test_getURL(void)
 			    arm.callGetURL());
 }
 
-void test_getQuery(void)
+void test_baseQueryString(void)
 {
 	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
 	ArmRedmineTestee arm(tracker);
