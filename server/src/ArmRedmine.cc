@@ -18,14 +18,26 @@
  */
 
 #include "ArmRedmine.h"
+#include <libsoup/soup.h>
+
+using namespace std;
+using namespace mlpl;
+
+// TODO: should share with other classes such as IncidentSenderRedmine
+static const guint DEFAULT_TIMEOUT_SECONDS = 60;
+static const char *MIME_JSON = "application/json";
 
 struct ArmRedmine::Impl
 {
-	IncidentTrackerInfo incidentTrackerInfo;
+	IncidentTrackerInfo m_incidentTrackerInfo;
+	SoupSession *m_session;
 
 	Impl(const IncidentTrackerInfo &trackerInfo)
-	: incidentTrackerInfo(trackerInfo)
+	: m_incidentTrackerInfo(trackerInfo),
+	  m_session(NULL)
 	{
+		m_session = soup_session_sync_new_with_options(
+			SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS, NULL);
 	}
 };
 
@@ -39,6 +51,24 @@ ArmRedmine::~ArmRedmine()
 {
 }
 
+std::string ArmRedmine::getQuery(void)
+{
+	// TODO: implement
+	return string();
+}
+
+std::string ArmRedmine::getURL(void)
+{
+	string url = m_impl->m_incidentTrackerInfo.baseURL;
+	string query = getQuery();
+	if (!StringUtils::hasSuffix(url, "/"))
+		url += "/";
+	url += "issues.json";
+	if (!query.empty())
+		url += "?" + query;
+	return url;
+}
+
 gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
 {
 	return ArmBase::mainThread(arg);
@@ -46,5 +76,12 @@ gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
 
 bool ArmRedmine::mainThreadOneProc(void)
 {
-	return false;
+	string url = getURL();
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, url.c_str());
+	soup_message_headers_set_content_type(msg->request_headers,
+	                                      MIME_JSON, NULL);
+	guint sendResult = soup_session_send_message(m_impl->m_session, msg);
+	g_object_unref(msg);
+
+	return true;
 }
