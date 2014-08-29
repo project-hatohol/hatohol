@@ -452,7 +452,7 @@ static void addHosts(FaceRest::ResourceHandler *job, JSONBuilderAgent &agent,
 	for (; it != hostInfoList.end(); ++it) {
 		HostInfo &hostInfo = *it;
 		agent.startObject();
-		agent.add("id", hostInfo.id);
+		agent.add("id", StringUtils::toString(hostInfo.id));
 		agent.add("serverId", hostInfo.serverId);
 		agent.add("hostName", hostInfo.hostName);
 		agent.endObject();
@@ -503,13 +503,13 @@ void RestResourceHost::handlerGetTrigger(void)
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
 		agent.startObject();
-		agent.add("id",       triggerInfo.id);
+		agent.add("id",       StringUtils::toString(triggerInfo.id));
 		agent.add("status",   triggerInfo.status);
 		agent.add("severity", triggerInfo.severity);
 		agent.add("lastChangeTime",
 		          triggerInfo.lastChangeTime.tv_sec);
 		agent.add("serverId", triggerInfo.serverId);
-		agent.add("hostId",   triggerInfo.hostId);
+		agent.add("hostId",   StringUtils::toString(triggerInfo.hostId));
 		agent.add("brief",    triggerInfo.brief);
 		agent.endObject();
 	}
@@ -596,10 +596,10 @@ void RestResourceHost::handlerGetEvent(void)
 		agent.add("serverId",  eventInfo.serverId);
 		agent.add("time",      eventInfo.time.tv_sec);
 		agent.add("type",      eventInfo.type);
-		agent.add("triggerId", eventInfo.triggerId);
+		agent.add("triggerId", StringUtils::toString(eventInfo.triggerId));
 		agent.add("status",    eventInfo.status);
 		agent.add("severity",  eventInfo.severity);
-		agent.add("hostId",    eventInfo.hostId);
+		agent.add("hostId",    StringUtils::toString(eventInfo.hostId));
 		agent.add("brief",     eventInfo.brief);
 		if (addIncidents)
 			addIncident(this, agent, incidentVect[i]);
@@ -651,7 +651,7 @@ void RestResourceHost::replyGetItem(void)
 		agent.startObject();
 		agent.add("id",        itemInfo.id);
 		agent.add("serverId",  itemInfo.serverId);
-		agent.add("hostId",    itemInfo.hostId);
+		agent.add("hostId",    StringUtils::toString(itemInfo.hostId));
 		agent.add("brief",     itemInfo.brief.c_str());
 		agent.add("lastValueTime",
 		          itemInfo.lastValueTime.tv_sec);
@@ -713,7 +713,7 @@ static void addHostsIsMemberOfGroup(
 	HostgroupElementListIterator it = hostgroupElementList.begin();
 	for (; it != hostgroupElementList.end(); ++it) {
 		HostgroupElement hostgroupElement = *it;
-		agent.add(hostgroupElement.hostId);
+		agent.add(StringUtils::toString(hostgroupElement.hostId));
 	}
 	agent.endArray();
 }
