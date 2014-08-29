@@ -117,10 +117,8 @@ gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
 
 bool ArmRedmine::mainThreadOneProc(void)
 {
-	string url = getURL();
-	SoupMessage *msg = soup_form_request_new_from_hash(SOUP_METHOD_GET,
-							   url.c_str(),
-							   m_impl->m_query);
+	SoupMessage *msg = soup_form_request_new_from_hash(
+		SOUP_METHOD_GET, m_impl->m_url.c_str(), m_impl->m_query);
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
 	guint sendResult = soup_session_send_message(m_impl->m_session, msg);
