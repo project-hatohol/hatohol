@@ -25,6 +25,7 @@
 #include "RedmineAPIEmulator.h"
 #include "JSONParserAgent.h"
 #include "JSONBuilderAgent.h"
+#include "Helpers.h"
 
 using namespace std;
 
@@ -178,6 +179,7 @@ struct RedmineAPIEmulator::PrivateContext {
 				  const char *path, GHashTable *query,
 				  SoupClientContext *client);
 	string buildResponse(RedmineIssue &issue);
+	void replyGetIssue(SoupMessage *msg);
 	void replyPostIssue(SoupMessage *msg);
 	int getTrackerId(const string &trackerId);
 
@@ -310,6 +312,26 @@ int RedmineAPIEmulator::PrivateContext::getTrackerId(const string &trackerId)
 	return -1;
 }
 
+void RedmineAPIEmulator::PrivateContext::replyGetIssue(SoupMessage *msg)
+{
+	m_lastRequest.assign(msg->request_body->data,
+			     msg->request_body->length);
+
+	string path = getFixturesDir() + "redmine-issues.json";
+	gchar *contents = NULL;
+	gsize length;
+	gboolean succeeded =
+		g_file_get_contents(path.c_str(), &contents, &length, NULL);
+	if (!succeeded) {
+		THROW_HATOHOL_EXCEPTION("Failed to read file: %s",
+					path.c_str());
+	}
+	soup_message_set_status(msg, SOUP_STATUS_OK);
+	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
+				 contents, length);
+	g_free(contents);
+}
+
 void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 {
 	m_lastRequest.assign(msg->request_body->data,
@@ -400,8 +422,7 @@ void RedmineAPIEmulator::PrivateContext::handlerIssuesJSON
 
 	string method = msg->method;
 	if (method == "GET") {
-		// TODO
-		soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
+		priv->replyGetIssue(msg);
 	} else if (method == "PUT") {
 		// TODO
 		soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
