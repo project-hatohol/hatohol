@@ -102,6 +102,14 @@ std::string ArmRedmine::getURL(void)
 	return m_impl->m_url;
 }
 
+std::string ArmRedmine::getQuery(void)
+{
+	char *query = soup_form_encode_hash(m_impl->m_query);
+	string retval = query;
+	g_free(query);
+	return retval;
+}
+
 gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
 {
 	return ArmBase::mainThread(arg);

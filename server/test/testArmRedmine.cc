@@ -43,6 +43,11 @@ struct ArmRedmineTestee : public ArmRedmine {
 	{
 		return getURL();
 	}
+
+	string callGetQuery(void)
+	{
+		return getQuery();
+	}
 };
 
 void cut_setup(void)
@@ -64,6 +69,17 @@ void test_getURL(void)
 	ArmRedmineTestee arm(tracker);
 	cppcut_assert_equal(string("http://localhost/issues.json"),
 			    arm.callGetURL());
+}
+
+void test_getQuery(void)
+{
+	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
+	ArmRedmineTestee arm(tracker);
+	string expected =
+		"f%5B%5D=status%5Fid&op%5Bstatus%5Fid%5D=%2A&"
+		"limit=100&project%5Fid=1&tracker%5Fid=3&"
+		"sort=updated%5Fon%3Adesc";
+	cppcut_assert_equal(expected, arm.callGetQuery());
 }
 
 }

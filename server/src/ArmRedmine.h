@@ -35,6 +35,7 @@ protected:
 	virtual bool mainThreadOneProc(void) override;
 
 	std::string getURL(void);
+	std::string getQuery(void);
 
 private:
 	struct Impl;
