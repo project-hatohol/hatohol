@@ -77,7 +77,7 @@ gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
 bool ArmRedmine::mainThreadOneProc(void)
 {
 	string url = getURL();
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, url.c_str());
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
 	guint sendResult = soup_session_send_message(m_impl->m_session, msg);
