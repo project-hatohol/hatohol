@@ -63,6 +63,7 @@ typedef HatoholArmPluginTestPair<HatoholArmPluginBaseTest> TestPair;
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDB();
 }
 
 // ---------------------------------------------------------------------------

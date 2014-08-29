@@ -30,9 +30,9 @@ DBAgent* DBAgentFactory::create(DBDomainId domainId,
                                 const string &dbName, bool skipSetup,
                                 const DBConnectInfo *connectInfo)
 {
-	if (domainId == DB_TABLES_ID_CONFIG ||
-	    domainId == DB_TABLES_ID_ACTION ||
-	    domainId == DB_TABLES_ID_USER) {
+	// TODO: This method is now not used. We will fix this method to
+	//       create DBAgent in DBAHatohol.
+	if (domainId != DB_TABLES_ID_MONITORING) {
 		HATOHOL_ASSERT(connectInfo, "connectInfo: NULL");
 		return new DBAgentMySQL(connectInfo->dbName.c_str(),
 		                        connectInfo->getUser(),

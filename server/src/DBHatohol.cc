@@ -37,14 +37,14 @@ class DBTablesMonitor {
 struct DBHatohol::Impl {
 	static SetupContext setupCtx;
 
-	//DBTablesConfig  dbTablesConfig;
+	DBTablesConfig  dbTablesConfig;
 	DBTablesHost    dbTablesHost;
 	DBTablesUser    dbTablesUser;
 	DBTablesAction  dbTablesAction;
 	DBTablesMonitor dbTablesMonitor;
 
 	Impl(DBAgent &dbAgent)
-	: //dbTablesConfig(/*dbAgent*/),
+	: dbTablesConfig(dbAgent),
 	  dbTablesHost(dbAgent),
 	  dbTablesUser(dbAgent),
 	  dbTablesAction(dbAgent),
@@ -93,8 +93,7 @@ DBHatohol::~DBHatohol()
 
 DBTablesConfig &DBHatohol::getDBTablesConfig(void)
 {
-	return *((DBTablesConfig *)NULL); // Temporariliy disabled
-	//return m_impl->dbTablesConfig;
+	return m_impl->dbTablesConfig;
 }
 
 DBTablesHost &DBHatohol::getDBTablesHost(void)

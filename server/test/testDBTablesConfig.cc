@@ -23,6 +23,7 @@
 #include "DBTablesConfig.h"
 #include "ConfigManager.h"
 #include "Helpers.h"
+#include "DBHatohol.h"
 #include "DBTablesTest.h"
 using namespace std;
 using namespace mlpl;
@@ -30,11 +31,8 @@ using namespace mlpl;
 namespace testDBTablesConfig {
 
 #define DECLARE_DBTABLES_CONFIG(VAR_NAME) \
-	DBTablesConfig VAR_NAME;
-	/*** After DBTablesConfig inherits DBTables, we use the following way.
-	DBHatohol _dbHatohol;
-	DBTablesConfig &VAR_NAME = _dbHatohol.getConfig();
-	***/
+	DBHatohol _dbHatohol; \
+	DBTablesConfig &VAR_NAME = _dbHatohol.getDBTablesConfig();
 
 void _assertGetHostAddress
   (const string &ipAddr, const string &hostName, const char *expectValue,
@@ -118,19 +116,14 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_dbDomainId(void)
+void test_tablesVersion(void)
 {
+	// create an instance
+	// Tables in the DB will be automatically created.
 	DECLARE_DBTABLES_CONFIG(dbConfig);
-	cppcut_assert_equal(DB_TABLES_ID_CONFIG,
-	                    dbConfig.getDBAgent().getDBDomainId());
-}
-
-void test_setDefaultDBParams(void)
-{
-	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_TABLES_ID_CONFIG);
-	cppcut_assert_equal(string(TEST_DB_USER), connInfo.user);
-	cppcut_assert_equal(string(TEST_DB_PASSWORD), connInfo.password);
+	assertDBTablesVersion(
+	  dbConfig.getDBAgent(),
+	  DB_TABLES_ID_CONFIG, DBTablesConfig::CONFIG_DB_VERSION);
 }
 
 void test_getHostAddressIP(void)
@@ -175,21 +168,6 @@ void test_getHostAddressHostNameForURI(void)
 void test_getHostAddressBothNotSet(void)
 {
 	assertGetHostAddress("", "", "");
-}
-
-void test_createDB(void)
-{
-	// create an instance
-	// Tables in the DB will be automatically created.
-	DECLARE_DBTABLES_CONFIG(dbConfig);
-
-	// check the version
-	string statement = "select * from _dbclient_version";
-	string expect =
-	  StringUtils::sprintf(
-	    "%d|%d\n", DB_TABLES_ID_CONFIG,
-	               DBTablesConfig::CONFIG_DB_VERSION);
-	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
 }
 
 void test_createTableSystem(void)
@@ -1083,36 +1061,3 @@ void test_deleteIncidentTrackerWithoutPrivilege(void)
 }
 
 } // namespace testDBTablesConfig
-
-namespace testDBTablesConfigDefault {
-
-void cut_setup(void)
-{
-	hatoholInit();
-}
-
-void test_databaseName(void)
-{
-	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_TABLES_ID_CONFIG);
-	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_DB_NAME),
-	                    connInfo.dbName);
-}
-
-void test_databaseUser(void)
-{
-	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_TABLES_ID_CONFIG);
-	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_USER_NAME),
-	                    connInfo.user);
-}
-
-void test_databasePassword(void)
-{
-	DBConnectInfo connInfo =
-	  DBClient::getDBConnectInfo(DB_TABLES_ID_CONFIG);
-	cppcut_assert_equal(string(DBTablesConfig::DEFAULT_USER_NAME),
-	                    connInfo.user);
-}
-
-} // namespace testDBTablesConfigDefault

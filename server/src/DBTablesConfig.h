@@ -20,7 +20,7 @@
 #ifndef DBTablesConfig_h
 #define DBTablesConfig_h
 
-#include "DBClient.h"
+#include "DBTables.h"
 #include "DBTablesMonitoring.h"
 #include "MonitoringServerInfo.h"
 
@@ -123,24 +123,16 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-class DBTablesConfig : public DBClient {
+class DBTablesConfig : public DBTables {
 public:
 	static int CONFIG_DB_VERSION;
 	static const char *DEFAULT_DB_NAME;
 	static const char *DEFAULT_USER_NAME;
 	static const char *DEFAULT_PASSWORD;
-	static void init(void);
 	static void reset(void);
 	static bool isHatoholArmPlugin(const MonitoringSystemType &type);
 
-	// This is a temporary mesurement. We'll replace the base class with DBTables,
-	// which provides the method that returns a reference.
-	DBAgent &getDBAgent(void)
-	{
-		return *DBClient::getDBAgent();
-	}
-
-	DBTablesConfig(void);
+	DBTablesConfig(DBAgent &dbAgent);
 	virtual ~DBTablesConfig();
 
 	std::string getDatabaseDir(void);
@@ -267,7 +259,8 @@ public:
 	  IncidentTrackerIdSet &incidentTrackerIdSet);
 
 protected:
-	static void tableInitializerSystem(DBAgent *dbAgent, void *data);
+	static SetupInfo &getSetupInfo(void);
+	static void tableInitializerSystem(DBAgent &dbAgent, void *data);
 	static bool canUpdateTargetServer(
 	  MonitoringServerInfo *monitoringServerInfo,
 	  const OperationPrivilege &privilege);

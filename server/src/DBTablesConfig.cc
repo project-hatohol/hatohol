@@ -452,25 +452,25 @@ struct DBTablesConfig::Impl
 	}
 };
 
-static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
+static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 {
 	if (oldVer <= 5) {
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileSystem);
 		addColumnsArg.columnIndexes.push_back(
 		  IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
-		dbAgent->addColumns(addColumnsArg);
+		dbAgent.addColumns(addColumnsArg);
 	}
 	if (oldVer <= 7) {
 		// enable copy-on-demand by default
 		DBAgent::UpdateArg arg(tableProfileSystem);
 		arg.add(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND, 1);
-		dbAgent->update(arg);
+		dbAgent.update(arg);
 	}
 	if (oldVer == 9) {
 		const string oldTableName = "issue_trackers";
-		if (dbAgent->isTableExisting(oldTableName))
-			dbAgent->renameTable(oldTableName,
-					     TABLE_NAME_INCIDENT_TRACKERS);
+		if (dbAgent.isTableExisting(oldTableName))
+			dbAgent.renameTable(oldTableName,
+			                    TABLE_NAME_INCIDENT_TRACKERS);
 	}
 	if (oldVer < 11) {
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileArmPlugins);
@@ -480,13 +480,13 @@ static bool updateDB(DBAgent *dbAgent, int oldVer, void *data)
 			IDX_ARM_PLUGINS_TLS_KEY_PATH);
 		addColumnsArg.columnIndexes.push_back(
 			IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH);
-		dbAgent->addColumns(addColumnsArg);
+		dbAgent.addColumns(addColumnsArg);
 	}
 	if (oldVer < 12) {
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileArmPlugins);
 		addColumnsArg.columnIndexes.push_back(
 			IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY);
-		dbAgent->addColumns(addColumnsArg);
+		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;
 }
@@ -679,59 +679,9 @@ string IncidentTrackerQueryOption::getCondition(void) const
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-void DBTablesConfig::init(void)
-{
-	//
-	// set database info
-	//
-	static const DBSetupTableInfo DB_TABLE_INFO[] = {
-	{
-		&tableProfileSystem,
-		tableInitializerSystem,
-	}, {
-		&tableProfileServers,
-	}, {
-		&tableProfileArmPlugins,
-	}, {
-		&tableProfileIncidentTrackers,
-	}
-	};
-	static const size_t NUM_TABLE_INFO =
-	  sizeof(DB_TABLE_INFO) / sizeof(DBSetupTableInfo);
-
-	static const DBSetupFuncArg DB_SETUP_FUNC_ARG = {
-		CONFIG_DB_VERSION,
-		NUM_TABLE_INFO,
-		DB_TABLE_INFO,
-		&updateDB,
-	};
-
-	registerSetupInfo(
-	  DB_TABLES_ID_CONFIG, DEFAULT_DB_NAME, &DB_SETUP_FUNC_ARG);
-}
-
 void DBTablesConfig::reset(void)
 {
-	ConfigManager *confMgr = ConfigManager::getInstance();
-	DBConnectInfo connInfo;
-	connInfo.host = confMgr->getDBServerAddress();
-	connInfo.port = confMgr->getDBServerPort();
-	connInfo.user = DEFAULT_USER_NAME;
-	connInfo.password = DEFAULT_PASSWORD;
-	connInfo.dbName = DEFAULT_DB_NAME;
-
-	string portStr;
-	if (connInfo.port == 0)
-		portStr = "(default)";
-	else
-		portStr = StringUtils::sprintf("%zd", connInfo.port);
-	bool usePassword = !connInfo.password.empty();
-	MLPL_INFO("Configuration DB Server: %s, port: %s, "
-	          "DB: %s, User: %s, use password: %s\n",
-	          connInfo.host.c_str(), portStr.c_str(),
-	          connInfo.dbName.c_str(),
-	          connInfo.user.c_str(), usePassword ? "yes" : "no");
-	setConnectInfo(DB_TABLES_ID_CONFIG, connInfo);
+	getSetupInfo().initialized = false;
 }
 
 bool DBTablesConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
@@ -745,8 +695,8 @@ bool DBTablesConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 	return false;
 }
 
-DBTablesConfig::DBTablesConfig(void)
-: DBClient(DB_TABLES_ID_CONFIG),
+DBTablesConfig::DBTablesConfig(DBAgent &dbAgent)
+: DBTables(dbAgent, getSetupInfo()),
   m_impl(new Impl())
 {
 }
@@ -1337,7 +1287,32 @@ void DBTablesConfig::getIncidentTrackerIdSet(
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void DBTablesConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
+DBTables::SetupInfo &DBTablesConfig::getSetupInfo(void)
+{
+	static const TableSetupInfo TABLE_INFO[] = {
+	{
+		&tableProfileSystem,
+		tableInitializerSystem,
+	}, {
+		&tableProfileServers,
+	}, {
+		&tableProfileArmPlugins,
+	}, {
+		&tableProfileIncidentTrackers,
+	}
+	};
+
+	static SetupInfo setupInfo = {
+		DB_TABLES_ID_CONFIG,
+		CONFIG_DB_VERSION,
+		ARRAY_SIZE(TABLE_INFO),
+		TABLE_INFO,
+		&updateDB,
+	};
+	return setupInfo;
+}
+
+void DBTablesConfig::tableInitializerSystem(DBAgent &dbAgent, void *data)
 {
 	const ColumnDef &columnDefDatabaseDir =
 	  COLUMN_DEF_SYSTEM[IDX_SYSTEM_DATABASE_DIR];
@@ -1351,7 +1326,7 @@ void DBTablesConfig::tableInitializerSystem(DBAgent *dbAgent, void *data)
 	arg.add(0); // enable_face_mysql
 	arg.add(atoi(columnDefFaceRestPort.defaultValue));
 	arg.add(atoi(columnDefEnableCopyOnDemand.defaultValue));
-	dbAgent->insert(arg);
+	dbAgent.insert(arg);
 }
 
 bool DBTablesConfig::canUpdateTargetServer(
