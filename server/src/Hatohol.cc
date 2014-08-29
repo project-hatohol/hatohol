@@ -52,7 +52,6 @@ static void init(void)
 
 	DBAgentSQLite3::init();
 	DBAgentMySQL::init();
-	DBTablesConfig::init();
 	DBTablesUser::init();
 	DBTablesMonitoring::init();
 	DBTablesAction::init();

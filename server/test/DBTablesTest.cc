@@ -1379,11 +1379,6 @@ void setupTestDB(void)
 	const bool dbRecreate = true;
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, dbRecreate);
 
-	// These are removed after the DBTablseXXX inherits DBTables.
-	// CONFIG
-	DBClient::setDefaultDBParams(DB_TABLES_ID_CONFIG, TEST_DB_NAME,
-	                             TEST_DB_USER, TEST_DB_PASSWORD);
-
 	// Only when we use SQLite3 for DBTablesHatoho,
 	// the following line should be enabled.
 	deleteDBClientHatoholDB();

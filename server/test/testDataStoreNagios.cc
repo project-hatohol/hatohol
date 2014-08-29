@@ -21,6 +21,7 @@
 #include "DataStoreNagios.h"
 #include "Hatohol.h"
 #include "ArmNagiosNDOUtils.h"
+#include "DBTablesTest.h"
 
 using namespace mlpl;
 
@@ -29,6 +30,7 @@ namespace testDataStoreNagios {
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDB();
 }
 
 // ---------------------------------------------------------------------------

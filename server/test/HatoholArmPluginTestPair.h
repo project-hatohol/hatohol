@@ -90,11 +90,11 @@ struct HatoholArmPluginTestPair : public HatoholArmPluginTestPairBase {
 	  HapgTestCtx &hapgCtx, MonitoringServerInfo &serverInfo,
 	  HatoholArmPluginTestPairArg &arg)
 	{
+		loadTestDBArmPlugin();
+
 		hapgCtx.useDefaultReceivedHandler = true;
 		hapgCtx.monitoringSystemType =
 		  MONITORING_SYSTEM_HAPI_TEST_PASSIVE;
-		setupTestDBConfig();
-		loadTestDBArmPlugin();
 		initServerInfo(serverInfo);
 		if (arg.serverId != DEFAULT_SERVER_ID)
 			serverInfo.id = arg.serverId;
