@@ -41,11 +41,34 @@ struct ArmRedmine::Impl
 	{
 		m_session = soup_session_sync_new_with_options(
 			SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS, NULL);
+		connectSessionSignals();
+
 		m_query = g_hash_table_new_full(soup_str_case_hash,
 						soup_str_case_equal,
 						g_free, g_free);
 		buildURL();
 		buildQuery();
+	}
+
+	void connectSessionSignals(void)
+	{
+		g_signal_connect(m_session, "authenticate",
+				 G_CALLBACK(authenticateCallback),
+				 this);
+	}
+
+	static void authenticateCallback(SoupSession *session,
+					 SoupMessage *msg, SoupAuth *auth,
+					 gboolean retrying,
+					 gpointer user_data)
+	{
+		ArmRedmine::Impl *impl
+			= reinterpret_cast<ArmRedmine::Impl*>(user_data);
+		const IncidentTrackerInfo &tracker
+			= impl->m_incidentTrackerInfo;
+		soup_auth_authenticate(auth,
+				       tracker.userName.c_str(),
+				       tracker.password.c_str());
 	}
 
 	void buildURL(void)
