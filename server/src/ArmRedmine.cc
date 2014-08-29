@@ -85,6 +85,19 @@ struct ArmRedmine::Impl
 		addQuery("v[updated_on][]", "2014-08-25");
 		*/
 	}
+
+	void handleError(int soupStatus, const string &response)
+	{
+		if (SOUP_STATUS_IS_TRANSPORT_ERROR(soupStatus)) {
+			MLPL_ERR("Transport error: %d %s\n",
+				 soupStatus,
+				 soup_status_get_phrase(soupStatus));
+		} else {
+			MLPL_ERR("The server returns an error: %d %s\n",
+				 soupStatus,
+				 soup_status_get_phrase(soupStatus));
+		}
+	}
 };
 
 ArmRedmine::ArmRedmine(const IncidentTrackerInfo &trackerInfo)
@@ -121,8 +134,14 @@ bool ArmRedmine::mainThreadOneProc(void)
 		SOUP_METHOD_GET, m_impl->m_url.c_str(), m_impl->m_query);
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
-	guint sendResult = soup_session_send_message(m_impl->m_session, msg);
+	string response(msg->response_body->data, msg->response_body->length);
+	guint soupStatus = soup_session_send_message(m_impl->m_session, msg);
 	g_object_unref(msg);
+
+	if (!SOUP_STATUS_IS_SUCCESSFUL(soupStatus)) {
+		m_impl->handleError(soupStatus, response);
+		return false;
+	}
 
 	return true;
 }

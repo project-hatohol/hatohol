@@ -48,6 +48,11 @@ struct ArmRedmineTestee : public ArmRedmine {
 	{
 		return getQuery();
 	}
+
+	bool callOneProc(void)
+	{
+		return mainThreadOneProc();
+	}
 };
 
 void cut_setup(void)
@@ -80,6 +85,13 @@ void test_baseQueryString(void)
 		"limit=100&project%5Fid=1&tracker%5Fid=3&"
 		"sort=updated%5Fon%3Adesc";
 	cppcut_assert_equal(expected, arm.callGetQuery());
+}
+
+void test_oneProc(void)
+{
+	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[2];
+	ArmRedmineTestee arm(tracker);
+	cppcut_assert_equal(true, arm.callOneProc());
 }
 
 }
