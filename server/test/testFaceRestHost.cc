@@ -257,10 +257,10 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(g_parser, "serverId", eventInfo.serverId);
 		assertValueInParser(g_parser, "time", eventInfo.time);
 		assertValueInParser(g_parser, "type", eventInfo.type);
-		assertValueInParser(g_parser, "triggerId", eventInfo.triggerId);
+		assertValueInParser(g_parser, "triggerId", StringUtils::toString(eventInfo.triggerId));
 		assertValueInParser(g_parser, "status",    eventInfo.status);
 		assertValueInParser(g_parser, "severity",  eventInfo.severity);
-		assertValueInParser(g_parser, "hostId",    eventInfo.hostId);
+		assertValueInParser(g_parser, "hostId",    StringUtils::toString(eventInfo.hostId));
 		assertValueInParser(g_parser, "brief",     eventInfo.brief);
 		if (shouldHaveIncident) {
 			assertStartObject(g_parser, "incident");
@@ -330,7 +330,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 		const ItemInfo &itemInfo = *itemInfoPtr;
 
 		assertValueInParser(g_parser, "serverId", itemInfo.serverId);
-		assertValueInParser(g_parser, "hostId", itemInfo.hostId);
+		assertValueInParser(g_parser, "hostId", StringUtils::toString(itemInfo.hostId));
 		assertValueInParser(g_parser, "brief", itemInfo.brief);
 		assertValueInParser(g_parser, "lastValueTime",
 		                    itemInfo.lastValueTime);
