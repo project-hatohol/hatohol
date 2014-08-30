@@ -48,9 +48,9 @@ class UserCreator:
 
     def add(self, args):
         query = {}
-        query["name"] = args.name;
-        query["password"] = args.password;
-        query["flags"] = args.flags;
+        query["name"] = args.name
+        query["password"] = args.password
+        query["flags"] = args.flags
         self._encoded_query = urllib.urlencode(query)
 
 
@@ -106,7 +106,7 @@ def show_server(url, args):
     url += "/server"
     query = {}
     if args.server_id is not None:
-        query["serverId"] = args.server_id;
+        query["serverId"] = args.server_id
     if len(query) > 0:
         encoded_query = urllib.urlencode(query)
         url += "?" + encoded_query
