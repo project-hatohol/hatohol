@@ -28,6 +28,7 @@ from hatohol.ActionCreator import ActionCreator
 DEFAULT_SERVER = "localhost"
 DEFAULT_PORT = 33194
 
+
 class UserCreator:
   def __init__(self, url):
     self._url = url + "/user"
@@ -52,6 +53,7 @@ class UserCreator:
     query["flags"] = args.flags;
     self._encoded_query = urllib.urlencode(query)
 
+
 def add_session_id(request):
   env_name = hatohol.ENV_NAME_SESSION_ID
   session_id = os.getenv(env_name)
@@ -59,6 +61,7 @@ def add_session_id(request):
     print "Found an environment varible: %s" % env_name
     return
   request.add_header(hatohol.FACE_REST_SESSION_ID_HEADER_NAME, session_id)
+
 
 def open_url_and_show_response(cmd_ctx):
   data = None
@@ -68,6 +71,7 @@ def open_url_and_show_response(cmd_ctx):
   add_session_id(request)
   response = urllib2.urlopen(request)
   print response.read()
+
 
 def parse_server_arg(arg):
   words = arg.split(":")
@@ -79,9 +83,11 @@ def parse_server_arg(arg):
 
   return "http://%s:%d" % (server, port)
 
+
 def do_test(url, args):
   url += "/test"
   return {"url":url, "postproc":open_url_and_show_response}
+
 
 def login(url, args):
   url += "/login"
@@ -90,9 +96,11 @@ def login(url, args):
   url += "?" + encoded_query
   return {"url":url, "postproc":open_url_and_show_response}
 
+
 def logout(url, args):
   url += "/logout"
   return {"url":url, "postproc":open_url_and_show_response}
+
 
 def show_server(url, args):
   url += "/server"
@@ -103,6 +111,7 @@ def show_server(url, args):
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
   return {"url":url, "postproc":open_url_and_show_response}
+
 
 def show_trigger(url, args):
   url += "/trigger"
@@ -117,6 +126,7 @@ def show_trigger(url, args):
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
   return {"url":url, "postproc":open_url_and_show_response}
+
 
 def show_event(url, args):
   url += "/event"
@@ -134,9 +144,11 @@ def show_event(url, args):
     url += "?" + encoded_query
   return {"url":url, "postproc":open_url_and_show_response}
 
+
 def show_item(url, args):
   url += "/item"
   return {"url":url, "postproc":open_url_and_show_response}
+
 
 def show_host(url, args):
   url += "/host"
@@ -150,9 +162,11 @@ def show_host(url, args):
     url += "?" + encoded_query
   return {"url":url, "postproc":open_url_and_show_response}
 
+
 def show_action(url, options):
   url += "/action"
   return {"url":url, "postproc":open_url_and_show_response}
+
 
 def add_action(url, args):
   action_creator = ActionCreator(url)
@@ -162,15 +176,18 @@ def add_action(url, args):
   return {"url":url, "postproc":open_url_and_show_response,
           "encoded_query":encoded_query}
 
+
 def del_action(url, args):
   url = url + "/action/" + args.action_id
   req = urllib2.Request(url)
   req.get_method = lambda: 'DELETE'
   return {"url":req, "postproc":open_url_and_show_response}
 
+
 def show_user(url, args):
   url += "/user"
   return {"url":url, "postproc":open_url_and_show_response}
+
 
 def add_user(url, args):
   user_creator = UserCreator(url)
@@ -180,15 +197,18 @@ def add_user(url, args):
   return {"url":url, "postproc":open_url_and_show_response,
           "encoded_query":encoded_query}
 
+
 def del_user(url, args):
   url = url + "/user/" + args.user_id
   req = urllib2.Request(url)
   req.get_method = lambda: 'DELETE'
   return {"url":req, "postproc":open_url_and_show_response}
 
+
 def server_conn_stat(url, args):
   url = url + "/server-conn-stat"
   return {"url":url, "postproc":open_url_and_show_response}
+
 
 command_map = {
   "test":do_test,
@@ -207,6 +227,7 @@ command_map = {
   "del-user":del_user,
   "server-conn-stat":server_conn_stat,
 }
+
 
 def main(arg_list=None, exec_postproc=True):
   parser = argparse.ArgumentParser(description="Hatohol Voyager")
