@@ -133,7 +133,7 @@ def show_event(url, args):
     query = {}
     if args.sort is not None:
         orderDict = {"asc": hatohol.DATA_QUERY_OPTION_SORT_ASCENDING,
-                                 "desc": hatohol.DATA_QUERY_OPTION_SORT_DESCENDING}
+                     "desc": hatohol.DATA_QUERY_OPTION_SORT_DESCENDING}
         query["sortOrder"] = orderDict[args.sort]
     if args.max_number is not None:
         query["maximumNumber"] = args.max_number
@@ -174,7 +174,7 @@ def add_action(url, args):
     url = action_creator.get_url()
     encoded_query = action_creator.get_encoded_query()
     return {"url": url, "postproc": open_url_and_show_response,
-                    "encoded_query": encoded_query}
+            "encoded_query": encoded_query}
 
 
 def del_action(url, args):
@@ -195,7 +195,7 @@ def add_user(url, args):
     url = user_creator.get_url()
     encoded_query = user_creator.get_encoded_query()
     return {"url": url, "postproc": open_url_and_show_response,
-                    "encoded_query": encoded_query}
+            "encoded_query": encoded_query}
 
 
 def del_user(url, args):
@@ -232,8 +232,8 @@ command_map = {
 def main(arg_list=None, exec_postproc=True):
     parser = argparse.ArgumentParser(description="Hatohol Voyager")
     parser.add_argument("--server", type=parse_server_arg, dest="server_url",
-                                            metavar="SERVER[:PORT]",
-                                            default="%s:%d" % (DEFAULT_SERVER, DEFAULT_PORT))
+                        metavar="SERVER[:PORT]",
+                        default="%s:%d" % (DEFAULT_SERVER, DEFAULT_PORT))
     subparsers = parser.add_subparsers(help="Sub commands", dest="sub_command")
 
     # test
@@ -250,7 +250,7 @@ def main(arg_list=None, exec_postproc=True):
     # server
     sub_server = subparsers.add_parser("show-server")
     sub_server.add_argument("server_id", type=int, nargs="?",
-                                                    help="get a server only with server ID")
+                            help="get a server only with server ID")
     # trigger
     sub_trigger = subparsers.add_parser("show-trigger")
     sub_trigger.add_argument("server_id", type=int, nargs="?")
