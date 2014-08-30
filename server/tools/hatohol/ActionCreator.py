@@ -24,6 +24,7 @@ import urllib2
 import hatohol
 import argparse
 
+
 class SeverityParseAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         if len(values) != 2:
@@ -48,7 +49,6 @@ class SeverityParseAction(argparse.Action):
 
         setattr(namespace, "severity_cmp_code", severity_cmp_dict[comparator])
         setattr(namespace, "severity_code", severity_dict[severity])
-
 
 
 class ActionCreator:
