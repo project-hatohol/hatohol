@@ -38,11 +38,15 @@ class SeverityParseAction(argparse.Action):
                          "emergency": hatohol.TRIGGER_SEVERITY_EMERGENCY}
         comparator = values[0]
         if comparator not in severity_cmp_dict:
-            raise argparse.ArgumentTypeError("comparator must be: eq or ge (%s)" %
-                                             comparator)
+            raise argparse.ArgumentTypeError(
+                "comparator must be: eq or ge (%s)" %
+                comparator)
         severity = values[1]
         if severity not in severity_dict:
-            raise argparse.ArgumentTypeError("severity must be: info, warn, error, critical, or emergency (%s)" % severity)
+            raise argparse.ArgumentTypeError(
+                "severity must be: info, warn, error, critical,"
+                "or emergency (%s)"
+                % severity)
 
         setattr(namespace, "severity_cmp", comparator)
         setattr(namespace, "severity", severity)
@@ -71,7 +75,8 @@ class ActionCreator:
         parser.add_argument("--severity", nargs=2,
                             metavar=("SEVERITY_CMP", "SEVERITY"),
                             action=SeverityParseAction,
-                            help="{eq,ge} {info,warn,error,critical,emergency}")
+                            help="{eq,ge} "
+                            "{info,warn,error,critical,emergency}")
 
     def get_url(self):
         return self._url
