@@ -85,20 +85,20 @@ def parse_server_arg(arg):
 
 def do_test(url, args):
     url += "/test"
-    return {"url":url, "postproc":open_url_and_show_response}
+    return {"url": url, "postproc": open_url_and_show_response}
 
 
 def login(url, args):
     url += "/login"
-    query = {"user":args.user, "password":args.password}
+    query = {"user": args.user, "password": args.password}
     encoded_query = urllib.urlencode(query)
     url += "?" + encoded_query
-    return {"url":url, "postproc":open_url_and_show_response}
+    return {"url": url, "postproc": open_url_and_show_response}
 
 
 def logout(url, args):
     url += "/logout"
-    return {"url":url, "postproc":open_url_and_show_response}
+    return {"url": url, "postproc": open_url_and_show_response}
 
 
 def show_server(url, args):
@@ -109,7 +109,7 @@ def show_server(url, args):
     if len(query) > 0:
         encoded_query = urllib.urlencode(query)
         url += "?" + encoded_query
-    return {"url":url, "postproc":open_url_and_show_response}
+    return {"url": url, "postproc": open_url_and_show_response}
 
 
 def show_trigger(url, args):
@@ -124,15 +124,15 @@ def show_trigger(url, args):
     if len(query) > 0:
         encoded_query = urllib.urlencode(query)
         url += "?" + encoded_query
-    return {"url":url, "postproc":open_url_and_show_response}
+    return {"url": url, "postproc": open_url_and_show_response}
 
 
 def show_event(url, args):
     url += "/event"
     query = {}
     if args.sort is not None:
-        orderDict = {"asc":hatohol.DATA_QUERY_OPTION_SORT_ASCENDING,
-                                 "desc":hatohol.DATA_QUERY_OPTION_SORT_DESCENDING}
+        orderDict = {"asc": hatohol.DATA_QUERY_OPTION_SORT_ASCENDING,
+                                 "desc": hatohol.DATA_QUERY_OPTION_SORT_DESCENDING}
         query["sortOrder"] = orderDict[args.sort]
     if args.max_number is not None:
         query["maximumNumber"] = args.max_number
@@ -141,12 +141,12 @@ def show_event(url, args):
     if len(query) > 0:
         encoded_query = urllib.urlencode(query)
         url += "?" + encoded_query
-    return {"url":url, "postproc":open_url_and_show_response}
+    return {"url": url, "postproc": open_url_and_show_response}
 
 
 def show_item(url, args):
     url += "/item"
-    return {"url":url, "postproc":open_url_and_show_response}
+    return {"url": url, "postproc": open_url_and_show_response}
 
 
 def show_host(url, args):
@@ -159,12 +159,12 @@ def show_host(url, args):
     if len(query) > 0:
         encoded_query = urllib.urlencode(query)
         url += "?" + encoded_query
-    return {"url":url, "postproc":open_url_and_show_response}
+    return {"url": url, "postproc": open_url_and_show_response}
 
 
 def show_action(url, options):
     url += "/action"
-    return {"url":url, "postproc":open_url_and_show_response}
+    return {"url": url, "postproc": open_url_and_show_response}
 
 
 def add_action(url, args):
@@ -172,20 +172,20 @@ def add_action(url, args):
     action_creator.add(args)
     url = action_creator.get_url()
     encoded_query = action_creator.get_encoded_query()
-    return {"url":url, "postproc":open_url_and_show_response,
-                    "encoded_query":encoded_query}
+    return {"url": url, "postproc": open_url_and_show_response,
+                    "encoded_query": encoded_query}
 
 
 def del_action(url, args):
     url = url + "/action/" + args.action_id
     req = urllib2.Request(url)
     req.get_method = lambda: 'DELETE'
-    return {"url":req, "postproc":open_url_and_show_response}
+    return {"url": req, "postproc": open_url_and_show_response}
 
 
 def show_user(url, args):
     url += "/user"
-    return {"url":url, "postproc":open_url_and_show_response}
+    return {"url": url, "postproc": open_url_and_show_response}
 
 
 def add_user(url, args):
@@ -193,38 +193,38 @@ def add_user(url, args):
     user_creator.add(args)
     url = user_creator.get_url()
     encoded_query = user_creator.get_encoded_query()
-    return {"url":url, "postproc":open_url_and_show_response,
-                    "encoded_query":encoded_query}
+    return {"url": url, "postproc": open_url_and_show_response,
+                    "encoded_query": encoded_query}
 
 
 def del_user(url, args):
     url = url + "/user/" + args.user_id
     req = urllib2.Request(url)
     req.get_method = lambda: 'DELETE'
-    return {"url":req, "postproc":open_url_and_show_response}
+    return {"url": req, "postproc": open_url_and_show_response}
 
 
 def server_conn_stat(url, args):
     url = url + "/server-conn-stat"
-    return {"url":url, "postproc":open_url_and_show_response}
+    return {"url": url, "postproc": open_url_and_show_response}
 
 
 command_map = {
-    "test":do_test,
-    "login":login,
-    "logout":logout,
-    "show-server":show_server,
-    "show-event":show_event,
-    "show-trigger":show_trigger,
-    "show-item":show_item,
-    "show-host":show_host,
-    "show-action":show_action,
-    "add-action":add_action,
-    "del-action":del_action,
-    "show-user":show_user,
-    "add-user":add_user,
-    "del-user":del_user,
-    "server-conn-stat":server_conn_stat,
+    "test": do_test,
+    "login": login,
+    "logout": logout,
+    "show-server": show_server,
+    "show-event": show_event,
+    "show-trigger": show_trigger,
+    "show-item": show_item,
+    "show-host": show_host,
+    "show-action": show_action,
+    "add-action": add_action,
+    "del-action": del_action,
+    "show-user": show_user,
+    "add-user": add_user,
+    "del-user": del_user,
+    "server-conn-stat": server_conn_stat,
 }
 
 
