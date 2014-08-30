@@ -33,21 +33,21 @@ DEFAULT_FROM_ADDR = "hatohol@localhost"
 DEFAULT_TLS_PORT = 587
 
 EVENT_TYPE_NAMES = {
-    hatohol.EVENT_TYPE_GOOD:"GOOD",
-    hatohol.EVENT_TYPE_BAD:"BAD"
+    hatohol.EVENT_TYPE_GOOD: "GOOD",
+    hatohol.EVENT_TYPE_BAD: "BAD"
 }
 
 TRIGGER_STATUS_NAMES = {
-    hatohol.TRIGGER_STATUS_OK:"OK",
-    hatohol.TRIGGER_STATUS_PROBLEM:"PROBLEM"
+    hatohol.TRIGGER_STATUS_OK: "OK",
+    hatohol.TRIGGER_STATUS_PROBLEM: "PROBLEM"
 }
 
 TRIGGER_SEVERITY_NAMES = {
-    hatohol.TRIGGER_SEVERITY_INFO:"INFO",
-    hatohol.TRIGGER_SEVERITY_WARNING:"WARNING",
-    hatohol.TRIGGER_SEVERITY_ERROR:"ERROR",
-    hatohol.TRIGGER_SEVERITY_CRITICAL:"CRITICAL",
-    hatohol.TRIGGER_SEVERITY_EMERGENCY:"EMERGENCY"
+    hatohol.TRIGGER_SEVERITY_INFO: "INFO",
+    hatohol.TRIGGER_SEVERITY_WARNING: "WARNING",
+    hatohol.TRIGGER_SEVERITY_ERROR: "ERROR",
+    hatohol.TRIGGER_SEVERITY_CRITICAL: "CRITICAL",
+    hatohol.TRIGGER_SEVERITY_EMERGENCY: "EMERGENCY"
 }
 
 
@@ -164,7 +164,7 @@ def get_element(obj, name, fallback=None):
 
 
 def get_host_label(server_id, host_id):
-    query = {"serverId":server_id, "hostId":host_id}
+    query = {"serverId": server_id, "hostId": host_id}
     url = make_base_url("host", query)
     try:
         response = urllib2.urlopen(url)
@@ -184,7 +184,7 @@ def get_host_label(server_id, host_id):
 
 
 def get_server_label(server_id):
-    query = {"serverId":server_id}
+    query = {"serverId": server_id}
     url = make_base_url("server", query)
     try:
         response = urllib2.urlopen(url)
@@ -207,7 +207,7 @@ def get_server_label(server_id):
 
 
 def get_trigger_label(server_id, host_id, trigger_id):
-    query = {"serverId":server_id, "hostId":host_id, "triggerId":trigger_id}
+    query = {"serverId": server_id, "hostId": host_id, "triggerId": trigger_id}
     url = make_base_url("trigger", query)
     print url
     try:
