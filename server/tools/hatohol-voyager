@@ -19,5 +19,6 @@
 """
 from hatohol import voyager
 
+
 if __name__ == '__main__':
-  voyager.main()
+    voyager.main()
