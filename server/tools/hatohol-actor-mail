@@ -50,6 +50,7 @@ TRIGGER_SEVERITY_NAMES = {
     hatohol.TRIGGER_SEVERITY_EMERGENCY:"EMERGENCY"
 }
 
+
 def main():
     parser = argparse.ArgumentParser(description="",
                                        formatter_class=argparse.RawTextHelpFormatter)
@@ -101,6 +102,7 @@ def main():
 
     send(params)
 
+
 def send_tls(params, message):
     if "account" not in params:
         error_exit("'account' is not specified");
@@ -118,6 +120,7 @@ def send_tls(params, message):
     smtp.sendmail(params["from_address"], [params["to_address"]], message.as_string())
     smtp.close()
 
+
 def send(params):
     message = MIMEText(params["body"])
     message["Subject"] = params["subject"]
@@ -132,12 +135,15 @@ def send(params):
         smtp.sendmail(params["from_address"], [params["to_address"]], message.as_string())
         smtp.close()
 
+
 def error_exit(msg, exit_code = 1):
     print msg
     sys.exit(exit_code)
 
+
 def warn(msg):
     print "WARNING: " + msg
+
 
 def make_base_url(topdir, query):
     port = 33194
@@ -147,6 +153,7 @@ def make_base_url(topdir, query):
         url += "?" + encoded_query
     return url
 
+
 def get_element(obj, name, fallback=None):
     if name in obj:
         return obj[name]
@@ -154,6 +161,7 @@ def get_element(obj, name, fallback=None):
         return fallback
     else:
         return ""
+
 
 def get_host_label(server_id, host_id):
     query = {"serverId":server_id, "hostId":host_id}
@@ -173,6 +181,7 @@ def get_host_label(server_id, host_id):
     if "hostName" not in host:
         return "N/A (Not found: hostName)"
     return host["hostName"];
+
 
 def get_server_label(server_id):
     query = {"serverId":server_id}
@@ -196,6 +205,7 @@ def get_server_label(server_id):
 
     return "%s, %s, %s" % (host_name, ip_addr, nickname)
 
+
 def get_trigger_label(server_id, host_id, trigger_id):
     query = {"serverId":server_id, "hostId":host_id, "triggerId":trigger_id}
     url = make_base_url("trigger", query)
@@ -216,6 +226,7 @@ def get_trigger_label(server_id, host_id, trigger_id):
     brief = get_element(triggers, "brief", "N/A")
     return brief
 
+
 def parse_smtp_server_port(server_spec):
     words = server_spec.split(":")
     if (len(words) > 2):
@@ -229,11 +240,13 @@ def parse_smtp_server_port(server_spec):
 
     return (server, port)
 
+
 def parse_time(timestamp):
     words = timestamp.split(".")
     if len(words) != 2:
         error_exit("Invalid string for time: %s" % timestamp)
     return map((lambda x: int(x)), words)
+
 
 def parse_hatohol_action_v1(args):
     (action_id, server_id, host_id, timestamp,
@@ -268,12 +281,15 @@ def parse_hatohol_action_v1(args):
 
     return args
 
+
 def make_description(dictionary):
     return ", ".join(map((lambda x: "%s:%s" % x), dictionary.items()))
+
 
 def make_subject(args):
     subject = "[%s] EventID: %d, Trigger ID: %d" % (args.trigger_severity_label, args.event_id, args.trigger_id)
     return subject
+
 
 def make_body(args):
     server_label = get_server_label(args.server_id)
@@ -294,6 +310,7 @@ def make_body(args):
     body += "trigger status: %d (%s)\n" % (args.trigger_status, args.trigger_status_label)
     body += "trigger severity: %d (%s)\n" % (args.trigger_severity, args.trigger_severity_label)
     return body
+
 
 def show_summary(params):
     print "TO         : %s" % params["to_address"]
