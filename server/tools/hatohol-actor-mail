@@ -136,7 +136,7 @@ def send(params):
         smtp.close()
 
 
-def error_exit(msg, exit_code = 1):
+def error_exit(msg, exit_code=1):
     print msg
     sys.exit(exit_code)
 
@@ -198,7 +198,7 @@ def get_server_label(server_id):
     if "servers" not in reply:
         return "N/A (Not found: servers)"
     server = reply["servers"][0]
- 
+
     host_name = get_element(server, "hostName", "N/A")
     ip_addr = get_element(server, "ipAddress", "N/A")
     nickname = get_element(server, "nickname", "N/A")
@@ -222,7 +222,7 @@ def get_trigger_label(server_id, host_id, trigger_id):
     if "triggers" not in reply:
         return "N/A (Not found: triggers)"
     triggers = reply["triggers"][0]
- 
+
     brief = get_element(triggers, "brief", "N/A")
     return brief
 
@@ -322,4 +322,3 @@ def show_summary(params):
 
 if __name__ == '__main__':
     main()
-
