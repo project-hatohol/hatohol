@@ -32,14 +32,14 @@ class SeverityParseAction(argparse.Action):
 
         severity_cmp_dict = {"eq": hatohol.CMP_EQ, "ge": hatohol.CMP_EQ_GT}
         severity_dict = {"info": hatohol.TRIGGER_SEVERITY_INFO,
-                           "warn": hatohol.TRIGGER_SEVERITY_WARNING,
-                           "error": hatohol.TRIGGER_SEVERITY_ERROR,
-                           "critical": hatohol.TRIGGER_SEVERITY_CRITICAL,
-                           "emergency": hatohol.TRIGGER_SEVERITY_EMERGENCY}
+                         "warn": hatohol.TRIGGER_SEVERITY_WARNING,
+                         "error": hatohol.TRIGGER_SEVERITY_ERROR,
+                         "critical": hatohol.TRIGGER_SEVERITY_CRITICAL,
+                         "emergency": hatohol.TRIGGER_SEVERITY_EMERGENCY}
         comparator = values[0]
         if comparator not in severity_cmp_dict:
             raise argparse.ArgumentTypeError("comparator must be: eq or ge (%s)" %
-                                              comparator)
+                                             comparator)
         severity = values[1]
         if severity not in severity_dict:
             raise argparse.ArgumentTypeError("severity must be: info, warn, error, critical, or emergency (%s)" % severity)
@@ -59,7 +59,7 @@ class ActionCreator:
     @classmethod
     def setup_arguments(cls, parser):
         parser.add_argument("--type", choices=["command", "resident"],
-                              required=True)
+                            required=True)
         parser.add_argument("--command", required=True)
         parser.add_argument("--working-dir")
         parser.add_argument("--timeout")
@@ -69,9 +69,9 @@ class ActionCreator:
         parser.add_argument("--trigger-id", type=int)
         parser.add_argument("--status", choices=["ok", "problem"])
         parser.add_argument("--severity", nargs=2,
-                              metavar=("SEVERITY_CMP", "SEVERITY"),
-                              action=SeverityParseAction,
-                              help="{eq,ge} {info,warn,error,critical,emergency}")
+                            metavar=("SEVERITY_CMP", "SEVERITY"),
+                            action=SeverityParseAction,
+                            help="{eq,ge} {info,warn,error,critical,emergency}")
 
     def get_url(self):
         return self._url
