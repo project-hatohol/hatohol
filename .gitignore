@@ -60,3 +60,4 @@ Makefile.in
 /server/benchmark/bench-string-join
 /stamp-h1
 /test-driver
+/config.h.in
