@@ -29,12 +29,12 @@ class SeverityParseAction(argparse.Action):
         if len(values) != 2:
             raise argparse.ArgumentTypeError("--severity expects 2 arguments.")
 
-        severity_cmp_dict = {"eq":hatohol.CMP_EQ, "ge":hatohol.CMP_EQ_GT}
-        severity_dict = {"info":hatohol.TRIGGER_SEVERITY_INFO,
-                           "warn":hatohol.TRIGGER_SEVERITY_WARNING,
-                           "error":hatohol.TRIGGER_SEVERITY_ERROR,
-                           "critical":hatohol.TRIGGER_SEVERITY_CRITICAL,
-                           "emergency":hatohol.TRIGGER_SEVERITY_EMERGENCY}
+        severity_cmp_dict = {"eq": hatohol.CMP_EQ, "ge": hatohol.CMP_EQ_GT}
+        severity_dict = {"info": hatohol.TRIGGER_SEVERITY_INFO,
+                           "warn": hatohol.TRIGGER_SEVERITY_WARNING,
+                           "error": hatohol.TRIGGER_SEVERITY_ERROR,
+                           "critical": hatohol.TRIGGER_SEVERITY_CRITICAL,
+                           "emergency": hatohol.TRIGGER_SEVERITY_EMERGENCY}
         comparator = values[0]
         if comparator not in severity_cmp_dict:
             raise argparse.ArgumentTypeError("comparator must be: eq or ge (%s)" %
