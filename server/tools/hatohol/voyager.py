@@ -28,6 +28,7 @@ from hatohol.ActionCreator import ActionCreator
 DEFAULT_SERVER = "localhost"
 DEFAULT_PORT = 33194
 
+
 class UserCreator:
     def __init__(self, url):
         self._url = url + "/user"
