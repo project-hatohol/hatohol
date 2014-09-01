@@ -137,8 +137,23 @@ struct ArmRedmine::Impl
 			return false;
 		}
 
-		// TODO: implement
+		bool succeeded = true;
+		agent.startObject("issues");
+		size_t num = agent.countElements();
+		for (size_t i = 0; i < num; i++) {
+			agent.startElement(i);
+			succeeded = parseIssue(agent) && succeeded;
+			agent.endObject();
+		}
+		agent.endObject();
 
+		return succeeded;
+	}
+
+	bool parseIssue(JSONParserAgent &agent)
+	{
+		IncidentInfo info;
+		// TODO: Same with IncidentSenderRedmine::parseResponse
 		return true;
 	}
 };
