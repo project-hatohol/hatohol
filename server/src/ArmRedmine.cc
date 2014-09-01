@@ -20,6 +20,7 @@
 #include "ArmRedmine.h"
 #include "RedmineAPI.h"
 #include "JSONParserAgent.h"
+#include <time.h>
 #include <libsoup/soup.h>
 
 using namespace std;
@@ -35,12 +36,16 @@ struct ArmRedmine::Impl
 	SoupSession *m_session;
 	string m_url;
 	GHashTable *m_query;
+	time_t lastUpdateTime;
 
 	Impl(const IncidentTrackerInfo &trackerInfo)
 	: m_incidentTrackerInfo(trackerInfo),
 	  m_session(NULL),
-	  m_query(NULL)
+	  m_query(NULL),
+	  lastUpdateTime(0)
 	{
+		// TODO: init lastUpdateTime (find it from incidents table)
+
 		m_session = soup_session_sync_new_with_options(
 			SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS, NULL);
 		connectSessionSignals();
@@ -92,6 +97,15 @@ struct ArmRedmine::Impl
 		g_hash_table_insert(m_query, g_strdup(key), g_strdup(value));
 	}
 
+	string getLastUpdateDate()
+	{
+		struct tm localTime;
+		localtime_r(&lastUpdateTime, &localTime);
+		char buf[16];
+		strftime(buf, sizeof(buf), "%Y-%m-%d", &localTime);
+		return string(buf);
+	}
+
 	void buildQuery(void)
 	{
 		g_hash_table_remove_all(m_query);
@@ -109,12 +123,13 @@ struct ArmRedmine::Impl
 		addQuery("op[status_id]", "*"); // all
 
 		// Filter by created_on
-		// TODO: build date string from the last updated incident
-		/*
-		addQuery("f[]", "updated_on");
-		addQuery("op[updated_on]", ">=");
-		addQuery("v[updated_on][]", "2014-08-25");
-		*/
+		if (lastUpdateTime > 0) {
+			addQuery("f[]", "updated_on");
+			addQuery("op[updated_on]", ">=");
+			// Redmine doesn't accept time string, use date instead
+			addQuery("v[updated_on][]",
+				 getLastUpdateDate().c_str());
+		}
 	}
 
 	void handleError(int soupStatus, const string &response)
@@ -197,6 +212,12 @@ gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
 
 ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 {
+	// TODO: update lastUpdateTime
+	if (m_impl->lastUpdateTime == 0) {
+		// There is no incident to update.
+		return COLLECT_OK;
+	}
+
 	SoupMessage *msg = soup_form_request_new_from_hash(
 		SOUP_METHOD_GET, m_impl->m_url.c_str(), m_impl->m_query);
 	soup_message_headers_set_content_type(msg->request_headers,
