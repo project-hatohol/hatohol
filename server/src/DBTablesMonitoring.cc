@@ -1998,7 +1998,7 @@ size_t DBTablesMonitoring::getNumberOfTriggers(
 			fmt = "count(distinct %s || ',' || %s)";
 		else if (dbAgentType == typeid(DBAgentMySQL))
 			fmt = "count(distinct %s,%s)";
-		HATOHOL_ASSERT(fmt, "fmt is NULL.");
+		HATOHOL_ASSERT(fmt, "Unknown DBAgent type.");
 
 		stmt = StringUtils::sprintf(fmt,
 		  option.getColumnName(IDX_TRIGGERS_SERVER_ID).c_str(),
@@ -2125,7 +2125,7 @@ size_t DBTablesMonitoring::getNumberOfItems(
 			fmt = "count(distinct %s || ',' || %s)";
 		else if (dbAgentType == typeid(DBAgentMySQL))
 			fmt = "count(distinct %s,%s)";
-		HATOHOL_ASSERT(fmt, "fmt is NULL.");
+		HATOHOL_ASSERT(fmt, "Unknown DBAgent type.");
 
 		stmt = StringUtils::sprintf(fmt,
 		  option.getColumnName(IDX_ITEMS_SERVER_ID).c_str(),
