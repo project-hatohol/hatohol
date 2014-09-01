@@ -22,9 +22,9 @@
 
 namespace RedmineAPI
 {
-	static bool parseIssue(JSONParserAgent &agent,
-			       IncidentInfo &incidentInfo);
-	static bool parseTime(JSONParserAgent &agent,
-			      const std::string &objectName,
-			      mlpl::Time &time);
+	bool parseIssue(JSONParserAgent &agent,
+			IncidentInfo &incidentInfo);
+	bool parseTime(JSONParserAgent &agent,
+		       const std::string &objectName,
+		       mlpl::Time &time);
 }

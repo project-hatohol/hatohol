@@ -20,6 +20,7 @@
 #include "IncidentSenderRedmine.h"
 #include "JSONBuilderAgent.h"
 #include "JSONParserAgent.h"
+#include "RedmineAPI.h"
 #include "ThreadLocalDBCache.h"
 #include <Mutex.h>
 #include <libsoup/soup.h>
@@ -181,42 +182,12 @@ HatoholError IncidentSenderRedmine::parseResponse(
 		return m_impl->parseErrorResponse(response);
 
 	agent.startObject("issue");
-	int64_t issueId = 0;
-	if (!agent.read("id", issueId) || issueId == 0) {
-		MLPL_ERR("Failed to parse Incident ID.\n");
-		return HTERR_FAILED_TO_SEND_INCIDENT;
-	}
-	incidentInfo.identifier = StringUtils::toString((uint64_t)issueId);
 	incidentInfo.location = getIssueURL(incidentInfo.identifier);
-
-	agent.startObject("status");
-	agent.read("name", incidentInfo.status);
+	bool succeeded = RedmineAPI::parseIssue(agent, incidentInfo);
 	agent.endObject();
 
-	if (agent.isMember("assigned_to")) {
-		agent.startObject("assigned_to");
-		agent.read("name", incidentInfo.assignee);
-		agent.endObject();
-	}
-
-	string timeString;
-	GTimeVal _time;
-
-	agent.read("created_on", timeString);
-	if (g_time_val_from_iso8601(timeString.c_str(), &_time))
-		incidentInfo.createdAt.tv_sec = _time.tv_sec;
-	else
-		incidentInfo.createdAt.tv_sec = 0;
-	incidentInfo.createdAt.tv_nsec = 0;
-
-	agent.read("updated_on", timeString);
-	if (g_time_val_from_iso8601(timeString.c_str(), &_time))
-		incidentInfo.updatedAt.tv_sec = _time.tv_sec;
-	else
-		incidentInfo.updatedAt.tv_sec = 0;
-	incidentInfo.updatedAt.tv_nsec = 0;
-
-	agent.endObject();
+	if (!succeeded)
+		return HTERR_FAILED_TO_SEND_INCIDENT;
 
 	return HTERR_OK;
 }
