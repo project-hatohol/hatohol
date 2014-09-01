@@ -287,7 +287,7 @@ void ArmBase::registerAvailableTrigger(const ArmPollingResult &type,
 	m_impl->ArmResultTriggerTable[type].msg = hatoholError.getMessage().c_str();
 }
 
-void ArmBase::setInitialTrrigerStaus(void)
+void ArmBase::setInitialTrrigerStatus(void)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
 
@@ -352,7 +352,7 @@ void ArmBase::createEventInfo(const ArmResultTriggerInfo &resTrigger,
 	eventInfoList.push_back(eventInfo);
 }
 
-void ArmBase::setServerConnectStaus(const bool status, const ArmPollingResult type)
+void ArmBase::setServerConnectStatus(const bool status, const ArmPollingResult type)
 {
 	TriggerInfoList triggerInfoList;
 	EventInfoList eventInfoList;
@@ -423,13 +423,13 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 			m_impl->lastFailureStatus = ARM_WORK_STAT_FAILURE;
 		}
 		if (previousArmWorkStatus == ARM_WORK_STAT_INIT) {
-			setInitialTrrigerStaus();
+			setInitialTrrigerStatus();
 		}
 		if (m_impl->lastFailureStatus != ARM_WORK_STAT_OK) {
-			setServerConnectStaus(false, oneProcEndType);
+			setServerConnectStatus(false, oneProcEndType);
 		} else {
 			if (previousArmWorkStatus != m_impl->lastFailureStatus)
-				setServerConnectStaus(true, oneProcEndType);
+				setServerConnectStatus(true, oneProcEndType);
 		}
 		previousArmWorkStatus = m_impl->lastFailureStatus;
 

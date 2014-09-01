@@ -72,7 +72,7 @@ public:
 
 	const std::string &getName(void) const;
 
-	void setServerConnectStaus(const bool status, const ArmPollingResult type);
+	void setServerConnectStatus(const bool status, const ArmPollingResult type);
 
 	void registerAvailableTrigger(const ArmPollingResult &type,
 				      const TriggerIdType  &trrigerId,
@@ -110,7 +110,7 @@ protected:
 			       TriggerInfoList &triggerInfoList);
 	void createEventInfo(const ArmResultTriggerInfo &resTrigger,
 			     EventInfoList &eventInfoList);
-	void setInitialTrrigerStaus(void);
+	void setInitialTrrigerStatus(void);
 
 private:
 	struct Impl;
