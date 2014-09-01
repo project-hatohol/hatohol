@@ -235,7 +235,6 @@ gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
 
 ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 {
-	// TODO: update m_lastUpdateTime
 	if (m_impl->m_lastUpdateTime == 0) {
 		// There is no incident to update.
 		return COLLECT_OK;
