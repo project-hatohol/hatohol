@@ -19,7 +19,6 @@
 
 #include <gcutter.h>
 #include <cppcutter.h>
-#include "DBClient.h"
 #include "DBClientJoinBuilder.h"
 #include "HostResourceQueryOption.h"
 

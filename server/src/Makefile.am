@@ -48,7 +48,6 @@ libhatohol_la_SOURCES = \
 	DBAgentFactory.cc DBAgentFactory.h \
 	DBAgentMySQL.cc DBAgentMySQL.h \
 	DBAgentSQLite3.cc DBAgentSQLite3.h \
-	DBClient.cc DBClient.h \
 	DB.cc DB.h \
 	DBHatohol.cc DBHatohol.h \
 	DBTables.cc DBTables.h \
