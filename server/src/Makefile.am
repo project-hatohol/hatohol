@@ -88,6 +88,7 @@ libhatohol_la_SOURCES = \
 	NamedPipe.cc NamedPipe.h \
 	OperationPrivilege.cc OperationPrivilege.h \
 	Params.h \
+	RedmineAPI.cc RedmineAPI.h \
 	ResidentProtocol.h \
 	ResidentCommunicator.cc ResidentCommunicator.h \
 	RestResourceAction.cc RestResourceAction.h \
