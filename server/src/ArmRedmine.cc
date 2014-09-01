@@ -18,6 +18,7 @@
  */
 
 #include "ArmRedmine.h"
+#include "RedmineAPI.h"
 #include "JSONParserAgent.h"
 #include <libsoup/soup.h>
 
@@ -145,19 +146,15 @@ struct ArmRedmine::Impl
 		size_t num = agent.countElements();
 		for (size_t i = 0; i < num; i++) {
 			agent.startElement(i);
-			succeeded = parseIssue(agent) && succeeded;
+			IncidentInfo incident;
+			succeeded = succeeded &&
+				RedmineAPI::parseIssue(agent, incident);
+			//TODO: check outdated incidents in DB
 			agent.endObject();
 		}
 		agent.endObject();
 
 		return succeeded;
-	}
-
-	bool parseIssue(JSONParserAgent &agent)
-	{
-		IncidentInfo info;
-		// TODO: Same with IncidentSenderRedmine::parseResponse
-		return true;
 	}
 };
 
