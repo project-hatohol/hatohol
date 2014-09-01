@@ -161,13 +161,26 @@ struct ArmRedmine::Impl
 			MLPL_ERR("Failed to parse issues.\n");
 			return false;
 		}
-		size_t num = agent.countElements();
-		for (size_t i = 0; i < num; i++) {
+		size_t i, num = agent.countElements();
+		time_t previousTime = m_lastUpdateTime;
+		for (i = 0; i < num; i++) {
 			agent.startElement(i);
 			IncidentInfo incident;
 			succeeded = succeeded && parseIssue(agent, incident);
-			//TODO: check outdated incidents in DB
 			agent.endObject();
+
+			time_t updateTime = incident.updatedAt.tv_sec;
+			if (updateTime > m_lastUpdateTime)
+				m_lastUpdateTime = updateTime;
+			if (updateTime >= previousTime) {
+				//TODO: update the incident in DB
+			} else {
+				// All incidents are updated
+				break;
+			}
+		}
+		if (i == num) {
+			//TODO: should load next page
 		}
 		agent.endObject();
 
@@ -181,8 +194,6 @@ struct ArmRedmine::Impl
 		incident.location
 			= RedmineAPI::getIssueURL(m_incidentTrackerInfo,
 						  incident.identifier);
-		if (incident.updatedAt.tv_sec > (uint64_t)m_lastUpdateTime)
-			m_lastUpdateTime = incident.updatedAt.tv_sec;
 		return succeeded;
 	}
 };
