@@ -36,15 +36,15 @@ struct ArmRedmine::Impl
 	SoupSession *m_session;
 	string m_url;
 	GHashTable *m_query;
-	time_t lastUpdateTime;
+	time_t m_lastUpdateTime;
 
 	Impl(const IncidentTrackerInfo &trackerInfo)
 	: m_incidentTrackerInfo(trackerInfo),
 	  m_session(NULL),
 	  m_query(NULL),
-	  lastUpdateTime(0)
+	  m_lastUpdateTime(0)
 	{
-		// TODO: init lastUpdateTime (find it from incidents table)
+		// TODO: init m_lastUpdateTime (find it from incidents table)
 
 		m_session = soup_session_sync_new_with_options(
 			SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS, NULL);
@@ -117,7 +117,7 @@ struct ArmRedmine::Impl
 	void updateQuery(void)
 	{
 		// Filter by created_on
-		if (lastUpdateTime > 0) {
+		if (m_lastUpdateTime > 0) {
 			setQuery("f[]", "updated_on");
 			setQuery("op[updated_on]", ">=");
 			// Redmine doesn't accept time string, use date instead
@@ -129,7 +129,7 @@ struct ArmRedmine::Impl
 	string getLastUpdateDate()
 	{
 		struct tm localTime;
-		localtime_r(&lastUpdateTime, &localTime);
+		localtime_r(&m_lastUpdateTime, &localTime);
 		char buf[16];
 		strftime(buf, sizeof(buf), "%Y-%m-%d", &localTime);
 		return string(buf);
@@ -181,8 +181,8 @@ struct ArmRedmine::Impl
 		incident.location
 			= RedmineAPI::getIssueURL(m_incidentTrackerInfo,
 						  incident.identifier);
-		if (incident.updatedAt.tv_sec > (uint64_t)lastUpdateTime)
-			lastUpdateTime = incident.updatedAt.tv_sec;
+		if (incident.updatedAt.tv_sec > (uint64_t)m_lastUpdateTime)
+			m_lastUpdateTime = incident.updatedAt.tv_sec;
 		return succeeded;
 	}
 };
@@ -235,8 +235,8 @@ gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
 
 ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 {
-	// TODO: update lastUpdateTime
-	if (m_impl->lastUpdateTime == 0) {
+	// TODO: update m_lastUpdateTime
+	if (m_impl->m_lastUpdateTime == 0) {
 		// There is no incident to update.
 		return COLLECT_OK;
 	}
