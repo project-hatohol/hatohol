@@ -181,7 +181,7 @@ struct ArmRedmine::Impl
 		incident.location
 			= RedmineAPI::getIssueURL(m_incidentTrackerInfo,
 						  incident.identifier);
-		if (incident.updatedAt.tv_sec > lastUpdateTime)
+		if (incident.updatedAt.tv_sec > (uint64_t)lastUpdateTime)
 			lastUpdateTime = incident.updatedAt.tv_sec;
 		return succeeded;
 	}
