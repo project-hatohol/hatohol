@@ -112,12 +112,7 @@ string IncidentSenderRedmine::getIssuesJSONURL(void)
 string IncidentSenderRedmine::getIssueURL(const string &id)
 {
 	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
-	string url = trackerInfo.baseURL;
-	if (!StringUtils::hasSuffix(url, "/"))
-		url += "/";
-	url += "issues/";
-	url += id;
-	return url;
+	return RedmineAPI::getIssueURL(trackerInfo, id);
 }
 
 string IncidentSenderRedmine::buildJSON(const EventInfo &event)

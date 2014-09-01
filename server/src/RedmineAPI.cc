@@ -26,6 +26,18 @@ using namespace mlpl;
 namespace RedmineAPI
 {
 
+string getIssueURL(const IncidentTrackerInfo &trackerInfo,
+		   const string &id)
+{
+	string url = trackerInfo.baseURL;
+	if (!StringUtils::hasSuffix(url, "/"))
+		url += "/";
+	url += "issues/";
+	url += id;
+	return url;
+}
+
+
 bool parseIssue(JSONParserAgent &agent, IncidentInfo &incidentInfo)
 {
 	int64_t issueId = 0;

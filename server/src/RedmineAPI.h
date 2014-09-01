@@ -17,11 +17,14 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "DBTablesConfig.h"
 #include "DBTablesMonitoring.h"
 #include "JSONParserAgent.h"
 
 namespace RedmineAPI
 {
+	std::string getIssueURL(const IncidentTrackerInfo &trackerInfo,
+				const std::string &id);
 	bool parseIssue(JSONParserAgent &agent,
 			IncidentInfo &incidentInfo);
 	bool parseDateTime(JSONParserAgent &agent,
