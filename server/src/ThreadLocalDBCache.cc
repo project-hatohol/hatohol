@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -39,21 +39,6 @@ static const size_t DEFAULT_MAX_NUM_CACHE_MYSQL = 100;
 // A DBAgentSQLite3 instance keeps to open a databa file (i.e.
 // use a file descriptor). So we cannot have the instances unlimitedly.
 static const size_t DEFAULT_MAX_NUM_CACHE_SQLITE3 = 100;
-
-// --------------------------------------------------------------------------
-// TODO: These two static members are removed after DBClient is deleted.
-typedef map<DBDomainId, DBClient *> DBClientMap;
-typedef DBClientMap::iterator   DBClientMapIterator;
-
-typedef set<DBClientMap *>       DBClientMapSet;
-typedef DBClientMapSet::iterator DBClientMapSetIterator;
-
-typedef list<DBClient *>       DBClientList;
-typedef DBClientList::iterator DBClientListIterator;
-
-typedef map<DBClient *, DBClientListIterator> DBClientListItrMap;
-typedef DBClientListItrMap::iterator          DBClientListItrMapIterator;
-// --------------------------------------------------------------------------
 
 typedef list<DB *>         DBList;
 typedef DBList::iterator   DBListIterator;
@@ -100,40 +85,14 @@ typedef set<ThreadContext *>       ThreadContextSet;
 typedef ThreadContextSet::iterator ThreadContextSetIterator;
 
 struct ThreadLocalDBCache::Impl {
-	// This lock is for DBClientMapList. clientMap can be accessed w/o
-	// the lock because it is on the thread local storage.
-	static DBClientMapSet dbClientMapSet;   // TODO: remove
 	// TODO: The limitation of cahed objects is now WIP.
 	static size_t maxNumCacheMySQL;
 	static size_t maxNumCacheSQLite3;
 
-	static __thread DBClientMap *clientMap; // TODO: remove
-
 	static Mutex                   lock;
 	static ThreadContextSet        ctxSet;
-	static ThreadLocalDBCacheLRU              dbCacheLRU;
+	static ThreadLocalDBCacheLRU   dbCacheLRU;
 	static __thread ThreadContext *ctx;
-
-	static DBClient *get(DBDomainId domainId) // TODO: remove
-	{
-		if (!clientMap) {
-			clientMap = new DBClientMap();
-			lock.lock();
-			dbClientMapSet.insert(clientMap);
-			lock.unlock();
-		}
-
-		DBClientMapIterator it = clientMap->find(domainId);
-		if (it != clientMap->end())
-			return it->second;
-		DBClient *dbClient = NULL;
-		HATOHOL_ASSERT(dbClient,
-		               "ptr is NULL. domainId: %d\n", domainId);
-		clientMap->insert(
-		  pair<DBDomainId,DBClient *>(domainId, dbClient));
-
-		return dbClient;
-	}
 
 	static ThreadContext *getContext(void)
 	{
@@ -165,35 +124,7 @@ struct ThreadLocalDBCache::Impl {
 		dbCacheLRU.touch(db);
 	}
 
-	static void deleteDBClientMap(DBClientMap *dbClientMap) // TODO: remove
-	{
-		DBClientMapIterator it = dbClientMap->begin();
-		for (; it != dbClientMap->end(); ++it)
-			delete it->second;
-		dbClientMap->clear();
-		delete dbClientMap;
-	}
-
 	static void cleanup(void)
-	{
-		_cleanup();
-
-		// TODO: remove the following lines
-		if (!clientMap)
-			return;
-		lock.lock();
-		DBClientMapSetIterator it = dbClientMapSet.find(clientMap);
-		bool found = (it != dbClientMapSet.end());
-		if (found)
-			dbClientMapSet.erase(it);
-		lock.unlock();
-		HATOHOL_ASSERT(found, "Failed to lookup clientMap: %p.",
-		               clientMap);
-		deleteDBClientMap(clientMap);
-		clientMap = NULL;
-	}
-
-	static void _cleanup(void)
 	{
 		if (!ctx)
 			return;
@@ -207,10 +138,6 @@ struct ThreadLocalDBCache::Impl {
 		ctx = NULL;
 	}
 };
-
-// TODO: These two static members are removed after DBClient is deleted.
-__thread DBClientMap *ThreadLocalDBCache::Impl::clientMap = NULL;
-DBClientMapSet ThreadLocalDBCache::Impl::dbClientMapSet;
 
 size_t ThreadLocalDBCache::Impl::maxNumCacheMySQL
   = DEFAULT_MAX_NUM_CACHE_MYSQL;
@@ -277,17 +204,3 @@ DBTablesMonitoring &ThreadLocalDBCache::getMonitoring(void)
 {
 	return getDBHatohol().getDBTablesMonitoring();
 }
-
-// ---------------------------------------------------------------------------
-// Private methods
-// ---------------------------------------------------------------------------
-template <class T>
-T *ThreadLocalDBCache::get(DBDomainId domainId)
-{
-	DBClient *dbClient = Impl::get(domainId);
-	// Here we use static_cast, although this is downcast.
-	// Sub class other than that correspoinding to domainId is
-	// never returned from the above get() according to the design.
-	return static_cast<T *>(dbClient);
-}
-
