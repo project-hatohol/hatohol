@@ -187,8 +187,24 @@ struct ArmRedmine::Impl
 	}
 };
 
+static MonitoringServerInfo toMonitoringServerInfo(
+  const IncidentTrackerInfo &trackerInfo)
+{
+	MonitoringServerInfo monitoringServer;
+	SoupURI *uri = soup_uri_new(trackerInfo.baseURL.c_str());
+	//TODO: define a new MONITORING_SYSTEM?
+	monitoringServer.type = MONITORING_SYSTEM_UNKNOWN;
+	monitoringServer.hostName = soup_uri_get_host(uri);
+	monitoringServer.port = soup_uri_get_port(uri);
+	//TODO: should be customizable
+	monitoringServer.pollingIntervalSec = 30;
+	monitoringServer.retryIntervalSec = 10;
+	soup_uri_free(uri);
+	return monitoringServer;
+}
+
 ArmRedmine::ArmRedmine(const IncidentTrackerInfo &trackerInfo)
-: ArmBase("ArmRedmine", MonitoringServerInfo()), // TODO: fill server info
+: ArmBase("ArmRedmine", toMonitoringServerInfo(trackerInfo)),
   m_impl(new Impl(trackerInfo))
 {
 }
