@@ -153,6 +153,15 @@ gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
 	          svInfo.hostName.c_str());
+	ArmBase::registerAvailableTrigger(COLLECT_NG_PERSER_ERROR,
+					  FAILED_PARSER_ERROR_TRIGGERID,
+					  HTERR_FAILED_PARSER_ERROR);
+	ArmBase::registerAvailableTrigger(COLLECT_NG_DISCONNECT_ZABBIX,
+					  FAILED_CONNECT_ZABBIX_TRIGGERID,
+					  HTERR_FAILED_CONNECT_ZABBIX);
+	ArmBase::registerAvailableTrigger(COLLECT_NG_INTERNAL_ERROR,
+					  FAILED_INTERNAL_ERROR_TRIGGERID,
+					  HTERR_FAILED_INTERNAL_ERROR);
 	return ArmBase::mainThread(arg);
 }
 
@@ -224,15 +233,15 @@ uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
 //
 // This function just shows a warning if there is missing host ID.
 //
-bool ArmZabbixAPI::mainThreadOneProc(void)
+ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 {
 	if (!updateAuthTokenIfNeeded())
-		return false;
+		return COLLECT_NG_DISCONNECT_ZABBIX;
 
 	try {
 		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
 			updateItems();
-			return true;
+			return COLLECT_OK;
 		}
 
 		ItemTablePtr triggers = updateTriggers();
@@ -243,13 +252,20 @@ bool ArmZabbixAPI::mainThreadOneProc(void)
 
 		if (!getCopyOnDemandEnabled())
 			updateItems();
-	} catch (const DataStoreException &dse) {
-		MLPL_ERR("Error on update: %s\n", dse.what());
+	} catch (const HatoholException &he) {
 		clearAuthToken();
-		return false;
+		if (he.getErrCode() == HTERR_FAILED_CONNECT_ZABBIX) {
+			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
+			return COLLECT_NG_DISCONNECT_ZABBIX;
+		} else if (he.getErrCode() == HTERR_FAILED_PARSER_ERROR) {
+			MLPL_ERR("Error Message parse: %s %d\n", he.what(), he.getErrCode());
+			return COLLECT_NG_PERSER_ERROR;
+		}
+		MLPL_ERR("Error on update: %s %d\n", he.what(), he.getErrCode());
+		return COLLECT_NG_INTERNAL_ERROR;;
 	}
 
-	return true;
+	return COLLECT_OK;
 }
 
 // ---------------------------------------------------------------------------

@@ -40,7 +40,7 @@ static void _assertTestTriggerInfo(const TriggerInfo &triggerInfo)
 	assertValueInParser(g_parser, "lastChangeTime",
 	                    triggerInfo.lastChangeTime);
 	assertValueInParser(g_parser, "serverId", triggerInfo.serverId);
-	assertValueInParser(g_parser, "hostId", triggerInfo.hostId);
+	assertValueInParser(g_parser, "hostId", StringUtils::toString(triggerInfo.hostId));
 	assertValueInParser(g_parser, "brief", triggerInfo.brief);
 }
 #define assertTestTriggerInfo(T) cut_trace(_assertTestTriggerInfo(T))
@@ -80,8 +80,10 @@ static void assertHostsInParser(JSONParserAgent *parser,
 		parser->startElement(i);
 		cppcut_assert_equal(true, parser->read("serverId", var64));
 		const ServerIdType serverId = static_cast<ServerIdType>(var64);
-		cppcut_assert_equal(true, parser->read("id", var64));
-		uint64_t hostId = (uint64_t)var64;
+
+		string hostIdString;
+		cppcut_assert_equal(true, parser->read("id", hostIdString));
+		uint64_t hostId = StringUtils::toUint64(hostIdString);
 
 		hostMapIt = hostInfoMap[serverId].find(hostId);
 		cppcut_assert_equal(true,
@@ -203,8 +205,10 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 		cppcut_assert_equal(true, g_parser->read("serverId", var64));
 		const ServerIdType actSvId =
 		  static_cast<ServerIdType>(var64);
-		cppcut_assert_equal(true, g_parser->read("id", var64));
-		uint64_t actTrigId = (uint64_t)var64;
+
+		string trigIdString;
+		cppcut_assert_equal(true, g_parser->read("id", trigIdString));
+		uint64_t actTrigId = StringUtils::toUint64(trigIdString);
 
 		trigIdIdxIt = indexMap[actSvId].find(actTrigId);
 		cppcut_assert_equal(
@@ -262,10 +266,10 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(g_parser, "serverId", eventInfo.serverId);
 		assertValueInParser(g_parser, "time", eventInfo.time);
 		assertValueInParser(g_parser, "type", eventInfo.type);
-		assertValueInParser(g_parser, "triggerId", eventInfo.triggerId);
+		assertValueInParser(g_parser, "triggerId", StringUtils::toString(eventInfo.triggerId));
 		assertValueInParser(g_parser, "status",    eventInfo.status);
 		assertValueInParser(g_parser, "severity",  eventInfo.severity);
-		assertValueInParser(g_parser, "hostId",    eventInfo.hostId);
+		assertValueInParser(g_parser, "hostId",    StringUtils::toString(eventInfo.hostId));
 		assertValueInParser(g_parser, "brief",     eventInfo.brief);
 		if (shouldHaveIncident) {
 			assertStartObject(g_parser, "incident");
@@ -336,7 +340,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 		const ItemInfo &itemInfo = *itemInfoPtr;
 
 		assertValueInParser(g_parser, "serverId", itemInfo.serverId);
-		assertValueInParser(g_parser, "hostId", itemInfo.hostId);
+		assertValueInParser(g_parser, "hostId", StringUtils::toString(itemInfo.hostId));
 		assertValueInParser(g_parser, "brief", itemInfo.brief);
 		assertValueInParser(g_parser, "lastValueTime",
 		                    itemInfo.lastValueTime);

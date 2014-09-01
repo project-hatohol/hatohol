@@ -37,6 +37,7 @@ public:
 	void add(const std::string &member, const std::string &value);
 	void add(const std::string &member, gint64 value);
 	void add(const gint64 value);
+	void add(const std::string &value);
 	void addTrue(const std::string &member);
 	void addFalse(const std::string &member);
 	void addNull(const std::string &member);

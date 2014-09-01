@@ -127,6 +127,16 @@ void HatoholError::init(void)
 	DEFINE_ERR(FAILED_TO_SEND_INCIDENT,
 		   "Failed to send an incident to an incident tracker.");
 
+	// ArmConnectionFailure
+	DEFINE_ERR(FAILED_CONNECT_ZABBIX,
+		   "Failed in connecting to Zabbix.");
+	DEFINE_ERR(FAILED_CONNECT_MYSQL,
+		   "Failed in connecting to MySQL.");
+	DEFINE_ERR(FAILED_INTERNAL_ERROR,
+		   "Failed in executing of system call.");
+	DEFINE_ERR(FAILED_PARSER_ERROR,
+		   "Failed to parse the received message.");
+
 	// OTHER
 	DEFINE_ERR(ERROR_TEST,
 		   "Error test.");

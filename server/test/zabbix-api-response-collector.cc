@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include "Hatohol.h"
 #include "ArmZabbixAPI.h"
+#include "HatoholError.h"
 using namespace std;
 
 static const int DEFAULT_PORT = 80;
@@ -117,7 +118,8 @@ bool ZabbixAPIResponseCollector::commandFuncTrigger(CommandContext &ctx)
 	if (!commandFuncOpenSilent(ctx))
 		return false;
 
-	SoupMessage *msg = queryTrigger();
+	HatoholError queryRet;
+	SoupMessage *msg = queryTrigger(queryRet);
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);
@@ -130,7 +132,8 @@ bool ZabbixAPIResponseCollector::commandFuncItem(CommandContext &ctx)
 	if (!commandFuncOpenSilent(ctx))
 		return false;
 
-	SoupMessage *msg = queryItem();
+	HatoholError queryRet;
+	SoupMessage *msg = queryItem(queryRet);
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);
@@ -143,7 +146,8 @@ bool ZabbixAPIResponseCollector::commandFuncHost(CommandContext &ctx)
 	if (!commandFuncOpenSilent(ctx))
 		return false;
 
-	SoupMessage *msg = queryHost();
+	HatoholError queryRet;
+	SoupMessage *msg = queryHost(queryRet);
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);
@@ -156,7 +160,8 @@ bool ZabbixAPIResponseCollector::commandFuncEvent(CommandContext &ctx)
 	if (!commandFuncOpenSilent(ctx))
 		return false;
 
-	SoupMessage *msg = queryEvent(0, UNLIMITED);
+	HatoholError queryRet;
+	SoupMessage *msg = queryEvent(0, UNLIMITED, queryRet);
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);
@@ -170,7 +175,8 @@ bool ZabbixAPIResponseCollector::commandFuncApplication(CommandContext &ctx)
 		return false;
 
 	vector<uint64_t> hostIds; // empty means all hosts.
-	SoupMessage *msg = queryApplication(hostIds);
+	HatoholError queryRet;
+	SoupMessage *msg = queryApplication(hostIds, queryRet);
 	if (!msg)
 		return false;
 	printf("%s\n", msg->response_body->data);

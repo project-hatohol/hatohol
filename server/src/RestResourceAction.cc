@@ -113,13 +113,14 @@ void RestResourceAction::handleGet(void)
 		agent.add("enableBits", cond.enableBits);
 		setActionCondition<ServerIdType>(
 		  agent, cond, "serverId", ACTCOND_SERVER_ID, cond.serverId);
-		setActionCondition<uint64_t>(
-		  agent, cond, "hostId", ACTCOND_HOST_ID, cond.hostId);
+		setActionCondition<std::string>(
+		   agent, cond, "hostId", ACTCOND_HOST_ID, StringUtils::toString(cond.hostId));
 		setActionCondition<uint64_t>(
 		  agent, cond, "hostgroupId", ACTCOND_HOST_GROUP_ID,
 		   cond.hostgroupId);
-		setActionCondition<uint64_t>(
-		  agent, cond, "triggerId", ACTCOND_TRIGGER_ID, cond.triggerId);
+		setActionCondition<std::string>(
+		  agent, cond, "triggerId", ACTCOND_TRIGGER_ID, 
+		  StringUtils::toString(cond.triggerId));
 		setActionCondition<uint32_t>(
 		  agent, cond, "triggerStatus", ACTCOND_TRIGGER_STATUS,
 		  cond.triggerStatus);

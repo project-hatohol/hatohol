@@ -34,6 +34,21 @@ public:
 		UPDATE_ITEM_REQUEST,
 	} UpdateType;
 
+	typedef enum {
+		COLLECT_NG_PERSER_ERROR = 0,
+		COLLECT_NG_DISCONNECT_ZABBIX,
+		COLLECT_NG_DISCONNECT_NAGIOS,
+		COLLECT_NG_INTERNAL_ERROR,
+		NUM_COLLECT_NG_KIND,
+		COLLECT_OK,
+	} ArmPollingResult;
+
+	struct ArmResultTriggerInfo {
+		TriggerStatusType statusType;
+		TriggerIdType triggerId;
+		std::string msg;
+	};
+
 public:
 	ArmBase(const std::string &name,
 	        const MonitoringServerInfo &serverInfo);
@@ -57,7 +72,11 @@ public:
 
 	const std::string &getName(void) const;
 
+	void setServerConnectStaus(const bool status, const ArmPollingResult type);
 
+	void registerAvailableTrigger(const ArmPollingResult &type,
+				      const TriggerIdType  &trrigerId,
+				      const HatoholError   &hatholError);
 protected:
 	/**
 	 * Request to exit the thread and wait for the complition.
@@ -77,7 +96,7 @@ protected:
 	gpointer mainThread(HatoholThreadArg *arg);
 
 	// virtual methods defined in this class
-	virtual bool mainThreadOneProc(void) = 0;
+	virtual ArmPollingResult mainThreadOneProc(void) = 0;
 
 	UpdateType getUpdateType(void) const;
 	void       setUpdateType(UpdateType updateType);
@@ -86,6 +105,12 @@ protected:
 	void setFailureInfo(
 	  const std::string &comment,
 	  const ArmWorkingStatus &status = ARM_WORK_STAT_FAILURE);
+	
+	void createTriggerInfo(const ArmResultTriggerInfo &resTrigger,
+			       TriggerInfoList &triggerInfoList);
+	void createEventInfo(const ArmResultTriggerInfo &resTrigger,
+			     EventInfoList &eventInfoList);
+	void setInitialTrrigerStaus(void);
 
 private:
 	struct Impl;

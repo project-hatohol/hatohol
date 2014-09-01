@@ -23,6 +23,7 @@
 #include "ActionManager.h"
 #include "ActorCollector.h"
 #include "DBTablesAction.h"
+#include "DBTablesMonitoring.h"
 #include "NamedPipe.h"
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"
@@ -525,10 +526,12 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 	for (; it != eventList.end(); ++it) {
 		ActionDefList actionDefList;
 		const EventInfo &eventInfo = *it;
-		if (shouldSkipByTime(eventInfo))
-			continue;
-		if (shouldSkipByLog(eventInfo, dbAction))
-			continue;
+		if (eventInfo.id != DISCONNECT_SERVER_EVENT_ID) {
+			if (shouldSkipByTime(eventInfo))
+				continue;
+			if (shouldSkipByLog(eventInfo, dbAction))
+				continue;
+		}
 		ActionsQueryOption option(USER_ID_SYSTEM);
 		// TODO: sort IncidentSender type actions by priority
 		option.setActionType(ACTION_ALL);

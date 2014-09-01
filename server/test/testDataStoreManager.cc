@@ -34,9 +34,9 @@ public:
 	{
 	}
 
-	virtual bool mainThreadOneProc(void) override
+	virtual ArmPollingResult mainThreadOneProc(void) override
 	{
-		return true;
+		return COLLECT_OK;
 	}
 };
 

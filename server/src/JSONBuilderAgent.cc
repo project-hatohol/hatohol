@@ -101,6 +101,11 @@ void JSONBuilderAgent::add(const gint64 value)
 	json_builder_add_int_value(m_builder, value);
 }
 
+void JSONBuilderAgent::add(const string &value)
+{
+	json_builder_add_string_value(m_builder, value.c_str());
+}
+
 void JSONBuilderAgent::addTrue(const string &member)
 {
 	json_builder_set_member_name(m_builder, member.c_str());

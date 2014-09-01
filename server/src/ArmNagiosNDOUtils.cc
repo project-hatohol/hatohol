@@ -25,6 +25,7 @@
 #include "ItemGroupStream.h"
 #include "DBClientJoinBuilder.h"
 #include "SQLUtils.h"
+#include "HatoholException.h"
 using namespace std;
 using namespace mlpl;
 
@@ -759,10 +760,16 @@ gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("started: ArmNagiosNDOUtils (server: %s)\n",
 	          svInfo.hostName.c_str());
+	ArmBase::registerAvailableTrigger(COLLECT_NG_DISCONNECT_NAGIOS,
+					  FAILED_CONNECT_MYSQL_TRIGGERID,
+					  HTERR_FAILED_CONNECT_MYSQL);
+	ArmBase::registerAvailableTrigger(COLLECT_NG_INTERNAL_ERROR,
+					  FAILED_INTERNAL_ERROR_TRIGGERID,
+					  HTERR_FAILED_INTERNAL_ERROR);
 	return ArmBase::mainThread(arg);
 }
 
-bool ArmNagiosNDOUtils::mainThreadOneProc(void)
+ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 {
 	try {
 		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
@@ -776,10 +783,18 @@ bool ArmNagiosNDOUtils::mainThreadOneProc(void)
 			if (!getCopyOnDemandEnabled())
 				getItem();
 		}
+	} catch (const HatoholException &he) {
+		if (he.getErrCode() == HTERR_FAILED_CONNECT_MYSQL) {
+			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
+			return COLLECT_NG_DISCONNECT_NAGIOS;
+		} else {
+			MLPL_ERR("Got exception: %s\n", he.what());
+			return COLLECT_NG_INTERNAL_ERROR;
+		}
 	} catch (const exception &e) {
 		MLPL_ERR("Got exception: %s\n", e.what());
-		return false;
+		return COLLECT_NG_INTERNAL_ERROR;
 	}
-	return true;
+	return COLLECT_OK;
 }
 
