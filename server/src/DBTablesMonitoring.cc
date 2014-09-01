@@ -1987,11 +1987,11 @@ size_t DBTablesMonitoring::getNumberOfTriggers(
 		// this case, we should distinguish duplicated records. Althogh
 		// we have to use 2 columns (server ID and trigger ID) to do
 		// it, count() function doesn't accept multiple arguments.
-		// To avoid this incident we concat server ID and trigger ID.
+		// To avoid this issue we concat server ID and trigger ID.
 
 		// TODO: The statement depends on SQL implementations.
 		// We should remove this code after we improve the hostgroups
-		// incident by using sub query (github incident #168).
+		// issue by using sub query (github issue #168).
 		const char *fmt = NULL;
 		const type_info &dbAgentType = typeid(getDBAgent());
 		if (dbAgentType == typeid(DBAgentSQLite3))
@@ -2118,7 +2118,7 @@ size_t DBTablesMonitoring::getNumberOfItems(
 	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt = "count(*)";
 	if (option.isHostgroupUsed()) {
-		// TODO: It has a same incident with getNumberOfTriggers();
+		// TODO: It has a same issue with getNumberOfTriggers();
 		const char *fmt = NULL;
 		const type_info &dbAgentType = typeid(getDBAgent());
 		if (dbAgentType == typeid(DBAgentSQLite3))
