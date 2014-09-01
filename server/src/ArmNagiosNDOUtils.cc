@@ -358,8 +358,6 @@ static const DBAgent::TableProfile tableProfileStateHistory =
 struct ArmNagiosNDOUtils::Impl
 {
 	DBAgentMySQL        *dbAgent;
-	ThreadLocalDBCache   cache; // TODO: should not be a member. This is alive until the destruction.
-	DBTablesMonitoring  &dbMonitoring;
 	DBClientJoinBuilder  selectTriggerBuilder;
 	DBClientJoinBuilder  selectEventBuilder;
 	DBClientJoinBuilder  selectItemBuilder;
@@ -374,7 +372,6 @@ struct ArmNagiosNDOUtils::Impl
 	// methods
 	Impl(const MonitoringServerInfo &_serverInfo)
 	: dbAgent(NULL),
-	  dbMonitoring(cache.getMonitoring()),
 	  selectTriggerBuilder(tableProfileServices),
 	  selectEventBuilder(tableProfileStateHistory),
 	  selectItemBuilder(tableProfileServices),
@@ -516,9 +513,10 @@ void ArmNagiosNDOUtils::makeSelectHostgroupMembersArg(void)
 
 void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
 {
+	ThreadLocalDBCache cache;
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	time_t lastUpdateTime =
-	   m_impl->dbMonitoring.getLastChangeTimeOfTrigger(svInfo.id);
+	   cache.getMonitoring().getLastChangeTimeOfTrigger(svInfo.id);
 	struct tm tm;
 	localtime_r(&lastUpdateTime, &tm);
 
@@ -533,8 +531,9 @@ void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
 
 void ArmNagiosNDOUtils::addConditionForEventQuery(void)
 {
+	ThreadLocalDBCache cache;
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	uint64_t lastEventId = m_impl->dbMonitoring.getLastEventId(svInfo.id);
+	uint64_t lastEventId = cache.getMonitoring().getLastEventId(svInfo.id);
 	string cond;
 	DBAgent::SelectExArg &arg = m_impl->selectEventBuilder.getSelectExArg();
 	arg.condition = m_impl->selectEventBaseCondition;
@@ -591,7 +590,8 @@ void ArmNagiosNDOUtils::getTrigger(void)
 		itemGroupStream >> trigInfo.hostName; // hosts.display_name
 		triggerInfoList.push_back(trigInfo);
 	}
-	m_impl->dbMonitoring.addTriggerInfoList(triggerInfoList);
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
 }
 
 void ArmNagiosNDOUtils::getEvent(void)
@@ -675,7 +675,8 @@ void ArmNagiosNDOUtils::getItem(void)
 
 		itemInfoList.push_back(itemInfo);
 	}
-	m_impl->dbMonitoring.addItemInfoList(itemInfoList);
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().addItemInfoList(itemInfoList);
 }
 
 void ArmNagiosNDOUtils::getHost(void)
@@ -699,7 +700,8 @@ void ArmNagiosNDOUtils::getHost(void)
 		itemGroupStream >> hostInfo.hostName;
 		hostInfoList.push_back(hostInfo);
 	}
-	m_impl->dbMonitoring.addHostInfoList(hostInfoList);
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().addHostInfoList(hostInfoList);
 }
 
 void ArmNagiosNDOUtils::getHostgroup(void)
@@ -724,7 +726,8 @@ void ArmNagiosNDOUtils::getHostgroup(void)
 		itemGroupStream >> hostgroupInfo.groupName;
 		hostgroupInfoList.push_back(hostgroupInfo);
 	}
-	m_impl->dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().addHostgroupInfoList(hostgroupInfoList);
 }
 
 void ArmNagiosNDOUtils::getHostgroupMembers(void)
@@ -749,7 +752,8 @@ void ArmNagiosNDOUtils::getHostgroupMembers(void)
 		itemGroupStream >> hostgroupElement.hostId;
 		hostgroupElementList.push_back(hostgroupElement);
 	}
-	m_impl->dbMonitoring.addHostgroupElementList(hostgroupElementList);
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().addHostgroupElementList(hostgroupElementList);
 }
 
 void ArmNagiosNDOUtils::connect(void)
