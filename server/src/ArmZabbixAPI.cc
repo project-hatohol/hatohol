@@ -44,14 +44,11 @@ static const guint DEFAULT_IDLE_TIMEOUT = 60;
 struct ArmZabbixAPI::Impl
 {
 	const ServerIdType zabbixServerId;
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring;
 	HostInfoCache      hostInfoCache;
 
 	// constructors
 	Impl(const MonitoringServerInfo &serverInfo)
-	: zabbixServerId(serverInfo.id),
-	  dbMonitoring(cache.getMonitoring())
+	: zabbixServerId(serverInfo.id)
 	{
 	}
 };
@@ -112,8 +109,9 @@ void ArmZabbixAPI::updateEvents(void)
 		return;
 	}
 
+	ThreadLocalDBCache cache;
 	const EventIdType dbLastEventId =
-	  m_impl->dbMonitoring.getLastEventId(m_impl->zabbixServerId);
+	  cache.getMonitoring().getLastEventId(m_impl->zabbixServerId);
 	MLPL_DBG("The last event ID in Hatohol DB: %" FMT_EVENT_ID "\n", dbLastEventId);
 	EventIdType eventIdFrom = dbLastEventId == EVENT_ID_NOT_FOUND ?
 	                          getEndEventId(true) :
@@ -167,11 +165,12 @@ gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 
 void ArmZabbixAPI::makeHatoholTriggers(ItemTablePtr triggers)
 {
+	ThreadLocalDBCache cache;
 	TriggerInfoList triggerInfoList;
 	HatoholDBUtils::transformTriggersToHatoholFormat(
 	  triggerInfoList, triggers, m_impl->zabbixServerId,
 	  m_impl->hostInfoCache);
-	m_impl->dbMonitoring.addTriggerInfoList(triggerInfoList);
+	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
 }
 
 void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
@@ -187,37 +186,42 @@ void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
 void ArmZabbixAPI::makeHatoholItems(
   ItemTablePtr items, ItemTablePtr applications)
 {
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	ItemInfoList itemInfoList;
 	MonitoringServerStatus serverStatus;
 	serverStatus.serverId = m_impl->zabbixServerId;
 	HatoholDBUtils::transformItemsToHatoholFormat(
 	  itemInfoList, serverStatus, items, applications);
-	m_impl->dbMonitoring.addItemInfoList(itemInfoList);
-	m_impl->dbMonitoring.addMonitoringServerStatus(&serverStatus);
+	dbMonitoring.addItemInfoList(itemInfoList);
+	dbMonitoring.addMonitoringServerStatus(&serverStatus);
 }
 
 void ArmZabbixAPI::makeHatoholHostgroups(ItemTablePtr groups)
 {
+	ThreadLocalDBCache cache;
 	HostgroupInfoList groupInfoList;
 	HatoholDBUtils::transformGroupsToHatoholFormat(groupInfoList, groups,
 	                                               m_impl->zabbixServerId);
-	m_impl->dbMonitoring.addHostgroupInfoList(groupInfoList);
+	cache.getMonitoring().addHostgroupInfoList(groupInfoList);
 }
 
 void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
 {
+	ThreadLocalDBCache cache;
 	HostgroupElementList hostgroupElementList;
 	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
 	  hostgroupElementList, hostsGroups, m_impl->zabbixServerId);
-	m_impl->dbMonitoring.addHostgroupElementList(hostgroupElementList);
+	cache.getMonitoring().addHostgroupElementList(hostgroupElementList);
 }
 
 void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 {
+	ThreadLocalDBCache cache;
 	HostInfoList hostInfoList;
 	HatoholDBUtils::transformHostsToHatoholFormat(hostInfoList, hosts,
 	                                              m_impl->zabbixServerId);
-	m_impl->dbMonitoring.addHostInfoList(hostInfoList);
+	cache.getMonitoring().addHostInfoList(hostInfoList);
 
 	// TODO: consider if DBClientHatohol should have the cache
 	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
