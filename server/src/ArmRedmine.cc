@@ -147,13 +147,22 @@ struct ArmRedmine::Impl
 		for (size_t i = 0; i < num; i++) {
 			agent.startElement(i);
 			IncidentInfo incident;
-			succeeded = succeeded &&
-				RedmineAPI::parseIssue(agent, incident);
+			succeeded = succeeded && parseIssue(agent, incident);
 			//TODO: check outdated incidents in DB
 			agent.endObject();
 		}
 		agent.endObject();
 
+		return succeeded;
+	}
+
+	bool parseIssue(JSONParserAgent &agent,	IncidentInfo &incident)
+	{
+		bool succeeded = RedmineAPI::parseIssue(agent, incident);
+		incident.trackerId = m_incidentTrackerInfo.id;
+		incident.location
+			= RedmineAPI::getIssueURL(m_incidentTrackerInfo,
+						  incident.identifier);
 		return succeeded;
 	}
 };
