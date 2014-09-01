@@ -182,8 +182,8 @@ HatoholError IncidentSenderRedmine::parseResponse(
 		return m_impl->parseErrorResponse(response);
 
 	agent.startObject("issue");
-	incidentInfo.location = getIssueURL(incidentInfo.identifier);
 	bool succeeded = RedmineAPI::parseIssue(agent, incidentInfo);
+	incidentInfo.location = getIssueURL(incidentInfo.identifier);
 	agent.endObject();
 
 	if (!succeeded)
