@@ -352,12 +352,12 @@ void ArmBase::createEventInfo(const ArmResultTriggerInfo &resTrigger,
 	eventInfoList.push_back(eventInfo);
 }
 
-void ArmBase::setServerConnectStatus(const bool status, const ArmPollingResult type)
+void ArmBase::setServerConnectStatus(const bool available, const ArmPollingResult type)
 {
 	TriggerInfoList triggerInfoList;
 	EventInfoList eventInfoList;
 
-	if (status) {
+	if (available) {
 		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
 			ArmResultTriggerInfo &trgInfo = m_impl->ArmResultTriggerTable[i];
 			if (trgInfo.statusType == TRIGGER_STATUS_PROBLEM) {
