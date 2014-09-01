@@ -53,7 +53,6 @@ static void init(void)
 	DBAgentSQLite3::init();
 	DBAgentMySQL::init();
 	DBTablesUser::init();
-	DBTablesMonitoring::init();
 	DBTablesAction::init();
 
 	ItemData::init();
@@ -70,11 +69,13 @@ static void reset(const CommandLineOptions *cmdLineOpts)
 
 	DBAgentSQLite3::reset();
 	DBHatohol::reset();
-	DBClient::reset();
-	DBTablesConfig::reset(); // must be after DBClient::reset()
+	
+	// These should be place after DBHatohol::reset()
+	DBTablesConfig::reset();
 	DBTablesUser::reset();
-	DBTablesAction::reset(); // must be after DBTablesConfig::reset()
-	DBTablesHost::reset();   // must be after DBHatohol::reset()
+	DBTablesAction::reset();
+	DBTablesHost::reset();
+	DBTablesMonitoring::reset();
 
 	ActionManager::reset();
 	ThreadLocalDBCache::reset();

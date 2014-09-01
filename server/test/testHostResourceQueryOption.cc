@@ -211,7 +211,7 @@ static string makeExpectedConditionForUser(
 		return "";
 	}
 	if (it == userIdIndexMap.end())
-		return DBTablesMonitoring::getAlwaysFalseCondition();
+		return DBHatohol::getAlwaysFalseCondition();
 
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	const set<int> &indexes = it->second;
@@ -280,7 +280,7 @@ void test_makeSelectConditionNoneUser(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	string actual = option.getCondition();
-	string expect = DBTablesMonitoring::getAlwaysFalseCondition();
+	string expect = DBHatohol::getAlwaysFalseCondition();
 	cppcut_assert_equal(actual, expect);
 }
 
@@ -489,7 +489,7 @@ void test_makeConditionServerWithEmptyIdSet(void)
 	ServerIdSet svIdSet;
 	string actual = TestHostResourceQueryOption::callMakeConditionServer(
 	                  svIdSet, "meet");
-	cppcut_assert_equal(DBTablesMonitoring::getAlwaysFalseCondition(), actual);
+	cppcut_assert_equal(DBHatohol::getAlwaysFalseCondition(), actual);
 }
 
 void test_getPrimaryTableName(void)
@@ -524,7 +524,7 @@ void test_setGetOfFilterForDataOfDefunctServers(gconstpointer data)
 void test_makeConditionEmpty(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	string expect = DBTablesMonitoring::getAlwaysFalseCondition();
+	string expect = DBHatohol::getAlwaysFalseCondition();
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 

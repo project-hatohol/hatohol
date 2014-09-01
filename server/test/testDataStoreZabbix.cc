@@ -21,6 +21,7 @@
 #include "DataStoreZabbix.h"
 #include "Hatohol.h"
 #include "ArmZabbixAPI.h"
+#include "DBTablesTest.h"
 
 using namespace mlpl;
 
@@ -29,6 +30,7 @@ namespace testDataStoreZabbix {
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDB();
 }
 
 // ---------------------------------------------------------------------------

@@ -23,16 +23,13 @@
 #include "DBTablesHost.h" 
 #include "DBTablesUser.h"
 #include "DBTablesAction.h"
+#include "DBTablesMonitoring.h"
 
 using namespace std;
 
 static const char *DEFAULT_DB_NAME = "hatohol";
 static const char *DEFAULT_USER_NAME = "hatohol";
 static const char *DEFAULT_PASSWORD  = "hatohol";
-
-// These are stub to pass the build
-class DBTablesMonitor {
-};
 
 struct DBHatohol::Impl {
 	static SetupContext setupCtx;
@@ -41,14 +38,14 @@ struct DBHatohol::Impl {
 	DBTablesHost    dbTablesHost;
 	DBTablesUser    dbTablesUser;
 	DBTablesAction  dbTablesAction;
-	DBTablesMonitor dbTablesMonitor;
+	DBTablesMonitoring dbTablesMonitoring;
 
 	Impl(DBAgent &dbAgent)
 	: dbTablesConfig(dbAgent),
 	  dbTablesHost(dbAgent),
 	  dbTablesUser(dbAgent),
 	  dbTablesAction(dbAgent),
-	  dbTablesMonitor(/*dbAgent*/)
+	  dbTablesMonitoring(dbAgent)
 	{
 	}
 };
@@ -111,7 +108,7 @@ DBTablesAction &DBHatohol::getDBTablesAction(void)
 	return m_impl->dbTablesAction;
 }
 
-DBTablesMonitor &DBHatohol::getDBTablesMonitor(void)
+DBTablesMonitoring &DBHatohol::getDBTablesMonitoring(void)
 {
-	return m_impl->dbTablesMonitor;
+	return m_impl->dbTablesMonitoring;
 }

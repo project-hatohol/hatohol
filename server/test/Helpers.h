@@ -98,7 +98,6 @@ bool isVerboseMode(void);
 
 std::string getDBPathForDBClientHatohol(void);
 
-std::string execSqlite3ForDBClientHatohol(const std::string &statement);
 std::string execMySQL(const std::string &dbName, const std::string &statement,
                       bool showHeader = false);
 

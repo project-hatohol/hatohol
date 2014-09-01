@@ -321,16 +321,6 @@ static const DBAgent::TableProfile tableProfileActionLogs =
 			    COLUMN_DEF_ACTION_LOGS,
 			    NUM_IDX_ACTION_LOGS);
 
-static const DBClient::DBSetupTableInfo DB_TABLE_INFO[] = {
-{
-	&tableProfileActions,
-}, {
-	&tableProfileActionLogs,
-}
-};
-static const size_t NUM_TABLE_INFO =
-sizeof(DB_TABLE_INFO) / sizeof(DBClient::DBSetupTableInfo);
-
 static bool addColumnOwnerUserId(DBAgent &dbAgent)
 {
 	DBAgent::AddColumnsArg addColumnsArg(tableProfileActions);
