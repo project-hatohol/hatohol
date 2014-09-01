@@ -21,7 +21,6 @@
 #include <list>
 #include <Mutex.h>
 #include "Params.h"
-#include "DBClient.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;

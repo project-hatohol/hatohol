@@ -26,7 +26,6 @@
 #include <SmartTime.h>
 #include "ItemTable.h"
 #include "DBAgent.h"
-#include "DBClient.h"
 #include "HatoholError.h"
 #include "OperationPrivilege.h"
 #include "DBTablesConfig.h"
