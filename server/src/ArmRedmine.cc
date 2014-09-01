@@ -194,6 +194,7 @@ static MonitoringServerInfo toMonitoringServerInfo(
 	SoupURI *uri = soup_uri_new(trackerInfo.baseURL.c_str());
 	//TODO: define a new MONITORING_SYSTEM?
 	monitoringServer.type = MONITORING_SYSTEM_UNKNOWN;
+	monitoringServer.nickname = trackerInfo.nickname;
 	monitoringServer.hostName = soup_uri_get_host(uri);
 	monitoringServer.port = soup_uri_get_port(uri);
 	//TODO: should be customizable
