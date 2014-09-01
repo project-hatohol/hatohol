@@ -54,7 +54,7 @@ struct ArmRedmine::Impl
 						soup_str_case_equal,
 						g_free, g_free);
 		buildURL();
-		buildQuery();
+		buildBaseQuery();
 	}
 
 	virtual ~Impl()
@@ -97,16 +97,7 @@ struct ArmRedmine::Impl
 		g_hash_table_insert(m_query, g_strdup(key), g_strdup(value));
 	}
 
-	string getLastUpdateDate()
-	{
-		struct tm localTime;
-		localtime_r(&lastUpdateTime, &localTime);
-		char buf[16];
-		strftime(buf, sizeof(buf), "%Y-%m-%d", &localTime);
-		return string(buf);
-	}
-
-	void buildQuery(void)
+	void buildBaseQuery(void)
 	{
 		g_hash_table_remove_all(m_query);
 
@@ -121,7 +112,10 @@ struct ArmRedmine::Impl
 		// Filter by status_id
 		addQuery("f[]", "status_id");
 		addQuery("op[status_id]", "*"); // all
+	}
 
+	void updateQuery(void)
+	{
 		// Filter by created_on
 		if (lastUpdateTime > 0) {
 			addQuery("f[]", "updated_on");
@@ -130,6 +124,15 @@ struct ArmRedmine::Impl
 			addQuery("v[updated_on][]",
 				 getLastUpdateDate().c_str());
 		}
+	}
+
+	string getLastUpdateDate()
+	{
+		struct tm localTime;
+		localtime_r(&lastUpdateTime, &localTime);
+		char buf[16];
+		strftime(buf, sizeof(buf), "%Y-%m-%d", &localTime);
+		return string(buf);
 	}
 
 	void handleError(int soupStatus, const string &response)
@@ -201,6 +204,7 @@ std::string ArmRedmine::getURL(void)
 
 std::string ArmRedmine::getQuery(void)
 {
+	m_impl->updateQuery();
 	char *query = soup_form_encode_hash(m_impl->m_query);
 	string retval = query;
 	g_free(query);
@@ -220,6 +224,7 @@ ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 		return COLLECT_OK;
 	}
 
+	m_impl->updateQuery();
 	SoupMessage *msg = soup_form_request_new_from_hash(
 		SOUP_METHOD_GET, m_impl->m_url.c_str(), m_impl->m_query);
 	soup_message_headers_set_content_type(msg->request_headers,
