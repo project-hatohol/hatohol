@@ -92,7 +92,7 @@ struct ArmRedmine::Impl
 		m_url += "issues.json";
 	}
 
-	void addQuery(const char *key, const char *value)
+	void setQuery(const char *key, const char *value)
 	{
 		g_hash_table_insert(m_query, g_strdup(key), g_strdup(value));
 	}
@@ -103,25 +103,25 @@ struct ArmRedmine::Impl
 
 		string &projectId = m_incidentTrackerInfo.projectId;
 		string &trackerId = m_incidentTrackerInfo.trackerId;
-		addQuery("project_id", projectId.c_str());
+		setQuery("project_id", projectId.c_str());
 		if (!trackerId.empty())
-			addQuery("tracker_id", trackerId.c_str());
-		addQuery("limit", "100"); // 100 is max
-		addQuery("sort", "updated_on:desc");
+			setQuery("tracker_id", trackerId.c_str());
+		setQuery("limit", "100"); // 100 is max
+		setQuery("sort", "updated_on:desc");
 
 		// Filter by status_id
-		addQuery("f[]", "status_id");
-		addQuery("op[status_id]", "*"); // all
+		setQuery("f[]", "status_id");
+		setQuery("op[status_id]", "*"); // all
 	}
 
 	void updateQuery(void)
 	{
 		// Filter by created_on
 		if (lastUpdateTime > 0) {
-			addQuery("f[]", "updated_on");
-			addQuery("op[updated_on]", ">=");
+			setQuery("f[]", "updated_on");
+			setQuery("op[updated_on]", ">=");
 			// Redmine doesn't accept time string, use date instead
-			addQuery("v[updated_on][]",
+			setQuery("v[updated_on][]",
 				 getLastUpdateDate().c_str());
 		}
 	}
