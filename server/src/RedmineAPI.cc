@@ -45,16 +45,16 @@ bool parseIssue(JSONParserAgent &agent, IncidentInfo &incidentInfo)
 		agent.endObject();
 	}
 
-	if (!parseTime(agent, "created_on", incidentInfo.createdAt))
+	if (!parseDateTime(agent, "created_on", incidentInfo.createdAt))
 		return false;
-	if (!parseTime(agent, "updated_on", incidentInfo.updatedAt))
+	if (!parseDateTime(agent, "updated_on", incidentInfo.updatedAt))
 		return false;
 
 	return true;
 }
 
-bool parseTime(JSONParserAgent &agent, const string &objectName,
-	       mlpl::Time &time)
+bool parseDateTime(JSONParserAgent &agent, const string &objectName,
+		   mlpl::Time &time)
 {
 	string timeString;
 	GTimeVal _time;

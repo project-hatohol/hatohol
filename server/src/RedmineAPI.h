@@ -24,7 +24,7 @@ namespace RedmineAPI
 {
 	bool parseIssue(JSONParserAgent &agent,
 			IncidentInfo &incidentInfo);
-	bool parseTime(JSONParserAgent &agent,
-		       const std::string &objectName,
-		       mlpl::Time &time);
+	bool parseDateTime(JSONParserAgent &agent,
+			   const std::string &objectName,
+			   mlpl::Time &time);
 }
