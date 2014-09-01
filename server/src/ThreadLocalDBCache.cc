@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -91,7 +91,7 @@ struct ThreadLocalDBCache::Impl {
 
 	static Mutex                   lock;
 	static ThreadContextSet        ctxSet;
-	static ThreadLocalDBCacheLRU              dbCacheLRU;
+	static ThreadLocalDBCacheLRU   dbCacheLRU;
 	static __thread ThreadContext *ctx;
 
 	static ThreadContext *getContext(void)
