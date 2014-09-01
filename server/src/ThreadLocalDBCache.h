@@ -56,8 +56,6 @@ private:
 	static void *operator new(size_t);
 
 	struct Impl;
-
-	template <class T> T *get(DBDomainId domainId);
 };
 
 #endif // ThreadLocalDBCache_h
