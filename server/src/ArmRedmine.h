@@ -32,7 +32,7 @@ public:
 protected:
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg) override;
-	virtual bool mainThreadOneProc(void) override;
+	virtual ArmBase::ArmPollingResult mainThreadOneProc(void) override;
 
 	std::string getURL(void);
 	std::string getQuery(void);

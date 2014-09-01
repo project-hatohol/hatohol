@@ -189,7 +189,7 @@ gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
 	return ArmBase::mainThread(arg);
 }
 
-bool ArmRedmine::mainThreadOneProc(void)
+ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 {
 	SoupMessage *msg = soup_form_request_new_from_hash(
 		SOUP_METHOD_GET, m_impl->m_url.c_str(), m_impl->m_query);
@@ -201,8 +201,12 @@ bool ArmRedmine::mainThreadOneProc(void)
 
 	if (!SOUP_STATUS_IS_SUCCESSFUL(soupStatus)) {
 		m_impl->handleError(soupStatus, response);
-		return false;
+		//TODO: Is a server error also "disconnect"?
+		return COLLECT_NG_DISCONNECT_REDMINE;
 	}
 
-	return m_impl->parseResponse(response);
+	if (m_impl->parseResponse(response))
+		return COLLECT_OK;
+	else
+		return COLLECT_NG_PERSER_ERROR;
 }
