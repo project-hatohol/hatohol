@@ -137,8 +137,11 @@ struct ArmRedmine::Impl
 			return false;
 		}
 
-		bool succeeded = true;
-		agent.startObject("issues");
+		bool succeeded = agent.startObject("issues");
+		if (!succeeded) {
+			MLPL_ERR("Failed to parse issues.\n");
+			return false;
+		}
 		size_t num = agent.countElements();
 		for (size_t i = 0; i < num; i++) {
 			agent.startElement(i);
