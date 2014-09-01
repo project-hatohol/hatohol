@@ -352,12 +352,12 @@ void ArmBase::createEventInfo(const ArmResultTriggerInfo &resTrigger,
 	eventInfoList.push_back(eventInfo);
 }
 
-void ArmBase::setServerConnectStatus(const bool available, const ArmPollingResult type)
+void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 {
 	TriggerInfoList triggerInfoList;
 	EventInfoList eventInfoList;
 
-	if (available) {
+	if (type == COLLECT_OK) {
 		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
 			ArmResultTriggerInfo &trgInfo = m_impl->ArmResultTriggerTable[i];
 			if (trgInfo.statusType == TRIGGER_STATUS_PROBLEM) {
@@ -411,8 +411,8 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 	ArmWorkingStatus previousArmWorkStatus = ARM_WORK_STAT_INIT;
 	while (!hasExitRequest()) {
 		int sleepTime = m_impl->getSecondsToNextPolling();
-		ArmPollingResult oneProcEndType = mainThreadOneProc();
-		if (oneProcEndType == COLLECT_OK) {
+		ArmPollingResult armPollingResult = mainThreadOneProc();
+		if (armPollingResult == COLLECT_OK) {
 			m_impl->armStatus.logSuccess();
 			m_impl->lastFailureStatus = ARM_WORK_STAT_OK;
 		} else {
@@ -426,10 +426,10 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 			setInitialTrrigerStatus();
 		}
 		if (m_impl->lastFailureStatus != ARM_WORK_STAT_OK) {
-			setServerConnectStatus(false, oneProcEndType);
+			setServerConnectStatus(armPollingResult);
 		} else {
 			if (previousArmWorkStatus != m_impl->lastFailureStatus)
-				setServerConnectStatus(true, oneProcEndType);
+				setServerConnectStatus(armPollingResult);
 		}
 		previousArmWorkStatus = m_impl->lastFailureStatus;
 

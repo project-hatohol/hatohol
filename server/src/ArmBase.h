@@ -72,7 +72,7 @@ public:
 
 	const std::string &getName(void) const;
 
-	void setServerConnectStatus(const bool available, const ArmPollingResult type);
+	void setServerConnectStatus(const ArmPollingResult &type);
 
 	void registerAvailableTrigger(const ArmPollingResult &type,
 				      const TriggerIdType  &trrigerId,
