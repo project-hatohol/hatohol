@@ -27,7 +27,7 @@ using namespace std;
 // Public methods
 // ---------------------------------------------------------------------------
 DBAgent* DBAgentFactory::create(DBDomainId domainId,
-                                const string &dbName, bool skipSetup,
+                                const string &dbName,
                                 const DBConnectInfo *connectInfo)
 {
 	// TODO: This method is now not used. We will fix this method to
@@ -39,7 +39,7 @@ DBAgent* DBAgentFactory::create(DBDomainId domainId,
 		                        connectInfo->getPassword(),
 		                        connectInfo->getHost(),
 		                        connectInfo->port,
-		                        domainId, skipSetup);
+		                        domainId);
 	}
-	return new DBAgentSQLite3(dbName, domainId, skipSetup);
+	return new DBAgentSQLite3(dbName, domainId);
 }

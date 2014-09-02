@@ -177,8 +177,8 @@ const DBTermCodec *DBAgentSQLite3::getDBTermCodecStatic(void)
 }
 
 DBAgentSQLite3::DBAgentSQLite3(const string &dbName,
-                               DBDomainId domainId, bool skipSetup)
-: DBAgent(domainId, skipSetup),
+                               DBDomainId domainId)
+: DBAgent(domainId),
   m_impl(new Impl())
 {
 	if (!dbName.empty() && !Impl::isDBPathDefined(domainId)) {

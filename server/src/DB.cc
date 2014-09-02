@@ -104,7 +104,7 @@ struct DB::Impl {
 		                             connectInfo.getPassword(),
 		                             connectInfo.getHost(),
 		                             connectInfo.port,
-		                             JUNK_DID, true /*skipSetup*/));
+		                             JUNK_DID));
 	}
 };
 const string DB::Impl::alwaysFalseCondition = "0";

@@ -214,7 +214,7 @@ public:
 	static void addSetupFunction(DBDomainId domainId,
 	                             DBSetupFunc setupFunc, void *data = NULL);
 
-	DBAgent(DBDomainId = DEFAULT_DB_DOMAIN_ID, bool skipSetup = false);
+	DBAgent(DBDomainId = DEFAULT_DB_DOMAIN_ID);
 	virtual ~DBAgent();
 	DBDomainId getDBDomainId(void) const;
 

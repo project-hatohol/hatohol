@@ -364,12 +364,9 @@ void DBAgent::addSetupFunction(DBDomainId domainId,
 	Impl::unlock();
 }
 
-DBAgent::DBAgent(DBDomainId domainId, bool skipSetup)
+DBAgent::DBAgent(DBDomainId domainId)
 : m_impl(new Impl(domainId))
 {
-	if (skipSetup)
-		return;
-
 	Impl::lock();
 	pair<DBSetupInfoMapIterator, DBSetupInfoMapIterator> matchedRange = 
 	  Impl::setupInfoMap.equal_range(domainId);

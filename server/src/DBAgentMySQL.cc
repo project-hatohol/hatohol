@@ -81,8 +81,8 @@ void DBAgentMySQL::init(void)
 
 DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
                            const char *host, unsigned int port,
-                           DBDomainId domainId, bool skipSetup)
-: DBAgent(domainId, skipSetup),
+                           DBDomainId domainId)
+: DBAgent(domainId),
   m_impl(new Impl())
 {
 	m_impl->dbName   = db     ? : "";
