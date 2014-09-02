@@ -151,7 +151,7 @@ gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
 	          svInfo.hostName.c_str());
-	ArmBase::registerAvailableTrigger(COLLECT_NG_PERSER_ERROR,
+	ArmBase::registerAvailableTrigger(COLLECT_NG_PARSER_ERROR,
 					  FAILED_PARSER_ERROR_TRIGGERID,
 					  HTERR_FAILED_PARSER_ERROR);
 	ArmBase::registerAvailableTrigger(COLLECT_NG_DISCONNECT_ZABBIX,
@@ -263,7 +263,7 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 			return COLLECT_NG_DISCONNECT_ZABBIX;
 		} else if (he.getErrCode() == HTERR_FAILED_PARSER_ERROR) {
 			MLPL_ERR("Error Message parse: %s %d\n", he.what(), he.getErrCode());
-			return COLLECT_NG_PERSER_ERROR;
+			return COLLECT_NG_PARSER_ERROR;
 		}
 		MLPL_ERR("Error on update: %s %d\n", he.what(), he.getErrCode());
 		return COLLECT_NG_INTERNAL_ERROR;;
