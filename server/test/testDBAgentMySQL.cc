@@ -30,8 +30,6 @@ namespace testDBAgentMySQL {
 
 static const char *TEST_DB_NAME = "test_db_agent_mysql";
 
-DBAgentMySQL *g_dbAgent = NULL;
-
 static string getEngine(const string &dbName, const string &tableName)
 {
 	string sql = StringUtils::sprintf(
@@ -394,16 +392,6 @@ public:
 	}
 };
 
-static void _createGlobalDBAgent(void)
-{
-	try {
-		g_dbAgent = new DBAgentMySQL(TEST_DB_NAME);
-	} catch (const exception &e) {
-		cut_fail("%s", e.what());
-	}
-}
-#define createGlobalDBAgent() cut_trace(_createGlobalDBAgent())
-
 void _assertIsRecordExisting(bool skipInsert)
 {
 	static const char *tableName = "foo";
@@ -419,9 +407,9 @@ void _assertIsRecordExisting(bool skipInsert)
 	}
 
 	string condition = StringUtils::sprintf("id=%d", id);
-	createGlobalDBAgent();
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
 	cppcut_assert_equal
-	  (!skipInsert, g_dbAgent->isRecordExisting(tableName, condition));
+	  (!skipInsert, dbAgent.isRecordExisting(tableName, condition));
 }
 #define assertIsRecordExisting(SI) cut_trace(_assertIsRecordExisting(SI))
 
@@ -432,18 +420,12 @@ void cut_setup(void)
 	makeTestMySQLDBIfNeeded(TEST_DB_NAME, recreate);
 }
 
-void cut_teardown(void)
-{
-	delete g_dbAgent;
-	g_dbAgent = NULL;
-}
-
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
 void test_create(void)
 {
-	createGlobalDBAgent();
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
 }
 
 void test_isRecordExisting(void)
@@ -494,14 +476,14 @@ void test_getIndexes(void)
 //
 void test_execSql(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestExecSql(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestExecSql(dbAgent, dbAgentChecker);
 }
 
 void test_createTable(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestCreateTable(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestCreateTable(dbAgent, dbAgentChecker);
 }
 
 void data_makeCreateIndexStatement(void)
@@ -511,182 +493,182 @@ void data_makeCreateIndexStatement(void)
 
 void test_makeCreateIndexStatement(gconstpointer data)
 {
-	createGlobalDBAgent();
-	dbAgentTestMakeCreateIndexStatement(*g_dbAgent, dbAgentChecker, data);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestMakeCreateIndexStatement(dbAgent, dbAgentChecker, data);
 }
 
 void test_makeDropIndexStatement(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestMakeDropIndexStatement(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestMakeDropIndexStatement(dbAgent, dbAgentChecker);
 }
 
 void test_fixupIndexes(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestFixupIndexes(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestFixupIndexes(dbAgent, dbAgentChecker);
 }
 
 void test_insert(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestInsert(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestInsert(dbAgent, dbAgentChecker);
 }
 
 void test_insertUint64_0x7fffffffffffffff(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestInsertUint64(*g_dbAgent, dbAgentChecker, 0x7fffffffffffffff);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestInsertUint64(dbAgent, dbAgentChecker, 0x7fffffffffffffff);
 }
 
 void test_insertUint64_0x8000000000000000(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestInsertUint64(*g_dbAgent, dbAgentChecker, 0x8000000000000000);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestInsertUint64(dbAgent, dbAgentChecker, 0x8000000000000000);
 }
 
 void test_insertUint64_0xffffffffffffffff(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestInsertUint64(*g_dbAgent, dbAgentChecker, 0xffffffffffffffff);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestInsertUint64(dbAgent, dbAgentChecker, 0xffffffffffffffff);
 }
 
 void test_insertNull(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestInsertNull(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestInsertNull(dbAgent, dbAgentChecker);
 }
 
 void test_upsert(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestUpsert(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestUpsert(dbAgent, dbAgentChecker);
 }
 
 void test_upsertWithPrimaryKeyAutoInc(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestUpsertWithPrimaryKeyAutoInc(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestUpsertWithPrimaryKeyAutoInc(dbAgent, dbAgentChecker);
 }
 
 void test_update(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestUpdate(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestUpdate(dbAgent, dbAgentChecker);
 }
 
 void test_updateCondition(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestUpdateCondition(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestUpdateCondition(dbAgent, dbAgentChecker);
 }
 
 void test_select(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestSelect(*g_dbAgent);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestSelect(dbAgent);
 }
 
 void test_selectEx(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestSelectEx(*g_dbAgent);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestSelectEx(dbAgent);
 }
 
 void test_selectExWithCond(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestSelectExWithCond(*g_dbAgent);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestSelectExWithCond(dbAgent);
 }
 
 void test_selectExWithCondAllColumns(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestSelectExWithCondAllColumns(*g_dbAgent);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestSelectExWithCondAllColumns(dbAgent);
 }
 
 void test_selectExWithOrderBy(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestSelectHeightOrder(*g_dbAgent);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestSelectHeightOrder(dbAgent);
 }
 
 void test_selectExWithOrderByLimit(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestSelectHeightOrder(*g_dbAgent, 1);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestSelectHeightOrder(dbAgent, 1);
 }
 
 void test_selectExWithOrderByLimitTwo(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestSelectHeightOrder(*g_dbAgent, 2);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestSelectHeightOrder(dbAgent, 2);
 }
 
 void test_selectExWithOrderByLimitOffset(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestSelectHeightOrder(*g_dbAgent, 2, 1);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestSelectHeightOrder(dbAgent, 2, 1);
 }
 
 void test_selectExWithOrderByLimitOffsetOverData(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestSelectHeightOrder(*g_dbAgent, 1, NUM_TEST_DATA, 0);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestSelectHeightOrder(dbAgent, 1, NUM_TEST_DATA, 0);
 }
 
 void test_delete(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestDelete(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestDelete(dbAgent, dbAgentChecker);
 }
 
 void test_addColumns(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestAddColumns(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestAddColumns(dbAgent, dbAgentChecker);
 }
 
 void test_renameTable(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestRenameTable(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestRenameTable(dbAgent, dbAgentChecker);
 }
 
 void test_isTableExisting(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestIsTableExisting(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestIsTableExisting(dbAgent, dbAgentChecker);
 }
 
 void test_autoIncrement(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestAutoIncrement(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestAutoIncrement(dbAgent, dbAgentChecker);
 }
 
 void test_autoIncrementWithDel(void)
 {
-	createGlobalDBAgent();
-	dbAgentTestAutoIncrementWithDel(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestAutoIncrementWithDel(dbAgent, dbAgentChecker);
 }
 
 void test_updateIfExistElseInsert(void)
 {
-	createGlobalDBAgent();
-	dbAgentUpdateIfExistEleseInsert(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentUpdateIfExistEleseInsert(dbAgent, dbAgentChecker);
 }
 
 void test_getLastInsertId(void)
 {
-	createGlobalDBAgent();
-	dbAgentGetLastInsertId(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentGetLastInsertId(dbAgent, dbAgentChecker);
 }
 
 void test_getNumberOfAffectedRows(void)
 {
-	createGlobalDBAgent();
-	dbAgentGetNumberOfAffectedRows(*g_dbAgent, dbAgentChecker);
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentGetNumberOfAffectedRows(dbAgent, dbAgentChecker);
 }
 
 } // testDBAgentMySQL
