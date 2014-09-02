@@ -20,6 +20,7 @@
 #include "ArmRedmine.h"
 #include "RedmineAPI.h"
 #include "JSONParserAgent.h"
+#include "UnifiedDataStore.h"
 #include <time.h>
 #include <libsoup/soup.h>
 
@@ -44,7 +45,10 @@ struct ArmRedmine::Impl
 	  m_query(NULL),
 	  m_lastUpdateTime(0)
 	{
-		// TODO: init m_lastUpdateTime (find it from incidents table)
+		IncidentTrackerIdType trackerId = m_incidentTrackerInfo.id;
+		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+		m_lastUpdateTime
+			= dataStore->getLastUpdateTimeOfIncidents(trackerId);
 
 		m_session = soup_session_sync_new_with_options(
 			SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS, NULL);
