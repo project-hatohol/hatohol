@@ -180,6 +180,8 @@ public:
 	HatoholError deleteIncidentTracker(
 	  const IncidentTrackerIdType &incidentTrackerId,
 	  const OperationPrivilege &privilege);
+	uint64_t getLastUpdateTimeOfIncidents(
+	  const IncidentTrackerIdType &trackerId);
 
 	/**
 	 * get a vector of pointers of DataStore instance.

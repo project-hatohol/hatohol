@@ -639,6 +639,14 @@ HatoholError UnifiedDataStore::deleteIncidentTracker(
 	return dbConfig.deleteIncidentTracker(incidentTrackerId, privilege);
 }
 
+uint64_t UnifiedDataStore::getLastUpdateTimeOfIncidents(
+  const IncidentTrackerIdType &trackerId)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	return dbMonitoring.getLastUpdateTimeOfIncidents(trackerId);
+}
+
 DataStoreVector UnifiedDataStore::getDataStoreVector(void)
 {
 	return m_impl->getDataStoreVector();
