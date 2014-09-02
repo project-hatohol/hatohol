@@ -411,6 +411,8 @@ public:
 	void addIncidentInfo(IncidentInfo *incidentInfo);
 	HatoholError getIncidentInfoVect(IncidentInfoVect &incidentInfoVect,
 					 const IncidentsQueryOption &option);
+	uint64_t getLastUpdateTimeOfIncidents(
+	  const IncidentTrackerIdType &trackerId);
 
 protected:
 	static SetupInfo &getSetupInfo(void);
