@@ -87,8 +87,9 @@ void test_baseQueryString(void)
 	cppcut_assert_equal(expected, arm.callGetQuery());
 }
 
-void test_oneProc(void)
+void test_oneProcWihNoUpdatedIssues(void)
 {
+	loadTestDBIncidents();
 	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[2];
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 	ArmRedmineTestee arm(tracker);
