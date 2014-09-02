@@ -29,6 +29,7 @@ using namespace mlpl;
 
 // TODO: should share with other classes such as IncidentSenderRedmine
 static const guint DEFAULT_TIMEOUT_SECONDS = 60;
+static const int DEFAULT_PAGE_LIMIT = 100;
 static const char *MIME_JSON = "application/json";
 
 typedef enum {
@@ -44,6 +45,7 @@ struct ArmRedmine::Impl
 	string m_url;
 	GHashTable *m_query;
 	int m_page;
+	int m_pageLimit;
 	time_t m_lastUpdateTime;
 	time_t m_lastUpdateTimePending;
 
@@ -52,6 +54,7 @@ struct ArmRedmine::Impl
 	  m_session(NULL),
 	  m_query(NULL),
 	  m_page(1),
+	  m_pageLimit(DEFAULT_PAGE_LIMIT),
 	  m_lastUpdateTime(0),
 	  m_lastUpdateTimePending(0)
 	{
@@ -324,8 +327,12 @@ RETRY:
 
 	switch (result) {
 	case PARSE_RESULT_NEED_NEXT_PAGE:
+		if (m_impl->m_page >= m_impl->m_pageLimit) {
+			MLPL_ERR("Too many updated records "
+				 "or something is wrong!\n");
+			return COLLECT_NG_INTERNAL_ERROR;
+		}
 		m_impl->setPage(m_impl->m_page + 1);
-		//TODO: check inifinite loop
 		goto RETRY;
 	case PARSE_RESULT_OK:
 		return COLLECT_OK;
