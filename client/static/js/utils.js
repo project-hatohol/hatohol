@@ -202,7 +202,7 @@ function getTriggerBrief(server, triggerId) {
   if (!server || !server["triggers"] || !(triggerId in server["triggers"]))
     return getNamelessTriggerName(triggerId);
 
-  var triggerName = server["triggers"][triggerId]["name"];
+  var triggerName = server["triggers"][triggerId]["brief"];
   if (!triggerName)
     return getNamelessTriggerName(triggerId);
 
