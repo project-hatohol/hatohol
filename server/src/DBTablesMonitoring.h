@@ -410,7 +410,7 @@ public:
 
 	void addIncidentInfo(IncidentInfo *incidentInfo);
 	HatoholError getIncidentInfoVect(IncidentInfoVect &incidentInfoVect,
-				      const IncidentsQueryOption &option);
+					 const IncidentsQueryOption &option);
 
 protected:
 	static SetupInfo &getSetupInfo(void);
