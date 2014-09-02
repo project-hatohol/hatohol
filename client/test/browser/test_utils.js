@@ -211,7 +211,7 @@ describe('getTriggerBrief', function() {
 	  "name": "server",
 	  "triggers": {
 	      "2": {
-		  "name": "trigger"
+		  "brief": "trigger"
 	      }
 	  }
       };
