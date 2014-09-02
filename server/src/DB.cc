@@ -103,8 +103,7 @@ struct DB::Impl {
 		                             connectInfo.getUser(),
 		                             connectInfo.getPassword(),
 		                             connectInfo.getHost(),
-		                             connectInfo.port,
-		                             JUNK_DID));
+		                             connectInfo.port));
 	}
 };
 const string DB::Impl::alwaysFalseCondition = "0";
