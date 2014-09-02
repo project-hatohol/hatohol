@@ -183,7 +183,8 @@ struct ArmRedmine::Impl
 	{
 		JSONParserAgent agent(response);
 		if (agent.hasError()) {
-			MLPL_ERR("Failed to parse response.\n");
+			MLPL_ERR("Failed to parse error response: %s\n",
+				 agent.getErrorMessage());
 			return PARSE_RESULT_ERROR;
 		}
 		if (agent.isMember("errors")) {
@@ -194,6 +195,7 @@ struct ArmRedmine::Impl
 		bool succeeded = agent.startObject("issues");
 		if (!succeeded) {
 			MLPL_ERR("Failed to parse issues.\n");
+			MLPL_DBG("Response: %s\n", response.c_str());
 			return PARSE_RESULT_ERROR;
 		}
 		size_t i, num = agent.countElements();
