@@ -208,9 +208,9 @@ struct ArmRedmine::Impl
 			agent.endObject();
 
 			time_t updateTime = incident.updatedAt.tv_sec;
-			if (updateTime > m_lastUpdateTime)
-				m_lastUpdateTime = updateTime;
-			if (updateTime >= m_lastUpdateTimePending) {
+			if (updateTime > m_lastUpdateTimePending)
+				m_lastUpdateTimePending = updateTime;
+			if (updateTime >= m_lastUpdateTime) {
 				//TODO: update the incident in DB
 			} else {
 				// All incidents are updated
