@@ -186,6 +186,10 @@ struct ArmRedmine::Impl
 			MLPL_ERR("Failed to parse response.\n");
 			return PARSE_RESULT_ERROR;
 		}
+		if (agent.isMember("errors")) {
+			RedmineAPI::logErrors(agent);
+			return PARSE_RESULT_ERROR;
+		}
 
 		bool succeeded = agent.startObject("issues");
 		if (!succeeded) {
