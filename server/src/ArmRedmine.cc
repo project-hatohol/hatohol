@@ -43,13 +43,17 @@ struct ArmRedmine::Impl
 	SoupSession *m_session;
 	string m_url;
 	GHashTable *m_query;
+	int m_page;
 	time_t m_lastUpdateTime;
+	time_t m_lastUpdateTimePending;
 
 	Impl(const IncidentTrackerInfo &trackerInfo)
 	: m_incidentTrackerInfo(trackerInfo),
 	  m_session(NULL),
 	  m_query(NULL),
-	  m_lastUpdateTime(0)
+	  m_page(0),
+	  m_lastUpdateTime(0),
+	  m_lastUpdateTimePending(0)
 	{
 		IncidentTrackerIdType trackerId = m_incidentTrackerInfo.id;
 		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -105,6 +109,23 @@ struct ArmRedmine::Impl
 	void setQuery(const char *key, const char *value)
 	{
 		g_hash_table_insert(m_query, g_strdup(key), g_strdup(value));
+	}
+
+	void removeQuery(const char *key)
+	{
+		g_hash_table_remove(m_query, key);
+	}
+
+	void setPage(const int &page)
+	{
+		m_page = page;
+		if (page <= 0) {
+			removeQuery("page");
+		} else {
+			string pageString = StringUtils::toString(m_page);
+			g_hash_table_insert(m_query, g_strdup("page"),
+					    g_strdup(pageString.c_str()));
+		}
 	}
 
 	void buildBaseQuery(void)
@@ -172,7 +193,8 @@ struct ArmRedmine::Impl
 			return PARSE_RESULT_ERROR;
 		}
 		size_t i, num = agent.countElements();
-		time_t previousTime = m_lastUpdateTime;
+		if (m_lastUpdateTime > m_lastUpdateTimePending)
+			m_lastUpdateTimePending = m_lastUpdateTime;
 		for (i = 0; i < num; i++) {
 			agent.startElement(i);
 			IncidentInfo incident;
@@ -182,7 +204,7 @@ struct ArmRedmine::Impl
 			time_t updateTime = incident.updatedAt.tv_sec;
 			if (updateTime > m_lastUpdateTime)
 				m_lastUpdateTime = updateTime;
-			if (updateTime >= previousTime) {
+			if (updateTime >= m_lastUpdateTimePending) {
 				//TODO: update the incident in DB
 			} else {
 				// All incidents are updated
@@ -191,10 +213,11 @@ struct ArmRedmine::Impl
 		}
 		agent.endObject();
 
-		if (i == num)
+		if (num != 0 && i == num)
 			return PARSE_RESULT_NEED_NEXT_PAGE;
-		else
-			return PARSE_RESULT_OK;
+
+		m_lastUpdateTime = m_lastUpdateTimePending;
+		return PARSE_RESULT_OK;
 	}
 
 	bool parseIssue(JSONParserAgent &agent,	IncidentInfo &incident)
@@ -261,6 +284,9 @@ ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 		return COLLECT_OK;
 	}
 
+	m_impl->setPage(0);
+
+RETRY:
 	m_impl->updateQuery();
 	SoupMessage *msg = soup_form_request_new_from_hash(
 		SOUP_METHOD_GET, m_impl->m_url.c_str(), m_impl->m_query);
@@ -279,8 +305,9 @@ ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 
 	switch (result) {
 	case PARSE_RESULT_NEED_NEXT_PAGE:
-		//TODO: implement
-		return COLLECT_OK;
+		m_impl->setPage(m_impl->m_page + 1);
+		//TODO: check inifinite loop
+		goto RETRY;
 	case PARSE_RESULT_OK:
 		return COLLECT_OK;
 	case PARSE_RESULT_ERROR:
