@@ -186,8 +186,8 @@ struct RedmineAPIEmulator::PrivateContext {
 	map<string, string> m_passwords;
 	string m_currentUser;
 	size_t m_issueId;
-	string m_lastRequest;
-	string m_lastResponse;
+	string m_lastRequestBody;
+	string m_lastResponseBody;
 	RedmineIssue m_lastIssue;
 	queue<Response> m_dummyResponseQueue;
 };
@@ -208,8 +208,8 @@ void RedmineAPIEmulator::reset(void)
 	m_ctx->m_passwords.clear();
 	m_ctx->m_currentUser.clear();
 	m_ctx->m_issueId = 0;
-	m_ctx->m_lastRequest.clear();
-	m_ctx->m_lastResponse.clear();
+	m_ctx->m_lastRequestBody.clear();
+	m_ctx->m_lastResponseBody.clear();
 	m_ctx->m_lastIssue = RedmineIssue();
 	queue<Response> empty;
 	std::swap(m_ctx->m_dummyResponseQueue, empty);
@@ -221,14 +221,14 @@ void RedmineAPIEmulator::addUser(const std::string &userName,
 	m_ctx->m_passwords[userName] = password;
 }
 
-const string &RedmineAPIEmulator::getLastRequest(void) const
+const string &RedmineAPIEmulator::getLastRequestBody(void) const
 {
-	return m_ctx->m_lastRequest;
+	return m_ctx->m_lastRequestBody;
 }
 
-const string &RedmineAPIEmulator::getLastResponse(void) const
+const string &RedmineAPIEmulator::getLastResponseBody(void) const
 {
-	return m_ctx->m_lastResponse;
+	return m_ctx->m_lastResponseBody;
 }
 
 const RedmineIssue &RedmineAPIEmulator::getLastIssue(void) const
@@ -314,8 +314,8 @@ int RedmineAPIEmulator::PrivateContext::getTrackerId(const string &trackerId)
 
 void RedmineAPIEmulator::PrivateContext::replyGetIssue(SoupMessage *msg)
 {
-	m_lastRequest.assign(msg->request_body->data,
-			     msg->request_body->length);
+	m_lastRequestBody.assign(msg->request_body->data,
+				 msg->request_body->length);
 
 	string path = getFixturesDir() + "redmine-issues.json";
 	gchar *contents = NULL;
@@ -334,9 +334,9 @@ void RedmineAPIEmulator::PrivateContext::replyGetIssue(SoupMessage *msg)
 
 void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 {
-	m_lastRequest.assign(msg->request_body->data,
-			     msg->request_body->length);
-	JSONParserAgent agent(m_lastRequest);
+	m_lastRequestBody.assign(msg->request_body->data,
+				 msg->request_body->length);
+	JSONParserAgent agent(m_lastRequestBody);
 
 	if (agent.hasError()) {
 		soup_message_set_status(
@@ -377,18 +377,18 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 	if (errors.empty()) {
 		RedmineIssue issue(++m_issueId, subject, description,
 				   m_currentUser, trackerId);
-		m_lastResponse = issue.toJSON();
+		m_lastResponseBody = issue.toJSON();
 		m_lastIssue = issue;
 		soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
-					 m_lastResponse.c_str(),
-					 m_lastResponse.size());
+					 m_lastResponseBody.c_str(),
+					 m_lastResponseBody.size());
 		soup_message_set_status(msg, SOUP_STATUS_OK);
 	} else {
 		errors += "]}";
 		soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 					 errors.c_str(), errors.size());
 		soup_message_set_status(msg, SOUP_STATUS_UNPROCESSABLE_ENTITY);
-		m_lastResponse = errors;
+		m_lastResponseBody = errors;
 	}
 }
 
