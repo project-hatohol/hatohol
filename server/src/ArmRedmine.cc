@@ -51,7 +51,7 @@ struct ArmRedmine::Impl
 	: m_incidentTrackerInfo(trackerInfo),
 	  m_session(NULL),
 	  m_query(NULL),
-	  m_page(0),
+	  m_page(1),
 	  m_lastUpdateTime(0),
 	  m_lastUpdateTimePending(0)
 	{
@@ -119,7 +119,7 @@ struct ArmRedmine::Impl
 	void setPage(const int &page)
 	{
 		m_page = page;
-		if (page <= 0) {
+		if (page <= 1) {
 			removeQuery("page");
 		} else {
 			string pageString = StringUtils::toString(m_page);
@@ -290,7 +290,7 @@ ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 		return COLLECT_OK;
 	}
 
-	m_impl->setPage(0);
+	m_impl->setPage(1);
 
 RETRY:
 	m_impl->updateQuery();
