@@ -76,6 +76,28 @@ void test_getURL(void)
 			    arm.callGetURL());
 }
 
+static int stringCompare(const void *a, const void *b)
+{
+	return strcmp(*(const char**)a,*(const char**)b);
+}
+
+static void _assertQuery(const string &expected, const string &actual)
+{
+	const gchar **expectedList =
+		cut_take_string_array(g_strsplit(expected.c_str(), "&", -1));
+	qsort(expectedList, g_strv_length((gchar**)expectedList),
+	      sizeof(gchar *), stringCompare);
+
+	const gchar **actualList =
+		cut_take_string_array(g_strsplit(actual.c_str(), "&", -1));
+	qsort(actualList, g_strv_length((gchar**)actualList),
+	      sizeof(gchar *), stringCompare);
+
+	cut_assert_equal_string_array((gchar**)expectedList,
+				      (gchar**)actualList);
+}
+#define assertQuery(E,A) cut_trace(_assertQuery(E,A))
+
 void test_baseQueryString(void)
 {
 	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
@@ -84,7 +106,7 @@ void test_baseQueryString(void)
 		"f%5B%5D=status%5Fid&op%5Bstatus%5Fid%5D=%2A&"
 		"limit=100&project%5Fid=1&tracker%5Fid=3&"
 		"sort=updated%5Fon%3Adesc";
-	cppcut_assert_equal(expected, arm.callGetQuery());
+	assertQuery(expected, arm.callGetQuery());
 }
 
 void test_oneProcWihNoUpdatedIssues(void)
