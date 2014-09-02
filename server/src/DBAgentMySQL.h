@@ -41,8 +41,7 @@ public:
 	             const char *passwd = NULL, //   passwd is not checked
 	             const char *host = NULL,   //   localhost is used
 	             unsigned int port = 0,     //   default port is used
-	             DBDomainId domainId = DB_DOMAIN_ID_NONE,
-	             bool skipSetup = false);
+	             DBDomainId domainId = DB_DOMAIN_ID_NONE);
 	virtual ~DBAgentMySQL();
 	std::string getDBName(void) const;
 	void getIndexes(std::vector<IndexStruct> &indexStructVect,

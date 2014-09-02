@@ -54,8 +54,7 @@ public:
 
 	// constructor and destructor
 	DBAgentSQLite3(const std::string &dbName = "",
-	               DBDomainId domainId = DEFAULT_DB_DOMAIN_ID,
-	               bool skipSetup = false);
+	               DBDomainId domainId = DEFAULT_DB_DOMAIN_ID);
 	virtual ~DBAgentSQLite3();
 
 	void getIndexes(std::vector<IndexStruct> &indexStructVect,
