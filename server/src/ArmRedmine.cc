@@ -219,11 +219,24 @@ struct ArmRedmine::Impl
 		}
 		agent.endObject();
 
-		if (num != 0 && i == num)
+		if (num != 0 && i == num) {
+			hasNextPage(agent, num);
 			return PARSE_RESULT_NEED_NEXT_PAGE;
+		}
 
 		m_lastUpdateTime = m_lastUpdateTimePending;
 		return PARSE_RESULT_OK;
+	}
+
+	bool hasNextPage(JSONParserAgent &agent, const int &numIssues)
+	{
+		int64_t offset = 0;
+		int64_t total = 0;
+		agent.read("offset", offset);
+		agent.read("total_count", total);
+		if (offset + numIssues >= total)
+			return false;
+		return true;
 	}
 
 	bool parseIssue(JSONParserAgent &agent,	IncidentInfo &incident)
