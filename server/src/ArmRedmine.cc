@@ -31,6 +31,12 @@ using namespace mlpl;
 static const guint DEFAULT_TIMEOUT_SECONDS = 60;
 static const char *MIME_JSON = "application/json";
 
+typedef enum {
+	PARSE_RESULT_OK,
+	PARSE_RESULT_ERROR,
+	PARSE_RESULT_NEED_NEXT_PAGE,
+} ParseResult;
+
 struct ArmRedmine::Impl
 {
 	IncidentTrackerInfo m_incidentTrackerInfo;
@@ -152,18 +158,18 @@ struct ArmRedmine::Impl
 		}
 	}
 
-	bool parseResponse(const string &response)
+	ParseResult parseResponse(const string &response)
 	{
 		JSONParserAgent agent(response);
 		if (agent.hasError()) {
 			MLPL_ERR("Failed to parse response.\n");
-			return false;
+			return PARSE_RESULT_ERROR;
 		}
 
 		bool succeeded = agent.startObject("issues");
 		if (!succeeded) {
 			MLPL_ERR("Failed to parse issues.\n");
-			return false;
+			return PARSE_RESULT_ERROR;
 		}
 		size_t i, num = agent.countElements();
 		time_t previousTime = m_lastUpdateTime;
@@ -183,12 +189,12 @@ struct ArmRedmine::Impl
 				break;
 			}
 		}
-		if (i == num) {
-			//TODO: should load next page
-		}
 		agent.endObject();
 
-		return succeeded;
+		if (i == num)
+			return PARSE_RESULT_NEED_NEXT_PAGE;
+		else
+			return PARSE_RESULT_OK;
 	}
 
 	bool parseIssue(JSONParserAgent &agent,	IncidentInfo &incident)
@@ -269,8 +275,16 @@ ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 		return COLLECT_NG_DISCONNECT_REDMINE;
 	}
 
-	if (m_impl->parseResponse(response))
+	ParseResult result = m_impl->parseResponse(response);
+
+	switch (result) {
+	case PARSE_RESULT_NEED_NEXT_PAGE:
+		//TODO: implement
 		return COLLECT_OK;
-	else
+	case PARSE_RESULT_OK:
+		return COLLECT_OK;
+	case PARSE_RESULT_ERROR:
+	default:
 		return COLLECT_NG_PERSER_ERROR;
+	}
 }
