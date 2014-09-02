@@ -31,30 +31,15 @@ public:
 		std::string tableName;
 		std::string sql;
 	};
+	static const char *DEFAULT_DB_NAME;
 
 	static void init(void);
-	static void reset(void);
 
-	/**
-	 * define database path
-	 *
-	 * @domainId domain ID.
-	 * @path     A path of the database.
-	 * @allowOverwrite
-	 * A flag that indicates if redefinition of the path is allowed.
-	 *
-	 * @return
-	 * When allowOverwrite is true and the path for domainId is already
-	 * defined, false is retruened. Otherwise true is returned.
-	 */
-	static bool defineDBPath(DBDomainId domainId, const std::string &path,
-	                         bool allowOverwrite = true);
-	static std::string &getDBPath(DBDomainId domainId);
 	static const DBTermCodec *getDBTermCodecStatic(void);
 
 	// constructor and destructor
-	DBAgentSQLite3(const std::string &dbName = "",
-	               DBDomainId domainId = DEFAULT_DB_DOMAIN_ID);
+	DBAgentSQLite3(const std::string &name = DEFAULT_DB_NAME,
+	               const std::string &dbDir = "");
 	virtual ~DBAgentSQLite3();
 
 	void getIndexes(std::vector<IndexStruct> &indexStructVect,
@@ -86,8 +71,9 @@ public:
 	std::string getDBPath(void) const;
 
 protected:
-	static std::string makeDBPathFromName(const std::string &name);
-	static std::string getDefaultDBPath(DBDomainId domainId);
+	static std::string makeDBPathFromName(
+	  const std::string &name = DEFAULT_DB_NAME,
+	  const std::string &dbDir = "");
 	static void checkDBPath(const std::string &dbPath);
 	static sqlite3 *openDatabase(const std::string &dbPath);
 	static void execSql(sqlite3 *db, const char *fmt, ...);

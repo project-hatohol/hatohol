@@ -516,9 +516,8 @@ void _assertCreateTable(DBAgent *dbAgent, const string &tableName)
 		  "show tables like '%s'", tableName.c_str());
 		output = execMySQL(dbName, statement);
 	} else if (tid == typeid(DBAgentSQLite3)) {
-		DBDomainId domainId = dbAgent->getDBDomainId();
-		string dbPath = DBAgentSQLite3::getDBPath(domainId);
-		string command = "sqlite3 " + dbPath + " \".table\"";
+		DBAgentSQLite3 *dba = dynamic_cast<DBAgentSQLite3 *>(dbAgent);
+		string command = "sqlite3 " + dba->getDBPath() + " \".table\"";
 		output = executeCommand(command);
 	} else {
 		cut_fail("Unkown type: %s", DEMANGLED_TYPE_NAME(*dbAgent));
@@ -947,13 +946,6 @@ void releaseDefaultContext(void)
 		g_main_context_release(g_acquiredContext); 
 		g_acquiredContext = NULL;
 	}
-}
-
-void defineDBPath(DBDomainId domainId, const string &dbPath)
-{
-	if (domainId != DB_TABLES_ID_MONITORING)
-		cut_fail("Cannot set a domain ID for %d\n", domainId);
-	DBAgentSQLite3::defineDBPath(DB_TABLES_ID_MONITORING, dbPath);
 }
 
 UserIdType searchMaxTestUserId(void)

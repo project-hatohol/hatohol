@@ -52,7 +52,8 @@ extern const int MAX_ALLOWD_CURR_TIME_ERROR;
 
 class DBAgentChecker {
 public:
-	virtual void assertTable(const DBAgent::TableProfile &tableProfile) = 0;
+	virtual void assertTable(
+	  DBAgent &dbAgent, const DBAgent::TableProfile &tableProfile) = 0;
 
 	// create and drop of index
 	virtual void assertMakeCreateIndexStatement(
@@ -62,16 +63,17 @@ public:
 	  const std::string sql,
 	  const std::string &name, const std::string &tableName) = 0;
 	virtual void assertFixupIndexes(
-	  const DBAgent::TableProfile &tableProfile) = 0;
+	  DBAgent &dbAgent, const DBAgent::TableProfile &tableProfile) = 0;
 
 	virtual void assertExistingRecord(
+	               DBAgent &dbAgent,
 	               uint64_t id, int age, const char *name, double height,
 	               int datetime, size_t numColumns,
 	               const ColumnDef *columnDefs,
 	               const std::set<size_t> *nullIndexes = NULL) = 0;
-	virtual void getIDStringVector(const DBAgent::TableProfile &tableProfile,
-				       const size_t &columnIdIdx,
-	                               std::vector<std::string> &actualIds) = 0;
+	virtual void getIDStringVector(
+	  DBAgent &dbAgent, const DBAgent::TableProfile &tableProfile,
+	  const size_t &columnIdIdx, std::vector<std::string> &actualIds) = 0;
 
 	static void createTable(DBAgent &dbAgent);
 	static void insert(DBAgent &dbAgent, uint64_t id, int age,

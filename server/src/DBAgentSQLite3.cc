@@ -33,6 +33,7 @@ using namespace mlpl;
 #include "ConfigManager.h"
 
 const static int TRANSACTION_TIME_OUT_MSEC = 30 * 1000;
+const char *DBAgentSQLite3::DEFAULT_DB_NAME = "DBAgentSQLite3-default";
 
 class DBTermCodecSQLite3 : public DBTermCodec {
 	virtual string enc(const uint64_t &val) const override
@@ -52,12 +53,7 @@ string STR_NAME; \
 	va_end(ap); \
 } \
 
-typedef map<DBDomainId, string>     DBDomainIdPathMap;
-typedef DBDomainIdPathMap::iterator DBDomainIdPathMapIterator;
-
 struct DBAgentSQLite3::Impl {
-	static Mutex             mutex;
-	static DBDomainIdPathMap domainIdPathMap;
 	static DBTermCodecSQLite3 dbTermCodec;
 
 	string        dbPath;
@@ -79,29 +75,8 @@ struct DBAgentSQLite3::Impl {
 			MLPL_ERR("Failed to close sqlite: %d\n", result);
 		}
 	}
-
-	static void lock(void)
-	{
-		mutex.lock();
-	}
-
-	static void unlock(void)
-	{
-		mutex.unlock();
-	}
-
-	static bool isDBPathDefined(DBDomainId domainId)
-	{
-		lock();
-		DBDomainIdPathMapIterator it = domainIdPathMap.find(domainId);
-		bool defined = (it != domainIdPathMap.end());
-		unlock();
-		return defined;
-	}
 };
 
-Mutex             DBAgentSQLite3::Impl::mutex;
-DBDomainIdPathMap DBAgentSQLite3::Impl::domainIdPathMap;
 DBTermCodecSQLite3 DBAgentSQLite3::Impl::dbTermCodec;
 
 // ---------------------------------------------------------------------------
@@ -110,65 +85,13 @@ DBTermCodecSQLite3 DBAgentSQLite3::Impl::dbTermCodec;
 void DBAgentSQLite3::init(void)
 {
 	// Currently ConfigManger doesn't have init(), so calling
-	// the following functions and getDefaultDBPath() that use
-	// ConfigManager is no problem.
+	// the following functions that uses ConfigManager is no problem.
 	// However, if we add ConfigManager::init() in the future,
 	// The order of ConfigManager::init() and DBAgentSQLite3::init() has
 	// be well considered.
 	ConfigManager *configMgr = ConfigManager::getInstance();
 	const string &dbDirectory = configMgr->getDatabaseDirectory();
 	checkDBPath(dbDirectory);
-
-	string dbPath = getDefaultDBPath(DEFAULT_DB_DOMAIN_ID);
-	defineDBPath(DEFAULT_DB_DOMAIN_ID, dbPath);
-}
-
-void DBAgentSQLite3::reset(void)
-{
-	Impl::domainIdPathMap.clear();
-}
-
-bool DBAgentSQLite3::defineDBPath(DBDomainId domainId, const string &path,
-                                  bool allowOverwrite)
-{
-	bool ret = true;
-	Impl::lock();
-	DBDomainIdPathMapIterator it =
-	  Impl::domainIdPathMap.find(domainId);
-	if (it != Impl::domainIdPathMap.end()) {
-		if (allowOverwrite)
-			it->second = path;
-		else
-			ret = false;
-		Impl::unlock();
-		return ret;
-	}
-
-	pair<DBDomainIdPathMapIterator, bool> result =
-	  Impl::domainIdPathMap.insert
-	    (pair<DBDomainId, string>(domainId, path));
-	Impl::unlock();
-
-	HATOHOL_ASSERT(result.second,
-	  "Failed to insert. Probably domain id (%u) is duplicated", domainId);
-	return ret;
-}
-
-string &DBAgentSQLite3::getDBPath(DBDomainId domainId)
-{
-	string dbPath;
-	Impl::lock();
-	DBDomainIdPathMapIterator it =
-	   Impl::domainIdPathMap.find(domainId);
-	if (it == Impl::domainIdPathMap.end()) {
-		string path = getDefaultDBPath(domainId);
-		pair<DBDomainIdPathMapIterator, bool> result =
-		  Impl::domainIdPathMap.insert
-		    (pair<DBDomainId,string>(domainId, path));
-		it = result.first;
-	}
-	Impl::unlock();
-	return it->second;
 }
 
 const DBTermCodec *DBAgentSQLite3::getDBTermCodecStatic(void)
@@ -176,17 +99,11 @@ const DBTermCodec *DBAgentSQLite3::getDBTermCodecStatic(void)
 	return &Impl::dbTermCodec;
 }
 
-DBAgentSQLite3::DBAgentSQLite3(const string &dbName,
-                               DBDomainId domainId)
-: DBAgent(domainId),
+DBAgentSQLite3::DBAgentSQLite3(const string &dbName, const std::string &dbDir)
+: DBAgent(0 /* TODO: remove */),
   m_impl(new Impl())
 {
-	if (!dbName.empty() && !Impl::isDBPathDefined(domainId)) {
-		string dbPath = makeDBPathFromName(dbName);
-		const bool allowOverwrite = false;
-		defineDBPath(domainId, dbPath, allowOverwrite);
-	}
-	m_impl->dbPath = getDBPath(domainId);
+	m_impl->dbPath = makeDBPathFromName(dbName, dbDir);
 	openDatabase();
 }
 
@@ -338,19 +255,20 @@ uint64_t DBAgentSQLite3::getNumberOfAffectedRows(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-string DBAgentSQLite3::makeDBPathFromName(const string &name)
+string DBAgentSQLite3::makeDBPathFromName(const string &name,
+                                          const string &dbDir)
 {
-	ConfigManager *configMgr = ConfigManager::getInstance();
-	const string &dbDirectory = configMgr->getDatabaseDirectory();
-	string dbPath =
-	  StringUtils::sprintf("%s/%s.db", dbDirectory.c_str(), name.c_str());
+	string dbPath;
+	if (dbDir.empty()) {
+		ConfigManager *configMgr = ConfigManager::getInstance();
+		dbPath = configMgr->getDatabaseDirectory();
+	} else {
+		dbPath = dbDir;
+	}
+	dbPath += "/";
+	dbPath += name;
+	dbPath += ".db";
 	return dbPath;
-}
-
-string DBAgentSQLite3::getDefaultDBPath(DBDomainId domainId)
-{
-	string name = StringUtils::sprintf("DBAgentSQLite3-%d", domainId);
-	return makeDBPathFromName(name);
 }
 
 void DBAgentSQLite3::checkDBPath(const string &dbPath)
