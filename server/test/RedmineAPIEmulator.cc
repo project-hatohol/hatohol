@@ -186,6 +186,7 @@ struct RedmineAPIEmulator::PrivateContext {
 	map<string, string> m_passwords;
 	string m_currentUser;
 	size_t m_issueId;
+	string m_lastRequestQuery;
 	string m_lastRequestBody;
 	string m_lastResponseBody;
 	RedmineIssue m_lastIssue;
@@ -208,6 +209,7 @@ void RedmineAPIEmulator::reset(void)
 	m_ctx->m_passwords.clear();
 	m_ctx->m_currentUser.clear();
 	m_ctx->m_issueId = 0;
+	m_ctx->m_lastRequestQuery.clear();
 	m_ctx->m_lastRequestBody.clear();
 	m_ctx->m_lastResponseBody.clear();
 	m_ctx->m_lastIssue = RedmineIssue();
@@ -219,6 +221,11 @@ void RedmineAPIEmulator::addUser(const std::string &userName,
 				 const std::string &password)
 {
 	m_ctx->m_passwords[userName] = password;
+}
+
+const string &RedmineAPIEmulator::getLastRequestQuery(void) const
+{
+	return m_ctx->m_lastRequestQuery;
 }
 
 const string &RedmineAPIEmulator::getLastRequestBody(void) const
@@ -314,9 +321,6 @@ int RedmineAPIEmulator::PrivateContext::getTrackerId(const string &trackerId)
 
 void RedmineAPIEmulator::PrivateContext::replyGetIssue(SoupMessage *msg)
 {
-	m_lastRequestBody.assign(msg->request_body->data,
-				 msg->request_body->length);
-
 	string path = getFixturesDir() + "redmine-issues.json";
 	gchar *contents = NULL;
 	gsize length;
@@ -416,6 +420,10 @@ void RedmineAPIEmulator::PrivateContext::handlerIssuesJSON
 	RedmineAPIEmulator *emulator
 	  = reinterpret_cast<RedmineAPIEmulator *>(user_data);
 	RedmineAPIEmulator::PrivateContext *priv = emulator->m_ctx;
+
+	char *queryString = soup_form_encode_hash(query);
+	priv->m_lastRequestQuery = queryString ? queryString : "";
+	g_free(queryString);
 
 	if (priv->handlerDummyResponse(msg, path ,query, client))
 		return;
