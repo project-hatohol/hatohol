@@ -31,15 +31,13 @@ using namespace mlpl;
 
 namespace testDBAgentSQLite3 {
 
-// This is temporary variable. The DBAgent instance will be passed to
-// each checker methods later. 
-static DBAgentSQLite3 _dbAgent;
-static string dbPath = _dbAgent.getDBPath();
-
 class DBAgentCheckerSQLite3 : public DBAgentChecker {
 public:
-	virtual void assertTable(const DBAgent::TableProfile &tableProfile) override
+	virtual void assertTable(
+	  DBAgent &dbAgent, const DBAgent::TableProfile &tableProfile) override
 	{
+		const string dbPath = cast(dbAgent).getDBPath();
+
 		// check if the table has been created successfully
 		cut_assert_exist_path(dbPath.c_str());
 		string cmd = StringUtils::sprintf("sqlite3 %s \".table\"",
@@ -143,8 +141,9 @@ public:
 	}
 
 	virtual void assertFixupIndexes(
-	  const DBAgent::TableProfile &tableProfile) override
+	  DBAgent &dbAgent, const DBAgent::TableProfile &tableProfile) override
 	{
+		const string dbPath = cast(dbAgent).getDBPath();
 		vector<string> expectLines;
 
 		// from ColumnDef
@@ -194,13 +193,16 @@ public:
 		comp.assert(false);
 	}
 
-	virtual void assertExistingRecord(uint64_t id, int age,
+	virtual void assertExistingRecord(DBAgent &dbAgent,
+	                                  uint64_t id, int age,
 	                                  const char *name, double height,
 	                                  int datetime,
 	                                  size_t numColumns,
 	                                  const ColumnDef *columnDefs,
 	                                  const set<size_t> *nullIndexes) override
 	{
+		const string dbPath = cast(dbAgent).getDBPath();
+
 		// INFO: We use the trick that unsigned interger is stored as
 		// signed interger. So large integers (MSB bit is one) are
 		// recognized as negative intergers. So we use PRId64
@@ -222,10 +224,12 @@ public:
 		   "%" PRId64);
 	}
 
-	virtual void getIDStringVector(const DBAgent::TableProfile &tableProfile,
-				       const size_t &columnIdIdx,
-	                               vector<string> &actualIds) override
+	virtual void getIDStringVector(
+	  DBAgent &dbAgent,
+	  const DBAgent::TableProfile &tableProfile,
+	  const size_t &columnIdIdx, vector<string> &actualIds) override
 	{
+		const string dbPath = cast(dbAgent).getDBPath();
 		const ColumnDef &columnDefId =
 			tableProfile.columnDefs[columnIdIdx];
 		cut_assert_exist_path(dbPath.c_str());
@@ -264,6 +268,14 @@ protected:
 		expect += ")";
 		return expect;
 	}
+
+	DBAgentSQLite3 &cast(DBAgent &dbAgent)
+	{
+		DBAgentSQLite3 &casted =
+		  dynamic_cast<DBAgentSQLite3 &>(dbAgent);
+		cppcut_assert_not_null(&casted);
+		return casted;
+	}
 };
 
 static DBAgentCheckerSQLite3 dbAgentChecker;
@@ -278,8 +290,9 @@ public:
 
 static void deleteDB(void)
 {
-	unlink(dbPath.c_str());
-	cut_assert_not_exist_path(dbPath.c_str());
+	DBAgentSQLite3 dbAgent;
+	unlink(dbAgent.getDBPath().c_str());
+	cut_assert_not_exist_path(dbAgent.getDBPath().c_str());
 }
 
 #define DEFINE_DBAGENT_WITH_INIT(DB_NAME, OBJ_NAME) \

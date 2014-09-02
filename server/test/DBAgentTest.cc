@@ -247,6 +247,7 @@ struct CheckInsertParam : public CheckInsertParamTempl<TestValues> {
 	{
 		const TestValues *expect = getExpectData();
 		checker.assertExistingRecord(
+		  dbAgent,
 		  expect->id, expect->age, expect->name, expect->height,
 		  CURR_DATETIME,
 		  NUM_COLUMNS_TEST, COLUMN_DEF_TEST, nullIndexes);
@@ -299,14 +300,15 @@ static void checkUpdate(DBAgent &dbAgent, DBAgentChecker &checker,
 	arg.condition = condition;
 	dbAgent.update(arg);
 
-	checker.assertExistingRecord(id, age, name, height, CURR_DATETIME,
-	                             NUM_COLUMNS_TEST, COLUMN_DEF_TEST);
+	checker.assertExistingRecord(
+	  dbAgent, id, age, name, height, CURR_DATETIME,
+	  NUM_COLUMNS_TEST, COLUMN_DEF_TEST);
 }
 
 static void createTestTableAutoInc(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	dbAgent.createTable(tableProfileTestAutoInc);
-	checker.assertTable(tableProfileTestAutoInc);
+	checker.assertTable(dbAgent, tableProfileTestAutoInc);
 	dbAgent.fixupIndexes(tableProfileTestAutoInc);
 }
 
@@ -319,7 +321,7 @@ void dbAgentTestExecSql(DBAgent &dbAgent, DBAgentChecker &checker)
 void dbAgentTestCreateTable(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	dbAgent.createTable(tableProfileTest);
-	checker.assertTable(tableProfileTest);
+	checker.assertTable(dbAgent, tableProfileTest);
 	dbAgent.fixupIndexes(tableProfileTest);
 }
 
@@ -383,7 +385,7 @@ void dbAgentTestFixupIndexes(DBAgent &dbAgent, DBAgentChecker &checker)
 	tableProfile.indexDefArray = indexDefArray;
 	dbAgent.createTable(tableProfile);
 	dbAgent.fixupIndexes(tableProfile);
-	checker.assertFixupIndexes(tableProfile);
+	checker.assertFixupIndexes(dbAgent, tableProfile);
 
 	// check the drop
 	const DBAgent::IndexDef indexDefArrayForDrop[] = {
@@ -392,7 +394,7 @@ void dbAgentTestFixupIndexes(DBAgent &dbAgent, DBAgentChecker &checker)
 	};
 	tableProfile.indexDefArray = indexDefArrayForDrop;
 	dbAgent.fixupIndexes(tableProfile);
-	checker.assertFixupIndexes(tableProfile);
+	checker.assertFixupIndexes(dbAgent, tableProfile);
 }
 
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -743,7 +745,7 @@ void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker)
 
 	// check
 	vector<string> actualIds;
-	checker.getIDStringVector(tableProfileTest,
+	checker.getIDStringVector(dbAgent, tableProfileTest,
 				  IDX_TEST_TABLE_ID,
 				  actualIds);
 	size_t matchCount = 0;
@@ -780,7 +782,7 @@ void dbAgentTestAddColumns(DBAgent &dbAgent, DBAgentChecker &checker)
 		arg.columnIndexes.push_back(idx);
 	dbAgent.addColumns(arg);
 
-	checker.assertTable(tableProfileTest);
+	checker.assertTable(dbAgent, tableProfileTest);
 }
 
 void dbAgentTestRenameTable(DBAgent &dbAgent, DBAgentChecker &checker)
@@ -793,10 +795,10 @@ void dbAgentTestRenameTable(DBAgent &dbAgent, DBAgentChecker &checker)
 	  NUM_COLUMNS_TEST);
 
 	dbAgent.createTable(tableProfileSrc);
-	checker.assertTable(tableProfileSrc);
+	checker.assertTable(dbAgent, tableProfileSrc);
 
 	dbAgent.renameTable(tableProfileSrc.name, tableProfileDest.name);
-	checker.assertTable(tableProfileDest);
+	checker.assertTable(dbAgent, tableProfileDest);
 }
 
 void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker)

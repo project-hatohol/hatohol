@@ -47,7 +47,8 @@ static string getEngine(const string &dbName, const string &tableName)
 
 class DBAgentCheckerMySQL : public DBAgentChecker {
 public:
-	virtual void assertTable(const DBAgent::TableProfile &tableProfile) override
+	virtual void assertTable(
+	  DBAgent &dbAgent, const DBAgent::TableProfile &tableProfile) override
 	{
 		// get the table information with mysql command.
 		string sql = "desc ";
@@ -160,7 +161,8 @@ public:
 		}
 	}
 
-	virtual void assertExistingRecord(uint64_t id, int age,
+	virtual void assertExistingRecord(DBAgent &dbAgent,
+	                                  uint64_t id, int age,
 	                                  const char *name, double height,
 	                                  int datetime,
 	                                  size_t numColumns,
@@ -217,7 +219,7 @@ public:
 	}
 
 	virtual void assertFixupIndexes(
-	  const DBAgent::TableProfile &tableProfile) override
+	  DBAgent &dbAgent, const DBAgent::TableProfile &tableProfile) override
 	{
 		const bool isMemoryEngine =
 		  (getEngine(TEST_DB_NAME, tableProfile.name) == "MEMORY");
@@ -285,9 +287,9 @@ public:
 		comp.assert(false);
 	}
 
-	virtual void getIDStringVector(const DBAgent::TableProfile &tableProfile,
-				       const size_t &columnIdIdx,
-	                               vector<string> &actualIds) override
+	virtual void getIDStringVector(
+	  DBAgent &dbAgent, const DBAgent::TableProfile &tableProfile,
+	  const size_t &columnIdIdx, vector<string> &actualIds) override
 	{
 		const ColumnDef &columnDefId =
 			tableProfile.columnDefs[columnIdIdx];
