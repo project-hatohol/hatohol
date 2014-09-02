@@ -266,7 +266,6 @@ ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 
 	if (!SOUP_STATUS_IS_SUCCESSFUL(soupStatus)) {
 		m_impl->handleError(soupStatus, response);
-		//TODO: Is a server error also "disconnect"?
 		return COLLECT_NG_DISCONNECT_REDMINE;
 	}
 
