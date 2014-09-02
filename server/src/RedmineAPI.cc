@@ -83,4 +83,25 @@ bool parseDateTime(JSONParserAgent &agent, const string &objectName,
 	return true;	
 }
 
+void logErrors(JSONParserAgent &agent)
+{
+	if (!agent.startObject("errors"))
+		MLPL_ERR("Failed to parse errors\n");
+
+	int numErrors = agent.countElements();
+	if (numErrors <= 0) {
+		MLPL_ERR("Empty error message\n");
+		return;
+	}
+
+	string message = "Redmine errors:\n";
+	for (int i = 0; i < numErrors; i++) {
+		string error;
+		agent.read(i, error);
+		message += StringUtils::sprintf("    * %s\n", error.c_str());
+	}
+	MLPL_ERR("%s", message.c_str());
+	agent.endObject();
+}
+
 }

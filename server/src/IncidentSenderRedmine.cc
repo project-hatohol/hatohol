@@ -207,24 +207,9 @@ HatoholError IncidentSenderRedmine::Impl::parseErrorResponse(
 			 agent.getErrorMessage());
 		return HTERR_FAILED_TO_SEND_INCIDENT;
 	}
-	if (!agent.startObject("errors")) {
-		MLPL_ERR("Failed to parse errors: %s\n", response.c_str());
-		return HTERR_FAILED_TO_SEND_INCIDENT;
-	}
-
-	int numErrors = agent.countElements();
-	if (numErrors <= 0)
-		return HTERR_FAILED_TO_SEND_INCIDENT;
-
-	string message = "Redmine errors:\n";
-	for (int i = 0; i < numErrors; i++) {
-		string error;
-		agent.read(i, error);
-		message += StringUtils::sprintf("    * %s\n", error.c_str());
-	}
-	MLPL_ERR("%s", message.c_str());
-	agent.endObject();
-
+	if (!agent.isMember("errors"))
+		MLPL_ERR("Response: %s\n", response.c_str());
+	RedmineAPI::logErrors(agent);
 	return HTERR_FAILED_TO_SEND_INCIDENT;
 }
 

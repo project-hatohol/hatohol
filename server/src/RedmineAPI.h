@@ -30,4 +30,5 @@ namespace RedmineAPI
 	bool parseDateTime(JSONParserAgent &agent,
 			   const std::string &objectName,
 			   mlpl::Time &time);
+	void logErrors(JSONParserAgent &agent);
 }
