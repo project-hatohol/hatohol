@@ -31,16 +31,19 @@ using namespace mlpl;
 
 namespace testDBAgentSQLite3 {
 
-static string g_dbPath = DBAgentSQLite3::getDBPath(DEFAULT_DB_DOMAIN_ID);
+// This is temporary variable. The DBAgent instance will be passed to
+// each checker methods later. 
+static DBAgentSQLite3 _dbAgent;
+static string dbPath = _dbAgent.getDBPath();
 
 class DBAgentCheckerSQLite3 : public DBAgentChecker {
 public:
 	virtual void assertTable(const DBAgent::TableProfile &tableProfile) override
 	{
 		// check if the table has been created successfully
-		cut_assert_exist_path(g_dbPath.c_str());
+		cut_assert_exist_path(dbPath.c_str());
 		string cmd = StringUtils::sprintf("sqlite3 %s \".table\"",
-		                                  g_dbPath.c_str());
+		                                  dbPath.c_str());
 		string output = executeCommand(cmd);
 		assertExist(tableProfile.name, output);
 
@@ -50,7 +53,7 @@ public:
 		cmd = StringUtils::sprintf(
 		  "sqlite3 %s \"select * from sqlite_master "
 		  "where type='table' and tbl_name='%s'\"",
-		  g_dbPath.c_str(), tableProfile.name);
+		  dbPath.c_str(), tableProfile.name);
 		output = executeCommand(cmd);
 		StringVector outVec;
 		StringUtils::split(outVec, output, '|');
@@ -175,11 +178,11 @@ public:
 		}
 
 		// check the index definitions
-		cut_assert_exist_path(g_dbPath.c_str());
+		cut_assert_exist_path(dbPath.c_str());
 		string cmd = StringUtils::sprintf(
 		  "sqlite3 %s \"select sql from "
 		  "sqlite_master where type='index' and tbl_name='%s'\"",
-		  g_dbPath.c_str(), tableProfile.name);
+		  dbPath.c_str(), tableProfile.name);
 		string output = executeCommand(cmd);
 		StringVector outLines;
 		StringUtils::split(outLines, output, '\n');
@@ -205,7 +208,7 @@ public:
 		string cmd =
 		  StringUtils::sprintf(
 		    "sqlite3 %s \"select * from %s where id=%" PRId64 "\"",
-	            g_dbPath.c_str(), TABLE_NAME_TEST, id);
+	            dbPath.c_str(), TABLE_NAME_TEST, id);
 		string result = executeCommand(cmd);
 
 		// check the number of obtained lines
@@ -225,11 +228,11 @@ public:
 	{
 		const ColumnDef &columnDefId =
 			tableProfile.columnDefs[columnIdIdx];
-		cut_assert_exist_path(g_dbPath.c_str());
+		cut_assert_exist_path(dbPath.c_str());
 		string cmd =
 		  StringUtils::sprintf(
 		    "sqlite3 %s \"SELECT %s FROM %s ORDER BY %s ASC\"",
-		    g_dbPath.c_str(), columnDefId.columnName,
+		    dbPath.c_str(), columnDefId.columnName,
 		    TABLE_NAME_TEST, columnDefId.columnName);
 		string output = executeCommand(cmd);
 		StringUtils::split(actualIds, output, '\n');
@@ -273,22 +276,18 @@ public:
 	}
 };
 
-
 static void deleteDB(void)
 {
-	unlink(g_dbPath.c_str());
-	cut_assert_not_exist_path(g_dbPath.c_str());
+	unlink(dbPath.c_str());
+	cut_assert_not_exist_path(dbPath.c_str());
 }
 
 #define DEFINE_DBAGENT_WITH_INIT(DB_NAME, OBJ_NAME) \
-string _path = getFixturesDir() + DB_NAME; \
-DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, _path); \
-DBAgentSQLite3 OBJ_NAME; \
+  DBAgentSQLite3 OBJ_NAME(DB_NAME, getFixturesDir())
 
 void cut_setup(void)
 {
 	deleteDB();
-	DBAgentSQLite3::defineDBPath(DEFAULT_DB_DOMAIN_ID, g_dbPath);
 }
 
 // ---------------------------------------------------------------------------
@@ -301,7 +300,9 @@ void test_dbPathByEnv(void)
 		cut_omit("Not set: %s", 
 	                 ConfigManager::HATOHOL_DB_DIR_ENV_VAR_NAME);
 	}
-	cppcut_assert_equal(0, strncmp(dbDir, g_dbPath.c_str(), strlen(dbDir)));
+	DBAgentSQLite3 dbAgent;
+	cut_assert_equal_substring(dbDir, dbAgent.getDBPath().c_str(),
+	                           strlen(dbDir));
 }
 
 void test_createdWithSpecifiedDbPath(void)
@@ -314,16 +315,8 @@ void test_createdWithSpecifiedDbPath(void)
 	unlink(expectPath.c_str());
 	cut_assert_not_exist_path(expectPath.c_str());
 
-	DBDomainId domainId = 5;
-	DBAgentSQLite3 sqlite3(dbName.c_str(), domainId);
+	DBAgentSQLite3 sqlite3(dbName.c_str());
 	cut_assert_exist_path(expectPath.c_str());
-
-	// check that the path is not redefined
-	dbName = "test-database-name.ABCDEFGH";
-	expectPath = StringUtils::sprintf(
-	  "%s/%s.db", dbDirectory.c_str(), dbName.c_str());
-	DBAgentSQLite3 sqlite3alt(dbName.c_str(), domainId);
-	cut_assert_not_exist_path(expectPath.c_str());
 }
 
 void test_getIndexes(void)
@@ -363,19 +356,19 @@ void test_getIndexes(void)
 
 void test_testIsTableExisting(void)
 {
-	DEFINE_DBAGENT_WITH_INIT("FooTable.db", dbAgent);
+	DEFINE_DBAGENT_WITH_INIT("FooTable", dbAgent);
 	cppcut_assert_equal(true, dbAgent.isTableExisting("foo"));
 }
 
 void test_testIsTableExistingNotIncluded(void)
 {
-	DEFINE_DBAGENT_WITH_INIT("FooTable.db", dbAgent);
+	DEFINE_DBAGENT_WITH_INIT("FooTable", dbAgent);
 	cppcut_assert_equal(false, dbAgent.isTableExisting("NotExistTable"));
 }
 
 void test_testIsRecordExisting(void)
 {
-	DEFINE_DBAGENT_WITH_INIT("FooTable.db", dbAgent);
+	DEFINE_DBAGENT_WITH_INIT("FooTable", dbAgent);
 	string expectTrueCondition = "id=1";
 	cppcut_assert_equal
 	  (true, dbAgent.isRecordExisting("foo", expectTrueCondition));
@@ -383,7 +376,7 @@ void test_testIsRecordExisting(void)
 
 void test_testIsRecordExistingNotIncluded(void)
 {
-	DEFINE_DBAGENT_WITH_INIT("FooTable.db", dbAgent);
+	DEFINE_DBAGENT_WITH_INIT("FooTable", dbAgent);
 	string expectFalseCondition = "id=100";
 	cppcut_assert_equal
 	  (false, dbAgent.isRecordExisting("foo", expectFalseCondition));

@@ -67,7 +67,6 @@ static void reset(const CommandLineOptions *cmdLineOpts)
 	SessionManager::reset();
 	ConfigManager::reset(cmdLineOpts);
 
-	DBAgentSQLite3::reset();
 	DBHatohol::reset();
 	
 	// These should be place after DBHatohol::reset()

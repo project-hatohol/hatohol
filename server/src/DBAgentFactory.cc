@@ -41,5 +41,5 @@ DBAgent* DBAgentFactory::create(DBDomainId domainId,
 		                        connectInfo->port,
 		                        domainId);
 	}
-	return new DBAgentSQLite3(dbName, domainId);
+	return new DBAgentSQLite3(dbName);
 }

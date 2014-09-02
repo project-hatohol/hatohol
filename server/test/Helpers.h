@@ -207,8 +207,6 @@ void _acquireDefaultContext(void);
 #define acquireDefaultContext() cut_trace(_acquireDefaultContext())
 void releaseDefaultContext(void);
 
-void defineDBPath(DBDomainId domainId, const std::string &dbPath);
-
 UserIdType searchMaxTestUserId(void);
 UserIdType findUserWith(const OperationPrivilegeType &type,
                         const OperationPrivilegeFlag &excludeFlags = 0);
