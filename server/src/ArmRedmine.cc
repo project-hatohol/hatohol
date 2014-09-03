@@ -105,11 +105,6 @@ struct ArmRedmine::Impl
 		m_url += "issues.json";
 	}
 
-	void setPage(const int &page)
-	{
-		m_page = page;
-	}
-
 	void buildBaseQuery(void)
 	{
 		m_baseQuery.clear();
@@ -289,7 +284,7 @@ ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 		return COLLECT_OK;
 	}
 
-	m_impl->setPage(1);
+	m_impl->m_page = 1;
 
 RETRY:
 	string url = m_impl->m_url;
@@ -316,7 +311,7 @@ RETRY:
 				 "or something is wrong!\n");
 			return COLLECT_NG_INTERNAL_ERROR;
 		}
-		m_impl->setPage(m_impl->m_page + 1);
+		++m_impl->m_page;
 		goto RETRY;
 	case PARSE_RESULT_OK:
 		return COLLECT_OK;
