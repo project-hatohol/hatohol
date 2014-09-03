@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -20,25 +20,40 @@
 #include "DBAgentFactory.h"
 #include "DBAgentSQLite3.h"
 #include "DBAgentMySQL.h"
+#include "DBHatohol.h"
 #include "Params.h"
 using namespace std;
 
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DBAgent* DBAgentFactory::create(DBDomainId domainId,
-                                const string &dbName,
-                                const DBConnectInfo *connectInfo)
+DBAgent* DBAgentFactory::create(const type_info &dbClassType,
+                                const DBConnectInfo &connectInfo)
 {
-	// TODO: This method is now not used. We will fix this method to
-	//       create DBAgent in DBAHatohol.
-	if (domainId != DB_TABLES_ID_MONITORING) {
-		HATOHOL_ASSERT(connectInfo, "connectInfo: NULL");
-		return new DBAgentMySQL(connectInfo->dbName.c_str(),
-		                        connectInfo->getUser(),
-		                        connectInfo->getPassword(),
-		                        connectInfo->getHost(),
-		                        connectInfo->port);
+	// TODO: The actual DAgent type should be decided by a config file.
+	DBAgent *dbAgent = NULL;
+	if (dbClassType == typeid(DBHatohol)) {
+		dbAgent = newDBAgentMySQL(connectInfo);
+	} else {
+		HATOHOL_ASSERT(false,
+		               "Unknown DB Class: %s\n", dbClassType.name());
 	}
-	return new DBAgentSQLite3(dbName);
+	return dbAgent;
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+DBAgent *DBAgentFactory::newDBAgentMySQL(const DBConnectInfo &connectInfo)
+{
+	return new DBAgentMySQL(connectInfo.dbName.c_str(),
+	                        connectInfo.getUser(),
+	                        connectInfo.getPassword(),
+	                        connectInfo.getHost(),
+	                        connectInfo.port);
+}
+
+DBAgent *DBAgentFactory::newDBAgentSQLite3(const DBConnectInfo &connectInfo)
+{
+	return new DBAgentSQLite3(connectInfo.dbName);
 }

@@ -50,7 +50,7 @@ struct DBHatohol::Impl {
 	}
 };
 
-DB::SetupContext DBHatohol::Impl::setupCtx(DB::DB_MYSQL);
+DB::SetupContext DBHatohol::Impl::setupCtx(typeid(DBHatohol));
 
 // ---------------------------------------------------------------------------
 // Public methods

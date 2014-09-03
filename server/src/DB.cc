@@ -21,6 +21,7 @@
 #include "DB.h"
 #include "DBAgentMySQL.h"
 #include "HatoholException.h"
+#include "DBAgentFactory.h"
 
 using namespace std;
 using namespace mlpl;
@@ -55,8 +56,8 @@ static const DBAgent::TableProfile tableProfileTablesVersion =
                             COLUMN_DEF_TABLES_VERSION,
                             DB::NUM_IDX_TABLES);
 
-DB::SetupContext::SetupContext(const DBType &_dbType)
-: dbType(_dbType),
+DB::SetupContext::SetupContext(const type_info &_dbClassType)
+: dbClassType(_dbClassType),
   initialized(false)
 {
 }
@@ -75,13 +76,11 @@ struct DB::Impl {
 	};
 
 	Impl(SetupContext &setupCtx)
+	: dbAgent(DBAgentFactory::create(setupCtx.dbClassType,
+	                                 setupCtx.connectInfo))
 	{
-		if (setupCtx.dbType == DB_MYSQL) {
-			createDBAgentMySQL(setupCtx.connectInfo);
-		} else {
-			HATOHOL_ASSERT(false,
-			               "Unknown DBType: %d\n", setupCtx.dbType);
-		}
+		if (setupCtx.initialized)
+			return;
 
 		AutoMutex autoMutex(&setupCtx.lock);
 		// NOTE: A flag 'setupCtx.initialized' is used to improve
@@ -93,17 +92,6 @@ struct DB::Impl {
 			dbAgent->runTransaction(setup);
 			setupCtx.initialized = true;
 		}
-	}
-
-	void createDBAgentMySQL(const DBConnectInfo &connectInfo)
-	{
-		HATOHOL_ASSERT(!dbAgent.get(), "dbAgent is NOT NULL");
-		dbAgent = unique_ptr<DBAgent>(
-		            new DBAgentMySQL(connectInfo.dbName.c_str(),
-		                             connectInfo.getUser(),
-		                             connectInfo.getPassword(),
-		                             connectInfo.getHost(),
-		                             connectInfo.port));
 	}
 };
 const string DB::Impl::alwaysFalseCondition = "0";

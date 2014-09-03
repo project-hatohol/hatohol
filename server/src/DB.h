@@ -22,6 +22,7 @@
 
 #include <memory>
 #include <Mutex.h>
+#include <typeinfo>
 #include "Params.h"
 #include "DBAgent.h"
 
@@ -42,17 +43,13 @@ public:
 	DBAgent &getDBAgent(void);
 
 protected:
-	enum DBType {
-		DB_MYSQL,
-	};
-
 	struct SetupContext {
-		const DBType  dbType;
+		const std::type_info &dbClassType;
 		DBConnectInfo connectInfo;
 		bool          initialized;
 		mlpl::Mutex   lock;
 
-		SetupContext(const DBType &dbType);
+		SetupContext(const std::type_info &dbClassType);
 	};
 
 	DB(SetupContext &setupCtx);

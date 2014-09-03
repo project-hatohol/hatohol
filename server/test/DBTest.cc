@@ -19,10 +19,13 @@
 
 #include "DBTest.h"
 #include "Helpers.h"
+#include "DBHatohol.h"
 
 const char *TestDB::DB_NAME = "test_db";
 
-DB::SetupContext TestDB::m_setupCtx(DB::DB_MYSQL);
+// TODO: It's not unwanted to use a derivied class for the test of
+// the base class. We should think a more smart way.
+DB::SetupContext TestDB::m_setupCtx(typeid(DBHatohol));
 
 // ---------------------------------------------------------------------------
 // Public method
