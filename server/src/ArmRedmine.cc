@@ -19,6 +19,7 @@
 
 #include "ArmRedmine.h"
 #include "RedmineAPI.h"
+#include "ThreadLocalDBCache.h"
 #include "JSONParserAgent.h"
 #include "UnifiedDataStore.h"
 #include <time.h>
@@ -168,6 +169,9 @@ struct ArmRedmine::Impl
 
 	ParseResult parseResponse(const string &response)
 	{
+		ThreadLocalDBCache cache;
+		DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+
 		JSONParserAgent agent(response);
 		if (agent.hasError()) {
 			MLPL_ERR("Failed to parse error response: %s\n",
@@ -198,7 +202,7 @@ struct ArmRedmine::Impl
 			if (updateTime > m_lastUpdateTimePending)
 				m_lastUpdateTimePending = updateTime;
 			if (updateTime >= m_lastUpdateTime) {
-				//TODO: update the incident in DB
+				dbMonitoring.updateIncidentInfo(incident);
 			} else {
 				// All incidents are updated
 				break;
@@ -224,7 +228,7 @@ struct ArmRedmine::Impl
 		return true;
 	}
 
-	bool parseIssue(JSONParserAgent &agent,	IncidentInfo &incident)
+	bool parseIssue(JSONParserAgent &agent, IncidentInfo &incident)
 	{
 		bool succeeded = RedmineAPI::parseIssue(agent, incident);
 		incident.trackerId = m_incidentTrackerInfo.id;
