@@ -51,6 +51,9 @@ extern EventInfo testEventInfo[];
 extern size_t NumTestEventInfo;
 extern uint64_t findLastEventId(const ServerIdType &serverId);
 
+extern EventInfo testDupEventInfo[];
+extern size_t NumTestDupEventInfo;
+
 extern ItemInfo testItemInfo[];
 extern size_t NumTestItemInfo;
 

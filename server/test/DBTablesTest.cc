@@ -268,6 +268,47 @@ EventInfo testEventInfo[] = {
 };
 size_t NumTestEventInfo = sizeof(testEventInfo) / sizeof(EventInfo);
 
+EventInfo testDupEventInfo[] = {
+{
+	AUTO_INCREMENT_VALUE,     // unifiedId
+	3,                        // serverId
+	DISCONNECT_SERVER_EVENT_ID, // id
+	{1362957200,0},           // time
+	EVENT_TYPE_GOOD,          // type
+	2,                        // triggerId
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_WARNING, // severity
+	10001,                    // hostId,
+	"hostZ1",                 // hostName,
+	"TEST Trigger 2",         // brief,
+}, {
+	AUTO_INCREMENT_VALUE,     // unifiedId
+	3,                        // serverId
+	DISCONNECT_SERVER_EVENT_ID, // id
+	{1362951000,0},           // time
+	EVENT_TYPE_GOOD,          // type
+	3,                        // triggerId
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_INFO,    // severity
+	10002,                    // hostId,
+	"hostZ2",                 // hostName,
+	"TEST Trigger 3",         // brief,
+}, {
+	AUTO_INCREMENT_VALUE,     // unifiedId
+	3,                        // serverId
+	DISCONNECT_SERVER_EVENT_ID, // id
+	{1362951000,0},           // time
+	EVENT_TYPE_GOOD,          // type
+	3,                        // triggerId
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_INFO,    // severity
+	10002,                    // hostId,
+	"hostZ2",                 // hostName,
+	"TEST Trigger 3",         // brief,
+},
+};
+size_t NumTestDupEventInfo = sizeof(testDupEventInfo) / sizeof(EventInfo);
+
 ItemInfo testItemInfo[] = {
 {
 	1,                        // serverId

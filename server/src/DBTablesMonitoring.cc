@@ -315,7 +315,7 @@ static const int columnIndexesEventsUniqId[] = {
 };
 
 static const DBAgent::IndexDef indexDefsEvents[] = {
-  {"EventsUniqId", (const int *)columnIndexesEventsUniqId, true},
+  {"EventsId", (const int *)columnIndexesEventsUniqId, false},
   {NULL}
 };
 

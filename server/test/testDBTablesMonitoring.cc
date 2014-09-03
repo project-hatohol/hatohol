@@ -43,6 +43,8 @@ static const string serverIdColumnName = "server_id";
 static const string hostgroupIdColumnName = "host_group_id";
 static const string hostIdColumnName = "host_id";
 
+static const int dupEventInfoType = 1;
+
 static void addTriggerInfo(TriggerInfo *triggerInfo)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
@@ -786,6 +788,26 @@ void test_addEventInfoList(gconstpointer data)
 	dbMonitoring.addEventInfoList(eventInfoList);
 
 	AssertGetEventsArg arg(data);
+	assertGetEvents(arg);
+}
+
+void data_addDupEventInfoList(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_addDupEventInfoList(gconstpointer data)
+{
+	test_setTriggerInfoList(data);
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	EventInfoList eventInfoList;
+	for (size_t i = 0; i < NumTestDupEventInfo; i++){
+		eventInfoList.push_back(testDupEventInfo[i]);
+	}
+	dbMonitoring.addEventInfoList(eventInfoList);
+
+	AssertGetEventsArg arg(data, testDupEventInfo, NumTestDupEventInfo);
 	assertGetEvents(arg);
 }
 
