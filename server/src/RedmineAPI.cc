@@ -73,7 +73,8 @@ bool parseDateTime(JSONParserAgent &agent, const string &objectName,
 
 	if (!agent.read(objectName, timeString))
 		return false;
-	
+
+	// Redmine returns UTC
 	if (g_time_val_from_iso8601(timeString.c_str(), &_time))
 		time.tv_sec = _time.tv_sec;
 	else

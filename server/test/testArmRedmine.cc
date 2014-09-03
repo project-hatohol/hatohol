@@ -20,8 +20,10 @@
 #include <cppcutter.h>
 #include <gcutter.h>
 #include "Hatohol.h"
-#include "RedmineAPIEmulator.h"
 #include "ArmRedmine.h"
+#include "DBTablesMonitoring.h"
+#include "RedmineAPIEmulator.h"
+#include "ThreadLocalDBCache.h"
 #include "DBTablesTest.h"
 
 using namespace std;
@@ -119,6 +121,7 @@ void test_oneProcWihNoUpdatedIssues(void)
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 	ArmRedmineTestee arm(tracker);
 	cppcut_assert_equal(true, arm.callOneProc());
+
 	string expected =
 		"f%5B%5D=status_id&"
 		"op%5Bstatus_id%5D=%2A&"
@@ -128,7 +131,15 @@ void test_oneProcWihNoUpdatedIssues(void)
 		"sort=updated_on%3Adesc"
 		"&f%5B%5D=updated_on"
 		"&op%5Bupdated_on%5D=%3E%3D"
-		"&v%5Bupdated_on%5D%5B%5D=2014-10-11";
+		"&v%5Bupdated_on%5D%5B%5D=";
+	struct tm localTime;
+	DBTablesMonitoring dbMonitoring;
+	time_t lastTime
+		= dbMonitoring.getLastUpdateTimeOfIncidents(tracker.id);
+	localtime_r(&lastTime, &localTime);
+	char date[16];
+	strftime(date, sizeof(date), "%Y-%m-%d", &localTime);
+	expected += date;
 	assertQuery(expected, g_redmineEmulator.getLastRequestQuery());
 }
 

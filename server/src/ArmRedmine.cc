@@ -128,6 +128,9 @@ struct ArmRedmine::Impl
 
 	string getLastUpdateDate()
 	{
+		// TODO:
+		// The timezone isn't stored in the DB (Redmine returns UTC).
+		// How should we know it?
 		struct tm localTime;
 		localtime_r(&m_lastUpdateTime, &localTime);
 		char buf[16];
