@@ -190,14 +190,19 @@ struct AssertGetEventsArg
 	bool withIncidentInfo;
 	std::map<std::string, IncidentInfo*> eventIncidentMap;
 
-	AssertGetEventsArg(gconstpointer ddtParam)
+ AssertGetEventsArg(gconstpointer ddtParam, int eventInfoType = 0)
 	: limitOfUnifiedId(0), sortType(EventsQueryOption::SORT_UNIFIED_ID),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
 	  triggerStatus(TRIGGER_STATUS_ALL),
 	  withIncidentInfo(false)
 	{
-		fixtures = testEventInfo;
-		numberOfFixtures = NumTestEventInfo;
+		if (eventInfoType == 0) {
+			fixtures = testEventInfo;
+			numberOfFixtures = NumTestEventInfo;
+		} else {
+			fixtures = testDupEventInfo;
+			numberOfFixtures = NumTestDupEventInfo;
+		}
 		fixupIdMap();
 		if (ddtParam)
 			setDataDrivenTestParam(ddtParam);

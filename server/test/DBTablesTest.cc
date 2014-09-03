@@ -268,6 +268,63 @@ EventInfo testEventInfo[] = {
 };
 size_t NumTestEventInfo = sizeof(testEventInfo) / sizeof(EventInfo);
 
+EventInfo testDupEventInfo[] = {
+{
+	AUTO_INCREMENT_VALUE,     // unifiedId
+	3,                        // serverId
+	DISCONNECT_SERVER_EVENT_ID, // id
+	{1362957200,0},           // time
+	EVENT_TYPE_GOOD,          // type
+	2,                        // triggerId
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_WARNING, // severity
+	10001,                    // hostId,
+	"hostZ1",                 // hostName,
+	"TEST Trigger 2",         // brief,
+}, {
+	AUTO_INCREMENT_VALUE,     // unifiedId
+	3,                        // serverId
+	DISCONNECT_SERVER_EVENT_ID, // id
+	{1362951000,0},           // time
+	EVENT_TYPE_GOOD,          // type
+	3,                        // triggerId
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_INFO,    // severity
+	10002,                    // hostId,
+	"hostZ2",                 // hostName,
+	"TEST Trigger 3",         // brief,
+}, {
+	AUTO_INCREMENT_VALUE,     // unifiedId
+	3,                        // serverId
+	DISCONNECT_SERVER_EVENT_ID, // id
+	{1362951000,0},           // time
+	EVENT_TYPE_GOOD,          // type
+	3,                        // triggerId
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_INFO,    // severity
+	10002,                    // hostId,
+	"hostZ2",                 // hostName,
+	"TEST Trigger 3",         // brief,
+}, {
+	// This entry is for tests with a defunct server
+	AUTO_INCREMENT_VALUE,     // unifiedId
+	trigInfoDefunctSv1.serverId, // serverId
+	1,                        // id
+	trigInfoDefunctSv1.lastChangeTime, // time
+	EVENT_TYPE_BAD,           // type
+	3,                        // triggerId
+	trigInfoDefunctSv1.status,   // status
+	trigInfoDefunctSv1.severity, // severity
+	trigInfoDefunctSv1.hostId,   // hostId,
+	trigInfoDefunctSv1.hostName, // hostName,
+	trigInfoDefunctSv1.brief,    // brief,
+},
+// We assumed the data of the default server's is at the tail in testEventInfo.
+// See also the definition of trigInfoDefunctSv1 above. Anyway,
+// ******* DON'T APPEND RECORDS AFTER HERE *******
+};
+size_t NumTestDupEventInfo = sizeof(testDupEventInfo) / sizeof(EventInfo);
+
 ItemInfo testItemInfo[] = {
 {
 	1,                        // serverId
