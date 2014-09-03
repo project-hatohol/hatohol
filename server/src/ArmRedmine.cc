@@ -191,10 +191,8 @@ struct ArmRedmine::Impl
 		}
 		agent.endObject();
 
-		if (num != 0 && i == num) {
-			hasNextPage(agent, num);
+		if (num != 0 && i == num && hasNextPage(agent, num))
 			return PARSE_RESULT_NEED_NEXT_PAGE;
-		}
 
 		m_lastUpdateTime = m_lastUpdateTimePending;
 		return PARSE_RESULT_OK;
