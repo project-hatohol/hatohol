@@ -138,6 +138,26 @@ struct ArmRedmine::Impl
 		return string(buf);
 	}
 
+	string getQuery()
+	{
+		string query = m_baseQuery;
+		if (m_lastUpdateTime > 0) {
+			char *updatedOnQuery = soup_form_encode(
+				"f[]", "updated_on",
+				"op[updated_on]", ">=",
+				"v[updated_on][]", getLastUpdateDate().c_str(),
+				NULL);
+			query += "&";
+			query += updatedOnQuery;
+			g_free(updatedOnQuery);
+		}
+		if (m_page > 1) {
+			query += "&page=";
+			query += StringUtils::toString(m_page);
+		}
+		return query;
+	}
+
 	void handleError(int soupStatus, const string &response)
 	{
 		if (SOUP_STATUS_IS_TRANSPORT_ERROR(soupStatus)) {
@@ -254,22 +274,7 @@ std::string ArmRedmine::getURL(void)
 
 std::string ArmRedmine::getQuery(void)
 {
-	string query = m_impl->m_baseQuery;
-	if (m_impl->m_lastUpdateTime > 0) {
-		char *updatedOnQuery = soup_form_encode(
-			"f[]", "updated_on",
-			"op[updated_on]", ">=",
-			"v[updated_on][]", m_impl->getLastUpdateDate().c_str(),
-			NULL);
-		query += "&";
-		query += updatedOnQuery;
-		g_free(updatedOnQuery);
-	}
-	if (m_impl->m_page > 1) {
-		query += "&page=";
-		query += StringUtils::toString(m_impl->m_page);
-	}
-	return query;
+	return m_impl->getQuery();
 }
 
 gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
