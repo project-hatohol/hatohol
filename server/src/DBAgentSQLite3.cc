@@ -100,8 +100,7 @@ const DBTermCodec *DBAgentSQLite3::getDBTermCodecStatic(void)
 }
 
 DBAgentSQLite3::DBAgentSQLite3(const string &dbName, const std::string &dbDir)
-: DBAgent(0 /* TODO: remove */),
-  m_impl(new Impl())
+: m_impl(new Impl())
 {
 	m_impl->dbPath = makeDBPathFromName(dbName, dbDir);
 	openDatabase();

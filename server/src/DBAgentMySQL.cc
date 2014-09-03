@@ -81,8 +81,7 @@ void DBAgentMySQL::init(void)
 
 DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
                            const char *host, unsigned int port)
-: DBAgent(0 /* TODO: remove */),
-  m_impl(new Impl())
+: m_impl(new Impl())
 {
 	m_impl->dbName   = db     ? : "";
 	m_impl->user     = user   ? : "";
@@ -558,9 +557,8 @@ void DBAgentMySQL::connect(void)
 	                                   db, m_impl->port,
 	                                   unixSocket, clientFlag);
 	if (!result) {
-		MLPL_ERR("Failed to connect to MySQL: %s: (error: %u, "
-		         "Domain ID: 0x%x) %s\n",
-		         db, mysql_errno(&m_impl->mysql), getDBDomainId(),
+		MLPL_ERR("Failed to connect to MySQL: %s: (error: %u) %s\n",
+		         db, mysql_errno(&m_impl->mysql),
 		         mysql_error(&m_impl->mysql));
 	}
 	m_impl->connected = result;
