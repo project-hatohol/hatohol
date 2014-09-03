@@ -319,6 +319,6 @@ RETRY:
 		return COLLECT_OK;
 	case PARSE_RESULT_ERROR:
 	default:
-		return COLLECT_NG_PERSER_ERROR;
+		return COLLECT_NG_PARSER_ERROR;
 	}
 }
