@@ -1380,6 +1380,24 @@ void test_updateIncidentInfo(void)
 	assertDBContent(&dbAgent, statement, expect);
 }
 
+void test_updateIncidentInfoByDedicatedFuction(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+
+	IncidentInfo incidentInfo = testIncidentInfo[0];
+	dbMonitoring.addIncidentInfo(&incidentInfo);
+	incidentInfo.status = "Assigned";
+	incidentInfo.assignee = "hikeshi";
+	incidentInfo.updatedAt.tv_sec = time(NULL);
+	incidentInfo.updatedAt.tv_nsec = 0;
+	dbMonitoring.updateIncidentInfo(incidentInfo);
+
+	string statement("select * from incidents;");
+	string expect(makeIncidentOutput(incidentInfo));
+	assertDBContent(&dbAgent, statement, expect);
+}
+
 void test_getIncidentInfo(void)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);

@@ -29,6 +29,8 @@ public:
 	ArmRedmine(const IncidentTrackerInfo &trackerInfo);
 	virtual ~ArmRedmine();
 
+	void startIfNeeded(void);
+
 protected:
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg) override;

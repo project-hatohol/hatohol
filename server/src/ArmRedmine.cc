@@ -19,6 +19,7 @@
 
 #include "ArmRedmine.h"
 #include "RedmineAPI.h"
+#include "ThreadLocalDBCache.h"
 #include "JSONParserAgent.h"
 #include "UnifiedDataStore.h"
 #include <time.h>
@@ -28,9 +29,10 @@ using namespace std;
 using namespace mlpl;
 
 // TODO: should share with other classes such as IncidentSenderRedmine
-static const guint DEFAULT_TIMEOUT_SECONDS = 60;
-static const int DEFAULT_PAGE_LIMIT = 100;
 static const char *MIME_JSON = "application/json";
+static const guint DEFAULT_TIMEOUT_SECONDS = 60;
+
+static const int DEFAULT_PAGE_LIMIT = 100;
 
 typedef enum {
 	PARSE_RESULT_OK,
@@ -49,6 +51,7 @@ struct ArmRedmine::Impl
 	int m_pageLimit;
 	time_t m_lastUpdateTime;
 	time_t m_lastUpdateTimePending;
+	Mutex m_startMutex;
 
 	Impl(const IncidentTrackerInfo &trackerInfo)
 	: m_incidentTrackerInfo(trackerInfo),
@@ -58,11 +61,7 @@ struct ArmRedmine::Impl
 	  m_lastUpdateTime(0),
 	  m_lastUpdateTimePending(0)
 	{
-		IncidentTrackerIdType trackerId = m_incidentTrackerInfo.id;
-		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-		m_lastUpdateTime
-			= dataStore->getLastUpdateTimeOfIncidents(trackerId);
-
+		checkLastUpdateTime();
 		m_session = soup_session_sync_new_with_options(
 			SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS, NULL);
 		connectSessionSignals();
@@ -74,6 +73,15 @@ struct ArmRedmine::Impl
 	virtual ~Impl()
 	{
 		g_object_unref(m_session);
+	}
+
+	bool checkLastUpdateTime()
+	{
+		IncidentTrackerIdType trackerId = m_incidentTrackerInfo.id;
+		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+		m_lastUpdateTime
+			= dataStore->getLastUpdateTimeOfIncidents(trackerId);
+		return (m_lastUpdateTime > 0);
 	}
 
 	void connectSessionSignals(void)
@@ -105,11 +113,6 @@ struct ArmRedmine::Impl
 		m_url += "issues.json";
 	}
 
-	void setPage(const int &page)
-	{
-		m_page = page;
-	}
-
 	void buildBaseQuery(void)
 	{
 		m_baseQuery.clear();
@@ -136,6 +139,26 @@ struct ArmRedmine::Impl
 		char buf[16];
 		strftime(buf, sizeof(buf), "%Y-%m-%d", &localTime);
 		return string(buf);
+	}
+
+	string getQuery()
+	{
+		string query = m_baseQuery;
+		if (m_lastUpdateTime > 0) {
+			char *updatedOnQuery = soup_form_encode(
+				"f[]", "updated_on",
+				"op[updated_on]", ">=",
+				"v[updated_on][]", getLastUpdateDate().c_str(),
+				NULL);
+			query += "&";
+			query += updatedOnQuery;
+			g_free(updatedOnQuery);
+		}
+		if (m_page > 1) {
+			query += "&page=";
+			query += StringUtils::toString(m_page);
+		}
+		return query;
 	}
 
 	void handleError(int soupStatus, const string &response)
@@ -170,9 +193,12 @@ struct ArmRedmine::Impl
 			MLPL_DBG("Response: %s\n", response.c_str());
 			return PARSE_RESULT_ERROR;
 		}
-		size_t i, num = agent.countElements();
+
 		if (m_lastUpdateTime > m_lastUpdateTimePending)
 			m_lastUpdateTimePending = m_lastUpdateTime;
+
+		ThreadLocalDBCache cache;
+		size_t i, num = agent.countElements();
 		for (i = 0; i < num; i++) {
 			agent.startElement(i);
 			IncidentInfo incident;
@@ -183,7 +209,9 @@ struct ArmRedmine::Impl
 			if (updateTime > m_lastUpdateTimePending)
 				m_lastUpdateTimePending = updateTime;
 			if (updateTime >= m_lastUpdateTime) {
-				//TODO: update the incident in DB
+				DBTablesMonitoring &dbMonitoring
+					= cache.getMonitoring();
+				dbMonitoring.updateIncidentInfo(incident);
 			} else {
 				// All incidents are updated
 				break;
@@ -209,7 +237,7 @@ struct ArmRedmine::Impl
 		return true;
 	}
 
-	bool parseIssue(JSONParserAgent &agent,	IncidentInfo &incident)
+	bool parseIssue(JSONParserAgent &agent, IncidentInfo &incident)
 	{
 		bool succeeded = RedmineAPI::parseIssue(agent, incident);
 		incident.trackerId = m_incidentTrackerInfo.id;
@@ -228,8 +256,8 @@ static MonitoringServerInfo toMonitoringServerInfo(
 	//TODO: define a new MONITORING_SYSTEM?
 	monitoringServer.type = MONITORING_SYSTEM_UNKNOWN;
 	monitoringServer.nickname = trackerInfo.nickname;
-	monitoringServer.hostName = soup_uri_get_host(uri);
-	monitoringServer.port = soup_uri_get_port(uri);
+	monitoringServer.hostName = uri->host;
+	monitoringServer.port = uri->port;
 	//TODO: should be customizable
 	monitoringServer.pollingIntervalSec = 60;
 	monitoringServer.retryIntervalSec = 30;
@@ -254,22 +282,7 @@ std::string ArmRedmine::getURL(void)
 
 std::string ArmRedmine::getQuery(void)
 {
-	string query = m_impl->m_baseQuery;
-	if (m_impl->m_lastUpdateTime > 0) {
-		char *updatedOnQuery = soup_form_encode(
-			"f[]", "updated_on",
-			"op[updated_on]", ">=",
-			"v[updated_on][]", m_impl->getLastUpdateDate().c_str(),
-			NULL);
-		query += "&";
-		query += updatedOnQuery;
-		g_free(updatedOnQuery);
-	}
-	if (m_impl->m_page > 1) {
-		query += "&page=";
-		query += StringUtils::toString(m_impl->m_page);
-	}
-	return query;
+	return m_impl->getQuery();
 }
 
 gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
@@ -284,7 +297,7 @@ ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 		return COLLECT_OK;
 	}
 
-	m_impl->setPage(1);
+	m_impl->m_page = 1;
 
 RETRY:
 	string url = m_impl->m_url;
@@ -311,7 +324,7 @@ RETRY:
 				 "or something is wrong!\n");
 			return COLLECT_NG_INTERNAL_ERROR;
 		}
-		m_impl->setPage(m_impl->m_page + 1);
+		++m_impl->m_page;
 		goto RETRY;
 	case PARSE_RESULT_OK:
 		return COLLECT_OK;
@@ -319,4 +332,14 @@ RETRY:
 	default:
 		return COLLECT_NG_PARSER_ERROR;
 	}
+}
+
+void ArmRedmine::startIfNeeded(void)
+{
+	AutoMutex autoLock(&m_impl->m_startMutex);
+	if (isStarted())
+		return;
+	if (!m_impl->checkLastUpdateTime())
+		return;
+	start();
 }

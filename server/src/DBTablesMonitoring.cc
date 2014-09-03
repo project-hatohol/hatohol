@@ -2234,6 +2234,24 @@ void DBTablesMonitoring::addIncidentInfo(IncidentInfo *incidentInfo)
 	getDBAgent().runTransaction(trx);
 }
 
+void DBTablesMonitoring::updateIncidentInfo(IncidentInfo &incidentInfo)
+{
+	DBAgent::UpdateArg arg(tableProfileIncidents);
+	arg.add(IDX_INCIDENTS_STATUS, incidentInfo.status);
+	arg.add(IDX_INCIDENTS_ASSIGNEE, incidentInfo.assignee);
+	arg.add(IDX_INCIDENTS_CREATED_AT_SEC, incidentInfo.createdAt.tv_sec);
+	arg.add(IDX_INCIDENTS_CREATED_AT_NS, incidentInfo.createdAt.tv_nsec);
+	arg.add(IDX_INCIDENTS_UPDATED_AT_SEC, incidentInfo.updatedAt.tv_sec);
+	arg.add(IDX_INCIDENTS_UPDATED_AT_NS, incidentInfo.updatedAt.tv_nsec);
+	arg.condition = StringUtils::sprintf(
+	  "%s=%" FMT_INCIDENT_TRACKER_ID " AND %s=%s",
+	  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_TRACKER_ID].columnName,
+	  incidentInfo.trackerId,
+	  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_IDENTIFIER].columnName,
+	  incidentInfo.identifier.c_str());
+	getDBAgent().runTransaction(arg);
+}
+
 HatoholError DBTablesMonitoring::getIncidentInfoVect(
   IncidentInfoVect &incidentInfoVect, const IncidentsQueryOption &option)
 {
