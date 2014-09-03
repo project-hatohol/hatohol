@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -20,13 +20,16 @@
 #ifndef DBAgentFactory_h
 #define DBAgentFactory_h
 
+#include <typeinfo>
 #include "DBAgent.h"
 
 class DBAgentFactory {
 public:
-	static DBAgent* create(DBDomainId domainId = DEFAULT_DB_DOMAIN_ID,
-	                       const std::string &dbName = "",
-	                       const DBConnectInfo *connectInfo = NULL);
+	static DBAgent *create(const std::type_info &dbClassType,
+	                       const DBConnectInfo &connectInfo);
+protected:
+	static DBAgent *newDBAgentMySQL(const DBConnectInfo &connectInfo);
+	static DBAgent *newDBAgentSQLite3(const DBConnectInfo &connectInfo);
 };
 
 #endif // DBAgentFactory_h
