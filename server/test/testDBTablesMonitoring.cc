@@ -807,7 +807,7 @@ void test_addDupEventInfoList(gconstpointer data)
 	}
 	dbMonitoring.addEventInfoList(eventInfoList);
 
-	AssertGetEventsArg arg(data, dupEventInfoType);
+	AssertGetEventsArg arg(data, testDupEventInfo, NumTestDupEventInfo);
 	assertGetEvents(arg);
 }
 
