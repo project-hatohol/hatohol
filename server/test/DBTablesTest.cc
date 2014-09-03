@@ -305,19 +305,6 @@ EventInfo testDupEventInfo[] = {
 	10002,                    // hostId,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
-}, {
-	// This entry is for tests with a defunct server
-	AUTO_INCREMENT_VALUE,     // unifiedId
-	trigInfoDefunctSv1.serverId, // serverId
-	1,                        // id
-	trigInfoDefunctSv1.lastChangeTime, // time
-	EVENT_TYPE_BAD,           // type
-	3,                        // triggerId
-	trigInfoDefunctSv1.status,   // status
-	trigInfoDefunctSv1.severity, // severity
-	trigInfoDefunctSv1.hostId,   // hostId,
-	trigInfoDefunctSv1.hostName, // hostName,
-	trigInfoDefunctSv1.brief,    // brief,
 },
 // We assumed the data of the default server's is at the tail in testEventInfo.
 // See also the definition of trigInfoDefunctSv1 above. Anyway,
