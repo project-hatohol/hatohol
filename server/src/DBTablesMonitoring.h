@@ -414,6 +414,17 @@ public:
 	uint64_t getLastUpdateTimeOfIncidents(
 	  const IncidentTrackerIdType &trackerId);
 
+	/**
+	 * Update an incident information which has specified trackerId &
+	 * identifier. Note that it doesn't update monitoring system side
+	 * information (serverId, eventId and triggerId) beacuse they are
+	 * tied with the incident and shouldn't be changed.
+	 *
+	 * @param incidentInfo
+	 * An IncidentInfo to update.
+	 */
+	void updateIncidentInfo(IncidentInfo &incidentInfo);
+
 protected:
 	static SetupInfo &getSetupInfo(void);
 
