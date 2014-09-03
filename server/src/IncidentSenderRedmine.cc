@@ -20,6 +20,7 @@
 #include "IncidentSenderRedmine.h"
 #include "JSONBuilderAgent.h"
 #include "JSONParserAgent.h"
+#include "RedmineAPI.h"
 #include "ThreadLocalDBCache.h"
 #include <Mutex.h>
 #include <libsoup/soup.h>
@@ -111,12 +112,7 @@ string IncidentSenderRedmine::getIssuesJSONURL(void)
 string IncidentSenderRedmine::getIssueURL(const string &id)
 {
 	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
-	string url = trackerInfo.baseURL;
-	if (!StringUtils::hasSuffix(url, "/"))
-		url += "/";
-	url += "issues/";
-	url += id;
-	return url;
+	return RedmineAPI::getIssueURL(trackerInfo, id);
 }
 
 string IncidentSenderRedmine::buildJSON(const EventInfo &event)
@@ -181,42 +177,12 @@ HatoholError IncidentSenderRedmine::parseResponse(
 		return m_impl->parseErrorResponse(response);
 
 	agent.startObject("issue");
-	int64_t issueId = 0;
-	if (!agent.read("id", issueId) || issueId == 0) {
-		MLPL_ERR("Failed to parse Incident ID.\n");
-		return HTERR_FAILED_TO_SEND_INCIDENT;
-	}
-	incidentInfo.identifier = StringUtils::toString((uint64_t)issueId);
+	bool succeeded = RedmineAPI::parseIssue(agent, incidentInfo);
 	incidentInfo.location = getIssueURL(incidentInfo.identifier);
-
-	agent.startObject("status");
-	agent.read("name", incidentInfo.status);
 	agent.endObject();
 
-	if (agent.isMember("assigned_to")) {
-		agent.startObject("assigned_to");
-		agent.read("name", incidentInfo.assignee);
-		agent.endObject();
-	}
-
-	string timeString;
-	GTimeVal _time;
-
-	agent.read("created_on", timeString);
-	if (g_time_val_from_iso8601(timeString.c_str(), &_time))
-		incidentInfo.createdAt.tv_sec = _time.tv_sec;
-	else
-		incidentInfo.createdAt.tv_sec = 0;
-	incidentInfo.createdAt.tv_nsec = 0;
-
-	agent.read("updated_on", timeString);
-	if (g_time_val_from_iso8601(timeString.c_str(), &_time))
-		incidentInfo.updatedAt.tv_sec = _time.tv_sec;
-	else
-		incidentInfo.updatedAt.tv_sec = 0;
-	incidentInfo.updatedAt.tv_nsec = 0;
-
-	agent.endObject();
+	if (!succeeded)
+		return HTERR_FAILED_TO_SEND_INCIDENT;
 
 	return HTERR_OK;
 }
@@ -241,24 +207,9 @@ HatoholError IncidentSenderRedmine::Impl::parseErrorResponse(
 			 agent.getErrorMessage());
 		return HTERR_FAILED_TO_SEND_INCIDENT;
 	}
-	if (!agent.startObject("errors")) {
-		MLPL_ERR("Failed to parse errors: %s\n", response.c_str());
-		return HTERR_FAILED_TO_SEND_INCIDENT;
-	}
-
-	int numErrors = agent.countElements();
-	if (numErrors <= 0)
-		return HTERR_FAILED_TO_SEND_INCIDENT;
-
-	string message = "Redmine errors:\n";
-	for (int i = 0; i < numErrors; i++) {
-		string error;
-		agent.read(i, error);
-		message += StringUtils::sprintf("    * %s\n", error.c_str());
-	}
-	MLPL_ERR("%s", message.c_str());
-	agent.endObject();
-
+	if (!agent.isMember("errors"))
+		MLPL_ERR("Response: %s\n", response.c_str());
+	RedmineAPI::logErrors(agent);
 	return HTERR_FAILED_TO_SEND_INCIDENT;
 }
 

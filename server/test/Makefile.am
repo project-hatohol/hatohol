@@ -71,7 +71,7 @@ testHatohol_la_SOURCES = \
 	testJSONParserAgent.cc testJSONBuilderAgent.cc testUtils.cc \
 	testNamedPipe.cc \
 	testArmBase.cc \
-	testArmZabbixAPI.cc testArmNagiosNDOUtils.cc \
+	testArmZabbixAPI.cc testArmNagiosNDOUtils.cc testArmRedmine.cc \
 	testArmStatus.cc \
 	testUsedCountable.cc \
 	testUnifiedDataStore.cc testMain.cc \

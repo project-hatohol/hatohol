@@ -1381,4 +1381,31 @@ void test_getIncidentInfo(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_getLastUpdateTimeOfIncidents(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	loadTestDBIncidents();
+	const IncidentTrackerIdType trackerId = 3;
+
+	uint64_t expected = 0;
+	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
+		if (testIncidentInfo[i].trackerId == trackerId &&
+		    testIncidentInfo[i].updatedAt.tv_sec > expected) {
+			expected = testIncidentInfo[i].updatedAt.tv_sec;
+		}
+	}
+
+	cppcut_assert_equal(
+	  expected, dbMonitoring.getLastUpdateTimeOfIncidents(trackerId));
+}
+
+void test_getLastUpdateTimeOfIncidentsWithNoRecord(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	const IncidentTrackerIdType trackerId = 3;
+	uint64_t expected = 0;
+	cppcut_assert_equal(
+	  expected, dbMonitoring.getLastUpdateTimeOfIncidents(trackerId));
+}
+
 } // namespace testDBTablesMonitoring

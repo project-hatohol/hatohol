@@ -90,7 +90,7 @@ void test_sendRedmineIncident(void)
 		      statusCallback, (void*)&succeeded);
 	while (!manager.isIdling())
 		usleep(100 * 1000);
-	const string &json = g_redmineEmulator.getLastResponse();
+	const string &json = g_redmineEmulator.getLastResponseBody();
 	cppcut_assert_equal(true, succeeded);
 	cppcut_assert_equal(false, json.empty());
 }
@@ -112,7 +112,7 @@ void test_createMultiThreads(void)
 		      statusCallback, (void*)&succeeded2);
 	while (!manager.isIdling())
 		usleep(100 * 1000);
-	const string &json = g_redmineEmulator.getLastResponse();
+	const string &json = g_redmineEmulator.getLastResponseBody();
 	cppcut_assert_equal(true, succeeded1 && succeeded2);
 	cppcut_assert_equal(false, json.empty());
 	IncidentSender *sender1 = manager.getSender(trackerId1);
