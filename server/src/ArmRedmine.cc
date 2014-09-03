@@ -254,8 +254,8 @@ static MonitoringServerInfo toMonitoringServerInfo(
 	//TODO: define a new MONITORING_SYSTEM?
 	monitoringServer.type = MONITORING_SYSTEM_UNKNOWN;
 	monitoringServer.nickname = trackerInfo.nickname;
-	monitoringServer.hostName = soup_uri_get_host(uri);
-	monitoringServer.port = soup_uri_get_port(uri);
+	monitoringServer.hostName = uri->host;
+	monitoringServer.port = uri->port;
 	//TODO: should be customizable
 	monitoringServer.pollingIntervalSec = 60;
 	monitoringServer.retryIntervalSec = 30;
