@@ -211,12 +211,8 @@ public:
 		AddColumnsArg(const TableProfile &tableProfile);
 	};
 
-	static void addSetupFunction(DBDomainId domainId,
-	                             DBSetupFunc setupFunc, void *data = NULL);
-
-	DBAgent(DBDomainId = DEFAULT_DB_DOMAIN_ID);
+	DBAgent(void);
 	virtual ~DBAgent();
-	DBDomainId getDBDomainId(void) const;
 
 	// virtual methods
 	virtual bool isTableExisting(const std::string &tableName) = 0;
@@ -370,7 +366,6 @@ protected:
 
 private:
 	struct Impl;
-	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // DBAgent_h
