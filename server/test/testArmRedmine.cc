@@ -120,15 +120,15 @@ void test_oneProcWihNoUpdatedIssues(void)
 	ArmRedmineTestee arm(tracker);
 	cppcut_assert_equal(true, arm.callOneProc());
 	string expected =
-		"f%5B%5D=status%5Fid&"
-		"op%5Bstatus%5Fid%5D=%2A&"
+		"f%5B%5D=status_id&"
+		"op%5Bstatus_id%5D=%2A&"
 		"limit=100&"
-		"project%5Fid=hatoholtestproject&"
-		"tracker%5Fid=1&"
-		"sort=updated%5Fon%3Adesc"
-		"&f%5B%5D=updated%5Fon"
-		"&op%5Bupdated%5Fon%5D=%3E%3D"
-		"&v%5Bupdated%5Fon%5D%5B%5D=2014%2D10%2D11";
+		"project_id=hatoholtestproject&"
+		"tracker_id=1&"
+		"sort=updated_on%3Adesc"
+		"&f%5B%5D=updated_on"
+		"&op%5Bupdated_on%5D=%3E%3D"
+		"&v%5Bupdated_on%5D%5B%5D=2014-10-11";
 	assertQuery(expected, g_redmineEmulator.getLastRequestQuery());
 }
 

@@ -43,7 +43,8 @@ struct ArmRedmine::Impl
 	IncidentTrackerInfo m_incidentTrackerInfo;
 	SoupSession *m_session;
 	string m_url;
-	GHashTable *m_query;
+	// Don't use hash table to allow duplicated keys
+	string m_baseQuery;
 	int m_page;
 	int m_pageLimit;
 	time_t m_lastUpdateTime;
@@ -52,7 +53,6 @@ struct ArmRedmine::Impl
 	Impl(const IncidentTrackerInfo &trackerInfo)
 	: m_incidentTrackerInfo(trackerInfo),
 	  m_session(NULL),
-	  m_query(NULL),
 	  m_page(1),
 	  m_pageLimit(DEFAULT_PAGE_LIMIT),
 	  m_lastUpdateTime(0),
@@ -67,9 +67,6 @@ struct ArmRedmine::Impl
 			SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS, NULL);
 		connectSessionSignals();
 
-		m_query = g_hash_table_new_full(soup_str_case_hash,
-						soup_str_case_equal,
-						g_free, g_free);
 		buildURL();
 		buildBaseQuery();
 	}
@@ -77,7 +74,6 @@ struct ArmRedmine::Impl
 	virtual ~Impl()
 	{
 		g_object_unref(m_session);
-		g_hash_table_unref(m_query);
 	}
 
 	void connectSessionSignals(void)
@@ -109,55 +105,25 @@ struct ArmRedmine::Impl
 		m_url += "issues.json";
 	}
 
-	void setQuery(const char *key, const char *value)
-	{
-		g_hash_table_insert(m_query, g_strdup(key), g_strdup(value));
-	}
-
-	void removeQuery(const char *key)
-	{
-		g_hash_table_remove(m_query, key);
-	}
-
 	void setPage(const int &page)
 	{
 		m_page = page;
-		if (page <= 1) {
-			removeQuery("page");
-		} else {
-			string pageString = StringUtils::toString(m_page);
-			g_hash_table_insert(m_query, g_strdup("page"),
-					    g_strdup(pageString.c_str()));
-		}
 	}
 
 	void buildBaseQuery(void)
 	{
-		g_hash_table_remove_all(m_query);
-
+		m_baseQuery.clear();
 		string &projectId = m_incidentTrackerInfo.projectId;
 		string &trackerId = m_incidentTrackerInfo.trackerId;
-		setQuery("project_id", projectId.c_str());
-		if (!trackerId.empty())
-			setQuery("tracker_id", trackerId.c_str());
-		setQuery("limit", "100"); // 100 is max
-		setQuery("sort", "updated_on:desc");
-
-		// Filter by status_id
-		setQuery("f[]", "status_id");
-		setQuery("op[status_id]", "*"); // all
-	}
-
-	void updateQuery(void)
-	{
-		// Filter by created_on
-		if (m_lastUpdateTime > 0) {
-			setQuery("f[]", "updated_on");
-			setQuery("op[updated_on]", ">=");
-			// Redmine doesn't accept time string, use date instead
-			setQuery("v[updated_on][]",
-				 getLastUpdateDate().c_str());
-		}
+		char *query = soup_form_encode("project_id", projectId.c_str(),
+					       "tracker_id", trackerId.c_str(),
+					       "limit", "100",
+					       "sort", "updated_on:desc",
+					       "f[]", "status_id",
+					       "op[status_id]", "*",
+					       NULL);
+		m_baseQuery = query;
+		g_free(query);
 	}
 
 	string getLastUpdateDate()
@@ -287,11 +253,22 @@ std::string ArmRedmine::getURL(void)
 
 std::string ArmRedmine::getQuery(void)
 {
-	m_impl->updateQuery();
-	char *query = soup_form_encode_hash(m_impl->m_query);
-	string retval = query;
-	g_free(query);
-	return retval;
+	string query = m_impl->m_baseQuery;
+	if (m_impl->m_lastUpdateTime > 0) {
+		char *updatedOnQuery = soup_form_encode(
+			"f[]", "updated_on",
+			"op[updated_on]", ">=",
+			"v[updated_on][]", m_impl->getLastUpdateDate().c_str(),
+			NULL);
+		query += "&";
+		query += updatedOnQuery;
+		g_free(updatedOnQuery);
+	}
+	if (m_impl->m_page > 1) {
+		query += "&page=";
+		query += StringUtils::toString(m_impl->m_page);
+	}
+	return query;
 }
 
 gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
@@ -309,9 +286,10 @@ ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 	m_impl->setPage(1);
 
 RETRY:
-	m_impl->updateQuery();
-	SoupMessage *msg = soup_form_request_new_from_hash(
-		SOUP_METHOD_GET, m_impl->m_url.c_str(), m_impl->m_query);
+	string url = m_impl->m_url;
+	url += "?";
+	url += getQuery();
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
 	guint soupStatus = soup_session_send_message(m_impl->m_session, msg);
