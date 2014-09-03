@@ -416,7 +416,6 @@ void RedmineAPIEmulator::PrivateContext::handlerIssuesJSON
   (SoupServer *server, SoupMessage *msg, const char *path, GHashTable *query,
    SoupClientContext *client, gpointer user_data)
 {
-
 	RedmineAPIEmulator *emulator
 	  = reinterpret_cast<RedmineAPIEmulator *>(user_data);
 	RedmineAPIEmulator::PrivateContext *priv = emulator->m_ctx;
