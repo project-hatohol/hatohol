@@ -51,6 +51,7 @@ struct ArmRedmine::Impl
 	int m_pageLimit;
 	time_t m_lastUpdateTime;
 	time_t m_lastUpdateTimePending;
+	Mutex m_startMutex;
 
 	Impl(const IncidentTrackerInfo &trackerInfo)
 	: m_incidentTrackerInfo(trackerInfo),
@@ -333,10 +334,10 @@ RETRY:
 
 void ArmRedmine::startIfNeeded(void)
 {
+	AutoMutex autoLock(&m_impl->m_startMutex);
 	if (isStarted())
 		return;
 	if (!m_impl->checkLastUpdateTime())
 		return;
 	start();
 }
-
