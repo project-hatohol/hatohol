@@ -421,7 +421,7 @@ void RedmineAPIEmulator::PrivateContext::handlerIssuesJSON
 	RedmineAPIEmulator::PrivateContext *priv = emulator->m_ctx;
 
 	SoupURI *uri = soup_message_get_uri(msg);
-	const char *queryString = soup_uri_get_query(uri);
+	const char *queryString = uri->query;
 	priv->m_lastRequestQuery = queryString ? queryString : "";
 
 	if (priv->handlerDummyResponse(msg, path ,query, client))
