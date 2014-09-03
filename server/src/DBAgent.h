@@ -47,9 +47,6 @@ struct DBConnectInfo {
 	const char *getPassword(void) const;
 };
 
-typedef void (*DBSetupFunc)(DBDomainId domainId, void *data);
-static const DBDomainId DEFAULT_DB_DOMAIN_ID = 0;
-
 // Initialize DBAgent::TableProfile
 // Note: Compile fails if number of coldefs does not match numcols.
 #define DBAGENT_TABLEPROFILE_INIT(name, coldefs, numcols, ...)          \

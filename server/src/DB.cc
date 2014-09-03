@@ -27,7 +27,6 @@ using namespace std;
 using namespace mlpl;
 
 static const char *TABLE_NAME_TABLES_VERSION = "_tables_version";
-static const DBDomainId JUNK_DID = -1; // TODO: should be removed from DBAgent
 
 static const ColumnDef COLUMN_DEF_TABLES_VERSION[] = {
 {
