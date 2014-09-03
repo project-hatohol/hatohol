@@ -36,6 +36,7 @@ libhatohol_la_SOURCES = \
 	ArmBase.cc ArmBase.h \
 	ArmFake.cc ArmFake.h \
 	ArmNagiosNDOUtils.cc ArmNagiosNDOUtils.h \
+	ArmRedmine.cc ArmRedmine.h \
 	ArmZabbixAPI.cc ArmZabbixAPI.h \
 	ArmCeilometer.cc ArmCeilometer.h \
 	ChildProcessManager.cc ChildProcessManager.h \
@@ -87,6 +88,7 @@ libhatohol_la_SOURCES = \
 	NamedPipe.cc NamedPipe.h \
 	OperationPrivilege.cc OperationPrivilege.h \
 	Params.h \
+	RedmineAPI.cc RedmineAPI.h \
 	ResidentProtocol.h \
 	ResidentCommunicator.cc ResidentCommunicator.h \
 	RestResourceAction.cc RestResourceAction.h \

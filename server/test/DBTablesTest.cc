@@ -837,9 +837,33 @@ IncidentInfo testIncidentInfo[] = {
 	"http://localhost:44444/issues/13", // location
 	"New",                    // status
 	"foobar",                 // assignee
-	{1362957260, 0},          // createdAt
-	{1362957260, 0},          // updatedAt
-}
+	{1412957260, 0},          // createdAt
+	{1412957260, 0},          // updatedAt
+},
+{
+	3,                        // trackerId
+	1,                        // serverId
+	2,                        // eventId
+	1,                        // triggerId
+	"11",                     // identifier
+	"http://localhost:44444/issues/11", // location
+	"New",                    // status
+	"foobar",                 // assignee
+	{1412957290, 0},          // createdAt
+	{1412957290, 0},          // updatedAt
+},
+{
+	1,                        // trackerId
+	2,                        // serverId
+	2,                        // eventId
+	3,                        // triggerId
+	"123",                    // identifier
+	"http://localhost/issues/123", // location
+	"New",                    // status
+	"drake",                  // assignee
+	{1412957360, 0},          // createdAt
+	{1412957360, 0},          // updatedAt
+},
 };
 size_t NumTestIncidentInfo = sizeof(testIncidentInfo) / sizeof(IncidentInfo);
 

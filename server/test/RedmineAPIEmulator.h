@@ -65,8 +65,9 @@ public:
 	virtual ~RedmineAPIEmulator();
 	virtual void reset(void);
 	void addUser(const std::string &userName, const std::string &password);
-	const std::string &getLastRequest(void) const;
-	const std::string &getLastResponse(void) const;
+	const std::string &getLastRequestQuery(void) const;
+	const std::string &getLastRequestBody(void) const;
+	const std::string &getLastResponseBody(void) const;
 	const RedmineIssue &getLastIssue(void) const;
 	void queueDummyResponse(const guint &soupStatus,
 				const std::string &body = "");

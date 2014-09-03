@@ -25,6 +25,7 @@
 #include "RedmineAPIEmulator.h"
 #include "JSONParserAgent.h"
 #include "JSONBuilderAgent.h"
+#include "Helpers.h"
 
 using namespace std;
 
@@ -178,14 +179,16 @@ struct RedmineAPIEmulator::PrivateContext {
 				  const char *path, GHashTable *query,
 				  SoupClientContext *client);
 	string buildResponse(RedmineIssue &issue);
+	void replyGetIssue(SoupMessage *msg);
 	void replyPostIssue(SoupMessage *msg);
 	int getTrackerId(const string &trackerId);
 
 	map<string, string> m_passwords;
 	string m_currentUser;
 	size_t m_issueId;
-	string m_lastRequest;
-	string m_lastResponse;
+	string m_lastRequestQuery;
+	string m_lastRequestBody;
+	string m_lastResponseBody;
 	RedmineIssue m_lastIssue;
 	queue<Response> m_dummyResponseQueue;
 };
@@ -206,8 +209,9 @@ void RedmineAPIEmulator::reset(void)
 	m_ctx->m_passwords.clear();
 	m_ctx->m_currentUser.clear();
 	m_ctx->m_issueId = 0;
-	m_ctx->m_lastRequest.clear();
-	m_ctx->m_lastResponse.clear();
+	m_ctx->m_lastRequestQuery.clear();
+	m_ctx->m_lastRequestBody.clear();
+	m_ctx->m_lastResponseBody.clear();
 	m_ctx->m_lastIssue = RedmineIssue();
 	queue<Response> empty;
 	std::swap(m_ctx->m_dummyResponseQueue, empty);
@@ -219,14 +223,19 @@ void RedmineAPIEmulator::addUser(const std::string &userName,
 	m_ctx->m_passwords[userName] = password;
 }
 
-const string &RedmineAPIEmulator::getLastRequest(void) const
+const string &RedmineAPIEmulator::getLastRequestQuery(void) const
 {
-	return m_ctx->m_lastRequest;
+	return m_ctx->m_lastRequestQuery;
 }
 
-const string &RedmineAPIEmulator::getLastResponse(void) const
+const string &RedmineAPIEmulator::getLastRequestBody(void) const
 {
-	return m_ctx->m_lastResponse;
+	return m_ctx->m_lastRequestBody;
+}
+
+const string &RedmineAPIEmulator::getLastResponseBody(void) const
+{
+	return m_ctx->m_lastResponseBody;
 }
 
 const RedmineIssue &RedmineAPIEmulator::getLastIssue(void) const
@@ -310,11 +319,28 @@ int RedmineAPIEmulator::PrivateContext::getTrackerId(const string &trackerId)
 	return -1;
 }
 
+void RedmineAPIEmulator::PrivateContext::replyGetIssue(SoupMessage *msg)
+{
+	string path = getFixturesDir() + "redmine-issues.json";
+	gchar *contents = NULL;
+	gsize length;
+	gboolean succeeded =
+		g_file_get_contents(path.c_str(), &contents, &length, NULL);
+	if (!succeeded) {
+		THROW_HATOHOL_EXCEPTION("Failed to read file: %s",
+					path.c_str());
+	}
+	soup_message_set_status(msg, SOUP_STATUS_OK);
+	soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
+				 contents, length);
+	g_free(contents);
+}
+
 void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 {
-	m_lastRequest.assign(msg->request_body->data,
-			     msg->request_body->length);
-	JSONParserAgent agent(m_lastRequest);
+	m_lastRequestBody.assign(msg->request_body->data,
+				 msg->request_body->length);
+	JSONParserAgent agent(m_lastRequestBody);
 
 	if (agent.hasError()) {
 		soup_message_set_status(
@@ -355,18 +381,18 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 	if (errors.empty()) {
 		RedmineIssue issue(++m_issueId, subject, description,
 				   m_currentUser, trackerId);
-		m_lastResponse = issue.toJSON();
+		m_lastResponseBody = issue.toJSON();
 		m_lastIssue = issue;
 		soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
-					 m_lastResponse.c_str(),
-					 m_lastResponse.size());
+					 m_lastResponseBody.c_str(),
+					 m_lastResponseBody.size());
 		soup_message_set_status(msg, SOUP_STATUS_OK);
 	} else {
 		errors += "]}";
 		soup_message_body_append(msg->response_body, SOUP_MEMORY_COPY,
 					 errors.c_str(), errors.size());
 		soup_message_set_status(msg, SOUP_STATUS_UNPROCESSABLE_ENTITY);
-		m_lastResponse = errors;
+		m_lastResponseBody = errors;
 	}
 }
 
@@ -390,18 +416,20 @@ void RedmineAPIEmulator::PrivateContext::handlerIssuesJSON
   (SoupServer *server, SoupMessage *msg, const char *path, GHashTable *query,
    SoupClientContext *client, gpointer user_data)
 {
-
 	RedmineAPIEmulator *emulator
 	  = reinterpret_cast<RedmineAPIEmulator *>(user_data);
 	RedmineAPIEmulator::PrivateContext *priv = emulator->m_ctx;
+
+	SoupURI *uri = soup_message_get_uri(msg);
+	const char *queryString = soup_uri_get_query(uri);
+	priv->m_lastRequestQuery = queryString ? queryString : "";
 
 	if (priv->handlerDummyResponse(msg, path ,query, client))
 		return;
 
 	string method = msg->method;
 	if (method == "GET") {
-		// TODO
-		soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
+		priv->replyGetIssue(msg);
 	} else if (method == "PUT") {
 		// TODO
 		soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);

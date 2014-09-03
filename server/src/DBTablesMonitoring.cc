@@ -2281,6 +2281,27 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 	return HatoholError(HTERR_OK);
 }
 
+uint64_t DBTablesMonitoring::getLastUpdateTimeOfIncidents(
+  const IncidentTrackerIdType &trackerId)
+{
+	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
+	DBAgent::SelectExArg arg(tableProfileIncidents);
+	string stmt = StringUtils::sprintf("coalesce(max(%s), 0)",
+	    COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_UPDATED_AT_SEC].columnName);
+	arg.add(stmt, COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_TRACKER_ID].type);
+	if (trackerId != ALL_INCIDENT_TRACKERS) {
+		arg.condition = StringUtils::sprintf("%s=%s",
+		    COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_TRACKER_ID].columnName,
+		    dbTermCodec->enc(trackerId).c_str());
+	}
+
+	getDBAgent().runTransaction(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<uint64_t>();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

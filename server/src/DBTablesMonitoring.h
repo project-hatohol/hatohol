@@ -172,9 +172,13 @@ typedef MonitoringServerStatusList::const_iterator MonitoringServerStatusListCon
 
 struct IncidentInfo {
 	IncidentTrackerIdType trackerId;
+
+	/* fetched from a monitoring system */
 	ServerIdType       serverId;
 	EventIdType        eventId;
 	TriggerIdType      triggerId;
+
+	/* fetched from an incident tracking system */
 	std::string        identifier;
 	std::string        location;
 	std::string        status;
@@ -406,7 +410,9 @@ public:
 
 	void addIncidentInfo(IncidentInfo *incidentInfo);
 	HatoholError getIncidentInfoVect(IncidentInfoVect &incidentInfoVect,
-				      const IncidentsQueryOption &option);
+					 const IncidentsQueryOption &option);
+	uint64_t getLastUpdateTimeOfIncidents(
+	  const IncidentTrackerIdType &trackerId);
 
 protected:
 	static SetupInfo &getSetupInfo(void);
