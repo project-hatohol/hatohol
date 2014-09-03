@@ -133,7 +133,8 @@ void test_oneProcWihNoUpdatedIssues(void)
 		"&op%5Bupdated_on%5D=%3E%3D"
 		"&v%5Bupdated_on%5D%5B%5D=";
 	struct tm localTime;
-	DBTablesMonitoring dbMonitoring;
+	DBHatohol dbHatohol;
+	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
 	time_t lastTime
 		= dbMonitoring.getLastUpdateTimeOfIncidents(tracker.id);
 	localtime_r(&lastTime, &localTime);
