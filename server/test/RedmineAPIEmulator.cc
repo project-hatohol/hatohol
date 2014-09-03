@@ -420,9 +420,9 @@ void RedmineAPIEmulator::PrivateContext::handlerIssuesJSON
 	  = reinterpret_cast<RedmineAPIEmulator *>(user_data);
 	RedmineAPIEmulator::PrivateContext *priv = emulator->m_ctx;
 
-	char *queryString = soup_form_encode_hash(query);
+	SoupURI *uri = soup_message_get_uri(msg);
+	const char *queryString = soup_uri_get_query(uri);
 	priv->m_lastRequestQuery = queryString ? queryString : "";
-	g_free(queryString);
 
 	if (priv->handlerDummyResponse(msg, path ,query, client))
 		return;
