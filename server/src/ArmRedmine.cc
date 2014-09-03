@@ -60,11 +60,7 @@ struct ArmRedmine::Impl
 	  m_lastUpdateTime(0),
 	  m_lastUpdateTimePending(0)
 	{
-		IncidentTrackerIdType trackerId = m_incidentTrackerInfo.id;
-		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-		m_lastUpdateTime
-			= dataStore->getLastUpdateTimeOfIncidents(trackerId);
-
+		checkLastUpdateTime();
 		m_session = soup_session_sync_new_with_options(
 			SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS, NULL);
 		connectSessionSignals();
@@ -76,6 +72,15 @@ struct ArmRedmine::Impl
 	virtual ~Impl()
 	{
 		g_object_unref(m_session);
+	}
+
+	bool checkLastUpdateTime()
+	{
+		IncidentTrackerIdType trackerId = m_incidentTrackerInfo.id;
+		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+		m_lastUpdateTime
+			= dataStore->getLastUpdateTimeOfIncidents(trackerId);
+		return (m_lastUpdateTime > 0);
 	}
 
 	void connectSessionSignals(void)
@@ -325,3 +330,13 @@ RETRY:
 		return COLLECT_NG_PARSER_ERROR;
 	}
 }
+
+void ArmRedmine::startIfNeeded(void)
+{
+	if (isStarted())
+		return;
+	if (!m_impl->checkLastUpdateTime())
+		return;
+	start();
+}
+
