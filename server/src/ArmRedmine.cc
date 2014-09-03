@@ -176,9 +176,6 @@ struct ArmRedmine::Impl
 
 	ParseResult parseResponse(const string &response)
 	{
-		ThreadLocalDBCache cache;
-		DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-
 		JSONParserAgent agent(response);
 		if (agent.hasError()) {
 			MLPL_ERR("Failed to parse error response: %s\n",
@@ -196,9 +193,12 @@ struct ArmRedmine::Impl
 			MLPL_DBG("Response: %s\n", response.c_str());
 			return PARSE_RESULT_ERROR;
 		}
-		size_t i, num = agent.countElements();
+
 		if (m_lastUpdateTime > m_lastUpdateTimePending)
 			m_lastUpdateTimePending = m_lastUpdateTime;
+
+		ThreadLocalDBCache cache;
+		size_t i, num = agent.countElements();
 		for (i = 0; i < num; i++) {
 			agent.startElement(i);
 			IncidentInfo incident;
@@ -209,6 +209,8 @@ struct ArmRedmine::Impl
 			if (updateTime > m_lastUpdateTimePending)
 				m_lastUpdateTimePending = updateTime;
 			if (updateTime >= m_lastUpdateTime) {
+				DBTablesMonitoring &dbMonitoring
+					= cache.getMonitoring();
 				dbMonitoring.updateIncidentInfo(incident);
 			} else {
 				// All incidents are updated
