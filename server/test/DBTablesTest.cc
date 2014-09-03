@@ -306,9 +306,6 @@ EventInfo testDupEventInfo[] = {
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
 },
-// We assumed the data of the default server's is at the tail in testEventInfo.
-// See also the definition of trigInfoDefunctSv1 above. Anyway,
-// ******* DON'T APPEND RECORDS AFTER HERE *******
 };
 size_t NumTestDupEventInfo = sizeof(testDupEventInfo) / sizeof(EventInfo);
 
