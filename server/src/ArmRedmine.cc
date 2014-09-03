@@ -29,9 +29,10 @@ using namespace std;
 using namespace mlpl;
 
 // TODO: should share with other classes such as IncidentSenderRedmine
-static const guint DEFAULT_TIMEOUT_SECONDS = 60;
-static const int DEFAULT_PAGE_LIMIT = 100;
 static const char *MIME_JSON = "application/json";
+static const guint DEFAULT_TIMEOUT_SECONDS = 60;
+
+static const int DEFAULT_PAGE_LIMIT = 100;
 
 typedef enum {
 	PARSE_RESULT_OK,
