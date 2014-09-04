@@ -43,7 +43,6 @@ public:
 	             unsigned int port = 0);    //   default port is used
 	virtual ~DBAgentMySQL();
 	std::string getDBName(void) const;
-	bool updateConnected(void);
 	void getIndexes(std::vector<IndexStruct> &indexStructVect,
 	                const std::string &tableName);
 
