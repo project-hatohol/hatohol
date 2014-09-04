@@ -794,10 +794,8 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 	} catch (const HatoholException &he) {
 		if (he.getErrCode() == HTERR_FAILED_CONNECT_MYSQL) {
 			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
-			if (m_impl->dbAgent) {
-				delete m_impl->dbAgent;
-				m_impl->dbAgent = NULL;
-			}
+			delete m_impl->dbAgent;
+			m_impl->dbAgent = NULL;
 			return COLLECT_NG_DISCONNECT_NAGIOS;
 		} else {
 			MLPL_ERR("Got exception: %s\n", he.what());
