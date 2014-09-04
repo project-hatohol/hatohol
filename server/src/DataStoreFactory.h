@@ -21,15 +21,11 @@
 #define DataStoreFactory_h
 
 #include "DataStore.h"
-#include "MonitoringServerInfo.h"
-#include "DBTablesConfig.h"
 
 class DataStoreFactory {
 public:
 	static DataStore *create(const MonitoringServerInfo &svInfo,
 	                         const bool &autoStart = false);
-	static DataStore *create(const IncidentTrackerInfo &trackerInfo,
-				 const bool &autoStart = false);
 };
 
 #endif // DataStoreFactory_h
