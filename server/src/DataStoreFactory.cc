@@ -25,6 +25,7 @@
 #include "DataStoreFake.h"
 #include "DataStoreZabbix.h"
 #include "DataStoreNagios.h"
+#include "DataStoreRedmine.h"
 #include "HatoholArmPluginGate.h"
 #ifdef HAVE_LIBRABBITMQ
 #include "HatoholArmPluginGateJSON.h"
@@ -59,6 +60,15 @@ DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
 	return NULL;
 }
 
-
-
-
+DataStore *DataStoreFactory::create(const IncidentTrackerInfo &trackerInfo,
+				    const bool &autoStart)
+{
+	switch (trackerInfo.type) {
+	case INCIDENT_TRACKER_REDMINE:
+		return new DataStoreRedmine(trackerInfo, autoStart);
+	default:
+		MLPL_BUG("Invalid incident tracking system: %d\n",
+			 trackerInfo.type);
+	}
+	return NULL;
+}
