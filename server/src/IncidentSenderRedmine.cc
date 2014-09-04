@@ -30,25 +30,14 @@ using namespace mlpl;
 
 static const guint DEFAULT_TIMEOUT_SECONDS = 60;
 static const char *MIME_JSON = "application/json";
-static Mutex soupSessionMutex;
-
-static SoupSession *getSoupSession(void)
-{
-	static SoupSession *session = NULL;
-	soupSessionMutex.lock();
-	if (!session) {
-		session = soup_session_sync_new_with_options(
-			SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS, NULL);
-	}
-	soupSessionMutex.unlock();
-	return session;
-}
 
 struct IncidentSenderRedmine::Impl
 {
 	Impl(IncidentSenderRedmine &sender)
-	: m_sender(sender), m_session(getSoupSession())
+	: m_sender(sender), m_session(NULL)
 	{
+		m_session = soup_session_sync_new_with_options(
+			SOUP_SESSION_TIMEOUT, DEFAULT_TIMEOUT_SECONDS, NULL);
 		connectSessionSignals();
 	}
 	virtual ~Impl()
