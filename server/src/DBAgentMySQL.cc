@@ -106,6 +106,13 @@ string DBAgentMySQL::getDBName(void) const
 	return m_impl->dbName;
 }
 
+bool DBAgentMySQL::updateConnected(void)
+{
+	if (!m_impl->connected)
+		connect();
+	return m_impl->connected;
+}
+
 void DBAgentMySQL::getIndexes(std::vector<IndexStruct> &indexStructVect,
                               const std::string &tableName)
 {

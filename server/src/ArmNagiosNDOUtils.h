@@ -48,7 +48,7 @@ protected:
 	void getHost(void);
 	void getHostgroup(void);
 	void getHostgroupMembers(void);
-	void connect(void);
+	bool connect(void);
 
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg);

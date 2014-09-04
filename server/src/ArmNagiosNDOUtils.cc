@@ -756,14 +756,19 @@ void ArmNagiosNDOUtils::getHostgroupMembers(void)
 	cache.getMonitoring().addHostgroupElementList(hostgroupElementList);
 }
 
-void ArmNagiosNDOUtils::connect(void)
+bool ArmNagiosNDOUtils::connect(void)
 {
-	m_impl->connect();
+	if (!m_impl->dbAgent) {
+		m_impl->connect();
+		// if error in the "m_impl->connect()", exception is thrown.
+		return true;
+	} else {
+		return m_impl->dbAgent->updateConnected();
+	}
 }
 
 gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 {
-	connect();
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("started: ArmNagiosNDOUtils (server: %s)\n",
 	          svInfo.hostName.c_str());
@@ -779,6 +784,8 @@ gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 {
 	try {
+		if (!connect())
+			return COLLECT_NG_DISCONNECT_NAGIOS;
 		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
 			getItem();
 		} else {
