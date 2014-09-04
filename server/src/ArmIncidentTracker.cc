@@ -54,8 +54,9 @@ struct ArmIncidentTracker::Impl
 	}
 };
 
-ArmIncidentTracker::ArmIncidentTracker(const IncidentTrackerInfo &trackerInfo)
-: ArmBase("ArmIncidentTracker", toMonitoringServerInfo(trackerInfo)),
+ArmIncidentTracker::ArmIncidentTracker(const string &name,
+				       const IncidentTrackerInfo &trackerInfo)
+: ArmBase(name, toMonitoringServerInfo(trackerInfo)),
   m_impl(new Impl(trackerInfo))
 {
 }

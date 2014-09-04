@@ -26,7 +26,8 @@
 class ArmIncidentTracker : public ArmBase
 {
 public:
-	ArmIncidentTracker(const IncidentTrackerInfo &trackerInfo);
+	ArmIncidentTracker(const std::string &name,
+			   const IncidentTrackerInfo &trackerInfo);
 	virtual ~ArmIncidentTracker();
 
 protected:

@@ -20,10 +20,10 @@
 #ifndef ArmRedmine_h
 #define ArmRedmine_h
 
-#include "ArmBase.h"
+#include "ArmIncidentTracker.h"
 #include "DBTablesConfig.h"
 
-class ArmRedmine : public ArmBase
+class ArmRedmine : public ArmIncidentTracker
 {
 public:
 	ArmRedmine(const IncidentTrackerInfo &trackerInfo);
