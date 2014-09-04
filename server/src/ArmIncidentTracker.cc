@@ -18,6 +18,7 @@
  */
 
 #include "ArmIncidentTracker.h"
+#include "ArmRedmine.h"
 #include <libsoup/soup.h>
 
 using namespace std;
@@ -68,4 +69,18 @@ ArmIncidentTracker::~ArmIncidentTracker()
 const IncidentTrackerInfo &ArmIncidentTracker::getIncidentTrackerInfo(void)
 {
 	return m_impl->m_incidentTrackerInfo;
+}
+
+// TODO: should be pluggable
+ArmIncidentTracker *ArmIncidentTracker::create(
+  const IncidentTrackerInfo &trackerInfo)
+{
+	switch (trackerInfo.type) {
+	case INCIDENT_TRACKER_REDMINE:
+		return new ArmRedmine(trackerInfo);
+	default:
+		MLPL_BUG("Invalid incident tracking system: %d\n",
+			 trackerInfo.type);
+	}
+	return NULL;
 }
