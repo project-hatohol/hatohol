@@ -763,7 +763,6 @@ void ArmNagiosNDOUtils::connect(void)
 
 gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 {
-	connect();
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	MLPL_INFO("started: ArmNagiosNDOUtils (server: %s)\n",
 	          svInfo.hostName.c_str());
@@ -779,6 +778,8 @@ gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 {
 	try {
+		if (!m_impl->dbAgent)
+			connect();
 		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
 			getItem();
 		} else {
@@ -793,6 +794,10 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 	} catch (const HatoholException &he) {
 		if (he.getErrCode() == HTERR_FAILED_CONNECT_MYSQL) {
 			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
+			if (m_impl->dbAgent) {
+				delete m_impl->dbAgent;
+				m_impl->dbAgent = NULL;
+			}
 			return COLLECT_NG_DISCONNECT_NAGIOS;
 		} else {
 			MLPL_ERR("Got exception: %s\n", he.what());
