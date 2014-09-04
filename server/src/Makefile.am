@@ -35,6 +35,7 @@ libhatohol_la_SOURCES = \
 	ActorCollector.cc ActorCollector.h \
 	ArmBase.cc ArmBase.h \
 	ArmFake.cc ArmFake.h \
+	ArmIncidentTracker.cc ArmIncidentTracker.h \
 	ArmNagiosNDOUtils.cc ArmNagiosNDOUtils.h \
 	ArmRedmine.cc ArmRedmine.h \
 	ArmZabbixAPI.cc ArmZabbixAPI.h \
