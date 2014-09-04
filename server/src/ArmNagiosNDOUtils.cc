@@ -756,15 +756,9 @@ void ArmNagiosNDOUtils::getHostgroupMembers(void)
 	cache.getMonitoring().addHostgroupElementList(hostgroupElementList);
 }
 
-bool ArmNagiosNDOUtils::connect(void)
+void ArmNagiosNDOUtils::connect(void)
 {
-	if (!m_impl->dbAgent) {
-		m_impl->connect();
-		// if error in the "m_impl->connect()", exception is thrown.
-		return true;
-	} else {
-		return m_impl->dbAgent->updateConnected();
-	}
+	m_impl->connect();
 }
 
 gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
@@ -784,8 +778,8 @@ gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 {
 	try {
-		if (!connect())
-			return COLLECT_NG_DISCONNECT_NAGIOS;
+		if (!m_impl->dbAgent)
+			connect();
 		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
 			getItem();
 		} else {
@@ -800,6 +794,10 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 	} catch (const HatoholException &he) {
 		if (he.getErrCode() == HTERR_FAILED_CONNECT_MYSQL) {
 			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
+			if (m_impl->dbAgent) {
+				delete m_impl->dbAgent;
+				m_impl->dbAgent = NULL;
+			}
 			return COLLECT_NG_DISCONNECT_NAGIOS;
 		} else {
 			MLPL_ERR("Got exception: %s\n", he.what());
