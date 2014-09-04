@@ -64,6 +64,7 @@ libhatohol_la_SOURCES = \
 	DataStoreManager.cc DataStoreManager.h \
 	DataStoreFake.cc DataStoreFake.h \
 	DataStoreNagios.cc DataStoreNagios.h \
+	DataStoreRedmine.cc DataStoreRedmine.h \
 	DataStoreZabbix.cc DataStoreZabbix.h \
 	FaceBase.cc FaceBase.h \
 	FaceRest.cc FaceRest.h \
