@@ -227,7 +227,19 @@ struct UnifiedDataStore::Impl
 		} else {
 			arm = it->second;
 		}
+
 		arm->startIfNeeded();
+
+		if (!arm->isStarted()) {
+			MLPL_ERR("Failed to lauch ArmIncidentTracker for "
+				 "ID: %" FMT_INCIDENT_TRACKER_ID ", "
+				 "nickname: %s, URL: %s\n",
+				 trackerInfo.id,
+				 trackerInfo.nickname.c_str(),
+				 trackerInfo.baseURL.c_str());
+			armIncidentTrackerMap.erase(it);
+			delete arm;
+		}
 	}
 
 	void stopArmIncidentTrackerIfNeeded(
