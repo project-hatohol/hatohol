@@ -245,7 +245,7 @@ struct UnifiedDataStore::Impl
 		arm->startIfNeeded();
 
 		if (!arm->isStarted()) {
-			MLPL_ERR("Failed to launch ArmIncidentTracker for "
+			MLPL_DBG("Failed to launch ArmIncidentTracker for "
 				 "Tracker ID: %" FMT_INCIDENT_TRACKER_ID ", "
 				 "Nickname: %s, URL: %s\n",
 				 trackerInfo.id,
