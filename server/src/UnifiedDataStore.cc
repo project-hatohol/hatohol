@@ -269,6 +269,35 @@ struct UnifiedDataStore::Impl
 		delete arm;
 	}
 
+	void startAllArmIncidentTrackers(const bool &autoRun)
+	{
+		if (!autoRun)
+			return;
+
+		ThreadLocalDBCache cache;
+		DBTablesConfig &dbConfig = cache.getConfig();
+		IncidentTrackerInfoVect incidentTrackers;
+		IncidentTrackerQueryOption option(USER_ID_SYSTEM);
+		dbConfig.getIncidentTrackers(incidentTrackers, option);
+
+		IncidentTrackerInfoVectConstIterator it
+			= incidentTrackers.begin();
+		for (; it != incidentTrackers.end(); ++it) {
+			startArmIncidentTrackerIfNeeded(*it);
+		}
+	}
+
+	void stopAllArmIncidentTrackers(void)
+	{
+		AutoMutex autoLock(&armIncidentTrackerMapMutex);
+		ArmIncidentTrackerMapIterator it
+			= armIncidentTrackerMap.begin();
+		while (it != armIncidentTrackerMap.end()) {
+			delete it->second;
+			armIncidentTrackerMap.erase(it++);
+		}
+	}
+
 private:
 	ReadWriteLock            serverIdDataStoreMapLock;
 	ServerIdDataStoreMap     serverIdDataStoreMap;
@@ -313,11 +342,13 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 void UnifiedDataStore::start(const bool &autoRun)
 {
 	m_impl->startAllDataStores(autoRun);
+	m_impl->startAllArmIncidentTrackers(autoRun);
 }
 
 void UnifiedDataStore::stop(void)
 {
 	m_impl->stopAllDataStores();
+	m_impl->stopAllArmIncidentTrackers();
 }
 
 void UnifiedDataStore::fetchItems(const ServerIdType &targetServerId)
