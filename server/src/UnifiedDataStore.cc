@@ -247,7 +247,7 @@ struct UnifiedDataStore::Impl
 		if (!arm->isStarted()) {
 			MLPL_ERR("Failed to lauch ArmIncidentTracker for "
 				 "ID: %" FMT_INCIDENT_TRACKER_ID ", "
-				 "nickname: %s, URL: %s\n",
+				 "Nickname: %s, URL: %s\n",
 				 trackerInfo.id,
 				 trackerInfo.nickname.c_str(),
 				 trackerInfo.baseURL.c_str());

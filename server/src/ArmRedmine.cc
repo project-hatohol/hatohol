@@ -277,16 +277,25 @@ gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
 ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 {
 	if (m_impl->m_lastUpdateTime == 0) {
-		// There is no incident to update.
+		// There is no incident to update, shouldn't reach here!
+		MLPL_ERR("ArmRedmine was started without valid incidents!");
 		return COLLECT_OK;
 	}
 
+	const IncidentTrackerInfo &trackerInfo = m_impl->m_incidentTrackerInfo;
 	m_impl->m_page = 1;
 
 RETRY:
 	string url = m_impl->m_url;
 	url += "?";
 	url += getQuery();
+
+	MLPL_DBG("Send request:\n"
+		 "  Tracker ID: %d\n"
+		 "  Nickname: %s\n"
+		 "  Query: %s\n",
+		 trackerInfo.id, trackerInfo.nickname.c_str(), url.c_str());
+
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
@@ -311,6 +320,8 @@ RETRY:
 		++m_impl->m_page;
 		goto RETRY;
 	case PARSE_RESULT_OK:
+		MLPL_DBG("Succeeded to update for Tracker ID: %d\n",
+			 trackerInfo.id);
 		return COLLECT_OK;
 	case PARSE_RESULT_ERROR:
 	default:
