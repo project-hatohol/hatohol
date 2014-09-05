@@ -271,6 +271,10 @@ std::string ArmRedmine::getQuery(void)
 
 gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
 {
+	const IncidentTrackerInfo &trackerInfo = m_impl->m_incidentTrackerInfo;
+	MLPL_INFO("started: ArmRedmine "
+		  "(Tracker ID: %" FMT_INCIDENT_TRACKER_ID ", Nickname: %s)\n",
+	          trackerInfo.id, trackerInfo.nickname.c_str());
 	return ArmBase::mainThread(arg);
 }
 
