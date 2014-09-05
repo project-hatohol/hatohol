@@ -281,7 +281,8 @@ gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
 ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 {
 	if (m_impl->m_lastUpdateTime == 0) {
-		// There is no incident to update, shouldn't reach here!
+		// There is no incident in DB. Shouldn't reach here because
+		// it's already checked at startIfNeeded().
 		MLPL_ERR("ArmRedmine was started without valid incidents!");
 		return COLLECT_OK;
 	}
