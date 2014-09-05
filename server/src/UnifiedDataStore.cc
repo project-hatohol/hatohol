@@ -30,12 +30,16 @@
 #include "ItemFetchWorker.h"
 #include "DataStoreFactory.h"
 #include "HatoholArmPluginGate.h" // TODO: remove after dynamic_cast is deleted
+#include "ArmIncidentTracker.h"
 
 using namespace std;
 using namespace mlpl;
 
 typedef map<ServerIdType, DataStore *> ServerIdDataStoreMap;
 typedef ServerIdDataStoreMap::iterator ServerIdDataStoreMapIterator;
+
+typedef map<IncidentTrackerIdType, ArmIncidentTracker *> ArmIncidentTrackerMap;
+typedef ArmIncidentTrackerMap::iterator ArmIncidentTrackerMapIterator;
 
 static ArmInfo getArmInfo(DataStore *dataStore)
 {
@@ -210,10 +214,41 @@ struct UnifiedDataStore::Impl
 		return dataStoreManager.getDataStoreVector();
 	}
 
+	void startArmIncidentTrackerIfNeeded(
+	  const IncidentTrackerInfo &trackerInfo)
+	{
+		AutoMutex autoLock(&armIncidentTrackerMapMutex);
+		ArmIncidentTrackerMapIterator it
+		  = armIncidentTrackerMap.find(trackerInfo.id);
+		ArmIncidentTracker *arm = NULL;
+		if (it == armIncidentTrackerMap.end()) {
+			arm = ArmIncidentTracker::create(trackerInfo);
+			armIncidentTrackerMap[trackerInfo.id] = arm;
+		} else {
+			arm = it->second;
+		}
+		arm->startIfNeeded();
+	}
+
+	void stopArmIncidentTrackerIfNeeded(
+	  const IncidentTrackerInfo &trackerInfo)
+	{
+		AutoMutex autoLock(&armIncidentTrackerMapMutex);
+		ArmIncidentTrackerMapIterator it
+		  = armIncidentTrackerMap.find(trackerInfo.id);
+		if (it == armIncidentTrackerMap.end())
+			return;
+		ArmIncidentTracker *arm = it->second;
+		armIncidentTrackerMap.erase(it);
+		delete arm;
+	}
+
 private:
 	ReadWriteLock            serverIdDataStoreMapLock;
 	ServerIdDataStoreMap     serverIdDataStoreMap;
 	DataStoreManager         dataStoreManager;
+	Mutex                    armIncidentTrackerMapMutex;
+	ArmIncidentTrackerMap    armIncidentTrackerMap;
 };
 
 UnifiedDataStore *UnifiedDataStore::Impl::instance = NULL;
@@ -655,6 +690,18 @@ DataStoreVector UnifiedDataStore::getDataStoreVector(void)
 DataStorePtr UnifiedDataStore::getDataStore(const ServerIdType &serverId)
 {
 	return m_impl->getDataStore(serverId);
+}
+
+void UnifiedDataStore::startArmIncidentTrackerIfNeeded(
+  const IncidentTrackerInfo &trackerInfo)
+{
+	m_impl->startArmIncidentTrackerIfNeeded(trackerInfo);
+}
+
+void UnifiedDataStore::stopArmIncidentTrackerIfNeeded(
+  const IncidentTrackerInfo &trackerInfo)
+{
+	m_impl->stopArmIncidentTrackerIfNeeded(trackerInfo);
 }
 
 // ---------------------------------------------------------------------------
