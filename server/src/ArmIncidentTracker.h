@@ -31,6 +31,7 @@ public:
 	virtual ~ArmIncidentTracker();
 
 	virtual void startIfNeeded(void) = 0;
+	virtual bool isFetchItemsSupported(void) const override;
 
 	static ArmIncidentTracker *create(
 	  const IncidentTrackerInfo &trackerInfo);

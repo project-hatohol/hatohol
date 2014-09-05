@@ -71,6 +71,12 @@ const IncidentTrackerInfo &ArmIncidentTracker::getIncidentTrackerInfo(void)
 	return m_impl->m_incidentTrackerInfo;
 }
 
+bool ArmIncidentTracker::isFetchItemsSupported(void) const
+{
+	return false;
+}
+
+
 // TODO: should be pluggable
 ArmIncidentTracker *ArmIncidentTracker::create(
   const IncidentTrackerInfo &trackerInfo)
