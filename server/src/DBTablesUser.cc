@@ -51,8 +51,6 @@ static const char *TABLE_NAME_ACCESS_LIST =
 static const char *TABLE_NAME_USER_ROLES =
   DBTablesUser::TABLE_NAME_USER_ROLES;
 
-static bool g_testMode = false;
-
 static const ColumnDef COLUMN_DEF_USERS[] = {
 {
 	"id",                              // columnName
@@ -449,12 +447,6 @@ void DBTablesUser::init(void)
 void DBTablesUser::reset(void)
 {
 	getSetupInfo().initialized = false;
-}
-
-bool DBTablesUser::setTestMode(bool enable)
-{
-	g_testMode = enable;
-	return g_testMode;
 }
 
 DBTablesUser::DBTablesUser(DBAgent &dbAgent)

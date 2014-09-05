@@ -34,8 +34,6 @@
 using namespace std;
 using namespace mlpl;
 
-static bool testMode = DBTablesUser::setTestMode();
-
 void _assertStringVector(const StringVector &expected,
                          const StringVector &actual)
 {
