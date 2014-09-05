@@ -251,7 +251,7 @@ struct UnifiedDataStore::Impl
 				 trackerInfo.id,
 				 trackerInfo.nickname.c_str(),
 				 trackerInfo.baseURL.c_str());
-			armIncidentTrackerMap.erase(it);
+			armIncidentTrackerMap.erase(trackerInfo.id);
 			delete arm;
 		}
 	}
