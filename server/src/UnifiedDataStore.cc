@@ -190,6 +190,20 @@ struct UnifiedDataStore::Impl
 		return HTERR_OK;
 	}
 
+	HatoholError startAllDataStores(const bool &autoRun)
+	{
+		ThreadLocalDBCache cache;
+		DBTablesConfig &dbConfig = cache.getConfig();
+		MonitoringServerInfoList monitoringServers;
+		ServerQueryOption option(USER_ID_SYSTEM);
+		dbConfig.getTargetServers(monitoringServers, option);
+
+		MonitoringServerInfoListConstIterator svInfoItr
+			= monitoringServers.begin();
+		for (; svInfoItr != monitoringServers.end(); ++svInfoItr)
+			startDataStore(*svInfoItr, autoRun);
+	}
+
 	void stopAllDataStores(void)
 	{
 		ServerIdDataStoreMapIterator it;
@@ -298,16 +312,7 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 
 void UnifiedDataStore::start(const bool &autoRun)
 {
-	ThreadLocalDBCache cache;
-	DBTablesConfig &dbConfig = cache.getConfig();
-	MonitoringServerInfoList monitoringServers;
-	ServerQueryOption option(USER_ID_SYSTEM);
-	dbConfig.getTargetServers(monitoringServers, option);
-
-	MonitoringServerInfoListConstIterator svInfoItr
-	  = monitoringServers.begin();
-	for (; svInfoItr != monitoringServers.end(); ++svInfoItr)
-		m_impl->startDataStore(*svInfoItr, autoRun);
+	m_impl->startAllDataStores(autoRun);
 }
 
 void UnifiedDataStore::stop(void)
