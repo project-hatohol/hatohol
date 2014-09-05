@@ -256,6 +256,7 @@ ArmRedmine::ArmRedmine(const IncidentTrackerInfo &trackerInfo)
 
 ArmRedmine::~ArmRedmine()
 {
+	requestExitAndWait();
 }
 
 std::string ArmRedmine::getURL(void)
