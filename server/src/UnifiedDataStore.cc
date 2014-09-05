@@ -730,6 +730,14 @@ uint64_t UnifiedDataStore::getLastUpdateTimeOfIncidents(
 	return dbMonitoring.getLastUpdateTimeOfIncidents(trackerId);
 }
 
+void UnifiedDataStore::addIncidentInfo(IncidentInfo &incidentInfo)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	dbMonitoring.addIncidentInfo(&incidentInfo);
+	startArmIncidentTrackerIfNeeded(incidentInfo.trackerId);
+}
+
 DataStoreVector UnifiedDataStore::getDataStoreVector(void)
 {
 	return m_impl->getDataStoreVector();
