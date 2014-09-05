@@ -48,6 +48,9 @@
   - name: install qpidd
     apt: name=qpidd
 
+  - name: librabbitmq-dev
+    apt: name=librabbitmq-dev
+
   - name: install curl
     apt: name=curl
 
