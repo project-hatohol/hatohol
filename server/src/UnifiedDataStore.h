@@ -205,9 +205,9 @@ public:
 	DataStorePtr getDataStore(const ServerIdType &serverId);
 
 	void startArmIncidentTrackerIfNeeded(
-	  const IncidentTrackerInfo &trackerInfo);
+	  const IncidentTrackerIdType &trackerId);
 	void stopArmIncidentTrackerIfNeeded(
-	  const IncidentTrackerInfo &trackerInfo);
+	  const IncidentTrackerIdType &trackerId);
 
 protected:
 	void fetchItems(const ServerIdType &targetServerId = ALL_SERVERS);

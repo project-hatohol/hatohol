@@ -740,16 +740,45 @@ DataStorePtr UnifiedDataStore::getDataStore(const ServerIdType &serverId)
 	return m_impl->getDataStore(serverId);
 }
 
-void UnifiedDataStore::startArmIncidentTrackerIfNeeded(
-  const IncidentTrackerInfo &trackerInfo)
+static bool getIncidentTrackerInfo(const IncidentTrackerIdType &trackerId,
+				   IncidentTrackerInfo &trackerInfo)
 {
-	m_impl->startArmIncidentTrackerIfNeeded(trackerInfo);
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	IncidentTrackerInfoVect incidentTrackerVect;
+	IncidentTrackerQueryOption option(USER_ID_SYSTEM);
+	option.setTargetId(trackerId);
+	dbConfig.getIncidentTrackers(incidentTrackerVect, option);
+
+	if (incidentTrackerVect.size() <= 0) {
+		MLPL_ERR("Not found IncidentTrackerInfo: %"
+			 FMT_INCIDENT_TRACKER_ID "\n", trackerId);
+		return false;
+	}
+	if (incidentTrackerVect.size() > 1) {
+		MLPL_ERR("Too many IncidentTrackerInfo for ID:%"
+			 FMT_INCIDENT_TRACKER_ID "\n", trackerId);
+		return false;
+	}
+
+	trackerInfo = *incidentTrackerVect.begin();
+	return true;
+}
+
+void UnifiedDataStore::startArmIncidentTrackerIfNeeded(
+  const IncidentTrackerIdType &trackerId)
+{
+	IncidentTrackerInfo trackerInfo;
+	if (getIncidentTrackerInfo(trackerId, trackerInfo))
+		m_impl->startArmIncidentTrackerIfNeeded(trackerInfo);
 }
 
 void UnifiedDataStore::stopArmIncidentTrackerIfNeeded(
-  const IncidentTrackerInfo &trackerInfo)
+  const IncidentTrackerIdType &trackerId)
 {
-	m_impl->stopArmIncidentTrackerIfNeeded(trackerInfo);
+	IncidentTrackerInfo trackerInfo;
+	if (getIncidentTrackerInfo(trackerId, trackerInfo))
+		m_impl->stopArmIncidentTrackerIfNeeded(trackerInfo);
 }
 
 // ---------------------------------------------------------------------------
