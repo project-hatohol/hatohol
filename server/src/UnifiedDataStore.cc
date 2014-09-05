@@ -190,7 +190,7 @@ struct UnifiedDataStore::Impl
 		return HTERR_OK;
 	}
 
-	HatoholError startAllDataStores(const bool &autoRun)
+	void startAllDataStores(const bool &autoRun)
 	{
 		ThreadLocalDBCache cache;
 		DBTablesConfig &dbConfig = cache.getConfig();
