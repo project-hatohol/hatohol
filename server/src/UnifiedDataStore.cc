@@ -96,7 +96,7 @@ struct UnifiedDataStore::Impl
 	ItemFetchWorker          itemFetchWorker;
 
 	Impl()
-	: isCopyOnDemandEnabled(false)
+	: isCopyOnDemandEnabled(false), isStarted(false)
 	{ 
 		// TODO: When should the object be freed ?
 		UnifiedDataStoreEventProc *evtProc =
@@ -298,12 +298,26 @@ struct UnifiedDataStore::Impl
 		}
 	}
 
-private:
+	void start(const bool &autoRun)
+	{
+		startAllDataStores(autoRun);
+		startAllArmIncidentTrackers(autoRun);
+		isStarted = true;
+	}
+
+	void stop(void)
+	{
+		stopAllDataStores();
+		stopAllArmIncidentTrackers();
+		isStarted = false;
+	}
+
 	ReadWriteLock            serverIdDataStoreMapLock;
 	ServerIdDataStoreMap     serverIdDataStoreMap;
 	DataStoreManager         dataStoreManager;
 	Mutex                    armIncidentTrackerMapMutex;
 	ArmIncidentTrackerMap    armIncidentTrackerMap;
+	bool                     isStarted;
 };
 
 UnifiedDataStore *UnifiedDataStore::Impl::instance = NULL;
@@ -341,14 +355,12 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 
 void UnifiedDataStore::start(const bool &autoRun)
 {
-	m_impl->startAllDataStores(autoRun);
-	m_impl->startAllArmIncidentTrackers(autoRun);
+	m_impl->start(autoRun);
 }
 
 void UnifiedDataStore::stop(void)
 {
-	m_impl->stopAllDataStores();
-	m_impl->stopAllArmIncidentTrackers();
+	m_impl->stop();
 }
 
 void UnifiedDataStore::fetchItems(const ServerIdType &targetServerId)
@@ -735,7 +747,8 @@ void UnifiedDataStore::addIncidentInfo(IncidentInfo &incidentInfo)
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	dbMonitoring.addIncidentInfo(&incidentInfo);
-	startArmIncidentTrackerIfNeeded(incidentInfo.trackerId);
+	if (m_impl->isStarted)
+		startArmIncidentTrackerIfNeeded(incidentInfo.trackerId);
 }
 
 DataStoreVector UnifiedDataStore::getDataStoreVector(void)
