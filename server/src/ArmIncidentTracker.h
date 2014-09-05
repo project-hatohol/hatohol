@@ -30,6 +30,8 @@ public:
 			   const IncidentTrackerInfo &trackerInfo);
 	virtual ~ArmIncidentTracker();
 
+	virtual void startIfNeeded(void) = 0;
+
 	static ArmIncidentTracker *create(
 	  const IncidentTrackerInfo &trackerInfo);
 

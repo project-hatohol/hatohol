@@ -29,7 +29,7 @@ public:
 	ArmRedmine(const IncidentTrackerInfo &trackerInfo);
 	virtual ~ArmRedmine();
 
-	void startIfNeeded(void);
+	virtual void startIfNeeded(void) override;
 
 protected:
 	// virtual methods
