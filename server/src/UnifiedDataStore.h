@@ -207,13 +207,13 @@ public:
 	 */
 	DataStorePtr getDataStore(const ServerIdType &serverId);
 
+protected:
+	void fetchItems(const ServerIdType &targetServerId = ALL_SERVERS);
+
 	void startArmIncidentTrackerIfNeeded(
 	  const IncidentTrackerIdType &trackerId);
 	void stopArmIncidentTrackerIfNeeded(
 	  const IncidentTrackerIdType &trackerId);
-
-protected:
-	void fetchItems(const ServerIdType &targetServerId = ALL_SERVERS);
 
 private:
 	struct Impl;
