@@ -17,38 +17,30 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "JSONParserRewinder.h"
+#ifndef HapProcessStandard_h
+#define HapProcessStandard_h
 
-enum {
-	OBJECT,
-	ELEMENT,
+#include "HapProcess.h"
+#include "HatoholArmPluginStandard.h"
+
+class HapProcessStandard : public HapProcess, public HatoholArmPluginStandard {
+public:
+	HapProcessStandard(int argc, char *argv[]);
+	virtual ~HapProcessStandard();
+	int mainLoopRun(void);
+
+protected:
+	static gboolean acquisitionTimerCb(void *data);
+	void startAcquisition(void);
+
+	virtual void acquireData(void);
+
+	virtual void onReady(const MonitoringServerInfo &serverInfo) override;
+
+private:
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
-JSONParserRewinder::JSONParserRewinder(JSONParserAgent &parser)
-: m_parser(parser)
-{
-}
+#endif /// HapProcessStandard_h
 
-JSONParserRewinder::~JSONParserRewinder()
-{
-	while (!m_stack.empty()) {
-		const int type = m_stack.top();
-		m_stack.pop();
-		if (type == OBJECT)
-			m_parser.endObject();
-		else if (type == ELEMENT)
-			m_parser.endElement();
-		else
-			HATOHOL_ASSERT(false, "Unknown type: %d\n", type);
-	}
-}
-
-void JSONParserRewinder::pushObject(void)
-{
-	m_stack.push(OBJECT);
-}
-
-void JSONParserRewinder::pushElement(void)
-{
-	m_stack.push(ELEMENT);
-}
