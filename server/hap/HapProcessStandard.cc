@@ -17,21 +17,21 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <Mutex.h>
+#include <SmartQueue.h>
 #include "HapProcessStandard.h"
 
 using namespace std;
 using namespace mlpl;
 
 struct HapProcessStandard::Impl {
-	MonitoringServerInfo serverInfo;
-	Mutex                lock;
+	// The getter and the user of serverInfo are running on different
+	// threads. So we pass it safely with queue.
+	SmartQueue<MonitoringServerInfo> serverInfoQueue;
+
 	guint                timerTag;
-	AtomicValue<bool>    hasNewServerInfo;
 
 	Impl(void)
-	: timerTag(INVALID_EVENT_ID),
-	  hasNewServerInfo(false)
+	: timerTag(INVALID_EVENT_ID)
 	{
 	}
 };
@@ -100,13 +100,14 @@ void HapProcessStandard::startAcquisition(void)
 	}
 
 	// copy the paramter and set server info if needed
-	m_impl->lock.lock();
-	int pollingIntervalSec = m_impl->serverInfo.pollingIntervalSec;
-	int retryIntervalSec   = m_impl->serverInfo.retryIntervalSec;
-	if (m_impl->hasNewServerInfo) {
-		m_impl->hasNewServerInfo = false;
-	}
-	m_impl->lock.unlock();
+	HATOHOL_ASSERT(!m_impl->serverInfoQueue.empty(),
+	               "No monitoring serverInfo.");
+	while (m_impl->serverInfoQueue.size() > 1) // put away old data
+		m_impl->serverInfoQueue.pop();
+
+	const MonitoringServerInfo &serverInfo = getMonitoringServerInfo();
+	const int pollingIntervalSec = serverInfo.pollingIntervalSec;
+	const int retryIntervalSec   = serverInfo.retryIntervalSec;
 
 	// try to acquisition
 	bool caughtException = false;
@@ -148,6 +149,12 @@ void HapProcessStandard::startAcquisition(void)
 	}
 }
 
+const MonitoringServerInfo &
+HapProcessStandard::getMonitoringServerInfo(void) const
+{
+	return m_impl->serverInfoQueue.front();
+}
+
 void HapProcessStandard::acquireData(void)
 {
 }
@@ -157,13 +164,14 @@ void HapProcessStandard::acquireData(void)
 //
 void HapProcessStandard::onReady(const MonitoringServerInfo &serverInfo)
 {
-	m_impl->hasNewServerInfo = true;
 	struct NoName {
 		static void startAcquisition(HapProcessStandard *obj)
 		{
 			obj->startAcquisition();
 		}
 	};
+
+	m_impl->serverInfoQueue.push(serverInfo);
 	Utils::executeOnGLibEventLoop<HapProcessStandard>(
 	  NoName::startAcquisition, this, ASYNC);
 }

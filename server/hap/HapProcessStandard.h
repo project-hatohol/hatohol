@@ -32,6 +32,7 @@ public:
 protected:
 	static gboolean acquisitionTimerCb(void *data);
 	void startAcquisition(void);
+	const MonitoringServerInfo &getMonitoringServerInfo(void) const;
 
 	virtual void acquireData(void);
 

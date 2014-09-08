@@ -69,7 +69,8 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_HOSTID);
 		trigGroupStream >> trigInfo.hostId;
 
-		if (!hostInfoCache.getName(trigInfo.hostId,
+		if (trigInfo.hostId != INAPPLICABLE_HOST_ID &&
+		    !hostInfoCache.getName(trigInfo.hostId,
 		                           trigInfo.hostName)) {
 			MLPL_WARN(
 			  "Ignored a trigger whose host name was not found: "
