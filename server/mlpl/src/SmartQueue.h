@@ -57,6 +57,45 @@ public:
 	}
 
 	/**
+	 * Return whether the queue is empty or not.
+	 *
+	 * @return true if the queue is empty.
+	 */
+	bool empty(void) const
+	{
+		m_mutex.lock();
+		bool empty = m_queue.empty();
+		m_mutex.unlock();
+		return empty;
+	}
+
+	/**
+	 * Return the number of elements in the queue.
+	 *
+	 * @return the number of elements.
+	 */
+	size_t size(void) const
+	{
+		m_mutex.lock();
+		size_t sz = m_queue.size();
+		m_mutex.unlock();
+		return sz;
+	}
+
+	/**
+	 * Return the reference of the first element.
+	 *
+	 * NOTE: Don't do operatons that changes the queue push() and pop()
+	 *       during the reference is used.
+	 *
+	 * @return the reference to the first element.
+	 */
+	const T &front(void) const
+	{
+		return  m_queue.front();
+	}
+
+	/**
 	 * Pop an element and call the specified function with it for
 	 * all elements with in a lock.
 	 *
@@ -103,7 +142,7 @@ public:
 protected:
 
 private:
-	mlpl::Mutex           m_mutex;
+	mutable mlpl::Mutex   m_mutex;
 	mlpl::SimpleSemaphore m_sem;
 	std::deque<T>         m_queue;
 };

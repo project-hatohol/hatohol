@@ -78,4 +78,46 @@ void test_popIfNonEmptyWithoutElement(void)
 	cppcut_assert_equal(false, q.popIfNonEmpty(val));
 }
 
+void test_empty(void)
+{
+	SmartQueue<int> q;
+	cppcut_assert_equal(true, q.empty());
+	q.push(1);
+	cppcut_assert_equal(false, q.empty());
+	q.pop();
+	cppcut_assert_equal(true, q.empty());
+}
+
+void test_size(void)
+{
+	SmartQueue<int> q;
+	cppcut_assert_equal((size_t)0, q.size());
+	q.push(1);
+	cppcut_assert_equal((size_t)1, q.size());
+	q.push(5);
+	cppcut_assert_equal((size_t)2, q.size());
+	q.pop();
+	cppcut_assert_equal((size_t)1, q.size());
+	q.pop();
+	cppcut_assert_equal((size_t)0, q.size());
+}
+
+void test_front(void)
+{
+	SmartQueue<int> q;
+	q.push(1);
+	q.push(5);
+	cppcut_assert_equal(1, q.front());
+	q.pop();
+	cppcut_assert_equal(5, q.front());
+}
+
+void test_frontReadTwice(void)
+{
+	SmartQueue<int> q;
+	q.push(3);
+	cppcut_assert_equal(3, q.front());
+	cppcut_assert_equal(3, q.front());
+}
+
 } // namespace testSmartQueue
