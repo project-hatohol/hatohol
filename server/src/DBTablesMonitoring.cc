@@ -1643,6 +1643,8 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		builder.add(IDX_INCIDENTS_CREATED_AT_NS);
 		builder.add(IDX_INCIDENTS_UPDATED_AT_SEC);
 		builder.add(IDX_INCIDENTS_UPDATED_AT_NS);
+		builder.add(IDX_INCIDENTS_PRIORITY);
+		builder.add(IDX_INCIDENTS_DONE_RATIO);
 	}
 
 	// Condition
@@ -1700,6 +1702,8 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 			itemGroupStream >> incidentInfo.createdAt.tv_nsec;
 			itemGroupStream >> incidentInfo.updatedAt.tv_sec;
 			itemGroupStream >> incidentInfo.updatedAt.tv_nsec;
+			itemGroupStream >> incidentInfo.priority;
+			itemGroupStream >> incidentInfo.doneRatio;
 			incidentInfo.serverId  = eventInfo.serverId;
 			incidentInfo.eventId   = eventInfo.id;
 			incidentInfo.triggerId = eventInfo.triggerId;
@@ -2263,6 +2267,8 @@ void DBTablesMonitoring::updateIncidentInfo(IncidentInfo &incidentInfo)
 	arg.add(IDX_INCIDENTS_CREATED_AT_NS, incidentInfo.createdAt.tv_nsec);
 	arg.add(IDX_INCIDENTS_UPDATED_AT_SEC, incidentInfo.updatedAt.tv_sec);
 	arg.add(IDX_INCIDENTS_UPDATED_AT_NS, incidentInfo.updatedAt.tv_nsec);
+	arg.add(IDX_INCIDENTS_PRIORITY, incidentInfo.priority);
+	arg.add(IDX_INCIDENTS_DONE_RATIO, incidentInfo.doneRatio);
 	arg.condition = StringUtils::sprintf(
 	  "%s=%" FMT_INCIDENT_TRACKER_ID " AND %s=%s",
 	  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_TRACKER_ID].columnName,
@@ -2314,6 +2320,8 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 		itemGroupStream >> incidentInfo.createdAt.tv_nsec;
 		itemGroupStream >> incidentInfo.updatedAt.tv_sec;
 		itemGroupStream >> incidentInfo.updatedAt.tv_nsec;
+		itemGroupStream >> incidentInfo.priority;
+		itemGroupStream >> incidentInfo.doneRatio;
 	}
 
 	return HatoholError(HTERR_OK);
@@ -2503,6 +2511,8 @@ void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
 	arg.add(incidentInfo.createdAt.tv_nsec);
 	arg.add(incidentInfo.updatedAt.tv_sec);
 	arg.add(incidentInfo.updatedAt.tv_nsec);
+	arg.add(incidentInfo.priority);
+	arg.add(incidentInfo.doneRatio);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
