@@ -162,7 +162,7 @@ struct DBTables::Impl {
 		const ColumnDef *colDefs = tableProfileTablesVersion.columnDefs;
 		arg.condition = StringUtils::sprintf("%s=%d",
 		  colDefs[DB::IDX_TABLES_VERSION_TABLES_ID].columnName,
-		  setupInfo.version);
+		  setupInfo.tablesId);
 		dbAgent.update(arg);
 	}
 };
