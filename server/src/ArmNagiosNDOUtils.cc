@@ -771,7 +771,7 @@ gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 					  HTERR_FAILED_CONNECT_MYSQL);
 	ArmBase::registerAvailableTrigger(COLLECT_NG_INTERNAL_ERROR,
 					  FAILED_INTERNAL_ERROR_TRIGGERID,
-					  HTERR_FAILED_INTERNAL_ERROR);
+					  HTERR_INTERNAL_ERROR);
 	return ArmBase::mainThread(arg);
 }
 

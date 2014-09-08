@@ -40,6 +40,8 @@ void HatoholError::init(void)
 		   "Not implemented.");
 	DEFINE_ERR(GOT_EXCEPTION,
 		   "Got exception.");
+	DEFINE_ERR(INTERNAL_ERROR,
+		   "Internal error happend.");
 	DEFINE_ERR(INVALID_USER,
 		   "Invalid user.");
 
@@ -136,8 +138,6 @@ void HatoholError::init(void)
 		   "Failed in connecting to Zabbix.");
 	DEFINE_ERR(FAILED_CONNECT_MYSQL,
 		   "Failed in connecting to MySQL.");
-	DEFINE_ERR(FAILED_INTERNAL_ERROR,
-		   "Failed in executing of system call.");
 
 	// OTHER
 	DEFINE_ERR(ERROR_TEST,
