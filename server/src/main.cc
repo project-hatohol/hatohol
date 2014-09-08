@@ -123,6 +123,30 @@ static bool daemonize(void)
 	}
 }
 
+static void createInitialUserIfNeeded(
+  DBTablesUser &dbTablesUser, const string &name, const string &password,
+  const OperationPrivilegeFlag &flags)
+{
+	UserQueryOption option(USER_ID_SYSTEM);
+	option.setTargetName(name);
+	UserInfoList userInfoList;
+	dbTablesUser.getUserInfoList(userInfoList, option);
+	if (!userInfoList.empty())
+		return;
+
+	// Create a user
+	UserInfo userInfo;
+	userInfo.name     = name;
+	userInfo.password = password;
+	userInfo.flags    = flags;
+	HatoholError err = dbTablesUser.addUserInfo(
+	                     userInfo, OperationPrivilege(USER_ID_SYSTEM));
+	if (err != HTERR_OK)
+		MLPL_CRIT("Failed to create a user: %s\n", name.c_str());
+	else
+		MLPL_INFO("Created a user: %s\n", name.c_str());
+}
+
 int mainRoutine(int argc, char *argv[])
 {
 #ifndef GLIB_VERSION_2_36
@@ -156,6 +180,10 @@ int mainRoutine(int argc, char *argv[])
 
 	// setup configuration database
 	ThreadLocalDBCache cache;
+	createInitialUserIfNeeded(cache.getUser(), "admin", "hatohol",
+	                          ALL_PRIVILEGES);
+	createInitialUserIfNeeded(cache.getUser(), "guest", "guest", 0);
+
 	// start REST server
 	// 'rest' is on a stack. The destructor of it will be automatically
 	// called at the end of this function.

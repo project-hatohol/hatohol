@@ -51,8 +51,6 @@ static const char *TABLE_NAME_ACCESS_LIST =
 static const char *TABLE_NAME_USER_ROLES =
   DBTablesUser::TABLE_NAME_USER_ROLES;
 
-static bool g_testMode = false;
-
 static const ColumnDef COLUMN_DEF_USERS[] = {
 {
 	"id",                              // columnName
@@ -230,31 +228,6 @@ static void updateAdminPrivilege(DBAgent &dbAgent,
 	  "%s=%" FMT_OPPRVLG,
 	  COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName, oldAdminFlags);
 	dbAgent.update(arg);
-}
-
-static void createInitialUser(
-  DBAgent &dbAgent, const string &username, const string &password,
-  const OperationPrivilegeFlag &flags)
-{
-	DBAgent::InsertArg arg(tableProfileUsers);
-	arg.add(AUTO_INCREMENT_VALUE);
-	arg.add(username);
-	arg.add(Utils::sha256(password));
-	arg.add(flags);
-
-	try {
-		dbAgent.insert(arg);
-	} catch (...) {
-		MLPL_CRIT("Failed to create user: %s\n", username.c_str());
-		return;
-	}
-	MLPL_INFO("Created an initial user: %s\n", username.c_str());
-}
-
-static void tableUserInitializer(DBAgent &dbAgent, void *data)
-{
-	createInitialUser(dbAgent, "admin", "hatohol", ALL_PRIVILEGES);
-	createInitialUser(dbAgent, "guest", "guest", 0);
 }
 
 static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
@@ -474,12 +447,6 @@ void DBTablesUser::init(void)
 void DBTablesUser::reset(void)
 {
 	getSetupInfo().initialized = false;
-}
-
-bool DBTablesUser::setTestMode(bool enable)
-{
-	g_testMode = enable;
-	return g_testMode;
 }
 
 DBTablesUser::DBTablesUser(DBAgent &dbAgent)
@@ -1144,7 +1111,6 @@ DBTables::SetupInfo &DBTablesUser::getSetupInfo(void)
 	static const TableSetupInfo DB_TABLE_INFO[] = {
 	{
 		&tableProfileUsers,
-		g_testMode ? NULL : tableUserInitializer,
 	}, {
 		&tableProfileAccessList,
 	}, {
