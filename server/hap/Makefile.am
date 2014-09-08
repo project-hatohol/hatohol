@@ -4,6 +4,8 @@ hatohol_arm_plugin_zabbix_LDADD = libhapprocess.la ../common/libhatohol-common.l
 
 lib_LTLIBRARIES = libhapprocess.la
 libhapprocess_la_SOURCES = \
+	HatoholArmPluginBase.cc HatoholArmPluginBase.h \
+	HapZabbixAPI.cc HapZabbixAPI.h \
 	HapProcess.cc HapProcess.h
 
 AM_CXXFLAGS = \

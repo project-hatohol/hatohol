@@ -6,10 +6,8 @@ libhatohol_common_la_SOURCES = \
 	EndianConverter.h \
 	HatoholThreadBase.cc HatoholThreadBase.h \
 	HatoholArmPluginInterface.cc HatoholArmPluginInterface.h \
-	HatoholArmPluginBase.cc HatoholArmPluginBase.h \
 	HatoholException.cc HatoholException.h \
 	HatoholError.cc HatoholError.h \
-	HapZabbixAPI.cc HapZabbixAPI.h \
 	ItemData.cc ItemData.h \
 	ItemDataPtr.h \
 	ItemEnum.h \
