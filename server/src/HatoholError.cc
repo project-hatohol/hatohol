@@ -40,8 +40,14 @@ void HatoholError::init(void)
 		   "Not implemented.");
 	DEFINE_ERR(GOT_EXCEPTION,
 		   "Got exception.");
+	DEFINE_ERR(INTERNAL_ERROR,
+		   "Internal error happend.");
 	DEFINE_ERR(INVALID_USER,
 		   "Invalid user.");
+
+	// JSONParserAgent
+	DEFINE_ERR(FAILED_TO_PARSE_JSON_DATA,
+		   "Failed to parse JSON data.");
 
 	// DBClient
 	DEFINE_ERR(NOT_FOUND_TARGET_RECORD,
@@ -132,10 +138,6 @@ void HatoholError::init(void)
 		   "Failed in connecting to Zabbix.");
 	DEFINE_ERR(FAILED_CONNECT_MYSQL,
 		   "Failed in connecting to MySQL.");
-	DEFINE_ERR(FAILED_INTERNAL_ERROR,
-		   "Failed in executing of system call.");
-	DEFINE_ERR(FAILED_PARSER_ERROR,
-		   "Failed to parse the received message.");
 
 	// OTHER
 	DEFINE_ERR(ERROR_TEST,

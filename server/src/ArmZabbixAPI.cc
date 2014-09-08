@@ -153,13 +153,13 @@ gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 	          svInfo.hostName.c_str());
 	ArmBase::registerAvailableTrigger(COLLECT_NG_PARSER_ERROR,
 					  FAILED_PARSER_ERROR_TRIGGERID,
-					  HTERR_FAILED_PARSER_ERROR);
+					  HTERR_FAILED_TO_PARSE_JSON_DATA);
 	ArmBase::registerAvailableTrigger(COLLECT_NG_DISCONNECT_ZABBIX,
 					  FAILED_CONNECT_ZABBIX_TRIGGERID,
 					  HTERR_FAILED_CONNECT_ZABBIX);
 	ArmBase::registerAvailableTrigger(COLLECT_NG_INTERNAL_ERROR,
 					  FAILED_INTERNAL_ERROR_TRIGGERID,
-					  HTERR_FAILED_INTERNAL_ERROR);
+					  HTERR_INTERNAL_ERROR);
 	return ArmBase::mainThread(arg);
 }
 
@@ -261,7 +261,7 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 		if (he.getErrCode() == HTERR_FAILED_CONNECT_ZABBIX) {
 			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
 			return COLLECT_NG_DISCONNECT_ZABBIX;
-		} else if (he.getErrCode() == HTERR_FAILED_PARSER_ERROR) {
+		} else if (he.getErrCode() == HTERR_FAILED_TO_PARSE_JSON_DATA) {
 			MLPL_ERR("Error Message parse: %s %d\n", he.what(), he.getErrCode());
 			return COLLECT_NG_PARSER_ERROR;
 		}
