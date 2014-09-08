@@ -1,0 +1,46 @@
+lib_LTLIBRARIES = libhatohol-common.la
+
+libhatohol_common_la_SOURCES = \
+	ArmStatus.cc ArmStatus.h \
+	DataStoreException.cc DataStoreException.h \
+	EndianConverter.h \
+	HatoholThreadBase.cc HatoholThreadBase.h \
+	HatoholArmPluginInterface.cc HatoholArmPluginInterface.h \
+	HatoholArmPluginBase.cc HatoholArmPluginBase.h \
+	HatoholException.cc HatoholException.h \
+	HatoholError.cc HatoholError.h \
+	HapZabbixAPI.cc HapZabbixAPI.h \
+	ItemData.cc ItemData.h \
+	ItemDataPtr.h \
+	ItemEnum.h \
+	ItemDataUtils.cc ItemDataUtils.h \
+	ItemGroup.cc ItemGroup.h \
+	ItemGroupType.cc ItemGroupType.h \
+	ItemGroupPtr.cc ItemGroupPtr.h \
+	ItemTable.cc ItemTable.h \
+	ItemTablePtr.cc ItemTablePtr.h \
+	JSONBuilderAgent.cc JSONBuilderAgent.h \
+	JSONParserAgent.cc JSONParserAgent.h \
+	Monitroing.h \
+	MonitoringServerInfo.cc MonitoringServerInfo.h \
+	Params.h \
+	EndianConverter.h \
+	UsedCountable.cc UsedCountable.h \
+	Utils.cc Utils.h \
+	UsedCountablePtr.cc UsedCountablePtr.h \
+	ZabbixAPI.cc ZabbixAPI.h
+
+AM_CXXFLAGS = \
+	$(OPT_CXXFLAGS) \
+	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GTHREAD_CFLAGS) $(GIO_CFLAGS) \
+	$(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS) \
+	$(UUID_CFLAGS) $(LIBRABBITMQ_CFLAGS) \
+	$(COVERAGE_CFLAGS)
+
+AM_LDFLAGS = -lrt \
+	$(MLPL_LIBS) $(GLIB_LIBS) $(GTHREAD_LIBS) $(GIO_LIBS) \
+	$(LIBSOUP_LIBS) $(JSON_GLIB_LIBS) \
+	$(UUID_LIBS) $(LIBRABBITMQ_LIBS) \
+	$(COVERAGE_LIBS)
+
+

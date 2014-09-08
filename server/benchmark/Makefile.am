@@ -2,7 +2,7 @@ AM_CXXFLAGS = \
 	$(OPT_CXXFLAGS) \
 	$(MLPL_CFLAGS) \
 	$(GLIB_CFLAGS) \
-	-I../src
+	-I../src -I ../common
 
 AM_LDFLAGS = -lrt \
 	$(MLPL_LIBS) \

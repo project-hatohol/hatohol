@@ -245,6 +245,7 @@ server/mlpl/Makefile
 server/mlpl/src/Makefile
 server/mlpl/test/Makefile
 server/mlpl/mlpl.pc
+server/common/Makefile
 server/src/Makefile
 server/hap/Makefile
 server/tools/Makefile
