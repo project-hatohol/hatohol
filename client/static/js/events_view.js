@@ -253,7 +253,7 @@ var EventsView = function(userProfile, baseElem) {
         html += escapeHTML(incident.assignee);
         html += "</td>";
         html += "<td class='incident'>";
-	if (incident.status != "")
+	if (incident.status)
           html += escapeHTML(incident.doneRatio) + "%";
         html += "</td>";
       }
