@@ -46,7 +46,7 @@ const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBTablesMonitoring::MONITORING_DB_VERSION = 5;
+const int   DBTablesMonitoring::MONITORING_DB_VERSION = 6;
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -788,6 +788,24 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"priority",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"done_ratio",                      // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -804,6 +822,8 @@ enum {
 	IDX_INCIDENTS_CREATED_AT_NS,
 	IDX_INCIDENTS_UPDATED_AT_SEC,
 	IDX_INCIDENTS_UPDATED_AT_NS,
+	IDX_INCIDENTS_PRIORITY,
+	IDX_INCIDENTS_DONE_RATIO,
 	NUM_IDX_INCIDENTS,
 };
 
@@ -2555,6 +2575,13 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 			  oldTableName,
 			  DBTablesMonitoring::TABLE_NAME_INCIDENTS);
 		}
+	}
+	if (oldVer <= 5) {
+		// add new columns to incidents
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileIncidents);
+		addColumnsArg.columnIndexes.push_back(IDX_INCIDENTS_PRIORITY);
+		addColumnsArg.columnIndexes.push_back(IDX_INCIDENTS_DONE_RATIO);
+		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;
 }
