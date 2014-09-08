@@ -298,6 +298,7 @@ struct AssertGetEventsArg
 			incident.serverId  = event.serverId;
 			incident.eventId   = event.id;
 			incident.triggerId = event.triggerId;
+			incident.doneRatio = 0;
 			incident.createdAt.tv_sec  = 0;
 			incident.createdAt.tv_nsec = 0;
 			incident.updatedAt.tv_sec  = 0;

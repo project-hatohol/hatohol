@@ -39,7 +39,7 @@ RedmineIssue::RedmineIssue(const size_t &_id,
 			   const int &_trackerId)
 : id(_id), subject(_subject), description(_description),
   projectId(1), trackerId(_trackerId), statusId(1), priorityId(1),
-  authorId(1), authorName(_authorName), assigneeId(0),
+  authorId(1), authorName(_authorName), assigneeId(0), doneRatio(0),
   startDate(time(NULL)), createdOn(startDate), updatedOn(startDate)
 {
 }

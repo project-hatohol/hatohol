@@ -877,7 +877,9 @@ IncidentInfo testIncidentInfo[] = {
 	"13",                     // identifier
 	"http://localhost:44444/issues/13", // location
 	"New",                    // status
+	"Normal",                 // priority
 	"foobar",                 // assignee
+	0,                        // doneRatio
 	{1412957260, 0},          // createdAt
 	{1412957260, 0},          // updatedAt
 },
@@ -889,7 +891,9 @@ IncidentInfo testIncidentInfo[] = {
 	"11",                     // identifier
 	"http://localhost:44444/issues/11", // location
 	"New",                    // status
+	"Normal",                 // priority
 	"foobar",                 // assignee
+	0,                        // doneRatio
 	{1412957290, 0},          // createdAt
 	{1412957290, 0},          // updatedAt
 },
@@ -901,7 +905,9 @@ IncidentInfo testIncidentInfo[] = {
 	"123",                    // identifier
 	"http://localhost/issues/123", // location
 	"New",                    // status
+	"Normal",                 // priority
 	"drake",                  // assignee
+	0,                        // doneRatio
 	{1412957360, 0},          // createdAt
 	{1412957360, 0},          // updatedAt
 },

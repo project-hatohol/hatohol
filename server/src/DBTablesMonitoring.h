@@ -182,7 +182,9 @@ struct IncidentInfo {
 	std::string        identifier;
 	std::string        location;
 	std::string        status;
+	std::string        priority;
 	std::string        assignee;
+	int                doneRatio;
 	mlpl::Time         createdAt;
 	mlpl::Time         updatedAt;
 };

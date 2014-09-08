@@ -242,12 +242,20 @@ var EventsView = function(userProfile, baseElem) {
       html += "<td data-sort-value='" + duration + "'>" +
         formatSecond(duration) + "</td>";
       if (self.rawData["haveIncident"]) {
-          html += "<td class='incident-column'>";
-          if (incident && incident.location) {
-            html += "<a href='" + incident.location + "'>";
-            html += gettext("Show") + "</a>";
-          }
-          html += "</td>";
+        html += "<td class='incident'>";
+        html += "<a href='" + escapeHTML(incident.location) + "'>";
+        html += escapeHTML(incident.status) + "</a>";
+        html += "</td>";
+        html += "<td class='incident'>";
+        html += escapeHTML(incident.priority);
+        html += "</td>";
+        html += "<td class='incident'>";
+        html += escapeHTML(incident.assignee);
+        html += "</td>";
+        html += "<td class='incident'>";
+	if (incident.status)
+          html += escapeHTML(incident.doneRatio) + "%";
+        html += "</td>";
       }
       /*
       html += "<td>" + "unsupported" + "</td>";
@@ -259,8 +267,9 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function drawTableContents() {
-    if (self.rawData["haveIncident"])
-      $(".incident-column").show();
+    if (self.rawData["haveIncident"]) {
+      $(".incident").show();
+    }
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody());
   }

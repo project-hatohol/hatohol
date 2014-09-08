@@ -71,7 +71,18 @@
         <th data-sort="int">{% trans "Status" %}</th>
         <th data-sort="int">{% trans "Severity" %}</th>
         <th data-sort="int">{% trans "Duration" %}</th>
-        <th class="incident-column" style="display:none;">{% trans "Incident" %}</th>
+        <th class="incident" style="display:none;">
+	  {% trans "Incident" %}
+	</th>
+        <th class="incident" style="display:none;">
+	  {% trans "Priority" %}
+	</th>
+        <th class="incident" style="display:none;">
+	  {% trans "Assignee" %}
+	</th>
+        <th class="incident" style="display:none;">
+	  {% trans "% Done" %}
+	</th>
         <!-- Not supported yet
         <th data-sort="int">' + gettext('Action') + '</th>
         -->

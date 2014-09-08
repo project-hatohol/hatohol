@@ -46,7 +46,7 @@ const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBTablesMonitoring::MONITORING_DB_VERSION = 5;
+const int   DBTablesMonitoring::MONITORING_DB_VERSION = 6;
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -788,6 +788,24 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"priority",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"done_ratio",                      // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -804,6 +822,8 @@ enum {
 	IDX_INCIDENTS_CREATED_AT_NS,
 	IDX_INCIDENTS_UPDATED_AT_SEC,
 	IDX_INCIDENTS_UPDATED_AT_NS,
+	IDX_INCIDENTS_PRIORITY,
+	IDX_INCIDENTS_DONE_RATIO,
 	NUM_IDX_INCIDENTS,
 };
 
@@ -1623,6 +1643,8 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		builder.add(IDX_INCIDENTS_CREATED_AT_NS);
 		builder.add(IDX_INCIDENTS_UPDATED_AT_SEC);
 		builder.add(IDX_INCIDENTS_UPDATED_AT_NS);
+		builder.add(IDX_INCIDENTS_PRIORITY);
+		builder.add(IDX_INCIDENTS_DONE_RATIO);
 	}
 
 	// Condition
@@ -1680,6 +1702,8 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 			itemGroupStream >> incidentInfo.createdAt.tv_nsec;
 			itemGroupStream >> incidentInfo.updatedAt.tv_sec;
 			itemGroupStream >> incidentInfo.updatedAt.tv_nsec;
+			itemGroupStream >> incidentInfo.priority;
+			itemGroupStream >> incidentInfo.doneRatio;
 			incidentInfo.serverId  = eventInfo.serverId;
 			incidentInfo.eventId   = eventInfo.id;
 			incidentInfo.triggerId = eventInfo.triggerId;
@@ -2243,6 +2267,8 @@ void DBTablesMonitoring::updateIncidentInfo(IncidentInfo &incidentInfo)
 	arg.add(IDX_INCIDENTS_CREATED_AT_NS, incidentInfo.createdAt.tv_nsec);
 	arg.add(IDX_INCIDENTS_UPDATED_AT_SEC, incidentInfo.updatedAt.tv_sec);
 	arg.add(IDX_INCIDENTS_UPDATED_AT_NS, incidentInfo.updatedAt.tv_nsec);
+	arg.add(IDX_INCIDENTS_PRIORITY, incidentInfo.priority);
+	arg.add(IDX_INCIDENTS_DONE_RATIO, incidentInfo.doneRatio);
 	arg.condition = StringUtils::sprintf(
 	  "%s=%" FMT_INCIDENT_TRACKER_ID " AND %s=%s",
 	  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_TRACKER_ID].columnName,
@@ -2294,6 +2320,8 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 		itemGroupStream >> incidentInfo.createdAt.tv_nsec;
 		itemGroupStream >> incidentInfo.updatedAt.tv_sec;
 		itemGroupStream >> incidentInfo.updatedAt.tv_nsec;
+		itemGroupStream >> incidentInfo.priority;
+		itemGroupStream >> incidentInfo.doneRatio;
 	}
 
 	return HatoholError(HTERR_OK);
@@ -2483,6 +2511,8 @@ void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
 	arg.add(incidentInfo.createdAt.tv_nsec);
 	arg.add(incidentInfo.updatedAt.tv_sec);
 	arg.add(incidentInfo.updatedAt.tv_nsec);
+	arg.add(incidentInfo.priority);
+	arg.add(incidentInfo.doneRatio);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
@@ -2555,6 +2585,13 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 			  oldTableName,
 			  DBTablesMonitoring::TABLE_NAME_INCIDENTS);
 		}
+	}
+	if (oldVer <= 5) {
+		// add new columns to incidents
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileIncidents);
+		addColumnsArg.columnIndexes.push_back(IDX_INCIDENTS_PRIORITY);
+		addColumnsArg.columnIndexes.push_back(IDX_INCIDENTS_DONE_RATIO);
+		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;
 }

@@ -178,6 +178,9 @@ static void makeExpectedIncidentInfo(IncidentInfo &incident,
 	incident.identifier = StringUtils::toString((int)postedIssue.id);
 	incident.location = tracker.baseURL + "/issues/" + incident.identifier;
 	incident.status = postedIssue.getStatusName();
+	incident.assignee = "";
+	incident.priority = postedIssue.getPriorityName();
+	incident.doneRatio = postedIssue.doneRatio;
 	incident.createdAt.tv_sec = postedIssue.createdOn;
 	incident.createdAt.tv_nsec = 0;
 	incident.updatedAt.tv_sec = postedIssue.updatedOn;
