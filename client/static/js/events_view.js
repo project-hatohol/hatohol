@@ -247,7 +247,14 @@ var EventsView = function(userProfile, baseElem) {
         html += escapeHTML(incident.status) + "</a>";
         html += "</td>";
         html += "<td class='incident'>";
+        html += escapeHTML(incident.priority);
+        html += "</td>";
+        html += "<td class='incident'>";
         html += escapeHTML(incident.assignee);
+        html += "</td>";
+        html += "<td class='incident'>";
+	if (incident.status != "")
+          html += escapeHTML(incident.doneRatio) + "%";
         html += "</td>";
       }
       /*
