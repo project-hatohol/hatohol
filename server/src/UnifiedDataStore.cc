@@ -30,12 +30,16 @@
 #include "ItemFetchWorker.h"
 #include "DataStoreFactory.h"
 #include "HatoholArmPluginGate.h" // TODO: remove after dynamic_cast is deleted
+#include "ArmIncidentTracker.h"
 
 using namespace std;
 using namespace mlpl;
 
 typedef map<ServerIdType, DataStore *> ServerIdDataStoreMap;
 typedef ServerIdDataStoreMap::iterator ServerIdDataStoreMapIterator;
+
+typedef map<IncidentTrackerIdType, ArmIncidentTracker *> ArmIncidentTrackerMap;
+typedef ArmIncidentTrackerMap::iterator ArmIncidentTrackerMapIterator;
 
 static ArmInfo getArmInfo(DataStore *dataStore)
 {
@@ -92,7 +96,7 @@ struct UnifiedDataStore::Impl
 	ItemFetchWorker          itemFetchWorker;
 
 	Impl()
-	: isCopyOnDemandEnabled(false)
+	: isCopyOnDemandEnabled(false), isStarted(false)
 	{ 
 		// TODO: When should the object be freed ?
 		UnifiedDataStoreEventProc *evtProc =
@@ -186,6 +190,20 @@ struct UnifiedDataStore::Impl
 		return HTERR_OK;
 	}
 
+	void startAllDataStores(const bool &autoRun)
+	{
+		ThreadLocalDBCache cache;
+		DBTablesConfig &dbConfig = cache.getConfig();
+		MonitoringServerInfoList monitoringServers;
+		ServerQueryOption option(USER_ID_SYSTEM);
+		dbConfig.getTargetServers(monitoringServers, option);
+
+		MonitoringServerInfoListConstIterator svInfoItr
+			= monitoringServers.begin();
+		for (; svInfoItr != monitoringServers.end(); ++svInfoItr)
+			startDataStore(*svInfoItr, autoRun);
+	}
+
 	void stopAllDataStores(void)
 	{
 		ServerIdDataStoreMapIterator it;
@@ -210,10 +228,96 @@ struct UnifiedDataStore::Impl
 		return dataStoreManager.getDataStoreVector();
 	}
 
-private:
+	void startArmIncidentTrackerIfNeeded(
+	  const IncidentTrackerInfo &trackerInfo)
+	{
+		AutoMutex autoLock(&armIncidentTrackerMapMutex);
+		ArmIncidentTrackerMapIterator it
+		  = armIncidentTrackerMap.find(trackerInfo.id);
+		ArmIncidentTracker *arm = NULL;
+		if (it == armIncidentTrackerMap.end()) {
+			arm = ArmIncidentTracker::create(trackerInfo);
+			armIncidentTrackerMap[trackerInfo.id] = arm;
+		} else {
+			arm = it->second;
+		}
+
+		arm->startIfNeeded();
+
+		if (!arm->isStarted()) {
+			MLPL_DBG("Failed to launch ArmIncidentTracker for "
+				 "Tracker ID: %" FMT_INCIDENT_TRACKER_ID ", "
+				 "Nickname: %s, URL: %s\n",
+				 trackerInfo.id,
+				 trackerInfo.nickname.c_str(),
+				 trackerInfo.baseURL.c_str());
+			armIncidentTrackerMap.erase(trackerInfo.id);
+			delete arm;
+		}
+	}
+
+	void stopArmIncidentTrackerIfNeeded(
+	  const IncidentTrackerInfo &trackerInfo)
+	{
+		AutoMutex autoLock(&armIncidentTrackerMapMutex);
+		ArmIncidentTrackerMapIterator it
+		  = armIncidentTrackerMap.find(trackerInfo.id);
+		if (it == armIncidentTrackerMap.end())
+			return;
+		ArmIncidentTracker *arm = it->second;
+		armIncidentTrackerMap.erase(it);
+		delete arm;
+	}
+
+	void startAllArmIncidentTrackers(const bool &autoRun)
+	{
+		if (!autoRun)
+			return;
+
+		ThreadLocalDBCache cache;
+		DBTablesConfig &dbConfig = cache.getConfig();
+		IncidentTrackerInfoVect incidentTrackers;
+		IncidentTrackerQueryOption option(USER_ID_SYSTEM);
+		dbConfig.getIncidentTrackers(incidentTrackers, option);
+
+		IncidentTrackerInfoVectConstIterator it
+			= incidentTrackers.begin();
+		for (; it != incidentTrackers.end(); ++it) {
+			startArmIncidentTrackerIfNeeded(*it);
+		}
+	}
+
+	void stopAllArmIncidentTrackers(void)
+	{
+		AutoMutex autoLock(&armIncidentTrackerMapMutex);
+		ArmIncidentTrackerMapIterator it
+			= armIncidentTrackerMap.begin();
+		while (it != armIncidentTrackerMap.end()) {
+			delete it->second;
+			armIncidentTrackerMap.erase(it++);
+		}
+	}
+
+	void start(const bool &autoRun)
+	{
+		startAllDataStores(autoRun);
+		startAllArmIncidentTrackers(autoRun);
+		isStarted = true;
+	}
+
+	void stop(void)
+	{
+		stopAllDataStores();
+		stopAllArmIncidentTrackers();
+		isStarted = false;
+	}
+
 	ReadWriteLock            serverIdDataStoreMapLock;
 	ServerIdDataStoreMap     serverIdDataStoreMap;
 	DataStoreManager         dataStoreManager;
+	Mutex                    armIncidentTrackerMapMutex;
+	ArmIncidentTrackerMap    armIncidentTrackerMap;
+	bool                     isStarted;
 };
 
 UnifiedDataStore *UnifiedDataStore::Impl::instance = NULL;
@@ -251,21 +355,12 @@ UnifiedDataStore *UnifiedDataStore::getInstance(void)
 
 void UnifiedDataStore::start(const bool &autoRun)
 {
-	ThreadLocalDBCache cache;
-	DBTablesConfig &dbConfig = cache.getConfig();
-	MonitoringServerInfoList monitoringServers;
-	ServerQueryOption option(USER_ID_SYSTEM);
-	dbConfig.getTargetServers(monitoringServers, option);
-
-	MonitoringServerInfoListConstIterator svInfoItr
-	  = monitoringServers.begin();
-	for (; svInfoItr != monitoringServers.end(); ++svInfoItr)
-		m_impl->startDataStore(*svInfoItr, autoRun);
+	m_impl->start(autoRun);
 }
 
 void UnifiedDataStore::stop(void)
 {
-	m_impl->stopAllDataStores();
+	m_impl->stop();
 }
 
 void UnifiedDataStore::fetchItems(const ServerIdType &targetServerId)
@@ -647,6 +742,15 @@ uint64_t UnifiedDataStore::getLastUpdateTimeOfIncidents(
 	return dbMonitoring.getLastUpdateTimeOfIncidents(trackerId);
 }
 
+void UnifiedDataStore::addIncidentInfo(IncidentInfo &incidentInfo)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	dbMonitoring.addIncidentInfo(&incidentInfo);
+	if (m_impl->isStarted)
+		startArmIncidentTrackerIfNeeded(incidentInfo.trackerId);
+}
+
 DataStoreVector UnifiedDataStore::getDataStoreVector(void)
 {
 	return m_impl->getDataStoreVector();
@@ -655,6 +759,47 @@ DataStoreVector UnifiedDataStore::getDataStoreVector(void)
 DataStorePtr UnifiedDataStore::getDataStore(const ServerIdType &serverId)
 {
 	return m_impl->getDataStore(serverId);
+}
+
+static bool getIncidentTrackerInfo(const IncidentTrackerIdType &trackerId,
+				   IncidentTrackerInfo &trackerInfo)
+{
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	IncidentTrackerInfoVect incidentTrackerVect;
+	IncidentTrackerQueryOption option(USER_ID_SYSTEM);
+	option.setTargetId(trackerId);
+	dbConfig.getIncidentTrackers(incidentTrackerVect, option);
+
+	if (incidentTrackerVect.size() <= 0) {
+		MLPL_ERR("Not found IncidentTrackerInfo: %"
+			 FMT_INCIDENT_TRACKER_ID "\n", trackerId);
+		return false;
+	}
+	if (incidentTrackerVect.size() > 1) {
+		MLPL_ERR("Too many IncidentTrackerInfo for ID:%"
+			 FMT_INCIDENT_TRACKER_ID "\n", trackerId);
+		return false;
+	}
+
+	trackerInfo = *incidentTrackerVect.begin();
+	return true;
+}
+
+void UnifiedDataStore::startArmIncidentTrackerIfNeeded(
+  const IncidentTrackerIdType &trackerId)
+{
+	IncidentTrackerInfo trackerInfo;
+	if (getIncidentTrackerInfo(trackerId, trackerInfo))
+		m_impl->startArmIncidentTrackerIfNeeded(trackerInfo);
+}
+
+void UnifiedDataStore::stopArmIncidentTrackerIfNeeded(
+  const IncidentTrackerIdType &trackerId)
+{
+	IncidentTrackerInfo trackerInfo;
+	if (getIncidentTrackerInfo(trackerId, trackerInfo))
+		m_impl->stopArmIncidentTrackerIfNeeded(trackerInfo);
 }
 
 // ---------------------------------------------------------------------------

@@ -22,6 +22,7 @@
 #include "JSONParserAgent.h"
 #include "RedmineAPI.h"
 #include "ThreadLocalDBCache.h"
+#include "UnifiedDataStore.h"
 #include <Mutex.h>
 #include <libsoup/soup.h>
 
@@ -240,8 +241,8 @@ HatoholError IncidentSenderRedmine::send(const EventInfo &event)
 	IncidentInfo incidentInfo;
 	HatoholError result = buildIncidentInfo(incidentInfo, response, event);
 	if (result == HTERR_OK) {
-		ThreadLocalDBCache cache;
-		cache.getMonitoring().addIncidentInfo(&incidentInfo);
+		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+		dataStore->addIncidentInfo(incidentInfo);
 	}
 
 	return result;

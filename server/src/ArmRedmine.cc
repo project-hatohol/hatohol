@@ -248,31 +248,15 @@ struct ArmRedmine::Impl
 	}
 };
 
-static MonitoringServerInfo toMonitoringServerInfo(
-  const IncidentTrackerInfo &trackerInfo)
-{
-	MonitoringServerInfo monitoringServer;
-	SoupURI *uri = soup_uri_new(trackerInfo.baseURL.c_str());
-	//TODO: define a new MONITORING_SYSTEM?
-	monitoringServer.type = MONITORING_SYSTEM_UNKNOWN;
-	monitoringServer.nickname = trackerInfo.nickname;
-	monitoringServer.hostName = uri->host;
-	monitoringServer.port = uri->port;
-	//TODO: should be customizable
-	monitoringServer.pollingIntervalSec = 60;
-	monitoringServer.retryIntervalSec = 30;
-	soup_uri_free(uri);
-	return monitoringServer;
-}
-
 ArmRedmine::ArmRedmine(const IncidentTrackerInfo &trackerInfo)
-: ArmBase("ArmRedmine", toMonitoringServerInfo(trackerInfo)),
+: ArmIncidentTracker("ArmRedmine", trackerInfo),
   m_impl(new Impl(trackerInfo))
 {
 }
 
 ArmRedmine::~ArmRedmine()
 {
+	requestExitAndWait();
 }
 
 std::string ArmRedmine::getURL(void)
@@ -287,22 +271,36 @@ std::string ArmRedmine::getQuery(void)
 
 gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
 {
+	const IncidentTrackerInfo &trackerInfo = m_impl->m_incidentTrackerInfo;
+	MLPL_INFO("started: ArmRedmine "
+		  "(Tracker ID: %" FMT_INCIDENT_TRACKER_ID ", Nickname: %s)\n",
+	          trackerInfo.id, trackerInfo.nickname.c_str());
 	return ArmBase::mainThread(arg);
 }
 
 ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 {
 	if (m_impl->m_lastUpdateTime == 0) {
-		// There is no incident to update.
+		// There is no incident in DB. Shouldn't reach here because
+		// it's already checked at startIfNeeded().
+		MLPL_ERR("ArmRedmine was started without valid incidents!");
 		return COLLECT_OK;
 	}
 
+	const IncidentTrackerInfo &trackerInfo = m_impl->m_incidentTrackerInfo;
 	m_impl->m_page = 1;
 
 RETRY:
 	string url = m_impl->m_url;
 	url += "?";
 	url += getQuery();
+
+	MLPL_DBG("Send request:\n"
+		 "  Tracker ID: %d\n"
+		 "  Nickname: %s\n"
+		 "  Query: %s\n",
+		 trackerInfo.id, trackerInfo.nickname.c_str(), url.c_str());
+
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
@@ -327,6 +325,8 @@ RETRY:
 		++m_impl->m_page;
 		goto RETRY;
 	case PARSE_RESULT_OK:
+		MLPL_DBG("Succeeded to update for Tracker ID: %d\n",
+			 trackerInfo.id);
 		return COLLECT_OK;
 	case PARSE_RESULT_ERROR:
 	default:

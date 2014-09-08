@@ -17,31 +17,31 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ArmRedmine_h
-#define ArmRedmine_h
+#ifndef ArmIncidentTracker_h
+#define ArmIncidentTracker_h
 
-#include "ArmIncidentTracker.h"
+#include "ArmBase.h"
 #include "DBTablesConfig.h"
 
-class ArmRedmine : public ArmIncidentTracker
+class ArmIncidentTracker : public ArmBase
 {
 public:
-	ArmRedmine(const IncidentTrackerInfo &trackerInfo);
-	virtual ~ArmRedmine();
+	ArmIncidentTracker(const std::string &name,
+			   const IncidentTrackerInfo &trackerInfo);
+	virtual ~ArmIncidentTracker();
 
-	virtual void startIfNeeded(void) override;
+	virtual void startIfNeeded(void) = 0;
+	virtual bool isFetchItemsSupported(void) const override;
+
+	static ArmIncidentTracker *create(
+	  const IncidentTrackerInfo &trackerInfo);
 
 protected:
-	// virtual methods
-	virtual gpointer mainThread(HatoholThreadArg *arg) override;
-	virtual ArmBase::ArmPollingResult mainThreadOneProc(void) override;
-
-	std::string getURL(void);
-	std::string getQuery(void);
+	const IncidentTrackerInfo &getIncidentTrackerInfo(void);
 
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // ArmRedmine_h
+#endif // ArmIncidentTracker_h
