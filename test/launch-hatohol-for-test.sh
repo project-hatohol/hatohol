@@ -3,7 +3,7 @@
 topdir=`echo $(cd $(dirname $0)/..; pwd)`
 server_dir=$topdir/server
 client_dir=$topdir/client
-export LD_LIBRARY_PATH=$server_dir/mlpl/src/.libs:$server_dir/src/.libs
+export LD_LIBRARY_PATH=$server_dir/mlpl/src/.libs:$server_idr/common/.libs:$server_dir/src/.libs
 
 mysql -uroot < $server_dir/data/create-db.sql
 error_code=$?
