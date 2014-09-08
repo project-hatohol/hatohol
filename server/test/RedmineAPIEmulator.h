@@ -34,6 +34,7 @@ struct RedmineIssue {
 	std::string authorName;
 	int assigneeId;
 	std::string assigneeName;
+	int doneRatio;
 	time_t startDate;
 	time_t createdOn;
 	time_t updatedOn;

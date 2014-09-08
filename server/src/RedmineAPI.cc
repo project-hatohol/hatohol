@@ -57,6 +57,16 @@ bool parseIssue(JSONParserAgent &agent, IncidentInfo &incidentInfo)
 		agent.endObject();
 	}
 
+	if (agent.isMember("priority")) {
+		agent.startObject("priority");
+		agent.read("name", incidentInfo.priority);
+		agent.endObject();
+	}
+
+	int64_t doneRatio = 0;
+	agent.read("done_ratio", doneRatio);
+	incidentInfo.doneRatio = doneRatio;
+
 	if (!parseDateTime(agent, "created_on", incidentInfo.createdAt))
 		return false;
 	if (!parseDateTime(agent, "updated_on", incidentInfo.updatedAt))
