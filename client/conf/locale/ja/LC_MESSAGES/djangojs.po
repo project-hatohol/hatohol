@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-04 02:23-0500\n"
-"PO-Revision-Date: 2014-09-04 16:29+0900\n"
+"POT-Creation-Date: 2014-09-08 19:07-0500\n"
+"PO-Revision-Date: 2014-09-09 09:09+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -115,10 +115,6 @@ msgstr "重度の障害"
 #: static/js/triggers_view.js:95 static/js/utils.js:80
 msgid "Disaster"
 msgstr "致命的な障害"
-
-#: static/js/events_view.js:248 static/js/hatohol_user_roles_editor.js:244
-msgid "Show"
-msgstr "表示"
 
 #: static/js/hatohol_actor_mail_dialog.js:26
 #: static/js/hatohol_actor_mail_dialog.js:118
@@ -322,158 +318,158 @@ msgid "Got exception."
 msgstr "例外が発生しました。"
 
 #: static/js/hatohol_def.js:191
+msgid "Internal error happend."
+msgstr "内部エラーが発生しました。"
+
+#: static/js/hatohol_def.js:192
 msgid "Invalid user."
 msgstr "不正なユーザです。"
 
-#: static/js/hatohol_def.js:192
+#: static/js/hatohol_def.js:193
+msgid "Failed to parse JSON data."
+msgstr "JSONデータの解析に失敗しました."
+
+#: static/js/hatohol_def.js:194
 msgid "Not found target record."
 msgstr "対象レコードが見つかりません。"
 
-#: static/js/hatohol_def.js:193
+#: static/js/hatohol_def.js:195
 msgid "Invalid monitoring system type."
 msgstr "不正な監視システムタイプです。"
 
-#: static/js/hatohol_def.js:194
+#: static/js/hatohol_def.js:196
 msgid "Invalid port number."
 msgstr "不正なポート番号です。"
 
-#: static/js/hatohol_def.js:195
+#: static/js/hatohol_def.js:197
 msgid "Invalid IP address."
 msgstr "不正なIPアドレスです。"
 
-#: static/js/hatohol_def.js:196
+#: static/js/hatohol_def.js:198
 msgid "Invalid host name."
 msgstr "不正なホスト名です。"
 
-#: static/js/hatohol_def.js:197
+#: static/js/hatohol_def.js:199
 msgid "No IP address and host name."
 msgstr "IPアドレスとホスト名が入力されていません。"
 
-#: static/js/hatohol_def.js:198
+#: static/js/hatohol_def.js:200
 msgid "Invalid incident tracker type."
 msgstr "インシデント管理システムの種類が正しくありません。"
 
-#: static/js/hatohol_def.js:199
+#: static/js/hatohol_def.js:201
 msgid "NO incident tracker location."
 msgstr "インシデント管理サーバの場所が指定されていません。"
 
-#: static/js/hatohol_def.js:200
+#: static/js/hatohol_def.js:202
 msgid "Empty user name."
 msgstr "ユーザ名が入力されていません。"
 
-#: static/js/hatohol_def.js:201
+#: static/js/hatohol_def.js:203
 msgid "Too long user name."
 msgstr "ユーザ名が長すぎます。"
 
-#: static/js/hatohol_def.js:202
+#: static/js/hatohol_def.js:204
 msgid "Invalid character."
 msgstr "不正な文字が含まれています。"
 
-#: static/js/hatohol_def.js:203
+#: static/js/hatohol_def.js:205
 msgid "Password is empty."
 msgstr "パスワードが入力されていません。"
 
-#: static/js/hatohol_def.js:204
+#: static/js/hatohol_def.js:206
 msgid "Too long password."
 msgstr "パスワードが長すぎます。"
 
-#: static/js/hatohol_def.js:205
+#: static/js/hatohol_def.js:207
 msgid "The same user name already exists."
 msgstr "同じユーザ名が既に存在します。"
 
-#: static/js/hatohol_def.js:206
+#: static/js/hatohol_def.js:208
 msgid "No privilege."
 msgstr "権限がありません。"
 
-#: static/js/hatohol_def.js:207
+#: static/js/hatohol_def.js:209
 msgid "Invalid privilege flags."
 msgstr "不正な権限です。"
 
-#: static/js/hatohol_def.js:208
+#: static/js/hatohol_def.js:210
 msgid "Empty user role name."
 msgstr "ユーザ種別名が入力されていません。"
 
-#: static/js/hatohol_def.js:209
+#: static/js/hatohol_def.js:211
 msgid "Too long User role name."
 msgstr "ユーザ種別名が長すぎます。"
 
-#: static/js/hatohol_def.js:210
+#: static/js/hatohol_def.js:212
 msgid ""
 "The same user role name or a user role with the same privilege already "
 "exists."
 msgstr "同じユーザ種別名か同じ権限のユーザが既に存在します。"
 
-#: static/js/hatohol_def.js:211
+#: static/js/hatohol_def.js:213
 msgid "An offset value is specified but no limit value is specified."
 msgstr "offset値が指定されていますがlimit値が指定されていません。"
 
-#: static/js/hatohol_def.js:212
+#: static/js/hatohol_def.js:214
 msgid "Not found sort order."
 msgstr "ソート順が指定されていません。"
 
-#: static/js/hatohol_def.js:213
+#: static/js/hatohol_def.js:215
 msgid "The delete operation was incomplete."
 msgstr "削除操作が不完全です。"
 
-#: static/js/hatohol_def.js:214
+#: static/js/hatohol_def.js:216
 msgid "Unsupported format."
 msgstr "対応していない形式です。"
 
-#: static/js/hatohol_def.js:215
+#: static/js/hatohol_def.js:217
 msgid "Not found session ID."
 msgstr "セッションIDが見つかりません。"
 
-#: static/js/hatohol_def.js:216
+#: static/js/hatohol_def.js:218
 msgid "Not found ID in the URL."
 msgstr "URLにIDが含まれていません。"
 
-#: static/js/hatohol_def.js:217
+#: static/js/hatohol_def.js:219
 msgid "Not found parameter."
 msgstr "パラメータが見つかりません。"
 
-#: static/js/hatohol_def.js:218
+#: static/js/hatohol_def.js:220
 msgid "Invalid parameter."
 msgstr "不正なパラメータです。"
 
-#: static/js/hatohol_def.js:219
+#: static/js/hatohol_def.js:221
 msgid "Authentication failed."
 msgstr "認証に失敗しました。"
 
-#: static/js/hatohol_def.js:220
+#: static/js/hatohol_def.js:222
 msgid "Not test mode."
 msgstr "テストモードではありません。"
 
-#: static/js/hatohol_def.js:221
+#: static/js/hatohol_def.js:223
 msgid "Failed to create a DataStore object."
 msgstr "データストアオブジェクトの作成に失敗しました。"
 
-#: static/js/hatohol_def.js:222
+#: static/js/hatohol_def.js:224
 msgid "Failed to regist a DataStore object."
 msgstr "データストアオブジェクトの登録に失敗しました。"
 
-#: static/js/hatohol_def.js:223
+#: static/js/hatohol_def.js:225
 msgid "Failed to stop a DataStore object."
 msgstr "データストアオブジェクトの停止に失敗しました。"
 
-#: static/js/hatohol_def.js:224
+#: static/js/hatohol_def.js:226
 msgid "Failed to send an incident to an incident tracker."
 msgstr "インシデント管理システムへの送信に失敗しました。"
 
-#: static/js/hatohol_def.js:225
+#: static/js/hatohol_def.js:227
 msgid "Failed in connecting to Zabbix."
 msgstr "Zabbixとの接続に失敗しました。"
 
-#: static/js/hatohol_def.js:226
+#: static/js/hatohol_def.js:228
 msgid "Failed in connecting to MySQL."
 msgstr "MySQLとの接続に失敗しました。"
-
-#: static/js/hatohol_def.js:227
-msgid "Failed in executing of system call."
-msgstr "システムコールの実行に失敗しました。"
-
-#: static/js/hatohol_def.js:228
-msgid "Failed to parse the received message."
-msgstr "受信メッセージの解析に失敗しました。"
 
 #: static/js/hatohol_def.js:229 test/browser/test_hatohol_message_box.js:176
 msgid "Error test."
@@ -1077,6 +1073,10 @@ msgstr "無し"
 msgid "All"
 msgstr "全て"
 
+#: static/js/hatohol_user_roles_editor.js:244
+msgid "Show"
+msgstr "表示"
+
 #: static/js/hatohol_user_roles_editor.js:260
 msgid "EDIT USER ROLE"
 msgstr "ユーザ種別編集"
@@ -1275,6 +1275,12 @@ msgstr "失敗備考"
 msgid "-"
 msgstr "-"
 
+#~ msgid "Failed in executing of system call."
+#~ msgstr "システムコールの実行に失敗しました。"
+
+#~ msgid "Failed to parse the received message."
+#~ msgstr "受信メッセージの解析に失敗しました。"
+
 #~ msgid "Number of users [Online]"
 #~ msgstr "ユーザ数 [オンライン]"
 
@@ -1316,9 +1322,6 @@ msgstr "-"
 
 #~ msgid " HATOHOL SERVER ERROR CODE"
 #~ msgstr " HATOHOLサーバエラーコード"
-
-#~ msgid "Failed to parse the recieved packt."
-#~ msgstr "受信パケットの解析に失敗しました."
 
 #~ msgid "STATUS CODE"
 #~ msgstr "ステータスコード"

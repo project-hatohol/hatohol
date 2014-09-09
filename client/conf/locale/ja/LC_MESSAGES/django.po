@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-04 02:23-0500\n"
-"PO-Revision-Date: 2014-08-08 12:47+0900\n"
+"POT-Creation-Date: 2014-09-08 19:07-0500\n"
+"PO-Revision-Date: 2014-09-09 09:13+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -220,15 +220,27 @@ msgstr "説明"
 msgid "Duration"
 msgstr "継続時間"
 
-#: viewer/events_ajax.html:74
+#: viewer/events_ajax.html:75
 msgid "Incident"
 msgstr "インシデント"
 
-#: viewer/events_ajax.html:87
+#: viewer/events_ajax.html:78
+msgid "Priority"
+msgstr "優先度"
+
+#: viewer/events_ajax.html:81
+msgid "Assignee"
+msgstr "担当者"
+
+#: viewer/events_ajax.html:84
+msgid "% Done"
+msgstr "進捗率"
+
+#: viewer/events_ajax.html:98
 msgid "Latest events"
 msgstr "最新イベント"
 
-#: viewer/events_ajax.html:91
+#: viewer/events_ajax.html:102
 msgid "To next"
 msgstr "次へ"
 
