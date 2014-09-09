@@ -33,6 +33,10 @@ public:
 		   const EventInfo &info,
 		   IncidentSender::CreateIncidentCallback callback = NULL,
 		   void *userData = NULL);
+	void queue(const IncidentInfo &incidentInfo,
+		   const std::string &comment,
+		   IncidentSender::UpdateIncidentCallback callback = NULL,
+		   void *userData = NULL);
 	bool isIdling(void);
 
 protected:
