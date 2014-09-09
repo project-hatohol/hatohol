@@ -11,7 +11,8 @@ libhapprocess_la_SOURCES = \
 	HatoholArmPluginStandard.cc HatoholArmPluginStandard.h \
 	HapZabbixAPI.cc HapZabbixAPI.h \
 	HapProcess.cc HapProcess.h \
-	HapProcessStandard.cc HapProcessStandard.h
+	HapProcessStandard.cc HapProcessStandard.h \
+	HapProcessCeilometer.cc HapProcessCeilometer.h
 
 AM_CXXFLAGS = \
 	-I ../common -I ../src $(OPT_CXXFLAGS) \
