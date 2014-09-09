@@ -107,7 +107,7 @@ IncidentSenderManager &IncidentSenderManager::getInstance(void)
 
 void IncidentSenderManager::queue(
   const IncidentTrackerIdType &trackerId, const EventInfo &eventInfo,
-  IncidentSender::StatusCallback callback, void *userData)
+  IncidentSender::CreateIncidentCallback callback, void *userData)
 {
 	IncidentSender *sender = m_impl->getSender(trackerId);
 	if (!sender) {

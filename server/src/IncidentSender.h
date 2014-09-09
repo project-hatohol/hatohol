@@ -37,9 +37,12 @@ public:
 		JOB_FAILED,
 	} JobStatus;
 
-	typedef void (*StatusCallback)(const EventInfo &info,
-				       const JobStatus &status,
-				       void *userData);
+	typedef void (*CreateIncidentCallback)(const EventInfo &info,
+					       const JobStatus &status,
+					       void *userData);
+	typedef void (*UpdateIncidentCallback)(const IncidentInfo &info,
+					       const JobStatus &status,
+					       void *userData);
 
 	IncidentSender(const IncidentTrackerInfo &tracker);
 	virtual ~IncidentSender();
@@ -65,10 +68,10 @@ public:
 	 * start() when you use this function directly.
 	 *
 	 * @param incident
-	 * An IncidentInfo to send as an incident.
+	 * An IncidentInfo to update.
 	 *
 	 * @param comment
-	 * A string to post as a additional comment to the incident.
+	 * A string to post as an additional comment for the incident.
 	 *
 	 * @return HTERR_OK on succeeded to send. Otherwise an error.
 	 */
@@ -95,7 +98,33 @@ public:
 	 * @return HTERR_OK on succeeded to send. Otherwise an error.
 	 */
 	void queue(const EventInfo &eventInfo,
-		   StatusCallback callback = NULL,
+		   CreateIncidentCallback callback = NULL,
+		   void *userData = NULL);
+
+	/**
+	 * Queue an IncidentInfo to update existing one. Sending an incident
+	 * will be done by a dedicated thread (it will call send() internally).
+	 * You must start the thread by calling start() before or after calling
+	 * this function.
+	 *
+	 * @param incident
+	 * An IncidentInfo to update.
+	 *
+	 * @param comment
+	 * A string to post as an additional comment for the incident.
+	 *
+	 * @param callback
+	 * A callback function which will be called when the status of
+	 * sending job is changed.
+	 *
+	 * @param userData
+	 * A user data which will be passed to the callback function.
+	 *
+	 * @return HTERR_OK on succeeded to send. Otherwise an error.
+	 */
+	void queue(const IncidentInfo &incidentInfo,
+		   const std::string &comment,
+		   UpdateIncidentCallback callback = NULL,
 		   void *userData = NULL);
 
 	/**

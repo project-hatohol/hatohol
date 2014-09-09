@@ -31,7 +31,7 @@ public:
 
 	void queue(const IncidentTrackerIdType &trackerId,
 		   const EventInfo &info,
-		   IncidentSender::StatusCallback callback = NULL,
+		   IncidentSender::CreateIncidentCallback callback = NULL,
 		   void *userData = NULL);
 	bool isIdling(void);
 

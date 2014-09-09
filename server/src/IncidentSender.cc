@@ -37,20 +37,54 @@ static const unsigned int DEFAULT_RETRY_INTERVAL_MSEC = 5000;
 
 struct IncidentSender::Job
 {
-	EventInfo eventInfo;
-	StatusCallback callback;
+	EventInfo *eventInfo;
+	IncidentInfo *incidentInfo;
+	string comment;
+	CreateIncidentCallback createCallback;
+	UpdateIncidentCallback updateCallback;
 	void *userData;
 
-	Job(const EventInfo &_eventInfo, StatusCallback _callback = NULL,
+	Job(const EventInfo &_eventInfo,
+	    CreateIncidentCallback _callback = NULL,
 	    void *_userData = NULL)
-	: eventInfo(_eventInfo), callback(_callback), userData(_userData)
+	: eventInfo(new EventInfo(_eventInfo)), incidentInfo(NULL),
+	  createCallback(_callback), updateCallback(NULL),
+	  userData(_userData)
 	{
+	}
+
+	Job(const IncidentInfo &_incidentInfo,
+	    const string &_comment,
+	    UpdateIncidentCallback _callback = NULL,
+	    void *_userData = NULL)
+	: eventInfo(NULL), incidentInfo(new IncidentInfo(_incidentInfo)),
+	  comment(_comment),
+	  createCallback(NULL), updateCallback(_callback),
+	  userData(_userData)
+	{
+	}
+
+	virtual ~Job()
+	{
+		delete eventInfo;
+		delete incidentInfo;
 	}
 
 	void notifyStatus(const JobStatus &status) const
 	{
-		if (callback)
-			callback(eventInfo, status, userData);
+		if (eventInfo && createCallback)
+			createCallback(*eventInfo, status, userData);
+		else if (incidentInfo && updateCallback)
+			createCallback(*eventInfo, status, userData);
+	}
+
+	HatoholError send(IncidentSender &sender) const
+	{
+		if (eventInfo)
+			return sender.send(*eventInfo);
+		else if (incidentInfo)
+			return sender.send(*incidentInfo, comment);
+		return HTERR_NOT_IMPLEMENTED;
 	}
 };
 
@@ -118,7 +152,7 @@ struct IncidentSender::Impl
 	HatoholError trySend(const Job &job) {
 		HatoholError result;
 		for (size_t i = 0; i <= retryLimit; i++) {
-			result = sender.send(job.eventInfo);
+			result = job.send(sender);
 			if (result == HTERR_OK)
 				break;
 			if (i == retryLimit)
@@ -159,9 +193,17 @@ void IncidentSender::waitExit(void)
 }
 
 void IncidentSender::queue(const EventInfo &eventInfo,
-			   StatusCallback callback, void *userData)
+			   CreateIncidentCallback callback, void *userData)
 {
 	Job *job = new Job(eventInfo, callback, userData);
+	m_impl->pushJob(job);
+}
+
+void IncidentSender::queue(const IncidentInfo &incidentInfo,
+			   const string &comment,
+			   UpdateIncidentCallback callback, void *userData)
+{
+	Job *job = new Job(incidentInfo, comment, callback, userData);
 	m_impl->pushJob(job);
 }
 
