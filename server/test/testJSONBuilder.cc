@@ -19,18 +19,18 @@
 
 #include <cppcutter.h>
 #include <StringUtils.h>
-#include "JSONBuilderAgent.h"
+#include "JSONBuilder.h"
 using namespace std;
 using namespace mlpl;
 
-namespace testJSONBuilderAgent {
+namespace testJSONBuilder {
 
 // -------------------------------------------------------------------------
 // test cases
 // -------------------------------------------------------------------------
 void test_emptyObject(void)
 {
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	agent.endObject();
 	string expected = "{}";
@@ -41,7 +41,7 @@ void test_array(void)
 {
 	string arrayName = "foo";
 	const int numArray = 5;
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	agent.startArray(arrayName);
 	for (int i = 0; i < numArray; i++)
@@ -61,6 +61,6 @@ void test_array(void)
 	cppcut_assert_equal(expected, agent.generate());
 }
 
-} //namespace testJSONBuilderAgent
+} //namespace testJSONBuilder
 
 

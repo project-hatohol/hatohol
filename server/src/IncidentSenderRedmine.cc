@@ -18,7 +18,7 @@
  */
 
 #include "IncidentSenderRedmine.h"
-#include "JSONBuilderAgent.h"
+#include "JSONBuilder.h"
 #include "JSONParser.h"
 #include "RedmineAPI.h"
 #include "ThreadLocalDBCache.h"
@@ -113,7 +113,7 @@ string IncidentSenderRedmine::buildJSON(const EventInfo &event)
 		server = &serverInfo;
 
 	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	agent.startObject("issue");
 	agent.add("subject", buildTitle(event, server));

@@ -27,7 +27,7 @@ using namespace mlpl;
 
 #include "ArmZabbixAPI.h"
 #include "JSONParser.h"
-#include "JSONBuilderAgent.h"
+#include "JSONBuilder.h"
 #include "DataStoreException.h"
 #include "ItemEnum.h"
 #include "DBTablesMonitoring.h"

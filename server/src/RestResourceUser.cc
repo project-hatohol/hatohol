@@ -141,7 +141,7 @@ void RestResourceUser::handlerUser(void)
 }
 
 static void addUserRolesMap(
-  FaceRest::ResourceHandler *job, JSONBuilderAgent &agent)
+  FaceRest::ResourceHandler *job, JSONBuilder &agent)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	UserRoleInfoList userRoleList;
@@ -175,7 +175,7 @@ void RestResourceUser::handlerGetUser(void)
 		option.queryOnlyMyself();
 	dataStore->getUserList(userList, option);
 
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("numberOfUsers", userList.size());
@@ -215,7 +215,7 @@ void RestResourceUser::handlerPostUser(void)
 	}
 
 	// make a response
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", userInfo.id);
@@ -258,7 +258,7 @@ void RestResourceUser::handlerPutUser(void)
 	}
 
 	// make a response
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", userInfo.id);
@@ -285,7 +285,7 @@ void RestResourceUser::handlerDeleteUser(void)
 	}
 
 	// replay
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", userId);
@@ -320,7 +320,7 @@ void RestResourceUser::handlerGetAccessInfo(void)
 		return;
 	}
 
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	ServerAccessInfoMapIterator it = serversMap.begin();
@@ -406,7 +406,7 @@ void RestResourceUser::handlerPostAccessInfo(void)
 	}
 
 	// make a response
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", accessInfo.id);
@@ -434,7 +434,7 @@ void RestResourceUser::handlerDeleteAccessInfo(void)
 	}
 
 	// replay
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", id);
@@ -498,7 +498,7 @@ void RestResourceUser::handlerPutUserRole(void)
 	}
 
 	// make a response
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", userRoleInfo.id);
@@ -514,7 +514,7 @@ void RestResourceUser::handlerGetUserRole(void)
 	UserRoleQueryOption option(m_dataQueryContextPtr);
 	dataStore->getUserRoleList(userRoleList, option);
 
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.add("numberOfUserRoles", userRoleList.size());
@@ -553,7 +553,7 @@ void RestResourceUser::handlerPostUserRole(void)
 	}
 
 	// make a response
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", userRoleInfo.id);
@@ -581,7 +581,7 @@ void RestResourceUser::handlerDeleteUserRole(void)
 	}
 
 	// replay
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", userRoleId);

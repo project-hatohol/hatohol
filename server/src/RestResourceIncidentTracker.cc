@@ -67,7 +67,7 @@ void RestResourceIncidentTracker::handleGet(void)
 	IncidentTrackerInfoVect incidentTrackers;
 	dataStore->getIncidentTrackers(incidentTrackers, option);
 
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, HTERR_OK);
 
@@ -146,7 +146,7 @@ void RestResourceIncidentTracker::handlePost(void)
 		return;
 	}
 
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", incidentTrackerInfo.id);
@@ -197,7 +197,7 @@ void RestResourceIncidentTracker::handlePut(void)
 	}
 
 	// make a response
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", incidentTrackerInfo.id);
@@ -224,7 +224,7 @@ void RestResourceIncidentTracker::handleDelete(void)
 	}
 
 	// replay
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", incidentTrackerId);

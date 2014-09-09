@@ -24,7 +24,7 @@
 #include <libsoup/soup.h>
 #include "MonitoringServerInfo.h"
 #include "ItemTablePtr.h"
-#include "JSONBuilderAgent.h"
+#include "JSONBuilder.h"
 #include "JSONParser.h"
 #include "HatoholError.h"
 
@@ -235,7 +235,7 @@ protected:
 	 */
 	ItemTablePtr getFunctions(void);
 
-	SoupMessage *queryCommon(JSONBuilderAgent &agent, HatoholError &queryRet);
+	SoupMessage *queryCommon(JSONBuilder &agent, HatoholError &queryRet);
 	SoupMessage *queryAPIVersion(HatoholError &queryRet);
 	std::string getInitialJSONRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);

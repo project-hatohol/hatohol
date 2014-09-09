@@ -24,7 +24,7 @@
 #include <queue>
 #include "RedmineAPIEmulator.h"
 #include "JSONParser.h"
-#include "JSONBuilderAgent.h"
+#include "JSONBuilder.h"
 #include "Helpers.h"
 
 using namespace std;
@@ -102,7 +102,7 @@ string RedmineIssue::getTimeString(time_t time)
 
 string RedmineIssue::toJSON(void) const
 {
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	agent.startObject("issue");
 	agent.add("id", id);

@@ -23,7 +23,7 @@
 #include <SeparatorInjector.h>
 #include "ZabbixAPIEmulator.h"
 #include "JSONParser.h"
-#include "JSONBuilderAgent.h"
+#include "JSONBuilder.h"
 #include "HatoholException.h"
 #include "Helpers.h"
 using namespace std;

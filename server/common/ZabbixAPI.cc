@@ -515,7 +515,7 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdFrom, uint64_t eventIdTill,
 				   HatoholError &queryRet)
 {
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "event.get");
@@ -540,7 +540,7 @@ SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdFrom, uint64_t eventIdTill,
 
 SoupMessage *ZabbixAPI::queryEndEventId(const bool &isFirst, HatoholError &queryRet)
 {
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "event.get");
@@ -564,7 +564,7 @@ SoupMessage *ZabbixAPI::queryEndEventId(const bool &isFirst, HatoholError &query
 
 SoupMessage *ZabbixAPI::queryTrigger(HatoholError &queryRet, int requestSince)
 {
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "trigger.get");
@@ -591,7 +591,7 @@ SoupMessage *ZabbixAPI::queryTrigger(HatoholError &queryRet, int requestSince)
 
 SoupMessage *ZabbixAPI::queryItem(HatoholError &queryRet)
 {
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "item.get");
@@ -611,7 +611,7 @@ SoupMessage *ZabbixAPI::queryItem(HatoholError &queryRet)
 
 SoupMessage *ZabbixAPI::queryHost(HatoholError &queryRet)
 {
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "host.get");
@@ -630,7 +630,7 @@ SoupMessage *ZabbixAPI::queryHost(HatoholError &queryRet)
 
 SoupMessage *ZabbixAPI::queryGroup(HatoholError &queryRet)
 {
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "hostgroup.get");
@@ -651,7 +651,7 @@ SoupMessage *ZabbixAPI::queryGroup(HatoholError &queryRet)
 SoupMessage *ZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector,
 					 HatoholError &queryRet)
 {
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "application.get");
@@ -686,7 +686,7 @@ ItemTablePtr ZabbixAPI::getFunctions(void)
 	return ItemTablePtr(m_impl->functionsTablePtr);
 }
 
-SoupMessage *ZabbixAPI::queryCommon(JSONBuilderAgent &agent, HatoholError &queryRet)
+SoupMessage *ZabbixAPI::queryCommon(JSONBuilder &agent, HatoholError &queryRet)
 {
 	string request_body = agent.generate();
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, m_impl->uri.c_str());
@@ -714,7 +714,7 @@ SoupMessage *ZabbixAPI::queryCommon(JSONBuilderAgent &agent, HatoholError &query
 
 SoupMessage *ZabbixAPI::queryAPIVersion(HatoholError &queryRet)
 {
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("method", "apiinfo.version");
@@ -726,7 +726,7 @@ SoupMessage *ZabbixAPI::queryAPIVersion(HatoholError &queryRet)
 
 string ZabbixAPI::getInitialJSONRequest(void)
 {
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	agent.addNull("auth");
 	agent.add("method", "user.login");
