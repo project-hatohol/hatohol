@@ -76,7 +76,7 @@ bool parseIssue(JSONParser &agent, IncidentInfo &incidentInfo)
 	agent.read("name", incidentInfo.status);
 	int64_t statusId = 0;
 	agent.read("id", statusId);
-	incidentInfo.status = statusId2IncidentStatus(statusId);
+	incidentInfo.statusCode = statusId2IncidentStatus(statusId);
 	agent.endObject();
 
 	if (agent.isMember("assigned_to")) {
