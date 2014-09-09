@@ -153,6 +153,14 @@ typedef MonitoringServerStatusList::iterator MonitoringServerStatusListIterator;
 typedef MonitoringServerStatusList::const_iterator MonitoringServerStatusListConstIterator;
 
 struct IncidentInfo {
+	typedef enum {
+		INCIDENT_STATUS_OPENED,
+		INCIDENT_STATUS_ASSIGNED,
+		INCIDENT_STATUS_RESOLVED,
+		INCIDENT_STATUS_CLOSED,
+		INCIDENT_STATUS_REOPENED,
+	} Status;
+
 	IncidentTrackerIdType trackerId;
 
 	/* fetched from a monitoring system */
@@ -169,6 +177,8 @@ struct IncidentInfo {
 	int                doneRatio;
 	mlpl::Time         createdAt;
 	mlpl::Time         updatedAt;
+
+	/* TODO: Add a member "Status status" */
 };
 
 typedef std::vector<IncidentInfo>        IncidentInfoVect;

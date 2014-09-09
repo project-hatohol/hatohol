@@ -31,7 +31,7 @@ public:
 	virtual HatoholError send(const EventInfo &event) override;
 
 	virtual HatoholError setStatus(const IncidentInfo &incident,
-				       const IncidentStatus &status,
+				       const IncidentInfo::Status &status,
 				       const std::string &comment) override;
 
 	virtual HatoholError addComment(const IncidentInfo &incident,
