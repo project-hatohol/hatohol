@@ -27,8 +27,6 @@ using namespace mlpl;
 
 namespace testFaceRest {
 
-static JSONParser *g_parser = NULL;
-
 void cut_setup(void)
 {
 	hatoholInit();
@@ -37,9 +35,6 @@ void cut_setup(void)
 void cut_teardown(void)
 {
 	stopFaceRest();
-
-	delete g_parser;
-	g_parser = NULL;
 }
 
 // ---------------------------------------------------------------------------
@@ -56,11 +51,11 @@ void test_testPost(void)
 	RequestArg arg("/test", "cbname");
 	arg.parameters = parameters;
 	arg.request = "POST";
-	g_parser = getResponseAsJSONParser(arg);
-	assertStartObject(g_parser, "queryData");
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
+	assertStartObject(parserPtr.get(), "queryData");
 	StringMapIterator it = parameters.begin();
 	for (; it != parameters.end(); ++it)
-		assertValueInParser(g_parser, it->first, it->second);
+		assertValueInParser(parserPtr.get(), it->first, it->second);
 }
 
 void test_testError(void)
@@ -68,8 +63,8 @@ void test_testError(void)
 	TestModeStone stone;
 	startFaceRest();
 	RequestArg arg("/test/error");
-	g_parser = getResponseAsJSONParser(arg);
-	assertErrorCode(g_parser, HTERR_ERROR_TEST);
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
+	assertErrorCode(parserPtr.get(), HTERR_ERROR_TEST);
 }
 
 } // namespace testFaceRest
