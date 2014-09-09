@@ -30,12 +30,8 @@ public:
 
 	virtual HatoholError send(const EventInfo &event) override;
 
-	virtual HatoholError setStatus(const IncidentInfo &incident,
-				       const IncidentInfo::Status &status,
-				       const std::string &comment) override;
-
-	virtual HatoholError addComment(const IncidentInfo &incident,
-					const std::string &comment) override;
+	virtual HatoholError send(const IncidentInfo &incident,
+				  const std::string &comment) override;
 
 protected:
 	std::string buildJSON(const EventInfo &event);

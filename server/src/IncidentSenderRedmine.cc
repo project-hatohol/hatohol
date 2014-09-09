@@ -248,15 +248,8 @@ HatoholError IncidentSenderRedmine::send(const EventInfo &event)
 	return result;
 }
 
-HatoholError IncidentSenderRedmine::setStatus(
-  const IncidentInfo &incident, const IncidentInfo::Status &status,
-  const std::string &comment)
-{
-	return HTERR_NOT_IMPLEMENTED;
-}
-
-HatoholError IncidentSenderRedmine::addComment(const IncidentInfo &incident,
-					       const std::string &comment)
+HatoholError IncidentSenderRedmine::send(const IncidentInfo &incident,
+					 const std::string &comment)
 {
 	return HTERR_NOT_IMPLEMENTED;
 }

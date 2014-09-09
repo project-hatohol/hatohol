@@ -59,12 +59,21 @@ public:
 	 */
 	virtual HatoholError send(const EventInfo &event) = 0;
 
-	virtual HatoholError setStatus(const IncidentInfo &incident,
-				       const IncidentInfo::Status &status,
-				       const std::string &comment) = 0;
-
-	virtual HatoholError addComment(const IncidentInfo &incident,
-					const std::string &comment) = 0;
+	/**
+	 * Send an IncidentInfo to update existing one. It will be done by the
+	 * same thread with the caller. You don't need start the thread by
+	 * start() when you use this function directly.
+	 *
+	 * @param incident
+	 * An IncidentInfo to send as an incident.
+	 *
+	 * @param comment
+	 * A string to post as a additional comment to the incident.
+	 *
+	 * @return HTERR_OK on succeeded to send. Otherwise an error.
+	 */
+	virtual HatoholError send(const IncidentInfo &incident,
+				  const std::string &comment) = 0;
 
 	/**
 	 * Queue an EventInfo to send it as an incident to the specified
