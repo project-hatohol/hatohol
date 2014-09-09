@@ -69,6 +69,7 @@ testHatohol_la_SOURCES = \
 	testItemTablePtr.cc \
 	testItemDataUtils.cc \
 	testJSONParser.cc testJSONBuilder.cc testUtils.cc \
+	testJSONParserPositionStack.cc \
 	testNamedPipe.cc \
 	testArmBase.cc \
 	testArmZabbixAPI.cc testArmNagiosNDOUtils.cc testArmRedmine.cc \

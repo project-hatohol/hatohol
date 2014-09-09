@@ -17,25 +17,25 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "JSONParserRewinder.h"
+#include "JSONParser.h"
 
 enum {
 	OBJECT,
 	ELEMENT,
 };
 
-JSONParserRewinder::JSONParserRewinder(JSONParserAgent &parser)
+JSONParser::PositionStack::PositionStack(JSONParser &parser)
 : m_parser(parser)
 {
 }
 
-JSONParserRewinder::~JSONParserRewinder()
+JSONParser::PositionStack::~PositionStack()
 {
 	while (!m_stack.empty())
 		pop();
 }
 
-bool JSONParserRewinder::pushObject(const std::string &member)
+bool JSONParser::PositionStack::pushObject(const std::string &member)
 {
 	if (!m_parser.startObject(member))
 		return false;
@@ -43,7 +43,7 @@ bool JSONParserRewinder::pushObject(const std::string &member)
 	return true;
 }
 
-bool JSONParserRewinder::pushElement(const unsigned int &index)
+bool JSONParser::PositionStack::pushElement(const unsigned int &index)
 {
 	if (!m_parser.startElement(index))
 		return false;
@@ -51,7 +51,7 @@ bool JSONParserRewinder::pushElement(const unsigned int &index)
 	return true;
 }
 
-void JSONParserRewinder::pop(void)
+void JSONParser::PositionStack::pop(void)
 {
 	const int type = m_stack.top();
 	m_stack.pop();

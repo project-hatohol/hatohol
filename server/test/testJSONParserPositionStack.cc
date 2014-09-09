@@ -18,7 +18,7 @@
  */
 
 #include <cppcutter.h>
-#include "JSONParserRewinder.h"
+#include "JSONParser.h"
 using namespace std;
 
 namespace testJSONParserRewinder {
@@ -29,11 +29,11 @@ namespace testJSONParserRewinder {
 void test_pushObject(void)
 {
 	int64_t val;
-	JSONParserAgent parser("{\"obj1\":{\"elem10\":5}, \"elem00\":8}");
+	JSONParser parser("{\"obj1\":{\"elem10\":5}, \"elem00\":8}");
 	cppcut_assert_equal(false, parser.hasError());
 	{
-		JSONParserRewinder rewinder(parser);
-		cppcut_assert_equal(true, rewinder.pushObject("obj1"));
+		JSONParser::PositionStack posStack(parser);
+		cppcut_assert_equal(true, posStack.pushObject("obj1"));
 		cppcut_assert_equal(true, parser.read("elem10", val));
 		cppcut_assert_equal((int64_t)5, val);
 	}
@@ -44,18 +44,18 @@ void test_pushObject(void)
 void test_pushElement(void)
 {
 	int64_t val;
-	JSONParserAgent parser(
+	JSONParser parser(
 	  "{\"elem1\":[{\"elem10\":7},{\"elem11\":15}], \"elem00\":8}");
 	cppcut_assert_equal(false, parser.hasError());
 	{
-		JSONParserRewinder rewinder(parser);
-		cppcut_assert_equal(true, rewinder.pushObject("elem1"));
-		cppcut_assert_equal(true, rewinder.pushElement(0));
+		JSONParser::PositionStack posStack(parser);
+		cppcut_assert_equal(true, posStack.pushObject("elem1"));
+		cppcut_assert_equal(true, posStack.pushElement(0));
 		cppcut_assert_equal(true, parser.read("elem10", val));
 		cppcut_assert_equal((int64_t)7, val);
-		rewinder.pop();
+		posStack.pop();
 
-		cppcut_assert_equal(true, rewinder.pushElement(1));
+		cppcut_assert_equal(true, posStack.pushElement(1));
 		cppcut_assert_equal(true, parser.read("elem11", val));
 		cppcut_assert_equal((int64_t)15, val);
 	}

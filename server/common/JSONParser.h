@@ -22,6 +22,7 @@
 
 #include <string>
 #include <memory>
+#include <stack>
 #include <stdint.h>
 #include <glib.h>
 #include <json-glib/json-glib.h>
@@ -31,6 +32,19 @@
 class JSONParser
 {
 public:
+	class PositionStack {
+	public:
+		PositionStack(JSONParser &parser);
+		virtual ~PositionStack();
+		bool pushObject(const std::string &member);
+		bool pushElement(const unsigned int &index);
+		void pop(void);
+
+	private:
+		JSONParser      &m_parser;
+		std::stack<int>  m_stack;
+	};
+
 	JSONParser(const std::string &data);
 	virtual ~JSONParser();
 	const char *getErrorMessage(void);
