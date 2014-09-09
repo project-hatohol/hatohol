@@ -47,9 +47,9 @@ public:
 	virtual void waitExit(void) override;
 
 	/**
-	 * Send an EventInfo as an incident to the specified incident tracking system
-	 * synchronously. It will be done by the same thread with the caller.
-	 * You don't need start the thread by start() when you use this
+	 * Send an EventInfo as an incident to the specified incident tracking
+	 * system synchronously. It will be done by the same thread with the
+	 * caller. You don't need start the thread by start() when you use this
 	 * function directly.
 	 *
 	 * @param event
@@ -60,10 +60,11 @@ public:
 	virtual HatoholError send(const EventInfo &event) = 0;
 
 	/**
-	 * Queue an EventInfo to send it as an incident to the specified incident
-	 * tracking system asynchronously. Sending an incident will be done by a
-	 * dedicated thread (it will call send() internally). You must start
-	 * the thread by calling start() before or after calling this function.
+	 * Queue an EventInfo to send it as an incident to the specified
+	 * incident tracking system asynchronously. Sending an incident will be
+	 * done by a dedicated thread (it will call send() internally). You must
+	 * start the thread by calling start() before or after calling this
+	 * function.
 	 *
 	 * @param event
 	 * An EventInfo to send as an incident.
