@@ -24,7 +24,7 @@
 #include "LabelUtils.h"
 #include "DBTablesTest.h"
 #include "Helpers.h"
-#include "JSONParserAgent.h"
+#include "JSONParser.h"
 #include "ThreadLocalDBCache.h"
 #include <cppcutter.h>
 #include <gcutter.h>
@@ -202,7 +202,7 @@ void _assertSend(const HatoholErrorCode &expected,
 
 	// verify the reply
 	MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
-	JSONParserAgent agent(g_redmineEmulator.getLastResponseBody());
+	JSONParser agent(g_redmineEmulator.getLastResponseBody());
 	cppcut_assert_equal(true, agent.startObject("issue"));
 	string expectedDescription
 	  = StringUtils::sprintf("<pre>%s</pre>",

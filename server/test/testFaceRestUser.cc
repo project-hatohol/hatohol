@@ -43,7 +43,7 @@ void _assertLogin(
 		query["password"] = password;
 	RequestArg arg("/login", "cbname");
 	arg.parameters = query;
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 	assertErrorCode(parserPtr.get(), expectCode);
 	if (sessionId) {
 		cppcut_assert_equal(true, parserPtr.get()->read("sessionId",
@@ -103,7 +103,7 @@ static void _assertUpdateOrAddUser(const string &name)
 	RequestArg arg("/test/user", "cbname");
 	arg.parameters = parameters;
 	arg.request = "POST";
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 	assertErrorCode(parserPtr.get());
 
 	// check the data in the DB
@@ -202,7 +202,7 @@ void test_logout(void)
 
 	RequestArg arg("/logout", "cbname");
 	arg.headers.push_back(makeSessionIdHeader(sessionId));
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 	assertErrorCode(parserPtr.get());
 	SessionManager *sessionMgr = SessionManager::getInstance();
 	const SessionPtr session = sessionMgr->getSession(sessionId);
@@ -368,7 +368,7 @@ void test_deleteUser(void)
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
 	arg.userId = userId;
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 
 	// check the reply
 	assertErrorCode(parserPtr.get());
@@ -384,7 +384,7 @@ void test_deleteUserWithoutId(void)
 	RequestArg arg("/user", "cbname");
 	arg.request = "DELETE";
 	arg.userId = findUserWith(OPPRVLG_DELETE_USER);
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 	assertErrorCode(parserPtr.get(), HTERR_NOT_FOUND_ID_IN_URL);
 }
 
@@ -395,7 +395,7 @@ void test_deleteUserWithNonNumericId(void)
 	RequestArg arg("/user/zoo", "cbname");
 	arg.request = "DELETE";
 	arg.userId = findUserWith(OPPRVLG_DELETE_USER);
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 	assertErrorCode(parserPtr.get(), HTERR_NOT_FOUND_ID_IN_URL);
 }
 
@@ -406,7 +406,7 @@ void test_updateOrAddUserNotInTestMode(void)
 	RequestArg arg("/test/user", "cbname");
 	arg.request = "POST";
 	arg.userId = findUserWith(OPPRVLG_CREATE_USER);
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 	assertErrorCode(parserPtr.get(), HTERR_NOT_TEST_MODE);
 }
 
@@ -457,7 +457,7 @@ void test_addAccessInfo(void)
 // ----------------------------------------------------------------------------
 namespace testFaceRestUserWithTablesUser {
 
-static void _assertUser(JSONParserAgent *parser, const UserInfo &userInfo,
+static void _assertUser(JSONParser *parser, const UserInfo &userInfo,
                         uint32_t expectUserId = 0)
 {
 	if (expectUserId)
@@ -467,7 +467,7 @@ static void _assertUser(JSONParserAgent *parser, const UserInfo &userInfo,
 }
 #define assertUser(P, I, ...) cut_trace(_assertUser(P, I, ##__VA_ARGS__))
 
-static void assertUserRolesMapInParser(JSONParserAgent *parser)
+static void assertUserRolesMapInParser(JSONParser *parser)
 {
 	assertStartObject(parser, "userRoles");
 
@@ -499,8 +499,8 @@ static void _assertUsers(const string &path, const UserIdType &userId,
 
 	RequestArg arg(path, callbackName);
 	arg.userId = userId;
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
-	JSONParserAgent *parser = parserPtr.get();
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
+	JSONParser *parser = parserPtr.get();
 	assertErrorCode(parser);
 	assertValueInParser(parser, "numberOfUsers", NumTestUserInfo);
 	assertStartObject(parser, "users");
@@ -516,7 +516,7 @@ static void _assertUsers(const string &path, const UserIdType &userId,
 #define assertUsers(P, U, ...) cut_trace(_assertUsers(P, U, ##__VA_ARGS__))
 
 static void _assertServerAccessInfo(
-  JSONParserAgent *parser, HostGrpAccessInfoMap &expected)
+  JSONParser *parser, HostGrpAccessInfoMap &expected)
 {
 	assertStartObject(parser, "allowedHostgroups");
 	HostGrpAccessInfoMapIterator it = expected.begin();
@@ -545,8 +545,8 @@ static void _assertAllowedServers(const string &path, const UserIdType &userId,
 
 	RequestArg arg(path, callbackName);
 	arg.userId = userId;
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
-	JSONParserAgent *parser = parserPtr.get();
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
+	JSONParser *parser = parserPtr.get();
 	assertErrorCode(parser);
 	ServerAccessInfoMap srvAccessInfoMap;
 	makeServerAccessInfoMap(srvAccessInfoMap, userId);
@@ -571,7 +571,7 @@ static void _assertAllowedServers(const string &path, const UserIdType &userId,
   cut_trace(_assertAllowedServers(P, ##__VA_ARGS__))
 
 static void _assertUserRole(
-  JSONParserAgent *parser, const UserRoleInfo &userRoleInfo,
+  JSONParser *parser, const UserRoleInfo &userRoleInfo,
   uint32_t expectUserRoleId = 0)
 {
 	if (expectUserRoleId)
@@ -590,8 +590,8 @@ static void _assertUserRoles(
 
 	RequestArg arg(path, callbackName);
 	arg.userId = userId;
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
-	JSONParserAgent *parser = parserPtr.get();
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
+	JSONParser *parser = parserPtr.get();
 	assertErrorCode(parser);
 	assertValueInParser(parser, "numberOfUserRoles",
 	                    NumTestUserRoleInfo);
@@ -624,7 +624,7 @@ static void _assertDeleteUserRoleWithSetup(
 		arg.userId = findUserWith(OPPRVLG_DELETE_ALL_USER_ROLE);
 	else
 		arg.userId = findUserWithout(OPPRVLG_DELETE_ALL_USER_ROLE);
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 
 	// check the reply
 	assertErrorCode(parserPtr.get(), expectedErrorCode);
@@ -680,8 +680,8 @@ void test_getUserMe(void)
 
 	RequestArg arg("/user/me", "cbname");
 	arg.headers.push_back(makeSessionIdHeader(sessionId));
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
-	JSONParserAgent *parser = parserPtr.get();
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
+	JSONParser *parser = parserPtr.get();
 	assertErrorCode(parser);
 	assertValueInParser(parser, "numberOfUsers", 1);
 	assertStartObject(parser, "users");
@@ -752,7 +752,7 @@ void test_deleteAccessInfo(void)
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
 	arg.userId = findUserWith(OPPRVLG_UPDATE_USER);
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 
 	// check the reply
 	assertErrorCode(parserPtr.get());
@@ -965,8 +965,8 @@ static void _assertUpdateAddUserMissing(
 	RequestArg arg("/test/user", "cbname");
 	arg.parameters = parameters;
 	arg.request = "POST";
-	JSONParserAgent *parser = getResponseAsJSONParser(arg);
-	unique_ptr<JSONParserAgent> parserPtr(parser);
+	JSONParser *parser = getResponseAsJSONParser(arg);
+	unique_ptr<JSONParser> parserPtr(parser);
 	assertErrorCode(parserPtr.get(), expectErrorCode);
 }
 #define assertUpdateAddUserMissing(P,...) \

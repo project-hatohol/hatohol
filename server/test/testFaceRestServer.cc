@@ -32,7 +32,7 @@ using namespace mlpl;
 
 namespace testFaceRestServer {
 
-static JSONParserAgent *g_parser = NULL;
+static JSONParser *g_parser = NULL;
 
 void cut_setup(void)
 {
@@ -65,7 +65,7 @@ static void setupArmPluginInfo(
 }
 
 static void assertServersInParser(
-  JSONParserAgent *parser, bool shouldHaveAccountInfo = true)
+  JSONParser *parser, bool shouldHaveAccountInfo = true)
 {
 	assertValueInParser(parser, "numberOfServers", NumTestServerInfo);
 	assertStartObject(parser, "servers");
@@ -122,7 +122,7 @@ void _assertAddServerWithSetup(const StringMap &params,
 }
 #define assertAddServerWithSetup(P,C) cut_trace(_assertAddServerWithSetup(P,C))
 
-static void _assertServerConnStat(JSONParserAgent *parser)
+static void _assertServerConnStat(JSONParser *parser)
 {
 	// Make expected data
 	ThreadLocalDBCache cache;

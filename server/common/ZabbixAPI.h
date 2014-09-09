@@ -25,7 +25,7 @@
 #include "MonitoringServerInfo.h"
 #include "ItemTablePtr.h"
 #include "JSONBuilderAgent.h"
-#include "JSONParserAgent.h"
+#include "JSONParser.h"
 #include "HatoholError.h"
 
 
@@ -239,41 +239,41 @@ protected:
 	SoupMessage *queryAPIVersion(HatoholError &queryRet);
 	std::string getInitialJSONRequest(void);
 	bool parseInitialResponse(SoupMessage *msg);
-	void startObject(JSONParserAgent &parser, const std::string &name);
-	void startElement(JSONParserAgent &parser, const int &index);
+	void startObject(JSONParser &parser, const std::string &name);
+	void startElement(JSONParser &parser, const int &index);
 
-	void getString(JSONParserAgent &parser, const std::string &name,
+	void getString(JSONParser &parser, const std::string &name,
 	               std::string &value);
-	int pushInt(JSONParserAgent &parser, ItemGroup *itemGroup,
+	int pushInt(JSONParser &parser, ItemGroup *itemGroup,
 	            const std::string &name, const ItemId &itemId);
-	uint64_t pushUint64(JSONParserAgent &parser, ItemGroup *itemGroup,
+	uint64_t pushUint64(JSONParser &parser, ItemGroup *itemGroup,
 	                    const std::string &name, const ItemId &itemId);
-	std::string pushString(JSONParserAgent &parser, ItemGroup *itemGroup,
+	std::string pushString(JSONParser &parser, ItemGroup *itemGroup,
 	                       const std::string &name, const ItemId &itemId);
 	void parseAndPushTriggerData(
-	  JSONParserAgent &parser,
+	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushItemsData(
-	  JSONParserAgent &parser,
+	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushHostsData(
-	  JSONParserAgent &parser,
+	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushHostsGroupsData(
-	  JSONParserAgent &parser,
+	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushGroupsData(
-	  JSONParserAgent &parser,
+	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushApplicationsData(
-	  JSONParserAgent &parser,
+	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushEventsData(
-	  JSONParserAgent &parser,
+	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 
-	void pushTriggersHostid(JSONParserAgent &parser, ItemGroup *itemGroup);
-	void pushApplicationid(JSONParserAgent &parser, ItemGroup *itemGroup);
+	void pushTriggersHostid(JSONParser &parser, ItemGroup *itemGroup);
+	void pushApplicationid(JSONParser &parser, ItemGroup *itemGroup);
 
 private:
 	struct Impl;

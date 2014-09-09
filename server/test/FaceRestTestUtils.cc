@@ -22,7 +22,7 @@
 #include "Hatohol.h"
 #include "FaceRest.h"
 #include "Helpers.h"
-#include "JSONParserAgent.h"
+#include "JSONParser.h"
 #include "DBTablesTest.h"
 #include "Params.h"
 #include "SessionManager.h"
@@ -193,7 +193,7 @@ void getServerResponse(RequestArg &arg)
 	}
 }
 
-JSONParserAgent *getResponseAsJSONParser(RequestArg &arg)
+JSONParser *getResponseAsJSONParser(RequestArg &arg)
 {
 	getServerResponse(arg);
 	cut_assert_true(SOUP_STATUS_IS_SUCCESSFUL(arg.httpStatusCode));
@@ -218,7 +218,7 @@ JSONParserAgent *getResponseAsJSONParser(RequestArg &arg)
 	// check the JSON body
 	if (isVerboseMode())
 		cut_notify("<<response>>\n%s\n", arg.response.c_str());
-	JSONParserAgent *parser = new JSONParserAgent(arg.response);
+	JSONParser *parser = new JSONParser(arg.response);
 	if (parser->hasError()) {
 		string parserErrMsg = parser->getErrorMessage();
 		delete parser;
@@ -227,7 +227,7 @@ JSONParserAgent *getResponseAsJSONParser(RequestArg &arg)
 	return parser;
 }
 
-void _assertValueInParser(JSONParserAgent *parser,
+void _assertValueInParser(JSONParser *parser,
 			  const string &member, const bool expected)
 {
 	bool val;
@@ -237,7 +237,7 @@ void _assertValueInParser(JSONParserAgent *parser,
 	cppcut_assert_equal(expected, val);
 }
 
-void _assertValueInParser(JSONParserAgent *parser,
+void _assertValueInParser(JSONParser *parser,
 			  const string &member, uint32_t expected)
 {
 	int64_t val;
@@ -247,7 +247,7 @@ void _assertValueInParser(JSONParserAgent *parser,
 	cppcut_assert_equal(expected, (uint32_t)val);
 }
 
-void _assertValueInParser(JSONParserAgent *parser,
+void _assertValueInParser(JSONParser *parser,
 			  const string &member, int expected)
 {
 	int64_t val;
@@ -257,7 +257,7 @@ void _assertValueInParser(JSONParserAgent *parser,
 	cppcut_assert_equal(expected, (int)val);
 }
 
-void _assertValueInParser(JSONParserAgent *parser,
+void _assertValueInParser(JSONParser *parser,
 			  const string &member, uint64_t expected)
 {
 	int64_t val;
@@ -265,7 +265,7 @@ void _assertValueInParser(JSONParserAgent *parser,
 	cppcut_assert_equal(expected, (uint64_t)val);
 }
 
-void _assertValueInParser(JSONParserAgent *parser,
+void _assertValueInParser(JSONParser *parser,
 			  const string &member, const timespec &expected)
 {
 	int64_t val;
@@ -273,7 +273,7 @@ void _assertValueInParser(JSONParserAgent *parser,
 	cppcut_assert_equal((int64_t)expected.tv_sec, val);
 }
 
-void _assertValueInParser(JSONParserAgent *parser,
+void _assertValueInParser(JSONParser *parser,
 			  const string &member, const string &expected)
 {
 	string val;
@@ -281,27 +281,27 @@ void _assertValueInParser(JSONParserAgent *parser,
 	cppcut_assert_equal(expected, val);
 }
 
-void _assertStartObject(JSONParserAgent *parser, const string &keyName)
+void _assertStartObject(JSONParser *parser, const string &keyName)
 {
 	cppcut_assert_equal(true, parser->startObject(keyName),
 	                    cut_message("Key: '%s'", keyName.c_str()));
 }
 
 void _assertNoValueInParser(
-  JSONParserAgent *parser, const string &member)
+  JSONParser *parser, const string &member)
 {
 	string val;
 	cppcut_assert_equal(false, parser->read(member, val));
 }
 
-void _assertNullInParser(JSONParserAgent *parser, const string &member)
+void _assertNullInParser(JSONParser *parser, const string &member)
 {
 	bool result = false;
 	cppcut_assert_equal(true, parser->isNull(member, result));
 	cppcut_assert_equal(true, result);
 }
 
-void _assertErrorCode(JSONParserAgent *parser,
+void _assertErrorCode(JSONParser *parser,
 		      const HatoholErrorCode &expectCode)
 {
 	assertValueInParser(parser, "apiVersion", FaceRest::API_VERSION);
@@ -323,7 +323,7 @@ void _assertAddRecord(const StringMap &params, const string &url,
 	arg.parameters = params;
 	arg.request = "POST";
 	arg.userId = userId;
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 	assertErrorCode(parserPtr.get(), expectCode);
 	if (expectCode != HTERR_OK)
 		return;
@@ -345,14 +345,14 @@ void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
 	arg.parameters = params;
 	arg.request = "PUT";
 	arg.userId = userId;
-	unique_ptr<JSONParserAgent> parserPtr(getResponseAsJSONParser(arg));
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 	assertErrorCode(parserPtr.get(), expectCode);
 	if (expectCode != HTERR_OK)
 		return;
 	assertValueInParser(parserPtr.get(), "id", targetId);
 }
 
-void assertServersIdNameHashInParser(JSONParserAgent *parser)
+void assertServersIdNameHashInParser(JSONParser *parser)
 {
 	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < NumTestServerInfo; i++) {

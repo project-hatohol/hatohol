@@ -23,7 +23,7 @@
 #include <libsoup/soup.h>
 #include "ArmBase.h"
 #include "ItemTablePtr.h"
-#include "JSONParserAgent.h"
+#include "JSONParser.h"
 #include "JSONBuilderAgent.h"
 #include "DBTablesConfig.h"
 

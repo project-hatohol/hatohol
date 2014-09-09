@@ -32,7 +32,7 @@
 #include "ItemTable.h"
 #include "ItemGroup.h"
 #include "ItemData.h"
-#include "JSONParserAgent.h"
+#include "JSONParser.h"
 #include "DBTablesAction.h"
 #include "ThreadLocalDBCache.h"
 #include "DBTablesTest.h"
@@ -217,7 +217,7 @@ public:
 
 		string fixtureData;
 		getline(ifs, fixtureData);
-		JSONParserAgent parser(fixtureData);
+		JSONParser parser(fixtureData);
 		cppcut_assert_equal(false, parser.hasError());
 		startObject(parser, "result");
 
@@ -669,7 +669,7 @@ void test_oneProcWithFetchItems()
 void test_checkUsernamePassword(void)
 {
 	ArmZabbixAPITestee armZbxApiTestee(g_defaultServerInfo);
-	JSONParserAgent parser(armZbxApiTestee.testInitialJSONRequest());
+	JSONParser parser(armZbxApiTestee.testInitialJSONRequest());
 	string jsonUserName;
 	string jsonPassword;
 

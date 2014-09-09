@@ -27,7 +27,7 @@ using namespace mlpl;
 
 namespace testFaceRest {
 
-static JSONParserAgent *g_parser = NULL;
+static JSONParser *g_parser = NULL;
 
 void cut_setup(void)
 {

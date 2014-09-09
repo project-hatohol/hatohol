@@ -21,7 +21,7 @@
 #include "Hatohol.h"
 #include "FaceRest.h"
 #include "Helpers.h"
-#include "JSONParserAgent.h"
+#include "JSONParser.h"
 #include "DBTablesTest.h"
 #include "MultiLangTest.h"
 #include "testDBTablesMonitoring.h"
@@ -32,7 +32,7 @@ using namespace mlpl;
 
 namespace testFaceRestAction {
 
-static JSONParserAgent *g_parser = NULL;
+static JSONParser *g_parser = NULL;
 
 struct LocaleInfo {
 	string lcAll;
@@ -87,7 +87,7 @@ void cut_teardown(void)
 
 template<typename T>
 static void _assertActionCondition(
-  JSONParserAgent *parser, const ActionCondition &cond,
+  JSONParser *parser, const ActionCondition &cond,
    const string &member, ActionConditionEnableFlag bit, T expect)
 {
 	if (cond.isEnable(bit)) {

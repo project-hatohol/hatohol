@@ -21,7 +21,7 @@
 #include "Hatohol.h"
 #include "FaceRest.h"
 #include "Helpers.h"
-#include "JSONParserAgent.h"
+#include "JSONParser.h"
 #include "DBTablesTest.h"
 #include "MultiLangTest.h"
 #include "ThreadLocalDBCache.h"
@@ -31,7 +31,7 @@ using namespace mlpl;
 
 namespace testFaceRestIncidentTracker {
 
-static JSONParserAgent *g_parser = NULL;
+static JSONParser *g_parser = NULL;
 
 void cut_setup(void)
 {

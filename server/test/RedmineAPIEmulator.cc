@@ -23,7 +23,7 @@
 #include <set>
 #include <queue>
 #include "RedmineAPIEmulator.h"
-#include "JSONParserAgent.h"
+#include "JSONParser.h"
 #include "JSONBuilderAgent.h"
 #include "Helpers.h"
 
@@ -340,7 +340,7 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 {
 	m_lastRequestBody.assign(msg->request_body->data,
 				 msg->request_body->length);
-	JSONParserAgent agent(m_lastRequestBody);
+	JSONParser agent(m_lastRequestBody);
 
 	if (agent.hasError()) {
 		soup_message_set_status(

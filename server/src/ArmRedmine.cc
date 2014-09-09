@@ -20,7 +20,7 @@
 #include "ArmRedmine.h"
 #include "RedmineAPI.h"
 #include "ThreadLocalDBCache.h"
-#include "JSONParserAgent.h"
+#include "JSONParser.h"
 #include "UnifiedDataStore.h"
 #include <time.h>
 #include <libsoup/soup.h>
@@ -176,7 +176,7 @@ struct ArmRedmine::Impl
 
 	ParseResult parseResponse(const string &response)
 	{
-		JSONParserAgent agent(response);
+		JSONParser agent(response);
 		if (agent.hasError()) {
 			MLPL_ERR("Failed to parse error response: %s\n",
 				 agent.getErrorMessage());
@@ -226,7 +226,7 @@ struct ArmRedmine::Impl
 		return PARSE_RESULT_OK;
 	}
 
-	bool hasNextPage(JSONParserAgent &agent, const int &numIssues)
+	bool hasNextPage(JSONParser &agent, const int &numIssues)
 	{
 		int64_t offset = 0;
 		int64_t total = 0;
@@ -237,7 +237,7 @@ struct ArmRedmine::Impl
 		return true;
 	}
 
-	bool parseIssue(JSONParserAgent &agent, IncidentInfo &incident)
+	bool parseIssue(JSONParser &agent, IncidentInfo &incident)
 	{
 		bool succeeded = RedmineAPI::parseIssue(agent, incident);
 		incident.trackerId = m_incidentTrackerInfo.id;
