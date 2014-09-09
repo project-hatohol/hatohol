@@ -64,15 +64,15 @@ public:
 	void replyError(const HatoholErrorCode &errorCode,
 			const std::string &optionMessage = "");
 	void replyHttpStatus(const guint &statusCode);
-	void replyJSONData(JSONBuilderAgent &agent);
-	void addServersMap(JSONBuilderAgent &agent,
+	void replyJSONData(JSONBuilder &agent);
+	void addServersMap(JSONBuilder &agent,
 			   TriggerBriefMaps *triggerMaps = NULL,
 			   bool lookupTriggerBrief = false);
-	HatoholError addHostgroupsMap(JSONBuilderAgent &outputJSON,
+	HatoholError addHostgroupsMap(JSONBuilder &outputJSON,
 				      const MonitoringServerInfo &serverInfo,
 				      HostgroupInfoList &hostgroupList /* out */);
 
-	static void addHatoholError(JSONBuilderAgent &agent,
+	static void addHatoholError(JSONBuilder &agent,
 	                            const HatoholError &err);
 
 public:

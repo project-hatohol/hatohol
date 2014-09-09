@@ -20,11 +20,11 @@
 #include <Logger.h>
 #include <string.h>
 #include <stdexcept>
-#include "JSONParserAgent.h"
+#include "JSONParser.h"
 using namespace std;
 using namespace mlpl;
 
-struct JSONParserAgent::Impl
+struct JSONParser::Impl
 {
 	JsonParser *parser;
 	JsonNode *currentNode;
@@ -55,28 +55,28 @@ struct JSONParserAgent::Impl
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-JSONParserAgent::JSONParserAgent(const string &data)
+JSONParser::JSONParser(const string &data)
 : m_impl(new Impl(data))
 {
 }
 
-JSONParserAgent::~JSONParserAgent()
+JSONParser::~JSONParser()
 {
 }
 
-const char *JSONParserAgent::getErrorMessage(void)
+const char *JSONParser::getErrorMessage(void)
 {
 	if (!m_impl->error)
 		return "No error";
 	return m_impl->error->message;
 }
 
-bool JSONParserAgent::hasError(void)
+bool JSONParser::hasError(void)
 {
 	return m_impl->error != NULL;
 }
 
-bool JSONParserAgent::read(const string &member, bool &dest)
+bool JSONParser::read(const string &member, bool &dest)
 {
 	internalCheck();
 	if (!startObject(member))
@@ -87,7 +87,7 @@ bool JSONParserAgent::read(const string &member, bool &dest)
 	return true;
 }
 
-bool JSONParserAgent::read(const string &member, int64_t &dest)
+bool JSONParser::read(const string &member, int64_t &dest)
 {
 	internalCheck();
 	if (!startObject(member))
@@ -98,7 +98,7 @@ bool JSONParserAgent::read(const string &member, int64_t &dest)
 	return true;
 }
 
-bool JSONParserAgent::read(const string &member, string &dest)
+bool JSONParser::read(const string &member, string &dest)
 {
 	internalCheck();
 	if (!startObject(member))
@@ -110,7 +110,7 @@ bool JSONParserAgent::read(const string &member, string &dest)
 	return true;
 }
 
-bool JSONParserAgent::read(int index, string &dest)
+bool JSONParser::read(int index, string &dest)
 {
 	internalCheck();
 	if (!startElement(index))
@@ -122,7 +122,7 @@ bool JSONParserAgent::read(int index, string &dest)
 	return true;
 }
 
-bool JSONParserAgent::isNull(const string &member, bool &dest)
+bool JSONParser::isNull(const string &member, bool &dest)
 {
 	internalCheck();
 	if (!startObject(member))
@@ -133,7 +133,7 @@ bool JSONParserAgent::isNull(const string &member, bool &dest)
 	return true;
 }
 
-bool JSONParserAgent::isMember(const string &member)
+bool JSONParser::isMember(const string &member)
 {
 	JsonObject *object;
 
@@ -144,7 +144,7 @@ bool JSONParserAgent::isMember(const string &member)
 	return true;
 }
 
-bool JSONParserAgent::startObject(const string &member)
+bool JSONParser::startObject(const string &member)
 {
 	JsonObject *object;
 
@@ -160,7 +160,7 @@ bool JSONParserAgent::startObject(const string &member)
 	return true;
 }
 
-void JSONParserAgent::endObject(void)
+void JSONParser::endObject(void)
 {
 	JsonNode *tmp;
 
@@ -173,7 +173,7 @@ void JSONParserAgent::endObject(void)
 	m_impl->previousNode = tmp;
 }
 
-bool JSONParserAgent::startElement(unsigned int index)
+bool JSONParser::startElement(unsigned int index)
 {
 	switch (json_node_get_node_type(m_impl->currentNode)) {
 	case JSON_NODE_ARRAY: {
@@ -216,12 +216,12 @@ bool JSONParserAgent::startElement(unsigned int index)
 	return true;
 }
 
-void JSONParserAgent::endElement(void)
+void JSONParser::endElement(void)
 {
 	endObject();
 }
 
-unsigned int JSONParserAgent::countElements(void)
+unsigned int JSONParser::countElements(void)
 {
 	return json_array_get_length(json_node_get_array(m_impl->currentNode));
 }
@@ -229,7 +229,7 @@ unsigned int JSONParserAgent::countElements(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void JSONParserAgent::internalCheck(void)
+void JSONParser::internalCheck(void)
 {
 	HATOHOL_ASSERT(m_impl->currentNode, "CurrentNode: NULL");
 }

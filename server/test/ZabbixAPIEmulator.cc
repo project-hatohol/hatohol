@@ -22,8 +22,8 @@
 #include <Logger.h>
 #include <SeparatorInjector.h>
 #include "ZabbixAPIEmulator.h"
-#include "JSONParserAgent.h"
-#include "JSONBuilderAgent.h"
+#include "JSONParser.h"
+#include "JSONBuilder.h"
 #include "HatoholException.h"
 #include "Helpers.h"
 using namespace std;
@@ -222,7 +222,7 @@ void ZabbixAPIEmulator::setSoupHandlers(SoupServer *soupServer)
 	                        handlerAPI, this, NULL);
 }
 
-void ZabbixAPIEmulator::startObject(JSONParserAgent &parser,
+void ZabbixAPIEmulator::startObject(JSONParser &parser,
                                     const string &name)
 {
 	if (!parser.startObject(name)) {
@@ -255,7 +255,7 @@ bool ZabbixAPIEmulator::hasParameter
 {
 	string request(arg.msg->request_body->data,
 	               arg.msg->request_body->length);
-	JSONParserAgent parser(request);
+	JSONParser parser(request);
 	if (parser.hasError())
 		THROW_HATOHOL_EXCEPTION("Failed to parse: %s", request.c_str());
 	
@@ -287,7 +287,7 @@ void ZabbixAPIEmulator::handlerAPIDispatch(APIHandlerArg &arg)
 		return;
 	}
 
-	JSONParserAgent parser(arg.msg->request_body->data);
+	JSONParser parser(arg.msg->request_body->data);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION("Error in parsing: %s",
 		                      parser.getErrorMessage());
@@ -425,7 +425,7 @@ void ZabbixAPIEmulator::APIHandlerItemGet(APIHandlerArg &arg)
 	// check if selectApplications option is set
 	string request(arg.msg->request_body->data,
 	               arg.msg->request_body->length);
-	JSONParserAgent parser(request);
+	JSONParser parser(request);
 	if (parser.hasError())
 		THROW_HATOHOL_EXCEPTION("Failed to parse: %s", request.c_str());
 	
@@ -555,7 +555,7 @@ void ZabbixAPIEmulator::makeEventJSONData(const string &path)
 	  g_file_get_contents(path.c_str(), &contents, NULL, NULL),
 	  "Failed to read file: %s", path.c_str());
 
-	JSONParserAgent parser(contents);
+	JSONParser parser(contents);
 	g_free(contents);
 	HATOHOL_ASSERT(!parser.hasError(), "%s", parser.getErrorMessage());
 
@@ -610,7 +610,7 @@ void ZabbixAPIEmulator::parseEventGetParameter(APIHandlerArg &arg)
 {
 	m_ctx->paramEvent.reset();
 
-	JSONParserAgent parser(arg.msg->request_body->data);
+	JSONParser parser(arg.msg->request_body->data);
 	if (parser.hasError()) {
 		THROW_HATOHOL_EXCEPTION("Error in parsing: %s",
 				      parser.getErrorMessage());

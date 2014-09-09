@@ -73,7 +73,7 @@ static void addNumberOfAllowedHostgroups(UnifiedDataStore *dataStore,
                                          const UserIdType &userId,
                                          const UserIdType &targetUser,
                                          const ServerIdType &targetServer,
-                                         JSONBuilderAgent &outputJSON)
+                                         JSONBuilder &outputJSON)
 {
 	HostgroupsQueryOption hostgroupOption(userId);
 	AccessInfoQueryOption allowedHostgroupOption(userId);
@@ -103,7 +103,7 @@ static void addNumberOfAllowedHostgroups(UnifiedDataStore *dataStore,
 	outputJSON.add("numberOfAllowedHostgroups", numberOfAllowedHostgroups);
 }
 
-static void addServers(FaceRest::ResourceHandler *job, JSONBuilderAgent &agent,
+static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
                        const ServerIdType &targetServerId,
                        const bool &showHostgroupInfo,
                        const UserIdType &targetUserId)
@@ -223,7 +223,7 @@ void RestResourceServer::handlerGetServer(void)
 	                                                     targetUserId);
 	parseQueryServerId(m_query, targetServerId);
 
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	addServers(this, agent, targetServerId, showHostgroupInfo, targetUserId);
@@ -377,7 +377,7 @@ void RestResourceServer::handlerPostServer(void)
 		return;
 	}
 
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", svInfo.id);
@@ -435,7 +435,7 @@ void RestResourceServer::handlerPutServer(void)
 	}
 
 	// make a response
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", serverInfo.id);
@@ -461,7 +461,7 @@ void RestResourceServer::handlerDeleteServer(void)
 		return;
 	}
 
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", serverId);
@@ -477,7 +477,7 @@ void RestResourceServer::handlerServerConnStat(void)
 	dataStore->getServerConnStatusVector(serverConnStatVec,
 	                                     m_dataQueryContextPtr);
 
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.startObject("serverConnStat");

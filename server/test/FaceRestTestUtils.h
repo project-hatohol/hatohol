@@ -23,7 +23,7 @@
 #include <string>
 #include "StringUtils.h"
 #include "Params.h"
-#include "JSONParserAgent.h"
+#include "JSONParser.h"
 #include "HatoholError.h"
 
 typedef std::map<std::string, std::string> StringMap;
@@ -60,39 +60,39 @@ void stopFaceRest(void);
 std::string makeSessionIdHeader(const std::string &sessionId);
 
 void getServerResponse(RequestArg &arg);
-JSONParserAgent *getResponseAsJSONParser(RequestArg &arg);
+JSONParser *getResponseAsJSONParser(RequestArg &arg);
 
-void _assertValueInParser(JSONParserAgent *parser,
+void _assertValueInParser(JSONParser *parser,
 			  const std::string &member,
 			  const bool expected);
-void _assertValueInParser(JSONParserAgent *parser,
+void _assertValueInParser(JSONParser *parser,
 			  const std::string &member,
 			  uint32_t expected);
-void _assertValueInParser(JSONParserAgent *parser,
+void _assertValueInParser(JSONParser *parser,
 			  const std::string &member,
 			  int expected);
-void _assertValueInParser(JSONParserAgent *parser,
+void _assertValueInParser(JSONParser *parser,
 			  const std::string &member,
 			  uint64_t expected);
-void _assertValueInParser(JSONParserAgent *parser,
+void _assertValueInParser(JSONParser *parser,
 			  const std::string &member,
 			  const timespec &expected);
-void _assertValueInParser(JSONParserAgent *parser,
+void _assertValueInParser(JSONParser *parser,
 			  const std::string &member,
 			  const std::string &expected);
 #define assertValueInParser(P,M,E) cut_trace(_assertValueInParser(P,M,E))
 
-void _assertStartObject(JSONParserAgent *parser, const std::string &keyName);
+void _assertStartObject(JSONParser *parser, const std::string &keyName);
 #define assertStartObject(P,K) cut_trace(_assertStartObject(P,K))
 
-void _assertNoValueInParser(JSONParserAgent *parser,
+void _assertNoValueInParser(JSONParser *parser,
 			    const std::string &member);
 #define assertNoValueInParser(P,M) cut_trace(_assertNoValueInParser(P,M))
 
-void _assertNullInParser(JSONParserAgent *parser, const std::string &member);
+void _assertNullInParser(JSONParser *parser, const std::string &member);
 #define assertNullInParser(P,M) cut_trace(_assertNullInParser(P,M))
 
-void _assertErrorCode(JSONParserAgent *parser,
+void _assertErrorCode(JSONParser *parser,
 		      const HatoholErrorCode &expectCode = HTERR_OK);
 #define assertErrorCode(P, ...) cut_trace(_assertErrorCode(P, ##__VA_ARGS__))
 
@@ -105,6 +105,6 @@ void _assertUpdateRecord(const StringMap &params, const std::string &baseUrl,
                          const UserIdType &userId = INVALID_USER_ID,
                          const HatoholErrorCode &expectCode = HTERR_OK);
 
-void assertServersIdNameHashInParser(JSONParserAgent *parser);
+void assertServersIdNameHashInParser(JSONParser *parser);
 
 #endif // FaceRestTestUtils_h

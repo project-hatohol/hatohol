@@ -43,7 +43,7 @@ RestResourceAction::~RestResourceAction()
 
 template <typename T>
 static void setActionCondition(
-  JSONBuilderAgent &agent, const ActionCondition &cond,
+  JSONBuilder &agent, const ActionCondition &cond,
   const string &member, ActionConditionEnableFlag bit,
   T value)
 {
@@ -93,7 +93,7 @@ void RestResourceAction::handleGet(void)
 	ActionDefList actionList;
 	err = dataStore->getActionList(actionList, option);
 
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	if (err != HTERR_OK) {
@@ -288,7 +288,7 @@ void RestResourceAction::handlePost(void)
 	}
 
 	// make a response
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", actionDef.id);
@@ -317,7 +317,7 @@ void RestResourceAction::handleDelete(void)
 	}
 
 	// replay
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", actionId);

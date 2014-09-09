@@ -38,7 +38,7 @@ string getIssueURL(const IncidentTrackerInfo &trackerInfo,
 }
 
 
-bool parseIssue(JSONParserAgent &agent, IncidentInfo &incidentInfo)
+bool parseIssue(JSONParser &agent, IncidentInfo &incidentInfo)
 {
 	int64_t issueId = 0;
 	if (!agent.read("id", issueId) || issueId == 0) {
@@ -75,7 +75,7 @@ bool parseIssue(JSONParserAgent &agent, IncidentInfo &incidentInfo)
 	return true;
 }
 
-bool parseDateTime(JSONParserAgent &agent, const string &objectName,
+bool parseDateTime(JSONParser &agent, const string &objectName,
 		   mlpl::Time &time)
 {
 	string timeString;
@@ -94,7 +94,7 @@ bool parseDateTime(JSONParserAgent &agent, const string &objectName,
 	return true;	
 }
 
-void logErrors(JSONParserAgent &agent)
+void logErrors(JSONParser &agent)
 {
 	if (!agent.startObject("errors"))
 		MLPL_ERR("Failed to parse errors\n");

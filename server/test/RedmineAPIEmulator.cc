@@ -23,8 +23,8 @@
 #include <set>
 #include <queue>
 #include "RedmineAPIEmulator.h"
-#include "JSONParserAgent.h"
-#include "JSONBuilderAgent.h"
+#include "JSONParser.h"
+#include "JSONBuilder.h"
 #include "Helpers.h"
 
 using namespace std;
@@ -102,7 +102,7 @@ string RedmineIssue::getTimeString(time_t time)
 
 string RedmineIssue::toJSON(void) const
 {
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	agent.startObject("issue");
 	agent.add("id", id);
@@ -340,7 +340,7 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 {
 	m_lastRequestBody.assign(msg->request_body->data,
 				 msg->request_body->length);
-	JSONParserAgent agent(m_lastRequestBody);
+	JSONParser agent(m_lastRequestBody);
 
 	if (agent.hasError()) {
 		soup_message_set_status(

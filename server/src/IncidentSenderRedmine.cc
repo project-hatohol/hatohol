@@ -18,8 +18,8 @@
  */
 
 #include "IncidentSenderRedmine.h"
-#include "JSONBuilderAgent.h"
-#include "JSONParserAgent.h"
+#include "JSONBuilder.h"
+#include "JSONParser.h"
 #include "RedmineAPI.h"
 #include "ThreadLocalDBCache.h"
 #include "UnifiedDataStore.h"
@@ -113,7 +113,7 @@ string IncidentSenderRedmine::buildJSON(const EventInfo &event)
 		server = &serverInfo;
 
 	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	agent.startObject("issue");
 	agent.add("subject", buildTitle(event, server));
@@ -157,7 +157,7 @@ void IncidentSenderRedmine::Impl::disconnectSessionSignals(void)
 HatoholError IncidentSenderRedmine::parseResponse(
   IncidentInfo &incidentInfo, const string &response)
 {
-	JSONParserAgent agent(response);
+	JSONParser agent(response);
 	if (agent.hasError()) {
 		MLPL_ERR("Failed to parse response.\n");
 		return HTERR_FAILED_TO_SEND_INCIDENT;
@@ -191,7 +191,7 @@ HatoholError IncidentSenderRedmine::buildIncidentInfo(
 HatoholError IncidentSenderRedmine::Impl::parseErrorResponse(
   const string &response)
 {
-	JSONParserAgent agent(response);
+	JSONParser agent(response);
 	if (agent.hasError()) {
 		MLPL_ERR("Failed to parse error response: %s\n",
 			 agent.getErrorMessage());

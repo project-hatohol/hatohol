@@ -19,10 +19,10 @@
 
 #include <fstream>
 #include <cppcutter.h>
-#include "JSONParserAgent.h"
+#include "JSONParser.h"
 using namespace std;
 
-namespace testJSONParserAgent {
+namespace testJSONParser {
 
 void _assertReadFile(const string &fileName, string &output)
 {
@@ -35,7 +35,7 @@ void _assertReadFile(const string &fileName, string &output)
 }
 #define assertReadFile(X,Y) cut_trace(_assertReadFile(X,Y))
 
-template<typename T> void _assertReadWord(JSONParserAgent &parser,
+template<typename T> void _assertReadWord(JSONParser &parser,
                      const string &name, const T &expect)
 {
 	T actual;
@@ -44,7 +44,7 @@ template<typename T> void _assertReadWord(JSONParserAgent &parser,
 }
 #define assertReadWord(Z,A,X,Y) cut_trace(_assertReadWord<Z>(A,X,Y))
 
-void _assertReadWordElement(JSONParserAgent &parser,
+void _assertReadWordElement(JSONParser &parser,
                      int index, const string &expect)
 {
 	string actual;
@@ -56,7 +56,7 @@ void _assertReadWordElement(JSONParserAgent &parser,
 #define DEFINE_PARSER_AND_READ(PARSER, JSON_MATERIAL) \
 string _json; \
 assertReadFile(JSON_MATERIAL, _json); \
-JSONParserAgent parser(_json); \
+JSONParser parser(_json); \
 cppcut_assert_equal(false, PARSER.hasError());
 
 
@@ -192,4 +192,4 @@ void test_checkIsMember(void)
 	cppcut_assert_equal(true, parser.isMember("greenwindows"));
 	parser.endObject();
 }
-} //namespace testJSONParserAgent
+} //namespace testJSONParser

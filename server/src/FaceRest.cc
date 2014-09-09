@@ -32,7 +32,7 @@
 #include <semaphore.h>
 #include "FaceRest.h"
 #include "FaceRestPrivate.h"
-#include "JSONBuilderAgent.h"
+#include "JSONBuilder.h"
 #include "HatoholException.h"
 #include "UnifiedDataStore.h"
 #include "DBTablesUser.h"
@@ -470,7 +470,7 @@ void FaceRest::handlerHelloPage(ResourceHandler *job)
 
 void FaceRest::handlerTest(ResourceHandler *job)
 {
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	FaceRest::ResourceHandler::addHatoholError(
 	  agent, HatoholError(HTERR_OK));
@@ -548,7 +548,7 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 	SessionManager *sessionMgr = SessionManager::getInstance();
 	string sessionId = sessionMgr->create(userId);
 
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	FaceRest::ResourceHandler::addHatoholError(
 	  agent, HatoholError(HTERR_OK));
@@ -566,7 +566,7 @@ void FaceRest::handlerLogout(ResourceHandler *job)
 		return;
 	}
 
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	FaceRest::ResourceHandler::addHatoholError(
 	  agent, HatoholError(HTERR_OK));
@@ -845,7 +845,7 @@ void FaceRest::ResourceHandler::replyError(const HatoholError &hatoholError)
 	}
 	MLPL_INFO("reply error: %s\n", error.c_str());
 
-	JSONBuilderAgent agent;
+	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, hatoholError);
 	agent.endObject();
@@ -867,7 +867,7 @@ void FaceRest::ResourceHandler::replyHttpStatus(const guint &statusCode)
 	m_replyIsPrepared = true;
 }
 
-void FaceRest::ResourceHandler::replyJSONData(JSONBuilderAgent &agent)
+void FaceRest::ResourceHandler::replyJSONData(JSONBuilder &agent)
 {
 	string response = agent.generate();
 	if (!m_jsonpCallbackName.empty())
@@ -881,7 +881,7 @@ void FaceRest::ResourceHandler::replyJSONData(JSONBuilderAgent &agent)
 	m_replyIsPrepared = true;
 }
 
-void FaceRest::ResourceHandler::addHatoholError(JSONBuilderAgent &agent,
+void FaceRest::ResourceHandler::addHatoholError(JSONBuilder &agent,
 						const HatoholError &err)
 {
 	agent.add("apiVersion", API_VERSION);
@@ -893,7 +893,7 @@ void FaceRest::ResourceHandler::addHatoholError(JSONBuilderAgent &agent,
 }
 
 static void addHostsMap(
-  FaceRest::ResourceHandler *job, JSONBuilderAgent &agent,
+  FaceRest::ResourceHandler *job, JSONBuilder &agent,
   const MonitoringServerInfo &serverInfo)
 {
 	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
@@ -948,7 +948,7 @@ static string getTriggerBrief(
 
 static void addTriggersIdBriefHash(
   FaceRest::ResourceHandler *job,
-  JSONBuilderAgent &agent, const MonitoringServerInfo &serverInfo,
+  JSONBuilder &agent, const MonitoringServerInfo &serverInfo,
   TriggerBriefMaps &triggerMaps, bool lookupTriggerBrief = false)
 {
 	TriggerBriefMaps::iterator server_it = triggerMaps.find(serverInfo.id);
@@ -971,7 +971,7 @@ static void addTriggersIdBriefHash(
 }
 
 HatoholError FaceRest::ResourceHandler::addHostgroupsMap(
-  JSONBuilderAgent &outputJSON, const MonitoringServerInfo &serverInfo,
+  JSONBuilder &outputJSON, const MonitoringServerInfo &serverInfo,
   HostgroupInfoList &hostgroupList)
 {
 	HostgroupsQueryOption option(m_dataQueryContextPtr);
@@ -998,7 +998,7 @@ HatoholError FaceRest::ResourceHandler::addHostgroupsMap(
 }
 
 void FaceRest::ResourceHandler::addServersMap(
-  JSONBuilderAgent &agent,
+  JSONBuilder &agent,
   TriggerBriefMaps *triggerMaps, bool lookupTriggerBrief)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
