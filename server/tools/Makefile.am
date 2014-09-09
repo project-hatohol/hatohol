@@ -9,9 +9,9 @@ MLPL_LIBS = ../mlpl/src/libmlpl.la
 
 AM_CXXFLAGS = \
 	$(OPT_CXXFLAGS) \
-	-I ../src $(MLPL_CFLAGS) $(GLIB_CFLAGS) $(MYSQL_CFLAGS) $(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS)
+	-I ../src -I ../common $(MLPL_CFLAGS) $(GLIB_CFLAGS) $(MYSQL_CFLAGS) $(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS)
 
-AM_LDFLAGS = ../src/libhatohol.la ../src/libhatohol-common.la $(MLPL_LIBS) $(GLIB_LIBS) $(MYSQL_LIBS)
+AM_LDFLAGS = ../src/libhatohol.la ../common/libhatohol-common.la $(MLPL_LIBS) $(GLIB_LIBS) $(MYSQL_LIBS)
 
 hatohol_def_src_file_generator_SOURCES = hatohol-def-src-file-generator.cc
 

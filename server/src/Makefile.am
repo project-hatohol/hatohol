@@ -2,32 +2,7 @@ sbin_PROGRAMS = hatohol hatohol-resident-yard
 hatohol_SOURCES = main.cc
 hatohol_resident_yard_SOURCES = hatoholResidentYard.cc
 
-lib_LTLIBRARIES = libhatohol-common.la libhatohol.la
-
-libhatohol_common_la_SOURCES = \
-	ArmStatus.cc ArmStatus.h \
-	DataStoreException.cc DataStoreException.h \
-	HatoholThreadBase.cc HatoholThreadBase.h \
-	HatoholArmPluginInterface.cc HatoholArmPluginInterface.h \
-	HatoholArmPluginBase.cc HatoholArmPluginBase.h \
-	HatoholException.cc HatoholException.h \
-	HatoholError.cc HatoholError.h \
-	HapZabbixAPI.cc HapZabbixAPI.h \
-	ItemData.cc ItemData.h \
-	ItemDataUtils.cc ItemDataUtils.h \
-	ItemGroup.cc ItemGroup.h \
-	ItemGroupType.cc ItemGroupType.h \
-	ItemGroupPtr.cc ItemGroupPtr.h \
-	ItemTable.cc ItemTable.h \
-	ItemTablePtr.cc ItemTablePtr.h \
-	JSONBuilderAgent.cc JSONBuilderAgent.h \
-	JSONParserAgent.cc JSONParserAgent.h \
-	MonitoringServerInfo.cc MonitoringServerInfo.h \
-	EndianConverter.h \
-	UsedCountable.cc UsedCountable.h \
-	Utils.cc Utils.h \
-	UsedCountablePtr.cc UsedCountablePtr.h \
-	ZabbixAPI.cc ZabbixAPI.h
+lib_LTLIBRARIES = libhatohol.la
 
 libhatohol_la_SOURCES = \
 	ActionExecArgMaker.cc ActionExecArgMaker.h \
@@ -78,9 +53,6 @@ libhatohol_la_SOURCES = \
 	IncidentSender.cc IncidentSender.h \
 	IncidentSenderManager.cc IncidentSenderManager.h \
 	IncidentSenderRedmine.cc IncidentSenderRedmine.h \
-	ItemData.cc ItemData.h \
-	ItemDataPtr.h \
-	ItemEnum.h \
 	ItemFetchWorker.cc ItemFetchWorker.h \
 	ItemGroupStream.cc ItemGroupStream.h \
 	ItemGroupEnum.h \
@@ -88,7 +60,6 @@ libhatohol_la_SOURCES = \
 	LabelUtils.cc LabelUtils.h \
 	NamedPipe.cc NamedPipe.h \
 	OperationPrivilege.cc OperationPrivilege.h \
-	Params.h \
 	RedmineAPI.cc RedmineAPI.h \
 	ResidentProtocol.h \
 	ResidentCommunicator.cc ResidentCommunicator.h \
@@ -116,7 +87,7 @@ AM_CXXFLAGS = \
 	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GTHREAD_CFLAGS) $(GIO_CFLAGS) \
 	$(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS) $(SQLITE3_CFLAGS) \
 	$(UUID_CFLAGS) $(LIBRABBITMQ_CFLAGS) $(MYSQL_CFLAGS) \
-	$(COVERAGE_CFLAGS)
+	$(COVERAGE_CFLAGS) -I ../common
 
 AM_LDFLAGS = -lrt \
 	$(MLPL_LIBS) $(GLIB_LIBS) $(GTHREAD_LIBS) $(GIO_LIBS) \
@@ -125,6 +96,6 @@ AM_LDFLAGS = -lrt \
 	$(COVERAGE_LIBS)
 
 libhatohol_la_LDFLAGS = $(AM_LDFLAGS)
-libhatohol_la_LIBADD = libhatohol-common.la
-hatohol_LDADD = libhatohol.la libhatohol-common.la
-hatohol_resident_yard_LDADD = libhatohol.la libhatohol-common.la
+libhatohol_la_LIBADD = ../common/libhatohol-common.la
+hatohol_LDADD = libhatohol.la ../common/libhatohol-common.la
+hatohol_resident_yard_LDADD = libhatohol.la ../common/libhatohol-common.la
