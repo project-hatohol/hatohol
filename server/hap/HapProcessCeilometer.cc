@@ -22,6 +22,7 @@
 #include <Reaper.h>
 #include <stack>
 #include <cstring>
+#include <libsoup/soup.h>
 #include "Utils.h"
 #include "JSONBuilder.h"
 #include "JSONParser.h"
