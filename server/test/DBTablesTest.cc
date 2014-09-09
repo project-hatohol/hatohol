@@ -882,6 +882,7 @@ IncidentInfo testIncidentInfo[] = {
 	0,                        // doneRatio
 	{1412957260, 0},          // createdAt
 	{1412957260, 0},          // updatedAt
+	IncidentInfo::STATUS_OPENED,// statusCode
 },
 {
 	3,                        // trackerId
@@ -896,6 +897,7 @@ IncidentInfo testIncidentInfo[] = {
 	0,                        // doneRatio
 	{1412957290, 0},          // createdAt
 	{1412957290, 0},          // updatedAt
+	IncidentInfo::STATUS_OPENED,// statusCode
 },
 {
 	1,                        // trackerId
@@ -910,6 +912,7 @@ IncidentInfo testIncidentInfo[] = {
 	0,                        // doneRatio
 	{1412957360, 0},          // createdAt
 	{1412957360, 0},          // updatedAt
+	IncidentInfo::STATUS_OPENED,// statusCode
 },
 };
 size_t NumTestIncidentInfo = sizeof(testIncidentInfo) / sizeof(IncidentInfo);
