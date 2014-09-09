@@ -37,7 +37,7 @@ string getIssueURL(const IncidentTrackerInfo &trackerInfo,
 	return url;
 }
 
-static void parseStatusCode(JSONParserAgent &agent, IncidentInfo &incidentInfo)
+static void parseStatusCode(JSONParser &agent, IncidentInfo &incidentInfo)
 {
 	// TODO:
 	// Statues of Redmine are customizable so following statuses may not
