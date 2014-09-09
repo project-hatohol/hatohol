@@ -37,6 +37,41 @@ string getIssueURL(const IncidentTrackerInfo &trackerInfo,
 	return url;
 }
 
+static void parseStatusCode(JSONParserAgent &agent, IncidentInfo &incidentInfo)
+{
+	// TODO:
+	// Statues of Redmine are customizable so following statuses may not
+	// correct. But I don't have good idea how to convert them correctly...
+	// Should we detect only "opened" and "closed"? We can known it from
+	// http://{redmine}/issue_statuses.json.
+	int64_t status;
+	if (!agent.read("id", status))
+		return;
+
+	switch(status) {
+	case 1:
+		incidentInfo.status = IncidentInfo::STATUS_OPENED;
+		break;
+	case 2:
+		incidentInfo.status = IncidentInfo::STATUS_ASSIGNED;
+		break;
+	case 3:
+		incidentInfo.status = IncidentInfo::STATUS_RESOLVED;
+		break;
+	case 4:
+		incidentInfo.status = IncidentInfo::STATUS_REOPENED;
+		break;
+	case 5:
+		incidentInfo.status = IncidentInfo::STATUS_CLOSED;
+		break;
+	case 6:
+		incidentInfo.status = IncidentInfo::STATUS_CLOSED;
+		break;
+	default:
+		incidentInfo.status = IncidentInfo::STATUS_UNKNOWN;
+		break;
+	}
+}
 
 bool parseIssue(JSONParser &agent, IncidentInfo &incidentInfo)
 {
@@ -49,6 +84,7 @@ bool parseIssue(JSONParser &agent, IncidentInfo &incidentInfo)
 
 	agent.startObject("status");
 	agent.read("name", incidentInfo.status);
+	parseStatusCode(agent, incidentInfo);
 	agent.endObject();
 
 	if (agent.isMember("assigned_to")) {
