@@ -52,7 +52,7 @@ var LatestView = function(userProfile) {
   function showXHRError(XMLHttpRequest) {
     var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
       XMLHttpRequest.statusText;
-    hatoholErrorMsgBox(textStatus);
+    hatoholErrorMsgBox(errorMsg);
   }
 
   function saveConfig(items) {
