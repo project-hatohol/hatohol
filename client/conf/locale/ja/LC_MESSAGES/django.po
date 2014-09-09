@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-09-08 19:07-0500\n"
-"PO-Revision-Date: 2014-09-09 09:08+0900\n"
+"PO-Revision-Date: 2014-09-09 09:13+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -233,8 +233,7 @@ msgid "Assignee"
 msgstr "担当者"
 
 #: viewer/events_ajax.html:84
-#, python-format
-msgid "%% Done"
+msgid "% Done"
 msgstr "進捗率"
 
 #: viewer/events_ajax.html:98
