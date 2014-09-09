@@ -99,7 +99,7 @@ void HapProcessCeilometer::updateAuthTokenIfNeeded(void)
 	string request_body = builder.generate();
 	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
 	                         request_body.c_str(), request_body.size());
-	SoupSession *session = soup_session_new();
+	SoupSession *session = soup_session_sync_new();
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
 		MLPL_ERR("Failed to connect: %d, URL: %s\n", ret, url.c_str());
@@ -196,7 +196,7 @@ HatoholError HapProcessCeilometer::getAlarmList(void)
 	                                      MIME_JSON, NULL);
 	soup_message_headers_append(msg->request_headers,
 	                            "X-Auth-Token", m_impl->token.c_str());
-	SoupSession *session = soup_session_new();
+	SoupSession *session = soup_session_sync_new();
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
 		MLPL_ERR("Failed to connect: %d, URL: %s\n", ret, url.c_str());
