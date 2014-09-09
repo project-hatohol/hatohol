@@ -18,13 +18,14 @@
  */
 
 #include "DBTablesConfig.h"
-#include "DBTablesMonitoring.h"
+#include "Monitoring.h"
 #include "JSONParser.h"
 
 namespace RedmineAPI
 {
 	std::string getIssueURL(const IncidentTrackerInfo &trackerInfo,
 				const std::string &id);
+	IncidentInfo::Status statusId2IncidentStatus(const int &statusId);
 	bool parseIssue(JSONParser &agent,
 			IncidentInfo &incidentInfo);
 	bool parseDateTime(JSONParser &agent,

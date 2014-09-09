@@ -37,39 +37,29 @@ string getIssueURL(const IncidentTrackerInfo &trackerInfo,
 	return url;
 }
 
-static void parseStatusCode(JSONParser &agent, IncidentInfo &incidentInfo)
+IncidentInfo::Status statusId2IncidentStatus(const int &statusId)
 {
 	// TODO:
 	// Statues of Redmine are customizable so following statuses may not
 	// correct. But I don't have good idea how to convert them correctly...
 	// Should we detect only "opened" and "closed"? We can known it from
 	// http://{redmine}/issue_statuses.json.
-	int64_t status;
-	if (!agent.read("id", status))
-		return;
 
-	switch(status) {
+	switch(statusId) {
 	case 1:
-		incidentInfo.status = IncidentInfo::STATUS_OPENED;
-		break;
+		return IncidentInfo::STATUS_OPENED;
 	case 2:
-		incidentInfo.status = IncidentInfo::STATUS_ASSIGNED;
-		break;
+		return IncidentInfo::STATUS_ASSIGNED;
 	case 3:
-		incidentInfo.status = IncidentInfo::STATUS_RESOLVED;
-		break;
+		return IncidentInfo::STATUS_RESOLVED;
 	case 4:
-		incidentInfo.status = IncidentInfo::STATUS_REOPENED;
-		break;
+		return IncidentInfo::STATUS_REOPENED;
 	case 5:
-		incidentInfo.status = IncidentInfo::STATUS_CLOSED;
-		break;
+		return IncidentInfo::STATUS_CLOSED;
 	case 6:
-		incidentInfo.status = IncidentInfo::STATUS_CLOSED;
-		break;
+		return IncidentInfo::STATUS_CLOSED;
 	default:
-		incidentInfo.status = IncidentInfo::STATUS_UNKNOWN;
-		break;
+		return IncidentInfo::STATUS_UNKNOWN;
 	}
 }
 
@@ -84,7 +74,9 @@ bool parseIssue(JSONParser &agent, IncidentInfo &incidentInfo)
 
 	agent.startObject("status");
 	agent.read("name", incidentInfo.status);
-	parseStatusCode(agent, incidentInfo);
+	int64_t statusId = 0;
+	agent.read("id", statusId);
+	incidentInfo.status = statusId2IncidentStatus(statusId);
 	agent.endObject();
 
 	if (agent.isMember("assigned_to")) {
