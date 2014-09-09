@@ -60,9 +60,15 @@ var EventsView = function(userProfile, baseElem) {
         load();
       },
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
-        // TODO: implement
+        showXHRError(XMLHttpRequest);
       },
     });
+  }
+
+  function showXHRError(XMLHttpRequest) {
+    var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+      XMLHttpRequest.statusText;
+    hatoholErrorMsgBox(errorMsg);
   }
 
   function getQuery(loadNextPage) {
