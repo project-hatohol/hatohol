@@ -37,6 +37,14 @@ public:
 		JOB_FAILED,
 	} JobStatus;
 
+	typedef enum {
+		INCIDENT_STATUS_OPENED,
+		INCIDENT_STATUS_ASSIGNED,
+		INCIDENT_STATUS_RESOLVED,
+		INCIDENT_STATUS_CLOSED,
+		INCIDENT_STATUS_REOPENED,
+	} IncidentStatus;
+
 	typedef void (*StatusCallback)(const EventInfo &info,
 				       const JobStatus &status,
 				       void *userData);
@@ -58,6 +66,13 @@ public:
 	 * @return HTERR_OK on succeeded to send. Otherwise an error.
 	 */
 	virtual HatoholError send(const EventInfo &event) = 0;
+
+	virtual HatoholError setStatus(const IncidentInfo &incident,
+				       const IncidentStatus &status,
+				       const std::string &comment) = 0;
+
+	virtual HatoholError addComment(const IncidentInfo &incident,
+					const std::string &comment) = 0;
 
 	/**
 	 * Queue an EventInfo to send it as an incident to the specified
