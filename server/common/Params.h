@@ -82,6 +82,16 @@ static const HostIdType      ALL_HOSTS   = -1;
 static const HostgroupIdType ALL_HOST_GROUPS = -1;
 static const IncidentTrackerIdType ALL_INCIDENT_TRACKERS = -1;
 
+// Define a special ID By using the -2.
+// Because, it does not overlap with the hostID set by the Zabbix.
+// There is a possibility that depends on Zabbix version of this.
+static const HostIdType MONITORING_SERVER_SELF_ID = -2;
+
+static const TriggerIdType FAILED_CONNECT_ZABBIX_TRIGGERID = -1;
+static const TriggerIdType FAILED_CONNECT_MYSQL_TRIGGERID  = -2;
+static const TriggerIdType FAILED_INTERNAL_ERROR_TRIGGERID = -3;
+static const TriggerIdType FAILED_PARSER_ERROR_TRIGGERID   = -4;
+
 static const UserIdType INVALID_USER_ID = -1;
 static const UserIdType USER_ID_ANY     = -2;
 

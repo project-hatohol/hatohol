@@ -72,16 +72,6 @@ typedef std::list<TriggerInfo>          TriggerInfoList;
 typedef TriggerInfoList::iterator       TriggerInfoListIterator;
 typedef TriggerInfoList::const_iterator TriggerInfoListConstIterator;
 
-static const TriggerIdType FAILED_CONNECT_ZABBIX_TRIGGERID = LONG_MAX - 1;
-static const TriggerIdType FAILED_CONNECT_MYSQL_TRIGGERID = LONG_MAX - 2;
-static const TriggerIdType FAILED_INTERNAL_ERROR_TRIGGERID = LONG_MAX - 3;
-static const TriggerIdType FAILED_PARSER_ERROR_TRIGGERID = LONG_MAX - 4;
-
-// Define a special ID By using the LONG_MAX.
-// Because, it does not overlap with the hostID set by the Zabbix.
-// There is a possibility that depends on Zabbix version of this.
-static const HostIdType MONITORING_SERVER_SELF_ID = LONG_MAX;
-
 enum EventType {
 	EVENT_TYPE_GOOD,
 	EVENT_TYPE_BAD,
