@@ -233,8 +233,14 @@ void _assertSend(const HatoholErrorCode &expected,
 	loadTestDBTablesConfig();
 	TestRedmineSender sender(tracker);
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
+
 	HatoholError result = sender.send(event);
+
 	assertHatoholError(expected, result);
+	cppcut_assert_equal(string("/issues.json"),
+			    g_redmineEmulator.getLastRequestPath());
+	cppcut_assert_equal(string("POST"),
+			    g_redmineEmulator.getLastRequestMethod());
 
 	if (expected != HTERR_OK)
 		return;
@@ -286,8 +292,14 @@ void _assertSendForUpdate(const HatoholErrorCode &expected,
 	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[trackerIndex];
 	TestRedmineSender sender(tracker);
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
+
 	HatoholError result = sender.send(incident, comment);
+
 	assertHatoholError(expected, result);
+	cppcut_assert_equal(string("/issues/" + incident.identifier + ".json"),
+			    g_redmineEmulator.getLastRequestPath());
+	cppcut_assert_equal(string("PUT"),
+			    g_redmineEmulator.getLastRequestMethod());
 
 	if (expected != HTERR_OK)
 		return;

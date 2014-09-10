@@ -191,6 +191,8 @@ struct RedmineAPIEmulator::PrivateContext {
 	map<string, string> m_passwords;
 	string m_currentUser;
 	size_t m_issueId;
+	string m_lastRequestPath;
+	string m_lastRequestMethod;
 	string m_lastRequestQuery;
 	string m_lastRequestBody;
 	string m_lastResponseBody;
@@ -214,6 +216,8 @@ void RedmineAPIEmulator::reset(void)
 	m_ctx->m_passwords.clear();
 	m_ctx->m_currentUser.clear();
 	m_ctx->m_issueId = 0;
+	m_ctx->m_lastRequestPath.clear();
+	m_ctx->m_lastRequestMethod.clear();
 	m_ctx->m_lastRequestQuery.clear();
 	m_ctx->m_lastRequestBody.clear();
 	m_ctx->m_lastResponseBody.clear();
@@ -226,6 +230,16 @@ void RedmineAPIEmulator::addUser(const std::string &userName,
 				 const std::string &password)
 {
 	m_ctx->m_passwords[userName] = password;
+}
+
+const string &RedmineAPIEmulator::getLastRequestPath(void) const
+{
+	return m_ctx->m_lastRequestPath;
+}
+
+const string &RedmineAPIEmulator::getLastRequestMethod(void) const
+{
+	return m_ctx->m_lastRequestMethod;
 }
 
 const string &RedmineAPIEmulator::getLastRequestQuery(void) const
@@ -444,6 +458,11 @@ void RedmineAPIEmulator::PrivateContext::handlerIssuesJSON
 	  = reinterpret_cast<RedmineAPIEmulator *>(user_data);
 	RedmineAPIEmulator::PrivateContext *priv = emulator->m_ctx;
 
+	priv->m_lastRequestPath = path;
+
+	string method = msg->method;
+	priv->m_lastRequestMethod = method;
+
 	SoupURI *uri = soup_message_get_uri(msg);
 	const char *queryString = uri->query;
 	priv->m_lastRequestQuery = queryString ? queryString : "";
@@ -451,7 +470,6 @@ void RedmineAPIEmulator::PrivateContext::handlerIssuesJSON
 	if (priv->handlerDummyResponse(msg, path ,query, client))
 		return;
 
-	string method = msg->method;
 	if (method == "GET") {
 		priv->replyGetIssue(msg);
 	} else if (method == "PUT") {
@@ -474,6 +492,11 @@ void RedmineAPIEmulator::PrivateContext::handlerIssueJSON
 	  = reinterpret_cast<RedmineAPIEmulator *>(user_data);
 	RedmineAPIEmulator::PrivateContext *priv = emulator->m_ctx;
 
+	priv->m_lastRequestPath = path;
+
+	string method = msg->method;
+	priv->m_lastRequestMethod = method;
+
 	SoupURI *uri = soup_message_get_uri(msg);
 	const char *queryString = uri->query;
 	priv->m_lastRequestQuery = queryString ? queryString : "";
@@ -481,7 +504,6 @@ void RedmineAPIEmulator::PrivateContext::handlerIssueJSON
 	if (priv->handlerDummyResponse(msg, path ,query, client))
 		return;
 
-	string method = msg->method;
 	if (method == "GET") {
 		soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
 	} else if (method == "PUT") {
