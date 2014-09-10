@@ -92,6 +92,10 @@ HatoholError HapProcessCeilometer::updateAuthTokenIfNeeded(void)
 	string url = m_impl->osAuthURL;
 	url += "/tokens";
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, url.c_str());
+	if (!msg) {
+		MLPL_ERR("Failed create SoupMessage: URL: %s\n", url.c_str());
+		return HTERR_INVALID_URL;
+	}
 	Reaper<void> msgReaper(msg, g_object_unref);
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
@@ -203,6 +207,10 @@ HatoholError HapProcessCeilometer::getAlarmList(void)
 	string url = m_impl->ceilometerEP.publicURL;
 	url += "/v2/alarms";
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
+	if (!msg) {
+		MLPL_ERR("Failed create SoupMessage: URL: %s\n", url.c_str());
+		return HTERR_INVALID_URL;
+	}
 	Reaper<void> msgReaper(msg, g_object_unref);
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
