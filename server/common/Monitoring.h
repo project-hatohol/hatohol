@@ -38,9 +38,6 @@ enum TriggerSeverityType {
 	NUM_TRIGGER_SEVERITY,
 };
 
-static const uint64_t ALL_TRIGGERS = -1;
-static const uint64_t ALL_ITEMS    = -1;
-
 struct HostInfo {
 	ServerIdType        serverId;
 	HostIdType          id;

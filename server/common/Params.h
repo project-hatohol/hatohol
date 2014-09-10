@@ -92,13 +92,18 @@ static const HostgroupIdType ALL_HOST_GROUPS = -1;
 static const IncidentTrackerIdType ALL_INCIDENT_TRACKERS = -1;
 
 // Special Trigger IDs ========================================================
-static const TriggerIdType FAILED_CONNECT_ZABBIX_TRIGGERID = -1;
-static const TriggerIdType FAILED_CONNECT_MYSQL_TRIGGERID  = -2;
-static const TriggerIdType FAILED_INTERNAL_ERROR_TRIGGERID = -3;
-static const TriggerIdType FAILED_PARSER_ERROR_TRIGGERID   = -4;
+static const TriggerIdType ALL_TRIGGERS                    = -1;
+
+static const TriggerIdType FAILED_CONNECT_ZABBIX_TRIGGERID = -1000;
+static const TriggerIdType FAILED_CONNECT_MYSQL_TRIGGERID  = -1001;
+static const TriggerIdType FAILED_INTERNAL_ERROR_TRIGGERID = -1002;
+static const TriggerIdType FAILED_PARSER_ERROR_TRIGGERID   = -1003;
 
 // Special Event IDs ==========================================================
 static const EventIdType EVENT_NOT_FOUND = -1;
+
+// Special Item IDs ===========================================================
+static const TriggerIdType ALL_ITEMS    = -1;
 
 // Special User IDs ===========================================================
 static const UserIdType INVALID_USER_ID = -1;
