@@ -1872,7 +1872,7 @@ void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 	getDBAgent().runTransaction(trx);
 }
 
-uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
+EventIdType DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 {
 	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
 	DBAgent::SelectExArg arg(tableProfileEvents);
@@ -1887,7 +1887,7 @@ uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
-	return itemGroupStream.read<uint64_t>();
+	return itemGroupStream.read<EventIdType>();
 }
 
 void DBTablesMonitoring::addItemInfo(ItemInfo *itemInfo)

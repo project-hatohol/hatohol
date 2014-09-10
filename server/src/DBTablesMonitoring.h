@@ -208,7 +208,7 @@ public:
 	 * The last event ID. If there is no event data, EVENT_NOT_FOUND
 	 * is returned.
 	 */
-	uint64_t getLastEventId(const ServerIdType &serverId);
+	EventIdType getLastEventId(const ServerIdType &serverId);
 
 	void addItemInfo(ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
