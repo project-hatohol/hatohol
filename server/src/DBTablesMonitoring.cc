@@ -1704,6 +1704,8 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 			itemGroupStream >> incidentInfo.updatedAt.tv_nsec;
 			itemGroupStream >> incidentInfo.priority;
 			itemGroupStream >> incidentInfo.doneRatio;
+			itemGroupStream >> incidentInfo.statusCode
+				= IncidentInfo::STATUS_UNKNOWN; // TODO: add column?
 			incidentInfo.serverId  = eventInfo.serverId;
 			incidentInfo.eventId   = eventInfo.id;
 			incidentInfo.triggerId = eventInfo.triggerId;
@@ -2322,6 +2324,8 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 		itemGroupStream >> incidentInfo.updatedAt.tv_nsec;
 		itemGroupStream >> incidentInfo.priority;
 		itemGroupStream >> incidentInfo.doneRatio;
+		itemGroupStream >> incidentInfo.statusCode
+			= IncidentInfo::STATUS_UNKNOWN; // TODO: add column?
 	}
 
 	return HatoholError(HTERR_OK);
