@@ -119,7 +119,7 @@ HatoholErrorCode HatoholException::getErrCode(void) const
 void HatoholException::saveStackTrace(void)
 {
 	void *trace[128];
-	int n = backtrace(trace, sizeof(trace) / sizeof(trace[0]));
+	int n = backtrace(trace, ARRAY_SIZE(trace));
 	m_stackTrace = Utils::makeDemangledStackTraceLines(trace, n);
 }
 
