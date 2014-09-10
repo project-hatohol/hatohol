@@ -55,6 +55,7 @@ struct IncidentSenderRedmine::Impl
 	void disconnectSessionSignals(void);
 	HatoholError parseErrorResponse(const string &response);
 	HatoholError handleSendError(int soupStatus,
+				     const string &url,
 				     const string &response);
 
 	HatoholError send(const string &method,
@@ -233,9 +234,8 @@ HatoholError IncidentSenderRedmine::Impl::parseErrorResponse(
 }
 
 HatoholError IncidentSenderRedmine::Impl::handleSendError(
-  int soupStatus, const string &response)
+  int soupStatus, const string &url, const string &response)
 {
-	string url = m_sender.getIssuesJSONURL();
 	MLPL_ERR("Failed to send an issue to %s\n", url.c_str());
 	if (SOUP_STATUS_IS_TRANSPORT_ERROR(soupStatus)) {
 		MLPL_ERR("Transport error: %d %s\n",
@@ -264,7 +264,7 @@ HatoholError IncidentSenderRedmine::Impl::send(const string &method, const strin
 	g_object_unref(msg);
 
 	if (!SOUP_STATUS_IS_SUCCESSFUL(sendResult))
-		return handleSendError(sendResult, response);
+		return handleSendError(sendResult, url, response);
 
 	return HTERR_OK;
 }
