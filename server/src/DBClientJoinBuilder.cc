@@ -30,8 +30,7 @@ static const char *JOIN_OPERATORS[] = {
 	"LEFT JOIN",
 	"RIGHT JOIN",
 };
-static const size_t NUM_JOIN_OPERATORS = 
-  sizeof(JOIN_OPERATORS) / sizeof(const char *);
+static const size_t NUM_JOIN_OPERATORS = ARRAY_SIZE(JOIN_OPERATORS);
 
 struct DBClientJoinBuilder::Impl {
 	DBAgent::SelectExArg selectExArg;
