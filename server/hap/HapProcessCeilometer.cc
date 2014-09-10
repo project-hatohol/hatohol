@@ -234,10 +234,10 @@ SmartTime HapProcessCeilometer::parseStateTimestamp(
 	int hour  = 0;
 	int min   = 0;
 	int sec   = 0;
-	int ns    = 0;
+	int us    = 0;
 	const size_t num = sscanf(stateTimestamp.c_str(),
-	                          "%04d-%02d-%02dT%02d:%02d:%02d.%d",
-	                          &year, &month, &day, &hour, &min, &sec, &ns);
+	                          "%04d-%02d-%02dT%02d:%02d:%02d.%06d",
+	                          &year, &month, &day, &hour, &min, &sec, &us);
 	const size_t NUM_EXPECT_ELEM = 7;
 	if (num != NUM_EXPECT_ELEM)
 		MLPL_ERR("Failed to parser time: %s\n", stateTimestamp.c_str());
@@ -250,7 +250,7 @@ SmartTime HapProcessCeilometer::parseStateTimestamp(
 	tm.tm_mday = day;
 	tm.tm_mon  = month - 1;
 	tm.tm_year = year - 1900;
-	const timespec ts = {mktime(&tm), ns};
+	const timespec ts = {mktime(&tm), us*1000};
 	return SmartTime(ts);
 }
 
