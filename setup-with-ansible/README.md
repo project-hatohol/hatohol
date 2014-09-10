@@ -2,6 +2,8 @@
 
 ## How to use
 
+### With localhost or other hosts
+
 Make a file including IP addresses or host names to be set up. Any file name is OK. Here we name it 'hosts' like the following example.
 
     $ cat hosts
@@ -16,6 +18,19 @@ If you set up the machine on itself, the following can be acceptable.
 Run:
 
     $ ansible-playbook -i hosts setup-hatohol-dev.yaml
+
+### With Vagrant
+
+Run:
+
+    $ vagrant up hatohol-centos-6-x86_64
+    $ vagrant ssh hatohol-centos-6-x86_64
+
+You can destroy the VM by the following command:
+
+    $ vagrant destroy --force hatohol-centos-6-x86_64
+
+You can recreate clean VM after you destroy your VM.
 
 ## Troubleshooting
 
