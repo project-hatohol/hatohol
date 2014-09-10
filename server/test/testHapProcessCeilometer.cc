@@ -83,4 +83,16 @@ void test_parseStateTimestamp()
 	cppcut_assert_equal(expect, actual);
 }
 
+void test_parseStateTimestampWithoutUSec()
+{
+	TestHapProcessCeilometer hap;
+	const string ts = "2014-09-10T09:54:03";
+	SmartTime actual = hap.callParseStateTimestamp(ts);
+	timespec _expect;
+	_expect.tv_sec = 1410342843;
+	_expect.tv_nsec = 0;
+	SmartTime expect(_expect);
+	cppcut_assert_equal(expect, actual);
+}
+
 } // namespace testHapProcessCeilometer
