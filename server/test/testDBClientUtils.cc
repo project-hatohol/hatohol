@@ -50,7 +50,7 @@ void test_getUint64FromGrp(void)
 {
 	static const uint64_t DATA[] = {
 	  0xfedcba9876543210, 0x8000000000000000, 0x7fffffffffffffff, 0x5};
-	static const size_t NUM_DATA = sizeof(DATA) / sizeof(const uint64_t);
+	static const size_t NUM_DATA = ARRAY_SIZE(DATA);
 	ItemGroupPtr itemGrp
 	 = makeItemGroup<uint64_t, ItemUint64>(DATA, NUM_DATA);
 
@@ -63,7 +63,7 @@ void test_getUint64FromGrp(void)
 void test_getUint64FromGrpWithNull(void)
 {
 	static const uint64_t DATA[] = {1, 2, 5};
-	static const size_t NUM_DATA = sizeof(DATA) / sizeof(const uint64_t);
+	static const size_t NUM_DATA = ARRAY_SIZE(DATA);
 	static const bool NULL_VECT[NUM_DATA] = {true, false, true};
 	ItemGroupPtr itemGrp
 	 = makeItemGroup<uint64_t, ItemUint64>(DATA, NUM_DATA, NULL_VECT);
@@ -80,7 +80,7 @@ void test_getUint64FromGrpWithNull(void)
 void test_getIntFromGrp(void)
 {
 	static const int DATA[] = {-2984322, 3285, 0};
-	static const size_t NUM_DATA = sizeof(DATA) / sizeof(int);
+	static const size_t NUM_DATA = ARRAY_SIZE(DATA);
 	ItemGroupPtr itemGrp = makeItemGroup<int, ItemInt>(DATA, NUM_DATA);
 	// check
 	ItemGroupStream itemGroupStream(itemGrp);
@@ -91,7 +91,7 @@ void test_getIntFromGrp(void)
 void test_getIntFromGrpWithNull(void)
 {
 	static const int DATA[] = {-2984322, 3285, 0};
-	static const size_t NUM_DATA = sizeof(DATA) / sizeof(int);
+	static const size_t NUM_DATA = ARRAY_SIZE(DATA);
 	static const bool NULL_VECT[NUM_DATA] = {true, false, true};
 	ItemGroupPtr itemGrp =
 	   makeItemGroup<int, ItemInt>(DATA, NUM_DATA, NULL_VECT);
@@ -107,7 +107,7 @@ void test_getIntFromGrpWithNull(void)
 void test_getStringFromGrp(void)
 {
 	static const string DATA[] = {"ABCE", "", " - ! - #\"'\\"};
-	static const size_t NUM_DATA = sizeof(DATA) / sizeof(string);
+	static const size_t NUM_DATA = ARRAY_SIZE(DATA);
 	ItemGroupPtr itemGrp =
 	   makeItemGroup<string, ItemString>(DATA, NUM_DATA);
 
@@ -120,7 +120,7 @@ void test_getStringFromGrp(void)
 void test_getStringFromGrpWithNull(void)
 {
 	static const string DATA[] = {"ABCE", "", " - ! - #\"'\\"};
-	static const size_t NUM_DATA = sizeof(DATA) / sizeof(string);
+	static const size_t NUM_DATA = ARRAY_SIZE(DATA);
 	static const bool NULL_VECT[NUM_DATA] = {true, false, true};
 	ItemGroupPtr itemGrp =
 	   makeItemGroup<string, ItemString>(DATA, NUM_DATA, NULL_VECT);
