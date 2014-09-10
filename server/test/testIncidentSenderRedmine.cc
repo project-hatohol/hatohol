@@ -17,17 +17,18 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Synchronizer.h"
-#include "RedmineAPIEmulator.h"
-#include "Hatohol.h"
-#include "IncidentSenderRedmine.h"
-#include "LabelUtils.h"
-#include "DBTablesTest.h"
-#include "Helpers.h"
-#include "JSONParser.h"
-#include "ThreadLocalDBCache.h"
+#include <Synchronizer.h>
+#include <Hatohol.h>
+#include <IncidentSenderRedmine.h>
+#include <LabelUtils.h>
+#include <JSONParser.h>
+#include <ThreadLocalDBCache.h>
+#include <RedmineAPI.h>
 #include <cppcutter.h>
 #include <gcutter.h>
+#include "RedmineAPIEmulator.h"
+#include "DBTablesTest.h"
+#include "Helpers.h"
 
 using namespace std;
 using namespace mlpl;
@@ -58,6 +59,10 @@ public:
 	string buildJSON(const EventInfo &event)
 	{
 		return IncidentSenderRedmine::buildJSON(event);
+	}
+	string buildJSON(const IncidentInfo &incident, const string &comment)
+	{
+		return IncidentSenderRedmine::buildJSON(incident, comment);
 	}
 	string getIssuesJSONURL(void)
 	{
@@ -147,6 +152,30 @@ string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 	return expected;
 }
 
+string expectedJSON(const IncidentInfo &incident, const string &comment)
+{
+	string expected = "{\"issue\":{";
+	string contents;
+	if (incident.statusCode != IncidentInfo::STATUS_UNKNOWN) {
+		int statusId = RedmineAPI::incidentStatus2StatusId(
+			incident.statusCode);
+		contents += StringUtils::sprintf("\"status_id\":%d",
+						 statusId);
+	}
+	if (!comment.empty()) {
+		if (!contents.empty())
+			contents += ",";
+		// TODO: It doesn't support escaping UTF-8
+		char *escaped = g_strescape(comment.c_str(), "");
+		contents += StringUtils::sprintf("\"notes\":\"%s\"",
+						 escaped);
+		g_free(escaped);
+	}
+	expected += contents;
+	expected += "}}";
+	return expected;
+}
+
 void test_buildJSON(void)
 {
 	loadTestDBTablesConfig();
@@ -155,6 +184,15 @@ void test_buildJSON(void)
 	TestRedmineSender sender(tracker);
 	cppcut_assert_equal(expectedJSON(testEventInfo[0], tracker),
 			    sender.buildJSON(testEventInfo[0]));
+}
+
+void test_buildJSONForUpdate(void)
+{
+	IncidentTrackerInfo tracker;
+	tracker.projectId = "hatoholtest";
+	TestRedmineSender sender(tracker);
+	cppcut_assert_equal(expectedJSON(testIncidentInfo[0], "abc\n"),
+			    sender.buildJSON(testIncidentInfo[0], "abc\n"));
 }
 
 void test_getIssuesJSONURL(void)

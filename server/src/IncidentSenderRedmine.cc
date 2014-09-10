@@ -151,7 +151,7 @@ string IncidentSenderRedmine::buildJSON(const IncidentInfo &incident,
 	agent.startObject("issue");
 	if (statusId > 0)
 		agent.add("status_id", statusId);
-	if (comment.empty())
+	if (!comment.empty())
 		agent.add("notes", comment);
 	agent.endObject();
 	agent.endObject();
