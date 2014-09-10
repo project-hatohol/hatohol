@@ -589,7 +589,7 @@ ItemDataPtr HatoholArmPluginInterface::createItemData(SmartBuffer &sbuf)
 	HATOHOL_ASSERT(type < NUM_ITEM_TYPE, "Invalid type: %d\n", type);
 
 	// check the body size
-	const size_t requiredBodySize = ITEM_DATA_BODY_SIZE[NUM_ITEM_TYPE];
+	const size_t requiredBodySize = ITEM_DATA_BODY_SIZE[type];
 	HATOHOL_ASSERT(
 	  sbuf.remainingSize() >= requiredBodySize,
 	  "Remain size (body) is too small: %zd (expect: %zd), type: %d\n",
