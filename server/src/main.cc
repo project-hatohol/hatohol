@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
 	int ret = EXIT_FAILURE;
 	try {
 		ret = mainRoutine(argc, argv);
-	} catch (const HatoholException &e){
+	} catch (const HatoholException &e) {
 		MLPL_ERR("Got exception: %s", e.getFancyMessage().c_str());
 	} catch (const exception &e) {
 		MLPL_ERR("Got exception: %s", e.what());
