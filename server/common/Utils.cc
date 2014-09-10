@@ -186,7 +186,7 @@ string Utils::getStringFromGIOCondition(GIOCondition condition)
 	   {G_IO_HUP, "G_IO_HUP"},
 	   {G_IO_NVAL, "G_IO_NVAL"},
 	};
-	const size_t numCondStruct = sizeof(condStruct) / sizeof(CondStruct);
+	const size_t numCondStruct = ARRAY_SIZE(condStruct);
 
 	string str;
 	for (size_t i = 0; i < numCondStruct; i++) {
