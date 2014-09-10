@@ -167,6 +167,8 @@ struct ConfigManager::Impl {
 			return false;
 		}
 
+		loadConfigFileMySQLGroup(keyFile);
+
 		return true;
 	}
 
@@ -186,6 +188,26 @@ struct ConfigManager::Impl {
 			faceRestPort = cmdLineOpts.faceRestPort;
 		if (cmdLineOpts.pidFilePath)
 			pidFilePath = cmdLineOpts.pidFilePath;
+	}
+
+private:
+	void loadConfigFileMySQLGroup(GKeyFile *keyFile)
+	{
+		const gchar *group = "mysql";
+
+		if (!g_key_file_has_group(keyFile, group))
+			return;
+
+		gchar *database =
+			g_key_file_get_string(keyFile, group, "database", NULL);
+		gchar *user =
+			g_key_file_get_string(keyFile, group, "user", NULL);
+		gchar *password =
+			g_key_file_get_string(keyFile, group, "password", NULL);
+		DBHatohol::setDefaultDBParams(database, user, password);
+		g_free(database);
+		g_free(user);
+		g_free(password);
 	}
 };
 
