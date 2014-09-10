@@ -75,6 +75,7 @@ typedef uint64_t HostIdType;
 typedef int IncidentTrackerIdType;
 #define FMT_INCIDENT_TRACKER_ID "d"
 
+// Special Server IDs =========================================================
 static const ServerIdType    INVALID_SERVER_ID = -2;
 static const ServerIdType    ALL_SERVERS       = -1;
 
@@ -84,14 +85,22 @@ static const HostIdType INVALID_HOST_ID           = -2;
 static const HostIdType INAPPLICABLE_HOST_ID      = -3;
 static const HostIdType MONITORING_SERVER_SELF_ID = -4;
 
-static const IncidentTrackerIdType ALL_INCIDENT_TRACKERS = -1;
+// Special Hostgroup IDs ======================================================
 static const HostgroupIdType ALL_HOST_GROUPS = -1;
 
+// Special Indent Tracker IDs =================================================
+static const IncidentTrackerIdType ALL_INCIDENT_TRACKERS = -1;
+
+// Special Trigger IDs ========================================================
 static const TriggerIdType FAILED_CONNECT_ZABBIX_TRIGGERID = -1;
 static const TriggerIdType FAILED_CONNECT_MYSQL_TRIGGERID  = -2;
 static const TriggerIdType FAILED_INTERNAL_ERROR_TRIGGERID = -3;
 static const TriggerIdType FAILED_PARSER_ERROR_TRIGGERID   = -4;
 
+// Special Event IDs ==========================================================
+static const EventIdType EVENT_NOT_FOUND = -1;
+
+// Special User IDs ===========================================================
 static const UserIdType INVALID_USER_ID = -1;
 static const UserIdType USER_ID_ANY     = -2;
 
@@ -99,13 +108,14 @@ static const UserIdType USER_ID_ANY     = -2;
 // This program and the tests use it internally.
 static const UserIdType USER_ID_SYSTEM  = 0;
 
+// Special User Role IDs ======================================================
 static const UserRoleIdType INVALID_USER_ROLE_ID = -1;
 
-static const size_t INVALID_COLUMN_IDX = -1;
-
-static const EventIdType EVENT_NOT_FOUND = -1;
-
+// Special Arm Plugin IDs =====================================================
 static const int INVALID_ARM_PLUGIN_INFO_ID = -1;
+
+// Special index for ColumnDef ================================================
+static const size_t INVALID_COLUMN_IDX = -1;
 
 typedef std::set<UserIdType>      UserIdSet;
 typedef UserIdSet::iterator       UserIdSetIterator;
