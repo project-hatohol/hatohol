@@ -86,7 +86,7 @@ void test_getNameFromMany(void)
 		{10555, "3K background radition is not 4K display"},
 		{4,     "I like strawberry."},
 	};
-	const size_t numData = sizeof(dataArray) / sizeof(DataArray);
+	const size_t numData = ARRAY_SIZE(dataArray);
 
 	HostInfoCache hiCache;
 	for (size_t i = 0; i < numData; i++) {
