@@ -14,6 +14,9 @@
   - name: install libtool
     yum: name=libtool
 
+  - name: install gettext-devel
+    yum: name=gettext-devel
+
   - name: install glib2-devel
     yum: name=glib2-devel
 
