@@ -189,6 +189,7 @@ void test_buildJSON(void)
 void test_buildJSONForUpdate(void)
 {
 	IncidentTrackerInfo tracker;
+	tracker.id = testIncidentInfo[0].trackerId;
 	tracker.projectId = "hatoholtest";
 	TestRedmineSender sender(tracker);
 	cppcut_assert_equal(expectedJSON(testIncidentInfo[0], "abc\n"),
