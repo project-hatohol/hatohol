@@ -62,8 +62,7 @@ public:
 		// assert header output
 		const char *headers[] = {
 		  "Field", "Type", "Null", "Key", "Default", "Extra"};
-		const size_t numHeaders =
-			sizeof(headers) / sizeof(const char *);
+		const size_t numHeaders = ARRAY_SIZE(headers);
 		StringVector actualHeaders;
 		StringUtils::split(actualHeaders, lines[linesIdx++], '\t');
 		cppcut_assert_equal(numHeaders, actualHeaders.size());
