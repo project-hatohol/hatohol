@@ -31,6 +31,7 @@ public:
 	}
 
 	AtomicValue(void)
+	: m_value()
 	{
 	}
 
