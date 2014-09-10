@@ -38,9 +38,6 @@ static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 
 int DBTablesConfig::CONFIG_DB_VERSION = 12;
-const char *DBTablesConfig::DEFAULT_DB_NAME = "hatohol";
-const char *DBTablesConfig::DEFAULT_USER_NAME = "hatohol";
-const char *DBTablesConfig::DEFAULT_PASSWORD  = "hatohol";
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
 const ServerIdSet EMPTY_INCIDENT_TRACKER_ID_SET;

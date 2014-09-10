@@ -273,7 +273,6 @@ public:
 	};
 
 	static int ACTION_DB_VERSION;
-	static const char *DEFAULT_DB_NAME;
 
 	static void init(void);
 	static void reset(void);

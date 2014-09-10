@@ -126,9 +126,6 @@ private:
 class DBTablesConfig : public DBTables {
 public:
 	static int CONFIG_DB_VERSION;
-	static const char *DEFAULT_DB_NAME;
-	static const char *DEFAULT_USER_NAME;
-	static const char *DEFAULT_PASSWORD;
 	static void reset(void);
 	static bool isHatoholArmPlugin(const MonitoringSystemType &type);
 

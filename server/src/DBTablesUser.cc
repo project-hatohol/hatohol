@@ -38,7 +38,6 @@ const UserRoleIdSet EMPTY_USER_ROLE_ID_SET;
 //   * NUM_OPPRVLG:19 -> 23
 const int   DBTablesUser::USER_DB_VERSION = 4;
 
-const char *DBTablesUser::DEFAULT_DB_NAME = DBTablesConfig::DEFAULT_DB_NAME;
 const char *DBTablesUser::TABLE_NAME_USERS = "users";
 const char *DBTablesUser::TABLE_NAME_ACCESS_LIST = "access_list";
 const char *DBTablesUser::TABLE_NAME_USER_ROLES = "user_roles";

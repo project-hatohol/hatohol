@@ -130,7 +130,6 @@ private:
 class DBTablesUser : public DBTables {
 public:
 	static const int   USER_DB_VERSION;
-	static const char *DEFAULT_DB_NAME;
 	static const char *TABLE_NAME_USERS;
 	static const char *TABLE_NAME_ACCESS_LIST;
 	static const char *TABLE_NAME_USER_ROLES;

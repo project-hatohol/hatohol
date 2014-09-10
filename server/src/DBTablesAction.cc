@@ -36,7 +36,6 @@ const static guint DEFAULT_ACTION_DELETE_INTERVAL_MSEC = 3600 * 1000; // 1hour
 
 // 8 -> 9: Add actions.onwer_user_id
 int DBTablesAction::ACTION_DB_VERSION = 9;
-const char *DBTablesAction::DEFAULT_DB_NAME = DBTablesConfig::DEFAULT_DB_NAME;
 
 static void operator>>(
   ItemGroupStream &itemGroupStream, ComparisonType &compType)
