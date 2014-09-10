@@ -38,9 +38,6 @@ enum TriggerSeverityType {
 	NUM_TRIGGER_SEVERITY,
 };
 
-static const uint64_t ALL_TRIGGERS = -1;
-static const uint64_t ALL_ITEMS    = -1;
-
 struct HostInfo {
 	ServerIdType        serverId;
 	HostIdType          id;
@@ -50,9 +47,6 @@ struct HostInfo {
 	std::string         ipAddr;
 	std::string         nickname;
 };
-
-static const uint64_t INVALID_HOST_ID = -1;
-static const HostIdType INAPPLICABLE_HOST_ID = -2;
 
 typedef std::list<HostInfo>          HostInfoList;
 typedef HostInfoList::iterator       HostInfoListIterator;
