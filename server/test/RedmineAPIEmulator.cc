@@ -175,12 +175,17 @@ struct RedmineAPIEmulator::PrivateContext {
 				      const char *path, GHashTable *query,
 				      SoupClientContext *client,
 				      gpointer user_data);
+	static void handlerIssueJSON(SoupServer *server, SoupMessage *msg,
+				     const char *path, GHashTable *query,
+				     SoupClientContext *client,
+				     gpointer user_data);
 	bool handlerDummyResponse(SoupMessage *msg,
 				  const char *path, GHashTable *query,
 				  SoupClientContext *client);
 	string buildResponse(RedmineIssue &issue);
 	void replyGetIssue(SoupMessage *msg);
 	void replyPostIssue(SoupMessage *msg);
+	void replyPutIssue(SoupMessage *msg);
 	int getTrackerId(const string &trackerId);
 
 	map<string, string> m_passwords;
@@ -282,6 +287,9 @@ void RedmineAPIEmulator::setSoupHandlers(SoupServer *soupServer)
 	soup_server_add_handler(soupServer,
 				"/issues.json",
 				PrivateContext::handlerIssuesJSON, this, NULL);
+	soup_server_add_handler(soupServer,
+				"/issues/",
+				PrivateContext::handlerIssueJSON, this, NULL);
 }
 
 typedef enum {
@@ -396,6 +404,22 @@ void RedmineAPIEmulator::PrivateContext::replyPostIssue(SoupMessage *msg)
 	}
 }
 
+void RedmineAPIEmulator::PrivateContext::replyPutIssue(SoupMessage *msg)
+{
+	m_lastRequestBody.assign(msg->request_body->data,
+				 msg->request_body->length);
+	JSONParser agent(m_lastRequestBody);
+
+	if (agent.hasError()) {
+		soup_message_set_status(
+		  msg, SOUP_STATUS_INTERNAL_SERVER_ERROR);
+		return;
+	}
+
+	// TODO: Implement typical errors of Redmine
+	soup_message_set_status(msg, SOUP_STATUS_OK);
+}
+
 bool RedmineAPIEmulator::PrivateContext::handlerDummyResponse
   (SoupMessage *msg, const char *path, GHashTable *query,
    SoupClientContext *client)
@@ -431,12 +455,40 @@ void RedmineAPIEmulator::PrivateContext::handlerIssuesJSON
 	if (method == "GET") {
 		priv->replyGetIssue(msg);
 	} else if (method == "PUT") {
-		// TODO
-		soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
+		soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 	} else if (method == "POST") {
 		priv->replyPostIssue(msg);
 	} else if (method == "DELETE") {
 		// TODO
+		soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
+	} else {
+		soup_message_set_status(msg, SOUP_STATUS_METHOD_NOT_ALLOWED);
+	}
+}
+
+void RedmineAPIEmulator::PrivateContext::handlerIssueJSON
+  (SoupServer *server, SoupMessage *msg, const char *path, GHashTable *query,
+   SoupClientContext *client, gpointer user_data)
+{
+	RedmineAPIEmulator *emulator
+	  = reinterpret_cast<RedmineAPIEmulator *>(user_data);
+	RedmineAPIEmulator::PrivateContext *priv = emulator->m_ctx;
+
+	SoupURI *uri = soup_message_get_uri(msg);
+	const char *queryString = uri->query;
+	priv->m_lastRequestQuery = queryString ? queryString : "";
+
+	if (priv->handlerDummyResponse(msg, path ,query, client))
+		return;
+
+	string method = msg->method;
+	if (method == "GET") {
+		soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
+	} else if (method == "PUT") {
+		priv->replyPutIssue(msg);
+	} else if (method == "POST") {
+		soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
+	} else if (method == "DELETE") {
 		soup_message_set_status(msg, SOUP_STATUS_NOT_IMPLEMENTED);
 	} else {
 		soup_message_set_status(msg, SOUP_STATUS_METHOD_NOT_ALLOWED);

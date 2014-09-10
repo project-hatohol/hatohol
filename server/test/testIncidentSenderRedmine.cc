@@ -277,6 +277,32 @@ void test_send(void)
 	assertSend(HTERR_OK, testIncidentTrackerInfo[2], testEventInfo[0]);
 }
 
+void _assertSendForUpdate(const HatoholErrorCode &expected,
+			  const IncidentInfo &incident,
+			  const string &comment)
+{
+	loadTestDBTablesConfig();
+	int trackerIndex = incident.trackerId - 1;
+	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[trackerIndex];
+	TestRedmineSender sender(tracker);
+	g_redmineEmulator.addUser(tracker.userName, tracker.password);
+	HatoholError result = sender.send(incident, comment);
+	assertHatoholError(expected, result);
+
+	if (expected != HTERR_OK)
+		return;
+
+	cppcut_assert_equal(expectedJSON(incident, comment),
+			    g_redmineEmulator.getLastRequestBody());
+}
+#define assertSendForUpdate(E,I,C) cut_trace(_assertSendForUpdate(E,I,C))
+
+void test_sendForUpdate(void)
+{
+	IncidentInfo incident = testIncidentInfo[0];
+	assertSendForUpdate(HTERR_OK, incident, "Updated");
+}
+
 void test_sendWithUnknownTracker(void)
 {
 	IncidentTrackerInfo tracker = testIncidentTrackerInfo[2];
