@@ -435,4 +435,35 @@ void test_operatorCastToString(void)
 	                    static_cast<string>(stime));
 }
 
+void data_hasValidTime(void)
+{
+	gcut_add_datum("both: zero",
+	               "sec", G_TYPE_INT, 0, "ns",  G_TYPE_INT, 0,
+	               "expect", G_TYPE_BOOLEAN, FALSE,  NULL);
+	gcut_add_datum("ns: non-zero",
+	               "sec", G_TYPE_INT, 0, "ns",  G_TYPE_INT, 1,
+	               "expect", G_TYPE_BOOLEAN, TRUE,  NULL);
+	gcut_add_datum("sec: non-zero",
+	               "sec", G_TYPE_INT, 1, "ns",  G_TYPE_INT, 0,
+	               "expect", G_TYPE_BOOLEAN, TRUE,  NULL);
+	gcut_add_datum("both: non-zero",
+	               "sec", G_TYPE_INT, 1, "ns",  G_TYPE_INT, 1,
+	               "expect", G_TYPE_BOOLEAN, TRUE,  NULL);
+}
+
+void test_hasValidTime(gconstpointer data)
+{
+	const timespec ts = {gcut_data_get_int(data, "sec"),
+	                     gcut_data_get_int(data, "ns")};
+	const bool expect = gcut_data_get_boolean(data, "expect");
+	SmartTime stime(ts);
+	cppcut_assert_equal(expect, stime.hasValidTime());
+}
+
+void test_hasValidTimeOfDefault(void)
+{
+	SmartTime stime;
+	cppcut_assert_equal(false, stime.hasValidTime());
+}
+
 } // namespace testSmartTime
