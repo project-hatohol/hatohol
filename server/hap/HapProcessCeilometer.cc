@@ -239,7 +239,9 @@ SmartTime HapProcessCeilometer::parseStateTimestamp(
 	                          "%04d-%02d-%02dT%02d:%02d:%02d.%06d",
 	                          &year, &month, &day, &hour, &min, &sec, &us);
 	const size_t NUM_EXPECT_ELEM = 7;
-	if (num != NUM_EXPECT_ELEM)
+	// We sometimes get the timestamp without the usec part.
+	// So we also accept the result with NUM_EXPECT_ELEM-1.
+	if (num != NUM_EXPECT_ELEM-1 && num != NUM_EXPECT_ELEM)
 		MLPL_ERR("Failed to parser time: %s\n", stateTimestamp.c_str());
 
 	tm tm;
