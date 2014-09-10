@@ -78,14 +78,14 @@ typedef int IncidentTrackerIdType;
 static const ServerIdType    INVALID_SERVER_ID = -2;
 static const ServerIdType    ALL_SERVERS       = -1;
 
-static const HostIdType      ALL_HOSTS   = -1;
-static const HostgroupIdType ALL_HOST_GROUPS = -1;
-static const IncidentTrackerIdType ALL_INCIDENT_TRACKERS = -1;
+// Special Host IDs ===========================================================
+static const HostIdType ALL_HOSTS                 = -1;
+static const HostIdType INVALID_HOST_ID           = -2;
+static const HostIdType INAPPLICABLE_HOST_ID      = -3;
+static const HostIdType MONITORING_SERVER_SELF_ID = -4;
 
-// Define a special ID By using the -2.
-// Because, it does not overlap with the hostID set by the Zabbix.
-// There is a possibility that depends on Zabbix version of this.
-static const HostIdType MONITORING_SERVER_SELF_ID = -2;
+static const IncidentTrackerIdType ALL_INCIDENT_TRACKERS = -1;
+static const HostgroupIdType ALL_HOST_GROUPS = -1;
 
 static const TriggerIdType FAILED_CONNECT_ZABBIX_TRIGGERID = -1;
 static const TriggerIdType FAILED_CONNECT_MYSQL_TRIGGERID  = -2;

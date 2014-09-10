@@ -51,9 +51,6 @@ struct HostInfo {
 	std::string         nickname;
 };
 
-static const HostIdType INVALID_HOST_ID = -1;
-static const HostIdType INAPPLICABLE_HOST_ID = -2;
-
 typedef std::list<HostInfo>          HostInfoList;
 typedef HostInfoList::iterator       HostInfoListIterator;
 typedef HostInfoList::const_iterator HostInfoListConstIterator;
