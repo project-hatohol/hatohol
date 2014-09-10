@@ -153,8 +153,7 @@ public:
 		const TableProfile *tableProfiles[] = {
 		  &tableProfileTest, &tableProfileTestAutoInc,
 		};
-		const size_t numTableProfiles =
-		  sizeof(tableProfiles) / sizeof(TableProfile *);
+		const size_t numTableProfiles = ARRAY_SIZE(tableProfiles);
 		SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 		cppcut_assert_equal(tableProfiles, arg.profiles);
 		cppcut_assert_equal(numTableProfiles, arg.numTables);
@@ -165,8 +164,7 @@ public:
 		const TableProfile *tableProfiles[] = {
 		  &tableProfileTest, &tableProfileTestAutoInc,
 		};
-		const size_t numTableProfiles =
-		  sizeof(tableProfiles) / sizeof(TableProfile *);
+		const size_t numTableProfiles = ARRAY_SIZE(tableProfiles);
 		SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 		arg.setTable(1);
 		cppcut_assert_equal(tableProfiles[1], arg.tableProfile);
@@ -178,8 +176,7 @@ public:
 		const TableProfile *tableProfiles[] = {
 		  &tableProfileTest, &tableProfileTestAutoInc,
 		};
-		const size_t numTableProfiles =
-		  sizeof(tableProfiles) / sizeof(TableProfile *);
+		const size_t numTableProfiles = ARRAY_SIZE(tableProfiles);
 		SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
 		// 1st add()
@@ -218,8 +215,7 @@ public:
 		const TableProfile *tableProfiles[] = {
 		  &tableProfileTest, &tableProfileTestAutoInc,
 		};
-		const size_t numTableProfiles =
-		  sizeof(tableProfiles) / sizeof(TableProfile *);
+		const size_t numTableProfiles = ARRAY_SIZE(tableProfiles);
 		SelectMultiTableArg arg(tableProfiles, numTableProfiles);
 
 		const size_t columnIdx = 3;
@@ -465,7 +461,7 @@ void test_insertArgAddInt(void)
 {
 	TestDBAgent dbAgent;
 	const int vals[] = {3, -1, 500};
-	const size_t numVals = sizeof(vals) / sizeof(int);
+	const size_t numVals = ARRAY_SIZE(vals);
 	dbAgent.assertInsertArgAdd<int>(vals, numVals);
 }
 
@@ -473,7 +469,7 @@ void test_insertArgAddUint64(void)
 {
 	TestDBAgent dbAgent;
 	const uint64_t vals[] = {0, 0xfedcba987654321, 0x0123456789abcdef};
-	const size_t numVals = sizeof(vals) / sizeof(uint64_t);
+	const size_t numVals = ARRAY_SIZE(vals);
 	dbAgent.assertInsertArgAdd<uint64_t>(vals, numVals);
 }
 
@@ -481,7 +477,7 @@ void test_insertArgAddDouble(void)
 {
 	TestDBAgent dbAgent;
 	const double vals[] = {0.8, -0.53432e237, 234.43243e8};
-	const size_t numVals = sizeof(vals) / sizeof(double);
+	const size_t numVals = ARRAY_SIZE(vals);
 	dbAgent.assertInsertArgAdd<double>(vals, numVals);
 }
 
@@ -489,7 +485,7 @@ void test_insertArgAddString(void)
 {
 	TestDBAgent dbAgent;
 	const string vals[] = {"booo", "v.v;", "Ueno Zoo"};
-	const size_t numVals = sizeof(vals) / sizeof(string);
+	const size_t numVals = ARRAY_SIZE(vals);
 	dbAgent.assertInsertArgAdd<string>(vals, numVals);
 }
 
@@ -497,7 +493,7 @@ void test_insertArgAddTime_t(void)
 {
 	TestDBAgent dbAgent;
 	const time_t vals[] = {0, 0x7fffffff, 1391563132};
-	const size_t numVals = sizeof(vals) / sizeof(string);
+	const size_t numVals = ARRAY_SIZE(vals);
 	dbAgent.assertInsertArgAdd<time_t, int>(vals, numVals);
 }
 
@@ -505,7 +501,7 @@ void test_updateArgAddInt(void)
 {
 	TestDBAgent dbAgent;
 	const int vals[] = {3, -1, 500};
-	const size_t numVals = sizeof(vals) / sizeof(int);
+	const size_t numVals = ARRAY_SIZE(vals);
 	dbAgent.assertUpdateArgAdd<int>(vals, numVals);
 }
 
@@ -513,7 +509,7 @@ void test_updateArgAddUint64(void)
 {
 	TestDBAgent dbAgent;
 	const uint64_t vals[] = {0, 0xfedcba987654321, 0x0123456789abcdef};
-	const size_t numVals = sizeof(vals) / sizeof(uint64_t);
+	const size_t numVals = ARRAY_SIZE(vals);
 	dbAgent.assertUpdateArgAdd<uint64_t>(vals, numVals);
 }
 
@@ -521,7 +517,7 @@ void test_updateArgAddDouble(void)
 {
 	TestDBAgent dbAgent;
 	const double vals[] = {0.8, -0.53432e237, 234.43243e8};
-	const size_t numVals = sizeof(vals) / sizeof(double);
+	const size_t numVals = ARRAY_SIZE(vals);
 	dbAgent.assertUpdateArgAdd<double>(vals, numVals);
 }
 
@@ -529,7 +525,7 @@ void test_updateArgAddString(void)
 {
 	TestDBAgent dbAgent;
 	const string vals[] = {"booo", "v.v;", "Ueno Zoo"};
-	const size_t numVals = sizeof(vals) / sizeof(string);
+	const size_t numVals = ARRAY_SIZE(vals);
 	dbAgent.assertUpdateArgAdd<string>(vals, numVals);
 }
 
@@ -537,7 +533,7 @@ void test_updateArgAddTime_t(void)
 {
 	TestDBAgent dbAgent;
 	const time_t vals[] = {0, 0x7fffffff, 1391563132};
-	const size_t numVals = sizeof(vals) / sizeof(string);
+	const size_t numVals = ARRAY_SIZE(vals);
 	dbAgent.assertUpdateArgAdd<time_t, int>(vals, numVals);
 }
 
