@@ -67,7 +67,7 @@ static TableStruct0 tableContent0[] = {
   {50, "love", "yellow"},
   {60, "while", "blue"},
 };
-static const size_t NUM_TABLE0 = sizeof(tableContent0) / sizeof(TableStruct0);
+static const size_t NUM_TABLE0 = ARRAY_SIZE(tableContent0);
 
 static TableStruct1 tableContent1[] = {
   {"anri",  150, "ann"},
@@ -76,7 +76,7 @@ static TableStruct1 tableContent1[] = {
   {"mai",   180, "maimai"},
   {"anri",  250, "tooower"},
 };
-static const size_t NUM_TABLE1 = sizeof(tableContent1) / sizeof(TableStruct1);
+static const size_t NUM_TABLE1 = ARRAY_SIZE(tableContent1);
 
 static void addItemTable0(ItemGroup *grp, TableStruct0 *table)
 {
