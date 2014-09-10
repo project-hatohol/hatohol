@@ -28,8 +28,8 @@ fi
 expanded_localstatedir="`eval echo $localstatedir`"
 AC_DEFINE_UNQUOTED(LOCALSTATEDIR, "$expanded_localstatedir", "Local state directory.")
 
-expanded_pkglocalstatedir="$expanded_localstatedir/$PACKAGE"
-AC_SUBST(expanded_pkglocalstatedir)
+expanded_pkglocaldatadir="$expanded_localstatedir/lib/$PACKAGE"
+AC_SUBST(expanded_pkglocaldatadir)
 
 if test x"$exec_prefix" = x"NONE"; then
     exec_prefix=$prefix
