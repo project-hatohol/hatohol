@@ -132,7 +132,7 @@ int mainRoutine(int argc, char *argv[])
 	g_thread_init(NULL);
 #endif // GLIB_VERSION_2_32 
 
-	// parse command line arguemnt
+	// parse command line argument
 	ExecContext ctx;
 	if (!ConfigManager::parseCommandLine(&argc, &argv, &ctx.cmdLineOpts))
 		return EXIT_FAILURE;
