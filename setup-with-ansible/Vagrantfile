@@ -1,0 +1,37 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  vms = [
+    {
+      :id => "ubuntu-14.04-x86_64",
+      :box_url => "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_ubuntu-14.04_chef-provisionerless.box",
+    },
+    {
+      :id => "centos-6-x86_64",
+      :box_url => "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_centos-6.5_chef-provisionerless.box",
+    },
+  ]
+
+  id_prefix = "hatohol"
+  vms.each do |vm|
+    id = [id_prefix, vm[:id]].join("-")
+    config.vm.define(id) do |node|
+      node.vm.box = id
+      node.vm.box_url = vm[:box_url]
+      node.vm.provision("ansible") do |ansible|
+        ansible.playbook = "setup-hatohol-dev.yaml"
+        ansible.sudo = true
+        ansible.extra_vars = {
+          :ansible_ssh_user => "vagrant",
+        }
+        ansible.groups = {
+          "targets" => [id],
+        }
+      end
+    end
+  end
+end
