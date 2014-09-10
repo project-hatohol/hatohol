@@ -58,11 +58,11 @@
   - name: install cutter
     yum: name=cutter
 
-#  - name: install python-pip
-#    yum: name=python-pip
+  - name: install python-pip
+    yum: name=python-pip
 
-#  - name: install python-dev
-#    yum: name=python-dev
+  - name: install python-devel
+    yum: name=python-devel
 
 #  - name: install npm
 #    yum: name=npm
@@ -88,6 +88,6 @@
   - name: install django 1.5.4
     yum: name=Django
 
-#  - name: install mysql-python
-#    pip: name=mysql-python
+  - name: install mysql-python
+    pip: name=mysql-python
 
