@@ -11,7 +11,7 @@ run()
     fi
 }
 
-base_directory="@expanded_pkglocalstatedir@"
+base_directory="@expanded_pkglocaldatadir@"
 
 show_usage()
 {
