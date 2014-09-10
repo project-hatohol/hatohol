@@ -72,7 +72,7 @@ MonitoringServerInfo testServerInfo[] =
 	"fermion",                // password
 	"",                       // db_name
 }};
-size_t NumTestServerInfo = sizeof(testServerInfo) / sizeof(MonitoringServerInfo);
+size_t NumTestServerInfo = ARRAY_SIZE(testServerInfo);
 
 MonitoringServerStatus testServerStatus[] =
 {{
@@ -85,7 +85,7 @@ MonitoringServerStatus testServerStatus[] =
 	3,                        // id
 	1.3,                      // nvps
 }};
-size_t NumTestServerStatus = sizeof(testServerStatus) / sizeof(MonitoringServerStatus);
+size_t NumTestServerStatus = ARRAY_SIZE(testServerStatus);
 
 TriggerInfo testTriggerInfo[] = 
 {{
@@ -182,7 +182,7 @@ TriggerInfo testTriggerInfo[] =
 	"defunctSv1Host1 material", // brief,
 },
 };
-size_t NumTestTriggerInfo = sizeof(testTriggerInfo) / sizeof(TriggerInfo);
+size_t NumTestTriggerInfo = ARRAY_SIZE(testTriggerInfo);
 
 static const TriggerInfo &trigInfoDefunctSv1 =
   testTriggerInfo[NumTestTriggerInfo-1];
@@ -278,7 +278,7 @@ EventInfo testEventInfo[] = {
 // See also the definition of trigInfoDefunctSv1 above. Anyway,
 // ******* DON'T APPEND RECORDS AFTER HERE *******
 };
-size_t NumTestEventInfo = sizeof(testEventInfo) / sizeof(EventInfo);
+size_t NumTestEventInfo = ARRAY_SIZE(testEventInfo);
 
 EventInfo testDupEventInfo[] = {
 {
@@ -319,7 +319,7 @@ EventInfo testDupEventInfo[] = {
 	"TEST Trigger 3",         // brief,
 },
 };
-size_t NumTestDupEventInfo = sizeof(testDupEventInfo) / sizeof(EventInfo);
+size_t NumTestDupEventInfo = ARRAY_SIZE(testDupEventInfo);
 
 ItemInfo testItemInfo[] = {
 {
@@ -360,7 +360,7 @@ ItemInfo testItemInfo[] = {
 	"City",                   // itemGroupName,
 },
 };
-size_t NumTestItemInfo = sizeof(testItemInfo) / sizeof(ItemInfo);
+size_t NumTestItemInfo = ARRAY_SIZE(testItemInfo);
 
 ActionDef testActionDef[] = {
 {
@@ -494,7 +494,7 @@ ActionDef testActionDef[] = {
 },
 };
 
-const size_t NumTestActionDef = sizeof(testActionDef) / sizeof(ActionDef);
+const size_t NumTestActionDef = ARRAY_SIZE(testActionDef);
 
 UserInfo testUserInfo[] = {
 {
@@ -552,7 +552,7 @@ UserInfo testUserInfo[] = {
 	(1 << OPPRVLG_DELETE_ACTION), // flags
 }
 };
-const size_t NumTestUserInfo = sizeof(testUserInfo) / sizeof(UserInfo);
+const size_t NumTestUserInfo = ARRAY_SIZE(testUserInfo);
 const UserIdType userIdWithMultipleAuthorizedHostgroups = 7;
 
 AccessInfo testAccessInfo[] = {
@@ -608,7 +608,7 @@ AccessInfo testAccessInfo[] = {
 	2,                 // hostgroupId
 }
 };
-const size_t NumTestAccessInfo = sizeof(testAccessInfo) / sizeof(AccessInfo);
+const size_t NumTestAccessInfo = ARRAY_SIZE(testAccessInfo);
 
 HostgroupInfo testHostgroupInfo[] = {
 {
@@ -649,7 +649,7 @@ HostgroupInfo testHostgroupInfo[] = {
 	"Hostgroup on a defunct servers" // groupName
 }
 };
-const size_t NumTestHostgroupInfo = sizeof(testHostgroupInfo) / sizeof(HostgroupInfo);
+const size_t NumTestHostgroupInfo = ARRAY_SIZE(testHostgroupInfo);
 
 HostInfo testHostInfo[] = {
 {
@@ -699,7 +699,7 @@ HostInfo testHostInfo[] = {
 	trigInfoDefunctSv1.hostName, // hostName,
 }
 };
-const size_t NumTestHostInfo = sizeof(testHostInfo) / sizeof(HostInfo);
+const size_t NumTestHostInfo = ARRAY_SIZE(testHostInfo);
 
 HostgroupElement testHostgroupElement[] = {
 {
@@ -770,7 +770,7 @@ HostgroupElement testHostgroupElement[] = {
 	1,                           // groupId
 }
 };
-const size_t NumTestHostgroupElement = sizeof(testHostgroupElement) / sizeof(HostgroupElement);
+const size_t NumTestHostgroupElement = ARRAY_SIZE(testHostgroupElement);
 
 UserRoleInfo testUserRoleInfo[] = {
 {
@@ -797,7 +797,7 @@ UserRoleInfo testUserRoleInfo[] = {
 	(1 << OPPRVLG_DELETE_ALL_USER_ROLE)
 }
 };
-const size_t NumTestUserRoleInfo = sizeof(testUserRoleInfo) / sizeof(UserRoleInfo);
+const size_t NumTestUserRoleInfo = ARRAY_SIZE(testUserRoleInfo);
 
 ArmPluginInfo testArmPluginInfo[] = {
 {
@@ -837,7 +837,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 	3,                               // serverId
 }
 };
-const size_t NumTestArmPluginInfo = sizeof(testArmPluginInfo) / sizeof(ArmPluginInfo);
+const size_t NumTestArmPluginInfo = ARRAY_SIZE(testArmPluginInfo);
 
 IncidentTrackerInfo testIncidentTrackerInfo[] = {
 {
@@ -878,7 +878,7 @@ IncidentTrackerInfo testIncidentTrackerInfo[] = {
 	"o.o662L6q1V7E",          // password
 }
 };
-size_t NumTestIncidentTrackerInfo = sizeof(testIncidentTrackerInfo) / sizeof(IncidentTrackerInfo);
+size_t NumTestIncidentTrackerInfo = ARRAY_SIZE(testIncidentTrackerInfo);
 
 IncidentInfo testIncidentInfo[] = {
 {
@@ -927,7 +927,7 @@ IncidentInfo testIncidentInfo[] = {
 	IncidentInfo::STATUS_OPENED,// statusCode
 },
 };
-size_t NumTestIncidentInfo = sizeof(testIncidentInfo) / sizeof(IncidentInfo);
+size_t NumTestIncidentInfo = ARRAY_SIZE(testIncidentInfo);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
