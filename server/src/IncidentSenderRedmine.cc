@@ -134,6 +134,30 @@ string IncidentSenderRedmine::buildJSON(const EventInfo &event)
 	return agent.generate();
 }
 
+string IncidentSenderRedmine::buildJSON(const IncidentInfo &incident,
+					const string &comment)
+{
+	// TODO: Sending only status_id & notes are supported in this version.
+
+	if (incident.statusCode == IncidentInfo::STATUS_UNKNOWN &&
+	    comment.empty()) {
+		// nothing to update
+		return string();
+	}
+
+	JSONBuilder agent;
+	int statusId = RedmineAPI::incidentStatus2StatusId(incident.statusCode);
+	agent.startObject();
+	agent.startObject("issue");
+	if (statusId > 0)
+		agent.add("status_id", statusId);
+	if (comment.empty())
+		agent.add("notes", comment);
+	agent.endObject();
+	agent.endObject();
+	return agent.generate();
+}
+
 void IncidentSenderRedmine::Impl::authenticateCallback(
   SoupSession *session, SoupMessage *msg, SoupAuth *auth, gboolean retrying,
   gpointer user_data)
@@ -268,5 +292,11 @@ HatoholError IncidentSenderRedmine::send(const EventInfo &event)
 HatoholError IncidentSenderRedmine::send(const IncidentInfo &incident,
 					 const std::string &comment)
 {
-	return HTERR_NOT_IMPLEMENTED;
+	string url = getIssueURL(incident.identifier) + string(".json");
+	string json = buildJSON(incident, comment);
+	string response;
+
+	// Don't update the incident in DB here.
+	// It will be done by ArmRedmine
+	return m_impl->send(SOUP_METHOD_PUT, url, json, response);
 }

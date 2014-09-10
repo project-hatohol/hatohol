@@ -63,6 +63,26 @@ IncidentInfo::Status statusId2IncidentStatus(const int &statusId)
 	}
 }
 
+int incidentStatus2StatusId(const IncidentInfo::Status &status)
+{
+	// TODO: same with statusId2IncidentStatus()
+
+	switch(status) {
+	case IncidentInfo::STATUS_OPENED:
+		return 1;
+	case IncidentInfo::STATUS_ASSIGNED:
+		return 2;
+	case IncidentInfo::STATUS_RESOLVED:
+		return 3;
+	case IncidentInfo::STATUS_REOPENED:
+		return 4;
+	case IncidentInfo::STATUS_CLOSED:
+		return 5;
+	default:
+		return 0;
+	}
+}
+
 bool parseIssue(JSONParser &agent, IncidentInfo &incidentInfo)
 {
 	int64_t issueId = 0;

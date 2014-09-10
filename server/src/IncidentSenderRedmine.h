@@ -35,6 +35,8 @@ public:
 
 protected:
 	std::string buildJSON(const EventInfo &event);
+	std::string buildJSON(const IncidentInfo &incident,
+			      const std::string &comment);
 	std::string getProjectURL(void);
 	std::string getIssuesJSONURL(void);
 	std::string getIssueURL(const std::string &id);

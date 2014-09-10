@@ -26,6 +26,7 @@ namespace RedmineAPI
 	std::string getIssueURL(const IncidentTrackerInfo &trackerInfo,
 				const std::string &id);
 	IncidentInfo::Status statusId2IncidentStatus(const int &statusId);
+	int incidentStatus2StatusId(const IncidentInfo::Status &status);
 	bool parseIssue(JSONParser &agent,
 			IncidentInfo &incidentInfo);
 	bool parseDateTime(JSONParser &agent,
