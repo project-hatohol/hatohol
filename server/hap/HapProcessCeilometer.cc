@@ -216,6 +216,7 @@ HatoholError HapProcessCeilometer::getAlarmList(void)
 	                                      MIME_JSON, NULL);
 	soup_message_headers_append(msg->request_headers,
 	                            "X-Auth-Token", m_impl->token.c_str());
+	// TODO: Add query condition to get updated alarm only.
 	SoupSession *session = soup_session_sync_new();
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
@@ -370,14 +371,172 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmList(
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
 
+	HatoholError err(HTERR_OK);
 	const unsigned int count = parser.countElements();
 	m_impl->acquireCtx.alarmIds.reserve(count);
 	for (unsigned int i = 0; i < count; i++) {
-		HatoholError err = parseAlarmElement(parser, tablePtr, i);
+		err = parseAlarmElement(parser, tablePtr, i);
 		if (err != HTERR_OK)
-			return err;
+			break;
 	}
+	return err;
+}
+
+HatoholError HapProcessCeilometer::getAlarmHistories(void)
+{
+	HatoholError err(HTERR_OK);
+	for (size_t i = 0; i < m_impl->acquireCtx.alarmIds.size(); i++) {
+		const string &alarmId = m_impl->acquireCtx.alarmIds[i];
+		string url = StringUtils::sprintf(
+		               "%s/v2/alarms/%s/history",
+		               m_impl->ceilometerEP.publicURL.c_str(),
+		               alarmId.c_str());
+		err = getAlarmHistory(url);
+		if (err != HTERR_OK) {
+			MLPL_ERR("Failed to get alarm history: %s\n",
+		                 alarmId.c_str());
+		}
+	}
+	return err;
+}
+
+HatoholError HapProcessCeilometer::getAlarmHistory(const string url)
+{
+	// TODO: extract the commonly used part with getAlarmList()
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
+	if (!msg) {
+		MLPL_ERR("Failed to create SoupMessage: %s\n", url.c_str());
+		return HTERR_INVALID_URL;
+	}
+	Reaper<void> msgReaper(msg, g_object_unref);
+	soup_message_headers_set_content_type(msg->request_headers,
+	                                      MIME_JSON, NULL);
+	soup_message_headers_append(msg->request_headers,
+	                            "X-Auth-Token", m_impl->token.c_str());
+	// TODO: Add query condition to get new events only.
+	SoupSession *session = soup_session_sync_new();
+	guint ret = soup_session_send_message(session, msg);
+	if (ret != SOUP_STATUS_OK) {
+		MLPL_ERR("Failed to connect: %d, URL: %s\n", ret, url.c_str());
+		return HTERR_BAD_REST_RESPONSE_CEILOMETER;
+	}
+	VariableItemTablePtr eventTablePtr;
+	HatoholError err = parseReplyGetAlarmHistory(msg, eventTablePtr);
+	if (err != HTERR_OK) {
+		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
+		         msg->response_body->length, msg->response_body->data);
+	}
+	//sendTable(HAPI_CMD_SEND_UPDATED_EVENTS,
+	//          static_cast<ItemTablePtr>(eventTablePtr));
+	return err;
+}
+
+HatoholError HapProcessCeilometer::parseReplyGetAlarmHistory(
+  SoupMessage *msg, VariableItemTablePtr &tablePtr)
+{
+	JSONParser parser(msg->response_body->data);
+	if (parser.hasError()) {
+		MLPL_ERR("Failed to parser %s\n", parser.getErrorMessage());
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	}
+
+	HatoholError err(HTERR_OK);
+	const unsigned int count = parser.countElements();
+	for (unsigned int i = 0; i < count; i++) {
+		err = parseReplyGetAlarmHistoryElement(parser, tablePtr, i);
+		if (err != HTERR_OK)
+			break;
+	}
+	return err;
+}
+
+HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
+  JSONParser &parser, VariableItemTablePtr &tablePtr, const unsigned int &index)
+{
+	JSONParser::PositionStack parserRewinder(parser);
+	if (! parserRewinder.pushElement(index)) {
+		MLPL_ERR("Failed to parse an element, index: %u\n", index);
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	}
+
+	// Event ID
+	string eventIdStr;
+	if (!read(parser, "event_id", eventIdStr))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	// TODO: Fix a structure to save ID.
+	// We temporarily generate the 64bit triggerID and host ID from UUID.
+	// Strictly speaking, this way is not safe.
+	const uint64_t eventId = generateHashU64(eventIdStr);
+
+	// Timestamp
+	string timestampStr;
+	if (!read(parser, "timestamp", timestampStr))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	const SmartTime timestamp = parseStateTimestamp(timestampStr);
+
+	// type
+	string typeStr;
+	if (!read(parser, "type", typeStr))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+
+	// Status
+	EventType type = EVENT_TYPE_UNKNOWN;
+	if (typeStr == "creation" || typeStr == "state transition") {
+		string detail;
+		if (!read(parser, "detail", detail))
+			return HTERR_FAILED_TO_PARSE_JSON_DATA;
+		type = parseAlarmHistoryDetail(detail);
+	} else {
+		MLPL_BUG("Unknown type: %s\n", typeStr.c_str());
+	}
+
+	// Trigger ID (alarm ID)
+	string alarmIdStr;
+	if (!read(parser, "alarm_id", alarmIdStr))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	const uint64_t alarmId = generateHashU64(alarmIdStr);
+
+	// Fill table.
+	// TODO: Define ItemID without ZBX.
+	// TODO: This is originally defined in HatoholDBUtils.cc.
+	//       But this Zabbix dependent constant shouldn't be used.
+	static const int EVENT_OBJECT_TRIGGER = 0;
+	const timespec &ts = timestamp.getAsTimespec();
+	VariableItemGroupPtr grp;
+	grp->addNewItem(ITEM_ID_ZBX_EVENTS_EVENTID,   eventId);
+	grp->addNewItem(ITEM_ID_ZBX_EVENTS_OBJECT,    EVENT_OBJECT_TRIGGER);
+	grp->addNewItem(ITEM_ID_ZBX_EVENTS_OBJECTID,  alarmId);
+	grp->addNewItem(ITEM_ID_ZBX_EVENTS_CLOCK,     (int)ts.tv_sec);
+	grp->addNewItem(ITEM_ID_ZBX_EVENTS_VALUE,     type);
+	grp->addNewItem(ITEM_ID_ZBX_EVENTS_NS,        (int)ts.tv_nsec);
+	tablePtr->add(grp);
+
 	return HTERR_OK;
+}
+
+EventType HapProcessCeilometer::parseAlarmHistoryDetail(
+  const std::string &detail)
+{
+	JSONParser parser(detail);
+	if (parser.hasError()) {
+		MLPL_ERR("Failed to parse: %s\n", detail.c_str());
+		return EVENT_TYPE_UNKNOWN;
+	}
+
+	string state;
+	if (!read(parser, "state", state)) {
+		MLPL_ERR("Not found 'state': %s\n", detail.c_str());
+		return EVENT_TYPE_UNKNOWN;
+	}
+
+	if (state == "ok")
+		return EVENT_TYPE_GOOD;
+	else if (state == "alarm")
+		return EVENT_TYPE_BAD;
+	else if (state == "insufficient data")
+		return EVENT_TYPE_UNKNOWN;
+	MLPL_ERR("Unknown state: %s\n", state.c_str());
+	return EVENT_TYPE_UNKNOWN;
 }
 
 bool HapProcessCeilometer::startObject(
@@ -405,7 +564,8 @@ void HapProcessCeilometer::acquireData(void)
 
 	MLPL_DBG("acquireData\n");
 	updateAuthTokenIfNeeded();
-	getAlarmList(); // Trigger
+	getAlarmList();      // Trigger
+	getAlarmHistories(); // Event
 	// TODO: Add get trigger, event, and so on.
 }
 

@@ -46,6 +46,15 @@ protected:
 	mlpl::SmartTime parseStateTimestamp(const std::string &stateTimestamp);
 	uint64_t generateHashU64(const std::string &str);
 
+	HatoholError getAlarmHistories(void);
+	HatoholError getAlarmHistory(const std::string url);
+	HatoholError parseReplyGetAlarmHistory(
+	  SoupMessage *msg, VariableItemTablePtr &tablePtr);
+	HatoholError parseReplyGetAlarmHistoryElement(
+	  JSONParser &parser, VariableItemTablePtr &tablePtr,
+	  const unsigned int &index);
+	EventType parseAlarmHistoryDetail(const std::string &detail);
+
 	bool startObject(JSONParser &parser, const std::string &name);
 	bool read(JSONParser &parser, const std::string &member,
 	          std::string &dest);
