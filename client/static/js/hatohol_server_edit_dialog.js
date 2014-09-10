@@ -163,74 +163,7 @@ HatoholServerEditDialog.prototype = Object.create(HatoholDialog.prototype);
 HatoholServerEditDialog.prototype.constructor = HatoholServerEditDialog;
 
 HatoholServerEditDialog.prototype.createMainElement = function() {
-  var div = $(makeMainDivHTML());
-  return div;
-
-  function makeMainDivHTML() {
-    var s = "";
-    s += '<div id="add-action-div">';
-    s += '<form class="form-inline">';
-    s += '  <label>' + gettext("Server type") + '</label>';
-    s += '  <select id="selectServerType" style="width:10em">';
-    s += '    <option value="' + hatohol.MONITORING_SYSTEM_ZABBIX + '">' +
-      gettext("Zabbix") + '</option>';
-    s += '    <option value="' + hatohol.MONITORING_SYSTEM_NAGIOS +'">' +
-      gettext("Nagios") + '</option>';
-    s += '    <option value="' + hatohol.MONITORING_SYSTEM_HAPI_ZABBIX +'">' +
-      gettext("Zabbix") + " (HAPI) [" + gettext("experimental") + "]" + '</option>';
-    s += '    <option value="' + hatohol.MONITORING_SYSTEM_HAPI_JSON +'">' +
-      gettext("JSON") + " (HAPI) [" + gettext("experimental") + "]" + '</option>';
-    s += '  </select>';
-    s += '</form>';
-    s += '<form class="form-inline">';
-    s += '  <label for="inputNickName">' + gettext("Nickname") + '</label>';
-    s += '  <input id="inputNickName" type="text" value="" style="width:10em" class="input-xlarge">';
-    s += '</form>';
-    s += '<form class="form-inline">';
-    s += '  <label for="inputHostName">' + gettext("Host name") + '</label>';
-    s += '  <input id="inputHostName" type="text" value="" style="width:10em" class="input-xlarge">';
-    s += '  <label for="inputIpAddress">' + gettext("IP address") + '</label>';
-    s += '  <input id="inputIpAddress" type="text" value="" style="width:10em" class="input-xlarge">';
-    s += '  <label for="inputPort">' + gettext("Port") + '</label>';
-    s += '  <input id="inputPort" type="text" value="80" style="width:4em" class="input-xlarge">';
-    s += '</form>';
-    s += '<form class="form-inline" style="display:none;" id="dbNameArea">';
-    s += '  <label for="inputDbName">' + gettext("DB name") + '</label>';
-    s += '  <input id="inputDbName" type="text" value="" style="width:10em" class="input-xlarge">';
-    s += '</form>';
-    s += '<form class="form-inline">';
-    s += '  <label for="inputUserName">' + gettext("User name") + '</label>';
-    s += '  <input id="inputUserName" type="text" value="" style="width:10em" class="input-xlarge">';
-    s += '  <label for="inputPassword">' + gettext("Password") + '</label>';
-    s += '  <input id="inputPassword" type="password" value="" style="width:10em" class="input-xlarge">';
-    s += '</form>';
-    s += '<form class="form-inline">';
-    s += '  <label for="inputPollingInterval">' + gettext("Polling interval (sec)") + '</label>';
-    s += '  <input id="inputPollingInterval" type="text" value="30" style="width:4em;" class="input-xlarge">';
-    s += '  <label for="inputRetryInterval">' + gettext("Retry interval (sec)") + '</label>';
-    s += '  <input id="inputRetryInterval" type="text" value="10" style="width:4em;" class="input-xlarge">';
-    s += '</form>';
-
-    // Input form for HAPI's parameter
-    s += '<form class="form-inline" style="display:none;" id="hapiParamArea">';
-    // Flag for passive type
-    s += '  <input id="inputPassiveMode" type="checkbox">';
-    s += '  <label for="inputPassiveMode">' + gettext("Passive mode") + '</label>';
-    s += '<br>'
-    // Broker URL
-    s += '  <label for="inputBrokerUrl">' + gettext("Broker URL") + '</label>';
-    s += '  <input id="inputBrokerUrl" type="text" value="" style="width:10em" class="input-xlarge"';
-    s += '  <label for="inputBrokerUrl">' + gettext("(empty: Default)") + '</label>';
-    s += '<br>'
-    // Static queue address
-    s += '  <label for="inputStaticQueueAddr">' + gettext("Static queue address") + '</label>';
-    s += '  <input id="inputStaticQueueAddr" type="text" value="" style="width:10em" class="input-xlarge"';
-    s += '  <label for="inputStaticQueueAddr">' + gettext("(empty: Default)") + '</label>';
-
-    s += '</form>';
-    s += '</div>';
-    return s;
-  }
+  return $("#add-action-div").show();
 };
 
 HatoholServerEditDialog.prototype.onAppendMainElement = function () {
