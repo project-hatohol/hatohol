@@ -65,10 +65,9 @@ static void reset(const CommandLineOptions *cmdLineOpts)
 	ChildProcessManager::getInstance()->reset();
 	ActorCollector::reset();
 	SessionManager::reset();
-	ConfigManager::reset(cmdLineOpts);
 
 	DBHatohol::reset();
-	
+
 	// These should be place after DBHatohol::reset()
 	DBTablesConfig::reset();
 	DBTablesUser::reset();
@@ -80,6 +79,8 @@ static void reset(const CommandLineOptions *cmdLineOpts)
 	ThreadLocalDBCache::reset();
 
 	UnifiedDataStore::getInstance()->reset();
+
+	ConfigManager::reset(cmdLineOpts);
 }
 
 void hatoholInit(const CommandLineOptions *cmdLineOpts)

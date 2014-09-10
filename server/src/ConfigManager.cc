@@ -155,19 +155,21 @@ struct ConfigManager::Impl {
 		gboolean succeeded =
 		  g_key_file_load_from_file(keyFile, path.c_str(),
 		                            G_KEY_FILE_NONE, &error);
-		if (succeeded)
-			return true;
-
-		Reaper<GError> errorFree(error, g_error_free);
-		if (error->domain == G_FILE_ERROR &&
-		    error->code == G_FILE_ERROR_NOENT) {
-			MLPL_DBG("Not found: %s\n", path.c_str());
+		if (!succeeded) {
+			Reaper<GError> errorFree(error, g_error_free);
+			if (error->domain == G_FILE_ERROR &&
+			    error->code == G_FILE_ERROR_NOENT) {
+				MLPL_DBG("Not found: %s\n", path.c_str());
+			} else {
+				MLPL_ERR("Failed to load config file: %s (%s)\n",
+					 path.c_str(), error->message);
+			}
 			return false;
 		}
 
-		MLPL_ERR("Failed to load config file: %s (%s)\n",
-		         path.c_str(), error->message);
-		return false;
+		loadConfigFileMySQLGroup(keyFile);
+
+		return true;
 	}
 
 	void reflectCommandLineOptions(const CommandLineOptions &cmdLineOpts)
@@ -186,6 +188,26 @@ struct ConfigManager::Impl {
 			faceRestPort = cmdLineOpts.faceRestPort;
 		if (cmdLineOpts.pidFilePath)
 			pidFilePath = cmdLineOpts.pidFilePath;
+	}
+
+private:
+	void loadConfigFileMySQLGroup(GKeyFile *keyFile)
+	{
+		const gchar *group = "mysql";
+
+		if (!g_key_file_has_group(keyFile, group))
+			return;
+
+		gchar *database =
+			g_key_file_get_string(keyFile, group, "database", NULL);
+		gchar *user =
+			g_key_file_get_string(keyFile, group, "user", NULL);
+		gchar *password =
+			g_key_file_get_string(keyFile, group, "password", NULL);
+		DBHatohol::setDefaultDBParams(database, user, password);
+		g_free(database);
+		g_free(user);
+		g_free(password);
 	}
 };
 
