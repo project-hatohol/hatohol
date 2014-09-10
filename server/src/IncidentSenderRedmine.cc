@@ -57,6 +57,11 @@ struct IncidentSenderRedmine::Impl
 	HatoholError handleSendError(int soupStatus,
 				     const string &response);
 
+	HatoholError send(const string &method,
+			  const string &url,
+			  const string &json,
+			  string &response);
+
 	IncidentSenderRedmine &m_sender;
 	SoupSession *m_session;
 };
@@ -222,24 +227,36 @@ HatoholError IncidentSenderRedmine::Impl::handleSendError(
 		return HTERR_FAILED_TO_SEND_INCIDENT;
 }
 
-HatoholError IncidentSenderRedmine::send(const EventInfo &event)
+HatoholError IncidentSenderRedmine::Impl::send(const string &method, const string &url,
+					       const string &json, string &response)
 {
-	string url = getIssuesJSONURL();
-	string json = buildJSON(event);
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, url.c_str());
+	SoupMessage *msg = soup_message_new(method.c_str(), url.c_str());
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
 	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
 	                         json.c_str(), json.size());
-	guint sendResult = soup_session_send_message(m_impl->m_session, msg);
-	string response(msg->response_body->data, msg->response_body->length);
+	guint sendResult = soup_session_send_message(m_session, msg);
+	response.assign(msg->response_body->data, msg->response_body->length);
 	g_object_unref(msg);
 
 	if (!SOUP_STATUS_IS_SUCCESSFUL(sendResult))
-		return m_impl->handleSendError(sendResult, response);
+		return handleSendError(sendResult, response);
+
+	return HTERR_OK;
+}
+
+HatoholError IncidentSenderRedmine::send(const EventInfo &event)
+{
+	string url = getIssuesJSONURL();
+	string json = buildJSON(event);
+	string response;
+
+	HatoholError result = m_impl->send(SOUP_METHOD_POST, url, json, response);
+	if (result != HTERR_OK)
+		return result;
 
 	IncidentInfo incidentInfo;
-	HatoholError result = buildIncidentInfo(incidentInfo, response, event);
+	result = buildIncidentInfo(incidentInfo, response, event);
 	if (result == HTERR_OK) {
 		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 		dataStore->addIncidentInfo(incidentInfo);
