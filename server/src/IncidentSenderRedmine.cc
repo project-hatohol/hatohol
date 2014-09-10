@@ -296,7 +296,11 @@ HatoholError IncidentSenderRedmine::send(const IncidentInfo &incident,
 	string json = buildJSON(incident, comment);
 	string response;
 
+	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
+	if (incident.trackerId != trackerInfo.id)
+		return HTERR_FAILED_TO_SEND_INCIDENT;
+
 	// Don't update the incident in DB here.
-	// It will be done by ArmRedmine
+	// It will be done by ArmRedmine.
 	return m_impl->send(SOUP_METHOD_PUT, url, json, response);
 }
