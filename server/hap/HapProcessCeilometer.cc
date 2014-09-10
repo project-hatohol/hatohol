@@ -84,10 +84,10 @@ HapProcessCeilometer::~HapProcessCeilometer()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void HapProcessCeilometer::updateAuthTokenIfNeeded(void)
+HatoholError HapProcessCeilometer::updateAuthTokenIfNeeded(void)
 {
 	if (!m_impl->token.empty())
-		return;
+		return HTERR_OK;
 
 	string url = m_impl->osAuthURL;
 	url += "/tokens";
@@ -113,13 +113,15 @@ void HapProcessCeilometer::updateAuthTokenIfNeeded(void)
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
 		MLPL_ERR("Failed to connect: %d, URL: %s\n", ret, url.c_str());
-		return;
+		return HTERR_BAD_REST_RESPONSE_KEYSTONE;
 	}
 	if (!parseReplyToknes(msg)) {
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
-		return;
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
+
+	return HTERR_OK;
 }
 
 bool HapProcessCeilometer::parseReplyToknes(SoupMessage *msg)

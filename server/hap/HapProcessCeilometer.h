@@ -33,7 +33,7 @@ public:
 	virtual ~HapProcessCeilometer();
 
 protected:
-	void updateAuthTokenIfNeeded(void);
+	HatoholError updateAuthTokenIfNeeded(void);
 	bool parseReplyToknes(SoupMessage *msg);
 
 	HatoholError getAlarmList(void);
