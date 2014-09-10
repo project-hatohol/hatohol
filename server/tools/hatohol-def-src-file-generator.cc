@@ -21,14 +21,14 @@
 #include <cstdlib>
 #include <string>
 #include <sstream>
-#include "Hatohol.h"
-#include "DBTablesMonitoring.h"
-#include "DBTablesConfig.h"
-#include "ActionManager.h"
-#include "HatoholError.h"
-#include "FaceRest.h"
-#include "SessionManager.h"
-#include "ArmStatus.h"
+#include <Hatohol.h>
+#include <DBTablesMonitoring.h>
+#include <DBTablesConfig.h>
+#include <ActionManager.h>
+#include <HatoholError.h>
+#include <FaceRest.h>
+#include <SessionManager.h>
+#include <ArmStatus.h>
 using namespace std;
 using namespace mlpl;
 
