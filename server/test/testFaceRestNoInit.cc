@@ -183,6 +183,17 @@ void _assertParseEventParameterTriggerStatus(
 #define assertParseEventParameterTriggerStatus(O, ...) \
 cut_trace(_assertParseEventParameterTriggerStatus(O, ##__VA_ARGS__))
 
+void _assertParseEventParameterTriggerId(
+  const TriggerIdType &expectedValue, const string &forceValueStr = "",
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertParseEventParameterTempl(
+	  TriggerIdType, expectedValue, "%" FMT_TRIGGER_ID, "triggerId",
+	  &EventsQueryOption::getTriggerId, expectCode, forceValueStr);
+}
+#define assertParseEventParameterTriggerId(O, ...) \
+cut_trace(_assertParseEventParameterTriggerId(O, ##__VA_ARGS__))
+
 void cut_teardown(void)
 {
 }
@@ -428,5 +439,29 @@ void test_parseEventParameterInvalidTriggerStatus(void)
 	  TRIGGER_STATUS_OK, "problem",
 	  HTERR_INVALID_PARAMETER);
 }
+
+#if 0
+void test_parseEventParameterNoTriggerId(void)
+{
+	EventsQueryOption option;
+	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	Reaper<GHashTable> queryReaper(query, g_hash_table_unref);
+	assertHatoholError(
+	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
+	cppcut_assert_equal(ALL_TRIGGERS, option.getTriggerId());
+}
+
+void test_parseEventParameterTriggerStatus(void)
+{
+	assertParseEventParameterTriggerStatus(TRIGGER_STATUS_PROBLEM);
+}
+
+void test_parseEventParameterInvalidTriggerStatus(void)
+{
+	assertParseEventParameterTriggerStatus(
+	  TRIGGER_STATUS_OK, "problem",
+	  HTERR_INVALID_PARAMETER);
+}
+#endif
 
 } // namespace testFaceRestNoInit

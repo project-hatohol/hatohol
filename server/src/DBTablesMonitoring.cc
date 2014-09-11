@@ -1062,7 +1062,7 @@ void EventsQueryOption::setTriggerId(const TriggerIdType &triggerId)
 	m_impl->triggerId = triggerId;
 }
 
-TriggerIdType EventsQueryOption::getTriggerId(void)
+TriggerIdType EventsQueryOption::getTriggerId(void) const
 {
 	return m_impl->triggerId;
 }
