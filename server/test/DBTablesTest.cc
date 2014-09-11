@@ -950,7 +950,7 @@ SmartTime getTimestampOfLastTestTrigger(const ServerIdType &serverId)
 	return lastTimestamp;
 }
 
-uint64_t findLastEventId(const ServerIdType &serverId)
+EventIdType findLastEventId(const ServerIdType &serverId)
 {
 	bool found = false;
 	uint64_t maxId = 0;

@@ -49,7 +49,7 @@ extern size_t NumTestTriggerInfo;
 
 extern EventInfo testEventInfo[];
 extern size_t NumTestEventInfo;
-extern uint64_t findLastEventId(const ServerIdType &serverId);
+extern EventIdType findLastEventId(const ServerIdType &serverId);
 
 extern EventInfo testDupEventInfo[];
 extern size_t NumTestDupEventInfo;
