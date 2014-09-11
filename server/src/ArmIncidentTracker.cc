@@ -19,6 +19,7 @@
 
 #include "ArmIncidentTracker.h"
 #include "ArmRedmine.h"
+#include <Utils.h>
 #include <libsoup/soup.h>
 
 using namespace std;
@@ -31,8 +32,8 @@ static MonitoringServerInfo toMonitoringServerInfo(
 	SoupURI *uri = soup_uri_new(trackerInfo.baseURL.c_str());
 	monitoringServer.type = MONITORING_SYSTEM_INCIDENT_TRACKER;
 	monitoringServer.nickname = trackerInfo.nickname;
-	monitoringServer.hostName = uri->host;
-	monitoringServer.port = uri->port;
+	monitoringServer.hostName = soup_uri_get_host(uri);
+	monitoringServer.port = soup_uri_get_port(uri);
 	//TODO: should be customizable
 	monitoringServer.pollingIntervalSec = 60;
 	monitoringServer.retryIntervalSec = 30;
