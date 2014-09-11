@@ -93,3 +93,6 @@
 
   - name: install httpd
     yum: name=httpd
+
+  - name: install mod_wsgi
+    yum: name=mod_wsgi
