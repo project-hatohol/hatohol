@@ -17,6 +17,7 @@ Requires: mysql-server >= 5.1
 Requires: libuuid >= 2.17
 Requires: qpid-cpp-client >= 0.14
 Requires: qpid-cpp-server >= 0.14
+Requires: librabbitmq >= 0.4.1
 Requires: hatohol-lib-common >= 14.06
 Requires: hatohol-arm-plugin-zabbix >= 14.06
 BuildRequires: gcc-c++, pkgconfig
@@ -28,6 +29,7 @@ BuildRequires: mysql-devel >= 5.1
 BuildRequires: libuuid-devel >= 2.17
 BuildRequires: qpid-cpp-client-devel >= 0.14
 BuildRequires: qpid-cpp-server-devel >= 0.14
+BuildRequires: librabbitmq-devel >= 0.4.1
 %description
 Hatohol collects monitoring information from running monitoring systems
 and shows their integrated data on one screen. This feature enables
