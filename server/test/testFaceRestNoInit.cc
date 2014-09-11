@@ -18,6 +18,7 @@
  */
 
 #include <cppcutter.h>
+#include <Reaper.h>
 #include "Helpers.h"
 #include "RestResourceHost.h"
 using namespace std;
@@ -50,6 +51,7 @@ void _assertParseEventParameterTempl(
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	Reaper<GHashTable> queryReaper(query, g_hash_table_unref);
 
 	string expectStr;
 	if (forceValueStr.empty())
@@ -181,14 +183,8 @@ void _assertParseEventParameterTriggerStatus(
 #define assertParseEventParameterTriggerStatus(O, ...) \
 cut_trace(_assertParseEventParameterTriggerStatus(O, ##__VA_ARGS__))
 
-GHashTable *g_query = NULL;
-
 void cut_teardown(void)
 {
-	if (g_query) {
-		g_hash_table_unref(g_query);
-		g_query = NULL;
-	}
 }
 
 // ---------------------------------------------------------------------------
@@ -209,6 +205,7 @@ void test_parseEventParameterDefaultSortOrder(void)
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	Reaper<GHashTable> queryReaper(query, g_hash_table_unref);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
 	cppcut_assert_equal(DataQueryOption::SORT_DESCENDING,
@@ -243,6 +240,7 @@ void test_parseEventParameterNoSortType(void)
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	Reaper<GHashTable> queryReaper(query, g_hash_table_unref);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
 	cppcut_assert_equal(EventsQueryOption::SORT_TIME, option.getSortType());
@@ -265,6 +263,7 @@ void test_parseEventParameterMaximumNumberNotFound(void)
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	Reaper<GHashTable> queryReaper(query, g_hash_table_unref);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
 	cppcut_assert_equal((size_t)0, option.getMaximumNumber());
@@ -285,6 +284,7 @@ void test_parseEventParameterNoOffset(void)
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	Reaper<GHashTable> queryReaper(query, g_hash_table_unref);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
 	cppcut_assert_equal((size_t)0, option.getOffset());
@@ -305,6 +305,7 @@ void test_parseEventParameterNoLimitOfUnifiedId(void)
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	Reaper<GHashTable> queryReaper(query, g_hash_table_unref);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
 	cppcut_assert_equal((uint64_t)0, option.getLimitOfUnifiedId());
@@ -325,6 +326,7 @@ void test_parseEventParameterNoTargetServerId(void)
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	Reaper<GHashTable> queryReaper(query, g_hash_table_unref);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
 	cppcut_assert_equal(ALL_SERVERS, option.getTargetServerId());
@@ -345,6 +347,7 @@ void test_parseEventParameterNoTargetHostId(void)
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	Reaper<GHashTable> queryReaper(query, g_hash_table_unref);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
 	cppcut_assert_equal(ALL_HOSTS, option.getTargetHostId());
@@ -365,6 +368,7 @@ void test_parseEventParameterNoTargetHostgroupId(void)
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	Reaper<GHashTable> queryReaper(query, g_hash_table_unref);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
 	cppcut_assert_equal(ALL_HOST_GROUPS, option.getTargetHostgroupId());
@@ -385,6 +389,7 @@ void test_parseEventParameterNoMinimumSeverity(void)
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	Reaper<GHashTable> queryReaper(query, g_hash_table_unref);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
 	cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN, option.getMinimumSeverity());
@@ -406,6 +411,7 @@ void test_parseEventParameterNoTriggerStatus(void)
 {
 	EventsQueryOption option;
 	GHashTable *query = g_hash_table_new(g_str_hash, g_str_equal);
+	Reaper<GHashTable> queryReaper(query, g_hash_table_unref);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
 	cppcut_assert_equal(TRIGGER_STATUS_ALL, option.getTriggerStatus());
