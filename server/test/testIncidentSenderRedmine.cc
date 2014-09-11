@@ -17,17 +17,18 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Synchronizer.h"
-#include "RedmineAPIEmulator.h"
-#include "Hatohol.h"
-#include "IncidentSenderRedmine.h"
-#include "LabelUtils.h"
-#include "DBTablesTest.h"
-#include "Helpers.h"
-#include "JSONParser.h"
-#include "ThreadLocalDBCache.h"
+#include <Synchronizer.h>
+#include <Hatohol.h>
+#include <IncidentSenderRedmine.h>
+#include <LabelUtils.h>
+#include <JSONParser.h>
+#include <ThreadLocalDBCache.h>
+#include <RedmineAPI.h>
 #include <cppcutter.h>
 #include <gcutter.h>
+#include "RedmineAPIEmulator.h"
+#include "DBTablesTest.h"
+#include "Helpers.h"
 
 using namespace std;
 using namespace mlpl;
@@ -58,6 +59,10 @@ public:
 	string buildJSON(const EventInfo &event)
 	{
 		return IncidentSenderRedmine::buildJSON(event);
+	}
+	string buildJSON(const IncidentInfo &incident, const string &comment)
+	{
+		return IncidentSenderRedmine::buildJSON(incident, comment);
 	}
 	string getIssuesJSONURL(void)
 	{
@@ -147,6 +152,30 @@ string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 	return expected;
 }
 
+string expectedJSON(const IncidentInfo &incident, const string &comment)
+{
+	string expected = "{\"issue\":{";
+	string contents;
+	if (incident.statusCode != IncidentInfo::STATUS_UNKNOWN) {
+		int statusId = RedmineAPI::incidentStatus2StatusId(
+			incident.statusCode);
+		contents += StringUtils::sprintf("\"status_id\":%d",
+						 statusId);
+	}
+	if (!comment.empty()) {
+		if (!contents.empty())
+			contents += ",";
+		// TODO: It doesn't support escaping UTF-8
+		char *escaped = g_strescape(comment.c_str(), "");
+		contents += StringUtils::sprintf("\"notes\":\"%s\"",
+						 escaped);
+		g_free(escaped);
+	}
+	expected += contents;
+	expected += "}}";
+	return expected;
+}
+
 void test_buildJSON(void)
 {
 	loadTestDBTablesConfig();
@@ -155,6 +184,16 @@ void test_buildJSON(void)
 	TestRedmineSender sender(tracker);
 	cppcut_assert_equal(expectedJSON(testEventInfo[0], tracker),
 			    sender.buildJSON(testEventInfo[0]));
+}
+
+void test_buildJSONForUpdate(void)
+{
+	IncidentTrackerInfo tracker;
+	tracker.id = testIncidentInfo[0].trackerId;
+	tracker.projectId = "hatoholtest";
+	TestRedmineSender sender(tracker);
+	cppcut_assert_equal(expectedJSON(testIncidentInfo[0], "abc\n"),
+			    sender.buildJSON(testIncidentInfo[0], "abc\n"));
 }
 
 void test_getIssuesJSONURL(void)
@@ -194,8 +233,14 @@ void _assertSend(const HatoholErrorCode &expected,
 	loadTestDBTablesConfig();
 	TestRedmineSender sender(tracker);
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
+
 	HatoholError result = sender.send(event);
-	cppcut_assert_equal(expected, result.getCode());
+
+	assertHatoholError(expected, result);
+	cppcut_assert_equal(string("/issues.json"),
+			    g_redmineEmulator.getLastRequestPath());
+	cppcut_assert_equal(string("POST"),
+			    g_redmineEmulator.getLastRequestMethod());
 
 	if (expected != HTERR_OK)
 		return;
@@ -231,12 +276,43 @@ void _assertSend(const HatoholErrorCode &expected,
 	string expect = makeIncidentOutput(incident);
 	assertDBContent(&dbAgent, statement, expect);
 }
-#define assertSend(E,T,V) \
-cut_trace(_assertSend(E,T,V))
+#define assertSend(E,T,V) cut_trace(_assertSend(E,T,V))
 
 void test_send(void)
 {
 	assertSend(HTERR_OK, testIncidentTrackerInfo[2], testEventInfo[0]);
+}
+
+void _assertSendForUpdate(const HatoholErrorCode &expected,
+			  const IncidentInfo &incident,
+			  const string &comment)
+{
+	loadTestDBTablesConfig();
+	int trackerIndex = incident.trackerId - 1;
+	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[trackerIndex];
+	TestRedmineSender sender(tracker);
+	g_redmineEmulator.addUser(tracker.userName, tracker.password);
+
+	HatoholError result = sender.send(incident, comment);
+
+	assertHatoholError(expected, result);
+	cppcut_assert_equal(string("/issues/" + incident.identifier + ".json"),
+			    g_redmineEmulator.getLastRequestPath());
+	cppcut_assert_equal(string("PUT"),
+			    g_redmineEmulator.getLastRequestMethod());
+
+	if (expected != HTERR_OK)
+		return;
+
+	cppcut_assert_equal(expectedJSON(incident, comment),
+			    g_redmineEmulator.getLastRequestBody());
+}
+#define assertSendForUpdate(E,I,C) cut_trace(_assertSendForUpdate(E,I,C))
+
+void test_sendForUpdate(void)
+{
+	IncidentInfo incident = testIncidentInfo[0];
+	assertSendForUpdate(HTERR_OK, incident, "Updated");
 }
 
 void test_sendWithUnknownTracker(void)

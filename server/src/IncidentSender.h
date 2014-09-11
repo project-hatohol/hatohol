@@ -37,9 +37,12 @@ public:
 		JOB_FAILED,
 	} JobStatus;
 
-	typedef void (*StatusCallback)(const EventInfo &info,
-				       const JobStatus &status,
-				       void *userData);
+	typedef void (*CreateIncidentCallback)(const EventInfo &info,
+					       const JobStatus &status,
+					       void *userData);
+	typedef void (*UpdateIncidentCallback)(const IncidentInfo &info,
+					       const JobStatus &status,
+					       void *userData);
 
 	IncidentSender(const IncidentTrackerInfo &tracker);
 	virtual ~IncidentSender();
@@ -47,9 +50,9 @@ public:
 	virtual void waitExit(void) override;
 
 	/**
-	 * Send an EventInfo as an incident to the specified incident tracking system
-	 * synchronously. It will be done by the same thread with the caller.
-	 * You don't need start the thread by start() when you use this
+	 * Send an EventInfo as an incident to the specified incident tracking
+	 * system synchronously. It will be done by the same thread with the
+	 * caller. You don't need start the thread by start() when you use this
 	 * function directly.
 	 *
 	 * @param event
@@ -60,10 +63,27 @@ public:
 	virtual HatoholError send(const EventInfo &event) = 0;
 
 	/**
-	 * Queue an EventInfo to send it as an incident to the specified incident
-	 * tracking system asynchronously. Sending an incident will be done by a
-	 * dedicated thread (it will call send() internally). You must start
-	 * the thread by calling start() before or after calling this function.
+	 * Send an IncidentInfo to update existing one. It will be done by the
+	 * same thread with the caller. You don't need start the thread by
+	 * start() when you use this function directly.
+	 *
+	 * @param incident
+	 * An IncidentInfo to update.
+	 *
+	 * @param comment
+	 * A string to post as an additional comment for the incident.
+	 *
+	 * @return HTERR_OK on succeeded to send. Otherwise an error.
+	 */
+	virtual HatoholError send(const IncidentInfo &incident,
+				  const std::string &comment) = 0;
+
+	/**
+	 * Queue an EventInfo to send it as an incident to the specified
+	 * incident tracking system asynchronously. Sending an incident will be
+	 * done by a dedicated thread (it will call send() internally). You must
+	 * start the thread by calling start() before or after calling this
+	 * function.
 	 *
 	 * @param event
 	 * An EventInfo to send as an incident.
@@ -78,7 +98,33 @@ public:
 	 * @return HTERR_OK on succeeded to send. Otherwise an error.
 	 */
 	void queue(const EventInfo &eventInfo,
-		   StatusCallback callback = NULL,
+		   CreateIncidentCallback callback = NULL,
+		   void *userData = NULL);
+
+	/**
+	 * Queue an IncidentInfo to update existing one. Sending an incident
+	 * will be done by a dedicated thread (it will call send() internally).
+	 * You must start the thread by calling start() before or after calling
+	 * this function.
+	 *
+	 * @param incident
+	 * An IncidentInfo to update.
+	 *
+	 * @param comment
+	 * A string to post as an additional comment for the incident.
+	 *
+	 * @param callback
+	 * A callback function which will be called when the status of
+	 * sending job is changed.
+	 *
+	 * @param userData
+	 * A user data which will be passed to the callback function.
+	 *
+	 * @return HTERR_OK on succeeded to send. Otherwise an error.
+	 */
+	void queue(const IncidentInfo &incidentInfo,
+		   const std::string &comment,
+		   UpdateIncidentCallback callback = NULL,
 		   void *userData = NULL);
 
 	/**

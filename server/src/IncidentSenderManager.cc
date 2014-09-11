@@ -107,7 +107,7 @@ IncidentSenderManager &IncidentSenderManager::getInstance(void)
 
 void IncidentSenderManager::queue(
   const IncidentTrackerIdType &trackerId, const EventInfo &eventInfo,
-  IncidentSender::StatusCallback callback, void *userData)
+  IncidentSender::CreateIncidentCallback callback, void *userData)
 {
 	IncidentSender *sender = m_impl->getSender(trackerId);
 	if (!sender) {
@@ -117,6 +117,20 @@ void IncidentSenderManager::queue(
 		return;
 	}
 	sender->queue(eventInfo, callback, userData);
+}
+
+void IncidentSenderManager::queue(
+  const IncidentInfo &incidentInfo, const string &comment,
+  IncidentSender::UpdateIncidentCallback callback, void *userData)
+{
+	IncidentSender *sender = m_impl->getSender(incidentInfo.trackerId);
+	if (!sender) {
+		MLPL_ERR("Can't find create or find IncidentSender for: "
+			 "%" FMT_INCIDENT_TRACKER_ID "\n",
+			 incidentInfo.trackerId);
+		return;
+	}
+	sender->queue(incidentInfo, comment, callback, userData);
 }
 
 IncidentSenderManager::IncidentSenderManager(void)

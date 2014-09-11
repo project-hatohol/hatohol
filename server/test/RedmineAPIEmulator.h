@@ -66,6 +66,8 @@ public:
 	virtual ~RedmineAPIEmulator();
 	virtual void reset(void);
 	void addUser(const std::string &userName, const std::string &password);
+	const std::string &getLastRequestPath(void) const;
+	const std::string &getLastRequestMethod(void) const;
 	const std::string &getLastRequestQuery(void) const;
 	const std::string &getLastRequestBody(void) const;
 	const std::string &getLastResponseBody(void) const;

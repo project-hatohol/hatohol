@@ -55,7 +55,13 @@ struct IncidentSenderRedmine::Impl
 	void disconnectSessionSignals(void);
 	HatoholError parseErrorResponse(const string &response);
 	HatoholError handleSendError(int soupStatus,
+				     const string &url,
 				     const string &response);
+
+	HatoholError send(const string &method,
+			  const string &url,
+			  const string &json,
+			  string &response);
 
 	IncidentSenderRedmine &m_sender;
 	SoupSession *m_session;
@@ -124,6 +130,30 @@ string IncidentSenderRedmine::buildJSON(const EventInfo &event)
 	description += buildDescription(event, server);
 	description += "</pre>";
 	agent.add("description", description);
+	agent.endObject();
+	agent.endObject();
+	return agent.generate();
+}
+
+string IncidentSenderRedmine::buildJSON(const IncidentInfo &incident,
+					const string &comment)
+{
+	// TODO: Sending only status_id & notes are supported in this version.
+
+	if (incident.statusCode == IncidentInfo::STATUS_UNKNOWN &&
+	    comment.empty()) {
+		// nothing to update
+		return string();
+	}
+
+	JSONBuilder agent;
+	int statusId = RedmineAPI::incidentStatus2StatusId(incident.statusCode);
+	agent.startObject();
+	agent.startObject("issue");
+	if (statusId > 0)
+		agent.add("status_id", statusId);
+	if (!comment.empty())
+		agent.add("notes", comment);
 	agent.endObject();
 	agent.endObject();
 	return agent.generate();
@@ -204,9 +234,8 @@ HatoholError IncidentSenderRedmine::Impl::parseErrorResponse(
 }
 
 HatoholError IncidentSenderRedmine::Impl::handleSendError(
-  int soupStatus, const string &response)
+  int soupStatus, const string &url, const string &response)
 {
-	string url = m_sender.getIssuesJSONURL();
 	MLPL_ERR("Failed to send an issue to %s\n", url.c_str());
 	if (SOUP_STATUS_IS_TRANSPORT_ERROR(soupStatus)) {
 		MLPL_ERR("Transport error: %d %s\n",
@@ -222,28 +251,56 @@ HatoholError IncidentSenderRedmine::Impl::handleSendError(
 		return HTERR_FAILED_TO_SEND_INCIDENT;
 }
 
-HatoholError IncidentSenderRedmine::send(const EventInfo &event)
+HatoholError IncidentSenderRedmine::Impl::send(const string &method, const string &url,
+					       const string &json, string &response)
 {
-	string url = getIssuesJSONURL();
-	string json = buildJSON(event);
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, url.c_str());
+	SoupMessage *msg = soup_message_new(method.c_str(), url.c_str());
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
 	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
 	                         json.c_str(), json.size());
-	guint sendResult = soup_session_send_message(m_impl->m_session, msg);
-	string response(msg->response_body->data, msg->response_body->length);
+	guint sendResult = soup_session_send_message(m_session, msg);
+	response.assign(msg->response_body->data, msg->response_body->length);
 	g_object_unref(msg);
 
 	if (!SOUP_STATUS_IS_SUCCESSFUL(sendResult))
-		return m_impl->handleSendError(sendResult, response);
+		return handleSendError(sendResult, url, response);
+
+	return HTERR_OK;
+}
+
+HatoholError IncidentSenderRedmine::send(const EventInfo &event)
+{
+	string url = getIssuesJSONURL();
+	string json = buildJSON(event);
+	string response;
+
+	HatoholError result = m_impl->send(SOUP_METHOD_POST, url, json, response);
+	if (result != HTERR_OK)
+		return result;
 
 	IncidentInfo incidentInfo;
-	HatoholError result = buildIncidentInfo(incidentInfo, response, event);
+	result = buildIncidentInfo(incidentInfo, response, event);
 	if (result == HTERR_OK) {
 		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 		dataStore->addIncidentInfo(incidentInfo);
 	}
 
 	return result;
+}
+
+HatoholError IncidentSenderRedmine::send(const IncidentInfo &incident,
+					 const std::string &comment)
+{
+	string url = getIssueURL(incident.identifier) + string(".json");
+	string json = buildJSON(incident, comment);
+	string response;
+
+	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
+	if (incident.trackerId != trackerInfo.id)
+		return HTERR_FAILED_TO_SEND_INCIDENT;
+
+	// Don't update the incident in DB here.
+	// It will be done by ArmRedmine.
+	return m_impl->send(SOUP_METHOD_PUT, url, json, response);
 }
