@@ -1874,7 +1874,7 @@ void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 	getDBAgent().runTransaction(trx);
 }
 
-uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
+EventIdType DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 {
 	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
 	DBAgent::SelectExArg arg(tableProfileEvents);
@@ -1889,7 +1889,81 @@ uint64_t DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
-	return itemGroupStream.read<uint64_t>();
+	return itemGroupStream.read<EventIdType>();
+}
+
+SmartTime DBTablesMonitoring::getTimeOfLastEvent(
+  const ServerIdType &serverId, const TriggerIdType &triggerId)
+{
+	using StringUtils::sprintf;
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::SelectExArg argId;
+		DBAgent::SelectExArg argTime;
+		bool                 foundEvent;
+
+		TrxProc(void)
+		: argId(tableProfileEvents),
+		  argTime(tableProfileEvents),
+		  foundEvent(false)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.select(argId);
+			const ItemGroupList &grpList =
+			   argId.dataTable->getItemGroupList();
+			if (grpList.empty())
+				return;
+			foundEvent = true;
+
+			ItemGroupStream itemGroupStream(*grpList.begin());
+			const EventIdType eventId =
+			  itemGroupStream.read<EventIdType>();
+
+			// Get the time
+			argTime.condition = sprintf("%s=%" FMT_EVENT_ID,
+			  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
+			  eventId);
+			dbAgent.select(argTime);
+		}
+	} trx;
+
+	// First get the event ID.
+	// TODO: Get it with the one statemetn by using sub query.
+	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
+	const ColumnDef &colDefUniId = COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID];
+	const string stmt = sprintf("max(%s)", colDefUniId.columnName);
+	trx.argId.add(stmt, colDefUniId.type);
+
+	trx.argId.condition = sprintf("%s=%s",
+	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
+	    dbTermCodec->enc(serverId).c_str());
+	if (triggerId != ALL_TRIGGERS) {
+		trx.argId.condition += sprintf(" AND %s=%s",
+		    COLUMN_DEF_EVENTS[IDX_EVENTS_TRIGGER_ID].columnName,
+		    dbTermCodec->enc(triggerId).c_str());
+	}
+
+	// Then get the time of the event ID.
+	trx.argTime.add(IDX_EVENTS_TIME_SEC);
+	trx.argTime.add(IDX_EVENTS_TIME_NS);
+
+	getDBAgent().runTransaction(trx);
+	if (!trx.foundEvent)
+		return SmartTime();
+
+	const ItemGroupList &grpList =
+	  trx.argTime.dataTable->getItemGroupList();
+	if (grpList.empty())
+		return SmartTime();
+	ItemGroupStream itemGroupStream(*grpList.begin());
+
+	timespec ts;
+	itemGroupStream >> ts.tv_sec;
+	itemGroupStream >> ts.tv_nsec;
+	return SmartTime(ts);
 }
 
 void DBTablesMonitoring::addItemInfo(ItemInfo *itemInfo)

@@ -833,6 +833,28 @@ void test_getLastEventIdWithNoEvent(void)
 	                    dbMonitoring.getLastEventId(serverid));
 }
 
+void test_getTimeOfLastEvent(void)
+{
+	loadTestDBEvents();
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	const ServerIdType serverId = 1;
+	cppcut_assert_equal(findTimeOfLastEvent(serverId),
+	                    dbMonitoring.getTimeOfLastEvent(serverId));
+}
+
+void test_getTimeOfLastEventWithTriggerId(void)
+{
+	loadTestDBEvents();
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	const ServerIdType serverId = 3;
+	const TriggerIdType triggerId = 3;
+	cppcut_assert_equal(
+	  findTimeOfLastEvent(serverId, triggerId),
+	  dbMonitoring.getTimeOfLastEvent(serverId, triggerId));
+}
+
 void data_getHostInfoList(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();

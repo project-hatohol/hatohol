@@ -51,6 +51,15 @@ public:
 	double getAsMSec(void) const;
 	const timespec &getAsTimespec(void) const;
 
+	/**
+	 * Check if the instance has a valid time.
+	 *
+	 * @return
+	 * If time is the default value (zero), false is turned.
+	 * Otherwise, true.
+	 */
+	bool hasValidTime(void) const;
+
 	SmartTime &operator+=(const timespec &rhs);
 	SmartTime &operator-=(const SmartTime &rhs);
 	SmartTime &operator=(const SmartTime &rhs);

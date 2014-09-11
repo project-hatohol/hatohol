@@ -105,6 +105,11 @@ const timespec &SmartTime::getAsTimespec(void) const
 	return m_ctx->time;
 }
 
+bool SmartTime::hasValidTime(void) const
+{
+	return (m_ctx->time.tv_sec != 0 || m_ctx->time.tv_nsec != 0);
+}
+
 SmartTime SmartTime::getCurrTime(void)
 {
 	SmartTime smtime;
