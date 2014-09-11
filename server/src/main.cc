@@ -45,6 +45,7 @@ using namespace mlpl;
 #include "ConfigManager.h"
 #include "ThreadLocalDBCache.h"
 
+static string pidFilePath;
 static int pipefd[2];
 
 struct ExecContext {
@@ -98,17 +99,29 @@ static void setupGizmoForExit(gpointer data)
 	g_io_add_watch(ioch, G_IO_HUP, exitFunc, data);
 }
 
+static void removePidFile(void)
+{
+	if (!pidFilePath.length())
+		return;
+	if (remove(pidFilePath.c_str())) {
+		MLPL_ERR("Failed to remove pid file: %s\n",
+			 pidFilePath.c_str());
+		return;
+	}
+	pidFilePath.erase();
+}
+
 static bool daemonize(void)
 {
 	pid_t pid;
-	string pidFilePath =
-	  ConfigManager::getInstance()->getPidFilePath();
+	pidFilePath = ConfigManager::getInstance()->getPidFilePath();
 	FILE *pid_file;
 	pid_file = fopen(pidFilePath.c_str(), "w+");
 
 	if (pid_file == NULL) {
 		MLPL_ERR("Failed to record pid file: %s\n",
 		         pidFilePath.c_str());
+		pidFilePath.erase();
 		return false;
 	}
 
@@ -119,6 +132,7 @@ static bool daemonize(void)
 		return true;
 	} else {
 		fclose(pid_file);
+		pidFilePath.erase();
 		return false;
 	}
 }
@@ -191,5 +205,6 @@ int main(int argc, char *argv[])
 	} catch (const exception &e) {
 		MLPL_ERR("Got exception: %s", e.what());
 	}
+	removePidFile();
 	return ret;
 }
