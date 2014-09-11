@@ -387,10 +387,13 @@ HatoholError HapProcessCeilometer::getAlarmHistories(void)
 	HatoholError err(HTERR_OK);
 	for (size_t i = 0; i < m_impl->acquireCtx.alarmIds.size(); i++) {
 		const string &alarmId = m_impl->acquireCtx.alarmIds[i];
+		const SmartTime lastTime =
+		  getTimeOfLastEvent(generateHashU64(alarmId));
 		string url = StringUtils::sprintf(
-		               "%s/v2/alarms/%s/history",
+		               "%s/v2/alarms/%s/history%s",
 		               m_impl->ceilometerEP.publicURL.c_str(),
-		               alarmId.c_str());
+		               alarmId.c_str(),
+		               getHistoryQueryOption(lastTime).c_str());
 		err = getAlarmHistory(url);
 		if (err != HTERR_OK) {
 			MLPL_ERR("Failed to get alarm history: %s\n",
@@ -398,6 +401,25 @@ HatoholError HapProcessCeilometer::getAlarmHistories(void)
 		}
 	}
 	return err;
+}
+
+string  HapProcessCeilometer::getHistoryQueryOption(
+  const SmartTime &lastTime)
+{
+	if (!lastTime.hasValidTime())
+		return "";
+
+	tm tim;
+	const timespec &ts = lastTime.getAsTimespec();
+	HATOHOL_ASSERT(
+	  gmtime_r(&ts.tv_sec, &tim),
+	  "Failed to call gmtime_r(): %s\n", ((string)lastTime).c_str());
+	string query = StringUtils::sprintf(
+	  "?q.field=timestamp&q.op=gt&q.value="
+	  "%04d-%02d-%02dT%02d%%3A%02d%%3A%02d.%06ld",
+	  1900+tim.tm_year, tim.tm_mon + 1, tim.tm_mday,
+	  tim.tm_hour, tim.tm_min, tim.tm_sec, ts.tv_nsec/1000);
+	return query;
 }
 
 HatoholError HapProcessCeilometer::getAlarmHistory(const string url)
@@ -426,8 +448,8 @@ HatoholError HapProcessCeilometer::getAlarmHistory(const string url)
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
 	}
-	//sendTable(HAPI_CMD_SEND_UPDATED_EVENTS,
-	//          static_cast<ItemTablePtr>(eventTablePtr));
+	sendTable(HAPI_CMD_SEND_UPDATED_EVENTS,
+	          static_cast<ItemTablePtr>(eventTablePtr));
 	return err;
 }
 

@@ -48,6 +48,7 @@ protected:
 
 	HatoholError getAlarmHistories(void);
 	HatoholError getAlarmHistory(const std::string url);
+	std::string  getHistoryQueryOption(const mlpl::SmartTime &lastTime);
 	HatoholError parseReplyGetAlarmHistory(
 	  SoupMessage *msg, VariableItemTablePtr &tablePtr);
 	HatoholError parseReplyGetAlarmHistoryElement(

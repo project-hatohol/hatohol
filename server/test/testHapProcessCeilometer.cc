@@ -47,6 +47,11 @@ public:
 	{
 		return parseAlarmHistoryDetail(detail);
 	}
+
+	string callGetHistoryQueryOption(const SmartTime &lastTime)
+	{
+		return getHistoryQueryOption(lastTime);
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -100,6 +105,16 @@ void test_parseStateTimestampWithoutUSec()
 	cppcut_assert_equal(expect, actual);
 }
 
+void test_getHistoryQueryOption(void)
+{
+	TestHapProcessCeilometer hap;
+	const timespec ts = {1410413960, 765000000};
+	const SmartTime lastTime(ts);
+	const string actual = hap.callGetHistoryQueryOption(lastTime);
+	const string expect =
+	  "?q.field=timestamp&q.op=gt&q.value=2014-09-11T05%3A39%3A20.765000";
+	cppcut_assert_equal(expect, actual);
+}
 
 void data_parseAlarmHistoryDetail(void)
 {
