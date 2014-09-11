@@ -60,6 +60,7 @@ enum HapiCommandCode {
 	HAPI_CMD_GET_MONITORING_SERVER_INFO,
 	HAPI_CMD_GET_TIMESTAMP_OF_LAST_TRIGGER,
 	HAPI_CMD_GET_LAST_EVENT_ID,
+	HAPI_CMD_GET_TIME_OF_LAST_EVENT,
 	HAPI_CMD_SEND_UPDATED_TRIGGERS,
 	HAPI_CMD_SEND_HOSTS,
 	HAPI_CMD_SEND_HOST_GROUP_ELEMENTS,
@@ -164,6 +165,10 @@ struct HapiArmInfo {
 	uint64_t numFailure;
 } __attribute__((__packed__));
 
+struct HapiParamTimeOfLastEvent {
+	uint64_t triggerId;
+} __attribute__((__packed__));
+
 struct HapiResponseHeader {
 	uint16_t type;
 	uint16_t code;
@@ -204,6 +209,12 @@ struct HapiResTimestampOfLastTrigger {
 struct HapiResLastEventId {
 	uint64_t lastEventId;
 } __attribute__((__packed__));
+
+struct HapiResTimeOfLastEvent {
+	uint64_t sec;
+	uint32_t nsec;
+} __attribute__((__packed__));
+
 
 class HatoholArmPluginInterface :
   public HatoholThreadBase, public EndianConverter {

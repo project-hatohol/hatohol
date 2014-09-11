@@ -155,6 +155,11 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	    &HatoholArmPluginGate::cmdHandlerGetLastEventId);
 
 	registerCommandHandler(
+	  HAPI_CMD_GET_TIME_OF_LAST_EVENT,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerGetTimeOfLastEvent);
+
+	registerCommandHandler(
 	  HAPI_CMD_SEND_UPDATED_TRIGGERS,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers);
@@ -436,6 +441,30 @@ void HatoholArmPluginGate::cmdHandlerGetLastEventId(
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	body->lastEventId = dbMonitoring.getLastEventId(m_impl->serverInfo.id);
+	reply(resBuf);
+}
+
+void HatoholArmPluginGate::cmdHandlerGetTimeOfLastEvent(
+  const HapiCommandHeader *header)
+{
+	// Parse a command paramter.
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+	HapiParamTimeOfLastEvent *param =
+	  getCommandBody<HapiParamTimeOfLastEvent>(*cmdBuf);
+	const TriggerIdType triggerId = LtoN(param->triggerId);
+
+	// Make a response buffer.
+	SmartBuffer resBuf;
+	HapiResTimeOfLastEvent *body =
+	  setupResponseBuffer<HapiResTimeOfLastEvent>(resBuf);
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	SmartTime time = dbMonitoring.getTimeOfLastEvent(m_impl->serverInfo.id,
+	                                                 triggerId);
+	const timespec &ts = time.getAsTimespec();
+	body->sec = ts.tv_sec;
+	body->nsec = ts.tv_nsec;
 	reply(resBuf);
 }
 
