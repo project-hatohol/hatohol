@@ -56,6 +56,9 @@ public:
 	void setTriggerStatus(const TriggerStatusType &status);
 	TriggerStatusType getTriggerStatus(void) const;
 
+	void setTriggerId(const TriggerIdType &triggerId);
+	TriggerIdType getTriggerId(void);
+
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;

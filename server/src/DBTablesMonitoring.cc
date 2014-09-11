@@ -892,13 +892,15 @@ struct EventsQueryOption::Impl {
 	SortDirection sortDirection;
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
+	TriggerIdType triggerId;
 
 	Impl()
 	: limitOfUnifiedId(NO_LIMIT),
 	  sortType(SORT_UNIFIED_ID),
 	  sortDirection(SORT_DONT_CARE),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
-	  triggerStatus(TRIGGER_STATUS_ALL)
+	  triggerStatus(TRIGGER_STATUS_ALL),
+	  triggerId(ALL_TRIGGERS)
 	{
 	}
 };
@@ -963,6 +965,15 @@ string EventsQueryOption::getCondition(void) const
 			"%s=%d",
 			getColumnName(IDX_EVENTS_STATUS).c_str(),
 			m_impl->triggerStatus);
+	}
+
+	if (m_impl->triggerId != ALL_TRIGGERS) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s=%" FMT_TRIGGER_ID,
+			getColumnName(IDX_EVENTS_TRIGGER_ID).c_str(),
+			m_impl->triggerId);
 	}
 
 	return condition;
@@ -1044,6 +1055,16 @@ void EventsQueryOption::setTriggerStatus(const TriggerStatusType &status)
 TriggerStatusType EventsQueryOption::getTriggerStatus(void) const
 {
 	return m_impl->triggerStatus;
+}
+
+void EventsQueryOption::setTriggerId(const TriggerIdType &triggerId)
+{
+	m_impl->triggerId = triggerId;
+}
+
+TriggerIdType EventsQueryOption::getTriggerId(void)
+{
+	return m_impl->triggerId;
 }
 
 //
