@@ -28,10 +28,16 @@
 #include <glib.h>
 #include <StringUtils.h>
 #include <execinfo.h>
+#include <libsoup/soup.h>
 #include "Params.h"
 
 #ifndef GLIB_VERSION_2_32
 #define G_SOURCE_REMOVE FALSE
+#endif
+
+#ifndef SOUP_VERSION_2_32
+#define soup_uri_get_host(uri) (uri->host)
+#define soup_uri_get_port(uri) (uri->port)
 #endif
 
 class FormulaElement;
