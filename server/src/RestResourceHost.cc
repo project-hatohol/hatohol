@@ -223,6 +223,14 @@ HatoholError RestResourceHost::parseEventParameter(EventsQueryOption &option,
 		return err;
 	option.setTriggerStatus(status);
 
+	// trigger ID
+	TriggerIdType triggerId = ALL_TRIGGERS;
+	err = getParam<TriggerIdType>(query, "triggerId",
+				      "%" FMT_TRIGGER_ID, triggerId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTriggerId(triggerId);
+
 	// sort type
 	EventsQueryOption::SortType sortType = EventsQueryOption::SORT_TIME;
 	err = parseSortTypeFromQuery(sortType, query);
