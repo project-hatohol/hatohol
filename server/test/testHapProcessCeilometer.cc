@@ -42,6 +42,11 @@ public:
 	{
 		return parseStateTimestamp(stateTimestamp);
 	}
+
+	EventType callParseAlarmHistoryDetail(const std::string &detail)
+	{
+		return parseAlarmHistoryDetail(detail);
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -93,6 +98,33 @@ void test_parseStateTimestampWithoutUSec()
 	_expect.tv_nsec = 0;
 	SmartTime expect(_expect);
 	cppcut_assert_equal(expect, actual);
+}
+
+
+void data_parseAlarmHistoryDetail(void)
+{
+	gcut_add_datum("ok",
+	               "state", G_TYPE_STRING, "ok",
+	               "expect", G_TYPE_INT, EVENT_TYPE_GOOD, NULL);
+	gcut_add_datum("alarm",
+	               "state", G_TYPE_STRING, "alarm",
+	               "expect", G_TYPE_INT, EVENT_TYPE_BAD, NULL);
+	gcut_add_datum("insufficient data",
+	               "state", G_TYPE_STRING, "insufficient data",
+	               "expect", G_TYPE_INT, EVENT_TYPE_UNKNOWN, NULL);
+	gcut_add_datum("unexpected string",
+	               "state", G_TYPE_STRING, "HOGE TA HOGE ZOOO",
+	               "expect", G_TYPE_INT, EVENT_TYPE_UNKNOWN, NULL);
+}
+
+void test_parseAlarmHistoryDetail(gconstpointer data)
+{
+	TestHapProcessCeilometer hap;
+	const gchar *state = gcut_data_get_string(data, "state");
+	const string detail = StringUtils::sprintf("{\"state\": \"%s\"}", state);
+	cppcut_assert_equal(
+	  hap.callParseAlarmHistoryDetail(detail),
+	  static_cast<EventType>(gcut_data_get_int(data, "expect")));
 }
 
 } // namespace testHapProcessCeilometer
