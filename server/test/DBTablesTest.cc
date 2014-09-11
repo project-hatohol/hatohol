@@ -204,7 +204,7 @@ EventInfo testEventInfo[] = {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
 	2,                        // id
-	{1362951000,0},           // time
+	{1362958000,0},           // time
 	EVENT_TYPE_GOOD,          // type
 	3,                        // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
@@ -216,7 +216,7 @@ EventInfo testEventInfo[] = {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	1,                        // serverId
 	1,                        // id
-	{1362957198,0},           // time
+	{1363123456,0},           // time
 	EVENT_TYPE_GOOD,          // type
 	2,                        // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
@@ -228,7 +228,7 @@ EventInfo testEventInfo[] = {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	1,                        // serverId
 	2,                        // id
-	{1362951000,0},           // time
+	{1378900022,0},           // time
 	EVENT_TYPE_GOOD,          // type
 	1,                        // triggerId
 	TRIGGER_STATUS_OK,        // status
@@ -240,7 +240,7 @@ EventInfo testEventInfo[] = {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	1,                        // serverId
 	3,                        // id
-	{1362957117,0},           // time
+	{1389123457,0},           // time
 	EVENT_TYPE_GOOD,          // type
 	3,                        // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
