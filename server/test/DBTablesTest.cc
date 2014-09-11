@@ -249,6 +249,18 @@ EventInfo testEventInfo[] = {
 	"hostX2",                 // hostName,
 	"TEST Trigger 1b",        // brief,
 }, {
+	AUTO_INCREMENT_VALUE,     // unifiedId
+	3,                        // serverId
+	3,                        // id
+	{1390000000,123456789},   // time
+	EVENT_TYPE_BAD,           // type
+	2,                        // triggerId
+	TRIGGER_STATUS_PROBLEM,   // status
+	TRIGGER_SEVERITY_WARNING, // severity
+	10001,                    // hostId,
+	"hostZ1",                 // hostName,
+	"TEST Trigger 2",         // brief,
+}, {
 	// This entry is for tests with a defunct server
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	trigInfoDefunctSv1.serverId, // serverId
@@ -966,6 +978,28 @@ EventIdType findLastEventId(const ServerIdType &serverId)
 	if (!found)
 		return EVENT_NOT_FOUND;
 	return maxId;
+}
+
+SmartTime findTimeOfLastEvent(
+  const ServerIdType &serverId, const TriggerIdType &triggerId)
+{
+	EventIdType maxId = 0;
+	timespec   *lastTime = NULL;
+	for (size_t i = 0; i < NumTestEventInfo; i++) {
+		EventInfo &eventInfo = testEventInfo[i];
+		if (eventInfo.serverId != serverId)
+			continue;
+		if (triggerId != ALL_TRIGGERS &&
+		    eventInfo.triggerId != triggerId)
+			continue;
+		if (eventInfo.id >= maxId) {
+			maxId = eventInfo.id;
+			lastTime =& eventInfo.time;
+		}
+	}
+	if (!lastTime)
+		return SmartTime();
+	return SmartTime(*lastTime);
 }
 
 void getTestTriggersIndexes(

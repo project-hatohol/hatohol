@@ -50,6 +50,8 @@ extern size_t NumTestTriggerInfo;
 extern EventInfo testEventInfo[];
 extern size_t NumTestEventInfo;
 extern EventIdType findLastEventId(const ServerIdType &serverId);
+extern mlpl::SmartTime findTimeOfLastEvent(
+  const ServerIdType &serverId, const TriggerIdType &triggerId = ALL_TRIGGERS);
 
 extern EventInfo testDupEventInfo[];
 extern size_t NumTestDupEventInfo;

@@ -210,6 +210,20 @@ public:
 	 */
 	EventIdType getLastEventId(const ServerIdType &serverId);
 
+	/**
+	 * Get the time of the last event.
+	 *
+	 * @param serverId  A target server ID.
+	 * @param triggerId A target trigger ID.
+	 *
+	 * @return
+	 * The time of the last event. If there's no event, hasValidTime() of
+	 * the returned object is false.
+	 */
+	mlpl::SmartTime getTimeOfLastEvent(
+	  const ServerIdType &serverId,
+	  const TriggerIdType &triggerId = ALL_TRIGGERS);
+
 	void addItemInfo(ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
 	void getItemInfoList(ItemInfoList &itemInfoList,
