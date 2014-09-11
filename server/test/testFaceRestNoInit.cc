@@ -440,7 +440,6 @@ void test_parseEventParameterInvalidTriggerStatus(void)
 	  HTERR_INVALID_PARAMETER);
 }
 
-#if 0
 void test_parseEventParameterNoTriggerId(void)
 {
 	EventsQueryOption option;
@@ -451,17 +450,18 @@ void test_parseEventParameterNoTriggerId(void)
 	cppcut_assert_equal(ALL_TRIGGERS, option.getTriggerId());
 }
 
-void test_parseEventParameterTriggerStatus(void)
+void test_parseEventParameterTriggerId(void)
 {
-	assertParseEventParameterTriggerStatus(TRIGGER_STATUS_PROBLEM);
+	TriggerIdType triggerId = 3;
+	assertParseEventParameterTriggerId(triggerId);
 }
 
-void test_parseEventParameterInvalidTriggerStatus(void)
+void test_parseEventParameterInvalidTriggerId(void)
 {
-	assertParseEventParameterTriggerStatus(
-	  TRIGGER_STATUS_OK, "problem",
+	TriggerIdType triggerId = 3;
+	assertParseEventParameterTriggerId(
+	  triggerId, "problem",
 	  HTERR_INVALID_PARAMETER);
 }
-#endif
 
 } // namespace testFaceRestNoInit
