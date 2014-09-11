@@ -41,6 +41,9 @@
 #  - name: install ndoutils-nagios3-mysql
 #    yum: name=ndoutils-nagios3-mysql
 
+  - name: install librabbitmq-devel
+    yum: name=librabbitmq-devel
+
   - name: install QPid dev packages
     yum: name={{ item }}
     with_items:
