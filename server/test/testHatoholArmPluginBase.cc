@@ -97,6 +97,16 @@ void test_getLastEventId(void)
 	cppcut_assert_equal(expect, actual);
 }
 
+void test_getTimeOfLastEvent(void)
+{
+	loadTestDBEvents();
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
+	const SmartTime expect(findTimeOfLastEvent(arg.serverId));
+	const SmartTime actual = pair.plugin->getTimeOfLastEvent();
+	cppcut_assert_equal(expect, actual);
+}
+
 void test_sendArmInfo(void)
 {
 	ArmInfo armInfo;

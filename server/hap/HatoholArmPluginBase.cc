@@ -230,6 +230,47 @@ EventIdType HatoholArmPluginBase::getLastEventId(void)
 	return cb->eventId;
 }
 
+SmartTime HatoholArmPluginBase::getTimeOfLastEvent(
+  const TriggerIdType &triggerId)
+{
+	struct Callback : public SyncCommand {
+		SmartTime lastTime;
+
+		Callback(HatoholArmPluginBase *obj)
+		: SyncCommand(obj)
+		{
+		}
+
+		virtual void onGotReply(
+		  const mlpl::SmartBuffer &replyBuf,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			SemaphorePoster poster(this);
+			const HapiResTimeOfLastEvent *time =
+			  getObject()->getResponseBody
+			    <HapiResTimeOfLastEvent>(replyBuf);
+			timespec ts = {(time_t)time->sec, time->nsec};
+			lastTime = SmartTime(ts);
+			setSucceeded();
+		}
+	} *cb = new Callback(this);
+	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
+
+	SmartBuffer cmdBuf;
+	HapiParamTimeOfLastEvent *param = 
+	  setupCommandHeader<HapiParamTimeOfLastEvent>(
+	    cmdBuf, HAPI_CMD_GET_TIME_OF_LAST_EVENT,
+	    sizeof(HapiParamTimeOfLastEvent));
+	param->triggerId = triggerId;
+	send(cmdBuf, cb);
+	cb->wait();
+	if (!cb->getSucceeded()) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call HAPI_CMD_GET_TIME_OF_LAST_EVENT\n");
+	}
+	return cb->lastTime;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

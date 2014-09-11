@@ -52,6 +52,18 @@ public:
 	 */
 	EventIdType getLastEventId(void);
 
+	/**
+	 * Get the time of the last event.
+	 *
+	 * @param triggerId An ID of the tareget trigger.
+	 *
+	 * @return
+	 * The time of the last event is returned. If no events found,
+	 * hasValidTime() of the retruned value is false.
+	 */
+	mlpl::SmartTime getTimeOfLastEvent(
+	  const TriggerIdType &triggerId = ALL_TRIGGERS);
+
 protected:
 	static const size_t WAIT_INFINITE;
 
