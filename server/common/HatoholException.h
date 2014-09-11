@@ -109,6 +109,13 @@ _buildExpect<size_t, true>(size_t exp)
 	return exp;
 }
 
+template<>
+inline bool
+_buildExpect<bool, true>(bool exp)
+{
+	return exp;
+}
+
 #define HATOHOL_BUILD_EXPECT(exp,val)	\
 	_buildExpect<__typeof__(exp), (exp == val)>(exp)
 
