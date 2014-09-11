@@ -57,7 +57,7 @@ public:
 	TriggerStatusType getTriggerStatus(void) const;
 
 	void setTriggerId(const TriggerIdType &triggerId);
-	TriggerIdType getTriggerId(void);
+	TriggerIdType getTriggerId(void) const;
 
 private:
 	struct Impl;
