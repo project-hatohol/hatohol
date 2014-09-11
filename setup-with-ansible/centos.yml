@@ -91,3 +91,5 @@
   - name: install mysql-python
     pip: name=mysql-python
 
+  - name: install httpd
+    yum: name=httpd
