@@ -48,6 +48,11 @@ protected:
 				       const std::string &response,
 				       const EventInfo &event);
 
+	// TODO: Move to MonitoringServer?
+	static std::string buildURLMonitoringServerEvent(
+	  const EventInfo &event,
+	  const MonitoringServerInfo *server);
+
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;

@@ -113,7 +113,7 @@ string IncidentSenderRedmine::getIssueURL(const string &id)
 }
 
 // TODO: Move to DBTablesMonitoring or IncidentSender or Utils or ...
-static string buildLinkMonitoringServerEvent(
+string IncidentSenderRedmine::buildURLMonitoringServerEvent(
   const EventInfo &event, const MonitoringServerInfo *server)
 {
 	if (!server)
@@ -211,7 +211,7 @@ string IncidentSenderRedmine::buildDescription(
 	    event.id);
 
 	string monitoringServerEventPage
-	  = buildLinkMonitoringServerEvent(event, server);
+	  = buildURLMonitoringServerEvent(event, server);
 	if (!monitoringServerEventPage.empty()) {
 		description +=
 		  StringUtils::sprintf(
