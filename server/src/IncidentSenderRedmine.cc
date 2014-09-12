@@ -123,7 +123,7 @@ string IncidentSenderRedmine::buildDescription(
 		 "%a, %d %b %Y %T %z", &eventTime);
 
 	if (server) {
-		string description = 
+		description += 
 		  StringUtils::sprintf(
 		    "h2. Monitoring server\n"
 		    "\n"
@@ -168,7 +168,8 @@ string IncidentSenderRedmine::buildDescription(
 	    "|{background:#ddd}. Host ID|%" FMT_HOST_ID "|\n"
 	    "|{background:#ddd}. Trigger ID|%" FMT_TRIGGER_ID "|\n"
 	    "|{background:#ddd}. Event ID|%" FMT_EVENT_ID "|\n"
-	    "}}\n",
+	    "}}\n"
+	    "\n",
 	    event.hostId,
 	    event.triggerId,
 	    event.id);
