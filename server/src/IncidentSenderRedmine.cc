@@ -112,6 +112,42 @@ string IncidentSenderRedmine::getIssueURL(const string &id)
 	return RedmineAPI::getIssueURL(trackerInfo, id);
 }
 
+// TODO: Move to DBTablesMonitoring or IncidentSender or Utils or ...
+static string buildLinkMonitoringServerEvent(
+  const EventInfo &event, const MonitoringServerInfo *server)
+{
+	if (!server)
+		return string();
+
+	// TODO: MonitoringServerInfo should have a base URL
+	string url;
+	switch (server->type) {
+	case MONITORING_SYSTEM_ZABBIX:
+	{
+		url = "http://";
+		bool forURI = true;
+		url += server->getHostAddress(forURI);
+		if (server->port > 0) {
+			url += ":";
+			url += StringUtils::toString(server->port);
+		}
+		url += StringUtils::sprintf(
+		  "/zabbix/tr_events.php"
+		  "?triggerid=%" FMT_TRIGGER_ID
+		  "&eventid=%" FMT_EVENT_ID,
+		  event.triggerId,
+		  event.id);
+		break;
+	}
+	case MONITORING_SYSTEM_NAGIOS:
+		// TODO
+		break;
+	default:
+		break;
+	}
+	return url;
+}
+
 string IncidentSenderRedmine::buildDescription(
   const EventInfo &event, const MonitoringServerInfo *server)
 {
@@ -173,6 +209,19 @@ string IncidentSenderRedmine::buildDescription(
 	    event.hostId,
 	    event.triggerId,
 	    event.id);
+
+	string monitoringServerEventPage
+	  = buildLinkMonitoringServerEvent(event, server);
+	if (!monitoringServerEventPage.empty()) {
+		description +=
+		  StringUtils::sprintf(
+		    "h2. Links\n"
+		    "\n"
+		    "Monitoring server's page: %s\n",
+		    monitoringServerEventPage.c_str());
+	}
+
+	// TODO: Add a link to Hatohol
 
 	return description;
 }
