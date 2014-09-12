@@ -276,7 +276,7 @@ string IncidentSender::buildDescription(const EventInfo &event,
 	desc += StringUtils::sprintf(
 		  "Server ID: %" FMT_SERVER_ID "\n",
 		  event.serverId);
-	if (server)
+	if (server) {
 		desc += StringUtils::sprintf(
 			  "    Hostname:   \"%s\"\n"
 			  "    IP Address: \"%s\"\n"
@@ -284,6 +284,7 @@ string IncidentSender::buildDescription(const EventInfo &event,
 			  server->hostName.c_str(),
 			  server->ipAddress.c_str(),
 			  server->nickname.c_str());
+	}
 	desc += "\n";
 	desc += StringUtils::sprintf(
 		  "Host ID: %" FMT_HOST_ID "\n"
