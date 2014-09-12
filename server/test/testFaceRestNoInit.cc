@@ -127,6 +127,17 @@ void _assertParseEventParameterMaximumNumber(
 #define assertParseEventParameterMaximumNumber(E, ...) \
 cut_trace(_assertParseEventParameterMaximumNumber(E, ##__VA_ARGS__))
 
+void _assertParseEventParameterLimit(
+  const size_t &expectValue, const string &forceValueStr = "",
+  const HatoholErrorCode &expectCode = HTERR_OK)
+{
+	assertParseEventParameterTempl(
+	  size_t, expectValue, "%zd", "limit",
+	  &HostResourceQueryOption::getMaximumNumber, expectCode, forceValueStr);
+}
+#define assertParseEventParameterLimit(E, ...) \
+cut_trace(_assertParseEventParameterLimit(E, ##__VA_ARGS__))
+
 void _assertParseEventParameterOffset(
   const size_t &expectValue, const string &forceValueStr = "",
   const HatoholErrorCode &expectCode = HTERR_OK)
@@ -289,6 +300,11 @@ void test_parseEventParameterMaximumNumberInvalidInput(void)
 {
 	assertParseEventParameterMaximumNumber(0, "lion",
 	                                       HTERR_INVALID_PARAMETER);
+}
+
+void test_parseEventParameterLimit(void)
+{
+	assertParseEventParameterLimit(108);
 }
 
 void test_parseEventParameterNoOffset(void)

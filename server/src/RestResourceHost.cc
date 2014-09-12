@@ -147,6 +147,9 @@ static HatoholError parseHostResourceQueryParameter(
 
 	// maximum number
 	size_t maximumNumber = 0;
+	err = getParam<size_t>(query, "limit", "%zd", maximumNumber);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
 	err = getParam<size_t>(query, "maximumNumber", "%zd", maximumNumber);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
