@@ -18,6 +18,7 @@
  */
 
 #include <cstdio>
+#include "Utils.h"
 #include "ItemData.h"
 using namespace std;
 using namespace mlpl;
@@ -113,14 +114,8 @@ string ItemDataException::getMessageHeader(const ItemDataExceptionType type)
 // ---------------------------------------------------------------------------
 void ItemData::init(void)
 {
-	size_t numTypeNames =
-	  sizeof(ItemData::m_nativeTypeNames) / sizeof(const char *);
-	if (numTypeNames != NUM_ITEM_TYPE) {
-		THROW_HATOHOL_EXCEPTION(
-		  "sizeof(m_nativeTypeNames) is invalid: "
-		  "(expcect/actual: %d/%zd).",
-		  NUM_ITEM_TYPE, numTypeNames);
-	}
+	HATOHOL_BUILD_ASSERT(ARRAY_SIZE(ItemData::m_nativeTypeNames) ==
+			     NUM_ITEM_TYPE);
 }
 
 ItemId ItemData::getId(void) const

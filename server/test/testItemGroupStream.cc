@@ -54,28 +54,28 @@ cut_trace((_assertOperatorRightShift<T, ITEM_DATA>(ARRAY, NUM)));
 void test_operatorRightShiftToInt(void)
 {
 	const int expects[] = {-3, 5, 8};
-	const size_t numExepects = sizeof(expects) / sizeof(int);
+	const size_t numExepects = ARRAY_SIZE(expects);
 	assertOperatorRightShift(int, ItemInt, expects, numExepects);
 }
 
 void test_operatorRightShiftToUint64(void)
 {
 	const uint64_t expects[] = {0xfedcba9876543210, 3, 0x7fffeeee5555};
-	const size_t numExepects = sizeof(expects) / sizeof(uint64_t);
+	const size_t numExepects = ARRAY_SIZE(expects);
 	assertOperatorRightShift(uint64_t, ItemUint64, expects, numExepects);
 }
 
 void test_operatorRightShiftToDouble(void)
 {
 	const double expects[] = {0.5, -1.03e5, 3.141592};
-	const size_t numExepects = sizeof(expects) / sizeof(double);
+	const size_t numExepects = ARRAY_SIZE(expects);
 	assertOperatorRightShift(double, ItemDouble, expects, numExepects);
 }
 
 void test_operatorRightShiftToString(void)
 {
 	const string expects[] = {"FOO", "", "dog dog dog dog dog"};
-	const size_t numExepects = sizeof(expects) / sizeof(string);
+	const size_t numExepects = ARRAY_SIZE(expects);
 	assertOperatorRightShift(string, ItemString, expects, numExepects);
 }
 
@@ -118,7 +118,7 @@ void test_set(void)
 
 	// check: read()
 	ItemId targetItemIds[] = {5, 1, 8, 4, 3};
-	const size_t numTargetItemIds = sizeof(targetItemIds) / sizeof(ItemId);
+	const size_t numTargetItemIds = ARRAY_SIZE(targetItemIds);
 	for (size_t i = 0; i < numTargetItemIds; i++) {
 		const ItemId &targetItemId = targetItemIds[i];
 		itemGroupStream.seek(targetItemId);

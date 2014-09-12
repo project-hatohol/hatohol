@@ -97,7 +97,7 @@ const ColumnDef COLUMN_DEF_TEST[] = {
 }
 };
 // TODO: remove this and use the tableProfile
-const size_t NUM_COLUMNS_TEST = sizeof(COLUMN_DEF_TEST) / sizeof(ColumnDef);
+const size_t NUM_COLUMNS_TEST = ARRAY_SIZE(COLUMN_DEF_TEST);
 
 const DBAgent::TableProfile tableProfileTest(
   TABLE_NAME_TEST, COLUMN_DEF_TEST,

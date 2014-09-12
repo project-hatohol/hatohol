@@ -43,7 +43,7 @@ public:
 };
 
 #define PARSE_OPTION(ARGV, VAR_NAME) \
-	int argc = sizeof(argv) / sizeof(char *); \
+	int argc = ARRAY_SIZE(argv); \
 	TestHapProcess hapProc(argc, (char**)argv); \
 	assertGError(hapProc.callGetErrorOfCommandLineArg()); \
 	const HapCommandLineArg &VAR_NAME = hapProc.callGetCommandLineArg();

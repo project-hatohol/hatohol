@@ -81,7 +81,7 @@ enum {
 	NUM_IDX_TEST_TABLE,
 };
 
-const size_t NUM_COLUMNS_TEST = sizeof(COLUMN_DEF_TEST) / sizeof(ColumnDef);
+const size_t NUM_COLUMNS_TEST = ARRAY_SIZE(COLUMN_DEF_TEST);
 const DBAgent::TableProfile tableProfileTest(
   TEST_PRIMARY_TABLE_NAME, COLUMN_DEF_TEST,
   NUM_IDX_TEST_TABLE
@@ -136,8 +136,7 @@ enum {
 	NUM_IDX_TEST_HGRP_TABLE,
 };
 
-const size_t NUM_COLUMNS_HGRP_TEST =
-  sizeof(COLUMN_DEF_TEST_HGRP) / sizeof(ColumnDef);
+const size_t NUM_COLUMNS_HGRP_TEST = ARRAY_SIZE(COLUMN_DEF_TEST_HGRP);
 const DBAgent::TableProfile tableProfileTestHGrp(
   TEST_HGRP_TABLE_NAME, COLUMN_DEF_TEST_HGRP,
   NUM_IDX_TEST_HGRP_TABLE
@@ -452,7 +451,7 @@ void test_makeConditionServer(void)
 {
 	const string serverIdColumnName = "cat";
 	const ServerIdType serverIds[] = {5, 15, 105, 1080};
-	const size_t numServerIds = sizeof(serverIds) / sizeof(ServerIdType);
+	const size_t numServerIds = ARRAY_SIZE(serverIds);
 
 	ServerIdSet svIdSet;
 	for (size_t i = 0; i < numServerIds; i++)

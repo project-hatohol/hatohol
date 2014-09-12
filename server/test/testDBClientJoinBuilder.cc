@@ -77,7 +77,7 @@ enum {
 	NUM_IDX_TEST_TABLE0,
 };
 
-const size_t NUM_COLUMNS_TEST0 = sizeof(COLUMN_DEF_TEST0) / sizeof(ColumnDef);
+const size_t NUM_COLUMNS_TEST0 = ARRAY_SIZE(COLUMN_DEF_TEST0);
 const DBAgent::TableProfile tableProfileTest0(
   TEST_TABLE_NAME0, COLUMN_DEF_TEST0,
   NUM_IDX_TEST_TABLE0
@@ -121,7 +121,7 @@ enum {
 	NUM_IDX_TEST_TABLE1,
 };
 
-const size_t NUM_COLUMNS_TEST1 = sizeof(COLUMN_DEF_TEST1) / sizeof(ColumnDef);
+const size_t NUM_COLUMNS_TEST1 = ARRAY_SIZE(COLUMN_DEF_TEST1);
 const DBAgent::TableProfile tableProfileTest1(
   TEST_TABLE_NAME1, COLUMN_DEF_TEST1,
   NUM_IDX_TEST_TABLE1

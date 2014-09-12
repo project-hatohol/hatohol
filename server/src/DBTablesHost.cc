@@ -168,7 +168,7 @@ DBTables::SetupInfo &DBTablesHost::getSetupInfo(void)
 	}
 	};
 	static const size_t NUM_TABLE_INFO =
-	  sizeof(TABLE_INFO) / sizeof(TableSetupInfo);
+	  ARRAY_SIZE(TABLE_INFO);
 
 	static SetupInfo SETUP_INFO = {
 		DB_TABLES_ID_HOST,
