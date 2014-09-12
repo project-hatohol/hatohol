@@ -33,6 +33,9 @@ public:
 	virtual ~HapProcessCeilometer();
 
 protected:
+	typedef std::map<const mlpl::SmartTime, const ItemGroupPtr> AlarmTimeMap;
+	typedef AlarmTimeMap::const_iterator AlarmTimeMapConstIterator;
+
 	HatoholError updateAuthTokenIfNeeded(void);
 	bool parseReplyToknes(SoupMessage *msg);
 
@@ -47,12 +50,12 @@ protected:
 	uint64_t generateHashU64(const std::string &str);
 
 	HatoholError getAlarmHistories(void);
-	HatoholError getAlarmHistory(const std::string url);
+	HatoholError getAlarmHistory(const unsigned int &index);
 	std::string  getHistoryQueryOption(const mlpl::SmartTime &lastTime);
-	HatoholError parseReplyGetAlarmHistory(
-	  SoupMessage *msg, VariableItemTablePtr &tablePtr);
+	HatoholError parseReplyGetAlarmHistory(SoupMessage *msg,
+	                                       AlarmTimeMap &alarmTimeMap);
 	HatoholError parseReplyGetAlarmHistoryElement(
-	  JSONParser &parser, VariableItemTablePtr &tablePtr,
+	  JSONParser &parser, AlarmTimeMap &alarmTimeMap,
 	  const unsigned int &index);
 	EventType parseAlarmHistoryDetail(const std::string &detail);
 

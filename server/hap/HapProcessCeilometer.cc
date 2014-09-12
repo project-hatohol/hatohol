@@ -39,7 +39,7 @@ struct OpenStackEndPoint {
 
 struct AcquireContext
 {
-	StringVector alarmIds;
+	StringVector  alarmIds;
 
 	static void clear(AcquireContext *ctx)
 	{
@@ -386,18 +386,10 @@ HatoholError HapProcessCeilometer::getAlarmHistories(void)
 {
 	HatoholError err(HTERR_OK);
 	for (size_t i = 0; i < m_impl->acquireCtx.alarmIds.size(); i++) {
-		const string &alarmId = m_impl->acquireCtx.alarmIds[i];
-		const SmartTime lastTime =
-		  getTimeOfLastEvent(generateHashU64(alarmId));
-		string url = StringUtils::sprintf(
-		               "%s/v2/alarms/%s/history%s",
-		               m_impl->ceilometerEP.publicURL.c_str(),
-		               alarmId.c_str(),
-		               getHistoryQueryOption(lastTime).c_str());
-		err = getAlarmHistory(url);
+		err = getAlarmHistory(i);
 		if (err != HTERR_OK) {
 			MLPL_ERR("Failed to get alarm history: %s\n",
-		                 alarmId.c_str());
+			         m_impl->acquireCtx.alarmIds[i].c_str());
 		}
 	}
 	return err;
@@ -422,8 +414,15 @@ string  HapProcessCeilometer::getHistoryQueryOption(
 	return query;
 }
 
-HatoholError HapProcessCeilometer::getAlarmHistory(const string url)
+HatoholError HapProcessCeilometer::getAlarmHistory(const unsigned int &index)
 {
+	const char *alarmId = m_impl->acquireCtx.alarmIds[index].c_str();
+	const SmartTime lastTime = getTimeOfLastEvent(generateHashU64(alarmId));
+	string url = StringUtils::sprintf(
+	               "%s/v2/alarms/%s/history%s",
+	               m_impl->ceilometerEP.publicURL.c_str(),
+	               alarmId, getHistoryQueryOption(lastTime).c_str());
+
 	// TODO: extract the commonly used part with getAlarmList()
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
 	if (!msg) {
@@ -435,26 +434,40 @@ HatoholError HapProcessCeilometer::getAlarmHistory(const string url)
 	                                      MIME_JSON, NULL);
 	soup_message_headers_append(msg->request_headers,
 	                            "X-Auth-Token", m_impl->token.c_str());
-	// TODO: Add query condition to get new events only.
 	SoupSession *session = soup_session_sync_new();
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
 		MLPL_ERR("Failed to connect: %d, URL: %s\n", ret, url.c_str());
 		return HTERR_BAD_REST_RESPONSE_CEILOMETER;
 	}
-	VariableItemTablePtr eventTablePtr;
-	HatoholError err = parseReplyGetAlarmHistory(msg, eventTablePtr);
+
+	AlarmTimeMap alarmTimeMap;
+	HatoholError err = parseReplyGetAlarmHistory(msg, alarmTimeMap);
 	if (err != HTERR_OK) {
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
+		return err;
+	}
+
+	MLPL_DBG("The numebr of updated alarms: %zd url: %s\n",
+	         alarmTimeMap.size(), url.c_str());
+	if (alarmTimeMap.empty())
+		return HTERR_OK;
+
+	// Build the table
+	VariableItemTablePtr eventTablePtr;
+	AlarmTimeMapConstIterator it = alarmTimeMap.begin();
+	for (; it != alarmTimeMap.end(); ++it) {
+		const ItemGroupPtr &historyElement = it->second;
+		eventTablePtr->add(historyElement);
 	}
 	sendTable(HAPI_CMD_SEND_UPDATED_EVENTS,
 	          static_cast<ItemTablePtr>(eventTablePtr));
-	return err;
+	return HTERR_OK;
 }
 
 HatoholError HapProcessCeilometer::parseReplyGetAlarmHistory(
-  SoupMessage *msg, VariableItemTablePtr &tablePtr)
+  SoupMessage *msg, AlarmTimeMap &alarmTimeMap)
 {
 	JSONParser parser(msg->response_body->data);
 	if (parser.hasError()) {
@@ -465,7 +478,7 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistory(
 	HatoholError err(HTERR_OK);
 	const unsigned int count = parser.countElements();
 	for (unsigned int i = 0; i < count; i++) {
-		err = parseReplyGetAlarmHistoryElement(parser, tablePtr, i);
+		err = parseReplyGetAlarmHistoryElement(parser, alarmTimeMap, i);
 		if (err != HTERR_OK)
 			break;
 	}
@@ -473,7 +486,7 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistory(
 }
 
 HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
-  JSONParser &parser, VariableItemTablePtr &tablePtr, const unsigned int &index)
+  JSONParser &parser, AlarmTimeMap &alarmTimeMap, const unsigned int &index)
 {
 	JSONParser::PositionStack parserRewinder(parser);
 	if (! parserRewinder.pushElement(index)) {
@@ -531,8 +544,9 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
 	grp->addNewItem(ITEM_ID_ZBX_EVENTS_CLOCK,     (int)ts.tv_sec);
 	grp->addNewItem(ITEM_ID_ZBX_EVENTS_VALUE,     type);
 	grp->addNewItem(ITEM_ID_ZBX_EVENTS_NS,        (int)ts.tv_nsec);
-	tablePtr->add(grp);
-
+	grp->freeze();
+	alarmTimeMap.insert(pair<SmartTime, ItemGroupPtr>(timestamp,
+	                                                  (ItemGroupPtr)grp));
 	return HTERR_OK;
 }
 
