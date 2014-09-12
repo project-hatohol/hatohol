@@ -29,6 +29,7 @@
 #include <StringUtils.h>
 
 #include <Params.h>
+#include <Monitoring.h>
 
 class GateJSONEventMessage {
 public:
@@ -41,6 +42,7 @@ public:
 	timespec getTimestamp();
 	const char *getHostName();
 	const char *getContent();
+	TriggerSeverityType getSeverity();
 
 private:
 	struct Impl;

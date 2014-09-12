@@ -96,6 +96,7 @@ private:
 		eventInfo.id = message.getID();
 		eventInfo.time = message.getTimestamp();
 		eventInfo.type = EVENT_TYPE_BAD;
+		eventInfo.severity = message.getSeverity();
 		eventInfo.hostName = message.getHostName();
 		eventInfo.brief = message.getContent();
 		eventInfoList.push_back(eventInfo);
