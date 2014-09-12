@@ -28,7 +28,7 @@
 
 #include <StringUtils.h>
 
-#include "Params.h"
+#include <Params.h>
 
 class GateJSONEventMessage {
 public:
