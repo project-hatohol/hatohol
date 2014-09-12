@@ -42,6 +42,16 @@ public:
 	{
 		return parseStateTimestamp(stateTimestamp);
 	}
+
+	EventType callParseAlarmHistoryDetail(const std::string &detail)
+	{
+		return parseAlarmHistoryDetail(detail);
+	}
+
+	string callGetHistoryQueryOption(const SmartTime &lastTime)
+	{
+		return getHistoryQueryOption(lastTime);
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -93,6 +103,43 @@ void test_parseStateTimestampWithoutUSec()
 	_expect.tv_nsec = 0;
 	SmartTime expect(_expect);
 	cppcut_assert_equal(expect, actual);
+}
+
+void test_getHistoryQueryOption(void)
+{
+	TestHapProcessCeilometer hap;
+	const timespec ts = {1410413960, 765000000};
+	const SmartTime lastTime(ts);
+	const string actual = hap.callGetHistoryQueryOption(lastTime);
+	const string expect =
+	  "?q.field=timestamp&q.op=gt&q.value=2014-09-11T05%3A39%3A20.765000";
+	cppcut_assert_equal(expect, actual);
+}
+
+void data_parseAlarmHistoryDetail(void)
+{
+	gcut_add_datum("ok",
+	               "state", G_TYPE_STRING, "ok",
+	               "expect", G_TYPE_INT, EVENT_TYPE_GOOD, NULL);
+	gcut_add_datum("alarm",
+	               "state", G_TYPE_STRING, "alarm",
+	               "expect", G_TYPE_INT, EVENT_TYPE_BAD, NULL);
+	gcut_add_datum("insufficient data",
+	               "state", G_TYPE_STRING, "insufficient data",
+	               "expect", G_TYPE_INT, EVENT_TYPE_UNKNOWN, NULL);
+	gcut_add_datum("unexpected string",
+	               "state", G_TYPE_STRING, "HOGE TA HOGE ZOOO",
+	               "expect", G_TYPE_INT, EVENT_TYPE_UNKNOWN, NULL);
+}
+
+void test_parseAlarmHistoryDetail(gconstpointer data)
+{
+	TestHapProcessCeilometer hap;
+	const gchar *state = gcut_data_get_string(data, "state");
+	const string detail = StringUtils::sprintf("{\"state\": \"%s\"}", state);
+	cppcut_assert_equal(
+	  hap.callParseAlarmHistoryDetail(detail),
+	  static_cast<EventType>(gcut_data_get_int(data, "expect")));
 }
 
 } // namespace testHapProcessCeilometer
