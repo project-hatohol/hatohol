@@ -116,7 +116,8 @@ HatoholError HapProcessCeilometer::updateAuthTokenIfNeeded(void)
 	SoupSession *session = soup_session_sync_new();
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
-		MLPL_ERR("Failed to connect: %d, URL: %s\n", ret, url.c_str());
+		MLPL_ERR("Failed to connect: (%d) %s, URL: %s\n",
+		         ret, soup_status_get_phrase(ret), url.c_str());
 		return HTERR_BAD_REST_RESPONSE_KEYSTONE;
 	}
 	if (!parseReplyToknes(msg)) {
@@ -220,7 +221,8 @@ HatoholError HapProcessCeilometer::getAlarmList(void)
 	SoupSession *session = soup_session_sync_new();
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
-		MLPL_ERR("Failed to connect: %d, URL: %s\n", ret, url.c_str());
+		MLPL_ERR("Failed to connect: (%d) %s, URL: %s\n",
+		         ret, soup_status_get_phrase(ret), url.c_str());
 		return HTERR_BAD_REST_RESPONSE_CEILOMETER;
 	}
 	VariableItemTablePtr trigTablePtr;
@@ -437,7 +439,8 @@ HatoholError HapProcessCeilometer::getAlarmHistory(const unsigned int &index)
 	SoupSession *session = soup_session_sync_new();
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
-		MLPL_ERR("Failed to connect: %d, URL: %s\n", ret, url.c_str());
+		MLPL_ERR("Failed to connect: (%d) %s, URL: %s\n",
+		         ret, soup_status_get_phrase(ret), url.c_str());
 		return HTERR_BAD_REST_RESPONSE_CEILOMETER;
 	}
 
