@@ -20,6 +20,8 @@
 #ifndef Monitoring_h
 #define Monitoring_h
 
+#include <SmartTime.h>
+
 enum TriggerStatusType {
 	TRIGGER_STATUS_ALL = -1,
 	TRIGGER_STATUS_OK,
