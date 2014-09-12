@@ -107,7 +107,7 @@ string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 	    "\"subject\":\"[%s %s] %s\","
 	    "\"project_id\":\"%s\","
 	    "\"description\":\""
-	    "<pre>"
+	    "<pre>\\n"
 	    "Server ID: %" FMT_SERVER_ID "\\n"
 	    "    Hostname:   \\\"%s\\\"\\n"
 	    "    IP Address: \\\"%s\\\"\\n"
@@ -250,7 +250,7 @@ void _assertSend(const HatoholErrorCode &expected,
 	JSONParser agent(g_redmineEmulator.getLastResponseBody());
 	cppcut_assert_equal(true, agent.startObject("issue"));
 	string expectedDescription
-	  = StringUtils::sprintf("<pre>%s</pre>",
+	  = StringUtils::sprintf("<pre>\n%s</pre>",
 				 sender.buildDescription(event, &server).c_str());
 	string title, description, trackerId;
 	agent.read("subject", title);

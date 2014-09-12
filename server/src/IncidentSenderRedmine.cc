@@ -126,7 +126,7 @@ string IncidentSenderRedmine::buildJSON(const EventInfo &event)
 	agent.add("project_id", trackerInfo.projectId);
 	if (!trackerInfo.trackerId.empty())
 		agent.add("tracker_id", trackerInfo.trackerId);
-	string description = "<pre>";
+	string description = "<pre>\n";
 	description += buildDescription(event, server);
 	description += "</pre>";
 	agent.add("description", description);
