@@ -92,6 +92,17 @@ struct GateJSONEventMessage::Impl
 		return json_object_get_string_member(getBody(), "content");
 	}
 
+	TriggerSeverityType getSeverity()
+	{
+		JsonNode *node = json_object_get_member(getBody(), "severity");
+		if (!node) {
+			return TRIGGER_SEVERITY_UNKNOWN;
+		}
+
+		const string severity(json_node_get_string(node));
+		return parseSeverity(severity);
+	}
+
 private:
 	JsonObject *getBody()
 	{
@@ -113,6 +124,25 @@ private:
 	long microSecondToNanoSecond(long microSecond)
 	{
 		return microSecond * 1000;
+	}
+
+	TriggerSeverityType parseSeverity(const string &severity)
+	{
+		if (severity == "unknown") {
+			return TRIGGER_SEVERITY_UNKNOWN;
+		} else if (severity == "info") {
+			return TRIGGER_SEVERITY_INFO;
+		} else if (severity == "warning") {
+			return TRIGGER_SEVERITY_WARNING;
+		} else if (severity == "error") {
+			return TRIGGER_SEVERITY_ERROR;
+		} else if (severity == "critical") {
+			return TRIGGER_SEVERITY_CRITICAL;
+		} else if (severity == "emergency") {
+			return TRIGGER_SEVERITY_EMERGENCY;
+		} else {
+			return NUM_TRIGGER_SEVERITY;
+		}
 	}
 
 	void addError(StringList &errors,
@@ -259,6 +289,44 @@ private:
 		return validateObjectMemberTime(errors, "$.body", body, name);
 	}
 
+	bool validateBodyMemberSeverity(StringList &errors,
+					JsonObject *body,
+					const gchar *name)
+	{
+		JsonNode *memberNode = json_object_get_member(body, name);
+		if (!memberNode) {
+			return true;
+		}
+
+		GType valueType = json_node_get_value_type(memberNode);
+		if (valueType != G_TYPE_STRING) {
+			JsonGenerator *generator = json_generator_new();
+			json_generator_set_root(generator, memberNode);
+			gchar *memberJSON =
+				json_generator_to_data(generator, NULL);
+			addError(errors,
+				 "$.body.%s must be string: <%s>",
+				 name,
+				 memberJSON);
+			g_free(memberJSON);
+			g_object_unref(generator);
+			return false;
+		}
+
+		const string severity(json_node_get_string(memberNode));
+		if (parseSeverity(severity) == NUM_TRIGGER_SEVERITY) {
+			addError(errors,
+				 "$.body.%s must be valid severity: <%s> "
+				 "available values: unknown, info, warning, "
+				 "error, critical emergency",
+				 name,
+				 severity.c_str());
+			return false;
+		}
+
+		return true;
+	}
+
 	bool validateEventBody(StringList &errors, JsonObject *body)
 	{
 		if (!validateBodyMember(errors, body, "id", G_TYPE_INT64))
@@ -268,6 +336,8 @@ private:
 		if (!validateBodyMember(errors, body, "hostName", G_TYPE_STRING))
 			return false;
 		if (!validateBodyMember(errors, body, "content", G_TYPE_STRING))
+			return false;
+		if (!validateBodyMemberSeverity(errors, body, "severity"))
 			return false;
 		return true;
 	}
@@ -305,4 +375,9 @@ const char *GateJSONEventMessage::getHostName()
 const char *GateJSONEventMessage::getContent()
 {
 	return m_impl->getContent();
+}
+
+TriggerSeverityType GateJSONEventMessage::getSeverity()
+{
+	return m_impl->getSeverity();
 }

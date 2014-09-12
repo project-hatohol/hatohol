@@ -349,4 +349,90 @@ namespace timestampGetter {
 	}
 }
 
+namespace severityGetter {
+	JsonParser *parser;
+	GateJSONEventMessage *message;
+
+	void cut_setup(void)
+	{
+		parser = json_parser_new();
+		message = NULL;
+	}
+
+	void cut_teardown(void)
+	{
+		delete message;
+		g_object_unref(parser);
+	}
+
+	GateJSONEventMessage *parse(const string &severityValue)
+	{
+		string json;
+
+		json += "{\n";
+		json += "  \"type\": \"event\",\n";
+		json += "  \"body\": {\n";
+		if (!severityValue.empty()) {
+			json += "\"severity\": \"" + severityValue + "\",\n";
+		}
+		json += "    \"id\":        1,\n";
+		json += "    \"timestamp\": 1407824772.939664125,\n";
+		json += "    \"hostName\":  \"www.example.com\",\n";
+		json += "    \"content\":   \"Error!\"\n";
+		json += "  }\n";
+		json += "}\n";
+
+		return parseRaw(parser, json);
+	}
+
+	void test_default()
+	{
+		message = parse("");
+		cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN,
+				    message->getSeverity());
+	}
+
+	void test_unknown()
+	{
+		message = parse("unknown");
+		cppcut_assert_equal(TRIGGER_SEVERITY_UNKNOWN,
+				    message->getSeverity());
+	}
+
+	void test_info()
+	{
+		message = parse("info");
+		cppcut_assert_equal(TRIGGER_SEVERITY_INFO,
+				    message->getSeverity());
+	}
+
+	void test_warning()
+	{
+		message = parse("warning");
+		cppcut_assert_equal(TRIGGER_SEVERITY_WARNING,
+				    message->getSeverity());
+	}
+
+	void test_error()
+	{
+		message = parse("error");
+		cppcut_assert_equal(TRIGGER_SEVERITY_ERROR,
+				    message->getSeverity());
+	}
+
+	void test_critical()
+	{
+		message = parse("critical");
+		cppcut_assert_equal(TRIGGER_SEVERITY_CRITICAL,
+				    message->getSeverity());
+	}
+
+	void test_emergency()
+	{
+		message = parse("emergency");
+		cppcut_assert_equal(TRIGGER_SEVERITY_EMERGENCY,
+				    message->getSeverity());
+	}
+}
+
 } // namespace testGateJSONEventMessage
