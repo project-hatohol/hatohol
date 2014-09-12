@@ -1617,6 +1617,11 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	builder.add(IDX_EVENTS_TIME_NS);
 	builder.add(IDX_EVENTS_EVENT_TYPE);
 	builder.add(IDX_EVENTS_TRIGGER_ID);
+	builder.add(IDX_EVENTS_STATUS);
+	builder.add(IDX_EVENTS_SEVERITY);
+	builder.add(IDX_EVENTS_HOST_ID);
+	builder.add(IDX_EVENTS_HOST_NAME);
+	builder.add(IDX_EVENTS_BRIEF);
 
 	builder.addTable(
 	  tableProfileTriggers, DBClientJoinBuilder::LEFT_JOIN,
@@ -1684,11 +1689,51 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		itemGroupStream >> eventInfo.time.tv_nsec;
 		itemGroupStream >> eventInfo.type;
 		itemGroupStream >> eventInfo.triggerId;
-		itemGroupStream >> eventInfo.status;
-		itemGroupStream >> eventInfo.severity;
-		itemGroupStream >> eventInfo.hostId;
-		itemGroupStream >> eventInfo.hostName;
-		itemGroupStream >> eventInfo.brief;
+
+		TriggerStatusType   eventStatus;
+		TriggerSeverityType eventSeverity;
+		HostIdType          eventHostId;
+		string              eventHostName;
+		string              eventBrief;
+		itemGroupStream >> eventStatus;
+		itemGroupStream >> eventSeverity;
+		itemGroupStream >> eventHostId;
+		itemGroupStream >> eventHostName;
+		itemGroupStream >> eventBrief;
+
+		TriggerStatusType   triggerStatus;
+		TriggerSeverityType triggerSeverity;
+		HostIdType          triggerHostId;
+		string              triggerHostName;
+		string              triggerBrief;
+		itemGroupStream >> triggerStatus;
+		itemGroupStream >> triggerSeverity;
+		itemGroupStream >> triggerHostId;
+		itemGroupStream >> triggerHostName;
+		itemGroupStream >> triggerBrief;
+
+		if (eventStatus != TRIGGER_STATUS_UNKNOWN) {
+			eventInfo.status = eventStatus;
+		} else {
+			eventInfo.status = triggerStatus;
+		}
+		if (eventSeverity != TRIGGER_SEVERITY_UNKNOWN) {
+			eventInfo.severity = eventSeverity;
+		} else {
+			eventInfo.severity = triggerSeverity;
+		}
+		if (eventHostId != INVALID_HOST_ID) {
+			eventInfo.hostId = eventHostId;
+			eventInfo.hostName = eventHostName;
+		} else {
+			eventInfo.hostId = triggerHostId;
+			eventInfo.hostName = triggerHostName;
+		}
+		if (!eventBrief.empty()) {
+			eventInfo.brief = eventBrief;
+		} else {
+			eventInfo.brief = triggerBrief;
+		}
 
 		if (incidentInfoVect) {
 			incidentInfoVect->push_back(IncidentInfo());
