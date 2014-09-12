@@ -18,12 +18,13 @@
  */
 
 #include "IncidentSenderRedmine.h"
-#include "JSONBuilder.h"
-#include "JSONParser.h"
 #include "RedmineAPI.h"
 #include "ThreadLocalDBCache.h"
 #include "UnifiedDataStore.h"
+#include "LabelUtils.h"
 #include <Mutex.h>
+#include <JSONBuilder.h>
+#include <JSONParser.h>
 #include <libsoup/soup.h>
 
 using namespace std;
@@ -111,6 +112,120 @@ string IncidentSenderRedmine::getIssueURL(const string &id)
 	return RedmineAPI::getIssueURL(trackerInfo, id);
 }
 
+// TODO: Move to DBTablesMonitoring or IncidentSender or Utils or ...
+string IncidentSenderRedmine::buildURLMonitoringServerEvent(
+  const EventInfo &event, const MonitoringServerInfo *server)
+{
+	if (!server)
+		return string();
+
+	// TODO: MonitoringServerInfo should have a base URL
+	string url;
+	switch (server->type) {
+	case MONITORING_SYSTEM_ZABBIX:
+	{
+		url = "http://";
+		bool forURI = true;
+		url += server->getHostAddress(forURI);
+		if (server->port > 0) {
+			url += ":";
+			url += StringUtils::toString(server->port);
+		}
+		url += StringUtils::sprintf(
+		  "/zabbix/tr_events.php"
+		  "?triggerid=%" FMT_TRIGGER_ID
+		  "&eventid=%" FMT_EVENT_ID,
+		  event.triggerId,
+		  event.id);
+		break;
+	}
+	case MONITORING_SYSTEM_NAGIOS:
+		// TODO
+		break;
+	default:
+		break;
+	}
+	return url;
+}
+
+string IncidentSenderRedmine::buildDescription(
+  const EventInfo &event, const MonitoringServerInfo *server)
+{
+	string description;
+	char timeString[128];
+	struct tm eventTime;
+	localtime_r(&event.time.tv_sec, &eventTime);
+	strftime(timeString, sizeof(timeString),
+		 "%a, %d %b %Y %T %z", &eventTime);
+
+	if (server) {
+		description += 
+		  StringUtils::sprintf(
+		    "h2. Monitoring server\n"
+		    "\n"
+		    "|{background:#ddd}. Nickname|%s|\n"
+		    "|{background:#ddd}. Hostname|%s|\n"
+		    "|{background:#ddd}. IP Address|%s|\n"
+		    "\n",
+		    server->nickname.c_str(),
+		    server->hostName.c_str(),
+		    server->ipAddress.c_str());
+	}
+
+	description += 
+	  StringUtils::sprintf(
+	    "h2. Event details\n"
+	    "\n"
+	    "|{background:#ddd}. Hostname|%s|\n"
+	    "|{background:#ddd}. Time|%s|\n"
+	    "|{background:#ddd}. Brief|%s|\n"
+	    "|{background:#ddd}. Type|%s|\n"
+	    "|{background:#ddd}. Trigger Status|%s|\n"
+	    "|{background:#ddd}. Trigger Severity|%s|\n"
+	    "\n"
+	    "{{collapse(ID)\n"
+	    "\n",
+	    event.hostName.c_str(),
+	    timeString,
+	    event.brief.c_str(),
+	    LabelUtils::getEventTypeLabel(event.type).c_str(),
+	    LabelUtils::getTriggerStatusLabel(event.status).c_str(),
+	    LabelUtils::getTriggerSeverityLabel(event.severity).c_str());
+
+	if (server) {
+		description += 
+		  StringUtils::sprintf(
+		    "|{background:#ddd}. Server ID|%" FMT_SERVER_ID "|\n",
+		    event.serverId);
+	}
+
+	description += 
+	  StringUtils::sprintf(
+	    "|{background:#ddd}. Host ID|%" FMT_HOST_ID "|\n"
+	    "|{background:#ddd}. Trigger ID|%" FMT_TRIGGER_ID "|\n"
+	    "|{background:#ddd}. Event ID|%" FMT_EVENT_ID "|\n"
+	    "}}\n"
+	    "\n",
+	    event.hostId,
+	    event.triggerId,
+	    event.id);
+
+	string monitoringServerEventPage
+	  = buildURLMonitoringServerEvent(event, server);
+	if (!monitoringServerEventPage.empty()) {
+		description +=
+		  StringUtils::sprintf(
+		    "h2. Links\n"
+		    "\n"
+		    "* Monitoring server's page: %s\n",
+		    monitoringServerEventPage.c_str());
+	}
+
+	// TODO: Add a link to Hatohol
+
+	return description;
+}
+
 string IncidentSenderRedmine::buildJSON(const EventInfo &event)
 {
 	MonitoringServerInfo serverInfo;
@@ -126,10 +241,7 @@ string IncidentSenderRedmine::buildJSON(const EventInfo &event)
 	agent.add("project_id", trackerInfo.projectId);
 	if (!trackerInfo.trackerId.empty())
 		agent.add("tracker_id", trackerInfo.trackerId);
-	string description = "<pre>";
-	description += buildDescription(event, server);
-	description += "</pre>";
-	agent.add("description", description);
+	agent.add("description", buildDescription(event, server));
 	agent.endObject();
 	agent.endObject();
 	return agent.generate();

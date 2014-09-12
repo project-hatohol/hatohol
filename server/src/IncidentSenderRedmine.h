@@ -38,6 +38,8 @@ protected:
 	std::string buildJSON(const IncidentInfo &incident,
 			      const std::string &comment);
 	std::string getProjectURL(void);
+	std::string buildDescription(const EventInfo &event,
+				     const MonitoringServerInfo *server);
 	std::string getIssuesJSONURL(void);
 	std::string getIssueURL(const std::string &id);
 	HatoholError parseResponse(IncidentInfo &incidentInfo,
@@ -45,6 +47,11 @@ protected:
 	HatoholError buildIncidentInfo(IncidentInfo &incidentInfo,
 				       const std::string &response,
 				       const EventInfo &event);
+
+	// TODO: Move to MonitoringServer?
+	static std::string buildURLMonitoringServerEvent(
+	  const EventInfo &event,
+	  const MonitoringServerInfo *server);
 
 private:
 	struct Impl;

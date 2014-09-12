@@ -54,7 +54,7 @@ public:
 	string buildDescription(const EventInfo &event,
 				const MonitoringServerInfo *server)
 	{
-		return IncidentSender::buildDescription(event, server);
+		return IncidentSenderRedmine::buildDescription(event, server);
 	}
 	string buildJSON(const EventInfo &event)
 	{
@@ -68,9 +68,17 @@ public:
 	{
 		return IncidentSenderRedmine::getIssuesJSONURL();
 	}
-	HatoholError parseResponse(IncidentInfo &incidentInfo,const string &response)
+	HatoholError parseResponse(IncidentInfo &incidentInfo,
+				   const string &response)
 	{
-		return IncidentSenderRedmine::parseResponse(incidentInfo, response);
+		return IncidentSenderRedmine::parseResponse(incidentInfo,
+							    response);
+	}
+	static std::string callBuildURLMonitoringServerEvent(
+	  const EventInfo &event,
+	  const MonitoringServerInfo *server)
+	{
+		return buildURLMonitoringServerEvent(event, server);
 	}
 };
 
@@ -94,6 +102,8 @@ void cut_teardown(void)
 string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 {
 	MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
+	string eventsURL =
+	  TestRedmineSender::callBuildURLMonitoringServerEvent(event, &server);
 
 	char timeString[128];
 	struct tm eventTime;
@@ -107,25 +117,32 @@ string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 	    "\"subject\":\"[%s %s] %s\","
 	    "\"project_id\":\"%s\","
 	    "\"description\":\""
-	    "<pre>"
-	    "Server ID: %" FMT_SERVER_ID "\\n"
-	    "    Hostname:   \\\"%s\\\"\\n"
-	    "    IP Address: \\\"%s\\\"\\n"
-	    "    Nickname:   \\\"%s\\\"\\n"
+	    "h2. Monitoring server\\n"
 	    "\\n"
-	    "Host ID: %" FMT_HOST_ID "\\n"
-	    "    Hostname:   \\\"%s\\\"\\n"
+	    "|{background:#ddd}. Nickname|%s|\\n"
+	    "|{background:#ddd}. Hostname|%s|\\n"
+	    "|{background:#ddd}. IP Address|%s|\\n"
 	    "\\n"
-	    "Event ID: %" FMT_EVENT_ID "\\n"
-	    "    Time:       \\\"%ld.%09ld (%s)\\\"\\n"
-	    "    Type:       \\\"%d (%s)\\\"\\n"
-	    "    Brief:      \\\"%s\\\"\\n"
+	    "h2. Event details\\n"
 	    "\\n"
-	    "Trigger ID: %" FMT_TRIGGER_ID "\\n"
-	    "    Status:     \\\"%d (%s)\\\"\\n"
-	    "    Severity:   \\\"%d (%s)\\\"\\n"
-	    "</pre>\""
-	    "}}",
+	    "|{background:#ddd}. Hostname|%s|\\n"
+	    "|{background:#ddd}. Time|%s|\\n"
+	    "|{background:#ddd}. Brief|%s|\\n"
+	    "|{background:#ddd}. Type|%s|\\n"
+	    "|{background:#ddd}. Trigger Status|%s|\\n"
+	    "|{background:#ddd}. Trigger Severity|%s|\\n"
+	    "\\n"
+	    "{{collapse(ID)\\n"
+	    "\\n"
+	    "|{background:#ddd}. Server ID|%" FMT_SERVER_ID "|\\n"
+	    "|{background:#ddd}. Host ID|%" FMT_HOST_ID "|\\n"
+	    "|{background:#ddd}. Trigger ID|%" FMT_TRIGGER_ID "|\\n"
+	    "|{background:#ddd}. Event ID|%" FMT_EVENT_ID "|\\n}}\\n"
+	    "\\n"
+	    "h2. Links\\n"
+	    "\\n"
+	    "* Monitoring server's page: %s\\n"
+	    "\"}}",
 	    // subject
 	    server.getDisplayName().c_str(),
 	    event.hostName.c_str(),
@@ -133,22 +150,21 @@ string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 	    // projectId
 	    tracker.projectId.c_str(),
 	    // description
-	    server.id,
+	    server.nickname.c_str(),
 	    server.hostName.c_str(),
 	    server.ipAddress.c_str(),
-	    server.nickname.c_str(),
-	    event.hostId,
+
 	    event.hostName.c_str(),
-	    event.id,
-	    event.time.tv_sec, event.time.tv_nsec, timeString,
-	    event.type,
-	    LabelUtils::getEventTypeLabel(event.type).c_str(),
+	    timeString,
 	    event.brief.c_str(),
-	    event.triggerId,
-	    event.status,
+	    LabelUtils::getEventTypeLabel(event.type).c_str(),
 	    LabelUtils::getTriggerStatusLabel(event.status).c_str(),
-	    event.severity,
-	    LabelUtils::getTriggerSeverityLabel(event.severity).c_str());
+	    LabelUtils::getTriggerSeverityLabel(event.severity).c_str(),
+	    server.id,
+	    event.hostId,
+	    event.triggerId,
+	    event.id,
+	    eventsURL.c_str());
 	return expected;
 }
 
@@ -250,7 +266,7 @@ void _assertSend(const HatoholErrorCode &expected,
 	JSONParser agent(g_redmineEmulator.getLastResponseBody());
 	cppcut_assert_equal(true, agent.startObject("issue"));
 	string expectedDescription
-	  = StringUtils::sprintf("<pre>%s</pre>",
+	  = StringUtils::sprintf("%s",
 				 sender.buildDescription(event, &server).c_str());
 	string title, description, trackerId;
 	agent.read("subject", title);
