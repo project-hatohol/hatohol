@@ -193,7 +193,7 @@ var TriggersView = function(userProfile) {
     var query = {
       minimumSeverity: $("#select-severity").val(),
       status:          $("#select-status").val(),
-      maximumNumber:   self.pager.numRecordsPerPage,
+      limit:           self.pager.numRecordsPerPage,
       offset:          self.pager.numRecordsPerPage * page
     };
     self.addHostQuery(query);

@@ -84,7 +84,7 @@ var EventsView = function(userProfile, baseElem) {
     var query = {
       minimumSeverity: $("#select-severity").val(),
       status:          $("#select-status").val(),
-      maximumNumber:   self.numEventsPerPage,
+      limit:           self.numEventsPerPage,
       offset:          self.numEventsPerPage * self.currentPage,
       sortType:        self.sortType,
       sortOrder:       self.sortOrder

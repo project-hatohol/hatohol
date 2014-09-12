@@ -194,8 +194,8 @@ var LatestView = function(userProfile) {
     if (isNaN(page))
       page = 0;
     var query = {
-      maximumNumber:   self.pager.numRecordsPerPage,
-      offset:          self.pager.numRecordsPerPage * page
+      limit:  self.pager.numRecordsPerPage,
+      offset: self.pager.numRecordsPerPage * page
     };
     self.addHostQuery(query);
     return 'item?' + $.param(query);
