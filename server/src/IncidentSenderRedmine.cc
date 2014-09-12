@@ -217,7 +217,7 @@ string IncidentSenderRedmine::buildDescription(
 		  StringUtils::sprintf(
 		    "h2. Links\n"
 		    "\n"
-		    "Monitoring server's page: %s\n",
+		    "* Monitoring server's page: %s\n",
 		    monitoringServerEventPage.c_str());
 	}
 
