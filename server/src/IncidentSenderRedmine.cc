@@ -18,13 +18,13 @@
  */
 
 #include "IncidentSenderRedmine.h"
-#include "JSONBuilder.h"
-#include "JSONParser.h"
 #include "RedmineAPI.h"
 #include "ThreadLocalDBCache.h"
 #include "UnifiedDataStore.h"
-#include <LabelUtils.h>
+#include "LabelUtils.h"
 #include <Mutex.h>
+#include <JSONBuilder.h>
+#include <JSONParser.h>
 #include <libsoup/soup.h>
 
 using namespace std;
