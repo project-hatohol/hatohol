@@ -158,10 +158,12 @@ public:
 protected:
 	bool getServerInfo(const EventInfo &event,
 			   MonitoringServerInfo &server);
-	std::string buildTitle(const EventInfo &event,
-			       const MonitoringServerInfo *server);
-	std::string buildDescription(const EventInfo &event,
-				     const MonitoringServerInfo *server);
+	virtual std::string buildTitle(
+	  const EventInfo &event,
+	  const MonitoringServerInfo *server);
+	virtual std::string buildDescription(
+	  const EventInfo &event,
+	  const MonitoringServerInfo *server);
 
 	virtual gpointer mainThread(HatoholThreadArg *arg) override;
 

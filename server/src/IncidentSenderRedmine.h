@@ -38,6 +38,8 @@ protected:
 	std::string buildJSON(const IncidentInfo &incident,
 			      const std::string &comment);
 	std::string getProjectURL(void);
+	std::string buildDescription(const EventInfo &event,
+				     const MonitoringServerInfo *server);
 	std::string getIssuesJSONURL(void);
 	std::string getIssueURL(const std::string &id);
 	HatoholError parseResponse(IncidentInfo &incidentInfo,
