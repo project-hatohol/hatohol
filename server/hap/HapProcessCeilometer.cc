@@ -330,17 +330,18 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	SmartTime lastChangeTime = parseStateTimestamp(stateTimestamp);
 
-	// TODO: parse HOST ID from data like the following.
-	//  /1/threshold_rule/query/0/field "resource"
-	//  /1/threshold_rule/query/0/value "eb79c816-8994-4e21-a26c-51d7d19d0e45"
-	//  /1/threshold_rule/query/0/op    "eq"
-	HostIdType hostId = INAPPLICABLE_HOST_ID;
-	string hostName = "No name";
-
-	// brief. We use the alarm name as a brief.
 	if (!parserRewinder.pushObject("threshold_rule"))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 
+	// Try to get a host ID
+	HostIdType hostId = INVALID_HOST_ID;
+	HatoholError err = parseAlarmHost(parser, hostId);
+	if (err != HTERR_OK)
+		return err;
+	if (hostId == INVALID_HOST_ID)
+		hostId = INAPPLICABLE_HOST_ID;
+
+	// brief. We use the alarm name as a brief.
 	string meterName;
 	if (!read(parser, "meter_name", meterName))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
@@ -576,6 +577,60 @@ EventType HapProcessCeilometer::parseAlarmHistoryDetail(
 		return EVENT_TYPE_UNKNOWN;
 	MLPL_ERR("Unknown state: %s\n", state.c_str());
 	return EVENT_TYPE_UNKNOWN;
+}
+
+HatoholError HapProcessCeilometer::parseAlarmHost(
+  JSONParser &parser, HostIdType &hostId)
+{
+	// This method and parseAlarmHostEach() return HTERR_OK when an element
+	// doesn't exists. It is a possible cause.
+	JSONParser::PositionStack parserRewinder(parser);
+	if (!parserRewinder.pushObject("query"))
+		return HTERR_OK;
+
+	const unsigned int count = parser.countElements();
+	for (unsigned int idx = 0; idx < count; idx++) {
+		HatoholError err = parseAlarmHostEach(parser, hostId, idx);
+		if (err != HTERR_OK)
+			return err;
+	}
+	return HTERR_OK;
+}
+
+HatoholError HapProcessCeilometer::parseAlarmHostEach(
+  JSONParser &parser, HostIdType &hostId, const unsigned int &index)
+{
+	JSONParser::PositionStack parserRewinder(parser);
+	if (!parserRewinder.pushElement(index)) {
+		MLPL_ERR("Failed to parse an element, index: %u\n", index);
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	}
+
+	// field
+	string field;
+	if (!read(parser, "field", field))
+		return HTERR_OK;
+	if (field != "resource") {
+		MLPL_INFO("Unknown field: %s\n", field.c_str());
+		return HTERR_OK;
+	}
+
+	// field
+	string value;
+	if (!read(parser, "value", value))
+		return HTERR_OK;
+
+	// op
+	string op;
+	if (!read(parser, "op", op))
+		return HTERR_OK;
+	if (op != "eq") {
+		MLPL_INFO("Unknown operator: %s\n", op.c_str());
+		return HTERR_OK;
+	}
+
+	hostId = generateHashU64(value);
+	return HTERR_OK;
 }
 
 bool HapProcessCeilometer::startObject(
