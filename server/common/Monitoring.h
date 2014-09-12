@@ -82,7 +82,7 @@ struct EventInfo {
 	EventIdType         id;
 	timespec            time;
 	EventType           type;
-	uint64_t            triggerId;
+	TriggerIdType       triggerId;
 
 	// status and type are basically same information.
 	// so they should be unified.
