@@ -115,23 +115,27 @@ string IncidentSenderRedmine::getIssueURL(const string &id)
 string IncidentSenderRedmine::buildDescription(
   const EventInfo &event, const MonitoringServerInfo *server)
 {
+	string description;
 	char timeString[128];
 	struct tm eventTime;
 	localtime_r(&event.time.tv_sec, &eventTime);
 	strftime(timeString, sizeof(timeString),
 		 "%a, %d %b %Y %T %z", &eventTime);
 
-	string description = 
-	  StringUtils::sprintf(
-	    "h2. Monitoring server\n"
-	    "\n"
-	    "|{background:#ddd}. Nickname|%s|\n"
-	    "|{background:#ddd}. Hostname|%s|\n"
-	    "|{background:#ddd}. IP Address|%s|\n"
-	    "\n",
-	    server->nickname.c_str(),
-	    server->hostName.c_str(),
-	    server->ipAddress.c_str());
+	if (server) {
+		string description = 
+		  StringUtils::sprintf(
+		    "h2. Monitoring server\n"
+		    "\n"
+		    "|{background:#ddd}. Nickname|%s|\n"
+		    "|{background:#ddd}. Hostname|%s|\n"
+		    "|{background:#ddd}. IP Address|%s|\n"
+		    "\n",
+		    server->nickname.c_str(),
+		    server->hostName.c_str(),
+		    server->ipAddress.c_str());
+	}
+
 	description += 
 	  StringUtils::sprintf(
 	    "h2. Event details\n"
@@ -142,6 +146,8 @@ string IncidentSenderRedmine::buildDescription(
 	    "|{background:#ddd}. Type|%s|\n"
 	    "|{background:#ddd}. Trigger Status|%s|\n"
 	    "|{background:#ddd}. Trigger Severity|%s|\n"
+	    "\n"
+	    "{{collapse(ID)\n"
 	    "\n",
 	    event.hostName.c_str(),
 	    timeString,
@@ -149,19 +155,24 @@ string IncidentSenderRedmine::buildDescription(
 	    LabelUtils::getEventTypeLabel(event.type).c_str(),
 	    LabelUtils::getTriggerStatusLabel(event.status).c_str(),
 	    LabelUtils::getTriggerSeverityLabel(event.severity).c_str());
+
+	if (server) {
+		description += 
+		  StringUtils::sprintf(
+		    "|{background:#ddd}. Server ID|%" FMT_SERVER_ID "|\n",
+		    event.serverId);
+	}
+
 	description += 
 	  StringUtils::sprintf(
-	    "{{collapse(ID)\n"
-	    "\n"
-	    "|{background:#ddd}. Server ID|%" FMT_SERVER_ID "|\n"
 	    "|{background:#ddd}. Host ID|%" FMT_HOST_ID "|\n"
 	    "|{background:#ddd}. Trigger ID|%" FMT_TRIGGER_ID "|\n"
 	    "|{background:#ddd}. Event ID|%" FMT_EVENT_ID "|\n"
 	    "}}\n",
-	    event.serverId,
 	    event.hostId,
 	    event.triggerId,
 	    event.id);
+
 	return description;
 }
 
