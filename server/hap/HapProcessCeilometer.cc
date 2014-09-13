@@ -51,11 +51,14 @@ struct HapProcessCeilometer::HttpRequestArg
 {
 	const char *method;
 	string      url;
+	string      body;
+	bool        useAuthToken;
 	mlpl::Reaper<SoupMessage> msgPtr;
 
 	HttpRequestArg(const char *_method, const string &_url)
 	: method(_method),
-	  url(_url)
+	  url(_url),
+	  useAuthToken(true)
 	{
 	}
 };
@@ -106,14 +109,7 @@ HatoholError HapProcessCeilometer::updateAuthTokenIfNeeded(void)
 
 	string url = m_impl->osAuthURL;
 	url += "/tokens";
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, url.c_str());
-	if (!msg) {
-		MLPL_ERR("Failed create SoupMessage: URL: %s\n", url.c_str());
-		return HTERR_INVALID_URL;
-	}
-	Reaper<void> msgReaper(msg, g_object_unref);
-	soup_message_headers_set_content_type(msg->request_headers,
-	                                      MIME_JSON, NULL);
+
 	JSONBuilder builder;
 	builder.startObject();
 	builder.startObject("auth");
@@ -125,16 +121,13 @@ HatoholError HapProcessCeilometer::updateAuthTokenIfNeeded(void)
 	builder.endObject(); // auth
 	builder.endObject();
 
-	string request_body = builder.generate();
-	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
-	                         request_body.c_str(), request_body.size());
-	SoupSession *session = soup_session_sync_new();
-	guint ret = soup_session_send_message(session, msg);
-	if (ret != SOUP_STATUS_OK) {
-		MLPL_ERR("Failed to connect: (%d) %s, URL: %s\n",
-		         ret, soup_status_get_phrase(ret), url.c_str());
-		return HTERR_BAD_REST_RESPONSE_KEYSTONE;
-	}
+	HttpRequestArg arg(SOUP_METHOD_POST, url);
+	arg.useAuthToken = false;
+	arg.body = builder.generate();
+	HatoholError err = sendHttpRequest(arg);
+	if (err != HTERR_OK)
+		return err;
+	SoupMessage *msg = arg.msgPtr.get();
 	if (!parseReplyToknes(msg)) {
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
@@ -243,9 +236,15 @@ HatoholError HapProcessCeilometer::sendHttpRequest(HttpRequestArg &arg)
 	  "msgPtr seem to already have the pointer.");
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
-	soup_message_headers_append(msg->request_headers,
-	                            "X-Auth-Token", m_impl->token.c_str());
-	// TODO: Add query condition to get updated alarm only.
+	if (arg.useAuthToken) {
+		soup_message_headers_append(
+		  msg->request_headers, "X-Auth-Token", m_impl->token.c_str());
+	}
+	if (!arg.body.empty()) {
+		soup_message_body_append(msg->request_body,
+		                         SOUP_MEMORY_TEMPORARY,
+		                         arg.body.c_str(), arg.body.size());
+	}
 	SoupSession *session = soup_session_sync_new();
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
