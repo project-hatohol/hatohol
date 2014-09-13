@@ -537,31 +537,17 @@ HatoholError HapProcessCeilometer::getAlarmHistory(const unsigned int &index)
 	               "%s/v2/alarms/%s/history%s",
 	               m_impl->ceilometerEP.publicURL.c_str(),
 	               alarmId, getHistoryQueryOption(lastTime).c_str());
-
-	// TODO: extract the commonly used part with getAlarmList()
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
-	if (!msg) {
-		MLPL_ERR("Failed to create SoupMessage: %s\n", url.c_str());
-		return HTERR_INVALID_URL;
-	}
-	Reaper<void> msgReaper(msg, g_object_unref);
-	soup_message_headers_set_content_type(msg->request_headers,
-	                                      MIME_JSON, NULL);
-	soup_message_headers_append(msg->request_headers,
-	                            "X-Auth-Token", m_impl->token.c_str());
-	SoupSession *session = soup_session_sync_new();
-	guint ret = soup_session_send_message(session, msg);
-	if (ret != SOUP_STATUS_OK) {
-		MLPL_ERR("Failed to connect: (%d) %s, URL: %s\n",
-		         ret, soup_status_get_phrase(ret), url.c_str());
-		return HTERR_BAD_REST_RESPONSE_CEILOMETER;
-	}
+	Reaper<SoupMessage> msgPtr;
+	HatoholError err = sendGetRequest(url, msgPtr);
+	if (err != HTERR_OK)
+		return err;
 
 	AlarmTimeMap alarmTimeMap;
-	HatoholError err = parseReplyGetAlarmHistory(msg, alarmTimeMap);
+	err = parseReplyGetAlarmHistory(msgPtr.get(), alarmTimeMap);
 	if (err != HTERR_OK) {
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
-		         msg->response_body->length, msg->response_body->data);
+		         msgPtr.get()->response_body->length,
+		         msgPtr.get()->response_body->data);
 		return err;
 	}
 
