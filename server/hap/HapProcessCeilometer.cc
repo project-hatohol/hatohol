@@ -78,6 +78,7 @@ struct HapProcessCeilometer::Impl {
 	string token;
 	OpenStackEndPoint ceilometerEP;
 	OpenStackEndPoint novaEP;
+	SmartTime         tokenExpires;
 	AcquireContext    acquireCtx;
 
 	Impl(void)
@@ -94,6 +95,7 @@ struct HapProcessCeilometer::Impl {
 		token.clear();
 		ceilometerEP.clear();
 		novaEP.clear();
+		tokenExpires = SmartTime();
 	}
 };
 
@@ -113,10 +115,20 @@ HapProcessCeilometer::~HapProcessCeilometer()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+bool HapProcessCeilometer::canSkipAuthentification(void)
+{
+	if (m_impl->token.empty())
+		return false;
+
+	if (SmartTime(SmartTime::INIT_CURR_TIME) >= m_impl->tokenExpires)
+		return false;
+
+	return true;
+}
+
 HatoholError HapProcessCeilometer::updateAuthTokenIfNeeded(void)
 {
-	// TODO: check the expiration date of the token.
-	if (!m_impl->token.empty())
+	if (canSkipAuthentification())
 		return HTERR_OK;
 
 	string url = m_impl->osAuthURL;
@@ -162,8 +174,24 @@ bool HapProcessCeilometer::parseReplyToknes(SoupMessage *msg)
 	if (!startObject(parser, "token"))
 		return false;
 
+	// Toekn ID
 	if (!read(parser, "id", m_impl->token))
 		return false;
+
+	// Expiration
+	SmartTime tokenExpires(SmartTime::INIT_CURR_TIME);
+	string issuedAt, expires;
+	if (!read(parser, "issued_at", issuedAt))
+		return false;
+	if (!read(parser, "expires", expires))
+		return false;
+	SmartTime validDuration = parseStateTimestamp(expires);
+	validDuration -= parseStateTimestamp(issuedAt);
+	tokenExpires += validDuration.getAsTimespec();
+	m_impl->tokenExpires = tokenExpires;
+	const timespec margin = {5 * 60, 0};
+	m_impl->tokenExpires -= SmartTime(margin);
+	MLPL_DBG("Token expires: %s\n", ((string)m_impl->tokenExpires).c_str());
 
 	parser.endObject(); // access
 	if (!startObject(parser, "serviceCatalog"))

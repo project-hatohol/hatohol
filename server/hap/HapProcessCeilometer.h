@@ -37,11 +37,12 @@ protected:
 	typedef std::map<const mlpl::SmartTime, const ItemGroupPtr> AlarmTimeMap;
 	typedef AlarmTimeMap::const_iterator AlarmTimeMapConstIterator;
 
+	bool canSkipAuthentification(void);
 	HatoholError updateAuthTokenIfNeeded(void);
 	bool parseReplyToknes(SoupMessage *msg);
 
 	struct HttpRequestArg;
-	HatoholError sendHttpRequest(HttpRequestArg &httpRequestArg);
+	HatoholError sendHttpRequest(HttpRequestArg &arg);
 
 	HatoholError getInstanceList(void);
 	HatoholError parseReplyInstanceList(SoupMessage *msg,
