@@ -148,4 +148,11 @@ void test_setCpp(void)
 	cppcut_assert_equal(true, ctx.called);
 }
 
+void test_get(void)
+{
+	void *ptr = malloc(10);
+	Reaper<void> reaper(ptr, free);
+	cppcut_assert_equal(ptr, reaper.get());
+}
+
 } // namespace testReaper

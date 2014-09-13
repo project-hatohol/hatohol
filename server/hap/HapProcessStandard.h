@@ -34,7 +34,7 @@ protected:
 	void startAcquisition(void);
 	const MonitoringServerInfo &getMonitoringServerInfo(void) const;
 
-	virtual void acquireData(void);
+	virtual HatoholError acquireData(void);
 
 	virtual void onReady(const MonitoringServerInfo &serverInfo) override;
 

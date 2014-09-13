@@ -46,6 +46,8 @@ void HatoholError::init(void)
 		   "Invalid user.");
 	DEFINE_ERR(INVALID_URL,
 		   "Invalid URL.");
+	DEFINE_ERR(BAD_REST_RESPONSE,
+		   "Invalid URL.");
 
 	// JSONParserAgent
 	DEFINE_ERR(FAILED_TO_PARSE_JSON_DATA,
@@ -140,15 +142,6 @@ void HatoholError::init(void)
 		   "Failed in connecting to Zabbix.");
 	DEFINE_ERR(FAILED_CONNECT_MYSQL,
 		   "Failed in connecting to MySQL.");
-
-	// HapProcessCeilometer
-	DEFINE_ERR(BAD_REST_RESPONSE_KEYSTONE,
-		   "Failed in connecting to keystone.");
-	DEFINE_ERR(BAD_REST_RESPONSE_NOVA,
-		   "Failed in connecting to nova.");
-	DEFINE_ERR(BAD_REST_RESPONSE_CEILOMETER,
-		   "Failed in connecting to ceilometer.");
-
 
 	// OTHER
 	DEFINE_ERR(ERROR_TEST,

@@ -22,6 +22,7 @@
 
 #include <string>
 #include <SmartTime.h>
+#include <Reaper.h>
 #include <libsoup/soup.h>
 #include "JSONParser.h"
 #include "HapProcessStandard.h"
@@ -36,8 +37,19 @@ protected:
 	typedef std::map<const mlpl::SmartTime, const ItemGroupPtr> AlarmTimeMap;
 	typedef AlarmTimeMap::const_iterator AlarmTimeMapConstIterator;
 
+	bool canSkipAuthentification(void);
 	HatoholError updateAuthTokenIfNeeded(void);
 	bool parseReplyToknes(SoupMessage *msg);
+
+	struct HttpRequestArg;
+	HatoholError sendHttpRequest(HttpRequestArg &arg);
+
+	HatoholError getInstanceList(void);
+	HatoholError parseReplyInstanceList(SoupMessage *msg,
+	                                    VariableItemTablePtr &tablePtr);
+	HatoholError parseInstanceElement(JSONParser &parser,
+	                                  VariableItemTablePtr &tablePtr,
+                                          const unsigned int &index);
 
 	HatoholError getAlarmList(void);
 	HatoholError parseReplyGetAlarmList(SoupMessage *msg,
@@ -59,12 +71,16 @@ protected:
 	  const unsigned int &index);
 	EventType parseAlarmHistoryDetail(const std::string &detail);
 
+	HatoholError parseAlarmHost(JSONParser &parser, HostIdType &hostId);
+	HatoholError parseAlarmHostEach(JSONParser &parser, HostIdType &hostId,
+	                                const unsigned int &index);
+
 	bool startObject(JSONParser &parser, const std::string &name);
 	bool read(JSONParser &parser, const std::string &member,
 	          std::string &dest);
 	bool parserEndpoints(JSONParser &parser, const unsigned int &index);
 
-	virtual void acquireData(void) override;
+	virtual HatoholError acquireData(void) override;
 
 private:
 	struct Impl;

@@ -35,6 +35,11 @@ static const char *MIME_JSON = "application/json";
 
 struct OpenStackEndPoint {
 	string publicURL;
+
+	void clear(void)
+	{
+		publicURL.clear();
+	}
 };
 
 struct AcquireContext
@@ -47,6 +52,22 @@ struct AcquireContext
 	}
 };
 
+struct HapProcessCeilometer::HttpRequestArg
+{
+	const char *method;
+	string      url;
+	string      body;
+	bool        useAuthToken;
+	mlpl::Reaper<SoupMessage> msgPtr;
+
+	HttpRequestArg(const char *_method, const string &_url)
+	: method(_method),
+	  url(_url),
+	  useAuthToken(true)
+	{
+	}
+};
+
 struct HapProcessCeilometer::Impl {
 	string osUsername;
 	string osPassword;
@@ -56,6 +77,8 @@ struct HapProcessCeilometer::Impl {
 	MonitoringServerInfo serverInfo;
 	string token;
 	OpenStackEndPoint ceilometerEP;
+	OpenStackEndPoint novaEP;
+	SmartTime         tokenExpires;
 	AcquireContext    acquireCtx;
 
 	Impl(void)
@@ -65,6 +88,14 @@ struct HapProcessCeilometer::Impl {
 		osPassword   = "admin";
 		osTenantName = "admin";
 		osAuthURL    = "http://botctl:35357/v2.0";
+	}
+
+	void clear(void)
+	{
+		token.clear();
+		ceilometerEP.clear();
+		novaEP.clear();
+		tokenExpires = SmartTime();
 	}
 };
 
@@ -84,21 +115,25 @@ HapProcessCeilometer::~HapProcessCeilometer()
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+bool HapProcessCeilometer::canSkipAuthentification(void)
+{
+	if (m_impl->token.empty())
+		return false;
+
+	if (SmartTime(SmartTime::INIT_CURR_TIME) >= m_impl->tokenExpires)
+		return false;
+
+	return true;
+}
+
 HatoholError HapProcessCeilometer::updateAuthTokenIfNeeded(void)
 {
-	if (!m_impl->token.empty())
+	if (canSkipAuthentification())
 		return HTERR_OK;
 
 	string url = m_impl->osAuthURL;
 	url += "/tokens";
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, url.c_str());
-	if (!msg) {
-		MLPL_ERR("Failed create SoupMessage: URL: %s\n", url.c_str());
-		return HTERR_INVALID_URL;
-	}
-	Reaper<void> msgReaper(msg, g_object_unref);
-	soup_message_headers_set_content_type(msg->request_headers,
-	                                      MIME_JSON, NULL);
+
 	JSONBuilder builder;
 	builder.startObject();
 	builder.startObject("auth");
@@ -110,16 +145,13 @@ HatoholError HapProcessCeilometer::updateAuthTokenIfNeeded(void)
 	builder.endObject(); // auth
 	builder.endObject();
 
-	string request_body = builder.generate();
-	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
-	                         request_body.c_str(), request_body.size());
-	SoupSession *session = soup_session_sync_new();
-	guint ret = soup_session_send_message(session, msg);
-	if (ret != SOUP_STATUS_OK) {
-		MLPL_ERR("Failed to connect: (%d) %s, URL: %s\n",
-		         ret, soup_status_get_phrase(ret), url.c_str());
-		return HTERR_BAD_REST_RESPONSE_KEYSTONE;
-	}
+	HttpRequestArg arg(SOUP_METHOD_POST, url);
+	arg.useAuthToken = false;
+	arg.body = builder.generate();
+	HatoholError err = sendHttpRequest(arg);
+	if (err != HTERR_OK)
+		return err;
+	SoupMessage *msg = arg.msgPtr.get();
 	if (!parseReplyToknes(msg)) {
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
@@ -142,8 +174,24 @@ bool HapProcessCeilometer::parseReplyToknes(SoupMessage *msg)
 	if (!startObject(parser, "token"))
 		return false;
 
+	// Toekn ID
 	if (!read(parser, "id", m_impl->token))
 		return false;
+
+	// Expiration
+	SmartTime tokenExpires(SmartTime::INIT_CURR_TIME);
+	string issuedAt, expires;
+	if (!read(parser, "issued_at", issuedAt))
+		return false;
+	if (!read(parser, "expires", expires))
+		return false;
+	SmartTime validDuration = parseStateTimestamp(expires);
+	validDuration -= parseStateTimestamp(issuedAt);
+	tokenExpires += validDuration.getAsTimespec();
+	m_impl->tokenExpires = tokenExpires;
+	const timespec margin = {5 * 60, 0};
+	m_impl->tokenExpires -= SmartTime(margin);
+	MLPL_DBG("Token expires: %s\n", ((string)m_impl->tokenExpires).c_str());
 
 	parser.endObject(); // access
 	if (!startObject(parser, "serviceCatalog"))
@@ -153,11 +201,16 @@ bool HapProcessCeilometer::parseReplyToknes(SoupMessage *msg)
 	for (unsigned int idx = 0; idx < count; idx++) {
 		if (!parserEndpoints(parser, idx))
 			return false;
-		if (!m_impl->ceilometerEP.publicURL.empty())
+		if (!m_impl->ceilometerEP.publicURL.empty() &&
+		    !m_impl->novaEP.publicURL.empty())
 			break;
 	}
 
 	// check if there's information about the endpoint of ceilometer
+	if (m_impl->novaEP.publicURL.empty()) {
+		MLPL_ERR("Failed to get an endpoint of nova\n");
+		return false;
+	}
 	if (m_impl->ceilometerEP.publicURL.empty()) {
 		MLPL_ERR("Failed to get an endpoint of ceilometer\n");
 		return false;
@@ -177,7 +230,12 @@ bool HapProcessCeilometer::parserEndpoints(JSONParser &parser,
 	string name;
 	if (!read(parser, "name", name))
 		return false;
-	if (name != "ceilometer")
+	OpenStackEndPoint *osEndPoint = NULL;
+	if (name == "ceilometer")
+		osEndPoint = &m_impl->ceilometerEP;
+	else if (name == "nova")
+		osEndPoint = &m_impl->novaEP;
+	else
 		return true;
 
 	if (!parserRewinder.pushObject("endpoints"))
@@ -190,7 +248,7 @@ bool HapProcessCeilometer::parserEndpoints(JSONParser &parser,
 			return false;
 		}
 		bool succeeded = read(parser, "publicURL",
-		                      m_impl->ceilometerEP.publicURL);
+		                      osEndPoint->publicURL);
 		parser.endElement();
 		if (!succeeded)
 			return false;
@@ -203,30 +261,139 @@ bool HapProcessCeilometer::parserEndpoints(JSONParser &parser,
 	return true;
 }
 
-HatoholError HapProcessCeilometer::getAlarmList(void)
+HatoholError HapProcessCeilometer::sendHttpRequest(HttpRequestArg &arg)
 {
-	string url = m_impl->ceilometerEP.publicURL;
-	url += "/v2/alarms";
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
+	const string &url = arg.url;
+	HATOHOL_ASSERT(arg.method, "Method is not set.");
+	HATOHOL_ASSERT(!url.empty(), "URL is not set.");
+	SoupMessage *msg = soup_message_new(arg.method, url.c_str());
 	if (!msg) {
 		MLPL_ERR("Failed create SoupMessage: URL: %s\n", url.c_str());
 		return HTERR_INVALID_URL;
 	}
-	Reaper<void> msgReaper(msg, g_object_unref);
+	HATOHOL_ASSERT(
+	  arg.msgPtr.set(msg, (void (*)(SoupMessage*))g_object_unref),
+	  "msgPtr seem to already have the pointer.");
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
-	soup_message_headers_append(msg->request_headers,
-	                            "X-Auth-Token", m_impl->token.c_str());
-	// TODO: Add query condition to get updated alarm only.
+	if (arg.useAuthToken) {
+		soup_message_headers_append(
+		  msg->request_headers, "X-Auth-Token", m_impl->token.c_str());
+	}
+	if (!arg.body.empty()) {
+		soup_message_body_append(msg->request_body,
+		                         SOUP_MEMORY_TEMPORARY,
+		                         arg.body.c_str(), arg.body.size());
+	}
 	SoupSession *session = soup_session_sync_new();
 	guint ret = soup_session_send_message(session, msg);
 	if (ret != SOUP_STATUS_OK) {
 		MLPL_ERR("Failed to connect: (%d) %s, URL: %s\n",
 		         ret, soup_status_get_phrase(ret), url.c_str());
-		return HTERR_BAD_REST_RESPONSE_CEILOMETER;
+		return HTERR_BAD_REST_RESPONSE;
 	}
+	return HTERR_OK;
+}
+
+HatoholError HapProcessCeilometer::getInstanceList(void)
+{
+	string url = m_impl->novaEP.publicURL;
+	url += "/servers/detail?all_tenants=1";
+	HttpRequestArg arg(SOUP_METHOD_GET, url);
+	HatoholError err = sendHttpRequest(arg);
+	if (err != HTERR_OK)
+		return err;
+	SoupMessage *msg = arg.msgPtr.get();
+
+	VariableItemTablePtr hostTablePtr;
+	err = parseReplyInstanceList(msg, hostTablePtr);
+	if (err != HTERR_OK) {
+		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
+		         msg->response_body->length, msg->response_body->data);
+	} else if (hostTablePtr->getNumberOfRows() == 0) {
+		return HTERR_OK;
+	}
+	sendTable(HAPI_CMD_SEND_HOSTS, static_cast<ItemTablePtr>(hostTablePtr));
+	return err;
+}
+
+HatoholError HapProcessCeilometer::parseReplyInstanceList(
+  SoupMessage *msg, VariableItemTablePtr &tablePtr)
+{
+	JSONParser parser(msg->response_body->data);
+	if (parser.hasError()) {
+		MLPL_ERR("Failed to parser %s\n", parser.getErrorMessage());
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	}
+
+	if (!startObject(parser, "servers"))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+
+	HatoholError err(HTERR_OK);
+	const unsigned int count = parser.countElements();
+	for (unsigned int i = 0; i < count; i++) {
+		err = parseInstanceElement(parser, tablePtr, i);
+		if (err != HTERR_OK)
+			break;
+	}
+	return err;
+}
+
+HatoholError HapProcessCeilometer::parseInstanceElement(
+  JSONParser &parser, VariableItemTablePtr &tablePtr,
+  const unsigned int &index)
+{
+	JSONParser::PositionStack parserRewinder(parser);
+	if (!parserRewinder.pushElement(index)) {
+		MLPL_ERR("Failed to parse an element, index: %u\n", index);
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	}
+
+	// ID
+	string id;
+	if (!read(parser, "id", id))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+
+	// name
+	string name;
+	if (!read(parser, "name", name))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+
+	// tenant id
+	string tenantId;
+	if (!read(parser, "tenant_id", tenantId))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+
+	// user id
+	string userId;
+	if (!read(parser, "user_id", userId))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+
+	// NOTE: tenantId and userID is not used currently.
+	// We will use them as elements for the host group.
+
+	// fill
+	// TODO: Define ItemID without ZBX.
+	VariableItemGroupPtr grp;
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_HOSTID, generateHashU64(id));
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_NAME, name);
+	tablePtr->add(grp);
+
+	return HTERR_OK;
+}
+
+HatoholError HapProcessCeilometer::getAlarmList(void)
+{
+	string url = m_impl->ceilometerEP.publicURL;
+	url += "/v2/alarms";
+	HttpRequestArg arg(SOUP_METHOD_GET, url);
+	HatoholError err = sendHttpRequest(arg);
+	if (err != HTERR_OK)
+		return err;
+	SoupMessage *msg = arg.msgPtr.get();
+
 	VariableItemTablePtr trigTablePtr;
-	HatoholError err = parseReplyGetAlarmList(msg, trigTablePtr);
+	err = parseReplyGetAlarmList(msg, trigTablePtr);
 	if (err != HTERR_OK) {
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
@@ -330,17 +497,18 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	SmartTime lastChangeTime = parseStateTimestamp(stateTimestamp);
 
-	// TODO: parse HOST ID from data like the following.
-	//  /1/threshold_rule/query/0/field "resource"
-	//  /1/threshold_rule/query/0/value "eb79c816-8994-4e21-a26c-51d7d19d0e45"
-	//  /1/threshold_rule/query/0/op    "eq"
-	HostIdType hostId = INAPPLICABLE_HOST_ID;
-	string hostName = "No name";
-
-	// brief. We use the alarm name as a brief.
 	if (!parserRewinder.pushObject("threshold_rule"))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 
+	// Try to get a host ID
+	HostIdType hostId = INVALID_HOST_ID;
+	HatoholError err = parseAlarmHost(parser, hostId);
+	if (err != HTERR_OK)
+		return err;
+	if (hostId == INVALID_HOST_ID)
+		hostId = INAPPLICABLE_HOST_ID;
+
+	// brief. We use the alarm name as a brief.
 	string meterName;
 	if (!read(parser, "meter_name", meterName))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
@@ -424,28 +592,14 @@ HatoholError HapProcessCeilometer::getAlarmHistory(const unsigned int &index)
 	               "%s/v2/alarms/%s/history%s",
 	               m_impl->ceilometerEP.publicURL.c_str(),
 	               alarmId, getHistoryQueryOption(lastTime).c_str());
-
-	// TODO: extract the commonly used part with getAlarmList()
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
-	if (!msg) {
-		MLPL_ERR("Failed to create SoupMessage: %s\n", url.c_str());
-		return HTERR_INVALID_URL;
-	}
-	Reaper<void> msgReaper(msg, g_object_unref);
-	soup_message_headers_set_content_type(msg->request_headers,
-	                                      MIME_JSON, NULL);
-	soup_message_headers_append(msg->request_headers,
-	                            "X-Auth-Token", m_impl->token.c_str());
-	SoupSession *session = soup_session_sync_new();
-	guint ret = soup_session_send_message(session, msg);
-	if (ret != SOUP_STATUS_OK) {
-		MLPL_ERR("Failed to connect: (%d) %s, URL: %s\n",
-		         ret, soup_status_get_phrase(ret), url.c_str());
-		return HTERR_BAD_REST_RESPONSE_CEILOMETER;
-	}
+	HttpRequestArg arg(SOUP_METHOD_GET, url);
+	HatoholError err = sendHttpRequest(arg);
+	if (err != HTERR_OK)
+		return err;
+	SoupMessage *msg = arg.msgPtr.get();
 
 	AlarmTimeMap alarmTimeMap;
-	HatoholError err = parseReplyGetAlarmHistory(msg, alarmTimeMap);
+	err = parseReplyGetAlarmHistory(msg, alarmTimeMap);
 	if (err != HTERR_OK) {
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
@@ -578,6 +732,60 @@ EventType HapProcessCeilometer::parseAlarmHistoryDetail(
 	return EVENT_TYPE_UNKNOWN;
 }
 
+HatoholError HapProcessCeilometer::parseAlarmHost(
+  JSONParser &parser, HostIdType &hostId)
+{
+	// This method and parseAlarmHostEach() return HTERR_OK when an element
+	// doesn't exists. It is a possible cause.
+	JSONParser::PositionStack parserRewinder(parser);
+	if (!parserRewinder.pushObject("query"))
+		return HTERR_OK;
+
+	const unsigned int count = parser.countElements();
+	for (unsigned int idx = 0; idx < count; idx++) {
+		HatoholError err = parseAlarmHostEach(parser, hostId, idx);
+		if (err != HTERR_OK)
+			return err;
+	}
+	return HTERR_OK;
+}
+
+HatoholError HapProcessCeilometer::parseAlarmHostEach(
+  JSONParser &parser, HostIdType &hostId, const unsigned int &index)
+{
+	JSONParser::PositionStack parserRewinder(parser);
+	if (!parserRewinder.pushElement(index)) {
+		MLPL_ERR("Failed to parse an element, index: %u\n", index);
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	}
+
+	// field
+	string field;
+	if (!read(parser, "field", field))
+		return HTERR_OK;
+	if (field != "resource") {
+		MLPL_INFO("Unknown field: %s\n", field.c_str());
+		return HTERR_OK;
+	}
+
+	// field
+	string value;
+	if (!read(parser, "value", value))
+		return HTERR_OK;
+
+	// op
+	string op;
+	if (!read(parser, "op", op))
+		return HTERR_OK;
+	if (op != "eq") {
+		MLPL_INFO("Unknown operator: %s\n", op.c_str());
+		return HTERR_OK;
+	}
+
+	hostId = generateHashU64(value);
+	return HTERR_OK;
+}
+
 bool HapProcessCeilometer::startObject(
   JSONParser &parser, const string &name)
 {
@@ -596,15 +804,31 @@ bool HapProcessCeilometer::read(
 	return false;
 }
 
-void HapProcessCeilometer::acquireData(void)
+HatoholError HapProcessCeilometer::acquireData(void)
 {
 	Reaper<AcquireContext>
 	  acqCtxCleaner(&m_impl->acquireCtx, AcquireContext::clear);
 
 	MLPL_DBG("acquireData\n");
-	updateAuthTokenIfNeeded();
-	getAlarmList();      // Trigger
-	getAlarmHistories(); // Event
-	// TODO: Add get trigger, event, and so on.
+	HatoholError (HapProcessCeilometer::*funcs[])(void) = {
+		&HapProcessCeilometer::updateAuthTokenIfNeeded,
+		&HapProcessCeilometer::getInstanceList,     // Host
+		&HapProcessCeilometer::getAlarmList,        // Trigger
+		&HapProcessCeilometer::getAlarmHistories,   // Event
+	};
+
+	for (size_t i = 0; i < ARRAY_SIZE(funcs); i++) {
+		try {
+			HatoholError err = (this->*funcs[i])();
+			if (err != HTERR_OK) {
+				m_impl->clear();
+				return err;
+			}
+		} catch (...) {
+			m_impl->clear();
+			throw;
+		}
+	}
+	return HTERR_OK;
 }
 
