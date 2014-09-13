@@ -46,6 +46,8 @@ void HatoholError::init(void)
 		   "Invalid user.");
 	DEFINE_ERR(INVALID_URL,
 		   "Invalid URL.");
+	DEFINE_ERR(BAD_REST_RESPONSE,
+		   "Invalid URL.");
 
 	// JSONParserAgent
 	DEFINE_ERR(FAILED_TO_PARSE_JSON_DATA,

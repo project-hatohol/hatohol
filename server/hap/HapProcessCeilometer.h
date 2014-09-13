@@ -22,6 +22,7 @@
 
 #include <string>
 #include <SmartTime.h>
+#include <Reaper.h>
 #include <libsoup/soup.h>
 #include "JSONParser.h"
 #include "HapProcessStandard.h"
@@ -38,6 +39,15 @@ protected:
 
 	HatoholError updateAuthTokenIfNeeded(void);
 	bool parseReplyToknes(SoupMessage *msg);
+	HatoholError sendGetRequest(
+	  const std::string &url, mlpl::Reaper<SoupMessage> &msgPtr);
+
+	HatoholError getInstanceList(void);
+	HatoholError parseReplyInstanceList(SoupMessage *msg,
+	                                    VariableItemTablePtr &tablePtr);
+	HatoholError parseInstanceElement(JSONParser &parser,
+	                                  VariableItemTablePtr &tablePtr,
+                                          const unsigned int &index);
 
 	HatoholError getAlarmList(void);
 	HatoholError parseReplyGetAlarmList(SoupMessage *msg,

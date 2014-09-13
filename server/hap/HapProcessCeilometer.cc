@@ -56,6 +56,7 @@ struct HapProcessCeilometer::Impl {
 	MonitoringServerInfo serverInfo;
 	string token;
 	OpenStackEndPoint ceilometerEP;
+	OpenStackEndPoint novaEP;
 	AcquireContext    acquireCtx;
 
 	Impl(void)
@@ -153,11 +154,16 @@ bool HapProcessCeilometer::parseReplyToknes(SoupMessage *msg)
 	for (unsigned int idx = 0; idx < count; idx++) {
 		if (!parserEndpoints(parser, idx))
 			return false;
-		if (!m_impl->ceilometerEP.publicURL.empty())
+		if (!m_impl->ceilometerEP.publicURL.empty() &&
+		    !m_impl->novaEP.publicURL.empty())
 			break;
 	}
 
 	// check if there's information about the endpoint of ceilometer
+	if (m_impl->novaEP.publicURL.empty()) {
+		MLPL_ERR("Failed to get an endpoint of nova\n");
+		return false;
+	}
 	if (m_impl->ceilometerEP.publicURL.empty()) {
 		MLPL_ERR("Failed to get an endpoint of ceilometer\n");
 		return false;
@@ -177,7 +183,12 @@ bool HapProcessCeilometer::parserEndpoints(JSONParser &parser,
 	string name;
 	if (!read(parser, "name", name))
 		return false;
-	if (name != "ceilometer")
+	OpenStackEndPoint *osEndPoint = NULL;
+	if (name == "ceilometer")
+		osEndPoint = &m_impl->ceilometerEP;
+	else if (name == "nova")
+		osEndPoint = &m_impl->novaEP;
+	else
 		return true;
 
 	if (!parserRewinder.pushObject("endpoints"))
@@ -190,7 +201,7 @@ bool HapProcessCeilometer::parserEndpoints(JSONParser &parser,
 			return false;
 		}
 		bool succeeded = read(parser, "publicURL",
-		                      m_impl->ceilometerEP.publicURL);
+		                      osEndPoint->publicURL);
 		parser.endElement();
 		if (!succeeded)
 			return false;
@@ -201,6 +212,118 @@ bool HapProcessCeilometer::parserEndpoints(JSONParser &parser,
 	}
 
 	return true;
+}
+
+HatoholError HapProcessCeilometer::sendGetRequest(
+  const string &url, Reaper<SoupMessage> &msgPtr)
+{
+	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
+	if (!msg) {
+		MLPL_ERR("Failed create SoupMessage: URL: %s\n", url.c_str());
+		return HTERR_INVALID_URL;
+	}
+	HATOHOL_ASSERT(msgPtr.set(msg, (void (*)(SoupMessage*))g_object_unref),
+	               "msgPtr seem to already have the pointer.");
+	soup_message_headers_set_content_type(msg->request_headers,
+	                                      MIME_JSON, NULL);
+	soup_message_headers_append(msg->request_headers,
+	                            "X-Auth-Token", m_impl->token.c_str());
+	// TODO: Add query condition to get updated alarm only.
+	SoupSession *session = soup_session_sync_new();
+	guint ret = soup_session_send_message(session, msg);
+	if (ret != SOUP_STATUS_OK) {
+		MLPL_ERR("Failed to connect: (%d) %s, URL: %s\n",
+		         ret, soup_status_get_phrase(ret), url.c_str());
+		return HTERR_BAD_REST_RESPONSE;
+	}
+	return HTERR_OK;
+}
+
+HatoholError HapProcessCeilometer::getInstanceList(void)
+{
+	string url = m_impl->novaEP.publicURL;
+	url += "/servers/detail?all_tenants=1";
+	Reaper<SoupMessage> msgPtr;
+	HatoholError err = sendGetRequest(url, msgPtr);
+	if (err != HTERR_OK)
+		return err;
+
+	VariableItemTablePtr hostTablePtr;
+	err = parseReplyInstanceList(msgPtr.get(), hostTablePtr);
+	if (err != HTERR_OK) {
+		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
+		         msgPtr.get()->response_body->length,
+		         msgPtr.get()->response_body->data);
+	} else if (hostTablePtr->getNumberOfRows() == 0) {
+		return HTERR_OK;
+	}
+	sendTable(HAPI_CMD_SEND_HOSTS, static_cast<ItemTablePtr>(hostTablePtr));
+	return err;
+}
+
+HatoholError HapProcessCeilometer::parseReplyInstanceList(
+  SoupMessage *msg, VariableItemTablePtr &tablePtr)
+{
+	JSONParser parser(msg->response_body->data);
+	if (parser.hasError()) {
+		MLPL_ERR("Failed to parser %s\n", parser.getErrorMessage());
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	}
+
+	if (!startObject(parser, "servers"))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+
+	HatoholError err(HTERR_OK);
+	const unsigned int count = parser.countElements();
+	for (unsigned int i = 0; i < count; i++) {
+		err = parseInstanceElement(parser, tablePtr, i);
+		if (err != HTERR_OK)
+			break;
+	}
+	return err;
+}
+
+HatoholError HapProcessCeilometer::parseInstanceElement(
+  JSONParser &parser, VariableItemTablePtr &tablePtr,
+  const unsigned int &index)
+{
+	JSONParser::PositionStack parserRewinder(parser);
+	if (!parserRewinder.pushElement(index)) {
+		MLPL_ERR("Failed to parse an element, index: %u\n", index);
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	}
+
+	// ID
+	string id;
+	if (!read(parser, "id", id))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+
+	// name
+	string name;
+	if (!read(parser, "name", name))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+
+	// tenant id
+	string tenantId;
+	if (!read(parser, "tenant_id", tenantId))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+
+	// user id
+	string userId;
+	if (!read(parser, "user_id", userId))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+
+	// NOTE: tenantId and userID is not used currently.
+	// We will use them as elements for the host group.
+
+	// fill
+	// TODO: Define ItemID without ZBX.
+	VariableItemGroupPtr grp;
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_HOSTID, generateHashU64(id));
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_NAME, name);
+	tablePtr->add(grp);
+
+	return HTERR_OK;
 }
 
 HatoholError HapProcessCeilometer::getAlarmList(void)
@@ -658,6 +781,7 @@ void HapProcessCeilometer::acquireData(void)
 
 	MLPL_DBG("acquireData\n");
 	updateAuthTokenIfNeeded();
+	getInstanceList();   // Host
 	getAlarmList();      // Trigger
 	getAlarmHistories(); // Event
 	// TODO: Add get trigger, event, and so on.
