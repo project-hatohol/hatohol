@@ -35,6 +35,11 @@ static const char *MIME_JSON = "application/json";
 
 struct OpenStackEndPoint {
 	string publicURL;
+
+	void clear(void)
+	{
+		publicURL.clear();
+	}
 };
 
 struct AcquireContext
@@ -82,6 +87,13 @@ struct HapProcessCeilometer::Impl {
 		osPassword   = "admin";
 		osTenantName = "admin";
 		osAuthURL    = "http://botctl:35357/v2.0";
+	}
+
+	void clear(void)
+	{
+		token.clear();
+		ceilometerEP.clear();
+		novaEP.clear();
 	}
 };
 
@@ -778,9 +790,16 @@ HatoholError HapProcessCeilometer::acquireData(void)
 	};
 
 	for (size_t i = 0; i < ARRAY_SIZE(funcs); i++) {
-		HatoholError err = (this->*funcs[i])();
-		if (err != HTERR_OK)
-			return err;
+		try {
+			HatoholError err = (this->*funcs[i])();
+			if (err != HTERR_OK) {
+				m_impl->clear();
+				return err;
+			}
+		} catch (...) {
+			m_impl->clear();
+			throw;
+		}
 	}
 	return HTERR_OK;
 }
