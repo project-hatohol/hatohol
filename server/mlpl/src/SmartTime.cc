@@ -27,17 +27,6 @@
 using namespace std;
 using namespace mlpl;
 
-struct SmartTime::PrivateContext {
-	timespec time;
-
-	// constructor
-	PrivateContext(void)
-	{
-		time.tv_sec = 0;
-		time.tv_nsec = 0;
-	}
-};
-
 ostream &operator<<(std::ostream &os, const SmartTime &stime)
 {
 	os << static_cast<string>(stime);
@@ -48,9 +37,9 @@ ostream &operator<<(std::ostream &os, const SmartTime &stime)
 // Public methods
 // ---------------------------------------------------------------------------
 SmartTime::SmartTime(InitType initType)
-: m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
+	m_time.tv_sec = 0;
+	m_time.tv_nsec = 0;
 
 	switch(initType) {
 	case INIT_NONE:
@@ -66,23 +55,18 @@ SmartTime::SmartTime(InitType initType)
 }
 
 SmartTime::SmartTime(const SmartTime &stime)
-: m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
 	*this = stime;
 }
 
 SmartTime::SmartTime(const timespec &ts)
-: m_ctx(NULL)
 {
-	m_ctx = new PrivateContext();
-	m_ctx->time.tv_sec  = ts.tv_sec;
-	m_ctx->time.tv_nsec = ts.tv_nsec;
+	m_time.tv_sec  = ts.tv_sec;
+	m_time.tv_nsec = ts.tv_nsec;
 }
 
 SmartTime::~SmartTime()
 {
-	delete m_ctx;
 }
 
 void SmartTime::setCurrTime(void)
@@ -92,7 +76,7 @@ void SmartTime::setCurrTime(void)
 
 double SmartTime::getAsSec(void) const
 {
-	return m_ctx->time.tv_sec + m_ctx->time.tv_nsec/1e9;
+	return m_time.tv_sec + m_time.tv_nsec/1e9;
 }
 
 double SmartTime::getAsMSec(void) const
@@ -102,18 +86,18 @@ double SmartTime::getAsMSec(void) const
 
 const timespec &SmartTime::getAsTimespec(void) const
 {
-	return m_ctx->time;
+	return m_time;
 }
 
 bool SmartTime::hasValidTime(void) const
 {
-	return (m_ctx->time.tv_sec != 0 || m_ctx->time.tv_nsec != 0);
+	return (m_time.tv_sec != 0 || m_time.tv_nsec != 0);
 }
 
 SmartTime SmartTime::getCurrTime(void)
 {
 	SmartTime smtime;
-	if (clock_gettime(CLOCK_REALTIME, &smtime.m_ctx->time) == -1) {
+	if (clock_gettime(CLOCK_REALTIME, &smtime.m_time) == -1) {
 		MLPL_ERR("Failed to call clock_gettime(%d): errno: %d\n",
 		         CLOCK_REALTIME,  errno);
 	}
@@ -122,49 +106,49 @@ SmartTime SmartTime::getCurrTime(void)
 
 SmartTime &SmartTime::operator+=(const timespec &rhs)
 {
-	m_ctx->time.tv_sec  += rhs.tv_sec;
-	m_ctx->time.tv_nsec += rhs.tv_nsec;
-	if (m_ctx->time.tv_nsec >= NANO_SEC_PER_SEC) {
-		m_ctx->time.tv_sec += 1;
-		m_ctx->time.tv_nsec -= NANO_SEC_PER_SEC;
+	m_time.tv_sec  += rhs.tv_sec;
+	m_time.tv_nsec += rhs.tv_nsec;
+	if (m_time.tv_nsec >= NANO_SEC_PER_SEC) {
+		m_time.tv_sec += 1;
+		m_time.tv_nsec -= NANO_SEC_PER_SEC;
 	}
 	return *this;
 }
 
 SmartTime &SmartTime::operator-=(const SmartTime &rhs)
 {
-	m_ctx->time.tv_sec  -= rhs.m_ctx->time.tv_sec;
-	m_ctx->time.tv_nsec -= rhs.m_ctx->time.tv_nsec;
-	if (m_ctx->time.tv_nsec < 0) {
-		m_ctx->time.tv_sec -= 1;
-		m_ctx->time.tv_nsec += 1e9;
+	m_time.tv_sec  -= rhs.m_time.tv_sec;
+	m_time.tv_nsec -= rhs.m_time.tv_nsec;
+	if (m_time.tv_nsec < 0) {
+		m_time.tv_sec -= 1;
+		m_time.tv_nsec += 1e9;
 	}
 	return *this;
 }
 
 SmartTime &SmartTime::operator=(const SmartTime &rhs)
 {
-	m_ctx->time.tv_sec  = rhs.m_ctx->time.tv_sec;
-	m_ctx->time.tv_nsec = rhs.m_ctx->time.tv_nsec;
+	m_time.tv_sec  = rhs.m_time.tv_sec;
+	m_time.tv_nsec = rhs.m_time.tv_nsec;
 	return *this;
 }
 
 bool SmartTime::operator==(const SmartTime &rhs) const
 {
-	if (m_ctx->time.tv_sec != rhs.m_ctx->time.tv_sec)
+	if (m_time.tv_sec != rhs.m_time.tv_sec)
 		return false;
-	if (m_ctx->time.tv_nsec != rhs.m_ctx->time.tv_nsec)
+	if (m_time.tv_nsec != rhs.m_time.tv_nsec)
 		return false;
 	return true;
 }
 
 bool SmartTime::operator>=(const SmartTime &rhs) const
 {
-	if (m_ctx->time.tv_sec > rhs.m_ctx->time.tv_sec)
+	if (m_time.tv_sec > rhs.m_time.tv_sec)
 		return true;
-	if (m_ctx->time.tv_sec < rhs.m_ctx->time.tv_sec)
+	if (m_time.tv_sec < rhs.m_time.tv_sec)
 		return false;
-	return m_ctx->time.tv_nsec >= rhs.m_ctx->time.tv_nsec;
+	return m_time.tv_nsec >= rhs.m_time.tv_nsec;
 }
 
 bool SmartTime::operator>(const SmartTime &rhs) const
@@ -185,5 +169,5 @@ bool SmartTime::operator<(const SmartTime &rhs) const
 SmartTime::operator std::string () const
 {
 	return StringUtils::sprintf("%ld.%09ld",
-	                            m_ctx->time.tv_sec, m_ctx->time.tv_nsec);
+	                            m_time.tv_sec, m_time.tv_nsec);
 }
