@@ -1722,7 +1722,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		} else {
 			eventInfo.severity = triggerSeverity;
 		}
-		if (eventHostId != INVALID_HOST_ID) {
+		if (eventHostId != 0 && eventHostId != INVALID_HOST_ID) {
 			eventInfo.hostId = eventHostId;
 			eventInfo.hostName = eventHostName;
 		} else {
