@@ -72,6 +72,11 @@ public:
 		return true;
 	}
 
+	T *get(void)
+	{
+		return m_obj;
+	}
+
 protected:
 	T *m_obj;
 
