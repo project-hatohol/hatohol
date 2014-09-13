@@ -47,6 +47,19 @@ struct AcquireContext
 	}
 };
 
+struct HapProcessCeilometer::HttpRequestArg
+{
+	const char *method;
+	string      url;
+	mlpl::Reaper<SoupMessage> msgPtr;
+
+	HttpRequestArg(const char *_method, const string &_url)
+	: method(_method),
+	  url(_url)
+	{
+	}
+};
+
 struct HapProcessCeilometer::Impl {
 	string osUsername;
 	string osPassword;
@@ -215,16 +228,19 @@ bool HapProcessCeilometer::parserEndpoints(JSONParser &parser,
 	return true;
 }
 
-HatoholError HapProcessCeilometer::sendGetRequest(
-  const string &url, Reaper<SoupMessage> &msgPtr)
+HatoholError HapProcessCeilometer::sendHttpRequest(HttpRequestArg &arg)
 {
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
+	const string &url = arg.url;
+	HATOHOL_ASSERT(arg.method, "Method is not set.");
+	HATOHOL_ASSERT(!url.empty(), "URL is not set.");
+	SoupMessage *msg = soup_message_new(arg.method, url.c_str());
 	if (!msg) {
 		MLPL_ERR("Failed create SoupMessage: URL: %s\n", url.c_str());
 		return HTERR_INVALID_URL;
 	}
-	HATOHOL_ASSERT(msgPtr.set(msg, (void (*)(SoupMessage*))g_object_unref),
-	               "msgPtr seem to already have the pointer.");
+	HATOHOL_ASSERT(
+	  arg.msgPtr.set(msg, (void (*)(SoupMessage*))g_object_unref),
+	  "msgPtr seem to already have the pointer.");
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
 	soup_message_headers_append(msg->request_headers,
@@ -244,17 +260,17 @@ HatoholError HapProcessCeilometer::getInstanceList(void)
 {
 	string url = m_impl->novaEP.publicURL;
 	url += "/servers/detail?all_tenants=1";
-	Reaper<SoupMessage> msgPtr;
-	HatoholError err = sendGetRequest(url, msgPtr);
+	HttpRequestArg arg(SOUP_METHOD_GET, url);
+	HatoholError err = sendHttpRequest(arg);
 	if (err != HTERR_OK)
 		return err;
+	SoupMessage *msg = arg.msgPtr.get();
 
 	VariableItemTablePtr hostTablePtr;
-	err = parseReplyInstanceList(msgPtr.get(), hostTablePtr);
+	err = parseReplyInstanceList(msg, hostTablePtr);
 	if (err != HTERR_OK) {
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
-		         msgPtr.get()->response_body->length,
-		         msgPtr.get()->response_body->data);
+		         msg->response_body->length, msg->response_body->data);
 	} else if (hostTablePtr->getNumberOfRows() == 0) {
 		return HTERR_OK;
 	}
@@ -331,17 +347,17 @@ HatoholError HapProcessCeilometer::getAlarmList(void)
 {
 	string url = m_impl->ceilometerEP.publicURL;
 	url += "/v2/alarms";
-	Reaper<SoupMessage> msgPtr;
-	HatoholError err = sendGetRequest(url, msgPtr);
+	HttpRequestArg arg(SOUP_METHOD_GET, url);
+	HatoholError err = sendHttpRequest(arg);
 	if (err != HTERR_OK)
 		return err;
+	SoupMessage *msg = arg.msgPtr.get();
 
 	VariableItemTablePtr trigTablePtr;
-	err = parseReplyGetAlarmList(msgPtr.get(), trigTablePtr);
+	err = parseReplyGetAlarmList(msg, trigTablePtr);
 	if (err != HTERR_OK) {
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
-		         msgPtr.get()->response_body->length,
-		         msgPtr.get()->response_body->data);
+		         msg->response_body->length, msg->response_body->data);
 	}
 	sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS,
 	          static_cast<ItemTablePtr>(trigTablePtr));
@@ -537,17 +553,17 @@ HatoholError HapProcessCeilometer::getAlarmHistory(const unsigned int &index)
 	               "%s/v2/alarms/%s/history%s",
 	               m_impl->ceilometerEP.publicURL.c_str(),
 	               alarmId, getHistoryQueryOption(lastTime).c_str());
-	Reaper<SoupMessage> msgPtr;
-	HatoholError err = sendGetRequest(url, msgPtr);
+	HttpRequestArg arg(SOUP_METHOD_GET, url);
+	HatoholError err = sendHttpRequest(arg);
 	if (err != HTERR_OK)
 		return err;
+	SoupMessage *msg = arg.msgPtr.get();
 
 	AlarmTimeMap alarmTimeMap;
-	err = parseReplyGetAlarmHistory(msgPtr.get(), alarmTimeMap);
+	err = parseReplyGetAlarmHistory(msg, alarmTimeMap);
 	if (err != HTERR_OK) {
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
-		         msgPtr.get()->response_body->length,
-		         msgPtr.get()->response_body->data);
+		         msg->response_body->length, msg->response_body->data);
 		return err;
 	}
 

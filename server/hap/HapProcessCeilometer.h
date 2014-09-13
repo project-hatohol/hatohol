@@ -39,8 +39,9 @@ protected:
 
 	HatoholError updateAuthTokenIfNeeded(void);
 	bool parseReplyToknes(SoupMessage *msg);
-	HatoholError sendGetRequest(
-	  const std::string &url, mlpl::Reaper<SoupMessage> &msgPtr);
+
+	struct HttpRequestArg;
+	HatoholError sendHttpRequest(HttpRequestArg &httpRequestArg);
 
 	HatoholError getInstanceList(void);
 	HatoholError parseReplyInstanceList(SoupMessage *msg,
