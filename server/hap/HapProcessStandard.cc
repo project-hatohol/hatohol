@@ -113,9 +113,11 @@ void HapProcessStandard::startAcquisition(void)
 	bool caughtException = false;
 	string exceptionName;
 	string exceptionMsg;
+	HatoholError err(HTERR_UNINITIALIZED);
 	try {
-		acquireData();
-		getArmStatus().logSuccess();
+		err = acquireData();
+		if (err == HTERR_OK)
+			getArmStatus().logSuccess();
 	} catch (const HatoholException &e) {
 		exceptionName = DEMANGLED_TYPE_NAME(e);
 		exceptionMsg  = e.getFancyMessage();
@@ -130,12 +132,23 @@ void HapProcessStandard::startAcquisition(void)
 
 	// Set up a timer for next aquisition
 	guint intervalMSec = pollingIntervalSec * 1000;
+	string errMsg;
 	if (caughtException) {
-		intervalMSec = retryIntervalSec * 1000;
 		const char *name = exceptionName.c_str() ? : "Unknown";
 		const char *msg  = exceptionMsg.c_str()  ? : "N/A";
 		string errMsg = StringUtils::sprintf(
 		  "Caught an exception: (%s) %s", name, msg);
+	} else if (err != HTERR_OK) {
+		const char *name = err.getCodeName().c_str();
+		const char *msg  = err.getMessage().c_str();
+		const char *optMsg = err.getOptionMessage().empty() ?
+		                       err.getOptionMessage().c_str() :
+		                       "No optional message";
+		string errMsg = StringUtils::sprintf(
+		  "Failed to get data: (%s) %s, %s", name, msg, optMsg);
+	}
+	if (!errMsg.empty()) {
+		intervalMSec = retryIntervalSec * 1000;
 		MLPL_ERR("%s\n", errMsg.c_str());
 		getArmStatus().logFailure(errMsg);
 	}
@@ -155,8 +168,9 @@ HapProcessStandard::getMonitoringServerInfo(void) const
 	return m_impl->serverInfoQueue.front();
 }
 
-void HapProcessStandard::acquireData(void)
+HatoholError HapProcessStandard::acquireData(void)
 {
+	return HTERR_NOT_IMPLEMENTED;
 }
 
 //

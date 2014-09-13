@@ -749,16 +749,24 @@ bool HapProcessCeilometer::read(
 	return false;
 }
 
-void HapProcessCeilometer::acquireData(void)
+HatoholError HapProcessCeilometer::acquireData(void)
 {
 	Reaper<AcquireContext>
 	  acqCtxCleaner(&m_impl->acquireCtx, AcquireContext::clear);
 
 	MLPL_DBG("acquireData\n");
-	updateAuthTokenIfNeeded();
-	getInstanceList();   // Host
-	getAlarmList();      // Trigger
-	getAlarmHistories(); // Event
-	// TODO: Add get trigger, event, and so on.
+	HatoholError (HapProcessCeilometer::*funcs[])(void) = {
+		&HapProcessCeilometer::updateAuthTokenIfNeeded,
+		&HapProcessCeilometer::getInstanceList,     // Host
+		&HapProcessCeilometer::getAlarmList,        // Trigger
+		&HapProcessCeilometer::getAlarmHistories,   // Event
+	};
+
+	for (size_t i = 0; i < ARRAY_SIZE(funcs); i++) {
+		HatoholError err = (this->*funcs[i])();
+		if (err != HTERR_OK)
+			return err;
+	}
+	return HTERR_OK;
 }
 

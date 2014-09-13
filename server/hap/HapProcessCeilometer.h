@@ -78,7 +78,7 @@ protected:
 	          std::string &dest);
 	bool parserEndpoints(JSONParser &parser, const unsigned int &index);
 
-	virtual void acquireData(void) override;
+	virtual HatoholError acquireData(void) override;
 
 private:
 	struct Impl;
