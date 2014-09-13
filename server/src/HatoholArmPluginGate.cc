@@ -193,6 +193,14 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 void HatoholArmPluginGate::start(void)
 {
 	m_impl->armStatus.setRunningStatus(true);
+
+	HostInfo hostInfo;
+	hostInfo.serverId = m_impl->serverInfo.id;
+	hostInfo.id       = INAPPLICABLE_HOST_ID;
+	hostInfo.hostName = "N/A";
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().addHostInfo(&hostInfo);
+
 	HatoholArmPluginInterface::start();
 }
 
