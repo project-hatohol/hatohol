@@ -331,29 +331,17 @@ HatoholError HapProcessCeilometer::getAlarmList(void)
 {
 	string url = m_impl->ceilometerEP.publicURL;
 	url += "/v2/alarms";
-	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
-	if (!msg) {
-		MLPL_ERR("Failed create SoupMessage: URL: %s\n", url.c_str());
-		return HTERR_INVALID_URL;
-	}
-	Reaper<void> msgReaper(msg, g_object_unref);
-	soup_message_headers_set_content_type(msg->request_headers,
-	                                      MIME_JSON, NULL);
-	soup_message_headers_append(msg->request_headers,
-	                            "X-Auth-Token", m_impl->token.c_str());
-	// TODO: Add query condition to get updated alarm only.
-	SoupSession *session = soup_session_sync_new();
-	guint ret = soup_session_send_message(session, msg);
-	if (ret != SOUP_STATUS_OK) {
-		MLPL_ERR("Failed to connect: (%d) %s, URL: %s\n",
-		         ret, soup_status_get_phrase(ret), url.c_str());
-		return HTERR_BAD_REST_RESPONSE_CEILOMETER;
-	}
+	Reaper<SoupMessage> msgPtr;
+	HatoholError err = sendGetRequest(url, msgPtr);
+	if (err != HTERR_OK)
+		return err;
+
 	VariableItemTablePtr trigTablePtr;
-	HatoholError err = parseReplyGetAlarmList(msg, trigTablePtr);
+	err = parseReplyGetAlarmList(msgPtr.get(), trigTablePtr);
 	if (err != HTERR_OK) {
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
-		         msg->response_body->length, msg->response_body->data);
+		         msgPtr.get()->response_body->length,
+		         msgPtr.get()->response_body->data);
 	}
 	sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS,
 	          static_cast<ItemTablePtr>(trigTablePtr));
