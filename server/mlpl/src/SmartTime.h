@@ -71,8 +71,7 @@ public:
 	operator std::string () const;
 
 private:
-	struct PrivateContext;
-	PrivateContext *m_ctx;
+	timespec m_time;
 };
 
 } // namespace mlpl
