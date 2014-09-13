@@ -87,6 +87,7 @@ HapProcessCeilometer::~HapProcessCeilometer()
 // ---------------------------------------------------------------------------
 HatoholError HapProcessCeilometer::updateAuthTokenIfNeeded(void)
 {
+	// TODO: check the expiration date of the token.
 	if (!m_impl->token.empty())
 		return HTERR_OK;
 
