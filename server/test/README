@@ -12,6 +12,9 @@ See also 'How to start' section in ../README.md (server/README.md)
 
 The details are written in the later part of this document.
 
+## Hint
+See also .travis.yml in the top directory, which contains proceudure
+to build Hatohol and run tests for TravisCI.
 
 Speed-up technique of the test
 ------------------------------
