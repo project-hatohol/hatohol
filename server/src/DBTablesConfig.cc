@@ -110,13 +110,13 @@ static const DBAgent::TableProfile tableProfileSystem =
 static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 {
 	// One of MonitoringSystemType shall be saved in this column.
-	"id",                              // columnName
+	"type",                            // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
-	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
 	"name",                            // columnName
@@ -146,7 +146,7 @@ static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 };
 
 enum {
-	IDX_SERVER_TYPES_ID,
+	IDX_SERVER_TYPES_TYPE,
 	IDX_SERVER_TYPES_NAME,
 	IDX_SERVER_PARAMETERS,
 	NUM_IDX_SERVER_TYPES,
@@ -801,6 +801,17 @@ bool DBTablesConfig::isCopyOnDemandEnabled(void)
 	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
 	ItemGroupStream itemGroupStream(*grpList.begin());
 	return itemGroupStream.read<int>();
+}
+
+void DBTablesConfig::registerServerType(const ServerTypeInfo &serverType)
+{
+	DBAgent::InsertArg arg(tableProfileServerTypes);
+	arg.add(serverType.type);
+	arg.add(serverType.name);
+	arg.add(serverType.parameters);
+	arg.upsertOnDuplicate = true;
+	int id;
+	getDBAgent().runTransaction(arg, &id);
 }
 
 bool validHostName(const string &hostName)

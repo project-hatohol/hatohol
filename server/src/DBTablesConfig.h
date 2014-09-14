@@ -48,6 +48,12 @@ typedef IncidentTrackerInfoVect::const_iterator IncidentTrackerInfoVectConstIter
 
 typedef std::set<IncidentTrackerIdType>         IncidentTrackerIdSet;
 
+struct ServerTypeInfo {
+	MonitoringSystemType type;
+	std::string          name;
+	std::string          parameters;
+};
+
 struct ArmPluginInfo {
 	int id;
 	MonitoringSystemType type;
@@ -137,6 +143,15 @@ public:
 	int  getFaceRestPort(void);
 	void setFaceRestPort(int port);
 	bool isCopyOnDemandEnabled(void);
+
+	/**
+	 * Register the server type.
+	 *
+	 * @param serverType
+	 * A data to be saved. If serverType.type already exists in the DB,
+	 * the record is updated.
+	 */
+	void registerServerType(const ServerTypeInfo &serverType);
 
 	HatoholError addTargetServer(
 	  MonitoringServerInfo *monitoringServerInfo,
