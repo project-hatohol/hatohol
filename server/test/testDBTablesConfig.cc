@@ -240,6 +240,19 @@ void test_registerServerTypeUpdate(void)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
+void test_getServerTypes(void)
+{
+	test_registerServerType(); // insert the record
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	ServerTypeInfoVect svTypeVect;
+	dbConfig.getServerTypes(svTypeVect);
+
+	// check content
+	cppcut_assert_equal((size_t)1, svTypeVect.size());
+}
+
+
 void test_createTableServers(void)
 {
 	const string tableName = "servers";

@@ -814,6 +814,28 @@ void DBTablesConfig::registerServerType(const ServerTypeInfo &serverType)
 	getDBAgent().runTransaction(arg, &id);
 }
 
+void DBTablesConfig::getServerTypes(ServerTypeInfoVect &serverTypes)
+{
+	DBAgent::SelectArg arg(tableProfileServerTypes);
+	arg.add(IDX_SERVER_TYPES_TYPE);
+	arg.add(IDX_SERVER_TYPES_NAME);
+	arg.add(IDX_SERVER_PARAMETERS);
+	getDBAgent().runTransaction(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	serverTypes.reserve(grpList.size());
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		serverTypes.push_back(ServerTypeInfo());
+		ServerTypeInfo &svTypeInfo = serverTypes.back();
+
+		itemGroupStream >> svTypeInfo.type;
+		itemGroupStream >> svTypeInfo.name;
+		itemGroupStream >> svTypeInfo.parameters;
+	}
+}
+
 bool validHostName(const string &hostName)
 {
 	// Currently do nothing to pass through IDN (Internationalized Domain

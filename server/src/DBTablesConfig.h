@@ -54,6 +54,10 @@ struct ServerTypeInfo {
 	std::string          parameters;
 };
 
+typedef std::vector<ServerTypeInfo>        ServerTypeInfoVect;
+typedef ServerTypeInfoVect::iterator       ServerTypeInfoVectIterator;
+typedef ServerTypeInfoVect::const_iterator ServerTypeInfoVectConstIterator;
+
 struct ArmPluginInfo {
 	int id;
 	MonitoringSystemType type;
@@ -152,6 +156,15 @@ public:
 	 * the record is updated.
 	 */
 	void registerServerType(const ServerTypeInfo &serverType);
+
+
+	/**
+	 * Get the registered ServerTypeInfo.
+	 *
+	 * @param serverTypesVect
+	 * A obtained records are appended to this object.
+	 */
+	void getServerTypes(ServerTypeInfoVect &serverTypes);
 
 	HatoholError addTargetServer(
 	  MonitoringServerInfo *monitoringServerInfo,
