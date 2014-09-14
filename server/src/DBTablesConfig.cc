@@ -33,6 +33,7 @@ using namespace std;
 using namespace mlpl;
 
 static const char *TABLE_NAME_SYSTEM  = "system";
+static const char *TABLE_NAME_SERVER_TYPES = "server_types";
 static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
@@ -105,6 +106,56 @@ static const DBAgent::TableProfile tableProfileSystem =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SYSTEM,
 			    COLUMN_DEF_SYSTEM,
 			    NUM_IDX_SYSTEM);
+
+static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
+{
+	// One of MonitoringSystemType shall be saved in this column.
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+}, {
+	"name",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	// This column contains a string with the following format.
+	//
+	//     "paramter name1|paramter name2|...."
+	//
+	// where '|' is used as a separator and there's no way to escape it,
+	// so '|' shall not be used in the parameter name.
+	"parameters",                      // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	32767,                             // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+
+enum {
+	IDX_SERVER_TYPES_ID,
+	IDX_SERVER_TYPES_NAME,
+	IDX_SERVER_PARAMETERS,
+	NUM_IDX_SERVER_TYPES,
+};
+
+static const DBAgent::TableProfile tableProfileServerTypes =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SERVER_TYPES,
+			    COLUMN_DEF_SERVER_TYPES,
+			    NUM_IDX_SERVER_TYPES);
 
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
@@ -1290,6 +1341,8 @@ DBTables::SetupInfo &DBTablesConfig::getSetupInfo(void)
 	{
 		&tableProfileSystem,
 		tableInitializerSystem,
+	}, {
+		&tableProfileServerTypes,
 	}, {
 		&tableProfileServers,
 	}, {
