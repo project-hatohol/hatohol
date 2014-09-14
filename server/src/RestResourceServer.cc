@@ -27,6 +27,7 @@ using namespace std;
 using namespace mlpl;
 
 const char *RestResourceServer::pathForServer         = "/server";
+const char *RestResourceServer::pathForServerType     = "/server-type";
 const char *RestResourceServer::pathForServerConnStat = "/server-conn-stat";
 
 void RestResourceServer::registerFactories(FaceRest *faceRest)
@@ -35,6 +36,10 @@ void RestResourceServer::registerFactories(FaceRest *faceRest)
 	  pathForServer,
 	  new RestResourceServerFactory(
 	    faceRest, &RestResourceServer::handlerServer));
+	faceRest->addResourceHandlerFactory(
+	  pathForServerType,
+	  new RestResourceServerFactory(
+	    faceRest, &RestResourceServer::handlerServerType));
 	faceRest->addResourceHandlerFactory(
 	  pathForServerConnStat,
 	  new RestResourceServerFactory(
@@ -468,6 +473,31 @@ void RestResourceServer::handlerDeleteServer(void)
 	agent.endObject();
 
 	replyJSONData(agent);
+}
+
+void RestResourceServer::handlerServerType(void)
+{
+	// NOTE: Currently we return all server types for any user.
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	ServerTypeInfoVect svTypeVect;
+	dataStore->getServerTypes(svTypeVect);
+
+	JSONBuilder builder;
+	builder.startObject();
+	addHatoholError(builder, HatoholError(HTERR_OK));
+	builder.startArray("serverType");
+	for (size_t idx = 0; idx < svTypeVect.size(); idx++) {
+		const ServerTypeInfo &svTypeInfo = svTypeVect[idx];
+		builder.startObject();
+		builder.add("type",       svTypeInfo.type);
+		builder.add("name",       svTypeInfo.name);
+		builder.add("parameters", svTypeInfo.parameters);
+		builder.endObject();
+	}
+	builder.endArray(); // serverType
+	builder.endObject();
+
+	replyJSONData(builder);
 }
 
 void RestResourceServer::handlerServerConnStat(void)

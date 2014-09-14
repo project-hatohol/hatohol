@@ -38,6 +38,9 @@ typedef HostgroupHostIdMap::iterator  HostgroupHostIdMapIterator;
 typedef std::map<uint32_t, HostgroupHostIdMap> ServerIdHostgroupHostIdMap;
 typedef ServerIdHostgroupHostIdMap::iterator ServerIdHostgroupHostIdMapIterator;
 
+extern ServerTypeInfo testServerTypeInfo[];
+extern size_t NumTestServerTypeInfo;
+
 extern MonitoringServerInfo testServerInfo[];
 extern size_t NumTestServerInfo;
 
@@ -198,6 +201,7 @@ void setupTestDB(void);
 void loadTestDBTablesConfig(void);
 void loadTestDBTablesUser(void);
 
+void loadTestDBServerType(void);
 void loadTestDBServer(void);
 void loadTestDBUser(void);
 void loadTestDBUserRole(void);
