@@ -128,12 +128,8 @@ static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	// This column contains a string with the following format.
-	//
-	//     "paramter name1|paramter name2|...."
-	//
-	// where '|' is used as a separator and there's no way to escape it,
-	// so '|' shall not be used in the parameter name.
+	// This column contains a JSON string that represents
+	// the specification of parameters for the monitoring server.
 	"parameters",                      // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	32767,                             // columnLength
