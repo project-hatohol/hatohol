@@ -51,13 +51,11 @@ var HatoholServerEditDialogParameterized = function(params) {
   // Dialog button handlers
   //
   function addButtonClickedCb() {
-    if (validateParameters()) {
-      if (self.server)
-        hatoholInfoMsgBox(gettext("Now updating the server ..."));
-      else
-        hatoholInfoMsgBox(gettext("Now adding a server..."));
-      postAddServer();
-    }
+    if (self.server)
+      hatoholInfoMsgBox(gettext("Now updating the server ..."));
+    else
+      hatoholInfoMsgBox(gettext("Now adding a server..."));
+    postAddServer();
   }
 
   function cancelButtonClickedCb() {
@@ -93,11 +91,6 @@ var HatoholServerEditDialogParameterized = function(params) {
 
     if (self.succeededCallback)
       self.succeededCallback();
-  }
-
-  function validateParameters() {
-    // TODO: implement
-    return true;
   }
 };
 
