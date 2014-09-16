@@ -25,13 +25,14 @@ var EventsView = function(userProfile, baseElem) {
   self.limitOfUnifiedId = 0;
   self.rawData = {};
   self.durations = {};
-  self.baseQuery = {
+  self.baseQuery = $.extend({
     limit:            50,
     offset:           0,
     limitOfUnifiedId: 0,
     sortType:         "time",
     sortOrder:        hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
-  };
+  }, getEventsQueryInURI());
+  self.lastQuery = undefined;
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];
   var severity_choices = [
@@ -42,6 +43,7 @@ var EventsView = function(userProfile, baseElem) {
   HatoholMonitoringView.apply(this, [userProfile]);
 
   self.userConfig = new HatoholUserConfig(); 
+  setupFilterValues();
   start();
 
   //
@@ -61,6 +63,7 @@ var EventsView = function(userProfile, baseElem) {
           self.userConfig.findOrDefault(conf, 'event-sort-order',
                                         self.baseQuery.sortOrder);
         $.extend(self.baseQuery, getEventsQueryInURI());
+        setupFilterValues();
         setupCallbacks();
         load();
       },
@@ -107,6 +110,7 @@ var EventsView = function(userProfile, baseElem) {
       offset:           self.baseQuery.limit * self.currentPage,
       limitOfUnifiedId: self.limitOfUnifiedId,
     });
+    self.lastQuery = query;
 
     return 'events?' + $.param(query);
   };
@@ -115,6 +119,23 @@ var EventsView = function(userProfile, baseElem) {
     self.startConnection(getQuery(loadNextPage), updateCore);
     $(document.body).scrollTop(0);
     setLoading(true);
+  }
+
+  function setupFilterValues(servers, query) {
+    if (!servers && self.rawData && self.rawData.servers)
+      servers = self.rawData.servers;
+
+    if (!query)
+      query = self.lastQuery ? self.lastQuery : self.baseQuery;
+
+    self.setupHostFilters(servers, query);
+
+    if ('limit' in query)
+      $('#num-events-per-page').val(query.limit);
+    if ("minimumSeverity" in query)
+      $("#select-severity").val(query.minimumSeverity);
+    if ("status" in query)
+      $("#select-status").val(query.status);
   }
 
   function setupCallbacks() {
@@ -132,7 +153,6 @@ var EventsView = function(userProfile, baseElem) {
     self.setupHostQuerySelectorCallback(
       load, '#select-server', '#select-host-group', '#select-host');
 
-    $('#num-events-per-page').val(self.baseQuery.limit);
     $('#num-events-per-page').change(function() {
       var val = parseInt($('#num-events-per-page').val());
       if (!isFinite(val))
@@ -299,9 +319,7 @@ var EventsView = function(userProfile, baseElem) {
     self.rawData = reply;
     self.durations = parseData(self.rawData);
 
-    self.setServerFilterCandidates(self.rawData["servers"]);
-    self.setHostgroupFilterCandidates(self.rawData["servers"]);
-    self.setHostFilterCandidates(self.rawData["servers"]);
+    setupFilterValues(self.rawData["servers"]);
     drawTableContents();
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
