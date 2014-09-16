@@ -121,7 +121,7 @@ static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
 	ArmPluginInfoVectConstIterator pluginIt = armPluginInfoVect.begin();
 	HATOHOL_ASSERT(monitoringServers.size() == armPluginInfoVect.size(),
-	               "The nubmer of elements differs: %zd, %zd",
+	               "The number of elements differs: %zd, %zd",
 	               monitoringServers.size(), armPluginInfoVect.size());
 	for (; it != monitoringServers.end(); ++it, ++pluginIt) {
 		MonitoringServerInfo &serverInfo = *it;
