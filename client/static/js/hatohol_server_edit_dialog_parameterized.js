@@ -213,13 +213,17 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
     if (inputStyle == undefined)
       inputStyle = 'text';
 
+    var hint = ''
+    if (param.hint != undefined)
+      hint = param.hint;
+
     var id = 'server-edit-dialog-param-form-' + index;
     param.id = id;
     s += '<div class="form-group">';
     if (inputStyle == 'text') {
-      s += makeTextInput(id, label, defaultValue);
+      s += makeTextInput(id, label, defaultValue, hint);
     } else if (inputStyle == 'checkBox') {
-      s += makeCheckboxInput(id, label);
+      s += makeCheckboxInput(id, label, hint);
     } else {
       hatoholErrorMsgBox("[Malformed reply] unknown input style: " +
                          inputStyle);
@@ -229,14 +233,14 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
     return s;
   }
 
-  function makeTextInput(id, label, defaultValue) {
+  function makeTextInput(id, label, defaultValue, hint) {
     s = '';
     s += '  <label for="' + id  + '" class="col-sm-3 control-label">'
     s += gettext(label)
     s += '  </label>';
     s += '  <div class="col-sm-9">';
     s += '    <input type="text" class="form-control" id="' + id +
-           '" placeholder="" value="' + defaultValue + '">';
+           '" placeholder="' + hint + '" value="' + defaultValue + '">';
     s += '  </div>'
     return s;
   }
