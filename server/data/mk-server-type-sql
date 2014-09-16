@@ -8,17 +8,21 @@ def get_zabbix_params():
     obj.append({'name':'Nickname'});
     obj.append({'name':'Host name'});
     obj.append({'name':'IP address'});
-    obj.append({'name':'Port', 'default':'80'});
+    obj.append({'name':'Port',
+                'default':'80'});
     obj.append({'name':'User name'});
     obj.append({'name':'Password'});
-    obj.append({'name':'Polling interval (sec)', 'default':'30'});
-    obj.append({'name':'Retry interval (sec)', 'default':'10'});
+    obj.append({'name':'Polling interval (sec)',
+                'default':'30'});
+    obj.append({'name':'Retry interval (sec)',
+                'default':'10'});
     return obj;
 
 
 def get_hapi_params():
     obj = []
-    obj.append({'name':'Passive mode', 'checkBox':True});
+    obj.append({'name':'Passive mode',
+                'inputStyle':'checkBox'});
     obj.append({'name':'Broker URL',});
     obj.append({'name':'Static queue address',});
     return obj;
@@ -35,7 +39,8 @@ class NagiosParamGenerator:
         obj.append({'name':'Nickname'});
         obj.append({'name':'Host name'});
         obj.append({'name':'IP address'});
-        obj.append({'name':'Port', 'default':'80'});
+        obj.append({'name':'Port',
+                    'default':'0'});
         obj.append({'name':'DB name'});
         obj.append({'name':'User name'});
         obj.append({'name':'Password'});

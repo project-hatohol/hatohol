@@ -36,7 +36,8 @@ var HatoholServerEditDialogParameterized = function(params) {
   }];
 
   // call the constructor of the super class
-  var dialogAttrs = { width: "auto" };
+  //var dialogAttrs = { width: "auto" };
+  var dialogAttrs = { width: 768};
   HatoholDialog.apply(
       this, ["server-edit-dialog", self.windowTitle,
              dialogButtons, dialogAttrs]);
@@ -152,7 +153,9 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
     s += '<div id="add-server-div">';
     s += '  <form class="form-inline">';
     s += '    <label>' + gettext("Server type") + '</label>';
-    s += '    <select id="selectServerType" />';
+    s += '    <select id="selectServerType">';
+    s += '    <option value=undefined>' + gettext('Please select') + '</option>';
+    s += '    </select>';
     s += '  </form>';
     s += '  <form id="add-server-param-form" class="form-horizontal" role="form" />';
     s += '</div>';
@@ -166,15 +169,15 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
   self.fixupApplyButtonState();
 
   $('#selectServerType').change(function() {
-    var type = $("#selectServerType").val();
     $('#add-server-param-form').empty();
+    var type = $("#selectServerType").val();
+    if (type == undefined)
+      return; // We assume 'Please select' is selected.
     setupParametersForms(self.paramArray[type]);
   });
 
   function setupParametersForms(parameters) {
-    console.log(parameters);
     paramObj = JSON.parse(parameters);
-    console.log(paramObj);
     if (!(paramObj instanceof Array)) {
         hatoholErrorMsgBox("[Malformed reply] parameters is not array");
         return;
@@ -182,19 +185,58 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
 
     var s = '';
     for (var i = 0; i < paramObj.length; i++)
-      s += makeFormHTMLOfOneParameter(paramObj[i]);
+      s += makeFormHTMLOfOneParameter(paramObj[i], i);
     $('#add-server-param-form').append(s);
   }
 
-  function makeFormHTMLOfOneParameter(param) {
+  function makeFormHTMLOfOneParameter(param, index) {
     var s = '';
     var label = param.name;
+
+    var defaultValue = '';
+    if (param.default != undefined)
+      defaultValue = param.default
+
+    var inputStyle = param.inputStyle;
+    if (inputStyle == undefined)
+      inputStyle = 'text';
+
+    var id = 'server-edit-dialog-param-form-' + index;
     s += '<div class="form-group">';
-    s += '  <label for="exampleInputPassword1" class="col-sm-4 control-label">' + gettext(label) + '</label>';
-    s += '  <div class="col-sm-8">';
-    s += '    <input type="text" class="form-control" id="exampleInputPassword1" placeholder="">';
-    s += '  </div>'
+    if (inputStyle == 'text') {
+      s += makeTextInput(id, label, defaultValue);
+    } else if (inputStyle == 'checkBox') {
+      s += makeCheckboxInput(id, label);
+    } else {
+      hatoholErrorMsgBox("[Malformed reply] unknown input style: " +
+                         inputStyle);
+      return '';
+    }
     s += '</div>'
+    return s;
+  }
+
+  function makeTextInput(id, label, defaultValue) {
+    s = '';
+    s += '  <label for="' + id  + '" class="col-sm-3 control-label">'
+    s += gettext(label)
+    s += '  </label>';
+    s += '  <div class="col-sm-9">';
+    s += '    <input type="text" class="form-control" id="' + id +
+           '" placeholder="" value="' + defaultValue + '">';
+    s += '  </div>'
+    return s;
+  }
+
+  function makeCheckboxInput(id, label) {
+    s = '';
+    s += '  <div class="col-sm-offset-3 class="col-sm-9">';
+    s += '    <div class="checkbox">';
+    s += '    <label>';
+    s += '      <input type="checkbox" id="' + id + '">' + gettext(label)
+    s += '    </label>';
+    s += '    </div>'
+    s += '  </div>'
     return s;
   }
 };
