@@ -1,0 +1,83 @@
+#!/usr/bin/env python
+
+import hatohol
+import json
+
+def get_zabbix_params():
+    obj = []
+    obj.append({'name':'Nickname'});
+    obj.append({'name':'Host name'});
+    obj.append({'name':'IP adddress'});
+    obj.append({'name':'Port', 'default':'80'});
+    obj.append({'name':'User name'});
+    obj.append({'name':'Password'});
+    obj.append({'name':'Polling interval (sec)', 'default':'30'});
+    obj.append({'name':'Retry interval (sec)', 'default':'10'});
+    return obj;
+
+
+def get_hapi_params():
+    obj = []
+    obj.append({'name':'Passive mode', 'checkBox':True});
+    obj.append({'name':'Broker URL',});
+    obj.append({'name':'Static queue address',});
+    return obj;
+
+
+class ZabbixParamGenerator:
+    def __call__(self):
+        return json.dumps(get_zabbix_params())
+
+
+class NagiosParamGenerator:
+    def __call__(self):
+        obj = []
+        obj.append({'name':'Nickname'});
+        obj.append({'name':'Host name'});
+        obj.append({'name':'IP adddress'});
+        obj.append({'name':'Port', 'default':'80'});
+        obj.append({'name':'DB name'});
+        obj.append({'name':'User name'});
+        obj.append({'name':'Password'});
+        obj.append({'name':'Polling interval (sec)'});
+        obj.append({'name':'Retry interval (sec)'});
+        return json.dumps(obj)
+
+
+class HapiZabbixParamGenerator:
+    def __call__(self):
+        obj = get_zabbix_params()
+        obj.extend(get_hapi_params())
+        return json.dumps(obj)
+
+
+class HapiJSONParamGenerator:
+    def __call__(self):
+        obj = get_zabbix_params()
+        obj.extend(get_hapi_params())
+        return json.dumps(obj)
+
+
+def generate_one_type(table_name, server_type, server_label, generator):
+    line = 'INSERT ' + table_name + ' VALUES ('
+    line += '%d, \'%s\', \'%s\');' % (server_type, server_label, generator())
+    print line
+
+
+def main():
+    table_name = 'server_types'
+    print 'DELETE FROM %s;' % table_name
+    generate_one_type(table_name, hatohol.MONITORING_SYSTEM_ZABBIX, 'Zabbix',
+                      ZabbixParamGenerator());
+    generate_one_type(table_name, hatohol.MONITORING_SYSTEM_NAGIOS, 'Nagios',
+                      NagiosParamGenerator());
+    generate_one_type(table_name, hatohol.MONITORING_SYSTEM_HAPI_ZABBIX,
+                      'Zabbix (HAPI) [experimental]',
+                      HapiZabbixParamGenerator());
+    generate_one_type(table_name, hatohol.MONITORING_SYSTEM_HAPI_JSON,
+                      'JSON (HAPI) [experimental]',
+                      HapiJSONParamGenerator());
+
+
+if __name__ == '__main__':
+    main()
