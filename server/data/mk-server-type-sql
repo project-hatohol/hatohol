@@ -7,7 +7,7 @@ def get_zabbix_params():
     obj = []
     obj.append({'name':'Nickname'});
     obj.append({'name':'Host name'});
-    obj.append({'name':'IP adddress'});
+    obj.append({'name':'IP address'});
     obj.append({'name':'Port', 'default':'80'});
     obj.append({'name':'User name'});
     obj.append({'name':'Password'});
@@ -34,7 +34,7 @@ class NagiosParamGenerator:
         obj = []
         obj.append({'name':'Nickname'});
         obj.append({'name':'Host name'});
-        obj.append({'name':'IP adddress'});
+        obj.append({'name':'IP address'});
         obj.append({'name':'Port', 'default':'80'});
         obj.append({'name':'DB name'});
         obj.append({'name':'User name'});
