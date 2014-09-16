@@ -77,7 +77,6 @@ var HatoholServerEditDialogParameterized = function(params) {
   }
 
   function postAddServer() {
-    // TODO: URL should be changed
     var url = "/server";
     if (self.server)
       url += "/" + self.server.id;
