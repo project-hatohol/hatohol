@@ -28,7 +28,7 @@ var EventsView = function(userProfile, baseElem) {
   self.baseQuery = {
     limit:            50,
     offset:           0,
-    limitOfUnifiedId: 0;
+    limitOfUnifiedId: 0,
     sortType:         "time",
     sortOrder:        hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
   }
