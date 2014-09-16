@@ -476,7 +476,7 @@ void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 {
 	size_t numColumns = insertArg.row->getNumberOfItems();
 	HATOHOL_ASSERT(numColumns == insertArg.tableProfile.numColumns,
-	               "Invalid number of colums: %zd, %zd",
+	               "Invalid number of columns: %zd, %zd",
 	               numColumns, insertArg.tableProfile.numColumns);
 
 	// make a SQL statement
