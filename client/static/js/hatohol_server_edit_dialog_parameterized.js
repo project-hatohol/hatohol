@@ -79,7 +79,6 @@ var HatoholServerEditDialogParameterized = function(params) {
       else
         queryData['_extra'][param.name] = val;
     }
-    console.log(queryData);
     return queryData;
   }
 
