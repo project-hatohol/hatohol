@@ -281,9 +281,6 @@ var EventsView = function(userProfile, baseElem) {
           html += escapeHTML(incident.doneRatio) + "%";
         html += "</td>";
       }
-      /*
-      html += "<td>" + "unsupported" + "</td>";
-      */
       html += "</tr>";
     }
 
