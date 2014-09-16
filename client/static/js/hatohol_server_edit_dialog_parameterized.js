@@ -63,8 +63,16 @@ var HatoholServerEditDialogParameterized = function(params) {
   }
 
   function makeQueryData() {
-    var queryData = {};
-    // TODO: implemnet
+    var paramObj = self.currParamObj;
+    var type = $("#selectServerType").val();
+    var queryData = {'type':type, '_extra':{}};
+    for (var i = 0; i < paramObj.length; i++) {
+      var param = paramObj[i];
+      if (param.class)
+        queryData[param.class] = $('#' + param.id).val();
+      else
+        queryData['_extra'][param.name] = $('#' + param.id).val();
+    }
     return queryData;
   }
 

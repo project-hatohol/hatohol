@@ -5,16 +5,24 @@ import json
 
 def get_zabbix_params():
     obj = []
-    obj.append({'name':'Nickname'});
-    obj.append({'name':'Host name'});
-    obj.append({'name':'IP address'});
+    obj.append({'name':'Nickname',
+                'class':'nickname'});
+    obj.append({'name':'Host name',
+                'class':'hostName'});
+    obj.append({'name':'IP address',
+                'class':'ipAddress'});
     obj.append({'name':'Port',
+                'class':'port',
                 'default':'80'});
-    obj.append({'name':'User name'});
-    obj.append({'name':'Password'});
+    obj.append({'name':'User name',
+                'class':'userName'});
+    obj.append({'name':'Password',
+                'class':'password'});
     obj.append({'name':'Polling interval (sec)',
+                'class':'pollingInterval',
                 'default':'30'});
     obj.append({'name':'Retry interval (sec)',
+                'class':'retryInterval',
                 'default':'10'});
     return obj;
 
@@ -22,11 +30,14 @@ def get_zabbix_params():
 def get_hapi_params():
     obj = []
     obj.append({'name':'Passive mode',
+                'class':'passiveMode',
                 'inputStyle':'checkBox'});
     obj.append({'name':'Broker URL',
+                'class':'brokerUrl',
                 'allowEmpty':True,
                 'hint':'(empty: Default)'});
     obj.append({'name':'Static queue address',
+                'class':'staticQueueAddress',
                 'allowEmpty':True,
                 'hint':'(empty: Default)'});
     return obj;
@@ -40,16 +51,25 @@ class ZabbixParamGenerator:
 class NagiosParamGenerator:
     def __call__(self):
         obj = []
-        obj.append({'name':'Nickname'});
-        obj.append({'name':'Host name'});
-        obj.append({'name':'IP address'});
+        obj.append({'name':'Nickname',
+                    'class':'nickname'});
+        obj.append({'name':'Host name',
+                    'class':'hostName'});
+        obj.append({'name':'IP address',
+                    'class':'ipAddress'});
         obj.append({'name':'Port',
+                    'class':'port',
                     'default':'0'});
-        obj.append({'name':'DB name'});
-        obj.append({'name':'User name'});
-        obj.append({'name':'Password'});
-        obj.append({'name':'Polling interval (sec)'});
-        obj.append({'name':'Retry interval (sec)'});
+        obj.append({'name':'DB name',
+                    'class':'dbName'});
+        obj.append({'name':'User name',
+                    'class':'userName'});
+        obj.append({'name':'Password',
+                    'class':'password'});
+        obj.append({'name':'Polling interval (sec)',
+                    'class':'pollingInterval'});
+        obj.append({'name':'Retry interval (sec)',
+                    'class':'retryInterval'});
         return json.dumps(obj)
 
 
