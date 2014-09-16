@@ -233,4 +233,40 @@ describe('getTriggerBrief', function() {
   });
 });
 
+describe('deparam', function() {
+  it('1 param', function() {
+    var query = "limit=10";
+    var expected = {
+      limit: '10',
+    };
+    expect(deparam(query)).eql(expected);
+  });
+
+  it('empty value', function() {
+    var query = "limit=&offset=20";
+    var expected = {
+      'limit': undefined,
+      'offset': '20',
+    };
+    expect(deparam(query)).eql(expected);
+  });
+
+  it('empty key', function() {
+    var query = "=10&offset=20";
+    var expected = {
+      'offset': '20',
+    };
+    expect(deparam(query)).eql(expected);
+  });
+
+  it('decode', function() {
+    var query = "f%5B%5D=status&offset=%3E20";
+    var expected = {
+      'f[]': 'status',
+      'offset': '>20',
+    };
+    expect(deparam(query)).eql(expected);
+  });
+});
+
 });
