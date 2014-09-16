@@ -143,8 +143,9 @@ var EventsView = function(userProfile, baseElem) {
       var params = {
         items: {'num-events-per-page': val},
         successCallback: function(){ /* we just ignore it */ },
-        connectErrorCallback: function() {
-          // TODO: show an error message
+        connectErrorCallback: function(XMLHttpRequest, textStatus,
+				       errorThrown) {
+          showXHRError(XMLHttpRequest);
         },
       };
       self.userConfig.store(params);
