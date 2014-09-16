@@ -25,13 +25,13 @@ var EventsView = function(userProfile, baseElem) {
   self.limitOfUnifiedId = 0;
   self.rawData = {};
   self.durations = {};
-  self.baseQuery = $.extend({
+  self.baseQuery = {
     limit:            50,
     offset:           0,
     limitOfUnifiedId: 0,
     sortType:         "time",
     sortOrder:        hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
-  }, getEventsQueryInURI());
+  };
   self.lastQuery = undefined;
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];
@@ -43,7 +43,6 @@ var EventsView = function(userProfile, baseElem) {
   HatoholMonitoringView.apply(this, [userProfile]);
 
   self.userConfig = new HatoholUserConfig(); 
-  setupFilterValues();
   start();
 
   //
@@ -62,7 +61,6 @@ var EventsView = function(userProfile, baseElem) {
         self.baseQuery.sortOrder =
           self.userConfig.findOrDefault(conf, 'event-sort-order',
                                         self.baseQuery.sortOrder);
-        $.extend(self.baseQuery, getEventsQueryInURI());
         setupFilterValues();
         setupCallbacks();
         load();
@@ -110,6 +108,8 @@ var EventsView = function(userProfile, baseElem) {
       offset:           self.baseQuery.limit * self.currentPage,
       limitOfUnifiedId: self.limitOfUnifiedId,
     });
+    if (!self.lastQuery)
+      $.extend(query, getEventsQueryInURI());
     self.lastQuery = query;
 
     return 'events?' + $.param(query);
@@ -319,7 +319,7 @@ var EventsView = function(userProfile, baseElem) {
     self.rawData = reply;
     self.durations = parseData(self.rawData);
 
-    setupFilterValues(self.rawData["servers"]);
+    setupFilterValues();
     drawTableContents();
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
