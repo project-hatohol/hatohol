@@ -157,11 +157,10 @@ var OverviewItems = function(userProfile) {
   }
 
   function getQuery() {
-    var query = {
+    var query = $.extend(self.getHostFilterQuery(), {
       maximumNumber: 0,
       offset:        0
-    };
-    self.addHostQuery(query);
+    });
     return 'item?' + $.param(query);
   };
 

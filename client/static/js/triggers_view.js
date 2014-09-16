@@ -190,13 +190,12 @@ var TriggersView = function(userProfile) {
   function getQuery(page) {
     if (isNaN(page))
       page = 0;
-    var query = {
+    var query = $.extend(self.getHostFilterQuery(), {
       minimumSeverity: $("#select-severity").val(),
       status:          $("#select-status").val(),
       limit:           self.pager.numRecordsPerPage,
       offset:          self.pager.numRecordsPerPage * page
-    };
-    self.addHostQuery(query);
+    });
     return 'trigger?' + $.param(query);
   };
 

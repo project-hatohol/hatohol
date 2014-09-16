@@ -193,11 +193,10 @@ var LatestView = function(userProfile) {
   function getQuery(page) {
     if (isNaN(page))
       page = 0;
-    var query = {
+    var query = $.extend(self.getHostFilterQuery(), {
       limit:  self.pager.numRecordsPerPage,
       offset: self.pager.numRecordsPerPage * page
-    };
-    self.addHostQuery(query);
+    });
     return 'item?' + $.param(query);
   };
 

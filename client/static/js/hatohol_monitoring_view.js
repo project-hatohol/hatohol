@@ -178,16 +178,18 @@ HatoholMonitoringView.prototype.setHostFilterCandidates =
   $(selectorId).val(current);
 };
 
-HatoholMonitoringView.prototype.addHostQuery = function(query) {
-    var serverId = this.getTargetServerId();
-    var hostgroupId = this.getTargetHostgroupId();
-    var hostId = this.getTargetHostId();
-    if (serverId)
-      query.serverId = serverId;
-    if (hostgroupId)
-      query.hostgroupId = hostgroupId;
-    if (hostId)
-      query.hostId = hostId;
+HatoholMonitoringView.prototype.getHostFilterQuery = function() {
+  var query = {};
+  var serverId = this.getTargetServerId();
+  var hostgroupId = this.getTargetHostgroupId();
+  var hostId = this.getTargetHostId();
+  if (serverId)
+    query.serverId = serverId;
+  if (hostgroupId)
+    query.hostgroupId = hostgroupId;
+  if (hostId)
+    query.hostId = hostId;
+  return query;
 };
 
 HatoholMonitoringView.prototype.setupHostQuerySelectorCallback =

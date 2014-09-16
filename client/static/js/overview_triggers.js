@@ -180,13 +180,12 @@ var OverviewTriggers = function(userProfile) {
   }
 
   function getQuery() {
-    var query = {
+    var query = $.extend(self.getHostFilterQuery(), {
       minimumSeverity: $("#select-severity").val(),
       status:          $("#select-status").val(),
       maximumNumber:   0,
       offset:          0
-    };
-    self.addHostQuery(query);
+    });
     return 'trigger?' + $.param(query);
   };
 

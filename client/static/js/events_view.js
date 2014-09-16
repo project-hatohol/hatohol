@@ -85,13 +85,12 @@ var EventsView = function(userProfile, baseElem) {
       self.limitOfUnifiedId = 0;
     }
 
-    var query = $.extend(self.baseQuery, {
+    var query = $.extend(self.baseQuery, self.getHostFilterQuery(), {
       minimumSeverity:  $("#select-severity").val(),
       status:           $("#select-status").val(),
       offset:           self.baseQuery.limit * self.currentPage,
       limitOfUnifiedId: self.limitOfUnifiedId,
     });
-    self.addHostQuery(query);
 
     return 'events?' + $.param(query);
   };
