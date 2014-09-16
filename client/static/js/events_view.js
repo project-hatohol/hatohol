@@ -101,7 +101,7 @@ var EventsView = function(userProfile, baseElem) {
       self.limitOfUnifiedId = 0;
     }
 
-    var query = $.extend(self.baseQuery, self.getHostFilterQuery(), {
+    var query = $.extend({}, self.baseQuery, self.getHostFilterQuery(), {
       minimumSeverity:  $("#select-severity").val(),
       status:           $("#select-status").val(),
       offset:           self.baseQuery.limit * self.currentPage,
