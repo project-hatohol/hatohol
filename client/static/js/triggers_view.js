@@ -155,14 +155,8 @@ var TriggersView = function(userProfile) {
         status_choices[Number(status)] + "</td>";
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
         formatDate(clock) + "</td>";
-      /* Not supported yet
-      html += "<td>" + "unsupported" + "</td>";
-      html += "<td>" + "unsupported" + "</td>";
-      */
       html += "<td>" + escapeHTML(hostName) + "</td>";
       html += "<td>" + escapeHTML(trigger["brief"]) + "</td>";
-      // Not supported yet
-      //html += "<td>" + "unsupported" + "</td>";
       html += "</tr>";
     }
 
