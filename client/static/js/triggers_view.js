@@ -32,7 +32,6 @@ var TriggersView = function(userProfile) {
   start();
 
   function start() {
-    var numRecordsPerPage;
     self.userConfig.get({
       itemNames:['num-triggers-per-page'],
       successCallback: function(conf) {
