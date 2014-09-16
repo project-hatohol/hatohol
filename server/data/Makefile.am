@@ -5,7 +5,7 @@ sql_DATA = \
 sqldir = $(pkgdatadir)/sql
 
 server-type.sql: mk-server-type-sql
-	PYTHONPATH=../tools mk-server-type-sql > $@
+	PYTHONPATH=../tools ./mk-server-type-sql > $@
 
 pkgsysconf_DATA = \
 	hatohol.conf
