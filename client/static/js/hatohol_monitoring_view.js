@@ -334,15 +334,14 @@ HatoholMonitoringView.prototype.setupCheckboxForDelete =
 
 HatoholMonitoringView.prototype.setupHostFilters = function(servers, query) {
   this.setServerFilterCandidates(servers);
-  if (query && ("serverId" in query)) {
+  if (query && ("serverId" in query))
     $("#select-server").val(query.serverId);
-    this.setHostgroupFilterCandidates(servers, query.serverId);
-    this.setHostFilterCandidates(servers, query.serverId);
-  }
 
+  this.setHostgroupFilterCandidates(servers);
   if (query && ("hostgroupId" in query))
     $("#select-host-group").val(query.hostgroupId);
 
+  this.setHostFilterCandidates(servers);
   if (query && ("hostId" in query))
     $("#select-host").val(query.hostId);
 };
