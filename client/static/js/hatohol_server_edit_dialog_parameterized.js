@@ -173,7 +173,8 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
     var type = $("#selectServerType").val();
     if (type == undefined)
       return; // We assume 'Please select' is selected.
-    setupParametersForms(self.paramArray[type]);
+    var paramObj = setupParametersForms(self.paramArray[type]);
+    self.currParamObj = paramObj;
   });
 
   function setupParametersForms(parameters) {
@@ -187,6 +188,14 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
     for (var i = 0; i < paramObj.length; i++)
       s += makeFormHTMLOfOneParameter(paramObj[i], i);
     $('#add-server-param-form').append(s);
+
+    // set events to fix up state of 'apply' button
+    for (var i = 0; i < paramObj.length; i++) {
+      $('#' + paramObj[i].id).keyup(function() {
+        self.fixupApplyButtonState();
+      });
+    }
+    return paramObj;
   }
 
   function makeFormHTMLOfOneParameter(param, index) {
@@ -202,6 +211,7 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
       inputStyle = 'text';
 
     var id = 'server-edit-dialog-param-form-' + index;
+    param.id = id;
     s += '<div class="form-group">';
     if (inputStyle == 'text') {
       s += makeTextInput(id, label, defaultValue);
@@ -254,9 +264,20 @@ HatoholServerEditDialogParameterized.prototype.setApplyButtonState = function(st
 };
 
 HatoholServerEditDialogParameterized.prototype.fixupApplyButtonState = function(enable) {
-  // TODO: implement
-  var state = false;
-  this.setApplyButtonState(state);
+  var self = this;
+
+  if (!self.currParamObj)
+    return;
+  var paramObj = self.currParamObj;
+
+  var i = 0;
+  for (i = 0; i < paramObj.length; i++) {
+     var param = paramObj[i];
+     if (!$('#' + param.id).val())
+       break;
+  }
+  var state = (i == paramObj.length);
+  self.setApplyButtonState(state);
 };
 
 HatoholServerEditDialogParameterized.prototype.setServer = function(server) {
