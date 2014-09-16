@@ -22,9 +22,16 @@ var EventsView = function(userProfile, baseElem) {
   self.baseElem = baseElem;
   self.reloadIntervalSeconds = 60;
   self.currentPage = 0;
-  self.limiOfUnifiedId = 0;
+  self.limitOfUnifiedId = 0;
   self.rawData = {};
   self.durations = {};
+  self.baseQuery = {
+    limit:            50,
+    offset:           0,
+    limitOfUnifiedId: 0;
+    sortType:         "time",
+    sortOrder:        hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
+  }
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];
   var severity_choices = [
@@ -41,21 +48,18 @@ var EventsView = function(userProfile, baseElem) {
   // Private functions 
   //
   function start() {
-    var DEFAULT_NUM_EVENTS_PER_PAGE = 50;
-    var DEFAULT_SORT_TYPE = "time";
-    var DEFAULT_SORT_ORDER = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
     self.userConfig.get({
       itemNames:['num-events-per-page', 'event-sort-order'],
       successCallback: function(conf) {
-        self.numEventsPerPage =
+        self.baseQuery.limit =
           self.userConfig.findOrDefault(conf, 'num-events-per-page',
-                                        DEFAULT_NUM_EVENTS_PER_PAGE);
-        self.sortType = 
+                                        self.baseQuery.limit);
+        self.baseQuery.sortType = 
           self.userConfig.findOrDefault(conf, 'event-sort-type',
-                                        DEFAULT_SORT_TYPE);
-        self.sortOrder = 
+                                        self.baseQuery.sortType);
+        self.baseQuery.sortOrder = 
           self.userConfig.findOrDefault(conf, 'event-sort-order',
-                                        DEFAULT_SORT_ORDER);
+                                        self.baseQuery.sortOrder);
         setupCallbacks();
         load();
       },
@@ -81,14 +85,12 @@ var EventsView = function(userProfile, baseElem) {
       self.limitOfUnifiedId = 0;
     }
 
-    var query = {
-      minimumSeverity: $("#select-severity").val(),
-      status:          $("#select-status").val(),
-      limit:           self.numEventsPerPage,
-      offset:          self.numEventsPerPage * self.currentPage,
-      sortType:        self.sortType,
-      sortOrder:       self.sortOrder
-    };
+    var query = $.extend(self.baseQuery, {
+      minimumSeverity:  $("#select-severity").val(),
+      status:           $("#select-status").val(),
+      offset:           self.baseQuery.limit * self.currentPage,
+      limitOfUnifiedId: self.limitOfUnifiedId,
+    });
     self.addHostQuery(query);
 
     return 'events?' + $.param(query);
@@ -115,13 +117,13 @@ var EventsView = function(userProfile, baseElem) {
     self.setupHostQuerySelectorCallback(
       load, '#select-server', '#select-host-group', '#select-host');
 
-    $('#num-events-per-page').val(self.numEventsPerPage);
+    $('#num-events-per-page').val(self.baseQuery.limit);
     $('#num-events-per-page').change(function() {
       var val = parseInt($('#num-events-per-page').val());
       if (!isFinite(val))
-        val = self.numEventsPerPage;
+        val = self.baseQuery.limit;
       $('#num-events-per-page').val(val);
-      self.numEventsPerPage = val;
+      self.baseQuery.limit = val;
 
       var params = {
         items: {'num-events-per-page': val},
