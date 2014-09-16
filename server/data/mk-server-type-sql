@@ -23,8 +23,10 @@ def get_hapi_params():
     obj = []
     obj.append({'name':'Passive mode',
                 'inputStyle':'checkBox'});
-    obj.append({'name':'Broker URL',});
-    obj.append({'name':'Static queue address',});
+    obj.append({'name':'Broker URL',
+                'allowEmpty':True});
+    obj.append({'name':'Static queue address',
+                'allowEmpty':True});
     return obj;
 
 
