@@ -60,6 +60,7 @@ var EventsView = function(userProfile, baseElem) {
         self.baseQuery.sortOrder =
           self.userConfig.findOrDefault(conf, 'event-sort-order',
                                         self.baseQuery.sortOrder);
+        $.extend(self.baseQuery, getEventsQueryInURI());
         setupCallbacks();
         load();
       },
@@ -73,6 +74,21 @@ var EventsView = function(userProfile, baseElem) {
     var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
       XMLHttpRequest.statusText;
     hatoholErrorMsgBox(errorMsg);
+  }
+
+  function getEventsQueryInURI() {
+    var knownKeys = [
+      "serverId", "hostgroupId", "hostId",
+      "limit", "offset", "limitOfUnifiedId",
+      "sortType", "sortOrder",
+      "minimumSeverity", "status", "triggerId",
+    ];
+    var i, allParams = deparam(), query = {};
+    for (i = 0; i < knownKeys.length; i++) {
+      if (knownKeys[i] in allParams)
+        query[knownKeys[i]] = allParams[knownKeys[i]];
+    }
+    return query;
   }
 
   function getQuery(loadNextPage) {
