@@ -31,7 +31,7 @@ var EventsView = function(userProfile, baseElem) {
     limitOfUnifiedId: 0,
     sortType:         "time",
     sortOrder:        hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
-  }
+  };
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];
   var severity_choices = [
@@ -54,10 +54,10 @@ var EventsView = function(userProfile, baseElem) {
         self.baseQuery.limit =
           self.userConfig.findOrDefault(conf, 'num-events-per-page',
                                         self.baseQuery.limit);
-        self.baseQuery.sortType = 
+        self.baseQuery.sortType =
           self.userConfig.findOrDefault(conf, 'event-sort-type',
                                         self.baseQuery.sortType);
-        self.baseQuery.sortOrder = 
+        self.baseQuery.sortOrder =
           self.userConfig.findOrDefault(conf, 'event-sort-order',
                                         self.baseQuery.sortOrder);
         setupCallbacks();
