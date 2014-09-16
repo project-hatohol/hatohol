@@ -209,6 +209,6 @@ function getTriggerBrief(server, triggerId) {
   return triggerName;
 }
 
-var escapeHTML = function(html) {
+function escapeHTML(html) {
   return $('<div/>').text(html).html();
 };
