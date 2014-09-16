@@ -131,7 +131,7 @@ bool Utils::validateJSMethodName(const string &name, string &errorMessage)
 		if (g_jsMethodValidCodeMap[code])
 			continue;
 		errorMessage = StringUtils::sprintf(
-		  "invalid charactor code: %02x at index: %zd", code, i);
+		  "invalid character code: %02x at index: %zd", code, i);
 		return false;
 	}
 
