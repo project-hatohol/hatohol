@@ -35,31 +35,22 @@ var HatoholMonitoringView = function(userProfile) {
   self.userProfile = userProfile;
 };
 
-HatoholMonitoringView.prototype.getTargetServerId = function(selectorId) {
-  var id;
-  if (!selectorId)
-    selectorId = "#select-server";
-  id = $(selectorId).val();
+HatoholMonitoringView.prototype.getTargetServerId = function() {
+  var id = $("#select-server").val();
   if (id == "---------")
     id = null;
   return id;
 };
 
-HatoholMonitoringView.prototype.getTargetHostgroupId = function(selectorId) {
-  var id;
-  if (!selectorId)
-    selectorId = "#select-host-group";
-  id = $("#select-host-group").val();
+HatoholMonitoringView.prototype.getTargetHostgroupId = function() {
+  var id = $("#select-host-group").val();
   if (id == "---------")
     id = null;
   return id;
 };
 
-HatoholMonitoringView.prototype.getTargetHostId = function(selectorId) {
-  var id;
-  if (!selectorId)
-    selectorId = "#select-host";
-  id = $("#select-host").val();
+HatoholMonitoringView.prototype.getTargetHostId = function() {
+  var id = $("#select-host").val();
   if (id == "---------")
     id = null;
   return id;
@@ -102,13 +93,12 @@ HatoholMonitoringView.prototype.compareFilterLabel = function(a, b) {
   return 0;
 };
 
-HatoholMonitoringView.prototype.setServerFilterCandidates =
-  function(servers, selectorId)
+HatoholMonitoringView.prototype.setServerFilterCandidates = function(servers)
 {
   var id, serverLabels = [], current;
-  if (!selectorId)
-    selectorId = '#select-server';
-  current = $(selectorId).val();
+  var serverSelector = $('#select-server');
+
+  current = serverSelector.val();
   for (id in servers) {
     serverLabels.push({
       label: getServerName(servers[id], id),
@@ -116,22 +106,21 @@ HatoholMonitoringView.prototype.setServerFilterCandidates =
     });
   }
   serverLabels.sort(this.compareFilterLabel);
-  this.setFilterCandidates($(selectorId), serverLabels);
-  $(selectorId).val(current);
+  this.setFilterCandidates(serverSelector, serverLabels);
+  serverSelector.val(current);
 };
 
 HatoholMonitoringView.prototype.setHostgroupFilterCandidates =
-  function(servers, serverId, selectorId)
+  function(servers, serverId)
 {
   var id, server, groups, groupLabels = [], current;
+  var groupSelector =$( '#select-host-group');
 
-  if (!selectorId)
-    selectorId = '#select-host-group';
-  current = $(selectorId).val();
+  current = groupSelector.val();
   if (!serverId)
     serverId = this.getTargetServerId();
 
-  this.setFilterCandidates($(selectorId));
+  this.setFilterCandidates(groupSelector);
 
   if (!servers || !servers[serverId])
     return;
@@ -145,22 +134,21 @@ HatoholMonitoringView.prototype.setHostgroupFilterCandidates =
     });
   }
   groupLabels.sort(this.compareFilterLabel);
-  this.setFilterCandidates($(selectorId), groupLabels);
-  $(selectorId).val(current);
+  this.setFilterCandidates(groupSelector, groupLabels);
+  groupSelector.val(current);
 };
 
 HatoholMonitoringView.prototype.setHostFilterCandidates =
-  function(servers, serverId, selectorId)
+  function(servers, serverId)
 {
   var id, server, hosts, hostLabels = [], current;
+  var hostSelector = $('#select-host');
 
-  if (!selectorId)
-    selectorId = '#select-host';
-  current = $(selectorId).val();
+  current = hostSelector.val();
   if (!serverId)
     serverId = this.getTargetServerId();
 
-  this.setFilterCandidates($(selectorId));
+  this.setFilterCandidates(hostSelector);
 
   if (!servers || !servers[serverId])
     return;
@@ -174,8 +162,8 @@ HatoholMonitoringView.prototype.setHostFilterCandidates =
     });
   }
   hostLabels.sort(this.compareFilterLabel);
-  this.setFilterCandidates($(selectorId), hostLabels);
-  $(selectorId).val(current);
+  this.setFilterCandidates(hostSelector, hostLabels);
+  hostSelector.val(current);
 };
 
 HatoholMonitoringView.prototype.getHostFilterQuery = function() {
@@ -343,4 +331,3 @@ HatoholMonitoringView.prototype.setupCheckboxForDelete =
     $(".delete-selector").show();
   }
 };
-
