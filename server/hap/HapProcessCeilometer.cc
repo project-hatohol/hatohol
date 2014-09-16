@@ -287,6 +287,7 @@ HatoholError HapProcessCeilometer::sendHttpRequest(HttpRequestArg &arg)
 	}
 	SoupSession *session = soup_session_sync_new();
 	guint ret = soup_session_send_message(session, msg);
+	g_object_unref(session);
 	if (ret != SOUP_STATUS_OK) {
 		MLPL_ERR("Failed to connect: (%d) %s, URL: %s\n",
 		         ret, soup_status_get_phrase(ret), url.c_str());
