@@ -68,11 +68,19 @@ var HatoholServerEditDialogParameterized = function(params) {
     var queryData = {'type':type, '_extra':{}};
     for (var i = 0; i < paramObj.length; i++) {
       var param = paramObj[i];
-      if (param.class)
-        queryData[param.class] = $('#' + param.id).val();
+
+      var val;
+      if (param.inputStyle == 'checkBox')
+        val = $('#' + param.id).prop('checked');
       else
-        queryData['_extra'][param.name] = $('#' + param.id).val();
+        val = $('#' + param.id).val();
+
+      if (param.class)
+        queryData[param.class] = val;
+      else
+        queryData['_extra'][param.name] = val;
     }
+    console.log(queryData);
     return queryData;
   }
 
