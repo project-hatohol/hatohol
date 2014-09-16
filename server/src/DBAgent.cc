@@ -106,7 +106,7 @@ DBAgent::TableProfile::TableProfile(
 	}
 
 	HATOHOL_ASSERT(numUniqueKeys <= 1,
-	               "The number of unqiue keys must be 0 or 1: %zd\n",
+	               "The number of unique keys must be 0 or 1: %zd\n",
 	               numUniqueKeys);
 }
 
