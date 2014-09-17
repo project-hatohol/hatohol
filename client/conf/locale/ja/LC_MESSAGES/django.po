@@ -45,7 +45,7 @@ msgstr "ホストグループ"
 
 #: viewer/actions_ajax.html:58 viewer/incident_settings_ajax.html:61
 msgid "Trigger"
-msgstr "トリガー"
+msgstr "トリガ"
 
 #: viewer/actions_ajax.html:59 viewer/events_ajax.html:71
 #: viewer/incident_settings_ajax.html:62 viewer/triggers_ajax.html:68
@@ -331,7 +331,7 @@ msgstr "概要:アイテム"
 
 #: viewer/overview_triggers_ajax.html:24 viewer/overview_triggers_ajax.html:29
 msgid "Overview : Triggers"
-msgstr "概要:トリガー"
+msgstr "概要:トリガ"
 
 #: viewer/servers_ajax.html:24 viewer/servers_ajax.html.py:29
 msgid "Servers"
@@ -359,11 +359,11 @@ msgstr ""
 
 #: viewer/triggers_ajax.html:24 viewer/triggers_ajax.html.py:29
 msgid "Triggers"
-msgstr "トリガー"
+msgstr "トリガ"
 
 #: viewer/triggers_ajax.html:59
 msgid "# of triggers per page"
-msgstr "ページ毎のトリガー数"
+msgstr "ページ毎のトリガ数"
 
 #: viewer/triggers_ajax.html:69
 msgid "Last change"
@@ -429,7 +429,7 @@ msgstr "権限"
 #~ msgstr "アイテム数"
 
 #~ msgid "Number of triggers [with problem]"
-#~ msgstr "トリガー数 [障害あり]"
+#~ msgstr "トリガ数 [障害あり]"
 
 #~ msgid "Number of users [Online]"
 #~ msgstr "ユーザ数 [オンライン]"
