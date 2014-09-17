@@ -1653,7 +1653,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	}
 
 	// Condition
-	DBAgent::SelectExArg &arg = builder.getSelectExArg();
+	DBAgent::SelectExArg &arg = builder.build();
 
 	string optCond;
 	arg.condition.swap(optCond); // option.getCondition() must be set.
