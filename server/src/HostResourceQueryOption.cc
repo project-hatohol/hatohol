@@ -448,8 +448,6 @@ string HostResourceQueryOption::getFromClauseForOneTable(void) const
 string HostResourceQueryOption::getFromClauseWithHostgroup(void) const
 {
 	const Synapse &synapse = m_impl->synapse;
-	const ColumnDef *hgrpColumnDefs =
-	  synapse.hostgroupMapTableProfile.columnDefs;
 
 	return StringUtils::sprintf(
 	  "%s %s",
