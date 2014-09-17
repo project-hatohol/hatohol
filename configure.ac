@@ -102,6 +102,14 @@ fi
 AM_CONDITIONAL([HAVE_LIBRABBITMQ], [test "$have_librabbitmq" = "yes"])
 
 dnl **************************************************************
+dnl Checks for libdl
+dnl **************************************************************
+
+DL_FUNCTIONS="[dlopen, dlclose, dlerror, dlsym]"
+AC_CHECK_LIB([dl], $DL_FUNCTIONS, [],
+  [AC_MSG_ERROR([Could not found '$DL_FUNCTIONS' in dlfcn.h.])])
+
+dnl **************************************************************
 dnl Checks for MySQL
 dnl **************************************************************
 AC_CHECK_PROGS(MYSQL_CONFIG, mysql_config)
