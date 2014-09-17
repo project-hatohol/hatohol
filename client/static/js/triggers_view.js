@@ -26,6 +26,7 @@ var TriggersView = function(userProfile) {
     limit: 50,
   };
   $.extend(self.baseQuery, getTriggersQueryInURI());
+  self.lastQuery = undefined;
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -103,7 +104,7 @@ var TriggersView = function(userProfile) {
       servers = rawData.servers;
 
     if (!query)
-      query = self.baseQuery;
+      query = self.lastQuery ? self.lastQuery : self.baseQuery;
 
     self.setupHostFilters(servers, query);
 
@@ -219,11 +220,14 @@ var TriggersView = function(userProfile) {
   function getQuery(page) {
     if (isNaN(page))
       page = 0;
-    var query = $.extend({}, self.baseQuery, self.getHostFilterQuery(), {
+    var query = $.extend({}, self.baseQuery, {
       minimumSeverity: $("#select-severity").val(),
       status:          $("#select-status").val(),
       offset:          self.baseQuery.limit * page
     });
+    if (self.lastQuery)
+      $.extend(query, self.getHostFilterQuery());
+    self.lastQuery = query;
     return 'trigger?' + $.param(query);
   };
 
