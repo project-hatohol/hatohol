@@ -133,8 +133,11 @@ DBAgent::SelectExArg &DBClientJoinBuilder::getSelectExArg(void)
 	const HostResourceQueryOption *hrqOption =
 	  dynamic_cast<const HostResourceQueryOption *>(m_impl->option);
 	if (hrqOption) {
-		m_impl->selectExArg.tableField += " ";
-		m_impl->selectExArg.tableField += hrqOption->getJoinClause();
+		string clause = hrqOption->getJoinClause();
+		if (!clause.empty()) {
+			m_impl->selectExArg.tableField += " ";
+			m_impl->selectExArg.tableField += clause;
+		}
 	}
 	return m_impl->selectExArg;
 }
