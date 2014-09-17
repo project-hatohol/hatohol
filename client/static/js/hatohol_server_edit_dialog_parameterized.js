@@ -188,10 +188,10 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
         return;
     }
 
-    var s = '';
-    for (var i = 0; i < paramObj.length; i++)
-      s += makeFormHTMLOfOneParameter(paramObj[i], i);
-    $('#add-server-param-form').append(s);
+    for (var i = 0; i < paramObj.length; i++) {
+      var elem = makeFormOfOneParameter(paramObj[i], i);
+      $('#add-server-param-form').append(elem);
+    }
 
     // set events to fix up state of 'apply' button
     for (var i = 0; i < paramObj.length; i++) {
@@ -202,8 +202,7 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
     return paramObj;
   }
 
-  function makeFormHTMLOfOneParameter(param, index) {
-    var s = '';
+  function makeFormOfOneParameter(param, index) {
     var label = param.name;
 
     var defaultValue = '';
@@ -220,42 +219,40 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
 
     var id = 'server-edit-dialog-param-form-' + index;
     param.id = id;
-    s += '<div class="form-group">';
+    var div = $('<div class="form-group">');
     if (inputStyle == 'text') {
-      s += makeTextInput(id, label, defaultValue, hint);
+      div.append(makeTextInput(id, label, defaultValue, hint));
     } else if (inputStyle == 'checkBox') {
-      s += makeCheckboxInput(id, label, hint);
+      div.append(makeCheckboxInput(id, label, hint));
     } else {
       hatoholErrorMsgBox("[Malformed reply] unknown input style: " +
                          inputStyle);
-      return '';
     }
-    s += '</div>'
-    return s;
+    return div;
   }
 
   function makeTextInput(id, label, defaultValue, hint) {
-    s = '';
-    s += '  <label for="' + id  + '" class="col-sm-3 control-label">'
-    s += gettext(label)
-    s += '  </label>';
-    s += '  <div class="col-sm-9">';
-    s += '    <input type="text" class="form-control" id="' + id +
-           '" placeholder="' + hint + '" value="' + defaultValue + '">';
-    s += '  </div>'
-    return s;
+    var elem = $('<div>');
+    var labelEl = $('<label for="' + id  + '" class="col-sm-3 control-label">');
+    labelEl.appendTo(elem);
+    labelEl.text(gettext(label));
+
+    var div = $('<div class="col-sm-9">').appendTo(elem);
+    var input = $('<input type="text" class="form-control" id="' + id + '">');
+    input.appendTo(div);
+    input.attr('placeholder', hint);
+    input.val(defaultValue);
+
+    return elem;
   }
 
   function makeCheckboxInput(id, label) {
-    s = '';
-    s += '  <div class="col-sm-offset-3 class="col-sm-9">';
-    s += '    <div class="checkbox">';
-    s += '    <label>';
-    s += '      <input type="checkbox" id="' + id + '">' + gettext(label)
-    s += '    </label>';
-    s += '    </div>'
-    s += '  </div>'
-    return s;
+    var div = $('<div class="col-sm-offset-3 class="col-sm-9">');
+    var divCheckbox = $('<div class="checkbox">').appendTo(div);
+    var labelEl = $('<label>').appendTo(divCheckbox);
+    labelEl.text(gettext(label));
+    var input = $('<input type="checkbox" id="' + id + '">').appendTo(labelEl);
+    return div;
   }
 };
 
