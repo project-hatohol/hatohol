@@ -211,7 +211,7 @@ string HostResourceQueryOption::getJoinClause(void) const
 	  synapse.hostgroupMapTableProfile.columnDefs;
 
 	return StringUtils::sprintf(
-	  " INNER JOIN %s ON ((%s=%s.%s) AND (%s=%s.%s))",
+	  "INNER JOIN %s ON ((%s=%s.%s) AND (%s=%s.%s))",
 	  synapse.hostgroupMapTableProfile.name,
 
 	  getServerIdColumnName().c_str(),
