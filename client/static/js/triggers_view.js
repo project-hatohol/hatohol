@@ -22,7 +22,6 @@ var TriggersView = function(userProfile) {
   var rawData;
 
   self.reloadIntervalSeconds = 60;
-  self.numRecordsPerPage = 50;
   self.baseQuery = {
     limit: 50,
   };
