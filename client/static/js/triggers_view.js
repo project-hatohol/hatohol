@@ -205,7 +205,7 @@ var TriggersView = function(userProfile) {
   function getTriggersQueryInURI() {
     var knownKeys = [
       "serverId", "hostgroupId", "hostId",
-      "limit", "offset", "sortType", "sortOrder",
+      "limit", "offset",
       "minimumSeverity", "status",
     ];
     var i, allParams = deparam(), query = {};
