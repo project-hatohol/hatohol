@@ -268,6 +268,17 @@ void test_getServerType(void)
 	}
 }
 
+void test_getServerTypeExpectFalse(void)
+{
+	loadTestDBServerType();
+
+	const MonitoringSystemType type =
+	  static_cast<MonitoringSystemType>(NumTestServerTypeInfo);
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	ServerTypeInfo actual;
+	cppcut_assert_equal(false, dbConfig.getServerType(actual, type));
+}
+
 void test_createTableServers(void)
 {
 	const string tableName = "servers";
