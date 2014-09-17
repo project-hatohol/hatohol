@@ -867,7 +867,7 @@ void initEventInfo(EventInfo &eventInfo)
 	eventInfo.triggerId = 0;
 	eventInfo.status = TRIGGER_STATUS_UNKNOWN;
 	eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
-	eventInfo.hostId = 0;
+	eventInfo.hostId = INVALID_HOST_ID;
 }
 
 // ---------------------------------------------------------------------------
