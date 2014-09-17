@@ -825,6 +825,27 @@ void DBTablesConfig::registerServerType(const ServerTypeInfo &serverType)
 	getDBAgent().runTransaction(arg, &id);
 }
 
+string DBTablesConfig::getDefaultPluginPath(const MonitoringSystemType &type)
+{
+	// TODO: these should be defined in server_types tables.
+	switch (type) {
+	case MONITORING_SYSTEM_HAPI_ZABBIX:
+		return "hatohol-arm-plugin-zabbix";
+	case MONITORING_SYSTEM_HAPI_NAGIOS:
+		return "hatohol-arm-plugin-nagios";
+	default:
+		;
+	}
+
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	ServerTypeInfo serverType;
+	if (dbConfig.getServerType(serverType, type))
+		return serverType.pluginPath;
+
+	return "";
+}
+
 void DBTablesConfig::getServerTypes(ServerTypeInfoVect &serverTypes)
 {
 	DBAgent::SelectArg arg(tableProfileServerTypes);

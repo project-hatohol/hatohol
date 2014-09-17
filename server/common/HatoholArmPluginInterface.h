@@ -460,9 +460,6 @@ public:
 	static ItemDataPtr createItemData(mlpl::SmartBuffer &sbuf)
 	  throw(HatoholException);
 
-	static const char *getDefaultPluginPath(
-	  const MonitoringSystemType &type);
-
 	std::string getBrokerUrl(void) const;
 	void setBrokerUrl(const std::string &brokerUrl);
 

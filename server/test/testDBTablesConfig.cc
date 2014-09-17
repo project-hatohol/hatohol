@@ -244,6 +244,32 @@ void test_registerServerTypeUpdate(void)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
+void data_getDefaultPluginPath(void)
+{
+	gcut_add_datum("MONITORING_SYSTEM_ZABBIX",
+	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_ZABBIX,
+	               "expect", G_TYPE_STRING, NULL, NULL);
+	gcut_add_datum("MONITORING_SYSTEM_NAGIOS",
+	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_NAGIOS,
+	               "expect", G_TYPE_STRING, NULL, NULL);
+	gcut_add_datum("MONITORING_SYSTEM_HAPI_ZABBIX",
+	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_ZABBIX,
+	               "expect", G_TYPE_STRING, "hatohol-arm-plugin-zabbix",
+	               NULL);
+	gcut_add_datum("MONITORING_SYSTEM_HAPI_NAGIOS",
+	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_NAGIOS,
+	               "expect", G_TYPE_STRING, "hatohol-arm-plugin-nagios",
+	               NULL);
+}
+
+void test_getDefaultPluginPath(gconstpointer data)
+{
+	const string expect = gcut_data_get_string(data, "expect") ? : "";
+	const string actual = DBTablesConfig::getDefaultPluginPath(
+	    (MonitoringSystemType)gcut_data_get_int(data, "type"));
+	cppcut_assert_equal(expect, actual);
+}
+
 void test_getServerTypes(void)
 {
 	test_registerServerType(); // insert the record

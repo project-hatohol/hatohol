@@ -328,8 +328,7 @@ static HatoholError parseServerParameter(
 		armPluginInfo.serverId = INVALID_SERVER_ID;
 	}
 	armPluginInfo.type = svInfo.type;
-	armPluginInfo.path =
-	  HatoholArmPluginInterface::getDefaultPluginPath(svInfo.type) ? : "";
+	armPluginInfo.path = DBTablesConfig::getDefaultPluginPath(svInfo.type);
 
 	// passiveMode
 	// Note: We don't accept a plugin path from outside for security.

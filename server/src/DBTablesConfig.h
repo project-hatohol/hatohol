@@ -158,6 +158,8 @@ public:
 	 */
 	void registerServerType(const ServerTypeInfo &serverType);
 
+	static std::string getDefaultPluginPath(
+	  const MonitoringSystemType &type);
 
 	/**
 	 * Get the registered ServerTypeInfo.

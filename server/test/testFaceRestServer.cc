@@ -55,9 +55,8 @@ static void setupArmPluginInfo(
 {
 	armPluginInfo.id = AUTO_INCREMENT_VALUE;
 	armPluginInfo.type = serverInfo.type;
-	const char *path =
-	  HatoholArmPluginInterface::getDefaultPluginPath(armPluginInfo.type);
-	armPluginInfo.path = path ? : "";
+	armPluginInfo.path =
+	  DBTablesConfig::getDefaultPluginPath(armPluginInfo.type);
 	armPluginInfo.brokerUrl = "abc.example.com:22222";
 	armPluginInfo.staticQueueAddress = "";
 	armPluginInfo.serverId = serverInfo.id;
