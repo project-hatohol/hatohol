@@ -32,7 +32,7 @@ var EventsView = function(userProfile, baseElem) {
     sortType:         "time",
     sortOrder:        hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
   };
-  self.lastQuery = undefined;
+  $.extend(self.baseQuery, getEventsQueryInURI());
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];
   var severity_choices = [
@@ -108,9 +108,6 @@ var EventsView = function(userProfile, baseElem) {
       offset:           self.baseQuery.limit * self.currentPage,
       limitOfUnifiedId: self.limitOfUnifiedId,
     });
-    if (!self.lastQuery)
-      $.extend(query, getEventsQueryInURI());
-    self.lastQuery = query;
 
     return 'events?' + $.param(query);
   };
@@ -126,7 +123,7 @@ var EventsView = function(userProfile, baseElem) {
       servers = self.rawData.servers;
 
     if (!query)
-      query = self.lastQuery ? self.lastQuery : self.baseQuery;
+      query = self.baseQuery;
 
     self.setupHostFilters(servers, query);
 

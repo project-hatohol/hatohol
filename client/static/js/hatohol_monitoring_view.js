@@ -171,12 +171,9 @@ HatoholMonitoringView.prototype.getHostFilterQuery = function() {
   var serverId = this.getTargetServerId();
   var hostgroupId = this.getTargetHostgroupId();
   var hostId = this.getTargetHostId();
-  if (serverId)
-    query.serverId = serverId;
-  if (hostgroupId)
-    query.hostgroupId = hostgroupId;
-  if (hostId)
-    query.hostId = hostId;
+  query.serverId = serverId ? serverId : "-1";
+  query.hostgroupId = hostgroupId ? hostgroupId : "-1";
+  query.hostId = hostId ? hostId : "-1";
   return query;
 };
 
