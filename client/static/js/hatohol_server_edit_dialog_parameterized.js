@@ -113,8 +113,7 @@ HatoholServerEditDialogParameterized.prototype.constructor = HatoholServerEditDi
 HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
   var self = this;
   getServerTypesAsync();
-  var div = $(makeMainDivHTMLForDynamicCreation());
-  return div;
+  return makeMainDiv();
 
   function getServerTypesAsync() {
     new HatoholConnector({
@@ -154,18 +153,14 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
     }
   }
 
-  function makeMainDivHTMLForDynamicCreation() {
-    var s = '';
-    s += '<div id="add-server-div">';
-    s += '  <form class="form-inline">';
-    s += '    <label>' + gettext("Server type") + '</label>';
-    s += '    <select id="selectServerType">';
-    s += '    <option value="_header">' + gettext('Please select') + '</option>';
-    s += '    </select>';
-    s += '  </form>';
-    s += '  <form id="add-server-param-form" class="form-horizontal" role="form" />';
-    s += '</div>';
-    return s;
+  function makeMainDiv() {
+    var mainDiv = $('<div id="add-server-div">');
+    var form = $('<form class="form-inline">').appendTo(mainDiv);
+    form.append($('<label>').text(gettext('Server type')));
+    var select = $('<select id="selectServerType">').appendTo(form);
+    select.append($('<option>').html('Please select').val('_header'));
+    mainDiv.append('<form id="add-server-param-form" class="form-horizontal" role="form">');
+    return mainDiv;
   }
 };
 
