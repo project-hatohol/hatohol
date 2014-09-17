@@ -306,8 +306,8 @@ static HatoholError parseServerParameter(
 	svInfo.password = value;
 
 	// dbname
-	if (svInfo.type == MONITORING_SYSTEM_NAGIOS) {
-		value = (char *)g_hash_table_lookup(query, "dbName");
+	value = (char *)g_hash_table_lookup(query, "dbName");
+	if (svInfo.type == MONITORING_SYSTEM_NAGIOS || value) {
 		if (!value && !allowEmpty)
 			return HatoholError(HTERR_NOT_FOUND_PARAMETER,
 					    "dbName");
