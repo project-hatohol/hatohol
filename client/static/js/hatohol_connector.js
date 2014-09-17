@@ -117,9 +117,14 @@ HatoholConnector.prototype.start = function(connectParams) {
 
   function loginReadyCallback(user, password) {
     $.ajax({
-      url: "/tunnel/login?user=" + encodeURI(user)
-           + "&password=" + encodeURI(password),
-      type: "GET",
+      url: "/tunnel/login",
+      data: { user: user, password: password, },
+      processData: true,
+      type: "POST",
+      beforeSend: function(xhr, settings) {
+        // For the Django's CSRF protection mechanism
+	xhr.setRequestHeader('X-CSRFToken', getCsrfToken());
+      },
       success: function(data) {
         parseLoginResult(data);
       },
