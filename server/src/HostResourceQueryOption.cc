@@ -201,6 +201,28 @@ string HostResourceQueryOption::getFromClause(void) const
 		return getFromClauseForOneTable();
 }
 
+string HostResourceQueryOption::getJoinClause(void) const
+{
+	if (!isHostgroupUsed())
+		return string();
+
+	const Synapse &synapse = m_impl->synapse;
+	const ColumnDef *hgrpColumnDefs =
+	  synapse.hostgroupMapTableProfile.columnDefs;
+
+	return StringUtils::sprintf(
+	  "INNER JOIN %s ON ((%s=%s.%s) AND (%s=%s.%s))",
+	  synapse.hostgroupMapTableProfile.name,
+
+	  getServerIdColumnName().c_str(),
+	  synapse.hostgroupMapTableProfile.name,
+	  hgrpColumnDefs[synapse.hostgroupMapServerIdColumnIdx].columnName,
+
+	  getHostIdColumnName().c_str(),
+	  synapse.hostgroupMapTableProfile.name,
+	  hgrpColumnDefs[synapse.hostgroupMapHostIdColumnIdx].columnName);
+}
+
 bool HostResourceQueryOption::isHostgroupUsed(void) const
 {
 	const Synapse &synapse = m_impl->synapse;
@@ -430,17 +452,9 @@ string HostResourceQueryOption::getFromClauseWithHostgroup(void) const
 	  synapse.hostgroupMapTableProfile.columnDefs;
 
 	return StringUtils::sprintf(
-	  "%s INNER JOIN %s ON ((%s=%s.%s) AND (%s=%s.%s))",
+	  "%s %s",
 	  synapse.tableProfile.name,
-	  synapse.hostgroupMapTableProfile.name,
-
-	  getColumnName(synapse.serverIdColumnIdx).c_str(),
-	  synapse.hostgroupMapTableProfile.name,
-	  hgrpColumnDefs[synapse.hostgroupMapServerIdColumnIdx].columnName,
-
-	  getColumnName(synapse.hostIdColumnIdx).c_str(),
-	  synapse.hostgroupMapTableProfile.name,
-	  hgrpColumnDefs[synapse.hostgroupMapHostIdColumnIdx].columnName);
+	  getJoinClause().c_str());
 }
 
 string HostResourceQueryOption::getColumnNameCommon(

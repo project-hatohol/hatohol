@@ -61,8 +61,10 @@ DBClientJoinBuilder::DBClientJoinBuilder(
 	const HostResourceQueryOption *hrqOption =
 	  dynamic_cast<const HostResourceQueryOption *>(option);
 	if (hrqOption) {
-		m_impl->selectExArg.tableField = hrqOption->getFromClause();
-		m_impl->selectExArg.useDistinct = hrqOption->isHostgroupUsed();
+		m_impl->selectExArg.tableField
+		  = hrqOption->getPrimaryTableName();
+		m_impl->selectExArg.useDistinct
+		  = hrqOption->isHostgroupUsed();
 	} else {
 		m_impl->selectExArg.tableField = table.name;
 	}
@@ -128,7 +130,21 @@ void DBClientJoinBuilder::add(const size_t &columnIndex)
 
 DBAgent::SelectExArg &DBClientJoinBuilder::getSelectExArg(void)
 {
+	const HostResourceQueryOption *hrqOption =
+	  dynamic_cast<const HostResourceQueryOption *>(m_impl->option);
+	if (hrqOption) {
+		string clause = hrqOption->getJoinClause();
+		if (!clause.empty()) {
+			m_impl->selectExArg.tableField += " ";
+			m_impl->selectExArg.tableField += clause;
+		}
+	}
 	return m_impl->selectExArg;
+}
+
+DBAgent::SelectExArg &DBClientJoinBuilder::build(void)
+{
+	return getSelectExArg();
 }
 
 // ---------------------------------------------------------------------------
