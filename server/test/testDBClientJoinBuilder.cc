@@ -190,11 +190,6 @@ void test_constructorWithHostResourceQueryOption(gconstpointer data)
 		{
 		}
 
-		virtual string getFromClause(void) const override
-		{
-			return "t0 INNER JOIN t1 ON t0.c0=t1.c1";
-		}
-
 		virtual string getCondition(void) const override
 		{
 			return "A=1";
