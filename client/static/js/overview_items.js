@@ -23,6 +23,8 @@ var OverviewItems = function(userProfile) {
 
   self.reloadIntervalSeconds = 60;
   self.baseQuery = {
+    limit:  0,
+    offset: 0,
   };
   $.extend(self.baseQuery, getItemsQueryInURI());
   self.lastQuery = undefined;
@@ -187,8 +189,8 @@ var OverviewItems = function(userProfile) {
 
   function getQuery() {
     var query = $.extend({}, self.baseQuery, {
-      limit:  0,
-      offset: 0,
+      limit:  self.baseQuery.limit,
+      offset: self.baseQuery.offset,
     });
     if (self.lastQuery)
       $.extend(query, self.getHostFilterQuery());

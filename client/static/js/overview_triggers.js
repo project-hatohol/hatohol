@@ -23,6 +23,8 @@ var OverviewTriggers = function(userProfile) {
 
   self.reloadIntervalSeconds = 60;
   self.baseQuery = {
+    limit:  0,
+    offset: 0,
   };
   $.extend(self.baseQuery, getTriggersQueryInURI());
   self.lastQuery = undefined;
@@ -218,8 +220,8 @@ var OverviewTriggers = function(userProfile) {
     var query = $.extend({}, self.baseQuery, {
       minimumSeverity: $("#select-severity").val(),
       status:          $("#select-status").val(),
-      limit:           0,
-      offset:          0,
+      limit:           self.baseQuery.limit,
+      offset:          self.baseQuery.offset,
     });
     if (self.lastQuery)
       $.extend(query, self.getHostFilterQuery());
