@@ -33,6 +33,7 @@ using namespace std;
 using namespace mlpl;
 
 static const char *TABLE_NAME_SYSTEM  = "system";
+static const char *TABLE_NAME_SERVER_TYPES = "server_types";
 static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
@@ -105,6 +106,52 @@ static const DBAgent::TableProfile tableProfileSystem =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SYSTEM,
 			    COLUMN_DEF_SYSTEM,
 			    NUM_IDX_SYSTEM);
+
+static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
+{
+	// One of MonitoringSystemType shall be saved in this column.
+	"type",                            // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"name",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	// This column contains a JSON string that represents
+	// the specification of parameters for the monitoring server.
+	"parameters",                      // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	32767,                             // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+
+enum {
+	IDX_SERVER_TYPES_TYPE,
+	IDX_SERVER_TYPES_NAME,
+	IDX_SERVER_PARAMETERS,
+	NUM_IDX_SERVER_TYPES,
+};
+
+static const DBAgent::TableProfile tableProfileServerTypes =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SERVER_TYPES,
+			    COLUMN_DEF_SERVER_TYPES,
+			    NUM_IDX_SERVER_TYPES);
 
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
@@ -752,6 +799,39 @@ bool DBTablesConfig::isCopyOnDemandEnabled(void)
 	return itemGroupStream.read<int>();
 }
 
+void DBTablesConfig::registerServerType(const ServerTypeInfo &serverType)
+{
+	DBAgent::InsertArg arg(tableProfileServerTypes);
+	arg.add(serverType.type);
+	arg.add(serverType.name);
+	arg.add(serverType.parameters);
+	arg.upsertOnDuplicate = true;
+	int id;
+	getDBAgent().runTransaction(arg, &id);
+}
+
+void DBTablesConfig::getServerTypes(ServerTypeInfoVect &serverTypes)
+{
+	DBAgent::SelectArg arg(tableProfileServerTypes);
+	arg.add(IDX_SERVER_TYPES_TYPE);
+	arg.add(IDX_SERVER_TYPES_NAME);
+	arg.add(IDX_SERVER_PARAMETERS);
+	getDBAgent().runTransaction(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	serverTypes.reserve(grpList.size());
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		serverTypes.push_back(ServerTypeInfo());
+		ServerTypeInfo &svTypeInfo = serverTypes.back();
+
+		itemGroupStream >> svTypeInfo.type;
+		itemGroupStream >> svTypeInfo.name;
+		itemGroupStream >> svTypeInfo.parameters;
+	}
+}
+
 bool validHostName(const string &hostName)
 {
 	// Currently do nothing to pass through IDN (Internationalized Domain
@@ -1290,6 +1370,8 @@ DBTables::SetupInfo &DBTablesConfig::getSetupInfo(void)
 	{
 		&tableProfileSystem,
 		tableInitializerSystem,
+	}, {
+		&tableProfileServerTypes,
 	}, {
 		&tableProfileServers,
 	}, {

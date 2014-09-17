@@ -38,9 +38,11 @@ struct RestResourceServer : public FaceRest::ResourceHandler
 	void handlerPostServer(void);
 	void handlerPutServer(void);
 	void handlerDeleteServer(void);
+	void handlerServerType(void);
 	void handlerServerConnStat(void);
 
 	static const char *pathForServer;
+	static const char *pathForServerType;
 	static const char *pathForServerConnStat;
 
 	HandlerFunc m_handlerFunc;
