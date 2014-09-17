@@ -1320,6 +1320,18 @@ void test_getEventsWithIncidentInfoByAuthorizedUser(gconstpointer data)
 	assertGetEventsWithFilter(arg);
 }
 
+void data_getEventWithTriggerId(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithTriggerId(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
+	arg.triggerId = 3;
+	assertGetEventsWithFilter(arg);
+}
+
 void test_addHostgroupInfo(void)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);

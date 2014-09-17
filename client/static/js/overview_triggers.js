@@ -22,10 +22,17 @@ var OverviewTriggers = function(userProfile) {
   var rawData, parsedData;
 
   self.reloadIntervalSeconds = 60;
+  self.baseQuery = {
+    limit:  0,
+    offset: 0,
+  };
+  $.extend(self.baseQuery, getTriggersQueryInURI());
+  self.lastQuery = undefined;
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
+  setupFilterValues();
   load();
 
   self.setupHostQuerySelectorCallback(
@@ -85,6 +92,21 @@ var OverviewTriggers = function(userProfile) {
       parsedData.hosts[serverName] = hostNames[serverName].uniq().sort();
 
     return parsedData;
+  }
+
+  function setupFilterValues(servers, query) {
+    if (!servers && rawData && rawData.servers)
+      servers = rawData.servers;
+
+    if (!query)
+      query = self.lastQuery ? self.lastQuery : self.baseQuery;
+
+    self.setupHostFilters(servers, query);
+
+    if ("minimumSeverity" in query)
+      $("#select-severity").val(query.minimumSeverity);
+    if ("status" in query)
+      $("#select-status").val(query.status);
   }
 
   function setLoading(loading) {
@@ -175,18 +197,35 @@ var OverviewTriggers = function(userProfile) {
     self.setHostgroupFilterCandidates(rawData["servers"]);
     self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(parsedData);
+    setupFilterValues();
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 
+  function getTriggersQueryInURI() {
+    var knownKeys = [
+      "serverId", "hostgroupId", "hostId",
+      "limit", "offset",
+      "minimumSeverity", "status",
+    ];
+    var i, allParams = deparam(), query = {};
+    for (i = 0; i < knownKeys.length; i++) {
+      if (knownKeys[i] in allParams)
+        query[knownKeys[i]] = allParams[knownKeys[i]];
+    }
+    return query;
+  }
+
   function getQuery() {
-    var query = {
+    var query = $.extend({}, self.baseQuery, {
       minimumSeverity: $("#select-severity").val(),
       status:          $("#select-status").val(),
-      maximumNumber:   0,
-      offset:          0
-    };
-    self.addHostQuery(query);
+      limit:           self.baseQuery.limit,
+      offset:          self.baseQuery.offset,
+    });
+    if (self.lastQuery)
+      $.extend(query, self.getHostFilterQuery());
+    self.lastQuery = query;
     return 'trigger?' + $.param(query);
   };
 

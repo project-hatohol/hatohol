@@ -22,9 +22,18 @@ var EventsView = function(userProfile, baseElem) {
   self.baseElem = baseElem;
   self.reloadIntervalSeconds = 60;
   self.currentPage = 0;
-  self.limiOfUnifiedId = 0;
+  self.limitOfUnifiedId = 0;
   self.rawData = {};
   self.durations = {};
+  self.baseQuery = {
+    limit:            50,
+    offset:           0,
+    limitOfUnifiedId: 0,
+    sortType:         "time",
+    sortOrder:        hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
+  };
+  $.extend(self.baseQuery, getEventsQueryInURI());
+  self.lastQuery = undefined;
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];
   var severity_choices = [
@@ -41,21 +50,19 @@ var EventsView = function(userProfile, baseElem) {
   // Private functions 
   //
   function start() {
-    var DEFAULT_NUM_EVENTS_PER_PAGE = 50;
-    var DEFAULT_SORT_TYPE = "time";
-    var DEFAULT_SORT_ORDER = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
     self.userConfig.get({
       itemNames:['num-events-per-page', 'event-sort-order'],
       successCallback: function(conf) {
-        self.numEventsPerPage =
+        self.baseQuery.limit =
           self.userConfig.findOrDefault(conf, 'num-events-per-page',
-                                        DEFAULT_NUM_EVENTS_PER_PAGE);
-        self.sortType = 
+                                        self.baseQuery.limit);
+        self.baseQuery.sortType =
           self.userConfig.findOrDefault(conf, 'event-sort-type',
-                                        DEFAULT_SORT_TYPE);
-        self.sortOrder = 
+                                        self.baseQuery.sortType);
+        self.baseQuery.sortOrder =
           self.userConfig.findOrDefault(conf, 'event-sort-order',
-                                        DEFAULT_SORT_ORDER);
+                                        self.baseQuery.sortOrder);
+        setupFilterValues();
         setupCallbacks();
         load();
       },
@@ -71,6 +78,21 @@ var EventsView = function(userProfile, baseElem) {
     hatoholErrorMsgBox(errorMsg);
   }
 
+  function getEventsQueryInURI() {
+    var knownKeys = [
+      "serverId", "hostgroupId", "hostId",
+      "limit", "offset", "limitOfUnifiedId",
+      "sortType", "sortOrder",
+      "minimumSeverity", "status", "triggerId",
+    ];
+    var i, allParams = deparam(), query = {};
+    for (i = 0; i < knownKeys.length; i++) {
+      if (knownKeys[i] in allParams)
+        query[knownKeys[i]] = allParams[knownKeys[i]];
+    }
+    return query;
+  }
+
   function getQuery(loadNextPage) {
     if (loadNextPage) {
       self.currentPage += 1;
@@ -81,15 +103,15 @@ var EventsView = function(userProfile, baseElem) {
       self.limitOfUnifiedId = 0;
     }
 
-    var query = {
-      minimumSeverity: $("#select-severity").val(),
-      status:          $("#select-status").val(),
-      maximumNumber:   self.numEventsPerPage,
-      offset:          self.numEventsPerPage * self.currentPage,
-      sortType:        self.sortType,
-      sortOrder:       self.sortOrder
-    };
-    self.addHostQuery(query);
+    var query = $.extend({}, self.baseQuery, {
+      minimumSeverity:  $("#select-severity").val(),
+      status:           $("#select-status").val(),
+      offset:           self.baseQuery.limit * self.currentPage,
+      limitOfUnifiedId: self.limitOfUnifiedId,
+    });
+    if (self.lastQuery)
+      $.extend(query, self.getHostFilterQuery());
+    self.lastQuery = query;
 
     return 'events?' + $.param(query);
   };
@@ -98,6 +120,23 @@ var EventsView = function(userProfile, baseElem) {
     self.startConnection(getQuery(loadNextPage), updateCore);
     $(document.body).scrollTop(0);
     setLoading(true);
+  }
+
+  function setupFilterValues(servers, query) {
+    if (!servers && self.rawData && self.rawData.servers)
+      servers = self.rawData.servers;
+
+    if (!query)
+      query = self.lastQuery ? self.lastQuery : self.baseQuery;
+
+    self.setupHostFilters(servers, query);
+
+    if ('limit' in query)
+      $('#num-events-per-page').val(query.limit);
+    if ("minimumSeverity" in query)
+      $("#select-severity").val(query.minimumSeverity);
+    if ("status" in query)
+      $("#select-status").val(query.status);
   }
 
   function setupCallbacks() {
@@ -115,19 +154,19 @@ var EventsView = function(userProfile, baseElem) {
     self.setupHostQuerySelectorCallback(
       load, '#select-server', '#select-host-group', '#select-host');
 
-    $('#num-events-per-page').val(self.numEventsPerPage);
     $('#num-events-per-page').change(function() {
       var val = parseInt($('#num-events-per-page').val());
       if (!isFinite(val))
-        val = self.numEventsPerPage;
+        val = self.baseQuery.limit;
       $('#num-events-per-page').val(val);
-      self.numEventsPerPage = val;
+      self.baseQuery.limit = val;
 
       var params = {
         items: {'num-events-per-page': val},
         successCallback: function(){ /* we just ignore it */ },
-        connectErrorCallback: function() {
-          // TODO: show an error message
+        connectErrorCallback: function(XMLHttpRequest, textStatus,
+                                       errorThrown) {
+          showXHRError(XMLHttpRequest);
         },
       };
       self.userConfig.store(params);
@@ -259,13 +298,10 @@ var EventsView = function(userProfile, baseElem) {
         html += escapeHTML(incident.assignee);
         html += "</td>";
         html += "<td class='incident'>";
-	if (incident.status)
+        if (incident.status)
           html += escapeHTML(incident.doneRatio) + "%";
         html += "</td>";
       }
-      /*
-      html += "<td>" + "unsupported" + "</td>";
-      */
       html += "</tr>";
     }
 
@@ -284,9 +320,7 @@ var EventsView = function(userProfile, baseElem) {
     self.rawData = reply;
     self.durations = parseData(self.rawData);
 
-    self.setServerFilterCandidates(self.rawData["servers"]);
-    self.setHostgroupFilterCandidates(self.rawData["servers"]);
-    self.setHostFilterCandidates(self.rawData["servers"]);
+    setupFilterValues();
     drawTableContents();
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);

@@ -22,7 +22,11 @@ var LatestView = function(userProfile) {
   var rawData, parsedData;
 
   self.reloadIntervalSeconds = 60;
-  self.numRecordsPerPage = 50;
+  self.baseQuery = {
+    limit: 50,
+  };
+  $.extend(self.baseQuery, getItemsQueryInURI());
+  self.lastQuery = undefined;
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -36,10 +40,11 @@ var LatestView = function(userProfile) {
     self.userConfig.get({
       itemNames:['num-items-per-page'],
       successCallback: function(conf) {
-        self.numRecordsPerPage =
+        self.baseQuery.limit =
           self.userConfig.findOrDefault(conf, 'num-items-per-page',
-                                        self.numRecordsPerPage);
+                                        self.baseQuery.limit);
         updatePager();
+        setupFilterValues();
         setupCallbacks();
         load();
       },
@@ -70,15 +75,28 @@ var LatestView = function(userProfile) {
   function updatePager() {
     self.pager.update({
       numTotalRecords: rawData ? rawData["totalNumberOfItems"] : -1,
-      numRecordsPerPage: self.numRecordsPerPage,
+      numRecordsPerPage: self.baseQuery.limit,
       selectPageCallback: function(page) {
         load(page);
-        if (self.pager.numRecordsPerPage != self.numRecordsPerPage) {
-          self.numRecordsPerPage = self.pager.numRecordsPerPage;
-          saveConfig({'num-items-per-page': self.numRecordsPerPage})
+        if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
+          self.baseQuery.limit = self.pager.numRecordsPerPage;
+          saveConfig({'num-items-per-page': self.baseQuery.limit})
         }
       }
     });
+  }
+
+  function setupFilterValues(servers, query) {
+    if (!servers && rawData && rawData.servers)
+      servers = rawData.servers;
+
+    if (!query)
+      query = self.lastQuery ? self.lastQuery : self.baseQuery;
+
+    self.setupHostFilters(servers, query);
+
+    if ('limit' in query)
+      $('#num-items-per-page').val(query.limit);
   }
 
   function setupCallbacks() {
@@ -155,8 +173,8 @@ var LatestView = function(userProfile) {
         continue;
 
       html += "<tr><td>" + escapeHTML(serverName) + "</td>";
-      html += "<td>" + escapeHTML(hostName) + "</td>";
       html += "<td>" + escapeHTML(appName) + "</td>";
+      html += "<td>" + escapeHTML(hostName) + "</td>";
       if (url)
         html += "<td><a href='" + url + "'>" + escapeHTML(item["brief"])  + "</a></td>";
       else
@@ -186,18 +204,34 @@ var LatestView = function(userProfile) {
 
     drawTableContents(rawData);
     self.pager.update({ numTotalRecords: rawData["totalNumberOfItems"] });
+    setupFilterValues();
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
+  }
+
+  function getItemsQueryInURI() {
+    var knownKeys = [
+      "serverId", "hostgroupId", "hostId",
+      "limit", "offset",
+    ];
+    var i, allParams = deparam(), query = {};
+    for (i = 0; i < knownKeys.length; i++) {
+      if (knownKeys[i] in allParams)
+        query[knownKeys[i]] = allParams[knownKeys[i]];
+    }
+    return query;
   }
 
   function getQuery(page) {
     if (isNaN(page))
       page = 0;
-    var query = {
-      maximumNumber:   self.pager.numRecordsPerPage,
-      offset:          self.pager.numRecordsPerPage * page
-    };
-    self.addHostQuery(query);
+    var query = $.extend({}, self.baseQuery, {
+      limit:  self.baseQuery.limit,
+      offset: self.baseQuery.limit * page
+    });
+    if (self.lastQuery)
+      $.extend(query, self.getHostFilterQuery());
+    self.lastQuery = query;
     return 'item?' + $.param(query);
   };
 

@@ -22,7 +22,11 @@ var TriggersView = function(userProfile) {
   var rawData;
 
   self.reloadIntervalSeconds = 60;
-  self.numRecordsPerPage = 50;
+  self.baseQuery = {
+    limit: 50,
+  };
+  $.extend(self.baseQuery, getTriggersQueryInURI());
+  self.lastQuery = undefined;
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -32,14 +36,14 @@ var TriggersView = function(userProfile) {
   start();
 
   function start() {
-    var numRecordsPerPage;
     self.userConfig.get({
       itemNames:['num-triggers-per-page'],
       successCallback: function(conf) {
-        self.numRecordsPerPage =
+        self.baseQuery.limit =
           self.userConfig.findOrDefault(conf, 'num-triggers-per-page',
-                                        self.numRecordsPerPage);
+                                        self.baseQuery.limit);
         updatePager();
+        setupFilterValues();
         setupCallbacks();
         load();
       },
@@ -70,12 +74,12 @@ var TriggersView = function(userProfile) {
   function updatePager() {
     self.pager.update({
       numTotalRecords: rawData ? rawData["totalNumberOfTriggers"] : -1,
-      numRecordsPerPage: self.numRecordsPerPage,
+      numRecordsPerPage: self.baseQuery.limit,
       selectPageCallback: function(page) {
         load(page);
-        if (self.pager.numRecordsPerPage != self.numRecordsPerPage) {
-          self.numRecordsPerPage = self.pager.numRecordsPerPage;
-          saveConfig({'num-triggers-per-page': self.numRecordsPerPage})
+        if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
+          self.baseQuery.limit = self.pager.numRecordsPerPage;
+          saveConfig({'num-triggers-per-page': self.baseQuery.limit})
         }
       }
     });
@@ -94,6 +98,23 @@ var TriggersView = function(userProfile) {
     gettext("High"),
     gettext("Disaster")
   ];
+
+  function setupFilterValues(servers, query) {
+    if (!servers && rawData && rawData.servers)
+      servers = rawData.servers;
+
+    if (!query)
+      query = self.lastQuery ? self.lastQuery : self.baseQuery;
+
+    self.setupHostFilters(servers, query);
+
+    if ('limit' in query)
+      $('#num-triggers-per-page').val(query.limit);
+    if ("minimumSeverity" in query)
+      $("#select-severity").val(query.minimumSeverity);
+    if ("status" in query)
+      $("#select-status").val(query.status);
+  }
 
   function setupCallbacks() {
     $("#table").stupidtable();
@@ -155,14 +176,8 @@ var TriggersView = function(userProfile) {
         status_choices[Number(status)] + "</td>";
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
         formatDate(clock) + "</td>";
-      /* Not supported yet
-      html += "<td>" + "unsupported" + "</td>";
-      html += "<td>" + "unsupported" + "</td>";
-      */
       html += "<td>" + escapeHTML(hostName) + "</td>";
       html += "<td>" + escapeHTML(trigger["brief"]) + "</td>";
-      // Not supported yet
-      //html += "<td>" + "unsupported" + "</td>";
       html += "</tr>";
     }
 
@@ -183,20 +198,36 @@ var TriggersView = function(userProfile) {
 
     drawTableContents(rawData);
     updatePager();
+    setupFilterValues();
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
+  }
+
+  function getTriggersQueryInURI() {
+    var knownKeys = [
+      "serverId", "hostgroupId", "hostId",
+      "limit", "offset",
+      "minimumSeverity", "status",
+    ];
+    var i, allParams = deparam(), query = {};
+    for (i = 0; i < knownKeys.length; i++) {
+      if (knownKeys[i] in allParams)
+        query[knownKeys[i]] = allParams[knownKeys[i]];
+    }
+    return query;
   }
 
   function getQuery(page) {
     if (isNaN(page))
       page = 0;
-    var query = {
+    var query = $.extend({}, self.baseQuery, {
       minimumSeverity: $("#select-severity").val(),
       status:          $("#select-status").val(),
-      maximumNumber:   self.pager.numRecordsPerPage,
-      offset:          self.pager.numRecordsPerPage * page
-    };
-    self.addHostQuery(query);
+      offset:          self.baseQuery.limit * page
+    });
+    if (self.lastQuery)
+      $.extend(query, self.getHostFilterQuery());
+    self.lastQuery = query;
     return 'trigger?' + $.param(query);
   };
 

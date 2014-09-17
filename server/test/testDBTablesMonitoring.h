@@ -185,6 +185,7 @@ struct AssertGetEventsArg
 	EventsQueryOption::SortType sortType;
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
+	TriggerIdType triggerId;
 	std::map<const EventInfo *, uint64_t> idMap;
 	IncidentInfoVect actualIncidentInfoVect;
 	bool withIncidentInfo;
@@ -196,6 +197,7 @@ struct AssertGetEventsArg
 	: limitOfUnifiedId(0), sortType(EventsQueryOption::SORT_UNIFIED_ID),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
 	  triggerStatus(TRIGGER_STATUS_ALL),
+	  triggerId(ALL_TRIGGERS),
 	  withIncidentInfo(false)
 	{
 
@@ -226,6 +228,7 @@ struct AssertGetEventsArg
 		option.setSortType(sortType, sortDirection);
 		option.setMinimumSeverity(minSeverity);
 		option.setTriggerStatus(triggerStatus);
+		option.setTriggerId(triggerId);
 	}
 
 	virtual bool filterOutExpectedRecord(EventInfo *info) override
@@ -246,6 +249,9 @@ struct AssertGetEventsArg
 		    info->status != triggerStatus) {
 			return true;
 		}
+
+		if (triggerId != ALL_TRIGGERS && info->triggerId != triggerId)
+			return true;
 
 		return false;
 	}

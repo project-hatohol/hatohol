@@ -147,6 +147,9 @@ static HatoholError parseHostResourceQueryParameter(
 
 	// maximum number
 	size_t maximumNumber = 0;
+	err = getParam<size_t>(query, "limit", "%zd", maximumNumber);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
 	err = getParam<size_t>(query, "maximumNumber", "%zd", maximumNumber);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
@@ -222,6 +225,14 @@ HatoholError RestResourceHost::parseEventParameter(EventsQueryOption &option,
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 	option.setTriggerStatus(status);
+
+	// trigger ID
+	TriggerIdType triggerId = ALL_TRIGGERS;
+	err = getParam<TriggerIdType>(query, "triggerId",
+				      "%" FMT_TRIGGER_ID, triggerId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTriggerId(triggerId);
 
 	// sort type
 	EventsQueryOption::SortType sortType = EventsQueryOption::SORT_TIME;
