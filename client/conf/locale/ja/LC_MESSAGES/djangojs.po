@@ -54,7 +54,7 @@ msgstr "アイテム数"
 
 #: static/js/dashboard_view.js:110
 msgid "Number of triggers [with problem]"
-msgstr "トリガ数 [障害あり]"
+msgstr "トリガー数 [障害あり]"
 
 #: static/js/dashboard_view.js:122
 msgid "New values per second"
@@ -220,7 +220,7 @@ msgstr "ホスト名"
 
 #: static/js/hatohol_add_action_dialog.js:396
 msgid "Trigger"
-msgstr "トリガ"
+msgstr "トリガー"
 
 #: static/js/hatohol_add_action_dialog.js:403
 msgid "Status"
@@ -287,7 +287,7 @@ msgstr "プロジェクト: "
 #: static/js/hatohol_add_action_dialog.js:504
 #: static/js/incident_settings_view.js:204
 msgid "Tracker: "
-msgstr "トラッカ: "
+msgstr "トラッカー: "
 
 #: static/js/hatohol_add_action_dialog.js:555
 msgid "The template script returned the invalid value."
@@ -327,7 +327,7 @@ msgstr "不正なユーザです。"
 
 #: static/js/hatohol_def.js:193
 msgid "Failed to parse JSON data."
-msgstr "JSONデータの解析に失敗しました。"
+msgstr "JSONデータの解析に失敗しました."
 
 #: static/js/hatohol_def.js:194
 msgid "Not found target record."
@@ -731,7 +731,7 @@ msgstr "ダッシュボード"
 #: static/js/hatohol_navi.js:29 test/browser/test_hatohol_navi.js:43
 #: test/browser/test_hatohol_navi.js:72
 msgid "Overview : Triggers"
-msgstr "概要:トリガ"
+msgstr "概要:トリガー"
 
 #: static/js/hatohol_navi.js:33 test/browser/test_hatohol_navi.js:45
 #: test/browser/test_hatohol_navi.js:74
@@ -746,7 +746,7 @@ msgstr "最新データ"
 #: static/js/hatohol_navi.js:41 test/browser/test_hatohol_navi.js:49
 #: test/browser/test_hatohol_navi.js:78
 msgid "Triggers"
-msgstr "トリガ"
+msgstr "トリガー"
 
 #: static/js/hatohol_navi.js:44 test/browser/test_events_view.js:62
 #: test/browser/test_hatohol_navi.js:51 test/browser/test_hatohol_navi.js:80
@@ -1001,7 +1001,7 @@ msgstr "サーバ選択"
 
 #: static/js/hatohol_trigger_selector.js:26
 msgid "Trigger selecion"
-msgstr "トリガ選択"
+msgstr "トリガー選択"
 
 #: static/js/hatohol_trigger_selector.js:49
 msgid "Brief"
