@@ -138,6 +138,15 @@ static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"plugin_path",                     // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	2048,                              // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 
@@ -145,6 +154,7 @@ enum {
 	IDX_SERVER_TYPES_TYPE,
 	IDX_SERVER_TYPES_NAME,
 	IDX_SERVER_TYPES_PARAMETERS,
+	IDX_SERVER_TYPES_PLUGIN_PATH,
 	NUM_IDX_SERVER_TYPES,
 };
 
@@ -809,6 +819,7 @@ void DBTablesConfig::registerServerType(const ServerTypeInfo &serverType)
 	arg.add(serverType.type);
 	arg.add(serverType.name);
 	arg.add(serverType.parameters);
+	arg.add(serverType.pluginPath);
 	arg.upsertOnDuplicate = true;
 	int id;
 	getDBAgent().runTransaction(arg, &id);
@@ -820,6 +831,7 @@ void DBTablesConfig::getServerTypes(ServerTypeInfoVect &serverTypes)
 	arg.add(IDX_SERVER_TYPES_TYPE);
 	arg.add(IDX_SERVER_TYPES_NAME);
 	arg.add(IDX_SERVER_TYPES_PARAMETERS);
+	arg.add(IDX_SERVER_TYPES_PLUGIN_PATH);
 	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -833,6 +845,7 @@ void DBTablesConfig::getServerTypes(ServerTypeInfoVect &serverTypes)
 		itemGroupStream >> svTypeInfo.type;
 		itemGroupStream >> svTypeInfo.name;
 		itemGroupStream >> svTypeInfo.parameters;
+		itemGroupStream >> svTypeInfo.pluginPath;
 	}
 }
 
@@ -845,6 +858,7 @@ bool DBTablesConfig::getServerType(ServerTypeInfo &serverType,
 	arg.add(IDX_SERVER_TYPES_TYPE);
 	arg.add(IDX_SERVER_TYPES_NAME);
 	arg.add(IDX_SERVER_TYPES_PARAMETERS);
+	arg.add(IDX_SERVER_TYPES_PLUGIN_PATH);
 	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -854,6 +868,7 @@ bool DBTablesConfig::getServerType(ServerTypeInfo &serverType,
 	itemGroupStream >> serverType.type;
 	itemGroupStream >> serverType.name;
 	itemGroupStream >> serverType.parameters;
+	itemGroupStream >> serverType.pluginPath;
 	return true;
 }
 

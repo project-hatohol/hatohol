@@ -52,6 +52,7 @@ struct ServerTypeInfo {
 	MonitoringSystemType type;
 	std::string          name;
 	std::string          parameters;
+	std::string          pluginPath;
 };
 
 typedef std::vector<ServerTypeInfo>        ServerTypeInfoVect;

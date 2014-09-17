@@ -209,14 +209,16 @@ void test_registerServerType(void)
 	svTypeInfo.type = MONITORING_SYSTEM_FAKE;
 	svTypeInfo.name = "Fake Monitor";
 	svTypeInfo.parameters = "IP address|port|Username|Password";
+	svTypeInfo.pluginPath = "/usr/bin/hoge-ta-hoge-taro";
 	dbConfig.registerServerType(svTypeInfo);
 
 	// check content
 	const string statement = "SELECT * FROM server_types";
 	const string expectedOut =
-	  StringUtils::sprintf("%d|%s|%s\n",
+	  StringUtils::sprintf("%d|%s|%s|%s\n",
 	                       svTypeInfo.type, svTypeInfo.name.c_str(),
-	                       svTypeInfo.parameters.c_str());
+	                       svTypeInfo.parameters.c_str(),
+	                       svTypeInfo.pluginPath.c_str());
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
@@ -229,14 +231,16 @@ void test_registerServerTypeUpdate(void)
 	svTypeInfo.type = MONITORING_SYSTEM_FAKE;
 	svTypeInfo.name = "Fake Monitor (updated version)";
 	svTypeInfo.parameters = "IP address|port|Username|Password|Group";
+	svTypeInfo.pluginPath = "/usr/bin/hoge-ta-hoge-taro";
 	dbConfig.registerServerType(svTypeInfo);
 
 	// check content
 	const string statement = "SELECT * FROM server_types";
 	const string expectedOut =
-	  StringUtils::sprintf("%d|%s|%s\n",
+	  StringUtils::sprintf("%d|%s|%s|%s\n",
 	                       svTypeInfo.type, svTypeInfo.name.c_str(),
-	                       svTypeInfo.parameters.c_str());
+	                       svTypeInfo.parameters.c_str(),
+	                       svTypeInfo.pluginPath.c_str());
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
@@ -265,6 +269,7 @@ void test_getServerType(void)
 		cppcut_assert_equal(expect.type, actual.type);
 		cppcut_assert_equal(expect.name, actual.name);
 		cppcut_assert_equal(expect.parameters, actual.parameters);
+		cppcut_assert_equal(expect.pluginPath, actual.pluginPath);
 	}
 }
 
