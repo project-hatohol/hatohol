@@ -101,8 +101,6 @@ var OverviewTriggers = function(userProfile) {
 
     self.setupHostFilters(servers, query);
 
-    if ('limit' in query)
-      $('#num-triggers-per-page').val(query.limit);
     if ("minimumSeverity" in query)
       $("#select-severity").val(query.minimumSeverity);
     if ("status" in query)
