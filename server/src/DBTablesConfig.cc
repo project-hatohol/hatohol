@@ -144,7 +144,7 @@ static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 enum {
 	IDX_SERVER_TYPES_TYPE,
 	IDX_SERVER_TYPES_NAME,
-	IDX_SERVER_PARAMETERS,
+	IDX_SERVER_TYPES_PARAMETERS,
 	NUM_IDX_SERVER_TYPES,
 };
 
@@ -819,7 +819,7 @@ void DBTablesConfig::getServerTypes(ServerTypeInfoVect &serverTypes)
 	DBAgent::SelectArg arg(tableProfileServerTypes);
 	arg.add(IDX_SERVER_TYPES_TYPE);
 	arg.add(IDX_SERVER_TYPES_NAME);
-	arg.add(IDX_SERVER_PARAMETERS);
+	arg.add(IDX_SERVER_TYPES_PARAMETERS);
 	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -844,7 +844,7 @@ bool DBTablesConfig::getServerType(ServerTypeInfo &serverType,
 	  COLUMN_DEF_SERVER_TYPES[IDX_SERVER_TYPES_TYPE].columnName, type);
 	arg.add(IDX_SERVER_TYPES_TYPE);
 	arg.add(IDX_SERVER_TYPES_NAME);
-	arg.add(IDX_SERVER_PARAMETERS);
+	arg.add(IDX_SERVER_TYPES_PARAMETERS);
 	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
