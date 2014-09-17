@@ -118,9 +118,9 @@ class HapiCeilometerGenerator:
         return json.dumps(obj)
 
 
-def generate_one_type(table_name, server_type, server_label, generator):
+def generate_one_type(table_name, server_type, server_label, generator, plugin_path=''):
     line = 'INSERT ' + table_name + ' VALUES ('
-    line += '%d, \'%s\', \'%s\');' % (server_type, server_label, generator())
+    line += '%d, \'%s\', \'%s\', \'%s\');' % (server_type, server_label, generator(), plugin_path)
     print line
 
 
@@ -131,15 +131,16 @@ def main():
                       ZabbixParamGenerator());
     generate_one_type(table_name, hatohol.MONITORING_SYSTEM_NAGIOS, 'Nagios',
                       NagiosParamGenerator());
-    generate_one_type(table_name, hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER,
-                      'Ceilometer',
-                      HapiCeilometerGenerator());
     generate_one_type(table_name, hatohol.MONITORING_SYSTEM_HAPI_ZABBIX,
                       'Zabbix (HAPI) [experimental]',
-                      HapiZabbixParamGenerator());
+                      HapiZabbixParamGenerator(), 'hatohol-arm-plugin-zabbix');
     generate_one_type(table_name, hatohol.MONITORING_SYSTEM_HAPI_JSON,
                       'JSON (HAPI) [experimental]',
                       HapiJSONParamGenerator());
+    generate_one_type(table_name, hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER,
+                      'Ceilometer',
+                      HapiCeilometerGenerator(),
+                      'hatohol-arm-plugin-ceilometer');
 
 
 if __name__ == '__main__':
