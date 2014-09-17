@@ -44,7 +44,7 @@ var LatestView = function(userProfile) {
           self.userConfig.findOrDefault(conf, 'num-items-per-page',
                                         self.baseQuery.limit);
         updatePager();
-	setupFilterValues();
+        setupFilterValues();
         setupCallbacks();
         load();
       },

@@ -165,7 +165,7 @@ var EventsView = function(userProfile, baseElem) {
         items: {'num-events-per-page': val},
         successCallback: function(){ /* we just ignore it */ },
         connectErrorCallback: function(XMLHttpRequest, textStatus,
-				       errorThrown) {
+                                       errorThrown) {
           showXHRError(XMLHttpRequest);
         },
       };
@@ -298,7 +298,7 @@ var EventsView = function(userProfile, baseElem) {
         html += escapeHTML(incident.assignee);
         html += "</td>";
         html += "<td class='incident'>";
-	if (incident.status)
+        if (incident.status)
           html += escapeHTML(incident.doneRatio) + "%";
         html += "</td>";
       }
