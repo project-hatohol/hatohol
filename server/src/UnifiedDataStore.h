@@ -150,6 +150,9 @@ public:
 	HatoholError deleteUserRole(UserRoleIdType userRoleId,
 	                            const OperationPrivilege &privilege);
 
+	// ServerType
+	void getServerTypes(ServerTypeInfoVect &serverTypes);
+
 	// Server
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
 	                      ServerQueryOption &option,

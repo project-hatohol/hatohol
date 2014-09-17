@@ -34,6 +34,23 @@ const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST =
 extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_PASSIVE =
   static_cast<MonitoringSystemType>(NUM_MONITORING_SYSTEMS + 102);
 
+
+ServerTypeInfo testServerTypeInfo[] =
+{{
+	MONITORING_SYSTEM_FAKE,  // type
+	"Fake Monitorin",        // name
+	"User name|password",    // paramters
+},{
+	MONITORING_SYSTEM_ZABBIX, // type
+	"Zabbix",                 // name
+	"IP Address|Port|User name|password", // paramters
+}, {
+	MONITORING_SYSTEM_HAPI_ZABBIX,
+	"Zabbix (HAPI)",          // name
+	"IP Address|Port|User name|password|Queue Name", // paramters
+}};
+size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
+
 MonitoringServerInfo testServerInfo[] = 
 {{
 	1,                        // id
@@ -1505,6 +1522,14 @@ void loadTestDBTablesUser(void)
 	loadTestDBUser();
 	loadTestDBAccessList();
 	loadTestDBUserRole();
+}
+
+void loadTestDBServerType(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	for (size_t i = 0; i < NumTestServerTypeInfo; i++)
+		dbConfig.registerServerType(testServerTypeInfo[i]);
 }
 
 void loadTestDBServer(void)

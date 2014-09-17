@@ -625,6 +625,13 @@ HatoholError UnifiedDataStore::deleteUserRole(
 	return dbUser.deleteUserRoleInfo(userRoleId, privilege);
 }
 
+void UnifiedDataStore::getServerTypes(ServerTypeInfoVect &serverTypes)
+{
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	dbConfig.getServerTypes(serverTypes);
+}
+
 void UnifiedDataStore::getTargetServers(
   MonitoringServerInfoList &monitoringServers, ServerQueryOption &option,
   ArmPluginInfoVect *armPluginInfoVect)

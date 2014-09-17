@@ -190,6 +190,69 @@ void test_createTableSystem(void)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
+void test_createTableServerTypes(void)
+{
+	const string tableName = "server_types";
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	assertCreateTable(&dbConfig.getDBAgent(), tableName);
+
+	// check content
+	const string statement = "SELECT * FROM " + tableName;
+	const string expectedOut = ""; // currently no data
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
+}
+
+void test_registerServerType(void)
+{
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	ServerTypeInfo svTypeInfo;
+	svTypeInfo.type = MONITORING_SYSTEM_FAKE;
+	svTypeInfo.name = "Fake Monitor";
+	svTypeInfo.parameters = "IP address|port|Username|Password";
+	dbConfig.registerServerType(svTypeInfo);
+
+	// check content
+	const string statement = "SELECT * FROM server_types";
+	const string expectedOut =
+	  StringUtils::sprintf("%d|%s|%s\n",
+	                       svTypeInfo.type, svTypeInfo.name.c_str(),
+	                       svTypeInfo.parameters.c_str());
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
+}
+
+void test_registerServerTypeUpdate(void)
+{
+	test_registerServerType(); // insert the record
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	ServerTypeInfo svTypeInfo;
+	svTypeInfo.type = MONITORING_SYSTEM_FAKE;
+	svTypeInfo.name = "Fake Monitor (updated version)";
+	svTypeInfo.parameters = "IP address|port|Username|Password|Group";
+	dbConfig.registerServerType(svTypeInfo);
+
+	// check content
+	const string statement = "SELECT * FROM server_types";
+	const string expectedOut =
+	  StringUtils::sprintf("%d|%s|%s\n",
+	                       svTypeInfo.type, svTypeInfo.name.c_str(),
+	                       svTypeInfo.parameters.c_str());
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
+}
+
+void test_getServerTypes(void)
+{
+	test_registerServerType(); // insert the record
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	ServerTypeInfoVect svTypeVect;
+	dbConfig.getServerTypes(svTypeVect);
+
+	// check content
+	cppcut_assert_equal((size_t)1, svTypeVect.size());
+}
+
+
 void test_createTableServers(void)
 {
 	const string tableName = "servers";

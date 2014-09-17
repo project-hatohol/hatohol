@@ -389,6 +389,31 @@ void test_deleteServer(void)
 	assertServersInDB(serverIdSet);
 }
 
+void test_getServerType(void)
+{
+	loadTestDBServerType();
+	startFaceRest();
+	UnifiedDataStore::getInstance()->start(false);
+
+	RequestArg arg("/server-type");
+	arg.userId = 1; // Any user OK.
+	g_parser = getResponseAsJSONParser(arg);
+
+	assertStartObject(g_parser, "serverType");
+	cppcut_assert_equal(NumTestServerTypeInfo,
+	                    (size_t)g_parser->countElements());
+	for (size_t i = 0; i < NumTestServerTypeInfo; i++) {
+		cppcut_assert_equal(true, g_parser->startElement(i));
+		const ServerTypeInfo &svTypeInfo = testServerTypeInfo[i];
+		assertValueInParser(g_parser, "type", svTypeInfo.type);
+		assertValueInParser(g_parser, "name", svTypeInfo.name);
+		assertValueInParser(g_parser, "parameters",
+		                    svTypeInfo.parameters);
+		g_parser->endElement();
+	}
+	g_parser->endObject(); // serverType
+}
+
 void test_getServerConnStat(void)
 {
 	startFaceRest();
