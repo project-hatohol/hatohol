@@ -220,8 +220,8 @@ var OverviewTriggers = function(userProfile) {
     var query = $.extend({}, self.baseQuery, {
       minimumSeverity: $("#select-severity").val(),
       status:          $("#select-status").val(),
-      maximumNumber:   0,
-      offset:          0
+      limit:           0,
+      offset:          0,
     });
     if (self.lastQuery)
       $.extend(query, self.getHostFilterQuery());
