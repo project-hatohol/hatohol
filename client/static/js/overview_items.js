@@ -22,10 +22,15 @@ var OverviewItems = function(userProfile) {
   var rawData, parsedData;
 
   self.reloadIntervalSeconds = 60;
+  self.baseQuery = {
+  };
+  $.extend(self.baseQuery, getItemsQueryInURI());
+  self.lastQuery = undefined;
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
+  setupFilterValues();
   load();
 
   self.setupHostQuerySelectorCallback(
@@ -78,6 +83,16 @@ var OverviewItems = function(userProfile) {
       parsedData.hosts[serverName] = hostNames[serverName].uniq().sort();
 
     return parsedData;
+  }
+
+  function setupFilterValues(servers, query) {
+    if (!servers && rawData && rawData.servers)
+      servers = rawData.servers;
+
+    if (!query)
+      query = self.lastQuery ? self.lastQuery : self.baseQuery;
+
+    self.setupHostFilters(servers, query);
   }
 
   function setLoading(loading) {
@@ -152,15 +167,32 @@ var OverviewItems = function(userProfile) {
     self.setHostgroupFilterCandidates(rawData["servers"]);
     self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(parsedData);
+    setupFilterValues();
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 
+  function getItemsQueryInURI() {
+    var knownKeys = [
+      "serverId", "hostgroupId", "hostId",
+      "limit", "offset",
+    ];
+    var i, allParams = deparam(), query = {};
+    for (i = 0; i < knownKeys.length; i++) {
+      if (knownKeys[i] in allParams)
+        query[knownKeys[i]] = allParams[knownKeys[i]];
+    }
+    return query;
+  }
+
   function getQuery() {
-    var query = $.extend(self.getHostFilterQuery(), {
-      maximumNumber: 0,
-      offset:        0
+    var query = $.extend({}, self.baseQuery, {
+      limit:  0,
+      offset: 0,
     });
+    if (self.lastQuery)
+      $.extend(query, self.getHostFilterQuery());
+    self.lastQuery = query;
     return 'item?' + $.param(query);
   };
 
