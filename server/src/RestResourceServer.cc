@@ -307,12 +307,12 @@ static HatoholError parseServerParameter(
 
 	// dbname
 	value = (char *)g_hash_table_lookup(query, "dbName");
-	if (svInfo.type == MONITORING_SYSTEM_NAGIOS || value) {
-		if (!value && !allowEmpty)
-			return HatoholError(HTERR_NOT_FOUND_PARAMETER,
-					    "dbName");
-		svInfo.dbName = value;
+	if (!value &&
+	    (svInfo.type == MONITORING_SYSTEM_NAGIOS || !allowEmpty)) {
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "dbName");
 	}
+	if (value)
+		svInfo.dbName = value;
 
 	//
 	// HAPI's parameters

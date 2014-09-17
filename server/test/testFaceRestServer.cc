@@ -297,8 +297,6 @@ void test_updateServer(gconstpointer data)
 	string statement = StringUtils::sprintf(
 	                     "select * from servers where id=%d", srcSvInfo.id);
 	updateSvInfo.id = srcSvInfo.id;
- 	// TODO: serverInfo2StringMap() doesn't set dbName. Is this OK ?
-	updateSvInfo.dbName = srcSvInfo.dbName;
 	string expectedOutput = makeServerInfoOutput(updateSvInfo);
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
