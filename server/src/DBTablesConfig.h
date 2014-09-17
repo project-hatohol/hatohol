@@ -166,6 +166,17 @@ public:
 	 */
 	void getServerTypes(ServerTypeInfoVect &serverTypes);
 
+	/**
+	 * Get the registered ServerTypeInfo with the specified type.
+	 *
+	 * @param serverTypes The obtained information is stored to this.
+	 * @param type        The monitoring system type.
+	 * @return
+	 * true if the server type is found. Otherwise false.
+	 */
+	bool getServerType(ServerTypeInfo &serverType,
+	                   const MonitoringSystemType &type);
+
 	HatoholError addTargetServer(
 	  MonitoringServerInfo *monitoringServerInfo,
 	  const OperationPrivilege &privilege,

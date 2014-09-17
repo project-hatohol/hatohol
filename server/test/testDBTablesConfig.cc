@@ -252,6 +252,21 @@ void test_getServerTypes(void)
 	cppcut_assert_equal((size_t)1, svTypeVect.size());
 }
 
+void test_getServerType(void)
+{
+	loadTestDBServerType();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	for (size_t i = 0; i < NumTestServerTypeInfo; i++) {
+		const ServerTypeInfo &expect = testServerTypeInfo[i];
+		ServerTypeInfo actual;
+		cppcut_assert_equal(true,
+		   dbConfig.getServerType(actual, expect.type));
+		cppcut_assert_equal(expect.type, actual.type);
+		cppcut_assert_equal(expect.name, actual.name);
+		cppcut_assert_equal(expect.parameters, actual.parameters);
+	}
+}
 
 void test_createTableServers(void)
 {

@@ -836,6 +836,27 @@ void DBTablesConfig::getServerTypes(ServerTypeInfoVect &serverTypes)
 	}
 }
 
+bool DBTablesConfig::getServerType(ServerTypeInfo &serverType,
+                                   const MonitoringSystemType &type)
+{
+	DBAgent::SelectExArg arg(tableProfileServerTypes);
+	arg.condition = StringUtils::sprintf("%s=%d",
+	  COLUMN_DEF_SERVER_TYPES[IDX_SERVER_TYPES_TYPE].columnName, type);
+	arg.add(IDX_SERVER_TYPES_TYPE);
+	arg.add(IDX_SERVER_TYPES_NAME);
+	arg.add(IDX_SERVER_PARAMETERS);
+	getDBAgent().runTransaction(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	if (grpList.empty())
+		return false;
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	itemGroupStream >> serverType.type;
+	itemGroupStream >> serverType.name;
+	itemGroupStream >> serverType.parameters;
+	return true;
+}
+
 bool validHostName(const string &hostName)
 {
 	// Currently do nothing to pass through IDN (Internationalized Domain
