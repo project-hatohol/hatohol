@@ -728,6 +728,8 @@ void DBTablesConfig::reset(void)
 	getSetupInfo().initialized = false;
 }
 
+// TODO: Remove this method after replaced our conventional Arm such
+// ArmZabbixAPI and ArmNagiosNDOUtils are replaced with HAPI's ones.
 bool DBTablesConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 {
 	if (type == MONITORING_SYSTEM_HAPI_ZABBIX)
@@ -735,6 +737,8 @@ bool DBTablesConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 	else if (type == MONITORING_SYSTEM_HAPI_NAGIOS)
 		return true;
 	else if (type == MONITORING_SYSTEM_HAPI_JSON)
+		return true;
+	else if (type == MONITORING_SYSTEM_HAPI_CEILOMETER)
 		return true;
 	return false;
 }
