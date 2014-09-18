@@ -18,12 +18,15 @@
  */
 
 #include <cstdio>
+#include <string>
+#include <cstring>
 #include <SimpleSemaphore.h>
 #include <Mutex.h>
 #include <Reaper.h>
 #include "HatoholArmPluginBase.h"
 
 using namespace mlpl;
+using namespace std;
 
 const size_t HatoholArmPluginBase::WAIT_INFINITE = 0;
 
@@ -362,7 +365,8 @@ void HatoholArmPluginBase::sendTable(
 	send(cmdBuf);
 }
 
-void HatoholArmPluginBase::sendArmInfo(const ArmInfo &armInfo)
+void HatoholArmPluginBase::sendArmInfo(const ArmInfo &armInfo,
+				       const HatoholArmPluginWtchPoint &type)
 {
 	SmartBuffer cmdBuf;
 	const size_t failureCommentLen = armInfo.failureComment.size();
@@ -388,10 +392,35 @@ void HatoholArmPluginBase::sendArmInfo(const ArmInfo &armInfo)
 	body->numUpdate  = NtoL(armInfo.numUpdate);
 	body->numFailure = NtoL(armInfo.numFailure);
 
+	body->failureReason = NtoL(type);
+
 	char *buf = reinterpret_cast<char *>(body) + sizeof(HapiArmInfo);
 	buf = putString(buf, body, armInfo.failureComment,
 	                &body->failureCommentOffset,
 	                &body->failureCommentLength);
+	send(cmdBuf);
+}
+
+void HatoholArmPluginBase::sendAvailableTrigger(const int TriggerNum,
+						const HatoholArmPluginWtchPoint *TriggerList)
+{
+	uint32_t SendList[TriggerNum];
+	for ( int i=0 ; i < TriggerNum ; i++){
+		SendList[i] = NtoL(TriggerList[i]);
+	}
+
+	SmartBuffer cmdBuf;
+	const size_t listsize = sizeof(SendList);
+	const size_t additionalSize = listsize;
+
+	HapiAvailableTrigger *body = 
+	  setupCommandHeader<HapiAvailableTrigger>(cmdBuf, HAPI_CMD_SEND_TRIGGER_INFO,
+						   additionalSize);
+	body->triggerNum= NtoL(TriggerNum);
+	int *buf = reinterpret_cast<int *>(body + 1);
+
+	memcpy(buf,SendList,additionalSize);
+
 	send(cmdBuf);
 }
 

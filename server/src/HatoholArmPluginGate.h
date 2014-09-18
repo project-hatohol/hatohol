@@ -30,6 +30,12 @@ class HatoholArmPluginGate : public DataStore, public HatoholArmPluginInterface 
 public:
 	static const std::string PassivePluginQuasiPath;
 	static const int   NO_RETRY;
+	
+	struct HAPIWtchPointInfo {
+		TriggerStatusType statusType;
+		TriggerIdType triggerId;
+		std::string msg;
+	};
 
 	HatoholArmPluginGate(const MonitoringServerInfo &serverInfo);
 
@@ -63,7 +69,14 @@ protected:
 	virtual ~HatoholArmPluginGate();
 
 	virtual void onConnected(qpid::messaging::Connection &conn) override;
-
+	virtual void onCreateSelfHostinfo(void) override;
+	virtual void onSetAvailabelTrigger(const HatoholArmPluginWtchPoint &type,
+					   const TriggerIdType &trrigerId,
+					   const HatoholError &hatoholError) override;
+	virtual void onSetTriggerEvent(const HatoholArmPluginWtchPoint &type,
+				       const HatoholArmPluginErrorCode &avaliable) override;
+	virtual void onCheckArmPliuginConnection(void) override;
+	virtual void onEndArmPliuginConnection(void) override;
 	/**
 	 * Called when an exception was caught.
 	 *
@@ -101,7 +114,16 @@ protected:
 	void cmdHandlerSendHostgroups(const HapiCommandHeader *header);
 	void cmdHandlerSendUpdatedEvents(const HapiCommandHeader *header);
 	void cmdHandlerSendArmInfo(const HapiCommandHeader *header);
+	void cmdHandlerAvailableTrigger(const HapiCommandHeader *header);
 
+	void addInitialTrigger(HatoholArmPluginWtchPoint addtrigger);
+
+	void onCreateTriggerInfo(const HAPIWtchPointInfo &resTrigger,
+				 TriggerInfoList &triggerInfoList);
+	void onCreateEventInfo(const HAPIWtchPointInfo &resTrigger,
+			       EventInfoList &eventInfoList);
+
+	static gboolean detectArmPliuginConnectTimeout(void *data);
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;;

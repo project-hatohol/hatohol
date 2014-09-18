@@ -50,6 +50,8 @@ static const size_t TIMEOUT_PLUGIN_TERM_CMD_MS     =  30 * 1000;
 static const size_t TIMEOUT_PLUGIN_TERM_SIGTERM_MS =  60 * 1000;
 static const size_t TIMEOUT_PLUGIN_TERM_SIGKILL_MS = 120 * 1000;
 
+static const char *HAPI_SELF_CHARACTER = "_HAPI";
+
 class ImpromptuArmBase : public ArmBase {
 public:
 	ImpromptuArmBase(const MonitoringServerInfo &serverInfo)
@@ -83,6 +85,8 @@ struct HatoholArmPluginGate::Impl
 	HostInfoCache        hostInfoCache;
 	Mutex                exitSyncLock;
 	bool                 exitSyncDone;
+	guint                timerTag;
+	HAPIWtchPointInfo    hapiWtchPointInfo[NUM_COLLECT_NG_KIND];
 
 	Impl(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
@@ -109,6 +113,13 @@ struct HatoholArmPluginGate::Impl
 		  pluginTermSem.timedWait(timeoutInMSec);
 		return (status == SimpleSemaphore::STAT_OK);
 	}
+
+	void setInitialTriggerTable(void)
+	{
+		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++)
+			hapiWtchPointInfo[i].statusType = TRIGGER_STATUS_ALL;
+	}
+
 };
 
 const string HatoholArmPluginGate::PassivePluginQuasiPath = "#PASSIVE_PLUGIN#";
@@ -188,6 +199,11 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	  HAPI_CMD_SEND_ARM_INFO,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerSendArmInfo);
+
+	registerCommandHandler(
+	  HAPI_CMD_SEND_TRIGGER_INFO,
+	  (CommandHandler)
+	  &HatoholArmPluginGate::cmdHandlerAvailableTrigger);
 }
 
 void HatoholArmPluginGate::start(void)
@@ -236,6 +252,178 @@ void HatoholArmPluginGate::exitSync(void)
 HatoholArmPluginGate::~HatoholArmPluginGate()
 {
 	exitSync();
+}
+
+gboolean HatoholArmPluginGate::detectArmPliuginConnectTimeout(void *data)
+{
+	MLPL_ERR("HatoholArmPluginGate::detectArmPliuginConnectTimeout");
+	HatoholArmPluginGate *obj = static_cast<HatoholArmPluginGate *>(data);
+	obj->m_impl->timerTag = INVALID_EVENT_ID;
+	obj->onSetTriggerEvent(COLLECT_NG_PLGIN_CONNECT_ERROR,
+			       HAPERR_NOT_AVAILABLR);
+	return G_SOURCE_REMOVE;
+}
+
+void HatoholArmPluginGate::onCheckArmPliuginConnection(void)
+{
+	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
+	if (svInfo.pollingIntervalSec != 0)
+		m_impl->timerTag = g_timeout_add(svInfo.pollingIntervalSec * 1000 * 3,
+						 detectArmPliuginConnectTimeout,
+						 this);
+}
+
+void HatoholArmPluginGate::onEndArmPliuginConnection(void)
+{
+	if (m_impl->timerTag != INVALID_EVENT_ID){
+		g_source_remove(m_impl->timerTag);
+		m_impl->timerTag = INVALID_EVENT_ID;
+	}
+}
+
+void HatoholArmPluginGate::onCreateSelfHostinfo(void)
+{
+	MLPL_ERR("HatoholArmPluginGate::onCreateSelfHostinfo");
+	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+
+	HostInfo hostInfo;
+	hostInfo.serverId = svInfo.id;
+	hostInfo.id = MONITORING_SERVER_SELF_ID;
+	hostInfo.hostName = 
+		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
+				     HAPI_SELF_CHARACTER);
+	dbMonitoring.addHostInfo(&hostInfo);
+
+	m_impl->setInitialTriggerTable();
+}
+
+void HatoholArmPluginGate::onCreateTriggerInfo(const HAPIWtchPointInfo &resTrigger,
+					       TriggerInfoList &triggerInfoList)
+{
+	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
+	TriggerInfo triggerInfo;
+
+	triggerInfo.serverId = svInfo.id;
+	triggerInfo.lastChangeTime.tv_sec = SmartTime(SmartTime::INIT_CURR_TIME).getAsSec();
+	triggerInfo.lastChangeTime.tv_nsec = 0;
+	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
+	triggerInfo.hostName = 
+		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(), HAPI_SELF_CHARACTER);
+	triggerInfo.id = resTrigger.triggerId;
+	triggerInfo.brief = resTrigger.msg;
+	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
+	triggerInfo.status = resTrigger.statusType;
+
+	triggerInfoList.push_back(triggerInfo);
+}
+
+void HatoholArmPluginGate::onCreateEventInfo(const HAPIWtchPointInfo &resTrigger,
+					   EventInfoList &eventInfoList)
+{
+	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
+	EventInfo eventInfo;
+
+	eventInfo.serverId = svInfo.id;
+	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
+	eventInfo.time.tv_sec = SmartTime(SmartTime::INIT_CURR_TIME).getAsSec();
+	eventInfo.time.tv_nsec = 0;
+	eventInfo.hostId = MONITORING_SERVER_SELF_ID;
+	eventInfo.triggerId = resTrigger.triggerId;
+	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
+	eventInfo.status = resTrigger.statusType;
+	if (resTrigger.statusType == TRIGGER_STATUS_OK) {
+		eventInfo.type = EVENT_TYPE_GOOD;
+	} else {
+		eventInfo.type = EVENT_TYPE_BAD;
+	}
+	eventInfoList.push_back(eventInfo);
+}
+
+void HatoholArmPluginGate::onSetAvailabelTrigger(const HatoholArmPluginWtchPoint &type,
+						 const TriggerIdType &trrigerId,
+						 const HatoholError   &hatoholError)
+{
+	TriggerInfoList triggerInfoList;
+	m_impl->hapiWtchPointInfo[type].statusType = TRIGGER_STATUS_UNKNOWN;
+	m_impl->hapiWtchPointInfo[type].triggerId = trrigerId;
+	m_impl->hapiWtchPointInfo[type].msg = hatoholError.getMessage().c_str();
+
+	HAPIWtchPointInfo &resTrigger = m_impl->hapiWtchPointInfo[type];
+	onCreateTriggerInfo(resTrigger, triggerInfoList);
+
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
+}
+
+void HatoholArmPluginGate::onSetTriggerEvent(const HatoholArmPluginWtchPoint &type,
+					     const HatoholArmPluginErrorCode &avaliable)
+{
+	TriggerInfoList triggerInfoList;
+	EventInfoList eventInfoList;
+	TriggerStatusType istatusType;
+
+	if ( avaliable == HAPERR_NOT_AVAILABLR) {
+		istatusType = TRIGGER_STATUS_PROBLEM;
+	} else if ( avaliable == HAPERR_OK) {
+		istatusType = TRIGGER_STATUS_OK;
+	} else {
+		istatusType = TRIGGER_STATUS_UNKNOWN;
+	}
+
+	if (type == COLLECT_OK) {
+		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
+			HAPIWtchPointInfo &trgInfo = m_impl->hapiWtchPointInfo[i];
+			if (trgInfo.statusType == TRIGGER_STATUS_PROBLEM) {
+				trgInfo.statusType = TRIGGER_STATUS_OK;
+				onCreateTriggerInfo(trgInfo, triggerInfoList);
+				onCreateEventInfo(trgInfo, eventInfoList);
+			} else if (trgInfo.statusType == TRIGGER_STATUS_UNKNOWN) {
+				trgInfo.statusType = TRIGGER_STATUS_OK;
+				onCreateTriggerInfo(trgInfo, triggerInfoList);
+			}				
+		}
+	}
+	else {
+		if (m_impl->hapiWtchPointInfo[type].statusType == istatusType)
+			return;
+		if (m_impl->hapiWtchPointInfo[type].statusType != TRIGGER_STATUS_UNKNOWN) {
+			m_impl->hapiWtchPointInfo[type].statusType = istatusType;
+			onCreateTriggerInfo(m_impl->hapiWtchPointInfo[type], triggerInfoList);
+			onCreateEventInfo(m_impl->hapiWtchPointInfo[type], eventInfoList);
+		} else {
+			m_impl->hapiWtchPointInfo[type].statusType = istatusType;
+			onCreateTriggerInfo(m_impl->hapiWtchPointInfo[type], triggerInfoList);
+		}
+		for (int i = static_cast<int>(type) + 1; i < NUM_COLLECT_NG_KIND; i++) {
+			HAPIWtchPointInfo &trgInfo = m_impl->hapiWtchPointInfo[i];
+			if (trgInfo.statusType == TRIGGER_STATUS_PROBLEM) {
+				trgInfo.statusType = TRIGGER_STATUS_OK;
+				onCreateTriggerInfo(trgInfo, triggerInfoList);
+				onCreateEventInfo(trgInfo, eventInfoList);
+			} else if (trgInfo.statusType == TRIGGER_STATUS_UNKNOWN) {
+				trgInfo.statusType = TRIGGER_STATUS_OK;
+				onCreateTriggerInfo(trgInfo, triggerInfoList);
+			}
+		}
+		for (int i = 0; i < type; i++) {
+			HAPIWtchPointInfo &trgInfo = m_impl->hapiWtchPointInfo[i];
+			if (trgInfo.statusType == TRIGGER_STATUS_OK) {
+				trgInfo.statusType = TRIGGER_STATUS_UNKNOWN;
+				onCreateTriggerInfo(trgInfo, triggerInfoList);
+			}
+		}
+	}
+
+	if (!triggerInfoList.empty()) {
+		ThreadLocalDBCache cache;
+		cache.getMonitoring().addTriggerInfoList(triggerInfoList);
+	}
+	if (!eventInfoList.empty()) {
+		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+		dataStore->addEventList(eventInfoList);
+	}
 }
 
 void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)
@@ -614,7 +802,59 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 	armInfo.failureComment = getString(*cmdBuf, body,
 	                                   body->failureCommentOffset,
 	                                   body->failureCommentLength);
+
+	HatoholArmPluginWtchPoint type = 
+		(HatoholArmPluginWtchPoint)LtoN(body->failureReason);
+	if (armInfo.stat == ARM_WORK_STAT_OK ){
+		onSetTriggerEvent(COLLECT_OK, HAPERR_OK);
+	} else {
+		if (type != COLLECT_OK)
+			onSetTriggerEvent(type, HAPERR_NOT_AVAILABLR);
+	}
+
 	m_impl->armStatus.setArmInfo(armInfo);
 
+	replyOk();
+
+}
+
+void HatoholArmPluginGate::addInitialTrigger(HatoholArmPluginWtchPoint addtrigger)
+{
+	if (addtrigger == COLLECT_NG_DISCONNECT_ZABBIX) {
+		onSetAvailabelTrigger(COLLECT_NG_DISCONNECT_ZABBIX,
+				      FAILED_CONNECT_ZABBIX_TRIGGERID,
+				      HTERR_FAILED_CONNECT_ZABBIX);
+	} else if (addtrigger == COLLECT_NG_PARSER_ERROR) {
+		onSetAvailabelTrigger(COLLECT_NG_PARSER_ERROR,
+				      FAILED_PARSER_ERROR_TRIGGERID,
+				      HTERR_FAILED_TO_PARSE_JSON_DATA);
+	} else if (addtrigger == COLLECT_NG_DISCONNECT_NAGIOS) {
+		onSetAvailabelTrigger(COLLECT_NG_DISCONNECT_NAGIOS,
+				      FAILED_CONNECT_MYSQL_TRIGGERID,
+				      HTERR_FAILED_CONNECT_MYSQL);
+	} else if (addtrigger == COLLECT_NG_PLGIN_INTERNAL_ERROR) {
+		onSetAvailabelTrigger(COLLECT_NG_PLGIN_INTERNAL_ERROR,
+				      FAILED_HAPI_INTERNAL_ERROR_TRIGGERID,
+				      HTERR_HAPI_INTERNAL_ERROR);
+	}
+}
+
+void HatoholArmPluginGate::cmdHandlerAvailableTrigger(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+
+	HapiAvailableTrigger *body = getCommandBody<HapiAvailableTrigger>(*cmdBuf);
+
+	int trignum = LtoN(body->triggerNum);
+	uint32_t dumyList[trignum];
+
+	const size_t listsize = sizeof(dumyList);
+	memcpy(dumyList, body + 1, listsize);
+	for (int i=0;i<trignum;i++){
+		int tmp_int = LtoN(dumyList[i]);
+		addInitialTrigger(static_cast<HatoholArmPluginWtchPoint>(tmp_int));
+	}
 	replyOk();
 }

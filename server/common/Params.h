@@ -94,10 +94,14 @@ static const IncidentTrackerIdType ALL_INCIDENT_TRACKERS = -1;
 // Special Trigger IDs ========================================================
 static const TriggerIdType ALL_TRIGGERS                    = -1;
 
-static const TriggerIdType FAILED_CONNECT_ZABBIX_TRIGGERID = -1000;
-static const TriggerIdType FAILED_CONNECT_MYSQL_TRIGGERID  = -1001;
-static const TriggerIdType FAILED_INTERNAL_ERROR_TRIGGERID = -1002;
-static const TriggerIdType FAILED_PARSER_ERROR_TRIGGERID   = -1003;
+static const TriggerIdType FAILED_CONNECT_ZABBIX_TRIGGERID      = -1000;
+static const TriggerIdType FAILED_CONNECT_MYSQL_TRIGGERID       = -1001;
+static const TriggerIdType FAILED_INTERNAL_ERROR_TRIGGERID      = -1002;
+static const TriggerIdType FAILED_PARSER_ERROR_TRIGGERID        = -1003;
+static const TriggerIdType FAILED_CONNECT_BROKER_TRIGGERID      = -1004;
+static const TriggerIdType FAILED_CONNECT_HAPI_TRIGGERID        = -1005;
+static const TriggerIdType FAILED_HAPI_INTERNAL_ERROR_TRIGGERID = -1006;
+static const TriggerIdType FAILED_SELF_TRIGGERID_TERM           = -1007;
 
 // Special Event IDs ==========================================================
 static const EventIdType EVENT_NOT_FOUND = -1;

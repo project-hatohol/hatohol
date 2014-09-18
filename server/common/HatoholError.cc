@@ -142,6 +142,13 @@ void HatoholError::init(void)
 		   "Failed in connecting to Zabbix.");
 	DEFINE_ERR(FAILED_CONNECT_MYSQL,
 		   "Failed in connecting to MySQL.");
+	DEFINE_ERR(FAILED_CONNECT_BROKER,
+		   "Failed in connecting to Broker.");
+	DEFINE_ERR(FAILED_CONNECT_HAPI,
+		   "Failed in connecting to ArmPlugin.");
+
+	DEFINE_ERR(HAPI_INTERNAL_ERROR,
+		   "Internal error happend in ArmPlugin.");
 
 	// OTHER
 	DEFINE_ERR(ERROR_TEST,

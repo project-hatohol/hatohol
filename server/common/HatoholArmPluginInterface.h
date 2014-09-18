@@ -36,6 +36,8 @@
 enum HatoholArmPluginErrorCode {
 	HAPERR_OK,
 	HAPERR_NOT_FOUND_QUEUE_ADDR,
+	HAPERR_NOT_AVAILABLR,
+	HAPERR_UNKNOWN,
 };
 
 struct HatoholArmPluginError {
@@ -44,6 +46,18 @@ struct HatoholArmPluginError {
 
 class HapInitiatedException : public std::exception {
 };
+
+typedef enum {
+	COLLECT_NG_PARSER_ERROR = 0,
+	COLLECT_NG_DISCONNECT_ZABBIX,
+	COLLECT_NG_DISCONNECT_NAGIOS,
+	COLLECT_NG_PLGIN_INTERNAL_ERROR,
+	COLLECT_NG_HATOHOL_INTERNAL_ERROR,
+	COLLECT_NG_PLGIN_CONNECT_ERROR,
+	COLLECT_NG_AMQP_CONNECT_ERROR,
+	NUM_COLLECT_NG_KIND,
+	COLLECT_OK,
+}HatoholArmPluginWtchPoint;
 
 enum HapiMessageType {
 	HAPI_MSG_INITIATION,          // Sv -> Cl
@@ -67,6 +81,7 @@ enum HapiCommandCode {
 	HAPI_CMD_SEND_HOST_GROUPS,
 	HAPI_CMD_SEND_UPDATED_EVENTS,
 	HAPI_CMD_SEND_ARM_INFO,
+	HAPI_CMD_SEND_TRIGGER_INFO,
 	// Sv -> Cl
 	HAPI_CMD_REQ_ITEMS,
 	HAPI_CMD_REQ_TERMINATE,
@@ -157,6 +172,7 @@ struct HapiArmInfo {
 	uint32_t statUpdateTimeNanosec;
 	uint16_t failureCommentLength; // Not include the NULL terminator
 	uint16_t failureCommentOffset; // from the top of this structure
+	uint64_t failureReason;
 	uint64_t lastSuccessTime;
 	uint32_t lastSuccessTimeNanosec;
 	uint64_t lastFailureTime;
@@ -213,6 +229,10 @@ struct HapiResLastEventId {
 struct HapiResTimeOfLastEvent {
 	uint64_t sec;
 	uint32_t nsec;
+} __attribute__((__packed__));
+
+struct HapiAvailableTrigger {
+	uint64_t triggerNum;
 } __attribute__((__packed__));
 
 
@@ -482,6 +502,15 @@ protected:
 	 * @param conn A connection object
 	 */
 	virtual void onConnected(qpid::messaging::Connection &conn);
+	virtual void onCreateSelfHostinfo(void);
+	virtual void onSetAvailabelTrigger(const HatoholArmPluginWtchPoint &type,
+					   const TriggerIdType &trrigerId,
+					   const HatoholError &hatoholError);
+	virtual void onSetTriggerEvent(const HatoholArmPluginWtchPoint &type,
+				       const HatoholArmPluginErrorCode &avaliable);
+	virtual void onAddAvailableTrigger(void);
+	virtual void onCheckArmPliuginConnection(void);
+	virtual void onEndArmPliuginConnection(void);
 
 	/**
 	 * Called when initiation with the other side is completed.

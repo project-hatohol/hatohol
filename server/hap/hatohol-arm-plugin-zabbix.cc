@@ -143,17 +143,30 @@ void HapProcessZabbixAPI::startAcquisition(void)
 	bool caughtException = false;
 	string exceptionName;
 	string exceptionMsg;
+	HatoholErrorCode exceptionErrorCode;
+	HatoholArmPluginWtchPoint type;
 	try {
 		acquireData();
+		type = COLLECT_OK;
 	} catch (const HatoholException &e) {
 		exceptionName = DEMANGLED_TYPE_NAME(e);
 		exceptionMsg  = e.getFancyMessage();
 		caughtException = true;
+		exceptionErrorCode = e.getErrCode();
+		if (exceptionErrorCode == HTERR_FAILED_CONNECT_ZABBIX) {
+			type = COLLECT_NG_DISCONNECT_ZABBIX;
+		} else if (exceptionErrorCode == HTERR_FAILED_TO_PARSE_JSON_DATA){
+			type = COLLECT_NG_PARSER_ERROR;
+		} else {
+			type = COLLECT_NG_PLGIN_INTERNAL_ERROR;
+		}
 	} catch (const exception &e) {
 		exceptionName = DEMANGLED_TYPE_NAME(e);
 		exceptionMsg  = e.what();
+		type = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 		caughtException = true;
 	} catch (...) {
+		type = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 		caughtException = true;
 	}
 
@@ -168,11 +181,12 @@ void HapProcessZabbixAPI::startAcquisition(void)
 		MLPL_ERR("%s\n", errMsg.c_str());
 		getArmStatus().logFailure(errMsg);
 	}
+
 	m_ctx->timerTag = g_timeout_add(intervalMSec, acquisitionTimerCb, this);
 
 	// update ArmInfo
 	try {
-		sendArmInfo(getArmStatus().getArmInfo());
+		sendArmInfo(getArmStatus().getArmInfo(),type);
 	} catch (...) {
 		MLPL_ERR("Failed to send ArmInfo.\n");
 	}
