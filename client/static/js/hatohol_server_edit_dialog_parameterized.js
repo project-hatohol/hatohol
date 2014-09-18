@@ -72,14 +72,11 @@ var HatoholServerEditDialogParameterized = function(params) {
       if (param.hidden)
         val = param.default;
       else if (param.inputStyle == 'checkBox')
-        val = $('#' + param.id).prop('checked');
+        val = $('#' + param.elementId).prop('checked');
       else
-        val = $('#' + param.id).val();
+        val = $('#' + param.elementId).val();
 
-      if (param.class)
-        queryData[param.class] = val;
-      else
-        queryData['_extra'][param.name] = val;
+      queryData[param.id] = val;
     }
     return queryData;
   }
@@ -199,7 +196,7 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
 
     // set events to fix up state of 'apply' button
     for (var i = 0; i < paramObj.length; i++) {
-      $('#' + paramObj[i].id).keyup(function() {
+      $('#' + paramObj[i].elementId).keyup(function() {
         self.fixupApplyButtonState();
       });
     }
@@ -210,7 +207,11 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
     if (param.hidden)
       return null;
 
-    var label = param.name;
+    var label;
+    if (param.label)
+      label = param.label;
+    else
+      label = param.id;
 
     var defaultValue = '';
     if (param.default != undefined)
@@ -224,13 +225,13 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
     if (param.hint != undefined)
       hint = param.hint;
 
-    var id = 'server-edit-dialog-param-form-' + index;
-    param.id = id;
+    var elementId = 'server-edit-dialog-param-form-' + index;
+    param.elementId = elementId;
     var div = $('<div class="form-group">');
     if (inputStyle == 'text') {
-      div.append(makeTextInput(id, label, defaultValue, hint));
+      div.append(makeTextInput(elementId, label, defaultValue, hint));
     } else if (inputStyle == 'checkBox') {
-      div.append(makeCheckboxInput(id, label, hint));
+      div.append(makeCheckboxInput(elementId, label, hint));
     } else {
       hatoholErrorMsgBox("[Malformed reply] unknown input style: " +
                          inputStyle);
@@ -291,7 +292,7 @@ HatoholServerEditDialogParameterized.prototype.fixupApplyButtonState = function(
        continue;
      if (param.hidden)
        continue;
-     if (!$('#' + param.id).val())
+     if (!$('#' + param.elementId).val())
        break;
   }
   var state = (i == paramObj.length);
