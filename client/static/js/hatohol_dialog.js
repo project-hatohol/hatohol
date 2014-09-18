@@ -54,9 +54,12 @@ var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
   self.onAppendMainElement();
 
   var width = "95%";
+  var position = undefined;
   if (dialogAttr) {
     if (dialogAttr.width)
       width = dialogAttr.width
+    if (dialogAttr.position)
+      position  = dialogAttr.position;
   }
 
   $(self.dialogId).dialog({
@@ -66,6 +69,7 @@ var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
     width: width,
     modal: true,
     buttons: buttons,
+    position: position,
     open: function(event, ui){
       $(".ui-dialog-titlebar-close").hide();
       $(self.dialogId).keypress(function(event) {
