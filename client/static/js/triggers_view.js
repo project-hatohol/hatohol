@@ -182,8 +182,6 @@ var TriggersView = function(userProfile) {
 	+ "&triggerId=" + escapeHTML(trigger["id"]) + "'>"
 	+ escapeHTML(trigger["brief"])
 	+ "</a></td>";
-      html += "<td>"
-	+ "</td>";
       html += "</tr>";
     }
 
