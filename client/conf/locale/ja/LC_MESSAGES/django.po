@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-08 19:07-0500\n"
+"POT-Creation-Date: 2014-09-18 18:50-0500\n"
 "PO-Revision-Date: 2014-09-09 09:13+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -35,7 +35,7 @@ msgid "Server"
 msgstr "サーバ"
 
 #: viewer/actions_ajax.html:56 viewer/events_ajax.html:69
-#: viewer/latest_ajax.html:60 viewer/triggers_ajax.html:74
+#: viewer/latest_ajax.html:60 viewer/triggers_ajax.html:70
 msgid "Host"
 msgstr "ホスト"
 
@@ -58,7 +58,7 @@ msgid "Severity"
 msgstr "深刻度"
 
 #: viewer/actions_ajax.html:61 viewer/hosts_ajax.html:40
-#: viewer/servers_ajax.html:56
+#: viewer/servers_ajax.html:62
 msgid "Type"
 msgstr "タイプ"
 
@@ -74,23 +74,23 @@ msgstr "コマンド"
 msgid "Time-out (sec)"
 msgstr "タイムアウト (秒)"
 
-#: viewer/base_ajax.html:32 viewer/base_ajax.html.py:39
+#: viewer/base_ajax.html:33 viewer/base_ajax.html.py:40
 msgid "Hatohol"
 msgstr "Hatohol"
 
-#: viewer/base_ajax.html:46
+#: viewer/base_ajax.html:47
 msgid "PREPARE"
 msgstr "準備中"
 
-#: viewer/base_ajax.html:55
+#: viewer/base_ajax.html:56
 msgid "Not logged in"
 msgstr "未ログイン"
 
-#: viewer/base_ajax.html:60
+#: viewer/base_ajax.html:61
 msgid "Logout"
 msgstr "ログアウト"
 
-#: viewer/base_ajax.html:64
+#: viewer/base_ajax.html:65
 msgid "Change password"
 msgstr "パスワード変更"
 
@@ -216,7 +216,7 @@ msgstr "時間"
 msgid "Brief"
 msgstr "説明"
 
-#: viewer/events_ajax.html:73 viewer/triggers_ajax.html:71
+#: viewer/events_ajax.html:73
 msgid "Duration"
 msgstr "継続時間"
 
@@ -233,14 +233,15 @@ msgid "Assignee"
 msgstr "担当者"
 
 #: viewer/events_ajax.html:84
-msgid "% Done"
+#, fuzzy, python-format
+msgid "%% Done"
 msgstr "進捗率"
 
-#: viewer/events_ajax.html:98
+#: viewer/events_ajax.html:95
 msgid "Latest events"
 msgstr "最新イベント"
 
-#: viewer/events_ajax.html:102
+#: viewer/events_ajax.html:99
 msgid "To next"
 msgstr "次へ"
 
@@ -256,20 +257,21 @@ msgstr "グループを表示"
 msgid "ID"
 msgstr "ID"
 
-#: viewer/hosts_ajax.html:41 viewer/servers_ajax.html:57
+#: viewer/hosts_ajax.html:41 viewer/servers_ajax.html:63
 msgid "Hostname"
 msgstr "ホスト名"
 
-#: viewer/hosts_ajax.html:42 viewer/servers_ajax.html:58
+#: viewer/hosts_ajax.html:42 viewer/servers_ajax.html:64
 msgid "IP Address"
 msgstr "IPアドレス"
 
-#: viewer/hosts_ajax.html:43 viewer/servers_ajax.html:59
+#: viewer/hosts_ajax.html:43 viewer/servers_ajax.html:65
+#: viewer/servers_ajax.html.py:90
 msgid "Nickname"
 msgstr "ニックネーム"
 
 #: viewer/hosts_ajax.html:44 viewer/hosts_ajax.html.py:149
-#: viewer/servers_ajax.html:60
+#: viewer/servers_ajax.html:66
 msgid "Maps"
 msgstr "マップ"
 
@@ -309,7 +311,7 @@ msgstr "ページ毎のアイテム数"
 msgid "Application"
 msgstr "アプリケーション"
 
-#: viewer/latest_ajax.html:62 viewer/triggers_ajax.html:75
+#: viewer/latest_ajax.html:62 viewer/triggers_ajax.html:71
 msgid "Name"
 msgstr "名前"
 
@@ -341,21 +343,98 @@ msgstr "サーバ"
 msgid "ADD SERVER"
 msgstr "サーバ追加"
 
-#: viewer/servers_ajax.html:39
+#: viewer/servers_ajax.html:40
+msgid "ADD SERVER (New version)"
+msgstr ""
+
+#: viewer/servers_ajax.html:45
 msgid "DELETE SERVER"
 msgstr "サーバ削除"
 
-#: viewer/servers_ajax.html:55
+#: viewer/servers_ajax.html:61
 msgid "Connection status"
 msgstr "通信状態"
 
-#: viewer/servers_ajax.html:69
+#: viewer/servers_ajax.html:75
 msgid ""
 "Please use a browser's reload function when you update servers information "
 "including 'Connection status'."
 msgstr ""
 "'通信状態'を含むサーバ情報を更新するには、ブラウザのリロード機能をご使用くだ"
 "さい."
+
+#: viewer/servers_ajax.html:81
+#, fuzzy
+msgid "Server type"
+msgstr "サーバ"
+
+#: viewer/servers_ajax.html:83 viewer/servers_ajax.html.py:85
+msgid "Zabbix"
+msgstr ""
+
+#: viewer/servers_ajax.html:84
+msgid "Nagios"
+msgstr ""
+
+#: viewer/servers_ajax.html:85 viewer/servers_ajax.html.py:86
+msgid "experimental"
+msgstr ""
+
+#: viewer/servers_ajax.html:86
+msgid "JSON"
+msgstr ""
+
+#: viewer/servers_ajax.html:94
+#, fuzzy
+msgid "Host name"
+msgstr "ホスト名"
+
+#: viewer/servers_ajax.html:96
+#, fuzzy
+msgid "IP address"
+msgstr "IPアドレス"
+
+#: viewer/servers_ajax.html:98
+msgid "Port"
+msgstr ""
+
+#: viewer/servers_ajax.html:102
+#, fuzzy
+msgid "DB name"
+msgstr "ユーザ名"
+
+#: viewer/servers_ajax.html:106 viewer/users_ajax.html:56
+msgid "User name"
+msgstr "ユーザ名"
+
+#: viewer/servers_ajax.html:108
+#, fuzzy
+msgid "Password"
+msgstr "パスワード変更"
+
+#: viewer/servers_ajax.html:112
+msgid "Polling interval (sec)"
+msgstr ""
+
+#: viewer/servers_ajax.html:114
+msgid "Retry interval (sec)"
+msgstr ""
+
+#: viewer/servers_ajax.html:122
+msgid "Passive mode"
+msgstr ""
+
+#: viewer/servers_ajax.html:125
+msgid "Broker URL"
+msgstr ""
+
+#: viewer/servers_ajax.html:127 viewer/servers_ajax.html.py:132
+msgid "(empty: Default)"
+msgstr ""
+
+#: viewer/servers_ajax.html:130
+msgid "Static queue address"
+msgstr ""
 
 #: viewer/triggers_ajax.html:24 viewer/triggers_ajax.html.py:29
 msgid "Triggers"
@@ -369,14 +448,6 @@ msgstr "ページ毎のトリガー数"
 msgid "Last change"
 msgstr "最新の変更"
 
-#: viewer/triggers_ajax.html:72
-msgid "Acknowledged"
-msgstr "障害対応済"
-
-#: viewer/triggers_ajax.html:77
-msgid "Comment"
-msgstr "コメント"
-
 #: viewer/users_ajax.html:24 viewer/users_ajax.html.py:29
 msgid "Users"
 msgstr "ユーザ"
@@ -389,10 +460,6 @@ msgstr "ユーザ追加"
 msgid "DELETE USER"
 msgstr "ユーザ削除"
 
-#: viewer/users_ajax.html:56
-msgid "User name"
-msgstr "ユーザ名"
-
 #: viewer/users_ajax.html:57
 msgid "User role"
 msgstr "ユーザ種別"
@@ -400,6 +467,12 @@ msgstr "ユーザ種別"
 #: viewer/users_ajax.html:58
 msgid "Privileges"
 msgstr "権限"
+
+#~ msgid "Acknowledged"
+#~ msgstr "障害対応済"
+
+#~ msgid "Comment"
+#~ msgstr "コメント"
 
 #~ msgid "Do you delete the selected items ?"
 #~ msgstr "選択項目を削除しますか？"
