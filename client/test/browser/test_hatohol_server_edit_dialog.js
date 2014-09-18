@@ -54,8 +54,8 @@ describe('HatoholServerEditDialog', function() {
     expect($("#inputHostName").val()).to.be.empty();
     expect($("#inputIpAddress").val()).to.be.empty();
     expect($("#inputPort").val()).to.be("80");
-    expect($("#inputUserName").val()).to.be.empty();
-    expect($("#inputPassword").val()).to.be.empty();
+    expect($("#inputServerUserName").val()).to.be.empty();
+    expect($("#inputServerPassword").val()).to.be.empty();
     expect($("#inputDbName").val()).to.be.empty();
     expect($("#inputPollingInterval").val()).to.be("30");
     expect($("#inputRetryInterval").val()).to.be("10");
@@ -106,8 +106,8 @@ describe('HatoholServerEditDialog', function() {
     expect($("#inputHostName").val()).to.be(server.hostName);
     expect($("#inputIpAddress").val()).to.be(server.ipAddress);
     expect($("#inputPort").val()).eql(server.port);
-    expect($("#inputUserName").val()).to.be(server.userName);
-    expect($("#inputPassword").val()).to.be(server.password);
+    expect($("#inputServerUserName").val()).to.be(server.userName);
+    expect($("#inputServerPassword").val()).to.be(server.password);
     expect($("#inputDbName").val()).to.be(server.dbName);
     expect($("#inputPollingInterval").val()).eql(server.pollingInterval);
     expect($("#inputRetryInterval").val()).eql(server.retryInterval);
