@@ -227,6 +227,11 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
   });
 };
 
+HatoholServerEditDialog.prototype.closeDialog = function() {
+  $(this.dialogId).dialog("close");
+  // Don't remove the dialog
+}
+
 HatoholServerEditDialog.prototype.setApplyButtonState = function(state) {
   var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
               this.applyButtonTitle + ")");
