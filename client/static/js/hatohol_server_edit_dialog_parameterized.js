@@ -41,11 +41,6 @@ var HatoholServerEditDialogParameterized = function(params) {
       this, ["server-edit-dialog", self.windowTitle,
              dialogButtons, dialogAttrs]);
 
-  // set initial state
-  if (self.server)
-    self.setServer(self.server);
-  self.fixupApplyButtonState();
-
   //
   // Dialog button handlers
   //
@@ -150,6 +145,12 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
       $('#selectServerType').append($('<option>').html(name).val(type));
       self.paramArray[type] = parameters;
     }
+
+    if (self.server) {
+      var selectElem = $("#selectServerType");
+      selectElem.val(self.server.type);
+      selectElem.change();
+    }
   }
 
   function makeMainDiv() {
@@ -192,6 +193,22 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
       if (!elem)
         continue;
       $('#add-server-param-form').append(elem);
+    }
+
+    // Fill value for update
+    if (self.server) {
+      for (var i = 0; i < paramObj.length; i++) {
+        var param = paramObj[i];
+        if (!(param.id in self.server))
+          continue;
+
+        var elem = $('#' + paramObj[i].elementId);
+        var value = self.server[param.id];
+        if (param.inputStyle == 'checkBox')
+          elem.prop('checked', value);
+        else
+          elem.val(value);
+      }
     }
 
     // set events to fix up state of 'apply' button
@@ -297,10 +314,4 @@ HatoholServerEditDialogParameterized.prototype.fixupApplyButtonState = function(
   }
   var state = (i == paramObj.length);
   self.setApplyButtonState(state);
-};
-
-HatoholServerEditDialogParameterized.prototype.setServer = function(server) {
-  this.server = server;
-  // TODO: implement
-  this.fixupApplyButtonState();
 };

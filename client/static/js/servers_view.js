@@ -26,8 +26,6 @@ var ServersView = function(userProfile) {
 
   if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_SERVER))
     $("#add-server-button").show();
-  if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_SERVER))
-    $("#add-server-button-by-param").show();
   if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER))
     $("#delete-server-button").show();
   self.startConnection('server', updateCore);
@@ -41,13 +39,6 @@ var ServersView = function(userProfile) {
   });
 
   $("#add-server-button").click(function() {
-    new HatoholServerEditDialog({
-      operator: userProfile.user,
-      succeededCallback: addOrUpdateSucceededCb
-    });
-  });
-
-  $("#add-server-button-by-param").click(function() {
     new HatoholServerEditDialogParameterized({
       operator: userProfile.user,
       succeededCallback: addOrUpdateSucceededCb
@@ -77,7 +68,7 @@ var ServersView = function(userProfile) {
       id = "#edit-server" + servers[i]["id"];
       $(id).click(function() {
         var serverId = this.getAttribute("serverId");
-        new HatoholServerEditDialog({
+        new HatoholServerEditDialogParameterized({
           operator: userProfile.user,
           succeededCallback: addOrUpdateSucceededCb,
           targetServer: serversMap[serverId]
