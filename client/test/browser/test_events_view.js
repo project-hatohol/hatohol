@@ -60,7 +60,7 @@ describe('EventsView', function() {
     } else {
       var iframe = $("<iframe>", {
         id: "fixtureFrame",
-        src: "../../ajax_events",
+        src: "../../ajax_events?start=false",
         load: function() {
           viewHTML = $("#" + contentId, this.contentDocument).html();
           setupFixture();
