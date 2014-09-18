@@ -75,6 +75,65 @@
 {% trans "Please use a browser's reload function when you update servers information including 'Connection status'." %}
 {% endblock %}
 
+{% block templates %}
+  <div id="server-edit-view" class="dialog">
+    <form class="form-inline">
+      <label>{% trans "Server type" %}</label>
+      <select id="selectServerType" style="width:10em">
+        <option value="{{ hatohol.MONITORING_SYSTEM_ZABBIX }}">{% trans "Zabbix" %}</option>
+        <option value="{{ hatohol.MONITORING_SYSTEM_NAGIOS }}">{% trans "Nagios" %}</option>
+        <option value="{{ hatohol.MONITORING_SYSTEM_HAPI_ZABBIX }}">{% trans "Zabbix" %} (HAPI) [{% trans "experimental" %}]</option>
+        <option value="{{ hatohol.MONITORING_SYSTEM_HAPI_JSON }}">{% trans "JSON" %} (HAPI) [{% trans "experimental" %}]</option>
+      </select>
+    </form>
+    <form class="form-inline">
+      <label for="inputNickName">{% trans "Nickname" %}</label>
+      <input id="inputNickName" type="text" value="" style="width:10em" class="input-xlarge">
+    </form>
+    <form class="form-inline">
+      <label for="inputHostName">{% trans "Host name" %}</label>
+      <input id="inputHostName" type="text" value="" style="width:10em" class="input-xlarge">
+      <label for="inputIpAddress">{% trans "IP address" %}</label>
+      <input id="inputIpAddress" type="text" value="" style="width:10em" class="input-xlarge">
+      <label for="inputPort">{% trans "Port" %}</label>
+      <input id="inputPort" type="text" value="80" style="width:4em" class="input-xlarge">
+    </form>
+    <form class="form-inline" style="display:none;" id="dbNameArea">
+      <label for="inputDbName">{% trans "DB name" %}</label>
+      <input id="inputDbName" type="text" value="" style="width:10em" class="input-xlarge">
+    </form>
+    <form class="form-inline">
+      <label for="inputServerUserName">{% trans "User name" %}</label>
+      <input id="inputServerUserName" type="text" value="" style="width:10em" class="input-xlarge">
+      <label for="inputServerPassword">{% trans "Password" %}</label>
+      <input id="inputServerPassword" type="password" value="" style="width:10em" class="input-xlarge">
+    </form>
+    <form class="form-inline">
+      <label for="inputPollingInterval">{% trans "Polling interval (sec)" %}</label>
+      <input id="inputPollingInterval" type="text" value="30" style="width:4em;" class="input-xlarge">
+      <label for="inputRetryInterval">{% trans "Retry interval (sec)" %}</label>
+      <input id="inputRetryInterval" type="text" value="10" style="width:4em;" class="input-xlarge">
+    </form>
+
+    <!-- Input form for HAPI's parameter -->
+    <form class="form-inline" style="display:none;" id="hapiParamArea">
+      <!--  Flag for passive type -->
+      <input id="inputPassiveMode" type="checkbox">
+      <label for="inputPassiveMode">{% trans "Passive mode" %}</label>
+      <br>
+      <!-- Broker URL -->
+      <label for="inputBrokerUrl">{% trans "Broker URL" %}</label>
+      <input id="inputBrokerUrl" type="text" value="" style="width:10em" class="input-xlarge">
+      <label for="inputBrokerUrl">{% trans "(empty: Default)" %}</label>
+      <br>
+      <!-- Static queue address -->
+      <label for="inputStaticQueueAddr">{% trans "Static queue address" %}</label>
+      <input id="inputStaticQueueAddr" type="text" value="" style="width:10em" class="input-xlarge">
+      <label for="inputStaticQueueAddr">{% trans "(empty: Default)" %}</label>
+    </form>
+  </div>
+{% endblock %}
+
 {% block option %}
   <script src="{{ STATIC_URL }}js/hatohol_server_edit_dialog.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_server_edit_dialog_parameterized.js"></script>

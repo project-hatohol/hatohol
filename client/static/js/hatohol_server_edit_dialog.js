@@ -42,8 +42,7 @@ var HatoholServerEditDialog = function(params) {
              dialogButtons, dialogAttrs]);
 
   // set initial state
-  if (self.server)
-    self.setServer(self.server);
+  self.setServer(self.server);
   self.fixupApplyButtonState();
 
   //
@@ -72,8 +71,8 @@ var HatoholServerEditDialog = function(params) {
     queryData.port = $("#inputPort").val();
     queryData.pollingInterval = $("#inputPollingInterval").val();
     queryData.retryInterval = $("#inputRetryInterval").val();
-    queryData.userName = $("#inputUserName").val();
-    queryData.password = $("#inputPassword").val();
+    queryData.userName = $("#inputServerUserName").val();
+    queryData.password = $("#inputServerPassword").val();
     queryData.dbName = $("#inputDbName").val();
 
     queryData.passiveMode = $("#inputPassiveMode").prop('checked');
@@ -141,11 +140,11 @@ var HatoholServerEditDialog = function(params) {
       hatoholErrorMsgBox(gettext("Retry interval is empty!"));
       return false;
     }
-    if ($("#inputUserName").val() == "") {
+    if ($("#inputServerUserName").val() == "") {
       hatoholErrorMsgBox(gettext("User Name is empty!"));
       return false;
     }
-    if ($("#inputPassWord").val() == "") {
+    if ($("#inputServerPassWord").val() == "") {
       hatoholErrorMsgBox(gettext("Password is empty!"));
       return false;
     }
@@ -163,74 +162,7 @@ HatoholServerEditDialog.prototype = Object.create(HatoholDialog.prototype);
 HatoholServerEditDialog.prototype.constructor = HatoholServerEditDialog;
 
 HatoholServerEditDialog.prototype.createMainElement = function() {
-  var div = $(makeMainDivHTML());
-  return div;
-
-  function makeMainDivHTML() {
-    var s = "";
-    s += '<div id="add-action-div">';
-    s += '<form class="form-inline">';
-    s += '  <label>' + gettext("Server type") + '</label>';
-    s += '  <select id="selectServerType" style="width:10em">';
-    s += '    <option value="' + hatohol.MONITORING_SYSTEM_ZABBIX + '">' +
-      gettext("Zabbix") + '</option>';
-    s += '    <option value="' + hatohol.MONITORING_SYSTEM_NAGIOS +'">' +
-      gettext("Nagios") + '</option>';
-    s += '    <option value="' + hatohol.MONITORING_SYSTEM_HAPI_ZABBIX +'">' +
-      gettext("Zabbix") + " (HAPI) [" + gettext("experimental") + "]" + '</option>';
-    s += '    <option value="' + hatohol.MONITORING_SYSTEM_HAPI_JSON +'">' +
-      gettext("JSON") + " (HAPI) [" + gettext("experimental") + "]" + '</option>';
-    s += '  </select>';
-    s += '</form>';
-    s += '<form class="form-inline">';
-    s += '  <label for="inputNickName">' + gettext("Nickname") + '</label>';
-    s += '  <input id="inputNickName" type="text" value="" style="width:10em" class="input-xlarge">';
-    s += '</form>';
-    s += '<form class="form-inline">';
-    s += '  <label for="inputHostName">' + gettext("Host name") + '</label>';
-    s += '  <input id="inputHostName" type="text" value="" style="width:10em" class="input-xlarge">';
-    s += '  <label for="inputIpAddress">' + gettext("IP address") + '</label>';
-    s += '  <input id="inputIpAddress" type="text" value="" style="width:10em" class="input-xlarge">';
-    s += '  <label for="inputPort">' + gettext("Port") + '</label>';
-    s += '  <input id="inputPort" type="text" value="80" style="width:4em" class="input-xlarge">';
-    s += '</form>';
-    s += '<form class="form-inline" style="display:none;" id="dbNameArea">';
-    s += '  <label for="inputDbName">' + gettext("DB name") + '</label>';
-    s += '  <input id="inputDbName" type="text" value="" style="width:10em" class="input-xlarge">';
-    s += '</form>';
-    s += '<form class="form-inline">';
-    s += '  <label for="inputUserName">' + gettext("User name") + '</label>';
-    s += '  <input id="inputUserName" type="text" value="" style="width:10em" class="input-xlarge">';
-    s += '  <label for="inputPassword">' + gettext("Password") + '</label>';
-    s += '  <input id="inputPassword" type="password" value="" style="width:10em" class="input-xlarge">';
-    s += '</form>';
-    s += '<form class="form-inline">';
-    s += '  <label for="inputPollingInterval">' + gettext("Polling interval (sec)") + '</label>';
-    s += '  <input id="inputPollingInterval" type="text" value="30" style="width:4em;" class="input-xlarge">';
-    s += '  <label for="inputRetryInterval">' + gettext("Retry interval (sec)") + '</label>';
-    s += '  <input id="inputRetryInterval" type="text" value="10" style="width:4em;" class="input-xlarge">';
-    s += '</form>';
-
-    // Input form for HAPI's parameter
-    s += '<form class="form-inline" style="display:none;" id="hapiParamArea">';
-    // Flag for passive type
-    s += '  <input id="inputPassiveMode" type="checkbox">';
-    s += '  <label for="inputPassiveMode">' + gettext("Passive mode") + '</label>';
-    s += '<br>'
-    // Broker URL
-    s += '  <label for="inputBrokerUrl">' + gettext("Broker URL") + '</label>';
-    s += '  <input id="inputBrokerUrl" type="text" value="" style="width:10em" class="input-xlarge"';
-    s += '  <label for="inputBrokerUrl">' + gettext("(empty: Default)") + '</label>';
-    s += '<br>'
-    // Static queue address
-    s += '  <label for="inputStaticQueueAddr">' + gettext("Static queue address") + '</label>';
-    s += '  <input id="inputStaticQueueAddr" type="text" value="" style="width:10em" class="input-xlarge"';
-    s += '  <label for="inputStaticQueueAddr">' + gettext("(empty: Default)") + '</label>';
-
-    s += '</form>';
-    s += '</div>';
-    return s;
-  }
+  return $("#server-edit-view").show();
 };
 
 HatoholServerEditDialog.prototype.onAppendMainElement = function () {
@@ -277,11 +209,11 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
     self.fixupApplyButtonState();
   });
 
-  $("#inputUserName").keyup(function() {
+  $("#inputServerUserName").keyup(function() {
     self.fixupApplyButtonState();
   });
 
-  $("#inputPassword").keyup(function() {
+  $("#inputServerPassword").keyup(function() {
     self.fixupApplyButtonState();
   });
 
@@ -293,6 +225,11 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
     self.fixupApplyButtonState();
   });
 };
+
+HatoholServerEditDialog.prototype.closeDialog = function() {
+  $(this.dialogId).dialog("close");
+  // Don't remove the dialog
+}
 
 HatoholServerEditDialog.prototype.setApplyButtonState = function(state) {
   var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
@@ -313,8 +250,8 @@ HatoholServerEditDialog.prototype.fixupApplyButtonState = function(enable) {
   var validPort = !!$("#inputPort").val();
   var validPollingInterval = !!$("#inputPollingInterval").val();
   var validRetryInterval = !!$("#inputRetryInterval").val();
-  var validUserName = !!$("#inputUserName").val();
-  var validPassword = !!$("#inputPassword").val();
+  var validUserName = !!$("#inputServerUserName").val();
+  var validPassword = !!$("#inputServerPassword").val();
   var state =
     validHostName &&
     validIpAddress &&
@@ -353,23 +290,24 @@ HatoholServerEditDialog.prototype.setHapiParamState = function(state) {
 
 HatoholServerEditDialog.prototype.setServer = function(server) {
   this.server = server;
-  $("#selectServerType").val(server.type);
-  $("#inputNickName").val(server.nickname);
-  $("#inputHostName").val(server.hostName);
-  $("#inputIpAddress").val(server.ipAddress);
-  $("#inputPort").val(server.port);
-  $("#inputUserName").val(server.userName);
-  $("#inputPassword").val(server.password);
-  $("#inputDbName").val(server.dbName);
-  $("#inputPollingInterval").val(server.pollingInterval);
-  $("#inputRetryInterval").val(server.retryInterval);
+  var type = server ? server.type : 0;
+  $("#selectServerType").val(type);
+  $("#inputNickName").val(server ? server.nickname : "");
+  $("#inputHostName").val(server ? server.hostName : "");
+  $("#inputIpAddress").val(server ? server.ipAddress : "");
+  $("#inputPort").val(server ? server.port : 80);
+  $("#inputServerUserName").val(server ? server.userName : "");
+  $("#inputServerPassword").val(server ? server.password : "");
+  $("#inputDbName").val(server ? server.dbName : "");
+  $("#inputPollingInterval").val(server ? server.pollingInterval : 30);
+  $("#inputRetryInterval").val(server ? server.retryInterval : 10);
 
-  $("#inputPassiveMode").prop("checked", server.passiveMode);
-  $("#inputBrokerUrl").val(server.brokerUrl);
-  $("#inputStaticQueueAddr").val(server.staticQueueAddress);
+  $("#inputPassiveMode").prop("checked", server ? server.passiveMode : false);
+  $("#inputBrokerUrl").val(server ? server.brokerUrl : "");
+  $("#inputStaticQueueAddr").val(server ? server.staticQueueAddress : "");
 
-  this.setDBNameTextState(server.type == hatohol.MONITORING_SYSTEM_NAGIOS);
-  this.setHapiParamState(server.type == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX ||
-                         server.type == hatohol.MONITORING_SYSTEM_HAPI_JSON);
+  this.setDBNameTextState(type == hatohol.MONITORING_SYSTEM_NAGIOS);
+  this.setHapiParamState(type == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX ||
+                         type == hatohol.MONITORING_SYSTEM_HAPI_JSON);
   this.fixupApplyButtonState();
 };
