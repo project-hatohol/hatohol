@@ -42,8 +42,7 @@ var HatoholServerEditDialog = function(params) {
              dialogButtons, dialogAttrs]);
 
   // set initial state
-  if (self.server)
-    self.setServer(self.server);
+  self.setServer(self.server);
   self.fixupApplyButtonState();
 
   //
@@ -291,23 +290,24 @@ HatoholServerEditDialog.prototype.setHapiParamState = function(state) {
 
 HatoholServerEditDialog.prototype.setServer = function(server) {
   this.server = server;
-  $("#selectServerType").val(server.type);
-  $("#inputNickName").val(server.nickname);
-  $("#inputHostName").val(server.hostName);
-  $("#inputIpAddress").val(server.ipAddress);
-  $("#inputPort").val(server.port);
-  $("#inputServerUserName").val(server.userName);
-  $("#inputServerPassword").val(server.password);
-  $("#inputDbName").val(server.dbName);
-  $("#inputPollingInterval").val(server.pollingInterval);
-  $("#inputRetryInterval").val(server.retryInterval);
+  var type = server ? server.type : 0;
+  $("#selectServerType").val(type);
+  $("#inputNickName").val(server ? server.nickname : "");
+  $("#inputHostName").val(server ? server.hostName : "");
+  $("#inputIpAddress").val(server ? server.ipAddress : "");
+  $("#inputPort").val(server ? server.port : 80);
+  $("#inputServerUserName").val(server ? server.userName : "");
+  $("#inputServerPassword").val(server ? server.password : "");
+  $("#inputDbName").val(server ? server.dbName : "");
+  $("#inputPollingInterval").val(server ? server.pollingInterval : 30);
+  $("#inputRetryInterval").val(server ? server.retryInterval : 10);
 
-  $("#inputPassiveMode").prop("checked", server.passiveMode);
-  $("#inputBrokerUrl").val(server.brokerUrl);
-  $("#inputStaticQueueAddr").val(server.staticQueueAddress);
+  $("#inputPassiveMode").prop("checked", server ? server.passiveMode : false);
+  $("#inputBrokerUrl").val(server ? server.brokerUrl : "");
+  $("#inputStaticQueueAddr").val(server ? server.staticQueueAddress : "");
 
-  this.setDBNameTextState(server.type == hatohol.MONITORING_SYSTEM_NAGIOS);
-  this.setHapiParamState(server.type == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX ||
-                         server.type == hatohol.MONITORING_SYSTEM_HAPI_JSON);
+  this.setDBNameTextState(type == hatohol.MONITORING_SYSTEM_NAGIOS);
+  this.setHapiParamState(type == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX ||
+                         type == hatohol.MONITORING_SYSTEM_HAPI_JSON);
   this.fixupApplyButtonState();
 };
