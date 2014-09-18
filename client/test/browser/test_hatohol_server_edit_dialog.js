@@ -1,16 +1,42 @@
 describe('HatoholServerEditDialog', function() {
   var dialog;
+  var viewHTML;
 
-  beforeEach(function() {
-    dialog = undefined;
+  beforeEach(function(done) {
+    var contentId = "server-edit-view";
+    var setupFixture = function() {
+      $("#fixture").append($("<div>", { id: contentId }))
+      $("#" + contentId).html(viewHTML);
+      done();
+    };
+
+    $('body').append($('<div>', { id: "fixture" }));
+
+    if (viewHTML) {
+      setupFixture();
+    } else {
+      var iframe = $("<iframe>", {
+        id: "testFrame",
+        src: "../../ajax_servers",
+        load: function() {
+          viewHTML = $("#" + contentId, this.contentDocument).html();
+          setupFixture();
+        }
+      })
+      $("#fixture").append(iframe);
+    }
   });
 
   afterEach(function() {
-    if (dialog)
+    if (dialog) {
       dialog.closeDialog();
+      dialog = undefined;
+    }
     // ensure to cleanup child dialogs
     $("#hatohol-message-box").remove();
     $(".ui-dialog").remove();
+    $("#server-edit-dialog").remove();
+    $("#fixture").remove();
   });
 
   it('new with empty params', function() {
