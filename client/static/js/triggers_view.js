@@ -177,7 +177,13 @@ var TriggersView = function(userProfile) {
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
         formatDate(clock) + "</td>";
       html += "<td>" + escapeHTML(hostName) + "</td>";
-      html += "<td>" + escapeHTML(trigger["brief"]) + "</td>";
+      html += "<td>"
+	+ "<a href='/ajax_events?serverId=" + escapeHTML(serverId)
+	+ "&triggerId=" + escapeHTML(trigger["id"]) + "'>"
+	+ escapeHTML(trigger["brief"])
+	+ "</a></td>";
+      html += "<td>"
+	+ "</td>";
       html += "</tr>";
     }
 
