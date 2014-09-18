@@ -1,6 +1,8 @@
 bin_PROGRAMS = hatohol-def-src-file-generator
 dist_bin_SCRIPTS = hatohol-voyager \
-                   hatohol-inspect-info-collector
+                   hatohol-inspect-info-collector \
+                   hatohol-server-type-util
+
 actiondir = $(libexecdir)/$(PACKAGE)/action
 dist_action_SCRIPTS = hatohol-actor-mail
 
