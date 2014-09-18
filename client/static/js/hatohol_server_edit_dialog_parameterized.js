@@ -69,7 +69,9 @@ var HatoholServerEditDialogParameterized = function(params) {
       var param = paramObj[i];
 
       var val;
-      if (param.inputStyle == 'checkBox')
+      if (param.hidden)
+        val = param.default;
+      else if (param.inputStyle == 'checkBox')
         val = $('#' + param.id).prop('checked');
       else
         val = $('#' + param.id).val();
@@ -190,6 +192,8 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
 
     for (var i = 0; i < paramObj.length; i++) {
       var elem = makeFormOfOneParameter(paramObj[i], i);
+      if (!elem)
+        continue;
       $('#add-server-param-form').append(elem);
     }
 
@@ -203,6 +207,9 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
   }
 
   function makeFormOfOneParameter(param, index) {
+    if (param.hidden)
+      return null;
+
     var label = param.name;
 
     var defaultValue = '';
@@ -281,6 +288,8 @@ HatoholServerEditDialogParameterized.prototype.fixupApplyButtonState = function(
   for (i = 0; i < paramObj.length; i++) {
      var param = paramObj[i];
      if (param.allowEmpty)
+       continue;
+     if (param.hidden)
        continue;
      if (!$('#' + param.id).val())
        break;

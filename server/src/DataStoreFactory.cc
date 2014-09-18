@@ -41,6 +41,7 @@ DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
 	case MONITORING_SYSTEM_NAGIOS:
 		return new DataStoreNagios(svInfo, autoStart);
 	case MONITORING_SYSTEM_HAPI_ZABBIX:
+	case MONITORING_SYSTEM_HAPI_CEILOMETER:
 	{
 		HatoholArmPluginGate *gate = new HatoholArmPluginGate(svInfo);
 		if (autoStart)

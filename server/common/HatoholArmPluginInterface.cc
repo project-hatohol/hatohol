@@ -634,20 +634,6 @@ ItemDataPtr HatoholArmPluginInterface::createItemData(SmartBuffer &sbuf)
 	return ItemDataPtr(itemData, false);
 }
 
-const char *HatoholArmPluginInterface::getDefaultPluginPath(
-  const MonitoringSystemType &type)
-{
-	switch (type) {
-	case MONITORING_SYSTEM_HAPI_ZABBIX:
-		return "hatohol-arm-plugin-zabbix";
-	case MONITORING_SYSTEM_HAPI_NAGIOS:
-		return "hatohol-arm-plugin-nagios";
-	default:
-		;
-	}
-	return NULL;
-}
-
 string HatoholArmPluginInterface::getBrokerUrl(void) const
 {
 	return m_impl->getBrokerUrl();

@@ -52,6 +52,7 @@ struct ServerTypeInfo {
 	MonitoringSystemType type;
 	std::string          name;
 	std::string          parameters;
+	std::string          pluginPath;
 };
 
 typedef std::vector<ServerTypeInfo>        ServerTypeInfoVect;
@@ -157,6 +158,8 @@ public:
 	 */
 	void registerServerType(const ServerTypeInfo &serverType);
 
+	static std::string getDefaultPluginPath(
+	  const MonitoringSystemType &type);
 
 	/**
 	 * Get the registered ServerTypeInfo.
@@ -165,6 +168,17 @@ public:
 	 * A obtained records are appended to this object.
 	 */
 	void getServerTypes(ServerTypeInfoVect &serverTypes);
+
+	/**
+	 * Get the registered ServerTypeInfo with the specified type.
+	 *
+	 * @param serverTypes The obtained information is stored to this.
+	 * @param type        The monitoring system type.
+	 * @return
+	 * true if the server type is found. Otherwise false.
+	 */
+	bool getServerType(ServerTypeInfo &serverType,
+	                   const MonitoringSystemType &type);
 
 	HatoholError addTargetServer(
 	  MonitoringServerInfo *monitoringServerInfo,

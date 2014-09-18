@@ -209,14 +209,16 @@ void test_registerServerType(void)
 	svTypeInfo.type = MONITORING_SYSTEM_FAKE;
 	svTypeInfo.name = "Fake Monitor";
 	svTypeInfo.parameters = "IP address|port|Username|Password";
+	svTypeInfo.pluginPath = "/usr/bin/hoge-ta-hoge-taro";
 	dbConfig.registerServerType(svTypeInfo);
 
 	// check content
 	const string statement = "SELECT * FROM server_types";
 	const string expectedOut =
-	  StringUtils::sprintf("%d|%s|%s\n",
+	  StringUtils::sprintf("%d|%s|%s|%s\n",
 	                       svTypeInfo.type, svTypeInfo.name.c_str(),
-	                       svTypeInfo.parameters.c_str());
+	                       svTypeInfo.parameters.c_str(),
+	                       svTypeInfo.pluginPath.c_str());
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
@@ -229,15 +231,43 @@ void test_registerServerTypeUpdate(void)
 	svTypeInfo.type = MONITORING_SYSTEM_FAKE;
 	svTypeInfo.name = "Fake Monitor (updated version)";
 	svTypeInfo.parameters = "IP address|port|Username|Password|Group";
+	svTypeInfo.pluginPath = "/usr/bin/hoge-ta-hoge-taro";
 	dbConfig.registerServerType(svTypeInfo);
 
 	// check content
 	const string statement = "SELECT * FROM server_types";
 	const string expectedOut =
-	  StringUtils::sprintf("%d|%s|%s\n",
+	  StringUtils::sprintf("%d|%s|%s|%s\n",
 	                       svTypeInfo.type, svTypeInfo.name.c_str(),
-	                       svTypeInfo.parameters.c_str());
+	                       svTypeInfo.parameters.c_str(),
+	                       svTypeInfo.pluginPath.c_str());
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
+}
+
+void data_getDefaultPluginPath(void)
+{
+	gcut_add_datum("MONITORING_SYSTEM_ZABBIX",
+	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_ZABBIX,
+	               "expect", G_TYPE_STRING, NULL, NULL);
+	gcut_add_datum("MONITORING_SYSTEM_NAGIOS",
+	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_NAGIOS,
+	               "expect", G_TYPE_STRING, NULL, NULL);
+	gcut_add_datum("MONITORING_SYSTEM_HAPI_ZABBIX",
+	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_ZABBIX,
+	               "expect", G_TYPE_STRING, "hatohol-arm-plugin-zabbix",
+	               NULL);
+	gcut_add_datum("MONITORING_SYSTEM_HAPI_NAGIOS",
+	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_NAGIOS,
+	               "expect", G_TYPE_STRING, "hatohol-arm-plugin-nagios",
+	               NULL);
+}
+
+void test_getDefaultPluginPath(gconstpointer data)
+{
+	const string expect = gcut_data_get_string(data, "expect") ? : "";
+	const string actual = DBTablesConfig::getDefaultPluginPath(
+	    (MonitoringSystemType)gcut_data_get_int(data, "type"));
+	cppcut_assert_equal(expect, actual);
 }
 
 void test_getServerTypes(void)
@@ -252,6 +282,33 @@ void test_getServerTypes(void)
 	cppcut_assert_equal((size_t)1, svTypeVect.size());
 }
 
+void test_getServerType(void)
+{
+	loadTestDBServerType();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	for (size_t i = 0; i < NumTestServerTypeInfo; i++) {
+		const ServerTypeInfo &expect = testServerTypeInfo[i];
+		ServerTypeInfo actual;
+		cppcut_assert_equal(true,
+		   dbConfig.getServerType(actual, expect.type));
+		cppcut_assert_equal(expect.type, actual.type);
+		cppcut_assert_equal(expect.name, actual.name);
+		cppcut_assert_equal(expect.parameters, actual.parameters);
+		cppcut_assert_equal(expect.pluginPath, actual.pluginPath);
+	}
+}
+
+void test_getServerTypeExpectFalse(void)
+{
+	loadTestDBServerType();
+
+	const MonitoringSystemType type =
+	  static_cast<MonitoringSystemType>(NumTestServerTypeInfo);
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	ServerTypeInfo actual;
+	cppcut_assert_equal(false, dbConfig.getServerType(actual, type));
+}
 
 void test_createTableServers(void)
 {

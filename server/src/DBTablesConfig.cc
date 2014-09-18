@@ -138,13 +138,23 @@ static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"plugin_path",                     // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	2048,                              // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 
 enum {
 	IDX_SERVER_TYPES_TYPE,
 	IDX_SERVER_TYPES_NAME,
-	IDX_SERVER_PARAMETERS,
+	IDX_SERVER_TYPES_PARAMETERS,
+	IDX_SERVER_TYPES_PLUGIN_PATH,
 	NUM_IDX_SERVER_TYPES,
 };
 
@@ -728,6 +738,8 @@ void DBTablesConfig::reset(void)
 	getSetupInfo().initialized = false;
 }
 
+// TODO: Remove this method after replaced our conventional Arm such
+// ArmZabbixAPI and ArmNagiosNDOUtils are replaced with HAPI's ones.
 bool DBTablesConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 {
 	if (type == MONITORING_SYSTEM_HAPI_ZABBIX)
@@ -735,6 +747,8 @@ bool DBTablesConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 	else if (type == MONITORING_SYSTEM_HAPI_NAGIOS)
 		return true;
 	else if (type == MONITORING_SYSTEM_HAPI_JSON)
+		return true;
+	else if (type == MONITORING_SYSTEM_HAPI_CEILOMETER)
 		return true;
 	return false;
 }
@@ -805,9 +819,31 @@ void DBTablesConfig::registerServerType(const ServerTypeInfo &serverType)
 	arg.add(serverType.type);
 	arg.add(serverType.name);
 	arg.add(serverType.parameters);
+	arg.add(serverType.pluginPath);
 	arg.upsertOnDuplicate = true;
 	int id;
 	getDBAgent().runTransaction(arg, &id);
+}
+
+string DBTablesConfig::getDefaultPluginPath(const MonitoringSystemType &type)
+{
+	// TODO: these should be defined in server_types tables.
+	switch (type) {
+	case MONITORING_SYSTEM_HAPI_ZABBIX:
+		return "hatohol-arm-plugin-zabbix";
+	case MONITORING_SYSTEM_HAPI_NAGIOS:
+		return "hatohol-arm-plugin-nagios";
+	default:
+		;
+	}
+
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	ServerTypeInfo serverType;
+	if (dbConfig.getServerType(serverType, type))
+		return serverType.pluginPath;
+
+	return "";
 }
 
 void DBTablesConfig::getServerTypes(ServerTypeInfoVect &serverTypes)
@@ -815,7 +851,8 @@ void DBTablesConfig::getServerTypes(ServerTypeInfoVect &serverTypes)
 	DBAgent::SelectArg arg(tableProfileServerTypes);
 	arg.add(IDX_SERVER_TYPES_TYPE);
 	arg.add(IDX_SERVER_TYPES_NAME);
-	arg.add(IDX_SERVER_PARAMETERS);
+	arg.add(IDX_SERVER_TYPES_PARAMETERS);
+	arg.add(IDX_SERVER_TYPES_PLUGIN_PATH);
 	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -829,7 +866,31 @@ void DBTablesConfig::getServerTypes(ServerTypeInfoVect &serverTypes)
 		itemGroupStream >> svTypeInfo.type;
 		itemGroupStream >> svTypeInfo.name;
 		itemGroupStream >> svTypeInfo.parameters;
+		itemGroupStream >> svTypeInfo.pluginPath;
 	}
+}
+
+bool DBTablesConfig::getServerType(ServerTypeInfo &serverType,
+                                   const MonitoringSystemType &type)
+{
+	DBAgent::SelectExArg arg(tableProfileServerTypes);
+	arg.condition = StringUtils::sprintf("%s=%d",
+	  COLUMN_DEF_SERVER_TYPES[IDX_SERVER_TYPES_TYPE].columnName, type);
+	arg.add(IDX_SERVER_TYPES_TYPE);
+	arg.add(IDX_SERVER_TYPES_NAME);
+	arg.add(IDX_SERVER_TYPES_PARAMETERS);
+	arg.add(IDX_SERVER_TYPES_PLUGIN_PATH);
+	getDBAgent().runTransaction(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	if (grpList.empty())
+		return false;
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	itemGroupStream >> serverType.type;
+	itemGroupStream >> serverType.name;
+	itemGroupStream >> serverType.parameters;
+	itemGroupStream >> serverType.pluginPath;
+	return true;
 }
 
 bool validHostName(const string &hostName)

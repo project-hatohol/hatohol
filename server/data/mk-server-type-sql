@@ -86,10 +86,41 @@ class HapiJSONParamGenerator:
         obj.extend(get_hapi_params())
         return json.dumps(obj)
 
+class HapiCeilometerGenerator:
+    def __call__(self):
+        obj = []
+        obj.append({'name':'Nickname',
+                    'class':'nickname'});
+        obj.append({'name':'Keystone URL',
+                    'class':'hostName',
+                    'hint':'Example: http://controller:5000/v2.0'});
+        obj.append({'name':'IP address',
+                    'class':'ipAddress',
+                    'hidden':True,
+                    'default':'127.0.0.1'});
+        obj.append({'name':'Port',
+                    'class':'port',
+                    'hidden':True,
+                    'default':'0'});
+        obj.append({'name':'Tenant name',
+                    'class':'dbName'});
+        obj.append({'name':'User name',
+                    'class':'userName'});
+        obj.append({'name':'Password',
+                    'class':'password'});
+        obj.append({'name':'Polling interval (sec)',
+                    'class':'pollingInterval',
+                    'default':'30'});
+        obj.append({'name':'Retry interval (sec)',
+                    'class':'retryInterval',
+                    'default':'10'});
+        obj.extend(get_hapi_params())
+        return json.dumps(obj)
 
-def generate_one_type(table_name, server_type, server_label, generator):
+
+def generate_one_type(table_name, server_type, server_label, generator, plugin_path=''):
     line = 'INSERT ' + table_name + ' VALUES ('
-    line += '%d, \'%s\', \'%s\');' % (server_type, server_label, generator())
+    line += '%d, \'%s\', \'%s\', \'%s\');' % (server_type, server_label, generator(), plugin_path)
     print line
 
 
@@ -102,10 +133,14 @@ def main():
                       NagiosParamGenerator());
     generate_one_type(table_name, hatohol.MONITORING_SYSTEM_HAPI_ZABBIX,
                       'Zabbix (HAPI) [experimental]',
-                      HapiZabbixParamGenerator());
+                      HapiZabbixParamGenerator(), 'hatohol-arm-plugin-zabbix');
     generate_one_type(table_name, hatohol.MONITORING_SYSTEM_HAPI_JSON,
                       'JSON (HAPI) [experimental]',
                       HapiJSONParamGenerator());
+    generate_one_type(table_name, hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER,
+                      'Ceilometer',
+                      HapiCeilometerGenerator(),
+                      'hatohol-arm-plugin-ceilometer');
 
 
 if __name__ == '__main__':

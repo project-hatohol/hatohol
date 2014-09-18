@@ -306,13 +306,13 @@ static HatoholError parseServerParameter(
 	svInfo.password = value;
 
 	// dbname
-	if (svInfo.type == MONITORING_SYSTEM_NAGIOS) {
-		value = (char *)g_hash_table_lookup(query, "dbName");
-		if (!value && !allowEmpty)
-			return HatoholError(HTERR_NOT_FOUND_PARAMETER,
-					    "dbName");
-		svInfo.dbName = value;
+	value = (char *)g_hash_table_lookup(query, "dbName");
+	if (!value &&
+	    (svInfo.type == MONITORING_SYSTEM_NAGIOS || !allowEmpty)) {
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "dbName");
 	}
+	if (value)
+		svInfo.dbName = value;
 
 	//
 	// HAPI's parameters
@@ -328,8 +328,7 @@ static HatoholError parseServerParameter(
 		armPluginInfo.serverId = INVALID_SERVER_ID;
 	}
 	armPluginInfo.type = svInfo.type;
-	armPluginInfo.path =
-	  HatoholArmPluginInterface::getDefaultPluginPath(svInfo.type) ? : "";
+	armPluginInfo.path = DBTablesConfig::getDefaultPluginPath(svInfo.type);
 
 	// passiveMode
 	// Note: We don't accept a plugin path from outside for security.

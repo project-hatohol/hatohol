@@ -83,11 +83,6 @@ struct HapProcessCeilometer::Impl {
 
 	Impl(void)
 	{
-		// Temporary paramters
-		osUsername   = "admin";
-		osPassword   = "admin";
-		osTenantName = "admin";
-		osAuthURL    = "http://botctl:35357/v2.0";
 	}
 
 	void clear(void)
@@ -811,6 +806,12 @@ HatoholError HapProcessCeilometer::acquireData(void)
 	  acqCtxCleaner(&m_impl->acquireCtx, AcquireContext::clear);
 
 	MLPL_DBG("acquireData\n");
+	m_impl->serverInfo = getMonitoringServerInfo();
+	m_impl->osUsername   = m_impl->serverInfo.userName;
+	m_impl->osPassword   = m_impl->serverInfo.password;
+	m_impl->osTenantName = m_impl->serverInfo.dbName;
+	m_impl->osAuthURL    = m_impl->serverInfo.hostName;
+
 	HatoholError (HapProcessCeilometer::*funcs[])(void) = {
 		&HapProcessCeilometer::updateAuthTokenIfNeeded,
 		&HapProcessCeilometer::getInstanceList,     // Host

@@ -40,14 +40,17 @@ ServerTypeInfo testServerTypeInfo[] =
 	MONITORING_SYSTEM_FAKE,  // type
 	"Fake Monitorin",        // name
 	"User name|password",    // paramters
+	"fake-plugin",           // pluginPath
 },{
 	MONITORING_SYSTEM_ZABBIX, // type
 	"Zabbix",                 // name
 	"IP Address|Port|User name|password", // paramters
+	"/usr/sbin/hatohol-arm-plugin-ver2",  // pluginPath
 }, {
 	MONITORING_SYSTEM_HAPI_ZABBIX,
 	"Zabbix (HAPI)",          // name
 	"IP Address|Port|User name|password|Queue Name", // paramters
+	"/opt/bin/hatohol-arm-plugin-ver2000",  // pluginPath
 }};
 size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
 
