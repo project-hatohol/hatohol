@@ -17,7 +17,7 @@ describe('HatoholServerEditDialog', function() {
     } else {
       var iframe = $("<iframe>", {
         id: "testFrame",
-        src: "../../ajax_servers",
+        src: "../../ajax_servers?start=false",
         load: function() {
           viewHTML = $("#" + contentId, this.contentDocument).html();
           setupFixture();
