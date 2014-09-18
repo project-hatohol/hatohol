@@ -163,7 +163,7 @@ HatoholServerEditDialog.prototype = Object.create(HatoholDialog.prototype);
 HatoholServerEditDialog.prototype.constructor = HatoholServerEditDialog;
 
 HatoholServerEditDialog.prototype.createMainElement = function() {
-  return $("#add-action-div").show();
+  return $("#server-edit-view").show();
 };
 
 HatoholServerEditDialog.prototype.onAppendMainElement = function () {
