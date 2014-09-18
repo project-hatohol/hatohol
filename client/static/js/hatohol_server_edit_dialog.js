@@ -72,8 +72,8 @@ var HatoholServerEditDialog = function(params) {
     queryData.port = $("#inputPort").val();
     queryData.pollingInterval = $("#inputPollingInterval").val();
     queryData.retryInterval = $("#inputRetryInterval").val();
-    queryData.userName = $("#inputUserName").val();
-    queryData.password = $("#inputPassword").val();
+    queryData.userName = $("#inputServerUserName").val();
+    queryData.password = $("#inputServerPassword").val();
     queryData.dbName = $("#inputDbName").val();
 
     queryData.passiveMode = $("#inputPassiveMode").prop('checked');
@@ -141,11 +141,11 @@ var HatoholServerEditDialog = function(params) {
       hatoholErrorMsgBox(gettext("Retry interval is empty!"));
       return false;
     }
-    if ($("#inputUserName").val() == "") {
+    if ($("#inputServerUserName").val() == "") {
       hatoholErrorMsgBox(gettext("User Name is empty!"));
       return false;
     }
-    if ($("#inputPassWord").val() == "") {
+    if ($("#inputServerPassWord").val() == "") {
       hatoholErrorMsgBox(gettext("Password is empty!"));
       return false;
     }
@@ -210,11 +210,11 @@ HatoholServerEditDialog.prototype.onAppendMainElement = function () {
     self.fixupApplyButtonState();
   });
 
-  $("#inputUserName").keyup(function() {
+  $("#inputServerUserName").keyup(function() {
     self.fixupApplyButtonState();
   });
 
-  $("#inputPassword").keyup(function() {
+  $("#inputServerPassword").keyup(function() {
     self.fixupApplyButtonState();
   });
 
@@ -246,8 +246,8 @@ HatoholServerEditDialog.prototype.fixupApplyButtonState = function(enable) {
   var validPort = !!$("#inputPort").val();
   var validPollingInterval = !!$("#inputPollingInterval").val();
   var validRetryInterval = !!$("#inputRetryInterval").val();
-  var validUserName = !!$("#inputUserName").val();
-  var validPassword = !!$("#inputPassword").val();
+  var validUserName = !!$("#inputServerUserName").val();
+  var validPassword = !!$("#inputServerPassword").val();
   var state =
     validHostName &&
     validIpAddress &&
@@ -291,8 +291,8 @@ HatoholServerEditDialog.prototype.setServer = function(server) {
   $("#inputHostName").val(server.hostName);
   $("#inputIpAddress").val(server.ipAddress);
   $("#inputPort").val(server.port);
-  $("#inputUserName").val(server.userName);
-  $("#inputPassword").val(server.password);
+  $("#inputServerUserName").val(server.userName);
+  $("#inputServerPassword").val(server.password);
   $("#inputDbName").val(server.dbName);
   $("#inputPollingInterval").val(server.pollingInterval);
   $("#inputRetryInterval").val(server.retryInterval);
