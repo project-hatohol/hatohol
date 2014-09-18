@@ -65,7 +65,9 @@ var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
       $(".ui-dialog-titlebar-close").hide();
       $(self.dialogId).keypress(function(event) {
         if (event.keyCode == $.ui.keyCode.ENTER)
-          $(this).parent().find('.ui-dialog-buttonset button:first').click();
+          var button = $(this).parent().find('.ui-dialog-buttonset button:first');
+          if (button && !button.is(':disabled'))
+            button.click();
       });
     }
   });
