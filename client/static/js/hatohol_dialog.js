@@ -39,8 +39,10 @@ var HatoholDialogObserver = (function() {
 var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
   var self = this;
 
-  self.dialogId = "#" + id
+  self.dialogId = "#" + id;
+  self.hasStaticHTML = false;
   if ($(self.dialogId).length == 1) {
+    self.hasStaticHTML = true;
     $(self.dialogId).dialog("open");
     HatoholDialogObserver.notifyCreated(id, this);
     return;
@@ -107,6 +109,8 @@ HatoholDialog.prototype.appendToMainElement = function(elem) {
  */
 HatoholDialog.prototype.closeDialog = function() {
   $(this.dialogId).dialog("close");
+  if (!self.hasStaticHTML)
+    $(this.dialogId).remove();
 }
 
 HatoholDialog.prototype.setButtonState = function(buttonLabel, state) {
