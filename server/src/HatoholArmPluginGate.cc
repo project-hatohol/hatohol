@@ -260,7 +260,7 @@ HatoholArmPluginGate::~HatoholArmPluginGate()
 
 gboolean HatoholArmPluginGate::detectArmPluginConnectTimeout(void *data)
 {
-	MLPL_ERR("HatoholArmPluginGate::detectArmPliuginConnectTimeout");
+	MLPL_ERR("Detect the timeout of connection to ArmPlugin.");
 	HatoholArmPluginGate *obj = static_cast<HatoholArmPluginGate *>(data);
 	obj->m_impl->timerTag = INVALID_EVENT_ID;
 	obj->setPluginTriggerEvent(COLLECT_NG_PLGIN_CONNECT_ERROR,
@@ -278,12 +278,18 @@ void HatoholArmPluginGate::checkPluginConnection(void)
 		  this);
 }
 
+void HatoholArmPluginGate::removeArmPluginTimeout(gpointer data)
+{
+	HatoholArmPluginGate *obj = static_cast<HatoholArmPluginGate *>(data);
+	if (obj->m_impl->timerTag != INVALID_EVENT_ID) {
+		g_source_remove(obj->m_impl->timerTag);
+		obj->m_impl->timerTag = INVALID_EVENT_ID;
+	}
+}
+
 void HatoholArmPluginGate::endCheckPluginConnection(void)
 {
-	if (m_impl->timerTag != INVALID_EVENT_ID) {
-		g_source_remove(m_impl->timerTag);
-		m_impl->timerTag = INVALID_EVENT_ID;
-	}
+	Utils::executeOnGLibEventLoop(removeArmPluginTimeout,this);
 }
 
 void HatoholArmPluginGate::setPluginInitialTriggerInfo(void)

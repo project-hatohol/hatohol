@@ -124,6 +124,7 @@ protected:
 				       const HatoholError &hatoholError);
 
 	static gboolean detectArmPluginConnectTimeout(void *data);
+	static void removeArmPluginTimeout(gpointer data);
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;;
