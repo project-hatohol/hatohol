@@ -190,7 +190,6 @@ struct HatoholArmPluginInterface::Impl {
 		initState = INIT_STAT_DONE;
 		setArmpluginStatus(HAPERR_OK);
 		hapi->onInitiated();
-		hapi->onAddAvailableTrigger();
 	}
 
 	string getBrokerUrl(void) const
@@ -228,7 +227,7 @@ struct HatoholArmPluginInterface::Impl {
 	{
 		if (createSelfTrigger)
 			return;
-		hapi->onCreateSelfHostinfo();
+		//hapi->onCreateSelfHostinfo();
 		hapi->onSetAvailabelTrigger(COLLECT_NG_AMQP_CONNECT_ERROR,
 					    FAILED_CONNECT_BROKER_TRIGGERID,
 					    HTERR_FAILED_CONNECT_BROKER);
@@ -259,11 +258,11 @@ struct HatoholArmPluginInterface::Impl {
 					avaliable);
 	}
 	
-	void setCeckArmPliuginConnection(void){
+	void setCeckArmPliuginConnection(void) {
 		hapi->onCheckArmPliuginConnection();
 	}
 
-	void endCeckArmPliuginConnection(void){
+	void endCeckArmPliuginConnection(void) {
 		hapi->onEndArmPliuginConnection();
 	}
 
@@ -720,10 +719,11 @@ void HatoholArmPluginInterface::setQueueAddress(const string &queueAddr)
 // ---------------------------------------------------------------------------
 gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 {
+	m_impl->hapi->onCreateSelfHostinfo();
 	m_impl->setInitialTrigger();
-	try{
+	try {
 		m_impl->connect();
-	}catch (const exception &e){
+	} catch (const exception &e) {
 		m_impl->setConnectionStatus(HAPERR_NOT_AVAILABLR);
 		THROW_HATOHOL_EXCEPTION("Failed to connect Broker: %s", e.what());
 	}
@@ -735,11 +735,11 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		sendInitiationRequest();
 	while (!isExitRequested()) {
 		Message message;
-		try{
+		try {
 			m_impl->setCeckArmPliuginConnection();
 			m_impl->receiver.fetch(message);
 			m_impl->endCeckArmPliuginConnection();
-		} catch (const exception &e){
+		} catch (const exception &e) {
 			m_impl->endCeckArmPliuginConnection();
 			m_impl->setConnectionStatus(HAPERR_NOT_AVAILABLR);
 			THROW_HATOHOL_EXCEPTION("Failed to connect Broker: %s",
@@ -754,9 +754,9 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		m_impl->currMessage = &message;
 		m_impl->currBuffer  = &sbuf;
 
-		try{
+		try {
 			onReceived(sbuf);
-		}catch (const exception &e){
+		} catch (const exception &e) {
 			m_impl->setInternalerrorStatus(HAPERR_NOT_AVAILABLR);
 			m_impl->setArmpluginStatus(HAPERR_UNKNOWN);
 			if (m_impl->workInServer)
@@ -791,10 +791,6 @@ void HatoholArmPluginInterface::onSetAvailabelTrigger(const HatoholArmPluginWtch
 
 void HatoholArmPluginInterface::onSetTriggerEvent(const HatoholArmPluginWtchPoint &type,
 						  const HatoholArmPluginErrorCode &avaliable)
-{
-}
-
-void HatoholArmPluginInterface::onAddAvailableTrigger(void)
 {
 }
 

@@ -275,7 +275,7 @@ void HatoholArmPluginGate::onCheckArmPliuginConnection(void)
 
 void HatoholArmPluginGate::onEndArmPliuginConnection(void)
 {
-	if (m_impl->timerTag != INVALID_EVENT_ID){
+	if (m_impl->timerTag != INVALID_EVENT_ID) {
 		g_source_remove(m_impl->timerTag);
 		m_impl->timerTag = INVALID_EVENT_ID;
 	}
@@ -852,7 +852,7 @@ void HatoholArmPluginGate::cmdHandlerAvailableTrigger(
 
 	const size_t listsize = sizeof(dumyList);
 	memcpy(dumyList, body + 1, listsize);
-	for (int i=0;i<trignum;i++){
+	for (int i = 0; i < trignum; i++) {
 		int tmp_int = LtoN(dumyList[i]);
 		addInitialTrigger(static_cast<HatoholArmPluginWtchPoint>(tmp_int));
 	}

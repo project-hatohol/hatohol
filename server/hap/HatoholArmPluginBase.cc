@@ -405,7 +405,7 @@ void HatoholArmPluginBase::sendAvailableTrigger(const int TriggerNum,
 						const HatoholArmPluginWtchPoint *TriggerList)
 {
 	uint32_t SendList[TriggerNum];
-	for ( int i=0 ; i < TriggerNum ; i++){
+	for ( int i=0 ; i < TriggerNum ; i++) {
 		SendList[i] = NtoL(TriggerList[i]);
 	}
 

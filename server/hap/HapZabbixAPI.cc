@@ -153,6 +153,7 @@ void HapZabbixAPI::onInitiated(void)
 		}
 	} *cb = new Callback(this);
 	sendCmdGetMonitoringServerInfo(cb);
+	onAddAvailableTrigger();
 }
 
 void HapZabbixAPI::onReady(const MonitoringServerInfo &serverInfo)

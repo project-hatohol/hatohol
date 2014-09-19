@@ -508,7 +508,6 @@ protected:
 					   const HatoholError &hatoholError);
 	virtual void onSetTriggerEvent(const HatoholArmPluginWtchPoint &type,
 				       const HatoholArmPluginErrorCode &avaliable);
-	virtual void onAddAvailableTrigger(void);
 	virtual void onCheckArmPliuginConnection(void);
 	virtual void onEndArmPliuginConnection(void);
 
