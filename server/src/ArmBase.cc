@@ -31,7 +31,7 @@
 using namespace std;
 using namespace mlpl;
 
-const char *SERVER_SELF_CHARACTER = "_SELF";
+const char *SERVER_SELF_MONITORING_SUFFIX = "_SELF";
 
 struct ArmBase::Impl
 {
@@ -295,7 +295,8 @@ void ArmBase::setInitialTrrigerStatus(void)
 	hostInfo.serverId = svInfo.id;
 	hostInfo.id = MONITORING_SERVER_SELF_ID;
 	hostInfo.hostName = 
-		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(), SERVER_SELF_CHARACTER);
+		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
+				     SERVER_SELF_MONITORING_SUFFIX);
 	dbMonitoring.addHostInfo(&hostInfo);
 
 	TriggerInfo triggerInfo;
@@ -321,7 +322,8 @@ void ArmBase::createTriggerInfo(const ArmResultTriggerInfo &resTrigger,
 	triggerInfo.lastChangeTime.tv_nsec = 0;
 	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
 	triggerInfo.hostName = 
-		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(), SERVER_SELF_CHARACTER);
+		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
+				     SERVER_SELF_MONITORING_SUFFIX);
 	triggerInfo.id = resTrigger.triggerId;
 	triggerInfo.brief = resTrigger.msg;
 	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
