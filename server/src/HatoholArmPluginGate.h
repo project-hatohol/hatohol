@@ -71,7 +71,7 @@ protected:
 	virtual void onConnected(qpid::messaging::Connection &conn) override;
 	virtual void setPluginInitialTriggerInfo(void) override;
 	virtual void setPluginTriggerEvent(const HatoholArmPluginWatchPoint &type,
-					   const HatoholArmPluginErrorCode &available) override;
+					   const HatoholArmPluginErrorCode &errorCode) override;
 	virtual void checkPluginConnection(void) override;
 	virtual void endCheckPluginConnection(void) override;
 	/**

@@ -745,7 +745,7 @@ void HatoholArmPluginInterface::setPluginInitialTriggerInfo(void)
 }
 
 void HatoholArmPluginInterface::setPluginTriggerEvent(const HatoholArmPluginWatchPoint &type,
-						      const HatoholArmPluginErrorCode &available)
+						      const HatoholArmPluginErrorCode &errorCode)
 {
 }
 
