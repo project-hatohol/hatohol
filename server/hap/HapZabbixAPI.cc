@@ -114,12 +114,6 @@ void HapZabbixAPI::parseReplyGetMonitoringServerInfoOnInitiated(
 	  "Failed to parse the reply for monitoring server information.\n");
 }
 
-void HapZabbixAPI::onAddAvailableTrigger(void)
-{
-	sendAvailableTrigger(hapiZabbixErrorNum,
-			     hapiZabbixErrorList);
-}
-
 void HapZabbixAPI::onInitiated(void)
 {
 	HatoholArmPluginBase::onInitiated();
@@ -153,7 +147,8 @@ void HapZabbixAPI::onInitiated(void)
 		}
 	} *cb = new Callback(this);
 	sendCmdGetMonitoringServerInfo(cb);
-	onAddAvailableTrigger();
+	sendAvailableTrigger(hapiZabbixErrorNum,
+			     hapiZabbixErrorList);
 }
 
 void HapZabbixAPI::onReady(const MonitoringServerInfo &serverInfo)
