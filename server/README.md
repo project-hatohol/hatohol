@@ -162,24 +162,15 @@ Hatohol server is 192.168.10.50.
 
     mysql> GRANT ALL PRIVILEGES ON hatohol.* TO myuser@"192.168.10.50" IDENTIFIED BY 'mypasswd';
 
-(2) Prepare the data base directory
+(2) start hatohol process
 
-Hatohol automatically creates databases for storing data cache. You have to
-decide the direcory for the DBs and make it if necessary.
+    $  hatohol [--config-db-server <Config DB Server:[port]>]
 
-Ex.) `mkdir /var/lib/hatohol`
-
-(3) start hatohol process
-
-    $ HATOHOL_DB_DIR=<directory preapred in step (2)> hatohol --config-db-server <Config DB Server:[port]>
-
-Ex.) `$ HATOHOL_DB_DIR=/var/lib/hatohol hatohol --config-db-server localhost`
+Ex.) `$ hatohol --config-db-server localhost`
 
 Tips:
 
-* From the 2nd time, you can start only with the above step (3).
-* If you omit the environment variable 'HATOHOL_DB_DIR', the databases are
-created in /tmp.
+* From the 2nd time, you can start only with the above step (2).
 * When the process successfully starts, hatohol reply the HTML message
 including HATOHOL version on http://[hostname]:[RestPort]/hello.html.
   Ex.) `http://localhost:33194/hello.html`
