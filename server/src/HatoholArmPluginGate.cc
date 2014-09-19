@@ -841,7 +841,7 @@ void HatoholArmPluginGate::addInitialTrigger(HatoholArmPluginWatchPoint addtrigg
 					  HTERR_FAILED_CONNECT_ZABBIX);
 	} else if (addtrigger == COLLECT_NG_PARSER_ERROR) {
 		setPluginAvailabelTrigger(COLLECT_NG_PARSER_ERROR,
-					  FAILED_PARSER_ERROR_TRIGGERID,
+					  FAILED_PARSER_JSON_DATA_TRIGGERID,
 					  HTERR_FAILED_TO_PARSE_JSON_DATA);
 	} else if (addtrigger == COLLECT_NG_DISCONNECT_NAGIOS) {
 		setPluginAvailabelTrigger(COLLECT_NG_DISCONNECT_NAGIOS,
