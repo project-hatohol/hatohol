@@ -116,13 +116,19 @@ nobase_nodist_hatohol_client_DATA = \
 	$(MO_FILES)
 
 HATOHOL_DEF_GENERATOR = ../server/tools/hatohol-def-src-file-generator
+HATOHOL_SERVER_TYPE_UTIL = ../server/tools/hatohol-server-type-util
+
 static/js/hatohol_def.js: $(HATOHOL_DEF_GENERATOR)
 	$(HATOHOL_DEF_GENERATOR) js > $@
 
 hatohol/hatohol_def.py: $(HATOHOL_DEF_GENERATOR)
 	$(HATOHOL_DEF_GENERATOR) py > $@
 
-update-po:
+misc/external-labels.js: $(HATOHOL_SERVER_TYPE_UTIL)
+	mkdir -p misc
+	$(HATOHOL_SERVER_TYPE_UTIL) label-gettext > $@
+
+update-po: misc/external-labels.js
 	./manage.py makemessages -a
 	./manage.py makemessages -d djangojs -a
 
