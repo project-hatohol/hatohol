@@ -144,7 +144,7 @@ void HapProcessZabbixAPI::startAcquisition(void)
 	string exceptionName;
 	string exceptionMsg;
 	HatoholErrorCode exceptionErrorCode;
-	HatoholArmPluginWtchPoint type;
+	HatoholArmPluginWatchPoint type;
 	try {
 		acquireData();
 		type = COLLECT_OK;

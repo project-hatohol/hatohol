@@ -70,7 +70,7 @@ protected:
 
 	virtual void onConnected(qpid::messaging::Connection &conn) override;
 	virtual void setPluginInitialTriggerInfo(void) override;
-	virtual void setPluginTriggerEvent(const HatoholArmPluginWtchPoint &type,
+	virtual void setPluginTriggerEvent(const HatoholArmPluginWatchPoint &type,
 					   const HatoholArmPluginErrorCode &avaliable) override;
 	virtual void checkPluginConnection(void) override;
 	virtual void endCheckPluginConnection(void) override;
@@ -113,13 +113,13 @@ protected:
 	void cmdHandlerSendArmInfo(const HapiCommandHeader *header);
 	void cmdHandlerAvailableTrigger(const HapiCommandHeader *header);
 
-	void addInitialTrigger(HatoholArmPluginWtchPoint addtrigger);
+	void addInitialTrigger(HatoholArmPluginWatchPoint addtrigger);
 
 	void createPluginTriggerInfo(const HAPIWtchPointInfo &resTrigger,
 				     TriggerInfoList &triggerInfoList);
 	void createPluginEventInfo(const HAPIWtchPointInfo &resTrigger,
 				   EventInfoList &eventInfoList);
-	void setPluginAvailabelTrigger(const HatoholArmPluginWtchPoint &type,
+	void setPluginAvailabelTrigger(const HatoholArmPluginWatchPoint &type,
 				       const TriggerIdType &trrigerId,
 				       const HatoholError &hatoholError);
 

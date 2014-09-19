@@ -356,7 +356,7 @@ void HatoholArmPluginGate::createPluginEventInfo(const HAPIWtchPointInfo &resTri
 	eventInfoList.push_back(eventInfo);
 }
 
-void HatoholArmPluginGate::setPluginAvailabelTrigger(const HatoholArmPluginWtchPoint &type,
+void HatoholArmPluginGate::setPluginAvailabelTrigger(const HatoholArmPluginWatchPoint &type,
 						     const TriggerIdType &trrigerId,
 						     const HatoholError &hatoholError)
 {
@@ -372,7 +372,7 @@ void HatoholArmPluginGate::setPluginAvailabelTrigger(const HatoholArmPluginWtchP
 	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
 }
 
-void HatoholArmPluginGate::setPluginTriggerEvent(const HatoholArmPluginWtchPoint &type,
+void HatoholArmPluginGate::setPluginTriggerEvent(const HatoholArmPluginWatchPoint &type,
 					     const HatoholArmPluginErrorCode &avaliable)
 {
 	TriggerInfoList triggerInfoList;
@@ -818,8 +818,8 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 	                                   body->failureCommentOffset,
 	                                   body->failureCommentLength);
 
-	HatoholArmPluginWtchPoint type = 
-		(HatoholArmPluginWtchPoint)LtoN(body->failureReason);
+	HatoholArmPluginWatchPoint type = 
+		(HatoholArmPluginWatchPoint)LtoN(body->failureReason);
 	if (armInfo.stat == ARM_WORK_STAT_OK ){
 		setPluginTriggerEvent(COLLECT_OK, HAPERR_OK);
 	} else {
@@ -833,7 +833,7 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 
 }
 
-void HatoholArmPluginGate::addInitialTrigger(HatoholArmPluginWtchPoint addtrigger)
+void HatoholArmPluginGate::addInitialTrigger(HatoholArmPluginWatchPoint addtrigger)
 {
 	if (addtrigger == COLLECT_NG_DISCONNECT_ZABBIX) {
 		setPluginAvailabelTrigger(COLLECT_NG_DISCONNECT_ZABBIX,
@@ -869,7 +869,7 @@ void HatoholArmPluginGate::cmdHandlerAvailableTrigger(
 	memcpy(dumyList, body + 1, listsize);
 	for (int i = 0; i < trignum; i++) {
 		int tmp_int = LtoN(dumyList[i]);
-		addInitialTrigger(static_cast<HatoholArmPluginWtchPoint>(tmp_int));
+		addInitialTrigger(static_cast<HatoholArmPluginWatchPoint>(tmp_int));
 	}
 	replyOk();
 }

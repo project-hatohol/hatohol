@@ -25,7 +25,7 @@ using namespace mlpl;
 static const uint64_t NUMBER_OF_GET_EVENT_PER_ONCE  = 1000;
 
 static const int   hapiZabbixErrorNum = 3;
-static const HatoholArmPluginWtchPoint hapiZabbixErrorList[hapiZabbixErrorNum] =
+static const HatoholArmPluginWatchPoint hapiZabbixErrorList[hapiZabbixErrorNum] =
 {
 	COLLECT_NG_PARSER_ERROR,
 	COLLECT_NG_DISCONNECT_ZABBIX,
