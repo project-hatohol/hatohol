@@ -372,15 +372,15 @@ void HatoholArmPluginGate::setPluginAvailabelTrigger(const HatoholArmPluginWatch
 }
 
 void HatoholArmPluginGate::setPluginTriggerEvent(const HatoholArmPluginWatchPoint &type,
-					     const HatoholArmPluginErrorCode &avaliable)
+					     const HatoholArmPluginErrorCode &available)
 {
 	TriggerInfoList triggerInfoList;
 	EventInfoList eventInfoList;
 	TriggerStatusType istatusType;
 
-	if ( avaliable == HAPERR_UNAVAILABLE_HAP) {
+	if ( available == HAPERR_UNAVAILABLE_HAP) {
 		istatusType = TRIGGER_STATUS_PROBLEM;
-	} else if ( avaliable == HAPERR_OK) {
+	} else if ( available == HAPERR_OK) {
 		istatusType = TRIGGER_STATUS_OK;
 	} else {
 		istatusType = TRIGGER_STATUS_UNKNOWN;
