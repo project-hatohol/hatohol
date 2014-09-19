@@ -50,7 +50,7 @@ static const size_t TIMEOUT_PLUGIN_TERM_CMD_MS     =  30 * 1000;
 static const size_t TIMEOUT_PLUGIN_TERM_SIGTERM_MS =  60 * 1000;
 static const size_t TIMEOUT_PLUGIN_TERM_SIGKILL_MS = 120 * 1000;
 
-static const char *HAPI_SELF_CHARACTER = "_HAPI";
+static const char *HAPI_SELF_MONITORING_SUFFIX = "_HAPI";
 
 class ImpromptuArmBase : public ArmBase {
 public:
@@ -297,7 +297,7 @@ void HatoholArmPluginGate::setPluginInitialTriggerInfo(void)
 	hostInfo.id = MONITORING_SERVER_SELF_ID;
 	hostInfo.hostName = 
 		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
-				     HAPI_SELF_CHARACTER);
+				     HAPI_SELF_MONITORING_SUFFIX);
 	dbMonitoring.addHostInfo(&hostInfo);
 
 	m_impl->setInitialTriggerTable();
@@ -325,7 +325,8 @@ void HatoholArmPluginGate::createPluginTriggerInfo(const HAPIWtchPointInfo &resT
 	triggerInfo.lastChangeTime.tv_nsec = 0;
 	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
 	triggerInfo.hostName = 
-		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(), HAPI_SELF_CHARACTER);
+		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
+				     HAPI_SELF_MONITORING_SUFFIX);
 	triggerInfo.id = resTrigger.triggerId;
 	triggerInfo.brief = resTrigger.msg;
 	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
