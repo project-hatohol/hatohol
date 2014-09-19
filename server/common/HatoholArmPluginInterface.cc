@@ -84,7 +84,6 @@ struct HatoholArmPluginInterface::Impl {
 	uint32_t   sequenceId;
 	uint32_t   sequenceIdOfCurrCmd;
 	SmartQueue<ReplyWaiter *> replyWaiterQueue;
-	bool       createSelfTrigger;
 
 	Impl(HatoholArmPluginInterface *_hapi,
 	               const bool &_workInServer)
@@ -96,7 +95,6 @@ struct HatoholArmPluginInterface::Impl {
 	  currBuffer(NULL),
 	  sequenceId(0),
 	  sequenceIdOfCurrCmd(SEQ_ID_UNKNOWN),
-	  createSelfTrigger(false),
 	  connected(false),
 	  brokerUrl(DEFAULT_BROKER_URL)
 	{
@@ -188,7 +186,8 @@ struct HatoholArmPluginInterface::Impl {
 	void completeInitiation(void)
 	{
 		initState = INIT_STAT_DONE;
-		setArmpluginStatus(HAPERR_OK);
+		hapi->setPluginTriggerEvent(COLLECT_NG_PLGIN_CONNECT_ERROR,
+					    HAPERR_OK);
 		hapi->onInitiated();
 	}
 
@@ -221,49 +220,6 @@ struct HatoholArmPluginInterface::Impl {
 		generalLock.lock();
 		queueAddress = _queueAddr;
 		generalLock.unlock();
-	}
-
-	void setInitialTrigger(void)
-	{
-		if (createSelfTrigger)
-			return;
-		//hapi->onCreateSelfHostinfo();
-		hapi->onSetAvailabelTrigger(COLLECT_NG_AMQP_CONNECT_ERROR,
-					    FAILED_CONNECT_BROKER_TRIGGERID,
-					    HTERR_FAILED_CONNECT_BROKER);
-		hapi->onSetAvailabelTrigger(COLLECT_NG_HATOHOL_INTERNAL_ERROR,
-					    FAILED_INTERNAL_ERROR_TRIGGERID,
-					    HTERR_INTERNAL_ERROR);
-		hapi->onSetAvailabelTrigger(COLLECT_NG_PLGIN_CONNECT_ERROR,
-					    FAILED_CONNECT_HAPI_TRIGGERID,
-					    HTERR_FAILED_CONNECT_HAPI);
-		createSelfTrigger = true;
-	}
-
-	void setConnectionStatus(HatoholArmPluginErrorCode avaliable)
-	{
-		hapi->onSetTriggerEvent(COLLECT_NG_AMQP_CONNECT_ERROR,
-					avaliable);
-	}
-
-	void setInternalerrorStatus(HatoholArmPluginErrorCode avaliable)
-	{
-		hapi->onSetTriggerEvent(COLLECT_NG_HATOHOL_INTERNAL_ERROR,
-					avaliable);
-	}
-
-	void setArmpluginStatus(HatoholArmPluginErrorCode avaliable)
-	{
-		hapi->onSetTriggerEvent(COLLECT_NG_PLGIN_CONNECT_ERROR,
-					avaliable);
-	}
-	
-	void setCeckArmPliuginConnection(void) {
-		hapi->onCheckArmPliuginConnection();
-	}
-
-	void endCeckArmPliuginConnection(void) {
-		hapi->onEndArmPliuginConnection();
 	}
 
 private:
@@ -719,15 +675,17 @@ void HatoholArmPluginInterface::setQueueAddress(const string &queueAddr)
 // ---------------------------------------------------------------------------
 gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 {
-	m_impl->hapi->onCreateSelfHostinfo();
-	m_impl->setInitialTrigger();
+	HatoholArmPluginInterface *hapi = m_impl->hapi;
+	hapi->setPluginInitialTriggerInfo();
 	try {
 		m_impl->connect();
 	} catch (const exception &e) {
-		m_impl->setConnectionStatus(HAPERR_NOT_AVAILABLR);
+		hapi->setPluginTriggerEvent(COLLECT_NG_AMQP_CONNECT_ERROR,
+					    HAPERR_NOT_AVAILABLR);
 		THROW_HATOHOL_EXCEPTION("Failed to connect Broker: %s", e.what());
 	}
-	m_impl->setConnectionStatus(HAPERR_OK);
+	hapi->setPluginTriggerEvent(COLLECT_NG_AMQP_CONNECT_ERROR,
+				    HAPERR_OK);
 
 	if (m_impl->workInServer)
 		sendInitiationPacket();
@@ -736,12 +694,13 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 	while (!isExitRequested()) {
 		Message message;
 		try {
-			m_impl->setCeckArmPliuginConnection();
+			hapi->checkPluginConnection();
 			m_impl->receiver.fetch(message);
-			m_impl->endCeckArmPliuginConnection();
+			hapi->endCheckPluginConnection();
 		} catch (const exception &e) {
-			m_impl->endCeckArmPliuginConnection();
-			m_impl->setConnectionStatus(HAPERR_NOT_AVAILABLR);
+			hapi->endCheckPluginConnection();
+			hapi->setPluginTriggerEvent(COLLECT_NG_AMQP_CONNECT_ERROR,
+						    HAPERR_NOT_AVAILABLR);
 			THROW_HATOHOL_EXCEPTION("Failed to connect Broker: %s",
 						e.what());
 		}
@@ -757,8 +716,10 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		try {
 			onReceived(sbuf);
 		} catch (const exception &e) {
-			m_impl->setInternalerrorStatus(HAPERR_NOT_AVAILABLR);
-			m_impl->setArmpluginStatus(HAPERR_UNKNOWN);
+			hapi->setPluginTriggerEvent(COLLECT_NG_HATOHOL_INTERNAL_ERROR,
+						    HAPERR_NOT_AVAILABLR);
+			hapi->setPluginTriggerEvent(COLLECT_NG_PLGIN_CONNECT_ERROR,
+						    HAPERR_UNKNOWN);
 			if (m_impl->workInServer)
 				sendInitiationPacket();
 			else
@@ -779,26 +740,20 @@ void HatoholArmPluginInterface::onConnected(Connection &conn)
 {
 }
 
-void HatoholArmPluginInterface::onCreateSelfHostinfo(void)
+void HatoholArmPluginInterface::setPluginInitialTriggerInfo(void)
 {
 }
 
-void HatoholArmPluginInterface::onSetAvailabelTrigger(const HatoholArmPluginWtchPoint &type,
-						      const TriggerIdType &trrigerId,
-						      const HatoholError &hatoholError)
+void HatoholArmPluginInterface::setPluginTriggerEvent(const HatoholArmPluginWtchPoint &type,
+						      const HatoholArmPluginErrorCode &avaliable)
 {
 }
 
-void HatoholArmPluginInterface::onSetTriggerEvent(const HatoholArmPluginWtchPoint &type,
-						  const HatoholArmPluginErrorCode &avaliable)
+void HatoholArmPluginInterface::checkPluginConnection(void)
 {
 }
 
-void HatoholArmPluginInterface::onCheckArmPliuginConnection(void)
-{
-}
-
-void HatoholArmPluginInterface::onEndArmPliuginConnection(void)
+void HatoholArmPluginInterface::endCheckPluginConnection(void)
 {
 }
 

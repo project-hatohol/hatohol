@@ -69,14 +69,11 @@ protected:
 	virtual ~HatoholArmPluginGate();
 
 	virtual void onConnected(qpid::messaging::Connection &conn) override;
-	virtual void onCreateSelfHostinfo(void) override;
-	virtual void onSetAvailabelTrigger(const HatoholArmPluginWtchPoint &type,
-					   const TriggerIdType &trrigerId,
-					   const HatoholError &hatoholError) override;
-	virtual void onSetTriggerEvent(const HatoholArmPluginWtchPoint &type,
-				       const HatoholArmPluginErrorCode &avaliable) override;
-	virtual void onCheckArmPliuginConnection(void) override;
-	virtual void onEndArmPliuginConnection(void) override;
+	virtual void setPluginInitialTriggerInfo(void) override;
+	virtual void setPluginTriggerEvent(const HatoholArmPluginWtchPoint &type,
+					   const HatoholArmPluginErrorCode &avaliable) override;
+	virtual void checkPluginConnection(void) override;
+	virtual void endCheckPluginConnection(void) override;
 	/**
 	 * Called when an exception was caught.
 	 *
@@ -118,12 +115,15 @@ protected:
 
 	void addInitialTrigger(HatoholArmPluginWtchPoint addtrigger);
 
-	void onCreateTriggerInfo(const HAPIWtchPointInfo &resTrigger,
-				 TriggerInfoList &triggerInfoList);
-	void onCreateEventInfo(const HAPIWtchPointInfo &resTrigger,
-			       EventInfoList &eventInfoList);
+	void createPluginTriggerInfo(const HAPIWtchPointInfo &resTrigger,
+				     TriggerInfoList &triggerInfoList);
+	void createPluginEventInfo(const HAPIWtchPointInfo &resTrigger,
+				   EventInfoList &eventInfoList);
+	void setPluginAvailabelTrigger(const HatoholArmPluginWtchPoint &type,
+				       const TriggerIdType &trrigerId,
+				       const HatoholError &hatoholError);
 
-	static gboolean detectArmPliuginConnectTimeout(void *data);
+	static gboolean detectArmPluginConnectTimeout(void *data);
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;;

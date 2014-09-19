@@ -502,14 +502,11 @@ protected:
 	 * @param conn A connection object
 	 */
 	virtual void onConnected(qpid::messaging::Connection &conn);
-	virtual void onCreateSelfHostinfo(void);
-	virtual void onSetAvailabelTrigger(const HatoholArmPluginWtchPoint &type,
-					   const TriggerIdType &trrigerId,
-					   const HatoholError &hatoholError);
-	virtual void onSetTriggerEvent(const HatoholArmPluginWtchPoint &type,
-				       const HatoholArmPluginErrorCode &avaliable);
-	virtual void onCheckArmPliuginConnection(void);
-	virtual void onEndArmPliuginConnection(void);
+	virtual void setPluginInitialTriggerInfo(void);
+	virtual void setPluginTriggerEvent(const HatoholArmPluginWtchPoint &type,
+					   const HatoholArmPluginErrorCode &avaliable);
+	virtual void checkPluginConnection(void);
+	virtual void endCheckPluginConnection(void);
 
 	/**
 	 * Called when initiation with the other side is completed.

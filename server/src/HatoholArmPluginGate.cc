@@ -85,6 +85,7 @@ struct HatoholArmPluginGate::Impl
 	HostInfoCache        hostInfoCache;
 	Mutex                exitSyncLock;
 	bool                 exitSyncDone;
+	bool                 createSelfTrigger;
 	guint                timerTag;
 	HAPIWtchPointInfo    hapiWtchPointInfo[NUM_COLLECT_NG_KIND];
 
@@ -94,7 +95,8 @@ struct HatoholArmPluginGate::Impl
 	  armBase(_serverInfo),
 	  pid(0),
 	  pluginTermSem(0),
-	  exitSyncDone(false)
+	  exitSyncDone(false),
+	  createSelfTrigger(false)
 	{
 	}
 
@@ -254,26 +256,26 @@ HatoholArmPluginGate::~HatoholArmPluginGate()
 	exitSync();
 }
 
-gboolean HatoholArmPluginGate::detectArmPliuginConnectTimeout(void *data)
+gboolean HatoholArmPluginGate::detectArmPluginConnectTimeout(void *data)
 {
 	MLPL_ERR("HatoholArmPluginGate::detectArmPliuginConnectTimeout");
 	HatoholArmPluginGate *obj = static_cast<HatoholArmPluginGate *>(data);
 	obj->m_impl->timerTag = INVALID_EVENT_ID;
-	obj->onSetTriggerEvent(COLLECT_NG_PLGIN_CONNECT_ERROR,
+	obj->setPluginTriggerEvent(COLLECT_NG_PLGIN_CONNECT_ERROR,
 			       HAPERR_NOT_AVAILABLR);
 	return G_SOURCE_REMOVE;
 }
 
-void HatoholArmPluginGate::onCheckArmPliuginConnection(void)
+void HatoholArmPluginGate::checkPluginConnection(void)
 {
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
 	if (svInfo.pollingIntervalSec != 0)
 		m_impl->timerTag = g_timeout_add(svInfo.pollingIntervalSec * 1000 * 3,
-						 detectArmPliuginConnectTimeout,
+						 detectArmPluginConnectTimeout,
 						 this);
 }
 
-void HatoholArmPluginGate::onEndArmPliuginConnection(void)
+void HatoholArmPluginGate::endCheckPluginConnection(void)
 {
 	if (m_impl->timerTag != INVALID_EVENT_ID) {
 		g_source_remove(m_impl->timerTag);
@@ -281,9 +283,11 @@ void HatoholArmPluginGate::onEndArmPliuginConnection(void)
 	}
 }
 
-void HatoholArmPluginGate::onCreateSelfHostinfo(void)
+void HatoholArmPluginGate::setPluginInitialTriggerInfo(void)
 {
-	MLPL_ERR("HatoholArmPluginGate::onCreateSelfHostinfo");
+	if (m_impl->createSelfTrigger)
+		return;
+
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
@@ -297,10 +301,21 @@ void HatoholArmPluginGate::onCreateSelfHostinfo(void)
 	dbMonitoring.addHostInfo(&hostInfo);
 
 	m_impl->setInitialTriggerTable();
+
+	setPluginAvailabelTrigger(COLLECT_NG_AMQP_CONNECT_ERROR,
+				  FAILED_CONNECT_BROKER_TRIGGERID,
+				  HTERR_FAILED_CONNECT_BROKER);
+	setPluginAvailabelTrigger(COLLECT_NG_HATOHOL_INTERNAL_ERROR,
+				  FAILED_INTERNAL_ERROR_TRIGGERID,
+				  HTERR_INTERNAL_ERROR);
+	setPluginAvailabelTrigger(COLLECT_NG_PLGIN_CONNECT_ERROR,
+				  FAILED_CONNECT_HAPI_TRIGGERID,
+				  HTERR_FAILED_CONNECT_HAPI);
+	m_impl->createSelfTrigger = true;
 }
 
-void HatoholArmPluginGate::onCreateTriggerInfo(const HAPIWtchPointInfo &resTrigger,
-					       TriggerInfoList &triggerInfoList)
+void HatoholArmPluginGate::createPluginTriggerInfo(const HAPIWtchPointInfo &resTrigger,
+						   TriggerInfoList &triggerInfoList)
 {
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
 	TriggerInfo triggerInfo;
@@ -319,8 +334,8 @@ void HatoholArmPluginGate::onCreateTriggerInfo(const HAPIWtchPointInfo &resTrigg
 	triggerInfoList.push_back(triggerInfo);
 }
 
-void HatoholArmPluginGate::onCreateEventInfo(const HAPIWtchPointInfo &resTrigger,
-					   EventInfoList &eventInfoList)
+void HatoholArmPluginGate::createPluginEventInfo(const HAPIWtchPointInfo &resTrigger,
+						 EventInfoList &eventInfoList)
 {
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
 	EventInfo eventInfo;
@@ -341,9 +356,9 @@ void HatoholArmPluginGate::onCreateEventInfo(const HAPIWtchPointInfo &resTrigger
 	eventInfoList.push_back(eventInfo);
 }
 
-void HatoholArmPluginGate::onSetAvailabelTrigger(const HatoholArmPluginWtchPoint &type,
-						 const TriggerIdType &trrigerId,
-						 const HatoholError   &hatoholError)
+void HatoholArmPluginGate::setPluginAvailabelTrigger(const HatoholArmPluginWtchPoint &type,
+						     const TriggerIdType &trrigerId,
+						     const HatoholError &hatoholError)
 {
 	TriggerInfoList triggerInfoList;
 	m_impl->hapiWtchPointInfo[type].statusType = TRIGGER_STATUS_UNKNOWN;
@@ -351,13 +366,13 @@ void HatoholArmPluginGate::onSetAvailabelTrigger(const HatoholArmPluginWtchPoint
 	m_impl->hapiWtchPointInfo[type].msg = hatoholError.getMessage().c_str();
 
 	HAPIWtchPointInfo &resTrigger = m_impl->hapiWtchPointInfo[type];
-	onCreateTriggerInfo(resTrigger, triggerInfoList);
+	createPluginTriggerInfo(resTrigger, triggerInfoList);
 
 	ThreadLocalDBCache cache;
 	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
 }
 
-void HatoholArmPluginGate::onSetTriggerEvent(const HatoholArmPluginWtchPoint &type,
+void HatoholArmPluginGate::setPluginTriggerEvent(const HatoholArmPluginWtchPoint &type,
 					     const HatoholArmPluginErrorCode &avaliable)
 {
 	TriggerInfoList triggerInfoList;
@@ -377,11 +392,11 @@ void HatoholArmPluginGate::onSetTriggerEvent(const HatoholArmPluginWtchPoint &ty
 			HAPIWtchPointInfo &trgInfo = m_impl->hapiWtchPointInfo[i];
 			if (trgInfo.statusType == TRIGGER_STATUS_PROBLEM) {
 				trgInfo.statusType = TRIGGER_STATUS_OK;
-				onCreateTriggerInfo(trgInfo, triggerInfoList);
-				onCreateEventInfo(trgInfo, eventInfoList);
+				createPluginTriggerInfo(trgInfo, triggerInfoList);
+				createPluginEventInfo(trgInfo, eventInfoList);
 			} else if (trgInfo.statusType == TRIGGER_STATUS_UNKNOWN) {
 				trgInfo.statusType = TRIGGER_STATUS_OK;
-				onCreateTriggerInfo(trgInfo, triggerInfoList);
+				createPluginTriggerInfo(trgInfo, triggerInfoList);
 			}				
 		}
 	}
@@ -390,28 +405,28 @@ void HatoholArmPluginGate::onSetTriggerEvent(const HatoholArmPluginWtchPoint &ty
 			return;
 		if (m_impl->hapiWtchPointInfo[type].statusType != TRIGGER_STATUS_UNKNOWN) {
 			m_impl->hapiWtchPointInfo[type].statusType = istatusType;
-			onCreateTriggerInfo(m_impl->hapiWtchPointInfo[type], triggerInfoList);
-			onCreateEventInfo(m_impl->hapiWtchPointInfo[type], eventInfoList);
+			createPluginTriggerInfo(m_impl->hapiWtchPointInfo[type], triggerInfoList);
+			createPluginEventInfo(m_impl->hapiWtchPointInfo[type], eventInfoList);
 		} else {
 			m_impl->hapiWtchPointInfo[type].statusType = istatusType;
-			onCreateTriggerInfo(m_impl->hapiWtchPointInfo[type], triggerInfoList);
+			createPluginTriggerInfo(m_impl->hapiWtchPointInfo[type], triggerInfoList);
 		}
 		for (int i = static_cast<int>(type) + 1; i < NUM_COLLECT_NG_KIND; i++) {
 			HAPIWtchPointInfo &trgInfo = m_impl->hapiWtchPointInfo[i];
 			if (trgInfo.statusType == TRIGGER_STATUS_PROBLEM) {
 				trgInfo.statusType = TRIGGER_STATUS_OK;
-				onCreateTriggerInfo(trgInfo, triggerInfoList);
-				onCreateEventInfo(trgInfo, eventInfoList);
+				createPluginTriggerInfo(trgInfo, triggerInfoList);
+				createPluginEventInfo(trgInfo, eventInfoList);
 			} else if (trgInfo.statusType == TRIGGER_STATUS_UNKNOWN) {
 				trgInfo.statusType = TRIGGER_STATUS_OK;
-				onCreateTriggerInfo(trgInfo, triggerInfoList);
+				createPluginTriggerInfo(trgInfo, triggerInfoList);
 			}
 		}
 		for (int i = 0; i < type; i++) {
 			HAPIWtchPointInfo &trgInfo = m_impl->hapiWtchPointInfo[i];
 			if (trgInfo.statusType == TRIGGER_STATUS_OK) {
 				trgInfo.statusType = TRIGGER_STATUS_UNKNOWN;
-				onCreateTriggerInfo(trgInfo, triggerInfoList);
+				createPluginTriggerInfo(trgInfo, triggerInfoList);
 			}
 		}
 	}
@@ -806,10 +821,10 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 	HatoholArmPluginWtchPoint type = 
 		(HatoholArmPluginWtchPoint)LtoN(body->failureReason);
 	if (armInfo.stat == ARM_WORK_STAT_OK ){
-		onSetTriggerEvent(COLLECT_OK, HAPERR_OK);
+		setPluginTriggerEvent(COLLECT_OK, HAPERR_OK);
 	} else {
 		if (type != COLLECT_OK)
-			onSetTriggerEvent(type, HAPERR_NOT_AVAILABLR);
+			setPluginTriggerEvent(type, HAPERR_NOT_AVAILABLR);
 	}
 
 	m_impl->armStatus.setArmInfo(armInfo);
@@ -821,21 +836,21 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 void HatoholArmPluginGate::addInitialTrigger(HatoholArmPluginWtchPoint addtrigger)
 {
 	if (addtrigger == COLLECT_NG_DISCONNECT_ZABBIX) {
-		onSetAvailabelTrigger(COLLECT_NG_DISCONNECT_ZABBIX,
-				      FAILED_CONNECT_ZABBIX_TRIGGERID,
-				      HTERR_FAILED_CONNECT_ZABBIX);
+		setPluginAvailabelTrigger(COLLECT_NG_DISCONNECT_ZABBIX,
+					  FAILED_CONNECT_ZABBIX_TRIGGERID,
+					  HTERR_FAILED_CONNECT_ZABBIX);
 	} else if (addtrigger == COLLECT_NG_PARSER_ERROR) {
-		onSetAvailabelTrigger(COLLECT_NG_PARSER_ERROR,
-				      FAILED_PARSER_ERROR_TRIGGERID,
-				      HTERR_FAILED_TO_PARSE_JSON_DATA);
+		setPluginAvailabelTrigger(COLLECT_NG_PARSER_ERROR,
+					  FAILED_PARSER_ERROR_TRIGGERID,
+					  HTERR_FAILED_TO_PARSE_JSON_DATA);
 	} else if (addtrigger == COLLECT_NG_DISCONNECT_NAGIOS) {
-		onSetAvailabelTrigger(COLLECT_NG_DISCONNECT_NAGIOS,
-				      FAILED_CONNECT_MYSQL_TRIGGERID,
-				      HTERR_FAILED_CONNECT_MYSQL);
+		setPluginAvailabelTrigger(COLLECT_NG_DISCONNECT_NAGIOS,
+					  FAILED_CONNECT_MYSQL_TRIGGERID,
+					  HTERR_FAILED_CONNECT_MYSQL);
 	} else if (addtrigger == COLLECT_NG_PLGIN_INTERNAL_ERROR) {
-		onSetAvailabelTrigger(COLLECT_NG_PLGIN_INTERNAL_ERROR,
-				      FAILED_HAPI_INTERNAL_ERROR_TRIGGERID,
-				      HTERR_HAPI_INTERNAL_ERROR);
+		setPluginAvailabelTrigger(COLLECT_NG_PLGIN_INTERNAL_ERROR,
+					  FAILED_HAPI_INTERNAL_ERROR_TRIGGERID,
+					  HTERR_HAPI_INTERNAL_ERROR);
 	}
 }
 
