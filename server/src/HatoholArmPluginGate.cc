@@ -865,13 +865,9 @@ void HatoholArmPluginGate::cmdHandlerAvailableTrigger(
 	HapiAvailableTrigger *body = getCommandBody<HapiAvailableTrigger>(*cmdBuf);
 
 	int trignum = LtoN(body->triggerNum);
-	uint32_t dumyList[trignum];
-
-	const size_t listsize = sizeof(dumyList);
-	memcpy(dumyList, body + 1, listsize);
+	uint64_t *buf = reinterpret_cast<uint64_t *>(body + 1);
 	for (int i = 0; i < trignum; i++) {
-		int tmp_int = LtoN(dumyList[i]);
-		addInitialTrigger(static_cast<HatoholArmPluginWatchPoint>(tmp_int));
+		addInitialTrigger(static_cast<HatoholArmPluginWatchPoint>(LtoN(buf[i])));
 	}
 	replyOk();
 }

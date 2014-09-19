@@ -404,23 +404,17 @@ void HatoholArmPluginBase::sendArmInfo(const ArmInfo &armInfo,
 void HatoholArmPluginBase::sendAvailableTrigger(const int TriggerNum,
 						const HatoholArmPluginWatchPoint *TriggerList)
 {
-	uint32_t SendList[TriggerNum];
-	for ( int i=0 ; i < TriggerNum ; i++) {
-		SendList[i] = NtoL(TriggerList[i]);
-	}
-
 	SmartBuffer cmdBuf;
-	const size_t listsize = sizeof(SendList);
-	const size_t additionalSize = listsize;
+	const size_t additionalSize = sizeof(uint64_t)*TriggerNum;
 
 	HapiAvailableTrigger *body = 
 		setupCommandHeader<HapiAvailableTrigger>(cmdBuf, HAPI_CMD_SEND_AVAILABLE_TRIGGER,
-						   additionalSize);
+							 additionalSize);
 	body->triggerNum= NtoL(TriggerNum);
-	int *buf = reinterpret_cast<int *>(body + 1);
-
-	memcpy(buf,SendList,additionalSize);
-
+	uint64_t *buf = reinterpret_cast<uint64_t *>(body + 1);
+	for ( int i=0 ; i < TriggerNum ; i++) {
+		buf[i] = NtoL(TriggerList[i]);
+	}
 	send(cmdBuf);
 }
 
