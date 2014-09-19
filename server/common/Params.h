@@ -101,7 +101,7 @@ static const TriggerIdType FAILED_PARSER_JSON_DATA_TRIGGERID    = -1003;
 static const TriggerIdType FAILED_CONNECT_BROKER_TRIGGERID      = -1004;
 static const TriggerIdType FAILED_CONNECT_HAPI_TRIGGERID        = -1005;
 static const TriggerIdType FAILED_HAPI_INTERNAL_ERROR_TRIGGERID = -1006;
-static const TriggerIdType FAILED_SELF_TRIGGERID_TERM           = -1007;
+static const TriggerIdType FAILED_SELF_TRIGGERID_TERMINATE      = -1007;
 
 // Special Event IDs ==========================================================
 static const EventIdType EVENT_NOT_FOUND = -1;
