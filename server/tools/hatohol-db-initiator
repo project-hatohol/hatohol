@@ -16,7 +16,7 @@ def create_db_if_needed(cursor, args):
         print 'DB already exists: %s' % args.db_name
     else:
         cursor.execute('CREATE DATABASE %s' % args.db_name)
-        cursor.execute('GRANT ALL PRIVILEGES ON %s.* TO %s@localhost IDENTIFIED BY \'%s\'' % args.db_name, args.hatohol_db_user, args.hatohol_db_password)
+        cursor.execute('GRANT ALL PRIVILEGES ON %s.* TO %s@localhost IDENTIFIED BY \'%s\'' % (args.db_name, args.hatohol_db_user, args.hatohol_db_password))
         print 'Created DB: %s' % args.db_name
     cursor.execute('USE %s' % args.db_name)
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     parser.add_argument('db_password', default='', type=str)
     parser.add_argument('--host', default='localhost', type=str)
     parser.add_argument('--sql-dir', default=get_default_sql_dir(), type=str)
-    parser.add_argument('--hatohol-db-name', default='hatohol', type=str)
+    parser.add_argument('--hatohol-db-user', default='hatohol', type=str)
     parser.add_argument('--hatohol-db-password', default='hatohol', type=str)
     parser.add_argument('-f', '--force', action='store_true')
     args = parser.parse_args()
