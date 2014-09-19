@@ -203,7 +203,7 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	    &HatoholArmPluginGate::cmdHandlerSendArmInfo);
 
 	registerCommandHandler(
-	  HAPI_CMD_SEND_TRIGGER_INFO,
+	  HAPI_CMD_SEND_AVAILABLE_TRIGGER,
 	  (CommandHandler)
 	  &HatoholArmPluginGate::cmdHandlerAvailableTrigger);
 }

@@ -414,7 +414,7 @@ void HatoholArmPluginBase::sendAvailableTrigger(const int TriggerNum,
 	const size_t additionalSize = listsize;
 
 	HapiAvailableTrigger *body = 
-	  setupCommandHeader<HapiAvailableTrigger>(cmdBuf, HAPI_CMD_SEND_TRIGGER_INFO,
+		setupCommandHeader<HapiAvailableTrigger>(cmdBuf, HAPI_CMD_SEND_AVAILABLE_TRIGGER,
 						   additionalSize);
 	body->triggerNum= NtoL(TriggerNum);
 	int *buf = reinterpret_cast<int *>(body + 1);
