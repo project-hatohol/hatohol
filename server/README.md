@@ -154,7 +154,7 @@ Example:
 
 Tips:
 - If the root password of the MySQL server is not set, just pass ''.
-- You can change password of the created DB by --hatohol-db-user and --hatohol-db-passowrd options.
+- You can change password of the created DB by --hatohol-db-user and --hatohol-db-password options.
 - If Hatohol server and MySQL server are executed on different machines, you have to input GRANT statement manually with the mysql command line tool.
 
 For example, user/password are 'myuser'/'mypasswd' and the IP address of
