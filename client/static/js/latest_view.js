@@ -173,8 +173,8 @@ var LatestView = function(userProfile) {
         continue;
 
       html += "<tr><td>" + escapeHTML(serverName) + "</td>";
-      html += "<td>" + escapeHTML(appName) + "</td>";
       html += "<td>" + escapeHTML(hostName) + "</td>";
+      html += "<td>" + escapeHTML(appName) + "</td>";
       if (url)
         html += "<td><a href='" + url + "'>" + escapeHTML(item["brief"])  + "</a></td>";
       else
