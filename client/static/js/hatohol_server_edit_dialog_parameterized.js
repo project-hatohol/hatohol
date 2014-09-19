@@ -161,7 +161,7 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
     var form = $('<form class="form-inline">').appendTo(mainDiv);
     form.append($('<label>').text(gettext('Server type')));
     var select = $('<select id="selectServerType">').appendTo(form);
-    select.append($('<option>').html('Please select').val('_header'));
+    select.append($('<option>').html(gettext('Please select')).val('_header'));
     mainDiv.append('<form id="add-server-param-form" class="form-horizontal" role="form">');
     return mainDiv;
   }
