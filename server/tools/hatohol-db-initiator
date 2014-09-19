@@ -1,0 +1,89 @@
+#!/usr/bin/env python
+import sys
+import os
+import argparse
+import MySQLdb
+from ctypes import *
+
+def create_db_if_needed(cursor, args):
+    cursor.execute('SHOW DATABASES')
+    found = False
+    for row in cursor.fetchall():
+        if args.db_name in row:
+            found = True
+            break
+    if found:
+        print 'DB already exists: %s' % args.db_name
+    else:
+        cursor.execute('CREATE DATABASE %s' % args.db_name)
+        cursor.execute('GRANT ALL PRIVILEGES ON %s.* TO %s@localhost IDENTIFIED BY \'%s\'' % args.db_name, args.hatohol_db_user, args.hatohol_db_password)
+        print 'Created DB: %s' % args.db_name
+    cursor.execute('USE %s' % args.db_name)
+
+def create_hatohol_tables(args):
+    hatohol = cdll.LoadLibrary('libhatohol.so')
+    ret = hatohol.createDBHatohol(c_char_p(args.db_name),
+                                  c_char_p(args.db_user),
+                                  c_char_p(args.db_password))
+    if ret == -1:
+        print 'Failed to create DBHatohol object'
+        sys.exit(-1)
+
+def execute_sql_statements_from_file(cursor, path):
+    with open(path, 'r') as sql_file:
+        for statement in sql_file:
+            cursor.execute(statement)
+    print 'Succeessfully loaded: %s' % path
+
+
+def load_data_from_file(cursor, args, table_name, file_name):
+    cursor.execute('SELECT COUNT(*) FROM %s;' % table_name)
+    num_rows = cursor.fetchall()[0][0]
+    if num_rows > 0 and not args.force:
+        print 'The number of rows in table: %s ' \
+              'is not zero (%d)' % (table_name, num_rows)
+        print 'Skip loading data: %s' % file_name
+        print 'If you want to drop the existing table ' \
+              'and load data, use -f or --force option.'
+        return
+
+    if num_rows > 0:
+        cursor.execute('DELETE FROM %s' % table_name)
+        print 'Deleted all rows in table: %s' % table_name
+
+    execute_sql_statements_from_file(cursor, args.sql_dir + '/' + file_name)
+
+
+def start(args):
+    db = MySQLdb.connect(host=args.host,
+                           user=args.db_user, passwd=args.db_password)
+    cursor = db.cursor()
+    create_db_if_needed(cursor, args)
+    create_hatohol_tables(args)
+
+    try:
+        load_data_from_file(cursor, args, 'server_types', 'server-type.sql')
+        db.commit()
+    except:
+        db.rollback()
+
+    cursor.close()
+    db.close()
+
+
+def get_default_sql_dir():
+    return os.path.dirname(__file__) + '/../share/hatohol/sql'
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Hatohol DB Initiator')
+    parser.add_argument('db_name', type=str)
+    parser.add_argument('db_user', type=str)
+    parser.add_argument('db_password', default='', type=str)
+    parser.add_argument('--host', default='localhost', type=str)
+    parser.add_argument('--sql-dir', default=get_default_sql_dir(), type=str)
+    parser.add_argument('--hatohol-db-name', default='hatohol', type=str)
+    parser.add_argument('--hatohol-db-password', default='hatohol', type=str)
+    parser.add_argument('-f', '--force', action='store_true')
+    args = parser.parse_args()
+    start(args)

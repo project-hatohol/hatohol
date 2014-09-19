@@ -168,7 +168,6 @@ def generate_one_type(table_name, server_type, server_label, parameters, plugin_
 
 def generate_mysql(generators):
     TABLE_NAME = 'server_types'
-    print 'DELETE FROM %s;' % TABLE_NAME
     for gen in generators:
         generate_one_type(TABLE_NAME, gen.get_server_type(),
                           gen.get_server_type_name(),

@@ -53,6 +53,22 @@ struct DBHatohol::Impl {
 DB::SetupContext DBHatohol::Impl::setupCtx(typeid(DBHatohol));
 
 // ---------------------------------------------------------------------------
+// This function is intended to call from hatohol-db-initiator
+// ---------------------------------------------------------------------------
+extern "C"
+int createDBHatohol(
+  const char *dbName, const char *user, const char *password)
+{
+	try {
+		DBHatohol::setDefaultDBParams(dbName, user, password);
+		DBHatohol db; // Create all DBTables instances to create tables
+	} catch (...) {
+		return -1;
+	}
+	return 0;
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBHatohol::reset(void)
