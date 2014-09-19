@@ -681,7 +681,7 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		m_impl->connect();
 	} catch (const exception &e) {
 		hapi->setPluginTriggerEvent(COLLECT_NG_AMQP_CONNECT_ERROR,
-					    HAPERR_NOT_AVAILABLR);
+					    HAPERR_UNAVAILABLE_HAP);
 		THROW_HATOHOL_EXCEPTION("Failed to connect Broker: %s", e.what());
 	}
 	hapi->setPluginTriggerEvent(COLLECT_NG_AMQP_CONNECT_ERROR,
@@ -700,7 +700,7 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		} catch (const exception &e) {
 			hapi->endCheckPluginConnection();
 			hapi->setPluginTriggerEvent(COLLECT_NG_AMQP_CONNECT_ERROR,
-						    HAPERR_NOT_AVAILABLR);
+						    HAPERR_UNAVAILABLE_HAP);
 			THROW_HATOHOL_EXCEPTION("Failed to connect Broker: %s",
 						e.what());
 		}
@@ -717,7 +717,7 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 			onReceived(sbuf);
 		} catch (const exception &e) {
 			hapi->setPluginTriggerEvent(COLLECT_NG_HATOHOL_INTERNAL_ERROR,
-						    HAPERR_NOT_AVAILABLR);
+						    HAPERR_UNAVAILABLE_HAP);
 			hapi->setPluginTriggerEvent(COLLECT_NG_PLGIN_CONNECT_ERROR,
 						    HAPERR_UNKNOWN);
 			if (m_impl->workInServer)

@@ -262,7 +262,7 @@ gboolean HatoholArmPluginGate::detectArmPluginConnectTimeout(void *data)
 	HatoholArmPluginGate *obj = static_cast<HatoholArmPluginGate *>(data);
 	obj->m_impl->timerTag = INVALID_EVENT_ID;
 	obj->setPluginTriggerEvent(COLLECT_NG_PLGIN_CONNECT_ERROR,
-			       HAPERR_NOT_AVAILABLR);
+				   HAPERR_UNAVAILABLE_HAP);
 	return G_SOURCE_REMOVE;
 }
 
@@ -379,7 +379,7 @@ void HatoholArmPluginGate::setPluginTriggerEvent(const HatoholArmPluginWtchPoint
 	EventInfoList eventInfoList;
 	TriggerStatusType istatusType;
 
-	if ( avaliable == HAPERR_NOT_AVAILABLR) {
+	if ( avaliable == HAPERR_UNAVAILABLE_HAP) {
 		istatusType = TRIGGER_STATUS_PROBLEM;
 	} else if ( avaliable == HAPERR_OK) {
 		istatusType = TRIGGER_STATUS_OK;
@@ -824,7 +824,7 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 		setPluginTriggerEvent(COLLECT_OK, HAPERR_OK);
 	} else {
 		if (type != COLLECT_OK)
-			setPluginTriggerEvent(type, HAPERR_NOT_AVAILABLR);
+			setPluginTriggerEvent(type, HAPERR_UNAVAILABLE_HAP);
 	}
 
 	m_impl->armStatus.setArmInfo(armInfo);
