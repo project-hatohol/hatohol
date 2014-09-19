@@ -1,5 +1,6 @@
 bin_PROGRAMS = hatohol-def-src-file-generator
 dist_bin_SCRIPTS = hatohol-voyager \
+                   hatohol-db-initiator \
                    hatohol-inspect-info-collector \
                    hatohol-server-type-util
 
