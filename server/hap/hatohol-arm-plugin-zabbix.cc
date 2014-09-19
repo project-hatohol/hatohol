@@ -144,7 +144,7 @@ void HapProcessZabbixAPI::startAcquisition(void)
 	string exceptionName;
 	string exceptionMsg;
 	HatoholErrorCode exceptionErrorCode;
-	HatoholArmPluginWatchPoint type;
+	HatoholArmPluginWatchPoint type = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 	try {
 		acquireData();
 		type = COLLECT_OK;
@@ -157,16 +157,12 @@ void HapProcessZabbixAPI::startAcquisition(void)
 			type = COLLECT_NG_DISCONNECT_ZABBIX;
 		} else if (exceptionErrorCode == HTERR_FAILED_TO_PARSE_JSON_DATA){
 			type = COLLECT_NG_PARSER_ERROR;
-		} else {
-			type = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 		}
 	} catch (const exception &e) {
 		exceptionName = DEMANGLED_TYPE_NAME(e);
 		exceptionMsg  = e.what();
-		type = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 		caughtException = true;
 	} catch (...) {
-		type = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 		caughtException = true;
 	}
 
@@ -180,6 +176,8 @@ void HapProcessZabbixAPI::startAcquisition(void)
 		  "Caught an exception: (%s) %s", name, msg);
 		MLPL_ERR("%s\n", errMsg.c_str());
 		getArmStatus().logFailure(errMsg);
+	} else {
+		type = COLLECT_OK;
 	}
 
 	m_ctx->timerTag = g_timeout_add(intervalMSec, acquisitionTimerCb, this);
