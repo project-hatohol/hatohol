@@ -46,7 +46,7 @@ using namespace qpid::messaging;
 const int   HatoholArmPluginGate::NO_RETRY = -1;
 static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms
 
-static const int TIMEOUT_PLUGIN_TIMEOUT_COUNT = 3;
+static const int PLUGIN_REPLY_TIMEOUT_FACTOR = 3;
 
 static const size_t TIMEOUT_PLUGIN_TERM_CMD_MS     =  30 * 1000;
 static const size_t TIMEOUT_PLUGIN_TERM_SIGTERM_MS =  60 * 1000;
@@ -273,7 +273,7 @@ void HatoholArmPluginGate::checkPluginConnection(void)
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
 	if (svInfo.pollingIntervalSec != 0)
 		m_impl->timerTag = g_timeout_add(
-		  svInfo.pollingIntervalSec * TIMEOUT_PLUGIN_TIMEOUT_COUNT * 1000,
+		  svInfo.pollingIntervalSec * PLUGIN_REPLY_TIMEOUT_FACTOR * 1000,
 		  detectArmPluginConnectTimeout,
 		  this);
 }
@@ -387,9 +387,9 @@ void HatoholArmPluginGate::setPluginTriggerEvent(const HatoholArmPluginWatchPoin
 	EventInfoList eventInfoList;
 	TriggerStatusType istatusType;
 
-	if ( errorCode == HAPERR_UNAVAILABLE_HAP) {
+	if (errorCode == HAPERR_UNAVAILABLE_HAP) {
 		istatusType = TRIGGER_STATUS_PROBLEM;
-	} else if ( errorCode == HAPERR_OK) {
+	} else if (errorCode == HAPERR_OK) {
 		istatusType = TRIGGER_STATUS_OK;
 	} else {
 		istatusType = TRIGGER_STATUS_UNKNOWN;
