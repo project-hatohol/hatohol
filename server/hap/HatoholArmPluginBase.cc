@@ -412,7 +412,7 @@ void HatoholArmPluginBase::sendAvailableTrigger(const int TriggerNum,
 							 additionalSize);
 	body->triggerNum= NtoL(TriggerNum);
 	uint64_t *buf = reinterpret_cast<uint64_t *>(body + 1);
-	for ( int i=0 ; i < TriggerNum ; i++) {
+	for (int i=0 ; i < TriggerNum ; i++) {
 		buf[i] = NtoL(TriggerList[i]);
 	}
 	send(cmdBuf);
