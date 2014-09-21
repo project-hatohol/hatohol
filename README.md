@@ -49,8 +49,8 @@ We welcome participation in all stages of our development (bug fixes, bug report
 
 ## Supported platforms
 - CentOS 6.5 (x86\_64)
-- Ubuntu Server 12.04.2 LTS (64-bit)
-- Ubuntu 13.04 (64-bit) [supported until the next Ubuntu release]
+- Ubuntu Server 12.04.5 LTS (64-bit)
+- Ubuntu 14.04 LTS (64-bit)
 
 ## Basic architecture
 Hatohol consists of a server and a client using Web UI. Hatohol server gathers monitoring information and consolidates it. The integration of data is done via JSON format using HTTP (REST). A Hatohol client internally communicates with
