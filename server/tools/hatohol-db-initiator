@@ -36,13 +36,13 @@ def execute_sql_statements_from_file(cursor, path):
     print 'Succeessfully loaded: %s' % path
 
 
-def load_data_from_file(cursor, args, table_name, file_name):
+def load_data_from_file(cursor, args, table_name, file_path):
     cursor.execute('SELECT COUNT(*) FROM %s;' % table_name)
     num_rows = cursor.fetchall()[0][0]
     if num_rows > 0 and not args.force:
         print 'The number of rows in table: %s ' \
               'is not zero (%d)' % (table_name, num_rows)
-        print 'Skip loading data: %s' % file_name
+        print 'Skip loading data: %s' % file_path
         print 'If you want to drop the existing table ' \
               'and load data, use -f or --force option.'
         return
@@ -51,10 +51,29 @@ def load_data_from_file(cursor, args, table_name, file_name):
         cursor.execute('DELETE FROM %s' % table_name)
         print 'Deleted all rows in table: %s' % table_name
 
-    execute_sql_statements_from_file(cursor, args.sql_dir + '/' + file_name)
+    execute_sql_statements_from_file(cursor, file_path)
 
+
+def check_sql_file(args, sql_file_list):
+    for sql_file in sql_file_list:
+        path = sql_file['file_name']
+        if not os.path.isfile(path):
+            print 'Error: Not found: %s' % path
+            print 'You can specifiy the SQL directory by --sql-dir option.'
+            sys.exit(-1)
+
+def add_sql_directory(args, sql_file_list):
+    for sql_file in sql_file_list:
+        sql_file['file_name'] = args.sql_dir + '/' + sql_file['file_name']
 
 def start(args):
+
+    sql_file_list = [
+      {'table_name':'users', 'file_name':'init-user.sql'},
+      {'table_name':'server_types', 'file_name':'server-type.sql'}]
+    add_sql_directory(args, sql_file_list)
+    check_sql_file(args, sql_file_list)
+
     db = MySQLdb.connect(host=args.host,
                            user=args.db_user, passwd=args.db_password)
     cursor = db.cursor()
@@ -62,7 +81,9 @@ def start(args):
     create_hatohol_tables(args)
 
     try:
-        load_data_from_file(cursor, args, 'server_types', 'server-type.sql')
+        for sql_file in sql_file_list:
+            load_data_from_file(cursor, args,
+                                sql_file['table_name'], sql_file['file_name'])
         db.commit()
     except:
         db.rollback()
