@@ -548,7 +548,7 @@ protected:
 	/**
 	 * Called when started to wait for a AMQP broker's response.
 	 */
-	virtual void onMonitorArmPluginConnection(void);
+	virtual void onPriorToFetchMessage(void);
 
 	/**
 	 * Called when a AMQP broker's response is success.

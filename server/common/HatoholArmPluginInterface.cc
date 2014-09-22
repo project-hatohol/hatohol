@@ -689,7 +689,7 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 	while (!isExitRequested()) {
 		Message message;
 		try {
-			hapi->onMonitorArmPluginConnection();
+			hapi->onPriorToFetchMessage();
 			m_impl->receiver.fetch(message);
 			hapi->onSuccessFetchMessage();
 		} catch (const exception &e) {
@@ -734,7 +734,7 @@ void HatoholArmPluginInterface::onSetPluginInitialInfo(void)
 {
 }
 
-void HatoholArmPluginInterface::onMonitorArmPluginConnection(void)
+void HatoholArmPluginInterface::onPriorToFetchMessage(void)
 {
 }
 

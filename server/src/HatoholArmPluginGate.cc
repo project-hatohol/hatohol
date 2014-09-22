@@ -277,7 +277,7 @@ void HatoholArmPluginGate::removeArmPluginTimeout(gpointer data)
 	}
 }
 
-void HatoholArmPluginGate::onMonitorArmPluginConnection(void)
+void HatoholArmPluginGate::onPriorToFetchMessage(void)
 {
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
 	if (svInfo.pollingIntervalSec != 0) {

@@ -88,7 +88,7 @@ protected:
 	virtual void onTerminated(const siginfo_t *siginfo);
 
 	virtual void onFailureConnected(void) override;
-	virtual void onMonitorArmPluginConnection(void) override;
+	virtual void onPriorToFetchMessage(void) override;
 	virtual void onSuccessFetchMessage(void) override;
 	virtual void onFailureFetchMessage(void) override;
 	virtual void onFailureReceivedMessage(void) override;
