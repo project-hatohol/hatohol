@@ -108,7 +108,7 @@ msgstr "制限なし"
 
 #: static/js/dashboard_view.js:90
 msgid "Number of servers [With problem]"
-msgstr "サーバ数 [障害あり]"
+msgstr "サーバー数 [障害あり]"
 
 #: static/js/dashboard_view.js:100
 msgid "Number of hosts [with problem]"
@@ -217,7 +217,7 @@ msgstr "TO:"
 
 #: static/js/hatohol_actor_mail_dialog.js:83
 msgid "SMTP server "
-msgstr "SMTPサーバ"
+msgstr "SMTPサーバー"
 
 #: static/js/hatohol_actor_mail_dialog.js:84
 msgid "(If empty, localhost is used)"
@@ -272,7 +272,7 @@ msgstr "条件"
 
 #: static/js/hatohol_add_action_dialog.js:378
 msgid "Server"
-msgstr "サーバ"
+msgstr "サーバー"
 
 #: static/js/hatohol_add_action_dialog.js:384
 msgid "Hostgroup"
@@ -336,7 +336,7 @@ msgstr "実行ディレクトリ"
 
 #: static/js/hatohol_add_action_dialog.js:461
 msgid "Incident Tracking Server"
-msgstr "インシデント管理サーバ"
+msgstr "インシデント管理サーバー"
 
 #: static/js/hatohol_add_action_dialog.js:467
 #: static/js/hatohol_user_edit_dialog.js:171 static/js/servers_view.js:191
@@ -427,7 +427,7 @@ msgstr "インシデント管理システムの種類が正しくありません
 
 #: static/js/hatohol_def.js:206
 msgid "NO incident tracker location."
-msgstr "インシデント管理サーバの場所が指定されていません。"
+msgstr "インシデント管理サーバーの場所が指定されていません。"
 
 #: static/js/hatohol_def.js:207
 msgid "Empty user name."
@@ -550,7 +550,7 @@ msgstr "ホスト選択"
 #: static/js/hatohol_host_selector.js:54
 #: static/js/hatohol_hostgroup_selector.js:48 static/js/servers_view.js:168
 msgid "Server ID"
-msgstr "サーバID"
+msgstr "サーバーID"
 
 #: static/js/hatohol_host_selector.js:55
 #: static/js/hatohol_privilege_edit_dialog.js:200
@@ -626,11 +626,11 @@ msgstr "閉じる"
 
 #: static/js/hatohol_incident_trackers_editor.js:36
 msgid "EDIT INCIDENT TRACKING SERVERS"
-msgstr "インシデント管理サーバ編集"
+msgstr "インシデント管理サーバー編集"
 
 #: static/js/hatohol_incident_trackers_editor.js:79
 msgid "Are you sure to delete incident tracking servers?"
-msgstr "インシデント管理サーバを削除してもよろしいですか？"
+msgstr "インシデント管理サーバーを削除してもよろしいですか？"
 
 #: static/js/hatohol_incident_trackers_editor.js:168
 #: static/js/hatohol_user_roles_editor.js:169
@@ -667,19 +667,19 @@ msgstr "編集"
 
 #: static/js/hatohol_incident_trackers_editor.js:239
 msgid "EDIT INCIDENT TRACKING SERVER"
-msgstr "インシデント管理サーバ編集"
+msgstr "インシデント管理サーバー編集"
 
 #: static/js/hatohol_incident_trackers_editor.js:240
 msgid "ADD INCIDENT TRACKING SERVER"
-msgstr "インシデント管理サーバ追加"
+msgstr "インシデント管理サーバー追加"
 
 #: static/js/hatohol_incident_trackers_editor.js:266
 msgid "Now updating the incident tracking server ..."
-msgstr "インシデント管理サーバ設定を更新しています..."
+msgstr "インシデント管理サーバー設定を更新しています..."
 
 #: static/js/hatohol_incident_trackers_editor.js:269
 msgid "Now creating an incident tracking server ..."
-msgstr "インシデント管理サーバ設定を作成しています..."
+msgstr "インシデント管理サーバー設定を作成しています..."
 
 #: static/js/hatohol_incident_trackers_editor.js:303
 #: static/js/hatohol_server_edit_dialog_parameterized.js:98
@@ -810,7 +810,7 @@ msgstr "設定"
 #: static/js/hatohol_user_roles_editor.js:430
 #: test/browser/test_hatohol_navi.js:57 test/browser/test_hatohol_navi.js:86
 msgid "Servers"
-msgstr "サーバ"
+msgstr "サーバー"
 
 #: static/js/hatohol_navi.js:55 static/js/hatohol_user_roles_editor.js:435
 #: static/js/hatohol_user_roles_editor.js:440
@@ -926,23 +926,23 @@ msgstr "不明なステータス： "
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:27
 msgid "EDIT SERVER"
-msgstr "サーバ編集"
+msgstr "サーバー編集"
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:27
 msgid "ADD SERVER"
-msgstr "サーバ追加"
+msgstr "サーバー追加"
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:52
 msgid "Now updating the server ..."
-msgstr "サーバを更新しています..."
+msgstr "サーバーを更新しています..."
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:54
 msgid "Now adding a server..."
-msgstr "サーバを追加しています..."
+msgstr "サーバーを追加しています..."
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:162
 msgid "Server type"
-msgstr "サーバ種類"
+msgstr "サーバー種類"
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:164
 msgid "Please select"
@@ -950,7 +950,7 @@ msgstr "選択してください"
 
 #: static/js/hatohol_server_selector.js:26
 msgid "Server selecion"
-msgstr "サーバ選択"
+msgstr "サーバー選択"
 
 #: static/js/hatohol_trigger_selector.js:26
 msgid "Trigger selecion"
@@ -1076,27 +1076,27 @@ msgstr "全てのユーザの取得"
 
 #: static/js/hatohol_user_roles_editor.js:404
 msgid "Create a server"
-msgstr "サーバの作成"
+msgstr "サーバーの作成"
 
 #: static/js/hatohol_user_roles_editor.js:409
 msgid "Update allowed servers"
-msgstr "許可されたサーバの更新"
+msgstr "許可されたサーバーの更新"
 
 #: static/js/hatohol_user_roles_editor.js:414
 msgid "Update all servers"
-msgstr "全てのサーバの更新"
+msgstr "全てのサーバーの更新"
 
 #: static/js/hatohol_user_roles_editor.js:419
 msgid "Delete allowed servers"
-msgstr "許可されたサーバの削除"
+msgstr "許可されたサーバーの削除"
 
 #: static/js/hatohol_user_roles_editor.js:424
 msgid "Delete all servers"
-msgstr "全てのサーバの削除"
+msgstr "全てのサーバーの削除"
 
 #: static/js/hatohol_user_roles_editor.js:429
 msgid "Get all servers"
-msgstr "全てのサーバの取得"
+msgstr "全てのサーバーの取得"
 
 #: static/js/hatohol_user_roles_editor.js:434
 msgid "Create a action"
@@ -1237,7 +1237,7 @@ msgid "-"
 msgstr "-"
 
 #~ msgid "Invalid Server type!"
-#~ msgstr "サーバの種類が正しくありません！"
+#~ msgstr "サーバーの種類が正しくありません！"
 
 #~ msgid "Host name is empty!"
 #~ msgstr "ホスト名が入力されていません！"
@@ -1288,7 +1288,7 @@ msgstr "-"
 #~ msgstr "ステータス:"
 
 #~ msgid "Server:"
-#~ msgstr "サーバ:"
+#~ msgstr "サーバー:"
 
 #~ msgid "Host:"
 #~ msgstr "ホスト:"
@@ -1306,7 +1306,7 @@ msgstr "-"
 #~ msgstr "次へ"
 
 #~ msgid "Not found server ID."
-#~ msgstr "サーバIDが見つかりません"
+#~ msgstr "サーバーIDが見つかりません"
 
 #~ msgid "Not found user ID."
 #~ msgstr "ユーザIDが見つかりません。"
@@ -1318,13 +1318,13 @@ msgstr "-"
 #~ msgstr " ステータスコード"
 
 #~ msgid " HATOHOL SERVER ERROR CODE"
-#~ msgstr " HATOHOLサーバエラーコード"
+#~ msgstr " HATOHOLサーバーエラーコード"
 
 #~ msgid "STATUS CODE"
 #~ msgstr "ステータスコード"
 
 #~ msgid "HATOHOL SERVER ERROR CODE"
-#~ msgstr "HATOHOLサーバエラーコード"
+#~ msgstr "HATOHOLサーバーエラーコード"
 
 #~ msgid "User type"
 #~ msgstr "ユーザの種類"

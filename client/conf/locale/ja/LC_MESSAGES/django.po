@@ -32,7 +32,7 @@ msgstr "アクション削除"
 #: viewer/incident_settings_ajax.html:59 viewer/latest_ajax.html:59
 #: viewer/triggers_ajax.html:66
 msgid "Server"
-msgstr "サーバ"
+msgstr "サーバー"
 
 #: viewer/actions_ajax.html:56 viewer/events_ajax.html:69
 #: viewer/latest_ajax.html:60 viewer/triggers_ajax.html:70
@@ -190,7 +190,7 @@ msgstr "不明"
 #: viewer/overview_items_ajax.html:42 viewer/overview_triggers_ajax.html:47
 #: viewer/triggers_ajax.html:47
 msgid "Server:"
-msgstr "サーバ:"
+msgstr "サーバー:"
 
 #: viewer/events_ajax.html:52 viewer/latest_ajax.html:37
 #: viewer/overview_items_ajax.html:46 viewer/overview_triggers_ajax.html:51
@@ -289,11 +289,11 @@ msgstr "削除"
 
 #: viewer/incident_settings_ajax.html:43
 msgid "EDIT INCIDENT TRACKING SERVERS"
-msgstr "インシデント管理サーバ編集"
+msgstr "インシデント管理サーバー編集"
 
 #: viewer/incident_settings_ajax.html:64
 msgid "Incident Tracking Server"
-msgstr "インシデント管理サーバ"
+msgstr "インシデント管理サーバー"
 
 #: viewer/latest_ajax.html:24 viewer/latest_ajax.html.py:29
 msgid "Latest data"
@@ -337,11 +337,11 @@ msgstr "概要:トリガー"
 
 #: viewer/servers_ajax.html:24 viewer/servers_ajax.html.py:29
 msgid "Servers"
-msgstr "サーバ"
+msgstr "サーバー"
 
 #: viewer/servers_ajax.html:35
 msgid "ADD SERVER"
-msgstr "サーバ追加"
+msgstr "サーバー追加"
 
 #: viewer/servers_ajax.html:40
 msgid "ADD SERVER (New version)"
@@ -349,7 +349,7 @@ msgstr ""
 
 #: viewer/servers_ajax.html:45
 msgid "DELETE SERVER"
-msgstr "サーバ削除"
+msgstr "サーバー削除"
 
 #: viewer/servers_ajax.html:61
 msgid "Connection status"
@@ -360,13 +360,13 @@ msgid ""
 "Please use a browser's reload function when you update servers information "
 "including 'Connection status'."
 msgstr ""
-"'通信状態'を含むサーバ情報を更新するには、ブラウザのリロード機能をご使用くだ"
+"'通信状態'を含むサーバー情報を更新するには、ブラウザのリロード機能をご使用くだ"
 "さい."
 
 #: viewer/servers_ajax.html:81
 #, fuzzy
 msgid "Server type"
-msgstr "サーバ"
+msgstr "サーバー"
 
 #: viewer/servers_ajax.html:83 viewer/servers_ajax.html.py:85
 msgid "Zabbix"
@@ -493,7 +493,7 @@ msgstr "権限"
 #~ msgstr "制限なし"
 
 #~ msgid "Number of servers [With problem]"
-#~ msgstr "サーバ数 [障害あり]"
+#~ msgstr "サーバー数 [障害あり]"
 
 #~ msgid "Number of hosts [with problem]"
 #~ msgstr "ホスト数 [障害あり]"
