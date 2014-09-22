@@ -29,11 +29,14 @@
 using namespace std;
 using namespace mlpl;
 
+static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms
+
 class HapProcessZabbixAPI : public HapProcess, public HapZabbixAPI {
 public:
 	HapProcessZabbixAPI(int argc, char *argv[]);
 	virtual ~HapProcessZabbixAPI();
 	int mainLoopRun(void);
+	virtual int onCaughtException(const exception &e) override;
 
 protected:
 	// called from HapZabbixAPI
@@ -217,6 +220,18 @@ void HapProcessZabbixAPI::onReady(const MonitoringServerInfo &serverInfo)
 	};
 	Utils::executeOnGLibEventLoop<HapProcessZabbixAPI>(
 	  NoName::startAcquisition, this, ASYNC);
+}
+
+int HapProcessZabbixAPI::onCaughtException(const exception &e)
+{
+	int retryIntervalSec;
+	if (m_ctx->serverInfo.retryIntervalSec == 0)
+		retryIntervalSec = DEFAULT_RETRY_INTERVAL;
+	else
+		retryIntervalSec = m_ctx->serverInfo.retryIntervalSec * 1000;
+	MLPL_INFO("Caught an exception: %s. Retry afeter %d ms.\n",
+		  e.what(), retryIntervalSec);
+	return retryIntervalSec;
 }
 
 // ---------------------------------------------------------------------------
