@@ -99,8 +99,8 @@ static const TriggerIdType FAILED_CONNECT_MYSQL_TRIGGERID       = -1001;
 static const TriggerIdType FAILED_INTERNAL_ERROR_TRIGGERID      = -1002;
 static const TriggerIdType FAILED_PARSER_JSON_DATA_TRIGGERID    = -1003;
 static const TriggerIdType FAILED_CONNECT_BROKER_TRIGGERID      = -1004;
-static const TriggerIdType FAILED_CONNECT_HAPI_TRIGGERID        = -1005;
-static const TriggerIdType FAILED_HAPI_INTERNAL_ERROR_TRIGGERID = -1006;
+static const TriggerIdType FAILED_CONNECT_HAP_TRIGGERID         = -1005;
+static const TriggerIdType FAILED_HAP_INTERNAL_ERROR_TRIGGERID  = -1006;
 static const TriggerIdType FAILED_SELF_TRIGGERID_TERMINATION    = -1007;
 
 // Special Event IDs ==========================================================

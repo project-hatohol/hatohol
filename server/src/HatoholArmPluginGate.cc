@@ -52,7 +52,7 @@ static const size_t TIMEOUT_PLUGIN_TERM_CMD_MS     =  30 * 1000;
 static const size_t TIMEOUT_PLUGIN_TERM_SIGTERM_MS =  60 * 1000;
 static const size_t TIMEOUT_PLUGIN_TERM_SIGKILL_MS = 120 * 1000;
 
-static const char *HAPI_SELF_MONITORING_SUFFIX = "_HAPI";
+static const char *HAP_SELF_MONITORING_SUFFIX = "_HAP";
 
 class ImpromptuArmBase : public ArmBase {
 public:
@@ -264,7 +264,7 @@ gboolean HatoholArmPluginGate::detectArmPluginConnectTimeout(void *data)
 	HatoholArmPluginGate *obj = static_cast<HatoholArmPluginGate *>(data);
 	obj->m_impl->timerTag = INVALID_EVENT_ID;
 	obj->setPluginConnectStatus(COLLECT_NG_PLGIN_CONNECT_ERROR,
-				   HAPERR_UNAVAILABLE_HAP);
+				    HAPERR_UNAVAILABLE_HAP);
 	return G_SOURCE_REMOVE;
 }
 
@@ -307,7 +307,7 @@ void HatoholArmPluginGate::setPluginInitialTriggerInfo(void)
 	hostInfo.id = MONITORING_SERVER_SELF_ID;
 	hostInfo.hostName = 
 		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
-				     HAPI_SELF_MONITORING_SUFFIX);
+				     HAP_SELF_MONITORING_SUFFIX);
 	dbMonitoring.addHostInfo(&hostInfo);
 
 	m_impl->setInitialTriggerTable();
@@ -319,8 +319,8 @@ void HatoholArmPluginGate::setPluginInitialTriggerInfo(void)
 				  FAILED_INTERNAL_ERROR_TRIGGERID,
 				  HTERR_INTERNAL_ERROR);
 	setPluginAvailabelTrigger(COLLECT_NG_PLGIN_CONNECT_ERROR,
-				  FAILED_CONNECT_HAPI_TRIGGERID,
-				  HTERR_FAILED_CONNECT_HAPI);
+				  FAILED_CONNECT_HAP_TRIGGERID,
+				  HTERR_FAILED_CONNECT_HAP);
 	m_impl->createdSelfTriggers = true;
 }
 
@@ -335,7 +335,7 @@ void HatoholArmPluginGate::createPluginTriggerInfo(const HAPIWtchPointInfo &resT
 	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
 	triggerInfo.hostName = 
 		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
-				     HAPI_SELF_MONITORING_SUFFIX);
+				     HAP_SELF_MONITORING_SUFFIX);
 	triggerInfo.id = resTrigger.triggerId;
 	triggerInfo.brief = resTrigger.msg;
 	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
@@ -865,8 +865,8 @@ void HatoholArmPluginGate::addInitialTrigger(HatoholArmPluginWatchType addtrigge
 					  HTERR_FAILED_CONNECT_MYSQL);
 	} else if (addtrigger == COLLECT_NG_PLGIN_INTERNAL_ERROR) {
 		setPluginAvailabelTrigger(COLLECT_NG_PLGIN_INTERNAL_ERROR,
-					  FAILED_HAPI_INTERNAL_ERROR_TRIGGERID,
-					  HTERR_HAPI_INTERNAL_ERROR);
+					  FAILED_HAP_INTERNAL_ERROR_TRIGGERID,
+					  HTERR_HAP_INTERNAL_ERROR);
 	}
 }
 

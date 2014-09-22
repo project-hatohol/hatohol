@@ -144,10 +144,10 @@ void HatoholError::init(void)
 		   "Failed in connecting to MySQL.");
 	DEFINE_ERR(FAILED_CONNECT_BROKER,
 		   "Failed in connecting to Broker.");
-	DEFINE_ERR(FAILED_CONNECT_HAPI,
+	DEFINE_ERR(FAILED_CONNECT_HAP,
 		   "Failed in connecting to ArmPlugin.");
 
-	DEFINE_ERR(HAPI_INTERNAL_ERROR,
+	DEFINE_ERR(HAP_INTERNAL_ERROR,
 		   "Internal error happend in ArmPlugin.");
 
 	// OTHER
