@@ -263,7 +263,7 @@ gboolean HatoholArmPluginGate::detectArmPluginConnectTimeout(void *data)
 	MLPL_ERR("Detect the timeout of connection to ArmPlugin.");
 	HatoholArmPluginGate *obj = static_cast<HatoholArmPluginGate *>(data);
 	obj->m_impl->timerTag = INVALID_EVENT_ID;
-	obj->setPluginTriggerEvent(COLLECT_NG_PLGIN_CONNECT_ERROR,
+	obj->setPluginConnectStatus(COLLECT_NG_PLGIN_CONNECT_ERROR,
 				   HAPERR_UNAVAILABLE_HAP);
 	return G_SOURCE_REMOVE;
 }
@@ -381,7 +381,7 @@ void HatoholArmPluginGate::setPluginAvailabelTrigger(const HatoholArmPluginWatch
 	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
 }
 
-void HatoholArmPluginGate::setPluginTriggerEvent(const HatoholArmPluginWatchPoint &type,
+void HatoholArmPluginGate::setPluginConnectStatus(const HatoholArmPluginWatchPoint &type,
 					     const HatoholArmPluginErrorCode &errorCode)
 {
 	TriggerInfoList triggerInfoList;
@@ -490,7 +490,7 @@ void HatoholArmPluginGate::onTerminated(const siginfo_t *siginfo)
 void HatoholArmPluginGate::onInitiated(void)
 {
 	HatoholArmPluginInterface::onInitiated();
-	setPluginTriggerEvent(COLLECT_NG_PLGIN_CONNECT_ERROR,
+	setPluginConnectStatus(COLLECT_NG_PLGIN_CONNECT_ERROR,
 			      HAPERR_OK);
 }
 
@@ -837,10 +837,10 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 	HatoholArmPluginWatchPoint type = 
 		(HatoholArmPluginWatchPoint)LtoN(body->failureReason);
 	if (armInfo.stat == ARM_WORK_STAT_OK ){
-		setPluginTriggerEvent(COLLECT_OK, HAPERR_OK);
+		setPluginConnectStatus(COLLECT_OK, HAPERR_OK);
 	} else {
 		if (type != COLLECT_OK)
-			setPluginTriggerEvent(type, HAPERR_UNAVAILABLE_HAP);
+			setPluginConnectStatus(type, HAPERR_UNAVAILABLE_HAP);
 	}
 
 	m_impl->armStatus.setArmInfo(armInfo);

@@ -503,8 +503,8 @@ protected:
 	 */
 	virtual void onConnected(qpid::messaging::Connection &conn);
 	virtual void setPluginInitialTriggerInfo(void);
-	virtual void setPluginTriggerEvent(const HatoholArmPluginWatchPoint &type,
-					   const HatoholArmPluginErrorCode &errorCode);
+	virtual void setPluginConnectStatus(const HatoholArmPluginWatchPoint &type,
+					    const HatoholArmPluginErrorCode &errorCode);
 	virtual void checkPluginConnection(void);
 	virtual void endCheckPluginConnection(void);
 
