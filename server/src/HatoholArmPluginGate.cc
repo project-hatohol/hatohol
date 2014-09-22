@@ -878,9 +878,9 @@ void HatoholArmPluginGate::cmdHandlerAvailableTrigger(
 
 	HapiAvailableTrigger *body = getCommandBody<HapiAvailableTrigger>(*cmdBuf);
 
-	int trignum = LtoN(body->numTriggers);
+	int numTriggerList = LtoN(body->numTriggers);
 	uint64_t *buf = reinterpret_cast<uint64_t *>(body + 1);
-	for (int i = 0; i < trignum; i++) {
+	for (int i = 0; i < numTriggerList; i++) {
 		addInitialTrigger(static_cast<HatoholArmPluginWatchType>(LtoN(buf[i])));
 	}
 	replyOk();
