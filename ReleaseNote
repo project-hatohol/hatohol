@@ -1,12 +1,19 @@
-2014-07-23 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09alpha
+2014-07-23 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09
 
-	[Server] Introduce the pagination feature to TriggersView and LatestView (#246)
-	[Server] Use auto mutex (#255)
-	[Server] Add more tests for action & issue sender (#256)
-	[Server] Add a new query option "type" to the rest resource "action" (#257)
-	[Server] Add operation privilege types for issue settings (#264)
-	[Server] Potential problem in HatoholArmPluginInterface (#242)
-	[Server] Can't get Event data (#252)
+	* New Features
+
+	* Bug fixes
+
+	* Contributors
+	- Jairo Eduardo Lopez
+	- Kazuhiro Yamato
+	- Kouhei Sutou
+	- Masayuki Nakagawa
+	- Noriki Nakamura
+	- Osamu Wakabayashi
+	- Takuro Ashie
+	- YOSHIFUJI Hideaki
+	- cosmo0920
 
 2014-06-27 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.06
 
