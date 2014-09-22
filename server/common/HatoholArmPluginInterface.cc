@@ -692,11 +692,11 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 	while (!isExitRequested()) {
 		Message message;
 		try {
-			hapi->checkPluginConnection();
+			hapi->monitorArmPluginTimeout();
 			m_impl->receiver.fetch(message);
-			hapi->endCheckPluginConnection();
+			hapi->endMonitorArmPluginTimeout();
 		} catch (const exception &e) {
-			hapi->endCheckPluginConnection();
+			hapi->endMonitorArmPluginTimeout();
 			hapi->setPluginConnectStatus(COLLECT_NG_AMQP_CONNECT_ERROR,
 						    HAPERR_UNAVAILABLE_HAP);
 			THROW_HATOHOL_EXCEPTION("Failed to connect Broker: %s",
@@ -747,11 +747,11 @@ void HatoholArmPluginInterface::setPluginConnectStatus(const HatoholArmPluginWat
 {
 }
 
-void HatoholArmPluginInterface::checkPluginConnection(void)
+void HatoholArmPluginInterface::monitorArmPluginTimeout(void)
 {
 }
 
-void HatoholArmPluginInterface::endCheckPluginConnection(void)
+void HatoholArmPluginInterface::endMonitorArmPluginTimeout(void)
 {
 }
 

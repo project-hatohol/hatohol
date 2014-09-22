@@ -73,8 +73,8 @@ protected:
 	virtual void setPluginInitialTriggerInfo(void) override;
 	virtual void setPluginConnectStatus(const HatoholArmPluginWatchType &type,
 					    const HatoholArmPluginErrorCode &errorCode) override;
-	virtual void checkPluginConnection(void) override;
-	virtual void endCheckPluginConnection(void) override;
+	virtual void monitorArmPluginTimeout(void) override;
+	virtual void endMonitorArmPluginTimeout(void) override;
 	/**
 	 * Called when an exception was caught.
 	 *
@@ -124,7 +124,7 @@ protected:
 				       const TriggerIdType &trrigerId,
 				       const HatoholError &hatoholError);
 
-	static gboolean detectArmPluginConnectTimeout(void *data);
+	static gboolean detectedArmPluginTimeout(void *data);
 	static void removeArmPluginTimeout(gpointer data);
 private:
 	struct Impl;

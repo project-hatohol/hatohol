@@ -505,8 +505,8 @@ protected:
 	virtual void setPluginInitialTriggerInfo(void);
 	virtual void setPluginConnectStatus(const HatoholArmPluginWatchType &type,
 					    const HatoholArmPluginErrorCode &errorCode);
-	virtual void checkPluginConnection(void);
-	virtual void endCheckPluginConnection(void);
+	virtual void monitorArmPluginTimeout(void);
+	virtual void endMonitorArmPluginTimeout(void);
 
 	/**
 	 * Called when initiation with the other side is completed.

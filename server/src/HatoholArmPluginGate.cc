@@ -258,7 +258,7 @@ HatoholArmPluginGate::~HatoholArmPluginGate()
 	exitSync();
 }
 
-gboolean HatoholArmPluginGate::detectArmPluginConnectTimeout(void *data)
+gboolean HatoholArmPluginGate::detectedArmPluginTimeout(void *data)
 {
 	MLPL_ERR("Detect the timeout of connection to ArmPlugin.");
 	HatoholArmPluginGate *obj = static_cast<HatoholArmPluginGate *>(data);
@@ -268,13 +268,13 @@ gboolean HatoholArmPluginGate::detectArmPluginConnectTimeout(void *data)
 	return G_SOURCE_REMOVE;
 }
 
-void HatoholArmPluginGate::checkPluginConnection(void)
+void HatoholArmPluginGate::monitorArmPluginTimeout(void)
 {
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
 	if (svInfo.pollingIntervalSec != 0) {
 		m_impl->timerTag = g_timeout_add(
 		  svInfo.pollingIntervalSec * PLUGIN_REPLY_TIMEOUT_FACTOR * 1000,
-		  detectArmPluginConnectTimeout,
+		  detectedArmPluginTimeout,
 		  this);
 	}
 }
@@ -288,7 +288,7 @@ void HatoholArmPluginGate::removeArmPluginTimeout(gpointer data)
 	}
 }
 
-void HatoholArmPluginGate::endCheckPluginConnection(void)
+void HatoholArmPluginGate::endMonitorArmPluginTimeout(void)
 {
 	Utils::executeOnGLibEventLoop(removeArmPluginTimeout, this);
 }
