@@ -366,7 +366,7 @@ void HatoholArmPluginBase::sendTable(
 }
 
 void HatoholArmPluginBase::sendArmInfo(const ArmInfo &armInfo,
-				       const HatoholArmPluginWatchPoint &type)
+				       const HatoholArmPluginWatchType &type)
 {
 	SmartBuffer cmdBuf;
 	const size_t failureCommentLen = armInfo.failureComment.size();
@@ -402,7 +402,7 @@ void HatoholArmPluginBase::sendArmInfo(const ArmInfo &armInfo,
 }
 
 void HatoholArmPluginBase::sendAvailableTrigger(const int numTriggerList,
-						const HatoholArmPluginWatchPoint *TriggerList)
+						const HatoholArmPluginWatchType *TriggerList)
 {
 	SmartBuffer cmdBuf;
 	const size_t additionalSize = sizeof(uint64_t)*numTriggerList;

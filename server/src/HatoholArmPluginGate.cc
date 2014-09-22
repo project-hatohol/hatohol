@@ -365,7 +365,7 @@ void HatoholArmPluginGate::createPluginEventInfo(const HAPIWtchPointInfo &resTri
 	eventInfoList.push_back(eventInfo);
 }
 
-void HatoholArmPluginGate::setPluginAvailabelTrigger(const HatoholArmPluginWatchPoint &type,
+void HatoholArmPluginGate::setPluginAvailabelTrigger(const HatoholArmPluginWatchType &type,
 						     const TriggerIdType &trrigerId,
 						     const HatoholError &hatoholError)
 {
@@ -381,7 +381,7 @@ void HatoholArmPluginGate::setPluginAvailabelTrigger(const HatoholArmPluginWatch
 	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
 }
 
-void HatoholArmPluginGate::setPluginConnectStatus(const HatoholArmPluginWatchPoint &type,
+void HatoholArmPluginGate::setPluginConnectStatus(const HatoholArmPluginWatchType &type,
 					     const HatoholArmPluginErrorCode &errorCode)
 {
 	TriggerInfoList triggerInfoList;
@@ -834,8 +834,8 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 	                                   body->failureCommentOffset,
 	                                   body->failureCommentLength);
 
-	HatoholArmPluginWatchPoint type = 
-		(HatoholArmPluginWatchPoint)LtoN(body->failureReason);
+	HatoholArmPluginWatchType type = 
+		(HatoholArmPluginWatchType)LtoN(body->failureReason);
 	if (armInfo.stat == ARM_WORK_STAT_OK ){
 		setPluginConnectStatus(COLLECT_OK, HAPERR_OK);
 	} else {
@@ -849,7 +849,7 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 
 }
 
-void HatoholArmPluginGate::addInitialTrigger(HatoholArmPluginWatchPoint addtrigger)
+void HatoholArmPluginGate::addInitialTrigger(HatoholArmPluginWatchType addtrigger)
 {
 	if (addtrigger == COLLECT_NG_DISCONNECT_ZABBIX) {
 		setPluginAvailabelTrigger(COLLECT_NG_DISCONNECT_ZABBIX,
@@ -881,7 +881,7 @@ void HatoholArmPluginGate::cmdHandlerAvailableTrigger(
 	int trignum = LtoN(body->numTriggers);
 	uint64_t *buf = reinterpret_cast<uint64_t *>(body + 1);
 	for (int i = 0; i < trignum; i++) {
-		addInitialTrigger(static_cast<HatoholArmPluginWatchPoint>(LtoN(buf[i])));
+		addInitialTrigger(static_cast<HatoholArmPluginWatchType>(LtoN(buf[i])));
 	}
 	replyOk();
 }

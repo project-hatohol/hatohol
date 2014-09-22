@@ -742,7 +742,7 @@ void HatoholArmPluginInterface::setPluginInitialTriggerInfo(void)
 {
 }
 
-void HatoholArmPluginInterface::setPluginConnectStatus(const HatoholArmPluginWatchPoint &type,
+void HatoholArmPluginInterface::setPluginConnectStatus(const HatoholArmPluginWatchType &type,
 						       const HatoholArmPluginErrorCode &errorCode)
 {
 }

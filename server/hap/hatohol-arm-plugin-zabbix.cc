@@ -144,7 +144,7 @@ void HapProcessZabbixAPI::startAcquisition(void)
 	string exceptionName;
 	string exceptionMsg;
 	HatoholErrorCode exceptionErrorCode;
-	HatoholArmPluginWatchPoint type = COLLECT_NG_PLGIN_INTERNAL_ERROR;
+	HatoholArmPluginWatchType type = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 	try {
 		acquireData();
 		type = COLLECT_OK;

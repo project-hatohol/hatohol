@@ -57,7 +57,7 @@ typedef enum {
 	COLLECT_NG_AMQP_CONNECT_ERROR,
 	NUM_COLLECT_NG_KIND,
 	COLLECT_OK,
-}HatoholArmPluginWatchPoint;
+}HatoholArmPluginWatchType;
 
 enum HapiMessageType {
 	HAPI_MSG_INITIATION,          // Sv -> Cl
@@ -503,7 +503,7 @@ protected:
 	 */
 	virtual void onConnected(qpid::messaging::Connection &conn);
 	virtual void setPluginInitialTriggerInfo(void);
-	virtual void setPluginConnectStatus(const HatoholArmPluginWatchPoint &type,
+	virtual void setPluginConnectStatus(const HatoholArmPluginWatchType &type,
 					    const HatoholArmPluginErrorCode &errorCode);
 	virtual void checkPluginConnection(void);
 	virtual void endCheckPluginConnection(void);

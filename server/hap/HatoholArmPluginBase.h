@@ -81,9 +81,9 @@ protected:
 	void sendTable(const HapiCommandCode &code,
 	               const ItemTablePtr &tablePtr);
 	void sendArmInfo(const ArmInfo &armInfo,
-			 const HatoholArmPluginWatchPoint &type = COLLECT_OK);
+			 const HatoholArmPluginWatchType &type = COLLECT_OK);
 	void sendAvailableTrigger(const int TriggerNum,
-				  const HatoholArmPluginWatchPoint *TriggerList);
+				  const HatoholArmPluginWatchType *TriggerList);
 	void cmdHandlerTerminate(const HapiCommandHeader *header);
 
 private:
