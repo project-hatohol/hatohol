@@ -209,7 +209,7 @@ msgstr "キャンセル"
 
 #: static/js/hatohol_actor_mail_dialog.js:35
 msgid "Execution parameter maker"
-msgstr "実行パラメータ"
+msgstr "実行パラメーター"
 
 #: static/js/hatohol_actor_mail_dialog.js:78
 msgid "TO: "
@@ -304,7 +304,7 @@ msgstr "以上"
 
 #: static/js/hatohol_add_action_dialog.js:429
 msgid "Execution parameters"
-msgstr "実行パラメータ"
+msgstr "実行パラメーター"
 
 #: static/js/hatohol_add_action_dialog.js:431
 msgid "Templates "
@@ -328,7 +328,7 @@ msgstr "タイムアウト (秒)"
 
 #: static/js/hatohol_add_action_dialog.js:448
 msgid "Command parameter"
-msgstr "実行パラメータ"
+msgstr "実行パラメーター"
 
 #: static/js/hatohol_add_action_dialog.js:453
 msgid "Execution directory"
@@ -501,11 +501,11 @@ msgstr "URLにIDが含まれていません。"
 
 #: static/js/hatohol_def.js:224
 msgid "Not found parameter."
-msgstr "パラメータが見つかりません。"
+msgstr "パラメーターが見つかりません。"
 
 #: static/js/hatohol_def.js:225
 msgid "Invalid parameter."
-msgstr "不正なパラメータです。"
+msgstr "不正なパラメーターです。"
 
 #: static/js/hatohol_def.js:226
 msgid "Authentication failed."

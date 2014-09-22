@@ -104,7 +104,7 @@ msgstr "グローバルステータス"
 
 #: viewer/dashboard_ajax.html:39
 msgid "Parameter"
-msgstr "パラメータ"
+msgstr "パラメーター"
 
 #: viewer/dashboard_ajax.html:40
 msgid "Value"
