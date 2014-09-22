@@ -232,7 +232,7 @@ struct HapiResTimeOfLastEvent {
 } __attribute__((__packed__));
 
 struct HapiAvailableTrigger {
-	uint64_t triggerNum;
+	uint64_t numTriggers;
 } __attribute__((__packed__));
 
 

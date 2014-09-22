@@ -31,7 +31,7 @@ static const HatoholArmPluginWatchPoint hapiZabbixErrorList[] =
 	COLLECT_NG_PLGIN_INTERNAL_ERROR,
 };
 
-static const int   hapiZabbixErrorNum = ARRAY_SIZE(hapiZabbixErrorList);
+static const int numHapZabbixSelfError = ARRAY_SIZE(hapiZabbixErrorList);
 
 struct HapZabbixAPI::Impl {
 	Impl(void)
@@ -148,7 +148,7 @@ void HapZabbixAPI::onInitiated(void)
 		}
 	} *cb = new Callback(this);
 	sendCmdGetMonitoringServerInfo(cb);
-	sendAvailableTrigger(hapiZabbixErrorNum,
+	sendAvailableTrigger(numHapZabbixSelfError,
 			     hapiZabbixErrorList);
 }
 
