@@ -72,6 +72,7 @@ protected:
 	 * behavior is calling exit(EXIT_SUCCESS).
 	 */
 	virtual void onReceivedTerminate(void);
+	virtual void onFailureReceivedMessage(void) override;
 
 	void sendCmdGetMonitoringServerInfo(CommandCallbacks *callbacks);
 	bool parseReplyGetMonitoringServerInfo(

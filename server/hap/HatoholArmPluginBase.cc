@@ -422,3 +422,9 @@ void HatoholArmPluginBase::cmdHandlerTerminate(const HapiCommandHeader *header)
 {
 	onReceivedTerminate();
 }
+
+void HatoholArmPluginBase::onFailureReceivedMessage(void)
+{
+	HatoholArmPluginInterface::sendInitiationRequest();
+}
+

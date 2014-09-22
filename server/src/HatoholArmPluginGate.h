@@ -68,13 +68,10 @@ protected:
 	// To avoid an instance from being created on a stack.
 	virtual ~HatoholArmPluginGate();
 
+	virtual void onSetPluginInitialInfo(void) override;
+
 	virtual void onConnected(qpid::messaging::Connection &conn) override;
 	virtual void onInitiated(void) override;
-	virtual void setPluginInitialTriggerInfo(void) override;
-	virtual void setPluginConnectStatus(const HatoholArmPluginWatchType &type,
-					    const HatoholArmPluginErrorCode &errorCode) override;
-	virtual void monitorArmPluginTimeout(void) override;
-	virtual void endMonitorArmPluginTimeout(void) override;
 	/**
 	 * Called when an exception was caught.
 	 *
@@ -89,6 +86,12 @@ protected:
 	virtual void onLaunchedProcess(
 	  const bool &succeeded, const ArmPluginInfo &armPluginInfo);
 	virtual void onTerminated(const siginfo_t *siginfo);
+
+	virtual void onFailureConnected(void) override;
+	virtual void onMonitorArmPluginConnection(void) override;
+	virtual void onSuccessFetchMessage(void) override;
+	virtual void onFailureFetchMessage(void) override;
+	virtual void onFailureReceivedMessage(void) override;
 
 	/**
 	 * Terminates the plugin and wait for it.
@@ -120,6 +123,8 @@ protected:
 				     TriggerInfoList &triggerInfoList);
 	void createPluginEventInfo(const HAPIWtchPointInfo &resTrigger,
 				   EventInfoList &eventInfoList);
+	void setPluginConnectStatus(const HatoholArmPluginWatchType &type,
+				    const HatoholArmPluginErrorCode &errorCode);
 	void setPluginAvailabelTrigger(const HatoholArmPluginWatchType &type,
 				       const TriggerIdType &trrigerId,
 				       const HatoholError &hatoholError);

@@ -674,16 +674,13 @@ void HatoholArmPluginInterface::setQueueAddress(const string &queueAddr)
 gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 {
 	HatoholArmPluginInterface *hapi = m_impl->hapi;
-	hapi->setPluginInitialTriggerInfo();
+	hapi->onSetPluginInitialInfo();
 	try {
 		m_impl->connect();
 	} catch (const exception &e) {
-		hapi->setPluginConnectStatus(COLLECT_NG_AMQP_CONNECT_ERROR,
-					    HAPERR_UNAVAILABLE_HAP);
+		hapi->onFailureConnected();
 		THROW_HATOHOL_EXCEPTION("Failed to connect Broker: %s", e.what());
 	}
-	hapi->setPluginConnectStatus(COLLECT_NG_AMQP_CONNECT_ERROR,
-				    HAPERR_OK);
 
 	if (m_impl->workInServer)
 		sendInitiationPacket();
@@ -692,13 +689,11 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 	while (!isExitRequested()) {
 		Message message;
 		try {
-			hapi->monitorArmPluginTimeout();
+			hapi->onMonitorArmPluginConnection();
 			m_impl->receiver.fetch(message);
-			hapi->endMonitorArmPluginTimeout();
+			hapi->onSuccessFetchMessage();
 		} catch (const exception &e) {
-			hapi->endMonitorArmPluginTimeout();
-			hapi->setPluginConnectStatus(COLLECT_NG_AMQP_CONNECT_ERROR,
-						    HAPERR_UNAVAILABLE_HAP);
+			hapi->onFailureFetchMessage();
 			THROW_HATOHOL_EXCEPTION("Failed to connect Broker: %s",
 						e.what());
 		}
@@ -714,14 +709,7 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		try {
 			onReceived(sbuf);
 		} catch (const exception &e) {
-			hapi->setPluginConnectStatus(COLLECT_NG_HATOHOL_INTERNAL_ERROR,
-						    HAPERR_UNAVAILABLE_HAP);
-			hapi->setPluginConnectStatus(COLLECT_NG_PLGIN_CONNECT_ERROR,
-						    HAPERR_UNKNOWN);
-			if (m_impl->workInServer)
-				sendInitiationPacket();
-			else
-				sendInitiationRequest();
+			hapi->onFailureReceivedMessage();
 			continue;
 		}
 
@@ -738,20 +726,27 @@ void HatoholArmPluginInterface::onConnected(Connection &conn)
 {
 }
 
-void HatoholArmPluginInterface::setPluginInitialTriggerInfo(void)
+void HatoholArmPluginInterface::onFailureConnected(void)
 {
 }
 
-void HatoholArmPluginInterface::setPluginConnectStatus(const HatoholArmPluginWatchType &type,
-						       const HatoholArmPluginErrorCode &errorCode)
+void HatoholArmPluginInterface::onSetPluginInitialInfo(void)
 {
 }
 
-void HatoholArmPluginInterface::monitorArmPluginTimeout(void)
+void HatoholArmPluginInterface::onMonitorArmPluginConnection(void)
 {
 }
 
-void HatoholArmPluginInterface::endMonitorArmPluginTimeout(void)
+void HatoholArmPluginInterface::onSuccessFetchMessage(void)
+{
+}
+
+void HatoholArmPluginInterface::onFailureFetchMessage(void)
+{
+}
+
+void HatoholArmPluginInterface::onFailureReceivedMessage(void)
 {
 }
 

@@ -268,7 +268,16 @@ gboolean HatoholArmPluginGate::detectedArmPluginTimeout(void *data)
 	return G_SOURCE_REMOVE;
 }
 
-void HatoholArmPluginGate::monitorArmPluginTimeout(void)
+void HatoholArmPluginGate::removeArmPluginTimeout(gpointer data)
+{
+	HatoholArmPluginGate *obj = static_cast<HatoholArmPluginGate *>(data);
+	if (obj->m_impl->timerTag != INVALID_EVENT_ID) {
+		g_source_remove(obj->m_impl->timerTag);
+		obj->m_impl->timerTag = INVALID_EVENT_ID;
+	}
+}
+
+void HatoholArmPluginGate::onMonitorArmPluginConnection(void)
 {
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
 	if (svInfo.pollingIntervalSec != 0) {
@@ -279,21 +288,28 @@ void HatoholArmPluginGate::monitorArmPluginTimeout(void)
 	}
 }
 
-void HatoholArmPluginGate::removeArmPluginTimeout(gpointer data)
-{
-	HatoholArmPluginGate *obj = static_cast<HatoholArmPluginGate *>(data);
-	if (obj->m_impl->timerTag != INVALID_EVENT_ID) {
-		g_source_remove(obj->m_impl->timerTag);
-		obj->m_impl->timerTag = INVALID_EVENT_ID;
-	}
-}
-
-void HatoholArmPluginGate::endMonitorArmPluginTimeout(void)
+void HatoholArmPluginGate::onSuccessFetchMessage(void)
 {
 	Utils::executeOnGLibEventLoop(removeArmPluginTimeout, this);
 }
 
-void HatoholArmPluginGate::setPluginInitialTriggerInfo(void)
+void HatoholArmPluginGate::onFailureFetchMessage(void)
+{
+	setPluginConnectStatus(COLLECT_NG_AMQP_CONNECT_ERROR,
+			       HAPERR_UNAVAILABLE_HAP);
+	Utils::executeOnGLibEventLoop(removeArmPluginTimeout, this);
+}
+
+void HatoholArmPluginGate::onFailureReceivedMessage(void)
+{
+	setPluginConnectStatus(COLLECT_NG_HATOHOL_INTERNAL_ERROR,
+			       HAPERR_UNAVAILABLE_HAP);
+	setPluginConnectStatus(COLLECT_NG_PLGIN_CONNECT_ERROR,
+			       HAPERR_UNKNOWN);
+	HatoholArmPluginInterface::sendInitiationPacket();
+}
+
+void HatoholArmPluginGate::onSetPluginInitialInfo(void)
 {
 	if (m_impl->createdSelfTriggers)
 		return;
@@ -452,6 +468,8 @@ void HatoholArmPluginGate::setPluginConnectStatus(const HatoholArmPluginWatchTyp
 
 void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)
 {
+	setPluginConnectStatus(COLLECT_NG_AMQP_CONNECT_ERROR,
+			       HAPERR_OK);	
 	if (m_impl->pid)
 		return;
 
@@ -467,6 +485,12 @@ void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)
 	// launch a plugin process
 	bool succeeded = launchPluginProcess(m_impl->armPluginInfo);
 	onLaunchedProcess(succeeded, m_impl->armPluginInfo);
+}
+
+void HatoholArmPluginGate::onFailureConnected(void)
+{
+	setPluginConnectStatus(COLLECT_NG_AMQP_CONNECT_ERROR,
+			       HAPERR_UNAVAILABLE_HAP);
 }
 
 int HatoholArmPluginGate::onCaughtException(const exception &e)

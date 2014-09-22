@@ -497,16 +497,21 @@ protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg) override;
 
 	/**
+	 * Called when starting the mainThread.
+	 */
+	virtual void onSetPluginInitialInfo(void);
+
+	/**
 	 * Called when connection with the AMQP broker is established.
 	 *
 	 * @param conn A connection object
 	 */
 	virtual void onConnected(qpid::messaging::Connection &conn);
-	virtual void setPluginInitialTriggerInfo(void);
-	virtual void setPluginConnectStatus(const HatoholArmPluginWatchType &type,
-					    const HatoholArmPluginErrorCode &errorCode);
-	virtual void monitorArmPluginTimeout(void);
-	virtual void endMonitorArmPluginTimeout(void);
+
+	/**
+	 * Called when connection with the AMQP broker is failure.
+	 */
+	virtual void onFailureConnected(void);
 
 	/**
 	 * Called when initiation with the other side is completed.
@@ -539,6 +544,26 @@ protected:
 	 */
 	virtual void onGotResponse(const HapiResponseHeader *header,
 	                           mlpl::SmartBuffer &resBuf);
+
+	/**
+	 * Called when started to wait for a AMQP broker's response.
+	 */
+	virtual void onMonitorArmPluginConnection(void);
+
+	/**
+	 * Called when a AMQP broker's response is success.
+	 */
+	virtual void onSuccessFetchMessage(void);
+
+	/**
+	 * Called when a AMQP broker's response is failure.
+	 */
+	virtual void onFailureFetchMessage(void);
+
+	/**
+	 * Called when a HAPI's response is failure.
+	 */
+	virtual void onFailureReceivedMessage(void);
 
 	void sendInitiationPacket(void);
 	void sendInitiationRequest(void);
