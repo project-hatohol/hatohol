@@ -395,7 +395,7 @@ msgstr "不正なURLです。"
 
 #: static/js/hatohol_def.js:198
 msgid "Failed to parse JSON data."
-msgstr "JSONデータの解析に失敗しました."
+msgstr "JSONデータの解析に失敗しました。"
 
 #: static/js/hatohol_def.js:199
 msgid "Not found target record."
