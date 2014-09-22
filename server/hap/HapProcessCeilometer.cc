@@ -570,7 +570,7 @@ string  HapProcessCeilometer::getHistoryQueryOption(
 	tm tim;
 	const timespec &ts = lastTime.getAsTimespec();
 	HATOHOL_ASSERT(
-	  gmtime_r(&ts.tv_sec, &tim),
+	  localtime_r(&ts.tv_sec, &tim),
 	  "Failed to call gmtime_r(): %s\n", ((string)lastTime).c_str());
 	string query = StringUtils::sprintf(
 	  "?q.field=timestamp&q.op=gt&q.value="
