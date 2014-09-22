@@ -187,7 +187,7 @@ void HapProcessZabbixAPI::startAcquisition(void)
 
 	// update ArmInfo
 	try {
-		sendArmInfo(getArmStatus().getArmInfo(),type);
+		sendArmInfo(getArmStatus().getArmInfo(), type);
 	} catch (...) {
 		MLPL_ERR("Failed to send ArmInfo.\n");
 	}
