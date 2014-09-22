@@ -360,7 +360,7 @@ msgid ""
 "Please use a browser's reload function when you update servers information "
 "including 'Connection status'."
 msgstr ""
-"'通信状態'を含むサーバー情報を更新するには、ブラウザのリロード機能をご使用くだ"
+"'通信状態'を含むサーバー情報を更新するには、ブラウザーのリロード機能をご使用くだ"
 "さい."
 
 #: viewer/servers_ajax.html:81
