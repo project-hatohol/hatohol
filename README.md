@@ -84,7 +84,7 @@ The detailed document is [here](https://github.com/project-hatohol/website/blob/
 The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/upgrade/14.06/ja/index.md) (Sorry, Japanese version only...)
 
 ## Plans
-See [Milestone](https://github.com/project-hatohol/hatohol/issues/milestones)
+See [Milestone](https://github.com/project-hatohol/hatohol/milestones)
 
 We will continue to add, what we believe are, useful features. If you have requests or good ideas, do not hesitate to discuss them with us!
 
