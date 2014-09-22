@@ -66,3 +66,16 @@ String: Single quotation
 
 Indent: 2 spaces, no tabs.
 String: Single quotation
+
+## Natural Language
+### Japanese
+- Do not omit the last "-" for prolonged sound.
+    - server
+    - user
+    - computer
+- Note that following words do not have prolong sound at the end of the word.
+    - data
+    - dictionary
+- References
+    - 外来語の表記(文化庁; Agency for Cultural Affairs, Japan): http://www.bunka.go.jp/kokugo_nihongo/joho/kijun/naikaku/gairai/
+    - Merriam-Webster: http://www.merriam-webster.com

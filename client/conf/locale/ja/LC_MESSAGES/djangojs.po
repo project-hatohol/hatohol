@@ -32,7 +32,7 @@ msgstr "静的キューアドレス"
 #: static/js/hatohol_login_dialog.js:48
 #: static/js/hatohol_user_edit_dialog.js:157
 msgid "User name"
-msgstr "ユーザ名"
+msgstr "ユーザー名"
 
 #: misc/external-labels.js:5
 msgid "IP address"
@@ -108,7 +108,7 @@ msgstr "制限なし"
 
 #: static/js/dashboard_view.js:90
 msgid "Number of servers [With problem]"
-msgstr "サーバ数 [障害あり]"
+msgstr "サーバー数 [障害あり]"
 
 #: static/js/dashboard_view.js:100
 msgid "Number of hosts [with problem]"
@@ -209,7 +209,7 @@ msgstr "キャンセル"
 
 #: static/js/hatohol_actor_mail_dialog.js:35
 msgid "Execution parameter maker"
-msgstr "実行パラメータ"
+msgstr "実行パラメーター"
 
 #: static/js/hatohol_actor_mail_dialog.js:78
 msgid "TO: "
@@ -217,7 +217,7 @@ msgstr "TO:"
 
 #: static/js/hatohol_actor_mail_dialog.js:83
 msgid "SMTP server "
-msgstr "SMTPサーバ"
+msgstr "SMTPサーバー"
 
 #: static/js/hatohol_actor_mail_dialog.js:84
 msgid "(If empty, localhost is used)"
@@ -272,7 +272,7 @@ msgstr "条件"
 
 #: static/js/hatohol_add_action_dialog.js:378
 msgid "Server"
-msgstr "サーバ"
+msgstr "サーバー"
 
 #: static/js/hatohol_add_action_dialog.js:384
 msgid "Hostgroup"
@@ -304,7 +304,7 @@ msgstr "以上"
 
 #: static/js/hatohol_add_action_dialog.js:429
 msgid "Execution parameters"
-msgstr "実行パラメータ"
+msgstr "実行パラメーター"
 
 #: static/js/hatohol_add_action_dialog.js:431
 msgid "Templates "
@@ -328,7 +328,7 @@ msgstr "タイムアウト (秒)"
 
 #: static/js/hatohol_add_action_dialog.js:448
 msgid "Command parameter"
-msgstr "実行パラメータ"
+msgstr "実行パラメーター"
 
 #: static/js/hatohol_add_action_dialog.js:453
 msgid "Execution directory"
@@ -336,7 +336,7 @@ msgstr "実行ディレクトリ"
 
 #: static/js/hatohol_add_action_dialog.js:461
 msgid "Incident Tracking Server"
-msgstr "インシデント管理サーバ"
+msgstr "インシデント管理サーバー"
 
 #: static/js/hatohol_add_action_dialog.js:467
 #: static/js/hatohol_user_edit_dialog.js:171 static/js/servers_view.js:191
@@ -387,7 +387,7 @@ msgstr "内部エラーが発生しました。"
 
 #: static/js/hatohol_def.js:195
 msgid "Invalid user."
-msgstr "不正なユーザです。"
+msgstr "不正なユーザーです。"
 
 #: static/js/hatohol_def.js:196 static/js/hatohol_def.js.c:197
 msgid "Invalid URL."
@@ -395,7 +395,7 @@ msgstr "不正なURLです。"
 
 #: static/js/hatohol_def.js:198
 msgid "Failed to parse JSON data."
-msgstr "JSONデータの解析に失敗しました."
+msgstr "JSONデータの解析に失敗しました。"
 
 #: static/js/hatohol_def.js:199
 msgid "Not found target record."
@@ -427,15 +427,15 @@ msgstr "インシデント管理システムの種類が正しくありません
 
 #: static/js/hatohol_def.js:206
 msgid "NO incident tracker location."
-msgstr "インシデント管理サーバの場所が指定されていません。"
+msgstr "インシデント管理サーバーの場所が指定されていません。"
 
 #: static/js/hatohol_def.js:207
 msgid "Empty user name."
-msgstr "ユーザ名が入力されていません。"
+msgstr "ユーザー名が入力されていません。"
 
 #: static/js/hatohol_def.js:208
 msgid "Too long user name."
-msgstr "ユーザ名が長すぎます。"
+msgstr "ユーザー名が長すぎます。"
 
 #: static/js/hatohol_def.js:209
 msgid "Invalid character."
@@ -451,7 +451,7 @@ msgstr "パスワードが長すぎます。"
 
 #: static/js/hatohol_def.js:212
 msgid "The same user name already exists."
-msgstr "同じユーザ名が既に存在します。"
+msgstr "同じユーザー名が既に存在します。"
 
 #: static/js/hatohol_def.js:213
 msgid "No privilege."
@@ -463,17 +463,17 @@ msgstr "不正な権限です。"
 
 #: static/js/hatohol_def.js:215
 msgid "Empty user role name."
-msgstr "ユーザ種別名が入力されていません。"
+msgstr "ユーザー種別名が入力されていません。"
 
 #: static/js/hatohol_def.js:216
 msgid "Too long User role name."
-msgstr "ユーザ種別名が長すぎます。"
+msgstr "ユーザー種別名が長すぎます。"
 
 #: static/js/hatohol_def.js:217
 msgid ""
 "The same user role name or a user role with the same privilege already "
 "exists."
-msgstr "同じユーザ種別名か同じ権限のユーザが既に存在します。"
+msgstr "同じユーザー種別名か同じ権限のユーザが既に存在します。"
 
 #: static/js/hatohol_def.js:218
 msgid "An offset value is specified but no limit value is specified."
@@ -501,11 +501,11 @@ msgstr "URLにIDが含まれていません。"
 
 #: static/js/hatohol_def.js:224
 msgid "Not found parameter."
-msgstr "パラメータが見つかりません。"
+msgstr "パラメーターが見つかりません。"
 
 #: static/js/hatohol_def.js:225
 msgid "Invalid parameter."
-msgstr "不正なパラメータです。"
+msgstr "不正なパラメーターです。"
 
 #: static/js/hatohol_def.js:226
 msgid "Authentication failed."
@@ -550,7 +550,7 @@ msgstr "ホスト選択"
 #: static/js/hatohol_host_selector.js:54
 #: static/js/hatohol_hostgroup_selector.js:48 static/js/servers_view.js:168
 msgid "Server ID"
-msgstr "サーバID"
+msgstr "サーバーID"
 
 #: static/js/hatohol_host_selector.js:55
 #: static/js/hatohol_privilege_edit_dialog.js:200
@@ -626,11 +626,11 @@ msgstr "閉じる"
 
 #: static/js/hatohol_incident_trackers_editor.js:36
 msgid "EDIT INCIDENT TRACKING SERVERS"
-msgstr "インシデント管理サーバ編集"
+msgstr "インシデント管理サーバー編集"
 
 #: static/js/hatohol_incident_trackers_editor.js:79
 msgid "Are you sure to delete incident tracking servers?"
-msgstr "インシデント管理サーバを削除してもよろしいですか？"
+msgstr "インシデント管理サーバーを削除してもよろしいですか？"
 
 #: static/js/hatohol_incident_trackers_editor.js:168
 #: static/js/hatohol_user_roles_editor.js:169
@@ -667,19 +667,19 @@ msgstr "編集"
 
 #: static/js/hatohol_incident_trackers_editor.js:239
 msgid "EDIT INCIDENT TRACKING SERVER"
-msgstr "インシデント管理サーバ編集"
+msgstr "インシデント管理サーバー編集"
 
 #: static/js/hatohol_incident_trackers_editor.js:240
 msgid "ADD INCIDENT TRACKING SERVER"
-msgstr "インシデント管理サーバ追加"
+msgstr "インシデント管理サーバー追加"
 
 #: static/js/hatohol_incident_trackers_editor.js:266
 msgid "Now updating the incident tracking server ..."
-msgstr "インシデント管理サーバ設定を更新しています..."
+msgstr "インシデント管理サーバー設定を更新しています..."
 
 #: static/js/hatohol_incident_trackers_editor.js:269
 msgid "Now creating an incident tracking server ..."
-msgstr "インシデント管理サーバ設定を作成しています..."
+msgstr "インシデント管理サーバー設定を作成しています..."
 
 #: static/js/hatohol_incident_trackers_editor.js:303
 #: static/js/hatohol_server_edit_dialog_parameterized.js:98
@@ -810,7 +810,7 @@ msgstr "設定"
 #: static/js/hatohol_user_roles_editor.js:430
 #: test/browser/test_hatohol_navi.js:57 test/browser/test_hatohol_navi.js:86
 msgid "Servers"
-msgstr "サーバ"
+msgstr "サーバー"
 
 #: static/js/hatohol_navi.js:55 static/js/hatohol_user_roles_editor.js:435
 #: static/js/hatohol_user_roles_editor.js:440
@@ -835,7 +835,7 @@ msgstr "インシデント管理"
 #: static/js/hatohol_user_roles_editor.js:400
 #: test/browser/test_hatohol_navi.js:27
 msgid "Users"
-msgstr "ユーザ"
+msgstr "ユーザー"
 
 #: static/js/hatohol_password_changer.js:26
 #: static/js/hatohol_password_changer.js:133
@@ -896,7 +896,7 @@ msgstr "表示 / 編集"
 
 #: static/js/hatohol_reply_parser.js:81
 msgid "Invalid user name or password."
-msgstr "ユーザ名あるいはパスワードが正しくありません。"
+msgstr "ユーザー名あるいはパスワードが正しくありません。"
 
 #: static/js/hatohol_reply_parser.js:95
 msgid "Error: "
@@ -926,23 +926,23 @@ msgstr "不明なステータス： "
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:27
 msgid "EDIT SERVER"
-msgstr "サーバ編集"
+msgstr "サーバー編集"
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:27
 msgid "ADD SERVER"
-msgstr "サーバ追加"
+msgstr "サーバー追加"
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:52
 msgid "Now updating the server ..."
-msgstr "サーバを更新しています..."
+msgstr "サーバーを更新しています..."
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:54
 msgid "Now adding a server..."
-msgstr "サーバを追加しています..."
+msgstr "サーバーを追加しています..."
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:162
 msgid "Server type"
-msgstr "サーバ種類"
+msgstr "サーバー種類"
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:164
 msgid "Please select"
@@ -950,7 +950,7 @@ msgstr "選択してください"
 
 #: static/js/hatohol_server_selector.js:26
 msgid "Server selecion"
-msgstr "サーバ選択"
+msgstr "サーバー選択"
 
 #: static/js/hatohol_trigger_selector.js:26
 msgid "Trigger selecion"
@@ -962,31 +962,31 @@ msgstr "概要"
 
 #: static/js/hatohol_user_edit_dialog.js:27
 msgid "EDIT USER"
-msgstr "ユーザ編集"
+msgstr "ユーザー編集"
 
 #: static/js/hatohol_user_edit_dialog.js:27
 msgid "ADD USER"
-msgstr "ユーザ追加"
+msgstr "ユーザー追加"
 
 #: static/js/hatohol_user_edit_dialog.js:56
 msgid "Now updating the user ..."
-msgstr "ユーザを更新しています..."
+msgstr "ユーザーを更新しています..."
 
 #: static/js/hatohol_user_edit_dialog.js:58
 msgid "Now creating a user ..."
-msgstr "ユーザを作成しています..."
+msgstr "ユーザーを作成しています..."
 
 #: static/js/hatohol_user_edit_dialog.js:114
 msgid "User name is empty!"
-msgstr "ユーザ名が入力されていません！"
+msgstr "ユーザー名が入力されていません！"
 
 #: static/js/hatohol_user_edit_dialog.js:122
 msgid "Invalid user role!"
-msgstr "ユーザ種別が正しくありません！"
+msgstr "ユーザー種別が正しくありません！"
 
 #: static/js/hatohol_user_edit_dialog.js:161
 msgid "User role"
-msgstr "ユーザ種別"
+msgstr "ユーザー種別"
 
 #: static/js/hatohol_user_edit_dialog.js:164
 #: static/js/hatohol_user_edit_dialog.js:217
@@ -1004,7 +1004,7 @@ msgstr "管理者"
 
 #: static/js/hatohol_user_roles_editor.js:35
 msgid "EDIT USER ROLES"
-msgstr "ユーザ種別編集"
+msgstr "ユーザー種別編集"
 
 #: static/js/hatohol_user_roles_editor.js:80
 msgid "Are you sure to delete selected items?"
@@ -1032,71 +1032,71 @@ msgstr "表示"
 
 #: static/js/hatohol_user_roles_editor.js:260
 msgid "EDIT USER ROLE"
-msgstr "ユーザ種別編集"
+msgstr "ユーザー種別編集"
 
 #: static/js/hatohol_user_roles_editor.js:260
 msgid "ADD USER ROLE"
-msgstr "ユーザ種別追加"
+msgstr "ユーザー種別追加"
 
 #: static/js/hatohol_user_roles_editor.js:284
 msgid "Now updating the user role ..."
-msgstr "ユーザ種別を更新しています..."
+msgstr "ユーザー種別を更新しています..."
 
 #: static/js/hatohol_user_roles_editor.js:286
 msgid "Now creating a user role ..."
-msgstr "ユーザ種別を作成しています..."
+msgstr "ユーザー種別を作成しています..."
 
 #: static/js/hatohol_user_roles_editor.js:355
 msgid "User role name is empty!"
-msgstr "ユーザ種別名が入力されていません！"
+msgstr "ユーザー種別名が入力されていません！"
 
 #: static/js/hatohol_user_roles_editor.js:364
 msgid "The user role name is already used!"
-msgstr "このユーザ種別名は既に使用されています！"
+msgstr "このユーザー種別名は既に使用されています！"
 
 #: static/js/hatohol_user_roles_editor.js:368
 msgid "Same privilege is already defined as: "
-msgstr "同一の権限が既に他のユーザ種別で定義されています："
+msgstr "同一の権限が既に他のユーザー種別で定義されています："
 
 #: static/js/hatohol_user_roles_editor.js:384
 msgid "Create a user"
-msgstr "ユーザの作成"
+msgstr "ユーザーの作成"
 
 #: static/js/hatohol_user_roles_editor.js:389
 msgid "Update users"
-msgstr "ユーザの更新"
+msgstr "ユーザーの更新"
 
 #: static/js/hatohol_user_roles_editor.js:394
 msgid "Delete users"
-msgstr "ユーザの削除"
+msgstr "ユーザーの削除"
 
 #: static/js/hatohol_user_roles_editor.js:399
 msgid "Get all users"
-msgstr "全てのユーザの取得"
+msgstr "全てのユーザーの取得"
 
 #: static/js/hatohol_user_roles_editor.js:404
 msgid "Create a server"
-msgstr "サーバの作成"
+msgstr "サーバーの作成"
 
 #: static/js/hatohol_user_roles_editor.js:409
 msgid "Update allowed servers"
-msgstr "許可されたサーバの更新"
+msgstr "許可されたサーバーの更新"
 
 #: static/js/hatohol_user_roles_editor.js:414
 msgid "Update all servers"
-msgstr "全てのサーバの更新"
+msgstr "全てのサーバーの更新"
 
 #: static/js/hatohol_user_roles_editor.js:419
 msgid "Delete allowed servers"
-msgstr "許可されたサーバの削除"
+msgstr "許可されたサーバーの削除"
 
 #: static/js/hatohol_user_roles_editor.js:424
 msgid "Delete all servers"
-msgstr "全てのサーバの削除"
+msgstr "全てのサーバーの削除"
 
 #: static/js/hatohol_user_roles_editor.js:429
 msgid "Get all servers"
-msgstr "全てのサーバの取得"
+msgstr "全てのサーバーの取得"
 
 #: static/js/hatohol_user_roles_editor.js:434
 msgid "Create a action"
@@ -1124,21 +1124,21 @@ msgstr "全てのアクションの取得"
 
 #: static/js/hatohol_user_roles_editor.js:464
 msgid "Create a user role"
-msgstr "ユーザ種別の作成"
+msgstr "ユーザー種別の作成"
 
 #: static/js/hatohol_user_roles_editor.js:465
 #: static/js/hatohol_user_roles_editor.js:470
 #: static/js/hatohol_user_roles_editor.js:475
 msgid "User roles"
-msgstr "ユーザ種別"
+msgstr "ユーザー種別"
 
 #: static/js/hatohol_user_roles_editor.js:469
 msgid "Update all user roles"
-msgstr "全てのユーザ種別の更新"
+msgstr "全てのユーザー種別の更新"
 
 #: static/js/hatohol_user_roles_editor.js:474
 msgid "Delete all user roles"
-msgstr "全てのユーザ種別の削除"
+msgstr "全てのユーザー種別の削除"
 
 #: static/js/hatohol_user_roles_editor.js:479
 msgid "Create incident tracking settings"
@@ -1158,7 +1158,7 @@ msgstr "全てのインシデント管理設定の取得"
 
 #: static/js/hatohol_user_roles_editor.js:507
 msgid "User role name"
-msgstr "ユーザ種別名"
+msgstr "ユーザー種別名"
 
 #: static/js/hatohol_user_roles_editor.js:515
 msgid "Privileges"
@@ -1237,7 +1237,7 @@ msgid "-"
 msgstr "-"
 
 #~ msgid "Invalid Server type!"
-#~ msgstr "サーバの種類が正しくありません！"
+#~ msgstr "サーバーの種類が正しくありません！"
 
 #~ msgid "Host name is empty!"
 #~ msgstr "ホスト名が入力されていません！"
@@ -1258,7 +1258,7 @@ msgstr "-"
 #~ msgstr "リトライ間隔が入力されていません！"
 
 #~ msgid "User Name is empty!"
-#~ msgstr "ユーザ名が入力されていません！"
+#~ msgstr "ユーザー名が入力されていません！"
 
 #~ msgid "DB name is empty!"
 #~ msgstr "データベース名が入力されていません！"
@@ -1279,7 +1279,7 @@ msgstr "-"
 #~ msgstr "受信メッセージの解析に失敗しました。"
 
 #~ msgid "Number of users [Online]"
-#~ msgstr "ユーザ数 [オンライン]"
+#~ msgstr "ユーザー数 [オンライン]"
 
 #~ msgid "Minimum Severity:"
 #~ msgstr "最小の深刻度:"
@@ -1288,7 +1288,7 @@ msgstr "-"
 #~ msgstr "ステータス:"
 
 #~ msgid "Server:"
-#~ msgstr "サーバ:"
+#~ msgstr "サーバー:"
 
 #~ msgid "Host:"
 #~ msgstr "ホスト:"
@@ -1306,28 +1306,28 @@ msgstr "-"
 #~ msgstr "次へ"
 
 #~ msgid "Not found server ID."
-#~ msgstr "サーバIDが見つかりません"
+#~ msgstr "サーバーIDが見つかりません"
 
 #~ msgid "Not found user ID."
-#~ msgstr "ユーザIDが見つかりません。"
+#~ msgstr "ユーザーIDが見つかりません。"
 
 #~ msgid "Not found user role ID."
-#~ msgstr "ユーザ種別IDが見つかりません。"
+#~ msgstr "ユーザー種別IDが見つかりません。"
 
 #~ msgid " STATUS CODE"
 #~ msgstr " ステータスコード"
 
 #~ msgid " HATOHOL SERVER ERROR CODE"
-#~ msgstr " HATOHOLサーバエラーコード"
+#~ msgstr " HATOHOLサーバーエラーコード"
 
 #~ msgid "STATUS CODE"
 #~ msgstr "ステータスコード"
 
 #~ msgid "HATOHOL SERVER ERROR CODE"
-#~ msgstr "HATOHOLサーバエラーコード"
+#~ msgstr "HATOHOLサーバーエラーコード"
 
 #~ msgid "User type"
-#~ msgstr "ユーザの種類"
+#~ msgstr "ユーザーの種類"
 
 #~ msgid "Comment"
 #~ msgstr "コメント"
