@@ -401,11 +401,11 @@ msgstr ""
 #: viewer/servers_ajax.html:102
 #, fuzzy
 msgid "DB name"
-msgstr "ユーザ名"
+msgstr "ユーザー名"
 
 #: viewer/servers_ajax.html:106 viewer/users_ajax.html:56
 msgid "User name"
-msgstr "ユーザ名"
+msgstr "ユーザー名"
 
 #: viewer/servers_ajax.html:108
 #, fuzzy
@@ -450,19 +450,19 @@ msgstr "最新の変更"
 
 #: viewer/users_ajax.html:24 viewer/users_ajax.html.py:29
 msgid "Users"
-msgstr "ユーザ"
+msgstr "ユーザー"
 
 #: viewer/users_ajax.html:35
 msgid "ADD USER"
-msgstr "ユーザ追加"
+msgstr "ユーザー追加"
 
 #: viewer/users_ajax.html:39
 msgid "DELETE USER"
-msgstr "ユーザ削除"
+msgstr "ユーザー削除"
 
 #: viewer/users_ajax.html:57
 msgid "User role"
-msgstr "ユーザ種別"
+msgstr "ユーザー種別"
 
 #: viewer/users_ajax.html:58
 msgid "Privileges"
@@ -505,7 +505,7 @@ msgstr "権限"
 #~ msgstr "トリガー数 [障害あり]"
 
 #~ msgid "Number of users [Online]"
-#~ msgstr "ユーザ数 [オンライン]"
+#~ msgstr "ユーザー数 [オンライン]"
 
 #~ msgid "New values per second"
 #~ msgstr "１秒あたりの監視項目数"

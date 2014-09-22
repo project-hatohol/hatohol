@@ -32,7 +32,7 @@ msgstr "静的キューアドレス"
 #: static/js/hatohol_login_dialog.js:48
 #: static/js/hatohol_user_edit_dialog.js:157
 msgid "User name"
-msgstr "ユーザ名"
+msgstr "ユーザー名"
 
 #: misc/external-labels.js:5
 msgid "IP address"
@@ -387,7 +387,7 @@ msgstr "内部エラーが発生しました。"
 
 #: static/js/hatohol_def.js:195
 msgid "Invalid user."
-msgstr "不正なユーザです。"
+msgstr "不正なユーザーです。"
 
 #: static/js/hatohol_def.js:196 static/js/hatohol_def.js.c:197
 msgid "Invalid URL."
@@ -431,11 +431,11 @@ msgstr "インシデント管理サーバーの場所が指定されていませ
 
 #: static/js/hatohol_def.js:207
 msgid "Empty user name."
-msgstr "ユーザ名が入力されていません。"
+msgstr "ユーザー名が入力されていません。"
 
 #: static/js/hatohol_def.js:208
 msgid "Too long user name."
-msgstr "ユーザ名が長すぎます。"
+msgstr "ユーザー名が長すぎます。"
 
 #: static/js/hatohol_def.js:209
 msgid "Invalid character."
@@ -451,7 +451,7 @@ msgstr "パスワードが長すぎます。"
 
 #: static/js/hatohol_def.js:212
 msgid "The same user name already exists."
-msgstr "同じユーザ名が既に存在します。"
+msgstr "同じユーザー名が既に存在します。"
 
 #: static/js/hatohol_def.js:213
 msgid "No privilege."
@@ -463,17 +463,17 @@ msgstr "不正な権限です。"
 
 #: static/js/hatohol_def.js:215
 msgid "Empty user role name."
-msgstr "ユーザ種別名が入力されていません。"
+msgstr "ユーザー種別名が入力されていません。"
 
 #: static/js/hatohol_def.js:216
 msgid "Too long User role name."
-msgstr "ユーザ種別名が長すぎます。"
+msgstr "ユーザー種別名が長すぎます。"
 
 #: static/js/hatohol_def.js:217
 msgid ""
 "The same user role name or a user role with the same privilege already "
 "exists."
-msgstr "同じユーザ種別名か同じ権限のユーザが既に存在します。"
+msgstr "同じユーザー種別名か同じ権限のユーザが既に存在します。"
 
 #: static/js/hatohol_def.js:218
 msgid "An offset value is specified but no limit value is specified."
@@ -835,7 +835,7 @@ msgstr "インシデント管理"
 #: static/js/hatohol_user_roles_editor.js:400
 #: test/browser/test_hatohol_navi.js:27
 msgid "Users"
-msgstr "ユーザ"
+msgstr "ユーザー"
 
 #: static/js/hatohol_password_changer.js:26
 #: static/js/hatohol_password_changer.js:133
@@ -896,7 +896,7 @@ msgstr "表示 / 編集"
 
 #: static/js/hatohol_reply_parser.js:81
 msgid "Invalid user name or password."
-msgstr "ユーザ名あるいはパスワードが正しくありません。"
+msgstr "ユーザー名あるいはパスワードが正しくありません。"
 
 #: static/js/hatohol_reply_parser.js:95
 msgid "Error: "
@@ -962,31 +962,31 @@ msgstr "概要"
 
 #: static/js/hatohol_user_edit_dialog.js:27
 msgid "EDIT USER"
-msgstr "ユーザ編集"
+msgstr "ユーザー編集"
 
 #: static/js/hatohol_user_edit_dialog.js:27
 msgid "ADD USER"
-msgstr "ユーザ追加"
+msgstr "ユーザー追加"
 
 #: static/js/hatohol_user_edit_dialog.js:56
 msgid "Now updating the user ..."
-msgstr "ユーザを更新しています..."
+msgstr "ユーザーを更新しています..."
 
 #: static/js/hatohol_user_edit_dialog.js:58
 msgid "Now creating a user ..."
-msgstr "ユーザを作成しています..."
+msgstr "ユーザーを作成しています..."
 
 #: static/js/hatohol_user_edit_dialog.js:114
 msgid "User name is empty!"
-msgstr "ユーザ名が入力されていません！"
+msgstr "ユーザー名が入力されていません！"
 
 #: static/js/hatohol_user_edit_dialog.js:122
 msgid "Invalid user role!"
-msgstr "ユーザ種別が正しくありません！"
+msgstr "ユーザー種別が正しくありません！"
 
 #: static/js/hatohol_user_edit_dialog.js:161
 msgid "User role"
-msgstr "ユーザ種別"
+msgstr "ユーザー種別"
 
 #: static/js/hatohol_user_edit_dialog.js:164
 #: static/js/hatohol_user_edit_dialog.js:217
@@ -1004,7 +1004,7 @@ msgstr "管理者"
 
 #: static/js/hatohol_user_roles_editor.js:35
 msgid "EDIT USER ROLES"
-msgstr "ユーザ種別編集"
+msgstr "ユーザー種別編集"
 
 #: static/js/hatohol_user_roles_editor.js:80
 msgid "Are you sure to delete selected items?"
@@ -1032,47 +1032,47 @@ msgstr "表示"
 
 #: static/js/hatohol_user_roles_editor.js:260
 msgid "EDIT USER ROLE"
-msgstr "ユーザ種別編集"
+msgstr "ユーザー種別編集"
 
 #: static/js/hatohol_user_roles_editor.js:260
 msgid "ADD USER ROLE"
-msgstr "ユーザ種別追加"
+msgstr "ユーザー種別追加"
 
 #: static/js/hatohol_user_roles_editor.js:284
 msgid "Now updating the user role ..."
-msgstr "ユーザ種別を更新しています..."
+msgstr "ユーザー種別を更新しています..."
 
 #: static/js/hatohol_user_roles_editor.js:286
 msgid "Now creating a user role ..."
-msgstr "ユーザ種別を作成しています..."
+msgstr "ユーザー種別を作成しています..."
 
 #: static/js/hatohol_user_roles_editor.js:355
 msgid "User role name is empty!"
-msgstr "ユーザ種別名が入力されていません！"
+msgstr "ユーザー種別名が入力されていません！"
 
 #: static/js/hatohol_user_roles_editor.js:364
 msgid "The user role name is already used!"
-msgstr "このユーザ種別名は既に使用されています！"
+msgstr "このユーザー種別名は既に使用されています！"
 
 #: static/js/hatohol_user_roles_editor.js:368
 msgid "Same privilege is already defined as: "
-msgstr "同一の権限が既に他のユーザ種別で定義されています："
+msgstr "同一の権限が既に他のユーザー種別で定義されています："
 
 #: static/js/hatohol_user_roles_editor.js:384
 msgid "Create a user"
-msgstr "ユーザの作成"
+msgstr "ユーザーの作成"
 
 #: static/js/hatohol_user_roles_editor.js:389
 msgid "Update users"
-msgstr "ユーザの更新"
+msgstr "ユーザーの更新"
 
 #: static/js/hatohol_user_roles_editor.js:394
 msgid "Delete users"
-msgstr "ユーザの削除"
+msgstr "ユーザーの削除"
 
 #: static/js/hatohol_user_roles_editor.js:399
 msgid "Get all users"
-msgstr "全てのユーザの取得"
+msgstr "全てのユーザーの取得"
 
 #: static/js/hatohol_user_roles_editor.js:404
 msgid "Create a server"
@@ -1124,21 +1124,21 @@ msgstr "全てのアクションの取得"
 
 #: static/js/hatohol_user_roles_editor.js:464
 msgid "Create a user role"
-msgstr "ユーザ種別の作成"
+msgstr "ユーザー種別の作成"
 
 #: static/js/hatohol_user_roles_editor.js:465
 #: static/js/hatohol_user_roles_editor.js:470
 #: static/js/hatohol_user_roles_editor.js:475
 msgid "User roles"
-msgstr "ユーザ種別"
+msgstr "ユーザー種別"
 
 #: static/js/hatohol_user_roles_editor.js:469
 msgid "Update all user roles"
-msgstr "全てのユーザ種別の更新"
+msgstr "全てのユーザー種別の更新"
 
 #: static/js/hatohol_user_roles_editor.js:474
 msgid "Delete all user roles"
-msgstr "全てのユーザ種別の削除"
+msgstr "全てのユーザー種別の削除"
 
 #: static/js/hatohol_user_roles_editor.js:479
 msgid "Create incident tracking settings"
@@ -1158,7 +1158,7 @@ msgstr "全てのインシデント管理設定の取得"
 
 #: static/js/hatohol_user_roles_editor.js:507
 msgid "User role name"
-msgstr "ユーザ種別名"
+msgstr "ユーザー種別名"
 
 #: static/js/hatohol_user_roles_editor.js:515
 msgid "Privileges"
@@ -1258,7 +1258,7 @@ msgstr "-"
 #~ msgstr "リトライ間隔が入力されていません！"
 
 #~ msgid "User Name is empty!"
-#~ msgstr "ユーザ名が入力されていません！"
+#~ msgstr "ユーザー名が入力されていません！"
 
 #~ msgid "DB name is empty!"
 #~ msgstr "データベース名が入力されていません！"
@@ -1279,7 +1279,7 @@ msgstr "-"
 #~ msgstr "受信メッセージの解析に失敗しました。"
 
 #~ msgid "Number of users [Online]"
-#~ msgstr "ユーザ数 [オンライン]"
+#~ msgstr "ユーザー数 [オンライン]"
 
 #~ msgid "Minimum Severity:"
 #~ msgstr "最小の深刻度:"
@@ -1309,10 +1309,10 @@ msgstr "-"
 #~ msgstr "サーバーIDが見つかりません"
 
 #~ msgid "Not found user ID."
-#~ msgstr "ユーザIDが見つかりません。"
+#~ msgstr "ユーザーIDが見つかりません。"
 
 #~ msgid "Not found user role ID."
-#~ msgstr "ユーザ種別IDが見つかりません。"
+#~ msgstr "ユーザー種別IDが見つかりません。"
 
 #~ msgid " STATUS CODE"
 #~ msgstr " ステータスコード"
@@ -1327,7 +1327,7 @@ msgstr "-"
 #~ msgstr "HATOHOLサーバーエラーコード"
 
 #~ msgid "User type"
-#~ msgstr "ユーザの種類"
+#~ msgstr "ユーザーの種類"
 
 #~ msgid "Comment"
 #~ msgstr "コメント"
