@@ -62,6 +62,7 @@ def start(args):
     create_hatohol_tables(args)
 
     try:
+        load_data_from_file(cursor, args, 'users', 'init-user.sql')
         load_data_from_file(cursor, args, 'server_types', 'server-type.sql')
         db.commit()
     except:
