@@ -186,8 +186,6 @@ struct HatoholArmPluginInterface::Impl {
 	void completeInitiation(void)
 	{
 		initState = INIT_STAT_DONE;
-		hapi->setPluginTriggerEvent(COLLECT_NG_PLGIN_CONNECT_ERROR,
-					    HAPERR_OK);
 		hapi->onInitiated();
 	}
 

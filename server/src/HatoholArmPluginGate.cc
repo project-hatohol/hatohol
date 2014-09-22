@@ -486,6 +486,13 @@ void HatoholArmPluginGate::onTerminated(const siginfo_t *siginfo)
 	m_impl->pluginTermSem.post();
 }
 
+void HatoholArmPluginGate::onInitiated(void)
+{
+	HatoholArmPluginInterface::onInitiated();
+	setPluginTriggerEvent(COLLECT_NG_PLGIN_CONNECT_ERROR,
+			      HAPERR_OK);
+}
+
 void HatoholArmPluginGate::terminatePluginSync(void)
 {
 	// If the the plugin is a passive type, it will naturally return at
