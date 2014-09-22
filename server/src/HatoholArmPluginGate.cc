@@ -87,7 +87,7 @@ struct HatoholArmPluginGate::Impl
 	HostInfoCache        hostInfoCache;
 	Mutex                exitSyncLock;
 	bool                 exitSyncDone;
-	bool                 createSelfTrigger;
+	bool                 createdSelfTriggers;
 	guint                timerTag;
 	HAPIWtchPointInfo    hapiWtchPointInfo[NUM_COLLECT_NG_KIND];
 
@@ -98,7 +98,7 @@ struct HatoholArmPluginGate::Impl
 	  pid(0),
 	  pluginTermSem(0),
 	  exitSyncDone(false),
-	  createSelfTrigger(false)
+	  createdSelfTriggers(false)
 	{
 	}
 
@@ -271,11 +271,12 @@ gboolean HatoholArmPluginGate::detectArmPluginConnectTimeout(void *data)
 void HatoholArmPluginGate::checkPluginConnection(void)
 {
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
-	if (svInfo.pollingIntervalSec != 0)
+	if (svInfo.pollingIntervalSec != 0) {
 		m_impl->timerTag = g_timeout_add(
 		  svInfo.pollingIntervalSec * PLUGIN_REPLY_TIMEOUT_FACTOR * 1000,
 		  detectArmPluginConnectTimeout,
 		  this);
+	}
 }
 
 void HatoholArmPluginGate::removeArmPluginTimeout(gpointer data)
@@ -289,12 +290,12 @@ void HatoholArmPluginGate::removeArmPluginTimeout(gpointer data)
 
 void HatoholArmPluginGate::endCheckPluginConnection(void)
 {
-	Utils::executeOnGLibEventLoop(removeArmPluginTimeout,this);
+	Utils::executeOnGLibEventLoop(removeArmPluginTimeout, this);
 }
 
 void HatoholArmPluginGate::setPluginInitialTriggerInfo(void)
 {
-	if (m_impl->createSelfTrigger)
+	if (m_impl->createdSelfTriggers)
 		return;
 
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
@@ -320,7 +321,7 @@ void HatoholArmPluginGate::setPluginInitialTriggerInfo(void)
 	setPluginAvailabelTrigger(COLLECT_NG_PLGIN_CONNECT_ERROR,
 				  FAILED_CONNECT_HAPI_TRIGGERID,
 				  HTERR_FAILED_CONNECT_HAPI);
-	m_impl->createSelfTrigger = true;
+	m_impl->createdSelfTriggers = true;
 }
 
 void HatoholArmPluginGate::createPluginTriggerInfo(const HAPIWtchPointInfo &resTrigger,
