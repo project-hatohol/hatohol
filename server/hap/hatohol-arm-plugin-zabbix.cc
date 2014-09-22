@@ -158,7 +158,7 @@ void HapProcessZabbixAPI::startAcquisition(void)
 		exceptionErrorCode = e.getErrCode();
 		if (exceptionErrorCode == HTERR_FAILED_CONNECT_ZABBIX) {
 			type = COLLECT_NG_DISCONNECT_ZABBIX;
-		} else if (exceptionErrorCode == HTERR_FAILED_TO_PARSE_JSON_DATA){
+		} else if (exceptionErrorCode == HTERR_FAILED_TO_PARSE_JSON_DATA) {
 			type = COLLECT_NG_PARSER_ERROR;
 		}
 	} catch (const exception &e) {

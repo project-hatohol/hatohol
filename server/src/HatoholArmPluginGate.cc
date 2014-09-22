@@ -860,7 +860,7 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 
 	HatoholArmPluginWatchType type = 
 		(HatoholArmPluginWatchType)LtoN(body->failureReason);
-	if (armInfo.stat == ARM_WORK_STAT_OK ){
+	if (armInfo.stat == ARM_WORK_STAT_OK ) {
 		setPluginConnectStatus(COLLECT_OK, HAPERR_OK);
 	} else {
 		if (type != COLLECT_OK)
