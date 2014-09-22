@@ -54,7 +54,21 @@ def load_data_from_file(cursor, args, table_name, file_name):
     execute_sql_statements_from_file(cursor, args.sql_dir + '/' + file_name)
 
 
+def check_sql_file(args, sql_file_list):
+    for sql_file in sql_file_list:
+        path = args.sql_dir + '/' + sql_file['file_name']
+        if not os.path.isfile(path):
+            print 'Error: Not found: %s' % path
+            print 'You can specifiy the SQL directory by --sql-dir option.'
+            sys.exit(-1)
+
 def start(args):
+
+    sql_file_list = [
+      {'table_name':'users', 'file_name':'init-user.sql'},
+      {'table_name':'server_types', 'file_name':'server-type.sql'}]
+    check_sql_file(args, sql_file_list)
+
     db = MySQLdb.connect(host=args.host,
                            user=args.db_user, passwd=args.db_password)
     cursor = db.cursor()
