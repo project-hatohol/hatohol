@@ -137,6 +137,22 @@ static bool daemonize(void)
 	}
 }
 
+static bool checkDBConnection(void)
+{
+	void *dbObjAddr = NULL;
+	try {
+		ThreadLocalDBCache cache;
+		DBTablesConfig &config = cache.getConfig();
+		dbObjAddr = &config;
+	} catch (const exception &e) {
+		MLPL_CRIT("Failed to create a database object. "
+		          "This program is aborted. Reason: %s\n",
+		          e.what());
+		return false;
+	}
+	return dbObjAddr;
+}
+
 int mainRoutine(int argc, char *argv[])
 {
 #ifndef GLIB_VERSION_2_36
@@ -150,6 +166,14 @@ int mainRoutine(int argc, char *argv[])
 	ExecContext ctx;
 	if (!ConfigManager::parseCommandLine(&argc, &argv, &ctx.cmdLineOpts))
 		return EXIT_FAILURE;
+
+	hatoholInit(&ctx.cmdLineOpts);
+	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
+
+	// Check the DBConnection
+	if (!checkDBConnection())
+		return EXIT_FAILURE;
+
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	if (!confMgr->isForegroundProcess()) {
 		if (!daemonize()) {
@@ -157,9 +181,6 @@ int mainRoutine(int argc, char *argv[])
 			return EXIT_FAILURE;
 		}
 	}
-
-	hatoholInit(&ctx.cmdLineOpts);
-	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
 
 	// setup signal handlers for exit
 	setupGizmoForExit(&ctx);

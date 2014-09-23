@@ -1485,6 +1485,7 @@ void makeEventIncidentMap(map<string, IncidentInfo*> &eventIncidentMap)
 // ---------------------------------------------------------------------------
 const char *TEST_DB_USER = "hatohol_test_user";
 const char *TEST_DB_PASSWORD = ""; // empty: No password is used
+const char *TEST_DB_NAME = "test_db_hatohol";
 
 static void deleteFileAndCheck(const string &path)
 {
@@ -1501,7 +1502,6 @@ static string deleteDBClientHatoholDB(void)
 
 void setupTestDB(void)
 {
-	static const char *TEST_DB_NAME = "test_db_hatohol";
 	DBHatohol::setDefaultDBParams(TEST_DB_NAME,
 	                              TEST_DB_USER, TEST_DB_PASSWORD);
 	const bool dbRecreate = true;

@@ -27,6 +27,9 @@
 struct CommandLineOptions {
 	gchar    *pidFilePath;
 	gchar    *dbServer;
+	gchar    *dbName;
+	gchar    *dbUser;
+	gchar    *dbPassword;
 	gboolean  foreground;
 	gboolean  testMode;
 	gboolean  enableCopyOnDemand;

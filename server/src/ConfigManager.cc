@@ -75,6 +75,9 @@ static gboolean parseFaceRestPort(
 CommandLineOptions::CommandLineOptions(void)
 : pidFilePath(NULL),
   dbServer(NULL),
+  dbName(NULL),
+  dbUser(NULL),
+  dbPassword(NULL),
   foreground(FALSE),
   testMode(FALSE),
   enableCopyOnDemand(FALSE),
@@ -176,6 +179,9 @@ struct ConfigManager::Impl {
 	{
 		if (cmdLineOpts.dbServer)
 			parseDBServer(cmdLineOpts.dbServer);
+		DBHatohol::setDefaultDBParams(cmdLineOpts.dbName,
+		                              cmdLineOpts.dbUser,
+		                              cmdLineOpts.dbPassword);
 		if (cmdLineOpts.foreground)
 			foreground = true;
 		if (cmdLineOpts.testMode)
@@ -233,6 +239,15 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 		{"config-db-server",
 		 'c', 0, G_OPTION_ARG_STRING,
 		 &cmdLineOpts->dbServer, "Database server", NULL},
+		{"db-name",
+		 'n', 0, G_OPTION_ARG_STRING,
+		 &cmdLineOpts->dbName, "Database name", NULL},
+		{"db-user",
+		 'u', 0, G_OPTION_ARG_STRING,
+		 &cmdLineOpts->dbUser, "Database user", NULL},
+		{"db-password",
+		 'w', 0, G_OPTION_ARG_STRING,
+		 &cmdLineOpts->dbPassword, "Database password", NULL},
 		{"enable-copy-on-demand",
 		 'e', 0, G_OPTION_ARG_NONE,
 		 &cmdLineOpts->enableCopyOnDemand,

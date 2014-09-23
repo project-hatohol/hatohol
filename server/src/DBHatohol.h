@@ -31,9 +31,20 @@ class DBTablesMonitoring;
 class DBHatohol : public DB {
 public:
 	static void reset(void);
-	static void setDefaultDBParams(const std::string &dbName,
-	                               const std::string &user = "",
-	                               const std::string &password = "");
+
+	/**
+	 * Set default DB parameters
+	 *
+	 * Each of the following parameters can be NULL. In that case,
+	 * the paramter is  not updated (the previous value is used)
+	 *
+	 * @param dbName   A database name.
+	 * @param user     A user name used to connect with a DB server.
+	 * @param password A password used to connect with a DB server.
+	 */
+	static void setDefaultDBParams(const char *dbName,
+	                               const char *user = NULL,
+	                               const char *password = NULL);
 
 	DBHatohol(void);
 	virtual ~DBHatohol();
