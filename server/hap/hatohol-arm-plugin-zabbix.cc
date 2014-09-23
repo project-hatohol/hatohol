@@ -29,11 +29,14 @@
 using namespace std;
 using namespace mlpl;
 
+static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms
+
 class HapProcessZabbixAPI : public HapProcess, public HapZabbixAPI {
 public:
 	HapProcessZabbixAPI(int argc, char *argv[]);
 	virtual ~HapProcessZabbixAPI();
 	int mainLoopRun(void);
+	virtual int onCaughtException(const exception &e) override;
 
 protected:
 	// called from HapZabbixAPI
@@ -143,12 +146,21 @@ void HapProcessZabbixAPI::startAcquisition(void)
 	bool caughtException = false;
 	string exceptionName;
 	string exceptionMsg;
+	HatoholErrorCode exceptionErrorCode;
+	HatoholArmPluginWatchType type = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 	try {
 		acquireData();
+		type = COLLECT_OK;
 	} catch (const HatoholException &e) {
 		exceptionName = DEMANGLED_TYPE_NAME(e);
 		exceptionMsg  = e.getFancyMessage();
 		caughtException = true;
+		exceptionErrorCode = e.getErrCode();
+		if (exceptionErrorCode == HTERR_FAILED_CONNECT_ZABBIX) {
+			type = COLLECT_NG_DISCONNECT_ZABBIX;
+		} else if (exceptionErrorCode == HTERR_FAILED_TO_PARSE_JSON_DATA) {
+			type = COLLECT_NG_PARSER_ERROR;
+		}
 	} catch (const exception &e) {
 		exceptionName = DEMANGLED_TYPE_NAME(e);
 		exceptionMsg  = e.what();
@@ -167,12 +179,15 @@ void HapProcessZabbixAPI::startAcquisition(void)
 		  "Caught an exception: (%s) %s", name, msg);
 		MLPL_ERR("%s\n", errMsg.c_str());
 		getArmStatus().logFailure(errMsg);
+	} else {
+		type = COLLECT_OK;
 	}
+
 	m_ctx->timerTag = g_timeout_add(intervalMSec, acquisitionTimerCb, this);
 
 	// update ArmInfo
 	try {
-		sendArmInfo(getArmStatus().getArmInfo());
+		sendArmInfo(getArmStatus().getArmInfo(), type);
 	} catch (...) {
 		MLPL_ERR("Failed to send ArmInfo.\n");
 	}
@@ -205,6 +220,18 @@ void HapProcessZabbixAPI::onReady(const MonitoringServerInfo &serverInfo)
 	};
 	Utils::executeOnGLibEventLoop<HapProcessZabbixAPI>(
 	  NoName::startAcquisition, this, ASYNC);
+}
+
+int HapProcessZabbixAPI::onCaughtException(const exception &e)
+{
+	int retryIntervalSec;
+	if (m_ctx->serverInfo.retryIntervalSec == 0)
+		retryIntervalSec = DEFAULT_RETRY_INTERVAL;
+	else
+		retryIntervalSec = m_ctx->serverInfo.retryIntervalSec * 1000;
+	MLPL_INFO("Caught an exception: %s. Retry afeter %d ms.\n",
+		  e.what(), retryIntervalSec);
+	return retryIntervalSec;
 }
 
 // ---------------------------------------------------------------------------

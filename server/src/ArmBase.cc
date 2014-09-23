@@ -31,7 +31,7 @@
 using namespace std;
 using namespace mlpl;
 
-const char *SERVER_SELF_CHARACTER = "_SELF";
+const char *SERVER_SELF_MONITORING_SUFFIX = "_SELF";
 
 struct ArmBase::Impl
 {
@@ -295,7 +295,8 @@ void ArmBase::setInitialTrrigerStatus(void)
 	hostInfo.serverId = svInfo.id;
 	hostInfo.id = MONITORING_SERVER_SELF_ID;
 	hostInfo.hostName = 
-		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(), SERVER_SELF_CHARACTER);
+		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
+				     SERVER_SELF_MONITORING_SUFFIX);
 	dbMonitoring.addHostInfo(&hostInfo);
 
 	TriggerInfo triggerInfo;
@@ -317,11 +318,11 @@ void ArmBase::createTriggerInfo(const ArmResultTriggerInfo &resTrigger,
 	TriggerInfo triggerInfo;
 
 	triggerInfo.serverId = svInfo.id;
-	triggerInfo.lastChangeTime.tv_sec = SmartTime(SmartTime::INIT_CURR_TIME).getAsSec();
-	triggerInfo.lastChangeTime.tv_nsec = 0;
+	triggerInfo.lastChangeTime = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
 	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
 	triggerInfo.hostName = 
-		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(), SERVER_SELF_CHARACTER);
+		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
+				     SERVER_SELF_MONITORING_SUFFIX);
 	triggerInfo.id = resTrigger.triggerId;
 	triggerInfo.brief = resTrigger.msg;
 	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
@@ -338,8 +339,7 @@ void ArmBase::createEventInfo(const ArmResultTriggerInfo &resTrigger,
 
 	eventInfo.serverId = svInfo.id;
 	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
-	eventInfo.time.tv_sec = SmartTime(SmartTime::INIT_CURR_TIME).getAsSec();
-	eventInfo.time.tv_nsec = 0;
+	eventInfo.time = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
 	eventInfo.hostId = MONITORING_SERVER_SELF_ID;
 	eventInfo.triggerId = resTrigger.triggerId;
 	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;

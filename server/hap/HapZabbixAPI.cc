@@ -24,6 +24,15 @@ using namespace mlpl;
 
 static const uint64_t NUMBER_OF_GET_EVENT_PER_ONCE  = 1000;
 
+static const HatoholArmPluginWatchType hapiZabbixErrorList[] =
+{
+	COLLECT_NG_PARSER_ERROR,
+	COLLECT_NG_DISCONNECT_ZABBIX,
+	COLLECT_NG_PLGIN_INTERNAL_ERROR,
+};
+
+static const int numHapZabbixSelfError = ARRAY_SIZE(hapiZabbixErrorList);
+
 struct HapZabbixAPI::Impl {
 	Impl(void)
 	{
@@ -109,7 +118,6 @@ void HapZabbixAPI::parseReplyGetMonitoringServerInfoOnInitiated(
 void HapZabbixAPI::onInitiated(void)
 {
 	HatoholArmPluginBase::onInitiated();
-
 	struct Callback : public CommandCallbacks {
 		HapZabbixAPI *obj;
 
@@ -140,6 +148,8 @@ void HapZabbixAPI::onInitiated(void)
 		}
 	} *cb = new Callback(this);
 	sendCmdGetMonitoringServerInfo(cb);
+	sendAvailableTrigger(numHapZabbixSelfError,
+			     hapiZabbixErrorList);
 }
 
 void HapZabbixAPI::onReady(const MonitoringServerInfo &serverInfo)

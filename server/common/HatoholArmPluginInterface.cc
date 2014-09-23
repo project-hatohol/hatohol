@@ -659,14 +659,31 @@ void HatoholArmPluginInterface::setQueueAddress(const string &queueAddr)
 // ---------------------------------------------------------------------------
 gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 {
-	m_impl->connect();
+	HatoholArmPluginInterface *hapi = m_impl->hapi;
+	hapi->onSetPluginInitialInfo();
+	try {
+		m_impl->connect();
+	} catch (const exception &e) {
+		hapi->onFailureConnected();
+		THROW_HATOHOL_EXCEPTION("Failed to connect Broker: %s", e.what());
+	}
+
 	if (m_impl->workInServer)
 		sendInitiationPacket();
 	else
 		sendInitiationRequest();
 	while (!isExitRequested()) {
 		Message message;
-		m_impl->receiver.fetch(message);
+		try {
+			hapi->onPriorToFetchMessage();
+			m_impl->receiver.fetch(message);
+			hapi->onSuccessFetchMessage();
+		} catch (const exception &e) {
+			hapi->onFailureFetchMessage();
+			THROW_HATOHOL_EXCEPTION("Failed to connect Broker: %s",
+						e.what());
+		}
+
 		if (isExitRequested())
 			break;
 		SmartBuffer sbuf;
@@ -674,7 +691,14 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		sbuf.resetIndex();
 		m_impl->currMessage = &message;
 		m_impl->currBuffer  = &sbuf;
-		onReceived(sbuf);
+
+		try {
+			onReceived(sbuf);
+		} catch (const exception &e) {
+			hapi->onFailureReceivedMessage();
+			continue;
+		}
+
 		m_impl->currMessage = NULL;
 		m_impl->currBuffer  = NULL;
 		m_impl->sequenceIdOfCurrCmd = SEQ_ID_UNKNOWN;
@@ -685,6 +709,30 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 }
 
 void HatoholArmPluginInterface::onConnected(Connection &conn)
+{
+}
+
+void HatoholArmPluginInterface::onFailureConnected(void)
+{
+}
+
+void HatoholArmPluginInterface::onSetPluginInitialInfo(void)
+{
+}
+
+void HatoholArmPluginInterface::onPriorToFetchMessage(void)
+{
+}
+
+void HatoholArmPluginInterface::onSuccessFetchMessage(void)
+{
+}
+
+void HatoholArmPluginInterface::onFailureFetchMessage(void)
+{
+}
+
+void HatoholArmPluginInterface::onFailureReceivedMessage(void)
 {
 }
 
