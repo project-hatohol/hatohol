@@ -86,12 +86,15 @@ void DBHatohol::reset(void)
 }
 
 void DBHatohol::setDefaultDBParams(
-  const string &dbName, const string &user, const string &password)
+  const char *dbName, const char *user, const char *password)
 {
 	DBConnectInfo &connInfo = Impl::setupCtx.connectInfo;
-	connInfo.dbName   = dbName;
-	connInfo.user     = user;
-	connInfo.password = password;
+	if (dbName)
+		connInfo.dbName   = dbName;
+	if (user)
+		connInfo.user     = user;
+	if (password)
+		connInfo.password = password;
 }
 
 DBHatohol::DBHatohol(void)
