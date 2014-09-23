@@ -323,7 +323,7 @@ bool spawnChildProcess(string magicNumber, GPid &childPid, const string &pidFile
 	  "--db-name", TEST_DB_NAME,
 	  "--db-user", TEST_DB_USER,
 	  "--db-password", TEST_DB_PASSWORD,
-	   "--pid-file-path", pidFilePath.c_str(), NULL};
+	  "--pid-file-path", pidFilePath.c_str(), NULL};
 	const gchar *envp[] = {"LD_LIBRARY_PATH=../src/.libs/", magicNumber.c_str(), NULL};
 	GError *error;
 	gboolean succeeded;
