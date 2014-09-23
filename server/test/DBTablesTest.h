@@ -196,6 +196,10 @@ extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_PASSIVE;
  * - To simplify test code, it is recommended that loadTestDBxxxx() is
  *   aggregated into cut_setup().
  */
+extern const char *TEST_DB_USER;
+extern const char *TEST_DB_PASSWORD;
+extern const char *TEST_DB_NAME;
+
 void setupTestDB(void);
 
 void loadTestDBTablesConfig(void);

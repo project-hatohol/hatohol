@@ -37,6 +37,7 @@
 #include "Utils.h"
 #include "Logger.h"
 #include "Helpers.h"
+#include "DBTablesTest.h"
 using namespace std;
 using namespace mlpl;
 
@@ -319,6 +320,9 @@ bool spawnChildProcess(string magicNumber, GPid &childPid, const string &pidFile
 {
 	const gchar *argv[] = {
 	  "../src/hatohol", "--config-db-server", "localhost",
+	  "--db-name", TEST_DB_NAME,
+	  "--db-user", TEST_DB_USER,
+	  "--db-password", TEST_DB_PASSWORD,
 	   "--pid-file-path", pidFilePath.c_str(), NULL};
 	const gchar *envp[] = {"LD_LIBRARY_PATH=../src/.libs/", magicNumber.c_str(), NULL};
 	GError *error;
@@ -347,6 +351,11 @@ static pid_t getInitPid(int pid)
 		pid = parentPid;
 	}
 	return pid;
+}
+
+void cut_setup(void)
+{
+	setupTestDB();
 }
 
 void cut_teardown(void)
