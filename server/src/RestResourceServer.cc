@@ -356,6 +356,25 @@ static HatoholError parseServerParameter(
 	if (value)
 		armPluginInfo.staticQueueAddress = value;
 
+	// tlsCertificatePath
+	value = (char *)g_hash_table_lookup(query, "tlsCertificatePath");
+	if (value)
+		armPluginInfo.tlsCertificatePath = value;
+
+	// tlsKeyPath
+	value = (char *)g_hash_table_lookup(query, "tlsKeyPath");
+	if (value)
+		armPluginInfo.tlsKeyPath = value;
+
+	// tlsCACertificatePath
+	value = (char *)g_hash_table_lookup(query, "tlsCACertificatePath");
+	if (value)
+		armPluginInfo.tlsCACertificatePath = value;
+
+	// tlsEnableVerify
+	value = (char *)g_hash_table_lookup(query, "tlsEnableVerify");
+	armPluginInfo.tlsEnableVerify = (value && string(value) == "true");
+
 	return HTERR_OK;
 }
 
