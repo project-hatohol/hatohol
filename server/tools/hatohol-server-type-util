@@ -117,6 +117,7 @@ class HapiJSONParamGenerator(ParamGenerator):
         return 'JSON (HAPI) [experimental]'
 
     def get_parameters(self):
+        obj = []
         obj.append({'id':'nickname',
                     'label':'Nickname'});
         obj.extend(self.get_hapi_params())
