@@ -401,33 +401,33 @@ HatoholUserRoleEditor.prototype.hatoholPrivileges = [
   },
   {
     flag: hatohol.OPPRVLG_CREATE_SERVER,
-    message: gettext("Create a server"),
-    category: gettext("Servers")
+    message: gettext("Create a monitoring server"),
+    category: gettext("Monitoring Servers")
   },
   {
     flag: hatohol.OPPRVLG_UPDATE_SERVER,
-    message: gettext("Update allowed servers"),
-    category: gettext("Servers")
+    message: gettext("Update allowed monitoring servers"),
+    category: gettext("Monitoring Servers")
   },
   {
     flag: hatohol.OPPRVLG_UPDATE_ALL_SERVER,
-    message: gettext("Update all servers"),
-    category: gettext("Servers")
+    message: gettext("Update all monitoring servers"),
+    category: gettext("Monitoring Servers")
   },
   {
     flag: hatohol.OPPRVLG_DELETE_SERVER,
-    message: gettext("Delete allowed servers"),
-    category: gettext("Servers")
+    message: gettext("Delete allowed monitoring servers"),
+    category: gettext("Monitoring Servers")
   },
   {
     flag: hatohol.OPPRVLG_DELETE_ALL_SERVER,
-    message: gettext("Delete all servers"),
-    category: gettext("Servers")
+    message: gettext("Delete all monitoring servers"),
+    category: gettext("Monitoring Servers")
   },
   {
     flag: hatohol.OPPRVLG_GET_ALL_SERVER,
-    message: gettext("Get all servers"),
-    category: gettext("Servers")
+    message: gettext("Get all monitoring servers"),
+    category: gettext("Monitoring Servers")
   },
   {
     flag: hatohol.OPPRVLG_CREATE_ACTION,

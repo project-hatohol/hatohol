@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-18 18:50-0500\n"
+"POT-Creation-Date: 2014-09-24 00:55-0500\n"
 "PO-Revision-Date: 2014-09-09 09:13+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -31,8 +31,8 @@ msgstr "アクション削除"
 #: viewer/dashboard_ajax.html.py:80 viewer/events_ajax.html:67
 #: viewer/incident_settings_ajax.html:59 viewer/latest_ajax.html:59
 #: viewer/triggers_ajax.html:66
-msgid "Server"
-msgstr "サーバー"
+msgid "Monitoring Server"
+msgstr "監視サーバー"
 
 #: viewer/actions_ajax.html:56 viewer/events_ajax.html:69
 #: viewer/latest_ajax.html:60 viewer/triggers_ajax.html:70
@@ -189,8 +189,8 @@ msgstr "不明"
 #: viewer/events_ajax.html:48 viewer/latest_ajax.html:32
 #: viewer/overview_items_ajax.html:42 viewer/overview_triggers_ajax.html:47
 #: viewer/triggers_ajax.html:47
-msgid "Server:"
-msgstr "サーバー:"
+msgid "Monitoring Server:"
+msgstr "監視サーバー:"
 
 #: viewer/events_ajax.html:52 viewer/latest_ajax.html:37
 #: viewer/overview_items_ajax.html:46 viewer/overview_triggers_ajax.html:51
@@ -233,7 +233,7 @@ msgid "Assignee"
 msgstr "担当者"
 
 #: viewer/events_ajax.html:84
-#, fuzzy, python-format
+#, python-format
 msgid "%% Done"
 msgstr "進捗率"
 
@@ -266,7 +266,6 @@ msgid "IP Address"
 msgstr "IPアドレス"
 
 #: viewer/hosts_ajax.html:43 viewer/servers_ajax.html:65
-#: viewer/servers_ajax.html.py:90
 msgid "Nickname"
 msgstr "ニックネーム"
 
@@ -336,20 +335,20 @@ msgid "Overview : Triggers"
 msgstr "概要:トリガー"
 
 #: viewer/servers_ajax.html:24 viewer/servers_ajax.html.py:29
-msgid "Servers"
-msgstr "サーバー"
+msgid "Monitoring Servers"
+msgstr "監視サーバー"
 
 #: viewer/servers_ajax.html:35
-msgid "ADD SERVER"
-msgstr "サーバー追加"
+msgid "ADD MONITORING SERVER"
+msgstr "監視サーバー追加"
 
 #: viewer/servers_ajax.html:40
-msgid "ADD SERVER (New version)"
-msgstr ""
+msgid "ADD MONITORING SERVER (New version)"
+msgstr "監視サーバー追加(新バージョン)"
 
 #: viewer/servers_ajax.html:45
-msgid "DELETE SERVER"
-msgstr "サーバー削除"
+msgid "DELETE MONITORING SERVER"
+msgstr "監視サーバー削除"
 
 #: viewer/servers_ajax.html:61
 msgid "Connection status"
@@ -357,84 +356,11 @@ msgstr "通信状態"
 
 #: viewer/servers_ajax.html:75
 msgid ""
-"Please use a browser's reload function when you update servers information "
-"including 'Connection status'."
+"Please use a browser's reload function when you update monitoring servers "
+"information including 'Connection status'."
 msgstr ""
-"'通信状態'を含むサーバー情報を更新するには、ブラウザーのリロード機能をご使用くだ"
-"さい."
-
-#: viewer/servers_ajax.html:81
-#, fuzzy
-msgid "Server type"
-msgstr "サーバー"
-
-#: viewer/servers_ajax.html:83 viewer/servers_ajax.html.py:85
-msgid "Zabbix"
-msgstr ""
-
-#: viewer/servers_ajax.html:84
-msgid "Nagios"
-msgstr ""
-
-#: viewer/servers_ajax.html:85 viewer/servers_ajax.html.py:86
-msgid "experimental"
-msgstr ""
-
-#: viewer/servers_ajax.html:86
-msgid "JSON"
-msgstr ""
-
-#: viewer/servers_ajax.html:94
-#, fuzzy
-msgid "Host name"
-msgstr "ホスト名"
-
-#: viewer/servers_ajax.html:96
-#, fuzzy
-msgid "IP address"
-msgstr "IPアドレス"
-
-#: viewer/servers_ajax.html:98
-msgid "Port"
-msgstr ""
-
-#: viewer/servers_ajax.html:102
-#, fuzzy
-msgid "DB name"
-msgstr "ユーザー名"
-
-#: viewer/servers_ajax.html:106 viewer/users_ajax.html:56
-msgid "User name"
-msgstr "ユーザー名"
-
-#: viewer/servers_ajax.html:108
-#, fuzzy
-msgid "Password"
-msgstr "パスワード変更"
-
-#: viewer/servers_ajax.html:112
-msgid "Polling interval (sec)"
-msgstr ""
-
-#: viewer/servers_ajax.html:114
-msgid "Retry interval (sec)"
-msgstr ""
-
-#: viewer/servers_ajax.html:122
-msgid "Passive mode"
-msgstr ""
-
-#: viewer/servers_ajax.html:125
-msgid "Broker URL"
-msgstr ""
-
-#: viewer/servers_ajax.html:127 viewer/servers_ajax.html.py:132
-msgid "(empty: Default)"
-msgstr ""
-
-#: viewer/servers_ajax.html:130
-msgid "Static queue address"
-msgstr ""
+"'通信状態'を含む監視サーバー情報を更新するには、ブラウザーのリロード機能をご"
+"使用ください."
 
 #: viewer/triggers_ajax.html:24 viewer/triggers_ajax.html.py:29
 msgid "Triggers"
@@ -460,6 +386,10 @@ msgstr "ユーザー追加"
 msgid "DELETE USER"
 msgstr "ユーザー削除"
 
+#: viewer/users_ajax.html:56
+msgid "User name"
+msgstr "ユーザー名"
+
 #: viewer/users_ajax.html:57
 msgid "User role"
 msgstr "ユーザー種別"
@@ -467,6 +397,21 @@ msgstr "ユーザー種別"
 #: viewer/users_ajax.html:58
 msgid "Privileges"
 msgstr "権限"
+
+#~ msgid "Server type"
+#~ msgstr "サーバータイプ"
+
+#~ msgid "Host name"
+#~ msgstr "ホスト名"
+
+#~ msgid "IP address"
+#~ msgstr "IPアドレス"
+
+#~ msgid "DB name"
+#~ msgstr "DB名"
+
+#~ msgid "Password"
+#~ msgstr "パスワード"
 
 #~ msgid "Acknowledged"
 #~ msgstr "障害対応済"

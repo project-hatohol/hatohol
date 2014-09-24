@@ -54,7 +54,7 @@ describe('HatoholNavi', function() {
       'Settings<span class="caret"></span></a>';
     expected += '<ul class="dropdown-menu">';
     expected += '<li><a href="ajax_servers">' +
-      gettext('Servers') + '</a></li>';
+      gettext('Monitoring Servers') + '</a></li>';
     expected += '<li><a href="ajax_actions">' +
       gettext('Actions') + '</a></li>';
     expected += '</ul></li>';
@@ -83,7 +83,7 @@ describe('HatoholNavi', function() {
       'Settings<span class="caret"></span></a>';
     expected += '<ul class="dropdown-menu">';
     expected += '<li><a href="ajax_servers">' +
-      gettext('Servers') + '</a></li>';
+      gettext('Monitoring Servers') + '</a></li>';
     expected += '<li><a href="ajax_actions">' +
       gettext('Actions') + '</a></li>';
     expected += '</ul></li>';

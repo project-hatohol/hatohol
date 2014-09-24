@@ -48,7 +48,7 @@ var HatoholNavi = function(userProfile, currentPage) {
       title: gettext("Settings"),
       children: [
         {
-          title: gettext("Servers"),
+          title: gettext("Monitoring Servers"),
           href:  "ajax_servers"
         },
         {
