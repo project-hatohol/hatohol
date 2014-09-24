@@ -168,7 +168,6 @@ private:
 		}
 
 		return true;
-
 	}
 
 	bool validateObjectMember(StringList &errors,
