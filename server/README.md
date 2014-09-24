@@ -146,11 +146,11 @@ NOTE: You have to restart qpidd after you edit /etc/qpid/qpiid.acl.
 
 (1) Setup database of MySQL
 
-  $ hatohol-db-initiator database_name mysql_user mysql_password
+    $ hatohol-db-initiator database_name mysql_user mysql_password
 
 Example:
 
-  $ hatohol-db-initiator hatohol root rootpass
+    $ hatohol-db-initiator hatohol root rootpass
 
 Tips:
 - If the root password of the MySQL server is not set, just pass ''.
