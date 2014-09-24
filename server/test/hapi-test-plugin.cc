@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
+#include <fstream>
 #include <qpid/messaging/Address.h>
 #include <qpid/messaging/Connection.h>
 #include <qpid/messaging/Message.h>
@@ -35,11 +36,32 @@ using namespace std;
 using namespace mlpl;
 using namespace qpid::messaging;
 
+struct Params {
+	bool dontExit;
+
+	Params(void)
+	: dontExit(false)
+	{
+	}
+
+	void set(const string &key, const string &value)
+	{
+		if (key == "dontExit") {
+			dontExit = atoi(value.c_str());
+		} else {
+			MLPL_WARN("Unknown paramter: %s (%s)\n",
+			          key.c_str(), value.c_str());
+		}
+	}
+};
+
 class TestPlugin : public HatoholArmPluginInterface {
 public:
 	TestPlugin(void)
 	: m_sem(0)
 	{
+		parseParamFile();
+
 		const char *envQueueAddr =
 		  getenv(HatoholArmPluginGate::ENV_NAME_QUEUE_ADDR);
 		if (!envQueueAddr) {
@@ -56,6 +78,11 @@ public:
 		m_sem.wait();
 	}
 
+	const Params &getParams(void) const
+	{
+		return m_params;
+	}
+
 protected:
 	virtual void onConnected(Connection &conn) override
 	{
@@ -63,8 +90,32 @@ protected:
 		m_sem.post();
 	}
 
+	void parseParamFile(void)
+	{
+		string path = StringUtils::sprintf(
+		  HAPI_TEST_PLUGIN_PARAM_FILE_FMT, getppid());
+		ifstream ifs(path.c_str());
+		if (!ifs)
+			return;
+
+		string line;
+		while (getline(ifs, line)) {
+			size_t pos = line.find('\t');
+			if (pos == string::npos) {
+				MLPL_ERR("Not found separator: %s\n",
+				         line.c_str());
+				continue;
+			}
+			string key = string(line, 0, pos);
+			string value = string(line, pos+1);
+			m_params.set(key, value);
+		}
+
+	}
+
 private:
 	SimpleSemaphore m_sem;
+	Params          m_params;
 };
 
 int main(void)
@@ -72,5 +123,11 @@ int main(void)
 	TestPlugin plugin;
 	plugin.start();
 	plugin.waitSent();
+
+	if (plugin.getParams().dontExit) {
+		while (true)
+			sleep(3600);
+	}
+
 	return EXIT_SUCCESS;
 }

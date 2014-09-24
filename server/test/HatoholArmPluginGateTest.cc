@@ -100,6 +100,7 @@ void HatoholArmPluginGateTest::onLaunchedProcess(
   const bool &succeeded, const ArmPluginInfo &armPluginInfo)
 {
 	m_ctx.launchSucceeded = succeeded;
+	m_ctx.pluginPid = getPid();
 	m_ctx.launchedSem.post();
 }
 

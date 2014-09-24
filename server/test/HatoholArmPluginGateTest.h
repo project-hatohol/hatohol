@@ -40,6 +40,7 @@ struct HapgTestCtx {
 	bool                 checkNumRetry;
 	bool                 useDefaultReceivedHandler;
 	std::string          expectRcvMessage;
+	bool                 expectAbnormalChildTerm;
 
 	// Set by HatoholArmgPluginTest
 	mlpl::SimpleSemaphore launchedSem;
@@ -49,6 +50,7 @@ struct HapgTestCtx {
 	std::string           rcvMessage;
 	bool                  gotUnexceptedException;
 	size_t                retryCount;
+	pid_t                 pluginPid;
 
 	HapgTestCtx(void)
 	: monitoringSystemType(MONITORING_SYSTEM_HAPI_TEST),
@@ -60,12 +62,18 @@ struct HapgTestCtx {
 	  cancelRetrySleep(false),
 	  checkNumRetry(false),
 	  useDefaultReceivedHandler(false),
+	  expectAbnormalChildTerm(false),
 	  launchedSem(0),
 	  launchSucceeded(false),
 	  mainSem(0),
 	  abnormalChildTerm(false),
 	  gotUnexceptedException(false),
-	  retryCount(0)
+	  retryCount(0),
+	  pluginPid(0)
+	{
+	}
+
+	virtual void onReleasedMainSem(void)
 	{
 	}
 };
