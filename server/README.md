@@ -157,6 +157,22 @@ Tips:
 - You can change password of the created DB by --hatohol-db-user and --hatohol-db-password options.
 - If Hatohol server and MySQL server are executed on different machines, you have to input GRANT statement manually with the mysql command line tool.
 
+NOTE: If the error of the "ImportError: No module named argparse" occurs Run hatohol-db-initiator (at CentOS 6.5).
+(1.1.a) One is to use EPEL RPM package.
+
+    # rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+    # yum install python-argparse
+
+(1.1.b) The other is to install by easy_install command.
+
+    # yum install python-setuptools
+    # easy_install argparse
+
+NOTE: If the error of the "OSError: libhatohol.so: cannot open shared object file: No such file or directory" occurs Run hatohol-db-initiator (at CentOS 6.5).
+(1.2) Please add the LD_LIBRARY_PATH by following commands.
+
+    $  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/
+
 For example, user/password are 'myuser'/'mypasswd' and the IP address of
 Hatohol server is 192.168.10.50.
 
