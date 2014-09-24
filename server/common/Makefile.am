@@ -20,7 +20,7 @@ libhatohol_common_la_SOURCES = \
 	JSONBuilder.cc JSONBuilder.h \
 	JSONParser.cc JSONParser.h \
 	JSONParserPositionStack.cc \
-	Monitroing.h \
+	Monitoring.h \
 	MonitoringServerInfo.cc MonitoringServerInfo.h \
 	Params.h \
 	EndianConverter.h \
