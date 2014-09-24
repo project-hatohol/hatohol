@@ -167,7 +167,7 @@ NOTE: If you meet the folloing error, there're two ways to solve it.
 
     ImportError: No module named argparse
 
-This error happens on the system that doesn't have argparse Python package such as default state of CenOS 6.5.
+This error happens on the system that doesn't have argparse Python package such as default state of CentOS 6.5.
 
 (1.1.a) EPEL
 
