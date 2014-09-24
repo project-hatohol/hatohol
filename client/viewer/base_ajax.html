@@ -96,10 +96,14 @@
     <script src="{{ STATIC_URL }}js/hatohol_pager.js"></script>
     <script src="{{ STATIC_URL }}js/utils.js"></script>
     <script type="text/javascript">
-      var userProfile = new HatoholUserProfile();
-      userProfile.addOnLoadCb(function(user) {
-        new HatoholNavi(userProfile);
-      });
+      var userProfile;
+      var params = deparam();
+      if (!params || (params.start != "false")) {
+        userProfile = new HatoholUserProfile();
+        userProfile.addOnLoadCb(function(user) {
+          new HatoholNavi(userProfile);
+        });
+      }
     </script>
 
 {% block templates %}
