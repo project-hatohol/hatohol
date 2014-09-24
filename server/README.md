@@ -163,23 +163,29 @@ Hatohol server is 192.168.10.50.
     mysql> GRANT ALL PRIVILEGES ON hatohol.* TO myuser@"192.168.10.50" IDENTIFIED BY 'mypasswd';
 
 
-NOTE: If the error of the "ImportError: No module named argparse" occurs Run hatohol-db-initiator (at CentOS 6.5).
+NOTE: If you meet the folloing error, there're two ways to solve it.
 
-(1.1.a) One is to use EPEL RPM package.
+    ImportError: No module named argparse
+
+This error happens on the system that doesn't have argparse Python package such as default state of CenOS 6.5.
+
+(1.1.a) EPEL
 
     # rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
     # yum install python-argparse
 
-(1.1.b) The other is to install by easy_install command.
+(1.1.b) easy_install
 
     # yum install python-setuptools
     # easy_install argparse
 
-NOTE: If the error of the "OSError: libhatohol.so: cannot open shared object file: No such file or directory" occurs Run hatohol-db-initiator (at CentOS 6.5).
+NOTE: If you meet the folloing error, set LD_LIBRARY_PATH like the way in the section (1.2) or configure /etc/ld.so.conf.
 
-(1.2) Please add the LD_LIBRARY_PATH by following commands.
+    OSError: libhatohol.so: cannot open shared object file: No such file or directory
 
-    $  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/
+(1.2) Example to set LD_LIBRARY_PATH
+
+    $  export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 (2) start hatohol process
 
