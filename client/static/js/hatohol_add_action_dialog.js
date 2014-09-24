@@ -400,7 +400,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '</form>'
 
     s += '<form class="form-inline">'
-    s += '  <label>' + gettext("Status") + '</label>'
+    s += '  <label for="selectTriggerStatus">' + gettext("Status") + '</label>'
     s += '  <select id="selectTriggerStatus">'
     s += '    <option value="ANY">ANY</option>'
     s += '    <option value="TRIGGER_STATUS_OK">' + gettext("OK") + '</option>'
@@ -571,6 +571,8 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
     self.setupIncidentTrackersEditor();
     $("#selectTriggerStatus").val("TRIGGER_STATUS_PROBLEM");
     $("#selectTriggerSeverityCompType").val("CMP_EQ_GT");
+    $("label[for='selectTriggerStatus']").hide();
+    $("#selectTriggerStatus").hide();
   }
 }
 
