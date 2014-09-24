@@ -319,7 +319,7 @@ bool makeRandomNumber(string &magicNumber)
 bool spawnChildProcess(string magicNumber, GPid &childPid, const string &pidFilePath)
 {
 	const gchar *argv[] = {
-	  "../src/hatohol", "--config-db-server", "localhost",
+	  "../src/hatohol", "--db-server", "localhost",
 	  "--db-name", TEST_DB_NAME,
 	  "--db-user", TEST_DB_USER,
 	  "--db-password", TEST_DB_PASSWORD,

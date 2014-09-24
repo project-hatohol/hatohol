@@ -9,7 +9,7 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin
 NAME=hatohol
 exec_prefix=@prefix@
 PROG=@sbindir@/$NAME
-OPTIONS="--config-db-server localhost"
+OPTIONS="--db-server localhost"
 PROGNAME=`basename $PROG`
 if [ -r /etc/hatohol/initrc ]; then
 	. /etc/hatohol/initrc

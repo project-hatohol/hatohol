@@ -189,9 +189,9 @@ NOTE: If you meet the folloing error, set LD_LIBRARY_PATH like the way in the se
 
 (2) start hatohol process
 
-    $  hatohol [--config-db-server <Config DB Server:[port]>]
+    $  hatohol [--db-server <Config DB Server:[port]>]
 
-Ex.) `$ hatohol --config-db-server localhost`
+Ex.) `$ hatohol --db-server localhost`
 
 Tips:
 

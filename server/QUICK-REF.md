@@ -4,8 +4,8 @@ Command line options
 --face-rest-port N  
 specify the port numer for the rest service.
 
---config-db-server server:[port]  
-specify the data base server (and optionally port number) for config data.
+--db-server server:[port]  
+specify the data base server (and optionally port number).
 
 --foreground  
 run hatohol as a foreground process.
