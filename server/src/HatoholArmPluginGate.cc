@@ -595,12 +595,22 @@ bool HatoholArmPluginGate::launchPluginProcess(
 	ChildProcessManager::CreateArg arg;
 	arg.args.push_back(armPluginInfo.path);
 	arg.addFlag(G_SPAWN_SEARCH_PATH);
+
+	// Envrionment variables passsed to the plugin process
 	const char *ldlibpath = getenv("LD_LIBRARY_PATH");
 	if (ldlibpath) {
 		string env = "LD_LIBRARY_PATH=";
 		env += ldlibpath;
 		arg.envs.push_back(env);
 	}
+
+	const char *mlplLoggerLevel = getenv(Logger::LEVEL_ENV_VAR_NAME);
+	if (mlplLoggerLevel) {
+		string env = StringUtils::sprintf("%s=%s",
+		  Logger::LEVEL_ENV_VAR_NAME, mlplLoggerLevel);
+		arg.envs.push_back(env);
+	}
+
 	arg.eventCb = eventCb;
 	arg.envs.push_back(StringUtils::sprintf(
 	  "%s=%s", ENV_NAME_QUEUE_ADDR,

@@ -21,6 +21,7 @@
 #define hapi_test_plugin_h
 
 static const char *testMessage = "Time flies like an arrow.";
+static const char *HAPI_TEST_PLUGIN_PARAM_FILE_FMT = "/tmp/hapi-test-param.%d";
 
 #endif // hapi_test_plugin_h
 
