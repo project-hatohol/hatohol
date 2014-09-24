@@ -139,18 +139,18 @@ static bool daemonize(void)
 
 static bool checkDBConnection(void)
 {
-	void *dbObjAddr = NULL;
 	try {
 		ThreadLocalDBCache cache;
-		DBTablesConfig &config = cache.getConfig();
-		dbObjAddr = &config;
+		DBHatohol &dbHatohol = cache.getDBHatohol();
+		HATOHOL_ASSERT(&dbHatohol,
+		  "The reference of DBHatohol is unexpectedly NULL.");
 	} catch (const exception &e) {
 		MLPL_CRIT("Failed to create a database object. "
 		          "This program is aborted. Reason: %s\n",
 		          e.what());
 		return false;
 	}
-	return dbObjAddr;
+	return true;
 }
 
 int mainRoutine(int argc, char *argv[])
