@@ -163,7 +163,7 @@ Hatohol server is 192.168.10.50.
     mysql> GRANT ALL PRIVILEGES ON hatohol.* TO myuser@"192.168.10.50" IDENTIFIED BY 'mypasswd';
 
 
-NOTE: If you meet the follogin error, there're two ways to solve it.
+NOTE: If you meet the folloing error, there're two ways to solve it.
 
     ImportError: No module named argparse
 
@@ -179,11 +179,11 @@ This error happens on the system that doesn't have argparse Python package such 
     # yum install python-setuptools
     # easy_install argparse
 
-NOTE: If you meet the follogin error, set LD_LIBRARY_PATH like (1.2) or configure /etc/ld.so.conf.
+NOTE: If you meet the folloing error, set LD_LIBRARY_PATH like the way in the section (1.2) or configure /etc/ld.so.conf.
 
     OSError: libhatohol.so: cannot open shared object file: No such file or directory
 
-(1.2) Please add the LD_LIBRARY_PATH by following commands.
+(1.2) Example to set LD_LIBRARY_PATH
 
     $  export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
