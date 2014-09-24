@@ -24,7 +24,8 @@ class ParamGenerator:
         obj.append({'id':'userName',
                     'label':'User name'});
         obj.append({'id':'password',
-                    'label':'Password'});
+                    'label':'Password',
+                    'inputStyle':'password'});
         obj.append({'id':'pollingInterval',
                     'label':'Polling interval (sec)',
                     'default':'30'});
@@ -83,7 +84,8 @@ class NagiosParamGenerator(ParamGenerator):
         obj.append({'id':'userName',
                     'label':'User name'});
         obj.append({'id':'password',
-                    'label':'Password'});
+                    'label':'Password',
+                    'inputStyle':'password'});
         obj.append({'id':'pollingInterval',
                     'label':'Polling interval (sec)'});
         obj.append({'label':'Retry interval (sec)',
@@ -147,7 +149,8 @@ class HapiCeilometerGenerator(ParamGenerator):
         obj.append({'id':'userName',
                     'label':'User name'});
         obj.append({'id':'password',
-                    'label':'Password'});
+                    'label':'Password',
+                    'inputStyle':'password'});
         obj.append({'id':'pollingInterval',
                     'label':'Polling interval (sec)',
                     'default':'30'});
