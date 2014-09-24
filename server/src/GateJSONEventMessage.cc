@@ -156,6 +156,17 @@ private:
 		va_end(ap);
 	}
 
+	string inspectNode(JsonNode *node)
+	{
+		JsonGenerator *generator = json_generator_new();
+		json_generator_set_root(generator, node);
+		gchar *RawJSON = json_generator_to_data(generator, NULL);
+		string JSON(RawJSON);
+		g_free(RawJSON);
+		g_object_unref(generator);
+		return JSON;
+	}
+
 	bool validateObjectMemberExistence(StringList &errors,
 					   const gchar *context,
 					   JsonObject *object,
@@ -184,18 +195,13 @@ private:
 		JsonNode *memberNode = json_object_get_member(object, name);
 		GType valueType = json_node_get_value_type(memberNode);
 		if (valueType != expectedValueType) {
-			JsonGenerator *generator = json_generator_new();
-			json_generator_set_root(generator, memberNode);
-			gchar *memberJSON =
-				json_generator_to_data(generator, NULL);
 			addError(errors,
 				 "%s.%s must be %s: %s <%s>",
 				 context,
 				 name,
 				 g_type_name(expectedValueType),
 				 g_type_name(valueType),
-				 memberJSON);
-			g_free(memberJSON);
+				 inspectNode(memberNode).c_str());
 			return false;
 		}
 
@@ -229,10 +235,6 @@ private:
 
 		JsonNode *memberNode = json_object_get_member(object, name);
 		if (!isValidTimeNode(memberNode)) {
-			JsonGenerator *generator = json_generator_new();
-			json_generator_set_root(generator, memberNode);
-			gchar *memberJSON =
-				json_generator_to_data(generator, NULL);
 			addError(errors,
 				 "%s.%s must be "
 				 "UNIX time in double or "
@@ -240,8 +242,7 @@ private:
 				 "<%s>",
 				 context,
 				 name,
-				 memberJSON);
-			g_free(memberJSON);
+				 inspectNode(memberNode).c_str());
 			return false;
 		}
 
