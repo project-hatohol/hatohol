@@ -157,6 +157,12 @@ Tips:
 - You can change password of the created DB by --hatohol-db-user and --hatohol-db-password options.
 - If Hatohol server and MySQL server are executed on different machines, you have to input GRANT statement manually with the mysql command line tool.
 
+For example, user/password are 'myuser'/'mypasswd' and the IP address of
+Hatohol server is 192.168.10.50.
+
+    mysql> GRANT ALL PRIVILEGES ON hatohol.* TO myuser@"192.168.10.50" IDENTIFIED BY 'mypasswd';
+
+
 NOTE: If the error of the "ImportError: No module named argparse" occurs Run hatohol-db-initiator (at CentOS 6.5).
 
 (1.1.a) One is to use EPEL RPM package.
@@ -174,11 +180,6 @@ NOTE: If the error of the "OSError: libhatohol.so: cannot open shared object fil
 (1.2) Please add the LD_LIBRARY_PATH by following commands.
 
     $  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/
-
-For example, user/password are 'myuser'/'mypasswd' and the IP address of
-Hatohol server is 192.168.10.50.
-
-    mysql> GRANT ALL PRIVILEGES ON hatohol.* TO myuser@"192.168.10.50" IDENTIFIED BY 'mypasswd';
 
 (2) start hatohol process
 
