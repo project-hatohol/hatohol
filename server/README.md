@@ -146,11 +146,11 @@ NOTE: You have to restart qpidd after you edit /etc/qpid/qpiid.acl.
 
 (1) Setup database of MySQL
 
-  $ hatohol-db-initiator database_name mysql_user mysql_password
+    $ hatohol-db-initiator database_name mysql_user mysql_password
 
 Example:
 
-  $ hatohol-db-initiator hatohol root rootpass
+    $ hatohol-db-initiator hatohol root rootpass
 
 Tips:
 - If the root password of the MySQL server is not set, just pass ''.
@@ -163,14 +163,15 @@ Hatohol server is 192.168.10.50.
     mysql> GRANT ALL PRIVILEGES ON hatohol.* TO myuser@"192.168.10.50" IDENTIFIED BY 'mypasswd';
 
 
-NOTE: If the error of the "ImportError: No module named argparse" occurs Run hatohol-db-initiator (at CentOS 6.5).
+NOTE: If the error of the "ImportError: No module named argparse" is occured when you run hatohol-db-initiator (at CentOS 6.5),
+please install "python-argparse" package using following step.
 
-(1.1.a) One is to use EPEL RPM package.
+(1.1.a) Install a RPM package on the EPEL repository.
 
     # rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
     # yum install python-argparse
 
-(1.1.b) The other is to install by easy_install command.
+(1.1.b) Otherwise, use the easy_install command to install.
 
     # yum install python-setuptools
     # easy_install argparse
