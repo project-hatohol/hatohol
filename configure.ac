@@ -256,12 +256,12 @@ server/mlpl/mlpl.pc
 server/common/Makefile
 server/src/Makefile
 server/hap/Makefile
-server/tools/Makefile
 server/data/Makefile
-server/data/tls/Makefile
-server/data/tls/hatohol-ca-initialize
-server/data/tls/hatohol-ca-sign-client-certificate
-server/data/tls/hatohol-ca-sign-server-certificate
+server/tools/Makefile
+server/tools/tls/Makefile
+server/tools/tls/hatohol-ca-initialize
+server/tools/tls/hatohol-ca-sign-client-certificate
+server/tools/tls/hatohol-ca-sign-server-certificate
 server/test/Makefile
 server/test/fixtures/Makefile
 server/benchmark/Makefile

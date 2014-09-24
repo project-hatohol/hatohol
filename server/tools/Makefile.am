@@ -1,3 +1,5 @@
+SUBDIRS = tls
+
 bin_PROGRAMS = hatohol-def-src-file-generator
 dist_bin_SCRIPTS = hatohol-voyager \
                    hatohol-db-initiator \

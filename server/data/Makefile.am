@@ -1,5 +1,3 @@
-SUBDIRS = tls
-
 sql_DATA = \
 	create-db.sql \
 	server-type.sql \
