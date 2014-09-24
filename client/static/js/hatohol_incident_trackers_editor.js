@@ -383,7 +383,8 @@ HatoholIncidentTrackerEditor.prototype.createMainElement = function() {
   '<div>' +
   '<label for="editIncidentTrackerProjectId">' + gettext("Tracker ID") + '</label>' +
   '<input id="editIncidentTrackerTrackerId" type="text" ' +
-  '       class="input-xlarge">' +
+  '       class="input-xlarge" ' +
+  '       placeholder="' + gettext("(empty: Default)") + '">' +
   '</div>' +
   '<div>' +
   '<label for="editIncidentTrackerUserName">' + gettext("User name") + '</label>' +

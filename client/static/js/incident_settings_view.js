@@ -143,14 +143,6 @@ var IncidentSettingsView = function(userProfile) {
     return getHostgroupName(actionsPkt["servers"][serverId], hostgroupId);
   }
 
-  function getTriggerBriefFromAction(actionsPkt, actionDef) {
-    var serverId = actionDef["serverId"];
-    var triggerId = actionDef["triggerId"];
-    if (!triggerId)
-      return "ANY";
-    return getTriggerBrief(actionsPkt["servers"][serverId], triggerId);
-  }
-
   //
   // callback function from the base template
   //
@@ -172,9 +164,6 @@ var IncidentSettingsView = function(userProfile) {
 
       var hostgroupName = getHostgroupNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(hostgroupName) + "</td>";
-
-      var triggerBrief = getTriggerBriefFromAction(actionsPkt, actionDef);
-      s += "<td>" + escapeHTML(triggerBrief) + "</td>";
 
       var triggerStatus = actionDef.triggerStatus;
       var triggerStatusLabel = "ANY";
