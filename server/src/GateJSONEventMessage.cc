@@ -179,7 +179,7 @@ private:
 		if (!validateObjectMemberExistence(errors, context, object, name)) {
 			return false;
 		}
-		
+
 		JsonNode *memberNode = json_object_get_member(object, name);
 		GType valueType = json_node_get_value_type(memberNode);
 		if (valueType != expectedValueType) {
