@@ -250,6 +250,11 @@ void HatoholArmPluginGate::exitSync(void)
 	m_impl->exitSyncDone = true;
 }
 
+pid_t HatoholArmPluginGate::getPid()
+{
+	return m_impl->pid;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

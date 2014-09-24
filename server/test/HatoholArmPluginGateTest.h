@@ -49,6 +49,7 @@ struct HapgTestCtx {
 	std::string           rcvMessage;
 	bool                  gotUnexceptedException;
 	size_t                retryCount;
+	pid_t                 pluginPid;
 
 	HapgTestCtx(void)
 	: monitoringSystemType(MONITORING_SYSTEM_HAPI_TEST),
@@ -65,7 +66,8 @@ struct HapgTestCtx {
 	  mainSem(0),
 	  abnormalChildTerm(false),
 	  gotUnexceptedException(false),
-	  retryCount(0)
+	  retryCount(0),
+	  pluginPid(0)
 	{
 	}
 };

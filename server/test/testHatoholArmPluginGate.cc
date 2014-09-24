@@ -120,6 +120,18 @@ void test_startWithPassivePlugin(void)
 	assertStartAndExit(ctx);
 }
 
+void test_getPid(void)
+{
+	// TOOD: Share the code with test_startAndWaitExit().
+	HapgTestCtx ctx;
+	ctx.monitoringSystemType = MONITORING_SYSTEM_HAPI_TEST;
+	ctx.expectedResultOfStart = true;
+	ctx.waitMainSem = true;
+	ctx.checkMessage = true;
+	assertStartAndExit(ctx);
+	cppcut_assert_not_equal(0, ctx.pluginPid);
+}
+
 void test_generateBrokerAddress(void)
 {
 	MonitoringServerInfo serverInfo;

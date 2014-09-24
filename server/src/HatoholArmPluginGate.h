@@ -64,6 +64,15 @@ public:
 	 */
 	virtual void exitSync(void) override;
 
+	/**
+	 * Get the PID of the plugin process.
+	 *
+	 * @return
+	 * The PID of the plugin process. If the plugin process dones't
+	 * exist including the passve mode, 0 is returned.
+	 */
+	pid_t getPid(void);
+
 protected:
 	// To avoid an instance from being created on a stack.
 	virtual ~HatoholArmPluginGate();
