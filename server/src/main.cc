@@ -170,7 +170,6 @@ int mainRoutine(int argc, char *argv[])
 	hatoholInit(&ctx.cmdLineOpts);
 	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
 
-	// Check the DBConnection
 	if (!checkDBConnection())
 		return EXIT_FAILURE;
 
