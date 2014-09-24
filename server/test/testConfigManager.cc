@@ -78,7 +78,7 @@ void test_parseConfigServerDefault(void)
 void test_parseConfigServer(void)
 {
 	CommandArgHelper cmds;
-	cmds << "--config-db-server";
+	cmds << "--db-server";
 	cmds << "umi.example.com";
 	cmds.activate();
 	ConfigManager *confMgr = ConfigManager::getInstance();
@@ -90,7 +90,7 @@ void test_parseConfigServer(void)
 void test_parseConfigServerWithPort(void)
 {
 	CommandArgHelper cmds;
-	cmds << "--config-db-server";
+	cmds << "--db-server";
 	cmds << "umi.example.com:3333";
 	cmds.activate();
 	ConfigManager *confMgr = ConfigManager::getInstance();
