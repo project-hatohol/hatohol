@@ -248,8 +248,8 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
     var elementId = 'server-edit-dialog-param-form-' + index;
     param.elementId = elementId;
     var div = $('<div class="form-group">');
-    if (inputStyle == 'text') {
-      div.append(makeTextInput(elementId, label, defaultValue, hint));
+    if (inputStyle == 'text' || inputStyle == 'password') {
+      div.append(makeLineInput(elementId, label, defaultValue, hint, inputStyle));
     } else if (inputStyle == 'checkBox') {
       div.append(makeCheckboxInput(elementId, label, hint));
     } else {
@@ -259,14 +259,14 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
     return div;
   }
 
-  function makeTextInput(id, label, defaultValue, hint) {
+  function makeLineInput(id, label, defaultValue, hint, type) {
     var elem = $('<div>');
     var labelEl = $('<label for="' + id  + '" class="col-sm-3 control-label">');
     labelEl.appendTo(elem);
     labelEl.text(gettext(label));
 
     var div = $('<div class="col-sm-9">').appendTo(elem);
-    var input = $('<input type="text" class="form-control" id="' + id + '">');
+    var input = $('<input type="' + type + '" class="form-control" id="' + id + '">');
     input.appendTo(div);
     input.attr('placeholder', hint);
     input.val(defaultValue);
