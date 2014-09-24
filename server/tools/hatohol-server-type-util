@@ -119,6 +119,15 @@ class HapiJSONParamGenerator(ParamGenerator):
     def get_parameters(self):
         obj = self.get_zabbix_params()
         obj.extend(self.get_hapi_params())
+        obj.append({'id':'tlsCertificatePath',
+                    'label':'TLS certificate path'});
+        obj.append({'id':'tlsKeyPath',
+                    'label':'TLS Key path'});
+        obj.append({'id':'tlsCACertificatePath',
+                    'label':'TLS CA certificate path'});
+        obj.append({'id':'tlsEnableVerify',
+                    'label':'TLS: Enable verify',
+                    'inputStyle':'checkBox'});
         return obj
 
 
