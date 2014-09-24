@@ -160,9 +160,9 @@ private:
 	{
 		JsonGenerator *generator = json_generator_new();
 		json_generator_set_root(generator, node);
-		gchar *RawJSON = json_generator_to_data(generator, NULL);
-		string JSON(RawJSON);
-		g_free(RawJSON);
+		gchar *rawJSON = json_generator_to_data(generator, NULL);
+		string JSON(rawJSON);
+		g_free(rawJSON);
 		g_object_unref(generator);
 		return JSON;
 	}
