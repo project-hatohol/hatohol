@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-23 23:59-0500\n"
+"POT-Creation-Date: 2014-09-24 00:55-0500\n"
 "PO-Revision-Date: 2014-09-09 09:13+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -31,8 +31,8 @@ msgstr "アクション削除"
 #: viewer/dashboard_ajax.html.py:80 viewer/events_ajax.html:67
 #: viewer/incident_settings_ajax.html:59 viewer/latest_ajax.html:59
 #: viewer/triggers_ajax.html:66
-msgid "Server"
-msgstr "サーバー"
+msgid "Monitoring Server"
+msgstr "監視サーバー"
 
 #: viewer/actions_ajax.html:56 viewer/events_ajax.html:69
 #: viewer/latest_ajax.html:60 viewer/triggers_ajax.html:70
@@ -189,8 +189,8 @@ msgstr "不明"
 #: viewer/events_ajax.html:48 viewer/latest_ajax.html:32
 #: viewer/overview_items_ajax.html:42 viewer/overview_triggers_ajax.html:47
 #: viewer/triggers_ajax.html:47
-msgid "Server:"
-msgstr "サーバー:"
+msgid "Monitoring Server:"
+msgstr "監視サーバー:"
 
 #: viewer/events_ajax.html:52 viewer/latest_ajax.html:37
 #: viewer/overview_items_ajax.html:46 viewer/overview_triggers_ajax.html:51
@@ -335,20 +335,20 @@ msgid "Overview : Triggers"
 msgstr "概要:トリガー"
 
 #: viewer/servers_ajax.html:24 viewer/servers_ajax.html.py:29
-msgid "Servers"
-msgstr "サーバー"
+msgid "Monitoring Servers"
+msgstr "監視サーバー"
 
 #: viewer/servers_ajax.html:35
-msgid "ADD SERVER"
-msgstr "サーバー追加"
+msgid "ADD MONITORING SERVER"
+msgstr "監視サーバー追加"
 
 #: viewer/servers_ajax.html:40
-msgid "ADD SERVER (New version)"
-msgstr ""
+msgid "ADD MONITORING SERVER (New version)"
+msgstr "監視サーバー追加(新バージョン)"
 
 #: viewer/servers_ajax.html:45
-msgid "DELETE SERVER"
-msgstr "サーバー削除"
+msgid "DELETE MONITORING SERVER"
+msgstr "監視サーバー削除"
 
 #: viewer/servers_ajax.html:61
 msgid "Connection status"
@@ -356,11 +356,11 @@ msgstr "通信状態"
 
 #: viewer/servers_ajax.html:75
 msgid ""
-"Please use a browser's reload function when you update servers information "
-"including 'Connection status'."
+"Please use a browser's reload function when you update monitoring servers "
+"information including 'Connection status'."
 msgstr ""
-"'通信状態'を含むサーバー情報を更新するには、ブラウザーのリロード機能をご使用"
-"ください."
+"'通信状態'を含む監視サーバー情報を更新するには、ブラウザーのリロード機能をご"
+"使用ください."
 
 #: viewer/triggers_ajax.html:24 viewer/triggers_ajax.html.py:29
 msgid "Triggers"

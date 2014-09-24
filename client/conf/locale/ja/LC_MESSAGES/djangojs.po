@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-23 23:59-0500\n"
+"POT-Creation-Date: 2014-09-24 00:55-0500\n"
 "PO-Revision-Date: 2014-09-09 09:09+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -821,8 +821,8 @@ msgstr "設定"
 #: static/js/hatohol_user_roles_editor.js:425
 #: static/js/hatohol_user_roles_editor.js:430
 #: test/browser/test_hatohol_navi.js:57 test/browser/test_hatohol_navi.js:86
-msgid "Servers"
-msgstr "サーバー"
+msgid "Monitoring Servers"
+msgstr "監視サーバー"
 
 #: static/js/hatohol_navi.js:55 static/js/hatohol_user_roles_editor.js:435
 #: static/js/hatohol_user_roles_editor.js:440
@@ -937,12 +937,12 @@ msgid "Unknown status: "
 msgstr "不明なステータス： "
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:27
-msgid "EDIT SERVER"
-msgstr "サーバー編集"
+msgid "EDIT MONITORING SERVER"
+msgstr "監視サーバー編集"
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:27
-msgid "ADD SERVER"
-msgstr "サーバー追加"
+msgid "ADD MONITORING SERVER"
+msgstr "監視サーバー追加"
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:52
 msgid "Now updating the server ..."
@@ -953,8 +953,8 @@ msgid "Now adding a server..."
 msgstr "サーバーを追加しています..."
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:162
-msgid "Server type"
-msgstr "サーバー種類"
+msgid "Monitoring server type"
+msgstr "監視サーバータイプ"
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:164
 msgid "Please select"
@@ -1087,28 +1087,28 @@ msgid "Get all users"
 msgstr "全てのユーザーの取得"
 
 #: static/js/hatohol_user_roles_editor.js:404
-msgid "Create a server"
-msgstr "サーバーの作成"
+msgid "Create a monitoring server"
+msgstr "監視サーバーの作成"
 
 #: static/js/hatohol_user_roles_editor.js:409
-msgid "Update allowed servers"
-msgstr "許可されたサーバーの更新"
+msgid "Update allowed monitoring servers"
+msgstr "許可された監視サーバーの更新"
 
 #: static/js/hatohol_user_roles_editor.js:414
-msgid "Update all servers"
-msgstr "全てのサーバーの更新"
+msgid "Update all monitoring servers"
+msgstr "全ての監視サーバーの更新"
 
 #: static/js/hatohol_user_roles_editor.js:419
-msgid "Delete allowed servers"
-msgstr "許可されたサーバーの削除"
+msgid "Delete allowed monitoring servers"
+msgstr "許可された監視サーバーの削除"
 
 #: static/js/hatohol_user_roles_editor.js:424
-msgid "Delete all servers"
-msgstr "全てのサーバーの削除"
+msgid "Delete all monitoring servers"
+msgstr "全ての監視サーバーの削除"
 
 #: static/js/hatohol_user_roles_editor.js:429
-msgid "Get all servers"
-msgstr "全てのサーバーの取得"
+msgid "Get all monitoring servers"
+msgstr "全ての監視サーバーの取得"
 
 #: static/js/hatohol_user_roles_editor.js:434
 msgid "Create a action"
@@ -1247,6 +1247,9 @@ msgstr "失敗備考"
 #: test/browser/test_server_view.js:113
 msgid "-"
 msgstr "-"
+
+#~ msgid "Servers"
+#~ msgstr "サーバー"
 
 #~ msgid "Invalid Server type!"
 #~ msgstr "サーバーの種類が正しくありません！"

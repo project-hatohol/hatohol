@@ -24,7 +24,7 @@ var HatoholServerEditDialogParameterized = function(params) {
   self.server = params.targetServer;
   self.succeededCallback = params.succeededCallback;
   self.windowTitle =
-    self.server ? gettext("EDIT SERVER") : gettext("ADD SERVER");
+    self.server ? gettext("EDIT MONITORING SERVER") : gettext("ADD MONITORING SERVER");
   self.applyButtonTitle = self.server ? gettext("APPLY") : gettext("ADD");
 
   var dialogButtons = [{
@@ -159,7 +159,7 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
   function makeMainDiv() {
     var mainDiv = $('<div id="add-server-div">');
     var form = $('<form class="form-inline">').appendTo(mainDiv);
-    form.append($('<label>').text(gettext('Server type')));
+    form.append($('<label>').text(gettext('Monitoring server type')));
     var select = $('<select id="selectServerType">').appendTo(form);
     select.append($('<option>').html(gettext('Please select')).val('_header'));
     mainDiv.append('<form id="add-server-param-form" class="form-horizontal" role="form">');
