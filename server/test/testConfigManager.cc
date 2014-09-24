@@ -184,7 +184,7 @@ void test_parsePidFilePathDefault(void)
 void test_parsePidFilePath(void)
 {
 	CommandArgHelper cmds;
-	cmds << "--pid-file-path";
+	cmds << "--pid-file";
 	cmds << "/tmp/hoge/foo.x";
 	cmds.activate();
 	cppcut_assert_equal(
