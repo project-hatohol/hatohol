@@ -162,7 +162,7 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
     form.append($('<label>').text(gettext('Monitoring server type')));
     var select = $('<select id="selectServerType">').appendTo(form);
     select.append($('<option>').html(gettext('Please select')).val('_header'));
-    mainDiv.append('<form id="add-server-param-form" class="form-horizontal" role="form">');
+    mainDiv.append('<form id="add-server-param-form" class="form-horizontal" role="form" autocomplete="off">');
     return mainDiv;
   }
 };
