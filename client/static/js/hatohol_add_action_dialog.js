@@ -391,12 +391,12 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
       s += '  <select id="selectHostId">'
       s += '    <option value="ANY">ANY</option>'
       s += '  </select>'
-    }
 
-    s += '  <label>' + gettext("Trigger") + '</label>'
-    s += '  <select id="selectTriggerId">'
-    s += '    <option value="ANY">ANY</option>'
-    s += '  </select>'
+      s += '  <label>' + gettext("Trigger") + '</label>'
+      s += '  <select id="selectTriggerId">'
+      s += '    <option value="ANY">ANY</option>'
+      s += '  </select>'
+    }
     s += '</form>'
 
     s += '<form class="form-inline">'
