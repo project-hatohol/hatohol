@@ -11,7 +11,7 @@ if [ $error_code -ne 0 ]; then
   exit $error_code
 fi
 
-HATOHOL_DB_DIR=/tmp $server_dir/src/.libs/hatohol --pid-file-path /tmp/hatohol.pid --foreground --test-mode &
+HATOHOL_DB_DIR=/tmp $server_dir/src/.libs/hatohol --pid-file /tmp/hatohol.pid --foreground --test-mode &
 server_pid=$!
 
 cd $client_dir

@@ -10,7 +10,7 @@ specify the data base server (and optionally port number) for config data.
 --foreground  
 run hatohol as a foreground process.
 
---pid-file-path  
+--pid-file
 specify the path of the pid file.
 
 --enable-copy-on-demand  
@@ -18,6 +18,6 @@ enable the copy on demand.
 
 Examples
 --------
-start hatohol as a foreground process without installing. The option: --pid-file-path enables non-root users to execute it.
+start hatohol as a foreground process without installing. The option: --pid-file enables non-root users to execute it.
 
-    server $ PATH=hap/.libs:$PATH LD_LIBRARY_PATH=mlpl/src/.libs:src/.libs:common/.libs:hap/.libs src/.libs/hatohol --pid-file-path ~/tmp/hatohol.pid --foreground
+    server $ PATH=hap/.libs:$PATH LD_LIBRARY_PATH=mlpl/src/.libs:src/.libs:common/.libs:hap/.libs src/.libs/hatohol --pid-file ~/tmp/hatohol.pid --foreground

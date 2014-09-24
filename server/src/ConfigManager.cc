@@ -227,7 +227,7 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
                                      CommandLineOptions *cmdLineOpts)
 {
 	GOptionEntry entries[] = {
-		{"pid-file-path",
+		{"pid-file",
 		 'p', 0, G_OPTION_ARG_STRING,
 		 &cmdLineOpts->pidFilePath, "Pid file path", NULL},
 		{"foreground",
