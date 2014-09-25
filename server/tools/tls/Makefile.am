@@ -1,4 +1,4 @@
-certificate_create_FILES = \
+certificate_create_files = \
 	hatohol-client-certificate-create \
 	hatohol-server-certificate-create
 
