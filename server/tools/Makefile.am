@@ -25,11 +25,11 @@ hatohol_pymodules = \
   hatohol/hatohol_def.py \
   hatohol/voyager.py \
   hatohol/ActionCreator.py \
+  hatohol-init-user-generator \
   setup.py
 
 # To make hahol_def.py on the build.
-noinst_SCRIPTS = $(hatohol_pymodules) \
-  hatohol-init-user-generator
+noinst_SCRIPTS = $(hatohol_pymodules)
 
 hatohol/hatohol_def.py: hatohol-def-src-file-generator
 	./hatohol-def-src-file-generator py > $@
