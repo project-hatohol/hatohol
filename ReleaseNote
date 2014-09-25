@@ -2,9 +2,9 @@
 
 	* New Features
 	[Server] Add UI for configuring incident management feature
-        [Server] Enable to synchronize statuses of Redmine issues
-        [Client] Add links to show events concerned with triggers
-        [Client] Add "Settings" sub menu to the navigation menu bar
+	[Server] Enable to synchronize statuses of Redmine issues
+	[Client] Add links to show events concerned with triggers
+	[Client] Add "Settings" sub menu to the navigation menu bar
 
 	* Bug fixes
 
