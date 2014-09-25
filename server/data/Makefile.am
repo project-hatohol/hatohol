@@ -16,3 +16,5 @@ init-user.sql: $(HATOHOL_INIT_USER_GENERATOR)
 pkgsysconf_DATA = \
 	hatohol.conf
 pkgsysconfdir = $(sysconfdir)/$(PACKAGE)
+
+EXTRA_DIST = $(pkgsysconf_DATA)
