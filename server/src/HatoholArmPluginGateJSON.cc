@@ -87,7 +87,7 @@ private:
 
 		HostInfoListIterator it = hostInfoList.begin();
 		for (; it != hostInfoList.end(); ++it) {
-			HostInfo &hostInfo = *it;
+			const HostInfo &hostInfo = *it;
 			m_hosts[hostInfo.hostName] = hostInfo.id;
 			if (hostInfo.id > m_largestHostID) {
 				m_largestHostID = hostInfo.id;
