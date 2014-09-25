@@ -1,14 +1,18 @@
 2014-07-23 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09
 
 	* New Features
-	[Server] Support OpenStack's ceilometer as a monitoring server
-	[Server] All data is stored in MySQL DB. SQLite3 is not used since this version. (#394, #410, #423, #424)
-	[Server] A new setup script: hatohol-db-initiator is replaced by hatohol-config-db-creator.
-	[Server] Support a configuration file (#336)
-	[Client] A design of server edit dialog is renewed.
+	[Server] Support OpenStack's ceilometer as a monitoring server (#145)
+	[Server] Store all data in MySQL DB. SQLite3 is not used since this version. (#394, #410, #423, #424)
+	[Server] A new setup script: hatohol-db-initiator is replaced by hatohol-config-db-creator. (#597)
+	[Server] Use a configuration file (#336)
+	[Server] Show a help message about the command line options (#126)
+	[Client] Renew design of server edit dialog.
+	[Server] Support Zabbix 2.4 (#197).
+	[Server] Delete actions which owner is deleted, from the DB asynchronously (#107, #435)
 
 	* Bug fixes
 	[Server] Check a DB connection at the start up and exit soon with error code if it failed. (#591)
+	[Server] Can remember a user name and the password in the login dialog. (#361)
 
 	* Contributors
 	- Jairo Eduardo Lopez
