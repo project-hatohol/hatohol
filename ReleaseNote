@@ -9,6 +9,7 @@
 	[Client] Add a favicon
 
 	* Bug fixes
+	- Login prompt now uses POST method not to expose username/password. (#575)
 
 	* Contributors
 	- Jairo Eduardo Lopez
