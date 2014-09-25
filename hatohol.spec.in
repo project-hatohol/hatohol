@@ -139,7 +139,7 @@ rm -rf %{buildroot}
 %files client
 %defattr(-,root,root,-)
 %{_libexecdir}/hatohol/client/*
-/etc/httpd/conf.d/hatohol.conf
+%{_sysconfdir}/httpd/conf.d/hatohol.conf
 
 %files devel
 %defattr(-,root,root,-)
