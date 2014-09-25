@@ -5,6 +5,8 @@
 	[Server] Enable to synchronize statuses of Redmine issues
 	[Client] Add links to show events concerned with triggers
 	[Client] Add "Settings" sub menu to the navigation menu bar
+	[Client] Paginate "Triggres" & "Latest data" page
+	[Client] Add a favicon
 
 	* Bug fixes
 
