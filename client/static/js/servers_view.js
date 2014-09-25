@@ -138,6 +138,14 @@ var ServersView = function(userProfile) {
       return gettext("Zabbix");
     case hatohol.MONITORING_SYSTEM_NAGIOS:
       return gettext("Nagios");
+    case hatohol.MONITORING_SYSTEM_HAPI_ZABBIX:
+      return gettext("HAP_Zabbix");
+    case hatohol.MONITORING_SYSTEM_HAPI_NAGIOS:
+      return gettext("HAP_Nagios");
+    case hatohol.MONITORING_SYSTEM_HAPI_JSON:
+      return gettext("HAP_JSON");
+    case hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER:
+      return gettext("HAP_Ceilometer");
     default:
       break;
     }
