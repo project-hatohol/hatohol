@@ -20,7 +20,7 @@
 	* Bug fixes
 	[Server] Check a DB connection at the start up and exit soon with error code if it failed. (#591)
 	[Server] Can remember a user name and the password in the login dialog. (#361)
-	- Login prompt now uses POST method not to expose username/password. (#575)
+	[Client] Login prompt now uses POST method not to expose username/password. (#575)
 
 	* Contributors
 	- Jairo Eduardo Lopez
