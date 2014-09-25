@@ -1,4 +1,4 @@
-2014-07-23 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09
+2014-09-25 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09
 
 	* New Features
 	[Server] Support OpenStack's ceilometer as a monitoring server (#145)
