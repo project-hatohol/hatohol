@@ -15,6 +15,7 @@
 	[Client] Add "Settings" sub menu to the navigation menu bar
 	[Client] Paginate "Triggres" & "Latest data" page
 	[Client] Add a favicon
+	[Server] Execute Action at monitoring server failure (#251)
 
 	* Bug fixes
 	[Server] Check a DB connection at the start up and exit soon with error code if it failed. (#591)
