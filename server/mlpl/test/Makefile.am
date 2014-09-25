@@ -13,10 +13,13 @@ noinst_HEADERS = loggerTester.h
 endif
 
 # default
-AM_CXXFLAGS = $(OPT_CXXFLAGS) $(GLIB_CFLAGS) \
-              $(CUTTER_CFLAGS) $(CPPCUTTER_CFLAGS) -I ../src
+AM_CXXFLAGS = \
+	$(OPT_CXXFLAGS) $(GLIB_CFLAGS) \
+	$(CUTTER_CFLAGS) $(CPPCUTTER_CFLAGS) \
+	-I $(top_srcdir)/server/mlpl/src
 AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
-LIBS = $(CUTTER_LIBS) $(CPPCUTTER_LIBS) -lstdc++ ../src/libmlpl.la
+LIBS =	$(CUTTER_LIBS) $(CPPCUTTER_LIBS) -lstdc++ \
+	$(top_builddir)/server/mlpl/src/libmlpl.la
 
 loggerTestee_SOURCES = loggerTestee.cc
 
