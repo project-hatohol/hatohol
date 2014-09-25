@@ -105,12 +105,19 @@ void test_baseQueryString(void)
 	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
 	ArmRedmineTestee arm(tracker);
 	string expected =
-		"f%5B%5D=status%5Fid&"
-		"op%5Bstatus%5Fid%5D=%2A&"
+		"f%5B%5D=status_id&"
+		"op%5Bstatus_id%5D=%2A&"
 		"limit=100&"
-		"project%5Fid=1&"
-		"tracker%5Fid=3&"
-		"sort=updated%5Fon%3Adesc";
+		"project_id=1&"
+		"tracker_id=3&"
+		"sort=updated_on%3Adesc";
+	// "_" is allowed to use in URI but old libsoup escapes it.
+	// See https://bugzilla.gnome.org/show_bug.cgi?id=708621
+	// and http://tools.ietf.org/html/rfc3986#section-2.3.
+#ifdef SOUP_VERSION_2_44
+	if (!soup_check_version(2, 44, 1))
+#endif // SOUP_VERSION_2_44
+		expected = StringUtils::replace(expected, "_", "%5F");
 	assertQuery(expected, arm.callGetQuery());
 }
 
