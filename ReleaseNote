@@ -7,6 +7,7 @@
 	[Client] Add "Settings" sub menu to the navigation menu bar
 	[Client] Paginate "Triggres" & "Latest data" page
 	[Client] Add a favicon
+	[Server] Execute Action at monitoring server failure (#251)
 
 	* Bug fixes
 	- Login prompt now uses POST method not to expose username/password. (#575)
