@@ -21,7 +21,7 @@ AM_LDFLAGS = ../src/libhatohol.la ../common/libhatohol-common.la $(MLPL_LIBS) $(
 hatohol_def_src_file_generator_SOURCES = hatohol-def-src-file-generator.cc
 
 # To make hahol_def.py on the build.
-noinst_SCRIPTS = $(hatohol_pymodules) \
+noinst_SCRIPTS = \
   hatohol/__init__.py \
   hatohol/hatohol_def.py \
   hatohol/voyager.py \
@@ -34,3 +34,6 @@ hatohol/hatohol_def.py: hatohol-def-src-file-generator
 
 install-data-hook:
 	python setup.py install --root=$(DESTDIR)
+
+EXTRA_DIST = $(noinst_SCRIPTS)
+
