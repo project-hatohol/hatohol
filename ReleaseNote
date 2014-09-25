@@ -9,10 +9,17 @@
 	[Client] Renew design of server edit dialog.
 	[Server] Support Zabbix 2.4 (#197).
 	[Server] Delete actions which owner is deleted, from the DB asynchronously (#107, #435)
+	[Server] Add UI for configuring incident management feature
+	[Server] Enable to synchronize statuses of Redmine issues
+	[Client] Add links to show events concerned with triggers
+	[Client] Add "Settings" sub menu to the navigation menu bar
+	[Client] Paginate "Triggres" & "Latest data" page
+	[Client] Add a favicon
 
 	* Bug fixes
 	[Server] Check a DB connection at the start up and exit soon with error code if it failed. (#591)
 	[Server] Can remember a user name and the password in the login dialog. (#361)
+	- Login prompt now uses POST method not to expose username/password. (#575)
 
 	* Contributors
 	- Jairo Eduardo Lopez
