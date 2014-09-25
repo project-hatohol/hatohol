@@ -37,8 +37,11 @@ class AMQPJSONMessageHandler : public AMQPMessageHandler
 {
 public:
 	AMQPJSONMessageHandler(const MonitoringServerInfo &serverInfo)
-	: m_serverInfo(serverInfo)
+	: m_serverInfo(serverInfo),
+	  m_hosts(),
+	  m_largestHostID(0)
 	{
+		initializeHosts();
 	}
 
 	bool handle(const amqp_envelope_t *envelope)
@@ -70,6 +73,27 @@ public:
 
 private:
 	MonitoringServerInfo m_serverInfo;
+	map<string, HostIdType> m_hosts;
+	HostIdType m_largestHostID;
+
+	void initializeHosts()
+	{
+		ThreadLocalDBCache cache;
+		DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+		HostInfoList hostInfoList;
+		HostsQueryOption option;
+		option.setTargetServerId(m_serverInfo.id);
+		dbMonitoring.getHostInfoList(hostInfoList, option);
+
+		HostInfoListIterator it = hostInfoList.begin();
+		for (; it != hostInfoList.end(); ++it) {
+			HostInfo &hostInfo = *it;
+			m_hosts[hostInfo.hostName] = hostInfo.id;
+			if (hostInfo.id > m_largestHostID) {
+				m_largestHostID = hostInfo.id;
+			}
+		}
+	}
 
 	void process(JsonNode *root)
 	{
@@ -98,9 +122,32 @@ private:
 		eventInfo.type = EVENT_TYPE_BAD;
 		eventInfo.severity = message.getSeverity();
 		eventInfo.hostName = message.getHostName();
+		eventInfo.hostId = findOrCreateHostID(eventInfo.hostName);
 		eventInfo.brief = message.getContent();
 		eventInfoList.push_back(eventInfo);
 		UnifiedDataStore::getInstance()->addEventList(eventInfoList);
+	}
+
+	HostIdType findOrCreateHostID(const string &hostName)
+	{
+		map<string, HostIdType>::iterator it;
+		it = m_hosts.find(hostName);
+		if (it != m_hosts.end()) {
+			return it->second;
+		}
+
+		ThreadLocalDBCache cache;
+		DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+		HostInfo hostInfo;
+		hostInfo.serverId = m_serverInfo.id;
+		// TODO: This implementation doesn't work on multi-master
+		// architecture because new host ID is emitted on each
+		// Hatohol server.
+		hostInfo.id = ++m_largestHostID;
+		hostInfo.hostName = hostName;
+		dbMonitoring.addHostInfo(&hostInfo);
+		m_hosts[hostName] = m_largestHostID;
+		return m_largestHostID;
 	}
 };
 
