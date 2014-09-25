@@ -125,6 +125,9 @@ rm -rf %{buildroot}
 %{_libexecdir}/hatohol/action/*
 %{_datadir}/hatohol/hatohol.centos
 %{_datadir}/hatohol/hatohol.debian
+%{_sysconfdir}/hatohol/hatohol.conf
+%{_datadir}/hatohol/sql/init-user.sql
+%{_datadir}/hatohol/sql/server-type.sql
 
 %files arm-plugin-zabbix
 %{_sbindir}/hatohol-arm-plugin-zabbix
