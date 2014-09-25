@@ -17,8 +17,8 @@ Requires: mysql-server >= 5.1
 Requires: libuuid >= 2.17
 Requires: qpid-cpp-client >= 0.14
 Requires: librabbitmq >= 0.4.1
-Requires: hatohol-lib-common >= 14.06
-Requires: hatohol-arm-plugin-zabbix >= 14.06
+Requires: hatohol-lib-common >= %{version}
+Requires: hatohol-arm-plugin-zabbix >= %{version}
 BuildRequires: gcc-c++, pkgconfig
 BuildRequires: glib2-devel >= 2.22
 BuildRequires: libsoup-devel >= 2.22
@@ -39,7 +39,7 @@ software.
 Summary: Arm plguin for Zabbix server.
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
-Requires: hatohol-lib-arm-plugin >= 14.06
+Requires: hatohol-lib-arm-plugin >= %{version}
 
 %description arm-plugin-zabbix
 arm-plugin-zabbix collects monitoring data from a Zabbix server and sends
@@ -57,7 +57,7 @@ Common libraries for hatohol and arm plugins.
 Summary: Library files for Hatohol Arm Plugin
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
-Requires: hatohol-lib-common >= 14.06
+Requires: hatohol-lib-common >= %{version}
 
 %description lib-arm-plugin
 Libraries for arm plugins.
