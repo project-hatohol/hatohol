@@ -1,6 +1,12 @@
 2014-07-23 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09
 
 	* New Features
+	[Server] Add UI for configuring incident management feature
+	[Server] Enable to synchronize statuses of Redmine issues
+	[Client] Add links to show events concerned with triggers
+	[Client] Add "Settings" sub menu to the navigation menu bar
+	[Client] Paginate "Triggres" & "Latest data" page
+	[Client] Add a favicon
 
 	* Bug fixes
 	- Login prompt now uses POST method not to expose username/password. (#575)
