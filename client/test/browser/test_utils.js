@@ -315,25 +315,25 @@ describe('makeMonitoringSystemTypeLabel', function() {
 
   it('with valid HAPI zabbix server', function() {
     var type = hatohol.MONITORING_SYSTEM_HAPI_ZABBIX;
-    var expected = "HAP_ZABBIX";
+    var expected = "ZABBIX(HAPI)";
     expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
   });
 
   it('with valid HAPI nagios server', function() {
     var type = hatohol.MONITORING_SYSTEM_HAPI_NAGIOS;
-    var expected = "HAP_NAGIOS";
+    var expected = "NAGIOS(HAPI)";
     expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
   });
 
   it('with valid HAPI JSON', function() {
     var type = hatohol.MONITORING_SYSTEM_HAPI_JSON;
-    var expected = "HAP_JSON";
+    var expected = "GENERAL PLUGIN";
     expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
   });
 
   it('with valid HAPI CEILOMETER', function() {
     var type = hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER;
-    var expected = "HAP_CEILOMETER";
+    var expected = "CEILOMETER";
     expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
   });
 

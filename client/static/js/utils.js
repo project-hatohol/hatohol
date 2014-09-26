@@ -90,13 +90,13 @@ function makeMonitoringSystemTypeLabel(type) {
   case hatohol.MONITORING_SYSTEM_NAGIOS:
     return "NAGIOS";
   case hatohol.MONITORING_SYSTEM_HAPI_ZABBIX:
-    return "HAP_ZABBIX";
+    return "ZABBIX(HAPI)";
   case hatohol.MONITORING_SYSTEM_HAPI_NAGIOS:
-    return "HAP_NAGIOS";
+    return "NAGIOS(HAPI)";
   case hatohol.MONITORING_SYSTEM_HAPI_JSON:
-    return "HAP_JSON";
+    return "GENERAL PLUGIN";
   case hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER:
-    return "HAP_CEILOMETER";
+    return "CEILOMETER";
   default:
     return "INVALID: " + type;
   }
