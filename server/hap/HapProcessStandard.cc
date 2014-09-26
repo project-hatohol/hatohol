@@ -36,6 +36,11 @@ struct HapProcessStandard::Impl {
 	: timerTag(INVALID_EVENT_ID)
 	{
 	}
+
+	virtual ~Impl()
+	{
+		Utils::removeEventSourceIfNeeded(timerTag);
+	}
 };
 
 // ---------------------------------------------------------------------------
