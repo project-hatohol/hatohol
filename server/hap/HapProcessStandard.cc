@@ -116,17 +116,17 @@ void HapProcessStandard::startAcquisition(void)
 	string exceptionName;
 	string exceptionMsg;
 	HatoholError err(HTERR_UNINITIALIZED);
-	HatoholArmPluginWatchType watchResult = COLLECT_NG_PLGIN_INTERNAL_ERROR;
+	HatoholArmPluginWatchType watchType = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 	try {
 		err = acquireData();
 		if (err == HTERR_OK)
 			getArmStatus().logSuccess();
-		watchResult = getHapWatchType(err);
+		watchType = getHapWatchType(err);
 	} catch (const HatoholException &e) {
 		exceptionName = DEMANGLED_TYPE_NAME(e);
 		exceptionMsg  = e.getFancyMessage();
 		caughtException = true;
-		watchResult = getHapWatchType(e.getErrCode());
+		watchType = getHapWatchType(e.getErrCode());
 	} catch (const exception &e) {
 		exceptionName = DEMANGLED_TYPE_NAME(e);
 		exceptionMsg  = e.what();
@@ -161,7 +161,7 @@ void HapProcessStandard::startAcquisition(void)
 
 	// update ArmInfo
 	try {
-		sendArmInfo(getArmStatus().getArmInfo(), watchResult);
+		sendArmInfo(getArmStatus().getArmInfo(), watchType);
 	} catch (...) {
 		MLPL_ERR("Failed to send ArmInfo.\n");
 	}
