@@ -1,4 +1,4 @@
-SUBDIRS = tls
+SUBDIRS = hatohol tls
 
 bin_PROGRAMS = hatohol-def-src-file-generator
 dist_bin_SCRIPTS = hatohol-voyager \
@@ -26,14 +26,17 @@ AM_LDFLAGS = \
 
 hatohol_def_src_file_generator_SOURCES = hatohol-def-src-file-generator.cc
 
-# To make hahol_def.py on the build.
-noinst_SCRIPTS = \
-  hatohol/__init__.py \
-  hatohol/hatohol_def.py \
-  hatohol/voyager.py \
-  hatohol/ActionCreator.py \
+hatohol_python_files = \
   setup.py \
   hatohol-init-user-generator
+
+hatohol_built_python_files = \
+  hatohol/hatohol_def.py
+
+# To make hahol_def.py on the build.
+noinst_SCRIPTS = \
+	$(hatohol_python_files) \
+	$(hatohol_built_python_files)
 
 hatohol/hatohol_def.py: hatohol-def-src-file-generator
 	./hatohol-def-src-file-generator py > $@
@@ -41,5 +44,4 @@ hatohol/hatohol_def.py: hatohol-def-src-file-generator
 install-data-hook:
 	python setup.py install --root=$(DESTDIR)
 
-EXTRA_DIST = $(noinst_SCRIPTS)
-
+EXTRA_DIST = $(hatohol_python_files)
