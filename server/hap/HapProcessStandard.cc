@@ -159,7 +159,12 @@ void HapProcessStandard::startAcquisition(void)
 	}
 	m_impl->timerTag = g_timeout_add(intervalMSec, acquisitionTimerCb, this);
 
-	// update ArmInfo
+	onCompletedAcquistion(err, watchType);
+}
+
+void HapProcessStandard::onCompletedAcquistion(
+  const HatoholError &err, const HatoholArmPluginWatchType &watchType)
+{
 	try {
 		sendArmInfo(getArmStatus().getArmInfo(), watchType);
 	} catch (...) {
