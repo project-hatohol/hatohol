@@ -29,18 +29,22 @@ public:
 	HatoholError              m_errorOnComplated;
 	HatoholArmPluginWatchType m_watchTypeOnComplated;
 
+	// These are input paramters from the test cases
+	HatoholError              m_returnValueOfAcquireData;
+
 	TestHapProcessStandard(void)
 	: HapProcessStandard(0, NULL),
 	  m_calledAquireData(false),
 	  m_errorOnComplated(NUM_HATOHOL_ERROR_CODE),
-	  m_watchTypeOnComplated(NUM_COLLECT_NG_KIND)
+	  m_watchTypeOnComplated(NUM_COLLECT_NG_KIND),
+	  m_returnValueOfAcquireData(HTERR_OK)
 	{
 	}
 
 	virtual HatoholError acquireData(void) override
 	{
 		m_calledAquireData = true;
-		return HTERR_OK;
+		return m_returnValueOfAcquireData;
 	}
 
 	virtual void onCompletedAcquistion(
@@ -69,6 +73,19 @@ void test_startAcquisition(void)
 	cppcut_assert_equal(true,       hapProc.m_calledAquireData);
 	assertHatoholError(HTERR_OK,    hapProc.m_errorOnComplated);
 	cppcut_assert_equal(COLLECT_OK, hapProc.m_watchTypeOnComplated);
+}
+
+void test_startAcquisitionWithError(void)
+{
+	TestHapProcessStandard hapProc;
+	hapProc.m_returnValueOfAcquireData = HTERR_UNKNOWN_REASON;
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	hapProc.callOnReady(serverInfo);
+	cppcut_assert_equal(true,       hapProc.m_calledAquireData);
+	assertHatoholError(HTERR_UNKNOWN_REASON, hapProc.m_errorOnComplated);
+	cppcut_assert_equal(COLLECT_NG_HATOHOL_INTERNAL_ERROR,
+	                    hapProc.m_watchTypeOnComplated);
 }
 
 } // namespace testHapProcessStandard
