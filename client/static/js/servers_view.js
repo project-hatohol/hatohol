@@ -139,13 +139,13 @@ var ServersView = function(userProfile) {
     case hatohol.MONITORING_SYSTEM_NAGIOS:
       return gettext("Nagios");
     case hatohol.MONITORING_SYSTEM_HAPI_ZABBIX:
-      return gettext("HAP_Zabbix");
+      return gettext("Zabbix (HAPI)");
     case hatohol.MONITORING_SYSTEM_HAPI_NAGIOS:
-      return gettext("HAP_Nagios");
+      return gettext("Nagios (HAPI)");
     case hatohol.MONITORING_SYSTEM_HAPI_JSON:
-      return gettext("HAP_JSON");
+      return gettext("General Plugin");
     case hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER:
-      return gettext("HAP_Ceilometer");
+      return gettext("Ceilometer");
     default:
       break;
     }
