@@ -119,6 +119,8 @@ void HapProcessStandard::startAcquisition(void)
 	HatoholArmPluginWatchType watchResult = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 	try {
 		err = acquireData();
+		if (err == HTERR_OK)
+			getArmStatus().logSuccess();
 		watchResult = getHapWatchType(err);
 	} catch (const HatoholException &e) {
 		exceptionName = DEMANGLED_TYPE_NAME(e);

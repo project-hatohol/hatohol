@@ -57,7 +57,6 @@ HatoholError HapProcessZabbixAPI::acquireData(void)
 	workOnHostgroups();
 	workOnTriggers();
 	workOnEvents();
-	getArmStatus().logSuccess();
 
 	return HTERR_OK;
 }
