@@ -152,7 +152,7 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
-* Wed Sep 30 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-1
+* Thu Sep 25 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-0.1
 - Update to 14.09-pre1
   - New features
     - [Server] Support OpenStack's ceilometer as a monitoring server (#145)
@@ -177,8 +177,8 @@ rm -rf %{buildroot}
     - [Server] Check a DB connection at the start up and exit soon with error code if it failed (#591)
     - [Client] Allow browser to remember user name and password in the login dialog
     - [Server] Solve a problem that Hatohol server fails to get event data in specific case (#252)
-- Modification of spec file and RPM file.
-  - Remove unnecessary package
+  - Modification of spec file and RPM file.
+    - Remove unnecessary require package
 
 * Fri Jun 27 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.06-2
 - [Server] Support Zabbix 2.2 (#186)
