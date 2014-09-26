@@ -46,6 +46,8 @@ We welcome participation in all stages of our development (bug fixes, bug report
 ## Supported monitoring software
 - ZABBIX 2.0
 - Nagios3 (with NDOUtils)
+- Ceilometer (OpenStack)
+- Fluentd
 
 ## Supported platforms
 - CentOS 6.5 (x86\_64)
@@ -53,7 +55,12 @@ We welcome participation in all stages of our development (bug fixes, bug report
 - Ubuntu 14.04 LTS (64-bit)
 
 ## Basic architecture
-Hatohol consists of a server and a client using Web UI. Hatohol server gathers monitoring information and consolidates it. The integration of data is done via JSON format using HTTP (REST). A Hatohol client internally communicates with
+Hatohol consists of a server and a Web front-end.
+Hatohol server gathers monitoring information from monitoring servers such
+as Zabbix, Nagios, Ceilometer, and Fluentd. It then integrates gathered data
+and stores in the DB.
+The other programs can get the integrated data via Hatohol's REST API.
+A Hatohol Web front-end internally communicates with
 the server and creates a response page to see the consolidated data.
 
 ![BasicArchitecture](doc/misc/hatohol-basic-architecture.png)
