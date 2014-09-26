@@ -85,10 +85,18 @@ function makeSeverityLabel(severity) {
 
 function makeMonitoringSystemTypeLabel(type) {
   switch (type) {
-  case MONITORING_SYSTEM_ZABBIX:
+  case hatohol.MONITORING_SYSTEM_ZABBIX:
     return "ZABBIX";
-  case MONITORING_SYSTEM_NAGIOS:
+  case hatohol.MONITORING_SYSTEM_NAGIOS:
     return "NAGIOS";
+  case hatohol.MONITORING_SYSTEM_HAPI_ZABBIX:
+    return "ZABBIX(HAPI)";
+  case hatohol.MONITORING_SYSTEM_HAPI_NAGIOS:
+    return "NAGIOS(HAPI)";
+  case hatohol.MONITORING_SYSTEM_HAPI_JSON:
+    return "GENERAL PLUGIN";
+  case hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER:
+    return "CEILOMETER";
   default:
     return "INVALID: " + type;
   }
@@ -121,6 +129,12 @@ function getServerLocation(server) {
   case hatohol.MONITORING_SYSTEM_NAGIOS:
     url += "/nagios/";
     break;
+  case hatohol.MONITORING_SYSTEM_HAPI_ZABBIX:
+    url += "/zabbix/";
+    break;
+  case hatohol.MONITORING_SYSTEM_HAPI_NAGIOS:
+    url += "/nagios/";
+    break;
   default:
     url = undefined;
     break;
@@ -137,6 +151,9 @@ function getItemGraphLocation(server, itemId) {
   case hatohol.MONITORING_SYSTEM_ZABBIX:
     location += "history.php?action=showgraph&amp;itemid=" + itemId;
     break;
+  case hatohol.MONITORING_SYSTEM_HAPI_ZABBIX:
+    location += "history.php?action=showgraph&amp;itemid=" + itemId;
+    break;
   default:
     return undefined;
   }
@@ -150,6 +167,9 @@ function getMapsLocation(server) {
 
   switch (server["type"]) {
   case hatohol.MONITORING_SYSTEM_ZABBIX:
+    location += "maps.php";
+    break;
+  case hatohol.MONITORING_SYSTEM_HAPI_ZABBIX:
     location += "maps.php";
     break;
   default:
