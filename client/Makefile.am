@@ -15,6 +15,7 @@ nobase_dist_hatohol_client_DATA = \
 	hatohol/__init__.py \
 	hatohol/settings.py \
 	hatohol/django_realize.py \
+	hatohol/hatohol_def.py \
 	hatohol/hatoholserver.py \
 	hatohol/models.py \
 	hatohol/smartfield.py \
@@ -59,6 +60,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/actions_view.js \
 	static/js/incident_settings_view.js \
 	static/js/users_view.js \
+	static/js/hatohol_def.js \
 	static/js/hatohol_connector.js \
 	static/js/hatohol_session_manager.js \
 	static/js/hatohol_login_dialog.js \
