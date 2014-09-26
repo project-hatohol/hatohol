@@ -19,22 +19,18 @@
 
 #include <exception>
 #include <HapZabbixAPI.h>
-#include "HapProcess.h"
+#include "HapProcessStandard.h"
 
-class HapProcessZabbixAPI : public HapProcess, public HapZabbixAPI {
+class HapProcessZabbixAPI : public HapProcessStandard, public HapZabbixAPI {
 public:
 	HapProcessZabbixAPI(int argc, char *argv[]);
 	virtual ~HapProcessZabbixAPI();
-	int mainLoopRun(void);
 	virtual int onCaughtException(const std::exception &e) override;
 
 protected:
-	// called from HapZabbixAPI
-	void onReady(const MonitoringServerInfo &serverInfo) override;
-
-	static gboolean acquisitionTimerCb(void *data);
-	void startAcquisition(void);
-	void acquireData(void);
+	virtual HatoholError acquireData(void) override;
+	virtual HatoholArmPluginWatchType getHapWatchType(
+	  const HatoholError &err) override;
 
 private:
 	struct PrivateContext;
