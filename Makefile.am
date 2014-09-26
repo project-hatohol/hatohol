@@ -22,3 +22,17 @@ remove-remote-merged-branches:
 	  grep -v ' -> ' | \
 	  grep -v '^master$$' | \
 	  xargs -I BRANCH git push origin :BRANCH
+
+# Add a subset of "distcheck" since it's too strict for us.
+hatoholdistcheck: dist
+	bzip2 -dc $(distdir).tar.bz2 | $(am__untar)
+	mkdir $(distdir)/_inst
+	dc_install_base=`$(am__cd) $(distdir)/_inst && pwd | sed -e 's,^[^:\\/]:[\\/],/,'` \
+	  && $(am__cd) $(distdir) \
+	  && ./configure --prefix="$$dc_install_base" \
+	    $(AM_DISTCHECK_CONFIGURE_FLAGS) \
+	    $(DISTCHECK_CONFIGURE_FLAGS) \
+	  && $(MAKE) $(AM_MAKEFLAGS) \
+	  && $(MAKE) $(AM_MAKEFLAGS) install \
+	  && $(MAKE) $(AM_MAKEFLAGS) installcheck \
+	  || exit 1
