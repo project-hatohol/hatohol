@@ -66,39 +66,53 @@ public:
 	}
 };
 
+struct StartAcquisitionTester {
+	TestHapProcessStandard m_hapProc;
+	MonitoringServerInfo   m_serverInfo;
+
+	StartAcquisitionTester(void)
+	{
+		initServerInfo(m_serverInfo);
+	}
+
+	void run(void)
+	{
+		m_hapProc.callOnReady(m_serverInfo);
+	}
+
+	void assert(const HatoholErrorCode &expectHatoholErrorCode,
+	            const HatoholArmPluginWatchType &expectWatchType,
+	            const ArmWorkingStatus &expectArmWorkingStat)
+	{
+		cppcut_assert_equal(true, m_hapProc.m_calledAquireData);
+		assertHatoholError(expectHatoholErrorCode,
+		                    m_hapProc.m_errorOnComplated);
+		cppcut_assert_equal(expectWatchType,
+		                     m_hapProc.m_watchTypeOnComplated);
+
+		const ArmStatus &armStatus =  m_hapProc.callGetArmStatus();
+		ArmInfo armInfo = armStatus.getArmInfo();
+		cppcut_assert_equal(expectArmWorkingStat, armInfo.stat);
+	}
+};
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
 void test_startAcquisition(void)
 {
-	TestHapProcessStandard hapProc;
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
-	hapProc.callOnReady(serverInfo);
-	cppcut_assert_equal(true,       hapProc.m_calledAquireData);
-	assertHatoholError(HTERR_OK,    hapProc.m_errorOnComplated);
-	cppcut_assert_equal(COLLECT_OK, hapProc.m_watchTypeOnComplated);
-
-	const ArmStatus &armStatus = hapProc.callGetArmStatus();
-	ArmInfo armInfo = armStatus.getArmInfo();
-	cppcut_assert_equal(ARM_WORK_STAT_OK, armInfo.stat);
+	StartAcquisitionTester tester;
+	tester.run();
+	tester.assert(HTERR_OK, COLLECT_OK, ARM_WORK_STAT_OK);
 }
 
 void test_startAcquisitionWithError(void)
 {
-	TestHapProcessStandard hapProc;
-	hapProc.m_returnValueOfAcquireData = HTERR_UNKNOWN_REASON;
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
-	hapProc.callOnReady(serverInfo);
-	cppcut_assert_equal(true,       hapProc.m_calledAquireData);
-	assertHatoholError(HTERR_UNKNOWN_REASON, hapProc.m_errorOnComplated);
-	cppcut_assert_equal(COLLECT_NG_HATOHOL_INTERNAL_ERROR,
-	                    hapProc.m_watchTypeOnComplated);
-
-	const ArmStatus &armStatus = hapProc.callGetArmStatus();
-	ArmInfo armInfo = armStatus.getArmInfo();
-	cppcut_assert_equal(ARM_WORK_STAT_FAILURE, armInfo.stat);
+	StartAcquisitionTester tester;
+	tester.m_hapProc.m_returnValueOfAcquireData = HTERR_UNKNOWN_REASON;
+	tester.run();
+	tester.assert(HTERR_UNKNOWN_REASON, COLLECT_NG_HATOHOL_INTERNAL_ERROR,
+	              ARM_WORK_STAT_FAILURE);
 }
 
 } // namespace testHapProcessStandard
