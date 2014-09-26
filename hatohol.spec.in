@@ -154,6 +154,8 @@ rm -rf %{buildroot}
 %changelog
 * Fri Sep 26 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-0.3
 - Update to 14.09-pre3
+  - Bug fix
+    - Fix wrong library name in hatohol-db-initiator
   - Modification of spec file and RPM file.
     - Fix problems when RPM build.
 * Thu Sep 25 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-0.1
