@@ -73,6 +73,10 @@ struct StartAcquisitionTester {
 	StartAcquisitionTester(void)
 	{
 		initServerInfo(m_serverInfo);
+
+		const ArmStatus &armStatus =  m_hapProc.callGetArmStatus();
+		ArmInfo armInfo = armStatus.getArmInfo();
+		cppcut_assert_equal(ARM_WORK_STAT_INIT, armInfo.stat);
 	}
 
 	void run(void)
@@ -93,6 +97,10 @@ struct StartAcquisitionTester {
 		const ArmStatus &armStatus =  m_hapProc.callGetArmStatus();
 		ArmInfo armInfo = armStatus.getArmInfo();
 		cppcut_assert_equal(expectArmWorkingStat, armInfo.stat);
+		if (expectArmWorkingStat == ARM_WORK_STAT_FAILURE) {
+			cppcut_assert_equal(false,
+			                    armInfo.failureComment.empty());
+		}
 	}
 };
 
