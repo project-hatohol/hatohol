@@ -57,7 +57,7 @@ typedef enum {
 	COLLECT_NG_AMQP_CONNECT_ERROR,
 	NUM_COLLECT_NG_KIND,
 	COLLECT_OK,
-}HatoholArmPluginWatchType;
+} HatoholArmPluginWatchType;
 
 enum HapiMessageType {
 	HAPI_MSG_INITIATION,          // Sv -> Cl
