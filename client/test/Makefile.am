@@ -7,6 +7,31 @@ TARGET_FILES = \
 noinst_DATA = $(TARGET_FILES)
 endif
 
+EXTRA_DIST = \
+	__init__.py \
+	browser/index.html \
+	browser/test_events_view.js \
+	browser/test_hatohol_connector.js \
+	browser/test_hatohol_message_box.js \
+	browser/test_hatohol_monitoring_view.js \
+	browser/test_hatohol_navi.js \
+	browser/test_hatohol_pager.js \
+	browser/test_hatohol_reply_parser.js \
+	browser/test_hatohol_session_manager.js \
+	browser/test_hatohol_user_edit_dialog.js \
+	browser/test_hatohol_user_profile.js \
+	browser/test_hatohol_user_roles_editor.js \
+	browser/test_hatohol_userconfig.js \
+	browser/test_server_view.js \
+	browser/test_utils.js \
+	python/TestHatoholserver.py \
+	python/TestUserConfig.py \
+	python/TestUserConfigView.py \
+	python/__init__.py \
+	python/run-test.sh \
+	python/testsettings.py \
+	python/utils.py
+
 node_modules:
 	ln -sf `npm root -g`
 
