@@ -16,17 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif // HAVE_CONFIG_H
 
-#include <SimpleSemaphore.h>
-#include <Mutex.h>
 #include "HapProcessZabbixAPI.h"
-#include "Utils.h"
 
 using namespace std;
-using namespace mlpl;
 
 static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms
 
