@@ -99,7 +99,6 @@ install -D -m 644 %{buildroot}/%{_libexecdir}/hatohol/client/conf/apache/hatohol
 
 rm -f %{buildroot}/%{_libdir}/*.la
 rm -f %{buildroot}/%{_libdir}/*.a
-rm -f %{buildroot}/%{_datadir}/hatohol/sql/create-db.sql
 
 %post
 /sbin/ldconfig
@@ -127,6 +126,7 @@ rm -rf %{buildroot}
 %{_datadir}/hatohol/hatohol.centos
 %{_datadir}/hatohol/hatohol.debian
 %{_sysconfdir}/hatohol/hatohol.conf
+%{_datadir}/hatohol/sql/create-db.sql
 %{_datadir}/hatohol/sql/init-user.sql
 %{_datadir}/hatohol/sql/server-type.sql
 
