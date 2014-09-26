@@ -28,6 +28,7 @@ hatoholdistcheck: dist
 	bzip2 -dc $(distdir).tar.bz2 | $(am__untar)
 	mkdir $(distdir)/_inst
 	dc_install_base=`$(am__cd) $(distdir)/_inst && pwd | sed -e 's,^[^:\\/]:[\\/],/,'` \
+	  && am__cwd=`pwd` \
 	  && $(am__cd) $(distdir) \
 	  && ./configure --prefix="$$dc_install_base" \
 	    $(AM_DISTCHECK_CONFIGURE_FLAGS) \
@@ -35,4 +36,6 @@ hatoholdistcheck: dist
 	  && $(MAKE) $(AM_MAKEFLAGS) \
 	  && $(MAKE) $(AM_MAKEFLAGS) install \
 	  && $(MAKE) $(AM_MAKEFLAGS) installcheck \
+	  && cd "$$am__cwd" \
 	  || exit 1
+	$(am__post_remove_distdir)
