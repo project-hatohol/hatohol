@@ -35,6 +35,8 @@ protected:
 	const MonitoringServerInfo &getMonitoringServerInfo(void) const;
 
 	virtual HatoholError acquireData(void);
+	virtual HatoholArmPluginWatchType getHapWatchType(
+	  const HatoholError &err);
 
 	virtual void onReady(const MonitoringServerInfo &serverInfo) override;
 

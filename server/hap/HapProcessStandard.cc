@@ -114,14 +114,15 @@ void HapProcessStandard::startAcquisition(void)
 	string exceptionName;
 	string exceptionMsg;
 	HatoholError err(HTERR_UNINITIALIZED);
+	HatoholArmPluginWatchType watchResult = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 	try {
 		err = acquireData();
-		if (err == HTERR_OK)
-			getArmStatus().logSuccess();
+		watchResult = getHapWatchType(err);
 	} catch (const HatoholException &e) {
 		exceptionName = DEMANGLED_TYPE_NAME(e);
 		exceptionMsg  = e.getFancyMessage();
 		caughtException = true;
+		watchResult = getHapWatchType(e.getErrCode());
 	} catch (const exception &e) {
 		exceptionName = DEMANGLED_TYPE_NAME(e);
 		exceptionMsg  = e.what();
@@ -156,7 +157,7 @@ void HapProcessStandard::startAcquisition(void)
 
 	// update ArmInfo
 	try {
-		sendArmInfo(getArmStatus().getArmInfo());
+		sendArmInfo(getArmStatus().getArmInfo(), watchResult);
 	} catch (...) {
 		MLPL_ERR("Failed to send ArmInfo.\n");
 	}
@@ -171,6 +172,14 @@ HapProcessStandard::getMonitoringServerInfo(void) const
 HatoholError HapProcessStandard::acquireData(void)
 {
 	return HTERR_NOT_IMPLEMENTED;
+}
+
+HatoholArmPluginWatchType HapProcessStandard::getHapWatchType(
+  const HatoholError &err)
+{
+	if (err == HTERR_OK)
+		return COLLECT_OK;
+	return COLLECT_NG_HATOHOL_INTERNAL_ERROR;
 }
 
 //
@@ -189,4 +198,3 @@ void HapProcessStandard::onReady(const MonitoringServerInfo &serverInfo)
 	Utils::executeOnGLibEventLoop<HapProcessStandard>(
 	  NoName::startAcquisition, this, ASYNC);
 }
-
