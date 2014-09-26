@@ -23,8 +23,6 @@ Makefile.in
 /config.sub
 /configure
 /compile
-/client/hatohol/hatohol_def.py
-/client/static/js/hatohol_def.js
 /client/test/browser/expect.js
 /client/test/browser/mocha.css
 /client/test/browser/mocha.js
@@ -40,7 +38,6 @@ Makefile.in
 /m4/
 /missing
 /server/hap/hatohol-arm-plugin-zabbix
-/server/hatohol/hatohol_def.py
 /server/mlpl/mlpl.pc
 /server/mlpl/test/loggerTestee
 /server/src/hatohol
@@ -52,7 +49,6 @@ Makefile.in
 /server/tools/build/
 /server/tools/hatohol-config-db-creator
 /server/tools/hatohol-def-src-file-generator
-/server/tools/hatohol/hatohol_def.py
 /server/tools/usr/
 /server/tools/tls/hatohol-ca-initialize
 /server/tools/tls/hatohol-ca-sign-client-certificate
