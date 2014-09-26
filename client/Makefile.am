@@ -121,11 +121,9 @@ HATOHOL_SERVER_TYPE_UTIL = \
 	$(top_builddir)/server/tools/hatohol-server-type-util
 
 static/js/hatohol_def.js: $(HATOHOL_DEF_GENERATOR)
-	mkdir -p static/js
 	$(HATOHOL_DEF_GENERATOR) js > $@
 
 hatohol/hatohol_def.py: $(HATOHOL_DEF_GENERATOR)
-	mkdir hatohol
 	$(HATOHOL_DEF_GENERATOR) py > $@
 
 misc/external-labels.js: $(HATOHOL_SERVER_TYPE_UTIL)
