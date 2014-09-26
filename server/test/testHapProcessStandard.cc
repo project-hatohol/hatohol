@@ -123,4 +123,13 @@ void test_startAcquisitionWithError(void)
 	              ARM_WORK_STAT_FAILURE);
 }
 
+void test_startAcquisitionWithError(void)
+{
+	StartAcquisitionTester tester;
+	tester.m_hapProc.m_returnValueOfAcquireData = HTERR_UNKNOWN_REASON;
+	tester.run();
+	tester.assert(HTERR_UNKNOWN_REASON, COLLECT_NG_HATOHOL_INTERNAL_ERROR,
+	              ARM_WORK_STAT_FAILURE);
+}
+
 } // namespace testHapProcessStandard
