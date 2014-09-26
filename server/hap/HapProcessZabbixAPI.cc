@@ -21,8 +21,6 @@
 
 using namespace std;
 
-static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms
-
 // ---------------------------------------------------------------------------
 // PrivateContext
 // ---------------------------------------------------------------------------
@@ -75,21 +73,3 @@ HatoholArmPluginWatchType HapProcessZabbixAPI::getHapWatchType(
 		return COLLECT_NG_PARSER_ERROR;
 	return COLLECT_NG_HATOHOL_INTERNAL_ERROR;
 }
-
-//
-// Methods running on HapZabbixAPI's thread
-//
-int HapProcessZabbixAPI::onCaughtException(const exception &e)
-{
-	const MonitoringServerInfo &serverInfo =
-	  HapProcessStandard::getMonitoringServerInfo();
-	int retryIntervalSec;
-	if (serverInfo.retryIntervalSec == 0)
-		retryIntervalSec = DEFAULT_RETRY_INTERVAL;
-	else
-		retryIntervalSec = serverInfo.retryIntervalSec * 1000;
-	MLPL_INFO("Caught an exception: %s. Retry afeter %d ms.\n",
-		  e.what(), retryIntervalSec);
-	return retryIntervalSec;
-}
-

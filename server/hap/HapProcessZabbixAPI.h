@@ -25,7 +25,6 @@ class HapProcessZabbixAPI : public HapProcessStandard, public HapZabbixAPI {
 public:
 	HapProcessZabbixAPI(int argc, char *argv[]);
 	virtual ~HapProcessZabbixAPI();
-	virtual int onCaughtException(const std::exception &e) override;
 
 protected:
 	virtual HatoholError acquireData(void) override;

@@ -23,6 +23,8 @@
 using namespace std;
 using namespace mlpl;
 
+static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms
+
 struct HapProcessStandard::Impl {
 	// The getter and the user of serverInfo are running on different
 	// threads. So we pass it safely with queue.
@@ -197,4 +199,17 @@ void HapProcessStandard::onReady(const MonitoringServerInfo &serverInfo)
 	m_impl->serverInfoQueue.push(serverInfo);
 	Utils::executeOnGLibEventLoop<HapProcessStandard>(
 	  NoName::startAcquisition, this, ASYNC);
+}
+
+int HapProcessStandard::onCaughtException(const exception &e)
+{
+	const MonitoringServerInfo &serverInfo = getMonitoringServerInfo();
+	int retryIntervalSec;
+	if (serverInfo.retryIntervalSec == 0)
+		retryIntervalSec = DEFAULT_RETRY_INTERVAL;
+	else
+		retryIntervalSec = serverInfo.retryIntervalSec * 1000;
+	MLPL_INFO("Caught an exception: %s. Retry afeter %d ms.\n",
+		  e.what(), retryIntervalSec);
+	return retryIntervalSec;
 }

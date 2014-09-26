@@ -39,6 +39,7 @@ protected:
 	  const HatoholError &err);
 
 	virtual void onReady(const MonitoringServerInfo &serverInfo) override;
+	virtual int onCaughtException(const std::exception &e) override;
 
 private:
 	struct Impl;
