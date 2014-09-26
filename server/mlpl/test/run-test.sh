@@ -5,6 +5,7 @@ unset LANG
 export BASE_DIR="`dirname $0`"
 top_dir="$BASE_DIR/../../.."
 top_dir="`cd $top_dir; pwd`"
+mlpl_dir="$BASE_DIR/.."
 
 if test x"$NO_MAKE" != x"yes"; then
     if which gmake > /dev/null; then
@@ -12,7 +13,7 @@ if test x"$NO_MAKE" != x"yes"; then
     else
 	MAKE=${MAKE:-"make"}
     fi
-    $MAKE -C $top_dir/ > /dev/null || exit 1
+    $MAKE -C $mlpl_dir/ > /dev/null || exit 1
 fi
 
 if test -z "$CUTTER"; then
