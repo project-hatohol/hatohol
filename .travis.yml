@@ -11,7 +11,7 @@ env:
   - RUN_TEST="cd server/tools/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh"
   - RUN_TEST="cd client/test/python && ./run-test.sh"
   - RUN_TEST="test/launch-hatohol-for-test.sh && mocha-phantomjs http://localhost:8000/test/index.html"
-  - RUN_TEST="make hatoholdistcheck"
+  - RUN_TEST="./test/dist-check.sh"
 install:
   - server/misc/setup-cutter.sh
   - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm python-pip expect python-dev libqpidmessaging2-dev libqpidtypes1-dev libqpidcommon2-dev qpidd librabbitmq-dev
