@@ -1,7 +1,7 @@
 SUBDIRS = . test
 hatohol_clientdir=$(libexecdir)/$(PACKAGE)/client
 nobase_dist_hatohol_client_SCRIPTS = \
-	./manage.py
+	manage.py
 
 nobase_dist_hatohol_client_DATA = \
 	conf/locale/ja/LC_MESSAGES/django.po \
@@ -115,13 +115,17 @@ CLEANFILES = \
 nobase_nodist_hatohol_client_DATA = \
 	$(MO_FILES)
 
-HATOHOL_DEF_GENERATOR = ../server/tools/hatohol-def-src-file-generator
-HATOHOL_SERVER_TYPE_UTIL = ../server/tools/hatohol-server-type-util
+HATOHOL_DEF_GENERATOR = \
+	$(top_builddir)/server/tools/hatohol-def-src-file-generator
+HATOHOL_SERVER_TYPE_UTIL = \
+	$(top_builddir)/server/tools/hatohol-server-type-util
 
 static/js/hatohol_def.js: $(HATOHOL_DEF_GENERATOR)
+	mkdir -p static/js
 	$(HATOHOL_DEF_GENERATOR) js > $@
 
 hatohol/hatohol_def.py: $(HATOHOL_DEF_GENERATOR)
+	mkdir hatohol
 	$(HATOHOL_DEF_GENERATOR) py > $@
 
 misc/external-labels.js: $(HATOHOL_SERVER_TYPE_UTIL)
@@ -129,8 +133,8 @@ misc/external-labels.js: $(HATOHOL_SERVER_TYPE_UTIL)
 	$(HATOHOL_SERVER_TYPE_UTIL) label-gettext > $@
 
 update-po: misc/external-labels.js
-	./manage.py makemessages -a
-	./manage.py makemessages -d djangojs -a
+	$(srcdir)/manage.py makemessages -a
+	$(srcdir)/manage.py makemessages -d djangojs -a
 
 .po.mo:
-	./manage.py compilemessages
+	$(srcdir)/manage.py compilemessages
