@@ -146,7 +146,7 @@ void HapProcessStandard::startAcquisition(void)
 	if (caughtException) {
 		const char *name = exceptionName.c_str() ? : "Unknown";
 		const char *msg  = exceptionMsg.c_str()  ? : "N/A";
-		string errMsg = StringUtils::sprintf(
+		errMsg = StringUtils::sprintf(
 		  "Caught an exception: (%s) %s", name, msg);
 	} else if (err != HTERR_OK) {
 		const char *name = err.getCodeName().c_str();

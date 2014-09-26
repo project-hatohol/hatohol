@@ -31,19 +31,23 @@ public:
 
 	// These are input paramters from the test cases
 	HatoholError              m_returnValueOfAcquireData;
+	bool                      m_throwException;
 
 	TestHapProcessStandard(void)
 	: HapProcessStandard(0, NULL),
 	  m_calledAquireData(false),
 	  m_errorOnComplated(NUM_HATOHOL_ERROR_CODE),
 	  m_watchTypeOnComplated(NUM_COLLECT_NG_KIND),
-	  m_returnValueOfAcquireData(HTERR_OK)
+	  m_returnValueOfAcquireData(HTERR_OK),
+	  m_throwException(false)
 	{
 	}
 
 	virtual HatoholError acquireData(void) override
 	{
 		m_calledAquireData = true;
+		if (m_throwException)
+			throw 0;
 		return m_returnValueOfAcquireData;
 	}
 
@@ -123,12 +127,21 @@ void test_startAcquisitionWithError(void)
 	              ARM_WORK_STAT_FAILURE);
 }
 
-void test_startAcquisitionWithError(void)
+void test_startAcquisitionWithExcpetion(void)
 {
 	StartAcquisitionTester tester;
 	tester.m_hapProc.m_returnValueOfAcquireData = HTERR_UNKNOWN_REASON;
 	tester.run();
 	tester.assert(HTERR_UNKNOWN_REASON, COLLECT_NG_HATOHOL_INTERNAL_ERROR,
+	              ARM_WORK_STAT_FAILURE);
+}
+
+void test_startAcquisitionWithTransaction(void)
+{
+	StartAcquisitionTester tester;
+	tester.m_hapProc.m_throwException = true;
+	tester.run();
+	tester.assert(HTERR_UNINITIALIZED, COLLECT_NG_PLGIN_INTERNAL_ERROR,
 	              ARM_WORK_STAT_FAILURE);
 }
 
