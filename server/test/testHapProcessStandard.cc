@@ -59,6 +59,11 @@ public:
 	{
 		onReady(serverInfo);
 	}
+
+	const ArmStatus &callGetArmStatus(void)
+	{
+		return getArmStatus();
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -73,6 +78,10 @@ void test_startAcquisition(void)
 	cppcut_assert_equal(true,       hapProc.m_calledAquireData);
 	assertHatoholError(HTERR_OK,    hapProc.m_errorOnComplated);
 	cppcut_assert_equal(COLLECT_OK, hapProc.m_watchTypeOnComplated);
+
+	const ArmStatus &armStatus = hapProc.callGetArmStatus();
+	ArmInfo armInfo = armStatus.getArmInfo();
+	cppcut_assert_equal(ARM_WORK_STAT_OK, armInfo.stat);
 }
 
 void test_startAcquisitionWithError(void)
@@ -86,6 +95,10 @@ void test_startAcquisitionWithError(void)
 	assertHatoholError(HTERR_UNKNOWN_REASON, hapProc.m_errorOnComplated);
 	cppcut_assert_equal(COLLECT_NG_HATOHOL_INTERNAL_ERROR,
 	                    hapProc.m_watchTypeOnComplated);
+
+	const ArmStatus &armStatus = hapProc.callGetArmStatus();
+	ArmInfo armInfo = armStatus.getArmInfo();
+	cppcut_assert_equal(ARM_WORK_STAT_FAILURE, armInfo.stat);
 }
 
 } // namespace testHapProcessStandard

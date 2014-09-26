@@ -154,7 +154,7 @@ void HapProcessStandard::startAcquisition(void)
 		const char *optMsg = err.getOptionMessage().empty() ?
 		                       err.getOptionMessage().c_str() :
 		                       "No optional message";
-		string errMsg = StringUtils::sprintf(
+		errMsg = StringUtils::sprintf(
 		  "Failed to get data: (%s) %s, %s", name, msg, optMsg);
 	}
 	if (!errMsg.empty()) {
