@@ -695,6 +695,7 @@ gpointer HatoholArmPluginInterface::mainThread(HatoholThreadArg *arg)
 		try {
 			onReceived(sbuf);
 		} catch (const exception &e) {
+			MLPL_ERR("Caught exception: %s\n", e.what());
 			hapi->onFailureReceivedMessage();
 			continue;
 		}
