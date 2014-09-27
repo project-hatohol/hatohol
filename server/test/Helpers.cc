@@ -1248,13 +1248,16 @@ CommandArgHelper::CommandArgHelper(void)
 	*this << "command-name";
 }
 
-void CommandArgHelper::activate(void)
+bool CommandArgHelper::activate(void)
 {
 	gchar **argv = (gchar **)&args[0];
 	gint argc = args.size();
 	CommandLineOptions cmdLineOpts;
-	ConfigManager::parseCommandLine(&argc, (gchar ***)&argv, &cmdLineOpts);
+	const bool succeeded =
+	  ConfigManager::parseCommandLine(&argc, (gchar ***)&argv,
+	                                  &cmdLineOpts);
 	ConfigManager::reset(&cmdLineOpts);
+	return succeeded;
 }
 
 void CommandArgHelper::operator <<(const char *word)
@@ -1267,3 +1270,40 @@ TestModeStone::TestModeStone(void)
 	m_cmdArgHelper << "--test-mode";
 	m_cmdArgHelper.activate();
 }
+
+// ---------------------------------------------------------------------------
+// TentativeEnvVariable
+// ---------------------------------------------------------------------------
+TentativeEnvVariable::TentativeEnvVariable(const std::string &envVarName)
+: m_envVarName(envVarName),
+  m_hasOrigValue(false)
+{
+	const char *env = getenv(envVarName.c_str());
+	if (!env)
+		return;
+	m_origString = env;
+	m_hasOrigValue = true;;
+}
+
+TentativeEnvVariable::~TentativeEnvVariable()
+{
+	errno = 0;
+	if (m_hasOrigValue)
+		setenv(m_envVarName.c_str(), m_origString.c_str(), 1);
+	else
+		unsetenv(m_envVarName.c_str());
+	cut_assert_errno();
+}
+
+string TentativeEnvVariable::getEnvVarName(void) const
+{
+	return m_envVarName;
+}
+
+void TentativeEnvVariable::set(const std::string &newValue)
+{
+	errno = 0;
+	setenv(m_envVarName.c_str(), newValue.c_str(), 1);
+	cut_assert_errno();
+}
+

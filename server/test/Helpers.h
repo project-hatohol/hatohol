@@ -300,7 +300,7 @@ struct CommandArgHelper
 	std::vector<const char *> args;
 
 	CommandArgHelper(void);
-	void activate(void);
+	bool activate(void);
 	void operator <<(const char *word);
 };
 
@@ -314,6 +314,20 @@ public:
 	TestModeStone(void);
 private:
 	CommandArgHelper m_cmdArgHelper;
+};
+
+class TentativeEnvVariable
+{
+public:
+	TentativeEnvVariable(const std::string &envVarName);
+	virtual ~TentativeEnvVariable();
+	void set(const std::string &newValue);
+	std::string getEnvVarName(void) const;
+private:
+	std::string m_envVarName;
+	std::string m_origString;
+	bool        m_hasOrigValue;
+	bool        m_changed;
 };
 
 #endif // Helpers_h

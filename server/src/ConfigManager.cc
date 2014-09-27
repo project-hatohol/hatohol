@@ -22,6 +22,7 @@
 #endif // HAVE_CONFIG_H
 
 #include <Mutex.h>
+#include <errno.h>
 #include "ConfigManager.h"
 #include "DBTablesConfig.h"
 #include "Reaper.h"
@@ -32,6 +33,8 @@ using namespace mlpl;
 enum {
 	CONF_MGR_ERROR_NULL,
 	CONF_MGR_ERROR_INVALID_PORT,
+	CONF_MGR_ERROR_INVALID_LOG_LEVEL,
+	CONF_MGR_ERROR_INTERNAL,
 };
 
 const char *ConfigManager::HATOHOL_DB_DIR_ENV_VAR_NAME = "HATOHOL_DB_DIR";
@@ -259,6 +262,9 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 		{"face-rest-port",
 		 'r', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseFaceRestPort,
 		 "Port of FaceRest", NULL},
+		{"log-level",
+		 'l', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseLogLevel,
+		 "Log level: DBG, INFO, WARN, ERR, CRIT, or BUG. ", NULL},
 		{ NULL }
 	};
 
@@ -429,6 +435,44 @@ void ConfigManager::loadConfFile(void)
 		          confFiles[i].c_str());
 		break;
 	}
+}
+
+gboolean ConfigManager::parseLogLevel(
+  const gchar *option_name, const gchar *value,
+  gpointer data, GError **error)
+{
+	GQuark quark =
+	  g_quark_from_static_string("config-manager-quark");
+	if (!value) {
+		g_set_error(error, quark, CONF_MGR_ERROR_NULL,
+		            "value is NULL.");
+		return FALSE;
+	}
+
+	string level = value;
+	bool validLevel = false;
+	if (level == "DBG"  ||
+	    level == "INFO" ||
+	    level == "WARN" ||
+	    level == "ERR"  ||
+	    level == "CRIT" ||
+	    level == "BUG") {
+		validLevel = true;
+	}
+
+	if (!validLevel) {
+		g_set_error(error, quark, CONF_MGR_ERROR_INVALID_LOG_LEVEL,
+		            "Invalid log level: %s.", value);
+		return FALSE;
+	}
+
+	if (setenv(Logger::LEVEL_ENV_VAR_NAME, level.c_str(), 1) == -1) {
+		g_set_error(error, quark, CONF_MGR_ERROR_INTERNAL,
+		            "Failed to call setenv: errno: %d", errno);
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 // ---------------------------------------------------------------------------
