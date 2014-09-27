@@ -40,7 +40,7 @@ public:
 	}
 
 	virtual void onGotReply(
-	  const mlpl::SmartBuffer &replyBuf,
+	  mlpl::SmartBuffer &replyBuf,
 	  const HapiCommandHeader &cmdHeader) override
 	{
 	}
@@ -143,7 +143,7 @@ bool HatoholArmPluginBase::getMonitoringServerInfo(
 		}
 
 		virtual void onGotReply(
-		  const mlpl::SmartBuffer &replyBuf,
+		  mlpl::SmartBuffer &replyBuf,
 		  const HapiCommandHeader &cmdHeader) override
 		{
 			SemaphorePoster poster(this);
@@ -175,7 +175,7 @@ SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 		}
 
 		virtual void onGotReply(
-		  const mlpl::SmartBuffer &replyBuf,
+		  mlpl::SmartBuffer &replyBuf,
 		  const HapiCommandHeader &cmdHeader) override
 		{
 			SemaphorePoster poster(this);
@@ -214,7 +214,7 @@ EventIdType HatoholArmPluginBase::getLastEventId(void)
 		}
 
 		virtual void onGotReply(
-		  const mlpl::SmartBuffer &replyBuf,
+		  mlpl::SmartBuffer &replyBuf,
 		  const HapiCommandHeader &cmdHeader) override
 		{
 			SemaphorePoster poster(this);
@@ -250,7 +250,7 @@ SmartTime HatoholArmPluginBase::getTimeOfLastEvent(
 		}
 
 		virtual void onGotReply(
-		  const mlpl::SmartBuffer &replyBuf,
+		  mlpl::SmartBuffer &replyBuf,
 		  const HapiCommandHeader &cmdHeader) override
 		{
 			SemaphorePoster poster(this);

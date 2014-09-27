@@ -252,7 +252,7 @@ public:
 
 	class CommandCallbacks : public UsedCountable {
 	public:
-		virtual void onGotReply(const mlpl::SmartBuffer &replyBuf,
+		virtual void onGotReply(mlpl::SmartBuffer &replyBuf,
 		                        const HapiCommandHeader &cmdHeader);
 		virtual void onError(const HapiResponseCode &code,
 		                     const HapiCommandHeader &cmdHeader);

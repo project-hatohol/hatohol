@@ -75,7 +75,7 @@ void HatoholArmPluginStandard::onInitiated(void)
 		}
 
 		virtual void onGotReply(
-		  const SmartBuffer &replyBuf,
+		  SmartBuffer &replyBuf,
 		  const HapiCommandHeader &cmdHeader) override
 		{
 			MonitoringServerInfo serverInfo;
