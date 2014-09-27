@@ -23,6 +23,8 @@
 using namespace std;
 using namespace mlpl;
 
+static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms
+
 struct HapProcessStandard::Impl {
 	// The getter and the user of serverInfo are running on different
 	// threads. So we pass it safely with queue.
@@ -33,6 +35,11 @@ struct HapProcessStandard::Impl {
 	Impl(void)
 	: timerTag(INVALID_EVENT_ID)
 	{
+	}
+
+	virtual ~Impl()
+	{
+		Utils::removeEventSourceIfNeeded(timerTag);
 	}
 };
 
@@ -114,14 +121,17 @@ void HapProcessStandard::startAcquisition(void)
 	string exceptionName;
 	string exceptionMsg;
 	HatoholError err(HTERR_UNINITIALIZED);
+	HatoholArmPluginWatchType watchType = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 	try {
 		err = acquireData();
 		if (err == HTERR_OK)
 			getArmStatus().logSuccess();
+		watchType = getHapWatchType(err);
 	} catch (const HatoholException &e) {
 		exceptionName = DEMANGLED_TYPE_NAME(e);
 		exceptionMsg  = e.getFancyMessage();
 		caughtException = true;
+		watchType = getHapWatchType(e.getErrCode());
 	} catch (const exception &e) {
 		exceptionName = DEMANGLED_TYPE_NAME(e);
 		exceptionMsg  = e.what();
@@ -136,7 +146,7 @@ void HapProcessStandard::startAcquisition(void)
 	if (caughtException) {
 		const char *name = exceptionName.c_str() ? : "Unknown";
 		const char *msg  = exceptionMsg.c_str()  ? : "N/A";
-		string errMsg = StringUtils::sprintf(
+		errMsg = StringUtils::sprintf(
 		  "Caught an exception: (%s) %s", name, msg);
 	} else if (err != HTERR_OK) {
 		const char *name = err.getCodeName().c_str();
@@ -144,7 +154,7 @@ void HapProcessStandard::startAcquisition(void)
 		const char *optMsg = err.getOptionMessage().empty() ?
 		                       err.getOptionMessage().c_str() :
 		                       "No optional message";
-		string errMsg = StringUtils::sprintf(
+		errMsg = StringUtils::sprintf(
 		  "Failed to get data: (%s) %s, %s", name, msg, optMsg);
 	}
 	if (!errMsg.empty()) {
@@ -154,9 +164,14 @@ void HapProcessStandard::startAcquisition(void)
 	}
 	m_impl->timerTag = g_timeout_add(intervalMSec, acquisitionTimerCb, this);
 
-	// update ArmInfo
+	onCompletedAcquistion(err, watchType);
+}
+
+void HapProcessStandard::onCompletedAcquistion(
+  const HatoholError &err, const HatoholArmPluginWatchType &watchType)
+{
 	try {
-		sendArmInfo(getArmStatus().getArmInfo());
+		sendArmInfo(getArmStatus().getArmInfo(), watchType);
 	} catch (...) {
 		MLPL_ERR("Failed to send ArmInfo.\n");
 	}
@@ -171,6 +186,14 @@ HapProcessStandard::getMonitoringServerInfo(void) const
 HatoholError HapProcessStandard::acquireData(void)
 {
 	return HTERR_NOT_IMPLEMENTED;
+}
+
+HatoholArmPluginWatchType HapProcessStandard::getHapWatchType(
+  const HatoholError &err)
+{
+	if (err == HTERR_OK)
+		return COLLECT_OK;
+	return COLLECT_NG_HATOHOL_INTERNAL_ERROR;
 }
 
 //
@@ -190,3 +213,15 @@ void HapProcessStandard::onReady(const MonitoringServerInfo &serverInfo)
 	  NoName::startAcquisition, this, ASYNC);
 }
 
+int HapProcessStandard::onCaughtException(const exception &e)
+{
+	const MonitoringServerInfo &serverInfo = getMonitoringServerInfo();
+	int retryIntervalSec;
+	if (serverInfo.retryIntervalSec == 0)
+		retryIntervalSec = DEFAULT_RETRY_INTERVAL;
+	else
+		retryIntervalSec = serverInfo.retryIntervalSec * 1000;
+	MLPL_INFO("Caught an exception: %s. Retry afeter %d ms.\n",
+		  e.what(), retryIntervalSec);
+	return retryIntervalSec;
+}

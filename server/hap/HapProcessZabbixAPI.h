@@ -17,14 +17,22 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "HapProcessZabbixAPI.h"
+#include <exception>
+#include <HapZabbixAPI.h>
+#include "HapProcessStandard.h"
 
-// ---------------------------------------------------------------------------
-// main
-// ---------------------------------------------------------------------------
-int main(int argc, char *argv[])
-{
-	MLPL_INFO("hatohol-arm-plugin-zabbix. ver: %s\n", PACKAGE_VERSION);
-	HapProcessZabbixAPI hapProc(argc, argv);
-	return hapProc.mainLoopRun();
-}
+class HapProcessZabbixAPI : public HapProcessStandard, public HapZabbixAPI {
+public:
+	HapProcessZabbixAPI(int argc, char *argv[]);
+	virtual ~HapProcessZabbixAPI();
+
+protected:
+	virtual HatoholError acquireData(void) override;
+	virtual HatoholArmPluginWatchType getHapWatchType(
+	  const HatoholError &err) override;
+
+private:
+	struct PrivateContext;
+	PrivateContext *m_ctx;;
+};
+

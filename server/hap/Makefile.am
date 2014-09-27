@@ -12,6 +12,7 @@ libhapprocess_la_SOURCES = \
 	HapZabbixAPI.cc HapZabbixAPI.h \
 	HapProcess.cc HapProcess.h \
 	HapProcessStandard.cc HapProcessStandard.h \
+	HapProcessZabbixAPI.cc HapProcessZabbixAPI.h \
 	HapProcessCeilometer.cc HapProcessCeilometer.h
 
 AM_CXXFLAGS = \

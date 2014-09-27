@@ -35,8 +35,13 @@ protected:
 	const MonitoringServerInfo &getMonitoringServerInfo(void) const;
 
 	virtual HatoholError acquireData(void);
+	virtual void onCompletedAcquistion(
+	  const HatoholError &err, const HatoholArmPluginWatchType &watchType);
+	virtual HatoholArmPluginWatchType getHapWatchType(
+	  const HatoholError &err);
 
 	virtual void onReady(const MonitoringServerInfo &serverInfo) override;
+	virtual int onCaughtException(const std::exception &e) override;
 
 private:
 	struct Impl;
