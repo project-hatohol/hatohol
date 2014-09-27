@@ -105,7 +105,7 @@ static const EventIdType DISCONNECT_SERVER_EVENT_ID = 0;
 struct ItemInfo {
 	ServerIdType        serverId;
 	ItemIdType          id;
-	HostIdType            hostId;
+	HostIdType          hostId;
 	std::string         brief;
 	timespec            lastValueTime;
 	std::string         lastValue;
