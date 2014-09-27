@@ -20,6 +20,7 @@
 #include <gcutter.h>
 #include <cppcutter.h>
 #include <StringUtils.h>
+#include <errno.h>
 #include "config.h"
 #include "ConfigManager.h"
 #include "Hatohol.h"
@@ -198,6 +199,50 @@ void test_setFaceRestPort(void)
 	ConfigManager::getInstance()->setFaceRestPort(port);
 	cppcut_assert_equal(port,
 	                    ConfigManager::getInstance()->getFaceRestPort());
+}
+
+void data_parseLogLevel(void)
+{
+	gcut_add_datum("DBG",
+	               "level", G_TYPE_STRING, "DBG",
+	               "expectSuccess", G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("INFO",
+	               "level", G_TYPE_STRING, "INFO",
+	               "expectSuccess", G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("WARN",
+	               "level", G_TYPE_STRING, "WARN",
+	               "expectSuccess", G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("ERR",
+	               "level", G_TYPE_STRING, "ERR",
+	               "expectSuccess", G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("CRIT",
+	               "level", G_TYPE_STRING, "CRIT",
+	               "expectSuccess", G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("BUG",
+	               "level", G_TYPE_STRING, "BUG",
+	               "expectSuccess", G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("INVALID_STRING",
+	               "level", G_TYPE_STRING, "INVALID_STRING",
+	               "expectSuccess", G_TYPE_BOOLEAN, FALSE, NULL);
+}
+
+void test_parseLogLevel(gconstpointer data)
+{
+	string level = gcut_data_get_string(data, "level");
+	const bool expectSuccess = gcut_data_get_string(data, "expectSuccess");
+
+	TentativeEnvVariable tentativeEnv(Logger::LEVEL_ENV_VAR_NAME);
+	CommandArgHelper cmds;
+	cmds << "--log-level";
+	cmds << level.c_str();
+	cppcut_assert_equal(expectSuccess, cmds.activate());
+	if (!expectSuccess)
+		return;
+	errno = 0;
+	char *currEnv = getenv(tentativeEnv.getEnvVarName().c_str());
+	cut_assert_errno();
+	cppcut_assert_not_null(currEnv);
+	cppcut_assert_equal(level, string(currEnv));
 }
 
 } // namespace testConfigManager

@@ -123,6 +123,9 @@ public:
 
 protected:
 	void loadConfFile(void);
+	static gboolean parseLogLevel(
+	  const gchar *option_name, const gchar *value,
+	  gpointer data, GError **error);
 
 private:
 	struct Impl;
