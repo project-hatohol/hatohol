@@ -72,6 +72,7 @@ protected:
 	 * behavior is calling exit(EXIT_SUCCESS).
 	 */
 	virtual void onReceivedTerminate(void);
+	virtual void onReceivedFetchItem(void);
 	virtual void onFailureReceivedMessage(void) override;
 
 	void sendCmdGetMonitoringServerInfo(CommandCallbacks *callbacks);
@@ -85,6 +86,7 @@ protected:
 			 const HatoholArmPluginWatchType &type = COLLECT_OK);
 	void sendAvailableTrigger(const int TriggerNum,
 				  const HatoholArmPluginWatchType *TriggerList);
+	void cmdHandlerFetchItems(const HapiCommandHeader *header);
 	void cmdHandlerTerminate(const HapiCommandHeader *header);
 
 private:

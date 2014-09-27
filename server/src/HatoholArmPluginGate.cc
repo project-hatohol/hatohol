@@ -251,9 +251,36 @@ pid_t HatoholArmPluginGate::getPid()
 
 void HatoholArmPluginGate::startOnDemandFetchItem(ClosureBase *closure)
 {
-	MLPL_BUG("Not implemente yet.\n");
-	(*closure)();
-	delete closure;
+	struct Callback : public CommandCallbacks {
+		Signal itemUpdatedSignal;
+		virtual void onGotReply(const mlpl::SmartBuffer &replyBuf,
+		                        const HapiCommandHeader &cmdHeader)
+		                          override
+		{
+			MLPL_BUG("TODO: add code to save items.");
+			cleanup();
+		}
+
+		virtual void onError(const HapiResponseCode &code,
+		                     const HapiCommandHeader &cmdHeader)
+		                          override
+		{
+			cleanup();
+		}
+
+		void cleanup(void)
+		{
+			itemUpdatedSignal();
+			itemUpdatedSignal.clear();
+			this->unref();
+		}
+	};
+	Callback *callback = new Callback();
+	callback->itemUpdatedSignal.connect(closure);
+
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(cmdBuf, HAPI_CMD_REQ_FETCH_ITEMS);
+	send(cmdBuf, callback);
 }
 
 // ---------------------------------------------------------------------------

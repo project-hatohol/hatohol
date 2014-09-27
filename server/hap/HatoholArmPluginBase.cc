@@ -113,6 +113,11 @@ HatoholArmPluginBase::HatoholArmPluginBase(void)
 		setQueueAddress(env);
 
 	registerCommandHandler(
+	  HAPI_CMD_REQ_FETCH_ITEMS,
+	  (CommandHandler)
+	    &HatoholArmPluginBase::cmdHandlerFetchItems);
+
+	registerCommandHandler(
 	  HAPI_CMD_REQ_TERMINATE,
 	  (CommandHandler)
 	    &HatoholArmPluginBase::cmdHandlerTerminate);
@@ -283,6 +288,12 @@ void HatoholArmPluginBase::onReceivedTerminate(void)
 	exit(EXIT_SUCCESS);
 }
 
+void HatoholArmPluginBase::onReceivedFetchItem(void)
+{
+	MLPL_WARN("Received fetch item request. "
+	          "onReceivedFetchItem() should be overridden\n");
+}
+
 void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(
   CommandCallbacks *callbacks)
 {
@@ -416,6 +427,11 @@ void HatoholArmPluginBase::sendAvailableTrigger(const int numTriggerList,
 		buf[i] = NtoL(TriggerList[i]);
 	}
 	send(cmdBuf);
+}
+
+void HatoholArmPluginBase::cmdHandlerFetchItems(const HapiCommandHeader *header)
+{
+	onReceivedFetchItem();
 }
 
 void HatoholArmPluginBase::cmdHandlerTerminate(const HapiCommandHeader *header)

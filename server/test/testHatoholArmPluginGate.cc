@@ -25,6 +25,8 @@
 #include <Mutex.h>
 #include <SimpleSemaphore.h>
 #include "HatoholArmPluginGate.h"
+#include "HatoholArmPluginBase.h"
+#include "HatoholArmPluginTestPair.h"
 #include "DBTablesTest.h"
 #include "Helpers.h"
 #include "Hatohol.h"
@@ -35,11 +37,12 @@ using namespace std;
 using namespace mlpl;
 using namespace qpid::messaging;
 
+static const size_t TIMEOUT = 5000;
+
 namespace testHatoholArmPluginGate {
 
 static void _assertStartAndExit(HapgTestCtx &ctx)
 {
-	static const size_t TIMEOUT = 5000;
 	if (ctx.checkMessage)
 		ctx.expectRcvMessage = testMessage;
 
@@ -266,6 +269,74 @@ void test_abortRetryWait(void)
 	assertStartAndExit(ctx);
 }
 
+} // namespace testHatoholArmPluginGate
+
+// ---------------------------------------------------------------------------
+// new namespace
+// ---------------------------------------------------------------------------
+namespace testHatoholArmPluginGatePair {
+
+void cut_setup(void)
+{
+	hatoholInit();
+	setupTestDB();
+}
+
+class HatoholArmPluginBaseTest :
+  public HatoholArmPluginBase, public HapiTestHelper
+{
+public:
+	virtual void onConnected(Connection &conn) override
+	{
+		HapiTestHelper::onConnected(conn);
+	}
+
+	virtual void onInitiated(void) override
+	{
+		HatoholArmPluginBase::onInitiated();
+		HapiTestHelper::onInitiated();
+	}
+
+	virtual void onReceivedFetchItem(void) override
+	{
+		SmartBuffer resBuf;
+		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS);
+		// TODO: Fill test item data
+		reply(resBuf);
+	}
+
+};
+
+typedef HatoholArmPluginTestPair<HatoholArmPluginBaseTest> TestPair;
+
+struct TestReceiver {
+	SimpleSemaphore sem;
+
+	TestReceiver(void)
+	: sem(0)
+	{
+	}
+
+	void callback(ClosureBase *closure)
+	{
+		sem.post();
+	}
+};
+
+void test_fetchItem(void)
+{
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
+
+	TestReceiver receiver;
+	pair.gate->startOnDemandFetchItem(
+	  new Closure<TestReceiver>(&receiver, &TestReceiver::callback));
+	cppcut_assert_equal(
+	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
+
+	// TODO: Check the test items
+}
+
 // TODO: implement
 /*
 void test_terminateCommand(void)
@@ -273,4 +344,4 @@ void test_terminateCommand(void)
 }
 */
 
-} // namespace testHatoholArmPluginGate
+} // namespace testHatoholArmPluginGatePair
