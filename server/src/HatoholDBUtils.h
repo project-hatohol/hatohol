@@ -46,7 +46,7 @@ public:
 	  HostInfoList &hostInfoList, const ItemTablePtr hosts,
 	  const ServerIdType &serverId);
 	static void transformItemsToHatoholFormat(
-	  ItemInfoList &eventInfoList, MonitoringServerStatus &serverStatus,
+	  ItemInfoList &itemInfoList, MonitoringServerStatus &serverStatus,
 	  const ItemTablePtr items, const ItemTablePtr applications);
 
 protected:
