@@ -20,6 +20,7 @@
 #include <gcutter.h>
 #include <cppcutter.h>
 #include <StringUtils.h>
+#include <errno.h>
 #include "config.h"
 #include "ConfigManager.h"
 #include "Hatohol.h"

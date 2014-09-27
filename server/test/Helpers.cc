@@ -21,6 +21,7 @@
 #include <gcutter.h>
 #include <unistd.h>
 #include <typeinfo>
+#include <errno.h>
 #include "Helpers.h"
 #include "DBTablesConfig.h"
 #include "DBTablesAction.h"
