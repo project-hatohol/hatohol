@@ -67,11 +67,6 @@ public:
 		// Just written to pass the build.
 		return COLLECT_OK;
 	}
-
-	virtual bool isFetchItemsSupported(void) const override
-	{
-		return false;
-	}
 };
 
 struct HatoholArmPluginGate::Impl
@@ -123,7 +118,6 @@ struct HatoholArmPluginGate::Impl
 		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++)
 			hapiWtchPointInfo[i].statusType = TRIGGER_STATUS_ALL;
 	}
-
 };
 
 const string HatoholArmPluginGate::PassivePluginQuasiPath = "#PASSIVE_PLUGIN#";
@@ -253,6 +247,13 @@ void HatoholArmPluginGate::exitSync(void)
 pid_t HatoholArmPluginGate::getPid()
 {
 	return m_impl->pid;
+}
+
+void HatoholArmPluginGate::startOnDemandFetchItem(ClosureBase *closure)
+{
+	MLPL_BUG("Not implemente yet.\n");
+	(*closure)();
+	delete closure;
 }
 
 // ---------------------------------------------------------------------------

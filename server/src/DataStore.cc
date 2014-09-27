@@ -30,6 +30,12 @@ void DataStore::setCopyOnDemandEnable(bool enable)
 {
 }
 
+void DataStore::startOnDemandFetchItem(ClosureBase *closure)
+{
+	ArmBase &arm = getArmBase();
+	arm.fetchItems(closure);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
