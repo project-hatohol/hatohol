@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <set>
 #include <map>
+#include <string>
 #include "config.h"
 
 #ifndef USE_CPP11
