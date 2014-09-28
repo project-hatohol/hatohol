@@ -64,7 +64,7 @@ typedef uint64_t ItemIdType;
 #define FMT_ITEM_ID PRIu64
 
 typedef uint64_t ItemCategoryIdType;
-#define FMT_ITEM_CATEGROY_ID PRIu64
+#define FMT_ITEM_CATEGORY_ID PRIu64
 
 typedef uint64_t TriggerIdType;
 #define FMT_TRIGGER_ID PRIu64
