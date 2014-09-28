@@ -141,19 +141,16 @@ void test_launchPluginProcessWithMLPLLoggerLevel(void)
 	// TOOD: Share the code with test_startAndWaitExit().
 	struct Ctx : public HapgTestCtx {
 		bool   hasError;
-		string currLoggerEnv;
 		string targetEnvLine;
 		string paramFilePath;
-		const char *TEST_ENV_WORD;
+		TentativeEnvVariable envVar;
 
 		Ctx(void)
 		: hasError(false),
-		  TEST_ENV_WORD("TEST_LEVEL")
+		  envVar(Logger::LEVEL_ENV_VAR_NAME)
 		{
-			const char *env = getenv(Logger::LEVEL_ENV_VAR_NAME);
-			if (env)
-				currLoggerEnv = env;
-			setEnv(Logger::LEVEL_ENV_VAR_NAME, TEST_ENV_WORD);
+			const char *TEST_ENV_WORD = "TEST_LEVEL";
+			envVar.set(TEST_ENV_WORD);
 			targetEnvLine = StringUtils::sprintf("%s=%s",
 			  Logger::LEVEL_ENV_VAR_NAME, TEST_ENV_WORD);
 			createParamFile();
@@ -161,9 +158,6 @@ void test_launchPluginProcessWithMLPLLoggerLevel(void)
 
 		virtual ~Ctx()
 		{
-			// Restore the environment variable
-			setEnv(Logger::LEVEL_ENV_VAR_NAME, currLoggerEnv);
-
 			errno = 0;
 			remove(paramFilePath.c_str());
 			cut_assert_errno();
