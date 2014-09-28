@@ -63,8 +63,8 @@ typedef uint64_t EventIdType;
 typedef uint64_t ItemIdType;
 #define FMT_ITEM_ID PRIu64
 
-typedef uint64_t ItemgroupIdType;
-#define FMT_ITEM_GROUP_ID PRIu64
+typedef uint64_t ItemCategoryIdType;
+#define FMT_ITEM_CATEGROY_ID PRIu64
 
 typedef uint64_t TriggerIdType;
 #define FMT_TRIGGER_ID PRIu64
@@ -112,8 +112,8 @@ static const EventIdType EVENT_NOT_FOUND = -1;
 // Special Item IDs ===========================================================
 static const TriggerIdType ALL_ITEMS    = -1;
 
-// Special Itemgroup IDs ======================================================
-static const ItemgroupIdType NO_ITEMGROUP_ID = -1;
+// Special ItemCategory IDs ===================================================
+static const ItemCategoryIdType NO_ITEM_CATEGORY_ID = -1;
 
 // Special User IDs ===========================================================
 static const UserIdType INVALID_USER_ID = -1;
