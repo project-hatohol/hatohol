@@ -148,7 +148,7 @@ void HatoholDBUtils::transformItemsToHatoholFormat(
   const ItemTablePtr items, const ItemTablePtr applications)
 {
 	// Make application map
-	AppliationIdNameMap appMap;
+	ItemCategoryNameMap itemCategoryNameMap;
 	const ItemGroupList &appGroupList = applications->getItemGroupList();
 	ItemGroupListConstIterator appGrpItr = appGroupList.begin();
 	for (; appGrpItr != appGroupList.end(); ++appGrpItr) {
@@ -162,7 +162,7 @@ void HatoholDBUtils::transformItemsToHatoholFormat(
 		itemGroupStream.seek(ITEM_ID_ZBX_APPLICATIONS_NAME);
 		itemGroupStream >> appName;
 
-		appMap[appId] = appName;
+		itemCategoryNameMap[appId] = appName;
 	}
 
 	// Make ItemInfoList
@@ -171,7 +171,8 @@ void HatoholDBUtils::transformItemsToHatoholFormat(
 	for (; it != itemGroupList.end(); ++it) {
 		ItemInfo itemInfo;
 		itemInfo.serverId = serverStatus.serverId;
-		if (!transformItemItemGroupToItemInfo(itemInfo, *it, appMap))
+		if (!transformItemItemGroupToItemInfo(itemInfo, *it,
+		                                      itemCategoryNameMap))
 			continue;
 		itemInfoList.push_back(itemInfo);
 	}
@@ -371,7 +372,7 @@ void HatoholDBUtils::transformHostsItemGroupToHatoholFormat(
 
 bool HatoholDBUtils::transformItemItemGroupToItemInfo(
   ItemInfo &itemInfo, const ItemGroup *itemItemGroup,
-  const AppliationIdNameMap &appIdNameMap)
+  const ItemCategoryNameMap &itemCategoryNameMap)
 {
 	itemInfo.lastValueTime.tv_nsec = 0;
 	itemInfo.brief = makeItemBrief(itemItemGroup);
@@ -401,14 +402,15 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_DELAY);
 	itemGroupStream >> itemInfo.delay;
 
-	uint64_t applicationId;
+	ItemCategoryIdType itemCategoryId;
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_APPLICATIONID);
-	itemGroupStream >> applicationId;
+	itemGroupStream >> itemCategoryId;
 
-	ApplicationIdNameMapConstIterator it = appIdNameMap.find(applicationId);
-	if (it == appIdNameMap.end()) {
+	ItemCategoryNameMapConstIterator it =
+	  itemCategoryNameMap.find(itemCategoryId);
+	if (it == itemCategoryNameMap.end()) {
 		MLPL_ERR("Failed to get application name: %" PRIu64 "\n",
-		         applicationId);
+		         itemCategoryId);
 		return false;
 	}
 	itemInfo.itemGroupName = it->second;

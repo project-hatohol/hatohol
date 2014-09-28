@@ -50,10 +50,10 @@ public:
 	  const ItemTablePtr items, const ItemTablePtr applications);
 
 protected:
-	typedef std::map<uint64_t, std::string> AppliationIdNameMap;
-	typedef AppliationIdNameMap::iterator   ApplicationIdNameMapIterator;
-	typedef AppliationIdNameMap::const_iterator
-	   ApplicationIdNameMapConstIterator;
+	typedef std::map<ItemCategoryIdType, std::string> ItemCategoryNameMap;
+	typedef ItemCategoryNameMap::iterator ItemCategoryNameMapIterator;
+	typedef ItemCategoryNameMap::const_iterator
+	  ItemCategoryNameMapConstIterator;
 
 	static int getItemVariable(const std::string &word);
 
@@ -85,7 +85,7 @@ protected:
 
 	static bool transformItemItemGroupToItemInfo(
 	  ItemInfo &itemInfo, const ItemGroup *item,
-	  const AppliationIdNameMap &appIdNameMap);
+	  const ItemCategoryNameMap &itemCategoryNameMap);
 };
 
 #endif // HatoholDBUtils_h
