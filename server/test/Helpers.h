@@ -219,6 +219,10 @@ void _assertGError(const GError *error);
 
 void prepareDataWithAndWithoutArmPlugin(void);
 
+VariableItemGroupPtr convert(
+  const ItemInfo &itemInfo,
+  const ItemCategoryIdType &itemCategoryId = NO_ITEM_CATEGORY_ID);
+
 class Watcher {
 	bool expired;
 	guint timerId;

@@ -406,14 +406,18 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_APPLICATIONID);
 	itemGroupStream >> itemCategoryId;
 
-	ItemCategoryNameMapConstIterator it =
-	  itemCategoryNameMap.find(itemCategoryId);
-	if (it == itemCategoryNameMap.end()) {
-		MLPL_ERR("Failed to get application name: %" PRIu64 "\n",
-		         itemCategoryId);
-		return false;
+	if (itemCategoryId == NO_ITEM_CATEGORY_ID) {
+		itemInfo.itemGroupName = "N/A";
+	} else {
+		ItemCategoryNameMapConstIterator it =
+		  itemCategoryNameMap.find(itemCategoryId);
+		if (it == itemCategoryNameMap.end()) {
+			MLPL_ERR("Failed to get item category name: %"
+			         FMT_ITEM_CATEGORY_ID "\n", itemCategoryId);
+			return false;
+		}
+		itemInfo.itemGroupName = it->second;
 	}
-	itemInfo.itemGroupName = it->second;
 
 	return true;
 }

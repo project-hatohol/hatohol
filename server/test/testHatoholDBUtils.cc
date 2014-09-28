@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include "HatoholDBUtils.h"
 #include "Helpers.h"
+#include "DBTablesTest.h"
 
 using namespace std;
 using namespace mlpl;
@@ -46,6 +47,45 @@ public:
 		itemGroup->addNewItem(ITEM_ID_ZBX_ITEMS_KEY_, key);
 		cppcut_assert_equal(
 		  expected, HatoholDBUtilsTest::makeItemBrief(itemGroup));
+	}
+
+	static void assertTransformItemItemGroupToItemInfo(
+	  const bool useItemCategoryNameMap)
+	{
+		const ItemCategoryIdType itemCategoryId =
+		  useItemCategoryNameMap ? 1234 : NO_ITEM_CATEGORY_ID;
+		ItemInfo expect = testItemInfo[0]; // make a copy
+		VariableItemGroupPtr item = convert(expect, itemCategoryId);
+
+		ItemInfo actual;
+		// actual.serverId shall not be changed in the target method.
+		actual.serverId = expect.serverId;
+
+		ItemCategoryNameMap itemCategoryNameMap;
+		if (useItemCategoryNameMap) {
+			itemCategoryNameMap[itemCategoryId] =
+			  expect.itemGroupName;
+		} else {
+			expect.itemGroupName = "N/A";
+		}
+
+		bool succeeded =
+		   HatoholDBUtils::transformItemItemGroupToItemInfo(
+		     actual, item, itemCategoryNameMap);
+		cppcut_assert_equal(true, succeeded);
+
+		cppcut_assert_equal(expect.serverId, actual.serverId);
+		cppcut_assert_equal(expect.id, actual.id);
+		cppcut_assert_equal(expect.hostId, actual.hostId);
+		cppcut_assert_equal(expect.brief, actual.brief);
+		cppcut_assert_equal(expect.lastValueTime.tv_sec,
+		                    actual.lastValueTime.tv_sec);
+		cppcut_assert_equal(expect.lastValueTime.tv_nsec,
+		                    actual.lastValueTime.tv_nsec);
+		cppcut_assert_equal(expect.lastValue, actual.lastValue);
+		cppcut_assert_equal(expect.prevValue, actual.prevValue);
+		cppcut_assert_equal(expect.itemGroupName, actual.itemGroupName);
+		cppcut_assert_equal(expect.delay, actual.delay);
 	}
 };
 
@@ -142,4 +182,17 @@ void test_makeItemBriefNoVariables(void)
 	HatoholDBUtilsTest::testMakeItemBrief(
 	  "Host name", "system.hostname", "Host name");
 }
+
+void test_transformItemItemGroupToItemInfoWithoutItemCategory(void)
+{
+	cut_trace(
+	  HatoholDBUtilsTest::assertTransformItemItemGroupToItemInfo(false));
+}
+
+void test_transformItemItemGroupToItemInfoWithItemCategory(void)
+{
+	cut_trace(
+	  HatoholDBUtilsTest::assertTransformItemItemGroupToItemInfo(true));
+}
+
 } // namespace testHatoholDBUtils

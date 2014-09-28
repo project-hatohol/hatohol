@@ -1068,6 +1068,25 @@ void prepareDataWithAndWithoutArmPlugin(void)
 	               "withArmPlugin", G_TYPE_BOOLEAN, TRUE, NULL);
 }
 
+VariableItemGroupPtr convert(const ItemInfo &itemInfo,
+                             const ItemCategoryIdType &itemCategoryId)
+{
+	// TODO: Don't use IDs concerned with Zabbix.
+	VariableItemGroupPtr grp;
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_NAME, itemInfo.brief);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_KEY_, "");
+
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_ITEMID, itemInfo.id);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_HOSTID, itemInfo.hostId);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTCLOCK,
+	                (int)itemInfo.lastValueTime.tv_sec);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTVALUE, itemInfo.lastValue);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_PREVVALUE, itemInfo.prevValue);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_DELAY,     itemInfo.delay);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID, itemCategoryId);
+	return grp;
+}
+
 // ---------------------------------------------------------------------------
 // Watcher
 // ---------------------------------------------------------------------------
