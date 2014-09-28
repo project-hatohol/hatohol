@@ -165,6 +165,10 @@ typedef std::map<ServerIdType, HostgroupIdSet> ServerHostGrpSetMap;
 typedef ServerHostGrpSetMap::iterator       ServerHostGrpSetMapIterator;
 typedef ServerHostGrpSetMap::const_iterator ServerHostGrpSetMapConstIterator;
 
+typedef std::map<ItemCategoryIdType, std::string> ItemCategoryNameMap;
+typedef ItemCategoryNameMap::iterator       ItemCategoryNameMapIterator;
+typedef ItemCategoryNameMap::const_iterator ItemCategoryNameMapConstIterator;
+
 enum SyncType {
 	SYNC,
 	ASYNC,

@@ -50,11 +50,6 @@ public:
 	  const ItemTablePtr items, const ItemTablePtr applications);
 
 protected:
-	typedef std::map<ItemCategoryIdType, std::string> ItemCategoryNameMap;
-	typedef ItemCategoryNameMap::iterator ItemCategoryNameMapIterator;
-	typedef ItemCategoryNameMap::const_iterator
-	  ItemCategoryNameMapConstIterator;
-
 	static int getItemVariable(const std::string &word);
 
 	/**
