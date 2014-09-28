@@ -253,11 +253,22 @@ void HatoholArmPluginGate::startOnDemandFetchItem(ClosureBase *closure)
 {
 	struct Callback : public CommandCallbacks {
 		Signal itemUpdatedSignal;
+		ServerIdType serverId;
 		virtual void onGotReply(mlpl::SmartBuffer &replyBuf,
 		                        const HapiCommandHeader &cmdHeader)
 		                          override
 		{
-			MLPL_BUG("TODO: add code to save items.");
+			// TODO: fill proper value
+			MonitoringServerStatus serverStatus;
+			serverStatus.serverId = serverId;
+
+			replyBuf.setIndex(sizeof(HapiResponseHeader));
+			ItemTablePtr itemTablePtr = createItemTable(replyBuf);
+			ItemTablePtr appTablePtr  = createItemTable(replyBuf);
+			ItemInfoList itemList;
+			HatoholDBUtils::transformItemsToHatoholFormat(
+			  itemList, serverStatus, itemTablePtr, appTablePtr);
+			UnifiedDataStore::getInstance()->addItemList(itemList);
 			cleanup();
 		}
 
@@ -277,6 +288,7 @@ void HatoholArmPluginGate::startOnDemandFetchItem(ClosureBase *closure)
 	};
 	Callback *callback = new Callback();
 	callback->itemUpdatedSignal.connect(closure);
+	callback->serverId = m_impl->serverInfo.id;
 
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(cmdBuf, HAPI_CMD_REQ_FETCH_ITEMS);

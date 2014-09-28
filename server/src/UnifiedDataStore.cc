@@ -537,6 +537,13 @@ void UnifiedDataStore::addEventList(const EventInfoList &eventList)
 	cache.getMonitoring().addEventInfoList(eventList);
 }
 
+void UnifiedDataStore::addItemList(const ItemInfoList &itemList)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	dbMonitoring.addItemInfoList(itemList);
+}
+
 void UnifiedDataStore::getUserList(UserInfoList &userList,
                                    const UserQueryOption &option)
 {

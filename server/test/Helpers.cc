@@ -126,6 +126,22 @@ void _assertEqual(const ArmInfo &expect, const ArmInfo &actual)
 	cppcut_assert_equal(expect.numFailure, actual.numFailure);
 }
 
+void _assertEqual(const ItemInfo &expect, const ItemInfo &actual)
+{
+	cppcut_assert_equal(expect.serverId,  actual.serverId);
+	cppcut_assert_equal(expect.id,        actual.id);
+	cppcut_assert_equal(expect.hostId,    actual.hostId);
+	cppcut_assert_equal(expect.brief,     actual.brief);
+	cppcut_assert_equal(expect.lastValueTime.tv_sec,
+	                    actual.lastValueTime.tv_sec);
+	cppcut_assert_equal(expect.lastValueTime.tv_nsec,
+	                    actual.lastValueTime.tv_nsec);
+	cppcut_assert_equal(expect.lastValue, actual.lastValue);
+	cppcut_assert_equal(expect.prevValue, actual.prevValue);
+	cppcut_assert_equal(expect.itemGroupName, actual.itemGroupName);
+	cppcut_assert_equal(expect.delay,     actual.delay);
+}
+
 struct SpawnSyncContext {
 	bool running;
 	bool hasError;
@@ -1085,6 +1101,21 @@ VariableItemGroupPtr convert(const ItemInfo &itemInfo,
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_DELAY,     itemInfo.delay);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID, itemCategoryId);
 	return grp;
+}
+
+ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap)
+{
+	VariableItemTablePtr tablePtr;
+	ItemCategoryNameMapConstIterator it = itemCategoryNameMap.begin();
+	for (; it != itemCategoryNameMap.end(); ++it) {
+		VariableItemGroupPtr grp;
+		const ItemCategoryIdType &id = it->first;
+		const string &name = it->second;
+		grp->addNewItem(ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID, id);
+		grp->addNewItem(ITEM_ID_ZBX_APPLICATIONS_NAME, name);
+		tablePtr->add(grp);
+	}
+	return static_cast<ItemTablePtr>(tablePtr);
 }
 
 // ---------------------------------------------------------------------------

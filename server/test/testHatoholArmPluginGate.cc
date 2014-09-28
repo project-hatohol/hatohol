@@ -32,6 +32,8 @@
 #include "Hatohol.h"
 #include "hapi-test-plugin.h"
 #include "HatoholArmPluginGateTest.h"
+#include "ThreadLocalDBCache.h"
+#include "HatoholDBUtils.h"
 
 using namespace std;
 using namespace mlpl;
@@ -282,10 +284,14 @@ void cut_setup(void)
 	setupTestDB();
 }
 
-class HatoholArmPluginBaseTest :
+struct HatoholArmPluginBaseTest :
   public HatoholArmPluginBase, public HapiTestHelper
 {
-public:
+	HatoholArmPluginBaseTest(void)
+	: serverIdOfHapGate(INVALID_SERVER_ID)
+	{
+	}
+
 	virtual void onConnected(Connection &conn) override
 	{
 		HapiTestHelper::onConnected(conn);
@@ -301,10 +307,34 @@ public:
 	{
 		SmartBuffer resBuf;
 		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS);
-		// TODO: Fill test item data
+
+		// Fill test items
+		VariableItemTablePtr itemTablePtr;
+		ItemCategoryNameMap itemCategoryNameMap;
+		for (size_t i = 0; i < NumTestItemInfo; i++) {
+			const ItemInfo &itemInfo = testItemInfo[i];
+			if (itemInfo.serverId != serverIdOfHapGate)
+				continue;
+			const ItemCategoryIdType itemCategoryId = i + 100;
+			itemTablePtr->add(convert(itemInfo, itemCategoryId));
+			itemCategoryNameMap[itemCategoryId] =
+			  itemInfo.itemGroupName;
+		}
+		HATOHOL_ASSERT(itemTablePtr->getNumberOfRows() >= 1,
+		               "There's no test items. Inappropriate server "
+		               "ID for HatoholArmPluginGate may be used.");
+		appendItemTable(resBuf,
+		                static_cast<ItemTablePtr>(itemTablePtr));
+
+		// Add item category
+		ItemTablePtr itemCategoryTablePtr =
+		   convert(itemCategoryNameMap);
+		appendItemTable(resBuf, itemCategoryTablePtr);
+
 		reply(resBuf);
 	}
 
+	ServerIdType serverIdOfHapGate;
 };
 
 typedef HatoholArmPluginTestPair<HatoholArmPluginBaseTest> TestPair;
@@ -325,8 +355,11 @@ struct TestReceiver {
 
 void test_fetchItem(void)
 {
+	loadTestDBServer(); // for getItemInfoList().
+
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	TestPair pair(arg);
+	pair.plugin->serverIdOfHapGate = arg.serverId;
 
 	TestReceiver receiver;
 	pair.gate->startOnDemandFetchItem(
@@ -334,7 +367,25 @@ void test_fetchItem(void)
 	cppcut_assert_equal(
 	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
 
-	// TODO: Check the test items
+	// Check the obtained items
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	ItemInfoList itemList;
+	dbMonitoring.getItemInfoList(itemList,
+	                             ItemsQueryOption(USER_ID_SYSTEM));
+	vector<int> expectItemIdxVec;
+	for (size_t i = 0; i < NumTestItemInfo; i++) {
+		const ItemInfo &itemInfo = testItemInfo[i];
+		if (itemInfo.serverId != arg.serverId)
+			continue;
+		expectItemIdxVec.push_back(i);
+	}
+	cppcut_assert_equal(expectItemIdxVec.size(), itemList.size());
+	ItemInfoListConstIterator actual = itemList.begin();
+	for (int idx = 0; actual != itemList.end(); ++actual, idx++) {
+		const ItemInfo &expect = testItemInfo[expectItemIdxVec[idx]];
+		assertEqual(expect, *actual);
+	}
 }
 
 // TODO: implement
