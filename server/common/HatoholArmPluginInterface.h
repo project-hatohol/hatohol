@@ -727,8 +727,10 @@ protected:
 	 * @tparam BodyType
 	 * A Body type. If a body doesn't exist, 'void' shall be set.
 	 *
+	 * @param resBuf
+	 * A SmartBuffer instance to be set up. The index is set to the next
+	 * to the header region after the call.
 	 *
-	 * @param resBuf A SmartBuffer instance to be set up.
 	 * @param additionalSize An addition size to allocate a buffer.
 	 *
 	 * @return A pointer of the body area.
@@ -748,6 +750,7 @@ protected:
 		header->type = NtoL(HAPI_MSG_RESPONSE);
 		header->code = NtoL(code);
 		header->sequenceId = NtoL(getSequenceIdInProgress());
+		resBuf.setIndex(sizeof(HapiResponseHeader));
 		return resBuf.getPointer<BodyType>(sizeof(HapiResponseHeader));
 	}
 
