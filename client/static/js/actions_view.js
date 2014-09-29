@@ -230,7 +230,8 @@ var ActionsView = function(userProfile) {
       var timeout = actionDef.timeout;
       if (timeout == 0)
         timeout = gettext("No limit");
-      s += "<td>" + escapeHTML(timeout) + "</td>";
+      timeoutSec = timeout / 1000;
+      s += "<td>" + escapeHTML(timeoutSec) + "</td>";
 
       s += "</tr>";
     }
