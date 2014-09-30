@@ -152,13 +152,13 @@ gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
 	          svInfo.hostName.c_str());
 	ArmBase::registerAvailableTrigger(COLLECT_NG_PARSER_ERROR,
-					  FAILED_PARSER_JSON_DATA_TRIGGERID,
+					  FAILED_PARSER_JSON_DATA_TRIGGER_ID,
 					  HTERR_FAILED_TO_PARSE_JSON_DATA);
 	ArmBase::registerAvailableTrigger(COLLECT_NG_DISCONNECT_ZABBIX,
-					  FAILED_CONNECT_ZABBIX_TRIGGERID,
+					  FAILED_CONNECT_ZABBIX_TRIGGER_ID,
 					  HTERR_FAILED_CONNECT_ZABBIX);
 	ArmBase::registerAvailableTrigger(COLLECT_NG_INTERNAL_ERROR,
-					  FAILED_INTERNAL_ERROR_TRIGGERID,
+					  FAILED_INTERNAL_ERROR_TRIGGER_ID,
 					  HTERR_INTERNAL_ERROR);
 	return ArmBase::mainThread(arg);
 }
