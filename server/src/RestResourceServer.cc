@@ -306,6 +306,14 @@ static HatoholError parseServerParameter(
 	if (err != HTERR_OK)
 		return err;
 
+	// nickname
+	key = "nickname";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		svInfo.nickname = value;
+
 	// hostname
 	key = "hostName";
 	value = (char *)g_hash_table_lookup(query, key.c_str());
@@ -322,13 +330,19 @@ static HatoholError parseServerParameter(
 	if (value)
 		svInfo.ipAddress = value;
 
-	// nickname
-	key = "nickname";
-	value = (char *)g_hash_table_lookup(query, key.c_str());
-	if (!value && isRequired(requiredKeys, key, allowEmpty))
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
-	if (value)
-		svInfo.nickname = value;
+	if (requiredKeys.find("hostName") == requiredKeys.end() &&
+	    requiredKeys.find("ipAddress") == requiredKeys.end() &&
+	    svInfo.hostName.empty() &&
+	    svInfo.ipAddress.empty()) {
+		// Although this server type doesn't require both hostName &
+		// ipAddress, DBTablesConfig doesn't allow a server with empty
+		// hostName & ipAddress. To avoid it fill the hostName by
+		// using the nickname.
+		//
+		// TODO: How should we solve this issue?
+		//
+		svInfo.hostName = svInfo.nickname;
+	}
 
 	// port
 	key = "port";
