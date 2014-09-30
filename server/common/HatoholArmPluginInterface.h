@@ -784,4 +784,7 @@ inline size_t HatoholArmPluginInterface::getBodySize<void>(void)
 	return 0;
 }
 
+#define HAP_PIPE_NAME_FMT "hap-pipe-%" FMT_SERVER_ID
+#define HAP_PIPE_OPT      "hap-pipe"
+
 #endif // HatoholArmPluginInterface_h

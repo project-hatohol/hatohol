@@ -30,6 +30,7 @@
 #include <Mutex.h>
 #include <Reaper.h>
 #include <SimpleSemaphore.h>
+#include "NamedPipe.h"
 #include "UnifiedDataStore.h"
 #include "HatoholArmPluginGate.h"
 #include "ThreadLocalDBCache.h"
@@ -85,6 +86,7 @@ struct HatoholArmPluginGate::Impl
 	bool                 createdSelfTriggers;
 	guint                timerTag;
 	HAPIWtchPointInfo    hapiWtchPointInfo[NUM_COLLECT_NG_KIND];
+	NamedPipe            pipeRd, pipeWr;
 
 	Impl(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
@@ -93,7 +95,9 @@ struct HatoholArmPluginGate::Impl
 	  pid(0),
 	  pluginTermSem(0),
 	  exitSyncDone(false),
-	  createdSelfTriggers(false)
+	  createdSelfTriggers(false),
+	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
+	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE)
 	{
 	}
 
@@ -651,6 +655,18 @@ bool HatoholArmPluginGate::launchPluginProcess(
 		arg.envs.push_back(env);
 	}
 
+	// Open PIPEs
+	// NOTE: Now PIPEs are used only for the detection of death of the
+	// Hatohol server by (non-passive) Arm Plugins. However, we may use
+	// the pipes to carry payloads instead of AMQP daemon to
+	// improve performance.
+	const string pipeName = StringUtils::sprintf(HAP_PIPE_NAME_FMT,
+	                                             m_impl->serverInfo.id);
+	if (!initPipesIfNeeded(pipeName))
+		return false;
+	arg.args.push_back("--" HAP_PIPE_OPT);
+	arg.args.push_back(pipeName);
+
 	arg.eventCb = eventCb;
 	arg.envs.push_back(StringUtils::sprintf(
 	  "%s=%s", ENV_NAME_QUEUE_ADDR,
@@ -963,4 +979,31 @@ void HatoholArmPluginGate::cmdHandlerAvailableTrigger(
 		addInitialTrigger(static_cast<HatoholArmPluginWatchType>(LtoN(buf[i])));
 	}
 	replyOk();
+}
+
+bool HatoholArmPluginGate::initPipesIfNeeded(const string &pipeName)
+{
+	if (m_impl->pipeRd.getFd() < 0) {
+		if (!m_impl->pipeRd.init(pipeName, pipeRdErrCb, this))
+			return false;
+	}
+	if (m_impl->pipeWr.getFd() < 0) {
+		if (!m_impl->pipeWr.init(pipeName, pipeWrErrCb, this))
+			return false;
+	}
+	return true;
+}
+
+gboolean HatoholArmPluginGate::pipeRdErrCb(
+  GIOChannel *source, GIOCondition condition, gpointer data)
+{
+	MLPL_INFO("Got callback (PIPE): %08x", condition);
+	return TRUE;
+}
+
+gboolean HatoholArmPluginGate::pipeWrErrCb(
+  GIOChannel *source, GIOCondition condition, gpointer data)
+{
+	MLPL_INFO("Got callback (PIPE): %08x", condition);
+	return TRUE;
 }

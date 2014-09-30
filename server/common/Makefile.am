@@ -22,6 +22,7 @@ libhatohol_common_la_SOURCES = \
 	JSONParserPositionStack.cc \
 	Monitoring.h \
 	MonitoringServerInfo.cc MonitoringServerInfo.h \
+	NamedPipe.cc NamedPipe.h \
 	Params.h \
 	EndianConverter.h \
 	UsedCountable.cc UsedCountable.h \

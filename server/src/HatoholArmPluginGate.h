@@ -139,9 +139,15 @@ protected:
 	void setPluginAvailabelTrigger(const HatoholArmPluginWatchType &type,
 				       const TriggerIdType &trrigerId,
 				       const HatoholError &hatoholError);
+	bool initPipesIfNeeded(const std::string &pipeName);
 
 	static gboolean detectedArmPluginTimeout(void *data);
 	static void removeArmPluginTimeout(gpointer data);
+
+	static gboolean pipeRdErrCb(GIOChannel *source,
+	                            GIOCondition condition, gpointer data);
+	static gboolean pipeWrErrCb(GIOChannel *source,
+	                            GIOCondition condition, gpointer data);
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;;

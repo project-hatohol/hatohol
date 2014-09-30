@@ -43,6 +43,12 @@ protected:
 	virtual void onReady(const MonitoringServerInfo &serverInfo) override;
 	virtual int onCaughtException(const std::exception &e) override;
 
+	bool initHapPipe(const std::string &hapPipeName);
+	void exitProcess(void);
+	static gboolean pipeRdErrCb(
+	  GIOChannel *source, GIOCondition condition, gpointer data);
+	static gboolean pipeWrErrCb(
+	  GIOChannel *source, GIOCondition condition, gpointer data);
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
