@@ -256,12 +256,14 @@ static HatoholError getRequiredParameterKeys(
 	size_t num = parser.countElements();
 	for (size_t i = 0; i < num; i++) {
 		bool allowEmpty = false;
-		parser.startObject(StringUtils::toString(static_cast<int>(i)));
 		string key;
+
+		parser.startObject(StringUtils::toString(static_cast<int>(i)));
 		parser.read("id", key);
 		if (parser.isMember("allowEmpty"))
 			parser.read("allowEmpty", allowEmpty);
 		parser.endObject();
+
 		if (!allowEmpty)
 			requiredKeys.insert(key);
 	}
