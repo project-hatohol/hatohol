@@ -157,8 +157,12 @@ struct HatoholArmPluginInterface::Impl {
 	static void destroyReplyWaiter(ReplyWaiter *replyWaiter,
 	                               Impl *impl)
 	{
-		replyWaiter->callbacksPtr->onError(HAPI_RES_ERR_DESTRUCTED,
-		                                   replyWaiter->header);
+		try {
+			replyWaiter->callbacksPtr->onError(
+			  HAPI_RES_ERR_DESTRUCTED, replyWaiter->header);
+		} catch (const exception &e) {
+			MLPL_ERR("Got exception: %s\n", e.what());
+		}
 		delete replyWaiter;
 	}
 
