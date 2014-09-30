@@ -202,7 +202,7 @@ void test_addServer(void)
 	MonitoringServerInfo expected;
 	MonitoringServerInfo::initialize(expected);
 	expected.id = NumTestServerInfo + 1;
-	expected.type = MONITORING_SYSTEM_FAKE;
+	expected.type = MONITORING_SYSTEM_ZABBIX;
 
 	StringMap params;
 	serverInfo2StringMap(expected, params);
