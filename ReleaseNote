@@ -24,6 +24,8 @@
 	[Server] Check a DB connection at the start up and exit soon with error code if it failed (#591)
 	[Client] Allow browser to remember user name and password in the login dialog
 	[Server] Solve a problem that Hatohol server fails to get event data in specific case (#252)
+	[Server] Solve a problem when user set timeout of action, command is forced termination. (#646, #647)
+	[Server] Solve a problem that Don't run action. (#642)
 
 	* Contributors
 	- Jairo Eduardo Lopez
