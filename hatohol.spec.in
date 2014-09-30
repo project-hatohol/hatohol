@@ -4,7 +4,7 @@ Group: Applications/System
 Version: @VERSION@
 License: GPLv2+
 URL: https://github.com/project-hatohol/hatohol
-Release: 0.3%{?dist}
+Release: 0.4%{?dist}
 Source0: %{name}-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -152,6 +152,10 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Tue Sep 30 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-0.4
+- Update to 14.09-RC1
+  - Bug fix
+    - Solve a problem when user set timeout of action, command is forced termination. (#646, #647)
 * Fri Sep 26 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-0.3
 - Update to 14.09-pre3
   - Bug fix
