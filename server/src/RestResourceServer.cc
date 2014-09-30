@@ -246,7 +246,7 @@ static HatoholError getRequiredParameterKeys(
 	DBTablesConfig &dbConfig = cache.getConfig();
 	ServerTypeInfo serverTypeInfo;
 	if (!dbConfig.getServerType(serverTypeInfo, svInfo.type))
-		return HTERR_NOT_FOUND_PARAMETER;
+		return HTERR_NOT_FOUND_SERVER_TYPE;
 
 	string json("{\"parameters\":");
 	json += serverTypeInfo.parameters;
@@ -254,7 +254,7 @@ static HatoholError getRequiredParameterKeys(
 	JSONParser parser(json);
 	parser.startObject("parameters");
 	if (parser.hasError())
-		return HTERR_NOT_FOUND_PARAMETER;
+		return HTERR_INVALID_SERVER_TYPE;
 
 	size_t num = parser.countElements();
 	for (size_t i = 0; i < num; i++) {
@@ -262,7 +262,7 @@ static HatoholError getRequiredParameterKeys(
 		string key;
 
 		if (!parser.startElement(i))
-			return HTERR_NOT_FOUND_PARAMETER;
+			return HTERR_INVALID_SERVER_TYPE;
 		parser.read("id", key);
 		if (parser.isMember("allowEmpty"))
 			parser.read("allowEmpty", allowEmpty);

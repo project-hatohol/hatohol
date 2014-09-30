@@ -124,6 +124,10 @@ void HatoholError::init(void)
 		   "Authentication failed.");
 	DEFINE_ERR(NOT_TEST_MODE,
 		   "Not test mode.");
+	DEFINE_ERR(NOT_FOUND_SERVER_TYPE,
+		   "The server type doesn't exist.");
+	DEFINE_ERR(INVALID_SERVER_TYPE,
+		   "The server type is invalid.");
 
 	// VirtualDataStore
 	DEFINE_ERR(FAILED_TO_CREATE_DATA_STORE,
