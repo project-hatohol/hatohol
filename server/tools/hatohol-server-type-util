@@ -120,7 +120,14 @@ class HapiJSONParamGenerator(ParamGenerator):
         obj = []
         obj.append({'id':'nickname',
                     'label':'Nickname'});
-        obj.extend(self.get_hapi_params())
+        obj.append({'id':'brokerUrl',
+                    'label':'Broker URL',
+                    'allowEmpty':True,
+                    'hint':'(empty: Default)'});
+        obj.append({'id':'staticQueueAddress',
+                    'label':'Static queue address',
+                    'allowEmpty':True,
+                    'hint':'(empty: Default)'});
         obj.append({'id':'tlsCertificatePath',
                     'label':'TLS client certificate path'});
         obj.append({'id':'tlsKeyPath',
