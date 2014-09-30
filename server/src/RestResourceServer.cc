@@ -336,7 +336,7 @@ static HatoholError parseServerParameter(
 	    svInfo.ipAddress.empty()) {
 		// Although this server type doesn't require both hostName &
 		// ipAddress, DBTablesConfig doesn't allow a server with empty
-		// hostName & ipAddress. To avoid it fill the hostName by
+		// hostName & ipAddress. To avoid it we fill the hostName by
 		// using the nickname.
 		//
 		// TODO: How should we solve this issue?
