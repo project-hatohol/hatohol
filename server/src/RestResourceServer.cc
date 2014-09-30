@@ -272,8 +272,11 @@ static HatoholError getRequiredParameterKeys(
 	return HTERR_OK;
 }
 
-static bool isRequired(const set<string> &requiredKeys, const string &key)
+static bool isRequired(const set<string> &requiredKeys,
+		       const string &key, bool allowEmpty)
 {
+	if (allowEmpty)
+		return false;
 	return requiredKeys.find(key) != requiredKeys.end();
 }
 
@@ -302,7 +305,7 @@ static HatoholError parseServerParameter(
 	// hostname
 	key = "hostName";
 	value = (char *)g_hash_table_lookup(query, key.c_str());
-	if (!value && isRequired(requiredKeys, key))
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		svInfo.hostName = value;
@@ -310,7 +313,7 @@ static HatoholError parseServerParameter(
 	// ipAddress
 	key = "ipAddress";
 	value = (char *)g_hash_table_lookup(query, key.c_str());
-	if (!value && isRequired(requiredKeys, key))
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		svInfo.ipAddress = value;
@@ -318,7 +321,7 @@ static HatoholError parseServerParameter(
 	// nickname
 	key = "nickname";
 	value = (char *)g_hash_table_lookup(query, key.c_str());
-	if (!value && isRequired(requiredKeys, key))
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		svInfo.nickname = value;
@@ -328,7 +331,7 @@ static HatoholError parseServerParameter(
 	err = getParam<int>(
 		query, key.c_str(), "%d", svInfo.port);
 	if (err != HTERR_OK) {
-		if (isRequired(requiredKeys, key) ||
+		if (isRequired(requiredKeys, key, allowEmpty) ||
 		    err != HTERR_NOT_FOUND_PARAMETER) {
 			return err;
 		}
@@ -339,7 +342,7 @@ static HatoholError parseServerParameter(
 	err = getParam<int>(
 		query, key.c_str(), "%d", svInfo.pollingIntervalSec);
 	if (err != HTERR_OK) {
-		if (isRequired(requiredKeys, key) ||
+		if (isRequired(requiredKeys, key, allowEmpty) ||
 		    err != HTERR_NOT_FOUND_PARAMETER) {
 			return err;
 		}
@@ -350,7 +353,7 @@ static HatoholError parseServerParameter(
 	err = getParam<int>(
 		query, key.c_str(), "%d", svInfo.retryIntervalSec);
 	if (err != HTERR_OK) {
-		if (isRequired(requiredKeys, key) ||
+		if (isRequired(requiredKeys, key, allowEmpty) ||
 		    err != HTERR_NOT_FOUND_PARAMETER) {
 			return err;
 		}
@@ -359,7 +362,7 @@ static HatoholError parseServerParameter(
 	// username
 	key = "userName";
 	value = (char *)g_hash_table_lookup(query, key.c_str());
-	if (!value && isRequired(requiredKeys, key))
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		svInfo.userName = value;
@@ -367,7 +370,7 @@ static HatoholError parseServerParameter(
 	// password
 	key = "password";
 	value = (char *)g_hash_table_lookup(query, key.c_str());
-	if (!value && isRequired(requiredKeys, key))
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		svInfo.password = value;
@@ -375,7 +378,7 @@ static HatoholError parseServerParameter(
 	// dbname
 	key = "dbName";
 	value = (char *)g_hash_table_lookup(query, key.c_str());
-	if (!value && isRequired(requiredKeys, key))
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		svInfo.dbName = value;
@@ -402,7 +405,7 @@ static HatoholError parseServerParameter(
 
 	// TODO: We should create a method to parse Boolean value.
 	value = (char *)g_hash_table_lookup(query, "passiveMode");
-	if (!value && isRequired(requiredKeys, "passiveMode"))
+	if (!value && isRequired(requiredKeys, "passiveMode", allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "passiveMode");
 	bool passiveMode = false;
 	if (value)
@@ -414,7 +417,7 @@ static HatoholError parseServerParameter(
 
 	// brokerUrl
 	value = (char *)g_hash_table_lookup(query, "brokerUrl");
-	if (!value && isRequired(requiredKeys, "brokerUrl"))
+	if (!value && isRequired(requiredKeys, "brokerUrl", allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "brokerUrl");
 	if (value)
 		armPluginInfo.brokerUrl = value;
@@ -422,7 +425,7 @@ static HatoholError parseServerParameter(
 	// staticQueueAddress
 	key = "staticQueueAddress";
 	value = (char *)g_hash_table_lookup(query, key.c_str());
-	if (!value && isRequired(requiredKeys, key))
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		armPluginInfo.staticQueueAddress = value;
@@ -430,7 +433,7 @@ static HatoholError parseServerParameter(
 	// tlsCertificatePath
 	key = "tlsCertificatePath";
 	value = (char *)g_hash_table_lookup(query, key.c_str());
-	if (!value && isRequired(requiredKeys, key))
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		armPluginInfo.tlsCertificatePath = value;
@@ -438,7 +441,7 @@ static HatoholError parseServerParameter(
 	// tlsKeyPath
 	key = "tlsKeyPath";
 	value = (char *)g_hash_table_lookup(query, key.c_str());
-	if (!value && isRequired(requiredKeys, key))
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		armPluginInfo.tlsKeyPath = value;
@@ -446,7 +449,7 @@ static HatoholError parseServerParameter(
 	// tlsCACertificatePath
 	key = "tlsCACertificatePath";
 	value = (char *)g_hash_table_lookup(query, key.c_str());
-	if (!value && isRequired(requiredKeys, key))
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		armPluginInfo.tlsCACertificatePath = value;
@@ -454,7 +457,7 @@ static HatoholError parseServerParameter(
 	// tlsEnableVerify
 	key = "tlsEnableVerify";
 	value = (char *)g_hash_table_lookup(query, key.c_str());
-	if (!value && isRequired(requiredKeys, key))
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	armPluginInfo.tlsEnableVerify = (value && string(value) == "true");
 
