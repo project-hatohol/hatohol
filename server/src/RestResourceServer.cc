@@ -248,11 +248,7 @@ static HatoholError getRequiredParameterKeys(
 	if (!dbConfig.getServerType(serverTypeInfo, svInfo.type))
 		return HTERR_NOT_FOUND_SERVER_TYPE;
 
-	string json("{\"parameters\":");
-	json += serverTypeInfo.parameters;
-	json += "}";
-	JSONParser parser(json);
-	parser.startObject("parameters");
+	JSONParser parser(serverTypeInfo.parameters);
 	if (parser.hasError())
 		return HTERR_INVALID_SERVER_TYPE;
 
@@ -271,7 +267,6 @@ static HatoholError getRequiredParameterKeys(
 		if (!key.empty() && !allowEmpty)
 			requiredKeys.insert(key);
 	}
-	parser.endObject();
 
 	return HTERR_OK;
 }
