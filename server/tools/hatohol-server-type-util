@@ -129,14 +129,18 @@ class HapiJSONParamGenerator(ParamGenerator):
                     'allowEmpty':True,
                     'hint':'(empty: Default)'});
         obj.append({'id':'tlsCertificatePath',
-                    'label':'TLS client certificate path'});
+                    'label':'TLS client certificate path',
+                    'allowEmpty':True});
         obj.append({'id':'tlsKeyPath',
-                    'label':'TLS client key path'});
+                    'label':'TLS client key path',
+                    'allowEmpty':True});
         obj.append({'id':'tlsCACertificatePath',
-                    'label':'TLS CA certificate path'});
+                    'label':'TLS CA certificate path',
+                    'allowEmpty':True});
         obj.append({'id':'tlsEnableVerify',
                     'label':'TLS: Enable verify',
-                    'inputStyle':'checkBox'});
+                    'inputStyle':'checkBox',
+                    'allowEmpty':True});
         return obj
 
 
