@@ -258,11 +258,11 @@ static HatoholError getRequiredParameterKeys(
 		bool allowEmpty = false;
 		string key;
 
-		parser.startObject(StringUtils::toString(static_cast<int>(i)));
+		parser.startElement(i);
 		parser.read("id", key);
 		if (parser.isMember("allowEmpty"))
 			parser.read("allowEmpty", allowEmpty);
-		parser.endObject();
+		parser.endElement();
 
 		if (!allowEmpty)
 			requiredKeys.insert(key);
