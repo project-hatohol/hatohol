@@ -1206,8 +1206,8 @@ string ActionsQueryOption::getCondition(void) const
 	TriggerInfo triggerInfo;
 	// TODO: eventInfo should always be filled before this function
 	//       is called. (The conditional branch here is not good)
-	if ((!eventInfo->hostId) &&
-	   (eventInfo->severity == TRIGGER_SEVERITY_UNKNOWN)) {
+	if ((eventInfo->hostId == INVALID_HOST_ID) &&
+	    (eventInfo->severity == TRIGGER_SEVERITY_UNKNOWN)) {
 		takeTriggerInfo(
 		  triggerInfo, eventInfo->serverId, eventInfo->triggerId);
 	} else {
