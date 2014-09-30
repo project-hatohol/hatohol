@@ -128,8 +128,8 @@ void HatoholError::init(void)
 	// VirtualDataStore
 	DEFINE_ERR(FAILED_TO_CREATE_DATA_STORE,
 		   "Failed to create a DataStore object.");
-	DEFINE_ERR(FAILED_TO_REGIST_DATA_STORE,
-		   "Failed to regist a DataStore object.");
+	DEFINE_ERR(FAILED_TO_REGISTER_DATA_STORE,
+		   "Failed to register a DataStore object.");
 	DEFINE_ERR(FAILED_TO_STOP_DATA_STORE,
 		   "Failed to stop a DataStore object.");
 

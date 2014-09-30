@@ -162,7 +162,7 @@ struct UnifiedDataStore::Impl
 		 // incremented in the above add() if successed
 		dataStore->unref();
 		if (!successed)
-			return HTERR_FAILED_TO_REGIST_DATA_STORE;
+			return HTERR_FAILED_TO_REGISTER_DATA_STORE;
 		return HTERR_OK;
 	}
 
