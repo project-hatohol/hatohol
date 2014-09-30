@@ -272,6 +272,11 @@ static HatoholError getRequiredParameterKeys(
 	return HTERR_OK;
 }
 
+static bool isRequired(const set<string> &requiredKeys, const string &key)
+{
+	return requiredKeys.find(key) != requiredKeys.end();
+}
+
 static HatoholError parseServerParameter(
   MonitoringServerInfo &svInfo, ArmPluginInfo &armPluginInfo,
   GHashTable *query, const bool &forUpdate = false)
@@ -281,71 +286,97 @@ static HatoholError parseServerParameter(
 	char *value;
 
 	// type
+	string key = "type";
 	err = getParam<MonitoringSystemType>(
-		query, "type", "%d", svInfo.type);
+		query, key.c_str(), "%d", svInfo.type);
 	if (err != HTERR_OK) {
 		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
 			return err;
 	}
 
+	set<string> requiredKeys;
+	err = getRequiredParameterKeys(svInfo, requiredKeys);
+	if (err != HTERR_OK)
+		return err;
+
 	// hostname
-	value = (char *)g_hash_table_lookup(query, "hostName");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "hostName");
-	svInfo.hostName = value;
+	key = "hostName";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		svInfo.hostName = value;
 
 	// ipAddress
-	value = (char *)g_hash_table_lookup(query, "ipAddress");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "ipAddress");
-	svInfo.ipAddress = value;
+	key = "ipAddress";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		svInfo.ipAddress = value;
 
 	// nickname
-	value = (char *)g_hash_table_lookup(query, "nickname");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "nickname");
-	svInfo.nickname = value;
+	key = "nickname";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		svInfo.nickname = value;
 
 	// port
+	key = "port";
 	err = getParam<int>(
-		query, "port", "%d", svInfo.port);
+		query, key.c_str(), "%d", svInfo.port);
 	if (err != HTERR_OK) {
-		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
+		if (isRequired(requiredKeys, key) ||
+		    err != HTERR_NOT_FOUND_PARAMETER) {
 			return err;
+		}
 	}
 
 	// polling
+	key = "pollingInterval";
 	err = getParam<int>(
-		query, "pollingInterval", "%d", svInfo.pollingIntervalSec);
+		query, key.c_str(), "%d", svInfo.pollingIntervalSec);
 	if (err != HTERR_OK) {
-		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
+		if (isRequired(requiredKeys, key) ||
+		    err != HTERR_NOT_FOUND_PARAMETER) {
 			return err;
+		}
 	}
 
 	// retry
+	key = "retryInterval";
 	err = getParam<int>(
-		query, "retryInterval", "%d", svInfo.retryIntervalSec);
-	if (err != HTERR_OK && !allowEmpty)
-		return err;
+		query, key.c_str(), "%d", svInfo.retryIntervalSec);
+	if (err != HTERR_OK) {
+		if (isRequired(requiredKeys, key) ||
+		    err != HTERR_NOT_FOUND_PARAMETER) {
+			return err;
+		}
+	}
 
 	// username
-	value = (char *)g_hash_table_lookup(query, "userName");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "userName");
-	svInfo.userName = value;
+	key = "userName";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		svInfo.userName = value;
 
 	// password
-	value = (char *)g_hash_table_lookup(query, "password");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
-	svInfo.password = value;
+	key = "password";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		svInfo.password = value;
 
 	// dbname
-	value = (char *)g_hash_table_lookup(query, "dbName");
-	if (!value &&
-	    (svInfo.type == MONITORING_SYSTEM_NAGIOS)) {
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "dbName");
-	}
+	key = "dbName";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		svInfo.dbName = value;
 
@@ -371,7 +402,7 @@ static HatoholError parseServerParameter(
 
 	// TODO: We should create a method to parse Boolean value.
 	value = (char *)g_hash_table_lookup(query, "passiveMode");
-	if (!value && !allowEmpty)
+	if (!value && isRequired(requiredKeys, "passiveMode"))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "passiveMode");
 	bool passiveMode = false;
 	if (value)
@@ -383,31 +414,48 @@ static HatoholError parseServerParameter(
 
 	// brokerUrl
 	value = (char *)g_hash_table_lookup(query, "brokerUrl");
+	if (!value && isRequired(requiredKeys, "brokerUrl"))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "brokerUrl");
 	if (value)
 		armPluginInfo.brokerUrl = value;
 
 	// staticQueueAddress
-	value = (char *)g_hash_table_lookup(query, "staticQueueAddress");
+	key = "staticQueueAddress";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		armPluginInfo.staticQueueAddress = value;
 
 	// tlsCertificatePath
-	value = (char *)g_hash_table_lookup(query, "tlsCertificatePath");
+	key = "tlsCertificatePath";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		armPluginInfo.tlsCertificatePath = value;
 
 	// tlsKeyPath
-	value = (char *)g_hash_table_lookup(query, "tlsKeyPath");
+	key = "tlsKeyPath";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		armPluginInfo.tlsKeyPath = value;
 
 	// tlsCACertificatePath
-	value = (char *)g_hash_table_lookup(query, "tlsCACertificatePath");
+	key = "tlsCACertificatePath";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		armPluginInfo.tlsCACertificatePath = value;
 
 	// tlsEnableVerify
-	value = (char *)g_hash_table_lookup(query, "tlsEnableVerify");
+	key = "tlsEnableVerify";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	armPluginInfo.tlsEnableVerify = (value && string(value) == "true");
 
 	return HTERR_OK;
