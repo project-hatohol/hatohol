@@ -156,7 +156,6 @@ rm -rf %{buildroot}
 - Update to 14.09-RC1
   - Bug fix
     - Solve a problem when user set timeout of action, command is forced termination. (#646, #647)
-    - Solve a problem that Don't run action. (#642)
 * Fri Sep 26 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-0.3
 - Update to 14.09-pre3
   - Bug fix
