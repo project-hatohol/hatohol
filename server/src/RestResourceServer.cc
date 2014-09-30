@@ -22,6 +22,7 @@
 #include "UnifiedDataStore.h"
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
+#include <JSONParser.h>
 
 using namespace std;
 using namespace mlpl;
@@ -235,6 +236,36 @@ void RestResourceServer::handlerGetServer(void)
 	agent.endObject();
 
 	replyJSONData(agent);
+}
+
+static HatoholError getRequiredParameterKeys(
+  const MonitoringServerInfo &svInfo, set<string> &requiredKeys)
+{
+
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	ServerTypeInfo serverTypeInfo;
+	if (!dbConfig.getServerType(serverTypeInfo, svInfo.type))
+		return HTERR_NOT_FOUND_PARAMETER;
+
+	string json("{\"parameters\":");
+	json += serverTypeInfo.parameters;
+	json += "}";
+	JSONParser parser(json);
+	parser.startObject("parameters");
+	size_t num = parser.countElements();
+	for (size_t i = 0; i < num; i++) {
+		bool allowEmpty = false;
+		parser.startObject(StringUtils::toString(static_cast<int>(i)));
+		string key;
+		parser.read("id", key);
+		if (parser.isMember("allowEmpty"))
+			parser.read("allowEmpty", allowEmpty);
+		parser.endObject();
+		if (!allowEmpty)
+			requiredKeys.insert(key);
+	}
+	parser.endObject();
 }
 
 static HatoholError parseServerParameter(
