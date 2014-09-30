@@ -1575,7 +1575,7 @@ int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
 	    dbTermCodec->enc(serverId).c_str(),
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
-	    FAILED_SELF_TRIGGERID_TERMINATION);
+	    FAILED_SELF_TRIGGER_ID_TERMINATION);
 
 	getDBAgent().runTransaction(arg);
 

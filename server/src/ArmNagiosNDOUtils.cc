@@ -767,10 +767,10 @@ gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 	MLPL_INFO("started: ArmNagiosNDOUtils (server: %s)\n",
 	          svInfo.hostName.c_str());
 	ArmBase::registerAvailableTrigger(COLLECT_NG_DISCONNECT_NAGIOS,
-					  FAILED_CONNECT_MYSQL_TRIGGERID,
+					  FAILED_CONNECT_MYSQL_TRIGGER_ID,
 					  HTERR_FAILED_CONNECT_MYSQL);
 	ArmBase::registerAvailableTrigger(COLLECT_NG_INTERNAL_ERROR,
-					  FAILED_INTERNAL_ERROR_TRIGGERID,
+					  FAILED_INTERNAL_ERROR_TRIGGER_ID,
 					  HTERR_INTERNAL_ERROR);
 	return ArmBase::mainThread(arg);
 }
