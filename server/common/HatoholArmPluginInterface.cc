@@ -164,8 +164,7 @@ struct HatoholArmPluginInterface::Impl {
 
 	void freeReplyWaiters(void)
 	{
-		replyWaiterQueue.popAll<Impl *>(destroyReplyWaiter,
-	                                                  this);
+		replyWaiterQueue.popAll<Impl *>(destroyReplyWaiter, this);
 	}
 
 	void acknowledge(void)
