@@ -266,6 +266,8 @@ static HatoholError getRequiredParameterKeys(
 			requiredKeys.insert(key);
 	}
 	parser.endObject();
+
+	return HTERR_OK;
 }
 
 static HatoholError parseServerParameter(
