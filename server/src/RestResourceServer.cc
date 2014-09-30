@@ -253,18 +253,22 @@ static HatoholError getRequiredParameterKeys(
 	json += "}";
 	JSONParser parser(json);
 	parser.startObject("parameters");
+	if (parser.hasError())
+		return HTERR_NOT_FOUND_PARAMETER;
+
 	size_t num = parser.countElements();
 	for (size_t i = 0; i < num; i++) {
 		bool allowEmpty = false;
 		string key;
 
-		parser.startElement(i);
+		if (!parser.startElement(i))
+			return HTERR_NOT_FOUND_PARAMETER;
 		parser.read("id", key);
 		if (parser.isMember("allowEmpty"))
 			parser.read("allowEmpty", allowEmpty);
 		parser.endElement();
 
-		if (!allowEmpty)
+		if (!key.empty() && !allowEmpty)
 			requiredKeys.insert(key);
 	}
 	parser.endObject();
