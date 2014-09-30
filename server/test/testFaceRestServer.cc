@@ -40,6 +40,7 @@ void cut_setup(void)
 	setupTestDB();
 	loadTestDBTablesConfig();
 	loadTestDBUser();
+	loadTestDBServerType();
 }
 
 void cut_teardown(void)
