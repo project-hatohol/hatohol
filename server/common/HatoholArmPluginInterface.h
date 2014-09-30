@@ -83,7 +83,7 @@ enum HapiCommandCode {
 	HAPI_CMD_SEND_ARM_INFO,
 	HAPI_CMD_SEND_HAP_SELF_TRIGGERS,
 	// Sv -> Cl
-	HAPI_CMD_REQ_ITEMS,
+	HAPI_CMD_REQ_FETCH_ITEMS,
 	HAPI_CMD_REQ_TERMINATE,
 	NUM_HAPI_CMD
 };
@@ -95,6 +95,9 @@ enum HapiResponseCode {
 	HAPI_RES_INVALID_ARG,
 	HAPI_RES_UNEXPECTED_SEQ_ID,
 	HAPI_RES_ERR_DESTRUCTED,
+
+	// Cl -> Sv
+	HAPI_RES_ITEMS,
 	NUM_HAPI_CMD_RES
 };
 
@@ -249,7 +252,7 @@ public:
 
 	class CommandCallbacks : public UsedCountable {
 	public:
-		virtual void onGotReply(const mlpl::SmartBuffer &replyBuf,
+		virtual void onGotReply(mlpl::SmartBuffer &replyBuf,
 		                        const HapiCommandHeader &cmdHeader);
 		virtual void onError(const HapiResponseCode &code,
 		                     const HapiCommandHeader &cmdHeader);
@@ -724,8 +727,10 @@ protected:
 	 * @tparam BodyType
 	 * A Body type. If a body doesn't exist, 'void' shall be set.
 	 *
+	 * @param resBuf
+	 * A SmartBuffer instance to be set up. The index is set to the next
+	 * to the header region after the call.
 	 *
-	 * @param resBuf A SmartBuffer instance to be set up.
 	 * @param additionalSize An addition size to allocate a buffer.
 	 *
 	 * @return A pointer of the body area.
@@ -745,6 +750,7 @@ protected:
 		header->type = NtoL(HAPI_MSG_RESPONSE);
 		header->code = NtoL(code);
 		header->sequenceId = NtoL(getSequenceIdInProgress());
+		resBuf.setIndex(sizeof(HapiResponseHeader));
 		return resBuf.getPointer<BodyType>(sizeof(HapiResponseHeader));
 	}
 

@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <set>
 #include <map>
+#include <string>
 #include "config.h"
 
 #ifndef USE_CPP11
@@ -62,6 +63,9 @@ typedef uint64_t EventIdType;
 
 typedef uint64_t ItemIdType;
 #define FMT_ITEM_ID PRIu64
+
+typedef uint64_t ItemCategoryIdType;
+#define FMT_ITEM_CATEGORY_ID PRIu64
 
 typedef uint64_t TriggerIdType;
 #define FMT_TRIGGER_ID PRIu64
@@ -108,6 +112,9 @@ static const EventIdType EVENT_NOT_FOUND = -1;
 
 // Special Item IDs ===========================================================
 static const TriggerIdType ALL_ITEMS    = -1;
+
+// Special ItemCategory IDs ===================================================
+static const ItemCategoryIdType NO_ITEM_CATEGORY_ID = -1;
 
 // Special User IDs ===========================================================
 static const UserIdType INVALID_USER_ID = -1;
@@ -158,6 +165,10 @@ typedef HostgroupIdSet::const_iterator      HostgroupIdSetConstIterator;
 typedef std::map<ServerIdType, HostgroupIdSet> ServerHostGrpSetMap;
 typedef ServerHostGrpSetMap::iterator       ServerHostGrpSetMapIterator;
 typedef ServerHostGrpSetMap::const_iterator ServerHostGrpSetMapConstIterator;
+
+typedef std::map<ItemCategoryIdType, std::string> ItemCategoryNameMap;
+typedef ItemCategoryNameMap::iterator       ItemCategoryNameMapIterator;
+typedef ItemCategoryNameMap::const_iterator ItemCategoryNameMapConstIterator;
 
 enum SyncType {
 	SYNC,

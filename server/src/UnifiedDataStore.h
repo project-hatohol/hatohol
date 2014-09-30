@@ -73,6 +73,8 @@ public:
 	void getTriggerList(TriggerInfoList &triggerList,
 	                    const TriggersQueryOption &option);
 
+	void addItemList(const ItemInfoList &itemList);
+
 	/**
 	 * Get the last change time of the trigger that belongs to
 	 * the specified server

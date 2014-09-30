@@ -171,7 +171,7 @@ void ItemFetchWorker::wakeArm(DataStore *dataStore)
 		}
 	};
 
-	ArmBase &arm = dataStore->getArmBase();
-	arm.fetchItems(new ClosureWithDataStore(this, dataStore));
+	dataStore->startOnDemandFetchItem(
+	  new ClosureWithDataStore(this, dataStore));
 }
 

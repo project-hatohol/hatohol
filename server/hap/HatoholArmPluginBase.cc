@@ -40,7 +40,7 @@ public:
 	}
 
 	virtual void onGotReply(
-	  const mlpl::SmartBuffer &replyBuf,
+	  mlpl::SmartBuffer &replyBuf,
 	  const HapiCommandHeader &cmdHeader) override
 	{
 	}
@@ -113,6 +113,11 @@ HatoholArmPluginBase::HatoholArmPluginBase(void)
 		setQueueAddress(env);
 
 	registerCommandHandler(
+	  HAPI_CMD_REQ_FETCH_ITEMS,
+	  (CommandHandler)
+	    &HatoholArmPluginBase::cmdHandlerFetchItems);
+
+	registerCommandHandler(
 	  HAPI_CMD_REQ_TERMINATE,
 	  (CommandHandler)
 	    &HatoholArmPluginBase::cmdHandlerTerminate);
@@ -138,7 +143,7 @@ bool HatoholArmPluginBase::getMonitoringServerInfo(
 		}
 
 		virtual void onGotReply(
-		  const mlpl::SmartBuffer &replyBuf,
+		  mlpl::SmartBuffer &replyBuf,
 		  const HapiCommandHeader &cmdHeader) override
 		{
 			SemaphorePoster poster(this);
@@ -170,7 +175,7 @@ SmartTime HatoholArmPluginBase::getTimestampOfLastTrigger(void)
 		}
 
 		virtual void onGotReply(
-		  const mlpl::SmartBuffer &replyBuf,
+		  mlpl::SmartBuffer &replyBuf,
 		  const HapiCommandHeader &cmdHeader) override
 		{
 			SemaphorePoster poster(this);
@@ -209,7 +214,7 @@ EventIdType HatoholArmPluginBase::getLastEventId(void)
 		}
 
 		virtual void onGotReply(
-		  const mlpl::SmartBuffer &replyBuf,
+		  mlpl::SmartBuffer &replyBuf,
 		  const HapiCommandHeader &cmdHeader) override
 		{
 			SemaphorePoster poster(this);
@@ -245,7 +250,7 @@ SmartTime HatoholArmPluginBase::getTimeOfLastEvent(
 		}
 
 		virtual void onGotReply(
-		  const mlpl::SmartBuffer &replyBuf,
+		  mlpl::SmartBuffer &replyBuf,
 		  const HapiCommandHeader &cmdHeader) override
 		{
 			SemaphorePoster poster(this);
@@ -281,6 +286,12 @@ void HatoholArmPluginBase::onReceivedTerminate(void)
 {
 	MLPL_INFO("Got the teminate command.\n");
 	exit(EXIT_SUCCESS);
+}
+
+void HatoholArmPluginBase::onReceivedFetchItem(void)
+{
+	MLPL_WARN("Received fetch item request. "
+	          "onReceivedFetchItem() should be overridden\n");
 }
 
 void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(
@@ -416,6 +427,11 @@ void HatoholArmPluginBase::sendAvailableTrigger(const int numTriggerList,
 		buf[i] = NtoL(TriggerList[i]);
 	}
 	send(cmdBuf);
+}
+
+void HatoholArmPluginBase::cmdHandlerFetchItems(const HapiCommandHeader *header)
+{
+	onReceivedFetchItem();
 }
 
 void HatoholArmPluginBase::cmdHandlerTerminate(const HapiCommandHeader *header)

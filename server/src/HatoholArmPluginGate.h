@@ -73,6 +73,8 @@ public:
 	 */
 	pid_t getPid(void);
 
+	virtual void startOnDemandFetchItem(ClosureBase *closure) override;
+
 protected:
 	// To avoid an instance from being created on a stack.
 	virtual ~HatoholArmPluginGate();

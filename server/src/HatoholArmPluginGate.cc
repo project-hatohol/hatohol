@@ -67,11 +67,6 @@ public:
 		// Just written to pass the build.
 		return COLLECT_OK;
 	}
-
-	virtual bool isFetchItemsSupported(void) const override
-	{
-		return false;
-	}
 };
 
 struct HatoholArmPluginGate::Impl
@@ -123,7 +118,6 @@ struct HatoholArmPluginGate::Impl
 		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++)
 			hapiWtchPointInfo[i].statusType = TRIGGER_STATUS_ALL;
 	}
-
 };
 
 const string HatoholArmPluginGate::PassivePluginQuasiPath = "#PASSIVE_PLUGIN#";
@@ -253,6 +247,52 @@ void HatoholArmPluginGate::exitSync(void)
 pid_t HatoholArmPluginGate::getPid()
 {
 	return m_impl->pid;
+}
+
+void HatoholArmPluginGate::startOnDemandFetchItem(ClosureBase *closure)
+{
+	struct Callback : public CommandCallbacks {
+		Signal itemUpdatedSignal;
+		ServerIdType serverId;
+		virtual void onGotReply(mlpl::SmartBuffer &replyBuf,
+		                        const HapiCommandHeader &cmdHeader)
+		                          override
+		{
+			// TODO: fill proper value
+			MonitoringServerStatus serverStatus;
+			serverStatus.serverId = serverId;
+
+			replyBuf.setIndex(sizeof(HapiResponseHeader));
+			ItemTablePtr itemTablePtr = createItemTable(replyBuf);
+			ItemTablePtr appTablePtr  = createItemTable(replyBuf);
+			ItemInfoList itemList;
+			HatoholDBUtils::transformItemsToHatoholFormat(
+			  itemList, serverStatus, itemTablePtr, appTablePtr);
+			UnifiedDataStore::getInstance()->addItemList(itemList);
+			cleanup();
+		}
+
+		virtual void onError(const HapiResponseCode &code,
+		                     const HapiCommandHeader &cmdHeader)
+		                          override
+		{
+			cleanup();
+		}
+
+		void cleanup(void)
+		{
+			itemUpdatedSignal();
+			itemUpdatedSignal.clear();
+			this->unref();
+		}
+	};
+	Callback *callback = new Callback();
+	callback->itemUpdatedSignal.connect(closure);
+	callback->serverId = m_impl->serverInfo.id;
+
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(cmdBuf, HAPI_CMD_REQ_FETCH_ITEMS);
+	send(cmdBuf, callback);
 }
 
 // ---------------------------------------------------------------------------

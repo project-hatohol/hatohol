@@ -86,6 +86,7 @@ extern void _assertItemTable(
 extern void _assertEqual(
   const MonitoringServerInfo &expect, const MonitoringServerInfo &actual);
 extern void _assertEqual(const ArmInfo &expect, const ArmInfo &actual);
+extern void _assertEqual(const ItemInfo &expect, const ItemInfo &actual);
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
 std::string executeCommand(const std::string &commandLine);
@@ -218,6 +219,12 @@ void _assertGError(const GError *error);
 #define assertGError(E) cut_trace(_assertGError(E))
 
 void prepareDataWithAndWithoutArmPlugin(void);
+
+VariableItemGroupPtr convert(
+  const ItemInfo &itemInfo,
+  const ItemCategoryIdType &itemCategoryId = NO_ITEM_CATEGORY_ID);
+
+ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap);
 
 class Watcher {
 	bool expired;

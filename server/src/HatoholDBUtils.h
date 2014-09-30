@@ -46,15 +46,10 @@ public:
 	  HostInfoList &hostInfoList, const ItemTablePtr hosts,
 	  const ServerIdType &serverId);
 	static void transformItemsToHatoholFormat(
-	  ItemInfoList &eventInfoList, MonitoringServerStatus &serverStatus,
+	  ItemInfoList &itemInfoList, MonitoringServerStatus &serverStatus,
 	  const ItemTablePtr items, const ItemTablePtr applications);
 
 protected:
-	typedef std::map<uint64_t, std::string> AppliationIdNameMap;
-	typedef AppliationIdNameMap::iterator   ApplicationIdNameMapIterator;
-	typedef AppliationIdNameMap::const_iterator
-	   ApplicationIdNameMapConstIterator;
-
 	static int getItemVariable(const std::string &word);
 
 	/**
@@ -85,7 +80,7 @@ protected:
 
 	static bool transformItemItemGroupToItemInfo(
 	  ItemInfo &itemInfo, const ItemGroup *item,
-	  const AppliationIdNameMap &appIdNameMap);
+	  const ItemCategoryNameMap &itemCategoryNameMap);
 };
 
 #endif // HatoholDBUtils_h

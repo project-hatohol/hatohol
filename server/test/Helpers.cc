@@ -127,6 +127,22 @@ void _assertEqual(const ArmInfo &expect, const ArmInfo &actual)
 	cppcut_assert_equal(expect.numFailure, actual.numFailure);
 }
 
+void _assertEqual(const ItemInfo &expect, const ItemInfo &actual)
+{
+	cppcut_assert_equal(expect.serverId,  actual.serverId);
+	cppcut_assert_equal(expect.id,        actual.id);
+	cppcut_assert_equal(expect.hostId,    actual.hostId);
+	cppcut_assert_equal(expect.brief,     actual.brief);
+	cppcut_assert_equal(expect.lastValueTime.tv_sec,
+	                    actual.lastValueTime.tv_sec);
+	cppcut_assert_equal(expect.lastValueTime.tv_nsec,
+	                    actual.lastValueTime.tv_nsec);
+	cppcut_assert_equal(expect.lastValue, actual.lastValue);
+	cppcut_assert_equal(expect.prevValue, actual.prevValue);
+	cppcut_assert_equal(expect.itemGroupName, actual.itemGroupName);
+	cppcut_assert_equal(expect.delay,     actual.delay);
+}
+
 struct SpawnSyncContext {
 	bool running;
 	bool hasError;
@@ -1067,6 +1083,40 @@ void prepareDataWithAndWithoutArmPlugin(void)
 	               "withArmPlugin", G_TYPE_BOOLEAN, FALSE, NULL);
 	gcut_add_datum("w/ ArmPlugin",
 	               "withArmPlugin", G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
+VariableItemGroupPtr convert(const ItemInfo &itemInfo,
+                             const ItemCategoryIdType &itemCategoryId)
+{
+	// TODO: Don't use IDs concerned with Zabbix.
+	VariableItemGroupPtr grp;
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_NAME, itemInfo.brief);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_KEY_, "");
+
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_ITEMID, itemInfo.id);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_HOSTID, itemInfo.hostId);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTCLOCK,
+	                (int)itemInfo.lastValueTime.tv_sec);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTVALUE, itemInfo.lastValue);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_PREVVALUE, itemInfo.prevValue);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_DELAY,     itemInfo.delay);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID, itemCategoryId);
+	return grp;
+}
+
+ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap)
+{
+	VariableItemTablePtr tablePtr;
+	ItemCategoryNameMapConstIterator it = itemCategoryNameMap.begin();
+	for (; it != itemCategoryNameMap.end(); ++it) {
+		VariableItemGroupPtr grp;
+		const ItemCategoryIdType &id = it->first;
+		const string &name = it->second;
+		grp->addNewItem(ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID, id);
+		grp->addNewItem(ITEM_ID_ZBX_APPLICATIONS_NAME, name);
+		tablePtr->add(grp);
+	}
+	return static_cast<ItemTablePtr>(tablePtr);
 }
 
 // ---------------------------------------------------------------------------
