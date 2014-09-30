@@ -463,7 +463,8 @@ static HatoholError parseServerParameter(
 	value = (char *)g_hash_table_lookup(query, key.c_str());
 	if (!value && isRequired(requiredKeys, key, allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
-	armPluginInfo.tlsEnableVerify = (value && string(value) == "true");
+	if (value)
+		armPluginInfo.tlsEnableVerify = (string(value) == "true");
 
 	return HTERR_OK;
 }
