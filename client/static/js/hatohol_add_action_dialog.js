@@ -327,7 +327,8 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
       if (triggerId != "ANY")
         queryData.triggerId = triggerId;
       queryData.type = getCommandType();
-      queryData.timeout = $("#inputTimeout").val() * 1000; // in MSec.
+      if (!isNaN($("#inputTimeout").val()))
+        queryData.timeout = $("#inputTimeout").val() * 1000; // in MSec.
       queryData.command = self.getCommand();
       queryData.workingDirectory = $("#inputWorkingDir").val();
       queryData.triggerStatus   = getStatusValue();
