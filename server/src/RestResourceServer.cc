@@ -162,6 +162,16 @@ static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 			agent.add("brokerUrl", pluginIt->brokerUrl);
 			agent.add("staticQueueAddress",
 			          pluginIt->staticQueueAddress);
+			agent.add("tlsCertificatePath",
+			          pluginIt->tlsCertificatePath);
+			agent.add("tlsKeyPath",
+			          pluginIt->tlsKeyPath);
+			agent.add("tlsCACertificatePath",
+			          pluginIt->tlsCACertificatePath);
+			if (pluginIt->tlsEnableVerify)
+				agent.addTrue("tlsEnableVerify");
+			else
+				agent.addFalse("tlsEnableVerify");
 		}
 		agent.endObject();
 	}
