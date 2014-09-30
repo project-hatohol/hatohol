@@ -412,11 +412,12 @@ static HatoholError parseServerParameter(
 	if (!value && isRequired(requiredKeys, "passiveMode", allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "passiveMode");
 	bool passiveMode = false;
-	if (value)
+	if (value) {
 		passiveMode = (string(value) == "true");
-	if (passiveMode) {
-		armPluginInfo.path =
-		  HatoholArmPluginGate::PassivePluginQuasiPath;
+		if (passiveMode) {
+			armPluginInfo.path =
+			  HatoholArmPluginGate::PassivePluginQuasiPath;
+		}
 	}
 
 	// brokerUrl
