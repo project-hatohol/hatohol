@@ -137,6 +137,20 @@ static bool daemonize(void)
 	}
 }
 
+static bool checkAnotherServerProcess(void)
+{
+	pidFilePath = ConfigManager::getInstance()->getPidFilePath();
+	FILE *pid_file;
+	pid_file = fopen(pidFilePath.c_str(), "r");
+
+	if (pid_file != NULL) {
+		MLPL_ERR("Failed to start hatohol server. Server already running.\n");
+		pidFilePath.erase();
+		return false;
+	}
+	return true;
+}
+
 static bool checkDBConnection(void)
 {
 	try {
@@ -160,7 +174,7 @@ int mainRoutine(int argc, char *argv[])
 #endif // GLIB_VERSION_2_36
 #ifndef GLIB_VERSION_2_32
 	g_thread_init(NULL);
-#endif // GLIB_VERSION_2_32 
+#endif // GLIB_VERSION_2_32
 
 	// parse command line argument
 	ExecContext ctx;
@@ -169,6 +183,9 @@ int mainRoutine(int argc, char *argv[])
 
 	hatoholInit(&ctx.cmdLineOpts);
 	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
+
+	if (!checkAnotherServerProcess())
+		return EXIT_FAILURE;
 
 	if (!checkDBConnection())
 		return EXIT_FAILURE;
