@@ -282,7 +282,8 @@ struct HatoholArmPluginBaseTest :
   public HatoholArmPluginBase, public HapiTestHelper
 {
 	HatoholArmPluginBaseTest(void)
-	: serverIdOfHapGate(INVALID_SERVER_ID)
+	: serverIdOfHapGate(INVALID_SERVER_ID),
+	  terminateSem(0)
 	{
 	}
 
@@ -295,6 +296,11 @@ struct HatoholArmPluginBaseTest :
 	{
 		HatoholArmPluginBase::onInitiated();
 		HapiTestHelper::onInitiated();
+	}
+
+	virtual void onReceivedTerminate(void) override
+	{
+		terminateSem.post();
 	}
 
 	virtual void onReceivedFetchItem(void) override
@@ -329,6 +335,7 @@ struct HatoholArmPluginBaseTest :
 	}
 
 	ServerIdType serverIdOfHapGate;
+	SimpleSemaphore terminateSem;
 };
 
 typedef HatoholArmPluginTestPair<HatoholArmPluginBaseTest> TestPair;
@@ -346,6 +353,16 @@ struct TestReceiver {
 		sem.post();
 	}
 };
+
+void test_sendTerminateCommand(void)
+{
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
+
+	pair.gate->callSendTerminateCommand();
+	cppcut_assert_equal(SimpleSemaphore::STAT_OK,
+	                    pair.plugin->terminateSem.timedWait(TIMEOUT));
+}
 
 void test_fetchItem(void)
 {
@@ -381,12 +398,5 @@ void test_fetchItem(void)
 		assertEqual(expect, *actual);
 	}
 }
-
-// TODO: implement
-/*
-void test_terminateCommand(void)
-{
-}
-*/
 
 } // namespace testHatoholArmPluginGatePair
