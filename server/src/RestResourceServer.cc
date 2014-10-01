@@ -343,9 +343,6 @@ static HatoholError parseServerParameter(
 		// ipAddress, DBTablesConfig doesn't allow a server with empty
 		// hostName & ipAddress. To avoid it we fill the hostName by
 		// using the nickname.
-		//
-		// TODO: How should we solve this issue?
-		//
 		svInfo.hostName = svInfo.nickname;
 	}
 
