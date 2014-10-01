@@ -120,10 +120,6 @@ void HapProcessStandard::startAcquisition(void)
 	while (m_impl->serverInfoQueue.size() > 1) // put away old data
 		m_impl->serverInfoQueue.pop();
 
-	const MonitoringServerInfo &serverInfo = getMonitoringServerInfo();
-	const int pollingIntervalSec = serverInfo.pollingIntervalSec;
-	const int retryIntervalSec   = serverInfo.retryIntervalSec;
-
 	// try to acquisition
 	bool caughtException = false;
 	string exceptionName;
@@ -148,7 +144,18 @@ void HapProcessStandard::startAcquisition(void)
 		caughtException = true;
 	}
 
-	// Set up a timer for next aquisition
+	setupNextTimer(err, caughtException, exceptionName, exceptionMsg);
+
+	onCompletedAcquistion(err, watchType);
+}
+
+void HapProcessStandard::setupNextTimer(
+  const HatoholError &err, const bool &caughtException,
+  const string &exceptionName, const string &exceptionMsg)
+{
+	const MonitoringServerInfo &serverInfo = getMonitoringServerInfo();
+	const int pollingIntervalSec = serverInfo.pollingIntervalSec;
+	const int retryIntervalSec   = serverInfo.retryIntervalSec;
 	guint intervalMSec = pollingIntervalSec * 1000;
 	string errMsg;
 	if (caughtException) {
@@ -171,8 +178,6 @@ void HapProcessStandard::startAcquisition(void)
 		getArmStatus().logFailure(errMsg);
 	}
 	m_impl->timerTag = g_timeout_add(intervalMSec, acquisitionTimerCb, this);
-
-	onCompletedAcquistion(err, watchType);
 }
 
 void HapProcessStandard::onCompletedAcquistion(

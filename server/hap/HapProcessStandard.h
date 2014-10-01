@@ -33,6 +33,9 @@ public:
 protected:
 	static gboolean acquisitionTimerCb(void *data);
 	void startAcquisition(void);
+	void setupNextTimer(
+	  const HatoholError &err, const bool &caughtException,
+	  const std::string &exceptionName, const std::string &exceptionMsg);
 	const MonitoringServerInfo &getMonitoringServerInfo(void) const;
 
 	virtual HatoholError acquireData(void);
