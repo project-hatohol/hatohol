@@ -82,6 +82,26 @@ ServerTypeInfo testServerTypeInfo[] =
 	" \"label\": \"Static queue address\"}"
 	"]", // paramters
 	"/opt/bin/hatohol-arm-plugin-ver2000",  // pluginPath
+},{
+	MONITORING_SYSTEM_HAPI_JSON, // type
+	"JSON",                      // name
+	"["
+	"{\"id\": \"nickname\", \"label\": \"Nickname\"}, "
+	"{\"hint\": \"(empty: Default)\", \"allowEmpty\": true,"
+	" \"id\": \"brokerUrl\", \"label\": \"Broker URL\"}, "
+	"{\"hint\": \"(empty: Default)\", \"allowEmpty\": true,"
+	" \"id\": \"staticQueueAddress\","
+	" \"label\": \"Static queue address\"}, "
+	"{\"allowEmpty\": true, \"id\": \"tlsCertificatePath\","
+	" \"label\": \"TLS client certificate path\"}, "
+	"{\"allowEmpty\": true, \"id\": \"tlsKeyPath\","
+	" \"label\": \"TLS client key path\"}, "
+	"{\"allowEmpty\": true, \"id\": \"tlsCACertificatePath\","
+	" \"label\": \"TLS CA certificate path\"}, "
+	"{\"inputStyle\": \"checkBox\", \"allowEmpty\": true,"
+	" \"id\": \"tlsEnableVerify\", \"label\": \"TLS: Enable verify\"}"
+	"]", // paramters
+	"",  // pluginPath
 }};
 size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
 
