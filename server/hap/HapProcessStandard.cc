@@ -93,11 +93,12 @@ gboolean HapProcessStandard::acquisitionTimerCb(void *data)
 {
 	HapProcessStandard *obj = static_cast<HapProcessStandard *>(data);
 	obj->m_impl->timerTag = INVALID_EVENT_ID;
-	obj->startAcquisition();
+	obj->startAcquisition(&HapProcessStandard::acquireData);
 	return G_SOURCE_REMOVE;
 }
 
-void HapProcessStandard::startAcquisition(const bool &setupTimer)
+void HapProcessStandard::startAcquisition(
+  AcquireFunc acquireFunc, const bool &setupTimer)
 {
 	if (m_impl->timerTag != INVALID_EVENT_ID) {
 		// This condition may happen when unexpected initiation
@@ -127,7 +128,7 @@ void HapProcessStandard::startAcquisition(const bool &setupTimer)
 	HatoholError err(HTERR_UNINITIALIZED);
 	HatoholArmPluginWatchType watchType = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 	try {
-		err = acquireData();
+		err = (this->*acquireFunc)();
 		if (err == HTERR_OK)
 			getArmStatus().logSuccess();
 		watchType = getHapWatchType(err);
@@ -220,7 +221,7 @@ void HapProcessStandard::onReady(const MonitoringServerInfo &serverInfo)
 	struct NoName {
 		static void startAcquisition(HapProcessStandard *obj)
 		{
-			obj->startAcquisition();
+			acquisitionTimerCb(obj);
 		}
 	};
 

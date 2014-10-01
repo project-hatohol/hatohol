@@ -31,8 +31,11 @@ public:
 	int mainLoopRun(void);
 
 protected:
+	typedef HatoholError (HapProcessStandard::*AcquireFunc)(void);
+
 	static gboolean acquisitionTimerCb(void *data);
-	void startAcquisition(const bool &setupTimer = true);
+	void startAcquisition(
+	  AcquireFunc acquireFunc, const bool &setupTimer = true);
 	void setupNextTimer(
 	  const HatoholError &err, const bool &caughtException,
 	  const std::string &exceptionName, const std::string &exceptionMsg);
