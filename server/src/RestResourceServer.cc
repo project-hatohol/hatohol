@@ -493,6 +493,10 @@ void RestResourceServer::handlerPostServer(void)
 	ArmPluginInfo::initialize(armPluginInfo);
 	HatoholError err;
 
+	MonitoringServerInfo::initialize(svInfo);
+	svInfo.hostName.clear();
+	svInfo.ipAddress.clear();
+
 	err = parseServerParameter(svInfo, armPluginInfo, m_query);
 	if (err != HTERR_OK) {
 		replyError(err);
