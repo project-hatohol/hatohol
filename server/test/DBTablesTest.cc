@@ -44,13 +44,64 @@ ServerTypeInfo testServerTypeInfo[] =
 },{
 	MONITORING_SYSTEM_ZABBIX, // type
 	"Zabbix",                 // name
-	"IP Address|Port|User name|password", // paramters
+	"["
+	"{\"id\": \"nickname\", \"label\": \"Nickname\"}, "
+	"{\"id\": \"hostName\", \"label\": \"Host name\"}, "
+	"{\"id\": \"ipAddress\", \"label\": \"IP address\"}, "
+	"{\"default\": \"80\", \"id\": \"port\", \"label\": \"Port\"}, "
+	"{\"id\": \"userName\", \"label\": \"User name\"}, "
+	"{\"inputStyle\": \"password\", \"id\": \"password\","
+	" \"label\": \"Password\"}, "
+	"{\"default\": \"30\", \"id\": \"pollingInterval\","
+	" \"label\": \"Polling interval (sec)\"}, "
+	"{\"default\": \"10\", \"id\": \"retryInterval\","
+	" \"label\": \"Retry interval (sec)\"}"
+	"]", // paramters
 	"/usr/sbin/hatohol-arm-plugin-ver2",  // pluginPath
 }, {
 	MONITORING_SYSTEM_HAPI_ZABBIX,
 	"Zabbix (HAPI)",          // name
-	"IP Address|Port|User name|password|Queue Name", // paramters
+	"["
+	"{\"id\": \"nickname\", \"label\": \"Nickname\"}, "
+	"{\"id\": \"hostName\", \"label\": \"Host name\"}, "
+	"{\"id\": \"ipAddress\", \"label\": \"IP address\"}, "
+	"{\"default\": \"80\", \"id\": \"port\", \"label\": \"Port\"}, "
+	"{\"id\": \"userName\", \"label\": \"User name\"}, "
+	"{\"inputStyle\": \"password\", \"id\": \"password\","
+	" \"label\": \"Password\"}, "
+	"{\"default\": \"30\", \"id\": \"pollingInterval\","
+	" \"label\": \"Polling interval (sec)\"}, "
+	"{\"default\": \"10\", \"id\": \"retryInterval\","
+	" \"label\": \"Retry interval (sec)\"}, "
+	"{\"inputStyle\": \"checkBox\", \"id\": \"passiveMode\","
+	" \"label\": \"Passive mode\"}, "
+	"{\"hint\": \"(empty: Default)\", \"allowEmpty\": true,"
+	" \"id\": \"brokerUrl\", \"label\": \"Broker URL\"}, "
+	"{\"hint\": \"(empty: Default)\", \"allowEmpty\": true,"
+	" \"id\": \"staticQueueAddress\","
+	" \"label\": \"Static queue address\"}"
+	"]", // paramters
 	"/opt/bin/hatohol-arm-plugin-ver2000",  // pluginPath
+},{
+	MONITORING_SYSTEM_HAPI_JSON, // type
+	"JSON",                      // name
+	"["
+	"{\"id\": \"nickname\", \"label\": \"Nickname\"}, "
+	"{\"hint\": \"(empty: Default)\", \"allowEmpty\": true,"
+	" \"id\": \"brokerUrl\", \"label\": \"Broker URL\"}, "
+	"{\"hint\": \"(empty: Default)\", \"allowEmpty\": true,"
+	" \"id\": \"staticQueueAddress\","
+	" \"label\": \"Static queue address\"}, "
+	"{\"allowEmpty\": true, \"id\": \"tlsCertificatePath\","
+	" \"label\": \"TLS client certificate path\"}, "
+	"{\"allowEmpty\": true, \"id\": \"tlsKeyPath\","
+	" \"label\": \"TLS client key path\"}, "
+	"{\"allowEmpty\": true, \"id\": \"tlsCACertificatePath\","
+	" \"label\": \"TLS CA certificate path\"}, "
+	"{\"inputStyle\": \"checkBox\", \"allowEmpty\": true,"
+	" \"id\": \"tlsEnableVerify\", \"label\": \"TLS: Enable verify\"}"
+	"]", // paramters
+	"",  // pluginPath
 }};
 size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
 

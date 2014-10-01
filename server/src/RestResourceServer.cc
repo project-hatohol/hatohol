@@ -22,6 +22,7 @@
 #include "UnifiedDataStore.h"
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
+#include <JSONParser.h>
 
 using namespace std;
 using namespace mlpl;
@@ -161,6 +162,16 @@ static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 			agent.add("brokerUrl", pluginIt->brokerUrl);
 			agent.add("staticQueueAddress",
 			          pluginIt->staticQueueAddress);
+			agent.add("tlsCertificatePath",
+			          pluginIt->tlsCertificatePath);
+			agent.add("tlsKeyPath",
+			          pluginIt->tlsKeyPath);
+			agent.add("tlsCACertificatePath",
+			          pluginIt->tlsCACertificatePath);
+			if (pluginIt->tlsEnableVerify)
+				agent.addTrue("tlsEnableVerify");
+			else
+				agent.addFalse("tlsEnableVerify");
 		}
 		agent.endObject();
 	}
@@ -237,6 +248,47 @@ void RestResourceServer::handlerGetServer(void)
 	replyJSONData(agent);
 }
 
+static HatoholError getRequiredParameterKeys(
+  const MonitoringServerInfo &svInfo, set<string> &requiredKeys)
+{
+
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	ServerTypeInfo serverTypeInfo;
+	if (!dbConfig.getServerType(serverTypeInfo, svInfo.type))
+		return HTERR_NOT_FOUND_SERVER_TYPE;
+
+	JSONParser parser(serverTypeInfo.parameters);
+	if (parser.hasError())
+		return HTERR_INVALID_SERVER_TYPE;
+
+	size_t num = parser.countElements();
+	for (size_t i = 0; i < num; i++) {
+		bool allowEmpty = false;
+		string key;
+
+		if (!parser.startElement(i))
+			return HTERR_INVALID_SERVER_TYPE;
+		parser.read("id", key);
+		if (parser.isMember("allowEmpty"))
+			parser.read("allowEmpty", allowEmpty);
+		parser.endElement();
+
+		if (!key.empty() && !allowEmpty)
+			requiredKeys.insert(key);
+	}
+
+	return HTERR_OK;
+}
+
+static bool isRequired(const set<string> &requiredKeys,
+		       const string &key, bool allowEmpty)
+{
+	if (allowEmpty)
+		return false;
+	return requiredKeys.find(key) != requiredKeys.end();
+}
+
 static HatoholError parseServerParameter(
   MonitoringServerInfo &svInfo, ArmPluginInfo &armPluginInfo,
   GHashTable *query, const bool &forUpdate = false)
@@ -246,71 +298,108 @@ static HatoholError parseServerParameter(
 	char *value;
 
 	// type
+	string key = "type";
 	err = getParam<MonitoringSystemType>(
-		query, "type", "%d", svInfo.type);
+		query, key.c_str(), "%d", svInfo.type);
 	if (err != HTERR_OK) {
 		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
 			return err;
 	}
 
-	// hostname
-	value = (char *)g_hash_table_lookup(query, "hostName");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "hostName");
-	svInfo.hostName = value;
-
-	// ipAddress
-	value = (char *)g_hash_table_lookup(query, "ipAddress");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "ipAddress");
-	svInfo.ipAddress = value;
+	set<string> requiredKeys;
+	err = getRequiredParameterKeys(svInfo, requiredKeys);
+	if (err != HTERR_OK)
+		return err;
 
 	// nickname
-	value = (char *)g_hash_table_lookup(query, "nickname");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "nickname");
-	svInfo.nickname = value;
+	key = "nickname";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		svInfo.nickname = value;
+
+	// hostname
+	key = "hostName";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		svInfo.hostName = value;
+
+	// ipAddress
+	key = "ipAddress";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		svInfo.ipAddress = value;
+
+	if (requiredKeys.find("hostName") == requiredKeys.end() &&
+	    requiredKeys.find("ipAddress") == requiredKeys.end() &&
+	    svInfo.hostName.empty() &&
+	    svInfo.ipAddress.empty()) {
+		// Although this server type doesn't require both hostName &
+		// ipAddress, DBTablesConfig doesn't allow a server with empty
+		// hostName & ipAddress. To avoid it we fill the hostName by
+		// using the nickname.
+		svInfo.hostName = svInfo.nickname;
+	}
 
 	// port
+	key = "port";
 	err = getParam<int>(
-		query, "port", "%d", svInfo.port);
+		query, key.c_str(), "%d", svInfo.port);
 	if (err != HTERR_OK) {
-		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
+		if (isRequired(requiredKeys, key, allowEmpty) ||
+		    err != HTERR_NOT_FOUND_PARAMETER) {
 			return err;
+		}
 	}
 
 	// polling
+	key = "pollingInterval";
 	err = getParam<int>(
-		query, "pollingInterval", "%d", svInfo.pollingIntervalSec);
+		query, key.c_str(), "%d", svInfo.pollingIntervalSec);
 	if (err != HTERR_OK) {
-		if (!allowEmpty || err != HTERR_NOT_FOUND_PARAMETER)
+		if (isRequired(requiredKeys, key, allowEmpty) ||
+		    err != HTERR_NOT_FOUND_PARAMETER) {
 			return err;
+		}
 	}
 
 	// retry
+	key = "retryInterval";
 	err = getParam<int>(
-		query, "retryInterval", "%d", svInfo.retryIntervalSec);
-	if (err != HTERR_OK && !allowEmpty)
-		return err;
+		query, key.c_str(), "%d", svInfo.retryIntervalSec);
+	if (err != HTERR_OK) {
+		if (isRequired(requiredKeys, key, allowEmpty) ||
+		    err != HTERR_NOT_FOUND_PARAMETER) {
+			return err;
+		}
+	}
 
 	// username
-	value = (char *)g_hash_table_lookup(query, "userName");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "userName");
-	svInfo.userName = value;
+	key = "userName";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		svInfo.userName = value;
 
 	// password
-	value = (char *)g_hash_table_lookup(query, "password");
-	if (!value && !allowEmpty)
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "password");
-	svInfo.password = value;
+	key = "password";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		svInfo.password = value;
 
 	// dbname
-	value = (char *)g_hash_table_lookup(query, "dbName");
-	if (!value &&
-	    (svInfo.type == MONITORING_SYSTEM_NAGIOS)) {
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "dbName");
-	}
+	key = "dbName";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		svInfo.dbName = value;
 
@@ -336,25 +425,63 @@ static HatoholError parseServerParameter(
 
 	// TODO: We should create a method to parse Boolean value.
 	value = (char *)g_hash_table_lookup(query, "passiveMode");
-	if (!value && !allowEmpty)
+	if (!value && isRequired(requiredKeys, "passiveMode", allowEmpty))
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "passiveMode");
 	bool passiveMode = false;
-	if (value)
+	if (value) {
 		passiveMode = (string(value) == "true");
-	if (passiveMode) {
-		armPluginInfo.path =
-		  HatoholArmPluginGate::PassivePluginQuasiPath;
+		if (passiveMode) {
+			armPluginInfo.path =
+			  HatoholArmPluginGate::PassivePluginQuasiPath;
+		}
 	}
 
 	// brokerUrl
 	value = (char *)g_hash_table_lookup(query, "brokerUrl");
+	if (!value && isRequired(requiredKeys, "brokerUrl", allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "brokerUrl");
 	if (value)
 		armPluginInfo.brokerUrl = value;
 
 	// staticQueueAddress
-	value = (char *)g_hash_table_lookup(query, "staticQueueAddress");
+	key = "staticQueueAddress";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		armPluginInfo.staticQueueAddress = value;
+
+	// tlsCertificatePath
+	key = "tlsCertificatePath";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		armPluginInfo.tlsCertificatePath = value;
+
+	// tlsKeyPath
+	key = "tlsKeyPath";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		armPluginInfo.tlsKeyPath = value;
+
+	// tlsCACertificatePath
+	key = "tlsCACertificatePath";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		armPluginInfo.tlsCACertificatePath = value;
+
+	// tlsEnableVerify
+	key = "tlsEnableVerify";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		armPluginInfo.tlsEnableVerify = (string(value) == "true");
 
 	return HTERR_OK;
 }
@@ -365,6 +492,10 @@ void RestResourceServer::handlerPostServer(void)
 	ArmPluginInfo        armPluginInfo;
 	ArmPluginInfo::initialize(armPluginInfo);
 	HatoholError err;
+
+	MonitoringServerInfo::initialize(svInfo);
+	svInfo.hostName.clear();
+	svInfo.ipAddress.clear();
 
 	err = parseServerParameter(svInfo, armPluginInfo, m_query);
 	if (err != HTERR_OK) {

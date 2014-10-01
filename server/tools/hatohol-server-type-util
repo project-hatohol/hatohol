@@ -117,8 +117,30 @@ class HapiJSONParamGenerator(ParamGenerator):
         return 'JSON (HAPI) [experimental]'
 
     def get_parameters(self):
-        obj = self.get_zabbix_params()
-        obj.extend(self.get_hapi_params())
+        obj = []
+        obj.append({'id':'nickname',
+                    'label':'Nickname'});
+        obj.append({'id':'brokerUrl',
+                    'label':'Broker URL',
+                    'allowEmpty':True,
+                    'hint':'(empty: Default)'});
+        obj.append({'id':'staticQueueAddress',
+                    'label':'Static queue address',
+                    'allowEmpty':True,
+                    'hint':'(empty: Default)'});
+        obj.append({'id':'tlsCertificatePath',
+                    'label':'TLS client certificate path',
+                    'allowEmpty':True});
+        obj.append({'id':'tlsKeyPath',
+                    'label':'TLS client key path',
+                    'allowEmpty':True});
+        obj.append({'id':'tlsCACertificatePath',
+                    'label':'TLS CA certificate path',
+                    'allowEmpty':True});
+        obj.append({'id':'tlsEnableVerify',
+                    'label':'TLS: Enable verify',
+                    'inputStyle':'checkBox',
+                    'allowEmpty':True});
         return obj
 
 
