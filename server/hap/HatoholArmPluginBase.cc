@@ -288,10 +288,10 @@ void HatoholArmPluginBase::onReceivedTerminate(void)
 	exit(EXIT_SUCCESS);
 }
 
-void HatoholArmPluginBase::onReceivedFetchItem(void)
+void HatoholArmPluginBase::onReceivedReqFetchItem(void)
 {
 	MLPL_WARN("Received fetch item request. "
-	          "onReceivedFetchItem() should be overridden\n");
+	          "onReceivedReqFetchItem() should be overridden\n");
 }
 
 void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(
@@ -431,7 +431,7 @@ void HatoholArmPluginBase::sendAvailableTrigger(const int numTriggerList,
 
 void HatoholArmPluginBase::cmdHandlerFetchItems(const HapiCommandHeader *header)
 {
-	onReceivedFetchItem();
+	onReceivedReqFetchItem();
 }
 
 void HatoholArmPluginBase::cmdHandlerTerminate(const HapiCommandHeader *header)
