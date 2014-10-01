@@ -81,6 +81,8 @@ struct HatoholArmPluginTestPair : public HatoholArmPluginTestPairBase {
 		  gate->callGenerateBrokerAddress(serverInfo));
 		if (arg.autoStartPlugin)
 			plugin->start();
+		else
+			return;
 
 		gate->assertWaitInitiated();
 		arg.preAssertWaitInitiated(plugin);
