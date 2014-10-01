@@ -303,8 +303,7 @@ void test_getServerTypeExpectFalse(void)
 {
 	loadTestDBServerType();
 
-	const MonitoringSystemType type =
-	  static_cast<MonitoringSystemType>(NumTestServerTypeInfo);
+	const MonitoringSystemType type = NUM_MONITORING_SYSTEMS;
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	ServerTypeInfo actual;
 	cppcut_assert_equal(false, dbConfig.getServerType(actual, type));
