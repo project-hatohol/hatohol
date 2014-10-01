@@ -97,7 +97,7 @@ gboolean HapProcessStandard::acquisitionTimerCb(void *data)
 	return G_SOURCE_REMOVE;
 }
 
-void HapProcessStandard::startAcquisition(void)
+void HapProcessStandard::startAcquisition(const bool &setupTimer)
 {
 	if (m_impl->timerTag != INVALID_EVENT_ID) {
 		// This condition may happen when unexpected initiation
@@ -144,7 +144,10 @@ void HapProcessStandard::startAcquisition(void)
 		caughtException = true;
 	}
 
-	setupNextTimer(err, caughtException, exceptionName, exceptionMsg);
+	if (setupTimer) {
+		setupNextTimer(err, caughtException,
+		               exceptionName, exceptionMsg);
+	}
 
 	onCompletedAcquistion(err, watchType);
 }

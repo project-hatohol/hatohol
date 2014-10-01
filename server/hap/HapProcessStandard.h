@@ -32,7 +32,7 @@ public:
 
 protected:
 	static gboolean acquisitionTimerCb(void *data);
-	void startAcquisition(void);
+	void startAcquisition(const bool &setupTimer = true);
 	void setupNextTimer(
 	  const HatoholError &err, const bool &caughtException,
 	  const std::string &exceptionName, const std::string &exceptionMsg);
