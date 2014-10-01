@@ -206,6 +206,11 @@ HatoholError HapProcessStandard::acquireData(void)
 	return HTERR_NOT_IMPLEMENTED;
 }
 
+HatoholError HapProcessStandard::fetchItem(void)
+{
+	return HTERR_NOT_IMPLEMENTED;
+}
+
 HatoholArmPluginWatchType HapProcessStandard::getHapWatchType(
   const HatoholError &err)
 {
@@ -229,6 +234,20 @@ void HapProcessStandard::onReady(const MonitoringServerInfo &serverInfo)
 	m_impl->serverInfoQueue.push(serverInfo);
 	Utils::executeOnGLibEventLoop<HapProcessStandard>(
 	  NoName::startAcquisition, this, ASYNC);
+}
+
+void HapProcessStandard::onReceivedFetchItem(void)
+{
+	struct NoName {
+		static void startFetchItem(HapProcessStandard *obj)
+		{
+			obj->startAcquisition(&HapProcessStandard::fetchItem,
+			                      false);
+		}
+	};
+
+	Utils::executeOnGLibEventLoop<HapProcessStandard>(
+	  NoName::startFetchItem, this, ASYNC);
 }
 
 int HapProcessStandard::onCaughtException(const exception &e)
