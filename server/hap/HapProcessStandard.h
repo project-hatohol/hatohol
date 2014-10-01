@@ -20,6 +20,7 @@
 #ifndef HapProcessStandard_h
 #define HapProcessStandard_h
 
+#include "NamedPipe.h"
 #include "HapProcess.h"
 #include "HatoholArmPluginStandard.h"
 
@@ -44,7 +45,10 @@ protected:
 	virtual int onCaughtException(const std::exception &e) override;
 
 	bool initHapPipe(const std::string &hapPipeName);
+	NamedPipe &getHapPipeForRead(void);
+	NamedPipe &getHapPipeForWrite(void);
 	void exitProcess(void);
+
 	static gboolean pipeRdErrCb(
 	  GIOChannel *source, GIOCondition condition, gpointer data);
 	static gboolean pipeWrErrCb(

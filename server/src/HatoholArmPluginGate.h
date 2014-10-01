@@ -25,6 +25,7 @@
 #include "HatoholArmPluginInterface.h"
 #include "DataStore.h"
 #include "UsedCountablePtr.h"
+#include "NamedPipe.h"
 
 class HatoholArmPluginGate : public DataStore, public HatoholArmPluginInterface {
 public:
@@ -140,6 +141,8 @@ protected:
 				       const TriggerIdType &trrigerId,
 				       const HatoholError &hatoholError);
 	bool initPipesIfNeeded(const std::string &pipeName);
+	NamedPipe &getHapPipeForRead(void);
+	NamedPipe &getHapPipeForWrite(void);
 
 	static gboolean detectedArmPluginTimeout(void *data);
 	static void removeArmPluginTimeout(gpointer data);

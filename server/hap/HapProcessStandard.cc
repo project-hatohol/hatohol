@@ -247,6 +247,16 @@ bool HapProcessStandard::initHapPipe(const string &hapPipeName)
 	return true;
 }
 
+NamedPipe &HapProcessStandard::getHapPipeForRead(void)
+{
+	return m_impl->pipeRd;
+}
+
+NamedPipe &HapProcessStandard::getHapPipeForWrite(void)
+{
+	return m_impl->pipeWr;
+}
+
 void HapProcessStandard::exitProcess(void)
 {
 	g_main_loop_quit(getGMainLoop());

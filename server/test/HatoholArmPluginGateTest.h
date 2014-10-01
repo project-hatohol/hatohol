@@ -101,6 +101,8 @@ public:
 	virtual void onInitiated(void) override;
 	virtual void onHandledCommand(const HapiCommandCode &code) override;
 	void canncelRetrySleepIfNeeded(void);
+	NamedPipe &callGetHapPipeForRead(void);
+	NamedPipe &callGetHapPipeForWrite(void);
 
 private:
 	HapgTestCtx       &m_ctx;

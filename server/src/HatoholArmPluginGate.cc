@@ -994,6 +994,16 @@ bool HatoholArmPluginGate::initPipesIfNeeded(const string &pipeName)
 	return true;
 }
 
+NamedPipe &HatoholArmPluginGate::getHapPipeForRead(void)
+{
+	return m_impl->pipeRd;
+}
+
+NamedPipe &HatoholArmPluginGate::getHapPipeForWrite(void)
+{
+	return m_impl->pipeWr;
+}
+
 gboolean HatoholArmPluginGate::pipeRdErrCb(
   GIOChannel *source, GIOCondition condition, gpointer data)
 {

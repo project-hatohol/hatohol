@@ -18,13 +18,23 @@
  */
 
 #include <cppcutter.h>
+#include "Hatohol.h"
 #include "HapProcessStandard.h"
 #include "Helpers.h"
+#include "HatoholArmPluginTestPair.h"
 
-namespace testHapProcessStandard {
+using namespace std;
+using namespace mlpl;
+using namespace qpid::messaging;
 
-class TestHapProcessStandard : public HapProcessStandard {
+class TestHapProcessStandard :
+   public HapProcessStandard, public HapiTestHelper {
 public:
+	struct CtorParams {
+		int argc;
+		char **argv;
+	};
+
 	bool                      m_calledAquireData;
 	HatoholError              m_errorOnComplated;
 	HatoholArmPluginWatchType m_watchTypeOnComplated;
@@ -33,14 +43,28 @@ public:
 	HatoholError              m_returnValueOfAcquireData;
 	bool                      m_throwException;
 
-	TestHapProcessStandard(void)
-	: HapProcessStandard(0, NULL),
+	TestHapProcessStandard(void *params)
+	: HapProcessStandard(
+	    static_cast<CtorParams *>(params)->argc,
+	    static_cast<CtorParams *>(params)->argv),
 	  m_calledAquireData(false),
 	  m_errorOnComplated(NUM_HATOHOL_ERROR_CODE),
 	  m_watchTypeOnComplated(NUM_COLLECT_NG_KIND),
 	  m_returnValueOfAcquireData(HTERR_OK),
 	  m_throwException(false)
 	{
+	}
+
+	virtual void onConnected(Connection &conn) override
+	{
+		HapProcessStandard::onConnected(conn);
+		HapiTestHelper::onConnected(conn);
+	}
+
+	virtual void onInitiated(void) override
+	{
+		HapProcessStandard::onInitiated();
+		HapiTestHelper::onInitiated();
 	}
 
 	virtual HatoholError acquireData(void) override
@@ -68,13 +92,30 @@ public:
 	{
 		return getArmStatus();
 	}
+
+	NamedPipe &callGetHapPipeForRead(void)
+	{
+		return getHapPipeForRead();
+	}
+
+	NamedPipe &callGetHapPipeForWrite(void)
+	{
+		return getHapPipeForWrite();
+	}
 };
+
+typedef HatoholArmPluginTestPair<TestHapProcessStandard> TestPair;
+
+namespace testHapProcessStandard {
+
+static TestHapProcessStandard::CtorParams g_ctorParams = {0, NULL};
 
 struct StartAcquisitionTester {
 	TestHapProcessStandard m_hapProc;
 	MonitoringServerInfo   m_serverInfo;
 
 	StartAcquisitionTester(void)
+	: m_hapProc(&g_ctorParams)
 	{
 		initServerInfo(m_serverInfo);
 
@@ -146,3 +187,52 @@ void test_startAcquisitionWithTransaction(void)
 }
 
 } // namespace testHapProcessStandard
+
+// ---------------------------------------------------------------------------
+// new namespace
+// ---------------------------------------------------------------------------
+namespace testHapProcessStandardPair {
+
+void cut_setup(void)
+{
+	hatoholInit();
+	setupTestDB();
+}
+
+void test_hapPipe(void)
+{
+	struct LoopQuiter {
+		static gboolean quit(gpointer data)
+		{
+			GMainLoop *loop = static_cast<GMainLoop *>(data);
+			g_main_loop_quit(loop);
+			return G_SOURCE_REMOVE;
+		}
+	};
+
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST);
+
+	TestHapProcessStandard::CtorParams ctorParams;
+	string pipeName = StringUtils::sprintf(HAP_PIPE_NAME_FMT,
+	                                       arg.serverId);
+	const char *argv[] = {"prog", "--" HAP_PIPE_OPT, pipeName.c_str()};
+	ctorParams.argc = ARRAY_SIZE(argv);
+	ctorParams.argv = (char **)argv;
+
+	arg.hapClassParameters = &ctorParams;
+	arg.autoStartPlugin = false;
+	TestPair pair(arg);
+	cppcut_assert_equal(
+	  true, pair.gate->callGetHapPipeForRead().getFd() > 0);
+	cppcut_assert_equal(
+	  true, pair.gate->callGetHapPipeForWrite().getFd() > 0);
+
+	Utils::setGLibIdleEvent(LoopQuiter::quit, pair.plugin->getGMainLoop());
+	cppcut_assert_equal(EXIT_SUCCESS, pair.plugin->mainLoopRun());
+	cppcut_assert_equal(
+	  true, pair.plugin->callGetHapPipeForRead().getFd() > 0);
+	cppcut_assert_equal(
+	  true, pair.plugin->callGetHapPipeForWrite().getFd() > 0);
+}
+
+} // namespace testHapProcessStandardPair
