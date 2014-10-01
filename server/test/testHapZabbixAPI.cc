@@ -36,7 +36,7 @@ static ZabbixAPIEmulator *g_apiEmulator = NULL;
 class HapZabbixAPITest :
   public HapZabbixAPI, public HapiTestHelper {
 public:
-	HapZabbixAPITest(void)
+	HapZabbixAPITest(void *params)
 	: m_readySem(0),
 	  m_numGotEvents(0)
 	{

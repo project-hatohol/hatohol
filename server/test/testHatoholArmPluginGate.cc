@@ -281,7 +281,7 @@ void cut_setup(void)
 struct HatoholArmPluginBaseTest :
   public HatoholArmPluginBase, public HapiTestHelper
 {
-	HatoholArmPluginBaseTest(void)
+	HatoholArmPluginBaseTest(void *params)
 	: serverIdOfHapGate(INVALID_SERVER_ID),
 	  terminateSem(0)
 	{

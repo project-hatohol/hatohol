@@ -36,7 +36,7 @@ class HatoholArmPluginBaseTest :
   public HatoholArmPluginBase, public HapiTestHelper
 {
 public:
-	HatoholArmPluginBaseTest(void)
+	HatoholArmPluginBaseTest(void *params)
 	{
 	}
 
