@@ -49,9 +49,14 @@ protected:
 	NamedPipe &getHapPipeForWrite(void);
 	void exitProcess(void);
 
-	static gboolean pipeRdErrCb(
+	virtual gboolean
+	  pipeRdErrCb(GIOChannel *source, GIOCondition condition);
+	virtual gboolean
+	  pipeWrErrCb(GIOChannel *source, GIOCondition condition);
+
+	static gboolean _pipeRdErrCb(
 	  GIOChannel *source, GIOCondition condition, gpointer data);
-	static gboolean pipeWrErrCb(
+	static gboolean _pipeWrErrCb(
 	  GIOChannel *source, GIOCondition condition, gpointer data);
 private:
 	struct Impl;

@@ -240,9 +240,9 @@ int HapProcessStandard::onCaughtException(const exception &e)
 bool HapProcessStandard::initHapPipe(const string &hapPipeName)
 {
 	// NOTE: We not use PIPEs only to detect the death of the Hatohol server
-	if (!m_impl->pipeRd.init(hapPipeName, pipeRdErrCb, this))
+	if (!m_impl->pipeRd.init(hapPipeName, _pipeRdErrCb, this))
 		return false;
-	if (!m_impl->pipeWr.init(hapPipeName, pipeWrErrCb, this))
+	if (!m_impl->pipeWr.init(hapPipeName, _pipeWrErrCb, this))
 		return false;
 	return true;
 }
@@ -263,17 +263,31 @@ void HapProcessStandard::exitProcess(void)
 }
 
 gboolean HapProcessStandard::pipeRdErrCb(
-  GIOChannel *source, GIOCondition condition, gpointer data)
+  GIOChannel *source, GIOCondition condition)
 {
 	MLPL_INFO("Got callback (PIPE): %08x", condition);
-	static_cast<HapProcessStandard *>(data)->exitProcess();
+	exitProcess();
 	return TRUE;
 }
 
 gboolean HapProcessStandard::pipeWrErrCb(
-  GIOChannel *source, GIOCondition condition, gpointer data)
+  GIOChannel *source, GIOCondition condition)
 {
 	MLPL_INFO("Got callback (PIPE): %08x", condition);
-	static_cast<HapProcessStandard *>(data)->exitProcess();
+	exitProcess();
 	return TRUE;
+}
+
+gboolean HapProcessStandard::_pipeRdErrCb(
+  GIOChannel *source, GIOCondition condition, gpointer data)
+{
+	HapProcessStandard *obj = static_cast<HapProcessStandard *>(data);
+	return obj->pipeRdErrCb(source, condition);
+}
+
+gboolean HapProcessStandard::_pipeWrErrCb(
+  GIOChannel *source, GIOCondition condition, gpointer data)
+{
+	HapProcessStandard *obj = static_cast<HapProcessStandard *>(data);
+	return obj->pipeWrErrCb(source, condition);
 }

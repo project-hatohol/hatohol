@@ -43,6 +43,8 @@ public:
 	// These are input paramters from the test cases
 	HatoholError              m_returnValueOfAcquireData;
 	bool                      m_throwException;
+	bool                      m_calledPipeRdErrCb;
+	bool                      m_calledPipeWrErrCb;
 
 	TestHapProcessStandard(void *params)
 	: HapProcessStandard(
@@ -52,7 +54,9 @@ public:
 	  m_errorOnComplated(NUM_HATOHOL_ERROR_CODE),
 	  m_watchTypeOnComplated(NUM_COLLECT_NG_KIND),
 	  m_returnValueOfAcquireData(HTERR_OK),
-	  m_throwException(false)
+	  m_throwException(false),
+	  m_calledPipeRdErrCb(false),
+	  m_calledPipeWrErrCb(false)
 	{
 	}
 
@@ -82,6 +86,22 @@ public:
 	{
 		m_errorOnComplated = err;
 		m_watchTypeOnComplated  = watchType;
+	}
+
+	virtual gboolean pipeRdErrCb(
+	  GIOChannel *source, GIOCondition condition) override
+	{
+		m_calledPipeRdErrCb = true;
+		HapProcessStandard::pipeRdErrCb(source, condition);
+		return G_SOURCE_REMOVE;
+	}
+
+	virtual gboolean pipeWrErrCb(
+	  GIOChannel *source, GIOCondition condition) override
+	{
+		m_calledPipeWrErrCb = true;
+		HapProcessStandard::pipeWrErrCb(source, condition);
+		return G_SOURCE_REMOVE;
 	}
 
 	void callOnReady(const MonitoringServerInfo &serverInfo)
@@ -251,6 +271,40 @@ void test_hapPipe(gconstpointer data)
 	  expectValidFd, pair.plugin->callGetHapPipeForRead().getFd() > 0);
 	cppcut_assert_equal(
 	  expectValidFd, pair.plugin->callGetHapPipeForWrite().getFd() > 0);
+}
+
+void test_hapPipeCatchErrorAndExit(void)
+{
+	struct GateDeleter : public HatoholThreadBase {
+		TestPair *pair;
+		virtual gpointer mainThread(HatoholThreadArg *arg) override
+		{
+			pair->gate->exitSync();
+			pair->gate = NULL;
+			return NULL;
+		}
+	} gateDeleter;
+
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST);
+
+	TestHapProcessStandard::CtorParams ctorParams;
+	string pipeName = StringUtils::sprintf(HAP_PIPE_NAME_FMT,
+	                                       arg.serverId);
+	const char *argv[] = {"prog", "--" HAP_PIPE_OPT, pipeName.c_str()};
+	ctorParams.argc = ARRAY_SIZE(argv);
+	ctorParams.argv = (char **)argv;
+	arg.hapClassParameters = &ctorParams;
+	arg.autoStartPlugin = false;
+	TestPair pair(arg);
+	gateDeleter.pair = &pair;
+
+	cppcut_assert_equal(false, pair.plugin->m_calledPipeRdErrCb);
+	cppcut_assert_equal(false, pair.plugin->m_calledPipeWrErrCb);
+	gateDeleter.start();
+	cppcut_assert_equal(EXIT_SUCCESS, pair.plugin->mainLoopRun());
+	g_main_loop_run(pair.plugin->getGMainLoop());
+	cppcut_assert_equal(true, pair.plugin->m_calledPipeRdErrCb);
+	cppcut_assert_equal(true, pair.plugin->m_calledPipeWrErrCb);
 }
 
 } // namespace testHapProcessStandardPair
