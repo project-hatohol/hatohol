@@ -174,7 +174,7 @@ int mainRoutine(int argc, char *argv[])
 #endif // GLIB_VERSION_2_36
 #ifndef GLIB_VERSION_2_32
 	g_thread_init(NULL);
-#endif // GLIB_VERSION_2_32 
+#endif // GLIB_VERSION_2_32
 
 	// parse command line argument
 	ExecContext ctx;
