@@ -243,6 +243,55 @@ void test_addServerWithHapiParams(void)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
+void test_addServerHapiJSON(void)
+{
+	MonitoringServerInfo expected;
+	MonitoringServerInfo::initialize(expected);
+	expected.id = NumTestServerInfo + 1;
+	expected.type = MONITORING_SYSTEM_HAPI_JSON;
+	expected.nickname = "JSON";
+	expected.hostName = "";
+	expected.ipAddress = "";
+
+	ArmPluginInfo armPluginInfo;
+	setupArmPluginInfo(armPluginInfo, expected);
+	armPluginInfo.id = 1; // We suppose all entries have been deleted
+	armPluginInfo.tlsCertificatePath = "/etc/hatohol/client-cert.pem";
+	armPluginInfo.tlsKeyPath = "/etc/hatohol/key.pem";
+	armPluginInfo.tlsCACertificatePath = "/etc/hatohol/ca-cert.pem";
+
+	StringMap params;
+	params["type"] = StringUtils::toString(expected.type);
+	params["nickname"] = expected.nickname;
+	params["brokerUrl"] = armPluginInfo.brokerUrl;
+	params["tlsCertificatePath"] = armPluginInfo.tlsCertificatePath;
+	params["tlsKeyPath"] = armPluginInfo.tlsKeyPath;
+	params["tlsCACertificatePath"] = armPluginInfo.tlsCACertificatePath;
+	if (armPluginInfo.tlsEnableVerify)
+		params["tlsEnableVerify"] = "true";
+
+#ifdef HAVE_LIBRABBITMQ
+	assertAddServerWithSetup(params, HTERR_OK);
+#else // HAVE_LIBRABBITMQ
+	assertAddServerWithSetup(params, HTERR_FAILED_TO_CREATE_DATA_STORE);
+#endif // HAVE_LIBRABBITMQ
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+
+	string statement = "select * from servers";
+	statement += " order by id desc limit 1";
+	expected.hostName = expected.nickname;
+	string expectedOutput = makeServerInfoOutput(expected);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
+
+	statement = "select * from arm_plugins";
+	statement += " order by id desc limit 1";
+	expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
+}
+
 void test_addServerWithoutNickname(void)
 {
 	MonitoringServerInfo serverInfo = testServerInfo[0];
