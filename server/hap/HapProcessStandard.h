@@ -33,7 +33,7 @@ public:
 protected:
 	typedef HatoholError (HapProcessStandard::*AcquireFunc)(void);
 
-	static gboolean acquisitionTimerCb(void *data);
+	static gboolean kickBasicAcquisition(void *data);
 	void startAcquisition(
 	  AcquireFunc acquireFunc, const bool &setupTimer = true);
 	void setupNextTimer(

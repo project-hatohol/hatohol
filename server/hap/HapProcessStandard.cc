@@ -89,7 +89,7 @@ int HapProcessStandard::mainLoopRun(void)
 //
 // Method running on HapProcess's thread
 //
-gboolean HapProcessStandard::acquisitionTimerCb(void *data)
+gboolean HapProcessStandard::kickBasicAcquisition(void *data)
 {
 	HapProcessStandard *obj = static_cast<HapProcessStandard *>(data);
 	obj->m_impl->timerTag = INVALID_EVENT_ID;
@@ -181,7 +181,8 @@ void HapProcessStandard::setupNextTimer(
 		MLPL_ERR("%s\n", errMsg.c_str());
 		getArmStatus().logFailure(errMsg);
 	}
-	m_impl->timerTag = g_timeout_add(intervalMSec, acquisitionTimerCb, this);
+	m_impl->timerTag = g_timeout_add(intervalMSec, kickBasicAcquisition,
+	                                 this);
 }
 
 void HapProcessStandard::onCompletedAcquistion(
@@ -221,7 +222,7 @@ void HapProcessStandard::onReady(const MonitoringServerInfo &serverInfo)
 	struct NoName {
 		static void startAcquisition(HapProcessStandard *obj)
 		{
-			acquisitionTimerCb(obj);
+			kickBasicAcquisition(obj);
 		}
 	};
 
