@@ -35,8 +35,9 @@ static MonitoringServerInfo toMonitoringServerInfo(
 	if (SOUP_URI_IS_VALID(uri)) {
 		monitoringServer.hostName = soup_uri_get_host(uri);
 		monitoringServer.port = soup_uri_get_port(uri);
-		soup_uri_free(uri);
 	}
+	if (uri)
+		soup_uri_free(uri);
 	//TODO: should be customizable
 	monitoringServer.pollingIntervalSec = 60;
 	monitoringServer.retryIntervalSec = 30;
