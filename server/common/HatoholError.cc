@@ -66,6 +66,8 @@ void HatoholError::init(void)
 		   "Invalid IP address.");
 	DEFINE_ERR(INVALID_HOST_NAME,
 		   "Invalid host name.");
+	DEFINE_ERR(INVALID_URI,
+		   "Invalid URI.");
 	DEFINE_ERR(NO_IP_ADDRESS_AND_HOST_NAME,
 		   "No IP address and host name.");
 	DEFINE_ERR(INVALID_INCIDENT_TRACKER_TYPE,

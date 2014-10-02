@@ -32,8 +32,8 @@ string MonitoringServerInfo::getHostAddress(bool forURI) const
 	if (!forURI)
 		return ipAddress;
 
-	if (!Utils::validIPv4Address(ipAddress) &&
-	    Utils:: validIPv6Address(ipAddress)) {
+	if (!Utils::isValidIPv4Address(ipAddress) &&
+	    Utils::isValidIPv6Address(ipAddress)) {
 		return StringUtils::sprintf("[%s]", ipAddress.c_str());
 	} else {
 		return ipAddress;

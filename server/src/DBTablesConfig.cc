@@ -914,7 +914,7 @@ HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 		return HTERR_INVALID_HOST_NAME;
 	}
 	if (!serverInfo.ipAddress.empty() &&
-	    !Utils::validIPAddress(serverInfo.ipAddress)) {
+	    !Utils::isValidIPAddress(serverInfo.ipAddress)) {
 		return HTERR_INVALID_IP_ADDRESS;
 	}
 	return HTERR_OK;
@@ -1275,6 +1275,8 @@ HatoholError validIncidentTrackerInfo(
 		return HTERR_INVALID_INCIDENT_TRACKER_TYPE;
 	if (incidentTrackerInfo.baseURL.empty())
 		return HTERR_NO_INCIDENT_TRACKER_LOCATION;
+	if (!Utils::isValidURI(incidentTrackerInfo.baseURL))
+		return HTERR_INVALID_URI;
 	return HTERR_OK;
 }
 
