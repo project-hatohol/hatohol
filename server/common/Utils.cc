@@ -413,16 +413,16 @@ void Utils::flushPendingGLibEvents(GMainContext *context)
 		;
 }
 
-bool Utils::validIPAddress(const string &ipAddress)
+bool Utils::isValidIPAddress(const string &ipAddress)
 {
-	if (validIPv4Address(ipAddress))
+	if (isValidIPv4Address(ipAddress))
 		return true;
-	if (validIPv6Address(ipAddress))
+	if (isValidIPv6Address(ipAddress))
 		return true;
 	return false;
 }
 
-bool Utils::validIPv4Address(const string &ipAddress)
+bool Utils::isValidIPv4Address(const string &ipAddress)
 {
 	struct in_addr addr4;
 
@@ -432,7 +432,7 @@ bool Utils::validIPv4Address(const string &ipAddress)
 	return true;
 }
 
-bool Utils::validIPv6Address(const string &ipAddress)
+bool Utils::isValidIPv6Address(const string &ipAddress)
 {
 	struct in6_addr addr6;
 

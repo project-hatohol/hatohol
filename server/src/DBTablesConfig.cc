@@ -914,7 +914,7 @@ HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 		return HTERR_INVALID_HOST_NAME;
 	}
 	if (!serverInfo.ipAddress.empty() &&
-	    !Utils::validIPAddress(serverInfo.ipAddress)) {
+	    !Utils::isValidIPAddress(serverInfo.ipAddress)) {
 		return HTERR_INVALID_IP_ADDRESS;
 	}
 	return HTERR_OK;

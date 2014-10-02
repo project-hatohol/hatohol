@@ -197,7 +197,7 @@ public:
 	 * @param ipAddress A string to be checked.
 	 * @return true if the string is valid, or false.
 	 */
-	static bool validIPAddress(const std::string &ipAddress);
+	static bool isValidIPAddress(const std::string &ipAddress);
 
 	/**
 	 * Check if an string is a valid IPv4 address.
@@ -205,7 +205,7 @@ public:
 	 * @param ipAddress A string to be checked.
 	 * @return true if the string is valid, or false.
 	 */
-	static bool validIPv4Address(const std::string &ipAddress);
+	static bool isValidIPv4Address(const std::string &ipAddress);
 
 	/**
 	 * Check if an string is a valid IPv6 address.
@@ -213,7 +213,7 @@ public:
 	 * @param ipAddress A string to be checked.
 	 * @return true if the string is valid, or false.
 	 */
-	static bool validIPv6Address(const std::string &ipAddress);
+	static bool isValidIPv6Address(const std::string &ipAddress);
 
 	/**
 	 * Check whether the string is a valid URI or not.
