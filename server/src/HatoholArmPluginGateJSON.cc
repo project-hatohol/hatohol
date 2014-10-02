@@ -157,12 +157,14 @@ struct HatoholArmPluginGateJSON::Impl
 	AMQPConsumer *m_consumer;
 	AMQPJSONMessageHandler *m_handler;
 	ArmFake m_armFake;
+	ArmStatus m_armStatus;
 
 	Impl(const MonitoringServerInfo &serverInfo)
 	: m_connectionInfo(),
 	  m_consumer(NULL),
 	  m_handler(NULL),
-	  m_armFake(serverInfo)
+	  m_armFake(serverInfo),
+	  m_armStatus()
 	{
 		ThreadLocalDBCache cache;
 		DBTablesConfig &dbConfig = cache.getConfig();
@@ -201,6 +203,7 @@ struct HatoholArmPluginGateJSON::Impl
 	{
 		if (m_consumer) {
 			m_consumer->exitSync();
+			m_armStatus.setRunningStatus(false);
 			delete m_consumer;
 		}
 		delete m_handler;
@@ -211,6 +214,7 @@ struct HatoholArmPluginGateJSON::Impl
 		if (!m_consumer)
 			return;
 		m_consumer->start();
+		m_armStatus.setRunningStatus(true);
 	}
 
 private:
@@ -237,6 +241,11 @@ HatoholArmPluginGateJSON::HatoholArmPluginGateJSON(
 ArmBase &HatoholArmPluginGateJSON::getArmBase(void)
 {
 	return m_impl->m_armFake;
+}
+
+const ArmStatus &HatoholArmPluginGateJSON::getArmStatus(void) const
+{
+	return m_impl->m_armStatus;
 }
 
 // ---------------------------------------------------------------------------

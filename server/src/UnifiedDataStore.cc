@@ -30,6 +30,9 @@
 #include "ItemFetchWorker.h"
 #include "DataStoreFactory.h"
 #include "HatoholArmPluginGate.h" // TODO: remove after dynamic_cast is deleted
+#ifdef HAVE_LIBRABBITMQ
+#include "HatoholArmPluginGateJSON.h" // TODO: remove after dynamic_cast is deleted
+#endif
 #include "ArmIncidentTracker.h"
 
 using namespace std;
@@ -52,6 +55,12 @@ static ArmInfo getArmInfo(DataStore *dataStore)
 	  dynamic_cast<HatoholArmPluginGate *>(dataStore);
 	if (pluginGate)
 		return pluginGate->getArmStatus().getArmInfo();
+#ifdef HAVE_LIBRABBITMQ
+	HatoholArmPluginGateJSON *pluginGateJSON =
+	  dynamic_cast<HatoholArmPluginGateJSON *>(dataStore);
+	if (pluginGateJSON)
+		return pluginGateJSON->getArmStatus().getArmInfo();
+#endif
 	return dataStore->getArmBase().getArmStatus().getArmInfo();
 }
 
