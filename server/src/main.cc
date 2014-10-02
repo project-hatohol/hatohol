@@ -136,6 +136,7 @@ static bool daemonize(void)
 		return true;
 	} else {
 		fclose(pid_file);
+		removePidFile();
 		pidFilePath.erase();
 		return false;
 	}
