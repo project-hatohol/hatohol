@@ -442,6 +442,15 @@ bool Utils::validIPv6Address(const string &ipAddress)
 	return true;
 }
 
+bool Utils::isValidURI(const string &uri)
+{
+	SoupURI *soupURI = soup_uri_new(uri.c_str());
+	bool valid = SOUP_URI_IS_VALID(soupURI);
+	if (soupURI)
+		soup_uri_free(soupURI);
+	return valid;
+}
+
 
 // ---------------------------------------------------------------------------
 // Protected methods

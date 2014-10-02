@@ -215,6 +215,14 @@ public:
 	 */
 	static bool validIPv6Address(const std::string &ipAddress);
 
+	/**
+	 * Check whether the string is a valid URI or not.
+	 *
+	 * @param uri A string to be checked.
+	 * @return true if the string is valid, otherwise false.
+	 */
+	static bool isValidURI(const std::string &uri);
+
 protected:
 	static std::string makeDemangledStackTraceString(
 	  const std::string &stackTraceLine);
