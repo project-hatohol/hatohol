@@ -184,6 +184,8 @@ int mainRoutine(int argc, char *argv[])
 			MLPL_ERR("Can't start daemon process\n");
 			return EXIT_FAILURE;
 		}
+	} else {
+		pidFilePath.clear();
 	}
 
 	// setup signal handlers for exit
