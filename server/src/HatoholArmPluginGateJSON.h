@@ -28,6 +28,7 @@ public:
 				 const bool &autoStart = true);
 
 	virtual ArmBase &getArmBase(void);
+	const ArmStatus &getArmStatus(void) const;
 
 protected:
 	virtual ~HatoholArmPluginGateJSON();
