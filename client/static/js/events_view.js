@@ -323,6 +323,7 @@ var EventsView = function(userProfile, baseElem) {
     setupFilterValues();
     drawTableContents();
     setLoading(false);
+    self.displayUpdateTime();
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 };

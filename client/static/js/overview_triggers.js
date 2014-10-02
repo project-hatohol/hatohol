@@ -230,6 +230,7 @@ var OverviewTriggers = function(userProfile) {
   };
 
   function load() {
+    self.displayUpdateTime();
     self.startConnection(getQuery(), updateCore);
     setLoading(true);
   }

@@ -244,6 +244,7 @@ var ActionsView = function(userProfile) {
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody(rawData));
     self.setupCheckboxForDelete($("#delete-action-button"));
+    self.displayUpdateTime();
   }
 
   function load() {

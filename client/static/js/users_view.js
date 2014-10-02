@@ -189,6 +189,7 @@ var UsersView = function(userProfile) {
     $("#table tbody").append(drawTableBody(reply));
     self.setupCheckboxForDelete($("#delete-user-button"));
     setupEditLinksAndButtons(reply);
+    self.displayUpdateTime();
   }
 };
 

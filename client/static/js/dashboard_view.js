@@ -210,6 +210,7 @@ var DashboardView = function(userProfile) {
     $("#tblHost tbody").empty();
     $("#tblHost tbody").append(drawHostBody(rawData, parsedData));
 
+    self.displayUpdateTime();
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 
