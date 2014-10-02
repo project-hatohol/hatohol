@@ -342,3 +342,18 @@ HatoholMonitoringView.prototype.setupHostFilters = function(servers, query) {
   if (query && ("hostId" in query))
     $("#select-host").val(query.hostId);
 };
+
+HatoholMonitoringView.prototype.displayUpdateTime =
+function()
+{
+  var date = function() {
+    var time = new Date();
+      return {
+        getCurrentTime: function() {
+          return time.toLocaleString();
+        }
+      }
+  }();
+  $("#update-time").empty();
+  $("#update-time").append("Last update time: " + date.getCurrentTime());
+}
