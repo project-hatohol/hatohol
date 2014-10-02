@@ -116,11 +116,15 @@ static bool daemonize(void)
 	pid_t pid;
 	pidFilePath = ConfigManager::getInstance()->getPidFilePath();
 	FILE *pid_file;
-	pid_file = fopen(pidFilePath.c_str(), "w+");
+	pid_file = fopen(pidFilePath.c_str(), "w+x");
 
 	if (pid_file == NULL) {
-		MLPL_ERR("Failed to record pid file: %s\n",
-		         pidFilePath.c_str());
+		const char *errfmt;
+		if (errno == EEXIST)
+			errfmt = "Pid file exists: %s; process already running?\n";
+		else
+			errfmt = "Failed to record pid file: %s\n";
+		MLPL_ERR(errfmt, pidFilePath.c_str());
 		pidFilePath.erase();
 		return false;
 	}
