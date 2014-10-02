@@ -145,6 +145,7 @@ static bool checkAnotherServerProcess(void)
 
 	if (pid_file != NULL) {
 		MLPL_ERR("Failed to start hatohol server. Server already running.\n");
+		fclose(pid_file);
 		pidFilePath.erase();
 		return false;
 	}
