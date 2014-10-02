@@ -17,14 +17,25 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <gcutter.h>
 #include <cppcutter.h>
+#include "Hatohol.h"
 #include "HapProcessStandard.h"
 #include "Helpers.h"
+#include "HatoholArmPluginTestPair.h"
 
-namespace testHapProcessStandard {
+using namespace std;
+using namespace mlpl;
+using namespace qpid::messaging;
 
-class TestHapProcessStandard : public HapProcessStandard {
+class TestHapProcessStandard :
+   public HapProcessStandard, public HapiTestHelper {
 public:
+	struct CtorParams {
+		int argc;
+		char **argv;
+	};
+
 	bool                      m_calledAquireData;
 	HatoholError              m_errorOnComplated;
 	HatoholArmPluginWatchType m_watchTypeOnComplated;
@@ -32,15 +43,33 @@ public:
 	// These are input paramters from the test cases
 	HatoholError              m_returnValueOfAcquireData;
 	bool                      m_throwException;
+	bool                      m_calledPipeRdErrCb;
+	bool                      m_calledPipeWrErrCb;
 
-	TestHapProcessStandard(void)
-	: HapProcessStandard(0, NULL),
+	TestHapProcessStandard(void *params)
+	: HapProcessStandard(
+	    static_cast<CtorParams *>(params)->argc,
+	    static_cast<CtorParams *>(params)->argv),
 	  m_calledAquireData(false),
 	  m_errorOnComplated(NUM_HATOHOL_ERROR_CODE),
 	  m_watchTypeOnComplated(NUM_COLLECT_NG_KIND),
 	  m_returnValueOfAcquireData(HTERR_OK),
-	  m_throwException(false)
+	  m_throwException(false),
+	  m_calledPipeRdErrCb(false),
+	  m_calledPipeWrErrCb(false)
 	{
+	}
+
+	virtual void onConnected(Connection &conn) override
+	{
+		HapProcessStandard::onConnected(conn);
+		HapiTestHelper::onConnected(conn);
+	}
+
+	virtual void onInitiated(void) override
+	{
+		HapProcessStandard::onInitiated();
+		HapiTestHelper::onInitiated();
 	}
 
 	virtual HatoholError acquireData(void) override
@@ -59,6 +88,22 @@ public:
 		m_watchTypeOnComplated  = watchType;
 	}
 
+	virtual gboolean pipeRdErrCb(
+	  GIOChannel *source, GIOCondition condition) override
+	{
+		m_calledPipeRdErrCb = true;
+		HapProcessStandard::pipeRdErrCb(source, condition);
+		return G_SOURCE_REMOVE;
+	}
+
+	virtual gboolean pipeWrErrCb(
+	  GIOChannel *source, GIOCondition condition) override
+	{
+		m_calledPipeWrErrCb = true;
+		HapProcessStandard::pipeWrErrCb(source, condition);
+		return G_SOURCE_REMOVE;
+	}
+
 	void callOnReady(const MonitoringServerInfo &serverInfo)
 	{
 		onReady(serverInfo);
@@ -68,13 +113,30 @@ public:
 	{
 		return getArmStatus();
 	}
+
+	NamedPipe &callGetHapPipeForRead(void)
+	{
+		return getHapPipeForRead();
+	}
+
+	NamedPipe &callGetHapPipeForWrite(void)
+	{
+		return getHapPipeForWrite();
+	}
 };
+
+typedef HatoholArmPluginTestPair<TestHapProcessStandard> TestPair;
+
+static TestHapProcessStandard::CtorParams g_ctorParams = {0, NULL};
+
+namespace testHapProcessStandard {
 
 struct StartAcquisitionTester {
 	TestHapProcessStandard m_hapProc;
 	MonitoringServerInfo   m_serverInfo;
 
 	StartAcquisitionTester(void)
+	: m_hapProc(&g_ctorParams)
 	{
 		initServerInfo(m_serverInfo);
 
@@ -146,3 +208,103 @@ void test_startAcquisitionWithTransaction(void)
 }
 
 } // namespace testHapProcessStandard
+
+// ---------------------------------------------------------------------------
+// new namespace
+// ---------------------------------------------------------------------------
+namespace testHapProcessStandardPair {
+
+void cut_setup(void)
+{
+	hatoholInit();
+	setupTestDB();
+}
+
+void data_hapPipe(void)
+{
+	gcut_add_datum("Not passive",
+	               "passivePlugin", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("Passive",
+	               "passivePlugin", G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
+void test_hapPipe(gconstpointer data)
+{
+	struct LoopQuiter {
+		static gboolean quit(gpointer data)
+		{
+			GMainLoop *loop = static_cast<GMainLoop *>(data);
+			g_main_loop_quit(loop);
+			return G_SOURCE_REMOVE;
+		}
+	};
+	const bool passivePlugin = gcut_data_get_string(data, "passivePlugin");
+
+	const MonitoringSystemType monSysType =
+	 passivePlugin ?  MONITORING_SYSTEM_HAPI_TEST_PASSIVE :
+	                  MONITORING_SYSTEM_HAPI_TEST;
+	HatoholArmPluginTestPairArg arg(monSysType);
+
+	TestHapProcessStandard::CtorParams ctorParams;
+	string pipeName = StringUtils::sprintf(HAP_PIPE_NAME_FMT,
+	                                       arg.serverId);
+	const char *argv[] = {"prog", "--" HAP_PIPE_OPT, pipeName.c_str()};
+	if (!passivePlugin) {
+		ctorParams.argc = ARRAY_SIZE(argv);
+		ctorParams.argv = (char **)argv;
+		arg.hapClassParameters = &ctorParams;
+	} else {
+		arg.hapClassParameters = &g_ctorParams;
+	}
+
+	arg.autoStartPlugin = false;
+	TestPair pair(arg);
+	const bool expectValidFd = !passivePlugin;
+	cppcut_assert_equal(
+	  expectValidFd, pair.gate->callGetHapPipeForRead().getFd() > 0);
+	cppcut_assert_equal(
+	  expectValidFd, pair.gate->callGetHapPipeForWrite().getFd() > 0);
+
+	Utils::setGLibIdleEvent(LoopQuiter::quit, pair.plugin->getGMainLoop());
+	cppcut_assert_equal(EXIT_SUCCESS, pair.plugin->mainLoopRun());
+	cppcut_assert_equal(
+	  expectValidFd, pair.plugin->callGetHapPipeForRead().getFd() > 0);
+	cppcut_assert_equal(
+	  expectValidFd, pair.plugin->callGetHapPipeForWrite().getFd() > 0);
+}
+
+void test_hapPipeCatchErrorAndExit(void)
+{
+	struct GateDeleter : public HatoholThreadBase {
+		TestPair *pair;
+		virtual gpointer mainThread(HatoholThreadArg *arg) override
+		{
+			pair->gate->exitSync();
+			pair->gate = NULL;
+			return NULL;
+		}
+	} gateDeleter;
+
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST);
+
+	TestHapProcessStandard::CtorParams ctorParams;
+	string pipeName = StringUtils::sprintf(HAP_PIPE_NAME_FMT,
+	                                       arg.serverId);
+	const char *argv[] = {"prog", "--" HAP_PIPE_OPT, pipeName.c_str()};
+	ctorParams.argc = ARRAY_SIZE(argv);
+	ctorParams.argv = (char **)argv;
+	arg.hapClassParameters = &ctorParams;
+	arg.autoStartPlugin = false;
+	TestPair pair(arg);
+	gateDeleter.pair = &pair;
+
+	cppcut_assert_equal(false, pair.plugin->m_calledPipeRdErrCb);
+	cppcut_assert_equal(false, pair.plugin->m_calledPipeWrErrCb);
+	gateDeleter.start();
+	cppcut_assert_equal(EXIT_SUCCESS, pair.plugin->mainLoopRun());
+	g_main_loop_run(pair.plugin->getGMainLoop());
+	cppcut_assert_equal(true, pair.plugin->m_calledPipeRdErrCb);
+	cppcut_assert_equal(true, pair.plugin->m_calledPipeWrErrCb);
+}
+
+} // namespace testHapProcessStandardPair

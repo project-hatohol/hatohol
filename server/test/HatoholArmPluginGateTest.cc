@@ -128,3 +128,13 @@ void HatoholArmPluginGateTest::canncelRetrySleepIfNeeded(void)
 		return;
 	m_ctx.mainSem.post();
 }
+
+NamedPipe &HatoholArmPluginGateTest::callGetHapPipeForRead(void)
+{
+	return getHapPipeForRead();
+}
+
+NamedPipe &HatoholArmPluginGateTest::callGetHapPipeForWrite(void)
+{
+	return getHapPipeForWrite();
+}

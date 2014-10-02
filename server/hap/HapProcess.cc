@@ -20,6 +20,7 @@
 #include <glib.h>
 #include <cstdio>
 #include <AtomicValue.h>
+#include "HatoholArmPluginInterface.h"
 #include "HapProcess.h"
 #include "HatoholException.h"
 
@@ -55,7 +56,8 @@ struct HapProcess::PrivateContext {
 // ---------------------------------------------------------------------------
 HapCommandLineArg::HapCommandLineArg(void)
 : brokerUrl(NULL),
-  queueAddress(NULL)
+  queueAddress(NULL),
+  hapPipeName(NULL)
 {
 }
 
@@ -63,6 +65,7 @@ HapCommandLineArg::~HapCommandLineArg()
 {
 	g_free((gchar *)brokerUrl);
 	g_free((gchar *)queueAddress);
+	g_free((gchar *)hapPipeName);
 }
 
 // ---------------------------------------------------------------------------
@@ -114,6 +117,8 @@ void HapProcess::parseCommandLineArg(
 		 &arg.brokerUrl, "Broker URL", "URL:PORT"},
 		{"queue-address", 'q', 0, G_OPTION_ARG_STRING,
 		 &arg.queueAddress, "Queue Address", "ADDR"},
+		{HAP_PIPE_OPT, 'p', 0, G_OPTION_ARG_STRING,
+		 &arg.hapPipeName, "HAP Pipe name", "NAME"},
 		{NULL}
 	};
 

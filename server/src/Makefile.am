@@ -58,7 +58,6 @@ libhatohol_la_SOURCES = \
 	ItemGroupEnum.h \
 	ItemTableUtils.h \
 	LabelUtils.cc LabelUtils.h \
-	NamedPipe.cc NamedPipe.h \
 	OperationPrivilege.cc OperationPrivilege.h \
 	RedmineAPI.cc RedmineAPI.h \
 	ResidentProtocol.h \

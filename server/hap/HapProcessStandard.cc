@@ -19,6 +19,7 @@
 
 #include <SmartQueue.h>
 #include "HapProcessStandard.h"
+#include "NamedPipe.h"
 
 using namespace std;
 using namespace mlpl;
@@ -31,9 +32,12 @@ struct HapProcessStandard::Impl {
 	SmartQueue<MonitoringServerInfo> serverInfoQueue;
 
 	guint                timerTag;
+	NamedPipe            pipeRd, pipeWr;
 
 	Impl(void)
-	: timerTag(INVALID_EVENT_ID)
+	: timerTag(INVALID_EVENT_ID),
+	  pipeRd(NamedPipe::END_TYPE_SLAVE_READ),
+	  pipeWr(NamedPipe::END_TYPE_SLAVE_WRITE)
 	{
 	}
 
@@ -69,6 +73,10 @@ int HapProcessStandard::mainLoopRun(void)
 		setBrokerUrl(clarg.brokerUrl);
 	if (clarg.queueAddress)
 		setQueueAddress(clarg.queueAddress);
+	if (clarg.hapPipeName) {
+		if (!initHapPipe(clarg.hapPipeName))
+			return EXIT_FAILURE;
+	}
 
 	HatoholArmPluginStandard::start();
 	g_main_loop_run(getGMainLoop());
@@ -224,4 +232,62 @@ int HapProcessStandard::onCaughtException(const exception &e)
 	MLPL_INFO("Caught an exception: %s. Retry afeter %d ms.\n",
 		  e.what(), retryIntervalSec);
 	return retryIntervalSec;
+}
+
+//
+// Method running on main thread incluing g_main_loop_run()
+//
+bool HapProcessStandard::initHapPipe(const string &hapPipeName)
+{
+	// NOTE: We not use PIPEs only to detect the death of the Hatohol server
+	if (!m_impl->pipeRd.init(hapPipeName, _pipeRdErrCb, this))
+		return false;
+	if (!m_impl->pipeWr.init(hapPipeName, _pipeWrErrCb, this))
+		return false;
+	return true;
+}
+
+NamedPipe &HapProcessStandard::getHapPipeForRead(void)
+{
+	return m_impl->pipeRd;
+}
+
+NamedPipe &HapProcessStandard::getHapPipeForWrite(void)
+{
+	return m_impl->pipeWr;
+}
+
+void HapProcessStandard::exitProcess(void)
+{
+	g_main_loop_quit(getGMainLoop());
+}
+
+gboolean HapProcessStandard::pipeRdErrCb(
+  GIOChannel *source, GIOCondition condition)
+{
+	MLPL_INFO("Got callback (PIPE): %08x", condition);
+	exitProcess();
+	return TRUE;
+}
+
+gboolean HapProcessStandard::pipeWrErrCb(
+  GIOChannel *source, GIOCondition condition)
+{
+	MLPL_INFO("Got callback (PIPE): %08x", condition);
+	exitProcess();
+	return TRUE;
+}
+
+gboolean HapProcessStandard::_pipeRdErrCb(
+  GIOChannel *source, GIOCondition condition, gpointer data)
+{
+	HapProcessStandard *obj = static_cast<HapProcessStandard *>(data);
+	return obj->pipeRdErrCb(source, condition);
+}
+
+gboolean HapProcessStandard::_pipeWrErrCb(
+  GIOChannel *source, GIOCondition condition, gpointer data)
+{
+	HapProcessStandard *obj = static_cast<HapProcessStandard *>(data);
+	return obj->pipeWrErrCb(source, condition);
 }

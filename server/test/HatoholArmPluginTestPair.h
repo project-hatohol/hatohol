@@ -37,11 +37,16 @@ struct HatoholArmPluginTestPairArg {
 	ServerIdType serverId;
 	std::string  serverIpAddr;
 	int          serverPort;
+	void        *hapClassParameters;
+	bool         autoStartPlugin;
 
-	HatoholArmPluginTestPairArg(const MonitoringSystemType &type)
+	HatoholArmPluginTestPairArg(const MonitoringSystemType &type,
+	                            void *_hapClassParameters = NULL)
 	: serverId(getTestArmPluginInfo(type).serverId),
 	  serverIpAddr("127.0.0.1"),
-	  serverPort(80)
+	  serverPort(80),
+	  hapClassParameters(_hapClassParameters),
+	  autoStartPlugin(true)
 	{
 	}
 
@@ -70,11 +75,14 @@ struct HatoholArmPluginTestPair : public HatoholArmPluginTestPairBase {
 		gate->start();
 		gate->assertWaitConnected();
 
-		plugin = new HapClass();
+		plugin = new HapClass(arg.hapClassParameters);
 		arg.onCreatedPlugin(plugin);
 		plugin->setQueueAddress(
 		  gate->callGenerateBrokerAddress(serverInfo));
-		plugin->start();
+		if (arg.autoStartPlugin)
+			plugin->start();
+		else
+			return;
 
 		gate->assertWaitInitiated();
 		arg.preAssertWaitInitiated(plugin);

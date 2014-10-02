@@ -27,6 +27,7 @@
 struct HapCommandLineArg {
 	const gchar *brokerUrl;
 	const gchar *queueAddress;
+	const gchar *hapPipeName;
 
 	HapCommandLineArg(void);
 	virtual ~HapCommandLineArg();
