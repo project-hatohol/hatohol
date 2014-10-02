@@ -70,6 +70,14 @@ void test_parseString(void)
 	assertReadWord(string, parser, "name1", "123");
 }
 
+void test_parseDouble(void)
+{
+	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON01.json");
+	assertReadWord(double, parser, "double0", 0.0);
+	assertReadWord(double, parser, "double1", 123456789.0123);
+	assertReadWord(double, parser, "double2", -777333.555111);
+}
+
 void test_parseStringInObject(void)
 {
 	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON02.json");

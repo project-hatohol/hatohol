@@ -1,4 +1,7 @@
 {
 "name0":"string value",
-"name1":"123"
+"name1":"123",
+"double0":0.0,
+"double1":123456789.0123,
+"double2":-777333.555111
 }

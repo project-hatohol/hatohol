@@ -52,6 +52,7 @@ public:
 	bool read(const std::string &member, bool &dest);
 	bool read(const std::string &member, int64_t &dest);
 	bool read(const std::string &member, std::string &dest);
+	bool read(const std::string &member, double &dest);
 	bool read(int index, std::string &dest);
 	bool isMember(const std::string &member);
 
