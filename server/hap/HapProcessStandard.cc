@@ -236,7 +236,7 @@ void HapProcessStandard::onReady(const MonitoringServerInfo &serverInfo)
 	  NoName::startAcquisition, this, ASYNC);
 }
 
-void HapProcessStandard::onReceivedFetchItem(void)
+void HapProcessStandard::onReceivedReqFetchItem(void)
 {
 	struct NoName {
 		static void startFetchItem(HapProcessStandard *obj)
