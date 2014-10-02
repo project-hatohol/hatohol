@@ -116,11 +116,15 @@ static bool daemonize(void)
 	pid_t pid;
 	pidFilePath = ConfigManager::getInstance()->getPidFilePath();
 	FILE *pid_file;
-	pid_file = fopen(pidFilePath.c_str(), "w+");
+	pid_file = fopen(pidFilePath.c_str(), "w+x");
 
 	if (pid_file == NULL) {
-		MLPL_ERR("Failed to record pid file: %s\n",
-		         pidFilePath.c_str());
+		const char *errfmt;
+		if (errno == EEXIST)
+			errfmt = "Pid file exists: %s; process already running?\n";
+		else
+			errfmt = "Failed to record pid file: %s\n";
+		MLPL_ERR(errfmt, pidFilePath.c_str());
 		pidFilePath.erase();
 		return false;
 	}
@@ -132,24 +136,10 @@ static bool daemonize(void)
 		return true;
 	} else {
 		fclose(pid_file);
+		removePidFile();
 		pidFilePath.erase();
 		return false;
 	}
-}
-
-static bool checkAnotherServerProcess(void)
-{
-	pidFilePath = ConfigManager::getInstance()->getPidFilePath();
-	FILE *pid_file;
-	pid_file = fopen(pidFilePath.c_str(), "r");
-
-	if (pid_file != NULL) {
-		MLPL_ERR("Failed to start hatohol server. Server already running.\n");
-		fclose(pid_file);
-		pidFilePath.erase();
-		return false;
-	}
-	return true;
 }
 
 static bool checkDBConnection(void)
@@ -184,9 +174,6 @@ int mainRoutine(int argc, char *argv[])
 
 	hatoholInit(&ctx.cmdLineOpts);
 	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
-
-	if (!checkAnotherServerProcess())
-		return EXIT_FAILURE;
 
 	if (!checkDBConnection())
 		return EXIT_FAILURE;
