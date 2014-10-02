@@ -110,6 +110,17 @@ bool JSONParser::read(const string &member, string &dest)
 	return true;
 }
 
+bool JSONParser::read(const std::string &member, double &dest)
+{
+	internalCheck();
+	if (!startObject(member))
+		return false;
+
+	dest = json_node_get_double(m_impl->currentNode);
+	endObject();
+	return true;
+}
+
 bool JSONParser::read(int index, string &dest)
 {
 	internalCheck();
