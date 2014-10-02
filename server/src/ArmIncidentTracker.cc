@@ -32,12 +32,14 @@ static MonitoringServerInfo toMonitoringServerInfo(
 	SoupURI *uri = soup_uri_new(trackerInfo.baseURL.c_str());
 	monitoringServer.type = MONITORING_SYSTEM_INCIDENT_TRACKER;
 	monitoringServer.nickname = trackerInfo.nickname;
-	monitoringServer.hostName = soup_uri_get_host(uri);
-	monitoringServer.port = soup_uri_get_port(uri);
+	if (SOUP_URI_IS_VALID(uri)) {
+		monitoringServer.hostName = soup_uri_get_host(uri);
+		monitoringServer.port = soup_uri_get_port(uri);
+		soup_uri_free(uri);
+	}
 	//TODO: should be customizable
 	monitoringServer.pollingIntervalSec = 60;
 	monitoringServer.retryIntervalSec = 30;
-	soup_uri_free(uri);
 	return monitoringServer;
 }
 
