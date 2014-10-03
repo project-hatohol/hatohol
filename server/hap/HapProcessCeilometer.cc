@@ -948,7 +948,6 @@ HatoholError HapProcessCeilometer::getResource(
 		MLPL_ERR("Failed to parser %s\n", parser.getErrorMessage());
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
-	printf("\n%s\n", msg->response_body->data);
 
 	const unsigned int count = parser.countElements();
 	if (count == 0) {
