@@ -993,7 +993,7 @@ HatoholError HapProcessCeilometer::getResource(
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTCLOCK, timestampSec);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTVALUE,
 	                StringUtils::sprintf("%lf", counter_volume));
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_PREVVALUE, "");
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_PREVVALUE, "N/A");
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_DELAY,     0);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID, NO_ITEM_CATEGORY_ID);
 	tablePtr->add(grp);
