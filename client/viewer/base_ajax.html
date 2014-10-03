@@ -71,7 +71,7 @@
     </div>
 
     <div style="display: none;"><form>{% csrf_token %}</form></div>
-    <div style="text-align: center;" id="update-time">Last update time: None</div>
+    <div style="text-align: center;" id="update-time"> {% trans "Last update time:"%} None </div>
 
 {% block main %}
 {% endblock %}
