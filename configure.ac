@@ -143,6 +143,11 @@ AC_SUBST(MLPL_CFLAGS)
 AC_SUBST(MLPL_LIBS)
 
 dnl **************************************************************
+dnl Check for libssl
+dnl **************************************************************
+AC_CHECK_LIB(ssl, SSL_new)
+
+dnl **************************************************************
 dnl Check for Apache Qpid
 dnl **************************************************************
 dnl The Qpid's functions are C++ mangled (such as
