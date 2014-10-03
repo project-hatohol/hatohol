@@ -24,7 +24,9 @@
 #include <Logger.h>
 #include <StringUtils.h>
 #include <amqp_tcp_socket.h>
+#if defined(HAVE_LIBSSL)
 #include <amqp_ssl_socket.h>
+#endif
 
 using namespace std;
 using namespace mlpl;
@@ -262,6 +264,7 @@ private:
 
 	bool createTLSSocket(void)
 	{
+#if defined(HAVE_LIBSSL)
 		m_socket = amqp_ssl_socket_new(m_connection);
 		if (!m_socket) {
 			MLPL_ERR("failed to create TLS socket\n");
@@ -279,10 +282,14 @@ private:
 		}
 
 		return true;
+#else
+		return false;
+#endif
 	}
 
 	bool setTLSKey(void)
 	{
+#if defined(HAVE_LIBSSL)
 		const int status =
 			amqp_ssl_socket_set_key(
 				m_socket,
@@ -299,10 +306,14 @@ private:
 			return false;
 		}
 		return true;
+#else
+		return false;
+#endif
 	}
 
 	bool setTLSCACertificate(void)
 	{
+#if defined(HAVE_LIBSSL)
 		const int status =
 			amqp_ssl_socket_set_cacert(
 				m_socket,
@@ -316,12 +327,19 @@ private:
 			return false;
 		}
 		return true;
+#else
+		return false;
+#endif
 	}
 
 	bool setTLSVerification(void)
 	{
+#if defined(HAVE_LIBSSL)
 		amqp_ssl_socket_set_verify(m_socket, isTLSVerifyEnabled());
 		return true;
+#else
+		return false;
+#endif
 	}
 
 	bool createPlainSocket(void)
