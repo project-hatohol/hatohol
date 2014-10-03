@@ -80,6 +80,7 @@ struct HapProcessCeilometer::Impl {
 	OpenStackEndPoint novaEP;
 	SmartTime         tokenExpires;
 	AcquireContext    acquireCtx;
+	vector<string>    instanceIds;
 
 	Impl(void)
 	{
@@ -293,6 +294,7 @@ HatoholError HapProcessCeilometer::sendHttpRequest(HttpRequestArg &arg)
 
 HatoholError HapProcessCeilometer::getInstanceList(void)
 {
+	m_impl->instanceIds.clear();
 	string url = m_impl->novaEP.publicURL;
 	url += "/servers/detail?all_tenants=1";
 	HttpRequestArg arg(SOUP_METHOD_GET, url);
@@ -374,6 +376,8 @@ HatoholError HapProcessCeilometer::parseInstanceElement(
 	grp->addNewItem(ITEM_ID_ZBX_HOSTS_HOSTID, generateHashU64(id));
 	grp->addNewItem(ITEM_ID_ZBX_HOSTS_NAME, name);
 	tablePtr->add(grp);
+
+	m_impl->instanceIds.push_back(id);
 
 	return HTERR_OK;
 }
@@ -800,6 +804,15 @@ bool HapProcessCeilometer::read(
 	return false;
 }
 
+bool HapProcessCeilometer::read(
+  JSONParser &parser, const string &member, double &dest)
+{
+	if (parser.read(member, dest))
+		return true;
+	MLPL_ERR("Failed to read: %s\n", member.c_str());
+	return false;
+}
+
 HatoholError HapProcessCeilometer::acquireData(void)
 {
 	Reaper<AcquireContext>
@@ -834,3 +847,142 @@ HatoholError HapProcessCeilometer::acquireData(void)
 	return HTERR_OK;
 }
 
+HatoholError HapProcessCeilometer::fetchItem(void)
+{
+	MLPL_DBG("fetchItem\n");
+	VariableItemTablePtr tablePtr;
+	HatoholError err(HTERR_OK);
+	for (size_t i = 0; i < m_impl->instanceIds.size(); i++) {
+		const string &instanceId = m_impl->instanceIds[i];
+		err = fetchItemsOfInstance(tablePtr, instanceId);
+	}
+	SmartBuffer resBuf;
+	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS);
+	appendItemTable(resBuf, static_cast<ItemTablePtr>(tablePtr));
+	appendItemTable(resBuf, ItemTablePtr()); // Item Category
+	reply(resBuf);
+	return err;
+}
+
+HatoholError HapProcessCeilometer::fetchItemsOfInstance(
+  VariableItemTablePtr &tablePtr, const string &instanceId)
+{
+	string url = StringUtils::sprintf(
+	               "%s/v2/resources/%s",
+	               m_impl->ceilometerEP.publicURL.c_str(),
+	               instanceId.c_str());
+	HttpRequestArg arg(SOUP_METHOD_GET, url);
+	HatoholError err = sendHttpRequest(arg);
+	if (err != HTERR_OK)
+		return err;
+
+	SoupMessage *msg = arg.msgPtr.get();
+	JSONParser parser(msg->response_body->data);
+	if (parser.hasError()) {
+		MLPL_ERR("Failed to parser %s\n", parser.getErrorMessage());
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	}
+
+	if (!startObject(parser, "links")) {
+		MLPL_ERR("Failed to start: links\n");
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	}
+
+	const unsigned int count = parser.countElements();
+	for (unsigned int idx = 0; idx < count; idx++) {
+		HatoholError err = parserResourceLink(parser, tablePtr, idx,
+		                                      instanceId);
+		if (err != HTERR_OK)
+			return err;
+	}
+
+	return HTERR_OK;
+}
+
+HatoholError HapProcessCeilometer::parserResourceLink(
+  JSONParser &parser, VariableItemTablePtr &tablePtr, const unsigned int &index,
+  const string &instanceId)
+{
+	JSONParser::PositionStack parserRewinder(parser);
+	if (! parserRewinder.pushElement(index)) {
+		MLPL_ERR("Failed to parse an element, index: %u\n", index);
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	}
+
+	string rel, href;
+	if (!read(parser, "rel", rel))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	if (rel == "self")
+		return HTERR_OK;
+	if (!read(parser, "href", href))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	return getResource(tablePtr, href, instanceId);
+}
+
+HatoholError HapProcessCeilometer::getResource(
+  VariableItemTablePtr &tablePtr, const string &_url, const string &instanceId)
+{
+	string url = _url + "&limit=1";
+	HttpRequestArg arg(SOUP_METHOD_GET, url);
+	HatoholError err = sendHttpRequest(arg);
+	if (err != HTERR_OK)
+		return err;
+	SoupMessage *msg = arg.msgPtr.get();
+	JSONParser parser(msg->response_body->data);
+	if (parser.hasError()) {
+		MLPL_ERR("Failed to parser %s\n", parser.getErrorMessage());
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	}
+	printf("\n%s\n", msg->response_body->data);
+
+	const unsigned int count = parser.countElements();
+	if (count == 0) {
+		MLPL_WARN("Return count: %d, url: %s\n", count, url.c_str());
+		return HTERR_OK;
+	}
+	if (count > 1)
+		MLPL_WARN("Return count: %d, url: %s\n", count, url.c_str());
+	const int index = 0;
+	JSONParser::PositionStack parserRewinder(parser);
+	if (! parserRewinder.pushElement(index)) {
+		MLPL_ERR("Failed to parse an element, index: %u\n", index);
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	}
+
+	// counter_volume
+	double counter_volume;
+	if (!read(parser, "counter_volume", counter_volume))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+
+	// counter_name
+	string counter_name;
+	if (!read(parser, "counter_name", counter_name))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+
+	// timestamp
+	string timestamp;
+	if (!read(parser, "timestamp", timestamp))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+
+	// fill
+	// TODO: Don't use IDs concerned with Zabbix.
+	const HostIdType hostId = generateHashU64(instanceId);
+	const ItemIdType itemId = generateHashU64(instanceId + counter_name);
+	const int timestampSec =
+	  (int)parseStateTimestamp(timestamp).getAsTimespec().tv_sec;
+
+	VariableItemGroupPtr grp;
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_NAME,      counter_name);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_KEY_,      "");
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_ITEMID,    itemId);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_HOSTID,    hostId);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTCLOCK, timestampSec);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTVALUE,
+	                StringUtils::sprintf("%lf", counter_volume));
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_PREVVALUE, "");
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_DELAY,     0);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID, NO_ITEM_CATEGORY_ID);
+	tablePtr->add(grp);
+
+	return HTERR_OK;
+}

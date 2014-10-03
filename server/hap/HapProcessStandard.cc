@@ -246,8 +246,10 @@ void HapProcessStandard::onReceivedReqFetchItem(void)
 		}
 	};
 
+	// We call fetchItem() synchronously so that it can call reply()
+	// that needs HatoholArmPluginInterface::Impl::currMessage,
 	Utils::executeOnGLibEventLoop<HapProcessStandard>(
-	  NoName::startFetchItem, this, ASYNC);
+	  NoName::startFetchItem, this, SYNC);
 }
 
 int HapProcessStandard::onCaughtException(const exception &e)

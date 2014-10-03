@@ -78,9 +78,20 @@ protected:
 	bool startObject(JSONParser &parser, const std::string &name);
 	bool read(JSONParser &parser, const std::string &member,
 	          std::string &dest);
+	bool read(JSONParser &parser, const std::string &member,
+	          double &dest);
 	bool parserEndpoints(JSONParser &parser, const unsigned int &index);
 
 	virtual HatoholError acquireData(void) override;
+	virtual HatoholError fetchItem(void) override;
+	HatoholError fetchItemsOfInstance(
+	  VariableItemTablePtr &tablePtr, const std::string &instanceId);
+	HatoholError parserResourceLink(
+	  JSONParser &parser, VariableItemTablePtr &tablePtr,
+	  const unsigned int &index, const std::string &instanceId);
+	HatoholError getResource(
+	  VariableItemTablePtr &tablePtr, const std::string &url,
+	  const std::string &instanceId);
 
 private:
 	struct Impl;
