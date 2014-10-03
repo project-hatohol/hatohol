@@ -973,6 +973,11 @@ HatoholError HapProcessCeilometer::getResource(
 	if (!read(parser, "counter_name", counter_name))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 
+	// counter_unit
+	string counter_unit;
+	if (!read(parser, "counter_unit", counter_unit))
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+
 	// timestamp
 	string timestamp;
 	if (!read(parser, "timestamp", timestamp))
@@ -984,9 +989,10 @@ HatoholError HapProcessCeilometer::getResource(
 	const ItemIdType itemId = generateHashU64(instanceId + counter_name);
 	const int timestampSec =
 	  (int)parseStateTimestamp(timestamp).getAsTimespec().tv_sec;
+	const string name = counter_name + " (" + counter_unit + ")";
 
 	VariableItemGroupPtr grp;
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_NAME,      counter_name);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_NAME,      name);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_KEY_,      "");
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_ITEMID,    itemId);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_HOSTID,    hostId);
