@@ -96,7 +96,7 @@ msgstr "パスワード変更"
 
 #: viewer/base_ajax.html:74
 msgid "Last update time:"
-msgstr ""
+msgstr "最終更新時刻:"
 
 #: viewer/dashboard_ajax.html:24 viewer/dashboard_ajax.html.py:29
 msgid "Dashboard"

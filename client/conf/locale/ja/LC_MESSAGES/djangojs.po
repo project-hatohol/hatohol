@@ -815,9 +815,8 @@ msgid "ERROR"
 msgstr "エラー"
 
 #: static/js/hatohol_monitoring_view.js:358
-#, fuzzy
 msgid "Last update time:"
-msgstr "状態更新時刻"
+msgstr "最終更新時刻:"
 
 #: static/js/hatohol_navi.js:25 test/browser/test_hatohol_navi.js:41
 #: test/browser/test_hatohol_navi.js:70
