@@ -89,15 +89,16 @@ int HapProcessStandard::mainLoopRun(void)
 //
 // Method running on HapProcess's thread
 //
-gboolean HapProcessStandard::acquisitionTimerCb(void *data)
+gboolean HapProcessStandard::kickBasicAcquisition(void *data)
 {
 	HapProcessStandard *obj = static_cast<HapProcessStandard *>(data);
 	obj->m_impl->timerTag = INVALID_EVENT_ID;
-	obj->startAcquisition();
+	obj->startAcquisition(&HapProcessStandard::acquireData);
 	return G_SOURCE_REMOVE;
 }
 
-void HapProcessStandard::startAcquisition(void)
+void HapProcessStandard::startAcquisition(
+  AcquireFunc acquireFunc, const bool &setupTimer)
 {
 	if (m_impl->timerTag != INVALID_EVENT_ID) {
 		// This condition may happen when unexpected initiation
@@ -120,10 +121,6 @@ void HapProcessStandard::startAcquisition(void)
 	while (m_impl->serverInfoQueue.size() > 1) // put away old data
 		m_impl->serverInfoQueue.pop();
 
-	const MonitoringServerInfo &serverInfo = getMonitoringServerInfo();
-	const int pollingIntervalSec = serverInfo.pollingIntervalSec;
-	const int retryIntervalSec   = serverInfo.retryIntervalSec;
-
 	// try to acquisition
 	bool caughtException = false;
 	string exceptionName;
@@ -131,7 +128,7 @@ void HapProcessStandard::startAcquisition(void)
 	HatoholError err(HTERR_UNINITIALIZED);
 	HatoholArmPluginWatchType watchType = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 	try {
-		err = acquireData();
+		err = (this->*acquireFunc)();
 		if (err == HTERR_OK)
 			getArmStatus().logSuccess();
 		watchType = getHapWatchType(err);
@@ -148,7 +145,21 @@ void HapProcessStandard::startAcquisition(void)
 		caughtException = true;
 	}
 
-	// Set up a timer for next aquisition
+	if (setupTimer) {
+		setupNextTimer(err, caughtException,
+		               exceptionName, exceptionMsg);
+	}
+
+	onCompletedAcquistion(err, watchType);
+}
+
+void HapProcessStandard::setupNextTimer(
+  const HatoholError &err, const bool &caughtException,
+  const string &exceptionName, const string &exceptionMsg)
+{
+	const MonitoringServerInfo &serverInfo = getMonitoringServerInfo();
+	const int pollingIntervalSec = serverInfo.pollingIntervalSec;
+	const int retryIntervalSec   = serverInfo.retryIntervalSec;
 	guint intervalMSec = pollingIntervalSec * 1000;
 	string errMsg;
 	if (caughtException) {
@@ -170,9 +181,8 @@ void HapProcessStandard::startAcquisition(void)
 		MLPL_ERR("%s\n", errMsg.c_str());
 		getArmStatus().logFailure(errMsg);
 	}
-	m_impl->timerTag = g_timeout_add(intervalMSec, acquisitionTimerCb, this);
-
-	onCompletedAcquistion(err, watchType);
+	m_impl->timerTag = g_timeout_add(intervalMSec, kickBasicAcquisition,
+	                                 this);
 }
 
 void HapProcessStandard::onCompletedAcquistion(
@@ -196,6 +206,11 @@ HatoholError HapProcessStandard::acquireData(void)
 	return HTERR_NOT_IMPLEMENTED;
 }
 
+HatoholError HapProcessStandard::fetchItem(void)
+{
+	return HTERR_NOT_IMPLEMENTED;
+}
+
 HatoholArmPluginWatchType HapProcessStandard::getHapWatchType(
   const HatoholError &err)
 {
@@ -212,13 +227,29 @@ void HapProcessStandard::onReady(const MonitoringServerInfo &serverInfo)
 	struct NoName {
 		static void startAcquisition(HapProcessStandard *obj)
 		{
-			obj->startAcquisition();
+			kickBasicAcquisition(obj);
 		}
 	};
 
 	m_impl->serverInfoQueue.push(serverInfo);
 	Utils::executeOnGLibEventLoop<HapProcessStandard>(
 	  NoName::startAcquisition, this, ASYNC);
+}
+
+void HapProcessStandard::onReceivedReqFetchItem(void)
+{
+	struct NoName {
+		static void startFetchItem(HapProcessStandard *obj)
+		{
+			obj->startAcquisition(&HapProcessStandard::fetchItem,
+			                      false);
+		}
+	};
+
+	// We call fetchItem() synchronously so that it can call reply()
+	// that needs HatoholArmPluginInterface::Impl::currMessage,
+	Utils::executeOnGLibEventLoop<HapProcessStandard>(
+	  NoName::startFetchItem, this, SYNC);
 }
 
 int HapProcessStandard::onCaughtException(const exception &e)

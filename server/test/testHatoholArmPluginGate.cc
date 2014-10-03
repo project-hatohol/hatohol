@@ -303,7 +303,7 @@ struct HatoholArmPluginBaseTest :
 		terminateSem.post();
 	}
 
-	virtual void onReceivedFetchItem(void) override
+	virtual void onReceivedReqFetchItem(void) override
 	{
 		SmartBuffer resBuf;
 		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS);

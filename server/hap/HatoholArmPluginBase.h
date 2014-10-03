@@ -72,7 +72,7 @@ protected:
 	 * behavior is calling exit(EXIT_SUCCESS).
 	 */
 	virtual void onReceivedTerminate(void);
-	virtual void onReceivedFetchItem(void);
+	virtual void onReceivedReqFetchItem(void);
 	virtual void onFailureReceivedMessage(void) override;
 
 	void sendCmdGetMonitoringServerInfo(CommandCallbacks *callbacks);

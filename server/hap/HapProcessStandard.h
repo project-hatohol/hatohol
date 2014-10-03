@@ -31,17 +31,25 @@ public:
 	int mainLoopRun(void);
 
 protected:
-	static gboolean acquisitionTimerCb(void *data);
-	void startAcquisition(void);
+	typedef HatoholError (HapProcessStandard::*AcquireFunc)(void);
+
+	static gboolean kickBasicAcquisition(void *data);
+	void startAcquisition(
+	  AcquireFunc acquireFunc, const bool &setupTimer = true);
+	void setupNextTimer(
+	  const HatoholError &err, const bool &caughtException,
+	  const std::string &exceptionName, const std::string &exceptionMsg);
 	const MonitoringServerInfo &getMonitoringServerInfo(void) const;
 
 	virtual HatoholError acquireData(void);
+	virtual HatoholError fetchItem(void);
 	virtual void onCompletedAcquistion(
 	  const HatoholError &err, const HatoholArmPluginWatchType &watchType);
 	virtual HatoholArmPluginWatchType getHapWatchType(
 	  const HatoholError &err);
 
 	virtual void onReady(const MonitoringServerInfo &serverInfo) override;
+	virtual void onReceivedReqFetchItem(void) override;
 	virtual int onCaughtException(const std::exception &e) override;
 
 	bool initHapPipe(const std::string &hapPipeName);
