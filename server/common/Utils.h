@@ -40,6 +40,10 @@
 #define soup_uri_get_port(uri) (uri->port)
 #endif
 
+#ifndef SOUP_URI_IS_VALID
+#define SOUP_URI_IS_VALID(uri) ((uri) && (uri)->scheme && (uri)->path)
+#endif
+
 class FormulaElement;
 
 static const guint INVALID_EVENT_ID = -1;
