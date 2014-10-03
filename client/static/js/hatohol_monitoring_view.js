@@ -355,5 +355,5 @@ function()
       }
   }();
   $("#update-time").empty();
-  $("#update-time").append("Last update time: " + date.getCurrentTime());
+  $("#update-time").append(gettext("Last update time:") + " " + date.getCurrentTime());
 }
