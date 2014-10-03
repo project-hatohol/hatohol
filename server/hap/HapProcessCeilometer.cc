@@ -81,9 +81,24 @@ struct HapProcessCeilometer::Impl {
 	SmartTime         tokenExpires;
 	AcquireContext    acquireCtx;
 	vector<string>    instanceIds;
+	set<string>       targetItemNames;
 
 	Impl(void)
 	{
+		const char *targetItems[] = {
+			"cpu",
+			"cpu_util",
+			"disk.read.requests",
+			"disk.read.requests.rate",
+			"disk.read.bytes",
+			"disk.read.bytes.rate",
+			"disk.write.requests",
+			"disk.write.requests.rate",
+			"disk.write.bytes",
+			"disk.write.bytes.rate",
+		};
+		for (size_t i = 0; i < ARRAY_SIZE(targetItems); i++)
+			targetItemNames.insert(targetItems[i]);
 	}
 
 	void clear(void)
@@ -912,7 +927,7 @@ HatoholError HapProcessCeilometer::parserResourceLink(
 	string rel, href;
 	if (!read(parser, "rel", rel))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
-	if (rel == "self")
+	if (m_impl->targetItemNames.find(rel) == m_impl->targetItemNames.end())
 		return HTERR_OK;
 	if (!read(parser, "href", href))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
