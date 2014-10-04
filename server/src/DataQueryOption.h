@@ -22,7 +22,7 @@
 
 #include <string>
 #include <memory>
-#include <list>
+#include <vector>
 #include "Params.h"
 #include "DataQueryContext.h"
 #include "DBTermCodec.h"
@@ -41,9 +41,9 @@ public:
 		SortOrder(const std::string &columnName,
 			  const SortDirection &direction);
 	};
-	typedef std::list<SortOrder> SortOrderList;
-	typedef std::list<SortOrder>::iterator SortOrderListIterator;
-	typedef std::list<SortOrder>::const_iterator SortOrderListConstIterator;
+	typedef std::vector<SortOrder> SortOrderVect;
+	typedef std::vector<SortOrder>::iterator SortOrderVectIterator;
+	typedef std::vector<SortOrder>::const_iterator SortOrderVectConstIterator;
 
 	DataQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	DataQueryOption(DataQueryContext *dataQueryContext);
