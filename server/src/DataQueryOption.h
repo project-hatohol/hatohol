@@ -98,11 +98,11 @@ public:
 	size_t getMaximumNumber(void) const;
 
 	/**
-	 * Set a list of SortOrder to build "ORDER BY" statement.
+	 * Set a vector of SortOrder to build "ORDER BY" statement.
 	 *
-	 * @param sortOrderList A list of SortOrder.
+	 * @param sortOrderVect A vector of SortOrder.
 	 */
-	void setSortOrderList(const SortOrderList &sortOrderList);
+	void setSortOrderVect(const SortOrderVect &sortOrderVect);
 
 	/**
 	 * Set a SortOrder to build "ORDER BY" statement.
@@ -114,11 +114,11 @@ public:
 	void setSortOrder(const SortOrder &sortOrder);
 
 	/**
-	 * Get the list of SortOrder.
+	 * Get the vector of SortOrder.
 	 *
-	 * @return The list of SortOrder which is currently set to this object.
+	 * @return The vector of SortOrder which is currently set to this object.
 	 */
-	const SortOrderList &getSortOrderList(void) const;
+	const SortOrderVect &getSortOrderVect(void) const;
 
 	/**
 	 * Set the offset of the returned elements.
