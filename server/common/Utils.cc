@@ -299,7 +299,7 @@ void Utils::executeOnGLibEventLoop(
 
 	// just call the function if the caller has the ownership
 	// of the context.
-	if (g_main_context_acquire(context)) {
+	if (syncType == SYNC && g_main_context_acquire(context)) {
 		(*func)(data);
 		g_main_context_release(context);
 		return;

@@ -28,6 +28,8 @@ using namespace std;
 using namespace mlpl;
 using namespace qpid::messaging;
 
+static int TIMEOUT = 5; // sec
+
 class TestHapProcessStandard :
    public HapProcessStandard, public HapiTestHelper {
 public:
@@ -36,7 +38,7 @@ public:
 		char **argv;
 	};
 
-	bool                      m_calledAquireData;
+	SimpleSemaphore           m_acquireSem;
 	HatoholError              m_errorOnComplated;
 	HatoholArmPluginWatchType m_watchTypeOnComplated;
 
@@ -50,7 +52,7 @@ public:
 	: HapProcessStandard(
 	    static_cast<CtorParams *>(params)->argc,
 	    static_cast<CtorParams *>(params)->argv),
-	  m_calledAquireData(false),
+	  m_acquireSem(0),
 	  m_errorOnComplated(NUM_HATOHOL_ERROR_CODE),
 	  m_watchTypeOnComplated(NUM_COLLECT_NG_KIND),
 	  m_returnValueOfAcquireData(HTERR_OK),
@@ -74,7 +76,7 @@ public:
 
 	virtual HatoholError acquireData(void) override
 	{
-		m_calledAquireData = true;
+		m_acquireSem.post();
 		if (m_throwException)
 			throw 0;
 		return m_returnValueOfAcquireData;
@@ -154,7 +156,20 @@ struct StartAcquisitionTester {
 	            const HatoholArmPluginWatchType &expectWatchType,
 	            const ArmWorkingStatus &expectArmWorkingStat)
 	{
-		cppcut_assert_equal(true, m_hapProc.m_calledAquireData);
+		SmartTime t0(SmartTime::INIT_CURR_TIME);
+		while (true) {
+			int ret = m_hapProc.m_acquireSem.tryWait();
+			if (ret == 0)
+				break;
+			SmartTime t1(SmartTime::INIT_CURR_TIME);
+			t1 -= t0;
+			if (t1.getAsSec() > TIMEOUT)
+				cut_fail("time out\n");
+			if (ret == EAGAIN)
+				g_main_context_iteration(NULL, TRUE);
+			else
+				cut_fail("Unexpected result: %d\n", ret);
+		}
 		assertHatoholError(expectHatoholErrorCode,
 		                    m_hapProc.m_errorOnComplated);
 		cppcut_assert_equal(expectWatchType,
