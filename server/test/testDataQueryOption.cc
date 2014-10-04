@@ -105,13 +105,13 @@ public:
 
 namespace testDataQueryOption {
 
-static void getTestSortOrderList(DataQueryOption::SortOrderList &sortOrderList)
+static void getTestSortOrderVect(DataQueryOption::SortOrderVect &sortOrderVect)
 {
-	sortOrderList.push_back(DataQueryOption::SortOrder(
+	sortOrderVect.push_back(DataQueryOption::SortOrder(
 	  "column1", DataQueryOption::SORT_DESCENDING));
-	sortOrderList.push_back(DataQueryOption::SortOrder(
+	sortOrderVect.push_back(DataQueryOption::SortOrder(
 	  "column3", DataQueryOption::SORT_ASCENDING));
-	sortOrderList.push_back(DataQueryOption::SortOrder(
+	sortOrderVect.push_back(DataQueryOption::SortOrder(
 	  "column2", DataQueryOption::SORT_DESCENDING));
 }
 
@@ -144,14 +144,14 @@ void test_operatorEqInitailObject(void)
 
 void test_operatorEq(void)
 {
-	DataQueryOption::SortOrderList sortOrderList;
-	getTestSortOrderList(sortOrderList);
+	DataQueryOption::SortOrderVect sortOrderVect;
+	getTestSortOrderVect(sortOrderVect);
 	DataQueryOption lhs;
 	DataQueryOption rhs;
 	lhs.setMaximumNumber(2);
 	rhs.setMaximumNumber(2);
-	lhs.setSortOrderList(sortOrderList);
-	rhs.setSortOrderList(sortOrderList);
+	lhs.setSortOrderVect(sortOrderVect);
+	rhs.setSortOrderVect(sortOrderVect);
 	cppcut_assert_equal(true, lhs == rhs);
 }
 
@@ -165,11 +165,11 @@ void test_operatorEqFail(void)
 
 void test_operatorEqWithDifferentSortOrder(void)
 {
-	DataQueryOption::SortOrderList sortOrderList;
-	getTestSortOrderList(sortOrderList);
+	DataQueryOption::SortOrderVect sortOrderVect;
+	getTestSortOrderVect(sortOrderVect);
 	DataQueryOption lhs;
 	DataQueryOption rhs;
-	lhs.setSortOrderList(sortOrderList);
+	lhs.setSortOrderVect(sortOrderVect);
 	cppcut_assert_equal(false, lhs == rhs);
 }
 
@@ -217,9 +217,9 @@ void test_getOrderByWithColumnDesc(void)
 void test_getOrderByWithMultipleColumns(void)
 {
 	DataQueryOption option;
-	DataQueryOption::SortOrderList sortOrderList;
-	getTestSortOrderList(sortOrderList);
-	option.setSortOrderList(sortOrderList);
+	DataQueryOption::SortOrderVect sortOrderVect;
+	getTestSortOrderVect(sortOrderVect);
+	option.setSortOrderVect(sortOrderVect);
 	cppcut_assert_equal("column1 DESC, column3 ASC, column2 DESC",
 			    option.getOrderBy().c_str());
 }
