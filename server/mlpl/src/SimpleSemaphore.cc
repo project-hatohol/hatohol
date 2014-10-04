@@ -120,6 +120,18 @@ retry:
 	return STAT_ERROR_UNKNOWN;
 }
 
+int SimpleSemaphore::tryWait(void)
+{
+retry:
+	int ret = sem_trywait(&m_ctx->sem);
+	if (ret == -1) {
+		if (errno == EINTR)
+			goto retry;
+		return errno;
+	}
+	return 0;
+}
+
 void SimpleSemaphore::init(const int &count)
 {
 	m_ctx->init(count);

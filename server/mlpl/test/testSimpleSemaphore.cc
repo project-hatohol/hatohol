@@ -44,6 +44,13 @@ void test_postAndWait(void)
 	cppcut_assert_equal(0, sem.wait());
 }
 
+void test_tryWait(void)
+{
+	SimpleSemaphore sem(1);
+	cppcut_assert_equal(0, sem.tryWait());
+	cppcut_assert_equal(EAGAIN, sem.tryWait());
+}
+
 void test_timedWait(void)
 {
 	SimpleSemaphore sem(1);

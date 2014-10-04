@@ -58,6 +58,13 @@ public:
 	int wait(void);
 
 	/**
+	 * Try to wait.
+	 *
+	 * @return 0 on Succeess, or errno if an error occured.
+	 */
+	int tryWait(void);
+
+	/**
 	 * Wait a semaphore with a timeout value.
 	 *
 	 * @param timeoutInMSec A timeout in millisecond.
