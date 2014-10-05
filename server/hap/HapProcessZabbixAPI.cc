@@ -142,6 +142,20 @@ HatoholError HapProcessZabbixAPI::acquireData(void)
 	return HTERR_OK;
 }
 
+HatoholError HapProcessZabbixAPI::fetchItem(void)
+{
+	ItemTablePtr items = getItems();
+	ItemTablePtr applications = getApplications(items);
+
+	SmartBuffer resBuf;
+	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS);
+	appendItemTable(resBuf, items);
+	appendItemTable(resBuf, applications);
+	reply(resBuf);
+
+	return HTERR_OK;
+}
+
 HatoholArmPluginWatchType HapProcessZabbixAPI::getHapWatchType(
   const HatoholError &err)
 {
