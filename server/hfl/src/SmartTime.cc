@@ -49,7 +49,7 @@ SmartTime::SmartTime(InitType initType)
 		*this = getCurrTime();
 		break;
 	default:
-		MLPL_ERR("Unknown initType: %d\n", initType);
+		HFL_ERR("Unknown initType: %d\n", initType);
 		break;
 	}
 }
@@ -98,7 +98,7 @@ SmartTime SmartTime::getCurrTime(void)
 {
 	SmartTime smtime;
 	if (clock_gettime(CLOCK_REALTIME, &smtime.m_time) == -1) {
-		MLPL_ERR("Failed to call clock_gettime(%d): errno: %d\n",
+		HFL_ERR("Failed to call clock_gettime(%d): errno: %d\n",
 		         CLOCK_REALTIME,  errno);
 	}
 	return smtime;

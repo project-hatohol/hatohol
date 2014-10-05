@@ -35,17 +35,17 @@ int main(int argc, char **argv)
 	}
 	string level = argv[1];
 	if (level == "DBG")
-		MLPL_DBG("%s\n", testString);
+		HFL_DBG("%s\n", testString);
 	else if (level == "INFO")
-		MLPL_INFO("%s\n", testString);
+		HFL_INFO("%s\n", testString);
 	else if (level == "WARN")
-		MLPL_WARN("%s\n", testString);
+		HFL_WARN("%s\n", testString);
 	else if (level == "ERR")
-		MLPL_ERR("%s\n", testString);
+		HFL_ERR("%s\n", testString);
 	else if (level == "CRIT")
-		MLPL_CRIT("%s\n", testString);
+		HFL_CRIT("%s\n", testString);
 	else if (level == "BUG")
-		MLPL_BUG("%s\n", testString);
+		HFL_BUG("%s\n", testString);
 	else {
 		fprintf(stderr, "unknown level: %s\n", level.c_str());
 		return EXIT_FAILURE;

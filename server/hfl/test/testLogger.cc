@@ -134,11 +134,11 @@ static void _assertWaitSyslogUpdate(int fd, int timeout, bool &timedOut)
 static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
                                 bool shouldLog)
 {
-	static const char* LogHeaders[MLPL_NUM_LOG_LEVEL] = {
+	static const char* LogHeaders[HFL_NUM_LOG_LEVEL] = {
 		"BUG", "CRIT", "ERR", "WARN", "INFO", "DBG",
 	};
 
-	LogLevel level = MLPL_LOG_INFO;
+	LogLevel level = HFL_LOG_INFO;
 	const char *fileName = "test file";
 	int lineNumber = 1;
 	string expectedMsg =

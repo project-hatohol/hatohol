@@ -25,15 +25,15 @@
 namespace hfl {
 
 enum LogLevel {
-	MLPL_LOG_BUG,
-	MLPL_LOG_CRIT,
-	MLPL_LOG_ERR,
-	MLPL_LOG_WARN,
-	MLPL_LOG_INFO,
-	MLPL_LOG_DBG,
+	HFL_LOG_BUG,
+	HFL_LOG_CRIT,
+	HFL_LOG_ERR,
+	HFL_LOG_WARN,
+	HFL_LOG_INFO,
+	HFL_LOG_DBG,
 
-	MLPL_NUM_LOG_LEVEL,
-	MLPL_LOG_LEVEL_NOT_SET,
+	HFL_NUM_LOG_LEVEL,
+	HFL_LOG_LEVEL_NOT_SET,
 };
 
 class Logger {
@@ -59,18 +59,18 @@ private:
 
 } // namespace hfl
 
-#define MLPL_P(LOG_LV, FMT, ...) \
+#define HFL_P(LOG_LV, FMT, ...) \
 do { \
   if (mlpl::Logger::shouldLog(LOG_LV)) \
     mlpl::Logger::log(LOG_LV, __FILE__, __LINE__, FMT, ##__VA_ARGS__); \
 } while (0)
 
-#define MLPL_DBG(FMT,  ...) MLPL_P(mlpl::MLPL_LOG_DBG,  FMT, ##__VA_ARGS__)
-#define MLPL_INFO(FMT, ...) MLPL_P(mlpl::MLPL_LOG_INFO, FMT, ##__VA_ARGS__)
-#define MLPL_WARN(FMT, ...) MLPL_P(mlpl::MLPL_LOG_WARN, FMT, ##__VA_ARGS__)
-#define MLPL_ERR(FMT,  ...) MLPL_P(mlpl::MLPL_LOG_ERR,  FMT, ##__VA_ARGS__)
-#define MLPL_CRIT(FMT, ...) MLPL_P(mlpl::MLPL_LOG_CRIT, FMT, ##__VA_ARGS__)
-#define MLPL_BUG(FMT,  ...) MLPL_P(mlpl::MLPL_LOG_BUG,  FMT, ##__VA_ARGS__)
+#define HFL_DBG(FMT,  ...) HFL_P(mlpl::HFL_LOG_DBG,  FMT, ##__VA_ARGS__)
+#define HFL_INFO(FMT, ...) HFL_P(mlpl::HFL_LOG_INFO, FMT, ##__VA_ARGS__)
+#define HFL_WARN(FMT, ...) HFL_P(mlpl::HFL_LOG_WARN, FMT, ##__VA_ARGS__)
+#define HFL_ERR(FMT,  ...) HFL_P(mlpl::HFL_LOG_ERR,  FMT, ##__VA_ARGS__)
+#define HFL_CRIT(FMT, ...) HFL_P(mlpl::HFL_LOG_CRIT, FMT, ##__VA_ARGS__)
+#define HFL_BUG(FMT,  ...) HFL_P(mlpl::HFL_LOG_BUG,  FMT, ##__VA_ARGS__)
 
 #endif // Logger_h
 

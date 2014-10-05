@@ -35,7 +35,7 @@ struct EventSemaphore::PrivateContext {
 	{
 		eventFd = eventfd(count, EFD_CLOEXEC|EFD_SEMAPHORE);
 		if (eventFd == -1) {
-			MLPL_CRIT("Failed to create event fd: errno: %d\n",
+			HFL_CRIT("Failed to create event fd: errno: %d\n",
 			          errno);
 			abort();
 		}

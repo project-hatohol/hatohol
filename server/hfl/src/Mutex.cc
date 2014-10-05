@@ -71,7 +71,7 @@ Mutex::Status Mutex::timedlock(size_t timeoutInMSec)
 	case ETIMEDOUT:
 		return STAT_TIMEDOUT;
 	default:
-		MLPL_ERR("Failed to clock_gettime: errno: %d\n", errno);
+		HFL_ERR("Failed to clock_gettime: errno: %d\n", errno);
 		return STAT_ERROR_UNKNOWN;
 	}
 	return STAT_OK;

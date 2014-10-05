@@ -208,7 +208,7 @@ void SmartBuffer::printBuffer(void)
 		}
 		msg += "\n";
 	}
-	MLPL_INFO("%s", msg.c_str());
+	HFL_INFO("%s", msg.c_str());
 }
 
 SmartBuffer *SmartBuffer::takeOver(void)
