@@ -76,6 +76,6 @@ private:
 
 } // namespace hfl
 
-std::ostream &operator<<(std::ostream &os, const mlpl::SmartTime &stime);
+std::ostream &operator<<(std::ostream &os, const hfl::SmartTime &stime);
 
 #endif // SmartTime_h

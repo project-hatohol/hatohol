@@ -61,16 +61,16 @@ private:
 
 #define HFL_P(LOG_LV, FMT, ...) \
 do { \
-  if (mlpl::Logger::shouldLog(LOG_LV)) \
-    mlpl::Logger::log(LOG_LV, __FILE__, __LINE__, FMT, ##__VA_ARGS__); \
+  if (hfl::Logger::shouldLog(LOG_LV)) \
+    hfl::Logger::log(LOG_LV, __FILE__, __LINE__, FMT, ##__VA_ARGS__); \
 } while (0)
 
-#define HFL_DBG(FMT,  ...) HFL_P(mlpl::HFL_LOG_DBG,  FMT, ##__VA_ARGS__)
-#define HFL_INFO(FMT, ...) HFL_P(mlpl::HFL_LOG_INFO, FMT, ##__VA_ARGS__)
-#define HFL_WARN(FMT, ...) HFL_P(mlpl::HFL_LOG_WARN, FMT, ##__VA_ARGS__)
-#define HFL_ERR(FMT,  ...) HFL_P(mlpl::HFL_LOG_ERR,  FMT, ##__VA_ARGS__)
-#define HFL_CRIT(FMT, ...) HFL_P(mlpl::HFL_LOG_CRIT, FMT, ##__VA_ARGS__)
-#define HFL_BUG(FMT,  ...) HFL_P(mlpl::HFL_LOG_BUG,  FMT, ##__VA_ARGS__)
+#define HFL_DBG(FMT,  ...) HFL_P(hfl::HFL_LOG_DBG,  FMT, ##__VA_ARGS__)
+#define HFL_INFO(FMT, ...) HFL_P(hfl::HFL_LOG_INFO, FMT, ##__VA_ARGS__)
+#define HFL_WARN(FMT, ...) HFL_P(hfl::HFL_LOG_WARN, FMT, ##__VA_ARGS__)
+#define HFL_ERR(FMT,  ...) HFL_P(hfl::HFL_LOG_ERR,  FMT, ##__VA_ARGS__)
+#define HFL_CRIT(FMT, ...) HFL_P(hfl::HFL_LOG_CRIT, FMT, ##__VA_ARGS__)
+#define HFL_BUG(FMT,  ...) HFL_P(hfl::HFL_LOG_BUG,  FMT, ##__VA_ARGS__)
 
 #endif // Logger_h
 

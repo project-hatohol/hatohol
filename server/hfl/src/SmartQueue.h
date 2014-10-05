@@ -109,8 +109,8 @@ public:
 	template <typename PrivType>
 	void popAll(void (*func)(T elem, PrivType), PrivType priv)
 	{
-		mlpl::Reaper<mlpl::Mutex>
-		  unlocker(&m_mutex, mlpl::Mutex::unlock);
+		hfl::Reaper<hfl::Mutex>
+		  unlocker(&m_mutex, hfl::Mutex::unlock);
 		m_mutex.lock();
 		while (!m_queue.empty()) {
 			m_sem.wait();
@@ -142,8 +142,8 @@ public:
 protected:
 
 private:
-	mutable mlpl::Mutex   m_mutex;
-	mlpl::SimpleSemaphore m_sem;
+	mutable hfl::Mutex   m_mutex;
+	hfl::SimpleSemaphore m_sem;
 	std::deque<T>         m_queue;
 };
 
