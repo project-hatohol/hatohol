@@ -107,43 +107,49 @@ public:
 	 * @param context
 	 * A GMainContext on which the function is execuetd. If this is NULL,
 	 * the default context is used.
+	 *
+	 * @return
+	 * An event ID of the scheduled task. When syncType is SYNC,
+	 * INVALID_EVENT_ID is always returned.
 	 */
-	static void executeOnGLibEventLoop(
+	static guint executeOnGLibEventLoop(
 	  void (*func)(gpointer data), gpointer data = NULL,
 	  SyncType syncType = SYNC, GMainContext *context = NULL);
 
 	template<typename T>
-	static void executeOnGLibEventLoop(
+	static guint executeOnGLibEventLoop(
 	  void (*func)(T *data), T *data = NULL, SyncType syncType = SYNC,
 	  GMainContext *context = NULL)
 	{
-		executeOnGLibEventLoop(
+		return executeOnGLibEventLoop(
 		  reinterpret_cast<void (*)(gpointer)>(func),
 		  static_cast<gpointer>(data), syncType, context);
 	}
 
 	template<typename T>
-	static void executeOnGLibEventLoop(T &obj, SyncType syncType = SYNC,
-	                                   GMainContext *context = NULL)
+	static guint executeOnGLibEventLoop(T &obj, SyncType syncType = SYNC,
+	                                    GMainContext *context = NULL)
 	{
 		struct Task {
 			static void run(T *obj) {
 				(*obj)();
 			}
 		};
-		executeOnGLibEventLoop(Task::run, &obj, syncType, context);
+		return executeOnGLibEventLoop(Task::run, &obj,
+		                              syncType, context);
 	}
 
 	template<typename T>
-	static void deleteOnGLibEventLoop(T *obj, SyncType syncType = SYNC,
-	                                  GMainContext *context = NULL)
+	static guint deleteOnGLibEventLoop(T *obj, SyncType syncType = SYNC,
+	                                   GMainContext *context = NULL)
 	{
 		struct Task {
 			static void run(T *obj) {
 				delete obj;
 			}
 		};
-		executeOnGLibEventLoop<T>(Task::run, obj, syncType, context);
+		return executeOnGLibEventLoop<T>(Task::run, obj,
+		                                 syncType, context);
 	}
 
 	/**

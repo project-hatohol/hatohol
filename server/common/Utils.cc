@@ -270,7 +270,7 @@ guint Utils::watchFdInGLibMainLoop(int fd, gushort events,
 	return id;
 }
 
-void Utils::executeOnGLibEventLoop(
+guint Utils::executeOnGLibEventLoop(
   void (*func)(gpointer), gpointer data, SyncType syncType,
   GMainContext *context)
 {
@@ -297,12 +297,14 @@ void Utils::executeOnGLibEventLoop(
 		}
 	};
 
+	guint eventId = INVALID_EVENT_ID;
+
 	// just call the function if the caller has the ownership
 	// of the context.
 	if (g_main_context_acquire(context)) {
 		(*func)(data);
 		g_main_context_release(context);
-		return;
+		return eventId;
 	}
 
 	IdleTask *task = new IdleTask();
@@ -313,13 +315,15 @@ void Utils::executeOnGLibEventLoop(
 	if (syncType == SYNC)
 		task->mutex.lock();
 
-	setGLibIdleEvent(IdleTask::callbackGate, task, context);
+	eventId = setGLibIdleEvent(IdleTask::callbackGate, task, context);
 
 	// wait for the completion
 	if (syncType == SYNC) {
 		task->mutex.lock();
 		delete task;
+		eventId = INVALID_EVENT_ID;
 	}
+	return eventId;
 }
 
 struct RemoveEventTask {
