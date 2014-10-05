@@ -254,7 +254,7 @@ struct UnifiedDataStore::Impl
 		arm->startIfNeeded();
 
 		if (!arm->isStarted()) {
-			MLPL_DBG("Failed to launch ArmIncidentTracker for "
+			HFL_DBG("Failed to launch ArmIncidentTracker for "
 				 "Tracker ID: %" FMT_INCIDENT_TRACKER_ID ", "
 				 "Nickname: %s, URL: %s\n",
 				 trackerInfo.id,
@@ -795,12 +795,12 @@ static bool getIncidentTrackerInfo(const IncidentTrackerIdType &trackerId,
 	dbConfig.getIncidentTrackers(incidentTrackerVect, option);
 
 	if (incidentTrackerVect.size() <= 0) {
-		MLPL_ERR("Not found IncidentTrackerInfo: %"
+		HFL_ERR("Not found IncidentTrackerInfo: %"
 			 FMT_INCIDENT_TRACKER_ID "\n", trackerId);
 		return false;
 	}
 	if (incidentTrackerVect.size() > 1) {
-		MLPL_ERR("Too many IncidentTrackerInfo for ID:%"
+		HFL_ERR("Too many IncidentTrackerInfo for ID:%"
 			 FMT_INCIDENT_TRACKER_ID "\n", trackerId);
 		return false;
 	}

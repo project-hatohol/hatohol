@@ -189,7 +189,7 @@ void RestResourceServer::handlerServer(void)
 	} else if (httpMethodIs("DELETE")) {
 		handlerDeleteServer();
 	} else {
-		MLPL_ERR("Unknown method: %s\n", m_message->method);
+		HFL_ERR("Unknown method: %s\n", m_message->method);
 		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 }
@@ -207,7 +207,7 @@ static void parseQueryServerId(GHashTable *query, ServerIdType &serverId)
 	if (sscanf(value, "%" FMT_SERVER_ID, &svId) == 1)
 		serverId = svId;
 	else
-		MLPL_INFO("Invalid requested ID: %s\n", value);
+		HFL_INFO("Invalid requested ID: %s\n", value);
 }
 
 static bool parseQueryShowHostgroupInfo(GHashTable *query, UserIdType &targetUserId)

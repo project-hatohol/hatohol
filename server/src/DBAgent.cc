@@ -674,13 +674,13 @@ void DBAgent::createIndex(const TableProfile &tableProfile,
                           const IndexDef &indexDef)
 {
 	execSql(makeCreateIndexStatement(tableProfile, indexDef));
-	MLPL_INFO("Created index: %s (table: %s)\n",
+	HFL_INFO("Created index: %s (table: %s)\n",
 	          indexDef.name, tableProfile.name);
 }
 
 void DBAgent::dropIndex(const std::string &name, const std::string &tableName)
 {
 	execSql(makeDropIndexStatement(name, tableName));
-	MLPL_INFO("Deleted index: %s (table: %s)\n",
+	HFL_INFO("Deleted index: %s (table: %s)\n",
 	          name.c_str(), tableName.c_str());
 }

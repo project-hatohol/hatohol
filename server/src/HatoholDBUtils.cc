@@ -72,7 +72,7 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 		if (trigInfo.hostId != INAPPLICABLE_HOST_ID &&
 		    !hostInfoCache.getName(trigInfo.hostId,
 		                           trigInfo.hostName)) {
-			MLPL_WARN(
+			HFL_WARN(
 			  "Ignored a trigger whose host name was not found: "
 			  "server: %" FMT_SERVER_ID ", host: %" FMT_HOST_ID
 			  "\n",
@@ -220,7 +220,7 @@ void HatoholDBUtils::extractItemKeys(StringVector &params, const string &key)
 
 	// we assume the last character is ']'
 	if (key[key.size()-1] != ']') {
-		MLPL_WARN("The last charater is not ']': %s", key.c_str());
+		HFL_WARN("The last charater is not ']': %s", key.c_str());
 		return;
 	}
 
@@ -274,7 +274,7 @@ string HatoholDBUtils::makeItemBrief(const ItemGroup *itemItemGroup)
 			brief += params[briefElem.variableIndex-1];
 		} else {
 			// error case
-			MLPL_WARN("Not found index: %d, %s, %s\n",
+			HFL_WARN("Not found index: %d, %s, %s\n",
 			          briefElem.variableIndex,
 			          name.c_str(), itemKey.c_str());
 			brief += "<INTERNAL ERROR>";
@@ -323,7 +323,7 @@ bool HatoholDBUtils::transformEventItemGroupToEventInfo(
 		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
 		break;
 	default:
-		MLPL_ERR("Unknown type: %d\n", eventInfo.type);
+		HFL_ERR("Unknown type: %d\n", eventInfo.type);
 		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
 	}
 
@@ -412,7 +412,7 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 		ItemCategoryNameMapConstIterator it =
 		  itemCategoryNameMap.find(itemCategoryId);
 		if (it == itemCategoryNameMap.end()) {
-			MLPL_ERR("Failed to get item category name: %"
+			HFL_ERR("Failed to get item category name: %"
 			         FMT_ITEM_CATEGORY_ID "\n", itemCategoryId);
 			return false;
 		}

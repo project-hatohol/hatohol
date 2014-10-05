@@ -170,7 +170,7 @@ string HostResourceQueryOption::getCondition(void) const
 	}
 
 	if (userId == INVALID_USER_ID) {
-		MLPL_DBG("INVALID_USER_ID\n");
+		HFL_DBG("INVALID_USER_ID\n");
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 
@@ -397,7 +397,7 @@ string HostResourceQueryOption::makeCondition(
 
 	size_t numServers = srvHostGrpSetMap.size();
 	if (numServers == 0) {
-		MLPL_DBG("No allowed server\n");
+		HFL_DBG("No allowed server\n");
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 

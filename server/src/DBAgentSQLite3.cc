@@ -72,7 +72,7 @@ struct DBAgentSQLite3::Impl {
 		int result = sqlite3_close(db);
 		if (result != SQLITE_OK) {
 			// Should we throw an exception ?
-			MLPL_ERR("Failed to close sqlite: %d\n", result);
+			HFL_ERR("Failed to close sqlite: %d\n", result);
 		}
 	}
 };
@@ -689,7 +689,7 @@ void DBAgentSQLite3::deleteRows(sqlite3 *db, const DeleteArg &deleteArg)
 
 void DBAgentSQLite3::addColumns(const AddColumnsArg &addColumnsArg)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	HFL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
 void DBAgentSQLite3::renameTable(const string &srcName, const string &destName)

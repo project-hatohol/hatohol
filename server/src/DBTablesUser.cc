@@ -294,7 +294,7 @@ string UserQueryOption::getCondition(void) const
 {
 	UserIdType userId = getUserId();
 	if (userId == INVALID_USER_ID) {
-		MLPL_WARN("INVALID_USER_ID\n");
+		HFL_WARN("INVALID_USER_ID\n");
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 
@@ -352,7 +352,7 @@ string AccessInfoQueryOption::getCondition(void) const
 {
 	UserIdType userId = getUserId();
 	if (userId == INVALID_USER_ID) {
-		MLPL_WARN("INVALID_USER_ID\n");
+		HFL_WARN("INVALID_USER_ID\n");
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 
@@ -800,7 +800,7 @@ HatoholError DBTablesUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 		HostGrpAccessInfoMapIterator jt =
 		  hostGrpAccessInfoMap->find(accessInfo->hostgroupId);
 		if (jt != hostGrpAccessInfoMap->end()) {
-			MLPL_WARN("Found duplicated serverId and hostgroupId: "
+			HFL_WARN("Found duplicated serverId and hostgroupId: "
 			          "%" FMT_SERVER_ID ", %" PRIu64 "\n",
 			          accessInfo->serverId,
 			          accessInfo->hostgroupId);
@@ -851,7 +851,7 @@ void DBTablesUser::getServerHostGrpSetMap(
 		pair<HostgroupIdSetIterator, bool> result =
 		  srvHostGrpSetMap[serverId].insert(hostgroupId);
 		if (!result.second) {
-			MLPL_WARN("Found duplicated serverId and hostgroupId: "
+			HFL_WARN("Found duplicated serverId and hostgroupId: "
 			          "%" FMT_SERVER_ID ", "
 			          "%" FMT_HOST_GROUP_ID "\n",
 			          serverId, hostgroupId);
@@ -1068,7 +1068,7 @@ bool DBTablesUser::isAccessible(const ServerIdType &serverId,
 {
 	UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID) {
-		MLPL_WARN("INVALID_USER_ID\n");
+		HFL_WARN("INVALID_USER_ID\n");
 		return false;
 	}
 

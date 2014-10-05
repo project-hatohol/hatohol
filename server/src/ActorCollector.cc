@@ -94,7 +94,7 @@ ActorInfo::~ActorInfo()
 	if (!sessionId.empty()) {
 		SessionManager *sessionMgr = SessionManager::getInstance();
 		if (!sessionMgr->remove(sessionId)) {
-			MLPL_WARN("Failed to remove session: %s\n",
+			HFL_WARN("Failed to remove session: %s\n",
 			          sessionId.c_str());
 		}
 	}
@@ -170,7 +170,7 @@ void ActorCollector::addActor(ActorInfo *actorInfo)
 	  Impl::waitChildSet.insert
 	    (pair<pid_t, ActorInfo *>(actorInfo->pid, actorInfo));
 	if (!result.second) {
-		MLPL_BUG("pid: %d (logId: %" PRIu64 ") is already regstered.\n",
+		HFL_BUG("pid: %d (logId: %" PRIu64 ") is already regstered.\n",
 		         actorInfo->pid, actorInfo->logId);
 		return;
 	}
@@ -199,7 +199,7 @@ void ActorCollector::setDontLog(pid_t pid)
 		found = true;
 	}
 	if (!found)
-		MLPL_WARN("Not found pid: %d for setDontLog().\n", pid);
+		HFL_WARN("Not found pid: %d for setDontLog().\n", pid);
 }
 
 size_t ActorCollector::getNumberOfWaitingActors(void)
@@ -233,7 +233,7 @@ void ActorCollector::notifyChildSiginfo(
 	} else {
 		// The received-signal candidates are
 		// CLD_TRAPPED, CLD_STOPPED, and CLD_CONTINUED.
-		MLPL_INFO("Actor: %d, status: %d\n",
+		HFL_INFO("Actor: %d, status: %d\n",
 		          childSigInfo.pid, childSigInfo.status);
 		return;
 	}

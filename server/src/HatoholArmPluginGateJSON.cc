@@ -51,7 +51,7 @@ public:
 		// TODO: check content-type
 		const amqp_bytes_t *body = &(envelope->message.body);
 
-		MLPL_DBG("message: <%.*s>/<%.*s>\n",
+		HFL_DBG("message: <%.*s>/<%.*s>\n",
 			 static_cast<int>(content_type->len),
 			 static_cast<char *>(content_type->bytes),
 			 static_cast<int>(body->len),
@@ -103,7 +103,7 @@ private:
 			StringListIterator it = errors.begin();
 			for (; it != errors.end(); ++it) {
 				string &errorMessage = *it;
-				MLPL_ERR("%s\n", errorMessage.c_str());
+				HFL_ERR("%s\n", errorMessage.c_str());
 			}
 			return;
 		}
@@ -171,7 +171,7 @@ struct HatoholArmPluginGateJSON::Impl
 		const ServerIdType &serverId = serverInfo.id;
 		ArmPluginInfo armPluginInfo;
 		if (!dbConfig.getArmPluginInfo(armPluginInfo, serverId)) {
-			MLPL_ERR("Failed to get ArmPluginInfo: serverId: %d\n",
+			HFL_ERR("Failed to get ArmPluginInfo: serverId: %d\n",
 				 serverId);
 			return;
 		}

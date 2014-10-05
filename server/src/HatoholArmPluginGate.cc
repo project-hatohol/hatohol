@@ -138,7 +138,7 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	const ServerIdType &serverId = m_impl->serverInfo.id;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	if (!dbConfig.getArmPluginInfo(m_impl->armPluginInfo, serverId)) {
-		MLPL_ERR("Failed to get ArmPluginInfo: serverId: %d\n",
+		HFL_ERR("Failed to get ArmPluginInfo: serverId: %d\n",
 		         serverId);
 		return;
 	}
@@ -238,12 +238,12 @@ void HatoholArmPluginGate::exitSync(void)
 	AutoMutex autoMutex(&m_impl->exitSyncLock);
 	if (m_impl->exitSyncDone)
 		return;
-	MLPL_INFO("HatoholArmPluginGate: [%d:%s]: requested to exit.\n",
+	HFL_INFO("HatoholArmPluginGate: [%d:%s]: requested to exit.\n",
 	          m_impl->serverInfo.id, m_impl->serverInfo.hostName.c_str());
 	terminatePluginSync();
 	HatoholArmPluginInterface::exitSync();
 	m_impl->armStatus.setRunningStatus(false);
-	MLPL_INFO("  => [%d:%s]: done.\n",
+	HFL_INFO("  => [%d:%s]: done.\n",
 	          m_impl->serverInfo.id, m_impl->serverInfo.hostName.c_str());
 	m_impl->exitSyncDone = true;
 }
@@ -309,7 +309,7 @@ HatoholArmPluginGate::~HatoholArmPluginGate()
 
 gboolean HatoholArmPluginGate::detectedArmPluginTimeout(void *data)
 {
-	MLPL_ERR("Detect the timeout of connection to ArmPlugin.");
+	HFL_ERR("Detect the timeout of connection to ArmPlugin.");
 	HatoholArmPluginGate *obj = static_cast<HatoholArmPluginGate *>(data);
 	obj->m_impl->timerTag = INVALID_EVENT_ID;
 	obj->setPluginConnectStatus(COLLECT_NG_PLGIN_CONNECT_ERROR,
@@ -524,7 +524,7 @@ void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)
 
 	// TODO: Check the type.
 	if (m_impl->armPluginInfo.path == PassivePluginQuasiPath) {
-		MLPL_INFO("Started: passive plugin (%d) %s\n",
+		HFL_INFO("Started: passive plugin (%d) %s\n",
 		          m_impl->armPluginInfo.type,
 		          m_impl->armPluginInfo.path.c_str());
 		onLaunchedProcess(true, m_impl->armPluginInfo);
@@ -544,7 +544,7 @@ void HatoholArmPluginGate::onFailureConnected(void)
 
 int HatoholArmPluginGate::onCaughtException(const exception &e)
 {
-	MLPL_INFO("Caught an exception: %s. Retry afeter %d ms.\n",
+	HFL_INFO("Caught an exception: %s. Retry afeter %d ms.\n",
 	          e.what(), DEFAULT_RETRY_INTERVAL);
 	return DEFAULT_RETRY_INTERVAL;
 }
@@ -583,10 +583,10 @@ void HatoholArmPluginGate::terminatePluginSync(void)
 
 	// Send SIGTERM
 	timeoutMSec = TIMEOUT_PLUGIN_TERM_SIGKILL_MS - elapsedTime;
-	MLPL_INFO("Send SIGTERM to the plugin and wait for %zd sec.\n",
+	HFL_INFO("Send SIGTERM to the plugin and wait for %zd sec.\n",
 	          timeoutMSec/1000);
 	if (kill(m_impl->pid, SIGTERM) == -1) {
-		MLPL_ERR("Failed to send SIGTERM, pid: %d, errno: %d\n",
+		HFL_ERR("Failed to send SIGTERM, pid: %d, errno: %d\n",
 		         (int)m_impl->pid, errno);
 	}
 	if (m_impl->waitTermPlugin(timeoutMSec))
@@ -595,17 +595,17 @@ void HatoholArmPluginGate::terminatePluginSync(void)
 
 	// Send SIGKILL
 	timeoutMSec = TIMEOUT_PLUGIN_TERM_SIGKILL_MS - elapsedTime;
-	MLPL_INFO("Send SIGKILL to the plugin and wait for %zd sec.\n",
+	HFL_INFO("Send SIGKILL to the plugin and wait for %zd sec.\n",
 	          timeoutMSec/1000);
 	if (kill(m_impl->pid, SIGKILL) == -1) {
-		MLPL_ERR("Failed to send SIGKILL, pid: %d, errno: %d\n",
+		HFL_ERR("Failed to send SIGKILL, pid: %d, errno: %d\n",
 		         (int)m_impl->pid, errno);
 	}
 	if (m_impl->waitTermPlugin(timeoutMSec))
 		return;
 	elapsedTime += timeoutMSec;
 
-	MLPL_WARN(
+	HFL_WARN(
 	  "The plugin (%d) hasn't terminated within a timeout. Ignore it.\n",
 	  (int)m_impl->pid);
 }
@@ -673,13 +673,13 @@ bool HatoholArmPluginGate::launchPluginProcess(
 	           generateBrokerAddress(m_impl->serverInfo).c_str()));
 	ChildProcessManager::getInstance()->create(arg);
 	if (!eventCb->succeededInCreation) {
-		MLPL_ERR("Failed to execute: (%d) %s\n",
+		HFL_ERR("Failed to execute: (%d) %s\n",
 		         armPluginInfo.type, armPluginInfo.path.c_str());
 		return false;
 	}
 
 	m_impl->pid = arg.pid;
-	MLPL_INFO("Started: plugin (%d) %s\n",
+	HFL_INFO("Started: plugin (%d) %s\n",
 	          armPluginInfo.type, armPluginInfo.path.c_str());
 	return true;
 }
@@ -1007,13 +1007,13 @@ NamedPipe &HatoholArmPluginGate::getHapPipeForWrite(void)
 gboolean HatoholArmPluginGate::pipeRdErrCb(
   GIOChannel *source, GIOCondition condition, gpointer data)
 {
-	MLPL_INFO("Got callback (PIPE): %08x", condition);
+	HFL_INFO("Got callback (PIPE): %08x", condition);
 	return TRUE;
 }
 
 gboolean HatoholArmPluginGate::pipeWrErrCb(
   GIOChannel *source, GIOCondition condition, gpointer data)
 {
-	MLPL_INFO("Got callback (PIPE): %08x", condition);
+	HFL_INFO("Got callback (PIPE): %08x", condition);
 	return TRUE;
 }

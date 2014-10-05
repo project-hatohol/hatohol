@@ -79,7 +79,7 @@ ItemDataPtr SQLUtils::createFromString(const char *str, SQLColumnType type)
 		                    &tm.tm_hour, &tm.tm_min, &tm.tm_sec);
 		static const int EXPECT_NUM_VAL = 6;
 		if (numVal != EXPECT_NUM_VAL) {
-			MLPL_WARN(
+			HFL_WARN(
 			  "Probably, parse of the time failed: %d, %s\n",
 			  numVal, str);
 		}

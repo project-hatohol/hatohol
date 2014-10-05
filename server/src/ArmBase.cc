@@ -68,7 +68,7 @@ struct ArmBase::Impl
 	virtual ~Impl()
 	{
 		if (sem_destroy(&sleepSemaphore) != 0)
-			MLPL_ERR("Failed to call sem_destroy(): %d\n", errno);
+			HFL_ERR("Failed to call sem_destroy(): %d\n", errno);
 	}
 
 	void stampLastPollingTime(void)
@@ -79,10 +79,10 @@ struct ArmBase::Impl
 		int result = clock_gettime(CLOCK_REALTIME,
 					   &lastPollingTime);
 		if (result == 0) {
-			MLPL_DBG("lastPollingTime: %ld\n",
+			HFL_DBG("lastPollingTime: %ld\n",
 				 lastPollingTime.tv_sec);
 		} else {
-			MLPL_ERR("Failed to call clock_gettime: %d\n",
+			HFL_ERR("Failed to call clock_gettime: %d\n",
 				 errno);
 			lastPollingTime.tv_sec = 0;
 			lastPollingTime.tv_nsec = 0;
@@ -145,7 +145,7 @@ ArmBase::ArmBase(
 ArmBase::~ArmBase()
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	MLPL_INFO("%s [%d:%s]: destruction: completed.\n",
+	HFL_INFO("%s [%d:%s]: destruction: completed.\n",
 	          getName().c_str(), svInfo.id, svInfo.hostName.c_str());
 }
 
@@ -171,7 +171,7 @@ void ArmBase::fetchItems(ClosureBase *closure)
 	setUpdateType(UPDATE_ITEM_REQUEST);
 	m_impl->updatedSignal.connect(closure);
 	if (sem_post(&m_impl->sleepSemaphore) == -1)
-		MLPL_ERR("Failed to call sem_post: %d\n", errno);
+		HFL_ERR("Failed to call sem_post: %d\n", errno);
 }
 
 void ArmBase::setPollingInterval(int sec)
@@ -201,7 +201,7 @@ void ArmBase::requestExitAndWait(void)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	
-	MLPL_INFO("%s [%d:%s]: requested to exit.\n",
+	HFL_INFO("%s [%d:%s]: requested to exit.\n",
 	          getName().c_str(), svInfo.id, svInfo.hostName.c_str());
 
 	// wait for the finish of the thread
@@ -220,7 +220,7 @@ void ArmBase::requestExit(void)
 
 	// to return immediately from the waiting.
 	if (sem_post(&m_impl->sleepSemaphore) == -1)
-		MLPL_ERR("Failed to call sem_post: %d\n", errno);
+		HFL_ERR("Failed to call sem_post: %d\n", errno);
 }
 
 const MonitoringServerInfo &ArmBase::getServerInfo(void) const
@@ -238,7 +238,7 @@ void ArmBase::sleepInterruptible(int sleepTime)
 	// sleep with timeout
 	timespec ts;
 	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-		MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
+		HFL_ERR("Failed to call clock_gettime: %d\n", errno);
 		sleep(10); // to avoid burnup
 		return;
 	}
@@ -251,7 +251,7 @@ retry:
 		else if (errno == EINTR)
 			goto retry;
 		else
-			MLPL_ERR("sem_timedwait(): errno: %d\n", errno);
+			HFL_ERR("sem_timedwait(): errno: %d\n", errno);
 	}
 	// The up of the semaphore is done only from the destructor.
 }

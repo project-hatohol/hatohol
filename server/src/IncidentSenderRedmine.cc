@@ -301,7 +301,7 @@ HatoholError IncidentSenderRedmine::parseResponse(
 {
 	JSONParser agent(response);
 	if (agent.hasError()) {
-		MLPL_ERR("Failed to parse response.\n");
+		HFL_ERR("Failed to parse response.\n");
 		return HTERR_FAILED_TO_SEND_INCIDENT;
 	}
 
@@ -335,12 +335,12 @@ HatoholError IncidentSenderRedmine::Impl::parseErrorResponse(
 {
 	JSONParser agent(response);
 	if (agent.hasError()) {
-		MLPL_ERR("Failed to parse error response: %s\n",
+		HFL_ERR("Failed to parse error response: %s\n",
 			 agent.getErrorMessage());
 		return HTERR_FAILED_TO_SEND_INCIDENT;
 	}
 	if (!agent.isMember("errors"))
-		MLPL_ERR("Response: %s\n", response.c_str());
+		HFL_ERR("Response: %s\n", response.c_str());
 	RedmineAPI::logErrors(agent);
 	return HTERR_FAILED_TO_SEND_INCIDENT;
 }
@@ -348,12 +348,12 @@ HatoholError IncidentSenderRedmine::Impl::parseErrorResponse(
 HatoholError IncidentSenderRedmine::Impl::handleSendError(
   int soupStatus, const string &url, const string &response)
 {
-	MLPL_ERR("Failed to send an issue to %s\n", url.c_str());
+	HFL_ERR("Failed to send an issue to %s\n", url.c_str());
 	if (SOUP_STATUS_IS_TRANSPORT_ERROR(soupStatus)) {
-		MLPL_ERR("Transport error: %d %s\n",
+		HFL_ERR("Transport error: %d %s\n",
 			 soupStatus, soup_status_get_phrase(soupStatus));
 	} else {
-		MLPL_ERR("The server returns an error: %d %s\n",
+		HFL_ERR("The server returns an error: %d %s\n",
 			 soupStatus, soup_status_get_phrase(soupStatus));
 	}
 

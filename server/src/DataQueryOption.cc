@@ -198,7 +198,7 @@ std::string DataQueryOption::getOrderBy(void) const
 	std::string orderBy;
 	for (; it != m_impl->sortOrderVect.end(); ++it) {
 		if (it->columnName.empty()) {
-			MLPL_ERR("Empty sort column name\n");
+			HFL_ERR("Empty sort column name\n");
 			continue;
 		}
 		if (it->direction == DataQueryOption::SORT_DONT_CARE)
@@ -210,7 +210,7 @@ std::string DataQueryOption::getOrderBy(void) const
 		} else if (it->direction == DataQueryOption::SORT_DESCENDING) {
 			orderBy += it->columnName + " DESC";
 		} else {
-			MLPL_ERR("Unknown sort direction: %d\n",
+			HFL_ERR("Unknown sort direction: %d\n",
 				 it->direction);
 		}
 	}

@@ -138,7 +138,7 @@ struct ResidentInfo :
 		while (!notifyQueue.empty()) {
 			ActionManager::ResidentNotifyInfo *notifyInfo
 			  = notifyQueue.front();
-			MLPL_BUG("ResidentNotifyInfo is deleted, "
+			HFL_BUG("ResidentNotifyInfo is deleted, "
 			         "but not logged: logId: %" PRIu64 "\n",
 			         notifyInfo->logId);
 			delete notifyInfo;
@@ -160,7 +160,7 @@ struct ResidentInfo :
 		}
 		ResidentInfo::residentMapLock.unlock();
 		if (!found) {
-			MLPL_BUG("Not found residentInfo in the map: %d\n",
+			HFL_BUG("Not found residentInfo in the map: %d\n",
 			         actionId);
 		}
 
@@ -220,7 +220,7 @@ ActionManager::ResidentNotifyInfo::~ResidentNotifyInfo()
 {
 	SessionManager *sessionMgr = SessionManager::getInstance();
 	if (!sessionMgr->remove(sessionId)) {
-		MLPL_ERR("Failed to remove session: %s\n",
+		HFL_ERR("Failed to remove session: %s\n",
 		         sessionId.c_str());
 	}
 }
@@ -504,7 +504,7 @@ static bool shouldSkipIncidentSender(
 		return false;
 
 	if (incidentSenderActionId > 0) {
-		MLPL_DBG("Skip IncidentSenderAction:%" FMT_ACTION_ID " for "
+		HFL_DBG("Skip IncidentSenderAction:%" FMT_ACTION_ID " for "
 			 "Trigger:%" FMT_TRIGGER_ID " because "
 			 "IncidentSenderAction:%" FMT_ACTION_ID " has "
 			 "higher priority.",
@@ -748,7 +748,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	ActionExecArgMaker argMaker;
 	argMaker.makeExecArg(argVect, actionDef.command);
 	if (argVect.empty())
-		MLPL_WARN("argVect empty.\n");
+		HFL_WARN("argVect empty.\n");
 	else
 		addCommandDirectory(argVect[0]);
 	argVect.push_back(NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC);
@@ -909,7 +909,7 @@ gboolean ActionManager::residentReadErrCb(
 {
 	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(data);
 	ActionManager *obj = residentInfo->actionManager;
-	MLPL_ERR("Read error: condition: %s (%x)\n",
+	HFL_ERR("Read error: condition: %s (%x)\n",
 	         Utils::getStringFromGIOCondition(condition).c_str(),
 	         condition);
 	obj->closeResident(residentInfo);
@@ -925,7 +925,7 @@ gboolean ActionManager::residentWriteErrCb(
 {
 	ResidentInfo *residentInfo = static_cast<ResidentInfo *>(data);
 	ActionManager *obj = residentInfo->actionManager;
-	MLPL_ERR("Write error: condition: %s (%x)\n",
+	HFL_ERR("Write error: condition: %s (%x)\n",
 	         Utils::getStringFromGIOCondition(condition).c_str(),
 	         condition);
 	obj->closeResident(residentInfo);
@@ -943,7 +943,7 @@ void ActionManager::launchedCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
 	ResidentInfo *residentInfo = notifyInfo->residentInfo;
 	ActionManager *obj = residentInfo->actionManager;
 	if (stat != G_IO_STATUS_NORMAL) {
-		MLPL_ERR("Error: status: %x\n", stat);
+		HFL_ERR("Error: status: %x\n", stat);
 		obj->closeResident(notifyInfo,
 		                   ACTLOG_EXECFAIL_PIPE_READ_ERR);
 		return;
@@ -952,7 +952,7 @@ void ActionManager::launchedCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
 	// check the packet type
 	uint32_t bodyLen = *sbuf.getPointerAndIncIndex<uint32_t>();
 	if (bodyLen != 0) {
-		MLPL_ERR("Invalid body length: %" PRIu32 ", "
+		HFL_ERR("Invalid body length: %" PRIu32 ", "
 		         "expect: 0\n", bodyLen);
 		obj->closeResident(notifyInfo,
 		                   ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
@@ -961,7 +961,7 @@ void ActionManager::launchedCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
 
 	int pktType = ResidentCommunicator::getPacketType(sbuf);
 	if (pktType != RESIDENT_PROTO_PKT_TYPE_LAUNCHED) {
-		MLPL_ERR("Invalid packet type: %" PRIu16 ", "
+		HFL_ERR("Invalid packet type: %" PRIu16 ", "
 		         "expect: %d\n", pktType,
 		         RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
 		obj->closeResident(notifyInfo,
@@ -986,14 +986,14 @@ void ActionManager::moduleLoadedCb(GIOStatus stat, SmartBuffer &sbuf,
 	ResidentInfo *residentInfo = notifyInfo->residentInfo;
 	ActionManager *obj = residentInfo->actionManager;
 	if (stat != G_IO_STATUS_NORMAL) {
-		MLPL_ERR("Error: status: %x\n", stat);
+		HFL_ERR("Error: status: %x\n", stat);
 		obj->closeResident(notifyInfo, ACTLOG_EXECFAIL_PIPE_READ_ERR);
 		return;
 	}
 
 	int pktType = ResidentCommunicator::getPacketType(sbuf);
 	if (pktType != RESIDENT_PROTO_PKT_TYPE_MODULE_LOADED) {
-		MLPL_ERR("Unexpected packet: %d\n", pktType);
+		HFL_ERR("Unexpected packet: %d\n", pktType);
 		obj->closeResident(notifyInfo,
 		                   ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
 		return;
@@ -1005,7 +1005,7 @@ void ActionManager::moduleLoadedCb(GIOStatus stat, SmartBuffer &sbuf,
 	uint32_t resultCode = sbuf.getValueAndIncIndex<uint32_t>();
 	if (resultCode != RESIDENT_PROTO_MODULE_LOADED_CODE_SUCCESS) {
 		ActionLogExecFailureCode code;
-		MLPL_ERR("Failed to load module. "
+		HFL_ERR("Failed to load module. "
 		         "code: %" PRIu32 "\n", resultCode);
 		switch (resultCode) {
 		case RESIDENT_PROTO_MODULE_LOADED_CODE_FAIL_DLOPEN:
@@ -1047,14 +1047,14 @@ void ActionManager::gotNotifyEventAckCb(GIOStatus stat, SmartBuffer &sbuf,
 	ResidentInfo *residentInfo = notifyInfo->residentInfo;
 	ActionManager *obj = residentInfo->actionManager;
 	if (stat != G_IO_STATUS_NORMAL) {
-		MLPL_ERR("Error: status: %x\n", stat);
+		HFL_ERR("Error: status: %x\n", stat);
 		obj->closeResident(notifyInfo, ACTLOG_EXECFAIL_PIPE_READ_ERR);
 		return;
 	}
 
 	int pktType = ResidentCommunicator::getPacketType(sbuf);
 	if (pktType != RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT_ACK) {
-		MLPL_ERR("Unexpected packet: %d\n", pktType);
+		HFL_ERR("Unexpected packet: %d\n", pktType);
 		obj->closeResident(notifyInfo,
 		                   ACTLOG_EXECFAIL_PIPE_READ_DATA_UNEXPECTED);
 		return;
@@ -1146,7 +1146,7 @@ void ActionManager::residentActionTimeoutCb(NamedPipe *namedPipe, gpointer data)
 
 	// Check if the queue is empty
 	if (!notifyInfo) {
-		MLPL_BUG("notifyQueue is empty\n");
+		HFL_BUG("notifyQueue is empty\n");
 		obj->closeResident(residentInfo);
 		return;
 	}
@@ -1356,7 +1356,7 @@ void ActionManager::execIncidentSenderAction(const ActionDef &actionDef,
 	IncidentTrackerIdType trackerId;
 	bool succeeded = actionDef.parseIncidentSenderCommand(trackerId);
 	if (!succeeded) {
-		MLPL_ERR("Invalid IncidentSender command: %s\n",
+		HFL_ERR("Invalid IncidentSender command: %s\n",
 			 actionDef.command.c_str());
 		return;
 	}
@@ -1447,7 +1447,7 @@ void ActionManager::residentActorPostCollectedCb(const ActorInfo *actorInfo)
 
 	if (!isQueueEmpty) {
 		// TODO: Add a mechanism to re-launch hatohol-resident-yard.
-		MLPL_WARN(
+		HFL_WARN(
 		  "ResidentInfo instance will be removed. However, "
 		  "notifyQueue is not empty.\n");
 	}
@@ -1474,7 +1474,7 @@ void ActionManager::closeResident(ResidentInfo *residentInfo)
 	// will be called back from ActorCollector::checkExitProcess().
 	pid_t pid = residentInfo->pid;
 	if (pid && kill(pid, SIGKILL))
-		MLPL_ERR("Failed to kill. pid: %d, %s\n", pid, strerror(errno));
+		HFL_ERR("Failed to kill. pid: %d, %s\n", pid, strerror(errno));
 }
 
 /*
@@ -1537,7 +1537,7 @@ void ActionManager::postProcSpawnFailure(
 	}
 
 	// MLPL log
-	MLPL_ERR(
+	HFL_ERR(
 	  "%s, action ID: %d, log ID: %" PRIu64 ", "
 	  "server ID: %d, event ID: %" PRIu64 ", "
 	  "time: %ld.%09ld, type: %s, "
@@ -1572,7 +1572,7 @@ void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 		eventInfo.hostName = triggerInfo.hostName;
 		eventInfo.brief    = triggerInfo.brief;
 	} else {
-		MLPL_ERR("Not found: svID: %" PRIu32 ", trigID: %" PRIu64 "\n",
+		HFL_ERR("Not found: svID: %" PRIu32 ", trigID: %" PRIu64 "\n",
 		         eventInfo.serverId, eventInfo.triggerId);
 		eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
 		eventInfo.hostId   = INVALID_HOST_ID;

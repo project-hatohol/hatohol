@@ -55,7 +55,7 @@ void RestResourceIncidentTracker::handle(void)
 	} else if (httpMethodIs("DELETE")) {
 		handleDelete();
 	} else {
-		MLPL_ERR("Unknown method: %s\n", m_message->method);
+		HFL_ERR("Unknown method: %s\n", m_message->method);
 		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 }

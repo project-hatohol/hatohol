@@ -137,7 +137,7 @@ struct ConfigManager::Impl {
 			return;
 		}
 		if (posColon == dbServer.size() - 1) {
-			MLPL_ERR("A column must not be the tail: %s\n",
+			HFL_ERR("A column must not be the tail: %s\n",
 			         dbServer.c_str());
 			return;
 		}
@@ -152,7 +152,7 @@ struct ConfigManager::Impl {
 
 		GKeyFile *keyFile = g_key_file_new();
 		if (!keyFile) {
-			MLPL_CRIT("Failed to call g_key_file_new().\n");
+			HFL_CRIT("Failed to call g_key_file_new().\n");
 			return false;
 		}
 		Reaper<GKeyFile> keyFileReaper(keyFile, g_key_file_free);
@@ -165,9 +165,9 @@ struct ConfigManager::Impl {
 			Reaper<GError> errorFree(error, g_error_free);
 			if (error->domain == G_FILE_ERROR &&
 			    error->code == G_FILE_ERROR_NOENT) {
-				MLPL_DBG("Not found: %s\n", path.c_str());
+				HFL_DBG("Not found: %s\n", path.c_str());
 			} else {
-				MLPL_ERR("Failed to load config file: %s (%s)\n",
+				HFL_ERR("Failed to load config file: %s (%s)\n",
 					 path.c_str(), error->message);
 			}
 			return false;
@@ -276,7 +276,7 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 	g_option_context_add_main_entries(optCtx, entries, NULL);
 	GError *error = NULL;
 	if (!g_option_context_parse(optCtx, argc, argv, &error)) {
-		MLPL_ERR("Failed to parse command line argment. (%s)\n",
+		HFL_ERR("Failed to parse command line argment. (%s)\n",
 		         error ? error->message : "Unknown reason");
 		if (error)
 			g_error_free(error);
@@ -431,7 +431,7 @@ void ConfigManager::loadConfFile(void)
 		const bool succeeded = m_impl->loadConfFile(confFiles[i]);
 		if (!succeeded)
 			continue;
-		MLPL_INFO("Use configuration file: %s\n",
+		HFL_INFO("Use configuration file: %s\n",
 		          confFiles[i].c_str());
 		break;
 	}

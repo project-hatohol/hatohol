@@ -135,7 +135,7 @@ void RestResourceUser::handlerUser(void)
 	} else if (httpMethodIs("DELETE")) {
 		handlerDeleteUser();
 	} else {
-		MLPL_ERR("Unknown method: %s\n", m_message->method);
+		HFL_ERR("Unknown method: %s\n", m_message->method);
 		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 }
@@ -302,7 +302,7 @@ void RestResourceUser::handlerAccessInfo(void)
 	} else if (httpMethodIs("DELETE")) {
 		handlerDeleteAccessInfo();
 	} else {
-		MLPL_ERR("Unknown method: %s\n", m_message->method);
+		HFL_ERR("Unknown method: %s\n", m_message->method);
 		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 }
@@ -453,7 +453,7 @@ void RestResourceUser::handlerUserRole(void)
 	} else if (httpMethodIs("DELETE")) {
 		handlerDeleteUserRole();
 	} else {
-		MLPL_ERR("Unknown method: %s\n", m_message->method);
+		HFL_ERR("Unknown method: %s\n", m_message->method);
 		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 }

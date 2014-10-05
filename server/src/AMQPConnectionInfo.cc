@@ -50,7 +50,7 @@ struct AMQPConnectionInfo::Impl {
 		int status = amqp_parse_url(const_cast<char *>(m_URL.c_str()),
 					    &m_parsedURL);
 		if (status != AMQP_STATUS_OK) {
-			MLPL_ERR("Bad broker URL: %s: <%s>\n",
+			HFL_ERR("Bad broker URL: %s: <%s>\n",
 				 amqp_error_string2(status),
 				 m_URL.c_str());
 		}

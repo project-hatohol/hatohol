@@ -318,7 +318,7 @@ gpointer IncidentSender::mainThread(HatoholThreadArg *arg)
 {
 	const IncidentTrackerInfo &tracker = m_impl->incidentTrackerInfo;
 	Job *job;
-	MLPL_INFO("Start IncidentSender thread for %" FMT_INCIDENT_TRACKER_ID ":%s\n",
+	HFL_INFO("Start IncidentSender thread for %" FMT_INCIDENT_TRACKER_ID ":%s\n",
 		  tracker.id, tracker.nickname.c_str());
 	while ((job = m_impl->waitNextJob())) {
 		if (!isExitRequested())
@@ -326,7 +326,7 @@ gpointer IncidentSender::mainThread(HatoholThreadArg *arg)
 		m_impl->runningJob = NULL;
 		delete job;
 	}
-	MLPL_INFO("Exited IncidentSender thread for %" FMT_INCIDENT_TRACKER_ID ":%s\n",
+	HFL_INFO("Exited IncidentSender thread for %" FMT_INCIDENT_TRACKER_ID ":%s\n",
 		  tracker.id, tracker.nickname.c_str());
 	return NULL;
 }

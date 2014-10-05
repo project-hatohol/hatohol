@@ -87,7 +87,7 @@ bool parseIssue(JSONParser &agent, IncidentInfo &incidentInfo)
 {
 	int64_t issueId = 0;
 	if (!agent.read("id", issueId) || issueId == 0) {
-		MLPL_ERR("Failed to parse Incident ID.\n");
+		HFL_ERR("Failed to parse Incident ID.\n");
 		return false;
 	}
 	incidentInfo.identifier = StringUtils::toString((uint64_t)issueId);
@@ -145,11 +145,11 @@ bool parseDateTime(JSONParser &agent, const string &objectName,
 void logErrors(JSONParser &agent)
 {
 	if (!agent.startObject("errors"))
-		MLPL_ERR("Failed to parse errors\n");
+		HFL_ERR("Failed to parse errors\n");
 
 	int numErrors = agent.countElements();
 	if (numErrors <= 0) {
-		MLPL_ERR("Empty error message\n");
+		HFL_ERR("Empty error message\n");
 		return;
 	}
 
@@ -159,7 +159,7 @@ void logErrors(JSONParser &agent)
 		agent.read(i, error);
 		message += StringUtils::sprintf("    * %s\n", error.c_str());
 	}
-	MLPL_ERR("%s", message.c_str());
+	HFL_ERR("%s", message.c_str());
 	agent.endObject();
 }
 

@@ -73,7 +73,7 @@ static void setupSignalHandlerForExit(int signo)
 
 gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
 {
-	MLPL_INFO("recieved stop request.\n");
+	HFL_INFO("recieved stop request.\n");
 	ExecContext *impl = static_cast<ExecContext *>(data);
 
 	impl->unifiedDataStore->stop();
@@ -104,7 +104,7 @@ static void removePidFile(void)
 	if (!pidFilePath.length())
 		return;
 	if (remove(pidFilePath.c_str())) {
-		MLPL_ERR("Failed to remove pid file: %s\n",
+		HFL_ERR("Failed to remove pid file: %s\n",
 			 pidFilePath.c_str());
 		return;
 	}
@@ -124,7 +124,7 @@ static bool daemonize(void)
 			errfmt = "Pid file exists: %s; process already running?\n";
 		else
 			errfmt = "Failed to record pid file: %s\n";
-		MLPL_ERR(errfmt, pidFilePath.c_str());
+		HFL_ERR(errfmt, pidFilePath.c_str());
 		pidFilePath.erase();
 		return false;
 	}
@@ -150,7 +150,7 @@ static bool checkDBConnection(void)
 		HATOHOL_ASSERT(&dbHatohol,
 		  "The reference of DBHatohol is unexpectedly NULL.");
 	} catch (const exception &e) {
-		MLPL_CRIT("Failed to create a database object. "
+		HFL_CRIT("Failed to create a database object. "
 		          "This program is aborted. Reason: %s\n",
 		          e.what());
 		return false;
@@ -173,7 +173,7 @@ int mainRoutine(int argc, char *argv[])
 		return EXIT_FAILURE;
 
 	hatoholInit(&ctx.cmdLineOpts);
-	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
+	HFL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
 
 	if (!checkDBConnection())
 		return EXIT_FAILURE;
@@ -181,7 +181,7 @@ int mainRoutine(int argc, char *argv[])
 	ConfigManager *confMgr = ConfigManager::getInstance();
 	if (!confMgr->isForegroundProcess()) {
 		if (!daemonize()) {
-			MLPL_ERR("Can't start daemon process\n");
+			HFL_ERR("Can't start daemon process\n");
 			return EXIT_FAILURE;
 		}
 	} else {
@@ -228,9 +228,9 @@ int main(int argc, char *argv[])
 	try {
 		ret = mainRoutine(argc, argv);
 	} catch (const HatoholException &e) {
-		MLPL_ERR("Got exception: %s", e.getFancyMessage().c_str());
+		HFL_ERR("Got exception: %s", e.getFancyMessage().c_str());
 	} catch (const exception &e) {
-		MLPL_ERR("Got exception: %s", e.what());
+		HFL_ERR("Got exception: %s", e.what());
 	}
 	removePidFile();
 	return ret;
