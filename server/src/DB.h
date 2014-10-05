@@ -47,7 +47,7 @@ protected:
 		const std::type_info &dbClassType;
 		DBConnectInfo connectInfo;
 		bool          initialized;
-		mlpl::Mutex   lock;
+		hfl::Mutex   lock;
 
 		SetupContext(const std::type_info &dbClassType);
 	};

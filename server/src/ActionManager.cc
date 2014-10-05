@@ -937,7 +937,7 @@ gboolean ActionManager::residentWriteErrCb(
  * - The default GLIB event dispacther thread (main)
  *     [callback registered by pullData()]
  */
-void ActionManager::launchedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+void ActionManager::launchedCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
                                size_t size, ResidentNotifyInfo *notifyInfo)
 {
 	ResidentInfo *residentInfo = notifyInfo->residentInfo;

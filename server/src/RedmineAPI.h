@@ -31,6 +31,6 @@ namespace RedmineAPI
 			IncidentInfo &incidentInfo);
 	bool parseDateTime(JSONParser &agent,
 			   const std::string &objectName,
-			   mlpl::Time &time);
+			   hfl::Time &time);
 	void logErrors(JSONParser &agent);
 }

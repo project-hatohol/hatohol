@@ -299,7 +299,7 @@ void DBAgentMySQL::createTable(const TableProfile &tableProfile)
 
 void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 {
-	using mlpl::StringUtils::sprintf;
+	using hfl::StringUtils::sprintf;
 	struct {
 		string operator ()(const DBAgent::InsertArg &insertArg,
 		                   const size_t &idx, MYSQL *mysql)

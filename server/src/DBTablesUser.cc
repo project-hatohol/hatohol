@@ -610,7 +610,7 @@ HatoholError DBTablesUser::updateUserInfo(
 HatoholError DBTablesUser::deleteUserInfo(
   const UserIdType userId, const OperationPrivilege &privilege)
 {
-	using mlpl::StringUtils::sprintf;
+	using hfl::StringUtils::sprintf;
 	if (!privilege.has(OPPRVLG_DELETE_USER))
 		return HTERR_NO_PRIVILEGE;
 

@@ -124,7 +124,7 @@ bool parseIssue(JSONParser &agent, IncidentInfo &incidentInfo)
 }
 
 bool parseDateTime(JSONParser &agent, const string &objectName,
-		   mlpl::Time &time)
+		   hfl::Time &time)
 {
 	string timeString;
 	GTimeVal _time;

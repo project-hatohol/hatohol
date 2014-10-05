@@ -258,7 +258,7 @@ void HatoholArmPluginGate::startOnDemandFetchItem(ClosureBase *closure)
 	struct Callback : public CommandCallbacks {
 		Signal itemUpdatedSignal;
 		ServerIdType serverId;
-		virtual void onGotReply(mlpl::SmartBuffer &replyBuf,
+		virtual void onGotReply(hfl::SmartBuffer &replyBuf,
 		                        const HapiCommandHeader &cmdHeader)
 		                          override
 		{

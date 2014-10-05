@@ -60,7 +60,7 @@ protected:
 	 * A variable number if the given word is a variable. Otherwise
 	 * -1 is returned.
 	 */
-	static void extractItemKeys(mlpl::StringVector &params,
+	static void extractItemKeys(hfl::StringVector &params,
 	                            const std::string &key);
 
 	static std::string makeItemBrief(const ItemGroup *itemItemGroup);

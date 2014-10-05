@@ -94,7 +94,7 @@ static gboolean writePipeCb
 static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size,
                     Impl *impl);
 
-static void gotNotifyEventBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+static void gotNotifyEventBodyCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
                                  size_t size, Impl *impl)
 {
 	ResidentNotifyEventArg arg;
@@ -157,7 +157,7 @@ static void sendModuleLoaded(Impl *impl, uint32_t code)
 	comm.push(impl->pipeWr);
 }
 
-static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+static void getParametersBodyCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
                                 size_t size, Impl *impl)
 {
 	if (stat != G_IO_STATUS_NORMAL) {
@@ -238,7 +238,7 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	impl->pullHeader(eventCb);
 }
 
-static void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+static void getParametersCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
                             size_t size, Impl *impl)
 {
 	if (stat != G_IO_STATUS_NORMAL) {

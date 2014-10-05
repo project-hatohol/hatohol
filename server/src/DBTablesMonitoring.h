@@ -223,7 +223,7 @@ public:
 	 * The time of the last event. If there's no event, hasValidTime() of
 	 * the returned object is false.
 	 */
-	mlpl::SmartTime getTimeOfLastEvent(
+	hfl::SmartTime getTimeOfLastEvent(
 	  const ServerIdType &serverId,
 	  const TriggerIdType &triggerId = ALL_TRIGGERS);
 
