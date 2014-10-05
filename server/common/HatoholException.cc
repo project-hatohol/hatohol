@@ -21,7 +21,7 @@
 #include "HatoholException.h"
 #include "Utils.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 bool HatoholException::m_saveStackTrace = false;
 const int HatoholException::UNKNOWN_LINE_NUMBER = -1;

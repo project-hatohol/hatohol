@@ -31,7 +31,7 @@
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct HatoholThreadBase::Impl {
 	AtomicValue<GThread *>    thread;

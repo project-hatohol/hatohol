@@ -27,7 +27,7 @@
 #include "HatoholError.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const char *MIME_JSON_RPC = "application/json-rpc";
 static const guint DEFAULT_TIMEOUT = 60;

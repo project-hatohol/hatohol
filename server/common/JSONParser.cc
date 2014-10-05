@@ -22,7 +22,7 @@
 #include <stdexcept>
 #include "JSONParser.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct JSONParser::Impl
 {

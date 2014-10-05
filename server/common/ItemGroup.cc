@@ -22,7 +22,7 @@
 #include "Utils.h"
 #include "ItemGroup.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 // ---------------------------------------------------------------------------
 // Public methods

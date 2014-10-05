@@ -31,7 +31,7 @@ using namespace std;
 
 #include <SmartBuffer.h>
 #include <Mutex.h>
-using namespace mlpl;
+using namespace hfl;
 
 #include "HatoholException.h"
 #include "NamedPipe.h"

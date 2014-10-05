@@ -22,7 +22,7 @@
 #include "Utils.h"
 #include "ItemTable.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct ItemTable::CrossJoinArg
 {

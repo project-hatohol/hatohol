@@ -19,7 +19,7 @@
 
 #include "UsedCountable.h"
 #include "HatoholException.h"
-using namespace mlpl;
+using namespace hfl;
 
 // ---------------------------------------------------------------------------
 // Public methods
