@@ -31,11 +31,13 @@ struct HapProcessStandard::Impl {
 	// threads. So we pass it safely with queue.
 	SmartQueue<MonitoringServerInfo> serverInfoQueue;
 
+	guint                firstStartAcquisitoinTaskId;
 	guint                timerTag;
 	NamedPipe            pipeRd, pipeWr;
 
 	Impl(void)
-	: timerTag(INVALID_EVENT_ID),
+	: firstStartAcquisitoinTaskId(INVALID_EVENT_ID),
+	  timerTag(INVALID_EVENT_ID),
 	  pipeRd(NamedPipe::END_TYPE_SLAVE_READ),
 	  pipeWr(NamedPipe::END_TYPE_SLAVE_WRITE)
 	{
@@ -43,6 +45,7 @@ struct HapProcessStandard::Impl {
 
 	virtual ~Impl()
 	{
+		Utils::removeEventSourceIfNeeded(firstStartAcquisitoinTaskId);
 		Utils::removeEventSourceIfNeeded(timerTag);
 	}
 };
@@ -227,13 +230,16 @@ void HapProcessStandard::onReady(const MonitoringServerInfo &serverInfo)
 	struct NoName {
 		static void startAcquisition(HapProcessStandard *obj)
 		{
+			unique_ptr<Impl> &impl = obj->m_impl;
+			impl->firstStartAcquisitoinTaskId = INVALID_EVENT_ID;
 			kickBasicAcquisition(obj);
 		}
 	};
 
 	m_impl->serverInfoQueue.push(serverInfo);
-	Utils::executeOnGLibEventLoop<HapProcessStandard>(
-	  NoName::startAcquisition, this, ASYNC);
+	m_impl->firstStartAcquisitoinTaskId =
+	  Utils::executeOnGLibEventLoop<HapProcessStandard>(
+	    NoName::startAcquisition, this, ASYNC);
 }
 
 void HapProcessStandard::onReceivedReqFetchItem(void)
