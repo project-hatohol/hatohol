@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libhfl.la
-libmlpl_la_SOURCES = \
+libhfl_la_SOURCES = \
 	Mutex.cc ReadWriteLock.cc SimpleSemaphore.cc EventSemaphore.cc \
 	SeparatorInjector.cc \
 	SmartBuffer.cc Logger.cc StringUtils.cc \
