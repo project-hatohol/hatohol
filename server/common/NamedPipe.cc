@@ -152,7 +152,7 @@ struct NamedPipe::Impl {
 			GIOStatus stat
 			  = g_io_channel_shutdown(ioch, flush, &error);
 			if (stat != G_IO_STATUS_NORMAL) {
-				MLPL_ERR("Failed to shutdown. status: %d, %s\n",
+				HFL_ERR("Failed to shutdown. status: %d, %s\n",
 				         stat, error ?
 				         error->message : "unknown reason");
 				if (error)
@@ -171,7 +171,7 @@ struct NamedPipe::Impl {
 	void closeFd(void)
 	{
 		if (fd < 0) {
-			MLPL_WARN("closeFd() is called when fd = %d\n", fd);
+			HFL_WARN("closeFd() is called when fd = %d\n", fd);
 			return;
 		}
 		close(fd);
@@ -212,14 +212,14 @@ bool NamedPipe::init(const string &name, GIOFunc iochCb, gpointer data)
 
 	m_impl->ioch = g_io_channel_unix_new(m_impl->fd);
 	if (!m_impl->ioch) {
-		MLPL_ERR("Failed to call g_io_channel_unix_new: %d\n",
+		HFL_ERR("Failed to call g_io_channel_unix_new: %d\n",
 		         m_impl->fd);
 		return false;
 	}
 	GError *error = NULL;
 	GIOStatus stat = g_io_channel_set_encoding(m_impl->ioch, NULL, &error);
 	if (stat != G_IO_STATUS_NORMAL) {
-		MLPL_ERR("Failed to call g_io_channel_set_encoding: "
+		HFL_ERR("Failed to call g_io_channel_set_encoding: "
 		         "%d, %s\n", stat,
 		         error ? error->message : "(unknown reason)");
 		return false;
@@ -292,7 +292,7 @@ void NamedPipe::setTimeout(unsigned int timeout,
 	if (timeout == 0)
 		return;
 	if (!timeoutCb) {
-		MLPL_ERR("Timeout callback is NULL\n");
+		HFL_ERR("Timeout callback is NULL\n");
 		return;
 	}
 	m_impl->timeoutInfo.value  = timeout;
@@ -314,7 +314,7 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 	gint currOutEvtId = impl->iochDataEvtId;
 	impl->iochDataEvtId = INVALID_EVENT_ID;
 	if (impl->writeBufList.empty()) {
-		MLPL_BUG("writeCB was called. "
+		HFL_BUG("writeCB was called. "
 		         "However, write buffer list is empty.\n");
 	}
 	while (!impl->writeBufList.empty()) {
@@ -454,7 +454,7 @@ bool NamedPipe::openPipe(const string &name)
 		if (!deleteFileIfExists(m_impl->path))
 			return false;
 		if (mkfifo(m_impl->path.c_str(), FIFO_MODE) == -1) { 
-			MLPL_ERR("Failed to make FIFO: %s, %s\n",
+			HFL_ERR("Failed to make FIFO: %s, %s\n",
 			         m_impl->path.c_str(), strerror(errno));
 			return false;
 		}
@@ -466,7 +466,7 @@ retry:
 	if (m_impl->fd == -1) {
 		if (errno == EINTR)
 			goto retry;
-		MLPL_ERR("Failed to open: %s, %s\n",
+		HFL_ERR("Failed to open: %s, %s\n",
 		         m_impl->path.c_str(), strerror(errno));
 		return false;
 	}
@@ -519,7 +519,7 @@ bool NamedPipe::isExistingDir(const string &dirname, bool &hasError)
 	hasError = true;
 	struct stat buf;
 	if (stat(dirname.c_str(), &buf) == -1 && errno != ENOENT) {
-		MLPL_ERR("Failed to stat: %s, %s\n",
+		HFL_ERR("Failed to stat: %s, %s\n",
 		         dirname.c_str(), strerror(errno));
 		return false;
 	}
@@ -530,12 +530,12 @@ bool NamedPipe::isExistingDir(const string &dirname, bool &hasError)
 
 	// chekc the the path is directory
 	if (!S_ISDIR(buf.st_mode)) {
-		MLPL_ERR("Already exist: but not directory: %s, mode: %x\n",
+		HFL_ERR("Already exist: but not directory: %s, mode: %x\n",
 		         dirname.c_str(), buf.st_mode);
 		return false;
 	}
 	if (((buf.st_mode & 0777) & BASE_DIR_MODE) != BASE_DIR_MODE) {
-		MLPL_ERR("Invalid directory mode: %s, 0%o\n",
+		HFL_ERR("Invalid directory mode: %s, 0%o\n",
 		         dirname.c_str(), buf.st_mode);
 		return false;
 	}
@@ -558,7 +558,7 @@ bool NamedPipe::makeBasedirIfNeeded(const string &baseDir)
 	umask(prevMask);
 	if (result == -1) {
 		if (errno != EEXIST) {
-			MLPL_ERR("Failed to make dir: %s, %s\n",
+			HFL_ERR("Failed to make dir: %s, %s\n",
 			         BASE_DIR, strerror(errno));
 			return false;
 		}
@@ -573,7 +573,7 @@ bool NamedPipe::deleteFileIfExists(const string &path)
 {
 	struct stat buf;
 	if (stat(path.c_str(), &buf) == -1 && errno != ENOENT) {
-		MLPL_ERR("Failed to stat: %s, %s\n",
+		HFL_ERR("Failed to stat: %s, %s\n",
 		         path.c_str(), strerror(errno));
 		return false;
 	}
@@ -581,7 +581,7 @@ bool NamedPipe::deleteFileIfExists(const string &path)
 		return true;
 
 	if (unlink(path.c_str()) == -1) {
-		MLPL_ERR("Failed to unlink: %s, %s\n",
+		HFL_ERR("Failed to unlink: %s, %s\n",
 		         path.c_str(), strerror(errno));
 		return false;
 	}
@@ -593,7 +593,7 @@ bool NamedPipe::checkGIOStatus(GIOStatus stat, GError *error)
 {
 	if (stat == G_IO_STATUS_ERROR || stat == G_IO_STATUS_EOF) {
 		// The error calball back will be called.
-		MLPL_ERR("GIOStatus: %d, %s\n", stat,
+		HFL_ERR("GIOStatus: %d, %s\n", stat,
 		         error ? error->message : "reason: unknown");
 		return false;
 	}

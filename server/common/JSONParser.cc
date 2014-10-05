@@ -160,7 +160,7 @@ bool JSONParser::startObject(const string &member)
 	JsonObject *object;
 
 	if (!isMember(member)) {
-		MLPL_DBG("The member '%s' is not defined in the current node.\n",
+		HFL_DBG("The member '%s' is not defined in the current node.\n",
 			 member.c_str());
 		return false;
 	}
@@ -191,7 +191,7 @@ bool JSONParser::startElement(unsigned int index)
 		JsonArray * array = json_node_get_array(m_impl->currentNode);
 
 		if (index >= json_array_get_length(array)) {
-			MLPL_DBG("The index '%d' is greater than the size of "
+			HFL_DBG("The index '%d' is greater than the size of "
 				"the array at the current position.\n", index);
 			return false;
 		}
@@ -206,7 +206,7 @@ bool JSONParser::startElement(unsigned int index)
 		const gchar *name;
 
 		if(index >= json_object_get_size(object)) {
-			MLPL_DBG("The index '%d' is greater than the size of "
+			HFL_DBG("The index '%d' is greater than the size of "
 				"the array at the current position.\n", index);
 			return false;
 		}

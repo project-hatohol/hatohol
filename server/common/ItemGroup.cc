@@ -158,7 +158,7 @@ size_t ItemGroup::getNumberOfItems(void) const
 void ItemGroup::freeze(void)
 {
 	if (m_freeze) {
-		MLPL_WARN("m_freeze: already set.\n");
+		HFL_WARN("m_freeze: already set.\n");
 		return;
 	}
 	HATOHOL_ASSERT(!m_groupType, "m_groupType: Not NULL");

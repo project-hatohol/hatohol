@@ -96,7 +96,7 @@ uint64_t Utils::getCurrTimeAsMicroSecond(void)
 {
 	struct timeval tv;
 	if (gettimeofday(&tv, NULL) == -1) {
-		MLPL_ERR("Failed to call gettimeofday: %d\n", errno);
+		HFL_ERR("Failed to call gettimeofday: %d\n", errno);
 		return 0;
 	}
 	uint64_t currTime = tv.tv_usec;
@@ -108,7 +108,7 @@ bool Utils::isValidPort(int port, bool showErrorMsg)
 {
 	if (port < 0 || port >= 65536) {
 		if (showErrorMsg)
-			MLPL_ERR("invalid port: %d\n", port);
+			HFL_ERR("invalid port: %d\n", port);
 		return false;
 	}
 	return true;
@@ -353,7 +353,7 @@ bool Utils::removeEventSourceIfNeeded(guint tag, SyncType syncType)
 	executeOnGLibEventLoop<RemoveEventTask>(
 	  RemoveEventTask::run, &task, syncType, context);
 	if (!task.succeeded) {
-		MLPL_ERR("Failed to remove source: %d\n", tag);
+		HFL_ERR("Failed to remove source: %d\n", tag);
 		return false;
 	}
 	return true;
@@ -391,7 +391,7 @@ string Utils::getUsingPortInfo(const int &port)
 	if (!succeeded) {
 		const gchar *errorMsg =
 		   error ? error->message : "Unknown reason";
-		MLPL_ERR("Failed to execute: %s: %s\n", cmd.c_str(), errorMsg);
+		HFL_ERR("Failed to execute: %s: %s\n", cmd.c_str(), errorMsg);
 		return "";
 	}
 	return StringUtils::sprintf(
@@ -405,7 +405,7 @@ bool Utils::removeGSourceIfNeeded(const guint &tag)
 		return true;
 
 	if (!g_source_remove(tag)) {
-		MLPL_ERR("Failed to remove source: %u\n", tag);
+		HFL_ERR("Failed to remove source: %u\n", tag);
 		return false;
 	}
 	return true;
