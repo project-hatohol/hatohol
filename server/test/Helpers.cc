@@ -196,7 +196,7 @@ struct SpawnSyncContext {
 		  g_io_channel_read_chars(source, buf, bufSize-1, &bytesRead,
 		                          &error);
 		if (stat != G_IO_STATUS_NORMAL) {
-			MLPL_ERR("Failed to call g_io_channel_read_chars: %s\n",
+			HFL_ERR("Failed to call g_io_channel_read_chars: %s\n",
 			         error ? error->message : "unknown");
 			if (error)
 				g_error_free(error);

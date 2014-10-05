@@ -282,7 +282,7 @@ static bool parseEnvironFile(string magicString, const int &pid)
 	string path = StringUtils::sprintf("/proc/%d/environ", pid);
 	FileOpener fileOpener(path);
 	if (errno != 0)
-		MLPL_ERR("%s\n", getSyslogTail(100).c_str());
+		HFL_ERR("%s\n", getSyslogTail(100).c_str());
 	cppcut_assert_equal(
 	  true, fileOpener.start(),
 	  cut_message("path: %s, errno: %d", path.c_str(), errno));
@@ -298,7 +298,7 @@ static bool parseEnvironFile(string magicString, const int &pid)
 			break;
 	}
 	if (errno != 0)
-		MLPL_ERR("%s\n", getSyslogTail(100).c_str());
+		HFL_ERR("%s\n", getSyslogTail(100).c_str());
 	cppcut_assert_equal(true, found,
 	                    cut_message("magicString: %s, readLines: %zd",
 	                    magicString.c_str(), readLines));
@@ -375,7 +375,7 @@ void test_daemonize(void)
 	cppcut_assert_equal(true, childProcessLoop(value->childPid));
 	cppcut_assert_equal(true, parsePIDFile(value->grandchildPid,
 	                                       value->pidFilePath));
-	MLPL_INFO("[PIDs] self: %d, child: %d, grandchild: %d\n",
+	HFL_INFO("[PIDs] self: %d, child: %d, grandchild: %d\n",
 	  getpid(), value->childPid, value->grandchildPid);
 	parseStatFile(value->grandchildParentPid, value->grandchildPid);
 	cppcut_assert_equal(getInitPid(getpid()), value->grandchildParentPid);

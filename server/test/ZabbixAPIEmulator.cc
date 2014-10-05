@@ -245,7 +245,7 @@ void ZabbixAPIEmulator::handlerAPI
 	try {
 		obj->handlerAPIDispatch(arg);
 	} catch (const exception &e) {
-		MLPL_ERR("Got exception: %s\n", e.what());
+		HFL_ERR("Got exception: %s\n", e.what());
 		soup_message_set_status(msg, SOUP_STATUS_INTERNAL_SERVER_ERROR);
 	}
 }

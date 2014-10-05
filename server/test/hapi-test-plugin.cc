@@ -49,7 +49,7 @@ struct Params {
 		if (key == "dontExit") {
 			dontExit = atoi(value.c_str());
 		} else {
-			MLPL_WARN("Unknown paramter: %s (%s)\n",
+			HFL_WARN("Unknown paramter: %s (%s)\n",
 			          key.c_str(), value.c_str());
 		}
 	}
@@ -102,7 +102,7 @@ protected:
 		while (getline(ifs, line)) {
 			size_t pos = line.find('\t');
 			if (pos == string::npos) {
-				MLPL_ERR("Not found separator: %s\n",
+				HFL_ERR("Not found separator: %s\n",
 				         line.c_str());
 				continue;
 			}
