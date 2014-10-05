@@ -155,7 +155,7 @@ HatoholArmPluginInterfaceTest::HatoholArmPluginInterfaceTest(
 	setQueueAddress(hapiSv.getQueueAddress());
 }
 
-void HatoholArmPluginInterfaceTest::onReceived(mlpl::SmartBuffer &smbuf)
+void HatoholArmPluginInterfaceTest::onReceived(hfl::SmartBuffer &smbuf)
 {
 	if (!m_msgIntercept) {
 		HatoholArmPluginInterfaceTestBasic::onReceived(smbuf);

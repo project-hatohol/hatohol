@@ -418,7 +418,7 @@ std::string makeArmPluginInfoOutput(const ArmPluginInfo &armPluginInfo)
 string makeIncidentTrackerInfoOutput(const IncidentTrackerInfo &incidentTrackerInfo)
 {
 	string expectedOut =
-	  mlpl::StringUtils::sprintf(
+	  hfl::StringUtils::sprintf(
 	    "%" FMT_INCIDENT_TRACKER_ID "|%d|%s|%s|%s|%s|%s|%s\n",
 	    incidentTrackerInfo.id,
 	    incidentTrackerInfo.type,
@@ -442,7 +442,7 @@ std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
 string makeEventOutput(const EventInfo &eventInfo)
 {
 	string output =
-	  mlpl::StringUtils::sprintf(
+	  hfl::StringUtils::sprintf(
 	    "%" PRIu32 "|%" PRIu64 "|%ld|%ld|%d|%u|%" PRIu64 "|%s|%s\n",
 	    eventInfo.serverId, eventInfo.id,
 	    eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
@@ -456,7 +456,7 @@ string makeEventOutput(const EventInfo &eventInfo)
 string makeIncidentOutput(const IncidentInfo &incidentInfo)
 {
 	string output =
-	  mlpl::StringUtils::sprintf(
+	  hfl::StringUtils::sprintf(
 	    "%" FMT_INCIDENT_TRACKER_ID "|%" FMT_SERVER_ID "|%" FMT_EVENT_ID
 	    "|%" FMT_TRIGGER_ID "|%s|%s|%s|%s"
 	    "|%" PRIu64 "|%" PRIu64 "|%" PRIu64 "|%" PRIu64

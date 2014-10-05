@@ -193,7 +193,7 @@ static ActionLogExecFailureCode getFailureCodeSignalOrDumpedByRLimit(void)
 	return ACTLOG_EXECFAIL_KILLED_SIGNAL;
 }
 
-static void waitConnectCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+static void waitConnectCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
                           size_t size, ExecCommandContext *ctx)
 {
 	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
@@ -212,7 +212,7 @@ static void waitConnect(ExecCommandContext *ctx)
 	}
 }
 
-static void getArgumentsBottomHalfCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+static void getArgumentsBottomHalfCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
                                      size_t size, ExecCommandContext *ctx)
 {
 	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
@@ -220,7 +220,7 @@ static void getArgumentsBottomHalfCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	ctx->receivedActTpArgList = true;
 }
 
-static void getArgumentsTopHalfCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+static void getArgumentsTopHalfCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
                                   size_t size, ExecCommandContext *ctx)
 {
 	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
@@ -265,7 +265,7 @@ static void getArguments(ExecCommandContext *ctx,
 	}
 }
 
-static void getSessionIdCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+static void getSessionIdCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
                                   size_t size, ExecCommandContext *ctx)
 {
 	cppcut_assert_equal(G_IO_STATUS_NORMAL, stat);
@@ -706,7 +706,7 @@ static void sendAllowReplyNotifyEvent(ExecCommandContext *ctx)
 	comm.push(ctx->pipeWr);
 }
 
-static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+static void replyEventInfoCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
                              size_t size, ExecCommandContext *ctx)
 {
 	// status

@@ -37,23 +37,23 @@ public:
 	void onInitiated(void);
 	void onHandledCommand(const HapiCommandCode &code);
 
-	mlpl::SimpleSemaphore &getConnectedSem(void);
-	mlpl::SimpleSemaphore &getInitiatedSem(void);
-	mlpl::SimpleSemaphore &getHandledCommandSem(void);
+	hfl::SimpleSemaphore &getConnectedSem(void);
+	hfl::SimpleSemaphore &getInitiatedSem(void);
+	hfl::SimpleSemaphore &getHandledCommandSem(void);
 
-	void assertWaitSemaphore(mlpl::SimpleSemaphore &sem);
+	void assertWaitSemaphore(hfl::SimpleSemaphore &sem);
 	void assertWaitConnected(void);
 	void assertWaitInitiated(void);
 	void assertWaitHandledCommand(const HapiCommandCode &code,
 	                              const size_t &minCalledTimes = 1);
 
 private:
-	mlpl::SimpleSemaphore   m_connectedSem;
-	mlpl::SimpleSemaphore   m_initiatedSem;
-	mlpl::SimpleSemaphore   m_handledCommandSem;
+	hfl::SimpleSemaphore   m_connectedSem;
+	hfl::SimpleSemaphore   m_initiatedSem;
+	hfl::SimpleSemaphore   m_handledCommandSem;
 	HapiCommandCode         m_lastHandledCode;
 	size_t                  m_timesHandled[NUM_HAPI_CMD];
-	mlpl::ReadWriteLock     m_handledCodeLock;
+	hfl::ReadWriteLock     m_handledCodeLock;
 };
 
 class HatoholArmPluginInterfaceTestBasic :
@@ -72,7 +72,7 @@ public:
 	void callSetSequenceId(const uint32_t &sequenceId);
 
 	template<class BodyType>
-	BodyType *callSetupCommandHeader(mlpl::SmartBuffer &cmdBuf,
+	BodyType *callSetupCommandHeader(hfl::SmartBuffer &cmdBuf,
 	                                 const HapiCommandCode &code,
 	                                 const size_t &additionalSize = 0)
 	{
@@ -82,7 +82,7 @@ public:
 
 	template<class BodyType>
 	BodyType *callSetupResponseBuffer(
-	  mlpl::SmartBuffer &resBuf, const size_t &additionalSize = 0,
+	  hfl::SmartBuffer &resBuf, const size_t &additionalSize = 0,
 	  const HapiResponseCode &code = HAPI_RES_OK)
 	{
 		return setupResponseBuffer<BodyType>(resBuf, additionalSize,
@@ -101,20 +101,20 @@ public:
 	 */
 	HatoholArmPluginInterfaceTest(HatoholArmPluginInterfaceTest &hapiSv);
 
-	virtual void onReceived(mlpl::SmartBuffer &smbuf) override;
-	mlpl::SimpleSemaphore &getRcvSem(void);
+	virtual void onReceived(hfl::SmartBuffer &smbuf) override;
+	hfl::SimpleSemaphore &getRcvSem(void);
 
 	std::string getMessage(void);
 	void setMessageIntercept(void);
 
 protected:
-	void setMessage(const mlpl::SmartBuffer &smbuf);
+	void setMessage(const hfl::SmartBuffer &smbuf);
 
 private:
-	mlpl::SimpleSemaphore   m_rcvSem;
-	mlpl::Mutex             m_lock;
+	hfl::SimpleSemaphore   m_rcvSem;
+	hfl::Mutex             m_lock;
 	std::string             m_message;
-	mlpl::AtomicValue<bool> m_msgIntercept;
+	hfl::AtomicValue<bool> m_msgIntercept;
 };
 
 #endif // HatoholArmPluginInterfaces_h

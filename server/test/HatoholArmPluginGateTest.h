@@ -43,9 +43,9 @@ struct HapgTestCtx {
 	bool                 expectAbnormalChildTerm;
 
 	// Set by HatoholArmgPluginTest
-	mlpl::SimpleSemaphore launchedSem;
+	hfl::SimpleSemaphore launchedSem;
 	bool                  launchSucceeded;
-	mlpl::SimpleSemaphore mainSem;
+	hfl::SimpleSemaphore mainSem;
 	bool                  abnormalChildTerm;
 	std::string           rcvMessage;
 	bool                  gotUnexceptedException;
@@ -92,7 +92,7 @@ public:
 	// I.e. we must not call cutter's assertions in them.
 	virtual void onSessionChanged(
 	  qpid::messaging::Session *session) override;
-	virtual void onReceived(mlpl::SmartBuffer &smbuf) override;
+	virtual void onReceived(hfl::SmartBuffer &smbuf) override;
 	virtual void onTerminated(const siginfo_t *siginfo) override;
 	virtual int onCaughtException(const std::exception &e) override;
 	virtual void onLaunchedProcess(

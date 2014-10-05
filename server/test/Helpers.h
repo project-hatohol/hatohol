@@ -39,11 +39,11 @@
 typedef std::pair<int,int>      IntIntPair;
 typedef std::vector<IntIntPair> IntIntPairVector;
 
-void _assertStringVector(const mlpl::StringVector &expected,
-                         const mlpl::StringVector &actual);
+void _assertStringVector(const hfl::StringVector &expected,
+                         const hfl::StringVector &actual);
 #define assertStringVector(E,A) cut_trace(_assertStringVector(E,A))
 
-void _assertStringVectorVA(const mlpl::StringVector &actual, ...);
+void _assertStringVectorVA(const hfl::StringVector &actual, ...);
 #define assertStringVectorVA(A,...) \
 cut_trace(_assertStringVectorVA(A,##__VA_ARGS__))
 
@@ -132,7 +132,7 @@ void _assertDBTablesVersion(DBAgent &dbAgent, const DBTablesId &tablesId,
 #define assertDBTablesVersion(DBAGENT, TABLES_ID, DB_VERSION) \
 cut_trace(_assertDBTablesVersion(DBAGENT, TABLES_ID, DB_VERSION))
 
-void _assertTimeIsNow(const mlpl::SmartTime &smtime, double allowedError = 1);
+void _assertTimeIsNow(const hfl::SmartTime &smtime, double allowedError = 1);
 #define assertTimeIsNow(ST, ...) cut_trace(_assertTimeIsNow(ST, ##__VA_ARGS__))
 
 void _assertHatoholError(const HatoholErrorCode &code,
@@ -176,7 +176,7 @@ void _assertUserRolesInDB(const UserRoleIdSet &excludeUserRoleIdSet = EMPTY_USER
 void makeTestMySQLDBIfNeeded(const std::string &dbName, bool recreate = false);
 std::string execSQL(DBAgent *agent, const std::string &statement,
                     bool showHeader = false);
-std::string joinStringVector(const mlpl::StringVector &strVect,
+std::string joinStringVector(const hfl::StringVector &strVect,
                              const std::string &pad = "",
                              bool isPaddingTail = true);
 
@@ -297,7 +297,7 @@ private:
 	static const size_t TIMEOUT = 5000;
 	guint           m_timerTag;
 	GMainLoop      *m_loop;
-	mlpl::Mutex     m_lock;
+	hfl::Mutex     m_lock;
 	GSourceFunc     m_timeoutCb;
 	gpointer        m_timeoutCbData;
 };

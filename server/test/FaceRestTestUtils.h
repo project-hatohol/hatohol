@@ -36,14 +36,14 @@ struct RequestArg {
 	std::string        callbackName;
 	std::string        request;
 	StringMap          parameters;
-	mlpl::StringVector headers;
+	hfl::StringVector headers;
 	UserIdType         userId;
 
 	// output
 	std::string        response;
 	int                httpStatusCode;
 	std::string        httpReasonPhrase;
-	mlpl::StringVector responseHeaders;
+	hfl::StringVector responseHeaders;
 
 	RequestArg(const std::string &_url, const std::string &_cbname = "")
 	: url(_url),
