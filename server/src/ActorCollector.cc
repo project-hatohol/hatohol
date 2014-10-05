@@ -32,7 +32,7 @@
 #include "ChildProcessManager.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 typedef map<pid_t, ActorInfo *>      WaitChildSet;
 typedef WaitChildSet::iterator       WaitChildSetIterator;

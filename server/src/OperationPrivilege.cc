@@ -20,7 +20,7 @@
 #include "OperationPrivilege.h"
 #include "DBTablesUser.h"
 #include "ThreadLocalDBCache.h"
-using namespace mlpl;
+using namespace hfl;
 
 struct OperationPrivilege::Impl {
 	UserIdType userId;

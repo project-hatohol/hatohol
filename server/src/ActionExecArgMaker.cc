@@ -20,7 +20,7 @@
 #include "ActionExecArgMaker.h"
 #include "ParsableString.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct ActionExecArgMaker::Impl {
 

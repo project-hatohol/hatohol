@@ -23,7 +23,7 @@
 #include <libsoup/soup.h>
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static MonitoringServerInfo toMonitoringServerInfo(
   const IncidentTrackerInfo &trackerInfo)

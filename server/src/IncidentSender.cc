@@ -30,7 +30,7 @@
 #include <queue>
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const size_t DEFAULT_RETRY_LIMIT = 3;
 static const unsigned int DEFAULT_RETRY_INTERVAL_MSEC = 5000;

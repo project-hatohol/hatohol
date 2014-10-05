@@ -28,7 +28,7 @@
 #include "EventSemaphore.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct ChildInfo {
 	const pid_t pid;

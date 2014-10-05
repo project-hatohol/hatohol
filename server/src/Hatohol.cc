@@ -20,7 +20,7 @@
 #include <glib.h>
 
 #include <Mutex.h>
-using namespace mlpl;
+using namespace hfl;
 
 #include "Hatohol.h"
 #include "Utils.h"

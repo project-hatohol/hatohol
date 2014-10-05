@@ -41,7 +41,7 @@
 #include "UnifiedDataStore.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 using namespace qpid::messaging;
 
 const int   HatoholArmPluginGate::NO_RETRY = -1;

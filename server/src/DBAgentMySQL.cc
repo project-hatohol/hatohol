@@ -24,7 +24,7 @@
 #include "SeparatorInjector.h"
 #include "Params.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const size_t DEFAULT_NUM_RETRY = 5;
 static const size_t RETRY_INTERVAL[DEFAULT_NUM_RETRY] = {

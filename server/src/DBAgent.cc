@@ -23,7 +23,7 @@
 #include "HatoholException.h"
 #include "SeparatorInjector.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 DBConnectInfo::DBConnectInfo(void)
 : host("localhost"),

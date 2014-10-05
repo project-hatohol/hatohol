@@ -36,7 +36,7 @@
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct Impl : public ResidentPullHelper<Impl> {
 	GMainLoop *loop;

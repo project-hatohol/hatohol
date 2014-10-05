@@ -23,7 +23,7 @@
 #include "ItemGroupStream.h"
 #include "DBHatohol.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 const UserIdSet EMPTY_USER_ID_SET;
 const AccessInfoIdSet EMPTY_ACCESS_INFO_ID_SET;

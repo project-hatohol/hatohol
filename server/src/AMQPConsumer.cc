@@ -27,7 +27,7 @@
 #include <amqp_ssl_socket.h>
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const time_t  DEFAULT_TIMEOUT  = 1;
 

@@ -25,7 +25,7 @@
 #include <JSONParser.h>
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 const char *RestResourceServer::pathForServer         = "/server";
 const char *RestResourceServer::pathForServerType     = "/server-type";

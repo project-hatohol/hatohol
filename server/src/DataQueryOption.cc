@@ -25,7 +25,7 @@
 #include "HatoholException.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct DataQueryOption::Impl {
 	size_t maxNumber;

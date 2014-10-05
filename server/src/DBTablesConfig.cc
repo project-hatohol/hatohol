@@ -30,7 +30,7 @@
 #include "SQLUtils.h"
 #include "DBClientJoinBuilder.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVER_TYPES = "server_types";

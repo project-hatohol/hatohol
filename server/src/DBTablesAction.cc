@@ -27,7 +27,7 @@
 #include "Mutex.h"
 #include "ItemGroupStream.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 const char *TABLE_NAME_ACTIONS     = "actions";
 const char *TABLE_NAME_ACTION_LOGS = "action_logs";

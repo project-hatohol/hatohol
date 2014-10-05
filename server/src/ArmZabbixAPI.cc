@@ -19,7 +19,7 @@
 
 #include <Logger.h>
 #include <Mutex.h>
-using namespace mlpl;
+using namespace hfl;
 
 #include <sstream>
 #include <libsoup/soup.h>

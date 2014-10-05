@@ -21,7 +21,7 @@
 #include "DBTablesMonitoring.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 enum {
 	EVENT_OBJECT_TRIGGER = 0,

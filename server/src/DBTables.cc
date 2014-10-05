@@ -22,7 +22,7 @@
 #include "ItemGroupStream.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct DBTables::Impl {
 	DBAgent &dbAgent;

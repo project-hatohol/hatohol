@@ -23,7 +23,7 @@
 #include "DBAgentSQLite3.h" // TODO: Shouldn't use explicitly
 #include "DBHatohol.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 // *** TODO: use OptionTermGenrator to make SQL's clauses ****
 

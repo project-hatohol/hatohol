@@ -20,7 +20,7 @@
 #include <Logger.h>
 #include "ArmCeilometer.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 // ---------------------------------------------------------------------------
 // Private context

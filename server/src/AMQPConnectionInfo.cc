@@ -27,7 +27,7 @@ static const char  *DEFAULT_URL     = "amqp://localhost";
 static const time_t DEFAULT_TIMEOUT = 1;
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct AMQPConnectionInfo::Impl {
 	Impl()

@@ -49,7 +49,7 @@
 #include "ConfigManager.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";

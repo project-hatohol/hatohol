@@ -25,7 +25,7 @@
 #include <Mutex.h>
 #include "ReadWriteLock.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 // ---------------------------------------------------------------------------
 // Session

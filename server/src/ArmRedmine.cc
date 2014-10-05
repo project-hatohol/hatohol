@@ -26,7 +26,7 @@
 #include <libsoup/soup.h>
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 // TODO: should share with other classes such as IncidentSenderRedmine
 static const char *MIME_JSON = "application/json";

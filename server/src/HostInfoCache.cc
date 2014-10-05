@@ -25,7 +25,7 @@
 #include "HostInfoCache.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 typedef map<HostIdType, string> HostIdNameMap;
 typedef HostIdNameMap::iterator HostIdNameMapIterator;

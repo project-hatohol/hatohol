@@ -23,7 +23,7 @@
 #include "HostResourceQueryOption.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const char *JOIN_OPERATORS[] = {
 	"INNER JOIN",

@@ -28,7 +28,7 @@
 #include <libsoup/soup.h>
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const guint DEFAULT_TIMEOUT_SECONDS = 60;
 static const char *MIME_JSON = "application/json";

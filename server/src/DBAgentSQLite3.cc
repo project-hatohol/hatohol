@@ -26,7 +26,7 @@
 #include <Logger.h>
 #include <SeparatorInjector.h>
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 #include "DBAgentSQLite3.h"
 #include "HatoholException.h"

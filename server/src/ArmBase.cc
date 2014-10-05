@@ -29,7 +29,7 @@
 #include "ThreadLocalDBCache.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 const char *SERVER_SELF_MONITORING_SUFFIX = "_SELF";
 

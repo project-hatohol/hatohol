@@ -22,7 +22,7 @@
 #include "SQLProcessorTypes.h"
 #include "HatoholException.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 // ---------------------------------------------------------------------------
 // Public methods

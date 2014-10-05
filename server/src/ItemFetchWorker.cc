@@ -26,7 +26,7 @@
 #include "UnifiedDataStore.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct ItemFetchWorker::Impl
 {

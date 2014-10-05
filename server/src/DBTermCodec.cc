@@ -21,7 +21,7 @@
 #include <inttypes.h>
 #include "DBTermCodec.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 string DBTermCodec::enc(const int &val) const
 {

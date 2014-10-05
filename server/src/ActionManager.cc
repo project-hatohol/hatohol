@@ -39,7 +39,7 @@
 #include "ThreadLocalDBCache.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct ResidentInfo;
 struct ActionManager::ResidentNotifyInfo {

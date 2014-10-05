@@ -28,7 +28,7 @@
 #include "Reaper.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 enum {
 	CONF_MGR_ERROR_NULL,

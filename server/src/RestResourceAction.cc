@@ -22,7 +22,7 @@
 #include "UnifiedDataStore.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 const char *RestResourceAction::pathForAction = "/action";
 

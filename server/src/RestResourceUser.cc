@@ -22,7 +22,7 @@
 #include "ThreadLocalDBCache.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 const char *RestResourceUser::pathForUser     = "/user";
 const char *RestResourceUser::pathForUserRole = "/user-role";
