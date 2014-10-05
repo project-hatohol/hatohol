@@ -26,7 +26,7 @@
 #include "SmartTime.h"
 #include "Logger.h"
 
-using namespace mlpl;
+using namespace hfl;
 
 struct SimpleSemaphore::PrivateContext {
 	sem_t sem;

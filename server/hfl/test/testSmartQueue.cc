@@ -22,7 +22,7 @@
 #include "SmartQueue.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 namespace testSmartQueue {
 

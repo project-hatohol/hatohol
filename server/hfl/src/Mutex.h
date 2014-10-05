@@ -22,7 +22,7 @@
 
 #include <pthread.h>
 
-namespace mlpl {
+namespace hfl {
 
 class Mutex {
 public:
@@ -60,6 +60,6 @@ private:
 	Mutex *m_mutex;
 };
 
-} // namespace mlpl
+} // namespace hfl
 
 #endif // Mutex_h

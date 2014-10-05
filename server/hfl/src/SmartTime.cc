@@ -25,7 +25,7 @@
 #include "Logger.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 ostream &operator<<(std::ostream &os, const SmartTime &stime)
 {

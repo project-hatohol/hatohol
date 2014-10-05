@@ -22,7 +22,7 @@
 
 #include <cstddef>
 
-namespace mlpl {
+namespace hfl {
 
 class SimpleSemaphore {
 public:
@@ -87,7 +87,7 @@ private:
 	PrivateContext *m_ctx;
 };
 
-} // namespace mlpl
+} // namespace hfl
 
 #endif // SimpleSemaphore_h
 

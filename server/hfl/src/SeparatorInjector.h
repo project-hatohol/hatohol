@@ -22,7 +22,7 @@
 
 #include <string>
 
-namespace mlpl {
+namespace hfl {
 
 class SeparatorInjector {
 public:
@@ -45,6 +45,6 @@ private:
 	const char *m_separator;
 };
 
-} // namespace mlpl
+} // namespace hfl
 
 #endif // SeparatorInjector_h

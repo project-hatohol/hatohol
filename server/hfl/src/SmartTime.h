@@ -24,7 +24,7 @@
 #include <ostream>
 #include <stdint.h>
 
-namespace mlpl {
+namespace hfl {
 
 struct Time {
 	uint64_t tv_sec;
@@ -74,7 +74,7 @@ private:
 	timespec m_time;
 };
 
-} // namespace mlpl
+} // namespace hfl
 
 std::ostream &operator<<(std::ostream &os, const mlpl::SmartTime &stime);
 

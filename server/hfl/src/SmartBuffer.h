@@ -23,7 +23,7 @@
 #include <cstdlib>
 #include <stdint.h>
 
-namespace mlpl {
+namespace hfl {
 
 static const size_t SMBUF_CURR_INDEX = SIZE_MAX;
 
@@ -189,6 +189,6 @@ protected:
 	}
 };
 
-} // namespace mlpl
+} // namespace hfl
 
 #endif // SmartBuffer_h

@@ -19,7 +19,7 @@
 
 #include "ReadWriteLock.h"
 
-using namespace mlpl;
+using namespace hfl;
 
 struct ReadWriteLock::PrivateContext {
 	pthread_rwlock_t rwlock;

@@ -22,7 +22,7 @@
 #include "SmartTime.h"
 #include "Logger.h"
 
-using namespace mlpl;
+using namespace hfl;
 
 struct Mutex::PrivateContext {
 	pthread_mutex_t lock;

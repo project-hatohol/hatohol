@@ -20,7 +20,7 @@
 #ifndef EventSemaphore_h
 #define EventSemaphore_h
 
-namespace mlpl {
+namespace hfl {
 
 class EventSemaphore {
 public:
@@ -59,7 +59,7 @@ private:
 	PrivateContext *m_ctx;
 };
 
-} // namespace mlpl
+} // namespace hfl
 
 #endif // EventSemaphore_h
 

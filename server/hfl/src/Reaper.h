@@ -23,7 +23,7 @@
 #define override
 #endif
 
-namespace mlpl {
+namespace hfl {
 
 template<typename T>
 class Reaper {
@@ -113,7 +113,7 @@ public:
 	}
 };
 
-} // namespace mlpl
+} // namespace hfl
 
 #endif // Reaper_h
 

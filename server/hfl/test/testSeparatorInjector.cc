@@ -26,7 +26,7 @@ using namespace std;
 #include <gcutter.h>
 
 #include "SeparatorInjector.h"
-using namespace mlpl;
+using namespace hfl;
 
 namespace testSeparatorInejector {
 

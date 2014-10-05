@@ -25,7 +25,7 @@
 #include <Reaper.h>
 #include <deque>
 
-namespace mlpl {
+namespace hfl {
 
 template<typename T>
 class SmartQueue {
@@ -147,6 +147,6 @@ private:
 	std::deque<T>         m_queue;
 };
 
-} // namespace mlpl
+} // namespace hfl
 
 #endif // SmartQueue_h

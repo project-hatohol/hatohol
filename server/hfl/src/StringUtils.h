@@ -27,7 +27,7 @@
 #include <stdarg.h>
 #include <stdint.h>
 
-namespace mlpl {
+namespace hfl {
 
 typedef std::list<std::string> StringList;
 typedef std::vector<std::string> StringVector;
@@ -126,6 +126,6 @@ namespace StringUtils {
 			    const std::string &newWord);
 };
 
-} // namespace mlpl
+} // namespace hfl
 
 #endif // StringUtils_h

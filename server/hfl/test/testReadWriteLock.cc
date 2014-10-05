@@ -27,7 +27,7 @@ using namespace std;
 #include <sched.h>
 
 #include "ReadWriteLock.h"
-using namespace mlpl;
+using namespace hfl;
 
 namespace testReadWriteLock {
 

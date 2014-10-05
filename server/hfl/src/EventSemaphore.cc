@@ -25,7 +25,7 @@
 #include "EventSemaphore.h"
 #include "Logger.h"
 
-using namespace mlpl;
+using namespace hfl;
 
 struct EventSemaphore::PrivateContext {
 	int eventFd;

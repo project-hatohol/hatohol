@@ -20,7 +20,7 @@
 #ifndef AtomicValue_h
 #define AtomicValue_h
 
-namespace mlpl {
+namespace hfl {
 
 template<typename T>
 class AtomicValue {
@@ -70,7 +70,7 @@ private:
 	volatile T m_value;
 };
 
-} // namespace mlpl
+} // namespace hfl
 
 #endif // AtomicValue_h
 

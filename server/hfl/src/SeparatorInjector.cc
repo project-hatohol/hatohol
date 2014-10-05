@@ -18,7 +18,7 @@
  */
 
 #include "SeparatorInjector.h"
-using namespace mlpl;
+using namespace hfl;
 
 SeparatorInjector::SeparatorInjector(const char *separator)
 : m_first(true),

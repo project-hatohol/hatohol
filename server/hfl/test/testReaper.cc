@@ -20,7 +20,7 @@
 #include <cppcutter.h>
 #include "Reaper.h"
 
-using namespace mlpl;
+using namespace hfl;
 
 namespace testReaper {
 

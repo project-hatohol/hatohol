@@ -24,7 +24,7 @@ using namespace std;
 
 #include "SmartBuffer.h"
 #include "Logger.h"
-using namespace mlpl;
+using namespace hfl;
 
 // ---------------------------------------------------------------------------
 // Public methods

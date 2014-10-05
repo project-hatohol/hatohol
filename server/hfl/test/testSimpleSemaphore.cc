@@ -23,7 +23,7 @@
 
 #include "SimpleSemaphore.h"
 
-using namespace mlpl;
+using namespace hfl;
 
 namespace testSimpleSemaphore {
 

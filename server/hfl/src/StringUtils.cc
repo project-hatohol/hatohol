@@ -18,7 +18,7 @@
  */
 
 #include "StringUtils.h"
-using namespace mlpl;
+using namespace hfl;
 
 #include <algorithm>
 using namespace std;

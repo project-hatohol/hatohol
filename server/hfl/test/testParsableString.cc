@@ -28,7 +28,7 @@ using namespace std;
 
 #include "StringUtils.h"
 #include "ParsableString.h"
-using namespace mlpl;
+using namespace hfl;
 
 namespace testParsableString {
 

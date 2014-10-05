@@ -23,7 +23,7 @@
 
 #include "EventSemaphore.h"
 
-using namespace mlpl;
+using namespace hfl;
 
 namespace testEventSemaphore {
 

@@ -19,7 +19,7 @@
 
 #include <cppcutter.h>
 #include "SmartBuffer.h"
-using namespace mlpl;
+using namespace hfl;
 
 namespace testSmartBuffer {
 

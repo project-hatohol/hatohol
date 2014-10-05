@@ -22,7 +22,7 @@
 
 #include <pthread.h>
 #include "ReadWriteLock.h"
-namespace mlpl {
+namespace hfl {
 
 enum LogLevel {
 	MLPL_LOG_BUG,
@@ -57,7 +57,7 @@ private:
 	static bool syslogConnected;
 };
 
-} // namespace mlpl
+} // namespace hfl
 
 #define MLPL_P(LOG_LV, FMT, ...) \
 do { \

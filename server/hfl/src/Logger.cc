@@ -24,7 +24,7 @@
 #include <syslog.h>
 using namespace std;
 #include "Logger.h"
-using namespace mlpl;
+using namespace hfl;
 #include <string.h>
 #include "StringUtils.h"
 

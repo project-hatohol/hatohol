@@ -19,7 +19,7 @@
 
 #include <cppcutter.h>
 #include "AtomicValue.h"
-using namespace mlpl;
+using namespace hfl;
 
 namespace testAtomicValue {
 

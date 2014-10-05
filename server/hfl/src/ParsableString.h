@@ -25,7 +25,7 @@
 #include <string>
 #include <queue>
 
-namespace mlpl {
+namespace hfl {
 
 // ---------------------------------------------------------------------------
 // class: SeparatorChecker
@@ -159,6 +159,6 @@ private:
 	char        m_pendingNotifySeparator;
 };
 
-} // namespace mlpl
+} // namespace hfl
 
 #endif // ParsableString_h

@@ -22,7 +22,7 @@
 
 #include <pthread.h>
 
-namespace mlpl {
+namespace hfl {
 
 class ReadWriteLock {
 public:
@@ -39,6 +39,6 @@ private:
 	PrivateContext *m_ctx;
 };
 
-} // namespace mlpl
+} // namespace hfl
 
 #endif // ReadWriteLock_h

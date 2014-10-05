@@ -26,7 +26,7 @@ using namespace std;
 #include <cppcutter.h>
 
 #include "Mutex.h"
-using namespace mlpl;
+using namespace hfl;
 
 namespace testMutex {
 

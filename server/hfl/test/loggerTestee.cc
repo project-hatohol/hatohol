@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Logger.h"
-using namespace mlpl;
+using namespace hfl;
 
 #include <string>
 using namespace std;
