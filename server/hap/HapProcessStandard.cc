@@ -68,7 +68,7 @@ int HapProcessStandard::mainLoopRun(void)
 {
 	const GError *error = getErrorOfCommandLineArg();
 	if (getErrorOfCommandLineArg()) {
-		MLPL_ERR("%s\n", error->message);
+		HFL_ERR("%s\n", error->message);
 		return EXIT_FAILURE;
 	}
 	const HapCommandLineArg &clarg = getCommandLineArg();
@@ -107,12 +107,12 @@ void HapProcessStandard::startAcquisition(
 		// This condition may happen when unexpected initiation
 		// happens and then onReady() is called. In the case,
 		// we cancel the previous timer.
-		MLPL_INFO("Remove previously registered timer: %u\n",
+		HFL_INFO("Remove previously registered timer: %u\n",
 		          m_impl->timerTag);
 		bool succeeded =
 		  Utils::removeEventSourceIfNeeded(m_impl->timerTag);
 		if (!succeeded) {
-			MLPL_ERR("Failed to remove timer: %u\n",
+			HFL_ERR("Failed to remove timer: %u\n",
 		                 m_impl->timerTag);
 		}
 		m_impl->timerTag = INVALID_EVENT_ID;
@@ -181,7 +181,7 @@ void HapProcessStandard::setupNextTimer(
 	}
 	if (!errMsg.empty()) {
 		intervalMSec = retryIntervalSec * 1000;
-		MLPL_ERR("%s\n", errMsg.c_str());
+		HFL_ERR("%s\n", errMsg.c_str());
 		getArmStatus().logFailure(errMsg);
 	}
 	m_impl->timerTag = g_timeout_add(intervalMSec, kickBasicAcquisition,
@@ -194,7 +194,7 @@ void HapProcessStandard::onCompletedAcquistion(
 	try {
 		sendArmInfo(getArmStatus().getArmInfo(), watchType);
 	} catch (...) {
-		MLPL_ERR("Failed to send ArmInfo.\n");
+		HFL_ERR("Failed to send ArmInfo.\n");
 	}
 }
 
@@ -266,7 +266,7 @@ int HapProcessStandard::onCaughtException(const exception &e)
 		retryIntervalSec = DEFAULT_RETRY_INTERVAL;
 	else
 		retryIntervalSec = serverInfo.retryIntervalSec * 1000;
-	MLPL_INFO("Caught an exception: %s. Retry afeter %d ms.\n",
+	HFL_INFO("Caught an exception: %s. Retry afeter %d ms.\n",
 		  e.what(), retryIntervalSec);
 	return retryIntervalSec;
 }
@@ -302,7 +302,7 @@ void HapProcessStandard::exitProcess(void)
 gboolean HapProcessStandard::pipeRdErrCb(
   GIOChannel *source, GIOCondition condition)
 {
-	MLPL_INFO("Got callback (PIPE): %08x", condition);
+	HFL_INFO("Got callback (PIPE): %08x", condition);
 	exitProcess();
 	return TRUE;
 }
@@ -310,7 +310,7 @@ gboolean HapProcessStandard::pipeRdErrCb(
 gboolean HapProcessStandard::pipeWrErrCb(
   GIOChannel *source, GIOCondition condition)
 {
-	MLPL_INFO("Got callback (PIPE): %08x", condition);
+	HFL_INFO("Got callback (PIPE): %08x", condition);
 	exitProcess();
 	return TRUE;
 }

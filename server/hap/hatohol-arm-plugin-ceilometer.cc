@@ -24,7 +24,7 @@
 
 int main(int argc, char *argv[])
 {
-	MLPL_INFO("hatohol-arm-plugin-ceilometer. ver: %s\n", PACKAGE_VERSION);
+	HFL_INFO("hatohol-arm-plugin-ceilometer. ver: %s\n", PACKAGE_VERSION);
 	HapProcessCeilometer hapProc(argc, argv);
 	return hapProc.mainLoopRun();
 }

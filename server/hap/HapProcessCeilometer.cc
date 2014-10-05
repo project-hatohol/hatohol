@@ -164,7 +164,7 @@ HatoholError HapProcessCeilometer::updateAuthTokenIfNeeded(void)
 		return err;
 	SoupMessage *msg = arg.msgPtr.get();
 	if (!parseReplyToknes(msg)) {
-		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
+		HFL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
@@ -176,7 +176,7 @@ bool HapProcessCeilometer::parseReplyToknes(SoupMessage *msg)
 {
 	JSONParser parser(msg->response_body->data);
 	if (parser.hasError()) {
-		MLPL_ERR("Failed to parser %s\n", parser.getErrorMessage());
+		HFL_ERR("Failed to parser %s\n", parser.getErrorMessage());
 		return false;
 	}
 
@@ -202,7 +202,7 @@ bool HapProcessCeilometer::parseReplyToknes(SoupMessage *msg)
 	m_impl->tokenExpires = tokenExpires;
 	const timespec margin = {5 * 60, 0};
 	m_impl->tokenExpires -= SmartTime(margin);
-	MLPL_DBG("Token expires: %s\n", ((string)m_impl->tokenExpires).c_str());
+	HFL_DBG("Token expires: %s\n", ((string)m_impl->tokenExpires).c_str());
 
 	parser.endObject(); // access
 	if (!startObject(parser, "serviceCatalog"))
@@ -219,11 +219,11 @@ bool HapProcessCeilometer::parseReplyToknes(SoupMessage *msg)
 
 	// check if there's information about the endpoint of ceilometer
 	if (m_impl->novaEP.publicURL.empty()) {
-		MLPL_ERR("Failed to get an endpoint of nova\n");
+		HFL_ERR("Failed to get an endpoint of nova\n");
 		return false;
 	}
 	if (m_impl->ceilometerEP.publicURL.empty()) {
-		MLPL_ERR("Failed to get an endpoint of ceilometer\n");
+		HFL_ERR("Failed to get an endpoint of ceilometer\n");
 		return false;
 	}
 	return true;
@@ -234,7 +234,7 @@ bool HapProcessCeilometer::parserEndpoints(JSONParser &parser,
 {
 	JSONParser::PositionStack parserRewinder(parser);
 	if (! parserRewinder.pushElement(index)) {
-		MLPL_ERR("Failed to parse an element, index: %u\n", index);
+		HFL_ERR("Failed to parse an element, index: %u\n", index);
 		return false;
 	}
 
@@ -255,7 +255,7 @@ bool HapProcessCeilometer::parserEndpoints(JSONParser &parser,
 	const unsigned int count = parser.countElements();
 	for (unsigned int i = 0; i < count; i++) {
 		if (!parser.startElement(i)) {
-			MLPL_ERR("Failed to parse an element, index: %u\n", i);
+			HFL_ERR("Failed to parse an element, index: %u\n", i);
 			return false;
 		}
 		bool succeeded = read(parser, "publicURL",
@@ -279,7 +279,7 @@ HatoholError HapProcessCeilometer::sendHttpRequest(HttpRequestArg &arg)
 	HATOHOL_ASSERT(!url.empty(), "URL is not set.");
 	SoupMessage *msg = soup_message_new(arg.method, url.c_str());
 	if (!msg) {
-		MLPL_ERR("Failed create SoupMessage: URL: %s\n", url.c_str());
+		HFL_ERR("Failed create SoupMessage: URL: %s\n", url.c_str());
 		return HTERR_INVALID_URL;
 	}
 	HATOHOL_ASSERT(
@@ -300,7 +300,7 @@ HatoholError HapProcessCeilometer::sendHttpRequest(HttpRequestArg &arg)
 	guint ret = soup_session_send_message(session, msg);
 	g_object_unref(session);
 	if (ret != SOUP_STATUS_OK) {
-		MLPL_ERR("Failed to connect: (%d) %s, URL: %s\n",
+		HFL_ERR("Failed to connect: (%d) %s, URL: %s\n",
 		         ret, soup_status_get_phrase(ret), url.c_str());
 		return HTERR_BAD_REST_RESPONSE;
 	}
@@ -321,7 +321,7 @@ HatoholError HapProcessCeilometer::getInstanceList(void)
 	VariableItemTablePtr hostTablePtr;
 	err = parseReplyInstanceList(msg, hostTablePtr);
 	if (err != HTERR_OK) {
-		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
+		HFL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
 	} else if (hostTablePtr->getNumberOfRows() == 0) {
 		return HTERR_OK;
@@ -335,7 +335,7 @@ HatoholError HapProcessCeilometer::parseReplyInstanceList(
 {
 	JSONParser parser(msg->response_body->data);
 	if (parser.hasError()) {
-		MLPL_ERR("Failed to parser %s\n", parser.getErrorMessage());
+		HFL_ERR("Failed to parser %s\n", parser.getErrorMessage());
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
 
@@ -358,7 +358,7 @@ HatoholError HapProcessCeilometer::parseInstanceElement(
 {
 	JSONParser::PositionStack parserRewinder(parser);
 	if (!parserRewinder.pushElement(index)) {
-		MLPL_ERR("Failed to parse an element, index: %u\n", index);
+		HFL_ERR("Failed to parse an element, index: %u\n", index);
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
 
@@ -410,7 +410,7 @@ HatoholError HapProcessCeilometer::getAlarmList(void)
 	VariableItemTablePtr trigTablePtr;
 	err = parseReplyGetAlarmList(msg, trigTablePtr);
 	if (err != HTERR_OK) {
-		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
+		HFL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
 	}
 	sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS,
@@ -426,7 +426,7 @@ TriggerStatusType HapProcessCeilometer::parseAlarmState(const string &state)
 		return TRIGGER_STATUS_UNKNOWN;
 	if (state == "alarm")
 		return TRIGGER_STATUS_PROBLEM;
-	MLPL_ERR("Unknown alarm: %s\n", state.c_str());
+	HFL_ERR("Unknown alarm: %s\n", state.c_str());
 	return TRIGGER_STATUS_UNKNOWN;
 }
 
@@ -447,7 +447,7 @@ SmartTime HapProcessCeilometer::parseStateTimestamp(
 	// We sometimes get the timestamp without the usec part.
 	// So we also accept the result with NUM_EXPECT_ELEM-1.
 	if (num != NUM_EXPECT_ELEM-1 && num != NUM_EXPECT_ELEM)
-		MLPL_ERR("Failed to parser time: %s\n", stateTimestamp.c_str());
+		HFL_ERR("Failed to parser time: %s\n", stateTimestamp.c_str());
 
 	tm tm;
 	memset(&tm, 0, sizeof(tm));
@@ -482,7 +482,7 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 {
 	JSONParser::PositionStack parserRewinder(parser);
 	if (!parserRewinder.pushElement(index)) {
-		MLPL_ERR("Failed to parse an element, index: %u\n", index);
+		HFL_ERR("Failed to parse an element, index: %u\n", index);
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
 
@@ -552,7 +552,7 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmList(
 {
 	JSONParser parser(msg->response_body->data);
 	if (parser.hasError()) {
-		MLPL_ERR("Failed to parser %s\n", parser.getErrorMessage());
+		HFL_ERR("Failed to parser %s\n", parser.getErrorMessage());
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
 
@@ -573,7 +573,7 @@ HatoholError HapProcessCeilometer::getAlarmHistories(void)
 	for (size_t i = 0; i < m_impl->acquireCtx.alarmIds.size(); i++) {
 		err = getAlarmHistory(i);
 		if (err != HTERR_OK) {
-			MLPL_ERR("Failed to get alarm history: %s\n",
+			HFL_ERR("Failed to get alarm history: %s\n",
 			         m_impl->acquireCtx.alarmIds[i].c_str());
 		}
 	}
@@ -616,12 +616,12 @@ HatoholError HapProcessCeilometer::getAlarmHistory(const unsigned int &index)
 	AlarmTimeMap alarmTimeMap;
 	err = parseReplyGetAlarmHistory(msg, alarmTimeMap);
 	if (err != HTERR_OK) {
-		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
+		HFL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
 		return err;
 	}
 
-	MLPL_DBG("The numebr of updated alarms: %zd url: %s\n",
+	HFL_DBG("The numebr of updated alarms: %zd url: %s\n",
 	         alarmTimeMap.size(), url.c_str());
 	if (alarmTimeMap.empty())
 		return HTERR_OK;
@@ -643,7 +643,7 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistory(
 {
 	JSONParser parser(msg->response_body->data);
 	if (parser.hasError()) {
-		MLPL_ERR("Failed to parser %s\n", parser.getErrorMessage());
+		HFL_ERR("Failed to parser %s\n", parser.getErrorMessage());
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
 
@@ -662,7 +662,7 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
 {
 	JSONParser::PositionStack parserRewinder(parser);
 	if (! parserRewinder.pushElement(index)) {
-		MLPL_ERR("Failed to parse an element, index: %u\n", index);
+		HFL_ERR("Failed to parse an element, index: %u\n", index);
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
 
@@ -694,7 +694,7 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
 			return HTERR_FAILED_TO_PARSE_JSON_DATA;
 		type = parseAlarmHistoryDetail(detail);
 	} else {
-		MLPL_BUG("Unknown type: %s\n", typeStr.c_str());
+		HFL_BUG("Unknown type: %s\n", typeStr.c_str());
 	}
 
 	// Trigger ID (alarm ID)
@@ -727,13 +727,13 @@ EventType HapProcessCeilometer::parseAlarmHistoryDetail(
 {
 	JSONParser parser(detail);
 	if (parser.hasError()) {
-		MLPL_ERR("Failed to parse: %s\n", detail.c_str());
+		HFL_ERR("Failed to parse: %s\n", detail.c_str());
 		return EVENT_TYPE_UNKNOWN;
 	}
 
 	string state;
 	if (!read(parser, "state", state)) {
-		MLPL_ERR("Not found 'state': %s\n", detail.c_str());
+		HFL_ERR("Not found 'state': %s\n", detail.c_str());
 		return EVENT_TYPE_UNKNOWN;
 	}
 
@@ -743,7 +743,7 @@ EventType HapProcessCeilometer::parseAlarmHistoryDetail(
 		return EVENT_TYPE_BAD;
 	else if (state == "insufficient data")
 		return EVENT_TYPE_UNKNOWN;
-	MLPL_ERR("Unknown state: %s\n", state.c_str());
+	HFL_ERR("Unknown state: %s\n", state.c_str());
 	return EVENT_TYPE_UNKNOWN;
 }
 
@@ -770,7 +770,7 @@ HatoholError HapProcessCeilometer::parseAlarmHostEach(
 {
 	JSONParser::PositionStack parserRewinder(parser);
 	if (!parserRewinder.pushElement(index)) {
-		MLPL_ERR("Failed to parse an element, index: %u\n", index);
+		HFL_ERR("Failed to parse an element, index: %u\n", index);
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
 
@@ -779,7 +779,7 @@ HatoholError HapProcessCeilometer::parseAlarmHostEach(
 	if (!read(parser, "field", field))
 		return HTERR_OK;
 	if (field != "resource") {
-		MLPL_INFO("Unknown field: %s\n", field.c_str());
+		HFL_INFO("Unknown field: %s\n", field.c_str());
 		return HTERR_OK;
 	}
 
@@ -793,7 +793,7 @@ HatoholError HapProcessCeilometer::parseAlarmHostEach(
 	if (!read(parser, "op", op))
 		return HTERR_OK;
 	if (op != "eq") {
-		MLPL_INFO("Unknown operator: %s\n", op.c_str());
+		HFL_INFO("Unknown operator: %s\n", op.c_str());
 		return HTERR_OK;
 	}
 
@@ -806,7 +806,7 @@ bool HapProcessCeilometer::startObject(
 {
 	if (parser.startObject(name))
 		return true;
-	MLPL_ERR("Not found object: %s\n", name.c_str());
+	HFL_ERR("Not found object: %s\n", name.c_str());
 	return false;
 }
 
@@ -815,7 +815,7 @@ bool HapProcessCeilometer::read(
 {
 	if (parser.read(member, dest))
 		return true;
-	MLPL_ERR("Failed to read: %s\n", member.c_str());
+	HFL_ERR("Failed to read: %s\n", member.c_str());
 	return false;
 }
 
@@ -833,7 +833,7 @@ HatoholError HapProcessCeilometer::acquireData(void)
 	Reaper<AcquireContext>
 	  acqCtxCleaner(&m_impl->acquireCtx, AcquireContext::clear);
 
-	MLPL_DBG("acquireData\n");
+	HFL_DBG("acquireData\n");
 	m_impl->serverInfo = getMonitoringServerInfo();
 	m_impl->osUsername   = m_impl->serverInfo.userName;
 	m_impl->osPassword   = m_impl->serverInfo.password;

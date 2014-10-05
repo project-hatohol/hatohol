@@ -24,7 +24,7 @@
 // ---------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-	MLPL_INFO("hatohol-arm-plugin-zabbix. ver: %s\n", PACKAGE_VERSION);
+	HFL_INFO("hatohol-arm-plugin-zabbix. ver: %s\n", PACKAGE_VERSION);
 	HapProcessZabbixAPI hapProc(argc, argv);
 	return hapProc.mainLoopRun();
 }

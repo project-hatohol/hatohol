@@ -265,7 +265,7 @@ SmartTime HatoholArmPluginBase::getTimeOfLastEvent(
 	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
 
 	SmartBuffer cmdBuf;
-	HapiParamTimeOfLastEvent *param = 
+	HapiParamTimeOfLastEvent *param =
 	  setupCommandHeader<HapiParamTimeOfLastEvent>(
 	    cmdBuf, HAPI_CMD_GET_TIME_OF_LAST_EVENT,
 	    sizeof(HapiParamTimeOfLastEvent));
@@ -284,14 +284,14 @@ SmartTime HatoholArmPluginBase::getTimeOfLastEvent(
 // ---------------------------------------------------------------------------
 void HatoholArmPluginBase::onReceivedTerminate(void)
 {
-	MLPL_INFO("Got the teminate command.\n");
+	HFL_INFO("Got the teminate command.\n");
 	exit(EXIT_SUCCESS);
 }
 
 void HatoholArmPluginBase::onReceivedReqFetchItem(void)
 {
-	MLPL_WARN("Received fetch item request. "
-	          "onReceivedReqFetchItem() should be overridden\n");
+	HFL_WARN("Received fetch item request. "
+	          "onReceivedFetchItem() should be overridden\n");
 }
 
 void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(
@@ -315,7 +315,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	str = getString(responseBuf, svInfo,
 	                svInfo->hostNameOffset, svInfo->hostNameLength);
 	if (!str) {
-		MLPL_ERR("Broken packet: hostName.\n");
+		HFL_ERR("Broken packet: hostName.\n");
 		return false;
 	}
 	serverInfo.hostName = str;
@@ -323,7 +323,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	str = getString(responseBuf, svInfo,
 	                svInfo->ipAddressOffset, svInfo->ipAddressLength);
 	if (!str) {
-		MLPL_ERR("Broken packet: ipAddress.\n");
+		HFL_ERR("Broken packet: ipAddress.\n");
 		return false;
 	}
 	serverInfo.ipAddress = str;
@@ -331,7 +331,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	str = getString(responseBuf, svInfo,
 	                svInfo->nicknameOffset, svInfo->nicknameLength);
 	if (!str) {
-		MLPL_ERR("Broken packet: nickname.\n");
+		HFL_ERR("Broken packet: nickname.\n");
 		return false;
 	}
 	serverInfo.nickname = str;
@@ -339,7 +339,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	str = getString(responseBuf, svInfo,
 	                svInfo->userNameOffset, svInfo->userNameLength);
 	if (!str) {
-		MLPL_ERR("Broken packet: userName.\n");
+		HFL_ERR("Broken packet: userName.\n");
 		return false;
 	}
 	serverInfo.userName = str;
@@ -347,7 +347,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	str = getString(responseBuf, svInfo,
 	                svInfo->passwordOffset, svInfo->passwordLength);
 	if (!str) {
-		MLPL_ERR("Broken packet: password.\n");
+		HFL_ERR("Broken packet: password.\n");
 		return false;
 	}
 	serverInfo.password = str;
@@ -355,7 +355,7 @@ bool HatoholArmPluginBase::parseReplyGetMonitoringServerInfo(
 	str = getString(responseBuf, svInfo,
 	                svInfo->dbNameOffset, svInfo->dbNameLength);
 	if (!str) {
-		MLPL_ERR("Broken packet: dbName.\n");
+		HFL_ERR("Broken packet: dbName.\n");
 		return false;
 	}
 	serverInfo.dbName = str;
@@ -418,7 +418,7 @@ void HatoholArmPluginBase::sendAvailableTrigger(const int numTriggerList,
 	SmartBuffer cmdBuf;
 	const size_t additionalSize = sizeof(uint64_t)*numTriggerList;
 
-	HapiAvailableTrigger *body = 
+	HapiAvailableTrigger *body =
 		setupCommandHeader<HapiAvailableTrigger>(cmdBuf, HAPI_CMD_SEND_HAP_SELF_TRIGGERS,
 							 additionalSize);
 	body->numTriggers= NtoL(numTriggerList);
@@ -443,4 +443,3 @@ void HatoholArmPluginBase::onFailureReceivedMessage(void)
 {
 	HatoholArmPluginInterface::sendInitiationRequest();
 }
-
