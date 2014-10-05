@@ -58,7 +58,7 @@ struct HapProcessCeilometer::HttpRequestArg
 	string      url;
 	string      body;
 	bool        useAuthToken;
-	mlpl::Reaper<SoupMessage> msgPtr;
+	hfl::Reaper<SoupMessage> msgPtr;
 
 	HttpRequestArg(const char *_method, const string &_url)
 	: method(_method),

@@ -41,7 +41,7 @@ public:
 	 */
 	bool getMonitoringServerInfo(MonitoringServerInfo &serverInfo);
 
-	mlpl::SmartTime getTimestampOfLastTrigger(void);
+	hfl::SmartTime getTimestampOfLastTrigger(void);
 
 	/**
 	 * Get the last event ID in the Hatohol server.
@@ -61,7 +61,7 @@ public:
 	 * The time of the last event is returned. If no events found,
 	 * hasValidTime() of the retruned value is false.
 	 */
-	mlpl::SmartTime getTimeOfLastEvent(
+	hfl::SmartTime getTimeOfLastEvent(
 	  const TriggerIdType &triggerId = ALL_TRIGGERS);
 
 protected:
@@ -78,7 +78,7 @@ protected:
 	void sendCmdGetMonitoringServerInfo(CommandCallbacks *callbacks);
 	bool parseReplyGetMonitoringServerInfo(
 	  MonitoringServerInfo &serverInfo,
-	  const mlpl::SmartBuffer &responseBuf);
+	  const hfl::SmartBuffer &responseBuf);
 
 	void sendTable(const HapiCommandCode &code,
 	               const ItemTablePtr &tablePtr);
