@@ -882,12 +882,16 @@ HatoholError HapProcessCeilometer::fetchItem(void)
 HatoholError HapProcessCeilometer::fetchItemsOfInstance(
   VariableItemTablePtr &tablePtr, const string &instanceId)
 {
+	HatoholError err = updateAuthTokenIfNeeded();
+	if (err != HTERR_OK)
+		return err;
+
 	string url = StringUtils::sprintf(
 	               "%s/v2/resources/%s",
 	               m_impl->ceilometerEP.publicURL.c_str(),
 	               instanceId.c_str());
 	HttpRequestArg arg(SOUP_METHOD_GET, url);
-	HatoholError err = sendHttpRequest(arg);
+	err = sendHttpRequest(arg);
 	if (err != HTERR_OK)
 		return err;
 
