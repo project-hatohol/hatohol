@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: hfl
+Description: Hatohol Fundation Library(HFL)
+Version: @VERSION@
+Libs: -L${libdir} -lhfl
+Cflags: -I${includedir}/hfl

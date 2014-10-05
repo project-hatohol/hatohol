@@ -1,4 +1,4 @@
-lib_LTLIBRARIES = libmlpl.la
+lib_LTLIBRARIES = libhfl.la
 libmlpl_la_SOURCES = \
 	Mutex.cc ReadWriteLock.cc SimpleSemaphore.cc EventSemaphore.cc \
 	SeparatorInjector.cc \
@@ -10,7 +10,7 @@ AM_CXXFLAGS = \
 	$(COVERAGE_CFLAGS)
 AM_LDFLAGS = -lpthread -lrt $(COVERAGE_LIBS)
 
-includedir = $(prefix)/include/mlpl
+includedir = $(prefix)/include/hfl
 include_HEADERS = \
 	AtomicValue.h \
 	Mutex.h ReadWriteLock.h SimpleSemaphore.h EventSemaphore.h \
