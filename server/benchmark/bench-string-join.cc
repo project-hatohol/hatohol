@@ -26,7 +26,7 @@
 #include <Params.h>
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct BenchmarkItem {
 	string m_label;
