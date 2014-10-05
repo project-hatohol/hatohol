@@ -24,7 +24,7 @@
 #include "HapProcess.h"
 #include "HatoholException.h"
 
-using namespace mlpl;
+using namespace hfl;
 
 const int HapProcess::DEFAULT_EXCEPTION_SLEEP_TIME_MS = 60 * 1000;
 

@@ -20,7 +20,7 @@
 #include "HapProcessZabbixAPI.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const uint64_t NUMBER_OF_GET_EVENT_PER_ONCE  = 1000;
 

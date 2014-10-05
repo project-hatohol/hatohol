@@ -22,7 +22,7 @@
 #include "NamedPipe.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const int DEFAULT_RETRY_INTERVAL = 10 * 1000; // ms
 

@@ -25,7 +25,7 @@
 #include <Reaper.h>
 #include "HatoholArmPluginBase.h"
 
-using namespace mlpl;
+using namespace hfl;
 using namespace std;
 
 const size_t HatoholArmPluginBase::WAIT_INFINITE = 0;
