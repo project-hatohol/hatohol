@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <errno.h>
 #include <gcutter.h>
 #include <cppcutter.h>
 #include <errno.h>

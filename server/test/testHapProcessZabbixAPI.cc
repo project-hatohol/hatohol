@@ -20,24 +20,25 @@
 #include <cppcutter.h>
 #include <SimpleSemaphore.h>
 #include "Hatohol.h"
-#include "HapZabbixAPI.h"
+#include "HapProcessZabbixAPI.h"
 #include "ZabbixAPIEmulator.h"
 #include "HatoholArmPluginTestPair.h"
 
 using namespace mlpl;
 using namespace qpid::messaging;
 
-namespace testHapZabbixAPI {
+namespace testHapProcessZabbixAPI {
 
 static const ServerIdType DEFAULT_SERVER_ID = 5;
 static const guint EMULATOR_PORT = 33333;
 static ZabbixAPIEmulator *g_apiEmulator = NULL;
 
-class HapZabbixAPITest :
-  public HapZabbixAPI, public HapiTestHelper {
+class HapProcessZabbixAPITest :
+  public HapProcessZabbixAPI, public HapiTestHelper {
 public:
-	HapZabbixAPITest(void *params)
-	: m_readySem(0),
+	HapProcessZabbixAPITest(void *params)
+	: HapProcessZabbixAPI(0, NULL),
+	  m_readySem(0),
 	  m_numGotEvents(0)
 	{
 	}
@@ -49,6 +50,7 @@ public:
 
 	void callUpdateAuthTokenIfNeeded(void)
 	{
+		setMonitoringServerInfo();
 		updateAuthTokenIfNeeded();
 	}
 
@@ -85,12 +87,13 @@ protected:
 
 	void onInitiated(void) override
 	{
-		HapZabbixAPI::onInitiated();
+		HapProcessZabbixAPI::onInitiated();
 		HapiTestHelper::onInitiated();
 	}
 
 	void onReady(const MonitoringServerInfo &serverInfo) override
 	{
+		HapProcessZabbixAPI::onReady(serverInfo);
 		m_readySem.post();
 	}
 
@@ -137,7 +140,7 @@ void test_getHostsAndTriggers(void)
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	arg.serverIpAddr = "127.0.0.1";
 	arg.serverPort   = EMULATOR_PORT;
-	HatoholArmPluginTestPair<HapZabbixAPITest> pair(arg);
+	HatoholArmPluginTestPair<HapProcessZabbixAPITest> pair(arg);
 
 	// TODO: Suppress warning.
 	// We get host data before triggers since the host name is needed
@@ -165,7 +168,7 @@ void test_getHostgroups(void)
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	arg.serverIpAddr = "127.0.0.1";
 	arg.serverPort   = EMULATOR_PORT;
-	HatoholArmPluginTestPair<HapZabbixAPITest> pair(arg);
+	HatoholArmPluginTestPair<HapProcessZabbixAPITest> pair(arg);
 
 	pair.plugin->assertWaitReady();
 	pair.plugin->callUpdateAuthTokenIfNeeded();
@@ -180,7 +183,7 @@ void test_getEvents(void)
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	arg.serverIpAddr = "127.0.0.1";
 	arg.serverPort   = EMULATOR_PORT;
-	HatoholArmPluginTestPair<HapZabbixAPITest> pair(arg);
+	HatoholArmPluginTestPair<HapProcessZabbixAPITest> pair(arg);
 
 	pair.plugin->assertWaitReady();
 	pair.plugin->callUpdateAuthTokenIfNeeded();
@@ -194,4 +197,4 @@ void test_getEvents(void)
 	// TODO: check the DB content
 }
 
-} // namespace testHapZabbixAPI
+} // namespace testHapProcessZabbixAPI

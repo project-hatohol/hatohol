@@ -18,18 +18,31 @@
  */
 
 #include <exception>
-#include <HapZabbixAPI.h>
+#include <ZabbixAPI.h>
 #include "HapProcessStandard.h"
 
-class HapProcessZabbixAPI : public HapProcessStandard, public HapZabbixAPI {
+class HapProcessZabbixAPI : public HapProcessStandard, public ZabbixAPI {
 public:
 	HapProcessZabbixAPI(int argc, char *argv[]);
 	virtual ~HapProcessZabbixAPI();
 
 protected:
+	void setMonitoringServerInfo(void);
+	void workOnTriggers(void);
+	void workOnHostsAndHostgroupElements(void);
+	void workOnHostgroups(void);
+	void workOnEvents(void);
+
+	void parseReplyGetMonitoringServerInfoOnInitiated(
+	  MonitoringServerInfo &serverInfo, const mlpl::SmartBuffer &replyBuf);
+
 	virtual HatoholError acquireData(void) override;
 	virtual HatoholArmPluginWatchType getHapWatchType(
 	  const HatoholError &err) override;
+
+	virtual void onGotNewEvents(ItemTablePtr eventsTablePtr);
+
+	virtual void onInitiated(void) override;
 
 private:
 	struct PrivateContext;

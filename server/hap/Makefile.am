@@ -9,7 +9,6 @@ lib_LTLIBRARIES = libhapprocess.la
 libhapprocess_la_SOURCES = \
 	HatoholArmPluginBase.cc HatoholArmPluginBase.h \
 	HatoholArmPluginStandard.cc HatoholArmPluginStandard.h \
-	HapZabbixAPI.cc HapZabbixAPI.h \
 	HapProcess.cc HapProcess.h \
 	HapProcessStandard.cc HapProcessStandard.h \
 	HapProcessZabbixAPI.cc HapProcessZabbixAPI.h \
