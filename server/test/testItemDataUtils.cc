@@ -21,7 +21,7 @@
 #include "ItemDataUtils.h"
 #include "StringUtils.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 namespace testItemDataUtils {
 

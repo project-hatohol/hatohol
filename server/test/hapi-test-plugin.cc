@@ -33,7 +33,7 @@
 #include "hapi-test-plugin.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 using namespace qpid::messaging;
 
 struct Params {

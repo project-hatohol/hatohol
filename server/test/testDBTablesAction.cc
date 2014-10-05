@@ -28,7 +28,7 @@
 #include "Helpers.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 namespace testDBTablesAction {
 

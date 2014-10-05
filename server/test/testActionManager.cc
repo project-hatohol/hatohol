@@ -40,7 +40,7 @@
 #include "RedmineAPIEmulator.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 class TestActionManager : public ActionManager
 {

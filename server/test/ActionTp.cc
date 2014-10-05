@@ -31,7 +31,7 @@
 #include "ResidentCommunicator.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const int TIMEOUT_MSEC = 5 * 1000;
 static vector<string> g_argList;

@@ -21,7 +21,7 @@
 #include <gcutter.h>
 #include "DBTablesConfig.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 namespace testArmPluginInfo {
 

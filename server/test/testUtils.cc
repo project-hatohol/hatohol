@@ -31,7 +31,7 @@
 #include "HatoholThreadBase.h"
 #include "EventSemaphore.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 namespace testUtils {
 

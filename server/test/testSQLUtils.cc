@@ -23,7 +23,7 @@
 #include "DBAgentTest.h"
 #include "SQLUtils.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 namespace testSQLUtils {
 

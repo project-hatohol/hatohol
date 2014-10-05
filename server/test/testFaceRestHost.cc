@@ -27,7 +27,7 @@
 #include "FaceRestTestUtils.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 namespace testFaceRestHost {
 

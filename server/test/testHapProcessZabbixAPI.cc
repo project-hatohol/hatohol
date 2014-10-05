@@ -24,7 +24,7 @@
 #include "ZabbixAPIEmulator.h"
 #include "HatoholArmPluginTestPair.h"
 
-using namespace mlpl;
+using namespace hfl;
 using namespace qpid::messaging;
 
 namespace testHapProcessZabbixAPI {

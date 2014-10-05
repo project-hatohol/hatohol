@@ -26,7 +26,7 @@
 #include "HatoholArmPluginInterfaceTest.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 using namespace qpid::messaging;
 
 namespace testHatoholArmPluginInterface {

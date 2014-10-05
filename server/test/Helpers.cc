@@ -33,7 +33,7 @@
 #include "Reaper.h"
 #include "ConfigManager.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 void _assertStringVector(const StringVector &expected,
                          const StringVector &actual)

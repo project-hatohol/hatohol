@@ -28,7 +28,7 @@
 #include "Logger.h"
 #include "StringUtils.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct Context : public ResidentPullHelper<Context> {
 	string pipename;

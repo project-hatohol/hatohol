@@ -22,7 +22,7 @@
 #include "SQLUtils.h"
 #include "Helpers.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 class TestDBAgent : public DBAgent {
 public:

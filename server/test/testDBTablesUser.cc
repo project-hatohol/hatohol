@@ -27,7 +27,7 @@
 #include "Hatohol.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 template <class T> static void _assertQueryOptionFromDataQueryContext(void)
 {

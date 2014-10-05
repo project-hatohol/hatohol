@@ -36,7 +36,7 @@
 #include "HatoholDBUtils.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 using namespace qpid::messaging;
 
 static const size_t TIMEOUT = 5000;

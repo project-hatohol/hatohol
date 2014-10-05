@@ -27,7 +27,7 @@
 #include "ThreadLocalDBCache.h"
 #include "FaceRestTestUtils.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 namespace testFaceRestIncidentTracker {
 
