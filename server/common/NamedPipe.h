@@ -56,7 +56,7 @@ public:
 	 * @parameter priv
 	 * A pointer passed as 'priv' in the call of pull().
 	 */
-	typedef void (*PullCallback)(GIOStatus stat, mlpl::SmartBuffer &buf,
+	typedef void (*PullCallback)(GIOStatus stat, hfl::SmartBuffer &buf,
 	                             size_t size, void *priv);
 
 	typedef void (*TimeoutCallback)(NamedPipe *namedPipe, void *priv);
@@ -98,7 +98,7 @@ public:
 	 *
 	 * @param buf A SmartBuffer instance that has data to be written.
 	 */
-	void push(mlpl::SmartBuffer &buf);
+	void push(hfl::SmartBuffer &buf);
 
 	/**
 	 * Read data asynchronously from the pipe. This function cannot be
@@ -168,7 +168,7 @@ protected:
 	 * @return
 	 * If no error occurs, true is returned. Otherwise false.
 	 */
-	bool writeBuf(mlpl::SmartBuffer &buf, bool &fullyWritten,
+	bool writeBuf(hfl::SmartBuffer &buf, bool &fullyWritten,
 	              bool flush = true);
 
 	void enableWriteCbIfNeeded(void);

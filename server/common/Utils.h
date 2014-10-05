@@ -242,7 +242,7 @@ protected:
 do { \
   void *trace[128]; \
   int n = backtrace(trace, ARRAY_SIZE(trace)); \
-  msg = mlpl::StringUtils::sprintf("<%s:%d> " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
+  msg = hfl::StringUtils::sprintf("<%s:%d> " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
   msg += Utils::makeDemangledStackTraceLines(trace, n); \
 } while (0)
 

@@ -288,7 +288,7 @@ void HatoholArmPluginInterface::send(
 	m_impl->sender.send(request);
 }
 
-void HatoholArmPluginInterface::reply(const mlpl::SmartBuffer &replyBuf)
+void HatoholArmPluginInterface::reply(const hfl::SmartBuffer &replyBuf)
 {
 	HATOHOL_ASSERT(m_impl->currMessage,
 	               "This object doesn't have a current message.\n");
@@ -391,7 +391,7 @@ size_t HatoholArmPluginInterface::appendItemTableHeader(
 
 template <typename HapiItemHeader>
 static void completeItemTemplate(
-  mlpl::SmartBuffer &sbuf, const size_t &headerIndex)
+  hfl::SmartBuffer &sbuf, const size_t &headerIndex)
 {
 	HapiItemHeader *header = sbuf.getPointer<HapiItemHeader>(headerIndex);
 	const size_t currIndex = sbuf.index();
@@ -402,13 +402,13 @@ static void completeItemTemplate(
 }
 
 void HatoholArmPluginInterface::completeItemTable(
-  mlpl::SmartBuffer &sbuf, const size_t &headerIndex)
+  hfl::SmartBuffer &sbuf, const size_t &headerIndex)
 {
 	completeItemTemplate<HapiItemTableHeader>(sbuf, headerIndex);
 }
 
 void HatoholArmPluginInterface::appendItemTable(
-  mlpl::SmartBuffer &sbuf, ItemTablePtr itemTablePtr)
+  hfl::SmartBuffer &sbuf, ItemTablePtr itemTablePtr)
 {
 	const size_t numGroups = itemTablePtr->getNumberOfRows();
 	const size_t headerIndex = appendItemTableHeader(sbuf, numGroups);
@@ -443,7 +443,7 @@ void HatoholArmPluginInterface::appendItemGroup(
 }
 
 void HatoholArmPluginInterface::completeItemGroup(
-  mlpl::SmartBuffer &sbuf, const size_t &headerIndex)
+  hfl::SmartBuffer &sbuf, const size_t &headerIndex)
 {
 	completeItemTemplate<HapiItemGroupHeader>(sbuf, headerIndex);
 }
@@ -517,7 +517,7 @@ void HatoholArmPluginInterface::appendItemData(
 	sbuf.incIndex(requiredSize);
 }
 
-ItemTablePtr HatoholArmPluginInterface::createItemTable(mlpl::SmartBuffer &sbuf)
+ItemTablePtr HatoholArmPluginInterface::createItemTable(hfl::SmartBuffer &sbuf)
   throw(HatoholException)
 {
 	// read header
@@ -546,7 +546,7 @@ ItemTablePtr HatoholArmPluginInterface::createItemTable(mlpl::SmartBuffer &sbuf)
 	return (ItemTablePtr)itemTblPtr;
 }
 
-ItemGroupPtr HatoholArmPluginInterface::createItemGroup(mlpl::SmartBuffer &sbuf)
+ItemGroupPtr HatoholArmPluginInterface::createItemGroup(hfl::SmartBuffer &sbuf)
   throw(HatoholException)
 {
 	// read header
@@ -749,7 +749,7 @@ void HatoholArmPluginInterface::onSessionChanged(Session *session)
 {
 }
 
-void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &smbuf)
+void HatoholArmPluginInterface::onReceived(hfl::SmartBuffer &smbuf)
 {
 	if (m_impl->initState != INIT_STAT_DONE) {
 		initiation(smbuf);
@@ -793,7 +793,7 @@ void HatoholArmPluginInterface::onReceived(mlpl::SmartBuffer &smbuf)
 }
 
 void HatoholArmPluginInterface::parseCommand(
-  const HapiCommandHeader *header, mlpl::SmartBuffer &cmdBuf)
+  const HapiCommandHeader *header, hfl::SmartBuffer &cmdBuf)
 {
 	CommandHandlerMapConstIterator it =
 	  m_impl->receiveHandlerMap.find(header->code);
@@ -807,7 +807,7 @@ void HatoholArmPluginInterface::parseCommand(
 }
 
 void HatoholArmPluginInterface::parseResponse(
-  const HapiResponseHeader *header, mlpl::SmartBuffer &resBuf)
+  const HapiResponseHeader *header, hfl::SmartBuffer &resBuf)
 {
 	ReplyWaiter *replyWaiter = NULL;
 	uint32_t rcvSeqId = LtoN(header->sequenceId);
@@ -840,7 +840,7 @@ void HatoholArmPluginInterface::onHandledCommand(const HapiCommandCode &code)
 }
 
 void HatoholArmPluginInterface::onGotResponse(
-  const HapiResponseHeader *header, mlpl::SmartBuffer &resBuf)
+  const HapiResponseHeader *header, hfl::SmartBuffer &resBuf)
 {
 }
 
@@ -871,7 +871,7 @@ void HatoholArmPluginInterface::sendInitiationRequest(void)
 	send(pktBuf);
 }
 
-void HatoholArmPluginInterface::initiation(const mlpl::SmartBuffer &sbuf)
+void HatoholArmPluginInterface::initiation(const hfl::SmartBuffer &sbuf)
 {
 	const size_t bufferSize = sbuf.size();
 	if (bufferSize != sizeof(HapiInitiationPacket)) {
@@ -999,7 +999,7 @@ uint32_t HatoholArmPluginInterface::getSequenceIdInProgress(void)
 }
 
 HapiMessageType HatoholArmPluginInterface::getMessageType(
-  const mlpl::SmartBuffer &smbuf)
+  const hfl::SmartBuffer &smbuf)
 {
 	return static_cast<HapiMessageType>(LtoN(smbuf.getValue<uint16_t>(0)));
 }

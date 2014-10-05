@@ -35,7 +35,7 @@ protected:
 	virtual ~UsedCountable();
 
 private:
-	mutable mlpl::AtomicValue<int> m_usedCount;
+	mutable hfl::AtomicValue<int> m_usedCount;
 };
 
 #endif // UsedCountable_h
