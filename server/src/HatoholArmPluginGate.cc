@@ -648,10 +648,10 @@ bool HatoholArmPluginGate::launchPluginProcess(
 		arg.envs.push_back(env);
 	}
 
-	const char *mlplLoggerLevel = getenv(Logger::LEVEL_ENV_VAR_NAME);
-	if (mlplLoggerLevel) {
+	const char *hflLoggerLevel = getenv(Logger::LEVEL_ENV_VAR_NAME);
+	if (hflLoggerLevel) {
 		string env = StringUtils::sprintf("%s=%s",
-		  Logger::LEVEL_ENV_VAR_NAME, mlplLoggerLevel);
+		  Logger::LEVEL_ENV_VAR_NAME, hflLoggerLevel);
 		arg.envs.push_back(env);
 	}
 
