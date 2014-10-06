@@ -23,7 +23,7 @@ An input parameter shall be 'const TYPE &'.
   * Event loop
   * I/O functions associated with the event loop such as timer, idle, and GIOChannel.
 - pthread
-  * Actually features are wrapped by HatoholThreadBase class and MLPL (a library for Hatohol).
+  * Actually features are wrapped by HatoholThreadBase class and HFL (a library for Hatohol).
 
 #### Not using
 - Boost
@@ -39,7 +39,7 @@ Of course, we can now use features supported by g++4.4.
 NOTE: If a function returns a reference, this convention is not applied.
       E.g. 'const string &func()' is OK
 
-- Use '#include <hoge.h>' (not #include "hoge.h") for MLPL headers.
+- Use '#include <hoge.h>' (not #include "hoge.h") for HFL headers.
 - Add 'override' at the end of the prototype of the overridden method as
 
     virtual overriddenMetho(void) override
