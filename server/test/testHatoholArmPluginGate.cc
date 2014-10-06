@@ -141,7 +141,7 @@ void test_getPid(void)
 	cppcut_assert_not_equal(0, ctx.pluginPid);
 }
 
-void test_launchPluginProcessWithMLPLLoggerLevel(void)
+void test_launchPluginProcessWithHFLLoggerLevel(void)
 {
 	// TOOD: Share the code with test_startAndWaitExit().
 	struct Ctx : public HapgTestCtx {
