@@ -133,7 +133,7 @@ rm -rf %{buildroot}
 
 %files lib-common
 %{_libdir}/libhatohol-common.so.*
-%{_libdir}/libmlpl.so.*
+%{_libdir}/libhfl.so.*
 
 %files lib-arm-plugin
 %{_libdir}/libhapprocess.so.*
