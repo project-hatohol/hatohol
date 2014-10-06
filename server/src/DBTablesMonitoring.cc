@@ -1016,6 +1016,7 @@ void EventsQueryOption::setSortType(
 		SortOrder order3(
 		  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
 		  direction);
+		sortOrderVect.reserve(3);
 		sortOrderVect.push_back(order1);
 		sortOrderVect.push_back(order2);
 		sortOrderVect.push_back(order3);
