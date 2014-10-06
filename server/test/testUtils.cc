@@ -44,6 +44,7 @@ struct TestExecEvtLoop : public HatoholThreadBase {
 	bool useFunctor;
 	SyncType syncType;
 	Mutex mutex;
+	guint eventId;
 
 	TestExecEvtLoop(void)
 	: threadId(0),
@@ -52,7 +53,8 @@ struct TestExecEvtLoop : public HatoholThreadBase {
 	  loop(NULL),
 	  quitLoop(true),
 	  useFunctor(false),
-	  syncType(SYNC)
+	  syncType(SYNC),
+	  eventId(INVALID_EVENT_ID)
 	{
 		mutex.lock();
 		context = g_main_context_default();
@@ -66,11 +68,11 @@ struct TestExecEvtLoop : public HatoholThreadBase {
 	{
 		threadId = Utils::getThreadId();
 		if (!useFunctor) {
-			Utils::executeOnGLibEventLoop<TestExecEvtLoop>(
-			  _idleTask, this, syncType, context);
+			eventId = Utils::executeOnGLibEventLoop
+			  <TestExecEvtLoop>(_idleTask, this, syncType, context);
 		} else {
-			Utils::executeOnGLibEventLoop<TestExecEvtLoop>(
-			  *this, syncType, context);
+			eventId = Utils::executeOnGLibEventLoop
+			  <TestExecEvtLoop>(*this, syncType, context);
 		}
 		mutex.unlock();
 		return NULL;
@@ -221,6 +223,7 @@ void test_executeOnGlibEventLoop(void)
 	cppcut_assert_equal(Utils::getThreadId(), thread.eventLoopThreadId);
 	cppcut_assert_not_equal(0, thread.eventLoopThreadId);
 	cppcut_assert_not_equal(thread.threadId, thread.eventLoopThreadId);
+	cppcut_assert_equal(INVALID_EVENT_ID, thread.eventId);
 }
 
 void test_executeOnGlibEventLoopCalledFromSameContext(void)
@@ -231,6 +234,7 @@ void test_executeOnGlibEventLoopCalledFromSameContext(void)
 	task.mainThread(NULL);
 	cppcut_assert_equal(Utils::getThreadId(), task.threadId);
 	cppcut_assert_equal(Utils::getThreadId(), task.eventLoopThreadId);
+	cppcut_assert_equal(INVALID_EVENT_ID, task.eventId);
 }
 
 void test_executeOnGlibEventLoopForFunctor(void)
@@ -245,6 +249,7 @@ void test_executeOnGlibEventLoopForFunctor(void)
 	cppcut_assert_equal(Utils::getThreadId(), thread.eventLoopThreadId);
 	cppcut_assert_not_equal(0, thread.eventLoopThreadId);
 	cppcut_assert_not_equal(thread.threadId, thread.eventLoopThreadId);
+	cppcut_assert_equal(INVALID_EVENT_ID, thread.eventId);
 }
 
 void test_executeOnGlibEventLoopFromSameContextForFunctor(void)
@@ -256,6 +261,7 @@ void test_executeOnGlibEventLoopFromSameContextForFunctor(void)
 	task.mainThread(NULL);
 	cppcut_assert_equal(Utils::getThreadId(), task.threadId);
 	cppcut_assert_equal(Utils::getThreadId(), task.eventLoopThreadId);
+	cppcut_assert_equal(task.eventId, INVALID_EVENT_ID);
 }
 
 void test_executeOnGlibEventLoopAsync(void)
@@ -271,8 +277,8 @@ void test_executeOnGlibEventLoopAsync(void)
 	acquireDefaultContext();
 
 	TestExecEvtLoop thread;
-	thread.start();
 	thread.syncType = ASYNC;
+	thread.start();
 	const size_t timeoutInMSec = 5000;
 	guint timer_tag = g_timeout_add(timeoutInMSec, proc.expired, NULL);
 	g_main_loop_run(thread.loop);
@@ -282,6 +288,7 @@ void test_executeOnGlibEventLoopAsync(void)
 	cppcut_assert_equal(Utils::getThreadId(), thread.eventLoopThreadId);
 	cppcut_assert_not_equal(0, thread.eventLoopThreadId);
 	cppcut_assert_not_equal(thread.threadId, thread.eventLoopThreadId);
+	cppcut_assert_not_equal(INVALID_EVENT_ID, thread.eventId);
 }
 
 void test_getUsingPortInformation(void)
