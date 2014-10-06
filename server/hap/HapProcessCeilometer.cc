@@ -824,7 +824,7 @@ bool HapProcessCeilometer::read(
 {
 	if (parser.read(member, dest))
 		return true;
-	MLPL_ERR("Failed to read: %s\n", member.c_str());
+	HFL_ERR("Failed to read: %s\n", member.c_str());
 	return false;
 }
 
@@ -864,7 +864,7 @@ HatoholError HapProcessCeilometer::acquireData(void)
 
 HatoholError HapProcessCeilometer::fetchItem(void)
 {
-	MLPL_DBG("fetchItem\n");
+	HFL_DBG("fetchItem\n");
 	VariableItemTablePtr tablePtr;
 	HatoholError err(HTERR_OK);
 	for (size_t i = 0; i < m_impl->instanceIds.size(); i++) {
@@ -898,12 +898,12 @@ HatoholError HapProcessCeilometer::fetchItemsOfInstance(
 	SoupMessage *msg = arg.msgPtr.get();
 	JSONParser parser(msg->response_body->data);
 	if (parser.hasError()) {
-		MLPL_ERR("Failed to parser %s\n", parser.getErrorMessage());
+		HFL_ERR("Failed to parser %s\n", parser.getErrorMessage());
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
 
 	if (!startObject(parser, "links")) {
-		MLPL_ERR("Failed to start: links\n");
+		HFL_ERR("Failed to start: links\n");
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
 
@@ -924,7 +924,7 @@ HatoholError HapProcessCeilometer::parserResourceLink(
 {
 	JSONParser::PositionStack parserRewinder(parser);
 	if (! parserRewinder.pushElement(index)) {
-		MLPL_ERR("Failed to parse an element, index: %u\n", index);
+		HFL_ERR("Failed to parse an element, index: %u\n", index);
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
 
@@ -949,21 +949,21 @@ HatoholError HapProcessCeilometer::getResource(
 	SoupMessage *msg = arg.msgPtr.get();
 	JSONParser parser(msg->response_body->data);
 	if (parser.hasError()) {
-		MLPL_ERR("Failed to parser %s\n", parser.getErrorMessage());
+		HFL_ERR("Failed to parser %s\n", parser.getErrorMessage());
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
 
 	const unsigned int count = parser.countElements();
 	if (count == 0) {
-		MLPL_WARN("Return count: %d, url: %s\n", count, url.c_str());
+		HFL_WARN("Return count: %d, url: %s\n", count, url.c_str());
 		return HTERR_OK;
 	}
 	if (count > 1)
-		MLPL_WARN("Return count: %d, url: %s\n", count, url.c_str());
+		HFL_WARN("Return count: %d, url: %s\n", count, url.c_str());
 	const int index = 0;
 	JSONParser::PositionStack parserRewinder(parser);
 	if (! parserRewinder.pushElement(index)) {
-		MLPL_ERR("Failed to parse an element, index: %u\n", index);
+		HFL_ERR("Failed to parse an element, index: %u\n", index);
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	}
 
