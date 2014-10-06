@@ -489,6 +489,28 @@ public:
 	std::string getQueueAddress(void) const;
 	void setQueueAddress(const std::string &queueAddr);
 
+	/**
+	 * Set the GLibMainContext.
+	 *
+	 * @param context A GLib's main context.
+	 * This method internally calls g_main_context_ref() to this object.
+	 * If any context is already set, it is replaced and
+	 * g_main_context_unref() is called for it.
+	 */
+	void setGLibMainContext(GMainContext *context);
+
+	/**
+	 * Get the GLibMainContext set by setGLibMainContext().
+	 *
+	 * By default, none of GLib's main context is not set to this object.
+	 * I.e. this method returns NULL.
+	 * This method doesn't change the reference count of the returned
+	 * object.
+	 *
+	 * @return A GLib's main context.
+	 */
+	GMainContext *getGLibMainContext(void) const;
+
 protected:
 	typedef std::map<uint16_t, CommandHandler> CommandHandlerMap;
 	typedef CommandHandlerMap::iterator        CommandHandlerMapIterator;

@@ -20,6 +20,7 @@
 #include <gcutter.h>
 #include <cppcutter.h>
 #include <SimpleSemaphore.h>
+#include <Reaper.h>
 #include "DataSamples.h"
 #include "Helpers.h"
 #include "HatoholArmPluginInterface.h"
@@ -629,6 +630,18 @@ void test_setGetBrokerUrl(void)
 	  hapi.getBrokerUrl());
 	hapi.setBrokerUrl(brokerUrl);
 	cppcut_assert_equal(brokerUrl, hapi.getBrokerUrl());
+}
+
+void test_setGetGLibMainContext(void)
+{
+	HatoholArmPluginInterface hapi;
+	cppcut_assert_equal((GMainContext *)NULL, hapi.getGLibMainContext());
+
+	GMainContext *ctx = g_main_context_new();
+	Reaper<GMainContext> reaper(ctx, g_main_context_unref);
+
+	hapi.setGLibMainContext(ctx);
+	cppcut_assert_equal(ctx, hapi.getGLibMainContext());
 }
 
 } // namespace testHatoholArmPluginInterface
