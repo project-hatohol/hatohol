@@ -55,7 +55,7 @@ testHatohol_la_SOURCES = \
 	testDBTablesMonitoring.cc testDBTablesMonitoring.h \
 	testDBTablesAction.cc \
 	testDBTablesHost.cc \
-	testDBClientJoinBuilder.cc \
+	testDBTablesJoinBuilder.cc \
 	testDBTermCodec.cc \
 	testOperationPrivilege.cc \
 	testSQLUtils.cc \

@@ -28,7 +28,7 @@
 #include "Params.h"
 #include "ItemGroupStream.h"
 #include "SQLUtils.h"
-#include "DBClientJoinBuilder.h"
+#include "DBTablesJoinBuilder.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1109,7 +1109,7 @@ void DBTablesConfig::getTargetServers(
 	// The current query statement uses a little complicated where clause,
 	// for which the indexing mechanism may not be effective.
 
-	DBClientJoinBuilder builder(tableProfileServers, &option);
+	DBTablesJoinBuilder builder(tableProfileServers, &option);
 	builder.add(IDX_SERVERS_ID);
 	builder.add(IDX_SERVERS_TYPE);
 	builder.add(IDX_SERVERS_HOSTNAME);
@@ -1122,7 +1122,7 @@ void DBTablesConfig::getTargetServers(
 	builder.add(IDX_SERVERS_PASSWORD);
 	builder.add(IDX_SERVERS_DB_NAME);
 
-	builder.addTable(tableProfileArmPlugins, DBClientJoinBuilder::LEFT_JOIN,
+	builder.addTable(tableProfileArmPlugins, DBTablesJoinBuilder::LEFT_JOIN,
 	                 IDX_SERVERS_ID, IDX_ARM_PLUGINS_SERVER_ID);
 	builder.add(IDX_ARM_PLUGINS_ID);
 	builder.add(IDX_ARM_PLUGINS_TYPE);

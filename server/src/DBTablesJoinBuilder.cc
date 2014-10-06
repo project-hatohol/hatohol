@@ -19,7 +19,7 @@
 
 #include <StringUtils.h>
 #include <SQLUtils.h>
-#include "DBClientJoinBuilder.h"
+#include "DBTablesJoinBuilder.h"
 #include "HostResourceQueryOption.h"
 
 using namespace std;
@@ -32,7 +32,7 @@ static const char *JOIN_OPERATORS[] = {
 };
 static const size_t NUM_JOIN_OPERATORS = ARRAY_SIZE(JOIN_OPERATORS);
 
-struct DBClientJoinBuilder::Impl {
+struct DBTablesJoinBuilder::Impl {
 	DBAgent::SelectExArg selectExArg;
 	vector<const DBAgent::TableProfile *> tables;
 	const DataQueryOption *option;
@@ -50,7 +50,7 @@ struct DBClientJoinBuilder::Impl {
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-DBClientJoinBuilder::DBClientJoinBuilder(
+DBTablesJoinBuilder::DBTablesJoinBuilder(
   const DBAgent::TableProfile &table, const DataQueryOption *option)
 : m_impl(new Impl(table, option))
 {
@@ -72,11 +72,11 @@ DBClientJoinBuilder::DBClientJoinBuilder(
 		m_impl->selectExArg.condition = option->getCondition();
 }
 
-DBClientJoinBuilder::~DBClientJoinBuilder()
+DBTablesJoinBuilder::~DBTablesJoinBuilder()
 {
 }
 
-void DBClientJoinBuilder::addTable(
+void DBTablesJoinBuilder::addTable(
   const DBAgent::TableProfile &table, const JoinType &type,
   const size_t &index0, const size_t &index1)
 {
@@ -88,7 +88,7 @@ void DBClientJoinBuilder::addTable(
 	  table.getFullColumnName(index1).c_str());
 }
 
-void DBClientJoinBuilder::addTable(
+void DBTablesJoinBuilder::addTable(
   const DBAgent::TableProfile &table, const JoinType &type,
   const DBAgent::TableProfile &tableC, const size_t &indexL,
   const size_t &indexR)
@@ -100,7 +100,7 @@ void DBClientJoinBuilder::addTable(
 	  table.getFullColumnName(indexR).c_str());
 }
 
-void DBClientJoinBuilder::addTable(
+void DBTablesJoinBuilder::addTable(
   const DBAgent::TableProfile &table, const JoinType &type,
   const DBAgent::TableProfile &tableC0, const size_t &index0L,
   const size_t &index0R,
@@ -123,12 +123,12 @@ void DBClientJoinBuilder::addTable(
 	  table.getFullColumnName(index1R).c_str());
 }
 
-void DBClientJoinBuilder::add(const size_t &columnIndex)
+void DBTablesJoinBuilder::add(const size_t &columnIndex)
 {
 	m_impl->selectExArg.add(columnIndex);
 }
 
-DBAgent::SelectExArg &DBClientJoinBuilder::getSelectExArg(void)
+DBAgent::SelectExArg &DBTablesJoinBuilder::getSelectExArg(void)
 {
 	const HostResourceQueryOption *hrqOption =
 	  dynamic_cast<const HostResourceQueryOption *>(m_impl->option);
@@ -142,7 +142,7 @@ DBAgent::SelectExArg &DBClientJoinBuilder::getSelectExArg(void)
 	return m_impl->selectExArg;
 }
 
-DBAgent::SelectExArg &DBClientJoinBuilder::build(void)
+DBAgent::SelectExArg &DBTablesJoinBuilder::build(void)
 {
 	return getSelectExArg();
 }
@@ -150,7 +150,7 @@ DBAgent::SelectExArg &DBClientJoinBuilder::build(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-const char *DBClientJoinBuilder::getJoinOperatorString(const JoinType &type)
+const char *DBTablesJoinBuilder::getJoinOperatorString(const JoinType &type)
 {
 	HATOHOL_ASSERT(type < NUM_TYPE_JOIN, "Invalid join type: %d", type);
 	HATOHOL_ASSERT(type < NUM_JOIN_OPERATORS,
@@ -158,7 +158,7 @@ const char *DBClientJoinBuilder::getJoinOperatorString(const JoinType &type)
 	return JOIN_OPERATORS[type];
 }
 
-void DBClientJoinBuilder::addTableCommon(
+void DBTablesJoinBuilder::addTableCommon(
   const DBAgent::TableProfile &table, const JoinType &type,
   const DBAgent::TableProfile &tableC0, const size_t &index0L,
   const size_t &index0R)
