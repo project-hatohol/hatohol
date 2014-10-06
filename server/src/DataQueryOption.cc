@@ -30,7 +30,7 @@ using namespace mlpl;
 struct DataQueryOption::Impl {
 	size_t maxNumber;
 	size_t offset;
-	SortOrderList sortOrderList;
+	SortOrderVect sortOrderVect;
 	DataQueryContextPtr dataQueryCtxPtr; // The body is shared
 	const DBTermCodec *dbTermCodec;
 	bool               tableNameAlways;
@@ -106,7 +106,7 @@ bool DataQueryOption::operator==(const DataQueryOption &rhs)
 {
 	if (m_impl->maxNumber != rhs.m_impl->maxNumber)
 		return false;
-	if (m_impl->sortOrderList != rhs.m_impl->sortOrderList)
+	if (m_impl->sortOrderVect != rhs.m_impl->sortOrderVect)
 		return false;
 	return true;
 }
@@ -175,35 +175,35 @@ size_t DataQueryOption::getMaximumNumber(void) const
 	return m_impl->maxNumber;
 }
 
-void DataQueryOption::setSortOrderList(const SortOrderList &sortOrderList)
+void DataQueryOption::setSortOrderVect(const SortOrderVect &sortOrderVect)
 {
-	m_impl->sortOrderList = sortOrderList;
+	m_impl->sortOrderVect = sortOrderVect;
 }
 
 void DataQueryOption::setSortOrder(const SortOrder &sortOrder)
 {
-	m_impl->sortOrderList.clear();
-	m_impl->sortOrderList.push_back(sortOrder);
+	m_impl->sortOrderVect.clear();
+	m_impl->sortOrderVect.push_back(sortOrder);
 }
 
-const DataQueryOption::SortOrderList &DataQueryOption::getSortOrderList(void)
+const DataQueryOption::SortOrderVect &DataQueryOption::getSortOrderVect(void)
   const
 {
-	return m_impl->sortOrderList;
+	return m_impl->sortOrderVect;
 }
 
 std::string DataQueryOption::getOrderBy(void) const
 {
-	SortOrderListIterator it = m_impl->sortOrderList.begin();
+	SortOrderVectIterator it = m_impl->sortOrderVect.begin();
 	std::string orderBy;
-	for (; it != m_impl->sortOrderList.end(); ++it) {
+	for (; it != m_impl->sortOrderVect.end(); ++it) {
 		if (it->columnName.empty()) {
 			MLPL_ERR("Empty sort column name\n");
 			continue;
 		}
 		if (it->direction == DataQueryOption::SORT_DONT_CARE)
 			continue;
-		if (it != m_impl->sortOrderList.begin())
+		if (it != m_impl->sortOrderVect.begin())
 			orderBy += ", ";
 		if (it->direction == DataQueryOption::SORT_ASCENDING) {
 			orderBy += it->columnName + " ASC";

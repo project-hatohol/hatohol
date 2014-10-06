@@ -1006,7 +1006,7 @@ void EventsQueryOption::setSortType(
 	}
 	case SORT_TIME:
 	{
-		SortOrderList sortOrderList;
+		SortOrderVect sortOrderVect;
 		SortOrder order1(
 		  COLUMN_DEF_EVENTS[IDX_EVENTS_TIME_SEC].columnName,
 		  direction);
@@ -1016,10 +1016,11 @@ void EventsQueryOption::setSortType(
 		SortOrder order3(
 		  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
 		  direction);
-		sortOrderList.push_back(order1);
-		sortOrderList.push_back(order2);
-		sortOrderList.push_back(order3);
-		setSortOrderList(sortOrderList);
+		sortOrderVect.reserve(3);
+		sortOrderVect.push_back(order1);
+		sortOrderVect.push_back(order2);
+		sortOrderVect.push_back(order3);
+		setSortOrderVect(sortOrderVect);
 		break;
 	}
 	default:
