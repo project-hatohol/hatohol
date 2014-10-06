@@ -36,7 +36,7 @@ testHatohol_la_SOURCES = \
 	testDataStoreZabbix.cc testDataStoreNagios.cc \
 	testHatoholArmPluginInterface.cc testHatoholArmPluginGate.cc \
 	testHatoholArmPluginBase.cc \
-	testHapProcess.cc testHapProcessStandard.cc testHapZabbixAPI.cc \
+	testHapProcess.cc testHapProcessStandard.cc testHapProcessZabbixAPI.cc \
 	testHapProcessCeilometer.cc \
 	testHatoholError.cc \
 	testHatoholException.cc \
