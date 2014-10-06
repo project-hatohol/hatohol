@@ -7,7 +7,7 @@
 * [S] init script (/etc/rc.d/...) (#13)
 * [S] add spec file to make RPM files (#14)
 * [S] add files to make deb files (#15)
-* [S] store logs to file (as a MLPL feature) (#16)
+* [S] store logs to file (as a HFL feature) (#16)
 * [M] update items by the request. (#17)
       => Stress test should be done for the improved version.
 * [M] consider for HA configuration(#18)
