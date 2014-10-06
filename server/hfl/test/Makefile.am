@@ -6,7 +6,7 @@ if WITH_CUTTER
 TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
-noinst_LTLIBRARIES = testMLPL.la
+noinst_LTLIBRARIES = testHFL.la
 noinst_PROGRAMS = loggerTestee
 noinst_HEADERS = loggerTester.h
 
@@ -21,7 +21,7 @@ LIBS = $(CUTTER_LIBS) $(CPPCUTTER_LIBS) -lstdc++ ../src/libhfl.la
 loggerTestee_SOURCES = loggerTestee.cc
 
 # Test cases
-testMLPL_la_SOURCES = \
+testHFL_la_SOURCES = \
 	testMutex.cc testReadWriteLock.cc \
 	testLogger.cc testStringUtils.cc testParsableString.cc \
 	testSeparatorInjector.cc \
