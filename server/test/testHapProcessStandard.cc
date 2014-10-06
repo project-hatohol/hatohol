@@ -19,6 +19,7 @@
 
 #include <gcutter.h>
 #include <cppcutter.h>
+#include <errno.h>
 #include "Hatohol.h"
 #include "HapProcessStandard.h"
 #include "Helpers.h"
