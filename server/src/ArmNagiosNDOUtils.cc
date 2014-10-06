@@ -23,7 +23,7 @@
 #include "Utils.h"
 #include "UnifiedDataStore.h"
 #include "ItemGroupStream.h"
-#include "DBClientJoinBuilder.h"
+#include "DBTablesJoinBuilder.h"
 #include "SQLUtils.h"
 #include "HatoholException.h"
 #include "ThreadLocalDBCache.h"
@@ -358,9 +358,9 @@ static const DBAgent::TableProfile tableProfileStateHistory =
 struct ArmNagiosNDOUtils::Impl
 {
 	DBAgentMySQL        *dbAgent;
-	DBClientJoinBuilder  selectTriggerBuilder;
-	DBClientJoinBuilder  selectEventBuilder;
-	DBClientJoinBuilder  selectItemBuilder;
+	DBTablesJoinBuilder  selectTriggerBuilder;
+	DBTablesJoinBuilder  selectEventBuilder;
+	DBTablesJoinBuilder  selectItemBuilder;
 	DBAgent::SelectExArg selectHostArg;
 	DBAgent::SelectExArg selectHostgroupArg;
 	DBAgent::SelectExArg selectHostgroupMembersArg;
@@ -425,18 +425,18 @@ ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 void ArmNagiosNDOUtils::makeSelectTriggerBuilder(void)
 {
 	// TODO: Confirm what may be use using host_object_id.
-	DBClientJoinBuilder &builder = m_impl->selectTriggerBuilder;
+	DBTablesJoinBuilder &builder = m_impl->selectTriggerBuilder;
 	builder.add(IDX_SERVICES_SERVICE_ID);
 
 	builder.addTable(
-	  tableProfileServiceStatus, DBClientJoinBuilder::INNER_JOIN,
+	  tableProfileServiceStatus, DBTablesJoinBuilder::INNER_JOIN,
 	  IDX_SERVICES_SERVICE_OBJECT_ID, IDX_SERVICESTATUS_SERVICE_OBJECT_ID);
 	builder.add(IDX_SERVICESTATUS_CURRENT_STATE);
 	builder.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);
 	builder.add(IDX_SERVICESTATUS_OUTPUT);
 
 	builder.addTable(
-	  tableProfileHosts, DBClientJoinBuilder::INNER_JOIN,
+	  tableProfileHosts, DBTablesJoinBuilder::INNER_JOIN,
 	  tableProfileServices, IDX_SERVICES_HOST_OBJECT_ID,
 	  IDX_HOSTS_HOST_OBJECT_ID);
 	builder.add(IDX_HOSTS_HOST_OBJECT_ID);
@@ -451,19 +451,19 @@ void ArmNagiosNDOUtils::makeSelectTriggerBuilder(void)
 void ArmNagiosNDOUtils::makeSelectEventBuilder(void)
 {
 	// TODO: Confirm what may be use using host_object_id.
-	DBClientJoinBuilder &builder = m_impl->selectEventBuilder;
+	DBTablesJoinBuilder &builder = m_impl->selectEventBuilder;
 	builder.add(IDX_STATEHISTORY_STATEHISTORY_ID);
 	builder.add(IDX_STATEHISTORY_STATE);
 	builder.add(IDX_STATEHISTORY_STATE_TIME);
 	builder.add(IDX_STATEHISTORY_OUTPUT);
 
 	builder.addTable(
-	  tableProfileServices, DBClientJoinBuilder::INNER_JOIN,
+	  tableProfileServices, DBTablesJoinBuilder::INNER_JOIN,
 	  IDX_STATEHISTORY_OBJECT_ID, IDX_SERVICES_SERVICE_OBJECT_ID);
 	builder.add(IDX_SERVICES_SERVICE_ID);
 
 	builder.addTable(
-	  tableProfileHosts, DBClientJoinBuilder::INNER_JOIN,
+	  tableProfileHosts, DBTablesJoinBuilder::INNER_JOIN,
 	  IDX_SERVICES_HOST_OBJECT_ID, IDX_HOSTS_HOST_OBJECT_ID);
 	builder.add(IDX_HOSTS_HOST_OBJECT_ID);
 	builder.add(IDX_HOSTS_DISPLAY_NAME);
@@ -478,12 +478,12 @@ void ArmNagiosNDOUtils::makeSelectEventBuilder(void)
 
 void ArmNagiosNDOUtils::makeSelectItemBuilder(void)
 {
-	DBClientJoinBuilder &builder = m_impl->selectItemBuilder;
+	DBTablesJoinBuilder &builder = m_impl->selectItemBuilder;
 	builder.add(IDX_SERVICES_SERVICE_ID);
 	builder.add(IDX_SERVICES_HOST_OBJECT_ID);
 
 	builder.addTable(
-	  tableProfileServiceStatus, DBClientJoinBuilder::INNER_JOIN,
+	  tableProfileServiceStatus, DBTablesJoinBuilder::INNER_JOIN,
 	  IDX_SERVICES_SERVICE_OBJECT_ID, IDX_SERVICESTATUS_SERVICE_OBJECT_ID);
 	builder.add(IDX_SERVICESTATUS_CHECK_COMMAND);
 	builder.add(IDX_SERVICESTATUS_STATUS_UPDATE_TIME);

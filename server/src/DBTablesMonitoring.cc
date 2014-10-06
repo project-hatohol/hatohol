@@ -26,7 +26,7 @@
 #include "SQLUtils.h"
 #include "Params.h"
 #include "ItemGroupStream.h"
-#include "DBClientJoinBuilder.h"
+#include "DBTablesJoinBuilder.h"
 
 // TODO: rmeove the followin two include files!
 // This class should not be aware of it.
@@ -1633,7 +1633,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
   EventInfoList &eventInfoList, const EventsQueryOption &option,
   IncidentInfoVect *incidentInfoVect)
 {
-	DBClientJoinBuilder builder(tableProfileEvents, &option);
+	DBTablesJoinBuilder builder(tableProfileEvents, &option);
 	builder.add(IDX_EVENTS_UNIFIED_ID);
 	builder.add(IDX_EVENTS_SERVER_ID);
 	builder.add(IDX_EVENTS_ID);
@@ -1648,7 +1648,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	builder.add(IDX_EVENTS_BRIEF);
 
 	builder.addTable(
-	  tableProfileTriggers, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileTriggers, DBTablesJoinBuilder::LEFT_JOIN,
 	  tableProfileEvents, IDX_EVENTS_SERVER_ID, IDX_TRIGGERS_SERVER_ID,
 	  tableProfileEvents, IDX_EVENTS_TRIGGER_ID, IDX_TRIGGERS_ID);
 	builder.add(IDX_TRIGGERS_STATUS);
@@ -1659,7 +1659,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 
 	if (incidentInfoVect) {
 		builder.addTable(
-		  tableProfileIncidents, DBClientJoinBuilder::LEFT_JOIN,
+		  tableProfileIncidents, DBTablesJoinBuilder::LEFT_JOIN,
 		  tableProfileEvents, IDX_EVENTS_SERVER_ID,
 		  IDX_INCIDENTS_SERVER_ID,
 		  tableProfileEvents, IDX_EVENTS_ID, IDX_INCIDENTS_EVENT_ID);
