@@ -209,6 +209,7 @@ var ServersView = function(userProfile) {
     $("#table tbody").append(drawTableBody(reply));
     self.setupCheckboxForDelete($("#delete-server-button"));
     setupEditButtons(reply);
+    self.displayUpdateTime();
     self.startConnection("server-conn-stat", updateServerConnStat);
   }
 

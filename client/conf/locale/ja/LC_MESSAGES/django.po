@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-24 00:55-0500\n"
+"POT-Creation-Date: 2014-10-03 08:02-0500\n"
 "PO-Revision-Date: 2014-09-09 09:13+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -43,17 +43,17 @@ msgstr "ホスト"
 msgid "Host Group"
 msgstr "ホストグループ"
 
-#: viewer/actions_ajax.html:58 viewer/incident_settings_ajax.html:61
+#: viewer/actions_ajax.html:58
 msgid "Trigger"
 msgstr "トリガー"
 
 #: viewer/actions_ajax.html:59 viewer/events_ajax.html:71
-#: viewer/incident_settings_ajax.html:62 viewer/triggers_ajax.html:68
+#: viewer/incident_settings_ajax.html:61 viewer/triggers_ajax.html:68
 msgid "Status"
 msgstr "ステータス"
 
 #: viewer/actions_ajax.html:60 viewer/events_ajax.html:72
-#: viewer/incident_settings_ajax.html:63 viewer/triggers_ajax.html:67
+#: viewer/incident_settings_ajax.html:62 viewer/triggers_ajax.html:67
 msgid "Severity"
 msgstr "深刻度"
 
@@ -93,6 +93,10 @@ msgstr "ログアウト"
 #: viewer/base_ajax.html:65
 msgid "Change password"
 msgstr "パスワード変更"
+
+#: viewer/base_ajax.html:74
+msgid "Last update time:"
+msgstr "最終更新時刻:"
 
 #: viewer/dashboard_ajax.html:24 viewer/dashboard_ajax.html.py:29
 msgid "Dashboard"
@@ -269,7 +273,7 @@ msgstr "IPアドレス"
 msgid "Nickname"
 msgstr "ニックネーム"
 
-#: viewer/hosts_ajax.html:44 viewer/hosts_ajax.html.py:149
+#: viewer/hosts_ajax.html:44 viewer/hosts_ajax.html.py:157
 #: viewer/servers_ajax.html:66
 msgid "Maps"
 msgstr "マップ"
@@ -290,7 +294,7 @@ msgstr "削除"
 msgid "EDIT INCIDENT TRACKING SERVERS"
 msgstr "インシデント管理サーバー編集"
 
-#: viewer/incident_settings_ajax.html:64
+#: viewer/incident_settings_ajax.html:63
 msgid "Incident Tracking Server"
 msgstr "インシデント管理サーバー"
 

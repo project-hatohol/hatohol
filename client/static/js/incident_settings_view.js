@@ -233,6 +233,7 @@ var IncidentSettingsView = function(userProfile) {
   };
 
   function load() {
+    self.displayUpdateTime();
     self.startConnection(getQuery(), onGotIncidentSettings);
   }
 };

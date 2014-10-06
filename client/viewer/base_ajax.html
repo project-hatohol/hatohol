@@ -44,7 +44,7 @@
       <div class="btn-toolbar" role="toolbar">
         <div class="pull-right btn-group" id="sts">
           <button class="navbar-btn btn btn-info dropdown-toggle">
-            <span>{% trans "PREPARE" %}</span> 
+            <span>{% trans "PREPARE" %}</span>
           </button>
           <ul class="dropdown-menu" role="menu">
           </ul>
@@ -53,7 +53,7 @@
         <div class="pull-right btn-group" id ="userMenu">
           <button class="navbar-btn btn dropdown-toggle btn-inverse" data-toggle="dropdown" id="userProfileButton">
             <i class="glyphicon glyphicon-user"></i>
-            <span id="currentUserName">{% trans "Not logged in" %}</span> 
+            <span id="currentUserName">{% trans "Not logged in" %}</span>
             <span class="caret"></span>
           </button>
           <ul class="dropdown-menu" role="menu" aria-labelledby="userProfileButton">
@@ -71,6 +71,7 @@
     </div>
 
     <div style="display: none;"><form>{% csrf_token %}</form></div>
+    <div style="text-align: center;" id="update-time"> {% trans "Last update time:"%} None </div>
 
 {% block main %}
 {% endblock %}
