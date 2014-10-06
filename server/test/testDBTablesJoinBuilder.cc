@@ -19,13 +19,13 @@
 
 #include <gcutter.h>
 #include <cppcutter.h>
-#include "DBClientJoinBuilder.h"
+#include "DBTablesJoinBuilder.h"
 #include "HostResourceQueryOption.h"
 
 using namespace std;
 using namespace mlpl;
 
-namespace testDBClientJoinBuilder {
+namespace testDBTablesJoinBuilder {
 
 static string getFullName(const DBAgent::TableProfile &tableProfile,
                           const size_t &columnIndex)
@@ -127,7 +127,7 @@ const DBAgent::TableProfile tableProfileTest1(
   NUM_IDX_TEST_TABLE1
 );
 
-class DBClientJoinBuilderTest : public DBClientJoinBuilder {
+class DBTablesJoinBuilderTest : public DBTablesJoinBuilder {
 public:
 	static const char *callGetJoinOperatorString(const JoinType &type)
 	{
@@ -140,7 +140,7 @@ public:
 // ---------------------------------------------------------------------------
 void test_constructor(void)
 {
-	DBClientJoinBuilder builder(tableProfileTest0);
+	DBTablesJoinBuilder builder(tableProfileTest0);
 	const DBAgent::SelectExArg &exArg = builder.getSelectExArg();
 	cppcut_assert_equal(&tableProfileTest0, exArg.tableProfile);
 	cppcut_assert_equal(true, exArg.useFullName);
@@ -156,7 +156,7 @@ void test_constructorWithOption(void)
 		}
 	} option;
 
-	DBClientJoinBuilder builder(tableProfileTest0, &option);
+	DBTablesJoinBuilder builder(tableProfileTest0, &option);
 	const DBAgent::SelectExArg &exArg = builder.getSelectExArg();
 	cppcut_assert_equal(&tableProfileTest0, exArg.tableProfile);
 	cppcut_assert_equal(true, exArg.useFullName);
@@ -202,7 +202,7 @@ void test_constructorWithHostResourceQueryOption(gconstpointer data)
 	} option(synapse);
 	option.hostgroupIsUsed = gcut_data_get_int(data, "used");
 
-	DBClientJoinBuilder builder(tableProfileTest0, &option);
+	DBTablesJoinBuilder builder(tableProfileTest0, &option);
 	const DBAgent::SelectExArg &exArg = builder.getSelectExArg();
 	cppcut_assert_equal(&tableProfileTest0, exArg.tableProfile);
 	cppcut_assert_equal(true, exArg.useFullName);
@@ -216,10 +216,10 @@ void test_constructorWithHostResourceQueryOption(gconstpointer data)
 
 void test_basicUse(void)
 {
-	DBClientJoinBuilder builder(tableProfileTest0);
+	DBTablesJoinBuilder builder(tableProfileTest0);
 	builder.add(IDX_TEST_TABLE0_NAME);
 
-	builder.addTable(tableProfileTest1, DBClientJoinBuilder::INNER_JOIN,
+	builder.addTable(tableProfileTest1, DBTablesJoinBuilder::INNER_JOIN,
 	  IDX_TEST_TABLE0_ID, IDX_TEST_TABLE1_TBL0_ID);
 	builder.add(IDX_TEST_TABLE1_ID);
 
@@ -245,10 +245,10 @@ void test_basicUse(void)
 
 void test_addTableWithTableC(void)
 {
-	DBClientJoinBuilder builder(tableProfileTest0);
+	DBTablesJoinBuilder builder(tableProfileTest0);
 	builder.add(IDX_TEST_TABLE0_NAME);
 
-	builder.addTable(tableProfileTest1, DBClientJoinBuilder::INNER_JOIN,
+	builder.addTable(tableProfileTest1, DBTablesJoinBuilder::INNER_JOIN,
 	  tableProfileTest0, IDX_TEST_TABLE0_ID, IDX_TEST_TABLE1_TBL0_ID);
 	builder.add(IDX_TEST_TABLE1_ID);
 
@@ -274,10 +274,10 @@ void test_addTableWithTableC(void)
 
 void test_useFourIndexes(void)
 {
-	DBClientJoinBuilder builder(tableProfileTest0);
+	DBTablesJoinBuilder builder(tableProfileTest0);
 	builder.add(IDX_TEST_TABLE0_NAME);
 
-	builder.addTable(tableProfileTest1, DBClientJoinBuilder::INNER_JOIN,
+	builder.addTable(tableProfileTest1, DBTablesJoinBuilder::INNER_JOIN,
 	  tableProfileTest0, IDX_TEST_TABLE0_ID, IDX_TEST_TABLE1_TBL0_ID,
 	  tableProfileTest0, IDX_TEST_TABLE0_AGE, IDX_TEST_TABLE1_MY_AGE);
 	builder.add(IDX_TEST_TABLE1_ID);
@@ -307,23 +307,23 @@ void test_useFourIndexes(void)
 void data_getJoinOperatorString(void)
 {
 	gcut_add_datum("INNER JOIN",
-	               "type", G_TYPE_INT, DBClientJoinBuilder::INNER_JOIN,
+	               "type", G_TYPE_INT, DBTablesJoinBuilder::INNER_JOIN,
 	               "expect", G_TYPE_STRING, "INNER JOIN", NULL);
 	gcut_add_datum("LEFT JOIN",
-	               "type", G_TYPE_INT, DBClientJoinBuilder::LEFT_JOIN,
+	               "type", G_TYPE_INT, DBTablesJoinBuilder::LEFT_JOIN,
 	               "expect", G_TYPE_STRING, "LEFT JOIN", NULL);
 	gcut_add_datum("RIGHT JOIN",
-	               "type", G_TYPE_INT, DBClientJoinBuilder::RIGHT_JOIN,
+	               "type", G_TYPE_INT, DBTablesJoinBuilder::RIGHT_JOIN,
 	               "expect", G_TYPE_STRING, "RIGHT JOIN", NULL);
 }
 
 void test_getJoinOperatorString(gconstpointer data)
 {
-	const DBClientJoinBuilder::JoinType type =
-	  static_cast<const DBClientJoinBuilder::JoinType>(gcut_data_get_int(data, "type"));
+	const DBTablesJoinBuilder::JoinType type =
+	  static_cast<const DBTablesJoinBuilder::JoinType>(gcut_data_get_int(data, "type"));
 	const char *expect = gcut_data_get_string(data, "expect");
 	cut_assert_equal_string(
-	  expect, DBClientJoinBuilderTest::callGetJoinOperatorString(type));
+	  expect, DBTablesJoinBuilderTest::callGetJoinOperatorString(type));
 }
 
-} // namespace testDBClientJoinBuilder
+} // namespace testDBTablesJoinBuilder
