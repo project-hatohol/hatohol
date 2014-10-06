@@ -1536,7 +1536,7 @@ void ActionManager::postProcSpawnFailure(
 		dbAction.logEndExecAction(logArg);
 	}
 
-	// MLPL log
+	// HFL log
 	HFL_ERR(
 	  "%s, action ID: %d, log ID: %" PRIu64 ", "
 	  "server ID: %d, event ID: %" PRIu64 ", "
