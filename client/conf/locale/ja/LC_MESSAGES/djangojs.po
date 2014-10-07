@@ -25,15 +25,15 @@ msgstr "Keystone URL"
 
 #: misc/external-labels.js:3
 msgid "TLS client key path"
-msgstr ""
+msgstr "TLSクライアントキーのパス"
 
 #: misc/external-labels.js:4
 msgid "TLS CA certificate path"
-msgstr ""
+msgstr "TLS CA証明書のパス"
 
 #: misc/external-labels.js:5
 msgid "TLS: Enable verify"
-msgstr ""
+msgstr "TLS: 確認を有効化"
 
 #: misc/external-labels.js:6
 msgid "Static queue address"
@@ -95,7 +95,7 @@ msgstr "ホスト名"
 
 #: misc/external-labels.js:18
 msgid "TLS client certificate path"
-msgstr ""
+msgstr "TLSクライアント証明書のパス"
 
 #: static/js/actions_view.js:56 static/js/incident_settings_view.js:54
 #: static/js/servers_view.js:49 static/js/users_view.js:57
@@ -538,11 +538,11 @@ msgstr "テストモードではありません。"
 
 #: static/js/hatohol_def.js:235
 msgid "The server type doesn't exist."
-msgstr ""
+msgstr "存在しないサーバータイプです。"
 
 #: static/js/hatohol_def.js:236
 msgid "The server type is invalid."
-msgstr ""
+msgstr "不正なサーバータイプです。"
 
 #: static/js/hatohol_def.js:237
 msgid "Failed to create a DataStore object."
@@ -1238,7 +1238,7 @@ msgstr ""
 
 #: static/js/servers_view.js:148
 msgid "Ceilometer"
-msgstr ""
+msgstr "Ceilometer"
 
 #: static/js/servers_view.js:180
 msgid "Checking"
