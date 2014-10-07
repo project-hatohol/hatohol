@@ -122,6 +122,7 @@ struct NamedPipe::Impl {
 	size_t        pullRequestSize;
 	size_t        pullRemainingSize;
 	TimeoutInfo   timeoutInfo;
+	GMainContext *glibMainContext;
 
 	Impl(EndType _endType, NamedPipe *namedPipe)
 	: fd(-1),
@@ -135,7 +136,8 @@ struct NamedPipe::Impl {
 	  pullCbPriv(NULL),
 	  pullRequestSize(0),
 	  pullRemainingSize(0),
-	  timeoutInfo(namedPipe)
+	  timeoutInfo(namedPipe),
+	  glibMainContext(NULL)
 	{
 	}
 
@@ -166,6 +168,9 @@ struct NamedPipe::Impl {
 		SmartBufferListIterator it = writeBufList.begin();
 		for (; it != writeBufList.end(); ++it)
 			delete *it;
+
+		if (glibMainContext)
+			g_main_context_unref(glibMainContext);
 	}
 
 	void closeFd(void)
@@ -191,6 +196,18 @@ struct NamedPipe::Impl {
 		pullBuf.resetIndex();
 		(*cbFunc)(stat, pullBuf, pullRequestSize, pullCbPriv);
 	}
+
+	guint createWatch(GIOCondition condition,
+	                  GIOFunc func, gpointer data)
+	{
+		GSource *source = g_io_create_watch(ioch, condition);
+		guint id = g_source_attach(source, glibMainContext);
+		g_source_set_callback(source,
+		                      reinterpret_cast<GSourceFunc>(func),
+		                      data, NULL);
+		g_source_unref(source);
+		return id;
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -205,10 +222,14 @@ NamedPipe::~NamedPipe()
 {
 }
 
-bool NamedPipe::init(const string &name, GIOFunc iochCb, gpointer data)
+bool NamedPipe::init(const string &name, GIOFunc iochCb, gpointer data,
+                     GMainContext *glibMainContext)
 {
 	if (!openPipe(name))
 		return false;
+	m_impl->glibMainContext = glibMainContext;
+	if (m_impl->glibMainContext)
+		g_main_context_ref(m_impl->glibMainContext);
 
 	m_impl->ioch = g_io_channel_unix_new(m_impl->fd);
 	if (!m_impl->ioch) {
@@ -237,7 +258,7 @@ bool NamedPipe::init(const string &name, GIOFunc iochCb, gpointer data)
 		cbFunc = writeErrorCb;
 		cond = (GIOCondition)(G_IO_ERR|G_IO_HUP|G_IO_NVAL);
 	}
-	m_impl->iochEvtId = g_io_add_watch(m_impl->ioch, cond, cbFunc, this);
+	m_impl->iochEvtId = m_impl->createWatch(cond, cbFunc, this);
 
 	m_impl->userCb = iochCb;
 	m_impl->userCbData = data;
@@ -504,13 +525,13 @@ void NamedPipe::enableWriteCbIfNeeded(void)
 	if (m_impl->iochDataEvtId != INVALID_EVENT_ID)
 		return;
 	GIOCondition cond = G_IO_OUT;
-	m_impl->iochDataEvtId = g_io_add_watch(m_impl->ioch, cond, writeCb, this);
+	m_impl->iochDataEvtId = m_impl->createWatch(cond, writeCb, this);
 }
 
 void NamedPipe::enableReadCb(void)
 {
 	GIOCondition cond = G_IO_IN;
-	m_impl->iochDataEvtId = g_io_add_watch(m_impl->ioch, cond, readCb, this);
+	m_impl->iochDataEvtId = m_impl->createWatch(cond, readCb, this);
 }
 
 bool NamedPipe::isExistingDir(const string &dirname, bool &hasError)
