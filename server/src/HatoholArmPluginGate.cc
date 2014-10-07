@@ -87,6 +87,7 @@ struct HatoholArmPluginGate::Impl
 	guint                timerTag;
 	HAPIWtchPointInfo    hapiWtchPointInfo[NUM_COLLECT_NG_KIND];
 	NamedPipe            pipeRd, pipeWr;
+	bool                 allowSetGLibMainContext;
 
 	Impl(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
@@ -97,7 +98,8 @@ struct HatoholArmPluginGate::Impl
 	  exitSyncDone(false),
 	  createdSelfTriggers(false),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
-	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE)
+	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
+	  allowSetGLibMainContext(true)
 	{
 	}
 
@@ -983,14 +985,16 @@ void HatoholArmPluginGate::cmdHandlerAvailableTrigger(
 
 bool HatoholArmPluginGate::initPipesIfNeeded(const string &pipeName)
 {
+	GMainContext *ctx = getGLibMainContext();
 	if (m_impl->pipeRd.getFd() < 0) {
-		if (!m_impl->pipeRd.init(pipeName, pipeRdErrCb, this))
+		if (!m_impl->pipeRd.init(pipeName, pipeRdErrCb, this, ctx))
 			return false;
 	}
 	if (m_impl->pipeWr.getFd() < 0) {
-		if (!m_impl->pipeWr.init(pipeName, pipeWrErrCb, this))
+		if (!m_impl->pipeWr.init(pipeName, pipeWrErrCb, this, ctx))
 			return false;
 	}
+	m_impl->allowSetGLibMainContext = false;
 	return true;
 }
 
@@ -1002,6 +1006,13 @@ NamedPipe &HatoholArmPluginGate::getHapPipeForRead(void)
 NamedPipe &HatoholArmPluginGate::getHapPipeForWrite(void)
 {
 	return m_impl->pipeWr;
+}
+
+void HatoholArmPluginGate::setGLibMainContext(GMainContext *context)
+{
+	HATOHOL_ASSERT(m_impl->allowSetGLibMainContext,
+	               "Calling setGLibMainContext() is too late.");
+	HatoholArmPluginInterface::setGLibMainContext(context);
 }
 
 gboolean HatoholArmPluginGate::pipeRdErrCb(
