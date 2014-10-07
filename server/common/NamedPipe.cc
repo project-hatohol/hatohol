@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -88,13 +88,16 @@ struct TimeoutInfo {
 		return G_SOURCE_REMOVE;
 	}
 
-	void setTimeoutIfNeeded(void)
+	void setTimeoutIfNeeded(GMainContext *glibMainContext)
 	{
 		if (!cbFunc)
 			return;
 		if (tag != INVALID_EVENT_ID)
 			return;
-		tag = g_timeout_add(value, timeoutHandler, this);
+		GSource *source = g_timeout_source_new(value);
+		tag = g_source_attach(source, glibMainContext);
+		g_source_set_callback(source, timeoutHandler, this, NULL);
+		g_source_unref(source);
 	}
 
 	void removeTimeout(void)
@@ -208,6 +211,11 @@ struct NamedPipe::Impl {
 		g_source_unref(source);
 		return id;
 	}
+
+	void setTimeoutIfNeeded()
+	{
+		timeoutInfo.setTimeoutIfNeeded(glibMainContext);
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -289,7 +297,7 @@ void NamedPipe::push(SmartBuffer &buf)
 	m_impl->writeBufListLock.lock();
 	m_impl->writeBufList.push_back(buf.takeOver());
 	enableWriteCbIfNeeded();
-	m_impl->timeoutInfo.setTimeoutIfNeeded();
+	m_impl->setTimeoutIfNeeded();
 	m_impl->writeBufListLock.unlock();
 }
 
@@ -303,7 +311,7 @@ void NamedPipe::pull(size_t size, PullCallback callback, void *priv)
 	m_impl->pullBuf.ensureRemainingSize(size);
 	m_impl->pullBuf.resetIndex();
 	enableReadCb();
-	m_impl->timeoutInfo.setTimeoutIfNeeded();
+	m_impl->setTimeoutIfNeeded();
 }
 
 void NamedPipe::setTimeout(unsigned int timeout,
@@ -357,7 +365,7 @@ gboolean NamedPipe::writeCb(GIOChannel *source, GIOCondition condition,
 			// function. Otherwise, the timeout is expected to
 			// be already set. In that case, the following function
 			// won't update the timer,
-			impl->timeoutInfo.setTimeoutIfNeeded();
+			impl->setTimeoutIfNeeded();
 			break;
 		}
 	}
