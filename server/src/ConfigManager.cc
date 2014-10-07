@@ -72,6 +72,12 @@ static gboolean parseFaceRestPort(
 	return TRUE;
 }
 
+static void showVersion(void)
+{
+	printf("Hatohol version: %s, build date: %s %s\n",
+	       VERSION, __DATE__, __TIME__);
+}
+
 // ---------------------------------------------------------------------------
 // CommandLineOptions
 // ---------------------------------------------------------------------------
@@ -229,7 +235,11 @@ ConfigManager *ConfigManager::Impl::instance = NULL;
 bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
                                      CommandLineOptions *cmdLineOpts)
 {
+	gboolean showVersionFlag = false;
 	GOptionEntry entries[] = {
+		{"version",
+		 'v', 0, G_OPTION_ARG_NONE,
+		 &showVersionFlag, "Show the version", NULL},
 		{"pid-file",
 		 'p', 0, G_OPTION_ARG_STRING,
 		 &cmdLineOpts->pidFilePath, "Pid file path", NULL},
@@ -280,6 +290,11 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 		         error ? error->message : "Unknown reason");
 		if (error)
 			g_error_free(error);
+		return false;
+	}
+
+	if (showVersionFlag) {
+		showVersion();
 		return false;
 	}
 
