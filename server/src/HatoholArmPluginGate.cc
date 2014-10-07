@@ -332,23 +332,26 @@ void HatoholArmPluginGate::onPriorToFetchMessage(void)
 {
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
 	if (svInfo.pollingIntervalSec != 0) {
-		m_impl->timerTag = g_timeout_add(
-		  svInfo.pollingIntervalSec * PLUGIN_REPLY_TIMEOUT_FACTOR * 1000,
-		  detectedArmPluginTimeout,
-		  this);
+		guint timeout = svInfo.pollingIntervalSec *
+		                  PLUGIN_REPLY_TIMEOUT_FACTOR * 1000;
+		m_impl->timerTag = Utils::setGLibTimer(
+		                     timeout, detectedArmPluginTimeout, this,
+		                     getGLibMainContext());
 	}
 }
 
 void HatoholArmPluginGate::onSuccessFetchMessage(void)
 {
-	Utils::executeOnGLibEventLoop(removeArmPluginTimeout, this);
+	Utils::executeOnGLibEventLoop(removeArmPluginTimeout, this,
+	                              SYNC, getGLibMainContext());
 }
 
 void HatoholArmPluginGate::onFailureFetchMessage(void)
 {
 	setPluginConnectStatus(COLLECT_NG_AMQP_CONNECT_ERROR,
 			       HAPERR_UNAVAILABLE_HAP);
-	Utils::executeOnGLibEventLoop(removeArmPluginTimeout, this);
+	Utils::executeOnGLibEventLoop(removeArmPluginTimeout, this,
+	                              SYNC, getGLibMainContext());
 }
 
 void HatoholArmPluginGate::onFailureReceivedMessage(void)
