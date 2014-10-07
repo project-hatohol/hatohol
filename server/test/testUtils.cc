@@ -25,6 +25,7 @@
 #include <syscall.h>
 #include <libsoup/soup.h>
 #include <Mutex.h>
+#include <Reaper.h>
 #include "Hatohol.h"
 #include "Utils.h"
 #include "Helpers.h"
@@ -390,6 +391,33 @@ void test_watchFdInGLibMainLoop(void)
 	cppcut_assert_equal(true, ctx.posted);
 	cppcut_assert_equal(true, ctx.called);
 	cppcut_assert_equal(0, ctx.sem.wait());
+}
+
+void test_setGLibTimer(void)
+{
+	struct Gizmo {
+		GMainLoop *loop;
+		bool called;
+		static gboolean func(gpointer data)
+		{
+			Gizmo *obj = static_cast<Gizmo *>(data);
+			obj->called = true;
+			g_main_loop_quit(obj->loop);
+			return G_SOURCE_REMOVE;
+		}
+	} gizmo;
+	gizmo.called = false;
+
+	GMainContext *ctx = g_main_context_new();
+	Reaper<GMainContext> ctxReaper(ctx, g_main_context_unref);
+
+	gizmo.loop = g_main_loop_new(ctx, TRUE);
+	Reaper<GMainLoop> loopReaper(gizmo.loop, g_main_loop_unref);
+
+	const guint id = Utils::setGLibTimer(1, gizmo.func, &gizmo, ctx);
+	cppcut_assert_not_equal(INVALID_EVENT_ID, id);
+	g_main_loop_run(gizmo.loop);
+	cppcut_assert_equal(true, gizmo.called);
 }
 
 } // namespace testUtils

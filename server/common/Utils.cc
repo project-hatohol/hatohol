@@ -212,6 +212,19 @@ guint Utils::setGLibIdleEvent(GSourceFunc func, gpointer data,
 	return id;
 }
 
+guint Utils::setGLibTimer(guint interval,
+                          GSourceFunc func, gpointer data,
+                          GMainContext *context)
+{
+	if (!context)
+		context = g_main_context_default();
+	GSource *source = g_timeout_source_new(interval);
+	g_source_set_callback(source, func, data, NULL);
+	guint id = g_source_attach(source, context);
+	g_source_unref(source);
+	return id;
+}
+
 guint Utils::watchFdInGLibMainLoop(int fd, gushort events,
                                    GSourceFunc func, gpointer data,
                                    GMainContext *context)
