@@ -48,6 +48,7 @@ typedef SmartBufferList::iterator SmartBufferListIterator;
 struct TimeoutInfo {
 	NamedPipe                 *namedPipe;
 	guint                      tag;
+	GMainContext              *glibMainContext;
 	unsigned long              value; // millisecond
 	NamedPipe::TimeoutCallback cbFunc;
 	void                      *priv;
@@ -55,6 +56,7 @@ struct TimeoutInfo {
 	TimeoutInfo(NamedPipe *pipe)
 	: namedPipe(pipe),
 	  tag(INVALID_EVENT_ID),
+	  glibMainContext(NULL),
 	  value(0),
 	  cbFunc(NULL),
 	  priv(NULL)
@@ -63,7 +65,7 @@ struct TimeoutInfo {
 
 	virtual ~TimeoutInfo()
 	{
-		Utils::removeEventSourceIfNeeded(tag);
+		removeTimeout();
 	}
 
 	static gboolean timeoutHandler(gpointer data)
@@ -88,12 +90,13 @@ struct TimeoutInfo {
 		return G_SOURCE_REMOVE;
 	}
 
-	void setTimeoutIfNeeded(GMainContext *glibMainContext)
+	void setTimeoutIfNeeded(GMainContext *_glibMainContext)
 	{
 		if (!cbFunc)
 			return;
 		if (tag != INVALID_EVENT_ID)
 			return;
+		glibMainContext = _glibMainContext;
 		GSource *source = g_timeout_source_new(value);
 		tag = g_source_attach(source, glibMainContext);
 		g_source_set_callback(source, timeoutHandler, this, NULL);
@@ -102,7 +105,7 @@ struct TimeoutInfo {
 
 	void removeTimeout(void)
 	{
-		Utils::removeEventSourceIfNeeded(tag);
+		Utils::removeEventSourceIfNeeded(tag, SYNC, glibMainContext);
 		tag = INVALID_EVENT_ID;
 	}
 };
@@ -146,8 +149,8 @@ struct NamedPipe::Impl {
 
 	virtual ~Impl()
 	{
-		Utils::removeEventSourceIfNeeded(iochEvtId);
-		Utils::removeEventSourceIfNeeded(iochDataEvtId);
+		removeEventSourceIfNeeded(iochEvtId);
+		removeEventSourceIfNeeded(iochDataEvtId);
 
 		// After an error occurred, g_io_channel_shutdown() fails.
 		// So we check iochEvtId to know if an error occurred.
@@ -174,6 +177,11 @@ struct NamedPipe::Impl {
 
 		if (glibMainContext)
 			g_main_context_unref(glibMainContext);
+	}
+
+	void removeEventSourceIfNeeded(guint tag)
+	{
+		Utils::removeEventSourceIfNeeded(tag, SYNC, glibMainContext);
 	}
 
 	void closeFd(void)
@@ -317,7 +325,7 @@ void NamedPipe::pull(size_t size, PullCallback callback, void *priv)
 void NamedPipe::setTimeout(unsigned int timeout,
                            TimeoutCallback timeoutCb, void *priv)
 {
-	Utils::removeEventSourceIfNeeded(m_impl->timeoutInfo.tag);
+	m_impl->removeEventSourceIfNeeded(m_impl->timeoutInfo.tag);
 	if (timeout == 0)
 		return;
 	if (!timeoutCb) {
