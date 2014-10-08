@@ -80,7 +80,7 @@ describe('UsersView', function() {
   it('with delete privilege', function() {
     var userProfile = new HatoholUserProfile(defaultUsers[2]);
     var view = new UsersView(userProfile);
-    respond(usersJson);
+    respond(usersJson(defaultUsers));
     var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
 
     expect(heads).to.have.length(1);
