@@ -257,7 +257,10 @@ SmartTime HatoholArmPluginBase::getTimeOfLastEvent(
 			const HapiResTimeOfLastEvent *time =
 			  getObject()->getResponseBody
 			    <HapiResTimeOfLastEvent>(replyBuf);
-			timespec ts = {(time_t)time->sec, time->nsec};
+			timespec ts = {
+				(time_t)time->sec,
+				(long)time->nsec
+			};
 			lastTime = SmartTime(ts);
 			setSucceeded();
 		}
