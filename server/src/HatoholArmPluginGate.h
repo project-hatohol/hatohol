@@ -146,7 +146,6 @@ protected:
 	void setGLibMainContext(GMainContext *context);
 
 	static gboolean detectedArmPluginTimeout(void *data);
-	static void removeArmPluginTimeout(gpointer data);
 
 	static gboolean pipeRdErrCb(GIOChannel *source,
 	                            GIOCondition condition, gpointer data);

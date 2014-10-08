@@ -319,15 +319,6 @@ gboolean HatoholArmPluginGate::detectedArmPluginTimeout(void *data)
 	return G_SOURCE_REMOVE;
 }
 
-void HatoholArmPluginGate::removeArmPluginTimeout(gpointer data)
-{
-	HatoholArmPluginGate *obj = static_cast<HatoholArmPluginGate *>(data);
-	if (obj->m_impl->timerTag != INVALID_EVENT_ID) {
-		g_source_remove(obj->m_impl->timerTag);
-		obj->m_impl->timerTag = INVALID_EVENT_ID;
-	}
-}
-
 void HatoholArmPluginGate::onPriorToFetchMessage(void)
 {
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
@@ -342,16 +333,18 @@ void HatoholArmPluginGate::onPriorToFetchMessage(void)
 
 void HatoholArmPluginGate::onSuccessFetchMessage(void)
 {
-	Utils::executeOnGLibEventLoop(removeArmPluginTimeout, this,
-	                              SYNC, getGLibMainContext());
+	Utils::removeEventSourceIfNeeded(
+	  m_impl->timerTag, SYNC, getGLibMainContext());
+	m_impl->timerTag = INVALID_EVENT_ID;
 }
 
 void HatoholArmPluginGate::onFailureFetchMessage(void)
 {
 	setPluginConnectStatus(COLLECT_NG_AMQP_CONNECT_ERROR,
 			       HAPERR_UNAVAILABLE_HAP);
-	Utils::executeOnGLibEventLoop(removeArmPluginTimeout, this,
-	                              SYNC, getGLibMainContext());
+	Utils::removeEventSourceIfNeeded(
+	  m_impl->timerTag, SYNC, getGLibMainContext());
+	m_impl->timerTag = INVALID_EVENT_ID;
 }
 
 void HatoholArmPluginGate::onFailureReceivedMessage(void)
