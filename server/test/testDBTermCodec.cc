@@ -55,7 +55,7 @@ void data_getUint64(void)
 		       "expect", G_TYPE_STRING, "2147483647",
 		       NULL);
 	gcut_add_datum("Positive 32bit Max + 1",
-		       "val", G_TYPE_UINT64, (guint64)2147483648UL,
+		       "val", G_TYPE_UINT64, (guint64)G_MAXINT32 + 1,
 		       "expect", G_TYPE_STRING, "2147483648",
 		       NULL);
 	gcut_add_datum("Positive 64bit Poistive Max",
