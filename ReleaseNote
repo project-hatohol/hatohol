@@ -1,12 +1,41 @@
-2014-07-23 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09alpha
+2014-09-25 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09
 
-	[Server] Introduce the pagination feature to TriggersView and LatestView (#246)
-	[Server] Use auto mutex (#255)
-	[Server] Add more tests for action & issue sender (#256)
-	[Server] Add a new query option "type" to the rest resource "action" (#257)
-	[Server] Add operation privilege types for issue settings (#264)
-	[Server] Potential problem in HatoholArmPluginInterface (#242)
-	[Server] Can't get Event data (#252)
+	* New Features
+	[Server] Support OpenStack's ceilometer as a monitoring server (#145)
+	[Server] Monitor the conection with monitoring servers (#251)
+	[Server] Execute Action at monitoring server failure (#251)
+	[Server] Add UI for configuring incident management feature
+	[Server] Enable to synchronize statuses of Redmine issues
+	[Server] Support Zabbix 2.4 (#197)
+	[Server] Store all data in MySQL DB. SQLite3 is not used since this
+	version (#394, #410, #423, #424)
+	[Server] Replace hatohol-config-db-creator with a new setup script
+	hatohol-db-initiator (#597)
+	[Server] Introduce a Hatohol DB configuration file (#336)
+	[Client] Redesign server edit dialog
+	[Server] Delete actions whose owner is deleted (#107, #435)
+	[Client] Add links to show events concerned with triggers
+	[Client] Add "Settings" sub menu to the navigation menu bar
+	[Client] Paginate "Triggres" & "Latest data" page
+	[Client] Add a favicon
+
+	* Bug fixes
+	[Client] Use POST method not to expose user name and password in access logs. (#575)
+	[Server] Check a DB connection at the start up and exit soon with error code if it failed (#591)
+	[Client] Allow browser to remember user name and password in the login dialog
+	[Server] Solve a problem that Hatohol server fails to get event data in specific case (#252)
+	[Server] Solve a problem when user set timeout of action, command is forced termination. (#646, #647)
+
+	* Contributors
+	- Jairo Eduardo Lopez
+	- Kazuhiro Yamato
+	- Kouhei Sutou
+	- Masayuki Nakagawa
+	- Noriki Nakamura
+	- Osamu Wakabayashi
+	- Takuro Ashie
+	- YOSHIFUJI Hideaki
+	- cosmo0920
 
 2014-06-27 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.06
 

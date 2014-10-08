@@ -16,10 +16,9 @@ Requires: mysql >= 5.1
 Requires: mysql-server >= 5.1
 Requires: libuuid >= 2.17
 Requires: qpid-cpp-client >= 0.14
-Requires: qpid-cpp-server >= 0.14
 Requires: librabbitmq >= 0.4.1
-Requires: hatohol-lib-common >= 14.06
-Requires: hatohol-arm-plugin-zabbix >= 14.06
+Requires: hatohol-lib-common >= %{version}
+Requires: hatohol-arm-plugin-zabbix >= %{version}
 BuildRequires: gcc-c++, pkgconfig
 BuildRequires: glib2-devel >= 2.22
 BuildRequires: libsoup-devel >= 2.22
@@ -28,7 +27,6 @@ BuildRequires: sqlite-devel >= 3.6
 BuildRequires: mysql-devel >= 5.1
 BuildRequires: libuuid-devel >= 2.17
 BuildRequires: qpid-cpp-client-devel >= 0.14
-BuildRequires: qpid-cpp-server-devel >= 0.14
 BuildRequires: librabbitmq-devel >= 0.4.1
 %description
 Hatohol collects monitoring information from running monitoring systems
@@ -41,7 +39,7 @@ software.
 Summary: Arm plguin for Zabbix server.
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
-Requires: hatohol-lib-arm-plugin >= 14.06
+Requires: hatohol-lib-arm-plugin >= %{version}
 
 %description arm-plugin-zabbix
 arm-plugin-zabbix collects monitoring data from a Zabbix server and sends
@@ -59,7 +57,7 @@ Common libraries for hatohol and arm plugins.
 Summary: Library files for Hatohol Arm Plugin
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
-Requires: hatohol-lib-common >= 14.06
+Requires: hatohol-lib-common >= %{version}
 
 %description lib-arm-plugin
 Libraries for arm plugins.
@@ -127,6 +125,10 @@ rm -rf %{buildroot}
 %{_libexecdir}/hatohol/action/*
 %{_datadir}/hatohol/hatohol.centos
 %{_datadir}/hatohol/hatohol.debian
+%{_sysconfdir}/hatohol/hatohol.conf
+%{_datadir}/hatohol/sql/create-db.sql
+%{_datadir}/hatohol/sql/init-user.sql
+%{_datadir}/hatohol/sql/server-type.sql
 
 %files arm-plugin-zabbix
 %{_sbindir}/hatohol-arm-plugin-zabbix
@@ -141,7 +143,7 @@ rm -rf %{buildroot}
 %files client
 %defattr(-,root,root,-)
 %{_libexecdir}/hatohol/client/*
-/etc/httpd/conf.d/hatohol.conf
+%{_sysconfdir}/httpd/conf.d/hatohol.conf
 
 %files devel
 %defattr(-,root,root,-)
@@ -150,14 +152,51 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
-* Wed Jul 23 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-1
-- [Server] Introduce the pagination feature to TriggersView and LatestView (#246)
-- [Server] Use auto mutex (#255)
-- [Server] Add more tests for action & issue sender (#256)
-- [Server] Add a new query option "type" to the rest resource "action" (#257)
-- [Server] Add operation privilege types for issue settings (#264)
-- [Server] Potential problem in HatoholArmPluginInterface (#242)
-- [Server] Can't get Event data (#252)
+* Tue Sep 30 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-1
+- Updated to 14.09 release.
+* Tue Sep 30 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-0.6
+- Update to 14.09-rc3
+  - Bug fix
+    - Solve a problem that user can not add incident management server. (#650)
+* Tue Sep 30 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-0.5
+- Update to 14.09-RC2 (Just rebuild of RC1)
+* Tue Sep 30 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-0.4
+- Update to 14.09-RC1
+  - Bug fix
+    - Solve a problem when user set timeout of action, command is forced termination. (#646, #647)
+* Fri Sep 26 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-0.3
+- Update to 14.09-pre3
+  - Bug fix
+    - Fix wrong library name in hatohol-db-initiator
+  - Modification of spec file and RPM file.
+    - Fix problems when RPM build.
+* Thu Sep 25 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-0.1
+- Update to 14.09-pre1
+  - New features
+    - [Server] Support OpenStack's ceilometer as a monitoring server (#145)
+    - [Server] Monitor the conection with monitoring servers (#251)
+    - [Server] Execute Action at monitoring server failure (#251)
+    - [Server] Add UI for configuring incident management feature
+    - [Server] Enable to synchronize statuses of Redmine issues
+    - [Server] Support Zabbix 2.4 (#197)
+    - [Server] Store all data in MySQL DB. SQLite3 is not used since this
+    - version (#394, #410, #423, #424)
+    - [Server] Replace hatohol-config-db-creator with a new setup script
+    - hatohol-db-initiator (#597)
+    - [Server] Introduce a Hatohol DB configuration file (#336)
+    - [Client] Redesign server edit dialog
+    - [Server] Delete actions whose owner is deleted (#107, #435)
+    - [Client] Add links to show events concerned with triggers
+    - [Client] Add "Settings" sub menu to the navigation menu bar
+    - [Client] Paginate "Triggres" & "Latest data" page
+    - [Client] Add a favicon
+  - Bug fixes
+    - [Client] Use POST method not to expose user name and password in access logs. (#575)
+    - [Server] Check a DB connection at the start up and exit soon with error code if it failed (#591)
+    - [Client] Allow browser to remember user name and password in the login dialog
+    - [Server] Solve a problem that Hatohol server fails to get event data in specific case (#252)
+  - Modification of spec file and RPM file.
+    - Remove unnecessary require package
 
 * Fri Jun 27 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.06-2
 - [Server] Support Zabbix 2.2 (#186)
