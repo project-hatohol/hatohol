@@ -26,7 +26,7 @@
 #include <libsoup/soup.h>
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 // TODO: should share with other classes such as IncidentSenderRedmine
 static const char *MIME_JSON = "application/json";
@@ -164,11 +164,11 @@ struct ArmRedmine::Impl
 	void handleError(int soupStatus, const string &response)
 	{
 		if (SOUP_STATUS_IS_TRANSPORT_ERROR(soupStatus)) {
-			MLPL_ERR("Transport error: %d %s\n",
+			HFL_ERR("Transport error: %d %s\n",
 				 soupStatus,
 				 soup_status_get_phrase(soupStatus));
 		} else {
-			MLPL_ERR("The server returns an error: %d %s\n",
+			HFL_ERR("The server returns an error: %d %s\n",
 				 soupStatus,
 				 soup_status_get_phrase(soupStatus));
 		}
@@ -178,7 +178,7 @@ struct ArmRedmine::Impl
 	{
 		JSONParser agent(response);
 		if (agent.hasError()) {
-			MLPL_ERR("Failed to parse error response: %s\n",
+			HFL_ERR("Failed to parse error response: %s\n",
 				 agent.getErrorMessage());
 			return PARSE_RESULT_ERROR;
 		}
@@ -189,8 +189,8 @@ struct ArmRedmine::Impl
 
 		bool succeeded = agent.startObject("issues");
 		if (!succeeded) {
-			MLPL_ERR("Failed to parse issues.\n");
-			MLPL_DBG("Response: %s\n", response.c_str());
+			HFL_ERR("Failed to parse issues.\n");
+			HFL_DBG("Response: %s\n", response.c_str());
 			return PARSE_RESULT_ERROR;
 		}
 
@@ -272,7 +272,7 @@ std::string ArmRedmine::getQuery(void)
 gpointer ArmRedmine::mainThread(HatoholThreadArg *arg)
 {
 	const IncidentTrackerInfo &trackerInfo = m_impl->m_incidentTrackerInfo;
-	MLPL_INFO("started: ArmRedmine "
+	HFL_INFO("started: ArmRedmine "
 		  "(Tracker ID: %" FMT_INCIDENT_TRACKER_ID ", Nickname: %s)\n",
 	          trackerInfo.id, trackerInfo.nickname.c_str());
 	return ArmBase::mainThread(arg);
@@ -283,7 +283,7 @@ ArmBase::ArmPollingResult ArmRedmine::mainThreadOneProc(void)
 	if (m_impl->m_lastUpdateTime == 0) {
 		// There is no incident in DB. Shouldn't reach here because
 		// it's already checked at startIfNeeded().
-		MLPL_ERR("ArmRedmine was started without valid incidents!");
+		HFL_ERR("ArmRedmine was started without valid incidents!");
 		return COLLECT_OK;
 	}
 
@@ -295,7 +295,7 @@ RETRY:
 	url += "?";
 	url += getQuery();
 
-	MLPL_DBG("Send request:\n"
+	HFL_DBG("Send request:\n"
 		 "  Tracker ID: %d\n"
 		 "  Nickname: %s\n"
 		 "  Query: %s\n",
@@ -318,14 +318,14 @@ RETRY:
 	switch (result) {
 	case PARSE_RESULT_NEED_NEXT_PAGE:
 		if (m_impl->m_page >= m_impl->m_pageLimit) {
-			MLPL_ERR("Too many updated records "
+			HFL_ERR("Too many updated records "
 				 "or something is wrong!\n");
 			return COLLECT_NG_INTERNAL_ERROR;
 		}
 		++m_impl->m_page;
 		goto RETRY;
 	case PARSE_RESULT_OK:
-		MLPL_DBG("Succeeded to update for Tracker ID: %d\n",
+		HFL_DBG("Succeeded to update for Tracker ID: %d\n",
 			 trackerInfo.id);
 		return COLLECT_OK;
 	case PARSE_RESULT_ERROR:

@@ -56,7 +56,7 @@ run Hatohol with a debug mode
 run Hatohol server with --test-mode  
 Ex.)
 
-    $ LD_LIBRARY_PATH=mlpl/src/.libs:src/.libs HATOHOL_DB_DIR=~/tmp src/.libs/hatohol --pid-file ~/tmp/hatohol.pid --foreground --test-mode
+    $ LD_LIBRARY_PATH=hfl/src/.libs:src/.libs HATOHOL_DB_DIR=~/tmp src/.libs/hatohol --pid-file ~/tmp/hatohol.pid --foreground --test-mode
 
 run djang with debug mode (set an environment variable: HATOHOL_DEBUG=1)
 

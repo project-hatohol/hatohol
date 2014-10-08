@@ -76,7 +76,7 @@ private:
 #define THROW_HATOHOL_EXCEPTION(FMT, ...) \
 do { \
 	throw HatoholException( \
-	  mlpl::StringUtils::sprintf(FMT, ##__VA_ARGS__), \
+	  hfl::StringUtils::sprintf(FMT, ##__VA_ARGS__), \
 	  __FILE__, __LINE__); \
 } while (0)
 
@@ -130,7 +130,7 @@ _buildExpect<bool, true>(bool exp)
 do { \
         throw HatoholException( \
 	  ERROR_CODE, \
-          mlpl::StringUtils::sprintf(FMT, ##__VA_ARGS__), \
+          hfl::StringUtils::sprintf(FMT, ##__VA_ARGS__), \
 	  __FILE__, __LINE__); \
  } while (0)
 

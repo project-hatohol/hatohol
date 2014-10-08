@@ -19,7 +19,7 @@
 
 #include <Logger.h>
 #include <Mutex.h>
-using namespace mlpl;
+using namespace hfl;
 
 #include <sstream>
 #include <libsoup/soup.h>
@@ -105,14 +105,14 @@ void ArmZabbixAPI::updateEvents(void)
 {
 	const EventIdType serverLastEventId = getEndEventId(false);
 	if (serverLastEventId == EVENT_ID_NOT_FOUND) {
-		MLPL_ERR("Last event ID is not found\n");
+		HFL_ERR("Last event ID is not found\n");
 		return;
 	}
 
 	ThreadLocalDBCache cache;
 	const EventIdType dbLastEventId =
 	  cache.getMonitoring().getLastEventId(m_impl->zabbixServerId);
-	MLPL_DBG("The last event ID in Hatohol DB: %" FMT_EVENT_ID "\n", dbLastEventId);
+	HFL_DBG("The last event ID in Hatohol DB: %" FMT_EVENT_ID "\n", dbLastEventId);
 	EventIdType eventIdFrom = dbLastEventId == EVENT_ID_NOT_FOUND ?
 	                          getEndEventId(true) :
 	                          dbLastEventId + 1;
@@ -149,7 +149,7 @@ void ArmZabbixAPI::updateGroups(void)
 gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	MLPL_INFO("started: ArmZabbixAPI (server: %s)\n",
+	HFL_INFO("started: ArmZabbixAPI (server: %s)\n",
 	          svInfo.hostName.c_str());
 	ArmBase::registerAvailableTrigger(COLLECT_NG_PARSER_ERROR,
 					  FAILED_PARSER_JSON_DATA_TRIGGER_ID,
@@ -259,13 +259,13 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 	} catch (const HatoholException &he) {
 		clearAuthToken();
 		if (he.getErrCode() == HTERR_FAILED_CONNECT_ZABBIX) {
-			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
+			HFL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
 			return COLLECT_NG_DISCONNECT_ZABBIX;
 		} else if (he.getErrCode() == HTERR_FAILED_TO_PARSE_JSON_DATA) {
-			MLPL_ERR("Error Message parse: %s %d\n", he.what(), he.getErrCode());
+			HFL_ERR("Error Message parse: %s %d\n", he.what(), he.getErrCode());
 			return COLLECT_NG_PARSER_ERROR;
 		}
-		MLPL_ERR("Error on update: %s %d\n", he.what(), he.getErrCode());
+		HFL_ERR("Error on update: %s %d\n", he.what(), he.getErrCode());
 		return COLLECT_NG_INTERNAL_ERROR;;
 	}
 

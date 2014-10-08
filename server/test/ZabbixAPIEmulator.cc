@@ -27,7 +27,7 @@
 #include "HatoholException.h"
 #include "Helpers.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const int COUNT_ELEMENT_NAMES = 10;
 
@@ -245,7 +245,7 @@ void ZabbixAPIEmulator::handlerAPI
 	try {
 		obj->handlerAPIDispatch(arg);
 	} catch (const exception &e) {
-		MLPL_ERR("Got exception: %s\n", e.what());
+		HFL_ERR("Got exception: %s\n", e.what());
 		soup_message_set_status(msg, SOUP_STATUS_INTERNAL_SERVER_ERROR);
 	}
 }

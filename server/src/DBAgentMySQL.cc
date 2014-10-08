@@ -24,7 +24,7 @@
 #include "SeparatorInjector.h"
 #include "Params.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const size_t DEFAULT_NUM_RETRY = 5;
 static const size_t RETRY_INTERVAL[DEFAULT_NUM_RETRY] = {
@@ -72,7 +72,7 @@ void DBAgentMySQL::init(void)
 {
 	char *env = getenv("HATOHOL_MYSQL_ENGINE_MEMORY");
 	if (env && atoi(env) == 1) {
-		MLPL_INFO("Use memory engine\n");
+		HFL_INFO("Use memory engine\n");
 		Impl::engineStr = " ENGINE=MEMORY";
 	}
 
@@ -299,7 +299,7 @@ void DBAgentMySQL::createTable(const TableProfile &tableProfile)
 
 void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 {
-	using mlpl::StringUtils::sprintf;
+	using hfl::StringUtils::sprintf;
 	struct {
 		string operator ()(const DBAgent::InsertArg &insertArg,
 		                   const size_t &idx, MYSQL *mysql)
@@ -557,7 +557,7 @@ void DBAgentMySQL::connect(void)
 	                                   db, m_impl->port,
 	                                   unixSocket, clientFlag);
 	if (!result) {
-		MLPL_ERR("Failed to connect to MySQL: %s: (error: %u) %s\n",
+		HFL_ERR("Failed to connect to MySQL: %s: (error: %u) %s\n",
 		         db, mysql_errno(&m_impl->mysql),
 		         mysql_error(&m_impl->mysql));
 	}
@@ -589,7 +589,7 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 	for (size_t i = 0; i < numRetry; i++) {
 		if (mysql_query(&m_impl->mysql, statement.c_str()) == 0) {
 			if (i >= 1) {
-				MLPL_INFO("Recoverd: %s (retry #%zd).\n",
+				HFL_INFO("Recoverd: %s (retry #%zd).\n",
 				          statement.c_str(), i);
 			}
 			return;
@@ -599,7 +599,7 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 			break;
 		if (m_impl->inTransaction)
 			break;
-		MLPL_ERR("Failed to query: %s: (%u) %s.\n",
+		HFL_ERR("Failed to query: %s: (%u) %s.\n",
 		         statement.c_str(), errorNumber,
 		         mysql_error(&m_impl->mysql));
 		if (i == numRetry - 1)
@@ -609,7 +609,7 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 		// the maximum retry count.
 		for (; i < numRetry; i++) {
 			size_t sleepTimeSec = RETRY_INTERVAL[i];
-			MLPL_INFO("Try to connect after %zd sec. (%zd/%zd)\n",
+			HFL_INFO("Try to connect after %zd sec. (%zd/%zd)\n",
 			          sleepTimeSec, i+1, numRetry);
 			sleepAndReconnect(sleepTimeSec);
 			if (m_impl->connected)

@@ -49,7 +49,7 @@
 #include "ConfigManager.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 int FaceRest::API_VERSION = 3;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
@@ -122,7 +122,7 @@ struct FaceRest::Impl {
 		restJobLock.lock();
 		restJobQueue.push(job);
 		if (sem_post(&waitJobSemaphore) == -1)
-			MLPL_ERR("Failed to call sem_post: %d\n",
+			HFL_ERR("Failed to call sem_post: %d\n",
 				 errno);
 		restJobLock.unlock();
 	}
@@ -130,7 +130,7 @@ struct FaceRest::Impl {
 	bool waitJob(void)
 	{
 		if (sem_wait(&waitJobSemaphore) == -1)
-			MLPL_ERR("Failed to call sem_wait: %d\n", errno);
+			HFL_ERR("Failed to call sem_wait: %d\n", errno);
 		return !quitRequest.get();
 	}
 
@@ -187,13 +187,13 @@ protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg)
 	{
 		ResourceHandler *job;
-		MLPL_INFO("start face-rest worker\n");
+		HFL_INFO("start face-rest worker\n");
 		while ((job = waitNextJob())) {
 			job->handleInTryBlock();
 			job->unpauseResponse();
 			job->unref();
 		}
-		MLPL_INFO("exited face-rest worker\n");
+		HFL_INFO("exited face-rest worker\n");
 		return NULL;
 	}
 
@@ -238,20 +238,20 @@ FaceRest::FaceRest(FaceRestParam *param)
 			m_impl->port = port;
 	}
 
-	MLPL_INFO("started face-rest, port: %d\n", m_impl->port);
+	HFL_INFO("started face-rest, port: %d\n", m_impl->port);
 }
 
 FaceRest::~FaceRest()
 {
 	waitExit();
 
-	MLPL_INFO("FaceRest: stop process: started.\n");
+	HFL_INFO("FaceRest: stop process: started.\n");
 	if (m_impl->soupServer) {
 		SoupSocket *sock = soup_server_get_listener(m_impl->soupServer);
 		soup_socket_disconnect(sock);
 		g_object_unref(m_impl->soupServer);
 	}
-	MLPL_INFO("FaceRest: stop process: completed.\n");
+	HFL_INFO("FaceRest: stop process: completed.\n");
 }
 
 void FaceRest::waitExit(void)
@@ -347,7 +347,7 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	                                    SOUP_SERVER_ASYNC_CONTEXT,
 	                                    m_impl->gMainCtx, NULL);
 	if (errno == EADDRINUSE)
-		MLPL_ERR("%s", Utils::getUsingPortInfo(m_impl->port).c_str());
+		HFL_ERR("%s", Utils::getUsingPortInfo(m_impl->port).c_str());
 	HATOHOL_ASSERT(m_impl->soupServer,
 	               "failed: soup_server_new: %u, errno: %d\n",
 	               m_impl->port, errno);
@@ -381,7 +381,7 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	if (isAsyncMode())
 		stopWorkers();
 
-	MLPL_INFO("exited face-rest\n");
+	HFL_INFO("exited face-rest\n");
 	return NULL;
 }
 
@@ -400,7 +400,7 @@ void FaceRest::handlerDefault(SoupServer *server, SoupMessage *msg,
                               const char *path, GHashTable *query,
                               SoupClientContext *client, gpointer user_data)
 {
-	MLPL_DBG("Default handler: path: %s, method: %s\n",
+	HFL_DBG("Default handler: path: %s, method: %s\n",
 	         path, msg->method);
 	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 }
@@ -524,14 +524,14 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 {
 	gchar *user = (gchar *)g_hash_table_lookup(job->m_query, "user");
 	if (!user) {
-		MLPL_INFO("Not found: user\n");
+		HFL_INFO("Not found: user\n");
 		job->replyError(HTERR_AUTH_FAILED);
 		return;
 	}
 	gchar *password
 	  = (gchar *)g_hash_table_lookup(job->m_query, "password");
 	if (!password) {
-		MLPL_INFO("Not found: password\n");
+		HFL_INFO("Not found: password\n");
 		job->replyError(HTERR_AUTH_FAILED);
 		return;
 	}
@@ -539,7 +539,7 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 	ThreadLocalDBCache cache;
 	UserIdType userId = cache.getUser().getUserId(user, password);
 	if (userId == INVALID_USER_ID) {
-		MLPL_INFO("Failed to authenticate: Client: %s, User: %s.\n",
+		HFL_INFO("Failed to authenticate: Client: %s, User: %s.\n",
 			  soup_client_context_get_host(job->m_client), user);
 		job->replyError(HTERR_AUTH_FAILED);
 		return;
@@ -843,7 +843,7 @@ void FaceRest::ResourceHandler::replyError(const HatoholError &hatoholError)
 		error += ": ";
 		error += optionMessage;
 	}
-	MLPL_INFO("reply error: %s\n", error.c_str());
+	HFL_INFO("reply error: %s\n", error.c_str());
 
 	JSONBuilder agent;
 	agent.startObject();
@@ -937,7 +937,7 @@ static string getTriggerBrief(
 		if (firstId == triggerInfo.id) {
 			triggerBrief = triggerInfo.brief;
 		} else {
-			MLPL_WARN("Failed to getTriggerInfo: "
+			HFL_WARN("Failed to getTriggerInfo: "
 			          "%" FMT_SERVER_ID ", %" FMT_TRIGGER_ID "\n",
 			          serverId, triggerId);
 		}
@@ -980,7 +980,7 @@ HatoholError FaceRest::ResourceHandler::addHostgroupsMap(
 	HatoholError err = dataStore->getHostgroupInfoList(hostgroupList,
 	                                                   option);
 	if (err != HTERR_OK) {
-		MLPL_ERR("Error: %d, user ID: %" FMT_USER_ID ", "
+		HFL_ERR("Error: %d, user ID: %" FMT_USER_ID ", "
 		         "sv ID: %" FMT_SERVER_ID "\n",
 		         err.getCode(), m_userId, serverInfo.id);
 		return err;

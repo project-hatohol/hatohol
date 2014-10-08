@@ -19,7 +19,7 @@
 
 #include "DBTablesHost.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const char *TABLE_NAME_HOST_LIST = "host_list";
 static const char *TABLE_NAME_HOST_INFO = "host_info";

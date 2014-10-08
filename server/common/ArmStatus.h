@@ -37,11 +37,11 @@ struct ArmInfo
 	bool             running;
 
 	ArmWorkingStatus stat;
-	mlpl::SmartTime  statUpdateTime;
+	hfl::SmartTime  statUpdateTime;
 	std::string      failureComment;
 
-	mlpl::SmartTime  lastSuccessTime;
-	mlpl::SmartTime  lastFailureTime;
+	hfl::SmartTime  lastSuccessTime;
+	hfl::SmartTime  lastFailureTime;
 
 	size_t           numUpdate;
 	size_t           numFailure;

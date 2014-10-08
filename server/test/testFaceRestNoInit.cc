@@ -22,7 +22,7 @@
 #include "Helpers.h"
 #include "RestResourceHost.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 // ---------------------------------------------------------------------------
 // testFaceRestNoInit

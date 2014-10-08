@@ -21,7 +21,7 @@
 #include "Utils.h"
 #include "ItemData.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 ostream &operator<<(ostream &os, const ItemData &itemData)
 {
@@ -255,7 +255,7 @@ template<> bool ItemUint64::operator >(const ItemData &itemData) const
 	} else if (itemData.getItemType() == ITEM_TYPE_INT) {
 		const int &data = ItemInt::cast(itemData)->get();
 		if (data < 0) {
-			MLPL_WARN("'data' is negative. "
+			HFL_WARN("'data' is negative. "
 			          "The result may not be wrong.");
 			return true;
 		}
@@ -274,7 +274,7 @@ template<> bool ItemUint64::operator <(const ItemData &itemData) const
 	} else if (itemData.getItemType() == ITEM_TYPE_INT) {
 		const int &data = ItemInt::cast(itemData)->get();
 		if (data < 0) {
-			MLPL_WARN("'data' is negative. "
+			HFL_WARN("'data' is negative. "
 			          "The result may not be wrong.");
 			return true;
 		}
@@ -293,7 +293,7 @@ template<> bool ItemUint64::operator >=(const ItemData &itemData) const
 	} else if (itemData.getItemType() == ITEM_TYPE_INT) {
 		const int &data = ItemInt::cast(itemData)->get();
 		if (data < 0) {
-			MLPL_WARN("'data' is negative. "
+			HFL_WARN("'data' is negative. "
 			          "The result may not be wrong.");
 			return true;
 		}
@@ -313,7 +313,7 @@ template<> bool ItemUint64::operator <=(const ItemData &itemData) const
 	} else if (itemData.getItemType() == ITEM_TYPE_INT) {
 		const int &data = ItemInt::cast(itemData)->get();
 		if (data < 0) {
-			MLPL_WARN("'data' is negative. "
+			HFL_WARN("'data' is negative. "
 			          "The result may not be wrong.");
 			return false;
 		}
@@ -332,7 +332,7 @@ template<> bool ItemUint64::operator ==(const ItemData &itemData) const
 	} else if (itemData.getItemType() == ITEM_TYPE_INT) {
 		const int &data = ItemInt::cast(itemData)->get();
 		if (data < 0) {
-			MLPL_WARN("'data' is negative. "
+			HFL_WARN("'data' is negative. "
 			          "The result may not be wrong.");
 			return false;
 		}

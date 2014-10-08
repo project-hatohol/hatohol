@@ -22,7 +22,7 @@
 #include <StringUtils.h>
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 static map<HatoholErrorCode, string> errorCodeNames;
 static map<HatoholErrorCode, string> errorMessages;
 

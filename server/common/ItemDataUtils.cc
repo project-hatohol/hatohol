@@ -19,7 +19,7 @@
 
 #include "ItemDataUtils.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 // ---------------------------------------------------------------------------
 // ItemDataUtils
@@ -36,7 +36,7 @@ ItemDataPtr ItemDataUtils::createAsNumber(const string &word)
 	}
 
 	double number = atof(word.c_str());
-	MLPL_BUG("Not implemented: %s (%f)\n", __PRETTY_FUNCTION__, number);
+	HFL_BUG("Not implemented: %s (%f)\n", __PRETTY_FUNCTION__, number);
 	return ItemDataPtr();
 }
 
@@ -93,7 +93,7 @@ bool ItemDataIndex::insert(const ItemData *itemData,
 		pair<ItemDataForIndexSetIterator, bool> result = 
 		  m_index->insert(itemPtrForIndex);
 		if (!result.second) {
-			MLPL_DBG("Failed to insert: %s\n",
+			HFL_DBG("Failed to insert: %s\n",
 			         itemData->getString().c_str());
 		}
 		return result.second;
@@ -102,7 +102,7 @@ bool ItemDataIndex::insert(const ItemData *itemData,
 		m_multiIndex->insert(itemPtrForIndex);
 		return true;
 	}
-	MLPL_WARN("Unexpectedly insert() is called: type: %d\n", m_type);
+	HFL_WARN("Unexpectedly insert() is called: type: %d\n", m_type);
 	return false;
 }
 
@@ -126,6 +126,6 @@ void ItemDataIndex::find(const ItemData *itemData,
 		for (; it != itrSet.second; ++it)
 			foundItems.push_back(*it);
 	} else {
-		MLPL_WARN("Unexpectedly find() is called: type: %d\n", m_type);
+		HFL_WARN("Unexpectedly find() is called: type: %d\n", m_type);
 	}
 }

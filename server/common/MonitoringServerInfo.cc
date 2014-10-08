@@ -22,7 +22,7 @@
 #include "MonitoringServerInfo.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 string MonitoringServerInfo::getHostAddress(bool forURI) const
 {

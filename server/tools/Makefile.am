@@ -9,14 +9,14 @@ dist_bin_SCRIPTS = hatohol-voyager \
 actiondir = $(libexecdir)/$(PACKAGE)/action
 dist_action_SCRIPTS = hatohol-actor-mail
 
-MLPL_CFLAGS = -I ../mlpl/src
-MLPL_LIBS = ../mlpl/src/libmlpl.la
+HFL_CFLAGS = -I ../hfl/src
+HFL_LIBS = ../hfl/src/libhfl.la
 
 AM_CXXFLAGS = \
 	$(OPT_CXXFLAGS) \
-	-I ../src -I ../common $(MLPL_CFLAGS) $(GLIB_CFLAGS) $(MYSQL_CFLAGS) $(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS)
+	-I ../src -I ../common $(HFL_CFLAGS) $(GLIB_CFLAGS) $(MYSQL_CFLAGS) $(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS)
 
-AM_LDFLAGS = ../src/libhatohol.la ../common/libhatohol-common.la $(MLPL_LIBS) $(GLIB_LIBS) $(MYSQL_LIBS)
+AM_LDFLAGS = ../src/libhatohol.la ../common/libhatohol-common.la $(HFL_LIBS) $(GLIB_LIBS) $(MYSQL_LIBS)
 
 hatohol_def_src_file_generator_SOURCES = hatohol-def-src-file-generator.cc
 

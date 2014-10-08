@@ -28,7 +28,7 @@
 #include "EventSemaphore.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct ChildInfo {
 	const pid_t pid;
@@ -56,7 +56,7 @@ struct ChildInfo {
 			return;
 		int ret = kill(pid, SIGKILL);
 		if (ret == -1 && errno == ESRCH) {
-			MLPL_INFO("No process w/ pid: %d\n", pid);
+			HFL_INFO("No process w/ pid: %d\n", pid);
 			return;
 		}
 		HATOHOL_ASSERT(
@@ -296,7 +296,7 @@ HatoholError ChildProcessManager::create(CreateArg &arg)
 			reason = error->message;
 			g_error_free(error);
 		}
-		MLPL_ERR("Failed to create process: (%s), %s\n",
+		HFL_ERR("Failed to create process: (%s), %s\n",
 		         argv[0], reason.c_str());
 		return HatoholError(HTERR_FAILED_TO_SPAWN, reason);
 	}
@@ -347,7 +347,7 @@ gpointer ChildProcessManager::mainThread(HatoholThreadArg *arg)
 			break;
 		}
 		if (ret == -1) {
-			MLPL_ERR("Failed to call wait_id: %d\n", errno);
+			HFL_ERR("Failed to call wait_id: %d\n", errno);
 			continue;
 		}
 		collected(&siginfo);
@@ -381,7 +381,7 @@ void ChildProcessManager::collected(const siginfo_t *siginfo)
 	if (!childInfo) {
 		unlocker.reap();
 		m_impl->postWaitChildSem();
-		MLPL_INFO("Collected unwatched child: %d\n", siginfo->si_pid);
+		HFL_INFO("Collected unwatched child: %d\n", siginfo->si_pid);
 		return;
 	}
 	if (childInfo->killed)

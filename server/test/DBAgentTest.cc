@@ -22,7 +22,7 @@
 #include "SQLUtils.h"
 #include "Helpers.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 class TestDBAgent : public DBAgent {
 public:
@@ -931,7 +931,7 @@ void dbAgentUpdateIfExistEleseInsert(DBAgent &dbAgent, DBAgentChecker &checker)
 
 void dbAgentGetLastInsertId(DBAgent &dbAgent, DBAgentChecker &checker)
 {
-	using mlpl::StringUtils::sprintf;
+	using hfl::StringUtils::sprintf;
 
 	// create table
 	createTestTableAutoInc(dbAgent, checker);

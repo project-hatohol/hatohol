@@ -32,7 +32,7 @@ private:
 public:
 	ActionExecArgMaker(void);
 	virtual ~ActionExecArgMaker();
-	void makeExecArg(mlpl::StringVector &argVect, const std::string &cmd);
+	void makeExecArg(hfl::StringVector &argVect, const std::string &cmd);
 	static void parseResidentCommand(
 	  const std::string &command, std::string &path, std::string &option);
 

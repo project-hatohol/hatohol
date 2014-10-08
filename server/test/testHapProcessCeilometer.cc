@@ -22,7 +22,7 @@
 #include "HapProcessCeilometer.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 namespace testHapProcessCeilometer {
 

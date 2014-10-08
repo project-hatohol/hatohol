@@ -27,7 +27,7 @@
 #include "ConfigManager.h"
 #include "DBAgentTest.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 namespace testDBAgentSQLite3 {
 

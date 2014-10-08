@@ -41,8 +41,8 @@ Makefile.in
 /missing
 /server/hap/hatohol-arm-plugin-zabbix
 /server/hatohol/hatohol_def.py
-/server/mlpl/mlpl.pc
-/server/mlpl/test/loggerTestee
+/server/hfl/hfl.pc
+/server/hfl/test/loggerTestee
 /server/src/hatohol
 /server/src/hatohol-resident-yard
 /server/test/ActionTp

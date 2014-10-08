@@ -20,7 +20,7 @@
 #include <glib.h>
 
 #include <Logger.h>
-using namespace mlpl;
+using namespace hfl;
 
 #include "Utils.h"
 #include "FaceBase.h"

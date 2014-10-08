@@ -26,7 +26,7 @@
 #include "UnifiedDataStore.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct ItemFetchWorker::Impl
 {
@@ -123,7 +123,7 @@ bool ItemFetchWorker::updateIsNeeded(void)
 void ItemFetchWorker::waitCompletion(void)
 {
 	if (sem_wait(&m_impl->updatedSemaphore) == -1)
-		MLPL_ERR("Failed to call sem_wait: %d\n", errno);
+		HFL_ERR("Failed to call sem_wait: %d\n", errno);
 }
 
 // ---------------------------------------------------------------------------
@@ -145,7 +145,7 @@ void ItemFetchWorker::updatedCallback(ClosureBase *closure)
 		return;
 
 	if (sem_post(&m_impl->updatedSemaphore) == -1)
-		MLPL_ERR("Failed to call sem_post: %d\n", errno);
+		HFL_ERR("Failed to call sem_post: %d\n", errno);
 	m_impl->nextAllowedUpdateTime.setCurrTime();
 	m_impl->nextAllowedUpdateTime += m_impl->minUpdateInterval;
 	m_impl->itemFetchedSignal();

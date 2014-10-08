@@ -20,7 +20,7 @@
 #include "HatoholArmPluginGateTest.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 using namespace qpid::messaging;
 
 HatoholArmPluginGateTest::HatoholArmPluginGateTest(
@@ -79,13 +79,13 @@ void HatoholArmPluginGateTest::onTerminated(const siginfo_t *siginfo)
 	}
 	m_ctx.mainSem.post();
 	m_ctx.abnormalChildTerm = true;
-	MLPL_ERR("si_signo: %d, si_code: %d\n",
+	HFL_ERR("si_signo: %d, si_code: %d\n",
 	         siginfo->si_signo, siginfo->si_code);
 }
 
 int HatoholArmPluginGateTest::onCaughtException(const exception &e)
 {
-	MLPL_INFO("onCaughtException: %s\n", e.what());
+	HFL_INFO("onCaughtException: %s\n", e.what());
 	if (m_ctx.numRetry) {
 		canncelRetrySleepIfNeeded();
 		return m_ctx.retrySleepTime;

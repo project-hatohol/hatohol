@@ -23,7 +23,7 @@
 #include "FaceRestTestUtils.h"
 #include "Helpers.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 namespace testFaceRest {
 

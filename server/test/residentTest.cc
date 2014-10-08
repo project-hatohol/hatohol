@@ -28,7 +28,7 @@
 #include "Logger.h"
 #include "StringUtils.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct Context : public ResidentPullHelper<Context> {
 	string pipename;
@@ -53,7 +53,7 @@ struct Context : public ResidentPullHelper<Context> {
 	static gboolean pipeErrCb(GIOChannel *source,
 	                          GIOCondition condition, gpointer data)
 	{
-		MLPL_ERR("pipeError: %s\n",
+		HFL_ERR("pipeError: %s\n",
 		         Utils::getStringFromGIOCondition(condition).c_str());
 		return FALSE;
 	}
@@ -100,7 +100,7 @@ static void testCmdCb(GIOStatus stat, SmartBuffer &sbuf,
 	} else if (cmdType == RESIDENT_TEST_CMD_UNBLOCK_REPLY_NOTIFY_EVENT) {
 		ctx->blockReplyNotfiyEvent = false;
 	} else {
-		MLPL_ERR("Unknown expected cmd: %d\n", cmdType);
+		HFL_ERR("Unknown expected cmd: %d\n", cmdType);
 		exit(EXIT_FAILURE);
 	}
 	ctx->pullHeader(testCmdCb);
@@ -126,7 +126,7 @@ static uint32_t init(const char *arg)
 		const string &str = argVect[i];
 		if (str == "--pipename") {
 			if (i == argVect.size() - 1) {
-				MLPL_BUG("No argument for --pipename");
+				HFL_BUG("No argument for --pipename");
 				return RESIDENT_MOD_INIT_ERROR;
 			}
 			i++;

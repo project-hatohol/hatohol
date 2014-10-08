@@ -252,7 +252,7 @@ public:
 
 	class CommandCallbacks : public UsedCountable {
 	public:
-		virtual void onGotReply(mlpl::SmartBuffer &replyBuf,
+		virtual void onGotReply(hfl::SmartBuffer &replyBuf,
 		                        const HapiCommandHeader &cmdHeader);
 		virtual void onError(const HapiResponseCode &code,
 		                     const HapiCommandHeader &cmdHeader);
@@ -280,9 +280,9 @@ public:
 	 * keep the internal consistency) are created and used.
 	 */
 	void send(
-	  const mlpl::SmartBuffer &smbuf, CommandCallbacks *callbacks = NULL);
+	  const hfl::SmartBuffer &smbuf, CommandCallbacks *callbacks = NULL);
 
-	void reply(const mlpl::SmartBuffer &replyBuf);
+	void reply(const hfl::SmartBuffer &replyBuf);
 	void replyError(const HapiResponseCode &code);
 	void replyOk(void);
 
@@ -316,7 +316,7 @@ public:
 	 *
 	 */
 	static const char *getString(
-	  const mlpl::SmartBuffer &repBuf,
+	  const hfl::SmartBuffer &repBuf,
 	  const void *head, const size_t &offset, const size_t &length);
 
 	/**
@@ -361,7 +361,7 @@ public:
 	 *
 	 * @return The index of the top of the appended header.
 	 */
-	static size_t appendItemTableHeader(mlpl::SmartBuffer &sbuf,
+	static size_t appendItemTableHeader(hfl::SmartBuffer &sbuf,
 	                                    const size_t &numGroups);
 
 	/**
@@ -373,7 +373,7 @@ public:
 	 * @param headerIndex
 	 * A top index of the HapiItemTableHeader that is to be completed.
 	 */
-	static void completeItemTable(mlpl::SmartBuffer &sbuf,
+	static void completeItemTable(hfl::SmartBuffer &sbuf,
 	                              const size_t &headerIndex);
 
 	/**
@@ -385,7 +385,7 @@ public:
 	 *
 	 * @param itemTablePtr An ItemTable to be appended.
 	 */
-	static void appendItemTable(mlpl::SmartBuffer &sbuf,
+	static void appendItemTable(hfl::SmartBuffer &sbuf,
 	                            ItemTablePtr itemTablePtr);
 
 	/**
@@ -402,7 +402,7 @@ public:
 	 *
 	 * @return The index of the top of the append header.
 	 */
-	static size_t appendItemGroupHeader(mlpl::SmartBuffer &sbuf,
+	static size_t appendItemGroupHeader(hfl::SmartBuffer &sbuf,
 	                                    const size_t &numItems);
 	/**
 	 * Append HapiItem to the SmartBuffer.
@@ -413,7 +413,7 @@ public:
 	 *
 	 * @param itemGrpPtr An ItemGroup to be appended.
 	 */
-	static void appendItemGroup(mlpl::SmartBuffer &sbuf,
+	static void appendItemGroup(hfl::SmartBuffer &sbuf,
 	                            ItemGroupPtr itemGrpPtr);
 	/**
 	 * Complete an ItemGroup on the buffer.
@@ -424,7 +424,7 @@ public:
 	 * @param headerIndex
 	 * A top index of the HapiItemGroupHeader that is to be completed.
 	 */
-	static void completeItemGroup(mlpl::SmartBuffer &sbuf,
+	static void completeItemGroup(hfl::SmartBuffer &sbuf,
 	                              const size_t &headerIndex);
 
 	/**
@@ -437,7 +437,7 @@ public:
 	 *
 	 * @param itemData An ItemData to be written.
 	 */
-	static void appendItemData(mlpl::SmartBuffer &sbuf,
+	static void appendItemData(hfl::SmartBuffer &sbuf,
 	                           ItemDataPtr itemData);
 
 	/**
@@ -452,7 +452,7 @@ public:
 	 *
 	 * @return A created ItemGroup.
 	 */
-	static ItemTablePtr createItemTable(mlpl::SmartBuffer &sbuf)
+	static ItemTablePtr createItemTable(hfl::SmartBuffer &sbuf)
 	  throw(HatoholException);
 
 	/**
@@ -467,7 +467,7 @@ public:
 	 *
 	 * @return A created ItemGroup.
 	 */
-	static ItemGroupPtr createItemGroup(mlpl::SmartBuffer &sbuf)
+	static ItemGroupPtr createItemGroup(hfl::SmartBuffer &sbuf)
 	  throw(HatoholException);
 
 	/**
@@ -480,7 +480,7 @@ public:
 	 *
 	 * @return A created ItemData.
 	 */
-	static ItemDataPtr createItemData(mlpl::SmartBuffer &sbuf)
+	static ItemDataPtr createItemData(hfl::SmartBuffer &sbuf)
 	  throw(HatoholException);
 
 	std::string getBrokerUrl(void) const;
@@ -532,7 +532,7 @@ protected:
 	 * @param smbuf
 	 * A received message. The index of smbuf has been reset to zero.
 	 */
-	virtual void onReceived(mlpl::SmartBuffer &smbuf);
+	virtual void onReceived(hfl::SmartBuffer &smbuf);
 	virtual void onGotError(const HatoholArmPluginError &hapError);
 	virtual void onHandledCommand(const HapiCommandCode &code);
 
@@ -543,7 +543,7 @@ protected:
 	 * A received response. The index of smbuf has been reset to zero.
 	 */
 	virtual void onGotResponse(const HapiResponseHeader *header,
-	                           mlpl::SmartBuffer &resBuf);
+	                           hfl::SmartBuffer &resBuf);
 
 	/**
 	 * Called when started to wait for a AMQP broker's response.
@@ -567,7 +567,7 @@ protected:
 
 	void sendInitiationPacket(void);
 	void sendInitiationRequest(void);
-	void initiation(const mlpl::SmartBuffer &sbuf);
+	void initiation(const hfl::SmartBuffer &sbuf);
 	void waitInitiationResponse(const HapiInitiationPacket *initPkt);
 	void replyInitiationPacket(const HapiInitiationPacket *initPkt);
 	void finishInitiation(const HapiInitiationPacket *initPkt);
@@ -578,13 +578,13 @@ protected:
 	 * @param sbuf    A smart buffer to be setup.
 	 * @param message A source message.
 	 */
-	void load(mlpl::SmartBuffer &sbuf,
+	void load(hfl::SmartBuffer &sbuf,
 	          const qpid::messaging::Message &message);
 
 	void parseCommand(const HapiCommandHeader *header,
-	                  mlpl::SmartBuffer &cmdBuf);
+	                  hfl::SmartBuffer &cmdBuf);
 	void parseResponse(const HapiResponseHeader *header,
-	                   mlpl::SmartBuffer &resBuf);
+	                   hfl::SmartBuffer &resBuf);
 
 	/**
 	 * Get the response header.
@@ -594,7 +594,7 @@ protected:
 	 *
 	 * @param resBuf A response buffer.
 	 */
-	const HapiResponseHeader *getResponseHeader(mlpl::SmartBuffer &resBuf)
+	const HapiResponseHeader *getResponseHeader(hfl::SmartBuffer &resBuf)
 	  throw(HatoholException);
 
 	/**
@@ -612,7 +612,7 @@ protected:
 	 * the body.
 	 */
 	template<class HeaderType, class BodyType>
-	BodyType *getBodyPointerWithCheck(const mlpl::SmartBuffer &buf,
+	BodyType *getBodyPointerWithCheck(const hfl::SmartBuffer &buf,
 	                                  const size_t &additionalSize = 0)
 	  throw(HatoholException)
 	{
@@ -653,7 +653,7 @@ protected:
 	 * the body.
 	 */
 	template<class BodyType>
-	BodyType *setupCommandHeader(mlpl::SmartBuffer &cmdBuf,
+	BodyType *setupCommandHeader(hfl::SmartBuffer &cmdBuf,
 	                             const HapiCommandCode &code,
 	                             const size_t &additionalSize = 0)
 	{
@@ -687,7 +687,7 @@ protected:
 	 * the body.
 	 */
 	template<class BodyType>
-	BodyType *getResponseBody(const mlpl::SmartBuffer &resBuf,
+	BodyType *getResponseBody(const hfl::SmartBuffer &resBuf,
 	                          const size_t &additionalSize = 0)
 	  throw(HatoholException)
 	{
@@ -712,7 +712,7 @@ protected:
 	 * the body.
 	 */
 	template<class BodyType>
-	BodyType *getCommandBody(const mlpl::SmartBuffer &cmdBuf,
+	BodyType *getCommandBody(const hfl::SmartBuffer &cmdBuf,
 	                         const size_t &additionalSize = 0)
 	  throw(HatoholException)
 	{
@@ -737,7 +737,7 @@ protected:
 	 */
 	template<class BodyType>
 	BodyType *setupResponseBuffer(
-	  mlpl::SmartBuffer &resBuf,
+	  hfl::SmartBuffer &resBuf,
 	  const size_t &additionalSize = 0,
 	  const HapiResponseCode &code = HAPI_RES_OK)
 	{
@@ -758,7 +758,7 @@ protected:
 	void setSequenceId(const uint32_t &sequenceId);
 	uint32_t getSequenceIdInProgress(void);
 
-	HapiMessageType getMessageType(const mlpl::SmartBuffer &smbuf);
+	HapiMessageType getMessageType(const hfl::SmartBuffer &smbuf);
 
 	/**
 	 * Get the received buffer that is currently being processed.
@@ -768,9 +768,9 @@ protected:
 	 * A currently processed receive buffer. Or NULL if no buffer is
 	 * processed.
 	 */
-	mlpl::SmartBuffer *getCurrBuffer(void);
+	hfl::SmartBuffer *getCurrBuffer(void);
 
-	void dumpBuffer(const mlpl::SmartBuffer &sbuf,
+	void dumpBuffer(const hfl::SmartBuffer &sbuf,
 	                const std::string &label = "");
 
 private:

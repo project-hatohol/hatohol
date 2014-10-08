@@ -71,7 +71,7 @@ struct Signal
 	virtual void clear(void);
 	virtual void operator()(void);
 	ClosureBaseList m_closures;
-	mlpl::ReadWriteLock m_rwlock;
+	hfl::ReadWriteLock m_rwlock;
 };
 
 #endif // Closure_h

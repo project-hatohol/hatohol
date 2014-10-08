@@ -55,7 +55,7 @@ DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
 	}
 #endif
 	default:
-		MLPL_BUG("Invalid monitoring system: %d\n", svInfo.type);
+		HFL_BUG("Invalid monitoring system: %d\n", svInfo.type);
 	}
 	return NULL;
 }

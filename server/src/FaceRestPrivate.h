@@ -82,7 +82,7 @@ public:
 	// arguments of SoupServerCallback
 	SoupMessage       *m_message;
 	std::string        m_path;
-	mlpl::StringVector m_pathElements;
+	hfl::StringVector m_pathElements;
 	GHashTable        *m_query;
 	SoupClientContext *m_client;
 
@@ -116,7 +116,7 @@ struct FaceRest::ResourceHandlerFactory
 #define REPLY_ERROR(JOB, ERR_CODE, ERR_MSG_FMT, ...) \
 do { \
 	std::string optMsg \
-	  = mlpl::StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
+	  = hfl::StringUtils::sprintf(ERR_MSG_FMT, ##__VA_ARGS__); \
 	JOB->replyError(ERR_CODE, optMsg); \
 } while (0)
 
@@ -129,7 +129,7 @@ HatoholError getParam(
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, paramName);
 
 	if (sscanf(value, scanFmt, &dest) != 1) {
-		std::string optMsg = mlpl::StringUtils::sprintf("%s: %s",
+		std::string optMsg = hfl::StringUtils::sprintf("%s: %s",
 		                                     paramName, value);
 		return HatoholError(HTERR_INVALID_PARAMETER, optMsg);
 	}

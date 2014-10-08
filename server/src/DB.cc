@@ -24,7 +24,7 @@
 #include "DBAgentFactory.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const char *TABLE_NAME_TABLES_VERSION = "_tables_version";
 

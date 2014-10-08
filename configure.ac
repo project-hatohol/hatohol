@@ -134,13 +134,13 @@ dnl **************************************************************
 AC_LANG_PUSH([C++])
 
 dnl **************************************************************
-dnl Flag setting for MLPL
+dnl Flag setting for HFL
 dnl **************************************************************
-MLPL_CFLAGS=-I\${abs_top_srcdir}/server/mlpl/src
-MLPL_LIBS=\${top_builddir}/server/mlpl/src/libmlpl.la
+HFL_CFLAGS=-I\${abs_top_srcdir}/server/hfl/src
+HFL_LIBS=\${top_builddir}/server/hfl/src/libhfl.la
 
-AC_SUBST(MLPL_CFLAGS)
-AC_SUBST(MLPL_LIBS)
+AC_SUBST(HFL_CFLAGS)
+AC_SUBST(HFL_LIBS)
 
 dnl **************************************************************
 dnl Check for Apache Qpid
@@ -249,10 +249,10 @@ data/init.d/centos/hatohol.centos
 data/init.d/centos/Makefile
 data/test/Makefile
 server/Makefile
-server/mlpl/Makefile
-server/mlpl/src/Makefile
-server/mlpl/test/Makefile
-server/mlpl/mlpl.pc
+server/hfl/Makefile
+server/hfl/src/Makefile
+server/hfl/test/Makefile
+server/hfl/hfl.pc
 server/common/Makefile
 server/src/Makefile
 server/hap/Makefile

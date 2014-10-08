@@ -36,7 +36,7 @@
 #include "ResidentProtocol.h"
 #include "ResidentCommunicator.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct Impl : public ResidentPullHelper<Impl> {
 	GMainLoop *loop;
@@ -62,7 +62,7 @@ struct Impl : public ResidentPullHelper<Impl> {
 			g_main_loop_unref(loop);
 		if (moduleHandle) {
 			if (dlclose(moduleHandle) != 0)
-				MLPL_ERR("Failed to close module.");
+				HFL_ERR("Failed to close module.");
 		}
 	}
 };
@@ -77,7 +77,7 @@ static gboolean readPipeCb
   (GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	Impl *impl = static_cast<Impl *>(data);
-	MLPL_ERR("Error: condition: %x\n", condition);
+	HFL_ERR("Error: condition: %x\n", condition);
 	requestQuit(impl);
 	return TRUE;
 }
@@ -86,7 +86,7 @@ static gboolean writePipeCb
   (GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	Impl *impl = static_cast<Impl *>(data);
-	MLPL_ERR("Error: condition: %x\n", condition);
+	HFL_ERR("Error: condition: %x\n", condition);
 	requestQuit(impl);
 	return TRUE;
 }
@@ -94,7 +94,7 @@ static gboolean writePipeCb
 static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size,
                     Impl *impl);
 
-static void gotNotifyEventBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+static void gotNotifyEventBodyCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
                                  size_t size, Impl *impl)
 {
 	ResidentNotifyEventArg arg;
@@ -126,7 +126,7 @@ static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size,
                     Impl *impl)
 {
 	if (stat != G_IO_STATUS_NORMAL) {
-		MLPL_ERR("Error: status: %x\n", stat);
+		HFL_ERR("Error: status: %x\n", stat);
 		requestQuit(impl);
 		return;
 	}
@@ -137,7 +137,7 @@ static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size,
 		impl->pullData(RESIDENT_PROTO_EVENT_BODY_LEN,
 		              gotNotifyEventBodyCb);
 	} else {
-		MLPL_ERR("Unexpected packet: %d\n", pktType);
+		HFL_ERR("Unexpected packet: %d\n", pktType);
 		requestQuit(impl);
 		return;
 	}
@@ -157,11 +157,11 @@ static void sendModuleLoaded(Impl *impl, uint32_t code)
 	comm.push(impl->pipeWr);
 }
 
-static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+static void getParametersBodyCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
                                 size_t size, Impl *impl)
 {
 	if (stat != G_IO_STATUS_NORMAL) {
-		MLPL_ERR("Error: status: %x\n", stat);
+		HFL_ERR("Error: status: %x\n", stat);
 		return;
 	}
 
@@ -177,7 +177,7 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	// open the module
 	impl->moduleHandle = dlopen(modulePath.c_str(), RTLD_LAZY);
 	if (!impl->moduleHandle) {
-		MLPL_ERR("Failed to load module: %p, %s\n",
+		HFL_ERR("Failed to load module: %p, %s\n",
 		         modulePath.c_str(), dlerror());
 		sendModuleLoaded(
 		  impl, RESIDENT_PROTO_MODULE_LOADED_CODE_FAIL_DLOPEN);
@@ -189,7 +189,7 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	impl->module = (ResidentModule *)
 	  dlsym(impl->moduleHandle, RESIDENT_MODULE_SYMBOL_STR);
 	char *error;
-	if ((error = dlerror()) != NULL) { MLPL_ERR("Failed to load symbol: %s, %s\n",
+	if ((error = dlerror()) != NULL) { HFL_ERR("Failed to load symbol: %s, %s\n",
 		         RESIDENT_MODULE_SYMBOL_STR, error);
 		sendModuleLoaded(
 		  impl, RESIDENT_PROTO_MODULE_LOADED_CODE_NOT_FOUND_MOD_SYMBOL);
@@ -198,7 +198,7 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 
 	// check the module version
 	if (impl->module->moduleVersion != RESIDENT_MODULE_VERSION) {
-		MLPL_ERR("Module version unmatched: %" PRIu16 ", "
+		HFL_ERR("Module version unmatched: %" PRIu16 ", "
 		         "expected: %" PRIu16 "\n",
 		         impl->module->moduleVersion, RESIDENT_MODULE_VERSION);
 		sendModuleLoaded(
@@ -210,26 +210,26 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	if (impl->module->init) {
 		uint32_t result = (*impl->module->init)(moduleOption.c_str());
 		if (result != RESIDENT_MOD_INIT_OK) {
-			MLPL_ERR("Failed to initialize: %" PRIu32 "\n", result);
+			HFL_ERR("Failed to initialize: %" PRIu32 "\n", result);
 			sendModuleLoaded(
 			  impl, RESIDENT_PROTO_MODULE_LOADED_CODE_INIT_FAILURE);
 			return;
 		}
 	} else if (!moduleOption.empty()) {
-		MLPL_WARN("Init. handler is NULL, but module option is "
+		HFL_WARN("Init. handler is NULL, but module option is "
 		          "specified: %s\n", moduleOption.c_str());
 	}
 
 	// check functions
 	if (!impl->module->notifyEvent) {
-		MLPL_ERR("notify Event handler is NULL\n");
+		HFL_ERR("notify Event handler is NULL\n");
 		sendModuleLoaded(
 		  impl,
 		  RESIDENT_PROTO_MODULE_LOADED_CODE_NOT_FOUND_NOTIFY_EVENT);
 		return;
 	}
 
-	MLPL_INFO("Loaded a resident module: %s\n", modulePath.c_str());
+	HFL_INFO("Loaded a resident module: %s\n", modulePath.c_str());
 
 	// send a completion notify
 	sendModuleLoaded(impl, RESIDENT_PROTO_MODULE_LOADED_CODE_SUCCESS);
@@ -238,11 +238,11 @@ static void getParametersBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	impl->pullHeader(eventCb);
 }
 
-static void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+static void getParametersCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
                             size_t size, Impl *impl)
 {
 	if (stat != G_IO_STATUS_NORMAL) {
-		MLPL_ERR("Error: status: %x\n", stat);
+		HFL_ERR("Error: status: %x\n", stat);
 		return;
 	}
 
@@ -252,7 +252,7 @@ static void getParametersCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	// packet type
 	uint16_t pktType = *sbuf.getPointerAndIncIndex<uint16_t>();
 	if (pktType != RESIDENT_PROTO_PKT_TYPE_PARAMETERS) {
-		MLPL_ERR("Invalid packet type: %" PRIu16 ", "
+		HFL_ERR("Invalid packet type: %" PRIu16 ", "
 		         "expect: %" PRIu16 "\n", pktType,
 		         RESIDENT_PROTO_PKT_TYPE_LAUNCHED);
 		requestQuit(impl);
@@ -279,15 +279,15 @@ int mainRoutine(int argc, char *argv[])
 
 	hatoholInit();
 	Impl impl;
-	MLPL_INFO("started hatohol-resident-yard: ver. %s\n", PACKAGE_VERSION);
+	HFL_INFO("started hatohol-resident-yard: ver. %s\n", PACKAGE_VERSION);
 
 	// open pipes
 	if (argc < 2) {
-		MLPL_ERR("The pipe name is not given. (%d)\n", argc);
+		HFL_ERR("The pipe name is not given. (%d)\n", argc);
 		return EXIT_FAILURE;
 	}
 	const char *pipeName = argv[1];
-	MLPL_INFO("PIPE name: %s\n", pipeName);
+	HFL_INFO("PIPE name: %s\n", pipeName);
 	if (!impl.pipeRd.init(pipeName,readPipeCb, &impl))
 		return EXIT_FAILURE;
 	if (!impl.pipeWr.init(pipeName, writePipeCb, &impl))
@@ -309,9 +309,9 @@ int main(int argc, char *argv[])
 	try {
 		ret = mainRoutine(argc, argv);
 	} catch (const HatoholException &e){
-		MLPL_ERR("Got exception: %s", e.getFancyMessage().c_str());
+		HFL_ERR("Got exception: %s", e.getFancyMessage().c_str());
 	} catch (const exception &e) {
-		MLPL_ERR("Got exception: %s", e.what());
+		HFL_ERR("Got exception: %s", e.what());
 	}
 	return ret;
 }

@@ -34,7 +34,7 @@
 #include "DBAgentMySQL.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 const char *DBTablesMonitoring::TABLE_NAME_TRIGGERS   = "triggers";
 const char *DBTablesMonitoring::TABLE_NAME_EVENTS     = "events";

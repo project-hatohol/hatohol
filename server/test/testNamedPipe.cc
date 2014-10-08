@@ -24,7 +24,7 @@
 #include "SmartBuffer.h"
 #include "Logger.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 #include "Helpers.h"
 

@@ -23,7 +23,7 @@
 #include "DBAgentSQLite3.h" // TODO: Shouldn't use explicitly
 #include "DBHatohol.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 // *** TODO: use OptionTermGenrator to make SQL's clauses ****
 
@@ -170,7 +170,7 @@ string HostResourceQueryOption::getCondition(void) const
 	}
 
 	if (userId == INVALID_USER_ID) {
-		MLPL_DBG("INVALID_USER_ID\n");
+		HFL_DBG("INVALID_USER_ID\n");
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 
@@ -397,7 +397,7 @@ string HostResourceQueryOption::makeCondition(
 
 	size_t numServers = srvHostGrpSetMap.size();
 	if (numServers == 0) {
-		MLPL_DBG("No allowed server\n");
+		HFL_DBG("No allowed server\n");
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 

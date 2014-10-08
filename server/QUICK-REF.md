@@ -20,4 +20,4 @@ Examples
 --------
 start hatohol as a foreground process without installing. The option: --pid-file enables non-root users to execute it.
 
-    server $ PATH=hap/.libs:$PATH LD_LIBRARY_PATH=mlpl/src/.libs:src/.libs:common/.libs:hap/.libs src/.libs/hatohol --pid-file ~/tmp/hatohol.pid --foreground
+    server $ PATH=hap/.libs:$PATH LD_LIBRARY_PATH=hfl/src/.libs:src/.libs:common/.libs:hap/.libs src/.libs/hatohol --pid-file ~/tmp/hatohol.pid --foreground

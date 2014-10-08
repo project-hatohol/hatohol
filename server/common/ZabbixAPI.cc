@@ -27,7 +27,7 @@
 #include "HatoholError.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const char *MIME_JSON_RPC = "application/json-rpc";
 static const guint DEFAULT_TIMEOUT = 60;
@@ -115,15 +115,15 @@ const string &ZabbixAPI::getAPIVersion(void)
 
 	JSONParser parser(msg->response_body->data);
 	if (parser.hasError()) {
-		MLPL_ERR("Failed to parser: %s\n", parser.getErrorMessage());
+		HFL_ERR("Failed to parser: %s\n", parser.getErrorMessage());
 		return m_impl->apiVersion;
 	}
 
 	if (parser.read("result", m_impl->apiVersion)) {
-		MLPL_DBG("Zabbix API version: %s\n",
+		HFL_DBG("Zabbix API version: %s\n",
 		         m_impl->apiVersion.c_str());
 	} else {
-		MLPL_ERR("Failed to read API version\n");
+		HFL_ERR("Failed to read API version\n");
 	}
 
 	if (!m_impl->apiVersion.empty()) {
@@ -177,18 +177,18 @@ bool ZabbixAPI::openSession(SoupMessage **msgPtr)
 	guint ret = soup_session_send_message(getSession(), msg);
 	if (ret != SOUP_STATUS_OK) {
 		g_object_unref(msg);
-		MLPL_ERR("Failed to get: code: %d: %s\n",
+		HFL_ERR("Failed to get: code: %d: %s\n",
 	                 ret, m_impl->uri.c_str());
 		return false;
 	}
-	MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
+	HFL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 	         msg->response_body->length, msg->response_body->data);
 	bool succeeded = parseInitialResponse(msg);
 	if (!succeeded) {
 		g_object_unref(msg);
 		return false;
 	}
-	MLPL_DBG("authToken: %s\n", m_impl->authToken.c_str());
+	HFL_DBG("authToken: %s\n", m_impl->authToken.c_str());
 
 	// copy the SoupMessage object if msgPtr is not NULL.
 	if (msgPtr)
@@ -217,11 +217,11 @@ SoupSession *ZabbixAPI::getSession(void)
 bool ZabbixAPI::updateAuthTokenIfNeeded(void)
 {
 	if (m_impl->authToken.empty()) {
-		MLPL_DBG("authToken is empty\n");
+		HFL_DBG("authToken is empty\n");
 		if (!openSession())
 			return false;
 	}
-	MLPL_DBG("authToken: %s\n", m_impl->authToken.c_str());
+	HFL_DBG("authToken: %s\n", m_impl->authToken.c_str());
 
 	return true;
 }
@@ -266,7 +266,7 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 
 	VariableItemTablePtr tablePtr;
 	int numTriggers = parser.countElements();
-	MLPL_DBG("The number of triggers: %d\n", numTriggers);
+	HFL_DBG("The number of triggers: %d\n", numTriggers);
 	if (numTriggers < 1)
 		return ItemTablePtr(tablePtr);
 
@@ -304,7 +304,7 @@ ItemTablePtr ZabbixAPI::getItems(void)
 
 	VariableItemTablePtr tablePtr;
 	int numData = parser.countElements();
-	MLPL_DBG("The number of items: %d\n", numData);
+	HFL_DBG("The number of items: %d\n", numData);
 	if (numData < 1)
 		return ItemTablePtr(tablePtr);
 
@@ -340,7 +340,7 @@ void ZabbixAPI::getHosts(
 
 	VariableItemTablePtr variableHostsTablePtr, variableHostsGroupsTablePtr;
 	int numData = parser.countElements();
-	MLPL_DBG("The number of hosts: %d\n", numData);
+	HFL_DBG("The number of hosts: %d\n", numData);
 	if (numData < 1)
 		return;
 
@@ -379,7 +379,7 @@ void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 
 	VariableItemTablePtr variableGroupsTablePtr;
 	int numData = parser.countElements();
-	MLPL_DBG("The number of groups: %d\n", numData);
+	HFL_DBG("The number of groups: %d\n", numData);
 
 	for (int i = 0; i < numData; i++)
 		parseAndPushGroupsData(parser, variableGroupsTablePtr, i);
@@ -413,7 +413,7 @@ ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 
 	VariableItemTablePtr tablePtr;
 	int numData = parser.countElements();
-	MLPL_DBG("The number of aplications: %d\n", numData);
+	HFL_DBG("The number of aplications: %d\n", numData);
 	if (numData < 1)
 		return ItemTablePtr(tablePtr);
 
@@ -461,7 +461,7 @@ ItemTablePtr ZabbixAPI::getEvents(uint64_t eventIdFrom, uint64_t eventIdTill)
 
 	VariableItemTablePtr tablePtr;
 	int numData = parser.countElements();
-	MLPL_DBG("The number of events: %d\n", numData);
+	HFL_DBG("The number of events: %d\n", numData);
 	if (numData < 1)
 		return ItemTablePtr(tablePtr);
 
@@ -479,9 +479,9 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 	SoupMessage *msg = queryEndEventId(isFirst, queryRet);
 	if (!msg) {
 		if (isFirst)
-			MLPL_ERR("Failed to query first eventID.\n");
+			HFL_ERR("Failed to query first eventID.\n");
 		else
-			MLPL_ERR("Failed to query last eventID.\n");
+			HFL_ERR("Failed to query last eventID.\n");
 		return EVENT_ID_NOT_FOUND;
 	}
 
@@ -505,9 +505,9 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 
 	returnValue = StringUtils::toUint64(strValue);
 	if (isFirst)
-		MLPL_DBG("The first event ID in monitoring server: %" PRIu64 "\n", returnValue);
+		HFL_DBG("The first event ID in monitoring server: %" PRIu64 "\n", returnValue);
 	else
-		MLPL_DBG("The last event ID in monitoring server: %" PRIu64 "\n", returnValue);
+		HFL_DBG("The last event ID in monitoring server: %" PRIu64 "\n", returnValue);
 
 	return returnValue;
 }
@@ -691,7 +691,7 @@ SoupMessage *ZabbixAPI::queryCommon(JSONBuilder &agent, HatoholError &queryRet)
 	string request_body = agent.generate();
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_POST, m_impl->uri.c_str());
 	if (!msg) {
-		MLPL_ERR("Failed to call: soup_message_new: uri: %s\n",
+		HFL_ERR("Failed to call: soup_message_new: uri: %s\n",
 		         m_impl->uri.c_str());
 		queryRet = HTERR_INTERNAL_ERROR;
 		return NULL;
@@ -703,7 +703,7 @@ SoupMessage *ZabbixAPI::queryCommon(JSONBuilder &agent, HatoholError &queryRet)
 	guint ret = soup_session_send_message(getSession(), msg);
 	if (ret != SOUP_STATUS_OK) {
 		g_object_unref(msg);
-		MLPL_ERR("Failed to get: code: %d: %s\n",
+		HFL_ERR("Failed to get: code: %d: %s\n",
 	                 ret, m_impl->uri.c_str());
 		queryRet = HTERR_FAILED_CONNECT_ZABBIX;
 		return NULL;
@@ -747,12 +747,12 @@ bool ZabbixAPI::parseInitialResponse(SoupMessage *msg)
 {
 	JSONParser parser(msg->response_body->data);
 	if (parser.hasError()) {
-		MLPL_ERR("Failed to parser: %s\n", parser.getErrorMessage());
+		HFL_ERR("Failed to parser: %s\n", parser.getErrorMessage());
 		return false;
 	}
 
 	if (!parser.read("result", m_impl->authToken)) {
-		MLPL_ERR("Failed to read: result\n");
+		HFL_ERR("Failed to read: result\n");
 		return false;
 	}
 	onUpdatedAuthToken(m_impl->authToken);

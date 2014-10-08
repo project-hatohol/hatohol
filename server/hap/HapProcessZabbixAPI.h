@@ -34,7 +34,7 @@ protected:
 	void workOnEvents(void);
 
 	void parseReplyGetMonitoringServerInfoOnInitiated(
-	  MonitoringServerInfo &serverInfo, const mlpl::SmartBuffer &replyBuf);
+	  MonitoringServerInfo &serverInfo, const hfl::SmartBuffer &replyBuf);
 
 	virtual HatoholError acquireData(void) override;
 	virtual HatoholError fetchItem(void) override;

@@ -20,7 +20,7 @@
 #include <ReadWriteLock.h>
 #include "HatoholArmPluginStandard.h"
 
-using namespace mlpl;
+using namespace hfl;
 
 struct HatoholArmPluginStandard::Impl {
 	ReadWriteLock        lock;

@@ -22,7 +22,7 @@
 using namespace std;
 
 #include "SmartBuffer.h"
-using namespace mlpl;
+using namespace hfl;
 
 #include "ResidentCommunicator.h"
 

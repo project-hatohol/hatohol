@@ -27,7 +27,7 @@
 #include "Mutex.h"
 #include "ItemGroupStream.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 const char *TABLE_NAME_ACTIONS     = "actions";
 const char *TABLE_NAME_ACTION_LOGS = "action_logs";
@@ -605,7 +605,7 @@ HatoholError DBTablesAction::deleteActions(const ActionIdList &idList,
 		return err;
 
 	if (idList.empty()) {
-		MLPL_WARN("idList is empty.\n");
+		HFL_WARN("idList is empty.\n");
 		return HTERR_INVALID_PARAMETER;
 	}
 
@@ -630,7 +630,7 @@ HatoholError DBTablesAction::deleteActions(const ActionIdList &idList,
 
 	// Check the result
 	if (trx.numAffectedRows != idList.size()) {
-		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
+		HFL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
 		         trx.numAffectedRows, idList.size());
 		return HTERR_DELETE_INCOMPLETE;
 	}

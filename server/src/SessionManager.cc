@@ -25,7 +25,7 @@
 #include <Mutex.h>
 #include "ReadWriteLock.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 // ---------------------------------------------------------------------------
 // Session
@@ -107,12 +107,12 @@ void SessionManager::reset(void)
 	if (env) {
 		size_t timeout = 0;
 		if (sscanf(env, "%zd", &timeout) != 1) {
-			MLPL_ERR("Invalid value: %s. Use the default timeout\n",
+			HFL_ERR("Invalid value: %s. Use the default timeout\n",
 			         env);
 		} else {
 			Impl::defaultTimeout = timeout;
 		}
-		MLPL_INFO("Default session timeout: %zd (sec)\n",
+		HFL_INFO("Default session timeout: %zd (sec)\n",
 		          Impl::defaultTimeout);
 	}
 }
@@ -244,7 +244,7 @@ gboolean SessionManager::timerCb(gpointer data)
 	Session *session = static_cast<Session *>(data);
 	SessionManager *sessionMgr = session->sessionMgr;
 	if (!sessionMgr) {
-		MLPL_BUG("Session Manager: NULL, %s\n", session->id.c_str());
+		HFL_BUG("Session Manager: NULL, %s\n", session->id.c_str());
 		return G_SOURCE_REMOVE;
 	}
 	session->timerId = INVALID_EVENT_ID;
@@ -255,6 +255,6 @@ gboolean SessionManager::timerCb(gpointer data)
 	string sessionId = session->id;
 
 	if (!sessionMgr->remove(session->id))
-		MLPL_BUG("Failed to remove session: %s\n", sessionId.c_str());
+		HFL_BUG("Failed to remove session: %s\n", sessionId.c_str());
 	return G_SOURCE_REMOVE;
 }

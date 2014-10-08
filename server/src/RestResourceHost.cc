@@ -22,7 +22,7 @@
 #include <string.h>
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 const char *RestResourceHost::pathForOverview  = "/overview";
 const char *RestResourceHost::pathForHost      = "/host";

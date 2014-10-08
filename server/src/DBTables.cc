@@ -22,7 +22,7 @@
 #include "ItemGroupStream.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct DBTables::Impl {
 	DBAgent &dbAgent;
@@ -115,7 +115,7 @@ struct DBTables::Impl {
 		if (versionInDB == setupInfo.version)
 			return;
 
-		MLPL_INFO("DBTables %d is outdated, try to update it ...\n"
+		HFL_INFO("DBTables %d is outdated, try to update it ...\n"
 		          "\told-version: %" PRIu32 "\n"
 		          "\tnew-version: %" PRIu32 "\n",
 		          setupInfo.tablesId, versionInDB, setupInfo.version);
@@ -129,7 +129,7 @@ struct DBTables::Impl {
 		               "Failed to update DB, new/old ver. %d/%d",
 		               setupInfo.version, versionInDB);
 		setTablesVersion(setupInfo, tableProfileTablesVersion);
-		MLPL_INFO("Succeeded in updating DBTables %" PRIu32 "\n",
+		HFL_INFO("Succeeded in updating DBTables %" PRIu32 "\n",
 		          setupInfo.tablesId);
 	}
 

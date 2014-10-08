@@ -30,7 +30,7 @@
 #include "SQLUtils.h"
 #include "DBClientJoinBuilder.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const char *TABLE_NAME_SYSTEM  = "system";
 static const char *TABLE_NAME_SERVER_TYPES = "server_types";
@@ -616,7 +616,7 @@ bool ServerQueryOption::hasPrivilegeCondition(string &condition) const
 	}
 
 	if (userId == INVALID_USER_ID) {
-		MLPL_DBG("INVALID_USER_ID\n");
+		HFL_DBG("INVALID_USER_ID\n");
 		condition = DBHatohol::getAlwaysFalseCondition();
 		return true;
 	}
@@ -645,7 +645,7 @@ string ServerQueryOption::getCondition(void) const
 
 	size_t numServers = srvHostGrpSetMap.size();
 	if (numServers == 0) {
-		MLPL_DBG("No allowed server\n");
+		HFL_DBG("No allowed server\n");
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 
@@ -713,7 +713,7 @@ string IncidentTrackerQueryOption::getCondition(void) const
 	UserIdType userId = getUserId();
 
 	if (userId == INVALID_USER_ID) {
-		MLPL_DBG("INVALID_USER_ID\n");
+		HFL_DBG("INVALID_USER_ID\n");
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 
@@ -1550,7 +1550,7 @@ HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
 	    armPluginInfo.path.empty())
 		return HTERR_INVALID_ARM_PLUGIN_PATH;
 	if (armPluginInfo.type < MONITORING_SYSTEM_HAPI_ZABBIX) {
-		MLPL_ERR("Invalid type: %d\n", armPluginInfo.type);
+		HFL_ERR("Invalid type: %d\n", armPluginInfo.type);
 		return HTERR_INVALID_ARM_PLUGIN_TYPE;
 	}
 

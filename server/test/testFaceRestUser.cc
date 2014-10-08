@@ -27,7 +27,7 @@
 #include "SessionManager.h"
 #include "FaceRestTestUtils.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 void _assertLogin(
   const string &user, const string &password,

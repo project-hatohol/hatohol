@@ -20,7 +20,7 @@
 #include <Logger.h>
 #include "ArmCeilometer.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 // ---------------------------------------------------------------------------
 // Private context
@@ -48,6 +48,6 @@ ArmCeilometer::~ArmCeilometer()
 // ---------------------------------------------------------------------------
 ArmBase::ArmPollingResult ArmCeilometer::mainThreadOneProc(void)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	HFL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 	return COLLECT_OK;
 }

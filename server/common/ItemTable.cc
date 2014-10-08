@@ -22,7 +22,7 @@
 #include "Utils.h"
 #include "ItemTable.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct ItemTable::CrossJoinArg
 {
@@ -139,7 +139,7 @@ ItemTable *ItemTable::innerJoin
 	size_t numColumnRTable = itemTable->getNumberOfColumns();
 	if (indexLeftColumn >= numColumnLTable ||
 	    indexRightColumn >= numColumnRTable) {
-		MLPL_BUG("Invalid parameter: numColumnL: %zd, indexL: %zd, "
+		HFL_BUG("Invalid parameter: numColumnL: %zd, indexL: %zd, "
 		         "numColumnR: %zd, indexR: %zd\n",
 		         numColumnLTable, indexLeftColumn,
 		         numColumnRTable, indexRightColumn);
@@ -155,19 +155,19 @@ ItemTable *ItemTable::innerJoin
 
 ItemTable *ItemTable::leftOuterJoin(const ItemTable *itemTable) const
 {
-	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
+	HFL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
 	return NULL;
 }
 
 ItemTable *ItemTable::rightOuterJoin(const ItemTable *itemTable) const
 {
-	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
+	HFL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
 	return NULL;
 }
 
 ItemTable *ItemTable::fullOuterJoin(const ItemTable *itemTable) const
 {
-	MLPL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
+	HFL_BUG("Not implemneted: %s\n", __PRETTY_FUNCTION__);
 	return NULL;
 }
 

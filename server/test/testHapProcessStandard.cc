@@ -27,7 +27,7 @@
 #include "HatoholArmPluginTestPair.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 using namespace qpid::messaging;
 
 static int TIMEOUT = 5; // sec

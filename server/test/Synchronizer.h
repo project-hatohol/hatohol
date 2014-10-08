@@ -24,7 +24,7 @@
 #include <Mutex.h>
 
 class Synchronizer {
-	mlpl::Mutex *m_mutex;
+	hfl::Mutex *m_mutex;
 public:
 	Synchronizer(void);
 	virtual ~Synchronizer();

@@ -25,7 +25,7 @@
 #include "ThreadLocalDBCache.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct IncidentSenderManager::Impl
 {
@@ -54,12 +54,12 @@ struct IncidentSenderManager::Impl
 		dbConfig.getIncidentTrackers(incidentTrackerVect, option);
 
 		if (incidentTrackerVect.size() <= 0) {
-			MLPL_ERR("Not found IncidentTrackerInfo: %"
+			HFL_ERR("Not found IncidentTrackerInfo: %"
 				 FMT_INCIDENT_TRACKER_ID "\n", id);
 			return NULL;
 		}
 		if (incidentTrackerVect.size() > 1) {
-			MLPL_ERR("Too many IncidentTrackerInfo for ID:%"
+			HFL_ERR("Too many IncidentTrackerInfo for ID:%"
 				 FMT_INCIDENT_TRACKER_ID "\n", id);
 			return NULL;
 		}
@@ -71,7 +71,7 @@ struct IncidentSenderManager::Impl
 			sender = new IncidentSenderRedmine(tracker);
 			break;
 		default:
-			MLPL_ERR("Invalid IncidentTracker type: %d\n",
+			HFL_ERR("Invalid IncidentTracker type: %d\n",
 				 tracker.type);
 			break;
 		}
@@ -111,7 +111,7 @@ void IncidentSenderManager::queue(
 {
 	IncidentSender *sender = m_impl->getSender(trackerId);
 	if (!sender) {
-		MLPL_ERR("Failed to queue sending an incident"
+		HFL_ERR("Failed to queue sending an incident"
 			 " for the event: %" FMT_EVENT_ID "\n",
 			 eventInfo.id);
 		return;
@@ -125,7 +125,7 @@ void IncidentSenderManager::queue(
 {
 	IncidentSender *sender = m_impl->getSender(incidentInfo.trackerId);
 	if (!sender) {
-		MLPL_ERR("Can't find create or find IncidentSender for: "
+		HFL_ERR("Can't find create or find IncidentSender for: "
 			 "%" FMT_INCIDENT_TRACKER_ID "\n",
 			 incidentInfo.trackerId);
 		return;

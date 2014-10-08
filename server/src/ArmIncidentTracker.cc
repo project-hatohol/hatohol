@@ -23,7 +23,7 @@
 #include <libsoup/soup.h>
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static MonitoringServerInfo toMonitoringServerInfo(
   const IncidentTrackerInfo &trackerInfo)
@@ -88,7 +88,7 @@ ArmIncidentTracker *ArmIncidentTracker::create(
 	case INCIDENT_TRACKER_REDMINE:
 		return new ArmRedmine(trackerInfo);
 	default:
-		MLPL_BUG("Invalid incident tracking system: %d\n",
+		HFL_BUG("Invalid incident tracking system: %d\n",
 			 trackerInfo.type);
 	}
 	return NULL;

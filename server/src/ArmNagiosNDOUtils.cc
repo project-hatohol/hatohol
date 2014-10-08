@@ -28,7 +28,7 @@
 #include "HatoholException.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const char *TABLE_NAME_SERVICES      = "nagios_services";
 static const char *TABLE_NAME_SERVICESTATUS = "nagios_servicestatus";
@@ -553,7 +553,7 @@ void ArmNagiosNDOUtils::getTrigger(void)
 	  m_impl->selectTriggerBuilder.getSelectExArg();
 	m_impl->dbAgent->select(arg);
 	size_t numTriggers = arg.dataTable->getNumberOfRows();
-	MLPL_DBG("The number of triggers: %zd\n", numTriggers);
+	HFL_DBG("The number of triggers: %zd\n", numTriggers);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	TriggerInfoList triggerInfoList;
@@ -602,7 +602,7 @@ void ArmNagiosNDOUtils::getEvent(void)
 	DBAgent::SelectExArg &arg = m_impl->selectEventBuilder.getSelectExArg();
 	m_impl->dbAgent->select(arg);
 	size_t numEvents = arg.dataTable->getNumberOfRows();
-	MLPL_DBG("The number of events: %zd\n", numEvents);
+	HFL_DBG("The number of events: %zd\n", numEvents);
 
 	// TODO: use addEventInfoList with the newly added data.
 	const MonitoringServerInfo &svInfo = getServerInfo();
@@ -649,7 +649,7 @@ void ArmNagiosNDOUtils::getItem(void)
 	DBAgent::SelectExArg &arg = m_impl->selectItemBuilder.getSelectExArg();
 	m_impl->dbAgent->select(arg);
 	size_t numItems = arg.dataTable->getNumberOfRows();
-	MLPL_DBG("The number of items: %zd\n", numItems);
+	HFL_DBG("The number of items: %zd\n", numItems);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	ItemInfoList itemInfoList;
@@ -685,7 +685,7 @@ void ArmNagiosNDOUtils::getHost(void)
 	m_impl->dbAgent->select(m_impl->selectHostArg);
 	size_t numHosts =
 	  m_impl->selectHostArg.dataTable->getNumberOfRows();
-	MLPL_DBG("The number of hosts: %zd\n", numHosts);
+	HFL_DBG("The number of hosts: %zd\n", numHosts);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	HostInfoList hostInfoList;
@@ -710,7 +710,7 @@ void ArmNagiosNDOUtils::getHostgroup(void)
 	m_impl->dbAgent->select(m_impl->selectHostgroupArg);
 	size_t numHostgroups =
 	  m_impl->selectHostgroupArg.dataTable->getNumberOfRows();
-	MLPL_DBG("The number of hostgroups: %zd\n", numHostgroups);
+	HFL_DBG("The number of hostgroups: %zd\n", numHostgroups);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	HostgroupInfoList hostgroupInfoList;
@@ -736,7 +736,7 @@ void ArmNagiosNDOUtils::getHostgroupMembers(void)
 	m_impl->dbAgent->select(m_impl->selectHostgroupMembersArg);
 	size_t numHostgroupMembers =
 	  m_impl->selectHostgroupMembersArg.dataTable->getNumberOfRows();
-	MLPL_DBG("The number of hostgroupMembers: %zd\n", numHostgroupMembers);
+	HFL_DBG("The number of hostgroupMembers: %zd\n", numHostgroupMembers);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	HostgroupElementList hostgroupElementList;
@@ -764,7 +764,7 @@ void ArmNagiosNDOUtils::connect(void)
 gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	MLPL_INFO("started: ArmNagiosNDOUtils (server: %s)\n",
+	HFL_INFO("started: ArmNagiosNDOUtils (server: %s)\n",
 	          svInfo.hostName.c_str());
 	ArmBase::registerAvailableTrigger(COLLECT_NG_DISCONNECT_NAGIOS,
 					  FAILED_CONNECT_MYSQL_TRIGGER_ID,
@@ -793,16 +793,16 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 		}
 	} catch (const HatoholException &he) {
 		if (he.getErrCode() == HTERR_FAILED_CONNECT_MYSQL) {
-			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
+			HFL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
 			delete m_impl->dbAgent;
 			m_impl->dbAgent = NULL;
 			return COLLECT_NG_DISCONNECT_NAGIOS;
 		} else {
-			MLPL_ERR("Got exception: %s\n", he.what());
+			HFL_ERR("Got exception: %s\n", he.what());
 			return COLLECT_NG_INTERNAL_ERROR;
 		}
 	} catch (const exception &e) {
-		MLPL_ERR("Got exception: %s\n", e.what());
+		HFL_ERR("Got exception: %s\n", e.what());
 		return COLLECT_NG_INTERNAL_ERROR;
 	}
 	return COLLECT_OK;

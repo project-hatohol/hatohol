@@ -18,7 +18,7 @@
  */
 
 #include "Synchronizer.h"
-using namespace mlpl;
+using namespace hfl;
 
 Synchronizer::Synchronizer(void)
 : m_mutex(NULL)

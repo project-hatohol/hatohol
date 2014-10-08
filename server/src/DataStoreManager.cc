@@ -21,7 +21,7 @@
 #include <Mutex.h>
 #include <Reaper.h>
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 typedef map<uint32_t, DataStore*> DataStoreMap;
 typedef DataStoreMap::iterator    DataStoreMapIterator;
@@ -116,7 +116,7 @@ void DataStoreManager::remove(uint32_t storeId)
 	m_impl->mutex.unlock();
 
 	if (!dataStore) {
-		MLPL_WARN("Not found: storeId: %" PRIu32 "\n", storeId);
+		HFL_WARN("Not found: storeId: %" PRIu32 "\n", storeId);
 		return;
 	}
 

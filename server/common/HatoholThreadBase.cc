@@ -31,7 +31,7 @@
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct HatoholThreadBase::Impl {
 	AtomicValue<GThread *>    thread;
@@ -121,7 +121,7 @@ void HatoholThreadBase::start(bool autoDeleteObject, void *userData)
 	  g_thread_create(threadStarter, arg, TRUE, &error);
 #endif // GLIB_VERSION_2_32
 	if (m_impl->thread == NULL) {
-		MLPL_ERR("Failed to call g_thread_try_new: %s\n",
+		HFL_ERR("Failed to call g_thread_try_new: %s\n",
 		         error->message);
 		g_error_free(error);
 	}
@@ -233,11 +233,11 @@ begin:
 	try {
 		ret = obj->mainThread(arg);
 	} catch (const HatoholException &e) {
-		MLPL_ERR("Got Hatohol Exception: %s\n",
+		HFL_ERR("Got Hatohol Exception: %s\n",
 		         e.getFancyMessage().c_str());
 		sleepTimeOrExit = obj->onCaughtException(e);
 	} catch (const exception &e) {
-		MLPL_ERR("Got Exception: %s\n", e.what());
+		HFL_ERR("Got Exception: %s\n", e.what());
 		sleepTimeOrExit = obj->onCaughtException(e);
 	} catch (...) {
 		throw;

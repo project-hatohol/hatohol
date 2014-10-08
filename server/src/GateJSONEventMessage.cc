@@ -22,7 +22,7 @@
 #include "GateJSONEventMessage.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 struct GateJSONEventMessage::Impl
 {
@@ -151,7 +151,7 @@ private:
 	{
 		va_list ap;
 		va_start(ap, format);
-		using namespace mlpl::StringUtils;
+		using namespace hfl::StringUtils;
 		errors.push_back(vsprintf(format, ap));
 		va_end(ap);
 	}

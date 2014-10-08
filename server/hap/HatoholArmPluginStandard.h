@@ -31,7 +31,7 @@ public:
 protected:
 	void parseReplyGetMonitoringServerInfoOnInitiated(
 	       MonitoringServerInfo &serverInfo,
-	       const mlpl::SmartBuffer &replyBuf);
+	       const hfl::SmartBuffer &replyBuf);
 
 	virtual void onInitiated(void) override;
 	virtual void onReady(const MonitoringServerInfo &serverInfo);

@@ -36,7 +36,7 @@ public:
 	GateJSONEventMessage(JsonNode *node);
 	virtual ~GateJSONEventMessage();
 
-	bool validate(mlpl::StringList &errors);
+	bool validate(hfl::StringList &errors);
 
 	int64_t getID();
 	timespec getTimestamp();

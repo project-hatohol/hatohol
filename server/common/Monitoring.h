@@ -173,8 +173,8 @@ struct IncidentInfo {
 	std::string        priority;
 	std::string        assignee;
 	int                doneRatio;
-	mlpl::Time         createdAt;
-	mlpl::Time         updatedAt;
+	hfl::Time         createdAt;
+	hfl::Time         updatedAt;
 
 	Status             statusCode;
 };

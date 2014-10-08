@@ -2,10 +2,10 @@
 
 unset LANG
 
-export PATH=../src/.libs:../mlpl/src/.libs:$PATH
-export LD_LIBRARY_PATH=../src/.libs:../common/.libs:../mlpl/src/.libs:$LD_LIBRARY_PATH
+export PATH=../src/.libs:../hfl/src/.libs:$PATH
+export LD_LIBRARY_PATH=../src/.libs:../common/.libs:../hfl/src/.libs:$LD_LIBRARY_PATH
 
-export HATOHOL_ACTION_LD_LIBRARY_PATH=../src/.libs:../common/.libs:../mlpl/src/.libs
+export HATOHOL_ACTION_LD_LIBRARY_PATH=../src/.libs:../common/.libs:../hfl/src/.libs
 
 export BASE_DIR="`dirname $0`"
 top_dir="$BASE_DIR/../.."

@@ -24,7 +24,7 @@
 #include "DBTablesTest.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const ServerIdType defunctServerId1 = 0x7fff0001;
 const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST =

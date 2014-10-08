@@ -27,7 +27,7 @@
 #include <amqp_ssl_socket.h>
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const time_t  DEFAULT_TIMEOUT  = 1;
 
@@ -45,7 +45,7 @@ public:
 		if (string(virtualHost) == "/") {
 			virtualHost = "";
 		}
-		MLPL_INFO("Broker URL: <%s://%s:%d/%s>\n",
+		HFL_INFO("Broker URL: <%s://%s:%d/%s>\n",
 			  getScheme(),
 			  getHost(),
 			  getPort(),
@@ -189,7 +189,7 @@ private:
 	{
 		if (status == AMQP_STATUS_OK)
 			return;
-		MLPL_ERR("failed to %s: %d: %s\n",
+		HFL_ERR("failed to %s: %d: %s\n",
 			 context,
 			 status,
 			 amqp_error_string2(status));
@@ -202,16 +202,16 @@ private:
 		case AMQP_RESPONSE_NORMAL:
 			break;
 		case AMQP_RESPONSE_NONE:
-			MLPL_ERR("%s: RPC reply type is missing\n", context);
+			HFL_ERR("%s: RPC reply type is missing\n", context);
 			break;
 		case AMQP_RESPONSE_LIBRARY_EXCEPTION:
-			MLPL_ERR("failed to %s: %s\n",
+			HFL_ERR("failed to %s: %s\n",
 				 context,
 				 amqp_error_string2(reply.library_error));
 			break;
 		case AMQP_RESPONSE_SERVER_EXCEPTION:
 			// TODO: show more messages
-			MLPL_ERR("%s: server exception\n",
+			HFL_ERR("%s: server exception\n",
 				 context);
 			break;
 		}
@@ -264,7 +264,7 @@ private:
 	{
 		m_socket = amqp_ssl_socket_new(m_connection);
 		if (!m_socket) {
-			MLPL_ERR("failed to create TLS socket\n");
+			HFL_ERR("failed to create TLS socket\n");
 			return false;
 		}
 
@@ -328,7 +328,7 @@ private:
 	{
 		m_socket = amqp_tcp_socket_new(m_connection);
 		if (!m_socket) {
-			MLPL_ERR("failed to create TCP socket\n");
+			HFL_ERR("failed to create TCP socket\n");
 			return false;
 		}
 		return true;
@@ -375,7 +375,7 @@ private:
 	{
 		const string &queueName = getQueueName();
 		const amqp_bytes_t queue = amqp_cstring_bytes(queueName.c_str());
-		MLPL_INFO("Queue: <%s>\n", queueName.c_str());
+		HFL_INFO("Queue: <%s>\n", queueName.c_str());
 		const amqp_boolean_t passive = false;
 		const amqp_boolean_t durable = false;
 		const amqp_boolean_t exclusive = false;

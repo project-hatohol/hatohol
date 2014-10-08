@@ -53,7 +53,7 @@ extern size_t NumTestTriggerInfo;
 extern EventInfo testEventInfo[];
 extern size_t NumTestEventInfo;
 extern EventIdType findLastEventId(const ServerIdType &serverId);
-extern mlpl::SmartTime findTimeOfLastEvent(
+extern hfl::SmartTime findTimeOfLastEvent(
   const ServerIdType &serverId, const TriggerIdType &triggerId = ALL_TRIGGERS);
 
 extern EventInfo testDupEventInfo[];
@@ -144,7 +144,7 @@ size_t getNumberOfTestActions(
   const ActionType &actionType = ACTION_USER_DEFINED);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
-mlpl::SmartTime getTimestampOfLastTestTrigger(const ServerIdType &serverId);
+hfl::SmartTime getTimestampOfLastTestTrigger(const ServerIdType &serverId);
 
 void getDBCTestHostInfo(HostInfoList &hostInfoList,
                         const ServerIdType &targetServerId = ALL_SERVERS);

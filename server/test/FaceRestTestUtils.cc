@@ -29,7 +29,7 @@
 #include "FaceRestTestUtils.h"
 #include "ConfigManager.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const unsigned int TEST_PORT = 53194;
 

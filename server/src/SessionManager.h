@@ -32,8 +32,8 @@ class SessionManager;
 struct Session : public UsedCountable {
 	UserIdType userId;
 	std::string id;
-	mlpl::SmartTime loginTime;
-	mlpl::SmartTime lastAccessTime;
+	hfl::SmartTime loginTime;
+	hfl::SmartTime lastAccessTime;
 	size_t timeout;
 	guint timerId;
 	SessionManager *sessionMgr;

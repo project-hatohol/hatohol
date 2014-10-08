@@ -30,7 +30,7 @@
 #include "ThreadLocalDBCache.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const char *TEST_PRIMARY_TABLE_NAME = "test_table_name";
 static const ColumnDef COLUMN_DEF_TEST[] = {

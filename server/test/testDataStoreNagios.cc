@@ -23,7 +23,7 @@
 #include "ArmNagiosNDOUtils.h"
 #include "DBTablesTest.h"
 
-using namespace mlpl;
+using namespace hfl;
 
 namespace testDataStoreNagios {
 

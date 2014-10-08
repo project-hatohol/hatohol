@@ -77,7 +77,7 @@ bool HttpServerStub::isRunning(void)
 void HttpServerStub::start(guint port)
 {
 	if (isRunning()) {
-		MLPL_WARN("Thread is already running.");
+		HFL_WARN("Thread is already running.");
 		return;
 	}
 
@@ -91,12 +91,12 @@ void HttpServerStub::start(guint port)
 		if (m_ctx->soupServer)
 			break;
 
-		MLPL_ERR("Failed to create SoupServer: %d: %s\n",
+		HFL_ERR("Failed to create SoupServer: %d: %s\n",
 			 errno, strerror(errno));
 		if (i < retryCount)
 			sleep(5);
 		else
-			MLPL_ERR("%s", Utils::getUsingPortInfo(port).c_str());
+			HFL_ERR("%s", Utils::getUsingPortInfo(port).c_str());
 	}
 	soup_server_add_handler(m_ctx->soupServer, NULL, handlerDefault,
 	                        this, NULL);
@@ -145,7 +145,7 @@ void HttpServerStub::handlerDefault
   (SoupServer *server, SoupMessage *msg, const char *path, GHashTable *query,
    SoupClientContext *client, gpointer user_data)
 {
-	MLPL_DBG("Default handler: path: %s, method: %s\n",
+	HFL_DBG("Default handler: path: %s, method: %s\n",
 	         path, msg->method);
 	soup_message_set_status(msg, SOUP_STATUS_NOT_FOUND);
 }

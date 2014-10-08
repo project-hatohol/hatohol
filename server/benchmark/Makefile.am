@@ -1,11 +1,11 @@
 AM_CXXFLAGS = \
 	$(OPT_CXXFLAGS) \
-	$(MLPL_CFLAGS) \
+	$(HFL_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	-I../src -I ../common
 
 AM_LDFLAGS = -lrt \
-	$(MLPL_LIBS) \
+	$(HFL_LIBS) \
 	$(GLIB_LIBS)
 
 noinst_PROGRAMS = \

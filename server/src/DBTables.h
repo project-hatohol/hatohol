@@ -47,7 +47,7 @@ public:
 		DBUpdater               updater;
 		void                   *updaterData;
 		bool                    initialized;
-		mlpl::Mutex             lock;
+		hfl::Mutex             lock;
 	};
 
 	DBTables(DBAgent &dbAgent, SetupInfo &setupInfo);

@@ -31,7 +31,7 @@
 #include "HatoholThreadBase.h"
 #include "EventSemaphore.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 namespace testUtils {
 
@@ -297,7 +297,7 @@ void test_getUsingPortInformation(void)
 	SoupServer *soupSv = soup_server_new(SOUP_SERVER_PORT, port, NULL);
 	string info = Utils::getUsingPortInfo(port);
 	g_object_unref(soupSv);
-	MLPL_INFO("%s", info.c_str());
+	HFL_INFO("%s", info.c_str());
 
 	StringVector lines;
 	StringUtils::split(lines, info, '\n');

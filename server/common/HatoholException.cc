@@ -21,7 +21,7 @@
 #include "HatoholException.h"
 #include "Utils.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 bool HatoholException::m_saveStackTrace = false;
 const int HatoholException::UNKNOWN_LINE_NUMBER = -1;
@@ -44,7 +44,7 @@ HatoholException::HatoholException(
   m_sourceFileName(sourceFileName),
   m_lineNumber(lineNumber)
 {
-	MLPL_DBG("HatoholException: <%s:%d> %s\n", sourceFileName.c_str(), lineNumber,
+	HFL_DBG("HatoholException: <%s:%d> %s\n", sourceFileName.c_str(), lineNumber,
 	         brief.c_str());
 	if (m_saveStackTrace)
 		saveStackTrace();
@@ -57,7 +57,7 @@ HatoholException::HatoholException(
   m_lineNumber(lineNumber),
   m_errCode(errCode)
 {
-	MLPL_DBG("HatoholException: <%s[%d]:%d> %s\n", sourceFileName.c_str(), errCode,
+	HFL_DBG("HatoholException: <%s[%d]:%d> %s\n", sourceFileName.c_str(), errCode,
 	         lineNumber, brief.c_str());
 	if (m_saveStackTrace)
 		saveStackTrace();
@@ -151,16 +151,16 @@ bool ExceptionCatchable::exec(void)
 
 void ExceptionCatchable::onCaught(const HatoholException &e)
 {
-	MLPL_ERR("Got Hatohol exception: %s\n",
+	HFL_ERR("Got Hatohol exception: %s\n",
 	         e.getFancyMessage().c_str());
 }
 
 void ExceptionCatchable::onCaught(const exception &e)
 {
-	MLPL_ERR("Got exception: %s\n", e.what());
+	HFL_ERR("Got exception: %s\n", e.what());
 }
 
 void ExceptionCatchable::onCaught(void)
 {
-	MLPL_ERR("Got unknown exception\n");
+	HFL_ERR("Got unknown exception\n");
 }

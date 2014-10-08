@@ -23,7 +23,7 @@
 #include <GateJSONEventMessage.h>
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 namespace testGateJSONEventMessage {
 

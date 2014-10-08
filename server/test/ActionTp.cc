@@ -31,7 +31,7 @@
 #include "ResidentCommunicator.h"
 
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 static const int TIMEOUT_MSEC = 5 * 1000;
 static vector<string> g_argList;
@@ -55,7 +55,7 @@ struct Context : public ResidentPullHelper<Context> {
 	                          GIOCondition condition, gpointer data)
 	{
 		Context *ctx = static_cast<Context *>(data);
-		MLPL_ERR("pipeError: %s\n",
+		HFL_ERR("pipeError: %s\n",
 		         Utils::getStringFromGIOCondition(condition).c_str());
 		ctx->exitFlag = true;
 		return FALSE;
@@ -78,7 +78,7 @@ struct Context : public ResidentPullHelper<Context> {
 
 static bool cmdQuit(SmartBuffer &sbuf, size_t size, Context *ctx)
 {
-	MLPL_INFO("Quit\n");
+	HFL_INFO("Quit\n");
 	ResidentCommunicator comm;
 	comm.setHeader(0, ACTTP_REPLAY_QUIT);
 	comm.push(ctx->pipeWr); 
@@ -169,7 +169,7 @@ static void dispatch(GIOStatus stat, SmartBuffer &sbuf,
 	} else if (pktType == ACTTP_CODE_QUIT) {
 		continueFlag = cmdQuit(sbuf, size, ctx);
 	} else  {
-		MLPL_ERR("Unexpected code: %d\n", pktType);
+		HFL_ERR("Unexpected code: %d\n", pktType);
 		ctx->exitFlag = true;
 	}
 	if (continueFlag)

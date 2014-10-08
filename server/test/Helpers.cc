@@ -33,7 +33,7 @@
 #include "Reaper.h"
 #include "ConfigManager.h"
 using namespace std;
-using namespace mlpl;
+using namespace hfl;
 
 void _assertStringVector(const StringVector &expected,
                          const StringVector &actual)
@@ -196,7 +196,7 @@ struct SpawnSyncContext {
 		  g_io_channel_read_chars(source, buf, bufSize-1, &bytesRead,
 		                          &error);
 		if (stat != G_IO_STATUS_NORMAL) {
-			MLPL_ERR("Failed to call g_io_channel_read_chars: %s\n",
+			HFL_ERR("Failed to call g_io_channel_read_chars: %s\n",
 			         error ? error->message : "unknown");
 			if (error)
 				g_error_free(error);
@@ -418,7 +418,7 @@ std::string makeArmPluginInfoOutput(const ArmPluginInfo &armPluginInfo)
 string makeIncidentTrackerInfoOutput(const IncidentTrackerInfo &incidentTrackerInfo)
 {
 	string expectedOut =
-	  mlpl::StringUtils::sprintf(
+	  hfl::StringUtils::sprintf(
 	    "%" FMT_INCIDENT_TRACKER_ID "|%d|%s|%s|%s|%s|%s|%s\n",
 	    incidentTrackerInfo.id,
 	    incidentTrackerInfo.type,
@@ -442,7 +442,7 @@ std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
 string makeEventOutput(const EventInfo &eventInfo)
 {
 	string output =
-	  mlpl::StringUtils::sprintf(
+	  hfl::StringUtils::sprintf(
 	    "%" PRIu32 "|%" PRIu64 "|%ld|%ld|%d|%u|%" PRIu64 "|%s|%s\n",
 	    eventInfo.serverId, eventInfo.id,
 	    eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
@@ -456,7 +456,7 @@ string makeEventOutput(const EventInfo &eventInfo)
 string makeIncidentOutput(const IncidentInfo &incidentInfo)
 {
 	string output =
-	  mlpl::StringUtils::sprintf(
+	  hfl::StringUtils::sprintf(
 	    "%" FMT_INCIDENT_TRACKER_ID "|%" FMT_SERVER_ID "|%" FMT_EVENT_ID
 	    "|%" FMT_TRIGGER_ID "|%s|%s|%s|%s"
 	    "|%" PRIu64 "|%" PRIu64 "|%" PRIu64 "|%" PRIu64
@@ -1036,7 +1036,7 @@ void initActionDef(ActionDef &actionDef)
 string getSyslogTail(size_t numLines)
 {
 	// TODO: consider the environment that uses /var/log/messages.
-	//       mlpl's testLogger does the similar things. We should
+	//       hfl's testLogger does the similar things. We should
 	//       create a commonly used method.
 	const string cmd =
 	  StringUtils::sprintf("tail -%zd /var/log/syslog", numLines);

@@ -92,11 +92,11 @@ protected:
 	static gboolean residentWriteErrCb(GIOChannel *source,
 	                                   GIOCondition condition,
 	                                   gpointer data);
-	static void launchedCb(GIOStatus stat, mlpl::SmartBuffer &buf,
+	static void launchedCb(GIOStatus stat, hfl::SmartBuffer &buf,
 	                       size_t size, ResidentNotifyInfo *notifyInfo);
-	static void moduleLoadedCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+	static void moduleLoadedCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
 	                           size_t size, ResidentNotifyInfo *notifyInfo);
-	static void gotNotifyEventAckCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
+	static void gotNotifyEventAckCb(GIOStatus stat, hfl::SmartBuffer &sbuf,
 	                                size_t size,
 	                                ResidentNotifyInfo *residentInfo);
 	static void sendParameters(ResidentInfo *residentInfo);
@@ -163,7 +163,7 @@ protected:
 	static void execCommandActionCore(
 	  const ActionDef &actionDef, const EventInfo &eventInfo,
 	  DBTablesAction &dbAction, void *postprocCtx,
-	  const mlpl::StringVector &argVect);
+	  const hfl::StringVector &argVect);
 	
 	static void addCommandDirectory(std::string &path);
 

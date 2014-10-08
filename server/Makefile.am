@@ -1,1 +1,1 @@
-SUBDIRS = mlpl common src hap tools test data benchmark
+SUBDIRS = hfl common src hap tools test data benchmark

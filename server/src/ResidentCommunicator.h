@@ -37,9 +37,9 @@ public:
 	 *
 	 * After calling this function, the index of sbuf is changed.
 	 */
-	static int getPacketType(mlpl::SmartBuffer &sbuf);
+	static int getPacketType(hfl::SmartBuffer &sbuf);
 
-	mlpl::SmartBuffer &getBuffer(void);
+	hfl::SmartBuffer &getBuffer(void);
 	void setHeader(uint32_t bodySize, uint16_t type);
 	void push(NamedPipe &namedPipe);
 	void addModulePath(const std::string &modulePath);
@@ -59,7 +59,7 @@ template<typename ArgType>
 class ResidentPullHelper {
 
 	typedef void (*PullCBType)
-	  (GIOStatus stat, mlpl::SmartBuffer &sbuf, size_t size, ArgType *ctx);
+	  (GIOStatus stat, hfl::SmartBuffer &sbuf, size_t size, ArgType *ctx);
 
 public:
 	ResidentPullHelper(void)
@@ -74,7 +74,7 @@ public:
 	}
 
 	static void pullCallbackGate
-	  (GIOStatus stat, mlpl::SmartBuffer &sbuf, size_t size, void *_this)
+	  (GIOStatus stat, hfl::SmartBuffer &sbuf, size_t size, void *_this)
 	{
 		ResidentPullHelper<ArgType> *obj =
 		  static_cast<ResidentPullHelper<ArgType> *>(_this);
