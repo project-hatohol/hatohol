@@ -147,7 +147,9 @@ describe('HatoholMonitoringView', function() {
     expect($('#delete-test-button').attr('disabled')).to.be('disabled');
     expect($('#checkbox1').prop('checked')).to.be(false);
     expect($('#checkbox2').prop('checked')).to.be(false);
-    expect($('#checkbox-div').css('display')).to.be('block');
+    // The visiblity of them will be controlled by caller.
+    // github issue #686
+    //expect($('#checkbox-div').css('display')).to.be('block');
   });
 
   it ('not show check boxes if the user does not have the privilege', function() {
