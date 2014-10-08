@@ -1,6 +1,6 @@
 describe('UsersView', function() {
   var TEST_FIXTURE_ID = 'usersViewFixture';
-  var viewHTML;
+  var usersViewHTML;
   var defaultUsers = [
     {
       "userId": 1,
@@ -54,21 +54,21 @@ describe('UsersView', function() {
     var contentId = "main";
     var setupFixture = function() {
       $("#" + TEST_FIXTURE_ID).append($("<div>", { id: contentId }))
-      $("#" + contentId).html(viewHTML);
+      $("#" + contentId).html(usersViewHTML);
       fakeAjax();
       done();
     };
 
     $('body').append($('<div>', { id: TEST_FIXTURE_ID }));
 
-    if (viewHTML) {
+    if (usersViewHTML) {
       setupFixture();
     } else {
       var iframe = $("<iframe>", {
         id: "fixtureFrame",
         src: "../../ajax_users?start=false",
         load: function() {
-          viewHTML = $("#" + contentId, this.contentDocument).html();
+          usersViewHTML = $("#" + contentId, this.contentDocument).html();
           setupFixture();
         }
       })
