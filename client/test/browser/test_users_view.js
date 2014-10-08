@@ -14,7 +14,7 @@ describe('UsersView', function() {
     },
     {
       "userId": 2,
-      "name": "guest",
+      "name": "users manager",
       "flags": (1 << hatohol.OPPRVLG_GET_ALL_USER |
                 1 << hatohol.OPPRVLG_DELETE_USER)
     }
