@@ -129,7 +129,7 @@ void HapProcessZabbixAPI::parseReplyGetMonitoringServerInfoOnInitiated(
 	  "Failed to parse the reply for monitoring server information.\n");
 }
 
-HatoholError HapProcessZabbixAPI::acquireData(void)
+HatoholError HapProcessZabbixAPI::acquireData(const MessagingContext &msgCtx)
 {
 	// TODO:
 	setMonitoringServerInfo();

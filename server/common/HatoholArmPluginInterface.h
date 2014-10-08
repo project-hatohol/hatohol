@@ -25,6 +25,7 @@
 #include <EndianConverter.h>
 #include <qpid/messaging/Message.h>
 #include <qpid/messaging/Connection.h>
+#include <qpid/messaging/Address.h>
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
 #include "ItemDataPtr.h"
@@ -242,6 +243,11 @@ struct HapiAvailableTrigger {
 class HatoholArmPluginInterface :
   public HatoholThreadBase, public EndianConverter {
 public:
+	struct MessagingContext {
+		qpid::messaging::Address replyAddress;
+		uint32_t sequenceId;
+	};
+
 	static const char *ENV_NAME_QUEUE_ADDR;
 	static const char *DEFAULT_BROKER_URL;
 	static const uint32_t SEQ_ID_UNKNOWN;
@@ -282,7 +288,10 @@ public:
 	void send(
 	  const mlpl::SmartBuffer &smbuf, CommandCallbacks *callbacks = NULL);
 
+	bool getMessagingContext(MessagingContext &msgCtx);
 	void reply(const mlpl::SmartBuffer &replyBuf);
+	void reply(const MessagingContext &msgCtx,
+	           const mlpl::SmartBuffer &replyBuf);
 	void replyError(const HapiResponseCode &code);
 	void replyOk(void);
 
@@ -754,6 +763,9 @@ protected:
 	 * to the header region after the call.
 	 *
 	 * @param additionalSize An addition size to allocate a buffer.
+	 * @param msgCtx
+	 * A MessagingContext instance. It is necessary when this method
+	 * is used asynchronously.
 	 *
 	 * @return A pointer of the body area.
 	 */
@@ -761,7 +773,8 @@ protected:
 	BodyType *setupResponseBuffer(
 	  mlpl::SmartBuffer &resBuf,
 	  const size_t &additionalSize = 0,
-	  const HapiResponseCode &code = HAPI_RES_OK)
+	  const HapiResponseCode &code = HAPI_RES_OK,
+	  const MessagingContext *msgCtx = NULL)
 	{
 		const size_t requiredSize = sizeof(HapiResponseHeader)
 		                            + getBodySize<BodyType>()
@@ -771,7 +784,8 @@ protected:
 		  resBuf.getPointer<HapiResponseHeader>(0);
 		header->type = NtoL(HAPI_MSG_RESPONSE);
 		header->code = NtoL(code);
-		header->sequenceId = NtoL(getSequenceIdInProgress());
+		header->sequenceId = NtoL(
+		  msgCtx ? msgCtx->sequenceId : getSequenceIdInProgress());
 		resBuf.setIndex(sizeof(HapiResponseHeader));
 		return resBuf.getPointer<BodyType>(sizeof(HapiResponseHeader));
 	}

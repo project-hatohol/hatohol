@@ -21,7 +21,9 @@
 #include <gcutter.h>
 #include <cppcutter.h>
 #include <errno.h>
+#include <Reaper.h>
 #include "Hatohol.h"
+#include "Closure.h"
 #include "HapProcessStandard.h"
 #include "Helpers.h"
 #include "HatoholArmPluginTestPair.h"
@@ -31,6 +33,7 @@ using namespace mlpl;
 using namespace qpid::messaging;
 
 static int TIMEOUT = 5; // sec
+static int TIMEOUT_MS = TIMEOUT * 1000;
 
 class TestHapProcessStandard :
    public HapProcessStandard, public HapiTestHelper {
@@ -38,9 +41,19 @@ public:
 	struct CtorParams {
 		int argc;
 		char **argv;
-	};
+		bool callSyncCommandInAcquireData;
+
+		CtorParams(void)
+		: argc(0),
+		  argv(NULL),
+		  callSyncCommandInAcquireData(false)
+		{
+		}
+	} *m_params;
 
 	SimpleSemaphore           m_acquireSem;
+	SimpleSemaphore           m_acquireSyncCommandSem;
+	SimpleSemaphore           m_acquireStopSem;
 	HatoholError              m_errorOnComplated;
 	HatoholArmPluginWatchType m_watchTypeOnComplated;
 
@@ -54,7 +67,10 @@ public:
 	: HapProcessStandard(
 	    static_cast<CtorParams *>(params)->argc,
 	    static_cast<CtorParams *>(params)->argv),
+	  m_params(static_cast<CtorParams *>(params)),
 	  m_acquireSem(0),
+	  m_acquireSyncCommandSem(0),
+	  m_acquireStopSem(0),
 	  m_errorOnComplated(NUM_HATOHOL_ERROR_CODE),
 	  m_watchTypeOnComplated(NUM_COLLECT_NG_KIND),
 	  m_returnValueOfAcquireData(HTERR_OK),
@@ -76,12 +92,34 @@ public:
 		HapiTestHelper::onInitiated();
 	}
 
-	virtual HatoholError acquireData(void) override
+	virtual HatoholError acquireData(
+	  const MessagingContext &msgCtx) override
 	{
 		m_acquireSem.post();
+		if (m_params->callSyncCommandInAcquireData) {
+			// Before the follwoing semaphore is posted by
+			// FetchItemStater, it sends reqFetchItem.
+			// The request packet is supposed to be processed
+			// prior to the reply of the following
+			// getMonitoringServerInfo().
+			m_acquireSyncCommandSem.wait();
+			MonitoringServerInfo svInfo;
+			HatoholArmPluginBase::getMonitoringServerInfo(svInfo);
+			m_acquireSem.post();
+		}
 		if (m_throwException)
 			throw 0;
 		return m_returnValueOfAcquireData;
+	}
+
+	virtual HatoholError fetchItem(const MessagingContext &msgCtx) override
+	{
+		SmartBuffer resBuf;
+		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS, &msgCtx);
+		appendItemTable(resBuf, ItemTablePtr());
+		appendItemTable(resBuf, ItemTablePtr()); // Item Category
+		reply(msgCtx, resBuf);
+		return HTERR_OK;
 	}
 
 	virtual void onCompletedAcquistion(
@@ -131,7 +169,7 @@ public:
 
 typedef HatoholArmPluginTestPair<TestHapProcessStandard> TestPair;
 
-static TestHapProcessStandard::CtorParams g_ctorParams = {0, NULL};
+static TestHapProcessStandard::CtorParams g_ctorParams;
 
 namespace testHapProcessStandard {
 
@@ -322,6 +360,82 @@ void test_hapPipeCatchErrorAndExit(void)
 	g_main_loop_run(pair.plugin->getGMainLoop());
 	cppcut_assert_equal(true, pair.plugin->m_calledPipeRdErrCb);
 	cppcut_assert_equal(true, pair.plugin->m_calledPipeWrErrCb);
+}
+
+struct FetchItemStarter : public HatoholThreadBase {
+	TestPair *pair;
+	GMainLoop *loop;
+	bool       succeeded;
+	bool       fetched;
+
+	FetchItemStarter(void)
+	: loop(NULL),
+	  succeeded(false),
+	  fetched(false)
+	{
+		loop = g_main_loop_new(NULL, TRUE);
+	}
+
+	virtual ~FetchItemStarter()
+	{
+		g_main_loop_unref(loop);
+	}
+
+	virtual gpointer mainThread(HatoholThreadArg *arg) override
+	{
+		Reaper<GMainLoop> loopQuiter(loop, g_main_loop_quit);
+		if (!wait())
+			return NULL;
+		Closure<FetchItemStarter> *closure =
+		  new Closure<FetchItemStarter>(this,
+		    &FetchItemStarter::closureCb);
+		pair->gate->startOnDemandFetchItem(closure);
+		pair->plugin->m_acquireSyncCommandSem.post();
+		if (!wait())
+			return NULL;
+		// wait for callback of colusreCb()
+		g_main_loop_run(loop);
+		succeeded = true;
+		return NULL;
+	}
+
+	bool wait(void)
+	{
+		SimpleSemaphore::Status waitStat =
+		  pair->plugin->m_acquireSem.timedWait(TIMEOUT_MS);
+		if (waitStat != SimpleSemaphore::STAT_OK) {
+			MLPL_ERR("Failed to wait: %d\n", waitStat);
+			return false;
+		}
+		return true;
+	}
+
+	void closureCb(ClosureBase *closure)
+	{
+		fetched = true;
+		g_main_loop_quit(loop);
+	}
+};
+
+void test_reqFetchItemDuringAcquireData(void)
+{
+	FetchItemStarter fetchItemStarter;
+
+	GLibMainLoop glibMainLoopForGate;
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestHapProcessStandard::CtorParams ctorParams;
+	ctorParams.callSyncCommandInAcquireData = true;
+	arg.hapClassParameters = &ctorParams;
+	arg.hapgCtx.glibMainContext = glibMainLoopForGate.getContext();
+	glibMainLoopForGate.start();
+	TestPair pair(arg);
+	fetchItemStarter.pair = &pair;
+	fetchItemStarter.start();
+
+	// acquireData() is supposed to be invoked on this event loop.
+	g_main_loop_run(fetchItemStarter.loop);
+	cppcut_assert_equal(true, fetchItemStarter.succeeded);
+	cppcut_assert_equal(true, fetchItemStarter.fetched);
 }
 
 } // namespace testHapProcessStandardPair

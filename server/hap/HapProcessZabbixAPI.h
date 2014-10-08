@@ -36,7 +36,8 @@ protected:
 	void parseReplyGetMonitoringServerInfoOnInitiated(
 	  MonitoringServerInfo &serverInfo, const mlpl::SmartBuffer &replyBuf);
 
-	virtual HatoholError acquireData(void) override;
+	virtual HatoholError acquireData(
+	  const MessagingContext &msgCtx) override;
 	virtual HatoholError fetchItem(void) override;
 	virtual HatoholArmPluginWatchType getHapWatchType(
 	  const HatoholError &err) override;

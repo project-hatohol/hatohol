@@ -28,6 +28,8 @@ HatoholArmPluginGateTest::HatoholArmPluginGateTest(
 : HatoholArmPluginGate(serverInfo),
   m_ctx(_ctx)
 {
+	if (m_ctx.glibMainContext)
+		setGLibMainContext(m_ctx.glibMainContext);
 }
 
 string HatoholArmPluginGateTest::callGenerateBrokerAddress(

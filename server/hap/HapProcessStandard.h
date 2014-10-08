@@ -31,22 +31,32 @@ public:
 	int mainLoopRun(void);
 
 protected:
-	typedef HatoholError (HapProcessStandard::*AcquireFunc)(void);
+	struct AsyncCommandTask {
+		virtual ~AsyncCommandTask();
+		virtual void run(void) = 0;
+	};
+
+	typedef HatoholError (HapProcessStandard::*AcquireFunc)
+	                      (const MessagingContext &messagingContext);
 
 	static gboolean kickBasicAcquisition(void *data);
 	void startAcquisition(
-	  AcquireFunc acquireFunc, const bool &setupTimer = true);
+	  AcquireFunc acquireFunc,
+	  const MessagingContext &messagingContext,
+	  const bool &setupTimer = true);
 	void setupNextTimer(
 	  const HatoholError &err, const bool &caughtException,
 	  const std::string &exceptionName, const std::string &exceptionMsg);
 	const MonitoringServerInfo &getMonitoringServerInfo(void) const;
 
-	virtual HatoholError acquireData(void);
-	virtual HatoholError fetchItem(void);
+	virtual HatoholError acquireData(const MessagingContext &msgCtx);
+	virtual HatoholError fetchItem(const MessagingContext &msgCtx);
 	virtual void onCompletedAcquistion(
 	  const HatoholError &err, const HatoholArmPluginWatchType &watchType);
 	virtual HatoholArmPluginWatchType getHapWatchType(
 	  const HatoholError &err);
+
+	static void runQueuedAsyncCommandTask(HapProcessStandard *hap);
 
 	virtual void onReady(const MonitoringServerInfo &serverInfo) override;
 	virtual void onReceivedReqFetchItem(void) override;

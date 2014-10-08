@@ -292,19 +292,33 @@ void HatoholArmPluginInterface::send(
 	m_impl->sender.send(request);
 }
 
-void HatoholArmPluginInterface::reply(const mlpl::SmartBuffer &replyBuf)
+bool HatoholArmPluginInterface::getMessagingContext(MessagingContext &msgCtx)
 {
 	HATOHOL_ASSERT(m_impl->currMessage,
 	               "This object doesn't have a current message.\n");
-	const Address& address = m_impl->currMessage->getReplyTo();
-	if (!address) {
+	msgCtx.replyAddress = m_impl->currMessage->getReplyTo();
+	if (!msgCtx.replyAddress) {
 		MLPL_ERR("No return address.\n");
 		m_impl->session.reject(*m_impl->currMessage);
-		return;
+		return false;
 	}
+	msgCtx.sequenceId = getSequenceIdInProgress();
+	return true;
+}
+
+void HatoholArmPluginInterface::reply(const mlpl::SmartBuffer &replyBuf)
+{
+	MessagingContext msgCtx;
+	getMessagingContext(msgCtx);
+	HatoholArmPluginInterface::reply(msgCtx, replyBuf);
+}
+
+void HatoholArmPluginInterface::reply(const MessagingContext &msgCtx,
+                                      const mlpl::SmartBuffer &replyBuf)
+{
 	Message reply;
 	reply.setContent(replyBuf.getPointer<char>(0), replyBuf.size());
-	Sender sender = m_impl->session.createSender(address);
+	Sender sender = m_impl->session.createSender(msgCtx.replyAddress);
 	sender.send(reply);
 }
 
