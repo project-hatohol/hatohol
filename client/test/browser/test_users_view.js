@@ -96,8 +96,12 @@ describe('UsersView', function() {
     var view = new UsersView(userProfile);
     respond(usersJson(defaultUsers));
 
-    expect($('#delete-user-button').is(":visible")).to.be(true);
-    expect($('.delete-selector .selectcheckbox').is(":visible")).to.be(true);
+    var deleteButton = $('#delete-user-button');
+    var checkboxes = $('.delete-selector .selectcheckbox');
+    expect(deleteButton).to.have.length(1);
+    expect(checkboxes).to.have.length(3);
+    expect(deleteButton.is(":visible")).to.be(true);
+    expect(checkboxes.is(":visible")).to.be(true);
   });
 
   it('with no delete privilege', function() {
@@ -105,7 +109,11 @@ describe('UsersView', function() {
     var view = new UsersView(userProfile);
     respond(usersJson(defaultUsers));
 
-    expect($('#delete-user-button').is(":visible")).to.be(false);
-    expect($('.delete-selector .selectcheckbox').is(":visible")).to.be(false);
+    var deleteButton = $('#delete-user-button');
+    var checkboxes = $('.delete-selector .selectcheckbox');
+    expect(deleteButton).to.have.length(1);
+    expect(checkboxes).to.have.length(3);
+    expect(deleteButton.is(":visible")).to.be(false);
+    expect(checkboxes.is(":visible")).to.be(false);
   });
 });
