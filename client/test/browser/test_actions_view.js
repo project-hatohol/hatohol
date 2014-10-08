@@ -81,6 +81,11 @@ describe('ActionsView', function() {
   });
 
   it('Base elements', function() {
+    var operator = {
+      "userId": 1,
+      "name": "admin",
+      "flags": hatohol.ALL_PRIVILEGES
+    };
     var userProfile = new HatoholUserProfile(defaultActions[0]);
     var view = new ActionsView(userProfile);
     respond(actionsJson(defaultActions));
