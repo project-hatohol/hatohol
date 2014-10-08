@@ -1572,7 +1572,7 @@ int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 	string stmt = StringUtils::sprintf("coalesce(max(%s), 0)",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName);
 	arg.add(stmt, COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
-	arg.condition = StringUtils::sprintf("%s=%s AND %s < %lu",
+	arg.condition = StringUtils::sprintf("%s=%s AND %s < %" FMT_TRIGGER_ID,
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
 	    dbTermCodec->enc(serverId).c_str(),
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
