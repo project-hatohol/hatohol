@@ -218,6 +218,8 @@ var IncidentSettingsView = function(userProfile) {
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody(self.incidentSettingsData));
     self.setupCheckboxForDelete($("#delete-incident-setting-button"));
+    if (self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_INCIDENT_SETTING))
+      $(".delete-selector").show();
   }
 
   function onGotIncidentSettings(incidentSettingsData) {

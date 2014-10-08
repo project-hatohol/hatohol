@@ -188,6 +188,8 @@ var UsersView = function(userProfile) {
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody(reply));
     self.setupCheckboxForDelete($("#delete-user-button"));
+    if (self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_USER))
+      $(".delete-selector").show();
     setupEditLinksAndButtons(reply);
     self.displayUpdateTime();
   }

@@ -306,7 +306,7 @@ HatoholMonitoringView.prototype.setAutoReload =
 };
 
 HatoholMonitoringView.prototype.setupCheckboxForDelete =
-  function(jQObjDeleteButton)
+  function(jQObjDeleteButton, hasPrivilege)
 {
   var self = this;
   var numSelected = 0;
@@ -324,9 +324,6 @@ HatoholMonitoringView.prototype.setupCheckboxForDelete =
     else if (prevNumSelected == 1 && numSelected == 0)
       jQObjDeleteButton.attr("disabled", true);
   });
-  if (self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER)) {
-    $(".delete-selector").show();
-  }
 };
 
 HatoholMonitoringView.prototype.setupHostFilters = function(servers, query) {

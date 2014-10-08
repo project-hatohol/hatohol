@@ -244,6 +244,8 @@ var ActionsView = function(userProfile) {
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody(rawData));
     self.setupCheckboxForDelete($("#delete-action-button"));
+    if (self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ACTION))
+      $(".delete-selector").show();
     self.displayUpdateTime();
   }
 

@@ -208,6 +208,8 @@ var ServersView = function(userProfile) {
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody(reply));
     self.setupCheckboxForDelete($("#delete-server-button"));
+    if (self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER))
+      $(".delete-selector").show();
     setupEditButtons(reply);
     self.displayUpdateTime();
     self.startConnection("server-conn-stat", updateServerConnStat);
