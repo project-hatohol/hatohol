@@ -45,7 +45,7 @@ describe('UsersView', function() {
     request.respond(200, { "Content-Type": "application/json" },
                     usersJson);
   }
-  
+
   beforeEach(function(done) {
     var contentId = "main";
     var setupFixture = function() {
