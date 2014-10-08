@@ -46,30 +46,33 @@ describe('UsersView', function() {
                     usersJson);
   }
 
+  function loadFixture(pathFromTop, onLoad) {
+    var iframe = $("<iframe>", {
+      id: "loaderFrame",
+      src: "../../" + pathFromTop + "?start=false",
+      load: function() {
+        var html = $("#main", this.contentDocument).html();
+        onLoad(html);
+        $('#loaderFrame').remove()
+      }
+    })
+    $('body').append(iframe);
+  }
+
   beforeEach(function(done) {
-    var contentId = "main";
-    var setupFixture = function() {
-      $("#" + TEST_FIXTURE_ID).append($("<div>", { id: contentId }))
-      $("#" + contentId).html(usersViewHTML);
+    $('body').append($('<div>', { id: TEST_FIXTURE_ID }));
+    var setupFixture = function(html) {
+      usersViewHTML = html;
+      $("#" + TEST_FIXTURE_ID).append($("<div>", { id: "main" }))
+      $("#main").html(usersViewHTML);
       fakeAjax();
       done();
     };
 
-    $('body').append($('<div>', { id: TEST_FIXTURE_ID }));
-
-    if (usersViewHTML) {
-      setupFixture();
-    } else {
-      var iframe = $("<iframe>", {
-        id: "fixtureFrame",
-        src: "../../ajax_users?start=false",
-        load: function() {
-          usersViewHTML = $("#" + contentId, this.contentDocument).html();
-          setupFixture();
-        }
-      })
-      $("#" + TEST_FIXTURE_ID).append(iframe);
-    }
+    if (usersViewHTML)
+      setupFixture(usersViewHTML);
+    else
+      loadFixture("ajax_users", setupFixture)
   });
 
   afterEach(function() {
