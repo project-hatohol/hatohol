@@ -78,7 +78,7 @@ describe('UsersView', function() {
 
   afterEach(function() {
     restoreAjax();
-    //$("#" + TEST_FIXTURE_ID).remove();
+    $("#" + TEST_FIXTURE_ID).remove();
   });
 
   it('with delete privilege', function() {
