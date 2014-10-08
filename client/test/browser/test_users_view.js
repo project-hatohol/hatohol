@@ -40,14 +40,10 @@ describe('UsersView', function() {
     this.xhr.restore();
   }
 
-  function respondUsers(usersJson) {
+  function respond(usersJson) {
     var request = this.requests[0];
     request.respond(200, { "Content-Type": "application/json" },
                     usersJson);
-  }
-
-  function respond(usersJson, configJson) {
-    respondUsers(usersJson);
   }
   
   beforeEach(function(done) {
@@ -84,7 +80,7 @@ describe('UsersView', function() {
   it('with delete privilege', function() {
     var userProfile = new HatoholUserProfile(defaultUsers[2]);
     var view = new UsersView(userProfile);
-    respond(usersJson(defaultUsers));
+    respond(usersJson);
     var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
 
     expect(heads).to.have.length(1);
