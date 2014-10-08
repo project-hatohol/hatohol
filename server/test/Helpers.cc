@@ -1292,6 +1292,46 @@ gboolean GMainLoopAgent::timedOut(gpointer data)
 }
 
 // ---------------------------------------------------------------------------
+// GLibMainLoop
+// ---------------------------------------------------------------------------
+GLibMainLoop::GLibMainLoop(GMainContext *context)
+: m_context(NULL),
+  m_loop(NULL)
+{
+	if (context)
+		m_context = g_main_context_ref(context);
+	else
+		m_context = g_main_context_new();
+		m_loop = g_main_loop_new(m_context, FALSE);
+	}
+
+GLibMainLoop::~GLibMainLoop()
+{
+	if (m_loop) {
+		g_main_loop_quit(m_loop);
+		g_main_loop_unref(m_loop);
+	}
+	if (m_context)
+		g_main_context_unref(m_context);
+	}
+
+gpointer GLibMainLoop::mainThread(HatoholThreadArg *arg)
+{
+	g_main_loop_run(m_loop);
+	return NULL;
+}
+
+GMainContext *GLibMainLoop::getContext(void) const
+{
+	return m_context;
+}
+
+GMainLoop *GLibMainLoop::getLoop(void) const
+{
+	return m_loop;
+}
+
+// ---------------------------------------------------------------------------
 // CommandArgHelper
 // ---------------------------------------------------------------------------
 CommandArgHelper::CommandArgHelper(void)
