@@ -20,7 +20,7 @@ describe('UsersView', function() {
     }
   ];
 
-  function usersJson(users, servers) {
+  function usersJson(users) {
     return JSON.stringify({
       apiVersion: 3,
       errorCode: hatohol.HTERR_OK,
