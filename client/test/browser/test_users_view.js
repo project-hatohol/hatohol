@@ -77,28 +77,31 @@ describe('UsersView', function() {
     $("#" + TEST_FIXTURE_ID).remove();
   });
 
+  it('Base elements', function() {
+    var userProfile = new HatoholUserProfile(defaultUsers[0]);
+    var view = new UsersView(userProfile);
+    respond(usersJson(defaultUsers));
+    var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
+
+    expect(heads).to.have.length(1);
+    expect($('#table')).to.have.length(1);
+    expect($('tr')).to.have.length(defaultUsers.length + 1);
+  });
+
   it('with delete privilege', function() {
     var userProfile = new HatoholUserProfile(defaultUsers[2]);
     var view = new UsersView(userProfile);
     respond(usersJson(defaultUsers));
-    var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
 
-    expect(heads).to.have.length(1);
-    expect($('#table')).to.have.length(1);
-    expect($('tr')).to.have.length(defaultUsers.length + 1);
     expect($('#delete-user-button').is(":visible")).to.be(true);
     expect($('.delete-selector .selectcheckbox').is(":visible")).to.be(true);
   });
 
-  it('with no privilege', function() {
+  it('with no delete privilege', function() {
     var userProfile = new HatoholUserProfile(defaultUsers[1]);
     var view = new UsersView(userProfile);
     respond(usersJson(defaultUsers));
-    var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
 
-    expect(heads).to.have.length(1);
-    expect($('#table')).to.have.length(1);
-    expect($('tr')).to.have.length(defaultUsers.length + 1);
     expect($('#delete-user-button').is(":visible")).to.be(false);
     expect($('.delete-selector .selectcheckbox').is(":visible")).to.be(false);
   });
