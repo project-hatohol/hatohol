@@ -32,6 +32,8 @@ var IncidentSettingsView = function(userProfile) {
   //
   // main code
   //
+  if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_INCIDENT_SETTING))
+    $("#delete-incident-setting-button").show();
   load();
 
   //
@@ -154,7 +156,7 @@ var IncidentSettingsView = function(userProfile) {
     for (x = 0; x < actionsPkt["actions"].length; ++x) {
       var actionDef = actionsPkt["actions"][x];
       s += "<tr>";
-      s += "<td class='delete-selector'>";
+      s += "<td class='delete-selector' style='display:none'>";
       s += "<input type='checkbox' class='selectcheckbox' " +
         "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
       s += "<td>" + escapeHTML(actionDef.actionId) + "</td>";
