@@ -49,7 +49,7 @@ void addDataSamplesForGCutInt(void)
 	               "expect", G_TYPE_STRING, "-1389",
 	               NULL);
 	gcut_add_datum("Negative 32bit Min",
-	               "val", G_TYPE_INT, (gint)-2147483648,
+	               "val", G_TYPE_INT, G_MININT32,
 	               "expect", G_TYPE_STRING, "-2147483648",
 	               NULL);
 }
@@ -69,7 +69,7 @@ void addDataSamplesForGCutUint64(void)
 	               "expect", G_TYPE_STRING, "2147483647",
 	               NULL);
 	gcut_add_datum("Positive 32bit Max + 1",
-	               "val", G_TYPE_UINT64, (guint64)2147483648,
+	               "val", G_TYPE_UINT64, (guint64)G_MAXINT32 + 1,
 	               "expect", G_TYPE_STRING, "2147483648",
 	               NULL);
 	gcut_add_datum("Positive 64bit Poistive Max",
