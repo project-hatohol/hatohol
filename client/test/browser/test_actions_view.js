@@ -20,11 +20,11 @@ describe('ActionsView', function() {
     },
   ];
 
-  function actionsJson(actions) {
+  function getActionsJson(actions) {
     return JSON.stringify({
       apiVersion: 3,
       errorCode: hatohol.HTERR_OK,
-      actions: actions ? actions : [],
+      actions: actions ? actions : defaultActions,
     });
   }
 
@@ -43,7 +43,7 @@ describe('ActionsView', function() {
   function respond(actionsJson) {
     var request = this.requests[0];
     request.respond(200, { "Content-Type": "application/json" },
-                    actionsJson);
+                    actionsJson ? actionsJson : getActionsJson());
   }
 
   function loadFixture(pathFromTop, onLoad) {
@@ -88,7 +88,7 @@ describe('ActionsView', function() {
     };
     var userProfile = new HatoholUserProfile(defaultActions[0]);
     var view = new ActionsView(userProfile);
-    respond(actionsJson(defaultActions));
+    respond();
     var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
 
     expect(heads).to.have.length(1);
@@ -105,7 +105,7 @@ describe('ActionsView', function() {
     };
     var userProfile = new HatoholUserProfile(operator);
     var view = new ActionsView(userProfile);
-    respond(actionsJson(defaultActions));
+    respond();
 
     var deleteButton = $('#delete-action-button');
     var checkboxes = $('.delete-selector .selectcheckbox');
@@ -123,7 +123,7 @@ describe('ActionsView', function() {
     };
     var userProfile = new HatoholUserProfile(operator);
     var view = new ActionsView(userProfile);
-    respond(actionsJson(defaultActions));
+    respond();
 
     var deleteButton = $('#delete-action-button');
     var checkboxes = $('.delete-selector .selectcheckbox');

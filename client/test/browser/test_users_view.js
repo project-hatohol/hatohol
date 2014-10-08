@@ -20,11 +20,11 @@ describe('UsersView', function() {
     }
   ];
 
-  function usersJson(users) {
+  function getUsersJson(users) {
     return JSON.stringify({
       apiVersion: 3,
       errorCode: hatohol.HTERR_OK,
-      users: users ? users : [],
+      users: users ? users : defaultUsers,
     });
   }
 
@@ -43,7 +43,7 @@ describe('UsersView', function() {
   function respond(usersJson) {
     var request = this.requests[0];
     request.respond(200, { "Content-Type": "application/json" },
-                    usersJson);
+                    usersJson ? usersJson : getUsersJson());
   }
 
   function loadFixture(pathFromTop, onLoad) {
@@ -83,7 +83,7 @@ describe('UsersView', function() {
   it('Base elements', function() {
     var userProfile = new HatoholUserProfile(defaultUsers[0]);
     var view = new UsersView(userProfile);
-    respond(usersJson(defaultUsers));
+    respond();
     var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
 
     expect(heads).to.have.length(1);
@@ -94,7 +94,7 @@ describe('UsersView', function() {
   it('with delete privilege', function() {
     var userProfile = new HatoholUserProfile(defaultUsers[2]);
     var view = new UsersView(userProfile);
-    respond(usersJson(defaultUsers));
+    respond();
 
     var deleteButton = $('#delete-user-button');
     var checkboxes = $('.delete-selector .selectcheckbox');
@@ -107,7 +107,7 @@ describe('UsersView', function() {
   it('with no delete privilege', function() {
     var userProfile = new HatoholUserProfile(defaultUsers[1]);
     var view = new UsersView(userProfile);
-    respond(usersJson(defaultUsers));
+    respond();
 
     var deleteButton = $('#delete-user-button');
     var checkboxes = $('.delete-selector .selectcheckbox');

@@ -17,11 +17,11 @@ describe('ServerView', function() {
     }
   ];
 
-  function serversJson(servers) {
+  function getServersJson(servers) {
     return JSON.stringify({
       apiVersion: 3,
       errorCode: hatohol.HTERR_OK,
-      servers: servers ? servers : [],
+      servers: servers ? servers : defaultServers,
     });
   }
 
@@ -40,7 +40,7 @@ describe('ServerView', function() {
   function respond(serversJson) {
     var request = this.requests[0];
     request.respond(200, { "Content-Type": "application/json" },
-                    serversJson);
+                    serversJson ? serversJson : getServersJson());
   }
 
   function loadFixture(pathFromTop, onLoad) {
@@ -203,7 +203,7 @@ describe('ServerView', function() {
     };
     var userProfile = new HatoholUserProfile(operator);
     var view = new ServersView(userProfile);
-    respond(serversJson(defaultServers));
+    respond();
 
     var deleteButton = $('#delete-server-button');
     var checkboxes = $('.delete-selector .selectcheckbox');
@@ -221,7 +221,7 @@ describe('ServerView', function() {
     };
     var userProfile = new HatoholUserProfile(operator);
     var view = new ServersView(userProfile);
-    respond(serversJson(defaultServers));
+    respond();
 
     var deleteButton = $('#delete-server-button');
     var checkboxes = $('.delete-selector .selectcheckbox');
