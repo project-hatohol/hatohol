@@ -66,6 +66,20 @@ public:
 	                              GMainContext *context = NULL);
 
 	/**
+	 * Regisiter a GLib's timer.
+	 *
+	 * @param interval A timer interval in millisecond.
+	 * @param func     A timer callback function.
+	 * @param data     Any data passed to 'func'.
+	 * @param context  A GMainContext. If NULL, the default context is used.
+	 *
+	 * @return A GSource ID.
+	 */
+	static guint setGLibTimer(guint interval,
+	                          GSourceFunc func, gpointer data = NULL,
+	                          GMainContext *context = NULL);
+
+	/**
 	 * Watch a file descriptor in the GLIB event loop.
 	 *
 	 * @param fd
