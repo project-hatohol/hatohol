@@ -340,35 +340,32 @@ guint Utils::executeOnGLibEventLoop(
 }
 
 struct RemoveEventTask {
-	gboolean succeeded;
-	guint    tag;
+	GSource *source;
 
 	static void run(RemoveEventTask *obj)
 	{
-		obj->succeeded = g_source_remove(obj->tag);
+		g_source_destroy(obj->source);
 	}
 };
 
-bool Utils::removeEventSourceIfNeeded(guint tag, SyncType syncType)
+bool Utils::removeEventSourceIfNeeded(
+  guint tag, SyncType syncType, GMainContext *context)
 {
 	if (tag == INVALID_EVENT_ID)
 		return true;
 
-	// We remove the event on the GLIB's event loop to avoid the race.
+	// We remove the event on the GLIB's main loop to avoid the race.
 	// This is useful when this function is called on the thread other than
 	// executing g_main_loop_run().
-	// g_source_remove() just removes information used in GLIB such as
-	// polled FDs. So the event handler may be running when this function
-	// returns if we only call it.
-	GMainContext *context = NULL; // default context
 	RemoveEventTask task;
-	task.tag = tag;
-	executeOnGLibEventLoop<RemoveEventTask>(
-	  RemoveEventTask::run, &task, syncType, context);
-	if (!task.succeeded) {
-		MLPL_ERR("Failed to remove source: %d\n", tag);
+	task.source = g_main_context_find_source_by_id(context, tag);
+	if (!task.source) {
+		MLPL_ERR("Failed to find source. tag: %d, context: %p\n",
+		         tag, context);
 		return false;
 	}
+	executeOnGLibEventLoop<RemoveEventTask>(
+	  RemoveEventTask::run, &task, syncType, context);
 	return true;
 }
 

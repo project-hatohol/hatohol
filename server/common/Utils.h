@@ -176,10 +176,13 @@ public:
 	 * completely removed.
 	 * If this is ASYNC, this function returns immediately.
 	 *
+	 * @param context A GLibMainContext.
+	 *
 	 * @return true if the event was successfuly removed. Otherwise false.
 	 */
 	static bool removeEventSourceIfNeeded(guint tag,
-	                                      SyncType syncType = SYNC);
+	                                      SyncType syncType = SYNC,
+	                                      GMainContext *context = NULL);
 
 	/**
 	 * compute a SHA256.
