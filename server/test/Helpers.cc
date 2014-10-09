@@ -1302,8 +1302,8 @@ GLibMainLoop::GLibMainLoop(GMainContext *context)
 		m_context = g_main_context_ref(context);
 	else
 		m_context = g_main_context_new();
-		m_loop = g_main_loop_new(m_context, FALSE);
-	}
+	m_loop = g_main_loop_new(m_context, FALSE);
+}
 
 GLibMainLoop::~GLibMainLoop()
 {
@@ -1313,7 +1313,7 @@ GLibMainLoop::~GLibMainLoop()
 	}
 	if (m_context)
 		g_main_context_unref(m_context);
-	}
+}
 
 gpointer GLibMainLoop::mainThread(HatoholThreadArg *arg)
 {
