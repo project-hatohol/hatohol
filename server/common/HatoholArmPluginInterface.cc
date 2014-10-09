@@ -84,6 +84,7 @@ struct HatoholArmPluginInterface::Impl {
 	uint32_t   sequenceId;
 	uint32_t   sequenceIdOfCurrCmd;
 	SmartQueue<ReplyWaiter *> replyWaiterQueue;
+	GMainContext *glibMainContext;
 
 	Impl(HatoholArmPluginInterface *_hapi,
 	               const bool &_workInServer)
@@ -95,6 +96,7 @@ struct HatoholArmPluginInterface::Impl {
 	  currBuffer(NULL),
 	  sequenceId(0),
 	  sequenceIdOfCurrCmd(SEQ_ID_UNKNOWN),
+	  glibMainContext(NULL),
 	  connected(false),
 	  brokerUrl(DEFAULT_BROKER_URL)
 	{
@@ -104,6 +106,8 @@ struct HatoholArmPluginInterface::Impl {
 	{
 		disconnect();
 		freeReplyWaiters();
+		if (glibMainContext)
+			g_main_context_unref(glibMainContext);
 	}
 
 	void connect(void)
@@ -655,6 +659,19 @@ string HatoholArmPluginInterface::getQueueAddress(void) const
 void HatoholArmPluginInterface::setQueueAddress(const string &queueAddr)
 {
 	return m_impl->setQueueAddress(queueAddr);
+}
+
+void HatoholArmPluginInterface::setGLibMainContext(GMainContext *context)
+{
+	if (m_impl->glibMainContext)
+		g_main_context_unref(m_impl->glibMainContext);
+	m_impl->glibMainContext = context;
+	g_main_context_ref(m_impl->glibMainContext);
+}
+
+GMainContext *HatoholArmPluginInterface::getGLibMainContext(void) const
+{
+	return m_impl->glibMainContext;
 }
 
 // ---------------------------------------------------------------------------
