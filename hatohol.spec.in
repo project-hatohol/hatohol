@@ -1,3 +1,6 @@
+%define is_el6 %(if [ x"%rhel" = x"6" ]; then echo 1; else echo 0; fi)
+%define is_el7 %(if [ x"%rhel" = x"7" ]; then echo 1; else echo 0; fi)
+
 Summary: Hatohol
 Name: hatohol
 Group: Applications/System
@@ -12,8 +15,14 @@ Requires: glib2 >= 2.22
 Requires: libsoup >= 2.22
 Requires: json-glib >= 0.12
 Requires: sqlite >= 3.6
+%if %is_el6
 Requires: mysql >= 5.1
 Requires: mysql-server >= 5.1
+%endif
+%if %is_el7
+Requires: MySQL-python
+Requires: mariadb-client
+%endif
 Requires: libuuid >= 2.17
 Requires: qpid-cpp-client >= 0.14
 Requires: librabbitmq >= 0.4.1
@@ -24,7 +33,12 @@ BuildRequires: glib2-devel >= 2.22
 BuildRequires: libsoup-devel >= 2.22
 BuildRequires: json-glib-devel >= 0.12
 BuildRequires: sqlite-devel >= 3.6
+%if %is_el6
 BuildRequires: mysql-devel >= 5.1
+%endif
+%if %is_el7
+BuildRequires: mariadb-devel
+%endif
 BuildRequires: libuuid-devel >= 2.17
 BuildRequires: qpid-cpp-client-devel >= 0.14
 BuildRequires: librabbitmq-devel >= 0.4.1
@@ -67,7 +81,12 @@ Summary: A web UI client of Hatohol.
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
 Requires: MySQL-python >= 1.2.3
+%if %is_el6
 Requires: Django >= 1.5.3
+%endif
+%if %is_el7
+Requires: python-django
+%endif
 Requires: httpd >= 2.2.15
 Requires: mod_wsgi >= 3.2
 
