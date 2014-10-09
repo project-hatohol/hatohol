@@ -87,6 +87,7 @@ struct HatoholArmPluginGate::Impl
 	guint                timerTag;
 	HAPIWtchPointInfo    hapiWtchPointInfo[NUM_COLLECT_NG_KIND];
 	NamedPipe            pipeRd, pipeWr;
+	bool                 allowSetGLibMainContext;
 
 	Impl(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
@@ -97,7 +98,8 @@ struct HatoholArmPluginGate::Impl
 	  exitSyncDone(false),
 	  createdSelfTriggers(false),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
-	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE)
+	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
+	  allowSetGLibMainContext(true)
 	{
 	}
 
@@ -317,36 +319,32 @@ gboolean HatoholArmPluginGate::detectedArmPluginTimeout(void *data)
 	return G_SOURCE_REMOVE;
 }
 
-void HatoholArmPluginGate::removeArmPluginTimeout(gpointer data)
-{
-	HatoholArmPluginGate *obj = static_cast<HatoholArmPluginGate *>(data);
-	if (obj->m_impl->timerTag != INVALID_EVENT_ID) {
-		g_source_remove(obj->m_impl->timerTag);
-		obj->m_impl->timerTag = INVALID_EVENT_ID;
-	}
-}
-
 void HatoholArmPluginGate::onPriorToFetchMessage(void)
 {
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
 	if (svInfo.pollingIntervalSec != 0) {
-		m_impl->timerTag = g_timeout_add(
-		  svInfo.pollingIntervalSec * PLUGIN_REPLY_TIMEOUT_FACTOR * 1000,
-		  detectedArmPluginTimeout,
-		  this);
+		guint timeout = svInfo.pollingIntervalSec *
+		                  PLUGIN_REPLY_TIMEOUT_FACTOR * 1000;
+		m_impl->timerTag = Utils::setGLibTimer(
+		                     timeout, detectedArmPluginTimeout, this,
+		                     getGLibMainContext());
 	}
 }
 
 void HatoholArmPluginGate::onSuccessFetchMessage(void)
 {
-	Utils::executeOnGLibEventLoop(removeArmPluginTimeout, this);
+	Utils::removeEventSourceIfNeeded(
+	  m_impl->timerTag, SYNC, getGLibMainContext());
+	m_impl->timerTag = INVALID_EVENT_ID;
 }
 
 void HatoholArmPluginGate::onFailureFetchMessage(void)
 {
 	setPluginConnectStatus(COLLECT_NG_AMQP_CONNECT_ERROR,
 			       HAPERR_UNAVAILABLE_HAP);
-	Utils::executeOnGLibEventLoop(removeArmPluginTimeout, this);
+	Utils::removeEventSourceIfNeeded(
+	  m_impl->timerTag, SYNC, getGLibMainContext());
+	m_impl->timerTag = INVALID_EVENT_ID;
 }
 
 void HatoholArmPluginGate::onFailureReceivedMessage(void)
@@ -983,14 +981,16 @@ void HatoholArmPluginGate::cmdHandlerAvailableTrigger(
 
 bool HatoholArmPluginGate::initPipesIfNeeded(const string &pipeName)
 {
+	GMainContext *ctx = getGLibMainContext();
 	if (m_impl->pipeRd.getFd() < 0) {
-		if (!m_impl->pipeRd.init(pipeName, pipeRdErrCb, this))
+		if (!m_impl->pipeRd.init(pipeName, pipeRdErrCb, this, ctx))
 			return false;
 	}
 	if (m_impl->pipeWr.getFd() < 0) {
-		if (!m_impl->pipeWr.init(pipeName, pipeWrErrCb, this))
+		if (!m_impl->pipeWr.init(pipeName, pipeWrErrCb, this, ctx))
 			return false;
 	}
+	m_impl->allowSetGLibMainContext = false;
 	return true;
 }
 
@@ -1002,6 +1002,13 @@ NamedPipe &HatoholArmPluginGate::getHapPipeForRead(void)
 NamedPipe &HatoholArmPluginGate::getHapPipeForWrite(void)
 {
 	return m_impl->pipeWr;
+}
+
+void HatoholArmPluginGate::setGLibMainContext(GMainContext *context)
+{
+	HATOHOL_ASSERT(m_impl->allowSetGLibMainContext,
+	               "Calling setGLibMainContext() is too late.");
+	HatoholArmPluginInterface::setGLibMainContext(context);
 }
 
 gboolean HatoholArmPluginGate::pipeRdErrCb(

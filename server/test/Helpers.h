@@ -27,6 +27,7 @@
 #include "ItemTable.h"
 #include "DBAgent.h"
 #include "HatoholError.h"
+#include "HatoholThreadBase.h"
 #include "OperationPrivilege.h"
 #include "DBTablesConfig.h"
 #include "DBTablesMonitoring.h"
@@ -300,6 +301,18 @@ private:
 	mlpl::Mutex     m_lock;
 	GSourceFunc     m_timeoutCb;
 	gpointer        m_timeoutCbData;
+};
+
+class GLibMainLoop : public HatoholThreadBase {
+public:
+	GLibMainLoop(GMainContext *context = NULL);
+	virtual ~GLibMainLoop();
+	virtual gpointer mainThread(HatoholThreadArg *arg) override;
+	GMainContext *getContext(void) const;
+	GMainLoop    *getLoop(void) const;
+private:
+	GMainContext *m_context;
+	GMainLoop    *m_loop;
 };
 
 struct CommandArgHelper

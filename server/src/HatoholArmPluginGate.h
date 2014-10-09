@@ -143,9 +143,9 @@ protected:
 	bool initPipesIfNeeded(const std::string &pipeName);
 	NamedPipe &getHapPipeForRead(void);
 	NamedPipe &getHapPipeForWrite(void);
+	void setGLibMainContext(GMainContext *context);
 
 	static gboolean detectedArmPluginTimeout(void *data);
-	static void removeArmPluginTimeout(gpointer data);
 
 	static gboolean pipeRdErrCb(GIOChannel *source,
 	                            GIOCondition condition, gpointer data);

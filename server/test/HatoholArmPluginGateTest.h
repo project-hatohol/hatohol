@@ -41,6 +41,7 @@ struct HapgTestCtx {
 	bool                 useDefaultReceivedHandler;
 	std::string          expectRcvMessage;
 	bool                 expectAbnormalChildTerm;
+	GMainContext        *glibMainContext;
 
 	// Set by HatoholArmgPluginTest
 	mlpl::SimpleSemaphore launchedSem;
@@ -63,6 +64,7 @@ struct HapgTestCtx {
 	  checkNumRetry(false),
 	  useDefaultReceivedHandler(false),
 	  expectAbnormalChildTerm(false),
+	  glibMainContext(NULL),
 	  launchedSem(0),
 	  launchSucceeded(false),
 	  mainSem(0),

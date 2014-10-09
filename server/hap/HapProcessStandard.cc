@@ -30,6 +30,7 @@ struct HapProcessStandard::Impl {
 	// The getter and the user of serverInfo are running on different
 	// threads. So we pass it safely with queue.
 	SmartQueue<MonitoringServerInfo> serverInfoQueue;
+	SmartQueue<AsyncCommandTask *>   asyncCommandTaskQueue;
 
 	guint                firstStartAcquisitoinTaskId;
 	guint                timerTag;
@@ -47,8 +48,22 @@ struct HapProcessStandard::Impl {
 	{
 		Utils::removeEventSourceIfNeeded(firstStartAcquisitoinTaskId);
 		Utils::removeEventSourceIfNeeded(timerTag);
+		clearAsyncCommandTaskQueue();
+	}
+
+	void clearAsyncCommandTaskQueue(void)
+	{
+		while (!asyncCommandTaskQueue.empty())
+			delete asyncCommandTaskQueue.pop();
 	}
 };
+
+// ---------------------------------------------------------------------------
+// AsyncCommandTask
+// ---------------------------------------------------------------------------
+HapProcessStandard::AsyncCommandTask::~AsyncCommandTask()
+{
+}
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -96,12 +111,15 @@ gboolean HapProcessStandard::kickBasicAcquisition(void *data)
 {
 	HapProcessStandard *obj = static_cast<HapProcessStandard *>(data);
 	obj->m_impl->timerTag = INVALID_EVENT_ID;
-	obj->startAcquisition(&HapProcessStandard::acquireData);
+	// TODO: give a correct messaging context.
+	obj->startAcquisition(&HapProcessStandard::acquireData,
+	                      *((MessagingContext *)NULL));
 	return G_SOURCE_REMOVE;
 }
 
 void HapProcessStandard::startAcquisition(
-  AcquireFunc acquireFunc, const bool &setupTimer)
+  AcquireFunc acquireFunc, const MessagingContext &messagingContext,
+  const bool &setupTimer)
 {
 	if (m_impl->timerTag != INVALID_EVENT_ID) {
 		// This condition may happen when unexpected initiation
@@ -131,7 +149,7 @@ void HapProcessStandard::startAcquisition(
 	HatoholError err(HTERR_UNINITIALIZED);
 	HatoholArmPluginWatchType watchType = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 	try {
-		err = (this->*acquireFunc)();
+		err = (this->*acquireFunc)(messagingContext);
 		if (err == HTERR_OK)
 			getArmStatus().logSuccess();
 		watchType = getHapWatchType(err);
@@ -204,12 +222,12 @@ HapProcessStandard::getMonitoringServerInfo(void) const
 	return m_impl->serverInfoQueue.front();
 }
 
-HatoholError HapProcessStandard::acquireData(void)
+HatoholError HapProcessStandard::acquireData(const MessagingContext &msgCtx)
 {
 	return HTERR_NOT_IMPLEMENTED;
 }
 
-HatoholError HapProcessStandard::fetchItem(void)
+HatoholError HapProcessStandard::fetchItem(const MessagingContext &msgCtx)
 {
 	return HTERR_NOT_IMPLEMENTED;
 }
@@ -220,6 +238,14 @@ HatoholArmPluginWatchType HapProcessStandard::getHapWatchType(
 	if (err == HTERR_OK)
 		return COLLECT_OK;
 	return COLLECT_NG_HATOHOL_INTERNAL_ERROR;
+}
+
+void HapProcessStandard::runQueuedAsyncCommandTask(HapProcessStandard *hap)
+{
+	SmartQueue<AsyncCommandTask *> &asyncCommandTaskQueue =
+	  hap->m_impl->asyncCommandTaskQueue;
+	unique_ptr<AsyncCommandTask> task(asyncCommandTaskQueue.pop());
+	task->run();
 }
 
 //
@@ -236,6 +262,8 @@ void HapProcessStandard::onReady(const MonitoringServerInfo &serverInfo)
 		}
 	};
 
+	m_impl->clearAsyncCommandTaskQueue();
+
 	m_impl->serverInfoQueue.push(serverInfo);
 	m_impl->firstStartAcquisitoinTaskId =
 	  Utils::executeOnGLibEventLoop<HapProcessStandard>(
@@ -244,18 +272,27 @@ void HapProcessStandard::onReady(const MonitoringServerInfo &serverInfo)
 
 void HapProcessStandard::onReceivedReqFetchItem(void)
 {
-	struct NoName {
-		static void startFetchItem(HapProcessStandard *obj)
+	struct ItemFetchTask : public AsyncCommandTask {
+		MessagingContext msgCtx;
+		HapProcessStandard *hap;
+		virtual void run(void) override
 		{
-			obj->startAcquisition(&HapProcessStandard::fetchItem,
-			                      false);
+			hap->startAcquisition(&HapProcessStandard::fetchItem,
+			                      msgCtx, false);
 		}
 	};
+	ItemFetchTask *task = new ItemFetchTask();
+	task->hap = this;
 
-	// We call fetchItem() synchronously so that it can call reply()
-	// that needs HatoholArmPluginInterface::Impl::currMessage,
+	if (!getMessagingContext(task->msgCtx)) {
+		delete task;
+		THROW_HATOHOL_EXCEPTION("Failed to call getMessaginContext().");
+	}
+
+	// We keep the order of command handling with a queue.
+	m_impl->asyncCommandTaskQueue.push(task);
 	Utils::executeOnGLibEventLoop<HapProcessStandard>(
-	  NoName::startFetchItem, this, SYNC);
+	  HapProcessStandard::runQueuedAsyncCommandTask, this, ASYNC);
 }
 
 int HapProcessStandard::onCaughtException(const exception &e)

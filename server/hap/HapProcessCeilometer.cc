@@ -828,7 +828,7 @@ bool HapProcessCeilometer::read(
 	return false;
 }
 
-HatoholError HapProcessCeilometer::acquireData(void)
+HatoholError HapProcessCeilometer::acquireData(const MessagingContext &msgCtx)
 {
 	Reaper<AcquireContext>
 	  acqCtxCleaner(&m_impl->acquireCtx, AcquireContext::clear);
@@ -862,7 +862,7 @@ HatoholError HapProcessCeilometer::acquireData(void)
 	return HTERR_OK;
 }
 
-HatoholError HapProcessCeilometer::fetchItem(void)
+HatoholError HapProcessCeilometer::fetchItem(const MessagingContext &msgCtx)
 {
 	MLPL_DBG("fetchItem\n");
 	VariableItemTablePtr tablePtr;
@@ -872,10 +872,10 @@ HatoholError HapProcessCeilometer::fetchItem(void)
 		err = fetchItemsOfInstance(tablePtr, instanceId);
 	}
 	SmartBuffer resBuf;
-	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS);
+	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS, &msgCtx);
 	appendItemTable(resBuf, static_cast<ItemTablePtr>(tablePtr));
 	appendItemTable(resBuf, ItemTablePtr()); // Item Category
-	reply(resBuf);
+	reply(msgCtx, resBuf);
 	return err;
 }
 

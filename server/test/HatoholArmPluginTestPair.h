@@ -39,6 +39,7 @@ struct HatoholArmPluginTestPairArg {
 	int          serverPort;
 	void        *hapClassParameters;
 	bool         autoStartPlugin;
+	HapgTestCtx  hapgCtx;
 
 	HatoholArmPluginTestPairArg(const MonitoringSystemType &type,
 	                            void *_hapClassParameters = NULL)
@@ -62,7 +63,6 @@ struct HatoholArmPluginTestPairArg {
 template <class HapClass>
 struct HatoholArmPluginTestPair : public HatoholArmPluginTestPairBase {
 
-	HapgTestCtx hapgCtx;
 	MonitoringServerInfo serverInfo;
 	HatoholArmPluginGateTestPtr gate;
 	HapClass                   *plugin;
@@ -70,7 +70,7 @@ struct HatoholArmPluginTestPair : public HatoholArmPluginTestPairBase {
 	HatoholArmPluginTestPair(HatoholArmPluginTestPairArg &arg)
 	: plugin(NULL)
 	{
-		gate = createHapgTest(hapgCtx, serverInfo, arg);
+		gate = createHapgTest(arg.hapgCtx, serverInfo, arg);
 		loadTestDBTriggers();
 		gate->start();
 		gate->assertWaitConnected();
