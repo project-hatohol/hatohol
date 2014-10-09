@@ -82,10 +82,16 @@ public:
 	 * @parameter data
 	 * An arbitray user data that is passed as an argument of the callback.
 	 *
+	 * @param glibMainContext
+	 * A GLibMainContext for the event callback. If this paramters is
+	 * omitted, the default context is used. g_main_contet_ref() is
+	 * called for this object.
+	 *
 	 * @return
 	 * If no error occurs, true is returned. Otherwise false.
 	 */
-	bool init(const std::string &name, GIOFunc iochCb, gpointer data);
+	bool init(const std::string &name, GIOFunc iochCb, gpointer data,
+	          GMainContext *glibMainContext = NULL);
 
 	int getFd(void) const;
 	const std::string &getPath(void) const;
