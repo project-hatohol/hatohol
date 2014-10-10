@@ -142,7 +142,7 @@ HatoholError HapProcessZabbixAPI::acquireData(const MessagingContext &msgCtx)
 	return HTERR_OK;
 }
 
-HatoholError HapProcessZabbixAPI::fetchItem(void)
+HatoholError HapProcessZabbixAPI::fetchItem(const MessagingContext &msgCtx)
 {
 	ItemTablePtr items = getItems();
 	ItemTablePtr applications = getApplications(items);
