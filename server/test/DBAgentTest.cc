@@ -84,7 +84,7 @@ const ColumnDef COLUMN_DEF_TEST[] = {
 	true,                              // canBeNull
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
-	NULL,                              // defaultValue
+	"160.0",                           // defaultValue
 },{
 	"time",                            // columnName
 	SQL_COLUMN_TYPE_DATETIME,          // type
