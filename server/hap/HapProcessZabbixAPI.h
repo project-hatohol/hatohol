@@ -38,7 +38,8 @@ protected:
 
 	virtual HatoholError acquireData(
 	  const MessagingContext &msgCtx) override;
-	virtual HatoholError fetchItem(void) override;
+	virtual HatoholError fetchItem(
+	  const MessagingContext &msgCtx) override;
 	virtual HatoholArmPluginWatchType getHapWatchType(
 	  const HatoholError &err) override;
 
