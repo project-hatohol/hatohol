@@ -178,7 +178,7 @@ void test_createTableSystem(void)
 	
 	// check content
 	string statement = "select * from " + tableName;
-	const char *expectedDatabasePath = "";
+	const char *expectedDatabasePath = "''";
 	int expectedEnableFaceMySQL = 0;
 	int expectedFaceRestPort    = 0;
 	int expectedEnableCopyOnDemand = 1;

@@ -63,7 +63,7 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
-	"",                                // defaultValue
+	"''",                              // defaultValue
 }, {
 	"enable_face_mysql",               // columnName
 	SQL_COLUMN_TYPE_INT,               // type
@@ -322,7 +322,7 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
-	"",                                // defaultValue
+	NULL,                              // defaultValue
 }, {
 	"static_queue_addr",               // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
@@ -331,7 +331,7 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
-	"",                                // defaultValue
+	NULL,                              // defaultValue
 }, {
 	"serverId",                        // columnName
 	SQL_COLUMN_TYPE_INT,               // type

@@ -38,7 +38,7 @@ static const ColumnDef COLUMN_DEF_HOST_LIST[] = {
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
 	0,                                 // flags
-	"",                                // defaultValue
+	NULL,                              // defaultValue
 }, {
 	"hypervisor_id",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
@@ -47,7 +47,7 @@ static const ColumnDef COLUMN_DEF_HOST_LIST[] = {
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
-	"",                                // defaultValue
+	NULL,                              // defaultValue
 },
 };
 
@@ -73,7 +73,7 @@ static const ColumnDef COLUMN_DEF_HOST_INFO[] = {
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
 	0,                                 // flags
-	"",                                // defaultValue
+	NULL,                              // defaultValue
 }, {
 	"host_list_id",                    // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
@@ -82,7 +82,7 @@ static const ColumnDef COLUMN_DEF_HOST_INFO[] = {
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
-	"",                                // defaultValue
+	NULL,                              // defaultValue
 }, {
 	// Both IPv4 and IPv6 can be saved
 	"ip_addr",                         // columnName
@@ -92,7 +92,7 @@ static const ColumnDef COLUMN_DEF_HOST_INFO[] = {
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
-	"",                                // defaultValue
+	NULL,                              // defaultValue
 }, {
 	"name",                            // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
@@ -101,7 +101,7 @@ static const ColumnDef COLUMN_DEF_HOST_INFO[] = {
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
-	"",                                // defaultValue
+	NULL,                              // defaultValue
 },
 };
 
