@@ -138,6 +138,7 @@ void HatoholDBUtils::transformHostsToHatoholFormat(
 	for (; it != itemGroupList.end(); ++it) {
 		HostInfo hostInfo;
 		hostInfo.serverId = serverId;
+		hostInfo.valid = HOST_VALID;
 		transformHostsItemGroupToHatoholFormat(hostInfo, *it);
 		hostInfoList.push_back(hostInfo);
 	}

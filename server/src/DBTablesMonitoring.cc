@@ -497,7 +497,7 @@ enum {
 	IDX_HOSTS_SERVER_ID,
 	IDX_HOSTS_HOST_ID,
 	IDX_HOSTS_HOST_NAME,
-	IDX_HOSTS_HOST_VALID,
+	IDX_HOSTS_VALID,
 	NUM_IDX_HOSTS,
 };
 
@@ -1403,6 +1403,7 @@ void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 	arg.add(IDX_HOSTS_SERVER_ID);
 	arg.add(IDX_HOSTS_HOST_ID);
 	arg.add(IDX_HOSTS_HOST_NAME);
+	arg.add(IDX_HOSTS_VALID);
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1419,6 +1420,7 @@ void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 		itemGroupStream >> hostInfo.serverId;
 		itemGroupStream >> hostInfo.id;
 		itemGroupStream >> hostInfo.hostName;
+		itemGroupStream >> hostInfo.valid;
 	}
 }
 
@@ -2637,7 +2639,7 @@ void DBTablesMonitoring::addHostInfoWithoutTransaction(
 	arg.add(hostInfo.serverId);
 	arg.add(hostInfo.id);
 	arg.add(hostInfo.hostName);
-	arg.add(HOST_VALID);
+	arg.add(hostInfo.valid);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
@@ -2753,7 +2755,7 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 	if (oldVer <= 6) {
 		// add new columns to incidents
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileHosts);
-		addColumnsArg.columnIndexes.push_back(IDX_HOSTS_HOST_VALID);
+		addColumnsArg.columnIndexes.push_back(IDX_HOSTS_VALID);
 		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;

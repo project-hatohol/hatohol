@@ -44,6 +44,7 @@ struct HostInfo {
 	ServerIdType        serverId;
 	HostIdType          id;
 	std::string         hostName;
+	int                 valid;
 
 	// The follwong members are currently not used.
 	std::string         ipAddr;
@@ -51,8 +52,17 @@ struct HostInfo {
 };
 
 enum {
+	// Hosts that are probably deleted in the monitoring server.
 	HOST_INVALID = 0,
-	HOST_VALID   = 1,
+
+	// Normal active hosts
+	HOST_VALID,
+
+	// Hosts that cannot be associated with a specific machine/devices.
+	HOST_VALID_INAPPLICABLE,
+
+	// Fake hosts for self monitoring.
+	HOST_VALID_SELF_MONITORING,
 };
 
 typedef std::list<HostInfo>          HostInfoList;

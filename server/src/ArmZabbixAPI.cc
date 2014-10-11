@@ -249,7 +249,7 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 		}
 
 		ItemTablePtr triggers = updateTriggers();
-		updateHosts(); // TODO: Get it only when it's really needed.
+		updateHosts();
 		updateGroups();
 		makeHatoholTriggers(triggers);
 		updateEvents();
