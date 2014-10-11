@@ -50,6 +50,11 @@ struct HostInfo {
 	std::string         nickname;
 };
 
+enum {
+	HOST_INVALID = 0,
+	HOST_VALID   = 1,
+};
+
 typedef std::list<HostInfo>          HostInfoList;
 typedef HostInfoList::iterator       HostInfoListIterator;
 typedef HostInfoList::const_iterator HostInfoListConstIterator;

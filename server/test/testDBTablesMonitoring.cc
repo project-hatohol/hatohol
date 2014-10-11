@@ -389,8 +389,9 @@ static string makeMapHostsHostgroupsOutput
 static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 {
 	string expectedOut = StringUtils::sprintf(
-	  "%zd|%" FMT_SERVER_ID "|%" FMT_HOST_ID "|%s\n",
-	  id + 1, hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str());
+	  "%zd|%" FMT_SERVER_ID "|%" FMT_HOST_ID "|%s|%d\n",
+	  id + 1, hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str(),
+	  HOST_VALID);
 
 	return expectedOut;
 }

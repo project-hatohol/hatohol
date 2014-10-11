@@ -46,7 +46,7 @@ const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBTablesMonitoring::MONITORING_DB_VERSION = 6;
+const int   DBTablesMonitoring::MONITORING_DB_VERSION = 7;
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -481,6 +481,15 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"valid",                           // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	"1",                               // defaultValue
 },
 };
 enum {
@@ -488,6 +497,7 @@ enum {
 	IDX_HOSTS_SERVER_ID,
 	IDX_HOSTS_HOST_ID,
 	IDX_HOSTS_HOST_NAME,
+	IDX_HOSTS_HOST_VALID,
 	NUM_IDX_HOSTS,
 };
 
@@ -2627,6 +2637,7 @@ void DBTablesMonitoring::addHostInfoWithoutTransaction(
 	arg.add(hostInfo.serverId);
 	arg.add(hostInfo.id);
 	arg.add(hostInfo.hostName);
+	arg.add(HOST_VALID);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
@@ -2737,6 +2748,12 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileIncidents);
 		addColumnsArg.columnIndexes.push_back(IDX_INCIDENTS_PRIORITY);
 		addColumnsArg.columnIndexes.push_back(IDX_INCIDENTS_DONE_RATIO);
+		dbAgent.addColumns(addColumnsArg);
+	}
+	if (oldVer <= 6) {
+		// add new columns to incidents
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileHosts);
+		addColumnsArg.columnIndexes.push_back(IDX_HOSTS_HOST_VALID);
 		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;
