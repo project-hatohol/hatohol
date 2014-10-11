@@ -843,7 +843,6 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroupElements(
 	ItemTablePtr hostgroupElementTablePtr = createItemTable(*cmdBuf);
 
 	HostgroupElementList hostgroupElementList;
-	HostInfoList hostInfoList;
 	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
 	  hostgroupElementList, hostgroupElementTablePtr, m_impl->serverInfo.id);
 
