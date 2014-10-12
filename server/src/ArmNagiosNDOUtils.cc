@@ -701,7 +701,7 @@ void ArmNagiosNDOUtils::getHost(void)
 		hostInfoList.push_back(hostInfo);
 	}
 	ThreadLocalDBCache cache;
-	cache.getMonitoring().addHostInfoList(hostInfoList);
+	cache.getMonitoring().updateHosts(hostInfoList, svInfo.id);
 }
 
 void ArmNagiosNDOUtils::getHostgroup(void)
