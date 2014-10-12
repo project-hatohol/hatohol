@@ -63,6 +63,11 @@ void operator>>(ItemGroupStream &itemGroupStream, EventType &rhs)
 	rhs = itemGroupStream.read<int, EventType>();
 }
 
+void operator>>(ItemGroupStream &itemGroupStream, HostValidity &rhs)
+{
+	rhs = itemGroupStream.read<int, HostValidity>();
+}
+
 // ----------------------------------------------------------------------------
 // Table: triggers
 // ----------------------------------------------------------------------------
@@ -482,7 +487,7 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"valid",                           // columnName
+	"validity",                        // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
 	0,                                 // decFracLength
@@ -497,7 +502,7 @@ enum {
 	IDX_HOSTS_SERVER_ID,
 	IDX_HOSTS_HOST_ID,
 	IDX_HOSTS_HOST_NAME,
-	IDX_HOSTS_VALID,
+	IDX_HOSTS_VALIDITY,
 	NUM_IDX_HOSTS,
 };
 
@@ -1403,7 +1408,7 @@ void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 	arg.add(IDX_HOSTS_SERVER_ID);
 	arg.add(IDX_HOSTS_HOST_ID);
 	arg.add(IDX_HOSTS_HOST_NAME);
-	arg.add(IDX_HOSTS_VALID);
+	arg.add(IDX_HOSTS_VALIDITY);
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1420,7 +1425,7 @@ void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 		itemGroupStream >> hostInfo.serverId;
 		itemGroupStream >> hostInfo.id;
 		itemGroupStream >> hostInfo.hostName;
-		itemGroupStream >> hostInfo.valid;
+		itemGroupStream >> hostInfo.validity;
 	}
 }
 
@@ -1970,7 +1975,7 @@ void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
 	for (; currHostsItr != currHosts.end(); ++currHostsItr) {
 		// TODO: We should get valid hosts by an SQL's condition.
 		const HostInfo &hostInfo = *currHostsItr;
-		if (hostInfo.valid == HOST_VALID)
+		if (hostInfo.validity == HOST_VALID)
 			currValidHosts[hostInfo.id] = &hostInfo;
 	}
 
@@ -1990,7 +1995,7 @@ void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
 	HostIdHostInfoMapIterator hostMapItr = currValidHosts.begin();
 	for (; hostMapItr != currValidHosts.end(); ++hostMapItr) {
 		HostInfo invalidHost = *hostMapItr->second;
-		invalidHost.valid = HOST_INVALID;
+		invalidHost.validity = HOST_INVALID;
 		updatedHostInfoList.push_back(invalidHost);
 	}
 
@@ -2681,7 +2686,7 @@ void DBTablesMonitoring::addHostInfoWithoutTransaction(
 	arg.add(hostInfo.serverId);
 	arg.add(hostInfo.id);
 	arg.add(hostInfo.hostName);
-	arg.add(hostInfo.valid);
+	arg.add(hostInfo.validity);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
@@ -2797,7 +2802,7 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 	if (oldVer <= 6) {
 		// add new columns to incidents
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileHosts);
-		addColumnsArg.columnIndexes.push_back(IDX_HOSTS_VALID);
+		addColumnsArg.columnIndexes.push_back(IDX_HOSTS_VALIDITY);
 		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;

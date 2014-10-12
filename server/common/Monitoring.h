@@ -40,18 +40,7 @@ enum TriggerSeverityType {
 	NUM_TRIGGER_SEVERITY,
 };
 
-struct HostInfo {
-	ServerIdType        serverId;
-	HostIdType          id;
-	std::string         hostName;
-	int                 valid;
-
-	// The follwong members are currently not used.
-	std::string         ipAddr;
-	std::string         nickname;
-};
-
-enum {
+enum HostValidity {
 	// Hosts that are probably deleted in the monitoring server.
 	HOST_INVALID = 0,
 
@@ -63,6 +52,17 @@ enum {
 
 	// Fake hosts for self monitoring.
 	HOST_VALID_SELF_MONITORING,
+};
+
+struct HostInfo {
+	ServerIdType        serverId;
+	HostIdType          id;
+	std::string         hostName;
+	HostValidity        validity;
+
+	// The follwong members are currently not used.
+	std::string         ipAddr;
+	std::string         nickname;
 };
 
 typedef std::list<HostInfo>          HostInfoList;

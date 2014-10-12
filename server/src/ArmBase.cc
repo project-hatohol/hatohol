@@ -297,7 +297,7 @@ void ArmBase::setInitialTrrigerStatus(void)
 	hostInfo.hostName = 
 		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
 				     SERVER_SELF_MONITORING_SUFFIX);
-	hostInfo.valid = HOST_VALID_SELF_MONITORING;
+	hostInfo.validity = HOST_VALID_SELF_MONITORING;
 	dbMonitoring.addHostInfo(&hostInfo);
 
 	TriggerInfo triggerInfo;

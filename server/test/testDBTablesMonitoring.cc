@@ -391,7 +391,7 @@ static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 	string expectedOut = StringUtils::sprintf(
 	  "%zd|%" FMT_SERVER_ID "|%" FMT_HOST_ID "|%s|%d\n",
 	  id + 1, hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str(),
-	  hostInfo.valid);
+	  hostInfo.validity);
 
 	return expectedOut;
 }
@@ -1417,7 +1417,7 @@ void test_updateHostsMarkInvalid(void)
 	dbMonitoring.updateHosts(hostInfoList, targetServerId);
 	DBAgent &dbAgent = dbMonitoring.getDBAgent();
 	string statement = StringUtils::sprintf(
-	  "select host_id,valid from hosts where server_id=%" FMT_SERVER_ID
+	  "select host_id,validity from hosts where server_id=%" FMT_SERVER_ID
 	  " order by host_id asc;", targetServerId);
 	assertDBContent(&dbAgent, statement, expect);
 }
@@ -1431,7 +1431,7 @@ void test_updateHostsAddNewHost(void)
 	newHost.serverId = targetServerId;
 	newHost.id       = 123231;
 	newHost.hostName = "new test host";
-	newHost.valid = HOST_VALID;
+	newHost.validity = HOST_VALID;
 
 	// Sanity check the ID of the new host is not duplicated.
 	for (size_t i = 0; i < NumTestHostInfo; i++) {
