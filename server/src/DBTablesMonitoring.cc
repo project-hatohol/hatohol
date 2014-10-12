@@ -1955,6 +1955,48 @@ void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 	getDBAgent().runTransaction(trx);
 }
 
+void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
+                                     const ServerIdType &serverId)
+{
+	// TODO: We should update the host name if it's changed.
+
+	// Make a set that contains current hosts records
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	HostInfoList currHosts;
+	getHostInfoList(currHosts, option);
+	HostIdHostInfoMap currValidHosts;
+	HostInfoListConstIterator currHostsItr = currHosts.begin();
+	for (; currHostsItr != currHosts.end(); ++currHostsItr) {
+		// TODO: We should get valid hosts by an SQL's condition.
+		const HostInfo &hostInfo = *currHostsItr;
+		if (hostInfo.valid == HOST_VALID)
+			currValidHosts[hostInfo.id] = &hostInfo;
+	}
+
+	// Pick up hosts to be added.
+	HostInfoList updatedHostInfoList;
+	HostInfoListConstIterator newHostsItr = hostInfoList.begin();
+	for (; newHostsItr != hostInfoList.end(); ++newHostsItr) {
+		const HostInfo &newHostInfo = *newHostsItr;
+		if (currValidHosts.erase(newHostInfo.id) >= 1) {
+			// The host already exits. We have nrothing to do.
+			continue;
+		}
+		updatedHostInfoList.push_back(newHostInfo);
+	}
+
+	// Add hosts to be marked as invalid
+	HostIdHostInfoMapIterator hostMapItr = currValidHosts.begin();
+	for (; hostMapItr != currValidHosts.end(); ++hostMapItr) {
+		HostInfo invalidHost = *hostMapItr->second;
+		invalidHost.valid = HOST_INVALID;
+		updatedHostInfoList.push_back(invalidHost);
+	}
+
+	addHostInfoList(updatedHostInfoList);
+}
+
 EventIdType DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 {
 	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();

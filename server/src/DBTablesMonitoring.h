@@ -204,6 +204,18 @@ public:
 	void addHostInfoList(const HostInfoList &hostInfoList);
 
 	/**
+	 * Update the host records.
+	 *
+	 * The records that are not included in the given hostInfoList
+	 * are marked as HOST_INVALID.
+	 *
+	 * @param hostInfoList  A list of hosts.
+	 * @param serverId      A monitoring server ID.
+	 */
+	void updateHosts(const HostInfoList &hostInfoList,
+	                 const ServerIdType &serverId);
+
+	/**
 	 * get the last (maximum) event ID of the event that belongs to
 	 * the specified server
 	 * @param serverId A target server ID.
