@@ -526,6 +526,13 @@ void test_hostsQueryOptionGetValidtyDefault(void)
 	cppcut_assert_equal(HOST_ALL_VALID, option.getValidity());
 }
 
+void test_hostsQueryOptionSetGetValidty(void)
+{
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setValidity(HOST_VALID);
+	cppcut_assert_equal(HOST_VALID, option.getValidity());
+}
+
 //
 // HostgroupsQueryOption
 //
