@@ -41,6 +41,14 @@ enum TriggerSeverityType {
 };
 
 enum HostValidity {
+
+	// Hosts that are in HOST_VALID, HOST_VALID_INAPPLICALBLE, and
+	// VALID_SELF_MONITORING.
+	HOST_ALL_VALID = -2,
+
+	// All hosts
+	HOST_ANY_VALIDITY = -1,
+
 	// Hosts that are probably deleted in the monitoring server.
 	HOST_INVALID = 0,
 

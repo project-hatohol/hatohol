@@ -1311,15 +1311,60 @@ static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
+struct HostsQueryOption::Impl {
+	HostValidity validity;
+
+	Impl()
+	: validity(HOST_ALL_VALID)
+	{
+	}
+};
+
 HostsQueryOption::HostsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseHostsQueryOption, userId)
+: HostResourceQueryOption(synapseHostsQueryOption, userId),
+  m_impl(new Impl())
 {
 }
 
 HostsQueryOption::HostsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseHostsQueryOption, dataQueryContext)
+: HostResourceQueryOption(synapseHostsQueryOption, dataQueryContext),
+  m_impl(new Impl())
 {
 }
+
+HostsQueryOption::~HostsQueryOption(void)
+{
+}
+
+string HostsQueryOption::getCondition(void) const
+{
+	string condition = HostResourceQueryOption::getCondition();
+	if (m_impl->validity == HOST_ANY_VALIDITY)
+		return condition;
+	if (!condition.empty())
+		condition += " AND ";
+
+	string columnName = COLUMN_DEF_HOSTS[IDX_HOSTS_VALIDITY].columnName;
+	if (m_impl->validity == HOST_ALL_VALID) {
+		condition += StringUtils::sprintf("%s>=%d",
+		  columnName.c_str(), HOST_VALID);
+	} else {
+		condition += StringUtils::sprintf("%s=%d",
+		  columnName.c_str(), HOST_VALID);
+	}
+	return condition;
+}
+
+void HostsQueryOption::setValidity(const HostValidity &validity)
+{
+	m_impl->validity = validity;
+}
+
+HostValidity HostsQueryOption::getValidity(void) const
+{
+	return m_impl->validity;
+}
+
 
 //
 // HostgroupsQueryOption
