@@ -2012,16 +2012,15 @@ void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
 
 	// Make a set that contains current hosts records
 	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setValidity(HOST_VALID);
 	option.setTargetServerId(serverId);
 	HostInfoList currHosts;
 	getHostInfoList(currHosts, option);
 	HostIdHostInfoMap currValidHosts;
 	HostInfoListConstIterator currHostsItr = currHosts.begin();
 	for (; currHostsItr != currHosts.end(); ++currHostsItr) {
-		// TODO: We should get valid hosts by an SQL's condition.
 		const HostInfo &hostInfo = *currHostsItr;
-		if (hostInfo.validity == HOST_VALID)
-			currValidHosts[hostInfo.id] = &hostInfo;
+		currValidHosts[hostInfo.id] = &hostInfo;
 	}
 
 	// Pick up hosts to be added.
