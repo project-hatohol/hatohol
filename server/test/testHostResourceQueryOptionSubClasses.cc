@@ -533,6 +533,20 @@ void test_hostsQueryOptionSetGetValidty(void)
 	cppcut_assert_equal(HOST_VALID, option.getValidity());
 }
 
+void data_hostsQueryOptionGetConditionForHostValid(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_hostsQueryOptionGetConditionForHostValid(gconstpointer data)
+{
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setValidity(HOST_VALID);
+	cppcut_assert_equal(HOST_VALID, option.getValidity());
+	string expected = StringUtils::sprintf("validity=%d", HOST_VALID);
+	fixupForFilteringDefunctServer(data, expected, option);
+}
+
 //
 // HostgroupsQueryOption
 //
