@@ -1015,12 +1015,12 @@ gboolean HatoholArmPluginGate::pipeRdErrCb(
   GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	MLPL_INFO("Got callback (PIPE): %08x", condition);
-	return TRUE;
+	return G_SOURCE_REMOVE;
 }
 
 gboolean HatoholArmPluginGate::pipeWrErrCb(
   GIOChannel *source, GIOCondition condition, gpointer data)
 {
 	MLPL_INFO("Got callback (PIPE): %08x", condition);
-	return TRUE;
+	return G_SOURCE_REMOVE;
 }
