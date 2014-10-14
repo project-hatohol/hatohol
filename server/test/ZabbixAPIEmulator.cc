@@ -139,6 +139,8 @@ struct ZabbixAPIEmulator::PrivateContext {
 		  &ZabbixAPIEmulator::APIHandlerApplicationGet;
 		apiHandlerMap["hostgroup.get"] =
 		  &ZabbixAPIEmulator::APIHandlerHostgroupGet;
+		apiHandlerMap["history.get"] =
+		  &ZabbixAPIEmulator::APIHandlerHistoryGet;
 	}
 
 	void reset(void)
@@ -483,6 +485,13 @@ void ZabbixAPIEmulator::APIHandlerHostgroupGet(APIHandlerArg &arg)
 		dataFileName = "zabbix-api-res-hostgroup-002-refer.json";
 	else
 		dataFileName = "zabbix-api-res-hostgroup-001.json";
+	APIHandlerGetWithFile(arg, dataFileName);
+}
+
+void ZabbixAPIEmulator::APIHandlerHistoryGet(APIHandlerArg &arg)
+{
+	const char *dataFileName;
+	dataFileName = "zabbix-api-res-history.json";
 	APIHandlerGetWithFile(arg, dataFileName);
 }
 
