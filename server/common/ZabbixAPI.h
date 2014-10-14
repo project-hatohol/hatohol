@@ -182,7 +182,7 @@ protected:
 	SoupMessage *queryTrigger(HatoholError &queryRet, int requestSince = 0);
 
 	/**
-	 * Get the triggers.
+	 * Get the items.
 	 *
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
