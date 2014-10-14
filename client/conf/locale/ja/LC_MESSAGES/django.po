@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-03 08:02-0500\n"
-"PO-Revision-Date: 2014-09-09 09:13+0900\n"
+"POT-Creation-Date: 2014-10-28 00:58-0500\n"
+"PO-Revision-Date: 2014-10-14 18:02+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -58,7 +58,7 @@ msgid "Severity"
 msgstr "深刻度"
 
 #: viewer/actions_ajax.html:61 viewer/hosts_ajax.html:40
-#: viewer/servers_ajax.html:62
+#: viewer/servers_ajax.html:57
 msgid "Type"
 msgstr "タイプ"
 
@@ -261,20 +261,20 @@ msgstr "グループを表示"
 msgid "ID"
 msgstr "ID"
 
-#: viewer/hosts_ajax.html:41 viewer/servers_ajax.html:63
+#: viewer/hosts_ajax.html:41 viewer/servers_ajax.html:58
 msgid "Hostname"
 msgstr "ホスト名"
 
-#: viewer/hosts_ajax.html:42 viewer/servers_ajax.html:64
+#: viewer/hosts_ajax.html:42 viewer/servers_ajax.html:59
 msgid "IP Address"
 msgstr "IPアドレス"
 
-#: viewer/hosts_ajax.html:43 viewer/servers_ajax.html:65
+#: viewer/hosts_ajax.html:43 viewer/servers_ajax.html:60
 msgid "Nickname"
 msgstr "ニックネーム"
 
 #: viewer/hosts_ajax.html:44 viewer/hosts_ajax.html.py:157
-#: viewer/servers_ajax.html:66
+#: viewer/servers_ajax.html:61
 msgid "Maps"
 msgstr "マップ"
 
@@ -346,15 +346,15 @@ msgstr "監視サーバー"
 msgid "ADD MONITORING SERVER"
 msgstr "監視サーバー追加"
 
-#: viewer/servers_ajax.html:45
+#: viewer/servers_ajax.html:40
 msgid "DELETE MONITORING SERVER"
 msgstr "監視サーバー削除"
 
-#: viewer/servers_ajax.html:61
+#: viewer/servers_ajax.html:56
 msgid "Connection status"
 msgstr "通信状態"
 
-#: viewer/servers_ajax.html:75
+#: viewer/servers_ajax.html:70
 msgid ""
 "Please use a browser's reload function when you update monitoring servers "
 "information including 'Connection status'."
@@ -395,8 +395,11 @@ msgid "User role"
 msgstr "ユーザー種別"
 
 #: viewer/users_ajax.html:58
-msgid "Privileges"
-msgstr "権限"
+msgid "Accessible hosts"
+msgstr "閲覧可能なホスト"
+
+#~ msgid "Privileges"
+#~ msgstr "権限"
 
 #~ msgid "Server type"
 #~ msgstr "サーバータイプ"
