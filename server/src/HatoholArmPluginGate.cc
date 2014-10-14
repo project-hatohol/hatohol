@@ -1014,13 +1014,13 @@ void HatoholArmPluginGate::setGLibMainContext(GMainContext *context)
 gboolean HatoholArmPluginGate::pipeRdErrCb(
   GIOChannel *source, GIOCondition condition, gpointer data)
 {
-	MLPL_INFO("Got callback (PIPE): %08x", condition);
+	MLPL_INFO("Got callback (PIPE): %08x\n", condition);
 	return G_SOURCE_REMOVE;
 }
 
 gboolean HatoholArmPluginGate::pipeWrErrCb(
   GIOChannel *source, GIOCondition condition, gpointer data)
 {
-	MLPL_INFO("Got callback (PIPE): %08x", condition);
+	MLPL_INFO("Got callback (PIPE): %08x\n", condition);
 	return G_SOURCE_REMOVE;
 }
