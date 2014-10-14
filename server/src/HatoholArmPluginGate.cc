@@ -312,7 +312,7 @@ HatoholArmPluginGate::~HatoholArmPluginGate()
 
 gboolean HatoholArmPluginGate::detectedArmPluginTimeout(void *data)
 {
-	MLPL_ERR("Detect the timeout of connection to ArmPlugin.");
+	MLPL_ERR("Detect the timeout of connection to ArmPlugin.\n");
 	HatoholArmPluginGate *obj = static_cast<HatoholArmPluginGate *>(data);
 	obj->m_impl->timerTag = INVALID_EVENT_ID;
 	obj->setPluginConnectStatus(COLLECT_NG_PLGIN_CONNECT_ERROR,
