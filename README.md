@@ -13,7 +13,7 @@ http://www.hatohol.org/
 - [Installation](#user-content-installation)
 	- [Installation by RPM files (only for CentOS 6.5)](#user-content-installation-by-rpm-files-only-for-centos-65)
 	- [Installation by building needed applications](#user-content-installation-by-building-needed-applications)
-	- [Upgrade by RPM files from ver.14.03 to ver.14.06(only for CentOS 6.5)](#user-content-upgrade-by-rpm-files-from-ver1403-to-ver1406only-for-centos-65)
+	- [Upgrade by RPM files from ver.14.06 to ver.14.09(only for CentOS 6.5)](#user-content-upgrade-by-rpm-files-from-ver1406-to-ver1409only-for-centos-65)
 - [Plans](#user-content-plans)
 - [Mailing Lists](#user-content-mailing-lists)
 
@@ -81,14 +81,14 @@ Other pages are being constructed.
 
 ## Installation
 ### Installation by RPM files (only for CentOS 6.5)
-The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/install/14.06/ja/index.md)
+The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/install/14.09/ja/index.md)
 
 ### Installation by building needed applications
 - [Server installation](server/README.md)
 - [Client (Web UI server) installation](client/README.md)
 
-### Upgrade by RPM files from ver.14.03 to ver.14.06(only for CentOS 6.5)
-The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/upgrade/14.06/ja/index.md) (Sorry, Japanese version only...)
+### Upgrade by RPM files from ver.14.06 to ver.14.09(only for CentOS 6.5)
+The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/upgrade/14.09/ja/index.md) (Sorry, Japanese version only...)
 
 ## Plans
 See [Milestone](https://github.com/project-hatohol/hatohol/milestones)
