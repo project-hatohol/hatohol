@@ -313,6 +313,49 @@ ItemTablePtr ZabbixAPI::getItems(void)
 	return ItemTablePtr(tablePtr);
 }
 
+ItemTablePtr ZabbixAPI::getHistory(const ItemIdType &itemId,
+				   const time_t &beginTime,
+				   const time_t &endTime)
+{
+	HatoholError queryRet;
+	SoupMessage *msg = queryHistory(queryRet, itemId, beginTime, endTime);
+	if (!msg) {
+		if (queryRet == HTERR_INTERNAL_ERROR) {
+			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+			  HTERR_INTERNAL_ERROR,
+			  "Failed to query history.");
+		} else {
+			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+			  HTERR_FAILED_CONNECT_ZABBIX,
+			  "%s", queryRet.getMessage().c_str());
+		}
+	}
+	JSONParser parser(msg->response_body->data);
+	g_object_unref(msg);
+	if (parser.hasError()) {
+		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+		  HTERR_FAILED_TO_PARSE_JSON_DATA,
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+
+	startObject(parser, "result");
+	VariableItemTablePtr tablePtr;
+	int numData = parser.countElements();
+	MLPL_DBG("The number of history: %d\n", numData);
+	for (int i = 0; i < numData; i++) {
+		startElement(parser, i);
+		VariableItemGroupPtr grp;
+		pushUint64(parser, grp, "itemid", ITEM_ID_ZBX_HISTORY_ITEMID);
+		pushUint64(parser, grp, "clock",  ITEM_ID_ZBX_HISTORY_CLOCK);
+		pushUint64(parser, grp, "ns",     ITEM_ID_ZBX_HISTORY_NS);
+		pushDouble(parser, grp, "value",  ITEM_ID_ZBX_HISTORY_VALUE);
+		tablePtr->add(grp);
+		parser.endElement();
+	}
+
+	return ItemTablePtr(tablePtr);
+}
+
 void ZabbixAPI::getHosts(
   ItemTablePtr &hostsTablePtr, ItemTablePtr &hostsGroupsTablePtr)
 {
@@ -609,6 +652,33 @@ SoupMessage *ZabbixAPI::queryItem(HatoholError &queryRet)
 	return queryCommon(agent, queryRet);
 }
 
+SoupMessage *ZabbixAPI::queryHistory(HatoholError &queryRet,
+				     const ItemIdType &itemId,
+				     const time_t &beginTime,
+				     const time_t &endTime)
+{
+	JSONBuilder agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "history.get");
+
+	agent.startObject("params");
+	agent.add("output", "extend");
+	agent.add("history", 0);
+	agent.add("itemids", itemId);
+	agent.add("time_from", beginTime);
+	agent.add("time_till", endTime);
+	agent.add("sortfield", "clock");
+	agent.add("sortorder", "ASC");
+	agent.endObject(); // params
+
+	agent.add("auth", m_impl->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent, queryRet);
+}
+
 SoupMessage *ZabbixAPI::queryHost(HatoholError &queryRet)
 {
 	JSONBuilder agent;
@@ -833,6 +903,17 @@ uint64_t ZabbixAPI::pushUint64(JSONParser &parser, ItemGroup *itemGroup,
 	sscanf(value.c_str(), "%" PRIu64, &valU64);
 	itemGroup->add(new ItemUint64(itemId, valU64), false);
 	return valU64;
+}
+
+double ZabbixAPI::pushDouble(JSONParser &parser, ItemGroup *itemGroup,
+			     const string &name, const ItemId &itemId)
+{
+	string value;
+	getString(parser, name, value);
+	double valDouble;
+	sscanf(value.c_str(), "%lf", &valDouble);
+	itemGroup->add(new ItemDouble(itemId, valDouble), false);
+	return valDouble;
 }
 
 string ZabbixAPI::pushString(JSONParser &parser, ItemGroup *itemGroup,

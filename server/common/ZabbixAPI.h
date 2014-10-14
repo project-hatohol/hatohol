@@ -105,6 +105,16 @@ protected:
 	 */
 	ItemTablePtr getItems(void);
 
+
+	/**
+	 * Get the history.
+	 *
+	 * @return The obtained history as an ItemTable format.
+	 */
+	ItemTablePtr getHistory(const ItemIdType &itemId,
+				const time_t &beginTime,
+				const time_t &endTime);
+
 	/**
 	 * Get the hosts and the host groups.
 	 *
@@ -180,6 +190,17 @@ protected:
 	SoupMessage *queryItem(HatoholError &queryRet);
 
 	/**
+	 * Get the history.
+	 *
+	 * @return
+	 * A SoupMessage object with the raw Zabbix servers's response.
+	 */
+	SoupMessage *queryHistory(HatoholError &queryRet,
+				  const ItemIdType &itemId,
+				  const time_t &beginTime,
+				  const time_t &endTime);
+
+	/**
 	 * Get the hosts.
 	 *
 	 * @return
@@ -248,6 +269,8 @@ protected:
 	            const std::string &name, const ItemId &itemId);
 	uint64_t pushUint64(JSONParser &parser, ItemGroup *itemGroup,
 	                    const std::string &name, const ItemId &itemId);
+	double pushDouble(JSONParser &parser, ItemGroup *itemGroup,
+			  const std::string &name, const ItemId &itemId);
 	std::string pushString(JSONParser &parser, ItemGroup *itemGroup,
 	                       const std::string &name, const ItemId &itemId);
 	void parseAndPushTriggerData(
