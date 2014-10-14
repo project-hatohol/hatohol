@@ -42,7 +42,7 @@ enum TriggerSeverityType {
 
 enum HostValidity {
 
-	// Hosts that are in HOST_VALID, HOST_VALID_INAPPLICALBLE, and
+	// Hosts that are in HOST_VALID, HOST_VALID_INAPPLICABLE, and
 	// VALID_SELF_MONITORING.
 	HOST_ALL_VALID = -2,
 
