@@ -194,7 +194,7 @@ HatoholPrivilegeEditDialog.prototype.generateMainTable = function() {
   '  <thead>' +
   '    <tr>' +
   '      <th>' + gettext("All Allow") + '</th>' +
-  '      <th colspan="2">' + gettext("Allowed Hostgroups") + '</th>' +
+  '      <th colspan="2">' + gettext("Accessible Hostgroups") + '</th>' +
   '      <th>ID</th>' +
   '      <th>' + gettext("Type") + '</th>' +
   '      <th>' + gettext("Hostname") + '</th>' +

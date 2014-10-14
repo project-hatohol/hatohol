@@ -38,7 +38,7 @@ var HatoholHostgroupPrivilegeEditDialog = function(userId, serverId, applyCallba
   // call the constructor of the super class
   var dialogAttrs = { width: "600" };
   HatoholDialog.apply(
-    this, ["hostgroup-privilege-edit-dialog", gettext("Edit Hostgroup privilege"),
+    this, ["hostgroup-privilege-edit-dialog", gettext("Edit accessible hostgroups"),
            dialogButtons, dialogAttrs]);
   self.start();
 };
