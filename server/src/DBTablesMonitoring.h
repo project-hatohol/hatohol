@@ -108,6 +108,16 @@ class HostsQueryOption : public HostResourceQueryOption {
 public:
 	HostsQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	HostsQueryOption(DataQueryContext *dataQueryContext);
+	virtual ~HostsQueryOption();
+
+	virtual std::string getCondition(void) const override;
+
+	void setValidity(const HostValidity &validity);
+	HostValidity getValidity(void) const;
+
+private:
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class HostgroupsQueryOption : public HostResourceQueryOption {
@@ -202,6 +212,18 @@ public:
 
 	void addHostInfo(HostInfo *hostInfo);
 	void addHostInfoList(const HostInfoList &hostInfoList);
+
+	/**
+	 * Update the host records.
+	 *
+	 * The records that are not included in the given hostInfoList
+	 * are marked as HOST_INVALID.
+	 *
+	 * @param hostInfoList  A list of hosts.
+	 * @param serverId      A monitoring server ID.
+	 */
+	void updateHosts(const HostInfoList &hostInfoList,
+	                 const ServerIdType &serverId);
 
 	/**
 	 * get the last (maximum) event ID of the event that belongs to

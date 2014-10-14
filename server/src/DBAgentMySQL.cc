@@ -270,6 +270,12 @@ static string getColumnDefinitionQuery(const ColumnDef &columnDef)
 		  "Unknown key type: %d", columnDef.keyType);
 	}
 
+	// default value
+	if (columnDef.defaultValue) {
+		query += StringUtils::sprintf(" DEFAULT %s",
+		columnDef.defaultValue);
+	}
+
 	return query;
 }
 

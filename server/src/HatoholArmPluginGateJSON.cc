@@ -145,6 +145,7 @@ private:
 		// Hatohol server.
 		hostInfo.id = ++m_largestHostID;
 		hostInfo.hostName = hostName;
+		hostInfo.valid = HOST_VALID_INAPPLICABLE;
 		dbMonitoring.addHostInfo(&hostInfo);
 		m_hosts[hostName] = m_largestHostID;
 		return m_largestHostID;

@@ -47,6 +47,10 @@ static void initParamChecker(
 		option.setTargetHostId(4);
 		expected += " AND host_id=4";
 	}
+	if (typeid(option) == typeid(HostsQueryOption)) {
+		expected += StringUtils::sprintf(" AND validity>=%d",
+		                                 HOST_VALID);
+	}
 	// TODO: call setHostgroupId()
 	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(expected, option.getCondition());
@@ -514,6 +518,33 @@ void data_hostsQueryOptionFromDataQueryContext(void)
 void test_hostsQueryOptionFromDataQueryContext(gconstpointer data)
 {
 	assertQueryOptionFromDataQueryContext(HostsQueryOption, data);
+}
+
+void test_hostsQueryOptionGetValidtyDefault(void)
+{
+	HostsQueryOption option(USER_ID_SYSTEM);
+	cppcut_assert_equal(HOST_ALL_VALID, option.getValidity());
+}
+
+void test_hostsQueryOptionSetGetValidty(void)
+{
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setValidity(HOST_VALID);
+	cppcut_assert_equal(HOST_VALID, option.getValidity());
+}
+
+void data_hostsQueryOptionGetConditionForHostValid(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_hostsQueryOptionGetConditionForHostValid(gconstpointer data)
+{
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setValidity(HOST_VALID);
+	cppcut_assert_equal(HOST_VALID, option.getValidity());
+	string expected = StringUtils::sprintf("validity=%d", HOST_VALID);
+	fixupForFilteringDefunctServer(data, expected, option);
 }
 
 //

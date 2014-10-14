@@ -218,6 +218,7 @@ void HatoholArmPluginGate::start(void)
 	hostInfo.serverId = m_impl->serverInfo.id;
 	hostInfo.id       = INAPPLICABLE_HOST_ID;
 	hostInfo.hostName = "N/A";
+	hostInfo.validity = HOST_VALID_INAPPLICABLE;
 	ThreadLocalDBCache cache;
 	cache.getMonitoring().addHostInfo(&hostInfo);
 
@@ -371,6 +372,7 @@ void HatoholArmPluginGate::onSetPluginInitialInfo(void)
 	hostInfo.hostName = 
 		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
 				     HAP_SELF_MONITORING_SUFFIX);
+	hostInfo.validity = HOST_VALID_SELF_MONITORING;
 	dbMonitoring.addHostInfo(&hostInfo);
 
 	m_impl->setInitialTriggerTable();
@@ -823,7 +825,7 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	dbMonitoring.addHostInfoList(hostInfoList);
+	dbMonitoring.updateHosts(hostInfoList, m_impl->serverInfo.id);
 
 	// TODO: consider if DBClientHatohol should have the cache
 	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
@@ -843,7 +845,6 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroupElements(
 	ItemTablePtr hostgroupElementTablePtr = createItemTable(*cmdBuf);
 
 	HostgroupElementList hostgroupElementList;
-	HostInfoList hostInfoList;
 	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
 	  hostgroupElementList, hostgroupElementTablePtr, m_impl->serverInfo.id);
 

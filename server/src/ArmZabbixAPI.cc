@@ -221,7 +221,7 @@ void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 	HostInfoList hostInfoList;
 	HatoholDBUtils::transformHostsToHatoholFormat(hostInfoList, hosts,
 	                                              m_impl->zabbixServerId);
-	cache.getMonitoring().addHostInfoList(hostInfoList);
+	cache.getMonitoring().updateHosts(hostInfoList, m_impl->zabbixServerId);
 
 	// TODO: consider if DBClientHatohol should have the cache
 	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
@@ -249,7 +249,7 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 		}
 
 		ItemTablePtr triggers = updateTriggers();
-		updateHosts(); // TODO: Get it only when it's really needed.
+		updateHosts();
 		updateGroups();
 		makeHatoholTriggers(triggers);
 		updateEvents();

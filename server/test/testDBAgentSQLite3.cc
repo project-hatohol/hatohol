@@ -115,6 +115,12 @@ public:
 					expected += " AUTOINCREMENT";
 			}
 
+			// default
+			if (columnDef.defaultValue) {
+				expected += "DEFAULT ";
+				expected += columnDef.defaultValue;
+			}
+
 			if (i < tableProfile.numColumns - 1)
 				expected += ",";
 		}

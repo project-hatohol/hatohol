@@ -46,7 +46,7 @@ const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBTablesMonitoring::MONITORING_DB_VERSION = 6;
+const int   DBTablesMonitoring::MONITORING_DB_VERSION = 7;
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -61,6 +61,11 @@ void operator>>(ItemGroupStream &itemGroupStream, TriggerSeverityType &rhs)
 void operator>>(ItemGroupStream &itemGroupStream, EventType &rhs)
 {
 	rhs = itemGroupStream.read<int, EventType>();
+}
+
+void operator>>(ItemGroupStream &itemGroupStream, HostValidity &rhs)
+{
+	rhs = itemGroupStream.read<int, HostValidity>();
 }
 
 // ----------------------------------------------------------------------------
@@ -481,6 +486,15 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"validity",                        // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	"1",                               // defaultValue
 },
 };
 enum {
@@ -488,6 +502,7 @@ enum {
 	IDX_HOSTS_SERVER_ID,
 	IDX_HOSTS_HOST_ID,
 	IDX_HOSTS_HOST_NAME,
+	IDX_HOSTS_VALIDITY,
 	NUM_IDX_HOSTS,
 };
 
@@ -1296,15 +1311,60 @@ static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
+struct HostsQueryOption::Impl {
+	HostValidity validity;
+
+	Impl()
+	: validity(HOST_ALL_VALID)
+	{
+	}
+};
+
 HostsQueryOption::HostsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseHostsQueryOption, userId)
+: HostResourceQueryOption(synapseHostsQueryOption, userId),
+  m_impl(new Impl())
 {
 }
 
 HostsQueryOption::HostsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseHostsQueryOption, dataQueryContext)
+: HostResourceQueryOption(synapseHostsQueryOption, dataQueryContext),
+  m_impl(new Impl())
 {
 }
+
+HostsQueryOption::~HostsQueryOption(void)
+{
+}
+
+string HostsQueryOption::getCondition(void) const
+{
+	string condition = HostResourceQueryOption::getCondition();
+	if (m_impl->validity == HOST_ANY_VALIDITY)
+		return condition;
+	if (!condition.empty())
+		condition += " AND ";
+
+	string columnName = COLUMN_DEF_HOSTS[IDX_HOSTS_VALIDITY].columnName;
+	if (m_impl->validity == HOST_ALL_VALID) {
+		condition += StringUtils::sprintf("%s>=%d",
+		  columnName.c_str(), HOST_VALID);
+	} else {
+		condition += StringUtils::sprintf("%s=%d",
+		  columnName.c_str(), HOST_VALID);
+	}
+	return condition;
+}
+
+void HostsQueryOption::setValidity(const HostValidity &validity)
+{
+	m_impl->validity = validity;
+}
+
+HostValidity HostsQueryOption::getValidity(void) const
+{
+	return m_impl->validity;
+}
+
 
 //
 // HostgroupsQueryOption
@@ -1393,6 +1453,7 @@ void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 	arg.add(IDX_HOSTS_SERVER_ID);
 	arg.add(IDX_HOSTS_HOST_ID);
 	arg.add(IDX_HOSTS_HOST_NAME);
+	arg.add(IDX_HOSTS_VALIDITY);
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1409,6 +1470,7 @@ void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 		itemGroupStream >> hostInfo.serverId;
 		itemGroupStream >> hostInfo.id;
 		itemGroupStream >> hostInfo.hostName;
+		itemGroupStream >> hostInfo.validity;
 	}
 }
 
@@ -1941,6 +2003,47 @@ void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 		}
 	} trx(hostInfoList);
 	getDBAgent().runTransaction(trx);
+}
+
+void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
+                                     const ServerIdType &serverId)
+{
+	// TODO: We should update the host name if it's changed.
+
+	// Make a set that contains current hosts records
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setValidity(HOST_VALID);
+	option.setTargetServerId(serverId);
+	HostInfoList currHosts;
+	getHostInfoList(currHosts, option);
+	HostIdHostInfoMap currValidHosts;
+	HostInfoListConstIterator currHostsItr = currHosts.begin();
+	for (; currHostsItr != currHosts.end(); ++currHostsItr) {
+		const HostInfo &hostInfo = *currHostsItr;
+		currValidHosts[hostInfo.id] = &hostInfo;
+	}
+
+	// Pick up hosts to be added.
+	HostInfoList updatedHostInfoList;
+	HostInfoListConstIterator newHostsItr = hostInfoList.begin();
+	for (; newHostsItr != hostInfoList.end(); ++newHostsItr) {
+		const HostInfo &newHostInfo = *newHostsItr;
+		if (currValidHosts.erase(newHostInfo.id) >= 1) {
+			// The host already exits. We have nrothing to do.
+			continue;
+		}
+		updatedHostInfoList.push_back(newHostInfo);
+	}
+
+	// Add hosts to be marked as invalid
+	HostIdHostInfoMapIterator hostMapItr = currValidHosts.begin();
+	for (; hostMapItr != currValidHosts.end(); ++hostMapItr) {
+		HostInfo invalidHost = *hostMapItr->second;
+		invalidHost.validity = HOST_INVALID;
+		updatedHostInfoList.push_back(invalidHost);
+	}
+
+	addHostInfoList(updatedHostInfoList);
 }
 
 EventIdType DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
@@ -2627,6 +2730,7 @@ void DBTablesMonitoring::addHostInfoWithoutTransaction(
 	arg.add(hostInfo.serverId);
 	arg.add(hostInfo.id);
 	arg.add(hostInfo.hostName);
+	arg.add(hostInfo.validity);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
@@ -2737,6 +2841,12 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileIncidents);
 		addColumnsArg.columnIndexes.push_back(IDX_INCIDENTS_PRIORITY);
 		addColumnsArg.columnIndexes.push_back(IDX_INCIDENTS_DONE_RATIO);
+		dbAgent.addColumns(addColumnsArg);
+	}
+	if (oldVer <= 6) {
+		// add new columns to incidents
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileHosts);
+		addColumnsArg.columnIndexes.push_back(IDX_HOSTS_VALIDITY);
 		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;

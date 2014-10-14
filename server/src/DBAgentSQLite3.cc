@@ -428,6 +428,12 @@ void DBAgentSQLite3::createTable(sqlite3 *db, const TableProfile &tableProfile)
 			             columnDef.keyType, columnDef.columnName);
 		}
 
+		// default value
+		if (columnDef.defaultValue) {
+			sql += StringUtils::sprintf("DEFAULT %s",
+			                            columnDef.defaultValue);
+		}
+
 		if (i < tableProfile.numColumns - 1)
 			sql += ",";
 	}

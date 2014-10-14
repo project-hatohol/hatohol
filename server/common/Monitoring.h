@@ -40,10 +40,33 @@ enum TriggerSeverityType {
 	NUM_TRIGGER_SEVERITY,
 };
 
+enum HostValidity {
+
+	// Hosts that are in HOST_VALID, HOST_VALID_INAPPLICABLE, and
+	// VALID_SELF_MONITORING.
+	HOST_ALL_VALID = -2,
+
+	// All hosts
+	HOST_ANY_VALIDITY = -1,
+
+	// Hosts that are probably deleted in the monitoring server.
+	HOST_INVALID = 0,
+
+	// Normal active hosts
+	HOST_VALID,
+
+	// Hosts that cannot be associated with a specific machine/devices.
+	HOST_VALID_INAPPLICABLE,
+
+	// Fake hosts for self monitoring.
+	HOST_VALID_SELF_MONITORING,
+};
+
 struct HostInfo {
 	ServerIdType        serverId;
 	HostIdType          id;
 	std::string         hostName;
+	HostValidity        validity;
 
 	// The follwong members are currently not used.
 	std::string         ipAddr;
@@ -53,6 +76,10 @@ struct HostInfo {
 typedef std::list<HostInfo>          HostInfoList;
 typedef HostInfoList::iterator       HostInfoListIterator;
 typedef HostInfoList::const_iterator HostInfoListConstIterator;
+
+typedef std::map<HostIdType, const HostInfo *> HostIdHostInfoMap;
+typedef HostIdHostInfoMap::iterator            HostIdHostInfoMapIterator;
+typedef HostIdHostInfoMap::const_iterator      HostIdHostInfoMapConstIterator;
 
 struct TriggerInfo {
 	ServerIdType        serverId;

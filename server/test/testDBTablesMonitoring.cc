@@ -389,8 +389,9 @@ static string makeMapHostsHostgroupsOutput
 static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 {
 	string expectedOut = StringUtils::sprintf(
-	  "%zd|%" FMT_SERVER_ID "|%" FMT_HOST_ID "|%s\n",
-	  id + 1, hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str());
+	  "%zd|%" FMT_SERVER_ID "|%" FMT_HOST_ID "|%s|%d\n",
+	  id + 1, hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str(),
+	  hostInfo.validity);
 
 	return expectedOut;
 }
@@ -1378,6 +1379,89 @@ void test_addHostInfo(void)
 		expect += makeHostsOutput(testHostInfo[i], i);
 	}
 	dbMonitoring.addHostInfoList(hostInfoList);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
+void test_updateHostsMarkInvalid(void)
+{
+	loadTestDBHosts();
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	const ServerIdType targetServerId = 1;
+
+	// We keep the valid status for the hosts whose id is even.
+	HostInfoList hostInfoList;
+	HostIdHostInfoMap hostMap;
+	for (size_t i = 0; i < NumTestHostInfo; i++) {
+		const HostInfo &hostInfo = testHostInfo[i];
+		if (hostInfo.serverId != targetServerId)
+			continue;
+		hostMap[hostInfo.id] = &hostInfo;
+		if (hostInfo.id % 2)
+			continue;
+		hostInfoList.push_back(hostInfo);
+	}
+	// sanity check if we use the proper data
+	cppcut_assert_equal(false, hostInfoList.empty());
+
+	// Prepare for the expected result.
+	string expect;
+	HostIdHostInfoMapConstIterator hostMapItr = hostMap.begin();
+	for (; hostMapItr != hostMap.end(); ++hostMapItr) {
+		const HostInfo &hostInfo = *hostMapItr->second;
+		int valid = (hostInfo.id % 2 == 0) ? HOST_VALID : HOST_INVALID;
+		expect += StringUtils::sprintf(
+		  "%" FMT_HOST_ID "|%d\n", hostInfo.id, valid);
+	}
+
+	// Call the method to be tested and check the result
+	dbMonitoring.updateHosts(hostInfoList, targetServerId);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+	string statement = StringUtils::sprintf(
+	  "select host_id,validity from hosts where server_id=%" FMT_SERVER_ID
+	  " order by host_id asc;", targetServerId);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
+void test_updateHostsAddNewHost(void)
+{
+	loadTestDBHosts();
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	const ServerIdType targetServerId = 1;
+	HostInfo newHost;
+	newHost.serverId = targetServerId;
+	newHost.id       = 123231;
+	newHost.hostName = "new test host";
+	newHost.validity = HOST_VALID;
+
+	// Sanity check the ID of the new host is not duplicated.
+	for (size_t i = 0; i < NumTestHostInfo; i++) {
+		const HostInfo &hostInfo = testHostInfo[i];
+		if (hostInfo.serverId != targetServerId)
+			continue;
+		if (hostInfo.id == newHost.id)
+			cut_fail("We use the worng test data");
+	}
+
+	// Prepare for the test data and the expected result.
+	HostInfoList hostInfoList;
+	string expect;
+	size_t i;
+	for (i = 0; i < NumTestHostInfo; i++) {
+		const HostInfo &hostInfo = testHostInfo[i];
+		if (hostInfo.serverId != targetServerId)
+			continue;
+		hostInfoList.push_back(hostInfo);
+		expect += makeHostsOutput(hostInfo, i);
+	}
+	hostInfoList.push_back(newHost);
+	expect += makeHostsOutput(newHost, i);
+
+	// Call the method to be tested and check the result
+	dbMonitoring.updateHosts(hostInfoList, targetServerId);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+	string statement = StringUtils::sprintf(
+	  "select * from hosts where server_id=%" FMT_SERVER_ID
+	  " order by id asc;", targetServerId);
 	assertDBContent(&dbAgent, statement, expect);
 }
 
