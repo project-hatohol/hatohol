@@ -3,28 +3,6 @@
 topdir=`echo $(cd $(dirname $0)/..; pwd)`
 server_dir=$topdir/server
 client_dir=$topdir/client
-
-if test x"$NO_MAKE" != x"yes"; then
-  if which gmake > /dev/null; then
-    MAKE=${MAKE:-"gmake"}
-  else
-    MAKE=${MAKE:-"make"}
-  fi
-  MAKE_ARGS=
-  case `uname` in
-    Linux)
-      MAKE_ARGS="-j$(grep '^processor' /proc/cpuinfo | wc -l)"
-      ;;
-    Darwin)
-      MAKE_ARGS="-j$(/usr/sbin/sysctl -n hw.ncpu)"
-      ;;
-    *)
-      :
-      ;;
-  esac
-  $MAKE $MAKE_ARGS -C $topdir/ > /dev/null || exit 1
-fi
-
 export LD_LIBRARY_PATH=$server_dir/mlpl/src/.libs:$server_dir/common/.libs:$server_dir/src/.libs
 
 mysql -uroot < $server_dir/data/create-db.sql
