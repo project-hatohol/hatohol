@@ -10,6 +10,7 @@ endif
 EXTRA_DIST = \
 	__init__.py \
 	browser/index.html \
+	browser/test_actions_view.js \
 	browser/test_events_view.js \
 	browser/test_hatohol_connector.js \
 	browser/test_hatohol_message_box.js \
@@ -22,7 +23,9 @@ EXTRA_DIST = \
 	browser/test_hatohol_user_profile.js \
 	browser/test_hatohol_user_roles_editor.js \
 	browser/test_hatohol_userconfig.js \
+	browser/test_incident_settings_view.js \
 	browser/test_server_view.js \
+	browser/test_users_view.js \
 	browser/test_utils.js \
 	python/TestHatoholserver.py \
 	python/TestUserConfig.py \
