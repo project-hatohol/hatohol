@@ -113,8 +113,6 @@ CLEANFILES = \
 	$(MO_FILES)
 
 nobase_nodist_hatohol_client_DATA = \
-	hatohol/hatohol_def.py \
-	static/js/hatohol_def.js \
 	$(MO_FILES)
 
 HATOHOL_DEF_GENERATOR = \

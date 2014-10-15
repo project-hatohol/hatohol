@@ -29,5 +29,6 @@ before_script:
   - ./configure
   - sudo chmod +r /var/log/syslog
   - sudo chmod 777 /var/run
+  - make -j`cat /proc/cpuinfo | grep ^processor| wc -l`
 script:
   - echo $RUN_TEST; eval "$RUN_TEST"
