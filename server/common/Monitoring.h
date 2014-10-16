@@ -155,6 +155,17 @@ typedef std::list<ItemInfo>          ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
+struct HistoryInfo {
+	ServerIdType serverId;
+	ItemIdType   id;
+	double       value
+	timespec     clock;
+};
+
+typedef std::vector<HistoryInfo>        HistoryInfoVect;
+typedef HistoryInfoVect::iterator       HistoryInfoVectIterator;
+typedef HistoryInfoVect::const_iterator HistoryInfoVectConstIterator;
+
 struct HostgroupInfo {
 	int                 id;
 	ServerIdType        serverId;
