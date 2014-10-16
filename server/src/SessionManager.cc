@@ -48,8 +48,8 @@ Session::~Session()
 void Session::cancelTimer(void)
 {
 	if (timerId != INVALID_EVENT_ID) {
-		timerId = INVALID_EVENT_ID;
 		Utils::removeGSourceIfNeeded(timerId);
+		timerId = INVALID_EVENT_ID;
 		const int usedCount = getUsedCount();
 		HATOHOL_ASSERT(usedCount >= 2, "Used count: %d\n", usedCount);
 		unref();

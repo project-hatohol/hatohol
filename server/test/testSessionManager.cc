@@ -270,5 +270,21 @@ void test_setTimeoutByEnv(void)
 	cppcut_assert_equal(timeout, SessionManager::getDefaultTimeout());
 }
 
+void test_sessionCancelTimer(void)
+{
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	const UserIdType userId = 103;
+	const string sessionId = sessionMgr->create(userId);
+	SessionPtr sessionPtr = sessionMgr->getSession(sessionId);
+	guint origTimerId = sessionPtr->timerId;
+	cppcut_assert_not_equal(INVALID_EVENT_ID, sessionPtr->timerId);
+	sessionPtr->cancelTimer();
+	cppcut_assert_equal(INVALID_EVENT_ID, sessionPtr->timerId);
+
+	// This test will show a GLib-CRITICAL message, since the same source
+	// is removed again.
+	cppcut_assert_equal(false, Utils::removeGSourceIfNeeded(origTimerId));
+}
+
 } // namespace testSessionManager
 
