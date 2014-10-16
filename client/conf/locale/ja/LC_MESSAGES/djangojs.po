@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-03 08:02-0500\n"
+"POT-Creation-Date: 2014-10-16 12:16-0500\n"
 "PO-Revision-Date: 2014-09-09 09:09+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -97,7 +97,7 @@ msgstr "ホスト名"
 msgid "TLS client certificate path"
 msgstr "TLSクライアント証明書のパス"
 
-#: static/js/actions_view.js:56 static/js/incident_settings_view.js:54
+#: static/js/actions_view.js:56 static/js/incident_settings_view.js:56
 #: static/js/servers_view.js:49 static/js/users_view.js:57
 msgid "Do you delete the selected items ?"
 msgstr "選択項目を削除してもよろしいですか？"
@@ -106,7 +106,7 @@ msgstr "選択項目を削除してもよろしいですか？"
 #: static/js/hatohol_incident_trackers_editor.js:66
 #: static/js/hatohol_item_remover.js:67
 #: static/js/hatohol_user_roles_editor.js:65
-#: static/js/incident_settings_view.js:111 static/js/users_view.js:126
+#: static/js/incident_settings_view.js:113 static/js/users_view.js:126
 msgid "Deleting..."
 msgstr "削除中..."
 
@@ -143,7 +143,7 @@ msgid "New values per second"
 msgstr "１秒あたりの監視項目数"
 
 #: static/js/events_view.js:38 static/js/hatohol_add_action_dialog.js:407
-#: static/js/servers_view.js:303 static/js/triggers_view.js:89
+#: static/js/servers_view.js:305 static/js/triggers_view.js:89
 #: static/js/utils.js:59
 msgid "OK"
 msgstr "正常"
@@ -155,7 +155,7 @@ msgstr "障害"
 
 #: static/js/events_view.js:38
 #: static/js/hatohol_incident_trackers_editor.js:197
-#: static/js/incident_settings_view.js:197 static/js/servers_view.js:152
+#: static/js/incident_settings_view.js:199 static/js/servers_view.js:152
 #: static/js/triggers_view.js:91 static/js/users_view.js:141
 #: static/js/utils.js:183 static/js/utils.js.c:189 static/js/utils.js.c:204
 #: static/js/utils.js:219 test/browser/test_utils.js:356
@@ -360,12 +360,12 @@ msgid "EDIT"
 msgstr "編集"
 
 #: static/js/hatohol_add_action_dialog.js:503
-#: static/js/incident_settings_view.js:191
+#: static/js/incident_settings_view.js:193
 msgid "Project: "
 msgstr "プロジェクト: "
 
 #: static/js/hatohol_add_action_dialog.js:505
-#: static/js/incident_settings_view.js:193
+#: static/js/incident_settings_view.js:195
 msgid "Tracker: "
 msgstr "トラッカー: "
 
@@ -777,7 +777,7 @@ msgid "YES"
 msgstr "はい"
 
 #: static/js/hatohol_message_box.js:189
-#: static/js/hatohol_monitoring_view.js:24 static/js/servers_view.js:305
+#: static/js/hatohol_monitoring_view.js:24 static/js/servers_view.js:307
 msgid "Error"
 msgstr "エラー"
 
@@ -814,7 +814,7 @@ msgstr "バックエンドと通信中"
 msgid "ERROR"
 msgstr "エラー"
 
-#: static/js/hatohol_monitoring_view.js:358
+#: static/js/hatohol_monitoring_view.js:355
 msgid "Last update time:"
 msgstr "最終更新時刻:"
 
@@ -886,6 +886,14 @@ msgstr "インシデント管理"
 #: test/browser/test_hatohol_navi.js:27
 msgid "Users"
 msgstr "ユーザー"
+
+#: static/js/hatohol_navi.js:77
+msgid "Version"
+msgstr "バージョン"
+
+#: static/js/hatohol_navi.js:80
+msgid "Hatohol version: "
+msgstr "Hatoholバージョン: "
 
 #: static/js/hatohol_password_changer.js:26
 #: static/js/hatohol_password_changer.js:133
@@ -1248,59 +1256,59 @@ msgstr "チェック中"
 msgid "Show Maps"
 msgstr "マップを表示"
 
-#: static/js/servers_view.js:223
+#: static/js/servers_view.js:225
 msgid "Failed to get"
 msgstr "取得失敗"
 
-#: static/js/servers_view.js:297
+#: static/js/servers_view.js:299
 msgid "N/A"
 msgstr "N/A"
 
-#: static/js/servers_view.js:301
+#: static/js/servers_view.js:303
 msgid "Initial State"
 msgstr "初期状態"
 
-#: static/js/servers_view.js:307
+#: static/js/servers_view.js:309
 msgid "Unknown:"
 msgstr "不明"
 
-#: static/js/servers_view.js:320 test/browser/test_server_view.js:110
+#: static/js/servers_view.js:322 test/browser/test_server_view.js:187
 msgid "Running"
 msgstr "稼働"
 
-#: static/js/servers_view.js:323
+#: static/js/servers_view.js:325
 msgid "No"
 msgstr "いいえ"
 
-#: static/js/servers_view.js:326 test/browser/test_server_view.js:110
+#: static/js/servers_view.js:328 test/browser/test_server_view.js:187
 msgid "Yes"
 msgstr "はい"
 
-#: static/js/servers_view.js:336 test/browser/test_server_view.js:111
+#: static/js/servers_view.js:338 test/browser/test_server_view.js:188
 msgid "Status update time"
 msgstr "状態更新時刻"
 
-#: static/js/servers_view.js:341 test/browser/test_server_view.js:112
+#: static/js/servers_view.js:343 test/browser/test_server_view.js:189
 msgid "Last success time"
 msgstr "最終成功時刻"
 
-#: static/js/servers_view.js:346 test/browser/test_server_view.js:113
+#: static/js/servers_view.js:348 test/browser/test_server_view.js:190
 msgid "Last failure time"
 msgstr "最終失敗時刻"
 
-#: static/js/servers_view.js:354 test/browser/test_server_view.js:114
+#: static/js/servers_view.js:356 test/browser/test_server_view.js:191
 msgid "Number of communication"
 msgstr "通信回数"
 
-#: static/js/servers_view.js:362 test/browser/test_server_view.js:115
+#: static/js/servers_view.js:364 test/browser/test_server_view.js:192
 msgid "Number of failure"
 msgstr "失敗回数"
 
-#: static/js/servers_view.js:366 test/browser/test_server_view.js:116
+#: static/js/servers_view.js:368 test/browser/test_server_view.js:193
 msgid "Comment for the failure"
 msgstr "失敗備考"
 
-#: test/browser/test_server_view.js:113
+#: test/browser/test_server_view.js:190
 msgid "-"
 msgstr "-"
 
