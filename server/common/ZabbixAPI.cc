@@ -31,6 +31,7 @@ using namespace mlpl;
 
 static const char *MIME_JSON_RPC = "application/json-rpc";
 static const guint DEFAULT_TIMEOUT = 60;
+static const size_t HISTORY_LIMIT_PER_ONCE = 1000;
 
 const uint64_t ZabbixAPI::EVENT_ID_NOT_FOUND = -1;
 
@@ -670,6 +671,7 @@ SoupMessage *ZabbixAPI::queryHistory(HatoholError &queryRet,
 	agent.add("time_till", endTime);
 	agent.add("sortfield", "clock");
 	agent.add("sortorder", "ASC");
+	agent.add("limit", HISTORY_LIMIT_PER_ONCE);
 	agent.endObject(); // params
 
 	agent.add("auth", m_impl->authToken);
