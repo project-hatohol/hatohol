@@ -241,6 +241,7 @@ dnl **************************************************************
 AC_OUTPUT([
 Makefile
 hatohol.spec
+client/static/js/hatohol_version.js
 data/Makefile
 data/init.d/Makefile
 data/init.d/debian/hatohol.debian
