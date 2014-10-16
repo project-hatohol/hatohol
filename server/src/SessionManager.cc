@@ -24,6 +24,8 @@
 #include "SessionManager.h"
 #include <Mutex.h>
 #include "ReadWriteLock.h"
+#include "HatoholException.h"
+#include "Reaper.h"
 using namespace std;
 using namespace mlpl;
 
@@ -41,7 +43,17 @@ Session::Session(void)
 
 Session::~Session()
 {
-	Utils::removeGSourceIfNeeded(timerId);
+}
+
+void Session::cancelTimer(void)
+{
+	if (timerId != INVALID_EVENT_ID) {
+		timerId = INVALID_EVENT_ID;
+		Utils::removeGSourceIfNeeded(timerId);
+		const int usedCount = getUsedCount();
+		HATOHOL_ASSERT(usedCount >= 2, "Used count: %d\n", usedCount);
+		unref();
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -64,28 +76,32 @@ struct SessionManager::Impl {
 	ReadWriteLock rwlock;
 	SessionIdMap  sessionIdMap;
 
-	virtual ~Impl() {
-		rwlock.writeLock();
-		SessionIdMapIterator it = sessionIdMap.begin();
-		for (; it != sessionIdMap.end(); ++it) {
-			Session *session = it->second;
-			clearSessionManagerIfNeeded(session);
-			session->unref();
+	virtual ~Impl()
+	{
+		clearAllSessions();
+	}
 
+	void clearAllSessions(void)
+	{
+		rwlock.writeLock();
+		while (!sessionIdMap.empty()) {
+			SessionIdMapIterator it = sessionIdMap.begin();
+			Session *session = it->second;
+			rwlock.unlock();
+			Utils::executeOnGLibEventLoop<Session>(
+			  deleteSession, session);
+			rwlock.writeLock();
+			sessionIdMap.erase(it);
 		}
-		sessionIdMap.clear();
 		rwlock.unlock();
 	}
 
-private:
-	void clearSessionManagerIfNeeded(Session *session)
+	static void deleteSession(Session *session)
 	{
-		if (session->getUsedCount() == 1)
-			return;
-
-		// To avoid an invalid access. Or timeCb() will access
-		// the deleted 'this' instance.
-		session->sessionMgr = NULL;
+		// This method is called on the GLib's event loop.
+		// So we can call cancelTimer w/o lock.
+		session->cancelTimer();
+		session->unref();
 	}
 };
 
@@ -115,6 +131,8 @@ void SessionManager::reset(void)
 		MLPL_INFO("Default session timeout: %zd (sec)\n",
 		          Impl::defaultTimeout);
 	}
+
+	getInstance()->m_impl->clearAllSessions();
 }
 
 SessionManager *SessionManager::getInstance(void)
@@ -153,13 +171,10 @@ SessionPtr SessionManager::getSession(const string &sessionId)
 	// soon after the following rwlock.unlock(), the instance itself
 	// is not deleted.
 	SessionPtr sessionPtr(session);
-
 	m_impl->rwlock.unlock();
 
-	// Update the timer on the GLib event loop so that updateTimer() and
-	// timerCb() can be executed exclusively.
 	if (session)
-		Utils::executeOnGLibEventLoop<Session>(updateTimer, session);
+		updateTimer(session);
 
 	return sessionPtr;
 }
@@ -221,19 +236,21 @@ string SessionManager::generateSessionId(void)
 
 void SessionManager::updateTimer(Session *session)
 {
+	session->lock.lock();
 	Impl *impl = session->sessionMgr->m_impl.get();
-	Utils::removeGSourceIfNeeded(session->timerId);
+	session->cancelTimer();
 
 	if (session->timeout) {
 		session->timerId = g_timeout_add(session->timeout * 1000,
 		                                 timerCb, session);
+		session->ref();
 	}
 	session->lastAccessTime.setCurrTime();
+	session->lock.unlock();
 
-	// If timerCb() is called between 'm_impl->rwlock.unlock()' and
-	// this function running on another thread, the session is
-	// removed from sessionIdMap. So we have to insert session
-	// into sessionIdMap every time.
+	// If timerCb() is called just before here on on an another thread,
+	// the session registered above is removed from sessionIdMap.
+	// So we have to insert session into sessionIdMap every time.
 	impl->rwlock.writeLock();
 	impl->sessionIdMap[session->id] = session;
 	impl->rwlock.unlock();
@@ -242,17 +259,21 @@ void SessionManager::updateTimer(Session *session)
 gboolean SessionManager::timerCb(gpointer data)
 {
 	Session *session = static_cast<Session *>(data);
+	Reaper<UsedCountable> sessionUnref(session, UsedCountable::unref);
+	session->lock.lock();
+	session->timerId = INVALID_EVENT_ID;
 	SessionManager *sessionMgr = session->sessionMgr;
 	if (!sessionMgr) {
 		MLPL_BUG("Session Manager: NULL, %s\n", session->id.c_str());
+		session->lock.unlock();
 		return G_SOURCE_REMOVE;
 	}
-	session->timerId = INVALID_EVENT_ID;
 
 	// Make a copy, because session may be deleted in the follwoing
 	// remove(). However, it is used only when the remove() fails, 
 	// which is a rare event. So this is a kind of wasted way.
 	string sessionId = session->id;
+	session->lock.unlock();
 
 	if (!sessionMgr->remove(session->id))
 		MLPL_BUG("Failed to remove session: %s\n", sessionId.c_str());
