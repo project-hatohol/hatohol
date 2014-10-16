@@ -5,7 +5,7 @@ endif
 noinst_SCRIPTS = mkFooTable.sh
 FooTable.db: mkFooTable.sh
 	rm -f $@
-	./mkFooTable.sh $@
+	$(srcdir)/mkFooTable.sh $@
 
 EXTRA_DIST= \
 	$(noinst_SCRIPTS) \

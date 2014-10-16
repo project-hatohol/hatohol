@@ -86,7 +86,8 @@ AM_CXXFLAGS = \
 	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GTHREAD_CFLAGS) $(GIO_CFLAGS) \
 	$(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS) $(SQLITE3_CFLAGS) \
 	$(UUID_CFLAGS) $(LIBRABBITMQ_CFLAGS) $(MYSQL_CFLAGS) \
-	$(COVERAGE_CFLAGS) -I ../common
+	$(COVERAGE_CFLAGS) \
+	-I $(top_srcdir)/server/common
 
 AM_LDFLAGS = -lrt \
 	$(MLPL_LIBS) $(GLIB_LIBS) $(GTHREAD_LIBS) $(GIO_LIBS) \
@@ -95,6 +96,10 @@ AM_LDFLAGS = -lrt \
 	$(COVERAGE_LIBS)
 
 libhatohol_la_LDFLAGS = $(AM_LDFLAGS)
-libhatohol_la_LIBADD = ../common/libhatohol-common.la
-hatohol_LDADD = libhatohol.la ../common/libhatohol-common.la
-hatohol_resident_yard_LDADD = libhatohol.la ../common/libhatohol-common.la
+libhatohol_la_LIBADD = $(top_builddir)/server/common/libhatohol-common.la
+hatohol_LDADD = \
+	libhatohol.la \
+	$(top_builddir)/server/common/libhatohol-common.la
+hatohol_resident_yard_LDADD = \
+	libhatohol.la \
+	$(top_builddir)/server/common/libhatohol-common.la

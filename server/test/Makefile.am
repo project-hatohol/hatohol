@@ -16,12 +16,16 @@ AM_CXXFLAGS = \
 	$(CUTTER_CFLAGS) $(CPPCUTTER_CFLAGS) \
 	$(GLIB_CFLAGS) $(MLPL_CFLAGS) $(JSON_GLIB_CFLAGS) $(LIBSOUP_CFLAGS) \
 	$(MYSQL_CFLAGS) \
-	-I ../src -I ../common -I ../hap
+	-I $(top_srcdir)/server/src \
+	-I $(top_srcdir)/server/common \
+	-I $(top_srcdir)/server/hap
 AM_LDFLAGS = -module -rpath $(libdir) -avoid-version -no-undefined
 
 LIBS = \
 	$(CUTTER_LIBS) $(CPPCUTTER_LIBS) \
-	$(GLIB_LIBS) $(GIO_LIBS) $(MLPL_LIBS) ../src/libhatohol.la ../common/libhatohol-common.la
+	$(GLIB_LIBS) $(GIO_LIBS) $(MLPL_LIBS) \
+	$(top_builddir)/server/src/libhatohol.la \
+	$(top_builddir)/server/common/libhatohol-common.la
 
 # Test cases
 testHatohol_la_SOURCES = \
@@ -86,7 +90,9 @@ testHatohol_la_SOURCES += \
 	testGateJSONEventMessage.cc
 endif
 
-testHatohol_la_LDFLAGS = $(AM_LDFLAGS) $(LIBS) ../hap/libhapprocess.la
+testHatohol_la_LDFLAGS = \
+	$(AM_LDFLAGS) $(LIBS) \
+	$(top_builddir)/server/hap/libhapprocess.la
 testHatohol_la_LIBADD = libTest.la
 
 residentTest_la_SOURCES = residentTest.cc residentTest.h

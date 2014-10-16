@@ -40,7 +40,6 @@ Makefile.in
 /m4/
 /missing
 /server/hap/hatohol-arm-plugin-zabbix
-/server/hatohol/hatohol_def.py
 /server/mlpl/mlpl.pc
 /server/mlpl/test/loggerTestee
 /server/src/hatohol

@@ -2,7 +2,8 @@ AM_CXXFLAGS = \
 	$(OPT_CXXFLAGS) \
 	$(MLPL_CFLAGS) \
 	$(GLIB_CFLAGS) \
-	-I../src -I ../common
+	-I $(top_srcdir)/server/src \
+	-I $(top_srcdir)/server/common
 
 AM_LDFLAGS = -lrt \
 	$(MLPL_LIBS) \

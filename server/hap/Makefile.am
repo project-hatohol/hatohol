@@ -1,4 +1,5 @@
-LDADD = libhapprocess.la ../common/libhatohol-common.la
+LDADD = libhapprocess.la \
+	$(top_builddir)/server/common/libhatohol-common.la
 
 sbin_PROGRAMS = hatohol-arm-plugin-zabbix hatohol-arm-plugin-ceilometer
 hatohol_arm_plugin_zabbix_SOURCES = hatohol-arm-plugin-zabbix.cc
@@ -15,7 +16,9 @@ libhapprocess_la_SOURCES = \
 	HapProcessCeilometer.cc HapProcessCeilometer.h
 
 AM_CXXFLAGS = \
-	-I ../common -I ../src $(OPT_CXXFLAGS) \
+	-I $(top_srcdir)/server/common \
+	-I $(top_srcdir)/server/src \
+	$(OPT_CXXFLAGS) \
 	$(MLPL_CFLAGS) $(GLIB_CFLAGS) \
 	$(LIBSOUP_CFLAGS) $(JSON_GLIB_CFLAGS)
 

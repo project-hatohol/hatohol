@@ -258,6 +258,7 @@ server/src/Makefile
 server/hap/Makefile
 server/data/Makefile
 server/tools/Makefile
+server/tools/hatohol/Makefile
 server/tools/tls/Makefile
 server/tools/tls/hatohol-ca-initialize
 server/tools/tls/hatohol-ca-sign-client-certificate
