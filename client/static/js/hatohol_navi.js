@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -71,6 +71,15 @@ var HatoholNavi = function(userProfile, currentPage) {
             (1 << hatohol.OPPRVLG_DELETE_USER) |
             (1 << hatohol.OPPRVLG_GET_ALL_USERS)
         },
+      ]
+    },
+    {
+      title: gettext("Version"),
+        children: [
+        {
+          title: gettext("Hatohol version: ") + HATOHOL_VERSION,
+          href: "#"
+        }
       ]
     },
   ];
