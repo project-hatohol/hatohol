@@ -371,6 +371,22 @@ void HatoholDBUtils::transformHostsItemGroupToHatoholFormat(
 	itemGroupStream >> hostInfo.hostName;
 }
 
+static ItemInfoValueType transformItemValueType(const int &valueType)
+{
+	switch (valueType) {
+	case 0: // numeric float
+		return ITEM_INFO_VALUE_TYPE_FLOAT;
+	case 3: // numeric unsigned
+		return ITEM_INFO_VALUE_TYPE_INTEGER;
+	case 1: // character
+	case 2: // log
+	case 4: // text
+		return ITEM_INFO_VALUE_TYPE_STRING;
+	default:
+		return ITEM_INFO_VALUE_TYPE_UNKNOWN;
+	}
+}
+
 bool HatoholDBUtils::transformItemItemGroupToItemInfo(
   ItemInfo &itemInfo, const ItemGroup *itemItemGroup,
   const ItemCategoryNameMap &itemCategoryNameMap)
@@ -402,6 +418,14 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_DELAY);
 	itemGroupStream >> itemInfo.delay;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_UNITS);
+	itemGroupStream >> itemInfo.unit;
+
+	int valueType;
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_UNITS);
+	itemGroupStream >> valueType;
+	itemInfo.valueType = transformItemValueType(valueType);
 
 	ItemCategoryIdType itemCategoryId;
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_APPLICATIONID);
