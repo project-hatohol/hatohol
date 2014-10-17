@@ -37,7 +37,7 @@ var HatoholPrivilegeEditDialog = function(userId, applyCallback) {
   // call the constructor of the super class
   var dialogAttrs = { width: "800" };
   HatoholDialog.apply(
-    this, ["privilege-edit-dialog", gettext("Edit privileges"),
+    this, ["privilege-edit-dialog", gettext("Edit accessible hosts"),
            dialogButtons, dialogAttrs]);
   self.start();
 };
@@ -194,7 +194,7 @@ HatoholPrivilegeEditDialog.prototype.generateMainTable = function() {
   '  <thead>' +
   '    <tr>' +
   '      <th>' + gettext("All Allow") + '</th>' +
-  '      <th colspan="2">' + gettext("Allowed Hostgroups") + '</th>' +
+  '      <th colspan="2">' + gettext("Accessible Hostgroups") + '</th>' +
   '      <th>ID</th>' +
   '      <th>' + gettext("Type") + '</th>' +
   '      <th>' + gettext("Hostname") + '</th>' +
