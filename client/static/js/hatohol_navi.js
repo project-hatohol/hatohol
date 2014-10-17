@@ -74,7 +74,7 @@ var HatoholNavi = function(userProfile, currentPage) {
       ]
     },
     {
-      title: gettext("Version"),
+      title: gettext("Help"),
       children: [
         {
           title: gettext("Hatohol version: ") + HATOHOL_VERSION,
