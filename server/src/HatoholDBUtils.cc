@@ -423,7 +423,7 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 	itemGroupStream >> itemInfo.unit;
 
 	int valueType;
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_UNITS);
+	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_VALUE_TYPE);
 	itemGroupStream >> valueType;
 	itemInfo.valueType = transformItemValueType(valueType);
 
