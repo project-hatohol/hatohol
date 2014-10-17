@@ -176,7 +176,10 @@ void test_getSession(void)
 		SessionPtr session = sessionMgr->getSession(sessionId);
 		cppcut_assert_equal(true, session.hasData());
 		cppcut_assert_equal(userId, session->userId);
-		cppcut_assert_equal(2, session->getUsedCount());
+		// 1st: added when it was created.
+		// 2nd: added in updateTimer().
+		// 3rd: added due to getSession().
+		cppcut_assert_equal(3, session->getUsedCount());
 	}
 
 	// check the used count of the session
@@ -185,7 +188,7 @@ void test_getSession(void)
 	cppcut_assert_equal(sessionId, sessionIdMap.begin()->first);
 	const Session *session = sessionIdMap.begin()->second;
 	cppcut_assert_equal(userId, session->userId);
-	cppcut_assert_equal(1, session->getUsedCount());
+	cppcut_assert_equal(2, session->getUsedCount());
 }
 
 void test_update(void)
@@ -265,6 +268,22 @@ void test_setTimeoutByEnv(void)
 	cut_assert_errno();
 	SessionManager::reset(); // to reload the default value
 	cppcut_assert_equal(timeout, SessionManager::getDefaultTimeout());
+}
+
+void test_sessionCancelTimer(void)
+{
+	SessionManager *sessionMgr = SessionManager::getInstance();
+	const UserIdType userId = 103;
+	const string sessionId = sessionMgr->create(userId);
+	SessionPtr sessionPtr = sessionMgr->getSession(sessionId);
+	guint origTimerId = sessionPtr->timerId;
+	cppcut_assert_not_equal(INVALID_EVENT_ID, sessionPtr->timerId);
+	sessionPtr->cancelTimer();
+	cppcut_assert_equal(INVALID_EVENT_ID, sessionPtr->timerId);
+
+	// This test will show a GLib-CRITICAL message, since the same source
+	// is removed again.
+	cppcut_assert_equal(false, Utils::removeGSourceIfNeeded(origTimerId));
 }
 
 } // namespace testSessionManager

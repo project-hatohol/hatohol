@@ -27,6 +27,7 @@
 #include "SmartTime.h"
 #include "UsedCountablePtr.h"
 #include "UsedCountable.h"
+#include "Mutex.h"
 
 class SessionManager;
 struct Session : public UsedCountable {
@@ -36,10 +37,17 @@ struct Session : public UsedCountable {
 	mlpl::SmartTime lastAccessTime;
 	size_t timeout;
 	guint timerId;
+	mlpl::Mutex lock;
 	SessionManager *sessionMgr;
 
 	// constructor
 	Session(void);
+
+	/**
+	 * Cancel the timer. This method is suppose to be called with
+	 * lock taken.
+	 */
+	void cancelTimer(void);
 
 protected:
 	virtual ~Session(); // makes delete impossible. Use unref().
