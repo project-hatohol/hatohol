@@ -58,6 +58,13 @@ describe('HatoholNavi', function() {
     expected += '<li><a href="ajax_actions">' +
       gettext('Actions') + '</a></li>';
     expected += '</ul></li>';
+    expected += '<li class="dropdown">';
+    expected += '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
+      'Version<span class="caret"></span></a>';
+    expected += '<ul class="dropdown-menu">';
+    expected += '<li><a href="#">' +
+      gettext('Hatohol version: ') + HATOHOL_VERSION + '</a></li>';
+    expected += '</ul></li>';
 
     expect($("ul.nav")[0].innerHTML).to.be(expected);
   });
@@ -86,6 +93,13 @@ describe('HatoholNavi', function() {
       gettext('Monitoring Servers') + '</a></li>';
     expected += '<li><a href="ajax_actions">' +
       gettext('Actions') + '</a></li>';
+    expected += '</ul></li>';
+    expected += '<li class="dropdown">';
+    expected += '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
+      'Version<span class="caret"></span></a>';
+    expected += '<ul class="dropdown-menu">';
+    expected += '<li><a href="#">' +
+      gettext('Hatohol version: ') + HATOHOL_VERSION + '</a></li>';
     expected += '</ul></li>';
 
     expect($("ul.nav")[0].innerHTML).to.be(expected);
