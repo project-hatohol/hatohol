@@ -46,7 +46,7 @@ const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBTablesMonitoring::MONITORING_DB_VERSION = 7;
+const int   DBTablesMonitoring::MONITORING_DB_VERSION = 8;
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -415,6 +415,24 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"value_type",                      // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"unit",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -428,6 +446,8 @@ enum {
 	IDX_ITEMS_LAST_VALUE,
 	IDX_ITEMS_PREV_VALUE,
 	IDX_ITEMS_ITEM_GROUP_NAME,
+	IDX_ITEMS_VALUE_TYPE,
+	IDX_ITEMS_UNIT,
 	NUM_IDX_ITEMS,
 };
 
@@ -2192,6 +2212,8 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	arg.add(IDX_ITEMS_LAST_VALUE);
 	arg.add(IDX_ITEMS_PREV_VALUE);
 	arg.add(IDX_ITEMS_ITEM_GROUP_NAME);
+	arg.add(IDX_ITEMS_VALUE_TYPE);
+	arg.add(IDX_ITEMS_UNIT);
 
 	// condition
 	arg.condition = option.getCondition();
@@ -2226,6 +2248,10 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 		itemGroupStream >> itemInfo.lastValue;
 		itemGroupStream >> itemInfo.prevValue;
 		itemGroupStream >> itemInfo.itemGroupName;
+		int valueType;
+		itemGroupStream >> valueType;
+		itemInfo.valueType = static_cast<ItemInfoValueType>(valueType);
+		itemGroupStream >> itemInfo.unit;
 	}
 }
 
@@ -2684,6 +2710,8 @@ void DBTablesMonitoring::addItemInfoWithoutTransaction(
 	arg.add(itemInfo.lastValue);
 	arg.add(itemInfo.prevValue);
 	arg.add(itemInfo.itemGroupName);
+	arg.add(itemInfo.valueType);
+	arg.add(itemInfo.unit);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
@@ -2844,9 +2872,16 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 		dbAgent.addColumns(addColumnsArg);
 	}
 	if (oldVer <= 6) {
-		// add new columns to incidents
+		// add new columns to hosts
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileHosts);
 		addColumnsArg.columnIndexes.push_back(IDX_HOSTS_VALIDITY);
+		dbAgent.addColumns(addColumnsArg);
+	}
+	if (oldVer <= 7) {
+		// add new columns to items
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileItems);
+		addColumnsArg.columnIndexes.push_back(IDX_ITEMS_VALUE_TYPE);
+		addColumnsArg.columnIndexes.push_back(IDX_ITEMS_UNIT);
 		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;
