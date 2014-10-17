@@ -1006,6 +1006,9 @@ HatoholError HapProcessCeilometer::getResource(
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_PREVVALUE, "N/A");
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_DELAY,     0);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID, NO_ITEM_CATEGORY_ID);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_UNITS, counter_unit);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_VALUE_TYPE,
+			ITEM_INFO_VALUE_TYPE_FLOAT);
 	tablePtr->add(grp);
 
 	return HTERR_OK;
