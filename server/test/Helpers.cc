@@ -141,6 +141,8 @@ void _assertEqual(const ItemInfo &expect, const ItemInfo &actual)
 	cppcut_assert_equal(expect.prevValue, actual.prevValue);
 	cppcut_assert_equal(expect.itemGroupName, actual.itemGroupName);
 	cppcut_assert_equal(expect.delay,     actual.delay);
+	cppcut_assert_equal(expect.valueType, actual.valueType);
+	cppcut_assert_equal(expect.unit,      actual.unit);
 }
 
 struct SpawnSyncContext {
@@ -1101,6 +1103,8 @@ VariableItemGroupPtr convert(const ItemInfo &itemInfo,
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_PREVVALUE, itemInfo.prevValue);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_DELAY,     itemInfo.delay);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID, itemCategoryId);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_VALUE_TYPE, itemInfo.valueType);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_UNITS, itemInfo.unit);
 	return grp;
 }
 

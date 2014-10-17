@@ -157,7 +157,7 @@ static string makeItemOutput(const ItemInfo &itemInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
-	    "%" PRIu32 "|%" PRIu64 "|%" PRIu64 "|%s|%ld|%lu|%s|%s|%s\n",
+	    "%" PRIu32 "|%" PRIu64 "|%" PRIu64 "|%s|%ld|%lu|%s|%s|%s|%d|%s\n",
 	    itemInfo.serverId, itemInfo.id,
 	    itemInfo.hostId,
 	    itemInfo.brief.c_str(),
@@ -165,7 +165,9 @@ static string makeItemOutput(const ItemInfo &itemInfo)
 	    itemInfo.lastValueTime.tv_nsec,
 	    itemInfo.lastValue.c_str(),
 	    itemInfo.prevValue.c_str(),
-	    itemInfo.itemGroupName.c_str());
+	    itemInfo.itemGroupName.c_str(),
+	    static_cast<int>(itemInfo.valueType),
+	    itemInfo.unit.c_str());
 	return expectedOut;
 }
 

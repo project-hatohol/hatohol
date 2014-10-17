@@ -402,7 +402,7 @@ ItemInfo testItemInfo[] = {
 	"Fukuoka",                // lastValue
 	"Sapporo",                // prevValue
 	"City",                   // itemGroupName,
-	60,                       // delay
+	0,                        // delay
 	ITEM_INFO_VALUE_TYPE_STRING, // valueType
 	"",                       // unit
 }, {
@@ -414,7 +414,7 @@ ItemInfo testItemInfo[] = {
 	"1",                      // lastValue
 	"5",                      // prevValue
 	"number",                 // itemGroupName,
-	60,                       // delay
+	0,                        // delay
 	ITEM_INFO_VALUE_TYPE_INTEGER, // valueType
 	"",                       // unit
 }, {
@@ -426,7 +426,7 @@ ItemInfo testItemInfo[] = {
 	"Osaka",                  // lastValue
 	"Ichikawa",               // prevValue
 	"City",                   // itemGroupName,
-	60,                       // delay
+	0,                        // delay
 	ITEM_INFO_VALUE_TYPE_STRING, // valueType
 	"",                       // unit
 }, {
@@ -438,7 +438,7 @@ ItemInfo testItemInfo[] = {
 	"Osaka",                  // lastValue
 	"Ichikawa",               // prevValue
 	"City",                   // itemGroupName,
-	60,                       // delay
+	0,                        // delay
 	ITEM_INFO_VALUE_TYPE_STRING, // valueType
 	"",                       // unit
 },
