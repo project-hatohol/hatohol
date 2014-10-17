@@ -39,6 +39,7 @@ Makefile.in
 /ltmain.sh
 /m4/
 /missing
+/client/static/js/hatohol_version.js
 /server/hap/hatohol-arm-plugin-zabbix
 /server/mlpl/mlpl.pc
 /server/mlpl/test/loggerTestee
