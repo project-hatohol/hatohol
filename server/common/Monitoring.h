@@ -129,6 +129,14 @@ typedef EventInfoList::const_iterator EventInfoListConstIterator;
 
 static const EventIdType DISCONNECT_SERVER_EVENT_ID = 0;
 
+enum ItemInfoValueType {
+	ITEM_INFO_VALUE_TYPE_UNKNOWN,
+	ITEM_INFO_VALUE_TYPE_FLOAT,
+	ITEM_INFO_VALUE_TYPE_INTEGER,
+	ITEM_INFO_VALUE_STRING,
+	NUM_ITEM_INFO_VALUE_TYPES,
+};
+
 struct ItemInfo {
 	ServerIdType        serverId;
 	ItemIdType          id;
@@ -139,6 +147,8 @@ struct ItemInfo {
 	std::string         prevValue;
 	std::string         itemGroupName;
 	int                 delay;
+	ItemInfoValueType   valueType;
+	std::string         unit;
 };
 
 typedef std::list<ItemInfo>          ItemInfoList;
