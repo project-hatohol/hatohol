@@ -83,7 +83,7 @@ var HatoholNavi = function(userProfile, currentPage) {
         {
           title: gettext("Hatohol version: ") + HATOHOL_VERSION,
           href: "#"
-        }
+        },
       ]
     },
   ];
