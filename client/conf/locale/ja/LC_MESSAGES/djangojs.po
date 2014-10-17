@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-16 12:16-0500\n"
+"POT-Creation-Date: 2014-10-17 07:03-0500\n"
 "PO-Revision-Date: 2014-09-09 09:09+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -819,32 +819,32 @@ msgid "Last update time:"
 msgstr "最終更新時刻:"
 
 #: static/js/hatohol_navi.js:25 test/browser/test_hatohol_navi.js:41
-#: test/browser/test_hatohol_navi.js:70
+#: test/browser/test_hatohol_navi.js:77
 msgid "Dashboard"
 msgstr "ダッシュボード"
 
 #: static/js/hatohol_navi.js:29 test/browser/test_hatohol_navi.js:43
-#: test/browser/test_hatohol_navi.js:72
+#: test/browser/test_hatohol_navi.js:79
 msgid "Overview : Triggers"
 msgstr "概要:トリガー"
 
 #: static/js/hatohol_navi.js:33 test/browser/test_hatohol_navi.js:45
-#: test/browser/test_hatohol_navi.js:74
+#: test/browser/test_hatohol_navi.js:81
 msgid "Overview : Items"
 msgstr "概要:アイテム"
 
 #: static/js/hatohol_navi.js:37 test/browser/test_hatohol_navi.js:47
-#: test/browser/test_hatohol_navi.js:76
+#: test/browser/test_hatohol_navi.js:83
 msgid "Latest data"
 msgstr "最新データ"
 
 #: static/js/hatohol_navi.js:41 test/browser/test_hatohol_navi.js:49
-#: test/browser/test_hatohol_navi.js:78
+#: test/browser/test_hatohol_navi.js:85
 msgid "Triggers"
 msgstr "トリガー"
 
 #: static/js/hatohol_navi.js:44 test/browser/test_hatohol_navi.js:51
-#: test/browser/test_hatohol_navi.js:80
+#: test/browser/test_hatohol_navi.js:87
 msgid "Events"
 msgstr "イベント"
 
@@ -858,7 +858,7 @@ msgstr "設定"
 #: static/js/hatohol_user_roles_editor.js:420
 #: static/js/hatohol_user_roles_editor.js:425
 #: static/js/hatohol_user_roles_editor.js:430
-#: test/browser/test_hatohol_navi.js:57 test/browser/test_hatohol_navi.js:86
+#: test/browser/test_hatohol_navi.js:57 test/browser/test_hatohol_navi.js:93
 msgid "Monitoring Servers"
 msgstr "監視サーバー"
 
@@ -868,7 +868,7 @@ msgstr "監視サーバー"
 #: static/js/hatohol_user_roles_editor.js:450
 #: static/js/hatohol_user_roles_editor.js:455
 #: static/js/hatohol_user_roles_editor.js:460
-#: test/browser/test_hatohol_navi.js:59 test/browser/test_hatohol_navi.js:88
+#: test/browser/test_hatohol_navi.js:59 test/browser/test_hatohol_navi.js:95
 msgid "Actions"
 msgstr "アクション"
 
@@ -888,10 +888,15 @@ msgid "Users"
 msgstr "ユーザー"
 
 #: static/js/hatohol_navi.js:77
-msgid "Version"
-msgstr "バージョン"
+msgid "Help"
+msgstr "ヘルプ"
 
 #: static/js/hatohol_navi.js:80
+msgid "Online Documents"
+msgstr "オンラインドキュメント"
+
+#: static/js/hatohol_navi.js:84 test/browser/test_hatohol_navi.js:66
+#: test/browser/test_hatohol_navi.js:102
 msgid "Hatohol version: "
 msgstr "Hatoholバージョン: "
 
