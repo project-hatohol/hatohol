@@ -77,6 +77,10 @@ var HatoholNavi = function(userProfile, currentPage) {
       title: gettext("Help"),
       children: [
         {
+          title: gettext("Online Documents"),
+          href: "http://www.hatohol.org\/docs"
+        },
+        {
           title: gettext("Hatohol version: ") + HATOHOL_VERSION,
           href: "#"
         }
