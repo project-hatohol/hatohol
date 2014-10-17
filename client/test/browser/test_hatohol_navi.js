@@ -60,8 +60,10 @@ describe('HatoholNavi', function() {
     expected += '</ul></li>';
     expected += '<li class="dropdown">';
     expected += '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
-      'Version<span class="caret"></span></a>';
+      'Help<span class="caret"></span></a>';
     expected += '<ul class="dropdown-menu">';
+    expected += '<li><a href="http://www.hatohol.org/docs">' +
+      gettext('Online Documents') + '</a></li>';
     expected += '<li><a href="#">' +
       gettext('Hatohol version: ') + HATOHOL_VERSION + '</a></li>';
     expected += '</ul></li>';
@@ -96,8 +98,10 @@ describe('HatoholNavi', function() {
     expected += '</ul></li>';
     expected += '<li class="dropdown">';
     expected += '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
-      'Version<span class="caret"></span></a>';
+      'Help<span class="caret"></span></a>';
     expected += '<ul class="dropdown-menu">';
+    expected += '<li><a href="http://www.hatohol.org/docs">' +
+      gettext('Online Documents') + '</a></li>';
     expected += '<li><a href="#">' +
       gettext('Hatohol version: ') + HATOHOL_VERSION + '</a></li>';
     expected += '</ul></li>';
