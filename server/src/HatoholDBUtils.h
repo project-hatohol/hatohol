@@ -49,6 +49,12 @@ public:
 	  ItemInfoList &itemInfoList, MonitoringServerStatus &serverStatus,
 	  const ItemTablePtr items, const ItemTablePtr applications);
 
+	static ItemInfoValueType transformItemValueTypeToHatoholFormat(
+	  const int &valueType);
+
+	static int transformItemValueTypeToZabbixFormat(
+	  const ItemInfoValueType &valueType);
+
 protected:
 	static int getItemVariable(const std::string &word);
 

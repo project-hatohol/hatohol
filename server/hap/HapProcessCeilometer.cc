@@ -994,6 +994,7 @@ HatoholError HapProcessCeilometer::getResource(
 	const int timestampSec =
 	  (int)parseStateTimestamp(timestamp).getAsTimespec().tv_sec;
 	const string name = counter_name + " (" + counter_unit + ")";
+	const int zbxValueTypeFloat = 0; // TODO: remove zabbix dependency!
 
 	VariableItemGroupPtr grp;
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_NAME,      name);
@@ -1007,8 +1008,7 @@ HatoholError HapProcessCeilometer::getResource(
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_DELAY,     0);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID, NO_ITEM_CATEGORY_ID);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_UNITS, counter_unit);
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_VALUE_TYPE,
-			ITEM_INFO_VALUE_TYPE_FLOAT);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_VALUE_TYPE, zbxValueTypeFloat);
 	tablePtr->add(grp);
 
 	return HTERR_OK;

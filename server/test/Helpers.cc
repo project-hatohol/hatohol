@@ -32,6 +32,7 @@
 #include "SQLUtils.h"
 #include "Reaper.h"
 #include "ConfigManager.h"
+#include "HatoholDBUtils.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1103,7 +1104,10 @@ VariableItemGroupPtr convert(const ItemInfo &itemInfo,
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_PREVVALUE, itemInfo.prevValue);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_DELAY,     itemInfo.delay);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID, itemCategoryId);
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_VALUE_TYPE, itemInfo.valueType);
+	int valueType
+	  = HatoholDBUtils::transformItemValueTypeToZabbixFormat(
+	      itemInfo.valueType); // TODO: remove Zabbix dependency!
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_VALUE_TYPE, valueType);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_UNITS, itemInfo.unit);
 	return grp;
 }

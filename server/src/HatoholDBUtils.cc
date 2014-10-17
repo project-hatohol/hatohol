@@ -371,7 +371,8 @@ void HatoholDBUtils::transformHostsItemGroupToHatoholFormat(
 	itemGroupStream >> hostInfo.hostName;
 }
 
-static ItemInfoValueType transformItemValueType(const int &valueType)
+ItemInfoValueType HatoholDBUtils::transformItemValueTypeToHatoholFormat(
+  const int &valueType)
 {
 	switch (valueType) {
 	case 0: // numeric float
@@ -384,6 +385,20 @@ static ItemInfoValueType transformItemValueType(const int &valueType)
 		return ITEM_INFO_VALUE_TYPE_STRING;
 	default:
 		return ITEM_INFO_VALUE_TYPE_UNKNOWN;
+	}
+}
+
+int HatoholDBUtils::transformItemValueTypeToZabbixFormat(
+  const ItemInfoValueType &valueType)
+{
+	switch (valueType) {
+	case ITEM_INFO_VALUE_TYPE_FLOAT:
+		return 0; // numeric float
+	case ITEM_INFO_VALUE_TYPE_INTEGER:
+		return 3; // numeric unsigned
+	case ITEM_INFO_VALUE_TYPE_STRING:
+	default:
+		return 4; //test
 	}
 }
 
@@ -425,7 +440,7 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 	int valueType;
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_VALUE_TYPE);
 	itemGroupStream >> valueType;
-	itemInfo.valueType = transformItemValueType(valueType);
+	itemInfo.valueType = transformItemValueTypeToHatoholFormat(valueType);
 
 	ItemCategoryIdType itemCategoryId;
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_APPLICATIONID);
