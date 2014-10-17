@@ -59,6 +59,19 @@ describe('ActionsView', function() {
     $('body').append(iframe);
   }
 
+  function expectDeleteButtonVisibility(operator, expectedVisibility) {
+    var userProfile = new HatoholUserProfile(operator);
+    var view = new ActionsView(userProfile);
+    respond();
+
+    var deleteButton = $('#delete-action-button');
+    var checkboxes = $('.delete-selector .selectcheckbox');
+    expect(deleteButton).to.have.length(1);
+    expect(checkboxes).to.have.length(1);
+    expect(deleteButton.is(":visible")).to.be(expectedVisibility);
+    expect(checkboxes.is(":visible")).to.be(expectedVisibility);
+  }
+
   beforeEach(function(done) {
     $('body').append($('<div>', { id: TEST_FIXTURE_ID }));
     var setupFixture = function(html) {
@@ -103,16 +116,19 @@ describe('ActionsView', function() {
       "flags": (1 << hatohol.OPPRVLG_GET_ALL_ACTION |
                 1 << hatohol.OPPRVLG_DELETE_ACTION)
     };
-    var userProfile = new HatoholUserProfile(operator);
-    var view = new ActionsView(userProfile);
-    respond();
+    var expected = true;
+    expectDeleteButtonVisibility(operator, expected);
+  });
 
-    var deleteButton = $('#delete-action-button');
-    var checkboxes = $('.delete-selector .selectcheckbox');
-    expect(deleteButton).to.have.length(1);
-    expect(checkboxes).to.have.length(1);
-    expect(deleteButton.is(":visible")).to.be(true);
-    expect(checkboxes.is(":visible")).to.be(true);
+  it('with delete_all privilege', function() {
+    var operator = {
+      "userId": 2,
+      "name": "guest",
+      "flags": (1 << hatohol.OPPRVLG_GET_ALL_ACTION |
+                1 << hatohol.OPPRVLG_DELETE_ALL_ACTION)
+    };
+    var expected = true;
+    expectDeleteButtonVisibility(operator, expected);
   });
 
   it('with no delete privilege', function() {
@@ -121,15 +137,7 @@ describe('ActionsView', function() {
       "name": "guest",
       "flags": 0
     };
-    var userProfile = new HatoholUserProfile(operator);
-    var view = new ActionsView(userProfile);
-    respond();
-
-    var deleteButton = $('#delete-action-button');
-    var checkboxes = $('.delete-selector .selectcheckbox');
-    expect(deleteButton).to.have.length(1);
-    expect(checkboxes).to.have.length(1);
-    expect(deleteButton.is(":visible")).to.be(false);
-    expect(checkboxes.is(":visible")).to.be(false);
+    var expected = false;
+    expectDeleteButtonVisibility(operator, expected);
   });
 });
