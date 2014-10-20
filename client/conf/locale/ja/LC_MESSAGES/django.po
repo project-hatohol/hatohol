@@ -346,10 +346,6 @@ msgstr "監視サーバー"
 msgid "ADD MONITORING SERVER"
 msgstr "監視サーバー追加"
 
-#: viewer/servers_ajax.html:40
-msgid "ADD MONITORING SERVER (New version)"
-msgstr "監視サーバー追加(新バージョン)"
-
 #: viewer/servers_ajax.html:45
 msgid "DELETE MONITORING SERVER"
 msgstr "監視サーバー削除"
