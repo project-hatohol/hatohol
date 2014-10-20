@@ -148,10 +148,10 @@ HatoholError HapProcessZabbixAPI::fetchItem(const MessagingContext &msgCtx)
 	ItemTablePtr applications = getApplications(items);
 
 	SmartBuffer resBuf;
-	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS);
+	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS, &msgCtx);
 	appendItemTable(resBuf, items);
 	appendItemTable(resBuf, applications);
-	reply(resBuf);
+	reply(msgCtx, resBuf);
 
 	return HTERR_OK;
 }
