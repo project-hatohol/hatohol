@@ -71,10 +71,9 @@ static void setupSignalHandlerForExit(int signo)
 	             "Failed to set SIGNAL: %d, errno: %d\n", signo, errno);
 }
 
-gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
+static void exitFuncOnWaitThread(ExecContext *impl)
 {
-	MLPL_INFO("recieved stop request.\n");
-	ExecContext *impl = static_cast<ExecContext *>(data);
+	MLPL_INFO("start exit process on the dedicated thread.\n");
 
 	impl->unifiedDataStore->stop();
 	DBTablesAction::stop();
@@ -85,6 +84,24 @@ gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
 	// Because this function is beeing called, impl->loop must have valid
 	// value even if a signal is received before impl->loop is created.
 	g_main_loop_quit(impl->loop);
+}
+
+gboolean exitFunc(GIOChannel *source, GIOCondition condition, gpointer data)
+{
+	struct ExitFuncThread : public HatoholThreadBase {
+		ExecContext *impl;
+		virtual gpointer mainThread(HatoholThreadArg *arg) override
+		{
+			exitFuncOnWaitThread(impl);
+			return NULL;
+		}
+	};
+	ExitFuncThread *exitFuncThread = new ExitFuncThread();
+
+	MLPL_INFO("recieved stop request.\n");
+	exitFuncThread->impl = static_cast<ExecContext *>(data);
+	const bool autoDeleteObject = true;
+	exitFuncThread->start(autoDeleteObject);
 
 	return FALSE;
 }
