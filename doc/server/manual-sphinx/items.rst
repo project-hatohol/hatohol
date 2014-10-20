@@ -106,6 +106,25 @@ Item object
    * - itemGroupName
      - String
      - The item group name.
+   * - unit
+     - String
+     - The unit of the item.
+   * - valueType
+     - Number
+     - A `value type`_ of the item.
+
+Value type
+----------
+.. list-table::
+
+   * - 0
+     - ITEM_INFO_VALUE_TYPE_UNKNOWN
+   * - 1
+     - ITEM_INFO_VALUE_TYPE_FLOAT
+   * - 2
+     - ITEM_INFO_VALUE_TYPE_INTEGER
+   * - 3
+     - ITEM_INFO_VALUE_TYPE_STRING
 
 Server object
 -------------
