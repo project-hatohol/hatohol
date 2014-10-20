@@ -416,7 +416,7 @@ ItemInfo testItemInfo[] = {
 	"number",                 // itemGroupName,
 	0,                        // delay
 	ITEM_INFO_VALUE_TYPE_INTEGER, // valueType
-	"",                       // unit
+	"age",                    // unit
 }, {
 	3,                        // serverId
 	2,                        // id
