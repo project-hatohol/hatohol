@@ -136,6 +136,12 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, TRIGGER_SEVERITY_EMERGENCY);
 	APPEND(s, "\n");
 
+	ADD_LINE(s, langType, ITEM_INFO_VALUE_TYPE_UNKNOWN);
+	ADD_LINE(s, langType, ITEM_INFO_VALUE_TYPE_FLOAT);
+	ADD_LINE(s, langType, ITEM_INFO_VALUE_TYPE_INTEGER);
+	ADD_LINE(s, langType, ITEM_INFO_VALUE_TYPE_STRING);
+	APPEND(s, "\n");
+
 	ADD_LINE(s, langType, ACTION_USER_DEFINED);
 	ADD_LINE(s, langType, ACTION_ALL);
 	ADD_LINE(s, langType, ACTION_COMMAND);

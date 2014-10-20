@@ -675,6 +675,8 @@ void RestResourceHost::replyGetItem(void)
 		agent.add("lastValue", itemInfo.lastValue);
 		agent.add("prevValue", itemInfo.prevValue);
 		agent.add("itemGroupName", itemInfo.itemGroupName);
+		agent.add("unit", itemInfo.unit);
+		agent.add("valueType", static_cast<int>(itemInfo.valueType));
 		agent.endObject();
 	}
 	agent.endArray();

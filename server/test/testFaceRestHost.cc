@@ -341,12 +341,16 @@ static void _assertItems(const string &path, const string &callbackName = "")
 		const ItemInfo &itemInfo = *itemInfoPtr;
 
 		assertValueInParser(parser, "serverId", itemInfo.serverId);
-		assertValueInParser(parser, "hostId", StringUtils::toString(itemInfo.hostId));
+		assertValueInParser(parser, "hostId",
+				    StringUtils::toString(itemInfo.hostId));
 		assertValueInParser(parser, "brief", itemInfo.brief);
 		assertValueInParser(parser, "lastValueTime",
 		                    itemInfo.lastValueTime);
 		assertValueInParser(parser, "lastValue", itemInfo.lastValue);
 		assertValueInParser(parser, "prevValue", itemInfo.prevValue);
+		assertValueInParser(parser, "unit", itemInfo.unit);
+		assertValueInParser(parser, "valueType",
+				    static_cast<int>(itemInfo.valueType));
 		parser->endElement();
 
 		// Check duplication

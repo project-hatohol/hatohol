@@ -402,6 +402,9 @@ ItemInfo testItemInfo[] = {
 	"Fukuoka",                // lastValue
 	"Sapporo",                // prevValue
 	"City",                   // itemGroupName,
+	0,                        // delay
+	ITEM_INFO_VALUE_TYPE_STRING, // valueType
+	"",                       // unit
 }, {
 	3,                        // serverId
 	1,                        // id
@@ -411,6 +414,9 @@ ItemInfo testItemInfo[] = {
 	"1",                      // lastValue
 	"5",                      // prevValue
 	"number",                 // itemGroupName,
+	0,                        // delay
+	ITEM_INFO_VALUE_TYPE_INTEGER, // valueType
+	"age",                    // unit
 }, {
 	3,                        // serverId
 	2,                        // id
@@ -420,6 +426,9 @@ ItemInfo testItemInfo[] = {
 	"Osaka",                  // lastValue
 	"Ichikawa",               // prevValue
 	"City",                   // itemGroupName,
+	0,                        // delay
+	ITEM_INFO_VALUE_TYPE_STRING, // valueType
+	"",                       // unit
 }, {
 	4,                        // serverId
 	1,                        // id
@@ -429,6 +438,9 @@ ItemInfo testItemInfo[] = {
 	"Osaka",                  // lastValue
 	"Ichikawa",               // prevValue
 	"City",                   // itemGroupName,
+	0,                        // delay
+	ITEM_INFO_VALUE_TYPE_STRING, // valueType
+	"",                       // unit
 },
 };
 size_t NumTestItemInfo = ARRAY_SIZE(testItemInfo);
