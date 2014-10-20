@@ -77,6 +77,19 @@ describe('ServerView', function() {
     $("#" + TEST_FIXTURE_ID).remove();
   });
 
+  function expectDeleteButtonVisibility(operator, expectedVisibility) {
+    var userProfile = new HatoholUserProfile(operator);
+    var view = new ServersView(userProfile);
+    respond();
+
+    var deleteButton = $('#delete-server-button');
+    var checkboxes = $('.delete-selector .selectcheckbox');
+    expect(deleteButton).to.have.length(1);
+    expect(checkboxes).to.have.length(1);
+    expect(deleteButton.is(":visible")).to.be(expectedVisibility);
+    expect(checkboxes.is(":visible")).to.be(expectedVisibility);
+  }
+
   function checkGetStatusLabel(stat, expectMsg, expectMsgClass) {
     var pkt = {serverConnStat:{'5':{status:stat}}};
     var parser = new ServerConnStatParser(pkt);
@@ -201,16 +214,19 @@ describe('ServerView', function() {
       "flags": (1 << hatohol.OPPRVLG_GET_ALL_SERVER |
                 1 << hatohol.OPPRVLG_DELETE_SERVER)
     };
-    var userProfile = new HatoholUserProfile(operator);
-    var view = new ServersView(userProfile);
-    respond();
+    var expected = true;
+    expectDeleteButtonVisibility(operator, expected);
+  });
 
-    var deleteButton = $('#delete-server-button');
-    var checkboxes = $('.delete-selector .selectcheckbox');
-    expect(deleteButton).to.have.length(1);
-    expect(checkboxes).to.have.length(1);
-    expect(deleteButton.is(":visible")).to.be(true);
-    expect(checkboxes.is(":visible")).to.be(true);
+  it('with delete_all privilege', function() {
+    var operator = {
+      "userId": 2,
+      "name": "guest",
+      "flags": (1 << hatohol.OPPRVLG_GET_ALL_SERVER |
+                1 << hatohol.OPPRVLG_DELETE_ALL_SERVER)
+    };
+    var expected = true;
+    expectDeleteButtonVisibility(operator, expected);
   });
 
   it('with no delete privilege', function() {
@@ -219,16 +235,8 @@ describe('ServerView', function() {
       "name": "guest",
       "flags": 0
     };
-    var userProfile = new HatoholUserProfile(operator);
-    var view = new ServersView(userProfile);
-    respond();
-
-    var deleteButton = $('#delete-server-button');
-    var checkboxes = $('.delete-selector .selectcheckbox');
-    expect(deleteButton).to.have.length(1);
-    expect(checkboxes).to.have.length(1);
-    expect(deleteButton.is(":visible")).to.be(false);
-    expect(checkboxes.is(":visible")).to.be(false);
+    var expected = false;
+    expectDeleteButtonVisibility(operator, expected);
   });
 
 });
