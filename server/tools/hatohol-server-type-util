@@ -87,9 +87,11 @@ class NagiosParamGenerator(ParamGenerator):
                     'label':'Password',
                     'inputStyle':'password'});
         obj.append({'id':'pollingInterval',
-                    'label':'Polling interval (sec)'});
+                    'label':'Polling interval (sec)',
+                    'default':'30'});
         obj.append({'label':'Retry interval (sec)',
-                    'id':'retryInterval'});
+                    'id':'retryInterval',
+                    'default':'10'});
         return obj
 
 
