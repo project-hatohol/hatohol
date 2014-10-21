@@ -235,8 +235,9 @@ struct HapiResTimeOfLastEvent {
 	uint32_t nsec;
 } __attribute__((__packed__));
 
-struct HapiAvailableTrigger {
+struct HapiHapSelfTriggers {
 	uint64_t numTriggers;
+	// Traling data is an array of HatoholArmPluginWatchType.
 } __attribute__((__packed__));
 
 

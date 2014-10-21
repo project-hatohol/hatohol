@@ -179,5 +179,5 @@ void HapProcessZabbixAPI::onGotNewEvents(ItemTablePtr eventsTablePtr)
 void HapProcessZabbixAPI::onInitiated(void)
 {
 	HapProcessStandard::onInitiated();
-	sendAvailableTrigger(numHapZabbixSelfError, hapiZabbixErrorList);
+	sendHapSelfTriggers(numHapZabbixSelfError, hapiZabbixErrorList);
 }
