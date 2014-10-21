@@ -83,9 +83,11 @@ protected:
 	bool parserEndpoints(JSONParser &parser, const unsigned int &index);
 
 	virtual HatoholError acquireData(
-	                       const MessagingContext &msgCtx) override;
+	                       const MessagingContext &msgCtx,
+			       const mlpl::SmartBuffer &cmdBuf) override;
 	virtual HatoholError fetchItem(
-	                       const MessagingContext &msgCtx) override;
+	                       const MessagingContext &msgCtx,
+			       const mlpl::SmartBuffer &cmdBuf) override;
 	HatoholError fetchItemsOfInstance(
 	  VariableItemTablePtr &tablePtr, const std::string &instanceId);
 	HatoholError parserResourceLink(

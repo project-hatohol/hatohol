@@ -129,7 +129,8 @@ void HapProcessZabbixAPI::parseReplyGetMonitoringServerInfoOnInitiated(
 	  "Failed to parse the reply for monitoring server information.\n");
 }
 
-HatoholError HapProcessZabbixAPI::acquireData(const MessagingContext &msgCtx)
+HatoholError HapProcessZabbixAPI::acquireData(const MessagingContext &msgCtx,
+					      const SmartBuffer &cmdBuf)
 {
 	// TODO:
 	setMonitoringServerInfo();
@@ -142,7 +143,8 @@ HatoholError HapProcessZabbixAPI::acquireData(const MessagingContext &msgCtx)
 	return HTERR_OK;
 }
 
-HatoholError HapProcessZabbixAPI::fetchItem(const MessagingContext &msgCtx)
+HatoholError HapProcessZabbixAPI::fetchItem(const MessagingContext &msgCtx,
+					    const SmartBuffer &cmdBuf)
 {
 	ItemTablePtr items = getItems();
 	ItemTablePtr applications = getApplications(items);
@@ -156,11 +158,15 @@ HatoholError HapProcessZabbixAPI::fetchItem(const MessagingContext &msgCtx)
 	return HTERR_OK;
 }
 
-HatoholError HapProcessZabbixAPI::fetchHistory(const MessagingContext &msgCtx)
+HatoholError HapProcessZabbixAPI::fetchHistory(const MessagingContext &msgCtx,
+					       const SmartBuffer &cmdBuf)
 {
-	time_t now = time(NULL);
-	// TODO: pass correct arguments
-	ItemTablePtr items = getHistory(1, 0, now);
+	HapiParamReqFetchHistory *params =
+	  getCommandBody<HapiParamReqFetchHistory>(cmdBuf);
+	ItemTablePtr items =
+	  getHistory(static_cast<ItemIdType>(params->itemId),
+		     static_cast<time_t>(params->beginTime),
+		     static_cast<time_t>(params->endTime));
 
 	SmartBuffer resBuf;
 	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY, &msgCtx);

@@ -242,6 +242,12 @@ struct HapiHapSelfTriggers {
 	// Traling data is an array of HatoholArmPluginWatchType.
 } __attribute__((__packed__));
 
+struct HapiParamReqFetchHistory {
+	uint64_t itemId;
+	uint64_t beginTime;
+	uint64_t endTime;
+} __attribute__((__packed__));
+
 
 class HatoholArmPluginInterface :
   public HatoholThreadBase, public EndianConverter {

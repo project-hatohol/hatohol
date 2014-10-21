@@ -20,6 +20,7 @@
 #ifndef HapProcessStandard_h
 #define HapProcessStandard_h
 
+#include <SmartBuffer.h>
 #include "NamedPipe.h"
 #include "HapProcess.h"
 #include "HatoholArmPluginStandard.h"
@@ -37,21 +38,26 @@ protected:
 	};
 
 	typedef HatoholError (HapProcessStandard::*AcquireFunc)
-	                      (const MessagingContext &messagingContext);
+	                      (const MessagingContext &messagingContext,
+			       const mlpl::SmartBuffer &cmdBuf);
 
 	static gboolean kickBasicAcquisition(void *data);
 	void startAcquisition(
 	  AcquireFunc acquireFunc,
 	  const MessagingContext &messagingContext,
+	  const mlpl::SmartBuffer &cmdBuf,
 	  const bool &setupTimer = true);
 	void setupNextTimer(
 	  const HatoholError &err, const bool &caughtException,
 	  const std::string &exceptionName, const std::string &exceptionMsg);
 	const MonitoringServerInfo &getMonitoringServerInfo(void) const;
 
-	virtual HatoholError acquireData(const MessagingContext &msgCtx);
-	virtual HatoholError fetchItem(const MessagingContext &msgCtx);
-	virtual HatoholError fetchHistory(const MessagingContext &msgCtx);
+	virtual HatoholError acquireData(const MessagingContext &msgCtx,
+					 const mlpl::SmartBuffer &cmdBuf);
+	virtual HatoholError fetchItem(const MessagingContext &msgCtx,
+				       const mlpl::SmartBuffer &cmdBuf);
+	virtual HatoholError fetchHistory(const MessagingContext &msgCtx,
+					  const mlpl::SmartBuffer &cmdBuf);
 	virtual void onCompletedAcquistion(
 	  const HatoholError &err, const HatoholArmPluginWatchType &watchType);
 	virtual HatoholArmPluginWatchType getHapWatchType(
