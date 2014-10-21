@@ -93,7 +93,8 @@ public:
 	}
 
 	virtual HatoholError acquireData(
-	  const MessagingContext &msgCtx) override
+	  const MessagingContext &msgCtx,
+	  const SmartBuffer &cmdBuf) override
 	{
 		m_acquireSem.post();
 		if (m_params->callSyncCommandInAcquireData) {
@@ -112,7 +113,8 @@ public:
 		return m_returnValueOfAcquireData;
 	}
 
-	virtual HatoholError fetchItem(const MessagingContext &msgCtx) override
+	virtual HatoholError fetchItem(const MessagingContext &msgCtx,
+				       const SmartBuffer &cmdBuf) override
 	{
 		SmartBuffer resBuf;
 		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS, &msgCtx);
