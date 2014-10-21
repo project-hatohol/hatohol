@@ -451,6 +451,7 @@ void HatoholArmPluginBase::cmdHandlerFetchItems(const HapiCommandHeader *header)
 void HatoholArmPluginBase::cmdHandlerFetchHistory(
   const HapiCommandHeader *header)
 {
+	onReceivedReqFetchHistory();
 }
 
 void HatoholArmPluginBase::cmdHandlerTerminate(const HapiCommandHeader *header)
