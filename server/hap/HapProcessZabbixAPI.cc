@@ -156,6 +156,20 @@ HatoholError HapProcessZabbixAPI::fetchItem(const MessagingContext &msgCtx)
 	return HTERR_OK;
 }
 
+HatoholError HapProcessZabbixAPI::fetchHistory(const MessagingContext &msgCtx)
+{
+	time_t now = time(NULL);
+	// TODO: pass correct arguments
+	ItemTablePtr items = getHistory(1, 0, now);
+
+	SmartBuffer resBuf;
+	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY, &msgCtx);
+	appendItemTable(resBuf, items);
+	reply(msgCtx, resBuf);
+
+	return HTERR_OK;
+}
+
 HatoholArmPluginWatchType HapProcessZabbixAPI::getHapWatchType(
   const HatoholError &err)
 {
