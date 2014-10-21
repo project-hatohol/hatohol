@@ -60,6 +60,7 @@ protected:
 
 	virtual void onReady(const MonitoringServerInfo &serverInfo) override;
 	virtual void onReceivedReqFetchItem(void) override;
+	virtual void onReceivedReqFetchHistory(void) override;
 	virtual int onCaughtException(const std::exception &e) override;
 
 	bool initHapPipe(const std::string &hapPipeName);

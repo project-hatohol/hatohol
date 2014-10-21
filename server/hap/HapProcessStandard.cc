@@ -295,6 +295,10 @@ void HapProcessStandard::onReceivedReqFetchItem(void)
 	  HapProcessStandard::runQueuedAsyncCommandTask, this, ASYNC);
 }
 
+void HapProcessStandard::onReceivedReqFetchHistory(void)
+{
+}
+
 int HapProcessStandard::onCaughtException(const exception &e)
 {
 	const MonitoringServerInfo &serverInfo = getMonitoringServerInfo();
