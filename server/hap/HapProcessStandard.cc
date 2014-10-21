@@ -232,6 +232,11 @@ HatoholError HapProcessStandard::fetchItem(const MessagingContext &msgCtx)
 	return HTERR_NOT_IMPLEMENTED;
 }
 
+HatoholError HapProcessStandard::fetchHistory(const MessagingContext &msgCtx)
+{
+	return HTERR_NOT_IMPLEMENTED;
+}
+
 HatoholArmPluginWatchType HapProcessStandard::getHapWatchType(
   const HatoholError &err)
 {
@@ -297,6 +302,28 @@ void HapProcessStandard::onReceivedReqFetchItem(void)
 
 void HapProcessStandard::onReceivedReqFetchHistory(void)
 {
+	struct HistoryFetchTask : public AsyncCommandTask {
+		MessagingContext msgCtx;
+		HapProcessStandard *hap;
+		virtual void run(void) override
+		{
+			hap->startAcquisition(
+			  &HapProcessStandard::fetchHistory,
+			  msgCtx, false);
+		}
+	};
+	HistoryFetchTask *task = new HistoryFetchTask();
+	task->hap = this;
+
+	if (!getMessagingContext(task->msgCtx)) {
+		delete task;
+		THROW_HATOHOL_EXCEPTION("Failed to call getMessaginContext().");
+	}
+
+	// We keep the order of command handling with a queue.
+	m_impl->asyncCommandTaskQueue.push(task);
+	Utils::executeOnGLibEventLoop<HapProcessStandard>(
+	  HapProcessStandard::runQueuedAsyncCommandTask, this, ASYNC);
 }
 
 int HapProcessStandard::onCaughtException(const exception &e)

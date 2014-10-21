@@ -51,6 +51,7 @@ protected:
 
 	virtual HatoholError acquireData(const MessagingContext &msgCtx);
 	virtual HatoholError fetchItem(const MessagingContext &msgCtx);
+	virtual HatoholError fetchHistory(const MessagingContext &msgCtx);
 	virtual void onCompletedAcquistion(
 	  const HatoholError &err, const HatoholArmPluginWatchType &watchType);
 	virtual HatoholArmPluginWatchType getHapWatchType(
