@@ -207,7 +207,7 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	registerCommandHandler(
 	  HAPI_CMD_SEND_HAP_SELF_TRIGGERS,
 	  (CommandHandler)
-	  &HatoholArmPluginGate::cmdHandlerAvailableTrigger);
+	  &HatoholArmPluginGate::cmdHandlerSendHapSelfTriggers);
 }
 
 void HatoholArmPluginGate::start(void)
@@ -964,13 +964,13 @@ void HatoholArmPluginGate::addInitialTrigger(HatoholArmPluginWatchType addtrigge
 	}
 }
 
-void HatoholArmPluginGate::cmdHandlerAvailableTrigger(
+void HatoholArmPluginGate::cmdHandlerSendHapSelfTriggers(
   const HapiCommandHeader *header)
 {
 	SmartBuffer *cmdBuf = getCurrBuffer();
 	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
 
-	HapiAvailableTrigger *body = getCommandBody<HapiAvailableTrigger>(*cmdBuf);
+	HapiHapSelfTriggers *body = getCommandBody<HapiHapSelfTriggers>(*cmdBuf);
 
 	int numTriggerList = LtoN(body->numTriggers);
 	uint64_t *buf = reinterpret_cast<uint64_t *>(body + 1);

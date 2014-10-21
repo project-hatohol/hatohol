@@ -127,7 +127,7 @@ protected:
 	void cmdHandlerSendHostgroups(const HapiCommandHeader *header);
 	void cmdHandlerSendUpdatedEvents(const HapiCommandHeader *header);
 	void cmdHandlerSendArmInfo(const HapiCommandHeader *header);
-	void cmdHandlerAvailableTrigger(const HapiCommandHeader *header);
+	void cmdHandlerSendHapSelfTriggers(const HapiCommandHeader *header);
 
 	void addInitialTrigger(HatoholArmPluginWatchType addtrigger);
 

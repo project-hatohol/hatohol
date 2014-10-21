@@ -84,8 +84,8 @@ protected:
 	               const ItemTablePtr &tablePtr);
 	void sendArmInfo(const ArmInfo &armInfo,
 			 const HatoholArmPluginWatchType &type = COLLECT_OK);
-	void sendAvailableTrigger(const int TriggerNum,
-				  const HatoholArmPluginWatchType *TriggerList);
+	void sendHapSelfTriggers(const int TriggerNum,
+				 const HatoholArmPluginWatchType *TriggerList);
 	void cmdHandlerFetchItems(const HapiCommandHeader *header);
 	void cmdHandlerTerminate(const HapiCommandHeader *header);
 
