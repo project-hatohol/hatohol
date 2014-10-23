@@ -60,10 +60,11 @@ static void init(void)
 	FaceRest::init();
 }
 
-static void reset(const CommandLineOptions *cmdLineOpts)
+static void reset(const CommandLineOptions *cmdLineOpts,
+                  const bool &dontCareChildProcessManager)
 {
-	ChildProcessManager::getInstance()->reset();
-	ActorCollector::reset();
+	if (!dontCareChildProcessManager)
+		hatoholInitChildProcessManager();
 	SessionManager::reset();
 
 	DBHatohol::reset();
@@ -83,13 +84,20 @@ static void reset(const CommandLineOptions *cmdLineOpts)
 	ConfigManager::reset(cmdLineOpts);
 }
 
-void hatoholInit(const CommandLineOptions *cmdLineOpts)
+void hatoholInit(const CommandLineOptions *cmdLineOpts,
+                 const bool &dontCareChildProcessManager)
 {
 	mutex.lock();
 	if (!initDone) {
 		init();
 		initDone = true;
 	}
-	reset(cmdLineOpts);
+	reset(cmdLineOpts, dontCareChildProcessManager);
 	mutex.unlock();
+}
+
+void hatoholInitChildProcessManager(void)
+{
+	ChildProcessManager::getInstance()->reset();
+	ActorCollector::reset();
 }
