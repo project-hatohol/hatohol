@@ -905,6 +905,11 @@ static void addHostsMap(
 	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(serverInfo.id);
 	option.setTargetHostgroupId(targetHostgroupId);
+	// TODO:
+	// This is a workaround to show host name that was deleted in the
+	// Event page. We should save host name in Event table.
+	option.setValidity(HOST_ANY_VALIDITY);
+
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getHostList(hostList, option);
 	HostInfoListIterator it = hostList.begin();
