@@ -121,7 +121,7 @@ void HapProcessStandard::startAcquisition(
   AcquireFunc acquireFunc, const MessagingContext &messagingContext,
   const bool &setupTimer)
 {
-	if (m_impl->timerTag != INVALID_EVENT_ID) {
+	if (setupTimer && m_impl->timerTag != INVALID_EVENT_ID) {
 		// This condition may happen when unexpected initiation
 		// happens and then onReady() is called. In the case,
 		// we cancel the previous timer.
