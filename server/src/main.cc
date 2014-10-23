@@ -44,6 +44,7 @@ using namespace mlpl;
 #include "DBTablesAction.h"
 #include "ConfigManager.h"
 #include "ThreadLocalDBCache.h"
+#include "ChildProcessManager.h"
 
 static string pidFilePath;
 static int pipefd[2];
@@ -189,7 +190,8 @@ int mainRoutine(int argc, char *argv[])
 	if (!ConfigManager::parseCommandLine(&argc, &argv, &ctx.cmdLineOpts))
 		return EXIT_FAILURE;
 
-	hatoholInit(&ctx.cmdLineOpts);
+	const bool dontCareChildProcessManager = true;
+	hatoholInit(&ctx.cmdLineOpts, dontCareChildProcessManager);
 	MLPL_INFO("started hatohol server: ver. %s\n", PACKAGE_VERSION);
 
 	if (!checkDBConnection())
@@ -201,6 +203,7 @@ int mainRoutine(int argc, char *argv[])
 			MLPL_ERR("Can't start daemon process\n");
 			return EXIT_FAILURE;
 		}
+		hatoholInitChildProcessManager();
 	} else {
 		pidFilePath.clear();
 	}
