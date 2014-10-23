@@ -75,6 +75,10 @@ public:
 	pid_t getPid(void);
 
 	virtual void startOnDemandFetchItem(ClosureBase *closure) override;
+	virtual void startOnDemandFetchHistory(const ItemIdType &itemId,
+					       const time_t &beginTime,
+					       const time_t &endTime,
+					       ClosureBase *closure) override;
 
 protected:
 	// To avoid an instance from being created on a stack.

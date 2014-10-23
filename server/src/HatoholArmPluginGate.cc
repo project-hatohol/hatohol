@@ -302,6 +302,57 @@ void HatoholArmPluginGate::startOnDemandFetchItem(ClosureBase *closure)
 	send(cmdBuf, callback);
 }
 
+void HatoholArmPluginGate::startOnDemandFetchHistory(const ItemIdType &itemId,
+						     const time_t &beginTime,
+						     const time_t &endTime,
+						     ClosureBase *closure)
+{
+	struct Callback : public CommandCallbacks {
+		Signal historyUpdatedSignal;
+		ServerIdType serverId;
+		HistoryInfoVect historyVect;
+		virtual void onGotReply(mlpl::SmartBuffer &replyBuf,
+					const HapiCommandHeader &cmdHeader)
+					  override
+		{
+			replyBuf.setIndex(sizeof(HapiResponseHeader));
+			ItemTablePtr itemTablePtr = createItemTable(replyBuf);
+			HatoholDBUtils::transformHistoryToHatoholFormat(
+			  historyVect, itemTablePtr);
+			// We don't store history data to Hatohol's DB.
+			// Pass it directly to Hatohol client.
+			cleanup();
+		}
+
+		virtual void onError(const HapiResponseCode &code,
+				     const HapiCommandHeader &cmdHeader)
+				       override
+		{
+			cleanup();
+		}
+
+		void cleanup(void)
+		{
+			// TODO: pass historyVect
+			historyUpdatedSignal();
+			historyUpdatedSignal.clear();
+			this->unref();
+		}
+	};
+	Callback *callback = new Callback();
+	callback->historyUpdatedSignal.connect(closure);
+	callback->serverId = m_impl->serverInfo.id;
+
+	SmartBuffer cmdBuf;
+	HapiParamReqFetchHistory *body =
+	  setupCommandHeader<HapiParamReqFetchHistory>(
+	    cmdBuf, HAPI_CMD_REQ_FETCH_HISTORY);
+	body->itemId    = NtoL(itemId);
+	body->beginTime = NtoL(beginTime);
+	body->endTime   = NtoL(endTime);
+	send(cmdBuf, callback);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
