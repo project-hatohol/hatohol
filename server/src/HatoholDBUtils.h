@@ -45,9 +45,13 @@ public:
 	static void transformHostsToHatoholFormat(
 	  HostInfoList &hostInfoList, const ItemTablePtr hosts,
 	  const ServerIdType &serverId);
+
 	static void transformItemsToHatoholFormat(
 	  ItemInfoList &itemInfoList, MonitoringServerStatus &serverStatus,
 	  const ItemTablePtr items, const ItemTablePtr applications);
+
+	static void transformHistoryToHatoholFormat(
+	  HistoryInfoVect &historyInfoVect, const ItemTablePtr items);
 
 	static ItemInfoValueType transformItemValueTypeToHatoholFormat(
 	  const int &valueType);
@@ -87,6 +91,9 @@ protected:
 	static bool transformItemItemGroupToItemInfo(
 	  ItemInfo &itemInfo, const ItemGroup *item,
 	  const ItemCategoryNameMap &itemCategoryNameMap);
+
+	static void transformHistoryItemGroupToHistoryInfo(
+	  HistoryInfo &historyInfo, const ItemGroup *item);
 };
 
 #endif // HatoholDBUtils_h

@@ -186,6 +186,19 @@ void HatoholDBUtils::transformItemsToHatoholFormat(
 	}
 }
 
+void HatoholDBUtils::transformHistoryToHatoholFormat(
+  HistoryInfoVect &historyInfoVect,  const ItemTablePtr items)
+{
+	// Make HistoryInfoVect
+	const ItemGroupList &itemGroupList = items->getItemGroupList();
+	ItemGroupListConstIterator it = itemGroupList.begin();
+	for (; it != itemGroupList.end(); ++it) {
+		HistoryInfo historyInfo;
+		transformHistoryItemGroupToHistoryInfo(historyInfo, *it);
+		historyInfoVect.push_back(historyInfo);
+	}
+}
+
 // ----------------------------------------------------------------------------
 // Protected methods
 // ----------------------------------------------------------------------------
@@ -460,4 +473,22 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 	}
 
 	return true;
+}
+
+void HatoholDBUtils::transformHistoryItemGroupToHistoryInfo(
+  HistoryInfo &historyInfo, const ItemGroup *item)
+{
+	ItemGroupStream itemGroupStream(item);
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_ITEMID);
+	itemGroupStream >> historyInfo.id;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_CLOCK);
+	itemGroupStream >> historyInfo.clock.tv_sec;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_NS);
+	itemGroupStream >> historyInfo.clock.tv_nsec;
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_VALUE);
+	itemGroupStream >> historyInfo.value;
 }
