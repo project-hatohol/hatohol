@@ -481,7 +481,7 @@ void HatoholDBUtils::transformHistoryItemGroupToHistoryInfo(
 	ItemGroupStream itemGroupStream(item);
 
 	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_ITEMID);
-	itemGroupStream >> historyInfo.id;
+	itemGroupStream >> historyInfo.itemId;
 
 	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_CLOCK);
 	itemGroupStream >> historyInfo.clock.tv_sec;
