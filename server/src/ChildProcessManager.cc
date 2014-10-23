@@ -331,6 +331,7 @@ ChildProcessManager::~ChildProcessManager()
 
 gpointer ChildProcessManager::mainThread(HatoholThreadArg *arg)
 {
+	MLPL_INFO("started ChildProcessManager::mainThread.\n");
 	while (true) {
 		m_impl->waitWaitChildSem();
 		if (m_impl->resetRequest) {

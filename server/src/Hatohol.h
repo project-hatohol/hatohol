@@ -23,7 +23,9 @@
 #include "Utils.h"
 #include "ConfigManager.h"
 
-void hatoholInit(const CommandLineOptions *cmdLineOpts = NULL);
+void hatoholInit(const CommandLineOptions *cmdLineOpts = NULL,
+                 const bool &dontCareChildProcessManager = false);
+void hatoholInitChildProcessManager(void);
 
 #endif // Hatohol_h
 
