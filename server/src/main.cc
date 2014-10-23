@@ -203,10 +203,10 @@ int mainRoutine(int argc, char *argv[])
 			MLPL_ERR("Can't start daemon process\n");
 			return EXIT_FAILURE;
 		}
-		hatoholInitChildProcessManager();
 	} else {
 		pidFilePath.clear();
 	}
+	hatoholInitChildProcessManager();
 
 	// setup signal handlers for exit
 	setupGizmoForExit(&ctx);
