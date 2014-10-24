@@ -29,6 +29,7 @@ const char *RestResourceHost::pathForHost      = "/host";
 const char *RestResourceHost::pathForTrigger   = "/trigger";
 const char *RestResourceHost::pathForEvent     = "/event";
 const char *RestResourceHost::pathForItem      = "/item";
+const char *RestResourceHost::pathForHistory   = "/history";
 const char *RestResourceHost::pathForHostgroup = "/hostgroup";
 
 void RestResourceHost::registerFactories(FaceRest *faceRest)
@@ -57,6 +58,10 @@ void RestResourceHost::registerFactories(FaceRest *faceRest)
 	  pathForItem,
 	  new RestResourceHostFactory(
 	    faceRest, &RestResourceHost::handlerGetItem));
+	faceRest->addResourceHandlerFactory(
+	  pathForHistory,
+	  new RestResourceHostFactory(
+	    faceRest, &RestResourceHost::handlerGetHistory));
 }
 
 RestResourceHost::RestResourceHost(FaceRest *faceRest, HandlerFunc handler)
@@ -713,6 +718,45 @@ void RestResourceHost::handlerGetItem(void)
 		replyGetItem();
 		delete closure;
 	}
+}
+
+struct GetHistoryClosure : ClosureTemplate1<RestResourceHost, HistoryInfoVect>
+{
+	GetHistoryClosure(RestResourceHost *receiver,
+			  callback func)
+	: ClosureTemplate1(receiver, func)
+	{
+		m_receiver->ref();
+	}
+
+	virtual ~GetHistoryClosure()
+	{
+		m_receiver->unref();
+	}
+};
+
+void RestResourceHost::handlerGetHistory(void)
+{
+	// TODO: parse query parameter
+	ServerIdType serverId = 0;
+	ItemId itemId = 0;
+	time_t endTime = time(NULL);
+	time_t beginTime = endTime - 60 * 60;
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
+	GetHistoryClosure *closure =
+	  new GetHistoryClosure(
+	    this, &RestResourceHost::historyFetchedCallback);
+	dataStore->fetchHistoryAsync(closure, serverId, itemId,
+				     beginTime, endTime);
+}
+
+void RestResourceHost::historyFetchedCallback(
+  Closure1<HistoryInfoVect> *closure, const HistoryInfoVect &historyInfoVect)
+{
+	replyError(HTERR_NOT_IMPLEMENTED);
+	unpauseResponse();
 }
 
 static void addHostsIsMemberOfGroup(
