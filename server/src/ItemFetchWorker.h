@@ -31,12 +31,12 @@ public:
 	virtual ~ItemFetchWorker();
 
 	bool start(const ServerIdType &targetServerId = ALL_SERVERS,
-	           ClosureBase *closure = NULL);
+	           Closure0 *closure = NULL);
 	bool updateIsNeeded(void);
 	void waitCompletion(void);
 
 protected:
-	void updatedCallback(ClosureBase *closure);
+	void updatedCallback(Closure0 *closure);
 	void wakeArm(DataStore *dataStore);
 
 private:

@@ -256,10 +256,10 @@ pid_t HatoholArmPluginGate::getPid()
 	return m_impl->pid;
 }
 
-void HatoholArmPluginGate::startOnDemandFetchItem(ClosureBase *closure)
+void HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)
 {
 	struct Callback : public CommandCallbacks {
-		Signal itemUpdatedSignal;
+		Signal0 itemUpdatedSignal;
 		ServerIdType serverId;
 		virtual void onGotReply(mlpl::SmartBuffer &replyBuf,
 		                        const HapiCommandHeader &cmdHeader)
@@ -302,15 +302,14 @@ void HatoholArmPluginGate::startOnDemandFetchItem(ClosureBase *closure)
 	send(cmdBuf, callback);
 }
 
-void HatoholArmPluginGate::startOnDemandFetchHistory(const ItemIdType &itemId,
-						     const time_t &beginTime,
-						     const time_t &endTime,
-						     ClosureBase *closure)
+void HatoholArmPluginGate::startOnDemandFetchHistory(
+  const ItemIdType &itemId, const time_t &beginTime, const time_t &endTime,
+  Closure1<HistoryInfoVect> *closure)
 {
 	struct Callback : public CommandCallbacks {
-		Signal historyUpdatedSignal;
+		Signal1<HistoryInfoVect> historyUpdatedSignal;
 		ServerIdType serverId;
-		HistoryInfoVect historyVect;
+		HistoryInfoVect historyInfoVect;
 		virtual void onGotReply(mlpl::SmartBuffer &replyBuf,
 					const HapiCommandHeader &cmdHeader)
 					  override
@@ -318,7 +317,7 @@ void HatoholArmPluginGate::startOnDemandFetchHistory(const ItemIdType &itemId,
 			replyBuf.setIndex(sizeof(HapiResponseHeader));
 			ItemTablePtr itemTablePtr = createItemTable(replyBuf);
 			HatoholDBUtils::transformHistoryToHatoholFormat(
-			  historyVect, itemTablePtr);
+			  historyInfoVect, itemTablePtr);
 			// We don't store history data to Hatohol's DB.
 			// Pass it directly to Hatohol client.
 			cleanup();
@@ -334,7 +333,7 @@ void HatoholArmPluginGate::startOnDemandFetchHistory(const ItemIdType &itemId,
 		void cleanup(void)
 		{
 			// TODO: pass historyVect
-			historyUpdatedSignal();
+			historyUpdatedSignal(historyInfoVect);
 			historyUpdatedSignal.clear();
 			this->unref();
 		}

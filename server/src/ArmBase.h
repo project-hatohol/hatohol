@@ -62,7 +62,7 @@ public:
 	const ArmStatus &getArmStatus(void) const;
 
 	virtual bool isFetchItemsSupported(void) const;
-	virtual void fetchItems(ClosureBase *closure = NULL);
+	virtual void fetchItems(Closure0 *closure = NULL);
 
 	void setPollingInterval(int sec);
 	int getPollingInterval(void) const;

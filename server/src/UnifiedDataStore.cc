@@ -422,7 +422,7 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 	cache.getMonitoring().getItemInfoList(itemList, option);
 }
 
-bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
+bool UnifiedDataStore::fetchItemsAsync(Closure0 *closure,
                                        const ServerIdType &targetServerId)
 {
 	if (!getCopyOnDemandEnabled())

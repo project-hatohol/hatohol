@@ -26,6 +26,7 @@
 #include "DataStore.h"
 #include "UsedCountablePtr.h"
 #include "NamedPipe.h"
+#include "Closure.h"
 
 class HatoholArmPluginGate : public DataStore, public HatoholArmPluginInterface {
 public:
@@ -74,11 +75,12 @@ public:
 	 */
 	pid_t getPid(void);
 
-	virtual void startOnDemandFetchItem(ClosureBase *closure) override;
-	virtual void startOnDemandFetchHistory(const ItemIdType &itemId,
-					       const time_t &beginTime,
-					       const time_t &endTime,
-					       ClosureBase *closure) override;
+	virtual void startOnDemandFetchItem(Closure0 *closure) override;
+	virtual void startOnDemandFetchHistory(
+	  const ItemIdType &itemId,
+	  const time_t &beginTime,
+	  const time_t &endTime,
+	  Closure1<HistoryInfoVect> *closure) override;
 
 protected:
 	// To avoid an instance from being created on a stack.

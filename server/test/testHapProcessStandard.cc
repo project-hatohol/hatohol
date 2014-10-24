@@ -388,8 +388,8 @@ struct FetchItemStarter : public HatoholThreadBase {
 		Reaper<GMainLoop> loopQuiter(loop, g_main_loop_quit);
 		if (!wait())
 			return NULL;
-		Closure<FetchItemStarter> *closure =
-		  new Closure<FetchItemStarter>(this,
+		ClosureTemplate0<FetchItemStarter> *closure =
+		  new ClosureTemplate0<FetchItemStarter>(this,
 		    &FetchItemStarter::closureCb);
 		pair->gate->startOnDemandFetchItem(closure);
 		pair->plugin->m_acquireSyncCommandSem.post();
@@ -412,7 +412,7 @@ struct FetchItemStarter : public HatoholThreadBase {
 		return true;
 	}
 
-	void closureCb(ClosureBase *closure)
+	void closureCb(Closure0 *closure)
 	{
 		fetched = true;
 		g_main_loop_quit(loop);

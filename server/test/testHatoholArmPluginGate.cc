@@ -348,7 +348,7 @@ struct TestReceiver {
 	{
 	}
 
-	void callback(ClosureBase *closure)
+	void callback(Closure0 *closure)
 	{
 		sem.post();
 	}
@@ -374,7 +374,8 @@ void test_fetchItem(void)
 
 	TestReceiver receiver;
 	pair.gate->startOnDemandFetchItem(
-	  new Closure<TestReceiver>(&receiver, &TestReceiver::callback));
+	  new ClosureTemplate0<TestReceiver>(
+	    &receiver, &TestReceiver::callback));
 	cppcut_assert_equal(
 	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
 

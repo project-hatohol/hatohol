@@ -38,7 +38,7 @@ struct ItemFetchWorker::Impl
 	size_t          remainingArmsCount;
 	SmartTime       nextAllowedUpdateTime;
 	sem_t           updatedSemaphore;
-	Signal          itemFetchedSignal;
+	Signal0          itemFetchedSignal;
 
 	Impl(void)
 	: remainingArmsCount(0)
@@ -67,7 +67,7 @@ ItemFetchWorker::~ItemFetchWorker()
 }
 
 bool ItemFetchWorker::start(
-  const ServerIdType &targetServerId, ClosureBase *closure)
+  const ServerIdType &targetServerId, Closure0 *closure)
 {
 	DataStoreVector allDataStores =
 	  UnifiedDataStore::getInstance()->getDataStoreVector();
@@ -129,7 +129,7 @@ void ItemFetchWorker::waitCompletion(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void ItemFetchWorker::updatedCallback(ClosureBase *closure)
+void ItemFetchWorker::updatedCallback(Closure0 *closure)
 {
 	m_impl->rwlock.writeLock();
 	Reaper<ReadWriteLock> lockReaper(&m_impl->rwlock, ReadWriteLock::unlock);
@@ -154,13 +154,13 @@ void ItemFetchWorker::updatedCallback(ClosureBase *closure)
 
 void ItemFetchWorker::wakeArm(DataStore *dataStore)
 {
-	struct ClosureWithDataStore : public Closure<ItemFetchWorker>
+	struct ClosureWithDataStore : public ClosureTemplate0<ItemFetchWorker>
 	{
 		DataStore *dataStore;
 
 		ClosureWithDataStore(ItemFetchWorker *impl, DataStore *ds)
-		: Closure<ItemFetchWorker>(impl,
-		                           &ItemFetchWorker::updatedCallback),
+		: ClosureTemplate0<ItemFetchWorker>(
+		    impl, &ItemFetchWorker::updatedCallback),
 		  dataStore(ds)
 		{
 		}

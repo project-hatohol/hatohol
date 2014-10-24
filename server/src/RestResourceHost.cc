@@ -629,11 +629,11 @@ void RestResourceHost::handlerGetEvent(void)
 	replyJSONData(agent);
 }
 
-struct GetItemClosure : Closure<RestResourceHost>
+struct GetItemClosure : ClosureTemplate0<RestResourceHost>
 {
 	GetItemClosure(RestResourceHost *receiver,
 		       callback func)
-	: Closure<RestResourceHost>::Closure(receiver, func)
+	: ClosureTemplate0(receiver, func)
 	{
 		m_receiver->ref();
 	}
@@ -687,7 +687,7 @@ void RestResourceHost::replyGetItem(void)
 	replyJSONData(agent);
 }
 
-void RestResourceHost::itemFetchedCallback(ClosureBase *closure)
+void RestResourceHost::itemFetchedCallback(Closure0 *closure)
 {
 	replyGetItem();
 	unpauseResponse();

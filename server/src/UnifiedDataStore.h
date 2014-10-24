@@ -91,7 +91,7 @@ public:
 	void getItemList(ItemInfoList &itemList,
 	                 const ItemsQueryOption &option,
 	                 bool fetchItemsSynchronously = false);
-	bool fetchItemsAsync(ClosureBase *closure,
+	bool fetchItemsAsync(Closure0 *closure,
 	                     const ServerIdType &targetServerId = ALL_SERVERS);
 
 	// Host and Hostgroup

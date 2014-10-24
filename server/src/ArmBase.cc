@@ -129,7 +129,7 @@ struct ArmBase::Impl
 			ArmResultTriggerTable[i].statusType = TRIGGER_STATUS_ALL;
 	}
 
-	Signal updatedSignal;
+	Signal0 updatedSignal;
 };
 
 // ---------------------------------------------------------------------------
@@ -166,7 +166,7 @@ bool ArmBase::isFetchItemsSupported(void) const
 	return true;
 }
 
-void ArmBase::fetchItems(ClosureBase *closure)
+void ArmBase::fetchItems(Closure0 *closure)
 {
 	setUpdateType(UPDATE_ITEM_REQUEST);
 	m_impl->updatedSignal.connect(closure);

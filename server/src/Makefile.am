@@ -16,7 +16,7 @@ libhatohol_la_SOURCES = \
 	ArmZabbixAPI.cc ArmZabbixAPI.h \
 	ArmCeilometer.cc ArmCeilometer.h \
 	ChildProcessManager.cc ChildProcessManager.h \
-	Closure.cc Closure.h \
+	Closure.h \
 	ThreadLocalDBCache.cc ThreadLocalDBCache.h \
 	ConfigManager.cc ConfigManager.h \
 	DataQueryContext.cc DataQueryContext.h \

@@ -32,7 +32,7 @@ public:
 
 	virtual ArmBase &getArmBase(void) = 0;
 	virtual void setCopyOnDemandEnable(bool enable);
-	virtual void startOnDemandFetchItem(ClosureBase *closure);
+	virtual void startOnDemandFetchItem(Closure0 *closure);
 protected:
 	virtual ~DataStore();
 };

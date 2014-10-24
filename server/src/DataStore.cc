@@ -30,7 +30,7 @@ void DataStore::setCopyOnDemandEnable(bool enable)
 {
 }
 
-void DataStore::startOnDemandFetchItem(ClosureBase *closure)
+void DataStore::startOnDemandFetchItem(Closure0 *closure)
 {
 	ArmBase &arm = getArmBase();
 	arm.fetchItems(closure);

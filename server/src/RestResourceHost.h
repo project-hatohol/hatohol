@@ -40,7 +40,7 @@ struct RestResourceHost : public FaceRest::ResourceHandler
 	void handlerGetHostgroup(void);
 	void handlerGetItem(void);
 	void replyGetItem(void);
-	void itemFetchedCallback(ClosureBase *closure);
+	void itemFetchedCallback(Closure0 *closure);
 
 	static HatoholError parseEventParameter(EventsQueryOption &option,
 						GHashTable *query);
