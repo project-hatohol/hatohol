@@ -634,6 +634,7 @@ void RestResourceHost::handlerGetEvent(void)
 	replyJSONData(agent);
 }
 
+// TODO: Add a macro or template to simplify the definition
 struct GetItemClosure : ClosureTemplate0<RestResourceHost>
 {
 	GetItemClosure(RestResourceHost *receiver,
@@ -720,6 +721,7 @@ void RestResourceHost::handlerGetItem(void)
 	}
 }
 
+// TODO: Add a macro or template to simplify the definition
 struct GetHistoryClosure : ClosureTemplate1<RestResourceHost, HistoryInfoVect>
 {
 	GetHistoryClosure(RestResourceHost *receiver,
@@ -755,6 +757,7 @@ void RestResourceHost::handlerGetHistory(void)
 void RestResourceHost::historyFetchedCallback(
   Closure1<HistoryInfoVect> *closure, const HistoryInfoVect &historyInfoVect)
 {
+	// TODO: impletent
 	replyError(HTERR_NOT_IMPLEMENTED);
 	unpauseResponse();
 }
