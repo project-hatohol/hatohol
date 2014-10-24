@@ -22,6 +22,7 @@
 
 #include <map>
 #include <vector>
+#include <Monitoring.h>
 #include <MonitoringServerInfo.h>
 #include <ArmStatus.h>
 #include "UsedCountable.h"
@@ -38,6 +39,11 @@ public:
 	virtual void setCopyOnDemandEnable(bool enable);
 	virtual bool isFetchItemsSupported(void);
 	virtual void startOnDemandFetchItem(Closure0 *closure);
+	virtual void startOnDemandFetchHistory(
+	  const ItemIdType &itemId,
+	  const time_t &beginTime,
+	  const time_t &endTime,
+	  Closure1<HistoryInfoVect> *closure);
 protected:
 	virtual ~DataStore();
 };
