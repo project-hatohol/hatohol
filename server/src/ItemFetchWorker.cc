@@ -38,7 +38,7 @@ struct ItemFetchWorker::Impl
 	size_t          remainingArmsCount;
 	SmartTime       nextAllowedUpdateTime;
 	sem_t           updatedSemaphore;
-	Signal0          itemFetchedSignal;
+	Signal0         itemFetchedSignal;
 
 	Impl(void)
 	: remainingArmsCount(0)
