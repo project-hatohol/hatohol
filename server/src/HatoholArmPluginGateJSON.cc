@@ -242,7 +242,7 @@ HatoholArmPluginGateJSON::HatoholArmPluginGateJSON(
 const MonitoringServerInfo
 &HatoholArmPluginGateJSON::getMonitoringServerInfo(void) const
 {
-	return m_impl->armFake.getServerInfo();
+	return m_impl->m_armFake.getServerInfo();
 }
 
 const ArmStatus &HatoholArmPluginGateJSON::getArmStatus(void) const
