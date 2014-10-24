@@ -332,7 +332,6 @@ void HatoholArmPluginGate::startOnDemandFetchHistory(
 
 		void cleanup(void)
 		{
-			// TODO: pass historyVect
 			historyUpdatedSignal(historyInfoVect);
 			historyUpdatedSignal.clear();
 			this->unref();
