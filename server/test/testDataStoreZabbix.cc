@@ -36,15 +36,16 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_getArmBase(void)
+void test_getMonitoringServerInfo(void)
 {
 	MonitoringServerInfo serverInfo;
 	MonitoringServerInfo::initialize(serverInfo);
 	serverInfo.id = 5;
 	UsedCountablePtr<DataStoreZabbix>
 	  dataStoreZabbixPtr(new DataStoreZabbix(serverInfo, false), false);
-	ArmBase &armBase = dataStoreZabbixPtr->getArmBase();
-	cppcut_assert_equal(typeid(ArmZabbixAPI), typeid(armBase));
+	const MonitoringServerInfo &actualServerInfo
+	  = dataStoreZabbixPtr->getMonitoringServerInfo();
+	cppcut_assert_equal(serverInfo.id, actualServerInfo.id);
 }
 
 } // namespace testDataStoreZabbix

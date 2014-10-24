@@ -22,10 +22,12 @@
 
 #include <qpid/messaging/Message.h>
 #include <qpid/messaging/Session.h>
-#include "HatoholArmPluginInterface.h"
+#include <Monitoring.h>
+#include <HatoholArmPluginInterface.h>
+#include <UsedCountablePtr.h>
+#include <NamedPipe.h>
+#include "DBTablesConfig.h"
 #include "DataStore.h"
-#include "UsedCountablePtr.h"
-#include "NamedPipe.h"
 #include "Closure.h"
 
 class HatoholArmPluginGate : public DataStore, public HatoholArmPluginInterface {

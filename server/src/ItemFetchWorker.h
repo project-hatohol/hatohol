@@ -37,7 +37,7 @@ public:
 
 protected:
 	void updatedCallback(Closure0 *closure);
-	void wakeArm(DataStore *dataStore);
+	void runFetcher(DataStore *dataStore);
 
 private:
 	struct Impl;

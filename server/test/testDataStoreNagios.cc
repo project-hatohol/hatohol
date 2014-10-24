@@ -36,14 +36,15 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_getArmBase(void)
+void test_getMonitoringServerInfo(void)
 {
 	MonitoringServerInfo serverInfo;
 	serverInfo.id = 5;
 	UsedCountablePtr<DataStoreNagios>
 	  dataStoreNagiosPtr(new DataStoreNagios(serverInfo, false), false);
-	ArmBase &armBase = dataStoreNagiosPtr->getArmBase();
-	cppcut_assert_equal(typeid(ArmNagiosNDOUtils), typeid(armBase));
+	const MonitoringServerInfo &actualServerInfo
+	  = dataStoreNagiosPtr->getMonitoringServerInfo();
+	cppcut_assert_equal(serverInfo.id, actualServerInfo.id);
 }
 
 } // namespace testDataStoreNagios

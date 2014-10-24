@@ -21,6 +21,8 @@
 #define Monitoring_h
 
 #include <SmartTime.h>
+#include <Params.h>
+#include <vector>
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_ALL = -1,
