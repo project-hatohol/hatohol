@@ -83,7 +83,7 @@ struct ClosureTemplate1 : public Closure1<T>
 	{
 	}
 
-	virtual void operator()(A arg)
+	virtual void operator()(const A &arg)
 	{
 		(m_receiver->*m_func)(this, arg);
 	}
