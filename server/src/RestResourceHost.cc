@@ -737,13 +737,65 @@ struct GetHistoryClosure : ClosureTemplate1<RestResourceHost, HistoryInfoVect>
 	}
 };
 
+static HatoholError parseHistoryParameter(
+  GHashTable *query, ServerIdType &serverId, ItemIdType &itemId,
+  time_t &beginTime, time_t &endTime)
+{
+	if (!query)
+		return HatoholError(HTERR_INVALID_PARAMETER);
+
+	HatoholError err;
+
+	// serverId
+	err = getParam<ServerIdType>(query, "serverId",
+				     "%" FMT_SERVER_ID,
+				     serverId);
+	if (err != HTERR_OK)
+		return err;
+	if (serverId == ALL_SERVERS) {
+		return HatoholError(HTERR_INVALID_PARAMETER,
+				    "serverId: ALL_SERVERS");
+	}
+
+	// itemId
+	err = getParam<ItemIdType>(query, "itemId",
+				   "%" FMT_ITEM_ID,
+				   itemId);
+	if (err != HTERR_OK)
+		return err;
+	if (itemId == ALL_ITEMS) {
+		return HatoholError(HTERR_INVALID_PARAMETER,
+				    "itemId: ALL_ITEMS");
+	}
+
+	// beginTime
+	err = getParam<time_t>(query, "beginTime",
+			       "%ld", beginTime);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	// endTime
+	err = getParam<time_t>(query, "endTime",
+			       "%ld", endTime);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	return HatoholError(HTERR_OK);
+}
+
 void RestResourceHost::handlerGetHistory(void)
 {
-	// TODO: parse query parameter
-	ServerIdType serverId = 0;
-	ItemId itemId = 0;
+	ServerIdType serverId = ALL_SERVERS;
+	ItemId itemId = ALL_ITEMS;
 	time_t endTime = time(NULL);
 	time_t beginTime = endTime - 60 * 60;
+
+	HatoholError err = parseHistoryParameter(m_query, serverId, itemId,
+						 beginTime, endTime);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
