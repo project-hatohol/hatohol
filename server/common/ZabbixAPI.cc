@@ -665,7 +665,7 @@ SoupMessage *ZabbixAPI::queryHistory(HatoholError &queryRet,
 
 	agent.startObject("params");
 	agent.add("output", "extend");
-	agent.add("history", 0);
+	agent.add("history", 0); // TODO: select corresponding history type
 	agent.add("itemids", itemId);
 	agent.add("time_from", beginTime);
 	agent.add("time_till", endTime);
