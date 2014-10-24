@@ -93,6 +93,11 @@ public:
 	                 bool fetchItemsSynchronously = false);
 	bool fetchItemsAsync(Closure0 *closure,
 	                     const ServerIdType &targetServerId = ALL_SERVERS);
+	void fetchHistoryAsync(Closure1<HistoryInfoVect> *closure,
+			       const ServerIdType &targetServerId,
+			       const ItemIdType &itemId,
+			       const time_t &beginTime,
+			       const time_t &endTime);
 
 	// Host and Hostgroup
 	void getHostList(HostInfoList &hostInfoList,
