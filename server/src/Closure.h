@@ -42,7 +42,7 @@ template<typename A>
 struct Closure1 : public ClosureBase
 {
 	virtual ~Closure1(void) {};
-	virtual void operator()(A arg) = 0;
+	virtual void operator()(const A &arg) = 0;
 };
 
 template<class T>
@@ -73,7 +73,7 @@ struct ClosureTemplate0 : public Closure0
 };
 
 template<class T, typename A>
-struct ClosureTemplate1 : public Closure1<T>
+struct ClosureTemplate1 : public Closure1<A>
 {
 	typedef void (T::*callback)(Closure1<A> *closure,
 				    const A &arg);
