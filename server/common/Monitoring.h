@@ -23,6 +23,8 @@
 #include <SmartTime.h>
 #include <Params.h>
 #include <vector>
+#include <list>
+#include <map>
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_ALL = -1,
