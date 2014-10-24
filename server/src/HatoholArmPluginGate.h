@@ -46,6 +46,9 @@ public:
 	 */
 	void start(void);
 
+	virtual const MonitoringServerInfo
+	  &getMonitoringServerInfo(void) const override;
+
 	/**
 	 * Reutrn an ArmStatus instance.
 	 *
@@ -54,10 +57,7 @@ public:
 	 *
 	 * @return an ArmStatusInstance.
 	 */
-	const ArmStatus &getArmStatus(void) const;
-
-	// This is dummy and this virtual method should be removed
-	virtual ArmBase &getArmBase(void) override;
+	virtual const ArmStatus &getArmStatus(void) const override;
 
 	// virtual methods
 
@@ -75,6 +75,7 @@ public:
 	 */
 	pid_t getPid(void);
 
+	virtual bool isFetchItemsSupported(void);
 	virtual void startOnDemandFetchItem(Closure0 *closure) override;
 	virtual void startOnDemandFetchHistory(
 	  const ItemIdType &itemId,

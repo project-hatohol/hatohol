@@ -29,7 +29,9 @@ public:
 	              const bool &autoStart = true);
 	virtual ~DataStoreFake();
 
-	virtual ArmBase &getArmBase(void) override;
+	virtual const MonitoringServerInfo
+	  &getMonitoringServerInfo(void) const override;
+	virtual const ArmStatus &getArmStatus(void) const override;
 	virtual void setCopyOnDemandEnable(bool enable) override;
 private:
 	struct Impl;

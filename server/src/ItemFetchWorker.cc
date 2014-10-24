@@ -83,11 +83,10 @@ bool ItemFetchWorker::start(
 		DataStore *dataStore = allDataStores[i];
 
 		bool shouldWake = true;
-		ArmBase &arm = dataStore->getArmBase();
 		if (targetServerId != ALL_SERVERS &&
-		    targetServerId != arm.getServerInfo().id)
+		    targetServerId != dataStore->getMonitoringServerInfo().id)
 			shouldWake = false;
-		else if (!arm.isFetchItemsSupported())
+		else if (!dataStore->isFetchItemsSupported())
 			shouldWake = false;
 
 		if (!shouldWake) {

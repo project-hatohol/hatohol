@@ -29,10 +29,6 @@
 #include "ThreadLocalDBCache.h"
 #include "ItemFetchWorker.h"
 #include "DataStoreFactory.h"
-#include "HatoholArmPluginGate.h" // TODO: remove after dynamic_cast is deleted
-#ifdef HAVE_LIBRABBITMQ
-#include "HatoholArmPluginGateJSON.h" // TODO: remove after dynamic_cast is deleted
-#endif
 #include "ArmIncidentTracker.h"
 
 using namespace std;
@@ -46,22 +42,7 @@ typedef ArmIncidentTrackerMap::iterator ArmIncidentTrackerMapIterator;
 
 static ArmInfo getArmInfo(DataStore *dataStore)
 {
-	// TODO: Too direct. Be elegant.
-	// HatoholArmPluginGate::getArmBase is stub to pass
-	// the build. So we can't use it.
-	// Our new design suggests that DataStore instance
-	// provides getArmStats() directly.
-	HatoholArmPluginGate *pluginGate =
-	  dynamic_cast<HatoholArmPluginGate *>(dataStore);
-	if (pluginGate)
-		return pluginGate->getArmStatus().getArmInfo();
-#ifdef HAVE_LIBRABBITMQ
-	HatoholArmPluginGateJSON *pluginGateJSON =
-	  dynamic_cast<HatoholArmPluginGateJSON *>(dataStore);
-	if (pluginGateJSON)
-		return pluginGateJSON->getArmStatus().getArmInfo();
-#endif
-	return dataStore->getArmBase().getArmStatus().getArmInfo();
+	return dataStore->getArmStatus().getArmInfo();
 }
 
 // ---------------------------------------------------------------------------
@@ -117,7 +98,7 @@ struct UnifiedDataStore::Impl
 	void addToDataStoreMap(DataStore *dataStore)
 	{
 		const ServerIdType serverId =
-		  dataStore->getArmBase().getServerInfo().id;
+		  dataStore->getMonitoringServerInfo().id;
 		pair<ServerIdDataStoreMapIterator, bool> result;
 		serverIdDataStoreMapLock.writeLock();
 		result = serverIdDataStoreMap.insert(
@@ -132,7 +113,7 @@ struct UnifiedDataStore::Impl
 	void removeFromDataStoreMap(DataStore *dataStore)
 	{
 		const ServerIdType serverId =
-		  dataStore->getArmBase().getServerInfo().id;
+		  dataStore->getMonitoringServerInfo().id;
 		serverIdDataStoreMapLock.writeLock();
 		ServerIdDataStoreMapIterator it =
 		  serverIdDataStoreMap.find(serverId);
@@ -186,8 +167,8 @@ struct UnifiedDataStore::Impl
 		if (!found)
 			return HTERR_INVALID_PARAMETER;
 
-		ArmBase &armBase = it->second->getArmBase();
-		const MonitoringServerInfo &svInfo = armBase.getServerInfo();
+		const MonitoringServerInfo &svInfo =
+		  it->second->getMonitoringServerInfo();
 		HATOHOL_ASSERT(
 		  svInfo.id == serverId,
 		  "svInfo.id: %" FMT_SERVER_ID ", serverId: %" FMT_SERVER_ID, 

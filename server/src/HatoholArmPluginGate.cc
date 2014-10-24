@@ -225,15 +225,15 @@ void HatoholArmPluginGate::start(void)
 	HatoholArmPluginInterface::start();
 }
 
+const MonitoringServerInfo &HatoholArmPluginGate::getMonitoringServerInfo(void)
+  const
+{
+	return m_impl->armBase.getServerInfo();
+}
+
 const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const
 {
 	return m_impl->armStatus;
-}
-
-// TODO: remove this method
-ArmBase &HatoholArmPluginGate::getArmBase(void)
-{
-	return m_impl->armBase;
 }
 
 void HatoholArmPluginGate::exitSync(void)
@@ -254,6 +254,11 @@ void HatoholArmPluginGate::exitSync(void)
 pid_t HatoholArmPluginGate::getPid()
 {
 	return m_impl->pid;
+}
+
+bool HatoholArmPluginGate::isFetchItemsSupported(void)
+{
+	return true;
 }
 
 void HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)

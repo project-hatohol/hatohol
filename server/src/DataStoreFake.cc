@@ -46,9 +46,15 @@ DataStoreFake::~DataStoreFake()
 {
 }
 
-ArmBase &DataStoreFake::getArmBase(void)
+const MonitoringServerInfo &DataStoreFake::getMonitoringServerInfo(void)
+  const
 {
-	return m_impl->armFake;
+	return m_impl->armFake.getServerInfo();
+}
+
+const ArmStatus &DataStoreFake::getArmStatus(void) const
+{
+	return m_impl->armFake.getArmStatus();
 }
 
 void DataStoreFake::setCopyOnDemandEnable(bool enable)

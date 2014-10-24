@@ -32,8 +32,11 @@ void DataStore::setCopyOnDemandEnable(bool enable)
 
 void DataStore::startOnDemandFetchItem(Closure0 *closure)
 {
-	ArmBase &arm = getArmBase();
-	arm.fetchItems(closure);
+}
+
+bool DataStore::isFetchItemsSupported(void)
+{
+	return false;
 }
 
 // ---------------------------------------------------------------------------
