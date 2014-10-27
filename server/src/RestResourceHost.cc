@@ -842,10 +842,14 @@ void RestResourceHost::historyFetchedCallback(
 	for (; it != historyInfoVect.end(); ++it) {
 		const HistoryInfo &historyInfo = *it;
 		agent.startObject();
+		// Omit serverId & itemId to reduce data.
+		// They are obvious because they are provided by the client.
+		/*
 		// use string to treat 64bit value properly on certain browsers
 		string itemId = StringUtils::toString(historyInfo.itemId);
-		agent.add("serverId",  historyInfo.serverId);
+		agent.add("serverId",  serverId);
 		agent.add("itemId",    itemId);
+		*/
 		agent.add("value",     historyInfo.value);
 		agent.add("clock",     historyInfo.clock.tv_sec);
 		agent.add("ns",        historyInfo.clock.tv_nsec);
