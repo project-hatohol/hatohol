@@ -349,6 +349,12 @@ struct HatoholArmPluginBaseTest :
 		VariableItemTablePtr itemTablePtr;
 		for (size_t i = 0; i < NumTestHistoryInfo; i++) {
 			const HistoryInfo &historyInfo = testHistoryInfo[i];
+
+			if (historyInfo.serverId != serverIdOfHapGate) {
+				// Ignore serverId for this test.
+				// Use all history.
+			}
+
 			if (historyInfo.itemId != itemId)
 				continue;
 			if (historyInfo.clock.tv_sec < beginTime)
@@ -453,6 +459,64 @@ void test_fetchEmptyHistory(void)
 	cppcut_assert_equal(
 	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
 	cppcut_assert_equal(0, (int)receiver.historyInfoVect.size());
+}
+
+static void pickupHistory(HistoryInfoVect &historyInfoVect,
+			  const ServerIdType &serverId,
+			  const ItemIdType itemId,
+			  const time_t &beginTime, const time_t &endTime)
+{
+	for (size_t i = 0; i < NumTestHistoryInfo; i++) {
+		const HistoryInfo &historyInfo = testHistoryInfo[i];
+		if (serverId != ALL_SERVERS &&
+		    historyInfo.serverId != serverId) {
+			continue;
+		}
+		if (historyInfo.itemId != itemId)
+			continue;
+		if (historyInfo.clock.tv_sec < beginTime)
+			continue;
+		if (historyInfo.clock.tv_sec > endTime ||
+		    (historyInfo.clock.tv_sec == endTime &&
+		     historyInfo.clock.tv_nsec > 0)) {
+			continue;
+		}
+		historyInfoVect.push_back(historyInfo);
+	}
+}
+
+void test_fetchHistory(void)
+{
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
+	pair.plugin->serverIdOfHapGate = arg.serverId;
+	g_print("\nServerId: %d\n", arg.serverId);
+
+	ServerIdType serverId = testHistoryInfo[0].serverId;
+	ItemIdType itemId = testHistoryInfo[0].itemId;
+	time_t beginTime = testHistoryInfo[0].clock.tv_sec;
+	time_t endTime = testHistoryInfo[NumTestHistoryInfo - 1].clock.tv_sec;
+
+	TestReceiver receiver;
+	pair.gate->startOnDemandFetchHistory(
+	  itemId, beginTime, endTime,
+	  new ClosureTemplate1<TestReceiver, HistoryInfoVect>(
+	    &receiver, &TestReceiver::callbackHistory));
+	cppcut_assert_equal(
+	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
+
+	HistoryInfoVect expectedHistoryVect;
+	pickupHistory(expectedHistoryVect,
+		      ALL_SERVERS, // Ignore serverId for this test
+		      itemId, beginTime, endTime);
+	string expected, actual;
+	for (size_t i = 0; i < expectedHistoryVect.size(); i++) {
+		expectedHistoryVect[i].serverId = serverId;
+		expected += makeHistoryOutput(expectedHistoryVect[i]);
+	}
+	for (size_t i = 0; i < receiver.historyInfoVect.size(); i++)
+		actual += makeHistoryOutput(receiver.historyInfoVect[i]);
+	cppcut_assert_equal(expected, actual);
 }
 
 } // namespace testHatoholArmPluginGatePair

@@ -105,6 +105,7 @@ std::string makeIncidentTrackerInfoOutput(const IncidentTrackerInfo &incidentTra
 std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo);
 std::string makeEventOutput(const EventInfo &eventInfo);
 std::string makeIncidentOutput(const IncidentInfo &incidentInfo);
+std::string makeHistoryOutput(const HistoryInfo &historyInfo);
 
 void _assertDatetime(int expectedClock, int actualClock);
 #define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))

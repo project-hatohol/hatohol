@@ -481,6 +481,20 @@ string makeIncidentOutput(const IncidentInfo &incidentInfo)
 	return output;
 }
 
+string makeHistoryOutput(const HistoryInfo &historyInfo)
+{
+	string output =
+	  mlpl::StringUtils::sprintf(
+	    "%" FMT_SERVER_ID "|%" FMT_ITEM_ID
+	    "|%" PRIu64 "|%" PRIu64
+	    "|%6.4lf\n",
+	    historyInfo.serverId, historyInfo.itemId,
+	    (uint64_t)historyInfo.clock.tv_sec,
+	    (uint64_t)historyInfo.clock.tv_nsec,
+	    historyInfo.value);
+	return output;
+}
+
 static void assertDBContentForComponets(const string &expect,
                                         const string &actual,
                                         DBAgent *dbAgent)
