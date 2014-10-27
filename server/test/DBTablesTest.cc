@@ -1796,3 +1796,26 @@ void loadTestDBIncidentTracker(void)
 					    privilege);
 }
 
+void getTestHistory(HistoryInfoVect &historyInfoVect,
+		    const ServerIdType &serverId,
+		    const ItemIdType itemId,
+		    const time_t &beginTime, const time_t &endTime)
+{
+	for (size_t i = 0; i < NumTestHistoryInfo; i++) {
+		const HistoryInfo &historyInfo = testHistoryInfo[i];
+		if (serverId != ALL_SERVERS &&
+		    historyInfo.serverId != serverId) {
+			continue;
+		}
+		if (historyInfo.itemId != itemId)
+			continue;
+		if (historyInfo.clock.tv_sec < beginTime)
+			continue;
+		if (historyInfo.clock.tv_sec > endTime ||
+		    (historyInfo.clock.tv_sec == endTime &&
+		     historyInfo.clock.tv_nsec > 0)) {
+			continue;
+		}
+		historyInfoVect.push_back(historyInfo);
+	}
+}

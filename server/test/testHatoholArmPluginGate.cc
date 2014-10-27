@@ -343,31 +343,24 @@ struct HatoholArmPluginBaseTest :
 		time_t beginTime = static_cast<time_t>(LtoN(params->beginTime));
 		time_t endTime = static_cast<time_t>(LtoN(params->endTime));
 
-		SmartBuffer resBuf;
-		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY);
-
 		VariableItemTablePtr itemTablePtr;
-		for (size_t i = 0; i < NumTestHistoryInfo; i++) {
-			const HistoryInfo &historyInfo = testHistoryInfo[i];
-
-			if (historyInfo.serverId != serverIdOfHapGate) {
-				// Ignore serverId for this test.
-				// Use all history.
-			}
-
-			if (historyInfo.itemId != itemId)
-				continue;
-			if (historyInfo.clock.tv_sec < beginTime)
-				continue;
-			if (historyInfo.clock.tv_sec > endTime ||
-			    (historyInfo.clock.tv_sec == endTime &&
-			     historyInfo.clock.tv_nsec > 0)) {
-				continue;
-			}
+		HistoryInfoVect historyInfoVect;
+		getTestHistory(historyInfoVect,
+			       // Ignore serverId for this test.
+			       // Use all history as this server's one.
+			       ALL_SERVERS,
+			       itemId, beginTime, endTime);
+		HistoryInfoVectIterator it = historyInfoVect.begin();
+		for (; it != historyInfoVect.end(); it++) {
+			const HistoryInfo &historyInfo = *it;
 			itemTablePtr->add(convert(historyInfo));
 		}
+
+		SmartBuffer resBuf;
+		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY);
 		appendItemTable(resBuf,
 		                static_cast<ItemTablePtr>(itemTablePtr));
+
 		reply(resBuf);
 	}
 
@@ -461,30 +454,6 @@ void test_fetchEmptyHistory(void)
 	cppcut_assert_equal(0, (int)receiver.historyInfoVect.size());
 }
 
-static void pickupHistory(HistoryInfoVect &historyInfoVect,
-			  const ServerIdType &serverId,
-			  const ItemIdType itemId,
-			  const time_t &beginTime, const time_t &endTime)
-{
-	for (size_t i = 0; i < NumTestHistoryInfo; i++) {
-		const HistoryInfo &historyInfo = testHistoryInfo[i];
-		if (serverId != ALL_SERVERS &&
-		    historyInfo.serverId != serverId) {
-			continue;
-		}
-		if (historyInfo.itemId != itemId)
-			continue;
-		if (historyInfo.clock.tv_sec < beginTime)
-			continue;
-		if (historyInfo.clock.tv_sec > endTime ||
-		    (historyInfo.clock.tv_sec == endTime &&
-		     historyInfo.clock.tv_nsec > 0)) {
-			continue;
-		}
-		historyInfoVect.push_back(historyInfo);
-	}
-}
-
 void test_fetchHistory(void)
 {
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
@@ -505,9 +474,9 @@ void test_fetchHistory(void)
 	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
 
 	HistoryInfoVect expectedHistoryVect;
-	pickupHistory(expectedHistoryVect,
-		      ALL_SERVERS, // Ignore serverId for this test
-		      itemId, beginTime, endTime);
+	getTestHistory(expectedHistoryVect,
+		       ALL_SERVERS, // Ignore serverId for this test
+		       itemId, beginTime, endTime);
 	string expected, actual;
 	for (size_t i = 0; i < expectedHistoryVect.size(); i++) {
 		expectedHistoryVect[i].serverId = serverId;

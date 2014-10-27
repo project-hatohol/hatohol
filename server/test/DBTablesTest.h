@@ -169,6 +169,11 @@ bool isAuthorized(ServerHostGrpSetMap &authMap,
 size_t findIndexFromTestActionDef(const UserIdType &userId);
 size_t findIndexFromTestActionDef(const ActionType &type);
 
+void getTestHistory(HistoryInfoVect &historyInfoVect,
+		    const ServerIdType &serverId,
+		    const ItemIdType itemId,
+		    const time_t &beginTime, const time_t &endTime);
+
 /**
  * Get a set of Hostgroup ID for the test material.
  */
