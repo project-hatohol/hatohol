@@ -827,6 +827,7 @@ void RestResourceHost::handlerGetHistory(void)
 	} else {
 		HistoryInfoVect historyInfoVect;
 		(*closure)(historyInfoVect);
+		delete closure;
 	}
 }
 

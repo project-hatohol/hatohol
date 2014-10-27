@@ -46,6 +46,7 @@ void DataStore::startOnDemandFetchHistory(const ItemIdType &itemId,
 {
 	HistoryInfoVect historyInfoVect;
 	(*closure)(historyInfoVect);
+	delete closure;
 }
 
 // ---------------------------------------------------------------------------
