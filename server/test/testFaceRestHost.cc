@@ -609,7 +609,6 @@ void test_getHistoryWithoutParameter(void)
 
 	RequestArg arg("/history");
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
-	DataQueryContextPtr dqCtxPtr(new DataQueryContext(arg.userId), false);
 	JSONParser *parser = getResponseAsJSONParser(arg);
 	unique_ptr<JSONParser> parserPtr(parser);
 	assertErrorCode(parser, HTERR_NOT_FOUND_PARAMETER);
@@ -625,7 +624,6 @@ void test_getHistoryWithMinimumParameter(void)
 	params["itemId"] = "1";
 	arg.parameters = params;
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
-	DataQueryContextPtr dqCtxPtr(new DataQueryContext(arg.userId), false);
 	JSONParser *parser = getResponseAsJSONParser(arg);
 	unique_ptr<JSONParser> parserPtr(parser);
 	assertErrorCode(parser, HTERR_OK);
