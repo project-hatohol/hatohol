@@ -817,13 +817,14 @@ void RestResourceHost::handlerGetHistory(void)
 	}
 
 	// Queue fetching history
+	ItemInfo &itemInfo = *itemList.begin();
 	GetHistoryClosure *closure =
 	  new GetHistoryClosure(
 	    this, &RestResourceHost::historyFetchedCallback,
 	    unifiedDataStore->getDataStore(serverId));
 	if (closure->m_dataStorePtr.hasData()) {
 		closure->m_dataStorePtr->startOnDemandFetchHistory(
-		  itemId, beginTime, endTime, closure);
+		  itemInfo, beginTime, endTime, closure);
 	} else {
 		HistoryInfoVect historyInfoVect;
 		(*closure)(historyInfoVect);

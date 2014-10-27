@@ -39,7 +39,7 @@ bool DataStore::isFetchItemsSupported(void)
 	return false;
 }
 
-void DataStore::startOnDemandFetchHistory(const ItemIdType &itemId,
+void DataStore::startOnDemandFetchHistory(const ItemInfo &itemInfo,
 					  const time_t &beginTime,
 					  const time_t &endTime,
 					  Closure1<HistoryInfoVect> *closure)

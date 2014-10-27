@@ -308,7 +308,7 @@ void HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)
 }
 
 void HatoholArmPluginGate::startOnDemandFetchHistory(
-  const ItemIdType &itemId, const time_t &beginTime, const time_t &endTime,
+  const ItemInfo &itemInfo, const time_t &beginTime, const time_t &endTime,
   Closure1<HistoryInfoVect> *closure)
 {
 	struct Callback : public CommandCallbacks {
@@ -350,7 +350,7 @@ void HatoholArmPluginGate::startOnDemandFetchHistory(
 	HapiParamReqFetchHistory *body =
 	  setupCommandHeader<HapiParamReqFetchHistory>(
 	    cmdBuf, HAPI_CMD_REQ_FETCH_HISTORY);
-	body->itemId    = NtoL(itemId);
+	body->itemId    = NtoL(itemInfo.id);
 	body->beginTime = NtoL(beginTime);
 	body->endTime   = NtoL(endTime);
 	send(cmdBuf, callback);

@@ -80,7 +80,7 @@ public:
 	virtual bool isFetchItemsSupported(void);
 	virtual void startOnDemandFetchItem(Closure0 *closure) override;
 	virtual void startOnDemandFetchHistory(
-	  const ItemIdType &itemId,
+	  const ItemInfo &itemInfo,
 	  const time_t &beginTime,
 	  const time_t &endTime,
 	  Closure1<HistoryInfoVect> *closure) override;

@@ -415,11 +415,15 @@ struct FetchStarter : public HatoholThreadBase {
 		  *closure =
 		    new ClosureTemplate1<FetchStarter, HistoryInfoVect>(
 		      this, &FetchStarter::fetchHistoryCb);
-		ItemIdType itemId = 1;
+		ItemInfo itemInfo;
+		itemInfo.serverId = ALL_SERVERS; // dummy
+		itemInfo.hostId = ALL_HOSTS; // dummy
+		itemInfo.id = 1;
+		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
 		time_t endTime = time(NULL);
 		time_t beginTime = endTime - 60 * 60;
 		pair->gate->startOnDemandFetchHistory(
-		  itemId, beginTime, endTime, closure);
+		  itemInfo, beginTime, endTime, closure);
 	}
 
 	virtual gpointer mainThread(HatoholThreadArg *arg) override

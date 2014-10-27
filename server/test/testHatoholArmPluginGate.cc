@@ -445,8 +445,13 @@ void test_fetchEmptyHistory(void)
 	pair.plugin->serverIdOfHapGate = arg.serverId;
 
 	TestReceiver receiver;
+	ItemInfo itemInfo;
+	itemInfo.serverId = arg.serverId;
+	itemInfo.hostId = ALL_HOSTS; // dummy
+	itemInfo.id = 1;
+	itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
 	pair.gate->startOnDemandFetchHistory(
-	  1, 0, 0,
+	  itemInfo, 0, 0,
 	  new ClosureTemplate1<TestReceiver, HistoryInfoVect>(
 	    &receiver, &TestReceiver::callbackHistory));
 	cppcut_assert_equal(
@@ -460,14 +465,17 @@ void test_fetchHistory(void)
 	TestPair pair(arg);
 	pair.plugin->serverIdOfHapGate = arg.serverId;
 
-	ServerIdType serverId = testHistoryInfo[0].serverId;
-	ItemIdType itemId = testHistoryInfo[0].itemId;
+	ItemInfo itemInfo;
+	itemInfo.serverId = testHistoryInfo[0].serverId;
+	itemInfo.hostId = ALL_HOSTS;
+	itemInfo.id = testHistoryInfo[0].itemId;
+	itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
 	time_t beginTime = testHistoryInfo[0].clock.tv_sec + 1;
 	time_t endTime = testHistoryInfo[NumTestHistoryInfo - 1].clock.tv_sec - 1;
 
 	TestReceiver receiver;
 	pair.gate->startOnDemandFetchHistory(
-	  itemId, beginTime, endTime,
+	  itemInfo, beginTime, endTime,
 	  new ClosureTemplate1<TestReceiver, HistoryInfoVect>(
 	    &receiver, &TestReceiver::callbackHistory));
 	cppcut_assert_equal(
@@ -476,10 +484,10 @@ void test_fetchHistory(void)
 	HistoryInfoVect expectedHistoryVect;
 	getTestHistory(expectedHistoryVect,
 		       ALL_SERVERS, // Ignore serverId for this test
-		       itemId, beginTime, endTime);
+		       itemInfo.id, beginTime, endTime);
 	string expected, actual;
 	for (size_t i = 0; i < expectedHistoryVect.size(); i++) {
-		expectedHistoryVect[i].serverId = serverId;
+		expectedHistoryVect[i].serverId = itemInfo.serverId;
 		expected += makeHistoryOutput(expectedHistoryVect[i]);
 	}
 	for (size_t i = 0; i < receiver.historyInfoVect.size(); i++)
