@@ -922,6 +922,20 @@ HatoholError HapProcessCeilometer::fetchItemsOfInstance(
 	return HTERR_OK;
 }
 
+HatoholError HapProcessCeilometer::fetchHistory(const MessagingContext &msgCtx,
+						const SmartBuffer &cmdBuf)
+{
+	MLPL_INFO("HapProcessCeilometer::fetchHistory(): "
+		  "Not implemented yet\n");
+
+	SmartBuffer resBuf;
+	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY, &msgCtx);
+	appendItemTable(resBuf, ItemTablePtr());
+	reply(msgCtx, resBuf);
+
+	return HTERR_OK;
+}
+
 HatoholError HapProcessCeilometer::parserResourceLink(
   JSONParser &parser, VariableItemTablePtr &tablePtr, const unsigned int &index,
   const string &instanceId)

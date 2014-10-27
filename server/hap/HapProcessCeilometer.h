@@ -90,6 +90,9 @@ protected:
 			       const mlpl::SmartBuffer &cmdBuf) override;
 	HatoholError fetchItemsOfInstance(
 	  VariableItemTablePtr &tablePtr, const std::string &instanceId);
+	virtual HatoholError fetchHistory(
+	  const MessagingContext &msgCtx,
+	  const mlpl::SmartBuffer &cmdBuf) override;
 	HatoholError parserResourceLink(
 	  JSONParser &parser, VariableItemTablePtr &tablePtr,
 	  const unsigned int &index, const std::string &instanceId);
