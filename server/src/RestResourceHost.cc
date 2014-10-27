@@ -799,6 +799,22 @@ void RestResourceHost::handlerGetHistory(void)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
+	// Check the specified item
+	ItemsQueryOption option(m_dataQueryContextPtr);
+	option.setTargetId(itemId);
+	ItemInfoList itemList;
+	dataStore->getItemList(itemList, option);
+	if (itemList.empty()) {
+		// We assume that items are alreay fetched.
+		// Because clients can't know the itemId wihout them.
+		string message = StringUtils::sprintf("itemId: %" FMT_ITEM_ID,
+						      itemId);
+		HatoholError err(HTERR_NOT_FOUND_TARGET_RECORD, message);
+		replyError(err);
+		return;
+	}
+
+	// Queue fetching history
 	GetHistoryClosure *closure =
 	  new GetHistoryClosure(
 	    this, &RestResourceHost::historyFetchedCallback);
