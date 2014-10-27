@@ -164,9 +164,9 @@ HatoholError HapProcessZabbixAPI::fetchHistory(const MessagingContext &msgCtx,
 	HapiParamReqFetchHistory *params =
 	  getCommandBody<HapiParamReqFetchHistory>(cmdBuf);
 	ItemTablePtr items =
-	  getHistory(static_cast<ItemIdType>(params->itemId),
-		     static_cast<time_t>(params->beginTime),
-		     static_cast<time_t>(params->endTime));
+	  getHistory(static_cast<ItemIdType>(LtoN(params->itemId)),
+		     static_cast<time_t>(LtoN(params->beginTime)),
+		     static_cast<time_t>(LtoN(params->endTime)));
 
 	SmartBuffer resBuf;
 	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY, &msgCtx);
