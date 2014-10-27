@@ -349,7 +349,7 @@ ItemTablePtr ZabbixAPI::getHistory(const ItemIdType &itemId,
 		pushUint64(parser, grp, "itemid", ITEM_ID_ZBX_HISTORY_ITEMID);
 		pushUint64(parser, grp, "clock",  ITEM_ID_ZBX_HISTORY_CLOCK);
 		pushUint64(parser, grp, "ns",     ITEM_ID_ZBX_HISTORY_NS);
-		pushDouble(parser, grp, "value",  ITEM_ID_ZBX_HISTORY_VALUE);
+		pushString(parser, grp, "value",  ITEM_ID_ZBX_HISTORY_VALUE);
 		tablePtr->add(grp);
 		parser.endElement();
 	}
@@ -905,17 +905,6 @@ uint64_t ZabbixAPI::pushUint64(JSONParser &parser, ItemGroup *itemGroup,
 	sscanf(value.c_str(), "%" PRIu64, &valU64);
 	itemGroup->add(new ItemUint64(itemId, valU64), false);
 	return valU64;
-}
-
-double ZabbixAPI::pushDouble(JSONParser &parser, ItemGroup *itemGroup,
-			     const string &name, const ItemId &itemId)
-{
-	string value;
-	getString(parser, name, value);
-	double valDouble;
-	sscanf(value.c_str(), "%lf", &valDouble);
-	itemGroup->add(new ItemDouble(itemId, valDouble), false);
-	return valDouble;
 }
 
 string ZabbixAPI::pushString(JSONParser &parser, ItemGroup *itemGroup,

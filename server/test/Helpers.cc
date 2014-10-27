@@ -487,11 +487,11 @@ string makeHistoryOutput(const HistoryInfo &historyInfo)
 	  mlpl::StringUtils::sprintf(
 	    "%" FMT_SERVER_ID "|%" FMT_ITEM_ID
 	    "|%" PRIu64 "|%" PRIu64
-	    "|%6.4lf\n",
+	    "|%s\n",
 	    historyInfo.serverId, historyInfo.itemId,
 	    (uint64_t)historyInfo.clock.tv_sec,
 	    (uint64_t)historyInfo.clock.tv_nsec,
-	    historyInfo.value);
+	    historyInfo.value.c_str());
 	return output;
 }
 

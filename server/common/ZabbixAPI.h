@@ -269,8 +269,6 @@ protected:
 	            const std::string &name, const ItemId &itemId);
 	uint64_t pushUint64(JSONParser &parser, ItemGroup *itemGroup,
 	                    const std::string &name, const ItemId &itemId);
-	double pushDouble(JSONParser &parser, ItemGroup *itemGroup,
-			  const std::string &name, const ItemId &itemId);
 	std::string pushString(JSONParser &parser, ItemGroup *itemGroup,
 	                       const std::string &name, const ItemId &itemId);
 	void parseAndPushTriggerData(

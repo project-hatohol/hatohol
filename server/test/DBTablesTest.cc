@@ -1029,37 +1029,37 @@ HistoryInfo testHistoryInfo[] = {
 {
 	3,              // serverId
 	1,              // itemId
-	0.0,            // value
+	"0.0",          // value
 	{1205277200,0}, // clock
 },
 {
 	3,              // serverId
 	1,              // itemId
-	1.0,            // value
+	"1.0",          // value
 	{1236813200,0}, // clock
 },
 {
 	3,              // serverId
 	1,              // itemId
-	2.0,            // value
+	"2.0",          // value
 	{1268349200,0}, // clock
 },
 {
 	3,              // serverId
 	1,              // itemId
-	3.0,            // value
+	"3.0",          // value
 	{1299885200,0}, // clock
 },
 {
 	3,              // serverId
 	1,              // itemId
-	4.0,            // value
+	"4.0",          // value
 	{1331421200,0}, // clock
 },
 {
 	3,              // serverId
 	1,              // itemId
-	5.0,            // value
+	"5.0",          // value
 	{1362957200,0}, // clock
 },
 };

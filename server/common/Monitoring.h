@@ -162,7 +162,7 @@ typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 struct HistoryInfo {
 	ServerIdType serverId;
 	ItemIdType   itemId;
-	double       value;
+	std::string  value;
 	timespec     clock;
 };
 
