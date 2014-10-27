@@ -850,7 +850,8 @@ void RestResourceHost::historyFetchedCallback(
 		agent.add("serverId",  serverId);
 		agent.add("itemId",    itemId);
 		*/
-		agent.add("value",     historyInfo.value);
+		agent.add("value",
+			  StringUtils::sprintf("%lf", historyInfo.value));
 		agent.add("clock",     historyInfo.clock.tv_sec);
 		agent.add("ns",        historyInfo.clock.tv_nsec);
 		agent.endObject();
