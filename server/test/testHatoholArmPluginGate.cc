@@ -490,7 +490,6 @@ void test_fetchHistory(void)
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	TestPair pair(arg);
 	pair.plugin->serverIdOfHapGate = arg.serverId;
-	g_print("\nServerId: %d\n", arg.serverId);
 
 	ServerIdType serverId = testHistoryInfo[0].serverId;
 	ItemIdType itemId = testHistoryInfo[0].itemId;
