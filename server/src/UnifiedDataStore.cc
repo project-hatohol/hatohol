@@ -414,22 +414,6 @@ bool UnifiedDataStore::fetchItemsAsync(Closure0 *closure,
 	return m_impl->itemFetchWorker.start(targetServerId, closure);
 }
 
-void UnifiedDataStore::fetchHistoryAsync(Closure1<HistoryInfoVect> *closure,
-					 const ServerIdType &targetServerId,
-					 const ItemIdType &itemId,
-					 const time_t &beginTime,
-					 const time_t &endTime)
-{
-	DataStore *dataStore = m_impl->getDataStore(targetServerId);
-	if (dataStore) {
-		dataStore->startOnDemandFetchHistory(
-		  itemId, beginTime, endTime, closure);
-	} else {
-		HistoryInfoVect historyInfoVect;
-		(*closure)(historyInfoVect);
-	}
-}
-
 void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
 				   const HostsQueryOption &option)
 {

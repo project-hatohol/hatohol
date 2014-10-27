@@ -93,11 +93,18 @@ public:
 	                 bool fetchItemsSynchronously = false);
 	bool fetchItemsAsync(Closure0 *closure,
 	                     const ServerIdType &targetServerId = ALL_SERVERS);
+	/*
+	 *  We don't provide a function to get history.
+	 *  Please get a DataStore by getDataStore() and use
+	 *  DataStore::startOnDemandFetchHistory() directly.
+	 */
+	/*
 	void fetchHistoryAsync(Closure1<HistoryInfoVect> *closure,
 			       const ServerIdType &targetServerId,
 			       const ItemIdType &itemId,
 			       const time_t &beginTime,
 			       const time_t &endTime);
+	*/
 
 	// Host and Hostgroup
 	void getHostList(HostInfoList &hostInfoList,

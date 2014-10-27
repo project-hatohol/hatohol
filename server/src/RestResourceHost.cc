@@ -721,12 +721,14 @@ void RestResourceHost::handlerGetItem(void)
 	}
 }
 
-// TODO: Add a macro or template to simplify the definition
 struct GetHistoryClosure : ClosureTemplate1<RestResourceHost, HistoryInfoVect>
 {
+	DataStorePtr m_dataStorePtr;
+
 	GetHistoryClosure(RestResourceHost *receiver,
-			  callback func)
-	: ClosureTemplate1(receiver, func)
+			  callback func, DataStorePtr dataStorePtr)
+	: ClosureTemplate1(receiver, func),
+	  m_dataStorePtr(dataStorePtr)
 	{
 		m_receiver->ref();
 	}
@@ -797,13 +799,13 @@ void RestResourceHost::handlerGetHistory(void)
 		return;
 	}
 
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	UnifiedDataStore *unifiedDataStore = UnifiedDataStore::getInstance();
 
 	// Check the specified item
 	ItemsQueryOption option(m_dataQueryContextPtr);
 	option.setTargetId(itemId);
 	ItemInfoList itemList;
-	dataStore->getItemList(itemList, option);
+	unifiedDataStore->getItemList(itemList, option);
 	if (itemList.empty()) {
 		// We assume that items are alreay fetched.
 		// Because clients can't know the itemId wihout them.
@@ -817,9 +819,15 @@ void RestResourceHost::handlerGetHistory(void)
 	// Queue fetching history
 	GetHistoryClosure *closure =
 	  new GetHistoryClosure(
-	    this, &RestResourceHost::historyFetchedCallback);
-	dataStore->fetchHistoryAsync(closure, serverId, itemId,
-				     beginTime, endTime);
+	    this, &RestResourceHost::historyFetchedCallback,
+	    unifiedDataStore->getDataStore(serverId));
+	if (closure->m_dataStorePtr.hasData()) {
+		closure->m_dataStorePtr->startOnDemandFetchHistory(
+		  itemId, beginTime, endTime, closure);
+	} else {
+		HistoryInfoVect historyInfoVect;
+		(*closure)(historyInfoVect);
+	}
 }
 
 void RestResourceHost::historyFetchedCallback(
