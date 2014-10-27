@@ -23,6 +23,7 @@
 #include <list>
 #include <ReadWriteLock.h>
 
+/* TODO: Should inherit UsedCountable */
 struct ClosureBase
 {
 	virtual ~ClosureBase(void) {};
