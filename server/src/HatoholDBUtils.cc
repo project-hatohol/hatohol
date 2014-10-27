@@ -187,13 +187,15 @@ void HatoholDBUtils::transformItemsToHatoholFormat(
 }
 
 void HatoholDBUtils::transformHistoryToHatoholFormat(
-  HistoryInfoVect &historyInfoVect,  const ItemTablePtr items)
+  HistoryInfoVect &historyInfoVect,  const ItemTablePtr items,
+  const ServerIdType &serverId)
 {
 	// Make HistoryInfoVect
 	const ItemGroupList &itemGroupList = items->getItemGroupList();
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
 		HistoryInfo historyInfo;
+		historyInfo.serverId = serverId;
 		transformHistoryItemGroupToHistoryInfo(historyInfo, *it);
 		historyInfoVect.push_back(historyInfo);
 	}

@@ -322,7 +322,7 @@ void HatoholArmPluginGate::startOnDemandFetchHistory(
 			replyBuf.setIndex(sizeof(HapiResponseHeader));
 			ItemTablePtr itemTablePtr = createItemTable(replyBuf);
 			HatoholDBUtils::transformHistoryToHatoholFormat(
-			  historyInfoVect, itemTablePtr);
+			  historyInfoVect, itemTablePtr, serverId);
 			// We don't store history data to Hatohol's DB.
 			// Pass it directly to Hatohol client.
 			cleanup();

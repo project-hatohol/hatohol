@@ -51,7 +51,8 @@ public:
 	  const ItemTablePtr items, const ItemTablePtr applications);
 
 	static void transformHistoryToHatoholFormat(
-	  HistoryInfoVect &historyInfoVect, const ItemTablePtr items);
+	  HistoryInfoVect &historyInfoVect, const ItemTablePtr items,
+	  const ServerIdType &serverId);
 
 	static ItemInfoValueType transformItemValueTypeToHatoholFormat(
 	  const int &valueType);
