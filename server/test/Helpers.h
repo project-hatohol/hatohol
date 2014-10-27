@@ -227,6 +227,8 @@ VariableItemGroupPtr convert(
 
 ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap);
 
+VariableItemGroupPtr convert(const HistoryInfo &historyInfo);
+
 class Watcher {
 	bool expired;
 	guint timerId;

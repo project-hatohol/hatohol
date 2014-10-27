@@ -93,6 +93,9 @@ extern size_t NumTestIncidentTrackerInfo;
 extern IncidentInfo testIncidentInfo[];
 extern size_t NumTestIncidentInfo;
 
+extern HistoryInfo testHistoryInfo[];
+extern size_t NumTestHistoryInfo;
+
 /**
  * get the test trigger data indexes whose serverId and hostId are 
  * matched with the specified.

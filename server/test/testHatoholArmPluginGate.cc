@@ -336,9 +336,32 @@ struct HatoholArmPluginBaseTest :
 
 	virtual void onReceivedReqFetchHistory(void) override
 	{
+		SmartBuffer *cmdBuf = getCurrBuffer();
+		HapiParamReqFetchHistory *params =
+		  getCommandBody<HapiParamReqFetchHistory>(*cmdBuf);
+		ItemId itemId = static_cast<ItemIdType>(LtoN(params->itemId));
+		time_t beginTime = static_cast<time_t>(LtoN(params->beginTime));
+		time_t endTime = static_cast<time_t>(LtoN(params->endTime));
+
 		SmartBuffer resBuf;
 		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY);
-		appendItemTable(resBuf, ItemTablePtr()); // empty history table
+
+		VariableItemTablePtr itemTablePtr;
+		for (size_t i = 0; i < NumTestHistoryInfo; i++) {
+			const HistoryInfo &historyInfo = testHistoryInfo[i];
+			if (historyInfo.itemId != itemId)
+				continue;
+			if (historyInfo.clock.tv_sec < beginTime)
+				continue;
+			if (historyInfo.clock.tv_sec > endTime ||
+			    (historyInfo.clock.tv_sec == endTime &&
+			     historyInfo.clock.tv_nsec > 0)) {
+				continue;
+			}
+			itemTablePtr->add(convert(historyInfo));
+		}
+		appendItemTable(resBuf,
+		                static_cast<ItemTablePtr>(itemTablePtr));
 		reply(resBuf);
 	}
 

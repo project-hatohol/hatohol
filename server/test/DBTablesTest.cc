@@ -1025,6 +1025,46 @@ IncidentInfo testIncidentInfo[] = {
 };
 size_t NumTestIncidentInfo = ARRAY_SIZE(testIncidentInfo);
 
+HistoryInfo testHistoryInfo[] = {
+{
+	3,              // serverId
+	1,              // itemId
+	0.0,            // value
+	{1205277200,0}, // clock
+},
+{
+	3,              // serverId
+	1,              // itemId
+	1.0,            // value
+	{1236813200,0}, // clock
+},
+{
+	3,              // serverId
+	1,              // itemId
+	2.0,            // value
+	{1268349200,0}, // clock
+},
+{
+	3,              // serverId
+	1,              // itemId
+	3.0,            // value
+	{1299885200,0}, // clock
+},
+{
+	3,              // serverId
+	1,              // itemId
+	4.0,            // value
+	{1331421200,0}, // clock
+},
+{
+	3,              // serverId
+	1,              // itemId
+	5.0,            // value
+	{1362957200,0}, // clock
+},
+};
+size_t NumTestHistoryInfo = ARRAY_SIZE(testHistoryInfo);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {

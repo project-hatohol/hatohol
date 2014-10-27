@@ -1127,6 +1127,21 @@ ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap)
 	return static_cast<ItemTablePtr>(tablePtr);
 }
 
+VariableItemGroupPtr convert(const HistoryInfo &historyInfo)
+{
+	// TODO: Don't use IDs concerned with Zabbix.
+	VariableItemGroupPtr grp;
+	grp->addNewItem(ITEM_ID_ZBX_HISTORY_ITEMID,
+			historyInfo.itemId);
+	grp->addNewItem(ITEM_ID_ZBX_HISTORY_CLOCK, 
+			static_cast<uint64_t>(historyInfo.clock.tv_sec));
+	grp->addNewItem(ITEM_ID_ZBX_HISTORY_NS,
+			static_cast<uint64_t>(historyInfo.clock.tv_nsec));
+	grp->addNewItem(ITEM_ID_ZBX_HISTORY_VALUE,
+			historyInfo.value);
+	return grp;
+}
+
 // ---------------------------------------------------------------------------
 // Watcher
 // ---------------------------------------------------------------------------
