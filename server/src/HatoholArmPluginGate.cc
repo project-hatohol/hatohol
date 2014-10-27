@@ -350,7 +350,9 @@ void HatoholArmPluginGate::startOnDemandFetchHistory(
 	HapiParamReqFetchHistory *body =
 	  setupCommandHeader<HapiParamReqFetchHistory>(
 	    cmdBuf, HAPI_CMD_REQ_FETCH_HISTORY);
+	body->hostId    = NtoL(itemInfo.hostId);
 	body->itemId    = NtoL(itemInfo.id);
+	body->valueType = NtoL(static_cast<uint16_t>(itemInfo.valueType));
 	body->beginTime = NtoL(beginTime);
 	body->endTime   = NtoL(endTime);
 	send(cmdBuf, callback);

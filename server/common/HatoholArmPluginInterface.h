@@ -247,7 +247,9 @@ struct HapiHapSelfTriggers {
 } __attribute__((__packed__));
 
 struct HapiParamReqFetchHistory {
+	uint64_t hostId;
 	uint64_t itemId;
+	uint16_t valueType;
 	uint64_t beginTime;
 	uint64_t endTime;
 } __attribute__((__packed__));
