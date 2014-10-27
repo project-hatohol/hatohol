@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <typeinfo>
 #include <errno.h>
+#include <ZabbixAPI.h>
 #include "Helpers.h"
 #include "DBTablesConfig.h"
 #include "DBTablesAction.h"
@@ -1118,9 +1119,8 @@ VariableItemGroupPtr convert(const ItemInfo &itemInfo,
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_PREVVALUE, itemInfo.prevValue);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_DELAY,     itemInfo.delay);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID, itemCategoryId);
-	int valueType
-	  = HatoholDBUtils::transformItemValueTypeToZabbixFormat(
-	      itemInfo.valueType); // TODO: remove Zabbix dependency!
+	// TODO: remove Zabbix dependency!
+	int valueType = ZabbixAPI::fromItemValueType(itemInfo.valueType);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_VALUE_TYPE, valueType);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_UNITS, itemInfo.unit);
 	return grp;

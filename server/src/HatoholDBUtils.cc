@@ -19,6 +19,7 @@
 
 #include "HatoholDBUtils.h"
 #include "DBTablesMonitoring.h"
+#include <ZabbixAPI.h>
 
 using namespace std;
 using namespace mlpl;
@@ -386,37 +387,6 @@ void HatoholDBUtils::transformHostsItemGroupToHatoholFormat(
 	itemGroupStream >> hostInfo.hostName;
 }
 
-ItemInfoValueType HatoholDBUtils::transformItemValueTypeToHatoholFormat(
-  const int &valueType)
-{
-	switch (valueType) {
-	case 0: // numeric float
-		return ITEM_INFO_VALUE_TYPE_FLOAT;
-	case 3: // numeric unsigned
-		return ITEM_INFO_VALUE_TYPE_INTEGER;
-	case 1: // character
-	case 2: // log
-	case 4: // text
-		return ITEM_INFO_VALUE_TYPE_STRING;
-	default:
-		return ITEM_INFO_VALUE_TYPE_UNKNOWN;
-	}
-}
-
-int HatoholDBUtils::transformItemValueTypeToZabbixFormat(
-  const ItemInfoValueType &valueType)
-{
-	switch (valueType) {
-	case ITEM_INFO_VALUE_TYPE_FLOAT:
-		return 0; // numeric float
-	case ITEM_INFO_VALUE_TYPE_INTEGER:
-		return 3; // numeric unsigned
-	case ITEM_INFO_VALUE_TYPE_STRING:
-	default:
-		return 4; //test
-	}
-}
-
 bool HatoholDBUtils::transformItemItemGroupToItemInfo(
   ItemInfo &itemInfo, const ItemGroup *itemItemGroup,
   const ItemCategoryNameMap &itemCategoryNameMap)
@@ -455,7 +425,8 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 	int valueType;
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_VALUE_TYPE);
 	itemGroupStream >> valueType;
-	itemInfo.valueType = transformItemValueTypeToHatoholFormat(valueType);
+	itemInfo.valueType
+	  = ZabbixAPI::toItemValueType(valueType);
 
 	ItemCategoryIdType itemCategoryId;
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_APPLICATIONID);

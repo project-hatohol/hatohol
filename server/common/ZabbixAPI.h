@@ -22,6 +22,7 @@
 
 #include <string>
 #include <libsoup/soup.h>
+#include "Monitoring.h"
 #include "MonitoringServerInfo.h"
 #include "ItemTablePtr.h"
 #include "JSONBuilder.h"
@@ -36,6 +37,11 @@ public:
 	virtual ~ZabbixAPI();
 
 	static const uint64_t EVENT_ID_NOT_FOUND;
+
+	static ItemInfoValueType toItemValueType(
+	  const int &valueType);
+	static int fromItemValueType(
+	  const ItemInfoValueType &valueType);
 
 protected:
 	const static uint64_t UNLIMITED = -1;

@@ -54,12 +54,6 @@ public:
 	  HistoryInfoVect &historyInfoVect, const ItemTablePtr items,
 	  const ServerIdType &serverId);
 
-	static ItemInfoValueType transformItemValueTypeToHatoholFormat(
-	  const int &valueType);
-
-	static int transformItemValueTypeToZabbixFormat(
-	  const ItemInfoValueType &valueType);
-
 protected:
 	static int getItemVariable(const std::string &word);
 
