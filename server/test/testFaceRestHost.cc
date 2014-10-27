@@ -603,4 +603,34 @@ void test_overview(void)
 	assertOverviewInParser(parser, arg);
 }
 
+void test_getHistoryWithoutParameter(void)
+{
+	startFaceRest();
+
+	RequestArg arg("/history");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	DataQueryContextPtr dqCtxPtr(new DataQueryContext(arg.userId), false);
+	JSONParser *parser = getResponseAsJSONParser(arg);
+	unique_ptr<JSONParser> parserPtr(parser);
+	assertErrorCode(parser, HTERR_NOT_FOUND_PARAMETER);
+}
+
+void test_getHistoryWithMinimumParameter(void)
+{
+	startFaceRest();
+
+	RequestArg arg("/history");
+	StringMap params;
+	params["serverId"] = "3";
+	params["itemId"] = "1";
+	arg.parameters = params;
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	DataQueryContextPtr dqCtxPtr(new DataQueryContext(arg.userId), false);
+	JSONParser *parser = getResponseAsJSONParser(arg);
+	unique_ptr<JSONParser> parserPtr(parser);
+	assertErrorCode(parser, HTERR_OK);
+
+	// TODO: check contents
+}
+
 } // namespace testFaceRestHost
