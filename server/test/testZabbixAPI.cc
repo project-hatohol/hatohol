@@ -146,8 +146,10 @@ void test_getHistory(void)
 	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
 	ZabbixAPITestee zbxApiTestee(serverInfo);
 	zbxApiTestee.testOpenSession();
+	int valueTypeFloat = 0;
 	ItemTablePtr history =
-	  zbxApiTestee.callGetHistory(25490, 1413265550, 1413268970);
+	  zbxApiTestee.callGetHistory(25490, valueTypeFloat,
+				      1413265550, 1413268970);
 	const ItemGroupList &list = history->getItemGroupList();
 	ItemGroupListConstIterator it = list.begin();
 	string json;

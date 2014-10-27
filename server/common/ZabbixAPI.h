@@ -118,6 +118,7 @@ protected:
 	 * @return The obtained history as an ItemTable format.
 	 */
 	ItemTablePtr getHistory(const ItemIdType &itemId,
+				const int &valueType,
 				const time_t &beginTime,
 				const time_t &endTime);
 
@@ -203,6 +204,7 @@ protected:
 	 */
 	SoupMessage *queryHistory(HatoholError &queryRet,
 				  const ItemIdType &itemId,
+				  const int &valueType,
 				  const time_t &beginTime,
 				  const time_t &endTime);
 

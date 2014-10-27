@@ -315,11 +315,13 @@ ItemTablePtr ZabbixAPI::getItems(void)
 }
 
 ItemTablePtr ZabbixAPI::getHistory(const ItemIdType &itemId,
+				   const int &valueType,
 				   const time_t &beginTime,
 				   const time_t &endTime)
 {
 	HatoholError queryRet;
-	SoupMessage *msg = queryHistory(queryRet, itemId, beginTime, endTime);
+	SoupMessage *msg = queryHistory(queryRet, itemId, valueType,
+					beginTime, endTime);
 	if (!msg) {
 		if (queryRet == HTERR_INTERNAL_ERROR) {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -655,6 +657,7 @@ SoupMessage *ZabbixAPI::queryItem(HatoholError &queryRet)
 
 SoupMessage *ZabbixAPI::queryHistory(HatoholError &queryRet,
 				     const ItemIdType &itemId,
+				     const int &valueType,
 				     const time_t &beginTime,
 				     const time_t &endTime)
 {
@@ -665,7 +668,7 @@ SoupMessage *ZabbixAPI::queryHistory(HatoholError &queryRet,
 
 	agent.startObject("params");
 	agent.add("output", "extend");
-	agent.add("history", 0); // TODO: select corresponding history type
+	agent.add("history", valueType);
 	agent.add("itemids", itemId);
 	agent.add("time_from", beginTime);
 	agent.add("time_till", endTime);

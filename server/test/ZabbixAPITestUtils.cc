@@ -143,10 +143,11 @@ uint64_t ZabbixAPITestee::callGetLastEventId(void)
 }
 
 ItemTablePtr ZabbixAPITestee::callGetHistory(const ItemIdType &itemId,
+					     const int &valueType,
 					     const time_t &beginTime,
 					     const time_t &endTime)
 {
-	return getHistory(itemId, beginTime, endTime);
+	return getHistory(itemId, valueType, beginTime, endTime);
 }
 
 void ZabbixAPITestee::makeGroupsItemTable(ItemTablePtr &groupsTablePtr)

@@ -163,8 +163,12 @@ HatoholError HapProcessZabbixAPI::fetchHistory(const MessagingContext &msgCtx,
 {
 	HapiParamReqFetchHistory *params =
 	  getCommandBody<HapiParamReqFetchHistory>(cmdBuf);
+	int valueType =
+	  ZabbixAPI::fromItemValueType(
+	    static_cast<ItemInfoValueType>(LtoN(params->valueType)));
 	ItemTablePtr items =
 	  getHistory(static_cast<ItemIdType>(LtoN(params->itemId)),
+		     valueType,
 		     static_cast<time_t>(LtoN(params->beginTime)),
 		     static_cast<time_t>(LtoN(params->endTime)));
 
