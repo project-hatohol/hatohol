@@ -462,8 +462,8 @@ void test_fetchHistory(void)
 
 	ServerIdType serverId = testHistoryInfo[0].serverId;
 	ItemIdType itemId = testHistoryInfo[0].itemId;
-	time_t beginTime = testHistoryInfo[0].clock.tv_sec;
-	time_t endTime = testHistoryInfo[NumTestHistoryInfo - 1].clock.tv_sec;
+	time_t beginTime = testHistoryInfo[0].clock.tv_sec + 1;
+	time_t endTime = testHistoryInfo[NumTestHistoryInfo - 1].clock.tv_sec - 1;
 
 	TestReceiver receiver;
 	pair.gate->startOnDemandFetchHistory(
@@ -485,6 +485,7 @@ void test_fetchHistory(void)
 	for (size_t i = 0; i < receiver.historyInfoVect.size(); i++)
 		actual += makeHistoryOutput(receiver.historyInfoVect[i]);
 	cppcut_assert_equal(expected, actual);
+	cppcut_assert_not_equal((size_t)0, receiver.historyInfoVect.size());
 }
 
 } // namespace testHatoholArmPluginGatePair
