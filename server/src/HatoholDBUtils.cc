@@ -483,11 +483,14 @@ void HatoholDBUtils::transformHistoryItemGroupToHistoryInfo(
 	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_ITEMID);
 	itemGroupStream >> historyInfo.itemId;
 
+	uint64_t clock, ns;
 	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_CLOCK);
-	itemGroupStream >> historyInfo.clock.tv_sec;
+	itemGroupStream >> clock;
+	historyInfo.clock.tv_sec = static_cast<time_t>(clock);
 
 	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_NS);
-	itemGroupStream >> historyInfo.clock.tv_nsec;
+	itemGroupStream >> ns;
+	historyInfo.clock.tv_nsec = static_cast<long>(ns);
 
 	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_VALUE);
 	itemGroupStream >> historyInfo.value;
