@@ -154,7 +154,7 @@ void test_getHistory(void)
 	for (; it != list.end(); ++it) {
 		ItemIdType itemid;
 		uint64_t clock, ns;
-		double value;
+		string value;
 		ItemGroupStream historyGroupStream(*it);
 		historyGroupStream.seek(ITEM_ID_ZBX_HISTORY_ITEMID);
 		historyGroupStream >> itemid;
