@@ -334,6 +334,14 @@ struct HatoholArmPluginBaseTest :
 		reply(resBuf);
 	}
 
+	virtual void onReceivedReqFetchHistory(void) override
+	{
+		SmartBuffer resBuf;
+		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY);
+		appendItemTable(resBuf, ItemTablePtr()); // empty history table
+		reply(resBuf);
+	}
+
 	ServerIdType serverIdOfHapGate;
 	SimpleSemaphore terminateSem;
 };
@@ -342,6 +350,7 @@ typedef HatoholArmPluginTestPair<HatoholArmPluginBaseTest> TestPair;
 
 struct TestReceiver {
 	SimpleSemaphore sem;
+	HistoryInfoVect historyInfoVect;
 
 	TestReceiver(void)
 	: sem(0)
@@ -350,6 +359,13 @@ struct TestReceiver {
 
 	void callback(Closure0 *closure)
 	{
+		sem.post();
+	}
+
+	void callbackHistory(Closure1<HistoryInfoVect> *closure,
+			     const HistoryInfoVect &_historyInfoVect)
+	{
+		historyInfoVect = _historyInfoVect;
 		sem.post();
 	}
 };
@@ -398,6 +414,22 @@ void test_fetchItem(void)
 		const ItemInfo &expect = testItemInfo[expectItemIdxVec[idx]];
 		assertEqual(expect, *actual);
 	}
+}
+
+void test_fetchEmptyHistory(void)
+{
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
+	pair.plugin->serverIdOfHapGate = arg.serverId;
+
+	TestReceiver receiver;
+	pair.gate->startOnDemandFetchHistory(
+	  1, 0, 0,
+	  new ClosureTemplate1<TestReceiver, HistoryInfoVect>(
+	    &receiver, &TestReceiver::callbackHistory));
+	cppcut_assert_equal(
+	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
+	cppcut_assert_equal(0, (int)receiver.historyInfoVect.size());
 }
 
 } // namespace testHatoholArmPluginGatePair
