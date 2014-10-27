@@ -315,8 +315,10 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	triggersQueryOption.setTargetServerId(svInfo.id);
 	agent.add("numberOfTriggers",
 		  dataStore->getNumberOfTriggers(triggersQueryOption));
-	agent.add("numberOfBadHosts",
-		  dataStore->getNumberOfBadHosts(triggersQueryOption));
+	const size_t numBadHosts =
+	  dataStore->getNumberOfBadHosts(triggersQueryOption);
+	agent.add("numberOfBadHosts", numBadHosts);
+	serverIsGoodStatus = (numBadHosts == 0);
 	size_t numBadTriggers = dataStore->getNumberOfBadTriggers(
 				  triggersQueryOption, TRIGGER_SEVERITY_ALL);
 	agent.add("numberOfBadTriggers", numBadTriggers);
@@ -375,7 +377,6 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	agent.endArray();
 
 	// HostStatus
-	serverIsGoodStatus = true;
 	agent.startArray("hostStatus");
 	hostgrpItr = hostgroupInfoList.begin();
 	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
@@ -390,8 +391,6 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 		          dataStore->getNumberOfGoodHosts(option));
 		agent.add("numberOfBadHosts", numBadHosts);
 		agent.endObject();
-		if (numBadHosts > 0)
-			serverIsGoodStatus =false;
 	}
 	agent.endArray();
 
