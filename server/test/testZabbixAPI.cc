@@ -170,10 +170,10 @@ void test_getHistory(void)
 			"{"
 			"\"itemid\":\"%" PRIu64 "\","
 			"\"clock\":\"%" PRIu64 "\","
-			"\"value\":\"%6.4lf\","
+			"\"value\":\"%s\","
 			"\"ns\":\"%" PRIu64 "\""
 			"}",
-			itemid, clock, value, ns);
+			itemid, clock, value.c_str(), ns);
 	}
 	string path = getFixturesDir() + "zabbix-api-res-history.json";
 	gchar *contents = NULL;
