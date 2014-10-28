@@ -1244,7 +1244,7 @@ ItemInfoValueType ZabbixAPI::toItemValueType(
 		return ITEM_INFO_VALUE_TYPE_FLOAT;
 	case ZabbixAPI::VALUE_TYPE_UNSIGNED:
 		return ITEM_INFO_VALUE_TYPE_INTEGER;
-	case ZabbixAPI::VALUE_TYPE_CHARACTER:
+	case ZabbixAPI::VALUE_TYPE_STRING:
 	case ZabbixAPI::VALUE_TYPE_LOG:
 	case ZabbixAPI::VALUE_TYPE_TEXT:
 		return ITEM_INFO_VALUE_TYPE_STRING;
@@ -1263,6 +1263,6 @@ ZabbixAPI::ValueType ZabbixAPI::fromItemValueType(
 		return ZabbixAPI::VALUE_TYPE_UNSIGNED;
 	case ITEM_INFO_VALUE_TYPE_STRING:
 	default:
-		return ZabbixAPI::VALUE_TYPE_CHARACTER;
+		return ZabbixAPI::VALUE_TYPE_STRING;
 	}
 }

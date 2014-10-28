@@ -34,11 +34,11 @@ class ZabbixAPI
 {
 public:
 	typedef enum {
-		VALUE_TYPE_FLOAT     = 0,
-		VALUE_TYPE_CHARACTER = 1,
-		VALUE_TYPE_LOG       = 2,
-		VALUE_TYPE_UNSIGNED  = 3,
-		VALUE_TYPE_TEXT      = 4
+		VALUE_TYPE_FLOAT    = 0,
+		VALUE_TYPE_STRING   = 1,
+		VALUE_TYPE_LOG      = 2,
+		VALUE_TYPE_UNSIGNED = 3,
+		VALUE_TYPE_TEXT     = 4
 	} ValueType;
 
 	ZabbixAPI(void);
