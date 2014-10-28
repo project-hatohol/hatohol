@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <semaphore.h>
 #include <errno.h>
+#include <queue>
 #include <Logger.h>
 #include <AtomicValue.h>
 #include "ArmBase.h"
@@ -32,6 +33,32 @@ using namespace std;
 using namespace mlpl;
 
 const char *SERVER_SELF_MONITORING_SUFFIX = "_SELF";
+
+struct FetcherJob
+{
+	ArmBase::UpdateType updateType;
+	ClosureBase        *closure;
+
+	FetcherJob(ArmBase::UpdateType _updateType, ClosureBase *_closure)
+	:updateType(_updateType), closure(_closure)
+	{
+	}
+
+	~FetcherJob()
+	{
+		delete closure;
+	}
+
+	void run(void)
+	{
+		if (updateType == ArmBase::UPDATE_ITEM_REQUEST) {
+			Closure0 *fetchItemClosure =
+			  dynamic_cast<Closure0*>(closure);
+			(*fetchItemClosure)();
+		} else {
+		}
+	}
+};
 
 struct ArmBase::Impl
 {
@@ -46,6 +73,7 @@ struct ArmBase::Impl
 	ArmStatus            armStatus;
 	string               lastFailureComment;
 	ArmWorkingStatus     lastFailureStatus;
+	queue<FetcherJob *>  jobQueue;
 
 	ArmResultTriggerInfo ArmResultTriggerTable[NUM_COLLECT_NG_KIND];
 
@@ -67,6 +95,7 @@ struct ArmBase::Impl
 
 	virtual ~Impl()
 	{
+		clearJob();
 		if (sem_destroy(&sleepSemaphore) != 0)
 			MLPL_ERR("Failed to call sem_destroy(): %d\n", errno);
 	}
@@ -123,13 +152,42 @@ struct ArmBase::Impl
 		rwlock.unlock();
 	}
 
+	void pushJob(FetcherJob *job)
+	{
+		rwlock.writeLock();
+		jobQueue.push(job);
+		rwlock.unlock();
+	}
+
+	FetcherJob *popJob(void)
+	{
+		FetcherJob *job = NULL;
+		rwlock.writeLock();
+		if (!jobQueue.empty()) {
+			job = jobQueue.front();
+			jobQueue.pop();
+		}
+		rwlock.unlock();
+		return job;
+	}
+
+	void clearJob(void)
+	{
+		rwlock.writeLock();
+		while (!jobQueue.empty()) {
+			FetcherJob *job = jobQueue.front();
+			job->run();
+			jobQueue.pop();
+			delete job;
+		}
+		rwlock.unlock();
+	}
+
 	void setInitialTriggerTable(void)
 	{
 		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++)
 			ArmResultTriggerTable[i].statusType = TRIGGER_STATUS_ALL;
 	}
-
-	Signal0 updatedSignal;
 };
 
 // ---------------------------------------------------------------------------
@@ -168,8 +226,7 @@ bool ArmBase::isFetchItemsSupported(void) const
 
 void ArmBase::fetchItems(Closure0 *closure)
 {
-	setUpdateType(UPDATE_ITEM_REQUEST);
-	m_impl->updatedSignal.connect(closure);
+	m_impl->pushJob(new FetcherJob(UPDATE_ITEM_REQUEST, closure));
 	if (sem_post(&m_impl->sleepSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 }
@@ -413,6 +470,8 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 {
 	ArmWorkingStatus previousArmWorkStatus = ARM_WORK_STAT_INIT;
 	while (!hasExitRequest()) {
+		FetcherJob *job = m_impl->popJob();
+		setUpdateType(job ? job->updateType : UPDATE_POLLING);
 		int sleepTime = m_impl->getSecondsToNextPolling();
 		ArmPollingResult armPollingResult = mainThreadOneProc();
 		if (armPollingResult == COLLECT_OK) {
@@ -437,9 +496,11 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 		previousArmWorkStatus = m_impl->lastFailureStatus;
 
 		m_impl->stampLastPollingTime();
+		if (job) {
+			job->run();
+			delete job;
+		}
 		m_impl->setUpdateType(UPDATE_POLLING);
-		m_impl->updatedSignal();
-		m_impl->updatedSignal.clear();
 
 		if (hasExitRequest())
 			break;
