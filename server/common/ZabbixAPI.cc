@@ -1242,7 +1242,7 @@ ItemInfoValueType ZabbixAPI::toItemValueType(
 	switch (valueType) {
 	case ZabbixAPI::VALUE_TYPE_FLOAT:
 		return ITEM_INFO_VALUE_TYPE_FLOAT;
-	case ZabbixAPI::VALUE_TYPE_UNSIGNED:
+	case ZabbixAPI::VALUE_TYPE_INTEGER:
 		return ITEM_INFO_VALUE_TYPE_INTEGER;
 	case ZabbixAPI::VALUE_TYPE_STRING:
 	case ZabbixAPI::VALUE_TYPE_LOG:
@@ -1260,7 +1260,7 @@ ZabbixAPI::ValueType ZabbixAPI::fromItemValueType(
 	case ITEM_INFO_VALUE_TYPE_FLOAT:
 		return ZabbixAPI::VALUE_TYPE_FLOAT;
 	case ITEM_INFO_VALUE_TYPE_INTEGER:
-		return ZabbixAPI::VALUE_TYPE_UNSIGNED;
+		return ZabbixAPI::VALUE_TYPE_INTEGER;
 	case ITEM_INFO_VALUE_TYPE_STRING:
 	default:
 		return ZabbixAPI::VALUE_TYPE_STRING;
