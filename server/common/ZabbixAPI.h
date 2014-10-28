@@ -212,7 +212,7 @@ protected:
 	 */
 	SoupMessage *queryHistory(HatoholError &queryRet,
 				  const ItemIdType &itemId,
-				  const int &valueType,
+				  const ZabbixAPI::ValueType &valueType,
 				  const time_t &beginTime,
 				  const time_t &endTime);
 
