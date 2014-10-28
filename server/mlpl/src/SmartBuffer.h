@@ -40,6 +40,7 @@ public:
 	SmartBuffer(size_t size);
 	SmartBuffer(const SmartBuffer &smartBuffer);
 	virtual ~SmartBuffer();
+	const SmartBuffer &operator=(const SmartBuffer &rhs);
 	operator const char *() const;
 	operator char *() const;
 	operator uint8_t *() const;

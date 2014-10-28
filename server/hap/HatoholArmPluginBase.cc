@@ -118,6 +118,11 @@ HatoholArmPluginBase::HatoholArmPluginBase(void)
 	    &HatoholArmPluginBase::cmdHandlerFetchItems);
 
 	registerCommandHandler(
+	  HAPI_CMD_REQ_FETCH_HISTORY,
+	  (CommandHandler)
+	    &HatoholArmPluginBase::cmdHandlerFetchHistory);
+
+	registerCommandHandler(
 	  HAPI_CMD_REQ_TERMINATE,
 	  (CommandHandler)
 	    &HatoholArmPluginBase::cmdHandlerTerminate);
@@ -297,6 +302,12 @@ void HatoholArmPluginBase::onReceivedReqFetchItem(void)
 	          "onReceivedReqFetchItem() should be overridden\n");
 }
 
+void HatoholArmPluginBase::onReceivedReqFetchHistory(void)
+{
+	MLPL_WARN("Received fetch history request. "
+	          "onReceivedReqFetchHistory() should be overridden\n");
+}
+
 void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(
   CommandCallbacks *callbacks)
 {
@@ -435,6 +446,12 @@ void HatoholArmPluginBase::sendHapSelfTriggers(const int numTriggerList,
 void HatoholArmPluginBase::cmdHandlerFetchItems(const HapiCommandHeader *header)
 {
 	onReceivedReqFetchItem();
+}
+
+void HatoholArmPluginBase::cmdHandlerFetchHistory(
+  const HapiCommandHeader *header)
+{
+	onReceivedReqFetchHistory();
 }
 
 void HatoholArmPluginBase::cmdHandlerTerminate(const HapiCommandHeader *header)

@@ -334,6 +334,36 @@ struct HatoholArmPluginBaseTest :
 		reply(resBuf);
 	}
 
+	virtual void onReceivedReqFetchHistory(void) override
+	{
+		SmartBuffer *cmdBuf = getCurrBuffer();
+		HapiParamReqFetchHistory *params =
+		  getCommandBody<HapiParamReqFetchHistory>(*cmdBuf);
+		ItemId itemId = static_cast<ItemIdType>(LtoN(params->itemId));
+		time_t beginTime = static_cast<time_t>(LtoN(params->beginTime));
+		time_t endTime = static_cast<time_t>(LtoN(params->endTime));
+
+		VariableItemTablePtr itemTablePtr;
+		HistoryInfoVect historyInfoVect;
+		getTestHistory(historyInfoVect,
+			       // Ignore serverId for this test.
+			       // Use all history as this server's one.
+			       ALL_SERVERS,
+			       itemId, beginTime, endTime);
+		HistoryInfoVectIterator it = historyInfoVect.begin();
+		for (; it != historyInfoVect.end(); it++) {
+			const HistoryInfo &historyInfo = *it;
+			itemTablePtr->add(convert(historyInfo));
+		}
+
+		SmartBuffer resBuf;
+		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY);
+		appendItemTable(resBuf,
+		                static_cast<ItemTablePtr>(itemTablePtr));
+
+		reply(resBuf);
+	}
+
 	ServerIdType serverIdOfHapGate;
 	SimpleSemaphore terminateSem;
 };
@@ -342,14 +372,22 @@ typedef HatoholArmPluginTestPair<HatoholArmPluginBaseTest> TestPair;
 
 struct TestReceiver {
 	SimpleSemaphore sem;
+	HistoryInfoVect historyInfoVect;
 
 	TestReceiver(void)
 	: sem(0)
 	{
 	}
 
-	void callback(ClosureBase *closure)
+	void callback(Closure0 *closure)
 	{
+		sem.post();
+	}
+
+	void callbackHistory(Closure1<HistoryInfoVect> *closure,
+			     const HistoryInfoVect &_historyInfoVect)
+	{
+		historyInfoVect = _historyInfoVect;
 		sem.post();
 	}
 };
@@ -374,7 +412,8 @@ void test_fetchItem(void)
 
 	TestReceiver receiver;
 	pair.gate->startOnDemandFetchItem(
-	  new Closure<TestReceiver>(&receiver, &TestReceiver::callback));
+	  new ClosureTemplate0<TestReceiver>(
+	    &receiver, &TestReceiver::callback));
 	cppcut_assert_equal(
 	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
 
@@ -397,6 +436,64 @@ void test_fetchItem(void)
 		const ItemInfo &expect = testItemInfo[expectItemIdxVec[idx]];
 		assertEqual(expect, *actual);
 	}
+}
+
+void test_fetchEmptyHistory(void)
+{
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
+	pair.plugin->serverIdOfHapGate = arg.serverId;
+
+	TestReceiver receiver;
+	ItemInfo itemInfo;
+	itemInfo.serverId = arg.serverId;
+	itemInfo.hostId = ALL_HOSTS; // dummy
+	itemInfo.id = 1;
+	itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
+	pair.gate->startOnDemandFetchHistory(
+	  itemInfo, 0, 0,
+	  new ClosureTemplate1<TestReceiver, HistoryInfoVect>(
+	    &receiver, &TestReceiver::callbackHistory));
+	cppcut_assert_equal(
+	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
+	cppcut_assert_equal(0, (int)receiver.historyInfoVect.size());
+}
+
+void test_fetchHistory(void)
+{
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
+	pair.plugin->serverIdOfHapGate = arg.serverId;
+
+	ItemInfo itemInfo;
+	itemInfo.serverId = testHistoryInfo[0].serverId;
+	itemInfo.hostId = ALL_HOSTS;
+	itemInfo.id = testHistoryInfo[0].itemId;
+	itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
+	time_t beginTime = testHistoryInfo[0].clock.tv_sec + 1;
+	time_t endTime = testHistoryInfo[NumTestHistoryInfo - 1].clock.tv_sec - 1;
+
+	TestReceiver receiver;
+	pair.gate->startOnDemandFetchHistory(
+	  itemInfo, beginTime, endTime,
+	  new ClosureTemplate1<TestReceiver, HistoryInfoVect>(
+	    &receiver, &TestReceiver::callbackHistory));
+	cppcut_assert_equal(
+	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
+
+	HistoryInfoVect expectedHistoryVect;
+	getTestHistory(expectedHistoryVect,
+		       ALL_SERVERS, // Ignore serverId for this test
+		       itemInfo.id, beginTime, endTime);
+	string expected, actual;
+	for (size_t i = 0; i < expectedHistoryVect.size(); i++) {
+		expectedHistoryVect[i].serverId = itemInfo.serverId;
+		expected += makeHistoryOutput(expectedHistoryVect[i]);
+	}
+	for (size_t i = 0; i < receiver.historyInfoVect.size(); i++)
+		actual += makeHistoryOutput(receiver.historyInfoVect[i]);
+	cppcut_assert_equal(expected, actual);
+	cppcut_assert_not_equal((size_t)0, receiver.historyInfoVect.size());
 }
 
 } // namespace testHatoholArmPluginGatePair

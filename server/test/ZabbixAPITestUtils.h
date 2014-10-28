@@ -50,6 +50,10 @@ public:
 	                  ItemTablePtr &hostsGroupsTablePtr);
 	void callGetGroups(ItemTablePtr &groupsTablePtr);
 	uint64_t callGetLastEventId(void);
+	ItemTablePtr callGetHistory(const ItemIdType &itemId,
+				    const ZabbixAPI::ValueType &valueType,
+				    const time_t &beginTime,
+				    const time_t &endTime);
 
 	void makeGroupsItemTable(ItemTablePtr &groupsTablePtr);
 	void makeMapHostsHostgroupsItemTable(ItemTablePtr &hostsGroupsTablePtr);

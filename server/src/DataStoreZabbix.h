@@ -29,8 +29,12 @@ public:
 	                const bool &autoStart = true);
 	virtual ~DataStoreZabbix();
 
-	virtual ArmBase &getArmBase(void);
-	void setCopyOnDemandEnable(bool enable);
+	virtual const MonitoringServerInfo
+	  &getMonitoringServerInfo(void) const override;
+	virtual const ArmStatus &getArmStatus(void) const override;
+	void setCopyOnDemandEnable(bool enable) override;
+	virtual bool isFetchItemsSupported(void) override;
+	virtual void startOnDemandFetchItem(Closure0 *closure) override;
 private:
 	ArmZabbixAPI	m_armApi;
 };

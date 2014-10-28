@@ -86,6 +86,11 @@ enum HapiCommandCode {
 	// Sv -> Cl
 	HAPI_CMD_REQ_FETCH_ITEMS,
 	HAPI_CMD_REQ_TERMINATE,
+
+	// Since 14.12
+	// Sv -> Cl
+	HAPI_CMD_REQ_FETCH_HISTORY,
+
 	NUM_HAPI_CMD
 };
 
@@ -99,6 +104,11 @@ enum HapiResponseCode {
 
 	// Cl -> Sv
 	HAPI_RES_ITEMS,
+
+	// Since 14.12
+	// Cl -> Sv
+	HAPI_RES_HISTORY,
+
 	NUM_HAPI_CMD_RES
 };
 
@@ -238,6 +248,14 @@ struct HapiResTimeOfLastEvent {
 struct HapiHapSelfTriggers {
 	uint64_t numTriggers;
 	// Traling data is an array of HatoholArmPluginWatchType.
+} __attribute__((__packed__));
+
+struct HapiParamReqFetchHistory {
+	uint64_t hostId;
+	uint64_t itemId;
+	uint16_t valueType;
+	uint64_t beginTime;
+	uint64_t endTime;
 } __attribute__((__packed__));
 
 

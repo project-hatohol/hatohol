@@ -93,7 +93,8 @@ public:
 	}
 
 	virtual HatoholError acquireData(
-	  const MessagingContext &msgCtx) override
+	  const MessagingContext &msgCtx,
+	  const SmartBuffer &cmdBuf) override
 	{
 		m_acquireSem.post();
 		if (m_params->callSyncCommandInAcquireData) {
@@ -112,12 +113,24 @@ public:
 		return m_returnValueOfAcquireData;
 	}
 
-	virtual HatoholError fetchItem(const MessagingContext &msgCtx) override
+	virtual HatoholError fetchItem(const MessagingContext &msgCtx,
+				       const SmartBuffer &cmdBuf) override
 	{
 		SmartBuffer resBuf;
 		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS, &msgCtx);
 		appendItemTable(resBuf, ItemTablePtr());
 		appendItemTable(resBuf, ItemTablePtr()); // Item Category
+		reply(msgCtx, resBuf);
+		return HTERR_OK;
+	}
+
+	virtual HatoholError fetchHistory(const MessagingContext &msgCtx,
+					  const SmartBuffer &cmdBuf) override
+	{
+		SmartBuffer resBuf;
+		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY,
+					  &msgCtx);
+		appendItemTable(resBuf, ItemTablePtr()); // empty history table
 		reply(msgCtx, resBuf);
 		return HTERR_OK;
 	}
@@ -362,23 +375,55 @@ void test_hapPipeCatchErrorAndExit(void)
 	cppcut_assert_equal(true, pair.plugin->m_calledPipeWrErrCb);
 }
 
-struct FetchItemStarter : public HatoholThreadBase {
-	TestPair *pair;
-	GMainLoop *loop;
-	bool       succeeded;
-	bool       fetched;
+struct FetchStarter : public HatoholThreadBase {
+	typedef enum {
+		INVALID,
+		ITEM,
+		HISTORY,
+		NUM_RESOURCE_TYPES
+	} ResourceType;
 
-	FetchItemStarter(void)
+	TestPair    *pair;
+	GMainLoop   *loop;
+	bool         succeeded;
+	ResourceType fetched;
+	ResourceType resourceType;
+
+	FetchStarter(void)
 	: loop(NULL),
 	  succeeded(false),
-	  fetched(false)
+	  fetched(INVALID),
+	  resourceType(ITEM)
 	{
 		loop = g_main_loop_new(NULL, TRUE);
 	}
 
-	virtual ~FetchItemStarter()
+	virtual ~FetchStarter()
 	{
 		g_main_loop_unref(loop);
+	}
+
+	void startFetchItem(void) {
+		ClosureTemplate0<FetchStarter> *closure =
+		  new ClosureTemplate0<FetchStarter>(this,
+		    &FetchStarter::fetchItemCb);
+		pair->gate->startOnDemandFetchItem(closure);
+	}
+
+	void startFetchHistory(void) {
+		ClosureTemplate1<FetchStarter, HistoryInfoVect>
+		  *closure =
+		    new ClosureTemplate1<FetchStarter, HistoryInfoVect>(
+		      this, &FetchStarter::fetchHistoryCb);
+		ItemInfo itemInfo;
+		itemInfo.serverId = ALL_SERVERS; // dummy
+		itemInfo.hostId = ALL_HOSTS; // dummy
+		itemInfo.id = 1;
+		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
+		time_t endTime = time(NULL);
+		time_t beginTime = endTime - 60 * 60;
+		pair->gate->startOnDemandFetchHistory(
+		  itemInfo, beginTime, endTime, closure);
 	}
 
 	virtual gpointer mainThread(HatoholThreadArg *arg) override
@@ -386,10 +431,13 @@ struct FetchItemStarter : public HatoholThreadBase {
 		Reaper<GMainLoop> loopQuiter(loop, g_main_loop_quit);
 		if (!wait())
 			return NULL;
-		Closure<FetchItemStarter> *closure =
-		  new Closure<FetchItemStarter>(this,
-		    &FetchItemStarter::closureCb);
-		pair->gate->startOnDemandFetchItem(closure);
+		HATOHOL_ASSERT(resourceType > INVALID &&
+			       resourceType < NUM_RESOURCE_TYPES,
+			       "Invalid resourceType");
+		if (resourceType == ITEM)
+			startFetchItem();
+		else if (resourceType == HISTORY)
+			startFetchHistory();
 		pair->plugin->m_acquireSyncCommandSem.post();
 		if (!wait())
 			return NULL;
@@ -410,16 +458,23 @@ struct FetchItemStarter : public HatoholThreadBase {
 		return true;
 	}
 
-	void closureCb(ClosureBase *closure)
+	void fetchItemCb(Closure0 *closure)
 	{
-		fetched = true;
+		fetched = ITEM;
+		g_main_loop_quit(loop);
+	}
+
+	void fetchHistoryCb(Closure1<HistoryInfoVect> *closure,
+			    const HistoryInfoVect &historyInfoVect)
+	{
+		fetched = HISTORY;
 		g_main_loop_quit(loop);
 	}
 };
 
 void test_reqFetchItemDuringAcquireData(void)
 {
-	FetchItemStarter fetchItemStarter;
+	FetchStarter fetchItemStarter;
 
 	GLibMainLoop glibMainLoopForGate;
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
@@ -435,7 +490,29 @@ void test_reqFetchItemDuringAcquireData(void)
 	// acquireData() is supposed to be invoked on this event loop.
 	g_main_loop_run(fetchItemStarter.loop);
 	cppcut_assert_equal(true, fetchItemStarter.succeeded);
-	cppcut_assert_equal(true, fetchItemStarter.fetched);
+	cppcut_assert_equal(FetchStarter::ITEM, fetchItemStarter.fetched);
+}
+
+void test_reqFetchHistoryDuringAcquireData(void)
+{
+	FetchStarter fetchHistoryStarter;
+	fetchHistoryStarter.resourceType = FetchStarter::HISTORY;
+
+	GLibMainLoop glibMainLoopForGate;
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestHapProcessStandard::CtorParams ctorParams;
+	ctorParams.callSyncCommandInAcquireData = true;
+	arg.hapClassParameters = &ctorParams;
+	arg.hapgCtx.glibMainContext = glibMainLoopForGate.getContext();
+	glibMainLoopForGate.start();
+	TestPair pair(arg);
+	fetchHistoryStarter.pair = &pair;
+	fetchHistoryStarter.start();
+
+	// acquireData() is supposed to be invoked on this event loop.
+	g_main_loop_run(fetchHistoryStarter.loop);
+	cppcut_assert_equal(true, fetchHistoryStarter.succeeded);
+	cppcut_assert_equal(FetchStarter::HISTORY, fetchHistoryStarter.fetched);
 }
 
 } // namespace testHapProcessStandardPair

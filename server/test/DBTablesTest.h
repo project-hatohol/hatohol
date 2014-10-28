@@ -93,6 +93,9 @@ extern size_t NumTestIncidentTrackerInfo;
 extern IncidentInfo testIncidentInfo[];
 extern size_t NumTestIncidentInfo;
 
+extern HistoryInfo testHistoryInfo[];
+extern size_t NumTestHistoryInfo;
+
 /**
  * get the test trigger data indexes whose serverId and hostId are 
  * matched with the specified.
@@ -165,6 +168,11 @@ bool isAuthorized(ServerHostGrpSetMap &authMap,
 
 size_t findIndexFromTestActionDef(const UserIdType &userId);
 size_t findIndexFromTestActionDef(const ActionType &type);
+
+void getTestHistory(HistoryInfoVect &historyInfoVect,
+		    const ServerIdType &serverId,
+		    const ItemIdType itemId,
+		    const time_t &beginTime, const time_t &endTime);
 
 /**
  * Get a set of Hostgroup ID for the test material.

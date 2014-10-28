@@ -45,15 +45,14 @@ public:
 	static void transformHostsToHatoholFormat(
 	  HostInfoList &hostInfoList, const ItemTablePtr hosts,
 	  const ServerIdType &serverId);
+
 	static void transformItemsToHatoholFormat(
 	  ItemInfoList &itemInfoList, MonitoringServerStatus &serverStatus,
 	  const ItemTablePtr items, const ItemTablePtr applications);
 
-	static ItemInfoValueType transformItemValueTypeToHatoholFormat(
-	  const int &valueType);
-
-	static int transformItemValueTypeToZabbixFormat(
-	  const ItemInfoValueType &valueType);
+	static void transformHistoryToHatoholFormat(
+	  HistoryInfoVect &historyInfoVect, const ItemTablePtr items,
+	  const ServerIdType &serverId);
 
 protected:
 	static int getItemVariable(const std::string &word);
@@ -87,6 +86,9 @@ protected:
 	static bool transformItemItemGroupToItemInfo(
 	  ItemInfo &itemInfo, const ItemGroup *item,
 	  const ItemCategoryNameMap &itemCategoryNameMap);
+
+	static void transformHistoryItemGroupToHistoryInfo(
+	  HistoryInfo &historyInfo, const ItemGroup *item);
 };
 
 #endif // HatoholDBUtils_h

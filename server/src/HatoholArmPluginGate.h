@@ -22,10 +22,13 @@
 
 #include <qpid/messaging/Message.h>
 #include <qpid/messaging/Session.h>
-#include "HatoholArmPluginInterface.h"
+#include <Monitoring.h>
+#include <HatoholArmPluginInterface.h>
+#include <UsedCountablePtr.h>
+#include <NamedPipe.h>
+#include "DBTablesConfig.h"
 #include "DataStore.h"
-#include "UsedCountablePtr.h"
-#include "NamedPipe.h"
+#include "Closure.h"
 
 class HatoholArmPluginGate : public DataStore, public HatoholArmPluginInterface {
 public:
@@ -45,6 +48,9 @@ public:
 	 */
 	void start(void);
 
+	virtual const MonitoringServerInfo
+	  &getMonitoringServerInfo(void) const override;
+
 	/**
 	 * Reutrn an ArmStatus instance.
 	 *
@@ -53,10 +59,7 @@ public:
 	 *
 	 * @return an ArmStatusInstance.
 	 */
-	const ArmStatus &getArmStatus(void) const;
-
-	// This is dummy and this virtual method should be removed
-	virtual ArmBase &getArmBase(void) override;
+	virtual const ArmStatus &getArmStatus(void) const override;
 
 	// virtual methods
 
@@ -74,7 +77,13 @@ public:
 	 */
 	pid_t getPid(void);
 
-	virtual void startOnDemandFetchItem(ClosureBase *closure) override;
+	virtual bool isFetchItemsSupported(void);
+	virtual void startOnDemandFetchItem(Closure0 *closure) override;
+	virtual void startOnDemandFetchHistory(
+	  const ItemInfo &itemInfo,
+	  const time_t &beginTime,
+	  const time_t &endTime,
+	  Closure1<HistoryInfoVect> *closure) override;
 
 protected:
 	// To avoid an instance from being created on a stack.

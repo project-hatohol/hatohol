@@ -140,4 +140,50 @@ void test_getLastEventId(void)
 	cppcut_assert_equal((uint64_t)8697, zbxApiTestee.callGetLastEventId());
 }
 
+void test_getHistory(void)
+{
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+	zbxApiTestee.testOpenSession();
+	ZabbixAPI::ValueType valueTypeFloat = ZabbixAPI::VALUE_TYPE_FLOAT;
+	ItemTablePtr history =
+	  zbxApiTestee.callGetHistory(25490, valueTypeFloat,
+				      1413265550, 1413268970);
+	const ItemGroupList &list = history->getItemGroupList();
+	ItemGroupListConstIterator it = list.begin();
+	string json;
+	for (; it != list.end(); ++it) {
+		ItemIdType itemid;
+		uint64_t clock, ns;
+		string value;
+		ItemGroupStream historyGroupStream(*it);
+		historyGroupStream.seek(ITEM_ID_ZBX_HISTORY_ITEMID);
+		historyGroupStream >> itemid;
+		historyGroupStream.seek(ITEM_ID_ZBX_HISTORY_CLOCK);
+		historyGroupStream >> clock;
+		historyGroupStream.seek(ITEM_ID_ZBX_HISTORY_NS);
+		historyGroupStream >> ns;
+		historyGroupStream.seek(ITEM_ID_ZBX_HISTORY_VALUE);
+		historyGroupStream >> value;
+		if (!json.empty())
+			json += ",";
+		json += mlpl::StringUtils::sprintf(
+			"{"
+			"\"itemid\":\"%" PRIu64 "\","
+			"\"clock\":\"%" PRIu64 "\","
+			"\"value\":\"%s\","
+			"\"ns\":\"%" PRIu64 "\""
+			"}",
+			itemid, clock, value.c_str(), ns);
+	}
+	string path = getFixturesDir() + "zabbix-api-res-history.json";
+	gchar *contents = NULL;
+	g_file_get_contents(path.c_str(), &contents, NULL, NULL);
+	string expected = contents ? contents : "";
+	json = string("{\"jsonrpc\":\"2.0\",\"result\":[")
+		+ json + string("],\"id\":1}");
+	cppcut_assert_equal(expected, json);
+}
+
 } // namespace testZabbixAPI

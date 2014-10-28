@@ -40,7 +40,10 @@ struct RestResourceHost : public FaceRest::ResourceHandler
 	void handlerGetHostgroup(void);
 	void handlerGetItem(void);
 	void replyGetItem(void);
-	void itemFetchedCallback(ClosureBase *closure);
+	void handlerGetHistory(void);
+	void itemFetchedCallback(Closure0 *closure);
+	void historyFetchedCallback(Closure1<HistoryInfoVect> *closure,
+				    const HistoryInfoVect &historyInfoVect);
 
 	static HatoholError parseEventParameter(EventsQueryOption &option,
 						GHashTable *query);
@@ -50,6 +53,7 @@ struct RestResourceHost : public FaceRest::ResourceHandler
 	static const char *pathForTrigger;
 	static const char *pathForEvent;
 	static const char *pathForItem;
+	static const char *pathForHistory;
 	static const char *pathForHostgroup;
 
 	HandlerFunc m_handlerFunc;

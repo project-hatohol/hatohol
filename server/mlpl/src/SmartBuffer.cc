@@ -46,6 +46,30 @@ SmartBuffer::SmartBuffer(size_t size)
 	alloc(size);
 }
 
+SmartBuffer::SmartBuffer(const SmartBuffer &rhs)
+: m_index(rhs.m_index),
+  m_buf(NULL),
+  m_size(rhs.m_size),
+  m_watermark(rhs.m_watermark)
+{
+	alloc(m_size);
+	memcpy(m_buf, rhs.m_buf, m_size);
+}
+
+const SmartBuffer &SmartBuffer::operator=(const SmartBuffer &rhs)
+{
+	if (this == &rhs)
+		return *this;
+
+	m_index = rhs.m_index;
+	m_buf = NULL;
+	m_size = rhs.m_size;
+	m_watermark = rhs.m_watermark;
+	alloc(m_size);
+	memcpy(m_buf, rhs.m_buf, m_size);
+	return *this;
+}
+
 SmartBuffer::~SmartBuffer()
 {
 	if (m_buf)

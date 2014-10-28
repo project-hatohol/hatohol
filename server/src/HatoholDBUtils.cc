@@ -19,6 +19,7 @@
 
 #include "HatoholDBUtils.h"
 #include "DBTablesMonitoring.h"
+#include <ZabbixAPI.h>
 
 using namespace std;
 using namespace mlpl;
@@ -183,6 +184,21 @@ void HatoholDBUtils::transformItemsToHatoholFormat(
 	for (; item_it != itemInfoList.end(); ++item_it) {
 		if ((*item_it).delay != 0)
 			serverStatus.nvps += 1.0/(*item_it).delay;
+	}
+}
+
+void HatoholDBUtils::transformHistoryToHatoholFormat(
+  HistoryInfoVect &historyInfoVect,  const ItemTablePtr items,
+  const ServerIdType &serverId)
+{
+	// Make HistoryInfoVect
+	const ItemGroupList &itemGroupList = items->getItemGroupList();
+	ItemGroupListConstIterator it = itemGroupList.begin();
+	for (; it != itemGroupList.end(); ++it) {
+		HistoryInfo historyInfo;
+		historyInfo.serverId = serverId;
+		transformHistoryItemGroupToHistoryInfo(historyInfo, *it);
+		historyInfoVect.push_back(historyInfo);
 	}
 }
 
@@ -371,37 +387,6 @@ void HatoholDBUtils::transformHostsItemGroupToHatoholFormat(
 	itemGroupStream >> hostInfo.hostName;
 }
 
-ItemInfoValueType HatoholDBUtils::transformItemValueTypeToHatoholFormat(
-  const int &valueType)
-{
-	switch (valueType) {
-	case 0: // numeric float
-		return ITEM_INFO_VALUE_TYPE_FLOAT;
-	case 3: // numeric unsigned
-		return ITEM_INFO_VALUE_TYPE_INTEGER;
-	case 1: // character
-	case 2: // log
-	case 4: // text
-		return ITEM_INFO_VALUE_TYPE_STRING;
-	default:
-		return ITEM_INFO_VALUE_TYPE_UNKNOWN;
-	}
-}
-
-int HatoholDBUtils::transformItemValueTypeToZabbixFormat(
-  const ItemInfoValueType &valueType)
-{
-	switch (valueType) {
-	case ITEM_INFO_VALUE_TYPE_FLOAT:
-		return 0; // numeric float
-	case ITEM_INFO_VALUE_TYPE_INTEGER:
-		return 3; // numeric unsigned
-	case ITEM_INFO_VALUE_TYPE_STRING:
-	default:
-		return 4; //test
-	}
-}
-
 bool HatoholDBUtils::transformItemItemGroupToItemInfo(
   ItemInfo &itemInfo, const ItemGroup *itemItemGroup,
   const ItemCategoryNameMap &itemCategoryNameMap)
@@ -440,7 +425,9 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 	int valueType;
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_VALUE_TYPE);
 	itemGroupStream >> valueType;
-	itemInfo.valueType = transformItemValueTypeToHatoholFormat(valueType);
+	itemInfo.valueType
+	  = ZabbixAPI::toItemValueType(
+	      static_cast<ZabbixAPI::ValueType>(valueType));
 
 	ItemCategoryIdType itemCategoryId;
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_APPLICATIONID);
@@ -460,4 +447,25 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 	}
 
 	return true;
+}
+
+void HatoholDBUtils::transformHistoryItemGroupToHistoryInfo(
+  HistoryInfo &historyInfo, const ItemGroup *item)
+{
+	ItemGroupStream itemGroupStream(item);
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_ITEMID);
+	itemGroupStream >> historyInfo.itemId;
+
+	uint64_t clock, ns;
+	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_CLOCK);
+	itemGroupStream >> clock;
+	historyInfo.clock.tv_sec = static_cast<time_t>(clock);
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_NS);
+	itemGroupStream >> ns;
+	historyInfo.clock.tv_nsec = static_cast<long>(ns);
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_VALUE);
+	itemGroupStream >> historyInfo.value;
 }

@@ -37,9 +37,14 @@ protected:
 	  MonitoringServerInfo &serverInfo, const mlpl::SmartBuffer &replyBuf);
 
 	virtual HatoholError acquireData(
-	  const MessagingContext &msgCtx) override;
+	  const MessagingContext &msgCtx,
+	  const mlpl::SmartBuffer &cmdBuf) override;
 	virtual HatoholError fetchItem(
-	  const MessagingContext &msgCtx) override;
+	  const MessagingContext &msgCtx,
+	  const mlpl::SmartBuffer &cmdBuf) override;
+	virtual HatoholError fetchHistory(
+	  const MessagingContext &msgCtx,
+	  const mlpl::SmartBuffer &cmdBuf) override;
 	virtual HatoholArmPluginWatchType getHapWatchType(
 	  const HatoholError &err) override;
 

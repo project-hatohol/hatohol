@@ -603,4 +603,48 @@ void test_overview(void)
 	assertOverviewInParser(parser, arg);
 }
 
+void test_getHistoryWithoutParameter(void)
+{
+	startFaceRest();
+
+	RequestArg arg("/history");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	JSONParser *parser = getResponseAsJSONParser(arg);
+	unique_ptr<JSONParser> parserPtr(parser);
+	assertErrorCode(parser, HTERR_NOT_FOUND_PARAMETER);
+}
+
+void test_getHistoryWithMinimumParameter(void)
+{
+	startFaceRest();
+	loadTestDBItems();
+
+	RequestArg arg("/history");
+	StringMap params;
+	params["serverId"] = StringUtils::toString(testItemInfo[0].serverId);
+	params["itemId"] = StringUtils::toString(testItemInfo[0].id);
+	arg.parameters = params;
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	JSONParser *parser = getResponseAsJSONParser(arg);
+	unique_ptr<JSONParser> parserPtr(parser);
+	assertErrorCode(parser, HTERR_OK);
+
+	// TODO: check contents
+}
+
+void test_getHistoryWithInvalidItemId(void)
+{
+	startFaceRest();
+
+	RequestArg arg("/history");
+	StringMap params;
+	params["serverId"] = StringUtils::toString(testItemInfo[0].serverId);
+	params["itemId"] = StringUtils::toString(testItemInfo[0].id);
+	arg.parameters = params;
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	JSONParser *parser = getResponseAsJSONParser(arg);
+	unique_ptr<JSONParser> parserPtr(parser);
+	assertErrorCode(parser, HTERR_NOT_FOUND_TARGET_RECORD);
+}
+
 } // namespace testFaceRestHost

@@ -46,14 +46,30 @@ DataStoreNagios::~DataStoreNagios()
 {
 }
 
-ArmBase &DataStoreNagios::getArmBase(void)
+const MonitoringServerInfo &DataStoreNagios::getMonitoringServerInfo(void)
+  const
 {
-	return m_impl->armNDO;
+	return m_impl->armNDO.getServerInfo();
+}
+
+const ArmStatus &DataStoreNagios::getArmStatus(void) const
+{
+	return m_impl->armNDO.getArmStatus();
 }
 
 void DataStoreNagios::setCopyOnDemandEnable(bool enable)
 {
 	m_impl->armNDO.setCopyOnDemandEnabled(enable);
+}
+
+bool DataStoreNagios::isFetchItemsSupported(void)
+{
+	return m_impl->armNDO.isFetchItemsSupported();
+}
+
+void DataStoreNagios::startOnDemandFetchItem(Closure0 *closure)
+{
+	m_impl->armNDO.fetchItems(closure);
 }
 
 // ---------------------------------------------------------------------------

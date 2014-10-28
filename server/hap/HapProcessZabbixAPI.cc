@@ -129,7 +129,8 @@ void HapProcessZabbixAPI::parseReplyGetMonitoringServerInfoOnInitiated(
 	  "Failed to parse the reply for monitoring server information.\n");
 }
 
-HatoholError HapProcessZabbixAPI::acquireData(const MessagingContext &msgCtx)
+HatoholError HapProcessZabbixAPI::acquireData(const MessagingContext &msgCtx,
+					      const SmartBuffer &cmdBuf)
 {
 	// TODO:
 	setMonitoringServerInfo();
@@ -142,7 +143,8 @@ HatoholError HapProcessZabbixAPI::acquireData(const MessagingContext &msgCtx)
 	return HTERR_OK;
 }
 
-HatoholError HapProcessZabbixAPI::fetchItem(const MessagingContext &msgCtx)
+HatoholError HapProcessZabbixAPI::fetchItem(const MessagingContext &msgCtx,
+					    const SmartBuffer &cmdBuf)
 {
 	ItemTablePtr items = getItems();
 	ItemTablePtr applications = getApplications(items);
@@ -151,6 +153,31 @@ HatoholError HapProcessZabbixAPI::fetchItem(const MessagingContext &msgCtx)
 	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS, &msgCtx);
 	appendItemTable(resBuf, items);
 	appendItemTable(resBuf, applications);
+	reply(msgCtx, resBuf);
+
+	return HTERR_OK;
+}
+
+HatoholError HapProcessZabbixAPI::fetchHistory(const MessagingContext &msgCtx,
+					       const SmartBuffer &cmdBuf)
+{
+	HapiParamReqFetchHistory *params =
+	  getCommandBody<HapiParamReqFetchHistory>(cmdBuf);
+
+	// TODO:
+	// ZabbixAPI::fromItemValueType() can't recognize "log" and "text".
+	ZabbixAPI::ValueType valueType =
+	  ZabbixAPI::fromItemValueType(
+	    static_cast<ItemInfoValueType>(LtoN(params->valueType)));
+	ItemTablePtr items =
+	  getHistory(static_cast<ItemIdType>(LtoN(params->itemId)),
+		     valueType,
+		     static_cast<time_t>(LtoN(params->beginTime)),
+		     static_cast<time_t>(LtoN(params->endTime)));
+
+	SmartBuffer resBuf;
+	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY, &msgCtx);
+	appendItemTable(resBuf, items);
 	reply(msgCtx, resBuf);
 
 	return HTERR_OK;

@@ -30,10 +30,23 @@ void DataStore::setCopyOnDemandEnable(bool enable)
 {
 }
 
-void DataStore::startOnDemandFetchItem(ClosureBase *closure)
+void DataStore::startOnDemandFetchItem(Closure0 *closure)
 {
-	ArmBase &arm = getArmBase();
-	arm.fetchItems(closure);
+}
+
+bool DataStore::isFetchItemsSupported(void)
+{
+	return false;
+}
+
+void DataStore::startOnDemandFetchHistory(const ItemInfo &itemInfo,
+					  const time_t &beginTime,
+					  const time_t &endTime,
+					  Closure1<HistoryInfoVect> *closure)
+{
+	HistoryInfoVect historyInfoVect;
+	(*closure)(historyInfoVect);
+	delete closure;
 }
 
 // ---------------------------------------------------------------------------

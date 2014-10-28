@@ -29,6 +29,7 @@ const char *RestResourceHost::pathForHost      = "/host";
 const char *RestResourceHost::pathForTrigger   = "/trigger";
 const char *RestResourceHost::pathForEvent     = "/event";
 const char *RestResourceHost::pathForItem      = "/item";
+const char *RestResourceHost::pathForHistory   = "/history";
 const char *RestResourceHost::pathForHostgroup = "/hostgroup";
 
 void RestResourceHost::registerFactories(FaceRest *faceRest)
@@ -57,6 +58,10 @@ void RestResourceHost::registerFactories(FaceRest *faceRest)
 	  pathForItem,
 	  new RestResourceHostFactory(
 	    faceRest, &RestResourceHost::handlerGetItem));
+	faceRest->addResourceHandlerFactory(
+	  pathForHistory,
+	  new RestResourceHostFactory(
+	    faceRest, &RestResourceHost::handlerGetHistory));
 }
 
 RestResourceHost::RestResourceHost(FaceRest *faceRest, HandlerFunc handler)
@@ -629,11 +634,12 @@ void RestResourceHost::handlerGetEvent(void)
 	replyJSONData(agent);
 }
 
-struct GetItemClosure : Closure<RestResourceHost>
+// TODO: Add a macro or template to simplify the definition
+struct GetItemClosure : ClosureTemplate0<RestResourceHost>
 {
 	GetItemClosure(RestResourceHost *receiver,
 		       callback func)
-	: Closure<RestResourceHost>::Closure(receiver, func)
+	: ClosureTemplate0(receiver, func)
 	{
 		m_receiver->ref();
 	}
@@ -687,7 +693,7 @@ void RestResourceHost::replyGetItem(void)
 	replyJSONData(agent);
 }
 
-void RestResourceHost::itemFetchedCallback(ClosureBase *closure)
+void RestResourceHost::itemFetchedCallback(Closure0 *closure)
 {
 	replyGetItem();
 	unpauseResponse();
@@ -713,6 +719,149 @@ void RestResourceHost::handlerGetItem(void)
 		replyGetItem();
 		delete closure;
 	}
+}
+
+struct GetHistoryClosure : ClosureTemplate1<RestResourceHost, HistoryInfoVect>
+{
+	DataStorePtr m_dataStorePtr;
+
+	GetHistoryClosure(RestResourceHost *receiver,
+			  callback func, DataStorePtr dataStorePtr)
+	: ClosureTemplate1(receiver, func),
+	  m_dataStorePtr(dataStorePtr)
+	{
+		m_receiver->ref();
+	}
+
+	virtual ~GetHistoryClosure()
+	{
+		m_receiver->unref();
+	}
+};
+
+static HatoholError parseHistoryParameter(
+  GHashTable *query, ServerIdType &serverId, ItemIdType &itemId,
+  time_t &beginTime, time_t &endTime)
+{
+	if (!query)
+		return HatoholError(HTERR_INVALID_PARAMETER);
+
+	HatoholError err;
+
+	// serverId
+	err = getParam<ServerIdType>(query, "serverId",
+				     "%" FMT_SERVER_ID,
+				     serverId);
+	if (err != HTERR_OK)
+		return err;
+	if (serverId == ALL_SERVERS) {
+		return HatoholError(HTERR_INVALID_PARAMETER,
+				    "serverId: ALL_SERVERS");
+	}
+
+	// itemId
+	err = getParam<ItemIdType>(query, "itemId",
+				   "%" FMT_ITEM_ID,
+				   itemId);
+	if (err != HTERR_OK)
+		return err;
+	if (itemId == ALL_ITEMS) {
+		return HatoholError(HTERR_INVALID_PARAMETER,
+				    "itemId: ALL_ITEMS");
+	}
+
+	// beginTime
+	err = getParam<time_t>(query, "beginTime",
+			       "%ld", beginTime);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	// endTime
+	err = getParam<time_t>(query, "endTime",
+			       "%ld", endTime);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	return HatoholError(HTERR_OK);
+}
+
+void RestResourceHost::handlerGetHistory(void)
+{
+	ServerIdType serverId = ALL_SERVERS;
+	ItemId itemId = ALL_ITEMS;
+	const time_t SECONDS_IN_A_DAY = 60 * 60 * 24;
+	time_t endTime = time(NULL);
+	time_t beginTime = endTime - SECONDS_IN_A_DAY;
+
+	HatoholError err = parseHistoryParameter(m_query, serverId, itemId,
+						 beginTime, endTime);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	UnifiedDataStore *unifiedDataStore = UnifiedDataStore::getInstance();
+
+	// Check the specified item
+	ItemsQueryOption option(m_dataQueryContextPtr);
+	option.setTargetId(itemId);
+	ItemInfoList itemList;
+	unifiedDataStore->getItemList(itemList, option);
+	if (itemList.empty()) {
+		// We assume that items are alreay fetched.
+		// Because clients can't know the itemId wihout them.
+		string message = StringUtils::sprintf("itemId: %" FMT_ITEM_ID,
+						      itemId);
+		HatoholError err(HTERR_NOT_FOUND_TARGET_RECORD, message);
+		replyError(err);
+		return;
+	}
+
+	// Queue fetching history
+	ItemInfo &itemInfo = *itemList.begin();
+	GetHistoryClosure *closure =
+	  new GetHistoryClosure(
+	    this, &RestResourceHost::historyFetchedCallback,
+	    unifiedDataStore->getDataStore(serverId));
+	if (closure->m_dataStorePtr.hasData()) {
+		closure->m_dataStorePtr->startOnDemandFetchHistory(
+		  itemInfo, beginTime, endTime, closure);
+	} else {
+		HistoryInfoVect historyInfoVect;
+		(*closure)(historyInfoVect);
+		delete closure;
+	}
+}
+
+void RestResourceHost::historyFetchedCallback(
+  Closure1<HistoryInfoVect> *closure, const HistoryInfoVect &historyInfoVect)
+{
+	JSONBuilder agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.startArray("history");
+	HistoryInfoVectConstIterator it = historyInfoVect.begin();
+	for (; it != historyInfoVect.end(); ++it) {
+		const HistoryInfo &historyInfo = *it;
+		agent.startObject();
+		// Omit serverId & itemId to reduce data.
+		// They are obvious because they are provided by the client.
+		/*
+		// use string to treat 64bit value properly on certain browsers
+		string itemId = StringUtils::toString(historyInfo.itemId);
+		agent.add("serverId",  serverId);
+		agent.add("itemId",    itemId);
+		*/
+		agent.add("value",     historyInfo.value);
+		agent.add("clock",     historyInfo.clock.tv_sec);
+		agent.add("ns",        historyInfo.clock.tv_nsec);
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+
+	replyJSONData(agent);
+	unpauseResponse();
 }
 
 static void addHostsIsMemberOfGroup(

@@ -142,6 +142,13 @@ uint64_t ZabbixAPITestee::callGetLastEventId(void)
 	return getEndEventId(false);
 }
 
+ItemTablePtr ZabbixAPITestee::callGetHistory(
+  const ItemIdType &itemId, const ZabbixAPI::ValueType &valueType,
+  const time_t &beginTime, const time_t &endTime)
+{
+	return getHistory(itemId, valueType, beginTime, endTime);
+}
+
 void ZabbixAPITestee::makeGroupsItemTable(ItemTablePtr &groupsTablePtr)
 {
 	ifstream ifs("fixtures/zabbix-api-res-hostgroup-002-refer.json");

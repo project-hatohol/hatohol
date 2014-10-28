@@ -42,9 +42,16 @@ public:
 
 class TestDataStore : public DataStore {
 	TestArmBase armBase;
-	ArmBase &getArmBase(void)
+
+	virtual const MonitoringServerInfo
+	  &getMonitoringServerInfo(void) const override
 	{
-		return armBase;
+		return armBase.getServerInfo();
+	}
+
+	virtual const ArmStatus &getArmStatus(void) const override
+	{
+		return armBase.getArmStatus();
 	}
 };
 

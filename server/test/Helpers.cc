@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <typeinfo>
 #include <errno.h>
+#include <ZabbixAPI.h>
 #include "Helpers.h"
 #include "DBTablesConfig.h"
 #include "DBTablesAction.h"
@@ -478,6 +479,20 @@ string makeIncidentOutput(const IncidentInfo &incidentInfo)
 	    incidentInfo.updatedAt.tv_nsec,
 	    incidentInfo.priority.c_str(),
 	    incidentInfo.doneRatio);
+	return output;
+}
+
+string makeHistoryOutput(const HistoryInfo &historyInfo)
+{
+	string output =
+	  mlpl::StringUtils::sprintf(
+	    "%" FMT_SERVER_ID "|%" FMT_ITEM_ID
+	    "|%" PRIu64 "|%" PRIu64
+	    "|%s\n",
+	    historyInfo.serverId, historyInfo.itemId,
+	    (uint64_t)historyInfo.clock.tv_sec,
+	    (uint64_t)historyInfo.clock.tv_nsec,
+	    historyInfo.value.c_str());
 	return output;
 }
 
@@ -1104,9 +1119,8 @@ VariableItemGroupPtr convert(const ItemInfo &itemInfo,
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_PREVVALUE, itemInfo.prevValue);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_DELAY,     itemInfo.delay);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID, itemCategoryId);
-	int valueType
-	  = HatoholDBUtils::transformItemValueTypeToZabbixFormat(
-	      itemInfo.valueType); // TODO: remove Zabbix dependency!
+	// TODO: remove Zabbix dependency!
+	int valueType = ZabbixAPI::fromItemValueType(itemInfo.valueType);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_VALUE_TYPE, valueType);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_UNITS, itemInfo.unit);
 	return grp;
@@ -1125,6 +1139,21 @@ ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap)
 		tablePtr->add(grp);
 	}
 	return static_cast<ItemTablePtr>(tablePtr);
+}
+
+VariableItemGroupPtr convert(const HistoryInfo &historyInfo)
+{
+	// TODO: Don't use IDs concerned with Zabbix.
+	VariableItemGroupPtr grp;
+	grp->addNewItem(ITEM_ID_ZBX_HISTORY_ITEMID,
+			historyInfo.itemId);
+	grp->addNewItem(ITEM_ID_ZBX_HISTORY_CLOCK, 
+			static_cast<uint64_t>(historyInfo.clock.tv_sec));
+	grp->addNewItem(ITEM_ID_ZBX_HISTORY_NS,
+			static_cast<uint64_t>(historyInfo.clock.tv_nsec));
+	grp->addNewItem(ITEM_ID_ZBX_HISTORY_VALUE,
+			historyInfo.value);
+	return grp;
 }
 
 // ---------------------------------------------------------------------------

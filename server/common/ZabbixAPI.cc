@@ -31,6 +31,7 @@ using namespace mlpl;
 
 static const char *MIME_JSON_RPC = "application/json-rpc";
 static const guint DEFAULT_TIMEOUT = 60;
+static const size_t HISTORY_LIMIT_PER_ONCE = 1000;
 
 const uint64_t ZabbixAPI::EVENT_ID_NOT_FOUND = -1;
 
@@ -310,6 +311,51 @@ ItemTablePtr ZabbixAPI::getItems(void)
 
 	for (int i = 0; i < numData; i++)
 		parseAndPushItemsData(parser, tablePtr, i);
+	return ItemTablePtr(tablePtr);
+}
+
+ItemTablePtr ZabbixAPI::getHistory(const ItemIdType &itemId,
+				   const ZabbixAPI::ValueType &valueType,
+				   const time_t &beginTime,
+				   const time_t &endTime)
+{
+	HatoholError queryRet;
+	SoupMessage *msg = queryHistory(queryRet, itemId, valueType,
+					beginTime, endTime);
+	if (!msg) {
+		if (queryRet == HTERR_INTERNAL_ERROR) {
+			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+			  HTERR_INTERNAL_ERROR,
+			  "Failed to query history.");
+		} else {
+			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+			  HTERR_FAILED_CONNECT_ZABBIX,
+			  "%s", queryRet.getMessage().c_str());
+		}
+	}
+	JSONParser parser(msg->response_body->data);
+	g_object_unref(msg);
+	if (parser.hasError()) {
+		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+		  HTERR_FAILED_TO_PARSE_JSON_DATA,
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+
+	startObject(parser, "result");
+	VariableItemTablePtr tablePtr;
+	int numData = parser.countElements();
+	MLPL_DBG("The number of history: %d\n", numData);
+	for (int i = 0; i < numData; i++) {
+		startElement(parser, i);
+		VariableItemGroupPtr grp;
+		pushUint64(parser, grp, "itemid", ITEM_ID_ZBX_HISTORY_ITEMID);
+		pushUint64(parser, grp, "clock",  ITEM_ID_ZBX_HISTORY_CLOCK);
+		pushUint64(parser, grp, "ns",     ITEM_ID_ZBX_HISTORY_NS);
+		pushString(parser, grp, "value",  ITEM_ID_ZBX_HISTORY_VALUE);
+		tablePtr->add(grp);
+		parser.endElement();
+	}
+
 	return ItemTablePtr(tablePtr);
 }
 
@@ -600,6 +646,35 @@ SoupMessage *ZabbixAPI::queryItem(HatoholError &queryRet)
 	agent.add("output", "extend");
 	agent.add("selectApplications", "refer");
 	agent.addTrue("monitored");
+	agent.endObject(); // params
+
+	agent.add("auth", m_impl->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent, queryRet);
+}
+
+SoupMessage *ZabbixAPI::queryHistory(HatoholError &queryRet,
+				     const ItemIdType &itemId,
+				     const ZabbixAPI::ValueType &valueType,
+				     const time_t &beginTime,
+				     const time_t &endTime)
+{
+	JSONBuilder agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "history.get");
+
+	agent.startObject("params");
+	agent.add("output", "extend");
+	agent.add("history", valueType);
+	agent.add("itemids", itemId);
+	agent.add("time_from", beginTime);
+	agent.add("time_till", endTime);
+	agent.add("sortfield", "clock");
+	agent.add("sortorder", "ASC");
+	agent.add("limit", HISTORY_LIMIT_PER_ONCE);
 	agent.endObject(); // params
 
 	agent.add("auth", m_impl->authToken);
@@ -1159,4 +1234,37 @@ void ZabbixAPI::pushApplicationid(JSONParser &parser, ItemGroup *itemGroup)
 		parser.endElement();
 	}
 	parser.endObject();
+}
+
+ItemInfoValueType ZabbixAPI::toItemValueType(
+  const ZabbixAPI::ValueType &valueType)
+{
+	switch (valueType) {
+	case ZabbixAPI::VALUE_TYPE_FLOAT:
+		return ITEM_INFO_VALUE_TYPE_FLOAT;
+	case ZabbixAPI::VALUE_TYPE_INTEGER:
+		return ITEM_INFO_VALUE_TYPE_INTEGER;
+	case ZabbixAPI::VALUE_TYPE_STRING:
+		return ITEM_INFO_VALUE_TYPE_STRING;
+	case ZabbixAPI::VALUE_TYPE_LOG:
+	case ZabbixAPI::VALUE_TYPE_TEXT:
+	default:
+		return ITEM_INFO_VALUE_TYPE_UNKNOWN;
+	}
+}
+
+ZabbixAPI::ValueType ZabbixAPI::fromItemValueType(
+  const ItemInfoValueType &valueType)
+{
+	switch (valueType) {
+	case ITEM_INFO_VALUE_TYPE_FLOAT:
+		return ZabbixAPI::VALUE_TYPE_FLOAT;
+	case ITEM_INFO_VALUE_TYPE_INTEGER:
+		return ZabbixAPI::VALUE_TYPE_INTEGER;
+	case ITEM_INFO_VALUE_TYPE_STRING:
+		return ZabbixAPI::VALUE_TYPE_STRING;
+	default:
+		// should detect at caller side by fetching the item
+		return ZabbixAPI::VALUE_TYPE_UNKNOWN;
+	}
 }

@@ -22,6 +22,7 @@
 
 #include <string>
 #include <libsoup/soup.h>
+#include "Monitoring.h"
 #include "MonitoringServerInfo.h"
 #include "ItemTablePtr.h"
 #include "JSONBuilder.h"
@@ -32,10 +33,24 @@
 class ZabbixAPI
 {
 public:
+	typedef enum {
+		VALUE_TYPE_UNKNOWN = -1,
+		VALUE_TYPE_FLOAT   = 0,
+		VALUE_TYPE_STRING  = 1,
+		VALUE_TYPE_LOG     = 2,
+		VALUE_TYPE_INTEGER = 3,
+		VALUE_TYPE_TEXT    = 4
+	} ValueType;
+
 	ZabbixAPI(void);
 	virtual ~ZabbixAPI();
 
 	static const uint64_t EVENT_ID_NOT_FOUND;
+
+	static ItemInfoValueType toItemValueType(
+	  const ZabbixAPI::ValueType &valueType);
+	static ZabbixAPI::ValueType fromItemValueType(
+	  const ItemInfoValueType &valueType);
 
 protected:
 	const static uint64_t UNLIMITED = -1;
@@ -105,6 +120,17 @@ protected:
 	 */
 	ItemTablePtr getItems(void);
 
+
+	/**
+	 * Get the history.
+	 *
+	 * @return The obtained history as an ItemTable format.
+	 */
+	ItemTablePtr getHistory(const ItemIdType &itemId,
+				const ZabbixAPI::ValueType &valueType,
+				const time_t &beginTime,
+				const time_t &endTime);
+
 	/**
 	 * Get the hosts and the host groups.
 	 *
@@ -172,12 +198,24 @@ protected:
 	SoupMessage *queryTrigger(HatoholError &queryRet, int requestSince = 0);
 
 	/**
-	 * Get the triggers.
+	 * Get the items.
 	 *
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
 	SoupMessage *queryItem(HatoholError &queryRet);
+
+	/**
+	 * Get the history.
+	 *
+	 * @return
+	 * A SoupMessage object with the raw Zabbix servers's response.
+	 */
+	SoupMessage *queryHistory(HatoholError &queryRet,
+				  const ItemIdType &itemId,
+				  const ZabbixAPI::ValueType &valueType,
+				  const time_t &beginTime,
+				  const time_t &endTime);
 
 	/**
 	 * Get the hosts.

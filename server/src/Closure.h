@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -23,20 +23,35 @@
 #include <list>
 #include <ReadWriteLock.h>
 
+/* TODO: Should inherit UsedCountable */
 struct ClosureBase
 {
-	ClosureBase(void) {};
 	virtual ~ClosureBase(void) {};
+	virtual bool operator==(const ClosureBase &closure) {
+		// dummy
+		return false;
+	};
+};
+
+struct Closure0 : public ClosureBase
+{
+	virtual ~Closure0(void) {};
 	virtual void operator()(void) = 0;
-	virtual bool operator==(const ClosureBase &closure) = 0;
+};
+
+template<typename A>
+struct Closure1 : public ClosureBase
+{
+	virtual ~Closure1(void) {};
+	virtual void operator()(const A &arg) = 0;
 };
 
 template<class T>
-struct Closure : public ClosureBase
+struct ClosureTemplate0 : public Closure0
 {
-	typedef void (T::*callback)(ClosureBase *closure);
+	typedef void (T::*callback)(Closure0 *closure);
 
-	Closure (T *receiver, callback func)
+	ClosureTemplate0(T *receiver, callback func)
 	:m_receiver(receiver), m_func(func)
 	{
 	}
@@ -48,8 +63,8 @@ struct Closure : public ClosureBase
 
 	virtual bool operator==(const ClosureBase &closureBase)
 	{
-		const Closure *closure
-		  = dynamic_cast<const Closure*>(&closureBase);
+		const ClosureTemplate0 *closure
+		  = dynamic_cast<const ClosureTemplate0 *>(&closureBase);
 		return (m_receiver == closure->m_receiver) &&
 		       (m_func == closure->m_func);
 	}
@@ -58,20 +73,117 @@ struct Closure : public ClosureBase
 	callback m_func;
 };
 
-typedef std::list<ClosureBase *>        ClosureBaseList;
-typedef ClosureBaseList::iterator       ClosureBaseIterator;
-typedef ClosureBaseList::const_iterator ClosureBaseListConstIterator;
-
-struct Signal
+template<class T, typename A>
+struct ClosureTemplate1 : public Closure1<A>
 {
-	Signal(void);
-	virtual ~Signal(void);
-	virtual void connect(ClosureBase *closure);
-	virtual void disconnect(ClosureBase *closure);
-	virtual void clear(void);
-	virtual void operator()(void);
-	ClosureBaseList m_closures;
+	typedef void (T::*callback)(Closure1<A> *closure,
+				    const A &arg);
+
+	ClosureTemplate1 (T *receiver, callback func)
+	:m_receiver(receiver), m_func(func)
+	{
+	}
+
+	virtual void operator()(const A &arg)
+	{
+		(m_receiver->*m_func)(this, arg);
+	}
+
+	virtual bool operator==(const ClosureBase &closureBase)
+	{
+		const ClosureTemplate1 *closure
+		  = dynamic_cast<const ClosureTemplate1 *>(&closureBase);
+		return (m_receiver == closure->m_receiver) &&
+		       (m_func == closure->m_func);
+	}
+
+	T *m_receiver;
+	callback m_func;
+};
+
+struct SignalBase
+{
+	virtual void connect(ClosureBase *closure)
+	{
+		m_rwlock.writeLock();
+		m_closures.push_back(closure);
+		m_rwlock.unlock();
+	}
+	virtual void disconnect(ClosureBase *closure)
+	{
+		typename std::list<ClosureBase *>::iterator it;
+		m_rwlock.writeLock();
+		for (it = m_closures.begin(); it != m_closures.end();) {
+			if (*closure == *(*it)) {
+				delete (*it);
+				it = m_closures.erase(it);
+			} else {
+				++it;
+			}
+		}
+		m_rwlock.unlock();
+	}
+	virtual void clear(void)
+	{
+		m_rwlock.writeLock();
+		typename std::list<ClosureBase *>::iterator it;
+		for (it = m_closures.begin(); it != m_closures.end(); ++it) {
+			ClosureBase *closure = *it;
+			delete closure;
+		}
+		m_closures.clear();
+		m_rwlock.unlock();
+	}
+
+	typename std::list<ClosureBase *> m_closures;
 	mlpl::ReadWriteLock m_rwlock;
+};
+
+struct Signal0 : public SignalBase
+{
+	virtual void connect(Closure0 *closure)
+	{
+		SignalBase::connect(closure);
+	}
+	virtual void disconnect(Closure0 *closure)
+	{
+		SignalBase::disconnect(closure);
+	}
+	virtual void operator()(void)
+	{
+		m_rwlock.readLock();
+		typename std::list<ClosureBase *>::iterator it;
+		for (it = m_closures.begin(); it != m_closures.end(); ++it) {
+			Closure0 *closure
+				= dynamic_cast<Closure0 *>(*it);
+			(*closure)();
+		}
+		m_rwlock.unlock();
+	}
+};
+
+template<typename A>
+struct Signal1 : public SignalBase
+{
+	virtual void connect(Closure1<A> *closure)
+	{
+		SignalBase::connect(closure);
+	}
+	virtual void disconnect(Closure1<A> *closure)
+	{
+		SignalBase::disconnect(closure);
+	}
+	virtual void operator()(const A &arg)
+	{
+		m_rwlock.readLock();
+		std::list<ClosureBase *>::iterator it;
+		for (it = m_closures.begin(); it != m_closures.end(); ++it) {
+			Closure1<A> *closure
+				= dynamic_cast<Closure1<A> *>(*it);
+			(*closure)(arg);
+		}
+		m_rwlock.unlock();
+	}
 };
 
 #endif // Closure_h

@@ -21,6 +21,10 @@
 #define Monitoring_h
 
 #include <SmartTime.h>
+#include <Params.h>
+#include <vector>
+#include <list>
+#include <map>
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_ALL = -1,
@@ -154,6 +158,17 @@ struct ItemInfo {
 typedef std::list<ItemInfo>          ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
+
+struct HistoryInfo {
+	ServerIdType serverId;
+	ItemIdType   itemId;
+	std::string  value;
+	timespec     clock;
+};
+
+typedef std::vector<HistoryInfo>        HistoryInfoVect;
+typedef HistoryInfoVect::iterator       HistoryInfoVectIterator;
+typedef HistoryInfoVect::const_iterator HistoryInfoVectConstIterator;
 
 struct HostgroupInfo {
 	int                 id;

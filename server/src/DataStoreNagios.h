@@ -29,8 +29,12 @@ public:
 	                const bool &autoStart = true);
 	virtual ~DataStoreNagios();
 
-	virtual ArmBase &getArmBase(void);
+	virtual const MonitoringServerInfo
+	  &getMonitoringServerInfo(void) const override;
+	virtual const ArmStatus &getArmStatus(void) const override;
 	virtual void setCopyOnDemandEnable(bool enable);
+	virtual bool isFetchItemsSupported(void) override;
+	virtual void startOnDemandFetchItem(Closure0 *closure) override;
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;

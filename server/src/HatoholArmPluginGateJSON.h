@@ -27,8 +27,9 @@ public:
 	HatoholArmPluginGateJSON(const MonitoringServerInfo &serverInfo,
 				 const bool &autoStart = true);
 
-	virtual ArmBase &getArmBase(void);
-	const ArmStatus &getArmStatus(void) const;
+	virtual const MonitoringServerInfo
+	  &getMonitoringServerInfo(void) const override;
+	virtual const ArmStatus &getArmStatus(void) const override;
 
 protected:
 	virtual ~HatoholArmPluginGateJSON();

@@ -88,6 +88,7 @@ protected:
 	void APIHandlerEventGet(APIHandlerArg &arg);
 	void APIHandlerApplicationGet(APIHandlerArg &arg);
 	void APIHandlerHostgroupGet(APIHandlerArg &arg);
+	void APIHandlerHistoryGet(APIHandlerArg &arg);
 	void makeEventJSONData(const std::string &path);
 	std::string addJSONResponse(const std::string &slice,
 	                            APIHandlerArg &arg);

@@ -20,6 +20,7 @@
 #include "DataStoreManager.h"
 #include <Mutex.h>
 #include <Reaper.h>
+#include <Logger.h>
 using namespace std;
 using namespace mlpl;
 

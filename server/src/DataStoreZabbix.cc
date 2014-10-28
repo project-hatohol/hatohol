@@ -36,15 +36,32 @@ DataStoreZabbix::~DataStoreZabbix(void)
 {
 }
 
-ArmBase &DataStoreZabbix::getArmBase(void)
+const MonitoringServerInfo &DataStoreZabbix::getMonitoringServerInfo(void)
+  const
 {
-	return m_armApi;
+	return m_armApi.getServerInfo();
+}
+
+const ArmStatus &DataStoreZabbix::getArmStatus(void) const
+{
+	return m_armApi.getArmStatus();
 }
 
 void DataStoreZabbix::setCopyOnDemandEnable(bool enable)
 {
 	m_armApi.setCopyOnDemandEnabled(enable);
 }
+
+bool DataStoreZabbix::isFetchItemsSupported(void)
+{
+	return m_armApi.isFetchItemsSupported();
+}
+
+void DataStoreZabbix::startOnDemandFetchItem(Closure0 *closure)
+{
+	m_armApi.fetchItems(closure);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

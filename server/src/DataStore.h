@@ -22,17 +22,28 @@
 
 #include <map>
 #include <vector>
-#include <ArmBase.h>
+#include <Monitoring.h>
+#include <MonitoringServerInfo.h>
+#include <ArmStatus.h>
 #include "UsedCountable.h"
 #include "UsedCountablePtr.h"
+#include "Closure.h"
 
 class DataStore : public UsedCountable {
 public:
 	DataStore(void);
 
-	virtual ArmBase &getArmBase(void) = 0;
+	virtual const MonitoringServerInfo
+	  &getMonitoringServerInfo(void) const = 0;
+	virtual const ArmStatus &getArmStatus(void) const = 0;
 	virtual void setCopyOnDemandEnable(bool enable);
-	virtual void startOnDemandFetchItem(ClosureBase *closure);
+	virtual bool isFetchItemsSupported(void);
+	virtual void startOnDemandFetchItem(Closure0 *closure);
+	virtual void startOnDemandFetchHistory(
+	  const ItemInfo &itemInfo,
+	  const time_t &beginTime,
+	  const time_t &endTime,
+	  Closure1<HistoryInfoVect> *closure);
 protected:
 	virtual ~DataStore();
 };
