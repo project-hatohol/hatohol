@@ -39,14 +39,35 @@ struct FetcherJob
 	ArmBase::UpdateType updateType;
 	ClosureBase        *closure;
 
-	FetcherJob(ArmBase::UpdateType _updateType, ClosureBase *_closure)
-	:updateType(_updateType), closure(_closure)
+	struct HistoryQuery {
+		ItemInfo itemInfo;
+		time_t beginTime;
+		time_t endTime;
+		HistoryQuery(const ItemInfo _itemInfo,
+			     const time_t &_beginTime, const time_t &_endTime)
+		: itemInfo(_itemInfo), beginTime(_beginTime), endTime(_endTime)
+		{
+		}
+	} *historyQuery;
+
+	FetcherJob(Closure0 *_closure)
+	:updateType(ArmBase::UPDATE_ITEM_REQUEST), closure(_closure),
+	 historyQuery(NULL)
+	{
+	}
+
+	FetcherJob(Closure1<HistoryInfoVect> *_closure,
+		   const ItemInfo &_itemInfo,
+		   const time_t &_beginTime, const time_t &_endTime)
+	:updateType(ArmBase::UPDATE_HISTORY_REQUEST), closure(_closure),
+	 historyQuery(new HistoryQuery(_itemInfo, _beginTime, _endTime))
 	{
 	}
 
 	~FetcherJob()
 	{
 		delete closure;
+		delete historyQuery;
 	}
 
 	void run(void)
@@ -226,7 +247,7 @@ bool ArmBase::isFetchItemsSupported(void) const
 
 void ArmBase::fetchItems(Closure0 *closure)
 {
-	m_impl->pushJob(new FetcherJob(UPDATE_ITEM_REQUEST, closure));
+	m_impl->pushJob(new FetcherJob(closure));
 	if (sem_post(&m_impl->sleepSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 }
@@ -236,8 +257,7 @@ void ArmBase::fetchHistory(const ItemInfo &itemInfo,
 			   const time_t &endTime,
 			   Closure1<HistoryInfoVect> *closure)
 {
-	m_impl->pushJob(new FetcherJob(UPDATE_HISTORY_REQUEST, closure));
-	// TODO: store arguments
+	m_impl->pushJob(new FetcherJob(closure, itemInfo, beginTime, endTime));
 	if (sem_post(&m_impl->sleepSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 }
