@@ -789,8 +789,9 @@ void RestResourceHost::handlerGetHistory(void)
 {
 	ServerIdType serverId = ALL_SERVERS;
 	ItemId itemId = ALL_ITEMS;
+	const time_t SECONDS_IN_A_DAY = 60 * 60 * 24;
 	time_t endTime = time(NULL);
-	time_t beginTime = endTime - 60 * 60;
+	time_t beginTime = endTime - SECONDS_IN_A_DAY;
 
 	HatoholError err = parseHistoryParameter(m_query, serverId, itemId,
 						 beginTime, endTime);
