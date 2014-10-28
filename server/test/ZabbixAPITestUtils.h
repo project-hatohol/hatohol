@@ -51,7 +51,7 @@ public:
 	void callGetGroups(ItemTablePtr &groupsTablePtr);
 	uint64_t callGetLastEventId(void);
 	ItemTablePtr callGetHistory(const ItemIdType &itemId,
-				    const int &valueType,
+				    const ZabbixAPI::ValueType &valueType,
 				    const time_t &beginTime,
 				    const time_t &endTime);
 

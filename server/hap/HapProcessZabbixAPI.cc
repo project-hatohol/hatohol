@@ -167,7 +167,7 @@ HatoholError HapProcessZabbixAPI::fetchHistory(const MessagingContext &msgCtx,
 	// TODO:
 	// ZabbixAPI::fromItemValueType() doesn't distinguish character, log
 	// and text.
-	int valueType =
+	ZabbixAPI::ValueType valueType =
 	  ZabbixAPI::fromItemValueType(
 	    static_cast<ItemInfoValueType>(LtoN(params->valueType)));
 	ItemTablePtr items =

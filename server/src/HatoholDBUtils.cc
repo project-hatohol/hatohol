@@ -426,7 +426,8 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_VALUE_TYPE);
 	itemGroupStream >> valueType;
 	itemInfo.valueType
-	  = ZabbixAPI::toItemValueType(valueType);
+	  = ZabbixAPI::toItemValueType(
+	      static_cast<ZabbixAPI::ValueType>(valueType));
 
 	ItemCategoryIdType itemCategoryId;
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_APPLICATIONID);

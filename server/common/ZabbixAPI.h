@@ -33,14 +33,22 @@
 class ZabbixAPI
 {
 public:
+	typedef enum {
+		VALUE_TYPE_FLOAT     = 0,
+		VALUE_TYPE_CHARACTER = 1,
+		VALUE_TYPE_LOG       = 2,
+		VALUE_TYPE_UNSIGNED  = 3,
+		VALUE_TYPE_TEXT      = 4
+	} ValueType;
+
 	ZabbixAPI(void);
 	virtual ~ZabbixAPI();
 
 	static const uint64_t EVENT_ID_NOT_FOUND;
 
 	static ItemInfoValueType toItemValueType(
-	  const int &valueType);
-	static int fromItemValueType(
+	  const ZabbixAPI::ValueType &valueType);
+	static ZabbixAPI::ValueType fromItemValueType(
 	  const ItemInfoValueType &valueType);
 
 protected:
@@ -118,7 +126,7 @@ protected:
 	 * @return The obtained history as an ItemTable format.
 	 */
 	ItemTablePtr getHistory(const ItemIdType &itemId,
-				const int &valueType,
+				const ZabbixAPI::ValueType &valueType,
 				const time_t &beginTime,
 				const time_t &endTime);
 

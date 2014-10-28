@@ -142,10 +142,9 @@ uint64_t ZabbixAPITestee::callGetLastEventId(void)
 	return getEndEventId(false);
 }
 
-ItemTablePtr ZabbixAPITestee::callGetHistory(const ItemIdType &itemId,
-					     const int &valueType,
-					     const time_t &beginTime,
-					     const time_t &endTime)
+ItemTablePtr ZabbixAPITestee::callGetHistory(
+  const ItemIdType &itemId, const ZabbixAPI::ValueType &valueType,
+  const time_t &beginTime, const time_t &endTime)
 {
 	return getHistory(itemId, valueType, beginTime, endTime);
 }

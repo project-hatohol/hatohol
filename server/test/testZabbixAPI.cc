@@ -146,7 +146,7 @@ void test_getHistory(void)
 	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
 	ZabbixAPITestee zbxApiTestee(serverInfo);
 	zbxApiTestee.testOpenSession();
-	int valueTypeFloat = 0;
+	ZabbixAPI::ValueType valueTypeFloat = ZabbixAPI::VALUE_TYPE_FLOAT;
 	ItemTablePtr history =
 	  zbxApiTestee.callGetHistory(25490, valueTypeFloat,
 				      1413265550, 1413268970);

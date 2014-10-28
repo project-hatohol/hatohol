@@ -315,7 +315,7 @@ ItemTablePtr ZabbixAPI::getItems(void)
 }
 
 ItemTablePtr ZabbixAPI::getHistory(const ItemIdType &itemId,
-				   const int &valueType,
+				   const ZabbixAPI::ValueType &valueType,
 				   const time_t &beginTime,
 				   const time_t &endTime)
 {
@@ -1237,32 +1237,32 @@ void ZabbixAPI::pushApplicationid(JSONParser &parser, ItemGroup *itemGroup)
 }
 
 ItemInfoValueType ZabbixAPI::toItemValueType(
-  const int &valueType)
+  const ZabbixAPI::ValueType &valueType)
 {
 	switch (valueType) {
-	case 0: // numeric float
+	case ZabbixAPI::VALUE_TYPE_FLOAT:
 		return ITEM_INFO_VALUE_TYPE_FLOAT;
-	case 3: // numeric unsigned
+	case ZabbixAPI::VALUE_TYPE_UNSIGNED:
 		return ITEM_INFO_VALUE_TYPE_INTEGER;
-	case 1: // character
-	case 2: // log
-	case 4: // text
+	case ZabbixAPI::VALUE_TYPE_CHARACTER:
+	case ZabbixAPI::VALUE_TYPE_LOG:
+	case ZabbixAPI::VALUE_TYPE_TEXT:
 		return ITEM_INFO_VALUE_TYPE_STRING;
 	default:
 		return ITEM_INFO_VALUE_TYPE_UNKNOWN;
 	}
 }
 
-int ZabbixAPI::fromItemValueType(
+ZabbixAPI::ValueType ZabbixAPI::fromItemValueType(
   const ItemInfoValueType &valueType)
 {
 	switch (valueType) {
 	case ITEM_INFO_VALUE_TYPE_FLOAT:
-		return 0; // numeric float
+		return ZabbixAPI::VALUE_TYPE_FLOAT;
 	case ITEM_INFO_VALUE_TYPE_INTEGER:
-		return 3; // numeric unsigned
+		return ZabbixAPI::VALUE_TYPE_UNSIGNED;
 	case ITEM_INFO_VALUE_TYPE_STRING:
 	default:
-		return 4; //test
+		return ZabbixAPI::VALUE_TYPE_CHARACTER;
 	}
 }
