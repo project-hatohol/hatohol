@@ -104,7 +104,11 @@ enum HapiResponseCode {
 
 	// Cl -> Sv
 	HAPI_RES_ITEMS,
+
+	// Since 14.12
+	// Cl -> Sv
 	HAPI_RES_HISTORY,
+
 	NUM_HAPI_CMD_RES
 };
 
