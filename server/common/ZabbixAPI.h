@@ -34,6 +34,7 @@ class ZabbixAPI
 {
 public:
 	typedef enum {
+		VALUE_TYPE_UNKNOWN = -1,
 		VALUE_TYPE_FLOAT   = 0,
 		VALUE_TYPE_STRING  = 1,
 		VALUE_TYPE_LOG     = 2,

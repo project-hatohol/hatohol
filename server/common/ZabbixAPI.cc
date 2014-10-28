@@ -1245,9 +1245,9 @@ ItemInfoValueType ZabbixAPI::toItemValueType(
 	case ZabbixAPI::VALUE_TYPE_INTEGER:
 		return ITEM_INFO_VALUE_TYPE_INTEGER;
 	case ZabbixAPI::VALUE_TYPE_STRING:
+		return ITEM_INFO_VALUE_TYPE_STRING;
 	case ZabbixAPI::VALUE_TYPE_LOG:
 	case ZabbixAPI::VALUE_TYPE_TEXT:
-		return ITEM_INFO_VALUE_TYPE_STRING;
 	default:
 		return ITEM_INFO_VALUE_TYPE_UNKNOWN;
 	}
@@ -1262,7 +1262,9 @@ ZabbixAPI::ValueType ZabbixAPI::fromItemValueType(
 	case ITEM_INFO_VALUE_TYPE_INTEGER:
 		return ZabbixAPI::VALUE_TYPE_INTEGER;
 	case ITEM_INFO_VALUE_TYPE_STRING:
-	default:
 		return ZabbixAPI::VALUE_TYPE_STRING;
+	default:
+		// should detect at caller side by fetching the item
+		return ZabbixAPI::VALUE_TYPE_UNKNOWN;
 	}
 }
