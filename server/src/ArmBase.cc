@@ -231,6 +231,17 @@ void ArmBase::fetchItems(Closure0 *closure)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 }
 
+void ArmBase::fetchHistory(const ItemInfo &itemInfo,
+			   const time_t &beginTime,
+			   const time_t &endTime,
+			   Closure1<HistoryInfoVect> *closure)
+{
+	m_impl->pushJob(new FetcherJob(UPDATE_HISTORY_REQUEST, closure));
+	// TODO: store arguments
+	if (sem_post(&m_impl->sleepSemaphore) == -1)
+		MLPL_ERR("Failed to call sem_post: %d\n", errno);
+}
+
 void ArmBase::setPollingInterval(int sec)
 {
 	m_impl->serverInfo.pollingIntervalSec = sec;

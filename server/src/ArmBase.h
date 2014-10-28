@@ -32,6 +32,7 @@ public:
 	typedef enum {
 		UPDATE_POLLING,
 		UPDATE_ITEM_REQUEST,
+		UPDATE_HISTORY_REQUEST,
 	} UpdateType;
 
 	typedef enum {
@@ -63,6 +64,10 @@ public:
 
 	virtual bool isFetchItemsSupported(void) const;
 	virtual void fetchItems(Closure0 *closure = NULL);
+	virtual void fetchHistory(const ItemInfo &itemInfo,
+				  const time_t &beginTime,
+				  const time_t &endTime,
+				  Closure1<HistoryInfoVect> *closure);
 
 	void setPollingInterval(int sec);
 	int getPollingInterval(void) const;
