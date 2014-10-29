@@ -78,26 +78,24 @@ struct FetcherJob
 
 	void run(void)
 	{
-		if (updateType != UPDATE_ITEM_REQUEST)
-			return;
+		HATOHOL_ASSERT(updateType == UPDATE_ITEM_REQUEST,
+			       "Invalid updateType: %d\n", updateType);
 
 		Closure0 *fetchItemClosure =
 		  dynamic_cast<Closure0*>(closure);
-		if (!fetchItemClosure)
-			return;
+		HATOHOL_ASSERT(fetchItemClosure, "Invalid closure\n");
 
 		(*fetchItemClosure)();
 	}
 
 	void run(const HistoryInfoVect &historyInfoVect)
 	{
-		if (updateType != UPDATE_HISTORY_REQUEST)
-			return;
+		HATOHOL_ASSERT(updateType == UPDATE_HISTORY_REQUEST,
+			       "Invalid updateType: %d\n", updateType);
 
 		Closure1<HistoryInfoVect> *fetchHistoryClosure =
 		  dynamic_cast<Closure1<HistoryInfoVect> *>(closure);
-		if (!fetchHistoryClosure)
-			return
+		HATOHOL_ASSERT(fetchHistoryClosure, "Invalid closure\n");
 
 		(*fetchHistoryClosure)(historyInfoVect);
 	}
@@ -199,7 +197,12 @@ struct ArmBase::Impl
 		rwlock.writeLock();
 		while (!jobQueue.empty()) {
 			FetcherJob *job = jobQueue.front();
-			job->run();
+			if (job->updateType == UPDATE_ITEM_REQUEST) {
+				job->run();
+			} else if (job->updateType == UPDATE_HISTORY_REQUEST) {
+				HistoryInfoVect historyInfoVect;
+				job->run(historyInfoVect);
+			}
 			jobQueue.pop();
 			delete job;
 		}
