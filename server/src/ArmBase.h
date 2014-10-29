@@ -30,12 +30,6 @@ class ArmBase : public HatoholThreadBase
 {
 public:
 	typedef enum {
-		UPDATE_POLLING,
-		UPDATE_ITEM_REQUEST,
-		UPDATE_HISTORY_REQUEST,
-	} UpdateType;
-
-	typedef enum {
 		COLLECT_NG_PARSER_ERROR = 0,
 		COLLECT_NG_DISCONNECT_ZABBIX,
 		COLLECT_NG_DISCONNECT_NAGIOS,
@@ -109,9 +103,6 @@ protected:
 	  const ItemInfo &itemInfo,
 	  const time_t &beginTime,
 	  const time_t &endTime);
-
-	UpdateType getUpdateType(void) const;
-	void       setUpdateType(UpdateType updateType);
 
 	void getArmStatus(ArmStatus *&armStatus);
 	void setFailureInfo(

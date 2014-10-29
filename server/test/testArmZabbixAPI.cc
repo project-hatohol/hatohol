@@ -153,16 +153,6 @@ public:
 		return (oneProcEndType == COLLECT_OK);
 	}
 
-	UpdateType testGetUpdateType(void)
-	{
-		return ArmZabbixAPI::getUpdateType();
-	}
-
-	void testSetUpdateType(UpdateType type)
-	{
-		ArmZabbixAPI::setUpdateType(type);
-	}
-
 	bool testGetCopyOnDemandEnabled(void)
 	{
 		return ArmZabbixAPI::getCopyOnDemandEnabled();
@@ -508,28 +498,6 @@ void test_mainThreadOneProc()
 	serverInfo.port = getTestPort();
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	cppcut_assert_equal(true, armZbxApiTestee.testMainThreadOneProc());
-}
-
-void test_updateTypeShouldBeChangedOnFetchItems()
-{
-	MonitoringServerInfo serverInfo = g_defaultServerInfo;
-	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
-	cppcut_assert_equal(ArmBase::UPDATE_POLLING,
-			    armZbxApiTestee.testGetUpdateType());
-	armZbxApiTestee.fetchItems();
-	cppcut_assert_equal(ArmBase::UPDATE_ITEM_REQUEST,
-			    armZbxApiTestee.testGetUpdateType());
-}
-
-void test_setUpdateType()
-{
-	MonitoringServerInfo serverInfo = g_defaultServerInfo;
-	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
-	cppcut_assert_equal(ArmBase::UPDATE_POLLING,
-			    armZbxApiTestee.testGetUpdateType());
-	armZbxApiTestee.testSetUpdateType(ArmBase::UPDATE_ITEM_REQUEST);
-	cppcut_assert_equal(ArmBase::UPDATE_ITEM_REQUEST,
-			    armZbxApiTestee.testGetUpdateType());
 }
 
 void test_setCopyOnDemandEnabled()
