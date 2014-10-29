@@ -282,10 +282,10 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProcFetchItem(void)
 
 	try {
 		updateItems();
-		return COLLECT_OK;
 	} catch (const HatoholException &he) {
 		return handleHatoholException(he);
 	}
+	return COLLECT_OK;
 }
 
 ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProcFetchHistory(
@@ -302,10 +302,10 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProcFetchHistory(
 		  beginTime, endTime);
 		HatoholDBUtils::transformHistoryToHatoholFormat(
 		   historyInfoVect, itemTablePtr, m_impl->zabbixServerId);
-		return COLLECT_OK;
 	} catch (const HatoholException &he) {
 		return handleHatoholException(he);
 	}
+	return COLLECT_OK;
 }
 
 // ---------------------------------------------------------------------------
