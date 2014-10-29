@@ -51,16 +51,16 @@ struct FetcherJob
 	} *historyQuery;
 
 	FetcherJob(Closure0 *_closure)
-	:updateType(ArmBase::UPDATE_ITEM_REQUEST), closure(_closure),
-	 historyQuery(NULL)
+	: updateType(ArmBase::UPDATE_ITEM_REQUEST), closure(_closure),
+	  historyQuery(NULL)
 	{
 	}
 
 	FetcherJob(Closure1<HistoryInfoVect> *_closure,
 		   const ItemInfo &_itemInfo,
 		   const time_t &_beginTime, const time_t &_endTime)
-	:updateType(ArmBase::UPDATE_HISTORY_REQUEST), closure(_closure),
-	 historyQuery(new HistoryQuery(_itemInfo, _beginTime, _endTime))
+	: updateType(ArmBase::UPDATE_HISTORY_REQUEST), closure(_closure),
+	  historyQuery(new HistoryQuery(_itemInfo, _beginTime, _endTime))
 	{
 	}
 
