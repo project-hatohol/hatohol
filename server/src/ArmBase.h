@@ -103,6 +103,12 @@ protected:
 
 	// virtual methods defined in this class
 	virtual ArmPollingResult mainThreadOneProc(void) = 0;
+	virtual ArmPollingResult mainThreadOneProcFetchItem(void);
+	virtual ArmPollingResult mainThreadOneProcFetchHistory(
+	  HistoryInfoVect &historyInfoVect,
+	  const ItemInfo &itemInfo,
+	  const time_t &beginTime,
+	  const time_t &endTime);
 
 	UpdateType getUpdateType(void) const;
 	void       setUpdateType(UpdateType updateType);

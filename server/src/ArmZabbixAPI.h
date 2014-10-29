@@ -70,9 +70,17 @@ protected:
 
 	uint64_t getMaximumNumberGetEventPerOnce(void);
 
+	ArmPollingResult handleHatoholException(const HatoholException &he);
+
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg);
 	virtual ArmPollingResult mainThreadOneProc(void);
+	virtual ArmPollingResult mainThreadOneProcFetchItem(void);
+	virtual ArmPollingResult mainThreadOneProcFetchHistory(
+	  HistoryInfoVect &historyInfoVect,
+	  const ItemInfo &itemInfo,
+	  const time_t &beginTime,
+	  const time_t &endTime);
 
 private:
 	struct Impl;

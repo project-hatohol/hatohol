@@ -72,12 +72,28 @@ struct FetcherJob
 
 	void run(void)
 	{
-		if (updateType == ArmBase::UPDATE_ITEM_REQUEST) {
-			Closure0 *fetchItemClosure =
-			  dynamic_cast<Closure0*>(closure);
-			(*fetchItemClosure)();
-		} else {
-		}
+		if (updateType != ArmBase::UPDATE_ITEM_REQUEST)
+			return;
+
+		Closure0 *fetchItemClosure =
+		  dynamic_cast<Closure0*>(closure);
+		if (!fetchItemClosure)
+			return;
+
+		(*fetchItemClosure)();
+	}
+
+	void run(const HistoryInfoVect &historyInfoVect)
+	{
+		if (updateType != ArmBase::UPDATE_HISTORY_REQUEST)
+			return;
+
+		Closure1<HistoryInfoVect> *fetchHistoryClosure =
+		  dynamic_cast<Closure1<HistoryInfoVect> *>(closure);
+		if (!fetchHistoryClosure)
+			return
+
+		(*fetchHistoryClosure)(historyInfoVect);
 	}
 };
 
@@ -502,9 +518,27 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 	ArmWorkingStatus previousArmWorkStatus = ARM_WORK_STAT_INIT;
 	while (!hasExitRequest()) {
 		FetcherJob *job = m_impl->popJob();
-		setUpdateType(job ? job->updateType : UPDATE_POLLING);
+		UpdateType updateType = job ? job->updateType : UPDATE_POLLING;
+		setUpdateType(updateType);
 		int sleepTime = m_impl->getSecondsToNextPolling();
-		ArmPollingResult armPollingResult = mainThreadOneProc();
+
+		ArmPollingResult armPollingResult;
+		if (updateType == UPDATE_ITEM_REQUEST) {
+			armPollingResult = mainThreadOneProcFetchItem();
+			job->run();
+		} else if (updateType == UPDATE_HISTORY_REQUEST) {
+			HistoryInfoVect historyInfoVect;
+			armPollingResult =
+			  mainThreadOneProcFetchHistory(
+			    historyInfoVect,
+			    job->historyQuery->itemInfo,
+			    job->historyQuery->beginTime,
+			    job->historyQuery->endTime);
+			job->run(historyInfoVect);
+		} else {
+			armPollingResult = mainThreadOneProc();
+		}
+
 		if (armPollingResult == COLLECT_OK) {
 			m_impl->armStatus.logSuccess();
 			m_impl->lastFailureStatus = ARM_WORK_STAT_OK;
@@ -527,10 +561,7 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 		previousArmWorkStatus = m_impl->lastFailureStatus;
 
 		m_impl->stampLastPollingTime();
-		if (job) {
-			job->run();
-			delete job;
-		}
+		delete job;
 		m_impl->setUpdateType(UPDATE_POLLING);
 
 		if (hasExitRequest())
@@ -538,6 +569,18 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 		sleepInterruptible(sleepTime);
 	}
 	return NULL;
+}
+
+ArmBase::ArmPollingResult ArmBase::mainThreadOneProcFetchItem(void)
+{
+	return COLLECT_OK;
+}
+
+ArmBase::ArmPollingResult ArmBase::mainThreadOneProcFetchHistory(
+  HistoryInfoVect &historyInfoVect,
+ const ItemInfo &itemInfo, const time_t &beginTime, const time_t &endTime)
+{
+	return COLLECT_OK;
 }
 
 void ArmBase::getArmStatus(ArmStatus *&armStatus)
