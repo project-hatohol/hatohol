@@ -301,7 +301,7 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProcFetchHistory(
 		  ZabbixAPI::fromItemValueType(itemInfo.valueType),
 		  beginTime, endTime);
 		HatoholDBUtils::transformHistoryToHatoholFormat(
-		   historyInfoVect, itemTablePtr, m_impl->zabbixServerId);
+		  historyInfoVect, itemTablePtr, m_impl->zabbixServerId);
 	} catch (const HatoholException &he) {
 		return handleHatoholException(he);
 	}
