@@ -262,7 +262,7 @@ void test_statusLog(gconstpointer data)
 	if (!ctx.result)
 		ctx.setComment = gcut_data_get_boolean(data, "comment");
 	if (ctx.setComment)
- 		ctx.comment = "She sells sea shells by the seashore.";
+		ctx.comment = "She sells sea shells by the seashore.";
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	TestArmBase armBase(__func__, serverInfo);
