@@ -504,9 +504,12 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 
 		ArmPollingResult armPollingResult;
 		if (updateType == UPDATE_ITEM_REQUEST) {
+			HATOHOL_ASSERT(job, "Invalid FetcherJob");
 			armPollingResult = mainThreadOneProcFetchItems();
 			job->run();
 		} else if (updateType == UPDATE_HISTORY_REQUEST) {
+			HATOHOL_ASSERT(job && job->historyQuery,
+				       "Invalid FetcherJob");
 			HistoryInfoVect historyInfoVect;
 			FetcherJob::HistoryQuery &query = *job->historyQuery;
 			armPollingResult =
