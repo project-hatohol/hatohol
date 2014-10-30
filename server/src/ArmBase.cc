@@ -81,6 +81,8 @@ struct FetcherJob
 		HATOHOL_ASSERT(updateType == UPDATE_ITEM_REQUEST,
 			       "Invalid updateType: %d\n", updateType);
 
+		if (!closure)
+			return;
 		Closure0 *fetchItemClosure =
 		  dynamic_cast<Closure0*>(closure);
 		HATOHOL_ASSERT(fetchItemClosure, "Invalid closure\n");
