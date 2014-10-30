@@ -268,69 +268,99 @@ void test_statusLog(gconstpointer data)
 		cppcut_assert_equal(ctx.comment, armInfo.failureComment);
 }
 
+struct TestFetchItemCtx {
+	AtomicValue<int>  oneProcCount;
+	AtomicValue<int>  oneProcFetchItemsCount;
+	AtomicValue<bool> closureCalled;
+	AtomicValue<bool> closureDeleted;
+	Mutex             startLock;
+	bool              startLockUnlocked;
+	struct TestClosure : ClosureTemplate0<TestFetchItemCtx>
+	{
+		TestClosure(TestFetchItemCtx *receiver, callback func)
+		: ClosureTemplate0(receiver, func)
+		{
+		}
+		virtual ~TestClosure()
+		{
+			m_receiver->closureDeleted.set(true);
+		}
+	} *closure;
+
+	TestFetchItemCtx(void)
+	: oneProcCount(0),
+	  oneProcFetchItemsCount(0),
+	  startLockUnlocked(false),
+	  closure(NULL)
+	{
+		closure = new TestClosure(
+		  this, &TestFetchItemCtx::itemFetchedCallback);
+		startLock.lock();
+	}
+
+	void unlock(void)
+	{
+		if (startLockUnlocked)
+			return;
+		startLock.unlock();
+		startLockUnlocked = true;
+	}
+
+	static bool oneProcHook(void *data)
+	{
+		TestFetchItemCtx *obj
+		  = static_cast<TestFetchItemCtx *>(data);
+		obj->oneProcCount.set(obj->oneProcCount.get() + 1);
+		obj->unlock();
+		return true;
+	}
+
+	static bool oneProcFetchItemsHook(void *data)
+	{
+		TestFetchItemCtx *obj
+		  = static_cast<TestFetchItemCtx *>(data);
+		obj->oneProcFetchItemsCount.set(
+		  obj->oneProcFetchItemsCount.get() + 1);
+		obj->unlock();
+		return true;
+	}
+
+	void waitForFirstProc(void)
+	{
+		const size_t timeout = 5000; // ms
+		Mutex::Status stat = startLock.timedlock(timeout);
+		cppcut_assert_equal(Mutex::STAT_OK, stat);
+	}
+
+	void itemFetchedCallback(Closure0 *_closure)
+	{
+		closureCalled.set(true);
+		// will be deleted by ArmBae
+		closure = NULL;
+	}
+};
+
 void test_fetchItems(void)
 {
-	struct Ctx {
-		AtomicValue<int> oneProcCount;
-		AtomicValue<int> oneProcFetchItemsCount;
-		Mutex            startLock;
-		bool             startLockUnlocked;
-
-		Ctx(void)
-		: oneProcCount(0),
-		  oneProcFetchItemsCount(0),
-		  startLockUnlocked(false)
-		{
-			startLock.lock();
-		}
-
-		void unlock(void)
-		{
-			if (startLockUnlocked)
-				return;
-			startLock.unlock();
-			startLockUnlocked = true;
-		}
-
-		static bool oneProcHook(void *data)
-		{
-			Ctx *obj = static_cast<Ctx *>(data);
-			obj->oneProcCount.set(obj->oneProcCount.get() + 1);
-			obj->unlock();
-			return true;
-		}
-
-		static bool oneProcFetchItemsHook(void *data)
-		{
-			Ctx *obj = static_cast<Ctx *>(data);
-			obj->oneProcFetchItemsCount.set(
-			  obj->oneProcFetchItemsCount.get() + 1);
-			obj->unlock();
-			return true;
-		}
-
-		void waitForFirstProc(void)
-		{
-			const size_t timeout = 5000; // ms
-			Mutex::Status stat = startLock.timedlock(timeout);
-			cppcut_assert_equal(Mutex::STAT_OK, stat);
-		}
-	} ctx;
+	TestFetchItemCtx ctx;
 
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 
 	TestArmBase armBase(__func__, serverInfo);
-	armBase.setOneProcHook(Ctx::oneProcHook, &ctx);
-	armBase.setOneProcFetchItemsHook(Ctx::oneProcFetchItemsHook, &ctx);
+	armBase.setOneProcHook(TestFetchItemCtx::oneProcHook, &ctx);
+	armBase.setOneProcFetchItemsHook(
+	  TestFetchItemCtx::oneProcFetchItemsHook, &ctx);
 
-	armBase.fetchItems();
+	armBase.fetchItems(ctx.closure);
 	armBase.start();
 	ctx.waitForFirstProc();
 	armBase.callRequestExitAndWait();
 
 	cppcut_assert_equal(1, ctx.oneProcFetchItemsCount.get());
 	cppcut_assert_equal(0, ctx.oneProcCount.get());
+	cppcut_assert_equal(true, ctx.closureCalled.get());
+	cppcut_assert_equal(true, ctx.closureDeleted.get());
 }
 
 } // namespace testArmBase
