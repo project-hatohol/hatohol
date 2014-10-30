@@ -160,6 +160,20 @@ public:
 		return (oneProcEndType == COLLECT_OK);
 	}
 
+	bool testMainThreadOneProcFetchHistory(
+	  HistoryInfoVect &historyInfoVect)
+	{
+		ItemInfo itemInfo;
+		itemInfo.serverId = 1;
+		itemInfo.id = 25490;
+		itemInfo.hostId = 0;
+		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
+		const ArmPollingResult oneProcEndType
+		  = ArmZabbixAPI::mainThreadOneProcFetchHistory(
+		      historyInfoVect, itemInfo, 1413265550, 1413268970);
+		return (oneProcEndType == COLLECT_OK);
+	}
+
 	bool testGetCopyOnDemandEnabled(void)
 	{
 		return ArmZabbixAPI::getCopyOnDemandEnabled();
@@ -638,6 +652,44 @@ void test_oneProcWithFetchItems()
 	cppcut_assert_equal(true, eventInfoList.empty());
 	cppcut_assert_equal(true, triggerInfoList.empty());
 	cppcut_assert_equal(false, itemInfoList.empty());
+}
+
+void test_oneProcFetchHistory()
+{
+	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	HistoryInfoVect historyInfoVect;
+	armZbxApiTestee.testMainThreadOneProcFetchHistory(historyInfoVect);
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	EventInfoList eventInfoList;
+	TriggerInfoList triggerInfoList;
+	ItemInfoList itemInfoList;
+	HostgroupInfoList hostgroupInfoList;
+	HostgroupElementList hostgroupElementList;
+
+	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
+	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
+	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
+	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
+	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
+
+	dbMonitoring.getEventInfoList(eventInfoList, eventsQueryOption);
+	dbMonitoring.getTriggerInfoList(triggerInfoList, triggersQueryOption);
+	dbMonitoring.getItemInfoList(itemInfoList, itemsQueryOption);
+	dbMonitoring.getHostgroupInfoList(hostgroupInfoList,
+	                                  hostgroupsQueryOption);
+	dbMonitoring.getHostgroupElementList(hostgroupElementList,
+	                                     hostgroupElementQueryOption);
+
+	cppcut_assert_equal(true, hostgroupInfoList.empty());
+	cppcut_assert_equal(true, hostgroupElementList.empty());
+	cppcut_assert_equal(true, eventInfoList.empty());
+	cppcut_assert_equal(true, triggerInfoList.empty());
+	cppcut_assert_equal(true, itemInfoList.empty());
+
+	// TODO: Should check the contents
+	cppcut_assert_equal(false, historyInfoVect.empty());
 }
 
 void test_checkUsernamePassword(void)
