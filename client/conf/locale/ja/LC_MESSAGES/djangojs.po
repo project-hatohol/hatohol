@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-10-28 00:58-0500\n"
-"PO-Revision-Date: 2014-10-14 18:01+0900\n"
+"PO-Revision-Date: 2014-10-30 10:26+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -602,7 +602,7 @@ msgstr "ホスト名"
 
 #: static/js/hatohol_hostgroup_privilege_edit_dialog.js:41
 msgid "Edit accessible hostgroups"
-msgstr "閲覧可能なホストグループを編集"
+msgstr "アクセス可能なホストグループを編集"
 
 #: static/js/hatohol_hostgroup_privilege_edit_dialog.js:53
 #: static/js/hatohol_privilege_edit_dialog.js:52
@@ -937,7 +937,7 @@ msgstr "新しいパスワード（確認）"
 
 #: static/js/hatohol_privilege_edit_dialog.js:40
 msgid "Edit accessible hosts"
-msgstr "閲覧可能なホストを編集"
+msgstr "アクセス可能なホストを編集"
 
 #: static/js/hatohol_privilege_edit_dialog.js:196
 msgid "All Allow"
@@ -945,7 +945,7 @@ msgstr "全許可"
 
 #: static/js/hatohol_privilege_edit_dialog.js:197
 msgid "Accessible Hostgroups"
-msgstr "閲覧可能なホストグループ数"
+msgstr "アクセス可能なホストグループ数"
 
 #: static/js/hatohol_privilege_edit_dialog.js:201
 #: static/js/hatohol_server_selector.js:47
