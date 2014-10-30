@@ -812,7 +812,7 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 	return COLLECT_OK;
 }
 
-ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProcFetchItem(void)
+ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProcFetchItems(void)
 {
 	try {
 		if (!m_impl->dbAgent)

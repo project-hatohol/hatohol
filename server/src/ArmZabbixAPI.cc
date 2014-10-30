@@ -275,7 +275,7 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 	return COLLECT_OK;
 }
 
-ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProcFetchItem(void)
+ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProcFetchItems(void)
 {
 	if (!updateAuthTokenIfNeeded())
 		return COLLECT_NG_DISCONNECT_ZABBIX;

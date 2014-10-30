@@ -97,7 +97,7 @@ protected:
 
 	// virtual methods defined in this class
 	virtual ArmPollingResult mainThreadOneProc(void) = 0;
-	virtual ArmPollingResult mainThreadOneProcFetchItem(void);
+	virtual ArmPollingResult mainThreadOneProcFetchItems(void);
 	virtual ArmPollingResult mainThreadOneProcFetchHistory(
 	  HistoryInfoVect &historyInfoVect,
 	  const ItemInfo &itemInfo,

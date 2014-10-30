@@ -153,10 +153,10 @@ public:
 		return (oneProcEndType == COLLECT_OK);
 	}
 
-	bool testMainThreadOneProcFetchItem(void)
+	bool testMainThreadOneProcFetchItems(void)
 	{
 		const ArmPollingResult oneProcEndType
-		  = ArmZabbixAPI::mainThreadOneProcFetchItem();
+		  = ArmZabbixAPI::mainThreadOneProcFetchItems();
 		return (oneProcEndType == COLLECT_OK);
 	}
 
@@ -603,7 +603,7 @@ void test_oneProcWithCopyOnDemandEnabled()
 void test_oneProcWithFetchItems()
 {
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
-	armZbxApiTestee.testMainThreadOneProcFetchItem();
+	armZbxApiTestee.testMainThreadOneProcFetchItems();
 
 	// DBClientHatoholl::getItemInfoList() function
 	// needs information about hostgroup.

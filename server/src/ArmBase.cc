@@ -504,7 +504,7 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 
 		ArmPollingResult armPollingResult;
 		if (updateType == UPDATE_ITEM_REQUEST) {
-			armPollingResult = mainThreadOneProcFetchItem();
+			armPollingResult = mainThreadOneProcFetchItems();
 			job->run();
 		} else if (updateType == UPDATE_HISTORY_REQUEST) {
 			HistoryInfoVect historyInfoVect;
@@ -550,7 +550,7 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 	return NULL;
 }
 
-ArmBase::ArmPollingResult ArmBase::mainThreadOneProcFetchItem(void)
+ArmBase::ArmPollingResult ArmBase::mainThreadOneProcFetchItems(void)
 {
 	return COLLECT_OK;
 }

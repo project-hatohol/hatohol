@@ -75,7 +75,7 @@ protected:
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg);
 	virtual ArmPollingResult mainThreadOneProc(void);
-	virtual ArmPollingResult mainThreadOneProcFetchItem(void);
+	virtual ArmPollingResult mainThreadOneProcFetchItems(void);
 	virtual ArmPollingResult mainThreadOneProcFetchHistory(
 	  HistoryInfoVect &historyInfoVect,
 	  const ItemInfo &itemInfo,

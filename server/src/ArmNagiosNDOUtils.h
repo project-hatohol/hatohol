@@ -55,7 +55,7 @@ protected:
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg);
 	virtual ArmPollingResult mainThreadOneProc(void);
-	virtual ArmPollingResult mainThreadOneProcFetchItem(void);
+	virtual ArmPollingResult mainThreadOneProcFetchItems(void);
 
 private:
 	struct Impl;
