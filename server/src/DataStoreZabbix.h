@@ -35,6 +35,11 @@ public:
 	void setCopyOnDemandEnable(bool enable) override;
 	virtual bool isFetchItemsSupported(void) override;
 	virtual void startOnDemandFetchItem(Closure0 *closure) override;
+	virtual void startOnDemandFetchHistory(
+	  const ItemInfo &itemInfo,
+	  const time_t &beginTime,
+	  const time_t &endTime,
+	  Closure1<HistoryInfoVect> *closure) override;
 private:
 	ArmZabbixAPI	m_armApi;
 };

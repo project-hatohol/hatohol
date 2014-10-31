@@ -35,11 +35,19 @@ class TestArmBase : public ArmBase {
 	
 	OneProcHook m_oneProcHook;
 	void       *m_oneProcHookData;
+	OneProcHook m_oneProcFetchItemsHook;
+	void       *m_oneProcFetchItemsHookData;
+	OneProcHook m_oneProcFetchHistoryHook;
+	void       *m_oneProcFetchHistoryHookData;
+
 public:
 	TestArmBase(const string name, const MonitoringServerInfo &serverInfo)
 	: ArmBase(name, serverInfo),
 	  m_oneProcHook(NULL),
-	  m_oneProcHookData(NULL)
+	  m_oneProcHookData(NULL),
+	  m_oneProcFetchItemsHook(NULL),
+	  m_oneProcFetchItemsHookData(NULL),
+	  m_oneProcFetchHistoryHookData(NULL)
 	{
 	}
 
@@ -69,17 +77,50 @@ public:
 		m_oneProcHookData = data;
 	}
 
+	void setOneProcFetchItemsHook(OneProcHook hook, void *data)
+	{
+		m_oneProcFetchItemsHook = hook;
+		m_oneProcFetchItemsHookData = data;
+	}
+
+	void setOneProcFetchHistoryHook(OneProcHook hook, void *data)
+	{
+		m_oneProcFetchHistoryHook = hook;
+		m_oneProcFetchHistoryHookData = data;
+	}
+
 protected:
+	ArmPollingResult callHook(OneProcHook hookFunc, void *hookData)
+	{
+		if (!hookFunc)
+			return COLLECT_OK;
+
+		bool succeeded = (*hookFunc)(hookData);
+		if (succeeded)
+			return COLLECT_OK;
+		else
+			return COLLECT_NG_INTERNAL_ERROR;
+	}
+
 	virtual ArmPollingResult mainThreadOneProc(void) override
 	{
-		if (m_oneProcHook) {
-			bool succeeded = (*m_oneProcHook)(m_oneProcHookData);
-			if (succeeded)
-				return COLLECT_OK;
-			else
-				return COLLECT_NG_INTERNAL_ERROR;
-		}
-		return COLLECT_OK;
+		return callHook(m_oneProcHook, m_oneProcHookData);
+	}
+
+	virtual ArmPollingResult mainThreadOneProcFetchItems(void) override
+	{
+		return callHook(m_oneProcFetchItemsHook,
+				m_oneProcFetchItemsHookData);
+	}
+
+	virtual ArmPollingResult mainThreadOneProcFetchHistory(
+	  HistoryInfoVect &historyInfoVect,
+	  const ItemInfo &itemInfo,
+	  const time_t &beginTime,
+	  const time_t &endTime) override
+	{
+		return callHook(m_oneProcFetchHistoryHook,
+				m_oneProcFetchHistoryHookData);
 	}
 };
 
@@ -221,7 +262,7 @@ void test_statusLog(gconstpointer data)
 	if (!ctx.result)
 		ctx.setComment = gcut_data_get_boolean(data, "comment");
 	if (ctx.setComment)
- 		ctx.comment = "She sells sea shells by the seashore.";
+		ctx.comment = "She sells sea shells by the seashore.";
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	TestArmBase armBase(__func__, serverInfo);
@@ -241,6 +282,171 @@ void test_statusLog(gconstpointer data)
 	}
 	if (ctx.setComment)
 		cppcut_assert_equal(ctx.comment, armInfo.failureComment);
+}
+
+struct TestFetchCtx {
+	AtomicValue<int>  oneProcCount;
+	AtomicValue<int>  oneProcFetchItemsCount;
+	AtomicValue<int>  oneProcFetchHistoryCount;
+	AtomicValue<bool> fetchItemsClosureCalled;
+	AtomicValue<bool> fetchItemsClosureDeleted;
+	AtomicValue<bool> fetchHistoryClosureCalled;
+	AtomicValue<bool> fetchHistoryClosureDeleted;
+	Mutex             startLock;
+	bool              startLockUnlocked;
+	struct FetchItemClosure : ClosureTemplate0<TestFetchCtx>
+	{
+		FetchItemClosure(TestFetchCtx *receiver, callback func)
+		: ClosureTemplate0(receiver, func)
+		{
+		}
+		virtual ~FetchItemClosure()
+		{
+			m_receiver->fetchItemsClosureDeleted.set(true);
+		}
+	} *fetchItemClosure;
+	struct FetchHistoryClosure
+	  : ClosureTemplate1<TestFetchCtx, HistoryInfoVect>
+	{
+		FetchHistoryClosure(TestFetchCtx *receiver, callback func)
+		: ClosureTemplate1(receiver, func)
+		{
+		}
+		virtual ~FetchHistoryClosure()
+		{
+			m_receiver->fetchHistoryClosureDeleted.set(true);
+		}
+	} *fetchHistoryClosure;
+
+	TestFetchCtx(void)
+	: oneProcCount(0),
+	  oneProcFetchItemsCount(0),
+	  startLockUnlocked(false),
+	  fetchItemClosure(NULL),
+	  fetchHistoryClosure(NULL)
+	{
+		fetchItemClosure = new FetchItemClosure(
+		  this, &TestFetchCtx::itemFetchedCallback);
+		fetchHistoryClosure = new FetchHistoryClosure(
+		  this, &TestFetchCtx::historyFetchedCallback);
+		startLock.lock();
+	}
+
+	virtual ~TestFetchCtx(void)
+	{
+		delete fetchItemClosure;
+		delete fetchHistoryClosure;
+	}
+
+	void unlock(void)
+	{
+		if (startLockUnlocked)
+			return;
+		startLock.unlock();
+		startLockUnlocked = true;
+	}
+
+	static bool oneProcHook(void *data)
+	{
+		TestFetchCtx *obj
+		  = static_cast<TestFetchCtx *>(data);
+		obj->oneProcCount.set(obj->oneProcCount.get() + 1);
+		obj->unlock();
+		return true;
+	}
+
+	static bool oneProcFetchItemsHook(void *data)
+	{
+		TestFetchCtx *obj
+		  = static_cast<TestFetchCtx *>(data);
+		obj->oneProcFetchItemsCount.set(
+		  obj->oneProcFetchItemsCount.get() + 1);
+		obj->unlock();
+		return true;
+	}
+
+	static bool oneProcFetchHistoryHook(void *data)
+	{
+		TestFetchCtx *obj
+		  = static_cast<TestFetchCtx *>(data);
+		obj->oneProcFetchHistoryCount.set(
+		  obj->oneProcFetchHistoryCount.get() + 1);
+		obj->unlock();
+		return true;
+	}
+
+	void waitForFirstProc(void)
+	{
+		const size_t timeout = 5000; // ms
+		Mutex::Status stat = startLock.timedlock(timeout);
+		cppcut_assert_equal(Mutex::STAT_OK, stat);
+	}
+
+	void itemFetchedCallback(Closure0 *_closure)
+	{
+		fetchItemsClosureCalled.set(true);
+		// will be deleted by ArmBae
+		fetchItemClosure = NULL;
+	}
+
+	void historyFetchedCallback(Closure1<HistoryInfoVect> *_closure,
+				    const HistoryInfoVect &historyInfoVect)
+	{
+		fetchHistoryClosureCalled.set(true);
+		// will be deleted by ArmBae
+		fetchHistoryClosure = NULL;
+	}
+};
+
+void test_fetchItems(void)
+{
+	TestFetchCtx ctx;
+
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+
+	TestArmBase armBase(__func__, serverInfo);
+	armBase.setOneProcHook(TestFetchCtx::oneProcHook, &ctx);
+	armBase.setOneProcFetchItemsHook(
+	  TestFetchCtx::oneProcFetchItemsHook, &ctx);
+
+	armBase.fetchItems(ctx.fetchItemClosure);
+	armBase.start();
+	ctx.waitForFirstProc();
+	armBase.callRequestExitAndWait();
+
+	cppcut_assert_equal(1, ctx.oneProcFetchItemsCount.get());
+	cppcut_assert_equal(0, ctx.oneProcCount.get());
+	cppcut_assert_equal(true, ctx.fetchItemsClosureCalled.get());
+	cppcut_assert_equal(true, ctx.fetchItemsClosureDeleted.get());
+}
+
+void test_fetchHistory(void)
+{
+	TestFetchCtx ctx;
+
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+
+	TestArmBase armBase(__func__, serverInfo);
+	armBase.setOneProcHook(TestFetchCtx::oneProcHook, &ctx);
+	armBase.setOneProcFetchHistoryHook(
+	  TestFetchCtx::oneProcFetchHistoryHook, &ctx);
+
+	ItemInfo itemInfo;
+	itemInfo.id = 0;
+	itemInfo.serverId = 0;
+	itemInfo.hostId = 0;
+	itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
+	armBase.fetchHistory(itemInfo, 0, 0, ctx.fetchHistoryClosure);
+	armBase.start();
+	ctx.waitForFirstProc();
+	armBase.callRequestExitAndWait();
+
+	cppcut_assert_equal(1, ctx.oneProcFetchHistoryCount.get());
+	cppcut_assert_equal(0, ctx.oneProcCount.get());
+	cppcut_assert_equal(true, ctx.fetchHistoryClosureCalled.get());
+	cppcut_assert_equal(true, ctx.fetchHistoryClosureDeleted.get());
 }
 
 } // namespace testArmBase

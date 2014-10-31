@@ -762,6 +762,21 @@ void ArmNagiosNDOUtils::connect(void)
 	m_impl->connect();
 }
 
+ArmBase::ArmPollingResult ArmNagiosNDOUtils::handleHatoholException(
+  const HatoholException &he)
+{
+	if (he.getErrCode() == HTERR_FAILED_CONNECT_MYSQL) {
+		MLPL_ERR("Error Connection: %s %d\n",
+			 he.what(), he.getErrCode());
+		delete m_impl->dbAgent;
+		m_impl->dbAgent = NULL;
+		return COLLECT_NG_DISCONNECT_NAGIOS;
+	} else {
+		MLPL_ERR("Got exception: %s\n", he.what());
+		return COLLECT_NG_INTERNAL_ERROR;
+	}
+}
+
 gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
 {
 	const MonitoringServerInfo &svInfo = getServerInfo();
@@ -781,27 +796,15 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 	try {
 		if (!m_impl->dbAgent)
 			connect();
-		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
+		getTrigger();
+		getEvent();
+		getHost();
+		getHostgroup();
+		getHostgroupMembers();
+		if (!getCopyOnDemandEnabled())
 			getItem();
-		} else {
-			getTrigger();
-			getEvent();
-			getHost();
-			getHostgroup();
-			getHostgroupMembers();
-			if (!getCopyOnDemandEnabled())
-				getItem();
-		}
 	} catch (const HatoholException &he) {
-		if (he.getErrCode() == HTERR_FAILED_CONNECT_MYSQL) {
-			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
-			delete m_impl->dbAgent;
-			m_impl->dbAgent = NULL;
-			return COLLECT_NG_DISCONNECT_NAGIOS;
-		} else {
-			MLPL_ERR("Got exception: %s\n", he.what());
-			return COLLECT_NG_INTERNAL_ERROR;
-		}
+		return handleHatoholException(he);
 	} catch (const exception &e) {
 		MLPL_ERR("Got exception: %s\n", e.what());
 		return COLLECT_NG_INTERNAL_ERROR;
@@ -809,3 +812,17 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 	return COLLECT_OK;
 }
 
+ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProcFetchItems(void)
+{
+	try {
+		if (!m_impl->dbAgent)
+			connect();
+		getItem();
+	} catch (const HatoholException &he) {
+		return handleHatoholException(he);
+	} catch (const exception &e) {
+		MLPL_ERR("Got exception: %s\n", e.what());
+		return COLLECT_NG_INTERNAL_ERROR;
+	}
+	return COLLECT_OK;
+}

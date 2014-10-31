@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <semaphore.h>
 #include <errno.h>
+#include <queue>
 #include <Logger.h>
 #include <AtomicValue.h>
 #include "ArmBase.h"
@@ -33,6 +34,75 @@ using namespace mlpl;
 
 const char *SERVER_SELF_MONITORING_SUFFIX = "_SELF";
 
+typedef enum {
+	UPDATE_POLLING,
+	UPDATE_ITEM_REQUEST,
+	UPDATE_HISTORY_REQUEST,
+} UpdateType;
+
+struct FetcherJob
+{
+	UpdateType   updateType;
+	ClosureBase *closure;
+
+	struct HistoryQuery {
+		ItemInfo itemInfo;
+		time_t beginTime;
+		time_t endTime;
+		HistoryQuery(const ItemInfo _itemInfo,
+			     const time_t &_beginTime, const time_t &_endTime)
+		: itemInfo(_itemInfo), beginTime(_beginTime), endTime(_endTime)
+		{
+		}
+	} *historyQuery;
+
+	FetcherJob(Closure0 *_closure)
+	: updateType(UPDATE_ITEM_REQUEST), closure(_closure),
+	  historyQuery(NULL)
+	{
+	}
+
+	FetcherJob(Closure1<HistoryInfoVect> *_closure,
+		   const ItemInfo &_itemInfo,
+		   const time_t &_beginTime, const time_t &_endTime)
+	: updateType(UPDATE_HISTORY_REQUEST), closure(_closure),
+	  historyQuery(new HistoryQuery(_itemInfo, _beginTime, _endTime))
+	{
+	}
+
+	~FetcherJob()
+	{
+		delete closure;
+		delete historyQuery;
+	}
+
+	void run(void)
+	{
+		HATOHOL_ASSERT(updateType == UPDATE_ITEM_REQUEST,
+			       "Invalid updateType: %d\n", updateType);
+
+		if (!closure)
+			return;
+		Closure0 *fetchItemClosure =
+		  dynamic_cast<Closure0*>(closure);
+		HATOHOL_ASSERT(fetchItemClosure, "Invalid closure\n");
+
+		(*fetchItemClosure)();
+	}
+
+	void run(const HistoryInfoVect &historyInfoVect)
+	{
+		HATOHOL_ASSERT(updateType == UPDATE_HISTORY_REQUEST,
+			       "Invalid updateType: %d\n", updateType);
+
+		Closure1<HistoryInfoVect> *fetchHistoryClosure =
+		  dynamic_cast<Closure1<HistoryInfoVect> *>(closure);
+		HATOHOL_ASSERT(fetchHistoryClosure, "Invalid closure\n");
+
+		(*fetchHistoryClosure)(historyInfoVect);
+	}
+};
+
 struct ArmBase::Impl
 {
 	string               name;
@@ -40,12 +110,12 @@ struct ArmBase::Impl
 	timespec             lastPollingTime;
 	sem_t                sleepSemaphore;
 	AtomicValue<bool>    exitRequest;
-	ArmBase::UpdateType  updateType;
 	bool                 isCopyOnDemandEnabled;
 	ReadWriteLock        rwlock;
 	ArmStatus            armStatus;
 	string               lastFailureComment;
 	ArmWorkingStatus     lastFailureStatus;
+	queue<FetcherJob *>  jobQueue;
 
 	ArmResultTriggerInfo ArmResultTriggerTable[NUM_COLLECT_NG_KIND];
 
@@ -54,7 +124,6 @@ struct ArmBase::Impl
 	: name(_name),
 	  serverInfo(_serverInfo),
 	  exitRequest(false),
-	  updateType(UPDATE_POLLING),
 	  isCopyOnDemandEnabled(false),
 	  lastFailureStatus(ARM_WORK_STAT_FAILURE)
 	{
@@ -67,15 +136,13 @@ struct ArmBase::Impl
 
 	virtual ~Impl()
 	{
+		clearJob();
 		if (sem_destroy(&sleepSemaphore) != 0)
 			MLPL_ERR("Failed to call sem_destroy(): %d\n", errno);
 	}
 
 	void stampLastPollingTime(void)
 	{
-		if (getUpdateType() != UPDATE_POLLING)
-			return;
-
 		int result = clock_gettime(CLOCK_REALTIME,
 					   &lastPollingTime);
 		if (result == 0) {
@@ -108,18 +175,39 @@ struct ArmBase::Impl
 		return interval;
 	}
 
-	UpdateType getUpdateType(void)
-	{
-		rwlock.readLock();
-		ArmBase::UpdateType type = updateType;
-		rwlock.unlock();
-		return type;
-	}
-
-	void setUpdateType(ArmBase::UpdateType type)
+	void pushJob(FetcherJob *job)
 	{
 		rwlock.writeLock();
-		updateType = type;
+		jobQueue.push(job);
+		rwlock.unlock();
+	}
+
+	FetcherJob *popJob(void)
+	{
+		FetcherJob *job = NULL;
+		rwlock.writeLock();
+		if (!jobQueue.empty()) {
+			job = jobQueue.front();
+			jobQueue.pop();
+		}
+		rwlock.unlock();
+		return job;
+	}
+
+	void clearJob(void)
+	{
+		rwlock.writeLock();
+		while (!jobQueue.empty()) {
+			FetcherJob *job = jobQueue.front();
+			if (job->updateType == UPDATE_ITEM_REQUEST) {
+				job->run();
+			} else if (job->updateType == UPDATE_HISTORY_REQUEST) {
+				HistoryInfoVect historyInfoVect;
+				job->run(historyInfoVect);
+			}
+			jobQueue.pop();
+			delete job;
+		}
 		rwlock.unlock();
 	}
 
@@ -128,8 +216,6 @@ struct ArmBase::Impl
 		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++)
 			ArmResultTriggerTable[i].statusType = TRIGGER_STATUS_ALL;
 	}
-
-	Signal0 updatedSignal;
 };
 
 // ---------------------------------------------------------------------------
@@ -168,8 +254,17 @@ bool ArmBase::isFetchItemsSupported(void) const
 
 void ArmBase::fetchItems(Closure0 *closure)
 {
-	setUpdateType(UPDATE_ITEM_REQUEST);
-	m_impl->updatedSignal.connect(closure);
+	m_impl->pushJob(new FetcherJob(closure));
+	if (sem_post(&m_impl->sleepSemaphore) == -1)
+		MLPL_ERR("Failed to call sem_post: %d\n", errno);
+}
+
+void ArmBase::fetchHistory(const ItemInfo &itemInfo,
+			   const time_t &beginTime,
+			   const time_t &endTime,
+			   Closure1<HistoryInfoVect> *closure)
+{
+	m_impl->pushJob(new FetcherJob(closure, itemInfo, beginTime, endTime));
 	if (sem_post(&m_impl->sleepSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 }
@@ -254,16 +349,6 @@ retry:
 			MLPL_ERR("sem_timedwait(): errno: %d\n", errno);
 	}
 	// The up of the semaphore is done only from the destructor.
-}
-
-ArmBase::UpdateType ArmBase::getUpdateType(void) const
-{
-	return m_impl->getUpdateType();
-}
-
-void ArmBase::setUpdateType(UpdateType updateType)
-{
-	m_impl->setUpdateType(updateType);
 }
 
 bool ArmBase::getCopyOnDemandEnabled(void) const
@@ -413,8 +498,30 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 {
 	ArmWorkingStatus previousArmWorkStatus = ARM_WORK_STAT_INIT;
 	while (!hasExitRequest()) {
+		FetcherJob *job = m_impl->popJob();
+		UpdateType updateType = job ? job->updateType : UPDATE_POLLING;
 		int sleepTime = m_impl->getSecondsToNextPolling();
-		ArmPollingResult armPollingResult = mainThreadOneProc();
+
+		ArmPollingResult armPollingResult;
+		if (updateType == UPDATE_ITEM_REQUEST) {
+			HATOHOL_ASSERT(job, "Invalid FetcherJob");
+			armPollingResult = mainThreadOneProcFetchItems();
+			job->run();
+		} else if (updateType == UPDATE_HISTORY_REQUEST) {
+			HATOHOL_ASSERT(job && job->historyQuery,
+				       "Invalid FetcherJob");
+			HistoryInfoVect historyInfoVect;
+			FetcherJob::HistoryQuery &query = *job->historyQuery;
+			armPollingResult =
+			  mainThreadOneProcFetchHistory(
+			    historyInfoVect, query.itemInfo,
+			    query.beginTime, query.endTime);
+			job->run(historyInfoVect);
+		} else {
+			armPollingResult = mainThreadOneProc();
+		}
+		delete job;
+
 		if (armPollingResult == COLLECT_OK) {
 			m_impl->armStatus.logSuccess();
 			m_impl->lastFailureStatus = ARM_WORK_STAT_OK;
@@ -436,16 +543,26 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 		}
 		previousArmWorkStatus = m_impl->lastFailureStatus;
 
-		m_impl->stampLastPollingTime();
-		m_impl->setUpdateType(UPDATE_POLLING);
-		m_impl->updatedSignal();
-		m_impl->updatedSignal.clear();
+		if (updateType == UPDATE_POLLING)
+			m_impl->stampLastPollingTime();
 
 		if (hasExitRequest())
 			break;
 		sleepInterruptible(sleepTime);
 	}
 	return NULL;
+}
+
+ArmBase::ArmPollingResult ArmBase::mainThreadOneProcFetchItems(void)
+{
+	return COLLECT_OK;
+}
+
+ArmBase::ArmPollingResult ArmBase::mainThreadOneProcFetchHistory(
+  HistoryInfoVect &historyInfoVect,
+ const ItemInfo &itemInfo, const time_t &beginTime, const time_t &endTime)
+{
+	return COLLECT_OK;
 }
 
 void ArmBase::getArmStatus(ArmStatus *&armStatus)

@@ -234,6 +234,23 @@ uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
 	return NUMBER_OF_GET_EVENT_PER_ONCE;
 }
 
+ArmBase::ArmPollingResult ArmZabbixAPI::handleHatoholException(
+  const HatoholException &he)
+{
+	if (he.getErrCode() == HTERR_FAILED_CONNECT_ZABBIX) {
+		clearAuthToken();
+		MLPL_ERR("Error Connection: %s %d\n",
+			 he.what(), he.getErrCode());
+		return COLLECT_NG_DISCONNECT_ZABBIX;
+	} else if (he.getErrCode() == HTERR_FAILED_TO_PARSE_JSON_DATA) {
+		MLPL_ERR("Error Message parse: %s %d\n",
+			 he.what(), he.getErrCode());
+		return COLLECT_NG_PARSER_ERROR;
+	}
+	MLPL_ERR("Error on update: %s %d\n", he.what(), he.getErrCode());
+	return COLLECT_NG_INTERNAL_ERROR;;
+}
+
 //
 // This function just shows a warning if there is missing host ID.
 //
@@ -243,11 +260,6 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 		return COLLECT_NG_DISCONNECT_ZABBIX;
 
 	try {
-		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
-			updateItems();
-			return COLLECT_OK;
-		}
-
 		ItemTablePtr triggers = updateTriggers();
 		updateHosts();
 		updateGroups();
@@ -257,18 +269,42 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 		if (!getCopyOnDemandEnabled())
 			updateItems();
 	} catch (const HatoholException &he) {
-		clearAuthToken();
-		if (he.getErrCode() == HTERR_FAILED_CONNECT_ZABBIX) {
-			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
-			return COLLECT_NG_DISCONNECT_ZABBIX;
-		} else if (he.getErrCode() == HTERR_FAILED_TO_PARSE_JSON_DATA) {
-			MLPL_ERR("Error Message parse: %s %d\n", he.what(), he.getErrCode());
-			return COLLECT_NG_PARSER_ERROR;
-		}
-		MLPL_ERR("Error on update: %s %d\n", he.what(), he.getErrCode());
-		return COLLECT_NG_INTERNAL_ERROR;;
+		return handleHatoholException(he);
 	}
 
+	return COLLECT_OK;
+}
+
+ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProcFetchItems(void)
+{
+	if (!updateAuthTokenIfNeeded())
+		return COLLECT_NG_DISCONNECT_ZABBIX;
+
+	try {
+		updateItems();
+	} catch (const HatoholException &he) {
+		return handleHatoholException(he);
+	}
+	return COLLECT_OK;
+}
+
+ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProcFetchHistory(
+  HistoryInfoVect &historyInfoVect,
+  const ItemInfo &itemInfo, const time_t &beginTime, const time_t &endTime)
+{
+	if (!updateAuthTokenIfNeeded())
+		return COLLECT_NG_DISCONNECT_ZABBIX;
+
+	try {
+		ItemTablePtr itemTablePtr = getHistory(
+		  itemInfo.id,
+		  ZabbixAPI::fromItemValueType(itemInfo.valueType),
+		  beginTime, endTime);
+		HatoholDBUtils::transformHistoryToHatoholFormat(
+		  historyInfoVect, itemTablePtr, m_impl->zabbixServerId);
+	} catch (const HatoholException &he) {
+		return handleHatoholException(he);
+	}
 	return COLLECT_OK;
 }
 

@@ -50,9 +50,12 @@ protected:
 	void getHostgroupMembers(void);
 	void connect(void);
 
+	ArmPollingResult handleHatoholException(const HatoholException &he);
+
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg);
 	virtual ArmPollingResult mainThreadOneProc(void);
+	virtual ArmPollingResult mainThreadOneProcFetchItems(void);
 
 private:
 	struct Impl;

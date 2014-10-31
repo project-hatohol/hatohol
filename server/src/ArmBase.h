@@ -30,11 +30,6 @@ class ArmBase : public HatoholThreadBase
 {
 public:
 	typedef enum {
-		UPDATE_POLLING,
-		UPDATE_ITEM_REQUEST,
-	} UpdateType;
-
-	typedef enum {
 		COLLECT_NG_PARSER_ERROR = 0,
 		COLLECT_NG_DISCONNECT_ZABBIX,
 		COLLECT_NG_DISCONNECT_NAGIOS,
@@ -63,6 +58,10 @@ public:
 
 	virtual bool isFetchItemsSupported(void) const;
 	virtual void fetchItems(Closure0 *closure = NULL);
+	virtual void fetchHistory(const ItemInfo &itemInfo,
+				  const time_t &beginTime,
+				  const time_t &endTime,
+				  Closure1<HistoryInfoVect> *closure);
 
 	void setPollingInterval(int sec);
 	int getPollingInterval(void) const;
@@ -98,9 +97,12 @@ protected:
 
 	// virtual methods defined in this class
 	virtual ArmPollingResult mainThreadOneProc(void) = 0;
-
-	UpdateType getUpdateType(void) const;
-	void       setUpdateType(UpdateType updateType);
+	virtual ArmPollingResult mainThreadOneProcFetchItems(void);
+	virtual ArmPollingResult mainThreadOneProcFetchHistory(
+	  HistoryInfoVect &historyInfoVect,
+	  const ItemInfo &itemInfo,
+	  const time_t &beginTime,
+	  const time_t &endTime);
 
 	void getArmStatus(ArmStatus *&armStatus);
 	void setFailureInfo(

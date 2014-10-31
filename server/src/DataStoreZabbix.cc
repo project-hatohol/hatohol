@@ -62,6 +62,13 @@ void DataStoreZabbix::startOnDemandFetchItem(Closure0 *closure)
 	m_armApi.fetchItems(closure);
 }
 
+void DataStoreZabbix::startOnDemandFetchHistory(
+  const ItemInfo &itemInfo, const time_t &beginTime, const time_t &endTime,
+  Closure1<HistoryInfoVect> *closure)
+{
+	m_armApi.fetchHistory(itemInfo, beginTime, endTime, closure);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
