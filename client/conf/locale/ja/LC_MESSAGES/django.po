@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-28 00:58-0500\n"
+"POT-Creation-Date: 2014-10-31 01:41-0500\n"
 "PO-Revision-Date: 2014-10-30 10:26+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -161,6 +161,10 @@ msgstr "障害あり"
 #: viewer/dashboard_ajax.html:84
 msgid "Total"
 msgstr "合計"
+
+#: viewer/disable_js.html:5
+msgid "JavaScript is disabled. Please turn on JavaScript."
+msgstr "JavaScriptが無効になっています。JavaScriptを有効にしてください。"
 
 #: viewer/events_ajax.html:24 viewer/events_ajax.html.py:29
 msgid "Events"
