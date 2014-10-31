@@ -63,3 +63,6 @@ Makefile.in
 /stamp-h1
 /test-driver
 /config.h.in
+/server/data/init-user.sql
+/server/data/server-type.sql
+/server/hap/hatohol-arm-plugin-ceilometer
