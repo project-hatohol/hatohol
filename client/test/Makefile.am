@@ -24,6 +24,7 @@ EXTRA_DIST = \
 	browser/test_hatohol_user_roles_editor.js \
 	browser/test_hatohol_userconfig.js \
 	browser/test_incident_settings_view.js \
+	browser/test_latest_view.js \
 	browser/test_server_view.js \
 	browser/test_users_view.js \
 	browser/test_utils.js \
