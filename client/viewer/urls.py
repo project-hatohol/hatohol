@@ -33,5 +33,4 @@ urlpatterns = patterns('',
     url(r'^ajax_incident_settings$', TemplateView.as_view(template_name='viewer/incident_settings_ajax.html')),
     url(r'^ajax_users$', TemplateView.as_view(template_name='viewer/users_ajax.html')),
     url(r'^ajax_hosts$', TemplateView.as_view(template_name='viewer/hosts_ajax.html')),
-    url(r'^disable_js$', TemplateView.as_view(template_name='viewer/disable_js.html')),
 )

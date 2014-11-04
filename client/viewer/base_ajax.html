@@ -23,9 +23,6 @@
 
 <html>
   <head>
-    <noscript>
-      <meta http-equiv="Refresh" content="0; URL=disable_js">
-    </noscript>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="{{ STATIC_URL }}images/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="{{ STATIC_URL }}css.external/bootstrap.css" rel="stylesheet" media="screen">
@@ -75,6 +72,10 @@
 
     <div style="display: none;"><form>{% csrf_token %}</form></div>
     <div style="text-align: center;" id="update-time"> {% trans "Last update time:"%} None </div>
+
+    <noscript><div id="noscript-background">
+      <div id="noscript-notice">{% trans "JavaScript is disabled. Please turn on JavaScript." %}</div>
+    </div></noscript>
 
 {% block main %}
 {% endblock %}
