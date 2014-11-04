@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-31 01:41-0500\n"
-"PO-Revision-Date: 2014-10-30 10:26+0900\n"
+"POT-Creation-Date: 2014-11-04 01:05-0600\n"
+"PO-Revision-Date: 2014-11-04 16:05+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -74,27 +74,27 @@ msgstr "コマンド"
 msgid "Time-out (sec)"
 msgstr "タイムアウト (秒)"
 
-#: viewer/base_ajax.html:33 viewer/base_ajax.html.py:40
+#: viewer/base_ajax.html:36 viewer/base_ajax.html.py:43
 msgid "Hatohol"
 msgstr "Hatohol"
 
-#: viewer/base_ajax.html:47
+#: viewer/base_ajax.html:50
 msgid "PREPARE"
 msgstr "準備中"
 
-#: viewer/base_ajax.html:56
+#: viewer/base_ajax.html:59
 msgid "Not logged in"
 msgstr "未ログイン"
 
-#: viewer/base_ajax.html:61
+#: viewer/base_ajax.html:64
 msgid "Logout"
 msgstr "ログアウト"
 
-#: viewer/base_ajax.html:65
+#: viewer/base_ajax.html:68
 msgid "Change password"
 msgstr "パスワード変更"
 
-#: viewer/base_ajax.html:74
+#: viewer/base_ajax.html:77
 msgid "Last update time:"
 msgstr "最終更新時刻:"
 
@@ -241,8 +241,7 @@ msgid "Assignee"
 msgstr "担当者"
 
 #: viewer/events_ajax.html:84
-#, python-format
-msgid "%% Done"
+msgid "% Done"
 msgstr "進捗率"
 
 #: viewer/events_ajax.html:95
