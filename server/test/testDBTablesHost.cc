@@ -62,4 +62,17 @@ void test_addHost(void)
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 }
 
+void test_addHostWithDuplicatedName(void)
+{
+	DECLARE_DBTABLES_HOST(dbHost);
+	const string name = "DOG";
+	HostIdType hostId0 = dbHost.addHost(name);
+	HostIdType hostId1 = dbHost.addHost(name);
+	const string statement = "SELECT * FROM host_list";
+	const string expect = StringUtils::sprintf(
+	  "%" FMT_HOST_ID "|%s\n%" FMT_HOST_ID "|%s",
+	  hostId0, name.c_str(), hostId1, name.c_str());
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+}
+
 } // namespace testDBTablesHost
