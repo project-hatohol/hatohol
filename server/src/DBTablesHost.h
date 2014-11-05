@@ -31,6 +31,17 @@ public:
 	DBTablesHost(DBAgent &dbAgent);
 	virtual ~DBTablesHost();
 
+	/**
+	 * Add a host.
+	 *
+	 * @param name
+	 * A name of the added host. It can be duplicated.
+	 *
+	 * @return
+	 * The unique host ID of the added host.
+	 */
+	HostIdType addHost(const std::string &name);
+
 protected:
 	static SetupInfo &getSetupInfo(void);
 

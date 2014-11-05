@@ -34,15 +34,15 @@ const size_t MAX_HOST_NAME_LENGTH =  255;
 static const ColumnDef COLUMN_DEF_HOST_LIST[] = {
 {
 	"id",                              // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"unique_name",                     // columnName
+	"name",                            // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
 	0,                                 // decFracLength
@@ -55,7 +55,7 @@ static const ColumnDef COLUMN_DEF_HOST_LIST[] = {
 
 enum {
 	IDX_HOST_LIST_ID,
-	IDX_HOST_LIST_UNIQUE_NAME,
+	IDX_HOST_LIST_NAME,
 	NUM_IDX_HOST_LIST
 };
 
@@ -67,8 +67,8 @@ static const DBAgent::TableProfile tableProfileHostList =
 static const ColumnDef COLUMN_DEF_SERVER_HOST_DEF[] = {
 {
 	"id",                              // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
@@ -77,8 +77,8 @@ static const ColumnDef COLUMN_DEF_SERVER_HOST_DEF[] = {
 }, {
 	// Host ID in host_list table.
 	"host_id",                         // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -136,8 +136,8 @@ static const DBAgent::TableProfile tableProfileServerHostDef =
 static const ColumnDef COLUMN_DEF_HOST_INFO[] = {
 {
 	"id",                              // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
@@ -145,8 +145,8 @@ static const ColumnDef COLUMN_DEF_HOST_INFO[] = {
 	NULL,                              // defaultValue
 }, {
 	"host_id",                         // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -192,8 +192,8 @@ static const DBAgent::TableProfile tableProfileHostInfo =
 static const ColumnDef COLUMN_DEF_VM_LIST[] = {
 {
 	"id",                              // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
@@ -201,8 +201,8 @@ static const ColumnDef COLUMN_DEF_VM_LIST[] = {
 	NULL,                              // defaultValue
 }, {
 	"host_id",                         // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -210,8 +210,8 @@ static const ColumnDef COLUMN_DEF_VM_LIST[] = {
 	NULL,                              // defaultValue
 }, {
 	"hypervisor_host_id",              // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -264,6 +264,16 @@ DBTablesHost::DBTablesHost(DBAgent &dbAgent)
 
 DBTablesHost::~DBTablesHost()
 {
+}
+
+HostIdType DBTablesHost::addHost(const string &name)
+{
+	HostIdType hostId;
+	DBAgent::InsertArg arg(tableProfileHostList);
+	arg.add(AUTO_INCREMENT_VALUE);
+	arg.add(name);
+	getDBAgent().runTransaction(arg, &hostId);
+	return hostId;
 }
 
 // ---------------------------------------------------------------------------

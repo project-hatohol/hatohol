@@ -28,6 +28,11 @@ using namespace mlpl;
 
 namespace testDBTablesHost {
 
+#define DECLARE_DBTABLES_HOST(VAR_NAME) \
+	DBHatohol _dbHatohol; \
+	DBTablesHost &VAR_NAME = _dbHatohol.getDBTablesHost();
+
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -44,6 +49,17 @@ void test_tablesVersion(void)
 	cppcut_assert_not_null(&dbHost);
 	assertDBTablesVersion(dbHatohol.getDBAgent(),
 	                      DB_TABLES_ID_HOST, DBTablesHost::TABLES_VERSION);
+}
+
+void test_addHost(void)
+{
+	DECLARE_DBTABLES_HOST(dbHost);
+	const string name = "FOO";
+	HostIdType hostId = dbHost.addHost(name);
+	const string statement = "SELECT * FROM host_list";
+	const string expect = StringUtils::sprintf("%" FMT_HOST_ID "|%s",
+	                                           hostId, name.c_str());
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 }
 
 } // namespace testDBTablesHost
