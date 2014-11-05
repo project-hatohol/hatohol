@@ -23,7 +23,7 @@ using namespace mlpl;
 
 static const char *TABLE_NAME_HOST_LIST       = "host_list";
 static const char *TABLE_NAME_SERVER_HOST_DEF = "host_server_host_def";
-static const char *TABLE_NAME_HOST_INFO       = "host_info";
+static const char *TABLE_NAME_HOST_LOCATION   = "host_location";
 static const char *TABLE_NAME_VM_LIST         = "vm_list";
 
 const int DBTablesHost::TABLES_VERSION = 1;
@@ -133,7 +133,7 @@ static const DBAgent::TableProfile tableProfileServerHostDef =
 
 // We manage multiple IP adresses and host naems for one host.
 // So the following are defined in the independent table.
-static const ColumnDef COLUMN_DEF_HOST_INFO[] = {
+static const ColumnDef COLUMN_DEF_HOST_LOCATION[] = {
 {
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
@@ -177,17 +177,17 @@ static const ColumnDef COLUMN_DEF_HOST_INFO[] = {
 };
 
 enum {
-	IDX_HOST_INFO_ID,
-	IDX_HOST_INFO_HOST_ID,
-	IDX_HOST_INFO_IP_ADDR_OR_FQDN,
-	IDX_HOST_INFO_PRIORITY,
-	NUM_IDX_HOST_INFO
+	IDX_HOST_LOCATION_ID,
+	IDX_HOST_LOCATION_HOST_ID,
+	IDX_HOST_LOCATION_IP_ADDR_OR_FQDN,
+	IDX_HOST_LOCATION_PRIORITY,
+	NUM_IDX_HOST_LOCATION
 };
 
 static const DBAgent::TableProfile tableProfileHostInfo =
-  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOST_INFO,
-			    COLUMN_DEF_HOST_INFO,
-			    NUM_IDX_HOST_INFO);
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOST_LOCATION,
+			    COLUMN_DEF_HOST_LOCATION,
+			    NUM_IDX_HOST_LOCATION);
 
 static const ColumnDef COLUMN_DEF_VM_LIST[] = {
 {
