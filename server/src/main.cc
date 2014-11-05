@@ -115,6 +115,7 @@ static void setupGizmoForExit(gpointer data)
 
 	GIOChannel *ioch = g_io_channel_unix_new(pipefd[0]);
 	g_io_add_watch(ioch, G_IO_HUP, exitFunc, data);
+	g_io_channel_unref(ioch);
 }
 
 static void removePidFile(void)
@@ -239,6 +240,8 @@ int mainRoutine(int argc, char *argv[])
 	ctx.loop = g_main_loop_new(NULL, FALSE);
 	g_main_loop_run(ctx.loop);
 
+	g_main_loop_unref(ctx.loop);
+	ctx.loop = NULL;
 	return EXIT_SUCCESS;
 }
 

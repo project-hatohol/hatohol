@@ -292,6 +292,7 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 			g_error_free(error);
 		return false;
 	}
+	g_option_context_free(optCtx);
 
 	if (showVersionFlag) {
 		showVersion();
