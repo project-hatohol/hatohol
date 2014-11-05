@@ -502,6 +502,7 @@ uint64_t DBAgentMySQL::getLastInsertId(void)
 	HATOHOL_ASSERT(row, "Failed to call mysql_fetch_row.");
 	uint64_t id;
 	int numScan = sscanf(row[0], "%" PRIu64, &id);
+	mysql_free_result(result);
 	HATOHOL_ASSERT(numScan == 1, "numScan: %d, %s", numScan, row[0]);
 	return id;
 }
