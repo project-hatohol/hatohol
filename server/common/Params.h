@@ -40,6 +40,9 @@ static const DBTablesId DB_TABLES_ID_MONITORING = 0x0020;
 static const DBTablesId DB_TABLES_ID_USER       = 0x0030;
 static const DBTablesId DB_TABLES_ID_HOST       = 0x0040;
 
+typedef uint64_t GenericIdType;
+#define FMT_GEN_ID PRIu64
+
 typedef int ServerIdType;
 #define FMT_SERVER_ID "d"
 

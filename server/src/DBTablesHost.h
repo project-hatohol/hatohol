@@ -22,6 +22,27 @@
 
 #include "DBTables.h"
 
+struct ServerHostDef {
+	GenericIdType id;
+	HostIdType    hostId;
+	ServerIdType  serverId;
+	std::string   hostIdInServer;
+	std::string   name;
+};
+
+struct HostLocation {
+	GenericIdType id;
+	HostIdType    hostId;
+	std::string   ipAddrOrFQDN;
+	int           priority;
+};
+
+struct VMInfo {
+	GenericIdType id;
+	HostIdType    hostId;
+	HostIdType    hypervisorHostId;
+};
+
 class DBTablesHost : public DBTables {
 public:
 	static const int TABLES_VERSION;
