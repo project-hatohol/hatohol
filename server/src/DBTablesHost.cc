@@ -39,7 +39,7 @@ static const ColumnDef COLUMN_DEF_HOST_LIST[] = {
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
-	0,                                 // flags
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
 	NULL,                              // defaultValue
 }, {
 	"name",                            // columnName
@@ -72,7 +72,7 @@ static const ColumnDef COLUMN_DEF_SERVER_HOST_DEF[] = {
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
-	0,                                 // flags
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
 	NULL,                              // defaultValue
 }, {
 	// Host ID in host_list table.
@@ -141,7 +141,7 @@ static const ColumnDef COLUMN_DEF_HOST_INFO[] = {
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
-	0,                                 // flags
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
 	NULL,                              // defaultValue
 }, {
 	"host_id",                         // columnName
@@ -197,7 +197,7 @@ static const ColumnDef COLUMN_DEF_VM_LIST[] = {
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
-	0,                                 // flags
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
 	NULL,                              // defaultValue
 }, {
 	"host_id",                         // columnName
