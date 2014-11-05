@@ -130,4 +130,21 @@ void test_upsertServerHostDefUpdate(void)
 	cppcut_assert_equal(id0, id1);
 }
 
+void test_upsertServerHostDefUpdateByServerAndHost(void)
+{
+	ServerHostDef svHostDef;
+	svHostDef.id = AUTO_INCREMENT_VALUE;
+	svHostDef.hostId = 12345;
+	svHostDef.serverId = 15;
+	svHostDef.hostIdInServer = "8023455";
+	svHostDef.name = "test host name";
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	svHostDef.name = "dog-dog-dog";
+	GenericIdType id = dbHost.upsertServerHostDef(svHostDef);
+	const string expect = StringUtils::sprintf(
+	  "%" FMT_GEN_ID "|12345|15|8023455|dog-dog-dog", id);
+	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
+}
+
 } // namespace testDBTablesHost

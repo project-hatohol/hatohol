@@ -126,10 +126,21 @@ enum {
 	NUM_IDX_SERVER_HOST_DEF
 };
 
+static const int columnIndexesHostServerDefIdx[] = {
+  IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+  IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsHostServerDef[] = {
+  {"HostServerDefIdx", (const int *)columnIndexesHostServerDefIdx, false},
+  {NULL}
+};
+
 static const DBAgent::TableProfile tableProfileServerHostDef =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SERVER_HOST_DEF,
 			    COLUMN_DEF_SERVER_HOST_DEF,
-			    NUM_IDX_SERVER_HOST_DEF);
+			    NUM_IDX_SERVER_HOST_DEF,
+			    indexDefsHostServerDef);
 
 // We manage multiple IP adresses and host naems for one host.
 // So the following are defined in the independent table.
