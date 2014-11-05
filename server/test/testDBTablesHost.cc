@@ -75,4 +75,20 @@ void test_addHostWithDuplicatedName(void)
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 }
 
+void test_upsertServerHostDef(void)
+{
+	ServerHostDef svHostDef;
+	svHostDef.id = AUTO_INCREMENT_VALUE;
+	svHostDef.hostId = 12345;
+	svHostDef.serverId = 15;
+	svHostDef.hostIdInServer = "8023455";
+	svHostDef.name = "test host name";
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	GenericIdType id = dbHost.upsertServerHostDef(svHostDef);
+	const string expect = StringUtils::sprintf(
+	  "%" FMT_GEN_ID "|12345|15|8023455|test host name", id);
+	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
+}
+
 } // namespace testDBTablesHost

@@ -63,6 +63,21 @@ public:
 	 */
 	HostIdType addHost(const std::string &name);
 
+	/**
+	 * Insert or update a record to/in the server-host-definition table
+	 *
+	 * If there's the record whose ID is equal to serverHostDef.id or
+	 * with the combination of serverHostDef.serverId and
+	 * serverHostDef.hostIdInserver, the record is updated.
+	 * If serverHostDef.id is AUTO_INCREMENT_VALUE, a new record is always
+	 * added except for the latter case of the previous sentence.
+	 *
+	 * @param serverHostDef A data to be inserted/updated.
+	 * @return
+	 * The ID of inserted/updated record.
+	 */
+	GenericIdType upsertServerHostDef(const ServerHostDef &serverHostDef);
+
 protected:
 	static SetupInfo &getSetupInfo(void);
 

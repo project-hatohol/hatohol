@@ -22,7 +22,7 @@ using namespace std;
 using namespace mlpl;
 
 static const char *TABLE_NAME_HOST_LIST       = "host_list";
-static const char *TABLE_NAME_SERVER_HOST_DEF = "host_server_host_def";
+static const char *TABLE_NAME_SERVER_HOST_DEF = "server_host_def";
 static const char *TABLE_NAME_HOST_LOCATION   = "host_location";
 static const char *TABLE_NAME_VM_LIST         = "vm_list";
 
@@ -276,6 +276,21 @@ HostIdType DBTablesHost::addHost(const string &name)
 	return hostId;
 }
 
+GenericIdType DBTablesHost::upsertServerHostDef(
+  const ServerHostDef &serverHostDef)
+{
+	GenericIdType id;
+	DBAgent::InsertArg arg(tableProfileServerHostDef);
+	arg.add(serverHostDef.id);
+	arg.add(serverHostDef.hostId);
+	arg.add(serverHostDef.serverId);
+	arg.add(serverHostDef.hostIdInServer);
+	arg.add(serverHostDef.name);
+	arg.upsertOnDuplicate = true;
+	getDBAgent().runTransaction(arg, &id);
+	return id;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -287,6 +302,8 @@ DBTables::SetupInfo &DBTablesHost::getSetupInfo(void)
 	static const TableSetupInfo TABLE_INFO[] = {
 	{
 		&tableProfileHostList,
+	}, {
+		&tableProfileServerHostDef,
 	}, {
 		&tableProfileHostInfo,
 	}
