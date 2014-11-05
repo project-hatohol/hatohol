@@ -453,8 +453,10 @@ void FaceRest::Impl::queueRestJob
 	FaceRest *face = factory->m_faceRest;
 	ResourceHandler *job = factory->createHandler();
 	bool succeeded = job->setRequest(msg, path, query, client);
-	if (!succeeded)
+	if (!succeeded) {
+		job->unref();
 		return;
+	}
 
 	job->pauseResponse();
 
