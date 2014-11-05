@@ -89,6 +89,7 @@ struct FaceRest::Impl {
 	GMainContext       *gMainCtx;
 	FaceRestParam      *param;
 	AtomicValue<bool>   quitRequest;
+	set<string>         handlerPathSet;
 
 	// for async mode
 	bool             asyncMode;
@@ -151,6 +152,18 @@ struct FaceRest::Impl {
 		soup_server_add_handler(soupServer, path,
 					queueRestJob, factory,
 					ResourceHandlerFactory::destroy);
+		handlerPathSet.insert(path);
+	}
+
+	void removeAllHandlers(void)
+	{
+		if (!soupServer)
+			return;
+
+		set<string>::iterator it = handlerPathSet.begin();
+		for (; it != handlerPathSet.end(); it++)
+			soup_server_remove_handler(soupServer, (*it).c_str());
+		handlerPathSet.clear();
 	}
 
 	static void queueRestJob
@@ -249,6 +262,7 @@ FaceRest::~FaceRest()
 	if (m_impl->soupServer) {
 		SoupSocket *sock = soup_server_get_listener(m_impl->soupServer);
 		soup_socket_disconnect(sock);
+		m_impl->removeAllHandlers();
 		g_object_unref(m_impl->soupServer);
 	}
 	MLPL_INFO("FaceRest: stop process: completed.\n");
