@@ -93,5 +93,5 @@ ItemDataPtr SQLUtils::createFromString(const char *str, SQLColumnType type)
 	default:
 		THROW_HATOHOL_EXCEPTION("Unknown column type: %d\n", type);
 	}
-	return itemData;
+	return ItemDataPtr(itemData, false);
 }
