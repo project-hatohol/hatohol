@@ -162,4 +162,24 @@ void test_upsertHostAccess(void)
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
 }
 
+void test_upsertHostAccessAutoIncrement(void)
+{
+	HostAccess hostAccess;
+	hostAccess.id = AUTO_INCREMENT_VALUE;
+	hostAccess.hostId = 12345;
+	hostAccess.ipAddrOrFQDN = "192.168.100.5";
+	hostAccess.priority = 1000;
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	GenericIdType id0 = dbHost.upsertHostAccess(hostAccess);
+	GenericIdType id1 = dbHost.upsertHostAccess(hostAccess);
+	const string expect = StringUtils::sprintf(
+	  "%" FMT_GEN_ID "|12345|192.168.100.5|1000\n"
+	  "%" FMT_GEN_ID "|12345|192.168.100.5|1000", id0, id1);
+	const string statement = "SELECT * FROM host_access ORDER BY id";
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id0);
+	cppcut_assert_not_equal(id0, id1);
+}
+
 } // namespace testDBTablesHost
