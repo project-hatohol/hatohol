@@ -90,6 +90,18 @@ public:
 	 */
 	GenericIdType upsertHostAccess(const HostAccess &hostAccess);
 
+	/**
+	 * Insert or update a record to/in the host_access table
+	 *
+	 * If there's the record whose ID is equal to vmInfo.id,
+	 * the record is updated.
+	 *
+	 * @param vmInfo A data to be inserted/updated.
+	 * @return
+	 * The ID of inserted/updated record.
+	 */
+	GenericIdType upsertVMInfo(const VMInfo &vmInfo);
+
 protected:
 	static SetupInfo &getSetupInfo(void);
 
