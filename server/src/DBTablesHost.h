@@ -30,7 +30,7 @@ struct ServerHostDef {
 	std::string   name;
 };
 
-struct HostLocation {
+struct HostAccess {
 	GenericIdType id;
 	HostIdType    hostId;
 	std::string   ipAddrOrFQDN;
@@ -77,6 +77,18 @@ public:
 	 * The ID of inserted/updated record.
 	 */
 	GenericIdType upsertServerHostDef(const ServerHostDef &serverHostDef);
+
+	/**
+	 * Insert or update a record to/in the host_access table
+	 *
+	 * If there's the record whose ID is equal to hostAccess.id,
+	 * the record is updated.
+	 *
+	 * @param hostAccess A data to be inserted/updated.
+	 * @return
+	 * The ID of inserted/updated record.
+	 */
+	GenericIdType upsertHostAccess(const HostAccess &hostAccess);
 
 protected:
 	static SetupInfo &getSetupInfo(void);

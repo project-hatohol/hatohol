@@ -23,7 +23,7 @@ using namespace mlpl;
 
 static const char *TABLE_NAME_HOST_LIST       = "host_list";
 static const char *TABLE_NAME_SERVER_HOST_DEF = "server_host_def";
-static const char *TABLE_NAME_HOST_LOCATION   = "host_location";
+static const char *TABLE_NAME_HOST_ACCESS     = "host_access";
 static const char *TABLE_NAME_VM_LIST         = "vm_list";
 
 const int DBTablesHost::TABLES_VERSION = 1;
@@ -144,7 +144,7 @@ static const DBAgent::TableProfile tableProfileServerHostDef =
 
 // We manage multiple IP adresses and host naems for one host.
 // So the following are defined in the independent table.
-static const ColumnDef COLUMN_DEF_HOST_LOCATION[] = {
+static const ColumnDef COLUMN_DEF_HOST_ACCESS[] = {
 {
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
@@ -188,17 +188,17 @@ static const ColumnDef COLUMN_DEF_HOST_LOCATION[] = {
 };
 
 enum {
-	IDX_HOST_LOCATION_ID,
-	IDX_HOST_LOCATION_HOST_ID,
-	IDX_HOST_LOCATION_IP_ADDR_OR_FQDN,
-	IDX_HOST_LOCATION_PRIORITY,
-	NUM_IDX_HOST_LOCATION
+	IDX_HOST_ACCESS_ID,
+	IDX_HOST_ACCESS_HOST_ID,
+	IDX_HOST_ACCESS_IP_ADDR_OR_FQDN,
+	IDX_HOST_ACCESS_PRIORITY,
+	NUM_IDX_HOST_ACCESS
 };
 
-static const DBAgent::TableProfile tableProfileHostInfo =
-  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOST_LOCATION,
-			    COLUMN_DEF_HOST_LOCATION,
-			    NUM_IDX_HOST_LOCATION);
+static const DBAgent::TableProfile tableProfileHostAccess =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOST_ACCESS,
+			    COLUMN_DEF_HOST_ACCESS,
+			    NUM_IDX_HOST_ACCESS);
 
 static const ColumnDef COLUMN_DEF_VM_LIST[] = {
 {
@@ -302,6 +302,19 @@ GenericIdType DBTablesHost::upsertServerHostDef(
 	return id;
 }
 
+GenericIdType DBTablesHost::upsertHostAccess(const HostAccess &hostAccess)
+{
+	GenericIdType id;
+	DBAgent::InsertArg arg(tableProfileHostAccess);
+	arg.add(hostAccess.id);
+	arg.add(hostAccess.hostId);
+	arg.add(hostAccess.ipAddrOrFQDN);
+	arg.add(hostAccess.priority);
+	arg.upsertOnDuplicate = true;
+	getDBAgent().runTransaction(arg, &id);
+	return id;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -316,7 +329,7 @@ DBTables::SetupInfo &DBTablesHost::getSetupInfo(void)
 	}, {
 		&tableProfileServerHostDef,
 	}, {
-		&tableProfileHostInfo,
+		&tableProfileHostAccess,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =
