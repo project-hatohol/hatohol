@@ -117,8 +117,8 @@ describe('LatestView', function() {
       '<td>group1</td>' +
       '<td><a href="http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=1">cpu usage</a></td>' +
       '<td data-sort-value="1415232279">2014/11/06 09:04:39</td>' +
-      '<td>54.282349</td>' +
-      '<td>24.594534</td>'
+      '<td>54.282349 %</td>' +
+      '<td>24.594534 %</td>'
     );
   });
 

@@ -264,6 +264,8 @@ function valueString(value, unit) {
     return formatDate(value);
 
   // TODO: format metric prefix
-
-  return escapeHTML(value);
+  var text = escapeHTML(value);
+  if (unit)
+    text += " " + escapeHTML(unit);
+  return text;
 };
