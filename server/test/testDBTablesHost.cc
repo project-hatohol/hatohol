@@ -212,4 +212,58 @@ void test_upsertHostAccessUpdate(void)
 	cppcut_assert_equal(id0, id1);
 }
 
+void test_upsertVMInfo(void)
+{
+	VMInfo vmInfo;
+	vmInfo.id = AUTO_INCREMENT_VALUE;
+	vmInfo.hostId = 12345;
+	vmInfo.hypervisorHostId = 7766554433;
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	GenericIdType id = dbHost.upsertVMInfo(vmInfo);
+	const string expect = StringUtils::sprintf(
+	  "%" FMT_GEN_ID "|12345|7766554433", id);
+	const string statement = "SELECT * FROM vm_list";
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
+}
+
+void test_upsertVMInfoAutoIncrement(void)
+{
+	VMInfo vmInfo;
+	vmInfo.id = AUTO_INCREMENT_VALUE;
+	vmInfo.hostId = 12345;
+	vmInfo.hypervisorHostId = 7766554433;
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	GenericIdType id0 = dbHost.upsertVMInfo(vmInfo);
+	GenericIdType id1 = dbHost.upsertVMInfo(vmInfo);
+	const string expect = StringUtils::sprintf(
+	  "%" FMT_GEN_ID "|12345|7766554433\n"
+	  "%" FMT_GEN_ID "|12345|7766554433", id0, id1);
+	const string statement = "SELECT * FROM vm_list ORDER BY id";
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id0);
+	cppcut_assert_not_equal(id0, id1);
+}
+
+void test_upsertVMInfoUpdate(void)
+{
+	VMInfo vmInfo;
+	vmInfo.id = AUTO_INCREMENT_VALUE;
+	vmInfo.hostId = 12345;
+	vmInfo.hypervisorHostId = 7766554433;
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	GenericIdType id0 = dbHost.upsertVMInfo(vmInfo);
+	vmInfo.id = id0;
+	GenericIdType id1 = dbHost.upsertVMInfo(vmInfo);
+	const string expect = StringUtils::sprintf(
+	  "%" FMT_GEN_ID "|12345|7766554433", id1);
+	const string statement = "SELECT * FROM vm_list ORDER BY id";
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id0);
+	cppcut_assert_equal(id0, id1);
+}
+
 } // namespace testDBTablesHost

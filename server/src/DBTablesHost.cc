@@ -315,6 +315,18 @@ GenericIdType DBTablesHost::upsertHostAccess(const HostAccess &hostAccess)
 	return id;
 }
 
+GenericIdType DBTablesHost::upsertVMInfo(const VMInfo &vmInfo)
+{
+	GenericIdType id;
+	DBAgent::InsertArg arg(tableProfileVMList);
+	arg.add(vmInfo.id);
+	arg.add(vmInfo.hostId);
+	arg.add(vmInfo.hypervisorHostId);
+	arg.upsertOnDuplicate = true;
+	getDBAgent().runTransaction(arg, &id);
+	return id;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -330,6 +342,8 @@ DBTables::SetupInfo &DBTablesHost::getSetupInfo(void)
 		&tableProfileServerHostDef,
 	}, {
 		&tableProfileHostAccess,
+	}, {
+		&tableProfileVMList,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =
