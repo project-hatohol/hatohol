@@ -256,16 +256,108 @@ function deparam(query) {
   return paramsTable;
 };
 
-function valueString(value, unit) {
-  if (!unit)
+function getMetricPrefix(pow) {
+  switch(pow) {
+  case 0:
+    return "";
+  case 1:
+    return "K";
+  case 2:
+    return "M";
+  case 3:
+    return "G";
+  case 4:
+    return "T";
+  case 5:
+    return "P";
+  case 6:
+    return "E";
+  default:
+    return "";
+  }
+}
+
+function formatMetricPrefix(value, unit, step, pow, digits) {
+  var text, maxPow = 6;
+  var blackList = {
+    '%': true,
+    'ms': true,
+    'rpm': true,
+    'RPM': true,
+  }
+
+  if (isNaN(value))
     return escapeHTML(value);
+
+  if (!step)
+    step = 1000;
+
+  if (!pow) {
+    if (!unit)
+      pow = 0;
+    else if (unit in blackList)
+      pow = 0;
+    else if (value < step)
+      pow = 0;
+    else
+      pow = Math.floor(Math.log(value) / Math.log(step));
+  }
+  if (pow > maxPow)
+    pow = maxPow;
+
+  if (!digits)
+    digits = 4;
+
+  if (pow == 0 && value.match(/^-?\d+$/)) {
+    // no prefix & integer, shouldn't modify the value
+    return value + " " + escapeHTML(unit);
+  }
+
+  text = value / Math.pow(step, pow);
+  text = text.toPrecision(digits);
+  text += " " + getMetricPrefix(pow) + escapeHTML(unit);
+  return text;
+}
+
+function formatUptime(value) {
+  var secondsPerMinute = 60;
+  var secondsPerHour = secondsPerMinute * 60;
+  var secondsPerDay = secondsPerHour * 24;
+  var days = Math.floor(value / secondsPerDay);
+  var hours, minutes, seconds, text = "";
+  value = value - secondsPerDay * days;
+
+  if (days == 1)
+    text += days + gettext(" day, ");
+  else if (days > 0)
+    text += days + gettext(" days, ");
+  text += formatSecond(value);
+
+  return text;
+}
+
+function valueString(value, unit) {
+  if (isNaN(value))
+    return escapeHTML(value);
+
+  if (!unit) {
+    if (value.match(/^-?\d+$/)) {
+      // integer
+      return escapeHTML(value);
+    } else {
+      // float: format digits
+      return formatMetricPrefix(value, unit, 1000, 0, 4);
+    }
+  }
 
   if (unit == "unixtime")
     return formatDate(value);
 
-  // TODO: format metric prefix
-  var text = escapeHTML(value);
-  if (unit)
-    text += " " + escapeHTML(unit);
-  return text;
+  if (unit == "uptime")
+    return formatUptime(value);
+
+  if (unit == 'B' || unit == 'Bps')
+    return formatMetricPrefix(value, unit, 1024);
+  else
+    return formatMetricPrefix(value, unit);
 };

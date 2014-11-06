@@ -484,4 +484,63 @@ describe('deparam', function() {
   });
 });
 
+describe('valueString', function() {
+  it('Text', function() {
+    expect(valueString("Host12")).eql("Host12");
+  });
+
+  it('Integer without unit', function() {
+    expect(valueString("87937923434")).eql("87937923434");
+  });
+
+  it('Integer with unit', function() {
+    expect(valueString("87937923434", 'bps')).eql("87.94 Gbps");
+  });
+
+  it('Integer without metric prefix', function() {
+    expect(valueString("999", 'bps')).eql("999 bps");
+  });
+
+  it('Integer with metric prefix', function() {
+    expect(valueString("1000", 'bps')).eql("1.000 Kbps");
+  });
+
+  it('Float without unit', function() {
+    expect(valueString("0.982348234")).eql(0.9823);
+  });
+
+  it('Percent', function() {
+    expect(valueString("1000.9234", '%')).eql("1001 %");
+  });
+
+  it('uptime less than one day', function() {
+    var seconds = "" + (60 * 60 * 24 - 1);
+    expect(valueString(seconds, 'uptime')).eql("23:59:59");
+  });
+
+  it('uptime with one day', function() {
+    var seconds = "" + (60 * 60 * 24 + 1);
+    expect(valueString(seconds, 'uptime')).eql("1 day, 00:00:01");
+  });
+
+  it('uptime with two days', function() {
+    var seconds = "" + (60 * 60 * 24 * 2 + 1);
+    expect(valueString(seconds, 'uptime')).eql("2 days, 00:00:01");
+  });
+
+  it('Kilo Bytes', function() {
+    expect(valueString('2049', 'B')).eql("2.001 KB");
+  });
+
+  it('Mega Bytes', function() {
+    var bytes = "" + (2.5184 * 1024 * 1024)
+    expect(valueString(bytes, 'B')).eql("2.518 MB");
+  });
+
+  it('Giga Bytes', function() {
+    var bytes = "" + (2.5189 * 1024 * 1024 * 1024)
+    expect(valueString(bytes, 'B')).eql("2.519 GB");
+  });
+});
+
 });

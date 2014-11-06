@@ -8,8 +8,8 @@ describe('LatestView', function() {
       "hostId": "10101",
       "brief": "cpu usage",
       "lastValueTime": 1415232279,
-      "lastValue": 54.282349,
-      "prevValue": 24.594534,
+      "lastValue": "54.282349",
+      "prevValue": "24.594534",
       "itemGroupName": "group1",
       "unit": "%",
     },
@@ -117,8 +117,8 @@ describe('LatestView', function() {
       '<td>group1</td>' +
       '<td><a href="http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=1">cpu usage</a></td>' +
       '<td data-sort-value="1415232279">2014/11/06 09:04:39</td>' +
-      '<td>54.282349 %</td>' +
-      '<td>24.594534 %</td>'
+      '<td>54.28 %</td>' +
+      '<td>24.59 %</td>'
     );
   });
 
