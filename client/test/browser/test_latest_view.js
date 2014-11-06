@@ -1,6 +1,31 @@
 describe('LatestView', function() {
   var TEST_FIXTURE_ID = 'latestViewFixture';
   var viewHTML;
+  var defaultItems = [
+    {
+      "id": 1,
+      "serverId": 1,
+      "hostId": "10101",
+      "brief": "cpu usage",
+      "lastValueTime": 1415232279,
+      "lastValue": 54.282349,
+      "prevValue": 24.594534,
+      "itemGroupName": "group1",
+      "unit": "%",
+    },
+  ];
+  var defaultServers = {
+    "1": {
+      "name": "Zabbix",
+      "type": 0,
+      "ipAddress": "192.168.1.100",
+      "hosts": {
+        "10101": {
+          "name": "Host1",
+        },
+      },
+    },
+  };
 
   function itemsJson(items, servers) {
     return JSON.stringify({
@@ -79,6 +104,22 @@ describe('LatestView', function() {
     var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
     expect(heads).to.have.length(1);
     expect($('#table')).to.have.length(1);
+  });
+
+  it('An item row', function() {
+    var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
+    respond(itemsJson(defaultItems, defaultServers));
+    expect($('#table')).to.have.length(1);
+    expect($('tr')).to.have.length(defaultItems.length + 1);
+    expect($('tr :eq(1)').html()).to.be(
+      '<td>Zabbix</td>' +
+      '<td>Host1</td>' +
+      '<td>group1</td>' +
+      '<td><a href="http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=1">cpu usage</a></td>' +
+      '<td data-sort-value="1415232279">2014/11/06 09:04:39</td>' +
+      '<td>54.282349</td>' +
+      '<td>24.594534</td>'
+    );
   });
 
   it('default page size', function() {
