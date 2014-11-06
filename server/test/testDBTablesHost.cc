@@ -147,4 +147,19 @@ void test_upsertServerHostDefUpdateByServerAndHost(void)
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
 }
 
+void test_upsertHostAccess(void)
+{
+	HostAccess hostAccess;
+	hostAccess.id = AUTO_INCREMENT_VALUE;
+	hostAccess.hostId = 12345;
+	hostAccess.ipAddrOrFQDN = "192.168.100.5";
+	hostAccess.priority = 1000;
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	GenericIdType id = dbHost.upsertHostAccess(hostAccess);
+	const string expect = StringUtils::sprintf(
+	  "%" FMT_GEN_ID "|12345|192.168.100.5|1000", id);
+	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
+}
+
 } // namespace testDBTablesHost
