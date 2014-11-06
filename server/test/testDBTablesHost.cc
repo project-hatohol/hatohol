@@ -88,6 +88,8 @@ void test_upsertServerHostDef(void)
 	GenericIdType id = dbHost.upsertServerHostDef(svHostDef);
 	const string expect = StringUtils::sprintf(
 	  "%" FMT_GEN_ID "|12345|15|8023455|test host name", id);
+	const string statement = "SELECT * FROM server_host_def";
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
 }
 
@@ -104,8 +106,10 @@ void test_upsertServerHostDefAutoIncrement(void)
 	GenericIdType id0 = dbHost.upsertServerHostDef(svHostDef);
 	GenericIdType id1 = dbHost.upsertServerHostDef(svHostDef);
 	const string expect = StringUtils::sprintf(
-	  "%" FMT_GEN_ID "|12345|15|8023455|test host name"
+	  "%" FMT_GEN_ID "|12345|15|8023455|test host name\n"
 	  "%" FMT_GEN_ID "|12345|15|8023455|test host name", id0, id1);
+	const string statement = "SELECT * FROM server_host_def ORDER BY id";
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id0);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id1);
 }
@@ -126,6 +130,8 @@ void test_upsertServerHostDefUpdate(void)
 	GenericIdType id1 = dbHost.upsertServerHostDef(svHostDef);
 	const string expect = StringUtils::sprintf(
 	  "%" FMT_GEN_ID "|12345|15|8023455|dog-dog-dog", id1);
+	const string statement = "SELECT * FROM server_host_def";
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id0);
 	cppcut_assert_equal(id0, id1);
 }
@@ -144,6 +150,8 @@ void test_upsertServerHostDefUpdateByServerAndHost(void)
 	GenericIdType id = dbHost.upsertServerHostDef(svHostDef);
 	const string expect = StringUtils::sprintf(
 	  "%" FMT_GEN_ID "|12345|15|8023455|dog-dog-dog", id);
+	const string statement = "SELECT * FROM server_host_def";
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
 }
 
@@ -159,6 +167,8 @@ void test_upsertHostAccess(void)
 	GenericIdType id = dbHost.upsertHostAccess(hostAccess);
 	const string expect = StringUtils::sprintf(
 	  "%" FMT_GEN_ID "|12345|192.168.100.5|1000", id);
+	const string statement = "SELECT * FROM host_access";
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
 }
 
