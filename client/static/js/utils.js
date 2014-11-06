@@ -308,10 +308,8 @@ function formatMetricPrefix(value, unit, step, pow, digits) {
   if (!digits)
     digits = 4;
 
-  if (pow == 0 && value.match(/^-?\d+$/)) {
-    // no prefix & integer, shouldn't modify the value
+  if (pow == 0 && value.match(/^-?\d+$/))
     return value + " " + escapeHTML(unit);
-  }
 
   text = value / Math.pow(step, pow);
   text = text.toPrecision(digits);
@@ -319,19 +317,18 @@ function formatMetricPrefix(value, unit, step, pow, digits) {
   return text;
 }
 
-function formatUptime(value) {
-  var secondsPerMinute = 60;
-  var secondsPerHour = secondsPerMinute * 60;
-  var secondsPerDay = secondsPerHour * 24;
-  var days = Math.floor(value / secondsPerDay);
-  var hours, minutes, seconds, text = "";
-  value = value - secondsPerDay * days;
+function formatUptime(seconds) {
+  var secondsPerDay = 60 * 60 * 24;
+  var days = Math.floor(seconds / secondsPerDay);
+  var text = "";
+
+  seconds = seconds - secondsPerDay * days;
 
   if (days == 1)
     text += days + gettext(" day, ");
   else if (days > 0)
     text += days + gettext(" days, ");
-  text += formatSecond(value);
+  text += formatSecond(seconds);
 
   return text;
 }
