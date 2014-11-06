@@ -255,3 +255,15 @@ function deparam(query) {
 
   return paramsTable;
 };
+
+function valueString(value, unit) {
+  if (!unit)
+    return escapeHTML(value);
+
+  if (unit == "unixtime")
+    return formatDate(value);
+
+  // TODO: format metric prefix
+
+  return escapeHTML(value);
+};

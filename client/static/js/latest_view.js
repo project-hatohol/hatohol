@@ -154,6 +154,14 @@ var LatestView = function(userProfile) {
     $("#select-application").removeAttr("disabled");
   }
 
+  function formatLastValue(item) {
+    return valueString(item["lastValue"], item["unit"]);
+  }
+
+  function formatPrevValue(item) {
+    return valueString(item["prevValue"], item["unit"]);
+  }
+
   function drawTableBody(replyData) {
     var serverName, hostName, clock, appName;
     var html = "", url, server, item, x;
@@ -180,8 +188,8 @@ var LatestView = function(userProfile) {
       else
         html += "<td>" + escapeHTML(item["brief"])  + "</td>";
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
-      html += "<td>" + escapeHTML(item["lastValue"]) + "</td>";
-      html += "<td>" + escapeHTML(item["prevValue"]) + "</td>";
+      html += "<td>" + formatLastValue(item) + "</td>";
+      html += "<td>" + formatPrevValue(item) + "</td>";
       html += "</tr>";
     }
 
