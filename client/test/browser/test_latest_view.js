@@ -109,18 +109,21 @@ describe('LatestView', function() {
 
   it('An item row', function() {
     var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
-    respond(itemsJson(defaultItems, defaultServers));
-    expect($('#table')).to.have.length(1);
-    expect($('tr')).to.have.length(defaultItems.length + 1);
-    expect($('tr :eq(1)').html()).to.be(
+    var zabbixURL = "http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=1";
+    var expected = 
       '<td>Zabbix</td>' +
       '<td>Host1</td>' +
       '<td>group1</td>' +
-      '<td><a href="http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=1">cpu usage</a></td>' +
-      '<td data-sort-value="1415232279">2014/11/06 09:04:39</td>' +
+      '<td><a href="' + zabbixURL + '">cpu usage</a></td>' +
+      '<td data-sort-value="1415232279">' +
+      formatDate(1415232279) + 
+      '</td>' +
       '<td>54.28 %</td>' +
-      '<td>24.59 %</td>'
-    );
+      '<td>24.59 %</td>';
+    respond(itemsJson(defaultItems, defaultServers));
+    expect($('#table')).to.have.length(1);
+    expect($('tr')).to.have.length(defaultItems.length + 1);
+    expect($('tr :eq(1)').html()).to.be(expected);
   });
 
   it('default page size', function() {
