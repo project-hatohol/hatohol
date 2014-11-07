@@ -327,6 +327,13 @@ GenericIdType DBTablesHost::upsertVMInfo(const VMInfo &vmInfo)
 	return id;
 }
 
+HatoholError DBTablesHost::getVirtualMachines(HostIdVector &virtualMachines,
+                                              const HostIdType &hypervisorHostId)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+	return HTERR_NOT_IMPLEMENTED;
+}
+
 HatoholError DBTablesHost::getHypervisor(HostIdType &hypervisorHostId,
                                          const HostIdType &hostId)
 {

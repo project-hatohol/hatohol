@@ -23,6 +23,7 @@
 #include <cstdio>
 #include <stdint.h>
 #include <set>
+#include <vector>
 #include <map>
 #include <string>
 #include "config.h"
@@ -155,6 +156,10 @@ typedef std::set<ServerIdType>      ServerIdSet;
 typedef ServerIdSet::iterator       ServerIdSetIterator;
 typedef ServerIdSet::const_iterator ServerIdSetConstIterator;
 extern const ServerIdSet EMPTY_SERVER_ID_SET;
+
+typedef std::vector<HostIdType>      HostIdVector;
+typedef HostIdVector::iterator       HostIdVectorIterator;
+typedef HostIdVector::const_iterator HostIdVectorConstIterator;
 
 typedef std::set<IncidentTrackerIdType>      IncidentTrackerIdSet;
 typedef IncidentTrackerIdSet::iterator       IncidentTrackerIdSetIterator;
