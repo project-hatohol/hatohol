@@ -394,6 +394,20 @@ GenericIdType DBTablesHost::upsertVMInfo(const VMInfo &vmInfo)
 	return id;
 }
 
+GenericIdType DBTablesHost::upsertHostHostgroup(
+  const HostHostgroup &hostHostgroup)
+{
+	GenericIdType id;
+	DBAgent::InsertArg arg(tableProfileHostHostgroup);
+	arg.add(hostHostgroup.id);
+	arg.add(hostHostgroup.serverId);
+	arg.add(hostHostgroup.hostIdInServer);
+	arg.add(hostHostgroup.hostgroupIdInServer);
+	arg.upsertOnDuplicate = true;
+	getDBAgent().runTransaction(arg, &id);
+	return id;
+}
+
 HatoholError DBTablesHost::getVirtualMachines(HostIdVector &virtualMachines,
                                               const HostIdType &hypervisorHostId)
 {
@@ -425,6 +439,8 @@ DBTables::SetupInfo &DBTablesHost::getSetupInfo(void)
 		&tableProfileHostAccess,
 	}, {
 		&tableProfileVMList,
+	}, {
+		&tableProfileHostHostgroup,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =
