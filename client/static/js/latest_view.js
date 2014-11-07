@@ -159,7 +159,7 @@ var LatestView = function(userProfile) {
 	item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_INTEGER) {
       return escapeHTML(item["lastValue"]);
     }
-    return valueString(item["lastValue"], item["unit"]);
+    return formatItemValue(item["lastValue"], item["unit"]);
   }
 
   function formatPrevValue(item) {
@@ -167,7 +167,7 @@ var LatestView = function(userProfile) {
 	item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_INTEGER) {
       return escapeHTML(item["lastValue"]);
     }
-    return valueString(item["prevValue"], item["unit"]);
+    return formatItemValue(item["prevValue"], item["unit"]);
   }
 
   function drawTableBody(replyData) {

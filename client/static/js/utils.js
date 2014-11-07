@@ -333,7 +333,7 @@ function formatUptime(seconds) {
   return text;
 }
 
-function valueString(value, unit) {
+function formatItemValue(value, unit) {
   if (isNaN(value))
     return escapeHTML(value);
 
