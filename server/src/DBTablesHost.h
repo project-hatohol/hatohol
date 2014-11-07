@@ -43,6 +43,13 @@ struct VMInfo {
 	HostIdType    hypervisorHostId;
 };
 
+struct HostHostgroup {
+	GenericIdType id;
+	ServerIdType  serverId;
+	std::string   hostIdInServer;
+	std::string   hostgroupIdInServer;
+};
+
 class DBTablesHost : public DBTables {
 public:
 	static const int TABLES_VERSION;
@@ -101,6 +108,18 @@ public:
 	 * The ID of inserted/updated record.
 	 */
 	GenericIdType upsertVMInfo(const VMInfo &vmInfo);
+
+	/**
+	 * Insert or update a record to/in the host_hostgroup table
+	 *
+	 * If there's the record whose ID is equal to hostHostgroup.id,
+	 * the record is updated.
+	 *
+	 * @param hostHostgroup A data to be inserted/updated.
+	 * @return
+	 * The ID of inserted/updated record.
+	 */
+	GenericIdType upsertHostHostgroup(const HostHostgroup &hostHostgroup);
 
 	/**
 	 * Get the virtual mechines

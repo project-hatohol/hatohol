@@ -266,4 +266,21 @@ void test_upsertVMInfoUpdate(void)
 	cppcut_assert_equal(id0, id1);
 }
 
+void test_upsertHostHostgroup(void)
+{
+	HostHostgroup hostHostgroup;
+	hostHostgroup.id = AUTO_INCREMENT_VALUE;
+	hostHostgroup.serverId = 52;
+	hostHostgroup.hostIdInServer = "88664422";
+	hostHostgroup.hostgroupIdInServer = "1133";
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	GenericIdType id = dbHost.upsertHostHostgroup(hostHostgroup);
+	const string expect = StringUtils::sprintf(
+	  "%" FMT_GEN_ID "|52|88664422|1133", id);
+	const string statement = "SELECT * FROM host_hostgroup";
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
+}
+
 } // namespace testDBTablesHost
