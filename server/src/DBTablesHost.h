@@ -102,6 +102,21 @@ public:
 	 */
 	GenericIdType upsertVMInfo(const VMInfo &vmInfo);
 
+	/**
+	 * Get the hyperviosr.
+	 *
+	 * @param hypervisorHostId
+	 * The host ID of the found hypervisor is stored in it.
+	 *
+	 * @param hostId
+	 * A target host ID.
+	 *
+	 * @param return
+	 * If hypervisor is successfully found, HTERR_OK is returned.
+	 */
+	HatoholError getHypervisor(HostIdType &hypervisorHostId,
+	                           const HostIdType &hostId);
+
 protected:
 	static SetupInfo &getSetupInfo(void);
 
