@@ -293,11 +293,7 @@ function formatMetricPrefix(value, unit, step, pow, digits) {
     step = 1000;
 
   if (!pow) {
-    if (!unit)
-      pow = 0;
-    else if (unit in blackList)
-      pow = 0;
-    else if (value < step)
+    if (!unit || (unit in blackList) || (value < step))
       pow = 0;
     else
       pow = Math.floor(Math.log(value) / Math.log(step));
