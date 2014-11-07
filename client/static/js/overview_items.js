@@ -143,7 +143,7 @@ var OverviewItems = function(userProfile) {
           hostName = hostNames[x];
           item = parsedData.values[serverName][hostName][itemName];
           if (item && item["lastValue"] != undefined) {
-            html += "<td>" + escapeHTML(item["lastValue"]) + "</td>";
+            html += "<td>" + formatItemLastValue(item) + "</td>";
           } else {
             html += "<td>&nbsp;</td>";
           }

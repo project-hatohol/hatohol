@@ -154,22 +154,6 @@ var LatestView = function(userProfile) {
     $("#select-application").removeAttr("disabled");
   }
 
-  function formatLastValue(item) {
-    if (item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_FLOAT &&
-	item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_INTEGER) {
-      return escapeHTML(item["lastValue"]);
-    }
-    return formatItemValue(item["lastValue"], item["unit"]);
-  }
-
-  function formatPrevValue(item) {
-    if (item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_FLOAT &&
-	item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_INTEGER) {
-      return escapeHTML(item["lastValue"]);
-    }
-    return formatItemValue(item["prevValue"], item["unit"]);
-  }
-
   function drawTableBody(replyData) {
     var serverName, hostName, clock, appName;
     var html = "", url, server, item, x;
@@ -196,8 +180,8 @@ var LatestView = function(userProfile) {
       else
         html += "<td>" + escapeHTML(item["brief"])  + "</td>";
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
-      html += "<td>" + formatLastValue(item) + "</td>";
-      html += "<td>" + formatPrevValue(item) + "</td>";
+      html += "<td>" + formatItemLastValue(item) + "</td>";
+      html += "<td>" + formatItemPrevValue(item) + "</td>";
       html += "</tr>";
     }
 
