@@ -298,6 +298,8 @@ function formatMetricPrefix(value, unit, step, pow, digits) {
     else
       pow = Math.floor(Math.log(value) / Math.log(step));
   }
+  if (pow < 0)
+    pow = 0;
   if (pow > maxPow)
     pow = maxPow;
 
