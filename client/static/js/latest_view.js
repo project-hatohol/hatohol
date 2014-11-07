@@ -155,10 +155,18 @@ var LatestView = function(userProfile) {
   }
 
   function formatLastValue(item) {
+    if (item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_FLOAT &&
+	item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_INTEGER) {
+      return escapeHTML(item["lastValue"]);
+    }
     return valueString(item["lastValue"], item["unit"]);
   }
 
   function formatPrevValue(item) {
+    if (item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_FLOAT &&
+	item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_INTEGER) {
+      return escapeHTML(item["lastValue"]);
+    }
     return valueString(item["prevValue"], item["unit"]);
   }
 

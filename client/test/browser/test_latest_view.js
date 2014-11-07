@@ -12,6 +12,7 @@ describe('LatestView', function() {
       "prevValue": "24.594534",
       "itemGroupName": "group1",
       "unit": "%",
+      "valueType": hatohol.ITEM_INFO_VALUE_TYPE_FLOAT,
     },
   ];
   var defaultServers = {
