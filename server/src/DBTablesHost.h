@@ -103,6 +103,21 @@ public:
 	GenericIdType upsertVMInfo(const VMInfo &vmInfo);
 
 	/**
+	 * Get the virtual mechines
+	 *
+	 * @param virtualMachines
+	 * An array of the virtual machines is added in it.
+	 *
+	 * @param hypervisorHostId
+	 * A target host ID.
+	 *
+	 * @param return
+	 * If the search is successfully done, HTERR_OK is returned even when
+	 * there's no virtual machines.
+	 */
+	HatoholError getVirtualMachines(HostIdVector &virtualMachines,
+	                                const HostIdType &hypervisorHostId);
+	/**
 	 * Get the hyperviosr.
 	 *
 	 * @param hypervisorHostId
