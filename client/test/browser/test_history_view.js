@@ -27,13 +27,20 @@ describe('HistoryView', function() {
       },
     },
   };
+  var defaultHistory = [
+    { "value":"97.8568", "clock":1415586892, "ns":182297994 },
+    { "value":"97.4699", "clock":1415586952, "ns":317020796 },
+    { "value":"97.1620", "clock":1415587012, "ns":454507050 },
+    { "value":"99.3657", "clock":1415587072, "ns":551434487 },
+    { "value":"93.3277", "clock":1415587132, "ns":645202531 }
+  ];
 
   function itemsJson(items, servers) {
     return JSON.stringify({
       apiVersion: 3,
       errorCode: hatohol.HTERR_OK,
-      items: items ? items : [],
-      servers: servers ? servers : {}
+      items: items ? items : defaultItems,
+      servers: servers ? servers : defaultServers
     });
   }
 
@@ -41,7 +48,7 @@ describe('HistoryView', function() {
     return JSON.stringify({
       apiVersion: 3,
       errorCode: hatohol.HTERR_OK,
-      history: history ? history : [],
+      history: history ? history : defaultHistory,
     });
   }
 
@@ -57,30 +64,10 @@ describe('HistoryView', function() {
     this.xhr.restore();
   }
 
-  function respondUserConfig(configJson) {
-    var request = this.requests[0];
-    if (!configJson)
-      configJson = '{}';
-    request.respond(200, { "Content-Type": "application/json" },
-                    configJson);
-  }
-
-  function respondItems(itemsJson) {
-    var request = this.requests[1];
-    request.respond(200, { "Content-Type": "application/json" },
-                    itemsJson);
-  }
-
-  function respondHistory(historyJson) {
-    var request = this.requests[2];
-    request.respond(200, { "Content-Type": "application/json" },
-                    historyJson);
-  }
-
-  function respond(configJson, itemsJson, historyJson) {
-    respondUserConfig(configJson);
-    respondItems(itemsJson);
-    respondItems(historyJson);
+  function respond(itemsJson, historyJson) {
+    var header = { "Content-Type": "application/json" };
+    this.requests[0].respond(200, header, itemsJson);
+    this.requests[1].respond(200, header, historyJson);
   }
   
   beforeEach(function(done) {
@@ -115,7 +102,14 @@ describe('HistoryView', function() {
   });
 
   it('new', function() {
-    var view = new HistoryView($('#' + TEST_FIXTURE_ID).get(0));
+    var query = "serverId=1&hostId=10101&itemId=1";
+    var view = new HistoryView($('#' + TEST_FIXTURE_ID).get(0),
+                               { query: query });
+    respond(itemsJson(), historyJson());
     expect(view).to.be.a(HistoryView);
+    expect(requests[0].url).to.be(
+      "/tunnel/item?serverId=1&hostId=10101&itemId=1");
+    expect(requests[1].url).to.be(
+      "/tunnel/history?serverId=1&hostId=10101&itemId=1");
   });
 });
