@@ -180,8 +180,8 @@ var LatestView = function(userProfile) {
       else
         html += "<td>" + escapeHTML(item["brief"])  + "</td>";
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
-      html += "<td>" + escapeHTML(item["lastValue"]) + "</td>";
-      html += "<td>" + escapeHTML(item["prevValue"]) + "</td>";
+      html += "<td>" + formatItemLastValue(item) + "</td>";
+      html += "<td>" + formatItemPrevValue(item) + "</td>";
       html += "</tr>";
     }
 

@@ -255,3 +255,120 @@ function deparam(query) {
 
   return paramsTable;
 };
+
+function getMetricPrefix(pow) {
+  switch(pow) {
+  case 0:
+    return "";
+  case 1:
+    return "K";
+  case 2:
+    return "M";
+  case 3:
+    return "G";
+  case 4:
+    return "T";
+  case 5:
+    return "P";
+  case 6:
+    return "E";
+  default:
+    return "";
+  }
+}
+
+function formatMetricPrefix(value, unit, step, pow, digits) {
+  var text, maxPow = 6;
+  var blackList = {
+    '%': true,
+    'ms': true,
+    'rpm': true,
+    'RPM': true,
+  }
+
+  if (isNaN(value))
+    return escapeHTML(value);
+
+  if (!step)
+    step = 1000;
+
+  if (!pow) {
+    if (!unit || (unit in blackList) || (value < step))
+      pow = 0;
+    else
+      pow = Math.floor(Math.log(value) / Math.log(step));
+  }
+  if (pow < 0)
+    pow = 0;
+  if (pow > maxPow)
+    pow = maxPow;
+
+  if (!digits)
+    digits = 4;
+
+  if (pow == 0 && value.match(/^-?\d+$/))
+    return value + " " + escapeHTML(unit);
+
+  text = value / Math.pow(step, pow);
+  text = text.toPrecision(digits);
+  text += " " + getMetricPrefix(pow) + escapeHTML(unit);
+  return text;
+}
+
+function formatUptime(seconds) {
+  var secondsPerDay = 60 * 60 * 24;
+  var days = Math.floor(seconds / secondsPerDay);
+  var text = "";
+
+  seconds = seconds - secondsPerDay * days;
+
+  if (days == 1)
+    text += days + gettext(" day, ");
+  else if (days > 0)
+    text += days + gettext(" days, ");
+  text += formatSecond(seconds);
+
+  return text;
+}
+
+function formatItemValue(value, unit) {
+  if (isNaN(value))
+    return escapeHTML(value);
+
+  if (!unit) {
+    if (value.match(/^-?\d+$/)) {
+      // integer
+      return escapeHTML(value);
+    } else {
+      // float: format digits
+      return formatMetricPrefix(value, unit, 1000, 0, 4);
+    }
+  }
+
+  if (unit == "unixtime")
+    return formatDate(value);
+
+  if (unit == "uptime")
+    return formatUptime(value);
+
+  if (unit == 'B' || unit == 'Bps')
+    return formatMetricPrefix(value, unit, 1024);
+  else
+    return formatMetricPrefix(value, unit);
+};
+
+function formatItemLastValue(item) {
+  if (item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_FLOAT &&
+      item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_INTEGER) {
+    return escapeHTML(item["lastValue"]);
+  }
+  return formatItemValue(item["lastValue"], item["unit"]);
+}
+
+function formatItemPrevValue(item) {
+  if (item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_FLOAT &&
+      item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_INTEGER) {
+    return escapeHTML(item["lastValue"]);
+  }
+  return formatItemValue(item["prevValue"], item["unit"]);
+}
