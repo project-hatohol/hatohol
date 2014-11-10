@@ -116,6 +116,6 @@ describe('HistoryView', function() {
 
   it('new', function() {
     var view = new HistoryView($('#' + TEST_FIXTURE_ID).get(0));
-    expect(view instanceof HistoryView).to.be(true);
+    expect(view).to.be.a(HistoryView);
   });
 });
