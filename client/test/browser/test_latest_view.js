@@ -110,6 +110,7 @@ describe('LatestView', function() {
   it('An item row', function() {
     var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
     var zabbixURL = "http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=1";
+    var historyURL= "ajax_history?serverId=1&amp;hostId=10101&amp;itemId=1";
     var expected = 
       '<td>Zabbix</td>' +
       '<td>Host1</td>' +
@@ -119,7 +120,8 @@ describe('LatestView', function() {
       formatDate(1415232279) + 
       '</td>' +
       '<td>54.28 %</td>' +
-      '<td>24.59 %</td>';
+      '<td>24.59 %</td>'+
+      '<td><a href="' + historyURL + '">Graph</a></td>';
     respond(itemsJson(defaultItems, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultItems.length + 1);
