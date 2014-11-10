@@ -18,6 +18,7 @@
  */
 
 #include "DBTablesHost.h"
+#include "ItemGroupStream.h"
 using namespace std;
 using namespace mlpl;
 
@@ -327,6 +328,14 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 }
 
 // ---------------------------------------------------------------------------
+// HostQueryOption
+// ---------------------------------------------------------------------------
+HostQueryOption::HostQueryOption(const UserIdType &userId)
+: DataQueryOption(userId)
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBTablesHost::reset(void)
@@ -416,10 +425,36 @@ HatoholError DBTablesHost::getVirtualMachines(HostIdVector &virtualMachines,
 }
 
 HatoholError DBTablesHost::getHypervisor(HostIdType &hypervisorHostId,
-                                         const HostIdType &hostId)
+                                         const HostIdType &hostId,
+                                         const HostQueryOption &option)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return HTERR_NOT_IMPLEMENTED;
+	MLPL_BUG("TODO: Take into account the caller's (user's) accessiblity: %s\n", __PRETTY_FUNCTION__);
+	if (option.getUserId() == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	DBAgent::SelectExArg arg(tableProfileVMList);
+	arg.tableField = TABLE_NAME_VM_LIST;
+	arg.add(IDX_HOST_VM_LIST_HYPERVISOR_HOST_ID);
+	arg.condition = StringUtils::sprintf(
+	  "%s=%" FMT_HOST_ID,
+	  COLUMN_DEF_VM_LIST[IDX_HOST_VM_LIST_HOST_ID].columnName, hostId);
+	getDBAgent().runTransaction(arg);
+
+	// get the result
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	size_t numElem = grpList.size();
+	if (numElem == 0)
+		return HTERR_NOT_FOUND_HYPERVISOR;
+	if (numElem >= 2) {
+		MLPL_WARN("Found %zd hypervisors for host: %" FMT_HOST_ID "."
+		          "We just use the first one.\n",
+		          numElem, hostId);
+	}
+
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	itemGroupStream >> hypervisorHostId;
+
+	return HTERR_OK;
 }
 
 // ---------------------------------------------------------------------------

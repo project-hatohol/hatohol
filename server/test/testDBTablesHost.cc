@@ -323,4 +323,28 @@ void test_upsertHostHostgroupUpdate(void)
 	cppcut_assert_equal(id0, id1);
 }
 
+void test_getHypervisor(void)
+{
+	loadTestDBVMInfo();
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	const int targetIdx = 0;
+	const HostIdType hostId = testVMInfo[targetIdx].hostId;
+	HostIdType hypervisorId = INVALID_HOST_ID;
+	HostQueryOption option(USER_ID_SYSTEM);
+	HatoholError err = dbHost.getHypervisor(hypervisorId, hostId, option);
+	assertHatoholError(HTERR_OK, err);
+	cppcut_assert_equal(testVMInfo[targetIdx].hypervisorHostId,
+	                    hypervisorId);
+}
+
+void test_getHypervisorWithInvalidUser(void)
+{
+	DECLARE_DBTABLES_HOST(dbHost);
+	HostIdType hypervisorId = INVALID_HOST_ID;
+	HostQueryOption option;
+	HatoholError err = dbHost.getHypervisor(hypervisorId, 0, option);
+	assertHatoholError(HTERR_INVALID_USER, err);
+}
+
 } // namespace testDBTablesHost
