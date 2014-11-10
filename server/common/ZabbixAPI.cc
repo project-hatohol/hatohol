@@ -178,8 +178,9 @@ bool ZabbixAPI::openSession(SoupMessage **msgPtr)
 	guint ret = soup_session_send_message(getSession(), msg);
 	if (ret != SOUP_STATUS_OK) {
 		g_object_unref(msg);
-		MLPL_ERR("Failed to get: code: %d: %s\n",
-	                 ret, m_impl->uri.c_str());
+		MLPL_ERR("Failed to get from %s, Status: %d (%s)\n",
+	                 m_impl->uri.c_str(),
+			 ret, soup_status_get_phrase(ret));
 		return false;
 	}
 	MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
@@ -778,8 +779,9 @@ SoupMessage *ZabbixAPI::queryCommon(JSONBuilder &agent, HatoholError &queryRet)
 	guint ret = soup_session_send_message(getSession(), msg);
 	if (ret != SOUP_STATUS_OK) {
 		g_object_unref(msg);
-		MLPL_ERR("Failed to get: code: %d: %s\n",
-	                 ret, m_impl->uri.c_str());
+		MLPL_ERR("Failed to get from %s, Status: %d (%s)\n",
+	                 m_impl->uri.c_str(),
+			 ret, soup_status_get_phrase(ret));
 		queryRet = HTERR_FAILED_CONNECT_ZABBIX;
 		return NULL;
 	}
