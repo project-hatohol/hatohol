@@ -148,6 +148,7 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
       $('#selectServerType').append($('<option>').html(name).val(type));
       self.paramArray[type] = parameters;
     }
+    self.fixupApplyButtonState();
 
     if (self.server) {
       var selectElem = $("#selectServerType");
