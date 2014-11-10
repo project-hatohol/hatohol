@@ -289,7 +289,8 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 }
 #define assertEvents(P,...) cut_trace(_assertEvents(P,##__VA_ARGS__))
 
-static void _assertItems(const string &path, const string &callbackName = "")
+static void _assertItems(const string &path, const string &callbackName = "",
+			 ssize_t numExpectedItems = -1)
 {
 	loadTestDBItems();
 	startFaceRest();
@@ -306,21 +307,23 @@ static void _assertItems(const string &path, const string &callbackName = "")
 	// in 'parser'.
 
 	// Check the size of ItemInfo
-	size_t numExpectedItems = 0;
-	for (size_t i = 0; i < NumTestItemInfo; i++) {
-		if (dqCtxPtr->isValidServer(testItemInfo[i].serverId))
-			numExpectedItems++;
+	if (numExpectedItems < 0) {
+		numExpectedItems = 0;
+		for (size_t i = 0; i < NumTestItemInfo; i++) {
+			if (dqCtxPtr->isValidServer(testItemInfo[i].serverId))
+				numExpectedItems++;
+		}
 	}
 	// If 'numExpectedItems' is 0, the test matarial is bad.
-	cppcut_assert_not_equal((size_t)0, numExpectedItems);
+	cppcut_assert_not_equal((ssize_t)0, numExpectedItems);
 
 	int64_t _numItems = 0;
 	cppcut_assert_equal(true, parser->read("numberOfItems", _numItems));
-	size_t numItems = static_cast<size_t>(_numItems);
+	ssize_t numItems = static_cast<ssize_t>(_numItems);
 	cppcut_assert_equal(numExpectedItems, numItems);
 
 	cppcut_assert_equal(true, parser->read("totalNumberOfItems", _numItems));
-	numItems = static_cast<size_t>(_numItems);
+	numItems = static_cast<ssize_t>(_numItems);
 	cppcut_assert_equal(numExpectedItems, numItems);
 
 	// Check each ItemInfo
@@ -328,7 +331,7 @@ static void _assertItems(const string &path, const string &callbackName = "")
 	getTestItemsIndexes(indexMap);
 	assertStartObject(parser, "items");
 	set<ItemInfo *> itemInfoPtrSet;
-	for (size_t i = 0; i < numItems; i++) {
+	for (ssize_t i = 0; i < numItems; i++) {
 		int64_t serverId = 0;
 		int64_t itemInfoId = 0;
 
@@ -582,6 +585,11 @@ void test_itemsAsyncWithNonExistentServers(void)
 void test_itemsJSONP(void)
 {
 	assertItems("/item", "foo");
+}
+
+void test_itemsJSONWithQuery(void)
+{
+	assertItems("/item?serverId=3&hostId=5&itemId=1", "", 1);
 }
 
 void test_overview(void)

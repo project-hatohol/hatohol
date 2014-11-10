@@ -278,6 +278,14 @@ static HatoholError parseItemParameter(ItemsQueryOption &option,
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 
+	// item ID
+	ItemIdType itemId = ALL_ITEMS;
+	err = getParam<ItemIdType>(query, "itemId",
+				   "%" FMT_ITEM_ID, itemId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTargetId(itemId);
+
 	// itemGroupName
 	const gchar *value = static_cast<const gchar*>(
 	  g_hash_table_lookup(query, "itemGroupName"));
