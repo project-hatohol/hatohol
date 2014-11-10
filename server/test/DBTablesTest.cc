@@ -1065,6 +1065,15 @@ HistoryInfo testHistoryInfo[] = {
 };
 size_t NumTestHistoryInfo = ARRAY_SIZE(testHistoryInfo);
 
+const VMInfo testVMInfo[] = {
+{
+	AUTO_INCREMENT_VALUE,            // id
+	2111,                            // hostId
+	105,                             // hypervisorHostId
+}
+};
+const size_t NumTestVMInfo = ARRAY_SIZE(testVMInfo);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
@@ -1818,4 +1827,13 @@ void getTestHistory(HistoryInfoVect &historyInfoVect,
 		}
 		historyInfoVect.push_back(historyInfo);
 	}
+}
+
+void loadTestDBVMInfo(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestVMInfo; i++)
+		dbHost.upsertVMInfo(testVMInfo[i]);
 }

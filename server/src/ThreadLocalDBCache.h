@@ -43,6 +43,7 @@ public:
 	DBHatohol       &getDBHatohol(void);
 
 	DBTablesConfig  &getConfig(void);
+	DBTablesHost    &getHost(void);
 	DBTablesUser    &getUser(void);
 	DBTablesAction  &getAction(void);
 	DBTablesMonitoring &getMonitoring(void);

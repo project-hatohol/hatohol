@@ -21,6 +21,7 @@
 #define DBTablesHost_h
 
 #include "DBTables.h"
+#include "DataQueryOption.h"
 
 struct ServerHostDef {
 	GenericIdType id;
@@ -48,6 +49,11 @@ struct HostHostgroup {
 	ServerIdType  serverId;
 	std::string   hostIdInServer;
 	std::string   hostgroupIdInServer;
+};
+
+struct HostQueryOption : public DataQueryOption {
+public:
+	HostQueryOption(const UserIdType &userId = INVALID_USER_ID);
 };
 
 class DBTablesHost : public DBTables {
@@ -145,11 +151,15 @@ public:
 	 * @param hostId
 	 * A target host ID.
 	 *
+	 * @param option
+	 * A HostQueryOption instance.
+	 *
 	 * @param return
 	 * If hypervisor is successfully found, HTERR_OK is returned.
 	 */
 	HatoholError getHypervisor(HostIdType &hypervisorHostId,
-	                           const HostIdType &hostId);
+	                           const HostIdType &hostId,
+	                           const HostQueryOption &option);
 
 protected:
 	static SetupInfo &getSetupInfo(void);

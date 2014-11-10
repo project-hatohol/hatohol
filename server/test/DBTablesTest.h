@@ -27,6 +27,7 @@
 #include "DBTablesMonitoring.h"
 #include "DBTablesUser.h"
 #include "DBTablesAction.h"
+#include "DBTablesHost.h"
 
 typedef std::set<uint64_t>  HostIdSet;
 typedef HostIdSet::iterator HostIdSetIterator;
@@ -95,6 +96,9 @@ extern size_t NumTestIncidentInfo;
 
 extern HistoryInfo testHistoryInfo[];
 extern size_t NumTestHistoryInfo;
+
+extern const VMInfo testVMInfo[];
+extern const size_t NumTestVMInfo;
 
 /**
  * get the test trigger data indexes whose serverId and hostId are 
@@ -231,6 +235,8 @@ void loadTestDBServerStatus(void);
 void loadTestDBAction(void);
 void loadTestDBIncidents(void);
 void loadTestDBIncidentTracker(void);
+
+void loadTestDBVMInfo(void);
 
 #endif // DBClientTest_h
 
