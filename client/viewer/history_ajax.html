@@ -32,4 +32,9 @@
 
 {% block logic %}
   <script src="{{ STATIC_URL }}js/history_view.js"></script>
+  <script type="text/javascript">
+    userProfile.addOnLoadCb(function() {
+      var view = new HistoryView(userProfile);
+    });
+  </script>
 {% endblock %}
