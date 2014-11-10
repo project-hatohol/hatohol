@@ -3,8 +3,8 @@ describe('OverviewItems', function() {
   var viewHTML;
   var defaultItems = [
     {
-      "id": 1,
       "serverId": 1,
+      "id": 1,
       "hostId": "10101",
       "brief": "cpu usage",
       "lastValueTime": 1415232279,
@@ -14,15 +14,37 @@ describe('OverviewItems', function() {
       "unit": "%",
       "valueType": hatohol.ITEM_INFO_VALUE_TYPE_FLOAT,
     },
+    {
+      "serverId": 2,
+      "id": 2,
+      "hostId": "10102",
+      "brief": "cpu usage",
+      "lastValueTime": 1415232586,
+      "lastValue": "23.213421",
+      "prevValue": "98.645236",
+      "itemGroupName": "group2",
+      "unit": "%",
+      "valueType": hatohol.ITEM_INFO_VALUE_TYPE_FLOAT,
+    },
   ];
   var defaultServers = {
     "1": {
-      "name": "Zabbix",
+      "name": "Zabbix1",
       "type": 0,
       "ipAddress": "192.168.1.100",
       "hosts": {
         "10101": {
           "name": "Host1",
+        },
+      },
+    },
+    "2": {
+      "name": "Zabbix2",
+      "type": 0,
+      "ipAddress": "192.168.1.101",
+      "hosts": {
+        "10102": {
+          "name": "Host2",
         },
       },
     },
@@ -97,5 +119,19 @@ describe('OverviewItems', function() {
     var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
     expect(heads).to.have.length(1);
     expect($('#table')).to.have.length(1);
+  });
+
+  it('With items', function() {
+    var view = new OverviewItems($('#' + TEST_FIXTURE_ID).get(0));
+    respond(itemsJson(defaultItems, defaultServers));
+    expect($('#table')).to.have.length(1);
+    expect($('tr')).to.have.length(defaultItems.length + 1);
+    expect($('#table thead').html()).to.be(
+      '<tr><th></th>' +
+      '<th style="text-align: center" colspan="1">Zabbix1</th>' +
+      '<th style="text-align: center" colspan="1">Zabbix2</th></tr>' +
+      '<tr><th></th><th>Host1</th><th>Host2</th></tr>');
+    expect($('#table tbody').html()).to.be(
+      '<tr><th>cpu usage</th><td>54.28 %</td><td>23.21 %</td></tr>');
   });
 });
