@@ -42,8 +42,24 @@ var HistoryView = function(userProfile, options) {
   };
 
   function onItemLoad(reply) {
+    var items = reply["items"];
+    var messageDetail;
+
     replyItem = reply;
-    self.startConnection(getHistoryQuery(), updateView);
+
+    if (items && items.length == 1) {
+      self.startConnection(getHistoryQuery(), updateView);
+    } else {
+      messageDetail =
+	"Monitoring Server ID: " + query.serverId + ", " +
+	"Host ID: " + query.hostId + ", " +
+	"Item ID: " + query.itemId;
+      if (!items || items.length == 0)
+	self.showError(gettext("No such item: ") + messageDetail);
+      else if (items.length > 1)
+	self.showError(gettext("Too many items are found for ") +
+		       messageDetail);
+    }
   }
 
   function load() {
@@ -62,4 +78,8 @@ HistoryView.prototype.parseQuery = function(query) {
       queryTable[knownKeys[i]] = allParams[knownKeys[i]];
   }
   return queryTable;
+};
+
+HistoryView.prototype.showError = function(message) {
+  hatoholErrorMsgBox(message);
 };
