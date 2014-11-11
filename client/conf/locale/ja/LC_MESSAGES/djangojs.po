@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-06 19:03-0600\n"
+"POT-Creation-Date: 2014-11-11 00:20-0600\n"
 "PO-Revision-Date: 2014-10-30 10:26+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -936,8 +936,8 @@ msgid "New password (Confirm)"
 msgstr "新しいパスワード（確認）"
 
 #: static/js/hatohol_privilege_edit_dialog.js:40
-msgid "Edit accessible hosts"
-msgstr "アクセス可能なホストを編集"
+msgid "Edit accessible monitoring servers"
+msgstr "アクセス可能な監視サーバを編集"
 
 #: static/js/hatohol_privilege_edit_dialog.js:196
 msgid "All Allow"
@@ -1004,11 +1004,11 @@ msgstr "サーバーを更新しています..."
 msgid "Now adding a server..."
 msgstr "サーバーを追加しています..."
 
-#: static/js/hatohol_server_edit_dialog_parameterized.js:162
+#: static/js/hatohol_server_edit_dialog_parameterized.js:163
 msgid "Monitoring server type"
 msgstr "監視サーバータイプ"
 
-#: static/js/hatohol_server_edit_dialog_parameterized.js:164
+#: static/js/hatohol_server_edit_dialog_parameterized.js:165
 msgid "Please select"
 msgstr "選択してください"
 
@@ -1314,9 +1314,20 @@ msgstr "失敗回数"
 msgid "Comment for the failure"
 msgstr "失敗備考"
 
+#: static/js/utils.js:326
+msgid " day, "
+msgstr ""
+
+#: static/js/utils.js:328
+msgid " days, "
+msgstr ""
+
 #: test/browser/test_server_view.js:203
 msgid "-"
 msgstr "-"
+
+#~ msgid "Edit accessible hosts"
+#~ msgstr "アクセス可能なホストを編集"
 
 #~ msgid "Edit Hostgroup privilege"
 #~ msgstr "ホストグループの権限を編集"
