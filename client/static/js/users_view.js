@@ -58,6 +58,15 @@ var UsersView = function(userProfile) {
     hatoholNoYesMsgBox(msg, deleteUsers);
   });
 
+  $("#edit-user-roles-button").click(function() {
+    new HatoholUserRolesEditor({
+      operatorProfile: userProfile,
+      changedCallback: function() {
+	self.startConnection('user', updateCore);
+      },
+    });
+  });
+
   function addOrEditSucceededCb() {
     self.startConnection('user', updateCore);
   }
