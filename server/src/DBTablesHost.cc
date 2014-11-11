@@ -19,6 +19,7 @@
 
 #include "DBTablesHost.h"
 #include "ItemGroupStream.h"
+#include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;
 
@@ -435,9 +436,11 @@ HatoholError DBTablesHost::getHypervisor(HostIdType &hypervisorHostId,
 	DBAgent::SelectExArg arg(tableProfileVMList);
 	arg.tableField = TABLE_NAME_VM_LIST;
 	arg.add(IDX_HOST_VM_LIST_HYPERVISOR_HOST_ID);
+	const UserIdType userId = option.getUserId();
 	arg.condition = StringUtils::sprintf(
 	  "%s=%" FMT_HOST_ID,
-	  COLUMN_DEF_VM_LIST[IDX_HOST_VM_LIST_HOST_ID].columnName, hostId);
+	  COLUMN_DEF_VM_LIST[IDX_HOST_VM_LIST_HOST_ID].columnName,
+	  hostId);
 	getDBAgent().runTransaction(arg);
 
 	// get the result
@@ -451,10 +454,48 @@ HatoholError DBTablesHost::getHypervisor(HostIdType &hypervisorHostId,
 		          numElem, hostId);
 	}
 
+	HostIdType hypHostId;
 	ItemGroupStream itemGroupStream(*grpList.begin());
-	itemGroupStream >> hypervisorHostId;
+	itemGroupStream >> hypHostId;
+	if (userId != USER_ID_SYSTEM) {
+		if (!isAccessible(hypHostId, option))
+			return HTERR_NOT_FOUND_HYPERVISOR;
+	}
+	hypervisorHostId = hypHostId;
 
 	return HTERR_OK;
+}
+
+bool DBTablesHost::isAccessible(
+  const HostIdType &hostId, const HostQueryOption &option)
+{
+	// Get the server ID and host ID (in the server)
+	DBAgent::SelectExArg arg(tableProfileServerHostDef);
+	arg.tableField = tableProfileServerHostDef.name;
+	arg.add(IDX_HOST_SERVER_HOST_DEF_SERVER_ID);
+	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
+	arg.condition = StringUtils::sprintf(
+	  "%s=%" FMT_HOST_ID,
+	  COLUMN_DEF_SERVER_HOST_DEF[IDX_HOST_SERVER_HOST_DEF_HOST_ID].columnName, hostId);
+	getDBAgent().runTransaction(arg);
+
+	// Check accessibility for each server
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ServerIdType serverId;
+		string hostIdInServer;
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		itemGroupStream >> serverId;
+		itemGroupStream >> hostIdInServer;
+		// TODO: extend dbUser.isAccessisble to take care of host group
+		if (dbUser.isAccessible(serverId, option))
+			return true;
+	}
+	return false;
 }
 
 // ---------------------------------------------------------------------------

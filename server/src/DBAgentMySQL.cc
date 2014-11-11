@@ -447,7 +447,6 @@ void DBAgentMySQL::select(const SelectExArg &selectExArg)
 	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 
 	string query = makeSelectStatement(selectExArg);
-	printf("query: %s\n", query.c_str());
 	execSql(query);
 
 	MYSQL_RES *result = mysql_store_result(&m_impl->mysql);

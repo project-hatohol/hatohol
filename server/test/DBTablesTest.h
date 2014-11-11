@@ -97,6 +97,9 @@ extern size_t NumTestIncidentInfo;
 extern HistoryInfo testHistoryInfo[];
 extern size_t NumTestHistoryInfo;
 
+extern const ServerHostDef testServerHostDef[];
+extern const size_t NumTestServerHostDef;
+
 extern const VMInfo testVMInfo[];
 extern const size_t NumTestVMInfo;
 
@@ -236,6 +239,7 @@ void loadTestDBAction(void);
 void loadTestDBIncidents(void);
 void loadTestDBIncidentTracker(void);
 
+void loadTestDBServerHostDef(void);
 void loadTestDBVMInfo(void);
 
 #endif // DBClientTest_h

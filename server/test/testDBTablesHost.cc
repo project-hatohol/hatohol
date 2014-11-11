@@ -347,4 +347,46 @@ void test_getHypervisorWithInvalidUser(void)
 	assertHatoholError(HTERR_INVALID_USER, err);
 }
 
+void test_getHypervisorWithUserWhoCanAccessAllHostgroup(void)
+{
+	loadTestDBUser();
+	loadTestDBAccessList();
+	loadTestDBServerHostDef();
+	loadTestDBVMInfo();
+
+	const ServerHostDef &targetServerHostDef = testServerHostDef[0];
+	DECLARE_DBTABLES_HOST(dbHost);
+	HostIdType hypervisorId = INVALID_HOST_ID;
+
+	// Select the suitable test data
+	AccessInfo *targetAccessInfo = NULL;
+	for (size_t i = 0; i < NumTestAccessInfo; i++) {
+		AccessInfo *ai = &testAccessInfo[i];
+		if (ai->hostgroupId == ALL_HOST_GROUPS &&
+		    ai->serverId == targetServerHostDef.serverId) {
+			targetAccessInfo = ai;
+			break;
+		}
+	}
+	cppcut_assert_not_null(targetAccessInfo);
+
+	// Find the expected test data
+	const VMInfo *expectedVMInfo = NULL;
+	for (size_t i = 0; i < NumTestVMInfo; i++) {
+		const VMInfo *vminfo = &testVMInfo[i];
+		if (vminfo->hypervisorHostId == targetServerHostDef.hostId) {
+			expectedVMInfo = vminfo;
+			break;
+		}
+	}
+	cppcut_assert_not_null(expectedVMInfo);
+
+	// Try to find the hypervisor
+	HostQueryOption option(targetAccessInfo->userId);
+	HatoholError err = dbHost.getHypervisor(hypervisorId,
+	                                        expectedVMInfo->hostId, option);
+	assertHatoholError(HTERR_OK, err);
+	cppcut_assert_equal(expectedVMInfo->hypervisorHostId, hypervisorId);
+}
+
 } // namespace testDBTablesHost
