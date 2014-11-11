@@ -18,6 +18,7 @@
  */
 
 #include <cppcutter.h>
+#include <gcutter.h>
 #include "DBTablesTest.h"
 #include "DBHatohol.h"
 #include "DBTablesHost.h"
@@ -347,13 +348,22 @@ void test_getHypervisorWithInvalidUser(void)
 	assertHatoholError(HTERR_INVALID_USER, err);
 }
 
-void test_getHypervisorWithUserWhoCanAccessAllHostgroup(void)
+void data_getHypervisorWithUserWhoCanAccessAllHostgroup(void)
+{
+	gcut_add_datum("Allowed user",
+	               "allowed", G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("Not allowed user",
+	               "allowed", G_TYPE_BOOLEAN, FALSE, NULL);
+}
+
+void test_getHypervisorWithUserWhoCanAccessAllHostgroup(gconstpointer data)
 {
 	loadTestDBUser();
 	loadTestDBAccessList();
 	loadTestDBServerHostDef();
 	loadTestDBVMInfo();
 
+	const gboolean allowedUser = gcut_data_get_boolean(data, "allowed");
 	const ServerHostDef &targetServerHostDef = testServerHostDef[0];
 	DECLARE_DBTABLES_HOST(dbHost);
 	HostIdType hypervisorId = INVALID_HOST_ID;
@@ -381,12 +391,22 @@ void test_getHypervisorWithUserWhoCanAccessAllHostgroup(void)
 	}
 	cppcut_assert_not_null(expectedVMInfo);
 
+	UserIdType userId = targetAccessInfo->userId;
+	if (!allowedUser) {
+		userId = 3;
+		cppcut_assert_not_equal(userId, targetAccessInfo->userId);
+	}
+
 	// Try to find the hypervisor
-	HostQueryOption option(targetAccessInfo->userId);
+	HostQueryOption option(userId);
 	HatoholError err = dbHost.getHypervisor(hypervisorId,
 	                                        expectedVMInfo->hostId, option);
-	assertHatoholError(HTERR_OK, err);
-	cppcut_assert_equal(expectedVMInfo->hypervisorHostId, hypervisorId);
+	if (allowedUser) {
+		assertHatoholError(HTERR_OK, err);
+		cppcut_assert_equal(expectedVMInfo->hypervisorHostId, hypervisorId);
+	} else {
+		assertHatoholError(HTERR_NOT_FOUND_HYPERVISOR, err);
+	}
 }
 
 } // namespace testDBTablesHost
