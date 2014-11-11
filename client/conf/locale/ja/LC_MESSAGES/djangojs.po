@@ -1316,11 +1316,11 @@ msgstr "失敗備考"
 
 #: static/js/utils.js:326
 msgid " day, "
-msgstr ""
+msgstr " 日,"
 
 #: static/js/utils.js:328
 msgid " days, "
-msgstr ""
+msgstr " 日,"
 
 #: test/browser/test_server_view.js:203
 msgid "-"
