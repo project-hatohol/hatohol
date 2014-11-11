@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-11-11 00:20-0600\n"
-"PO-Revision-Date: 2014-10-30 10:26+0900\n"
+"PO-Revision-Date: 2014-11-11 17:04+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -1316,11 +1316,11 @@ msgstr "失敗備考"
 
 #: static/js/utils.js:326
 msgid " day, "
-msgstr "日,"
+msgstr "日, "
 
 #: static/js/utils.js:328
 msgid " days, "
-msgstr "日,"
+msgstr "日, "
 
 #: test/browser/test_server_view.js:203
 msgid "-"
