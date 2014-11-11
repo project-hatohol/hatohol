@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-06 19:03-0600\n"
+"POT-Creation-Date: 2014-11-11 00:20-0600\n"
 "PO-Revision-Date: 2014-11-04 16:05+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -398,8 +398,11 @@ msgid "User role"
 msgstr "ユーザー種別"
 
 #: viewer/users_ajax.html:58
-msgid "Accessible hosts"
-msgstr "アクセス可能なホスト"
+msgid "Accessible monitoring servers / hostgroups"
+msgstr "アクセス可能な監視サーバー / ホストグループ"
+
+#~ msgid "Accessible hosts"
+#~ msgstr "アクセス可能なホスト"
 
 #~ msgid "Privileges"
 #~ msgstr "権限"

@@ -37,7 +37,7 @@ var HatoholPrivilegeEditDialog = function(userId, applyCallback) {
   // call the constructor of the super class
   var dialogAttrs = { width: "800" };
   HatoholDialog.apply(
-    this, ["privilege-edit-dialog", gettext("Edit accessible hosts"),
+    this, ["privilege-edit-dialog", gettext("Edit accessible monitoring servers"),
            dialogButtons, dialogAttrs]);
   self.start();
 };
