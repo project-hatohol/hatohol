@@ -49,23 +49,10 @@ describe('LatestView', function() {
     this.xhr.restore();
   }
 
-  function respondUserConfig(configJson) {
-    var request = this.requests[0];
-    if (!configJson)
-      configJson = '{}';
-    request.respond(200, { "Content-Type": "application/json" },
-                    configJson);
-  }
-
-  function respondItems(itemsJson) {
-    var request = this.requests[1];
-    request.respond(200, { "Content-Type": "application/json" },
-                    itemsJson);
-  }
-
-  function respond(itemsJson, configJson) {
-    respondUserConfig(configJson);
-    respondItems(itemsJson);
+  function respond(configJson, itemsJson) {
+    var header = { "Content-Type": "application/json" };
+    this.requests[0].respond(200, header, configJson);
+    this.requests[1].respond(200, header, itemsJson);
   }
   
   beforeEach(function(done) {
@@ -101,7 +88,7 @@ describe('LatestView', function() {
 
   it('new with empty data', function() {
     var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
-    respond(itemsJson());
+    respond('{}', itemsJson());
     var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
     expect(heads).to.have.length(1);
     expect($('#table')).to.have.length(1);
@@ -122,7 +109,7 @@ describe('LatestView', function() {
       '<td>54.28 %</td>' +
       '<td>24.59 %</td>'+
       '<td><a href="' + historyURL + '">Graph</a></td>';
-    respond(itemsJson(defaultItems, defaultServers));
+    respond('{}', itemsJson(defaultItems, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultItems.length + 1);
     expect($('tr :eq(1)').html()).to.be(expected);
@@ -130,7 +117,7 @@ describe('LatestView', function() {
 
   it('default page size', function() {
     var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
-    respond(itemsJson());
+    respond('{}', itemsJson());
     expect($('#num-records-per-page').val()).to.be("50");
   });
 });
