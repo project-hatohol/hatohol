@@ -71,15 +71,9 @@ describe('OverviewItems', function() {
     this.xhr.restore();
   }
 
-  function respondItems(itemsJson) {
-    var i = 0;
-    var request = this.requests[i++];
-    request.respond(200, { "Content-Type": "application/json" },
-                    itemsJson);
-  }
-
-  function respond(itemsJson, configJson) {
-    respondItems(itemsJson);
+  function respond(itemsJson) {
+    var header = { "Content-Type": "application/json" };
+    this.requests[0].respond(200, header, itemsJson);
   }
   
   beforeEach(function(done) {
