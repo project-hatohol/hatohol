@@ -86,7 +86,7 @@ describe('HistoryView', function() {
           viewHTML = $("#" + contentId, this.contentDocument).html();
           setupFixture();
         }
-      });
+      }));
     };
 
     $('body').append($('<div>', { id: TEST_FIXTURE_ID }));
