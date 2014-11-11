@@ -139,3 +139,16 @@ void Logger::connectSyslogIfNeeded(void)
 	openlog(NULL, LOG_CONS | LOG_PID, LOG_USER);
 	syslogConnected = true;
 }
+
+string Logger::createExtraInfoString(void)
+{
+	string extraInfoString = "";
+	if (extraInfoFlag['C'])
+		addCurrentTime(extraInfoString);
+	if (extraInfoFlag['P'])
+		addProcessId(extraInfoString);
+	if (extraInfoFlag['T'])
+		addThreadId(extraInfoString);
+
+	return extraInfoString;
+}

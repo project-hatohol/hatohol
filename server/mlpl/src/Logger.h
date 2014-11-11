@@ -21,6 +21,7 @@
 #define Logger_h
 
 #include <pthread.h>
+#include <string>
 #include "ReadWriteLock.h"
 namespace mlpl {
 
@@ -49,6 +50,7 @@ public:
 protected:
 	static void setCurrLogLevel(void);
 	static void connectSyslogIfNeeded(void);
+	static std::string createExtraInfoString(void);
 private:
 	static LogLevel m_currLogLevel;
 	static pthread_rwlock_t m_rwlock;
