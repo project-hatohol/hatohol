@@ -689,6 +689,11 @@ AccessInfo testAccessInfo[] = {
 	userIdWithMultipleAuthorizedHostgroups, // userId
 	1,                 // serverId
 	2,                 // hostgroupId
+}, {
+	0,                 // id
+	2,                 // userId
+	211,               // serverId
+	ALL_HOST_GROUPS,   // hostgroupId
 }
 };
 const size_t NumTestAccessInfo = ARRAY_SIZE(testAccessInfo);
@@ -1065,11 +1070,22 @@ HistoryInfo testHistoryInfo[] = {
 };
 size_t NumTestHistoryInfo = ARRAY_SIZE(testHistoryInfo);
 
+const ServerHostDef testServerHostDef[] = {
+{
+	AUTO_INCREMENT_VALUE,            // id
+	1050,                            // hostId
+	211,                             // serverId
+	"200",                           // host_id_in_server
+	"host 200",                      // name
+}
+};
+const size_t NumTestServerHostDef = ARRAY_SIZE(testServerHostDef);
+
 const VMInfo testVMInfo[] = {
 {
 	AUTO_INCREMENT_VALUE,            // id
 	2111,                            // hostId
-	105,                             // hypervisorHostId
+	1050,                            // hypervisorHostId
 }
 };
 const size_t NumTestVMInfo = ARRAY_SIZE(testVMInfo);
@@ -1827,6 +1843,15 @@ void getTestHistory(HistoryInfoVect &historyInfoVect,
 		}
 		historyInfoVect.push_back(historyInfo);
 	}
+}
+
+void loadTestDBServerHostDef(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestServerHostDef; i++)
+		dbHost.upsertServerHostDef(testServerHostDef[i]);
 }
 
 void loadTestDBVMInfo(void)

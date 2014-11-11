@@ -161,6 +161,9 @@ public:
 	                           const HostIdType &hostId,
 	                           const HostQueryOption &option);
 
+	bool isAccessible(
+	  const HostIdType &hostId, const HostQueryOption &option);
+
 protected:
 	static SetupInfo &getSetupInfo(void);
 
