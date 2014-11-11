@@ -78,13 +78,8 @@ describe('HistoryView', function() {
       fakeAjax();
       done();
     };
-
-    $('body').append($('<div>', { id: TEST_FIXTURE_ID }));
-
-    if (viewHTML) {
-      setupFixture();
-    } else {
-      var iframe = $("<iframe>", {
+    var loadFixture = function() {
+      $("#" + TEST_FIXTURE_ID).append($("<iframe>", {
         id: "fixtureFrame",
         src: "../../ajax_history?start=false",
         load: function() {
@@ -92,8 +87,14 @@ describe('HistoryView', function() {
           setupFixture();
         }
       });
-      $("#" + TEST_FIXTURE_ID).append(iframe);
-    }
+    };
+
+    $('body').append($('<div>', { id: TEST_FIXTURE_ID }));
+
+    if (viewHTML)
+      setupFixture();
+    else
+      loadFixture();
   });
 
   afterEach(function() {
