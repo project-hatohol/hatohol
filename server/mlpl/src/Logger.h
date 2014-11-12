@@ -40,6 +40,7 @@ enum LogLevel {
 class Logger {
 public:
 	static const char *LEVEL_ENV_VAR_NAME;
+	static const char *MLPL_LOGGER_FLAGS;
 	static void log(LogLevel level,
 	                const char *fileName, int lineNumber,
 	                const char *fmt, ...)
@@ -53,12 +54,14 @@ protected:
 	static std::string createHeader(LogLevel level, const char *fileName,
 	                                int lineNumber, std::string extraInfoString);
 	static std::string createExtraInfoString(void);
+	static void setExtraInfoFlag(const char *extraInfoArg);
 private:
 	static LogLevel m_currLogLevel;
 	static pthread_rwlock_t m_rwlock;
 	static bool syslogoutputFlag;
 	static ReadWriteLock lock;
 	static bool syslogConnected;
+	static bool extraInfoFlag[256];
 };
 
 } // namespace mlpl

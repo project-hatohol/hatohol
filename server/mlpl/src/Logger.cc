@@ -37,7 +37,9 @@ pthread_rwlock_t Logger::m_rwlock = PTHREAD_RWLOCK_INITIALIZER;
 bool Logger::syslogoutputFlag = true;
 ReadWriteLock Logger::lock;
 const char *Logger::LEVEL_ENV_VAR_NAME = "MLPL_LOGGER_LEVEL";
+const char *Logger::MLPL_LOGGER_FLAGS = "MLPL_LOGGER_FLAGS";
 bool Logger::syslogConnected = false;
+bool Logger::extraInfoFlag[256];
 
 // ----------------------------------------------------------------------------
 // Public methods
@@ -158,4 +160,14 @@ string Logger::createExtraInfoString(void)
 		addThreadId(extraInfoString);
 
 	return extraInfoString;
+}
+
+void Logger::setExtraInfoFlag(const char *extraInfoArg)
+{
+	if (extraInfoArg == NULL)
+		return;
+	for (const char *c = extraInfoArg; *c; c++) {
+		const int idx = *c;
+		extraInfoFlag[idx] = true;
+	}
 }
