@@ -416,6 +416,34 @@ void test_createHeader(void)
 	assertCreateHeader();
 }
 
+void data_createExtraInfo(void)
+{
+	gcut_add_datum("Pattern PTC",
+	               "pattern", G_TYPE_STRING, "PTC",
+	               NULL);
+	gcut_add_datum("Pattern PT",
+	               "pattern", G_TYPE_STRING, "PT",
+	                NULL);
+	gcut_add_datum("Pattern TC",
+	               "pattern", G_TYPE_STRING, "TC",
+	                NULL);
+	gcut_add_datum("Pattern PC",
+	               "pattern", G_TYPE_STRING, "PC",
+	               NULL);
+	gcut_add_datum("Pattern P",
+	               "pattern", G_TYPE_STRING, "P",
+	               NULL);
+	gcut_add_datum("Pattern T",
+	               "pattern", G_TYPE_STRING, "T",
+	               NULL);
+	gcut_add_datum("Pattern C",
+	               "pattern", G_TYPE_STRING, "C",
+	               NULL);
+	gcut_add_datum("Pattern null",
+	               "pattern", G_TYPE_STRING, "",
+	               NULL);
+}
+
 void test_createExtraInfo(gconstpointer data)
 {
 	const char *pattern = gcut_data_get_string(data, "pattern");
