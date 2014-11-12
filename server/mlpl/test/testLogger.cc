@@ -284,6 +284,17 @@ static void _assertAddProcessId(void)
 }
 #define assertAddProcessId() cut_trace(_assertAddProcessId())
 
+static void _assertAddThreadId(void)
+{
+	string testString;
+	string actString = StringUtils::sprintf("T:%ld ", syscall(SYS_gettid));
+
+	testLogger::callAddThreadId(testString);
+
+	cppcut_assert_equal(actString, testString);
+}
+#define assertAddThreadId() cut_trace(_assertAddThreadId())
+
 void cut_teardown(void)
 {
 	if (g_standardOutput) {
