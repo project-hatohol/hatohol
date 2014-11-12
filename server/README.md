@@ -31,6 +31,8 @@ the specific monitoring software in various way.
 - Zabbix 2.4
 - Nagios3 (with NDOUtils)
 - Nagios4 (with NDOUtils)
+- Ceilometer (OpenStack)
+- Fluentd
 
 ## Supported output method
 - REST
