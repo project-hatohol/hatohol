@@ -135,7 +135,7 @@ static const size_t INVALID_COLUMN_IDX = -1;
 
 typedef std::set<UserIdType>      UserIdSet;
 typedef UserIdSet::iterator       UserIdSetIterator;
-typedef UserIdSet::const_iterator UserIdSetIterator;
+typedef UserIdSet::const_iterator UserIdSetConstIterator;
 extern const UserIdSet EMPTY_USER_ID_SET;
 
 typedef std::set<AccessInfoIdType>      AccessInfoIdSet;
