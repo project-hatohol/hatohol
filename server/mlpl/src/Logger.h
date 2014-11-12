@@ -55,6 +55,9 @@ protected:
 	                                int lineNumber, std::string extraInfoString);
 	static std::string createExtraInfoString(void);
 	static void setExtraInfoFlag(const char *extraInfoArg);
+	static void addProcessId(std::string &extraInfoSrting);
+	static void addThreadId(std::string &extraInfoSrting);
+	static void addCurrentTime(std::string &extraInfoSrting);
 private:
 	static LogLevel m_currLogLevel;
 	static pthread_rwlock_t m_rwlock;

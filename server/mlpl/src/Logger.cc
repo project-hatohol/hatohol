@@ -22,11 +22,15 @@
 #include <stdarg.h>
 #include <string>
 #include <syslog.h>
+#include <unistd.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
 using namespace std;
 #include "Logger.h"
 using namespace mlpl;
 #include <string.h>
 #include "StringUtils.h"
+#include "SmartTime.h"
 
 static const char* LogHeaders [MLPL_NUM_LOG_LEVEL] = {
 	"BUG", "CRIT", "ERR", "WARN", "INFO", "DBG",
@@ -170,4 +174,25 @@ void Logger::setExtraInfoFlag(const char *extraInfoArg)
 		const int idx = *c;
 		extraInfoFlag[idx] = true;
 	}
+}
+
+void Logger::addProcessId(string &extraInfoString)
+{
+	extraInfoString += StringUtils::sprintf("P:%d ", pid);
+}
+
+void Logger::addThreadId(string &extraInfoString)
+{
+	if (tid == 0)
+		tid = syscall(SYS_gettid);
+	extraInfoString += StringUtils::sprintf("T:%ld ", tid);
+}
+
+void Logger::addCurrentTime(string &extraInfoString)
+{
+	SmartTime smtime = SmartTime::getCurrTime();
+	const timespec &currTime = smtime.getAsTimespec();
+
+	extraInfoString += StringUtils::sprintf("[%ld.%9ld] ", currTime.tv_sec,
+	                                                       currTime.tv_nsec);
 }
