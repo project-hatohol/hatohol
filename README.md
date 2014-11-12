@@ -45,7 +45,10 @@ We welcome participation in all stages of our development (bug fixes, bug report
 
 ## Supported monitoring software
 - Zabbix 2.0
+- Zabbix 2.2
+- Zabbix 2.2
 - Nagios3 (with NDOUtils)
+- Nagios4 (with NDOUtils)
 - Ceilometer (OpenStack)
 - Fluentd
 

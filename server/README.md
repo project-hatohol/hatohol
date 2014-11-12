@@ -27,7 +27,10 @@ the specific monitoring software in various way.
 
 ## Supported monitoring software
 - Zabbix 2.0
+- Zabbix 2.2
+- Zabbix 2.4
 - Nagios3 (with NDOUtils)
+- Nagios4 (with NDOUtils)
 
 ## Supported output method
 - REST
