@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-11 00:20-0600\n"
-"PO-Revision-Date: 2014-11-04 16:05+0900\n"
+"POT-Creation-Date: 2014-11-11 22:15-0600\n"
+"PO-Revision-Date: 2014-11-12 13:17+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -260,7 +260,7 @@ msgstr "ホスト"
 msgid "SHOW GROUP"
 msgstr "グループを表示"
 
-#: viewer/hosts_ajax.html:39 viewer/users_ajax.html:55
+#: viewer/hosts_ajax.html:39 viewer/users_ajax.html:59
 msgid "ID"
 msgstr "ID"
 
@@ -389,15 +389,19 @@ msgstr "ユーザー追加"
 msgid "DELETE USER"
 msgstr "ユーザー削除"
 
-#: viewer/users_ajax.html:56
+#: viewer/users_ajax.html:43
+msgid "EDIT USER ROLES"
+msgstr "ユーザー種別を編集"
+
+#: viewer/users_ajax.html:60
 msgid "User name"
 msgstr "ユーザー名"
 
-#: viewer/users_ajax.html:57
+#: viewer/users_ajax.html:61
 msgid "User role"
 msgstr "ユーザー種別"
 
-#: viewer/users_ajax.html:58
+#: viewer/users_ajax.html:62
 msgid "Accessible monitoring servers / hostgroups"
 msgstr "アクセス可能な監視サーバー / ホストグループ"
 

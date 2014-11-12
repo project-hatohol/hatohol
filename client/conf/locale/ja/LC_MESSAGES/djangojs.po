@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-11 00:20-0600\n"
+"POT-Creation-Date: 2014-11-11 22:16-0600\n"
 "PO-Revision-Date: 2014-11-11 17:04+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -106,7 +106,7 @@ msgstr "選択項目を削除してもよろしいですか？"
 #: static/js/hatohol_incident_trackers_editor.js:66
 #: static/js/hatohol_item_remover.js:67
 #: static/js/hatohol_user_roles_editor.js:65
-#: static/js/incident_settings_view.js:113 static/js/users_view.js:126
+#: static/js/incident_settings_view.js:113 static/js/users_view.js:135
 msgid "Deleting..."
 msgstr "削除中..."
 
@@ -156,7 +156,7 @@ msgstr "障害"
 #: static/js/events_view.js:38
 #: static/js/hatohol_incident_trackers_editor.js:197
 #: static/js/incident_settings_view.js:199 static/js/servers_view.js:154
-#: static/js/triggers_view.js:91 static/js/users_view.js:141
+#: static/js/triggers_view.js:91 static/js/users_view.js:150
 #: static/js/utils.js:183 static/js/utils.js.c:189 static/js/utils.js.c:204
 #: static/js/utils.js:219 test/browser/test_utils.js:356
 #: test/browser/test_utils.js.c:362 test/browser/test_utils.js:383
@@ -954,7 +954,7 @@ msgstr "IPアドレス"
 
 #: static/js/hatohol_privilege_edit_dialog.js:222
 #: static/js/hatohol_user_roles_editor.js:210
-#: static/js/hatohol_user_roles_editor.js:242 static/js/users_view.js:177
+#: static/js/hatohol_user_roles_editor.js:242 static/js/users_view.js:186
 msgid "Show / Edit"
 msgstr "表示 / 編集"
 
@@ -1055,14 +1055,14 @@ msgstr "ユーザー種別"
 #: static/js/hatohol_user_edit_dialog.js:164
 #: static/js/hatohol_user_edit_dialog.js:217
 #: static/js/hatohol_user_roles_editor.js:192
-#: static/js/hatohol_user_roles_editor.js:343 static/js/users_view.js:135
+#: static/js/hatohol_user_roles_editor.js:343 static/js/users_view.js:144
 msgid "Guest"
 msgstr "ゲスト"
 
 #: static/js/hatohol_user_edit_dialog.js:166
 #: static/js/hatohol_user_edit_dialog.js:219
 #: static/js/hatohol_user_roles_editor.js:194
-#: static/js/hatohol_user_roles_editor.js:347 static/js/users_view.js:133
+#: static/js/hatohol_user_roles_editor.js:347 static/js/users_view.js:142
 msgid "Admin"
 msgstr "管理者"
 
@@ -1086,7 +1086,7 @@ msgstr "権限"
 msgid "None"
 msgstr "無し"
 
-#: static/js/hatohol_user_roles_editor.js:194 static/js/users_view.js:170
+#: static/js/hatohol_user_roles_editor.js:194 static/js/users_view.js:179
 msgid "All"
 msgstr "全て"
 
