@@ -411,4 +411,31 @@ void test_syslogoutputDisable(void)
 	assertSyslogOutput("Test message", "Message of test",  false);
 }
 
+void test_createHeader(void)
+{
+	assertCreateHeader();
+}
+
+void test_createExtraInfo(gconstpointer data)
+{
+	const char *pattern = gcut_data_get_string(data, "pattern");
+	testLogger::callSetExtraInfoFlag(pattern);
+	assertCreateExtraInfo(pattern);
+}
+
+void test_addProcessId(void)
+{
+	assertAddProcessId();
+}
+
+void test_addThreadId(void)
+{
+	assertAddThreadId();
+}
+
+void test_addCurrentTime(void)
+{
+	assertAddCurrentTime();
+}
+
 } // namespace testLogger
