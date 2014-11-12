@@ -124,6 +124,15 @@ static vector<string> split(const string str, const char delim)
 	return afterSplitStrings;
 }
 
+static long stringToLong(string stringInteger)
+{
+	long longInteger;
+	istringstream iss(stringInteger);
+	iss >> longInteger;
+
+	return longInteger;
+}
+
 static void _assertLogOutput(const char *envLevel, const char *outLevel,
                              bool expectOut)
 {
