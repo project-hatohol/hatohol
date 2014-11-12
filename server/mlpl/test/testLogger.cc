@@ -32,11 +32,15 @@
 #include <glib.h>
 #include <cutter.h>
 #include <cppcutter.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
+#include <gcutter.h>
 
 #include "Logger.h"
 #include "StringUtils.h"
 #include "ParsableString.h"
 #include "loggerTester.h"
+#include "SmartTime.h"
 
 using namespace std;
 using namespace mlpl;
@@ -294,6 +298,29 @@ static void _assertAddThreadId(void)
 	cppcut_assert_equal(actString, testString);
 }
 #define assertAddThreadId() cut_trace(_assertAddThreadId())
+
+static void _assertAddCurrentTime(void)
+{
+	SmartTime startTime = SmartTime::getCurrTime();
+
+	string testString;
+	testLogger::callAddCurrentTime(testString);
+	// 'addCurrentTime()' makes a string such as "[sec.nsec]".
+	// 'timespec' uses only the sec and nsec.
+	// The following statements delete "[", "]" and ".".
+	testString.erase(testString.begin());
+	testString.erase(--testString.end());
+	vector<string> SplitStrings = split(testString, '.');
+	timespec testTimespec = {stringToLong(SplitStrings[0]),
+				    stringToLong(SplitStrings[1])};
+	SmartTime headerTime = SmartTime(testTimespec);
+
+	SmartTime stopTime = SmartTime::getCurrTime();
+
+	cppcut_assert_equal(true, startTime < headerTime);
+	cppcut_assert_equal(true, headerTime < stopTime);
+}
+#define assertAddCurrentTime() cut_trace(_assertAddCurrentTime())
 
 void cut_teardown(void)
 {
