@@ -273,6 +273,17 @@ static void _assertCreateExtraInfo(const char *extraInfoArg)
 }
 #define assertCreateExtraInfo(EXIA) cut_trace(_assertCreateExtraInfo(EXIA))
 
+static void _assertAddProcessId(void)
+{
+	string testString;
+	string actString = StringUtils::sprintf("P:%d ", getpid());
+
+	testLogger::callAddProcessId(testString);
+
+	cppcut_assert_equal(actString, testString);
+}
+#define assertAddProcessId() cut_trace(_assertAddProcessId())
+
 void cut_teardown(void)
 {
 	if (g_standardOutput) {
