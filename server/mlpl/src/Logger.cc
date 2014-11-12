@@ -45,9 +45,9 @@ bool Logger::syslogConnected = false;
 void Logger::log(LogLevel level, const char *fileName, int lineNumber,
                  const char *fmt, ...)
 {
-	string header = StringUtils::sprintf("[%s] <%s:%d> ",
-	                                     LogHeaders[level], fileName,
-	                                     lineNumber);
+	string extraInfoString = createExtraInfoString();
+	string header = createHeader(level, fileName, lineNumber, extraInfoString);
+
 	va_list ap;
 	va_start(ap, fmt);
 	string body = StringUtils::vsprintf(fmt, ap);
@@ -138,6 +138,13 @@ void Logger::connectSyslogIfNeeded(void)
 		return;
 	openlog(NULL, LOG_CONS | LOG_PID, LOG_USER);
 	syslogConnected = true;
+}
+
+string Logger::createHeader(LogLevel level, const char *fileName,
+                            int lineNumber, string extraInfoString)
+{
+	return StringUtils::sprintf("%s[%s] <%s:%d> ", extraInfoString.c_str(),
+	                            LogHeaders[level], fileName, lineNumber);
 }
 
 string Logger::createExtraInfoString(void)

@@ -50,6 +50,8 @@ public:
 protected:
 	static void setCurrLogLevel(void);
 	static void connectSyslogIfNeeded(void);
+	static std::string createHeader(LogLevel level, const char *fileName,
+	                                int lineNumber, std::string extraInfoString);
 	static std::string createExtraInfoString(void);
 private:
 	static LogLevel m_currLogLevel;
