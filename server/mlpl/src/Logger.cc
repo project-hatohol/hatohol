@@ -44,6 +44,17 @@ const char *Logger::LEVEL_ENV_VAR_NAME = "MLPL_LOGGER_LEVEL";
 const char *Logger::MLPL_LOGGER_FLAGS = "MLPL_LOGGER_FLAGS";
 bool Logger::syslogConnected = false;
 bool Logger::extraInfoFlag[256];
+int Logger::pid = 0;
+__thread long Logger::tid =0;
+
+class Initializer : public Logger {
+	public:
+		Initializer() {
+			Logger::setExtraInfoFlag(getenv(Logger::MLPL_LOGGER_FLAGS));
+			Logger::getProcessId();
+		}
+};
+Initializer init;
 
 // ----------------------------------------------------------------------------
 // Public methods
@@ -195,4 +206,10 @@ void Logger::addCurrentTime(string &extraInfoString)
 
 	extraInfoString += StringUtils::sprintf("[%ld.%9ld] ", currTime.tv_sec,
 	                                                       currTime.tv_nsec);
+}
+
+void Logger::getProcessId(void)
+{
+	if (pid == 0)
+		pid = getpid();
 }

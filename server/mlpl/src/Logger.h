@@ -58,6 +58,7 @@ protected:
 	static void addProcessId(std::string &extraInfoSrting);
 	static void addThreadId(std::string &extraInfoSrting);
 	static void addCurrentTime(std::string &extraInfoSrting);
+	static void getProcessId(void);
 private:
 	static LogLevel m_currLogLevel;
 	static pthread_rwlock_t m_rwlock;
@@ -65,6 +66,8 @@ private:
 	static ReadWriteLock lock;
 	static bool syslogConnected;
 	static bool extraInfoFlag[256];
+	static int pid;
+	static __thread long tid;
 };
 
 } // namespace mlpl
