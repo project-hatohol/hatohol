@@ -17,6 +17,7 @@
  * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstdio>
 #include "DBTablesHost.h"
 #include "ItemGroupStream.h"
 #include "ThreadLocalDBCache.h"
@@ -487,12 +488,17 @@ bool DBTablesHost::isAccessible(
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ServerIdType serverId;
-		string hostIdInServer;
+		string hostgroupIdInServer;
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		itemGroupStream >> serverId;
-		itemGroupStream >> hostIdInServer;
-		// TODO: extend dbUser.isAccessisble to take care of host group
-		if (dbUser.isAccessible(serverId, option))
+		itemGroupStream >> hostgroupIdInServer;
+		// TODO: DBTablesUser should handle hostgroup ID as a string
+		HostgroupIdType hostgroupId;
+		int ret = sscanf(hostgroupIdInServer.c_str(),
+		                 "%" FMT_HOST_GROUP_ID, &hostgroupId);
+		HATOHOL_ASSERT(ret == 1, "ret: %d, str: %s\n",
+		               ret, hostgroupIdInServer.c_str());
+		if (dbUser.isAccessible(serverId, hostgroupId, option))
 			return true;
 	}
 	return false;
