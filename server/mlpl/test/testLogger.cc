@@ -43,6 +43,40 @@ using namespace mlpl;
 
 namespace testLogger {
 
+class testLogger : public Logger {
+public:
+	static string callCreateHeader(LogLevel level, const char *fileName,
+	                               int lineNumber, string extraInfoString)
+	{
+		return createHeader(level, fileName, lineNumber, extraInfoString);
+	}
+
+	static string callCreateExtraInfoString(void)
+	{
+		return createExtraInfoString();
+	}
+
+	static void callAddProcessId(string &testString)
+	{
+		addProcessId(testString);
+	}
+
+	static void callAddThreadId(string &testString)
+	{
+		addThreadId(testString);
+	}
+
+	static void callAddCurrentTime(string &testString)
+	{
+		addCurrentTime(testString);
+	}
+
+	static void callSetExtraInfoFlag(const char *extraInfoArg)
+	{
+		setExtraInfoFlag(extraInfoArg);
+	}
+};
+
 static gchar *g_standardOutput = NULL;
 static gchar *g_standardError = NULL;
 static GError *g_error = NULL;
