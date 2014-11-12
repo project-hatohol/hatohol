@@ -21,6 +21,7 @@
 #define Logger_h
 
 #include <pthread.h>
+#include <string>
 #include "ReadWriteLock.h"
 namespace mlpl {
 
@@ -39,6 +40,7 @@ enum LogLevel {
 class Logger {
 public:
 	static const char *LEVEL_ENV_VAR_NAME;
+	static const char *MLPL_LOGGER_FLAGS;
 	static void log(LogLevel level,
 	                const char *fileName, int lineNumber,
 	                const char *fmt, ...)
@@ -49,12 +51,23 @@ public:
 protected:
 	static void setCurrLogLevel(void);
 	static void connectSyslogIfNeeded(void);
+	static std::string createHeader(LogLevel level, const char *fileName,
+	                                int lineNumber, std::string extraInfoString);
+	static std::string createExtraInfoString(void);
+	static void setExtraInfoFlag(const char *extraInfoArg);
+	static void addProcessId(std::string &extraInfoSrting);
+	static void addThreadId(std::string &extraInfoSrting);
+	static void addCurrentTime(std::string &extraInfoSrting);
+	static void setupProcessId(void);
 private:
 	static LogLevel m_currLogLevel;
 	static pthread_rwlock_t m_rwlock;
 	static bool syslogoutputFlag;
 	static ReadWriteLock lock;
 	static bool syslogConnected;
+	static bool extraInfoFlag[256];
+	static pid_t pid;
+	static __thread pid_t tid;
 };
 
 } // namespace mlpl
