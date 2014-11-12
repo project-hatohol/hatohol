@@ -7,6 +7,7 @@ http://www.hatohol.org/
 - [Overview](#user-content-overview)
 - [Project Hatohol](#user-content-project-hatohol)
 - [Supported monitoring software](#user-content-supported-monitoring-software)
+- [Supported incident tacking software](#user-content-supported-incident-tracking-software)
 - [Supported platforms](#user-content-supported-platforms)
 - [Basic architecture](#user-content-basic-architecture)
 - [Screenshots](#user-content-screenshots)
@@ -51,6 +52,9 @@ We welcome participation in all stages of our development (bug fixes, bug report
 - Nagios4 (with NDOUtils)
 - Ceilometer (OpenStack)
 - Fluentd
+
+## Supported incident tracking software
+- Redmine
 
 ## Supported platforms
 - CentOS 6.5 (x86\_64)

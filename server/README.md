@@ -8,6 +8,7 @@ the specific monitoring software in various way.
 ## Table of Contents
 
 - [Supported monitoring software](#user-content-supported-monitoring-software)
+- [Supported incident tracking software](#user-content-supported-incident-tracking-software)
 - [Supported output method](#user-content-supported-output-method)
 - [Supported platforms](#user-content-supported-platforms)
 - [Required libraries](#user-content-required-libraries)
@@ -33,6 +34,9 @@ the specific monitoring software in various way.
 - Nagios4 (with NDOUtils)
 - Ceilometer (OpenStack)
 - Fluentd
+
+## Supported incident tracking software
+- Redmine
 
 ## Supported output method
 - REST
