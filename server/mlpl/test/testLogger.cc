@@ -242,6 +242,25 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 }
 #define assertSyslogOutput(EM,OM,EXP) cut_trace(_assertSyslogOutput(EM,OM,EXP))
 
+static void _assertCreateHeader(void)
+{
+	string processAndThreadIdStr = StringUtils::sprintf("%d T:%ld", getpid(),
+	                                                    syscall(SYS_gettid));
+
+	string actHeader = ":" + processAndThreadIdStr
+	                    + " [ERR] <test_file.py:18> ";
+	string testHeader = testLogger::callCreateHeader(MLPL_LOG_ERR,
+	                                                 "test_file.py", 18,
+	                                   testLogger::callCreateExtraInfoString());
+
+	vector<string> afterSplitStrings = split(testHeader, 'P');
+	cppcut_assert_equal(2, (int)afterSplitStrings.size());
+
+	testHeader = afterSplitStrings[1];
+	cppcut_assert_equal(actHeader, testHeader);
+}
+#define assertCreateHeader() cut_trace(_assertCreateHeader())
+
 void cut_teardown(void)
 {
 	if (g_standardOutput) {
