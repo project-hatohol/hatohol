@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <cppcutter.h>
 #include <cutter.h>
+#include <gcutter.h>
 #include "Helpers.h"
 #include "DBTablesUser.h"
 #include "DBTablesTest.h"
@@ -906,6 +907,113 @@ void test_isAccessibleFalse(void)
 	OperationPrivilege privilege;
 	privilege.setUserId(userId);
 	cppcut_assert_equal(false, dbUser.isAccessible(serverId, privilege));
+}
+
+void data_isAccessibleWithHostgroup(void)
+{
+	set<UserIdType> userIdSet;
+
+	struct {
+		static void add(const UserIdType &userId,
+		                const ServerIdType &serverId,
+		                const HostgroupIdType &hostgroupId,
+		                const bool &expect)
+		{
+			string serverIdStr =
+			  serverId == ALL_SERVERS ?  "ALL" :
+			    StringUtils::sprintf("%" FMT_SERVER_ID, serverId);
+
+			string hostgroupIdStr =
+			  hostgroupId == ALL_HOST_GROUPS ?  "ALL" :
+			    StringUtils::sprintf("%" FMT_HOST_ID, hostgroupId);
+
+			string testName = StringUtils::sprintf(
+			  "%s-U%" FMT_USER_ID "-S%s-H%s",
+			  expect ? "T" : "F", userId,
+			  serverIdStr.c_str(), hostgroupIdStr.c_str());
+
+			gcut_add_datum(testName.c_str(),
+			  "userId",   G_TYPE_INT, userId,
+			  "serverId", G_TYPE_INT, serverId,
+			  "hostgroupId",   G_TYPE_UINT64, hostgroupId,
+			  "expect",   G_TYPE_BOOLEAN, expect,
+			  NULL);
+		}
+	} dataAdder;
+
+	// Tests with listed paramters
+	for (size_t i = 0; i < NumTestAccessInfo; ++i) {
+		AccessInfo *accessInfo = &testAccessInfo[i];
+		dataAdder.add(accessInfo->userId, accessInfo->serverId,
+		              accessInfo->hostgroupId, true);
+		userIdSet.insert(accessInfo->userId);
+	}
+
+	// Tests with parameters that is not listed in the test data.
+	UserIdSetConstIterator it = userIdSet.begin();
+	for (; it != userIdSet.end(); ++it) {
+		const UserIdType &userId = *it;
+		ServerAccessInfoMap srvAccessInfoMap;
+		makeServerAccessInfoMap(srvAccessInfoMap, userId);
+		ServerAccessInfoMapConstIterator svaccIt =
+		  srvAccessInfoMap.begin();
+
+		bool hasAllServers = false;
+		ServerIdType maxServerId = 0;
+		for (; svaccIt != srvAccessInfoMap.end(); ++svaccIt) {
+			const ServerIdType &serverId = svaccIt->first;
+			if (serverId == ALL_SERVERS)
+				hasAllServers = true;
+			else if (serverId > maxServerId)
+				maxServerId = serverId;
+		}
+		if (hasAllServers) {
+			// We pass bogus non-existent server and hostgroup ID.
+			dataAdder.add(userId, 12345, 67890, true);
+			continue;
+		}
+
+		svaccIt = srvAccessInfoMap.begin();
+		for (; svaccIt != srvAccessInfoMap.end(); ++svaccIt) {
+			const ServerIdType &serverId = svaccIt->first;
+			const HostGrpAccessInfoMap *grpMap = svaccIt->second;
+			HostGrpAccessInfoMapConstIterator hgrpIt =
+			  grpMap->begin();
+			bool hasAllHostgroups = false;
+			HostgroupIdType maxHostgroupId = 0;
+			for (; hgrpIt != grpMap->end(); ++hgrpIt) {
+				const HostgroupIdType &hostgroupId = hgrpIt->first;
+				if (hostgroupId == ALL_HOST_GROUPS)
+					hasAllHostgroups = true;
+				else if (hostgroupId > maxHostgroupId)
+					maxHostgroupId = hostgroupId;
+			}
+			// We pass bogus non-existent hostgroup ID.
+			if (hasAllHostgroups) {
+				dataAdder.add(userId, serverId, 67890, true);
+			} else {
+				dataAdder.add(userId, serverId,
+				              maxHostgroupId + 1, false);
+			}
+		}
+	}
+}
+
+void test_isAccessibleWithHostgroup(gconstpointer data)
+{
+	loadTestDBAccessList();
+
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+
+	const ServerIdType serverId = gcut_data_get_int(data, "serverId");
+	const HostgroupIdType hostgroupId = gcut_data_get_uint64(data, "hostgroupId");
+	const UserIdType userId = gcut_data_get_int(data, "userId");
+	const bool expect       = gcut_data_get_boolean(data, "expect");
+	OperationPrivilege privilege;
+	privilege.setUserId(userId);
+	cppcut_assert_equal(
+	  expect, dbUser.isAccessible(serverId, hostgroupId, privilege));
 }
 
 void test_constructorOfUserQueryOptionFromDataQueryContext(void)

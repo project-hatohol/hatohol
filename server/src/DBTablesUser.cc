@@ -1102,6 +1102,30 @@ bool DBTablesUser::isAccessible(const ServerIdType &serverId,
 	return count > 0;
 }
 
+bool DBTablesUser::isAccessible(
+  const ServerIdType &serverId, const HostgroupIdType &hostgroupId,
+  const OperationPrivilege &privilege, const bool &useTransaction)
+{
+	const UserIdType userId = privilege.getUserId();
+	string condition = StringUtils::sprintf(
+	  "%s=%" FMT_USER_ID " AND "
+	  "((%s=%" FMT_SERVER_ID ") OR "
+	  " (%s=%" FMT_SERVER_ID " AND "
+	  "  (%s=%" FMT_HOST_GROUP_ID " OR %s=%" FMT_HOST_GROUP_ID ")))",
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
+	  userId,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
+	  ALL_SERVERS,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
+	  serverId,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
+	  ALL_HOST_GROUPS,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
+	  hostgroupId);
+
+	return isAccessible(privilege, condition, useTransaction);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -1154,3 +1178,31 @@ void DBTablesUser::getUserInfoList(UserInfoList &userInfoList,
 		userInfoList.push_back(userInfo);
 	}
 }
+
+bool DBTablesUser::isAccessible(
+  const OperationPrivilege &privilege, const string &condition,
+  const bool &useTransaction)
+{
+	UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID) {
+		MLPL_WARN("INVALID_USER_ID\n");
+		return false;
+	}
+
+	DBAgent::SelectExArg arg(tableProfileAccessList);
+	arg.add("count(*)", SQL_COLUMN_TYPE_INT);
+	arg.condition = condition;
+
+	if (useTransaction) {
+		getDBAgent().runTransaction(arg);
+	} else {
+		select(arg);
+	}
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	HATOHOL_ASSERT(!grpList.empty(), "No result");
+	const ItemGroup *itemGroup = *grpList.begin();
+	int count = *itemGroup->getItemAt(0);
+	return count > 0;
+}
+

@@ -254,6 +254,11 @@ public:
 	                  const OperationPrivilege &privilege,
 	                  const bool &useTransaction = true);
 
+	bool isAccessible(const ServerIdType &serverId,
+	                  const HostgroupIdType &hostgroupId,
+	                  const OperationPrivilege &privilege,
+	                  const bool &useTransaction = true);
+
 	void getUserIdSet(UserIdSet &userIdSet);
 
 protected:
@@ -262,6 +267,10 @@ protected:
 	                     const std::string &condition);
 	HatoholError hasPrivilegeForUpdateUserInfo(
 	  UserInfo &userInfo, const OperationPrivilege &privilege);
+
+	bool isAccessible(
+	  const OperationPrivilege &privilege, const std::string &condition,
+	  const bool &useTransaction);
 
 private:
 	struct Impl;
