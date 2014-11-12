@@ -117,9 +117,10 @@ err:
 static vector<string> split(const string str, const char delim)
 {
 	istringstream iss(str);
-	string tmp;
+	string snippet;
 	vector<string> afterSplitStrings;
-	while(getline(iss, tmp, delim)) afterSplitStrings.push_back(tmp);
+	while(getline(iss, snippet, delim))
+		afterSplitStrings.push_back(snippet);
 
 	return afterSplitStrings;
 }
@@ -321,7 +322,7 @@ static void _assertAddCurrentTime(void)
 	testString.erase(--testString.end());
 	vector<string> SplitStrings = split(testString, '.');
 	timespec testTimespec = {stringToLong(SplitStrings[0]),
-				    stringToLong(SplitStrings[1])};
+	                         stringToLong(SplitStrings[1])};
 	SmartTime headerTime = SmartTime(testTimespec);
 
 	SmartTime stopTime = SmartTime::getCurrTime();

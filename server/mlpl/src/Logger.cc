@@ -44,14 +44,14 @@ const char *Logger::LEVEL_ENV_VAR_NAME = "MLPL_LOGGER_LEVEL";
 const char *Logger::MLPL_LOGGER_FLAGS = "MLPL_LOGGER_FLAGS";
 bool Logger::syslogConnected = false;
 bool Logger::extraInfoFlag[256];
-int Logger::pid = 0;
-__thread long Logger::tid =0;
+pid_t Logger::pid = 0;
+__thread pid_t Logger::tid =0;
 
 class Initializer : public Logger {
 	public:
 		Initializer() {
-			Logger::setExtraInfoFlag(getenv(Logger::MLPL_LOGGER_FLAGS));
-			Logger::getProcessId();
+			setExtraInfoFlag(getenv(MLPL_LOGGER_FLAGS));
+			setupProcessId();
 		}
 };
 Initializer init;
@@ -196,7 +196,7 @@ void Logger::addThreadId(string &extraInfoString)
 {
 	if (tid == 0)
 		tid = syscall(SYS_gettid);
-	extraInfoString += StringUtils::sprintf("T:%ld ", tid);
+	extraInfoString += StringUtils::sprintf("T:%d ", tid);
 }
 
 void Logger::addCurrentTime(string &extraInfoString)
@@ -204,12 +204,11 @@ void Logger::addCurrentTime(string &extraInfoString)
 	SmartTime smtime = SmartTime::getCurrTime();
 	const timespec &currTime = smtime.getAsTimespec();
 
-	extraInfoString += StringUtils::sprintf("[%ld.%9ld] ", currTime.tv_sec,
+	extraInfoString += StringUtils::sprintf("[%ld.%09ld] ", currTime.tv_sec,
 	                                                       currTime.tv_nsec);
 }
 
-void Logger::getProcessId(void)
+void Logger::setupProcessId(void)
 {
-	if (pid == 0)
 		pid = getpid();
 }
