@@ -44,7 +44,7 @@ Hatohol is an open source software developed and copyrighted by Project Hatohol.
 We welcome participation in all stages of our development (bug fixes, bug reports, feature requests/suggestions/discussion, functional improvement, etc.) 
 
 ## Supported monitoring software
-- ZABBIX 2.0
+- Zabbix 2.0
 - Nagios3 (with NDOUtils)
 - Ceilometer (OpenStack)
 - Fluentd

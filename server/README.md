@@ -26,7 +26,7 @@ the specific monitoring software in various way.
 - [API Reference Manual for REST service](#user-content-api-reference-manual-for-rest-service)
 
 ## Supported monitoring software
-- ZABBIX 2.0
+- Zabbix 2.0
 - Nagios3 (with NDOUtils)
 
 ## Supported output method
