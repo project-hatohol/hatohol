@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-11-11 22:15-0600\n"
-"PO-Revision-Date: 2014-11-12 13:17+0900\n"
+"PO-Revision-Date: 2014-11-12 13:36+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -391,7 +391,7 @@ msgstr "ユーザー削除"
 
 #: viewer/users_ajax.html:43
 msgid "EDIT USER ROLES"
-msgstr "ユーザー種別を編集"
+msgstr "ユーザー種別編集"
 
 #: viewer/users_ajax.html:60
 msgid "User name"
