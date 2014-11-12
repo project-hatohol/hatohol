@@ -110,6 +110,16 @@ err:
 	failAndShowSpawnResult();
 }
 
+static vector<string> split(const string str, const char delim)
+{
+	istringstream iss(str);
+	string tmp;
+	vector<string> afterSplitStrings;
+	while(getline(iss, tmp, delim)) afterSplitStrings.push_back(tmp);
+
+	return afterSplitStrings;
+}
+
 static void _assertLogOutput(const char *envLevel, const char *outLevel,
                              bool expectOut)
 {
