@@ -261,6 +261,18 @@ static void _assertCreateHeader(void)
 }
 #define assertCreateHeader() cut_trace(_assertCreateHeader())
 
+static void _assertCreateExtraInfo(const char *extraInfoArg)
+{
+	string testString = testLogger::callCreateExtraInfoString();
+	if (strchr(extraInfoArg, 'C') != NULL)
+		cppcut_assert_not_null(strstr(testString.c_str(),"["));
+	if (strchr(extraInfoArg, 'P') != NULL)
+		cppcut_assert_not_null(strstr(testString.c_str(),"P:"));
+	if (strchr(extraInfoArg, 'T') != NULL)
+		cppcut_assert_not_null(strstr(testString.c_str(),"T:"));
+}
+#define assertCreateExtraInfo(EXIA) cut_trace(_assertCreateExtraInfo(EXIA))
+
 void cut_teardown(void)
 {
 	if (g_standardOutput) {
