@@ -107,7 +107,7 @@ describe('LatestView', function() {
     expect($('#table')).to.have.length(1);
   });
 
-  it('Float item row', function() {
+  it('Float item', function() {
     var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
     var zabbixURL = "http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=1";
     var historyURL= "ajax_history?serverId=1&amp;hostId=10101&amp;itemId=1";
