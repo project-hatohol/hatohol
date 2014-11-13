@@ -78,14 +78,14 @@ var HistoryView = function(userProfile, options) {
       self.startConnection(getHistoryQuery(), updateView);
     } else {
       messageDetail =
-	"Monitoring Server ID: " + query.serverId + ", " +
-	"Host ID: " + query.hostId + ", " +
-	"Item ID: " + query.itemId;
+        "Monitoring Server ID: " + query.serverId + ", " +
+        "Host ID: " + query.hostId + ", " +
+        "Item ID: " + query.itemId;
       if (!items || items.length == 0)
-	self.showError(gettext("No such item: ") + messageDetail);
+        self.showError(gettext("No such item: ") + messageDetail);
       else if (items.length > 1)
-	self.showError(gettext("Too many items are found for ") +
-		       messageDetail);
+        self.showError(gettext("Too many items are found for ") +
+                       messageDetail);
     }
   }
 
