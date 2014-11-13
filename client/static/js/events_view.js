@@ -257,7 +257,7 @@ var EventsView = function(userProfile, baseElem) {
 
   function drawTableBody() {
     var serverName, hostName, clock, status, severity, duration;
-    var server, event, serverId, hostId, html = "";
+    var server, event, serverId, serverURL, hostId, html = "";
     var x;
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
@@ -266,6 +266,7 @@ var EventsView = function(userProfile, baseElem) {
       hostId     = event["hostId"];
       server     = self.rawData["servers"][serverId];
       serverName = getServerName(server, serverId);
+      serverURL  = getServerLocation(server);
       hostName   = getHostName(server, hostId);
       clock      = event["time"];
       status     = event["type"];
@@ -273,10 +274,15 @@ var EventsView = function(userProfile, baseElem) {
       duration   = self.durations[serverId][event["triggerId"]][clock];
       incident   = event["incident"];
 
-      html += "<tr><td>" + escapeHTML(serverName) + "</td>";
+      html += "<tr><td><a href='" + serverURL + "'>" + escapeHTML(serverName)  + "</a></td>";
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
         formatDate(clock) + "</td>";
-      html += "<td>" + escapeHTML(hostName) + "</td>";
+      if (hostName.indexOf("_SELF")>=0) {
+        html += "<td>" + escapeHTML(hostName) + "</td>";
+      } else {
+        html += "<td><a href='" + serverURL + "/latest.php?&hostid=" + hostId + "'>"
+                + escapeHTML(hostName) + "</a></td>";
+      }
       html += "<td>" + escapeHTML(event["brief"]) + "</td>";
       html += "<td class='status" + escapeHTML(status) +
         "' data-sort-value='" + escapeHTML(status) + "'>" +
