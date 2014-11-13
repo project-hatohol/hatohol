@@ -30,8 +30,7 @@ var HistoryView = function(userProfile, options) {
 
   function formatHistoryData() {
     var history = replyHistory["history"];
-    var i, unixTimeMSec;
-    var data = [[]];
+    var i, data = [[]];
     for (i = 0; i < history.length; i++) {
       data[0][i] = [
 	  // Xaxis: UNIX time in msec
