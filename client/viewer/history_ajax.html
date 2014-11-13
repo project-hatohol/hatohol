@@ -25,9 +25,12 @@
 {% endblock %}
 
 {% block main %}
+<div id="item-graph" style="width:600px;height:300px"></div>
 {% endblock %}
 
 {% block option %}
+  <script src="{{ STATIC_URL }}js.external/jquery.flot.js"></script>
+  <script src="{{ STATIC_URL }}js.external/jquery.flot.time.js"></script>
 {% endblock %}
 
 {% block logic %}

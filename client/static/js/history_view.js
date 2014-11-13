@@ -28,9 +28,26 @@ var HistoryView = function(userProfile, options) {
 
   load();
 
+  function formatHistoryData() {
+    var history = replyHistory["history"];
+    var i;
+    var data = [[]];
+    for (i = 0; i < history.length; i++) {
+      data[0][i] = [
+	  history[i].clock * 1000 * Math.floor(history[i].ns / 1000000),
+	  history[i].value
+      ];
+    }
+    return data;
+  };
+
   function updateView(reply) {
     replyHistory = reply;
     self.displayUpdateTime();
+    var options = {
+	xaxis: { mode: "time" }
+    };
+    $.plot($("#item-graph"), formatHistoryData(), options);
   }
 
   function getItemQuery() {
