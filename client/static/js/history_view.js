@@ -59,7 +59,7 @@ var HistoryView = function(userProfile, options) {
     return 'history?' + $.param(query);
   };
 
-  function onItemLoad(reply) {
+  function onLoadItem(reply) {
     var items = reply["items"];
     var messageDetail;
 
@@ -81,7 +81,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function load() {
-    self.startConnection(getItemQuery(), onItemLoad);
+    self.startConnection(getItemQuery(), onLoadItem);
   }
 };
 
