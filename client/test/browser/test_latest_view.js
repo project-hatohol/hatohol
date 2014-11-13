@@ -14,6 +14,18 @@ describe('LatestView', function() {
       "unit": "%",
       "valueType": hatohol.ITEM_INFO_VALUE_TYPE_FLOAT,
     },
+    {
+      "id": 2,
+      "serverId": 1,
+      "hostId": "10101",
+      "brief": "host name",
+      "lastValueTime": 1415232279,
+      "lastValue": "host1",
+      "prevValue": "host1",
+      "itemGroupName": "group1",
+      "unit": "",
+      "valueType": hatohol.ITEM_INFO_VALUE_TYPE_STRING,
+    },
   ];
   var defaultServers = {
     "1": {
@@ -95,7 +107,7 @@ describe('LatestView', function() {
     expect($('#table')).to.have.length(1);
   });
 
-  it('An item row', function() {
+  it('Float item row', function() {
     var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
     var zabbixURL = "http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=1";
     var historyURL= "ajax_history?serverId=1&amp;hostId=10101&amp;itemId=1";
@@ -114,6 +126,26 @@ describe('LatestView', function() {
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultItems.length + 1);
     expect($('tr :eq(1)').html()).to.be(expected);
+  });
+
+  it('String item', function() {
+    var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
+    var zabbixURL = "http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=2";
+    var expected = 
+      '<td>Zabbix</td>' +
+      '<td>Host1</td>' +
+      '<td>group1</td>' +
+      '<td><a href="' + zabbixURL + '">host name</a></td>' +
+      '<td data-sort-value="1415232279">' +
+      formatDate(1415232279) + 
+      '</td>' +
+      '<td>host1</td>' +
+      '<td>host1</td>'+
+      '<td></td>';
+    respond('{}', itemsJson(defaultItems, defaultServers));
+    expect($('#table')).to.have.length(1);
+    expect($('tr')).to.have.length(defaultItems.length + 1);
+    expect($('tr :eq(2)').html()).to.be(expected);
   });
 
   it('default page size', function() {

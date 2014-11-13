@@ -165,6 +165,11 @@ var LatestView = function(userProfile) {
   }
 
   function getGraphLink(item) {
+    if (!item || !item["valueType"] ||
+        (item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_FLOAT &&
+         item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)) {
+      return "";
+    }
     var link = "<a href='" + getGraphURL(item) + "'>"
     link += gettext("Graph");
     link += "</a>";
