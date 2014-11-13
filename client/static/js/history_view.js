@@ -30,11 +30,13 @@ var HistoryView = function(userProfile, options) {
 
   function formatHistoryData() {
     var history = replyHistory["history"];
-    var i;
+    var i, unixTimeMSec;
     var data = [[]];
     for (i = 0; i < history.length; i++) {
       data[0][i] = [
-	  history[i].clock * 1000 * Math.floor(history[i].ns / 1000000),
+	  // Xaxis: UNIX time in msec
+	  history[i].clock * 1000 + Math.floor(history[i].ns / 1000000),
+	  // Yaxis: value
 	  history[i].value
       ];
     }
