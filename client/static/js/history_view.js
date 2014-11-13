@@ -22,12 +22,14 @@ var HistoryView = function(userProfile, options) {
   var replyItem, replyHistory;
   var query;
 
+  self.reloadIntervalSeconds = 60;
+
   if (!options)
     options = {};
   query = self.parseQuery(options.query);
 
   appendGraphArea();
-  load();
+  loadItemAndHistory();
 
   function appendGraphArea() {
     $("#main").append($("<div>", {
@@ -58,6 +60,7 @@ var HistoryView = function(userProfile, options) {
       xaxis: { mode: "time" }
     };
     $.plot($("#item-graph"), formatHistoryData(), options);
+    self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
   }
 
   function getItemQuery() {
@@ -75,7 +78,7 @@ var HistoryView = function(userProfile, options) {
     replyItem = reply;
 
     if (items && items.length == 1) {
-      self.startConnection(getHistoryQuery(), updateView);
+      loadHistory();
     } else {
       messageDetail =
         "Monitoring Server ID: " + query.serverId + ", " +
@@ -89,7 +92,11 @@ var HistoryView = function(userProfile, options) {
     }
   }
 
-  function load() {
+  function loadHistory() {
+    self.startConnection(getHistoryQuery(), updateView);
+  }
+
+  function loadItemAndHistory() {
     self.startConnection(getItemQuery(), onLoadItem);
   }
 };
