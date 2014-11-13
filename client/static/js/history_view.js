@@ -26,7 +26,16 @@ var HistoryView = function(userProfile, options) {
     options = {};
   query = self.parseQuery(options.query);
 
+  appendGraphArea();
   load();
+
+  function appendGraphArea() {
+    $("#main").append($("<div>", {
+      id: "item-graph",
+      width: "800px",
+      height: "300px",
+    }));
+  };
 
   function formatHistoryData() {
     var history = replyHistory["history"];
