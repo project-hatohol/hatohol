@@ -430,7 +430,6 @@ HatoholError DBTablesHost::getHypervisor(HostIdType &hypervisorHostId,
                                          const HostIdType &hostId,
                                          const HostQueryOption &option)
 {
-	MLPL_BUG("TODO: Take into account the caller's (user's) accessiblity: %s\n", __PRETTY_FUNCTION__);
 	if (option.getUserId() == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
 
