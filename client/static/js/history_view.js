@@ -33,10 +33,10 @@ var HistoryView = function(userProfile, options) {
     var i, data = [[]];
     for (i = 0; i < history.length; i++) {
       data[0][i] = [
-	  // Xaxis: UNIX time in msec
-	  history[i].clock * 1000 + Math.floor(history[i].ns / 1000000),
-	  // Yaxis: value
-	  history[i].value
+        // Xaxis: UNIX time in msec
+        history[i].clock * 1000 + Math.floor(history[i].ns / 1000000),
+        // Yaxis: value
+        history[i].value
       ];
     }
     return data;
@@ -46,7 +46,7 @@ var HistoryView = function(userProfile, options) {
     replyHistory = reply;
     self.displayUpdateTime();
     var options = {
-	xaxis: { mode: "time" }
+      xaxis: { mode: "time" }
     };
     $.plot($("#item-graph"), formatHistoryData(), options);
   }
