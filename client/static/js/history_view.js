@@ -64,13 +64,13 @@ var HistoryView = function(userProfile, options) {
     if (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)
       options.yaxis.minTickSize = 1;
     $.plot($("#item-graph"), formatHistoryData(history), options);
-    self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
   }
 
   function updateView(reply) {
     replyHistory = reply;
     self.displayUpdateTime();
     drawGraph(replyItem.items[0], replyHistory.history);
+    self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
   }
 
   function getItemQuery() {
