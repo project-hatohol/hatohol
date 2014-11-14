@@ -39,8 +39,7 @@ var HistoryView = function(userProfile, options) {
     }));
   };
 
-  function formatHistoryData() {
-    var history = replyHistory["history"];
+  function formatHistoryData(history) {
     var i, data = [[]];
     for (i = 0; i < history.length; i++) {
       data[0][i] = [
@@ -53,14 +52,18 @@ var HistoryView = function(userProfile, options) {
     return data;
   };
 
-  function updateView(reply) {
-    replyHistory = reply;
-    self.displayUpdateTime();
+  function drawGraph(item, history) {
     var options = {
       xaxis: { mode: "time", timezone: "browser" }
     };
-    $.plot($("#item-graph"), formatHistoryData(), options);
+    $.plot($("#item-graph"), formatHistoryData(history), options);
     self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
+  }
+
+  function updateView(reply) {
+    replyHistory = reply;
+    self.displayUpdateTime();
+    drawGraph(replyItem.items[0], replyHistory.history);
   }
 
   function getItemQuery() {
