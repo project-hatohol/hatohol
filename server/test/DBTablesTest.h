@@ -173,6 +173,16 @@ bool isAuthorized(ServerHostGrpSetMap &authMap,
                   const ServerIdType &serverId,
                   const HostIdType &hostId = ALL_HOSTS);
 
+/**
+ * Check if the user can access to the host.
+ *
+ * @param userId A user ID.
+ * @param hostId A host ID in host_list table.
+ *
+ * @return true if the user is allowed to access to the host.
+ */
+bool isAuthorized(const UserIdType &userId, const HostIdType &hostId);
+
 size_t findIndexFromTestActionDef(const UserIdType &userId);
 size_t findIndexFromTestActionDef(const ActionType &type);
 

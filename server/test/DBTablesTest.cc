@@ -1077,6 +1077,30 @@ const ServerHostDef testServerHostDef[] = {
 	211,                             // serverId
 	"200",                           // host_id_in_server
 	"host 200",                      // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2111,                            // hostId
+	211,                             // serverId
+	"12111",                         // host_id_in_server
+	"host 12111",                     // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2112,                            // hostId
+	211,                             // serverId
+	"12112",                         // host_id_in_server
+	"host 12112",                     // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2113,                            // hostId
+	211,                             // serverId
+	"12113",                         // host_id_in_server
+	"host 12113",                     // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	10005,                           // hostId
+	211,                             // serverId
+	"110005",                        // host_id_in_server
+	"host 110005",                    // name
 }
 };
 const size_t NumTestServerHostDef = ARRAY_SIZE(testServerHostDef);
@@ -1086,6 +1110,18 @@ const VMInfo testVMInfo[] = {
 	AUTO_INCREMENT_VALUE,            // id
 	2111,                            // hostId
 	1050,                            // hypervisorHostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2112,                            // hostId
+	1050,                            // hypervisorHostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2113,                            // hostId
+	1050,                            // hypervisorHostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	10005,                           // hostId
+	1080,                            // hypervisorHostId
 }
 };
 const size_t NumTestVMInfo = ARRAY_SIZE(testVMInfo);
@@ -1532,6 +1568,33 @@ bool isAuthorized(
 		const string pack =
 		  makeHostgroupElementPack(serverId, hostId, *hostgroupIdItr);
 		if (hgrpElementPackSet.find(pack) != hgrpElementPackSet.end())
+			return true;
+	}
+
+	return false;
+}
+
+bool isAuthorized(
+  const UserIdType &userId, const HostIdType &hostId)
+{
+	vector<ServerIdType> serverIds;
+	vector<HostIdType>   hostIds; // Host ID for the server
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		const ServerHostDef svHostDef = testServerHostDef[i];
+		serverIds.push_back(svHostDef.serverId);
+		HostIdType hostIdInServer;
+		cppcut_assert_equal(
+		  1,
+		  sscanf(svHostDef.hostIdInServer.c_str(), "%" FMT_HOST_ID,
+		         &hostIdInServer));
+		hostIds.push_back(hostIdInServer);
+	}
+
+	ServerHostGrpSetMap authMap;
+	makeServerHostGrpSetMap(authMap, userId);
+	cppcut_assert_equal(serverIds.size(), hostIds.size());
+	for (size_t i = 0; i < serverIds.size(); i++) {
+		if (isAuthorized(authMap, userId, serverIds[i], hostIds[i]))
 			return true;
 	}
 
