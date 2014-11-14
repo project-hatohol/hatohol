@@ -78,3 +78,8 @@ div#noscript-background div#noscript-notice
   text-align: center;
   font-weight: bold;
 }
+
+/* graph */
+.legend table td {
+  padding: 2px;
+}
