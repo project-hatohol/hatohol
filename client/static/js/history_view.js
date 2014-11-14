@@ -40,6 +40,8 @@ var HistoryView = function(userProfile, options) {
 
   function formatHistoryData(item, history) {
     var i, data = [ { label: item.brief, data:[] } ];
+    if (item.unit)
+      data[0].label += " [" + item.unit + "]";
     for (i = 0; i < history.length; i++) {
       data[0].data[i] = [
         // Xaxis: UNIX time in msec
