@@ -54,7 +54,12 @@ var HistoryView = function(userProfile, options) {
 
   function drawGraph(item, history) {
     var options = {
-      xaxis: { mode: "time", timezone: "browser" }
+      xaxis: { mode: "time", timezone: "browser" },
+      yaxis: {
+        tickFormatter: function(val, axis) {
+          return formatItemValue("" + val, item.unit);
+        }
+      }
     };
     $.plot($("#item-graph"), formatHistoryData(history), options);
     self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
