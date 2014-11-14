@@ -38,10 +38,10 @@ var HistoryView = function(userProfile, options) {
     }));
   };
 
-  function formatHistoryData(history) {
-    var i, data = [[]];
+  function formatHistoryData(item, history) {
+    var i, data = [ { label: item.brief, data:[] } ];
     for (i = 0; i < history.length; i++) {
-      data[0][i] = [
+      data[0].data[i] = [
         // Xaxis: UNIX time in msec
         history[i].clock * 1000 + Math.floor(history[i].ns / 1000000),
         // Yaxis: value
@@ -58,11 +58,14 @@ var HistoryView = function(userProfile, options) {
         tickFormatter: function(val, axis) {
           return formatItemValue("" + val, item.unit);
         }
-      }
+      },
+      legend: {
+	show: true,
+      },
     };
     if (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)
       options.yaxis.minTickSize = 1;
-    $.plot($("#item-graph"), formatHistoryData(history), options);
+    $.plot($("#item-graph"), formatHistoryData(item, history), options);
   }
 
   function updateView(reply) {
