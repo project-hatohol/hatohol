@@ -57,7 +57,7 @@ var HistoryView = function(userProfile, options) {
     replyHistory = reply;
     self.displayUpdateTime();
     var options = {
-      xaxis: { mode: "time" }
+      xaxis: { mode: "time", timezone: "browser" }
     };
     $.plot($("#item-graph"), formatHistoryData(), options);
     self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
