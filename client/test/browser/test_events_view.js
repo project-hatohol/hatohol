@@ -130,6 +130,6 @@ describe('EventsView', function() {
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultEvents.length + 1);
     expect($('tr :eq(1)').html()).to.contain(expected);
-    expect($('td :eq(6)').html()).to.match(/..:..:../);
+    expect($('td :eq(6)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
   });
 });
