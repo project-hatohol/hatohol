@@ -274,14 +274,15 @@ var EventsView = function(userProfile, baseElem) {
       duration   = self.durations[serverId][event["triggerId"]][clock];
       incident   = event["incident"];
 
-      html += "<tr><td><a href='" + serverURL + "'>" + escapeHTML(serverName) + "</a></td>";
+      html += "<tr><td><a href='" + serverURL + "'>" + escapeHTML(serverName)
+              + "</a></td>";
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
         formatDate(clock) + "</td>";
       if (hostName.indexOf("_SELF")>=0) {
         html += "<td>" + escapeHTML(hostName) + "</td>";
       } else {
-        html += "<td><a href='" + serverURL + "latest.php?&hostid=" + hostId + "'>"
-                + escapeHTML(hostName) + "</a></td>";
+        html += "<td><a href='" + serverURL + "latest.php?&hostid="
+                + hostId + "'>" + escapeHTML(hostName) + "</a></td>";
       }
       html += "<td>" + escapeHTML(event["brief"]) + "</td>";
       html += "<td class='status" + escapeHTML(status) +
