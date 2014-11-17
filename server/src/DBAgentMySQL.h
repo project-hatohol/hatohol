@@ -60,7 +60,8 @@ public:
 	virtual void select(const SelectArg &selectArg) override;
 	virtual void select(const SelectExArg &selectExArg) override;
 	virtual void deleteRows(const DeleteArg &deleteArg) override;
-	virtual void addColumns(const AddColumnsArg &addColumnsArg);
+	virtual void addColumns(const AddColumnsArg &addColumnsArg) override;
+	virtual void dropColumns(const DropColumnsArg &dropColumnsArg) override;
 	virtual void renameTable(const std::string &srcName,
 				 const std::string &destName);
 	virtual uint64_t getLastInsertId(void);

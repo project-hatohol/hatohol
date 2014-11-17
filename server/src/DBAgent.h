@@ -201,11 +201,20 @@ public:
 		DeleteArg(const TableProfile &tableProfile);
 	};
 
+	// TODO: Should we use one structure for AddColumnsArg
+	//       and DropColumnsArg that have the same implementation.
 	struct AddColumnsArg {
 		const TableProfile &tableProfile;
 		std::vector<size_t> columnIndexes;
 
 		AddColumnsArg(const TableProfile &tableProfile);
+	};
+
+	struct DropColumnsArg {
+		const TableProfile &tableProfile;
+		std::vector<size_t> columnIndexes;
+
+		DropColumnsArg(const TableProfile &tableProfile);
 	};
 
 	DBAgent(void);
@@ -226,6 +235,7 @@ public:
 	virtual void select(const SelectExArg &selectExArg) = 0;
 	virtual void deleteRows(const DeleteArg &deleteArg) = 0;
 	virtual void addColumns(const AddColumnsArg &addColumnsArg) = 0;
+	virtual void dropColumns(const DropColumnsArg &dropColumnsArg) = 0;
 	virtual void renameTable(const std::string &sourceName,
 				 const std::string &destName) = 0;
 	virtual uint64_t getLastInsertId(void) = 0;

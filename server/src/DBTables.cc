@@ -64,8 +64,7 @@ struct DBTables::Impl {
 		  setupInfo.tablesId);
 		if (!dbAgent.isRecordExisting(tableProf.name, condition))
 			insertTablesVersion(setupInfo, tableProf);
-		else
-			updateTablesVersionIfNeeded(setupInfo, tableProf);
+		updateTablesVersionIfNeeded(setupInfo, tableProf);
 
 		// Create tables
 		vector<const TableSetupInfo *> createdTableInfoVect;

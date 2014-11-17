@@ -537,6 +537,26 @@ void DBAgentMySQL::addColumns(const AddColumnsArg &addColumnsArg)
 	execSql(query);
 }
 
+void DBAgentMySQL::dropColumns(const DropColumnsArg &dropColumnsArg)
+{
+	string query = "ALTER TABLE ";
+	query += dropColumnsArg.tableProfile.name;
+	vector<size_t>::const_iterator it = dropColumnsArg.columnIndexes.begin();
+	vector<size_t>::const_iterator lastElemIt =
+	  --dropColumnsArg.columnIndexes.end();
+
+	for (; it != dropColumnsArg.columnIndexes.end(); ++it) {
+		const size_t index = *it;
+		const ColumnDef &columnDef =
+		  dropColumnsArg.tableProfile.columnDefs[index];
+		query += " DROP ";
+		query += columnDef.columnName;
+		if (it != lastElemIt)
+			query += ",";
+	}
+	execSql(query);
+}
+
 void DBAgentMySQL::renameTable(const string &srcName, const string &destName)
 {
 	string query = makeRenameTableStatement(srcName, destName);

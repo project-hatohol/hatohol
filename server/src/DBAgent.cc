@@ -309,6 +309,14 @@ DBAgent::AddColumnsArg::AddColumnsArg(const TableProfile &profile)
 }
 
 // ---------------------------------------------------------------------------
+// DBAgent::DropColumnsArg
+// ---------------------------------------------------------------------------
+DBAgent::DropColumnsArg::DropColumnsArg(const TableProfile &profile)
+: tableProfile(profile)
+{
+}
+
+// ---------------------------------------------------------------------------
 // TransactionProc
 // ---------------------------------------------------------------------------
 bool DBAgent::TransactionProc::preproc(DBAgent &dbAgent)

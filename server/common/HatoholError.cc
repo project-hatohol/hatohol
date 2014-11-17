@@ -161,6 +161,9 @@ void HatoholError::init(void)
 		   "Error test.");
 	DEFINE_ERR(ERROR_TEST_WITHOUT_MESSAGE,
 		   "");
+
+	DEFINE_ERR(NOT_FOUND_HYPERVISOR,
+		   "Not found hypervisor.");
 }
 
 void HatoholError::defineError(const HatoholErrorCode errorCode,

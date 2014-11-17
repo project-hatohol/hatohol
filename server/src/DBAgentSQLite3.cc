@@ -698,6 +698,11 @@ void DBAgentSQLite3::addColumns(const AddColumnsArg &addColumnsArg)
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
+void DBAgentSQLite3::dropColumns(const DropColumnsArg &dropColumnsArg)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 void DBAgentSQLite3::renameTable(const string &srcName, const string &destName)
 {
 	string query = makeRenameTableStatement(srcName, destName);
