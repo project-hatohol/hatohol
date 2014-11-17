@@ -186,7 +186,6 @@ HistoryView.prototype = Object.create(HatoholMonitoringView.prototype);
 HistoryView.prototype.constructor = HistoryView;
 
 HistoryView.prototype.parseQuery = function(query, knownKeys) {
-  var knownKeys = ["serverId", "hostId", "itemId"];
   var i, allParams = deparam(query), queryTable = {};
   for (i = 0; i < knownKeys.length; i++) {
     if (knownKeys[i] in allParams)

@@ -102,8 +102,12 @@ describe('HistoryView', function() {
     $("#" + TEST_FIXTURE_ID).remove();
   });
 
-  it('new', function() {
-    var query = "serverId=1&hostId=10101&itemId=1";
+  it('new with time range', function() {
+    var now = new Date();
+    var endTime = Math.floor(now.getTime() / 1000);
+    var beginTime = endTime - 60 * 60;
+    var query = "serverId=1&hostId=10101&itemId=1" +
+      "&beginTime=" + beginTime + "&endTime=" + endTime;
     var view = new HistoryView($('#' + TEST_FIXTURE_ID).get(0),
                                { query: query });
     respond(itemsJson(), historyJson());
@@ -111,6 +115,7 @@ describe('HistoryView', function() {
     expect(requests[0].url).to.be(
       "/tunnel/item?serverId=1&hostId=10101&itemId=1");
     expect(requests[1].url).to.be(
-      "/tunnel/history?serverId=1&hostId=10101&itemId=1");
+      "/tunnel/history?serverId=1&hostId=10101&itemId=1" +
+        "&beginTime=" + beginTime + "&endTime=" + endTime);
   });
 });
