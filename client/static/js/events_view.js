@@ -283,6 +283,9 @@ var EventsView = function(userProfile, baseElem) {
       } else if (serverURL.indexOf("zabbix") >= 0) {
         html += "<td><a href='" + serverURL + "latest.php?&hostid="
                 + hostId + "'>" + escapeHTML(hostName) + "</a></td>";
+      } else if (serverURL.indexOf("nagios")>=0) {
+        html += "<td><a href='" + serverURL + "cgi-bin/status.cgi?host="
+                + hostName + "'>" + escapeHTML(hostName) + "</a></td>";
       } else {
         html += "<td>" + escapeHTML(hostName) + "</td>";
       }
