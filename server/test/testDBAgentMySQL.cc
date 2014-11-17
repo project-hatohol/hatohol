@@ -628,6 +628,12 @@ void test_addColumns(void)
 	dbAgentTestAddColumns(dbAgent, dbAgentChecker);
 }
 
+void test_dropColumns(void)
+{
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestDropColumns(dbAgent, dbAgentChecker);
+}
+
 void test_renameTable(void)
 {
 	DBAgentMySQL dbAgent(TEST_DB_NAME);

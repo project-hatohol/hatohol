@@ -785,6 +785,35 @@ void dbAgentTestAddColumns(DBAgent &dbAgent, DBAgentChecker &checker)
 	checker.assertTable(dbAgent, tableProfileTest);
 }
 
+void dbAgentTestDropColumns(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	// Create a test table
+	dbAgent.createTable(tableProfileTest);
+
+	// Add columns to be dropped
+	DBAgent::DropColumnsArg arg(tableProfileTest);
+	arg.columnIndexes.push_back(IDX_TEST_TABLE_AGE);
+	arg.columnIndexes.push_back(IDX_TEST_TABLE_HEIGHT);
+	dbAgent.dropColumns(arg);
+
+	// Create an expected results
+	const size_t numExpectedColumns =
+	  NUM_IDX_TEST_TABLE - arg.columnIndexes.size();
+	ColumnDef expectedColumnDef[numExpectedColumns];
+	size_t idxDst = 0;
+	for (size_t idxSrc = 0; idxSrc < NUM_COLUMNS_TEST; idxSrc++) {
+		if (idxSrc == IDX_TEST_TABLE_AGE ||
+		    idxSrc == IDX_TEST_TABLE_HEIGHT)
+			continue;
+		expectedColumnDef[idxDst] = COLUMN_DEF_TEST[idxSrc];
+		idxDst++;
+	}
+	const DBAgent::TableProfile expectedProfile(
+	  TABLE_NAME_TEST, expectedColumnDef, numExpectedColumns);
+
+	checker.assertTable(dbAgent, expectedProfile);
+}
+
 void dbAgentTestRenameTable(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	static const DBAgent::TableProfile tableProfileSrc(
