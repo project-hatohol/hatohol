@@ -297,7 +297,7 @@ struct TestFetchCtx {
 	struct FetchItemClosure : ClosureTemplate0<TestFetchCtx>
 	{
 		FetchItemClosure(TestFetchCtx *receiver, callback func)
-		: ClosureTemplate0(receiver, func)
+		: ClosureTemplate0<TestFetchCtx>(receiver, func)
 		{
 		}
 		virtual ~FetchItemClosure()
@@ -309,7 +309,8 @@ struct TestFetchCtx {
 	  : ClosureTemplate1<TestFetchCtx, HistoryInfoVect>
 	{
 		FetchHistoryClosure(TestFetchCtx *receiver, callback func)
-		: ClosureTemplate1(receiver, func)
+		: ClosureTemplate1<TestFetchCtx, HistoryInfoVect>(
+		    receiver, func)
 		{
 		}
 		virtual ~FetchHistoryClosure()
