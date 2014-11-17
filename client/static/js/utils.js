@@ -310,7 +310,7 @@ function formatMetricPrefix(value, unit, step, pow, digits) {
     return value + " " + escapeHTML(unit);
 
   text = value / Math.pow(step, pow);
-  text = text.toPrecision(digits);
+  text = text.toPrecision(digits).replace(/\.?0+$/, "");
   text += " " + getMetricPrefix(pow) + escapeHTML(unit);
   return text;
 }
