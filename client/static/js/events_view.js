@@ -280,9 +280,11 @@ var EventsView = function(userProfile, baseElem) {
         formatDate(clock) + "</td>";
       if (hostName.match(/._SELF/)) {
         html += "<td>" + escapeHTML(hostName) + "</td>";
-      } else {
+      } else if (serverURL.indexOf("zabbix")>=0) {
         html += "<td><a href='" + serverURL + "latest.php?&hostid="
                 + hostId + "'>" + escapeHTML(hostName) + "</a></td>";
+      } else {
+        html += "<td>" + escapeHTML(hostName) + "</td>";
       }
       html += "<td>" + escapeHTML(event["brief"]) + "</td>";
       html += "<td class='status" + escapeHTML(status) +
