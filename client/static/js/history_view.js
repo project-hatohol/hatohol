@@ -75,7 +75,7 @@ var HistoryView = function(userProfile, options) {
         }
       },
       legend: {
-	show: true,
+	show: false,
 	position: "sw",
       },
     };
