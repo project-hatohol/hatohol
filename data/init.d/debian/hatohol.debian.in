@@ -21,7 +21,7 @@
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="Hatohol is a unified manager of monitoring software."
 NAME=hatohol
-exec_prefix=@prefix@
+exec_prefix=@exec_prefix@
 DAEMON=@sbindir@/$NAME
 DAEMON_ARGS="--db-server localhost"
 PIDFILE=/var/run/$NAME.pid
