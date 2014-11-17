@@ -639,7 +639,7 @@ struct GetItemClosure : ClosureTemplate0<RestResourceHost>
 {
 	GetItemClosure(RestResourceHost *receiver,
 		       callback func)
-	: ClosureTemplate0(receiver, func)
+	: ClosureTemplate0<RestResourceHost>(receiver, func)
 	{
 		m_receiver->ref();
 	}
@@ -727,7 +727,7 @@ struct GetHistoryClosure : ClosureTemplate1<RestResourceHost, HistoryInfoVect>
 
 	GetHistoryClosure(RestResourceHost *receiver,
 			  callback func, DataStorePtr dataStorePtr)
-	: ClosureTemplate1(receiver, func),
+	: ClosureTemplate1<RestResourceHost, HistoryInfoVect>(receiver, func),
 	  m_dataStorePtr(dataStorePtr)
 	{
 		m_receiver->ref();
