@@ -1,6 +1,31 @@
 describe('EventsView', function() {
   var TEST_FIXTURE_ID = 'eventsViewFixture';
   var viewHTML;
+  var defaultEvents = [
+    {
+      "unifiedId":44,
+      "serverId":1,
+      "time":1415749496,
+      "type":1,
+      "triggerId":"13569",
+      "status":1,
+      "severity":1,
+      "hostId":"10105",
+      "brief":"Test discription.",
+    },
+  ];
+  var defaultServers = {
+    "1": {
+      "name": "Server",
+      "type": 0,
+      "ipAddress": "192.168.1.100",
+      "hosts": {
+        "10105": {
+          "name": "Agent",
+        },
+      },
+    },
+  };
 
   // TODO: we should use actual server response to follow changes of the json
   //       format automatically
@@ -84,5 +109,27 @@ describe('EventsView', function() {
     //expect(heads.first().text()).to.be(gettext("event"));
     expect($('#table')).to.have.length(1);
     expect($('#num-events-per-page').val()).to.be("50");
+  });
+
+  it('new with fake zabbix data', function() {
+    var view = new EventsView($('#' + TEST_FIXTURE_ID).get(0));
+    var zabbixURL = "http://192.168.1.100/zabbix/";
+    var zabbixLatestURL =
+      "http://192.168.1.100/zabbix/latest.php?&hostid=10105";
+    var expected =
+      '<td><a href="' + zabbixURL + '">Server</a></td>' +
+      '<td data-sort-value="1415749496">' +
+      formatDate(1415749496) +
+      '</td>' +
+      '<td><a href="' + escapeHTML(zabbixLatestURL) + '">Agent</a></td>' +
+      '<td>Test discription.</td>' +
+      '<td class="status1" data-sort-value="1">Problem</td>' +
+      '<td class="severity1" data-sort-value="1">Information</td>';
+
+    respond(eventsJson(defaultEvents, defaultServers));
+    expect($('#table')).to.have.length(1);
+    expect($('tr')).to.have.length(defaultEvents.length + 1);
+    expect($('tr :eq(1)').html()).to.contain(expected);
+    expect($('td :eq(6)').html()).to.match(/..:..:../);
   });
 });
