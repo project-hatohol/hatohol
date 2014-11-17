@@ -55,7 +55,13 @@ var HistoryView = function(userProfile, options) {
 
   function drawGraph(item, history) {
     var options = {
-      xaxis: { mode: "time", timezone: "browser" },
+      xaxis: {
+	mode: "time",
+	timezone: "browser",
+        tickFormatter: function(val, axis) {
+          return formatDate(Math.round(val / 1000));
+        }
+      },
       yaxis: {
         tickFormatter: function(val, axis) {
           return formatItemValue("" + val, item.unit);
