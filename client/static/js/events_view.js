@@ -278,7 +278,7 @@ var EventsView = function(userProfile, baseElem) {
               + "</a></td>";
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
         formatDate(clock) + "</td>";
-      if (hostName.match(/._SELF/)) {
+      if (hostName.match(/_SELF$/)) {
         html += "<td>" + escapeHTML(hostName) + "</td>";
       } else if (serverURL.indexOf("zabbix")>=0) {
         html += "<td><a href='" + serverURL + "latest.php?&hostid="
