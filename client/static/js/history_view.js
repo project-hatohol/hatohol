@@ -42,14 +42,14 @@ var HistoryView = function(userProfile, options) {
   };
 
   function formatHistoryData(item, historyReplies) {
-    var i, j, history;
+    var i, j, idx = 0, history;
     var data = [ { label: item.brief, data:[] } ];
     if (item.unit)
       data[0].label += " [" + item.unit + "]";
     for (j = 0; j < historyReplies.length; j++) {
       history = historyReplies[j].history;
       for (i = 0; i < history.length; i++) {
-	data[0].data[i] = [
+	data[0].data[idx++] = [
           // Xaxis: UNIX time in msec
           history[i].clock * 1000 + Math.floor(history[i].ns / 1000000),
           // Yaxis: value
@@ -96,7 +96,28 @@ var HistoryView = function(userProfile, options) {
   };
 
   function getHistoryQuery() {
-    return 'history?' + $.param(historyQuery);
+    var query = $.extend({}, historyQuery);
+    var secondsInDay = 60 * 60 * 24;
+    var lastReply, lastData, now;
+
+    // omit loading existing data
+    if (self.replyHistoryArray.length > 0) {
+      lastReply = self.replyHistoryArray[self.replyHistoryArray.length - 1];
+      if (lastReply.history.length > 0) {
+	lastData = lastReply.history[lastReply.history.length - 1]
+	query.beginTime = lastData.clock + 1;
+      }
+    }
+
+    // set missing time range
+    if (!query.endTime) {
+      now = new Date();
+      query.endTime = Math.floor(now.getTime() / 1000);
+    }
+    if (!query.beginTime)
+      query.beginTime = query.endTime - secondsInDay;
+
+    return 'history?' + $.param(query);
   };
 
   function buildHostName(itemReply) {
@@ -142,8 +163,12 @@ var HistoryView = function(userProfile, options) {
   }
 
   function onLoadHistory(reply) {
+    var maxRecordsPerRequest = 1000;
     self.replyHistoryArray.push(reply);
-    updateView(reply);
+    if (reply.history.length >= maxRecordsPerRequest)
+      loadHistory();
+    else
+      updateView(reply);
   }
 
   function loadHistory() {
@@ -175,7 +200,6 @@ HistoryView.prototype.parseItemQuery = function(query) {
 
 HistoryView.prototype.parseHistoryQuery = function(query) {
   var knownKeys = ["serverId", "hostId", "itemId", "beginTime", "endTime"];
-  var secondsInDay = 60 * 60 * 24;
   var startTime = new Date();
   queryTable = this.parseQuery(query, knownKeys);
   return queryTable;
