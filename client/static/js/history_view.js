@@ -79,7 +79,6 @@ var HistoryView = function(userProfile, options) {
   }
 
   function updateView(reply) {
-    self.replyHistory = reply;
     self.displayUpdateTime();
     drawGraph(self.replyItem.items[0], self.replyHistory.history);
     self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
@@ -135,8 +134,13 @@ var HistoryView = function(userProfile, options) {
     }
   }
 
+  function onLoadHistory(reply) {
+    self.replyHistory = reply;
+    updateView(reply);
+  }
+
   function loadHistory() {
-    self.startConnection(getHistoryQuery(), updateView);
+    self.startConnection(getHistoryQuery(), onLoadHistory);
   }
 
   function loadItemAndHistory() {
