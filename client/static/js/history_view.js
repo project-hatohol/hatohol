@@ -91,6 +91,26 @@ var HistoryView = function(userProfile, options) {
     return 'history?' + $.param(query);
   };
 
+  function buildHostName(itemReply) {
+    var item = itemReply.items[0];
+    var server = itemReply.servers[item.serverId];
+    var serverName = getServerName(server, item["serverId"]);
+    var hostName   = getHostName(server, item["hostId"]);
+    return serverName + ": " + hostName;
+  }
+
+  function setItemDescription(itemReply) {
+    var item = itemReply.items[0];
+    var hostName = buildHostName(itemReply);
+    var title = "";
+    title += item.brief;
+    if (item.unit)
+      title += " [" + item.unit + "]";
+    title += " (" + hostName + ")";
+    $("title").text(title);
+    $("h2").text(title);
+  }
+
   function onLoadItem(reply) {
     var items = reply["items"];
     var messageDetail;
@@ -98,6 +118,7 @@ var HistoryView = function(userProfile, options) {
     replyItem = reply;
 
     if (items && items.length == 1) {
+      setItemDescription(reply);
       loadHistory();
     } else {
       messageDetail =

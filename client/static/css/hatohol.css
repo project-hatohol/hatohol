@@ -80,6 +80,11 @@ div#noscript-background div#noscript-notice
 }
 
 /* graph */
+.graph h2 {
+    text-align: center;
+    font-size: large;
+}
+
 .legend table td {
   padding: 2px;
 }
