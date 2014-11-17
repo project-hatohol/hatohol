@@ -7,6 +7,7 @@ http://www.hatohol.org/
 - [Overview](#user-content-overview)
 - [Project Hatohol](#user-content-project-hatohol)
 - [Supported monitoring software](#user-content-supported-monitoring-software)
+- [Supported incident tacking software](#user-content-supported-incident-tracking-software)
 - [Supported platforms](#user-content-supported-platforms)
 - [Basic architecture](#user-content-basic-architecture)
 - [Screenshots](#user-content-screenshots)
@@ -44,10 +45,16 @@ Hatohol is an open source software developed and copyrighted by Project Hatohol.
 We welcome participation in all stages of our development (bug fixes, bug reports, feature requests/suggestions/discussion, functional improvement, etc.) 
 
 ## Supported monitoring software
-- ZABBIX 2.0
+- Zabbix 2.0
+- Zabbix 2.2
+- Zabbix 2.4
 - Nagios3 (with NDOUtils)
+- Nagios4 (with NDOUtils)
 - Ceilometer (OpenStack)
 - Fluentd
+
+## Supported incident tracking software
+- Redmine
 
 ## Supported platforms
 - CentOS 6.5 (x86\_64)
@@ -81,14 +88,14 @@ Other pages are being constructed.
 
 ## Installation
 ### Installation by RPM files (only for CentOS 6.5)
-The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/install/14.09/ja/index.md)
+The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/install/14.09/en/index.md)
 
 ### Installation by building needed applications
 - [Server installation](server/README.md)
 - [Client (Web UI server) installation](client/README.md)
 
 ### Upgrade by RPM files from ver.14.06 to ver.14.09(only for CentOS 6.5)
-The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/upgrade/14.09/ja/index.md) (Sorry, Japanese version only...)
+The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/upgrade/14.09/en/index.md)
 
 ## Plans
 See [Milestone](https://github.com/project-hatohol/hatohol/milestones)

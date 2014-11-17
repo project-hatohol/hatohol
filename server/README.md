@@ -8,6 +8,7 @@ the specific monitoring software in various way.
 ## Table of Contents
 
 - [Supported monitoring software](#user-content-supported-monitoring-software)
+- [Supported incident tracking software](#user-content-supported-incident-tracking-software)
 - [Supported output method](#user-content-supported-output-method)
 - [Supported platforms](#user-content-supported-platforms)
 - [Required libraries](#user-content-required-libraries)
@@ -26,8 +27,16 @@ the specific monitoring software in various way.
 - [API Reference Manual for REST service](#user-content-api-reference-manual-for-rest-service)
 
 ## Supported monitoring software
-- ZABBIX 2.0
+- Zabbix 2.0
+- Zabbix 2.2
+- Zabbix 2.4
 - Nagios3 (with NDOUtils)
+- Nagios4 (with NDOUtils)
+- Ceilometer (OpenStack)
+- Fluentd
+
+## Supported incident tracking software
+- Redmine
 
 ## Supported output method
 - REST
