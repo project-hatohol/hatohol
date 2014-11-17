@@ -23,6 +23,8 @@ var HistoryView = function(userProfile, options) {
   var query;
 
   self.reloadIntervalSeconds = 60;
+  self.replyItem = null;
+  self.replyHistory = null;
 
   if (!options)
     options = {};
@@ -77,9 +79,9 @@ var HistoryView = function(userProfile, options) {
   }
 
   function updateView(reply) {
-    replyHistory = reply;
+    self.replyHistory = reply;
     self.displayUpdateTime();
-    drawGraph(replyItem.items[0], replyHistory.history);
+    drawGraph(self.replyItem.items[0], self.replyHistory.history);
     self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
   }
 
@@ -115,7 +117,7 @@ var HistoryView = function(userProfile, options) {
     var items = reply["items"];
     var messageDetail;
 
-    replyItem = reply;
+    self.replyItem = reply;
 
     if (items && items.length == 1) {
       setItemDescription(reply);
