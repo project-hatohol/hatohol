@@ -98,7 +98,8 @@ var HistoryView = function(userProfile, options) {
 
   function getHistoryQuery() {
     var query = $.extend({}, historyQuery);
-    var secondsInDay = 60 * 60 * 24;
+    var secondsInHour = 60 * 60;
+    var defaultTimeSpan = secondsInHour * 6;
     var lastReply, lastData, now;
 
     // omit loading existing data
@@ -116,7 +117,7 @@ var HistoryView = function(userProfile, options) {
       query.endTime = Math.floor(now.getTime() / 1000);
     }
     if (!query.beginTime)
-      query.beginTime = query.endTime - secondsInDay;
+      query.beginTime = query.endTime - defaultTimeSpan;
 
     return 'history?' + $.param(query);
   };
