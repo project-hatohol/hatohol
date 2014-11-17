@@ -634,6 +634,12 @@ void test_renameTable(void)
 	dbAgentTestRenameTable(dbAgent, dbAgentChecker);
 }
 
+void test_dropTable(void)
+{
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestDropTable(dbAgent, dbAgentChecker);
+}
+
 void test_isTableExisting(void)
 {
 	DBAgentMySQL dbAgent(TEST_DB_NAME);

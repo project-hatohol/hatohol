@@ -331,6 +331,13 @@ DBAgent::~DBAgent()
 {
 }
 
+void DBAgent::dropTable(const std::string &tableName)
+{
+	string sql = "DROP TABLE ";
+	sql += tableName;
+	execSql(sql);
+}
+
 void DBAgent::fixupIndexes(const TableProfile &tableProfile)
 {
 	typedef map<string, IndexInfo *>  IndexSqlInfoMap;

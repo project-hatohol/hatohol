@@ -121,6 +121,7 @@ void dbAgentTestSelectHeightOrder
 void dbAgentTestDelete(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestAddColumns(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestRenameTable(DBAgent &dbAgent, DBAgentChecker &checker);
+void dbAgentTestDropTable(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestAutoIncrement(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestAutoIncrementWithDel(DBAgent &dbAgent, DBAgentChecker &checker);
