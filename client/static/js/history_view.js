@@ -19,12 +19,11 @@
 
 var HistoryView = function(userProfile, options) {
   var self = this;
-  var replyItem, replyHistory;
   var query;
 
   self.reloadIntervalSeconds = 60;
   self.replyItem = null;
-  self.replyHistory = null;
+  self.replyHistoryArray = [];
 
   if (!options)
     options = {};
@@ -40,17 +39,21 @@ var HistoryView = function(userProfile, options) {
     }));
   };
 
-  function formatHistoryData(item, history) {
-    var i, data = [ { label: item.brief, data:[] } ];
+  function formatHistoryData(item, historyReplies) {
+    var i, j, history;
+    var data = [ { label: item.brief, data:[] } ];
     if (item.unit)
       data[0].label += " [" + item.unit + "]";
-    for (i = 0; i < history.length; i++) {
-      data[0].data[i] = [
-        // Xaxis: UNIX time in msec
-        history[i].clock * 1000 + Math.floor(history[i].ns / 1000000),
-        // Yaxis: value
-        history[i].value
-      ];
+    for (j = 0; j < historyReplies.length; j++) {
+      history = historyReplies[j].history;
+      for (i = 0; i < history.length; i++) {
+	data[0].data[i] = [
+          // Xaxis: UNIX time in msec
+          history[i].clock * 1000 + Math.floor(history[i].ns / 1000000),
+          // Yaxis: value
+          history[i].value
+	];
+      }
     }
     return data;
   };
@@ -75,12 +78,14 @@ var HistoryView = function(userProfile, options) {
     };
     if (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)
       options.yaxis.minTickSize = 1;
-    $.plot($("#item-graph"), formatHistoryData(item, history), options);
+    $.plot($("#item-graph"), history, options);
   }
 
   function updateView(reply) {
+    var item = self.replyItem.items[0];
+    var history = formatHistoryData(item, self.replyHistoryArray);
     self.displayUpdateTime();
-    drawGraph(self.replyItem.items[0], self.replyHistory.history);
+    drawGraph(item, history);
     self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
   }
 
@@ -135,7 +140,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function onLoadHistory(reply) {
-    self.replyHistory = reply;
+    self.replyHistoryArray.push(reply);
     updateView(reply);
   }
 
