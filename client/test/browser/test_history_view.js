@@ -102,7 +102,7 @@ describe('HistoryView', function() {
     $("#" + TEST_FIXTURE_ID).remove();
   });
 
-  it('new with time range', function() {
+  it('load history with time range', function() {
     var now = new Date();
     var endTime = Math.floor(now.getTime() / 1000);
     var beginTime = endTime - 60 * 60;
@@ -117,5 +117,23 @@ describe('HistoryView', function() {
     expect(requests[1].url).to.be(
       "/tunnel/history?serverId=1&hostId=10101&itemId=1" +
         "&beginTime=" + beginTime + "&endTime=" + endTime);
+  });
+
+  it('load history without time range', function() {
+    var now = 60 * 60 * 24;
+    var clock = sinon.useFakeTimers(now * 1000, "Date");
+    var endTime = now;
+    var beginTime = endTime - 60 * 60 * 6;
+    var query = "serverId=1&hostId=10101&itemId=1";
+    var view = new HistoryView($('#' + TEST_FIXTURE_ID).get(0),
+                               { query: query });
+    respond(itemsJson(), historyJson());
+    expect(view).to.be.a(HistoryView);
+    expect(requests[0].url).to.be(
+      "/tunnel/item?serverId=1&hostId=10101&itemId=1");
+    expect(requests[1].url).to.be(
+      "/tunnel/history?serverId=1&hostId=10101&itemId=1" +
+        "&endTime=" + endTime + "&beginTime=" + beginTime);
+    clock.restore();
   });
 });
