@@ -502,7 +502,7 @@ describe('formatItemValue', function() {
   });
 
   it('Integer with metric prefix', function() {
-    expect(formatItemValue("1000", 'bps')).eql("1.000 Kbps");
+    expect(formatItemValue("1000", 'bps')).eql("1 Kbps");
   });
 
   it('Float without unit', function() {
