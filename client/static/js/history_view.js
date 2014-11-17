@@ -19,7 +19,7 @@
 
 var HistoryView = function(userProfile, options) {
   var self = this;
-  var query;
+  var itemQuery, historyQuery;
 
   self.reloadIntervalSeconds = 60;
   self.replyItem = null;
@@ -27,7 +27,9 @@ var HistoryView = function(userProfile, options) {
 
   if (!options)
     options = {};
-  query = self.parseQuery(options.query);
+
+  itemQuery = self.parseItemQuery(options.query);
+  historyQuery = self.parseHistoryQuery(options.query);
 
   appendGraphArea();
   loadItemAndHistory();
@@ -90,11 +92,11 @@ var HistoryView = function(userProfile, options) {
   }
 
   function getItemQuery() {
-    return 'item?' + $.param(query);
+    return 'item?' + $.param(itemQuery);
   };
 
   function getHistoryQuery() {
-    return 'history?' + $.param(query);
+    return 'history?' + $.param(historyQuery);
   };
 
   function buildHostName(itemReply) {
@@ -156,13 +158,26 @@ var HistoryView = function(userProfile, options) {
 HistoryView.prototype = Object.create(HatoholMonitoringView.prototype);
 HistoryView.prototype.constructor = HistoryView;
 
-HistoryView.prototype.parseQuery = function(query) {
+HistoryView.prototype.parseQuery = function(query, knownKeys) {
   var knownKeys = ["serverId", "hostId", "itemId"];
   var i, allParams = deparam(query), queryTable = {};
   for (i = 0; i < knownKeys.length; i++) {
     if (knownKeys[i] in allParams)
       queryTable[knownKeys[i]] = allParams[knownKeys[i]];
   }
+  return queryTable;
+};
+
+HistoryView.prototype.parseItemQuery = function(query) {
+  var knownKeys = ["serverId", "hostId", "itemId"];
+  return this.parseQuery(query, knownKeys);
+};
+
+HistoryView.prototype.parseHistoryQuery = function(query) {
+  var knownKeys = ["serverId", "hostId", "itemId", "beginTime", "endTime"];
+  var secondsInDay = 60 * 60 * 24;
+  var startTime = new Date();
+  queryTable = this.parseQuery(query, knownKeys);
   return queryTable;
 };
 
