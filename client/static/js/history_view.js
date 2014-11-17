@@ -76,6 +76,7 @@ var HistoryView = function(userProfile, options) {
       },
       legend: {
 	show: true,
+	position: "sw",
       },
     };
     if (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)
