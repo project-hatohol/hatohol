@@ -89,7 +89,8 @@ var HistoryView = function(userProfile, options) {
     var history = formatHistoryData(item, self.replyHistoryArray);
     self.displayUpdateTime();
     drawGraph(item, history);
-    self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
+    if (!historyQuery.endTime)
+      self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
   }
 
   function getItemQuery() {
