@@ -99,9 +99,13 @@ var HistoryView = function(userProfile, options) {
         show: false,
         position: "sw",
       },
+      points: {
+      },
     };
     if (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)
       options.yaxis.minTickSize = 1;
+    if (history[0].data.length < 3)
+      options.points.show = true;
     $.plot($("#item-graph"), history, options);
   }
 
