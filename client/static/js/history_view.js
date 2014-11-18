@@ -26,6 +26,7 @@ var HistoryView = function(userProfile, options) {
   self.replyHistoryArray = [];
   self.lastQuery = null;
   self.timeSpan = null;
+  self.plotData = null;
 
   if (!options)
     options = {};
@@ -43,24 +44,29 @@ var HistoryView = function(userProfile, options) {
     }));
   };
 
-  function formatHistoryData(item, historyReplies) {
-    var i, j, idx = 0, history;
+  function formatPlotData(item, historyReplies) {
+    var i;
     var data = [ { label: item.brief, data:[] } ];
     if (item.unit)
       data[0].label += " [" + item.unit + "]";
-    for (j = 0; j < historyReplies.length; j++) {
-      history = historyReplies[j].history;
-      for (i = 0; i < history.length; i++) {
-        data[0].data[idx++] = [
-          // Xaxis: UNIX time in msec
-          history[i].clock * 1000 + Math.floor(history[i].ns / 1000000),
-          // Yaxis: value
-          history[i].value
-        ];
-      }
-    }
+    for (i = 0; i < historyReplies.length; i++)
+      appendPlotData(data, historyReplies[i]);
     return data;
   };
+
+  function appendPlotData(plotData, historyReply) {
+    var i, idx = plotData[0].data.length;
+    var history = historyReply.history;
+    for (i = 0; i < history.length; i++) {
+      plotData[0].data[idx++] = [
+        // Xaxis: UNIX time in msec
+        history[i].clock * 1000 + Math.floor(history[i].ns / 1000000),
+        // Yaxis: value
+        history[i].value
+      ];
+    }
+    return plotData;
+  }
 
   function drawGraph(item, history) {
     var options = {
@@ -111,11 +117,12 @@ var HistoryView = function(userProfile, options) {
 
   function updateView(reply) {
     var item = self.replyItem.items[0];
-    var history = formatHistoryData(item, self.replyHistoryArray);
+    if (!self.plotData)
+      self.plotData = formatPlotData(item, self.replyHistoryArray);
+    else
+      appendPlotData(self.plotData, reply);
     self.displayUpdateTime();
-    drawGraph(item, history);
-    if (!historyQuery.endTime)
-      self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
+    drawGraph(item, self.plotData);
   }
 
   function getItemQuery() {
@@ -197,10 +204,13 @@ var HistoryView = function(userProfile, options) {
   function onLoadHistory(reply) {
     var maxRecordsPerRequest = 1000;
     self.replyHistoryArray.push(reply);
-    if (reply.history.length >= maxRecordsPerRequest)
+    updateView(reply);
+    if (reply.history.length >= maxRecordsPerRequest) {
       loadHistory();
-    else
-      updateView(reply);
+    } else {
+      if (!historyQuery.endTime)
+	self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
+    }
   }
 
   function loadHistory() {
