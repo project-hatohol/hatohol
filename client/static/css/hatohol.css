@@ -85,6 +85,10 @@ div#noscript-background div#noscript-notice
     font-size: large;
 }
 
+#item-graph {
+    margin-bottom: 2em;
+}
+
 .legend table td {
   padding: 2px;
 }
