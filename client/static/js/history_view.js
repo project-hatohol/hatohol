@@ -67,24 +67,24 @@ var HistoryView = function(userProfile, options) {
       xaxis: {
         mode: "time",
         timezone: "browser",
-	tickFormatter: function(val, axis) {
-	  var date;
-	  if (axis.tickSize[1] == "minute" || axis.tickSize[1] == "hour") {
+        tickFormatter: function(val, axis) {
+          var date;
+          if (axis.tickSize[1] == "minute" || axis.tickSize[1] == "hour") {
             date = $.plot.formatDate($.plot.dateGenerator(val, this),
-				     "%m/%d %H:%M");
-	    if (!date.match(/^\d+\/\d+ 00:00$/))
-	      return date.replace(/^\d+\/\d+ (\d\d:\d\d)$/, "$1");
-	    else
-	      return date;
-	  } else if (axis.tickSize[1] == "day") {
+                                     "%m/%d %H:%M");
+            if (!date.match(/^\d+\/\d+ 00:00$/))
+              return date.replace(/^\d+\/\d+ (\d\d:\d\d)$/, "$1");
+            else
+              return date;
+          } else if (axis.tickSize[1] == "day") {
             return $.plot.formatDate($.plot.dateGenerator(val, this),
-				     "%m/%d");
-	  } else if (axis.tickSize[1] == "day") {
+                                     "%m/%d");
+          } else if (axis.tickSize[1] == "day") {
             return $.plot.formatDate($.plot.dateGenerator(val, this),
-				     "%Y/%m");
-	  } else {
-	    return val;
-	  }
+                                     "%Y/%m");
+          } else {
+            return val;
+          }
         },
         min: (self.lastQuery.endTime - self.timeSpan) * 1000,
         max: self.lastQuery.endTime * 1000,
