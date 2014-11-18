@@ -1,7 +1,7 @@
 describe('EventsView', function() {
   var TEST_FIXTURE_ID = 'eventsViewFixture';
   var viewHTML;
-  var zabbixEvents = [
+  var dummyEventInfo = [
     {
       "unifiedId":44,
       "serverId":1,
@@ -14,44 +14,22 @@ describe('EventsView', function() {
       "brief":"Test discription.",
     },
   ];
-  var zabbixServers = {
-    "1": {
-      "name": "Server",
-      "type": 0,
-      "ipAddress": "192.168.1.100",
-      "hosts": {
-        "10105": {
-          "name": "Agent",
-        },
-      },
-    },
-  };
 
-  var nagiosEvents = [
-    {
-      "unifiedId":44,
-      "serverId":1,
-      "time":1415749496,
-      "type":1,
-      "triggerId":"13569",
-      "status":1,
-      "severity":1,
-      "hostId":"10105",
-      "brief":"Test discription.",
-    },
-  ];
-  var nagiosServers = {
-    "1": {
-      "name": "Server",
-      "type": 1,
-      "ipAddress": "192.168.1.100",
-      "hosts": {
-        "10105": {
-          "name": "nrpe",
+  function getDummyServerInfo(type){
+    var dummyServerInfo = {
+      "1": {
+        "name": "Server",
+        "type": type,
+        "ipAddress": "192.168.1.100",
+        "hosts": {
+          "10105": {
+            "name": "Host",
+          },
         },
       },
-    },
-  };
+    };
+    return dummyServerInfo;
+  }
 
   // TODO: we should use actual server response to follow changes of the json
   //       format automatically
@@ -138,47 +116,36 @@ describe('EventsView', function() {
   });
 
   it('new with fake zabbix data', function() {
-    var view = new EventsView($('#' + TEST_FIXTURE_ID).get(0));
     var zabbixURL = "http://192.168.1.100/zabbix/";
     var zabbixLatestURL =
       "http://192.168.1.100/zabbix/latest.php?&hostid=10105";
-    var expected =
-      '<td><a href="' + zabbixURL + '">Server</a></td>' +
-      '<td data-sort-value="1415749496">' +
-      formatDate(1415749496) +
-      '</td>' +
-      '<td><a href="' + escapeHTML(zabbixLatestURL) + '">Agent</a></td>' +
-      '<td>Test discription.</td>' +
-      '<td class="status1" data-sort-value="1">Problem</td>' +
-      '<td class="severity1" data-sort-value="1">Information</td>';
-
-    respond(eventsJson(zabbixEvents, zabbixServers));
-    expect($('#table')).to.have.length(1);
-    expect($('tr')).to.have.length(zabbixEvents.length + 1);
-    expect($('tr :eq(1)').html()).to.contain(expected);
-    expect($('td :eq(6)').html()).to.match(/..:..:../);
+    testPatternOfEachMiddleware(zabbixURL, zabbixLatestURL, getDummyServerInfo(0));
   });
 
   it('new with fake nagios data', function() {
-    var view = new EventsView($('#' + TEST_FIXTURE_ID).get(0));
     var nagiosURL = "http://192.168.1.100/nagios/";
     var nagiosStatusURL =
-      "http://192.168.1.100/nagios/cgi-bin/status.cgi?host=nrpe";
+      "http://192.168.1.100/nagios/cgi-bin/status.cgi?host=Host";
+    testPatternOfEachMiddleware(nagiosURL, nagiosStatusURL, getDummyServerInfo(1));
+  });
+
+  function testPatternOfEachMiddleware(serverURL, hostURL, dummyServerInfo){
+    var view = new EventsView($('#' + TEST_FIXTURE_ID).get(0));
     var expected =
-      '<td><a href="' + nagiosURL + '">Server</a></td>' +
+      '<td><a href="' + escapeHTML(serverURL) + '">Server</a></td>' +
       '<td data-sort-value="1415749496">' +
       formatDate(1415749496) +
       '</td>' +
-      '<td><a href="' + escapeHTML(nagiosStatusURL) + '">nrpe</a></td>' +
+      '<td><a href="' + escapeHTML(hostURL) + '">Host</a></td>' +
       '<td>Test discription.</td>' +
       '<td class="status1" data-sort-value="1">Problem</td>' +
       '<td class="severity1" data-sort-value="1">Information</td>';
 
-    respond(eventsJson(nagiosEvents, nagiosServers));
+    respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
-    expect($('tr')).to.have.length(nagiosEvents.length + 1);
+    expect($('tr')).to.have.length(dummyEventInfo.length + 1);
     expect($('tr :eq(1)').html()).to.contain(expected);
     expect($('td :eq(6)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
-  });
+  }
 
 });
