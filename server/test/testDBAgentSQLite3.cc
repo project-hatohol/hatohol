@@ -559,6 +559,12 @@ void test_renameTable(void)
 	dbAgentTestRenameTable(dbAgent, dbAgentChecker);
 }
 
+void test_dropTable(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestDropTable(dbAgent, dbAgentChecker);
+}
+
 void test_isTableExisting(void)
 {
 	DBAgentSQLite3 dbAgent;

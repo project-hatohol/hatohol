@@ -228,6 +228,7 @@ public:
 	virtual void addColumns(const AddColumnsArg &addColumnsArg) = 0;
 	virtual void renameTable(const std::string &sourceName,
 				 const std::string &destName) = 0;
+	virtual void dropTable(const std::string &tableName);
 	virtual uint64_t getLastInsertId(void) = 0;
 	virtual uint64_t getNumberOfAffectedRows(void) = 0;
 

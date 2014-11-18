@@ -801,6 +801,18 @@ void dbAgentTestRenameTable(DBAgent &dbAgent, DBAgentChecker &checker)
 	checker.assertTable(dbAgent, tableProfileDest);
 }
 
+void dbAgentTestDropTable(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	// First we confirm that the table exists.
+	dbAgent.createTable(tableProfileTest);
+	cppcut_assert_equal(true,
+	                    dbAgent.isTableExisting(tableProfileTest.name));
+
+	dbAgent.dropTable(tableProfileTest.name);
+	cppcut_assert_equal(false,
+	                    dbAgent.isTableExisting(tableProfileTest.name));
+}
+
 void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	cppcut_assert_equal(false, dbAgent.isTableExisting(TABLE_NAME_TEST));
