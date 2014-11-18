@@ -15,22 +15,6 @@ describe('EventsView', function() {
     },
   ];
 
-  function getDummyServerInfo(type){
-    var dummyServerInfo = {
-      "1": {
-        "name": "Server",
-        "type": type,
-        "ipAddress": "192.168.1.100",
-        "hosts": {
-          "10105": {
-            "name": "Host",
-          },
-        },
-      },
-    };
-    return dummyServerInfo;
-  }
-
   // TODO: we should use actual server response to follow changes of the json
   //       format automatically
   function eventsJson(events, servers) {
@@ -72,7 +56,42 @@ describe('EventsView', function() {
     respondUserConfig(configJson);
     respondEvents(eventsJson);
   }
-  
+
+  function getDummyServerInfo(type){
+    var dummyServerInfo = {
+      "1": {
+        "name": "Server",
+        "type": type,
+        "ipAddress": "192.168.1.100",
+        "hosts": {
+          "10105": {
+            "name": "Host",
+          },
+        },
+      },
+    };
+    return dummyServerInfo;
+  }
+
+  function testTableContents(serverURL, hostURL, dummyServerInfo){
+    var view = new EventsView($('#' + TEST_FIXTURE_ID).get(0));
+    var expected =
+      '<td><a href="' + escapeHTML(serverURL) + '">Server</a></td>' +
+      '<td data-sort-value="1415749496">' +
+      formatDate(1415749496) +
+      '</td>' +
+      '<td><a href="' + escapeHTML(hostURL) + '">Host</a></td>' +
+      '<td>Test discription.</td>' +
+      '<td class="status1" data-sort-value="1">Problem</td>' +
+      '<td class="severity1" data-sort-value="1">Information</td>';
+
+    respond(eventsJson(dummyEventInfo, dummyServerInfo));
+    expect($('#table')).to.have.length(1);
+    expect($('tr')).to.have.length(dummyEventInfo.length + 1);
+    expect($('tr :eq(1)').html()).to.contain(expected);
+    expect($('td :eq(6)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
+  }
+
   beforeEach(function(done) {
     var contentId = "main";
     var setupFixture = function() {
@@ -119,33 +138,13 @@ describe('EventsView', function() {
     var zabbixURL = "http://192.168.1.100/zabbix/";
     var zabbixLatestURL =
       "http://192.168.1.100/zabbix/latest.php?&hostid=10105";
-    testPatternOfEachMiddleware(zabbixURL, zabbixLatestURL, getDummyServerInfo(0));
+    testTableContents(zabbixURL, zabbixLatestURL, getDummyServerInfo(0));
   });
 
   it('new with fake nagios data', function() {
     var nagiosURL = "http://192.168.1.100/nagios/";
     var nagiosStatusURL =
       "http://192.168.1.100/nagios/cgi-bin/status.cgi?host=Host";
-    testPatternOfEachMiddleware(nagiosURL, nagiosStatusURL, getDummyServerInfo(1));
+    testTableContents(nagiosURL, nagiosStatusURL, getDummyServerInfo(1));
   });
-
-  function testPatternOfEachMiddleware(serverURL, hostURL, dummyServerInfo){
-    var view = new EventsView($('#' + TEST_FIXTURE_ID).get(0));
-    var expected =
-      '<td><a href="' + escapeHTML(serverURL) + '">Server</a></td>' +
-      '<td data-sort-value="1415749496">' +
-      formatDate(1415749496) +
-      '</td>' +
-      '<td><a href="' + escapeHTML(hostURL) + '">Host</a></td>' +
-      '<td>Test discription.</td>' +
-      '<td class="status1" data-sort-value="1">Problem</td>' +
-      '<td class="severity1" data-sort-value="1">Information</td>';
-
-    respond(eventsJson(dummyEventInfo, dummyServerInfo));
-    expect($('#table')).to.have.length(1);
-    expect($('tr')).to.have.length(dummyEventInfo.length + 1);
-    expect($('tr :eq(1)').html()).to.contain(expected);
-    expect($('td :eq(6)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
-  }
-
 });
