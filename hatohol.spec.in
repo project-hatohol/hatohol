@@ -121,15 +121,28 @@ rm -f %{buildroot}/%{_libdir}/*.a
 
 %post
 /sbin/ldconfig
+%if %is_el6
 cp %{_datadir}/hatohol/hatohol.centos /etc/init.d/hatohol
 chmod +x /etc/init.d/hatohol
 /sbin/chkconfig --add hatohol
+%endif
+%if %is_el7
+cp %{_datadir}/hatohol/hatohol.service /usr/lib/systemd/system/
+/usr/bin/systemctl daemon-reload
+%endif
 mkdir -p %{_sysconfdir}/hatohol
 
 %postun
 /sbin/ldconfig
+%if %is_el6
 /sbin/service hatohol stop
 /sbin/chkconfig --del hatohol
+%endif
+%if %is_el7
+/usr/bin/systemctl stop hatohol
+rm /usr/lib/systemd/system/hatohol.service
+/usr/bin/systemctl daemon-reload
+%endif
 
 %clean
 rm -rf %{buildroot}
@@ -144,6 +157,7 @@ rm -rf %{buildroot}
 %{_libexecdir}/hatohol/action/*
 %{_datadir}/hatohol/hatohol.centos
 %{_datadir}/hatohol/hatohol.debian
+%{_datadir}/hatohol/hatohol.service
 %{_sysconfdir}/hatohol/hatohol.conf
 %{_datadir}/hatohol/sql/create-db.sql
 %{_datadir}/hatohol/sql/init-user.sql
