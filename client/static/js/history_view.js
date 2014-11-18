@@ -90,6 +90,7 @@ var HistoryView = function(userProfile, options) {
         max: self.lastQuery.endTime * 1000,
       },
       yaxis: {
+        min: 0,
         tickFormatter: function(val, axis) {
           return formatItemValue("" + val, item.unit);
         }
