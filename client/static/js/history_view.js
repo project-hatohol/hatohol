@@ -172,8 +172,6 @@ var HistoryView = function(userProfile, options) {
     var hostName = buildHostName(itemReply);
     var title = "";
     title += item.brief;
-    if (item.unit)
-      title += " [" + item.unit + "]";
     title += " (" + hostName + ")";
     $("title").text(title);
     $("h2").text(title);
