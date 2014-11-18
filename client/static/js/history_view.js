@@ -51,12 +51,12 @@ var HistoryView = function(userProfile, options) {
     for (j = 0; j < historyReplies.length; j++) {
       history = historyReplies[j].history;
       for (i = 0; i < history.length; i++) {
-	data[0].data[idx++] = [
+        data[0].data[idx++] = [
           // Xaxis: UNIX time in msec
           history[i].clock * 1000 + Math.floor(history[i].ns / 1000000),
           // Yaxis: value
           history[i].value
-	];
+        ];
       }
     }
     return data;
@@ -65,13 +65,13 @@ var HistoryView = function(userProfile, options) {
   function drawGraph(item, history) {
     var options = {
       xaxis: {
-	mode: "time",
-	timezone: "browser",
+        mode: "time",
+        timezone: "browser",
         tickFormatter: function(val, axis) {
           return formatDate(Math.round(val / 1000));
         },
-	min: (self.lastQuery.endTime - self.timeSpan) * 1000,
-	max: self.lastQuery.endTime * 1000,
+        min: (self.lastQuery.endTime - self.timeSpan) * 1000,
+        max: self.lastQuery.endTime * 1000,
       },
       yaxis: {
         tickFormatter: function(val, axis) {
@@ -79,8 +79,8 @@ var HistoryView = function(userProfile, options) {
         }
       },
       legend: {
-	show: false,
-	position: "sw",
+        show: false,
+        position: "sw",
       },
     };
     if (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)
@@ -111,8 +111,8 @@ var HistoryView = function(userProfile, options) {
     if (self.replyHistoryArray.length > 0) {
       lastReply = self.replyHistoryArray[self.replyHistoryArray.length - 1];
       if (lastReply.history.length > 0) {
-	lastData = lastReply.history[lastReply.history.length - 1]
-	query.beginTime = lastData.clock + 1;
+        lastData = lastReply.history[lastReply.history.length - 1]
+        query.beginTime = lastData.clock + 1;
       }
     }
 
