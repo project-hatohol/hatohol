@@ -111,7 +111,7 @@ struct SignalBase
 	}
 	virtual void disconnect(ClosureBase *closure)
 	{
-		typename std::list<ClosureBase *>::iterator it;
+		std::list<ClosureBase *>::iterator it;
 		m_rwlock.writeLock();
 		for (it = m_closures.begin(); it != m_closures.end();) {
 			if (*closure == *(*it)) {
@@ -126,7 +126,7 @@ struct SignalBase
 	virtual void clear(void)
 	{
 		m_rwlock.writeLock();
-		typename std::list<ClosureBase *>::iterator it;
+		std::list<ClosureBase *>::iterator it;
 		for (it = m_closures.begin(); it != m_closures.end(); ++it) {
 			ClosureBase *closure = *it;
 			delete closure;
@@ -135,7 +135,7 @@ struct SignalBase
 		m_rwlock.unlock();
 	}
 
-	typename std::list<ClosureBase *> m_closures;
+	std::list<ClosureBase *> m_closures;
 	mlpl::ReadWriteLock m_rwlock;
 };
 
@@ -152,7 +152,7 @@ struct Signal0 : public SignalBase
 	virtual void operator()(void)
 	{
 		m_rwlock.readLock();
-		typename std::list<ClosureBase *>::iterator it;
+		std::list<ClosureBase *>::iterator it;
 		for (it = m_closures.begin(); it != m_closures.end(); ++it) {
 			Closure0 *closure
 				= dynamic_cast<Closure0 *>(*it);
