@@ -24,6 +24,8 @@ var HistoryView = function(userProfile, options) {
   self.reloadIntervalSeconds = 60;
   self.replyItem = null;
   self.replyHistoryArray = [];
+  self.lastQuery = null;
+  self.timeSpan = null;
 
   if (!options)
     options = {};
@@ -67,7 +69,9 @@ var HistoryView = function(userProfile, options) {
 	timezone: "browser",
         tickFormatter: function(val, axis) {
           return formatDate(Math.round(val / 1000));
-        }
+        },
+	min: (self.lastQuery.endTime - self.timeSpan) * 1000,
+	max: self.lastQuery.endTime * 1000,
       },
       yaxis: {
         tickFormatter: function(val, axis) {
@@ -119,6 +123,10 @@ var HistoryView = function(userProfile, options) {
     }
     if (!query.beginTime)
       query.beginTime = query.endTime - defaultTimeSpan;
+
+    if (!self.timeSpan)
+      self.timeSpan = query.endTime - query.beginTime;
+    self.lastQuery = query;
 
     return 'history?' + $.param(query);
   };
