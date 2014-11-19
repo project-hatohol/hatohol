@@ -136,4 +136,22 @@ describe('HistoryView', function() {
         "&endTime=" + endTime + "&beginTime=" + beginTime);
     clock.restore();
   });
+
+  it('format graph data', function() {
+    var query = "serverId=1&hostId=10101&itemId=1";
+    var view = new HistoryView($('#' + TEST_FIXTURE_ID).get(0),
+                               { query: query });
+    var expected = [{
+      label: "cpu usage [%]",
+      data: [
+        [1415586892182, "97.8568"],
+        [1415586952317, "97.4699"],
+        [1415587012454, "97.1620"],
+        [1415587072551, "99.3657"],
+        [1415587132645, "93.3277"],
+      ]
+    }];
+    respond(itemsJson(), historyJson());
+    expect(view.plotData).eql(expected);
+  });
 });
