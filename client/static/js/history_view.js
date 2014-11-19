@@ -203,7 +203,6 @@ var HistoryView = function(userProfile, options) {
     var title = "";
     title += item.brief;
     title += " (" + hostName + ")";
-    $("title").text(title);
     $("h2").text(title);
   }
 
