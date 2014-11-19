@@ -189,6 +189,11 @@ DBTablesConfig &ThreadLocalDBCache::getConfig(void)
 	return getDBHatohol().getDBTablesConfig();
 }
 
+DBTablesHost &ThreadLocalDBCache::getHost(void)
+{
+	return getDBHatohol().getDBTablesHost();
+}
+
 DBTablesUser &ThreadLocalDBCache::getUser(void)
 {
 	return getDBHatohol().getDBTablesUser();

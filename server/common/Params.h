@@ -23,6 +23,7 @@
 #include <cstdio>
 #include <stdint.h>
 #include <set>
+#include <vector>
 #include <map>
 #include <string>
 #include "config.h"
@@ -39,6 +40,9 @@ static const DBTablesId DB_TABLES_ID_ACTION     = 0x0018;
 static const DBTablesId DB_TABLES_ID_MONITORING = 0x0020;
 static const DBTablesId DB_TABLES_ID_USER       = 0x0030;
 static const DBTablesId DB_TABLES_ID_HOST       = 0x0040;
+
+typedef uint64_t GenericIdType;
+#define FMT_GEN_ID PRIu64
 
 typedef int ServerIdType;
 #define FMT_SERVER_ID "d"
@@ -152,6 +156,10 @@ typedef std::set<ServerIdType>      ServerIdSet;
 typedef ServerIdSet::iterator       ServerIdSetIterator;
 typedef ServerIdSet::const_iterator ServerIdSetConstIterator;
 extern const ServerIdSet EMPTY_SERVER_ID_SET;
+
+typedef std::vector<HostIdType>      HostIdVector;
+typedef HostIdVector::iterator       HostIdVectorIterator;
+typedef HostIdVector::const_iterator HostIdVectorConstIterator;
 
 typedef std::set<IncidentTrackerIdType>      IncidentTrackerIdSet;
 typedef IncidentTrackerIdSet::iterator       IncidentTrackerIdSetIterator;
