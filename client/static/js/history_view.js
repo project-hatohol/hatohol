@@ -108,7 +108,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function drawGraph(item, history) {
-    self.plotOptions = {
+    var options = {
       xaxis: {
         mode: "time",
         timezone: "browser",
@@ -129,15 +129,17 @@ var HistoryView = function(userProfile, options) {
       points: {
       },
       selection: {
-	mode: "x",
+        mode: "x",
       },
     };
-    var options = self.plotOptions;
     if (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)
       options.yaxis.minTickSize = 1;
     if (history[0].data.length < 3)
       options.points.show = true;
-    $.plot($("#item-graph"), history, options);
+
+    self.plotOptions = options;
+
+    $.plot($("#item-graph"), history, self.plotOptions);
   }
 
   function updateView(reply) {
