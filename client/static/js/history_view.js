@@ -27,6 +27,7 @@ var HistoryView = function(userProfile, options) {
   self.lastQuery = null;
   self.timeSpan = null;
   self.plotData = null;
+  self.plotOptions = null;
 
   if (!options)
     options = {};
@@ -42,6 +43,21 @@ var HistoryView = function(userProfile, options) {
       id: "item-graph",
       height: "300px",
     }));
+
+    $("#item-graph").bind("plotselected", function (event, ranges) {
+      // clamp the zooming to prevent eternal zoom
+      if (ranges.xaxis.to - ranges.xaxis.from < 60 * 1000) {
+	ranges.xaxis.from -= 30 * 1000;
+	ranges.xaxis.to = ranges.xaxis.from + 60 * 1000;
+      }
+
+      // zoom
+      var options = $.extend(true, {}, self.plotOptions, {
+	xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
+	yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
+      });
+      $.plot("#item-graph", self.plotData, options);
+    });
   };
 
   function formatPlotData(item, historyReplies) {
@@ -69,7 +85,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function drawGraph(item, history) {
-    var options = {
+    self.plotOptions = {
       xaxis: {
         mode: "time",
         timezone: "browser",
@@ -88,7 +104,10 @@ var HistoryView = function(userProfile, options) {
           } else if (axis.tickSize[1] == "day") {
             return $.plot.formatDate($.plot.dateGenerator(val, this),
                                      "%Y/%m");
-          } else {
+          } else if (axis.tickSize[1] == "second") {
+            return $.plot.formatDate($.plot.dateGenerator(val, this),
+                                     "%H:%M:%S");
+	  } else {
             return val;
           }
         },
@@ -107,7 +126,11 @@ var HistoryView = function(userProfile, options) {
       },
       points: {
       },
+      selection: {
+	mode: "x",
+      },
     };
+    var options = self.plotOptions;
     if (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)
       options.yaxis.minTickSize = 1;
     if (history[0].data.length < 3)
