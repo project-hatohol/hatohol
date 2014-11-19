@@ -58,6 +58,11 @@ var HistoryView = function(userProfile, options) {
       });
       $.plot("#item-graph", self.plotData, options);
     });
+
+    // zoom cancnel
+    $("#item-graph").bind("dblclick", function (event) {
+      $.plot("#item-graph", self.plotData, self.plotOptions);
+    });
   };
 
   function formatPlotData(item, historyReplies) {
