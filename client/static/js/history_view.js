@@ -96,7 +96,7 @@ var HistoryView = function(userProfile, options) {
     } else if (axis.tickSize[1] == "day") {
       return $.plot.formatDate($.plot.dateGenerator(val, this),
                                "%m/%d");
-    } else if (axis.tickSize[1] == "day") {
+    } else if (axis.tickSize[1] == "month" || axis.tickSize[1] == "quarter") {
       return $.plot.formatDate($.plot.dateGenerator(val, this),
                                "%Y/%m");
     } else if (axis.tickSize[1] == "second") {
