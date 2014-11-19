@@ -85,7 +85,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function timeTickFormatter(val, axis) {
-    var date = $.plot.dateGenerator(val, this);
+    var date = $.plot.dateGenerator(val, self.plotOptions.xaxis);
     var dateString;
 
     if (axis.tickSize[1] == "minute" || axis.tickSize[1] == "hour") {
