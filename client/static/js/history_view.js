@@ -85,24 +85,24 @@ var HistoryView = function(userProfile, options) {
   }
 
   function timeTickFormatter(val, axis) {
+    var now = new Date();
     var date = $.plot.dateGenerator(val, self.plotOptions.xaxis);
-    var dateString;
+    var unit = axis.tickSize[1];
+    var format = "";
 
-    if (axis.tickSize[1] == "minute" || axis.tickSize[1] == "hour") {
-      dateString = $.plot.formatDate(date, "%m/%d %H:%M");
-      if (!dateString.match(/^\d+\/\d+ 00:00$/))
-        return dateString.replace(/^\d+\/\d+ (\d\d:\d\d)$/, "$1");
-      else
-        return dateString;
-    } else if (axis.tickSize[1] == "day") {
-      return $.plot.formatDate(date, "%m/%d");
-    } else if (axis.tickSize[1] == "month" || axis.tickSize[1] == "quarter") {
-      return $.plot.formatDate(date, "%Y/%m");
-    } else if (axis.tickSize[1] == "second") {
-      return $.plot.formatDate(date, "%H:%M:%S");
-    } else {
-      return val;
+    if (now.getFullYear() != date.getFullYear())
+      format += "%Y/";
+    if (now.getFullYear() != date.getFullYear() ||
+	now.getMonth() != date.getMonth() ||
+	now.getDate() != date.getDate()) {
+      format += "%m/%d ";
     }
+    if (unit == "hour" || unit == "minute" || unit == "second")
+      format += "%H:%M";
+    if (unit == "second")
+      format += ":%S";
+
+    return $.plot.formatDate(date, format);
   }
 
   function drawGraph(item, history) {
