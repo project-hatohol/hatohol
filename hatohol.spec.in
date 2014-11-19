@@ -117,6 +117,9 @@ rm -rf %{buildroot}
 %if %is_el6
 install -D -m 644 %{buildroot}/%{_libexecdir}/hatohol/client/conf/apache/hatohol.conf.package6 %{buildroot}/%{_sysconfdir}/httpd/conf.d/hatohol.conf
 %endif
+%if %is_el7
+install -D -m 644 %{buildroot}/%{_libexecdir}/hatohol/client/conf/apache/hatohol.conf.package7 %{buildroot}/%{_sysconfdir}/httpd/conf.d/hatohol.conf
+%endif
 
 rm -f %{buildroot}/%{_libdir}/*.la
 rm -f %{buildroot}/%{_libdir}/*.a
