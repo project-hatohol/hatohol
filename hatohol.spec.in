@@ -114,7 +114,9 @@ make
 %install
 rm -rf %{buildroot}
 %make_install
-install -D -m 644 %{buildroot}/%{_libexecdir}/hatohol/client/conf/apache/hatohol.conf.package %{buildroot}/%{_sysconfdir}/httpd/conf.d/hatohol.conf
+%if %is_el6
+install -D -m 644 %{buildroot}/%{_libexecdir}/hatohol/client/conf/apache/hatohol.conf.package6 %{buildroot}/%{_sysconfdir}/httpd/conf.d/hatohol.conf
+%endif
 
 rm -f %{buildroot}/%{_libdir}/*.la
 rm -f %{buildroot}/%{_libdir}/*.a
