@@ -509,6 +509,15 @@ describe('formatItemValue', function() {
     expect(formatItemValue("0.982348234")).eql(0.9823);
   });
 
+  it('Float with trailing 0', function() {
+    expect(formatItemValue('0.15000', '')).eql("0.15");
+    expect(formatItemValue('0.0015000', '')).eql("0.0015");
+  });
+
+  it('Large float', function() {
+    expect(formatItemValue('123456789.98765', '')).eql("1.235e+8");
+  });
+
   it('Percent', function() {
     expect(formatItemValue("1000.9234", '%')).eql("1001 %");
   });
@@ -540,11 +549,6 @@ describe('formatItemValue', function() {
   it('Giga Bytes', function() {
     var bytes = "" + (2.5189 * 1024 * 1024 * 1024)
     expect(formatItemValue(bytes, 'B')).eql("2.519 GB");
-  });
-
-  it('Float with trailing 0', function() {
-    expect(formatItemValue('0.15000', '')).eql("0.15");
-    expect(formatItemValue('0.0015000', '')).eql("0.0015");
   });
 });
 
