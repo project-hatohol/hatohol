@@ -95,6 +95,7 @@ void HatoholArmPluginStandard::onInitiated(void)
 		}
 	} *cb = new Callback(this);
 	sendCmdGetMonitoringServerInfo(cb);
+	cb->unref();
 }
 
 void HatoholArmPluginStandard::onReady(const MonitoringServerInfo &serverInfo)
