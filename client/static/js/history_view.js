@@ -85,23 +85,21 @@ var HistoryView = function(userProfile, options) {
   }
 
   function timeTickFormatter(val, axis) {
-    var date;
+    var date = $.plot.dateGenerator(val, this);
+    var dateString;
+
     if (axis.tickSize[1] == "minute" || axis.tickSize[1] == "hour") {
-      date = $.plot.formatDate($.plot.dateGenerator(val, this),
-                               "%m/%d %H:%M");
-      if (!date.match(/^\d+\/\d+ 00:00$/))
-        return date.replace(/^\d+\/\d+ (\d\d:\d\d)$/, "$1");
+      dateString = $.plot.formatDate(date, "%m/%d %H:%M");
+      if (!dateString.match(/^\d+\/\d+ 00:00$/))
+        return dateString.replace(/^\d+\/\d+ (\d\d:\d\d)$/, "$1");
       else
-        return date;
+        return dateString;
     } else if (axis.tickSize[1] == "day") {
-      return $.plot.formatDate($.plot.dateGenerator(val, this),
-                               "%m/%d");
+      return $.plot.formatDate(date, "%m/%d");
     } else if (axis.tickSize[1] == "month" || axis.tickSize[1] == "quarter") {
-      return $.plot.formatDate($.plot.dateGenerator(val, this),
-                               "%Y/%m");
+      return $.plot.formatDate(date, "%Y/%m");
     } else if (axis.tickSize[1] == "second") {
-      return $.plot.formatDate($.plot.dateGenerator(val, this),
-                               "%H:%M:%S");
+      return $.plot.formatDate(date, "%H:%M:%S");
     } else {
       return val;
     }
