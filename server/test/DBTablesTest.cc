@@ -1126,6 +1126,36 @@ const VMInfo testVMInfo[] = {
 };
 const size_t NumTestVMInfo = ARRAY_SIZE(testVMInfo);
 
+const HostHostgroup testHostHostgroup[] = {
+{
+	AUTO_INCREMENT_VALUE,            // id
+	211,                             // serverId
+	"200",                           // hostIdInServer
+	"0",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	211,                             // serverId
+	"12111",                         // hostIdInServer
+	"123",                           // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	211,                             // serverId
+	"12112",                         // hostIdInServer
+	"123",                           // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	211,                             // serverId
+	"12113",                         // hostIdInServer
+	"124",                           // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	211,                             // serverId
+	"110005",                        // hostIdInServer
+	"124",                           // hostgroupIdInServer
+}
+};
+const size_t NumTestHostHostgroup = ARRAY_SIZE(testHostHostgroup);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
@@ -1924,4 +1954,13 @@ void loadTestDBVMInfo(void)
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestVMInfo; i++)
 		dbHost.upsertVMInfo(testVMInfo[i]);
+}
+
+void loadTestDBHostHostgroup(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestHostHostgroup; i++)
+		dbHost.upsertHostHostgroup(testHostHostgroup[i]);
 }

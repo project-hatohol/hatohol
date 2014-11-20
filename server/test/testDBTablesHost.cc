@@ -362,6 +362,7 @@ void test_getHypervisorWithUserWhoCanAccessAllHostgroup(gconstpointer data)
 	loadTestDBAccessList();
 	loadTestDBServerHostDef();
 	loadTestDBVMInfo();
+	loadTestDBHostHostgroup();
 
 	const gboolean allowedUser = gcut_data_get_boolean(data, "allowed");
 	const ServerHostDef &targetServerHostDef = testServerHostDef[0];
@@ -488,6 +489,7 @@ void test_getVirtualMachinesByNonSystemUser(gconstpointer data)
 	loadTestDBAccessList();
 	loadTestDBServerHostDef();
 	loadTestDBVMInfo();
+	loadTestDBHostHostgroup();
 	DECLARE_DBTABLES_HOST(dbHost);
 
 	const UserIdType userId = gcut_data_get_int(data, "userId");

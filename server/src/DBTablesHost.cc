@@ -21,6 +21,7 @@
 #include "DBTablesHost.h"
 #include "ItemGroupStream.h"
 #include "ThreadLocalDBCache.h"
+#include "DBClientJoinBuilder.h"
 using namespace std;
 using namespace mlpl;
 
@@ -502,13 +503,22 @@ bool DBTablesHost::isAccessible(
   const HostIdType &hostId, const HostQueryOption &option)
 {
 	// Get the server ID and host ID (in the server)
-	DBAgent::SelectExArg arg(tableProfileServerHostDef);
-	arg.tableField = tableProfileServerHostDef.name;
-	arg.add(IDX_HOST_SERVER_HOST_DEF_SERVER_ID);
-	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
+	DBClientJoinBuilder builder(tableProfileServerHostDef);
+	builder.add(IDX_HOST_SERVER_HOST_DEF_SERVER_ID);
+
+	// TODO: add a column including host_id and use it
+	builder.addTable(
+	  tableProfileHostHostgroup, DBClientJoinBuilder::INNER_JOIN,
+	  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  IDX_HOST_HOSTGROUP_SERVER_ID,
+	  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
+	  IDX_HOST_HOSTGROUP_HOST_ID);
+	builder.add(IDX_HOST_HOSTGROUP_GROUP_ID);
+
+	DBAgent::SelectExArg &arg = builder.build();
 	arg.condition = StringUtils::sprintf(
 	  "%s=%" FMT_HOST_ID,
-	  COLUMN_DEF_SERVER_HOST_DEF[IDX_HOST_SERVER_HOST_DEF_HOST_ID].columnName, hostId);
+	  tableProfileServerHostDef.getFullColumnName(IDX_HOST_SERVER_HOST_DEF_HOST_ID).c_str(), hostId);
 	getDBAgent().runTransaction(arg);
 
 	// Check accessibility for each server
