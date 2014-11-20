@@ -127,12 +127,11 @@ rm -f %{buildroot}/%{_libdir}/*.a
 %post
 /sbin/ldconfig
 %if %is_el6
-cp %{_datadir}/hatohol/hatohol.centos /etc/init.d/hatohol
-chmod +x /etc/init.d/hatohol
+install -D -m 755 %{_datadir}/hatohol/hatohol.centos /etc/init.d/hatohol
 /sbin/chkconfig --add hatohol
 %endif
 %if %is_el7
-cp %{_datadir}/hatohol/hatohol.service %{_unitdir}
+install -D -m 644 %{_datadir}/hatohol/hatohol.service %{_unitdir}
 /usr/bin/systemctl daemon-reload
 %endif
 mkdir -p %{_sysconfdir}/hatohol
