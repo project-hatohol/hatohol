@@ -132,7 +132,7 @@ chmod +x /etc/init.d/hatohol
 /sbin/chkconfig --add hatohol
 %endif
 %if %is_el7
-cp %{_datadir}/hatohol/hatohol.service /usr/lib/systemd/system/
+cp %{_datadir}/hatohol/hatohol.service %{_unitdir}
 /usr/bin/systemctl daemon-reload
 %endif
 mkdir -p %{_sysconfdir}/hatohol
