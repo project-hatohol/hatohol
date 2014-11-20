@@ -23,7 +23,6 @@ var HistoryView = function(userProfile, options) {
 
   self.reloadIntervalSeconds = 60;
   self.replyItem = null;
-  self.replyHistoryArray = [];
   self.lastQuery = null;
   self.timeSpan = null;
   self.plotData = null;
@@ -68,10 +67,16 @@ var HistoryView = function(userProfile, options) {
   function formatPlotData(item, historyReplies) {
     var i;
     var data = [ { label: item.brief, data:[] } ];
+
     if (item.unit)
       data[0].label += " [" + item.unit + "]";
+
+    if (!historyReplies)
+      return data;
+
     for (i = 0; i < historyReplies.length; i++)
       appendPlotData(data, historyReplies[i]);
+
     return data;
   };
 
@@ -148,9 +153,8 @@ var HistoryView = function(userProfile, options) {
   function updateView(reply) {
     var item = self.replyItem.items[0];
     if (!self.plotData)
-      self.plotData = formatPlotData(item, self.replyHistoryArray);
-    else
-      appendPlotData(self.plotData, reply);
+      self.plotData = formatPlotData(item);
+    appendPlotData(self.plotData, reply);
     self.displayUpdateTime();
     drawGraph(item, self.plotData);
   }
@@ -166,12 +170,9 @@ var HistoryView = function(userProfile, options) {
     var lastReply, lastData, now;
 
     // omit loading existing data
-    if (self.replyHistoryArray.length > 0) {
-      lastReply = self.replyHistoryArray[self.replyHistoryArray.length - 1];
-      if (lastReply.history.length > 0) {
-        lastData = lastReply.history[lastReply.history.length - 1]
-        query.beginTime = lastData.clock + 1;
-      }
+    if (self.plotData && self.plotData[0].data.length > 0) {
+      lastData = self.plotData[0].data[self.plotData[0].data.length - 1];
+      query.beginTime = Math.floor(lastData[0] / 1000) + 1;
     }
 
     // set missing time range
@@ -231,7 +232,6 @@ var HistoryView = function(userProfile, options) {
 
   function onLoadHistory(reply) {
     var maxRecordsPerRequest = 1000;
-    self.replyHistoryArray.push(reply);
     updateView(reply);
     if (reply.history.length >= maxRecordsPerRequest) {
       loadHistory();
