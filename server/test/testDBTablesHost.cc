@@ -410,65 +410,10 @@ void test_getHypervisorWithUserWhoCanAccessAllHostgroup(gconstpointer data)
 	}
 }
 
-void test_getVirtualMachines(void)
-{
-	typedef map<HostIdType, HostIdSet> HypervisorVMMap;
-	typedef HypervisorVMMap::iterator  HypervisorVMMapIterator;
-
-	loadTestDBVMInfo();
-	DECLARE_DBTABLES_HOST(dbHost);
-
-	// Collect the Hypervisors
-	HypervisorVMMap hypervisorVMMap;
-	for (size_t i = 0; i < NumTestVMInfo; i++) {
-		const VMInfo &vminf = testVMInfo[i];
-		hypervisorVMMap[vminf.hypervisorHostId].insert(vminf.hostId);
-	}
-
-	// Call the test method
-	HostQueryOption option(USER_ID_SYSTEM);
-	HypervisorVMMapIterator mapItr = hypervisorVMMap.begin();
-	HypervisorVMMap actualHypervisorVMMap;
-	for (; mapItr != hypervisorVMMap.end(); ++mapItr) {
-		HostIdVector virtualMachines;
-		const HostIdType &hypervisorHostId = mapItr->first;
-		HatoholError err = dbHost.getVirtualMachines(
-		                     virtualMachines, hypervisorHostId, option);
-		assertHatoholError(HTERR_OK, err);
-		for (size_t i = 0; i < virtualMachines.size(); i++) {
-			const HostIdType &hid = virtualMachines[i];
-			actualHypervisorVMMap[hypervisorHostId].insert(hid);
-		}
-	}
-
-	// Check it
-	mapItr = hypervisorVMMap.begin();
-	for (; mapItr != hypervisorVMMap.end(); ++mapItr) {
-		const HostIdType &expectHypervisorId = mapItr->first;
-		HypervisorVMMapIterator actMapItr =
-		  actualHypervisorVMMap.find(expectHypervisorId);
-		cppcut_assert_equal(
-		  true, actMapItr != actualHypervisorVMMap.end());
-		HostIdSet &actualHostIds = actMapItr->second;
-
-		const HostIdSet &expectHostIds = mapItr->second;
-		HostIdSetConstIterator expHostIdItr = expectHostIds.begin();
-		for (; expHostIdItr != expectHostIds.end(); ++expHostIdItr) {
-			HostIdSetIterator actHostItr =
-			  actualHostIds.find(*expHostIdItr);
-			cppcut_assert_equal(
-			  true, actHostItr != actualHostIds.end());
-			actualHostIds.erase(actHostItr);
-		}
-		cppcut_assert_equal(true, actualHostIds.empty());
-		actualHypervisorVMMap.erase(actMapItr);
-	}
-	cppcut_assert_equal(true, actualHypervisorVMMap.empty());
-}
-
-void data_getVirtualMachinesByNonSystemUser(void)
+void data_getVirtualMachines(void)
 {
 	UserIdSet userIdSet;
+	userIdSet.insert(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestAccessInfo; ++i)
 		userIdSet.insert(testAccessInfo[i].userId);
 
@@ -480,7 +425,7 @@ void data_getVirtualMachinesByNonSystemUser(void)
 	}
 }
 
-void test_getVirtualMachinesByNonSystemUser(gconstpointer data)
+void test_getVirtualMachines(gconstpointer data)
 {
 	typedef map<HostIdType, HostIdSet> HypervisorVMMap;
 	typedef HypervisorVMMap::iterator  HypervisorVMMapIterator;
