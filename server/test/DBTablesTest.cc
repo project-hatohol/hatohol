@@ -686,6 +686,16 @@ AccessInfo testAccessInfo[] = {
 	ALL_HOST_GROUPS,   // hostgroupId
 }, {
 	0,                 // id
+	6,                 // userId
+	211,               // serverId
+	124,               // hostgroupId
+}, {
+	0,                 // id
+	6,                 // userId
+	222,               // serverId
+	124,               // hostgroupId
+}, {
+	0,                 // id
 	userIdWithMultipleAuthorizedHostgroups, // userId
 	1,                 // serverId
 	1,                 // hostgroupId
@@ -1103,7 +1113,7 @@ const ServerHostDef testServerHostDef[] = {
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	10005,                           // hostId
-	211,                             // serverId
+	222,                             // serverId
 	"110005",                        // host_id_in_server
 	"host 110005",                    // name
 }
@@ -1154,7 +1164,7 @@ const HostHostgroup testHostHostgroup[] = {
 	"124",                           // hostgroupIdInServer
 }, {
 	AUTO_INCREMENT_VALUE,            // id
-	211,                             // serverId
+	222,                             // serverId
 	"110005",                        // hostIdInServer
 	"124",                           // hostgroupIdInServer
 }
