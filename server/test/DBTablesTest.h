@@ -171,7 +171,8 @@ void makeEventIncidentMap(std::map<std::string, IncidentInfo*> &eventIncidentMap
 bool isAuthorized(ServerHostGrpSetMap &authMap,
                   const UserIdType &userId,
                   const ServerIdType &serverId,
-                  const HostIdType &hostId = ALL_HOSTS);
+                  const HostIdType &hostId = ALL_HOSTS,
+                  const std::set<std::string> *hgrpElementPackSet = NULL);
 
 /**
  * Check if the user can access to the host.

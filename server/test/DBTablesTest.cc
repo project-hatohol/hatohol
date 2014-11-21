@@ -676,6 +676,11 @@ AccessInfo testAccessInfo[] = {
 	1,                 // hostgroupId
 }, {
 	0,                 // id
+	3,                 // userId
+	211,               // serverId
+	123,               // hostgroupId
+}, {
+	0,                 // id
 	5,                 // userId
 	1,                 // serverId
 	ALL_HOST_GROUPS,   // hostgroupId
@@ -1322,6 +1327,31 @@ static const set<string> &getHostgroupElementPackSet(void)
 	return hostgroupElementPackSet;
 }
 
+static const set<string> &getHostHostgroupPackSet(void)
+{
+	static set<string> hostHGrpPackSet;
+	if (!hostHGrpPackSet.empty())
+		return hostHGrpPackSet;
+	for (size_t i = 0; i < NumTestHostHostgroup; i++) {
+		const HostHostgroup &hhgr = testHostHostgroup[i];
+
+		HostIdType hostId;
+		HostgroupIdType hostgroupId;
+		cppcut_assert_equal(
+		  1, sscanf(hhgr.hostIdInServer.c_str(),
+		            "%" FMT_HOST_ID, &hostId));
+		cppcut_assert_equal(
+		  1, sscanf(hhgr.hostgroupIdInServer.c_str(),
+		            "%" FMT_HOST_GROUP_ID, &hostgroupId));
+		const string mash =
+		  makeHostgroupElementPack(hhgr.serverId, hostId, hostgroupId);
+		pair<set<string>::iterator, bool> result =
+		  hostHGrpPackSet.insert(mash);
+		cppcut_assert_equal(true, result.second);
+	}
+	return hostHGrpPackSet;
+}
+
 static bool isInHostgroup(const TriggerInfo &trigInfo,
                           const HostgroupIdType &hostgroupId)
 {
@@ -1568,7 +1598,8 @@ void makeServerHostGrpSetMap(ServerHostGrpSetMap &map, const UserIdType &userId)
 
 bool isAuthorized(
   ServerHostGrpSetMap &authMap, const UserIdType &userId,
-  const ServerIdType &serverId, const HostIdType &hostId)
+  const ServerIdType &serverId, const HostIdType &hostId,
+  const set<string> *hgrpElementPackSet)
 {
 	if (userId == USER_ID_SYSTEM)
 		return true;
@@ -1592,12 +1623,13 @@ bool isAuthorized(
 		return true;
 
 	// check if the user is allowed to access to the host
-	const set<string> &hgrpElementPackSet = getHostgroupElementPackSet();
+	if (!hgrpElementPackSet)
+		hgrpElementPackSet = &getHostgroupElementPackSet();
 	HostgroupIdSetConstIterator hostgroupIdItr = hostgroupIds.begin();
 	for (; hostgroupIdItr != hostgroupIds.end(); ++hostgroupIdItr) {
 		const string pack =
 		  makeHostgroupElementPack(serverId, hostId, *hostgroupIdItr);
-		if (hgrpElementPackSet.find(pack) != hgrpElementPackSet.end())
+		if (hgrpElementPackSet->find(pack) != hgrpElementPackSet->end())
 			return true;
 	}
 
@@ -1611,6 +1643,8 @@ bool isAuthorized(
 	vector<HostIdType>   hostIds; // Host ID for the server
 	for (size_t i = 0; i < NumTestServerHostDef; i++) {
 		const ServerHostDef svHostDef = testServerHostDef[i];
+		if (svHostDef.hostId != hostId)
+			continue;
 		serverIds.push_back(svHostDef.serverId);
 		HostIdType hostIdInServer;
 		cppcut_assert_equal(
@@ -1619,12 +1653,16 @@ bool isAuthorized(
 		         &hostIdInServer));
 		hostIds.push_back(hostIdInServer);
 	}
+	if (serverIds.empty())
+		return false;
 
 	ServerHostGrpSetMap authMap;
 	makeServerHostGrpSetMap(authMap, userId);
 	cppcut_assert_equal(serverIds.size(), hostIds.size());
+	const set<string> &hostHGrpPackSet = getHostHostgroupPackSet();
 	for (size_t i = 0; i < serverIds.size(); i++) {
-		if (isAuthorized(authMap, userId, serverIds[i], hostIds[i]))
+		if (isAuthorized(authMap, userId, serverIds[i], hostIds[i],
+		                 &hostHGrpPackSet))
 			return true;
 	}
 
