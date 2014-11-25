@@ -119,6 +119,15 @@ static const ColumnDef COLUMN_DEF_SERVER_HOST_DEF[] = {
 	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"status",                          // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
 },
 };
 
@@ -128,6 +137,7 @@ enum {
 	IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
 	IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
 	IDX_HOST_SERVER_HOST_DEF_HOST_NAME,
+	IDX_HOST_SERVER_HOST_DEF_HOST_STATUS,
 	NUM_IDX_SERVER_HOST_DEF
 };
 
@@ -381,6 +391,7 @@ GenericIdType DBTablesHost::upsertServerHostDef(
 	arg.add(serverHostDef.serverId);
 	arg.add(serverHostDef.hostIdInServer);
 	arg.add(serverHostDef.name);
+	arg.add(serverHostDef.status);
 	arg.upsertOnDuplicate = true;
 	getDBAgent().runTransaction(arg, &id);
 	return id;

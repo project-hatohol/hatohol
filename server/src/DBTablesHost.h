@@ -23,12 +23,17 @@
 #include "DBTables.h"
 #include "DataQueryOption.h"
 
+enum HostStatus {
+	HOST_STAT_NORMAL = 0,
+};
+
 struct ServerHostDef {
 	GenericIdType id;
 	HostIdType    hostId;
 	ServerIdType  serverId;
 	std::string   hostIdInServer;
 	std::string   name;
+	HostStatus    status;
 };
 
 struct HostAccess {
