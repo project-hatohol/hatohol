@@ -502,11 +502,20 @@ describe('formatItemValue', function() {
   });
 
   it('Integer with metric prefix', function() {
-    expect(formatItemValue("1000", 'bps')).eql("1.000 Kbps");
+    expect(formatItemValue("1000", 'bps')).eql("1 Kbps");
   });
 
   it('Float without unit', function() {
     expect(formatItemValue("0.982348234")).eql(0.9823);
+  });
+
+  it('Float with trailing 0', function() {
+    expect(formatItemValue('0.15000', '')).eql("0.15");
+    expect(formatItemValue('0.0015000', '')).eql("0.0015");
+  });
+
+  it('Large float', function() {
+    expect(formatItemValue('123456789.98765', '')).eql("1.235e+8");
   });
 
   it('Percent', function() {

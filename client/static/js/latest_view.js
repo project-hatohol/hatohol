@@ -154,6 +154,28 @@ var LatestView = function(userProfile) {
     $("#select-application").removeAttr("disabled");
   }
 
+  function getGraphURL(item) {
+    var url = "ajax_history?serverId=";
+    url += escapeHTML(item["serverId"]);
+    url += "&hostId=";
+    url += escapeHTML(item["hostId"]);
+    url += "&itemId=";
+    url += escapeHTML(item["id"]);
+    return url;
+  }
+
+  function getGraphLink(item) {
+    if (!item || !item["valueType"] ||
+        (item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_FLOAT &&
+         item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)) {
+      return "";
+    }
+    var link = "<a href='" + getGraphURL(item) + "'>"
+    link += gettext("Graph");
+    link += "</a>";
+    return link;
+  }
+
   function drawTableBody(replyData) {
     var serverName, hostName, clock, appName;
     var html = "", url, server, item, x;
@@ -182,6 +204,7 @@ var LatestView = function(userProfile) {
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
       html += "<td>" + formatItemLastValue(item) + "</td>";
       html += "<td>" + formatItemPrevValue(item) + "</td>";
+      html += "<td>" + getGraphLink(item) + "</td>";
       html += "</tr>";
     }
 

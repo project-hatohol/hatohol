@@ -278,7 +278,7 @@ function getMetricPrefix(pow) {
 }
 
 function formatMetricPrefix(value, unit, step, pow, digits) {
-  var text, maxPow = 6;
+  var text, maxPow = 6, unit;
   var blackList = {
     '%': true,
     'ms': true,
@@ -310,8 +310,10 @@ function formatMetricPrefix(value, unit, step, pow, digits) {
     return value + " " + escapeHTML(unit);
 
   text = value / Math.pow(step, pow);
-  text = text.toPrecision(digits);
-  text += " " + getMetricPrefix(pow) + escapeHTML(unit);
+  text = text.toPrecision(digits).replace(/(?:\.0+|(\.\d+?)0+)$/, "$1");
+  unit = getMetricPrefix(pow) + escapeHTML(unit);
+  if (unit)
+    text += " " + unit;
   return text;
 }
 

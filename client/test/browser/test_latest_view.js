@@ -14,6 +14,18 @@ describe('LatestView', function() {
       "unit": "%",
       "valueType": hatohol.ITEM_INFO_VALUE_TYPE_FLOAT,
     },
+    {
+      "id": 2,
+      "serverId": 1,
+      "hostId": "10101",
+      "brief": "host name",
+      "lastValueTime": 1415232279,
+      "lastValue": "host1",
+      "prevValue": "host1",
+      "itemGroupName": "group1",
+      "unit": "",
+      "valueType": hatohol.ITEM_INFO_VALUE_TYPE_STRING,
+    },
   ];
   var defaultServers = {
     "1": {
@@ -49,23 +61,10 @@ describe('LatestView', function() {
     this.xhr.restore();
   }
 
-  function respondUserConfig(configJson) {
-    var request = this.requests[0];
-    if (!configJson)
-      configJson = '{}';
-    request.respond(200, { "Content-Type": "application/json" },
-                    configJson);
-  }
-
-  function respondItems(itemsJson) {
-    var request = this.requests[1];
-    request.respond(200, { "Content-Type": "application/json" },
-                    itemsJson);
-  }
-
-  function respond(itemsJson, configJson) {
-    respondUserConfig(configJson);
-    respondItems(itemsJson);
+  function respond(configJson, itemsJson) {
+    var header = { "Content-Type": "application/json" };
+    this.requests[0].respond(200, header, configJson);
+    this.requests[1].respond(200, header, itemsJson);
   }
   
   beforeEach(function(done) {
@@ -76,22 +75,23 @@ describe('LatestView', function() {
       fakeAjax();
       done();
     };
-
-    $('body').append($('<div>', { id: TEST_FIXTURE_ID }));
-
-    if (viewHTML) {
-      setupFixture();
-    } else {
-      var iframe = $("<iframe>", {
+    var loadFixture = function() {
+      $("#" + TEST_FIXTURE_ID).append($("<iframe>", {
         id: "fixtureFrame",
         src: "../../ajax_latest?start=false",
         load: function() {
           viewHTML = $("#" + contentId, this.contentDocument).html();
           setupFixture();
         }
-      });
-      $("#" + TEST_FIXTURE_ID).append(iframe);
-    }
+      }));
+    };
+
+    $('body').append($('<div>', { id: TEST_FIXTURE_ID }));
+
+    if (viewHTML)
+      setupFixture();
+    else
+      loadFixture();
   });
 
   afterEach(function() {
@@ -101,15 +101,16 @@ describe('LatestView', function() {
 
   it('new with empty data', function() {
     var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
-    respond(itemsJson());
+    respond('{}', itemsJson());
     var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
     expect(heads).to.have.length(1);
     expect($('#table')).to.have.length(1);
   });
 
-  it('An item row', function() {
+  it('Float item', function() {
     var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
     var zabbixURL = "http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=1";
+    var historyURL= "ajax_history?serverId=1&amp;hostId=10101&amp;itemId=1";
     var expected = 
       '<td>Zabbix</td>' +
       '<td>Host1</td>' +
@@ -119,16 +120,37 @@ describe('LatestView', function() {
       formatDate(1415232279) + 
       '</td>' +
       '<td>54.28 %</td>' +
-      '<td>24.59 %</td>';
-    respond(itemsJson(defaultItems, defaultServers));
+      '<td>24.59 %</td>'+
+      '<td><a href="' + historyURL + '">Graph</a></td>';
+    respond('{}', itemsJson(defaultItems, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultItems.length + 1);
     expect($('tr :eq(1)').html()).to.be(expected);
   });
 
+  it('String item', function() {
+    var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
+    var zabbixURL = "http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=2";
+    var expected = 
+      '<td>Zabbix</td>' +
+      '<td>Host1</td>' +
+      '<td>group1</td>' +
+      '<td><a href="' + zabbixURL + '">host name</a></td>' +
+      '<td data-sort-value="1415232279">' +
+      formatDate(1415232279) + 
+      '</td>' +
+      '<td>host1</td>' +
+      '<td>host1</td>'+
+      '<td></td>';
+    respond('{}', itemsJson(defaultItems, defaultServers));
+    expect($('#table')).to.have.length(1);
+    expect($('tr')).to.have.length(defaultItems.length + 1);
+    expect($('tr :eq(2)').html()).to.be(expected);
+  });
+
   it('default page size', function() {
     var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
-    respond(itemsJson());
+    respond('{}', itemsJson());
     expect($('#num-records-per-page').val()).to.be("50");
   });
 });
