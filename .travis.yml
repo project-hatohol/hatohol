@@ -9,7 +9,7 @@ env:
   - RUN_TEST="env MLPL_LOGGER_LEVEL=WARN ./server/mlpl/test/run-test.sh"
   - RUN_TEST="cd server/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh"
   - RUN_TEST="cd server/tools/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh"
-  - RUN_TEST="cd client/test/python && ./run-test.sh"
+  - RUN_TEST="client/test/python/run-test.sh"
   - RUN_TEST="test/launch-hatohol-for-test.sh && mocha-phantomjs http://localhost:8000/test/index.html"
   - RUN_TEST="./test/dist-check.sh"
 matrix:

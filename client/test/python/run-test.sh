@@ -5,6 +5,8 @@
 # $ ./run-tesh.sh TestUserConfig.TestUserConfig.test_get_integer
 #
 
+cd "$(dirname "$0")"
+
 testcase=""
 if [ $# -ge 1 ]; then
   testcase=$1
