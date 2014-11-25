@@ -161,6 +161,10 @@ typedef std::vector<HostIdType>      HostIdVector;
 typedef HostIdVector::iterator       HostIdVectorIterator;
 typedef HostIdVector::const_iterator HostIdVectorConstIterator;
 
+typedef std::set<HostIdType>      HostIdSet;
+typedef HostIdSet::iterator       HostIdSetIterator;
+typedef HostIdSet::const_iterator HostIdSetConstIterator;
+
 typedef std::set<IncidentTrackerIdType>      IncidentTrackerIdSet;
 typedef IncidentTrackerIdSet::iterator       IncidentTrackerIdSetIterator;
 typedef IncidentTrackerIdSet::const_iterator IncidentTrackerIdSetConstIterator;

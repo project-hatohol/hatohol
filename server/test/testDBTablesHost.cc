@@ -362,6 +362,7 @@ void test_getHypervisorWithUserWhoCanAccessAllHostgroup(gconstpointer data)
 	loadTestDBAccessList();
 	loadTestDBServerHostDef();
 	loadTestDBVMInfo();
+	loadTestDBHostHostgroup();
 
 	const gboolean allowedUser = gcut_data_get_boolean(data, "allowed");
 	const ServerHostDef &targetServerHostDef = testServerHostDef[0];
@@ -407,6 +408,89 @@ void test_getHypervisorWithUserWhoCanAccessAllHostgroup(gconstpointer data)
 	} else {
 		assertHatoholError(HTERR_NOT_FOUND_HYPERVISOR, err);
 	}
+}
+
+void data_getVirtualMachines(void)
+{
+	UserIdSet userIdSet;
+	userIdSet.insert(USER_ID_SYSTEM);
+	for (size_t i = 0; i < NumTestAccessInfo; ++i)
+		userIdSet.insert(testAccessInfo[i].userId);
+
+	UserIdSetConstIterator userIdItr = userIdSet.begin();
+	for (; userIdItr != userIdSet.end(); ++userIdItr) {
+		string uidStr = StringUtils::sprintf("uid:%d", *userIdItr);
+		gcut_add_datum(uidStr.c_str(),
+		               "userId", G_TYPE_INT, *userIdItr, NULL);
+	}
+}
+
+void test_getVirtualMachines(gconstpointer data)
+{
+	typedef map<HostIdType, HostIdSet> HypervisorVMMap;
+	typedef HypervisorVMMap::iterator  HypervisorVMMapIterator;
+
+	loadTestDBUser();
+	loadTestDBAccessList();
+	loadTestDBServerHostDef();
+	loadTestDBVMInfo();
+	loadTestDBHostHostgroup();
+	DECLARE_DBTABLES_HOST(dbHost);
+
+	const UserIdType userId = gcut_data_get_int(data, "userId");
+
+	// Collect the Hypervisors
+	HypervisorVMMap hypervisorVMMap;
+	size_t hostCount = 0;
+	for (size_t i = 0; i < NumTestVMInfo; i++) {
+		const VMInfo &vminf = testVMInfo[i];
+		if (!isAuthorized(userId, vminf.hostId))
+			continue;
+		hypervisorVMMap[vminf.hypervisorHostId].insert(vminf.hostId);
+		hostCount++;
+	}
+	if (isVerboseMode())
+		cut_notify("<<Number of Hosts>>: %zd", hostCount);
+
+	// Call the test method
+	HostQueryOption option(userId);
+	HypervisorVMMapIterator mapItr = hypervisorVMMap.begin();
+	HypervisorVMMap actualHypervisorVMMap;
+	for (; mapItr != hypervisorVMMap.end(); ++mapItr) {
+		HostIdVector virtualMachines;
+		const HostIdType &hypervisorHostId = mapItr->first;
+		HatoholError err = dbHost.getVirtualMachines(
+		                     virtualMachines, hypervisorHostId, option);
+		assertHatoholError(HTERR_OK, err);
+		for (size_t i = 0; i < virtualMachines.size(); i++) {
+			const HostIdType &hid = virtualMachines[i];
+			actualHypervisorVMMap[hypervisorHostId].insert(hid);
+		}
+	}
+
+	// Check it
+	mapItr = hypervisorVMMap.begin();
+	for (; mapItr != hypervisorVMMap.end(); ++mapItr) {
+		const HostIdType &expectHypervisorId = mapItr->first;
+		HypervisorVMMapIterator actMapItr =
+		  actualHypervisorVMMap.find(expectHypervisorId);
+		cppcut_assert_equal(
+		  true, actMapItr != actualHypervisorVMMap.end());
+		HostIdSet &actualHostIds = actMapItr->second;
+
+		const HostIdSet &expectHostIds = mapItr->second;
+		HostIdSetConstIterator expHostIdItr = expectHostIds.begin();
+		for (; expHostIdItr != expectHostIds.end(); ++expHostIdItr) {
+			HostIdSetIterator actHostItr =
+			  actualHostIds.find(*expHostIdItr);
+			cppcut_assert_equal(
+			  true, actHostItr != actualHostIds.end());
+			actualHostIds.erase(actHostItr);
+		}
+		cppcut_assert_equal(true, actualHostIds.empty());
+		actualHypervisorVMMap.erase(actMapItr);
+	}
+	cppcut_assert_equal(true, actualHypervisorVMMap.empty());
 }
 
 } // namespace testDBTablesHost

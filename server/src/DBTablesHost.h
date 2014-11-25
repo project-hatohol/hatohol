@@ -136,12 +136,16 @@ public:
 	 * @param hypervisorHostId
 	 * A target host ID.
 	 *
+	 * @param option
+	 * A HostQueryOption instance.
+	 *
 	 * @param return
 	 * If the search is successfully done, HTERR_OK is returned even when
 	 * there's no virtual machines.
 	 */
 	HatoholError getVirtualMachines(HostIdVector &virtualMachines,
-	                                const HostIdType &hypervisorHostId);
+	                                const HostIdType &hypervisorHostId,
+	                                const HostQueryOption &option);
 	/**
 	 * Get the hyperviosr.
 	 *

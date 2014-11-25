@@ -676,9 +676,24 @@ AccessInfo testAccessInfo[] = {
 	1,                 // hostgroupId
 }, {
 	0,                 // id
+	3,                 // userId
+	211,               // serverId
+	123,               // hostgroupId
+}, {
+	0,                 // id
 	5,                 // userId
 	1,                 // serverId
 	ALL_HOST_GROUPS,   // hostgroupId
+}, {
+	0,                 // id
+	6,                 // userId
+	211,               // serverId
+	124,               // hostgroupId
+}, {
+	0,                 // id
+	6,                 // userId
+	222,               // serverId
+	124,               // hostgroupId
 }, {
 	0,                 // id
 	userIdWithMultipleAuthorizedHostgroups, // userId
@@ -1077,6 +1092,30 @@ const ServerHostDef testServerHostDef[] = {
 	211,                             // serverId
 	"200",                           // host_id_in_server
 	"host 200",                      // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2111,                            // hostId
+	211,                             // serverId
+	"12111",                         // host_id_in_server
+	"host 12111",                     // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2112,                            // hostId
+	211,                             // serverId
+	"12112",                         // host_id_in_server
+	"host 12112",                     // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2113,                            // hostId
+	211,                             // serverId
+	"12113",                         // host_id_in_server
+	"host 12113",                     // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	10005,                           // hostId
+	222,                             // serverId
+	"110005",                        // host_id_in_server
+	"host 110005",                    // name
 }
 };
 const size_t NumTestServerHostDef = ARRAY_SIZE(testServerHostDef);
@@ -1086,9 +1125,51 @@ const VMInfo testVMInfo[] = {
 	AUTO_INCREMENT_VALUE,            // id
 	2111,                            // hostId
 	1050,                            // hypervisorHostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2112,                            // hostId
+	1050,                            // hypervisorHostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2113,                            // hostId
+	1050,                            // hypervisorHostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	10005,                           // hostId
+	1080,                            // hypervisorHostId
 }
 };
 const size_t NumTestVMInfo = ARRAY_SIZE(testVMInfo);
+
+const HostHostgroup testHostHostgroup[] = {
+{
+	AUTO_INCREMENT_VALUE,            // id
+	211,                             // serverId
+	"200",                           // hostIdInServer
+	"0",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	211,                             // serverId
+	"12111",                         // hostIdInServer
+	"123",                           // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	211,                             // serverId
+	"12112",                         // hostIdInServer
+	"123",                           // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	211,                             // serverId
+	"12113",                         // hostIdInServer
+	"124",                           // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	222,                             // serverId
+	"110005",                        // hostIdInServer
+	"124",                           // hostgroupIdInServer
+}
+};
+const size_t NumTestHostHostgroup = ARRAY_SIZE(testHostHostgroup);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
@@ -1254,6 +1335,31 @@ static const set<string> &getHostgroupElementPackSet(void)
 		cppcut_assert_equal(true, result.second);
 	}
 	return hostgroupElementPackSet;
+}
+
+static const set<string> &getHostHostgroupPackSet(void)
+{
+	static set<string> hostHGrpPackSet;
+	if (!hostHGrpPackSet.empty())
+		return hostHGrpPackSet;
+	for (size_t i = 0; i < NumTestHostHostgroup; i++) {
+		const HostHostgroup &hhgr = testHostHostgroup[i];
+
+		HostIdType hostId;
+		HostgroupIdType hostgroupId;
+		cppcut_assert_equal(
+		  1, sscanf(hhgr.hostIdInServer.c_str(),
+		            "%" FMT_HOST_ID, &hostId));
+		cppcut_assert_equal(
+		  1, sscanf(hhgr.hostgroupIdInServer.c_str(),
+		            "%" FMT_HOST_GROUP_ID, &hostgroupId));
+		const string mash =
+		  makeHostgroupElementPack(hhgr.serverId, hostId, hostgroupId);
+		pair<set<string>::iterator, bool> result =
+		  hostHGrpPackSet.insert(mash);
+		cppcut_assert_equal(true, result.second);
+	}
+	return hostHGrpPackSet;
 }
 
 static bool isInHostgroup(const TriggerInfo &trigInfo,
@@ -1502,7 +1608,8 @@ void makeServerHostGrpSetMap(ServerHostGrpSetMap &map, const UserIdType &userId)
 
 bool isAuthorized(
   ServerHostGrpSetMap &authMap, const UserIdType &userId,
-  const ServerIdType &serverId, const HostIdType &hostId)
+  const ServerIdType &serverId, const HostIdType &hostId,
+  const set<string> *hgrpElementPackSet)
 {
 	if (userId == USER_ID_SYSTEM)
 		return true;
@@ -1526,12 +1633,46 @@ bool isAuthorized(
 		return true;
 
 	// check if the user is allowed to access to the host
-	const set<string> &hgrpElementPackSet = getHostgroupElementPackSet();
+	if (!hgrpElementPackSet)
+		hgrpElementPackSet = &getHostgroupElementPackSet();
 	HostgroupIdSetConstIterator hostgroupIdItr = hostgroupIds.begin();
 	for (; hostgroupIdItr != hostgroupIds.end(); ++hostgroupIdItr) {
 		const string pack =
 		  makeHostgroupElementPack(serverId, hostId, *hostgroupIdItr);
-		if (hgrpElementPackSet.find(pack) != hgrpElementPackSet.end())
+		if (hgrpElementPackSet->find(pack) != hgrpElementPackSet->end())
+			return true;
+	}
+
+	return false;
+}
+
+bool isAuthorized(
+  const UserIdType &userId, const HostIdType &hostId)
+{
+	vector<ServerIdType> serverIds;
+	vector<HostIdType>   hostIds; // Host ID for the server
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		const ServerHostDef svHostDef = testServerHostDef[i];
+		if (svHostDef.hostId != hostId)
+			continue;
+		serverIds.push_back(svHostDef.serverId);
+		HostIdType hostIdInServer;
+		cppcut_assert_equal(
+		  1,
+		  sscanf(svHostDef.hostIdInServer.c_str(), "%" FMT_HOST_ID,
+		         &hostIdInServer));
+		hostIds.push_back(hostIdInServer);
+	}
+	if (serverIds.empty())
+		return false;
+
+	ServerHostGrpSetMap authMap;
+	makeServerHostGrpSetMap(authMap, userId);
+	cppcut_assert_equal(serverIds.size(), hostIds.size());
+	const set<string> &hostHGrpPackSet = getHostHostgroupPackSet();
+	for (size_t i = 0; i < serverIds.size(); i++) {
+		if (isAuthorized(authMap, userId, serverIds[i], hostIds[i],
+		                 &hostHGrpPackSet))
 			return true;
 	}
 
@@ -1861,4 +2002,13 @@ void loadTestDBVMInfo(void)
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestVMInfo; i++)
 		dbHost.upsertVMInfo(testVMInfo[i]);
+}
+
+void loadTestDBHostHostgroup(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestHostHostgroup; i++)
+		dbHost.upsertHostHostgroup(testHostHostgroup[i]);
 }

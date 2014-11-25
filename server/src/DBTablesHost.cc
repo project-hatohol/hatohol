@@ -21,6 +21,7 @@
 #include "DBTablesHost.h"
 #include "ItemGroupStream.h"
 #include "ThreadLocalDBCache.h"
+#include "DBClientJoinBuilder.h"
 using namespace std;
 using namespace mlpl;
 
@@ -424,11 +425,38 @@ GenericIdType DBTablesHost::upsertHostHostgroup(
 	return id;
 }
 
-HatoholError DBTablesHost::getVirtualMachines(HostIdVector &virtualMachines,
-                                              const HostIdType &hypervisorHostId)
+HatoholError DBTablesHost::getVirtualMachines(
+  HostIdVector &virtualMachines, const HostIdType &hypervisorHostId,
+  const HostQueryOption &option)
 {
-	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
-	return HTERR_NOT_IMPLEMENTED;
+	if (option.getUserId() == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	DBAgent::SelectExArg arg(tableProfileVMList);
+	arg.tableField = TABLE_NAME_VM_LIST;
+	arg.add(IDX_HOST_VM_LIST_HOST_ID);
+	const UserIdType userId = option.getUserId();
+	arg.condition = StringUtils::sprintf(
+	  "%s=%" FMT_HOST_ID,
+	  COLUMN_DEF_VM_LIST[IDX_HOST_VM_LIST_HYPERVISOR_HOST_ID].columnName,
+	  hypervisorHostId);
+	getDBAgent().runTransaction(arg);
+
+	// get the result
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		HostIdType hostId;
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		itemGroupStream >> hostId;
+		if (userId != USER_ID_SYSTEM) {
+			if (!isAccessible(hostId, option))
+				continue;
+		}
+		virtualMachines.push_back(hostId);
+	}
+
+	return HTERR_OK;
 }
 
 HatoholError DBTablesHost::getHypervisor(HostIdType &hypervisorHostId,
@@ -475,13 +503,22 @@ bool DBTablesHost::isAccessible(
   const HostIdType &hostId, const HostQueryOption &option)
 {
 	// Get the server ID and host ID (in the server)
-	DBAgent::SelectExArg arg(tableProfileServerHostDef);
-	arg.tableField = tableProfileServerHostDef.name;
-	arg.add(IDX_HOST_SERVER_HOST_DEF_SERVER_ID);
-	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
+	DBClientJoinBuilder builder(tableProfileServerHostDef);
+	builder.add(IDX_HOST_SERVER_HOST_DEF_SERVER_ID);
+
+	// TODO: add a column including host_id and use it
+	builder.addTable(
+	  tableProfileHostHostgroup, DBClientJoinBuilder::INNER_JOIN,
+	  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  IDX_HOST_HOSTGROUP_SERVER_ID,
+	  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
+	  IDX_HOST_HOSTGROUP_HOST_ID);
+	builder.add(IDX_HOST_HOSTGROUP_GROUP_ID);
+
+	DBAgent::SelectExArg &arg = builder.build();
 	arg.condition = StringUtils::sprintf(
 	  "%s=%" FMT_HOST_ID,
-	  COLUMN_DEF_SERVER_HOST_DEF[IDX_HOST_SERVER_HOST_DEF_HOST_ID].columnName, hostId);
+	  tableProfileServerHostDef.getFullColumnName(IDX_HOST_SERVER_HOST_DEF_HOST_ID).c_str(), hostId);
 	getDBAgent().runTransaction(arg);
 
 	// Check accessibility for each server

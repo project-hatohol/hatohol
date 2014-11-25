@@ -171,7 +171,18 @@ void makeEventIncidentMap(std::map<std::string, IncidentInfo*> &eventIncidentMap
 bool isAuthorized(ServerHostGrpSetMap &authMap,
                   const UserIdType &userId,
                   const ServerIdType &serverId,
-                  const HostIdType &hostId = ALL_HOSTS);
+                  const HostIdType &hostId = ALL_HOSTS,
+                  const std::set<std::string> *hgrpElementPackSet = NULL);
+
+/**
+ * Check if the user can access to the host.
+ *
+ * @param userId A user ID.
+ * @param hostId A host ID in host_list table.
+ *
+ * @return true if the user is allowed to access to the host.
+ */
+bool isAuthorized(const UserIdType &userId, const HostIdType &hostId);
 
 size_t findIndexFromTestActionDef(const UserIdType &userId);
 size_t findIndexFromTestActionDef(const ActionType &type);
@@ -241,6 +252,7 @@ void loadTestDBIncidentTracker(void);
 
 void loadTestDBServerHostDef(void);
 void loadTestDBVMInfo(void);
+void loadTestDBHostHostgroup(void);
 
 #endif // DBClientTest_h
 
