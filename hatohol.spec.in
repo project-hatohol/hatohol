@@ -116,9 +116,11 @@ rm -rf %{buildroot}
 %make_install
 %if %is_el6
 install -D -m 644 %{buildroot}/%{_libexecdir}/hatohol/client/conf/apache/hatohol.conf.package6 %{buildroot}/%{_sysconfdir}/httpd/conf.d/hatohol.conf
+install -D -m 755 %{buildroot}/%{_datadir}/hatohol/hatohol.centos %{buildroot}/%{_sysconfdir}/init.d/hatohol
 %endif
 %if %is_el7
 install -D -m 644 %{buildroot}/%{_libexecdir}/hatohol/client/conf/apache/hatohol.conf.package7 %{buildroot}/%{_sysconfdir}/httpd/conf.d/hatohol.conf
+install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hatohol.service %{buildroot}/%{_unitdir}/hatohol.service
 %endif
 
 rm -f %{buildroot}/%{_libdir}/*.la
@@ -127,11 +129,9 @@ rm -f %{buildroot}/%{_libdir}/*.a
 %post
 /sbin/ldconfig
 %if %is_el6
-install -D -m 755 %{_datadir}/hatohol/hatohol.centos /etc/init.d/hatohol
 /sbin/chkconfig --add hatohol
 %endif
 %if %is_el7
-install -D -m 644 %{_datadir}/hatohol/hatohol.service %{_unitdir}
 /usr/bin/systemctl daemon-reload
 %endif
 mkdir -p %{_sysconfdir}/hatohol
@@ -144,7 +144,6 @@ mkdir -p %{_sysconfdir}/hatohol
 %endif
 %if %is_el7
 /usr/bin/systemctl stop hatohol
-rm /usr/lib/systemd/system/hatohol.service
 /usr/bin/systemctl daemon-reload
 %endif
 
@@ -163,6 +162,12 @@ rm -rf %{buildroot}
 %{_datadir}/hatohol/hatohol.debian
 %{_datadir}/hatohol/hatohol.service
 %{_sysconfdir}/hatohol/hatohol.conf
+%if %is_el6
+%{_sysconfdir}/init.d/hatohol
+%endif
+%if %is_el7
+%{_unitdir}/hatohol.service
+%endif
 %{_datadir}/hatohol/sql/create-db.sql
 %{_datadir}/hatohol/sql/init-user.sql
 %{_datadir}/hatohol/sql/server-type.sql
