@@ -84,11 +84,13 @@ void test_upsertServerHostDef(void)
 	svHostDef.serverId = 15;
 	svHostDef.hostIdInServer = "8023455";
 	svHostDef.name = "test host name";
+	svHostDef.status = HOST_STAT_NORMAL;
 
 	DECLARE_DBTABLES_HOST(dbHost);
 	GenericIdType id = dbHost.upsertServerHostDef(svHostDef);
 	const string expect = StringUtils::sprintf(
-	  "%" FMT_GEN_ID "|12345|15|8023455|test host name", id);
+	  "%" FMT_GEN_ID "|12345|15|8023455|test host name|%d",
+	  id, HOST_STAT_NORMAL);
 	const string statement = "SELECT * FROM server_host_def";
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
@@ -102,13 +104,15 @@ void test_upsertServerHostDefAutoIncrement(void)
 	svHostDef.serverId = 15;
 	svHostDef.hostIdInServer = "8023455";
 	svHostDef.name = "test host name";
+	svHostDef.status = HOST_STAT_NORMAL;
 
 	DECLARE_DBTABLES_HOST(dbHost);
 	GenericIdType id0 = dbHost.upsertServerHostDef(svHostDef);
 	GenericIdType id1 = dbHost.upsertServerHostDef(svHostDef);
 	const string expect = StringUtils::sprintf(
-	  "%" FMT_GEN_ID "|12345|15|8023455|test host name\n"
-	  "%" FMT_GEN_ID "|12345|15|8023455|test host name", id0, id1);
+	  "%" FMT_GEN_ID "|12345|15|8023455|test host name|%d\n"
+	  "%" FMT_GEN_ID "|12345|15|8023455|test host name|%d",
+	  id0, HOST_STAT_NORMAL, id1, HOST_STAT_NORMAL);
 	const string statement = "SELECT * FROM server_host_def ORDER BY id";
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id0);
@@ -123,6 +127,7 @@ void test_upsertServerHostDefUpdate(void)
 	svHostDef.serverId = 15;
 	svHostDef.hostIdInServer = "8023455";
 	svHostDef.name = "test host name";
+	svHostDef.status = HOST_STAT_NORMAL;
 
 	DECLARE_DBTABLES_HOST(dbHost);
 	GenericIdType id0 = dbHost.upsertServerHostDef(svHostDef);
@@ -130,7 +135,8 @@ void test_upsertServerHostDefUpdate(void)
 	svHostDef.name = "dog-dog-dog";
 	GenericIdType id1 = dbHost.upsertServerHostDef(svHostDef);
 	const string expect = StringUtils::sprintf(
-	  "%" FMT_GEN_ID "|12345|15|8023455|dog-dog-dog", id1);
+	  "%" FMT_GEN_ID "|12345|15|8023455|dog-dog-dog|%d",
+	  id1, HOST_STAT_NORMAL);
 	const string statement = "SELECT * FROM server_host_def";
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id0);
@@ -145,12 +151,14 @@ void test_upsertServerHostDefUpdateByServerAndHost(void)
 	svHostDef.serverId = 15;
 	svHostDef.hostIdInServer = "8023455";
 	svHostDef.name = "test host name";
+	svHostDef.status = HOST_STAT_NORMAL;
 
 	DECLARE_DBTABLES_HOST(dbHost);
 	svHostDef.name = "dog-dog-dog";
 	GenericIdType id = dbHost.upsertServerHostDef(svHostDef);
 	const string expect = StringUtils::sprintf(
-	  "%" FMT_GEN_ID "|12345|15|8023455|dog-dog-dog", id);
+	  "%" FMT_GEN_ID "|12345|15|8023455|dog-dog-dog|%d",
+	  id, HOST_STAT_NORMAL);
 	const string statement = "SELECT * FROM server_host_def";
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
