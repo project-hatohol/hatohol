@@ -36,7 +36,8 @@ EXTRA_DIST = \
 	python/__init__.py \
 	python/run-test.sh \
 	python/testsettings.py \
-	python/utils.py
+	python/utils.py \
+	python/hatohol_server_emulator.py
 
 node_modules:
 	ln -sf `npm root -g`
