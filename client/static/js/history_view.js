@@ -167,17 +167,21 @@ var HistoryView = function(userProfile, options) {
     var endTimeInSec = self.lastQuery.endTime;
     if (!self.sliderTimeRange || !historyQuery.endTime) {
       self.sliderTimeRange = {
-        min: self.lastQuery.endTime - secondsInHour * 24,
+        min: self.lastQuery.endTime - secondsInHour * 24 * 7,
         max: self.lastQuery.endTime
       }
     }
     var timeRange = {
       last: [beginTimeInSec, endTimeInSec],
       minSpan: secondsInHour,
+      maxSpan: secondsInHour * 24,
       min: self.sliderTimeRange.min,
       max: self.sliderTimeRange.max,
       set: function(range) {
         this.last = range.slice();
+        if (this.last[1] - this.last[0] > this.maxSpan) {
+          this.last[0] = this.last[1] - this.maxSpan;
+        }
         if (this.last[1] - this.last[0] < this.minSpan) {
           if (this.last[0] + this.minSpan >= this.max) {
             this.last[1] = this.max;
