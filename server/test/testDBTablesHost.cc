@@ -275,6 +275,43 @@ void test_upsertVMInfoUpdate(void)
 	cppcut_assert_equal(id0, id1);
 }
 
+void test_upsertHostgroupList(void)
+{
+	Hostgroup hostgroup;
+	hostgroup.id = AUTO_INCREMENT_VALUE;
+	hostgroup.serverId = 52;
+	hostgroup.idInServer = "88664422";
+	hostgroup.name = "foo-group";
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	GenericIdType id = dbHost.upsertHostgroup(hostgroup);
+	const string expect = StringUtils::sprintf(
+	  "%" FMT_GEN_ID "|52|88664422|foo-group", id);
+	const string statement = "SELECT * FROM hostgroup_list";
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
+}
+
+void test_upsertHostgroupListUpdate(void)
+{
+	Hostgroup hostgroup;
+	hostgroup.id = AUTO_INCREMENT_VALUE;
+	hostgroup.serverId = 52;
+	hostgroup.idInServer = "88664422";
+	hostgroup.name = "new group";
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	GenericIdType id0 = dbHost.upsertHostgroup(hostgroup);
+	hostgroup.id = id0;
+	GenericIdType id1 = dbHost.upsertHostgroup(hostgroup);
+	const string expect = StringUtils::sprintf(
+	  "%" FMT_GEN_ID "|52|88664422|new group", id1);
+	const string statement = "SELECT * FROM hostgroup_list";
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id0);
+	cppcut_assert_equal(id0, id1);
+}
+
 void test_upsertHostHostgroup(void)
 {
 	HostHostgroup hostHostgroup;
