@@ -29,6 +29,7 @@ static const char *TABLE_NAME_HOST_LIST       = "host_list";
 static const char *TABLE_NAME_SERVER_HOST_DEF = "server_host_def";
 static const char *TABLE_NAME_HOST_ACCESS     = "host_access";
 static const char *TABLE_NAME_VM_LIST         = "vm_list";
+static const char *TABLE_NAME_HOSTGROUP_LIST  = "hostgroup_list";
 static const char *TABLE_NAME_HOST_HOSTGROUP  = "host_hostgroup";
 
 const int DBTablesHost::TABLES_VERSION = 2;
@@ -258,6 +259,71 @@ static const DBAgent::TableProfile tableProfileVMList =
 			    COLUMN_DEF_VM_LIST,
 			    NUM_IDX_VM_LIST);
 
+static const ColumnDef COLUMN_DEF_HOSTGROUP_LIST[] = {
+{
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+}, {
+	"server_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE, // indexDefsHostgroups // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"host_group_id",                   // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"group_name",                      // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+enum {
+	IDX_HOSTGROUP_LIST_ID,
+	IDX_HOSTGROUP_LIST_SERVER_ID,
+	IDX_HOSTGROUP_LIST_GROUP_ID,
+	IDX_HOSTGROUP_LIST_GROUP_NAME,
+	NUM_IDX_HOSTGROUP_LIST,
+};
+
+static const int columnIndexesHostgroupListUniqId[] = {
+  IDX_HOSTGROUP_LIST_SERVER_ID, IDX_HOSTGROUP_LIST_GROUP_ID,
+  DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsHostgroupList[] = {
+  {"HostgroupListUniqId", (const int *)columnIndexesHostgroupListUniqId, true},
+  {NULL}
+};
+
+static const DBAgent::TableProfile tableProfileHostgroupList =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOSTGROUP_LIST,
+			    COLUMN_DEF_HOSTGROUP_LIST,
+			    NUM_IDX_HOSTGROUP_LIST,
+			    indexDefsHostgroupList);
+
+
 static const ColumnDef COLUMN_DEF_HOST_HOSTGROUP[] = {
 {
 	"id",                              // columnName
@@ -322,7 +388,6 @@ static const DBAgent::TableProfile tableProfileHostHostgroup =
 			    COLUMN_DEF_HOST_HOSTGROUP,
 			    NUM_IDX_HOST_HOSTGROUP,
 			    indexDefsHostHostgroup);
-
 
 struct DBTablesHost::Impl
 {
@@ -573,6 +638,8 @@ DBTables::SetupInfo &DBTablesHost::getSetupInfo(void)
 		&tableProfileHostAccess,
 	}, {
 		&tableProfileVMList,
+	}, {
+		&tableProfileHostgroupList,
 	}, {
 		&tableProfileHostHostgroup,
 	}
