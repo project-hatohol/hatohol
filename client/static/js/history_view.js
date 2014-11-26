@@ -20,6 +20,7 @@
 var HistoryView = function(userProfile, options) {
   var self = this;
   var itemQuery, historyQuery;
+  var secondsInHour = 60 * 60;
 
   self.reloadIntervalSeconds = 60;
   self.replyItem = null;
@@ -116,13 +117,15 @@ var HistoryView = function(userProfile, options) {
   }
 
   function drawGraph(item, history) {
+    var beginTimeInSec = self.lastQuery.endTime - self.timeSpan;
+    var endTimeInSec = self.lastQuery.endTime;
     var options = {
       xaxis: {
         mode: "time",
         timezone: "browser",
         tickFormatter: timeTickFormatter,
-        min: (self.lastQuery.endTime - self.timeSpan) * 1000,
-        max: self.lastQuery.endTime * 1000,
+        min: beginTimeInSec * 1000,
+        max: endTimeInSec * 1000,
       },
       yaxis: {
         min: 0,
@@ -165,7 +168,6 @@ var HistoryView = function(userProfile, options) {
 
   function getHistoryQuery() {
     var query = $.extend({}, historyQuery);
-    var secondsInHour = 60 * 60;
     var defaultTimeSpan = secondsInHour * 6;
     var lastReply, lastData, now;
 
