@@ -89,6 +89,12 @@ div#noscript-background div#noscript-notice
     margin-bottom: 2em;
 }
 
+#item-graph-slider {
+    margin-left: 1em;
+    margin-right: 1em;
+    margin-bottom: 2em;
+}
+
 .legend table td {
   padding: 2px;
 }
