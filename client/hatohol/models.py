@@ -97,3 +97,8 @@ class UserConfig(models.Model):
             value = items[name]
             user_conf = UserConfig(item_name=name, user_id=user_id, value=value)
             user_conf._store_without_transaction()
+
+
+class LogSearchSystem(models.Model):
+    type = models.CharField(max_length=128)
+    base_url = models.CharField(max_length=512)
