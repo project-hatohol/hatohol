@@ -19,6 +19,7 @@ nobase_dist_hatohol_client_DATA = \
 	hatohol/hatohol_def.py \
 	hatohol/hatoholserver.py \
 	hatohol/models.py \
+	hatohol/views.py \
 	hatohol/smartfield.py \
 	static/css/hatohol.css \
 	static/css/zabbix.css \
