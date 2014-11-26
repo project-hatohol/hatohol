@@ -28,6 +28,7 @@ var HistoryView = function(userProfile, options) {
   self.timeSpan = null;
   self.plotData = null;
   self.plotOptions = null;
+  self.plot = null;
 
   if (!options)
     options = {};
@@ -43,6 +44,9 @@ var HistoryView = function(userProfile, options) {
       id: "item-graph",
       height: "300px",
     }));
+    $("#main").append($("<div>", {
+      id: "item-graph-slider",
+    }));
 
     $("#item-graph").bind("plotselected", function (event, ranges) {
       // clamp the zooming to prevent eternal zoom
@@ -57,11 +61,16 @@ var HistoryView = function(userProfile, options) {
 	yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
       });
       $.plot("#item-graph", self.plotData, options);
+
+      setSliderTimeRange(Math.floor(ranges.xaxis.from / 1000),
+                         Math.floor(ranges.xaxis.to / 1000));
     });
 
     // zoom cancel
     $("#item-graph").bind("dblclick", function (event) {
       $.plot("#item-graph", self.plotData, self.plotOptions);
+      setSliderTimeRange(self.plotOptions.xaxis.min / 1000,
+                         self.plotOptions.xaxis.max / 1000);
     });
   };
 
@@ -149,8 +158,71 @@ var HistoryView = function(userProfile, options) {
       options.points.show = true;
 
     self.plotOptions = options;
+    self.plot = $.plot($("#item-graph"), history, self.plotOptions);
 
-    $.plot($("#item-graph"), history, self.plotOptions);
+    // slider
+    var timeRange = {
+      last: [beginTimeInSec, endTimeInSec],
+      minSpan: secondsInHour,
+      min: self.lastQuery.endTime - secondsInHour * 24,
+      max: self.lastQuery.endTime,
+      set: function(range) {
+        this.last = range.slice();
+        if (this.last[1] - this.last[0] < this.minSpan) {
+          if (this.last[0] + this.minSpan >= this.max) {
+            this.last[1] = this.max;
+            this.last[0] = this.max - this.minSpan;
+          } else {
+            this.last[1] = this.last[0] + this.minSpan;
+          }
+        }
+      },
+      get: function() {
+        return this.last;
+      },
+      getSpan: function() {
+        return this.last[1] - this.last[0];
+      },
+    }
+
+    $("#item-graph-slider").slider({
+      range: true,
+      min: timeRange.min,
+      max: timeRange.max,
+      values: timeRange.last,
+      change: function(event, ui) {
+        timeRange.set(ui.values);
+        setSliderTimeRange(timeRange.last[0], timeRange.last[1]);
+        setGraphTimeRange(timeRange.last[0], timeRange.last[1]);
+      },
+      slide: function(event, ui) {
+        var beginTime = ui.values[0], endTime = ui.values[1];
+
+        if (timeRange.last[0] != ui.values[0])
+          endTime = ui.values[0] + timeRange.getSpan();
+        if (ui.values[1] - ui.values[0] < timeRange.minSpan)
+          beginTime = ui.values[1] - timeRange.minSpan;
+        timeRange.set([beginTime, endTime]);
+        setSliderTimeRange(timeRange.last[0], timeRange.last[1]);
+      },
+    });
+  }
+
+  function setSliderTimeRange(min, max) {
+    var values = $("#item-graph-slider").slider("values");
+    if (min != values[0])
+      $("#item-graph-slider").slider("values", 0, min);
+    if (max != values[1])
+      $("#item-graph-slider").slider("values", 1, max);
+  }
+
+  function setGraphTimeRange(min, max) {
+    $.each(self.plot.getXAxes(), function(index, axis) {
+      axis.options.min = min * 1000;
+      axis.options.max = max * 1000;
+    });
+    self.plot.setupGrid();
+    self.plot.draw();
   }
 
   function updateView(reply) {
