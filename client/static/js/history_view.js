@@ -29,6 +29,7 @@ var HistoryView = function(userProfile, options) {
   self.plotData = null;
   self.plotOptions = null;
   self.plot = null;
+  self.sliderTimeRange = null;
 
   if (!options)
     options = {};
@@ -164,11 +165,17 @@ var HistoryView = function(userProfile, options) {
   function drawSlider() {
     var beginTimeInSec = self.lastQuery.endTime - self.timeSpan;
     var endTimeInSec = self.lastQuery.endTime;
+    if (!self.sliderTimeRange || !historyQuery.endTime) {
+      self.sliderTimeRange = {
+        min: self.lastQuery.endTime - secondsInHour * 24,
+        max: self.lastQuery.endTime
+      }
+    }
     var timeRange = {
       last: [beginTimeInSec, endTimeInSec],
       minSpan: secondsInHour,
-      min: self.lastQuery.endTime - secondsInHour * 24,
-      max: self.lastQuery.endTime,
+      min: self.sliderTimeRange.min,
+      max: self.sliderTimeRange.max,
       set: function(range) {
         this.last = range.slice();
         if (this.last[1] - this.last[0] < this.minSpan) {
@@ -194,9 +201,20 @@ var HistoryView = function(userProfile, options) {
       max: timeRange.max,
       values: timeRange.last,
       change: function(event, ui) {
+        if (self.settingSliderTimeRange)
+          return;
+        if (self.loadingHistory)
+          return;
+
         timeRange.set(ui.values);
         setSliderTimeRange(timeRange.last[0], timeRange.last[1]);
         setGraphTimeRange(timeRange.last[0], timeRange.last[1]);
+
+        self.plotData = null;
+        historyQuery.beginTime = timeRange.last[0];
+        historyQuery.endTime = timeRange.last[1];
+        self.timeSpan = timeRange.last[1] - timeRange.last[0];
+        loadHistory();
       },
       slide: function(event, ui) {
         var beginTime = ui.values[0], endTime = ui.values[1];
@@ -212,11 +230,15 @@ var HistoryView = function(userProfile, options) {
   }
 
   function setSliderTimeRange(min, max) {
+    if (self.settingSliderTimeRange)
+      return;
+    self.settingSliderTimeRange = true;
     var values = $("#item-graph-slider").slider("values");
     if (min != values[0])
       $("#item-graph-slider").slider("values", 0, min);
     if (max != values[1])
       $("#item-graph-slider").slider("values", 1, max);
+    self.settingSliderTimeRange = false;
   }
 
   function setGraphTimeRange(min, max) {
@@ -316,10 +338,13 @@ var HistoryView = function(userProfile, options) {
     } else {
       if (!historyQuery.endTime)
         self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
+      self.loadingHistory = false;
     }
   }
 
   function loadHistory() {
+    self.clearAutoReload();
+    self.loadingHistory = true;
     self.startConnection(getHistoryQuery(), onLoadHistory);
   }
 
