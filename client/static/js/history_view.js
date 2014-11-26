@@ -51,14 +51,14 @@ var HistoryView = function(userProfile, options) {
     $("#item-graph").bind("plotselected", function (event, ranges) {
       // clamp the zooming to prevent eternal zoom
       if (ranges.xaxis.to - ranges.xaxis.from < 60 * 1000) {
-	ranges.xaxis.from -= 30 * 1000;
-	ranges.xaxis.to = ranges.xaxis.from + 60 * 1000;
+        ranges.xaxis.from -= 30 * 1000;
+        ranges.xaxis.to = ranges.xaxis.from + 60 * 1000;
       }
 
       // zoom
       var options = $.extend(true, {}, self.plotOptions, {
-	xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
-	yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
+        xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
+        yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
       });
       $.plot("#item-graph", self.plotData, options);
 
@@ -113,8 +113,8 @@ var HistoryView = function(userProfile, options) {
     if (now.getFullYear() != date.getFullYear())
       format += "%Y/";
     if (now.getFullYear() != date.getFullYear() ||
-	now.getMonth() != date.getMonth() ||
-	now.getDate() != date.getDate()) {
+        now.getMonth() != date.getMonth() ||
+        now.getDate() != date.getDate()) {
       format += "%m/%d ";
     }
     if (unit == "hour" || unit == "minute" || unit == "second")
@@ -311,7 +311,7 @@ var HistoryView = function(userProfile, options) {
       loadHistory();
     } else {
       if (!historyQuery.endTime)
-	self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
+        self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
     }
   }
 
