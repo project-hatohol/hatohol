@@ -159,8 +159,11 @@ var HistoryView = function(userProfile, options) {
 
     self.plotOptions = options;
     self.plot = $.plot($("#item-graph"), history, self.plotOptions);
+  }
 
-    // slider
+  function drawSlider() {
+    var beginTimeInSec = self.lastQuery.endTime - self.timeSpan;
+    var endTimeInSec = self.lastQuery.endTime;
     var timeRange = {
       last: [beginTimeInSec, endTimeInSec],
       minSpan: secondsInHour,
@@ -232,6 +235,7 @@ var HistoryView = function(userProfile, options) {
     appendPlotData(self.plotData, reply);
     self.displayUpdateTime();
     drawGraph(item, self.plotData);
+    drawSlider();
   }
 
   function getItemQuery() {
