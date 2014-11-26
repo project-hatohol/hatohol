@@ -299,10 +299,16 @@ HatoholMonitoringView.prototype.startConnection =
 HatoholMonitoringView.prototype.setAutoReload =
   function(reloadFunc, intervalSeconds)
 {
-  if (this.reloadTimerId)
-    clearTimeout(this.reloadTimerId);
+  this.clearAutoReload();
   if (intervalSeconds)
     this.reloadTimerId = setTimeout(reloadFunc, intervalSeconds * 1000);
+};
+
+HatoholMonitoringView.prototype.clearAutoReload = function()
+{
+  if (this.reloadTimerId)
+    clearTimeout(this.reloadTimerId);
+  this.reloadTimerId = null;
 };
 
 HatoholMonitoringView.prototype.setupCheckboxForDelete =
