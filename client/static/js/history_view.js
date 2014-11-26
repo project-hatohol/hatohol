@@ -69,8 +69,8 @@ var HistoryView = function(userProfile, options) {
     // zoom cancel
     $("#item-graph").bind("dblclick", function (event) {
       $.plot("#item-graph", self.plotData, self.plotOptions);
-      setSliderTimeRange(self.plotOptions.xaxis.min / 1000,
-                         self.plotOptions.xaxis.max / 1000);
+      setSliderTimeRange(Math.floor(self.plotOptions.xaxis.min / 1000),
+                         Math.floor(self.plotOptions.xaxis.max / 1000));
     });
   };
 
