@@ -49,6 +49,13 @@ struct VMInfo {
 	HostIdType    hypervisorHostId;
 };
 
+struct Hostgroup {
+	GenericIdType id;
+	ServerIdType  serverId;
+	std::string   idInServer;
+	std::string   name;
+};
+
 struct HostHostgroup {
 	GenericIdType id;
 	ServerIdType  serverId;
@@ -119,6 +126,18 @@ public:
 	 * The ID of inserted/updated record.
 	 */
 	GenericIdType upsertVMInfo(const VMInfo &vmInfo);
+
+	/**
+	 * Insert or update a record to/in the hostgroup_list table
+	 *
+	 * If there's the record whose ID is equal to hostgroup.id,
+	 * the record is updated.
+	 *
+	 * @param hostgroup A data to be inserted/updated.
+	 * @return
+	 * The ID of inserted/updated record.
+	 */
+	GenericIdType upsertHostgroup(const Hostgroup &hostgroup);
 
 	/**
 	 * Insert or update a record to/in the host_hostgroup table

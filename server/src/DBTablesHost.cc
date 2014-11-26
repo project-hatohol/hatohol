@@ -279,7 +279,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUP_LIST[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"host_group_id",                   // columnName
+	"id_in_server",                    // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
 	0,                                 // decFracLength
@@ -288,7 +288,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUP_LIST[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"group_name",                      // columnName
+	"name",                            // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
 	0,                                 // decFracLength
@@ -302,13 +302,13 @@ static const ColumnDef COLUMN_DEF_HOSTGROUP_LIST[] = {
 enum {
 	IDX_HOSTGROUP_LIST_ID,
 	IDX_HOSTGROUP_LIST_SERVER_ID,
-	IDX_HOSTGROUP_LIST_GROUP_ID,
-	IDX_HOSTGROUP_LIST_GROUP_NAME,
+	IDX_HOSTGROUP_LIST_ID_IN_SERVER,
+	IDX_HOSTGROUP_LIST_NAME,
 	NUM_IDX_HOSTGROUP_LIST,
 };
 
 static const int columnIndexesHostgroupListUniqId[] = {
-  IDX_HOSTGROUP_LIST_SERVER_ID, IDX_HOSTGROUP_LIST_GROUP_ID,
+  IDX_HOSTGROUP_LIST_SERVER_ID, IDX_HOSTGROUP_LIST_ID_IN_SERVER,
   DBAgent::IndexDef::END,
 };
 
@@ -482,6 +482,19 @@ GenericIdType DBTablesHost::upsertVMInfo(const VMInfo &vmInfo)
 	arg.add(vmInfo.id);
 	arg.add(vmInfo.hostId);
 	arg.add(vmInfo.hypervisorHostId);
+	arg.upsertOnDuplicate = true;
+	getDBAgent().runTransaction(arg, &id);
+	return id;
+}
+
+GenericIdType DBTablesHost::upsertHostgroup(const Hostgroup &hostgroup)
+{
+	GenericIdType id;
+	DBAgent::InsertArg arg(tableProfileHostgroupList);
+	arg.add(hostgroup.id);
+	arg.add(hostgroup.serverId);
+	arg.add(hostgroup.idInServer);
+	arg.add(hostgroup.name);
 	arg.upsertOnDuplicate = true;
 	getDBAgent().runTransaction(arg, &id);
 	return id;
