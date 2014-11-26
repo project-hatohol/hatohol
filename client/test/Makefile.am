@@ -33,6 +33,7 @@ EXTRA_DIST = \
 	python/TestHatoholserver.py \
 	python/TestUserConfig.py \
 	python/TestUserConfigView.py \
+	python/TestLogSearchSystemsView.py \
 	python/__init__.py \
 	python/run-test.sh \
 	python/testsettings.py \
