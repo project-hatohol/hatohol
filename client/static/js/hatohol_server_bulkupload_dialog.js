@@ -222,6 +222,9 @@ HatoholServerBulkUploadDialog.prototype.createMainElement = function() {
     div.append($('<input id="optionMultipleServersTSVFile" type="file" disabled class="ui-state-disabled">'));
     form.append(div);
 
+    div = $('<div>');
+    mainDiv.append($('<button id="buttonMultipleServersTSVTemplate" disabled class="ui-state-disabled">').text(gettext('Template')));
+
     mainDiv.append('<table class="table" id="bulkupload-server-table" border="1">');
     return mainDiv;
   }
@@ -234,6 +237,7 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
 
   $('#selectMultipleServersType').change(function() {
     var optionFile = $('#optionMultipleServersTSVFile');
+    var templateButton = $('#buttonMultipleServersTSVTemplate');
 
     self.currParamObj = null;
     self.currParamHash = null;
@@ -241,6 +245,8 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
     $('#bulkupload-server-table').empty();
     optionFile.attr("disabled");
     optionFile.addClass("ui-state-disabled");
+    templateButton.attr("disabled");
+    templateButton.addClass("ui-state-disabled");
 
     var type = $("#selectMultipleServersType").val();
     if (type != "_header") {
@@ -255,8 +261,50 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
         optionFile.removeAttr("disabled");
         optionFile.removeClass("ui-state-disabled");
       }
+
+      var fileAPItype = getFileAPItype();
+      if (fileAPItype) {
+	var tsvHeaderRows = [
+                               { id: '#ID', key: 'id', gettext: false, },
+                               { id: '#LABEL', key: 'label', gettext: true, },
+                               { id: '#DEFAULT', key: 'default', gettext: false, },
+                            ];
+        var tsvTemplate = $.map(tsvHeaderRows,
+                                function(val, idx) {
+                                  var cols = $.map(self.currParamObj,
+                                                   function(v, i) {
+                                                     if (v.hidden)
+                                                       return null;
+                                                     if (v[val.key] === undefined)
+                                                       return '';
+                                                     return (val.gettext ? gettext(v[val.key]) : v[val.key]).replace(/[\t\r\n]+/g, ' ');
+                                                   });
+                                  cols.unshift(val.id);
+                                  return cols.join('\t');
+                                }).join('\n');
+        self.tsvTemplateBlob = new Blob([tsvTemplate]);
+        self.tsvTemplateName = self.currParamObj.name + '_template.txt';
+        if (fileAPItype == 'MS') {
+          templateButton.click(function() {
+                                 window.navigator.msSaveBlob(self.tsvTemplateBlob, self.tsvTemplateName);
+                               });
+        } else {
+          var url = window.URL.createObjectURL(self.tsvTemplateBlob);
+          templateButton.click(function() { window.open(url, null); });
+        }
+        templateButton.removeAttr("disabled");
+        templateButton.removeClass("ui-state-disabled");
+      }
     }
   });
+
+  function getFileAPItype() {
+    if (window.navigator.msSaveBlob)
+      return 'MS';
+    else if (window.URL.createObjectURL)
+      return 'FF';
+    return null;
+  }
 
   $('#optionMultipleServersTSVFile').change(function() {
     var f = this.files[0];
