@@ -22,6 +22,7 @@ import unittest
 from django.http import HttpRequest
 import json
 import httplib
+import urllib
 from hatohol.models import LogSearchSystem
 from hatohol.views import log_search_systems
 from hatohol_server_emulator import HatoholServerEmulator
@@ -33,19 +34,22 @@ class TestLogSearchSystemsView(unittest.TestCase):
         self._emulator = HatoholServerEmulator()
         self._emulator.start_and_wait_setup_done()
 
-    def _request(self, method, id=None, body=None):
+    def _request(self, method, id=None, body=None, POST=None):
         request = HttpRequest()
         request.method = method
         self._setSessionId(request)
         if body:
-            request.POST = body
+            request.META['CONTENT_TYPE'] = "application/x-www-form-urlencoded"
+            request._body = urllib.urlencode(body)
+        if POST:
+            request.POST = POST
         return log_search_systems(request, id)
 
     def _get(self, id=None):
         return self._request('GET', id=id)
 
     def _post(self, body=None):
-        return self._request('POST', body=body)
+        return self._request('POST', POST=body)
 
     def _put(self, id=None, body=None):
         return self._request('PUT', id=id, body=body)
