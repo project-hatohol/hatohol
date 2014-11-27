@@ -24,8 +24,10 @@ var ServersView = function(userProfile) {
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
-  if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_SERVER))
+  if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_SERVER)) {
     $("#add-server-button").show();
+    $("#add-multiple-servers-button").show();
+  }
   if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER) ||
       userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ALL_SERVER)) {
     $("#delete-server-button").show();
@@ -46,6 +48,14 @@ var ServersView = function(userProfile) {
       succeededCallback: addOrUpdateSucceededCb
     });
   });
+
+  $("#add-multiple-servers-button").click(function() {
+    new HatoholMultipleServersEditDialog({
+      operator: userProfile.user,
+      succeededCallback: addOrUpdateSucceededCb
+    });
+  });
+
 
   $("#delete-server-button").click(function() {
     var msg = gettext("Do you delete the selected items ?");
