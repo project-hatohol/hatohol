@@ -159,7 +159,6 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
                             label, fixupSelectBoxFunc, idName) {
     var numOptions = jQObjSelectId.children().length;
     var currSelectedId = self.selectedId[selectedIdIndex];
-    console.log(response);
     if (!response) {
       if (!currSelectedId)
         jQObjSelectId.val("ANY");
