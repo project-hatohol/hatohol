@@ -458,11 +458,13 @@ void dbAgentTestUpsert(DBAgent &dbAgent, DBAgentChecker &checker)
 	param.val.name   = "rei";
 	param.val.height = 158.2;
 	checkInsert(dbAgent, checker, param);
+	cppcut_assert_equal(false, dbAgent.lastUpsertDidUpdate());
 
 	param.val.age    = 33;
 	param.val.height = 172.5;
 	param.upsertOnDuplicate = true;
 	checkInsert(dbAgent, checker, param);
+	cppcut_assert_equal(true, dbAgent.lastUpsertDidUpdate());
 }
 
 void dbAgentTestUpsertWithPrimaryKeyAutoInc(

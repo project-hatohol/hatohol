@@ -34,6 +34,7 @@ using namespace mlpl;
 
 const static int TRANSACTION_TIME_OUT_MSEC = 30 * 1000;
 const char *DBAgentSQLite3::DEFAULT_DB_NAME = "DBAgentSQLite3-default";
+static __thread bool tls_lastUpsertDidUpdate = false;
 
 class DBTermCodecSQLite3 : public DBTermCodec {
 	virtual string enc(const uint64_t &val) const override
@@ -523,6 +524,7 @@ void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 		// primary or unique key constraint.
 		if (isPrimaryOrUniqueKeyDuplicated(db)) {
 			update(db, insertArg);
+			tls_lastUpsertDidUpdate = true;
 			return;
 		}
 	}
@@ -532,6 +534,7 @@ void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 		THROW_HATOHOL_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
+	tls_lastUpsertDidUpdate = false;
 }
 
 void DBAgentSQLite3::update(sqlite3 *db, const UpdateArg &updateArg)
@@ -731,6 +734,11 @@ uint64_t DBAgentSQLite3::getLastInsertId(sqlite3 *db)
 uint64_t DBAgentSQLite3::getNumberOfAffectedRows(sqlite3 *db)
 {
 	return sqlite3_changes(db);
+}
+
+bool DBAgentSQLite3::lastUpsertDidUpdate(void)
+{
+	return tls_lastUpsertDidUpdate;
 }
 
 ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,

@@ -353,6 +353,11 @@ private:
 		return 0;
 	}
 
+	bool lastUpsertDidUpdate(void) override
+	{
+		return false;
+	}
+
 	virtual string
 	makeCreateIndexStatement(const TableProfile &tableProfile,
 	                         const IndexDef &indexDef) override
