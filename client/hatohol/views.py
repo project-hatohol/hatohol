@@ -93,16 +93,16 @@ def log_search_systems(request, id):
         try:
             system = LogSearchSystem.objects.get(id=id)
         except LogSearchSystem.DoesNotExist:
-            return http.HttpResponseNotFound(content_type=content_type)
+            return http.HttpResponseNotFound()
         else:
             system.delete()
-            return http.HttpResponse(content_type=content_type)
+            return http.HttpResponse()
     else:
         if id:
             try:
                 system = LogSearchSystem.objects.get(id=id)
             except LogSearchSystem.DoesNotExist:
-                return http.HttpResponseNotFound(content_type=content_type)
+                return http.HttpResponseNotFound()
             response = system
         else:
             systems = LogSearchSystem.objects.all().order_by('id')
