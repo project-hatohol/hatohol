@@ -361,6 +361,9 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 	}
 
 	vector<string> values;
+#if MYSQL_VERSION_ID < 50112
+	string valueForLastId; // To save the string body.
+#endif
 	values.reserve(numColumns);
 	struct UpdateParam {
 		const char *column;
@@ -374,10 +377,25 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 		if (!insertArg.upsertOnDuplicate)
 			continue;
 
+		const char *valuePtr = NULL;
+#if MYSQL_VERSION_ID < 50112
+		if (columnDef.keyType == SQL_KEY_PRI) {
+		// A technique to get the last insert ID when update is done.
+		// http://dev.mysql.com/doc/refman/5.1/en/insert-on-duplicate.html
+			valueForLastId =
+			   StringUtils::sprintf("LAST_INSERT_ID(%s)",
+			                        columnDef.columnName);
+			valuePtr = valueForLastId.c_str();
+		} else {
+			valuePtr = values.back().c_str();
+		}
+#else
 		if (columnDef.keyType == SQL_KEY_PRI)
 			continue;
+		valuePtr = values.back().c_str();
+#endif
 		updateParams[updateParamIdx].column = columnDef.columnName;
-		updateParams[updateParamIdx].value  = values.back().c_str();
+		updateParams[updateParamIdx].value  = valuePtr;
 		updateParamIdx++;
 	}
 	updateParams[updateParamIdx].column = NULL;
