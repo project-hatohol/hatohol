@@ -81,7 +81,8 @@ def log_search_systems(request, id):
         except LogSearchSystem.DoesNotExist:
             return http.HttpResponseNotFound(content_type=content_type)
         else:
-            form = LogSearchSystemForm(request.POST, instance=system)
+            record = http.QueryDict(request.body, encoding=request.encoding)
+            form = LogSearchSystemForm(record, instance=system)
             form.save()
             return http.HttpResponse(to_json(system), content_type=content_type)
     elif request.method == 'DELETE':
