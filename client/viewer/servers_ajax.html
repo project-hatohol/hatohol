@@ -35,6 +35,11 @@
         {% trans "ADD MONITORING SERVER" %}
       </button>
 
+      <button id="bulkupload-server-button" type="button" class="btn btn-default" style="display: none;">
+        <span class="glyphicon glyphicon-plus"></span>
+        {% trans "ADD/UPDATE MULTIPLE MONITORING SERVERS" %}
+      </button>
+
       <button id="delete-server-button" type="button" class="btn btn-default" disabled style="display: none;">
         <span class="glyphicon glyphicon-remove"></span>
         {% trans "DELETE MONITORING SERVER" %}
@@ -72,6 +77,7 @@
 
 {% block option %}
   <script src="{{ STATIC_URL }}js/hatohol_server_edit_dialog_parameterized.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_server_bulkupload_dialog.js"></script>
 {% endblock %}
 
 {% block logic %}
