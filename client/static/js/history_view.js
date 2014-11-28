@@ -107,10 +107,9 @@ var HistoryView = function(userProfile, options) {
     return plotData;
   }
 
-  function timeTickFormatter(val, axis) {
+  function formatTime(val, unit) {
     var now = new Date();
     var date = $.plot.dateGenerator(val, self.plotOptions.xaxis);
-    var unit = axis.tickSize[1];
     var format = "";
 
     if (now.getFullYear() != date.getFullYear())
@@ -135,7 +134,10 @@ var HistoryView = function(userProfile, options) {
       xaxis: {
         mode: "time",
         timezone: "browser",
-        tickFormatter: timeTickFormatter,
+        tickFormatter: function(val, axis) {
+	  var unit = axis.tickSize[1];
+	  return formatTime(val, unit);
+	},
         min: beginTimeInSec * 1000,
         max: endTimeInSec * 1000,
       },
@@ -165,7 +167,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function getTimeRange() {
-    var beginTimeInSec, endTimeInSec;
+    var beginTimeInSec, endTimeInSec, date, min;
 
     if (self.timeRange && historyQuery.endTime)
       return self.timeRange;
@@ -173,11 +175,17 @@ var HistoryView = function(userProfile, options) {
     beginTimeInSec = self.lastQuery.endTime - self.timeSpan;
     endTimeInSec = self.lastQuery.endTime;
 
+    // Adjust to 00:00:00
+    min = self.lastQuery.endTime - secondsInHour * 24 * 7;
+    date = $.plot.dateGenerator(min * 1000, self.plotOptions.xaxis);
+    min -= date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
+
     self.timeRange = {
       last: [beginTimeInSec, endTimeInSec],
       minSpan: secondsInHour,
       maxSpan: secondsInHour * 24,
-      min: self.lastQuery.endTime - secondsInHour * 24 * 7,
+      //min: self.lastQuery.endTime - secondsInHour * 24 * 7,
+      min: min,
       max: self.lastQuery.endTime,
       set: function(range) {
         this.last = range.slice();
@@ -236,6 +244,30 @@ var HistoryView = function(userProfile, options) {
           beginTime = ui.values[1] - timeRange.minSpan;
         timeRange.set([beginTime, endTime]);
         setSliderTimeRange(timeRange.last[0], timeRange.last[1]);
+      },
+    });
+    $("#item-graph-slider").slider('pips', {
+      rest: 'label',
+      last: false,
+      step: secondsInHour * 24,
+      formatLabel: function(val) {
+	var date = new Date(val * 1000);
+	var dayLabel = {
+	  0: gettext("Sun"),
+	  1: gettext("Mon"),
+	  2: gettext("Tue"),
+	  3: gettext("Wed"),
+	  4: gettext("Thu"),
+	  5: gettext("Fri"),
+	  6: gettext("Sat"),
+	}
+	return dayLabel[date.getDay()];
+	return formatDate(val);
+      },
+    });
+    $("#item-graph-slider").slider('float', {
+      formatLabel: function(val) {
+	return formatDate(val);
       },
     });
   }
