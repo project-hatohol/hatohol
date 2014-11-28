@@ -278,6 +278,7 @@ var HistoryView = function(userProfile, options) {
       last: false,
       step: secondsInHour * 24,
       formatLabel: function(val) {
+	var now = new Date();
 	var date = new Date(val * 1000);
 	var dayLabel = {
 	  0: gettext("Sun"),
@@ -288,8 +289,10 @@ var HistoryView = function(userProfile, options) {
 	  5: gettext("Fri"),
 	  6: gettext("Sat"),
 	}
-	return dayLabel[date.getDay()];
-	return formatDate(val);
+	if (now.getTime() - date.getTime() > secondsInHour * 24 * 7 * 1000)
+	  return formatDate(val);
+	else
+	  return dayLabel[date.getDay()];
       },
     });
     $("#item-graph-slider").slider('float', {
