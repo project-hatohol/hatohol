@@ -57,7 +57,7 @@ var HatoholLogSearchSystemEditor = function(params) {
       else
         hatoholInfoMsgBox(
 	  gettext("Now creating a log search system ..."));
-      postIncidentTracker();
+      postLogSearchSystem();
     }
   }
 
@@ -68,7 +68,7 @@ var HatoholLogSearchSystemEditor = function(params) {
     return queryData;
   }
 
-  function postIncidentTracker() {
+  function postLogSearchSystem() {
     var url = "/log-search-systems/";
     if (self.logSearchSystem)
       url += self.logSearchSystem.id;
