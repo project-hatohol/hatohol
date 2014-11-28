@@ -99,7 +99,6 @@ var HistoryView = function(userProfile, options) {
 	delete historyQuery.beginTime;
 	delete historyQuery.endTime;
         self.plotData = null;
-        self.timeSpan = null; // TODO: should keep the time span
         loadHistory();
       }
     });
@@ -341,6 +340,7 @@ var HistoryView = function(userProfile, options) {
   function getHistoryQuery() {
     var query = $.extend({}, historyQuery);
     var defaultTimeSpan = secondsInHour * 6;
+    var timeSpan = self.timeSpan ? self.timeSpan : defaultTimeSpan;
     var lastReply, lastData, now;
 
     // omit loading existing data
@@ -355,7 +355,7 @@ var HistoryView = function(userProfile, options) {
       query.endTime = Math.floor(now.getTime() / 1000);
     }
     if (!query.beginTime)
-      query.beginTime = query.endTime - defaultTimeSpan;
+      query.beginTime = query.endTime - timeSpan;
 
     if (!self.timeSpan)
       self.timeSpan = query.endTime - query.beginTime;
