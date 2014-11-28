@@ -154,7 +154,7 @@ static const int columnIndexesHostServerDefIdx[] = {
 };
 
 static const DBAgent::IndexDef indexDefsHostServerDef[] = {
-  {"HostServerDefIdx", (const int *)columnIndexesHostServerDefIdx, false},
+  {"HostServerDefIdx", (const int *)columnIndexesHostServerDefIdx, true},
   {NULL}
 };
 
@@ -508,9 +508,9 @@ HostIdType DBTablesHost::upsertHost(
 					hostId = currSvHostDef.hostId;
 					return;
 				}
-				if (serverHostDef.hostId == UNKNOWN_HOST_ID)
-					hostId = currSvHostDef.hostId;
-				assertHostIdConsistency(currSvHostDef);
+				if (serverHostDef.hostId != UNKNOWN_HOST_ID)
+					assertHostIdConsistency(currSvHostDef);
+				hostId = currSvHostDef.hostId;
 			} else {
 				hostId = addHost(dbAgent, serverHostDef.name);
 				tookNewHostId = true;
