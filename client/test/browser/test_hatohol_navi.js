@@ -57,8 +57,6 @@ describe('HatoholNavi', function() {
       gettext('Monitoring Servers') + '</a></li>';
     expected += '<li><a href="ajax_actions">' +
       gettext('Actions') + '</a></li>';
-    expected += '<li><a href="ajax_log_search_systems">' +
-      gettext('Log search systems') + '</a></li>';
     expected += '</ul></li>';
     expected += '<li class="dropdown">';
     expected += '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
