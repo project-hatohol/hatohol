@@ -64,6 +64,10 @@ var HatoholNavi = function(userProfile, currentPage) {
             (1 << hatohol.OPPRVLG_GET_ALL_INCIDENT_SETTINGS)
         },
         {
+          title: gettext("Log search systems"),
+          href:  "ajax_log_search_systems",
+        },
+        {
           title: gettext("Users"),
           href:  "ajax_users",
           flags: (1 << hatohol.OPPRVLG_CREATE_USER) |
