@@ -23,7 +23,7 @@ DESC="Hatohol is a unified manager of monitoring software."
 NAME=hatohol
 exec_prefix=@exec_prefix@
 DAEMON=@sbindir@/$NAME
-DAEMON_ARGS="--db-server localhost"
+DAEMON_ARGS=""
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 
