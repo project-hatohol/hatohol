@@ -65,7 +65,7 @@ var HatoholNavi = function(userProfile, currentPage) {
         },
         {
           title: gettext("Log search systems"),
-          href:  "ajax_log_search_systems",
+          href:  "ajax_log_search_systems"
         },
         {
           title: gettext("Users"),
