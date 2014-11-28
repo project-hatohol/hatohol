@@ -79,7 +79,7 @@ var HistoryView = function(userProfile, options) {
 
       // disable auto refresh
       if ($("#item-graph-auto-refresh").hasClass("active"))
-	$("#item-graph-auto-refresh").button("toggle");
+        $("#item-graph-auto-refresh").button("toggle");
     });
 
     // zoom cancel
@@ -92,12 +92,12 @@ var HistoryView = function(userProfile, options) {
     // toggle auto refresh 
     $("#item-graph-auto-refresh").on("click", function() {
       if ($(this).hasClass("active")) {
-	// Turn off auto refresh
-	self.clearAutoReload();
+        // Turn off auto refresh
+        self.clearAutoReload();
       } else {
-	// Turn on auto refresh
-	delete historyQuery.beginTime;
-	delete historyQuery.endTime;
+        // Turn on auto refresh
+        delete historyQuery.beginTime;
+        delete historyQuery.endTime;
         self.plotData = null;
         loadHistory();
       }
@@ -162,9 +162,9 @@ var HistoryView = function(userProfile, options) {
         mode: "time",
         timezone: "browser",
         tickFormatter: function(val, axis) {
-	  var unit = axis.tickSize[1];
-	  return formatTime(val, unit);
-	},
+          var unit = axis.tickSize[1];
+          return formatTime(val, unit);
+        },
         min: beginTimeInSec * 1000,
         max: endTimeInSec * 1000,
       },
@@ -260,7 +260,7 @@ var HistoryView = function(userProfile, options) {
         historyQuery.endTime = timeRange.last[1];
         self.timeSpan = timeRange.last[1] - timeRange.last[0];
         loadHistory();
-	$("#item-graph-auto-refresh").removeClass("active");
+        $("#item-graph-auto-refresh").removeClass("active");
       },
       slide: function(event, ui) {
         var beginTime = ui.values[0], endTime = ui.values[1];
@@ -278,26 +278,26 @@ var HistoryView = function(userProfile, options) {
       last: false,
       step: secondsInHour * 24,
       formatLabel: function(val) {
-	var now = new Date();
-	var date = new Date(val * 1000);
-	var dayLabel = {
-	  0: gettext("Sun"),
-	  1: gettext("Mon"),
-	  2: gettext("Tue"),
-	  3: gettext("Wed"),
-	  4: gettext("Thu"),
-	  5: gettext("Fri"),
-	  6: gettext("Sat"),
-	}
-	if (now.getTime() - date.getTime() > secondsInHour * 24 * 7 * 1000)
-	  return formatDate(val);
-	else
-	  return dayLabel[date.getDay()];
+        var now = new Date();
+        var date = new Date(val * 1000);
+        var dayLabel = {
+          0: gettext("Sun"),
+          1: gettext("Mon"),
+          2: gettext("Tue"),
+          3: gettext("Wed"),
+          4: gettext("Thu"),
+          5: gettext("Fri"),
+          6: gettext("Sat"),
+        }
+        if (now.getTime() - date.getTime() > secondsInHour * 24 * 7 * 1000)
+          return formatDate(val);
+        else
+          return dayLabel[date.getDay()];
       },
     });
     $("#item-graph-slider").slider('float', {
       formatLabel: function(val) {
-	return formatDate(val);
+        return formatDate(val);
       },
     });
   }
@@ -457,3 +457,4 @@ HistoryView.prototype.parseHistoryQuery = function(query) {
 HistoryView.prototype.showError = function(message) {
   hatoholErrorMsgBox(message);
 };
+n
