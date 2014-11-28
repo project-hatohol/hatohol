@@ -29,7 +29,7 @@ var HistoryView = function(userProfile, options) {
   self.plotData = null;
   self.plotOptions = null;
   self.plot = null;
-  self.sliderTimeRange = null;
+  self.timeRange = null;
 
   if (!options)
     options = {};
@@ -164,21 +164,21 @@ var HistoryView = function(userProfile, options) {
     self.plot = $.plot($("#item-graph"), history, self.plotOptions);
   }
 
-  function drawSlider() {
-    var beginTimeInSec = self.lastQuery.endTime - self.timeSpan;
-    var endTimeInSec = self.lastQuery.endTime;
-    if (!self.sliderTimeRange || !historyQuery.endTime) {
-      self.sliderTimeRange = {
-        min: self.lastQuery.endTime - secondsInHour * 24 * 7,
-        max: self.lastQuery.endTime
-      }
-    }
-    var timeRange = {
+  function getTimeRange() {
+    var beginTimeInSec, endTimeInSec;
+
+    if (self.timeRange && historyQuery.endTime)
+      return self.timeRange;
+
+    beginTimeInSec = self.lastQuery.endTime - self.timeSpan;
+    endTimeInSec = self.lastQuery.endTime;
+
+    self.timeRange = {
       last: [beginTimeInSec, endTimeInSec],
       minSpan: secondsInHour,
       maxSpan: secondsInHour * 24,
-      min: self.sliderTimeRange.min,
-      max: self.sliderTimeRange.max,
+      min: self.lastQuery.endTime - secondsInHour * 24 * 7,
+      max: self.lastQuery.endTime,
       set: function(range) {
         this.last = range.slice();
         if (this.last[1] - this.last[0] > this.maxSpan)
@@ -199,6 +199,12 @@ var HistoryView = function(userProfile, options) {
         return this.last[1] - this.last[0];
       },
     }
+
+    return self.timeRange;
+  }
+
+  function drawSlider() {
+    var timeRange = getTimeRange();
 
     $("#item-graph-slider").slider({
       range: true,
