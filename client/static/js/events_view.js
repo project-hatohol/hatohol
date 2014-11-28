@@ -274,19 +274,24 @@ var EventsView = function(userProfile, baseElem) {
       duration   = self.durations[serverId][event["triggerId"]][clock];
       incident   = event["incident"];
 
-      html += "<tr><td><a href='" + serverURL + "'>" + escapeHTML(serverName)
-              + "</a></td>";
-      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
-        formatDate(clock) + "</td>";
-      if (hostName.match(/_SELF$/)) {
-        html += "<td>" + escapeHTML(hostName) + "</td>";
-      } else if (serverURL.indexOf("zabbix") >= 0) {
-        html += "<td><a href='" + serverURL + "latest.php?&hostid="
-                + hostId + "'>" + escapeHTML(hostName) + "</a></td>";
-      } else if (serverURL.indexOf("nagios")>=0) {
-        html += "<td><a href='" + serverURL + "cgi-bin/status.cgi?host="
-                + hostName + "'>" + escapeHTML(hostName) + "</a></td>";
+      if (serverURL) {
+        html += "<tr><td><a href='" + serverURL + "'>" + escapeHTML(serverName)
+                + "</a></td>";
+        html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
+                formatDate(clock) + "</td>";
+        if (hostName.match(/_SELF$/)) {
+          html += "<td>" + escapeHTML(hostName) + "</td>";
+        } else if (serverURL.indexOf("zabbix") >= 0) {
+          html += "<td><a href='" + serverURL + "latest.php?&hostid="
+                  + hostId + "'>" + escapeHTML(hostName) + "</a></td>";
+        } else if (serverURL.indexOf("nagios")>=0) {
+          html += "<td><a href='" + serverURL + "cgi-bin/status.cgi?host="
+                  + hostName + "'>" + escapeHTML(hostName) + "</a></td>";
+        }
       } else {
+        html += "<tr><td>" + escapeHTML(serverName)+ "</td>";
+        html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
+                formatDate(clock) + "</td>";
         html += "<td>" + escapeHTML(hostName) + "</td>";
       }
       html += "<td>" + escapeHTML(event["brief"]) + "</td>";
