@@ -287,6 +287,8 @@ var EventsView = function(userProfile, baseElem) {
         } else if (serverURL.indexOf("nagios")>=0) {
           html += "<td><a href='" + serverURL + "cgi-bin/status.cgi?host="
                   + hostName + "'>" + escapeHTML(hostName) + "</a></td>";
+        } else {
+          html += "<td>" + escapeHTML(hostName) + "</td>";
         }
       } else {
         html += "<tr><td>" + escapeHTML(serverName)+ "</td>";
