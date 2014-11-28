@@ -44,10 +44,19 @@ var HistoryView = function(userProfile, options) {
     $("#main").append($("<div>", {
       id: "item-graph",
       height: "300px",
+    }))
+    .append($("<div>", {
+      id: "item-graph-slider-area",
     }));
-    $("#main").append($("<div>", {
+
+    $("#item-graph-slider-area").append($("<div>", {
       id: "item-graph-slider",
-    }));
+    }))
+    .append($("<button>", {
+      id: "item-graph-auto-refresh",
+      type: "button",
+      class: "btn btn-default glyphicon glyphicon-refresh active",
+    }).attr("data-toggle", "button"));
 
     $("#item-graph").bind("plotselected", function (event, ranges) {
       var options;
@@ -67,6 +76,10 @@ var HistoryView = function(userProfile, options) {
 
       setSliderTimeRange(Math.floor(ranges.xaxis.from / 1000),
                          Math.floor(ranges.xaxis.to / 1000));
+
+      // disable auto refresh
+      if ($("#item-graph-auto-refresh").hasClass("active"))
+	$("#item-graph-auto-refresh").button("toggle");
     });
 
     // zoom cancel
@@ -74,6 +87,21 @@ var HistoryView = function(userProfile, options) {
       $.plot("#item-graph", self.plotData, self.plotOptions);
       setSliderTimeRange(Math.floor(self.plotOptions.xaxis.min / 1000),
                          Math.floor(self.plotOptions.xaxis.max / 1000));
+    });
+
+    // toggle auto refresh 
+    $("#item-graph-auto-refresh").on("click", function() {
+      if ($(this).hasClass("active")) {
+	// Turn off auto refresh
+	self.clearAutoReload();
+      } else {
+	// Turn on auto refresh
+	delete historyQuery.beginTime;
+	delete historyQuery.endTime;
+        self.plotData = null;
+        self.timeSpan = null; // TODO: should keep the time span
+        loadHistory();
+      }
     });
   };
 
@@ -233,6 +261,7 @@ var HistoryView = function(userProfile, options) {
         historyQuery.endTime = timeRange.last[1];
         self.timeSpan = timeRange.last[1] - timeRange.last[0];
         loadHistory();
+	$("#item-graph-auto-refresh").removeClass("active");
       },
       slide: function(event, ui) {
         var beginTime = ui.values[0], endTime = ui.values[1];
