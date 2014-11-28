@@ -457,4 +457,3 @@ HistoryView.prototype.parseHistoryQuery = function(query) {
 HistoryView.prototype.showError = function(message) {
   hatoholErrorMsgBox(message);
 };
-n
