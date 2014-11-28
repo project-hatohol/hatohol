@@ -194,6 +194,9 @@ var ServersView = function(userProfile) {
       if (serverURL) {
         s += "<td><a href='" + serverURL + "'>" + escapeHTML(o["hostName"])  + "</a></td>";
         s += "<td><a href='" + serverURL + "'>" + escapeHTML(ip) + "</a></td>";
+      } else if (o["type"] == hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER){
+        s += "<td>" + escapeHTML(o["hostName"])  + "</td>";
+        s += "<td>N/A</td>";
       } else {
         s += "<td>" + escapeHTML(o["hostName"])  + "</td>";
         s += "<td>" + escapeHTML(ip) + "</td>";
