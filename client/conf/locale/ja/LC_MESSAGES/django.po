@@ -107,6 +107,18 @@ msgid "Dashboard"
 msgstr "ダッシュボード"
 
 #: viewer/dashboard_ajax.html:35
+msgid "Log search"
+msgstr "ログ検索"
+
+#: viewer/dashboard_ajax.html:40
+msgid "Keyword"
+msgstr "キーワード"
+
+#: viewer/dashboard_ajax.html:41
+msgid "Log search system URL"
+msgstr "ログ検索システムのURL"
+
+#: viewer/dashboard_ajax.html:53
 msgid "Global status"
 msgstr "グローバルステータス"
 
