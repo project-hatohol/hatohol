@@ -184,7 +184,6 @@ var HistoryView = function(userProfile, options) {
       last: [beginTimeInSec, endTimeInSec],
       minSpan: secondsInHour,
       maxSpan: secondsInHour * 24,
-      //min: self.lastQuery.endTime - secondsInHour * 24 * 7,
       min: min,
       max: self.lastQuery.endTime,
       set: function(range) {
