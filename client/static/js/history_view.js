@@ -50,6 +50,8 @@ var HistoryView = function(userProfile, options) {
     }));
 
     $("#item-graph").bind("plotselected", function (event, ranges) {
+      var options;
+
       // clamp the zooming to prevent eternal zoom
       if (ranges.xaxis.to - ranges.xaxis.from < 60 * 1000) {
         ranges.xaxis.from -= 30 * 1000;
@@ -57,7 +59,7 @@ var HistoryView = function(userProfile, options) {
       }
 
       // zoom
-      var options = $.extend(true, {}, self.plotOptions, {
+      options = $.extend(true, {}, self.plotOptions, {
         xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
         yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
       });
@@ -234,10 +236,13 @@ var HistoryView = function(userProfile, options) {
   }
 
   function setSliderTimeRange(min, max) {
+    var values;
+
     if (self.settingSliderTimeRange)
       return;
+
     self.settingSliderTimeRange = true;
-    var values = $("#item-graph-slider").slider("values");
+    values = $("#item-graph-slider").slider("values");
     if (min != values[0])
       $("#item-graph-slider").slider("values", 0, min);
     if (max != values[1])
