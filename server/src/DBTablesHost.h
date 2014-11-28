@@ -27,6 +27,11 @@ enum HostStatus {
 	HOST_STAT_NORMAL = 0,
 };
 
+struct Host {
+	HostIdType  id;
+	std::string name;
+};
+
 struct ServerHostDef {
 	GenericIdType id;
 	HostIdType    hostId;
@@ -87,6 +92,26 @@ public:
 	 * The unique host ID of the added host.
 	 */
 	HostIdType addHost(const std::string &name);
+
+	/**
+	 * Insert or update a host in both host_list and server_host_def
+	 * tables.
+	 *
+	 * If there's the record whose ID is equal to serverHostDef.id or
+	 * with the combination of serverHostDef.serverId and
+	 * serverHostDef.hostIdInserver, the record is updated.
+	 * If serverHostDef.id is AUTO_INCREMENT_VALUE, a new record is always
+	 * added except for the latter case of the previous sentence.
+	 * In addition, if serverHostDef.hostId is UNKNOWN_HOST_ID,
+	 * a new record is added in host_list.
+	 * serverHostDef.name is used as host_list.name of
+	 * the new record.
+	 *
+	 * @param serverHostDef A data to be inserted/updated.
+	 * @return
+	 * The Host ID of inserted/updated record to/in host_list.
+	 */
+	HostIdType upsertHost(const ServerHostDef &serverHostDef);
 
 	/**
 	 * Insert or update a record to/in the server-host-definition table

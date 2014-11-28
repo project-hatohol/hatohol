@@ -37,6 +37,12 @@ const int DBTablesHost::TABLES_VERSION = 2;
 const uint64_t NO_HYPERVISOR = -1;
 const size_t MAX_HOST_NAME_LENGTH =  255;
 
+void operator>>(ItemGroupStream &itemGroupStream, HostStatus &rhs)
+{
+	rhs = itemGroupStream.read<int, HostStatus>();
+}
+
+
 static const ColumnDef COLUMN_DEF_HOST_LIST[] = {
 {
 	"id",                              // columnName
@@ -444,6 +450,183 @@ HostIdType DBTablesHost::addHost(const string &name)
 	arg.add(name);
 	getDBAgent().runTransaction(arg, &hostId);
 	return hostId;
+}
+
+static void setupUpsertArgOfServerHostDef(
+  DBAgent::InsertArg &arg, const ServerHostDef &serverHostDef,
+  const HostIdType &hostId)
+{
+	arg.add(serverHostDef.id);
+	arg.add(hostId);
+	arg.add(serverHostDef.serverId);
+	arg.add(serverHostDef.hostIdInServer);
+	arg.add(serverHostDef.name);
+	arg.add(serverHostDef.status);
+	arg.upsertOnDuplicate = true;
+}
+
+static string setupFmtCondSelectSvHostDef(void)
+{
+	return StringUtils::sprintf("%s=%%" FMT_SERVER_ID " AND %s=%%s",
+	         COLUMN_DEF_SERVER_HOST_DEF[
+	           IDX_HOST_SERVER_HOST_DEF_SERVER_ID].columnName,
+	         COLUMN_DEF_SERVER_HOST_DEF[
+	           IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER].columnName);
+}
+
+HostIdType DBTablesHost::upsertHost(
+  const ServerHostDef &serverHostDef)
+{
+	HATOHOL_ASSERT(serverHostDef.hostId == UNKNOWN_HOST_ID ||
+	               serverHostDef.hostId >= 0,
+	               "Invalid host ID: %" FMT_HOST_ID, serverHostDef.hostId);
+	HATOHOL_ASSERT(!serverHostDef.name.empty(),
+	               "Empty host name: %s", serverHostDef.name.c_str());
+
+	struct Proc : public DBAgent::TransactionProc {
+		const ServerHostDef &serverHostDef;
+		DBAgent::InsertArg serverHostDefArg;
+		string fmtCondSelectSvHostDef;
+		HostIdType hostId;
+
+		Proc(const ServerHostDef &_serverHostDef)
+		: serverHostDef(_serverHostDef),
+		  serverHostDefArg(tableProfileServerHostDef),
+		  fmtCondSelectSvHostDef(setupFmtCondSelectSvHostDef()),
+		  hostId(INVALID_HOST_ID)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			ServerHostDef currSvHostDef;
+			bool tookNewHostId = false;
+			const bool found = selectServerHostDef(dbAgent,
+			                                       currSvHostDef);
+			if (found) {
+				if (!isChanged(serverHostDef, currSvHostDef)) {
+					hostId = currSvHostDef.hostId;
+					return;
+				}
+				if (serverHostDef.hostId == UNKNOWN_HOST_ID)
+					hostId = currSvHostDef.hostId;
+				assertHostIdConsistency(currSvHostDef);
+			} else {
+				hostId = addHost(dbAgent, serverHostDef.name);
+				tookNewHostId = true;
+			}
+
+			setupUpsertArgOfServerHostDef(serverHostDefArg,
+			                              serverHostDef, hostId);
+			dbAgent.insert(serverHostDefArg);
+			dbAgent.getLastInsertId();
+			if (dbAgent.lastUpsertDidUpdate() && tookNewHostId) {
+				// This path is rare.
+				// [Assumed scenario]
+				// Other session tried to query the record
+				// and didn't find it. Then the insert() was
+				// invoked right before that of this session.
+				removeHost(dbAgent, hostId);
+				HATOHOL_ASSERT(
+				  selectServerHostDef(dbAgent, currSvHostDef),
+				  "Record is not found.");
+				hostId = currSvHostDef.hostId;
+			}
+		}
+
+		/**
+		 * Get the record whose server ID and the host ID in server are
+		 * equals to serverHostDef.serverId and
+		 * serverHostDef.hostIdInServer.
+		 *
+		 * @param svHostDef The obtained record is saved here
+		 *
+		 * @return true if the record is found. Otherwise false.
+		 */
+		bool selectServerHostDef(DBAgent &dbAgent,
+		                         ServerHostDef &svHostDef)
+		{
+			DBAgent::SelectExArg arg(tableProfileServerHostDef);
+			arg.add(IDX_HOST_SERVER_HOST_DEF_ID);
+			arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID);
+			arg.add(IDX_HOST_SERVER_HOST_DEF_SERVER_ID);
+			arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
+			arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_NAME);
+			arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_STATUS);
+			arg.condition = StringUtils::sprintf(
+			                  fmtCondSelectSvHostDef.c_str(),
+			                  serverHostDef.serverId,
+			                  serverHostDef.hostIdInServer.c_str());
+			dbAgent.select(arg);
+
+			const ItemGroupList &grpList =
+			  arg.dataTable->getItemGroupList();
+			if (grpList.empty())
+				return false;
+			const size_t numHosts = grpList.size();
+			if (numHosts> 1) {
+				MLPL_BUG(
+				  "Found %zd records. ServerID: %"
+				  FMT_SERVER_ID ", host ID in server: %s\n",
+				  numHosts, serverHostDef.serverId,
+				  serverHostDef.hostIdInServer.c_str());
+			}
+			ItemGroupStream itemGroupStream(*grpList.begin());
+			itemGroupStream >> svHostDef.id;
+			itemGroupStream >> svHostDef.hostId;
+			itemGroupStream >> svHostDef.serverId;
+			itemGroupStream >> svHostDef.hostIdInServer;
+			itemGroupStream >> svHostDef.name;
+			itemGroupStream >> svHostDef.status;
+			return true;
+		}
+
+		bool isChanged(const ServerHostDef &shd0,
+		               const ServerHostDef &shd1)
+		{
+			// serverId and hostIdInServer is not checked because
+			// they are used as a condition in selectServerHostDef()
+			// And hostIds should be the same if a combination of
+			// serverId and hostIdInServer is identical.
+			if (shd0.name != shd1.name)
+				return true;
+			if (shd0.status != shd1.status)
+				return true;
+			return false;
+		}
+
+		HostIdType addHost(DBAgent &dbAgent, const string &name)
+		{
+			DBAgent::InsertArg arg(tableProfileHostList);
+			arg.add(AUTO_INCREMENT_VALUE);
+			arg.add(name);
+			dbAgent.insert(arg);
+			return dbAgent.getLastInsertId();
+		}
+
+		void removeHost(DBAgent &dbAgent, const HostIdType &hostId)
+		{
+			DBAgent::DeleteArg arg(tableProfileHostList);
+			arg.condition =
+			  StringUtils::sprintf("%s=%" FMT_HOST_ID,
+			    COLUMN_DEF_HOST_LIST[IDX_HOST_LIST_ID].columnName,
+			    hostId);
+			dbAgent.deleteRows(arg);
+		}
+
+		void assertHostIdConsistency(const ServerHostDef currSvHostDef)
+		{
+			HATOHOL_ASSERT(
+			  currSvHostDef.hostId == serverHostDef.hostId,
+			  "Host ID inconsistent: DB: %" FMT_HOST_ID ", "
+			  "Input: %" FMT_HOST_ID,
+			  currSvHostDef.hostId, serverHostDef.hostId);
+		}
+
+	} transaction(serverHostDef);
+	getDBAgent().runTransaction(transaction);
+
+	return transaction.hostId;
 }
 
 GenericIdType DBTablesHost::upsertServerHostDef(
