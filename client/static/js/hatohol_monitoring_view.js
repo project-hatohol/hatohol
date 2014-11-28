@@ -260,7 +260,7 @@ HatoholMonitoringView.prototype.updateScreen =
 };
 
 HatoholMonitoringView.prototype.startConnection =
-  function (query, completionCallback, callbackParam)
+  function (query, completionCallback, callbackParam, connParam)
 {
   var self = this;
   
@@ -270,7 +270,7 @@ HatoholMonitoringView.prototype.startConnection =
     "lines" : [ gettext("Communicating with backend") ],
   });
 
-  var connParam =  {
+  var connParam = $.extend({
     url: '/' + query,
     replyCallback: function(reply, parser) {
       self.updateScreen(reply, completionCallback, callbackParam);
@@ -288,7 +288,7 @@ HatoholMonitoringView.prototype.startConnection =
         "lines" : [ msg ],
       });
     }
-  };
+  }, connParam || {});
 
   if (self.connector)
     self.connector.start(connParam);
