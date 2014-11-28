@@ -25,6 +25,7 @@
 
 enum HostStatus {
 	HOST_STAT_NORMAL = 0,
+	HOST_STAT_REMOVED,
 };
 
 struct Host {
