@@ -33,6 +33,8 @@ namespace testDBTablesHost {
 	DBHatohol _dbHatohol; \
 	DBTablesHost &VAR_NAME = _dbHatohol.getDBTablesHost();
 
+static const char *testHostName = "FOO FOO FOO";
+
 
 void cut_setup(void)
 {
@@ -547,7 +549,7 @@ void test_upsertHost(void)
 	serverHostDef.hostId = UNKNOWN_HOST_ID;
 	serverHostDef.serverId = 10;
 	serverHostDef.hostIdInServer= "123456";
-	serverHostDef.name = "FOO FOO FOO";
+	serverHostDef.name = testHostName;
 	serverHostDef.status = HOST_STAT_NORMAL;
 	HostIdType hostId = dbHost.upsertHost(serverHostDef);
 
@@ -555,6 +557,35 @@ void test_upsertHost(void)
 	string expect = StringUtils::sprintf(
 	  "%" FMT_HOST_ID "|%s",
 	  hostId, serverHostDef.name.c_str());
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+
+	statement = "SELECT * FROM server_host_def";
+	expect = StringUtils::sprintf(
+	  "1|%" FMT_HOST_ID "|%" FMT_SERVER_ID "|%s|%s|%d",
+	  hostId, serverHostDef.serverId,
+	  serverHostDef.hostIdInServer.c_str(),
+	  serverHostDef.name.c_str(), serverHostDef.status);
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+}
+
+void test_upsertHostUpdate(void)
+{
+	test_upsertHost();
+
+	DBHatohol dbHatohol;
+	DBTablesHost &dbHost = dbHatohol.getDBTablesHost();
+	ServerHostDef serverHostDef;
+	serverHostDef.id = AUTO_INCREMENT_VALUE;
+	serverHostDef.hostId = UNKNOWN_HOST_ID;
+	serverHostDef.serverId = 10;
+	serverHostDef.hostIdInServer= "123456";
+	serverHostDef.name = "GO GO GO GO";
+	serverHostDef.status = HOST_STAT_REMOVED;
+	HostIdType hostId = dbHost.upsertHost(serverHostDef);
+
+	string statement = "SELECT * FROM host_list";
+	string expect = StringUtils::sprintf(
+	  "%" FMT_HOST_ID "|%s", hostId, testHostName);
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 
 	statement = "SELECT * FROM server_host_def";
