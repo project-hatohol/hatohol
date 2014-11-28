@@ -58,7 +58,7 @@ msgid "Severity"
 msgstr "深刻度"
 
 #: viewer/actions_ajax.html:61 viewer/hosts_ajax.html:40
-#: viewer/servers_ajax.html:57
+#: viewer/log_search_systems_ajax.html:61 viewer/servers_ajax.html:62
 msgid "Type"
 msgstr "タイプ"
 
@@ -286,10 +286,12 @@ msgid "Incident tracking settings"
 msgstr "インシデント管理設定"
 
 #: viewer/incident_settings_ajax.html:35
+#: viewer/log_search_systems_ajax.html:37
 msgid "ADD"
 msgstr "追加"
 
 #: viewer/incident_settings_ajax.html:39
+#: viewer/log_search_systems_ajax.html:45
 msgid "DELETE"
 msgstr "削除"
 
@@ -332,6 +334,15 @@ msgstr "最新の値"
 #: viewer/latest_ajax.html:65
 msgid "Previous value"
 msgstr "前回の値"
+
+#: viewer/log_search_systems_ajax.html:24
+#: viewer/log_search_systems_ajax.html:29
+msgid "Log search systems"
+msgstr "ログ検索システム"
+
+#: viewer/log_search_systems_ajax.html:62
+msgid "Base URL"
+msgstr "ベースURL"
 
 #: viewer/overview_items_ajax.html:24 viewer/overview_items_ajax.html.py:29
 msgid "Overview : Items"

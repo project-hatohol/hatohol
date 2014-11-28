@@ -20,7 +20,7 @@
 // ---------------------------------------------------------------------------
 // HatoholItemRemover
 // ---------------------------------------------------------------------------
-var HatoholItemRemover = function(deleteParameters) {
+var HatoholItemRemover = function(deleteParameters, connParam) {
   //
   // deleteParameters has following parameters.
   //
@@ -35,7 +35,7 @@ var HatoholItemRemover = function(deleteParameters) {
   for (var i = 0; i < deleteParameters.id.length; i++) {
     count++;
     total++;
-    new HatoholConnector({
+    new HatoholConnector($.extend({
       url: '/' + deleteParameters.type + '/' + deleteParameters.id[i],
         request: "DELETE",
         context: deleteParameters.id[i],
@@ -58,7 +58,7 @@ var HatoholItemRemover = function(deleteParameters) {
         completionCallback: function(context) {
           compleOneDel();
         }
-    });
+    }, connParam || {}));
   }
 
   function compleOneDel() {
