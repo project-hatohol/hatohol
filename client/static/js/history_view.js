@@ -181,9 +181,8 @@ var HistoryView = function(userProfile, options) {
       max: self.sliderTimeRange.max,
       set: function(range) {
         this.last = range.slice();
-        if (this.last[1] - this.last[0] > this.maxSpan) {
+        if (this.last[1] - this.last[0] > this.maxSpan)
           this.last[0] = this.last[1] - this.maxSpan;
-        }
         if (this.last[1] - this.last[0] < this.minSpan) {
           if (this.last[0] + this.minSpan >= this.max) {
             this.last[1] = this.max;
