@@ -214,8 +214,74 @@ var DashboardView = function(userProfile) {
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 
+  function drawLogSearchBody(logSearchSystems) {
+    var html = "";
+
+    logSearchSystems.forEach(function(logSearchSystem) {
+      html += "<tr>";
+      html += "<td>";
+      html += "<form class='form-inline logSearchForm'>";
+      html += "<div class='input-group'>";
+      html += "<input type='hidden' name='type' value='" +
+        escapeHTML(logSearchSystem.type) + "'>";
+      html += "<input type='hidden' name='baseURL' value='" +
+        escapeHTML(logSearchSystem.base_url) + "'>";
+      html += "<input type='text' name='query' class='form-control'>";
+      html += "<span class='input-group-btn'>";
+      html += "<button type='submit' class='btn btn-default'>";
+      html += "<span class='glyphicon glyphicon-search'></span>";
+      html += "</button>";
+      html += "</span>";
+      html += "</div>";
+      html += "</form>";
+      html += "</td>";
+      html += "<td>";
+      html += "<a href='" + escapeHTML(logSearchSystem.base_url) + "'>";
+      html += escapeHTML(logSearchSystem.base_url);
+      html += "</a>";
+      html += "</td>";
+      html += "</tr>";
+    });
+
+    return html;
+  }
+
+  function searchLog(type, baseURL, query) {
+    if (!query) {
+      return;
+    }
+
+    if (type == "groonga") {
+      window.location = baseURL + '?query=' + escape(query);
+    }
+  }
+
+  function updateLogSearch(reply) {
+    var logSearchSystems = reply;
+
+    if (logSearchSystems.length > 0) {
+      $("#logSearchPanel").show();
+      $("#tblLogSearch tbody").empty();
+      $("#tblLogSearch tbody").append(drawLogSearchBody(logSearchSystems));
+      $(".logSearchForm").submit(function(event) {
+        var $form = $(event.target);
+        var type =  $form.find("input[name='type']").val();
+        var baseURL = $form.find("input[name='baseURL']").val();
+        var query = $form.find("input[name='query']").val();
+        searchLog(type, baseURL, query);
+        return false;
+      });
+    } else {
+      $("#logSearchPanel").hide();
+    }
+  }
+
   function load() {
     self.startConnection('overview', updateCore);
+    self.startConnection('log-search-systems/', updateLogSearch, null,
+                         {
+                           pathPrefix: "",
+                         });
   }
 };
 
