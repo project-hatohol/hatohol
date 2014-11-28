@@ -97,8 +97,7 @@ var HistoryView = function(userProfile, options) {
                          Math.floor(ranges.xaxis.to / 1000));
 
       // disable auto refresh
-      if ($("#item-graph-auto-refresh").hasClass("active"))
-        $("#item-graph-auto-refresh").button("toggle");
+      disableAutoRefresh();
     });
 
     // zoom cancel
