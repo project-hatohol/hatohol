@@ -40,6 +40,25 @@ var HistoryView = function(userProfile, options) {
   appendGraphArea();
   loadItemAndHistory();
 
+  function enableAutoRefresh() {
+    var button = $("#item-graph-auto-refresh");
+    delete historyQuery.beginTime;
+    delete historyQuery.endTime;
+    self.plotData = null;
+    button.removeClass("btn-default");
+    button.addClass("btn-primary");
+    button.addClass("active");
+    loadHistory();
+  }
+
+  function disableAutoRefresh() {
+    var button = $("#item-graph-auto-refresh");
+    self.clearAutoReload();
+    button.removeClass("active");
+    button.removeClass("btn-primary");
+    button.addClass("btn-default");
+  }
+
   function appendGraphArea() {
     $("#main").append($("<div>", {
       id: "item-graph",
@@ -55,7 +74,7 @@ var HistoryView = function(userProfile, options) {
     .append($("<button>", {
       id: "item-graph-auto-refresh",
       type: "button",
-      class: "btn btn-default glyphicon glyphicon-refresh active",
+      class: "btn btn-primary glyphicon glyphicon-refresh active",
     }).attr("data-toggle", "button"));
 
     $("#item-graph").bind("plotselected", function (event, ranges) {
@@ -92,14 +111,9 @@ var HistoryView = function(userProfile, options) {
     // toggle auto refresh 
     $("#item-graph-auto-refresh").on("click", function() {
       if ($(this).hasClass("active")) {
-        // Turn off auto refresh
-        self.clearAutoReload();
+        disableAutoRefresh();
       } else {
-        // Turn on auto refresh
-        delete historyQuery.beginTime;
-        delete historyQuery.endTime;
-        self.plotData = null;
-        loadHistory();
+        enableAutoRefresh();
       }
     });
   };
@@ -413,8 +427,11 @@ var HistoryView = function(userProfile, options) {
     if (reply.history.length >= maxRecordsPerRequest) {
       loadHistory();
     } else {
-      if (!historyQuery.endTime)
+      if (historyQuery.endTime) {
+        disableAutoRefresh();
+      } else {
         self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
+      }
       self.loadingHistory = false;
     }
   }
