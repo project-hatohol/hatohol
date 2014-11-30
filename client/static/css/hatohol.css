@@ -89,6 +89,26 @@ div#noscript-background div#noscript-notice
     margin-bottom: 2em;
 }
 
+#item-graph-slider-area {
+    margin-left: 2em;
+    margin-right: 1em;
+    margin-top: 3.5em;
+    margin-bottom: 3.5em;
+    white-space: nowrap;
+}
+
+#item-graph-slider {
+    width: 95%;
+    display: inline-block;
+    white-space: normal;
+}
+
+#item-graph-auto-refresh {
+    margin-left: 1em;
+    margin-right: 0;
+    margin-bottom: 3.6em;
+}
+
 .legend table td {
   padding: 2px;
 }
