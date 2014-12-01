@@ -42,6 +42,8 @@ struct ServerHostDef {
 	HostStatus    status;
 };
 
+typedef std::vector<ServerHostDef> ServerHostDefVect;
+
 struct HostAccess {
 	GenericIdType id;
 	HostIdType    hostId;
@@ -218,6 +220,17 @@ public:
 
 	bool isAccessible(
 	  const HostIdType &hostId, const HostQueryOption &option);
+
+	/**
+	 * Get hosts.
+	 *
+	 * @param svHostDevVect The obtained hosts are added to this object.
+	 * @param option        A option for the inquiry.
+	 *
+	 * @return An error status.
+	 */
+	HatoholError getServerHostDefs(ServerHostDefVect &svHostDefVect,
+	                               const HostQueryOption &option);
 
 protected:
 	static SetupInfo &getSetupInfo(void);
