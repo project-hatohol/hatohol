@@ -456,7 +456,7 @@ void test_getHypervisorWithUserWhoCanAccessAllHostgroup(gconstpointer data)
 	}
 }
 
-void data_getVirtualMachines(void)
+static void prepareForAllUserIds(void)
 {
 	UserIdSet userIdSet;
 	userIdSet.insert(USER_ID_SYSTEM);
@@ -469,6 +469,11 @@ void data_getVirtualMachines(void)
 		gcut_add_datum(uidStr.c_str(),
 		               "userId", G_TYPE_INT, *userIdItr, NULL);
 	}
+}
+
+void data_getVirtualMachines(void)
+{
+	prepareForAllUserIds();
 }
 
 void test_getVirtualMachines(gconstpointer data)
@@ -594,6 +599,48 @@ void test_upsertHostUpdate(void)
 	  serverHostDef.hostIdInServer.c_str(),
 	  serverHostDef.name.c_str(), serverHostDef.status);
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+}
+
+void data_getServerHostDefs(void)
+{
+	prepareForAllUserIds();
+}
+
+void test_getServerHostDefs(gconstpointer data)
+{
+	const UserIdType userId = gcut_data_get_int(data, "userId");
+	loadTestDBUser();
+	loadTestDBAccessList();
+	loadTestDBServerHostDef();
+	loadTestDBHostHostgroup();
+	DECLARE_DBTABLES_HOST(dbHost);
+
+	ServerHostDefVect svHostDefVect;
+	HostQueryOption option(userId);
+	assertHatoholError(HTERR_OK,
+	                   dbHost.getServerHostDefs(svHostDefVect, option));
+
+	// make the expected hosts
+	set<size_t> expectIds;
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		if (isAuthorized(userId, testServerHostDef[i].hostId))
+			expectIds.insert(i + 1);
+	}
+
+	// Check it
+	cppcut_assert_equal(expectIds.size(), svHostDefVect.size());
+	for (size_t i = 0; i < svHostDefVect.size(); i++) {
+		const ServerHostDef &act = svHostDefVect[i];
+		set<size_t>::const_iterator it = expectIds.find(act.id);
+		cppcut_assert_equal(true, it != expectIds.end());
+		expectIds.erase(it);
+		const size_t expectedIdx = *it - 1;
+		const ServerHostDef &exp = testServerHostDef[expectedIdx];
+		cppcut_assert_equal(exp.hostId, act.hostId);
+		cppcut_assert_equal(exp.serverId, act.serverId);
+		cppcut_assert_equal(exp.hostIdInServer, act.hostIdInServer);
+		cppcut_assert_equal(exp.name, act.name);
+	}
 }
 
 } // namespace testDBTablesHost
