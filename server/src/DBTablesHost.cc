@@ -829,9 +829,6 @@ HatoholError DBTablesHost::getServerHostDefs(
 	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_NAME);
 	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_STATUS);
 
-	// condition
-	arg.condition = option.getCondition();
-
 	getDBAgent().runTransaction(arg);
 
 	// get the result
@@ -841,14 +838,19 @@ HatoholError DBTablesHost::getServerHostDefs(
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
-		svHostDefVect.push_back(ServerHostDef());
-		ServerHostDef &svHostDef = svHostDefVect.back();
+		ServerHostDef svHostDef;
 		itemGroupStream >> svHostDef.id;
 		itemGroupStream >> svHostDef.hostId;
+		// TODO: select hosts in an SQL statement.
+		if (option.getUserId() != USER_ID_SYSTEM) {
+			if (!isAccessible(svHostDef.hostId, option))
+				continue;
+		}
 		itemGroupStream >> svHostDef.serverId;
 		itemGroupStream >> svHostDef.hostIdInServer;
 		itemGroupStream >> svHostDef.name;
 		itemGroupStream >> svHostDef.status;
+		svHostDefVect.push_back(svHostDef);
 	}
 	return HTERR_OK;
 }
