@@ -27,6 +27,7 @@
 #include <glib.h>
 #include <errno.h>
 #include <unistd.h>
+#include <pwd.h>
 
 #include <string>
 #include <vector>
@@ -177,6 +178,26 @@ static bool checkDBConnection(void)
 	return true;
 }
 
+static bool changeUser(const string &user)
+{
+	if (!user.length())
+		return true;
+
+	struct passwd *pwd = getpwnam(user.c_str());
+	if (!pwd) {
+		MLPL_ERR("Failed to get user %s: %s\n",
+			 user.c_str(), strerror(errno));
+		return false;
+	}
+	if (setuid(pwd->pw_uid)) {
+		MLPL_ERR("Failed to switch user to %s (uid=%" PRIuMAX "); %s\n",
+			 user.c_str(), (uintmax_t)pwd->pw_uid,
+			 strerror(errno));
+		return false;
+	}
+	return true;
+}
+
 int mainRoutine(int argc, char *argv[])
 {
 #ifndef GLIB_VERSION_2_36
@@ -199,6 +220,10 @@ int mainRoutine(int argc, char *argv[])
 		return EXIT_FAILURE;
 
 	ConfigManager *confMgr = ConfigManager::getInstance();
+
+	if (!changeUser(confMgr->getUser()))
+		return EXIT_FAILURE;
+
 	if (!confMgr->isForegroundProcess()) {
 		if (!daemonize()) {
 			MLPL_ERR("Can't start daemon process\n");

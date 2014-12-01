@@ -83,6 +83,7 @@ static void showVersion(void)
 // ---------------------------------------------------------------------------
 CommandLineOptions::CommandLineOptions(void)
 : pidFilePath(NULL),
+  user(NULL),
   dbServer(NULL),
   dbName(NULL),
   dbUser(NULL),
@@ -111,6 +112,7 @@ struct ConfigManager::Impl {
 	bool                  testMode;
 	ConfigState           copyOnDemand;
 	AtomicValue<int>      faceRestPort;
+	string                user;
 	string                pidFilePath;
 
 	// methods
@@ -203,6 +205,8 @@ struct ConfigManager::Impl {
 			faceRestPort = cmdLineOpts.faceRestPort;
 		if (cmdLineOpts.pidFilePath)
 			pidFilePath = cmdLineOpts.pidFilePath;
+		if (cmdLineOpts.user)
+			user = cmdLineOpts.user;
 	}
 
 private:
@@ -272,6 +276,9 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 		{"face-rest-port",
 		 'r', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseFaceRestPort,
 		 "Port of FaceRest", NULL},
+		{"user",
+		 'U', 0, G_OPTION_ARG_STRING, &cmdLineOpts->user,
+		 "Run as another user", NULL},
 		{"log-level",
 		 'l', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseLogLevel,
 		 "Log level: DBG, INFO, WARN, ERR, CRIT, or BUG. ", NULL},
@@ -428,6 +435,11 @@ void ConfigManager::setFaceRestPort(const int &port)
 string ConfigManager::getPidFilePath(void) const
 {
 	return m_impl->pidFilePath;
+}
+
+string ConfigManager::getUser(void) const
+{
+	return m_impl->user;
 }
 
 // ---------------------------------------------------------------------------
