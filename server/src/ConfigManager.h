@@ -24,8 +24,11 @@
 #include <stdint.h>
 #include "DBTablesConfig.h"
 
+struct pwd;
+
 struct CommandLineOptions {
 	gchar    *pidFilePath;
+	uid_t    user;
 	gchar    *dbServer;
 	gchar    *dbName;
 	gchar    *dbUser;
@@ -120,6 +123,8 @@ public:
 	void setFaceRestPort(const int &port);
 
 	std::string getPidFilePath(void) const;
+
+	uid_t getUser(void) const;
 
 protected:
 	void loadConfFile(void);

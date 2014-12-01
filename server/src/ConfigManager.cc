@@ -22,6 +22,7 @@
 #endif // HAVE_CONFIG_H
 
 #include <Mutex.h>
+#include <pwd.h>
 #include <errno.h>
 #include "ConfigManager.h"
 #include "DBTablesConfig.h"
@@ -35,6 +36,7 @@ enum {
 	CONF_MGR_ERROR_INVALID_PORT,
 	CONF_MGR_ERROR_INVALID_LOG_LEVEL,
 	CONF_MGR_ERROR_INTERNAL,
+	CONF_MGR_ERROR_INVALID_USER
 };
 
 const char *ConfigManager::HATOHOL_DB_DIR_ENV_VAR_NAME = "HATOHOL_DB_DIR";
@@ -72,6 +74,36 @@ static gboolean parseFaceRestPort(
 	return TRUE;
 }
 
+static gboolean parseUser(
+    const gchar *option_name, const gchar *value,
+    gpointer data, GError **error)
+{
+	CommandLineOptions *obj =
+	  static_cast<CommandLineOptions *>(data);
+
+	GQuark quark =
+	  g_quark_from_static_string("config-manager-quark");
+
+	if (!value) {
+		g_set_error(error, quark, CONF_MGR_ERROR_NULL,
+		            "value is NULL.");
+		return FALSE;
+	}
+
+	struct passwd *pwd = getpwnam(value);
+	if (!pwd) {
+		g_set_error(error, quark, CONF_MGR_ERROR_INVALID_USER,
+		            "Invalid user: %s.", value);
+		return FALSE;
+	}
+
+	if (!pwd->pw_uid)
+		MLPL_WARN("Switching user to %s will be ignored.", pwd->pw_name);
+
+	obj->user = pwd->pw_uid;
+	return TRUE;
+}
+
 static void showVersion(void)
 {
 	printf("Hatohol version: %s, build date: %s %s\n",
@@ -83,6 +115,7 @@ static void showVersion(void)
 // ---------------------------------------------------------------------------
 CommandLineOptions::CommandLineOptions(void)
 : pidFilePath(NULL),
+  user(0),
   dbServer(NULL),
   dbName(NULL),
   dbUser(NULL),
@@ -111,6 +144,7 @@ struct ConfigManager::Impl {
 	bool                  testMode;
 	ConfigState           copyOnDemand;
 	AtomicValue<int>      faceRestPort;
+	uid_t                 user;
 	string                pidFilePath;
 
 	// methods
@@ -121,6 +155,7 @@ struct ConfigManager::Impl {
 	  testMode(false),
 	  copyOnDemand(UNKNOWN),
 	  faceRestPort(0),
+	  user(0),
 	  pidFilePath(DEFAULT_PID_FILE_PATH)
 	{
 	}
@@ -203,6 +238,8 @@ struct ConfigManager::Impl {
 			faceRestPort = cmdLineOpts.faceRestPort;
 		if (cmdLineOpts.pidFilePath)
 			pidFilePath = cmdLineOpts.pidFilePath;
+		if (cmdLineOpts.user)
+			user = cmdLineOpts.user;
 	}
 
 private:
@@ -272,6 +309,9 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 		{"face-rest-port",
 		 'r', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseFaceRestPort,
 		 "Port of FaceRest", NULL},
+		{"user",
+		 'r', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseUser,
+		 "Run as another non-root user", NULL},
 		{"log-level",
 		 'l', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseLogLevel,
 		 "Log level: DBG, INFO, WARN, ERR, CRIT, or BUG. ", NULL},
@@ -428,6 +468,11 @@ void ConfigManager::setFaceRestPort(const int &port)
 string ConfigManager::getPidFilePath(void) const
 {
 	return m_impl->pidFilePath;
+}
+
+uid_t ConfigManager::getUser(void) const
+{
+	return m_impl->user;
 }
 
 // ---------------------------------------------------------------------------
