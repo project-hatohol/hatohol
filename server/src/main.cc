@@ -177,6 +177,19 @@ static bool checkDBConnection(void)
 	return true;
 }
 
+static bool changeUser(uid_t user)
+{
+	if (!user)
+		return TRUE;
+	if (setuid(user)) {
+		MLPL_ERR("Failed to setuid(): uid=%" PRIuMAX "; %s\n",
+			 (uintmax_t)user,
+			 strerror(errno));
+		return FALSE;
+	}
+	return TRUE;
+}
+
 int mainRoutine(int argc, char *argv[])
 {
 #ifndef GLIB_VERSION_2_36
@@ -199,6 +212,10 @@ int mainRoutine(int argc, char *argv[])
 		return EXIT_FAILURE;
 
 	ConfigManager *confMgr = ConfigManager::getInstance();
+
+	if (!changeUser(confMgr->getUser()))
+		return EXIT_FAILURE;
+
 	if (!confMgr->isForegroundProcess()) {
 		if (!daemonize()) {
 			MLPL_ERR("Can't start daemon process\n");
