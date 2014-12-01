@@ -817,6 +817,42 @@ bool DBTablesHost::isAccessible(
 	return false;
 }
 
+HatoholError DBTablesHost::getServerHostDefs(
+  ServerHostDefVect &svHostDefVect, const HostQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileServerHostDef);
+	arg.tableField = TABLE_NAME_SERVER_HOST_DEF;
+	arg.add(IDX_HOST_SERVER_HOST_DEF_ID);
+	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID);
+	arg.add(IDX_HOST_SERVER_HOST_DEF_SERVER_ID);
+	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
+	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_NAME);
+	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_STATUS);
+
+	// condition
+	arg.condition = option.getCondition();
+
+	getDBAgent().runTransaction(arg);
+
+	// get the result
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	svHostDefVect.reserve(svHostDefVect.size() + grpList.size());
+
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		svHostDefVect.push_back(ServerHostDef());
+		ServerHostDef &svHostDef = svHostDefVect.back();
+		itemGroupStream >> svHostDef.id;
+		itemGroupStream >> svHostDef.hostId;
+		itemGroupStream >> svHostDef.serverId;
+		itemGroupStream >> svHostDef.hostIdInServer;
+		itemGroupStream >> svHostDef.name;
+		itemGroupStream >> svHostDef.status;
+	}
+	return HTERR_OK;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
