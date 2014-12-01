@@ -116,6 +116,7 @@ protected:
 	void createEventInfo(const ArmResultTriggerInfo &resTrigger,
 			     EventInfoList &eventInfoList);
 	void setInitialTriggerStatus(void);
+	void registerSelfMonitoringHost(void);
 
 private:
 	struct Impl;
