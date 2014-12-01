@@ -26,6 +26,7 @@
 
 struct CommandLineOptions {
 	gchar    *pidFilePath;
+	gchar    *user;
 	gchar    *dbServer;
 	gchar    *dbName;
 	gchar    *dbUser;
@@ -120,6 +121,8 @@ public:
 	void setFaceRestPort(const int &port);
 
 	std::string getPidFilePath(void) const;
+
+	std::string getUser(void) const;
 
 protected:
 	void loadConfFile(void);
