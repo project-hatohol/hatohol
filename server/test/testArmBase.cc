@@ -450,4 +450,25 @@ void test_fetchHistory(void)
 	cppcut_assert_equal(true, ctx.fetchHistoryClosureDeleted.get());
 }
 
+void test_hasTriggerWithNoTrigger(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	TestArmBase armBase(__func__, serverInfo);
+	cppcut_assert_equal(
+	  false, armBase.hasTrigger(ArmBase::COLLECT_NG_PARSER_ERROR));
+}
+
+void test_hasTrigger(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	TestArmBase armBase(__func__, serverInfo);
+	armBase.registerAvailableTrigger(ArmBase::COLLECT_NG_PARSER_ERROR,
+					 FAILED_PARSER_JSON_DATA_TRIGGER_ID,
+					 HTERR_FAILED_TO_PARSE_JSON_DATA);
+	cppcut_assert_equal(
+	  true, armBase.hasTrigger(ArmBase::COLLECT_NG_PARSER_ERROR));
+}
+
 } // namespace testArmBase

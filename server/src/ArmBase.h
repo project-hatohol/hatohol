@@ -77,6 +77,8 @@ public:
 	void registerAvailableTrigger(const ArmPollingResult &type,
 				      const TriggerIdType  &trrigerId,
 				      const HatoholError   &hatholError);
+	bool hasTrigger(const ArmPollingResult &type);
+
 protected:
 	/**
 	 * Request to exit the thread and wait for the complition.

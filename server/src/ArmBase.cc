@@ -370,6 +370,11 @@ void ArmBase::registerAvailableTrigger(const ArmPollingResult &type,
 	m_impl->ArmResultTriggerTable[type].msg = hatoholError.getMessage().c_str();
 }
 
+bool ArmBase::hasTrigger(const ArmPollingResult &type)
+{
+	return (m_impl->ArmResultTriggerTable[type].statusType != TRIGGER_STATUS_ALL);
+}
+
 void ArmBase::setInitialTriggerStatus(void)
 {
 	ThreadLocalDBCache cache;
