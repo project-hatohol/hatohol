@@ -641,6 +641,7 @@ void test_getServerHostDefs(gconstpointer data)
 		cppcut_assert_equal(exp.hostIdInServer, act.hostIdInServer);
 		cppcut_assert_equal(exp.name, act.name);
 	}
+	cppcut_assert_equal(true, expectIds.empty());
 }
 
 } // namespace testDBTablesHost
