@@ -370,7 +370,7 @@ void ArmBase::registerAvailableTrigger(const ArmPollingResult &type,
 	m_impl->ArmResultTriggerTable[type].msg = hatoholError.getMessage().c_str();
 }
 
-void ArmBase::setInitialTrrigerStatus(void)
+void ArmBase::setInitialTriggerStatus(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
@@ -533,7 +533,7 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 			m_impl->lastFailureStatus = ARM_WORK_STAT_FAILURE;
 		}
 		if (previousArmWorkStatus == ARM_WORK_STAT_INIT) {
-			setInitialTrrigerStatus();
+			setInitialTriggerStatus();
 		}
 		if (m_impl->lastFailureStatus != ARM_WORK_STAT_OK) {
 			setServerConnectStatus(armPollingResult);

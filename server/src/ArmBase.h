@@ -113,7 +113,7 @@ protected:
 			       TriggerInfoList &triggerInfoList);
 	void createEventInfo(const ArmResultTriggerInfo &resTrigger,
 			     EventInfoList &eventInfoList);
-	void setInitialTrrigerStatus(void);
+	void setInitialTriggerStatus(void);
 
 private:
 	struct Impl;
