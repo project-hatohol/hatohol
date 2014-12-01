@@ -443,6 +443,22 @@ std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
 		 userRoleInfo.flags);
 }
 
+string makeTriggerOutput(const TriggerInfo &triggerInfo)
+{
+	string expectedOut =
+	  StringUtils::sprintf(
+	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|%" PRIu64 "|%s|%s\n",
+	    triggerInfo.serverId,
+	    triggerInfo.id,
+	    triggerInfo.status, triggerInfo.severity,
+	    triggerInfo.lastChangeTime.tv_sec,
+	    triggerInfo.lastChangeTime.tv_nsec,
+	    triggerInfo.hostId,
+	    triggerInfo.hostName.c_str(),
+	    triggerInfo.brief.c_str());
+	return expectedOut;
+}
+
 string makeEventOutput(const EventInfo &eventInfo)
 {
 	string output =
@@ -493,6 +509,17 @@ string makeHistoryOutput(const HistoryInfo &historyInfo)
 	    (uint64_t)historyInfo.clock.tv_sec,
 	    (uint64_t)historyInfo.clock.tv_nsec,
 	    historyInfo.value.c_str());
+	return output;
+}
+
+string makeHostOutput(const HostInfo &hostInfo)
+{
+	string output =
+	  mlpl::StringUtils::sprintf(
+	    "%" FMT_SERVER_ID "|%" FMT_HOST_ID "|%s|%d\n",
+	    hostInfo.serverId, hostInfo.id,
+	    hostInfo.hostName.c_str(),
+	    hostInfo.validity);
 	return output;
 }
 
