@@ -112,12 +112,11 @@ void test_upsertServerHostDefAutoIncrement(void)
 	GenericIdType id0 = dbHost.upsertServerHostDef(svHostDef);
 	GenericIdType id1 = dbHost.upsertServerHostDef(svHostDef);
 	const string expect = StringUtils::sprintf(
-	  "%" FMT_GEN_ID "|12345|15|8023455|test host name|%d\n"
 	  "%" FMT_GEN_ID "|12345|15|8023455|test host name|%d",
-	  id0, HOST_STAT_NORMAL, id1, HOST_STAT_NORMAL);
+	  id0, HOST_STAT_NORMAL);
 	const string statement = "SELECT * FROM server_host_def ORDER BY id";
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
-	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id0);
+	cppcut_assert_equal(id0, id1);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id1);
 }
 
