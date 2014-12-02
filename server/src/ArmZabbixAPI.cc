@@ -105,7 +105,7 @@ void ArmZabbixAPI::updateEvents(void)
 {
 	const EventIdType serverLastEventId = getEndEventId(false);
 	if (serverLastEventId == EVENT_ID_NOT_FOUND) {
-		MLPL_ERR("Last event ID is not found\n");
+		MLPL_DBG("Last event ID is not found in Zabbix server\n");
 		return;
 	}
 
