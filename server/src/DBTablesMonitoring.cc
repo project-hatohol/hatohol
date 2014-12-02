@@ -29,6 +29,10 @@
 #include "DBClientJoinBuilder.h"
 #include "DBTermCStringProvider.h"
 
+// TODO: remove the follwoing include file after we complete migration of
+// host management with DBTablesHost.
+#include "DBTablesHost.h"
+
 // TODO: rmeove the followin two include files!
 // This class should not be aware of it.
 #include "DBAgentSQLite3.h"
@@ -2111,22 +2115,37 @@ void DBTablesMonitoring::addHostInfo(HostInfo *hostInfo)
 
 void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 {
-	struct TrxProc : public DBAgent::TransactionProc {
-		const HostInfoList &hostInfoList;
+	// This is transient code and should be removed after the transition
+	// is completed.
+	ServerHostDefVect svHostDefVec;
 
-		TrxProc(const HostInfoList &_hostInfoList)
-		: hostInfoList(_hostInfoList)
-		{
+	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
+	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr) {
+		const HostInfo &hostInfo = *hostInfoItr;
+		ServerHostDef serverHostDef;
+		serverHostDef.id = AUTO_INCREMENT_VALUE;
+		serverHostDef.hostId = UNKNOWN_HOST_ID;
+		serverHostDef.serverId       = hostInfo.serverId;
+		serverHostDef.hostIdInServer = hostInfo.id;
+		serverHostDef.name           = hostInfo.hostName;
+		switch (hostInfo.validity) {
+		case HOST_VALID:
+		case HOST_VALID_INAPPLICABLE:
+		case HOST_VALID_SELF_MONITORING:
+			serverHostDef.status = HOST_STAT_NORMAL;
+			break;
+		case HOST_INVALID:
+			serverHostDef.status = HOST_STAT_REMOVED;
+			break;
+		default:
+			HATOHOL_ASSERT(false, "Unexpected validity: %d\n",
+			               hostInfo.validity);
 		}
+		svHostDefVec.push_back(serverHostDef);
+	}
 
-		void operator ()(DBAgent &dbAgent) override
-		{
-			HostInfoListConstIterator it = hostInfoList.begin();
-			for(; it != hostInfoList.end(); ++it)
-				addHostInfoWithoutTransaction(dbAgent, *it);
-		}
-	} trx(hostInfoList);
-	getDBAgent().runTransaction(trx);
+	ThreadLocalDBCache cache;
+	cache.getHost().upsertHosts(svHostDefVec);
 }
 
 void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,

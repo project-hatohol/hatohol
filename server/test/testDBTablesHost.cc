@@ -618,6 +618,44 @@ void test_upsertHostUpdate(void)
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 }
 
+void test_upsertHosts(void)
+{
+	ServerHostDefVect svHostDefs;
+	for (size_t i = 0; i < NumTestServerHostDef; i++)
+		svHostDefs.push_back(testServerHostDef[i]);
+	DECLARE_DBTABLES_HOST(dbHost);
+	dbHost.upsertHosts(svHostDefs);
+
+	// check
+
+	string statement = "SELECT * FROM host_list";
+	string expect;
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		expect += StringUtils::sprintf(
+		  "%" FMT_HOST_ID "|%s",
+		  testServerHostDef[i].hostId,
+		  testServerHostDef[i].name.c_str());
+		if (i <  NumTestServerHostDef - 1)
+			expect += "\n";
+	}
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+
+	statement = "SELECT * FROM server_host_def";
+	expect.clear();
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		const ServerHostDef &serverHostDef = testServerHostDef[i];
+		expect += StringUtils::sprintf(
+		  "%zd|%" FMT_HOST_ID "|%" FMT_SERVER_ID "|%s|%s|%d",
+		  i + 1,
+		  serverHostDef.hostId, serverHostDef.serverId,
+		  serverHostDef.hostIdInServer.c_str(),
+		  serverHostDef.name.c_str(), serverHostDef.status);
+		if (i <  NumTestServerHostDef - 1)
+			expect += "\n";
+	}
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+}
+
 void data_getServerHostDefs(void)
 {
 	prepareForAllUserIds();
