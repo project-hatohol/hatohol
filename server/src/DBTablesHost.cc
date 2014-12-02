@@ -475,7 +475,7 @@ static string setupFmtCondSelectSvHostDef(void)
 }
 
 HostIdType DBTablesHost::upsertHost(
-  const ServerHostDef &serverHostDef)
+  const ServerHostDef &serverHostDef, const bool &useTransaction)
 {
 	HATOHOL_ASSERT(serverHostDef.hostId == UNKNOWN_HOST_ID ||
 	               serverHostDef.hostId >= 0,
@@ -652,10 +652,37 @@ HostIdType DBTablesHost::upsertHost(
 		                                        cond);
 		}
 
-	} transaction(serverHostDef);
-	getDBAgent().runTransaction(transaction);
+	} proc(serverHostDef);
 
-	return transaction.hostId;
+	if (useTransaction)
+		getDBAgent().runTransaction(proc);
+	else
+		proc(getDBAgent());
+
+	return proc.hostId;
+}
+
+void DBTablesHost::upsertHosts(const ServerHostDefVect &serverHostDefs)
+{
+	struct Proc : public DBAgent::TransactionProc {
+		DBTablesHost &dbHost;
+		const ServerHostDefVect &serverHostDefs;
+
+		Proc(DBTablesHost &_dbHost, const ServerHostDefVect &_serverHostDefs)
+		: dbHost(_dbHost),
+		  serverHostDefs(_serverHostDefs)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			ServerHostDefVectConstIterator svHostDefItr =
+			  serverHostDefs.begin();
+			for (; svHostDefItr != serverHostDefs.end(); ++svHostDefItr)
+				dbHost.upsertHost(*svHostDefItr, false);
+		}
+	} proc(*this, serverHostDefs);
+	getDBAgent().runTransaction(proc);
 }
 
 GenericIdType DBTablesHost::upsertServerHostDef(

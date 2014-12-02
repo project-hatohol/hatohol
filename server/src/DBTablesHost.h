@@ -43,6 +43,8 @@ struct ServerHostDef {
 };
 
 typedef std::vector<ServerHostDef> ServerHostDefVect;
+typedef ServerHostDefVect::iterator       ServerHostDefVectIterator;
+typedef ServerHostDefVect::const_iterator ServerHostDefVectConstIterator;
 
 struct HostAccess {
 	GenericIdType id;
@@ -111,10 +113,14 @@ public:
 	 * the new record.
 	 *
 	 * @param serverHostDef A data to be inserted/updated.
+	 * @param useTransaction A flag to select to use a transaction.
 	 * @return
 	 * The Host ID of inserted/updated record to/in host_list.
 	 */
-	HostIdType upsertHost(const ServerHostDef &serverHostDef);
+	HostIdType upsertHost(const ServerHostDef &serverHostDef,
+	                      const bool &useTransaction = true);
+
+	void upsertHosts(const ServerHostDefVect &serverHostDefs);
 
 	/**
 	 * Insert or update a record to/in the server-host-definition table
