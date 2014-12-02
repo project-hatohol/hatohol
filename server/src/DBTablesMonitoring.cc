@@ -34,6 +34,10 @@
 // host management with DBTablesHost.
 #include "DBTablesHost.h"
 
+// TODO: remove the follwoing include file after we complete migration of
+// host management with DBTablesHost.
+#include "DBTablesHost.h"
+
 // TODO: rmeove the followin two include files!
 // This class should not be aware of it.
 #include "DBAgentSQLite3.h"
