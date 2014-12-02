@@ -35,6 +35,37 @@ namespace testDBTablesHost {
 
 static const char *testHostName = "FOO FOO FOO";
 
+static void assertUpsertHost(const HostIdType &hostId)
+{
+	DBHatohol dbHatohol;
+	DBTablesHost &dbHost = dbHatohol.getDBTablesHost();
+	ServerHostDef serverHostDef;
+	serverHostDef.id = AUTO_INCREMENT_VALUE;
+	serverHostDef.hostId = hostId;
+	serverHostDef.serverId = 10;
+	serverHostDef.hostIdInServer= "123456";
+	serverHostDef.name = testHostName;
+	serverHostDef.status = HOST_STAT_NORMAL;
+	HostIdType retHostId = dbHost.upsertHost(serverHostDef);
+
+	string statement = "SELECT * FROM host_list";
+	HostIdType expectHostId =
+	  (hostId == UNKNOWN_HOST_ID) ? retHostId : hostId;
+	string expect = StringUtils::sprintf(
+	  "%" FMT_HOST_ID "|%s",
+	  expectHostId, serverHostDef.name.c_str());
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+
+	statement = "SELECT * FROM server_host_def";
+	expect = StringUtils::sprintf(
+	  "1|%" FMT_HOST_ID "|%" FMT_SERVER_ID "|%s|%s|%d",
+	  expectHostId, serverHostDef.serverId,
+	  serverHostDef.hostIdInServer.c_str(),
+	  serverHostDef.name.c_str(), serverHostDef.status);
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+}
+
+
 
 void cut_setup(void)
 {
@@ -544,37 +575,23 @@ void test_getVirtualMachines(gconstpointer data)
 	cppcut_assert_equal(true, actualHypervisorVMMap.empty());
 }
 
-void test_upsertHost(void)
+void data_upsertHost(void)
 {
-	DBHatohol dbHatohol;
-	DBTablesHost &dbHost = dbHatohol.getDBTablesHost();
-	ServerHostDef serverHostDef;
-	serverHostDef.id = AUTO_INCREMENT_VALUE;
-	serverHostDef.hostId = UNKNOWN_HOST_ID;
-	serverHostDef.serverId = 10;
-	serverHostDef.hostIdInServer= "123456";
-	serverHostDef.name = testHostName;
-	serverHostDef.status = HOST_STAT_NORMAL;
-	HostIdType hostId = dbHost.upsertHost(serverHostDef);
+	gcut_add_datum("UNKNOWN_HOST_ID",
+	               "hostId", G_TYPE_UINT64, UNKNOWN_HOST_ID, NULL);
+	gcut_add_datum("Specific Host ID",
+	               "hostId", G_TYPE_UINT64, 224466, NULL);
+}
 
-	string statement = "SELECT * FROM host_list";
-	string expect = StringUtils::sprintf(
-	  "%" FMT_HOST_ID "|%s",
-	  hostId, serverHostDef.name.c_str());
-	assertDBContent(&dbHost.getDBAgent(), statement, expect);
-
-	statement = "SELECT * FROM server_host_def";
-	expect = StringUtils::sprintf(
-	  "1|%" FMT_HOST_ID "|%" FMT_SERVER_ID "|%s|%s|%d",
-	  hostId, serverHostDef.serverId,
-	  serverHostDef.hostIdInServer.c_str(),
-	  serverHostDef.name.c_str(), serverHostDef.status);
-	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+void test_upsertHost(gconstpointer data)
+{
+	const HostIdType hostId = gcut_data_get_boolean(data, "hostId");
+	assertUpsertHost(hostId);
 }
 
 void test_upsertHostUpdate(void)
 {
-	test_upsertHost();
+	assertUpsertHost(UNKNOWN_HOST_ID);
 
 	DBHatohol dbHatohol;
 	DBTablesHost &dbHost = dbHatohol.getDBTablesHost();
