@@ -512,8 +512,21 @@ HostIdType DBTablesHost::upsertHost(
 					assertHostIdConsistency(currSvHostDef);
 				hostId = currSvHostDef.hostId;
 			} else {
-				hostId = addHost(dbAgent, serverHostDef.name);
-				tookNewHostId = true;
+				bool shouldAddHost = false;
+				if (serverHostDef.hostId == UNKNOWN_HOST_ID) {
+					shouldAddHost = true;
+				} else {
+					hostId = serverHostDef.hostId;
+					shouldAddHost =
+					  !hasHost(dbAgent, hostId);
+				}
+
+				if (shouldAddHost) {
+					hostId = addHost(dbAgent,
+					                 serverHostDef.hostId,
+					                 serverHostDef.name);
+					tookNewHostId = true;
+				}
 			}
 
 			setupUpsertArgOfServerHostDef(serverHostDefArg,
@@ -595,13 +608,19 @@ HostIdType DBTablesHost::upsertHost(
 			return false;
 		}
 
-		HostIdType addHost(DBAgent &dbAgent, const string &name)
+		HostIdType addHost(DBAgent &dbAgent, const HostIdType &hostId,
+		                   const string &name)
 		{
 			DBAgent::InsertArg arg(tableProfileHostList);
-			arg.add(AUTO_INCREMENT_VALUE);
+			if (hostId == UNKNOWN_HOST_ID)
+				arg.add(AUTO_INCREMENT_VALUE);
+			else
+				arg.add(hostId);
 			arg.add(name);
+			arg.upsertOnDuplicate = (hostId != UNKNOWN_HOST_ID);
 			dbAgent.insert(arg);
-			return dbAgent.getLastInsertId();
+			return (hostId == UNKNOWN_HOST_ID) ?
+			         dbAgent.getLastInsertId() : hostId;
 		}
 
 		void removeHost(DBAgent &dbAgent, const HostIdType &hostId)
@@ -621,6 +640,16 @@ HostIdType DBTablesHost::upsertHost(
 			  "Host ID inconsistent: DB: %" FMT_HOST_ID ", "
 			  "Input: %" FMT_HOST_ID,
 			  currSvHostDef.hostId, serverHostDef.hostId);
+		}
+
+		bool hasHost(DBAgent &dbAgent, const HostIdType &hostId)
+		{
+			string cond =
+			  StringUtils::sprintf("%s=%" FMT_HOST_ID,
+			    COLUMN_DEF_HOST_LIST[IDX_HOST_LIST_ID].columnName,
+			    hostId);
+			return dbAgent.isRecordExisting(TABLE_NAME_HOST_LIST,
+		                                        cond);
 		}
 
 	} transaction(serverHostDef);
