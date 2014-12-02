@@ -75,7 +75,7 @@ struct IncidentSender::Job
 		if (eventInfo && createCallback)
 			createCallback(*eventInfo, status, userData);
 		else if (incidentInfo && updateCallback)
-			createCallback(*eventInfo, status, userData);
+			updateCallback(*incidentInfo, status, userData);
 	}
 
 	HatoholError send(IncidentSender &sender) const
@@ -135,7 +135,8 @@ struct IncidentSender::Impl
 			queue.pop();
 		}
 		runningJob = job;
-		job->notifyStatus(JOB_STARTED);
+		if (job)
+			job->notifyStatus(JOB_STARTED);
 		queueLock.unlock();
 		return job;
 	}
