@@ -23,7 +23,7 @@ var ActionsView = function(userProfile) {
   //
   var self = this;
 
-  self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
+  self.hideToggleAutoRefreshButton();
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);

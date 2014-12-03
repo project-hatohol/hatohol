@@ -30,6 +30,7 @@ var HistoryView = function(userProfile, options) {
   self.plotOptions = null;
   self.plot = null;
   self.timeRange = null;
+  self.hideToggleAutoRefreshButton();
 
   if (!options)
     options = {};
