@@ -360,3 +360,23 @@ function()
   $("#update-time").empty();
   $("#update-time").append(gettext("Last update time:") + " " + date.getCurrentTime());
 }
+
+HatoholMonitoringView.prototype.enableAutoRefresh =
+function(reloadFunc, reloadIntervalSeconds)
+{
+  var button = $("#toggleAutoRefreshButton");
+  button.removeClass("btn-default");
+  button.addClass("btn-primary");
+  button.addClass("active");
+  this.setAutoReload(reloadFunc, reloadIntervalSeconds);
+}
+
+HatoholMonitoringView.prototype.disableAutoRefresh =
+function()
+{
+  var button = $("#toggleAutoRefreshButton");
+  this.clearAutoReload();
+  button.removeClass("btn-primary");
+  button.removeClass("active");
+  button.addClass("btn-default");
+}
