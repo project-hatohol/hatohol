@@ -14,13 +14,10 @@ After=syslog.target network-online.target mysqld.service
 
 [Service]
 ExecStart=${BIN_FILE}
-ExecReload=/bin/kill -HUP \$MAINPID
-ExecStop=/bin/kill \$MAINPID
 Type=forking
 PIDFile=${PID_FILE}
 Restart=always
 TimeoutStopSec=320s
-KillMode=process
 RestartSec=5s
 
 [Install]
