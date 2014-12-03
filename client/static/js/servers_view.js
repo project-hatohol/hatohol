@@ -304,7 +304,7 @@ ServerConnStatParser.prototype.setServerId = function(serverId) {
     return false;
   self.currServerId = serverId;
   self.currConnStat = connStat;
-  return true; 
+  return true;
 }
 
 ServerConnStatParser.prototype.getStatusLabel = function() {
@@ -336,7 +336,7 @@ ServerConnStatParser.prototype.getInfoHTML = function() {
 
   // running
   var running = self.currConnStat.running;
-  s += gettext("Running") + ": " 
+  s += gettext("Running") + ": "
   switch (running) {
   case 0:
     s += gettext("No");
@@ -424,4 +424,3 @@ ServerConnStatParser.prototype.unixTimeToVisible = function(unixTimeString) {
                    hour + ":" + min + ":" + sec;
   return showString;
 }
-

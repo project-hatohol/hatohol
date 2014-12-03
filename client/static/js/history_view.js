@@ -107,7 +107,7 @@ var HistoryView = function(userProfile, options) {
                          Math.floor(self.plotOptions.xaxis.max / 1000));
     });
 
-    // toggle auto refresh 
+    // toggle auto refresh
     $("#item-graph-auto-refresh").on("click", function() {
       if ($(this).hasClass("active")) {
         disableAutoRefresh();

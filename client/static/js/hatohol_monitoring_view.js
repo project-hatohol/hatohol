@@ -196,7 +196,7 @@ HatoholMonitoringView.prototype.setupHostQuerySelectorCallback =
       loadFunc();
     });
   }
-  
+
   // host
   if (hostSelectorId) {
     $(hostSelectorId).change(function() {
@@ -263,7 +263,7 @@ HatoholMonitoringView.prototype.startConnection =
   function (query, completionCallback, callbackParam, connParam)
 {
   var self = this;
-  
+
   self.setStatus({
     "class" : "warning",
     "label" : gettext("LOAD"),
