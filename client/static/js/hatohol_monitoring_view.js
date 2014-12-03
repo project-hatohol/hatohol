@@ -380,3 +380,16 @@ function()
   button.removeClass("active");
   button.addClass("btn-default");
 }
+
+HatoholMonitoringView.prototype.setupToggleAutoRefreshButtonHandler =
+function(reloadFunc, intervalSeconds)
+{
+  var self = this;
+  $("#toggleAutoRefreshButton").on("click", function() {
+    if ($(this).hasClass("active")) {
+      self.disableAutoRefresh();
+    } else {
+      self.enableAutoRefresh(reloadFunc, intervalSeconds);
+    }
+  });
+}
