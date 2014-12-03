@@ -147,6 +147,24 @@ var HistoryView = function(userProfile, options) {
     return plotData;
   }
 
+  function shiftPlotData(plotData) {
+    var beginTimeInMSec, data;
+
+    if (!plotData || !plotData[0])
+      return;
+
+    beginTimeInMSec = (self.lastQuery.endTime - self.timeSpan) * 1000;
+    data = plotData[0].data;
+
+    while(data.length > 0 && data[0][0] < beginTimeInMSec) {
+      if (data[0].length == 1 || data[0][1] > beginTimeInMSec) {
+	// remain one point to draw the left edge of the line
+	break;
+      }
+      plotData[0].data.shift();
+    }
+  }
+
   function formatTime(val, unit) {
     var now = new Date();
     var date = $.plot.dateGenerator(val, self.plotOptions.xaxis);
@@ -343,6 +361,7 @@ var HistoryView = function(userProfile, options) {
     var item = self.replyItem.items[0];
     if (!self.plotData)
       self.plotData = formatPlotData(item);
+    shiftPlotData(self.plotData);
     appendPlotData(self.plotData, reply);
     self.displayUpdateTime();
     drawGraph(item, self.plotData);
