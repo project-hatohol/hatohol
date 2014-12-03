@@ -46,7 +46,7 @@ const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBTablesMonitoring::MONITORING_DB_VERSION = 8;
+const int   DBTablesMonitoring::MONITORING_DB_VERSION = 9;
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -841,6 +841,15 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"unified_event_id",                // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -859,6 +868,7 @@ enum {
 	IDX_INCIDENTS_UPDATED_AT_NS,
 	IDX_INCIDENTS_PRIORITY,
 	IDX_INCIDENTS_DONE_RATIO,
+	IDX_INCIDENTS_UNIFIED_EVENT_ID,
 	NUM_IDX_INCIDENTS,
 };
 
@@ -1756,6 +1766,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		builder.add(IDX_INCIDENTS_UPDATED_AT_NS);
 		builder.add(IDX_INCIDENTS_PRIORITY);
 		builder.add(IDX_INCIDENTS_DONE_RATIO);
+		builder.add(IDX_INCIDENTS_UNIFIED_EVENT_ID);
 	}
 
 	// Condition
@@ -1860,6 +1871,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 			incidentInfo.serverId  = eventInfo.serverId;
 			incidentInfo.eventId   = eventInfo.id;
 			incidentInfo.triggerId = eventInfo.triggerId;
+			incidentInfo.unifiedEventId = eventInfo.unifiedId;
 		}
 	}
 	return HatoholError(HTERR_OK);
@@ -2506,6 +2518,7 @@ void DBTablesMonitoring::updateIncidentInfo(IncidentInfo &incidentInfo)
 	arg.add(IDX_INCIDENTS_UPDATED_AT_NS, incidentInfo.updatedAt.tv_nsec);
 	arg.add(IDX_INCIDENTS_PRIORITY, incidentInfo.priority);
 	arg.add(IDX_INCIDENTS_DONE_RATIO, incidentInfo.doneRatio);
+	arg.add(IDX_INCIDENTS_UNIFIED_EVENT_ID, incidentInfo.unifiedEventId);
 	arg.condition = StringUtils::sprintf(
 	  "%s=%" FMT_INCIDENT_TRACKER_ID " AND %s=%s",
 	  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_TRACKER_ID].columnName,
@@ -2755,6 +2768,7 @@ void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
 	arg.add(incidentInfo.updatedAt.tv_nsec);
 	arg.add(incidentInfo.priority);
 	arg.add(incidentInfo.doneRatio);
+	arg.add(incidentInfo.unifiedEventId);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
@@ -2846,6 +2860,12 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileItems);
 		addColumnsArg.columnIndexes.push_back(IDX_ITEMS_VALUE_TYPE);
 		addColumnsArg.columnIndexes.push_back(IDX_ITEMS_UNIT);
+		dbAgent.addColumns(addColumnsArg);
+	}
+	if (oldVer <= 8) {
+		// add a new column "unified_event_id" to incidents
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileIncidents);
+		addColumnsArg.columnIndexes.push_back(IDX_INCIDENTS_UNIFIED_EVENT_ID);
 		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;

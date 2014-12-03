@@ -334,6 +334,8 @@ struct AssertGetEventsArg
 		for (; incidentIt != incidentEndIt; incidentIt++, eventIt++) {
 			IncidentInfo incident
 			  = getExpectedIncidentInfo(*eventIt);
+			// TODO: should get correct expected unifiedEventId
+			incident.unifiedEventId = incidentIt->unifiedEventId;
 			expected += makeIncidentOutput(incident);
 			actual += makeIncidentOutput(*incidentIt);
 		}

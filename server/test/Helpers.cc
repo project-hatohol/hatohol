@@ -482,7 +482,7 @@ string makeIncidentOutput(const IncidentInfo &incidentInfo)
 	    "%" FMT_INCIDENT_TRACKER_ID "|%" FMT_SERVER_ID "|%" FMT_EVENT_ID
 	    "|%" FMT_TRIGGER_ID "|%s|%s|%s|%s"
 	    "|%" PRIu64 "|%" PRIu64 "|%" PRIu64 "|%" PRIu64
-	    "|%s|%d\n",
+	    "|%s|%d|%" PRIu64 "\n",
 	    incidentInfo.trackerId,
 	    incidentInfo.serverId,
 	    incidentInfo.eventId,
@@ -496,7 +496,8 @@ string makeIncidentOutput(const IncidentInfo &incidentInfo)
 	    incidentInfo.updatedAt.tv_sec,
 	    incidentInfo.updatedAt.tv_nsec,
 	    incidentInfo.priority.c_str(),
-	    incidentInfo.doneRatio);
+	    incidentInfo.doneRatio,
+	    incidentInfo.unifiedEventId);
 	return output;
 }
 

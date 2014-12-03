@@ -229,6 +229,9 @@ struct IncidentInfo {
 	mlpl::Time         updatedAt;
 
 	Status             statusCode;
+
+	/* fetched from a monitoring system (since 14.12) */
+	uint64_t           unifiedEventId;
 };
 
 typedef std::vector<IncidentInfo>        IncidentInfoVect;
