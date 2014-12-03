@@ -44,11 +44,11 @@ var EventsView = function(userProfile, baseElem) {
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
-  self.userConfig = new HatoholUserConfig(); 
+  self.userConfig = new HatoholUserConfig();
   start();
 
   //
-  // Private functions 
+  // Private functions
   //
   function start() {
     self.userConfig.get({
@@ -203,7 +203,7 @@ var EventsView = function(userProfile, baseElem) {
       $("#next-events-button").removeAttr("disabled");
     }
   }
-  
+
   function parseData(replyData) {
     // The structur of durations:
     // {
@@ -232,7 +232,7 @@ var EventsView = function(userProfile, baseElem) {
         durations[serverId] = {};
       if (!durations[serverId][triggerId])
         durations[serverId][triggerId] = [];
-      
+
       durations[serverId][triggerId].push(event["time"]);
     }
 
