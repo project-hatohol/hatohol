@@ -40,21 +40,23 @@ var HistoryView = function(userProfile, options) {
   appendGraphArea();
   loadItemAndHistory();
 
-  function enableAutoRefresh() {
+  function enableAutoRefresh(onClickButton) {
     var button = $("#item-graph-auto-refresh");
     delete historyQuery.beginTime;
     delete historyQuery.endTime;
     self.plotData = null;
     button.removeClass("btn-default");
     button.addClass("btn-primary");
-    button.addClass("active");
+    if (!onClickButton)
+      button.addClass("active");
     loadHistory();
   }
 
-  function disableAutoRefresh() {
+  function disableAutoRefresh(onClickButton) {
     var button = $("#item-graph-auto-refresh");
     self.clearAutoReload();
-    button.removeClass("active");
+    if (!onClickButton)
+      button.removeClass("active");
     button.removeClass("btn-primary");
     button.addClass("btn-default");
   }
@@ -110,9 +112,9 @@ var HistoryView = function(userProfile, options) {
     // toggle auto refresh 
     $("#item-graph-auto-refresh").on("click", function() {
       if ($(this).hasClass("active")) {
-        disableAutoRefresh();
+        disableAutoRefresh(true);
       } else {
-        enableAutoRefresh();
+        enableAutoRefresh(true);
       }
     });
   };
