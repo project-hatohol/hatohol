@@ -22,7 +22,6 @@ var LogSearchSystemsView = function(userProfile) {
   // Variables
   //
   var self = this;
-  self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
