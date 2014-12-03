@@ -393,3 +393,9 @@ function(reloadFunc, intervalSeconds)
     }
   });
 }
+
+HatoholMonitoringView.prototype.showToggleAutoRefreshButton =
+function()
+{
+  $("#toggleAutoRefreshButton").show();
+}
