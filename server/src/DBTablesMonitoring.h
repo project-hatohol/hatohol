@@ -195,8 +195,6 @@ public:
 	HatoholError getEventInfoList(EventInfoList &eventInfoList,
 	                              const EventsQueryOption &option,
 				      IncidentInfoVect *incidentInfoVect = NULL);
-	void setEventInfoList(const EventInfoList &eventInfoList,
-	                      const ServerIdType &serverId);
 
 	void addHostgroupInfo(HostgroupInfo *eventInfo);
 	void addHostgroupInfoList(const HostgroupInfoList &groupInfoList);

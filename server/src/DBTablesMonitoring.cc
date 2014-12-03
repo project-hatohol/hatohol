@@ -1865,43 +1865,6 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	return HatoholError(HTERR_OK);
 }
 
-// TODO: remove this fucntion (no longer used)
-void DBTablesMonitoring::setEventInfoList(
-  const EventInfoList &eventInfoList, const ServerIdType &serverId)
-{
-	struct TrxProc : public DBAgent::TransactionProc {
-		const EventInfoList &eventInfoList;
-		const ServerIdType &serverId;
-		DBAgent::DeleteArg deleteArg;
-
-		TrxProc(const EventInfoList &_eventInfoList,
-		        const ServerIdType &_serverId)
-		: eventInfoList(_eventInfoList),
-		  serverId(_serverId),
-		  deleteArg(tableProfileEvents)
-		{
-		}
-
-		virtual bool preproc(DBAgent &dbAgent) override
-		{
-			deleteArg.condition =
-			  StringUtils::sprintf("%s=%s",
-			    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
-			    dbAgent.getDBTermCodec()->enc(serverId).c_str());
-			return true;
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			dbAgent.deleteRows(deleteArg);
-			EventInfoListConstIterator it = eventInfoList.begin();
-			for (; it != eventInfoList.end(); ++it)
-				addEventInfoWithoutTransaction(dbAgent, *it);
-		}
-	} trx(eventInfoList, serverId);
-	getDBAgent().runTransaction(trx);
-}
-
 void DBTablesMonitoring::addHostgroupInfo(HostgroupInfo *groupInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
