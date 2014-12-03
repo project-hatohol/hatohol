@@ -34,6 +34,7 @@ var EventsView = function(userProfile, baseElem) {
   };
   $.extend(self.baseQuery, getEventsQueryInURI());
   self.lastQuery = undefined;
+  self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];

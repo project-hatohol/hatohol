@@ -21,6 +21,7 @@ var DashboardView = function(userProfile) {
   var self = this;
 
   self.reloadIntervalSeconds = 60;
+  self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
   // call the constructor of the super class
