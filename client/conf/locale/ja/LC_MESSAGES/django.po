@@ -84,7 +84,7 @@ msgstr "準備中"
 
 #: viewer/base_ajax.html:57
 msgid "toggle auto refresh"
-msgstr ""
+msgstr "自動更新ON/OFF"
 
 #: viewer/base_ajax.html:64
 msgid "Not logged in"
