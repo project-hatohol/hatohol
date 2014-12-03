@@ -28,6 +28,7 @@ var OverviewTriggers = function(userProfile) {
   };
   $.extend(self.baseQuery, getTriggersQueryInURI());
   self.lastQuery = undefined;
+  self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);

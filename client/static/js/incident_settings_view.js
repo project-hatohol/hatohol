@@ -25,6 +25,7 @@ var IncidentSettingsView = function(userProfile) {
   self.incidentSettingsData = null;
   self.incidentTrackersData = null;
   self.incidentTrackersMap = null;
+  self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
