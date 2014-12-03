@@ -22,7 +22,6 @@ var UsersView = function(userProfile) {
   // Variables
   //
   var self = this;
-  self.hideToggleAutoRefreshButton();
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);

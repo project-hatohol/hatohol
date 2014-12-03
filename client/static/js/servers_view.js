@@ -21,8 +21,6 @@ var ServersView = function(userProfile) {
   var self = this;
   var serverIds = new Array();
 
-  self.hideToggleAutoRefreshButton();
-
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
