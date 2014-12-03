@@ -1691,19 +1691,19 @@ void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)
 	getDBAgent().runTransaction(trx);
 }
 
-void DBTablesMonitoring::addEventInfoList(const EventInfoList &eventInfoList)
+void DBTablesMonitoring::addEventInfoList(EventInfoList &eventInfoList)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
-		const EventInfoList &eventInfoList;
+		EventInfoList &eventInfoList;
 
-		TrxProc(const EventInfoList &_eventInfoList)
+		TrxProc(EventInfoList &_eventInfoList)
 		: eventInfoList(_eventInfoList)
 		{
 		}
 
 		void operator ()(DBAgent &dbAgent) override
 		{
-			EventInfoListConstIterator it = eventInfoList.begin();
+			EventInfoListIterator it = eventInfoList.begin();
 			for (; it != eventInfoList.end(); ++it)
 				addEventInfoWithoutTransaction(dbAgent, *it);
 		}
@@ -2641,7 +2641,7 @@ void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
 }
 
 void DBTablesMonitoring::addEventInfoWithoutTransaction(
-  DBAgent &dbAgent, const EventInfo &eventInfo)
+  DBAgent &dbAgent, EventInfo &eventInfo)
 {
 	DBAgent::InsertArg arg(tableProfileEvents);
 	arg.add(AUTO_INCREMENT_VALUE_U64);
@@ -2658,6 +2658,7 @@ void DBTablesMonitoring::addEventInfoWithoutTransaction(
 	arg.add(eventInfo.brief);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
+	eventInfo.unifiedId = dbAgent.getLastInsertId();
 }
 
 void DBTablesMonitoring::addItemInfoWithoutTransaction(
