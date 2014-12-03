@@ -925,7 +925,7 @@ msgstr "インシデント管理"
 #: static/js/hatohol_navi.js:67 test/browser/test_hatohol_navi.js:61
 #: test/browser/test_hatohol_navi.js:101
 msgid "Log search systems"
-msgstr ""
+msgstr "ログ検索システム"
 
 #: static/js/hatohol_navi.js:71 static/js/hatohol_user_roles_editor.js:385
 #: static/js/hatohol_user_roles_editor.js:390
