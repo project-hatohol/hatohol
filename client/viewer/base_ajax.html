@@ -51,7 +51,14 @@
           </ul>
         </div>
 
-        <div class="pull-right btn-group" id ="userMenu">
+        <div class="pull-right btn-group" id="toggleAutoRefresh">
+          <button class="navbar-btn btn btn-primary active" id="toggleAutoRefreshButton">
+            <i class="glyphicon glyphicon-refresh"></i>
+            <span id="toggleAutorefresh">{% trans "toggle auto refresh" %}</span>
+          </button>
+        </div>
+
+        <div class="pull-right btn-group" id="userMenu">
           <button class="navbar-btn btn dropdown-toggle btn-inverse" data-toggle="dropdown" id="userProfileButton">
             <i class="glyphicon glyphicon-user"></i>
             <span id="currentUserName">{% trans "Not logged in" %}</span>
