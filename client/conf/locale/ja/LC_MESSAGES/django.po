@@ -353,7 +353,7 @@ msgstr "前回の値"
 
 #: viewer/latest_ajax.html:66
 msgid "Graph"
-msgstr ""
+msgstr "グラフ"
 
 #: viewer/log_search_systems_ajax.html:24
 #: viewer/log_search_systems_ajax.html:29
