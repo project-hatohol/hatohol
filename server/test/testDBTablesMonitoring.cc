@@ -794,6 +794,32 @@ void test_addEventInfoList(gconstpointer data)
 	assertGetEvents(arg);
 }
 
+void test_addEventInfoUnifiedId(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	EventInfoList eventInfoList;
+	for (size_t i = 0; i < NumTestEventInfo; i++)
+		eventInfoList.push_back(testEventInfo[i]);
+	dbMonitoring.addEventInfoList(eventInfoList);
+
+	EventInfoListIterator it = eventInfoList.begin();
+	string expected;
+	string actual;
+	for (int i = 1; it != eventInfoList.end(); it++, i++) {
+		if (!expected.empty())
+			expected += "\n";
+		if (!actual.empty())
+			actual += "\n";
+		expected += StringUtils::toString(i);
+		expected += string("|") + makeEventOutput(*it);
+		actual += StringUtils::toString(it->unifiedId);
+		actual += string("|") + makeEventOutput(*it);
+	}
+	cppcut_assert_equal(expected, actual);
+	assertDBContent(&dbMonitoring.getDBAgent(),
+			"select * from events", expected);
+}
+
 void data_addDupEventInfoList(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();

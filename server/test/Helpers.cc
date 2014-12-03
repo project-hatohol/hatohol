@@ -447,9 +447,11 @@ string makeEventOutput(const EventInfo &eventInfo)
 {
 	string output =
 	  mlpl::StringUtils::sprintf(
-	    "%" PRIu32 "|%" PRIu64 "|%ld|%ld|%d|%u|%" PRIu64 "|%s|%s\n",
+	    "%" FMT_SERVER_ID "|%" FMT_EVENT_ID "|%ld|%ld|%d|%" FMT_TRIGGER_ID
+	    "|%d|%u|%" FMT_HOST_ID "|%s|%s\n",
 	    eventInfo.serverId, eventInfo.id,
 	    eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
+	    eventInfo.type, eventInfo.triggerId,
 	    eventInfo.status, eventInfo.severity,
 	    eventInfo.hostId,
 	    eventInfo.hostName.c_str(),
