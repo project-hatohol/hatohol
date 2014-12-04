@@ -22,6 +22,7 @@ var LatestView = function(userProfile) {
   var rawData, parsedData;
 
   self.reloadIntervalSeconds = 60;
+  self.currentPage = 0;
   self.baseQuery = {
     limit: 50,
   };
@@ -264,7 +265,10 @@ var LatestView = function(userProfile) {
     self.displayUpdateTime();
     self.startConnection(getQuery(page), updateCore);
     setLoading(true);
-    self.pager.update({ currentPage: isNaN(page) ? 0 : page });
+    if (!isNaN(page)) {
+      self.currentPage = page;
+    }
+    self.pager.update({ currentPage: self.currentPage });
   }
 };
 
