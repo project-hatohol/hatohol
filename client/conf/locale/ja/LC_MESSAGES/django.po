@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-11 22:15-0600\n"
+"POT-Creation-Date: 2014-12-03 02:34-0600\n"
 "PO-Revision-Date: 2014-11-12 13:36+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -27,8 +27,8 @@ msgstr "アクション追加"
 msgid "DELETE ACTIONS"
 msgstr "アクション削除"
 
-#: viewer/actions_ajax.html:55 viewer/dashboard_ajax.html:58
-#: viewer/dashboard_ajax.html.py:80 viewer/events_ajax.html:67
+#: viewer/actions_ajax.html:55 viewer/dashboard_ajax.html:76
+#: viewer/dashboard_ajax.html.py:98 viewer/events_ajax.html:67
 #: viewer/incident_settings_ajax.html:59 viewer/latest_ajax.html:59
 #: viewer/triggers_ajax.html:66
 msgid "Monitoring Server"
@@ -74,31 +74,35 @@ msgstr "コマンド"
 msgid "Time-out (sec)"
 msgstr "タイムアウト (秒)"
 
-#: viewer/base_ajax.html:33 viewer/base_ajax.html.py:40
+#: viewer/base_ajax.html:34 viewer/base_ajax.html.py:41
 msgid "Hatohol"
 msgstr "Hatohol"
 
-#: viewer/base_ajax.html:47
+#: viewer/base_ajax.html:48
 msgid "PREPARE"
 msgstr "準備中"
 
-#: viewer/base_ajax.html:56
+#: viewer/base_ajax.html:57
+msgid "toggle auto refresh"
+msgstr "自動更新ON/OFF"
+
+#: viewer/base_ajax.html:64
 msgid "Not logged in"
 msgstr "未ログイン"
 
-#: viewer/base_ajax.html:61
+#: viewer/base_ajax.html:69
 msgid "Logout"
 msgstr "ログアウト"
 
-#: viewer/base_ajax.html:65
+#: viewer/base_ajax.html:73
 msgid "Change password"
 msgstr "パスワード変更"
 
-#: viewer/base_ajax.html:74
+#: viewer/base_ajax.html:82
 msgid "Last update time:"
 msgstr "最終更新時刻:"
 
-#: viewer/base_ajax.html:77
+#: viewer/base_ajax.html:85
 msgid "JavaScript is disabled. Please turn on JavaScript."
 msgstr "JavaScriptが無効になっています。JavaScriptを有効にしてください。"
 
@@ -122,59 +126,59 @@ msgstr "ログ検索システムのURL"
 msgid "Global status"
 msgstr "グローバルステータス"
 
-#: viewer/dashboard_ajax.html:39
+#: viewer/dashboard_ajax.html:57
 msgid "Parameter"
 msgstr "パラメーター"
 
-#: viewer/dashboard_ajax.html:40
+#: viewer/dashboard_ajax.html:58
 msgid "Value"
 msgstr "値"
 
-#: viewer/dashboard_ajax.html:54
+#: viewer/dashboard_ajax.html:72
 msgid "System status"
 msgstr "システムステータス"
 
-#: viewer/dashboard_ajax.html:59 viewer/dashboard_ajax.html.py:81
+#: viewer/dashboard_ajax.html:77 viewer/dashboard_ajax.html.py:99
 msgid "Group"
 msgstr "グループ"
 
-#: viewer/dashboard_ajax.html:60
+#: viewer/dashboard_ajax.html:78
 msgid "Disaster"
 msgstr "致命的な障害"
 
-#: viewer/dashboard_ajax.html:61
+#: viewer/dashboard_ajax.html:79
 msgid "High"
 msgstr "重度の障害"
 
-#: viewer/dashboard_ajax.html:62
+#: viewer/dashboard_ajax.html:80
 msgid "Average"
 msgstr "軽度の障害"
 
-#: viewer/dashboard_ajax.html:63
+#: viewer/dashboard_ajax.html:81
 msgid "Warning"
 msgstr "警告"
 
-#: viewer/dashboard_ajax.html:64
+#: viewer/dashboard_ajax.html:82
 msgid "Information"
 msgstr "情報"
 
-#: viewer/dashboard_ajax.html:65
+#: viewer/dashboard_ajax.html:83
 msgid "Not classified"
 msgstr "未分類"
 
-#: viewer/dashboard_ajax.html:76
+#: viewer/dashboard_ajax.html:94
 msgid "Host status"
 msgstr "ホストステータス"
 
-#: viewer/dashboard_ajax.html:82
+#: viewer/dashboard_ajax.html:100
 msgid "Without problems"
 msgstr "障害なし"
 
-#: viewer/dashboard_ajax.html:83
+#: viewer/dashboard_ajax.html:101
 msgid "With problems"
 msgstr "障害あり"
 
-#: viewer/dashboard_ajax.html:84
+#: viewer/dashboard_ajax.html:102
 msgid "Total"
 msgstr "合計"
 
@@ -264,6 +268,10 @@ msgstr "最新イベント"
 msgid "To next"
 msgstr "次へ"
 
+#: viewer/history_ajax.html:24
+msgid "History"
+msgstr ""
+
 #: viewer/hosts_ajax.html:24
 msgid "Hosts"
 msgstr "ホスト"
@@ -276,20 +284,20 @@ msgstr "グループを表示"
 msgid "ID"
 msgstr "ID"
 
-#: viewer/hosts_ajax.html:41 viewer/servers_ajax.html:58
+#: viewer/hosts_ajax.html:41 viewer/servers_ajax.html:63
 msgid "Hostname"
 msgstr "ホスト名"
 
-#: viewer/hosts_ajax.html:42 viewer/servers_ajax.html:59
+#: viewer/hosts_ajax.html:42 viewer/servers_ajax.html:64
 msgid "IP Address"
 msgstr "IPアドレス"
 
-#: viewer/hosts_ajax.html:43 viewer/servers_ajax.html:60
+#: viewer/hosts_ajax.html:43 viewer/servers_ajax.html:65
 msgid "Nickname"
 msgstr "ニックネーム"
 
 #: viewer/hosts_ajax.html:44 viewer/hosts_ajax.html.py:157
-#: viewer/servers_ajax.html:61
+#: viewer/servers_ajax.html:66
 msgid "Maps"
 msgstr "マップ"
 
@@ -347,6 +355,10 @@ msgstr "最新の値"
 msgid "Previous value"
 msgstr "前回の値"
 
+#: viewer/latest_ajax.html:66
+msgid "Graph"
+msgstr ""
+
 #: viewer/log_search_systems_ajax.html:24
 #: viewer/log_search_systems_ajax.html:29
 msgid "Log search systems"
@@ -373,14 +385,19 @@ msgid "ADD MONITORING SERVER"
 msgstr "監視サーバー追加"
 
 #: viewer/servers_ajax.html:40
+#, fuzzy
+msgid "ADD/UPDATE MULTIPLE MONITORING SERVERS"
+msgstr "監視サーバー削除"
+
+#: viewer/servers_ajax.html:45
 msgid "DELETE MONITORING SERVER"
 msgstr "監視サーバー削除"
 
-#: viewer/servers_ajax.html:56
+#: viewer/servers_ajax.html:61
 msgid "Connection status"
 msgstr "通信状態"
 
-#: viewer/servers_ajax.html:70
+#: viewer/servers_ajax.html:75
 msgid ""
 "Please use a browser's reload function when you update monitoring servers "
 "information including 'Connection status'."

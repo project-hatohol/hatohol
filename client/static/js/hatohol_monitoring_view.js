@@ -196,7 +196,7 @@ HatoholMonitoringView.prototype.setupHostQuerySelectorCallback =
       loadFunc();
     });
   }
-  
+
   // host
   if (hostSelectorId) {
     $(hostSelectorId).change(function() {
@@ -263,7 +263,7 @@ HatoholMonitoringView.prototype.startConnection =
   function (query, completionCallback, callbackParam, connParam)
 {
   var self = this;
-  
+
   self.setStatus({
     "class" : "warning",
     "label" : gettext("LOAD"),
@@ -359,4 +359,43 @@ function()
   }();
   $("#update-time").empty();
   $("#update-time").append(gettext("Last update time:") + " " + date.getCurrentTime());
+}
+
+HatoholMonitoringView.prototype.enableAutoRefresh =
+function(reloadFunc, reloadIntervalSeconds)
+{
+  var button = $("#toggleAutoRefreshButton");
+  button.removeClass("btn-default");
+  button.addClass("btn-primary");
+  button.addClass("active");
+  this.setAutoReload(reloadFunc, reloadIntervalSeconds);
+}
+
+HatoholMonitoringView.prototype.disableAutoRefresh =
+function()
+{
+  var button = $("#toggleAutoRefreshButton");
+  this.clearAutoReload();
+  button.removeClass("btn-primary");
+  button.removeClass("active");
+  button.addClass("btn-default");
+}
+
+HatoholMonitoringView.prototype.setupToggleAutoRefreshButtonHandler =
+function(reloadFunc, intervalSeconds)
+{
+  var self = this;
+  $("#toggleAutoRefreshButton").on("click", function() {
+    if ($(this).hasClass("active")) {
+      self.disableAutoRefresh();
+    } else {
+      self.enableAutoRefresh(reloadFunc, intervalSeconds);
+    }
+  });
+}
+
+HatoholMonitoringView.prototype.showToggleAutoRefreshButton =
+function()
+{
+  $("#toggleAutoRefreshButton").show();
 }

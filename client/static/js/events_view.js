@@ -34,6 +34,8 @@ var EventsView = function(userProfile, baseElem) {
   };
   $.extend(self.baseQuery, getEventsQueryInURI());
   self.lastQuery = undefined;
+  self.showToggleAutoRefreshButton();
+  self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];
   var severity_choices = [
@@ -43,11 +45,11 @@ var EventsView = function(userProfile, baseElem) {
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
-  self.userConfig = new HatoholUserConfig(); 
+  self.userConfig = new HatoholUserConfig();
   start();
 
   //
-  // Private functions 
+  // Private functions
   //
   function start() {
     self.userConfig.get({
@@ -202,7 +204,7 @@ var EventsView = function(userProfile, baseElem) {
       $("#next-events-button").removeAttr("disabled");
     }
   }
-  
+
   function parseData(replyData) {
     // The structur of durations:
     // {
@@ -231,7 +233,7 @@ var EventsView = function(userProfile, baseElem) {
         durations[serverId] = {};
       if (!durations[serverId][triggerId])
         durations[serverId][triggerId] = [];
-      
+
       durations[serverId][triggerId].push(event["time"]);
     }
 
