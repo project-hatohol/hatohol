@@ -381,9 +381,8 @@ msgid "ADD MONITORING SERVER"
 msgstr "監視サーバー追加"
 
 #: viewer/servers_ajax.html:40
-#, fuzzy
 msgid "ADD/UPDATE MULTIPLE MONITORING SERVERS"
-msgstr "監視サーバーを追加又は更新"
+msgstr "複数の監視サーバーを追加又は更新"
 
 #: viewer/servers_ajax.html:45
 msgid "DELETE MONITORING SERVER"
