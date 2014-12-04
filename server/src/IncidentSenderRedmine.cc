@@ -327,6 +327,7 @@ HatoholError IncidentSenderRedmine::buildIncidentInfo(
 	incidentInfo.serverId = event.serverId;
 	incidentInfo.eventId = event.id;
 	incidentInfo.triggerId = event.triggerId;
+	incidentInfo.unifiedEventId = event.unifiedId;
 	return parseResponse(incidentInfo, response);
 }
 
