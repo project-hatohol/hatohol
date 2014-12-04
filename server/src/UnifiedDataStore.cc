@@ -523,8 +523,8 @@ void UnifiedDataStore::addEventList(EventInfoList &eventList)
 {
 	ThreadLocalDBCache cache;
 	ActionManager actionManager;
-	actionManager.checkEvents(eventList);
 	cache.getMonitoring().addEventInfoList(eventList);
+	actionManager.checkEvents(eventList);
 }
 
 void UnifiedDataStore::addItemList(const ItemInfoList &itemList)
