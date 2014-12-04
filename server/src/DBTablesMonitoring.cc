@@ -2867,6 +2867,18 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileIncidents);
 		addColumnsArg.columnIndexes.push_back(IDX_INCIDENTS_UNIFIED_EVENT_ID);
 		dbAgent.addColumns(addColumnsArg);
+
+		// fill unified_event_id
+		string sql = StringUtils::sprintf(
+		  "UPDATE %s i,%s e SET i.%s=e.%s WHERE (i.%s=e.%s and i.%s=e.%s)",
+		  tableProfileIncidents.name, tableProfileEvents.name,
+		  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_UNIFIED_EVENT_ID].columnName,
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
+		  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_SERVER_ID].columnName,
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
+		  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_EVENT_ID].columnName,
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
+		dbAgent.execSql(sql);
 	}
 	return true;
 }
