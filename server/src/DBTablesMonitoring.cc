@@ -2570,6 +2570,7 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 		itemGroupStream >> incidentInfo.updatedAt.tv_nsec;
 		itemGroupStream >> incidentInfo.priority;
 		itemGroupStream >> incidentInfo.doneRatio;
+		itemGroupStream >> incidentInfo.unifiedEventId;
 		incidentInfo.statusCode = IncidentInfo::STATUS_UNKNOWN; // TODO: add column?
 	}
 
