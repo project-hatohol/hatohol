@@ -263,11 +263,11 @@ var LatestView = function(userProfile) {
 
   function load(page) {
     self.displayUpdateTime();
-    self.startConnection(getQuery(page), updateCore);
     setLoading(true);
     if (!isNaN(page)) {
       self.currentPage = page;
     }
+    self.startConnection(getQuery(self.currentPage), updateCore);
     self.pager.update({ currentPage: self.currentPage });
   }
 };
