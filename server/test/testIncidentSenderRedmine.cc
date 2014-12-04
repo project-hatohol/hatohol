@@ -240,6 +240,7 @@ static void makeExpectedIncidentInfo(IncidentInfo &incident,
 	incident.createdAt.tv_nsec = 0;
 	incident.updatedAt.tv_sec = postedIssue.updatedOn;
 	incident.updatedAt.tv_nsec = 0;
+	incident.unifiedEventId = event.unifiedId;
 }
 
 void _assertSend(const HatoholErrorCode &expected,
@@ -356,6 +357,7 @@ void test_parseResponse(void)
 	actual.serverId = expected.serverId;
 	actual.eventId = expected.eventId;
 	actual.triggerId = expected.triggerId;
+	actual.unifiedEventId = 0;
 	HatoholError result = sender.parseResponse(actual, issue.toJSON());
 	cppcut_assert_equal(HTERR_OK, result.getCode());
 	cppcut_assert_equal(makeIncidentOutput(expected),
