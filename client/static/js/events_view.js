@@ -176,11 +176,12 @@ var EventsView = function(userProfile, baseElem) {
 
     $('#next-events-button').click(function() {
       var loadNextPage = true;
+      self.disableAutoRefresh();
       load(loadNextPage);
     });
 
     $('#latest-events-button').click(function() {
-      load();
+      self.enableAutoRefresh(load(), self.intervalSeconds);
     });
   }
 
