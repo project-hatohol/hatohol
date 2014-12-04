@@ -264,6 +264,10 @@ msgstr "最新イベント"
 msgid "To next"
 msgstr "次へ"
 
+#: viewer/history_ajax.html:24
+msgid "History"
+msgstr "履歴"
+
 #: viewer/hosts_ajax.html:24
 msgid "Hosts"
 msgstr "ホスト"
@@ -347,6 +351,10 @@ msgstr "最新の値"
 msgid "Previous value"
 msgstr "前回の値"
 
+#: viewer/latest_ajax.html:66
+msgid "Graph"
+msgstr "グラフ"
+
 #: viewer/log_search_systems_ajax.html:24
 #: viewer/log_search_systems_ajax.html:29
 msgid "Log search systems"
@@ -373,6 +381,10 @@ msgid "ADD MONITORING SERVER"
 msgstr "監視サーバー追加"
 
 #: viewer/servers_ajax.html:40
+msgid "ADD/UPDATE MULTIPLE MONITORING SERVERS"
+msgstr "複数の監視サーバーを追加又は更新"
+
+#: viewer/servers_ajax.html:45
 msgid "DELETE MONITORING SERVER"
 msgstr "監視サーバー削除"
 

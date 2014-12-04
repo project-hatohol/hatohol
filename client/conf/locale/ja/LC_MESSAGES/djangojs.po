@@ -1063,7 +1063,7 @@ msgstr "選択してください"
 
 #: static/js/hatohol_server_bulkupload_dialog.js:221
 msgid "TSV File"
-msgstr ""
+msgstr "TSVファイル"
 
 #: static/js/hatohol_server_bulkupload_dialog.js:226
 #, fuzzy
@@ -1072,15 +1072,15 @@ msgstr "テンプレート"
 
 #: static/js/hatohol_server_bulkupload_dialog.js:335
 msgid "Missing columns in TSV: "
-msgstr ""
+msgstr "TSVの中に存在しないカラムがあります: "
 
 #: static/js/hatohol_server_bulkupload_dialog.js:453
 msgid "No valid rows in TSV."
-msgstr ""
+msgstr "TSVに有効な列がありません。"
 
 #: static/js/hatohol_server_bulkupload_dialog.js:458
 msgid "Error found in TSV: "
-msgstr ""
+msgstr "TSVにエラーが見つかりました: "
 
 #: static/js/hatohol_server_edit_dialog_parameterized.js:27
 msgid "EDIT MONITORING SERVER"
@@ -1316,27 +1316,27 @@ msgstr "権限"
 
 #: static/js/history_view.js:297
 msgid "Sun"
-msgstr ""
+msgstr "日"
 
 #: static/js/history_view.js:298
 msgid "Mon"
-msgstr ""
+msgstr "月"
 
 #: static/js/history_view.js:299
 msgid "Tue"
-msgstr ""
+msgstr "火"
 
 #: static/js/history_view.js:300
 msgid "Wed"
-msgstr ""
+msgstr "水"
 
 #: static/js/history_view.js:301
 msgid "Thu"
-msgstr ""
+msgstr "木"
 
 #: static/js/history_view.js:302
 msgid "Fri"
-msgstr ""
+msgstr "金"
 
 #: static/js/history_view.js:303
 #, fuzzy
@@ -1345,7 +1345,7 @@ msgstr "ステータス"
 
 #: static/js/history_view.js:416
 msgid "No such item: "
-msgstr ""
+msgstr "そのような項目はありません: "
 
 #: static/js/history_view.js:418
 msgid "Too many items are found for "
@@ -1353,7 +1353,7 @@ msgstr ""
 
 #: static/js/latest_view.js:174
 msgid "Graph"
-msgstr ""
+msgstr "グラフ"
 
 #: static/js/servers_view.js:150
 msgid "Zabbix"
@@ -1375,7 +1375,7 @@ msgstr "Nagios"
 
 #: static/js/servers_view.js:158
 msgid "General Plugin"
-msgstr ""
+msgstr "General Plugin"
 
 #: static/js/servers_view.js:160
 msgid "Ceilometer"
