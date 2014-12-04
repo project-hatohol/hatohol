@@ -1752,9 +1752,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	if (incidentInfoVect) {
 		builder.addTable(
 		  tableProfileIncidents, DBClientJoinBuilder::LEFT_JOIN,
-		  tableProfileEvents, IDX_EVENTS_SERVER_ID,
-		  IDX_INCIDENTS_SERVER_ID,
-		  tableProfileEvents, IDX_EVENTS_ID, IDX_INCIDENTS_EVENT_ID);
+		  tableProfileEvents, IDX_EVENTS_UNIFIED_ID, IDX_INCIDENTS_UNIFIED_EVENT_ID);
 		builder.add(IDX_INCIDENTS_TRACKER_ID);
 		builder.add(IDX_INCIDENTS_IDENTIFIER);
 		builder.add(IDX_INCIDENTS_LOCATION);
