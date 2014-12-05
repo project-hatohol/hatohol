@@ -872,12 +872,25 @@ enum {
 	NUM_IDX_INCIDENTS,
 };
 
-static const int columnIndexesIncidentsUniqId[] = {
+static const int columnIndexesIncidentsUnifiedEventId[] = {
   IDX_INCIDENTS_UNIFIED_EVENT_ID, DBAgent::IndexDef::END,
 };
 
+static const int columnIndexesIncidentsIdentifier[] = {
+  IDX_INCIDENTS_TRACKER_ID, IDX_INCIDENTS_IDENTIFIER, DBAgent::IndexDef::END,
+};
+
 static const DBAgent::IndexDef indexDefsIncidents[] = {
-  {"IncidentsUnifiedEventId", (const int *)columnIndexesIncidentsUniqId, false},
+  {
+    "IncidentsUnifiedEventId",
+    (const int *)columnIndexesIncidentsUnifiedEventId,
+    false
+  },
+  {
+    "IncidentsIdentifier",
+    (const int *)columnIndexesIncidentsIdentifier,
+    true
+  },
   {NULL}
 };
 
