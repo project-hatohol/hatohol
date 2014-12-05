@@ -2516,7 +2516,6 @@ void DBTablesMonitoring::updateIncidentInfo(IncidentInfo &incidentInfo)
 	arg.add(IDX_INCIDENTS_UPDATED_AT_NS, incidentInfo.updatedAt.tv_nsec);
 	arg.add(IDX_INCIDENTS_PRIORITY, incidentInfo.priority);
 	arg.add(IDX_INCIDENTS_DONE_RATIO, incidentInfo.doneRatio);
-	arg.add(IDX_INCIDENTS_UNIFIED_EVENT_ID, incidentInfo.unifiedEventId);
 	arg.condition = StringUtils::sprintf(
 	  "%s=%" FMT_INCIDENT_TRACKER_ID " AND %s=%s",
 	  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_TRACKER_ID].columnName,
