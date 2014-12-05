@@ -1003,7 +1003,7 @@ IncidentInfo testIncidentInfo[] = {
 	1,                        // eventId
 	2,                        // triggerId
 	"100",                    // identifier
-	"http://localhost:44444/issues/13", // location
+	"http://localhost:44444/issues/100", // location
 	"New",                    // status
 	"Normal",                 // priority
 	"foobar",                 // assignee
@@ -1019,7 +1019,7 @@ IncidentInfo testIncidentInfo[] = {
 	2,                        // eventId
 	1,                        // triggerId
 	"101",                    // identifier
-	"http://localhost:44444/issues/11", // location
+	"http://localhost:44444/issues/101", // location
 	"New",                    // status
 	"Normal",                 // priority
 	"foobar",                 // assignee
