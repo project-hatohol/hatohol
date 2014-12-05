@@ -357,7 +357,7 @@ void test_parseResponse(void)
 	actual.serverId = expected.serverId;
 	actual.eventId = expected.eventId;
 	actual.triggerId = expected.triggerId;
-	actual.unifiedEventId = 0;
+	actual.unifiedEventId = expected.unifiedEventId;
 	HatoholError result = sender.parseResponse(actual, issue.toJSON());
 	cppcut_assert_equal(HTERR_OK, result.getCode());
 	cppcut_assert_equal(makeIncidentOutput(expected),
