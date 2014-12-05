@@ -66,7 +66,7 @@ describe('LatestView', function() {
     this.requests[0].respond(200, header, configJson);
     this.requests[1].respond(200, header, itemsJson);
   }
-  
+
   beforeEach(function(done) {
     var contentId = "main";
     var setupFixture = function() {
@@ -111,13 +111,13 @@ describe('LatestView', function() {
     var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
     var zabbixURL = "http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=1";
     var historyURL= "ajax_history?serverId=1&amp;hostId=10101&amp;itemId=1";
-    var expected = 
+    var expected =
       '<td>Zabbix</td>' +
       '<td>Host1</td>' +
       '<td>group1</td>' +
-      '<td><a href="' + zabbixURL + '">cpu usage</a></td>' +
+      '<td><a href="' + zabbixURL + '" target="_blank">cpu usage</a></td>' +
       '<td data-sort-value="1415232279">' +
-      formatDate(1415232279) + 
+      formatDate(1415232279) +
       '</td>' +
       '<td>54.28 %</td>' +
       '<td>24.59 %</td>'+
@@ -131,13 +131,13 @@ describe('LatestView', function() {
   it('String item', function() {
     var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
     var zabbixURL = "http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=2";
-    var expected = 
+    var expected =
       '<td>Zabbix</td>' +
       '<td>Host1</td>' +
       '<td>group1</td>' +
-      '<td><a href="' + zabbixURL + '">host name</a></td>' +
+      '<td><a href="' + zabbixURL + '" target="_blank">host name</a></td>' +
       '<td data-sort-value="1415232279">' +
-      formatDate(1415232279) + 
+      formatDate(1415232279) +
       '</td>' +
       '<td>host1</td>' +
       '<td>host1</td>'+
