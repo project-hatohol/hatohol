@@ -763,6 +763,8 @@ void makeTestMySQLDBIfNeeded(const string &dbName, bool recreate)
 	unsigned long clientFlag = 0;
 	MYSQL mysql;
 	mysql_init(&mysql);
+	mysql_options(&mysql, MYSQL_SET_CHARSET_NAME, "utf8");
+	mysql_options(&mysql, MYSQL_INIT_COMMAND, "SET NAMES utf8");
 	MYSQL *succeeded = mysql_real_connect(&mysql, host, user, passwd,
 	                                      db, port, unixSocket, clientFlag);
 	if (!succeeded) {
