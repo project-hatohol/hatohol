@@ -277,7 +277,7 @@ var EventsView = function(userProfile, baseElem) {
       incident   = event["incident"];
 
       if (serverURL) {
-        html += "<tr><td><a href='" + serverURL + "'>" + escapeHTML(serverName)
+        html += "<tr><td><a href='" + serverURL + "' target='_blank'>" + escapeHTML(serverName)
                 + "</a></td>";
         html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
                 formatDate(clock) + "</td>";
@@ -285,10 +285,11 @@ var EventsView = function(userProfile, baseElem) {
           html += "<td>" + escapeHTML(hostName) + "</td>";
         } else if (serverURL.indexOf("zabbix") >= 0) {
           html += "<td><a href='" + serverURL + "latest.php?&hostid="
-                  + hostId + "'>" + escapeHTML(hostName) + "</a></td>";
+                  + hostId + "' target='_blank'>" + escapeHTML(hostName)
+                  + "</a></td>";
         } else if (serverURL.indexOf("nagios")>=0) {
           html += "<td><a href='" + serverURL + "cgi-bin/status.cgi?host="
-                  + hostName + "'>" + escapeHTML(hostName) + "</a></td>";
+                  + hostName + "' target='_blank'>" + escapeHTML(hostName) + "</a></td>";
         } else {
           html += "<td>" + escapeHTML(hostName) + "</td>";
         }
@@ -309,7 +310,8 @@ var EventsView = function(userProfile, baseElem) {
         formatSecond(duration) + "</td>";
       if (self.rawData["haveIncident"]) {
         html += "<td class='incident'>";
-        html += "<a href='" + escapeHTML(incident.location) + "'>";
+        html += "<a href='" + escapeHTML(incident.location)
+                + "' target='_blank'>";
         html += escapeHTML(incident.status) + "</a>";
         html += "</td>";
         html += "<td class='incident'>";
