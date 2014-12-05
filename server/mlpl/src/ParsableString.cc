@@ -48,7 +48,7 @@ SeparatorChecker::~SeparatorChecker()
 
 bool SeparatorChecker::isSeparator(const char c)
 {
-	int i = c;
+	int i = c & 0xff;
 	return m_separatorArray[i];
 }
 
