@@ -79,6 +79,11 @@ div#noscript-background div#noscript-notice
   font-weight: bold;
 }
 
+#main th
+{
+  white-space: nowrap;
+}
+
 /* graph */
 .graph h2 {
     text-align: center;
