@@ -115,7 +115,7 @@ describe('LatestView', function() {
       '<td>Zabbix</td>' +
       '<td>Host1</td>' +
       '<td>group1</td>' +
-      '<td><a href="' + zabbixURL + '">cpu usage</a></td>' +
+      '<td><a href="' + zabbixURL + '" target="_blank">cpu usage</a></td>' +
       '<td data-sort-value="1415232279">' +
       formatDate(1415232279) + 
       '</td>' +
@@ -135,7 +135,7 @@ describe('LatestView', function() {
       '<td>Zabbix</td>' +
       '<td>Host1</td>' +
       '<td>group1</td>' +
-      '<td><a href="' + zabbixURL + '">host name</a></td>' +
+      '<td><a href="' + zabbixURL + '" target="_blank">host name</a></td>' +
       '<td data-sort-value="1415232279">' +
       formatDate(1415232279) + 
       '</td>' +

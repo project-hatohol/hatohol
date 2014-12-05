@@ -76,11 +76,11 @@ describe('EventsView', function() {
   function testTableContents(serverURL, hostURL, dummyServerInfo){
     var view = new EventsView($('#' + TEST_FIXTURE_ID).get(0));
     var expected =
-      '<td><a href="' + escapeHTML(serverURL) + '">Server</a></td>' +
+      '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>' +
       '<td data-sort-value="1415749496">' +
       formatDate(1415749496) +
       '</td>' +
-      '<td><a href="' + escapeHTML(hostURL) + '">Host</a></td>' +
+      '<td><a href="' + escapeHTML(hostURL) + '" target="_blank">Host</a></td>' +
       '<td>Test discription.</td>' +
       '<td class="status1" data-sort-value="1">Problem</td>' +
       '<td class="severity1" data-sort-value="1">Information</td>';
