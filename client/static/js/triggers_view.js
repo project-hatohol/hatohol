@@ -22,6 +22,7 @@ var TriggersView = function(userProfile) {
   var rawData;
 
   self.reloadIntervalSeconds = 60;
+  self.currentPage = 0;
   self.baseQuery = {
     limit: 50,
   };
@@ -239,9 +240,12 @@ var TriggersView = function(userProfile) {
 
   function load(page) {
     self.displayUpdateTime();
-    self.startConnection(getQuery(page), updateCore);
     setLoading(true);
-    self.pager.update({ currentPage: isNaN(page) ? 0 : page });
+    if (!isNaN(page)) {
+      self.currentPage = page;
+    }
+    self.startConnection(getQuery(self.currentPage), updateCore);
+    self.pager.update({ currentPage: self.currentPage });
   }
 };
 
