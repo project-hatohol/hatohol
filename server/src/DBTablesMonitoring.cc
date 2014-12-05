@@ -873,11 +873,11 @@ enum {
 };
 
 static const int columnIndexesIncidentsUniqId[] = {
-  IDX_INCIDENTS_SERVER_ID, IDX_INCIDENTS_EVENT_ID, DBAgent::IndexDef::END,
+  IDX_INCIDENTS_UNIFIED_EVENT_ID, DBAgent::IndexDef::END,
 };
 
 static const DBAgent::IndexDef indexDefsIncidents[] = {
-  {"IncidentsEventId", (const int *)columnIndexesIncidentsUniqId, true},
+  {"IncidentsUnifiedEventId", (const int *)columnIndexesIncidentsUniqId, false},
   {NULL}
 };
 
@@ -2877,6 +2877,9 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 		  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_EVENT_ID].columnName,
 		  COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
 		dbAgent.execSql(sql);
+
+		// recreate indexes
+		dbAgent.fixupIndexes(tableProfileIncidents);
 	}
 	return true;
 }
