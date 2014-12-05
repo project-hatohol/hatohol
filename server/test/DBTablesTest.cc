@@ -1002,7 +1002,7 @@ IncidentInfo testIncidentInfo[] = {
 	1,                        // serverId
 	1,                        // eventId
 	2,                        // triggerId
-	"13",                     // identifier
+	"100",                    // identifier
 	"http://localhost:44444/issues/13", // location
 	"New",                    // status
 	"Normal",                 // priority
@@ -1018,7 +1018,7 @@ IncidentInfo testIncidentInfo[] = {
 	1,                        // serverId
 	2,                        // eventId
 	1,                        // triggerId
-	"11",                     // identifier
+	"101",                    // identifier
 	"http://localhost:44444/issues/11", // location
 	"New",                    // status
 	"Normal",                 // priority
@@ -1030,7 +1030,7 @@ IncidentInfo testIncidentInfo[] = {
 	4,                        // unifiedId
 },
 {
-	1,                        // trackerId
+	5,                        // trackerId
 	2,                        // serverId
 	2,                        // eventId
 	3,                        // triggerId
