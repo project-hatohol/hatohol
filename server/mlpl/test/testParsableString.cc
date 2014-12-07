@@ -224,6 +224,13 @@ void test_readWordWithMultiSeparatorChecker(void)
 	assertReadWord(pstr, separator, "stu", true);
 }
 
+void test_readWordUTF8(void)
+{
+	ParsableString pstr("あああ.sh foo");
+	assertReadWord(pstr, " ", "あああ.sh");
+	assertReadWord(pstr, " ", "foo", true);
+}
+
 void test_getString(void)
 {
 	const char *originalStr = "ABC foo";
