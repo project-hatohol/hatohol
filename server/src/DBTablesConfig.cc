@@ -1276,7 +1276,7 @@ HatoholError validIncidentTrackerInfo(
 	if (incidentTrackerInfo.baseURL.empty())
 		return HTERR_NO_INCIDENT_TRACKER_LOCATION;
 	if (!Utils::isValidURI(incidentTrackerInfo.baseURL))
-		return HTERR_INVALID_URI;
+		return HTERR_INVALID_URL;
 	return HTERR_OK;
 }
 
