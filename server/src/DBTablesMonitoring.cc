@@ -1237,6 +1237,7 @@ static const HostResourceQueryOption::Synapse synapseItemsQueryOption(
 struct ItemsQueryOption::Impl {
 	ItemIdType targetId;
 	string itemGroupName;
+	string appName;
 
 	Impl()
 	: targetId(ALL_ITEMS)
@@ -1325,7 +1326,7 @@ void ItemsQueryOption::setAppName(const string &appName) const
 	m_impl->appName = appName;
 }
 
-string ItemsQueryOption::getAppName(void) const
+const string &ItemsQueryOption::getAppName(void) const
 {
 	return m_impl->appName;
 }

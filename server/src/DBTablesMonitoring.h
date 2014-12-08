@@ -99,7 +99,7 @@ public:
 	void setTargetItemGroupName(const std::string &itemGroupName);
 	const std::string &getTargetItemGroupName(void);
 	void setAppName(const std::string &appName) const;
-	std::string getAppName(void) const;
+	const std::string &getAppName(void) const;
 
 
 

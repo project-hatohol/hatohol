@@ -30,7 +30,6 @@ using namespace mlpl;
 struct DataQueryOption::Impl {
 	size_t maxNumber;
 	size_t offset;
-	string appName;
 	SortOrderVect sortOrderVect;
 	DataQueryContextPtr dataQueryCtxPtr; // The body is shared
 	const DBTermCodec *dbTermCodec;
@@ -40,7 +39,6 @@ struct DataQueryOption::Impl {
 	Impl(const UserIdType &userId)
 	: maxNumber(NO_LIMIT),
 	  offset(0),
-	  appName(""),
 	  dataQueryCtxPtr(new DataQueryContext(userId), false),
 	  dbTermCodec(NULL),
 	  tableNameAlways(false)
@@ -50,7 +48,6 @@ struct DataQueryOption::Impl {
 	Impl(DataQueryContext *dataQueryContext)
 	: maxNumber(NO_LIMIT),
 	  offset(0),
-	  appName(""),
 	  dataQueryCtxPtr(dataQueryContext),
 	  dbTermCodec(NULL),
 	  tableNameAlways(false)
