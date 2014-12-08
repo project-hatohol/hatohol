@@ -1298,6 +1298,18 @@ string ItemsQueryOption::getCondition(void) const
 			escaped.c_str());
 	}
 
+	if (!m_impl->appName.empty()){
+		if (!condition.empty())
+			condition += " AND ";
+		string escapedAppName = StringUtils::replace(m_impl->appName,
+						      "'", "''");
+		condition += StringUtils::sprintf(
+			"%s.%s='%s'",
+			DBTablesMonitoring::TABLE_NAME_ITEMS,
+			COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME].columnName,
+			escapedAppName.c_str());
+	}
+
 	return condition;
 }
 
