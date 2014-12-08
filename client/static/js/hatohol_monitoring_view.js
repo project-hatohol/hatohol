@@ -56,6 +56,13 @@ HatoholMonitoringView.prototype.getTargetHostId = function() {
   return id;
 };
 
+HatoholMonitoringView.prototype.getTargetAppName = function() {
+  var name = $("#select-application").val();
+  if (name == "---------")
+    name = "";
+  return name;
+};
+
 HatoholMonitoringView.prototype.setFilterCandidates =
   function(target, candidates)
 {
@@ -171,9 +178,11 @@ HatoholMonitoringView.prototype.getHostFilterQuery = function() {
   var serverId = this.getTargetServerId();
   var hostgroupId = this.getTargetHostgroupId();
   var hostId = this.getTargetHostId();
+  var appName = this.getTargetAppName();
   query.serverId = serverId ? serverId : "-1";
   query.hostgroupId = hostgroupId ? hostgroupId : "-1";
   query.hostId = hostId ? hostId : "-1";
+  query.appName = appName ? appName : "";
   return query;
 };
 
