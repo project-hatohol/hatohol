@@ -168,11 +168,11 @@ static HatoholError parseHostResourceQueryParameter(
 	option.setOffset(offset);
 
 	// appName
-	string appName = "";
-	err = getParam<string>(query, "appName", "%s", appName);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setAppName(appName);
+	const char *key = "appName";
+	char *value = (char *)g_hash_table_lookup(query, key);
+	if (!value)
+		return HTERR_NOT_FOUND_PARAMETER;
+	option.setAppName(value);
 
 	return HatoholError(HTERR_OK);
 }
