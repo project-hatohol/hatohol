@@ -161,6 +161,7 @@ public:
 		std::string                orderBy;
 		size_t                     limit;
 		size_t                     offset;
+		std::string                appName;
 		std::string                tableField;
 		bool                       useFullName;
 		bool                       useDistinct;

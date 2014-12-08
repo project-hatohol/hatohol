@@ -2192,6 +2192,9 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	if (!arg.limit && arg.offset)
 		return;
 
+	// Application Name
+	arg.appName = option.getAppName();
+
 	getDBAgent().runTransaction(arg);
 
 	// check the result and copy
