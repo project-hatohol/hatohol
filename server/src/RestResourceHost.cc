@@ -168,7 +168,7 @@ static HatoholError parseHostResourceQueryParameter(
 	option.setOffset(offset);
 
 	// appName
-	string appName = " ";
+	string appName = "";
 	err = getParam<string>(query, "appName", "%s", appName);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
