@@ -167,13 +167,6 @@ static HatoholError parseHostResourceQueryParameter(
 		return err;
 	option.setOffset(offset);
 
-	// appName
-	const char *key = "appName";
-	char *value = (char *)g_hash_table_lookup(query, key);
-	if (!value)
-		return HTERR_NOT_FOUND_PARAMETER;
-	option.setAppName(value);
-
 	return HatoholError(HTERR_OK);
 }
 
@@ -298,6 +291,13 @@ static HatoholError parseItemParameter(ItemsQueryOption &option,
 	  g_hash_table_lookup(query, "itemGroupName"));
 	if (value && *value)
 		option.setTargetItemGroupName(value);
+
+	// appName
+	const char *key = "appName";
+	char *value = (char *)g_hash_table_lookup(query, key);
+	if (!value)
+		return HTERR_NOT_FOUND_PARAMETER;
+	option.setAppName(value);
 
 	return HatoholError(HTERR_OK);
 }
