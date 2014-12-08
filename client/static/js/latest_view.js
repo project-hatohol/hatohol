@@ -112,11 +112,7 @@ var LatestView = function(userProfile) {
     });
 
     self.setupHostQuerySelectorCallback(
-      load, '#select-server', '#select-host-group', '#select-host');
-    $("#select-application").change(function() {
-      // will be migrated to server side
-      drawTableContents(rawData);
-    });
+      load, '#select-server', '#select-host-group', '#select-host', '#select-application');
   }
 
   function parseData(replyData) {
