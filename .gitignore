@@ -32,6 +32,8 @@ Makefile.in
 /client/test/node_modules
 /data/init.d/centos/hatohol.centos
 /data/init.d/debian/hatohol.debian
+/data/systemd/generate_service_file.sh
+/data/systemd/hatohol.service
 /depcomp
 /hatohol.spec
 /install-sh
