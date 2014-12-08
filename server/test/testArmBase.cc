@@ -535,7 +535,7 @@ void test_setServerConnectStatus(void)
 	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
 	eventInfo.time = events.begin()->time;
 	eventInfo.type = EVENT_TYPE_BAD;
-	eventInfo.triggerId = 1;
+	eventInfo.triggerId = FAILED_INTERNAL_ERROR_TRIGGER_ID;
 	eventInfo.status = TRIGGER_STATUS_PROBLEM;
 	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
 	eventInfo.hostId = MONITORING_SERVER_SELF_ID;
