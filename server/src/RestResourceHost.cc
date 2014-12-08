@@ -295,9 +295,8 @@ static HatoholError parseItemParameter(ItemsQueryOption &option,
 	// appName
 	const char *key = "appName";
 	char *value = (char *)g_hash_table_lookup(query, key);
-	if (!value)
-		return HTERR_NOT_FOUND_PARAMETER;
-	option.setAppName(value);
+	if (value)
+		option.setAppName(value);
 
 	return HatoholError(HTERR_OK);
 }
