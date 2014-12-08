@@ -63,7 +63,7 @@ public:
 	 * 
 	 * @param eventList A list of EventInfo.
 	 */
-	void addEventList(const EventInfoList &eventList);
+	void addEventList(EventInfoList &eventList);
 
 
 	/*

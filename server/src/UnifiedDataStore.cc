@@ -519,7 +519,7 @@ HatoholError UnifiedDataStore::addAction(ActionDef &actionDef,
 	return cache.getAction().addAction(actionDef, privilege);
 }
 
-void UnifiedDataStore::addEventList(const EventInfoList &eventList)
+void UnifiedDataStore::addEventList(EventInfoList &eventList)
 {
 	ThreadLocalDBCache cache;
 	ActionManager actionManager;

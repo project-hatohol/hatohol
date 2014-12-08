@@ -191,12 +191,10 @@ public:
 	int  getLastChangeTimeOfTrigger(const ServerIdType &serverId);
 
 	void addEventInfo(EventInfo *eventInfo);
-	void addEventInfoList(const EventInfoList &eventInfoList);
+	void addEventInfoList(EventInfoList &eventInfoList);
 	HatoholError getEventInfoList(EventInfoList &eventInfoList,
 	                              const EventsQueryOption &option,
 				      IncidentInfoVect *incidentInfoVect = NULL);
-	void setEventInfoList(const EventInfoList &eventInfoList,
-	                      const ServerIdType &serverId);
 
 	void addHostgroupInfo(HostgroupInfo *eventInfo);
 	void addHostgroupInfoList(const HostgroupInfoList &groupInfoList);
@@ -308,7 +306,7 @@ protected:
 	static void addTriggerInfoWithoutTransaction(
 	  DBAgent &dbAgent, const TriggerInfo &triggerInfo);
 	static void addEventInfoWithoutTransaction(
-	  DBAgent &dbAgent, const EventInfo &eventInfo);
+	  DBAgent &dbAgent, EventInfo &eventInfo);
 	static void addItemInfoWithoutTransaction(
 	  DBAgent &dbAgent, const ItemInfo &itemInfo);
 	static void addHostgroupInfoWithoutTransaction(
