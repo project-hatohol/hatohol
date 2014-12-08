@@ -252,8 +252,10 @@ var LatestView = function(userProfile) {
       limit:  self.baseQuery.limit,
       offset: self.baseQuery.limit * page
     });
-    if (self.lastQuery)
+    if (self.lastQuery) {
       $.extend(query, self.getHostFilterQuery());
+      $.extend(query, query, { appName: self.getTargetAppName() });
+    }
     self.lastQuery = query;
     return 'item?' + $.param(query);
   };
