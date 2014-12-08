@@ -40,7 +40,7 @@ struct DataQueryOption::Impl {
 	Impl(const UserIdType &userId)
 	: maxNumber(NO_LIMIT),
 	  offset(0),
-	  appName(" "),
+	  appName(""),
 	  dataQueryCtxPtr(new DataQueryContext(userId), false),
 	  dbTermCodec(NULL),
 	  tableNameAlways(false)
@@ -50,7 +50,7 @@ struct DataQueryOption::Impl {
 	Impl(DataQueryContext *dataQueryContext)
 	: maxNumber(NO_LIMIT),
 	  offset(0),
-	  appName(" "),
+	  appName(""),
 	  dataQueryCtxPtr(dataQueryContext),
 	  dbTermCodec(NULL),
 	  tableNameAlways(false)
