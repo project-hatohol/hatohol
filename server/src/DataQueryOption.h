@@ -134,19 +134,6 @@ public:
 	 */
 	size_t getOffset(void) const;
 
-    /**
-     * Set the application name of returned elements.
-     *
-     * @param appName An application name of returned elements.
-     */
-    void setAppName(const std::string &appName) const;
-
-    /** Get the application name of returned elements.
-     *
-     * @return An application name of returned elements.
-     */
-    std::string getAppName(void) const;
-
 	/**
 	 * Get a string for 'where clause' of an SQL statement.
 	 *

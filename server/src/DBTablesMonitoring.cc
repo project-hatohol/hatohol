@@ -1320,6 +1320,16 @@ const string &ItemsQueryOption::getTargetItemGroupName(void)
 	return m_impl->itemGroupName;
 }
 
+void ItemsQueryOption::setAppName(const string &appName) const
+{
+	m_impl->appName = appName;
+}
+
+string ItemsQueryOption::getAppName(void) const
+{
+	return m_impl->appName;
+}
+
 //
 // HostsQueryOption
 //
