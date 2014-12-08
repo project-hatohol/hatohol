@@ -239,7 +239,7 @@ var LatestView = function(userProfile) {
   function getItemsQueryInURI() {
     var knownKeys = [
       "serverId", "hostgroupId", "hostId",
-      "limit", "offset",
+      "limit", "offset", "appName",
     ];
     var i, allParams = deparam(), query = {};
     for (i = 0; i < knownKeys.length; i++) {
