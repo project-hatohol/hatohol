@@ -240,7 +240,7 @@ size_t DataQueryOption::getOffset(void) const
 	return m_impl->offset;
 }
 
-void DataQueryOption::setAppName(string appName) const
+void DataQueryOption::setAppName(const string &appName) const
 {
 	m_impl->appName = appName;
 }

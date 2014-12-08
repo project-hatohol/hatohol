@@ -139,7 +139,7 @@ public:
      *
      * @param An application name of returned elements.
      */
-    void setAppName(std::string appName) const;
+    void setAppName(const std::string &appName) const;
 
     /** Get the application name of returned elements.
      *
