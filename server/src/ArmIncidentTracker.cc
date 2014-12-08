@@ -30,6 +30,7 @@ static MonitoringServerInfo toMonitoringServerInfo(
 {
 	MonitoringServerInfo monitoringServer;
 	SoupURI *uri = soup_uri_new(trackerInfo.baseURL.c_str());
+	monitoringServer.id = SERVER_ID_INCIDENT_TRACKER;
 	monitoringServer.type = MONITORING_SYSTEM_INCIDENT_TRACKER;
 	monitoringServer.nickname = trackerInfo.nickname;
 	if (SOUP_URI_IS_VALID(uri)) {

@@ -53,22 +53,6 @@ static void addTriggerInfo(TriggerInfo *triggerInfo)
 #define assertAddTriggerToDB(X) \
 cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
 
-static string makeTriggerOutput(const TriggerInfo &triggerInfo)
-{
-	string expectedOut =
-	  StringUtils::sprintf(
-	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|%" PRIu64 "|%s|%s\n",
-	    triggerInfo.serverId,
-	    triggerInfo.id,
-	    triggerInfo.status, triggerInfo.severity,
-	    triggerInfo.lastChangeTime.tv_sec,
-	    triggerInfo.lastChangeTime.tv_nsec,
-	    triggerInfo.hostId,
-	    triggerInfo.hostName.c_str(),
-	    triggerInfo.brief.c_str());
-	return expectedOut;
-}
-
 struct AssertGetTriggersArg
   : public AssertGetHostResourceArg<TriggerInfo, TriggersQueryOption>
 {
@@ -275,15 +259,6 @@ void _assertItemInfoList(gconstpointer data, uint32_t serverId)
 }
 #define assertItemInfoList(DATA, SERVER_ID) \
 cut_trace(_assertItemInfoList(DATA, SERVER_ID))
-
-static string makeHostOutput(const HostInfo &hostInfo)
-{
-	string expectedOut =
-	  StringUtils::sprintf(
-	    "%" PRIu32 "|%" PRIu64 "|%s\n",
-	    hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str());
-	return expectedOut;
-}
 
 struct AssertGetHostsArg
   : public AssertGetHostResourceArg<HostInfo, HostsQueryOption>

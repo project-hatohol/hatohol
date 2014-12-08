@@ -103,9 +103,11 @@ std::string makeServerInfoOutput(const MonitoringServerInfo &serverInfo);
 std::string makeArmPluginInfoOutput(const ArmPluginInfo &armPluginInfo);
 std::string makeIncidentTrackerInfoOutput(const IncidentTrackerInfo &incidentTrackerInfo);
 std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo);
+std::string makeTriggerOutput(const TriggerInfo &triggerInfo);
 std::string makeEventOutput(const EventInfo &eventInfo);
 std::string makeIncidentOutput(const IncidentInfo &incidentInfo);
 std::string makeHistoryOutput(const HistoryInfo &historyInfo);
+std::string makeHostOutput(const HostInfo &hostInfo);
 
 void _assertDatetime(int expectedClock, int actualClock);
 #define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))

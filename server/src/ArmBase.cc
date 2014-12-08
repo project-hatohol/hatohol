@@ -370,31 +370,47 @@ void ArmBase::registerAvailableTrigger(const ArmPollingResult &type,
 	m_impl->ArmResultTriggerTable[type].msg = hatoholError.getMessage().c_str();
 }
 
-void ArmBase::setInitialTrrigerStatus(void)
+void ArmBase::registerSelfMonitoringHost(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	const MonitoringServerInfo &svInfo = getServerInfo();
-
 	HostInfo hostInfo;
 	hostInfo.serverId = svInfo.id;
 	hostInfo.id = MONITORING_SERVER_SELF_ID;
-	hostInfo.hostName = 
-		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
-				     SERVER_SELF_MONITORING_SUFFIX);
+	hostInfo.hostName =
+	  StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
+			       SERVER_SELF_MONITORING_SUFFIX);
 	hostInfo.validity = HOST_VALID_SELF_MONITORING;
 	dbMonitoring.addHostInfo(&hostInfo);
+}
+
+bool ArmBase::hasTrigger(const ArmPollingResult &type)
+{
+	return (m_impl->ArmResultTriggerTable[type].statusType != TRIGGER_STATUS_ALL);
+}
+
+void ArmBase::setInitialTriggerStatus(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 
 	TriggerInfo triggerInfo;
 	TriggerInfoList triggerInfoList;
 
 	for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
+		if (!hasTrigger(static_cast<ArmPollingResult>(i)))
+			continue;
 		ArmResultTriggerInfo &trgInfo = m_impl->ArmResultTriggerTable[i];
 		if (TRIGGER_STATUS_UNKNOWN == trgInfo.statusType) {
 			createTriggerInfo(trgInfo, triggerInfoList);
 		}
 	}
-	dbMonitoring.addTriggerInfoList(triggerInfoList);
+
+	if (!triggerInfoList.empty()) {
+		registerSelfMonitoringHost();
+		dbMonitoring.addTriggerInfoList(triggerInfoList);
+	}
 }
 
 void ArmBase::createTriggerInfo(const ArmResultTriggerInfo &resTrigger,
@@ -445,6 +461,8 @@ void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 
 	if (type == COLLECT_OK) {
 		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
+			if (!hasTrigger(static_cast<ArmPollingResult>(i)))
+				continue;
 			ArmResultTriggerInfo &trgInfo = m_impl->ArmResultTriggerTable[i];
 			if (trgInfo.statusType == TRIGGER_STATUS_PROBLEM) {
 				trgInfo.statusType = TRIGGER_STATUS_OK;
@@ -457,6 +475,8 @@ void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 		}
 	}
 	else {
+		if (!hasTrigger(type))
+			return;
 		if (m_impl->ArmResultTriggerTable[type].statusType == TRIGGER_STATUS_PROBLEM)
 			return;
 
@@ -465,6 +485,8 @@ void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 		createEventInfo(m_impl->ArmResultTriggerTable[type], eventInfoList);
 
 		for (int i = static_cast<int>(type) + 1; i < NUM_COLLECT_NG_KIND; i++) {
+			if (!hasTrigger(static_cast<ArmPollingResult>(i)))
+				continue;
 			ArmResultTriggerInfo &trgInfo = m_impl->ArmResultTriggerTable[i];
 			if (trgInfo.statusType == TRIGGER_STATUS_PROBLEM) {
 				trgInfo.statusType = TRIGGER_STATUS_OK;
@@ -476,6 +498,8 @@ void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 			}
 		}
 		for (int i = 0; i < type; i++) {
+			if (!hasTrigger(static_cast<ArmPollingResult>(i)))
+				continue;
 			ArmResultTriggerInfo &trgInfo = m_impl->ArmResultTriggerTable[i];
 			if (trgInfo.statusType == TRIGGER_STATUS_OK) {
 				trgInfo.statusType = TRIGGER_STATUS_UNKNOWN;
@@ -533,7 +557,7 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 			m_impl->lastFailureStatus = ARM_WORK_STAT_FAILURE;
 		}
 		if (previousArmWorkStatus == ARM_WORK_STAT_INIT) {
-			setInitialTrrigerStatus();
+			setInitialTriggerStatus();
 		}
 		if (m_impl->lastFailureStatus != ARM_WORK_STAT_OK) {
 			setServerConnectStatus(armPollingResult);

@@ -21,8 +21,9 @@
 #include <cppcutter.h>
 #include <AtomicValue.h>
 #include <Mutex.h>
-#include "Hatohol.h"
-#include "ArmBase.h"
+#include <Hatohol.h>
+#include <ArmBase.h>
+#include <ThreadLocalDBCache.h>
 #include "Helpers.h"
 #include "DBTablesTest.h"
 using namespace std;
@@ -69,6 +70,11 @@ public:
 	void callSetFailureInfo(const string &comment)
 	{
 		setFailureInfo(comment);
+	}
+
+	void callSetInitialTriggerStatus()
+	{
+		setInitialTriggerStatus();
 	}
 
 	void setOneProcHook(OneProcHook hook, void *data)
@@ -448,6 +454,108 @@ void test_fetchHistory(void)
 	cppcut_assert_equal(0, ctx.oneProcCount.get());
 	cppcut_assert_equal(true, ctx.fetchHistoryClosureCalled.get());
 	cppcut_assert_equal(true, ctx.fetchHistoryClosureDeleted.get());
+}
+
+void test_hasTriggerWithNoTrigger(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	TestArmBase armBase(__func__, serverInfo);
+	cppcut_assert_equal(
+	  false, armBase.hasTrigger(ArmBase::COLLECT_NG_PARSER_ERROR));
+}
+
+void test_hasTrigger(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	TestArmBase armBase(__func__, serverInfo);
+	armBase.registerAvailableTrigger(ArmBase::COLLECT_NG_PARSER_ERROR,
+					 FAILED_PARSER_JSON_DATA_TRIGGER_ID,
+					 HTERR_FAILED_TO_PARSE_JSON_DATA);
+	cppcut_assert_equal(
+	  true, armBase.hasTrigger(ArmBase::COLLECT_NG_PARSER_ERROR));
+}
+
+void test_setServerConnectStatusWithNoTrigger(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	TestArmBase armBase(__func__, serverInfo);
+	armBase.setServerConnectStatus(ArmBase::COLLECT_NG_INTERNAL_ERROR);
+
+	ThreadLocalDBCache cache;
+	DBAgent &dbAgent = cache.getMonitoring().getDBAgent();
+	assertDBContent(&dbAgent, "SELECT * FROM triggers", "");
+	assertDBContent(&dbAgent, "SELECT * FROM events", "");
+	assertDBContent(&dbAgent, "SELECT * FROM hosts", "");
+}
+
+void test_setServerConnectStatus(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	serverInfo.id = 1;
+	ThreadLocalDBCache cache;
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	cache.getConfig().addTargetServer(&serverInfo, privilege);
+	TestArmBase armBase(__func__, serverInfo);
+	armBase.registerAvailableTrigger(ArmBase::COLLECT_NG_INTERNAL_ERROR,
+					 FAILED_INTERNAL_ERROR_TRIGGER_ID,
+					 HTERR_INTERNAL_ERROR);
+	armBase.callSetInitialTriggerStatus();
+	armBase.setServerConnectStatus(ArmBase::COLLECT_NG_INTERNAL_ERROR);
+
+	// check the generated trigger
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	TriggerInfoList triggers;
+	dbMonitoring.getTriggerInfoList(triggers, TriggersQueryOption(USER_ID_SYSTEM));
+	cppcut_assert_equal((size_t)1, (size_t)triggers.size());
+
+	TriggerInfo triggerInfo;
+	triggerInfo.serverId = serverInfo.id;
+	triggerInfo.id = FAILED_INTERNAL_ERROR_TRIGGER_ID;
+	triggerInfo.status = TRIGGER_STATUS_PROBLEM;
+	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
+	triggerInfo.lastChangeTime = triggers.begin()->lastChangeTime;
+	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
+	triggerInfo.hostName = "_SELF";
+	triggerInfo.brief = HatoholError(HTERR_INTERNAL_ERROR).getMessage();
+	cppcut_assert_equal(makeTriggerOutput(triggerInfo),
+			    makeTriggerOutput(*triggers.begin()));
+
+	// check the generated event
+	EventInfoList events;
+	dbMonitoring.getEventInfoList(events, EventsQueryOption(USER_ID_SYSTEM));
+	cppcut_assert_equal((size_t)1, (size_t)events.size());
+
+	EventInfo eventInfo;
+	eventInfo.unifiedId = 1;
+	eventInfo.serverId = serverInfo.id;
+	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
+	eventInfo.time = events.begin()->time;
+	eventInfo.type = EVENT_TYPE_BAD;
+	eventInfo.triggerId = 1;
+	eventInfo.status = TRIGGER_STATUS_PROBLEM;
+	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
+	eventInfo.hostId = MONITORING_SERVER_SELF_ID;
+	//eventInfo.hostName = "_SELF";
+	eventInfo.brief = HatoholError(HTERR_INTERNAL_ERROR).getMessage();
+	cppcut_assert_equal(makeEventOutput(eventInfo),
+			    makeEventOutput(*events.begin()));
+
+	// check the generated host
+	HostInfoList hosts;
+	dbMonitoring.getHostInfoList(hosts, HostsQueryOption(USER_ID_SYSTEM));
+	cppcut_assert_equal((size_t)1, (size_t)hosts.size());
+
+	HostInfo hostInfo;
+	hostInfo.serverId = serverInfo.id;
+	hostInfo.id = MONITORING_SERVER_SELF_ID;
+	hostInfo.hostName = "_SELF";
+	hostInfo.validity = HOST_VALID_SELF_MONITORING;
+	cppcut_assert_equal(makeHostOutput(hostInfo),
+			    makeHostOutput(*hosts.begin()));
 }
 
 } // namespace testArmBase

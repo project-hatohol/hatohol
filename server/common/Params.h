@@ -84,8 +84,9 @@ typedef int IncidentTrackerIdType;
 #define FMT_INCIDENT_TRACKER_ID "d"
 
 // Special Server IDs =========================================================
-static const ServerIdType    INVALID_SERVER_ID = -2;
-static const ServerIdType    ALL_SERVERS       = -1;
+static const ServerIdType ALL_SERVERS       = -1;
+static const ServerIdType INVALID_SERVER_ID = -2;
+static const ServerIdType SERVER_ID_INCIDENT_TRACKER = -3;
 
 // Special Host IDs ===========================================================
 static const HostIdType ALL_HOSTS                 = -1;
