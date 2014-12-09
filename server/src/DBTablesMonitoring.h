@@ -201,8 +201,10 @@ public:
 	                              const EventsQueryOption &option,
 				      IncidentInfoVect *incidentInfoVect = NULL);
 
-	void addHostgroupInfo(HostgroupInfo *eventInfo);
-	void addHostgroupInfoList(const HostgroupInfoList &groupInfoList);
+	void addHostgroupInfo(HostgroupInfo *eventInfo)
+	  __attribute__ ((deprecated));
+	void addHostgroupInfoList(const HostgroupInfoList &groupInfoList)
+	  __attribute__ ((deprecated));
 	HatoholError getHostgroupInfoList(HostgroupInfoList &hostgroupInfoList,
 	                      const HostgroupsQueryOption &option);
 	HatoholError getHostgroupElementList
@@ -316,8 +318,6 @@ protected:
 	  DBAgent &dbAgent, EventInfo &eventInfo);
 	static void addItemInfoWithoutTransaction(
 	  DBAgent &dbAgent, const ItemInfo &itemInfo);
-	static void addHostgroupInfoWithoutTransaction(
-	  DBAgent &dbAgent, const HostgroupInfo &groupInfo);
 	static void addHostgroupElementWithoutTransaction(
 	  DBAgent &dbAgent, const HostgroupElement &hostgroupElement);
 	static void addHostInfoWithoutTransaction(
