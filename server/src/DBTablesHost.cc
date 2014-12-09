@@ -726,7 +726,8 @@ GenericIdType DBTablesHost::upsertVMInfo(const VMInfo &vmInfo)
 	return id;
 }
 
-GenericIdType DBTablesHost::upsertHostgroup(const Hostgroup &hostgroup)
+GenericIdType DBTablesHost::upsertHostgroup(const Hostgroup &hostgroup,
+	                                    const bool &useTransaction)
 {
 	GenericIdType id;
 	DBAgent::InsertArg arg(tableProfileHostgroupList);
@@ -735,8 +736,39 @@ GenericIdType DBTablesHost::upsertHostgroup(const Hostgroup &hostgroup)
 	arg.add(hostgroup.idInServer);
 	arg.add(hostgroup.name);
 	arg.upsertOnDuplicate = true;
-	getDBAgent().runTransaction(arg, &id);
+
+	DBAgent &dbAgent = getDBAgent();
+	if (useTransaction) {
+		dbAgent.runTransaction(arg, &id);
+	} else {
+		dbAgent.insert(arg);
+		id = dbAgent.getLastInsertId();
+	}
+
 	return id;
+}
+
+void DBTablesHost::upsertHostgroups(const HostgroupVect &hostgroups)
+{
+	struct Proc : public DBAgent::TransactionProc {
+		DBTablesHost &dbHost;
+		const HostgroupVect &hostgroups;
+
+		Proc(DBTablesHost &_dbHost, const HostgroupVect &_hostgroups)
+		: dbHost(_dbHost),
+		  hostgroups(_hostgroups)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			HostgroupVectConstIterator hostgrpItr =
+			  hostgroups.begin();
+			for (; hostgrpItr != hostgroups.end(); ++hostgrpItr)
+				dbHost.upsertHostgroup(*hostgrpItr, false);
+		}
+	} proc(*this, hostgroups);
+	getDBAgent().runTransaction(proc);
 }
 
 GenericIdType DBTablesHost::upsertHostHostgroup(

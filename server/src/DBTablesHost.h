@@ -66,6 +66,10 @@ struct Hostgroup {
 	std::string   name;
 };
 
+typedef std::vector<Hostgroup>        HostgroupVect;
+typedef HostgroupVect::iterator       HostgroupVectIterator;
+typedef HostgroupVect::const_iterator HostgroupVectConstIterator;
+
 struct HostHostgroup {
 	GenericIdType id;
 	ServerIdType  serverId;
@@ -168,10 +172,14 @@ public:
 	 * the record is updated.
 	 *
 	 * @param hostgroup A data to be inserted/updated.
+	 * @param useTransaction A flag to use a transaction.
 	 * @return
 	 * The ID of inserted/updated record.
 	 */
-	GenericIdType upsertHostgroup(const Hostgroup &hostgroup);
+	GenericIdType upsertHostgroup(const Hostgroup &hostgroup,
+	                              const bool &useTransaction = true);
+
+	void upsertHostgroups(const HostgroupVect &hostgroups);
 
 	/**
 	 * Insert or update a record to/in the host_hostgroup table
