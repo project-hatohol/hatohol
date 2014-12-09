@@ -2012,45 +2012,37 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	return HatoholError(HTERR_OK);
 }
 
+static void conv(Hostgroup &hostgroup, const HostgroupInfo &groupInfo)
+{
+	hostgroup.id         = AUTO_INCREMENT_VALUE;
+	hostgroup.serverId   = groupInfo.serverId;
+	hostgroup.idInServer = StringUtils::sprintf("%" FMT_HOST_GROUP_ID,
+	                                            groupInfo.groupId);
+	hostgroup.name       = groupInfo.groupName;
+}
+
 void DBTablesMonitoring::addHostgroupInfo(HostgroupInfo *groupInfo)
 {
-	struct TrxProc : public DBAgent::TransactionProc {
-		HostgroupInfo *groupInfo;
-
-		TrxProc(HostgroupInfo *_groupInfo)
-		: groupInfo(_groupInfo)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			addHostgroupInfoWithoutTransaction(dbAgent, *groupInfo);
-		}
-	} trx(groupInfo);
-	getDBAgent().runTransaction(trx);
+	// TODO: Use DBTablesHost directory
+	Hostgroup hostgroup;
+	conv(hostgroup, *groupInfo);
+	ThreadLocalDBCache cache;
+	cache.getHost().upsertHostgroup(hostgroup);
 }
 
 void DBTablesMonitoring::addHostgroupInfoList(
   const HostgroupInfoList &groupInfoList)
 {
-	struct TrxProc : public DBAgent::TransactionProc {
-		const HostgroupInfoList &groupInfoList;
-
-		TrxProc(const HostgroupInfoList &_groupInfoList)
-		: groupInfoList(_groupInfoList)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			HostgroupInfoListConstIterator it =
-			  groupInfoList.begin();
-			for (; it != groupInfoList.end(); ++it)
-				addHostgroupInfoWithoutTransaction(dbAgent, *it);
-		}
-	} trx(groupInfoList);
-	getDBAgent().runTransaction(trx);
-
+	// TODO: Use DBTablesHost directory
+	HostgroupVect hostgrpVect;
+	HostgroupInfoListConstIterator hostgrpInfoItr = groupInfoList.begin();
+	for (; hostgrpInfoItr != groupInfoList.end(); ++hostgrpInfoItr) {
+		Hostgroup hostgrp;
+		conv(hostgrp, *hostgrpInfoItr);
+		hostgrpVect.push_back(hostgrp);
+	}
+	ThreadLocalDBCache cache;
+	cache.getHost().upsertHostgroups(hostgrpVect);
 }
 
 void DBTablesMonitoring::addHostgroupElement(
@@ -2128,7 +2120,8 @@ void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 		serverHostDef.id = AUTO_INCREMENT_VALUE;
 		serverHostDef.hostId = UNKNOWN_HOST_ID;
 		serverHostDef.serverId       = hostInfo.serverId;
-		serverHostDef.hostIdInServer = hostInfo.id;
+		serverHostDef.hostIdInServer =
+		  StringUtils::sprintf("%" FMT_HOST_ID,  hostInfo.id);
 		serverHostDef.name           = hostInfo.hostName;
 		switch (hostInfo.validity) {
 		case HOST_VALID:
@@ -2891,18 +2884,6 @@ void DBTablesMonitoring::addItemInfoWithoutTransaction(
 	arg.add(itemInfo.itemGroupName);
 	arg.add(itemInfo.valueType);
 	arg.add(itemInfo.unit);
-	arg.upsertOnDuplicate = true;
-	dbAgent.insert(arg);
-}
-
-void DBTablesMonitoring::addHostgroupInfoWithoutTransaction(
-  DBAgent &dbAgent, const HostgroupInfo &groupInfo)
-{
-	DBAgent::InsertArg arg(tableProfileHostgroups);
-	arg.add(groupInfo.id);
-	arg.add(groupInfo.serverId);
-	arg.add(groupInfo.groupId);
-	arg.add(groupInfo.groupName);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
