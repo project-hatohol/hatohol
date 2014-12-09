@@ -2084,22 +2084,35 @@ void DBTablesMonitoring::addHostgroupElementList(
 	getDBAgent().runTransaction(trx);
 }
 
+static void conv(ServerHostDef &serverHostDef, const HostInfo &hostInfo)
+{
+	serverHostDef.id = AUTO_INCREMENT_VALUE;
+	serverHostDef.hostId = UNKNOWN_HOST_ID;
+	serverHostDef.serverId       = hostInfo.serverId;
+	serverHostDef.hostIdInServer =
+	  StringUtils::sprintf("%" FMT_HOST_ID,  hostInfo.id);
+	serverHostDef.name           = hostInfo.hostName;
+	switch (hostInfo.validity) {
+	case HOST_VALID:
+	case HOST_VALID_INAPPLICABLE:
+	case HOST_VALID_SELF_MONITORING:
+		serverHostDef.status = HOST_STAT_NORMAL;
+		break;
+	case HOST_INVALID:
+		serverHostDef.status = HOST_STAT_REMOVED;
+		break;
+	default:
+		HATOHOL_ASSERT(false, "Unexpected validity: %d\n",
+		               hostInfo.validity);
+	}
+}
+
 void DBTablesMonitoring::addHostInfo(HostInfo *hostInfo)
 {
-	struct TrxProc : public DBAgent::TransactionProc {
-		HostInfo *hostInfo;
-
-		TrxProc(HostInfo *_hostInfo)
-		: hostInfo(_hostInfo)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			addHostInfoWithoutTransaction(dbAgent, *hostInfo);
-		}
-	} trx(hostInfo);
-	getDBAgent().runTransaction(trx);
+	ServerHostDef serverHostDef;
+	conv(serverHostDef, *hostInfo);
+	ThreadLocalDBCache cache;
+	cache.getHost().upsertHost(serverHostDef);
 }
 
 void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
@@ -2110,27 +2123,8 @@ void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 
 	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
 	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr) {
-		const HostInfo &hostInfo = *hostInfoItr;
 		ServerHostDef serverHostDef;
-		serverHostDef.id = AUTO_INCREMENT_VALUE;
-		serverHostDef.hostId = UNKNOWN_HOST_ID;
-		serverHostDef.serverId       = hostInfo.serverId;
-		serverHostDef.hostIdInServer =
-		  StringUtils::sprintf("%" FMT_HOST_ID,  hostInfo.id);
-		serverHostDef.name           = hostInfo.hostName;
-		switch (hostInfo.validity) {
-		case HOST_VALID:
-		case HOST_VALID_INAPPLICABLE:
-		case HOST_VALID_SELF_MONITORING:
-			serverHostDef.status = HOST_STAT_NORMAL;
-			break;
-		case HOST_INVALID:
-			serverHostDef.status = HOST_STAT_REMOVED;
-			break;
-		default:
-			HATOHOL_ASSERT(false, "Unexpected validity: %d\n",
-			               hostInfo.validity);
-		}
+		conv(serverHostDef, *hostInfoItr);
 		svHostDefVec.push_back(serverHostDef);
 	}
 
@@ -2902,19 +2896,6 @@ void DBTablesMonitoring::addHostgroupElementWithoutTransaction(
 		arg.add(hostgroupElement.groupId);
 		dbAgent.insert(arg);
 	}
-}
-
-void DBTablesMonitoring::addHostInfoWithoutTransaction(
-  DBAgent &dbAgent, const HostInfo &hostInfo)
-{
-	DBAgent::InsertArg arg(tableProfileHosts);
-	arg.add(AUTO_INCREMENT_VALUE);
-	arg.add(hostInfo.serverId);
-	arg.add(hostInfo.id);
-	arg.add(hostInfo.hostName);
-	arg.add(hostInfo.validity);
-	arg.upsertOnDuplicate = true;
-	dbAgent.insert(arg);
 }
 
 void DBTablesMonitoring::addMonitoringServerStatusWithoutTransaction(

@@ -215,7 +215,7 @@ public:
 	void addHostgroupElementList
 	  (const HostgroupElementList &mapHostHostgroupsInfoList);
 
-	void addHostInfo(HostInfo *hostInfo);
+	void addHostInfo(HostInfo *hostInfo) __attribute__ ((deprecated));
 	void addHostInfoList(const HostInfoList &hostInfoList)
 	  __attribute__ ((deprecated));
 
@@ -321,8 +321,6 @@ protected:
 	  DBAgent &dbAgent, const ItemInfo &itemInfo);
 	static void addHostgroupElementWithoutTransaction(
 	  DBAgent &dbAgent, const HostgroupElement &hostgroupElement);
-	static void addHostInfoWithoutTransaction(
-	  DBAgent &dbAgent, const HostInfo &hostInfo);
 	static void addMonitoringServerStatusWithoutTransaction(
 	  DBAgent &dbAgent, const MonitoringServerStatus &serverStatus);
 	static void addIncidentInfoWithoutTransaction(
