@@ -133,13 +133,6 @@ var LatestView = function(userProfile) {
     return parsedData;
   }
 
-  function getTargetAppName() {
-    var name = $("#select-application").val();
-    if (name == "---------")
-      name = null;
-    return name;
-  }
-
   function setLoading(loading) {
     if (loading) {
       $("#select-server").attr("disabled", "disabled");
@@ -178,7 +171,7 @@ var LatestView = function(userProfile) {
   function drawTableBody(replyData) {
     var serverName, hostName, clock, appName;
     var html = "", url, server, item, x;
-    var targetAppName = getTargetAppName();
+    var targetAppName = self.getTargetAppName();
 
     html = "";
     for (x = 0; x < replyData["items"].length; ++x) {
