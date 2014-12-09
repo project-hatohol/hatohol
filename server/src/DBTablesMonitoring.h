@@ -229,7 +229,8 @@ public:
 	 * @param serverId      A monitoring server ID.
 	 */
 	void updateHosts(const HostInfoList &hostInfoList,
-	                 const ServerIdType &serverId);
+	                 const ServerIdType &serverId)
+	  __attribute__ ((deprecated));
 
 	/**
 	 * get the last (maximum) event ID of the event that belongs to
