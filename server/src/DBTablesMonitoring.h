@@ -101,8 +101,6 @@ public:
 	void setAppName(const std::string &appName) const;
 	const std::string &getAppName(void) const;
 
-
-
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
