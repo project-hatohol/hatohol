@@ -216,7 +216,8 @@ public:
 	  (const HostgroupElementList &mapHostHostgroupsInfoList);
 
 	void addHostInfo(HostInfo *hostInfo);
-	void addHostInfoList(const HostInfoList &hostInfoList);
+	void addHostInfoList(const HostInfoList &hostInfoList)
+	  __attribute__ ((deprecated));
 
 	/**
 	 * Update the host records.
