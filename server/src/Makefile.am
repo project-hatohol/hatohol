@@ -14,7 +14,6 @@ libhatohol_la_SOURCES = \
 	ArmNagiosNDOUtils.cc ArmNagiosNDOUtils.h \
 	ArmRedmine.cc ArmRedmine.h \
 	ArmZabbixAPI.cc ArmZabbixAPI.h \
-	ArmCeilometer.cc ArmCeilometer.h \
 	ChildProcessManager.cc ChildProcessManager.h \
 	Closure.h \
 	ThreadLocalDBCache.cc ThreadLocalDBCache.h \
