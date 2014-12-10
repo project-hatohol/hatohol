@@ -82,6 +82,60 @@ public:
 	HostQueryOption(const UserIdType &userId = INVALID_USER_ID);
 };
 
+enum {
+	IDX_HOST_LIST_ID,
+	IDX_HOST_LIST_NAME,
+	NUM_IDX_HOST_LIST
+};
+
+enum {
+	IDX_HOST_SERVER_HOST_DEF_ID,
+	IDX_HOST_SERVER_HOST_DEF_HOST_ID,
+	IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
+	IDX_HOST_SERVER_HOST_DEF_HOST_NAME,
+	IDX_HOST_SERVER_HOST_DEF_HOST_STATUS,
+	NUM_IDX_SERVER_HOST_DEF
+};
+
+enum {
+	IDX_HOST_ACCESS_ID,
+	IDX_HOST_ACCESS_HOST_ID,
+	IDX_HOST_ACCESS_IP_ADDR_OR_FQDN,
+	IDX_HOST_ACCESS_PRIORITY,
+	NUM_IDX_HOST_ACCESS
+};
+
+enum {
+	IDX_HOST_VM_LIST_ID,
+	IDX_HOST_VM_LIST_HOST_ID,
+	IDX_HOST_VM_LIST_HYPERVISOR_HOST_ID,
+	NUM_IDX_VM_LIST
+};
+
+enum {
+	IDX_HOSTGROUP_LIST_ID,
+	IDX_HOSTGROUP_LIST_SERVER_ID,
+	IDX_HOSTGROUP_LIST_ID_IN_SERVER,
+	IDX_HOSTGROUP_LIST_NAME,
+	NUM_IDX_HOSTGROUP_LIST,
+};
+
+enum {
+	IDX_HOST_HOSTGROUP_ID,
+	IDX_HOST_HOSTGROUP_SERVER_ID,
+	IDX_HOST_HOSTGROUP_HOST_ID,
+	IDX_HOST_HOSTGROUP_GROUP_ID,
+	NUM_IDX_HOST_HOSTGROUP,
+};
+
+extern const DBAgent::TableProfile tableProfileHostList;
+extern const DBAgent::TableProfile tableProfileServerHostDef;
+extern const DBAgent::TableProfile tableProfileHostAccess;
+extern const DBAgent::TableProfile tableProfileVMList;
+extern const DBAgent::TableProfile tableProfileHostgroupList;
+extern const DBAgent::TableProfile tableProfileHostHostgroup;
+
 class DBTablesHost : public DBTables {
 public:
 	static const int TABLES_VERSION;
