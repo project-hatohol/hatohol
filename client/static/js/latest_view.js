@@ -216,10 +216,7 @@ var LatestView = function(userProfile) {
     self.setServerFilterCandidates(rawData["servers"]);
     self.setHostgroupFilterCandidates(rawData["servers"]);
     self.setHostFilterCandidates(rawData["servers"]);
-    var applicationSelector = $("#select-application");
-    var current = applicationSelector.val();
-    self.setFilterCandidates(applicationSelector, parsedData.applications);
-    applicationSelector.val(current);
+    self.setApplicationFilterCandidates(parsedData.applications);
 
     drawTableContents(rawData);
     self.pager.update({ numTotalRecords: rawData["totalNumberOfItems"] });
