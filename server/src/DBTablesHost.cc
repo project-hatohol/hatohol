@@ -65,13 +65,7 @@ static const ColumnDef COLUMN_DEF_HOST_LIST[] = {
 },
 };
 
-enum {
-	IDX_HOST_LIST_ID,
-	IDX_HOST_LIST_NAME,
-	NUM_IDX_HOST_LIST
-};
-
-static const DBAgent::TableProfile tableProfileHostList =
+const DBAgent::TableProfile tableProfileHostList =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOST_LIST,
 			    COLUMN_DEF_HOST_LIST,
 			    NUM_IDX_HOST_LIST);
@@ -138,16 +132,6 @@ static const ColumnDef COLUMN_DEF_SERVER_HOST_DEF[] = {
 },
 };
 
-enum {
-	IDX_HOST_SERVER_HOST_DEF_ID,
-	IDX_HOST_SERVER_HOST_DEF_HOST_ID,
-	IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
-	IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
-	IDX_HOST_SERVER_HOST_DEF_HOST_NAME,
-	IDX_HOST_SERVER_HOST_DEF_HOST_STATUS,
-	NUM_IDX_SERVER_HOST_DEF
-};
-
 static const int columnIndexesHostServerDefIdx[] = {
   IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
   IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER, DBAgent::IndexDef::END,
@@ -158,7 +142,7 @@ static const DBAgent::IndexDef indexDefsHostServerDef[] = {
   {NULL}
 };
 
-static const DBAgent::TableProfile tableProfileServerHostDef =
+const DBAgent::TableProfile tableProfileServerHostDef =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SERVER_HOST_DEF,
 			    COLUMN_DEF_SERVER_HOST_DEF,
 			    NUM_IDX_SERVER_HOST_DEF,
@@ -209,15 +193,7 @@ static const ColumnDef COLUMN_DEF_HOST_ACCESS[] = {
 },
 };
 
-enum {
-	IDX_HOST_ACCESS_ID,
-	IDX_HOST_ACCESS_HOST_ID,
-	IDX_HOST_ACCESS_IP_ADDR_OR_FQDN,
-	IDX_HOST_ACCESS_PRIORITY,
-	NUM_IDX_HOST_ACCESS
-};
-
-static const DBAgent::TableProfile tableProfileHostAccess =
+const DBAgent::TableProfile tableProfileHostAccess =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOST_ACCESS,
 			    COLUMN_DEF_HOST_ACCESS,
 			    NUM_IDX_HOST_ACCESS);
@@ -253,14 +229,7 @@ static const ColumnDef COLUMN_DEF_VM_LIST[] = {
 },
 };
 
-enum {
-	IDX_HOST_VM_LIST_ID,
-	IDX_HOST_VM_LIST_HOST_ID,
-	IDX_HOST_VM_LIST_HYPERVISOR_HOST_ID,
-	NUM_IDX_VM_LIST
-};
-
-static const DBAgent::TableProfile tableProfileVMList =
+const DBAgent::TableProfile tableProfileVMList =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_VM_LIST,
 			    COLUMN_DEF_VM_LIST,
 			    NUM_IDX_VM_LIST);
@@ -305,14 +274,6 @@ static const ColumnDef COLUMN_DEF_HOSTGROUP_LIST[] = {
 },
 };
 
-enum {
-	IDX_HOSTGROUP_LIST_ID,
-	IDX_HOSTGROUP_LIST_SERVER_ID,
-	IDX_HOSTGROUP_LIST_ID_IN_SERVER,
-	IDX_HOSTGROUP_LIST_NAME,
-	NUM_IDX_HOSTGROUP_LIST,
-};
-
 static const int columnIndexesHostgroupListUniqId[] = {
   IDX_HOSTGROUP_LIST_SERVER_ID, IDX_HOSTGROUP_LIST_ID_IN_SERVER,
   DBAgent::IndexDef::END,
@@ -323,7 +284,7 @@ static const DBAgent::IndexDef indexDefsHostgroupList[] = {
   {NULL}
 };
 
-static const DBAgent::TableProfile tableProfileHostgroupList =
+const DBAgent::TableProfile tableProfileHostgroupList =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOSTGROUP_LIST,
 			    COLUMN_DEF_HOSTGROUP_LIST,
 			    NUM_IDX_HOSTGROUP_LIST,
@@ -370,14 +331,6 @@ static const ColumnDef COLUMN_DEF_HOST_HOSTGROUP[] = {
 },
 };
 
-enum {
-	IDX_HOST_HOSTGROUP_ID,
-	IDX_HOST_HOSTGROUP_SERVER_ID,
-	IDX_HOST_HOSTGROUP_HOST_ID,
-	IDX_HOST_HOSTGROUP_GROUP_ID,
-	NUM_IDX_HOST_HOSTGROUP,
-};
-
 static const int columnIndexesHostHostgroupUniqId[] = {
   IDX_HOST_HOSTGROUP_SERVER_ID, IDX_HOST_HOSTGROUP_ID,
   DBAgent::IndexDef::END,
@@ -389,7 +342,7 @@ static const DBAgent::IndexDef indexDefsHostHostgroup[] = {
   {NULL}
 };
 
-static const DBAgent::TableProfile tableProfileHostHostgroup =
+const DBAgent::TableProfile tableProfileHostHostgroup =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOST_HOSTGROUP,
 			    COLUMN_DEF_HOST_HOSTGROUP,
 			    NUM_IDX_HOST_HOSTGROUP,
