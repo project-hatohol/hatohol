@@ -24,27 +24,34 @@ describe('HatoholMonitoringView', function() {
     s += '    <option>host1</option>';
     s += '    <option>host2</option>';
     s += '  </select>';
+    s += '  <select id="select-application">';
+    s += '    <option>---------</option>';
+    s += '    <option>app1</option>';
+    s += '    <option>app2</option>';
     s += '</div>';
     $('body').append(s);
   }
 
-  function prepreForSetupHostQuerySelector(param) {
+  function prepareForSetupHostQuerySelector(param) {
     makeSelectorsTestDiv();
     HatoholMonitoringView.prototype.setupHostQuerySelectorCallback(
       function () {
         expect($('#select-server').val()).to.be(param.server);
         expect($('#select-host-group').val()).to.be(param.hostgroup);
         expect($('#select-host').val()).to.be(param.host);
+        expect($('#select-application').val()).to.be(param.application);
         param.done();
       },
-      '#select-server', '#select-host-group', '#select-host'
+      '#select-server', '#select-host-group', '#select-host', '#select-application'
     );
     $('#select-server').val('server1');
     $('#select-host-group').val('hostgroup2');
     $('#select-host').val('host1');
+    $('#select-application').val('---------');
     expect($('#select-server').val()).to.be('server1');
     expect($('#select-host-group').val()).to.be('hostgroup2');
     expect($('#select-host').val()).to.be('host1');
+    expect($('#select-application').val()).to.be('---------');
   }
 
   function makeCheckBoxTestDiv() {
@@ -107,33 +114,47 @@ describe('HatoholMonitoringView', function() {
   });
 
   it('setupHostQuerySelector: select server', function(done) {
-    prepreForSetupHostQuerySelector({
+    prepareForSetupHostQuerySelector({
       done: done,
       server:    'server2',
       hostgroup: '---------',
-      host:      '---------'
+      host:      '---------',
+      application: '---------'
     });
     $('#select-server').val('server2').trigger('change');
   });
 
   it('setupHostQuerySelector: select host group', function(done) {
-    prepreForSetupHostQuerySelector({
+    prepareForSetupHostQuerySelector({
       done: done,
       server:    'server1',
       hostgroup: 'hostgroup1',
-      host:      '---------'
+      host:      '---------',
+      application: '---------'
     });
     $('#select-host-group').val('hostgroup1').trigger('change');
   });
 
   it('setupHostQuerySelector: select host', function(done) {
-    prepreForSetupHostQuerySelector({
+    prepareForSetupHostQuerySelector({
       done: done,
       server:    'server1',
       hostgroup: 'hostgroup2',
       host:      'host2',
+      application: '---------'
     });
     $('#select-host').val('host2').trigger('change');
+  });
+
+  it('setupHostQuerySelector: select application', function(done) {
+    prepareForSetupHostQuerySelector({
+      done: done,
+      server:    'server1',
+      hostgroup: 'hostgroup2',
+      host:      'host1',
+      application: 'app1'
+    });
+    $('#select-application').val('app1').trigger('change');
   });
 
   it ('soon after calling setupCheckboxForDelete', function() {
