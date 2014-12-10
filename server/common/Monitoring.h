@@ -159,6 +159,14 @@ typedef std::list<ItemInfo>          ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
+struct ApplicationInfo {
+	std::string           applicationName;
+};
+
+typedef std::vector<ApplicationInfo>        ApplicationInfoVect;
+typedef ApplicationInfoVect::iterator       ApplicationInfoVectIterator;
+typedef ApplicationInfoVect::const_iterator ApplicationInfoVectConstIterator;
+
 struct HistoryInfo {
 	ServerIdType serverId;
 	ItemIdType   itemId;

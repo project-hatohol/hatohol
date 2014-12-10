@@ -120,13 +120,13 @@ var LatestView = function(userProfile) {
     var appNames = [];
     var x, item;
 
-    for (x = 0; x < replyData["items"].length; ++x) {
-      item = replyData["items"][x];
+    for (x = 0; x < replyData["applications"].length; ++x) {
+      item = replyData["applications"][x];
 
-      if (item["itemGroupName"].length == 0)
-        item["itemGroupName"] = "_non_";
+      if (item["name"].length == 0)
+        item["name"] = "_non_";
       else
-        appNames.push(item["itemGroupName"]);
+        appNames.push(item["name"]);
     }
     parsedData.applications = appNames.uniq().sort();
 
@@ -216,10 +216,7 @@ var LatestView = function(userProfile) {
     self.setServerFilterCandidates(rawData["servers"]);
     self.setHostgroupFilterCandidates(rawData["servers"]);
     self.setHostFilterCandidates(rawData["servers"]);
-    var applicationSelector = $("#select-application");
-    var current = applicationSelector.val();
-    self.setFilterCandidates(applicationSelector, parsedData.applications);
-    applicationSelector.val(current);
+    self.setApplicationFilterCandidates(parsedData.applications);
 
     drawTableContents(rawData);
     self.pager.update({ numTotalRecords: rawData["totalNumberOfItems"] });

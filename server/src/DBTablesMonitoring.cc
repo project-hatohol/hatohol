@@ -2244,6 +2244,40 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	}
 }
 
+void DBTablesMonitoring::getApplicationInfoVect(ApplicationInfoVect &applicationInfoVect,
+                                                const ItemsQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileItems);
+	arg.tableField = option.getFromClause();
+	arg.useDistinct = true;
+	arg.useFullName = option.isHostgroupUsed();
+	arg.add(IDX_ITEMS_ITEM_GROUP_NAME);
+
+	// condition
+	arg.condition = option.getCondition();
+	if (DBHatohol::isAlwaysFalseCondition(arg.condition))
+		return;
+
+	// Order by
+	arg.orderBy = option.getOrderBy();
+
+	// Limit and Offset
+	arg.limit = option.getMaximumNumber();
+	arg.offset = option.getOffset();
+	if (!arg.limit && arg.offset)
+		return;
+
+	getDBAgent().runTransaction(arg);
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++ itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		applicationInfoVect.push_back(ApplicationInfo());
+		ApplicationInfo &applicationInfo = applicationInfoVect.back();
+		itemGroupStream >> applicationInfo.applicationName;
+	}
+}
+
 void DBTablesMonitoring::addMonitoringServerStatus(
   MonitoringServerStatus *serverStatus)
 {

@@ -667,6 +667,7 @@ struct GetItemClosure : ClosureTemplate0<RestResourceHost>
 void RestResourceHost::replyGetItem(void)
 {
 	ItemsQueryOption option(m_dataQueryContextPtr);
+	ItemsQueryOption applicationOption(m_dataQueryContextPtr);
 	HatoholError err = parseItemParameter(option, m_query);
 	if (err != HTERR_OK) {
 		replyError(err);
@@ -676,6 +677,8 @@ void RestResourceHost::replyGetItem(void)
 	ItemInfoList itemList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getItemList(itemList, option);
+	ApplicationInfoVect applicationInfoVect;
+	dataStore->getApplicationVect(applicationInfoVect, applicationOption);
 
 	JSONBuilder agent;
 	agent.startObject();
@@ -696,6 +699,15 @@ void RestResourceHost::replyGetItem(void)
 		agent.add("itemGroupName", itemInfo.itemGroupName);
 		agent.add("unit", itemInfo.unit);
 		agent.add("valueType", static_cast<int>(itemInfo.valueType));
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.startArray("applications");
+	ApplicationInfoVectIterator itApp = applicationInfoVect.begin();
+	for (; itApp != applicationInfoVect.end(); ++itApp) {
+		ApplicationInfo &applicationInfo = *itApp;
+		agent.startObject();
+		agent.add("name", applicationInfo.applicationName.c_str());
 		agent.endObject();
 	}
 	agent.endArray();

@@ -253,6 +253,8 @@ public:
 	void addItemInfoList(const ItemInfoList &itemInfoList);
 	void getItemInfoList(ItemInfoList &itemInfoList,
 			     const ItemsQueryOption &option);
+	void getApplicationInfoVect(ApplicationInfoVect &applicationInfoVect,
+			     const ItemsQueryOption &option);
 	void addMonitoringServerStatus(MonitoringServerStatus *serverStatus);
 
 	/**
