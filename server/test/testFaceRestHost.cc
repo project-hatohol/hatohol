@@ -104,13 +104,13 @@ static void assertHostsInParser(JSONParser *parser,
 	parser->endObject();
 }
 
-static void assertHostsIdNameHashInParser(TriggerInfo *triggers,
+static void assertHostsIdNameHashInParser(const TriggerInfo *triggers,
                                           size_t numberOfTriggers,
                                           JSONParser *parser)
 {
 	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < numberOfTriggers; i++) {
-		TriggerInfo &triggerInfo = triggers[i];
+		const TriggerInfo &triggerInfo = triggers[i];
 		assertStartObject(parser, StringUtils::toString(triggerInfo.serverId));
 		assertStartObject(parser, "hosts");
 		assertStartObject(parser, StringUtils::toString(triggerInfo.hostId));
@@ -123,7 +123,7 @@ static void assertHostsIdNameHashInParser(TriggerInfo *triggers,
 }
 
 static void assertHostsIdNameHashInParser(
-  const vector<EventInfo *> &expectedRecords, JSONParser *parser)
+  const vector<const EventInfo *> &expectedRecords, JSONParser *parser)
 {
 	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < expectedRecords.size(); i++) {
@@ -264,10 +264,10 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	assertValueInParser(parser, "haveIncident", shouldHaveIncident);
 
 	assertStartObject(parser, "events");
-	vector<EventInfo*>::reverse_iterator it
+	vector<const EventInfo*>::reverse_iterator it
 	  = eventsArg.expectedRecords.rbegin();
 	for (size_t i = 0; it != eventsArg.expectedRecords.rend(); i++, ++it) {
-		EventInfo &eventInfo = *(*it);
+		const EventInfo &eventInfo = *(*it);
 		uint64_t unifiedId = eventsArg.idMap[*it];
 		parser->startElement(i);
 		assertValueInParser(parser, "unifiedId", unifiedId);
@@ -285,7 +285,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		}
 		if (shouldHaveIncident) {
 			assertStartObject(parser, "incident");
-			IncidentInfo incident
+			const IncidentInfo incident
 			  = eventsArg.getExpectedIncidentInfo(eventInfo);
 			assertValueInParser(parser, "location",
 					    incident.location);

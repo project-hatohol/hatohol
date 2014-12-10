@@ -318,7 +318,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	HostInfoList hostInfoList;
 	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(svInfo.id);
-	option.setValidity(HOST_VALID);
+	option.setStatus(HOST_STAT_NORMAL);
 	dataStore->getHostList(hostInfoList, option);
 	agent.add("numberOfHosts", hostInfoList.size());
 
