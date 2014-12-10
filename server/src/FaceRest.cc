@@ -924,7 +924,7 @@ static void addHostsMap(
 	// TODO:
 	// This is a workaround to show host name that was deleted in the
 	// Event page. We should save host name in Event table.
-	option.setValidity(HOST_ANY_VALIDITY);
+	option.setStatus(HOST_STAT_ALL);
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getHostList(hostList, option);

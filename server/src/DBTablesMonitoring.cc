@@ -72,6 +72,8 @@ void operator>>(ItemGroupStream &itemGroupStream, HostValidity &rhs)
 	rhs = itemGroupStream.read<int, HostValidity>();
 }
 
+extern void operator>>(ItemGroupStream &itemGroupStream, HostStatus &rhs);
+
 // ----------------------------------------------------------------------------
 // Table: triggers
 // ----------------------------------------------------------------------------
@@ -1449,18 +1451,19 @@ void ItemsQueryOption::setExcludeFlags(const ExcludeFlags &flg)
 // HostsQueryOption
 //
 static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
-  tableProfileHosts, IDX_HOSTS_ID, IDX_HOSTS_SERVER_ID,
-  tableProfileHosts, IDX_HOSTS_HOST_ID,
+  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
+  IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
   true,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+  tableProfileHostHostgroup,
+  IDX_HOST_HOSTGROUP_SERVER_ID, IDX_HOST_HOSTGROUP_HOST_ID,
+  IDX_HOST_HOSTGROUP_GROUP_ID);
 
 struct HostsQueryOption::Impl {
-	HostValidity validity;
+	HostStatus status;
 
 	Impl()
-	: validity(HOST_ALL_VALID)
+	: status(HOST_STAT_ALL)
 	{
 	}
 };
@@ -1491,30 +1494,26 @@ HostsQueryOption::~HostsQueryOption(void)
 string HostsQueryOption::getCondition(void) const
 {
 	string condition = HostResourceQueryOption::getCondition();
-	if (m_impl->validity == HOST_ANY_VALIDITY)
+	if (m_impl->status == HOST_STAT_ALL)
 		return condition;
 	if (!condition.empty())
 		condition += " AND ";
 
-	string columnName = COLUMN_DEF_HOSTS[IDX_HOSTS_VALIDITY].columnName;
-	if (m_impl->validity == HOST_ALL_VALID) {
-		condition += StringUtils::sprintf("%s>=%d",
-		  columnName.c_str(), HOST_VALID);
-	} else {
-		condition += StringUtils::sprintf("%s=%d",
-		  columnName.c_str(), HOST_VALID);
-	}
+	string columnName =
+	  tableProfileServerHostDef.columnDefs[IDX_HOST_SERVER_HOST_DEF_HOST_STATUS].columnName;
+	condition += StringUtils::sprintf("%s=%d",
+	                                  columnName.c_str(), m_impl->status);
 	return condition;
 }
 
-void HostsQueryOption::setValidity(const HostValidity &validity)
+void HostsQueryOption::setStatus(const HostStatus &status)
 {
-	m_impl->validity = validity;
+	m_impl->status = status;
 }
 
-HostValidity HostsQueryOption::getValidity(void) const
+HostStatus HostsQueryOption::getStatus(void) const
 {
-	return m_impl->validity;
+	return m_impl->status;
 }
 
 
@@ -1603,14 +1602,14 @@ DBTablesMonitoring::~DBTablesMonitoring()
 void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 				      const HostsQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileHosts);
+	DBAgent::SelectExArg arg(tableProfileServerHostDef);
 	arg.tableField = option.getFromClause();
 	arg.useDistinct = option.isHostgroupUsed();
 	arg.useFullName = option.isHostgroupUsed();
-	arg.add(IDX_HOSTS_SERVER_ID);
-	arg.add(IDX_HOSTS_HOST_ID);
-	arg.add(IDX_HOSTS_HOST_NAME);
-	arg.add(IDX_HOSTS_VALIDITY);
+	arg.add(IDX_HOST_SERVER_HOST_DEF_SERVER_ID);
+	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
+	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_NAME);
+	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_STATUS);
 
 	// condition
 	arg.condition = option.getCondition();
@@ -1625,9 +1624,22 @@ void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 		hostInfoList.push_back(HostInfo());
 		HostInfo &hostInfo = hostInfoList.back();
 		itemGroupStream >> hostInfo.serverId;
-		itemGroupStream >> hostInfo.id;
+
+		string hostIdStr;
+		itemGroupStream >> hostIdStr;
+		if (sscanf(hostIdStr.c_str(), "%" FMT_HOST_ID, &hostInfo.id)
+		    != 1) {
+			MLPL_ERR("Failed to convert HostID: %s.\n",
+			         hostIdStr.c_str());
+			continue;
+		}
+
 		itemGroupStream >> hostInfo.hostName;
-		itemGroupStream >> hostInfo.validity;
+
+		HostStatus stat;
+		itemGroupStream >> stat;
+		hostInfo.validity = (stat == HOST_STAT_NORMAL) ?
+		                    HOST_VALID : HOST_INVALID;
 	}
 }
 
@@ -2045,48 +2057,40 @@ void DBTablesMonitoring::addHostgroupInfoList(
 	cache.getHost().upsertHostgroups(hostgrpVect);
 }
 
+static void conv(HostHostgroup &hostHostgrp,
+                 const HostgroupElement &hostgroupElement)
+{
+	hostHostgrp.id = AUTO_INCREMENT_VALUE;
+	hostHostgrp.serverId = hostgroupElement.serverId;
+	hostHostgrp.hostIdInServer =
+	  StringUtils::sprintf("%" FMT_HOST_ID, hostgroupElement.hostId);
+	hostHostgrp.hostgroupIdInServer =
+	  StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupElement.groupId);
+}
+
 void DBTablesMonitoring::addHostgroupElement(
   HostgroupElement *hostgroupElement)
 {
-	struct TrxProc : public DBAgent::TransactionProc {
-		HostgroupElement *hostgroupElement;
-
-		TrxProc(HostgroupElement *_hostgroupElement)
-		: hostgroupElement(_hostgroupElement)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			addHostgroupElementWithoutTransaction(
-			  dbAgent, *hostgroupElement);
-		}
-	} trx(hostgroupElement);
-	getDBAgent().runTransaction(trx);
+	HostHostgroup hostHostgroup;
+	conv(hostHostgroup, *hostgroupElement);
+	ThreadLocalDBCache cache;
+	cache.getHost().upsertHostHostgroup(hostHostgroup);
 }
 
 void DBTablesMonitoring::addHostgroupElementList(
   const HostgroupElementList &hostgroupElementList)
 {
-	struct TrxProc : public DBAgent::TransactionProc {
-		const HostgroupElementList &hostgroupElementList;
+	HostHostgroupVect hostHostgrpVect;
+	HostgroupElementListConstIterator hostgrpElemItr =
+	  hostgroupElementList.begin();
+	for (; hostgrpElemItr != hostgroupElementList.end(); ++hostgrpElemItr) {
+		HostHostgroup hostHostgroup;
+		conv(hostHostgroup, *hostgrpElemItr);
+		hostHostgrpVect.push_back(hostHostgroup);
+	}
 
-		TrxProc(const HostgroupElementList &_hostgroupElementList)
-		: hostgroupElementList(_hostgroupElementList)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			HostgroupElementListConstIterator it =
-			  hostgroupElementList.begin();
-			for (; it != hostgroupElementList.end(); ++it) {
-				addHostgroupElementWithoutTransaction(dbAgent,
-				                                      *it);
-			}
-		}
-	} trx(hostgroupElementList);
-	getDBAgent().runTransaction(trx);
+	ThreadLocalDBCache cache;
+	cache.getHost().upsertHostHostgroups(hostHostgrpVect);
 }
 
 static void conv(ServerHostDef &serverHostDef, const HostInfo &hostInfo)
@@ -2142,7 +2146,7 @@ void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
 {
 	// Make a set that contains current hosts records
 	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setValidity(HOST_VALID);
+	option.setStatus(HOST_STAT_NORMAL);
 	option.setTargetServerId(serverId);
 	HostInfoList currHosts;
 	getHostInfoList(currHosts, option);

@@ -172,7 +172,7 @@ struct AssertGetItemsArg
 		option.setTargetItemGroupName(itemGroupName);
 	}
 
-	virtual bool filterOutExpectedRecord(ItemInfo *info) override
+	virtual bool filterOutExpectedRecord(const ItemInfo *info) override
 	{
 		if (AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
 		      ::filterOutExpectedRecord(info)) {
@@ -259,36 +259,70 @@ void _assertItemInfoList(gconstpointer data, uint32_t serverId)
 cut_trace(_assertItemInfoList(DATA, SERVER_ID))
 
 struct AssertGetHostsArg
-  : public AssertGetHostResourceArg<HostInfo, HostsQueryOption>
+  : public AssertGetHostResourceArg<ServerHostDef, HostsQueryOption>
 {
 	HostInfoList expectedHostList;
 
 	AssertGetHostsArg(gconstpointer ddtParam)
 	{
-		fixtures = testHostInfo;
-		numberOfFixtures = NumTestHostInfo;
+		fixtures = testServerHostDef;
+		numberOfFixtures = NumTestServerHostDef;
 		setDataDrivenTestParam(ddtParam);
 	}
 
-	virtual HostIdType getHostId(const HostInfo &info) const override
+	// This should be moved to AssertGetHostResourceArg later
+	virtual bool isAuthorized(const ServerHostDef &svHostDef) override
 	{
-		return info.id;
+		return ::isAuthorized(userId, svHostDef.hostId);
 	}
 
-	virtual string makeOutputText(const HostInfo &hostInfo)
+	virtual HostIdType getHostId(const ServerHostDef &svHostDef) const override
 	{
-		return makeHostOutput(hostInfo);
+		HostIdType hostId;
+		cppcut_assert_equal(
+		  1, sscanf(svHostDef.hostIdInServer.c_str(), "%" FMT_HOST_ID,
+		            &hostId));
+		return hostId;
 	}
+
+	virtual string makeOutputText(const ServerHostDef &svHostDef)
+	{
+		string expectedOut =
+		  StringUtils::sprintf(
+		    "%" PRIu32 "|%s|%s\n",
+		    svHostDef.serverId, svHostDef.hostIdInServer.c_str(),
+		    svHostDef.name.c_str());
+		return expectedOut;
+	}
+
 };
+
+static void conv(ServerHostDef &svHostDef, const HostInfo &hostInfo)
+{
+	svHostDef.id = hostInfo.id;
+	svHostDef.hostId = 1;
+	svHostDef.serverId = hostInfo.serverId;
+	svHostDef.hostIdInServer = StringUtils::sprintf("%" FMT_HOST_ID,
+	                                                hostInfo.id);
+	svHostDef.name = hostInfo.hostName;
+}
 
 static void _assertGetHosts(AssertGetHostsArg &arg)
 {
-	loadTestDBHosts();
-	loadTestDBHostgroupElements();
+	loadTestDBServerHostDef();
+	loadTestDBHostHostgroup();
 
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	arg.fixup();
-	dbMonitoring.getHostInfoList(arg.actualRecordList, arg.option);
+	HostInfoList hostInfoList;
+	dbMonitoring.getHostInfoList(hostInfoList, arg.option);
+
+	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
+	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr) {
+		ServerHostDef svHostDef;
+		conv(svHostDef, *hostInfoItr);
+		arg.actualRecordList.push_back(svHostDef);
+	}
 	arg.assert();
 }
 #define assertGetHosts(A) cut_trace(_assertGetHosts(A))
