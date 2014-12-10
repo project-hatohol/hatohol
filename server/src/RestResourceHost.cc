@@ -676,6 +676,8 @@ void RestResourceHost::replyGetItem(void)
 	ItemInfoList itemList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getItemList(itemList, option);
+	ApplicationInfoVect applicationInfoVect;
+	dataStore->getApplicationVect(applicationInfoVect, option);
 
 	JSONBuilder agent;
 	agent.startObject();
@@ -696,6 +698,15 @@ void RestResourceHost::replyGetItem(void)
 		agent.add("itemGroupName", itemInfo.itemGroupName);
 		agent.add("unit", itemInfo.unit);
 		agent.add("valueType", static_cast<int>(itemInfo.valueType));
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.startArray("applications");
+	ApplicationInfoVectIterator itApp = applicationInfoVect.begin();
+	for (; itApp != applicationInfoVect.end(); ++itApp) {
+		ApplicationInfo &applicationInfo = *itApp;
+		agent.startObject();
+		agent.add("applicationName", applicationInfo.applicationName.c_str());
 		agent.endObject();
 	}
 	agent.endArray();
