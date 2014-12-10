@@ -40,12 +40,13 @@ describe('LatestView', function() {
     },
   };
 
-  function itemsJson(items, servers) {
+  function itemsJson(items, servers, applications) {
     return JSON.stringify({
       apiVersion: 3,
       errorCode: hatohol.HTERR_OK,
       items: items ? items : [],
-      servers: servers ? servers : {}
+      servers: servers ? servers : {},
+      applications: applications ? applications : []
     });
   }
 
