@@ -1237,6 +1237,7 @@ static const HostResourceQueryOption::Synapse synapseItemsQueryOption(
 struct ItemsQueryOption::Impl {
 	ItemIdType targetId;
 	string itemGroupName;
+	string appName;
 
 	Impl()
 	: targetId(ALL_ITEMS)
@@ -1297,6 +1298,18 @@ string ItemsQueryOption::getCondition(void) const
 			escaped.c_str());
 	}
 
+	if (!m_impl->appName.empty()){
+		if (!condition.empty())
+			condition += " AND ";
+		string escapedAppName = StringUtils::replace(m_impl->appName,
+						      "'", "''");
+		condition += StringUtils::sprintf(
+			"%s.%s='%s'",
+			DBTablesMonitoring::TABLE_NAME_ITEMS,
+			COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME].columnName,
+			escapedAppName.c_str());
+	}
+
 	return condition;
 }
 
@@ -1318,6 +1331,16 @@ void ItemsQueryOption::setTargetItemGroupName(const string &itemGroupName)
 const string &ItemsQueryOption::getTargetItemGroupName(void)
 {
 	return m_impl->itemGroupName;
+}
+
+void ItemsQueryOption::setAppName(const string &appName) const
+{
+	m_impl->appName = appName;
+}
+
+const string &ItemsQueryOption::getAppName(void) const
+{
+	return m_impl->appName;
 }
 
 //
@@ -1869,7 +1892,7 @@ void DBTablesMonitoring::addHostgroupInfo(HostgroupInfo *groupInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		HostgroupInfo *groupInfo;
-		
+
 		TrxProc(HostgroupInfo *_groupInfo)
 		: groupInfo(_groupInfo)
 		{
@@ -1888,7 +1911,7 @@ void DBTablesMonitoring::addHostgroupInfoList(
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		const HostgroupInfoList &groupInfoList;
-		
+
 		TrxProc(const HostgroupInfoList &_groupInfoList)
 		: groupInfoList(_groupInfoList)
 		{
@@ -1911,7 +1934,7 @@ void DBTablesMonitoring::addHostgroupElement(
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		HostgroupElement *hostgroupElement;
-		
+
 		TrxProc(HostgroupElement *_hostgroupElement)
 		: hostgroupElement(_hostgroupElement)
 		{
@@ -1931,7 +1954,7 @@ void DBTablesMonitoring::addHostgroupElementList(
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		const HostgroupElementList &hostgroupElementList;
-		
+
 		TrxProc(const HostgroupElementList &_hostgroupElementList)
 		: hostgroupElementList(_hostgroupElementList)
 		{
@@ -1954,7 +1977,7 @@ void DBTablesMonitoring::addHostInfo(HostInfo *hostInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		HostInfo *hostInfo;
-		
+
 		TrxProc(HostInfo *_hostInfo)
 		: hostInfo(_hostInfo)
 		{
@@ -1972,7 +1995,7 @@ void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		const HostInfoList &hostInfoList;
-		
+
 		TrxProc(const HostInfoList &_hostInfoList)
 		: hostInfoList(_hostInfoList)
 		{
@@ -2037,7 +2060,7 @@ EventIdType DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
 	arg.add(stmt, COLUMN_DEF_EVENTS[IDX_EVENTS_ID].type);
 	arg.condition = StringUtils::sprintf("%s=%s",
-	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName, 
+	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
 	    dbTermCodec->enc(serverId).c_str());
 
 	getDBAgent().runTransaction(arg);
@@ -2125,7 +2148,7 @@ void DBTablesMonitoring::addItemInfo(ItemInfo *itemInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		ItemInfo *itemInfo;
-		
+
 		TrxProc(ItemInfo *_itemInfo)
 		: itemInfo(_itemInfo)
 		{
@@ -2143,7 +2166,7 @@ void DBTablesMonitoring::addItemInfoList(const ItemInfoList &itemInfoList)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		const ItemInfoList &itemInfoList;
-		
+
 		TrxProc(const ItemInfoList &_itemInfoList)
 		: itemInfoList(_itemInfoList)
 		{
@@ -2192,6 +2215,9 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	if (!arg.limit && arg.offset)
 		return;
 
+	// Application Name
+	arg.appName = option.getAppName();
+
 	getDBAgent().runTransaction(arg);
 
 	// check the result and copy
@@ -2223,7 +2249,7 @@ void DBTablesMonitoring::addMonitoringServerStatus(
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		MonitoringServerStatus *serverStatus;
-		
+
 		TrxProc(MonitoringServerStatus *_serverStatus)
 		: serverStatus(_serverStatus)
 		{
@@ -2448,7 +2474,7 @@ void DBTablesMonitoring::pickupAbsentHostIds(
 		const string hostIdName;
 		vector<uint64_t> &absentHostIdVector;
 		const vector<uint64_t> &hostIdVector;
-		
+
 		TrxProc(vector<uint64_t> &_absentHostIdVector,
 		        const vector<uint64_t> &_hostIdVector)
 		: tableName(TABLE_NAME_HOSTS),
@@ -2480,7 +2506,7 @@ void DBTablesMonitoring::addIncidentInfo(IncidentInfo *incidentInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		IncidentInfo *incidentInfo;
-		
+
 		TrxProc(IncidentInfo *_incidentInfo)
 		: incidentInfo(_incidentInfo)
 		{

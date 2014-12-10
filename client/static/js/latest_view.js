@@ -112,11 +112,7 @@ var LatestView = function(userProfile) {
     });
 
     self.setupHostQuerySelectorCallback(
-      load, '#select-server', '#select-host-group', '#select-host');
-    $("#select-application").change(function() {
-      // will be migrated to server side
-      drawTableContents(rawData);
-    });
+      load, '#select-server', '#select-host-group', '#select-host', '#select-application');
   }
 
   function parseData(replyData) {
@@ -135,13 +131,6 @@ var LatestView = function(userProfile) {
     parsedData.applications = appNames.uniq().sort();
 
     return parsedData;
-  }
-
-  function getTargetAppName() {
-    var name = $("#select-application").val();
-    if (name == "---------")
-      name = null;
-    return name;
   }
 
   function setLoading(loading) {
@@ -182,7 +171,7 @@ var LatestView = function(userProfile) {
   function drawTableBody(replyData) {
     var serverName, hostName, clock, appName;
     var html = "", url, server, item, x;
-    var targetAppName = getTargetAppName();
+    var targetAppName = self.getTargetAppName();
 
     html = "";
     for (x = 0; x < replyData["items"].length; ++x) {
@@ -227,7 +216,10 @@ var LatestView = function(userProfile) {
     self.setServerFilterCandidates(rawData["servers"]);
     self.setHostgroupFilterCandidates(rawData["servers"]);
     self.setHostFilterCandidates(rawData["servers"]);
-    self.setFilterCandidates($("#select-application"), parsedData.applications);
+    var applicationSelector = $("#select-application");
+    var current = applicationSelector.val();
+    self.setFilterCandidates(applicationSelector, parsedData.applications);
+    applicationSelector.val(current);
 
     drawTableContents(rawData);
     self.pager.update({ numTotalRecords: rawData["totalNumberOfItems"] });
@@ -239,7 +231,7 @@ var LatestView = function(userProfile) {
   function getItemsQueryInURI() {
     var knownKeys = [
       "serverId", "hostgroupId", "hostId",
-      "limit", "offset",
+      "limit", "offset", "appName",
     ];
     var i, allParams = deparam(), query = {};
     for (i = 0; i < knownKeys.length; i++) {
@@ -256,8 +248,10 @@ var LatestView = function(userProfile) {
       limit:  self.baseQuery.limit,
       offset: self.baseQuery.limit * page
     });
-    if (self.lastQuery)
+    if (self.lastQuery) {
       $.extend(query, self.getHostFilterQuery());
+      $.extend(query, query, { appName: self.getTargetAppName() });
+    }
     self.lastQuery = query;
     return 'item?' + $.param(query);
   };

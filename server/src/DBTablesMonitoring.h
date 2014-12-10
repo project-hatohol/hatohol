@@ -98,6 +98,8 @@ public:
 	ItemIdType getTargetId(void) const;
 	void setTargetItemGroupName(const std::string &itemGroupName);
 	const std::string &getTargetItemGroupName(void);
+	void setAppName(const std::string &appName) const;
+	const std::string &getAppName(void) const;
 
 private:
 	struct Impl;
