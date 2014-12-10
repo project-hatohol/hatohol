@@ -2245,7 +2245,7 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 }
 
 void DBTablesMonitoring::getApplicationInfoVect(ApplicationInfoVect &applicationInfoVect,
-			     const ItemsQueryOption &option)
+                                                const ItemsQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileItems);
 	arg.tableField = option.getFromClause();
