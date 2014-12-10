@@ -120,13 +120,13 @@ var LatestView = function(userProfile) {
     var appNames = [];
     var x, item;
 
-    for (x = 0; x < replyData["items"].length; ++x) {
-      item = replyData["items"][x];
+    for (x = 0; x < replyData["applications"].length; ++x) {
+      item = replyData["applications"][x];
 
-      if (item["itemGroupName"].length == 0)
-        item["itemGroupName"] = "_non_";
+      if (item["applicationName"].length == 0)
+        item["applicationName"] = "_non_";
       else
-        appNames.push(item["itemGroupName"]);
+        appNames.push(item["applicationName"]);
     }
     parsedData.applications = appNames.uniq().sort();
 
