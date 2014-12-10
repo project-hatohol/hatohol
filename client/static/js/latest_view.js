@@ -123,10 +123,10 @@ var LatestView = function(userProfile) {
     for (x = 0; x < replyData["applications"].length; ++x) {
       item = replyData["applications"][x];
 
-      if (item["applicationName"].length == 0)
-        item["applicationName"] = "_non_";
+      if (item["name"].length == 0)
+        item["name"] = "_non_";
       else
-        appNames.push(item["applicationName"]);
+        appNames.push(item["name"]);
     }
     parsedData.applications = appNames.uniq().sort();
 

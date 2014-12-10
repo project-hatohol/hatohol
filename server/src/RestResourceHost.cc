@@ -707,7 +707,7 @@ void RestResourceHost::replyGetItem(void)
 	for (; itApp != applicationInfoVect.end(); ++itApp) {
 		ApplicationInfo &applicationInfo = *itApp;
 		agent.startObject();
-		agent.add("applicationName", applicationInfo.applicationName.c_str());
+		agent.add("name", applicationInfo.applicationName.c_str());
 		agent.endObject();
 	}
 	agent.endArray();
