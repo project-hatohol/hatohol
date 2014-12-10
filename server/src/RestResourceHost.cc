@@ -667,6 +667,7 @@ struct GetItemClosure : ClosureTemplate0<RestResourceHost>
 void RestResourceHost::replyGetItem(void)
 {
 	ItemsQueryOption option(m_dataQueryContextPtr);
+	ItemsQueryOption applicationOption(m_dataQueryContextPtr);
 	HatoholError err = parseItemParameter(option, m_query);
 	if (err != HTERR_OK) {
 		replyError(err);
@@ -677,7 +678,7 @@ void RestResourceHost::replyGetItem(void)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getItemList(itemList, option);
 	ApplicationInfoVect applicationInfoVect;
-	dataStore->getApplicationVect(applicationInfoVect, option);
+	dataStore->getApplicationVect(applicationInfoVect, applicationOption);
 
 	JSONBuilder agent;
 	agent.startObject();

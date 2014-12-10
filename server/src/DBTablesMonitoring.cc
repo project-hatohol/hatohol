@@ -2267,9 +2267,6 @@ void DBTablesMonitoring::getApplicationInfoVect(ApplicationInfoVect &application
 	if (!arg.limit && arg.offset)
 		return;
 
-	// Application Name
-	arg.appName = option.getAppName();
-
 	getDBAgent().runTransaction(arg);
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
