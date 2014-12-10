@@ -404,9 +404,9 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 }
 
 void UnifiedDataStore::getApplicationVect(ApplicationInfoVect &ApplicationInfoVect,
-											  const ItemsQueryOption &option,
-											  bool fetchItemsSynchronously)
-{
+                                          const ItemsQueryOption &option,
+                                          bool fetchItemsSynchronously)
+	{
 	if (fetchItemsSynchronously)
 		fetchItems(option.getTargetServerId());
 	ThreadLocalDBCache cache;
