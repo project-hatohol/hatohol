@@ -523,14 +523,14 @@ void test_hostsQueryOptionFromDataQueryContext(gconstpointer data)
 void test_hostsQueryOptionGetValidtyDefault(void)
 {
 	HostsQueryOption option(USER_ID_SYSTEM);
-	cppcut_assert_equal(HOST_ALL_VALID, option.getValidity());
+	cppcut_assert_equal(HOST_STAT_ALL, option.getStatus());
 }
 
 void test_hostsQueryOptionSetGetValidty(void)
 {
 	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setValidity(HOST_VALID);
-	cppcut_assert_equal(HOST_VALID, option.getValidity());
+	option.setStatus(HOST_STAT_NORMAL);
+	cppcut_assert_equal(HOST_STAT_NORMAL, option.getStatus());
 }
 
 void data_hostsQueryOptionGetConditionForHostValid(void)
@@ -541,9 +541,9 @@ void data_hostsQueryOptionGetConditionForHostValid(void)
 void test_hostsQueryOptionGetConditionForHostValid(gconstpointer data)
 {
 	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setValidity(HOST_VALID);
-	cppcut_assert_equal(HOST_VALID, option.getValidity());
-	string expected = StringUtils::sprintf("validity=%d", HOST_VALID);
+	option.setStatus(HOST_STAT_NORMAL);
+	cppcut_assert_equal(HOST_STAT_NORMAL, option.getStatus());
+	string expected = StringUtils::sprintf("status=%d", HOST_STAT_NORMAL);
 	fixupForFilteringDefunctServer(data, expected, option);
 }
 

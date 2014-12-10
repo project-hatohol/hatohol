@@ -36,10 +36,10 @@ struct AssertGetHostResourceArg {
 	size_t maxNumber;
 	size_t offset;
 	HatoholErrorCode expectedErrorCode;
-	std::vector<TResourceType*> authorizedRecords;
-	std::vector<TResourceType*> expectedRecords;
+	std::vector<const TResourceType*> authorizedRecords;
+	std::vector<const TResourceType*> expectedRecords;
 	ServerHostGrpSetMap authMap;
-	TResourceType *fixtures;
+	const TResourceType *fixtures;
 	size_t numberOfFixtures;
 	gconstpointer ddtParam;
 	bool filterForDataOfDefunctSv;
@@ -95,7 +95,7 @@ struct AssertGetHostResourceArg {
 		}
 	}
 
-	virtual bool filterOutExpectedRecord(TResourceType *info)
+	virtual bool filterOutExpectedRecord(const TResourceType *info)
 	{
 		if (filterForDataOfDefunctSv) {
 			if (!option.isValidServer(info->serverId))
@@ -107,7 +107,7 @@ struct AssertGetHostResourceArg {
 	virtual void fixupExpectedRecords(void)
 	{
 		for (size_t i = 0; i < authorizedRecords.size(); i++) {
-			TResourceType *record = authorizedRecords[i];
+			const TResourceType *record = authorizedRecords[i];
 			if (filterOutExpectedRecord(record))
 				continue;
 			if (targetServerId != ALL_SERVERS) {
@@ -124,7 +124,7 @@ struct AssertGetHostResourceArg {
 
 	virtual HostIdType getHostId(const TResourceType &record) const = 0;
 
-	virtual TResourceType &getExpectedRecord(size_t idx)
+	virtual const TResourceType &getExpectedRecord(size_t idx)
 	{
 		idx += offset;
 		if (sortDirection == DataQueryOption::SORT_DESCENDING)
@@ -143,6 +143,8 @@ struct AssertGetHostResourceArg {
 		if (maxNumber && maxNumber < expectedNum)
 			expectedNum = maxNumber;
 		cppcut_assert_equal(expectedNum, actualRecordList.size());
+		if (isVerboseMode())
+			cut_notify("expectedNum: %zd\n", expectedNum);
 	}
 
 	virtual std::string makeOutputText(const TResourceType &record) = 0;
@@ -159,7 +161,8 @@ struct AssertGetHostResourceArg {
 		  = actualRecordList.begin();
 		LinesComparator linesComparator;
 		for (size_t i = 0; it != actualRecordList.end(); i++, ++it) {
-			TResourceType &expectedRecord = getExpectedRecord(i);
+			const TResourceType &expectedRecord =
+			  getExpectedRecord(i);
 			linesComparator.add(makeOutputText(expectedRecord),
 			                    makeOutputText(*it));
 		}
@@ -231,7 +234,7 @@ struct AssertGetEventsArg
 		option.setTriggerId(triggerId);
 	}
 
-	virtual bool filterOutExpectedRecord(EventInfo *info) override
+	virtual bool filterOutExpectedRecord(const EventInfo *info) override
 	{
   		if (AssertGetHostResourceArg <EventInfo, EventsQueryOption>
 		      ::filterOutExpectedRecord(info)) {
@@ -296,7 +299,7 @@ struct AssertGetEventsArg
 		return makeEventOutput(eventInfo);
 	}
 
-	IncidentInfo getExpectedIncidentInfo(EventInfo &event) {
+	IncidentInfo getExpectedIncidentInfo(const EventInfo &event) {
 		std::string key = makeEventIncidentMapKey(event);
 		if (eventIncidentMap.find(key) == eventIncidentMap.end()) {
 			IncidentInfo incident;
