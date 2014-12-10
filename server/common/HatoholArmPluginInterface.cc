@@ -320,6 +320,7 @@ void HatoholArmPluginInterface::reply(const MessagingContext &msgCtx,
 	reply.setContent(replyBuf.getPointer<char>(0), replyBuf.size());
 	Sender sender = m_impl->session.createSender(msgCtx.replyAddress);
 	sender.send(reply);
+	sender.close();
 }
 
 void HatoholArmPluginInterface::replyError(const HapiResponseCode &code)
