@@ -24,6 +24,7 @@
 #include "DataQueryOption.h"
 
 enum HostStatus {
+	HOST_STAT_ALL    = -1,
 	HOST_STAT_NORMAL = 0,
 	HOST_STAT_REMOVED,
 };
@@ -76,6 +77,10 @@ struct HostHostgroup {
 	std::string   hostIdInServer;
 	std::string   hostgroupIdInServer;
 };
+
+typedef std::vector<HostHostgroup>        HostHostgroupVect;
+typedef HostHostgroupVect::iterator       HostHostgroupVectIterator;
+typedef HostHostgroupVect::const_iterator HostHostgroupVectConstIterator;
 
 struct HostQueryOption : public DataQueryOption {
 public:
@@ -242,10 +247,14 @@ public:
 	 * the record is updated.
 	 *
 	 * @param hostHostgroup A data to be inserted/updated.
+	 * @param useTransaction A flag to use a transaction.
 	 * @return
 	 * The ID of inserted/updated record.
 	 */
-	GenericIdType upsertHostHostgroup(const HostHostgroup &hostHostgroup);
+	GenericIdType upsertHostHostgroup(const HostHostgroup &hostHostgroup,
+	                                  const bool &useTransaction = true);
+
+	void upsertHostHostgroups(const HostHostgroupVect &hostgroups);
 
 	/**
 	 * Get the virtual mechines

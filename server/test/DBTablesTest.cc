@@ -1127,34 +1127,103 @@ size_t NumTestHistoryInfo = ARRAY_SIZE(testHistoryInfo);
 const ServerHostDef testServerHostDef[] = {
 {
 	AUTO_INCREMENT_VALUE,            // id
+	10,                              // hostId
+	1,                               // serverId
+	"235012",                        // hostIdInServer
+	"hostX1",                        // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	11,                              // hostId
+	1,                               // serverId
+	"235013",                        // hostIdInServer
+	"hostX2",                        // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	30,                              // hostId
+	1,                               // serverId
+	"1129",                          // hostIdInServer
+	"hostX3",                        // name
+} ,{
+	AUTO_INCREMENT_VALUE,            // id
+	35,                              // hostId
+	3,                               // serverId
+	"10001",                         // hostIdInServer
+	"hostZ1",                        // name
+} ,{
+	AUTO_INCREMENT_VALUE,            // id
+	40,                              // hostId
+	2,                               // serverId
+	"512",                           // hostIdInServer
+	"multi-host group",              // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	41,                              // hostId
+	3,                               // serverId
+	"10002",                         // hostIdInServer
+	"hostZ2",                        // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	42,                              // hostId
+	3,                               // serverId
+	"5",                             // hostIdInServer
+	"frog",                          // name
+} ,{
+	AUTO_INCREMENT_VALUE,            // id
+	45,                              // hostId
+	3,                               // serverId
+	"100",                           // hostIdInServer
+	"dolphin",                       // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	100,                             // hostId
+	4,                               // serverId
+	"100",                           // hostIdInServer
+	"squirrel",                      // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	101,                             // hostId
+	2,                               // serverId
+	//"0x89abcdeffffffff",           // hostIdInServer
+	"620015564680593407",            // getHostInfoList() handles HostID As decimal
+	"hostQ1",                        // name
+}, {
+	// This entry is for tests with a defunct server
+	AUTO_INCREMENT_VALUE,            // id
+	494,                             // host_id
+	trigInfoDefunctSv1.serverId,     // serverId
+	//trigInfoDefunctSv1.hostId,       // hostIdInServer
+	"10002", // TODO: use the above after host ID in trigger becomes string
+	trigInfoDefunctSv1.hostName,     // name,
+}, {
+	AUTO_INCREMENT_VALUE,            // id
 	1050,                            // hostId
 	211,                             // serverId
-	"200",                           // host_id_in_server
+	"200",                           // hostIdInServer
 	"host 200",                      // name
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	2111,                            // hostId
 	211,                             // serverId
-	"12111",                         // host_id_in_server
-	"host 12111",                     // name
+	"12111",                         // hostIdInServer
+	"host 12111",                    // name
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	2112,                            // hostId
 	211,                             // serverId
-	"12112",                         // host_id_in_server
-	"host 12112",                     // name
+	"12112",                         // hostIdInServer
+	"host 12112",                    // name
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	2113,                            // hostId
 	211,                             // serverId
-	"12113",                         // host_id_in_server
-	"host 12113",                     // name
+	"12113",                         // hostIdInServer
+	"host 12113",                    // name
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	10005,                           // hostId
 	222,                             // serverId
-	"110005",                        // host_id_in_server
-	"host 110005",                    // name
+	"110005",                        // hostIdInServer
+	"host 110005",                   // name
 }
 };
 const size_t NumTestServerHostDef = ARRAY_SIZE(testServerHostDef);
@@ -1182,6 +1251,74 @@ const size_t NumTestVMInfo = ARRAY_SIZE(testVMInfo);
 
 const HostHostgroup testHostHostgroup[] = {
 {
+	AUTO_INCREMENT_VALUE,            // id
+	1,                               // serverId
+	"235012",                        // hostIdInServer
+	"1",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	1,                               // serverId
+	"235012",                        // hostIdInServer
+	"2",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	1,                               // serverId
+	"235013",                        // hostIdInServer
+	"2",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	1,                               // serverId
+	"1129",                          // hostIdInServer
+	"1",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2,                               // serverId
+	"512",                           // hostIdInServer
+	"1",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2,                               // serverId
+	"512",                           // hostIdInServer
+	"2",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	3,                               // serverId
+	"10001",                         // hostIdInServer
+	"2",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	3,                               // serverId
+	"10002",                         // hostIdInServer
+	"1",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	3,                               // serverId
+	"5",                             // hostIdInServer
+	"1",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	3,                               // serverId
+	"100",                           // hostIdInServer
+	"2",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	4,                               // serverId
+	"100",                           // hostIdInServer
+	"1",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2,                               // serverId
+	//"0x89abcdefffffffff",          // hostIdInServer
+	"620015564680593407",            // getHostInfoList() handles HostID As decimal
+	"0x8000000000000000",            // hostgroupIdInServer
+}, {
+	// This entry is for tests with a defunct server
+	AUTO_INCREMENT_VALUE,            // id
+	trigInfoDefunctSv1.serverId,     // serverId
+	// trigInfoDefunctSv1.hostIdInServer, // hostId,
+	"10002", // TODO: use the above after host ID in trigger becomes string
+	"1",                             // hostgroupIdInServer
+}, {
 	AUTO_INCREMENT_VALUE,            // id
 	211,                             // serverId
 	"200",                           // hostIdInServer

@@ -725,7 +725,7 @@ void DBTablesHost::upsertHostgroups(const HostgroupVect &hostgroups)
 }
 
 GenericIdType DBTablesHost::upsertHostHostgroup(
-  const HostHostgroup &hostHostgroup)
+  const HostHostgroup &hostHostgroup, const bool &useTransaction)
 {
 	GenericIdType id;
 	DBAgent::InsertArg arg(tableProfileHostHostgroup);
@@ -734,8 +734,40 @@ GenericIdType DBTablesHost::upsertHostHostgroup(
 	arg.add(hostHostgroup.hostIdInServer);
 	arg.add(hostHostgroup.hostgroupIdInServer);
 	arg.upsertOnDuplicate = true;
-	getDBAgent().runTransaction(arg, &id);
+
+	DBAgent &dbAgent = getDBAgent();
+	if (useTransaction) {
+		dbAgent.runTransaction(arg, &id);
+	} else {
+		dbAgent.insert(arg);
+		id = dbAgent.getLastInsertId();
+	}
+
 	return id;
+}
+
+void DBTablesHost::upsertHostHostgroups(const HostHostgroupVect &hostHostgroups)
+{
+	struct Proc : public DBAgent::TransactionProc {
+		DBTablesHost &dbHost;
+		const HostHostgroupVect &hostHostgrps;
+
+		Proc(DBTablesHost &_dbHost,
+		     const HostHostgroupVect &_hostHostgrps)
+		: dbHost(_dbHost),
+		  hostHostgrps(_hostHostgrps)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			HostHostgroupVectConstIterator hhgrpItr =
+			  hostHostgrps.begin();
+			for (; hhgrpItr != hostHostgrps.end(); ++hhgrpItr)
+				dbHost.upsertHostHostgroup(*hhgrpItr, false);
+		}
+	} proc(*this, hostHostgroups);
+	getDBAgent().runTransaction(proc);
 }
 
 HatoholError DBTablesHost::getVirtualMachines(

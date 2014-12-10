@@ -28,6 +28,7 @@
 #include "HostResourceQueryOption.h"
 #include "SmartTime.h"
 #include "Monitoring.h"
+#include "DBTablesHost.h"
 
 class EventsQueryOption : public HostResourceQueryOption {
 public:
@@ -117,8 +118,8 @@ public:
 
 	virtual std::string getCondition(void) const override;
 
-	void setValidity(const HostValidity &validity);
-	HostValidity getValidity(void) const;
+	void setStatus(const HostStatus &status);
+	HostStatus getStatus(void) const;
 
 private:
 	struct Impl;
@@ -161,7 +162,8 @@ public:
 	virtual ~DBTablesMonitoring();
 
 	void getHostInfoList(HostInfoList &hostInfoList,
-			     const HostsQueryOption &option);
+	                     const HostsQueryOption &option)
+	  __attribute__ ((deprecated));
 
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
@@ -211,9 +213,11 @@ public:
 	  (HostgroupElementList &hostgroupElementList,
 	   const HostgroupElementQueryOption &option);
 
-	void addHostgroupElement(HostgroupElement *mapHostHostgroupsInfo);
+	void addHostgroupElement(HostgroupElement *mapHostHostgroupsInfo)
+	  __attribute__ ((deprecated));
 	void addHostgroupElementList
-	  (const HostgroupElementList &mapHostHostgroupsInfoList);
+	  (const HostgroupElementList &mapHostHostgroupsInfoList)
+	  __attribute__ ((deprecated));
 
 	void addHostInfo(HostInfo *hostInfo) __attribute__ ((deprecated));
 	void addHostInfoList(const HostInfoList &hostInfoList)
