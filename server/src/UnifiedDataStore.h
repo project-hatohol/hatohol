@@ -48,8 +48,8 @@ public:
 
 	/**
 	 * Start all virtual data stores.
-	 * 
-	 * @param autoRun 
+	 *
+	 * @param autoRun
 	 * A flag to run an Arm instance soon after the store is started.
 	 */
 	void start(const bool &autoRun = true);
@@ -59,8 +59,8 @@ public:
 	void setCopyOnDemandEnabled(bool enable);
 
 	/**
-	 * Add events in the Hatohol DB and executes action if needed. 
-	 * 
+	 * Add events in the Hatohol DB and executes action if needed.
+	 *
 	 * @param eventList A list of EventInfo.
 	 */
 	void addEventList(EventInfoList &eventList);
@@ -219,7 +219,7 @@ public:
 
 	/**
 	 * Get the data store with the specified Server ID.
-	 * 
+	 *
 	 * @param serverId A server ID.
 	 * @retrun
 	 * A CoutablePtr of the DataStore instance. If not found, hasData()

@@ -87,7 +87,7 @@ struct UnifiedDataStore::Impl
 
 	Impl()
 	: isCopyOnDemandEnabled(false), isStarted(false)
-	{ 
+	{
 		// TODO: When should the object be freed ?
 		UnifiedDataStoreEventProc *evtProc =
 		  new Impl::UnifiedDataStoreEventProc(
@@ -171,7 +171,7 @@ struct UnifiedDataStore::Impl
 		  it->second->getMonitoringServerInfo();
 		HATOHOL_ASSERT(
 		  svInfo.id == serverId,
-		  "svInfo.id: %" FMT_SERVER_ID ", serverId: %" FMT_SERVER_ID, 
+		  "svInfo.id: %" FMT_SERVER_ID ", serverId: %" FMT_SERVER_ID,
 		  svInfo.id, serverId);
 
 		if (isRunning)
