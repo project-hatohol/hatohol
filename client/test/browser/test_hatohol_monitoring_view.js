@@ -32,7 +32,7 @@ describe('HatoholMonitoringView', function() {
     $('body').append(s);
   }
 
-  function prepreForSetupHostQuerySelector(param) {
+  function prepareForSetupHostQuerySelector(param) {
     makeSelectorsTestDiv();
     HatoholMonitoringView.prototype.setupHostQuerySelectorCallback(
       function () {
@@ -114,7 +114,7 @@ describe('HatoholMonitoringView', function() {
   });
 
   it('setupHostQuerySelector: select server', function(done) {
-    prepreForSetupHostQuerySelector({
+    prepareForSetupHostQuerySelector({
       done: done,
       server:    'server2',
       hostgroup: '---------',
@@ -125,7 +125,7 @@ describe('HatoholMonitoringView', function() {
   });
 
   it('setupHostQuerySelector: select host group', function(done) {
-    prepreForSetupHostQuerySelector({
+    prepareForSetupHostQuerySelector({
       done: done,
       server:    'server1',
       hostgroup: 'hostgroup1',
@@ -136,7 +136,7 @@ describe('HatoholMonitoringView', function() {
   });
 
   it('setupHostQuerySelector: select host', function(done) {
-    prepreForSetupHostQuerySelector({
+    prepareForSetupHostQuerySelector({
       done: done,
       server:    'server1',
       hostgroup: 'hostgroup2',
@@ -147,7 +147,7 @@ describe('HatoholMonitoringView', function() {
   });
 
   it('setupHostQuerySelector: select application', function(done) {
-    prepreForSetupHostQuerySelector({
+    prepareForSetupHostQuerySelector({
       done: done,
       server:    'server1',
       hostgroup: 'hostgroup2',
