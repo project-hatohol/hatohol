@@ -91,6 +91,9 @@ public:
 	void getItemList(ItemInfoList &itemList,
 	                 const ItemsQueryOption &option,
 	                 bool fetchItemsSynchronously = false);
+	void getApplicationVect(ApplicationInfoVect &applicationInfoVect,
+	                        const ItemsQueryOption &option,
+	                        bool fetchItemsSynchronously = false);
 	bool fetchItemsAsync(Closure0 *closure,
 	                     const ServerIdType &targetServerId = ALL_SERVERS);
 	/*

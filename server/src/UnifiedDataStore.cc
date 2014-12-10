@@ -403,6 +403,16 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 	cache.getMonitoring().getItemInfoList(itemList, option);
 }
 
+void UnifiedDataStore::getApplicationVect(ApplicationInfoVect &ApplicationInfoVect,
+											  const ItemsQueryOption &option,
+											  bool fetchItemsSynchronously)
+{
+	if (fetchItemsSynchronously)
+		fetchItems(option.getTargetServerId());
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().getApplicationInfoVect(ApplicationInfoVect, option);
+}
+
 bool UnifiedDataStore::fetchItemsAsync(Closure0 *closure,
                                        const ServerIdType &targetServerId)
 {
