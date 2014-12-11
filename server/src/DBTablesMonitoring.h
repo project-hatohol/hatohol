@@ -209,7 +209,8 @@ public:
 	void addHostgroupInfoList(const HostgroupInfoList &groupInfoList)
 	  __attribute__ ((deprecated));
 	HatoholError getHostgroupInfoList(HostgroupInfoList &hostgroupInfoList,
-	                      const HostgroupsQueryOption &option);
+	                      const HostgroupsQueryOption &option)
+	  __attribute__ ((deprecated));
 	HatoholError getHostgroupElementList
 	  (HostgroupElementList &hostgroupElementList,
 	   const HostgroupElementQueryOption &option);

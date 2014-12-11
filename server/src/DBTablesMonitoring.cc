@@ -2922,11 +2922,11 @@ void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
 HatoholError DBTablesMonitoring::getHostgroupInfoList
   (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileHostgroups);
-	arg.add(IDX_HOSTGROUPS_ID);
-	arg.add(IDX_HOSTGROUPS_SERVER_ID);
-	arg.add(IDX_HOSTGROUPS_GROUP_ID);
-	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
+	DBAgent::SelectExArg arg(tableProfileHostgroupList);
+	arg.add(IDX_HOSTGROUP_LIST_ID);
+	arg.add(IDX_HOSTGROUP_LIST_SERVER_ID);
+	arg.add(IDX_HOSTGROUP_LIST_ID_IN_SERVER);
+	arg.add(IDX_HOSTGROUP_LIST_NAME);
 	arg.condition = option.getCondition();
 
 	getDBAgent().runTransaction(arg);
@@ -2940,7 +2940,16 @@ HatoholError DBTablesMonitoring::getHostgroupInfoList
 
 		itemGroupStream >> hostgroupInfo.id;
 		itemGroupStream >> hostgroupInfo.serverId;
-		itemGroupStream >> hostgroupInfo.groupId;
+
+		string hostgroupIdStr;
+		itemGroupStream >> hostgroupIdStr;
+		if (sscanf(hostgroupIdStr.c_str(), "%" FMT_HOST_GROUP_ID,
+		           &hostgroupInfo.id) != 1) {
+			MLPL_ERR("Failed to convert HostgroupID: %s.\n",
+			         hostgroupIdStr.c_str());
+			continue;
+		}
+
 		itemGroupStream >> hostgroupInfo.groupName;
 	}
 
