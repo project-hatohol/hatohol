@@ -2880,28 +2880,6 @@ void DBTablesMonitoring::addItemInfoWithoutTransaction(
 	dbAgent.insert(arg);
 }
 
-void DBTablesMonitoring::addHostgroupElementWithoutTransaction(
-  DBAgent &dbAgent, const HostgroupElement &hostgroupElement)
-{
-	// TODO: create the condition outside of the transaction.
-	const DBTermCodec *dbTermCodec = dbAgent.getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "server_id=%s AND host_id=%s AND host_group_id=%s",
-	  dbTermCodec->enc(hostgroupElement.serverId).c_str(),
-	  dbTermCodec->enc(hostgroupElement.hostId).c_str(),
-	  dbTermCodec->enc(hostgroupElement.groupId).c_str());
-
-	if (!dbAgent.isRecordExisting(TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
-	                              condition)) {
-		DBAgent::InsertArg arg(tableProfileMapHostsHostgroups);
-		arg.add(hostgroupElement.id);
-		arg.add(hostgroupElement.serverId);
-		arg.add(hostgroupElement.hostId);
-		arg.add(hostgroupElement.groupId);
-		dbAgent.insert(arg);
-	}
-}
-
 void DBTablesMonitoring::addMonitoringServerStatusWithoutTransaction(
   DBAgent &dbAgent, const MonitoringServerStatus &serverStatus)
 {
