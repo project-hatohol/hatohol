@@ -84,13 +84,6 @@ static bool conv(uint64_t &dest, const string &src)
 	return true;
 }
 
-static bool readViaString(uint64_t &dest, ItemGroupStream &itemGroupStream)
-{
-	string str;
-	itemGroupStream >> str;
-	return conv(dest, str);
-}
-
 static bool conv(int &dest, const string &src)
 {
 	int numConv = sscanf(src.c_str(), "%d", &dest);
@@ -101,11 +94,22 @@ static bool conv(int &dest, const string &src)
 	return true;
 }
 
-static bool readViaString(int &dest, ItemGroupStream &itemGroupStream)
+template<typename Type>
+static bool readViaString(Type &dest, ItemGroupStream &itemGroupStream)
 {
 	string str;
 	itemGroupStream >> str;
 	return conv(dest, str);
+}
+
+static bool readViaString(uint64_t &dest, ItemGroupStream &itemGroupStream)
+{
+	return readViaString<uint64_t>(dest, itemGroupStream);
+}
+
+static bool readViaString(int &dest, ItemGroupStream &itemGroupStream)
+{
+	return readViaString<int>(dest, itemGroupStream);
 }
 
 // ----------------------------------------------------------------------------
