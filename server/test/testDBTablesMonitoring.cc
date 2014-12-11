@@ -307,6 +307,18 @@ static void conv(ServerHostDef &svHostDef, const HostInfo &hostInfo)
 	svHostDef.name = hostInfo.hostName;
 }
 
+static void conv(HostInfo &hostInfo, const ServerHostDef &svHostDef)
+{
+	hostInfo.id = svHostDef.id;
+	hostInfo.serverId = svHostDef.serverId;
+
+	cppcut_assert_equal(1, sscanf(svHostDef.hostIdInServer.c_str(),
+	                              "%" FMT_HOST_ID, &hostInfo.id));
+	hostInfo.hostName = svHostDef.name;
+	hostInfo.validity = (svHostDef.status == HOST_STAT_NORMAL) ?
+	                    HOST_VALID : HOST_INVALID;
+}
+
 static void _assertGetHosts(AssertGetHostsArg &arg)
 {
 	loadTestDBServerHostDef();
@@ -401,6 +413,17 @@ static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
 	  "%zd|%" FMT_SERVER_ID "|%" FMT_HOST_ID "|%s|%d\n",
 	  id + 1, hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str(),
 	  hostInfo.validity);
+
+	return expectedOut;
+}
+
+static string makeHostsOutput(const ServerHostDef &svHostDef, const size_t id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%zd|" DBCONTENT_MAGIC_ANY "|%" FMT_SERVER_ID "|%s|%s|%d\n",
+	  id + 1, svHostDef.serverId,
+	  svHostDef.hostIdInServer.c_str(), svHostDef.name.c_str(),
+	  HOST_STAT_NORMAL);
 
 	return expectedOut;
 }
@@ -1406,12 +1429,15 @@ void test_addHostInfo(void)
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	HostInfoList hostInfoList;
 	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = "select * from hosts;";
+	string statement = "select * from ";
+	statement += tableProfileServerHostDef.name;
 	string expect;
 
-	for(size_t i = 0; i < NumTestHostInfo; i++) {
-		hostInfoList.push_back(testHostInfo[i]);
-		expect += makeHostsOutput(testHostInfo[i], i);
+	for(size_t i = 0; i < NumTestServerHostDef; i++) {
+		HostInfo hostInfo;
+		conv(hostInfo, testServerHostDef[i]);
+		hostInfoList.push_back(hostInfo);
+		expect += makeHostsOutput(testServerHostDef[i], i);
 	}
 	dbMonitoring.addHostInfoList(hostInfoList);
 	assertDBContent(&dbAgent, statement, expect);
