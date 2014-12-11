@@ -91,6 +91,23 @@ static bool readViaString(uint64_t &dest, ItemGroupStream &itemGroupStream)
 	return conv(dest, str);
 }
 
+static bool conv(int &dest, const string &src)
+{
+	int numConv = sscanf(src.c_str(), "%d", &dest);
+	if (numConv != 1) {
+		MLPL_ERR("Failed to convert %s.\n", src.c_str());
+		return false;
+	}
+	return true;
+}
+
+static bool readViaString(int &dest, ItemGroupStream &itemGroupStream)
+{
+	string str;
+	itemGroupStream >> str;
+	return conv(dest, str);
+}
+
 // ----------------------------------------------------------------------------
 // Table: triggers
 // ----------------------------------------------------------------------------
@@ -1642,14 +1659,8 @@ void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 		HostInfo &hostInfo = hostInfoList.back();
 		itemGroupStream >> hostInfo.serverId;
 
-		string hostIdStr;
-		itemGroupStream >> hostIdStr;
-		if (sscanf(hostIdStr.c_str(), "%" FMT_HOST_ID, &hostInfo.id)
-		    != 1) {
-			MLPL_ERR("Failed to convert HostID: %s.\n",
-			         hostIdStr.c_str());
+		if (!readViaString(hostInfo.id, itemGroupStream))
 			continue;
-		}
 
 		itemGroupStream >> hostInfo.hostName;
 
@@ -2958,14 +2969,8 @@ HatoholError DBTablesMonitoring::getHostgroupInfoList
 		itemGroupStream >> hostgroupInfo.id;
 		itemGroupStream >> hostgroupInfo.serverId;
 
-		string hostgroupIdStr;
-		itemGroupStream >> hostgroupIdStr;
-		if (sscanf(hostgroupIdStr.c_str(), "%" FMT_HOST_GROUP_ID,
-		           &hostgroupInfo.id) != 1) {
-			MLPL_ERR("Failed to convert HostgroupID: %s.\n",
-			         hostgroupIdStr.c_str());
+		if (!readViaString(hostgroupInfo.id, itemGroupStream))
 			continue;
-		}
 
 		itemGroupStream >> hostgroupInfo.groupName;
 	}
