@@ -36,6 +36,7 @@
 
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
 #define DBCONTENT_MAGIC_NULL          "#NULL#"
+#define DBCONTENT_MAGIC_ANY           "#ANY#"
 
 typedef std::pair<int,int>      IntIntPair;
 typedef std::vector<IntIntPair> IntIntPairVector;
