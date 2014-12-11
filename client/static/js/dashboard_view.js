@@ -254,7 +254,7 @@ var DashboardView = function(userProfile) {
     }
 
     if (type == "groonga") {
-      window.open().location = baseURL + '?query=' + escape(query);
+      window.open(baseURL + '?query=' + escape(query));
     }
   }
 
