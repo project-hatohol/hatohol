@@ -238,7 +238,7 @@ var DashboardView = function(userProfile) {
       html += "</form>";
       html += "</td>";
       html += "<td>";
-      html += "<a href='" + escapeHTML(logSearchSystem.base_url) + "'>";
+      html += "<a href='" + escapeHTML(logSearchSystem.base_url) + "' target='_blank'>";
       html += escapeHTML(logSearchSystem.base_url);
       html += "</a>";
       html += "</td>";
@@ -254,7 +254,7 @@ var DashboardView = function(userProfile) {
     }
 
     if (type == "groonga") {
-      window.location = baseURL + '?query=' + escape(query);
+      window.open().location = baseURL + '?query=' + escape(query);
     }
   }
 
