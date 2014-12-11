@@ -74,6 +74,23 @@ void operator>>(ItemGroupStream &itemGroupStream, HostValidity &rhs)
 
 extern void operator>>(ItemGroupStream &itemGroupStream, HostStatus &rhs);
 
+static bool conv(uint64_t &dest, const string &src)
+{
+	int numConv = sscanf(src.c_str(), "%" PRIu64, &dest);
+	if (numConv != 1) {
+		MLPL_ERR("Failed to convert %s.\n", src.c_str());
+		return false;
+	}
+	return true;
+}
+
+static bool readViaString(uint64_t &dest, ItemGroupStream &itemGroupStream)
+{
+	string str;
+	itemGroupStream >> str;
+	return conv(dest, str);
+}
+
 // ----------------------------------------------------------------------------
 // Table: triggers
 // ----------------------------------------------------------------------------
@@ -2963,11 +2980,12 @@ HatoholError DBTablesMonitoring::getHostgroupElementList
   (HostgroupElementList &hostgroupElementList,
    const HostgroupElementQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileMapHostsHostgroups);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_ID);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+	DBAgent::SelectExArg arg(tableProfileHostHostgroup);
+	arg.add(IDX_HOST_HOSTGROUP_ID);
+	arg.add(IDX_HOST_HOSTGROUP_SERVER_ID);
+	arg.add(IDX_HOST_HOSTGROUP_HOST_ID);
+	arg.add(IDX_HOST_HOSTGROUP_GROUP_ID);
+
 	arg.condition = option.getCondition();
 
 	getDBAgent().runTransaction(arg);
@@ -2980,8 +2998,12 @@ HatoholError DBTablesMonitoring::getHostgroupElementList
 		HostgroupElement &hostgroupElement = hostgroupElementList.back();
 		itemGroupStream >> hostgroupElement.id;
 		itemGroupStream >> hostgroupElement.serverId;
-		itemGroupStream >> hostgroupElement.hostId;
-		itemGroupStream >> hostgroupElement.groupId;
+
+		if (!readViaString(hostgroupElement.hostId, itemGroupStream))
+			continue;
+
+		if (!readViaString(hostgroupElement.groupId, itemGroupStream))
+			continue;
 	}
 
 	return HTERR_OK;
