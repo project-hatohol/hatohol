@@ -319,6 +319,19 @@ static void conv(HostInfo &hostInfo, const ServerHostDef &svHostDef)
 	                    HOST_VALID : HOST_INVALID;
 }
 
+static void conv(HostgroupElement &hostgrpElem,
+                 const HostHostgroup &hostHostgrp)
+{
+	hostgrpElem.id = hostHostgrp.id;
+	hostgrpElem.serverId = hostHostgrp.serverId;
+	cppcut_assert_equal(
+	  1, sscanf(hostHostgrp.hostIdInServer.c_str(),
+	            "%" FMT_HOST_ID, &hostgrpElem.hostId));
+	cppcut_assert_equal(
+	  1, sscanf(hostHostgrp.hostgroupIdInServer.c_str(),
+	            "%" FMT_HOST_GROUP_ID, &hostgrpElem.groupId));
+}
+
 static void _assertGetHosts(AssertGetHostsArg &arg)
 {
 	loadTestDBServerHostDef();
@@ -403,6 +416,19 @@ static string makeMapHostsHostgroupsOutput
 	  dbTermCodec->enc(hostgroupElement.serverId).c_str(),
 	  dbTermCodec->enc(hostgroupElement.hostId).c_str(),
 	  dbTermCodec->enc(hostgroupElement.groupId).c_str());
+
+	return expectedOut;
+}
+
+static string makeMapHostsHostgroupsOutput(
+  const HostHostgroup &hostHostgrp, size_t id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%zd|%" FMT_SERVER_ID "|%s|%s\n",
+	  id + 1,
+	  hostHostgrp.serverId,
+	  hostHostgrp.hostIdInServer.c_str(),
+	  hostHostgrp.hostgroupIdInServer.c_str());
 
 	return expectedOut;
 }
@@ -1412,13 +1438,16 @@ void test_addHostgroupElement(void)
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	HostgroupElementList hostgroupElementList;
 	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = "select * from map_hosts_hostgroups";
+	string statement = "select * from ";
+	statement += tableProfileHostHostgroup.name;
 	string expect;
 
-	for (size_t i = 0; i < NumTestHostgroupElement; i++) {
-		hostgroupElementList.push_back(testHostgroupElement[i]);
+	for (size_t i = 0; i < NumTestHostHostgroup; i++) {
+		HostgroupElement elem;
+		conv(elem, testHostHostgroup[i]);
+		hostgroupElementList.push_back(elem);
 		expect += makeMapHostsHostgroupsOutput(
-		            testHostgroupElement[i], i);
+		            testHostHostgroup[i], i);
 	}
 	dbMonitoring.addHostgroupElementList(hostgroupElementList);
 	assertDBContent(&dbAgent, statement, expect);
