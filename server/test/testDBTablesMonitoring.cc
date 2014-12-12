@@ -332,6 +332,16 @@ static void conv(HostgroupElement &hostgrpElem,
 	            "%" FMT_HOST_GROUP_ID, &hostgrpElem.groupId));
 }
 
+static void conv(HostgroupInfo &hostgrpInfo, const Hostgroup &hostgrp)
+{
+	hostgrpInfo.id = hostgrp.id;
+	hostgrpInfo.serverId = hostgrp.serverId;
+	cppcut_assert_equal(
+	  1, sscanf(hostgrp.idInServer.c_str(),
+	            "%" FMT_HOST_GROUP_ID, &hostgrpInfo.groupId));
+	hostgrpInfo.groupName = hostgrp.name;
+}
+
 static void _assertGetHosts(AssertGetHostsArg &arg)
 {
 	loadTestDBServerHostDef();
@@ -402,6 +412,15 @@ static string makeHostgroupsOutput(const HostgroupInfo &hostgroupInfo, size_t id
 	  id + 1, hostgroupInfo.serverId,
 	  hostgroupInfo.groupId, hostgroupInfo.groupName.c_str());
 
+	return expectedOut;
+}
+
+static string makeHostgroupsOutput(const Hostgroup &hostgrp, const size_t &id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%zd|%" FMT_SERVER_ID "|%s|%s\n",
+	  id + 1, hostgrp.serverId,
+	  hostgrp.idInServer.c_str(), hostgrp.name.c_str());
 	return expectedOut;
 }
 
@@ -1422,12 +1441,15 @@ void test_addHostgroupInfo(void)
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	HostgroupInfoList hostgroupInfoList;
 	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = "select * from hostgroups;";
+	string statement = "select * from ";
+	statement += tableProfileHostgroupList.name;
 	string expect;
 
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++) {
-		hostgroupInfoList.push_back(testHostgroupInfo[i]);
-		expect += makeHostgroupsOutput(testHostgroupInfo[i], i);
+	for (size_t i = 0; i < NumTestHostgroup; i++) {
+		HostgroupInfo hostgrpInfo;
+		conv(hostgrpInfo, testHostgroup[i]);
+		hostgroupInfoList.push_back(hostgrpInfo);
+		expect += makeHostgroupsOutput(testHostgroup[i], i);
 	}
 	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
 	assertDBContent(&dbAgent, statement, expect);
