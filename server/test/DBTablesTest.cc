@@ -1582,17 +1582,10 @@ static const set<string> &getHostHostgroupPackSet(void)
 		return hostHGrpPackSet;
 	for (size_t i = 0; i < NumTestHostHostgroup; i++) {
 		const HostHostgroup &hhgr = testHostHostgroup[i];
-
-		HostIdType hostId;
-		HostgroupIdType hostgroupId;
-		cppcut_assert_equal(
-		  1, sscanf(hhgr.hostIdInServer.c_str(),
-		            "%" FMT_HOST_ID, &hostId));
-		cppcut_assert_equal(
-		  1, sscanf(hhgr.hostgroupIdInServer.c_str(),
-		            "%" FMT_HOST_GROUP_ID, &hostgroupId));
 		const string mash =
-		  makeHostgroupElementPack(hhgr.serverId, hostId, hostgroupId);
+		  makeHostgroupElementPack(
+		    hhgr.serverId, hhgr.hostIdInServer,
+		    hhgr.hostgroupIdInServer);
 		pair<set<string>::iterator, bool> result =
 		  hostHGrpPackSet.insert(mash);
 		cppcut_assert_equal(true, result.second);
