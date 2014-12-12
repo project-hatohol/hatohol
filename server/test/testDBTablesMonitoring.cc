@@ -1470,18 +1470,25 @@ void test_addHostInfo(void)
 
 void test_updateHostsMarkInvalid(void)
 {
-	loadTestDBHosts();
+	loadTestDBServerHostDef();
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	const ServerIdType targetServerId = 1;
 
 	// We keep the valid status for the hosts whose id is even.
 	HostInfoList hostInfoList;
 	HostIdHostInfoMap hostMap;
-	for (size_t i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo &hostInfo = testHostInfo[i];
+
+	// hostMap just has a pointer to HostInfo objects.
+	// So the instances have to be hold in this object.
+	HostInfoList storage;
+
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		HostInfo hostInfo;
+		conv(hostInfo, testServerHostDef[i]);
 		if (hostInfo.serverId != targetServerId)
 			continue;
-		hostMap[hostInfo.id] = &hostInfo;
+		storage.push_back(hostInfo);
+		hostMap[hostInfo.id] = &storage.back();
 		if (hostInfo.id % 2)
 			continue;
 		hostInfoList.push_back(hostInfo);
@@ -1495,16 +1502,24 @@ void test_updateHostsMarkInvalid(void)
 	for (; hostMapItr != hostMap.end(); ++hostMapItr) {
 		const HostInfo &hostInfo = *hostMapItr->second;
 		int valid = (hostInfo.id % 2 == 0) ? HOST_VALID : HOST_INVALID;
+		int status = valid ? HOST_STAT_NORMAL : HOST_STAT_REMOVED;
 		expect += StringUtils::sprintf(
-		  "%" FMT_HOST_ID "|%d\n", hostInfo.id, valid);
+		  "%" FMT_HOST_ID "|%d\n", hostInfo.id, status);
 	}
 
 	// Call the method to be tested and check the result
 	dbMonitoring.updateHosts(hostInfoList, targetServerId);
 	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+	const ColumnDef *coldef = tableProfileServerHostDef.columnDefs;
 	string statement = StringUtils::sprintf(
-	  "select host_id,validity from hosts where server_id=%" FMT_SERVER_ID
-	  " order by host_id asc;", targetServerId);
+	  "select %s,%s from %s where %s=%" FMT_SERVER_ID
+	  " order by %s asc;",
+	  coldef[IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER].columnName,
+	  coldef[IDX_HOST_SERVER_HOST_DEF_HOST_STATUS].columnName,
+	  tableProfileServerHostDef.name,
+	  coldef[IDX_HOST_SERVER_HOST_DEF_SERVER_ID].columnName,
+	  targetServerId,
+	  coldef[IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER].columnName);
 	assertDBContent(&dbAgent, statement, expect);
 }
 
