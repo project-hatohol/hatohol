@@ -85,16 +85,6 @@ static bool conv(uint64_t &dest, const string &src)
 	return true;
 }
 
-static bool conv(int &dest, const string &src)
-{
-	int numConv = sscanf(src.c_str(), "%d", &dest);
-	if (numConv != 1) {
-		MLPL_ERR("Failed to convert %s.\n", src.c_str());
-		return false;
-	}
-	return true;
-}
-
 template<typename Type>
 static bool readViaString(Type &dest, ItemGroupStream &itemGroupStream)
 {
@@ -106,11 +96,6 @@ static bool readViaString(Type &dest, ItemGroupStream &itemGroupStream)
 static bool readViaString(uint64_t &dest, ItemGroupStream &itemGroupStream)
 {
 	return readViaString<uint64_t>(dest, itemGroupStream);
-}
-
-static bool readViaString(int &dest, ItemGroupStream &itemGroupStream)
-{
-	return readViaString<int>(dest, itemGroupStream);
 }
 
 template<typename Type>
@@ -2979,7 +2964,7 @@ HatoholError DBTablesMonitoring::getHostgroupInfoList
 		readVia<GenericIdType>(hostgroupInfo.id, itemGroupStream);
 		itemGroupStream >> hostgroupInfo.serverId;
 
-		if (!readViaString(hostgroupInfo.id, itemGroupStream))
+		if (!readViaString(hostgroupInfo.groupId, itemGroupStream))
 			continue;
 
 		itemGroupStream >> hostgroupInfo.groupName;
