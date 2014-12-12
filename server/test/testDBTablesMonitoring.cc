@@ -1502,8 +1502,7 @@ void test_updateHostsMarkInvalid(void)
 	DBAgent &dbAgent = dbMonitoring.getDBAgent();
 	const ColumnDef *coldef = tableProfileServerHostDef.columnDefs;
 	string statement = StringUtils::sprintf(
-	  "select %s,%s from %s where %s=%" FMT_SERVER_ID
-	  " order by %s asc;",
+	  "select %s,%s from %s where %s=%" FMT_SERVER_ID " order by %s asc;",
 	  coldef[IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER].columnName,
 	  coldef[IDX_HOST_SERVER_HOST_DEF_HOST_STATUS].columnName,
 	  tableProfileServerHostDef.name,
