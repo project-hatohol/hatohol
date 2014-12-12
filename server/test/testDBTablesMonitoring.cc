@@ -1446,8 +1446,7 @@ void test_addHostgroupElement(void)
 		HostgroupElement elem;
 		conv(elem, testHostHostgroup[i]);
 		hostgroupElementList.push_back(elem);
-		expect += makeMapHostsHostgroupsOutput(
-		            testHostHostgroup[i], i);
+		expect += makeMapHostsHostgroupsOutput(testHostHostgroup[i], i);
 	}
 	dbMonitoring.addHostgroupElementList(hostgroupElementList);
 	assertDBContent(&dbAgent, statement, expect);
