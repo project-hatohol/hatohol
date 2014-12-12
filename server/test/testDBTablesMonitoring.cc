@@ -1567,7 +1567,7 @@ void test_updateHostsAddNewHost(void)
 
 void test_updateHostsChangeHostName(void)
 {
-	loadTestDBHosts();
+	loadTestDBServerHostDef();
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	const ServerIdType targetServerId = 1;
 	HostInfo updateHost;
@@ -1577,9 +1577,11 @@ void test_updateHostsChangeHostName(void)
 	updateHost.validity = HOST_VALID;
 
 	// Sanity check the ID of the new host is duplicated.
-	for (size_t i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo &hostInfo = testHostInfo[i];
-		if (hostInfo.id == updateHost.id)
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		const ServerHostDef &svHostDef = testServerHostDef[i];
+		string updateHostIdStr =
+		  StringUtils::sprintf("%" FMT_HOST_ID, updateHost.id);
+		if (svHostDef.hostIdInServer == updateHostIdStr)
 			break;
 		if (i == (NumTestHostInfo - 1))
 			cut_fail("We use the wrong test data");
@@ -1593,21 +1595,26 @@ void test_updateHostsChangeHostName(void)
 		const HostInfo &hostInfo = testHostInfo[i];
 		if (hostInfo.serverId != targetServerId)
 			continue;
-		if (hostInfo.hostName == updateHost.hostName) {
-			hostInfoList.push_back(updateHost);
-			expect += makeHostsOutput(updateHost, i);
-		} else {
-			hostInfoList.push_back(hostInfo);
-			expect += makeHostsOutput(hostInfo, i);
-		}
+		const HostInfo *expectHost = NULL;
+		if (hostInfo.hostName == updateHost.hostName)
+			expectHost = &updateHost;
+		else
+			expectHost = &hostInfo;
+		hostInfoList.push_back(*expectHost);
+		ServerHostDef svHostDef;
+		conv(svHostDef, *expectHost);
+		expect += makeHostsOutput(svHostDef, i);
 	}
 
 	// Call the method to be tested and check the result
 	dbMonitoring.updateHosts(hostInfoList, targetServerId);
 	DBAgent &dbAgent = dbMonitoring.getDBAgent();
 	string statement = StringUtils::sprintf(
-	  "select * from hosts where server_id=%" FMT_SERVER_ID
-	  " order by id asc;", targetServerId);
+	  "select * from %s where server_id=%" FMT_SERVER_ID
+	  " order by %s asc;",
+	  tableProfileServerHostDef.name, targetServerId,
+	  tableProfileServerHostDef.columnDefs[IDX_HOST_SERVER_HOST_DEF_ID].columnName);
+	printf("state: %s\n", statement.c_str());
 	assertDBContent(&dbAgent, statement, expect);
 }
 

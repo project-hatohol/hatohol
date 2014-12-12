@@ -1522,13 +1522,30 @@ size_t getNumberOfTestItems(const ServerIdType &serverId)
 
 static string makeHostgroupElementPack(
   const ServerIdType &serverId,
-  const HostIdType &hostId, const HostgroupIdType &hostgroupId)
+  const string hostId, const string hostgroupId)
 {
 	string s;
-	s.append((char *)&serverId,    sizeof(serverId));
-	s.append((char *)&hostId,      sizeof(hostId));
-	s.append((char *)&hostgroupId, sizeof(hostgroupId));
+	s.append((char *)&serverId, sizeof(serverId));
+	s += ":";
+	s += hostId;
+	s += ":";
+	s += hostgroupId;
 	return s;
+}
+
+static string makeHostgroupElementPack(
+  const ServerIdType &serverId,
+  const HostIdType &hostId, const HostgroupIdType &hostgroupId)
+  __attribute__ ((deprecated));
+
+static string makeHostgroupElementPack(
+  const ServerIdType &serverId,
+  const HostIdType &hostId, const HostgroupIdType &hostgroupId)
+{
+	string hostIdStr = StringUtils::sprintf("%" FMT_HOST_ID, hostId);
+	string hostgroupIdStr =
+	  StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupId);
+	return makeHostgroupElementPack(serverId, hostIdStr, hostgroupIdStr);
 }
 
 /**
@@ -1538,6 +1555,9 @@ static string makeHostgroupElementPack(
  *
  * @return a set of HostGroupElementPack.
  */
+static const set<string> &getHostgroupElementPackSet(void)
+  __attribute__ ((deprecated));
+
 static const set<string> &getHostgroupElementPackSet(void)
 {
 	static set<string> hostgroupElementPackSet;
@@ -1587,7 +1607,7 @@ static bool isInHostgroup(const TriggerInfo &trigInfo,
 		return true;
 
 	const set<string> &hostgroupElementPackSet =
-	  getHostgroupElementPackSet();
+	  getHostHostgroupPackSet();
 
 	const string pack =
 	  makeHostgroupElementPack(trigInfo.serverId,
