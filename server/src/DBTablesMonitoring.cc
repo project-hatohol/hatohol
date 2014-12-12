@@ -1195,9 +1195,9 @@ static const HostResourceQueryOption::Synapse synapseTriggersQueryOption(
   tableProfileTriggers,
   IDX_TRIGGERS_HOST_ID,
   true,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+  tableProfileHostHostgroup,
+  IDX_HOST_HOSTGROUP_SERVER_ID, IDX_HOST_HOSTGROUP_HOST_ID,
+  IDX_HOST_HOSTGROUP_GROUP_ID);
 
 struct TriggersQueryOption::Impl {
 	TriggerIdType targetId;
