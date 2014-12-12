@@ -1002,8 +1002,8 @@ IncidentInfo testIncidentInfo[] = {
 	1,                        // serverId
 	1,                        // eventId
 	2,                        // triggerId
-	"13",                     // identifier
-	"http://localhost:44444/issues/13", // location
+	"100",                    // identifier
+	"http://localhost:44444/issues/100", // location
 	"New",                    // status
 	"Normal",                 // priority
 	"foobar",                 // assignee
@@ -1011,14 +1011,15 @@ IncidentInfo testIncidentInfo[] = {
 	{1412957260, 0},          // createdAt
 	{1412957260, 0},          // updatedAt
 	IncidentInfo::STATUS_OPENED,// statusCode
+	3,                        // unifiedId
 },
 {
 	3,                        // trackerId
 	1,                        // serverId
 	2,                        // eventId
 	1,                        // triggerId
-	"11",                     // identifier
-	"http://localhost:44444/issues/11", // location
+	"101",                    // identifier
+	"http://localhost:44444/issues/101", // location
 	"New",                    // status
 	"Normal",                 // priority
 	"foobar",                 // assignee
@@ -1026,9 +1027,10 @@ IncidentInfo testIncidentInfo[] = {
 	{1412957290, 0},          // createdAt
 	{1412957290, 0},          // updatedAt
 	IncidentInfo::STATUS_OPENED,// statusCode
+	4,                        // unifiedId
 },
 {
-	1,                        // trackerId
+	5,                        // trackerId
 	2,                        // serverId
 	2,                        // eventId
 	3,                        // triggerId
@@ -1041,6 +1043,7 @@ IncidentInfo testIncidentInfo[] = {
 	{1412957360, 0},          // createdAt
 	{1412957360, 0},          // updatedAt
 	IncidentInfo::STATUS_OPENED,// statusCode
+	0,                        // unifiedId
 },
 };
 size_t NumTestIncidentInfo = ARRAY_SIZE(testIncidentInfo);

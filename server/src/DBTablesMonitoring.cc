@@ -46,7 +46,7 @@ const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBTablesMonitoring::MONITORING_DB_VERSION = 8;
+const int   DBTablesMonitoring::MONITORING_DB_VERSION = 9;
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -841,6 +841,15 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"unified_event_id",                // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -859,15 +868,29 @@ enum {
 	IDX_INCIDENTS_UPDATED_AT_NS,
 	IDX_INCIDENTS_PRIORITY,
 	IDX_INCIDENTS_DONE_RATIO,
+	IDX_INCIDENTS_UNIFIED_EVENT_ID,
 	NUM_IDX_INCIDENTS,
 };
 
-static const int columnIndexesIncidentsUniqId[] = {
-  IDX_INCIDENTS_SERVER_ID, IDX_INCIDENTS_EVENT_ID, DBAgent::IndexDef::END,
+static const int columnIndexesIncidentsIdentifier[] = {
+  IDX_INCIDENTS_TRACKER_ID, IDX_INCIDENTS_IDENTIFIER, DBAgent::IndexDef::END,
+};
+
+static const int columnIndexesIncidentsUnifiedEventId[] = {
+  IDX_INCIDENTS_UNIFIED_EVENT_ID, DBAgent::IndexDef::END,
 };
 
 static const DBAgent::IndexDef indexDefsIncidents[] = {
-  {"IncidentsEventId", (const int *)columnIndexesIncidentsUniqId, true},
+  {
+    "IncidentsIdentifier",
+    (const int *)columnIndexesIncidentsIdentifier,
+    true
+  },
+  {
+    "IncidentsUnifiedEventId",
+    (const int *)columnIndexesIncidentsUnifiedEventId,
+    false
+  },
   {NULL}
 };
 
@@ -1765,9 +1788,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	if (incidentInfoVect) {
 		builder.addTable(
 		  tableProfileIncidents, DBClientJoinBuilder::LEFT_JOIN,
-		  tableProfileEvents, IDX_EVENTS_SERVER_ID,
-		  IDX_INCIDENTS_SERVER_ID,
-		  tableProfileEvents, IDX_EVENTS_ID, IDX_INCIDENTS_EVENT_ID);
+		  tableProfileEvents, IDX_EVENTS_UNIFIED_ID, IDX_INCIDENTS_UNIFIED_EVENT_ID);
 		builder.add(IDX_INCIDENTS_TRACKER_ID);
 		builder.add(IDX_INCIDENTS_IDENTIFIER);
 		builder.add(IDX_INCIDENTS_LOCATION);
@@ -1779,6 +1800,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		builder.add(IDX_INCIDENTS_UPDATED_AT_NS);
 		builder.add(IDX_INCIDENTS_PRIORITY);
 		builder.add(IDX_INCIDENTS_DONE_RATIO);
+		builder.add(IDX_INCIDENTS_UNIFIED_EVENT_ID);
 	}
 
 	// Condition
@@ -1883,6 +1905,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 			incidentInfo.serverId  = eventInfo.serverId;
 			incidentInfo.eventId   = eventInfo.id;
 			incidentInfo.triggerId = eventInfo.triggerId;
+			incidentInfo.unifiedEventId = eventInfo.unifiedId;
 		}
 	}
 	return HatoholError(HTERR_OK);
@@ -2619,6 +2642,7 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 		itemGroupStream >> incidentInfo.updatedAt.tv_nsec;
 		itemGroupStream >> incidentInfo.priority;
 		itemGroupStream >> incidentInfo.doneRatio;
+		itemGroupStream >> incidentInfo.unifiedEventId;
 		incidentInfo.statusCode = IncidentInfo::STATUS_UNKNOWN; // TODO: add column?
 	}
 
@@ -2815,6 +2839,7 @@ void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
 	arg.add(incidentInfo.updatedAt.tv_nsec);
 	arg.add(incidentInfo.priority);
 	arg.add(incidentInfo.doneRatio);
+	arg.add(incidentInfo.unifiedEventId);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
@@ -2907,6 +2932,27 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 		addColumnsArg.columnIndexes.push_back(IDX_ITEMS_VALUE_TYPE);
 		addColumnsArg.columnIndexes.push_back(IDX_ITEMS_UNIT);
 		dbAgent.addColumns(addColumnsArg);
+	}
+	if (oldVer <= 8) {
+		// add a new column "unified_event_id" to incidents
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileIncidents);
+		addColumnsArg.columnIndexes.push_back(IDX_INCIDENTS_UNIFIED_EVENT_ID);
+		dbAgent.addColumns(addColumnsArg);
+
+		// fill unified_event_id
+		string sql = StringUtils::sprintf(
+		  "UPDATE %s i,%s e SET i.%s=e.%s WHERE (i.%s=e.%s and i.%s=e.%s)",
+		  tableProfileIncidents.name, tableProfileEvents.name,
+		  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_UNIFIED_EVENT_ID].columnName,
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
+		  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_SERVER_ID].columnName,
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
+		  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_EVENT_ID].columnName,
+		  COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
+		dbAgent.execSql(sql);
+
+		// recreate indexes
+		dbAgent.fixupIndexes(tableProfileIncidents);
 	}
 	return true;
 }

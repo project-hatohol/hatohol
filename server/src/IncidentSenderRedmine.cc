@@ -118,6 +118,8 @@ string IncidentSenderRedmine::buildURLMonitoringServerEvent(
 {
 	if (!server)
 		return string();
+	if (event.id == DISCONNECT_SERVER_EVENT_ID)
+		return string();
 
 	// TODO: MonitoringServerInfo should have a base URL
 	string url;
@@ -327,6 +329,7 @@ HatoholError IncidentSenderRedmine::buildIncidentInfo(
 	incidentInfo.serverId = event.serverId;
 	incidentInfo.eventId = event.id;
 	incidentInfo.triggerId = event.triggerId;
+	incidentInfo.unifiedEventId = event.unifiedId;
 	return parseResponse(incidentInfo, response);
 }
 
