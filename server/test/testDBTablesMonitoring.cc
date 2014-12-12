@@ -405,37 +405,12 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 }
 #define assertTriggerInfo(E,A) cut_trace(_assertTriggerInfo(E,A))
 
-static string makeHostgroupsOutput(const HostgroupInfo &hostgroupInfo, size_t id)
-{
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|%" FMT_SERVER_ID "|%" FMT_HOST_GROUP_ID "|%s\n",
-	  id + 1, hostgroupInfo.serverId,
-	  hostgroupInfo.groupId, hostgroupInfo.groupName.c_str());
-
-	return expectedOut;
-}
-
 static string makeHostgroupsOutput(const Hostgroup &hostgrp, const size_t &id)
 {
 	string expectedOut = StringUtils::sprintf(
 	  "%zd|%" FMT_SERVER_ID "|%s|%s\n",
 	  id + 1, hostgrp.serverId,
 	  hostgrp.idInServer.c_str(), hostgrp.name.c_str());
-	return expectedOut;
-}
-
-static string makeMapHostsHostgroupsOutput
-  (const HostgroupElement &hostgroupElement, size_t id)
-{
-	HostgroupElementQueryOption option;
-	const DBTermCodec *dbTermCodec = option.getDBTermCodec();
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|%s|%s|%s\n",
-	  id + 1,
-	  dbTermCodec->enc(hostgroupElement.serverId).c_str(),
-	  dbTermCodec->enc(hostgroupElement.hostId).c_str(),
-	  dbTermCodec->enc(hostgroupElement.groupId).c_str());
-
 	return expectedOut;
 }
 
