@@ -43,13 +43,23 @@ static void initParamChecker(
 {
 	option.setTargetServerId(2);
 	string expected = "server_id=2";
-	if (typeid(option) != typeid(HostgroupsQueryOption)) {
+	const type_info &optionType = typeid(option);
+	if (optionType != typeid(HostgroupsQueryOption)) {
 		option.setTargetHostId(4);
-		expected += " AND host_id=4";
+		const char *hostIdColumnName = "host_id";
+		if (optionType == typeid(HostsQueryOption)) {
+			hostIdColumnName = "host_id_in_server";
+		}
+		expected += StringUtils::sprintf(" AND %s=4", hostIdColumnName);
 	}
 	if (typeid(option) == typeid(HostsQueryOption)) {
-		expected += StringUtils::sprintf(" AND validity>=%d",
-		                                 HOST_VALID);
+		HostsQueryOption &hostsQueryOption =
+		  dynamic_cast<HostsQueryOption &>(option);
+		HostStatus status = hostsQueryOption.getStatus();
+		if (status != HOST_STAT_ALL) {
+			expected += StringUtils::sprintf(" AND status=%d",
+			                                 status);
+		}
 	}
 	// TODO: call setHostgroupId()
 	fixupForFilteringDefunctServer(data, expected, option);
