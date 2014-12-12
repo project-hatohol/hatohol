@@ -2235,6 +2235,15 @@ void loadTestDBVMInfo(void)
 		dbHost.upsertVMInfo(testVMInfo[i]);
 }
 
+void loadTestDBHostgroup(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestHostgroup; i++)
+		dbHost.upsertHostgroup(testHostgroup[i]);
+}
+
 void loadTestDBHostHostgroup(void)
 {
 	ThreadLocalDBCache cache;

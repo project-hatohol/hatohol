@@ -610,10 +610,10 @@ void test_overview(void)
 	startFaceRest();
 	loadTestDBTriggers();
 	loadTestDBItems();
-	loadTestDBHosts();
-	loadTestDBHostgroups();
-	loadTestDBHostgroupElements();
 	loadTestDBServerStatus();
+	loadTestDBServerHostDef();
+	loadTestDBHostgroup();
+	loadTestDBHostHostgroup();
 
 	RequestArg arg("/overview");
 	// It's supposed to be a user with ID:2, who can access all hosts.
