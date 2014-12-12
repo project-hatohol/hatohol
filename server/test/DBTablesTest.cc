@@ -1249,6 +1249,47 @@ const VMInfo testVMInfo[] = {
 };
 const size_t NumTestVMInfo = ARRAY_SIZE(testVMInfo);
 
+const Hostgroup testHostgroup[] = {
+{
+	AUTO_INCREMENT_VALUE,  // id
+	1,                     // serverId
+	"1",                   // idInServer
+	"Monitor Servers"      // name
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	1,                     // serverId
+	"2",                   // idInServer
+	"Monitored Servers"    // name
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	3,                     // serverId
+	"1",                   // idInServer
+	"Checking Servers"     // name
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	3,                     // serverId
+	"2",                   // idInServer
+	"Checked Servers"      // name
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	4,                     // serverId
+	"1",                   // idInServer
+	"Watching Servers"     // name
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	4,                     // serverId
+	"2",                   // idInServer
+	"Watched Servers"      // name
+}, {
+	// This entry is for tests with a defunct server
+	AUTO_INCREMENT_VALUE,  // id
+	trigInfoDefunctSv1.serverId, // serverId
+	"1",                   // idInServer
+	"Hostgroup on a defunct servers" // name
+}
+};
+const size_t NumTestHostgroup = ARRAY_SIZE(testHostgroup);
+
 const HostHostgroup testHostHostgroup[] = {
 {
 	AUTO_INCREMENT_VALUE,            // id

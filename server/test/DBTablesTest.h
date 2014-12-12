@@ -105,6 +105,9 @@ extern const size_t NumTestServerHostDef;
 extern const VMInfo testVMInfo[];
 extern const size_t NumTestVMInfo;
 
+extern const Hostgroup testHostgroup[];
+extern const size_t NumTestHostgroup;
+
 extern const HostHostgroup testHostHostgroup[];
 extern const size_t NumTestHostHostgroup;
 
