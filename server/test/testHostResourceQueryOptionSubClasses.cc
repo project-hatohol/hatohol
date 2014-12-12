@@ -425,7 +425,6 @@ void data_eventQueryOptionGetServerIdColumnName(void)
 void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
-	const string hostgroupTableAlias = "map_hosts_hostgroups";
 	option.setTargetServerId(26);
 	option.setTargetHostgroupId(48);
 	option.setTargetHostId(32);
@@ -435,7 +434,7 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 			  serverIdColumnName.c_str(),
 			  DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			  hostIdColumnName.c_str(),
-			  hostgroupTableAlias.c_str(),
+	                  tableProfileHostHostgroup.name,
 			  hostgroupIdColumnName.c_str());
 	fixupForFilteringDefunctServer(data, expect, option);
 	cppcut_assert_equal(expect, option.getCondition());
