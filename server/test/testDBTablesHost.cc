@@ -442,7 +442,8 @@ void test_getHypervisorWithUserWhoCanAccessAllHostgroup(gconstpointer data)
 	loadTestDBHostHostgroup();
 
 	const gboolean allowedUser = gcut_data_get_boolean(data, "allowed");
-	const ServerHostDef &targetServerHostDef = testServerHostDef[0];
+	// TODO: This raw index is too unreadable !!
+	const ServerHostDef &targetServerHostDef = testServerHostDef[11];
 	DECLARE_DBTABLES_HOST(dbHost);
 	HostIdType hypervisorId = INVALID_HOST_ID;
 
