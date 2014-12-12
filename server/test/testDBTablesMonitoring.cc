@@ -427,16 +427,6 @@ static string makeMapHostsHostgroupsOutput(
 	return expectedOut;
 }
 
-static string makeHostsOutput(const HostInfo &hostInfo, const size_t &id)
-{
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|%" FMT_SERVER_ID "|%" FMT_HOST_ID "|%s|%d\n",
-	  id + 1, hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str(),
-	  hostInfo.validity);
-
-	return expectedOut;
-}
-
 static string makeHostsOutput(const ServerHostDef &svHostDef, const size_t &id)
 {
 	string expectedOut = StringUtils::sprintf(
@@ -1525,7 +1515,7 @@ void test_updateHostsMarkInvalid(void)
 
 void test_updateHostsAddNewHost(void)
 {
-	loadTestDBHosts();
+	loadTestDBServerHostDef();
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	const ServerIdType targetServerId = 1;
 	HostInfo newHost;
@@ -1535,8 +1525,9 @@ void test_updateHostsAddNewHost(void)
 	newHost.validity = HOST_VALID;
 
 	// Sanity check the ID of the new host is not duplicated.
-	for (size_t i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo &hostInfo = testHostInfo[i];
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		HostInfo hostInfo;
+		conv(hostInfo, testServerHostDef[i]);
 		if (hostInfo.serverId != targetServerId)
 			continue;
 		if (hostInfo.id == newHost.id)
@@ -1547,22 +1538,30 @@ void test_updateHostsAddNewHost(void)
 	HostInfoList hostInfoList;
 	string expect;
 	size_t i;
-	for (i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo &hostInfo = testHostInfo[i];
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		HostInfo hostInfo;
+		conv(hostInfo, testServerHostDef[i]);
 		if (hostInfo.serverId != targetServerId)
 			continue;
 		hostInfoList.push_back(hostInfo);
-		expect += makeHostsOutput(hostInfo, i);
+		expect += makeHostsOutput(testServerHostDef[i], i);
 	}
 	hostInfoList.push_back(newHost);
-	expect += makeHostsOutput(newHost, i);
+	ServerHostDef _newHost;
+	conv(_newHost, newHost);
+	expect += makeHostsOutput(_newHost, i);
 
 	// Call the method to be tested and check the result
 	dbMonitoring.updateHosts(hostInfoList, targetServerId);
 	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+	const ColumnDef *coldef = tableProfileServerHostDef.columnDefs;
 	string statement = StringUtils::sprintf(
-	  "select * from hosts where server_id=%" FMT_SERVER_ID
-	  " order by id asc;", targetServerId);
+	  "select * from %s where %s=%" FMT_SERVER_ID " order by %s asc;",
+	  tableProfileServerHostDef.name,
+	  coldef[IDX_HOST_SERVER_HOST_DEF_SERVER_ID].columnName,
+	  targetServerId,
+	  coldef[IDX_HOST_SERVER_HOST_DEF_ID].columnName);
+	printf("statement: %s\n", statement.c_str());
 	assertDBContent(&dbAgent, statement, expect);
 }
 
