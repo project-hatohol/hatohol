@@ -163,6 +163,9 @@ static void _assertActions(const string &path, const string &callbackName = "",
 #define assertAddAction(P, ...) \
 cut_trace(_assertAddRecord(P, "/action", ##__VA_ARGS__))
 
+#define assertUpdateAction(P, ...) \
+cut_trace(_assertUpdateRecord(P, "/action", ##__VA_ARGS__))
+
 void data_actionsJSONP(void)
 {
 	gcut_add_datum("Normal actions",
@@ -369,6 +372,39 @@ void test_deleteAction(void)
 	string statement = "select action_id from ";
 	statement += DBTablesAction::getTableNameActions();
 	statement += " order by action_id asc";
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getAction().getDBAgent(), statement, expect);
+}
+
+void test_updateAction(void)
+{
+	loadTestDBAction();
+
+	startFaceRest();
+
+	int targetId = 3;
+	int type = ACTION_COMMAND;
+	StringMap params;
+	string url = StringUtils::sprintf("/action/%d", targetId);
+	const string command = "mogmog-mikan";
+	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_ACTION);
+
+	params["type"] = StringUtils::sprintf("%d", type);
+	params["command"] = command;
+	assertUpdateAction(params, userId);
+
+	// check the content in the DB
+	string statement = "select * from ";
+	statement += DBTablesAction::getTableNameActions();
+	statement += StringUtils::sprintf(" where=%d", targetId);
+	string expect;
+	int expectedId = 3;
+	expect += StringUtils::sprintf("%d|", expectedId);
+	expect += "#NULL#|#NULL#|#NULL#|#NULL#|#NULL#|#NULL#|#NULL#|";
+	expect += StringUtils::sprintf("%d|",type);
+	expect += command;
+	expect += "||0"; /* workingDirectory and timeout */
+	expect += StringUtils::sprintf("|%" FMT_USER_ID, userId);
 	ThreadLocalDBCache cache;
 	assertDBContent(&cache.getAction().getDBAgent(), statement, expect);
 }
