@@ -66,6 +66,8 @@ extern size_t NumTestItemInfo;
 extern ActionDef testActionDef[];
 extern const size_t NumTestActionDef;
 
+extern ActionDef testUpdateActionDef;
+
 extern UserInfo testUserInfo[];
 extern const size_t NumTestUserInfo;
 extern const UserIdType userIdWithMultipleAuthorizedHostgroups;

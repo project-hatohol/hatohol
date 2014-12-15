@@ -579,6 +579,27 @@ ActionDef testActionDef[] = {
 
 const size_t NumTestActionDef = ARRAY_SIZE(testActionDef);
 
+ActionDef updateActDef = {
+	3,                 // id (this field is needed when updating)
+	ActionCondition(
+		ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
+		ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS |
+		ACTCOND_TRIGGER_SEVERITY, // enableBits
+		2,                        // serverId
+		0x89abcdefffffffff,       // hostId
+		0x7000000000000000,       // hostGroupId
+		0x01234567890abcdef,      // triggerId
+		TRIGGER_STATUS_OK,        // triggerStatus
+		TRIGGER_SEVERITY_WARNING, // triggerSeverity
+		CMP_EQ_GT                 // triggerSeverityCompType;
+	), // condition
+	ACTION_COMMAND,          // type
+	"/home/hatohol",         // working dir
+	"/usr/lib/libupdate.so", // command
+	0,                       // timeout
+	2,                       // ownerUserId
+};
+
 UserInfo testUserInfo[] = {
 {
 	0,                 // id
