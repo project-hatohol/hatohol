@@ -1529,7 +1529,7 @@ void test_updateHostsChangeHostName(void)
 		  StringUtils::sprintf("%" FMT_HOST_ID, updateHost.id);
 		if (svHostDef.hostIdInServer == updateHostIdStr)
 			break;
-		if (i == (NumTestHostInfo - 1))
+		if (i == (NumTestServerHostDef - 1))
 			cut_fail("We use the wrong test data");
 	}
 
@@ -1537,18 +1537,22 @@ void test_updateHostsChangeHostName(void)
 	HostInfoList hostInfoList;
 	string expect;
 	size_t i;
-	for (i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo &hostInfo = testHostInfo[i];
-		if (hostInfo.serverId != targetServerId)
+	for (i = 0; i < NumTestServerHostDef; i++) {
+		const ServerHostDef &svHostDef = testServerHostDef[i];
+		HostInfo hostInfo;
+		if (svHostDef.serverId != targetServerId)
 			continue;
-		const HostInfo *expectHost = NULL;
-		if (hostInfo.hostName == updateHost.hostName)
-			expectHost = &updateHost;
-		else
-			expectHost = &hostInfo;
-		hostInfoList.push_back(*expectHost);
-		ServerHostDef svHostDef;
-		conv(svHostDef, *expectHost);
+		if (svHostDef.name == updateHost.hostName) {
+			hostInfoList.push_back(updateHost);
+		} else {
+			hostInfo.serverId = targetServerId;
+			cppcut_assert_equal(
+			  1, sscanf(svHostDef.hostIdInServer.c_str(),
+			            "%" FMT_HOST_ID, &hostInfo.id));
+			hostInfo.hostName = svHostDef.name;
+			hostInfo.validity = HOST_VALID;
+			hostInfoList.push_back(hostInfo);
+		}
 		expect += makeHostsOutput(svHostDef, i);
 	}
 
