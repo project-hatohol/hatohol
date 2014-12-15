@@ -335,14 +335,16 @@ void RestResourceAction::handlePut(void)
 	bool exist;
 	bool succeeded;
 	ActionDef actionDef;
+	uint32_t actionId;
 
 	// action id
-	actionDef.id = getResourceId();
-	if (actionDef.id == INVALID_ID) {
+	actionId = getResourceId();
+	if (actionId == INVALID_ID) {
 		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
 			    "id: %s", getResourceIdString().c_str());
 		return;
 	}
+	actionDef.id = actionId;
 
 	// action type
 	succeeded = getParamWithErrorReply<int>(
