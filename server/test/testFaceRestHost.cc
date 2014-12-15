@@ -142,7 +142,7 @@ static void assertHostsIdNameHashInParser(
 static void _assertHosts(const string &path, const string &callbackName = "",
                          const ServerIdType &serverId = ALL_SERVERS)
 {
-	loadTestDBHosts();
+	loadTestDBServerHostDef();
 	startFaceRest();
 
 	StringMap queryMap;
