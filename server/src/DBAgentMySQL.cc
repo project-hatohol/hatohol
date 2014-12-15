@@ -588,6 +588,18 @@ void DBAgentMySQL::connect(void)
 	}
 	m_impl->connected = result;
 	m_impl->inTransaction = false;
+
+	if (result) {
+		if (mysql_set_character_set(&m_impl->mysql, HATOHOL_DB_CHARSET)) {
+			MLPL_ERR("Failed to set charset %s to %s: "
+				 "(error: %u) %s\n",
+				 HATOHOL_DB_CHARSET, db,
+				 mysql_errno(&m_impl->mysql),
+				 mysql_error(&m_impl->mysql));
+			mysql_close(&m_impl->mysql);
+			m_impl->connected = false;
+		}
+	}
 }
 
 void DBAgentMySQL::sleepAndReconnect(unsigned int sleepTimeSec)
