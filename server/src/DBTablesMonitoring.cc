@@ -1392,6 +1392,13 @@ HostsQueryOption::HostsQueryOption(const UserIdType &userId)
 {
 }
 
+HostsQueryOption::HostsQueryOption(const HostsQueryOption &src)
+: HostResourceQueryOption(src),
+  m_impl(new Impl())
+{
+	*m_impl = *src.m_impl;
+}
+
 HostsQueryOption::HostsQueryOption(DataQueryContext *dataQueryContext)
 : HostResourceQueryOption(synapseHostsQueryOption, dataQueryContext),
   m_impl(new Impl())

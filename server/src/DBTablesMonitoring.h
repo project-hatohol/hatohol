@@ -109,6 +109,7 @@ private:
 class HostsQueryOption : public HostResourceQueryOption {
 public:
 	HostsQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	HostsQueryOption(const HostsQueryOption &src);
 	HostsQueryOption(DataQueryContext *dataQueryContext);
 	virtual ~HostsQueryOption();
 
