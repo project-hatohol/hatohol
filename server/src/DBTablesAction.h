@@ -72,7 +72,7 @@ struct ActionCondition {
 	ActionCondition(uint32_t _enableBits, const ServerIdType &_serverId,
 	                uint64_t _hostId,
 	                uint64_t _hostgroupId, uint64_t _triggerId,
-	                int _triggerStatus, int _triggerSeverity, 
+	                int _triggerStatus, int _triggerSeverity,
 	                ComparisonType _triggerSeverityCompType)
 	: enableBits(_enableBits),
 	  serverId(_serverId),
@@ -133,7 +133,7 @@ struct ActionDef {
 	/**
 	 * Parse "command" string for IncidentSender type action.
 	 *
-	 * @param trackerId 
+	 * @param trackerId
 	 * An ID of IncidentTrackerInfo parsed from command string will be
 	 * stored.
 	 *
@@ -184,7 +184,7 @@ struct ChildSigInfo {
 enum {
 	IDX_ACTION_LOGS_ACTION_LOG_ID,
 	IDX_ACTION_LOGS_ACTION_ID,
-	IDX_ACTION_LOGS_STATUS, 
+	IDX_ACTION_LOGS_STATUS,
 	IDX_ACTION_LOGS_STARTER_ID,
 	IDX_ACTION_LOGS_QUEUING_TIME,
 	IDX_ACTION_LOGS_START_TIME,
@@ -301,12 +301,12 @@ public:
 	 * A reference of ActionDef.
 	 *
 	 * @param failureCode
-	 * A failure code. This is typically set when the execution of 
+	 * A failure code. This is typically set when the execution of
 	 * action fails. In the normal case in which the action is still
 	 * running, ACTLOG_EXECFAIL_NONE should be set.
 	 *
 	 * @param initialStatus
-	 * A status logged as a initial status. This parameter is valid 
+	 * A status logged as a initial status. This parameter is valid
 	 * only when failureCOde is ACTLOG_EXECFAIL_NONE.
 	 *
 	 * @return a created action log ID.
@@ -406,4 +406,3 @@ private:
 };
 
 #endif // DBTablesAction_h
-

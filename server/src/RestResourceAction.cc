@@ -121,7 +121,7 @@ void RestResourceAction::handleGet(void)
 		  agent, cond, "hostgroupId", ACTCOND_HOST_GROUP_ID,
 		   cond.hostgroupId);
 		setActionCondition<std::string>(
-		  agent, cond, "triggerId", ACTCOND_TRIGGER_ID, 
+		  agent, cond, "triggerId", ACTCOND_TRIGGER_ID,
 		  StringUtils::toString(cond.triggerId));
 		setActionCondition<uint32_t>(
 		  agent, cond, "triggerStatus", ACTCOND_TRIGGER_STATUS,

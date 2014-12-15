@@ -770,7 +770,7 @@ void DBTablesAction::logEndExecAction(const LogEndExecActionArg &logArg)
 {
 	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
-	const char *actionLogIdColumnName = 
+	const char *actionLogIdColumnName =
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
 	arg.condition = StringUtils::sprintf("%s=%" PRIu64,
 	                                     actionLogIdColumnName,
@@ -794,7 +794,7 @@ void DBTablesAction::updateLogStatusToStart(uint64_t logId)
 {
 	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
-	const char *actionLogIdColumnName = 
+	const char *actionLogIdColumnName =
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
 	arg.condition = StringUtils::sprintf("%s=%" PRIu64,
 	                                     actionLogIdColumnName, logId);
@@ -909,7 +909,7 @@ bool DBTablesAction::getLog(ActionLog &actionLog, const string &condition)
 	arg.condition = condition;
 	arg.add(IDX_ACTION_LOGS_ACTION_LOG_ID);
 	arg.add(IDX_ACTION_LOGS_ACTION_ID);
-	arg.add(IDX_ACTION_LOGS_STATUS); 
+	arg.add(IDX_ACTION_LOGS_STATUS);
 	arg.add(IDX_ACTION_LOGS_STARTER_ID);
 	arg.add(IDX_ACTION_LOGS_QUEUING_TIME);
 	arg.add(IDX_ACTION_LOGS_START_TIME);
@@ -1046,7 +1046,7 @@ gboolean DBTablesAction::deleteInvalidActionsExec(gpointer data)
 
 	deleteInvalidActionsContext *deleteActionCtx = static_cast<deleteInvalidActionsContext *>(data);
 	deleteActionCtx->idleEventId = INVALID_EVENT_ID;
-	deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC, 
+	deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC,
 	                                         deleteInvalidActionsCycl,
 	                                         deleteActionCtx);
 	return G_SOURCE_REMOVE;
