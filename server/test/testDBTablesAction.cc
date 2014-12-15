@@ -717,7 +717,7 @@ void test_getTriggerActionList(void)
 void test_getTriggerActionListWithAllCondition(void)
 {
 	loadTestDBAction();
-	loadTestDBHostgroupElements();
+	loadTestDBHostHostgroup();
 
 	// make an EventInfo instance for the test
 	int idxTarget = 3;

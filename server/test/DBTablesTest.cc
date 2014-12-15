@@ -1290,7 +1290,7 @@ const HostHostgroup testHostHostgroup[] = {
 	AUTO_INCREMENT_VALUE,            // id
 	2,                               // serverId
 	//"0x89abcdefffffffff",          // hostIdInServer
-	"620015564680593407",            // getHostInfoList() handles HostID As decimal
+	"9920249034889494527",           // getHostInfoList() handles HostID As decimal
 	// "0x8000000000000000",            // hostgroupIdInServer
 	"9223372036854775808",
 }, {
