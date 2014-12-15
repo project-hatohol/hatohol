@@ -348,7 +348,7 @@ void RestResourceAction::handleUpdate(void)
 
 	// action tyoe
 	succeeded = getParamWithErrorReply<int>(
-					this, "type", "%d", (int &)actionDef.type, &exist);
+	                this, "type", "%d", (int &)actionDef.type, &exist);
 	if (!succeeded)
 		return;
 	if (!exist) {
