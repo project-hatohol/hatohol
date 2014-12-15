@@ -2079,14 +2079,6 @@ void loadTestDBItems(void)
 		dbMonitoring.addItemInfo(&testItemInfo[i]);
 }
 
-void loadTestDBHostgroups(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
-		dbMonitoring.addHostgroupInfo(&testHostgroupInfo[i]);
-}
-
 void loadTestDBHostgroupElements(void)
 {
 	ThreadLocalDBCache cache;
