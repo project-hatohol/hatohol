@@ -638,7 +638,7 @@ void HatoholArmPluginGate::terminatePluginSync(void)
 	size_t elapsedTime = timeoutMSec;
 
 	// Send SIGTERM
-	timeoutMSec = TIMEOUT_PLUGIN_TERM_SIGKILL_MS - elapsedTime;
+	timeoutMSec = TIMEOUT_PLUGIN_TERM_SIGTERM_MS - elapsedTime;
 	MLPL_INFO("Send SIGTERM to the plugin and wait for %zd sec.\n",
 	          timeoutMSec/1000);
 	if (kill(m_impl->pid, SIGTERM) == -1) {
