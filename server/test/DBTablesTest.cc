@@ -792,7 +792,7 @@ const size_t NumTestHostgroupInfo = ARRAY_SIZE(testHostgroupInfo);
 
 static const string _HOST_VALID_STRING = StringUtils::sprintf("%d", HOST_VALID);
 static const char *HOST_VALID_STRING = _HOST_VALID_STRING.c_str();
-HostInfo testHostInfo[] = {
+static HostInfo testHostInfo[] = {
 {
 	1,                     // serverId
 	235012,                // id(hostId)
@@ -851,7 +851,7 @@ HostInfo testHostInfo[] = {
 	HOST_VALID,            // valid
 }
 };
-const size_t NumTestHostInfo = ARRAY_SIZE(testHostInfo);
+static const size_t NumTestHostInfo = ARRAY_SIZE(testHostInfo);
 
 HostgroupElement testHostgroupElement[] = {
 {
