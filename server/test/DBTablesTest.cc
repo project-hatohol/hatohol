@@ -1873,8 +1873,14 @@ const HostgroupIdSet &getTestHostgroupIdSet(void)
 	if (!testHostgroupIdSet.empty())
 		return testHostgroupIdSet;
 
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		testHostgroupIdSet.insert(testHostgroupElement[i].groupId);
+	for (size_t i = 0; i < NumTestHostHostgroup; i++) {
+		// TODO: HostgroupIdSet should have a string.
+		HostgroupIdType hostgroupId;
+		cppcut_assert_equal(
+		  1, sscanf(testHostHostgroup[i].hostgroupIdInServer.c_str(),
+		            "%" FMT_HOST_GROUP_ID, &hostgroupId));
+		testHostgroupIdSet.insert(hostgroupId);
+	}
 	return testHostgroupIdSet;
 }
 
