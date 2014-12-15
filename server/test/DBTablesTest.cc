@@ -1776,7 +1776,7 @@ size_t getNumberOfTestActions(const ActionType &actionType)
 void getDBCTestHostInfo(HostInfoList &hostInfoList,
                         const ServerIdType &targetServerId)
 {
-	for (size_t i = 0; i < NumTestHostInfo; i++) {
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
 		const ServerHostDef &svHostDef = testServerHostDef[i];
 		const ServerIdType &serverId = svHostDef.serverId;
 		if (targetServerId != ALL_SERVERS && serverId != targetServerId)
