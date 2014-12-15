@@ -44,7 +44,6 @@ enum {
 const static int NUM_GROUP_POOL = 10;
 static ItemGroup *g_grp[NUM_GROUP_POOL];
 static ItemGroup *&x_grp = g_grp[0];
-static ItemGroup *&y_grp = g_grp[1];
 
 template<typename NATIVE_TYPE>
 void _assertAddNew(const bool &useItemId)

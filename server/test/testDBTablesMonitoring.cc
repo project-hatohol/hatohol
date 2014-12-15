@@ -43,8 +43,6 @@ static const string serverIdColumnName = "server_id";
 static const string hostgroupIdColumnName = "host_group_id";
 static const string hostIdColumnName = "host_id";
 
-static const int dupEventInfoType = 1;
-
 static void addTriggerInfo(TriggerInfo *triggerInfo)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);

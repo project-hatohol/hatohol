@@ -33,7 +33,6 @@
 using namespace std;
 using namespace mlpl;
 
-static const int TIMEOUT_MSEC = 5 * 1000;
 static vector<string> g_argList;
 
 struct Context : public ResidentPullHelper<Context> {

@@ -352,7 +352,6 @@ private:
 	std::string m_envVarName;
 	std::string m_origString;
 	bool        m_hasOrigValue;
-	bool        m_changed;
 };
 
 #endif // Helpers_h
