@@ -34,6 +34,7 @@ struct RestResourceAction : public FaceRest::ResourceHandler
 	void handleGet(void);
 	void handlePost(void);
 	void handleDelete(void);
+	void handleUpdate(void);
 
 	static const char *pathForAction;
 };

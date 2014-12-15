@@ -61,6 +61,8 @@ void RestResourceAction::handle(void)
 		handlePost();
 	} else if (httpMethodIs("DELETE")) {
 		handleDelete();
+	} else if (httpMethodIs("UPDATE")) {
+		handleUpdate();
 	} else {
 		MLPL_ERR("Unknown method: %s\n", m_message->method);
 		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
@@ -323,6 +325,10 @@ void RestResourceAction::handleDelete(void)
 	agent.add("id", actionId);
 	agent.endObject();
 	replyJSONData(agent);
+}
+
+void RestResourceAction::handleUpdate(void)
+{
 }
 
 RestResourceActionFactory::RestResourceActionFactory(FaceRest *faceRest)
