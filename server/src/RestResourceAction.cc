@@ -478,7 +478,6 @@ void RestResourceAction::handleUpdate(void)
 	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	agent.add("id", actionDef.id);
 	agent.endObject();
 	replyJSONData(agent);
 }
