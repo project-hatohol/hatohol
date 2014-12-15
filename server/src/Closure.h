@@ -103,13 +103,13 @@ struct ClosureTemplate1 : public Closure1<A>
 
 struct SignalBase
 {
-	virtual void connect(ClosureBase *closure)
+	void connect(ClosureBase *closure)
 	{
 		m_rwlock.writeLock();
 		m_closures.push_back(closure);
 		m_rwlock.unlock();
 	}
-	virtual void disconnect(ClosureBase *closure)
+	void disconnect(ClosureBase *closure)
 	{
 		std::list<ClosureBase *>::iterator it;
 		m_rwlock.writeLock();
@@ -141,11 +141,11 @@ struct SignalBase
 
 struct Signal0 : public SignalBase
 {
-	virtual void connect(Closure0 *closure)
+	void connect(Closure0 *closure)
 	{
 		SignalBase::connect(closure);
 	}
-	virtual void disconnect(Closure0 *closure)
+	void disconnect(Closure0 *closure)
 	{
 		SignalBase::disconnect(closure);
 	}
@@ -165,11 +165,11 @@ struct Signal0 : public SignalBase
 template<typename A>
 struct Signal1 : public SignalBase
 {
-	virtual void connect(Closure1<A> *closure)
+	void connect(Closure1<A> *closure)
 	{
 		SignalBase::connect(closure);
 	}
-	virtual void disconnect(Closure1<A> *closure)
+	void disconnect(Closure1<A> *closure)
 	{
 		SignalBase::disconnect(closure);
 	}
