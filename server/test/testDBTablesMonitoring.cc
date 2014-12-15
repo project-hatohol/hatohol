@@ -95,8 +95,8 @@ static void _assertGetTriggerInfoList(
   gconstpointer ddtParam, uint32_t serverId, uint64_t hostId = ALL_HOSTS)
 {
 	loadTestDBTriggers();
-	loadTestDBHosts();
-	loadTestDBHostgroupElements();
+	loadTestDBServerHostDef();
+	loadTestDBHostHostgroup();
 
 	AssertGetTriggersArg arg(ddtParam);
 	arg.targetServerId = serverId;
