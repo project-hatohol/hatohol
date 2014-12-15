@@ -238,7 +238,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 {
 	loadTestDBTriggers();
 	loadTestDBEvents();
-	loadTestDBHosts();
+	loadTestDBServerHostDef();
 	startFaceRest();
 
 	// build expected data
