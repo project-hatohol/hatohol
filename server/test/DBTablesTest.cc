@@ -792,66 +792,6 @@ const size_t NumTestHostgroupInfo = ARRAY_SIZE(testHostgroupInfo);
 
 static const string _HOST_VALID_STRING = StringUtils::sprintf("%d", HOST_VALID);
 static const char *HOST_VALID_STRING = _HOST_VALID_STRING.c_str();
-static HostInfo testHostInfo[] = {
-{
-	1,                     // serverId
-	235012,                // id(hostId)
-	"hostX1",              // hostName
-	HOST_VALID,            // valid
-}, {
-	1,                     // serverId
-	235013,                // id(hostId)
-	"hostX2",              // hostName
-	HOST_VALID,            // valid
-}, {
-	1,                     // serverId
-	1129,                  // id(hostId)
-	"hostX3",              // hostName
-	HOST_VALID,            // valid
-} ,{
-	3,                     // serverId
-	10001,                 // id(hostId)
-	"hostZ1",              // hostName
-	HOST_VALID,            // valid
-} ,{
-	2,                     // serverId
-	512,                   // id(hostId)
-	"multi-host group",    // hostName
-	HOST_VALID,            // valid
-}, {
-	3,                     // serverId
-	10002,                 // id(hostId)
-	"hostZ2",              // hostName
-	HOST_VALID,            // valid
-}, {
-	3,                     // serverId
-	5,                     // id(hostId)
-	"frog",                // hostName
-	HOST_VALID,            // valid
-} ,{
-	3,                     // serverId
-	100,                   // id(hostId)
-	"dolphin",             // hostName
-	HOST_VALID,            // valid
-}, {
-	4,                     // serverId
-	100,                   // id(hostId)
-	"squirrel",            // hostName
-	HOST_VALID             // valid
-}, {
-	2,                     // serverId
-	0x89abcdeffffffff,     // id(hostId)
-	"hostQ1",              // hostName
-	HOST_VALID,            // valid
-}, {
-	// This entry is for tests with a defunct server
-	trigInfoDefunctSv1.serverId, // serverId
-	trigInfoDefunctSv1.hostId,   // hostId,
-	trigInfoDefunctSv1.hostName, // hostName,
-	HOST_VALID,            // valid
-}
-};
-static const size_t NumTestHostInfo = ARRAY_SIZE(testHostInfo);
 
 HostgroupElement testHostgroupElement[] = {
 {
