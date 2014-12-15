@@ -241,16 +241,6 @@ void _assertItemInfoList(gconstpointer data, uint32_t serverId)
 		itemInfoList.push_back(testItemInfo[i]);
 	dbMonitoring.addItemInfoList(itemInfoList);
 
-	HostgroupElementList hostgroupElementList;
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		hostgroupElementList.push_back(testHostgroupElement[i]);
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
-
-	HostgroupInfoList hostgroupInfoList;
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
-		hostgroupInfoList.push_back(testHostgroupInfo[i]);
-	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
-
 	AssertGetItemsArg arg(data);
 	arg.targetServerId = serverId;
 	assertGetItems(arg);
