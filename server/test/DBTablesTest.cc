@@ -1777,10 +1777,12 @@ void getDBCTestHostInfo(HostInfoList &hostInfoList,
                         const ServerIdType &targetServerId)
 {
 	for (size_t i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo hostInfo = testHostInfo[i];
-		const ServerIdType &serverId = hostInfo.serverId;
+		const ServerHostDef &svHostDef = testServerHostDef[i];
+		const ServerIdType &serverId = svHostDef.serverId;
 		if (targetServerId != ALL_SERVERS && serverId != targetServerId)
 			continue;
+		HostInfo hostInfo;
+		conv(hostInfo, svHostDef);
 		hostInfoList.push_back(hostInfo);
 	}
 }
