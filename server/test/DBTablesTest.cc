@@ -1658,12 +1658,17 @@ static void removeHostIdIfNeeded(ServerIdHostgroupHostIdMap &svIdHostGrpIdMap,
 size_t getNumberOfTestHosts(
   const ServerIdType &serverId, const HostgroupIdType &hostgroupId)
 {
+	HATOHOL_ASSERT(hostgroupId == ALL_HOST_GROUPS,
+	  "Not implemented the feature to take care host groups: "
+	  "hostgroupID: %" FMT_HOST_GROUP_ID ".", hostgroupId);
+
 	size_t numberOfTestHosts = 0;
-	for (size_t i = 0; i < NumTestHostInfo; i++) {
-		HostInfo hostInfo = testHostInfo[i];
-		ServerIdType hostInfoServerId = hostInfo.serverId;
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		const ServerHostDef &svHostDef = testServerHostDef[i];
+		const ServerIdType &hostInfoServerId = svHostDef.serverId;
 		if (hostInfoServerId == serverId)
 			numberOfTestHosts++;
+		// TODO: compare with hostgroup ID.
 	}
 	return numberOfTestHosts;
 }
