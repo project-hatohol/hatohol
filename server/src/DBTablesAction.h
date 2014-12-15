@@ -388,6 +388,8 @@ protected:
 	  const OperationPrivilege &privilege, const ActionDef &actionDef);
 	HatoholError checkPrivilegeForDelete(
 	  const OperationPrivilege &privilege, const ActionIdList &idList);
+	HatoholError checkPrivilegeForUpdate(
+	  const OperationPrivilege &privilege, const ActionDef &actionDef);
 
 	static gboolean deleteInvalidActionsCycl(gpointer data);
 

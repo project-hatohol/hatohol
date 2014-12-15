@@ -964,6 +964,26 @@ HatoholError DBTablesAction::checkPrivilegeForDelete(
 	return HTERR_OK;
 }
 
+HatoholError DBTablesAction::checkPrivilegeForUpdate(
+  const OperationPrivilege &privilege, const ActionDef &actionDef)
+{
+	UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	if (actionDef.type == ACTION_INCIDENT_SENDER) {
+		if (privilege.has(OPPRVLG_UPDATE_INCIDENT_SETTING))
+			return HTERR_OK;
+		else
+			return HTERR_NO_PRIVILEGE;
+	}
+
+	if (!privilege.has(OPPRVLG_UPDATE_ACTION))
+		return HTERR_NO_PRIVILEGE;
+
+	return HTERR_OK;
+}
+
 gboolean DBTablesAction::deleteInvalidActionsExec(gpointer data)
 {
 	struct : public ExceptionCatchable {
