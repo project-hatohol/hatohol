@@ -384,17 +384,20 @@ static void assertHostgroupsInParser(JSONParser *parser,
                                      HostgroupIdSet &hostgroupIdSet)
 {
 	assertStartObject(parser, "hostgroups");
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++) {
-		const HostgroupInfo &hgrpInfo = testHostgroupInfo[i];
+	for (size_t i = 0; i < NumTestHostgroup; i++) {
+		const Hostgroup &hostgrp = testHostgroup[i];
 		// TODO: fix this inefficient algorithm
-		if (hgrpInfo.serverId != serverId)
+		if (hostgrp.serverId != serverId)
 			continue;
-		const HostgroupIdType hostgroupId = hgrpInfo.groupId;
-		const string expectKey =
-		  StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupId);
-		assertStartObject(parser, expectKey);
-		assertValueInParser(parser, string("name"), hgrpInfo.groupName);
+		assertStartObject(parser, hostgrp.idInServer);
+		assertValueInParser(parser, string("name"), hostgrp.name);
 		parser->endObject();
+
+		// TODO: HostgroupIdSet should have a string.
+		HostgroupIdType hostgroupId;
+		cppcut_assert_equal(
+		  1, sscanf(hostgrp.idInServer.c_str(), "%" FMT_HOST_GROUP_ID,
+		            &hostgroupId));
 		hostgroupIdSet.insert(hostgroupId);
 	}
 	parser->endObject();
