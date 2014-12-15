@@ -323,6 +323,30 @@ void test_addAction(void)
 	}
 }
 
+void test_updateAction(void)
+{
+	DECLARE_DBTABLES_ACTION(dbAction);
+	string expect;
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		ActionDef &actDef = testActionDef[i];
+		assertHatoholError(HTERR_OK,
+		                   dbAction.addAction(actDef, privilege));
+	}
+
+	// Call the method to be tested and check the result
+	assertHatoholError(HTERR_OK,
+	                   dbAction.updateAction(testUpdateActionDef, privilege));
+
+	// validation
+	const int expectedId = 3;
+	cppcut_assert_equal(expectedId, testUpdateActionDef.id);
+	string statement = "select * from ";
+	statement += DBTablesAction::getTableNameActions();
+	expect += makeExpectedString(testUpdateActionDef, expectedId);
+	assertDBContent(&dbAction.getDBAgent(), statement, expect);
+}
+
 void test_addActionByInvalidUser(void)
 {
 	DECLARE_DBTABLES_ACTION(dbAction);
