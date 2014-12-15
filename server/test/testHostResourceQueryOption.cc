@@ -409,6 +409,15 @@ void test_getHostgroupColumnNameWithTableName(gconstpointer data)
 	cppcut_assert_equal(expect, option.getHostgroupColumnName(idx));
 }
 
+void test_getDBTermCodec(void)
+{
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	cppcut_assert_equal(typeid(*dbMonitoring.getDBAgent().getDBTermCodec()),
+	                    typeid(*option.getDBTermCodec()));
+}
+
 } // namespace testHostResourceQueryOption
 
 namespace testHostResourceQueryOptionWithoutDBSetup {
@@ -675,15 +684,6 @@ void test_makeConditionComplicated(void)
 	  serverIdColumnName.c_str(),
 	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str());
 	assertMakeCondition(srvHostGrpSetMap, expect);
-}
-
-void test_getDBTermCodec(void)
-{
-	HostResourceQueryOption option(TEST_SYNAPSE);
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	cppcut_assert_equal(typeid(*dbMonitoring.getDBAgent().getDBTermCodec()),
-	                    typeid(*option.getDBTermCodec()));
 }
 
 } // namespace testHostResourceQueryOptionWithoutDBSetup
