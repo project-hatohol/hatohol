@@ -61,8 +61,8 @@ void RestResourceAction::handle(void)
 		handlePost();
 	} else if (httpMethodIs("DELETE")) {
 		handleDelete();
-	} else if (httpMethodIs("UPDATE")) {
-		handleUpdate();
+	} else if (httpMethodIs("PUT")) {
+		handlePut();
 	} else {
 		MLPL_ERR("Unknown method: %s\n", m_message->method);
 		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
@@ -327,7 +327,7 @@ void RestResourceAction::handleDelete(void)
 	replyJSONData(agent);
 }
 
-void RestResourceAction::handleUpdate(void)
+void RestResourceAction::handlePut(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
