@@ -1264,10 +1264,10 @@ string TriggersQueryOption::getCondition(void) const
 		addCondition(
 		  condition,
 		  StringUtils::sprintf(
-		    "%s.%s!=%d",
-		    DBTablesMonitoring::TABLE_NAME_HOSTS,
-		    COLUMN_DEF_HOSTS[IDX_HOSTS_VALIDITY].columnName,
-		    HOST_INVALID));
+		    "%s=%d",
+		    tableProfileServerHostDef.getFullColumnName(
+		      IDX_HOST_SERVER_HOST_DEF_HOST_STATUS).c_str(),
+		    HOST_STAT_NORMAL));
 	}
 
 	if (m_impl->targetId != ALL_TRIGGERS) {
@@ -1399,10 +1399,10 @@ string ItemsQueryOption::getCondition(void) const
 		addCondition(
 		  condition,
 		  StringUtils::sprintf(
-		    "%s.%s!=%d",
-		    DBTablesMonitoring::TABLE_NAME_HOSTS,
-		    COLUMN_DEF_HOSTS[IDX_HOSTS_VALIDITY].columnName,
-		    HOST_INVALID));
+		    "%s=%d",
+		    tableProfileServerHostDef.getFullColumnName(
+		      IDX_HOST_SERVER_HOST_DEF_HOST_STATUS).c_str(),
+		    HOST_STAT_NORMAL));
 	}
 
 	if (m_impl->targetId != ALL_ITEMS) {
@@ -1530,8 +1530,9 @@ string HostsQueryOption::getCondition(void) const
 	if (!condition.empty())
 		condition += " AND ";
 
-	string columnName =
-	  tableProfileServerHostDef.columnDefs[IDX_HOST_SERVER_HOST_DEF_HOST_STATUS].columnName;
+	const string columnName =
+	  tableProfileServerHostDef.getFullColumnName(
+	    IDX_HOST_SERVER_HOST_DEF_HOST_STATUS);
 	condition += StringUtils::sprintf("%s=%d",
 	                                  columnName.c_str(), m_impl->status);
 	return condition;
@@ -1734,9 +1735,11 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	builder.add(IDX_TRIGGERS_EXTENDED_INFO);
 
 	builder.addTable(
-	 tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
-	 tableProfileTriggers,IDX_TRIGGERS_SERVER_ID,IDX_HOSTS_SERVER_ID,
-	 tableProfileTriggers,IDX_TRIGGERS_HOST_ID,IDX_HOSTS_HOST_ID);
+	 tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	 tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
+	                       IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	 tableProfileTriggers, IDX_TRIGGERS_HOST_ID,
+	                       IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 
 	DBAgent::SelectExArg &arg = builder.build();
 	arg.useDistinct = option.isHostgroupUsed();
@@ -2352,9 +2355,11 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	builder.add(IDX_ITEMS_VALUE_TYPE);
 	builder.add(IDX_ITEMS_UNIT);
 	builder.addTable(
-	  tableProfileHosts,DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileItems,IDX_ITEMS_SERVER_ID,IDX_HOSTS_SERVER_ID,
-	  tableProfileItems,IDX_ITEMS_HOST_ID,IDX_HOSTS_HOST_ID);
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileItems, IDX_ITEMS_SERVER_ID,
+	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileItems, IDX_ITEMS_HOST_ID,
+	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	
 	DBAgent::SelectExArg &arg = builder.build();
 	arg.useDistinct = option.isHostgroupUsed();
@@ -2407,9 +2412,11 @@ void DBTablesMonitoring::getApplicationInfoVect(ApplicationInfoVect &application
 	DBClientJoinBuilder builder(tableProfileItems, &option);
 	builder.add(IDX_ITEMS_ITEM_GROUP_NAME);
 	builder.addTable(
-	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileItems,IDX_ITEMS_SERVER_ID,IDX_HOSTS_SERVER_ID,
-	  tableProfileItems,IDX_ITEMS_HOST_ID,IDX_HOSTS_HOST_ID);
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileItems, IDX_ITEMS_SERVER_ID,
+	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileItems, IDX_ITEMS_HOST_ID,
+	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 
 	DBAgent::SelectExArg &arg = builder.build();
 
@@ -2465,9 +2472,11 @@ size_t DBTablesMonitoring::getNumberOfTriggers(
 {
 	DBClientJoinBuilder builder(tableProfileTriggers, &option);
 	builder.addTable(
-	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileTriggers,IDX_TRIGGERS_SERVER_ID,IDX_HOSTS_SERVER_ID,
-	  tableProfileTriggers,IDX_TRIGGERS_HOST_ID,IDX_HOSTS_HOST_ID);
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
+	                        IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileTriggers, IDX_TRIGGERS_HOST_ID,
+	                        IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt = "count(*)";
 	if (option.isHostgroupUsed()) {
 		// Because a same trigger can be counted multiple times in
@@ -2513,21 +2522,20 @@ size_t DBTablesMonitoring::getNumberOfBadTriggers(
   const TriggersQueryOption &option, TriggerSeverityType severity)
 {
 	string additionalCondition;
+	const string statusProblemCond = StringUtils::sprintf("%s=%d",
+	  tableProfileTriggers.getFullColumnName(IDX_TRIGGERS_STATUS).c_str(),
+	  TRIGGER_STATUS_PROBLEM);
 
 	if (severity == TRIGGER_SEVERITY_ALL) {
-		additionalCondition
-		  = StringUtils::sprintf(
-		      "%s=%d",
-		      option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
-		      TRIGGER_STATUS_PROBLEM);
+		additionalCondition = statusProblemCond;
 	} else {
 		additionalCondition
 		  = StringUtils::sprintf(
-		      "%s=%d and %s=%d",
-		      option.getColumnName(IDX_TRIGGERS_SEVERITY).c_str(),
+		      "%s=%d and %s",
+		      tableProfileTriggers.getFullColumnName(
+		        IDX_TRIGGERS_SEVERITY).c_str(),
 		      severity,
-		      option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
-		      TRIGGER_STATUS_PROBLEM);
+		      statusProblemCond.c_str());
 	}
 	return getNumberOfTriggers(option, additionalCondition);
 }
@@ -2542,9 +2550,11 @@ size_t DBTablesMonitoring::getNumberOfHosts(const TriggersQueryOption &option)
 	// TODO: consider if we can use hosts table.
 	DBClientJoinBuilder builder(tableProfileTriggers, &option);
 	builder.addTable(
-	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileTriggers,IDX_TRIGGERS_SERVER_ID,IDX_HOSTS_SERVER_ID,
-	  tableProfileTriggers,IDX_TRIGGERS_HOST_ID,IDX_HOSTS_HOST_ID);
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
+	                        IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileTriggers, IDX_TRIGGERS_HOST_ID,
+	                        IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
 	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
@@ -2572,9 +2582,11 @@ size_t DBTablesMonitoring::getNumberOfBadHosts(const TriggersQueryOption &option
 {
 	DBClientJoinBuilder builder(tableProfileTriggers, &option);
 	builder.addTable(
-	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileTriggers,IDX_TRIGGERS_SERVER_ID,IDX_HOSTS_SERVER_ID,
-	  tableProfileTriggers,IDX_TRIGGERS_HOST_ID,IDX_HOSTS_HOST_ID);
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
+	                        IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileTriggers, IDX_TRIGGERS_HOST_ID,
+	                        IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
 	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
@@ -2601,9 +2613,11 @@ size_t DBTablesMonitoring::getNumberOfItems(
 {
 	DBClientJoinBuilder builder(tableProfileItems, &option);
 	builder.addTable(
-	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileItems,IDX_ITEMS_SERVER_ID,IDX_HOSTS_SERVER_ID,
-	  tableProfileItems,IDX_ITEMS_HOST_ID,IDX_HOSTS_HOST_ID);
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileItems, IDX_ITEMS_SERVER_ID,
+	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileItems, IDX_ITEMS_HOST_ID,
+	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt = "count(*)";
 	if (option.isHostgroupUsed()) {
 		// TODO: It has a same issue with getNumberOfTriggers();

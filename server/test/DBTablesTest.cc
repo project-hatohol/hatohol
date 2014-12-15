@@ -1495,26 +1495,6 @@ static string makeHostgroupElementPack(
  *
  * @return a set of HostGroupElementPack.
  */
-static const set<string> &getHostgroupElementPackSet(void)
-  __attribute__ ((deprecated));
-
-static const set<string> &getHostgroupElementPackSet(void)
-{
-	static set<string> hostgroupElementPackSet;
-	if (!hostgroupElementPackSet.empty())
-		return hostgroupElementPackSet;
-	for (size_t i = 0; i < NumTestHostgroupElement; i++) {
-		const HostgroupElement &hgrpElem = testHostgroupElement[i];
-		const string mash =
-		  makeHostgroupElementPack(
-		    hgrpElem.serverId, hgrpElem.hostId, hgrpElem.groupId);
-		pair<set<string>::iterator, bool> result =
-		  hostgroupElementPackSet.insert(mash);
-		cppcut_assert_equal(true, result.second);
-	}
-	return hostgroupElementPackSet;
-}
-
 static const set<string> &getHostHostgroupPackSet(void)
 {
 	static set<string> hostHGrpPackSet;
@@ -1812,7 +1792,7 @@ bool isAuthorized(
 
 	// check if the user is allowed to access to the host
 	if (!hgrpElementPackSet)
-		hgrpElementPackSet = &getHostgroupElementPackSet();
+		hgrpElementPackSet = &getHostHostgroupPackSet();
 	HostgroupIdSetConstIterator hostgroupIdItr = hostgroupIds.begin();
 	for (; hostgroupIdItr != hostgroupIds.end(); ++hostgroupIdItr) {
 		const string pack =
