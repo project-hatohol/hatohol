@@ -343,6 +343,7 @@ void test_updateAction(void)
 	cppcut_assert_equal(expectedId, testUpdateActionDef.id);
 	string statement = "select * from ";
 	statement += DBTablesAction::getTableNameActions();
+	statement += StringUtils::sprintf(" where=%d", testUpdateActionDef.id);
 	expect += makeExpectedString(testUpdateActionDef, expectedId);
 	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
