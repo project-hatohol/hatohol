@@ -233,6 +233,8 @@ ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap);
 
 VariableItemGroupPtr convert(const HistoryInfo &historyInfo);
 
+void conv(HostInfo &hostInfo, const ServerHostDef &svHostDef);
+
 class Watcher {
 	bool expired;
 	guint timerId;
