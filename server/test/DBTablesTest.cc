@@ -579,7 +579,7 @@ ActionDef testActionDef[] = {
 
 const size_t NumTestActionDef = ARRAY_SIZE(testActionDef);
 
-ActionDef updateActDef = {
+ActionDef testUpdateActionDef = {
 	3,                 // id (this field is needed when updating)
 	ActionCondition(
 		ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
