@@ -582,18 +582,6 @@ void test_addTriggerInfoList(gconstpointer data)
 		triggerInfoList1.push_back(testTriggerInfo[i]);
 	dbMonitoring.addTriggerInfoList(triggerInfoList1);
 
-	// Add HostgroupElement
-	HostgroupElementList hostgroupElementList;
-	for (size_t j = 0; j < NumTestHostgroupElement; j++)
-		hostgroupElementList.push_back(testHostgroupElement[j]);
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
-
-	// Add HostgroupInfo
-	HostgroupInfoList hostgroupInfoList;
-	for (size_t j = 0; j < NumTestHostgroupInfo; j++)
-		hostgroupInfoList.push_back(testHostgroupInfo[j]);
-	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
-
 	// Check
 	AssertGetTriggersArg arg(data);
 	assertGetTriggers(arg);
