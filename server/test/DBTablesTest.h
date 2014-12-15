@@ -106,7 +106,7 @@ extern const VMInfo testVMInfo[];
 extern const size_t NumTestVMInfo;
 
 /**
- * get the test trigger data indexes whose serverId and hostId are 
+ * get the test trigger data indexes whose serverId and hostId are
  * matched with the specified.
  *
  * @param indexMap
@@ -257,4 +257,3 @@ void loadTestDBVMInfo(void);
 void loadTestDBHostHostgroup(void);
 
 #endif // DBClientTest_h
-

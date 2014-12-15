@@ -106,7 +106,7 @@ static string makeExpectedEndLogString(
 	words[IDX_ACTION_LOGS_STATUS] =
 	   StringUtils::sprintf("%d", ACTLOG_STAT_SUCCEEDED);
 	words[IDX_ACTION_LOGS_END_TIME] = DBCONTENT_MAGIC_CURR_DATETIME;
-	words[IDX_ACTION_LOGS_EXIT_CODE] = 
+	words[IDX_ACTION_LOGS_EXIT_CODE] =
 	   StringUtils::sprintf("%d", logArg.exitCode);
 
 	return joinStringVector(words, "|", false);
@@ -144,7 +144,7 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 	} else {
 		cppcut_assert_equal(CMP_INVALID,
 		                    actual.condition.triggerSeverityCompType);
-	} 
+	}
 
 	cppcut_assert_equal(expect.type, actual.type);
 	cppcut_assert_equal(expect.workingDir, actual.workingDir);
