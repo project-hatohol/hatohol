@@ -337,12 +337,10 @@ void RestResourceAction::handleUpdate(void)
 	ActionDef actionDef;
 
 	// action id
-	succeeded = getParamWithErrorReply<int>(
-	                this, "id", "%d", actionDef.id, &exist);
-	if (!succeeded)
-		return;
-	if (!exist) {
-		REPLY_ERROR(this, HTERR_NOT_FOUND_PARAMETER, "id");
+	actionDef.id = getResourceId();
+	if (actionDef.id == INVALID_ID) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", getResourceIdString().c_str());
 		return;
 	}
 
