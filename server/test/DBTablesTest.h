@@ -78,9 +78,6 @@ extern const size_t NumTestAccessInfo;
 extern HostgroupInfo testHostgroupInfo[];
 extern const size_t NumTestHostgroupInfo;
 
-extern HostInfo testHostInfo[];
-extern const size_t NumTestHostInfo;
-
 extern HostgroupElement testHostgroupElement[];
 extern const size_t NumTestHostgroupElement;
 
