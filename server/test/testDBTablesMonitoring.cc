@@ -555,16 +555,6 @@ void test_setTriggerInfoList(gconstpointer data)
 	const ServerIdType serverId = testTriggerInfo[0].serverId;
 	dbMonitoring.setTriggerInfoList(triggerInfoList, serverId);
 
-	HostgroupElementList hostgroupElementList;
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		hostgroupElementList.push_back(testHostgroupElement[i]);
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
-
-	HostgroupInfoList hostgroupInfoList;
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
-		hostgroupInfoList.push_back(testHostgroupInfo[i]);
-	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
-
 	AssertGetTriggersArg arg(data);
 	assertGetTriggers(arg);
 }
