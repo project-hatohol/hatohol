@@ -629,7 +629,12 @@ void test_upsertHosts(void)
 
 	// check
 
-	string statement = "SELECT * FROM host_list";
+	const char *idColumnName =
+	  tableProfileHostList.columnDefs[IDX_HOST_LIST_ID].columnName;
+	string statement;
+	statement = StringUtils::sprintf("SELECT * FROM %s ORDER BY %s ASC",
+	              tableProfileHostList.name, idColumnName);
+
 	string expect;
 	for (size_t i = 0; i < NumTestServerHostDef; i++) {
 		expect += StringUtils::sprintf(
@@ -641,7 +646,10 @@ void test_upsertHosts(void)
 	}
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 
-	statement = "SELECT * FROM server_host_def";
+	const ColumnDef *colDefs = tableProfileServerHostDef.columnDefs;
+	statement = StringUtils::sprintf("SELECT * FROM %s ORDER BY %s ASC",
+	              tableProfileServerHostDef.name,
+	              colDefs[IDX_HOST_SERVER_HOST_DEF_ID].columnName);
 	expect.clear();
 	for (size_t i = 0; i < NumTestServerHostDef; i++) {
 		const ServerHostDef &serverHostDef = testServerHostDef[i];
