@@ -793,77 +793,6 @@ static const size_t NumTestHostgroupInfo = ARRAY_SIZE(testHostgroupInfo);
 static const string _HOST_VALID_STRING = StringUtils::sprintf("%d", HOST_VALID);
 static const char *HOST_VALID_STRING = _HOST_VALID_STRING.c_str();
 
-static HostgroupElement testHostgroupElement[] = {
-{
-	AUTO_INCREMENT_VALUE,  // id
-	1,                     // serverId
-	235012,                // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	1,                     // serverId
-	235012,                // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	1,                     // serverId
-	235013,                // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	1,                     // serverId
-	1129,                  // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	2,                     // serverId
-	512,                   // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	2,                     // serverId
-	512,                   // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	3,                     // serverId
-	10001,                 // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	3,                     // serverId
-	10002,                 // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	3,                     // serverId
-	5,                     // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	3,                     // serverId
-	100,                   // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	4,                     // serverId
-	100,                   // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	2,                     // serverId
-	0x89abcdefffffffff,    // hostId
-	0x8000000000000000,    // hostGroupId
-}, {
-	// This entry is for tests with a defunct server
-	AUTO_INCREMENT_VALUE,        // id
-	trigInfoDefunctSv1.serverId, // serverId
-	trigInfoDefunctSv1.hostId,   // hostId,
-	1,                           // groupId
-}
-};
-static const size_t NumTestHostgroupElement = ARRAY_SIZE(testHostgroupElement);
-
 UserRoleInfo testUserRoleInfo[] = {
 {
 	0,                            // id
@@ -2063,14 +1992,6 @@ void loadTestDBItems(void)
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestItemInfo; i++)
 		dbMonitoring.addItemInfo(&testItemInfo[i]);
-}
-
-void loadTestDBHostgroupElements(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		dbMonitoring.addHostgroupElement(&testHostgroupElement[i]);
 }
 
 void loadTestDBAction(void)
