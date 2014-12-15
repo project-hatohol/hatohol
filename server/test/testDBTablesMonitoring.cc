@@ -307,18 +307,6 @@ static void conv(ServerHostDef &svHostDef, const HostInfo &hostInfo)
 	svHostDef.name = hostInfo.hostName;
 }
 
-static void conv(HostInfo &hostInfo, const ServerHostDef &svHostDef)
-{
-	hostInfo.id = svHostDef.id;
-	hostInfo.serverId = svHostDef.serverId;
-
-	cppcut_assert_equal(1, sscanf(svHostDef.hostIdInServer.c_str(),
-	                              "%" FMT_HOST_ID, &hostInfo.id));
-	hostInfo.hostName = svHostDef.name;
-	hostInfo.validity = (svHostDef.status == HOST_STAT_NORMAL) ?
-	                    HOST_VALID : HOST_INVALID;
-}
-
 static void conv(HostgroupElement &hostgrpElem,
                  const HostHostgroup &hostHostgrp)
 {
