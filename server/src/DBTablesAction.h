@@ -288,6 +288,8 @@ public:
 	                           const ActionsQueryOption &option);
 	HatoholError deleteActions(const ActionIdList &idList,
 	                           const OperationPrivilege &privilege);
+	HatoholError updateAction(ActionDef &actionDef,
+	                          const OperationPrivilege &privilege);
 
 	/**
 	 * make an action log.

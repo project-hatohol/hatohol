@@ -453,6 +453,55 @@ HatoholError DBTablesAction::addAction(ActionDef &actionDef,
 	return HTERR_OK;
 }
 
+HatoholError DBTablesAction::updateAction(ActionDef &actionDef,
+                                          const OperationPrivilege &privilege)
+{
+	HatoholError err = checkPrivilegeForUpdate(privilege, actionDef);
+	if (err != HTERR_OK)
+		return err;
+
+	DBAgent::UpdateArg arg(tableProfileActions);
+
+	// Basically an owner is the caller. However, USER_ID_SYSTEM can
+	// create an action with any user ID. This is a mechanism for
+	// internal system management or a test.
+	UserIdType ownerUserId = privilege.getUserId();
+	if (ownerUserId == USER_ID_SYSTEM)
+		ownerUserId = actionDef.ownerUserId;
+
+	// Owner of ACTION_INCIDENT_SENDER is always USER_ID_SYSTEM
+	if (actionDef.type == ACTION_INCIDENT_SENDER)
+		ownerUserId = USER_ID_SYSTEM;
+
+	const char *actionIdColumnName =
+	  COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID].columnName;
+	arg.condition = StringUtils::sprintf("%s=%d",
+	                                     actionIdColumnName, actionDef.id);
+	if (getNullFlag(actionDef, ACTCOND_SERVER_ID) != ITEM_DATA_NULL)
+		arg.add(IDX_ACTIONS_SERVER_ID, actionDef.condition.serverId);
+	if (getNullFlag(actionDef, ACTCOND_HOST_ID) != ITEM_DATA_NULL)
+		arg.add(IDX_ACTIONS_HOST_ID,  actionDef.condition.hostId);
+	if (getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID) != ITEM_DATA_NULL)
+		arg.add(IDX_ACTIONS_HOST_GROUP_ID, actionDef.condition.hostgroupId);
+	if (getNullFlag(actionDef, ACTCOND_TRIGGER_ID) != ITEM_DATA_NULL)
+		arg.add(IDX_ACTIONS_TRIGGER_ID, actionDef.condition.triggerId);
+	if (getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS) != ITEM_DATA_NULL)
+		arg.add(IDX_ACTIONS_TRIGGER_ID, actionDef.condition.triggerStatus);
+	if (getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY) != ITEM_DATA_NULL)
+		arg.add(IDX_ACTIONS_TRIGGER_SEVERITY, actionDef.condition.triggerSeverity);
+	if (getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY) != ITEM_DATA_NULL)
+		arg.add(IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE,
+		        actionDef.condition.triggerSeverityCompType);
+	arg.add(IDX_ACTIONS_ACTION_TYPE, actionDef.type);
+	arg.add(IDX_ACTIONS_COMMAND, actionDef.command);
+	arg.add(IDX_ACTIONS_WORKING_DIR, actionDef.workingDir);
+	arg.add(IDX_ACTIONS_TIMEOUT, actionDef.timeout);
+	arg.add(IDX_ACTIONS_OWNER_USER_ID, ownerUserId);
+
+	getDBAgent().runTransaction(arg);
+	return HTERR_OK;
+}
+
 HatoholError DBTablesAction::getActionList(ActionDefList &actionDefList,
 					   const ActionsQueryOption &option)
 {
