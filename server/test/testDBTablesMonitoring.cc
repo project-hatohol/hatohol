@@ -937,7 +937,7 @@ void data_getNumberOfTriggers(void)
 void test_getNumberOfTriggers(gconstpointer data)
 {
 	loadTestDBTriggers();
-	loadTestDBHostgroupElements();
+	loadTestDBHostHostgroup();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId =
@@ -957,7 +957,7 @@ void test_getNumberOfTriggers(gconstpointer data)
 void test_getNumberOfTriggersForMultipleAuthorizedHostgroups(void)
 {
 	loadTestDBTriggers();
-	loadTestDBHostgroupElements();
+	loadTestDBHostHostgroup();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId = ALL_HOST_GROUPS;
