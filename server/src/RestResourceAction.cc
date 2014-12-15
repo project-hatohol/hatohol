@@ -398,7 +398,7 @@ void RestResourceAction::handleUpdate(void)
 
 	// hostId
 	succeeded = getParamWithErrorReply<uint64_t>(
-					this, "hostId", "%" PRIu64, cond.hostId, &exist);
+	                this, "hostId", "%" PRIu64, cond.hostId, &exist);
 	if (!succeeded)
 		return;
 	if (exist)
