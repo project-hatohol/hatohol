@@ -948,8 +948,8 @@ void test_getNumberOfTriggers(gconstpointer data)
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostgroupId(hostgroupId);
 	cppcut_assert_equal(
-	  dbMonitoring.getNumberOfTriggers(option),
 	  getNumberOfTestTriggers(targetServerId, hostgroupId),
+	  dbMonitoring.getNumberOfTriggers(option),
 	  cut_message("sv: %" FMT_SERVER_ID ", hostgroup: %" FMT_HOST_GROUP_ID,
 		      targetServerId, hostgroupId));
 }
@@ -968,8 +968,8 @@ void test_getNumberOfTriggersForMultipleAuthorizedHostgroups(void)
 	option.setTargetHostgroupId(hostgroupId);
 
 	cppcut_assert_equal(
-	  dbMonitoring.getNumberOfTriggers(option),
-	  getNumberOfTestTriggers(targetServerId, hostgroupId));
+	  getNumberOfTestTriggers(targetServerId, hostgroupId),
+	  dbMonitoring.getNumberOfTriggers(option));
 }
 
 void data_getNumberOfTriggersBySeverity(void)
