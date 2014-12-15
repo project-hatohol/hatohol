@@ -749,7 +749,7 @@ AccessInfo testAccessInfo[] = {
 };
 const size_t NumTestAccessInfo = ARRAY_SIZE(testAccessInfo);
 
-HostgroupInfo testHostgroupInfo[] = {
+static HostgroupInfo testHostgroupInfo[] = {
 {
 	AUTO_INCREMENT_VALUE,  // id
 	1,                     // serverId
@@ -788,7 +788,7 @@ HostgroupInfo testHostgroupInfo[] = {
 	"Hostgroup on a defunct servers" // groupName
 }
 };
-const size_t NumTestHostgroupInfo = ARRAY_SIZE(testHostgroupInfo);
+static const size_t NumTestHostgroupInfo = ARRAY_SIZE(testHostgroupInfo);
 
 static const string _HOST_VALID_STRING = StringUtils::sprintf("%d", HOST_VALID);
 static const char *HOST_VALID_STRING = _HOST_VALID_STRING.c_str();
