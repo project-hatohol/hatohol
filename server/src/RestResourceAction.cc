@@ -336,6 +336,16 @@ void RestResourceAction::handleUpdate(void)
 	bool succeeded;
 	ActionDef actionDef;
 
+	// action id
+	succeeded = getParamWithErrorReply<int>(
+	                this, "id", "%d", actionDef.id, &exist);
+	if (!succeeded)
+		return;
+	if (!exist) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_PARAMETER, "id");
+		return;
+	}
+
 	// action tyoe
 	succeeded = getParamWithErrorReply<int>(
 					this, "type", "%d", (int &)actionDef.type, &exist);
