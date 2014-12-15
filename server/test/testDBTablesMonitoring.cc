@@ -501,8 +501,8 @@ void test_addTriggerInfo(void)
 void test_getTriggerInfo(void)
 {
 	loadTestDBTriggers();
-	loadTestDBHosts();
-	loadTestDBHostgroupElements();
+	loadTestDBServerHostDef();
+	loadTestDBHostHostgroup();
 
 	int targetIdx = 2;
 	TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
