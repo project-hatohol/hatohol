@@ -44,11 +44,6 @@ const char *DBTablesUser::TABLE_NAME_USER_ROLES = "user_roles";
 const size_t DBTablesUser::MAX_USER_NAME_LENGTH = 128;
 const size_t DBTablesUser::MAX_PASSWORD_LENGTH = 128;
 const size_t DBTablesUser::MAX_USER_ROLE_NAME_LENGTH = 128;
-static const char *TABLE_NAME_USERS = DBTablesUser::TABLE_NAME_USERS;
-static const char *TABLE_NAME_ACCESS_LIST =
-  DBTablesUser::TABLE_NAME_ACCESS_LIST;
-static const char *TABLE_NAME_USER_ROLES =
-  DBTablesUser::TABLE_NAME_USER_ROLES;
 
 static const ColumnDef COLUMN_DEF_USERS[] = {
 {

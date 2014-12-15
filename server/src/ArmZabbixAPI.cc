@@ -39,7 +39,6 @@ using namespace mlpl;
 using namespace std;
 
 static const uint64_t NUMBER_OF_GET_EVENT_PER_ONCE  = 1000;
-static const guint DEFAULT_IDLE_TIMEOUT = 60;
 
 struct ArmZabbixAPI::Impl
 {
