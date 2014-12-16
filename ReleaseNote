@@ -7,6 +7,7 @@
 	[Server] Move a client side filter on "Latest data" page to server side (#835)
 	[Client] Add a toggle button to trun on/off auto reload (#822, #823)
 	[Client] Add menu items to show Hatohol's version & documents (#714)
+	[Client] Show last update time (#667)
 
 	* Bugfixes
 	[Server] Plug memory leaks (#747, #772, #838)
