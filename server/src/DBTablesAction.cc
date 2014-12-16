@@ -477,19 +477,19 @@ HatoholError DBTablesAction::updateAction(ActionDef &actionDef,
 	  COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID].columnName;
 	arg.condition = StringUtils::sprintf("%s=%d",
 	                                     actionIdColumnName, actionDef.id);
-	if (getNullFlag(actionDef, ACTCOND_SERVER_ID) != ITEM_DATA_NULL)
+	if (getNullFlag(actionDef, ACTCOND_SERVER_ID))
 		arg.add(IDX_ACTIONS_SERVER_ID, actionDef.condition.serverId);
-	if (getNullFlag(actionDef, ACTCOND_HOST_ID) != ITEM_DATA_NULL)
+	if (getNullFlag(actionDef, ACTCOND_HOST_ID))
 		arg.add(IDX_ACTIONS_HOST_ID,  actionDef.condition.hostId);
-	if (getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID) != ITEM_DATA_NULL)
+	if (getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID))
 		arg.add(IDX_ACTIONS_HOST_GROUP_ID, actionDef.condition.hostgroupId);
-	if (getNullFlag(actionDef, ACTCOND_TRIGGER_ID) != ITEM_DATA_NULL)
+	if (getNullFlag(actionDef, ACTCOND_TRIGGER_ID))
 		arg.add(IDX_ACTIONS_TRIGGER_ID, actionDef.condition.triggerId);
-	if (getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS) != ITEM_DATA_NULL)
+	if (getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS))
 		arg.add(IDX_ACTIONS_TRIGGER_ID, actionDef.condition.triggerStatus);
-	if (getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY) != ITEM_DATA_NULL)
+	if (getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY))
 		arg.add(IDX_ACTIONS_TRIGGER_SEVERITY, actionDef.condition.triggerSeverity);
-	if (getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY) != ITEM_DATA_NULL)
+	if (getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY))
 		arg.add(IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE,
 		        actionDef.condition.triggerSeverityCompType);
 	arg.add(IDX_ACTIONS_ACTION_TYPE, actionDef.type);
