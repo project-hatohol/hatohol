@@ -162,7 +162,11 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc README.md COPYING
 %{_bindir}/*
-%{_sbindir}/*
+%{_sbindir}/hatohol
+%{_sbindir}/hatohol-ca-initialize
+%{_sbindir}/hatohol-ca-sign-client-certificate
+%{_sbindir}/hatohol-ca-sign-server-certificate
+%{_sbindir}/hatohol-resident-yard
 %{_libdir}/libhatohol.so.*
 %{_prefix}/lib/python*
 %{_libexecdir}/hatohol/action/*
