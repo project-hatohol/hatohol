@@ -44,7 +44,7 @@ void _assertStringVector(const mlpl::StringVector &expected,
                          const mlpl::StringVector &actual);
 #define assertStringVector(E,A) cut_trace(_assertStringVector(E,A))
 
-void _assertStringVectorVA(const mlpl::StringVector &actual, ...);
+void _assertStringVectorVA(const mlpl::StringVector *actual, ...);
 #define assertStringVectorVA(A,...) \
 cut_trace(_assertStringVectorVA(A,##__VA_ARGS__))
 
