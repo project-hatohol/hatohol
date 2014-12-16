@@ -118,6 +118,14 @@ public:
 	  HostgroupElementList &hostgroupElementList,
 	  const HostgroupElementQueryOption &option);
 
+	/**
+	 * Add hosts. If there's hosts already exist, they will be updated.
+	 *
+	 * @param serverHostDef Hosts to be added/updated.
+	 * @return The result of the call.
+	 */
+	HatoholError upsertHosts(const ServerHostDefVect &serverHostDefs);
+
 
 	// Action
 	HatoholError getActionList(ActionDefList &actionList,
