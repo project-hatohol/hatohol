@@ -121,6 +121,18 @@ public:
 	/**
 	 * Add hosts. If there's hosts already exist, they will be updated.
 	 *
+	 * See also DBTablesHost::upsert().
+	 *
+	 * @param serverHostDef A host to be added/updated.
+	 * @return The result of the call.
+	 */
+	HatoholError upsertHost(const ServerHostDef &serverHostDef);
+
+	/**
+	 * Add hosts. If there's hosts already exist, they will be updated.
+	 *
+	 * See also DBTablesHost::upsert().
+	 *
 	 * @param serverHostDef Hosts to be added/updated.
 	 * @return The result of the call.
 	 */
