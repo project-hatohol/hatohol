@@ -3,19 +3,23 @@
 	* New Features
 	[Server] Add graphs for items (#774)
 	[Client] Show units of item values (#749)
-	[Client] Add a button to open a dialog to edit user roles to "Users" page (#754)
-	[Server] Move a client side filter on "Latest data" page to server side (#835)
+	[Client] Add a button to open a dialog to edit user roles to "Users"
+	page (#754)
+	[Server] Move a client side filter on "Latest data" page to server side
+	(#835)
 	[Client] Add a toggle button to trun on/off auto reload (#822, #823)
 	[Client] Add menu items to show Hatohol's version & documents (#714)
 	[Client] Show last update time (#667)
 
 	* Bugfixes
 	[Server] Plug memory leaks (#747, #772, #838)
-	[Server] Fix a bug that self monitoring events are tied to incorrect incidents (#725)
+	[Server] Fix a bug that self monitoring events are tied to incorrect
+	incidents (#725)
 	[Server] Validate URL of incident tracking servers to avoid crash (#665)
-	[Server] Suppress generating needless self monitoring triggers (#736, #805)
-	[Client] Fix invisible "DELETE" buttons on "Users", "Actions" and "Monitoring
-	servers" pages on certain conditions (#686, #691, #716)
+	[Server] Suppress generating needless self monitoring triggers
+	(#736, #805)
+	[Client] Fix invisible "DELETE" buttons on "Users", "Actions" and
+	"Monitoring servers" pages on certain conditions (#686, #691, #716)
 
 	* Contributer
 	- Hiroshi Hatake
