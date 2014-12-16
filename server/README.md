@@ -75,9 +75,13 @@ by the following command
 
     # wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol.repo
 
+You can add a new repository the following command.
+
+    # yum install epel-release
+
 You can install sqlite3, MySQL and libsoup and others by the following command:
 
-    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel qpid-cpp-client-devel
+    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel qpid-cpp-client-devel librabbitmq-devel
 
 #### For json-glib, there are two ways to install.
 
