@@ -473,6 +473,14 @@ HatoholError UnifiedDataStore::getHostgroupElementList(
 	                                            option);
 }
 
+HatoholError UnifiedDataStore::upsertHosts(
+  const ServerHostDefVect &serverHostDefs)
+{
+	ThreadLocalDBCache cache;
+	cache.getHost().upsertHosts(serverHostDefs);
+	return HTERR_OK;
+}
+
 size_t UnifiedDataStore::getNumberOfBadTriggers(
   const TriggersQueryOption &option, TriggerSeverityType severity)
 {
