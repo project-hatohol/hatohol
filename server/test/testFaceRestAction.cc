@@ -394,7 +394,7 @@ void test_updateAction(void)
 	// check the content in the DB
 	string statement = "select * from ";
 	statement += DBTablesAction::getTableNameActions();
-	statement += StringUtils::sprintf(" where=%d", targetId);
+	statement += StringUtils::sprintf(" where action_id=%d", targetId);
 	string expect;
 	int expectedId = 3;
 	expect += StringUtils::sprintf("%d|", expectedId);
