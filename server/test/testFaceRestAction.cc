@@ -349,6 +349,8 @@ void test_deleteAction(void)
 {
 	loadTestDBAction();
 
+	startFaceRest();
+
 	int targetId = 2;
 	string url = StringUtils::sprintf("/action/%d", targetId);
 	RequestArg arg(url, "cbname");
@@ -377,8 +379,6 @@ void test_deleteAction(void)
 void test_updateAction(void)
 {
 	loadTestDBAction();
-
-	startFaceRest();
 
 	int targetId = 3;
 	int type = ACTION_COMMAND;
