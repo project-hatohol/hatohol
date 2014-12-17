@@ -389,7 +389,7 @@ void test_updateAction(void)
 
 	params["type"] = StringUtils::sprintf("%d", type);
 	params["command"] = command;
-	assertUpdateAction(params, userId);
+	assertUpdateAction(params, targetId, userId, HTERR_OK);
 
 	// check the content in the DB
 	string statement = "select * from ";
