@@ -17,6 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+// TODO: use hash arguments
 var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionDef) {
   var self = this;
 
