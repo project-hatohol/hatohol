@@ -234,6 +234,12 @@ var ActionsView = function(userProfile) {
         timeoutLabel = timeout / 1000;
       s += "<td>" + escapeHTML(timeoutLabel) + "</td>";
 
+      s += "<td class='edit-action-column' style='display:none;'>";
+      s += "<input id='edit-acton" + escapeHTML(actionDef.actionId) + "'";
+      s += "  type='button' class='btn btn-default'";
+      s += "  actionId='" + escapeHTML(actionDef.actionId) + "'";
+      s += "  value='" + gettext("EDIT") + "' />";
+      s += "</td>";
       s += "</tr>";
     }
 
