@@ -135,6 +135,14 @@ var ActionsView = function(userProfile) {
     }
   }
 
+  function setupEditButtons(actionsPkt)
+  {
+    if (userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_ACTION) ||
+        userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_ALL_ACTION))
+    {
+      $(".edit-action-column").show();
+    }
+  }
   //
   // parser of received json data
   //
@@ -254,6 +262,7 @@ var ActionsView = function(userProfile) {
 	self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ALL_ACTION)) {
       $(".delete-selector").show();
     }
+    setupEditButtons(rawData);
     self.displayUpdateTime();
   }
 
