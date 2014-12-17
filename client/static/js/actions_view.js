@@ -137,6 +137,15 @@ var ActionsView = function(userProfile) {
 
   function setupEditButtons(actionsPkt)
   {
+    var i, id;
+    for (i = 0; i < actionsPkt["actions"].length; ++i) {
+      var actionDef = actionsPkt["actions"][i];
+      id = "#edit-action" + actionDef.actionId;
+      $(id).click(function() {
+        new HatoholAddActionDialog(load, null, actionDef);
+      });
+    }
+
     if (userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_ACTION) ||
         userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_ALL_ACTION))
     {
