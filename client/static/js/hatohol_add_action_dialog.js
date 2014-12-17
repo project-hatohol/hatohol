@@ -17,7 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
+var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionDef) {
   var self = this;
 
   var IDX_SELECTED_SERVER  = 0;
@@ -25,10 +25,12 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
   var IDX_SELECTED_HOST    = 2;
   var IDX_SELECTED_TRIGGER = 3;
   self.selectedId = new Array();
-  self.selectedId[IDX_SELECTED_SERVER]  = null;
-  self.selectedId[IDX_SELECTED_HOST_GROUP] = null;
-  self.selectedId[IDX_SELECTED_HOST]    = null;
-  self.selectedId[IDX_SELECTED_TRIGGER] = null;
+  self.selectedId[IDX_SELECTED_SERVER]  = actionDef ? actionDef.serverId : null;
+  self.selectedId[IDX_SELECTED_HOST_GROUP] = actionDef ? actionDef.hostgroupId : null;
+  self.selectedId[IDX_SELECTED_HOST]    = actionDef ? actionDef.hostId : null;
+  self.selectedId[IDX_SELECTED_TRIGGER] = actionDef ? actionDef.triggerId : null;
+  self.actionDef = actionDef ? actionDef : null;
+  self.targetId = actionDef ? actionDef.actionId : null;
 
   self.changedCallback = changedCallback;
   self.incidentTrackers = incidentTrackers;
@@ -337,9 +339,12 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
   }
 
   function postAddAction() {
+    var url = "/action";
+    if (self.targetId)
+       url += "/" + self.targetId;
     new HatoholConnector({
-      url: "/action",
-      request: "POST",
+      url: url,
+      request: self.targetId ? "PUT" : "POST",
       data: makeQueryData(),
       replyCallback: replyCallback,
       parseErrorCallback: hatoholErrorMsgBoxForParser,
