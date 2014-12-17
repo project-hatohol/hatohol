@@ -235,7 +235,7 @@ var ActionsView = function(userProfile) {
       s += "<td>" + escapeHTML(timeoutLabel) + "</td>";
 
       s += "<td class='edit-action-column' style='display:none;'>";
-      s += "<input id='edit-acton" + escapeHTML(actionDef.actionId) + "'";
+      s += "<input id='edit-action" + escapeHTML(actionDef.actionId) + "'";
       s += "  type='button' class='btn btn-default'";
       s += "  actionId='" + escapeHTML(actionDef.actionId) + "'";
       s += "  value='" + gettext("EDIT") + "' />";
