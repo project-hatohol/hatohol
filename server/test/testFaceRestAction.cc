@@ -380,7 +380,7 @@ void test_updateAction(void)
 {
 	loadTestDBAction();
 
-	int targetId = 3;
+	int targetId = 1;
 	int type = ACTION_COMMAND;
 	StringMap params;
 	string url = StringUtils::sprintf("/action/%d", targetId);
@@ -396,10 +396,14 @@ void test_updateAction(void)
 	statement += DBTablesAction::getTableNameActions();
 	statement += StringUtils::sprintf(" where action_id=%d", targetId);
 	string expect;
-	int expectedId = 3;
+	int expectedId = 1;
+	int serverId = 1;
 	expect += StringUtils::sprintf("%d|", expectedId);
-	expect += "#NULL#|#NULL#|#NULL#|#NULL#|#NULL#|#NULL#|#NULL#|";
-	expect += StringUtils::sprintf("%d|",type);
+	expect += StringUtils::sprintf("%d|", serverId);
+	expect += "NULL|NULL|NULL|";
+	expect += StringUtils::sprintf("%d|", TRIGGER_STATUS_PROBLEM);
+	expect += "NULL|NULL|";
+	expect += StringUtils::sprintf("%d|", type);
 	expect += command;
 	expect += "||0"; /* workingDirectory and timeout */
 	expect += StringUtils::sprintf("|%" FMT_USER_ID, userId);
