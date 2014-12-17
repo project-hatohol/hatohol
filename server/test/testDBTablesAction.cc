@@ -339,7 +339,7 @@ void test_updateAction(void)
 	                   dbAction.updateAction(testUpdateActionDef, privilege));
 
 	// validation
-	const int expectedId = 3;
+	const int expectedId = 2;
 	cppcut_assert_equal(expectedId, testUpdateActionDef.id);
 	string statement = "select * from ";
 	statement += DBTablesAction::getTableNameActions();
