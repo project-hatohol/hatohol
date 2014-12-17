@@ -486,7 +486,7 @@ HatoholError DBTablesAction::updateAction(ActionDef &actionDef,
 	if (getNullFlag(actionDef, ACTCOND_TRIGGER_ID))
 		arg.add(IDX_ACTIONS_TRIGGER_ID, actionDef.condition.triggerId);
 	if (getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS))
-		arg.add(IDX_ACTIONS_TRIGGER_ID, actionDef.condition.triggerStatus);
+		arg.add(IDX_ACTIONS_TRIGGER_STATUS, actionDef.condition.triggerStatus);
 	if (getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY))
 		arg.add(IDX_ACTIONS_TRIGGER_SEVERITY, actionDef.condition.triggerSeverity);
 	if (getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY))
