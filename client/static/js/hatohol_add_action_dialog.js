@@ -369,6 +369,70 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     }
     return true;
   }
+
+  function setupTimeOutValue(timeout) {
+    $("#inputTimeout").val(timeout / 1000);
+  }
+
+  function setupActionCommand(command) {
+    $("#inputActionCommand").val(command);
+  }
+
+  function setupWorkingDirectory(directory) {
+     $("#inputWorkingDir").val(directory);
+  }
+  function setupTriggerStatusValue(status) {
+    var statusSelector = $("#selectTriggerStatus");
+    switch(status) {
+    case undefined:
+      statusSelector.val("ANY");
+    case TRIGGER_STATUS_OK:
+      statusSelector.val("TRIGGER_STATUS_OK");
+    case TRIGGER_STATUS_PROBLEM:
+      statusSelector.val("TRIGGER_STATUS_PROBLEM");
+    }
+  }
+
+  function setupSeverityValue(severity) {
+    var severitySelector = $("#selectTriggerSeverity");
+    switch(severity) {
+    case undefined:
+      severitySelector.val("ANY");
+    case TRIGGER_SEVERITY_INFO:
+      severitySelector.val("INFO");
+    case TRIGGER_SEVERITY_WARNING:
+      severitySelector.val("WARNING");
+    case TRIGGER_SEVERITY_ERROR:
+      severitySelector.val("ERROR");
+    case TRIGGER_SEVERITY_CRITICAL:
+      severitySelector.val("CRITICAL");
+    case TRIGGER_SEVERITY_EMERGENCY:
+      severitySelector.val("EMERGENCY");
+    }
+    if (severity) {
+      $("#selectTriggerSeverityCompType").css("visibility","visible");
+    }
+  }
+
+  function setupSevertyCompTypeValue(compType) {
+    var compTypeSelector = $("#selectTriggerSeverityCompType");
+    switch(compType) {
+    case CMP_EQ:
+      compTypeSelector.val("CMP_EQ");
+    case "CMP_EQ_GT":
+      compTypeSelector.val("CMP_EQ_GT");
+    }
+  }
+
+  // Fill value for update
+  if (self.actionDef) {
+     setupTimeOutValue(self.actionDef.timeout);
+     setupActionCommand(self.actionDef.command);
+     setupWorkingDirectory(self.actionDef.workingDirectory);
+     setupTriggerStatusValue(self.actionDef.triggerStatus);
+     setupSeverityValue(self.actionDef.triggerSeverity);
+     setupSevertyCompTypeValue(self.actionDef.triggerSeverityComparatorType);
+  }
 }
 
 HatoholAddActionDialog.prototype = Object.create(HatoholDialog.prototype);
