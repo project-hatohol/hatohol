@@ -382,6 +382,17 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   function setupWorkingDirectory(directory) {
      $("#inputWorkingDir").val(directory);
   }
+
+  function setupCommandType(type) {
+    var typeSelector = $("#selectType");
+    switch(type) {
+    case hatohol.ACTION_COMMAND:
+      typeSelector.val("ACTION_COMMAND");
+    case hatohol.ACTION_RESIDENT:
+      typeSelector.val("ACTION_RESIDENT");
+    }
+  }
+
   function setupTriggerStatusValue(status) {
     var statusSelector = $("#selectTriggerStatus");
     switch(status) {
@@ -427,6 +438,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
 
   // Fill value for update
   if (self.actionDef) {
+     setupCommandType(self.actionDef.type);
      setupTimeOutValue(self.actionDef.timeout);
      setupActionCommand(self.actionDef.command);
      setupWorkingDirectory(self.actionDef.workingDirectory);
