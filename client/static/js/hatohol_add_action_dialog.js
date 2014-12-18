@@ -31,6 +31,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   self.selectedId[IDX_SELECTED_HOST]    = actionDef ? actionDef.hostId : null;
   self.selectedId[IDX_SELECTED_TRIGGER] = actionDef ? actionDef.triggerId : null;
   self.actionDef = actionDef ? actionDef : null;
+  self.addButtonTitle = actionDef ? gettext("APPLY") : gettext("ADD");
   self.targetId = actionDef ? actionDef.actionId : null;
 
   self.changedCallback = changedCallback;
@@ -43,7 +44,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     gettext("EDIT ACTION") : self.windowTitle;
 
   var dialogButtons = [{
-    text: gettext("ADD"),
+    text: self.actionDef ? gettext("APPLY") : gettext("ADD"),
     click: addButtonClickedCb,
   }, {
     text: gettext("CANCEL"),
@@ -432,6 +433,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
      setupTriggerStatusValue(self.actionDef.triggerStatus);
      setupSeverityValue(self.actionDef.triggerSeverity);
      setupSevertyCompTypeValue(self.actionDef.triggerSeverityComparatorType);
+     self.setAddButtonState(true);
   }
 }
 
@@ -650,7 +652,7 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
 
 HatoholAddActionDialog.prototype.setAddButtonState = function(state) {
   var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
-              gettext("ADD") + ")");
+            self.addButtonTitle + ")");
   if (state) {
      btn.removeAttr("disabled");
      btn.removeClass("ui-state-disabled");
