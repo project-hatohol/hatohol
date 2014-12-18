@@ -388,8 +388,12 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     switch(type) {
     case hatohol.ACTION_COMMAND:
       typeSelector.val("ACTION_COMMAND");
+      break;
     case hatohol.ACTION_RESIDENT:
       typeSelector.val("ACTION_RESIDENT");
+      break;
+    default:
+      alert("Unknown command type: " + type);
     }
   }
 
@@ -398,10 +402,15 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     switch(status) {
     case undefined:
       statusSelector.val("ANY");
-    case TRIGGER_STATUS_OK:
+      break;
+    case hatohol.TRIGGER_STATUS_OK:
       statusSelector.val("TRIGGER_STATUS_OK");
-    case TRIGGER_STATUS_PROBLEM:
+      break;
+    case hatohol.TRIGGER_STATUS_PROBLEM:
       statusSelector.val("TRIGGER_STATUS_PROBLEM");
+      break;
+    default:
+      alert("Unknown status: " + status);
     }
   }
 
@@ -410,16 +419,24 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     switch(severity) {
     case undefined:
       severitySelector.val("ANY");
-    case TRIGGER_SEVERITY_INFO:
+      break;
+    case hatohol.TRIGGER_SEVERITY_INFO:
       severitySelector.val("INFO");
-    case TRIGGER_SEVERITY_WARNING:
+      break;
+    case hatohol.TRIGGER_SEVERITY_WARNING:
       severitySelector.val("WARNING");
-    case TRIGGER_SEVERITY_ERROR:
+      break;
+    case hatohol.TRIGGER_SEVERITY_ERROR:
       severitySelector.val("ERROR");
-    case TRIGGER_SEVERITY_CRITICAL:
+      break;
+    case hatohol.TRIGGER_SEVERITY_CRITICAL:
       severitySelector.val("CRITICAL");
-    case TRIGGER_SEVERITY_EMERGENCY:
+      break;
+    case hatohol.TRIGGER_SEVERITY_EMERGENCY:
       severitySelector.val("EMERGENCY");
+      break;
+    default:
+      alert("Unknown severity: " + severity);
     }
     if (severity) {
       $("#selectTriggerSeverityCompType").css("visibility","visible");
@@ -429,9 +446,9 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   function setupSevertyCompTypeValue(compType) {
     var compTypeSelector = $("#selectTriggerSeverityCompType");
     switch(compType) {
-    case CMP_EQ:
+    case hatohol.CMP_EQ:
       compTypeSelector.val("CMP_EQ");
-    case CMP_EQ_GT:
+    case hatohol.CMP_EQ_GT:
       compTypeSelector.val("CMP_EQ_GT");
     }
   }
