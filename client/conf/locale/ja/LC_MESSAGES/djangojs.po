@@ -275,14 +275,12 @@ msgid "ADD ACTION"
 msgstr "アクション追加"
 
 #: static/js/hatohol_add_action_dialog.js:44
-#, fuzzy
 msgid "EDIT ACTION"
-msgstr "アクション追加"
+msgstr "アクション編集"
 
 #: static/js/hatohol_add_action_dialog.js:71
-#, fuzzy
 msgid "Now updating an action ..."
-msgstr "アクションを作成しています..."
+msgstr "アクションを更新しています..."
 
 #: static/js/hatohol_add_action_dialog.js:73
 msgid "Now creating an action ..."
