@@ -107,14 +107,6 @@ public:
 		rhs = read<int, time_t>();
 	}
 
-	template<typename T, typename V>
-	void readVia(V &dest)
-	{
-		T val;
-		*this >> val;
-		dest = val;
-	}
-
 protected:
 	template <typename T>
 	static T &
