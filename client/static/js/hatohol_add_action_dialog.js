@@ -557,6 +557,9 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
       return;
     }
 
+    var label = "== " + gettext("SELECT") + " ==";
+    $('#selectHostId').append($("<option>").html(label).val("SELECT"));
+
     for (var i = 0; i < reply.hosts.length; i ++) {
       if (reply.hosts[i].id != self.actionDef.hostId)
         continue;
@@ -589,6 +592,9 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
       return;
     }
 
+    var label = "== " + gettext("SELECT") + " ==";
+    $('#selectHostgroupId').append($("<option>").html(label).val("SELECT"));
+
     for (var i = 0; i < reply.hostgroups.length; i ++) {
       if (reply.hostgroups[i].groupId != self.actionDef.hostgroupId)
         continue;
@@ -620,6 +626,9 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
       hatoholErrorMsgBox("[Malformed reply] Not found array: triggers");
       return;
     }
+
+    var label = "== " + gettext("SELECT") + " ==";
+    $('#selectTriggerId').append($("<option>").html(label).val("SELECT"));
 
     for (var i = 0; i < reply.triggers.length; i ++) {
       if (reply.triggers[i].id != self.actionDef.triggerId)
