@@ -79,6 +79,7 @@ public:
 	TriggerSeverityType getMinimumSeverity(void) const;
 	void setTriggerStatus(const TriggerStatusType &status);
 	TriggerStatusType getTriggerStatus(void) const;
+	void setValidityHost(const TriggerCollectHost &validity);
 
 private:
 	struct Impl;
