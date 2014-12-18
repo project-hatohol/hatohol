@@ -401,7 +401,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   function setupTriggerStatusValue(status) {
     var statusSelector = $("#selectTriggerStatus");
     switch(status) {
-    case undefined:
+    case null:
       statusSelector.val("ANY");
       break;
     case hatohol.TRIGGER_STATUS_OK:
@@ -419,7 +419,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   function setupSeverityValue(severity) {
     var severitySelector = $("#selectTriggerSeverity");
     switch(severity) {
-    case undefined:
+    case null:
       severitySelector.val("ANY");
       break;
     case hatohol.TRIGGER_SEVERITY_INFO:
