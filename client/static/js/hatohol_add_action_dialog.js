@@ -419,7 +419,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     switch(compType) {
     case CMP_EQ:
       compTypeSelector.val("CMP_EQ");
-    case "CMP_EQ_GT":
+    case CMP_EQ_GT:
       compTypeSelector.val("CMP_EQ_GT");
     }
   }
