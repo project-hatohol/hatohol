@@ -235,7 +235,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_WARNING, // severity
 	{1362951000,0},           // lastChangeTime
-	0x89abcdeffffffff,       // hostId,
+	0x89abcdefffffffff,       // hostId,
 	"hostQ1",                 // hostName,
 	"TEST Trigger Action",    // brief,
 	"",                       // extendedInfo
@@ -1052,8 +1052,8 @@ const ServerHostDef testServerHostDef[] = {
 	AUTO_INCREMENT_VALUE,            // id
 	101,                             // hostId
 	2,                               // serverId
-	//"0x89abcdeffffffff",           // hostIdInServer
-	"620015564680593407",            // getHostInfoList() handles HostID As decimal
+	//"0x89abcdefffffffff",          // hostIdInServer
+	"9920249034889494527",           // getHostInfoList() handles HostID As decimal
 	"hostQ1",                        // name
 }, {
 	// This entry is for tests with a defunct server
