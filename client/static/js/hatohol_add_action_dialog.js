@@ -31,7 +31,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   self.selectedId[IDX_SELECTED_HOST]    = actionDef ? actionDef.hostId : null;
   self.selectedId[IDX_SELECTED_TRIGGER] = actionDef ? actionDef.triggerId : null;
   self.actionDef = actionDef ? actionDef : null;
-  self.addButtonTitle = actionDef ? gettext("APPLY") : gettext("ADD");
+  self.applyButtonTitle = actionDef ? gettext("APPLY") : gettext("ADD");
   self.targetId = actionDef ? actionDef.actionId : null;
 
   self.changedCallback = changedCallback;
@@ -45,7 +45,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
 
   var dialogButtons = [{
     text: self.actionDef ? gettext("APPLY") : gettext("ADD"),
-    click: addButtonClickedCb,
+    click: applyButtonClickedCb,
   }, {
     text: gettext("CANCEL"),
     click: cancelButtonClickedCb,
@@ -64,7 +64,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   //
   // Dialog button handlers
   //
-  function addButtonClickedCb() {
+  function applyButtonClickedCb() {
     if (validateAddParameters()) {
       makeQueryData();
       hatoholInfoMsgBox(gettext("Now creating an action ..."));
@@ -433,7 +433,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
      setupTriggerStatusValue(self.actionDef.triggerStatus);
      setupSeverityValue(self.actionDef.triggerSeverity);
      setupSevertyCompTypeValue(self.actionDef.triggerSeverityComparatorType);
-     self.setAddButtonState(true);
+     self.setApplyButtonState(true);
   }
 }
 
@@ -594,7 +594,7 @@ HatoholAddActionDialog.prototype.setupIncidentTrackersEditor = function()
     self.updateIncidentTrackers(incidentTrackers);
     if (self.changedCallback)
       self.changedCallback();
-    self.setAddButtonState(!!self.getCommand());
+    self.setApplyButtonState(!!self.getCommand());
   }
   $("#editIncidentTrackers").click(function() {
     new HatoholIncidentTrackersEditor({
@@ -602,7 +602,7 @@ HatoholAddActionDialog.prototype.setupIncidentTrackersEditor = function()
     });
   });
   $("#selectIncidentTracker").change(function() {
-    self.setAddButtonState(!!self.getCommand());
+    self.setApplyButtonState(!!self.getCommand());
   });
   changedCallback(self.incidentTrackers);
 }
@@ -616,7 +616,7 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
   });
 
   $("#inputActionCommand").keyup(function() {
-    fixupAddButtonState();
+    fixupApplyButtonState();
   });
 
   function applyCallback(type, commandDesc) {
@@ -631,14 +631,14 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
       return;
     }
     $("#inputActionCommand").val(commandDesc);
-    fixupAddButtonState();
+    fixupApplyButtonState();
   }
 
-  function fixupAddButtonState() {
+  function fixupApplyButtonState() {
     if ($("#inputActionCommand").val())
-      self.setAddButtonState(true);
+      self.setApplyButtonState(true);
     else
-      self.setAddButtonState(false);
+      self.setApplyButtonState(false);
   }
 
   if (self.forIncidentSetting) {
@@ -650,9 +650,9 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
   }
 }
 
-HatoholAddActionDialog.prototype.setAddButtonState = function(state) {
+HatoholAddActionDialog.prototype.setApplyButtonState = function(state) {
   var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
-            self.addButtonTitle + ")");
+            self.applyButtonTitle + ")");
   if (state) {
      btn.removeAttr("disabled");
      btn.removeClass("ui-state-disabled");
