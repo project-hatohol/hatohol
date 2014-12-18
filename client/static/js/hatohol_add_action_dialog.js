@@ -67,7 +67,11 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   function applyButtonClickedCb() {
     if (validateAddParameters()) {
       makeQueryData();
-      hatoholInfoMsgBox(gettext("Now creating an action ..."));
+      if (self.actionDef) {
+        hatoholInfoMsgBox(gettext("Now updating an action ..."));
+      } else {
+        hatoholInfoMsgBox(gettext("Now creating an action ..."));
+      }
       postAddAction();
     }
   }
@@ -357,8 +361,11 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
 
   function replyCallback(reply, parser) {
     self.closeDialog();
-    hatoholInfoMsgBox(gettext("Successfully created."));
-
+    if (self.actionDef) {
+      hatoholInfoMsgBox(gettext("Successfully updated."));
+    } else {
+      hatoholInfoMsgBox(gettext("Successfully created."));
+    }
     if (self.changedCallback)
       self.changedCallback();
   }
