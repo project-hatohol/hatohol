@@ -430,7 +430,7 @@ static string setupFmtCondSelectSvHostDef(void)
 HostIdType DBTablesHost::upsertHost(
   const ServerHostDef &serverHostDef, const bool &useTransaction)
 {
-	HATOHOL_ASSERT(serverHostDef.hostId == UNKNOWN_HOST_ID ||
+	HATOHOL_ASSERT(serverHostDef.hostId == AUTO_ASSIGNED_ID ||
 	               serverHostDef.hostId >= 0,
 	               "Invalid host ID: %" FMT_HOST_ID, serverHostDef.hostId);
 	HATOHOL_ASSERT(!serverHostDef.name.empty(),
@@ -461,12 +461,12 @@ HostIdType DBTablesHost::upsertHost(
 					hostId = currSvHostDef.hostId;
 					return;
 				}
-				if (serverHostDef.hostId != UNKNOWN_HOST_ID)
+				if (serverHostDef.hostId != AUTO_ASSIGNED_ID)
 					assertHostIdConsistency(currSvHostDef);
 				hostId = currSvHostDef.hostId;
 			} else {
 				bool shouldAddHost = false;
-				if (serverHostDef.hostId == UNKNOWN_HOST_ID) {
+				if (serverHostDef.hostId == AUTO_ASSIGNED_ID) {
 					shouldAddHost = true;
 				} else {
 					hostId = serverHostDef.hostId;
@@ -565,14 +565,14 @@ HostIdType DBTablesHost::upsertHost(
 		                   const string &name)
 		{
 			DBAgent::InsertArg arg(tableProfileHostList);
-			if (hostId == UNKNOWN_HOST_ID)
+			if (hostId == AUTO_ASSIGNED_ID)
 				arg.add(AUTO_INCREMENT_VALUE);
 			else
 				arg.add(hostId);
 			arg.add(name);
-			arg.upsertOnDuplicate = (hostId != UNKNOWN_HOST_ID);
+			arg.upsertOnDuplicate = (hostId != AUTO_ASSIGNED_ID);
 			dbAgent.insert(arg);
-			return (hostId == UNKNOWN_HOST_ID) ?
+			return (hostId == AUTO_ASSIGNED_ID) ?
 			         dbAgent.getLastInsertId() : hostId;
 		}
 
