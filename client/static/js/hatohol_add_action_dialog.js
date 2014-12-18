@@ -58,7 +58,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
            dialogButtons, dialogAttrs]);
 
   setTimeout(function() {
-    self.setAddButtonState(!!self.getCommand());
+    self.setApplyButtonState(!!self.getCommand());
   }, 1);
 
   //
