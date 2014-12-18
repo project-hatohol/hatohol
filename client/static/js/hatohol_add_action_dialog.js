@@ -458,14 +458,14 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
 
   // Fill value for update
   if (self.actionDef) {
-     setupCommandType(self.actionDef.type);
-     setupTimeOutValue(self.actionDef.timeout);
-     setupActionCommand(self.actionDef.command);
-     setupWorkingDirectory(self.actionDef.workingDirectory);
-     setupTriggerStatusValue(self.actionDef.triggerStatus);
-     setupSeverityValue(self.actionDef.triggerSeverity);
-     setupSevertyCompTypeValue(self.actionDef.triggerSeverityComparatorType);
-     self.setApplyButtonState(true);
+    setupCommandType(self.actionDef.type);
+    setupTimeOutValue(self.actionDef.timeout);
+    setupActionCommand(self.actionDef.command);
+    setupWorkingDirectory(self.actionDef.workingDirectory);
+    setupTriggerStatusValue(self.actionDef.triggerStatus);
+    setupSeverityValue(self.actionDef.triggerSeverity);
+    setupSevertyCompTypeValue(self.actionDef.triggerSeverityComparatorType);
+    self.setApplyButtonState(true);
   }
 }
 
