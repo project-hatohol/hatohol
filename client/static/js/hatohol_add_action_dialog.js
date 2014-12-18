@@ -526,6 +526,9 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     }
 
     for (var i = 0; i < reply.servers.length; i ++) {
+      if (reply.servers[i].id != self.actionDef.serverId)
+        continue;
+
       var serverInfo = reply.servers[i];
       var hostName = serverInfo.hostName;
       if (!hostName) {
@@ -555,6 +558,9 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     }
 
     for (var i = 0; i < reply.hosts.length; i ++) {
+      if (reply.hosts[i].id != self.actionDef.hostId)
+        continue;
+
       var hostInfo = reply.hosts[i];
       var hostName = hostInfo.hostName;
       if (!hostName) {
@@ -584,6 +590,9 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     }
 
     for (var i = 0; i < reply.hostgroups.length; i ++) {
+      if (reply.hostgroups[i].groupId != self.actionDef.hostgroupId)
+        continue;
+
       var hostgroupInfo = reply.hostgroups[i];
       var hostgroupName = hostgroupInfo.groupName;
       if (!hostgroupName) {
@@ -613,6 +622,9 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     }
 
     for (var i = 0; i < reply.triggers.length; i ++) {
+      if (reply.triggers[i].id != self.actionDef.triggerId)
+        continue;
+
       var triggerInfo = reply.triggers[i];
       var triggerBrief = triggerInfo.brief;
       if (!triggerBrief) {
