@@ -474,8 +474,62 @@ HatoholAddActionDialog.prototype.constructor = HatoholAddActionDialog;
 
 HatoholAddActionDialog.prototype.createMainElement = function() {
   var self = this;
+  if (self.targetId) {
+    getServersAsync();
+    getHostGroupsAsync();
+    getHostsAsync();
+    getTriggersAsync();
+  }
+
   var div = $(makeMainDivHTML());
   return div;
+
+  //
+  // get server info when updating
+  //
+  function getServersAsync() {
+    new HatoholConnector({
+      url: "/server",
+      replyCallback: replyServerCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function getHostsAsync() {
+    new HatoholConnector({
+      url: "/host",
+      replyCallback: replyHostCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function getHostGroupsAsync() {
+    new HatoholConnector({
+      url: "/hostgroup",
+      replyCallback: replyHostGroupCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function getTriggersAsync() {
+    new HatoholConnector({
+      url: "/trigger",
+      replyCallback: replyTriggerCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function replyServerCallback(reply, parser) {
+  }
+
+  function replyHostCallback(reply, parser) {
+  }
+
+  function replyHostGroupCallback(reply, parser) {
+  }
+
+  function replyTriggerCallback(reply, parser) {
+  }
 
   function makeTriggerConditionArea() {
     var s = "";
