@@ -474,7 +474,7 @@ HatoholAddActionDialog.prototype.constructor = HatoholAddActionDialog;
 
 HatoholAddActionDialog.prototype.createMainElement = function() {
   var self = this;
-  if (self.targetId) {
+  if (self.actionDef) {
     getServersAsync();
     getHostGroupsAsync();
     getHostsAsync();
