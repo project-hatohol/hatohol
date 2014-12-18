@@ -137,12 +137,16 @@ var ActionsView = function(userProfile) {
 
   function setupEditButtons(actionsPkt)
   {
-    var i, id;
-    for (i = 0; i < actionsPkt["actions"].length; ++i) {
-      var actionDef = actionsPkt["actions"][i];
-      id = "#edit-action" + actionDef.actionId;
+    var i, id, actions = actionsPkt["actions"], actionsMap = {};
+
+    for (i = 0; i < actions.length; ++i)
+      actionsMap[actions[i].actionId] =  actions[i];
+
+    for (i = 0; i < actions.length; ++i) {
+      id = "#edit-action" + actions[i].actionId;
       $(id).click(function() {
-        new HatoholAddActionDialog(load, null, actionDef);
+        var actionId = this.getAttribute("actionId");
+        new HatoholAddActionDialog(load, null, actionsMap[actionId]);
       });
     }
 
