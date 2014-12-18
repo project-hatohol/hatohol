@@ -556,6 +556,12 @@ void test_update(void)
 	dbAgentTestUpdate(dbAgent, dbAgentChecker);
 }
 
+void test_updateBigUint(void)
+{
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestUpdateBigUint(dbAgent, dbAgentChecker);
+}
+
 void test_updateCondition(void)
 {
 	DBAgentMySQL dbAgent(TEST_DB_NAME);

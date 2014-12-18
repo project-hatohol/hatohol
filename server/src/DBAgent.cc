@@ -532,7 +532,7 @@ string DBAgent::getColumnValueString(const ColumnDef *columnDef,
 	}
 	case SQL_COLUMN_TYPE_BIGUINT:
 	{
-		valueStr = StringUtils::sprintf("%" PRId64,
+		valueStr = StringUtils::sprintf("%" PRIu64,
 		                                (uint64_t)*itemData);
 		break;
 	}
