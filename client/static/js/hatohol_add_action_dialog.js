@@ -394,6 +394,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
       break;
     default:
       alert("Unknown command type: " + type);
+      break;
     }
   }
 
@@ -411,6 +412,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
       break;
     default:
       alert("Unknown status: " + status);
+      break;
     }
   }
 
@@ -437,6 +439,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
       break;
     default:
       alert("Unknown severity: " + severity);
+      break;
     }
     if (severity) {
       $("#selectTriggerSeverityCompType").css("visibility","visible");
