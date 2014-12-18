@@ -2122,7 +2122,7 @@ void DBTablesMonitoring::addHostgroupElementList(
 static void conv(ServerHostDef &serverHostDef, const HostInfo &hostInfo)
 {
 	serverHostDef.id = AUTO_INCREMENT_VALUE;
-	serverHostDef.hostId = UNKNOWN_HOST_ID;
+	serverHostDef.hostId = AUTO_ASSIGNED_ID;
 	serverHostDef.serverId       = hostInfo.serverId;
 	serverHostDef.hostIdInServer =
 	  StringUtils::sprintf("%" FMT_HOST_ID,  hostInfo.id);
