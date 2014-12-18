@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-03 02:34-0600\n"
+"POT-Creation-Date: 2014-12-18 03:47-0600\n"
 "PO-Revision-Date: 2014-11-12 13:36+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -82,7 +82,7 @@ msgstr "Hatohol"
 msgid "PREPARE"
 msgstr "準備中"
 
-#: viewer/base_ajax.html:57
+#: viewer/base_ajax.html:55
 msgid "toggle auto refresh"
 msgstr "自動更新ON/OFF"
 
