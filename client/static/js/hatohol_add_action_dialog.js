@@ -520,15 +520,119 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
   }
 
   function replyServerCallback(reply, parser) {
+    if (!(reply.servers instanceof Array)) {
+      hatoholErrorMsgBox("[Malformed reply] Not found array: servers");
+      return;
+    }
+
+    for (var i = 0; i < reply.servers.length; i ++) {
+      var serverInfo = reply.servers[i];
+      var hostName = serverInfo.hostName;
+      if (!hostName) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: hostName");
+        return;
+      }
+      var serverId = serverInfo.id;
+      if (serverId == undefined) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: id");
+        return;
+      }
+
+      var displayName = serverId + ": " + hostName;
+      $('#selectServerId').append($('<option>').html(displayName).val(serverId));
+    }
+
+    if (self.actionDef.serverId) {
+      var selectElem = $("#selectServerId");
+      selectElem.val(self.actionDef.serverId);
+    }
   }
 
   function replyHostCallback(reply, parser) {
+    if (!(reply.hosts instanceof Array)) {
+      hatoholErrorMsgBox("[Malformed reply] Not found array: hosts");
+      return;
+    }
+
+    for (var i = 0; i < reply.hosts.length; i ++) {
+      var hostInfo = reply.hosts[i];
+      var hostName = hostInfo.hostName;
+      if (!hostName) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: hostName");
+        return;
+      }
+      var hostId = hostInfo.id;
+      if (hostId == undefined) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: id");
+        return;
+      }
+
+      var displayName = hostName;
+      $('#selectHostId').append($('<option>').html(displayName).val(hostId));
+    }
+
+    if (self.actionDef.hostId) {
+      var selectElem = $("#selectHostId");
+      selectElem.val(self.actionDef.hostId);
+    }
   }
 
   function replyHostGroupCallback(reply, parser) {
+    if (!(reply.hostgroups instanceof Array)) {
+      hatoholErrorMsgBox("[Malformed reply] Not found array: hostgroups");
+      return;
+    }
+
+    for (var i = 0; i < reply.hostgroups.length; i ++) {
+      var hostgroupInfo = reply.hostgroups[i];
+      var hostgroupName = hostgroupInfo.groupName;
+      if (!hostgroupName) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: hostgroupName");
+        return;
+      }
+      var hostgroupId = hostgroupInfo.groupId;
+      if (hostgroupId == undefined) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: hostgroupId");
+        return;
+      }
+
+      var displayName = hostgroupName;
+      $('#selectHostgroupId').append($('<option>').html(displayName).val(hostgroupId));
+    }
+
+    if (self.actionDef.hostgroupId) {
+      var selectElem = $("#selectHostgroupId");
+      selectElem.val(self.actionDef.hostgroupId);
+    }
   }
 
   function replyTriggerCallback(reply, parser) {
+    if (!(reply.triggers instanceof Array)) {
+      hatoholErrorMsgBox("[Malformed reply] Not found array: triggers");
+      return;
+    }
+
+    for (var i = 0; i < reply.triggers.length; i ++) {
+      var triggerInfo = reply.triggers[i];
+      var triggerBrief = triggerInfo.brief;
+      if (!triggerBrief) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: brief");
+        return;
+      }
+      var triggerId = triggerInfo.id;
+      if (triggerId == undefined) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: id");
+        return;
+      }
+
+      var displayName = triggerBrief;
+      $('#selectTriggerId').append($('<option>').html(displayName).val(triggerId));
+    }
+
+    if (self.actionDef.triggerId) {
+      var selectElem = $("#selectTriggerId");
+      selectElem.val(self.actionDef.triggerId);
+    }
   }
 
   function makeTriggerConditionArea() {
