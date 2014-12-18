@@ -549,7 +549,7 @@ string DBAgent::getColumnValueString(const ColumnDef *columnDef,
 		if (itemData->isNull()) {
 			valueStr = "NULL";
 		} else {
-			valueStr = StringUtils::sprintf("%" PRId64,
+			valueStr = StringUtils::sprintf("%" PRIu64,
 		                            (uint64_t)*itemData);
 		}
 		break;

@@ -110,6 +110,7 @@ void dbAgentTestUpsert(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestUpsertWithPrimaryKeyAutoInc(
   DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestUpdate(DBAgent &dbAgent, DBAgentChecker &checker);
+void dbAgentTestUpdateBigUint(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestUpdateCondition(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestSelect(DBAgent &dbAgent);
 void dbAgentTestSelectEx(DBAgent &dbAgent);
