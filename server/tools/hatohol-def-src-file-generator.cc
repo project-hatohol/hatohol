@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cstdio>
@@ -49,43 +49,44 @@ do { \
 	ADD_LINE(SOURCE, LANG_TYPE, VAL); \
 } while (0)
 
-static const char *GPL_V2_OR_LATER_HEADER_C_STYLE =
+static const char *LGPL_V3_HEADER_C_STYLE =
 "/*\n"
 " * Copyright (C) 2013-2014 Project Hatohol\n"
 " *\n"
 " * This file is part of Hatohol.\n"
 " *\n"
 " * Hatohol is free software: you can redistribute it and/or modify\n"
-" * it under the terms of the GNU General Public License as published by\n"
-" * the Free Software Foundation, either version 2 of the License, or\n"
-" * (at your option) any later version.\n"
+" * it under the terms of the GNU Lesser General Public License, version 3\n"
+" * as published by the Free Software Foundation.\n"
 " *\n"
 " * Hatohol is distributed in the hope that it will be useful,\n"
 " * but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
 " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n"
-" * GNU General Public License for more details.\n"
+" * GNU Lesser General Public License for more details.\n"
 " *\n"
-" * You should have received a copy of the GNU General Public License\n"
-" * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.\n"
+" * You should have received a copy of the GNU Lesser General Public\n"
+" * License along with Hatohol. If not, see\n"
+" * <http://www.gnu.org/licenses/>.\n"
 " */\n";
 
-static const char *GPL_V2_OR_LATER_HEADER_PLAIN =
+static const char *LGPL_V3_HEADER_PLAIN =
 "  Copyright (C) 2013-2014 Project Hatohol\n"
 "\n"
 "  This file is part of Hatohol.\n"
 "\n"
 "  Hatohol is free software: you can redistribute it and/or modify\n"
-"  it under the terms of the GNU General Public License as published by\n"
-"  the Free Software Foundation, either version 2 of the License, or\n"
-"  (at your option) any later version.\n"
+"  it under the terms of the GNU Lesser General Public License, version 3\n"
+"  as published by the Free Software Foundation.\n"
 "\n"
 "  Hatohol is distributed in the hope that it will be useful,\n"
 "  but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
 "  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n"
-"  GNU General Public License for more details.\n"
+"  GNU Lesser General Public License for more details.\n"
 "\n"
-"  You should have received a copy of the GNU General Public License\n"
-"  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.\n";
+"  You should have received a copy of the GNU Lesser General Public\n"
+"  License along with Hatohol. If not, see\n"
+"  <http://www.gnu.org/licenses/>.\n"
+"";
 
 static string toString(const int value)
 {
@@ -280,7 +281,7 @@ static string makeDefSource(LanguageType langType)
 	string s;
 	switch (langType) {
 	case JAVASCRIPT:
-		s += GPL_V2_OR_LATER_HEADER_C_STYLE;
+		s += LGPL_V3_HEADER_C_STYLE;
 		APPEND(s, "\n");
 		APPEND(s, "var hatohol = {\n");
 		makeDefSourceValues(s, langType);
@@ -290,7 +291,7 @@ static string makeDefSource(LanguageType langType)
 		break;
 	case PYTHON:
 		APPEND(s, "\"\"\"\n");
-		s += GPL_V2_OR_LATER_HEADER_PLAIN;
+		s += LGPL_V3_HEADER_PLAIN;
 		APPEND(s, "\"\"\"\n");
 		APPEND(s, "\n");
 		makeDefSourceValues(s, langType);
@@ -305,7 +306,7 @@ static string makeDefSource(LanguageType langType)
 static string makeJsDefSource(char *arg[])
 {
 	string s;
-	s += GPL_V2_OR_LATER_HEADER_C_STYLE;
+	s += LGPL_V3_HEADER_C_STYLE;
 	APPEND(s, "\n");
 
 	APPEND(s, "var TRIGGER_STATUS_OK      = %d\n",  TRIGGER_STATUS_OK);
