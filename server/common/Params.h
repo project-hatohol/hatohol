@@ -93,7 +93,7 @@ static const HostIdType ALL_HOSTS                 = -1;
 static const HostIdType INVALID_HOST_ID           = -2;
 static const HostIdType INAPPLICABLE_HOST_ID      = -3;
 static const HostIdType MONITORING_SERVER_SELF_ID = -4;
-static const HostIdType UNKNOWN_HOST_ID           = -5;
+static const HostIdType AUTO_ASSIGNED_ID          = -5;
 
 // Special Hostgroup IDs ======================================================
 static const HostgroupIdType ALL_HOST_GROUPS = -1;

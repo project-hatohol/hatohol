@@ -50,7 +50,7 @@ static void assertUpsertHost(const HostIdType &hostId)
 
 	string statement = "SELECT * FROM host_list";
 	HostIdType expectHostId =
-	  (hostId == UNKNOWN_HOST_ID) ? retHostId : hostId;
+	  (hostId == AUTO_ASSIGNED_ID) ? retHostId : hostId;
 	string expect = StringUtils::sprintf(
 	  "%" FMT_HOST_ID "|%s",
 	  expectHostId, serverHostDef.name.c_str());
@@ -579,7 +579,7 @@ void test_getVirtualMachines(gconstpointer data)
 void data_upsertHost(void)
 {
 	gcut_add_datum("UNKNOWN_HOST_ID",
-	               "hostId", G_TYPE_UINT64, UNKNOWN_HOST_ID, NULL);
+	               "hostId", G_TYPE_UINT64, AUTO_ASSIGNED_ID, NULL);
 	gcut_add_datum("Specific Host ID",
 	               "hostId", G_TYPE_UINT64, 224466, NULL);
 }
@@ -592,13 +592,13 @@ void test_upsertHost(gconstpointer data)
 
 void test_upsertHostUpdate(void)
 {
-	assertUpsertHost(UNKNOWN_HOST_ID);
+	assertUpsertHost(AUTO_ASSIGNED_ID);
 
 	DBHatohol dbHatohol;
 	DBTablesHost &dbHost = dbHatohol.getDBTablesHost();
 	ServerHostDef serverHostDef;
 	serverHostDef.id = AUTO_INCREMENT_VALUE;
-	serverHostDef.hostId = UNKNOWN_HOST_ID;
+	serverHostDef.hostId = AUTO_ASSIGNED_ID;
 	serverHostDef.serverId = 10;
 	serverHostDef.hostIdInServer= "123456";
 	serverHostDef.name = "GO GO GO GO";
