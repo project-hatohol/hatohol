@@ -2,7 +2,7 @@ Summary: Hatohol
 Name: hatohol
 Group: Applications/System
 Version: @VERSION@
-License: GPLv2+
+License: LGPLv3
 URL: https://github.com/project-hatohol/hatohol
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.bz2
