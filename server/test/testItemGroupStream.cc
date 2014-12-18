@@ -158,18 +158,4 @@ void test_setNotFound(void)
 	cppcut_assert_equal(val, -1);
 }
 
-void test_readVia(void)
-{
-	VariableItemGroupPtr itemGroup(new ItemGroup(), false);
-	itemGroup->add(new ItemInt(10), false);
-	itemGroup->add(new ItemInt(0), false);
-	ItemGroupStream itemGroupStream(itemGroup);
-	bool x;
-	// itemGroupStream >> x; // causes a build error
-	itemGroupStream.readVia<int, bool>(x);
-	cppcut_assert_equal(true, x);
-	itemGroupStream.readVia<int, bool>(x);
-	cppcut_assert_equal(false, x);
-}
-
 } // namespace testItemGroupStream
