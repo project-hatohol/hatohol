@@ -98,14 +98,6 @@ static bool readViaString(uint64_t &dest, ItemGroupStream &itemGroupStream)
 	return readViaString<uint64_t>(dest, itemGroupStream);
 }
 
-template<typename Type>
-static void readVia(int &dest, ItemGroupStream &itemGroupStream)
-{
-	Type val;
-	itemGroupStream >> val;
-	dest = val;
-}
-
 // ----------------------------------------------------------------------------
 // Table: triggers
 // ----------------------------------------------------------------------------
@@ -2975,7 +2967,7 @@ HatoholError DBTablesMonitoring::getHostgroupInfoList
 		hostgroupInfoList.push_back(HostgroupInfo());
 		HostgroupInfo &hostgroupInfo = hostgroupInfoList.back();
 
-		readVia<GenericIdType>(hostgroupInfo.id, itemGroupStream);
+		hostgroupInfo.id = itemGroupStream.read<GenericIdType>();
 		itemGroupStream >> hostgroupInfo.serverId;
 
 		if (!readViaString(hostgroupInfo.groupId, itemGroupStream))
@@ -3010,7 +3002,7 @@ HatoholError DBTablesMonitoring::getHostgroupElementList
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		hostgroupElementList.push_back(HostgroupElement());
 		HostgroupElement &hostgroupElement = hostgroupElementList.back();
-		readVia<GenericIdType>(hostgroupElement.id, itemGroupStream);
+		hostgroupElement.id = itemGroupStream.read<GenericIdType>();
 		itemGroupStream >> hostgroupElement.serverId;
 
 		if (!readViaString(hostgroupElement.hostId, itemGroupStream))
