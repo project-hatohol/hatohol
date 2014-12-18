@@ -28,6 +28,10 @@
 #include "SQLProcessorTypes.h"
 #include "DBTermCodec.h"
 
+#ifndef HATOHOL_DB_CHARSET
+# define HATOHOL_DB_CHARSET	"utf8"
+#endif
+
 static const int      AUTO_INCREMENT_VALUE = 0;
 static const uint64_t AUTO_INCREMENT_VALUE_U64 = 0;
 static const int CURR_DATETIME = -1;

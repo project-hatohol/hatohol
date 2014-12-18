@@ -800,6 +800,15 @@ void makeTestMySQLDBIfNeeded(const string &dbName, bool recreate)
 		          db, mysql_error(&mysql));
 	}
 
+	if (mysql_set_character_set(&mysql, HATOHOL_DB_CHARSET)) {
+		mysql_close(&mysql);
+		cut_fail("Failed to set charset %s to %s: "
+			 "(error: %u) %s\n",
+			 HATOHOL_DB_CHARSET, db,
+			 mysql_errno(&mysql),
+			 mysql_error(&mysql));
+	}
+
 	// try to find the test database
 	MYSQL_RES *result = mysql_list_dbs(&mysql, dbName.c_str());
 	if (!result) {

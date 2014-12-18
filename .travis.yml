@@ -6,11 +6,11 @@ compiler:
   - gcc
   - clang
 env:
-  - RUN_TEST="env MLPL_LOGGER_LEVEL=WARN ./server/mlpl/test/run-test.sh"
-  - RUN_TEST="cd server/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh"
-  - RUN_TEST="cd server/tools/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh"
-  - RUN_TEST="client/test/python/run-test.sh"
-  - RUN_TEST="test/launch-hatohol-for-test.sh && mocha-phantomjs http://localhost:8000/test/index.html"
+  - RUN_TEST="env MLPL_LOGGER_LEVEL=WARN LANG=ja_JP.utf8 ./server/mlpl/test/run-test.sh"
+  - RUN_TEST="cd server/test && MLPL_LOGGER_LEVEL=WARN LANG=ja_JP.utf8 ./run-test.sh"
+  - RUN_TEST="cd server/tools/test && MLPL_LOGGER_LEVEL=WARN LANG=ja_JP.utf8 ./run-test.sh"
+  - RUN_TEST="LANG=ja_JP.utf8 client/test/python/run-test.sh"
+  - RUN_TEST="LANG=ja_JP.utf8 test/launch-hatohol-for-test.sh && mocha-phantomjs http://localhost:8000/test/index.html"
   - RUN_TEST="./test/dist-check.sh"
 matrix:
   exclude:
@@ -32,6 +32,8 @@ install:
   - npm install -g mocha-phantomjs phantomjs
   - sudo pip install django==1.5.4
   - sudo pip install mysql-python
+  - sudo sh -c "printf '[%s]\n%s=%s\n' mysqld character-set-server utf8  > /etc/mysql/conf.d/utf8.cnf"
+  - sudo service mysql restart
   - sudo sh -c "echo acl allow all all > /etc/qpid/qpidd.acl"
   - sudo /etc/init.d/qpidd restart
 before_script:
