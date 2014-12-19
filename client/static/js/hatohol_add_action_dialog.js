@@ -526,11 +526,21 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     });
   }
 
+  function appendSelectElem(selector, infoId) {
+    if (infoId) {
+      var label = "== " + gettext("SELECT") + " ==";
+      selector.append($("<option>").html(label).val("SELECT"));
+    }
+  }
+
   function replyServerCallback(reply, parser) {
     if (!(reply.servers instanceof Array)) {
       hatoholErrorMsgBox("[Malformed reply] Not found array: servers");
       return;
     }
+
+    appendSelectElem($("#selectHostgroupId"), self.actionDef.serverId);
+    appendSelectElem($("#selectHostId"), self.actionDef.serverId);
 
     for (var i = 0; i < reply.servers.length; i ++) {
       if (reply.servers[i].id != self.actionDef.serverId)
@@ -564,8 +574,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
       return;
     }
 
-    var label = "== " + gettext("SELECT") + " ==";
-    $('#selectHostId').append($("<option>").html(label).val("SELECT"));
+    appendSelectElem($("#selectTriggerId"), self.actionDef.hostId);
 
     for (var i = 0; i < reply.hosts.length; i ++) {
       if (reply.hosts[i].id != self.actionDef.hostId)
@@ -599,8 +608,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
       return;
     }
 
-    var label = "== " + gettext("SELECT") + " ==";
-    $('#selectHostgroupId').append($("<option>").html(label).val("SELECT"));
+    appendSelectElem($("#selectHostId"), self.actionDef.hostgroupId);
 
     for (var i = 0; i < reply.hostgroups.length; i ++) {
       if (reply.hostgroups[i].groupId != self.actionDef.hostgroupId)
@@ -633,9 +641,6 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
       hatoholErrorMsgBox("[Malformed reply] Not found array: triggers");
       return;
     }
-
-    var label = "== " + gettext("SELECT") + " ==";
-    $('#selectTriggerId').append($("<option>").html(label).val("SELECT"));
 
     for (var i = 0; i < reply.triggers.length; i ++) {
       if (reply.triggers[i].id != self.actionDef.triggerId)
