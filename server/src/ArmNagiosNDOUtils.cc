@@ -744,21 +744,23 @@ void ArmNagiosNDOUtils::getHostgroupMembers(void)
 	MLPL_DBG("The number of hostgroupMembers: %zd\n", numHostgroupMembers);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	HostgroupElementList hostgroupElementList;
+	HostHostgroupVect hostHostgroups;
 	const ItemGroupList &grpList =
 	  m_impl->selectHostgroupMembersArg.dataTable->getItemGroupList();
+	hostHostgroups.reserve(grpList.size());
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
-		HostgroupElement hostgroupElement;
-		hostgroupElement.id = AUTO_INCREMENT_VALUE;
-		hostgroupElement.serverId = svInfo.id;
-		itemGroupStream >> hostgroupElement.groupId;
-		itemGroupStream >> hostgroupElement.hostId;
-		hostgroupElementList.push_back(hostgroupElement);
+		HostHostgroup hostHostgrp;
+		hostHostgrp.id = AUTO_INCREMENT_VALUE;
+		hostHostgrp.serverId = svInfo.id;
+		hostHostgrp.hostIdInServer =
+		  itemGroupStream.read<int, string>();
+		hostHostgrp.hostgroupIdInServer =
+		  itemGroupStream.read<int, string>();
+		hostHostgroups.push_back(hostHostgrp);
 	}
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().addHostgroupElementList(hostgroupElementList);
+	UnifiedDataStore::getInstance()->upsertHostHostgroups(hostHostgroups);
 }
 
 void ArmNagiosNDOUtils::connect(void)
