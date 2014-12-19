@@ -217,4 +217,35 @@ void test_readUint64ViaString(gconstpointer data)
 	}
 }
 
+void data_readStringViaInt(void)
+{
+	gcut_add_datum("zero",
+	               "native", G_TYPE_INT, 0,
+	               "expect", G_TYPE_STRING, "0", NULL);
+	gcut_add_datum("positive",
+	               "native", G_TYPE_INT, 15,
+	               "expect", G_TYPE_STRING, "15", NULL);
+	gcut_add_datum("signed 32bit max",
+	               "native", G_TYPE_INT, 2147483647,
+	               "expect", G_TYPE_STRING, "2147483647", NULL);
+	gcut_add_datum("nagative",
+	               "native", G_TYPE_INT, -5,
+	               "expect", G_TYPE_STRING, "-5", NULL);
+	gcut_add_datum("signed 32bit min",
+	               "native", G_TYPE_INT, -2147483648,
+	               "expect", G_TYPE_STRING, "-2147483648", NULL);
+}
+
+void test_readStringViaInt(gconstpointer data)
+{
+	const int nativeValue = gcut_data_get_int(data, "native");
+	const string expect = string(gcut_data_get_string(data, "expect"));
+
+	VariableItemGroupPtr itemGroup(new ItemGroup(), false);
+	itemGroup->add(new ItemInt(nativeValue), false);
+	ItemGroupStream itemGroupStream(itemGroup);
+	const string actual = itemGroupStream.read<int, string>();
+	cppcut_assert_equal(expect, actual);
+}
+
 } // namespace testItemGroupStream

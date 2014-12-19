@@ -17,9 +17,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 #include <string>
+#include <StringUtils.h>
 #include "ItemGroupStream.h"
 
 using namespace std;
+using namespace mlpl;
 
 static void conv(uint64_t &dest, const string &src)
 {
@@ -37,6 +39,13 @@ template<> uint64_t ItemGroupStream::read<string, uint64_t>(void)
 	*this >> str;
 	conv(dest, str);
 	return dest;
+}
+
+template<> string ItemGroupStream::read<int, string>(void)
+{
+	int val;
+	*this >> val;
+	return StringUtils::sprintf("%d", val);
 }
 
 // ---------------------------------------------------------------------------
