@@ -17,7 +17,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include <gcutter.h>
 #include <cppcutter.h>
+#include "Helpers.h"
 #include "ItemGroupPtr.h"
 #include "ItemGroupStream.h"
 using namespace std;
@@ -156,6 +158,63 @@ void test_setNotFound(void)
 	}
 	cppcut_assert_equal(ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND, exceptionType);
 	cppcut_assert_equal(val, -1);
+}
+
+void data_readUint64ViaString(void)
+{
+	gcut_add_datum("zero",
+	               "string", G_TYPE_STRING, "0",
+	               "number", G_TYPE_UINT64, 0,
+	               "valid",  G_TYPE_BOOLEAN, TRUE,  NULL);
+	gcut_add_datum("signed 32bit max",
+	               "string", G_TYPE_STRING, "2147483647",
+	               "number", G_TYPE_UINT64, 2147483647,
+	               "valid",  G_TYPE_BOOLEAN, TRUE,  NULL);
+	gcut_add_datum("signed 32bit max + 1",
+	               "string", G_TYPE_STRING, "2147483648",
+	               "number", G_TYPE_UINT64, 2147483648,
+	               "valid",  G_TYPE_BOOLEAN, TRUE,  NULL);
+	gcut_add_datum("signed 64bit",
+	               "string", G_TYPE_STRING, "9223372036854775807",
+	               "number", G_TYPE_UINT64, 9223372036854775807UL,
+	               "valid",  G_TYPE_BOOLEAN, TRUE,  NULL);
+	gcut_add_datum("signed 64bit + 1",
+	               "string", G_TYPE_STRING, "9223372036854775808",
+	               "number", G_TYPE_UINT64, 9223372036854775808UL,
+	               "valid",  G_TYPE_BOOLEAN, TRUE,  NULL);
+	gcut_add_datum("unsigned 64bit max",
+	               "string", G_TYPE_STRING, "18446744073709551615",
+	               "number", G_TYPE_UINT64, 18446744073709551615UL,
+	               "valid",  G_TYPE_BOOLEAN, TRUE,  NULL);
+	gcut_add_datum("Non-number",
+	               "string", G_TYPE_STRING, "abc",
+	               "number", G_TYPE_UINT64, 0,
+	               "valid",  G_TYPE_BOOLEAN, FALSE,  NULL);
+}
+
+void test_readUint64ViaString(gconstpointer data)
+{
+	const char *srcString = gcut_data_get_string(data, "string");
+	const uint64_t expect = gcut_data_get_uint64(data, "number");
+	const bool valid = gcut_data_get_boolean(data, "valid");
+
+	VariableItemGroupPtr itemGroup(new ItemGroup(), false);
+	itemGroup->add(new ItemString(srcString), false);
+	ItemGroupStream itemGroupStream(itemGroup);
+	uint64_t actual = 0;
+	HatoholError err(HTERR_OK);
+	try {
+		actual = itemGroupStream.read<string, uint64_t>();
+	} catch (const HatoholException &e) {
+		err = e.getErrCode();
+	}
+
+	if (valid) {
+		assertHatoholError(HTERR_OK, err);
+		cppcut_assert_equal(expect, actual);
+	} else {
+		assertHatoholError(HTERR_INTERNAL_ERROR, err);
+	}
 }
 
 } // namespace testItemGroupStream

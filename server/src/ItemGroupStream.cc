@@ -16,7 +16,28 @@
  * License along with Hatohol. If not, see
  * <http://www.gnu.org/licenses/>.
  */
+#include <string>
 #include "ItemGroupStream.h"
+
+using namespace std;
+
+static void conv(uint64_t &dest, const string &src)
+{
+	int numConv = sscanf(src.c_str(), "%" PRIu64, &dest);
+	if (numConv != 1) {
+		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+		  HTERR_INTERNAL_ERROR, "Failed to convert %s.\n", src.c_str());
+	}
+}
+
+template<> uint64_t ItemGroupStream::read<string, uint64_t>(void)
+{
+	string str;
+	uint64_t dest;
+	*this >> str;
+	conv(dest, str);
+	return dest;
+}
 
 // ---------------------------------------------------------------------------
 // Public methods
