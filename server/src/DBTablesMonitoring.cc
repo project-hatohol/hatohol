@@ -74,29 +74,6 @@ void operator>>(ItemGroupStream &itemGroupStream, HostValidity &rhs)
 
 extern void operator>>(ItemGroupStream &itemGroupStream, HostStatus &rhs);
 
-static bool conv(uint64_t &dest, const string &src)
-{
-	int numConv = sscanf(src.c_str(), "%" PRIu64, &dest);
-	if (numConv != 1) {
-		MLPL_ERR("Failed to convert %s.\n", src.c_str());
-		return false;
-	}
-	return true;
-}
-
-template<typename Type>
-static bool readViaString(Type &dest, ItemGroupStream &itemGroupStream)
-{
-	string str;
-	itemGroupStream >> str;
-	return conv(dest, str);
-}
-
-static bool readViaString(uint64_t &dest, ItemGroupStream &itemGroupStream)
-{
-	return readViaString<uint64_t>(dest, itemGroupStream);
-}
-
 // ----------------------------------------------------------------------------
 // Table: triggers
 // ----------------------------------------------------------------------------
@@ -1643,10 +1620,7 @@ void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 		hostInfoList.push_back(HostInfo());
 		HostInfo &hostInfo = hostInfoList.back();
 		itemGroupStream >> hostInfo.serverId;
-
-		if (!readViaString(hostInfo.id, itemGroupStream))
-			continue;
-
+		hostInfo.id = itemGroupStream.read<string, HostIdType>();
 		itemGroupStream >> hostInfo.hostName;
 
 		HostStatus stat;
@@ -2965,10 +2939,8 @@ HatoholError DBTablesMonitoring::getHostgroupInfoList
 
 		hostgroupInfo.id = itemGroupStream.read<GenericIdType>();
 		itemGroupStream >> hostgroupInfo.serverId;
-
-		if (!readViaString(hostgroupInfo.groupId, itemGroupStream))
-			continue;
-
+		hostgroupInfo.groupId =
+		  itemGroupStream.read<string, HostgroupIdType>();
 		itemGroupStream >> hostgroupInfo.groupName;
 	}
 
@@ -3001,11 +2973,10 @@ HatoholError DBTablesMonitoring::getHostgroupElementList
 		hostgroupElement.id = itemGroupStream.read<GenericIdType>();
 		itemGroupStream >> hostgroupElement.serverId;
 
-		if (!readViaString(hostgroupElement.hostId, itemGroupStream))
-			continue;
-
-		if (!readViaString(hostgroupElement.groupId, itemGroupStream))
-			continue;
+		hostgroupElement.hostId =
+		  itemGroupStream.read<string, HostIdType>();
+		hostgroupElement.groupId =
+		  itemGroupStream.read<string, HostgroupIdType>();
 	}
 
 	return HTERR_OK;
