@@ -42,7 +42,8 @@ HatoholException::HatoholException(
   const string &brief, const string &sourceFileName, const int &lineNumber)
 : m_what(brief),
   m_sourceFileName(sourceFileName),
-  m_lineNumber(lineNumber)
+  m_lineNumber(lineNumber),
+  m_errCode(HTERR_UNKNOWN_REASON)
 {
 	MLPL_DBG("HatoholException: <%s:%d> %s\n", sourceFileName.c_str(), lineNumber,
 	         brief.c_str());
