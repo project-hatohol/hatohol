@@ -128,5 +128,7 @@ private:
 	const ItemData  *m_reservedItem;
 };
 
+template<> uint64_t ItemGroupStream::read<std::string, uint64_t>(void);
+
 #endif // ItemGroupStream_h
 
