@@ -76,14 +76,14 @@ Requires: %{name} = %{version}-%{release}
 %description lib-common
 Common libraries for hatohol and arm plugins.
 
-%package lib-arm-plugin
-Summary: Library files for Hatohol Arm Plugin
+%package lib-arm
+Summary: Library files for Hatohol Arm
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
 Requires: hatohol-lib-common >= %{version}
 
-%description lib-arm-plugin
-Libraries for arm plugins.
+%description lib-arm
+Libraries for arm.
 
 %package web
 Summary: A web UI web of Hatohol.
@@ -195,7 +195,7 @@ rm -rf %{buildroot}
 %{_libdir}/libhatohol-common.so.*
 %{_libdir}/libmlpl.so.*
 
-%files lib-arm-plugin
+%files lib-arm
 %{_libdir}/libhapprocess.so.*
 
 %files web
