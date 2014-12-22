@@ -85,8 +85,8 @@ Requires: hatohol-lib-common >= %{version}
 %description lib-arm-plugin
 Libraries for arm plugins.
 
-%package client
-Summary: A web UI client of Hatohol.
+%package web
+Summary: A web UI web of Hatohol.
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
 Requires: MySQL-python >= 1.2.3
@@ -99,8 +99,8 @@ Requires: python-django
 Requires: httpd >= 2.2.15
 Requires: mod_wsgi >= 3.2
 
-%description client
-A web UI client of Hatohol provides a web UI.
+%description web
+A web UI web of Hatohol provides a web UI.
 It internally communicates with the server and
 creates a response page when a user accesses.
 
@@ -198,7 +198,7 @@ rm -rf %{buildroot}
 %files lib-arm-plugin
 %{_libdir}/libhapprocess.so.*
 
-%files client
+%files web
 %defattr(-,root,root,-)
 %{_libexecdir}/hatohol/client/*
 %{_sysconfdir}/httpd/conf.d/hatohol.conf
