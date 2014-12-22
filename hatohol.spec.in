@@ -48,14 +48,14 @@ to consolidate monitoring centers and the operators even when monitored
 devices are being used in different places or with different monitoring
 software.
 
-%package arm-plugin-zabbix
-Summary: Arm plguin for Zabbix server.
+%package arm-zabbix
+Summary: Arm for Zabbix server.
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
 Requires: hatohol-lib-arm-plugin >= %{version}
 
-%description arm-plugin-zabbix
-arm-plugin-zabbix collects monitoring data from a Zabbix server and sends
+%description arm-zabbix
+arm-zabbix collects monitoring data from a Zabbix server and sends
 it to hatohol via HAPI.
 
 %package arm-plugin-ceilometer
@@ -185,7 +185,7 @@ rm -rf %{buildroot}
 %{_datadir}/hatohol/sql/init-user.sql
 %{_datadir}/hatohol/sql/server-type.sql
 
-%files arm-plugin-zabbix
+%files arm-zabbix
 %{_sbindir}/hatohol-arm-plugin-zabbix
 
 %files arm-plugin-ceilometer
