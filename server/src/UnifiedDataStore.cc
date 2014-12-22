@@ -495,11 +495,11 @@ HatoholError UnifiedDataStore::upsertHostgroups(const HostgroupVect &hostgroups)
 	return HTERR_OK;
 }
 
-HatoholError UnifiedDataStore::upsertHostHostgroups(
-  const HostHostgroupVect &hostHostgrps)
+HatoholError UnifiedDataStore::upsertHostgroupMembers(
+  const HostgroupMemberVect &hostgroupMembers)
 {
 	ThreadLocalDBCache cache;
-	cache.getHost().upsertHostHostgroups(hostHostgrps);
+	cache.getHost().upsertHostgroupMembers(hostgroupMembers);
 	return HTERR_OK;
 }
 

@@ -962,9 +962,9 @@ static const HostResourceQueryOption::Synapse synapseEventsQueryOption(
   IDX_EVENTS_UNIFIED_ID, IDX_EVENTS_SERVER_ID,
   tableProfileTriggers,
   IDX_TRIGGERS_HOST_ID, true,
-  tableProfileHostHostgroup,
-  IDX_HOST_HOSTGROUP_SERVER_ID, IDX_HOST_HOSTGROUP_HOST_ID,
-  IDX_HOST_HOSTGROUP_GROUP_ID);
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 struct EventsQueryOption::Impl {
 	uint64_t limitOfUnifiedId;
@@ -1157,9 +1157,9 @@ static const HostResourceQueryOption::Synapse synapseTriggersQueryOption(
   tableProfileTriggers,
   IDX_TRIGGERS_HOST_ID,
   true,
-  tableProfileHostHostgroup,
-  IDX_HOST_HOSTGROUP_SERVER_ID, IDX_HOST_HOSTGROUP_HOST_ID,
-  IDX_HOST_HOSTGROUP_GROUP_ID);
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 struct TriggersQueryOption::Impl {
 	TriggerIdType targetId;
@@ -1455,9 +1455,9 @@ static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
   IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
   tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
   true,
-  tableProfileHostHostgroup,
-  IDX_HOST_HOSTGROUP_SERVER_ID, IDX_HOST_HOSTGROUP_HOST_ID,
-  IDX_HOST_HOSTGROUP_GROUP_ID);
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 struct HostsQueryOption::Impl {
 	HostStatus status;
@@ -2051,40 +2051,40 @@ void DBTablesMonitoring::addHostgroupInfoList(
 	cache.getHost().upsertHostgroups(hostgrpVect);
 }
 
-static void conv(HostHostgroup &hostHostgrp,
+static void conv(HostgroupMember &hostgrpMember,
                  const HostgroupElement &hostgroupElement)
 {
-	hostHostgrp.id = AUTO_INCREMENT_VALUE;
-	hostHostgrp.serverId = hostgroupElement.serverId;
-	hostHostgrp.hostIdInServer =
+	hostgrpMember.id = AUTO_INCREMENT_VALUE;
+	hostgrpMember.serverId = hostgroupElement.serverId;
+	hostgrpMember.hostIdInServer =
 	  StringUtils::sprintf("%" FMT_HOST_ID, hostgroupElement.hostId);
-	hostHostgrp.hostgroupIdInServer =
+	hostgrpMember.hostgroupIdInServer =
 	  StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupElement.groupId);
 }
 
 void DBTablesMonitoring::addHostgroupElement(
   HostgroupElement *hostgroupElement)
 {
-	HostHostgroup hostHostgroup;
-	conv(hostHostgroup, *hostgroupElement);
+	HostgroupMember hostgrpMember;
+	conv(hostgrpMember, *hostgroupElement);
 	ThreadLocalDBCache cache;
-	cache.getHost().upsertHostHostgroup(hostHostgroup);
+	cache.getHost().upsertHostgroupMember(hostgrpMember);
 }
 
 void DBTablesMonitoring::addHostgroupElementList(
   const HostgroupElementList &hostgroupElementList)
 {
-	HostHostgroupVect hostHostgrpVect;
+	HostgroupMemberVect hostgrpMemberVect;
 	HostgroupElementListConstIterator hostgrpElemItr =
 	  hostgroupElementList.begin();
 	for (; hostgrpElemItr != hostgroupElementList.end(); ++hostgrpElemItr) {
-		HostHostgroup hostHostgroup;
-		conv(hostHostgroup, *hostgrpElemItr);
-		hostHostgrpVect.push_back(hostHostgroup);
+		HostgroupMember hostgrpMember;
+		conv(hostgrpMember, *hostgrpElemItr);
+		hostgrpMemberVect.push_back(hostgrpMember);
 	}
 
 	ThreadLocalDBCache cache;
-	cache.getHost().upsertHostHostgroups(hostHostgrpVect);
+	cache.getHost().upsertHostgroupMembers(hostgrpMemberVect);
 }
 
 static void conv(ServerHostDef &serverHostDef, const HostInfo &hostInfo)
@@ -2960,11 +2960,11 @@ HatoholError DBTablesMonitoring::getHostgroupElementList
   (HostgroupElementList &hostgroupElementList,
    const HostgroupElementQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileHostHostgroup);
-	arg.add(IDX_HOST_HOSTGROUP_ID);
-	arg.add(IDX_HOST_HOSTGROUP_SERVER_ID);
-	arg.add(IDX_HOST_HOSTGROUP_HOST_ID);
-	arg.add(IDX_HOST_HOSTGROUP_GROUP_ID);
+	DBAgent::SelectExArg arg(tableProfileHostgroupMember);
+	arg.add(IDX_HOSTGROUP_MEMBER_ID);
+	arg.add(IDX_HOSTGROUP_MEMBER_SERVER_ID);
+	arg.add(IDX_HOSTGROUP_MEMBER_HOST_ID);
+	arg.add(IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 	arg.condition = option.getCondition();
 
