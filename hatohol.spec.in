@@ -51,7 +51,7 @@ Requires: MySQL-python
 Requires: libuuid >= 2.17
 Requires: qpid-cpp-client >= 0.14
 Requires: librabbitmq >= 0.4.1
-Requires: hatohol-lib-common >= %{version}
+Requires: hatohol-lib-common = %{version}
 
 %description server
 Hatohol collects monitoring information from running monitoring systems
@@ -63,8 +63,7 @@ software.
 %package arm-zabbix
 Summary: Arm for Zabbix server.
 Group: Applications/System
-Requires: %{name} = %{version}-%{release}
-Requires: hatohol-lib-arm-plugin >= %{version}
+Requires: hatohol-lib-arm = %{version}
 
 %description arm-zabbix
 arm-zabbix collects monitoring data from a Zabbix server and sends
@@ -73,8 +72,7 @@ it to hatohol via HAPI.
 %package arm-ceilometer
 Summary: Arm for Ceilometer.
 Group: Applications/System
-Requires: %{name} = %{version}-%{release}
-Requires: hatohol-lib-arm-plugin >= %{version}
+Requires: hatohol-lib-arm = %{version}
 
 %description arm-ceilometer
 arm-ceilometer collects monitoring data from a Ceilometer and sends
@@ -83,7 +81,6 @@ it to hatohol via HAPI.
 %package lib-common
 Summary: Library files for Hatohol
 Group: Applications/System
-Requires: %{name} = %{version}-%{release}
 
 %description lib-common
 Common libraries for hatohol and arm plugins.
@@ -91,8 +88,7 @@ Common libraries for hatohol and arm plugins.
 %package lib-arm
 Summary: Library files for Hatohol Arm
 Group: Applications/System
-Requires: %{name} = %{version}-%{release}
-Requires: hatohol-lib-common >= %{version}
+Requires: hatohol-lib-common = %{version}
 
 %description lib-arm
 Libraries for arm.
@@ -100,7 +96,6 @@ Libraries for arm.
 %package web
 Summary: A web UI web of Hatohol.
 Group: Applications/System
-Requires: %{name} = %{version}-%{release}
 Requires: MySQL-python >= 1.2.3
 %if %is_el6
 Requires: Django >= 1.5.3
@@ -119,7 +114,7 @@ creates a response page when a user accesses.
 %package devel
 Summary: Header files for Hatohol library.
 Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
+Requires: hatohol-server = %{version}
 Requires: glib2 >= 2.22
 
 %description devel
