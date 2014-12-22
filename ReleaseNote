@@ -1,6 +1,7 @@
 2014-12-15 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12
 
 	* New Features
+	[Server] Support items for Ceilometer (#668)
 	[Server] Support log monitoring integrated with Fluentd. See also: https://github.com/project-hatohol/hatohol/wiki/Log-monitoring
 	[Client] Add log search system integration (#792, #795). See also: https://github.com/project-hatohol/hatohol/wiki/Log-search
 	Add a document to construct log archive system based on Fluentd. It can be integrated with log search system. See also: https://github.com/project-hatohol/hatohol/wiki/Log%20archive
@@ -15,6 +16,8 @@
 	[Client] Show last update time (#667)
 
 	* Bugfixes
+	[Server] Fix a problem in which child processes are not collected (#727)
+	[Server] Fix a wrong count of bad hosts (#730)
 	[Server] Plug memory leaks (#747, #772, #838)
 	[Server] Fix a bug that self monitoring events are tied to incorrect
 	incidents (#725)
