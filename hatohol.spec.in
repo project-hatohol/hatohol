@@ -58,14 +58,14 @@ Requires: hatohol-lib-arm-plugin >= %{version}
 arm-zabbix collects monitoring data from a Zabbix server and sends
 it to hatohol via HAPI.
 
-%package arm-plugin-ceilometer
-Summary: Arm plguin for Ceilometer.
+%package arm-ceilometer
+Summary: Arm for Ceilometer.
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
 Requires: hatohol-lib-arm-plugin >= %{version}
 
-%description arm-plugin-ceilometer
-arm-plugin-ceilometer collects monitoring data from a Ceilometer and sends
+%description arm-ceilometer
+arm-ceilometer collects monitoring data from a Ceilometer and sends
 it to hatohol via HAPI.
 
 %package lib-common
@@ -188,7 +188,7 @@ rm -rf %{buildroot}
 %files arm-zabbix
 %{_sbindir}/hatohol-arm-plugin-zabbix
 
-%files arm-plugin-ceilometer
+%files arm-ceilometer
 %{_sbindir}/hatohol-arm-plugin-ceilometer
 
 %files lib-common
