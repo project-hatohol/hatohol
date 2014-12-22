@@ -344,58 +344,61 @@ void test_upsertHostgroupListUpdate(void)
 	cppcut_assert_equal(id0, id1);
 }
 
-void test_upsertHostHostgroup(void)
+void test_upsertHostgroupMember(void)
 {
-	HostHostgroup hostHostgroup;
-	hostHostgroup.id = AUTO_INCREMENT_VALUE;
-	hostHostgroup.serverId = 52;
-	hostHostgroup.hostIdInServer = "88664422";
-	hostHostgroup.hostgroupIdInServer = "1133";
+	HostgroupMember hostgroupMember;
+	hostgroupMember.id = AUTO_INCREMENT_VALUE;
+	hostgroupMember.serverId = 52;
+	hostgroupMember.hostIdInServer = "88664422";
+	hostgroupMember.hostgroupIdInServer = "1133";
 
 	DECLARE_DBTABLES_HOST(dbHost);
-	GenericIdType id = dbHost.upsertHostHostgroup(hostHostgroup);
+	GenericIdType id = dbHost.upsertHostgroupMember(hostgroupMember);
 	const string expect = StringUtils::sprintf(
 	  "%" FMT_GEN_ID "|52|88664422|1133", id);
-	const string statement = "SELECT * FROM host_hostgroup";
+	const string statement = StringUtils::sprintf(
+	  "SELECT * FROM %s", tableProfileHostgroupMember.name);
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
 }
 
-void test_upsertHostHostgroupAutoIncrement(void)
+void test_upsertHostgroupMemberAutoIncrement(void)
 {
-	HostHostgroup hostHostgroup;
-	hostHostgroup.id = AUTO_INCREMENT_VALUE;
-	hostHostgroup.serverId = 52;
-	hostHostgroup.hostIdInServer = "88664422";
-	hostHostgroup.hostgroupIdInServer = "1133";
+	HostgroupMember hostgroupMember;
+	hostgroupMember.id = AUTO_INCREMENT_VALUE;
+	hostgroupMember.serverId = 52;
+	hostgroupMember.hostIdInServer = "88664422";
+	hostgroupMember.hostgroupIdInServer = "1133";
 
 	DECLARE_DBTABLES_HOST(dbHost);
-	GenericIdType id0 = dbHost.upsertHostHostgroup(hostHostgroup);
-	GenericIdType id1 = dbHost.upsertHostHostgroup(hostHostgroup);
+	GenericIdType id0 = dbHost.upsertHostgroupMember(hostgroupMember);
+	GenericIdType id1 = dbHost.upsertHostgroupMember(hostgroupMember);
 	const string expect = StringUtils::sprintf(
 	  "%" FMT_GEN_ID "|52|88664422|1133\n"
 	  "%" FMT_GEN_ID "|52|88664422|1133", id0, id1);
-	const string statement = "SELECT * FROM host_hostgroup ORDER BY id";
+	const string statement = StringUtils::sprintf(
+	  "SELECT * FROM %s ORDER BY id", tableProfileHostgroupMember.name);
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id0);
 	cppcut_assert_not_equal(id0, id1);
 }
 
-void test_upsertHostHostgroupUpdate(void)
+void test_upsertHostgroupMemberUpdate(void)
 {
-	HostHostgroup hostHostgroup;
-	hostHostgroup.id = AUTO_INCREMENT_VALUE;
-	hostHostgroup.serverId = 52;
-	hostHostgroup.hostIdInServer = "88664422";
-	hostHostgroup.hostgroupIdInServer = "1133";
+	HostgroupMember hostgroupMember;
+	hostgroupMember.id = AUTO_INCREMENT_VALUE;
+	hostgroupMember.serverId = 52;
+	hostgroupMember.hostIdInServer = "88664422";
+	hostgroupMember.hostgroupIdInServer = "1133";
 
 	DECLARE_DBTABLES_HOST(dbHost);
-	GenericIdType id0 = dbHost.upsertHostHostgroup(hostHostgroup);
-	hostHostgroup.id = id0;
-	GenericIdType id1 = dbHost.upsertHostHostgroup(hostHostgroup);
+	GenericIdType id0 = dbHost.upsertHostgroupMember(hostgroupMember);
+	hostgroupMember.id = id0;
+	GenericIdType id1 = dbHost.upsertHostgroupMember(hostgroupMember);
 	const string expect = StringUtils::sprintf(
 	  "%" FMT_GEN_ID "|52|88664422|1133", id1);
-	const string statement = "SELECT * FROM host_hostgroup";
+	const string statement = StringUtils::sprintf(
+	  "SELECT * FROM %s", tableProfileHostgroupMember.name);
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id0);
 	cppcut_assert_equal(id0, id1);
@@ -439,7 +442,7 @@ void test_getHypervisorWithUserWhoCanAccessAllHostgroup(gconstpointer data)
 	loadTestDBAccessList();
 	loadTestDBServerHostDef();
 	loadTestDBVMInfo();
-	loadTestDBHostHostgroup();
+	loadTestDBHostgroupMember();
 
 	const gboolean allowedUser = gcut_data_get_boolean(data, "allowed");
 	// TODO: This raw index is too unreadable !!
@@ -517,7 +520,7 @@ void test_getVirtualMachines(gconstpointer data)
 	loadTestDBAccessList();
 	loadTestDBServerHostDef();
 	loadTestDBVMInfo();
-	loadTestDBHostHostgroup();
+	loadTestDBHostgroupMember();
 	DECLARE_DBTABLES_HOST(dbHost);
 
 	const UserIdType userId = gcut_data_get_int(data, "userId");
@@ -676,7 +679,7 @@ void test_getServerHostDefs(gconstpointer data)
 	loadTestDBUser();
 	loadTestDBAccessList();
 	loadTestDBServerHostDef();
-	loadTestDBHostHostgroup();
+	loadTestDBHostgroupMember();
 	DECLARE_DBTABLES_HOST(dbHost);
 
 	ServerHostDefVect svHostDefVect;

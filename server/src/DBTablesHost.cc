@@ -30,7 +30,7 @@ static const char *TABLE_NAME_SERVER_HOST_DEF = "server_host_def";
 static const char *TABLE_NAME_HOST_ACCESS     = "host_access";
 static const char *TABLE_NAME_VM_LIST         = "vm_list";
 static const char *TABLE_NAME_HOSTGROUP_LIST  = "hostgroup_list";
-static const char *TABLE_NAME_HOST_HOSTGROUP  = "host_hostgroup";
+static const char *TABLE_NAME_HOSTGROUP_MEMBER  = "hostgroup_member";
 
 const int DBTablesHost::TABLES_VERSION = 2;
 
@@ -291,7 +291,7 @@ const DBAgent::TableProfile tableProfileHostgroupList =
 			    indexDefsHostgroupList);
 
 
-static const ColumnDef COLUMN_DEF_HOST_HOSTGROUP[] = {
+static const ColumnDef COLUMN_DEF_HOSTGROUP_MEMBER[] = {
 {
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
@@ -307,7 +307,7 @@ static const ColumnDef COLUMN_DEF_HOST_HOSTGROUP[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE, // indexDefsHostHostgroup // keyType
+	SQL_KEY_NONE, // indexDefsHostgroupMember // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -331,22 +331,22 @@ static const ColumnDef COLUMN_DEF_HOST_HOSTGROUP[] = {
 },
 };
 
-static const int columnIndexesHostHostgroupUniqId[] = {
-  IDX_HOST_HOSTGROUP_SERVER_ID, IDX_HOST_HOSTGROUP_ID,
+static const int columnIndexesHostgroupMemberUniqId[] = {
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_ID,
   DBAgent::IndexDef::END,
 };
 
-static const DBAgent::IndexDef indexDefsHostHostgroup[] = {
+static const DBAgent::IndexDef indexDefsHostgroupMember[] = {
   {"HostsHostgroupUniqId",
-   (const int *)columnIndexesHostHostgroupUniqId, true},
+   (const int *)columnIndexesHostgroupMemberUniqId, true},
   {NULL}
 };
 
-const DBAgent::TableProfile tableProfileHostHostgroup =
-  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOST_HOSTGROUP,
-			    COLUMN_DEF_HOST_HOSTGROUP,
-			    NUM_IDX_HOST_HOSTGROUP,
-			    indexDefsHostHostgroup);
+const DBAgent::TableProfile tableProfileHostgroupMember =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOSTGROUP_MEMBER,
+			    COLUMN_DEF_HOSTGROUP_MEMBER,
+			    NUM_IDX_HOSTGROUP_MEMBER,
+			    indexDefsHostgroupMember);
 
 struct DBTablesHost::Impl
 {
@@ -724,15 +724,15 @@ void DBTablesHost::upsertHostgroups(const HostgroupVect &hostgroups)
 	getDBAgent().runTransaction(proc);
 }
 
-GenericIdType DBTablesHost::upsertHostHostgroup(
-  const HostHostgroup &hostHostgroup, const bool &useTransaction)
+GenericIdType DBTablesHost::upsertHostgroupMember(
+  const HostgroupMember &hostgroupMember, const bool &useTransaction)
 {
 	GenericIdType id;
-	DBAgent::InsertArg arg(tableProfileHostHostgroup);
-	arg.add(hostHostgroup.id);
-	arg.add(hostHostgroup.serverId);
-	arg.add(hostHostgroup.hostIdInServer);
-	arg.add(hostHostgroup.hostgroupIdInServer);
+	DBAgent::InsertArg arg(tableProfileHostgroupMember);
+	arg.add(hostgroupMember.id);
+	arg.add(hostgroupMember.serverId);
+	arg.add(hostgroupMember.hostIdInServer);
+	arg.add(hostgroupMember.hostgroupIdInServer);
 	arg.upsertOnDuplicate = true;
 
 	DBAgent &dbAgent = getDBAgent();
@@ -746,27 +746,28 @@ GenericIdType DBTablesHost::upsertHostHostgroup(
 	return id;
 }
 
-void DBTablesHost::upsertHostHostgroups(const HostHostgroupVect &hostHostgroups)
+void DBTablesHost::upsertHostgroupMembers(
+  const HostgroupMemberVect &hostgroupMembers)
 {
 	struct Proc : public DBAgent::TransactionProc {
 		DBTablesHost &dbHost;
-		const HostHostgroupVect &hostHostgrps;
+		const HostgroupMemberVect &hostgrpMembers;
 
 		Proc(DBTablesHost &_dbHost,
-		     const HostHostgroupVect &_hostHostgrps)
+		     const HostgroupMemberVect &_hostgrpMembers)
 		: dbHost(_dbHost),
-		  hostHostgrps(_hostHostgrps)
+		  hostgrpMembers(_hostgrpMembers)
 		{
 		}
 
 		void operator ()(DBAgent &dbAgent) override
 		{
-			HostHostgroupVectConstIterator hhgrpItr =
-			  hostHostgrps.begin();
-			for (; hhgrpItr != hostHostgrps.end(); ++hhgrpItr)
-				dbHost.upsertHostHostgroup(*hhgrpItr, false);
+			HostgroupMemberVectConstIterator hgrpMemIt =
+			  hostgrpMembers.begin();
+			for (; hgrpMemIt != hostgrpMembers.end(); ++hgrpMemIt)
+				dbHost.upsertHostgroupMember(*hgrpMemIt, false);
 		}
-	} proc(*this, hostHostgroups);
+	} proc(*this, hostgroupMembers);
 	getDBAgent().runTransaction(proc);
 }
 
@@ -853,12 +854,12 @@ bool DBTablesHost::isAccessible(
 
 	// TODO: add a column including host_id and use it
 	builder.addTable(
-	  tableProfileHostHostgroup, DBClientJoinBuilder::INNER_JOIN,
+	  tableProfileHostgroupMember, DBClientJoinBuilder::INNER_JOIN,
 	  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
-	  IDX_HOST_HOSTGROUP_SERVER_ID,
+	  IDX_HOSTGROUP_MEMBER_SERVER_ID,
 	  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
-	  IDX_HOST_HOSTGROUP_HOST_ID);
-	builder.add(IDX_HOST_HOSTGROUP_GROUP_ID);
+	  IDX_HOSTGROUP_MEMBER_HOST_ID);
+	builder.add(IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 	DBAgent::SelectExArg &arg = builder.build();
 	arg.condition = StringUtils::sprintf(
@@ -948,7 +949,7 @@ DBTables::SetupInfo &DBTablesHost::getSetupInfo(void)
 	}, {
 		&tableProfileHostgroupList,
 	}, {
-		&tableProfileHostHostgroup,
+		&tableProfileHostgroupMember,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =

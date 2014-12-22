@@ -1159,7 +1159,7 @@ const Hostgroup testHostgroup[] = {
 };
 const size_t NumTestHostgroup = ARRAY_SIZE(testHostgroup);
 
-const HostHostgroup testHostHostgroup[] = {
+const HostgroupMember testHostgroupMember[] = {
 {
 	AUTO_INCREMENT_VALUE,            // id
 	1,                               // serverId
@@ -1256,7 +1256,7 @@ const HostHostgroup testHostHostgroup[] = {
 	"124",                           // hostgroupIdInServer
 }
 };
-const size_t NumTestHostHostgroup = ARRAY_SIZE(testHostHostgroup);
+const size_t NumTestHostgroupMember = ARRAY_SIZE(testHostgroupMember);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
@@ -1424,13 +1424,13 @@ static string makeHostgroupElementPack(
  *
  * @return a set of HostGroupElementPack.
  */
-static const set<string> &getHostHostgroupPackSet(void)
+static const set<string> &getHostgroupMemberPackSet(void)
 {
 	static set<string> hostHGrpPackSet;
 	if (!hostHGrpPackSet.empty())
 		return hostHGrpPackSet;
-	for (size_t i = 0; i < NumTestHostHostgroup; i++) {
-		const HostHostgroup &hhgr = testHostHostgroup[i];
+	for (size_t i = 0; i < NumTestHostgroupMember; i++) {
+		const HostgroupMember &hhgr = testHostgroupMember[i];
 		const string mash =
 		  makeHostgroupElementPack(
 		    hhgr.serverId, hhgr.hostIdInServer,
@@ -1449,7 +1449,7 @@ static bool isInHostgroup(const TriggerInfo &trigInfo,
 		return true;
 
 	const set<string> &hostgroupElementPackSet =
-	  getHostHostgroupPackSet();
+	  getHostgroupMemberPackSet();
 
 	const string pack =
 	  makeHostgroupElementPack(trigInfo.serverId,
@@ -1721,7 +1721,7 @@ bool isAuthorized(
 
 	// check if the user is allowed to access to the host
 	if (!hgrpElementPackSet)
-		hgrpElementPackSet = &getHostHostgroupPackSet();
+		hgrpElementPackSet = &getHostgroupMemberPackSet();
 	HostgroupIdSetConstIterator hostgroupIdItr = hostgroupIds.begin();
 	for (; hostgroupIdItr != hostgroupIds.end(); ++hostgroupIdItr) {
 		const string pack =
@@ -1756,7 +1756,7 @@ bool isAuthorized(
 	ServerHostGrpSetMap authMap;
 	makeServerHostGrpSetMap(authMap, userId);
 	cppcut_assert_equal(serverIds.size(), hostIds.size());
-	const set<string> &hostHGrpPackSet = getHostHostgroupPackSet();
+	const set<string> &hostHGrpPackSet = getHostgroupMemberPackSet();
 	for (size_t i = 0; i < serverIds.size(); i++) {
 		if (isAuthorized(authMap, userId, serverIds[i], hostIds[i],
 		                 &hostHGrpPackSet))
@@ -1802,11 +1802,11 @@ const HostgroupIdSet &getTestHostgroupIdSet(void)
 	if (!testHostgroupIdSet.empty())
 		return testHostgroupIdSet;
 
-	for (size_t i = 0; i < NumTestHostHostgroup; i++) {
+	for (size_t i = 0; i < NumTestHostgroupMember; i++) {
 		// TODO: HostgroupIdSet should have a string.
 		HostgroupIdType hostgroupId;
 		cppcut_assert_equal(
-		  1, sscanf(testHostHostgroup[i].hostgroupIdInServer.c_str(),
+		  1, sscanf(testHostgroupMember[i].hostgroupIdInServer.c_str(),
 		            "%" FMT_HOST_GROUP_ID, &hostgroupId));
 		testHostgroupIdSet.insert(hostgroupId);
 	}
@@ -2082,11 +2082,11 @@ void loadTestDBHostgroup(void)
 		dbHost.upsertHostgroup(testHostgroup[i]);
 }
 
-void loadTestDBHostHostgroup(void)
+void loadTestDBHostgroupMember(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesHost &dbHost = cache.getHost();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestHostHostgroup; i++)
-		dbHost.upsertHostHostgroup(testHostHostgroup[i]);
+	for (size_t i = 0; i < NumTestHostgroupMember; i++)
+		dbHost.upsertHostgroupMember(testHostgroupMember[i]);
 }

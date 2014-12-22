@@ -616,7 +616,7 @@ void test_overview(void)
 	loadTestDBServerStatus();
 	loadTestDBServerHostDef();
 	loadTestDBHostgroup();
-	loadTestDBHostHostgroup();
+	loadTestDBHostgroupMember();
 
 	RequestArg arg("/overview");
 	// It's supposed to be a user with ID:2, who can access all hosts.

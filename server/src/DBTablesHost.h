@@ -72,16 +72,16 @@ typedef std::vector<Hostgroup>        HostgroupVect;
 typedef HostgroupVect::iterator       HostgroupVectIterator;
 typedef HostgroupVect::const_iterator HostgroupVectConstIterator;
 
-struct HostHostgroup {
+struct HostgroupMember {
 	GenericIdType id;
 	ServerIdType  serverId;
 	std::string   hostIdInServer;
 	std::string   hostgroupIdInServer;
 };
 
-typedef std::vector<HostHostgroup>        HostHostgroupVect;
-typedef HostHostgroupVect::iterator       HostHostgroupVectIterator;
-typedef HostHostgroupVect::const_iterator HostHostgroupVectConstIterator;
+typedef std::vector<HostgroupMember>        HostgroupMemberVect;
+typedef HostgroupMemberVect::iterator       HostgroupMemberVectIterator;
+typedef HostgroupMemberVect::const_iterator HostgroupMemberVectConstIterator;
 
 struct HostQueryOption : public DataQueryOption {
 public:
@@ -128,11 +128,11 @@ enum {
 };
 
 enum {
-	IDX_HOST_HOSTGROUP_ID,
-	IDX_HOST_HOSTGROUP_SERVER_ID,
-	IDX_HOST_HOSTGROUP_HOST_ID,
-	IDX_HOST_HOSTGROUP_GROUP_ID,
-	NUM_IDX_HOST_HOSTGROUP,
+	IDX_HOSTGROUP_MEMBER_ID,
+	IDX_HOSTGROUP_MEMBER_SERVER_ID,
+	IDX_HOSTGROUP_MEMBER_HOST_ID,
+	IDX_HOSTGROUP_MEMBER_GROUP_ID,
+	NUM_IDX_HOSTGROUP_MEMBER,
 };
 
 extern const DBAgent::TableProfile tableProfileHostList;
@@ -140,7 +140,7 @@ extern const DBAgent::TableProfile tableProfileServerHostDef;
 extern const DBAgent::TableProfile tableProfileHostAccess;
 extern const DBAgent::TableProfile tableProfileVMList;
 extern const DBAgent::TableProfile tableProfileHostgroupList;
-extern const DBAgent::TableProfile tableProfileHostHostgroup;
+extern const DBAgent::TableProfile tableProfileHostgroupMember;
 
 class DBTablesHost : public DBTables {
 public:
@@ -242,20 +242,22 @@ public:
 	void upsertHostgroups(const HostgroupVect &hostgroups);
 
 	/**
-	 * Insert or update a record to/in the host_hostgroup table
+	 * Insert or update a record to/in the hostgroup_member table
 	 *
 	 * If there's the record whose ID is equal to hostHostgroup.id,
 	 * the record is updated.
 	 *
-	 * @param hostHostgroup A data to be inserted/updated.
+	 * @param hostgroupMember A data to be inserted/updated.
 	 * @param useTransaction A flag to use a transaction.
 	 * @return
 	 * The ID of inserted/updated record.
 	 */
-	GenericIdType upsertHostHostgroup(const HostHostgroup &hostHostgroup,
-	                                  const bool &useTransaction = true);
+	GenericIdType upsertHostgroupMember(
+	  const HostgroupMember &hostgroupMember,
+	  const bool &useTransaction = true);
 
-	void upsertHostHostgroups(const HostHostgroupVect &hostgroups);
+	void upsertHostgroupMembers(
+	  const HostgroupMemberVect &hostgroupMembers);
 
 	/**
 	 * Get the virtual mechines
