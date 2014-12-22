@@ -542,7 +542,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     appendSelectElem($("#selectHostgroupId"), self.actionDef.serverId);
     appendSelectElem($("#selectHostId"), self.actionDef.serverId);
 
-    for (var i = 0; i < reply.servers.length; i ++) {
+    for (var i = 0; i < reply.servers.length; i++) {
       if (reply.servers[i].id != self.actionDef.serverId)
         continue;
 
