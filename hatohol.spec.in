@@ -11,21 +11,6 @@ Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Requires: glib2 >= 2.22
-Requires: libsoup >= 2.22
-Requires: json-glib >= 0.12
-Requires: sqlite >= 3.6
-%if %is_el6
-Requires: mysql >= 5.1
-%endif
-%if %is_el7
-Requires: mariadb
-%endif
-Requires: MySQL-python
-Requires: libuuid >= 2.17
-Requires: qpid-cpp-client >= 0.14
-Requires: librabbitmq >= 0.4.1
-Requires: hatohol-lib-common >= %{version}
 BuildRequires: gcc-c++, pkgconfig
 BuildRequires: glib2-devel >= 2.22
 BuildRequires: libsoup-devel >= 2.22
@@ -41,7 +26,34 @@ BuildRequires: libuuid-devel >= 2.17
 BuildRequires: qpid-cpp-client-devel >= 0.14
 BuildRequires: librabbitmq-devel >= 0.4.1
 BuildRequires: python-argparse >= 1.2
+
 %description
+Hatohol collects monitoring information from running monitoring systems
+and shows their integrated data on one screen. This feature enables
+to consolidate monitoring centers and the operators even when monitored
+devices are being used in different places or with different monitoring
+software.
+
+%package server
+Summary: The Hatohol server.
+Group: Applications/System
+Requires: glib2 >= 2.22
+Requires: libsoup >= 2.22
+Requires: json-glib >= 0.12
+Requires: sqlite >= 3.6
+%if %is_el6
+Requires: mysql >= 5.1
+%endif
+%if %is_el7
+Requires: mariadb
+%endif
+Requires: MySQL-python
+Requires: libuuid >= 2.17
+Requires: qpid-cpp-client >= 0.14
+Requires: librabbitmq >= 0.4.1
+Requires: hatohol-lib-common >= %{version}
+
+%description server
 Hatohol collects monitoring information from running monitoring systems
 and shows their integrated data on one screen. This feature enables
 to consolidate monitoring centers and the operators even when monitored
@@ -159,7 +171,7 @@ mkdir -p %{_sysconfdir}/hatohol
 %clean
 rm -rf %{buildroot}
 
-%files
+%files server
 %defattr(-,root,root,-)
 %doc README.md COPYING
 %{_bindir}/*
@@ -300,7 +312,8 @@ rm -rf %{buildroot}
 - [Client] Automatic update of content in web pages. (#8)
 - [Client] messages in multiple languages should be supported (#10)
 - [Server] Update items triggered by the request. (#17)
-- Configuration of target server list by Web Interface. (#22)
+ons/System
+Requires: gli- Configuration of target server list by Web Interface. (#22)
 - [Server] The update of target servers without the restart of Hatohol server. (#32)
 - [Client] Make a link to Zabbix Graphs page (#48)
 - [Client] Make a link to Zabbix Map page (#49)
