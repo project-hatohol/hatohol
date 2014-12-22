@@ -434,7 +434,7 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 			  serverIdColumnName.c_str(),
 			  DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			  hostIdColumnName.c_str(),
-	                  tableProfileHostHostgroup.name,
+	                  tableProfileHostgroupMember.name,
 			  hostgroupIdColumnName.c_str());
 	fixupForFilteringDefunctServer(data, expect, option);
 	cppcut_assert_equal(expect, option.getCondition());
