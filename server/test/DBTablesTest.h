@@ -99,8 +99,8 @@ extern const size_t NumTestVMInfo;
 extern const Hostgroup testHostgroup[];
 extern const size_t NumTestHostgroup;
 
-extern const HostHostgroup testHostHostgroup[];
-extern const size_t NumTestHostHostgroup;
+extern const HostgroupMember testHostgroupMember[];
+extern const size_t NumTestHostgroupMember;
 
 /**
  * get the test trigger data indexes whose serverId and hostId are
@@ -249,6 +249,6 @@ void loadTestDBIncidentTracker(void);
 void loadTestDBServerHostDef(void);
 void loadTestDBVMInfo(void);
 void loadTestDBHostgroup(void);
-void loadTestDBHostHostgroup(void);
+void loadTestDBHostgroupMember(void);
 
 #endif // DBClientTest_h
