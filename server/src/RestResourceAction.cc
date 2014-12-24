@@ -165,14 +165,11 @@ static HatoholError parseActionParameter(FaceRest::ResourceHandler *job,
 	if (!succeeded)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "type");
 	if (!exist) {
-		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "type");
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "type");
 	}
 	if (!(actionDef.type == ACTION_COMMAND ||
 		  actionDef.type == ACTION_RESIDENT ||
 		  actionDef.type == ACTION_INCIDENT_SENDER)) {
-		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-		            "type: %d", actionDef.type);
 		return HatoholError(HTERR_INVALID_PARAMETER,
 		                    StringUtils::sprintf("type: %d", actionDef.type));
 	}
@@ -180,7 +177,6 @@ static HatoholError parseActionParameter(FaceRest::ResourceHandler *job,
 	// command
 	value = (char *)g_hash_table_lookup(job->m_query, "command");
 	if (!value) {
-		job->replyError(HTERR_NOT_FOUND_PARAMETER, "command");
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "command");
 	}
 	actionDef.command = value;
