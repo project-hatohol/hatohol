@@ -135,6 +135,27 @@ var ActionsView = function(userProfile) {
     }
   }
 
+  function setupEditButtons(actionsPkt)
+  {
+    var i, id, actions = actionsPkt["actions"], actionsMap = {};
+
+    for (i = 0; i < actions.length; ++i)
+      actionsMap[actions[i].actionId] =  actions[i];
+
+    for (i = 0; i < actions.length; ++i) {
+      id = "#edit-action" + actions[i].actionId;
+      $(id).click(function() {
+        var actionId = this.getAttribute("actionId");
+        new HatoholAddActionDialog(load, null, actionsMap[actionId]);
+      });
+    }
+
+    if (userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_ACTION) ||
+        userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_ALL_ACTION))
+    {
+      $(".edit-action-column").show();
+    }
+  }
   //
   // parser of received json data
   //
@@ -234,6 +255,12 @@ var ActionsView = function(userProfile) {
         timeoutLabel = timeout / 1000;
       s += "<td>" + escapeHTML(timeoutLabel) + "</td>";
 
+      s += "<td class='edit-action-column' style='display:none;'>";
+      s += "<input id='edit-action" + escapeHTML(actionDef.actionId) + "'";
+      s += "  type='button' class='btn btn-default'";
+      s += "  actionId='" + escapeHTML(actionDef.actionId) + "'";
+      s += "  value='" + gettext("EDIT") + "' />";
+      s += "</td>";
       s += "</tr>";
     }
 
@@ -248,6 +275,7 @@ var ActionsView = function(userProfile) {
 	self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ALL_ACTION)) {
       $(".delete-selector").show();
     }
+    setupEditButtons(rawData);
     self.displayUpdateTime();
   }
 

@@ -61,6 +61,8 @@ void RestResourceAction::handle(void)
 		handlePost();
 	} else if (httpMethodIs("DELETE")) {
 		handleDelete();
+	} else if (httpMethodIs("PUT")) {
+		handlePut();
 	} else {
 		MLPL_ERR("Unknown method: %s\n", m_message->method);
 		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
@@ -119,7 +121,7 @@ void RestResourceAction::handleGet(void)
 		  agent, cond, "hostgroupId", ACTCOND_HOST_GROUP_ID,
 		   cond.hostgroupId);
 		setActionCondition<std::string>(
-		  agent, cond, "triggerId", ACTCOND_TRIGGER_ID, 
+		  agent, cond, "triggerId", ACTCOND_TRIGGER_ID,
 		  StringUtils::toString(cond.triggerId));
 		setActionCondition<uint32_t>(
 		  agent, cond, "triggerStatus", ACTCOND_TRIGGER_STATUS,
@@ -321,6 +323,162 @@ void RestResourceAction::handleDelete(void)
 	agent.startObject();
 	addHatoholError(agent, err);
 	agent.add("id", actionId);
+	agent.endObject();
+	replyJSONData(agent);
+}
+
+void RestResourceAction::handlePut(void)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
+	char *value;
+	bool exist;
+	bool succeeded;
+	ActionDef actionDef;
+	uint32_t actionId;
+
+	// action id
+	actionId = getResourceId();
+	if (actionId == INVALID_ID) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", getResourceIdString().c_str());
+		return;
+	}
+	actionDef.id = actionId;
+
+	// action type
+	succeeded = getParamWithErrorReply<int>(
+	                this, "type", "%d", (int &)actionDef.type, &exist);
+	if (!succeeded)
+		return;
+	if (!exist) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_PARAMETER, "type");
+		return;
+	}
+	if (!(actionDef.type == ACTION_COMMAND ||
+		  actionDef.type == ACTION_RESIDENT ||
+		  actionDef.type == ACTION_INCIDENT_SENDER)) {
+		REPLY_ERROR(this, HTERR_INVALID_PARAMETER,
+		            "type: %d", actionDef.type);
+		return;
+	}
+
+	// command
+	value = (char *)g_hash_table_lookup(m_query, "command");
+	if (!value) {
+		replyError(HTERR_INVALID_PARAMETER, "command");
+		return;
+	}
+	actionDef.command = value;
+
+	//
+	// optional parameters
+	//
+	ActionCondition &cond = actionDef.condition;
+
+	// workingDirectory
+	value = (char *)g_hash_table_lookup(m_query, "workingDirectory");
+	if (value) {
+		actionDef.workingDir = value;
+	}
+
+	// timeout
+	succeeded = getParamWithErrorReply<int>(
+	                this, "timeout", "%d", actionDef.timeout, &exist);
+	if (!succeeded)
+		return;
+	if (!exist)
+		actionDef.timeout = 0;
+
+	// ownerUserId
+	succeeded = getParamWithErrorReply<int>(
+	                this, "ownerUserId", "%d", actionDef.ownerUserId, &exist);
+	if (!succeeded)
+		return;
+	if (!exist)
+		actionDef.ownerUserId = m_userId;
+
+	// serverId
+	succeeded = getParamWithErrorReply<int>(
+	                this, "serverId", "%d", cond.serverId, &exist);
+	if (!succeeded)
+		return;
+	if (exist)
+		cond.enable(ACTCOND_SERVER_ID);
+
+	// hostId
+	succeeded = getParamWithErrorReply<uint64_t>(
+	                this, "hostId", "%" PRIu64, cond.hostId, &exist);
+	if (!succeeded)
+		return;
+	if (exist)
+		cond.enable(ACTCOND_HOST_ID);
+
+	// hostgroupId
+	succeeded = getParamWithErrorReply<uint64_t>(
+	              this, "hostgroupId", "%" PRIu64, cond.hostgroupId, &exist);
+	if (!succeeded)
+		return;
+	if (exist)
+		cond.enable(ACTCOND_HOST_GROUP_ID);
+
+	// triggerId
+	succeeded = getParamWithErrorReply<uint64_t>(
+	              this, "triggerId", "%" PRIu64, cond.triggerId, &exist);
+	if (!succeeded)
+		return;
+	if (exist)
+		cond.enable(ACTCOND_TRIGGER_ID);
+
+	// triggerStatus
+	succeeded = getParamWithErrorReply<int>(
+	              this, "triggerStatus", "%d", cond.triggerStatus, &exist);
+	if (!succeeded)
+		return;
+	if (exist)
+		cond.enable(ACTCOND_TRIGGER_STATUS);
+
+	// triggerSeverity
+	succeeded = getParamWithErrorReply<int>(
+	              this, "triggerSeverity", "%d", cond.triggerSeverity, &exist);
+	if (!succeeded)
+		return;
+	if (exist) {
+		cond.enable(ACTCOND_TRIGGER_SEVERITY);
+
+		// triggerSeverityComparatorType
+		succeeded = getParamWithErrorReply<int>(
+		              this, "triggerSeverityCompType", "%d",
+		              (int &)cond.triggerSeverityCompType, &exist);
+		if (!succeeded)
+			return;
+		if (!exist) {
+			replyError(HTERR_NOT_FOUND_PARAMETER,
+					"triggerSeverityCompType");
+			return;
+		}
+		if (!(cond.triggerSeverityCompType == CMP_EQ ||
+		      cond.triggerSeverityCompType == CMP_EQ_GT)) {
+			REPLY_ERROR(this, HTERR_INVALID_PARAMETER,
+			            "type: %d", cond.triggerSeverityCompType);
+			return;
+		}
+	}
+
+	// save the obtained action
+	HatoholError err =
+	  dataStore->updateAction(
+	    actionDef, m_dataQueryContextPtr->getOperationPrivilege());
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	// make a response for update
+	JSONBuilder agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	agent.add("id", actionDef.id);
 	agent.endObject();
 	replyJSONData(agent);
 }

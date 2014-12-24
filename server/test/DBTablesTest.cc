@@ -105,7 +105,7 @@ ServerTypeInfo testServerTypeInfo[] =
 }};
 size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
 
-MonitoringServerInfo testServerInfo[] = 
+MonitoringServerInfo testServerInfo[] =
 {{
 	1,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -158,7 +158,7 @@ MonitoringServerStatus testServerStatus[] =
 }};
 size_t NumTestServerStatus = ARRAY_SIZE(testServerStatus);
 
-TriggerInfo testTriggerInfo[] = 
+TriggerInfo testTriggerInfo[] =
 {{
 	1,                        // serverId
 	1,                        // id
@@ -578,6 +578,27 @@ ActionDef testActionDef[] = {
 };
 
 const size_t NumTestActionDef = ARRAY_SIZE(testActionDef);
+
+ActionDef testUpdateActionDef = {
+	2,                 // id (this field is needed when updating)
+	ActionCondition(
+		ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
+		ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS |
+		ACTCOND_TRIGGER_SEVERITY, // enableBits
+		2,                        // serverId
+		1001,                     // hostId
+		2001,                     // hostGroupId
+		14000,                    // triggerId
+		TRIGGER_STATUS_OK,        // triggerStatus
+		TRIGGER_SEVERITY_WARNING, // triggerSeverity
+		CMP_EQ_GT                 // triggerSeverityCompType;
+	), // condition
+	ACTION_COMMAND,          // type
+	"/home/hatohol",         // working dir
+	"/usr/lib/libupdate.so", // command
+	0,                       // timeout
+	2,                       // ownerUserId
+};
 
 UserInfo testUserInfo[] = {
 {
@@ -1333,7 +1354,7 @@ static const set<string> &getHostgroupElementPackSet(void)
 		const string mash =
 		  makeHostgroupElementPack(
 		    hgrpElem.serverId, hgrpElem.hostId, hgrpElem.groupId);
-		pair<set<string>::iterator, bool> result = 
+		pair<set<string>::iterator, bool> result =
 		  hostgroupElementPackSet.insert(mash);
 		cppcut_assert_equal(true, result.second);
 	}
@@ -1371,7 +1392,7 @@ static bool isInHostgroup(const TriggerInfo &trigInfo,
 	if (hostgroupId == ALL_HOST_GROUPS)
 		return true;
 
-	const set<string> &hostgroupElementPackSet = 
+	const set<string> &hostgroupElementPackSet =
 	  getHostgroupElementPackSet();
 
 	const string pack =
@@ -1382,7 +1403,7 @@ static bool isInHostgroup(const TriggerInfo &trigInfo,
 }
 
 size_t getNumberOfTestTriggers(const ServerIdType &serverId,
-                               const HostgroupIdType &hostgroupId, 
+                               const HostgroupIdType &hostgroupId,
                                const TriggerSeverityType &severity)
 {
 	size_t count = 0;
@@ -1715,7 +1736,7 @@ size_t findIndexFromTestActionDef(const ActionType &type)
 const HostgroupIdSet &getTestHostgroupIdSet(void)
 {
 	static HostgroupIdSet testHostgroupIdSet;
-	if (!testHostgroupIdSet.empty()) 
+	if (!testHostgroupIdSet.empty())
 		return testHostgroupIdSet;
 
 	for (size_t i = 0; i < NumTestHostgroupElement; i++)

@@ -66,6 +66,8 @@ extern size_t NumTestItemInfo;
 extern ActionDef testActionDef[];
 extern const size_t NumTestActionDef;
 
+extern ActionDef testUpdateActionDef;
+
 extern UserInfo testUserInfo[];
 extern const size_t NumTestUserInfo;
 extern const UserIdType userIdWithMultipleAuthorizedHostgroups;
@@ -104,7 +106,7 @@ extern const VMInfo testVMInfo[];
 extern const size_t NumTestVMInfo;
 
 /**
- * get the test trigger data indexes whose serverId and hostId are 
+ * get the test trigger data indexes whose serverId and hostId are
  * matched with the specified.
  *
  * @param indexMap
@@ -255,4 +257,3 @@ void loadTestDBVMInfo(void);
 void loadTestDBHostHostgroup(void);
 
 #endif // DBClientTest_h
-

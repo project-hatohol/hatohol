@@ -274,8 +274,12 @@ public:
 		TableProfile tblProf("name", m_testColumnDefs,
 		                     m_numTestColumns);
 		UpdateArg arg(tblProf);
-		for (size_t i = 0; i < numVals; i++)
-			arg.add(i, vals[i]);
+		for (size_t i = 0; i < numVals; i++) {
+			if (i % 2 == 0)
+				arg.add(i, vals[i]);
+			else
+				arg.add(i, vals[i], ITEM_DATA_NULL);
+		}
 
 		// check
 		cppcut_assert_equal(numVals, arg.rows.size());
@@ -284,6 +288,8 @@ public:
 			const T_READ actual = *elem->dataPtr;
 			cppcut_assert_equal(i, elem->columnIndex);
 			cppcut_assert_equal(vals[i], static_cast<T>(actual));
+			const bool expectedNull = (i % 2 == 1);
+			cppcut_assert_equal(expectedNull, elem->dataPtr->isNull());
 			cppcut_assert_equal(1, elem->dataPtr->getUsedCount());
 		}
 	}

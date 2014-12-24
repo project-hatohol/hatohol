@@ -453,6 +453,55 @@ HatoholError DBTablesAction::addAction(ActionDef &actionDef,
 	return HTERR_OK;
 }
 
+HatoholError DBTablesAction::updateAction(ActionDef &actionDef,
+                                          const OperationPrivilege &privilege)
+{
+	HatoholError err = checkPrivilegeForUpdate(privilege, actionDef);
+	if (err != HTERR_OK)
+		return err;
+
+	DBAgent::UpdateArg arg(tableProfileActions);
+
+	// Basically an owner is the caller. However, USER_ID_SYSTEM can
+	// create an action with any user ID. This is a mechanism for
+	// internal system management or a test.
+	UserIdType ownerUserId = privilege.getUserId();
+	if (ownerUserId == USER_ID_SYSTEM)
+		ownerUserId = actionDef.ownerUserId;
+
+	// Owner of ACTION_INCIDENT_SENDER is always USER_ID_SYSTEM
+	if (actionDef.type == ACTION_INCIDENT_SENDER)
+		ownerUserId = USER_ID_SYSTEM;
+
+	const char *actionIdColumnName =
+	  COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID].columnName;
+	arg.condition = StringUtils::sprintf("%s=%d",
+	                                     actionIdColumnName, actionDef.id);
+	arg.add(IDX_ACTIONS_SERVER_ID, actionDef.condition.serverId,
+	        getNullFlag(actionDef, ACTCOND_SERVER_ID));
+	arg.add(IDX_ACTIONS_HOST_ID, actionDef.condition.hostId,
+	        getNullFlag(actionDef, ACTCOND_HOST_ID));
+	arg.add(IDX_ACTIONS_HOST_GROUP_ID, actionDef.condition.hostgroupId,
+	        getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
+	arg.add(IDX_ACTIONS_TRIGGER_ID, actionDef.condition.triggerId,
+	        getNullFlag(actionDef, ACTCOND_TRIGGER_ID));
+	arg.add(IDX_ACTIONS_TRIGGER_STATUS, actionDef.condition.triggerStatus,
+	        getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS));
+	arg.add(IDX_ACTIONS_TRIGGER_SEVERITY, actionDef.condition.triggerSeverity,
+	        getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
+	arg.add(IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE,
+	        actionDef.condition.triggerSeverityCompType,
+	        getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
+	arg.add(IDX_ACTIONS_ACTION_TYPE, actionDef.type);
+	arg.add(IDX_ACTIONS_COMMAND, actionDef.command);
+	arg.add(IDX_ACTIONS_WORKING_DIR, actionDef.workingDir);
+	arg.add(IDX_ACTIONS_TIMEOUT, actionDef.timeout);
+	arg.add(IDX_ACTIONS_OWNER_USER_ID, ownerUserId);
+
+	getDBAgent().runTransaction(arg);
+	return HTERR_OK;
+}
+
 HatoholError DBTablesAction::getActionList(ActionDefList &actionDefList,
 					   const ActionsQueryOption &option)
 {
@@ -721,7 +770,7 @@ void DBTablesAction::logEndExecAction(const LogEndExecActionArg &logArg)
 {
 	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
-	const char *actionLogIdColumnName = 
+	const char *actionLogIdColumnName =
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
 	arg.condition = StringUtils::sprintf("%s=%" PRIu64,
 	                                     actionLogIdColumnName,
@@ -745,7 +794,7 @@ void DBTablesAction::updateLogStatusToStart(uint64_t logId)
 {
 	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
-	const char *actionLogIdColumnName = 
+	const char *actionLogIdColumnName =
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
 	arg.condition = StringUtils::sprintf("%s=%" PRIu64,
 	                                     actionLogIdColumnName, logId);
@@ -860,7 +909,7 @@ bool DBTablesAction::getLog(ActionLog &actionLog, const string &condition)
 	arg.condition = condition;
 	arg.add(IDX_ACTION_LOGS_ACTION_LOG_ID);
 	arg.add(IDX_ACTION_LOGS_ACTION_ID);
-	arg.add(IDX_ACTION_LOGS_STATUS); 
+	arg.add(IDX_ACTION_LOGS_STATUS);
 	arg.add(IDX_ACTION_LOGS_STARTER_ID);
 	arg.add(IDX_ACTION_LOGS_QUEUING_TIME);
 	arg.add(IDX_ACTION_LOGS_START_TIME);
@@ -964,6 +1013,26 @@ HatoholError DBTablesAction::checkPrivilegeForDelete(
 	return HTERR_OK;
 }
 
+HatoholError DBTablesAction::checkPrivilegeForUpdate(
+  const OperationPrivilege &privilege, const ActionDef &actionDef)
+{
+	UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	if (actionDef.type == ACTION_INCIDENT_SENDER) {
+		if (privilege.has(OPPRVLG_UPDATE_INCIDENT_SETTING))
+			return HTERR_OK;
+		else
+			return HTERR_NO_PRIVILEGE;
+	}
+
+	if (!privilege.has(OPPRVLG_UPDATE_ACTION))
+		return HTERR_NO_PRIVILEGE;
+
+	return HTERR_OK;
+}
+
 gboolean DBTablesAction::deleteInvalidActionsExec(gpointer data)
 {
 	struct : public ExceptionCatchable {
@@ -977,7 +1046,7 @@ gboolean DBTablesAction::deleteInvalidActionsExec(gpointer data)
 
 	deleteInvalidActionsContext *deleteActionCtx = static_cast<deleteInvalidActionsContext *>(data);
 	deleteActionCtx->idleEventId = INVALID_EVENT_ID;
-	deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC, 
+	deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC,
 	                                         deleteInvalidActionsCycl,
 	                                         deleteActionCtx);
 	return G_SOURCE_REMOVE;

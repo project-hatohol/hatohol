@@ -442,6 +442,13 @@ HatoholError UnifiedDataStore::deleteActionList(
 	return cache.getAction().deleteActions(actionIdList, privilege);
 }
 
+HatoholError UnifiedDataStore::updateAction(
+  ActionDef &actionDef, const OperationPrivilege &privilege)
+{
+	ThreadLocalDBCache cache;
+	return cache.getAction().updateAction(actionDef, privilege);
+}
+
 bool UnifiedDataStore::isIncidentSenderActionEnabled(void)
 {
 	ThreadLocalDBCache cache;

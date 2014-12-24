@@ -17,7 +17,8 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
+// TODO: use hash arguments
+var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionDef) {
   var self = this;
 
   var IDX_SELECTED_SERVER  = 0;
@@ -25,10 +26,13 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
   var IDX_SELECTED_HOST    = 2;
   var IDX_SELECTED_TRIGGER = 3;
   self.selectedId = new Array();
-  self.selectedId[IDX_SELECTED_SERVER]  = null;
-  self.selectedId[IDX_SELECTED_HOST_GROUP] = null;
-  self.selectedId[IDX_SELECTED_HOST]    = null;
-  self.selectedId[IDX_SELECTED_TRIGGER] = null;
+  self.selectedId[IDX_SELECTED_SERVER]  = actionDef ? actionDef.serverId : null;
+  self.selectedId[IDX_SELECTED_HOST_GROUP] = actionDef ? actionDef.hostgroupId : null;
+  self.selectedId[IDX_SELECTED_HOST]    = actionDef ? actionDef.hostId : null;
+  self.selectedId[IDX_SELECTED_TRIGGER] = actionDef ? actionDef.triggerId : null;
+  self.actionDef = actionDef ? actionDef : null;
+  self.applyButtonTitle = actionDef ? gettext("APPLY") : gettext("ADD");
+  self.targetId = actionDef ? actionDef.actionId : null;
 
   self.changedCallback = changedCallback;
   self.incidentTrackers = incidentTrackers;
@@ -36,10 +40,12 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
 
   self.windowTitle = self.forIncidentSetting ?
     gettext("ADD INCIDENT TRACKING SETTING") : gettext("ADD ACTION");
+  self.windowTitle = self.targetId ?
+    gettext("EDIT ACTION") : self.windowTitle;
 
   var dialogButtons = [{
-    text: gettext("ADD"),
-    click: addButtonClickedCb,
+    text: self.actionDef ? gettext("APPLY") : gettext("ADD"),
+    click: applyButtonClickedCb,
   }, {
     text: gettext("CANCEL"),
     click: cancelButtonClickedCb,
@@ -52,16 +58,20 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
            dialogButtons, dialogAttrs]);
 
   setTimeout(function() {
-    self.setAddButtonState(!!self.getCommand());
+    self.setApplyButtonState(!!self.getCommand());
   }, 1);
 
   //
   // Dialog button handlers
   //
-  function addButtonClickedCb() {
+  function applyButtonClickedCb() {
     if (validateAddParameters()) {
       makeQueryData();
-      hatoholInfoMsgBox(gettext("Now creating an action ..."));
+      if (self.actionDef) {
+        hatoholInfoMsgBox(gettext("Now updating an action ..."));
+      } else {
+        hatoholInfoMsgBox(gettext("Now creating an action ..."));
+      }
       postAddAction();
     }
   }
@@ -337,9 +347,12 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
   }
 
   function postAddAction() {
+    var url = "/action";
+    if (self.targetId)
+       url += "/" + self.targetId;
     new HatoholConnector({
-      url: "/action",
-      request: "POST",
+      url: url,
+      request: self.targetId ? "PUT" : "POST",
       data: makeQueryData(),
       replyCallback: replyCallback,
       parseErrorCallback: hatoholErrorMsgBoxForParser,
@@ -348,8 +361,11 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
 
   function replyCallback(reply, parser) {
     self.closeDialog();
-    hatoholInfoMsgBox(gettext("Successfully created."));
-
+    if (self.actionDef) {
+      hatoholInfoMsgBox(gettext("Successfully updated."));
+    } else {
+      hatoholInfoMsgBox(gettext("Successfully created."));
+    }
     if (self.changedCallback)
       self.changedCallback();
   }
@@ -361,6 +377,103 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
     }
     return true;
   }
+
+  function setupTimeOutValue(timeout) {
+    $("#inputTimeout").val(timeout / 1000);
+  }
+
+  function setupActionCommand(command) {
+    $("#inputActionCommand").val(command);
+  }
+
+  function setupWorkingDirectory(directory) {
+     $("#inputWorkingDir").val(directory);
+  }
+
+  function setupCommandType(type) {
+    var typeSelector = $("#selectType");
+    switch(type) {
+    case hatohol.ACTION_COMMAND:
+      typeSelector.val("ACTION_COMMAND");
+      break;
+    case hatohol.ACTION_RESIDENT:
+      typeSelector.val("ACTION_RESIDENT");
+      break;
+    default:
+      alert("Unknown command type: " + type);
+      break;
+    }
+  }
+
+  function setupTriggerStatusValue(status) {
+    var statusSelector = $("#selectTriggerStatus");
+    switch(status) {
+    case null:
+      statusSelector.val("ANY");
+      break;
+    case hatohol.TRIGGER_STATUS_OK:
+      statusSelector.val("TRIGGER_STATUS_OK");
+      break;
+    case hatohol.TRIGGER_STATUS_PROBLEM:
+      statusSelector.val("TRIGGER_STATUS_PROBLEM");
+      break;
+    default:
+      alert("Unknown status: " + status);
+      break;
+    }
+  }
+
+  function setupSeverityValue(severity) {
+    var severitySelector = $("#selectTriggerSeverity");
+    switch(severity) {
+    case null:
+      severitySelector.val("ANY");
+      break;
+    case hatohol.TRIGGER_SEVERITY_INFO:
+      severitySelector.val("INFO");
+      break;
+    case hatohol.TRIGGER_SEVERITY_WARNING:
+      severitySelector.val("WARNING");
+      break;
+    case hatohol.TRIGGER_SEVERITY_ERROR:
+      severitySelector.val("ERROR");
+      break;
+    case hatohol.TRIGGER_SEVERITY_CRITICAL:
+      severitySelector.val("CRITICAL");
+      break;
+    case hatohol.TRIGGER_SEVERITY_EMERGENCY:
+      severitySelector.val("EMERGENCY");
+      break;
+    default:
+      alert("Unknown severity: " + severity);
+      break;
+    }
+    if (severity) {
+      $("#selectTriggerSeverityCompType").css("visibility","visible");
+    }
+  }
+
+  function setupSevertyCompTypeValue(compType) {
+    var compTypeSelector = $("#selectTriggerSeverityCompType");
+    switch(compType) {
+    case hatohol.CMP_EQ:
+      compTypeSelector.val("CMP_EQ");
+    case hatohol.CMP_EQ_GT:
+      compTypeSelector.val("CMP_EQ_GT");
+    }
+  }
+
+  // Fill value for update
+  if (self.actionDef) {
+    setupCommandType(self.actionDef.type);
+    setupTimeOutValue(self.actionDef.timeout);
+    setupActionCommand(self.actionDef.command);
+    setupWorkingDirectory(self.actionDef.workingDirectory);
+    setupTriggerStatusValue(self.actionDef.triggerStatus);
+    setupSeverityValue(self.actionDef.triggerSeverity);
+    setupSevertyCompTypeValue(self.actionDef.triggerSeverityComparatorType);
+    self.setApplyButtonState(true);
+  }
 }
 
 HatoholAddActionDialog.prototype = Object.create(HatoholDialog.prototype);
@@ -368,8 +481,187 @@ HatoholAddActionDialog.prototype.constructor = HatoholAddActionDialog;
 
 HatoholAddActionDialog.prototype.createMainElement = function() {
   var self = this;
+  if (self.actionDef) {
+    getServersAsync();
+    getHostGroupsAsync();
+    getHostsAsync();
+    getTriggersAsync();
+  }
+
   var div = $(makeMainDivHTML());
   return div;
+
+  //
+  // get server info when updating
+  //
+  function getServersAsync() {
+    new HatoholConnector({
+      url: "/server",
+      replyCallback: replyServerCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function getHostsAsync() {
+    new HatoholConnector({
+      url: "/host",
+      replyCallback: replyHostCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function getHostGroupsAsync() {
+    new HatoholConnector({
+      url: "/hostgroup",
+      replyCallback: replyHostGroupCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function getTriggersAsync() {
+    new HatoholConnector({
+      url: "/trigger",
+      replyCallback: replyTriggerCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function appendSelectElem(selector, infoId) {
+    if (infoId) {
+      var label = "== " + gettext("SELECT") + " ==";
+      selector.append($("<option>").html(label).val("SELECT"));
+    }
+  }
+
+  function replyServerCallback(reply, parser) {
+    if (!(reply.servers instanceof Array)) {
+      hatoholErrorMsgBox("[Malformed reply] Not found array: servers");
+      return;
+    }
+
+    appendSelectElem($("#selectHostgroupId"), self.actionDef.serverId);
+    appendSelectElem($("#selectHostId"), self.actionDef.serverId);
+
+    for (var i = 0; i < reply.servers.length; i++) {
+      if (reply.servers[i].id != self.actionDef.serverId)
+        continue;
+
+      var serverInfo = reply.servers[i];
+      var hostName = serverInfo.hostName;
+      if (!hostName) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: hostName");
+        return;
+      }
+      var serverId = serverInfo.id;
+      if (serverId == undefined) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: id");
+        return;
+      }
+
+      var displayName = serverId + ": " + hostName;
+      $('#selectServerId').append($('<option>').html(displayName).val(serverId));
+    }
+
+    setSelectedIdForUpdate($("#selectServerId"), self.actionDef.serverId);
+  }
+
+  function replyHostCallback(reply, parser) {
+    if (!(reply.hosts instanceof Array)) {
+      hatoholErrorMsgBox("[Malformed reply] Not found array: hosts");
+      return;
+    }
+
+    appendSelectElem($("#selectTriggerId"), self.actionDef.hostId);
+
+    for (var i = 0; i < reply.hosts.length; i ++) {
+      if (reply.hosts[i].id != self.actionDef.hostId)
+        continue;
+
+      var hostInfo = reply.hosts[i];
+      var hostName = hostInfo.hostName;
+      if (!hostName) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: hostName");
+        return;
+      }
+      var hostId = hostInfo.id;
+      if (hostId == undefined) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: id");
+        return;
+      }
+
+      var displayName = hostName;
+      $('#selectHostId').append($('<option>').html(displayName).val(hostId));
+    }
+
+    setSelectedIdForUpdate($("#selectHostId"), self.actionDef.hostId);
+  }
+
+  function replyHostGroupCallback(reply, parser) {
+    if (!(reply.hostgroups instanceof Array)) {
+      hatoholErrorMsgBox("[Malformed reply] Not found array: hostgroups");
+      return;
+    }
+
+    appendSelectElem($("#selectHostId"), self.actionDef.hostgroupId);
+
+    for (var i = 0; i < reply.hostgroups.length; i ++) {
+      if (reply.hostgroups[i].groupId != self.actionDef.hostgroupId)
+        continue;
+
+      var hostgroupInfo = reply.hostgroups[i];
+      var hostgroupName = hostgroupInfo.groupName;
+      if (!hostgroupName) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: hostgroupName");
+        return;
+      }
+      var hostgroupId = hostgroupInfo.groupId;
+      if (hostgroupId == undefined) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: hostgroupId");
+        return;
+      }
+
+      var displayName = hostgroupName;
+      $('#selectHostgroupId').append($('<option>').html(displayName).val(hostgroupId));
+    }
+
+    setSelectedIdForUpdate($("#selectHostgroupId"), self.actionDef.hostgroupId);
+  }
+
+  function replyTriggerCallback(reply, parser) {
+    if (!(reply.triggers instanceof Array)) {
+      hatoholErrorMsgBox("[Malformed reply] Not found array: triggers");
+      return;
+    }
+
+    for (var i = 0; i < reply.triggers.length; i ++) {
+      if (reply.triggers[i].id != self.actionDef.triggerId)
+        continue;
+
+      var triggerInfo = reply.triggers[i];
+      var triggerBrief = triggerInfo.brief;
+      if (!triggerBrief) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: brief");
+        return;
+      }
+      var triggerId = triggerInfo.id;
+      if (triggerId == undefined) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: id");
+        return;
+      }
+
+      var displayName = triggerBrief;
+      $('#selectTriggerId').append($('<option>').html(displayName).val(triggerId));
+    }
+
+    setSelectedIdForUpdate($("#selectTriggerId"), self.actionDef.triggerId);
+  }
+
+  function setSelectedIdForUpdate(jQObjSelectId, selectedIdIndex) {
+    if (selectedIdIndex) {
+      var selectElem = jQObjSelectId;
+      selectElem.val(selectedIdIndex);
+    }
+  }
 
   function makeTriggerConditionArea() {
     var s = "";
@@ -520,7 +812,7 @@ HatoholAddActionDialog.prototype.setupIncidentTrackersEditor = function()
     self.updateIncidentTrackers(incidentTrackers);
     if (self.changedCallback)
       self.changedCallback();
-    self.setAddButtonState(!!self.getCommand());
+    self.setApplyButtonState(!!self.getCommand());
   }
   $("#editIncidentTrackers").click(function() {
     new HatoholIncidentTrackersEditor({
@@ -528,7 +820,7 @@ HatoholAddActionDialog.prototype.setupIncidentTrackersEditor = function()
     });
   });
   $("#selectIncidentTracker").change(function() {
-    self.setAddButtonState(!!self.getCommand());
+    self.setApplyButtonState(!!self.getCommand());
   });
   changedCallback(self.incidentTrackers);
 }
@@ -542,7 +834,7 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
   });
 
   $("#inputActionCommand").keyup(function() {
-    fixupAddButtonState();
+    fixupApplyButtonState();
   });
 
   function applyCallback(type, commandDesc) {
@@ -557,14 +849,14 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
       return;
     }
     $("#inputActionCommand").val(commandDesc);
-    fixupAddButtonState();
+    fixupApplyButtonState();
   }
 
-  function fixupAddButtonState() {
+  function fixupApplyButtonState() {
     if ($("#inputActionCommand").val())
-      self.setAddButtonState(true);
+      self.setApplyButtonState(true);
     else
-      self.setAddButtonState(false);
+      self.setApplyButtonState(false);
   }
 
   if (self.forIncidentSetting) {
@@ -576,9 +868,9 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
   }
 }
 
-HatoholAddActionDialog.prototype.setAddButtonState = function(state) {
+HatoholAddActionDialog.prototype.setApplyButtonState = function(state) {
   var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
-              gettext("ADD") + ")");
+            this.applyButtonTitle + ")");
   if (state) {
      btn.removeAttr("disabled");
      btn.removeClass("ui-state-disabled");

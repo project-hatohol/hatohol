@@ -72,6 +72,19 @@ describe('ActionsView', function() {
     expect(checkboxes.is(":visible")).to.be(expectedVisibility);
   }
 
+  function expectEditColumnVisibility(operator, expectedVisibility) {
+    var userProfile = new HatoholUserProfile(operator);
+    var view = new ActionsView(userProfile);
+    respond();
+
+    var editColumn = $('.edit-action-column');
+    var editButton = $('#edit-action1');
+    expect(editColumn).to.have.length(1);
+    expect(editButton).to.have.length(1);
+    expect(editColumn.is(":visible")).to.be(expectedVisibility);
+    expect(editButton.is(":visible")).to.be(expectedVisibility);
+  }
+
   beforeEach(function(done) {
     $('body').append($('<div>', { id: TEST_FIXTURE_ID }));
     var setupFixture = function(html) {
@@ -139,5 +152,37 @@ describe('ActionsView', function() {
     };
     var expected = false;
     expectDeleteButtonVisibility(operator, expected);
+  });
+
+  it('with update privilege', function() {
+    var operator = {
+      "userId": 1,
+      "name": "admin",
+      "flags": (1 << hatohol.OPPRVLG_UPDATE_ALL_ACTION |
+                1 << hatohol.OPPRVLG_UPDATE_ACTION)
+    };
+    var expected = true;
+    expectEditColumnVisibility(operator, expected);
+  });
+
+  it('with all update privilege', function() {
+    var operator = {
+      "userId": 2,
+      "name": "guest",
+      "flags": (1 << hatohol.OPPRVLG_UPDATE_ALL_ACTION |
+                1 << hatohol.OPPRVLG_UPDATE_ACTION)
+    };
+    var expected = true;
+    expectEditColumnVisibility(operator, expected);
+  });
+
+  it('with no update privilege', function() {
+    var operator = {
+      "userId": 2,
+      "name": "guest",
+      "flags": 0
+    };
+    var expected = false;
+    expectEditColumnVisibility(operator, expected);
   });
 });

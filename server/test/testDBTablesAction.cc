@@ -106,7 +106,7 @@ static string makeExpectedEndLogString(
 	words[IDX_ACTION_LOGS_STATUS] =
 	   StringUtils::sprintf("%d", ACTLOG_STAT_SUCCEEDED);
 	words[IDX_ACTION_LOGS_END_TIME] = DBCONTENT_MAGIC_CURR_DATETIME;
-	words[IDX_ACTION_LOGS_EXIT_CODE] = 
+	words[IDX_ACTION_LOGS_EXIT_CODE] =
 	   StringUtils::sprintf("%d", logArg.exitCode);
 
 	return joinStringVector(words, "|", false);
@@ -144,7 +144,7 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 	} else {
 		cppcut_assert_equal(CMP_INVALID,
 		                    actual.condition.triggerSeverityCompType);
-	} 
+	}
 
 	cppcut_assert_equal(expect.type, actual.type);
 	cppcut_assert_equal(expect.workingDir, actual.workingDir);
@@ -321,6 +321,31 @@ void test_addAction(void)
 		expect += makeExpectedString(actDef, expectedId);
 		assertDBContent(&dbAction.getDBAgent(), statement, expect);
 	}
+}
+
+void test_updateAction(void)
+{
+	DECLARE_DBTABLES_ACTION(dbAction);
+	string expect;
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		ActionDef &actDef = testActionDef[i];
+		assertHatoholError(HTERR_OK,
+		                   dbAction.addAction(actDef, privilege));
+	}
+
+	// Call the method to be tested and check the result
+	assertHatoholError(HTERR_OK,
+	                   dbAction.updateAction(testUpdateActionDef, privilege));
+
+	// validation
+	const int expectedId = 2;
+	cppcut_assert_equal(expectedId, testUpdateActionDef.id);
+	string statement = "select * from ";
+	statement += DBTablesAction::getTableNameActions();
+	statement += StringUtils::sprintf(" where action_id=%d", testUpdateActionDef.id);
+	expect += makeExpectedString(testUpdateActionDef, expectedId);
+	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
 
 void test_addActionByInvalidUser(void)
