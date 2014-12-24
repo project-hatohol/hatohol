@@ -265,7 +265,8 @@ static HatoholError parseActionParameter(FaceRest::ResourceHandler *job,
 		              job, "triggerSeverityCompType", "%d",
 		              (int &)cond.triggerSeverityCompType, &exist);
 		if (!succeeded)
-			return HatoholError(HTERR_NOT_FOUND_PARAMETER, "triggerSeverityCompType");
+			return HatoholError(HTERR_NOT_FOUND_PARAMETER,
+			                    "triggerSeverityCompType");
 		if (!exist) {
 			return HatoholError(HTERR_NOT_FOUND_PARAMETER,
 			                    "triggerSeverityCompType");
