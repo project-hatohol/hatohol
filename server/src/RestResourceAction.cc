@@ -149,6 +149,119 @@ void RestResourceAction::handleGet(void)
 	replyJSONData(agent);
 }
 
+static HatoholError parseActionParameter(FaceRest::ResourceHandler *job,
+                                         ActionDef &actionDef, GHashTable *query)
+{
+	//
+	// mandatory parameters
+	//
+	char *value;
+	bool exist;
+	bool succeeded;
+
+	// command
+	value = (char *)g_hash_table_lookup(query, "command");
+	if (!value) {
+		job->replyError(HTERR_NOT_FOUND_PARAMETER, "command");
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "command");
+	}
+	actionDef.command = value;
+
+	//
+	// optional parameters
+	//
+	ActionCondition &cond = actionDef.condition;
+
+	// workingDirectory
+	value = (char *)g_hash_table_lookup(query, "workingDirectory");
+	if (value) {
+		actionDef.workingDir = value;
+	}
+
+	// timeout
+	succeeded = getParamWithErrorReply<int>(
+	              job, "timeout", "%d", actionDef.timeout, &exist);
+	if (!succeeded)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "timeout");
+	if (!exist)
+		actionDef.timeout = 0;
+
+	// ownerUserId
+	succeeded = getParamWithErrorReply<int>(
+	              job, "ownerUserId", "%d", actionDef.ownerUserId, &exist);
+	if (!succeeded)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "ownerUserId");
+	if (!exist)
+		actionDef.ownerUserId = job->m_userId;
+
+	// serverId
+	succeeded = getParamWithErrorReply<int>(
+	              job, "serverId", "%d", cond.serverId, &exist);
+	if (!succeeded)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "serverId");
+	if (exist)
+		cond.enable(ACTCOND_SERVER_ID);
+
+	// hostId
+	succeeded = getParamWithErrorReply<uint64_t>(
+	              job, "hostId", "%" PRIu64, cond.hostId, &exist);
+	if (!succeeded)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "hostId");
+	if (exist)
+		cond.enable(ACTCOND_HOST_ID);
+
+	// hostgroupId
+	succeeded = getParamWithErrorReply<uint64_t>(
+	              job, "hostgroupId", "%" PRIu64, cond.hostgroupId, &exist);
+	if (!succeeded)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "hostgroupId");
+	if (exist)
+		cond.enable(ACTCOND_HOST_GROUP_ID);
+
+	// triggerId
+	succeeded = getParamWithErrorReply<uint64_t>(
+	              job, "triggerId", "%" PRIu64, cond.triggerId, &exist);
+	if (!succeeded)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "triggerId");
+	if (exist)
+		cond.enable(ACTCOND_TRIGGER_ID);
+
+	// triggerStatus
+	succeeded = getParamWithErrorReply<int>(
+	              job, "triggerStatus", "%d", cond.triggerStatus, &exist);
+	if (!succeeded)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "triggerStatus");
+	if (exist)
+		cond.enable(ACTCOND_TRIGGER_STATUS);
+
+	// triggerSeverity
+	succeeded = getParamWithErrorReply<int>(
+	              job, "triggerSeverity", "%d", cond.triggerSeverity, &exist);
+	if (!succeeded)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "triggerSeverity");
+	if (exist) {
+		cond.enable(ACTCOND_TRIGGER_SEVERITY);
+
+		// triggerSeverityComparatorType
+		succeeded = getParamWithErrorReply<int>(
+		              job, "triggerSeverityCompType", "%d",
+		              (int &)cond.triggerSeverityCompType, &exist);
+		if (!succeeded)
+			return HatoholError(HTERR_NOT_FOUND_PARAMETER, "triggerSeverityCompType");
+		if (!exist) {
+			return HatoholError(HTERR_NOT_FOUND_PARAMETER,
+			                    "triggerSeverityCompType");
+		}
+		if (!(cond.triggerSeverityCompType == CMP_EQ ||
+		      cond.triggerSeverityCompType == CMP_EQ_GT)) {
+			return HatoholError(HTERR_INVALID_PARAMETER,
+			                    "type: " + cond.triggerSeverityCompType);
+		}
+	}
+
+	return HatoholError(HTERR_OK);
+}
+
 void RestResourceAction::handlePost(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
