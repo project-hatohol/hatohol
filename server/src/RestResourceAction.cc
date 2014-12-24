@@ -159,6 +159,24 @@ static HatoholError parseActionParameter(FaceRest::ResourceHandler *job,
 	bool exist;
 	bool succeeded;
 
+	// action type
+	succeeded = getParamWithErrorReply<int>(
+	                job, "type", "%d", (int &)actionDef.type, &exist);
+	if (!succeeded)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "type");
+	if (!exist) {
+		REPLY_ERROR(job, HTERR_NOT_FOUND_PARAMETER, "type");
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "type");
+	}
+	if (!(actionDef.type == ACTION_COMMAND ||
+		  actionDef.type == ACTION_RESIDENT ||
+		  actionDef.type == ACTION_INCIDENT_SENDER)) {
+		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
+		            "type: %d", actionDef.type);
+		return HatoholError(HTERR_INVALID_PARAMETER,
+		                    "type: " + actionDef.type);
+	}
+
 	// command
 	value = (char *)g_hash_table_lookup(query, "command");
 	if (!value) {
@@ -266,30 +284,7 @@ void RestResourceAction::handlePost(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
-	//
-	// mandatory parameters
-	//
-	bool exist;
-	bool succeeded;
 	ActionDef actionDef;
-
-	// action type
-	succeeded = getParamWithErrorReply<int>(
-	              this, "type", "%d", (int &)actionDef.type, &exist);
-	if (!succeeded)
-		return;
-	if (!exist) {
-		REPLY_ERROR(this, HTERR_NOT_FOUND_PARAMETER, "type");
-		return;
-	}
-	if (!(actionDef.type == ACTION_COMMAND ||
-	      actionDef.type == ACTION_RESIDENT ||
-	      actionDef.type == ACTION_INCIDENT_SENDER)) {
-		REPLY_ERROR(this, HTERR_INVALID_PARAMETER,
-		            "type: %d", actionDef.type);
-		return;
-	}
-
 	HatoholError err;
 	err = parseActionParameter(this, actionDef, m_query);
 	if (err != HTERR_OK) {
@@ -347,9 +342,6 @@ void RestResourceAction::handlePut(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
-	char *value;
-	bool exist;
-	bool succeeded;
 	ActionDef actionDef;
 	uint32_t actionId;
 
@@ -362,22 +354,6 @@ void RestResourceAction::handlePut(void)
 	}
 	actionDef.id = actionId;
 
-	// action type
-	succeeded = getParamWithErrorReply<int>(
-	                this, "type", "%d", (int &)actionDef.type, &exist);
-	if (!succeeded)
-		return;
-	if (!exist) {
-		REPLY_ERROR(this, HTERR_NOT_FOUND_PARAMETER, "type");
-		return;
-	}
-	if (!(actionDef.type == ACTION_COMMAND ||
-		  actionDef.type == ACTION_RESIDENT ||
-		  actionDef.type == ACTION_INCIDENT_SENDER)) {
-		REPLY_ERROR(this, HTERR_INVALID_PARAMETER,
-		            "type: %d", actionDef.type);
-		return;
-	}
 
 	HatoholError err;
 	err = parseActionParameter(this, actionDef, m_query);
