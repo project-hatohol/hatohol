@@ -31,7 +31,13 @@ namespace testHatoholException {
 // ---------------------------------------------------------------------------
 void test_throw(void)
 {
-	assertThrow(HatoholException, HatoholException);
+	struct Check {
+		static void errCode(const HatoholException &e) {
+			cppcut_assert_equal(HTERR_UNKNOWN_REASON,
+			                    e.getErrCode());
+		}
+	};
+	assertThrow(HatoholException, HatoholException, Check::errCode);
 }
 
 void test_throwAsException(void)
