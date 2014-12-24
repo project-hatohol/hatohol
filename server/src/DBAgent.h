@@ -135,12 +135,17 @@ public:
 
 		UpdateArg(const TableProfile &tableProfile);
 		virtual ~UpdateArg();
-		void add(const size_t &columnIndex, const int         &val);
-		void add(const size_t &columnIndex, const uint64_t    &val);
-		void add(const size_t &columnIndex, const double      &val);
-		void add(const size_t &columnIndex, const std::string &val);
-		void add(const size_t &columnIndex, const time_t      &val);
-		void add(const size_t &columnIndex, const ItemGroup   *grp);
+		void add(const size_t &columnIndex, const int         &val,
+		         const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+		void add(const size_t &columnIndex, const uint64_t    &val,
+		         const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+		void add(const size_t &columnIndex, const double      &val,
+		         const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+		void add(const size_t &columnIndex, const std::string &val,
+		         const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+		void add(const size_t &columnIndex, const time_t      &val,
+		         const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+		void add(const size_t &columnIndex, const ItemGroup  *grp);
 	};
 
 	struct SelectArg {

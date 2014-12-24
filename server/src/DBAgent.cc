@@ -182,29 +182,39 @@ DBAgent::UpdateArg::~UpdateArg()
 		delete rows[i];
 }
 
-void DBAgent::UpdateArg::add(const size_t &columnIndex, const int &val)
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const int &val,
+                             const ItemDataNullFlagType &nullFlag)
 {
-	rows.push_back(new RowElement(columnIndex, new ItemInt(val), false));
+	rows.push_back(new RowElement(columnIndex,
+	                              new ItemInt(val, nullFlag), false));
 }
 
-void DBAgent::UpdateArg::add(const size_t &columnIndex, const uint64_t &val)
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const uint64_t &val,
+                             const ItemDataNullFlagType &nullFlag)
 {
-	rows.push_back(new RowElement(columnIndex, new ItemUint64(val), false));
+	rows.push_back(new RowElement(columnIndex,
+	                              new ItemUint64(val, nullFlag), false));
 }
 
-void DBAgent::UpdateArg::add(const size_t &columnIndex, const double &val)
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const double &val,
+                             const ItemDataNullFlagType &nullFlag)
 {
-	rows.push_back(new RowElement(columnIndex, new ItemDouble(val), false));
+	rows.push_back(new RowElement(columnIndex,
+	                              new ItemDouble(val, nullFlag), false));
 }
 
-void DBAgent::UpdateArg::add(const size_t &columnIndex, const std::string &val)
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const std::string &val,
+                             const ItemDataNullFlagType &nullFlag)
 {
-	rows.push_back(new RowElement(columnIndex, new ItemString(val), false));
+	rows.push_back(new RowElement(columnIndex,
+	                              new ItemString(val, nullFlag), false));
 }
 
-void DBAgent::UpdateArg::add(const size_t &columnIndex, const time_t &val)
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const time_t &val,
+                             const ItemDataNullFlagType &nullFlag)
 {
-	rows.push_back(new RowElement(columnIndex, new ItemInt(val), false));
+	rows.push_back(new RowElement(columnIndex,
+	                              new ItemInt(val, nullFlag), false));
 }
 
 void DBAgent::UpdateArg::add(const size_t &columnIndex, const ItemGroup *grp)
