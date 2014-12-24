@@ -397,12 +397,8 @@ void test_updateAction(void)
 	statement += StringUtils::sprintf(" where action_id=%d", targetId);
 	string expect;
 	int expectedId = 1;
-	int serverId = 1;
 	expect += StringUtils::sprintf("%d|", expectedId);
-	expect += StringUtils::sprintf("%d|", serverId);
-	expect += "NULL|NULL|NULL|";
-	expect += StringUtils::sprintf("%d|", TRIGGER_STATUS_PROBLEM);
-	expect += "NULL|NULL|";
+	expect += "NULL|NULL|NULL|NULL|NULL|NULL|NULL|";
 	expect += StringUtils::sprintf("%d|", type);
 	expect += command;
 	expect += "||0"; /* workingDirectory and timeout */
