@@ -14,6 +14,7 @@
 	[Client] Add a toggle button to trun on/off auto reload (#822, #823)
 	[Client] Add menu items to show Hatohol's version & documents (#714)
 	[Client] Show last update time (#667)
+	[WebUI] Support adding multiple servers by uploading tab-saparated-value file. (#789,#794)
 
 	* Bugfixes
 	[Server] Fix a problem in which child processes are not collected (#727)
