@@ -90,6 +90,19 @@ describe('ServerView', function() {
     expect(checkboxes.is(":visible")).to.be(expectedVisibility);
   }
 
+  function expectEditButtonVisibility(operator, expectedVisibility) {
+    var userProfile = new HatoholUserProfile(operator);
+    var view = new ServersView(userProfile);
+    respond();
+
+    var editButton = $('#edit-server1');
+    var editColumn = $('td.edit-server-column');
+    expect(editButton).to.have.length(1);
+    expect(editColumn).to.have.length(1);
+    expect(editButton.is(":visible")).to.be(expectedVisibility);
+    expect(editColumn.is(":visible")).to.be(expectedVisibility);
+  }
+
   function checkGetStatusLabel(stat, expectMsg, expectMsgClass) {
     var pkt = {serverConnStat:{'5':{status:stat}}};
     var parser = new ServerConnStatParser(pkt);
@@ -237,6 +250,37 @@ describe('ServerView', function() {
     };
     var expected = false;
     expectDeleteButtonVisibility(operator, expected);
+  });
+
+  it('with update privilege', function() {
+    var operator = {
+      "userId": 1,
+      "name": "admin",
+      "flags": (1 << hatohol.OPPRVLG_UPDATE_ALL_SERVER |
+                1 << hatohol.OPPRVLG_UPDATE_SERVER)
+    };
+    var expected = true;
+    expectEditButtonVisibility(operator, expected);
+  });
+
+  it('with all update privilege', function() {
+    var operator = {
+      "userId": 2,
+      "name": "guest",
+      "flags": (1 << hatohol.OPPRVLG_UPDATE_ALL_SERVER)
+    };
+    var expected = true;
+    expectEditButtonVisibility(operator, expected);
+  });
+
+  it('without update privilege', function() {
+    var operator = {
+      "userId": 2,
+      "name": "guest",
+      "flags": 0
+    };
+    var expected = false;
+    expectEditButtonVisibility(operator, expected);
   });
 
 });
