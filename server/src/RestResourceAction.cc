@@ -150,7 +150,7 @@ void RestResourceAction::handleGet(void)
 }
 
 static HatoholError parseActionParameter(FaceRest::ResourceHandler *job,
-                                         ActionDef &actionDef, GHashTable *query)
+                                         ActionDef &actionDef)
 {
 	//
 	// mandatory parameters
@@ -178,7 +178,7 @@ static HatoholError parseActionParameter(FaceRest::ResourceHandler *job,
 	}
 
 	// command
-	value = (char *)g_hash_table_lookup(query, "command");
+	value = (char *)g_hash_table_lookup(job->m_query, "command");
 	if (!value) {
 		job->replyError(HTERR_NOT_FOUND_PARAMETER, "command");
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "command");
@@ -191,7 +191,7 @@ static HatoholError parseActionParameter(FaceRest::ResourceHandler *job,
 	ActionCondition &cond = actionDef.condition;
 
 	// workingDirectory
-	value = (char *)g_hash_table_lookup(query, "workingDirectory");
+	value = (char *)g_hash_table_lookup(job->m_query, "workingDirectory");
 	if (value) {
 		actionDef.workingDir = value;
 	}
@@ -287,7 +287,7 @@ void RestResourceAction::handlePost(void)
 
 	ActionDef actionDef;
 	HatoholError err;
-	err = parseActionParameter(this, actionDef, m_query);
+	err = parseActionParameter(this, actionDef);
 	if (err != HTERR_OK) {
 		replyError(err);
 		return;
@@ -356,7 +356,7 @@ void RestResourceAction::handlePut(void)
 	actionDef.id = actionId;
 
 	HatoholError err;
-	err = parseActionParameter(this, actionDef, m_query);
+	err = parseActionParameter(this, actionDef);
 	if (err != HTERR_OK) {
 		replyError(err);
 		return;
