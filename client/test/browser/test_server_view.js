@@ -273,16 +273,6 @@ describe('ServerView', function() {
     expectEditButtonVisibility(operator, expected);
   });
 
-  it('with update privilege but another account', function() {
-    var operator = {
-      "userId": 3,
-      "name": "another-guest",
-      "flags": (1 << hatohol.OPPRVLG_UPDATE_SERVER)
-    };
-    var expected = true;
-    expectEditButtonVisibility(operator, expected);
-  });
-
   it('without update privilege', function() {
     var operator = {
       "userId": 2,
