@@ -537,13 +537,21 @@ string DBAgent::getColumnValueString(const ColumnDef *columnDef,
 	switch (columnDef->type) {
 	case SQL_COLUMN_TYPE_INT:
 	{
-		valueStr = StringUtils::sprintf("%d", (int)*itemData);
+		if (itemData->isNull()) {
+			valueStr = "NULL";
+		} else {
+			valueStr = StringUtils::sprintf("%d", (int)*itemData);
+		}
 		break;
 	}
 	case SQL_COLUMN_TYPE_BIGUINT:
 	{
-		valueStr = StringUtils::sprintf("%" PRId64,
-		                                (uint64_t)*itemData);
+		if (itemData->isNull()) {
+			valueStr = "NULL";
+		} else {
+			valueStr = StringUtils::sprintf("%" PRId64,
+		                            (uint64_t)*itemData);
+		}
 		break;
 	}
 	case SQL_COLUMN_TYPE_VARCHAR:
