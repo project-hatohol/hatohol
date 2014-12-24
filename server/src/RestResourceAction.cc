@@ -298,8 +298,7 @@ void RestResourceAction::handlePost(void)
 	}
 
 	// save the obtained action
-	err =
-	  dataStore->addAction(
+	err = dataStore->addAction(
 	    actionDef, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(err);
@@ -388,8 +387,7 @@ void RestResourceAction::handlePut(void)
 	}
 
 	// save the obtained action
-	err =
-	  dataStore->updateAction(
+	err = dataStore->updateAction(
 	    actionDef, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(err);
