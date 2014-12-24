@@ -174,7 +174,7 @@ static HatoholError parseActionParameter(FaceRest::ResourceHandler *job,
 		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
 		            "type: %d", actionDef.type);
 		return HatoholError(HTERR_INVALID_PARAMETER,
-		                    "type: " + actionDef.type);
+		                    StringUtils::sprintf("type: %d", actionDef.type));
 	}
 
 	// command
