@@ -1192,7 +1192,7 @@ string TriggersQueryOption::getCondition(void) const
 	if (m_impl->triggerCollectHost == VALID_HOST_TRIGGER) {
 		condition += " AND ";
 		condition += StringUtils::sprintf(
-			"%s.%s<%lu",
+			"%s.%s<%" FMT_HOST_ID,
 			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName,
 			MONITORING_SERVER_SELF_ID);
