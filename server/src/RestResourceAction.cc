@@ -354,7 +354,6 @@ void RestResourceAction::handlePut(void)
 	}
 	actionDef.id = actionId;
 
-
 	HatoholError err;
 	err = parseActionParameter(this, actionDef, m_query);
 	if (err != HTERR_OK) {
