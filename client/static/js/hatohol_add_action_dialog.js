@@ -562,10 +562,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
       $('#selectServerId').append($('<option>').html(displayName).val(serverId));
     }
 
-    if (self.actionDef.serverId) {
-      var selectElem = $("#selectServerId");
-      selectElem.val(self.actionDef.serverId);
-    }
+    setSelectedIdForUpdate($("#selectServerId"), self.actionDef.serverId);
   }
 
   function replyHostCallback(reply, parser) {
@@ -596,10 +593,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
       $('#selectHostId').append($('<option>').html(displayName).val(hostId));
     }
 
-    if (self.actionDef.hostId) {
-      var selectElem = $("#selectHostId");
-      selectElem.val(self.actionDef.hostId);
-    }
+    setSelectedIdForUpdate($("#selectHostId"), self.actionDef.hostId);
   }
 
   function replyHostGroupCallback(reply, parser) {
@@ -630,10 +624,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
       $('#selectHostgroupId').append($('<option>').html(displayName).val(hostgroupId));
     }
 
-    if (self.actionDef.hostgroupId) {
-      var selectElem = $("#selectHostgroupId");
-      selectElem.val(self.actionDef.hostgroupId);
-    }
+    setSelectedIdForUpdate($("#selectHostgroupId"), self.actionDef.hostgroupId);
   }
 
   function replyTriggerCallback(reply, parser) {
@@ -662,9 +653,13 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
       $('#selectTriggerId').append($('<option>').html(displayName).val(triggerId));
     }
 
-    if (self.actionDef.triggerId) {
-      var selectElem = $("#selectTriggerId");
-      selectElem.val(self.actionDef.triggerId);
+    setSelectedIdForUpdate($("#selectTriggerId"), self.actionDef.triggerId);
+  }
+
+  function setSelectedIdForUpdate(jQObjSelectId, selectedIdIndex) {
+    if (selectedIdIndex) {
+      var selectElem = jQObjSelectId;
+      selectElem.val(selectedIdIndex);
     }
   }
 
