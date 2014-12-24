@@ -870,7 +870,7 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
 
 HatoholAddActionDialog.prototype.setApplyButtonState = function(state) {
   var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
-            self.applyButtonTitle + ")");
+            this.applyButtonTitle + ")");
   if (state) {
      btn.removeAttr("disabled");
      btn.removeClass("ui-state-disabled");
