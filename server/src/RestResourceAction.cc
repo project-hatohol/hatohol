@@ -269,7 +269,6 @@ void RestResourceAction::handlePost(void)
 	//
 	// mandatory parameters
 	//
-	char *value;
 	bool exist;
 	bool succeeded;
 	ActionDef actionDef;
@@ -291,110 +290,15 @@ void RestResourceAction::handlePost(void)
 		return;
 	}
 
-	// command
-	value = (char *)g_hash_table_lookup(m_query, "command");
-	if (!value) {
-		replyError(HTERR_NOT_FOUND_PARAMETER, "command");
+	HatoholError err;
+	err = parseActionParameter(this, actionDef, m_query);
+	if (err != HTERR_OK) {
+		replyError(err);
 		return;
-	}
-	actionDef.command = value;
-
-	//
-	// optional parameters
-	//
-	ActionCondition &cond = actionDef.condition;
-
-	// workingDirectory
-	value = (char *)g_hash_table_lookup(m_query, "workingDirectory");
-	if (value) {
-		actionDef.workingDir = value;
-	}
-
-	// timeout
-	succeeded = getParamWithErrorReply<int>(
-	              this, "timeout", "%d", actionDef.timeout, &exist);
-	if (!succeeded)
-		return;
-	if (!exist)
-		actionDef.timeout = 0;
-
-	// ownerUserId
-	succeeded = getParamWithErrorReply<int>(
-	              this, "ownerUserId", "%d", actionDef.ownerUserId, &exist);
-	if (!succeeded)
-		return;
-	if (!exist)
-		actionDef.ownerUserId = m_userId;
-
-	// serverId
-	succeeded = getParamWithErrorReply<int>(
-	              this, "serverId", "%d", cond.serverId, &exist);
-	if (!succeeded)
-		return;
-	if (exist)
-		cond.enable(ACTCOND_SERVER_ID);
-
-	// hostId
-	succeeded = getParamWithErrorReply<uint64_t>(
-	              this, "hostId", "%" PRIu64, cond.hostId, &exist);
-	if (!succeeded)
-		return;
-	if (exist)
-		cond.enable(ACTCOND_HOST_ID);
-
-	// hostgroupId
-	succeeded = getParamWithErrorReply<uint64_t>(
-	              this, "hostgroupId", "%" PRIu64, cond.hostgroupId, &exist);
-	if (!succeeded)
-		return;
-	if (exist)
-		cond.enable(ACTCOND_HOST_GROUP_ID);
-
-	// triggerId
-	succeeded = getParamWithErrorReply<uint64_t>(
-	              this, "triggerId", "%" PRIu64, cond.triggerId, &exist);
-	if (!succeeded)
-		return;
-	if (exist)
-		cond.enable(ACTCOND_TRIGGER_ID);
-
-	// triggerStatus
-	succeeded = getParamWithErrorReply<int>(
-	              this, "triggerStatus", "%d", cond.triggerStatus, &exist);
-	if (!succeeded)
-		return;
-	if (exist)
-		cond.enable(ACTCOND_TRIGGER_STATUS);
-
-	// triggerSeverity
-	succeeded = getParamWithErrorReply<int>(
-	              this, "triggerSeverity", "%d", cond.triggerSeverity, &exist);
-	if (!succeeded)
-		return;
-	if (exist) {
-		cond.enable(ACTCOND_TRIGGER_SEVERITY);
-
-		// triggerSeverityComparatorType
-		succeeded = getParamWithErrorReply<int>(
-		              this, "triggerSeverityCompType", "%d",
-		              (int &)cond.triggerSeverityCompType, &exist);
-		if (!succeeded)
-			return;
-		if (!exist) {
-			replyError(HTERR_NOT_FOUND_PARAMETER,
-					"triggerSeverityCompType");
-			return;
-		}
-		if (!(cond.triggerSeverityCompType == CMP_EQ ||
-		      cond.triggerSeverityCompType == CMP_EQ_GT)) {
-			REPLY_ERROR(this, HTERR_INVALID_PARAMETER,
-			            "type: %d", cond.triggerSeverityCompType);
-			return;
-		}
 	}
 
 	// save the obtained action
-	HatoholError err =
+	err =
 	  dataStore->addAction(
 	    actionDef, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
