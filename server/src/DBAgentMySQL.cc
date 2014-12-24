@@ -578,6 +578,7 @@ void DBAgentMySQL::connect(void)
 	const char *passwd = getCStringOrNullIfEmpty(m_impl->password);
 	const char *db     = getCStringOrNullIfEmpty(m_impl->dbName);
 	mysql_init(&m_impl->mysql);
+	mysql_options(&m_impl->mysql, MYSQL_READ_DEFAULT_GROUP, "hatohol");
 	MYSQL *result = mysql_real_connect(&m_impl->mysql, host, user, passwd,
 	                                   db, m_impl->port,
 	                                   unixSocket, clientFlag);
