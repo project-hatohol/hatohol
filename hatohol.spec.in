@@ -217,6 +217,34 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Tue Dec 24 2014 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.09-0.4
+- Update to 14.12-RC2
+ * New Features
+	[Server] Support items for Ceilometer (#668)
+	[Server] Support log monitoring integrated with Fluentd. See also: https://github.com/project-hatohol/hatohol/wiki/Log-monitoring
+	[Client] Add log search system integration (#792, #795). See also: https://github.com/project-hatohol/hatohol/wiki/Log-search
+	Add a document to construct log archive system based on Fluentd. It can be integrated with log search system. See also: https://github.com/project-hatohol/hatohol/wiki/Log%20archive
+	[Server] Add graphs for items (#774)
+	[Client] Show units of item values (#749)
+	[Client] Add a button to open a dialog to edit user roles to "Users"
+	page (#754)
+	[Server] Move a client side filter on "Latest data" page to server side
+	(#835)
+	[Client] Add a toggle button to trun on/off auto reload (#822, #823)
+	[Client] Add menu items to show Hatohol's version & documents (#714)
+	[Client] Show last update time (#667)
+
+	* Bugfixes
+	[Server] Fix a problem in which child processes are not collected (#727)
+	[Server] Fix a wrong count of bad hosts (#730)
+	[Server] Plug memory leaks (#747, #772, #838)
+	[Server] Fix a bug that self monitoring events are tied to incorrect
+	incidents (#725)
+	[Server] Validate URL of incident tracking servers to avoid crash (#665)
+	[Server] Suppress generating needless self monitoring triggers
+	(#736, #805)
+	[Client] Fix invisible "DELETE" buttons on "Users", "Actions" and
+	"Monitoring servers" pages on certain conditions (#686, #691, #716)
 * Tue Sep 30 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-1
 - Updated to 14.09 release.
 * Tue Sep 30 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-0.6
