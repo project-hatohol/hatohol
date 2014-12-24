@@ -25,6 +25,16 @@ AM_LDFLAGS = \
 	$(top_builddir)/server/common/libhatohol-common.la
 
 hatohol_def_src_file_generator_SOURCES = hatohol-def-src-file-generator.cc
+hatohol_def_src_file_generator_DEPENDENCIES = $(MLPL_LIBS) \
+	$(top_builddir)/server/src/libhatohol.la \
+	$(top_builddir)/server/common/libhatohol-common.la
+
+$(MLPL_LIBS):
+	$(MAKE) -C $(top_builddir)/server/mlpl/src
+$(top_builddir)/server/common/libhatohol-common.la:
+	$(MAKE) -C $(top_builddir)/server/common
+$(top_builddir)/server/src/libhatohol.la:
+	$(MAKE) -C $(top_builddir)/server/src
 
 # To make hahol_def.py on the build.
 noinst_SCRIPTS = \
