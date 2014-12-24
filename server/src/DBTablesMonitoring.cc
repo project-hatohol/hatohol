@@ -1143,11 +1143,13 @@ struct TriggersQueryOption::Impl {
 	TriggerIdType targetId;
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
+	TriggerCollectHost triggerCollectHost;
 
 	Impl()
 	: targetId(ALL_TRIGGERS),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
-	  triggerStatus(TRIGGER_STATUS_ALL)
+	  triggerStatus(TRIGGER_STATUS_ALL),
+	  triggerCollectHost(ALL_HOST_TRIGGER)
 	{
 	}
 };
@@ -1175,12 +1177,26 @@ TriggersQueryOption::~TriggersQueryOption()
 {
 }
 
+void TriggersQueryOption::setValidityHost(const TriggerCollectHost &validity)
+{
+	m_impl->triggerCollectHost = validity;
+}
+
 string TriggersQueryOption::getCondition(void) const
 {
 	string condition = HostResourceQueryOption::getCondition();
 
 	if (DBHatohol::isAlwaysFalseCondition(condition))
 		return condition;
+
+	if (m_impl->triggerCollectHost == VALID_HOST_TRIGGER) {
+		condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s.%s<%" FMT_HOST_ID,
+			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName,
+			MONITORING_SERVER_SELF_ID);
+	}
 
 	if (m_impl->targetId != ALL_TRIGGERS) {
 		const DBTermCodec *dbTermCodec = getDBTermCodec();
