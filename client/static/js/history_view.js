@@ -309,7 +309,7 @@ var HistoryView = function(userProfile, options) {
     $("#item-graph-slider").slider('pips', {
       rest: 'label',
       last: false,
-      step: secondsInHour * 24,
+      step: secondsInHour * 12,
       formatLabel: function(val) {
         var now = new Date();
         var date = new Date(val * 1000);
@@ -322,10 +322,14 @@ var HistoryView = function(userProfile, options) {
           5: gettext("Fri"),
           6: gettext("Sat"),
         }
-        if (now.getTime() - date.getTime() > secondsInHour * 24 * 7 * 1000)
-          return formatDate(val);
-        else
-          return dayLabel[date.getDay()];
+        if (date.getHours() == 0) {
+          if (now.getTime() - date.getTime() > secondsInHour * 24 * 7 * 1000)
+            return formatDate(val);
+          else
+            return dayLabel[date.getDay()];
+        } else {
+          return "";
+        }
       },
     });
     $("#item-graph-slider").slider('float', {
