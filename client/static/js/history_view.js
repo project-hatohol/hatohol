@@ -38,7 +38,9 @@ var HistoryView = function(userProfile, options) {
   historyQuery = self.parseHistoryQuery(options.query);
 
   appendGraphArea();
-  loadItemAndHistory();
+  $.when(loadItem())
+    .then(loadHistory)
+    .done(onLoadAllHistory);
 
   function enableAutoRefresh(onClickButton) {
     var button = $("#item-graph-auto-refresh");
@@ -49,7 +51,7 @@ var HistoryView = function(userProfile, options) {
     button.addClass("btn-primary");
     if (!onClickButton)
       button.addClass("active");
-    loadHistory();
+    $.when(loadHistory()).done(onLoadAllHistory);
   }
 
   function disableAutoRefresh(onClickButton) {
@@ -292,7 +294,7 @@ var HistoryView = function(userProfile, options) {
         historyQuery.beginTime = timeRange.last[0];
         historyQuery.endTime = timeRange.last[1];
         self.timeSpan = timeRange.last[1] - timeRange.last[0];
-        loadHistory();
+        $.when(loadHistory()).done(onLoadAllHistory);
         $("#item-graph-auto-refresh").removeClass("active");
       },
       slide: function(event, ui) {
@@ -423,51 +425,54 @@ var HistoryView = function(userProfile, options) {
     $(".graph h2").text(title);
   }
 
-  function onLoadItem(reply) {
-    var items = reply["items"];
-    var messageDetail;
-
-    self.replyItem = reply;
-
-    if (items && items.length == 1) {
-      setItemDescription(reply);
-      loadHistory();
-    } else {
-      messageDetail =
-        "Monitoring Server ID: " + query.serverId + ", " +
-        "Host ID: " + query.hostId + ", " +
-        "Item ID: " + query.itemId;
-      if (!items || items.length == 0)
-        self.showError(gettext("No such item: ") + messageDetail);
-      else if (items.length > 1)
-        self.showError(gettext("Too many items are found for ") +
-                       messageDetail);
-    }
-  }
-
-  function onLoadHistory(reply) {
-    var maxRecordsPerRequest = 1000;
-    updateView(reply);
-    if (reply.history.length >= maxRecordsPerRequest) {
-      loadHistory();
-    } else {
-      if (historyQuery.endTime) {
-        disableAutoRefresh();
-      } else {
-        self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
-      }
-      self.loadingHistory = false;
-    }
-  }
-
   function loadHistory() {
+    var d = new $.Deferred;
     self.clearAutoReload();
     self.loadingHistory = true;
-    self.startConnection(getHistoryQuery(), onLoadHistory);
+    self.startConnection(getHistoryQuery(), function(reply) {
+      var maxRecordsPerRequest = 1000;
+      updateView(reply);
+      if (reply.history.length >= maxRecordsPerRequest)
+        $.when(loadHistory());
+      return d.resolve();
+    });
+    return d.promise();
   }
 
-  function loadItemAndHistory() {
-    self.startConnection(getItemQuery(), onLoadItem);
+  function loadItem() {
+    var d = new $.Deferred;
+    self.startConnection(getItemQuery(), function(reply) {
+      var items = reply["items"];
+      var messageDetail;
+
+      self.replyItem = reply;
+
+      if (items && items.length == 1) {
+        setItemDescription(reply);
+        return d.resolve();
+      } else {
+        messageDetail =
+          "Monitoring Server ID: " + query.serverId + ", " +
+          "Host ID: " + query.hostId + ", " +
+          "Item ID: " + query.itemId;
+        if (!items || items.length == 0)
+          self.showError(gettext("No such item: ") + messageDetail);
+        else if (items.length > 1)
+          self.showError(gettext("Too many items are found for ") +
+                         messageDetail);
+        return d.reject();
+      }
+    });
+    return d.promise();
+  }
+
+  function onLoadAllHistory() {
+    if (historyQuery.endTime) {
+      disableAutoRefresh();
+    } else {
+      self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
+    }
+    self.loadingHistory = false;
   }
 };
 
