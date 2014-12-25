@@ -337,8 +337,7 @@ rm -rf %{buildroot}
 - [Client] Automatic update of content in web pages. (#8)
 - [Client] messages in multiple languages should be supported (#10)
 - [Server] Update items triggered by the request. (#17)
-ons/System
-Requires: gli- Configuration of target server list by Web Interface. (#22)
+- Configuration of target server list by Web Interface. (#22)
 - [Server] The update of target servers without the restart of Hatohol server. (#32)
 - [Client] Make a link to Zabbix Graphs page (#48)
 - [Client] Make a link to Zabbix Map page (#49)
