@@ -19,10 +19,12 @@
 
 #include <gcutter.h>
 #include <cppcutter.h>
+#include "Hatohol.h"
 #include "Params.h"
 #include "HatoholException.h"
 #include "ExceptionTestUtils.h"
 using namespace std;
+using namespace mlpl;
 
 namespace testHatoholException {
 
@@ -137,6 +139,54 @@ void test_catchUnknownException(gconstpointer data)
 
 	catcher.throwException = gcut_data_get_boolean(data, "throw");
 	cppcut_assert_equal(catcher.throwException, catcher.exec());
+}
+
+void data_THROW_HATOHOL_EXCEPTION_IF_NOT_OK(void)
+{
+	gcut_add_datum("HTERR_OK",
+	               "code", G_TYPE_INT, HTERR_OK,
+	               "expectException", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("HTERR_UNKNOWN_REASON",
+	               "code", G_TYPE_INT, HTERR_UNKNOWN_REASON,
+	               "expectException", G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
+void test_THROW_HATOHOL_EXCEPTION_IF_NOT_OK(gconstpointer data)
+{
+	hatoholInit();
+
+	const HatoholErrorCode errCode =
+	  static_cast<HatoholErrorCode>(gcut_data_get_int(data, "code"));
+	const char *optMsg = "Option message!";
+	HatoholError err(errCode, optMsg);
+	const bool expectException =
+	  gcut_data_get_boolean(data, "expectException");
+
+	bool gotException = false;
+	HatoholErrorCode gotErrCode = HTERR_UNINITIALIZED;
+	int gotLineNum = -1;
+	string gotMessage;
+	int expectLineNum = -1;
+	try {
+		// The following tow
+		expectLineNum = __LINE__; THROW_HATOHOL_EXCEPTION_IF_NOT_OK(err);
+	} catch (HatoholException &e) {
+		gotException = true;
+		gotErrCode = e.getErrCode();
+		gotLineNum = e.getLineNumber();
+		gotMessage = e.getFancyMessage();
+	}
+
+	cppcut_assert_equal(expectException, gotException);
+	if (!expectException)
+		return;
+	cppcut_assert_equal(errCode, gotErrCode);
+	cppcut_assert_equal(expectLineNum, gotLineNum);
+
+	const string expectMsg = StringUtils::sprintf(
+	  "<%s:%d> %s : %s\n", __FILE__, expectLineNum,
+	  err.getMessage().c_str(), optMsg);
+	cppcut_assert_equal(expectMsg, gotMessage);
 }
 
 } // namespace testHatoholException
