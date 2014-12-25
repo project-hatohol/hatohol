@@ -214,11 +214,11 @@ void ArmZabbixAPI::makeHatoholItems(
 
 void ArmZabbixAPI::makeHatoholHostgroups(ItemTablePtr groups)
 {
-	ThreadLocalDBCache cache;
-	HostgroupInfoList groupInfoList;
-	HatoholDBUtils::transformGroupsToHatoholFormat(groupInfoList, groups,
+	HostgroupVect hostgroups;
+	HatoholDBUtils::transformGroupsToHatoholFormat(hostgroups, groups,
 	                                               m_impl->zabbixServerId);
-	cache.getMonitoring().addHostgroupInfoList(groupInfoList);
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  UnifiedDataStore::getInstance()->upsertHostgroups(hostgroups));
 }
 
 void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
