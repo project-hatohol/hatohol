@@ -51,9 +51,7 @@ static string readTempl(ItemGroupStream &itemGrpStream, const char *fmt)
 
 template<> string ItemGroupStream::read<int, string>(void)
 {
-	int val;
-	*this >> val;
-	return StringUtils::sprintf("%d", val);
+	return readTempl<int>(*this, "%d");
 }
 
 template<> string ItemGroupStream::read<uint64_t, string>(void)
