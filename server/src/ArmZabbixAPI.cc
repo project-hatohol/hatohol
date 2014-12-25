@@ -223,11 +223,12 @@ void ArmZabbixAPI::makeHatoholHostgroups(ItemTablePtr groups)
 
 void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
 {
-	ThreadLocalDBCache cache;
-	HostgroupElementList hostgroupElementList;
+	HostgroupMemberVect hostgroupMembers;
 	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
-	  hostgroupElementList, hostsGroups, m_impl->zabbixServerId);
-	cache.getMonitoring().addHostgroupElementList(hostgroupElementList);
+	  hostgroupMembers, hostsGroups, m_impl->zabbixServerId);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  uds->upsertHostgroupMembers(hostgroupMembers));
 }
 
 void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)

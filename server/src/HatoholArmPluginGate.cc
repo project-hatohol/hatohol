@@ -908,13 +908,13 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroupElements(
 	cmdBuf->setIndex(sizeof(HapiCommandHeader));
 	ItemTablePtr hostgroupElementTablePtr = createItemTable(*cmdBuf);
 
-	HostgroupElementList hostgroupElementList;
+	HostgroupMemberVect hostgroupMembers;
 	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
-	  hostgroupElementList, hostgroupElementTablePtr, m_impl->serverInfo.id);
+	  hostgroupMembers, hostgroupElementTablePtr, m_impl->serverInfo.id);
 
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  uds->upsertHostgroupMembers(hostgroupMembers));
 
 	replyOk();
 }
