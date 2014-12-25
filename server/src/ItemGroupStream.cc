@@ -41,11 +41,24 @@ template<> uint64_t ItemGroupStream::read<string, uint64_t>(void)
 	return dest;
 }
 
+template<typename T>
+static string readTempl(ItemGroupStream &itemGrpStream, const char *fmt)
+{
+	T val;
+	itemGrpStream >> val;
+	return StringUtils::sprintf(fmt, val);
+}
+
 template<> string ItemGroupStream::read<int, string>(void)
 {
 	int val;
 	*this >> val;
 	return StringUtils::sprintf("%d", val);
+}
+
+template<> string ItemGroupStream::read<uint64_t, string>(void)
+{
+	return readTempl<uint64_t>(*this, "%" PRIu64);
 }
 
 // ---------------------------------------------------------------------------
