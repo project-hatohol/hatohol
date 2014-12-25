@@ -161,7 +161,7 @@ static HatoholError parseActionParameter(FaceRest::ResourceHandler *job,
 
 	// action type
 	succeeded = getParamWithErrorReply<int>(
-	                job, "type", "%d", (int &)actionDef.type, &exist);
+	              job, "type", "%d", (int &)actionDef.type, &exist);
 	if (!succeeded)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "type");
 	if (!exist) {
