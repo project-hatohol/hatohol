@@ -470,7 +470,9 @@ var HistoryView = function(userProfile, options) {
     if (historyQuery.endTime) {
       disableAutoRefresh();
     } else {
-      self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
+      self.setAutoReload(function() {
+        $.when(loadHistory()).done(onLoadAllHistory);
+      }, self.reloadIntervalSeconds);
     }
     self.loadingHistory = false;
   }
