@@ -425,20 +425,6 @@ var HistoryView = function(userProfile, options) {
     $(".graph h2").text(title);
   }
 
-  function loadHistory() {
-    var d = new $.Deferred;
-    self.clearAutoReload();
-    self.loadingHistory = true;
-    self.startConnection(getHistoryQuery(), function(reply) {
-      var maxRecordsPerRequest = 1000;
-      updateView(reply);
-      if (reply.history.length >= maxRecordsPerRequest)
-        $.when(loadHistory());
-      return d.resolve();
-    });
-    return d.promise();
-  }
-
   function loadItem() {
     var d = new $.Deferred;
     self.startConnection(getItemQuery(), function(reply) {
@@ -462,6 +448,20 @@ var HistoryView = function(userProfile, options) {
                          messageDetail);
         return d.reject();
       }
+    });
+    return d.promise();
+  }
+
+  function loadHistory() {
+    var d = new $.Deferred;
+    self.clearAutoReload();
+    self.loadingHistory = true;
+    self.startConnection(getHistoryQuery(), function(reply) {
+      var maxRecordsPerRequest = 1000;
+      updateView(reply);
+      if (reply.history.length >= maxRecordsPerRequest)
+        $.when(loadHistory());
+      return d.resolve();
     });
     return d.promise();
   }
