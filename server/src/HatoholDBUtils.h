@@ -34,7 +34,7 @@ public:
 	  const ServerIdType &serverId);
 
 	static void transformGroupsToHatoholFormat(
-	  HostgroupInfoList &groupInfoList, const ItemTablePtr groups,
+	  HostgroupVect &hostgroups, const ItemTablePtr groups,
 	  const ServerIdType &serverId);
 
 	static void transformHostsGroupsToHatoholFormat(
@@ -74,7 +74,7 @@ protected:
 	  EventInfo &eventInfo, const ItemGroup *event);
 
 	static void transformGroupItemGroupToHostgroupInfo(
-	  HostgroupInfo &groupInfo, const ItemGroup *groupItemGroup);
+	  Hostgroup &hostgroup, const ItemGroup *groupItemGroup);
 
 	static void transformHostsGroupsItemGroupToHatoholFormat(
 	  HostgroupElement &hostgroupElement,
