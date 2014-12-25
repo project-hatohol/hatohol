@@ -134,6 +134,17 @@ do { \
 	  __FILE__, __LINE__); \
  } while (0)
 
+#define THROW_HATOHOL_EXCEPTION_IF_NOT_OK(HATOHOL_ERR) \
+do {                                               \
+	if (HATOHOL_ERR == HTERR_OK)               \
+		break;                             \
+	THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(   \
+	  HATOHOL_ERR.getCode(),                   \
+	  "%s : %s",                               \
+	  HATOHOL_ERR.getMessage().c_str(),        \
+	  HATOHOL_ERR.getOptionMessage().c_str()); \
+} while (0)
+
 class ExceptionCatchable {
 public:
 	/**
