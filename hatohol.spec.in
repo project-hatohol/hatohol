@@ -51,6 +51,7 @@ Requires: MySQL-python
 Requires: libuuid >= 2.17
 Requires: qpid-cpp-client >= 0.14
 Requires: librabbitmq >= 0.4.1
+Requires: python-argparse >= 1.2
 Requires: hatohol-lib-common = %{version}
 
 %description server
