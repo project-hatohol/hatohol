@@ -149,40 +149,35 @@ void RestResourceAction::handleGet(void)
 	replyJSONData(agent);
 }
 
-void RestResourceAction::handlePost(void)
+static HatoholError parseActionParameter(FaceRest::ResourceHandler *job,
+                                         ActionDef &actionDef)
 {
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-
 	//
 	// mandatory parameters
 	//
 	char *value;
 	bool exist;
 	bool succeeded;
-	ActionDef actionDef;
 
 	// action type
 	succeeded = getParamWithErrorReply<int>(
-	              this, "type", "%d", (int &)actionDef.type, &exist);
+	              job, "type", "%d", (int &)actionDef.type, &exist);
 	if (!succeeded)
-		return;
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "type");
 	if (!exist) {
-		REPLY_ERROR(this, HTERR_NOT_FOUND_PARAMETER, "type");
-		return;
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "type");
 	}
 	if (!(actionDef.type == ACTION_COMMAND ||
-	      actionDef.type == ACTION_RESIDENT ||
-	      actionDef.type == ACTION_INCIDENT_SENDER)) {
-		REPLY_ERROR(this, HTERR_INVALID_PARAMETER,
-		            "type: %d", actionDef.type);
-		return;
+		  actionDef.type == ACTION_RESIDENT ||
+		  actionDef.type == ACTION_INCIDENT_SENDER)) {
+		return HatoholError(HTERR_INVALID_PARAMETER,
+		                    StringUtils::sprintf("type: %d", actionDef.type));
 	}
 
 	// command
-	value = (char *)g_hash_table_lookup(m_query, "command");
+	value = (char *)g_hash_table_lookup(job->m_query, "command");
 	if (!value) {
-		replyError(HTERR_NOT_FOUND_PARAMETER, "command");
-		return;
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "command");
 	}
 	actionDef.command = value;
 
@@ -192,97 +187,110 @@ void RestResourceAction::handlePost(void)
 	ActionCondition &cond = actionDef.condition;
 
 	// workingDirectory
-	value = (char *)g_hash_table_lookup(m_query, "workingDirectory");
+	value = (char *)g_hash_table_lookup(job->m_query, "workingDirectory");
 	if (value) {
 		actionDef.workingDir = value;
 	}
 
 	// timeout
 	succeeded = getParamWithErrorReply<int>(
-	              this, "timeout", "%d", actionDef.timeout, &exist);
+	              job, "timeout", "%d", actionDef.timeout, &exist);
 	if (!succeeded)
-		return;
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "timeout");
 	if (!exist)
 		actionDef.timeout = 0;
 
 	// ownerUserId
 	succeeded = getParamWithErrorReply<int>(
-	              this, "ownerUserId", "%d", actionDef.ownerUserId, &exist);
+	              job, "ownerUserId", "%d", actionDef.ownerUserId, &exist);
 	if (!succeeded)
-		return;
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "ownerUserId");
 	if (!exist)
-		actionDef.ownerUserId = m_userId;
+		actionDef.ownerUserId = job->m_userId;
 
 	// serverId
 	succeeded = getParamWithErrorReply<int>(
-	              this, "serverId", "%d", cond.serverId, &exist);
+	              job, "serverId", "%d", cond.serverId, &exist);
 	if (!succeeded)
-		return;
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "serverId");
 	if (exist)
 		cond.enable(ACTCOND_SERVER_ID);
 
 	// hostId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              this, "hostId", "%" PRIu64, cond.hostId, &exist);
+	              job, "hostId", "%" PRIu64, cond.hostId, &exist);
 	if (!succeeded)
-		return;
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "hostId");
 	if (exist)
 		cond.enable(ACTCOND_HOST_ID);
 
 	// hostgroupId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              this, "hostgroupId", "%" PRIu64, cond.hostgroupId, &exist);
+	              job, "hostgroupId", "%" PRIu64, cond.hostgroupId, &exist);
 	if (!succeeded)
-		return;
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "hostgroupId");
 	if (exist)
 		cond.enable(ACTCOND_HOST_GROUP_ID);
 
 	// triggerId
 	succeeded = getParamWithErrorReply<uint64_t>(
-	              this, "triggerId", "%" PRIu64, cond.triggerId, &exist);
+	              job, "triggerId", "%" PRIu64, cond.triggerId, &exist);
 	if (!succeeded)
-		return;
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "triggerId");
 	if (exist)
 		cond.enable(ACTCOND_TRIGGER_ID);
 
 	// triggerStatus
 	succeeded = getParamWithErrorReply<int>(
-	              this, "triggerStatus", "%d", cond.triggerStatus, &exist);
+	              job, "triggerStatus", "%d", cond.triggerStatus, &exist);
 	if (!succeeded)
-		return;
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "triggerStatus");
 	if (exist)
 		cond.enable(ACTCOND_TRIGGER_STATUS);
 
 	// triggerSeverity
 	succeeded = getParamWithErrorReply<int>(
-	              this, "triggerSeverity", "%d", cond.triggerSeverity, &exist);
+	              job, "triggerSeverity", "%d", cond.triggerSeverity, &exist);
 	if (!succeeded)
-		return;
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "triggerSeverity");
 	if (exist) {
 		cond.enable(ACTCOND_TRIGGER_SEVERITY);
 
 		// triggerSeverityComparatorType
 		succeeded = getParamWithErrorReply<int>(
-		              this, "triggerSeverityCompType", "%d",
+		              job, "triggerSeverityCompType", "%d",
 		              (int &)cond.triggerSeverityCompType, &exist);
 		if (!succeeded)
-			return;
+			return HatoholError(HTERR_NOT_FOUND_PARAMETER,
+			                    "triggerSeverityCompType");
 		if (!exist) {
-			replyError(HTERR_NOT_FOUND_PARAMETER,
-					"triggerSeverityCompType");
-			return;
+			return HatoholError(HTERR_NOT_FOUND_PARAMETER,
+			                    "triggerSeverityCompType");
 		}
 		if (!(cond.triggerSeverityCompType == CMP_EQ ||
 		      cond.triggerSeverityCompType == CMP_EQ_GT)) {
-			REPLY_ERROR(this, HTERR_INVALID_PARAMETER,
-			            "type: %d", cond.triggerSeverityCompType);
-			return;
+			return HatoholError(HTERR_INVALID_PARAMETER,
+			                    "type: " + cond.triggerSeverityCompType);
 		}
 	}
 
+	return HatoholError(HTERR_OK);
+}
+
+void RestResourceAction::handlePost(void)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+
+	ActionDef actionDef;
+	HatoholError err;
+	err = parseActionParameter(this, actionDef);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
 	// save the obtained action
-	HatoholError err =
-	  dataStore->addAction(
+	err = dataStore->addAction(
 	    actionDef, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(err);
@@ -331,9 +339,6 @@ void RestResourceAction::handlePut(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
-	char *value;
-	bool exist;
-	bool succeeded;
 	ActionDef actionDef;
 	uint32_t actionId;
 
@@ -346,128 +351,15 @@ void RestResourceAction::handlePut(void)
 	}
 	actionDef.id = actionId;
 
-	// action type
-	succeeded = getParamWithErrorReply<int>(
-	                this, "type", "%d", (int &)actionDef.type, &exist);
-	if (!succeeded)
+	HatoholError err;
+	err = parseActionParameter(this, actionDef);
+	if (err != HTERR_OK) {
+		replyError(err);
 		return;
-	if (!exist) {
-		REPLY_ERROR(this, HTERR_NOT_FOUND_PARAMETER, "type");
-		return;
-	}
-	if (!(actionDef.type == ACTION_COMMAND ||
-		  actionDef.type == ACTION_RESIDENT ||
-		  actionDef.type == ACTION_INCIDENT_SENDER)) {
-		REPLY_ERROR(this, HTERR_INVALID_PARAMETER,
-		            "type: %d", actionDef.type);
-		return;
-	}
-
-	// command
-	value = (char *)g_hash_table_lookup(m_query, "command");
-	if (!value) {
-		replyError(HTERR_INVALID_PARAMETER, "command");
-		return;
-	}
-	actionDef.command = value;
-
-	//
-	// optional parameters
-	//
-	ActionCondition &cond = actionDef.condition;
-
-	// workingDirectory
-	value = (char *)g_hash_table_lookup(m_query, "workingDirectory");
-	if (value) {
-		actionDef.workingDir = value;
-	}
-
-	// timeout
-	succeeded = getParamWithErrorReply<int>(
-	                this, "timeout", "%d", actionDef.timeout, &exist);
-	if (!succeeded)
-		return;
-	if (!exist)
-		actionDef.timeout = 0;
-
-	// ownerUserId
-	succeeded = getParamWithErrorReply<int>(
-	                this, "ownerUserId", "%d", actionDef.ownerUserId, &exist);
-	if (!succeeded)
-		return;
-	if (!exist)
-		actionDef.ownerUserId = m_userId;
-
-	// serverId
-	succeeded = getParamWithErrorReply<int>(
-	                this, "serverId", "%d", cond.serverId, &exist);
-	if (!succeeded)
-		return;
-	if (exist)
-		cond.enable(ACTCOND_SERVER_ID);
-
-	// hostId
-	succeeded = getParamWithErrorReply<uint64_t>(
-	                this, "hostId", "%" PRIu64, cond.hostId, &exist);
-	if (!succeeded)
-		return;
-	if (exist)
-		cond.enable(ACTCOND_HOST_ID);
-
-	// hostgroupId
-	succeeded = getParamWithErrorReply<uint64_t>(
-	              this, "hostgroupId", "%" PRIu64, cond.hostgroupId, &exist);
-	if (!succeeded)
-		return;
-	if (exist)
-		cond.enable(ACTCOND_HOST_GROUP_ID);
-
-	// triggerId
-	succeeded = getParamWithErrorReply<uint64_t>(
-	              this, "triggerId", "%" PRIu64, cond.triggerId, &exist);
-	if (!succeeded)
-		return;
-	if (exist)
-		cond.enable(ACTCOND_TRIGGER_ID);
-
-	// triggerStatus
-	succeeded = getParamWithErrorReply<int>(
-	              this, "triggerStatus", "%d", cond.triggerStatus, &exist);
-	if (!succeeded)
-		return;
-	if (exist)
-		cond.enable(ACTCOND_TRIGGER_STATUS);
-
-	// triggerSeverity
-	succeeded = getParamWithErrorReply<int>(
-	              this, "triggerSeverity", "%d", cond.triggerSeverity, &exist);
-	if (!succeeded)
-		return;
-	if (exist) {
-		cond.enable(ACTCOND_TRIGGER_SEVERITY);
-
-		// triggerSeverityComparatorType
-		succeeded = getParamWithErrorReply<int>(
-		              this, "triggerSeverityCompType", "%d",
-		              (int &)cond.triggerSeverityCompType, &exist);
-		if (!succeeded)
-			return;
-		if (!exist) {
-			replyError(HTERR_NOT_FOUND_PARAMETER,
-					"triggerSeverityCompType");
-			return;
-		}
-		if (!(cond.triggerSeverityCompType == CMP_EQ ||
-		      cond.triggerSeverityCompType == CMP_EQ_GT)) {
-			REPLY_ERROR(this, HTERR_INVALID_PARAMETER,
-			            "type: %d", cond.triggerSeverityCompType);
-			return;
-		}
 	}
 
 	// save the obtained action
-	HatoholError err =
-	  dataStore->updateAction(
+	err = dataStore->updateAction(
 	    actionDef, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(err);
