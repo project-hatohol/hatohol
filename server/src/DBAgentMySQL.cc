@@ -538,7 +538,7 @@ uint64_t DBAgentMySQL::getNumberOfAffectedRows(void)
 bool DBAgentMySQL::lastUpsertDidUpdate(void)
 {
 	uint64_t numAffectedRows = getNumberOfAffectedRows();
-	HATOHOL_ASSERT(numAffectedRows == 1 || numAffectedRows == 2,
+	HATOHOL_ASSERT(numAffectedRows >= 0 && numAffectedRows <= 2,
 	               "numAffectedRows: %" PRIu64, numAffectedRows);
 	return numAffectedRows == 2;
 }
