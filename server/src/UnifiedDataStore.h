@@ -118,6 +118,9 @@ public:
 	  HostgroupElementList &hostgroupElementList,
 	  const HostgroupElementQueryOption &option);
 
+	HatoholError getServerHostDefs(ServerHostDefVect &svHostDefVect,
+	                               const HostsQueryOption &option);
+
 	/**
 	 * Add hosts. If there's hosts already exist, they will be updated.
 	 *
