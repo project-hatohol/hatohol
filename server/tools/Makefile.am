@@ -25,7 +25,8 @@ AM_LDFLAGS = \
 	$(top_builddir)/server/common/libhatohol-common.la
 
 hatohol_def_src_file_generator_SOURCES = hatohol-def-src-file-generator.cc
-hatohol_def_src_file_generator_DEPENDENCIES = $(MLPL_LIBS) \
+hatohol_def_src_file_generator_DEPENDENCIES = \
+	$(MLPL_LIBS) \
 	$(top_builddir)/server/src/libhatohol.la \
 	$(top_builddir)/server/common/libhatohol-common.la
 
