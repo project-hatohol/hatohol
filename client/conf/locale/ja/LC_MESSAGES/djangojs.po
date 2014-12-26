@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-18 03:47-0600\n"
+"POT-Creation-Date: 2014-12-25 19:05-0600\n"
 "PO-Revision-Date: 2014-11-11 17:04+0900\n"
 "Last-Translator: Noriki Nakamura <noriki.nakamura@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -287,14 +287,36 @@ msgid "Now creating an action ..."
 msgstr "アクションを作成しています..."
 
 #: static/js/hatohol_add_action_dialog.js:214
-#: static/js/hatohol_add_action_dialog.js:567
-#: static/js/hatohol_add_action_dialog.js:602
-#: static/js/hatohol_add_action_dialog.js:637
+#: static/js/hatohol_add_action_dialog.js:531
 #: static/js/hatohol_add_action_dialog.js:673
 #: static/js/hatohol_selector_dialog.js:27
 #: static/js/hatohol_selector_dialog.js:68
 msgid "SELECT"
 msgstr "選択"
+
+#: static/js/hatohol_add_action_dialog.js:270
+#: static/js/hatohol_add_action_dialog.js:403
+#, fuzzy
+msgid "Unknown command type: "
+msgstr "不明なステータス： "
+
+#: static/js/hatohol_add_action_dialog.js:285
+#: static/js/hatohol_add_action_dialog.js:421
+#: static/js/hatohol_reply_parser.js:122
+#: test/browser/test_hatohol_message_box.js:161
+msgid "Unknown status: "
+msgstr "不明なステータス： "
+
+#: static/js/hatohol_add_action_dialog.js:306
+#: static/js/hatohol_add_action_dialog.js:448
+#, fuzzy
+msgid "Unknown severity: "
+msgstr "不明なエラー： "
+
+#: static/js/hatohol_add_action_dialog.js:319
+#, fuzzy
+msgid "Unknown severity compare type: "
+msgstr "不明なエラー： "
 
 #: static/js/hatohol_add_action_dialog.js:365
 #: static/js/hatohol_incident_trackers_editor.js:303
@@ -564,52 +586,52 @@ msgid "Not test mode."
 msgstr "テストモードではありません。"
 
 #: static/js/hatohol_def.js:239
-msgid "The server type doesn't exist."
-msgstr "存在しないサーバータイプです。"
-
-#: static/js/hatohol_def.js:240
-msgid "The server type is invalid."
-msgstr "不正なサーバータイプです。"
-
-#: static/js/hatohol_def.js:241
 msgid "Failed to create a DataStore object."
 msgstr "データストアオブジェクトの作成に失敗しました。"
 
-#: static/js/hatohol_def.js:242
+#: static/js/hatohol_def.js:240
 msgid "Failed to register a DataStore object."
 msgstr "データストアオブジェクトの登録に失敗しました。"
 
-#: static/js/hatohol_def.js:243
+#: static/js/hatohol_def.js:241
 msgid "Failed to stop a DataStore object."
 msgstr "データストアオブジェクトの停止に失敗しました。"
 
-#: static/js/hatohol_def.js:244
+#: static/js/hatohol_def.js:242
 msgid "Failed to send an incident to an incident tracker."
 msgstr "インシデント管理システムへの送信に失敗しました。"
 
-#: static/js/hatohol_def.js:245
+#: static/js/hatohol_def.js:243
 msgid "Failed in connecting to Zabbix."
 msgstr "Zabbixとの接続に失敗しました。"
 
-#: static/js/hatohol_def.js:246
+#: static/js/hatohol_def.js:244
 msgid "Failed in connecting to MySQL."
 msgstr "MySQLとの接続に失敗しました。"
 
-#: static/js/hatohol_def.js:247
+#: static/js/hatohol_def.js:245
 msgid "Failed in connecting to Broker."
 msgstr "ブローカーとの接続に失敗しました。"
 
-#: static/js/hatohol_def.js:248
+#: static/js/hatohol_def.js:246
 msgid "Failed in connecting to ArmPlugin."
 msgstr "Armプラグインとの接続に失敗しました。"
 
-#: static/js/hatohol_def.js:249
+#: static/js/hatohol_def.js:247
 msgid "Internal error happend in ArmPlugin."
 msgstr "Armプラグインで内部エラーが発生しました。"
 
-#: static/js/hatohol_def.js:250 test/browser/test_hatohol_message_box.js:176
+#: static/js/hatohol_def.js:248 test/browser/test_hatohol_message_box.js:176
 msgid "Error test."
 msgstr "エラーテストです。"
+
+#: static/js/hatohol_def.js:249
+msgid "The server type doesn't exist."
+msgstr "存在しないサーバータイプです。"
+
+#: static/js/hatohol_def.js:250
+msgid "The server type is invalid."
+msgstr "不正なサーバータイプです。"
 
 #: static/js/hatohol_def.js:251
 msgid "Not found hypervisor."
@@ -1038,11 +1060,6 @@ msgstr "errorCodeが見つかりません。"
 msgid "Not found sessionId."
 msgstr "sessionIdが見つかりません。"
 
-#: static/js/hatohol_reply_parser.js:122
-#: test/browser/test_hatohol_message_box.js:161
-msgid "Unknown status: "
-msgstr "不明なステータス： "
-
 #: static/js/hatohol_server_bulkupload_dialog.js:26
 msgid "BULK UPLOAD MONITORING SERVERS"
 msgstr "監視サーバー追加"
@@ -1407,7 +1424,7 @@ msgstr "初期状態"
 msgid "Unknown:"
 msgstr "不明"
 
-#: static/js/servers_view.js:342 test/browser/test_server_view.js:200
+#: static/js/servers_view.js:342 test/browser/test_server_view.js:213
 msgid "Running"
 msgstr "稼働"
 
@@ -1415,31 +1432,31 @@ msgstr "稼働"
 msgid "No"
 msgstr "いいえ"
 
-#: static/js/servers_view.js:348 test/browser/test_server_view.js:200
+#: static/js/servers_view.js:348 test/browser/test_server_view.js:213
 msgid "Yes"
 msgstr "はい"
 
-#: static/js/servers_view.js:358 test/browser/test_server_view.js:201
+#: static/js/servers_view.js:358 test/browser/test_server_view.js:214
 msgid "Status update time"
 msgstr "状態更新時刻"
 
-#: static/js/servers_view.js:363 test/browser/test_server_view.js:202
+#: static/js/servers_view.js:363 test/browser/test_server_view.js:215
 msgid "Last success time"
 msgstr "最終成功時刻"
 
-#: static/js/servers_view.js:368 test/browser/test_server_view.js:203
+#: static/js/servers_view.js:368 test/browser/test_server_view.js:216
 msgid "Last failure time"
 msgstr "最終失敗時刻"
 
-#: static/js/servers_view.js:376 test/browser/test_server_view.js:204
+#: static/js/servers_view.js:376 test/browser/test_server_view.js:217
 msgid "Number of communication"
 msgstr "通信回数"
 
-#: static/js/servers_view.js:384 test/browser/test_server_view.js:205
+#: static/js/servers_view.js:384 test/browser/test_server_view.js:218
 msgid "Number of failure"
 msgstr "失敗回数"
 
-#: static/js/servers_view.js:388 test/browser/test_server_view.js:206
+#: static/js/servers_view.js:388 test/browser/test_server_view.js:219
 msgid "Comment for the failure"
 msgstr "失敗備考"
 
@@ -1451,7 +1468,7 @@ msgstr "日, "
 msgid " days, "
 msgstr "日, "
 
-#: test/browser/test_server_view.js:203
+#: test/browser/test_server_view.js:216
 msgid "-"
 msgstr "-"
 
