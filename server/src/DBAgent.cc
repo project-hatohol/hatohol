@@ -603,7 +603,7 @@ string DBAgent::makeUpdateStatement(const UpdateArg &updateArg)
 		statement += StringUtils::sprintf("%s=%s",
 		                                  columnDef.columnName,
 		                                  valueStr.c_str());
-		if (i < numColumns-1)
+		if (i < numColumns - 1)
 			statement += ",";
 	}
 

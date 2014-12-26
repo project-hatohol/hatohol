@@ -67,14 +67,15 @@ public:
 	virtual uint64_t getNumberOfAffectedRows(void);
 
 protected:
-	std::string getColumnValueString(const ColumnDef *columnDef,
-					 const ItemData *itemData);
 	static const char *getCStringOrNullIfEmpty(const std::string &str);
 	void connect(void);
 	void sleepAndReconnect(unsigned int sleepTimeSec);
 	void queryWithRetry(const std::string &statement);
 
 	// virtual methods
+	virtual std::string getColumnValueString(
+	  const ColumnDef *columnDef, const ItemData *itemData) override;
+
 	virtual std::string
 	  makeCreateIndexStatement(const TableProfile &tableProfile,
 	                           const IndexDef &indexDef) override;

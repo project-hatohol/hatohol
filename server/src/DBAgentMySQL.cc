@@ -303,41 +303,6 @@ void DBAgentMySQL::createTable(const TableProfile &tableProfile)
 	execSql(query);
 }
 
-string DBAgentMySQL::getColumnValueString(const ColumnDef *columnDef,
-					  const ItemData *itemData)
-{
-	using mlpl::StringUtils::sprintf;
-
-	if (itemData->isNull())
-		return "NULL";
-
-	switch (columnDef->type) {
-	case SQL_COLUMN_TYPE_INT:
-	case SQL_COLUMN_TYPE_BIGUINT:
-	case SQL_COLUMN_TYPE_DOUBLE:
-		return itemData->getString();
-
-	case SQL_COLUMN_TYPE_VARCHAR:
-	case SQL_COLUMN_TYPE_CHAR:
-	case SQL_COLUMN_TYPE_TEXT:
-	{ // bracket is used to avoid an error:
-	  // jump to case label
-		string src = itemData->getString();
-		char *escaped = new char[src.size() * 2 + 1]; 
-		mysql_real_escape_string(&m_impl->mysql, escaped, src.c_str(), src.size());
-		string val = sprintf("'%s'", escaped);
-		delete [] escaped;
-		return val;
-	}
-	case SQL_COLUMN_TYPE_DATETIME:
-		return makeDatetimeString(*itemData);
-	default:
-		HATOHOL_ASSERT(false, "Unknown type: %d",
-			       columnDef->type);
-		return "";
-	}
-}
-
 void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 {
 	using mlpl::StringUtils::sprintf;
@@ -650,6 +615,41 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 		THROW_HATOHOL_EXCEPTION("Failed to query: %s: (%u) %s\n",
 					statement.c_str(), errorNumber,
 					mysql_error(&m_impl->mysql));
+	}
+}
+
+string DBAgentMySQL::getColumnValueString(const ColumnDef *columnDef,
+					  const ItemData *itemData)
+{
+	using mlpl::StringUtils::sprintf;
+
+	if (itemData->isNull())
+		return "NULL";
+
+	switch (columnDef->type) {
+	case SQL_COLUMN_TYPE_INT:
+	case SQL_COLUMN_TYPE_BIGUINT:
+	case SQL_COLUMN_TYPE_DOUBLE:
+		return itemData->getString();
+
+	case SQL_COLUMN_TYPE_VARCHAR:
+	case SQL_COLUMN_TYPE_CHAR:
+	case SQL_COLUMN_TYPE_TEXT:
+	{ // bracket is used to avoid an error:
+	  // jump to case label
+		string src = itemData->getString();
+		char *escaped = new char[src.size() * 2 + 1]; 
+		mysql_real_escape_string(&m_impl->mysql, escaped, src.c_str(), src.size());
+		string val = sprintf("'%s'", escaped);
+		delete [] escaped;
+		return val;
+	}
+	case SQL_COLUMN_TYPE_DATETIME:
+		return makeDatetimeString(*itemData);
+	default:
+		HATOHOL_ASSERT(false, "Unknown type: %d",
+			       columnDef->type);
+		return "";
 	}
 }
 
