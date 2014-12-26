@@ -370,11 +370,65 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 }
 
 // ---------------------------------------------------------------------------
-// HostQueryOption
+// HostsQueryOption
 // ---------------------------------------------------------------------------
-HostQueryOption::HostQueryOption(const UserIdType &userId)
-: DataQueryOption(userId)
+static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
+  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
+  IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
+  true,
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID);
+
+struct HostsQueryOption::Impl {
+	HostStatus status;
+
+	Impl()
+	: status(HOST_STAT_ALL)
+	{
+	}
+};
+
+HostsQueryOption::HostsQueryOption(const UserIdType &userId)
+: HostResourceQueryOption(synapseHostsQueryOption, userId),
+  m_impl(new Impl())
 {
+}
+
+HostsQueryOption::HostsQueryOption(DataQueryContext *dataQueryContext)
+: HostResourceQueryOption(synapseHostsQueryOption, dataQueryContext),
+  m_impl(new Impl())
+{
+}
+
+HostsQueryOption::~HostsQueryOption(void)
+{
+}
+
+string HostsQueryOption::getCondition(void) const
+{
+	string condition = HostResourceQueryOption::getCondition();
+	if (m_impl->status == HOST_STAT_ALL)
+		return condition;
+	if (!condition.empty())
+		condition += " AND ";
+
+	string columnName =
+	  tableProfileServerHostDef.columnDefs[IDX_HOST_SERVER_HOST_DEF_HOST_STATUS].columnName;
+	condition += StringUtils::sprintf("%s=%d",
+	                                  columnName.c_str(), m_impl->status);
+	return condition;
+}
+
+void HostsQueryOption::setStatus(const HostStatus &status)
+{
+	m_impl->status = status;
+}
+
+HostStatus HostsQueryOption::getStatus(void) const
+{
+	return m_impl->status;
 }
 
 // ---------------------------------------------------------------------------
@@ -773,7 +827,7 @@ void DBTablesHost::upsertHostgroupMembers(
 
 HatoholError DBTablesHost::getVirtualMachines(
   HostIdVector &virtualMachines, const HostIdType &hypervisorHostId,
-  const HostQueryOption &option)
+  const HostsQueryOption &option)
 {
 	if (option.getUserId() == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
@@ -807,7 +861,7 @@ HatoholError DBTablesHost::getVirtualMachines(
 
 HatoholError DBTablesHost::getHypervisor(HostIdType &hypervisorHostId,
                                          const HostIdType &hostId,
-                                         const HostQueryOption &option)
+                                         const HostsQueryOption &option)
 {
 	if (option.getUserId() == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
@@ -846,7 +900,7 @@ HatoholError DBTablesHost::getHypervisor(HostIdType &hypervisorHostId,
 }
 
 bool DBTablesHost::isAccessible(
-  const HostIdType &hostId, const HostQueryOption &option)
+  const HostIdType &hostId, const HostsQueryOption &option)
 {
 	// Get the server ID and host ID (in the server)
 	DBClientJoinBuilder builder(tableProfileServerHostDef);
@@ -892,7 +946,7 @@ bool DBTablesHost::isAccessible(
 }
 
 HatoholError DBTablesHost::getServerHostDefs(
-  ServerHostDefVect &svHostDefVect, const HostQueryOption &option)
+  ServerHostDefVect &svHostDefVect, const HostsQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileServerHostDef);
 	arg.tableField = TABLE_NAME_SERVER_HOST_DEF;

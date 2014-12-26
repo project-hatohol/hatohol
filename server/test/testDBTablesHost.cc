@@ -412,7 +412,7 @@ void test_getHypervisor(void)
 	const int targetIdx = 0;
 	const HostIdType hostId = testVMInfo[targetIdx].hostId;
 	HostIdType hypervisorId = INVALID_HOST_ID;
-	HostQueryOption option(USER_ID_SYSTEM);
+	HostsQueryOption option(USER_ID_SYSTEM);
 	HatoholError err = dbHost.getHypervisor(hypervisorId, hostId, option);
 	assertHatoholError(HTERR_OK, err);
 	cppcut_assert_equal(testVMInfo[targetIdx].hypervisorHostId,
@@ -423,7 +423,7 @@ void test_getHypervisorWithInvalidUser(void)
 {
 	DECLARE_DBTABLES_HOST(dbHost);
 	HostIdType hypervisorId = INVALID_HOST_ID;
-	HostQueryOption option;
+	HostsQueryOption option;
 	HatoholError err = dbHost.getHypervisor(hypervisorId, 0, option);
 	assertHatoholError(HTERR_INVALID_USER, err);
 }
@@ -480,7 +480,7 @@ void test_getHypervisorWithUserWhoCanAccessAllHostgroup(gconstpointer data)
 	}
 
 	// Try to find the hypervisor
-	HostQueryOption option(userId);
+	HostsQueryOption option(userId);
 	HatoholError err = dbHost.getHypervisor(hypervisorId,
 	                                        expectedVMInfo->hostId, option);
 	if (allowedUser) {
@@ -539,7 +539,7 @@ void test_getVirtualMachines(gconstpointer data)
 		cut_notify("<<Number of Hosts>>: %zd", hostCount);
 
 	// Call the test method
-	HostQueryOption option(userId);
+	HostsQueryOption option(userId);
 	HypervisorVMMapIterator mapItr = hypervisorVMMap.begin();
 	HypervisorVMMap actualHypervisorVMMap;
 	for (; mapItr != hypervisorVMMap.end(); ++mapItr) {
@@ -683,7 +683,7 @@ void test_getServerHostDefs(gconstpointer data)
 	DECLARE_DBTABLES_HOST(dbHost);
 
 	ServerHostDefVect svHostDefVect;
-	HostQueryOption option(userId);
+	HostsQueryOption option(userId);
 	assertHatoholError(HTERR_OK,
 	                   dbHost.getServerHostDefs(svHostDefVect, option));
 
