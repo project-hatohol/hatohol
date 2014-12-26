@@ -676,5 +676,11 @@ void test_getNumberOfAffectedRows(void)
 	dbAgentGetNumberOfAffectedRows(dbAgent, dbAgentChecker);
 }
 
+void test_upsertBySameData(void)
+{
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentUpsertBySameData(dbAgent, dbAgentChecker);
+}
+
 } // testDBAgentMySQL
 

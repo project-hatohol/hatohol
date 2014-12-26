@@ -458,11 +458,13 @@ void dbAgentTestUpsert(DBAgent &dbAgent, DBAgentChecker &checker)
 	param.val.name   = "rei";
 	param.val.height = 158.2;
 	checkInsert(dbAgent, checker, param);
+	cppcut_assert_equal(false, dbAgent.lastUpsertDidUpdate());
 
 	param.val.age    = 33;
 	param.val.height = 172.5;
 	param.upsertOnDuplicate = true;
 	checkInsert(dbAgent, checker, param);
+	cppcut_assert_equal(true, dbAgent.lastUpsertDidUpdate());
 }
 
 void dbAgentTestUpsertWithPrimaryKeyAutoInc(
@@ -966,6 +968,39 @@ void dbAgentGetNumberOfAffectedRows(DBAgent &dbAgent, DBAgentChecker &checker)
 	dbAgent.deleteRows(arg);
 	cppcut_assert_equal(static_cast<uint64_t>(NUM_TEST_DATA),
 			    dbAgent.getNumberOfAffectedRows());
+}
+
+void dbAgentUpsertBySameData(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	dbAgentTestCreateTable(dbAgent, checker);
+	string fmt = "%" PRIu64 "|%d|%s|";
+	fmt += makeDoubleFloatFormat(COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT]);
+	fmt += "|%s\n";
+	string statement = StringUtils::sprintf(
+	     "select * from %s order by %s asc",
+	     TABLE_NAME_TEST, COLUMN_DEF_TEST[IDX_TEST_TABLE_ID].columnName);
+	StringVector firstExpectedLines;
+	string expectedLine;
+
+	// inserting
+	const size_t targetIndex = IDX_TEST_TABLE_ID;
+	bool updated =
+	  dbAgentUpdateIfExistEleseInsertOneRecord(
+	    dbAgent, 0, expectedLine, targetIndex, fmt,
+	    0, AGE[0], NAME[0], HEIGHT[0], TIME[0]);
+	cppcut_assert_equal(false, updated);
+	cppcut_assert_equal(false, dbAgent.lastUpsertDidUpdate());
+	firstExpectedLines.push_back(expectedLine);
+	assertDBContent(&dbAgent, statement, expectedLine);
+
+	// updating
+	updated =
+	  dbAgentUpdateIfExistEleseInsertOneRecord(
+	    dbAgent, 0, expectedLine, targetIndex, fmt,
+	    0, AGE[0], NAME[0], HEIGHT[0], TIME[0]);
+	cppcut_assert_equal(true, updated);
+	cppcut_assert_equal(false, dbAgent.lastUpsertDidUpdate());
+	assertDBContent(&dbAgent, statement, expectedLine);
 }
 
 // --------------------------------------------------------------------------

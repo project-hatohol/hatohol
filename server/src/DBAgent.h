@@ -239,6 +239,15 @@ public:
 	virtual uint64_t getNumberOfAffectedRows(void) = 0;
 
 	/**
+	 * Check wheter the last upsert did update or not.
+	 *
+	 * @return
+	 * true if the last insert() with upsertOnDuplicate = true
+	 * did update.
+	 */
+	virtual bool lastUpsertDidUpdate(void) = 0;
+
+	/**
 	 * Create and drop indexes if needed.
 	 *
 	 * @param tableProfile

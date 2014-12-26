@@ -601,5 +601,11 @@ void test_getNumberOfAffectedRows(void)
 	dbAgentGetNumberOfAffectedRows(dbAgent, dbAgentChecker);
 }
 
+void test_upsertBySameData(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentUpsertBySameData(dbAgent, dbAgentChecker);
+}
+
 } // testDBAgentSQLite3
 

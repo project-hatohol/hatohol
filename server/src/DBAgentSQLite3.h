@@ -67,6 +67,7 @@ public:
 
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
+	virtual bool lastUpsertDidUpdate(void) override;
 
 	std::string getDBPath(void) const;
 

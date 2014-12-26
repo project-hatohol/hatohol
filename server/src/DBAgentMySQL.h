@@ -65,6 +65,7 @@ public:
 				 const std::string &destName);
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
+	virtual bool lastUpsertDidUpdate(void) override;
 
 protected:
 	static const char *getCStringOrNullIfEmpty(const std::string &str);
