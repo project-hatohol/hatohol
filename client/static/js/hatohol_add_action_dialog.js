@@ -267,7 +267,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     case "ACTION_RESIDENT":
       return hatohol.ACTION_RESIDENT;
     default:
-      alert("Unknown command type: " + type);
+      hatoholErrorMsgBox(gettext("Unknown command type: ") + type);
     }
     return undefined;
   }
@@ -282,7 +282,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     case "TRIGGER_STATUS_PROBLEM":
       return TRIGGER_STATUS_PROBLEM;
     default:
-      alert("Unknown status: " + status);
+      hatoholErrorMsgBox(gettext("Unknown status: ") + status);
     }
     return undefined;
   }
@@ -303,7 +303,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     case "EMERGENCY":
       return TRIGGER_SEVERITY_EMERGENCY;
     default:
-      alert("Unknown severity: " + severity);
+      hatoholErrorMsgBox(gettext("Unknown severity: ") + severity);
     }
     return undefined;
   }
@@ -316,7 +316,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     case "CMP_EQ_GT":
       return hatohol.CMP_EQ_GT;
     default:
-      alert("Unknown severity: " + severity);
+      hatoholErrorMsgBox(gettext("Unknown severity compare type: ") + compType);
     }
     return undefined;
   }
@@ -400,7 +400,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
       typeSelector.val("ACTION_RESIDENT");
       break;
     default:
-      alert("Unknown command type: " + type);
+      hatoholErrorMsgBox(gettext("Unknown command type: ") + type);
       break;
     }
   }
@@ -418,7 +418,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
       statusSelector.val("TRIGGER_STATUS_PROBLEM");
       break;
     default:
-      alert("Unknown status: " + status);
+      hatoholErrorMsgBox(gettext("Unknown status: ") + status);
       break;
     }
   }
@@ -445,7 +445,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
       severitySelector.val("EMERGENCY");
       break;
     default:
-      alert("Unknown severity: " + severity);
+      hatoholErrorMsgBox(gettext("Unknown severity: ") + severity);
       break;
     }
     if (severity) {
