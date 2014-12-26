@@ -102,3 +102,6 @@ hatohol_LDADD = \
 hatohol_resident_yard_LDADD = \
 	libhatohol.la \
 	$(top_builddir)/server/common/libhatohol-common.la
+
+$(top_builddir)/server/common/libhatohol-common.la:
+	$(MAKE) -C $(top_builddir)/server/common
