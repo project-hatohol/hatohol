@@ -338,14 +338,15 @@ public:
 protected:
 	static std::string makeSelectStatement(const SelectArg &selectArg);
 	static std::string makeSelectStatement(const SelectExArg &selectExArg);
-	static std::string getColumnValueString(const ColumnDef *columnDef,
-	                                        const ItemData *itemData);
-	static std::string makeUpdateStatement(const UpdateArg &updateArg);
 	static std::string makeDeleteStatement(const DeleteArg &deleteArg);
 	static std::string makeRenameTableStatement(
 	  const std::string &srcName,
 	  const std::string &destName);
 	static std::string makeDatetimeString(int datetime);
+	std::string makeUpdateStatement(const UpdateArg &updateArg);
+
+	virtual std::string getColumnValueString(const ColumnDef *columnDef,
+						 const ItemData *itemData);
 
 	virtual std::string
 	  makeCreateIndexStatement(const TableProfile &tableProfile,

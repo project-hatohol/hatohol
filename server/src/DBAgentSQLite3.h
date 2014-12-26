@@ -81,6 +81,9 @@ protected:
 	static bool isTableExisting(sqlite3 *db,
 	                            const std::string &tableName);
 	static void createTable(sqlite3 *db, const TableProfile &tableProfile);
+	static std::string getColumnValueStringStatic(const ColumnDef *columnDef,
+						      const ItemData *itemData);
+	static std::string makeUpdateStatementStatic(const UpdateArg &updateArg);
 	static void insert(sqlite3 *db, const InsertArg &insertArg);
 	static void update(sqlite3 *db, const UpdateArg &updateArg);
 	static void update(sqlite3 *db, const InsertArg &updateArg);
@@ -103,6 +106,9 @@ protected:
 	void execSql(const char *fmt, ...);
 
 	// virtual methods
+	virtual std::string getColumnValueString(
+	  const ColumnDef *columnDef, const ItemData *itemData) override;
+
 	virtual std::string
 	  makeCreateIndexStatement(const TableProfile &tableProfile,
 	                           const IndexDef &indexDef) override;
