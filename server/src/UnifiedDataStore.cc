@@ -480,6 +480,13 @@ HatoholError UnifiedDataStore::upsertHost(const ServerHostDef &serverHostDef)
 	return HTERR_OK;
 }
 
+HatoholError UnifiedDataStore::getServerHostDefs(
+  ServerHostDefVect &svHostDefVect, const HostsQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	return cache.getHost().getServerHostDefs(svHostDefVect, option);
+}
+
 HatoholError UnifiedDataStore::upsertHosts(
   const ServerHostDefVect &serverHostDefs)
 {
