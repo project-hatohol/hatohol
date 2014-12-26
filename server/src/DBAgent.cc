@@ -533,39 +533,30 @@ string DBAgent::makeSelectStatement(const SelectExArg &selectExArg)
 string DBAgent::getColumnValueString(const ColumnDef *columnDef,
                                      const ItemData *itemData)
 {
+	if (itemData->isNull())
+		return "NULL";
+
 	string valueStr;
 	switch (columnDef->type) {
 	case SQL_COLUMN_TYPE_INT:
 	{
-		if (itemData->isNull()) {
-			valueStr = "NULL";
-		} else {
-			valueStr = StringUtils::sprintf("%d", (int)*itemData);
-		}
+		valueStr = StringUtils::sprintf("%d", (int)*itemData);
 		break;
 	}
 	case SQL_COLUMN_TYPE_BIGUINT:
 	{
-		if (itemData->isNull()) {
-			valueStr = "NULL";
-		} else {
-			valueStr = StringUtils::sprintf("%" PRIu64,
-		                            (uint64_t)*itemData);
-		}
+		valueStr = StringUtils::sprintf("%" PRIu64,
+						(uint64_t)*itemData);
 		break;
 	}
 	case SQL_COLUMN_TYPE_VARCHAR:
 	case SQL_COLUMN_TYPE_CHAR:
 	case SQL_COLUMN_TYPE_TEXT:
 	{
-		if (itemData->isNull()) {
-			valueStr = "NULL";
-		} else {
-			string escaped =
-			   StringUtils::replace((string)*itemData, "'", "''");
-			valueStr =
-			   StringUtils::sprintf("'%s'", escaped.c_str());
-		}
+		string escaped =
+		  StringUtils::replace((string)*itemData, "'", "''");
+		valueStr =
+		  StringUtils::sprintf("'%s'", escaped.c_str());
 		break;
 	}
 	case SQL_COLUMN_TYPE_DOUBLE:
