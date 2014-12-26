@@ -109,23 +109,6 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-class HostsQueryOption : public HostResourceQueryOption {
-public:
-	HostsQueryOption(const UserIdType &userId = INVALID_USER_ID);
-	HostsQueryOption(const HostsQueryOption &src);
-	HostsQueryOption(DataQueryContext *dataQueryContext);
-	virtual ~HostsQueryOption();
-
-	virtual std::string getCondition(void) const override;
-
-	void setStatus(const HostStatus &status);
-	HostStatus getStatus(void) const;
-
-private:
-	struct Impl;
-	std::unique_ptr<Impl> m_impl;
-};
-
 class HostgroupsQueryOption : public HostResourceQueryOption {
 public:
 	HostgroupsQueryOption(const UserIdType &userId = INVALID_USER_ID);
