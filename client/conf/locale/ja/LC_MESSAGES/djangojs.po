@@ -296,9 +296,8 @@ msgstr "選択"
 
 #: static/js/hatohol_add_action_dialog.js:270
 #: static/js/hatohol_add_action_dialog.js:403
-#, fuzzy
 msgid "Unknown command type: "
-msgstr "不明なステータス： "
+msgstr "不明なコマンドタイプ： "
 
 #: static/js/hatohol_add_action_dialog.js:285
 #: static/js/hatohol_add_action_dialog.js:421
@@ -309,14 +308,12 @@ msgstr "不明なステータス： "
 
 #: static/js/hatohol_add_action_dialog.js:306
 #: static/js/hatohol_add_action_dialog.js:448
-#, fuzzy
 msgid "Unknown severity: "
-msgstr "不明なエラー： "
+msgstr "不明な深刻度： "
 
 #: static/js/hatohol_add_action_dialog.js:319
-#, fuzzy
 msgid "Unknown severity compare type: "
-msgstr "不明なエラー： "
+msgstr "不明な深刻度の比較演算子： "
 
 #: static/js/hatohol_add_action_dialog.js:365
 #: static/js/hatohol_incident_trackers_editor.js:303
