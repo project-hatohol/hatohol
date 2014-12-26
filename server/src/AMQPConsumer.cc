@@ -29,8 +29,6 @@
 using namespace std;
 using namespace mlpl;
 
-static const time_t  DEFAULT_TIMEOUT  = 1;
-
 class AMQPConnection {
 public:
 	AMQPConnection(const AMQPConnectionInfo &info)

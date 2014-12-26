@@ -29,7 +29,6 @@ using namespace qpid::messaging;
 
 namespace testHapProcessZabbixAPI {
 
-static const ServerIdType DEFAULT_SERVER_ID = 5;
 static const guint EMULATOR_PORT = 33333;
 static ZabbixAPIEmulator *g_apiEmulator = NULL;
 

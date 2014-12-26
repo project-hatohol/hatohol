@@ -44,7 +44,7 @@ void _assertStringVector(const mlpl::StringVector &expected,
                          const mlpl::StringVector &actual);
 #define assertStringVector(E,A) cut_trace(_assertStringVector(E,A))
 
-void _assertStringVectorVA(const mlpl::StringVector &actual, ...);
+void _assertStringVectorVA(const mlpl::StringVector *actual, ...);
 #define assertStringVectorVA(A,...) \
 cut_trace(_assertStringVectorVA(A,##__VA_ARGS__))
 
@@ -352,7 +352,6 @@ private:
 	std::string m_envVarName;
 	std::string m_origString;
 	bool        m_hasOrigValue;
-	bool        m_changed;
 };
 
 #endif // Helpers_h

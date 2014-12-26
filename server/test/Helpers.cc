@@ -45,7 +45,7 @@ void _assertStringVector(const StringVector &expected,
 		cppcut_assert_equal(expected[i], actual[i]);
 }
 
-void _assertStringVectorVA(const StringVector &actual, ...)
+void _assertStringVectorVA(const StringVector *actual, ...)
 {
 	StringVector expectedVect;
 	va_list valist;
@@ -57,7 +57,7 @@ void _assertStringVectorVA(const StringVector &actual, ...)
 		expectedVect.push_back(expected);
 	}
 	va_end(valist);
-	assertStringVector(expectedVect, actual);
+	assertStringVector(expectedVect, *actual);
 }
 
 void _assertExist(const string &target, const string &words)

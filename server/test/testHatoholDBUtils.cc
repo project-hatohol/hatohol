@@ -97,35 +97,35 @@ void test_extractItemKeys(void)
 	StringVector vect;
 	HatoholDBUtilsTest::extractItemKeys
 	  (vect, "vm.memory.size[available]");
-	assertStringVectorVA(vect, "available", NULL);
+	assertStringVectorVA(&vect, "available", NULL);
 }
 
 void test_extractItemKeysNoBracket(void)
 {
 	StringVector vect;
 	HatoholDBUtilsTest::extractItemKeys(vect, "system.uname");
-	assertStringVectorVA(vect, NULL);
+	assertStringVectorVA(&vect, NULL);
 }
 
 void test_extractItemKeysNullParams(void)
 {
 	StringVector vect;
 	HatoholDBUtilsTest::extractItemKeys(vect, "proc.num[]");
-	assertStringVectorVA(vect, "", NULL);
+	assertStringVectorVA(&vect, "", NULL);
 }
 
 void test_extractItemKeysTwo(void)
 {
 	StringVector vect;
 	HatoholDBUtilsTest::extractItemKeys(vect, "vfs.fs.size[/boot,free]");
-	assertStringVectorVA(vect, "/boot", "free", NULL);
+	assertStringVectorVA(&vect, "/boot", "free", NULL);
 }
 
 void test_extractItemKeysWithEmptyParams(void)
 {
 	StringVector vect;
 	HatoholDBUtilsTest::extractItemKeys(vect, "proc.num[,,run]");
-	assertStringVectorVA(vect, "", "", "run", NULL);
+	assertStringVectorVA(&vect, "", "", "run", NULL);
 }
 
 void test_getItemVariable(void)
