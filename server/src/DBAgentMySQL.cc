@@ -306,44 +306,6 @@ void DBAgentMySQL::createTable(const TableProfile &tableProfile)
 void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 {
 	using mlpl::StringUtils::sprintf;
-	struct {
-		string operator ()(const DBAgent::InsertArg &insertArg,
-		                   const size_t &idx, MYSQL *mysql)
-		{
-			const ColumnDef &columnDef =
-			  insertArg.tableProfile.columnDefs[idx];
-			const ItemData *itemData = insertArg.row->getItemAt(idx);
-			if (itemData->isNull())
-				return "NULL";
-
-			switch (columnDef.type) {
-			case SQL_COLUMN_TYPE_INT:
-			case SQL_COLUMN_TYPE_BIGUINT:
-			case SQL_COLUMN_TYPE_DOUBLE:
-				return itemData->getString();
-
-			case SQL_COLUMN_TYPE_VARCHAR:
-			case SQL_COLUMN_TYPE_CHAR:
-			case SQL_COLUMN_TYPE_TEXT:
-			{ // bracket is used to avoid an error:
-			  // jump to case label
-				string src = itemData->getString();
-				char *escaped = new char[src.size() * 2 + 1]; 
-				mysql_real_escape_string(
-				  mysql, escaped, src.c_str(), src.size());
-				string val = sprintf("'%s'", escaped);
-				delete [] escaped;
-				return val;
-			}
-			case SQL_COLUMN_TYPE_DATETIME:
-				return makeDatetimeString(*itemData);
-			default:
-				HATOHOL_ASSERT(false, "Unknown type: %d",
-				               columnDef.type);
-			return "";
-			}
-		}
-	} valueMaker;
 
 	const size_t numColumns = insertArg.tableProfile.numColumns;
 	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
@@ -373,7 +335,8 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 
 	for (size_t i = 0; i < numColumns; i++) {
 		const ColumnDef &columnDef = insertArg.tableProfile.columnDefs[i];
-		values.push_back(valueMaker(insertArg, i, &m_impl->mysql));
+		const ItemData *itemData = insertArg.row->getItemAt(i);
+		values.push_back(getColumnValueString(&columnDef, itemData));
 		if (!insertArg.upsertOnDuplicate)
 			continue;
 
@@ -660,6 +623,41 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 		THROW_HATOHOL_EXCEPTION("Failed to query: %s: (%u) %s\n",
 					statement.c_str(), errorNumber,
 					mysql_error(&m_impl->mysql));
+	}
+}
+
+string DBAgentMySQL::getColumnValueString(const ColumnDef *columnDef,
+					  const ItemData *itemData)
+{
+	using mlpl::StringUtils::sprintf;
+
+	if (itemData->isNull())
+		return "NULL";
+
+	switch (columnDef->type) {
+	case SQL_COLUMN_TYPE_INT:
+	case SQL_COLUMN_TYPE_BIGUINT:
+	case SQL_COLUMN_TYPE_DOUBLE:
+		return itemData->getString();
+
+	case SQL_COLUMN_TYPE_VARCHAR:
+	case SQL_COLUMN_TYPE_CHAR:
+	case SQL_COLUMN_TYPE_TEXT:
+	{ // bracket is used to avoid an error:
+	  // jump to case label
+		string src = itemData->getString();
+		char *escaped = new char[src.size() * 2 + 1]; 
+		mysql_real_escape_string(&m_impl->mysql, escaped, src.c_str(), src.size());
+		string val = sprintf("'%s'", escaped);
+		delete [] escaped;
+		return val;
+	}
+	case SQL_COLUMN_TYPE_DATETIME:
+		return makeDatetimeString(*itemData);
+	default:
+		HATOHOL_ASSERT(false, "Unknown type: %d",
+			       columnDef->type);
+		return "";
 	}
 }
 

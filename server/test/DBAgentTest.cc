@@ -511,6 +511,20 @@ void dbAgentTestUpdate(DBAgent &dbAgent, DBAgentChecker &checker)
 	checkUpdate(dbAgent, checker, ID, AGE, NAME, HEIGHT);
 }
 
+void dbAgentTestUpdateBigUint(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	// create table and insert a row
+	dbAgentTestInsert(dbAgent, checker);
+
+	// insert a row
+	const uint64_t ID = static_cast<uint64_t>(G_MAXINT64) + 1;
+	const int AGE = 20;
+	const char *NAME = "yui";
+	const double HEIGHT = 158.0;
+	const string condition = StringUtils::sprintf("id=1");
+	checkUpdate(dbAgent, checker, ID, AGE, NAME, HEIGHT);
+}
+
 void dbAgentTestUpdateCondition(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	// create table

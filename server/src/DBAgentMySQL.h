@@ -74,6 +74,9 @@ protected:
 	void queryWithRetry(const std::string &statement);
 
 	// virtual methods
+	virtual std::string getColumnValueString(
+	  const ColumnDef *columnDef, const ItemData *itemData) override;
+
 	virtual std::string
 	  makeCreateIndexStatement(const TableProfile &tableProfile,
 	                           const IndexDef &indexDef) override;
