@@ -809,7 +809,7 @@ HatoholError DBTablesUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 		} else {
 			hostGrpAccessInfoMap = it->second;
 		}
-		
+
 		HostGrpAccessInfoMapIterator jt =
 		  hostGrpAccessInfoMap->find(accessInfo->hostgroupId);
 		if (jt != hostGrpAccessInfoMap->end()) {
@@ -1218,4 +1218,3 @@ bool DBTablesUser::isAccessible(
 	int count = *itemGroup->getItemAt(0);
 	return count > 0;
 }
-

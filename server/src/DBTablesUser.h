@@ -180,7 +180,7 @@ public:
 	/**
 	 * Add an access list element.
 	 *
-	 * @param accessInfo 
+	 * @param accessInfo
 	 * An AccessInfo instance that has parameters to be stored.
 	 */
 	HatoholError addAccessInfo(AccessInfo &accessInfo,
