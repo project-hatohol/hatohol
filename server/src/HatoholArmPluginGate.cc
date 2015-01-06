@@ -214,13 +214,15 @@ void HatoholArmPluginGate::start(void)
 {
 	m_impl->armStatus.setRunningStatus(true);
 
-	HostInfo hostInfo;
-	hostInfo.serverId = m_impl->serverInfo.id;
-	hostInfo.id       = INAPPLICABLE_HOST_ID;
-	hostInfo.hostName = "N/A";
-	hostInfo.validity = HOST_VALID_INAPPLICABLE;
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().addHostInfo(&hostInfo);
+	ServerHostDef svHostDef;
+	svHostDef.id       = AUTO_INCREMENT_VALUE;
+	svHostDef.hostId   = AUTO_ASSIGNED_ID;
+	svHostDef.serverId = m_impl->serverInfo.id;
+	svHostDef.hostIdInServer =
+	  StringUtils::sprintf("%" FMT_HOST_ID, INAPPLICABLE_HOST_ID);
+	svHostDef.name     = "N/A";
+	svHostDef.status   = HOST_STAT_INAPPLICABLE;
+	UnifiedDataStore::getInstance()->upsertHost(svHostDef);
 
 	HatoholArmPluginInterface::start();
 }
