@@ -472,8 +472,12 @@ void RestResourceUser::handlerPutUserRole(void)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	UserRoleInfoList userRoleList;
 	UserRoleQueryOption option(m_dataQueryContextPtr);
+	UserInfoList userList;
+	UserQueryOption userOption(m_dataQueryContextPtr);
 	option.setTargetUserRoleId(userRoleInfo.id);
+	userOption.setPrivilegesFlag(userRoleInfo.flags);
 	dataStore->getUserRoleList(userRoleList, option);
+	dataStore->getUserList(userList, userOption);
 	if (userRoleList.empty()) {
 		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
 		            "id: %" FMT_USER_ID, userRoleInfo.id);
@@ -495,6 +499,17 @@ void RestResourceUser::handlerPutUserRole(void)
 	if (err != HTERR_OK) {
 		replyError(err);
 		return;
+	}
+	UserInfoListIterator it = userList.begin();
+	for (; it != userList.end(); ++it) {
+		UserInfo &userInfo = *it;
+		userInfo.flags = userRoleInfo.flags;
+		err = dataStore->updateUser(
+		  userInfo, m_dataQueryContextPtr->getOperationPrivilege());
+		if (err != HTERR_OK) {
+			replyError(err);
+		return;
+		}
 	}
 
 	// make a response
