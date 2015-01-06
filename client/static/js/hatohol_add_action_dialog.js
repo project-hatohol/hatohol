@@ -566,7 +566,11 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
       $('#selectServerId').append($('<option>').html(displayName).val(serverId));
     }
 
-    setSelectedIdForUpdate($("#selectServerId"), self.actionDef.serverId);
+    if (self.forIncidentSetting) {
+      setSelectedIdForUpdate($("#selectIncidentTracker"), self.actionDef.serverId);
+    } else {
+      setSelectedIdForUpdate($("#selectServerId"), self.actionDef.serverId);
+    }
   }
 
   function replyHostCallback(reply, parser) {
