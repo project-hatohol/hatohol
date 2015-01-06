@@ -23,21 +23,12 @@
 using namespace std;
 using namespace mlpl;
 
-static void conv(uint64_t &dest, const string &src)
-{
-	int numConv = sscanf(src.c_str(), "%" PRIu64, &dest);
-	if (numConv != 1) {
-		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
-		  HTERR_INTERNAL_ERROR, "Failed to convert %s.\n", src.c_str());
-	}
-}
-
 template<> uint64_t ItemGroupStream::read<string, uint64_t>(void)
 {
 	string str;
 	uint64_t dest;
 	*this >> str;
-	conv(dest, str);
+	Utils::conv(dest, str);
 	return dest;
 }
 
