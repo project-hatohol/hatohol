@@ -23,7 +23,8 @@ var HistoryView = function(userProfile, options) {
   var secondsInHour = 60 * 60;
 
   self.reloadIntervalSeconds = 60;
-  self.replyItem = null;
+  self.item = null;
+  self.servers = null;
   self.lastQuery = null;
   self.timeSpan = null;
   self.plotData = null;
@@ -121,25 +122,18 @@ var HistoryView = function(userProfile, options) {
     });
   };
 
-  function formatPlotData(item, historyReplies) {
+  function formatPlotData(item) {
     var i;
     var data = [ { label: item.brief, data:[] } ];
 
     if (item.unit)
       data[0].label += " [" + item.unit + "]";
 
-    if (!historyReplies)
-      return data;
-
-    for (i = 0; i < historyReplies.length; i++)
-      appendPlotData(data, historyReplies[i]);
-
     return data;
   };
 
-  function appendPlotData(plotData, historyReply) {
+  function appendPlotData(plotData, history) {
     var i, idx = plotData[0].data.length;
-    var history = historyReply.history;
     for (i = 0; i < history.length; i++) {
       plotData[0].data[idx++] = [
         // Xaxis: UNIX time in msec
@@ -373,14 +367,16 @@ var HistoryView = function(userProfile, options) {
     self.plot.draw();
   }
 
-  function updateView(reply) {
-    var item = self.replyItem.items[0];
+  function updateHistory(history) {
     if (!self.plotData)
-      self.plotData = formatPlotData(item);
+      self.plotData = formatPlotData(self.item);
     shiftPlotData(self.plotData);
-    appendPlotData(self.plotData, reply);
+    appendPlotData(self.plotData, history);
+  }
+
+  function updateView() {
     self.displayUpdateTime();
-    drawGraph(item, self.plotData);
+    drawGraph(self.item, self.plotData);
     drawSlider();
   }
 
@@ -415,17 +411,15 @@ var HistoryView = function(userProfile, options) {
     return 'history?' + $.param(query);
   };
 
-  function buildHostName(itemReply) {
-    var item = itemReply.items[0];
-    var server = itemReply.servers[item.serverId];
+  function buildHostName(item, servers) {
+    var server = servers[item.serverId];
     var serverName = getServerName(server, item["serverId"]);
     var hostName   = getHostName(server, item["hostId"]);
     return serverName + ": " + hostName;
   }
 
-  function setItemDescription(itemReply) {
-    var item = itemReply.items[0];
-    var hostName = buildHostName(itemReply);
+  function setItemDescription(item, servers) {
+    var hostName = buildHostName(item, servers);
     var title = "";
     title += item.brief;
     title += " (" + hostName + ")";
@@ -436,13 +430,13 @@ var HistoryView = function(userProfile, options) {
   function loadItem() {
     var deferred = new $.Deferred;
     self.startConnection(getItemQuery(), function(reply) {
-      var items = reply["items"];
+      var items = reply.items;
       var messageDetail;
 
-      self.replyItem = reply;
-
       if (items && items.length == 1) {
-        setItemDescription(reply);
+	self.item = items[0];
+	self.servers = reply.servers;
+        setItemDescription(self.item, self.servers);
         deferred.resolve();
       } else {
         messageDetail =
@@ -462,12 +456,18 @@ var HistoryView = function(userProfile, options) {
 
   function loadHistory() {
     var deferred = new $.Deferred;
+
     self.clearAutoReload();
     self.loadingHistory = true;
+
     self.startConnection(getHistoryQuery(), function(reply) {
       var maxRecordsPerRequest = 1000;
-      updateView(reply);
-      if (reply.history.length >= maxRecordsPerRequest) {
+      var history = reply.history;
+
+      updateHistory(history);
+      updateView();
+
+      if (history.length >= maxRecordsPerRequest) {
         $.when(loadHistory()).done(function() {
 	  deferred.resolve();
 	});
@@ -475,6 +475,7 @@ var HistoryView = function(userProfile, options) {
 	deferred.resolve();
       }
     });
+
     return deferred.promise();
   }
 
