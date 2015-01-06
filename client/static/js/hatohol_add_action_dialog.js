@@ -237,15 +237,13 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   }
 
   function setSelectedHostgroupId(value) {
-    setSelectedId(IDX_SELECTED_HOST_GROUP, value, fixupSelectHostBoxIgnoreSelectedAny);
+    setSelectedId(IDX_SELECTED_HOST_GROUP, value, function (newServerId) {
+      fixupSelectBox($("#selectHostId"), newServerId, setSelectedHostId, true);
+    });
   }
 
   function fixupSelectHostBox(newServerId) {
     fixupSelectBox($("#selectHostId"), newServerId, setSelectedHostId);
-  }
-
-  function fixupSelectHostBoxIgnoreSelectedAny(newServerId) {
-    fixupSelectBox($("#selectHostId"), newServerId, setSelectedHostId, true);
   }
 
   function setSelectedHostId(value) {
