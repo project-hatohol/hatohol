@@ -2878,32 +2878,21 @@ HatoholError DBTablesMonitoring::getHostgroupElementList
   (HostgroupElementList &hostgroupElementList,
    const HostgroupElementQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileHostgroupMember);
-	arg.add(IDX_HOSTGROUP_MEMBER_ID);
-	arg.add(IDX_HOSTGROUP_MEMBER_SERVER_ID);
-	arg.add(IDX_HOSTGROUP_MEMBER_HOST_ID);
-	arg.add(IDX_HOSTGROUP_MEMBER_GROUP_ID);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	HostgroupMemberVect hostgroupMembers;
+	HatoholError err = uds->getHostgroupMembers(hostgroupMembers, option);
 
-	arg.condition = option.getCondition();
-
-	getDBAgent().runTransaction(arg);
-
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator itemGrpItr = grpList.begin();
-	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		ItemGroupStream itemGroupStream(*itemGrpItr);
-		hostgroupElementList.push_back(HostgroupElement());
-		HostgroupElement &hostgroupElement = hostgroupElementList.back();
-		hostgroupElement.id = itemGroupStream.read<GenericIdType>();
-		itemGroupStream >> hostgroupElement.serverId;
-
-		hostgroupElement.hostId =
-		  itemGroupStream.read<string, HostIdType>();
-		hostgroupElement.groupId =
-		  itemGroupStream.read<string, HostgroupIdType>();
+	for (size_t i = 0; i < hostgroupMembers.size(); i++) {
+		const HostgroupMember &hostgrpMember = hostgroupMembers[i];
+		HostgroupElement hostgrpElem;
+		hostgrpElem.id = hostgrpMember.id;
+		hostgrpElem.serverId = hostgrpMember.serverId;
+		Utils::conv(hostgrpElem.hostId, hostgrpMember.hostIdInServer);
+		Utils::conv(hostgrpElem.groupId,
+		            hostgrpMember.hostgroupIdInServer);
+		hostgroupElementList.push_back(hostgrpElem);
 	}
-
-	return HTERR_OK;
+	return err;
 }
 
 static bool updateDB(
