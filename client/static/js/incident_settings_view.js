@@ -200,6 +200,13 @@ var IncidentSettingsView = function(userProfile) {
       }
       s += "</td>";
 
+      s += "<td class='edit-incident-setting-column' style='display:none;'>";
+      s += "<input id='edit-incident-setting" + escapeHTML(actionDef.actionId) + "'";
+      s += "  type='button' class='btn btn-default'";
+      s += "  actionId='" + escapeHTML(actionDef.actionId) + "'";
+      s += "  value='" + gettext("EDIT") + "' />";
+      s += "</td>";
+
       s += "</tr>";
     }
 
