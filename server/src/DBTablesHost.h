@@ -189,7 +189,7 @@ public:
 	 * serverHostDef.hostIdInserver, the record is updated.
 	 * If serverHostDef.id is AUTO_INCREMENT_VALUE, a new record is always
 	 * added except for the latter case of the previous sentence.
-	 * In addition, if serverHostDef.hostId is ATUO_ASSIGNED_ID,
+	 * In addition, if serverHostDef.hostId is AUTO_ASSIGNED_ID,
 	 * a new record is added in host_list.
 	 * serverHostDef.name is used as host_list.name of
 	 * the new record.
