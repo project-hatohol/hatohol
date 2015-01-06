@@ -443,7 +443,7 @@ var HistoryView = function(userProfile, options) {
 
       if (items && items.length == 1) {
         setItemDescription(reply);
-        return deferred.resolve();
+        deferred.resolve();
       } else {
         messageDetail =
           "Monitoring Server ID: " + query.serverId + ", " +
@@ -454,7 +454,7 @@ var HistoryView = function(userProfile, options) {
         else if (items.length > 1)
           self.showError(gettext("Too many items are found for ") +
                          messageDetail);
-        return deferred.reject();
+        deferred.reject();
       }
     });
     return deferred.promise();
@@ -469,7 +469,7 @@ var HistoryView = function(userProfile, options) {
       updateView(reply);
       if (reply.history.length >= maxRecordsPerRequest)
         $.when(loadHistory());
-      return deferred.resolve();
+      deferred.resolve();
     });
     return deferred.promise();
   }
