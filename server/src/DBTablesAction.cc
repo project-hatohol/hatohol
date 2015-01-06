@@ -892,10 +892,8 @@ static void getHostgroupIdStringList(string &stringHostgroupId,
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	uds->getHostgroupMembers(hostgrpMembers, option);
 
-	if (hostgrpMembers.empty()) {
-		stringHostgroupId = "0";
+	if (hostgrpMembers.empty())
 		return;
-	}
 
 	SeparatorInjector commaInjector(",");
 	for (size_t i = 0; i < hostgrpMembers.size(); i++) {
@@ -1289,6 +1287,9 @@ string ActionsQueryOption::getCondition(void) const
 	string hostgroupIdList;
 	getHostgroupIdStringList(hostgroupIdList,
 	  triggerInfo.serverId, triggerInfo.hostId);
+	if (hostgroupIdList.empty())
+		hostgroupIdList = DB::getAlwaysFalseCondition();
+
 	if (!cond.empty())
 		cond += " AND ";
 	cond += StringUtils::sprintf(m_impl->conditionTemplate.c_str(),
