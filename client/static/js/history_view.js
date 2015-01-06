@@ -82,7 +82,7 @@ var HistoryView = function(userProfile, options) {
     }).attr("data-toggle", "button"));
 
     $("#item-graph").bind("plotselected", function (event, ranges) {
-      var options;
+      var plotOptions;
 
       // clamp the zooming to prevent eternal zoom
       if (ranges.xaxis.to - ranges.xaxis.from < 60 * 1000) {
@@ -91,11 +91,11 @@ var HistoryView = function(userProfile, options) {
       }
 
       // zoom
-      options = $.extend(true, {}, self.plotOptions, {
+      plotOptions = $.extend(true, {}, self.plotOptions, {
         xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
         yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
       });
-      $.plot("#item-graph", self.plotData, options);
+      $.plot("#item-graph", self.plotData, plotOptions);
 
       setSliderTimeRange(Math.floor(ranges.xaxis.from / 1000),
                          Math.floor(ranges.xaxis.to / 1000));
@@ -189,10 +189,10 @@ var HistoryView = function(userProfile, options) {
     return $.plot.formatDate(date, format);
   }
 
-  function drawGraph(item, history) {
+  function drawGraph(item, plotData) {
     var beginTimeInSec = self.lastQuery.endTime - self.timeSpan;
     var endTimeInSec = self.lastQuery.endTime;
-    var options = {
+    var plotOptions = {
       xaxis: {
         mode: "time",
         timezone: "browser",
@@ -220,12 +220,12 @@ var HistoryView = function(userProfile, options) {
       },
     };
     if (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)
-      options.yaxis.minTickSize = 1;
-    if (history[0].data.length < 3)
-      options.points.show = true;
+      plotOptions.yaxis.minTickSize = 1;
+    if (plotData[0].data.length < 3)
+      plotOptions.points.show = true;
 
-    self.plotOptions = options;
-    self.plot = $.plot($("#item-graph"), history, self.plotOptions);
+    self.plotOptions = plotOptions;
+    self.plot = $.plot($("#item-graph"), plotData, self.plotOptions);
   }
 
   function getTimeRange() {
