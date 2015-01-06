@@ -145,6 +145,9 @@ public:
 	HatoholError upsertHostgroupMembers(
 	  const HostgroupMemberVect &hostgroupMembers);
 
+	HatoholError getHostgroupMembers(
+	  HostgroupMemberVect &hostgroupMembers,
+	  const HostgroupMembersQueryOption &option);
 
 	// Action
 	HatoholError getActionList(ActionDefList &actionList,
