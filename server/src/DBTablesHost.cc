@@ -432,6 +432,29 @@ HostStatus HostsQueryOption::getStatus(void) const
 }
 
 // ---------------------------------------------------------------------------
+// HostgroupMembersQueryOption
+// ---------------------------------------------------------------------------
+static const HostResourceQueryOption::Synapse synapseHostgroupMembersQueryOption(
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_ID, IDX_HOSTGROUP_MEMBER_SERVER_ID,
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_HOST_ID, false,
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID);
+
+HostgroupMembersQueryOption::HostgroupMembersQueryOption(const UserIdType &userId)
+: HostResourceQueryOption(synapseHostgroupMembersQueryOption, userId)
+{
+}
+
+HostgroupMembersQueryOption::HostgroupMembersQueryOption(
+  DataQueryContext *dataQueryContext)
+: HostResourceQueryOption(synapseHostgroupMembersQueryOption, dataQueryContext)
+{
+}
+
+// ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
 void DBTablesHost::reset(void)
@@ -823,6 +846,36 @@ void DBTablesHost::upsertHostgroupMembers(
 		}
 	} proc(*this, hostgroupMembers);
 	getDBAgent().runTransaction(proc);
+}
+
+HatoholError DBTablesHost::getHostgroupMembers(
+  HostgroupMemberVect &hostgroupMembers,
+  const HostgroupMembersQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileHostgroupMember);
+	arg.add(IDX_HOSTGROUP_MEMBER_ID);
+	arg.add(IDX_HOSTGROUP_MEMBER_SERVER_ID);
+	arg.add(IDX_HOSTGROUP_MEMBER_HOST_ID);
+	arg.add(IDX_HOSTGROUP_MEMBER_GROUP_ID);
+
+	arg.condition = option.getCondition();
+
+	getDBAgent().runTransaction(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	hostgroupMembers.reserve(grpList.size());
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		HostgroupMember hostgrpMember;
+		hostgrpMember.id = itemGroupStream.read<GenericIdType>();
+		itemGroupStream >> hostgrpMember.serverId;
+		itemGroupStream >> hostgrpMember.hostIdInServer;
+		itemGroupStream >> hostgrpMember.hostgroupIdInServer;
+		hostgroupMembers.push_back(hostgrpMember);
+	}
+
+	return HTERR_OK;
 }
 
 HatoholError DBTablesHost::getVirtualMachines(

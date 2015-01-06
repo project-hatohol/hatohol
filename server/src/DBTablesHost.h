@@ -154,6 +154,12 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
+class HostgroupMembersQueryOption: public HostResourceQueryOption {
+public:
+	HostgroupMembersQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	HostgroupMembersQueryOption(DataQueryContext *dataQueryContext);
+};
+
 class DBTablesHost : public DBTables {
 public:
 	static const int TABLES_VERSION;
@@ -270,6 +276,10 @@ public:
 
 	void upsertHostgroupMembers(
 	  const HostgroupMemberVect &hostgroupMembers);
+
+	HatoholError getHostgroupMembers(
+	  HostgroupMemberVect &hostgrpMembers,
+	  const HostgroupMembersQueryOption &option);
 
 	/**
 	 * Get the virtual mechines
