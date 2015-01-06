@@ -204,9 +204,9 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
       fixupSelectBoxFunc(value);
   }
 
-  function fixupSelectBox(jQObjSelect, newValue, selectedIdSetter) {
+  function fixupSelectBox(jQObjSelect, newValue, selectedIdSetter, ignoreAnySelected) {
     var numOptions = jQObjSelect.children().length;
-    if (newValue == "ANY") {
+    if (newValue == "ANY" && !ignoreAnySelected) {
       for (var i = numOptions; i > 1; i--)
         jQObjSelect.children('option:last-child').remove();
       jQObjSelect.val("ANY");
@@ -237,11 +237,15 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   }
 
   function setSelectedHostgroupId(value) {
-    setSelectedId(IDX_SELECTED_HOST_GROUP, value, fixupSelectHostBox);
+    setSelectedId(IDX_SELECTED_HOST_GROUP, value, fixupSelectHostBoxIgnoreSelectedAny);
   }
 
   function fixupSelectHostBox(newServerId) {
     fixupSelectBox($("#selectHostId"), newServerId, setSelectedHostId);
+  }
+
+  function fixupSelectHostBoxIgnoreSelectedAny(newServerId) {
+    fixupSelectBox($("#selectHostId"), newServerId, setSelectedHostId, true);
   }
 
   function setSelectedHostId(value) {
