@@ -226,7 +226,7 @@ var IncidentSettingsView = function(userProfile) {
     var incidentTrackers = self.incidentTrackersData.incidentTrackers;
 
     for (i = 0; i < actions.length; ++i)
-      actionsMap[actions[i].actionId] =  actions[i];
+      actionsMap[actions[i].actionId] = actions[i];
 
     for (i = 0; i < actions.length; ++i) {
       id = "#edit-incident-setting" + actions[i].actionId;
