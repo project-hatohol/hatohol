@@ -465,6 +465,14 @@ bool Utils::isValidURI(const string &uri)
 	return valid;
 }
 
+void Utils::conv(uint64_t &dest, const string &src)
+{
+	int numConv = sscanf(src.c_str(), "%" PRIu64, &dest);
+	if (numConv != 1) {
+		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+		  HTERR_INTERNAL_ERROR, "Failed to convert %s.\n", src.c_str());
+	}
+}
 
 // ---------------------------------------------------------------------------
 // Protected methods
