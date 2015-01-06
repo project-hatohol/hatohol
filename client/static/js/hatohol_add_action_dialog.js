@@ -42,6 +42,8 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     gettext("ADD INCIDENT TRACKING SETTING") : gettext("ADD ACTION");
   self.windowTitle = self.targetId ?
     gettext("EDIT ACTION") : self.windowTitle;
+  self.windowTitle = self.forIncidentSetting && self.targetId ?
+    gettext("EDIT INCIDENT TRACKING SETTING") : self.windowTitle;
 
   var dialogButtons = [{
     text: self.actionDef ? gettext("APPLY") : gettext("ADD"),
