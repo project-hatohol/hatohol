@@ -280,9 +280,8 @@ msgid "EDIT ACTION"
 msgstr "アクション編集"
 
 #: static/js/hatohol_add_action_dialog.js:46
-#, fuzzy
 msgid "EDIT INCIDENT TRACKING SETTING"
-msgstr "インシデント管理設定追加"
+msgstr "インシデント管理設定編集"
 
 #: static/js/hatohol_add_action_dialog.js:73
 msgid "Now updating an action ..."
