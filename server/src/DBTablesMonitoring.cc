@@ -1472,29 +1472,6 @@ HostgroupsQueryOption::HostgroupsQueryOption(DataQueryContext *dataQueryContext)
 }
 
 //
-// HostgroupElementQueryOption
-//
-static const HostResourceQueryOption::Synapse synapseHostgroupElementQueryOption(
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_ID, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID, false,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
-
-HostgroupElementQueryOption::HostgroupElementQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseHostgroupElementQueryOption, userId)
-{
-}
-
-HostgroupElementQueryOption::HostgroupElementQueryOption(
-  DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseHostgroupElementQueryOption, dataQueryContext)
-{
-}
-
-//
 // IncidentsQueryOption
 //
 IncidentsQueryOption::IncidentsQueryOption(const UserIdType &userId)

@@ -115,11 +115,9 @@ public:
 	HostgroupsQueryOption(DataQueryContext *dataQueryContext);
 };
 
-class HostgroupElementQueryOption: public HostResourceQueryOption {
-public:
-	HostgroupElementQueryOption(const UserIdType &userId = INVALID_USER_ID);
-	HostgroupElementQueryOption(DataQueryContext *dataQueryContext);
-};
+// TODO: Remove this typedef ater the transition to the new host namagement
+//       is done.
+typedef HostgroupMembersQueryOption HostgroupElementQueryOption;
 
 class IncidentsQueryOption : public DataQueryOption {
 public:
