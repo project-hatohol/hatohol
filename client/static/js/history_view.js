@@ -189,9 +189,7 @@ var HistoryView = function(userProfile, options) {
     return $.plot.formatDate(date, format);
   }
 
-  function drawGraph(item, plotData) {
-    var beginTimeInSec = self.lastQuery.endTime - self.timeSpan;
-    var endTimeInSec = self.lastQuery.endTime;
+  function getPlotOptions(item, beginTimeInSec, endTimeInSec) {
     var plotOptions = {
       xaxis: {
         mode: "time",
@@ -219,13 +217,23 @@ var HistoryView = function(userProfile, options) {
         mode: "x",
       },
     };
+
     if (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)
       plotOptions.yaxis.minTickSize = 1;
+
+    return plotOptions;
+  }
+
+  function drawGraph(item, plotData) {
+    var beginTimeInSec = self.lastQuery.endTime - self.timeSpan;
+    var endTimeInSec = self.lastQuery.endTime;
+    var plotOptions = getPlotOptions(item, beginTimeInSec, endTimeInSec);
+
     if (plotData[0].data.length < 3)
       plotOptions.points.show = true;
 
     self.plotOptions = plotOptions;
-    self.plot = $.plot($("#item-graph"), plotData, self.plotOptions);
+    self.plot = $.plot($("#item-graph"), plotData, plotOptions);
   }
 
   function getTimeRange() {
