@@ -399,6 +399,8 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     case hatohol.ACTION_RESIDENT:
       typeSelector.val("ACTION_RESIDENT");
       break;
+    case hatohol.ACTION_INCIDENT_SENDER:
+      break;
     default:
       hatoholErrorMsgBox(gettext("Unknown command type: ") + type);
       break;
