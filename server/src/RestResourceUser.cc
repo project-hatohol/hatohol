@@ -504,6 +504,7 @@ void RestResourceUser::handlerPutUserRole(void)
 	for (; it != userList.end(); ++it) {
 		UserInfo &userInfo = *it;
 		userInfo.flags = userRoleInfo.flags;
+		userInfo.password = "";
 		err = dataStore->updateUser(
 		  userInfo, m_dataQueryContextPtr->getOperationPrivilege());
 		if (err != HTERR_OK) {
