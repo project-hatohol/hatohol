@@ -200,6 +200,13 @@ var IncidentSettingsView = function(userProfile) {
       }
       s += "</td>";
 
+      s += "<td class='edit-incident-setting-column' style='display:none;'>";
+      s += "<input id='edit-incident-setting" + escapeHTML(actionDef.actionId) + "'";
+      s += "  type='button' class='btn btn-default'";
+      s += "  actionId='" + escapeHTML(actionDef.actionId) + "'";
+      s += "  value='" + gettext("EDIT") + "' />";
+      s += "</td>";
+
       s += "</tr>";
     }
 
@@ -214,6 +221,26 @@ var IncidentSettingsView = function(userProfile) {
     return incidentTrackersMap;
   }
 
+  function setupEditButtons(incidentSettingsData) {
+    var i, id, actions = incidentSettingsData["actions"], actionsMap = {};
+    var incidentTrackers = self.incidentTrackersData.incidentTrackers;
+
+    for (i = 0; i < actions.length; ++i)
+      actionsMap[actions[i].actionId] = actions[i];
+
+    for (i = 0; i < actions.length; ++i) {
+      id = "#edit-incident-setting" + actions[i].actionId;
+      $(id).click(function() {
+        var actionId = this.getAttribute("actionId");
+        new HatoholAddActionDialog(load, incidentTrackers, actionsMap[actionId]);
+      });
+    }
+
+    if (userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_INCIDENT_SETTING)) {
+      $(".edit-incident-setting-column").show();
+    }
+  }
+
   function onGotIncidentTrackers(incidentTrackersData) {
     self.incidentTrackersData = incidentTrackersData;
     self.incidentTrackersMap = parseIncidentTrackers(self.incidentTrackersData);
@@ -222,6 +249,7 @@ var IncidentSettingsView = function(userProfile) {
     self.setupCheckboxForDelete($("#delete-incident-setting-button"));
     if (self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_INCIDENT_SETTING))
       $(".delete-selector").show();
+    setupEditButtons(self.incidentSettingsData);
   }
 
   function onGotIncidentSettings(incidentSettingsData) {

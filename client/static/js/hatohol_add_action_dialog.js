@@ -38,10 +38,13 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   self.incidentTrackers = incidentTrackers;
   self.forIncidentSetting = !!incidentTrackers;
 
-  self.windowTitle = self.forIncidentSetting ?
-    gettext("ADD INCIDENT TRACKING SETTING") : gettext("ADD ACTION");
-  self.windowTitle = self.targetId ?
-    gettext("EDIT ACTION") : self.windowTitle;
+  if (self.forIncidentSetting) {
+    self.windowTitle = self.targetId ?
+    gettext("EDIT INCIDENT TRACKING SETTING") : gettext("ADD INCIDENT TRACKING SETTING");
+  } else {
+    self.windowTitle = self.targetId ?
+    gettext("EDIT ACTION") : gettext("ADD ACTION");
+  }
 
   var dialogButtons = [{
     text: self.actionDef ? gettext("APPLY") : gettext("ADD"),
@@ -399,6 +402,8 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     case hatohol.ACTION_RESIDENT:
       typeSelector.val("ACTION_RESIDENT");
       break;
+    case hatohol.ACTION_INCIDENT_SENDER:
+      break;
     default:
       hatoholErrorMsgBox(gettext("Unknown command type: ") + type);
       break;
@@ -562,7 +567,11 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
       $('#selectServerId').append($('<option>').html(displayName).val(serverId));
     }
 
-    setSelectedIdForUpdate($("#selectServerId"), self.actionDef.serverId);
+    if (self.forIncidentSetting) {
+      setSelectedIdForUpdate($("#selectIncidentTracker"), self.actionDef.serverId);
+    } else {
+      setSelectedIdForUpdate($("#selectServerId"), self.actionDef.serverId);
+    }
   }
 
   function replyHostCallback(reply, parser) {
