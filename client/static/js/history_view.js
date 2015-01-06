@@ -467,9 +467,13 @@ var HistoryView = function(userProfile, options) {
     self.startConnection(getHistoryQuery(), function(reply) {
       var maxRecordsPerRequest = 1000;
       updateView(reply);
-      if (reply.history.length >= maxRecordsPerRequest)
-        $.when(loadHistory());
-      deferred.resolve();
+      if (reply.history.length >= maxRecordsPerRequest) {
+        $.when(loadHistory()).done(function() {
+	  deferred.resolve();
+	});
+      } else {
+	deferred.resolve();
+      }
     });
     return deferred.promise();
   }
