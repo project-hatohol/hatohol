@@ -38,12 +38,13 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   self.incidentTrackers = incidentTrackers;
   self.forIncidentSetting = !!incidentTrackers;
 
-  self.windowTitle = self.forIncidentSetting ?
-    gettext("ADD INCIDENT TRACKING SETTING") : gettext("ADD ACTION");
-  self.windowTitle = self.targetId ?
-    gettext("EDIT ACTION") : self.windowTitle;
-  self.windowTitle = self.forIncidentSetting && self.targetId ?
-    gettext("EDIT INCIDENT TRACKING SETTING") : self.windowTitle;
+  if (self.forIncidentSetting) {
+    self.windowTitle = self.targetId ?
+    gettext("EDIT INCIDENT TRACKING SETTING") : gettext("ADD INCIDENT TRACKING SETTING");
+  } else {
+    self.windowTitle = self.targetId ?
+    gettext("EDIT ACTION") : gettext("ADD ACTION");
+  }
 
   var dialogButtons = [{
     text: self.actionDef ? gettext("APPLY") : gettext("ADD"),
