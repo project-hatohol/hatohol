@@ -83,6 +83,8 @@ public:
 	virtual ~UserQueryOption();
 
 	HatoholError setTargetName(const std::string &name);
+	OperationPrivilegeFlag getPrivilegesFlag(void) const;
+	void                   setPrivilegesFlag(const OperationPrivilegeFlag flags);
 	void         queryOnlyMyself(void);
 
 	// Overriding virtual methods
