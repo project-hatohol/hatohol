@@ -430,16 +430,18 @@ void HatoholArmPluginGate::onSetPluginInitialInfo(void)
 
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
 	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 
-	HostInfo hostInfo;
-	hostInfo.serverId = svInfo.id;
-	hostInfo.id = MONITORING_SERVER_SELF_ID;
-	hostInfo.hostName = 
-		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
-				     HAP_SELF_MONITORING_SUFFIX);
-	hostInfo.validity = HOST_VALID_SELF_MONITORING;
-	dbMonitoring.addHostInfo(&hostInfo);
+	ServerHostDef svHostDef;
+	svHostDef.id       = AUTO_INCREMENT_VALUE;
+	svHostDef.hostId   = AUTO_ASSIGNED_ID;
+	svHostDef.serverId = svInfo.id;
+	svHostDef.hostIdInServer =
+	  StringUtils::sprintf("%" FMT_HOST_ID,  MONITORING_SERVER_SELF_ID);
+	svHostDef.name     =
+	  StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
+	                       HAP_SELF_MONITORING_SUFFIX);
+	svHostDef.status   = HOST_STAT_INAPPLICABLE;
+	UnifiedDataStore::getInstance()->upsertHost(svHostDef);
 
 	m_impl->setInitialTriggerTable();
 
