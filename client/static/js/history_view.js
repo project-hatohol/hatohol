@@ -25,7 +25,6 @@ var HistoryLoader = function(options) {
   self.item = null;
   self.servers = null;
   self.history = [];
-  self.timeSpan = null;
   self.lastQuery = null;
   self.loading = false;
 };
@@ -56,9 +55,6 @@ HistoryLoader.prototype.load = function() {
 
   function getHistoryQuery() {
     var query = $.extend({}, self.options.historyQuery);
-    var secondsInHour = 60 * 60;
-    var defaultTimeSpan = secondsInHour * 6;
-    var timeSpan = self.timeSpan ? self.timeSpan : defaultTimeSpan;
     var lastReply, lastData, now;
 
     // omit loading existing data
@@ -73,10 +69,8 @@ HistoryLoader.prototype.load = function() {
       query.endTime = Math.floor(now.getTime() / 1000);
     }
     if (!query.beginTime)
-      query.beginTime = query.endTime - timeSpan;
+      query.beginTime = query.endTime - self.getTimeSpan();
 
-    if (!self.timeSpan)
-      self.timeSpan = query.endTime - query.beginTime;
     self.lastQuery = query;
 
     return 'history?' + $.param(query);
@@ -166,7 +160,7 @@ HistoryLoader.prototype.updateHistory = function(history) {
     if (!history)
       return;
 
-    beginTimeInMSec = (self.lastQuery.endTime - self.timeSpan) * 1000;
+    beginTimeInMSec = (self.lastQuery.endTime - self.getTimeSpan()) * 1000;
 
     while(history.length > 0 && history[0][0] < beginTimeInMSec) {
       if (history[0].length == 1 || history[0][1] > beginTimeInMSec) {
@@ -192,6 +186,19 @@ HistoryLoader.prototype.setTimeRange = function(beginTimeInSec, endTimeInSec) {
   if (!isNaN(beginTimeInSec) && !isNaN(endTimeInSec))
     this.timeSpan = endTimeInSec - beginTimeInSec;
   this.history = [];
+}
+
+HistoryLoader.prototype.getTimeSpan = function() {
+  var query = this.options.historyQuery;
+  var secondsInHour = 60 * 60;
+
+  if (!isNaN(query.beginTime) && !isNaN(query.endTime))
+    return query.endTime - query.beginTime;
+
+  if (!isNaN(this.options.timeSpan))
+    return this.options.timeSpan;
+
+  return secondsInHour * 6;
 }
 
 HistoryLoader.prototype.isLoading = function() {
@@ -224,6 +231,7 @@ var HistoryView = function(userProfile, options) {
 
   loader = new HistoryLoader({
     view: this,
+    timeSpan: self.timeSpan,
     itemQuery: self.parseItemQuery(options.query),
     historyQuery: self.parseHistoryQuery(options.query),
     onLoadItem: function(item, servers) {
@@ -236,6 +244,7 @@ var HistoryView = function(userProfile, options) {
       updateView();
     }
   });
+  self.timeSpan = loader.getTimeSpan();
   load();
 
   function load() {
@@ -386,7 +395,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function drawGraph(item, plotData) {
-    var beginTimeInSec = loader.lastQuery.endTime - loader.timeSpan;
+    var beginTimeInSec = loader.lastQuery.endTime - self.timeSpan;
     var endTimeInSec = loader.lastQuery.endTime;
     var plotOptions = getPlotOptions(loader.getItem(), beginTimeInSec, endTimeInSec);
 
@@ -403,7 +412,7 @@ var HistoryView = function(userProfile, options) {
     if (self.timeRange && loader.options.historyQuery.endTime)
       return self.timeRange;
 
-    beginTimeInSec = loader.lastQuery.endTime - loader.timeSpan;
+    beginTimeInSec = loader.lastQuery.endTime - self.timeSpan;
     endTimeInSec = loader.lastQuery.endTime;
 
     // Adjust to 00:00:00
@@ -459,6 +468,7 @@ var HistoryView = function(userProfile, options) {
         setSliderTimeRange(timeRange.last[0], timeRange.last[1]);
         setGraphTimeRange(timeRange.last[0], timeRange.last[1]);
 	loader.setTimeRange(timeRange.last[0], timeRange.last[1]);
+	self.timeSpan = timeRange.last[1] - timeRange.last[0];
 	load();
         $("#item-graph-auto-refresh").removeClass("active");
       },
