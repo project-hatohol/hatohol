@@ -34,14 +34,9 @@ HistoryLoader.prototype.load = function() {
 
   self.loading = true;
 
-  if (self.item) {
-    $.when(loadHistory())
-      .done(onLoadComplete);
-  } else {
-    $.when(loadItem())
-      .then(loadHistory)
-      .done(onLoadComplete);
-  }
+  $.when(loadItem())
+    .then(loadHistory)
+    .done(onLoadComplete);
 
   function onLoadComplete() {
     self.loading = false;
@@ -82,6 +77,11 @@ HistoryLoader.prototype.load = function() {
   function loadItem() {
     var deferred = new $.Deferred;
     var view = self.options.view;
+
+    if (self.item) {
+      deferred.resolve();
+      return deferred.promise();
+    }
 
     view.startConnection(getItemQuery(), function(reply) {
       var items = reply.items;
