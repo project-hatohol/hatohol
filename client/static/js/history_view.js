@@ -55,7 +55,7 @@ HistoryLoader.prototype.load = function() {
 
   function getHistoryQuery() {
     var query = $.extend({}, self.options.historyQuery);
-    var lastReply, lastData, now;
+    var lastReply, lastData;
 
     // omit loading existing data
     if (self.history && self.history.length > 0) {
@@ -64,10 +64,8 @@ HistoryLoader.prototype.load = function() {
     }
 
     // set missing time range
-    if (!query.endTime) {
-      now = new Date();
-      query.endTime = Math.floor(now.getTime() / 1000);
-    }
+    if (!query.endTime)
+      query.endTime = Math.floor(new Date().getTime() / 1000);
     if (!query.beginTime)
       query.beginTime = query.endTime - self.getTimeSpan();
 
