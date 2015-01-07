@@ -32,6 +32,7 @@ var HistoryView = function(userProfile, options) {
   self.plot = null;
   self.timeRange = null;
   self.loadingHistory = false;
+  self.settingSliderTimeRange = false;
 
   if (!options)
     options = {};
