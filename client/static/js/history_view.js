@@ -183,8 +183,6 @@ HistoryLoader.prototype.setTimeRange = function(beginTimeInSec, endTimeInSec) {
   else
     this.options.historyQuery.endTime = endTimeInSec;
 
-  if (!isNaN(beginTimeInSec) && !isNaN(endTimeInSec))
-    this.timeSpan = endTimeInSec - beginTimeInSec;
   this.history = [];
 }
 
