@@ -217,6 +217,7 @@ var HistoryView = function(userProfile, options) {
     options = {};
 
   self.reloadIntervalSeconds = 60;
+  self.autoReloadIsEnabled = false;
   self.plotData = null;
   self.plotOptions = null;
   self.plot = null;
@@ -242,27 +243,36 @@ var HistoryView = function(userProfile, options) {
       updateView();
     }
   });
+  self.endTime = loader.options.historyQuery.endTime;
   self.timeSpan = loader.getTimeSpan();
+  self.autoReloadIsEnabled = !self.endTime;
   load();
 
   function load() {
     self.clearAutoReload();
+    if (self.autoReloadIsEnabled) {
+      self.endTime = new Date().getTime() / 1000;
+      loader.setTimeRange(undefined, self.endTime);
+    }
     $.when(loader.load()).done(onLoadAllHistory);
   }
 
   function enableAutoRefresh(onClickButton) {
     var button = $("#item-graph-auto-refresh");
+
     button.removeClass("btn-default");
     button.addClass("btn-primary");
     if (!onClickButton)
       button.addClass("active");
-    loader.setTimeRange();
+
+    self.autoReloadIsEnabled = true;
     load();
   }
 
   function disableAutoRefresh(onClickButton) {
     var button = $("#item-graph-auto-refresh");
     self.clearAutoReload();
+    self.autoReloadIsEnabled = false;
     if (!onClickButton)
       button.removeClass("active");
     button.removeClass("btn-primary");
@@ -393,8 +403,8 @@ var HistoryView = function(userProfile, options) {
   }
 
   function drawGraph(item, plotData) {
-    var beginTimeInSec = loader.lastQuery.endTime - self.timeSpan;
-    var endTimeInSec = loader.lastQuery.endTime;
+    var beginTimeInSec = self.endTime - self.timeSpan;
+    var endTimeInSec = self.endTime;
     var plotOptions = getPlotOptions(loader.getItem(), beginTimeInSec, endTimeInSec);
 
     if (plotData[0].data.length < 3)
@@ -407,14 +417,14 @@ var HistoryView = function(userProfile, options) {
   function getTimeRange() {
     var beginTimeInSec, endTimeInSec, date, min;
 
-    if (self.timeRange && loader.options.historyQuery.endTime)
+    if (self.timeRange && !self.autoReloadIsEnabled)
       return self.timeRange;
 
-    beginTimeInSec = loader.lastQuery.endTime - self.timeSpan;
-    endTimeInSec = loader.lastQuery.endTime;
+    beginTimeInSec = self.endTime - self.timeSpan;
+    endTimeInSec = self.endTime;
 
     // Adjust to 00:00:00
-    min = loader.lastQuery.endTime - secondsInHour * 24 * 7;
+    min = self.endTime - secondsInHour * 24 * 7;
     date = $.plot.dateGenerator(min * 1000, self.plotOptions.xaxis);
     min -= date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
 
@@ -423,7 +433,7 @@ var HistoryView = function(userProfile, options) {
       minSpan: secondsInHour,
       maxSpan: secondsInHour * 24,
       min: min,
-      max: loader.lastQuery.endTime,
+      max: self.endTime,
       set: function(range) {
         this.last = range.slice();
         if (this.last[1] - this.last[0] > this.maxSpan)
@@ -467,6 +477,7 @@ var HistoryView = function(userProfile, options) {
         setGraphTimeRange(timeRange.last[0], timeRange.last[1]);
 	loader.setTimeRange(timeRange.last[0], timeRange.last[1]);
 	self.timeSpan = timeRange.last[1] - timeRange.last[0];
+	self.autoReloadIsEnabled = false;
 	load();
         $("#item-graph-auto-refresh").removeClass("active");
       },
@@ -561,10 +572,10 @@ var HistoryView = function(userProfile, options) {
   }
 
   function onLoadAllHistory() {
-    if (loader.options.historyQuery.endTime) {
-      disableAutoRefresh();
-    } else {
+    if (self.autoReloadIsEnabled) {
       self.setAutoReload(load, self.reloadIntervalSeconds);
+    } else {
+      disableAutoRefresh();
     }
   }
 };
