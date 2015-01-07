@@ -122,9 +122,9 @@ HistoryLoader.prototype.load = function() {
       var history = reply.history;
 
       self.updateHistory(history);
-      if (self.options.onLoadHistory) {
+
+      if (self.options.onLoadHistory)
 	self.options.onLoadHistory(self.history);
-      }
 
       if (history.length >= maxRecordsPerRequest) {
         $.when(loadHistory()).done(function() {
