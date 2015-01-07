@@ -195,10 +195,10 @@ HistoryLoader.prototype.getTimeSpan = function() {
   if (!isNaN(query.beginTime) && !isNaN(query.endTime))
     return query.endTime - query.beginTime;
 
-  if (!isNaN(this.options.timeSpan))
-    return this.options.timeSpan;
+  if (isNaN(this.options.defaultTimeSpan))
+    this.options.defaultTimeSpan = secondsInHour * 6;
 
-  return secondsInHour * 6;
+  return this.options.defaultTimeSpan;
 }
 
 HistoryLoader.prototype.isLoading = function() {
@@ -231,7 +231,7 @@ var HistoryView = function(userProfile, options) {
 
   loader = new HistoryLoader({
     view: this,
-    timeSpan: self.timeSpan,
+    defaultTimeSpan: self.timeSpan,
     itemQuery: self.parseItemQuery(options.query),
     historyQuery: self.parseHistoryQuery(options.query),
     onLoadItem: function(item, servers) {
