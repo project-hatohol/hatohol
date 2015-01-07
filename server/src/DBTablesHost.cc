@@ -985,13 +985,9 @@ bool DBTablesHost::isAccessible(
 		string hostgroupIdInServer;
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		itemGroupStream >> serverId;
-		itemGroupStream >> hostgroupIdInServer;
 		// TODO: DBTablesUser should handle hostgroup ID as a string
-		HostgroupIdType hostgroupId;
-		int ret = sscanf(hostgroupIdInServer.c_str(),
-		                 "%" FMT_HOST_GROUP_ID, &hostgroupId);
-		HATOHOL_ASSERT(ret == 1, "ret: %d, str: %s\n",
-		               ret, hostgroupIdInServer.c_str());
+		HostgroupIdType hostgroupId =
+		  itemGroupStream.read<string, HostgroupIdType>();
 		if (dbUser.isAccessible(serverId, hostgroupId, option))
 			return true;
 	}
