@@ -21,7 +21,6 @@ var HistoryLoader = function(options) {
   var self = this;
 
   self.options = options;
-  self.view = options.view;
   self.item = undefined;
   self.servers = undefined;
   self.history = [];
@@ -82,8 +81,9 @@ HistoryLoader.prototype.load = function() {
 
   function loadItem() {
     var deferred = new $.Deferred;
+    var view = self.options.view;
 
-    self.view.startConnection(getItemQuery(), function(reply) {
+    view.startConnection(getItemQuery(), function(reply) {
       var items = reply.items;
       var messageDetail;
 
@@ -101,10 +101,10 @@ HistoryLoader.prototype.load = function() {
           "Host ID: " + query.hostId + ", " +
           "Item ID: " + query.itemId;
         if (!items || items.length == 0)
-          self.view.showError(gettext("No such item: ") + messageDetail);
+          hatoholErrorMsgBox(gettext("No such item: ") + messageDetail);
         else if (items.length > 1)
-          self.view.showError(gettext("Too many items are found for ") +
-                              messageDetail);
+          hatoholErrorMsgBox(gettext("Too many items are found for ") +
+                             messageDetail);
         deferred.reject();
       }
     });
@@ -114,8 +114,9 @@ HistoryLoader.prototype.load = function() {
 
   function loadHistory() {
     var deferred = new $.Deferred;
+    var view = self.options.view;
 
-    self.view.startConnection(getHistoryQuery(), function(reply) {
+    view.startConnection(getHistoryQuery(), function(reply) {
       var maxRecordsPerRequest = 1000;
       var history = reply.history;
 
@@ -596,8 +597,4 @@ HistoryView.prototype.parseQuery = function(query) {
       queryTable[knownKeys[i]] = allParams[knownKeys[i]];
   }
   return queryTable;
-};
-
-HistoryView.prototype.showError = function(message) {
-  hatoholErrorMsgBox(message);
 };
