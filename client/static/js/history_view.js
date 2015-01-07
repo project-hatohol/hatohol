@@ -50,11 +50,17 @@ HistoryLoader.prototype.load = function() {
   }
 
   function getItemQuery() {
-    return 'item?' + $.param(self.options.itemQuery);
+    var options = self.options.query;
+    var itemQuery = {
+      serverId: options.serverId,
+      hostId: options.hostId,
+      itemId: options.itemId
+    }
+    return 'item?' + $.param(itemQuery);
   };
 
   function getHistoryQuery() {
-    var query = $.extend({}, self.options.historyQuery);
+    var query = $.extend({}, self.options.query);
     var lastReply, lastData;
 
     // omit loading existing data
@@ -172,20 +178,20 @@ HistoryLoader.prototype.updateHistory = function(history) {
 
 HistoryLoader.prototype.setTimeRange = function(beginTimeInSec, endTimeInSec) {
   if (isNaN(beginTimeInSec))
-    delete this.options.historyQuery.beginTime;
+    delete this.options.query.beginTime;
   else
-    this.options.historyQuery.beginTime = beginTimeInSec;
+    this.options.query.beginTime = beginTimeInSec;
 
   if (isNaN(endTimeInSec))
-    delete this.options.historyQuery.endTime;
+    delete this.options.query.endTime;
   else
-    this.options.historyQuery.endTime = endTimeInSec;
+    this.options.query.endTime = endTimeInSec;
 
   this.history = [];
 }
 
 HistoryLoader.prototype.getTimeSpan = function() {
-  var query = this.options.historyQuery;
+  var query = this.options.query;
   var secondsInHour = 60 * 60;
 
   if (!isNaN(query.beginTime) && !isNaN(query.endTime))
@@ -229,8 +235,7 @@ var HistoryView = function(userProfile, options) {
   loader = new HistoryLoader({
     view: this,
     defaultTimeSpan: self.timeSpan,
-    itemQuery: self.parseItemQuery(options.query),
-    historyQuery: self.parseHistoryQuery(options.query),
+    query: self.parseQuery(options.query),
     onLoadItem: function(item, servers) {
       setItemDescription(item, servers)
       if (!self.plotData)
@@ -242,7 +247,7 @@ var HistoryView = function(userProfile, options) {
       updateView();
     }
   });
-  self.endTime = loader.options.historyQuery.endTime;
+  self.endTime = loader.options.query.endTime;
   self.timeSpan = loader.getTimeSpan();
   self.autoReloadIsEnabled = !self.endTime;
   load();
@@ -582,24 +587,14 @@ var HistoryView = function(userProfile, options) {
 HistoryView.prototype = Object.create(HatoholMonitoringView.prototype);
 HistoryView.prototype.constructor = HistoryView;
 
-HistoryView.prototype.parseQuery = function(query, knownKeys) {
+HistoryView.prototype.parseQuery = function(query) {
+  var knownKeys = ["serverId", "hostId", "itemId", "beginTime", "endTime"];
+  var startTime = new Date();
   var i, allParams = deparam(query), queryTable = {};
   for (i = 0; i < knownKeys.length; i++) {
     if (knownKeys[i] in allParams)
       queryTable[knownKeys[i]] = allParams[knownKeys[i]];
   }
-  return queryTable;
-};
-
-HistoryView.prototype.parseItemQuery = function(query) {
-  var knownKeys = ["serverId", "hostId", "itemId"];
-  return this.parseQuery(query, knownKeys);
-};
-
-HistoryView.prototype.parseHistoryQuery = function(query) {
-  var knownKeys = ["serverId", "hostId", "itemId", "beginTime", "endTime"];
-  var startTime = new Date();
-  queryTable = this.parseQuery(query, knownKeys);
   return queryTable;
 };
 
