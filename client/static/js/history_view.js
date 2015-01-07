@@ -22,10 +22,10 @@ var HistoryLoader = function(options) {
 
   self.options = options;
   self.view = options.view;
-  self.item = null;
-  self.servers = null;
+  self.item = undefined;
+  self.servers = undefined;
   self.history = [];
-  self.lastQuery = null;
+  self.lastQuery = undefined;
   self.loading = false;
 };
 
@@ -216,12 +216,12 @@ var HistoryView = function(userProfile, options) {
 
   self.reloadIntervalSeconds = 60;
   self.autoReloadIsEnabled = false;
-  self.plotData = null;
-  self.plotOptions = null;
-  self.plot = null;
-  self.timeRange = null;
+  self.plotData = undefined;
+  self.plotOptions = undefined;
+  self.plot = undefined;
+  self.timeRange = undefined;
   self.settingSliderTimeRange = false;
-  self.endTime = null;
+  self.endTime = undefined;
   self.timeSpan = secondsInHour * 6;
 
   appendGraphArea();
