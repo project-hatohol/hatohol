@@ -17,44 +17,240 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-var HistoryView = function(userProfile, options) {
+var HistoryLoader = function(options) {
   var self = this;
-  var itemQuery, historyQuery;
-  var secondsInHour = 60 * 60;
 
-  self.reloadIntervalSeconds = 60;
+  self.options = options;
+  self.view = options.view;
   self.item = null;
   self.servers = null;
-  self.lastQuery = null;
+  self.history = [];
   self.timeSpan = null;
-  self.plotData = null;
-  self.plotOptions = null;
-  self.plot = null;
-  self.timeRange = null;
-  self.loadingHistory = false;
-  self.settingSliderTimeRange = false;
+  self.lastQuery = null;
+  self.loading = false;
+};
+
+HistoryLoader.prototype.load = function() {
+  var self = this;
+  var deferred = new $.Deferred;
+
+  self.loading = true;
+
+  if (self.item) {
+    $.when(loadHistory())
+      .done(onLoadComplete);
+  } else {
+    $.when(loadItem())
+      .then(loadHistory)
+      .done(onLoadComplete);
+  }
+
+  function onLoadComplete() {
+    self.loading = false;
+    deferred.resolve();
+  }
+
+  function getItemQuery() {
+    return 'item?' + $.param(self.options.itemQuery);
+  };
+
+  function getHistoryQuery() {
+    var query = $.extend({}, self.options.historyQuery);
+    var secondsInHour = 60 * 60;
+    var defaultTimeSpan = secondsInHour * 6;
+    var timeSpan = self.timeSpan ? self.timeSpan : defaultTimeSpan;
+    var lastReply, lastData, now;
+
+    // omit loading existing data
+    if (self.history && self.history.length > 0) {
+      lastData = self.history[self.history.length - 1];
+      query.beginTime = Math.floor(lastData[0] / 1000) + 1;
+    }
+
+    // set missing time range
+    if (!query.endTime) {
+      now = new Date();
+      query.endTime = Math.floor(now.getTime() / 1000);
+    }
+    if (!query.beginTime)
+      query.beginTime = query.endTime - timeSpan;
+
+    if (!self.timeSpan)
+      self.timeSpan = query.endTime - query.beginTime;
+    self.lastQuery = query;
+
+    return 'history?' + $.param(query);
+  };
+
+  function loadItem() {
+    var deferred = new $.Deferred;
+
+    self.view.startConnection(getItemQuery(), function(reply) {
+      var items = reply.items;
+      var messageDetail;
+
+      if (items && items.length == 1) {
+	self.item = items[0];
+	self.servers = reply.servers;
+
+	if (self.options.onLoadItem)
+	  self.options.onLoadItem(self.item, self.servers);
+
+        deferred.resolve();
+      } else {
+        messageDetail =
+          "Monitoring Server ID: " + query.serverId + ", " +
+          "Host ID: " + query.hostId + ", " +
+          "Item ID: " + query.itemId;
+        if (!items || items.length == 0)
+          self.view.showError(gettext("No such item: ") + messageDetail);
+        else if (items.length > 1)
+          self.view.showError(gettext("Too many items are found for ") +
+                              messageDetail);
+        deferred.reject();
+      }
+    });
+
+    return deferred.promise();
+  }
+
+  function loadHistory() {
+    var deferred = new $.Deferred;
+
+    self.view.startConnection(getHistoryQuery(), function(reply) {
+      var maxRecordsPerRequest = 1000;
+      var history = reply.history;
+
+      self.updateHistory(history);
+      if (self.options.onLoadHistory) {
+	self.options.onLoadHistory(self.history);
+      }
+
+      if (history.length >= maxRecordsPerRequest) {
+        $.when(loadHistory()).done(function() {
+	  deferred.resolve();
+	});
+      } else {
+	deferred.resolve();
+      }
+    });
+
+    return deferred.promise();
+  }
+
+  return deferred.promise();
+};
+
+HistoryLoader.prototype.updateHistory = function(history) {
+  var self = this;
+
+  shiftHistory(self.history);
+  appendHistory(self.history, history);
+
+  function appendHistory(history, newHistory) {
+    var i, idx = history.length;
+    for (i = 0; i < newHistory.length; i++) {
+      history[idx++] = [
+        // Xaxis: UNIX time in msec
+        newHistory[i].clock * 1000 + Math.floor(newHistory[i].ns / 1000000),
+        // Yaxis: value
+        newHistory[i].value
+      ];
+    }
+    return history;
+  }
+
+  function shiftHistory(history) {
+    var beginTimeInMSec, data;
+
+    if (!history)
+      return;
+
+    beginTimeInMSec = (self.lastQuery.endTime - self.timeSpan) * 1000;
+
+    while(history.length > 0 && history[0][0] < beginTimeInMSec) {
+      if (history[0].length == 1 || history[0][1] > beginTimeInMSec) {
+	// remain one point to draw the left edge of the line
+	break;
+      }
+      history.shift();
+    }
+  }
+}
+
+HistoryLoader.prototype.setTimeRange = function(beginTimeInSec, endTimeInSec) {
+  if (isNaN(beginTimeInSec))
+    delete this.options.historyQuery.beginTime;
+  else
+    this.options.historyQuery.beginTime = beginTimeInSec;
+
+  if (isNaN(endTimeInSec))
+    delete this.options.historyQuery.endTime;
+  else
+    this.options.historyQuery.endTime = endTimeInSec;
+
+  if (!isNaN(beginTimeInSec) && !isNaN(endTimeInSec))
+    this.timeSpan = endTimeInSec - beginTimeInSec;
+  this.history = [];
+}
+
+HistoryLoader.prototype.isLoading = function() {
+  return this.loading;
+}
+
+HistoryLoader.prototype.getItem = function() {
+  return this.item;
+}
+
+
+var HistoryView = function(userProfile, options) {
+  var self = this;
+  var secondsInHour = 60 * 60;
+  var loader;
 
   if (!options)
     options = {};
 
-  itemQuery = self.parseItemQuery(options.query);
-  historyQuery = self.parseHistoryQuery(options.query);
+  self.reloadIntervalSeconds = 60;
+  self.plotData = null;
+  self.plotOptions = null;
+  self.plot = null;
+  self.timeRange = null;
+  self.settingSliderTimeRange = false;
+  self.endTime = null;
+  self.timeSpan = secondsInHour * 6;
 
   appendGraphArea();
-  $.when(loadItem())
-    .then(loadHistory)
-    .done(onLoadAllHistory);
+
+  loader = new HistoryLoader({
+    view: this,
+    itemQuery: self.parseItemQuery(options.query),
+    historyQuery: self.parseHistoryQuery(options.query),
+    onLoadItem: function(item, servers) {
+      setItemDescription(item, servers)
+      if (!self.plotData)
+	self.plotData = formatPlotData(item);
+    },
+    onLoadHistory: function(history) {
+      self.plotData[0].data = history;
+      updateView();
+    }
+  });
+  load();
+
+  function load() {
+    self.clearAutoReload();
+    $.when(loader.load()).done(onLoadAllHistory);
+  }
 
   function enableAutoRefresh(onClickButton) {
     var button = $("#item-graph-auto-refresh");
-    delete historyQuery.beginTime;
-    delete historyQuery.endTime;
-    self.plotData = null;
     button.removeClass("btn-default");
     button.addClass("btn-primary");
     if (!onClickButton)
       button.addClass("active");
-    $.when(loadHistory()).done(onLoadAllHistory);
+    loader.setTimeRange();
+    load();
   }
 
   function disableAutoRefresh(onClickButton) {
@@ -134,37 +330,6 @@ var HistoryView = function(userProfile, options) {
     return data;
   };
 
-  function appendPlotData(plotData, history) {
-    var i, idx = plotData[0].data.length;
-    for (i = 0; i < history.length; i++) {
-      plotData[0].data[idx++] = [
-        // Xaxis: UNIX time in msec
-        history[i].clock * 1000 + Math.floor(history[i].ns / 1000000),
-        // Yaxis: value
-        history[i].value
-      ];
-    }
-    return plotData;
-  }
-
-  function shiftPlotData(plotData) {
-    var beginTimeInMSec, data;
-
-    if (!plotData || !plotData[0])
-      return;
-
-    beginTimeInMSec = (self.lastQuery.endTime - self.timeSpan) * 1000;
-    data = plotData[0].data;
-
-    while(data.length > 0 && data[0][0] < beginTimeInMSec) {
-      if (data[0].length == 1 || data[0][1] > beginTimeInMSec) {
-	// remain one point to draw the left edge of the line
-	break;
-      }
-      plotData[0].data.shift();
-    }
-  }
-
   function formatTime(val, unit) {
     var now = new Date();
     var date = $.plot.dateGenerator(val, self.plotOptions.xaxis);
@@ -221,9 +386,9 @@ var HistoryView = function(userProfile, options) {
   }
 
   function drawGraph(item, plotData) {
-    var beginTimeInSec = self.lastQuery.endTime - self.timeSpan;
-    var endTimeInSec = self.lastQuery.endTime;
-    var plotOptions = getPlotOptions(item, beginTimeInSec, endTimeInSec);
+    var beginTimeInSec = loader.lastQuery.endTime - loader.timeSpan;
+    var endTimeInSec = loader.lastQuery.endTime;
+    var plotOptions = getPlotOptions(loader.getItem(), beginTimeInSec, endTimeInSec);
 
     if (plotData[0].data.length < 3)
       plotOptions.points.show = true;
@@ -235,14 +400,14 @@ var HistoryView = function(userProfile, options) {
   function getTimeRange() {
     var beginTimeInSec, endTimeInSec, date, min;
 
-    if (self.timeRange && historyQuery.endTime)
+    if (self.timeRange && loader.options.historyQuery.endTime)
       return self.timeRange;
 
-    beginTimeInSec = self.lastQuery.endTime - self.timeSpan;
-    endTimeInSec = self.lastQuery.endTime;
+    beginTimeInSec = loader.lastQuery.endTime - loader.timeSpan;
+    endTimeInSec = loader.lastQuery.endTime;
 
     // Adjust to 00:00:00
-    min = self.lastQuery.endTime - secondsInHour * 24 * 7;
+    min = loader.lastQuery.endTime - secondsInHour * 24 * 7;
     date = $.plot.dateGenerator(min * 1000, self.plotOptions.xaxis);
     min -= date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
 
@@ -251,7 +416,7 @@ var HistoryView = function(userProfile, options) {
       minSpan: secondsInHour,
       maxSpan: secondsInHour * 24,
       min: min,
-      max: self.lastQuery.endTime,
+      max: loader.lastQuery.endTime,
       set: function(range) {
         this.last = range.slice();
         if (this.last[1] - this.last[0] > this.maxSpan)
@@ -287,18 +452,14 @@ var HistoryView = function(userProfile, options) {
       change: function(event, ui) {
         if (self.settingSliderTimeRange)
           return;
-        if (self.loadingHistory)
+        if (loader.isLoading())
           return;
 
         timeRange.set(ui.values);
         setSliderTimeRange(timeRange.last[0], timeRange.last[1]);
         setGraphTimeRange(timeRange.last[0], timeRange.last[1]);
-
-        self.plotData = null;
-        historyQuery.beginTime = timeRange.last[0];
-        historyQuery.endTime = timeRange.last[1];
-        self.timeSpan = timeRange.last[1] - timeRange.last[0];
-        $.when(loadHistory()).done(onLoadAllHistory);
+	loader.setTimeRange(timeRange.last[0], timeRange.last[1]);
+	load();
         $("#item-graph-auto-refresh").removeClass("active");
       },
       slide: function(event, ui) {
@@ -369,49 +530,11 @@ var HistoryView = function(userProfile, options) {
     self.plot.draw();
   }
 
-  function updateHistory(history) {
-    if (!self.plotData)
-      self.plotData = formatPlotData(self.item);
-    shiftPlotData(self.plotData);
-    appendPlotData(self.plotData, history);
-  }
-
   function updateView() {
     self.displayUpdateTime();
-    drawGraph(self.item, self.plotData);
+    drawGraph(loader.getItem(), self.plotData);
     drawSlider();
   }
-
-  function getItemQuery() {
-    return 'item?' + $.param(itemQuery);
-  };
-
-  function getHistoryQuery() {
-    var query = $.extend({}, historyQuery);
-    var defaultTimeSpan = secondsInHour * 6;
-    var timeSpan = self.timeSpan ? self.timeSpan : defaultTimeSpan;
-    var lastReply, lastData, now;
-
-    // omit loading existing data
-    if (self.plotData && self.plotData[0].data.length > 0) {
-      lastData = self.plotData[0].data[self.plotData[0].data.length - 1];
-      query.beginTime = Math.floor(lastData[0] / 1000) + 1;
-    }
-
-    // set missing time range
-    if (!query.endTime) {
-      now = new Date();
-      query.endTime = Math.floor(now.getTime() / 1000);
-    }
-    if (!query.beginTime)
-      query.beginTime = query.endTime - timeSpan;
-
-    if (!self.timeSpan)
-      self.timeSpan = query.endTime - query.beginTime;
-    self.lastQuery = query;
-
-    return 'history?' + $.param(query);
-  };
 
   function buildHostName(item, servers) {
     var server = servers[item.serverId];
@@ -429,67 +552,12 @@ var HistoryView = function(userProfile, options) {
     $(".graph h2").text(title);
   }
 
-  function loadItem() {
-    var deferred = new $.Deferred;
-    self.startConnection(getItemQuery(), function(reply) {
-      var items = reply.items;
-      var messageDetail;
-
-      if (items && items.length == 1) {
-	self.item = items[0];
-	self.servers = reply.servers;
-        setItemDescription(self.item, self.servers);
-        deferred.resolve();
-      } else {
-        messageDetail =
-          "Monitoring Server ID: " + query.serverId + ", " +
-          "Host ID: " + query.hostId + ", " +
-          "Item ID: " + query.itemId;
-        if (!items || items.length == 0)
-          self.showError(gettext("No such item: ") + messageDetail);
-        else if (items.length > 1)
-          self.showError(gettext("Too many items are found for ") +
-                         messageDetail);
-        deferred.reject();
-      }
-    });
-    return deferred.promise();
-  }
-
-  function loadHistory() {
-    var deferred = new $.Deferred;
-
-    self.clearAutoReload();
-    self.loadingHistory = true;
-
-    self.startConnection(getHistoryQuery(), function(reply) {
-      var maxRecordsPerRequest = 1000;
-      var history = reply.history;
-
-      updateHistory(history);
-      updateView();
-
-      if (history.length >= maxRecordsPerRequest) {
-        $.when(loadHistory()).done(function() {
-	  deferred.resolve();
-	});
-      } else {
-	deferred.resolve();
-      }
-    });
-
-    return deferred.promise();
-  }
-
   function onLoadAllHistory() {
-    if (historyQuery.endTime) {
+    if (loader.options.historyQuery.endTime) {
       disableAutoRefresh();
     } else {
-      self.setAutoReload(function() {
-        $.when(loadHistory()).done(onLoadAllHistory);
-      }, self.reloadIntervalSeconds);
+      self.setAutoReload(load, self.reloadIntervalSeconds);
     }
-    self.loadingHistory = false;
   }
 };
 
