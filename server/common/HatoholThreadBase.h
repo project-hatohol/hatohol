@@ -47,6 +47,7 @@ private:
 
 public:
 	static const int EXIT_THREAD = -1;
+	static const int EXIT_FATAL = -2;
 
 	HatoholThreadBase(void);
 	virtual ~HatoholThreadBase();
