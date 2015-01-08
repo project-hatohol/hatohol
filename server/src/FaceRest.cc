@@ -363,8 +363,8 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	if (errno == EADDRINUSE)
 		MLPL_ERR("%s", Utils::getUsingPortInfo(m_impl->port).c_str());
 	HATOHOL_ASSERT(m_impl->soupServer,
-	               "failed: soup_server_new: %u, errno: %d\n",
-	               m_impl->port, errno);
+	               "failed: soup_server_new: %u, errno: %d (%s)\n",
+	               m_impl->port, errno, strerror(errno));
 	soup_server_add_handler(m_impl->soupServer, NULL,
 	                        handlerDefault, this, NULL);
 	m_impl->addHandler("/hello.html",
