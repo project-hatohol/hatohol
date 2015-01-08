@@ -481,6 +481,7 @@ var HistoryView = function(userProfile, options) {
         setSliderTimeRange(timeRange.last[0], timeRange.last[1]);
         setGraphTimeRange(timeRange.last[0], timeRange.last[1]);
 	loader.setTimeRange(timeRange.last[0], timeRange.last[1]);
+	self.endTime = timeRange.last[1];
 	self.timeSpan = timeRange.last[1] - timeRange.last[0];
 	self.autoReloadIsEnabled = false;
 	load();
