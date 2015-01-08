@@ -47,6 +47,8 @@ enum TriggerSeverityType {
 enum TriggerCollectHost {
 	// All hosts
 	ALL_HOST_TRIGGER = 0,
+	// Normal active hosts
+	REAL_HOST_TRIGGER,
 	// Normal active hosts(expect MONITORING_SERVER_SELF)
 	VALID_HOST_TRIGGER,
 };

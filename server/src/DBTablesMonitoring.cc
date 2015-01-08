@@ -1198,6 +1198,15 @@ string TriggersQueryOption::getCondition(void) const
 			MONITORING_SERVER_SELF_ID);
 	}
 
+	if (m_impl->triggerCollectHost >= REAL_HOST_TRIGGER) {
+		condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s.%s!=%d",
+			DBTablesMonitoring::TABLE_NAME_HOSTS,
+			COLUMN_DEF_HOSTS[IDX_HOSTS_VALIDITY].columnName,
+			HOST_INVALID);
+	}
+
 	if (m_impl->targetId != ALL_TRIGGERS) {
 		const DBTermCodec *dbTermCodec = getDBTermCodec();
 		if (!condition.empty())
@@ -1621,27 +1630,32 @@ bool DBTablesMonitoring::getTriggerInfo(TriggerInfo &triggerInfo,
 void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 					 const TriggersQueryOption &option)
 {
-	// build a condition
-	string condition = option.getCondition();
-	if (DBHatohol::isAlwaysFalseCondition(condition))
-		return;
+	DBClientJoinBuilder builder(tableProfileTriggers, &option);
+	builder.add(IDX_TRIGGERS_SERVER_ID);
+	builder.add(IDX_TRIGGERS_ID);
+	builder.add(IDX_TRIGGERS_STATUS);
+	builder.add(IDX_TRIGGERS_SEVERITY);
+	builder.add(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
+	builder.add(IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
+	builder.add(IDX_TRIGGERS_HOST_ID);
+	builder.add(IDX_TRIGGERS_HOSTNAME);
+	builder.add(IDX_TRIGGERS_BRIEF);
 
-	DBAgent::SelectExArg arg(tableProfileTriggers);
-	arg.tableField = option.getFromClause();
+	builder.addTable(
+	 tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
+	 tableProfileTriggers,IDX_TRIGGERS_SERVER_ID,IDX_HOSTS_SERVER_ID,
+	 tableProfileTriggers,IDX_TRIGGERS_HOST_ID,IDX_HOSTS_HOST_ID);
+	
+	DBAgent::SelectExArg &arg = builder.build();
 	arg.useDistinct = option.isHostgroupUsed();
 	arg.useFullName = option.isHostgroupUsed();
-	arg.add(IDX_TRIGGERS_SERVER_ID);
-	arg.add(IDX_TRIGGERS_ID);
-	arg.add(IDX_TRIGGERS_STATUS);
-	arg.add(IDX_TRIGGERS_SEVERITY);
-	arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
-	arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
-	arg.add(IDX_TRIGGERS_HOST_ID);
-	arg.add(IDX_TRIGGERS_HOSTNAME);
-	arg.add(IDX_TRIGGERS_BRIEF);
 
 	// condition
-	arg.condition = condition;
+	string optCond;
+	arg.condition.swap(optCond);
+	if (DBHatohol::isAlwaysFalseCondition(optCond))
+		return ;
+	arg.condition = optCond;
 
 	// Order By
 	arg.orderBy = option.getOrderBy();
@@ -2347,7 +2361,11 @@ void DBTablesMonitoring::addMonitoringServerStatus(
 size_t DBTablesMonitoring::getNumberOfTriggers(
   const TriggersQueryOption &option, const std::string &additionalCondition)
 {
-	DBAgent::SelectExArg arg(tableProfileTriggers);
+	DBClientJoinBuilder builder(tableProfileTriggers, &option);
+	builder.addTable(
+	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileTriggers,IDX_TRIGGERS_SERVER_ID,IDX_HOSTS_SERVER_ID,
+	  tableProfileTriggers,IDX_TRIGGERS_HOST_ID,IDX_HOSTS_HOST_ID);
 	string stmt = "count(*)";
 	if (option.isHostgroupUsed()) {
 		// Because a same trigger can be counted multiple times in
@@ -2370,14 +2388,12 @@ size_t DBTablesMonitoring::getNumberOfTriggers(
 		stmt = StringUtils::sprintf(fmt,
 		  option.getColumnName(IDX_TRIGGERS_SERVER_ID).c_str(),
 		  option.getColumnName(IDX_TRIGGERS_ID).c_str());
+
 	}
+	DBAgent::SelectExArg  &arg = builder.build();
+
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
-	// from
-	arg.tableField = option.getFromClause();
-
-	// condition
-	arg.condition = option.getCondition();
 	if (!additionalCondition.empty()) {
 		if (!arg.condition.empty())
 			arg.condition += " and ";
@@ -2422,17 +2438,16 @@ size_t DBTablesMonitoring::getNumberOfTriggers(const TriggersQueryOption &option
 size_t DBTablesMonitoring::getNumberOfHosts(const TriggersQueryOption &option)
 {
 	// TODO: consider if we can use hosts table.
-	DBAgent::SelectExArg arg(tableProfileTriggers);
+	DBClientJoinBuilder builder(tableProfileTriggers, &option);
+	builder.addTable(
+	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileTriggers,IDX_TRIGGERS_SERVER_ID,IDX_HOSTS_SERVER_ID,
+	  tableProfileTriggers,IDX_TRIGGERS_HOST_ID,IDX_HOSTS_HOST_ID);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
 	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
+	DBAgent::SelectExArg &arg = builder.build();
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
-
-	// from
-	arg.tableField = option.getFromClause();
-
-	// condition
-	arg.condition = option.getCondition();
 
 	getDBAgent().runTransaction(arg);
 
@@ -2453,17 +2468,17 @@ size_t DBTablesMonitoring::getNumberOfGoodHosts(const TriggersQueryOption &optio
 
 size_t DBTablesMonitoring::getNumberOfBadHosts(const TriggersQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileTriggers);
+	DBClientJoinBuilder builder(tableProfileTriggers, &option);
+	builder.addTable(
+	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileTriggers,IDX_TRIGGERS_SERVER_ID,IDX_HOSTS_SERVER_ID,
+	  tableProfileTriggers,IDX_TRIGGERS_HOST_ID,IDX_HOSTS_HOST_ID);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
 	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
+	DBAgent::SelectExArg &arg = builder.build();
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
-	// from
-	arg.tableField = option.getFromClause();
-
-	// condition
-	arg.condition = option.getCondition();
 	if (!arg.condition.empty())
 		arg.condition += " AND ";
 
