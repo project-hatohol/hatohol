@@ -177,7 +177,7 @@ HistoryLoader.prototype.updateHistory = function(history) {
   }
 }
 
-HistoryLoader.prototype.setTimeRange = function(beginTimeInSec, endTimeInSec) {
+HistoryLoader.prototype.setTimeRange = function(beginTimeInSec, endTimeInSec, keepHistory) {
   if (isNaN(beginTimeInSec))
     delete this.options.query.beginTime;
   else
@@ -191,7 +191,8 @@ HistoryLoader.prototype.setTimeRange = function(beginTimeInSec, endTimeInSec) {
   if (!isNaN(beginTimeInSec) && !isNaN(endTimeInSec))
     this.options.defaultTimeSpan = endTimeInSec - beginTimeInSec;
 
-  this.history = [];
+  if (!keepHistory)
+    this.history = [];
 }
 
 HistoryLoader.prototype.getTimeSpan = function() {
@@ -260,7 +261,7 @@ var HistoryView = function(userProfile, options) {
     self.clearAutoReload();
     if (self.autoReloadIsEnabled) {
       self.endTime = new Date().getTime() / 1000;
-      loader.setTimeRange(undefined, self.endTime);
+      loader.setTimeRange(undefined, self.endTime, true);
     }
     $.when(loader.load()).done(onLoadAllHistory);
   }
