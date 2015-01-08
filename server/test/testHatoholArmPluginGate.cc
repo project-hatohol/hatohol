@@ -88,7 +88,6 @@ void cut_setup(void)
 	hatoholInit();
 	setupTestDB();
 	loadTestDBTablesConfig();
-	loadTestDBServer();
 	loadTestDBArmPlugin();
 }
 
