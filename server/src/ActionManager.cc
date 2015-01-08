@@ -1474,7 +1474,7 @@ void ActionManager::closeResident(ResidentInfo *residentInfo)
 	// will be called back from ActorCollector::checkExitProcess().
 	pid_t pid = residentInfo->pid;
 	if (pid && kill(pid, SIGKILL))
-		MLPL_ERR("Failed to kill. pid: %d, %s\n", pid, strerror(errno));
+		MLPL_ERR("Failed to kill. pid: %d, %s\n", pid, g_strerror(errno));
 }
 
 /*

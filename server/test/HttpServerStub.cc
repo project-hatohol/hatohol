@@ -92,7 +92,7 @@ void HttpServerStub::start(guint port)
 			break;
 
 		MLPL_ERR("Failed to create SoupServer: %d: %s\n",
-			 errno, strerror(errno));
+			 errno, g_strerror(errno));
 		if (i < retryCount)
 			sleep(5);
 		else

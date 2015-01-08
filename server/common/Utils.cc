@@ -160,7 +160,7 @@ string Utils::getSelfExeDir(void)
 	if (bytesRead == -1) {
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to readlink(\"/proc/self/exe\"): %s",
-		  strerror(errno));
+		  g_strerror(errno));
 	}
 	p = memrchr(buf, '/', bytesRead);
 	if (!p) {

@@ -492,7 +492,7 @@ bool NamedPipe::openPipe(const string &name)
 			return false;
 		if (mkfifo(m_impl->path.c_str(), FIFO_MODE) == -1) { 
 			MLPL_ERR("Failed to make FIFO: %s, %s\n",
-			         m_impl->path.c_str(), strerror(errno));
+			         m_impl->path.c_str(), g_strerror(errno));
 			return false;
 		}
 	}
@@ -504,7 +504,7 @@ retry:
 		if (errno == EINTR)
 			goto retry;
 		MLPL_ERR("Failed to open: %s, %s\n",
-		         m_impl->path.c_str(), strerror(errno));
+		         m_impl->path.c_str(), g_strerror(errno));
 		return false;
 	}
 
@@ -557,7 +557,7 @@ bool NamedPipe::isExistingDir(const string &dirname, bool &hasError)
 	struct stat buf;
 	if (stat(dirname.c_str(), &buf) == -1 && errno != ENOENT) {
 		MLPL_ERR("Failed to stat: %s, %s\n",
-		         dirname.c_str(), strerror(errno));
+		         dirname.c_str(), g_strerror(errno));
 		return false;
 	}
 	if (errno == ENOENT) {
@@ -596,7 +596,7 @@ bool NamedPipe::makeBasedirIfNeeded(const string &baseDir)
 	if (result == -1) {
 		if (errno != EEXIST) {
 			MLPL_ERR("Failed to make dir: %s, %s\n",
-			         BASE_DIR, strerror(errno));
+			         BASE_DIR, g_strerror(errno));
 			return false;
 		}
 		// The other process or thread may create the directory
@@ -611,7 +611,7 @@ bool NamedPipe::deleteFileIfExists(const string &path)
 	struct stat buf;
 	if (stat(path.c_str(), &buf) == -1 && errno != ENOENT) {
 		MLPL_ERR("Failed to stat: %s, %s\n",
-		         path.c_str(), strerror(errno));
+		         path.c_str(), g_strerror(errno));
 		return false;
 	}
 	if (errno == ENOENT)
@@ -619,7 +619,7 @@ bool NamedPipe::deleteFileIfExists(const string &path)
 
 	if (unlink(path.c_str()) == -1) {
 		MLPL_ERR("Failed to unlink: %s, %s\n",
-		         path.c_str(), strerror(errno));
+		         path.c_str(), g_strerror(errno));
 		return false;
 	}
 
