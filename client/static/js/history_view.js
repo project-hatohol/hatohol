@@ -227,7 +227,7 @@ var HistoryView = function(userProfile, options) {
 
   self.reloadIntervalSeconds = 60;
   self.autoReloadIsEnabled = false;
-  self.plotData = undefined;
+  self.plotData = [];
   self.plotOptions = undefined;
   self.plot = undefined;
   self.timeRange = undefined;
@@ -243,8 +243,7 @@ var HistoryView = function(userProfile, options) {
     query: self.parseQuery(options.query),
     onLoadItem: function(item, servers) {
       setItemDescription(item, servers)
-      if (!self.plotData)
-	self.plotData = formatPlotData(item);
+      self.plotData[0] = formatPlotData(item);
       updateView();
     },
     onLoadHistory: function(history) {
@@ -348,10 +347,10 @@ var HistoryView = function(userProfile, options) {
 
   function formatPlotData(item) {
     var i;
-    var data = [ { label: item.brief, data:[] } ];
+    var data = { label: item.brief, data:[] };
 
     if (item.unit)
-      data[0].label += " [" + item.unit + "]";
+      data.label += " [" + item.unit + "]";
 
     return data;
   };
