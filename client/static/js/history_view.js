@@ -414,9 +414,12 @@ var HistoryView = function(userProfile, options) {
     var beginTimeInSec = self.endTime - self.timeSpan;
     var endTimeInSec = self.endTime;
     var plotOptions = getPlotOptions(loader.getItem(), beginTimeInSec, endTimeInSec);
+    var i;
 
-    if (plotData[0].data.length < 3)
-      plotOptions.points.show = true;
+    for (i = 0; i < plotData.length; i++) {
+      if (plotData[i].data.length < 3)
+        plotOptions.points.show = true;
+    }
 
     self.plotOptions = plotOptions;
     self.plot = $.plot($("#item-graph"), plotData, plotOptions);
