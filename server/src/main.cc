@@ -186,13 +186,13 @@ static bool changeUser(const string &user)
 	struct passwd *pwd = getpwnam(user.c_str());
 	if (!pwd) {
 		MLPL_ERR("Failed to get user %s: %s\n",
-			 user.c_str(), strerror(errno));
+			 user.c_str(), g_strerror(errno));
 		return false;
 	}
 	if (setuid(pwd->pw_uid)) {
 		MLPL_ERR("Failed to switch user to %s (uid=%" PRIuMAX "); %s\n",
 			 user.c_str(), (uintmax_t)pwd->pw_uid,
-			 strerror(errno));
+			 g_strerror(errno));
 		return false;
 	}
 	return true;

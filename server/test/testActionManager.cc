@@ -144,7 +144,7 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 				cut_notify(
 				  "Failed to call kill: "
 				  "pid: %d, signo: %d, %s\n",
-				  actionTpPid, signo, strerror(errno));
+				  actionTpPid, signo, g_strerror(errno));
 			}
 		}
 
