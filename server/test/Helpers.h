@@ -223,6 +223,30 @@ void _assertFileContent(const std::string &expect, const std::string &path);
 void _assertGError(const GError *error);
 #define assertGError(E) cut_trace(_assertGError(E))
 
+template<typename T0, typename T1>
+void _assertEqualSize(const T0 &exp, const T1 &act)
+{
+	std::stringstream ss;
+	if (exp.size() != act.size()) {
+		ss << "<<expect>>\n";
+		typename T0::const_iterator it0;
+		for (it0 = exp.begin(); it0 != exp.end(); ++it0) {
+			ss << *it0;
+			ss << ",";
+		}
+		typename T1::const_iterator it1;
+		ss << "\n<<actual>>\n";
+		for (it1 = act.begin(); it1 != act.end(); ++it1) {
+			ss << *it1;
+			ss << ",";
+		}
+	}
+	cppcut_assert_equal(exp.size(), act.size(),
+	                    cut_message("%s", ss.str().c_str()));
+}
+#define assertEqualSize(E, A) \
+  cut_trace((_assertEqualSize<__typeof__(E), __typeof__(A)>(E,A)))
+
 void prepareDataWithAndWithoutArmPlugin(void);
 
 VariableItemGroupPtr convert(
