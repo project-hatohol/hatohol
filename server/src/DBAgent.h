@@ -28,8 +28,6 @@
 #include "SQLProcessorTypes.h"
 #include "DBTermCodec.h"
 
-static const int      AUTO_INCREMENT_VALUE = 0;
-static const uint64_t AUTO_INCREMENT_VALUE_U64 = 0;
 static const int CURR_DATETIME = -1;
 
 struct DBConnectInfo {
