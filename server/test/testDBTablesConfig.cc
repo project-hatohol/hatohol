@@ -341,13 +341,13 @@ cut_trace(_assertAddTargetServer(I,E,##__VA_ARGS__))
 
 void test_addTargetServer(void)
 {
-	MonitoringServerInfo *testInfo = testServerInfo;
+	const MonitoringServerInfo *testInfo = testServerInfo;
 	assertAddTargetServer(*testInfo, HTERR_OK);
 }
 
 void test_addTargetServerWithoutPrivilege(void)
 {
-	MonitoringServerInfo *testInfo = testServerInfo;
+	const MonitoringServerInfo *testInfo = testServerInfo;
 	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
 	OperationPrivilege::removeFlag(privilege, OPPRVLG_CREATE_SERVER);
 	assertAddTargetServer(*testInfo, HTERR_NO_PRIVILEGE, privilege);
@@ -581,8 +581,10 @@ static void prepareGetServer(
 		if (isAuthorized(authMap, userId, testServerInfo[i].id))
 			expected.push_back(testServerInfo[i]);
 
-	for (size_t i = 0; i < NumTestServerInfo; i++)
-		assertAddServerToDB(&testServerInfo[i]);
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		MonitoringServerInfo svInfo = testServerInfo[i];
+		assertAddServerToDB(&svInfo);
+	}
 }
 
 void _assertGetTargetServers(

@@ -71,7 +71,7 @@ static void assertServersInParser(
 	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		parser->startElement(i);
-		MonitoringServerInfo &svInfo = testServerInfo[i];
+		const MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertValueInParser(parser, "id",   svInfo.id);
 		assertValueInParser(parser, "type", svInfo.type);
 		assertValueInParser(parser, "hostName",  svInfo.hostName);

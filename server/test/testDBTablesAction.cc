@@ -598,7 +598,7 @@ void test_startExecAction(void)
 {
 	string expect;
 	DECLARE_DBTABLES_ACTION(dbAction);
-	EventInfo &eventInfo = testEventInfo[0];
+	const EventInfo &eventInfo = testEventInfo[0];
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		const ActionDef &actDef = testActionDef[i];
 		ActionLogStatus status;
@@ -631,7 +631,7 @@ void test_startExecActionWithExecFailure(void)
 {
 	string expect;
 	DECLARE_DBTABLES_ACTION(dbAction);
-	EventInfo &eventInfo = testEventInfo[0];
+	const EventInfo &eventInfo = testEventInfo[0];
 	size_t targetIdx = 1;
 	const ActionDef &actDef = testActionDef[targetIdx];
 	uint64_t logId = dbAction.createActionLog(actDef, eventInfo,
@@ -1024,7 +1024,7 @@ void test_withEventInfo(void)
 	loadTestDBTablesUser();
 
 	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
-	EventInfo &event = testEventInfo[0];
+	const EventInfo &event = testEventInfo[0];
 	ActionsQueryOption option(id);
 	option.setTargetEventInfo(&event);
 	string expected

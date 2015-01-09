@@ -470,7 +470,7 @@ static void _assertOverviewInParser(JSONParser *parser, RequestArg &arg)
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		HostgroupIdSet hostgroupIdSet;
 		parser->startElement(i);
-		MonitoringServerInfo &svInfo = testServerInfo[i];
+		const MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertValueInParser(parser, "serverId", svInfo.id);
 		assertValueInParser(parser, "serverHostName", svInfo.hostName);
 		assertValueInParser(parser, "serverIpAddr", svInfo.ipAddress);
