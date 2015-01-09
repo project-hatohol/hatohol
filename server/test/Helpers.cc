@@ -648,11 +648,9 @@ void _assertServersInDB(const ServerIdSet &excludeServerIdSet)
 	statement += " ORDER BY id ASC";
 	string expect;
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
-		ServerIdType serverId = i + 1;
 		// We must make a copy because the member will be changed.
 		MonitoringServerInfo serverInfo = testServerInfo[i];
-		serverInfo.id = serverId;
-		ServerIdSetIterator it = excludeServerIdSet.find(serverId);
+		ServerIdSetIterator it = excludeServerIdSet.find(serverInfo.id);
 		if (it != excludeServerIdSet.end())
 			continue;
 		expect += makeServerInfoOutput(serverInfo);
