@@ -188,4 +188,9 @@ enum SyncType {
 	SYNC,
 	ASYNC,
 };
+
+// Mainly used for DB access.
+static const int      AUTO_INCREMENT_VALUE = 0;
+static const uint64_t AUTO_INCREMENT_VALUE_U64 = 0;
+
 #endif // Params_h
