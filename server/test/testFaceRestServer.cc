@@ -118,7 +118,8 @@ void _assertAddServerWithSetup(const StringMap &params,
 			       const HatoholErrorCode &expectCode)
 {
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_SERVER);
-	assertAddServer(params, userId, expectCode, NumTestServerInfo + 1);
+	assertAddServer(params, userId, expectCode,
+	                testServerInfo[NumTestServerInfo-1].id + 1);
 }
 #define assertAddServerWithSetup(P,C) cut_trace(_assertAddServerWithSetup(P,C))
 
@@ -201,7 +202,7 @@ void test_addServer(void)
 {
 	MonitoringServerInfo expected;
 	MonitoringServerInfo::initialize(expected);
-	expected.id = NumTestServerInfo + 1;
+	expected.id = testServerInfo[NumTestServerInfo-1].id + 1;
 	expected.type = MONITORING_SYSTEM_ZABBIX;
 
 	StringMap params;
@@ -221,7 +222,7 @@ void test_addServerWithHapiParams(void)
 {
 	MonitoringServerInfo expected;
 	MonitoringServerInfo::initialize(expected);
-	expected.id = NumTestServerInfo + 1;
+	expected.id = testServerInfo[NumTestServerInfo-1].id + 1;
 	expected.type = MONITORING_SYSTEM_HAPI_ZABBIX;
 
 	ArmPluginInfo armPluginInfo;
@@ -247,7 +248,7 @@ void test_addServerHapiJSON(void)
 {
 	MonitoringServerInfo expected;
 	MonitoringServerInfo::initialize(expected);
-	expected.id = NumTestServerInfo + 1;
+	expected.id = testServerInfo[NumTestServerInfo-1].id + 1;
 	expected.type = MONITORING_SYSTEM_HAPI_JSON;
 	expected.nickname = "JSON";
 	expected.hostName = "";

@@ -267,7 +267,7 @@ void test_getServerConnStatusVector(void)
 	cppcut_assert_equal(NumTestServerInfo, svConnStatVect.size());
 	ServerIdSet expectIdSet;
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
-		const ServerIdType expectId = i + 1;
+		const ServerIdType expectId = testServerInfo[i].id;
 		expectIdSet.insert(expectId);
 	}
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
