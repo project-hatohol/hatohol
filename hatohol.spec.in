@@ -11,22 +11,6 @@ Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Requires: glib2 >= 2.22
-Requires: libsoup >= 2.22
-Requires: json-glib >= 0.12
-Requires: sqlite >= 3.6
-%if %is_el6
-Requires: mysql >= 5.1
-%endif
-%if %is_el7
-Requires: mariadb
-%endif
-Requires: MySQL-python
-Requires: libuuid >= 2.17
-Requires: qpid-cpp-client >= 0.14
-Requires: librabbitmq >= 0.4.1
-Requires: hatohol-lib-common >= %{version}
-Requires: hatohol-arm-plugin-zabbix >= %{version}
 BuildRequires: gcc-c++, pkgconfig
 BuildRequires: glib2-devel >= 2.22
 BuildRequires: libsoup-devel >= 2.22
@@ -41,6 +25,8 @@ BuildRequires: mariadb-devel
 BuildRequires: libuuid-devel >= 2.17
 BuildRequires: qpid-cpp-client-devel >= 0.14
 BuildRequires: librabbitmq-devel >= 0.4.1
+BuildRequires: python-argparse >= 1.2
+
 %description
 Hatohol collects monitoring information from running monitoring systems
 and shows their integrated data on one screen. This feature enables
@@ -48,37 +34,69 @@ to consolidate monitoring centers and the operators even when monitored
 devices are being used in different places or with different monitoring
 software.
 
-%package arm-plugin-zabbix
-Summary: Arm plguin for Zabbix server.
+%package server
+Summary: The Hatohol server.
 Group: Applications/System
-Requires: %{name} = %{version}-%{release}
-Requires: hatohol-lib-arm-plugin >= %{version}
+Requires: glib2 >= 2.22
+Requires: libsoup >= 2.22
+Requires: json-glib >= 0.12
+Requires: sqlite >= 3.6
+%if %is_el6
+Requires: mysql >= 5.1
+%endif
+%if %is_el7
+Requires: mariadb
+%endif
+Requires: MySQL-python
+Requires: libuuid >= 2.17
+Requires: qpid-cpp-client >= 0.14
+Requires: librabbitmq >= 0.4.1
+Requires: python-argparse >= 1.2
+Requires: hatohol-lib-common = %{version}
 
-%description arm-plugin-zabbix
-arm-plugin-zabbix collects monitoring data from a Zabbix server and sends
+%description server
+Hatohol collects monitoring information from running monitoring systems
+and shows their integrated data on one screen. This feature enables
+to consolidate monitoring centers and the operators even when monitored
+devices are being used in different places or with different monitoring
+software.
+
+%package arm-zabbix
+Summary: Arm for Zabbix server.
+Group: Applications/System
+Requires: hatohol-lib-arm = %{version}
+
+%description arm-zabbix
+arm-zabbix collects monitoring data from a Zabbix server and sends
+it to hatohol via HAPI.
+
+%package arm-ceilometer
+Summary: Arm for Ceilometer.
+Group: Applications/System
+Requires: hatohol-lib-arm = %{version}
+
+%description arm-ceilometer
+arm-ceilometer collects monitoring data from a Ceilometer and sends
 it to hatohol via HAPI.
 
 %package lib-common
 Summary: Library files for Hatohol
 Group: Applications/System
-Requires: %{name} = %{version}-%{release}
 
 %description lib-common
 Common libraries for hatohol and arm plugins.
 
-%package lib-arm-plugin
-Summary: Library files for Hatohol Arm Plugin
+%package lib-arm
+Summary: Library files for Hatohol Arm
 Group: Applications/System
-Requires: %{name} = %{version}-%{release}
-Requires: hatohol-lib-common >= %{version}
+Requires: hatohol-lib-common = %{version}
 
-%description lib-arm-plugin
-Libraries for arm plugins.
+%description lib-arm
+Libraries for arm.
 
-%package client
-Summary: A web UI client of Hatohol.
+%package web
+Summary: A web UI web of Hatohol.
 Group: Applications/System
-Requires: %{name} = %{version}-%{release}
 Requires: MySQL-python >= 1.2.3
 %if %is_el6
 Requires: Django >= 1.5.3
@@ -89,15 +107,15 @@ Requires: python-django
 Requires: httpd >= 2.2.15
 Requires: mod_wsgi >= 3.2
 
-%description client
-A web UI client of Hatohol provides a web UI.
+%description web
+A web UI web of Hatohol provides a web UI.
 It internally communicates with the server and
 creates a response page when a user accesses.
 
 %package devel
 Summary: Header files for Hatohol library.
 Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
+Requires: hatohol-server = %{version}
 Requires: glib2 >= 2.22
 
 %description devel
@@ -125,7 +143,7 @@ install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hatohol.service %{buildroot}/
 rm -f %{buildroot}/%{_libdir}/*.la
 rm -f %{buildroot}/%{_libdir}/*.a
 
-%post
+%post server
 /sbin/ldconfig
 %if %is_el6
 /sbin/chkconfig --add hatohol
@@ -135,7 +153,7 @@ rm -f %{buildroot}/%{_libdir}/*.a
 %endif
 mkdir -p %{_sysconfdir}/hatohol
 
-%postun
+%postun server
 /sbin/ldconfig
 %if %is_el6
 /sbin/service hatohol stop
@@ -149,11 +167,15 @@ mkdir -p %{_sysconfdir}/hatohol
 %clean
 rm -rf %{buildroot}
 
-%files
+%files server
 %defattr(-,root,root,-)
 %doc README.md COPYING
 %{_bindir}/*
-%{_sbindir}/*
+%{_sbindir}/hatohol
+%{_sbindir}/hatohol-ca-initialize
+%{_sbindir}/hatohol-ca-sign-client-certificate
+%{_sbindir}/hatohol-ca-sign-server-certificate
+%{_sbindir}/hatohol-resident-yard
 %{_libdir}/libhatohol.so.*
 %{_prefix}/lib/python*
 %{_libexecdir}/hatohol/action/*
@@ -171,17 +193,20 @@ rm -rf %{buildroot}
 %{_datadir}/hatohol/sql/init-user.sql
 %{_datadir}/hatohol/sql/server-type.sql
 
-%files arm-plugin-zabbix
+%files arm-zabbix
 %{_sbindir}/hatohol-arm-plugin-zabbix
+
+%files arm-ceilometer
+%{_sbindir}/hatohol-arm-plugin-ceilometer
 
 %files lib-common
 %{_libdir}/libhatohol-common.so.*
 %{_libdir}/libmlpl.so.*
 
-%files lib-arm-plugin
+%files lib-arm
 %{_libdir}/libhapprocess.so.*
 
-%files client
+%files web
 %defattr(-,root,root,-)
 %{_libexecdir}/hatohol/client/*
 %{_sysconfdir}/httpd/conf.d/hatohol.conf
@@ -193,6 +218,38 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Fri Dec 26 2014 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12-1
+- Updated to 14.12 release.
+* Tue Dec 24 2014 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12-0.1
+- Update to 14.12-RC2
+	- New Features
+	  - [Spec] Change package names to user friendly ones
+	  - [Server] Support items for Ceilometer (#668)
+	  - [Server] Log monitoring integration with Fluentd
+	  - [WebUI] Log search system integration (#792, #795)
+	  - [Server] Graphs for Zabbix items (#774)
+	  - [WebUI] Support adding multiple servers by uploading tab-saparated
+	    value file (#789,#794)
+	  - [WebUI] Show units of item values (#749)
+	  - [WebUI] Add a button to open a dialog to edit user roles to "Users"
+	    page (#754)
+	  - [Server] Move a client side filter on "Latest data" page to server side
+	    (#835)
+	  - [WebUI] Add a toggle button to trun on/off auto reload (#822, #823)
+	  - [WebUI] Add menu items to show Hatohol's version & documents (#714)
+	  - [WebUI] Show last update time (#667)
+
+	- Bugfixes
+	  - [Server] Fix a problem in which child processes are not collected (#727)
+	  - [Server] Plug memory leaks (#747, #772, #838)
+	  - [Server] Validate URL of incident tracking servers to avoid crash (#665)
+	  - [Server] Fix a wrong count of bad hosts (#730)
+	  - [Server] Fix a bug that self monitoring events are tied to incorrect
+	    incidents (#725)
+	  - [Server] Suppress generating needless self monitoring triggers
+	    (#736, #805)
+	  - [WebUI] Fix invisible "DELETE" buttons on "Users", "Actions" and
+	    Monitoring servers" pages on certain conditions (#686, #691, #716)
 * Tue Sep 30 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-1
 - Updated to 14.09 release.
 * Tue Sep 30 2014 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09-0.6
