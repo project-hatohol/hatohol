@@ -334,7 +334,6 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	TriggersQueryOption triggersQueryOption(job->m_dataQueryContextPtr);
 	triggersQueryOption.setTargetServerId(svInfo.id);
 	triggersQueryOption.setValidityHost(VALID_HOST_TRIGGER);
-	//triggersQueryOption.setValidityHost(REAL_HOST_TRIGGER);
 	agent.add("numberOfTriggers",
 		  dataStore->getNumberOfTriggers(triggersQueryOption));
 	const size_t numBadHosts =
