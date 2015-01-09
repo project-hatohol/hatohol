@@ -383,6 +383,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 		for (int severity = 0;
 		     severity < NUM_TRIGGER_SEVERITY; severity++) {
 			TriggersQueryOption option(job->m_dataQueryContextPtr);
+			option.setValidityHost(VALID_HOST_TRIGGER);
 			option.setTargetServerId(svInfo.id);
 			option.setTargetHostgroupId(hostgroupId);
 			agent.startObject();
@@ -403,6 +404,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
 		const HostgroupIdType hostgroupId = hostgrpItr->groupId;
 		TriggersQueryOption option(job->m_dataQueryContextPtr);
+		option.setValidityHost(VALID_HOST_TRIGGER);
 		option.setTargetServerId(svInfo.id);
 		option.setTargetHostgroupId(hostgroupId);
 		size_t numBadHosts = dataStore->getNumberOfBadHosts(option);
