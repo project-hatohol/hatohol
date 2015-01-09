@@ -88,11 +88,11 @@ HistoryLoader.prototype.load = function() {
       var messageDetail;
 
       if (items && items.length == 1) {
-	self.item = items[0];
-	self.servers = reply.servers;
+        self.item = items[0];
+        self.servers = reply.servers;
 
-	if (self.options.onLoadItem)
-	  self.options.onLoadItem(self.item, self.servers);
+        if (self.options.onLoadItem)
+          self.options.onLoadItem(self.item, self.servers);
 
         deferred.resolve();
       } else {
@@ -123,14 +123,14 @@ HistoryLoader.prototype.load = function() {
       self.updateHistory(history);
 
       if (self.options.onLoadHistory)
-	self.options.onLoadHistory(self.history);
+        self.options.onLoadHistory(self.history);
 
       if (history.length >= maxRecordsPerRequest) {
         $.when(loadHistory()).done(function() {
-	  deferred.resolve();
-	});
+          deferred.resolve();
+        });
       } else {
-	deferred.resolve();
+        deferred.resolve();
       }
     });
 
@@ -169,8 +169,8 @@ HistoryLoader.prototype.updateHistory = function(history) {
 
     while(history.length > 0 && history[0][0] < beginTimeInMSec) {
       if (history[0].length == 1 || history[0][1] > beginTimeInMSec) {
-	// remain one point to draw the left edge of the line
-	break;
+        // remain one point to draw the left edge of the line
+        break;
       }
       history.shift();
     }
@@ -493,11 +493,11 @@ var HistoryView = function(userProfile, options) {
         timeRange.set(ui.values);
         setSliderTimeRange(timeRange.last[0], timeRange.last[1]);
         setGraphTimeRange(timeRange.last[0], timeRange.last[1]);
-	loader.setTimeRange(timeRange.last[0], timeRange.last[1]);
-	self.endTime = timeRange.last[1];
-	self.timeSpan = timeRange.last[1] - timeRange.last[0];
-	self.autoReloadIsEnabled = false;
-	load();
+        loader.setTimeRange(timeRange.last[0], timeRange.last[1]);
+        self.endTime = timeRange.last[1];
+        self.timeSpan = timeRange.last[1] - timeRange.last[0];
+        self.autoReloadIsEnabled = false;
+        load();
         $("#item-graph-auto-refresh").removeClass("active");
       },
       slide: function(event, ui) {
