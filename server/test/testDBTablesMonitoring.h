@@ -194,8 +194,8 @@ struct AssertGetEventsArg
 	bool withIncidentInfo;
 	std::map<std::string, IncidentInfo*> eventIncidentMap;
 
- AssertGetEventsArg(gconstpointer ddtParam, 
-		    EventInfo *eventInfo = testEventInfo, 
+ AssertGetEventsArg(gconstpointer ddtParam,
+		    const EventInfo *eventInfo = testEventInfo,
 		    size_t numEventInfo = NumTestEventInfo)
 	: limitOfUnifiedId(0), sortType(EventsQueryOption::SORT_UNIFIED_ID),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),

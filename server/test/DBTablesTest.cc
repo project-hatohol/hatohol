@@ -113,7 +113,7 @@ ServerTypeInfo testServerTypeInfo[] =
 }};
 size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
 
-MonitoringServerInfo testServerInfo[] =
+const MonitoringServerInfo testServerInfo[] =
 {{
 	1,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -151,7 +151,7 @@ MonitoringServerInfo testServerInfo[] =
 	"fermion",                // password
 	"",                       // db_name
 }};
-size_t NumTestServerInfo = ARRAY_SIZE(testServerInfo);
+const size_t NumTestServerInfo = ARRAY_SIZE(testServerInfo);
 
 MonitoringServerStatus testServerStatus[] =
 {{
@@ -276,7 +276,7 @@ size_t NumTestTriggerInfo = ARRAY_SIZE(testTriggerInfo);
 static const TriggerInfo &trigInfoDefunctSv1 =
   testTriggerInfo[NumTestTriggerInfo-1];
 
-EventInfo testEventInfo[] = {
+const EventInfo testEventInfo[] = {
 {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
@@ -367,7 +367,7 @@ EventInfo testEventInfo[] = {
 // See also the definition of trigInfoDefunctSv1 above. Anyway,
 // ******* DON'T APPEND RECORDS AFTER HERE *******
 };
-size_t NumTestEventInfo = ARRAY_SIZE(testEventInfo);
+const size_t NumTestEventInfo = ARRAY_SIZE(testEventInfo);
 
 EventInfo testDupEventInfo[] = {
 {
@@ -1307,7 +1307,7 @@ EventIdType findLastEventId(const ServerIdType &serverId)
 	bool found = false;
 	EventIdType maxId = 0;
 	for (size_t i = 0; i < NumTestEventInfo; i++) {
-		EventInfo &eventInfo = testEventInfo[i];
+		const EventInfo &eventInfo = testEventInfo[i];
 		if (eventInfo.serverId != serverId)
 			continue;
 		if (eventInfo.id >= maxId) {
@@ -1324,9 +1324,9 @@ SmartTime findTimeOfLastEvent(
   const ServerIdType &serverId, const TriggerIdType &triggerId)
 {
 	EventIdType maxId = 0;
-	timespec   *lastTime = NULL;
+	const timespec *lastTime = NULL;
 	for (size_t i = 0; i < NumTestEventInfo; i++) {
-		EventInfo &eventInfo = testEventInfo[i];
+		const EventInfo &eventInfo = testEventInfo[i];
 		if (eventInfo.serverId != serverId)
 			continue;
 		if (triggerId != ALL_TRIGGERS &&
@@ -1334,7 +1334,7 @@ SmartTime findTimeOfLastEvent(
 			continue;
 		if (eventInfo.id >= maxId) {
 			maxId = eventInfo.id;
-			lastTime =& eventInfo.time;
+			lastTime = &eventInfo.time;
 		}
 	}
 	if (!lastTime)
@@ -1923,8 +1923,12 @@ void loadTestDBServer(void)
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestServerInfo; i++)
-		dbConfig.addTargetServer(&testServerInfo[i], privilege);
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		// We have to make a copy since addTargetServer() changes
+		// a member of MonitoringServerInfo.
+		MonitoringServerInfo svInfo = testServerInfo[i];
+		dbConfig.addTargetServer(&svInfo, privilege);
+	}
 }
 
 void loadTestDBUser(void)
@@ -1989,8 +1993,11 @@ void loadTestDBEvents(void)
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestEventInfo; i++)
-		dbMonitoring.addEventInfo(&testEventInfo[i]);
+	for (size_t i = 0; i < NumTestEventInfo; i++) {
+		// Make a copy since EventInfo.id will be changed.
+		EventInfo evtInfo = testEventInfo[i];
+		dbMonitoring.addEventInfo(&evtInfo);
+	}
 }
 
 void loadTestDBItems(void)

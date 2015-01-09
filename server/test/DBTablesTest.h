@@ -42,8 +42,8 @@ typedef ServerIdHostgroupHostIdMap::iterator ServerIdHostgroupHostIdMapIterator;
 extern ServerTypeInfo testServerTypeInfo[];
 extern size_t NumTestServerTypeInfo;
 
-extern MonitoringServerInfo testServerInfo[];
-extern size_t NumTestServerInfo;
+extern const MonitoringServerInfo testServerInfo[];
+extern const size_t NumTestServerInfo;
 
 extern MonitoringServerStatus testServerStatus[];
 extern size_t NumTestServerStatus;
@@ -51,8 +51,8 @@ extern size_t NumTestServerStatus;
 extern TriggerInfo testTriggerInfo[];
 extern size_t NumTestTriggerInfo;
 
-extern EventInfo testEventInfo[];
-extern size_t NumTestEventInfo;
+extern const EventInfo testEventInfo[];
+extern const size_t NumTestEventInfo;
 extern EventIdType findLastEventId(const ServerIdType &serverId);
 extern mlpl::SmartTime findTimeOfLastEvent(
   const ServerIdType &serverId, const TriggerIdType &triggerId = ALL_TRIGGERS);
