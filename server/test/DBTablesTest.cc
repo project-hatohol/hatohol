@@ -142,6 +142,42 @@ const MonitoringServerInfo testServerInfo[] =
 	"Fermi",                  // user_name
 	"fermion",                // password
 	"",                       // db_name
+},{
+	4,                        // id
+	MONITORING_SYSTEM_ZABBIX, // type
+	"mosquito.example.com",   // hostname
+	"10.100.10.52",           // ip_address
+	"KA",                     // nickname
+	30000,                    // port
+	3600,                     // polling_interval_sec
+	600,                      // retry_interval_sec
+	"Z",                      // user_name
+	"OTSU",                   // password
+	"zzz",                    // db_name
+},{
+	211,                      // id
+	MONITORING_SYSTEM_ZABBIX, // type
+	"x-men.example.com",      // hostname
+	"172.16.32.51",           // ip_address
+	"(^_^)",                  // nickname
+	12345,                    // port
+	10,                       // polling_interval_sec
+	10,                       // retry_interval_sec
+	"sake",                   // user_name
+	"siranami",               // password
+	"zabbix",                 // db_name
+},{
+	222,                      // id
+	MONITORING_SYSTEM_ZABBIX, // type
+	"zoo.example.com",        // hostname
+	"10.0.0.48",              // ip_address
+	"Akira",                  // nickname
+	80,                       // port
+	300,                      // polling_interval_sec
+	60,                       // retry_interval_sec
+	"ponta",                  // user_name
+	"doradora",               // password
+	"z@bb1x",                 // db_name
 }};
 const size_t NumTestServerInfo = ARRAY_SIZE(testServerInfo);
 
