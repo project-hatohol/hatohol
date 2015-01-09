@@ -262,7 +262,14 @@ var HistoryView = function(userProfile, options) {
       self.endTime = new Date().getTime() / 1000;
       loader.setTimeRange(undefined, self.endTime, true);
     }
-    $.when(loader.load()).done(onLoadAllHistory);
+
+    $.when(loader.load()).done(function() {
+      if (self.autoReloadIsEnabled) {
+        self.setAutoReload(load, self.reloadIntervalSeconds);
+      } else {
+        disableAutoRefresh();
+      }
+    });
   }
 
   function enableAutoRefresh(onClickButton) {
@@ -581,14 +588,6 @@ var HistoryView = function(userProfile, options) {
     title += " (" + hostName + ")";
     $("title").text(title);
     $(".graph h2").text(title);
-  }
-
-  function onLoadAllHistory() {
-    if (self.autoReloadIsEnabled) {
-      self.setAutoReload(load, self.reloadIntervalSeconds);
-    } else {
-      disableAutoRefresh();
-    }
   }
 };
 
