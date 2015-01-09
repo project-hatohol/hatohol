@@ -250,6 +250,9 @@ begin:
 		// be called. In that case, we just return this method.
 		if (status == Mutex::STAT_TIMEDOUT)
 			goto begin;
+	} else if (sleepTimeOrExit == EXIT_FATAL) {
+		kill(getpid(), SIGTERM);
 	}
+
 	return ret;
 }
