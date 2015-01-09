@@ -82,7 +82,7 @@ protected:
 	static void handlerLogin(ResourceHandler *job);
 	static void handlerLogout(ResourceHandler *job);
 
-	int onCaughtException(const std::exception &e)
+	int onCaughtException(const std::exception &e) override
 	{
 		return EXIT_FATAL;
 	}
