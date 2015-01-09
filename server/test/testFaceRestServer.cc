@@ -319,6 +319,11 @@ void test_updateServer(gconstpointer data)
 	MonitoringServerInfo srcSvInfo = testServerInfo[serverIndex];
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	ArmPluginInfo *armPluginInfo = NULL;
+
+	// Although cut_setup() loads test servers in the DB, updateServer()
+	// needs the call of addTargetServer() before it. Or the internal
+	// state becomes wrong and an error is returned.
+	srcSvInfo.id = AUTO_INCREMENT_VALUE;
 	assertHatoholError(
 	  HTERR_OK,
 	  uds->addTargetServer(srcSvInfo, *armPluginInfo,
@@ -413,7 +418,7 @@ void test_deleteServer(void)
 
 	// a copy is necessary not to change the source.
 	MonitoringServerInfo targetSvInfo = testServerInfo[0];
-
+	targetSvInfo.id = AUTO_INCREMENT_VALUE;
 	assertHatoholError(
 	  HTERR_OK,
 	  uds->addTargetServer(targetSvInfo, *armPluginInfo,

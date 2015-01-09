@@ -948,7 +948,7 @@ HatoholError DBTablesConfig::addTargetServer(
 		  monitoringServerInfo(_monitoringServerInfo),
 		  armPluginInfo(_armPluginInfo)
 		{
-			arg.add(AUTO_INCREMENT_VALUE);
+			arg.add(monitoringServerInfo.id);
 			arg.add(monitoringServerInfo.type);
 			arg.add(monitoringServerInfo.hostName);
 			arg.add(monitoringServerInfo.ipAddress);
@@ -972,7 +972,10 @@ HatoholError DBTablesConfig::addTargetServer(
 		void operator ()(DBAgent &dbAgent) override
 		{
 			dbAgent.insert(arg);
-			monitoringServerInfo.id = dbAgent.getLastInsertId();
+			if (monitoringServerInfo.id == AUTO_INCREMENT_VALUE) {
+				monitoringServerInfo.id =
+				  dbAgent.getLastInsertId();
+			}
 			// TODO: Add AccessInfo for the server to enable
 			// the operator to access to it
 			if (!condForHap.empty()) {
