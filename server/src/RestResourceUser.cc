@@ -509,7 +509,7 @@ void RestResourceUser::handlerPutUserRole(void)
 		  userInfo, m_dataQueryContextPtr->getOperationPrivilege());
 		if (err != HTERR_OK) {
 			replyError(err);
-		return;
+			return;
 		}
 	}
 
