@@ -305,16 +305,19 @@ string UserQueryOption::getCondition(void) const
 	}
 
 	string condition;
+
+	if (m_impl->targetFlag != 0) {
+		string nameCond =
+		  StringUtils::sprintf("%s=%"FMT_OPPRVLG,
+		                       COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName,
+		                       m_impl->targetFlag);
+		condition = nameCond;
+		return condition;
+	}
+
 	if (!has(OPPRVLG_GET_ALL_USER) || m_impl->onlyMyself) {
 		condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
 		  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
-	}
-
-	if (!m_impl->flags) {
-		string nameCond =
-		  StringUtils::sprintf("%s=%"PRIu64,
-		                       COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName,
-		                       m_impl->flags);
 	}
 
 	if (!m_impl->targetName.empty()) {
