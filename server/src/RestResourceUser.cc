@@ -475,15 +475,15 @@ void RestResourceUser::handlerPutUserRole(void)
 	UserInfoList userList;
 	UserQueryOption userOption(m_dataQueryContextPtr);
 	option.setTargetUserRoleId(userRoleInfo.id);
-	userOption.setPrivilegesFlag(userRoleInfo.flags);
 	dataStore->getUserRoleList(userRoleList, option);
-	dataStore->getUserList(userList, userOption);
 	if (userRoleList.empty()) {
 		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
 		            "id: %" FMT_USER_ID, userRoleInfo.id);
 		return;
 	}
 	userRoleInfo = *(userRoleList.begin());
+	userOption.setPrivilegesFlag(userRoleInfo.flags);
+	dataStore->getUserList(userList, userOption);
 
 	bool allowEmpty = true;
 	HatoholError err = parseUserRoleParameter(userRoleInfo, m_query,
