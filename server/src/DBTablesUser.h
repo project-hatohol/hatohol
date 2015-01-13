@@ -85,6 +85,7 @@ public:
 	HatoholError setTargetName(const std::string &name);
 	OperationPrivilegeFlag getPrivilegesFlag(void) const;
 	void                   setPrivilegesFlag(const OperationPrivilegeFlag flags);
+	void                   unsetPrivilegesFlag(void);
 	void         queryOnlyMyself(void);
 
 	// Overriding virtual methods

@@ -250,10 +250,12 @@ struct UserQueryOption::Impl {
 	bool   onlyMyself;
 	string targetName;
 	OperationPrivilegeFlag targetFlags;
+	bool   hasPrivilegesFlags;
 
 	Impl(void)
 	: onlyMyself(false),
-	  targetFlags(0)
+	  targetFlags(0),
+	  hasPrivilegesFlags(false)
 	{
 	}
 };
@@ -290,6 +292,12 @@ OperationPrivilegeFlag UserQueryOption::getPrivilegesFlag(void) const
 void UserQueryOption::setPrivilegesFlag(const OperationPrivilegeFlag flags)
 {
 	m_impl->targetFlags = flags;
+	m_impl->hasPrivilegesFlags = true;
+}
+
+void UserQueryOption::unsetPrivilegesFlag(void)
+{
+	m_impl->hasPrivilegesFlags = false;
 }
 
 void UserQueryOption::queryOnlyMyself(void)
