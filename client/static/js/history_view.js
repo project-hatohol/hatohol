@@ -222,8 +222,7 @@ var HistoryView = function(userProfile, options) {
   var secondsInHour = 60 * 60;
   var loader;
 
-  if (!options)
-    options = {};
+  options = options || {};
 
   self.reloadIntervalSeconds = 60;
   self.autoReloadIsEnabled = false;
