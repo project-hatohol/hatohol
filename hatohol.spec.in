@@ -153,8 +153,7 @@ rm -f %{buildroot}/%{_libdir}/*.a
 %endif
 mkdir -p %{_sysconfdir}/hatohol
 
-%postun server
-/sbin/ldconfig
+%preun server
 %if %is_el6
 /sbin/service hatohol stop
 /sbin/chkconfig --del hatohol
@@ -163,6 +162,9 @@ mkdir -p %{_sysconfdir}/hatohol
 /usr/bin/systemctl stop hatohol
 /usr/bin/systemctl daemon-reload
 %endif
+
+%postun server
+/sbin/ldconfig
 
 %clean
 rm -rf %{buildroot}
