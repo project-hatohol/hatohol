@@ -872,7 +872,7 @@ void test_updateUserRole(void)
 	assertUserRoleInfoInDB(expectedUserRoleInfo);
 }
 
-static void prepare_initialUserRoleAndUser(void)
+static void prepareInitialUserRoleAndUser(void)
 {
 	//setup user role
 	UserRoleInfo oldUserRoleInfo;
@@ -904,7 +904,7 @@ static void prepare_initialUserRoleAndUser(void)
 
 void test_updateUserRoleFlagAndUserFlagTogether(void)
 {
-	prepare_initialUserRoleAndUser();
+	prepareInitialUserRoleAndUser();
 	// target user info
 	const UserIdType targetId = 1;
 	const string user = "SpecificActionMaintainer";
