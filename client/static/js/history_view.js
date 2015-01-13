@@ -78,7 +78,7 @@ HistoryLoader.prototype.load = function() {
 
   function loadItem() {
     var deferred = new $.Deferred;
-    var view = self.options.view;
+    var view = self.options.view; // TODO: Remove the view dependency
 
     if (self.item) {
       deferred.resolve();
@@ -116,7 +116,7 @@ HistoryLoader.prototype.load = function() {
 
   function loadHistory() {
     var deferred = new $.Deferred;
-    var view = self.options.view;
+    var view = self.options.view; // TODO: Remove the view dependency
 
     view.startConnection(getHistoryQuery(), function(reply) {
       var maxRecordsPerRequest = 1000;
