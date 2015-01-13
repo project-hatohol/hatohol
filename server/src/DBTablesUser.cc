@@ -249,7 +249,7 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 struct UserQueryOption::Impl {
 	bool   onlyMyself;
 	string targetName;
-	OperationPrivilegeFlag targetFlag;
+	OperationPrivilegeFlag targetFlags;
 
 	Impl(void)
 	: onlyMyself(false)
@@ -283,12 +283,12 @@ HatoholError UserQueryOption::setTargetName(const string &name)
 
 OperationPrivilegeFlag UserQueryOption::getPrivilegesFlag(void) const
 {
-	return m_impl->targetFlag;
+	return m_impl->targetFlags;
 }
 
 void UserQueryOption::setPrivilegesFlag(const OperationPrivilegeFlag flags)
 {
-	m_impl->targetFlag = flags;
+	m_impl->targetFlags = flags;
 }
 
 void UserQueryOption::queryOnlyMyself(void)
@@ -306,11 +306,11 @@ string UserQueryOption::getCondition(void) const
 
 	string condition;
 
-	if (m_impl->targetFlag != 0) {
+	if (m_impl->targetFlags != 0) {
 		string nameCond =
 		  StringUtils::sprintf("%s=%"FMT_OPPRVLG,
 		                       COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName,
-		                       m_impl->targetFlag);
+		                       m_impl->targetFlags);
 		condition = nameCond;
 		return condition;
 	}
