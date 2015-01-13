@@ -38,6 +38,8 @@ HistoryLoader.prototype.load = function() {
     .then(loadHistory)
     .done(onLoadComplete);
 
+  return deferred.promise();
+
   function onLoadComplete() {
     self.loading = false;
     deferred.resolve();
@@ -136,8 +138,6 @@ HistoryLoader.prototype.load = function() {
 
     return deferred.promise();
   }
-
-  return deferred.promise();
 };
 
 HistoryLoader.prototype.updateHistory = function(history) {
