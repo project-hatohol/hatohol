@@ -1652,12 +1652,9 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	arg.useDistinct = option.isHostgroupUsed();
 	arg.useFullName = option.isHostgroupUsed();
 
-	// condition
-	string optCond;
-	arg.condition.swap(optCond);
-	if (DBHatohol::isAlwaysFalseCondition(optCond))
-		return ;
-	arg.condition = optCond;
+	// condition check
+	if (DBHatohol::isAlwaysFalseCondition(arg.condition))
+		return;
 
 	// Order By
 	arg.orderBy = option.getOrderBy();
