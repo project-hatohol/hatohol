@@ -252,7 +252,8 @@ struct UserQueryOption::Impl {
 	OperationPrivilegeFlag targetFlags;
 
 	Impl(void)
-	: onlyMyself(false)
+	: onlyMyself(false),
+	  targetFlags(0)
 	{
 	}
 };
