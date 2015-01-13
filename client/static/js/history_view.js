@@ -259,7 +259,7 @@ var HistoryView = function(userProfile, options) {
   function load() {
     self.clearAutoReload();
     if (self.autoReloadIsEnabled) {
-      self.endTime = new Date().getTime() / 1000;
+      self.endTime = Math.floor(new Date().getTime() / 1000);
       loader.setTimeRange(undefined, self.endTime, true);
     }
 
