@@ -608,6 +608,8 @@ HatoholError DBTablesUser::deleteUserInfo(
 	using mlpl::StringUtils::sprintf;
 	if (!privilege.has(OPPRVLG_DELETE_USER))
 		return HTERR_NO_PRIVILEGE;
+	if (userId == privilege.getUserId())
+		return HTERR_DELETE_MYSELF;
 
 	struct TrxProc : public DBAgent::TransactionProc {
 		DBAgent::DeleteArg argForUsers;
