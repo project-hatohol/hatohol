@@ -498,6 +498,19 @@ void test_deleteUser(void)
 	assertUsersInDB(userIdSet);
 }
 
+void test_deleteMyself(void)
+{
+	DECLARE_DBTABLES_USER(dbUser);
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	const UserIdType targetId = privilege.getUserId();
+	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
+	assertHatoholError(HTERR_DELETE_MYSELF, err);
+
+	UserIdSet userIdSet;
+	userIdSet.insert(targetId);
+	assertUsersInDB(userIdSet);
+}
+
 void test_deleteUserWithoutPrivilege(void)
 {
 	DECLARE_DBTABLES_USER(dbUser);
