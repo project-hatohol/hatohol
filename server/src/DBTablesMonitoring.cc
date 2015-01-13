@@ -1152,6 +1152,19 @@ struct TriggersQueryOption::Impl {
 	  triggerCollectHost(ALL_HOST_TRIGGER)
 	{
 	}
+	bool correctEnabledTriggersIncludingSelfMonitors()
+	{
+		if (triggerCollectHost == VALID_HOST_AND_SELF_TRIGGER ||
+		    triggerCollectHost == VALID_HOST_TRIGGER )
+			return true;
+		return false;
+	}
+	bool correctTriggersExcludingSelfMonitors()
+	{
+		if (triggerCollectHost == VALID_HOST_TRIGGER)
+			return true;
+		return false;
+	}
 };
 
 TriggersQueryOption::TriggersQueryOption(const UserIdType &userId)
@@ -1189,7 +1202,9 @@ string TriggersQueryOption::getCondition(void) const
 	if (DBHatohol::isAlwaysFalseCondition(condition))
 		return condition;
 
-	if (m_impl->triggerCollectHost == VALID_HOST_TRIGGER) {
+	// We only correct valid triggers in the Zabbix server
+	// excluding self monitoring triggers.
+	if (m_impl->correctTriggersExcludingSelfMonitors()) {
 		addCondition( 
 		  condition,
 		  StringUtils::sprintf(
@@ -1199,7 +1214,9 @@ string TriggersQueryOption::getCondition(void) const
 		    MONITORING_SERVER_SELF_ID));
 	}
 
-	if (m_impl->triggerCollectHost >= REAL_HOST_TRIGGER) {
+	// We only correct valid triggers in enabled host in the Zabbix server
+	// including self monitoring triggers.
+	if (m_impl->correctEnabledTriggersIncludingSelfMonitors()) {
 		addCondition(
 		  condition,
 		  StringUtils::sprintf(

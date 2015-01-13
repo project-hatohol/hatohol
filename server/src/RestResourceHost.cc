@@ -524,7 +524,7 @@ void RestResourceHost::handlerGetTrigger(void)
 		return;
 	}
 
-	option.setValidityHost(REAL_HOST_TRIGGER);
+	option.setValidityHost(VALID_HOST_AND_SELF_TRIGGER);
 	TriggerInfoList triggerList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getTriggerList(triggerList, option);
