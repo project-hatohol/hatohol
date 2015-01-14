@@ -491,6 +491,30 @@ describe('deparam', function() {
     };
     expect(deparam(query)).eql(expected);
   });
+
+  it('complex object', function() {
+    var expected = {
+      items: [
+        {
+          serverId: 1,
+          hostId: 2,
+          itemId: 3,
+          beginTime: 4,
+          endTime: 5
+        },
+        {
+          serverId: 6,
+          hostId: 7,
+          itemId: 8,
+          beginTime: 9,
+          endTime: 10
+        },
+      ]
+    };
+    var query = $.param(expected);
+    var actual = deparam(query);
+    expect(actual).eql(expected);
+  });
 });
 
 describe('formatItemValue', function() {
