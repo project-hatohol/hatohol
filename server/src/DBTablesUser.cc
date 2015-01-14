@@ -324,8 +324,9 @@ string UserQueryOption::getCondition(void) const
 	}
 
 	if (!has(OPPRVLG_GET_ALL_USER) || m_impl->onlyMyself) {
-		condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
-		  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
+		DataQueryOption::addCondition(condition,
+		  StringUtils::sprintf("%s=%" FMT_USER_ID,
+		  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId));
 	}
 
 	if (!m_impl->targetName.empty()) {
