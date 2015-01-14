@@ -1810,6 +1810,16 @@ bool isAuthorized(
 	return false;
 }
 
+bool isDefunctTestServer(const ServerIdType &serverId)
+{
+	static ServerIdSet svIdSet;
+	if (svIdSet.empty()) {
+		for (size_t i = 0; i < NumTestServerInfo; i++)
+			svIdSet.insert(testServerInfo[i].id);
+	}
+	return svIdSet.find(serverId) == svIdSet.end();
+}
+
 size_t findIndexFromTestActionDef(const UserIdType &userId)
 {
 	size_t idx = 0;
