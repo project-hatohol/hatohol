@@ -1006,7 +1006,7 @@ string EventsQueryOption::getCondition(void) const
 		if (!condition.empty())
 			condition += " AND ";
 		// Use triggers table because events tables doesn't contain
-		// correct severity.
+		// collect severity.
 		condition += StringUtils::sprintf(
 			"%s.%s>=%d",
 			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
@@ -1152,14 +1152,14 @@ struct TriggersQueryOption::Impl {
 	  triggerCollectHost(ALL_HOST_TRIGGER)
 	{
 	}
-	bool correctEnabledTriggersIncludingSelfMonitors()
+	bool collectEnabledTriggersIncludingSelfMonitors()
 	{
 		if (triggerCollectHost == VALID_HOST_AND_SELF_TRIGGER ||
 		    triggerCollectHost == VALID_HOST_TRIGGER )
 			return true;
 		return false;
 	}
-	bool correctTriggersExcludingSelfMonitors()
+	bool collectTriggersExcludingSelfMonitors()
 	{
 		if (triggerCollectHost == VALID_HOST_TRIGGER)
 			return true;
@@ -1202,9 +1202,9 @@ string TriggersQueryOption::getCondition(void) const
 	if (DBHatohol::isAlwaysFalseCondition(condition))
 		return condition;
 
-	// We only correct valid triggers in the Zabbix server
+	// We only collect valid triggers in the Zabbix server
 	// excluding self monitoring triggers.
-	if (m_impl->correctTriggersExcludingSelfMonitors()) {
+	if (m_impl->collectTriggersExcludingSelfMonitors()) {
 		addCondition( 
 		  condition,
 		  StringUtils::sprintf(
@@ -1214,9 +1214,9 @@ string TriggersQueryOption::getCondition(void) const
 		    MONITORING_SERVER_SELF_ID));
 	}
 
-	// We only correct valid triggers in enabled host in the Zabbix server
+	// We only collect valid triggers in enabled host in the Zabbix server
 	// including self monitoring triggers.
-	if (m_impl->correctEnabledTriggersIncludingSelfMonitors()) {
+	if (m_impl->collectEnabledTriggersIncludingSelfMonitors()) {
 		addCondition(
 		  condition,
 		  StringUtils::sprintf(
