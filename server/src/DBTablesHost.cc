@@ -997,15 +997,46 @@ bool DBTablesHost::isAccessible(
 HatoholError DBTablesHost::getServerHostDefs(
   ServerHostDefVect &svHostDefVect, const HostsQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileServerHostDef);
-	arg.tableField = TABLE_NAME_SERVER_HOST_DEF;
-	arg.add(IDX_HOST_SERVER_HOST_DEF_ID);
-	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID);
-	arg.add(IDX_HOST_SERVER_HOST_DEF_SERVER_ID);
-	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
-	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_NAME);
-	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_STATUS);
+	DBClientJoinBuilder builder(tableProfileServerHostDef);
+	builder.add(IDX_HOST_SERVER_HOST_DEF_ID);
+	builder.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID);
+	builder.add(IDX_HOST_SERVER_HOST_DEF_SERVER_ID);
+	builder.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
+	builder.add(IDX_HOST_SERVER_HOST_DEF_HOST_NAME);
+	builder.add(IDX_HOST_SERVER_HOST_DEF_HOST_STATUS);
 
+	if (option.isHostgroupUsed()) {
+		// TODO: add a column including host_id and use it
+		builder.addTable(
+		  tableProfileHostgroupMember, DBClientJoinBuilder::INNER_JOIN,
+		  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+		  IDX_HOSTGROUP_MEMBER_SERVER_ID,
+		  tableProfileServerHostDef,
+		  IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
+		  IDX_HOSTGROUP_MEMBER_HOST_ID);
+	}
+
+	DBAgent::SelectExArg &arg = builder.build();
+	if (option.isHostgroupUsed()) {
+		// TODO: FIX This low level implementation is temporary
+		// We should make a framework to use a sub query
+		string matchCond = StringUtils::sprintf("%s=%s AND %s=%s",
+		  tableProfileServerHostDef.getFullColumnName(IDX_HOST_SERVER_HOST_DEF_SERVER_ID).c_str(),
+		  tableProfileHostgroupMember.getFullColumnName(IDX_HOSTGROUP_MEMBER_SERVER_ID).c_str(),
+		  tableProfileServerHostDef.getFullColumnName(IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER).c_str(),
+		  tableProfileHostgroupMember.getFullColumnName(IDX_HOSTGROUP_MEMBER_HOST_ID).c_str());
+
+		arg.tableField = tableProfileServerHostDef.name;
+		arg.condition = "EXISTS (SELECT * from ";
+		arg.condition += tableProfileHostgroupMember.name;
+		arg.condition += " WHERE (";
+		arg.condition += matchCond;
+		arg.condition += ") AND (";
+		arg.condition += option.getCondition();
+		arg.condition += "))";
+	} else {
+		arg.condition = option.getCondition();
+	}
 	getDBAgent().runTransaction(arg);
 
 	// get the result
@@ -1018,11 +1049,6 @@ HatoholError DBTablesHost::getServerHostDefs(
 		ServerHostDef svHostDef;
 		itemGroupStream >> svHostDef.id;
 		itemGroupStream >> svHostDef.hostId;
-		// TODO: select hosts in an SQL statement.
-		if (option.getUserId() != USER_ID_SYSTEM) {
-			if (!isAccessible(svHostDef.hostId, option))
-				continue;
-		}
 		itemGroupStream >> svHostDef.serverId;
 		itemGroupStream >> svHostDef.hostIdInServer;
 		itemGroupStream >> svHostDef.name;
