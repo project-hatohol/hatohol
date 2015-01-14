@@ -167,7 +167,7 @@ HistoryLoader.prototype.updateHistory = function(history) {
 
     beginTimeInMSec = (self.lastQuery.endTime - self.getTimeSpan()) * 1000;
 
-    while(history.length > 0 && history[0][0] < beginTimeInMSec) {
+    while (history.length > 0 && history[0][0] < beginTimeInMSec) {
       if (history[0].length == 1 || history[0][1] > beginTimeInMSec) {
         // remain one point to draw the left edge of the line
         break;
