@@ -321,7 +321,6 @@ string UserQueryOption::getCondition(void) const
 		                       COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName,
 		                       m_impl->targetFlags);
 		condition = nameCond;
-		return condition;
 	}
 
 	if (!has(OPPRVLG_GET_ALL_USER) || m_impl->onlyMyself) {
