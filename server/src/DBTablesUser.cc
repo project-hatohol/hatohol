@@ -336,12 +336,7 @@ string UserQueryOption::getCondition(void) const
 		  StringUtils::sprintf("%s='%s'",
 		    COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
 		   m_impl->targetName.c_str());
-		if (condition.empty()) {
-			condition = nameCond;
-		} else {
-			condition += " AND ";
-			condition += nameCond;
-		}
+		DataQueryOption::addCondition(condition, nameCond);
 	}
 	return condition;
 }
