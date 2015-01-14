@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014 - 2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -17,44 +17,276 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-var HistoryView = function(userProfile, options) {
+var HistoryLoader = function(options) {
   var self = this;
-  var itemQuery, historyQuery;
+
+  self.options = options;
+  self.item = undefined;
+  self.servers = undefined;
+  self.history = [];
+  self.lastQuery = undefined;
+  self.loading = false;
+};
+
+HistoryLoader.prototype.load = function() {
+  var self = this;
+  var deferred = new $.Deferred;
+
+  self.loading = true;
+
+  $.when(loadItem())
+    .then(loadHistory)
+    .done(onLoadComplete);
+
+  return deferred.promise();
+
+  function onLoadComplete() {
+    self.loading = false;
+    deferred.resolve();
+  }
+
+  function getItemQuery() {
+    var options = self.options.query;
+    var itemQuery = {
+      serverId: options.serverId,
+      hostId: options.hostId,
+      itemId: options.itemId
+    }
+    return 'item?' + $.param(itemQuery);
+  };
+
+  function getHistoryQuery() {
+    var query = $.extend({}, self.options.query);
+    var lastReply, lastData;
+
+    // omit loading existing data
+    if (self.history && self.history.length > 0) {
+      lastData = self.history[self.history.length - 1];
+      query.beginTime = Math.floor(lastData[0] / 1000) + 1;
+    }
+
+    // set missing time range
+    if (!query.endTime)
+      query.endTime = Math.floor(new Date().getTime() / 1000);
+    if (!query.beginTime)
+      query.beginTime = query.endTime - self.getTimeSpan();
+
+    self.lastQuery = query;
+
+    return 'history?' + $.param(query);
+  };
+
+  function loadItem() {
+    var deferred = new $.Deferred;
+    var view = self.options.view; // TODO: Remove the view dependency
+
+    if (self.item) {
+      deferred.resolve();
+      return deferred.promise();
+    }
+
+    view.startConnection(getItemQuery(), function(reply) {
+      var items = reply.items;
+      var messageDetail;
+
+      if (items && items.length == 1) {
+        self.item = items[0];
+        self.servers = reply.servers;
+
+        if (self.options.onLoadItem)
+          self.options.onLoadItem(self.item, self.servers);
+
+        deferred.resolve();
+      } else {
+        messageDetail =
+          "Monitoring Server ID: " + query.serverId + ", " +
+          "Host ID: " + query.hostId + ", " +
+          "Item ID: " + query.itemId;
+        if (!items || items.length == 0)
+          hatoholErrorMsgBox(gettext("No such item: ") + messageDetail);
+        else if (items.length > 1)
+          hatoholErrorMsgBox(gettext("Too many items are found for ") +
+                             messageDetail);
+        deferred.reject();
+      }
+    });
+
+    return deferred.promise();
+  }
+
+  function loadHistory() {
+    var deferred = new $.Deferred;
+    var view = self.options.view; // TODO: Remove the view dependency
+
+    view.startConnection(getHistoryQuery(), function(reply) {
+      var maxRecordsPerRequest = 1000;
+      var history = reply.history;
+
+      self.updateHistory(history);
+
+      if (self.options.onLoadHistory)
+        self.options.onLoadHistory(self.history);
+
+      if (history.length >= maxRecordsPerRequest) {
+        $.when(loadHistory()).done(function() {
+          deferred.resolve();
+        });
+      } else {
+        deferred.resolve();
+      }
+    });
+
+    return deferred.promise();
+  }
+};
+
+HistoryLoader.prototype.updateHistory = function(history) {
+  var self = this;
+
+  shiftHistory(self.history);
+  appendHistory(self.history, history);
+
+  function appendHistory(history, newHistory) {
+    var i, idx = history.length;
+    for (i = 0; i < newHistory.length; i++) {
+      history[idx++] = [
+        // Xaxis: UNIX time in msec
+        newHistory[i].clock * 1000 + Math.floor(newHistory[i].ns / 1000000),
+        // Yaxis: value
+        newHistory[i].value
+      ];
+    }
+    return history;
+  }
+
+  function shiftHistory(history) {
+    var beginTimeInMSec, data;
+
+    if (!history)
+      return;
+
+    beginTimeInMSec = (self.lastQuery.endTime - self.getTimeSpan()) * 1000;
+
+    while (history.length > 0 && history[0][0] < beginTimeInMSec) {
+      if (history[0].length == 1 || history[0][1] > beginTimeInMSec) {
+        // remain one point to draw the left edge of the line
+        break;
+      }
+      history.shift();
+    }
+  }
+}
+
+HistoryLoader.prototype.setTimeRange = function(beginTimeInSec, endTimeInSec, keepHistory) {
+  if (isNaN(beginTimeInSec))
+    delete this.options.query.beginTime;
+  else
+    this.options.query.beginTime = beginTimeInSec;
+
+  if (isNaN(endTimeInSec))
+    delete this.options.query.endTime;
+  else
+    this.options.query.endTime = endTimeInSec;
+
+  if (!isNaN(beginTimeInSec) && !isNaN(endTimeInSec))
+    this.options.defaultTimeSpan = endTimeInSec - beginTimeInSec;
+
+  if (!keepHistory)
+    this.history = [];
+}
+
+HistoryLoader.prototype.getTimeSpan = function() {
+  var query = this.options.query;
   var secondsInHour = 60 * 60;
 
+  if (!isNaN(query.beginTime) && !isNaN(query.endTime))
+    return query.endTime - query.beginTime;
+
+  if (isNaN(this.options.defaultTimeSpan))
+    this.options.defaultTimeSpan = secondsInHour * 6;
+
+  return this.options.defaultTimeSpan;
+}
+
+HistoryLoader.prototype.isLoading = function() {
+  return this.loading;
+}
+
+HistoryLoader.prototype.getItem = function() {
+  return this.item;
+}
+
+
+var HistoryView = function(userProfile, options) {
+  var self = this;
+  var secondsInHour = 60 * 60;
+  var loader;
+
+  options = options || {};
+
   self.reloadIntervalSeconds = 60;
-  self.replyItem = null;
-  self.lastQuery = null;
-  self.timeSpan = null;
-  self.plotData = null;
-  self.plotOptions = null;
-  self.plot = null;
-  self.timeRange = null;
-
-  if (!options)
-    options = {};
-
-  itemQuery = self.parseItemQuery(options.query);
-  historyQuery = self.parseHistoryQuery(options.query);
+  self.autoReloadIsEnabled = false;
+  self.plotData = [];
+  self.plotOptions = undefined;
+  self.plot = undefined;
+  self.timeRange = undefined;
+  self.settingSliderTimeRange = false;
+  self.endTime = undefined;
+  self.timeSpan = secondsInHour * 6;
 
   appendGraphArea();
-  loadItemAndHistory();
+
+  loader = new HistoryLoader({
+    view: this,
+    defaultTimeSpan: self.timeSpan,
+    query: self.parseQuery(options.query),
+    onLoadItem: function(item, servers) {
+      setItemDescription(item, servers)
+      self.plotData[0] = formatPlotData(item);
+      updateView();
+    },
+    onLoadHistory: function(history) {
+      self.plotData[0].data = history;
+      updateView();
+    }
+  });
+  self.endTime = loader.options.query.endTime;
+  self.timeSpan = loader.getTimeSpan();
+  self.autoReloadIsEnabled = !self.endTime;
+  load();
+
+  function load() {
+    self.clearAutoReload();
+    if (self.autoReloadIsEnabled) {
+      self.endTime = Math.floor(new Date().getTime() / 1000);
+      loader.setTimeRange(undefined, self.endTime, true);
+    }
+
+    $.when(loader.load()).done(function() {
+      if (self.autoReloadIsEnabled) {
+        self.setAutoReload(load, self.reloadIntervalSeconds);
+      } else {
+        disableAutoRefresh();
+      }
+    });
+  }
 
   function enableAutoRefresh(onClickButton) {
     var button = $("#item-graph-auto-refresh");
-    delete historyQuery.beginTime;
-    delete historyQuery.endTime;
-    self.plotData = null;
+
     button.removeClass("btn-default");
     button.addClass("btn-primary");
     if (!onClickButton)
       button.addClass("active");
-    loadHistory();
+
+    self.autoReloadIsEnabled = true;
+    load();
   }
 
   function disableAutoRefresh(onClickButton) {
     var button = $("#item-graph-auto-refresh");
     self.clearAutoReload();
+    self.autoReloadIsEnabled = false;
     if (!onClickButton)
       button.removeClass("active");
     button.removeClass("btn-primary");
@@ -80,7 +312,7 @@ var HistoryView = function(userProfile, options) {
     }).attr("data-toggle", "button"));
 
     $("#item-graph").bind("plotselected", function (event, ranges) {
-      var options;
+      var plotOptions;
 
       // clamp the zooming to prevent eternal zoom
       if (ranges.xaxis.to - ranges.xaxis.from < 60 * 1000) {
@@ -89,11 +321,11 @@ var HistoryView = function(userProfile, options) {
       }
 
       // zoom
-      options = $.extend(true, {}, self.plotOptions, {
+      plotOptions = $.extend(true, {}, self.plotOptions, {
         xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
         yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
       });
-      $.plot("#item-graph", self.plotData, options);
+      $.plot("#item-graph", self.plotData, plotOptions);
 
       setSliderTimeRange(Math.floor(ranges.xaxis.from / 1000),
                          Math.floor(ranges.xaxis.to / 1000));
@@ -119,53 +351,15 @@ var HistoryView = function(userProfile, options) {
     });
   };
 
-  function formatPlotData(item, historyReplies) {
+  function formatPlotData(item) {
     var i;
-    var data = [ { label: item.brief, data:[] } ];
+    var data = { label: item.brief, data:[] };
 
     if (item.unit)
-      data[0].label += " [" + item.unit + "]";
-
-    if (!historyReplies)
-      return data;
-
-    for (i = 0; i < historyReplies.length; i++)
-      appendPlotData(data, historyReplies[i]);
+      data.label += " [" + item.unit + "]";
 
     return data;
   };
-
-  function appendPlotData(plotData, historyReply) {
-    var i, idx = plotData[0].data.length;
-    var history = historyReply.history;
-    for (i = 0; i < history.length; i++) {
-      plotData[0].data[idx++] = [
-        // Xaxis: UNIX time in msec
-        history[i].clock * 1000 + Math.floor(history[i].ns / 1000000),
-        // Yaxis: value
-        history[i].value
-      ];
-    }
-    return plotData;
-  }
-
-  function shiftPlotData(plotData) {
-    var beginTimeInMSec, data;
-
-    if (!plotData || !plotData[0])
-      return;
-
-    beginTimeInMSec = (self.lastQuery.endTime - self.timeSpan) * 1000;
-    data = plotData[0].data;
-
-    while(data.length > 0 && data[0][0] < beginTimeInMSec) {
-      if (data[0].length == 1 || data[0][1] > beginTimeInMSec) {
-	// remain one point to draw the left edge of the line
-	break;
-      }
-      plotData[0].data.shift();
-    }
-  }
 
   function formatTime(val, unit) {
     var now = new Date();
@@ -187,10 +381,8 @@ var HistoryView = function(userProfile, options) {
     return $.plot.formatDate(date, format);
   }
 
-  function drawGraph(item, history) {
-    var beginTimeInSec = self.lastQuery.endTime - self.timeSpan;
-    var endTimeInSec = self.lastQuery.endTime;
-    var options = {
+  function getPlotOptions(item, beginTimeInSec, endTimeInSec) {
+    var plotOptions = {
       xaxis: {
         mode: "time",
         timezone: "browser",
@@ -217,26 +409,39 @@ var HistoryView = function(userProfile, options) {
         mode: "x",
       },
     };
-    if (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)
-      options.yaxis.minTickSize = 1;
-    if (history[0].data.length < 3)
-      options.points.show = true;
 
-    self.plotOptions = options;
-    self.plot = $.plot($("#item-graph"), history, self.plotOptions);
+    if (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)
+      plotOptions.yaxis.minTickSize = 1;
+
+    return plotOptions;
+  }
+
+  function drawGraph(item, plotData) {
+    var beginTimeInSec = self.endTime - self.timeSpan;
+    var endTimeInSec = self.endTime;
+    var plotOptions = getPlotOptions(loader.getItem(), beginTimeInSec, endTimeInSec);
+    var i;
+
+    for (i = 0; i < plotData.length; i++) {
+      if (plotData[i].data.length < 3)
+        plotOptions.points.show = true;
+    }
+
+    self.plotOptions = plotOptions;
+    self.plot = $.plot($("#item-graph"), plotData, plotOptions);
   }
 
   function getTimeRange() {
     var beginTimeInSec, endTimeInSec, date, min;
 
-    if (self.timeRange && historyQuery.endTime)
+    if (self.timeRange && !self.autoReloadIsEnabled)
       return self.timeRange;
 
-    beginTimeInSec = self.lastQuery.endTime - self.timeSpan;
-    endTimeInSec = self.lastQuery.endTime;
+    beginTimeInSec = self.endTime - self.timeSpan;
+    endTimeInSec = self.endTime;
 
     // Adjust to 00:00:00
-    min = self.lastQuery.endTime - secondsInHour * 24 * 7;
+    min = self.endTime - secondsInHour * 24 * 7;
     date = $.plot.dateGenerator(min * 1000, self.plotOptions.xaxis);
     min -= date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
 
@@ -245,7 +450,7 @@ var HistoryView = function(userProfile, options) {
       minSpan: secondsInHour,
       maxSpan: secondsInHour * 24,
       min: min,
-      max: self.lastQuery.endTime,
+      max: self.endTime,
       set: function(range) {
         this.last = range.slice();
         if (this.last[1] - this.last[0] > this.maxSpan)
@@ -281,18 +486,17 @@ var HistoryView = function(userProfile, options) {
       change: function(event, ui) {
         if (self.settingSliderTimeRange)
           return;
-        if (self.loadingHistory)
+        if (loader.isLoading())
           return;
 
         timeRange.set(ui.values);
         setSliderTimeRange(timeRange.last[0], timeRange.last[1]);
         setGraphTimeRange(timeRange.last[0], timeRange.last[1]);
-
-        self.plotData = null;
-        historyQuery.beginTime = timeRange.last[0];
-        historyQuery.endTime = timeRange.last[1];
+        loader.setTimeRange(timeRange.last[0], timeRange.last[1]);
+        self.endTime = timeRange.last[1];
         self.timeSpan = timeRange.last[1] - timeRange.last[0];
-        loadHistory();
+        self.autoReloadIsEnabled = false;
+        load();
         $("#item-graph-auto-refresh").removeClass("active");
       },
       slide: function(event, ui) {
@@ -309,7 +513,7 @@ var HistoryView = function(userProfile, options) {
     $("#item-graph-slider").slider('pips', {
       rest: 'label',
       last: false,
-      step: secondsInHour * 24,
+      step: secondsInHour * 12,
       formatLabel: function(val) {
         var now = new Date();
         var date = new Date(val * 1000);
@@ -322,10 +526,14 @@ var HistoryView = function(userProfile, options) {
           5: gettext("Fri"),
           6: gettext("Sat"),
         }
-        if (now.getTime() - date.getTime() > secondsInHour * 24 * 7 * 1000)
-          return formatDate(val);
-        else
-          return dayLabel[date.getDay()];
+        if (date.getHours() == 0) {
+          if (now.getTime() - date.getTime() > secondsInHour * 24 * 7 * 1000)
+            return formatDate(val);
+          else
+            return dayLabel[date.getDay()];
+        } else {
+          return "";
+        }
       },
     });
     $("#item-graph-slider").slider('float', {
@@ -359,138 +567,39 @@ var HistoryView = function(userProfile, options) {
     self.plot.draw();
   }
 
-  function updateView(reply) {
-    var item = self.replyItem.items[0];
-    if (!self.plotData)
-      self.plotData = formatPlotData(item);
-    shiftPlotData(self.plotData);
-    appendPlotData(self.plotData, reply);
+  function updateView() {
     self.displayUpdateTime();
-    drawGraph(item, self.plotData);
+    drawGraph(loader.getItem(), self.plotData);
     drawSlider();
   }
 
-  function getItemQuery() {
-    return 'item?' + $.param(itemQuery);
-  };
-
-  function getHistoryQuery() {
-    var query = $.extend({}, historyQuery);
-    var defaultTimeSpan = secondsInHour * 6;
-    var timeSpan = self.timeSpan ? self.timeSpan : defaultTimeSpan;
-    var lastReply, lastData, now;
-
-    // omit loading existing data
-    if (self.plotData && self.plotData[0].data.length > 0) {
-      lastData = self.plotData[0].data[self.plotData[0].data.length - 1];
-      query.beginTime = Math.floor(lastData[0] / 1000) + 1;
-    }
-
-    // set missing time range
-    if (!query.endTime) {
-      now = new Date();
-      query.endTime = Math.floor(now.getTime() / 1000);
-    }
-    if (!query.beginTime)
-      query.beginTime = query.endTime - timeSpan;
-
-    if (!self.timeSpan)
-      self.timeSpan = query.endTime - query.beginTime;
-    self.lastQuery = query;
-
-    return 'history?' + $.param(query);
-  };
-
-  function buildHostName(itemReply) {
-    var item = itemReply.items[0];
-    var server = itemReply.servers[item.serverId];
+  function buildHostName(item, servers) {
+    var server = servers[item.serverId];
     var serverName = getServerName(server, item["serverId"]);
     var hostName   = getHostName(server, item["hostId"]);
     return serverName + ": " + hostName;
   }
 
-  function setItemDescription(itemReply) {
-    var item = itemReply.items[0];
-    var hostName = buildHostName(itemReply);
+  function setItemDescription(item, servers) {
+    var hostName = buildHostName(item, servers);
     var title = "";
     title += item.brief;
     title += " (" + hostName + ")";
     $("title").text(title);
     $(".graph h2").text(title);
   }
-
-  function onLoadItem(reply) {
-    var items = reply["items"];
-    var messageDetail;
-
-    self.replyItem = reply;
-
-    if (items && items.length == 1) {
-      setItemDescription(reply);
-      loadHistory();
-    } else {
-      messageDetail =
-        "Monitoring Server ID: " + query.serverId + ", " +
-        "Host ID: " + query.hostId + ", " +
-        "Item ID: " + query.itemId;
-      if (!items || items.length == 0)
-        self.showError(gettext("No such item: ") + messageDetail);
-      else if (items.length > 1)
-        self.showError(gettext("Too many items are found for ") +
-                       messageDetail);
-    }
-  }
-
-  function onLoadHistory(reply) {
-    var maxRecordsPerRequest = 1000;
-    updateView(reply);
-    if (reply.history.length >= maxRecordsPerRequest) {
-      loadHistory();
-    } else {
-      if (historyQuery.endTime) {
-        disableAutoRefresh();
-      } else {
-        self.setAutoReload(loadHistory, self.reloadIntervalSeconds);
-      }
-      self.loadingHistory = false;
-    }
-  }
-
-  function loadHistory() {
-    self.clearAutoReload();
-    self.loadingHistory = true;
-    self.startConnection(getHistoryQuery(), onLoadHistory);
-  }
-
-  function loadItemAndHistory() {
-    self.startConnection(getItemQuery(), onLoadItem);
-  }
 };
 
 HistoryView.prototype = Object.create(HatoholMonitoringView.prototype);
 HistoryView.prototype.constructor = HistoryView;
 
-HistoryView.prototype.parseQuery = function(query, knownKeys) {
+HistoryView.prototype.parseQuery = function(query) {
+  var knownKeys = ["serverId", "hostId", "itemId", "beginTime", "endTime"];
+  var startTime = new Date();
   var i, allParams = deparam(query), queryTable = {};
   for (i = 0; i < knownKeys.length; i++) {
     if (knownKeys[i] in allParams)
       queryTable[knownKeys[i]] = allParams[knownKeys[i]];
   }
   return queryTable;
-};
-
-HistoryView.prototype.parseItemQuery = function(query) {
-  var knownKeys = ["serverId", "hostId", "itemId"];
-  return this.parseQuery(query, knownKeys);
-};
-
-HistoryView.prototype.parseHistoryQuery = function(query) {
-  var knownKeys = ["serverId", "hostId", "itemId", "beginTime", "endTime"];
-  var startTime = new Date();
-  queryTable = this.parseQuery(query, knownKeys);
-  return queryTable;
-};
-
-HistoryView.prototype.showError = function(message) {
-  hatoholErrorMsgBox(message);
 };
