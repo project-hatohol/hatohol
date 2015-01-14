@@ -474,6 +474,14 @@ describe('deparam', function() {
     expect(deparam(query)).eql(expected);
   });
 
+  it('zero as key', function() {
+    var query = "0=value";
+    var expected = {
+      0: "value"
+    };
+    expect(deparam(query)).eql(expected);
+  });
+
   it('decode', function() {
     var query = "f%5B%5D=status&offset=%3E20";
     var expected = {
