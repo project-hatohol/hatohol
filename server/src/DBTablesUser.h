@@ -83,6 +83,9 @@ public:
 	virtual ~UserQueryOption();
 
 	HatoholError setTargetName(const std::string &name);
+	OperationPrivilegeFlag getPrivilegesFlag(void) const;
+	void                   setPrivilegesFlag(const OperationPrivilegeFlag flags);
+	void                   unsetPrivilegesFlag(void);
 	void         queryOnlyMyself(void);
 
 	// Overriding virtual methods
@@ -178,7 +181,7 @@ public:
 	/**
 	 * Add an access list element.
 	 *
-	 * @param accessInfo 
+	 * @param accessInfo
 	 * An AccessInfo instance that has parameters to be stored.
 	 */
 	HatoholError addAccessInfo(AccessInfo &accessInfo,

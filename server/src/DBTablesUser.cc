@@ -249,9 +249,13 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 struct UserQueryOption::Impl {
 	bool   onlyMyself;
 	string targetName;
+	OperationPrivilegeFlag targetFlags;
+	bool   hasPrivilegesFlags;
 
 	Impl(void)
-	: onlyMyself(false)
+	: onlyMyself(false),
+	  targetFlags(0),
+	  hasPrivilegesFlags(false)
 	{
 	}
 };
@@ -280,6 +284,22 @@ HatoholError UserQueryOption::setTargetName(const string &name)
 	return HatoholError(HTERR_OK);
 }
 
+OperationPrivilegeFlag UserQueryOption::getPrivilegesFlag(void) const
+{
+	return m_impl->targetFlags;
+}
+
+void UserQueryOption::setPrivilegesFlag(const OperationPrivilegeFlag flags)
+{
+	m_impl->targetFlags = flags;
+	m_impl->hasPrivilegesFlags = true;
+}
+
+void UserQueryOption::unsetPrivilegesFlag(void)
+{
+	m_impl->hasPrivilegesFlags = false;
+}
+
 void UserQueryOption::queryOnlyMyself(void)
 {
 	m_impl->onlyMyself = true;
@@ -294,9 +314,19 @@ string UserQueryOption::getCondition(void) const
 	}
 
 	string condition;
+
+	if (m_impl->hasPrivilegesFlags) {
+		string nameCond =
+		  StringUtils::sprintf("%s=%"FMT_OPPRVLG,
+		                       COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName,
+		                       m_impl->targetFlags);
+		condition = nameCond;
+	}
+
 	if (!has(OPPRVLG_GET_ALL_USER) || m_impl->onlyMyself) {
-		condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
-		  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
+		DataQueryOption::addCondition(condition,
+		  StringUtils::sprintf("%s=%" FMT_USER_ID,
+		  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId));
 	}
 
 	if (!m_impl->targetName.empty()) {
@@ -306,12 +336,7 @@ string UserQueryOption::getCondition(void) const
 		  StringUtils::sprintf("%s='%s'",
 		    COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
 		   m_impl->targetName.c_str());
-		if (condition.empty()) {
-			condition = nameCond;
-		} else {
-			condition += " AND ";
-			condition += nameCond;
-		}
+		DataQueryOption::addCondition(condition, nameCond);
 	}
 	return condition;
 }
@@ -791,7 +816,7 @@ HatoholError DBTablesUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 		} else {
 			hostGrpAccessInfoMap = it->second;
 		}
-		
+
 		HostGrpAccessInfoMapIterator jt =
 		  hostGrpAccessInfoMap->find(accessInfo->hostgroupId);
 		if (jt != hostGrpAccessInfoMap->end()) {
@@ -1200,4 +1225,3 @@ bool DBTablesUser::isAccessible(
 	int count = *itemGroup->getItemAt(0);
 	return count > 0;
 }
-

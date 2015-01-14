@@ -872,6 +872,78 @@ void test_updateUserRole(void)
 	assertUserRoleInfoInDB(expectedUserRoleInfo);
 }
 
+static void prepareInitialUserRoleAndUser(void)
+{
+	//setup user role
+	UserRoleInfo oldUserRoleInfo;
+	oldUserRoleInfo.id = NumTestUserRoleInfo + 1;
+	oldUserRoleInfo.name = "specific action maintainer";
+	oldUserRoleInfo.flags =
+	                (1 << OPPRVLG_CREATE_ACTION)     |
+	                (1 << OPPRVLG_UPDATE_ACTION)     |
+	                (1 << OPPRVLG_DELETE_ACTION)     |
+	                (1 << OPPRVLG_GET_ALL_ACTION);
+
+	StringMap params;
+	params["name"] = oldUserRoleInfo.name;
+	params["flags"] = StringUtils::sprintf(
+	  "%" FMT_OPPRVLG, oldUserRoleInfo.flags);
+	assertAddUserRoleWithSetup(params, HTERR_OK);
+
+	// setup user
+	const UserIdType targetId = 1;
+	const string user = "SpecificActionMaintainer";
+	const string expectedPassword = testUserInfo[targetId - 1].password;
+
+	StringMap userParams;
+	userParams["name"] = user;
+	userParams["flags"] = StringUtils::sprintf("%" FMT_OPPRVLG, oldUserRoleInfo.flags);
+	stopFaceRest();
+	assertUpdateUser(userParams, targetId, HTERR_OK);
+}
+
+void test_updateUserRoleFlagAndUserFlagTogether(void)
+{
+	prepareInitialUserRoleAndUser();
+	// target user info
+	const UserIdType targetId = 1;
+	const string user = "SpecificActionMaintainer";
+	const string expectedPassword = testUserInfo[targetId - 1].password;
+
+	// update user role
+	UserRoleInfo updateUserRoleInfo;
+	updateUserRoleInfo.id = NumTestUserRoleInfo + 1;
+	updateUserRoleInfo.name = "specific action manager";
+	updateUserRoleInfo.flags =
+	                (1 << OPPRVLG_CREATE_ACTION)     |
+	                (1 << OPPRVLG_UPDATE_ACTION)     |
+	                (1 << OPPRVLG_UPDATE_ALL_ACTION) |
+	                (1 << OPPRVLG_DELETE_ACTION)     |
+	                (1 << OPPRVLG_GET_ALL_ACTION);
+
+	StringMap updateRoleParams;
+	updateRoleParams["name"] = updateUserRoleInfo.name;
+	updateRoleParams["flags"] = StringUtils::sprintf(
+	  "%" FMT_OPPRVLG, updateUserRoleInfo.flags);
+	stopFaceRest();
+	assertUpdateUserRole(updateRoleParams, updateUserRoleInfo.id, HTERR_OK);
+
+	// check the user role in the DB
+	assertUserRoleInfoInDB(updateUserRoleInfo);
+
+	// check the user in the DB
+	const int expectedId = 1;
+	string statement = "select * from ";
+	statement += DBTablesUser::TABLE_NAME_USERS;
+	statement += " where id = ";
+	statement += StringUtils::sprintf("%d", expectedId);
+	string expectUser = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
+	  expectedId, user.c_str(), Utils::sha256(expectedPassword).c_str(),
+	  updateUserRoleInfo.flags);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expectUser);
+}
+
 void test_updateUserRoleWithoutName(void)
 {
 	int targetIdx = 0;
