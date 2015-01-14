@@ -677,6 +677,7 @@ void test_getServerHostDefs(gconstpointer data)
 {
 	const UserIdType userId = gcut_data_get_int(data, "userId");
 	loadTestDBUser();
+	loadTestDBServer();
 	loadTestDBAccessList();
 	loadTestDBServerHostDef();
 	loadTestDBHostgroupMember();
@@ -690,16 +691,29 @@ void test_getServerHostDefs(gconstpointer data)
 	// make the expected hosts
 	set<size_t> expectIds;
 	for (size_t i = 0; i < NumTestServerHostDef; i++) {
-		if (isAuthorized(userId, testServerHostDef[i].hostId))
+		if (isDefunctTestServer(testServerHostDef[i].serverId))
+			continue;
+		if (option.has(OPPRVLG_GET_ALL_SERVER) ||
+		    isAuthorized(userId, testServerHostDef[i].hostId))
 			expectIds.insert(i + 1);
 	}
 
 	// Check it
-	cppcut_assert_equal(expectIds.size(), svHostDefVect.size());
+	set<ServerIdType> actIds;
+	for (size_t i = 0; i < svHostDefVect.size(); i++)
+		actIds.insert(svHostDefVect[i].id);
+	assertEqualSize(expectIds, actIds);
+
 	for (size_t i = 0; i < svHostDefVect.size(); i++) {
 		const ServerHostDef &act = svHostDefVect[i];
 		set<size_t>::const_iterator it = expectIds.find(act.id);
-		cppcut_assert_equal(true, it != expectIds.end());
+		if (it == expectIds.end()) {
+			string errMsg = StringUtils::sprintf("act.id: %zd\n",
+			                                     act.id);
+			errMsg +=
+			  makeElementsComparisonString(expectIds, actIds);
+			cut_fail("%s", errMsg.c_str());
+		}
 		expectIds.erase(it);
 		const size_t expectedIdx = *it - 1;
 		const ServerHostDef &exp = testServerHostDef[expectedIdx];

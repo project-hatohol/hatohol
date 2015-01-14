@@ -183,6 +183,11 @@ bool isAuthorized(ServerHostGrpSetMap &authMap,
  */
 bool isAuthorized(const UserIdType &userId, const HostIdType &hostId);
 
+/**
+ * @return if the test server is not in the test data, true is returned.
+ */
+bool isDefunctTestServer(const ServerIdType &serverId);
+
 size_t findIndexFromTestActionDef(const UserIdType &userId);
 size_t findIndexFromTestActionDef(const ActionType &type);
 
