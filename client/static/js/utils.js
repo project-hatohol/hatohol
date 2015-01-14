@@ -239,7 +239,7 @@ function deparam(query) {
   if (!query) {
     offset = window.location.href.indexOf('?');
     if (offset < 0)
-      return paramsTable;
+      return {};
     query = window.location.href.slice(offset + 1);
   }
 
