@@ -97,6 +97,8 @@ void HatoholError::init(void)
 	DEFINE_ERR(USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST,
 		   "The same user role name or a user role with the same "
 		   "privilege already exists.");
+	DEFINE_ERR(DELETE_MYSELF,
+		   "Can't delete login user.");
 
 	// DBClientHatohol
 	DEFINE_ERR(OFFSET_WITHOUT_LIMIT,
