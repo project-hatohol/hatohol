@@ -994,13 +994,12 @@ static void addTriggersIdBriefHash(
 
 HatoholError FaceRest::ResourceHandler::addHostgroupsMap(
   JSONBuilder &outputJSON, const MonitoringServerInfo &serverInfo,
-  HostgroupInfoList &hostgroupList)
+  HostgroupVect &hostgroups)
 {
 	HostgroupsQueryOption option(m_dataQueryContextPtr);
 	option.setTargetServerId(serverInfo.id);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->getHostgroupInfoList(hostgroupList,
-	                                                   option);
+	HatoholError err = dataStore->getHostgroups(hostgroups, option);
 	if (err != HTERR_OK) {
 		MLPL_ERR("Error: %d, user ID: %" FMT_USER_ID ", "
 		         "sv ID: %" FMT_SERVER_ID "\n",
@@ -1008,12 +1007,11 @@ HatoholError FaceRest::ResourceHandler::addHostgroupsMap(
 		return err;
 	}
 
-	HostgroupInfoListIterator it = hostgroupList.begin();
-	for (; it != hostgroupList.end(); ++it) {
-		const HostgroupInfo &hostgroupInfo = *it;
-		outputJSON.startObject(
-		  StringUtils::toString(hostgroupInfo.groupId));
-		outputJSON.add("name", hostgroupInfo.groupName);
+	HostgroupVectConstIterator it = hostgroups.begin();
+	for (; it != hostgroups.end(); ++it) {
+		const Hostgroup &hostgrp = *it;
+		outputJSON.startObject(hostgrp.idInServer);
+		outputJSON.add("name", hostgrp.name);
 		outputJSON.endObject();
 	}
 	return HTERR_OK;
@@ -1045,11 +1043,9 @@ void FaceRest::ResourceHandler::addServersMap(
 			                       lookupTriggerBrief);
 		}
 		agent.startObject("groups");
-		// Even if the following function retrun an error,
-		// We cannot do anything. The receiver (client) should handle
-		// the returned empty or unperfect group information.
-		HostgroupInfoList hostgroupList;
-		addHostgroupsMap(agent, serverInfo, hostgroupList);
+		HostgroupVect hostgroups;
+		THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+		  addHostgroupsMap(agent, serverInfo, hostgroups));
 		agent.endObject(); // "gropus"
 		agent.endObject(); // toString(serverInfo.id)
 	}
