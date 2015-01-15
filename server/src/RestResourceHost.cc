@@ -933,14 +933,19 @@ void RestResourceHost::historyFetchedCallback(
 
 static void addHostsIsMemberOfGroup(
   FaceRest::ResourceHandler *job, JSONBuilder &agent,
-  uint64_t targetServerId, uint64_t targetGroupId)
+  uint64_t targetServerId, const string &targetGroupId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	HostgroupMemberVect hostgrpMembers;
 	HostgroupElementQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
-	option.setTargetHostgroupId(targetGroupId);
+
+	// TODO: The type of the argument of setTargetHostgroupId will be
+	//       a string.
+	HostgroupIdType _targetGroupId;
+	Utils::conv(_targetGroupId, targetGroupId);
+	option.setTargetHostgroupId(_targetGroupId);
 	dataStore->getHostgroupMembers(hostgrpMembers, option);
 
 	agent.startArray("hosts");
@@ -962,25 +967,28 @@ void RestResourceHost::handlerGetHostgroup(void)
 	}
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HostgroupInfoList hostgroupInfoList;
-	err = dataStore->getHostgroupInfoList(hostgroupInfoList, option);
+	HostgroupVect hostgroups;
+	err = dataStore->getHostgroups(hostgroups, option);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
 
 	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	agent.add("numberOfHostgroups", hostgroupInfoList.size());
+	agent.add("numberOfHostgroups", hostgroups.size());
 	agent.startArray("hostgroups");
-	HostgroupInfoListIterator it = hostgroupInfoList.begin();
-	for (; it != hostgroupInfoList.end(); ++it) {
-		HostgroupInfo hostgroupInfo = *it;
+	HostgroupVectConstIterator it = hostgroups.begin();
+	for (; it != hostgroups.end(); ++it) {
+		const Hostgroup &hostgrp = *it;
 		agent.startObject();
-		agent.add("id", hostgroupInfo.id);
-		agent.add("serverId", hostgroupInfo.serverId);
-		agent.add("groupId", hostgroupInfo.groupId);
-		agent.add("groupName", hostgroupInfo.groupName.c_str());
+		agent.add("id",        hostgrp.id);
+		agent.add("serverId",  hostgrp.serverId);
+		agent.add("groupId",   hostgrp.idInServer);
+		agent.add("groupName", hostgrp.name);
 		addHostsIsMemberOfGroup(this, agent,
-		                        hostgroupInfo.serverId,
-		                        hostgroupInfo.groupId);
+		                        hostgrp.serverId, hostgrp.idInServer);
 		agent.endObject();
 	}
 	agent.endArray();
