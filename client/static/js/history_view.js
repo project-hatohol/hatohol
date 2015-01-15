@@ -239,7 +239,7 @@ var HistoryView = function(userProfile, options) {
   loader = new HistoryLoader({
     view: this,
     defaultTimeSpan: self.timeSpan,
-    query: self.parseQuery(options.query),
+    query: self.parseQuery(options.query)[0],
     onLoadItem: function(item, servers) {
       setItemDescription(item, servers)
       self.plotData[0] = formatPlotData(item);
@@ -594,12 +594,25 @@ HistoryView.prototype = Object.create(HatoholMonitoringView.prototype);
 HistoryView.prototype.constructor = HistoryView;
 
 HistoryView.prototype.parseQuery = function(query) {
-  var knownKeys = ["serverId", "hostId", "itemId", "beginTime", "endTime"];
-  var startTime = new Date();
-  var i, allParams = deparam(query), queryTable = {};
-  for (i = 0; i < knownKeys.length; i++) {
-    if (knownKeys[i] in allParams)
-      queryTable[knownKeys[i]] = allParams[knownKeys[i]];
+  var allParams = deparam(query);
+  var histories = allParams["histories"]
+  var i, tables = [];
+
+  var addHistoryQuery = function(params) {
+    var knownKeys = ["serverId", "hostId", "itemId", "beginTime", "endTime"];
+    var i, table = {};
+
+    for (i = 0; i < knownKeys.length; i++) {
+      if (knownKeys[i] in params)
+        table[knownKeys[i]] = params[knownKeys[i]];
+    }
+    if (Object.keys(table).length > 0)
+      tables.push(table);
   }
-  return queryTable;
+
+  addHistoryQuery(allParams);
+  for (i = 0; histories && i < histories.length; i++)
+    addHistoryQuery(histories[i]);
+
+  return tables;
 };
