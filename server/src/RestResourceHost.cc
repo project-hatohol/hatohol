@@ -365,23 +365,25 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	// TODO: We temtatively returns 'No group'. We should fix it
 	//       after host group is supported in Hatohol server.
 	agent.startObject("hostgroups");
-	HostgroupInfoList hostgroupInfoList;
-	err = job->addHostgroupsMap(agent, svInfo, hostgroupInfoList);
+	HostgroupVect hostgroups;
+	err = job->addHostgroupsMap(agent, svInfo, hostgroups);
 	if (err != HTERR_OK) {
-		HostgroupInfo hgrpInfo;
-		hgrpInfo.id = 0;
-		hgrpInfo.serverId = svInfo.id;
-		hgrpInfo.groupId = ALL_HOST_GROUPS;
-		hgrpInfo.groupName = "All host groups";
-		hostgroupInfoList.push_back(hgrpInfo);
+		Hostgroup hostgrp;
+		hostgrp.id         = 0;
+		hostgrp.serverId   = svInfo.id;
+		hostgrp.idInServer = StringUtils::sprintf("%" FMT_HOST_GROUP_ID,
+		                                          ALL_HOST_GROUPS);
+		hostgrp.name       = "All host groups";
+		hostgroups.push_back(hostgrp);
 	}
 	agent.endObject();
 
 	// SystemStatus
 	agent.startArray("systemStatus");
-	HostgroupInfoListConstIterator hostgrpItr = hostgroupInfoList.begin();
-	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
-		const HostgroupIdType hostgroupId = hostgrpItr->groupId;
+	HostgroupVectConstIterator hostgrpItr = hostgroups.begin();
+	for (; hostgrpItr != hostgroups.end(); ++ hostgrpItr) {
+		HostgroupIdType hostgroupId;
+		Utils::conv(hostgroupId, hostgrpItr->idInServer);
 		for (int severity = 0;
 		     severity < NUM_TRIGGER_SEVERITY; severity++) {
 			TriggersQueryOption option(job->m_dataQueryContextPtr);
@@ -402,9 +404,10 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 
 	// HostStatus
 	agent.startArray("hostStatus");
-	hostgrpItr = hostgroupInfoList.begin();
-	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
-		const HostgroupIdType hostgroupId = hostgrpItr->groupId;
+	hostgrpItr = hostgroups.begin();
+	for (; hostgrpItr != hostgroups.end(); ++ hostgrpItr) {
+		HostgroupIdType hostgroupId;
+		Utils::conv(hostgroupId, hostgrpItr->idInServer);
 		TriggersQueryOption option(job->m_dataQueryContextPtr);
 		option.setExcludeFlags(EXCLUDE_INVALID_HOST|EXCLUDE_SELF_MONITORING);
 		option.setTargetServerId(svInfo.id);
