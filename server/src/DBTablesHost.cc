@@ -801,6 +801,34 @@ void DBTablesHost::upsertHostgroups(const HostgroupVect &hostgroups)
 	getDBAgent().runTransaction(proc);
 }
 
+HatoholError DBTablesHost::getHostgroups(HostgroupVect &hostgroups,
+                                         const HostgroupsQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileHostgroupList);
+	arg.add(IDX_HOSTGROUP_LIST_ID);
+	arg.add(IDX_HOSTGROUP_LIST_SERVER_ID);
+	arg.add(IDX_HOSTGROUP_LIST_ID_IN_SERVER);
+	arg.add(IDX_HOSTGROUP_LIST_NAME);
+	arg.condition = option.getCondition();
+
+	getDBAgent().runTransaction(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+
+		Hostgroup hostgrp;
+		itemGroupStream >> hostgrp.id;
+		itemGroupStream >> hostgrp.serverId;
+		itemGroupStream >> hostgrp.idInServer;
+		itemGroupStream >> hostgrp.name;
+		hostgroups.push_back(hostgrp);
+	}
+
+	return HTERR_OK;
+}
+
 GenericIdType DBTablesHost::upsertHostgroupMember(
   const HostgroupMember &hostgroupMember, const bool &useTransaction)
 {

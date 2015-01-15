@@ -155,6 +155,9 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
+// TODO: move the class form DBTablesMonitoring.
+class HostgroupsQueryOption;
+
 class HostgroupMembersQueryOption: public HostResourceQueryOption {
 public:
 	HostgroupMembersQueryOption(const UserIdType &userId = INVALID_USER_ID);
@@ -259,6 +262,17 @@ public:
 	                              const bool &useTransaction = true);
 
 	void upsertHostgroups(const HostgroupVect &hostgroups);
+
+	/**
+	 * Get hostgroups.
+	 *
+	 * @param hostgroups Obtained host groups are stored here.
+	 * @param option     An option to query hostgroups.
+	 *
+	 * @return An HatoholError.
+	 */
+	HatoholError getHostgroups(HostgroupVect &hostgroups,
+	                           const HostgroupsQueryOption &option);
 
 	/**
 	 * Insert or update a record to/in the hostgroup_member table
