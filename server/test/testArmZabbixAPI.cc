@@ -608,8 +608,8 @@ void test_oneProcWithCopyOnDemandEnabled()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
-	HostgroupInfoList hostgroupInfoList;
-	HostgroupElementList hostgroupElementList;
+	HostgroupVect hostgrps;
+	HostgroupMemberVect hostgrpMembers;
 
 	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
@@ -620,14 +620,17 @@ void test_oneProcWithCopyOnDemandEnabled()
 	dbMonitoring.getEventInfoList(eventInfoList, eventsQueryOption);
 	dbMonitoring.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	dbMonitoring.getItemInfoList(itemInfoList, itemsQueryOption);
-	dbMonitoring.getHostgroupInfoList(hostgroupInfoList,
-	                                  hostgroupsQueryOption);
-	dbMonitoring.getHostgroupElementList(hostgroupElementList,
-	                                     hostgroupElementQueryOption);
+
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	assertHatoholError(
+	  HTERR_OK, uds->getHostgroups(hostgrps, hostgroupsQueryOption));
+	assertHatoholError(
+	  HTERR_OK,
+	  uds->getHostgroupMembers(hostgrpMembers, hostgroupElementQueryOption));
 
 	// FIXME: should check contents
-	cppcut_assert_equal(false, hostgroupInfoList.empty());
-	cppcut_assert_equal(false, hostgroupElementList.empty());
+	cppcut_assert_equal(false, hostgrps.empty());
+	cppcut_assert_equal(false, hostgrpMembers.empty());
 
 	cppcut_assert_equal(false, eventInfoList.empty());
 	cppcut_assert_equal(false, triggerInfoList.empty());
