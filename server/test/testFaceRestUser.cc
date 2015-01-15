@@ -366,9 +366,11 @@ void test_deleteUser(void)
 	const UserIdType deleterId = findUserWith(OPPRVLG_DELETE_USER);
 	const UserIdType targetId = 1;
 
-	// When deleterId and targetId are same, this test case will fail.
-	// Because, Login user can't delete myself.
-	// If the test fails, you need to fix Users data of DBTableTest.cc.
+	// When deleterId is identical with targetId, this test case will fail.
+	// Because a user cannot delete itself. If you change test user data,
+	// you should take care so that the test doesn't fail.
+	// In case of fail the test, you need to fix Users data of DBTableTest.cc.
+	// The following assetion checks above problem.
 	cppcut_assert_not_equal(deleterId, targetId);
 	string url = StringUtils::sprintf("/user/%" FMT_USER_ID, targetId);
 	RequestArg arg(url, "cbname");
