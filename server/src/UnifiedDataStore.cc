@@ -480,6 +480,13 @@ HatoholError UnifiedDataStore::getServerHostDefs(
 	return cache.getHost().getServerHostDefs(svHostDefVect, option);
 }
 
+HatoholError UnifiedDataStore::getHostgroups(
+  HostgroupVect &hostgroups, const HostgroupsQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	return cache.getHost().getHostgroups(hostgroups, option);
+}
+
 HatoholError UnifiedDataStore::upsertHosts(
   const ServerHostDefVect &serverHostDefs)
 {
