@@ -143,10 +143,6 @@ public:
 	DBTablesMonitoring(DBAgent &dbAgent);
 	virtual ~DBTablesMonitoring();
 
-	void getHostInfoList(HostInfoList &hostInfoList,
-	                     const HostsQueryOption &option)
-	  __attribute__ ((deprecated));
-
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
 
