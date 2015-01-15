@@ -111,10 +111,12 @@ public:
 	// Host and Hostgroup
 	HatoholError getHostgroupInfoList(
 	  HostgroupInfoList &hostgroupInfoList,
-	  const HostgroupsQueryOption &option);
+	  const HostgroupsQueryOption &option)
+	  __attribute__ ((deprecated));
 	HatoholError getHostgroupElementList(
 	  HostgroupElementList &hostgroupElementList,
-	  const HostgroupElementQueryOption &option);
+	  const HostgroupElementQueryOption &option)
+	  __attribute__ ((deprecated));
 
 	HatoholError getServerHostDefs(ServerHostDefVect &svHostDefVect,
 	                               const HostsQueryOption &option);
