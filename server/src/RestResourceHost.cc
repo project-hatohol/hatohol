@@ -937,18 +937,17 @@ static void addHostsIsMemberOfGroup(
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
-	HostgroupElementList hostgroupElementList;
+	HostgroupMemberVect hostgrpMembers;
 	HostgroupElementQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostgroupId(targetGroupId);
-	dataStore->getHostgroupElementList(hostgroupElementList, option);
+	dataStore->getHostgroupMembers(hostgrpMembers, option);
 
 	agent.startArray("hosts");
-	HostgroupElementListIterator it = hostgroupElementList.begin();
-	for (; it != hostgroupElementList.end(); ++it) {
-		HostgroupElement hostgroupElement = *it;
-		agent.add(StringUtils::toString(hostgroupElement.hostId));
-	}
+	HostgroupMemberVectConstIterator hostgrpMemberIt =
+	  hostgrpMembers.begin();
+	for (; hostgrpMemberIt != hostgrpMembers.end(); ++hostgrpMemberIt)
+		agent.add(hostgrpMemberIt->hostIdInServer);
 	agent.endArray();
 }
 
