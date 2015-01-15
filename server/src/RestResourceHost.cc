@@ -315,12 +315,14 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 
 	// TODO: This implementeation is not effective.
 	//       We should add a function only to get the number of list.
-	HostInfoList hostInfoList;
+	ServerHostDefVect svHostDefs;
 	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(svInfo.id);
 	option.setStatus(HOST_STAT_NORMAL);
-	dataStore->getHostList(hostInfoList, option);
-	agent.add("numberOfHosts", hostInfoList.size());
+	err = dataStore->getServerHostDefs(svHostDefs, option);
+	if (err != HTERR_OK)
+		return err;
+	agent.add("numberOfHosts", svHostDefs.size());
 
 	ItemsQueryOption itemsQueryOption(job->m_dataQueryContextPtr);
 	itemsQueryOption.setTargetServerId(svInfo.id);
