@@ -319,8 +319,14 @@ static const int columnIndexesEventsUniqId[] = {
   IDX_EVENTS_SERVER_ID, IDX_EVENTS_ID, DBAgent::IndexDef::END,
 };
 
+static const int columnIndexesEventsTimeSequence[] = {
+  IDX_EVENTS_TIME_SEC, IDX_EVENTS_TIME_NS,
+  IDX_EVENTS_UNIFIED_ID, DBAgent::IndexDef::END,
+};
+
 static const DBAgent::IndexDef indexDefsEvents[] = {
   {"EventsId", (const int *)columnIndexesEventsUniqId, false},
+  {"EventsTimeSequence", (const int *)columnIndexesEventsTimeSequence, false},
   {NULL}
 };
 
