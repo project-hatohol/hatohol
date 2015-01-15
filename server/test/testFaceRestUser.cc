@@ -363,17 +363,23 @@ void test_deleteUser(void)
 {
 	startFaceRest();
 
-	const UserIdType userId = findUserWith(OPPRVLG_DELETE_USER);
-	string url = StringUtils::sprintf("/user/%" FMT_USER_ID, userId);
+	const UserIdType deleterId = findUserWith(OPPRVLG_DELETE_USER);
+	const UserIdType targetId = 1;
+
+	// When deleterId and targetId are same, this test case will fail.
+	// Because, Login user can't delete myself.
+	// If the test fails, you need to fix Users data of DBTableTest.cc.
+	cppcut_assert_not_equal(deleterId, targetId);
+	string url = StringUtils::sprintf("/user/%" FMT_USER_ID, targetId);
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
-	arg.userId = userId;
+	arg.userId = deleterId;
 	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 
 	// check the reply
 	assertErrorCode(parserPtr.get());
 	UserIdSet userIdSet;
-	userIdSet.insert(userId);
+	userIdSet.insert(targetId);
 	assertUsersInDB(userIdSet);
 }
 
