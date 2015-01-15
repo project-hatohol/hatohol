@@ -35,6 +35,7 @@ struct CommandLineOptions {
 	gboolean  testMode;
 	gboolean  enableCopyOnDemand;
 	gboolean  disableCopyOnDemand;
+	gboolean  loadOldEvents;
 	gint      faceRestPort;
 
 	CommandLineOptions(void);
@@ -124,6 +125,7 @@ public:
 
 	std::string getUser(void) const;
 
+	bool getLoadOldEvents(void) const;
 protected:
 	void loadConfFile(void);
 	static gboolean parseLogLevel(

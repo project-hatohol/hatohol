@@ -92,6 +92,7 @@ CommandLineOptions::CommandLineOptions(void)
   testMode(FALSE),
   enableCopyOnDemand(FALSE),
   disableCopyOnDemand(FALSE),
+  loadOldEvents(FALSE),
   faceRestPort(-1)
 {
 }
@@ -114,6 +115,7 @@ struct ConfigManager::Impl {
 	AtomicValue<int>      faceRestPort;
 	string                user;
 	string                pidFilePath;
+	bool                  loadOldEvents;
 
 	// methods
 	Impl(void)
@@ -282,6 +284,10 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 		{"log-level",
 		 'l', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseLogLevel,
 		 "Log level: DBG, INFO, WARN, ERR, CRIT, or BUG. ", NULL},
+		{"load-old-events",
+		 0, 0, G_OPTION_ARG_NONE,
+		 &cmdLineOpts->loadOldEvents,
+		 "Load old events when adding new monitoring server.", NULL},
 		{ NULL }
 	};
 
@@ -440,6 +446,11 @@ string ConfigManager::getPidFilePath(void) const
 string ConfigManager::getUser(void) const
 {
 	return m_impl->user;
+}
+
+bool ConfigManager::getLoadOldEvents(void) const
+{
+	return m_impl->loadOldEvents;
 }
 
 // ---------------------------------------------------------------------------
