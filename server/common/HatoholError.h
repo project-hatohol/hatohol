@@ -112,6 +112,9 @@ enum HatoholErrorCode
 	HTERR_INVALID_SERVER_TYPE,	// FaceRest
 	HTERR_NOT_FOUND_HYPERVISOR,	// DBTablesHost
 
+	// 15.03
+	HTERR_DELETE_MYSELF,
+
 	// End of code
 	NUM_HATOHOL_ERROR_CODE
 };
