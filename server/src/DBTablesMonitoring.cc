@@ -1143,7 +1143,7 @@ struct TriggersQueryOption::Impl {
 	TriggerIdType targetId;
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
-	int excludeFlags;
+	ExcludeFlags excludeFlags;
 
 	Impl()
 	: targetId(ALL_TRIGGERS),
@@ -1184,7 +1184,7 @@ TriggersQueryOption::~TriggersQueryOption()
 {
 }
 
-void TriggersQueryOption::setExcludeFlags(const int &flg)
+void TriggersQueryOption::setExcludeFlags(const ExcludeFlags &flg)
 {
 	m_impl->excludeFlags = flg;
 }
