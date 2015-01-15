@@ -25,6 +25,7 @@ using namespace mlpl;
 #include <libsoup/soup.h>
 #include <json-glib/json-glib.h>
 
+#include "ConfigManager.h"
 #include "ArmZabbixAPI.h"
 #include "JSONParser.h"
 #include "JSONBuilder.h"
@@ -113,7 +114,8 @@ void ArmZabbixAPI::updateEvents(void)
 	  cache.getMonitoring().getLastEventId(m_impl->zabbixServerId);
 	MLPL_DBG("The last event ID in Hatohol DB: %" FMT_EVENT_ID "\n", dbLastEventId);
 	EventIdType eventIdFrom = dbLastEventId == EVENT_ID_NOT_FOUND ?
-	                          getEndEventId(true) :
+				  (ConfigManager::getInstance()->getLoadOldEvents() ?
+				   getEndEventId(true) : serverLastEventId) :
 	                          dbLastEventId + 1;
 
 	while (eventIdFrom <= serverLastEventId) {
