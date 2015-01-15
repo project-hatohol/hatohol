@@ -1502,41 +1502,6 @@ DBTablesMonitoring::~DBTablesMonitoring()
 {
 }
 
-void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
-				      const HostsQueryOption &option)
-{
-	DBAgent::SelectExArg arg(tableProfileServerHostDef);
-	arg.tableField = option.getFromClause();
-	arg.useDistinct = option.isHostgroupUsed();
-	arg.useFullName = option.isHostgroupUsed();
-	arg.add(IDX_HOST_SERVER_HOST_DEF_SERVER_ID);
-	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
-	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_NAME);
-	arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_STATUS);
-
-	// condition
-	arg.condition = option.getCondition();
-
-	getDBAgent().runTransaction(arg);
-
-	// get the result
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator itemGrpItr = grpList.begin();
-	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		ItemGroupStream itemGroupStream(*itemGrpItr);
-		hostInfoList.push_back(HostInfo());
-		HostInfo &hostInfo = hostInfoList.back();
-		itemGroupStream >> hostInfo.serverId;
-		hostInfo.id = itemGroupStream.read<string, HostIdType>();
-		itemGroupStream >> hostInfo.hostName;
-
-		HostStatus stat;
-		itemGroupStream >> stat;
-		hostInfo.validity = (stat == HOST_STAT_NORMAL) ?
-		                    HOST_VALID : HOST_INVALID;
-	}
-}
-
 void DBTablesMonitoring::addTriggerInfo(TriggerInfo *triggerInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {

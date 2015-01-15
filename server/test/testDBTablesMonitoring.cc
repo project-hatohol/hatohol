@@ -248,45 +248,6 @@ void _assertItemInfoList(gconstpointer data, uint32_t serverId)
 #define assertItemInfoList(DATA, SERVER_ID) \
 cut_trace(_assertItemInfoList(DATA, SERVER_ID))
 
-struct AssertGetHostsArg
-  : public AssertGetHostResourceArg<ServerHostDef, HostsQueryOption>
-{
-	HostInfoList expectedHostList;
-
-	AssertGetHostsArg(gconstpointer ddtParam)
-	{
-		fixtures = testServerHostDef;
-		numberOfFixtures = NumTestServerHostDef;
-		setDataDrivenTestParam(ddtParam);
-	}
-
-	// This should be moved to AssertGetHostResourceArg later
-	virtual bool isAuthorized(const ServerHostDef &svHostDef) override
-	{
-		return ::isAuthorized(userId, svHostDef.hostId);
-	}
-
-	virtual HostIdType getHostId(const ServerHostDef &svHostDef) const override
-	{
-		HostIdType hostId;
-		cppcut_assert_equal(
-		  1, sscanf(svHostDef.hostIdInServer.c_str(), "%" FMT_HOST_ID,
-		            &hostId));
-		return hostId;
-	}
-
-	virtual string makeOutputText(const ServerHostDef &svHostDef)
-	{
-		string expectedOut =
-		  StringUtils::sprintf(
-		    "%" PRIu32 "|%s|%s\n",
-		    svHostDef.serverId, svHostDef.hostIdInServer.c_str(),
-		    svHostDef.name.c_str());
-		return expectedOut;
-	}
-
-};
-
 static void conv(ServerHostDef &svHostDef, const HostInfo &hostInfo)
 {
 	svHostDef.id = hostInfo.id;
@@ -319,26 +280,6 @@ static void conv(HostgroupInfo &hostgrpInfo, const Hostgroup &hostgrp)
 	            "%" FMT_HOST_GROUP_ID, &hostgrpInfo.groupId));
 	hostgrpInfo.groupName = hostgrp.name;
 }
-
-static void _assertGetHosts(AssertGetHostsArg &arg)
-{
-	loadTestDBServerHostDef();
-	loadTestDBHostgroupMember();
-
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	arg.fixup();
-	HostInfoList hostInfoList;
-	dbMonitoring.getHostInfoList(hostInfoList, arg.option);
-
-	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
-	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr) {
-		ServerHostDef svHostDef;
-		conv(svHostDef, *hostInfoItr);
-		arg.actualRecordList.push_back(svHostDef);
-	}
-	arg.assert();
-}
-#define assertGetHosts(A) cut_trace(_assertGetHosts(A))
 
 static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool status)
 {
@@ -868,65 +809,6 @@ void test_getTimeOfLastEventWithTriggerId(void)
 	cppcut_assert_equal(
 	  findTimeOfLastEvent(serverId, triggerId),
 	  dbMonitoring.getTimeOfLastEvent(serverId, triggerId));
-}
-
-void data_getHostInfoList(void)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_getHostInfoList(gconstpointer data)
-{
-	AssertGetHostsArg arg(data);
-	assertGetHosts(arg);
-}
-
-void data_getHostInfoListForOneServer(void)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_getHostInfoListForOneServer(gconstpointer data)
-{
-	AssertGetHostsArg arg(data);
-	arg.targetServerId = 1;
-	assertGetHosts(arg);
-}
-
-void data_getHostInfoListWithNoAuthorizedServer(void)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_getHostInfoListWithNoAuthorizedServer(gconstpointer data)
-{
-	AssertGetHostsArg arg(data);
-	arg.userId = 4;
-	assertGetHosts(arg);
-}
-
-void data_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
-{
-	AssertGetHostsArg arg(data);
-	arg.userId = 5;
-	assertGetHosts(arg);
-}
-
-void data_getHostInfoListWithUserWhoCanAccessSomeHostgroups(void)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_getHostInfoListWithUserWhoCanAccessSomeHostgroups(gpointer data)
-{
-	AssertGetHostsArg arg(data);
-	arg.userId = 3;
-	assertGetHosts(arg);
 }
 
 void data_getNumberOfTriggers(void)
