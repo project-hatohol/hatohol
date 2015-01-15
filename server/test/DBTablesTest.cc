@@ -1438,21 +1438,6 @@ static string makeHostgroupElementPack(
 	return s;
 }
 
-static string makeHostgroupElementPack(
-  const ServerIdType &serverId,
-  const HostIdType &hostId, const HostgroupIdType &hostgroupId)
-  __attribute__ ((deprecated));
-
-static string makeHostgroupElementPack(
-  const ServerIdType &serverId,
-  const HostIdType &hostId, const HostgroupIdType &hostgroupId)
-{
-	string hostIdStr = StringUtils::sprintf("%" FMT_HOST_ID, hostId);
-	string hostgroupIdStr =
-	  StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupId);
-	return makeHostgroupElementPack(serverId, hostIdStr, hostgroupIdStr);
-}
-
 /**
  * This functions return a kind of a perfect hash set that is made from
  * a server Id, a host Id, and a host group ID. We call it
@@ -1488,8 +1473,10 @@ static bool isInHostgroup(const TriggerInfo &trigInfo,
 	  getHostgroupMemberPackSet();
 
 	const string pack =
-	  makeHostgroupElementPack(trigInfo.serverId,
-	                           trigInfo.hostId, hostgroupId);
+	  makeHostgroupElementPack(
+	    trigInfo.serverId,
+	    StringUtils::sprintf("%" FMT_HOST_ID, trigInfo.hostId),
+	    StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupId));
 	set<string>::const_iterator it = hostgroupElementPackSet.find(pack);
 	return it != hostgroupElementPackSet.end();
 }
@@ -1761,7 +1748,9 @@ bool isAuthorized(
 	HostgroupIdSetConstIterator hostgroupIdItr = hostgroupIds.begin();
 	for (; hostgroupIdItr != hostgroupIds.end(); ++hostgroupIdItr) {
 		const string pack =
-		  makeHostgroupElementPack(serverId, hostId, *hostgroupIdItr);
+		  makeHostgroupElementPack(serverId,
+		    StringUtils::sprintf("%" FMT_HOST_ID, hostId),
+		    StringUtils::sprintf("%" FMT_HOST_GROUP_ID, *hostgroupIdItr));
 		if (hgrpElementPackSet->find(pack) != hgrpElementPackSet->end())
 			return true;
 	}
