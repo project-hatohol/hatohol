@@ -448,16 +448,6 @@ bool UnifiedDataStore::isIncidentSenderActionEnabled(void)
 	return cache.getAction().isIncidentSenderEnabled();
 }
 
-HatoholError UnifiedDataStore::getHostgroupElementList(
-  HostgroupElementList &hostgroupElementList,
-  const HostgroupElementQueryOption &option)
-{
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	return dbMonitoring.getHostgroupElementList(hostgroupElementList,
-	                                            option);
-}
-
 HatoholError UnifiedDataStore::upsertHost(const ServerHostDef &serverHostDef)
 {
 	ThreadLocalDBCache cache;
