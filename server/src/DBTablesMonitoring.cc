@@ -1143,27 +1143,21 @@ struct TriggersQueryOption::Impl {
 	TriggerIdType targetId;
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
-	TriggerCollectHost triggerCollectHost;
+	int excludeFlags;
 
 	Impl()
 	: targetId(ALL_TRIGGERS),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
 	  triggerStatus(TRIGGER_STATUS_ALL),
-	  triggerCollectHost(ALL_HOST_TRIGGER)
+	  excludeFlags(NO_EXCLUDE_HOST)
 	{
 	}
-	bool collectEnabledTriggersIncludingSelfMonitors()
-	{
-		if (triggerCollectHost == VALID_HOST_AND_SELF_TRIGGER ||
-		    triggerCollectHost == VALID_HOST_TRIGGER )
-			return true;
-		return false;
+	bool shouldExcludeSelfMonitoring() {
+		return excludeFlags & EXCLUDE_SELF_MONITORING;
 	}
-	bool collectTriggersExcludingSelfMonitors()
-	{
-		if (triggerCollectHost == VALID_HOST_TRIGGER)
-			return true;
-		return false;
+
+	bool shouldExcludeInvalidHost() {
+		return excludeFlags & EXCLUDE_INVALID_HOST;
 	}
 };
 
@@ -1190,10 +1184,11 @@ TriggersQueryOption::~TriggersQueryOption()
 {
 }
 
-void TriggersQueryOption::setValidityHost(const TriggerCollectHost &validity)
+void TriggersQueryOption::setExcludeFlags(const int &flg)
 {
-	m_impl->triggerCollectHost = validity;
+	m_impl->excludeFlags = flg;
 }
+	
 
 string TriggersQueryOption::getCondition(void) const
 {
@@ -1204,7 +1199,7 @@ string TriggersQueryOption::getCondition(void) const
 
 	// We only collect valid triggers in the Zabbix server
 	// excluding self monitoring triggers.
-	if (m_impl->collectTriggersExcludingSelfMonitors()) {
+	if (m_impl->shouldExcludeSelfMonitoring()) {
 		addCondition( 
 		  condition,
 		  StringUtils::sprintf(
@@ -1216,7 +1211,7 @@ string TriggersQueryOption::getCondition(void) const
 
 	// We only collect valid triggers in enabled host in the Zabbix server
 	// including self monitoring triggers.
-	if (m_impl->collectEnabledTriggersIncludingSelfMonitors()) {
+	if (m_impl->shouldExcludeInvalidHost()) {
 		addCondition(
 		  condition,
 		  StringUtils::sprintf(
