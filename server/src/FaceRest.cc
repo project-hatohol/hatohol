@@ -917,7 +917,7 @@ static void addHostsMap(
 	if (value)
 		sscanf(value, "%" FMT_HOST_GROUP_ID, &targetHostgroupId);
 
-	HostInfoList hostList;
+	ServerHostDefVect svHostDefVect;
 	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(serverInfo.id);
 	option.setTargetHostgroupId(targetHostgroupId);
@@ -927,13 +927,14 @@ static void addHostsMap(
 	option.setStatus(HOST_STAT_ALL);
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->getHostList(hostList, option);
-	HostInfoListIterator it = hostList.begin();
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  dataStore->getServerHostDefs(svHostDefVect, option));
+	ServerHostDefVectConstIterator svHostIt = svHostDefVect.begin();
 	agent.startObject("hosts");
-	for (; it != hostList.end(); ++it) {
-		HostInfo &host = *it;
-		agent.startObject(StringUtils::toString(host.id));
-		agent.add("name", host.hostName);
+	for (; svHostIt != svHostDefVect.end(); ++svHostIt) {
+		const ServerHostDef &svHostDef = *svHostIt;
+		agent.startObject(svHostDef.hostIdInServer);
+		agent.add("name", svHostDef.name);
 		agent.endObject();
 	}
 	agent.endObject();
