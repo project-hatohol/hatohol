@@ -487,22 +487,23 @@ static void addHosts(FaceRest::ResourceHandler *job, JSONBuilder &agent,
                      const HostIdType &targetHostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HostInfoList hostInfoList;
+	ServerHostDefVect svHostDefs;
 	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostgroupId(targetHostgroupId);
 	option.setTargetHostId(targetHostId);
-	dataStore->getHostList(hostInfoList, option);
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  dataStore->getServerHostDefs(svHostDefs, option));
 
-	agent.add("numberOfHosts", hostInfoList.size());
+	agent.add("numberOfHosts", svHostDefs.size());
 	agent.startArray("hosts");
-	HostInfoListIterator it = hostInfoList.begin();
-	for (; it != hostInfoList.end(); ++it) {
-		HostInfo &hostInfo = *it;
+	ServerHostDefVectConstIterator svHostIt = svHostDefs.begin();
+	for (; svHostIt != svHostDefs.end(); ++svHostIt) {
+		const ServerHostDef &svHostDef = *svHostIt;
 		agent.startObject();
-		agent.add("id", StringUtils::toString(hostInfo.id));
-		agent.add("serverId", hostInfo.serverId);
-		agent.add("hostName", hostInfo.hostName);
+		agent.add("id", svHostDef.hostIdInServer);
+		agent.add("serverId", svHostDef.serverId);
+		agent.add("hostName", svHostDef.name);
 		agent.endObject();
 	}
 	agent.endArray();
