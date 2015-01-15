@@ -421,13 +421,6 @@ bool UnifiedDataStore::fetchItemsAsync(Closure0 *closure,
 	return m_impl->itemFetchWorker.start(targetServerId, closure);
 }
 
-void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
-				   const HostsQueryOption &option)
-{
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().getHostInfoList(hostInfoList, option);
-}
-
 HatoholError UnifiedDataStore::getActionList(
   ActionDefList &actionList, const ActionsQueryOption &option)
 {
