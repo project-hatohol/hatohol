@@ -44,13 +44,6 @@ enum TriggerSeverityType {
 	NUM_TRIGGER_SEVERITY,
 };
 
-enum TriggerCollectHost {
-	// All hosts
-	ALL_HOST_TRIGGER = 0,
-	// Normal active hosts(expect MONITORING_SERVER_SELF)
-	VALID_HOST_TRIGGER,
-};
-
 enum HostValidity {
 
 	// Hosts that are in HOST_VALID, HOST_VALID_INAPPLICABLE, and

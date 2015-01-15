@@ -333,7 +333,8 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	TriggerInfoList triggerInfoList;
 	TriggersQueryOption triggersQueryOption(job->m_dataQueryContextPtr);
 	triggersQueryOption.setTargetServerId(svInfo.id);
-	triggersQueryOption.setValidityHost(VALID_HOST_TRIGGER);
+	triggersQueryOption.setExcludeFlags(TriggersQueryOption::EXCLUDE_INVALID_HOST |
+					    TriggersQueryOption::EXCLUDE_SELF_MONITORING);
 	agent.add("numberOfTriggers",
 		  dataStore->getNumberOfTriggers(triggersQueryOption));
 	const size_t numBadHosts =
@@ -383,6 +384,8 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 		for (int severity = 0;
 		     severity < NUM_TRIGGER_SEVERITY; severity++) {
 			TriggersQueryOption option(job->m_dataQueryContextPtr);
+			option.setExcludeFlags(TriggersQueryOption::EXCLUDE_INVALID_HOST |
+					       TriggersQueryOption::EXCLUDE_SELF_MONITORING);
 			option.setTargetServerId(svInfo.id);
 			option.setTargetHostgroupId(hostgroupId);
 			agent.startObject();
@@ -403,6 +406,8 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
 		const HostgroupIdType hostgroupId = hostgrpItr->groupId;
 		TriggersQueryOption option(job->m_dataQueryContextPtr);
+		option.setExcludeFlags(TriggersQueryOption::EXCLUDE_INVALID_HOST |
+				       TriggersQueryOption::EXCLUDE_SELF_MONITORING);
 		option.setTargetServerId(svInfo.id);
 		option.setTargetHostgroupId(hostgroupId);
 		size_t numBadHosts = dataStore->getNumberOfBadHosts(option);
@@ -522,6 +527,7 @@ void RestResourceHost::handlerGetTrigger(void)
 		return;
 	}
 
+	option.setExcludeFlags(TriggersQueryOption::EXCLUDE_INVALID_HOST);
 	TriggerInfoList triggerList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getTriggerList(triggerList, option);

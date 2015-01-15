@@ -66,6 +66,13 @@ private:
 
 class TriggersQueryOption : public HostResourceQueryOption {
 public:
+	enum ExcludeFlag {
+		NO_EXCLUDE_HOST = 0,
+		EXCLUDE_SELF_MONITORING = (1 << 0),
+		EXCLUDE_INVALID_HOST = (1 << 1),
+	};
+	typedef int ExcludeFlags;
+
 	TriggersQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	TriggersQueryOption(DataQueryContext *dataQueryContext);
 	TriggersQueryOption(const TriggersQueryOption &src);
@@ -79,7 +86,7 @@ public:
 	TriggerSeverityType getMinimumSeverity(void) const;
 	void setTriggerStatus(const TriggerStatusType &status);
 	TriggerStatusType getTriggerStatus(void) const;
-	void setValidityHost(const TriggerCollectHost &validity);
+	void setExcludeFlags(const ExcludeFlags &flg);
 
 private:
 	struct Impl;
