@@ -1197,7 +1197,6 @@ string TriggersQueryOption::getCondition(void) const
 	if (DBHatohol::isAlwaysFalseCondition(condition))
 		return condition;
 
-	// We only collect valid triggers excluding self monitoring triggers.
 	if (m_impl->shouldExcludeSelfMonitoring()) {
 		addCondition( 
 		  condition,
@@ -1208,7 +1207,6 @@ string TriggersQueryOption::getCondition(void) const
 		    MONITORING_SERVER_SELF_ID));
 	}
 
-	// We only collect valid triggers in enabled host.
 	if (m_impl->shouldExcludeInvalidHost()) {
 		addCondition(
 		  condition,
