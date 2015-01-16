@@ -271,16 +271,6 @@ static void conv(HostgroupElement &hostgrpElem,
 	            "%" FMT_HOST_GROUP_ID, &hostgrpElem.groupId));
 }
 
-static void conv(HostgroupInfo &hostgrpInfo, const Hostgroup &hostgrp)
-{
-	hostgrpInfo.id = hostgrp.id;
-	hostgrpInfo.serverId = hostgrp.serverId;
-	cppcut_assert_equal(
-	  1, sscanf(hostgrp.idInServer.c_str(),
-	            "%" FMT_HOST_GROUP_ID, &hostgrpInfo.groupId));
-	hostgrpInfo.groupName = hostgrp.name;
-}
-
 static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool status)
 {
 	loadTestDBTriggers();
@@ -323,15 +313,6 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 	cppcut_assert_equal(expect.brief, actual.brief);
 }
 #define assertTriggerInfo(E,A) cut_trace(_assertTriggerInfo(E,A))
-
-static string makeHostgroupsOutput(const Hostgroup &hostgrp, const size_t &id)
-{
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|%" FMT_SERVER_ID "|%s|%s\n",
-	  id + 1, hostgrp.serverId,
-	  hostgrp.idInServer.c_str(), hostgrp.name.c_str());
-	return expectedOut;
-}
 
 static string makeMapHostsHostgroupsOutput(
   const HostgroupMember &hostgrpMember, const size_t &id)
@@ -1229,25 +1210,6 @@ void test_getEventWithTriggerId(gconstpointer data)
 	AssertGetEventsArg arg(data);
 	arg.triggerId = 3;
 	assertGetEventsWithFilter(arg);
-}
-
-void test_addHostgroupInfo(void)
-{
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	HostgroupInfoList hostgroupInfoList;
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = "select * from ";
-	statement += tableProfileHostgroupList.name;
-	string expect;
-
-	for (size_t i = 0; i < NumTestHostgroup; i++) {
-		HostgroupInfo hostgrpInfo;
-		conv(hostgrpInfo, testHostgroup[i]);
-		hostgroupInfoList.push_back(hostgrpInfo);
-		expect += makeHostgroupsOutput(testHostgroup[i], i);
-	}
-	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
-	assertDBContent(&dbAgent, statement, expect);
 }
 
 void test_addHostgroupElement(void)
