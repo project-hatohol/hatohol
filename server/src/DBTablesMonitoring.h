@@ -180,11 +180,6 @@ public:
 	                              const EventsQueryOption &option,
 				      IncidentInfoVect *incidentInfoVect = NULL);
 
-	HatoholError getHostgroupElementList
-	  (HostgroupElementList &hostgroupElementList,
-	   const HostgroupElementQueryOption &option)
-	  __attribute__ ((deprecated));
-
 	void addHostInfo(HostInfo *hostInfo) __attribute__ ((deprecated));
 	void addHostInfoList(const HostInfoList &hostInfoList)
 	  __attribute__ ((deprecated));

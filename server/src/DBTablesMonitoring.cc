@@ -2734,30 +2734,6 @@ void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
 	dbAgent.insert(arg);
 }
 
-// TODO: In this implementation, behavior of this function is inefficient.
-//       Because this function returns unnecessary informations.
-//       Add a new function which returns only hostgroupId.
-HatoholError DBTablesMonitoring::getHostgroupElementList
-  (HostgroupElementList &hostgroupElementList,
-   const HostgroupElementQueryOption &option)
-{
-	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-	HostgroupMemberVect hostgroupMembers;
-	HatoholError err = uds->getHostgroupMembers(hostgroupMembers, option);
-
-	for (size_t i = 0; i < hostgroupMembers.size(); i++) {
-		const HostgroupMember &hostgrpMember = hostgroupMembers[i];
-		HostgroupElement hostgrpElem;
-		hostgrpElem.id = hostgrpMember.id;
-		hostgrpElem.serverId = hostgrpMember.serverId;
-		Utils::conv(hostgrpElem.hostId, hostgrpMember.hostIdInServer);
-		Utils::conv(hostgrpElem.groupId,
-		            hostgrpMember.hostgroupIdInServer);
-		hostgroupElementList.push_back(hostgrpElem);
-	}
-	return err;
-}
-
 static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 {
 	if (oldVer == 4) {
