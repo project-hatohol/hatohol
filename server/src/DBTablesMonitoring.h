@@ -185,12 +185,6 @@ public:
 	   const HostgroupElementQueryOption &option)
 	  __attribute__ ((deprecated));
 
-	void addHostgroupElement(HostgroupElement *mapHostHostgroupsInfo)
-	  __attribute__ ((deprecated));
-	void addHostgroupElementList
-	  (const HostgroupElementList &mapHostHostgroupsInfoList)
-	  __attribute__ ((deprecated));
-
 	void addHostInfo(HostInfo *hostInfo) __attribute__ ((deprecated));
 	void addHostInfoList(const HostInfoList &hostInfoList)
 	  __attribute__ ((deprecated));
