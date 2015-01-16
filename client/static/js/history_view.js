@@ -368,7 +368,6 @@ var HistoryView = function(userProfile, options) {
   };
 
   function formatPlotData(item) {
-    var i;
     var data = { label: item.brief, data:[] };
 
     if (item.unit)
