@@ -246,13 +246,14 @@ var HistoryView = function(userProfile, options) {
       defaultTimeSpan: self.timeSpan,
       query: historyQueries[i],
       onLoadItem: function(item, servers) {
+	this.item = item;
         setItemDescription(item, servers)
         self.plotData[this.index] = formatPlotData(item);
-        updateView();
+        updateView(this.item);
       },
       onLoadHistory: function(history) {
         self.plotData[this.index].data = history;
-        updateView();
+        updateView(this.item);
       }
     });
   }
@@ -582,9 +583,9 @@ var HistoryView = function(userProfile, options) {
     self.plot.draw();
   }
 
-  function updateView() {
+  function updateView(item) {
     self.displayUpdateTime();
-    drawGraph(loader.getItem(), self.plotData);
+    drawGraph(item, self.plotData);
     drawSlider();
   }
 
