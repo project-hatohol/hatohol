@@ -249,7 +249,10 @@ var HistoryView = function(userProfile, options) {
 	this.item = item;
         setItemDescription(item, servers)
         self.plotData[this.index] = formatPlotData(item);
-        updateView(this.item);
+	if (self.plotData[0]) {
+	  // TODO: should always accept updateView()
+          updateView(this.item);
+	}
       },
       onLoadHistory: function(history) {
         self.plotData[this.index].data = history;
