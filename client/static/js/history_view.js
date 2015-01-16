@@ -240,6 +240,7 @@ var HistoryView = function(userProfile, options) {
 
   historyQueries = self.parseQuery(options.query);
   for (i = 0; i < historyQueries.length; i++) {
+    self.plotData[i] = initLegendData();
     self.loaders[i] = new HistoryLoader({
       index: i,
       view: this,
@@ -248,11 +249,8 @@ var HistoryView = function(userProfile, options) {
       onLoadItem: function(item, servers) {
 	this.item = item;
         setItemDescription(item, servers)
-        self.plotData[this.index] = formatPlotData(item);
-	if (self.plotData[0]) {
-	  // TODO: should always accept updateView()
-          updateView(this.item);
-	}
+        self.plotData[this.index] = initLegendData(item);
+        updateView(this.item);
       },
       onLoadHistory: function(history) {
         self.plotData[this.index].data = history;
@@ -367,13 +365,16 @@ var HistoryView = function(userProfile, options) {
     });
   };
 
-  function formatPlotData(item) {
-    var data = { label: item.brief, data:[] };
+  function initLegendData(item) {
+    var legend = { data:[] };
 
-    if (item.unit)
-      data.label += " [" + item.unit + "]";
+    if (item) {
+      legend.label = item.brief;
+      if (item.unit)
+	legend.label += " [" + item.unit + "]";
+    }
 
-    return data;
+    return legend;
   };
 
   function formatTime(val, unit) {
