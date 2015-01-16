@@ -221,6 +221,8 @@ var HistoryView = function(userProfile, options) {
   var self = this;
   var secondsInHour = 60 * 60;
   var loader;
+  var i = 0;
+  var historyQueries;
 
   options = options || {};
 
@@ -236,17 +238,19 @@ var HistoryView = function(userProfile, options) {
 
   appendGraphArea();
 
+  historyQueries = self.parseQuery(options.query);
   loader = new HistoryLoader({
+    index: i,
     view: this,
     defaultTimeSpan: self.timeSpan,
-    query: self.parseQuery(options.query)[0],
+    query: historyQueries[i],
     onLoadItem: function(item, servers) {
       setItemDescription(item, servers)
-      self.plotData[0] = formatPlotData(item);
+      self.plotData[this.index] = formatPlotData(item);
       updateView();
     },
     onLoadHistory: function(history) {
-      self.plotData[0].data = history;
+      self.plotData[this.index].data = history;
       updateView();
     }
   });
