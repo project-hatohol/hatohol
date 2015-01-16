@@ -416,7 +416,7 @@ var HistoryView = function(userProfile, options) {
         }
       },
       legend: {
-        show: false,
+        show: (self.plotData.length > 1),
         position: "sw",
       },
       points: {
