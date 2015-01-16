@@ -431,7 +431,7 @@ var HistoryView = function(userProfile, options) {
   function drawGraph(item, plotData) {
     var beginTimeInSec = self.endTime - self.timeSpan;
     var endTimeInSec = self.endTime;
-    var plotOptions = getPlotOptions(loader.getItem(), beginTimeInSec, endTimeInSec);
+    var plotOptions = getPlotOptions(item, beginTimeInSec, endTimeInSec);
     var i;
 
     for (i = 0; i < plotData.length; i++) {
