@@ -220,9 +220,8 @@ HistoryLoader.prototype.getItem = function() {
 var HistoryView = function(userProfile, options) {
   var self = this;
   var secondsInHour = 60 * 60;
-  var loaders = [], loader;
   var i = 0;
-  var historyQueries;
+  var historyQueries, loader;
 
   options = options || {};
 
@@ -235,12 +234,13 @@ var HistoryView = function(userProfile, options) {
   self.settingSliderTimeRange = false;
   self.endTime = undefined;
   self.timeSpan = secondsInHour * 6;
+  self.loaders = [];
 
   appendGraphArea();
 
   historyQueries = self.parseQuery(options.query);
   for (i = 0; i < historyQueries.length; i++) {
-    loaders[i] = new HistoryLoader({
+    self.loaders[i] = new HistoryLoader({
       index: i,
       view: this,
       defaultTimeSpan: self.timeSpan,
@@ -256,7 +256,7 @@ var HistoryView = function(userProfile, options) {
       }
     });
   }
-  loader = loaders[0]; // TODO: allow multiple time ranges?
+  loader = self.loaders[0]; // TODO: allow multiple time ranges?
   self.endTime = loader.options.query.endTime;
   self.timeSpan = loader.getTimeSpan();
   self.autoReloadIsEnabled = !self.endTime;
@@ -264,14 +264,16 @@ var HistoryView = function(userProfile, options) {
 
   function load() {
     var promises;
+    var i;
 
     self.clearAutoReload();
     if (self.autoReloadIsEnabled) {
       self.endTime = Math.floor(new Date().getTime() / 1000);
-      loader.setTimeRange(undefined, self.endTime, true);
+      for (i = 0; i < self.loaders.length; i++)
+        self.loaders[i].setTimeRange(undefined, self.endTime, true);
     }
 
-    promises = $.map(loaders, function(loader) { return loader.load(); });
+    promises = $.map(self.loaders, function(loader) { return loader.load(); });
     $.when.apply($, promises).done(function() {
       if (self.autoReloadIsEnabled) {
         self.setAutoReload(load, self.reloadIntervalSeconds);
@@ -494,15 +496,18 @@ var HistoryView = function(userProfile, options) {
       max: timeRange.max,
       values: timeRange.last,
       change: function(event, ui) {
+        var i;
+
         if (self.settingSliderTimeRange)
           return;
-        if (loader.isLoading())
+        if (self.isLoading())
           return;
 
         timeRange.set(ui.values);
         setSliderTimeRange(timeRange.last[0], timeRange.last[1]);
         setGraphTimeRange(timeRange.last[0], timeRange.last[1]);
-        loader.setTimeRange(timeRange.last[0], timeRange.last[1]);
+        for (i = 0; i < self.loaders.length; i++)
+          self.loaders[i].setTimeRange(timeRange.last[0], timeRange.last[1]);
         self.endTime = timeRange.last[1];
         self.timeSpan = timeRange.last[1] - timeRange.last[0];
         self.autoReloadIsEnabled = false;
@@ -625,4 +630,12 @@ HistoryView.prototype.parseQuery = function(query) {
     addHistoryQuery(histories[i]);
 
   return tables;
+};
+
+HistoryView.prototype.isLoading = function() {
+  var i;
+  for (i = 0; i < this.loaders.length; i++)
+    if (this.loaders[i].isLoading())
+      return true;
+  return false;
 };
