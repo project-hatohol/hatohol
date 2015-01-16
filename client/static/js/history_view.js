@@ -263,7 +263,7 @@ var HistoryView = function(userProfile, options) {
   load();
 
   function load() {
-    var deferreds = [];
+    var promises = [];
 
     self.clearAutoReload();
     if (self.autoReloadIsEnabled) {
@@ -271,8 +271,8 @@ var HistoryView = function(userProfile, options) {
       loader.setTimeRange(undefined, self.endTime, true);
     }
 
-    deferreds = $.map(loaders, function(loader) { return loader.load(); });
-    $.when.apply($, deferreds).done(function() {
+    promises = $.map(loaders, function(loader) { return loader.load(); });
+    $.when.apply($, promises).done(function() {
       if (self.autoReloadIsEnabled) {
         self.setAutoReload(load, self.reloadIntervalSeconds);
       } else {
