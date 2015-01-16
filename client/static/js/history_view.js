@@ -258,7 +258,7 @@ var HistoryView = function(userProfile, options) {
       }
     });
   }
-  loader = self.loaders[0]; // TODO: allow multiple time ranges?
+  loader = self.loaders[0]; // TODO: allow different time ranges?
   self.endTime = loader.options.query.endTime;
   self.timeSpan = loader.getTimeSpan();
   self.autoReloadIsEnabled = !self.endTime;
