@@ -1888,39 +1888,6 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	return HatoholError(HTERR_OK);
 }
 
-static void conv(Hostgroup &hostgroup, const HostgroupInfo &groupInfo)
-{
-	hostgroup.id         = AUTO_INCREMENT_VALUE;
-	hostgroup.serverId   = groupInfo.serverId;
-	hostgroup.idInServer = StringUtils::sprintf("%" FMT_HOST_GROUP_ID,
-	                                            groupInfo.groupId);
-	hostgroup.name       = groupInfo.groupName;
-}
-
-void DBTablesMonitoring::addHostgroupInfo(HostgroupInfo *groupInfo)
-{
-	// TODO: Use DBTablesHost directory
-	Hostgroup hostgroup;
-	conv(hostgroup, *groupInfo);
-	ThreadLocalDBCache cache;
-	cache.getHost().upsertHostgroup(hostgroup);
-}
-
-void DBTablesMonitoring::addHostgroupInfoList(
-  const HostgroupInfoList &groupInfoList)
-{
-	// TODO: Use DBTablesHost directory
-	HostgroupVect hostgrpVect;
-	HostgroupInfoListConstIterator hostgrpInfoItr = groupInfoList.begin();
-	for (; hostgrpInfoItr != groupInfoList.end(); ++hostgrpInfoItr) {
-		Hostgroup hostgrp;
-		conv(hostgrp, *hostgrpInfoItr);
-		hostgrpVect.push_back(hostgrp);
-	}
-	ThreadLocalDBCache cache;
-	cache.getHost().upsertHostgroups(hostgrpVect);
-}
-
 static void conv(HostgroupMember &hostgrpMember,
                  const HostgroupElement &hostgroupElement)
 {
@@ -2805,35 +2772,6 @@ void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
 	arg.add(incidentInfo.unifiedEventId);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
-}
-
-HatoholError DBTablesMonitoring::getHostgroupInfoList
-  (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
-{
-	DBAgent::SelectExArg arg(tableProfileHostgroupList);
-	arg.add(IDX_HOSTGROUP_LIST_ID);
-	arg.add(IDX_HOSTGROUP_LIST_SERVER_ID);
-	arg.add(IDX_HOSTGROUP_LIST_ID_IN_SERVER);
-	arg.add(IDX_HOSTGROUP_LIST_NAME);
-	arg.condition = option.getCondition();
-
-	getDBAgent().runTransaction(arg);
-
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator itemGrpItr = grpList.begin();
-	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		ItemGroupStream itemGroupStream(*itemGrpItr);
-		hostgroupInfoList.push_back(HostgroupInfo());
-		HostgroupInfo &hostgroupInfo = hostgroupInfoList.back();
-
-		hostgroupInfo.id = itemGroupStream.read<GenericIdType>();
-		itemGroupStream >> hostgroupInfo.serverId;
-		hostgroupInfo.groupId =
-		  itemGroupStream.read<string, HostgroupIdType>();
-		itemGroupStream >> hostgroupInfo.groupName;
-	}
-
-	return HTERR_OK;
 }
 
 // TODO: In this implementation, behavior of this function is inefficient.

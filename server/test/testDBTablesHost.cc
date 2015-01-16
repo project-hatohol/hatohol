@@ -125,6 +125,15 @@ static void _assertGetHosts(AssertGetHostsArg &arg)
 }
 #define assertGetHosts(A) cut_trace(_assertGetHosts(A))
 
+static string makeHostgroupsOutput(const Hostgroup &hostgrp, const size_t &id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%zd|%" FMT_SERVER_ID "|%s|%s\n",
+	  id + 1, hostgrp.serverId,
+	  hostgrp.idInServer.c_str(), hostgrp.name.c_str());
+	return expectedOut;
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -380,6 +389,24 @@ void test_upsertHostgroupList(void)
 	const string statement = "SELECT * FROM hostgroup_list";
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
+}
+
+void test_addHostgroupList(void)
+{
+	DECLARE_DBTABLES_HOST(dbHost);
+	HostgroupVect hostgroups;
+	DBAgent &dbAgent = dbHost.getDBAgent();
+	string statement = "SELECT * FROM ";
+	statement += tableProfileHostgroupList.name;
+	string expect;
+
+	for (size_t i = 0; i < NumTestHostgroup; i++) {
+		const Hostgroup &hostgrp = testHostgroup[i];
+		hostgroups.push_back(hostgrp);
+		expect += makeHostgroupsOutput(hostgrp, i);
+	}
+	dbHost.upsertHostgroups(hostgroups);
+	assertDBContent(&dbAgent, statement, expect);
 }
 
 void test_upsertHostgroupListUpdate(void)
