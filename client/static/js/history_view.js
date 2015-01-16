@@ -220,7 +220,7 @@ HistoryLoader.prototype.getItem = function() {
 var HistoryView = function(userProfile, options) {
   var self = this;
   var secondsInHour = 60 * 60;
-  var loader;
+  var loaders = [], loader;
   var i = 0;
   var historyQueries;
 
@@ -239,34 +239,40 @@ var HistoryView = function(userProfile, options) {
   appendGraphArea();
 
   historyQueries = self.parseQuery(options.query);
-  loader = new HistoryLoader({
-    index: i,
-    view: this,
-    defaultTimeSpan: self.timeSpan,
-    query: historyQueries[i],
-    onLoadItem: function(item, servers) {
-      setItemDescription(item, servers)
-      self.plotData[this.index] = formatPlotData(item);
-      updateView();
-    },
-    onLoadHistory: function(history) {
-      self.plotData[this.index].data = history;
-      updateView();
-    }
-  });
+  for (i = 0; i < historyQueries.length; i++) {
+    loaders[i] = new HistoryLoader({
+      index: i,
+      view: this,
+      defaultTimeSpan: self.timeSpan,
+      query: historyQueries[i],
+      onLoadItem: function(item, servers) {
+        setItemDescription(item, servers)
+        self.plotData[this.index] = formatPlotData(item);
+        updateView();
+      },
+      onLoadHistory: function(history) {
+        self.plotData[this.index].data = history;
+        updateView();
+      }
+    });
+  }
+  loader = loaders[0]; // TODO: allow multiple time ranges?
   self.endTime = loader.options.query.endTime;
   self.timeSpan = loader.getTimeSpan();
   self.autoReloadIsEnabled = !self.endTime;
   load();
 
   function load() {
+    var deferreds = [];
+
     self.clearAutoReload();
     if (self.autoReloadIsEnabled) {
       self.endTime = Math.floor(new Date().getTime() / 1000);
       loader.setTimeRange(undefined, self.endTime, true);
     }
 
-    $.when(loader.load()).done(function() {
+    deferreds = $.map(loaders, function(loader) { return loader.load(); });
+    $.when.apply($, deferreds).done(function() {
       if (self.autoReloadIsEnabled) {
         self.setAutoReload(load, self.reloadIntervalSeconds);
       } else {
