@@ -436,7 +436,7 @@ var HistoryView = function(userProfile, options) {
     var i;
 
     for (i = 0; i < plotData.length; i++) {
-      if (plotData[i].data.length < 3)
+      if (plotData[i].data.length == 1)
         plotOptions.points.show = true;
     }
 
