@@ -180,10 +180,6 @@ public:
 	                              const EventsQueryOption &option,
 				      IncidentInfoVect *incidentInfoVect = NULL);
 
-	void addHostInfo(HostInfo *hostInfo) __attribute__ ((deprecated));
-	void addHostInfoList(const HostInfoList &hostInfoList)
-	  __attribute__ ((deprecated));
-
 	/**
 	 * Update the host records.
 	 *

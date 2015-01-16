@@ -1908,31 +1908,6 @@ static void conv(ServerHostDef &serverHostDef, const HostInfo &hostInfo)
 	}
 }
 
-void DBTablesMonitoring::addHostInfo(HostInfo *hostInfo)
-{
-	ServerHostDef serverHostDef;
-	conv(serverHostDef, *hostInfo);
-	ThreadLocalDBCache cache;
-	cache.getHost().upsertHost(serverHostDef);
-}
-
-void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
-{
-	// This is transient code and should be removed after the transition
-	// is completed.
-	ServerHostDefVect svHostDefVec;
-
-	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
-	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr) {
-		ServerHostDef serverHostDef;
-		conv(serverHostDef, *hostInfoItr);
-		svHostDefVec.push_back(serverHostDef);
-	}
-
-	ThreadLocalDBCache cache;
-	cache.getHost().upsertHosts(svHostDefVec);
-}
-
 void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
                                      const ServerIdType &serverId)
 {

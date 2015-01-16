@@ -1186,25 +1186,6 @@ void test_getEventWithTriggerId(gconstpointer data)
 	assertGetEventsWithFilter(arg);
 }
 
-void test_addHostInfo(void)
-{
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	HostInfoList hostInfoList;
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = "select * from ";
-	statement += tableProfileServerHostDef.name;
-	string expect;
-
-	for(size_t i = 0; i < NumTestServerHostDef; i++) {
-		HostInfo hostInfo;
-		conv(hostInfo, testServerHostDef[i]);
-		hostInfoList.push_back(hostInfo);
-		expect += makeHostsOutput(testServerHostDef[i], i);
-	}
-	dbMonitoring.addHostInfoList(hostInfoList);
-	assertDBContent(&dbAgent, statement, expect);
-}
-
 void test_updateHostsMarkInvalid(void)
 {
 	loadTestDBServerHostDef();
