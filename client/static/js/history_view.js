@@ -263,7 +263,7 @@ var HistoryView = function(userProfile, options) {
   load();
 
   function load() {
-    var promises = [];
+    var promises;
 
     self.clearAutoReload();
     if (self.autoReloadIsEnabled) {
