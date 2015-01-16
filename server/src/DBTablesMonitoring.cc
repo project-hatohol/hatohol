@@ -1890,42 +1890,6 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	return HatoholError(HTERR_OK);
 }
 
-static void conv(HostgroupMember &hostgrpMember,
-                 const HostgroupElement &hostgroupElement)
-{
-	hostgrpMember.id = AUTO_INCREMENT_VALUE;
-	hostgrpMember.serverId = hostgroupElement.serverId;
-	hostgrpMember.hostIdInServer =
-	  StringUtils::sprintf("%" FMT_HOST_ID, hostgroupElement.hostId);
-	hostgrpMember.hostgroupIdInServer =
-	  StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupElement.groupId);
-}
-
-void DBTablesMonitoring::addHostgroupElement(
-  HostgroupElement *hostgroupElement)
-{
-	HostgroupMember hostgrpMember;
-	conv(hostgrpMember, *hostgroupElement);
-	ThreadLocalDBCache cache;
-	cache.getHost().upsertHostgroupMember(hostgrpMember);
-}
-
-void DBTablesMonitoring::addHostgroupElementList(
-  const HostgroupElementList &hostgroupElementList)
-{
-	HostgroupMemberVect hostgrpMemberVect;
-	HostgroupElementListConstIterator hostgrpElemItr =
-	  hostgroupElementList.begin();
-	for (; hostgrpElemItr != hostgroupElementList.end(); ++hostgrpElemItr) {
-		HostgroupMember hostgrpMember;
-		conv(hostgrpMember, *hostgrpElemItr);
-		hostgrpMemberVect.push_back(hostgrpMember);
-	}
-
-	ThreadLocalDBCache cache;
-	cache.getHost().upsertHostgroupMembers(hostgrpMemberVect);
-}
-
 static void conv(ServerHostDef &serverHostDef, const HostInfo &hostInfo)
 {
 	serverHostDef.id = AUTO_INCREMENT_VALUE;

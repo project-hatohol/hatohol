@@ -258,19 +258,6 @@ static void conv(ServerHostDef &svHostDef, const HostInfo &hostInfo)
 	svHostDef.name = hostInfo.hostName;
 }
 
-static void conv(HostgroupElement &hostgrpElem,
-                 const HostgroupMember &hostgrpMember)
-{
-	hostgrpElem.id = hostgrpMember.id;
-	hostgrpElem.serverId = hostgrpMember.serverId;
-	cppcut_assert_equal(
-	  1, sscanf(hostgrpMember.hostIdInServer.c_str(),
-	            "%" FMT_HOST_ID, &hostgrpElem.hostId));
-	cppcut_assert_equal(
-	  1, sscanf(hostgrpMember.hostgroupIdInServer.c_str(),
-	            "%" FMT_HOST_GROUP_ID, &hostgrpElem.groupId));
-}
-
 static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool status)
 {
 	loadTestDBTriggers();
@@ -313,19 +300,6 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 	cppcut_assert_equal(expect.brief, actual.brief);
 }
 #define assertTriggerInfo(E,A) cut_trace(_assertTriggerInfo(E,A))
-
-static string makeMapHostsHostgroupsOutput(
-  const HostgroupMember &hostgrpMember, const size_t &id)
-{
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|%" FMT_SERVER_ID "|%s|%s\n",
-	  id + 1,
-	  hostgrpMember.serverId,
-	  hostgrpMember.hostIdInServer.c_str(),
-	  hostgrpMember.hostgroupIdInServer.c_str());
-
-	return expectedOut;
-}
 
 static string makeHostsOutput(const ServerHostDef &svHostDef, const size_t &id)
 {
@@ -1210,26 +1184,6 @@ void test_getEventWithTriggerId(gconstpointer data)
 	AssertGetEventsArg arg(data);
 	arg.triggerId = 3;
 	assertGetEventsWithFilter(arg);
-}
-
-void test_addHostgroupElement(void)
-{
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	HostgroupElementList hostgroupElementList;
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = "select * from ";
-	statement += tableProfileHostgroupMember.name;
-	string expect;
-
-	for (size_t i = 0; i < NumTestHostgroupMember; i++) {
-		HostgroupElement elem;
-		conv(elem, testHostgroupMember[i]);
-		hostgroupElementList.push_back(elem);
-		expect += makeMapHostsHostgroupsOutput(
-		            testHostgroupMember[i], i);
-	}
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
-	assertDBContent(&dbAgent, statement, expect);
 }
 
 void test_addHostInfo(void)

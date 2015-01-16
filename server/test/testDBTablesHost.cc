@@ -134,6 +134,19 @@ static string makeHostgroupsOutput(const Hostgroup &hostgrp, const size_t &id)
 	return expectedOut;
 }
 
+static string makeMapHostsHostgroupsOutput(
+  const HostgroupMember &hostgrpMember, const size_t &id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%zd|%" FMT_SERVER_ID "|%s|%s\n",
+	  id + 1,
+	  hostgrpMember.serverId,
+	  hostgrpMember.hostIdInServer.c_str(),
+	  hostgrpMember.hostgroupIdInServer.c_str());
+
+	return expectedOut;
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -445,6 +458,24 @@ void test_upsertHostgroupMember(void)
 	  "SELECT * FROM %s", tableProfileHostgroupMember.name);
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id);
+}
+
+void test_addHostgroupMember(void)
+{
+	DECLARE_DBTABLES_HOST(dbHost);
+	HostgroupMemberVect hostgrpMembers;
+	DBAgent &dbAgent = dbHost.getDBAgent();
+	string statement = "SELECT * FROM ";
+	statement += tableProfileHostgroupMember.name;
+	string expect;
+
+	for (size_t i = 0; i < NumTestHostgroupMember; i++) {
+		const HostgroupMember hostgrpMember = testHostgroupMember[i];
+		hostgrpMembers.push_back(hostgrpMember);
+		expect += makeMapHostsHostgroupsOutput(hostgrpMember, i);
+	}
+	dbHost.upsertHostgroupMembers(hostgrpMembers);
+	assertDBContent(&dbAgent, statement, expect);
 }
 
 void test_upsertHostgroupMemberAutoIncrement(void)
