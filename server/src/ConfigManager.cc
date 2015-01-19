@@ -209,6 +209,8 @@ struct ConfigManager::Impl {
 			pidFilePath = cmdLineOpts.pidFilePath;
 		if (cmdLineOpts.user)
 			user = cmdLineOpts.user;
+		if (cmdLineOpts.loadOldEvents)
+			loadOldEvents = cmdLineOpts.loadOldEvents;
 	}
 
 private:
