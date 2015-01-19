@@ -652,8 +652,6 @@ var HistoryView = function(userProfile, options) {
         return false;
       if (item.brief != prevItem.brief)
         return false;
-      if (item.brief != prevItem.brief)
-        return false;
 
       prevItem = item;
     }
