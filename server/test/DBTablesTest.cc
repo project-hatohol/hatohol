@@ -654,6 +654,11 @@ UserInfo testUserInfo[] = {
 	(1 << OPPRVLG_UPDATE_ACTION) |
 	(1 << OPPRVLG_DELETE_ALL_ACTION) |
 	(1 << OPPRVLG_DELETE_ACTION), // flags
+}, {
+	0,                        // id
+	"onlyMonitoring",         // name
+	"onlyGetServerInfo",      // password
+	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER),
 }
 };
 const size_t NumTestUserInfo = ARRAY_SIZE(testUserInfo);

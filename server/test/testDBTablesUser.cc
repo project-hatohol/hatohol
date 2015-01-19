@@ -486,17 +486,32 @@ void test_updateNonExistUser(void)
 
 void test_updateUserInfoFlags(void)
 {
+	DECLARE_DBTABLES_USER(dbUser);
+	const size_t targetIndex1 = 5;
+	const size_t targetUserId1 = targetIndex1 + 1;
+	UserInfo expectedUserInfo1 = testUserInfo[targetIndex1];
+	expectedUserInfo1.id = targetUserId1;
+	const size_t targetIndex2 = 9;
+	const size_t targetUserId2 = targetIndex2 + 1;
+	UserInfo expectedUserInfo2 = testUserInfo[targetIndex2];
+	expectedUserInfo2.id = targetUserId2;
 	OperationPrivilegeFlag oldUserInfoFlag =
-	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_SERVER);
+	  OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER);
 	OperationPrivilegeFlag updateUserInfoFlag =
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_SERVER);
-	DECLARE_DBTABLES_USER(dbUser);
+	expectedUserInfo1.flags = updateUserInfoFlag;
+	expectedUserInfo2.flags = updateUserInfoFlag;
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE) |
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_USER));
+
 	HatoholError err =
 	  dbUser.updateUserInfoFlags(oldUserInfoFlag, updateUserInfoFlag, privilege);
 	assertHatoholError(HTERR_OK, err);
+
+	// check the users info
+	assertUserInfoInDB(expectedUserInfo1);
+	assertUserInfoInDB(expectedUserInfo2);
 }
 
 void test_updateUserInfoFlagsWithInsufficientPrivileges(void)
