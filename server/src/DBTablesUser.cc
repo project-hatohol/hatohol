@@ -658,20 +658,10 @@ HatoholError DBTablesUser::updateUserInfoFlags(
 			  oldUserFlag);
 		}
 
-		bool hasRecord(DBAgent &dbAgent, const string &condition)
-		{
-			return dbAgent.isRecordExisting(arg.tableProfile.name,
-							condition);
-		}
-
 		void operator ()(DBAgent &dbAgent) override
 		{
-			if (!hasRecord(dbAgent, arg.condition)) {
-				err = HTERR_NOT_FOUND_TARGET_RECORD;
-			} else {
-				dbAgent.update(arg);
-				err = HTERR_OK;
-			}
+			dbAgent.update(arg);
+			err = HTERR_OK;
 		}
 	} trx(oldUserFlag, updateUserFlag);
 	getDBAgent().runTransaction(trx);
