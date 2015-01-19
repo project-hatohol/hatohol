@@ -78,7 +78,7 @@ static void _assertUserInfo(const UserInfo &expect, const UserInfo &actual)
 }
 #define assertUserInfo(E,A) cut_trace(_assertUserInfo(E,A))
 
-void _assertUserInfoInDB(UserInfo &userInfo) 
+void _assertUserInfoInDB(UserInfo &userInfo)
 {
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
@@ -139,7 +139,7 @@ static void _assertServerAccessInfoMap(
 	set<int>::const_iterator it = expectIdxSet.begin();
 	for (; it != expectIdxSet.end(); ++it) {
 		const AccessInfo &expectAccessInfo = testAccessInfo[*it];
-		ServerAccessInfoMapConstIterator jt = 
+		ServerAccessInfoMapConstIterator jt =
 		  srvAccessInfoMap.find(expectAccessInfo.serverId);
 		cppcut_assert_equal(true, jt != srvAccessInfoMap.end(),
 		                    cut_message("Failed to lookup: %" PRIu32,
@@ -167,7 +167,7 @@ static void _assertServerHostGrpSetMap(
 	set<int>::const_iterator it = expectIdxSet.begin();
 	for (; it != expectIdxSet.end(); ++it) {
 		const AccessInfo &expectAccessInfo = testAccessInfo[*it];
-		ServerHostGrpSetMapConstIterator jt = 
+		ServerHostGrpSetMapConstIterator jt =
 		  srvHostGrpSetMap.find(expectAccessInfo.serverId);
 		cppcut_assert_equal(true, jt != srvHostGrpSetMap.end(),
 		                    cut_message("Failed to lookup: %" PRIu32,
