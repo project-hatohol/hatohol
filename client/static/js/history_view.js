@@ -432,7 +432,7 @@ var HistoryView = function(userProfile, options) {
     };
 
     if (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)
-      plotOptions.yaxis.minTickSize = 1;
+      plotOptions.yaxes[0].minTickSize = 1;
 
     return plotOptions;
   }
