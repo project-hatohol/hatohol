@@ -630,7 +630,7 @@ HatoholError DBTablesUser::updateUserInfo(
 HatoholError DBTablesUser::updateUserInfoFlags(
   UserInfo &oldUserInfo, UserInfo &updateUserInfo, const OperationPrivilege &privilege)
 {
-	HatoholError err = hasPrivilegeForUpdateUserInfo(oldUserInfo, privilege);
+	HatoholError err = privilege.has(OPPRVLG_UPDATE_USER);
 	if (err != HTERR_OK)
 		return err;
 	err = isValidFlags(oldUserInfo.flags);
