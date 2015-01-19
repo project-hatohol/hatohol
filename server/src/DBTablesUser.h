@@ -163,8 +163,8 @@ public:
 	                            const OperationPrivilege &privilege);
 
 	HatoholError updateUserInfoFlags(OperationPrivilegeFlag &oldUserFlag,
-                                     OperationPrivilegeFlag &updateUserFlag,
-                                     const OperationPrivilege &privilege);
+	                                 OperationPrivilegeFlag &updateUserFlag,
+	                                 const OperationPrivilege &privilege);
 
 
 	HatoholError deleteUserInfo(const UserIdType userId,
