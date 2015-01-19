@@ -572,6 +572,15 @@ HatoholError UnifiedDataStore::updateUser(
 	return dbUser.updateUserInfo(userInfo, privilege);
 }
 
+HatoholError UnifiedDataStore::updateUserFlags(
+  OperationPrivilegeFlag &oldUserFlag, OperationPrivilegeFlag &updateUserFlag,
+  const OperationPrivilege &privilege)
+{
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.updateUserInfoFlags(oldUserFlag, updateUserFlag, privilege);
+}
+
 HatoholError UnifiedDataStore::deleteUser(
   UserIdType userId, const OperationPrivilege &privilege)
 {

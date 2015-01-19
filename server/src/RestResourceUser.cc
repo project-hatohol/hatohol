@@ -472,8 +472,7 @@ void RestResourceUser::handlerPutUserRole(void)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	UserRoleInfoList userRoleList;
 	UserRoleQueryOption option(m_dataQueryContextPtr);
-	UserInfoList userList;
-	UserQueryOption userOption(m_dataQueryContextPtr);
+	OperationPrivilegeFlag oldUserInfoFlag, newUserInfoFlag;
 	option.setTargetUserRoleId(userRoleInfo.id);
 	dataStore->getUserRoleList(userRoleList, option);
 	if (userRoleList.empty()) {
@@ -482,8 +481,7 @@ void RestResourceUser::handlerPutUserRole(void)
 		return;
 	}
 	userRoleInfo = *(userRoleList.begin());
-	userOption.setPrivilegesFlag(userRoleInfo.flags);
-	dataStore->getUserList(userList, userOption);
+	oldUserInfoFlag = userRoleInfo.flags;
 
 	bool allowEmpty = true;
 	HatoholError err = parseUserRoleParameter(userRoleInfo, m_query,
@@ -500,17 +498,13 @@ void RestResourceUser::handlerPutUserRole(void)
 		replyError(err);
 		return;
 	}
-	UserInfoListIterator it = userList.begin();
-	for (; it != userList.end(); ++it) {
-		UserInfo &userInfo = *it;
-		userInfo.flags = userRoleInfo.flags;
-		userInfo.password = "";
-		err = dataStore->updateUser(
-		  userInfo, m_dataQueryContextPtr->getOperationPrivilege());
-		if (err != HTERR_OK) {
-			replyError(err);
-			return;
-		}
+
+	newUserInfoFlag = userRoleInfo.flags;
+	err = dataStore->updateUserFlags(
+	  oldUserInfoFlag, newUserInfoFlag, m_dataQueryContextPtr->getOperationPrivilege());
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
 	}
 
 	// make a response

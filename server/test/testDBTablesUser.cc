@@ -78,7 +78,7 @@ static void _assertUserInfo(const UserInfo &expect, const UserInfo &actual)
 }
 #define assertUserInfo(E,A) cut_trace(_assertUserInfo(E,A))
 
-void _assertUserInfoInDB(UserInfo &userInfo) 
+void _assertUserInfoInDB(UserInfo &userInfo)
 {
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
@@ -139,7 +139,7 @@ static void _assertServerAccessInfoMap(
 	set<int>::const_iterator it = expectIdxSet.begin();
 	for (; it != expectIdxSet.end(); ++it) {
 		const AccessInfo &expectAccessInfo = testAccessInfo[*it];
-		ServerAccessInfoMapConstIterator jt = 
+		ServerAccessInfoMapConstIterator jt =
 		  srvAccessInfoMap.find(expectAccessInfo.serverId);
 		cppcut_assert_equal(true, jt != srvAccessInfoMap.end(),
 		                    cut_message("Failed to lookup: %" PRIu32,
@@ -167,7 +167,7 @@ static void _assertServerHostGrpSetMap(
 	set<int>::const_iterator it = expectIdxSet.begin();
 	for (; it != expectIdxSet.end(); ++it) {
 		const AccessInfo &expectAccessInfo = testAccessInfo[*it];
-		ServerHostGrpSetMapConstIterator jt = 
+		ServerHostGrpSetMapConstIterator jt =
 		  srvHostGrpSetMap.find(expectAccessInfo.serverId);
 		cppcut_assert_equal(true, jt != srvHostGrpSetMap.end(),
 		                    cut_message("Failed to lookup: %" PRIu32,
@@ -482,6 +482,55 @@ void test_updateNonExistUser(void)
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
 	assertHatoholError(HTERR_NOT_FOUND_TARGET_RECORD, err);
+}
+
+void test_updateUserInfoFlags(void)
+{
+	DECLARE_DBTABLES_USER(dbUser);
+	const size_t targetIndex1 = 5;
+	const size_t targetUserId1 = targetIndex1 + 1;
+	UserInfo expectedUserInfo1 = testUserInfo[targetIndex1];
+	expectedUserInfo1.id = targetUserId1;
+	const size_t targetIndex2 = 9;
+	const size_t targetUserId2 = targetIndex2 + 1;
+	UserInfo expectedUserInfo2 = testUserInfo[targetIndex2];
+	expectedUserInfo2.id = targetUserId2;
+	OperationPrivilegeFlag oldUserInfoFlag =
+	  OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER);
+	OperationPrivilegeFlag updateUserInfoFlag =
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_SERVER);
+	expectedUserInfo1.flags = updateUserInfoFlag;
+	expectedUserInfo2.flags = updateUserInfoFlag;
+	OperationPrivilege privilege(
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE) |
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_USER));
+
+	HatoholError err =
+	  dbUser.updateUserInfoFlags(oldUserInfoFlag, updateUserInfoFlag, privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	// check the users info
+	assertUserInfoInDB(expectedUserInfo1);
+	assertUserInfoInDB(expectedUserInfo2);
+}
+
+void test_updateUserInfoFlagsWithInsufficientPrivileges(void)
+{
+	OperationPrivilegeFlag oldUserInfoFlag =
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_SERVER);
+	OperationPrivilegeFlag updateUserInfoFlag =
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_SERVER);
+	DECLARE_DBTABLES_USER(dbUser);
+	OperationPrivilege privilege(
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
+
+	// updateUserInfoFlags requests OPPRVLG_UPDATE_ALL_USER_ROLE and
+	// OPPRVLG_UPDATE_USER privileges.
+	// Users have only OPPRVLG_UPDATE_ALL_USER_ROLE privilege is
+	// insufficient to update UserInfoRole flag and UserInfo flag together!
+	HatoholError err =
+	  dbUser.updateUserInfoFlags(oldUserInfoFlag, updateUserInfoFlag, privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
 }
 
 void test_deleteUser(void)

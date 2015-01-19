@@ -148,6 +148,9 @@ public:
 	                     const OperationPrivilege &privilege);
 	HatoholError updateUser(UserInfo &userInfo,
 	                        const OperationPrivilege &privilege);
+	HatoholError updateUserFlags(OperationPrivilegeFlag &oldUserFlag,
+	                             OperationPrivilegeFlag &updateUserFlag,
+	                             const OperationPrivilege &privilege);
 	HatoholError deleteUser(UserIdType userId,
 	                        const OperationPrivilege &privilege);
 

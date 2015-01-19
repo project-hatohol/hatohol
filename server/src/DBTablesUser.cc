@@ -627,6 +627,47 @@ HatoholError DBTablesUser::updateUserInfo(
 	return trx.err;
 }
 
+HatoholError DBTablesUser::updateUserInfoFlags(
+  OperationPrivilegeFlag &oldUserFlag, OperationPrivilegeFlag &updateUserFlag,
+  const OperationPrivilege &privilege)
+{
+	if (!privilege.has(OPPRVLG_UPDATE_USER))
+		return HTERR_NO_PRIVILEGE;
+	HatoholError err;
+	err = isValidFlags(oldUserFlag);
+	if (err != HTERR_OK)
+		return err;
+	err = isValidFlags(updateUserFlag);
+	if (err != HTERR_OK)
+		return err;
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError err;
+		DBAgent::UpdateArg arg;
+		OperationPrivilegeFlag &oldUserFlag, &updateUserFlag;
+
+		TrxProc(OperationPrivilegeFlag &_oldUserFlag, OperationPrivilegeFlag &_updateUserFlag)
+		: arg(tableProfileUsers),
+		  oldUserFlag(_oldUserFlag),
+		  updateUserFlag(_updateUserFlag)
+		{
+			arg.add(IDX_USERS_FLAGS, updateUserFlag);
+
+			arg.condition = StringUtils::sprintf("%s=%" PRIu64,
+			  COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName,
+			  oldUserFlag);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.update(arg);
+			err = HTERR_OK;
+		}
+	} trx(oldUserFlag, updateUserFlag);
+	getDBAgent().runTransaction(trx);
+	return trx.err;
+}
+
 HatoholError DBTablesUser::deleteUserInfo(
   const UserIdType userId, const OperationPrivilege &privilege)
 {
