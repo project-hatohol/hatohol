@@ -162,6 +162,11 @@ public:
 	HatoholError updateUserInfo(UserInfo &userInfo,
 	                            const OperationPrivilege &privilege);
 
+	HatoholError updateUserInfoFlags(UserInfo &oldUserInfo,
+                                     UserInfo &updateUserInfo,
+                                     const OperationPrivilege &privilege);
+
+
 	HatoholError deleteUserInfo(const UserIdType userId,
 	                                const OperationPrivilege &privilege);
 

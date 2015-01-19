@@ -627,6 +627,56 @@ HatoholError DBTablesUser::updateUserInfo(
 	return trx.err;
 }
 
+HatoholError DBTablesUser::updateUserInfoFlags(
+  UserInfo &oldUserInfo, UserInfo &updateUserInfo, const OperationPrivilege &privilege)
+{
+	HatoholError err = hasPrivilegeForUpdateUserInfo(oldUserInfo, privilege);
+	if (err != HTERR_OK)
+		return err;
+	err = isValidFlags(oldUserInfo.flags);
+	if (err != HTERR_OK)
+		return err;
+	err = isValidFlags(updateUserInfo.flags);
+	if (err != HTERR_OK)
+		return err;
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError err;
+		DBAgent::UpdateArg arg;
+		UserInfo &oldUserInfo,  &updateUserInfo;
+
+		TrxProc(UserInfo &_olduserInfo, UserInfo &_updateUserInfo)
+		: arg(tableProfileUsers),
+		  oldUserInfo(_olduserInfo),
+		  updateUserInfo(_updateUserInfo)
+		{
+			arg.add(IDX_USERS_FLAGS, updateUserInfo.flags);
+
+			arg.condition = StringUtils::sprintf("%s=%" PRIu64,
+			  COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName,
+			  oldUserInfo.flags);
+		}
+
+		bool hasRecord(DBAgent &dbAgent, const string &condition)
+		{
+			return dbAgent.isRecordExisting(arg.tableProfile.name,
+							condition);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			if (!hasRecord(dbAgent, arg.condition)) {
+				err = HTERR_NOT_FOUND_TARGET_RECORD;
+			} else {
+				dbAgent.update(arg);
+				err = HTERR_OK;
+			}
+		}
+	} trx(oldUserInfo, updateUserInfo);
+	getDBAgent().runTransaction(trx);
+	return trx.err;
+}
+
 HatoholError DBTablesUser::deleteUserInfo(
   const UserIdType userId, const OperationPrivilege &privilege)
 {
