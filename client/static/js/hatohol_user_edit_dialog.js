@@ -24,6 +24,7 @@ var HatoholUserEditDialog = function(params) {
   self.user = params.targetUser;
   self.succeededCallback = params.succeededCallback;
   self.userRolesData = null;
+  self.usersData = null;
   self.windowTitle = self.user ? gettext("EDIT USER") : gettext("ADD USER");
   self.applyButtonTitle = self.user ? gettext("APPLY") : gettext("ADD");
 
@@ -69,6 +70,7 @@ var HatoholUserEditDialog = function(params) {
       operatorProfile: self.operatorProfile,
       changedCallback: function() {
         self.loadUserRoles();
+        self.loadUsers();
       }
     });
   });
@@ -239,6 +241,26 @@ HatoholUserEditDialog.prototype.loadUserRoles = function() {
     replyCallback: function(userRolesData, parser) {
       self.userRolesData = userRolesData;
       self.updateUserRolesSelector(userRolesData);
+    },
+    parseErrorCallback: hatoholErrorMsgBoxForParser,
+    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+      var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                     XMLHttpRequest.statusText;
+      hatoholErrorMsgBox(errorMsg);
+    }
+  });
+};
+
+HatoholUserEditDialog.prototype.loadUsers = function() {
+  var self = this;
+  new HatoholConnector({
+    url: "/user/" + self.user.userId,
+    request: "GET",
+    data: {},
+    replyCallback: function(usersData, parser) {
+      self.usersData = usersData;
+      var updatedUserFlags = usersData.users[self.user.userId - 1].flags;
+      $("#selectUserRole").val(updatedUserFlags);
     },
     parseErrorCallback: hatoholErrorMsgBoxForParser,
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
