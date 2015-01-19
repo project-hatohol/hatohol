@@ -142,7 +142,7 @@ describe('HistoryView', function() {
     var view = new HistoryView($('#' + TEST_FIXTURE_ID).get(0),
                                { query: query });
     var expected = [{
-      label: "cpu usage (Zabbix: Host1) [%]",
+      label: "cpu usage [%]",
       data: [
         [1415586892182, "97.8568"],
         [1415586952317, "97.4699"],
