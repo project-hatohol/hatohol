@@ -254,7 +254,7 @@ HatoholUserEditDialog.prototype.loadUserRoles = function() {
 HatoholUserEditDialog.prototype.loadUsers = function() {
   var self = this;
   new HatoholConnector({
-    url: "/user/" + self.user.userId,
+    url: "/user",
     request: "GET",
     data: {},
     replyCallback: function(usersData, parser) {
