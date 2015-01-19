@@ -216,6 +216,10 @@ HistoryLoader.prototype.getItem = function() {
   return this.item;
 }
 
+HistoryLoader.prototype.getServers = function() {
+  return this.servers;
+}
+
 
 var HistoryView = function(userProfile, options) {
   var self = this;
@@ -588,7 +592,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function updateView(item) {
-    setTitle();
+    updateTitleAndLegendLabels();
     self.displayUpdateTime();
     drawGraph(item, self.plotData);
     drawSlider();
@@ -609,23 +613,80 @@ var HistoryView = function(userProfile, options) {
     return title;
   }
 
-  function getTitle() {
-    var i, title;
+  function isSameHost() {
+    var i, item, prevItem = self.loaders[0].getItem();
 
-    if (self.plotData.length == 1)
-      return self.plotData[0].label;
-    for (i = 0; i < self.plotData.length; i++) {
-      if (!self.plotData[i].label)
-	return undefined;
-      if (title && title != self.plotData[i].label)
-        return undefined;
-      title = self.plotData[i].label;
+    if (!prevItem)
+      return false;
+
+    for (i = 1; i < self.loaders.length; i++) {
+      if (!self.loaders[i])
+        return false;
+
+      item = self.loaders[i].getItem();
+      if (!item)
+        return false;
+      if (item.serverId != prevItem.serverId)
+        return false;
+      if (item.hostId != prevItem.hostId)
+        return false;
+
+      prevItem = item;
     }
-    return title;
+
+    return true;
   }
 
-  function setTitle() {
-    var title = getTitle();
+  function isSameItem() {
+    var i, item, prevItem = self.loaders[0].getItem();
+
+    if (!prevItem)
+      return false;
+
+    for (i = 1; i < self.loaders.length; i++) {
+      if (!self.loaders[i])
+        return false;
+
+      item = self.loaders[i].getItem();
+      if (!item)
+        return false;
+      if (item.brief != prevItem.brief)
+        return false;
+      if (item.brief != prevItem.brief)
+        return false;
+
+      prevItem = item;
+    }
+
+    return true;
+  }
+
+  function updateTitleAndLegendLabels() {
+    var i, title, item, servers;
+
+    if (self.plotData.length == 1) {
+      title = buildTitle(loader.getItem(), loader.getServers());
+    } if (isSameHost()) {
+      title = buildHostName(loader.getItem(), loader.getServers());
+      for (i = 0; i < self.plotData.length; i++) {
+        // omit host names in legend labels
+        item = self.loaders[i].getItem();
+        self.plotData[i].label = item.brief;
+        if (item.unit)
+          self.plotData[i].label += " [" + item.unit + "]";
+      }
+    } else if (isSameItem()) {
+      title = loader.getItem().brief;
+      for (i = 0; i < self.plotData.length; i++) {
+        // omit item names in legend labels
+        item = self.loaders[i].getItem();
+        servers = self.loaders[i].getServers();
+        self.plotData[i].label = buildHostName(item, servers);
+      }
+    } else {
+      title = gettext("History");
+    }
+
     $("title").text(title);
     $(".graph h2").text(title);
   }
