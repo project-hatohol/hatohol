@@ -615,9 +615,9 @@ var HistoryView = function(userProfile, options) {
     if (self.plotData.length == 1)
       return self.plotData[0].label;
     for (i = 0; i < self.plotData.length; i++) {
-      if (title && title != self.plotData.label)
+      if (title && title != self.plotData[0].label)
         return undefined;
-      title = self.plotData.label;
+      title = self.plotData[0].label;
     }
     return title;
   }
