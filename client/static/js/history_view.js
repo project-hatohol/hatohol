@@ -408,12 +408,14 @@ var HistoryView = function(userProfile, options) {
         min: beginTimeInSec * 1000,
         max: endTimeInSec * 1000,
       },
-      yaxis: {
-        min: 0,
-        tickFormatter: function(val, axis) {
-          return formatItemValue("" + val, item.unit);
+      yaxes: [
+        {
+          min: 0,
+          tickFormatter: function(val, axis) {
+            return formatItemValue("" + val, item.unit);
+          }
         }
-      },
+      ],
       legend: {
         show: (self.plotData.length > 1),
         position: "sw",
