@@ -249,7 +249,7 @@ var HistoryView = function(userProfile, options) {
       onLoadItem: function(item, servers) {
 	this.item = item;
         setItemDescription(item, servers)
-        self.plotData[this.index] = initLegendData(item);
+        self.plotData[this.index] = initLegendData(item, servers);
         updateView(this.item);
       },
       onLoadHistory: function(history) {
@@ -365,11 +365,11 @@ var HistoryView = function(userProfile, options) {
     });
   };
 
-  function initLegendData(item) {
+  function initLegendData(item, servers) {
     var legend = { data:[] };
 
     if (item) {
-      legend.label = item.brief;
+      legend.label = buildTitle(item, servers); //item.brief;
       if (item.unit)
 	legend.label += " [" + item.unit + "]";
     }
@@ -599,11 +599,16 @@ var HistoryView = function(userProfile, options) {
     return serverName + ": " + hostName;
   }
 
-  function setItemDescription(item, servers) {
+  function buildTitle(item, servers) {
     var hostName = buildHostName(item, servers);
     var title = "";
     title += item.brief;
     title += " (" + hostName + ")";
+    return title;
+  }
+
+  function setItemDescription(item, servers) {
+    var title = buildTitle(item, servers);
     $("title").text(title);
     $(".graph h2").text(title);
   }
