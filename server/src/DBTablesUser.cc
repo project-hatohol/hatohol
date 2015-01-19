@@ -628,33 +628,34 @@ HatoholError DBTablesUser::updateUserInfo(
 }
 
 HatoholError DBTablesUser::updateUserInfoFlags(
-  UserInfo &oldUserInfo, UserInfo &updateUserInfo, const OperationPrivilege &privilege)
+  OperationPrivilegeFlag &oldUserFlag, OperationPrivilegeFlag &updateUserFlag,
+  const OperationPrivilege &privilege)
 {
 	HatoholError err;
 	if (!privilege.has(OPPRVLG_UPDATE_USER))
 		return HTERR_NO_PRIVILEGE;
-	err = isValidFlags(oldUserInfo.flags);
+	err = isValidFlags(oldUserFlag);
 	if (err != HTERR_OK)
 		return err;
-	err = isValidFlags(updateUserInfo.flags);
+	err = isValidFlags(updateUserFlag);
 	if (err != HTERR_OK)
 		return err;
 
 	struct TrxProc : public DBAgent::TransactionProc {
 		HatoholError err;
 		DBAgent::UpdateArg arg;
-		UserInfo &oldUserInfo,  &updateUserInfo;
+		OperationPrivilegeFlag &oldUserFlag, &updateUserFlag;
 
-		TrxProc(UserInfo &_olduserInfo, UserInfo &_updateUserInfo)
+		TrxProc(OperationPrivilegeFlag &_oldUserFlag, OperationPrivilegeFlag &_updateUserFlag)
 		: arg(tableProfileUsers),
-		  oldUserInfo(_olduserInfo),
-		  updateUserInfo(_updateUserInfo)
+		  oldUserFlag(_oldUserFlag),
+		  updateUserFlag(_updateUserFlag)
 		{
-			arg.add(IDX_USERS_FLAGS, updateUserInfo.flags);
+			arg.add(IDX_USERS_FLAGS, updateUserFlag);
 
 			arg.condition = StringUtils::sprintf("%s=%" PRIu64,
 			  COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName,
-			  oldUserInfo.flags);
+			  oldUserFlag);
 		}
 
 		bool hasRecord(DBAgent &dbAgent, const string &condition)
@@ -672,7 +673,7 @@ HatoholError DBTablesUser::updateUserInfoFlags(
 				err = HTERR_OK;
 			}
 		}
-	} trx(oldUserInfo, updateUserInfo);
+	} trx(oldUserFlag, updateUserFlag);
 	getDBAgent().runTransaction(trx);
 	return trx.err;
 }
