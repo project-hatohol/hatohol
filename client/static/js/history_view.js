@@ -400,7 +400,39 @@ var HistoryView = function(userProfile, options) {
     return $.plot.formatDate(date, format);
   }
 
-  function getPlotOptions(item, beginTimeInSec, endTimeInSec) {
+  function createYAxisOptions(unit, isInt) {
+    var options = {
+      min: 0,
+      unit: unit,
+      tickFormatter: function(val, axis) {
+        return formatItemValue("" + val, this.unit);
+      }
+    };
+    if (isInt)
+      options.minTickSize = 1;
+    return options;
+  }
+
+  function getYAxesOptions() {
+    var i, item, label, axis, units = [], table = {}, isInt;
+    for (i = 0; i < self.loaders.length; i++) {
+      item = self.loaders[i].getItem();
+      label = item ? item.unit : "";
+      axis = item ? table[item.unit] : undefined;
+      isInt = item && (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER);
+      if (axis) {
+	if (!isInt)
+          delete axis.minTickSize;
+      } else {
+        axis = createYAxisOptions(label, isInt);
+        units.push(axis);
+        table[label] = axis;
+      }
+    }
+    return units;
+  }
+
+  function getPlotOptions(beginTimeInSec, endTimeInSec) {
     var plotOptions = {
       xaxis: {
         mode: "time",
@@ -412,14 +444,7 @@ var HistoryView = function(userProfile, options) {
         min: beginTimeInSec * 1000,
         max: endTimeInSec * 1000,
       },
-      yaxes: [
-        {
-          min: 0,
-          tickFormatter: function(val, axis) {
-            return formatItemValue("" + val, item.unit);
-          }
-        }
-      ],
+      yaxes: getYAxesOptions(),
       legend: {
         show: (self.plotData.length > 1),
         position: "sw",
@@ -431,16 +456,13 @@ var HistoryView = function(userProfile, options) {
       },
     };
 
-    if (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)
-      plotOptions.yaxes[0].minTickSize = 1;
-
     return plotOptions;
   }
 
-  function drawGraph(item, plotData) {
+  function drawGraph(plotData) {
     var beginTimeInSec = self.endTime - self.timeSpan;
     var endTimeInSec = self.endTime;
-    var plotOptions = getPlotOptions(item, beginTimeInSec, endTimeInSec);
+    var plotOptions = getPlotOptions(beginTimeInSec, endTimeInSec);
     var i;
 
     for (i = 0; i < plotData.length; i++) {
@@ -594,7 +616,7 @@ var HistoryView = function(userProfile, options) {
   function updateView(item) {
     updateTitleAndLegendLabels();
     self.displayUpdateTime();
-    drawGraph(item, self.plotData);
+    drawGraph(self.plotData);
     drawSlider();
   }
 
