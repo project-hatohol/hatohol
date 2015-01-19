@@ -218,7 +218,7 @@ HatoholUserEditDialog.prototype.updateUserRolesSelector = function() {
   '<option value="' + hatohol.ALL_PRIVILEGES + '">' +
     gettext("Admin") + '</option>';
 
-  for (i = 0; i < userRoles.length; i++) {
+  for (var i = 0; i < userRoles.length; i++) {
     html +=
     '<option value="' + escapeHTML(userRoles[i].flags) + '">' +
     escapeHTML(userRoles[i].name) +
