@@ -248,7 +248,6 @@ var HistoryView = function(userProfile, options) {
       query: historyQueries[i],
       onLoadItem: function(item, servers) {
 	this.item = item;
-        setItemDescription(item, servers)
         self.plotData[this.index] = initLegendData(item, servers);
         updateView(this.item);
       },
@@ -587,6 +586,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function updateView(item) {
+    setTitle();
     self.displayUpdateTime();
     drawGraph(item, self.plotData);
     drawSlider();
@@ -607,8 +607,21 @@ var HistoryView = function(userProfile, options) {
     return title;
   }
 
-  function setItemDescription(item, servers) {
-    var title = buildTitle(item, servers);
+  function getTitle() {
+    var i, title;
+
+    if (self.plotData.length == 1)
+      return self.plotData[0].label;
+    for (i = 0; i < self.plotData.length; i++) {
+      if (title && title != self.plotData.label)
+        return undefined;
+      title = self.plotData.label;
+    }
+    return title;
+  }
+
+  function setTitle() {
+    var title = getTitle();
     $("title").text(title);
     $(".graph h2").text(title);
   }
