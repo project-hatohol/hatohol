@@ -619,7 +619,7 @@ UserInfo testUserInfo[] = {
 }, {
 	0,                 // id
 	"higgs",           // name
-	"gg -> h",        // password
+	"gg (-> h*) -> ZZ",// password
 	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_USER), // flags
 }, {
 	0,                 // id
