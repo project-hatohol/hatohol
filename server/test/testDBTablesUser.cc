@@ -484,6 +484,40 @@ void test_updateNonExistUser(void)
 	assertHatoholError(HTERR_NOT_FOUND_TARGET_RECORD, err);
 }
 
+void test_updateUserInfoFlags(void)
+{
+	OperationPrivilegeFlag oldUserInfoFlag =
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_SERVER);
+	OperationPrivilegeFlag updateUserInfoFlag =
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_SERVER);
+	DECLARE_DBTABLES_USER(dbUser);
+	OperationPrivilege privilege(
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE) |
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_USER));
+	HatoholError err =
+	  dbUser.updateUserInfoFlags(oldUserInfoFlag, updateUserInfoFlag, privilege);
+	assertHatoholError(HTERR_OK, err);
+}
+
+void test_updateUserInfoFlagsWithInsufficientPrivileges(void)
+{
+	OperationPrivilegeFlag oldUserInfoFlag =
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_SERVER);
+	OperationPrivilegeFlag updateUserInfoFlag =
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_SERVER);
+	DECLARE_DBTABLES_USER(dbUser);
+	OperationPrivilege privilege(
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
+
+	// updateUserInfoFlags requests OPPRVLG_UPDATE_ALL_USER_ROLE and
+	// OPPRVLG_UPDATE_USER privileges.
+	// Users have only OPPRVLG_UPDATE_ALL_USER_ROLE privilege is
+	// insufficient to update UserInfoRole flag and UserInfo flag together!
+	HatoholError err =
+	  dbUser.updateUserInfoFlags(oldUserInfoFlag, updateUserInfoFlag, privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+}
+
 void test_deleteUser(void)
 {
 	DECLARE_DBTABLES_USER(dbUser);
