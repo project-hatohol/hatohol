@@ -155,7 +155,7 @@ describe('HistoryView', function() {
     expect(view.plotData).eql(expected);
   });
 
-  it('parse query', function() {
+  it('parse multiple items query', function() {
     var expected = [
       {
         serverId: 1,
