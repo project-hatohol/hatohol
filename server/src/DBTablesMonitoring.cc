@@ -1701,6 +1701,7 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		itemGroupStream >> trigInfo.hostId;
 		itemGroupStream >> trigInfo.hostName;
 		itemGroupStream >> trigInfo.brief;
+		itemGroupStream >> trigInfo.extended_info;
 
 		triggerInfoList.push_back(trigInfo);
 	}
@@ -2775,6 +2776,7 @@ void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
 	arg.add(triggerInfo.hostId);
 	arg.add(triggerInfo.hostName);
 	arg.add(triggerInfo.brief);
+	arg.add(triggerInfo.extended_info);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }

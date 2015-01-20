@@ -94,6 +94,7 @@ struct TriggerInfo {
 	HostIdType          hostId;
 	std::string         hostName;
 	std::string         brief;
+	std::string         extended_info;
 };
 
 typedef std::list<TriggerInfo>          TriggerInfoList;
