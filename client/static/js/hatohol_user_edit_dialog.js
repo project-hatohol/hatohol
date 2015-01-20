@@ -214,14 +214,14 @@ HatoholUserEditDialog.prototype.fixupApplyButtonState = function() {
 };
 
 HatoholUserEditDialog.prototype.updateUserRolesSelector = function() {
-  var userRoles = this.userRolesData.userRoles;
+  var i, userRoles = this.userRolesData.userRoles;
   var html = "" +
   '<option value="' + hatohol.NONE_PRIVILEGE + '">' +
     gettext("Guest") + '</option>' +
   '<option value="' + hatohol.ALL_PRIVILEGES + '">' +
     gettext("Admin") + '</option>';
 
-  for (var i = 0; i < userRoles.length; i++) {
+  for (i = 0; i < userRoles.length; i++) {
     html +=
     '<option value="' + escapeHTML(userRoles[i].flags) + '">' +
     escapeHTML(userRoles[i].name) +
@@ -232,10 +232,10 @@ HatoholUserEditDialog.prototype.updateUserRolesSelector = function() {
 };
 
 HatoholUserEditDialog.prototype.updateUserFlagsSelector = function() {
-  var self = this;
+  var i, targetId, adjustId, self = this;
   if (self.user) {
-    var targetId = self.user.userId, adjustId;
-    for (var i = 0; i < self.usersData.users.length; ++i) {
+    targetId = self.user.userId;
+    for (i = 0; i < self.usersData.users.length; ++i) {
       if (targetId == self.usersData.users[i].userId) {
         adjustId = i;
         break;
