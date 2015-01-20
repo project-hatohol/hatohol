@@ -1,7 +1,7 @@
 SUBDIRS = server client data data/init.d data/systemd
 ACLOCAL_AMFLAGS = -I m4 ${ACLOCAL_FLAGS}
 
-EXTRA_DIST = autogen.sh README.md hatohol.spec
+EXTRA_DIST = autogen.sh README.md hatohol.spec COPYING.LGPLv3
 
 rpm:    dist hatohol.spec
 	rpmbuild -ta $(distdir).tar.bz2
