@@ -225,7 +225,7 @@ var HistoryView = function(userProfile, options) {
   var self = this;
   var secondsInHour = 60 * 60;
   var i = 0;
-  var historyQueries, loader;
+  var historyQueries;
 
   options = options || {};
 
@@ -261,10 +261,12 @@ var HistoryView = function(userProfile, options) {
       }
     });
   }
-  loader = self.loaders[0]; // TODO: allow different time ranges?
-  self.endTime = loader.options.query.endTime;
-  self.timeSpan = loader.getTimeSpan();
+
+  // TODO: allow different time ranges?
+  self.endTime = self.loaders[0].options.query.endTime;
+  self.timeSpan = self.loaders[0].getTimeSpan();
   self.autoReloadIsEnabled = !self.endTime;
+
   load();
 
   function load() {
@@ -682,7 +684,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function updateTitleAndLegendLabels() {
-    var i, title, item, servers;
+    var i, title, item, servers, loader = self.loaders[0];
 
     if (self.plotData.length == 1) {
       title = buildTitle(loader.getItem(), loader.getServers());
