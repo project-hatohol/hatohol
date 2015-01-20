@@ -1198,7 +1198,7 @@ void TriggersQueryOption::setExcludeFlags(const ExcludeFlags &flg)
 {
 	m_impl->excludeFlags = flg;
 }
-	
+
 
 string TriggersQueryOption::getCondition(void) const
 {
@@ -1208,7 +1208,7 @@ string TriggersQueryOption::getCondition(void) const
 		return condition;
 
 	if (m_impl->shouldExcludeSelfMonitoring()) {
-		addCondition( 
+		addCondition(
 		  condition,
 		  StringUtils::sprintf(
 		    "%s.%s<%" FMT_HOST_ID,
