@@ -231,21 +231,22 @@ HatoholUserEditDialog.prototype.updateUserRolesSelector = function() {
 
 HatoholUserEditDialog.prototype.updateUserFlagsSelector = function() {
   var i, targetId, adjustId, self = this;
-  if (self.user) {
-    targetId = self.user.userId;
-    for (i = 0; i < self.usersData.users.length; ++i) {
-      if (targetId == self.usersData.users[i].userId) {
-        adjustId = i;
-        self.user = self.usersData.users[i];
-        break;
-      }
-    }
-    if (!self.usersData.users[adjustId])
-      return;
+  if (!self.user)
+    return;
 
-    var updatedUserFlags = self.usersData.users[adjustId].flags;
-    $("#selectUserRole").val(updatedUserFlags);
+  targetId = self.user.userId;
+  for (i = 0; i < self.usersData.users.length; ++i) {
+    if (targetId == self.usersData.users[i].userId) {
+      adjustId = i;
+      self.user = self.usersData.users[i];
+      break;
+    }
   }
+  if (!self.usersData.users[adjustId])
+    return;
+
+  var updatedUserFlags = self.usersData.users[adjustId].flags;
+  $("#selectUserRole").val(updatedUserFlags);
 };
 
 HatoholUserEditDialog.prototype.loadUserRoles = function() {
