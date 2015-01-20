@@ -403,14 +403,13 @@ var HistoryView = function(userProfile, options) {
   }
 
   function getYAxisOptions(unit) {
-    var options = {
+    return {
       min: 0,
       unit: unit,
       tickFormatter: function(val, axis) {
         return formatItemValue("" + val, this.unit);
       }
     };
-    return options;
   }
 
   function getYAxesOptions() {
