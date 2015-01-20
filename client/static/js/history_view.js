@@ -402,7 +402,7 @@ var HistoryView = function(userProfile, options) {
     return $.plot.formatDate(date, format);
   }
 
-  function createYAxisOptions(unit, isInt) {
+  function createYAxisOptions(unit) {
     var options = {
       min: 0,
       unit: unit,
@@ -410,8 +410,6 @@ var HistoryView = function(userProfile, options) {
         return formatItemValue("" + val, this.unit);
       }
     };
-    if (isInt)
-      options.minTickSize = 1;
     return options;
   }
 
@@ -426,7 +424,9 @@ var HistoryView = function(userProfile, options) {
 	if (!isInt)
           delete axis.minTickSize;
       } else {
-        axis = createYAxisOptions(label, isInt);
+        axis = createYAxisOptions(label);
+        if (isInt)
+          options.minTickSize = 1;
         axes.push(axis);
         table[label] = axis;
       }
