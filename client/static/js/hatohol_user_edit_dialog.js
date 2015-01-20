@@ -234,11 +234,17 @@ HatoholUserEditDialog.prototype.updateUserRolesSelector = function() {
 HatoholUserEditDialog.prototype.updateUserFlagsSelector = function() {
   var self = this;
   if (self.user) {
-    var targetId = self.user.userId - 1;
-    if (!self.usersData.users[targetId])
+    var targetId = self.user.userId, adjustId;
+    for (var i = 0; i < self.usersData.users.length; ++i) {
+      if (targetId == self.usersData.users[i].userId) {
+        adjustId = i;
+        break;
+      }
+    }
+    if (!self.usersData.users[adjustId])
       return;
 
-    var updatedUserFlags = self.usersData.users[targetId].flags;
+    var updatedUserFlags = self.usersData.users[adjustId].flags;
     $("#selectUserRole").val(updatedUserFlags);
   }
 };
