@@ -258,7 +258,8 @@ HatoholUserEditDialog.prototype.loadUserRoles = function() {
     replyCallback: function(userRolesData, parser) {
       self.userRolesData = userRolesData;
       self.updateUserRolesSelector(userRolesData);
-      self.loadUsers();
+      if (self.user)
+        self.loadUsers();
     },
     parseErrorCallback: hatoholErrorMsgBoxForParser,
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
