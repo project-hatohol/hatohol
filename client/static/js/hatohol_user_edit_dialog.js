@@ -258,9 +258,14 @@ HatoholUserEditDialog.prototype.loadUsers = function() {
     data: {},
     replyCallback: function(usersData, parser) {
       self.usersData = usersData;
-      var updatedUserFlags = self.usersData.users[self.user.userId - 1].flags;
-      if (self.user)
+      if (self.user) {
+        var targetId = self.user.userId - 1;
+        if (!self.usersData.users[targetId])
+          return;
+
+        var updatedUserFlags = self.usersData.users[targetId].flags;
         $("#selectUserRole").val(updatedUserFlags);
+      }
     },
     parseErrorCallback: hatoholErrorMsgBoxForParser,
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
