@@ -402,7 +402,7 @@ var HistoryView = function(userProfile, options) {
     return $.plot.formatDate(date, format);
   }
 
-  function createYAxisOptions(unit) {
+  function getYAxisOptions(unit) {
     var options = {
       min: 0,
       unit: unit,
@@ -424,7 +424,7 @@ var HistoryView = function(userProfile, options) {
 	if (!isInt)
           delete axis.minTickSize;
       } else {
-        axis = createYAxisOptions(label);
+        axis = getYAxisOptions(label);
         if (isInt)
           options.minTickSize = 1;
         axes.push(axis);
