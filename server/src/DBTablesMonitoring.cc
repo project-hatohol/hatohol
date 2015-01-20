@@ -1660,12 +1660,13 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	builder.add(IDX_TRIGGERS_HOST_ID);
 	builder.add(IDX_TRIGGERS_HOSTNAME);
 	builder.add(IDX_TRIGGERS_BRIEF);
+	builder.add(IDX_TRIGGERS_EXTENDED_INFO);
 
 	builder.addTable(
 	 tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
 	 tableProfileTriggers,IDX_TRIGGERS_SERVER_ID,IDX_HOSTS_SERVER_ID,
 	 tableProfileTriggers,IDX_TRIGGERS_HOST_ID,IDX_HOSTS_HOST_ID);
-	
+
 	DBAgent::SelectExArg &arg = builder.build();
 	arg.useDistinct = option.isHostgroupUsed();
 	arg.useFullName = option.isHostgroupUsed();
