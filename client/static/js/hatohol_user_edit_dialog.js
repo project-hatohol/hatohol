@@ -46,7 +46,6 @@ var HatoholUserEditDialog = function(params) {
     self.setUser(self.user);
   self.setApplyButtonState(false);
   self.loadUserRoles();
-  self.loadUsers();
 
   //
   // Dialog button handlers
@@ -71,7 +70,6 @@ var HatoholUserEditDialog = function(params) {
       operatorProfile: self.operatorProfile,
       changedCallback: function() {
         self.loadUserRoles();
-        self.loadUsers();
       }
     });
   });
@@ -258,6 +256,7 @@ HatoholUserEditDialog.prototype.loadUserRoles = function() {
     replyCallback: function(userRolesData, parser) {
       self.userRolesData = userRolesData;
       self.updateUserRolesSelector(userRolesData);
+      self.loadUsers();
     },
     parseErrorCallback: hatoholErrorMsgBoxForParser,
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
