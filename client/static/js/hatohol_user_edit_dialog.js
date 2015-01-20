@@ -259,8 +259,9 @@ HatoholUserEditDialog.prototype.loadUsers = function() {
     data: {},
     replyCallback: function(usersData, parser) {
       self.usersData = usersData;
-      var updatedUserFlags = usersData.users[self.user.userId - 1].flags;
-      $("#selectUserRole").val(updatedUserFlags);
+      var updatedUserFlags = self.usersData.users[self.user.userId - 1].flags;
+      if (self.user)
+        $("#selectUserRole").val(updatedUserFlags);
     },
     parseErrorCallback: hatoholErrorMsgBoxForParser,
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
