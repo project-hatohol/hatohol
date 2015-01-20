@@ -46,6 +46,7 @@ var HatoholUserEditDialog = function(params) {
     self.setUser(self.user);
   self.setApplyButtonState(false);
   self.loadUserRoles();
+  self.loadUsers();
 
   //
   // Dialog button handlers
