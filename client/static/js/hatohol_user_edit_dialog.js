@@ -24,6 +24,7 @@ var HatoholUserEditDialog = function(params) {
   self.user = params.targetUser;
   self.succeededCallback = params.succeededCallback;
   self.userRolesData = null;
+  self.usersData = null;
   self.windowTitle = self.user ? gettext("EDIT USER") : gettext("ADD USER");
   self.applyButtonTitle = self.user ? gettext("APPLY") : gettext("ADD");
 
@@ -211,7 +212,7 @@ HatoholUserEditDialog.prototype.fixupApplyButtonState = function() {
 };
 
 HatoholUserEditDialog.prototype.updateUserRolesSelector = function() {
-  var userRoles = this.userRolesData.userRoles;
+  var i, userRoles = this.userRolesData.userRoles;
   var html = "" +
   '<option value="' + hatohol.NONE_PRIVILEGE + '">' +
     gettext("Guest") + '</option>' +
@@ -226,8 +227,21 @@ HatoholUserEditDialog.prototype.updateUserRolesSelector = function() {
   }
 
   $("#selectUserRole").html(html);
-  if (this.user)
-    $("#selectUserRole").val(this.user.flags);
+};
+
+HatoholUserEditDialog.prototype.updateUserFlagsSelector = function() {
+  var i, targetId, self = this;
+  if (!self.user)
+    return;
+
+  targetId = self.user.userId;
+  for (i = 0; i < self.usersData.users.length; ++i) {
+    if (targetId == self.usersData.users[i].userId) {
+      self.user = self.usersData.users[i];
+      $("#selectUserRole").val(self.user.flags);
+      return;
+    }
+  }
 };
 
 HatoholUserEditDialog.prototype.loadUserRoles = function() {
@@ -239,6 +253,27 @@ HatoholUserEditDialog.prototype.loadUserRoles = function() {
     replyCallback: function(userRolesData, parser) {
       self.userRolesData = userRolesData;
       self.updateUserRolesSelector(userRolesData);
+      if (self.user)
+        self.loadUsers();
+    },
+    parseErrorCallback: hatoholErrorMsgBoxForParser,
+    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+      var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+                     XMLHttpRequest.statusText;
+      hatoholErrorMsgBox(errorMsg);
+    }
+  });
+};
+
+HatoholUserEditDialog.prototype.loadUsers = function() {
+  var self = this;
+  new HatoholConnector({
+    url: "/user",
+    request: "GET",
+    data: {},
+    replyCallback: function(usersData, parser) {
+      self.usersData = usersData;
+      self.updateUserFlagsSelector(usersData);
     },
     parseErrorCallback: hatoholErrorMsgBoxForParser,
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
