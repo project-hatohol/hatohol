@@ -372,7 +372,7 @@ var HistoryView = function(userProfile, options) {
     var legend = { data:[] };
 
     if (item) {
-      legend.label = buildTitle(item, servers); //item.brief;
+      legend.label = buildTitle(item, servers);
       if (item.unit)
 	legend.label += " [" + item.unit + "]";
     }
