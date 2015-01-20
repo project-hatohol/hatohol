@@ -238,12 +238,11 @@ HatoholUserEditDialog.prototype.updateUserFlagsSelector = function() {
   for (i = 0; i < self.usersData.users.length; ++i) {
     if (targetId == self.usersData.users[i].userId) {
       self.user = self.usersData.users[i];
-      break;
+      var updatedUserFlags = self.user.flags;
+      $("#selectUserRole").val(updatedUserFlags);
+      return;
     }
   }
-
-  var updatedUserFlags = self.user.flags;
-  $("#selectUserRole").val(updatedUserFlags);
 };
 
 HatoholUserEditDialog.prototype.loadUserRoles = function() {
