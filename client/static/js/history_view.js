@@ -416,7 +416,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function getYAxesOptions() {
-    var i, item, label, axis, units = [], table = {}, isInt;
+    var i, item, label, axis, axes = [], table = {}, isInt;
     for (i = 0; i < self.loaders.length; i++) {
       item = self.loaders[i].getItem();
       label = item ? item.unit : "";
@@ -427,11 +427,11 @@ var HistoryView = function(userProfile, options) {
           delete axis.minTickSize;
       } else {
         axis = createYAxisOptions(label, isInt);
-        units.push(axis);
+        axes.push(axis);
         table[label] = axis;
       }
     }
-    return units;
+    return axes;
   }
 
   function getPlotOptions(beginTimeInSec, endTimeInSec) {
