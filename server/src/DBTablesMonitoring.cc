@@ -46,7 +46,7 @@ const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBTablesMonitoring::MONITORING_DB_VERSION = 9;
+const int   DBTablesMonitoring::MONITORING_DB_VERSION = 10;
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -153,6 +153,15 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"entended_info",                   // columnName
+	SQL_COLUMN_TYPE_TEXT,              // type
+	32767,                             // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 
@@ -166,6 +175,7 @@ enum {
 	IDX_TRIGGERS_HOST_ID,
 	IDX_TRIGGERS_HOSTNAME,
 	IDX_TRIGGERS_BRIEF,
+	IDX_TRIGGERS_EXTENDED_INFO,
 	NUM_IDX_TRIGGERS,
 };
 
@@ -2998,6 +3008,12 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 
 		// recreate indexes
 		dbAgent.fixupIndexes(tableProfileIncidents);
+	}
+	if (oldVer <= 9) {
+		// add a new column "extended_info" to triggers
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileTriggers);
+		addColumnsArg.columnIndexes.push_back(IDX_TRIGGERS_EXTENDED_INFO);
+		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;
 }
