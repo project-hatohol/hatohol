@@ -236,6 +236,7 @@ HatoholUserEditDialog.prototype.updateUserFlagsSelector = function() {
     for (i = 0; i < self.usersData.users.length; ++i) {
       if (targetId == self.usersData.users[i].userId) {
         adjustId = i;
+        self.user = self.usersData.users[i];
         break;
       }
     }
