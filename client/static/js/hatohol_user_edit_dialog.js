@@ -231,6 +231,18 @@ HatoholUserEditDialog.prototype.updateUserRolesSelector = function() {
   $("#selectUserRole").html(html);
 };
 
+HatoholUserEditDialog.prototype.updateUserFlagsSelector = function() {
+  var self = this;
+  if (self.user) {
+    var targetId = self.user.userId - 1;
+    if (!self.usersData.users[targetId])
+      return;
+
+    var updatedUserFlags = self.usersData.users[targetId].flags;
+    $("#selectUserRole").val(updatedUserFlags);
+  }
+};
+
 HatoholUserEditDialog.prototype.loadUserRoles = function() {
   var self = this;
   new HatoholConnector({
@@ -258,14 +270,7 @@ HatoholUserEditDialog.prototype.loadUsers = function() {
     data: {},
     replyCallback: function(usersData, parser) {
       self.usersData = usersData;
-      if (self.user) {
-        var targetId = self.user.userId - 1;
-        if (!self.usersData.users[targetId])
-          return;
-
-        var updatedUserFlags = self.usersData.users[targetId].flags;
-        $("#selectUserRole").val(updatedUserFlags);
-      }
+      self.updateUserFlagsSelector(usersData);
     },
     parseErrorCallback: hatoholErrorMsgBoxForParser,
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
