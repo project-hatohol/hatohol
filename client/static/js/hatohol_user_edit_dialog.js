@@ -242,7 +242,7 @@ HatoholUserEditDialog.prototype.updateUserFlagsSelector = function() {
       break;
     }
   }
-  if (!self.usersData.users[adjustId])
+  if (typeof(adjustId) == "undefined")
     return;
 
   var updatedUserFlags = self.usersData.users[adjustId].flags;
