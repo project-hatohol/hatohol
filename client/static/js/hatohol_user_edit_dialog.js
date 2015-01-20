@@ -229,8 +229,6 @@ HatoholUserEditDialog.prototype.updateUserRolesSelector = function() {
   }
 
   $("#selectUserRole").html(html);
-  if (this.user)
-    $("#selectUserRole").val(this.user.flags);
 };
 
 HatoholUserEditDialog.prototype.loadUserRoles = function() {
