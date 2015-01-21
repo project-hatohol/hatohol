@@ -112,7 +112,7 @@ protected:
 	 * @return The obtained triggers as an ItemTable format.
 	 */
 	ItemTablePtr getTrigger(int requestSince = 0);
-	ItemTablePtr getTriggerExpandDescription(ItemTablePtr items);
+	ItemTablePtr getTriggerExpandDescription(ItemTablePtr items, int requestSince = 0);
 
 	/**
 	 * Get the items.
@@ -210,7 +210,8 @@ protected:
 	 */
 
 	SoupMessage *queryTriggerExpandDescription(const std::vector<uint64_t> &triggerIdVector,
-	                                           HatoholError &queryRet);
+	                                           HatoholError &queryRet,
+	                                           int requestSince = 0);
 	/**
 	 * Get the items.
 	 *
