@@ -85,6 +85,32 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 	}
 }
 
+void HatoholDBUtils::transformTriggerExpandDescriptionToHatoholFormat(
+  TriggerInfoList &trigInfoList, const ItemTablePtr triggers)
+{
+	const ItemGroupList &trigGrpList = triggers->getItemGroupList();
+	ItemGroupListConstIterator trigGrpItr = trigGrpList.begin();
+	std::string extendedInfo;
+	for (; trigGrpItr != trigGrpList.end(); ++trigGrpItr) {
+		ItemGroupStream trigGroupStream(*trigGrpItr);
+		TriggerInfo trigInfo;
+
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+		trigGroupStream >> trigInfo.id;
+
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION);
+		trigGroupStream >> extendedInfo;
+
+		JSONBuilder agent;
+		agent.startObject();
+		agent.add("expanded_description", extendedInfo);
+		agent.endObject();
+		trigInfo.extendedInfo = agent.generate();
+
+		trigInfoList.push_back(trigInfo);
+	}
+}
+
 void HatoholDBUtils::transformEventsToHatoholFormat(
   EventInfoList &eventInfoList, const ItemTablePtr events,
   const ServerIdType &serverId)
