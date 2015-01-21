@@ -225,8 +225,6 @@ HistoryLoader.prototype.getServers = function() {
 var HistoryView = function(userProfile, options) {
   var self = this;
   var secondsInHour = 60 * 60;
-  var i = 0;
-  var historyQueries;
 
   options = options || {};
 
@@ -242,33 +240,35 @@ var HistoryView = function(userProfile, options) {
   self.loaders = [];
 
   appendGraphArea();
-
-  historyQueries = self.parseQuery(options.query);
-  for (i = 0; i < historyQueries.length; i++) {
-    self.plotData[i] = initLegendData();
-    self.loaders[i] = new HistoryLoader({
-      index: i,
-      view: this,
-      defaultTimeSpan: self.timeSpan,
-      query: historyQueries[i],
-      onLoadItem: function(item, servers) {
-	this.item = item;
-        self.plotData[this.index] = initLegendData(item, servers);
-        updateView();
-      },
-      onLoadHistory: function(history) {
-        self.plotData[this.index].data = history;
-        updateView();
-      }
-    });
-  }
-
-  // TODO: allow different time ranges?
-  self.endTime = self.loaders[0].options.query.endTime;
-  self.timeSpan = self.loaders[0].getTimeSpan();
-  self.autoReloadIsEnabled = !self.endTime;
-
+  prepareHistoryLoaders(self.parseQuery(options.query));
   load();
+
+  function prepareHistoryLoaders(historyQueries) {
+    var i;
+    for (i = 0; i < historyQueries.length; i++) {
+      self.plotData[i] = initLegendData();
+      self.loaders[i] = new HistoryLoader({
+        index: i,
+        view: self,
+        defaultTimeSpan: self.timeSpan,
+        query: historyQueries[i],
+        onLoadItem: function(item, servers) {
+          this.item = item;
+          self.plotData[this.index] = initLegendData(item, servers);
+          updateView();
+        },
+        onLoadHistory: function(history) {
+          self.plotData[this.index].data = history;
+          updateView();
+        }
+      });
+    }
+
+    // TODO: allow different time ranges?
+    self.endTime = self.loaders[0].options.query.endTime;
+    self.timeSpan = self.loaders[0].getTimeSpan();
+    self.autoReloadIsEnabled = !self.endTime;
+  }
 
   function load() {
     var promises;
