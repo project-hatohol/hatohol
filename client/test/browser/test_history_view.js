@@ -149,7 +149,8 @@ describe('HistoryView', function() {
         [1415587012454, "97.1620"],
         [1415587072551, "99.3657"],
         [1415587132645, "93.3277"],
-      ]
+      ],
+      yaxis: 1
     }];
     respond(itemsJson(), historyJson());
     expect(view.plotData).eql(expected);
