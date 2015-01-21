@@ -88,6 +88,7 @@ HistoryLoader.prototype.load = function() {
     view.startConnection(getItemQuery(), function(reply) {
       var items = reply.items;
       var messageDetail;
+      var query = self.options.query;
 
       if (items && items.length == 1) {
         self.item = items[0];
