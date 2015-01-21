@@ -253,11 +253,11 @@ var HistoryView = function(userProfile, options) {
       onLoadItem: function(item, servers) {
 	this.item = item;
         self.plotData[this.index] = initLegendData(item, servers);
-        updateView(this.item);
+        updateView();
       },
       onLoadHistory: function(history) {
         self.plotData[this.index].data = history;
-        updateView(this.item);
+        updateView();
       }
     });
   }
@@ -614,7 +614,7 @@ var HistoryView = function(userProfile, options) {
     self.plot.draw();
   }
 
-  function updateView(item) {
+  function updateView() {
     updateTitleAndLegendLabels();
     self.displayUpdateTime();
     drawGraph(self.plotData);
