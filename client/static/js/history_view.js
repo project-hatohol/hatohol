@@ -283,11 +283,8 @@ var HistoryView = function(userProfile, options) {
 
     promises = $.map(self.loaders, function(loader) { return loader.load(); });
     $.when.apply($, promises).done(function() {
-      if (self.autoReloadIsEnabled) {
+      if (self.autoReloadIsEnabled)
         self.setAutoReload(load, self.reloadIntervalSeconds);
-      } else {
-        disableAutoRefresh();
-      }
     });
   }
 
@@ -561,7 +558,7 @@ var HistoryView = function(userProfile, options) {
           self.loaders[i].setTimeRange(timeRange.last[0], timeRange.last[1]);
         self.endTime = timeRange.last[1];
         self.timeSpan = timeRange.last[1] - timeRange.last[0];
-        self.autoReloadIsEnabled = false;
+        disableAutoRefresh();
         load();
         $("#item-graph-auto-refresh").removeClass("active");
       },
