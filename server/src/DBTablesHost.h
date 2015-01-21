@@ -348,6 +348,15 @@ public:
 	HatoholError getServerHostDefs(ServerHostDefVect &svHostDefVect,
 	                               const HostsQueryOption &option);
 
+	/**
+	 * Synchronize records.
+	 *
+	 * If new hosts are added or any hosts are removed,
+	 * the method follows them (inserts or deletes uncessary records).
+	 */
+	HatoholError syncHosts(const ServerHostDefVect &svHostDefs,
+	                       const ServerIdType &serverId);
+
 protected:
 	static SetupInfo &getSetupInfo(void);
 

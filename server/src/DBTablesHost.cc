@@ -1086,6 +1086,53 @@ HatoholError DBTablesHost::getServerHostDefs(
 	return HTERR_OK;
 }
 
+HatoholError DBTablesHost::syncHosts(const ServerHostDefVect &svHostDefs,
+                                     const ServerIdType &serverId)
+{
+	// Make a set that contains current hosts records
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setStatus(HOST_STAT_NORMAL);
+	option.setTargetServerId(serverId);
+
+	ServerHostDefVect _currHosts;
+	HatoholError err = getServerHostDefs(_currHosts, option);
+	if (err != HTERR_OK)
+		return err;
+	const ServerHostDefVect &currHosts(_currHosts); // To avoid changing
+
+	map<string, const ServerHostDef *> currValidHosts;
+	ServerHostDefVectConstIterator currHostsItr = currHosts.begin();
+	for (; currHostsItr != currHosts.end(); ++currHostsItr) {
+		const ServerHostDef &svHostDef = *currHostsItr;
+		currValidHosts[svHostDef.hostIdInServer] = &svHostDef;
+	}
+
+	// Pick up hosts to be added.
+	ServerHostDefVect serverHostDefs;
+	ServerHostDefVectConstIterator newHostsItr = svHostDefs.begin();
+	for (; newHostsItr != svHostDefs.end(); ++newHostsItr) {
+		const ServerHostDef &newSvHostDef = *newHostsItr;
+		if (currValidHosts.erase(newSvHostDef.hostIdInServer) >= 1) {
+			// The host already exits. We have nothing to do.
+			continue;
+		}
+		// TODO: avoid the copy
+		serverHostDefs.push_back(newSvHostDef);
+	}
+
+	// Add hosts to be marked as invalid
+	map<string, const ServerHostDef *>::const_iterator
+	  hostMapItr = currValidHosts.begin();
+	for (; hostMapItr != currValidHosts.end(); ++hostMapItr) {
+		ServerHostDef invalidHost = *hostMapItr->second; // make a copy
+		invalidHost.status = HOST_STAT_REMOVED;
+		serverHostDefs.push_back(invalidHost);
+	}
+
+	upsertHosts(serverHostDefs);
+	return HTERR_OK;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
