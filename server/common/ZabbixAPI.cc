@@ -695,6 +695,7 @@ SoupMessage *ZabbixAPI::queryHost(HatoholError &queryRet)
 	agent.startObject("params");
 	agent.add("output", "extend");
 	agent.add("selectGroups", "refer");
+	agent.add("monitored_hosts", "True");
 	agent.endObject(); // params
 
 	agent.add("auth", m_impl->authToken);
