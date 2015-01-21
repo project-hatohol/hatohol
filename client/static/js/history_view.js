@@ -724,12 +724,12 @@ var HistoryView = function(userProfile, options) {
         servers = self.loaders[i].getServers();
         self.plotData[i].label = buildHostName(item, servers);
       }
-    } else {
-      title = gettext("History");
     }
 
-    $("title").text(title);
-    $(".graph h2").text(title);
+    if (title) {
+      $("title").text(title);
+      $(".graph h2").text(title);
+    }
   }
 };
 
