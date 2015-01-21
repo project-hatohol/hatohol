@@ -426,6 +426,8 @@ var HistoryView = function(userProfile, options) {
         axis = getYAxisOptions(label);
         if (isInt)
           axis.minTickSize = 1;
+	if (i % 2 == 1)
+	  axis.position = "right";
         axes.push(axis);
         table[label] = axis;
       }
@@ -460,19 +462,37 @@ var HistoryView = function(userProfile, options) {
     return plotOptions;
   }
 
+  function fixupYAxisMapping(plotData, plotOptions) {
+    function findYAxis(yaxes, item) {
+      var i;
+      for (i = 0; item && i < yaxes.length; i++) {
+        if (yaxes[i].unit == item.unit)
+          return i + 1;
+      }
+      return 1;
+    }
+    var i, item;
+
+    for (i = 0; i < self.loaders.length; i++) {
+      item = self.loaders[i].getItem();
+      plotData[i].yaxis = findYAxis(plotOptions.yaxes, item);
+    }
+  }
+
   function drawGraph(plotData) {
     var beginTimeInSec = self.endTime - self.timeSpan;
     var endTimeInSec = self.endTime;
-    var plotOptions = getPlotOptions(beginTimeInSec, endTimeInSec);
     var i;
+
+    self.plotOptions = getPlotOptions(beginTimeInSec, endTimeInSec);
+    fixupYAxisMapping(plotData, self.plotOptions);
 
     for (i = 0; i < plotData.length; i++) {
       if (plotData[i].data.length == 1)
-        plotOptions.points.show = true;
+        self.plotOptions.points.show = true;
     }
 
-    self.plotOptions = plotOptions;
-    self.plot = $.plot($("#item-graph"), plotData, plotOptions);
+    self.plot = $.plot($("#item-graph"), plotData, self.plotOptions);
   }
 
   function getTimeRange() {
