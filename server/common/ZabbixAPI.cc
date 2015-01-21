@@ -280,7 +280,7 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 	return ItemTablePtr(tablePtr);
 }
 
-ItemTablePtr ZabbixAPI::getTriggerExtendDescription(ItemTablePtr items)
+ItemTablePtr ZabbixAPI::getTriggerExpandDescription(ItemTablePtr items)
 {
 	HatoholError queryRet;
 	vector<uint64_t> triggerIdVector;
