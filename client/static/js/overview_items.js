@@ -131,27 +131,6 @@ var OverviewItems = function(userProfile) {
     return serversRow + hostsRow;
   }
 
-  function getGraphURL(item) {
-    var query = {
-      serverId: item["serverId"],
-      hostId:   item["hostId"],
-      itemId:   item["id"]
-    }
-    return "ajax_history?" + $.param(query);
-  }
-
-  function getGraphLink(item) {
-    if (!item || !item["valueType"] ||
-        (item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_FLOAT &&
-         item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)) {
-      return "";
-    }
-    var link = "<a href='" + getGraphURL(item) + "'>"
-    link += formatItemLastValue(item);
-    link += "</a>";
-    return link;
-  }
-
   function drawTableBody(parsedData) {
     var serverName, hostNames, hostName, itemName, item, html = "";
     var x, y;
@@ -166,7 +145,7 @@ var OverviewItems = function(userProfile) {
           hostName = hostNames[x];
           item = parsedData.values[serverName][hostName][itemName];
           if (item && item["lastValue"] != undefined) {
-            html += "<td>" + getGraphLink(item) + "</td>";
+            html += "<td>" + formatItemLastValue(item) + "</td>";
           } else {
             html += "<td>&nbsp;</td>";
           }
