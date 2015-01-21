@@ -492,13 +492,10 @@ var HistoryView = function(userProfile, options) {
   }
 
   function getTimeRange() {
-    var beginTimeInSec, endTimeInSec, date, min;
+    var date, min;
 
     if (self.timeRange && !self.autoReloadIsEnabled)
       return self.timeRange;
-
-    beginTimeInSec = self.endTime - self.timeSpan;
-    endTimeInSec = self.endTime;
 
     // Adjust to 00:00:00
     min = self.endTime - secondsInHour * 24 * 7;
@@ -506,29 +503,28 @@ var HistoryView = function(userProfile, options) {
     min -= date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
 
     self.timeRange = {
-      last: [beginTimeInSec, endTimeInSec],
+      begin: self.endTime - self.timeSpan,
+      end: self.endTime,
       minSpan: secondsInHour,
       maxSpan: secondsInHour * 24,
       min: min,
       max: self.endTime,
       set: function(range) {
-        this.last = range.slice();
-        if (this.last[1] - this.last[0] > this.maxSpan)
-          this.last[0] = this.last[1] - this.maxSpan;
-        if (this.last[1] - this.last[0] < this.minSpan) {
-          if (this.last[0] + this.minSpan >= this.max) {
-            this.last[1] = this.max;
-            this.last[0] = this.max - this.minSpan;
+        this.begin = range[0];
+        this.end = range[1];
+        if (this.end - this.begin > this.maxSpan)
+          this.begin = this.end - this.maxSpan;
+        if (this.end - this.begin < this.minSpan) {
+          if (this.begin + this.minSpan >= this.max) {
+            this.end = this.max;
+            this.begin = this.max - this.minSpan;
           } else {
-            this.last[1] = this.last[0] + this.minSpan;
+            this.end = this.begin + this.minSpan;
           }
         }
       },
-      get: function() {
-        return this.last;
-      },
       getSpan: function() {
-        return this.last[1] - this.last[0];
+        return this.end - this.begin;
       },
     }
 
@@ -542,7 +538,7 @@ var HistoryView = function(userProfile, options) {
       range: true,
       min: timeRange.min,
       max: timeRange.max,
-      values: timeRange.last,
+      values: [timeRange.begin, timeRange.end],
       change: function(event, ui) {
         var i;
 
@@ -552,12 +548,12 @@ var HistoryView = function(userProfile, options) {
           return;
 
         timeRange.set(ui.values);
-        setSliderTimeRange(timeRange.last[0], timeRange.last[1]);
-        setGraphTimeRange(timeRange.last[0], timeRange.last[1]);
+        setSliderTimeRange(timeRange.begin, timeRange.end);
+        setGraphTimeRange(timeRange.begin, timeRange.end);
         for (i = 0; i < self.loaders.length; i++)
-          self.loaders[i].setTimeRange(timeRange.last[0], timeRange.last[1]);
-        self.endTime = timeRange.last[1];
-        self.timeSpan = timeRange.last[1] - timeRange.last[0];
+          self.loaders[i].setTimeRange(timeRange.begin, timeRange.end);
+        self.endTime = timeRange.end;
+        self.timeSpan = timeRange.end - timeRange.begin;
         disableAutoRefresh();
         load();
         $("#item-graph-auto-refresh").removeClass("active");
@@ -565,12 +561,12 @@ var HistoryView = function(userProfile, options) {
       slide: function(event, ui) {
         var beginTime = ui.values[0], endTime = ui.values[1];
 
-        if (timeRange.last[0] != ui.values[0])
+        if (timeRange.begin != ui.values[0])
           endTime = ui.values[0] + timeRange.getSpan();
         if (ui.values[1] - ui.values[0] < timeRange.minSpan)
           beginTime = ui.values[1] - timeRange.minSpan;
         timeRange.set([beginTime, endTime]);
-        setSliderTimeRange(timeRange.last[0], timeRange.last[1]);
+        setSliderTimeRange(timeRange.begin, timeRange.end);
       },
     });
     $("#item-graph-slider").slider('pips', {
