@@ -479,16 +479,16 @@ var HistoryView = function(userProfile, options) {
     }
   }
 
-  function drawGraph(plotData) {
+  function drawGraph() {
     var beginTimeInSec = self.endTime - self.timeSpan;
     var endTimeInSec = self.endTime;
     var i;
 
     self.plotOptions = getPlotOptions(beginTimeInSec, endTimeInSec);
-    fixupYAxisMapping(plotData, self.plotOptions);
+    fixupYAxisMapping(self.plotData, self.plotOptions);
 
-    for (i = 0; i < plotData.length; i++) {
-      if (plotData[i].data.length == 1)
+    for (i = 0; i < self.plotData.length; i++) {
+      if (self.plotData[i].data.length == 1)
         self.plotOptions.points.show = true;
     }
 
@@ -637,7 +637,7 @@ var HistoryView = function(userProfile, options) {
   function updateView() {
     updateTitleAndLegendLabels();
     self.displayUpdateTime();
-    drawGraph(self.plotData);
+    drawGraph();
     drawSlider();
   }
 
