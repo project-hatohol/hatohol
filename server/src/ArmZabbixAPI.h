@@ -44,6 +44,7 @@ public:
 
 protected:
 	ItemTablePtr updateTriggers(void);
+	ItemTablePtr updateTriggerExpandDescriptions(ItemTablePtr triggers);
 	void updateItems(void);
 
 	/**

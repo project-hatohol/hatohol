@@ -86,6 +86,14 @@ ItemTablePtr ArmZabbixAPI::updateTriggers(void)
 	return getTrigger(requestSince);
 }
 
+ItemTablePtr ArmZabbixAPI::updateTriggerExpandDescriptions(ItemTablePtr triggers)
+{
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	SmartTime last = uds->getTimestampOfLastTrigger(m_impl->zabbixServerId);
+	const int requestSince = last.getAsTimespec().tv_sec;
+	return getTriggerExpandDescription(triggers, requestSince);
+}
+
 void ArmZabbixAPI::updateItems(void)
 {
 	ItemTablePtr items = getItems();
