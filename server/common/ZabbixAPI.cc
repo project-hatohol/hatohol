@@ -636,6 +636,36 @@ SoupMessage *ZabbixAPI::queryTrigger(HatoholError &queryRet, int requestSince)
 	return queryCommon(agent, queryRet);
 }
 
+SoupMessage *ZabbixAPI::queryTriggerExpandDescription(const vector<uint64_t> &triggerIdVector,
+                                                      HatoholError &queryRet)
+{
+	JSONBuilder agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "trigger.get");
+
+	agent.startObject("params");
+	agent.startArray("output");
+	agent.add("extend");
+	agent.add("description");
+	agent.endArray();
+	agent.add("expandDescription", 1);
+	if (!triggerIdVector.empty()) {
+		agent.startArray("triggerids");
+		vector<uint64_t>::const_iterator it = triggerIdVector.begin();
+		for (; it != triggerIdVector.end(); ++it)
+			agent.add(*it);
+		agent.endArray();
+	}
+	agent.endObject(); //params
+
+	agent.add("auth", m_impl->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent, queryRet);
+}
+
 SoupMessage *ZabbixAPI::queryItem(HatoholError &queryRet)
 {
 	JSONBuilder agent;
