@@ -632,9 +632,9 @@ var HistoryView = function(userProfile, options) {
 
   function updateView() {
     updateTitleAndLegendLabels();
-    self.displayUpdateTime();
     drawGraph();
     drawSlider();
+    self.displayUpdateTime();
   }
 
   function buildHostName(item, servers) {
