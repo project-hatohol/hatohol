@@ -425,7 +425,7 @@ var HistoryView = function(userProfile, options) {
       } else {
         axis = getYAxisOptions(label);
         if (isInt)
-          options.minTickSize = 1;
+          axis.minTickSize = 1;
 	if (i % 2 == 1)
 	  axis.position = "right";
         axes.push(axis);
