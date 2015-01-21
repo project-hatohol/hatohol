@@ -112,6 +112,7 @@ protected:
 	 * @return The obtained triggers as an ItemTable format.
 	 */
 	ItemTablePtr getTrigger(int requestSince = 0);
+	ItemTablePtr getTriggerExtendDescription(ItemTablePtr items);
 
 	/**
 	 * Get the items.

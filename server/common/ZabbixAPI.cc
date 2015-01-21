@@ -280,6 +280,55 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 	return ItemTablePtr(tablePtr);
 }
 
+ItemTablePtr ZabbixAPI::getTriggerExtendDescription(ItemTablePtr items)
+{
+	HatoholError queryRet;
+	vector<uint64_t> triggerIdVector;
+	const ItemGroupList &itemGroupList = items->getItemGroupList();
+	ItemGroupListConstIterator itemGrpIt = itemGroupList.begin();
+	for (; itemGrpIt != itemGroupList.end(); ++itemGrpIt) {
+		const ItemGroup *itemGrp = *itemGrpIt;
+		triggerIdVector.push_back(
+		  *itemGrp->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID));
+	}
+	SoupMessage *msg = queryTriggerExpandDescription(triggerIdVector, queryRet);
+	if (!msg) {
+		if (queryRet == HTERR_INTERNAL_ERROR) {
+			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+			  HTERR_INTERNAL_ERROR,
+			  "Failed to query triggers.");
+		} else {
+			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+			  HTERR_FAILED_CONNECT_ZABBIX,
+			  "%s", queryRet.getMessage().c_str());
+		}
+	}
+	JSONParser parser(msg->response_body->data);
+	if (parser.hasError()) {
+		g_object_unref(msg);
+		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+		  HTERR_FAILED_TO_PARSE_JSON_DATA,
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	g_object_unref(msg);
+	startObject(parser, "result");
+	VariableItemTablePtr tablePtr;
+	int numData = parser.countElements();
+	MLPL_DBG("The number of trigger expanded descriptions: %d\n", numData);
+	if (numData < 1)
+		return ItemTablePtr(tablePtr);
+	for (int i = 0; i < numData; i++) {
+		startElement(parser, i);
+		VariableItemGroupPtr grp;
+		pushUint64(parser, grp, "triggerid",   ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+		pushString(parser, grp, "description", ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION);
+		tablePtr->add(grp);
+		parser.endElement();
+	}
+
+	return ItemTablePtr(tablePtr);
+}
+
 ItemTablePtr ZabbixAPI::getItems(void)
 {
 	HatoholError queryRet;
