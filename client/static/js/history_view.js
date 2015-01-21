@@ -492,7 +492,7 @@ var HistoryView = function(userProfile, options) {
         self.plotOptions.points.show = true;
     }
 
-    self.plot = $.plot($("#item-graph"), plotData, self.plotOptions);
+    self.plot = $.plot($("#item-graph"), self.plotData, self.plotOptions);
   }
 
   function getTimeRange() {
