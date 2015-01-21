@@ -437,7 +437,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function getPlotOptions(beginTimeInSec, endTimeInSec) {
-    var plotOptions = {
+    return {
       xaxis: {
         mode: "time",
         timezone: "browser",
@@ -459,8 +459,6 @@ var HistoryView = function(userProfile, options) {
         mode: "x",
       },
     };
-
-    return plotOptions;
   }
 
   function fixupYAxisMapping(plotData, plotOptions) {
