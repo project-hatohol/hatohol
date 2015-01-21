@@ -447,7 +447,7 @@ string makeTriggerOutput(const TriggerInfo &triggerInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
-	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|%" PRIu64 "|%s|%s\n",
+	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|%" PRIu64 "|%s|%s|%s\n",
 	    triggerInfo.serverId,
 	    triggerInfo.id,
 	    triggerInfo.status, triggerInfo.severity,
@@ -455,7 +455,8 @@ string makeTriggerOutput(const TriggerInfo &triggerInfo)
 	    triggerInfo.lastChangeTime.tv_nsec,
 	    triggerInfo.hostId,
 	    triggerInfo.hostName.c_str(),
-	    triggerInfo.brief.c_str());
+	    triggerInfo.brief.c_str(),
+	    triggerInfo.extendedInfo.c_str());
 	return expectedOut;
 }
 

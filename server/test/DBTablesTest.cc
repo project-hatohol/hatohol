@@ -168,6 +168,7 @@ TriggerInfo testTriggerInfo[] =
 	235012,                   // hostId,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1",         // brief,
+	"",                       // extendedInfo
 },{
 	1,                        // serverId
 	2,                        // id
@@ -177,6 +178,7 @@ TriggerInfo testTriggerInfo[] =
 	235012,                   // hostId,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1a",        // brief,
+	"",                       // extendedInfo
 },{
 	1,                        // serverId
 	3,                        // id
@@ -186,6 +188,7 @@ TriggerInfo testTriggerInfo[] =
 	235013,                   // hostId,
 	"hostX2",                 // hostName,
 	"TEST Trigger 1b",        // brief,
+	"",                       // extendedInfo
 },{
 	1,                        // serverId
 	4,                        // id
@@ -195,6 +198,7 @@ TriggerInfo testTriggerInfo[] =
 	235012,                   // hostId,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1c",        // brief,
+	"",                       // extendedInfo
 },{
 	1,                        // serverId
 	5,                        // id
@@ -204,6 +208,7 @@ TriggerInfo testTriggerInfo[] =
 	1129,                     // hostId,
 	"hostX3",                 // hostName,
 	"TEST Trigger 1d",        // brief,
+	"",                       // extendedInfo
 },{
 	3,                        // serverId
 	2,                        // id
@@ -213,6 +218,7 @@ TriggerInfo testTriggerInfo[] =
 	10001,                    // hostId,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
+	"",                       // extendedInfo
 },{
 	3,                        // serverId
 	3,                        // id
@@ -222,6 +228,7 @@ TriggerInfo testTriggerInfo[] =
 	10002,                    // hostId,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
+	"",                       // extendedInfo
 },{
 	2,                        // serverId
 	0xfedcba987654321,        // id
@@ -231,6 +238,7 @@ TriggerInfo testTriggerInfo[] =
 	0x89abcdeffffffff,       // hostId,
 	"hostQ1",                 // hostName,
 	"TEST Trigger Action",    // brief,
+	"",                       // extendedInfo
 },{
 	// This entry is used for testHatoholArmPluginGate.
 	12345,                    // serverId
@@ -241,6 +249,7 @@ TriggerInfo testTriggerInfo[] =
 	10002,                    // hostId,
 	"host12345",              // hostName,
 	"Brief for host12345",    // brief,
+	"",                       // extendedInfo
 },{
 	// This entry is for tests with a defunct server
 	defunctServerId1,         // serverId
@@ -251,6 +260,7 @@ TriggerInfo testTriggerInfo[] =
 	10002,                    // hostId,
 	"defunctSv1Host1",        // hostName,
 	"defunctSv1Host1 material", // brief,
+	"",                       // extendedInfo
 },
 };
 size_t NumTestTriggerInfo = ARRAY_SIZE(testTriggerInfo);
