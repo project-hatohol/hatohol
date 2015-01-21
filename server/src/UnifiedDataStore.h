@@ -135,6 +135,9 @@ public:
 	 */
 	HatoholError upsertHosts(const ServerHostDefVect &serverHostDefs);
 
+	HatoholError syncHosts(const ServerHostDefVect &svHostDefs,
+	                       const ServerIdType &serverId);
+
 	HatoholError upsertHostgroups(const HostgroupVect &hostgroups);
 	HatoholError upsertHostgroupMembers(
 	  const HostgroupMemberVect &hostgroupMembers);
