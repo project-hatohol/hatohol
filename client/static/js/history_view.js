@@ -492,22 +492,15 @@ var HistoryView = function(userProfile, options) {
   }
 
   function getTimeRange() {
-    var date, min;
-
     if (self.timeRange && !self.autoReloadIsEnabled)
       return self.timeRange;
-
-    // Adjust to 00:00:00
-    min = self.endTime - secondsInHour * 24 * 7;
-    date = $.plot.dateGenerator(min * 1000, self.plotOptions.xaxis);
-    min -= date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
 
     self.timeRange = {
       begin: self.endTime - self.timeSpan,
       end: self.endTime,
       minSpan: secondsInHour,
       maxSpan: secondsInHour * 24,
-      min: min,
+      min: undefined,
       max: self.endTime,
       set: function(range) {
         this.begin = range[0];
@@ -523,10 +516,24 @@ var HistoryView = function(userProfile, options) {
           }
         }
       },
+      adjustMin: function() {
+        var date;
+
+        // 1 week ago
+        this.min = this.max - secondsInHour * 24 * 7;
+        // Adjust to 00:00:00
+        date = $.plot.dateGenerator(this.min * 1000, self.plotOptions.xaxis);
+        this.min -=
+          date.getHours() * 3600 +
+          date.getMinutes() * 60 +
+          date.getSeconds();
+      },
       getSpan: function() {
         return this.end - this.begin;
       },
     }
+
+    self.timeRange.adjustMin();
 
     return self.timeRange;
   }
