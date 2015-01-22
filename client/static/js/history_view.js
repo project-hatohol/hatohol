@@ -374,7 +374,7 @@ var HistoryView = function(userProfile, options) {
     if (item) {
       legend.label = buildTitle(item, servers);
       if (item.unit)
-	legend.label += " [" + item.unit + "]";
+        legend.label += " [" + item.unit + "]";
     }
 
     return legend;
@@ -418,14 +418,14 @@ var HistoryView = function(userProfile, options) {
       axis = item ? table[item.unit] : undefined;
       isInt = item && (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER);
       if (axis) {
-	if (!isInt)
+        if (!isInt)
           delete axis.minTickSize;
       } else {
         axis = getYAxisOptions(label);
         if (isInt)
           axis.minTickSize = 1;
-	if (i % 2 == 1)
-	  axis.position = "right";
+        if (i % 2 == 1)
+          axis.position = "right";
         axes.push(axis);
         table[label] = axis;
       }
