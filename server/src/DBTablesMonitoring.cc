@@ -1296,10 +1296,19 @@ struct ItemsQueryOption::Impl {
 	ItemIdType targetId;
 	string itemGroupName;
 	string appName;
+	ExcludeFlags excludeFlags;
 
 	Impl()
-	: targetId(ALL_ITEMS)
+	  : targetId(ALL_ITEMS),
+	  excludeFlags(NO_EXCLUDE_HOST)
 	{
+	}
+	bool shouldExcludeSelfMonitoring() {
+		return excludeFlags & EXCLUDE_SELF_MONITORING;
+	}
+
+	bool shouldExcludeInvalidHost() {
+		return excludeFlags & EXCLUDE_INVALID_HOST;
 	}
 };
 
@@ -1332,6 +1341,16 @@ string ItemsQueryOption::getCondition(void) const
 
 	if (DBHatohol::isAlwaysFalseCondition(condition))
 		return condition;
+
+	if (m_impl->shouldExcludeInvalidHost()) {
+		addCondition(
+		  condition,
+		  StringUtils::sprintf(
+		    "%s.%s!=%d",
+		    DBTablesMonitoring::TABLE_NAME_HOSTS,
+		    COLUMN_DEF_HOSTS[IDX_HOSTS_VALIDITY].columnName,
+		    HOST_INVALID));
+	}
 
 	if (m_impl->targetId != ALL_ITEMS) {
 		const DBTermCodec *dbTermCodec = getDBTermCodec();
@@ -1399,6 +1418,11 @@ void ItemsQueryOption::setAppName(const string &appName) const
 const string &ItemsQueryOption::getAppName(void) const
 {
 	return m_impl->appName;
+}
+
+void ItemsQueryOption::setExcludeFlags(const ExcludeFlags &flg)
+{
+	m_impl->excludeFlags = flg;
 }
 
 //
@@ -2252,24 +2276,27 @@ void DBTablesMonitoring::addItemInfoList(const ItemInfoList &itemInfoList)
 void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 				      const ItemsQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileItems);
-	arg.tableField = option.getFromClause();
+	DBClientJoinBuilder builder(tableProfileItems, &option);
+	builder.add(IDX_ITEMS_SERVER_ID);
+	builder.add(IDX_ITEMS_ID);
+	builder.add(IDX_ITEMS_HOST_ID);
+	builder.add(IDX_ITEMS_BRIEF);
+	builder.add(IDX_ITEMS_LAST_VALUE_TIME_SEC);
+	builder.add(IDX_ITEMS_LAST_VALUE_TIME_NS);
+	builder.add(IDX_ITEMS_LAST_VALUE);
+	builder.add(IDX_ITEMS_PREV_VALUE);
+	builder.add(IDX_ITEMS_ITEM_GROUP_NAME);
+	builder.add(IDX_ITEMS_VALUE_TYPE);
+	builder.add(IDX_ITEMS_UNIT);
+	builder.addTable(
+	  tableProfileHosts,DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileItems,IDX_ITEMS_SERVER_ID,IDX_HOSTS_SERVER_ID,
+	  tableProfileItems,IDX_ITEMS_HOST_ID,IDX_HOSTS_HOST_ID);
+	
+	DBAgent::SelectExArg &arg = builder.build();
 	arg.useDistinct = option.isHostgroupUsed();
 	arg.useFullName = option.isHostgroupUsed();
-	arg.add(IDX_ITEMS_SERVER_ID);
-	arg.add(IDX_ITEMS_ID);
-	arg.add(IDX_ITEMS_HOST_ID);
-	arg.add(IDX_ITEMS_BRIEF);
-	arg.add(IDX_ITEMS_LAST_VALUE_TIME_SEC);
-	arg.add(IDX_ITEMS_LAST_VALUE_TIME_NS);
-	arg.add(IDX_ITEMS_LAST_VALUE);
-	arg.add(IDX_ITEMS_PREV_VALUE);
-	arg.add(IDX_ITEMS_ITEM_GROUP_NAME);
-	arg.add(IDX_ITEMS_VALUE_TYPE);
-	arg.add(IDX_ITEMS_UNIT);
 
-	// condition
-	arg.condition = option.getCondition();
 	if (DBHatohol::isAlwaysFalseCondition(arg.condition))
 		return;
 
@@ -2314,14 +2341,19 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 void DBTablesMonitoring::getApplicationInfoVect(ApplicationInfoVect &applicationInfoVect,
                                                 const ItemsQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileItems);
-	arg.tableField = option.getFromClause();
+	DBClientJoinBuilder builder(tableProfileItems, &option);
+	builder.add(IDX_ITEMS_ITEM_GROUP_NAME);
+	builder.addTable(
+	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileItems,IDX_ITEMS_SERVER_ID,IDX_HOSTS_SERVER_ID,
+	  tableProfileItems,IDX_ITEMS_HOST_ID,IDX_HOSTS_HOST_ID);
+
+	DBAgent::SelectExArg  &arg = builder.build();
+
 	arg.useDistinct = true;
 	arg.useFullName = option.isHostgroupUsed();
-	arg.add(IDX_ITEMS_ITEM_GROUP_NAME);
 
 	// condition
-	arg.condition = option.getCondition();
 	if (DBHatohol::isAlwaysFalseCondition(arg.condition))
 		return;
 
@@ -2504,7 +2536,11 @@ size_t DBTablesMonitoring::getNumberOfBadHosts(const TriggersQueryOption &option
 size_t DBTablesMonitoring::getNumberOfItems(
   const ItemsQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileTriggers);
+	DBClientJoinBuilder builder(tableProfileItems, &option);
+	builder.addTable(
+	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileItems,IDX_ITEMS_SERVER_ID,IDX_HOSTS_SERVER_ID,
+	  tableProfileItems,IDX_ITEMS_HOST_ID,IDX_HOSTS_HOST_ID);
 	string stmt = "count(*)";
 	if (option.isHostgroupUsed()) {
 		// TODO: It has a same issue with getNumberOfTriggers();
@@ -2520,13 +2556,9 @@ size_t DBTablesMonitoring::getNumberOfItems(
 		  option.getColumnName(IDX_ITEMS_SERVER_ID).c_str(),
 		  option.getColumnName(IDX_ITEMS_ID).c_str());
 	}
+	DBAgent::SelectExArg  &arg = builder.build();
+
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
-
-	// from
-	arg.tableField = option.getFromClause();
-
-	// condition
-	arg.condition = option.getCondition();
 
 	getDBAgent().runTransaction(arg);
 

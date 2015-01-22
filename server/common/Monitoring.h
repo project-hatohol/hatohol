@@ -66,6 +66,13 @@ enum HostValidity {
 	HOST_VALID_SELF_MONITORING,
 };
 
+enum ExcludeFlag {
+	NO_EXCLUDE_HOST = 0,
+	EXCLUDE_SELF_MONITORING = (1 << 0),
+	EXCLUDE_INVALID_HOST = (1 << 1),
+};
+typedef int ExcludeFlags;
+
 struct HostInfo {
 	ServerIdType        serverId;
 	HostIdType          id;
