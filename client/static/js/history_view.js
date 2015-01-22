@@ -706,7 +706,7 @@ var HistoryView = function(userProfile, options) {
 
     if (self.plotData.length == 1) {
       title = buildTitle(loader.getItem(), loader.getServers());
-    } if (isSameHost()) {
+    } else if (isSameHost()) {
       title = buildHostName(loader.getItem(), loader.getServers());
       for (i = 0; i < self.plotData.length; i++) {
         // omit host names in legend labels
