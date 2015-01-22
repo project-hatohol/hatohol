@@ -2348,7 +2348,7 @@ void DBTablesMonitoring::getApplicationInfoVect(ApplicationInfoVect &application
 	  tableProfileItems,IDX_ITEMS_SERVER_ID,IDX_HOSTS_SERVER_ID,
 	  tableProfileItems,IDX_ITEMS_HOST_ID,IDX_HOSTS_HOST_ID);
 
-	DBAgent::SelectExArg  &arg = builder.build();
+	DBAgent::SelectExArg &arg = builder.build();
 
 	arg.useDistinct = true;
 	arg.useFullName = option.isHostgroupUsed();
