@@ -66,13 +66,6 @@ private:
 
 class TriggersQueryOption : public HostResourceQueryOption {
 public:
-	enum ExcludeFlag {
-		NO_EXCLUDE_HOST = 0,
-		EXCLUDE_SELF_MONITORING = (1 << 0),
-		EXCLUDE_INVALID_HOST = (1 << 1),
-	};
-	typedef int ExcludeFlags;
-
 	TriggersQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	TriggersQueryOption(DataQueryContext *dataQueryContext);
 	TriggersQueryOption(const TriggersQueryOption &src);
@@ -107,6 +100,7 @@ public:
 	void setTargetItemGroupName(const std::string &itemGroupName);
 	const std::string &getTargetItemGroupName(void);
 	void setAppName(const std::string &appName) const;
+	void setExcludeFlags(const ExcludeFlags &flg);
 	const std::string &getAppName(void) const;
 
 private:

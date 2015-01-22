@@ -333,8 +333,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	TriggerInfoList triggerInfoList;
 	TriggersQueryOption triggersQueryOption(job->m_dataQueryContextPtr);
 	triggersQueryOption.setTargetServerId(svInfo.id);
-	triggersQueryOption.setExcludeFlags(TriggersQueryOption::EXCLUDE_INVALID_HOST |
-					    TriggersQueryOption::EXCLUDE_SELF_MONITORING);
+	triggersQueryOption.setExcludeFlags(EXCLUDE_INVALID_HOST|EXCLUDE_SELF_MONITORING);
 	agent.add("numberOfTriggers",
 		  dataStore->getNumberOfTriggers(triggersQueryOption));
 	const size_t numBadHosts =
@@ -384,8 +383,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 		for (int severity = 0;
 		     severity < NUM_TRIGGER_SEVERITY; severity++) {
 			TriggersQueryOption option(job->m_dataQueryContextPtr);
-			option.setExcludeFlags(TriggersQueryOption::EXCLUDE_INVALID_HOST |
-					       TriggersQueryOption::EXCLUDE_SELF_MONITORING);
+			option.setExcludeFlags(EXCLUDE_INVALID_HOST|EXCLUDE_SELF_MONITORING);
 			option.setTargetServerId(svInfo.id);
 			option.setTargetHostgroupId(hostgroupId);
 			agent.startObject();
@@ -406,8 +404,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
 		const HostgroupIdType hostgroupId = hostgrpItr->groupId;
 		TriggersQueryOption option(job->m_dataQueryContextPtr);
-		option.setExcludeFlags(TriggersQueryOption::EXCLUDE_INVALID_HOST |
-				       TriggersQueryOption::EXCLUDE_SELF_MONITORING);
+		option.setExcludeFlags(EXCLUDE_INVALID_HOST|EXCLUDE_SELF_MONITORING);
 		option.setTargetServerId(svInfo.id);
 		option.setTargetHostgroupId(hostgroupId);
 		size_t numBadHosts = dataStore->getNumberOfBadHosts(option);
@@ -527,7 +524,7 @@ void RestResourceHost::handlerGetTrigger(void)
 		return;
 	}
 
-	option.setExcludeFlags(TriggersQueryOption::EXCLUDE_INVALID_HOST);
+	option.setExcludeFlags(EXCLUDE_INVALID_HOST);
 	TriggerInfoList triggerList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getTriggerList(triggerList, option);
@@ -675,7 +672,9 @@ struct GetItemClosure : ClosureTemplate0<RestResourceHost>
 void RestResourceHost::replyGetItem(void)
 {
 	ItemsQueryOption option(m_dataQueryContextPtr);
+	option.setExcludeFlags(EXCLUDE_INVALID_HOST);
 	ItemsQueryOption applicationOption(m_dataQueryContextPtr);
+	applicationOption.setExcludeFlags(EXCLUDE_INVALID_HOST);
 	HatoholError err = parseItemParameter(option, m_query);
 	if (err != HTERR_OK) {
 		replyError(err);
@@ -838,6 +837,7 @@ void RestResourceHost::handlerGetHistory(void)
 
 	// Check the specified item
 	ItemsQueryOption option(m_dataQueryContextPtr);
+	option.setExcludeFlags(EXCLUDE_INVALID_HOST);
 	option.setTargetId(itemId);
 	ItemInfoList itemList;
 	unifiedDataStore->getItemList(itemList, option);
