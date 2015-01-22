@@ -1299,7 +1299,7 @@ struct ItemsQueryOption::Impl {
 	ExcludeFlags excludeFlags;
 
 	Impl()
-	  : targetId(ALL_ITEMS),
+	: targetId(ALL_ITEMS),
 	  excludeFlags(NO_EXCLUDE_HOST)
 	{
 	}
