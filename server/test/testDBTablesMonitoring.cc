@@ -1440,7 +1440,7 @@ void test_updateHostsAddNewHost(void)
 		if (hostInfo.serverId != targetServerId)
 			continue;
 		if (hostInfo.id == newHost.id)
-			cut_fail("We use the worng test data");
+			cut_fail("We use the wrong test data");
 	}
 
 	// Prepare for the test data and the expected result.
