@@ -2106,6 +2106,8 @@ void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
 				updatedHostInfoList.push_back(newHostInfo);
 				continue;
 			}
+			// The host already exits and doesn't changes.
+			// We have to do nothing.
 			currValidHosts.erase(currHostItr);
 			continue;
 		}
