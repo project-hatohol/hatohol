@@ -27,7 +27,7 @@
 using namespace std;
 using namespace mlpl;
 
-typedef map<HostIdType, string> HostIdNameMap;
+typedef map<string, string> HostIdNameMap;
 typedef HostIdNameMap::iterator HostIdNameMapIterator;
 
 struct HostInfoCache::Impl
@@ -48,25 +48,35 @@ HostInfoCache::~HostInfoCache()
 {
 }
 
-void HostInfoCache::update(const HostInfo &hostInfo)
+void HostInfoCache::update(const ServerHostDef &svHostDef)
 {
 	bool doUpdate = true;
 	m_impl->lock.writeLock();
-	HostIdNameMapIterator it = m_impl->hostIdNameMap.find(hostInfo.id);
+	HostIdNameMapIterator it =
+	  m_impl->hostIdNameMap.find(svHostDef.hostIdInServer);
 	if (it != m_impl->hostIdNameMap.end()) {
 		const string &hostName = it->second;
-		if (hostName == hostInfo.hostName)
+		if (hostName == svHostDef.name)
 			doUpdate = false;
 	}
 	if (doUpdate)
-		m_impl->hostIdNameMap[hostInfo.id] = hostInfo.hostName;;
+		m_impl->hostIdNameMap[svHostDef.hostIdInServer] = svHostDef.name;
 	m_impl->lock.unlock();
 }
 
-bool HostInfoCache::getName(const HostIdType &id, string &name) const
+void HostInfoCache::update(const ServerHostDefVect &svHostDefs)
+{
+	// TODO: consider if DBTablesHost should have the cache
+	ServerHostDefVectConstIterator svHostDefIt = svHostDefs.begin();
+	for (; svHostDefIt != svHostDefs.end(); ++svHostDefIt)
+		update(*svHostDefIt);
+}
+
+bool HostInfoCache::getName(const HostIdType &_id, string &name) const
 {
 	bool found = false;
 	m_impl->lock.readLock();
+	const string id = StringUtils::sprintf("%" FMT_HOST_ID, _id);
 	HostIdNameMapIterator it = m_impl->hostIdNameMap.find(id);
 	if (it != m_impl->hostIdNameMap.end()) {
 		name = it->second;

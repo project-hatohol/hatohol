@@ -887,19 +887,15 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 	cmdBuf->setIndex(sizeof(HapiCommandHeader));
 	ItemTablePtr hostTablePtr = createItemTable(*cmdBuf);
 
-	HostInfoList hostInfoList;
+	ServerHostDefVect svHostDefs;
 	HatoholDBUtils::transformHostsToHatoholFormat(
-	  hostInfoList, hostTablePtr, m_impl->serverInfo.id);
+	  svHostDefs, hostTablePtr, m_impl->serverInfo.id);
 
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	dbMonitoring.updateHosts(hostInfoList, m_impl->serverInfo.id);
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  UnifiedDataStore::getInstance()->syncHosts(svHostDefs,
+	                                             m_impl->serverInfo.id));
 
-	// TODO: consider if DBClientHatohol should have the cache
-	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
-	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
-		m_impl->hostInfoCache.update(*hostInfoItr);
-
+	m_impl->hostInfoCache.update(svHostDefs);
 	replyOk();
 }
 
