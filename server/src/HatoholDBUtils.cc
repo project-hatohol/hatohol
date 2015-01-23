@@ -182,17 +182,29 @@ void HatoholDBUtils::transformHostsGroupsToHatoholFormat(
 }
 
 void HatoholDBUtils::transformHostsToHatoholFormat(
-  HostInfoList &hostInfoList, const ItemTablePtr hosts,
+  ServerHostDefVect &svHostDefs, const ItemTablePtr hosts,
   const ServerIdType &serverId)
 {
 	const ItemGroupList &itemGroupList = hosts->getItemGroupList();
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
-		HostInfo hostInfo;
-		hostInfo.serverId = serverId;
-		hostInfo.validity = HOST_VALID;
-		transformHostsItemGroupToHatoholFormat(hostInfo, *it);
-		hostInfoList.push_back(hostInfo);
+		ServerHostDef svHostDef;
+		ItemGroupStream itemGroupStream(*it);
+
+		svHostDef.id = AUTO_INCREMENT_VALUE;
+		svHostDef.hostId = AUTO_ASSIGNED_ID;
+		svHostDef.serverId = serverId;
+
+		itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_HOSTID);
+		svHostDef.hostIdInServer =
+		  itemGroupStream.read<uint64_t, string>();
+
+		itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_NAME);
+		itemGroupStream >> svHostDef.name;
+
+		svHostDef.status = HOST_STAT_NORMAL;
+
+		svHostDefs.push_back(svHostDef);
 	}
 }
 
@@ -426,18 +438,6 @@ void HatoholDBUtils::transformHostsGroupsItemGroupToHatoholFormat(
 	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
 	hostgrpMember.hostgroupIdInServer =
 	  itemGroupStream.read<HostgroupIdType, string>();
-}
-
-void HatoholDBUtils::transformHostsItemGroupToHatoholFormat(
-  HostInfo &hostInfo, const ItemGroup *groupHosts)
-{
-	ItemGroupStream itemGroupStream(groupHosts);
-
-	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_HOSTID);
-	itemGroupStream >> hostInfo.id;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_NAME);
-	itemGroupStream >> hostInfo.hostName;
 }
 
 bool HatoholDBUtils::transformItemItemGroupToItemInfo(

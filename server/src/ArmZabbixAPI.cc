@@ -233,16 +233,14 @@ void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
 
 void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 {
-	ThreadLocalDBCache cache;
-	HostInfoList hostInfoList;
-	HatoholDBUtils::transformHostsToHatoholFormat(hostInfoList, hosts,
+	ServerHostDefVect svHostDefs;
+	HatoholDBUtils::transformHostsToHatoholFormat(svHostDefs, hosts,
 	                                              m_impl->zabbixServerId);
-	cache.getMonitoring().updateHosts(hostInfoList, m_impl->zabbixServerId);
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  UnifiedDataStore::getInstance()->syncHosts(svHostDefs,
+	                                             m_impl->zabbixServerId));
 
-	// TODO: consider if DBClientHatohol should have the cache
-	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
-	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
-		m_impl->hostInfoCache.update(*hostInfoItr);
+	m_impl->hostInfoCache.update(svHostDefs);
 }
 
 uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
