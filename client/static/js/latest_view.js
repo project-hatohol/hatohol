@@ -147,13 +147,12 @@ var LatestView = function(userProfile) {
   }
 
   function getGraphURL(item) {
-    var url = "ajax_history?serverId=";
-    url += escapeHTML(item["serverId"]);
-    url += "&hostId=";
-    url += escapeHTML(item["hostId"]);
-    url += "&itemId=";
-    url += escapeHTML(item["id"]);
-    return url;
+    var query = {
+      serverId: item["serverId"],
+      hostId:   item["hostId"],
+      itemId:   item["id"]
+    }
+    return "ajax_history?" + $.param(query);
   }
 
   function getGraphLink(item) {

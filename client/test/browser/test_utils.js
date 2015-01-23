@@ -460,7 +460,7 @@ describe('deparam', function() {
   it('empty value', function() {
     var query = "limit=&offset=20";
     var expected = {
-      'limit': undefined,
+      'limit': '',
       'offset': '20',
     };
     expect(deparam(query)).eql(expected);
@@ -469,18 +469,51 @@ describe('deparam', function() {
   it('empty key', function() {
     var query = "=10&offset=20";
     var expected = {
+      '': '10',
       'offset': '20',
     };
     expect(deparam(query)).eql(expected);
   });
 
-  it('decode', function() {
-    var query = "f%5B%5D=status&offset=%3E20";
+  it('zero as key', function() {
+    var query = "0=value";
     var expected = {
-      'f[]': 'status',
+      0: "value"
+    };
+    expect(deparam(query)).eql(expected);
+  });
+
+  it('decode', function() {
+    var query = "f%5B%5D=status&f%5B%5D=severity&offset=%3E20";
+    var expected = {
+      'f': ['status', 'severity'],
       'offset': '>20',
     };
     expect(deparam(query)).eql(expected);
+  });
+
+  it('complex object', function() {
+    var expected = {
+      items: [
+        {
+          serverId: 1,
+          hostId: 2,
+          itemId: 3,
+          beginTime: 4,
+          endTime: 5
+        },
+        {
+          serverId: 6,
+          hostId: 7,
+          itemId: 8,
+          beginTime: 9,
+          endTime: 10
+        },
+      ]
+    };
+    var query = $.param(expected);
+    var actual = deparam(query);
+    expect(actual).eql(expected);
   });
 });
 

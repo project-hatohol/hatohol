@@ -234,26 +234,16 @@ function escapeHTML(html) {
 };
 
 function deparam(query) {
-  var offset, pair, key, value, params, paramsTable = {};
+  var offset;
 
   if (!query) {
     offset = window.location.href.indexOf('?');
     if (offset < 0)
-      return paramsTable;
+      return {};
     query = window.location.href.slice(offset + 1);
   }
 
-  params = query.split('&');
-  for (i = 0; i < params.length; i++) {
-    pair = params[i].split('=', 2);
-    if (!pair || !pair[0])
-      continue;
-    key = decodeURIComponent(pair[0]);
-    value = pair[1] ? decodeURIComponent(pair[1]) : undefined;
-    paramsTable[key] = value;
-  }
-
-  return paramsTable;
+  return $.deparam(query);
 };
 
 function getMetricPrefix(pow) {

@@ -88,6 +88,7 @@ HistoryLoader.prototype.load = function() {
     view.startConnection(getItemQuery(), function(reply) {
       var items = reply.items;
       var messageDetail;
+      var query = self.options.query;
 
       if (items && items.length == 1) {
         self.item = items[0];
@@ -216,11 +217,14 @@ HistoryLoader.prototype.getItem = function() {
   return this.item;
 }
 
+HistoryLoader.prototype.getServers = function() {
+  return this.servers;
+}
+
 
 var HistoryView = function(userProfile, options) {
   var self = this;
   var secondsInHour = 60 * 60;
-  var loader;
 
   options = options || {};
 
@@ -233,41 +237,54 @@ var HistoryView = function(userProfile, options) {
   self.settingSliderTimeRange = false;
   self.endTime = undefined;
   self.timeSpan = secondsInHour * 6;
+  self.loaders = [];
 
   appendGraphArea();
-
-  loader = new HistoryLoader({
-    view: this,
-    defaultTimeSpan: self.timeSpan,
-    query: self.parseQuery(options.query),
-    onLoadItem: function(item, servers) {
-      setItemDescription(item, servers)
-      self.plotData[0] = formatPlotData(item);
-      updateView();
-    },
-    onLoadHistory: function(history) {
-      self.plotData[0].data = history;
-      updateView();
-    }
-  });
-  self.endTime = loader.options.query.endTime;
-  self.timeSpan = loader.getTimeSpan();
-  self.autoReloadIsEnabled = !self.endTime;
+  prepareHistoryLoaders(self.parseQuery(options.query));
   load();
 
+  function prepareHistoryLoaders(historyQueries) {
+    var i;
+    for (i = 0; i < historyQueries.length; i++) {
+      self.plotData[i] = initLegendData();
+      self.loaders[i] = new HistoryLoader({
+        index: i,
+        view: self,
+        defaultTimeSpan: self.timeSpan,
+        query: historyQueries[i],
+        onLoadItem: function(item, servers) {
+          this.item = item;
+          self.plotData[this.index] = initLegendData(item, servers);
+          updateView();
+        },
+        onLoadHistory: function(history) {
+          self.plotData[this.index].data = history;
+          updateView();
+        }
+      });
+    }
+
+    // TODO: allow different time ranges?
+    self.endTime = self.loaders[0].options.query.endTime;
+    self.timeSpan = self.loaders[0].getTimeSpan();
+    self.autoReloadIsEnabled = !self.endTime;
+  }
+
   function load() {
+    var promises;
+    var i;
+
     self.clearAutoReload();
     if (self.autoReloadIsEnabled) {
       self.endTime = Math.floor(new Date().getTime() / 1000);
-      loader.setTimeRange(undefined, self.endTime, true);
+      for (i = 0; i < self.loaders.length; i++)
+        self.loaders[i].setTimeRange(undefined, self.endTime, true);
     }
 
-    $.when(loader.load()).done(function() {
-      if (self.autoReloadIsEnabled) {
+    promises = $.map(self.loaders, function(loader) { return loader.load(); });
+    $.when.apply($, promises).done(function() {
+      if (self.autoReloadIsEnabled)
         self.setAutoReload(load, self.reloadIntervalSeconds);
-      } else {
-        disableAutoRefresh();
-      }
     });
   }
 
@@ -351,14 +368,16 @@ var HistoryView = function(userProfile, options) {
     });
   };
 
-  function formatPlotData(item) {
-    var i;
-    var data = { label: item.brief, data:[] };
+  function initLegendData(item, servers) {
+    var legend = { data:[] };
 
-    if (item.unit)
-      data.label += " [" + item.unit + "]";
+    if (item) {
+      legend.label = buildTitle(item, servers);
+      if (item.unit)
+        legend.label += " [" + item.unit + "]";
+    }
 
-    return data;
+    return legend;
   };
 
   function formatTime(val, unit) {
@@ -381,8 +400,41 @@ var HistoryView = function(userProfile, options) {
     return $.plot.formatDate(date, format);
   }
 
-  function getPlotOptions(item, beginTimeInSec, endTimeInSec) {
-    var plotOptions = {
+  function getYAxisOptions(unit) {
+    return {
+      min: 0,
+      unit: unit,
+      tickFormatter: function(val, axis) {
+        return formatItemValue("" + val, this.unit);
+      }
+    };
+  }
+
+  function getYAxesOptions() {
+    var i, item, label, axis, axes = [], table = {}, isInt;
+    for (i = 0; i < self.loaders.length; i++) {
+      item = self.loaders[i].getItem();
+      label = item ? item.unit : "";
+      axis = item ? table[item.unit] : undefined;
+      isInt = item && (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER);
+      if (axis) {
+        if (!isInt)
+          delete axis.minTickSize;
+      } else {
+        axis = getYAxisOptions(label);
+        if (isInt)
+          axis.minTickSize = 1;
+        if (i % 2 == 1)
+          axis.position = "right";
+        axes.push(axis);
+        table[label] = axis;
+      }
+    }
+    return axes;
+  }
+
+  function getPlotOptions(beginTimeInSec, endTimeInSec) {
+    return {
       xaxis: {
         mode: "time",
         timezone: "browser",
@@ -393,14 +445,9 @@ var HistoryView = function(userProfile, options) {
         min: beginTimeInSec * 1000,
         max: endTimeInSec * 1000,
       },
-      yaxis: {
-        min: 0,
-        tickFormatter: function(val, axis) {
-          return formatItemValue("" + val, item.unit);
-        }
-      },
+      yaxes: getYAxesOptions(),
       legend: {
-        show: false,
+        show: (self.plotData.length > 1),
         position: "sw",
       },
       points: {
@@ -409,68 +456,84 @@ var HistoryView = function(userProfile, options) {
         mode: "x",
       },
     };
-
-    if (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)
-      plotOptions.yaxis.minTickSize = 1;
-
-    return plotOptions;
   }
 
-  function drawGraph(item, plotData) {
+  function fixupYAxisMapping(plotData, plotOptions) {
+    function findYAxis(yaxes, item) {
+      var i;
+      for (i = 0; item && i < yaxes.length; i++) {
+        if (yaxes[i].unit == item.unit)
+          return i + 1;
+      }
+      return 1;
+    }
+    var i, item;
+
+    for (i = 0; i < self.loaders.length; i++) {
+      item = self.loaders[i].getItem();
+      plotData[i].yaxis = findYAxis(plotOptions.yaxes, item);
+    }
+  }
+
+  function drawGraph() {
     var beginTimeInSec = self.endTime - self.timeSpan;
     var endTimeInSec = self.endTime;
-    var plotOptions = getPlotOptions(loader.getItem(), beginTimeInSec, endTimeInSec);
     var i;
 
-    for (i = 0; i < plotData.length; i++) {
-      if (plotData[i].data.length < 3)
-        plotOptions.points.show = true;
+    self.plotOptions = getPlotOptions(beginTimeInSec, endTimeInSec);
+    fixupYAxisMapping(self.plotData, self.plotOptions);
+
+    for (i = 0; i < self.plotData.length; i++) {
+      if (self.plotData[i].data.length == 1)
+        self.plotOptions.points.show = true;
     }
 
-    self.plotOptions = plotOptions;
-    self.plot = $.plot($("#item-graph"), plotData, plotOptions);
+    self.plot = $.plot($("#item-graph"), self.plotData, self.plotOptions);
   }
 
   function getTimeRange() {
-    var beginTimeInSec, endTimeInSec, date, min;
-
     if (self.timeRange && !self.autoReloadIsEnabled)
       return self.timeRange;
 
-    beginTimeInSec = self.endTime - self.timeSpan;
-    endTimeInSec = self.endTime;
-
-    // Adjust to 00:00:00
-    min = self.endTime - secondsInHour * 24 * 7;
-    date = $.plot.dateGenerator(min * 1000, self.plotOptions.xaxis);
-    min -= date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
-
     self.timeRange = {
-      last: [beginTimeInSec, endTimeInSec],
+      begin: self.endTime - self.timeSpan,
+      end: self.endTime,
       minSpan: secondsInHour,
       maxSpan: secondsInHour * 24,
-      min: min,
+      min: undefined,
       max: self.endTime,
       set: function(range) {
-        this.last = range.slice();
-        if (this.last[1] - this.last[0] > this.maxSpan)
-          this.last[0] = this.last[1] - this.maxSpan;
-        if (this.last[1] - this.last[0] < this.minSpan) {
-          if (this.last[0] + this.minSpan >= this.max) {
-            this.last[1] = this.max;
-            this.last[0] = this.max - this.minSpan;
+        this.begin = range[0];
+        this.end = range[1];
+        if (this.end - this.begin > this.maxSpan)
+          this.begin = this.end - this.maxSpan;
+        if (this.end - this.begin < this.minSpan) {
+          if (this.begin + this.minSpan >= this.max) {
+            this.end = this.max;
+            this.begin = this.max - this.minSpan;
           } else {
-            this.last[1] = this.last[0] + this.minSpan;
+            this.end = this.begin + this.minSpan;
           }
         }
       },
-      get: function() {
-        return this.last;
+      adjustMin: function() {
+        var date;
+
+        // 1 week ago
+        this.min = this.max - secondsInHour * 24 * 7;
+        // Adjust to 00:00:00
+        date = $.plot.dateGenerator(this.min * 1000, self.plotOptions.xaxis);
+        this.min -=
+          date.getHours() * 3600 +
+          date.getMinutes() * 60 +
+          date.getSeconds();
       },
       getSpan: function() {
-        return this.last[1] - this.last[0];
+        return this.end - this.begin;
       },
     }
+
+    self.timeRange.adjustMin();
 
     return self.timeRange;
   }
@@ -482,32 +545,35 @@ var HistoryView = function(userProfile, options) {
       range: true,
       min: timeRange.min,
       max: timeRange.max,
-      values: timeRange.last,
+      values: [timeRange.begin, timeRange.end],
       change: function(event, ui) {
+        var i;
+
         if (self.settingSliderTimeRange)
           return;
-        if (loader.isLoading())
+        if (self.isLoading())
           return;
 
         timeRange.set(ui.values);
-        setSliderTimeRange(timeRange.last[0], timeRange.last[1]);
-        setGraphTimeRange(timeRange.last[0], timeRange.last[1]);
-        loader.setTimeRange(timeRange.last[0], timeRange.last[1]);
-        self.endTime = timeRange.last[1];
-        self.timeSpan = timeRange.last[1] - timeRange.last[0];
-        self.autoReloadIsEnabled = false;
+        setSliderTimeRange(timeRange.begin, timeRange.end);
+        setGraphTimeRange(timeRange.begin, timeRange.end);
+        for (i = 0; i < self.loaders.length; i++)
+          self.loaders[i].setTimeRange(timeRange.begin, timeRange.end);
+        self.endTime = timeRange.end;
+        self.timeSpan = timeRange.end - timeRange.begin;
+        disableAutoRefresh();
         load();
         $("#item-graph-auto-refresh").removeClass("active");
       },
       slide: function(event, ui) {
         var beginTime = ui.values[0], endTime = ui.values[1];
 
-        if (timeRange.last[0] != ui.values[0])
+        if (timeRange.begin != ui.values[0])
           endTime = ui.values[0] + timeRange.getSpan();
         if (ui.values[1] - ui.values[0] < timeRange.minSpan)
           beginTime = ui.values[1] - timeRange.minSpan;
         timeRange.set([beginTime, endTime]);
-        setSliderTimeRange(timeRange.last[0], timeRange.last[1]);
+        setSliderTimeRange(timeRange.begin, timeRange.end);
       },
     });
     $("#item-graph-slider").slider('pips', {
@@ -568,9 +634,10 @@ var HistoryView = function(userProfile, options) {
   }
 
   function updateView() {
-    self.displayUpdateTime();
-    drawGraph(loader.getItem(), self.plotData);
+    updateTitleAndLegendLabels();
+    drawGraph();
     drawSlider();
+    self.displayUpdateTime();
   }
 
   function buildHostName(item, servers) {
@@ -580,13 +647,88 @@ var HistoryView = function(userProfile, options) {
     return serverName + ": " + hostName;
   }
 
-  function setItemDescription(item, servers) {
+  function buildTitle(item, servers) {
     var hostName = buildHostName(item, servers);
     var title = "";
     title += item.brief;
     title += " (" + hostName + ")";
-    $("title").text(title);
-    $(".graph h2").text(title);
+    return title;
+  }
+
+  function isSameHost() {
+    var i, item, prevItem = self.loaders[0].getItem();
+
+    if (!prevItem)
+      return false;
+
+    for (i = 1; i < self.loaders.length; i++) {
+      if (!self.loaders[i])
+        return false;
+
+      item = self.loaders[i].getItem();
+      if (!item)
+        return false;
+      if (item.serverId != prevItem.serverId)
+        return false;
+      if (item.hostId != prevItem.hostId)
+        return false;
+
+      prevItem = item;
+    }
+
+    return true;
+  }
+
+  function isSameItem() {
+    var i, item, prevItem = self.loaders[0].getItem();
+
+    if (!prevItem)
+      return false;
+
+    for (i = 1; i < self.loaders.length; i++) {
+      if (!self.loaders[i])
+        return false;
+
+      item = self.loaders[i].getItem();
+      if (!item)
+        return false;
+      if (item.brief != prevItem.brief)
+        return false;
+
+      prevItem = item;
+    }
+
+    return true;
+  }
+
+  function updateTitleAndLegendLabels() {
+    var i, title, item, servers, loader = self.loaders[0];
+
+    if (self.plotData.length == 1) {
+      title = buildTitle(loader.getItem(), loader.getServers());
+    } else if (isSameHost()) {
+      title = buildHostName(loader.getItem(), loader.getServers());
+      for (i = 0; i < self.plotData.length; i++) {
+        // omit host names in legend labels
+        item = self.loaders[i].getItem();
+        self.plotData[i].label = item.brief;
+        if (item.unit)
+          self.plotData[i].label += " [" + item.unit + "]";
+      }
+    } else if (isSameItem()) {
+      title = loader.getItem().brief;
+      for (i = 0; i < self.plotData.length; i++) {
+        // omit item names in legend labels
+        item = self.loaders[i].getItem();
+        servers = self.loaders[i].getServers();
+        self.plotData[i].label = buildHostName(item, servers);
+      }
+    }
+
+    if (title) {
+      $("title").text(title);
+      $(".graph h2").text(title);
+    }
   }
 };
 
@@ -594,12 +736,33 @@ HistoryView.prototype = Object.create(HatoholMonitoringView.prototype);
 HistoryView.prototype.constructor = HistoryView;
 
 HistoryView.prototype.parseQuery = function(query) {
-  var knownKeys = ["serverId", "hostId", "itemId", "beginTime", "endTime"];
-  var startTime = new Date();
-  var i, allParams = deparam(query), queryTable = {};
-  for (i = 0; i < knownKeys.length; i++) {
-    if (knownKeys[i] in allParams)
-      queryTable[knownKeys[i]] = allParams[knownKeys[i]];
+  var allParams = deparam(query);
+  var histories = allParams["histories"]
+  var i, tables = [];
+
+  var addHistoryQuery = function(params) {
+    var knownKeys = ["serverId", "hostId", "itemId", "beginTime", "endTime"];
+    var i, table = {};
+
+    for (i = 0; i < knownKeys.length; i++) {
+      if (knownKeys[i] in params)
+        table[knownKeys[i]] = params[knownKeys[i]];
+    }
+    if (Object.keys(table).length > 0)
+      tables.push(table);
   }
-  return queryTable;
+
+  addHistoryQuery(allParams);
+  for (i = 0; histories && i < histories.length; i++)
+    addHistoryQuery(histories[i]);
+
+  return tables;
+};
+
+HistoryView.prototype.isLoading = function() {
+  var i;
+  for (i = 0; i < this.loaders.length; i++)
+    if (this.loaders[i].isLoading())
+      return true;
+  return false;
 };

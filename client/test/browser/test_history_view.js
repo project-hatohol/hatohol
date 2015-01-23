@@ -142,16 +142,49 @@ describe('HistoryView', function() {
     var view = new HistoryView($('#' + TEST_FIXTURE_ID).get(0),
                                { query: query });
     var expected = [{
-      label: "cpu usage [%]",
+      label: "cpu usage (Zabbix: Host1) [%]",
       data: [
         [1415586892182, "97.8568"],
         [1415586952317, "97.4699"],
         [1415587012454, "97.1620"],
         [1415587072551, "99.3657"],
         [1415587132645, "93.3277"],
-      ]
+      ],
+      yaxis: 1
     }];
     respond(itemsJson(), historyJson());
     expect(view.plotData).eql(expected);
+  });
+
+  it('parse multiple items query', function() {
+    var expected = [
+      {
+        serverId: 1,
+        hostId: 2,
+        itemId: 3,
+        beginTime: 4,
+        endTime: 5,
+      },
+      {
+        serverId: 6,
+        hostId: 7,
+        itemId: 8,
+        beginTime: 9,
+        endTime: 10
+      },
+      {
+        serverId: 11,
+        hostId: 12,
+        itemId: 13,
+        beginTime: 14,
+        endTime: 15
+      }
+    ];
+    var queryObj = $.extend({
+      histories: [expected[1], expected[2]]
+    }, expected[0]);
+    var query = $.param(queryObj);
+    var actual = HistoryView.prototype.parseQuery(query);
+    expect(expected).eql(actual);
   });
 });
