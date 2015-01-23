@@ -73,6 +73,8 @@ var HatoholConnector = function(connectParams) {
 };
 
 HatoholConnector.prototype.start = function(connectParams) {
+  var self = this;
+
   if (connectParams.request)
     self.request = connectParams.request;
   else
