@@ -2111,8 +2111,6 @@ void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
                                      const ServerIdType &serverId)
 {
-	// TODO: We should update the host name if it's changed.
-
 	// Make a set that contains current hosts records
 	HostsQueryOption option(USER_ID_SYSTEM);
 	option.setValidity(HOST_VALID);
@@ -2131,8 +2129,16 @@ void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
 	HostInfoListConstIterator newHostsItr = hostInfoList.begin();
 	for (; newHostsItr != hostInfoList.end(); ++newHostsItr) {
 		const HostInfo &newHostInfo = *newHostsItr;
+		HostIdHostInfoMapConstIterator currHostItr = currValidHosts.find(newHostInfo.id);
+		if (currHostItr != currValidHosts.end()) {
+			const HostInfo &existHost = *currHostItr->second;
+			if (existHost.hostName != newHostInfo.hostName){
+				updatedHostInfoList.push_back(newHostInfo);
+				continue;
+			}
+		}
 		if (currValidHosts.erase(newHostInfo.id) >= 1) {
-			// The host already exits. We have nrothing to do.
+			// The host already exits. We have to do nothing.
 			continue;
 		}
 		updatedHostInfoList.push_back(newHostInfo);
