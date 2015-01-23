@@ -31,7 +31,8 @@ class HostInfoCache {
 public:
 	HostInfoCache(void);
 	virtual ~HostInfoCache();
-	void update(const HostInfo &hostInfo);
+	void update(const ServerHostDef &svHostDef);
+	void update(const ServerHostDefVect &svHostDefs);
 
 	/**
 	 * Get the name corresponding to the specified host ID.
