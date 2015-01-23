@@ -713,7 +713,7 @@ SoupMessage *ZabbixAPI::queryGroup(HatoholError &queryRet)
 	agent.add("method", "hostgroup.get");
 
 	agent.startObject("params");
-	agent.add("real_hosts", true);
+	agent.addTrue("real_hosts");
 	agent.add("output", "extend");
 	agent.add("selectHosts", "refer");
 	agent.endObject(); //params
