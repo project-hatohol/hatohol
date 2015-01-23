@@ -502,9 +502,9 @@ var HistoryView = function(userProfile, options) {
       maxSpan: secondsInHour * 24,
       min: undefined,
       max: self.endTime,
-      set: function(range) {
-        this.begin = range[0];
-        this.end = range[1];
+      set: function(beginTime, endTime) {
+        this.begin = beginTime;
+        this.end = endTime;
         if (this.end - this.begin > this.maxSpan)
           this.begin = this.end - this.maxSpan;
         if (this.end - this.begin < this.minSpan) {
@@ -554,7 +554,7 @@ var HistoryView = function(userProfile, options) {
         if (self.isLoading())
           return;
 
-        timeRange.set(ui.values);
+        timeRange.set(ui.values[0], ui.values[1]);
         setSliderTimeRange(timeRange.begin, timeRange.end);
         setGraphTimeRange(timeRange.begin, timeRange.end);
         for (i = 0; i < self.loaders.length; i++)
@@ -572,7 +572,7 @@ var HistoryView = function(userProfile, options) {
           endTime = ui.values[0] + timeRange.getSpan();
         if (ui.values[1] - ui.values[0] < timeRange.minSpan)
           beginTime = ui.values[1] - timeRange.minSpan;
-        timeRange.set([beginTime, endTime]);
+        timeRange.set(beginTime, endTime);
         setSliderTimeRange(timeRange.begin, timeRange.end);
       },
     });
