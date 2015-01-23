@@ -2102,14 +2102,12 @@ void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
 		HostIdHostInfoMapIterator currHostItr = currValidHosts.find(newHostInfo.id);
 		if (currHostItr != currValidHosts.end()) {
 			const HostInfo &existHost = *currHostItr->second;
-			if (existHost.hostName != newHostInfo.hostName){
-				updatedHostInfoList.push_back(newHostInfo);
+			if (existHost.hostName == newHostInfo.hostName){
+				// The host already exits and doesn't changes.
+				// We have to do nothing.
+				currValidHosts.erase(currHostItr);
 				continue;
 			}
-			// The host already exits and doesn't changes.
-			// We have to do nothing.
-			currValidHosts.erase(currHostItr);
-			continue;
 		}
 		updatedHostInfoList.push_back(newHostInfo);
 	}
