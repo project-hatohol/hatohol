@@ -1888,29 +1888,6 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	return HatoholError(HTERR_OK);
 }
 
-static void conv(ServerHostDef &serverHostDef, const HostInfo &hostInfo)
-{
-	serverHostDef.id = AUTO_INCREMENT_VALUE;
-	serverHostDef.hostId = AUTO_ASSIGNED_ID;
-	serverHostDef.serverId       = hostInfo.serverId;
-	serverHostDef.hostIdInServer =
-	  StringUtils::sprintf("%" FMT_HOST_ID,  hostInfo.id);
-	serverHostDef.name           = hostInfo.hostName;
-	switch (hostInfo.validity) {
-	case HOST_VALID:
-	case HOST_VALID_INAPPLICABLE:
-	case HOST_VALID_SELF_MONITORING:
-		serverHostDef.status = HOST_STAT_NORMAL;
-		break;
-	case HOST_INVALID:
-		serverHostDef.status = HOST_STAT_REMOVED;
-		break;
-	default:
-		HATOHOL_ASSERT(false, "Unexpected validity: %d\n",
-		               hostInfo.validity);
-	}
-}
-
 EventIdType DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 {
 	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
