@@ -1034,6 +1034,7 @@ void FaceRest::ResourceHandler::addServersMap(
 		const MonitoringServerInfo &serverInfo = *it;
 		agent.startObject(StringUtils::toString(serverInfo.id));
 		agent.add("name", serverInfo.hostName);
+		agent.add("nickname", serverInfo.nickname);
 		agent.add("type", serverInfo.type);
 		agent.add("ipAddress", serverInfo.ipAddress);
 		addHostsMap(this, agent, serverInfo);
