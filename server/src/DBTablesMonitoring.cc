@@ -1913,64 +1913,6 @@ static void conv(ServerHostDef &serverHostDef, const HostInfo &hostInfo)
 	}
 }
 
-void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
-                                     const ServerIdType &serverId)
-{
-	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-
-	// Make a set that contains current hosts records
-	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setStatus(HOST_STAT_NORMAL);
-	option.setTargetServerId(serverId);
-
-	ServerHostDefVect _currHosts;
-	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
-	  uds->getServerHostDefs(_currHosts, option));
-	const ServerHostDefVect &currHosts(_currHosts); // To avoid changing
-
-	map<string, const ServerHostDef *> currValidHosts;
-	ServerHostDefVectConstIterator currHostsItr = currHosts.begin();
-	for (; currHostsItr != currHosts.end(); ++currHostsItr) {
-		const ServerHostDef &svHostDef = *currHostsItr;
-		currValidHosts[svHostDef.hostIdInServer] = &svHostDef;
-	}
-
-	// Pick up hosts to be added.
-	ServerHostDefVect serverHostDefs;
-	HostInfoListConstIterator newHostsItr = hostInfoList.begin();
-	for (; newHostsItr != hostInfoList.end(); ++newHostsItr) {
-		const HostInfo &newHostInfo = *newHostsItr;
-		const string idInServer = StringUtils::sprintf(
-		                            "%" FMT_HOST_ID, newHostInfo.id);
-		map<string, const ServerHostDef *>::iterator
-		  currHostItr = currValidHosts.find(idInServer);
-		if (currHostItr != currValidHosts.end()) {
-			const ServerHostDef &currHost = *currHostItr->second;
-			if (currHost.name == newHostInfo.hostName){
-				// The host already exits and doesn't changes.
-				// We have to do nothing.
-				currValidHosts.erase(currHostItr);
-				continue;
-			}
-		}
-		ServerHostDef svHostDef;
-		conv(svHostDef, newHostInfo);
-		serverHostDefs.push_back(svHostDef);
-	}
-
-	// Add hosts to be marked as invalid
-	map<string, const ServerHostDef *>::const_iterator
-	  hostMapItr = currValidHosts.begin();
-	for (; hostMapItr != currValidHosts.end(); ++hostMapItr) {
-		ServerHostDef invalidHost = *hostMapItr->second; // make a copy
-		invalidHost.status = HOST_STAT_REMOVED;
-		serverHostDefs.push_back(invalidHost);
-	}
-
-	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
-	  UnifiedDataStore::getInstance()->upsertHosts(serverHostDefs));
-}
-
 EventIdType DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 {
 	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
