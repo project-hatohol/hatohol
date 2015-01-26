@@ -900,4 +900,51 @@ void test_getHostInfoListWithUserWhoCanAccessSomeHostgroups(gpointer data)
 	assertGetHosts(arg);
 }
 
+void test_syncHostsMarkInvalid(void)
+{
+	loadTestDBServerHostDef();
+	DECLARE_DBTABLES_HOST(dbHost);
+	const ServerIdType targetServerId = 1;
+
+	// We keep the valid status for the hosts whose id is even.
+	ServerHostDefVect svHostDefs;
+	map<HostIdType, const ServerHostDef *> hostMap;
+
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		const ServerHostDef &svHostDef = testServerHostDef[i];
+		if (svHostDef.serverId != targetServerId)
+			continue;
+		hostMap[svHostDef.hostId] = &svHostDef;
+		if (svHostDef.hostId % 2)
+			continue;
+		svHostDefs.push_back(svHostDef);
+	}
+	// sanity check if we use the proper data
+	cppcut_assert_equal(false, svHostDefs.empty());
+
+	// Prepare for the expected result.
+	string expect;
+	map<HostIdType, const ServerHostDef *>::const_iterator
+	  hostMapItr = hostMap.begin();
+	for (; hostMapItr != hostMap.end(); ++hostMapItr) {
+		const ServerHostDef &svHostDef = *hostMapItr->second;
+		expect += StringUtils::sprintf(
+		  "%" FMT_HOST_ID "|%d\n", svHostDef.hostId, svHostDef.status);
+	}
+
+	// Call the method to be tested and check the result
+	dbHost.syncHosts(svHostDefs, targetServerId);
+	DBAgent &dbAgent = dbHost.getDBAgent();
+	const ColumnDef *coldef = tableProfileServerHostDef.columnDefs;
+	string statement = StringUtils::sprintf(
+	  "select %s,%s from %s where %s=%" FMT_SERVER_ID " order by %s asc;",
+	  coldef[IDX_HOST_SERVER_HOST_DEF_HOST_ID].columnName,
+	  coldef[IDX_HOST_SERVER_HOST_DEF_HOST_STATUS].columnName,
+	  tableProfileServerHostDef.name,
+	  coldef[IDX_HOST_SERVER_HOST_DEF_SERVER_ID].columnName,
+	  targetServerId,
+	  coldef[IDX_HOST_SERVER_HOST_DEF_HOST_ID].columnName);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
 } // namespace testDBTablesHost
