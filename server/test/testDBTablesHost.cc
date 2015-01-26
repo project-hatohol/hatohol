@@ -147,6 +147,17 @@ static string makeMapHostsHostgroupsOutput(
 	return expectedOut;
 }
 
+static string makeHostsOutput(const ServerHostDef &svHostDef, const size_t &id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%zd|" DBCONTENT_MAGIC_ANY "|%" FMT_SERVER_ID "|%s|%s|%d\n",
+	  id + 1, svHostDef.serverId,
+	  svHostDef.hostIdInServer.c_str(), svHostDef.name.c_str(),
+	  HOST_STAT_NORMAL);
+
+	return expectedOut;
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -944,6 +955,58 @@ void test_syncHostsMarkInvalid(void)
 	  coldef[IDX_HOST_SERVER_HOST_DEF_SERVER_ID].columnName,
 	  targetServerId,
 	  coldef[IDX_HOST_SERVER_HOST_DEF_HOST_ID].columnName);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
+void test_syncHostsAddNewHost(void)
+{
+	loadTestDBServerHostDef();
+	DECLARE_DBTABLES_HOST(dbHost);
+	const ServerIdType targetServerId = 1;
+	ServerHostDef newHost;
+	newHost.id = AUTO_INCREMENT_VALUE;
+	newHost.hostId = AUTO_ASSIGNED_ID;
+	newHost.serverId = targetServerId;
+	newHost.hostIdInServer = "123231";
+	newHost.name = "new test host";
+	newHost.status = HOST_STAT_NORMAL;
+
+	// Sanity check the ID of the new host is not duplicated.
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		const ServerHostDef &svHostDef = testServerHostDef[i];
+		if (svHostDef.serverId != targetServerId)
+			continue;
+		if (svHostDef.hostIdInServer == newHost.hostIdInServer)
+			cut_fail("We use the worng test data");
+	}
+
+	// Prepare for the test data and the expected result.
+	ServerHostDefVect svHostDefs;
+	string expect;
+	size_t i = 0;
+	for (; i < NumTestServerHostDef; i++) {
+		const ServerHostDef &svHostDef = testServerHostDef[i];
+		if (svHostDef.serverId != targetServerId)
+			continue;
+		svHostDefs.push_back(svHostDef);
+		expect += makeHostsOutput(svHostDef, i);
+	}
+	// sanity check if we use the proper data
+	cppcut_assert_equal(false, svHostDefs.empty());
+
+	svHostDefs.push_back(newHost);
+	expect += makeHostsOutput(newHost, i);
+
+	// Call the method to be tested and check the result
+	dbHost.syncHosts(svHostDefs, targetServerId);
+	DBAgent &dbAgent = dbHost.getDBAgent();
+	const ColumnDef *coldef = tableProfileServerHostDef.columnDefs;
+	string statement = StringUtils::sprintf(
+	  "select * from %s where %s=%" FMT_SERVER_ID " order by %s asc;",
+	  tableProfileServerHostDef.name,
+	  coldef[IDX_HOST_SERVER_HOST_DEF_SERVER_ID].columnName,
+	  targetServerId,
+	  coldef[IDX_HOST_SERVER_HOST_DEF_ID].columnName);
 	assertDBContent(&dbAgent, statement, expect);
 }
 
