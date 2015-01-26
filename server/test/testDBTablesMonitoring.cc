@@ -248,16 +248,6 @@ void _assertItemInfoList(gconstpointer data, uint32_t serverId)
 #define assertItemInfoList(DATA, SERVER_ID) \
 cut_trace(_assertItemInfoList(DATA, SERVER_ID))
 
-static void conv(ServerHostDef &svHostDef, const HostInfo &hostInfo)
-{
-	svHostDef.id = hostInfo.id;
-	svHostDef.hostId = 1;
-	svHostDef.serverId = hostInfo.serverId;
-	svHostDef.hostIdInServer = StringUtils::sprintf("%" FMT_HOST_ID,
-	                                                hostInfo.id);
-	svHostDef.name = hostInfo.hostName;
-}
-
 static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool status)
 {
 	loadTestDBTriggers();
@@ -300,17 +290,6 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 	cppcut_assert_equal(expect.brief, actual.brief);
 }
 #define assertTriggerInfo(E,A) cut_trace(_assertTriggerInfo(E,A))
-
-static string makeHostsOutput(const ServerHostDef &svHostDef, const size_t &id)
-{
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|" DBCONTENT_MAGIC_ANY "|%" FMT_SERVER_ID "|%s|%s|%d\n",
-	  id + 1, svHostDef.serverId,
-	  svHostDef.hostIdInServer.c_str(), svHostDef.name.c_str(),
-	  HOST_STAT_NORMAL);
-
-	return expectedOut;
-}
 
 static void prepareDataForAllHostgroupIds(void)
 {
@@ -1184,114 +1163,6 @@ void test_getEventWithTriggerId(gconstpointer data)
 	AssertGetEventsArg arg(data);
 	arg.triggerId = 3;
 	assertGetEventsWithFilter(arg);
-}
-
-void test_updateHostsAddNewHost(void)
-{
-	loadTestDBServerHostDef();
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	const ServerIdType targetServerId = 1;
-	HostInfo newHost;
-	newHost.serverId = targetServerId;
-	newHost.id       = 123231;
-	newHost.hostName = "new test host";
-	newHost.validity = HOST_VALID;
-
-	// Sanity check the ID of the new host is not duplicated.
-	for (size_t i = 0; i < NumTestServerHostDef; i++) {
-		HostInfo hostInfo;
-		conv(hostInfo, testServerHostDef[i]);
-		if (hostInfo.serverId != targetServerId)
-			continue;
-		if (hostInfo.id == newHost.id)
-			cut_fail("We use the wrong test data");
-	}
-
-	// Prepare for the test data and the expected result.
-	HostInfoList hostInfoList;
-	string expect;
-	size_t i = 0;
-	for (; i < NumTestServerHostDef; i++) {
-		HostInfo hostInfo;
-		conv(hostInfo, testServerHostDef[i]);
-		if (hostInfo.serverId != targetServerId)
-			continue;
-		hostInfoList.push_back(hostInfo);
-		expect += makeHostsOutput(testServerHostDef[i], i);
-	}
-	hostInfoList.push_back(newHost);
-	ServerHostDef _newHost;
-	conv(_newHost, newHost);
-	expect += makeHostsOutput(_newHost, i);
-
-	// Call the method to be tested and check the result
-	dbMonitoring.updateHosts(hostInfoList, targetServerId);
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	const ColumnDef *coldef = tableProfileServerHostDef.columnDefs;
-	string statement = StringUtils::sprintf(
-	  "select * from %s where %s=%" FMT_SERVER_ID " order by %s asc;",
-	  tableProfileServerHostDef.name,
-	  coldef[IDX_HOST_SERVER_HOST_DEF_SERVER_ID].columnName,
-	  targetServerId,
-	  coldef[IDX_HOST_SERVER_HOST_DEF_ID].columnName);
-	assertDBContent(&dbAgent, statement, expect);
-}
-
-void test_updateHostsChangeHostName(void)
-{
-	loadTestDBServerHostDef();
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	const ServerIdType targetServerId = 1;
-	HostInfo updateHost;
-	updateHost.serverId = targetServerId;
-	updateHost.id       = 235012;
-	updateHost.hostName = "hostX1";
-	updateHost.validity = HOST_VALID;
-
-	// Sanity check the ID of the new host is duplicated.
-	for (size_t i = 0; i < NumTestServerHostDef; i++) {
-		const ServerHostDef &svHostDef = testServerHostDef[i];
-		string updateHostIdStr =
-		  StringUtils::sprintf("%" FMT_HOST_ID, updateHost.id);
-		if (svHostDef.hostIdInServer == updateHostIdStr)
-			break;
-		if (i == (NumTestServerHostDef - 1))
-			cut_fail("We use the wrong test data");
-	}
-
-	// Prepare for the test data and the expected result.
-	HostInfoList hostInfoList;
-	string expect;
-	size_t i;
-	for (i = 0; i < NumTestServerHostDef; i++) {
-		const ServerHostDef &svHostDef = testServerHostDef[i];
-		HostInfo hostInfo;
-		if (svHostDef.serverId != targetServerId)
-			continue;
-		if (svHostDef.name == updateHost.hostName) {
-			hostInfoList.push_back(updateHost);
-		} else {
-			hostInfo.serverId = targetServerId;
-			cppcut_assert_equal(
-			  1, sscanf(svHostDef.hostIdInServer.c_str(),
-			            "%" FMT_HOST_ID, &hostInfo.id));
-			hostInfo.hostName = svHostDef.name;
-			hostInfo.validity = HOST_VALID;
-			hostInfoList.push_back(hostInfo);
-		}
-		expect += makeHostsOutput(svHostDef, i);
-	}
-
-	// Call the method to be tested and check the result
-	dbMonitoring.updateHosts(hostInfoList, targetServerId);
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = StringUtils::sprintf(
-	  "select * from %s where server_id=%" FMT_SERVER_ID
-	  " order by %s asc;",
-	  tableProfileServerHostDef.name, targetServerId,
-	  tableProfileServerHostDef.columnDefs[IDX_HOST_SERVER_HOST_DEF_ID].columnName);
-	printf("state: %s\n", statement.c_str());
-	assertDBContent(&dbAgent, statement, expect);
 }
 
 void test_addIncidentInfo(void)
