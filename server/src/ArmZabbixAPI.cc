@@ -175,11 +175,17 @@ gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 void ArmZabbixAPI::makeHatoholTriggers(ItemTablePtr triggers)
 {
 	ThreadLocalDBCache cache;
-	TriggerInfoList triggerInfoList;
+	TriggerInfoList triggerInfoList, expandedTriggerInfoList, mergedTriggerInfoList;
+	ItemTablePtr expandedDescription;
 	HatoholDBUtils::transformTriggersToHatoholFormat(
 	  triggerInfoList, triggers, m_impl->zabbixServerId,
 	  m_impl->hostInfoCache);
-	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
+	expandedDescription = updateTriggerExpandDescriptions(triggers);
+	HatoholDBUtils::transformTriggerExpandDescriptionToHatoholFormat(
+	  expandedTriggerInfoList, expandedDescription);
+	HatoholDBUtils::mergePlainTriggersListAndExpandedDescriptionList(
+	  triggerInfoList, expandedTriggerInfoList, mergedTriggerInfoList);
+	cache.getMonitoring().addTriggerInfoList(mergedTriggerInfoList);
 }
 
 void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
