@@ -111,6 +111,23 @@ void HatoholDBUtils::transformTriggerExpandDescriptionToHatoholFormat(
 	}
 }
 
+void HatoholDBUtils::mergePlainTriggersListAndExpandedDescriptionList(
+  const TriggerInfoList &trigInfoList, const TriggerInfoList &expandedInfoList,
+  TriggerInfoList &mergedTriggerInfoList)
+{
+	TriggerInfoListConstIterator trigInfoItr = trigInfoList.begin();
+	TriggerInfoListConstIterator expandedTrigInfoLtr = expandedInfoList.begin();
+	for (; trigInfoItr != trigInfoList.end(); ++trigInfoItr) {
+		TriggerInfo trigInfo = *trigInfoItr;
+		for (; expandedTrigInfoLtr != expandedInfoList.end(); ++expandedTrigInfoLtr) {
+			TriggerInfo expandedInfo = *expandedTrigInfoLtr;
+			if (trigInfo.id == expandedInfo.id) {
+				trigInfo.extendedInfo = expandedInfo.extendedInfo;
+			}
+		}
+	}
+}
+
 void HatoholDBUtils::transformEventsToHatoholFormat(
   EventInfoList &eventInfoList, const ItemTablePtr events,
   const ServerIdType &serverId)

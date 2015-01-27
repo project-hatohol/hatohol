@@ -36,6 +36,10 @@ public:
 	  EventInfoList &eventInfoList, const ItemTablePtr events,
 	  const ServerIdType &serverId);
 
+	static void mergePlainTriggersListAndExpandedDescriptionList(
+	  const TriggerInfoList &trigInfoList, const TriggerInfoList &expandedInfoList,
+	  TriggerInfoList &mergedTriggerInfoList);
+
 	static void transformGroupsToHatoholFormat(
 	  HostgroupInfoList &groupInfoList, const ItemTablePtr groups,
 	  const ServerIdType &serverId);
