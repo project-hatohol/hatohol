@@ -117,14 +117,19 @@ void HatoholDBUtils::mergePlainTriggersListAndExpandedDescriptionList(
 {
 	TriggerInfoListConstIterator trigInfoItr = trigInfoList.begin();
 	TriggerInfoListConstIterator expandedTrigInfoLtr = expandedInfoList.begin();
+	TriggerIdInfoMap expandedTrigIdInfoMap;
+
+	for (; expandedTrigInfoLtr != expandedInfoList.end(); ++expandedTrigInfoLtr) {
+		TriggerInfo expandedInfo = *expandedTrigInfoLtr;
+		expandedTrigIdInfoMap.insert(
+		  pair<TriggerIdType, TriggerInfo>(expandedInfo.id, expandedInfo));
+	}
+
 	for (; trigInfoItr != trigInfoList.end(); ++trigInfoItr) {
 		TriggerInfo trigInfo = *trigInfoItr;
-		for (; expandedTrigInfoLtr != expandedInfoList.end(); ++expandedTrigInfoLtr) {
-			TriggerInfo expandedInfo = *expandedTrigInfoLtr;
-			if (trigInfo.id == expandedInfo.id) {
-				trigInfo.extendedInfo = expandedInfo.extendedInfo;
-			}
-		}
+		TriggerIdInfoMapIterator it = expandedTrigIdInfoMap.find(trigInfo.id);
+		if (it != expandedTrigIdInfoMap.end())
+			trigInfo.extendedInfo = it->second.extendedInfo;
 	}
 }
 
