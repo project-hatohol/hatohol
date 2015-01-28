@@ -133,7 +133,7 @@ static HatoholError parseHostResourceQueryParameter(
 	option.setTargetServerId(targetServerId);
 
 	// target host group id
-	HostIdType targetHostgroupId = ALL_HOST_GROUPS;
+	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
 	err = getParam<HostgroupIdType>(query, "hostgroupId",
 					"%" FMT_HOST_GROUP_ID,
 					targetHostgroupId);
@@ -371,8 +371,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 		Hostgroup hostgrp;
 		hostgrp.id         = 0;
 		hostgrp.serverId   = svInfo.id;
-		hostgrp.idInServer = StringUtils::sprintf("%" FMT_HOST_GROUP_ID,
-		                                          ALL_HOST_GROUPS);
+		hostgrp.idInServer = ALL_HOST_GROUPS;
 		hostgrp.name       = "All host groups";
 		hostgroups.push_back(hostgrp);
 	}
@@ -382,8 +381,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	agent.startArray("systemStatus");
 	HostgroupVectConstIterator hostgrpItr = hostgroups.begin();
 	for (; hostgrpItr != hostgroups.end(); ++ hostgrpItr) {
-		HostgroupIdType hostgroupId;
-		Utils::conv(hostgroupId, hostgrpItr->idInServer);
+		const HostgroupIdType &hostgroupId = hostgrpItr->idInServer;
 		for (int severity = 0;
 		     severity < NUM_TRIGGER_SEVERITY; severity++) {
 			TriggersQueryOption option(job->m_dataQueryContextPtr);
@@ -406,8 +404,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	agent.startArray("hostStatus");
 	hostgrpItr = hostgroups.begin();
 	for (; hostgrpItr != hostgroups.end(); ++ hostgrpItr) {
-		HostgroupIdType hostgroupId;
-		Utils::conv(hostgroupId, hostgrpItr->idInServer);
+		const HostgroupIdType &hostgroupId = hostgrpItr->idInServer;
 		TriggersQueryOption option(job->m_dataQueryContextPtr);
 		option.setExcludeFlags(EXCLUDE_INVALID_HOST|EXCLUDE_SELF_MONITORING);
 		option.setTargetServerId(svInfo.id);
@@ -941,11 +938,7 @@ static void addHostsIsMemberOfGroup(
 	HostgroupElementQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
 
-	// TODO: The type of the argument of setTargetHostgroupId will be
-	//       a string.
-	HostgroupIdType _targetGroupId;
-	Utils::conv(_targetGroupId, targetGroupId);
-	option.setTargetHostgroupId(_targetGroupId);
+	option.setTargetHostgroupId(targetGroupId);
 	dataStore->getHostgroupMembers(hostgrpMembers, option);
 
 	agent.startArray("hosts");

@@ -147,9 +147,10 @@ static void _assertServerAccessInfoMap(
 		const HostGrpAccessInfoMap *hostGrpAccessInfoMap = jt->second;
 		HostGrpAccessInfoMapConstIterator kt =
 		   hostGrpAccessInfoMap->find(expectAccessInfo.hostgroupId);
-		cppcut_assert_equal(true, kt != hostGrpAccessInfoMap->end(),
-		                    cut_message("Failed to lookup: %" PRIu64,
-		                                expectAccessInfo.hostgroupId));
+		cppcut_assert_equal(
+		  true, kt != hostGrpAccessInfoMap->end(),
+		  cut_message("Failed to lookup: %" FMT_HOST_GROUP_ID,
+		              expectAccessInfo.hostgroupId.c_str()));
 		const AccessInfo *actualAccessInfo = kt->second;
 		assertAccessInfo(expectAccessInfo, *actualAccessInfo);
 	}
@@ -175,9 +176,10 @@ static void _assertServerHostGrpSetMap(
 		const HostgroupIdSet &hostgroupIdSet = jt->second;
 		HostgroupIdSetConstIterator kt =
 		   hostgroupIdSet.find(expectAccessInfo.hostgroupId);
-		cppcut_assert_equal(true, kt != hostgroupIdSet.end(),
-		                    cut_message("Failed to lookup: %" PRIu64,
-		                                expectAccessInfo.hostgroupId));
+		cppcut_assert_equal(
+		  true, kt != hostgroupIdSet.end(),
+		  cut_message("Failed to lookup: %" FMT_HOST_GROUP_ID,
+		              expectAccessInfo.hostgroupId.c_str()));
 	}
 }
 #define assertServerHostGrpSetMap(E,A) \
@@ -981,19 +983,15 @@ void data_isAccessibleWithHostgroup(void)
 			  serverId == ALL_SERVERS ?  "ALL" :
 			    StringUtils::sprintf("%" FMT_SERVER_ID, serverId);
 
-			string hostgroupIdStr =
-			  hostgroupId == ALL_HOST_GROUPS ?  "ALL" :
-			    StringUtils::sprintf("%" FMT_HOST_ID, hostgroupId);
-
 			string testName = StringUtils::sprintf(
 			  "%s-U%" FMT_USER_ID "-S%s-H%s",
 			  expect ? "T" : "F", userId,
-			  serverIdStr.c_str(), hostgroupIdStr.c_str());
+			  serverIdStr.c_str(), hostgroupId.c_str());
 
 			gcut_add_datum(testName.c_str(),
 			  "userId",   G_TYPE_INT, userId,
 			  "serverId", G_TYPE_INT, serverId,
-			  "hostgroupId",   G_TYPE_UINT64, hostgroupId,
+			  "hostgroupId",   G_TYPE_STRING, hostgroupId.c_str(),
 			  "expect",   G_TYPE_BOOLEAN, expect,
 			  NULL);
 		}
@@ -1027,7 +1025,7 @@ void data_isAccessibleWithHostgroup(void)
 		}
 		if (hasAllServers) {
 			// We pass bogus non-existent server and hostgroup ID.
-			dataAdder.add(userId, 12345, 67890, true);
+			dataAdder.add(userId, 12345, "67890", true);
 			continue;
 		}
 
@@ -1038,7 +1036,7 @@ void data_isAccessibleWithHostgroup(void)
 			HostGrpAccessInfoMapConstIterator hgrpIt =
 			  grpMap->begin();
 			bool hasAllHostgroups = false;
-			HostgroupIdType maxHostgroupId = 0;
+			HostgroupIdType maxHostgroupId;
 			for (; hgrpIt != grpMap->end(); ++hgrpIt) {
 				const HostgroupIdType &hostgroupId = hgrpIt->first;
 				if (hostgroupId == ALL_HOST_GROUPS)
@@ -1048,10 +1046,10 @@ void data_isAccessibleWithHostgroup(void)
 			}
 			// We pass bogus non-existent hostgroup ID.
 			if (hasAllHostgroups) {
-				dataAdder.add(userId, serverId, 67890, true);
+				dataAdder.add(userId, serverId, "67890", true);
 			} else {
 				dataAdder.add(userId, serverId,
-				              maxHostgroupId + 1, false);
+				              maxHostgroupId + "1", false);
 			}
 		}
 	}
@@ -1065,7 +1063,8 @@ void test_isAccessibleWithHostgroup(gconstpointer data)
 	DBTablesUser &dbUser = cache.getUser();
 
 	const ServerIdType serverId = gcut_data_get_int(data, "serverId");
-	const HostgroupIdType hostgroupId = gcut_data_get_uint64(data, "hostgroupId");
+	const HostgroupIdType hostgroupId =
+	  gcut_data_get_string(data, "hostgroupId");
 	const UserIdType userId = gcut_data_get_int(data, "userId");
 	const bool expect       = gcut_data_get_boolean(data, "expect");
 	OperationPrivilege privilege;

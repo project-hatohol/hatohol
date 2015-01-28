@@ -49,7 +49,7 @@ struct AccessInfo {
 	AccessInfoIdType id;
 	UserIdType userId;
 	ServerIdType serverId;
-	uint64_t hostgroupId;
+	HostgroupIdType hostgroupId;
 };
 
 typedef std::list<AccessInfo>          AccessInfoList;

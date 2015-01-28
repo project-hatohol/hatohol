@@ -426,10 +426,10 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(26);
-	option.setTargetHostgroupId(48);
+	option.setTargetHostgroupId("48");
 	option.setTargetHostId(32);
 	string expect = StringUtils::sprintf(
-	                  "%s.%s=26 AND %s.%s=32 AND %s.%s=48",
+	                  "%s.%s=26 AND %s.%s=32 AND %s.%s='48'",
 			  DBTablesMonitoring::TABLE_NAME_EVENTS,
 			  serverIdColumnName.c_str(),
 			  DBTablesMonitoring::TABLE_NAME_TRIGGERS,
@@ -587,7 +587,7 @@ void test_hostgroupsQueryOptionCallGetConditionFromUserWithoutAllServers(void)
 	HostgroupsQueryOption option(userId);
 	option.setFilterForDataOfDefunctServers(false);
 	const string actual = option.getCondition();
-	const string expect = "(server_id=1 AND host_group_id IN (0,1))";
+	const string expect = "(server_id=1 AND host_group_id IN ('0','1'))";
 	cppcut_assert_equal(expect, actual);
 }
 
