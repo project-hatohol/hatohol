@@ -29,7 +29,7 @@ public:
 	  TriggerInfoList &trigInfoList, const ItemTablePtr triggers,
 	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
 
-	static void transformTriggerExpandDescriptionToHatoholFormat(
+	static void transformTriggerExpandedDescriptionToHatoholFormat(
 	  TriggerInfoList &trigInfoList, const ItemTablePtr triggers);
 
 	static void transformEventsToHatoholFormat(

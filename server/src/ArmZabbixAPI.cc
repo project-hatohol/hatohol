@@ -86,12 +86,12 @@ ItemTablePtr ArmZabbixAPI::updateTriggers(void)
 	return getTrigger(requestSince);
 }
 
-ItemTablePtr ArmZabbixAPI::updateTriggerExpandDescriptions(ItemTablePtr triggers)
+ItemTablePtr ArmZabbixAPI::updateTriggerExpandedDescriptions(ItemTablePtr triggers)
 {
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	SmartTime last = uds->getTimestampOfLastTrigger(m_impl->zabbixServerId);
 	const int requestSince = last.getAsTimespec().tv_sec;
-	return getTriggerExpandDescription(triggers, requestSince);
+	return getTriggerExpandedDescription(triggers, requestSince);
 }
 
 void ArmZabbixAPI::updateItems(void)
@@ -180,8 +180,8 @@ void ArmZabbixAPI::makeHatoholTriggers(ItemTablePtr triggers)
 	HatoholDBUtils::transformTriggersToHatoholFormat(
 	  triggerInfoList, triggers, m_impl->zabbixServerId,
 	  m_impl->hostInfoCache);
-	expandedDescription = updateTriggerExpandDescriptions(triggers);
-	HatoholDBUtils::transformTriggerExpandDescriptionToHatoholFormat(
+	expandedDescription = updateTriggerExpandedDescriptions(triggers);
+	HatoholDBUtils::transformTriggerExpandedDescriptionToHatoholFormat(
 	  expandedTriggerInfoList, expandedDescription);
 	HatoholDBUtils::mergePlainTriggersListAndExpandedDescriptionList(
 	  triggerInfoList, expandedTriggerInfoList, mergedTriggerInfoList);

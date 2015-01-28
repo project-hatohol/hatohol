@@ -280,11 +280,11 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 	return ItemTablePtr(tablePtr);
 }
 
-ItemTablePtr ZabbixAPI::getTriggerExpandDescription(ItemTablePtr items, int requestSince)
+ItemTablePtr ZabbixAPI::getTriggerExpandedDescription(ItemTablePtr items, int requestSince)
 {
 	HatoholError queryRet;
 	SoupMessage *msg =
-	  queryTriggerExpandDescription(queryRet, requestSince);
+	  queryTriggerExpandedDescription(queryRet, requestSince);
 	if (!msg) {
 		if (queryRet == HTERR_INTERNAL_ERROR) {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -678,7 +678,7 @@ SoupMessage *ZabbixAPI::queryTrigger(HatoholError &queryRet, int requestSince)
 	return queryCommon(agent, queryRet);
 }
 
-SoupMessage *ZabbixAPI::queryTriggerExpandDescription(HatoholError &queryRet,
+SoupMessage *ZabbixAPI::queryTriggerExpandedDescription(HatoholError &queryRet,
                                                       int requestSince)
 {
 	JSONBuilder agent;

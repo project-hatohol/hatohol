@@ -85,7 +85,7 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 	}
 }
 
-void HatoholDBUtils::transformTriggerExpandDescriptionToHatoholFormat(
+void HatoholDBUtils::transformTriggerExpandedDescriptionToHatoholFormat(
   TriggerInfoList &trigInfoList, const ItemTablePtr triggers)
 {
 	const ItemGroupList &trigGrpList = triggers->getItemGroupList();

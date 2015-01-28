@@ -112,7 +112,7 @@ protected:
 	 * @return The obtained triggers as an ItemTable format.
 	 */
 	ItemTablePtr getTrigger(int requestSince = 0);
-	ItemTablePtr getTriggerExpandDescription(ItemTablePtr items, int requestSince = 0);
+	ItemTablePtr getTriggerExpandedDescription(ItemTablePtr items, int requestSince = 0);
 
 	/**
 	 * Get the items.
@@ -209,7 +209,7 @@ protected:
 	 * descriptions response.
 	 */
 
-	SoupMessage *queryTriggerExpandDescription(HatoholError &queryRet,
+	SoupMessage *queryTriggerExpandedDescription(HatoholError &queryRet,
 	                                           int requestSince = 0);
 	/**
 	 * Get the items.
