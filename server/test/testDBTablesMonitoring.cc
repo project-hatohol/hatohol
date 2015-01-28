@@ -1440,7 +1440,7 @@ void test_updateHostsAddNewHost(void)
 		if (hostInfo.serverId != targetServerId)
 			continue;
 		if (hostInfo.id == newHost.id)
-			cut_fail("We use the worng test data");
+			cut_fail("We use the wrong test data");
 	}
 
 	// Prepare for the test data and the expected result.
@@ -1456,6 +1456,52 @@ void test_updateHostsAddNewHost(void)
 	}
 	hostInfoList.push_back(newHost);
 	expect += makeHostsOutput(newHost, i);
+
+	// Call the method to be tested and check the result
+	dbMonitoring.updateHosts(hostInfoList, targetServerId);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+	string statement = StringUtils::sprintf(
+	  "select * from hosts where server_id=%" FMT_SERVER_ID
+	  " order by id asc;", targetServerId);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
+void test_updateHostsChangeHostName(void)
+{
+	loadTestDBHosts();
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	const ServerIdType targetServerId = 1;
+	HostInfo updateHost;
+	updateHost.serverId = targetServerId;
+	updateHost.id       = 235012;
+	updateHost.hostName = "hostX1";
+	updateHost.validity = HOST_VALID;
+
+	// Sanity check the ID of the new host is duplicated.
+	for (size_t i = 0; i < NumTestHostInfo; i++) {
+		const HostInfo &hostInfo = testHostInfo[i];
+		if (hostInfo.id == updateHost.id)
+			break;
+		if (i == (NumTestHostInfo - 1))
+			cut_fail("We use the wrong test data");
+	}
+
+	// Prepare for the test data and the expected result.
+	HostInfoList hostInfoList;
+	string expect;
+	size_t i;
+	for (i = 0; i < NumTestHostInfo; i++) {
+		const HostInfo &hostInfo = testHostInfo[i];
+		if (hostInfo.serverId != targetServerId)
+			continue;
+		if (hostInfo.hostName == updateHost.hostName) {
+			hostInfoList.push_back(updateHost);
+			expect += makeHostsOutput(updateHost, i);
+		} else {
+			hostInfoList.push_back(hostInfo);
+			expect += makeHostsOutput(hostInfo, i);
+		}
+	}
 
 	// Call the method to be tested and check the result
 	dbMonitoring.updateHosts(hostInfoList, targetServerId);
