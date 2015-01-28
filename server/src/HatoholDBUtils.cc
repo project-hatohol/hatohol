@@ -103,7 +103,7 @@ void HatoholDBUtils::transformTriggerExpandDescriptionToHatoholFormat(
 
 		JSONBuilder agent;
 		agent.startObject();
-		agent.add("expanded_description", extendedInfo);
+		agent.add("expandedDescription", extendedInfo);
 		agent.endObject();
 		trigInfo.extendedInfo = agent.generate();
 
