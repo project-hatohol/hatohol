@@ -545,6 +545,8 @@ void RestResourceHost::handlerGetTrigger(void)
 		agent.add("serverId", triggerInfo.serverId);
 		agent.add("hostId",   StringUtils::toString(triggerInfo.hostId));
 		agent.add("brief",    triggerInfo.brief);
+		agent.add("extendedInfo",
+		          triggerInfo.extendedInfo);
 		agent.endObject();
 	}
 	agent.endArray();
