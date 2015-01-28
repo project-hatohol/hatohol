@@ -178,7 +178,7 @@ TriggerInfo testTriggerInfo[] =
 	235012,                   // hostId,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1a",        // brief,
-	"",                       // extendedInfo
+	"{\"expanded_description\":\"Test Trigger on hostX1\"}", // extendedInfo
 },{
 	1,                        // serverId
 	3,                        // id
@@ -218,7 +218,7 @@ TriggerInfo testTriggerInfo[] =
 	10001,                    // hostId,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
-	"",                       // extendedInfo
+	"{\"expanded_description\":\"Test Trigger on hostZ1\"}", // extendedInfo
 },{
 	3,                        // serverId
 	3,                        // id
