@@ -235,7 +235,7 @@ var HistoryView = function(userProfile, options) {
   self.plotData = [];
   self.plotOptions = undefined;
   self.plot = undefined;
-  self.timeRange = undefined;
+  self.timeRange = getTimeRange();
   self.settingSliderTimeRange = false;
   self.endTime = undefined;
   self.timeSpan = secondsInHour * 6;
@@ -494,19 +494,20 @@ var HistoryView = function(userProfile, options) {
   }
 
   function getTimeRange() {
-    if (self.timeRange && !self.autoReloadIsEnabled)
-      return self.timeRange;
-
-    self.timeRange = {
-      begin: self.endTime - self.timeSpan,
-      end: self.endTime,
+    var timeRange = {
+      begin: undefined,
+      end: undefined,
       minSpan: secondsInHour,
       maxSpan: secondsInHour * 24,
       min: undefined,
-      max: self.endTime,
+      max: undefined,
       set: function(beginTime, endTime) {
         this.begin = beginTime;
         this.end = endTime;
+        if (!this.max)
+          this.max = this.end;
+        if (!this.min)
+          this.adjustMin();
         if (this.end - this.begin > this.maxSpan)
           this.begin = this.end - this.maxSpan;
         if (this.end - this.begin < this.minSpan) {
@@ -521,6 +522,9 @@ var HistoryView = function(userProfile, options) {
       adjustMin: function() {
         var date;
 
+        if (!self.plotOptions)
+          return;
+
         // 1 week ago
         this.min = this.max - secondsInHour * 24 * 7;
         // Adjust to 00:00:00
@@ -534,14 +538,17 @@ var HistoryView = function(userProfile, options) {
         return this.end - this.begin;
       },
     }
-
-    self.timeRange.adjustMin();
-
-    return self.timeRange;
+    return timeRange;
   }
 
   function drawSlider() {
-    var timeRange = getTimeRange();
+    var timeRange = self.timeRange;
+
+    if (self.autoReloadIsEnabled) {
+      self.timeRange.max = self.endTime;
+      self.timeRange.adjustMin();
+    }
+    self.timeRange.set(self.endTime - self.timeSpan, self.endTime);
 
     $("#item-graph-slider").slider({
       range: true,
