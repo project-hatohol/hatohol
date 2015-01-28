@@ -130,6 +130,8 @@ void HatoholDBUtils::mergePlainTriggersListAndExpandedDescriptionList(
 		TriggerIdInfoMapIterator it = expandedTrigIdInfoMap.find(trigInfo.id);
 		if (it != expandedTrigIdInfoMap.end())
 			trigInfo.extendedInfo = it->second.extendedInfo;
+
+		mergedTriggerInfoList.push_back(trigInfo);
 	}
 }
 
