@@ -424,6 +424,8 @@ void ZabbixAPIEmulator::APIHandlerTriggerGet(APIHandlerArg &arg)
 	} else {
 		if (hasParameter(arg, "selectHosts", "refer")) {
 			dataFileName = "zabbix-api-res-triggers-003-hosts.json";
+		} else if (hasParameter(arg, "expandDescription", 1)) {
+			dataFileName = "zabbix-api-res-triggers-extend-info.json";
 		} else {
 			// current implementation doesn't have this case
 			dataFileName = "zabbix-api-res-triggers-001.json";
