@@ -125,7 +125,7 @@ public:
 		} else if (type == GET_TEST_TYPE_TRIGGERS_WITH_EXPANDED_DESCRIPTION) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcTriggersWithExpandedDescriptions,
-					 exitCbDefault, this);
+			         exitCbDefault, this);
 		} else if (type == GET_TEST_TYPE_ITEMS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcItems,
