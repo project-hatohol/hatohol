@@ -435,9 +435,10 @@ void HatoholDBUtils::transformHostsGroupsItemGroupToHatoholFormat(
 	hostgrpMember.hostIdInServer =
 	  itemGroupStream.read<HostIdType, string>();
 
+	// TODO: Fix the protocol
 	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
 	hostgrpMember.hostgroupIdInServer =
-	  itemGroupStream.read<HostgroupIdType, string>();
+	  itemGroupStream.read<uint64_t, string>();
 }
 
 bool HatoholDBUtils::transformItemItemGroupToItemInfo(

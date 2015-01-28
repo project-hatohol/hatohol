@@ -715,12 +715,12 @@ AccessInfo testAccessInfo[] = {
 	0,                 // id
 	1,                 // userId
 	1,                 // serverId
-	0,                 // hostgroupId
+	"0",               // hostgroupId
 }, {
 	0,                 // id
 	1,                 // userId
 	1,                 // serverId
-	1,                 // hostgroupId
+	"1",               // hostgroupId
 }, {
 	0,                 // id
 	2,                 // userId
@@ -735,22 +735,22 @@ AccessInfo testAccessInfo[] = {
 	0,                 // id
 	3,                 // userId
 	2,                 // serverId
-	1,                 // hostgroupId
+	"1",               // hostgroupId
 }, {
 	0,                 // id
 	3,                 // userId
 	2,                 // serverId
-	2,                 // hostgroupId
+	"2",               // hostgroupId
 }, {
 	0,                 // id
 	3,                 // userId
 	4,                 // serverId
-	1,                 // hostgroupId
+	"1",               // hostgroupId
 }, {
 	0,                 // id
 	3,                 // userId
 	211,               // serverId
-	123,               // hostgroupId
+	"123",             // hostgroupId
 }, {
 	0,                 // id
 	5,                 // userId
@@ -760,22 +760,22 @@ AccessInfo testAccessInfo[] = {
 	0,                 // id
 	6,                 // userId
 	211,               // serverId
-	124,               // hostgroupId
+	"124",             // hostgroupId
 }, {
 	0,                 // id
 	6,                 // userId
 	222,               // serverId
-	124,               // hostgroupId
+	"124",             // hostgroupId
 }, {
 	0,                 // id
 	userIdWithMultipleAuthorizedHostgroups, // userId
 	1,                 // serverId
-	1,                 // hostgroupId
+	"1",               // hostgroupId
 }, {
 	0,                 // id
 	userIdWithMultipleAuthorizedHostgroups, // userId
 	1,                 // serverId
-	2,                 // hostgroupId
+	"2",               // hostgroupId
 }, {
 	0,                 // id
 	2,                 // userId
@@ -789,38 +789,38 @@ static HostgroupInfo testHostgroupInfo[] = {
 {
 	AUTO_INCREMENT_VALUE,  // id
 	1,                     // serverId
-	1,                     // groupId
+	"1",                   // groupId
 	"Monitor Servers"      // groupName
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	1,                     // serverId
-	2,                     // groupId
+	"2",                   // groupId
 	"Monitored Servers"    // groupName
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	3,                     // serverId
-	1,                     // groupId
+	"1",                   // groupId
 	"Checking Servers"     // groupName
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	3,                     // serverId
-	2,                     // groupId
+	"2",                   // groupId
 	"Checked Servers"      // groupName
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	4,                     // serverId
-	1,                     // groupId
+	"1",                   // groupId
 	"Watching Servers"     // groupName
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	4,                     // serverId
-	2,                     // groupId
+	"2",                   // groupId
 	"Watched Servers"      // groupName
 }, {
 	// This entry is for tests with a defunct server
 	AUTO_INCREMENT_VALUE,  // id
 	trigInfoDefunctSv1.serverId, // serverId
-	1,                     // groupId
+	"1",                   // groupId
 	"Hostgroup on a defunct servers" // groupName
 }
 };
@@ -1476,7 +1476,7 @@ static bool isInHostgroup(const TriggerInfo &trigInfo,
 	  makeHostgroupElementPack(
 	    trigInfo.serverId,
 	    StringUtils::sprintf("%" FMT_HOST_ID, trigInfo.hostId),
-	    StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupId));
+	    StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupId.c_str()));
 	set<string>::const_iterator it = hostgroupElementPackSet.find(pack);
 	return it != hostgroupElementPackSet.end();
 }
@@ -1510,7 +1510,7 @@ static bool isGoodStatus(const TriggerInfo &triggerInfo)
 }
 
 static void removeHostIdIfNeeded(ServerIdHostgroupHostIdMap &svIdHostGrpIdMap,
-                                 uint64_t hostGrpIdForTrig,
+                                 const HostgroupIdType &hostGrpIdForTrig,
                                  const TriggerInfo &trigInfo)
 {
 	ServerIdHostgroupHostIdMapIterator svIt;
@@ -1532,7 +1532,7 @@ size_t getNumberOfTestHosts(
 {
 	HATOHOL_ASSERT(hostgroupId == ALL_HOST_GROUPS,
 	  "Not implemented the feature to take care host groups: "
-	  "hostgroupID: %" FMT_HOST_GROUP_ID ".", hostgroupId);
+	  "hostgroupID: %" FMT_HOST_GROUP_ID ".", hostgroupId.c_str());
 
 	size_t numberOfTestHosts = 0;
 	for (size_t i = 0; i < NumTestServerHostDef; i++) {
@@ -1750,7 +1750,7 @@ bool isAuthorized(
 		const string pack =
 		  makeHostgroupElementPack(serverId,
 		    StringUtils::sprintf("%" FMT_HOST_ID, hostId),
-		    StringUtils::sprintf("%" FMT_HOST_GROUP_ID, *hostgroupIdItr));
+		    StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupIdItr->c_str()));
 		if (hgrpElementPackSet->find(pack) != hgrpElementPackSet->end())
 			return true;
 	}
@@ -1838,12 +1838,8 @@ const HostgroupIdSet &getTestHostgroupIdSet(void)
 		return testHostgroupIdSet;
 
 	for (size_t i = 0; i < NumTestHostgroupMember; i++) {
-		// TODO: HostgroupIdSet should have a string.
-		HostgroupIdType hostgroupId;
-		cppcut_assert_equal(
-		  1, sscanf(testHostgroupMember[i].hostgroupIdInServer.c_str(),
-		            "%" FMT_HOST_GROUP_ID, &hostgroupId));
-		testHostgroupIdSet.insert(hostgroupId);
+		testHostgroupIdSet.insert(
+		  testHostgroupMember[i].hostgroupIdInServer);
 	}
 	return testHostgroupIdSet;
 }

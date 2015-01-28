@@ -34,7 +34,7 @@ typedef HostIdSet::iterator HostIdSetIterator;
 typedef std::map<uint32_t, HostIdSet> ServerIdHostIdMap;
 typedef ServerIdHostIdMap::iterator   ServerIdHostIdMapIterator;
 
-typedef std::map<uint64_t, HostIdSet> HostgroupHostIdMap;
+typedef std::map<HostgroupIdType, HostIdSet> HostgroupHostIdMap;
 typedef HostgroupHostIdMap::iterator  HostgroupHostIdMapIterator;
 typedef std::map<uint32_t, HostgroupHostIdMap> ServerIdHostgroupHostIdMap;
 typedef ServerIdHostgroupHostIdMap::iterator ServerIdHostgroupHostIdMapIterator;

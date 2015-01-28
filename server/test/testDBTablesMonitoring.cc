@@ -298,10 +298,10 @@ static void prepareDataForAllHostgroupIds(void)
 	set<HostgroupIdType>::const_iterator hostgrpIdItr =
 	  hostgroupIdSet.begin();
 	for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr) {
-		gcut_add_datum(
-		  StringUtils::sprintf("Hostgroup ID: %" FMT_HOST_GROUP_ID,
-		                       *hostgrpIdItr).c_str(),
-		  "hostgroupId", G_TYPE_UINT64, *hostgrpIdItr, NULL);
+		string label = "Hostgroup ID: ";
+		label += *hostgrpIdItr;
+		gcut_add_datum(label.c_str(), "hostgroupId",
+		               G_TYPE_STRING, hostgrpIdItr->c_str(), NULL);
 	}
 }
 
@@ -757,7 +757,7 @@ void test_getNumberOfTriggers(gconstpointer data)
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId =
-	  gcut_data_get_int(data, "hostgroupId");
+	  gcut_data_get_string(data, "hostgroupId");
 
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	TriggersQueryOption option(USER_ID_SYSTEM);
@@ -767,7 +767,7 @@ void test_getNumberOfTriggers(gconstpointer data)
 	  getNumberOfTestTriggers(targetServerId, hostgroupId),
 	  dbMonitoring.getNumberOfTriggers(option),
 	  cut_message("sv: %" FMT_SERVER_ID ", hostgroup: %" FMT_HOST_GROUP_ID,
-		      targetServerId, hostgroupId));
+	              targetServerId, hostgroupId.c_str()));
 }
 
 void test_getNumberOfTriggersForMultipleAuthorizedHostgroups(void)
@@ -812,7 +812,7 @@ void _assertGetNumberOfTriggers(DBTablesMonitoring &dbMonitoring,
 			      "sv: %" FMT_SERVER_ID ", "
 			      "hostgroup: %" FMT_HOST_GROUP_ID ", "
 			      "severity: %d",
-			      serverId, hostgroupId, severity));
+			      serverId, hostgroupId.c_str(), severity));
 }
 #define assertGetNumberOfTriggers(D,S,H,V) \
 cut_trace(_assertGetNumberOfTriggers(D,S,H,V))
@@ -824,7 +824,7 @@ void test_getNumberOfTriggersBySeverity(gconstpointer data)
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId =
-	  gcut_data_get_int(data, "hostgroupId");
+	  gcut_data_get_string(data, "hostgroupId");
 
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
@@ -847,7 +847,7 @@ void test_getNumberOfAllBadTriggers(gconstpointer data)
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId =
-	  gcut_data_get_int(data, "hostgroupId");
+	  gcut_data_get_string(data, "hostgroupId");
 
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	assertGetNumberOfTriggers(dbMonitoring, targetServerId, hostgroupId,
