@@ -178,7 +178,9 @@ HistoryLoader.prototype.updateHistory = function(history) {
   }
 }
 
-HistoryLoader.prototype.setTimeRange = function(beginTimeInSec, endTimeInSec, keepHistory) {
+HistoryLoader.prototype.setTimeRange = function(beginTimeInSec, endTimeInSec,
+                                                keepHistory)
+{
   if (isNaN(beginTimeInSec))
     delete this.options.query.beginTime;
   else
