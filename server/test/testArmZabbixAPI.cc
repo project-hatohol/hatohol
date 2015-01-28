@@ -252,7 +252,7 @@ protected:
 		g_sync.unlock();
 	}
 
-	bool launch(ThreadOneProc threadOneProc, 
+	bool launch(ThreadOneProc threadOneProc,
 	            void (*exitCb)(void *), void *exitCbData,
 	            size_t numRepeat = NUM_TEST_READ_TIMES)
 	{
@@ -754,7 +754,7 @@ void test_sessionErrorAuthToken(void)
 	cppcut_assert_equal(false, token.empty());
 	g_apiEmulator.stop();
 	cppcut_assert_equal(false, g_apiEmulator.isRunning());
-	
+
 	armZbxApiTestee.testMainThreadOneProc();
 	token = armZbxApiTestee.testAuthToken();
 	cppcut_assert_equal(true, token.empty());
@@ -770,7 +770,7 @@ void test_verifyEventsObtanedBySplitWay(void)
 	armZbxApiTestee.callUpdateEvents();
 	assertItemTable(expectTable,
 	                ItemTablePtr(armZbxApiTestee.m_actualEventTablePtr));
-	const uint64_t upperLimitOfEventsAtOneTime = 
+	const uint64_t upperLimitOfEventsAtOneTime =
 	  armZbxApiTestee.testGetMaximumNumberGetEventPerOnce();
 	list<uint64_t>::iterator itr =
 	   armZbxApiTestee.m_numbersOfGotEvents.begin();
