@@ -244,7 +244,8 @@ var HistoryView = function(userProfile, options) {
   load();
 
   function prepareHistoryLoaders(historyQueries) {
-    var i;
+    var i, endTime, timeSpan;
+
     for (i = 0; i < historyQueries.length; i++) {
       self.plotData[i] = initLegendData();
       self.loaders[i] = new HistoryLoader({
@@ -265,8 +266,8 @@ var HistoryView = function(userProfile, options) {
     }
 
     // TODO: allow different time ranges?
-    var endTime = self.loaders[0].options.query.endTime;
-    var timeSpan = self.loaders[0].getTimeSpan();
+    endTime = self.loaders[0].options.query.endTime;
+    timeSpan = self.loaders[0].getTimeSpan();
     if (endTime)
       self.timeRange.set(endTime - timeSpan, endTime);
     self.autoReloadIsEnabled = !endTime;
