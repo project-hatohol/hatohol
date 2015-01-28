@@ -134,17 +134,24 @@ var DashboardView = function(userProfile) {
     var html = "";
     var x, y, severity;
     var serverId, groupId, numberOfTriggers;
+    var hostStatuses, hostStatus;
 
     for (x = 0; x < replyData["serverStatus"].length; ++x) {
       serverId = replyData["serverStatus"][x]["serverId"];
+      hostStatuses = replyData["serverStatus"][x]["hostStatus"];
       html += "<tr>";
       y = 0;
       for (groupId in replyData["serverStatus"][x]["hostgroups"]) {
+        hostStatus = hostStatuses[y];
         html += "<tr>"; // ==============  start of a row ================
         if (y == 0) {
           html += "<td rowspan='" + escapeHTML(parsedData[serverId]["numberOfHostgroups"]) + "'>";
           html += escapeHTML(replyData["serverStatus"][x]["serverNickname"]);
           html += "</td>";
+        }
+        if (hostStatus["numberOfGoodHosts"] + hostStatus["numberOfBadHosts"] == 0) {
+          ++y;
+          continue;
         }
         html += "<td>";
         html += escapeHTML(replyData["serverStatus"][x]["hostgroups"][groupId]["name"]);
@@ -181,6 +188,8 @@ var DashboardView = function(userProfile) {
           html += escapeHTML(replyData["serverStatus"][x]["serverNickname"]);
           html += "</td>";
         }
+        if(hostStatus["numberOfGoodHosts"] + hostStatus["numberOfBadHosts"] == 0)
+          continue;
         html += "<td>";
         html += escapeHTML(serverStatus["hostgroups"][hostStatus["hostgroupId"]]["name"]);
         html += "</td>";
