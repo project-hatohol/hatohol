@@ -283,16 +283,8 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 ItemTablePtr ZabbixAPI::getTriggerExpandDescription(ItemTablePtr items, int requestSince)
 {
 	HatoholError queryRet;
-	vector<uint64_t> triggerIdVector;
-	const ItemGroupList &itemGroupList = items->getItemGroupList();
-	ItemGroupListConstIterator itemGrpIt = itemGroupList.begin();
-	for (; itemGrpIt != itemGroupList.end(); ++itemGrpIt) {
-		const ItemGroup *itemGrp = *itemGrpIt;
-		triggerIdVector.push_back(
-		  *itemGrp->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID));
-	}
 	SoupMessage *msg =
-	  queryTriggerExpandDescription(triggerIdVector, queryRet, requestSince);
+	  queryTriggerExpandDescription(queryRet, requestSince);
 	if (!msg) {
 		if (queryRet == HTERR_INTERNAL_ERROR) {
 			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -686,8 +678,7 @@ SoupMessage *ZabbixAPI::queryTrigger(HatoholError &queryRet, int requestSince)
 	return queryCommon(agent, queryRet);
 }
 
-SoupMessage *ZabbixAPI::queryTriggerExpandDescription(const vector<uint64_t> &triggerIdVector,
-                                                      HatoholError &queryRet,
+SoupMessage *ZabbixAPI::queryTriggerExpandDescription(HatoholError &queryRet,
                                                       int requestSince)
 {
 	JSONBuilder agent;
@@ -703,13 +694,6 @@ SoupMessage *ZabbixAPI::queryTriggerExpandDescription(const vector<uint64_t> &tr
 	if (requestSince > 0)
 		agent.add("lastChangeSince", requestSince);
 	agent.add("expandDescription", 1);
-	if (!triggerIdVector.empty()) {
-		agent.startArray("triggerids");
-		vector<uint64_t>::const_iterator it = triggerIdVector.begin();
-		for (; it != triggerIdVector.end(); ++it)
-			agent.add(*it);
-		agent.endArray();
-	}
 	agent.endObject(); //params
 
 	agent.add("auth", m_impl->authToken);

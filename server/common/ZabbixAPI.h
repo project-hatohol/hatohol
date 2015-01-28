@@ -201,16 +201,15 @@ protected:
 	/**
 	 * Get trigger expanded descriptions.
 	 *
-	 * @param triggerIdVector
-	 * A vector contains Trigger Id(s).
+	 * @param requestSince
+	 * Triggers with timestamp after this parameter will be returned.
 	 *
 	 * @return
 	 * A SoupMessage object with Zabbix servers's trigger expanded
 	 * descriptions response.
 	 */
 
-	SoupMessage *queryTriggerExpandDescription(const std::vector<uint64_t> &triggerIdVector,
-	                                           HatoholError &queryRet,
+	SoupMessage *queryTriggerExpandDescription(HatoholError &queryRet,
 	                                           int requestSince = 0);
 	/**
 	 * Get the items.
