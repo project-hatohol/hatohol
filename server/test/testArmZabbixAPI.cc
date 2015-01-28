@@ -65,6 +65,7 @@ typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
 public:
 	enum GetTestType {
 		GET_TEST_TYPE_TRIGGERS,
+		GET_TEST_TYPE_TRIGGERS_WITH_EXPANDED_DESCRIPTION,
 		GET_TEST_TYPE_ITEMS,
 		GET_TEST_TYPE_HOSTS,
 		GET_TEST_TYPE_APPLICATIONS,
@@ -121,6 +122,10 @@ public:
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
 			         exitCbDefault, this);
+		} else if (type == GET_TEST_TYPE_TRIGGERS_WITH_EXPANDED_DESCRIPTION) {
+			succeeded =
+			  launch(&ArmZabbixAPITestee::threadOneProcTriggersWithExpandedDescriptions,
+					 exitCbDefault, this);
 		} else if (type == GET_TEST_TYPE_ITEMS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcItems,
@@ -298,6 +303,13 @@ protected:
 		return true;
 	}
 
+	bool threadOneProcTriggersWithExpandedDescriptions(void)
+	{
+		ItemTablePtr triggers = updateTriggers();
+		updateTriggerExpandedDescriptions(triggers);
+		return true;
+	}
+
 	bool threadOneProcItems(void)
 	{
 		updateItems();
@@ -431,6 +443,11 @@ void cut_teardown(void)
 void test_getTriggers(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS);
+}
+
+void test_getTriggerWithExpandedDescriptions(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS_WITH_EXPANDED_DESCRIPTION);
 }
 
 void test_getTriggers_2_2_0(void)
