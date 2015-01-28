@@ -82,7 +82,6 @@ var OverviewItems = function(userProfile) {
         parsedData.values[nickName][hostName][itemName] = item;
     }
 
-    parsedData.nicknamess = nickNames.uniq().sort();
     parsedData.items   = itemNames.uniq().sort();
     for (nickName in hostNames)
       parsedData.hosts[nickName] = hostNames[nickName].uniq().sort();
