@@ -168,7 +168,7 @@ var LatestView = function(userProfile) {
   }
 
   function drawTableBody(replyData) {
-    var serverName, hostName, clock, appName;
+    var nickName, hostName, clock, appName;
     var html = "", url, server, item, x;
     var targetAppName = self.getTargetAppName();
 
@@ -177,7 +177,7 @@ var LatestView = function(userProfile) {
       item       = replyData["items"][x];
       server     = replyData["servers"][item["serverId"]];
       url        = getItemGraphLocation(server, item["id"]);
-      serverName = getServerName(server, item["serverId"]);
+      nickName = getNickName(server, item["serverId"]);
       hostName   = getHostName(server, item["hostId"]);
       clock      = item["lastValueTime"];
       appName    = item["itemGroupName"];
@@ -185,7 +185,7 @@ var LatestView = function(userProfile) {
       if (targetAppName && appName != targetAppName)
         continue;
 
-      html += "<tr><td>" + escapeHTML(serverName) + "</td>";
+      html += "<tr><td>" + escapeHTML(nickName) + "</td>";
       html += "<td>" + escapeHTML(hostName) + "</td>";
       html += "<td>" + escapeHTML(appName) + "</td>";
       if (url)
