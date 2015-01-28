@@ -263,12 +263,7 @@ bool ZabbixAPIEmulator::hasParameter
 
 	if (!parser.startObject("params"))
 		return false;
-	string value;
-	HATOHOL_ASSERT(parser.read(paramName, value), "Failed to read: %s: %s",
-	             paramName.c_str(), parser.getErrorMessage());
-	HATOHOL_ASSERT(value == expectedValue,
-	             "value: %s: not supported (expected: %s)",
-	             value.c_str(), expectedValue.c_str());
+
 	return true;
 }
 
