@@ -121,6 +121,15 @@ do { \
 } while (0)
 
 template<typename T>
+int scanParam(const char *value, const char *scanFmt, T &dest)
+{
+	return sscanf(value, scanFmt, &dest);
+}
+
+template<>
+int scanParam(const char *value, const char *scanFmt, std::string &dest);
+
+template<typename T>
 HatoholError getParam(
   GHashTable *query, const char *paramName, const char *scanFmt, T &dest)
 {
@@ -128,7 +137,7 @@ HatoholError getParam(
 	if (!value)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, paramName);
 
-	if (sscanf(value, scanFmt, &dest) != 1) {
+	if (scanParam<T>(value, scanFmt, dest) != 1) {
 		std::string optMsg = mlpl::StringUtils::sprintf("%s: %s",
 		                                     paramName, value);
 		return HatoholError(HTERR_INVALID_PARAMETER, optMsg);

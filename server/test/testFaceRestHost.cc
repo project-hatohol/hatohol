@@ -392,13 +392,7 @@ static void assertHostgroupsInParser(JSONParser *parser,
 		assertStartObject(parser, hostgrp.idInServer);
 		assertValueInParser(parser, string("name"), hostgrp.name);
 		parser->endObject();
-
-		// TODO: HostgroupIdSet should have a string.
-		HostgroupIdType hostgroupId;
-		cppcut_assert_equal(
-		  1, sscanf(hostgrp.idInServer.c_str(), "%" FMT_HOST_GROUP_ID,
-		            &hostgroupId));
-		hostgroupIdSet.insert(hostgroupId);
+		hostgroupIdSet.insert(hostgrp.idInServer);
 	}
 	parser->endObject();
 }
