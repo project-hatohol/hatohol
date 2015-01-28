@@ -108,7 +108,7 @@ HatoholMonitoringView.prototype.setServerFilterCandidates = function(servers)
   current = serverSelector.val();
   for (id in servers) {
     serverLabels.push({
-      label: getServerName(servers[id], id),
+      label: getNickName(servers[id], id),
       value: id
     });
   }
