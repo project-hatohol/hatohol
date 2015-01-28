@@ -46,7 +46,7 @@ const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBTablesMonitoring::MONITORING_DB_VERSION = 9;
+const int   DBTablesMonitoring::MONITORING_DB_VERSION = 10;
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -153,6 +153,15 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"entended_info",                   // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	32767,                             // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 
@@ -166,6 +175,7 @@ enum {
 	IDX_TRIGGERS_HOST_ID,
 	IDX_TRIGGERS_HOSTNAME,
 	IDX_TRIGGERS_BRIEF,
+	IDX_TRIGGERS_EXTENDED_INFO,
 	NUM_IDX_TRIGGERS,
 };
 
@@ -1194,7 +1204,7 @@ void TriggersQueryOption::setExcludeFlags(const ExcludeFlags &flg)
 {
 	m_impl->excludeFlags = flg;
 }
-	
+
 
 string TriggersQueryOption::getCondition(void) const
 {
@@ -1204,7 +1214,7 @@ string TriggersQueryOption::getCondition(void) const
 		return condition;
 
 	if (m_impl->shouldExcludeSelfMonitoring()) {
-		addCondition( 
+		addCondition(
 		  condition,
 		  StringUtils::sprintf(
 		    "%s.%s<%" FMT_HOST_ID,
@@ -1680,12 +1690,13 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	builder.add(IDX_TRIGGERS_HOST_ID);
 	builder.add(IDX_TRIGGERS_HOSTNAME);
 	builder.add(IDX_TRIGGERS_BRIEF);
+	builder.add(IDX_TRIGGERS_EXTENDED_INFO);
 
 	builder.addTable(
 	 tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
 	 tableProfileTriggers,IDX_TRIGGERS_SERVER_ID,IDX_HOSTS_SERVER_ID,
 	 tableProfileTriggers,IDX_TRIGGERS_HOST_ID,IDX_HOSTS_HOST_ID);
-	
+
 	DBAgent::SelectExArg &arg = builder.build();
 	arg.useDistinct = option.isHostgroupUsed();
 	arg.useFullName = option.isHostgroupUsed();
@@ -1721,6 +1732,7 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		itemGroupStream >> trigInfo.hostId;
 		itemGroupStream >> trigInfo.hostName;
 		itemGroupStream >> trigInfo.brief;
+		itemGroupStream >> trigInfo.extendedInfo;
 
 		triggerInfoList.push_back(trigInfo);
 	}
@@ -2807,6 +2819,7 @@ void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
 	arg.add(triggerInfo.hostId);
 	arg.add(triggerInfo.hostName);
 	arg.add(triggerInfo.brief);
+	arg.add(triggerInfo.extendedInfo);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
@@ -3040,6 +3053,12 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 
 		// recreate indexes
 		dbAgent.fixupIndexes(tableProfileIncidents);
+	}
+	if (oldVer <= 9) {
+		// add a new column "extended_info" to triggers
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileTriggers);
+		addColumnsArg.columnIndexes.push_back(IDX_TRIGGERS_EXTENDED_INFO);
+		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;
 }

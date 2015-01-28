@@ -112,6 +112,7 @@ protected:
 	 * @return The obtained triggers as an ItemTable format.
 	 */
 	ItemTablePtr getTrigger(int requestSince = 0);
+	ItemTablePtr getTriggerExpandedDescription(ItemTablePtr items, int requestSince = 0);
 
 	/**
 	 * Get the items.
@@ -197,6 +198,19 @@ protected:
 	 */
 	SoupMessage *queryTrigger(HatoholError &queryRet, int requestSince = 0);
 
+	/**
+	 * Get trigger expanded descriptions.
+	 *
+	 * @param requestSince
+	 * Triggers with timestamp after this parameter will be returned.
+	 *
+	 * @return
+	 * A SoupMessage object with Zabbix servers's trigger expanded
+	 * descriptions response.
+	 */
+
+	SoupMessage *queryTriggerExpandedDescription(HatoholError &queryRet,
+	                                           int requestSince = 0);
 	/**
 	 * Get the items.
 	 *

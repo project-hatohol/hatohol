@@ -280,6 +280,48 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 	return ItemTablePtr(tablePtr);
 }
 
+ItemTablePtr ZabbixAPI::getTriggerExpandedDescription(ItemTablePtr items, int requestSince)
+{
+	HatoholError queryRet;
+	SoupMessage *msg =
+	  queryTriggerExpandedDescription(queryRet, requestSince);
+	if (!msg) {
+		if (queryRet == HTERR_INTERNAL_ERROR) {
+			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+			  HTERR_INTERNAL_ERROR,
+			  "Failed to query triggers.");
+		} else {
+			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+			  HTERR_FAILED_CONNECT_ZABBIX,
+			  "%s", queryRet.getMessage().c_str());
+		}
+	}
+	JSONParser parser(msg->response_body->data);
+	if (parser.hasError()) {
+		g_object_unref(msg);
+		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+		  HTERR_FAILED_TO_PARSE_JSON_DATA,
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	g_object_unref(msg);
+	startObject(parser, "result");
+	VariableItemTablePtr tablePtr;
+	int numData = parser.countElements();
+	MLPL_DBG("The number of trigger expanded descriptions: %d\n", numData);
+	if (numData < 1)
+		return ItemTablePtr(tablePtr);
+	for (int i = 0; i < numData; i++) {
+		startElement(parser, i);
+		VariableItemGroupPtr grp;
+		pushUint64(parser, grp, "triggerid",   ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+		pushString(parser, grp, "description", ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION);
+		tablePtr->add(grp);
+		parser.endElement();
+	}
+
+	return ItemTablePtr(tablePtr);
+}
+
 ItemTablePtr ZabbixAPI::getItems(void)
 {
 	HatoholError queryRet;
@@ -628,6 +670,31 @@ SoupMessage *ZabbixAPI::queryTrigger(HatoholError &queryRet, int requestSince)
 	agent.add("selectHosts", "refer");
 	agent.addTrue("active");
 	agent.endObject();
+
+	agent.add("auth", m_impl->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent, queryRet);
+}
+
+SoupMessage *ZabbixAPI::queryTriggerExpandedDescription(HatoholError &queryRet,
+                                                      int requestSince)
+{
+	JSONBuilder agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "trigger.get");
+
+	agent.startObject("params");
+	agent.startArray("output");
+	agent.add("extend");
+	agent.add("description");
+	agent.endArray();
+	if (requestSince > 0)
+		agent.add("lastChangeSince", requestSince);
+	agent.add("expandDescription", 1);
+	agent.endObject(); //params
 
 	agent.add("auth", m_impl->authToken);
 	agent.add("id", 1);

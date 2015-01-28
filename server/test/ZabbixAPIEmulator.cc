@@ -104,7 +104,7 @@ struct ZabbixAPIEmulator::PrivateContext {
 	int64_t       lastEventId;
 	int64_t       expectedFirstEventId;
 	int64_t       expectedLastEventId;
-	
+
 	// methods
 	PrivateContext(void)
 	: operationMode(OPE_MODE_NORMAL),
@@ -125,17 +125,17 @@ struct ZabbixAPIEmulator::PrivateContext {
 	{
 		apiHandlerMap["apiinfo.version"] =
 		  &ZabbixAPIEmulator::APIHandlerAPIVersion;
-		apiHandlerMap["user.login"] = 
+		apiHandlerMap["user.login"] =
 		  &ZabbixAPIEmulator::APIHandlerUserLogin;
-		apiHandlerMap["trigger.get"] = 
+		apiHandlerMap["trigger.get"] =
 		  &ZabbixAPIEmulator::APIHandlerTriggerGet;
-		apiHandlerMap["item.get"] = 
+		apiHandlerMap["item.get"] =
 		  &ZabbixAPIEmulator::APIHandlerItemGet;
-		apiHandlerMap["host.get"] = 
+		apiHandlerMap["host.get"] =
 		  &ZabbixAPIEmulator::APIHandlerHostGet;
-		apiHandlerMap["event.get"] = 
+		apiHandlerMap["event.get"] =
 		  &ZabbixAPIEmulator::APIHandlerEventGet;
-		apiHandlerMap["application.get"] = 
+		apiHandlerMap["application.get"] =
 		  &ZabbixAPIEmulator::APIHandlerApplicationGet;
 		apiHandlerMap["hostgroup.get"] =
 		  &ZabbixAPIEmulator::APIHandlerHostgroupGet;
@@ -260,15 +260,25 @@ bool ZabbixAPIEmulator::hasParameter
 	JSONParser parser(request);
 	if (parser.hasError())
 		THROW_HATOHOL_EXCEPTION("Failed to parse: %s", request.c_str());
-	
+
 	if (!parser.startObject("params"))
 		return false;
-	string value;
-	HATOHOL_ASSERT(parser.read(paramName, value), "Failed to read: %s: %s",
-	             paramName.c_str(), parser.getErrorMessage());
-	HATOHOL_ASSERT(value == expectedValue,
-	             "value: %s: not supported (expected: %s)",
-	             value.c_str(), expectedValue.c_str());
+
+	return true;
+}
+
+bool ZabbixAPIEmulator::hasParameter
+  (APIHandlerArg &arg, const string &paramName, const int64_t &expectedValue)
+{
+	string request(arg.msg->request_body->data,
+	               arg.msg->request_body->length);
+	JSONParser parser(request);
+	if (parser.hasError())
+		THROW_HATOHOL_EXCEPTION("Failed to parse: %s", request.c_str());
+
+	if (!parser.startObject("params"))
+		return false;
+
 	return true;
 }
 
@@ -395,7 +405,7 @@ void ZabbixAPIEmulator::APIHandlerUserLogin(APIHandlerArg &arg)
 {
 	string authToken = generateAuthToken();
 	m_ctx->authTokens.insert(authToken);
-	const char *fmt = 
+	const char *fmt =
 	  "{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":%" PRId64 "}";
 	string response = StringUtils::sprintf(fmt, authToken.c_str(), arg.id);
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
@@ -414,6 +424,8 @@ void ZabbixAPIEmulator::APIHandlerTriggerGet(APIHandlerArg &arg)
 	} else {
 		if (hasParameter(arg, "selectHosts", "refer")) {
 			dataFileName = "zabbix-api-res-triggers-003-hosts.json";
+		} else if (hasParameter(arg, "expandDescription", 1)) {
+			dataFileName = "zabbix-api-res-triggers-extend-info.json";
 		} else {
 			// current implementation doesn't have this case
 			dataFileName = "zabbix-api-res-triggers-001.json";
@@ -430,7 +442,7 @@ void ZabbixAPIEmulator::APIHandlerItemGet(APIHandlerArg &arg)
 	JSONParser parser(request);
 	if (parser.hasError())
 		THROW_HATOHOL_EXCEPTION("Failed to parse: %s", request.c_str());
-	
+
 	bool selectApplications = false;
 	if (parser.startObject("params")) {
 		string selectAppStr;
@@ -600,7 +612,7 @@ void ZabbixAPIEmulator::makeEventJSONData(const string &path)
 string ZabbixAPIEmulator::addJSONResponse(const string &slice,
                                             APIHandlerArg &arg)
 {
-	const char *fmt = 
+	const char *fmt =
 	  "{\"jsonrpc\":\"2.0\",\"result\":[%s],\"id\":%" PRId64 "}";
 	return StringUtils::sprintf(fmt, slice.c_str(), arg.id);
 }

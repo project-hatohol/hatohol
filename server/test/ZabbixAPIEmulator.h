@@ -75,6 +75,9 @@ protected:
 	static bool hasParameter(APIHandlerArg &arg,
 	                         const std::string &paramName,
 	                         const std::string &expectedValue);
+	static bool hasParameter(APIHandlerArg &arg,
+	                         const std::string &paramName,
+	                         const int64_t &expectedValue);
 
 	std::string generateAuthToken(void);
 	void handlerAPIDispatch(APIHandlerArg &arg);

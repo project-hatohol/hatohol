@@ -29,9 +29,16 @@ public:
 	  TriggerInfoList &trigInfoList, const ItemTablePtr triggers,
 	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
 
+	static void transformTriggerExpandedDescriptionToHatoholFormat(
+	  TriggerInfoList &trigInfoList, const ItemTablePtr triggers);
+
 	static void transformEventsToHatoholFormat(
 	  EventInfoList &eventInfoList, const ItemTablePtr events,
 	  const ServerIdType &serverId);
+
+	static void mergePlainTriggersListAndExpandedDescriptionList(
+	  const TriggerInfoList &trigInfoList, const TriggerInfoList &expandedInfoList,
+	  TriggerInfoList &mergedTriggerInfoList);
 
 	static void transformGroupsToHatoholFormat(
 	  HostgroupInfoList &groupInfoList, const ItemTablePtr groups,

@@ -86,6 +86,14 @@ ItemTablePtr ArmZabbixAPI::updateTriggers(void)
 	return getTrigger(requestSince);
 }
 
+ItemTablePtr ArmZabbixAPI::updateTriggerExpandedDescriptions(ItemTablePtr triggers)
+{
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	SmartTime last = uds->getTimestampOfLastTrigger(m_impl->zabbixServerId);
+	const int requestSince = last.getAsTimespec().tv_sec;
+	return getTriggerExpandedDescription(triggers, requestSince);
+}
+
 void ArmZabbixAPI::updateItems(void)
 {
 	ItemTablePtr items = getItems();
@@ -167,11 +175,17 @@ gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 void ArmZabbixAPI::makeHatoholTriggers(ItemTablePtr triggers)
 {
 	ThreadLocalDBCache cache;
-	TriggerInfoList triggerInfoList;
+	TriggerInfoList triggerInfoList, expandedTriggerInfoList, mergedTriggerInfoList;
+	ItemTablePtr expandedDescription;
 	HatoholDBUtils::transformTriggersToHatoholFormat(
 	  triggerInfoList, triggers, m_impl->zabbixServerId,
 	  m_impl->hostInfoCache);
-	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
+	expandedDescription = updateTriggerExpandedDescriptions(triggers);
+	HatoholDBUtils::transformTriggerExpandedDescriptionToHatoholFormat(
+	  expandedTriggerInfoList, expandedDescription);
+	HatoholDBUtils::mergePlainTriggersListAndExpandedDescriptionList(
+	  triggerInfoList, expandedTriggerInfoList, mergedTriggerInfoList);
+	cache.getMonitoring().addTriggerInfoList(mergedTriggerInfoList);
 }
 
 void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
