@@ -164,13 +164,13 @@ var TriggersView = function(userProfile) {
       serverId   = trigger["serverId"];
       hostId     = trigger["hostId"];
       server     = replyData["servers"][serverId];
-      serverName = getServerName(server, serverId);
+      nickName   = getNickName(server, serverId);
       hostName   = getHostName(server, hostId);
       clock      = trigger["lastChangeTime"];
       status     = trigger["status"];
       severity   = trigger["severity"];
 
-      html += "<tr><td>" + escapeHTML(serverName) + "</td>";
+      html += "<tr><td>" + escapeHTML(nickName) + "</td>";
       html += "<td class='severity" + escapeHTML(severity) +
         "' data-sort-value='" + escapeHTML(severity) + "'>" +
         severity_choices[Number(severity)] + "</td>";
