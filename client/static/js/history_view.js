@@ -507,7 +507,7 @@ var HistoryView = function(userProfile, options) {
         if (!this.max)
           this.max = this.end;
         if (!this.min)
-          this.adjustMin();
+          this._adjustMin();
         if (this.end - this.begin > this.maxSpan)
           this.begin = this.end - this.maxSpan;
         if (this.end - this.begin < this.minSpan) {
@@ -519,7 +519,11 @@ var HistoryView = function(userProfile, options) {
           }
         }
       },
-      adjustMin: function() {
+      setMax: function(max) {
+	this.max = max;
+	this._adjustMin();
+      },
+      _adjustMin: function() {
         var date;
 
         if (!self.plotOptions)
@@ -544,10 +548,8 @@ var HistoryView = function(userProfile, options) {
   function drawSlider() {
     var timeRange = self.timeRange;
 
-    if (self.autoReloadIsEnabled) {
-      self.timeRange.max = self.endTime;
-      self.timeRange.adjustMin();
-    }
+    if (self.autoReloadIsEnabled)
+      self.timeRange.setMax(self.endTime);
     self.timeRange.set(self.endTime - self.timeSpan, self.endTime);
 
     $("#item-graph-slider").slider({
