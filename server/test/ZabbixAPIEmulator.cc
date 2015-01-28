@@ -267,6 +267,21 @@ bool ZabbixAPIEmulator::hasParameter
 	return true;
 }
 
+bool ZabbixAPIEmulator::hasParameter
+  (APIHandlerArg &arg, const string &paramName, const int64_t &expectedValue)
+{
+	string request(arg.msg->request_body->data,
+	               arg.msg->request_body->length);
+	JSONParser parser(request);
+	if (parser.hasError())
+		THROW_HATOHOL_EXCEPTION("Failed to parse: %s", request.c_str());
+
+	if (!parser.startObject("params"))
+		return false;
+
+	return true;
+}
+
 string ZabbixAPIEmulator::generateAuthToken(void)
 {
 	string token;
