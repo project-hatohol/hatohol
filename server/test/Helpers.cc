@@ -710,8 +710,10 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 			continue;
 		const AccessInfo &accessInfo = testAccessInfo[i];
 		expect += StringUtils::sprintf(
-		  "%" FMT_ACCESS_INFO_ID "|%" FMT_USER_ID "|%d|%" PRIu64 "\n",
-		  id, accessInfo.userId, accessInfo.serverId, accessInfo.hostgroupId);
+		  "%" FMT_ACCESS_INFO_ID "|%" FMT_USER_ID "|%d|"
+		  "%" FMT_HOST_GROUP_ID "\n",
+		  id, accessInfo.userId, accessInfo.serverId,
+		  accessInfo.hostgroupId.c_str());
 	}
 	ThreadLocalDBCache cache;
 	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);

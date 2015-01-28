@@ -81,6 +81,17 @@ typedef map<FormatType, const char *> MimeTypeMap;
 typedef MimeTypeMap::iterator   MimeTypeMapIterator;
 static MimeTypeMap g_mimeTypeMap;
 
+// FaceRestPrivate ===========================================================
+template<>
+int scanParam(const char *value, const char *scanFmt, std::string &dest)
+{
+	if (!value)
+		return 0;
+	dest = value;
+	return !dest.empty();
+}
+
+// FaceRest ==================================================================
 struct FaceRest::Impl {
 	struct MainThreadCleaner;
 	static Mutex        lock;
@@ -915,7 +926,7 @@ static void addHostsMap(
 	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
 	char *value = (char *)g_hash_table_lookup(job->m_query, "hostgroupId");
 	if (value)
-		sscanf(value, "%" FMT_HOST_GROUP_ID, &targetHostgroupId);
+		targetHostgroupId = value;
 
 	ServerHostDefVect svHostDefVect;
 	HostsQueryOption option(job->m_dataQueryContextPtr);
