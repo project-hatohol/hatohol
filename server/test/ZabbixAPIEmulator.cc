@@ -104,7 +104,7 @@ struct ZabbixAPIEmulator::PrivateContext {
 	int64_t       lastEventId;
 	int64_t       expectedFirstEventId;
 	int64_t       expectedLastEventId;
-	
+
 	// methods
 	PrivateContext(void)
 	: operationMode(OPE_MODE_NORMAL),
@@ -125,17 +125,17 @@ struct ZabbixAPIEmulator::PrivateContext {
 	{
 		apiHandlerMap["apiinfo.version"] =
 		  &ZabbixAPIEmulator::APIHandlerAPIVersion;
-		apiHandlerMap["user.login"] = 
+		apiHandlerMap["user.login"] =
 		  &ZabbixAPIEmulator::APIHandlerUserLogin;
-		apiHandlerMap["trigger.get"] = 
+		apiHandlerMap["trigger.get"] =
 		  &ZabbixAPIEmulator::APIHandlerTriggerGet;
-		apiHandlerMap["item.get"] = 
+		apiHandlerMap["item.get"] =
 		  &ZabbixAPIEmulator::APIHandlerItemGet;
-		apiHandlerMap["host.get"] = 
+		apiHandlerMap["host.get"] =
 		  &ZabbixAPIEmulator::APIHandlerHostGet;
-		apiHandlerMap["event.get"] = 
+		apiHandlerMap["event.get"] =
 		  &ZabbixAPIEmulator::APIHandlerEventGet;
-		apiHandlerMap["application.get"] = 
+		apiHandlerMap["application.get"] =
 		  &ZabbixAPIEmulator::APIHandlerApplicationGet;
 		apiHandlerMap["hostgroup.get"] =
 		  &ZabbixAPIEmulator::APIHandlerHostgroupGet;
@@ -260,7 +260,7 @@ bool ZabbixAPIEmulator::hasParameter
 	JSONParser parser(request);
 	if (parser.hasError())
 		THROW_HATOHOL_EXCEPTION("Failed to parse: %s", request.c_str());
-	
+
 	if (!parser.startObject("params"))
 		return false;
 	string value;
@@ -395,7 +395,7 @@ void ZabbixAPIEmulator::APIHandlerUserLogin(APIHandlerArg &arg)
 {
 	string authToken = generateAuthToken();
 	m_ctx->authTokens.insert(authToken);
-	const char *fmt = 
+	const char *fmt =
 	  "{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":%" PRId64 "}";
 	string response = StringUtils::sprintf(fmt, authToken.c_str(), arg.id);
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
@@ -430,7 +430,7 @@ void ZabbixAPIEmulator::APIHandlerItemGet(APIHandlerArg &arg)
 	JSONParser parser(request);
 	if (parser.hasError())
 		THROW_HATOHOL_EXCEPTION("Failed to parse: %s", request.c_str());
-	
+
 	bool selectApplications = false;
 	if (parser.startObject("params")) {
 		string selectAppStr;
@@ -600,7 +600,7 @@ void ZabbixAPIEmulator::makeEventJSONData(const string &path)
 string ZabbixAPIEmulator::addJSONResponse(const string &slice,
                                             APIHandlerArg &arg)
 {
-	const char *fmt = 
+	const char *fmt =
 	  "{\"jsonrpc\":\"2.0\",\"result\":[%s],\"id\":%" PRId64 "}";
 	return StringUtils::sprintf(fmt, slice.c_str(), arg.id);
 }
