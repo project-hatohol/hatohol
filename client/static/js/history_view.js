@@ -518,25 +518,26 @@ var HistoryView = function(userProfile, options) {
           }
         }
       },
-      setMax: function(max) {
-	this.max = max;
-	this._adjustMin();
-      },
       setEndTime: function(endTime) {
-	var span = this.getSpan();
-	this.end = endTime;
-	this.begin = this.end - span;
+        var span = this.getSpan();
+        this.end = endTime;
+        this.begin = this.end - span;
+        if (!this.max || this.end > this.max) {
+          this.max = this.end;
+          this._adjustMin();
+        }
       },
       _adjustMin: function() {
         var date;
-
-        if (!self.plotOptions)
-          return;
+        var plotOptions = {
+          mode: "time",
+          timezone: "browser"
+        };
 
         // 1 week ago
         this.min = this.max - secondsInHour * 24 * 7;
         // Adjust to 00:00:00
-        date = $.plot.dateGenerator(this.min * 1000, self.plotOptions.xaxis);
+        date = $.plot.dateGenerator(this.min * 1000, plotOptions);
         this.min -=
           date.getHours() * 3600 +
           date.getMinutes() * 60 +
@@ -554,10 +555,6 @@ var HistoryView = function(userProfile, options) {
 
   function drawSlider() {
     var timeRange = self.timeRange;
-
-    // TODO: remove it
-    if (self.autoReloadIsEnabled && timeRange.end)
-      timeRange.setMax(timeRange.end);
 
     $("#item-graph-slider").slider({
       range: true,
