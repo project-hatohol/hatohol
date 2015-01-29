@@ -515,7 +515,7 @@ void RestResourceHost::handlerGetHost(void)
 	replyJSONData(agent);
 }
 
-static bool parseExtendedInfo(TriggerInfo triggerInfo, string &extendedInfoValue)
+bool RestResourceHost::parseExtendedInfo(TriggerInfo triggerInfo, string &extendedInfoValue)
 {
 	if (triggerInfo.extendedInfo.empty())
 		return false;
