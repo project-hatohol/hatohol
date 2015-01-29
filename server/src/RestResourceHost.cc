@@ -564,7 +564,7 @@ void RestResourceHost::handlerGetTrigger(void)
 		agent.add("hostId",   StringUtils::toString(triggerInfo.hostId));
 		agent.add("brief",    triggerInfo.brief);
 		if (foundExtendInfo)
-			agent.add("extendedInfo", extendedInfoValue);
+			agent.add("expandedDescription", extendedInfoValue);
 		agent.endObject();
 	}
 	agent.endArray();
