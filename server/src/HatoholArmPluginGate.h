@@ -78,7 +78,7 @@ public:
 	pid_t getPid(void);
 
 	virtual bool isFetchItemsSupported(void);
-	virtual void startOnDemandFetchItem(Closure0 *closure) override;
+	virtual bool startOnDemandFetchItem(Closure0 *closure) override;
 	virtual void startOnDemandFetchHistory(
 	  const ItemInfo &itemInfo,
 	  const time_t &beginTime,

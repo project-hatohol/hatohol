@@ -37,7 +37,7 @@ public:
 
 protected:
 	void updatedCallback(Closure0 *closure);
-	void runFetcher(DataStore *dataStore);
+	bool runFetcher(DataStore *dataStore);
 
 private:
 	struct Impl;
