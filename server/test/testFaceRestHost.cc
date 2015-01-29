@@ -41,7 +41,7 @@ static void _assertTestTriggerInfo(
 	assertValueInParser(parser, "serverId", triggerInfo.serverId);
 	assertValueInParser(parser, "hostId", StringUtils::toString(triggerInfo.hostId));
 	assertValueInParser(parser, "brief", triggerInfo.brief);
-	if (triggerInfo.extendedInfo.empty()) {
+	if (!triggerInfo.extendedInfo.empty()) {
 		assertValueInParser(parser, "expandedDescription",
 		                    triggerInfo.extendedInfo);
 	}
