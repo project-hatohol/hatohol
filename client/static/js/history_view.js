@@ -479,11 +479,9 @@ var HistoryView = function(userProfile, options) {
   }
 
   function drawGraph() {
-    var beginTimeInSec = self.timeRange.begin;
-    var endTimeInSec = self.timeRange.end;
     var i;
 
-    self.plotOptions = getPlotOptions(beginTimeInSec, endTimeInSec);
+    self.plotOptions = getPlotOptions(self.timeRange.begin, self.timeRange.end);
     fixupYAxisMapping(self.plotData, self.plotOptions);
 
     for (i = 0; i < self.plotData.length; i++) {
