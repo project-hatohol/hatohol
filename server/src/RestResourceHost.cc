@@ -517,7 +517,6 @@ void RestResourceHost::handlerGetHost(void)
 
 static bool parseExtendedInfo(TriggerInfo triggerInfo, string &extendedInfoValue)
 {
-	bool foundExtendInfo = false;
 	if (triggerInfo.extendedInfo.empty())
 		return false;
 
@@ -525,9 +524,7 @@ static bool parseExtendedInfo(TriggerInfo triggerInfo, string &extendedInfoValue
 	if (parser.hasError())
 		return false;
 
-	foundExtendInfo =
-	  parser.read("expandedDesctription", extendedInfoValue);
-	return foundExtendInfo;
+	return parser.read("expandedDesctription", extendedInfoValue);
 }
 
 void RestResourceHost::handlerGetTrigger(void)
