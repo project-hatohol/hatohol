@@ -41,8 +41,10 @@ static void _assertTestTriggerInfo(
 	assertValueInParser(parser, "serverId", triggerInfo.serverId);
 	assertValueInParser(parser, "hostId", StringUtils::toString(triggerInfo.hostId));
 	assertValueInParser(parser, "brief", triggerInfo.brief);
-	assertValueInParser(parser, "extendedInfo",
-	                    triggerInfo.extendedInfo);
+	if (triggerInfo.extendedInfo.empty()) {
+		assertValueInParser(parser, "extendedInfo",
+		                    triggerInfo.extendedInfo);
+	}
 }
 #define assertTestTriggerInfo(P, T) cut_trace(_assertTestTriggerInfo(P, T))
 
