@@ -159,11 +159,11 @@ var ActionsView = function(userProfile) {
   //
   // parser of received json data
   //
-  function getServerNameFromAction(actionsPkt, actionDef) {
+  function getNickNameFromAction(actionsPkt, actionDef) {
     var serverId = actionDef["serverId"];
     if (!serverId)
       return "ANY";
-    return getServerName(actionsPkt["servers"][serverId], serverId);
+    return getNickName(actionsPkt["servers"][serverId], serverId);
   }
 
   function getHostgroupNameFromAction(actionsPkt, actionDef) {
@@ -206,8 +206,8 @@ var ActionsView = function(userProfile) {
         "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
       s += "<td>" + escapeHTML(actionDef.actionId) + "</td>";
 
-      var serverName = getServerNameFromAction(actionsPkt, actionDef);
-      s += "<td>" + escapeHTML(serverName) + "</td>";
+      var nickName = getNickNameFromAction(actionsPkt, actionDef);
+      s += "<td>" + escapeHTML(nickName) + "</td>";
 
       var hostName = getHostNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(hostName)   + "</td>";
