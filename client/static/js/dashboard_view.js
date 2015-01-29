@@ -150,6 +150,8 @@ var DashboardView = function(userProfile) {
           html += "</td>";
         }
         if (hostStatus["numberOfGoodHosts"] + hostStatus["numberOfBadHosts"] == 0) {
+          if (y == (hostStatuses.length - 1))
+            html += "</tr>";
           ++y;
           continue;
         }
@@ -188,8 +190,11 @@ var DashboardView = function(userProfile) {
           html += escapeHTML(replyData["serverStatus"][x]["serverNickname"]);
           html += "</td>";
         }
-        if(hostStatus["numberOfGoodHosts"] + hostStatus["numberOfBadHosts"] == 0)
+        if (hostStatus["numberOfGoodHosts"] + hostStatus["numberOfBadHosts"] == 0) {
+          if (y == (hostStatuses.length - 1))
+            html += "</tr>";
           continue;
+        }
         html += "<td>";
         html += escapeHTML(serverStatus["hostgroups"][hostStatus["hostgroupId"]]["name"]);
         html += "</td>";
