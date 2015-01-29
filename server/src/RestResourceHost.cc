@@ -526,7 +526,7 @@ static bool parseExtendedInfo(TriggerInfo triggerInfo, string &extendedInfoValue
 		return false;
 
 	foundExtendInfo =
-	  parser.read("extendedDesctription", extendedInfoValue);
+	  parser.read("expandedDesctription", extendedInfoValue);
 	return foundExtendInfo;
 }
 
