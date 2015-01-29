@@ -555,7 +555,9 @@ var HistoryView = function(userProfile, options) {
   function drawSlider() {
     var timeRange = self.timeRange;
 
-    timeRange.set(timeRange.begin, timeRange.end);
+    // TODO: remove it
+    if (self.autoReloadIsEnabled && self.timeRange.end)
+      self.timeRange.setMax(self.timeRange.end);
 
     $("#item-graph-slider").slider({
       range: true,
