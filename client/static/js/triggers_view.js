@@ -154,7 +154,7 @@ var TriggersView = function(userProfile) {
   }
 
   function drawTableBody(replyData) {
-    var serverName, hostName, clock, status, severity;
+    var serverName, hostName, clock, status, severity, triggerName;
     var html, server, trigger;
     var x, serverId, hostId;
 
@@ -169,6 +169,11 @@ var TriggersView = function(userProfile) {
       clock      = trigger["lastChangeTime"];
       status     = trigger["status"];
       severity   = trigger["severity"];
+      if (trigger["expandedDescription"]) {
+        triggerName  = trigger["expandedDescription"];
+      } else {
+        triggerName  = trigger["brief"];
+      }
 
       html += "<tr><td>" + escapeHTML(nickName) + "</td>";
       html += "<td class='severity" + escapeHTML(severity) +
@@ -183,7 +188,7 @@ var TriggersView = function(userProfile) {
       html += "<td>"
 	+ "<a href='ajax_events?serverId=" + escapeHTML(serverId)
 	+ "&triggerId=" + escapeHTML(trigger["id"]) + "'>"
-	+ escapeHTML(trigger["brief"])
+	+ escapeHTML(triggerName)
 	+ "</a></td>";
       html += "</tr>";
     }
