@@ -25,6 +25,7 @@
 #include "UnifiedDataStore.h"
 #include "testDBTablesMonitoring.h"
 #include "FaceRestTestUtils.h"
+#include "RestResourceHost.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;
@@ -42,8 +43,11 @@ static void _assertTestTriggerInfo(
 	assertValueInParser(parser, "hostId", StringUtils::toString(triggerInfo.hostId));
 	assertValueInParser(parser, "brief", triggerInfo.brief);
 	if (!triggerInfo.extendedInfo.empty()) {
+		string parsedExtendedInfo = "";
+		RestResourceHost::parseExtendedInfo(triggerInfo,
+		                                    parsedExtendedInfo);
 		assertValueInParser(parser, "expandedDescription",
-		                    triggerInfo.extendedInfo);
+		                    parsedExtendedInfo);
 	}
 }
 #define assertTestTriggerInfo(P, T) cut_trace(_assertTestTriggerInfo(P, T))
