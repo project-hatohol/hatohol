@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014 - 2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -34,7 +34,8 @@ static MonitoringServerInfo toMonitoringServerInfo(
 	monitoringServer.type = MONITORING_SYSTEM_INCIDENT_TRACKER;
 	monitoringServer.nickname = trackerInfo.nickname;
 	if (SOUP_URI_IS_VALID(uri)) {
-		monitoringServer.hostName = soup_uri_get_host(uri);
+		const char *host = soup_uri_get_host(uri);
+		monitoringServer.hostName = host ? host : "";
 		monitoringServer.port = soup_uri_get_port(uri);
 	}
 	if (uri)
