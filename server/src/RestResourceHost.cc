@@ -550,6 +550,10 @@ void RestResourceHost::handlerGetTrigger(void)
 	TriggerInfoListIterator it = triggerList.begin();
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
+		string extendedInfoValue = "";
+		bool foundExtendInfo = false;
+		foundExtendInfo = parseExtendedInfo(triggerInfo, extendedInfoValue);
+
 		agent.startObject();
 		agent.add("id",       StringUtils::toString(triggerInfo.id));
 		agent.add("status",   triggerInfo.status);
@@ -559,8 +563,8 @@ void RestResourceHost::handlerGetTrigger(void)
 		agent.add("serverId", triggerInfo.serverId);
 		agent.add("hostId",   StringUtils::toString(triggerInfo.hostId));
 		agent.add("brief",    triggerInfo.brief);
-		agent.add("extendedInfo",
-		          triggerInfo.extendedInfo);
+		if (foundExtendInfo)
+			agent.add("extendedInfo", extendedInfoValue);
 		agent.endObject();
 	}
 	agent.endArray();
