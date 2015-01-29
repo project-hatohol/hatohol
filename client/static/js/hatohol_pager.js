@@ -47,7 +47,7 @@ var HatoholPager = function(params) {
   //     Default: $("input.num-records-per-page");
   //     Note: input elements to change numRecordsPerPage
   //
-  self = this;
+  var self = this;
   self.parentElements = $("ul.pagination");
   self.numRecordsPerPageEntries = $("input.num-records-per-page");
   self.numRecordsPerPage = 50;
