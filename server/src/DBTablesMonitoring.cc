@@ -154,7 +154,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"entended_info",                   // columnName
+	"extended_info",                   // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	32767,                             // columnLength
 	0,                                 // decFracLength
