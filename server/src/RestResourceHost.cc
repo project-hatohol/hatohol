@@ -515,6 +515,20 @@ void RestResourceHost::handlerGetHost(void)
 	replyJSONData(agent);
 }
 
+static bool parseExtendedInfo(TriggerInfo triggerInfo, string &extendedInfoValue)
+{
+	bool foundExtendInfo = false;
+	if (!triggerInfo.extendedInfo.empty()) {
+		JSONParser parser(triggerInfo.extendedInfo);
+		if (parser.hasError())
+			return false;
+
+		foundExtendInfo =
+		  parser.read("extendedDesctription", extendedInfoValue);
+		}
+	return foundExtendInfo;
+}
+
 void RestResourceHost::handlerGetTrigger(void)
 {
 	TriggersQueryOption option(m_dataQueryContextPtr);
