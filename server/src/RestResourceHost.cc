@@ -524,7 +524,7 @@ static bool parseExtendedInfo(TriggerInfo triggerInfo, string &extendedInfoValue
 	if (parser.hasError())
 		return false;
 
-	return parser.read("expandedDesctription", extendedInfoValue);
+	return parser.read("extendedDesctription", extendedInfoValue);
 }
 
 void RestResourceHost::handlerGetTrigger(void)
