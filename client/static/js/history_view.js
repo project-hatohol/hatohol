@@ -544,8 +544,8 @@ var HistoryView = function(userProfile, options) {
           return this.end - this.begin;
         else
           return secondsInHour * 6;
-      },
-    }
+      }
+    };
     return timeRange;
   }
 
