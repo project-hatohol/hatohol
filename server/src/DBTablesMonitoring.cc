@@ -1843,6 +1843,18 @@ void DBTablesMonitoring::addEventInfoList(EventInfoList &eventInfoList)
 	getDBAgent().runTransaction(trx);
 }
 
+bool DBTablesMonitoring::parseExtendedInfo(std::string extendedInfo, string &extendedInfoValue)
+{
+	if (extendedInfo.empty())
+		return false;
+
+	JSONParser parser(extendedInfo);
+	if (parser.hasError())
+		return false;
+
+	return parser.read("expandedDescription", extendedInfoValue);
+}
+
 HatoholError DBTablesMonitoring::getEventInfoList(
   EventInfoList &eventInfoList, const EventsQueryOption &option,
   IncidentInfoVect *incidentInfoVect)
