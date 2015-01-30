@@ -134,17 +134,28 @@ var DashboardView = function(userProfile) {
     var html = "";
     var x, y, severity;
     var serverId, groupId, numberOfTriggers;
+    var hostStatuses, hostStatus;
+    var rowspanFlag;
 
     for (x = 0; x < replyData["serverStatus"].length; ++x) {
+      rowspanFlag = true;
       serverId = replyData["serverStatus"][x]["serverId"];
+      hostStatuses = replyData["serverStatus"][x]["hostStatus"];
       html += "<tr>";
       y = 0;
       for (groupId in replyData["serverStatus"][x]["hostgroups"]) {
-        html += "<tr>"; // ==============  start of a row ================
-        if (y == 0) {
+        hostStatus = hostStatuses[y];
+        if (hostStatus["numberOfGoodHosts"] + hostStatus["numberOfBadHosts"] == 0) {
+          ++y;
+          continue;
+        } else {
+          html += "<tr>"; // ==============  start of a row ================
+        }
+        if (rowspanFlag == true) {
           html += "<td rowspan='" + escapeHTML(parsedData[serverId]["numberOfHostgroups"]) + "'>";
           html += escapeHTML(replyData["serverStatus"][x]["serverNickname"]);
           html += "</td>";
+          rowspanFlag = false;
         }
         html += "<td>";
         html += escapeHTML(replyData["serverStatus"][x]["hostgroups"][groupId]["name"]);
@@ -168,18 +179,26 @@ var DashboardView = function(userProfile) {
     var html = "";
     var serverStatus, hostStatuses, hostStatus;
     var x, y;
+    var rowspanFlag;
 
     for (x = 0; x < replyData["serverStatus"].length; ++x) {
+      rowspanFlag = true;
       serverStatus = replyData["serverStatus"][x];
       hostStatuses = replyData["serverStatus"][x]["hostStatus"];
       html += "<tr>";
       for (y = 0; y < hostStatuses.length; ++y) {
         hostStatus = hostStatuses[y];
-        html += "<tr>"; // ==============  start of a row ================
-        if (y == 0) {
+        if (hostStatus["numberOfGoodHosts"] + hostStatus["numberOfBadHosts"] == 0) {
+          ++y;
+          continue;
+        } else {
+          html += "<tr>"; // ==============  start of a row ================
+        }
+        if (rowspanFlag == true) {
           html += "<td rowspan='" + hostStatuses.length + "'>";
           html += escapeHTML(replyData["serverStatus"][x]["serverNickname"]);
           html += "</td>";
+          rowspanFlag = false;
         }
         html += "<td>";
         html += escapeHTML(serverStatus["hostgroups"][hostStatus["hostgroupId"]]["name"]);
