@@ -42,12 +42,25 @@ describe('TriggersView', function() {
       "expandedDescription": "Host name of zabbix_agentd was changed on TestHost0"
     }
   ];
+  var defaultServers = {
+    "1": {
+      "nickname": "Zabbix",
+      "type": 0,
+      "ipAddress": "192.168.1.100",
+      "hosts": {
+        "10101": {
+          "name": "Host1",
+        },
+      },
+    },
+  };
 
-  function triggersJson(triggers) {
+  function triggersJson(triggers, servers) {
     return JSON.stringify({
       apiVersion: 3,
       errorCode: hatohol.HTERR_OK,
-      triggers: triggers ? triggers : defaultTriggers,
+      triggers: triggers ? triggers : [],
+      servers: servers ? servers : {}
     });
   }
 
@@ -57,6 +70,12 @@ describe('TriggersView', function() {
     this.xhr.onCreate = function(xhr) {
       requests.push(xhr);
     };
+  }
+
+  function respond(configJson, triggersJson) {
+    var header = { "Content-Type": "application/json" };
+    this.requests[0].respond(200, header, configJson);
+    this.requests[1].respond(200, header, triggersJson);
   }
 
   function restoreAjax() {
@@ -101,18 +120,23 @@ describe('TriggersView', function() {
   // Test cases
   // -------------------------------------------------------------------------
 
-  it("Base elements", function() {
-    var operator = {
-      "userId": 1,
-      "name": "admin",
-      "flags": hatohol.ALL_PRIVILEGES
-    };
-    var userProfile = new HatoholUserProfile(operator);
-    var view = new TriggersView(userProfile);
+  it('new with empty data', function() {
+    var view = new TriggersView($('#' + TEST_FIXTURE_ID).get(0));
     var heads = $("div#" + TEST_FIXTURE_ID + " h2");
+    respond('{}', triggersJson());
 
     expect(heads).to.have.length(1);
     expect($("#table")).to.have.length(1);
     expect($("tr")).to.have.length(1);
+  });
+
+  it("Base elements", function() {
+    var view = new TriggersView($('#' + TEST_FIXTURE_ID).get(0));
+    var heads = $("div#" + TEST_FIXTURE_ID + " h2");
+    respond('{}', triggersJson(defaultTriggers));
+
+    expect(heads).to.have.length(1);
+    expect($("#table")).to.have.length(1);
+    expect($("tr")).to.have.length(defaultTriggers.length + 1);
   });
 });
