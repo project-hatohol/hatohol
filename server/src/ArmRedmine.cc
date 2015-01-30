@@ -302,6 +302,11 @@ RETRY:
 		 trackerInfo.id, trackerInfo.nickname.c_str(), url.c_str());
 
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
+	if (!msg) {
+		MLPL_ERR("Can't prepare to connect to: %s\n",
+			 url.c_str());
+		return COLLECT_NG_DISCONNECT_REDMINE;
+	}
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
 	guint soupStatus = soup_session_send_message(m_impl->m_session, msg);
