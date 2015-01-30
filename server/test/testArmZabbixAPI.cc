@@ -65,6 +65,7 @@ typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
 public:
 	enum GetTestType {
 		GET_TEST_TYPE_TRIGGERS,
+		GET_TEST_TYPE_TRIGGERS_WITH_EXPANDED_DESCRIPTION,
 		GET_TEST_TYPE_ITEMS,
 		GET_TEST_TYPE_HOSTS,
 		GET_TEST_TYPE_APPLICATIONS,
@@ -120,6 +121,10 @@ public:
 		if (type == GET_TEST_TYPE_TRIGGERS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
+			         exitCbDefault, this);
+		} else if (type == GET_TEST_TYPE_TRIGGERS_WITH_EXPANDED_DESCRIPTION) {
+			succeeded =
+			  launch(&ArmZabbixAPITestee::threadOneProcTriggersWithExpandedDescriptions,
 			         exitCbDefault, this);
 		} else if (type == GET_TEST_TYPE_ITEMS) {
 			succeeded =
@@ -247,7 +252,7 @@ protected:
 		g_sync.unlock();
 	}
 
-	bool launch(ThreadOneProc threadOneProc, 
+	bool launch(ThreadOneProc threadOneProc,
 	            void (*exitCb)(void *), void *exitCbData,
 	            size_t numRepeat = NUM_TEST_READ_TIMES)
 	{
@@ -295,6 +300,13 @@ protected:
 	bool threadOneProcTriggers(void)
 	{
 		updateTriggers();
+		return true;
+	}
+
+	bool threadOneProcTriggersWithExpandedDescriptions(void)
+	{
+		ItemTablePtr triggers = updateTriggers();
+		updateTriggerExpandedDescriptions(triggers);
 		return true;
 	}
 
@@ -431,6 +443,11 @@ void cut_teardown(void)
 void test_getTriggers(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS);
+}
+
+void test_getTriggerWithExpandedDescriptions(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS_WITH_EXPANDED_DESCRIPTION);
 }
 
 void test_getTriggers_2_2_0(void)
@@ -737,7 +754,7 @@ void test_sessionErrorAuthToken(void)
 	cppcut_assert_equal(false, token.empty());
 	g_apiEmulator.stop();
 	cppcut_assert_equal(false, g_apiEmulator.isRunning());
-	
+
 	armZbxApiTestee.testMainThreadOneProc();
 	token = armZbxApiTestee.testAuthToken();
 	cppcut_assert_equal(true, token.empty());
@@ -753,7 +770,7 @@ void test_verifyEventsObtanedBySplitWay(void)
 	armZbxApiTestee.callUpdateEvents();
 	assertItemTable(expectTable,
 	                ItemTablePtr(armZbxApiTestee.m_actualEventTablePtr));
-	const uint64_t upperLimitOfEventsAtOneTime = 
+	const uint64_t upperLimitOfEventsAtOneTime =
 	  armZbxApiTestee.testGetMaximumNumberGetEventPerOnce();
 	list<uint64_t>::iterator itr =
 	   armZbxApiTestee.m_numbersOfGotEvents.begin();
