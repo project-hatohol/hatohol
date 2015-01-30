@@ -49,8 +49,14 @@ describe('TriggersView', function() {
       "ipAddress": "192.168.1.100",
       "hosts": {
         "10101": {
-          "name": "Host1",
+          "name": "Host1"
         },
+        "10106": {
+          "name": "Host2"
+        },
+        "18446744073709551612": {
+          "name": "Zabbix_SELF"
+        }
       },
     },
   };
@@ -138,5 +144,41 @@ describe('TriggersView', function() {
     expect(heads).to.have.length(1);
     expect($("#table")).to.have.length(1);
     expect($("tr")).to.have.length(defaultTriggers.length + 1);
+  });
+
+  it('Without expandedDesctription', function() {
+    var view = new TriggersView($('#' + TEST_FIXTURE_ID).get(0));
+    var heads = $("div#" + TEST_FIXTURE_ID + " h2");
+    var eventURL = "ajax_events?serverId=1&amp;triggerId=18446744073709550616";
+    var expected =
+      '<td>Zabbix</td>' +
+      '<td class="severity5" data-sort-value="5">Disaster</td>' +
+      '<td class="status0" data-sort-value="0">OK</td>' +
+      '<td data-sort-value="1422584694">' +
+      formatDate(1422584694) +
+      '</td>' +
+      '<td>Zabbix_SELF</td>' +
+      '<td><a href="' + eventURL + '">Failed in connecting to Zabbix.</a></td>';
+    respond('{}', triggersJson(defaultTriggers, defaultServers));
+    expect($('#table')).to.have.length(1);
+    expect($('tr')).to.have.length(defaultTriggers.length + 1);
+    expect($('tr :eq(1)').html()).to.be(expected);
+  });
+
+  it('With expandedDesctription', function() {
+    var view = new TriggersView($('#' + TEST_FIXTURE_ID).get(0));
+    var heads = $("div#" + TEST_FIXTURE_ID + " h2");
+    var eventURL = "ajax_events?serverId=1&amp;triggerId=14441";
+    var expected =
+      '<td>Zabbix</td>' +
+      '<td class="severity1" data-sort-value="1">Information</td>' +
+      '<td class="status0" data-sort-value="0">OK</td>' +
+      '<td data-sort-value="0">-</td>' +
+      '<td>Host2</td>' +
+      '<td><a href="' + eventURL + '">Host name of zabbix_agentd was changed on TestHost0</a></td>';
+    respond('{}', triggersJson(defaultTriggers, defaultServers));
+    expect($('#table')).to.have.length(1);
+    expect($('tr')).to.have.length(defaultTriggers.length + 1);
+    expect($('tr :eq(2)').html()).to.be(expected);
   });
 });
