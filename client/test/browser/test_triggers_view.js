@@ -130,7 +130,7 @@ describe('TriggersView', function() {
     expect($("tr")).to.have.length(1);
   });
 
-  it("Base elements", function() {
+  it('Base elements', function() {
     var view = new TriggersView($('#' + TEST_FIXTURE_ID).get(0));
     var heads = $("div#" + TEST_FIXTURE_ID + " h2");
     respond('{}', triggersJson(defaultTriggers));
