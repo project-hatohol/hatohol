@@ -370,6 +370,11 @@ HatoholError IncidentSenderRedmine::Impl::send(const string &method, const strin
 					       const string &json, string &response)
 {
 	SoupMessage *msg = soup_message_new(method.c_str(), url.c_str());
+	if (!msg) {
+		MLPL_ERR("Can't prepare to connect to: %s\n",
+			 url.c_str());
+		return HTERR_FAILED_TO_SEND_INCIDENT;
+	}
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
 	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
