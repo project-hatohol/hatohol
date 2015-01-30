@@ -392,6 +392,35 @@ describe('getHostName', function() {
   });
 });
 
+describe('getNickName', function() {
+  it('with valid nickname', function() {
+    var server = {
+      "name": "server",
+      "nickname": "hostWithNickName",
+      "hosts": {
+        "2": {
+          "name": "host"
+        }
+      }
+    };
+    var id = 2;
+    expect(getNickName(server, id)).to.be("hostWithNickName");
+  });
+
+  it('with no server', function() {
+    var id = 2;
+    var expected = gettext("Unknown") + " (ID: " + id + ")";
+    expect(getNickName(undefined, id)).to.be(expected);
+  });
+
+  it('with no nickname', function() {
+    var id = 2;
+    var expected = gettext("Unknown") + " (ID: " + id + ")";
+    var server = { "name": "server" };
+    expect(getNickName(server, id)).to.be(expected);
+  });
+});
+
 describe('getHostgroupName', function() {
   it('with valid name', function() {
     var server = {
