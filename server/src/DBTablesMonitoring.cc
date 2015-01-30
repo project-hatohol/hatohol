@@ -1965,7 +1965,8 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		itemGroupStream >> triggerExtendedInfo;
 
 		string triggerExpandedInfo = "";
-		parseExtendedInfo(triggerExtendedInfo, triggerExpandedInfo);
+		bool foundExtendedInfo =
+		  parseExtendedInfo(triggerExtendedInfo, triggerExpandedInfo);
 		if (eventStatus != TRIGGER_STATUS_UNKNOWN) {
 			eventInfo.status = eventStatus;
 		} else {
@@ -1988,7 +1989,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		} else {
 			eventInfo.brief = triggerBrief;
 		}
-		if (!triggerExpandedInfo.empty()) {
+		if (foundExtendedInfo) {
 			eventInfo.extendedInfo = triggerExpandedInfo;
 		}
 
