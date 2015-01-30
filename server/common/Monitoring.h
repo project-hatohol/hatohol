@@ -136,6 +136,7 @@ struct EventInfo {
 	HostIdType          hostId;
 	std::string         hostName;
 	std::string         brief;
+	std::string         extendedInfo;
 };
 void initEventInfo(EventInfo &eventInfo);
 
