@@ -20,7 +20,6 @@
 #include "Params.h"
 #include "HostResourceQueryOption.h"
 #include "DBTablesMonitoring.h"
-#include "DBAgentSQLite3.h" // TODO: Shouldn't use explicitly
 #include "DBHatohol.h"
 using namespace std;
 using namespace mlpl;
