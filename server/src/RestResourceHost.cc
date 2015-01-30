@@ -659,6 +659,8 @@ void RestResourceHost::handlerGetEvent(void)
 		agent.add("severity",  eventInfo.severity);
 		agent.add("hostId",    StringUtils::toString(eventInfo.hostId));
 		agent.add("brief",     eventInfo.brief);
+		if (!eventInfo.extendedInfo.empty())
+			agent.add("expandedDescription", eventInfo.extendedInfo);
 		if (addIncidents)
 			addIncident(this, agent, incidentVect[i]);
 		agent.endObject();
