@@ -45,8 +45,8 @@ var OverviewTriggers = function(userProfile) {
 
   function parseData(replyData, minimum) {
     var parsedData = {};
-    var serverName, hostName, triggerName;
-    var serverNames, triggerNames, hostNames;
+    var nickName, hostName, triggerName;
+    var nickNames, triggerNames, hostNames;
     var server, trigger;
     var x;
     var targetSeverity = $("#select-severity").val();
@@ -55,7 +55,7 @@ var OverviewTriggers = function(userProfile) {
     parsedData.hosts  = {};
     parsedData.values = {};
 
-    serverNames = [];
+    nickNames = [];
     triggerNames = [];
     hostNames = {};
 
@@ -69,29 +69,29 @@ var OverviewTriggers = function(userProfile) {
       var serverId = trigger["serverId"];
       var hostId   = trigger["hostId"];
       server      = replyData["servers"][serverId];
-      serverName  = getServerName(server, serverId);
+      nickName    = getNickName(server, serverId);
       hostName    = getHostName(server, hostId);
       triggerName = trigger["brief"];
 
-      serverNames.push(serverName);
+      nickNames.push(nickName);
       triggerNames.push(triggerName);
-      if (!hostNames[serverName])
-        hostNames[serverName] = [];
-      hostNames[serverName].push(hostName);
+      if (!hostNames[nickName])
+        hostNames[nickName] = [];
+      hostNames[nickName].push(hostName);
 
-      if (!parsedData.values[serverName])
-        parsedData.values[serverName] = {};
-      if (!parsedData.values[serverName][hostName])
-        parsedData.values[serverName][hostName] = {};
+      if (!parsedData.values[nickName])
+        parsedData.values[nickName] = {};
+      if (!parsedData.values[nickName][hostName])
+        parsedData.values[nickName][hostName] = {};
 
-      if (!parsedData.values[serverName][hostName][triggerName])
-        parsedData.values[serverName][hostName][triggerName] = trigger;
-    }
+      if (!parsedData.values[nickName][hostName][triggerName])
+        parsedData.values[nickName][hostName][triggerName] = trigger;
+   }
 
-    parsedData.servers  = serverNames.uniq().sort();
+    parsedData.nicknames  = nickNames.uniq().sort();
     parsedData.triggers = triggerNames.uniq().sort();
-    for (serverName in hostNames)
-      parsedData.hosts[serverName] = hostNames[serverName].uniq().sort();
+    for (nickName in hostNames)
+      parsedData.hosts[nickName] = hostNames[nickName].uniq().sort();
 
     return parsedData;
   }
@@ -132,10 +132,10 @@ var OverviewTriggers = function(userProfile) {
 
     serversRow = "<tr><th></th>";
     hostsRow = "<tr><th></th>";
-    for (serverName in parsedData.hosts) {
-      hostNames = parsedData.hosts[serverName];
+    for (nickName in parsedData.hosts) {
+      hostNames = parsedData.hosts[nickName];
       serversRow += "<th style='text-align: center' colspan='" +
-        hostNames.length + "'>" + escapeHTML(serverName) + "</th>";
+        hostNames.length + "'>" + escapeHTML(nickName) + "</th>";
       for (x = 0; x < hostNames.length; ++x) {
         hostName  = hostNames[x];
         hostsRow += "<th>" + escapeHTML(hostName) + "</th>";

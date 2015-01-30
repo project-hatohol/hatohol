@@ -29,7 +29,7 @@ describe('OverviewItems', function() {
   ];
   var defaultServers = {
     "1": {
-      "name": "Zabbix1",
+      "nickname": "Zabbix1",
       "type": 0,
       "ipAddress": "192.168.1.100",
       "hosts": {
@@ -39,7 +39,7 @@ describe('OverviewItems', function() {
       },
     },
     "2": {
-      "name": "Zabbix2",
+      "nickname": "Zabbix2",
       "type": 0,
       "ipAddress": "192.168.1.101",
       "hosts": {

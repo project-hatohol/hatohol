@@ -60,7 +60,7 @@ describe('EventsView', function() {
   function getDummyServerInfo(type){
     var dummyServerInfo = {
       "1": {
-        "name": "Server",
+        "nickname" : "Server",
         "type": type,
         "ipAddress": "192.168.1.100",
         "hosts": {

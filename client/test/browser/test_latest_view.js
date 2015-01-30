@@ -29,7 +29,7 @@ describe('LatestView', function() {
   ];
   var defaultServers = {
     "1": {
-      "name": "Zabbix",
+      "nickname": "Zabbix",
       "type": 0,
       "ipAddress": "192.168.1.100",
       "hosts": {

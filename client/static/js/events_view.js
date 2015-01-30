@@ -268,7 +268,7 @@ var EventsView = function(userProfile, baseElem) {
       serverId   = event["serverId"];
       hostId     = event["hostId"];
       server     = self.rawData["servers"][serverId];
-      serverName = getServerName(server, serverId);
+      nickName   = getNickName(server, serverId);
       serverURL  = getServerLocation(server);
       hostName   = getHostName(server, hostId);
       clock      = event["time"];
@@ -278,7 +278,7 @@ var EventsView = function(userProfile, baseElem) {
       incident   = event["incident"];
 
       if (serverURL) {
-        html += "<tr><td><a href='" + serverURL + "' target='_blank'>" + escapeHTML(serverName)
+        html += "<tr><td><a href='" + serverURL + "' target='_blank'>" + escapeHTML(nickName)
                 + "</a></td>";
         html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
                 formatDate(clock) + "</td>";
@@ -295,7 +295,7 @@ var EventsView = function(userProfile, baseElem) {
           html += "<td>" + escapeHTML(hostName) + "</td>";
         }
       } else {
-        html += "<tr><td>" + escapeHTML(serverName)+ "</td>";
+        html += "<tr><td>" + escapeHTML(nickName)+ "</td>";
         html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
                 formatDate(clock) + "</td>";
         html += "<td>" + escapeHTML(hostName) + "</td>";

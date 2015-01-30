@@ -47,44 +47,44 @@ var OverviewItems = function(userProfile) {
 
   function parseData(replyData) {
     var parsedData = {};
-    var serverName, hostName, itemName;
-    var serverNames, itemNames, hostNames;
+    var nickName, hostName, itemName;
+    var nickNames, itemNames, hostNames;
     var server, item;
     var x;
 
     parsedData.hosts  = {};
     parsedData.values = {};
 
-    serverNames = [];
+    nickNames = [];
     itemNames = [];
     hostNames = {};
 
     for (x = 0; x < replyData["items"].length; ++x) {
       item = replyData["items"][x];
-      server = replyData["servers"][item["serverId"]];
-      serverName = getServerName(server, item["serverId"]);
+      serverId = item["serverId"];
+      server = replyData["servers"][serverId];
+      nickName   = getNickName(server, serverId);
       hostName   = getHostName(server, item["hostId"]);
       itemName   = item["brief"];
 
-      serverNames.push(serverName);
+      nickNames.push(nickName);
       itemNames.push(itemName);
-      if (!hostNames[serverName])
-        hostNames[serverName] = [];
-      hostNames[serverName].push(hostName);
+      if (!hostNames[nickName])
+        hostNames[nickName] = [];
+      hostNames[nickName].push(hostName);
 
-      if (!parsedData.values[serverName])
-        parsedData.values[serverName] = {};
-      if (!parsedData.values[serverName][hostName])
-        parsedData.values[serverName][hostName] = {};
+      if (!parsedData.values[nickName])
+        parsedData.values[nickName] = {};
+      if (!parsedData.values[nickName][hostName])
+        parsedData.values[nickName][hostName] = {};
 
-      if (!parsedData.values[serverName][hostName][itemName])
-        parsedData.values[serverName][hostName][itemName] = item;
+      if (!parsedData.values[nickName][hostName][itemName])
+        parsedData.values[nickName][hostName][itemName] = item;
     }
 
-    parsedData.servers = serverNames.uniq().sort();
     parsedData.items   = itemNames.uniq().sort();
-    for (serverName in hostNames)
-      parsedData.hosts[serverName] = hostNames[serverName].uniq().sort();
+    for (nickName in hostNames)
+      parsedData.hosts[nickName] = hostNames[nickName].uniq().sort();
 
     return parsedData;
   }
