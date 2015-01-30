@@ -291,8 +291,8 @@ var HistoryView = function(userProfile, options) {
     });
   }
 
-  function enableAutoRefresh(onClickButton) {
-    var button = $("#item-graph-auto-refresh");
+  function enableAutoReload(onClickButton) {
+    var button = $("#item-graph-auto-reload");
 
     button.removeClass("btn-default");
     button.addClass("btn-primary");
@@ -303,8 +303,8 @@ var HistoryView = function(userProfile, options) {
     load();
   }
 
-  function disableAutoRefresh(onClickButton) {
-    var button = $("#item-graph-auto-refresh");
+  function disableAutoReload(onClickButton) {
+    var button = $("#item-graph-auto-reload");
     self.clearAutoReload();
     self.autoReloadIsEnabled = false;
     if (!onClickButton)
@@ -326,7 +326,7 @@ var HistoryView = function(userProfile, options) {
       id: "item-graph-slider",
     }))
     .append($("<button>", {
-      id: "item-graph-auto-refresh",
+      id: "item-graph-auto-reload",
       type: "button",
       class: "btn btn-primary glyphicon glyphicon-refresh active",
     }).attr("data-toggle", "button"));
@@ -350,8 +350,8 @@ var HistoryView = function(userProfile, options) {
       setSliderTimeRange(Math.floor(ranges.xaxis.from / 1000),
                          Math.floor(ranges.xaxis.to / 1000));
 
-      // disable auto refresh
-      disableAutoRefresh();
+      // disable auto reload
+      disableAutoReload();
     });
 
     // zoom cancel
@@ -361,12 +361,12 @@ var HistoryView = function(userProfile, options) {
                          Math.floor(self.plotOptions.xaxis.max / 1000));
     });
 
-    // toggle auto refresh
-    $("#item-graph-auto-refresh").on("click", function() {
+    // toggle auto reload
+    $("#item-graph-auto-reload").on("click", function() {
       if ($(this).hasClass("active")) {
-        disableAutoRefresh(true);
+        disableAutoReload(true);
       } else {
-        enableAutoRefresh(true);
+        enableAutoReload(true);
       }
     });
   };
@@ -570,9 +570,9 @@ var HistoryView = function(userProfile, options) {
         setGraphTimeRange(timeRange.begin, timeRange.end);
         for (i = 0; i < self.loaders.length; i++)
           self.loaders[i].setTimeRange(timeRange.begin, timeRange.end);
-        disableAutoRefresh();
+        disableAutoReload();
         load();
-        $("#item-graph-auto-refresh").removeClass("active");
+        $("#item-graph-auto-reload").removeClass("active");
       },
       slide: function(event, ui) {
         var beginTime = ui.values[0], endTime = ui.values[1];
