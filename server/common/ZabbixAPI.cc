@@ -280,7 +280,7 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 	return ItemTablePtr(tablePtr);
 }
 
-ItemTablePtr ZabbixAPI::getTriggerExpandedDescription(ItemTablePtr items, int requestSince)
+ItemTablePtr ZabbixAPI::getTriggerExpandedDescription(int requestSince)
 {
 	HatoholError queryRet;
 	SoupMessage *msg =
