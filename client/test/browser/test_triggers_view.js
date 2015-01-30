@@ -78,10 +78,10 @@ describe('TriggersView', function() {
     };
   }
 
-  function respond(configJson, triggersJson) {
+  function respond(config, triggers) {
     var header = { "Content-Type": "application/json" };
-    this.requests[0].respond(200, header, configJson);
-    this.requests[1].respond(200, header, triggersJson);
+    this.requests[0].respond(200, header, config);
+    this.requests[1].respond(200, header, triggers);
   }
 
   function restoreAjax() {
