@@ -25,6 +25,7 @@
 #include "UnifiedDataStore.h"
 #include "testDBTablesMonitoring.h"
 #include "FaceRestTestUtils.h"
+#include "RestResourceHost.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;
@@ -41,6 +42,13 @@ static void _assertTestTriggerInfo(
 	assertValueInParser(parser, "serverId", triggerInfo.serverId);
 	assertValueInParser(parser, "hostId", StringUtils::toString(triggerInfo.hostId));
 	assertValueInParser(parser, "brief", triggerInfo.brief);
+	if (!triggerInfo.extendedInfo.empty()) {
+		string parsedExtendedInfo = "";
+		RestResourceHost::parseExtendedInfo(triggerInfo,
+		                                    parsedExtendedInfo);
+		assertValueInParser(parser, "expandedDescription",
+		                    parsedExtendedInfo);
+	}
 }
 #define assertTestTriggerInfo(P, T) cut_trace(_assertTestTriggerInfo(P, T))
 
@@ -140,7 +148,7 @@ static void _assertHosts(const string &path, const string &callbackName = "",
 	StringMap queryMap;
 	if (serverId != ALL_SERVERS) {
 		queryMap["serverId"] =
-		   StringUtils::sprintf("%" PRIu32, serverId); 
+		   StringUtils::sprintf("%" PRIu32, serverId);
 	}
 	RequestArg arg(path, callbackName);
 	arg.parameters = queryMap;
@@ -189,7 +197,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 		  StringUtils::sprintf("%" PRIu32, serverId);
 	}
 	if (hostId != ALL_HOSTS)
-		queryMap["hostId"] = StringUtils::sprintf("%" PRIu64, hostId); 
+		queryMap["hostId"] = StringUtils::sprintf("%" PRIu64, hostId);
 	arg.parameters = queryMap;
 	JSONParser *parser = getResponseAsJSONParser(arg);
 	unique_ptr<JSONParser> parserPtr(parser);
@@ -358,7 +366,7 @@ static void _assertItems(const string &path, const string &callbackName = "",
 		parser->endElement();
 
 		// Check duplication
-		pair<set<ItemInfo *>::iterator, bool> result = 
+		pair<set<ItemInfo *>::iterator, bool> result =
 		  itemInfoPtrSet.insert(itemInfoPtr);
 		cppcut_assert_equal(true, result.second);
 	}
@@ -417,7 +425,7 @@ static void assertSystemStatusInParserEach(
   JSONParser *parser, const int &severityNum,
   const ServerIdType &serverId, const HostgroupIdType &hostgroupId)
 {
-	const TriggerSeverityType severity = 
+	const TriggerSeverityType severity =
 	  static_cast<TriggerSeverityType>(severityNum);
 	const size_t expectedTriggers =
 	  getNumberOfTestTriggers(serverId, hostgroupId, severity);

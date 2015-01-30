@@ -515,6 +515,18 @@ void RestResourceHost::handlerGetHost(void)
 	replyJSONData(agent);
 }
 
+bool RestResourceHost::parseExtendedInfo(TriggerInfo triggerInfo, string &extendedInfoValue)
+{
+	if (triggerInfo.extendedInfo.empty())
+		return false;
+
+	JSONParser parser(triggerInfo.extendedInfo);
+	if (parser.hasError())
+		return false;
+
+	return parser.read("expandedDescription", extendedInfoValue);
+}
+
 void RestResourceHost::handlerGetTrigger(void)
 {
 	TriggersQueryOption option(m_dataQueryContextPtr);
@@ -536,6 +548,10 @@ void RestResourceHost::handlerGetTrigger(void)
 	TriggerInfoListIterator it = triggerList.begin();
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
+		string extendedInfoValue = "";
+		bool foundExtendedInfo = false;
+		foundExtendedInfo = parseExtendedInfo(triggerInfo, extendedInfoValue);
+
 		agent.startObject();
 		agent.add("id",       StringUtils::toString(triggerInfo.id));
 		agent.add("status",   triggerInfo.status);
@@ -545,6 +561,8 @@ void RestResourceHost::handlerGetTrigger(void)
 		agent.add("serverId", triggerInfo.serverId);
 		agent.add("hostId",   StringUtils::toString(triggerInfo.hostId));
 		agent.add("brief",    triggerInfo.brief);
+		if (foundExtendedInfo)
+			agent.add("expandedDescription", extendedInfoValue);
 		agent.endObject();
 	}
 	agent.endArray();
