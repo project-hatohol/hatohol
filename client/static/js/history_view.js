@@ -382,9 +382,17 @@ var HistoryView = function(userProfile, options) {
     return legend;
   };
 
+  function getDate(timeMSec) {
+    var plotOptions = {
+      mode: "time",
+      timezone: "browser"
+    };
+    return $.plot.dateGenerator(timeMSec, plotOptions);
+  }
+
   function formatTime(val, unit) {
     var now = new Date();
-    var date = $.plot.dateGenerator(val, self.plotOptions.xaxis);
+    var date = getDate(val);
     var format = "";
 
     if (now.getFullYear() != date.getFullYear())
@@ -524,15 +532,10 @@ var HistoryView = function(userProfile, options) {
       },
       _adjustMin: function() {
         var date;
-        var plotOptions = {
-          mode: "time",
-          timezone: "browser"
-        };
-
         // 1 week ago
         this.min = this.max - secondsInHour * 24 * 7;
         // Adjust to 00:00:00
-        date = $.plot.dateGenerator(this.min * 1000, plotOptions);
+        date = getDate(this.min * 1000);
         this.min -=
           date.getHours() * 3600 +
           date.getMinutes() * 60 +
