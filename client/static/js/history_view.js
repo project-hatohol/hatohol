@@ -251,7 +251,7 @@ var HistoryView = function(userProfile, options) {
       self.loaders[i] = new HistoryLoader({
         index: i,
         view: self,
-        defaultTimeSpan: self.timeSpan,
+        defaultTimeSpan: self.timeRange.getSpan(),
         query: historyQueries[i],
         onLoadItem: function(item, servers) {
           this.item = item;
