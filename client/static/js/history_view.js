@@ -350,7 +350,6 @@ var HistoryView = function(userProfile, options) {
       setSliderTimeRange(Math.floor(ranges.xaxis.from / 1000),
                          Math.floor(ranges.xaxis.to / 1000));
 
-      // disable auto reload
       disableAutoReload();
     });
 
