@@ -1964,6 +1964,8 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		itemGroupStream >> triggerBrief;
 		itemGroupStream >> triggerExtendedInfo;
 
+		string triggerExpandedInfo = "";
+		parseExtendedInfo(triggerExtendedInfo, triggerExpandedInfo);
 		if (eventStatus != TRIGGER_STATUS_UNKNOWN) {
 			eventInfo.status = eventStatus;
 		} else {
@@ -1985,6 +1987,9 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 			eventInfo.brief = eventBrief;
 		} else {
 			eventInfo.brief = triggerBrief;
+		}
+		if (!triggerExpandedInfo.empty()) {
+			eventInfo.extendedInfo = triggerExpandedInfo;
 		}
 
 		if (incidentInfoVect) {
