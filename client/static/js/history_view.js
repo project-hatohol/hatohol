@@ -501,15 +501,11 @@ var HistoryView = function(userProfile, options) {
       min: undefined,
       max: undefined,
       set: function(beginTime, endTime) {
+        this.setEndTime(endTime);
         this.begin = beginTime;
-        this.end = endTime;
-        if (!this.max)
-          this.max = this.end;
-        if (!this.min)
-          this._adjustMin();
-        if (this.end - this.begin > this.maxSpan)
+        if (this.getSpan() > this.maxSpan)
           this.begin = this.end - this.maxSpan;
-        if (this.end - this.begin < this.minSpan) {
+        if (this.getSpan() < this.minSpan) {
           if (this.begin + this.minSpan >= this.max) {
             this.end = this.max;
             this.begin = this.max - this.minSpan;
