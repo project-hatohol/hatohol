@@ -31,6 +31,7 @@ EXTRA_DIST = \
 	browser/test_users_view.js \
 	browser/test_utils.js \
 	browser/test_log_search_systems_view.js \
+	browser/test_triggers_view.js \
 	python/TestHatoholserver.py \
 	python/TestUserConfig.py \
 	python/TestUserConfigView.py \
