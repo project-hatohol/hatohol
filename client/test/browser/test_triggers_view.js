@@ -148,7 +148,6 @@ describe('TriggersView', function() {
 
   it('Without expandedDesctription', function() {
     var view = new TriggersView($('#' + TEST_FIXTURE_ID).get(0));
-    var heads = $("div#" + TEST_FIXTURE_ID + " h2");
     var eventURL = "ajax_events?serverId=1&amp;triggerId=18446744073709550616";
     var expected =
       '<td>Zabbix</td>' +
@@ -167,7 +166,6 @@ describe('TriggersView', function() {
 
   it('With expandedDesctription', function() {
     var view = new TriggersView($('#' + TEST_FIXTURE_ID).get(0));
-    var heads = $("div#" + TEST_FIXTURE_ID + " h2");
     var eventURL = "ajax_events?serverId=1&amp;triggerId=14441";
     var expected =
       '<td>Zabbix</td>' +
