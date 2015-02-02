@@ -44,7 +44,7 @@ static void _assertTestTriggerInfo(
 	assertValueInParser(parser, "brief", triggerInfo.brief);
 	if (!triggerInfo.extendedInfo.empty()) {
 		string parsedExtendedInfo = "";
-		RestResourceHost::parseExtendedInfo(triggerInfo,
+		RestResourceHost::parseExtendedInfo(triggerInfo.extendedInfo,
 		                                    parsedExtendedInfo);
 		assertValueInParser(parser, "expandedDescription",
 		                    parsedExtendedInfo);
@@ -279,6 +279,10 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(parser, "severity",  eventInfo.severity);
 		assertValueInParser(parser, "hostId",    StringUtils::toString(eventInfo.hostId));
 		assertValueInParser(parser, "brief",     eventInfo.brief);
+		if (!eventInfo.extendedInfo.empty()) {
+			assertValueInParser(parser, "expandedDescription",
+			                    eventInfo.extendedInfo);
+		}
 		if (shouldHaveIncident) {
 			assertStartObject(parser, "incident");
 			IncidentInfo incident

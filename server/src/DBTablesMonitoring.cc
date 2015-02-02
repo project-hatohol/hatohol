@@ -1870,6 +1870,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	builder.add(IDX_TRIGGERS_HOST_ID);
 	builder.add(IDX_TRIGGERS_HOSTNAME);
 	builder.add(IDX_TRIGGERS_BRIEF);
+	builder.add(IDX_TRIGGERS_EXTENDED_INFO);
 
 	if (incidentInfoVect) {
 		builder.addTable(
@@ -1943,11 +1944,13 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		HostIdType          triggerHostId;
 		string              triggerHostName;
 		string              triggerBrief;
+		string              triggerExtendedInfo;
 		itemGroupStream >> triggerStatus;
 		itemGroupStream >> triggerSeverity;
 		itemGroupStream >> triggerHostId;
 		itemGroupStream >> triggerHostName;
 		itemGroupStream >> triggerBrief;
+		itemGroupStream >> triggerExtendedInfo;
 
 		if (eventStatus != TRIGGER_STATUS_UNKNOWN) {
 			eventInfo.status = eventStatus;
@@ -1970,6 +1973,9 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 			eventInfo.brief = eventBrief;
 		} else {
 			eventInfo.brief = triggerBrief;
+		}
+		if (!triggerExtendedInfo.empty()) {
+			eventInfo.extendedInfo = triggerExtendedInfo;
 		}
 
 		if (incidentInfoVect) {

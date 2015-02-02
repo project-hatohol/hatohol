@@ -329,7 +329,6 @@ protected:
 	size_t getNumberOfTriggers(const TriggersQueryOption &option,
 				   const std::string &additionalCondition);
 
-
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
