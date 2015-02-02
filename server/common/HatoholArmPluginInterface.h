@@ -314,6 +314,8 @@ public:
 	void replyError(const HapiResponseCode &code);
 	void replyOk(void);
 
+	bool getConnectStat(void);
+
 	/**
 	 * Register a message receive callback method.
 	 * If the same code is specified more than twice, the handler is

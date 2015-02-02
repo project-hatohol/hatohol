@@ -263,6 +263,9 @@ bool HatoholArmPluginGate::isFetchItemsSupported(void)
 
 bool HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)
 {
+	if (!getConnectStat())
+		return false;
+
 	struct Callback : public CommandCallbacks {
 		Signal0 itemUpdatedSignal;
 		ServerIdType serverId;
@@ -307,7 +310,7 @@ bool HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)
 	try {
 		send(cmdBuf, callback);
 		return true;
-	}catch(const exception &e) {
+	} catch (const exception &e) {
 		return false;
 	}
 }
