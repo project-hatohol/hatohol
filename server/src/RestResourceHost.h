@@ -47,7 +47,7 @@ struct RestResourceHost : public FaceRest::ResourceHandler
 
 	static HatoholError parseEventParameter(EventsQueryOption &option,
 						GHashTable *query);
-	static bool parseExtendedInfo(std::string extendedInfo, std::string &extendedInfoValue);
+	static bool parseExtendedInfo(const std::string &extendedInfo, std::string &extendedInfoValue);
 
 	static const char *pathForOverview;
 	static const char *pathForHost;

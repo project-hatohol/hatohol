@@ -466,7 +466,7 @@ void RestResourceHost::handlerGetOverview(void)
 	replyJSONData(agent);
 }
 
-bool RestResourceHost::parseExtendedInfo(std::string extendedInfo, std::string &extendedInfoValue)
+bool RestResourceHost::parseExtendedInfo(const std::string &extendedInfo, std::string &extendedInfoValue)
 {
 	if (extendedInfo.empty())
 		return false;
