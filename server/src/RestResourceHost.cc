@@ -515,18 +515,6 @@ void RestResourceHost::handlerGetHost(void)
 	replyJSONData(agent);
 }
 
-bool RestResourceHost::parseExtendedInfo(TriggerInfo triggerInfo, string &extendedInfoValue)
-{
-	if (triggerInfo.extendedInfo.empty())
-		return false;
-
-	JSONParser parser(triggerInfo.extendedInfo);
-	if (parser.hasError())
-		return false;
-
-	return parser.read("expandedDescription", extendedInfoValue);
-}
-
 void RestResourceHost::handlerGetTrigger(void)
 {
 	TriggersQueryOption option(m_dataQueryContextPtr);
@@ -607,18 +595,6 @@ static void addIncident(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 	agent.add("createdAt", incident.createdAt.tv_sec);
 	agent.add("updatedAt", incident.updatedAt.tv_sec);
 	agent.endObject();
-}
-
-bool RestResourceHost::parseExtendedInfo(EventInfo eventInfo, string &extendedInfoValue)
-{
-	if (eventInfo.extendedInfo.empty())
-		return false;
-
-	JSONParser parser(eventInfo.extendedInfo);
-	if (parser.hasError())
-		return false;
-
-	return parser.read("expandedDescription", extendedInfoValue);
 }
 
 void RestResourceHost::handlerGetEvent(void)

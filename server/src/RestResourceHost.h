@@ -47,8 +47,27 @@ struct RestResourceHost : public FaceRest::ResourceHandler
 
 	static HatoholError parseEventParameter(EventsQueryOption &option,
 						GHashTable *query);
-	static bool parseExtendedInfo(TriggerInfo triggerInfo, std::string &extendedInfoValue);
-	static bool parseExtendedInfo(EventInfo eventInfo, std::string &extendedInfoValue);
+	template <typename T>
+	static bool _parseExtendedInfo(T targetTypeInfo, std::string &extendedInfoValue) {
+		if (targetTypeInfo.extendedInfo.empty())
+			return false;
+
+		JSONParser parser(targetTypeInfo.extendedInfo);
+		if (parser.hasError())
+			return false;
+
+		return parser.read("expandedDescription", extendedInfoValue);
+	}
+
+	static bool parseExtendedInfo(TriggerInfo triggerInfo, std::string &extendedInfoValue)
+	{
+		return _parseExtendedInfo<TriggerInfo>(triggerInfo, extendedInfoValue);
+	};
+
+	static bool parseExtendedInfo(EventInfo eventInfo, std::string &extendedInfoValue)
+	{
+		return _parseExtendedInfo<EventInfo>(eventInfo, extendedInfoValue);
+	}
 
 	static const char *pathForOverview;
 	static const char *pathForHost;
