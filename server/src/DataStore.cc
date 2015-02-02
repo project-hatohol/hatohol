@@ -32,7 +32,7 @@ void DataStore::setCopyOnDemandEnable(bool enable)
 
 bool DataStore::startOnDemandFetchItem(Closure0 *closure)
 {
-	return true;
+	return false;
 }
 
 bool DataStore::isFetchItemsSupported(void)
