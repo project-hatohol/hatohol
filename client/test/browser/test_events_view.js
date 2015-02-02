@@ -27,6 +27,15 @@ describe('EventsView', function() {
     },
   ];
 
+  function getOperator() {
+    var operator = {
+      "userId": 3,
+      "name": "foobar",
+      "flags": hatohol.ALL_PRIVILEGES
+    };
+    return new HatoholUserProfile(operator);
+  }
+
   // TODO: we should use actual server response to follow changes of the json
   //       format automatically
   function eventsJson(events, servers) {
@@ -89,7 +98,7 @@ describe('EventsView', function() {
   }
 
   function testTableContents(serverURL, hostURL, dummyServerInfo){
-    var view = new EventsView($('#' + TEST_FIXTURE_ID).get(0));
+    var view = new EventsView(getOperator());
     var expected =
       '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>' +
       '<td data-sort-value="1415749496">' +
@@ -110,7 +119,7 @@ describe('EventsView', function() {
   function testTableContentsWithExpandedDescription(serverURL, hostURL,
                                                     dummyServerInfo)
   {
-    var view = new EventsView($('#' + TEST_FIXTURE_ID).get(0));
+    var view = new EventsView(getOperator());
     var expected =
       '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>' +
       '<td data-sort-value="1415759496">' +
@@ -160,7 +169,7 @@ describe('EventsView', function() {
   });
 
   it('new with empty data', function() {
-    var view = new EventsView($('#' + TEST_FIXTURE_ID).get(0));
+    var view = new EventsView(getOperator());
     respond(eventsJson());
     var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
     expect(heads).to.have.length(1);

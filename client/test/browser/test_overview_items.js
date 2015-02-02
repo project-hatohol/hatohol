@@ -50,6 +50,15 @@ describe('OverviewItems', function() {
     },
   };
 
+  function getOperator() {
+    var operator = {
+      "userId": 3,
+      "name": "foobar",
+      "flags": hatohol.ALL_PRIVILEGES
+    };
+    return new HatoholUserProfile(operator);
+  }
+
   function itemsJson(items, servers) {
     return JSON.stringify({
       apiVersion: 3,
@@ -109,7 +118,7 @@ describe('OverviewItems', function() {
   });
 
   it('new with empty data', function() {
-    var view = new OverviewItems($('#' + TEST_FIXTURE_ID).get(0));
+    var view = new OverviewItems(getOperator());
     respond(itemsJson());
     var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
     expect(heads).to.have.length(1);
@@ -117,7 +126,7 @@ describe('OverviewItems', function() {
   });
 
   it('With items', function() {
-    var view = new OverviewItems($('#' + TEST_FIXTURE_ID).get(0));
+    var view = new OverviewItems(getOperator());
     respond(itemsJson(defaultItems, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultItems.length + 1);

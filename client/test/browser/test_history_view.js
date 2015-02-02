@@ -35,6 +35,15 @@ describe('HistoryView', function() {
     { "value":"93.3277", "clock":1415587132, "ns":645202531 }
   ];
 
+  function getOperator() {
+    var operator = {
+      "userId": 3,
+      "name": "foobar",
+      "flags": hatohol.ALL_PRIVILEGES
+    };
+    return new HatoholUserProfile(operator);
+  }
+
   function itemsJson(items, servers) {
     return JSON.stringify({
       apiVersion: 3,
@@ -108,7 +117,7 @@ describe('HistoryView', function() {
     var beginTime = endTime - 60 * 60;
     var query = "serverId=1&hostId=10101&itemId=1" +
       "&beginTime=" + beginTime + "&endTime=" + endTime;
-    var view = new HistoryView($('#' + TEST_FIXTURE_ID).get(0),
+    var view = new HistoryView(getOperator(),
                                { query: query });
     respond(itemsJson(), historyJson());
     expect(view).to.be.a(HistoryView);
@@ -125,7 +134,7 @@ describe('HistoryView', function() {
     var endTime = now;
     var beginTime = endTime - 60 * 60 * 6;
     var query = "serverId=1&hostId=10101&itemId=1";
-    var view = new HistoryView($('#' + TEST_FIXTURE_ID).get(0),
+    var view = new HistoryView(getOperator(),
                                { query: query });
     respond(itemsJson(), historyJson());
     expect(view).to.be.a(HistoryView);
@@ -139,7 +148,7 @@ describe('HistoryView', function() {
 
   it('format graph data', function() {
     var query = "serverId=1&hostId=10101&itemId=1";
-    var view = new HistoryView($('#' + TEST_FIXTURE_ID).get(0),
+    var view = new HistoryView(getOperator(),
                                { query: query });
     var expected = [{
       label: "cpu usage (Zabbix: Host1) [%]",

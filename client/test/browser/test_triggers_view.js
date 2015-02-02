@@ -61,6 +61,15 @@ describe('TriggersView', function() {
     },
   };
 
+  function getOperator() {
+    var operator = {
+      "userId": 3,
+      "name": "foobar",
+      "flags": hatohol.ALL_PRIVILEGES
+    };
+    return new HatoholUserProfile(operator);
+  }
+
   function triggersJson(triggers, servers) {
     return JSON.stringify({
       apiVersion: 3,
@@ -127,7 +136,7 @@ describe('TriggersView', function() {
   // -------------------------------------------------------------------------
 
   it('new with empty data', function() {
-    var view = new TriggersView($('#' + TEST_FIXTURE_ID).get(0));
+    var view = new TriggersView(getOperator());
     var heads = $("div#" + TEST_FIXTURE_ID + " h2");
     respond('{}', triggersJson());
 
@@ -137,7 +146,7 @@ describe('TriggersView', function() {
   });
 
   it('Base elements', function() {
-    var view = new TriggersView($('#' + TEST_FIXTURE_ID).get(0));
+    var view = new TriggersView(getOperator());
     var heads = $("div#" + TEST_FIXTURE_ID + " h2");
     respond('{}', triggersJson(defaultTriggers));
 
@@ -147,7 +156,7 @@ describe('TriggersView', function() {
   });
 
   it('Without expandedDesctription', function() {
-    var view = new TriggersView($('#' + TEST_FIXTURE_ID).get(0));
+    var view = new TriggersView(getOperator());
     var eventURL = "ajax_events?serverId=1&amp;triggerId=18446744073709550616";
     var expected =
       '<td>Zabbix</td>' +
@@ -165,7 +174,7 @@ describe('TriggersView', function() {
   });
 
   it('With expandedDesctription', function() {
-    var view = new TriggersView($('#' + TEST_FIXTURE_ID).get(0));
+    var view = new TriggersView(getOperator());
     var eventURL = "ajax_events?serverId=1&amp;triggerId=14441";
     var expected =
       '<td>Zabbix</td>' +
