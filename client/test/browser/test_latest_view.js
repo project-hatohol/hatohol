@@ -40,6 +40,15 @@ describe('LatestView', function() {
     },
   };
 
+  function getOperator() {
+    var operator = {
+      "userId": 3,
+      "name": "foobar",
+      "flags": hatohol.ALL_PRIVILEGES
+    };
+    return new HatoholUserProfile(operator);
+  }
+
   function itemsJson(items, servers, applications) {
     return JSON.stringify({
       apiVersion: 3,
@@ -101,7 +110,7 @@ describe('LatestView', function() {
   });
 
   it('new with empty data', function() {
-    var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
+    var view = new LatestView(getOperator());
     respond('{}', itemsJson());
     var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
     expect(heads).to.have.length(1);
@@ -109,7 +118,7 @@ describe('LatestView', function() {
   });
 
   it('Float item', function() {
-    var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
+    var view = new LatestView(getOperator());
     var zabbixURL = "http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=1";
     var historyURL= "ajax_history?serverId=1&amp;hostId=10101&amp;itemId=1";
     var expected =
@@ -130,7 +139,7 @@ describe('LatestView', function() {
   });
 
   it('String item', function() {
-    var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
+    var view = new LatestView(getOperator());
     var zabbixURL = "http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=2";
     var expected =
       '<td>Zabbix</td>' +
@@ -150,7 +159,7 @@ describe('LatestView', function() {
   });
 
   it('default page size', function() {
-    var view = new LatestView($('#' + TEST_FIXTURE_ID).get(0));
+    var view = new LatestView(getOperator());
     respond('{}', itemsJson());
     expect($('#num-records-per-page').val()).to.be("50");
   });
