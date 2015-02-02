@@ -609,6 +609,18 @@ static void addIncident(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 	agent.endObject();
 }
 
+bool RestResourceHost::parseExtendedInfo(EventInfo eventInfo, string &extendedInfoValue)
+{
+	if (eventInfo.extendedInfo.empty())
+		return false;
+
+	JSONParser parser(eventInfo.extendedInfo);
+	if (parser.hasError())
+		return false;
+
+	return parser.read("expandedDescription", extendedInfoValue);
+}
+
 void RestResourceHost::handlerGetEvent(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -649,6 +661,10 @@ void RestResourceHost::handlerGetEvent(void)
 	EventInfoListIterator it = eventList.begin();
 	for (size_t i = 0; it != eventList.end(); ++i, ++it) {
 		EventInfo &eventInfo = *it;
+		string extendedInfoValue = "";
+		bool foundExtendedInfo = false;
+		foundExtendedInfo = parseExtendedInfo(eventInfo, extendedInfoValue);
+
 		agent.startObject();
 		agent.add("unifiedId", eventInfo.unifiedId);
 		agent.add("serverId",  eventInfo.serverId);
@@ -659,8 +675,8 @@ void RestResourceHost::handlerGetEvent(void)
 		agent.add("severity",  eventInfo.severity);
 		agent.add("hostId",    StringUtils::toString(eventInfo.hostId));
 		agent.add("brief",     eventInfo.brief);
-		if (!eventInfo.extendedInfo.empty())
-			agent.add("expandedDescription", eventInfo.extendedInfo);
+		if (foundExtendedInfo)
+			agent.add("expandedDescription", extendedInfoValue);
 		if (addIncidents)
 			addIncident(this, agent, incidentVect[i]);
 		agent.endObject();

@@ -1843,18 +1843,6 @@ void DBTablesMonitoring::addEventInfoList(EventInfoList &eventInfoList)
 	getDBAgent().runTransaction(trx);
 }
 
-bool DBTablesMonitoring::parseExtendedInfo(std::string extendedInfo, string &extendedInfoValue)
-{
-	if (extendedInfo.empty())
-		return false;
-
-	JSONParser parser(extendedInfo);
-	if (parser.hasError())
-		return false;
-
-	return parser.read("expandedDescription", extendedInfoValue);
-}
-
 HatoholError DBTablesMonitoring::getEventInfoList(
   EventInfoList &eventInfoList, const EventsQueryOption &option,
   IncidentInfoVect *incidentInfoVect)
@@ -1964,9 +1952,6 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		itemGroupStream >> triggerBrief;
 		itemGroupStream >> triggerExtendedInfo;
 
-		string triggerExpandedInfo = "";
-		bool foundExtendedInfo =
-		  parseExtendedInfo(triggerExtendedInfo, triggerExpandedInfo);
 		if (eventStatus != TRIGGER_STATUS_UNKNOWN) {
 			eventInfo.status = eventStatus;
 		} else {
@@ -1989,8 +1974,8 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		} else {
 			eventInfo.brief = triggerBrief;
 		}
-		if (foundExtendedInfo) {
-			eventInfo.extendedInfo = triggerExpandedInfo;
+		if (!triggerExtendedInfo.empty()) {
+			eventInfo.extendedInfo = triggerExtendedInfo;
 		}
 
 		if (incidentInfoVect) {

@@ -28,7 +28,6 @@
 #include "HostResourceQueryOption.h"
 #include "SmartTime.h"
 #include "Monitoring.h"
-#include "JSONParser.h"
 
 class EventsQueryOption : public HostResourceQueryOption {
 public:
@@ -329,8 +328,6 @@ protected:
 	  DBAgent &dbAgent, const IncidentInfo &incidentInfo);
 	size_t getNumberOfTriggers(const TriggersQueryOption &option,
 				   const std::string &additionalCondition);
-	static bool parseExtendedInfo(std::string extendedInfo, std::string &extendedInfoValue);
-
 
 private:
 	struct Impl;
