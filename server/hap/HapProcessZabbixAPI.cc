@@ -68,6 +68,57 @@ void HapProcessZabbixAPI::setMonitoringServerInfo(void)
 	ZabbixAPI::setMonitoringServerInfo(getMonitoringServerInfo());
 }
 
+static ItemTablePtr mergePlainTriggersAndExpandedDescriptions(
+  const ItemTablePtr triggers, const ItemTablePtr expandedDescriptions)
+{
+	const ItemGroupList &trigGrpList = triggers->getItemGroupList();
+	const ItemGroupList &expandedDescritionGrpList =
+	  expandedDescriptions->getItemGroupList();
+	ItemGroupListConstIterator trigGrpItr = trigGrpList.begin();
+	ItemGroupListConstIterator expandedDescGrpItr =
+	  expandedDescritionGrpList.begin();
+	VariableItemTablePtr mergedTablePtr;
+	for (; trigGrpItr != trigGrpList.end(); ++trigGrpItr) {
+		ItemGroupPtr trigItemGrpPtr = *trigGrpItr;
+		const ItemData *trigItemGrpId =
+		  trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+		for(; expandedDescGrpItr != expandedDescritionGrpList.end(); ++expandedDescGrpItr) {
+			ItemGroupPtr expandedDescGrpPtr = *expandedDescGrpItr;
+			TriggerInfo trigInfo;
+			const ItemData *expandedItemGrpId =
+			  expandedDescGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+			if (trigItemGrpId == expandedItemGrpId) {
+				VariableItemGroupPtr grp;
+				int status, severity;
+				uint64_t lastChangeTime;
+				trigInfo.id = static_cast<TriggerIdType>(*trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID));
+				grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID, trigInfo.id);
+
+				status = static_cast<int>(*trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_VALUE));
+				grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_STATUS, status);
+
+				severity = static_cast<int>(*trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_PRIORITY));
+				grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_PRIORITY, severity);
+
+				lastChangeTime = static_cast<uint64_t>(*trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE));
+				grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE, lastChangeTime);
+
+				trigInfo.brief = static_cast<string>(*trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION));
+				grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION);
+
+				trigInfo.hostId = static_cast<HostIdType>(*trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_HOSTID));
+				grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_HOSTID, trigInfo.hostId);
+
+				trigInfo.extendedInfo = static_cast<string>(*expandedDescGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION));
+				grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION, trigInfo.extendedInfo);
+
+				mergedTablePtr->add(grp);
+			}
+		}
+	}
+	return static_cast<ItemTablePtr>(mergedTablePtr);;
+}
+
 void HapProcessZabbixAPI::workOnTriggers(void)
 {
 	SmartTime lastTriggerTime = getTimestampOfLastTrigger();
@@ -76,7 +127,12 @@ void HapProcessZabbixAPI::workOnTriggers(void)
 	//       Their timestamp are 0 in UNIX time. So the following way
 	//       cannot retrieve them.
 	const int requestSince = lastTriggerTime.getAsTimespec().tv_sec;
-	sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, getTrigger(requestSince));
+	ItemTablePtr triggers = getTrigger(requestSince);
+	ItemTablePtr expandedDescriptions =
+	  getTriggerExpandedDescription(requestSince);
+	ItemTablePtr mergedTriggers =
+	  mergePlainTriggersAndExpandedDescriptions(triggers, expandedDescriptions);
+	sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, mergedTriggers);
 }
 
 void HapProcessZabbixAPI::workOnHostsAndHostgroupElements(void)
