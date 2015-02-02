@@ -170,6 +170,11 @@ bool ZabbixAPI::openSession(SoupMessage **msgPtr)
 
 	SoupMessage *msg =
 	  soup_message_new(SOUP_METHOD_POST, m_impl->uri.c_str());
+	if (!msg) {
+		MLPL_ERR("Failed to call: soup_message_new: uri: %s\n",
+		         m_impl->uri.c_str());
+		return false;
+	}
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON_RPC, NULL);
 	string request_body = getInitialJSONRequest();
