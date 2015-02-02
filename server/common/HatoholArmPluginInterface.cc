@@ -158,7 +158,7 @@ struct HatoholArmPluginInterface::Impl {
 		hapi->onSessionChanged(NULL);
 	}
 	
-	bool getconnectedstatus(void) {
+	bool isConnected(void) {
 		AutoMutex autoMutex(&connectionLock);
 		return connected;
 	}
@@ -299,7 +299,7 @@ void HatoholArmPluginInterface::send(
 
 bool HatoholArmPluginInterface::getConnectStat(void)
 {
-	return m_impl->getconnectedstatus();
+	return m_impl->isConnected();
 }
 
 bool HatoholArmPluginInterface::getMessagingContext(MessagingContext &msgCtx)
