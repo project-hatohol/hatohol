@@ -13,6 +13,18 @@ describe('EventsView', function() {
       "hostId":"10105",
       "brief":"Test discription.",
     },
+    {
+      "unifiedId":43,
+      "serverId":1,
+      "time":1415759496,
+      "type":1,
+      "triggerId":"13569",
+      "status":1,
+      "severity":1,
+      "hostId":"10106",
+      "brief":"Test discription 2.",
+      "expandedDescription":"Expanded test description 2.",
+    },
   ];
 
   // TODO: we should use actual server response to follow changes of the json
@@ -67,6 +79,9 @@ describe('EventsView', function() {
           "10105": {
             "name": "Host",
           },
+          "10106": {
+            "name": "Host2",
+          }
         },
       },
     };
@@ -89,6 +104,27 @@ describe('EventsView', function() {
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(dummyEventInfo.length + 1);
     expect($('tr :eq(1)').html()).to.contain(expected);
+    expect($('td :eq(6)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
+  }
+
+  function testTableContentsWithExpandedDescription(serverURL, hostURL,
+                                                    dummyServerInfo)
+  {
+    var view = new EventsView($('#' + TEST_FIXTURE_ID).get(0));
+    var expected =
+      '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>' +
+      '<td data-sort-value="1415759496">' +
+      formatDate(1415759496) +
+      '</td>' +
+      '<td><a href="' + escapeHTML(hostURL) + '" target="_blank">Host2</a></td>' +
+      '<td>Expanded test description 2.</td>' +
+      '<td class="status1" data-sort-value="1">Problem</td>' +
+      '<td class="severity1" data-sort-value="1">Information</td>';
+
+    respond(eventsJson(dummyEventInfo, dummyServerInfo));
+    expect($('#table')).to.have.length(1);
+    expect($('tr')).to.have.length(dummyEventInfo.length + 1);
+    expect($('tr :eq(2)').html()).to.contain(expected);
     expect($('td :eq(6)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
   }
 
@@ -139,6 +175,14 @@ describe('EventsView', function() {
     var zabbixLatestURL =
       "http://192.168.1.100/zabbix/latest.php?&hostid=10105";
     testTableContents(zabbixURL, zabbixLatestURL, getDummyServerInfo(0));
+  });
+
+  it('new with fake zabbix data included expanded description', function() {
+    var zabbixURL = "http://192.168.1.100/zabbix/";
+    var zabbixLatestURL =
+      "http://192.168.1.100/zabbix/latest.php?&hostid=10106";
+    testTableContentsWithExpandedDescription(zabbixURL, zabbixLatestURL,
+                                             getDummyServerInfo(0));
   });
 
   it('new with fake nagios data', function() {
