@@ -44,7 +44,7 @@ static void _assertTestTriggerInfo(
 	assertValueInParser(parser, "brief", triggerInfo.brief);
 	if (!triggerInfo.extendedInfo.empty()) {
 		string parsedExtendedInfo = "";
-		RestResourceHost::parseExtendedInfo(triggerInfo,
+		RestResourceHost::parseExtendedInfo(triggerInfo.extendedInfo,
 		                                    parsedExtendedInfo);
 		assertValueInParser(parser, "expandedDescription",
 		                    parsedExtendedInfo);

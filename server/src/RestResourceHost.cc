@@ -466,6 +466,18 @@ void RestResourceHost::handlerGetOverview(void)
 	replyJSONData(agent);
 }
 
+bool RestResourceHost::parseExtendedInfo(std::string extendedInfo, std::string &extendedInfoValue)
+{
+	if (extendedInfo.empty())
+		return false;
+
+	JSONParser parser(extendedInfo);
+	if (parser.hasError())
+		return false;
+
+	return parser.read("expandedDescription", extendedInfoValue);
+}
+
 static void addHosts(FaceRest::ResourceHandler *job, JSONBuilder &agent,
                      const ServerIdType &targetServerId,
                      const HostgroupIdType &targetHostgroupId,
@@ -538,7 +550,8 @@ void RestResourceHost::handlerGetTrigger(void)
 		TriggerInfo &triggerInfo = *it;
 		string extendedInfoValue = "";
 		bool foundExtendedInfo = false;
-		foundExtendedInfo = parseExtendedInfo(triggerInfo, extendedInfoValue);
+		foundExtendedInfo = parseExtendedInfo(triggerInfo.extendedInfo,
+		                                      extendedInfoValue);
 
 		agent.startObject();
 		agent.add("id",       StringUtils::toString(triggerInfo.id));
@@ -639,7 +652,8 @@ void RestResourceHost::handlerGetEvent(void)
 		EventInfo &eventInfo = *it;
 		string extendedInfoValue = "";
 		bool foundExtendedInfo = false;
-		foundExtendedInfo = parseExtendedInfo(eventInfo, extendedInfoValue);
+		foundExtendedInfo = parseExtendedInfo(eventInfo.extendedInfo,
+		                                      extendedInfoValue);
 
 		agent.startObject();
 		agent.add("unifiedId", eventInfo.unifiedId);
