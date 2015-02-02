@@ -259,7 +259,7 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function drawTableBody() {
-    var serverName, hostName, clock, status, severity, duration;
+    var serverName, hostName, clock, status, severity, duration, description;
     var server, event, serverId, serverURL, hostId, html = "";
     var x;
 
@@ -276,6 +276,11 @@ var EventsView = function(userProfile, baseElem) {
       severity   = event["severity"];
       duration   = self.durations[serverId][event["triggerId"]][clock];
       incident   = event["incident"];
+      if (event["expandedDescription"]) {
+        description = event["expandedDescription"];
+      }  else {
+        description = event["brief"];
+      }
 
       if (serverURL) {
         html += "<tr><td><a href='" + serverURL + "' target='_blank'>" + escapeHTML(nickName)
@@ -300,7 +305,7 @@ var EventsView = function(userProfile, baseElem) {
                 formatDate(clock) + "</td>";
         html += "<td>" + escapeHTML(hostName) + "</td>";
       }
-      html += "<td>" + escapeHTML(event["brief"]) + "</td>";
+      html += "<td>" + escapeHTML(description) + "</td>";
       html += "<td class='status" + escapeHTML(status) +
         "' data-sort-value='" + escapeHTML(status) + "'>" +
         status_choices[Number(status)] + "</td>";
