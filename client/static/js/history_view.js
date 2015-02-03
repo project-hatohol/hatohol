@@ -250,7 +250,7 @@ var HistoryView = function(userProfile, options) {
       function() {
         var i, servers;
         for (i = 0; i < self.loaders.length; i++) {
-        servers = self.loaders[i].getServers();
+          servers = self.loaders[i].getServers();
           if (servers)
             break;
         }
