@@ -29,7 +29,6 @@ public:
 	typedef TriggerIdItemGrpMap::const_iterator TriggerIdItemGrpMapConstIterator;
 
 protected:
-
 	void setMonitoringServerInfo(void);
 	void workOnTriggers(void);
 	void workOnHostsAndHostgroupElements(void);
@@ -59,4 +58,3 @@ private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;;
 };
-
