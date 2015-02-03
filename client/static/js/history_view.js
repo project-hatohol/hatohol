@@ -261,6 +261,26 @@ var HistoryView = function(userProfile, options) {
       '#select-server', '#select-host-group', '#select-host');
     $("#select-item").attr("disabled", "disabled");
     $("#add-item-button").attr("disabled", "disabled");
+    $("#select-host").change(setupItemCandidates);
+  }
+
+  function setupItemCandidates() {
+    var query;
+    var hostName = $("#select-host").val();
+    if (hostName == "---------") {
+      self.setFilterCandidates($("#select-item"));
+      return;
+    }
+
+    query = self.getHostFilterQuery();
+    self.startConnection("items?" + $.param(query), function(reply) {
+      var i;
+      var candidates =
+        $.map(reply.items, function(item) {
+          return item.brief;
+        });
+      self.setFilterCandidates($("#select-item"), candidates);
+    });
   }
 
   function prepareHistoryLoaders(historyQueries) {
