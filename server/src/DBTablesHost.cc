@@ -32,7 +32,7 @@ static const char *TABLE_NAME_VM_LIST         = "vm_list";
 static const char *TABLE_NAME_HOSTGROUP_LIST  = "hostgroup_list";
 static const char *TABLE_NAME_HOSTGROUP_MEMBER  = "hostgroup_member";
 
-const int DBTablesHost::TABLES_VERSION = 2;
+const int DBTablesHost::TABLES_VERSION = 3;
 
 const uint64_t NO_HYPERVISOR = -1;
 const size_t MAX_HOST_NAME_LENGTH =  255;
@@ -361,10 +361,11 @@ struct DBTablesHost::Impl
 
 static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 {
-	if (oldVer == 1) {
-		// In table ver.1 (on 14.09), this table is not used.
-		// So we can drop it.
+	if (oldVer == 1 || oldVer == 2) {
+		// In table ver.1 and 2 (on 14.09 and 14.12), these table is
+		// not used. So we can drop it.
 		dbAgent.dropTable(tableProfileHostList.name);
+		dbAgent.dropTable(tableProfileServerHostDef.name);
 	}
 	return true;
 }
