@@ -332,7 +332,9 @@ static const ColumnDef COLUMN_DEF_HOSTGROUP_MEMBER[] = {
 };
 
 static const int columnIndexesHostgroupMemberUniqId[] = {
-  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_ID,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID,
+  IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID,
   DBAgent::IndexDef::END,
 };
 
