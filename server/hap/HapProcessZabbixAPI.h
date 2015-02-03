@@ -25,8 +25,11 @@ class HapProcessZabbixAPI : public HapProcessStandard, public ZabbixAPI {
 public:
 	HapProcessZabbixAPI(int argc, char *argv[]);
 	virtual ~HapProcessZabbixAPI();
+	typedef std::map<const TriggerIdType, const ItemGroupPtr> TriggerIdItemGrpMap;
+	typedef TriggerIdItemGrpMap::const_iterator TriggerIdItemGrpMapConstIterator;
 
 protected:
+
 	void setMonitoringServerInfo(void);
 	void workOnTriggers(void);
 	void workOnHostsAndHostgroupElements(void);
