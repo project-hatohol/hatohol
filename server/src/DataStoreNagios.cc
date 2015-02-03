@@ -67,9 +67,10 @@ bool DataStoreNagios::isFetchItemsSupported(void)
 	return m_impl->armNDO.isFetchItemsSupported();
 }
 
-void DataStoreNagios::startOnDemandFetchItem(Closure0 *closure)
+bool DataStoreNagios::startOnDemandFetchItem(Closure0 *closure)
 {
 	m_impl->armNDO.fetchItems(closure);
+	return true;
 }
 
 // ---------------------------------------------------------------------------

@@ -57,9 +57,10 @@ bool DataStoreZabbix::isFetchItemsSupported(void)
 	return m_armApi.isFetchItemsSupported();
 }
 
-void DataStoreZabbix::startOnDemandFetchItem(Closure0 *closure)
+bool DataStoreZabbix::startOnDemandFetchItem(Closure0 *closure)
 {
 	m_armApi.fetchItems(closure);
+	return true;
 }
 
 void DataStoreZabbix::startOnDemandFetchHistory(

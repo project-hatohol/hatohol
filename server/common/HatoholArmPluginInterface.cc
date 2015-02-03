@@ -157,6 +157,11 @@ struct HatoholArmPluginInterface::Impl {
 		connected = false;
 		hapi->onSessionChanged(NULL);
 	}
+	
+	bool isConnected(void) {
+		AutoMutex autoMutex(&connectionLock);
+		return connected;
+	}
 
 	static void destroyReplyWaiter(ReplyWaiter *replyWaiter,
 	                               Impl *impl)
@@ -290,6 +295,11 @@ void HatoholArmPluginInterface::send(
 	request.setReplyTo(m_impl->receiverAddr);
 	request.setContent(smbuf.getPointer<char>(0), smbuf.size());
 	m_impl->sender.send(request);
+}
+
+bool HatoholArmPluginInterface::isConnetced(void)
+{
+	return m_impl->isConnected();
 }
 
 bool HatoholArmPluginInterface::getMessagingContext(MessagingContext &msgCtx)

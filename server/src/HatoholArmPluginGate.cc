@@ -261,8 +261,11 @@ bool HatoholArmPluginGate::isFetchItemsSupported(void)
 	return true;
 }
 
-void HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)
+bool HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)
 {
+	if (!isConnetced())
+		return false;
+
 	struct Callback : public CommandCallbacks {
 		Signal0 itemUpdatedSignal;
 		ServerIdType serverId;
@@ -304,7 +307,12 @@ void HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)
 
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(cmdBuf, HAPI_CMD_REQ_FETCH_ITEMS);
-	send(cmdBuf, callback);
+	try {
+		send(cmdBuf, callback);
+		return true;
+	} catch (const exception &e) {
+		return false;
+	}
 }
 
 void HatoholArmPluginGate::startOnDemandFetchHistory(

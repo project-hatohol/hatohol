@@ -34,7 +34,7 @@ public:
 	virtual const ArmStatus &getArmStatus(void) const override;
 	void setCopyOnDemandEnable(bool enable) override;
 	virtual bool isFetchItemsSupported(void) override;
-	virtual void startOnDemandFetchItem(Closure0 *closure) override;
+	virtual bool startOnDemandFetchItem(Closure0 *closure) override;
 	virtual void startOnDemandFetchHistory(
 	  const ItemInfo &itemInfo,
 	  const time_t &beginTime,

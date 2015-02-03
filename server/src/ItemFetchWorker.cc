@@ -95,10 +95,12 @@ bool ItemFetchWorker::start(
 			continue;
 		}
 
-		if (i < Impl::maxRunningFetchers)
-			runFetcher(dataStore);
-		else
+		if (i < Impl::maxRunningFetchers){
+			if (!runFetcher(dataStore))
+				m_impl->remainingFetchersCount--;
+		} else {
 			m_impl->fetchersQueue.push_back(dataStore);
+		}
 	}
 
 	bool started = m_impl->remainingFetchersCount > 0;
@@ -139,7 +141,11 @@ void ItemFetchWorker::updatedCallback(Closure0 *closure)
 		fetchersQueue.erase(fetchersQueue.begin());
 	}
 
-	m_impl->remainingFetchersCount--;
+	if (m_impl->remainingFetchersCount <= 0)
+		return;
+	else
+		m_impl->remainingFetchersCount--;
+
 	if (m_impl->remainingFetchersCount > 0)
 		return;
 
@@ -151,7 +157,7 @@ void ItemFetchWorker::updatedCallback(Closure0 *closure)
 	m_impl->itemFetchedSignal.clear();
 }
 
-void ItemFetchWorker::runFetcher(DataStore *dataStore)
+bool ItemFetchWorker::runFetcher(DataStore *dataStore)
 {
 	struct ClosureWithDataStore : public ClosureTemplate0<ItemFetchWorker>
 	{
@@ -170,7 +176,7 @@ void ItemFetchWorker::runFetcher(DataStore *dataStore)
 		}
 	};
 
-	dataStore->startOnDemandFetchItem(
+	return dataStore->startOnDemandFetchItem(
 	  new ClosureWithDataStore(this, dataStore));
 }
 
