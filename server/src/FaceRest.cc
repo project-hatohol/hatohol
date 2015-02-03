@@ -51,7 +51,7 @@
 using namespace std;
 using namespace mlpl;
 
-int FaceRest::API_VERSION = 3;
+int FaceRest::API_VERSION = 4;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
 const int FaceRest::DEFAULT_NUM_WORKERS = 4;
 
