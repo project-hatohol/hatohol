@@ -275,7 +275,10 @@ var HistoryView = function(userProfile, options) {
     query = self.getHostFilterQuery();
     self.startConnection("items?" + $.param(query), function(reply) {
       var candidates = $.map(reply.items, function(item) {
-        return { label: item.brief, value: item.id };
+	var label = item.brief;
+	if (item.unit)
+          label += " [" + item.unit + "]";
+        return { label: label, value: item.id };
       });
       self.setFilterCandidates($("#select-item"), candidates);
     });
