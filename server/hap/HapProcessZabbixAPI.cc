@@ -103,31 +103,30 @@ static ItemTablePtr mergePlainTriggersAndExpandedDescriptions(
 		  *trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
 		HapProcessZabbixAPI::TriggerIdItemGrpMapConstIterator it =
 		  expandedTrigIdGrpMap.find(trigItemGrpId);
+		VariableItemGroupPtr grp;
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,
+		             trigItemGrpPtr, grp);
+
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_VALUE,
+		             trigItemGrpPtr, grp);
+
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_PRIORITY,
+		             trigItemGrpPtr, grp);
+
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
+		             trigItemGrpPtr, grp);
+
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION,
+		             trigItemGrpPtr, grp);
+
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_HOSTID,
+		             trigItemGrpPtr, grp);
+
 		if (it != expandedTrigIdGrpMap.end()) {
-			VariableItemGroupPtr grp;
-			pushItemData(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,
-			             trigItemGrpPtr, grp);
-
-			pushItemData(ITEM_ID_ZBX_TRIGGERS_VALUE,
-			             trigItemGrpPtr, grp);
-
-			pushItemData(ITEM_ID_ZBX_TRIGGERS_PRIORITY,
-			             trigItemGrpPtr, grp);
-
-			pushItemData(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
-			             trigItemGrpPtr, grp);
-
-			pushItemData(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION,
-			             trigItemGrpPtr, grp);
-
-			pushItemData(ITEM_ID_ZBX_TRIGGERS_HOSTID,
-			             trigItemGrpPtr, grp);
-
 			pushItemData(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION,
 			             it->second, grp);
-
-			mergedTablePtr->add(grp);
 		}
+		mergedTablePtr->add(grp);
 	}
 	return static_cast<ItemTablePtr>(mergedTablePtr);
 }
