@@ -68,12 +68,12 @@ void HapProcessZabbixAPI::setMonitoringServerInfo(void)
 	ZabbixAPI::setMonitoringServerInfo(getMonitoringServerInfo());
 }
 
-template <typename T>
 static void pushItemData(
   const ItemId itemId, const ItemGroupPtr &itemGrpPtr,
   VariableItemGroupPtr &grp)
 {
-	grp->addNewItem(itemId, static_cast<T>(*itemGrpPtr->getItem(itemId)));
+	const ItemData *itemData = itemGrpPtr->getItem(itemId);
+	grp->add(itemData);
 }
 
 static ItemTablePtr mergePlainTriggersAndExpandedDescriptions(
@@ -95,28 +95,28 @@ static ItemTablePtr mergePlainTriggersAndExpandedDescriptions(
 			TriggerInfo trigInfo;
 			const ItemData *expandedItemGrpId =
 			  expandedDescGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
-			if (trigItemGrpId == expandedItemGrpId) {
+			if (*trigItemGrpId == *expandedItemGrpId) {
 				VariableItemGroupPtr grp;
-				pushItemData<TriggerIdType>(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,
-				                            trigItemGrpPtr, grp);
+				pushItemData(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,
+				             trigItemGrpPtr, grp);
 
-				pushItemData<int>(ITEM_ID_ZBX_TRIGGERS_VALUE,
-				                  trigItemGrpPtr, grp);
+				pushItemData(ITEM_ID_ZBX_TRIGGERS_VALUE,
+				             trigItemGrpPtr, grp);
 
-				pushItemData<int>(ITEM_ID_ZBX_TRIGGERS_PRIORITY,
-				                  trigItemGrpPtr, grp);
+				pushItemData(ITEM_ID_ZBX_TRIGGERS_PRIORITY,
+				             trigItemGrpPtr, grp);
 
-				pushItemData<uint64_t>(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
-				                       trigItemGrpPtr, grp);
+				pushItemData(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
+				             trigItemGrpPtr, grp);
 
-				pushItemData<string>(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION,
-				                     trigItemGrpPtr, grp);
+				pushItemData(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION,
+				             trigItemGrpPtr, grp);
 
-				pushItemData<HostIdType>(ITEM_ID_ZBX_TRIGGERS_HOSTID,
-				                         trigItemGrpPtr, grp);
+				pushItemData(ITEM_ID_ZBX_TRIGGERS_HOSTID,
+				             trigItemGrpPtr, grp);
 
-				pushItemData<string>(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION,
-				                     expandedDescGrpPtr, grp);
+				pushItemData(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION,
+				             expandedDescGrpPtr, grp);
 
 				mergedTablePtr->add(grp);
 			}
