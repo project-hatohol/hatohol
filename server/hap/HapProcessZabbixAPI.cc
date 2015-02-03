@@ -80,17 +80,17 @@ static ItemTablePtr mergePlainTriggersAndExpandedDescriptions(
   const ItemTablePtr triggers, const ItemTablePtr expandedDescriptions)
 {
 	const ItemGroupList &trigGrpList = triggers->getItemGroupList();
-	const ItemGroupList &expandedDescritionGrpList =
+	const ItemGroupList &expandedDescriptionGrpList =
 	  expandedDescriptions->getItemGroupList();
 	ItemGroupListConstIterator trigGrpItr = trigGrpList.begin();
 	ItemGroupListConstIterator expandedDescGrpItr =
-	  expandedDescritionGrpList.begin();
+	  expandedDescriptionGrpList.begin();
 	VariableItemTablePtr mergedTablePtr;
 	for (; trigGrpItr != trigGrpList.end(); ++trigGrpItr) {
 		ItemGroupPtr trigItemGrpPtr = *trigGrpItr;
 		const ItemData *trigItemGrpId =
 		  trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
-		for(; expandedDescGrpItr != expandedDescritionGrpList.end(); ++expandedDescGrpItr) {
+		for(; expandedDescGrpItr != expandedDescriptionGrpList.end(); ++expandedDescGrpItr) {
 			ItemGroupPtr expandedDescGrpPtr = *expandedDescGrpItr;
 			TriggerInfo trigInfo;
 			const ItemData *expandedItemGrpId =
