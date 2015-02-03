@@ -241,10 +241,11 @@ var HistoryView = function(userProfile, options) {
 
   appendGraphArea();
   prepareHistoryLoaders(self.parseQuery(options.query));
+  initTimeRange();
   load();
 
   function prepareHistoryLoaders(historyQueries) {
-    var i, endTime, timeSpan;
+    var i;
 
     for (i = 0; i < historyQueries.length; i++) {
       self.plotData[i] = initLegendData();
@@ -264,10 +265,13 @@ var HistoryView = function(userProfile, options) {
         }
       });
     }
+  }
 
+  function initTimeRange() {
     // TODO: allow different time ranges?
-    endTime = self.loaders[0].options.query.endTime;
-    timeSpan = self.loaders[0].getTimeSpan();
+    var endTime = self.loaders[0].options.query.endTime;
+    var timeSpan = self.loaders[0].getTimeSpan();
+
     if (endTime)
       self.timeRange.set(endTime - timeSpan, endTime);
     self.autoReloadIsEnabled = !endTime;
