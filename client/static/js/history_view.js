@@ -239,10 +239,29 @@ var HistoryView = function(userProfile, options) {
   self.settingSliderTimeRange = false;
   self.loaders = [];
 
+  setupItemSelector();
   appendGraphArea();
   prepareHistoryLoaders(self.parseQuery(options.query));
   initTimeRange();
   load();
+
+  function setupItemSelector() {
+    self.setupHostQuerySelectorCallback(
+      function() {
+        var i, servers;
+        for (i = 0; i < self.loaders.length; i++) {
+        servers = self.loaders[i].getServers();
+          if (servers)
+            break;
+        }
+        self.setServerFilterCandidates(servers);
+        self.setHostgroupFilterCandidates(servers);
+        self.setHostFilterCandidates(servers);
+      },
+      '#select-server', '#select-host-group', '#select-host');
+    $("#select-item").attr("disabled", "disabled");
+    $("#add-item-button").attr("disabled", "disabled");
+  }
 
   function prepareHistoryLoaders(historyQueries) {
     var i;
@@ -258,6 +277,7 @@ var HistoryView = function(userProfile, options) {
           this.item = item;
           self.plotData[this.index] = initLegendData(item, servers);
           updateView();
+          self.setupHostFilters(servers);
         },
         onLoadHistory: function(history) {
           self.plotData[this.index].data = history;
