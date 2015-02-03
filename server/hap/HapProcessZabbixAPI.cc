@@ -122,7 +122,7 @@ static ItemTablePtr mergePlainTriggersAndExpandedDescriptions(
 			}
 		}
 	}
-	return static_cast<ItemTablePtr>(mergedTablePtr);;
+	return static_cast<ItemTablePtr>(mergedTablePtr);
 }
 
 void HapProcessZabbixAPI::workOnTriggers(void)
