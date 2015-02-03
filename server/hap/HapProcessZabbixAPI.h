@@ -36,6 +36,15 @@ protected:
 	void parseReplyGetMonitoringServerInfoOnInitiated(
 	  MonitoringServerInfo &serverInfo, const mlpl::SmartBuffer &replyBuf);
 
+	template <typename T>
+	static void pushItemData(
+	  const ItemId itemId, const ItemGroupPtr &itemGrpPtr,
+	  VariableItemGroupPtr &grp)
+	{
+		T itemData = static_cast<T>(*itemGrpPtr->getItem(itemId));
+		grp->addNewItem(itemId, itemData);
+	}
+
 	virtual HatoholError acquireData(
 	  const MessagingContext &msgCtx,
 	  const mlpl::SmartBuffer &cmdBuf) override;

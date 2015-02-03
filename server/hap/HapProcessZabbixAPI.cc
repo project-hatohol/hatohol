@@ -89,28 +89,26 @@ static ItemTablePtr mergePlainTriggersAndExpandedDescriptions(
 			  expandedDescGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
 			if (trigItemGrpId == expandedItemGrpId) {
 				VariableItemGroupPtr grp;
-				int status, severity;
-				uint64_t lastChangeTime;
-				trigInfo.id = static_cast<TriggerIdType>(*trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID));
-				grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID, trigInfo.id);
+				pushItemData<TriggerIdType>(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,
+				                            trigItemGrpPtr, grp);
 
-				status = static_cast<int>(*trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_VALUE));
-				grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_STATUS, status);
+				pushItemData<int>(ITEM_ID_ZBX_TRIGGERS_VALUE,
+				                  trigItemGrpPtr, grp);
 
-				severity = static_cast<int>(*trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_PRIORITY));
-				grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_PRIORITY, severity);
+				pushItemData<int>(ITEM_ID_ZBX_TRIGGERS_PRIORITY,
+				                  trigItemGrpPtr, grp);
 
-				lastChangeTime = static_cast<uint64_t>(*trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE));
-				grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE, lastChangeTime);
+				pushItemData<uint64_t>(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
+				                       trigItemGrpPtr, grp);
 
-				trigInfo.brief = static_cast<string>(*trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION));
-				grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION);
+				pushItemData<string>(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION,
+				                     trigItemGrpPtr, grp);
 
-				trigInfo.hostId = static_cast<HostIdType>(*trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_HOSTID));
-				grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_HOSTID, trigInfo.hostId);
+				pushItemData<HostIdType>(ITEM_ID_ZBX_TRIGGERS_HOSTID,
+				                         trigItemGrpPtr, grp);
 
-				trigInfo.extendedInfo = static_cast<string>(*expandedDescGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION));
-				grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION, trigInfo.extendedInfo);
+				pushItemData<string>(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION,
+				                     expandedDescGrpPtr, grp);
 
 				mergedTablePtr->add(grp);
 			}
