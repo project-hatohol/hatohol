@@ -73,8 +73,7 @@ static void pushItemData(
   const ItemId itemId, const ItemGroupPtr &itemGrpPtr,
   VariableItemGroupPtr &grp)
 {
-	T itemData = static_cast<T>(*itemGrpPtr->getItem(itemId));
-	grp->addNewItem(itemId, itemData);
+	grp->addNewItem(itemId, static_cast<T>(*itemGrpPtr->getItem(itemId)));
 }
 
 static ItemTablePtr mergePlainTriggersAndExpandedDescriptions(
