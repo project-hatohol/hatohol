@@ -297,7 +297,7 @@ void HatoholArmPluginInterface::send(
 	m_impl->sender.send(request);
 }
 
-bool HatoholArmPluginInterface::getConnectStat(void)
+bool HatoholArmPluginInterface::isConnetced(void)
 {
 	return m_impl->isConnected();
 }

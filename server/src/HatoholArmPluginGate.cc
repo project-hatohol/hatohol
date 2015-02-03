@@ -263,7 +263,7 @@ bool HatoholArmPluginGate::isFetchItemsSupported(void)
 
 bool HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)
 {
-	if (!getConnectStat())
+	if (!isConnetced())
 		return false;
 
 	struct Callback : public CommandCallbacks {

@@ -314,7 +314,7 @@ public:
 	void replyError(const HapiResponseCode &code);
 	void replyOk(void);
 
-	bool getConnectStat(void);
+	bool isConnetced(void);
 
 	/**
 	 * Register a message receive callback method.
