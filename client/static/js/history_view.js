@@ -277,7 +277,7 @@ var HistoryView = function(userProfile, options) {
       var i;
       var candidates =
         $.map(reply.items, function(item) {
-          return item.brief;
+          return { label: item.brief, value: item.id };
         });
       self.setFilterCandidates($("#select-item"), candidates);
     });
