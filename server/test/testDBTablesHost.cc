@@ -499,10 +499,11 @@ void test_upsertHostgroupMemberAutoIncrement(void)
 
 	DECLARE_DBTABLES_HOST(dbHost);
 	GenericIdType id0 = dbHost.upsertHostgroupMember(hostgroupMember);
+	hostgroupMember.hostgroupIdInServer = "Lion";
 	GenericIdType id1 = dbHost.upsertHostgroupMember(hostgroupMember);
 	const string expect = StringUtils::sprintf(
 	  "%" FMT_GEN_ID "|52|88664422|1133\n"
-	  "%" FMT_GEN_ID "|52|88664422|1133", id0, id1);
+	  "%" FMT_GEN_ID "|52|88664422|Lion", id0, id1);
 	const string statement = StringUtils::sprintf(
 	  "SELECT * FROM %s ORDER BY id", tableProfileHostgroupMember.name);
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
@@ -521,6 +522,26 @@ void test_upsertHostgroupMemberUpdate(void)
 	DECLARE_DBTABLES_HOST(dbHost);
 	GenericIdType id0 = dbHost.upsertHostgroupMember(hostgroupMember);
 	hostgroupMember.id = id0;
+	GenericIdType id1 = dbHost.upsertHostgroupMember(hostgroupMember);
+	const string expect = StringUtils::sprintf(
+	  "%" FMT_GEN_ID "|52|88664422|1133", id1);
+	const string statement = StringUtils::sprintf(
+	  "SELECT * FROM %s", tableProfileHostgroupMember.name);
+	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id0);
+	cppcut_assert_equal(id0, id1);
+}
+
+void test_upsertHostgroupMemberUpdateUsingIndex(void)
+{
+	HostgroupMember hostgroupMember;
+	hostgroupMember.id = AUTO_INCREMENT_VALUE;
+	hostgroupMember.serverId = 52;
+	hostgroupMember.hostIdInServer = "88664422";
+	hostgroupMember.hostgroupIdInServer = "1133";
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	GenericIdType id0 = dbHost.upsertHostgroupMember(hostgroupMember);
 	GenericIdType id1 = dbHost.upsertHostgroupMember(hostgroupMember);
 	const string expect = StringUtils::sprintf(
 	  "%" FMT_GEN_ID "|52|88664422|1133", id1);
