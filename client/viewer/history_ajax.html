@@ -27,6 +27,25 @@
 {% block main %}
 <div id="main" class="graph">
   <h2></h2>
+
+  <form class="form-inline hatohol-filter-toolbar">
+    <label>{% trans "Monitoring Server:" %}</label>
+    <select id="select-server" class="form-control">
+      <option>---------</option>
+    </select>
+    <label>{% trans "Group:" %}</label>
+    <select id="select-host-group" class="form-control">
+      <option>---------</option>
+    </select>
+    <label>{% trans "Host:" %}</label>
+    <select id="select-host" class="form-control">
+      <option>---------</option>
+    </select>
+    <label>{% trans "Item:" %}</label>
+    <select id="select-item" class="form-control">
+      <option>---------</option>
+    </select>
+  </form>
 </div>
 {% endblock %}
 
