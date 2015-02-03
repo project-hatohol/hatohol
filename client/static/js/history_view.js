@@ -265,8 +265,7 @@ var HistoryView = function(userProfile, options) {
     $("#select-host-group").change(setupItemCandidates);
     $("#select-host").change(setupItemCandidates);
     $("#select-item").change(function() {
-      var itemName = $(this).val();
-      if (itemName == "---------")
+      if ($(this).val() == "---------")
 	$("#add-item-button").attr("disabled", "disabled");
       else
 	$("#add-item-button").removeAttr("disabled");
