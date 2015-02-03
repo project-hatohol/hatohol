@@ -350,34 +350,49 @@ void DBAgent::dropTable(const std::string &tableName)
 
 void DBAgent::fixupIndexes(const TableProfile &tableProfile)
 {
-	typedef map<string, IndexInfo *>  IndexSqlInfoMap;
-	typedef IndexSqlInfoMap::iterator IndexSqlInfoMapIterator;
+	typedef map<string, IndexInfo *>   IndexNameInfoMap;
+	typedef IndexNameInfoMap::iterator IndexNameInfoMapIterator;
 
 	struct {
 		DBAgent        *obj;
-		IndexSqlInfoMap indexSqlInfoMap;
+		IndexNameInfoMap existingIndexMap;
 
 		void proc(const TableProfile &tableProfile,
 		          const IndexDef &indexDef)
 		{
-			const string sql =
-			  obj->makeCreateIndexStatement(tableProfile, indexDef);
-			IndexSqlInfoMapIterator it = indexSqlInfoMap.find(sql);
-			if (it != indexSqlInfoMap.end()) {
-				indexSqlInfoMap.erase(it);
+			// If there's no index with the same name,
+			// the new one should be created.
+			const string indexName =
+			  obj->makeIndexName(tableProfile, indexDef);
+			IndexNameInfoMapIterator it =
+			  existingIndexMap.find(indexName);
+			if (it == existingIndexMap.end()) {
+				obj->createIndex(tableProfile, indexDef);
 				return;
 			}
-			obj->createIndex(tableProfile, indexDef);
+
+			// We create the index only when the requested
+			// SQL is different from the existing one.
+			const IndexInfo &indexInfo = *it->second;
+			const string &existingSql = indexInfo.sql;
+			const string reqSql =
+			  obj->makeCreateIndexStatement(tableProfile, indexDef);
+			if (reqSql != existingSql) {
+				obj->dropIndex(indexName, tableProfile.name);
+				obj->createIndex(tableProfile, indexDef);
+			}
+			existingIndexMap.erase(it);
 		}
 	} ctx;
 	ctx.obj = this;
 
 	// Gather existing indexes
+	IndexNameInfoMap existingIndexNameInfoMap;
 	vector<IndexInfo> indexInfoVect;
 	getIndexInfoVect(indexInfoVect, tableProfile);
 	for (size_t i = 0; i < indexInfoVect.size(); i++) {
 		IndexInfo &idxInfo = indexInfoVect[i];
-		ctx.indexSqlInfoMap[idxInfo.sql] = &idxInfo;
+		ctx.existingIndexMap[idxInfo.name] = &idxInfo;
 	}
 
 	// Create needed indexes with ColumnDef
@@ -399,17 +414,17 @@ void DBAgent::fixupIndexes(const TableProfile &tableProfile)
 		ctx.proc(tableProfile, indexDef);
 	}
 
-	// Create needed indexes with IndexesDef
+	// Select really necessary indexes for the creation.
 	const IndexDef *indexDefPtr = tableProfile.indexDefArray;
 	for (; indexDefPtr && indexDefPtr->name; indexDefPtr++)
 		ctx.proc(tableProfile, *indexDefPtr);
 
 	// Drop remaining (unnecessary) indexes
-	while (!ctx.indexSqlInfoMap.empty()) {
-		IndexSqlInfoMapIterator it = ctx.indexSqlInfoMap.begin();
+	while (!ctx.existingIndexMap.empty()) {
+		IndexNameInfoMapIterator it = ctx.existingIndexMap.begin();
 		const IndexInfo &indexInfo = *it->second;
 		dropIndex(indexInfo.name, indexInfo.tableName);
-		ctx.indexSqlInfoMap.erase(it);
+		ctx.existingIndexMap.erase(it);
 	}
 }
 
@@ -700,3 +715,10 @@ void DBAgent::dropIndex(const std::string &name, const std::string &tableName)
 	MLPL_INFO("Deleted index: %s (table: %s)\n",
 	          name.c_str(), tableName.c_str());
 }
+
+string DBAgent::makeIndexName(const TableProfile &tableProfile,
+                              const IndexDef &indexDef)
+{
+	return indexDef.name;
+}
+

@@ -439,6 +439,12 @@ void test_fixupIndexes(void)
 	dbAgentTestFixupIndexes(dbAgent, dbAgentChecker);
 }
 
+void test_fixupSameNameIndexes(void)
+{
+	DBAgentSQLite3 dbAgent;
+	dbAgentTestFixupSameNameIndexes(dbAgent, dbAgentChecker);
+}
+
 void test_insert(void)
 {
 	DBAgentSQLite3 dbAgent;

@@ -910,9 +910,9 @@ string DBAgentSQLite3::makeCreateIndexStatement(
   const TableProfile &tableProfile, const IndexDef &indexDef)
 {
 	string sql = StringUtils::sprintf(
-	  "CREATE %sINDEX i_%s_%s ON %s(",
+	  "CREATE %sINDEX %s ON %s(",
 	  indexDef.isUnique ? "UNIQUE " : "",
-	  tableProfile.name, indexDef.name, tableProfile.name);
+	  makeIndexName(tableProfile, indexDef).c_str(), tableProfile.name);
 
 	const int *columnIdxPtr = indexDef.columnIndexes;
 	while (true) {
@@ -953,6 +953,13 @@ void DBAgentSQLite3::getIndexInfoVect(
 		idxInfo.sql       = idxStruct.sql;
 		indexInfoVect.push_back(idxInfo);
 	}
+}
+
+string DBAgentSQLite3::makeIndexName(
+  const TableProfile &tableProfile, const IndexDef &indexDef)
+{
+	return StringUtils::sprintf("i_%s_%s",
+	                            tableProfile.name, indexDef.name);
 }
 
 string DBAgentSQLite3::getDBPath(void) const
