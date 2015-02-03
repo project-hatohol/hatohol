@@ -68,6 +68,15 @@ void HapProcessZabbixAPI::setMonitoringServerInfo(void)
 	ZabbixAPI::setMonitoringServerInfo(getMonitoringServerInfo());
 }
 
+template <typename T>
+static void pushItemData(
+  const ItemId itemId, const ItemGroupPtr &itemGrpPtr,
+  VariableItemGroupPtr &grp)
+{
+	T itemData = static_cast<T>(*itemGrpPtr->getItem(itemId));
+	grp->addNewItem(itemId, itemData);
+}
+
 static ItemTablePtr mergePlainTriggersAndExpandedDescriptions(
   const ItemTablePtr triggers, const ItemTablePtr expandedDescriptions)
 {
