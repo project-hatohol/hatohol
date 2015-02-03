@@ -261,12 +261,24 @@ var HistoryView = function(userProfile, options) {
       '#select-server', '#select-host-group', '#select-host');
     $("#select-item").attr("disabled", "disabled");
     $("#add-item-button").attr("disabled", "disabled");
+    $("#select-server").change(setupItemCandidates);
+    $("#select-host-group").change(setupItemCandidates);
     $("#select-host").change(setupItemCandidates);
+    $("#select-item").change(function() {
+      var itemName = $(this).val();
+      if (itemName == "---------")
+	$("#add-item-button").attr("disabled", "disabled");
+      else
+	$("#add-item-button").removeAttr("disabled");
+    });
   }
 
   function setupItemCandidates() {
     var query;
     var hostName = $("#select-host").val();
+
+    $("#add-item-button").attr("disabled", "disabled");
+
     if (hostName == "---------") {
       self.setFilterCandidates($("#select-item"));
       return;
