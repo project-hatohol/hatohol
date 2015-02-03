@@ -270,6 +270,14 @@ var HistoryView = function(userProfile, options) {
       else
 	$("#add-item-button").removeAttr("disabled");
     });
+    $("#add-item-button").click(function() {
+      var query = self.getHostFilterQuery();
+      var index = self.loaders.length;
+      delete query.hostgroupId;
+      query.itemId = $("#select-item").val();
+      appendHistoryLoader(query);
+      load();
+    });
   }
 
   function setupItemCandidates() {
@@ -295,28 +303,31 @@ var HistoryView = function(userProfile, options) {
     });
   }
 
+  function appendHistoryLoader(historyQuery) {
+    var loader = new HistoryLoader({
+      index: self.loaders.length,
+      view: self,
+      defaultTimeSpan: self.timeRange.getSpan(),
+      query: historyQuery,
+      onLoadItem: function(item, servers) {
+        this.item = item;
+        self.plotData[this.index] = createLegendData(item, servers);
+        updateView();
+        self.setupHostFilters(servers);
+      },
+      onLoadHistory: function(history) {
+        self.plotData[this.index].data = history;
+        updateView();
+      }
+    });
+    self.loaders.push(loader);
+    self.plotData.push(createLegendData());
+  }
+
   function prepareHistoryLoaders(historyQueries) {
     var i;
-
-    for (i = 0; i < historyQueries.length; i++) {
-      self.plotData[i] = initLegendData();
-      self.loaders[i] = new HistoryLoader({
-        index: i,
-        view: self,
-        defaultTimeSpan: self.timeRange.getSpan(),
-        query: historyQueries[i],
-        onLoadItem: function(item, servers) {
-          this.item = item;
-          self.plotData[this.index] = initLegendData(item, servers);
-          updateView();
-          self.setupHostFilters(servers);
-        },
-        onLoadHistory: function(history) {
-          self.plotData[this.index].data = history;
-          updateView();
-        }
-      });
-    }
+    for (i = 0; i < historyQueries.length; i++)
+      appendHistoryLoader(historyQueries[i]);
   }
 
   function initTimeRange() {
@@ -426,7 +437,7 @@ var HistoryView = function(userProfile, options) {
     });
   };
 
-  function initLegendData(item, servers) {
+  function createLegendData(item, servers) {
     var legend = { data:[] };
 
     if (item) {
