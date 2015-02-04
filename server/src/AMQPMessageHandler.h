@@ -29,7 +29,7 @@ public:
 	AMQPMessageHandler();
 	virtual ~AMQPMessageHandler();
 
-	virtual bool handle(const amqp_envelope_t *envelope) override;
+	virtual bool handle(const amqp_envelope_t *envelope);
 };
 
 #endif // AMQPMessageHandler_h
