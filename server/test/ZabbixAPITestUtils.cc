@@ -159,6 +159,26 @@ ItemTablePtr ZabbixAPITestee::callGetHistory(
 	return getHistory(itemId, valueType, beginTime, endTime);
 }
 
+void ZabbixAPITestee::makeTriggersItemTable(ItemTablePtr &triggersTablePtr)
+{
+	ifstream ifs("fixtures/zabbix-api-res-triggers-003-hosts.json");
+	cppcut_assert_equal(false, ifs.fail());
+
+	string fixtureData;
+	getline(ifs, fixtureData);
+	JSONParser parser(fixtureData);
+	cppcut_assert_equal(false, parser.hasError());
+	startObject(parser, "result");
+
+	VariableItemTablePtr variableTriggersTablePtr;
+	int numData = parser.countElements();
+	if (numData < 1)
+		cut_fail("Value of the elements is empty.");
+	for (int i = 0; i < numData; i++)
+		parseAndPushTriggerData(parser, variableTriggersTablePtr, i);
+	triggersTablePtr = ItemTablePtr(variableTriggersTablePtr);
+}
+
 void ZabbixAPITestee::makeGroupsItemTable(ItemTablePtr &groupsTablePtr)
 {
 	ifstream ifs("fixtures/zabbix-api-res-hostgroup-002-refer.json");

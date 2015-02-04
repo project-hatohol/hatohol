@@ -57,6 +57,7 @@ public:
 				    const time_t &beginTime,
 				    const time_t &endTime);
 
+	void makeTriggersItemTable(ItemTablePtr &triggersTablePtr);
 	void makeGroupsItemTable(ItemTablePtr &groupsTablePtr);
 	void makeMapHostsHostgroupsItemTable(ItemTablePtr &hostsGroupsTablePtr);
 
