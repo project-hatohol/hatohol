@@ -239,11 +239,17 @@ var HistoryView = function(userProfile, options) {
   self.settingSliderTimeRange = false;
   self.loaders = [];
 
-  setupItemSelector();
-  appendGraphArea();
-  prepareHistoryLoaders(self.parseQuery(options.query));
-  initTimeRange();
+  prepare(self.parseQuery(options.query));
   load();
+
+  function prepare(historyQueries) {
+    var i;
+    setupItemSelector();
+    appendGraphArea();
+    for (i = 0; i < historyQueries.length; i++)
+      appendHistoryLoader(historyQueries[i]);
+    initTimeRange();
+  }
 
   function setupItemSelector() {
     self.setupHostQuerySelectorCallback(
@@ -299,83 +305,6 @@ var HistoryView = function(userProfile, options) {
       });
       self.setFilterCandidates($("#select-item"), candidates);
     });
-  }
-
-  function appendHistoryLoader(historyQuery) {
-    var loader = new HistoryLoader({
-      index: self.loaders.length,
-      view: self,
-      defaultTimeSpan: self.timeRange.getSpan(),
-      query: historyQuery,
-      onLoadItem: function(item, servers) {
-        this.item = item;
-        self.plotData[this.index] = createLegendData(item, servers);
-        updateView();
-        self.setupHostFilters(servers);
-      },
-      onLoadHistory: function(history) {
-        self.plotData[this.index].data = history;
-        updateView();
-      }
-    });
-    self.loaders.push(loader);
-    self.plotData.push(createLegendData());
-  }
-
-  function prepareHistoryLoaders(historyQueries) {
-    var i;
-    for (i = 0; i < historyQueries.length; i++)
-      appendHistoryLoader(historyQueries[i]);
-  }
-
-  function initTimeRange() {
-    // TODO: allow different time ranges?
-    var endTime = self.loaders[0].options.query.endTime;
-    var timeSpan = self.loaders[0].getTimeSpan();
-
-    if (endTime)
-      self.timeRange.set(endTime - timeSpan, endTime);
-    self.autoReloadIsEnabled = !endTime;
-  }
-
-  function load() {
-    var promises;
-    var i;
-
-    self.clearAutoReload();
-    if (self.autoReloadIsEnabled) {
-      self.timeRange.setEndTime(Math.floor(new Date().getTime() / 1000));
-      for (i = 0; i < self.loaders.length; i++)
-        self.loaders[i].setTimeRange(undefined, self.timeRange.end, true);
-    }
-
-    promises = $.map(self.loaders, function(loader) { return loader.load(); });
-    $.when.apply($, promises).done(function() {
-      if (self.autoReloadIsEnabled)
-        self.setAutoReload(load, self.reloadIntervalSeconds);
-    });
-  }
-
-  function enableAutoReload(onClickButton) {
-    var button = $("#item-graph-auto-reload");
-
-    button.removeClass("btn-default");
-    button.addClass("btn-primary");
-    if (!onClickButton)
-      button.addClass("active");
-
-    self.autoReloadIsEnabled = true;
-    load();
-  }
-
-  function disableAutoReload(onClickButton) {
-    var button = $("#item-graph-auto-reload");
-    self.clearAutoReload();
-    self.autoReloadIsEnabled = false;
-    if (!onClickButton)
-      button.removeClass("active");
-    button.removeClass("btn-primary");
-    button.addClass("btn-default");
   }
 
   function appendGraphArea() {
@@ -446,6 +375,77 @@ var HistoryView = function(userProfile, options) {
 
     return legend;
   };
+
+  function appendHistoryLoader(historyQuery) {
+    var loader = new HistoryLoader({
+      index: self.loaders.length,
+      view: self,
+      defaultTimeSpan: self.timeRange.getSpan(),
+      query: historyQuery,
+      onLoadItem: function(item, servers) {
+        this.item = item;
+        self.plotData[this.index] = createLegendData(item, servers);
+        updateView();
+        self.setupHostFilters(servers);
+      },
+      onLoadHistory: function(history) {
+        self.plotData[this.index].data = history;
+        updateView();
+      }
+    });
+    self.loaders.push(loader);
+    self.plotData.push(createLegendData());
+  }
+
+  function initTimeRange() {
+    // TODO: allow different time ranges?
+    var endTime = self.loaders[0].options.query.endTime;
+    var timeSpan = self.loaders[0].getTimeSpan();
+
+    if (endTime)
+      self.timeRange.set(endTime - timeSpan, endTime);
+    self.autoReloadIsEnabled = !endTime;
+  }
+
+  function load() {
+    var promises;
+    var i;
+
+    self.clearAutoReload();
+    if (self.autoReloadIsEnabled) {
+      self.timeRange.setEndTime(Math.floor(new Date().getTime() / 1000));
+      for (i = 0; i < self.loaders.length; i++)
+        self.loaders[i].setTimeRange(undefined, self.timeRange.end, true);
+    }
+
+    promises = $.map(self.loaders, function(loader) { return loader.load(); });
+    $.when.apply($, promises).done(function() {
+      if (self.autoReloadIsEnabled)
+        self.setAutoReload(load, self.reloadIntervalSeconds);
+    });
+  }
+
+  function enableAutoReload(onClickButton) {
+    var button = $("#item-graph-auto-reload");
+
+    button.removeClass("btn-default");
+    button.addClass("btn-primary");
+    if (!onClickButton)
+      button.addClass("active");
+
+    self.autoReloadIsEnabled = true;
+    load();
+  }
+
+  function disableAutoReload(onClickButton) {
+    var button = $("#item-graph-auto-reload");
+    self.clearAutoReload();
+    self.autoReloadIsEnabled = false;
+    if (!onClickButton)
+      button.removeClass("active");
+    button.removeClass("btn-primary");
+    button.addClass("btn-default");
+  }
 
   function getDate(timeMSec) {
     var plotOptions = {
