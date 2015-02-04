@@ -316,15 +316,73 @@ ItemTablePtr ZabbixAPI::getTriggerExpandedDescription(int requestSince)
 	if (numData < 1)
 		return ItemTablePtr(tablePtr);
 	for (int i = 0; i < numData; i++) {
-		startElement(parser, i);
-		VariableItemGroupPtr grp;
-		pushUint64(parser, grp, "triggerid",   ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
-		pushString(parser, grp, "description", ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION);
-		tablePtr->add(grp);
-		parser.endElement();
+		parseAndPushTriggerExpandedDescriptionData(parser, tablePtr, i);
 	}
 
 	return ItemTablePtr(tablePtr);
+}
+
+static void pushItemData(
+  const ItemId itemId, const ItemGroupPtr &itemGrpPtr,
+  VariableItemGroupPtr &grp)
+{
+	const ItemData *itemData = itemGrpPtr->getItem(itemId);
+	grp->add(itemData);
+}
+
+ItemTablePtr ZabbixAPI::mergePlainTriggersAndExpandedDescriptions(
+  const ItemTablePtr triggers, const ItemTablePtr expandedDescriptions)
+{
+	const ItemGroupList &trigGrpList = triggers->getItemGroupList();
+	const ItemGroupList &expandedDescriptionGrpList =
+	  expandedDescriptions->getItemGroupList();
+	ItemGroupListConstIterator trigGrpItr = trigGrpList.begin();
+
+	TriggerIdItemGrpMap expandedTrigIdGrpMap;
+	ItemGroupListConstIterator expandedDescGrpItr =
+	  expandedDescriptionGrpList.begin();
+	for (; expandedDescGrpItr != expandedDescriptionGrpList.end(); ++expandedDescGrpItr) {
+		const ItemGroup *itemGroup = *expandedDescGrpItr;
+		ItemGroupPtr expandedDescGrpPtr = *expandedDescGrpItr;
+		uint64_t expandedItemGrpId =
+		  static_cast<uint64_t>(*expandedDescGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID));
+		expandedTrigIdGrpMap.insert(
+		  pair<TriggerIdType, ItemGroupPtr>(expandedItemGrpId, itemGroup));
+	}
+
+	VariableItemTablePtr mergedTablePtr;
+	for (; trigGrpItr != trigGrpList.end(); ++trigGrpItr) {
+		ItemGroupPtr trigItemGrpPtr = *trigGrpItr;
+		uint64_t trigItemGrpId =
+		  *trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+		TriggerIdItemGrpMapConstIterator it =
+		  expandedTrigIdGrpMap.find(trigItemGrpId);
+		VariableItemGroupPtr grp;
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,
+		             trigItemGrpPtr, grp);
+
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_VALUE,
+		             trigItemGrpPtr, grp);
+
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_PRIORITY,
+		             trigItemGrpPtr, grp);
+
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
+		             trigItemGrpPtr, grp);
+
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION,
+		             trigItemGrpPtr, grp);
+
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_HOSTID,
+		             trigItemGrpPtr, grp);
+
+		if (it != expandedTrigIdGrpMap.end()) {
+			pushItemData(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION,
+			             it->second, grp);
+		}
+		mergedTablePtr->add(grp);
+	}
+	return static_cast<ItemTablePtr>(mergedTablePtr);
 }
 
 ItemTablePtr ZabbixAPI::getItems(void)
@@ -699,6 +757,8 @@ SoupMessage *ZabbixAPI::queryTriggerExpandedDescription(HatoholError &queryRet,
 	if (requestSince > 0)
 		agent.add("lastChangeSince", requestSince);
 	agent.add("expandDescription", 1);
+	agent.add("selectHosts", "refer");
+	agent.addTrue("active");
 	agent.endObject(); //params
 
 	agent.add("auth", m_impl->authToken);
@@ -1033,6 +1093,17 @@ void ZabbixAPI::parseAndPushTriggerData(
 	// get functions
 	// pushFunctionsCache(parser);
 
+	parser.endElement();
+}
+
+void ZabbixAPI::parseAndPushTriggerExpandedDescriptionData(
+  JSONParser &parser, VariableItemTablePtr &tablePtr, const int &index)
+{
+	startElement(parser, index);
+	VariableItemGroupPtr grp;
+	pushUint64(parser, grp, "triggerid",   ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+	pushString(parser, grp, "description", ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION);
+	tablePtr->add(grp);
 	parser.endElement();
 }
 

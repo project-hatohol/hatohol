@@ -56,4 +56,3 @@ private:
 	struct PrivateContext;
 	PrivateContext *m_ctx;;
 };
-

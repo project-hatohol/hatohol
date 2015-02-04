@@ -264,7 +264,9 @@ bool ZabbixAPIEmulator::hasParameter
 	if (!parser.startObject("params"))
 		return false;
 
-	return true;
+	string value;
+	parser.read(paramName, value);
+	return value == expectedValue;
 }
 
 bool ZabbixAPIEmulator::hasParameter
@@ -279,7 +281,9 @@ bool ZabbixAPIEmulator::hasParameter
 	if (!parser.startObject("params"))
 		return false;
 
-	return true;
+	int64_t value;
+	parser.read(paramName, value);
+	return value == expectedValue;
 }
 
 string ZabbixAPIEmulator::generateAuthToken(void)
@@ -422,10 +426,10 @@ void ZabbixAPIEmulator::APIHandlerTriggerGet(APIHandlerArg &arg)
 		   m_ctx->apiVersion < API_VERSION_2_2_2) {
 		dataFileName = "zabbix-api-2_2_0-res-triggers.json";
 	} else {
-		if (hasParameter(arg, "selectHosts", "refer")) {
-			dataFileName = "zabbix-api-res-triggers-003-hosts.json";
-		} else if (hasParameter(arg, "expandDescription", 1)) {
+		if (hasParameter(arg, "expandDescription", 1)) {
 			dataFileName = "zabbix-api-res-triggers-extend-info.json";
+		} else if (hasParameter(arg, "selectHosts", "refer")) {
+			dataFileName = "zabbix-api-res-triggers-003-hosts.json";
 		} else {
 			// current implementation doesn't have this case
 			dataFileName = "zabbix-api-res-triggers-001.json";

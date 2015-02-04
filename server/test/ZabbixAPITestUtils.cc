@@ -137,6 +137,23 @@ void ZabbixAPITestee::callGetGroups(ItemTablePtr &groupsTablePtr)
 	getGroups(groupsTablePtr);
 }
 
+ItemTablePtr ZabbixAPITestee::callGetTrigger(int requestSince)
+{
+	return getTrigger(requestSince);
+}
+
+ItemTablePtr ZabbixAPITestee::callGetTriggerExpandedDescription(int requestSince)
+{
+	return getTriggerExpandedDescription(requestSince);
+}
+
+ItemTablePtr ZabbixAPITestee::callMergePlainTriggersAndExpandedDescriptions(
+  const ItemTablePtr triggers, const ItemTablePtr expandedDescriptions)
+{
+	return mergePlainTriggersAndExpandedDescriptions(triggers,
+	                                                 expandedDescriptions);
+}
+
 uint64_t ZabbixAPITestee::callGetLastEventId(void)
 {
 	return getEndEventId(false);
@@ -147,6 +164,49 @@ ItemTablePtr ZabbixAPITestee::callGetHistory(
   const time_t &beginTime, const time_t &endTime)
 {
 	return getHistory(itemId, valueType, beginTime, endTime);
+}
+
+void ZabbixAPITestee::makeTriggersItemTable(ItemTablePtr &triggersTablePtr)
+{
+	ifstream ifs("fixtures/zabbix-api-res-triggers-003-hosts.json");
+	cppcut_assert_equal(false, ifs.fail());
+
+	string fixtureData;
+	getline(ifs, fixtureData);
+	JSONParser parser(fixtureData);
+	cppcut_assert_equal(false, parser.hasError());
+	startObject(parser, "result");
+
+	VariableItemTablePtr variableTriggersTablePtr;
+	int numData = parser.countElements();
+	if (numData < 1)
+		cut_fail("Value of the elements is empty.");
+	for (int i = 0; i < numData; i++)
+		parseAndPushTriggerData(parser, variableTriggersTablePtr, i);
+	triggersTablePtr = ItemTablePtr(variableTriggersTablePtr);
+}
+
+void ZabbixAPITestee::makeTriggerExpandedDescriptionItemTable(
+  ItemTablePtr &triggerExpandedDescriptionsTablePtr)
+{
+	ifstream ifs("fixtures/zabbix-api-res-triggers-extend-info.json");
+	cppcut_assert_equal(false, ifs.fail());
+
+	string fixtureData;
+	getline(ifs, fixtureData);
+	JSONParser parser(fixtureData);
+	cppcut_assert_equal(false, parser.hasError());
+	startObject(parser, "result");
+
+	VariableItemTablePtr variableTriggersTablePtr;
+	int numData = parser.countElements();
+	if (numData < 1)
+		cut_fail("Value of the elements is empty.");
+	for (int i = 0; i < numData; i++)
+		parseAndPushTriggerExpandedDescriptionData(parser,
+		                                           variableTriggersTablePtr, i);
+	triggerExpandedDescriptionsTablePtr =
+	  ItemTablePtr(variableTriggersTablePtr);
 }
 
 void ZabbixAPITestee::makeGroupsItemTable(ItemTablePtr &groupsTablePtr)

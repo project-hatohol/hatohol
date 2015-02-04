@@ -48,6 +48,7 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 	for (; trigGrpItr != trigGrpList.end(); ++trigGrpItr) {
 		ItemGroupStream trigGroupStream(*trigGrpItr);
 		TriggerInfo trigInfo;
+		std::string expandedDescription;
 
 		trigInfo.serverId = serverId;
 
@@ -70,6 +71,17 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_HOSTID);
 		trigGroupStream >> trigInfo.hostId;
 
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION);
+		trigGroupStream >> expandedDescription;
+
+		if (!expandedDescription.empty()) {
+			JSONBuilder agent;
+			agent.startObject();
+			agent.add("expandedDescription", expandedDescription);
+			agent.endObject();
+			trigInfo.extendedInfo = agent.generate();
+		}
+
 		if (trigInfo.hostId != INAPPLICABLE_HOST_ID &&
 		    !hostInfoCache.getName(trigInfo.hostId,
 		                           trigInfo.hostName)) {
@@ -82,56 +94,6 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 		}
 
 		trigInfoList.push_back(trigInfo);
-	}
-}
-
-void HatoholDBUtils::transformTriggerExpandedDescriptionToHatoholFormat(
-  TriggerInfoList &trigInfoList, const ItemTablePtr triggers)
-{
-	const ItemGroupList &trigGrpList = triggers->getItemGroupList();
-	ItemGroupListConstIterator trigGrpItr = trigGrpList.begin();
-	std::string extendedInfo;
-	for (; trigGrpItr != trigGrpList.end(); ++trigGrpItr) {
-		ItemGroupStream trigGroupStream(*trigGrpItr);
-		TriggerInfo trigInfo;
-
-		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
-		trigGroupStream >> trigInfo.id;
-
-		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION);
-		trigGroupStream >> extendedInfo;
-
-		JSONBuilder agent;
-		agent.startObject();
-		agent.add("expandedDescription", extendedInfo);
-		agent.endObject();
-		trigInfo.extendedInfo = agent.generate();
-
-		trigInfoList.push_back(trigInfo);
-	}
-}
-
-void HatoholDBUtils::mergePlainTriggersListAndExpandedDescriptionList(
-  const TriggerInfoList &trigInfoList, const TriggerInfoList &expandedInfoList,
-  TriggerInfoList &mergedTriggerInfoList)
-{
-	TriggerInfoListConstIterator trigInfoItr = trigInfoList.begin();
-	TriggerInfoListConstIterator expandedTrigInfoLtr = expandedInfoList.begin();
-	TriggerIdInfoMap expandedTrigIdInfoMap;
-
-	for (; expandedTrigInfoLtr != expandedInfoList.end(); ++expandedTrigInfoLtr) {
-		TriggerInfo expandedInfo = *expandedTrigInfoLtr;
-		expandedTrigIdInfoMap.insert(
-		  pair<TriggerIdType, TriggerInfo>(expandedInfo.id, expandedInfo));
-	}
-
-	for (; trigInfoItr != trigInfoList.end(); ++trigInfoItr) {
-		TriggerInfo trigInfo = *trigInfoItr;
-		TriggerIdInfoMapIterator it = expandedTrigIdInfoMap.find(trigInfo.id);
-		if (it != expandedTrigIdInfoMap.end())
-			trigInfo.extendedInfo = it->second.extendedInfo;
-
-		mergedTriggerInfoList.push_back(trigInfo);
 	}
 }
 

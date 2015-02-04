@@ -53,6 +53,8 @@ public:
 	  const ItemInfoValueType &valueType);
 
 protected:
+	typedef std::map<const TriggerIdType, const ItemGroupPtr> TriggerIdItemGrpMap;
+	typedef TriggerIdItemGrpMap::const_iterator TriggerIdItemGrpMapConstIterator;
 	const static uint64_t UNLIMITED = -1;
 	void setMonitoringServerInfo(const MonitoringServerInfo &serverInfo);
 
@@ -113,6 +115,8 @@ protected:
 	 */
 	ItemTablePtr getTrigger(int requestSince = 0);
 	ItemTablePtr getTriggerExpandedDescription(int requestSince = 0);
+	ItemTablePtr mergePlainTriggersAndExpandedDescriptions(
+	  const ItemTablePtr triggers, const ItemTablePtr expandedDescriptions);
 
 	/**
 	 * Get the items.
@@ -305,6 +309,8 @@ protected:
 	void parseAndPushTriggerData(
 	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
+	void parseAndPushTriggerExpandedDescriptionData(
+	  JSONParser &parser, VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushItemsData(
 	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);

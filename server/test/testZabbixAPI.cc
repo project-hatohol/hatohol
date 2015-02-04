@@ -108,6 +108,57 @@ void test_getAuthToken(void)
 	cppcut_assert_equal(firstToken, secondToken);
 }
 
+void test_verifyTriggers(void)
+{
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+	zbxApiTestee.testOpenSession();
+
+	ItemTablePtr actualTriggersTablePtr;
+	ItemTablePtr expectTriggersTablePtr;
+
+	zbxApiTestee.makeTriggersItemTable(expectTriggersTablePtr);
+	actualTriggersTablePtr = zbxApiTestee.callGetTrigger();
+
+	assertItemTable(expectTriggersTablePtr, actualTriggersTablePtr);
+}
+
+void test_verifyTriggerExpandedDescriptions(void)
+{
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+	zbxApiTestee.testOpenSession();
+
+	ItemTablePtr actualExpandedDescTablePtr;
+	ItemTablePtr expectedExpandedDescTablePtr;
+
+	zbxApiTestee.makeTriggerExpandedDescriptionItemTable(expectedExpandedDescTablePtr);
+	actualExpandedDescTablePtr = zbxApiTestee.callGetTriggerExpandedDescription();
+
+	assertItemTable(expectedExpandedDescTablePtr, actualExpandedDescTablePtr);
+}
+
+void test_verifyMergeTriggerExpandedDescriptions(void)
+{
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+	zbxApiTestee.testOpenSession();
+
+	ItemTablePtr plainTriggersTablePtr;
+	ItemTablePtr expandedDescriptionTablePtr;
+	ItemTablePtr mergedTablePtr;
+
+	plainTriggersTablePtr = zbxApiTestee.callGetTrigger();
+	expandedDescriptionTablePtr = zbxApiTestee.callGetTriggerExpandedDescription();
+	mergedTablePtr = zbxApiTestee.callMergePlainTriggersAndExpandedDescriptions(
+	  plainTriggersTablePtr, expandedDescriptionTablePtr);
+
+	// TODO: check the ItemTablePtr content
+}
+
 void test_verifyGroupsAndHostsGroups(void)
 {
 	MonitoringServerInfo serverInfo;

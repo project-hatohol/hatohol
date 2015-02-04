@@ -49,12 +49,19 @@ public:
 	void callGetHosts(ItemTablePtr &hostsTablePtr,
 	                  ItemTablePtr &hostsGroupsTablePtr);
 	void callGetGroups(ItemTablePtr &groupsTablePtr);
+	ItemTablePtr callGetTrigger(int requestSince = 0);
+	ItemTablePtr callGetTriggerExpandedDescription(int requestSince = 0);
+	ItemTablePtr callMergePlainTriggersAndExpandedDescriptions(
+	  const ItemTablePtr triggers, const ItemTablePtr expandedDescriptions);
 	uint64_t callGetLastEventId(void);
 	ItemTablePtr callGetHistory(const ItemIdType &itemId,
 				    const ZabbixAPI::ValueType &valueType,
 				    const time_t &beginTime,
 				    const time_t &endTime);
 
+	void makeTriggersItemTable(ItemTablePtr &triggersTablePtr);
+	void makeTriggerExpandedDescriptionItemTable(
+	  ItemTablePtr &triggerExpandedDescriptionsTablePtr);
 	void makeGroupsItemTable(ItemTablePtr &groupsTablePtr);
 	void makeMapHostsHostgroupsItemTable(ItemTablePtr &hostsGroupsTablePtr);
 

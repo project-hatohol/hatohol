@@ -76,7 +76,12 @@ void HapProcessZabbixAPI::workOnTriggers(void)
 	//       Their timestamp are 0 in UNIX time. So the following way
 	//       cannot retrieve them.
 	const int requestSince = lastTriggerTime.getAsTimespec().tv_sec;
-	sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, getTrigger(requestSince));
+	ItemTablePtr triggers = getTrigger(requestSince);
+	ItemTablePtr expandedDescriptions =
+	  getTriggerExpandedDescription(requestSince);
+	ItemTablePtr mergedTriggers =
+	  mergePlainTriggersAndExpandedDescriptions(triggers, expandedDescriptions);
+	sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, mergedTriggers);
 }
 
 void HapProcessZabbixAPI::workOnHostsAndHostgroupElements(void)
