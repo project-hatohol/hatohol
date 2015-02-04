@@ -147,6 +147,13 @@ ItemTablePtr ZabbixAPITestee::callGetTriggerExpandedDescription(int requestSince
 	return getTriggerExpandedDescription(requestSince);
 }
 
+ItemTablePtr ZabbixAPITestee::callMergePlainTriggersAndExpandedDescriptions(
+  const ItemTablePtr triggers, const ItemTablePtr expandedDescriptions)
+{
+	return mergePlainTriggersAndExpandedDescriptions(triggers,
+	                                                 expandedDescriptions);
+}
+
 uint64_t ZabbixAPITestee::callGetLastEventId(void)
 {
 	return getEndEventId(false);

@@ -51,6 +51,8 @@ public:
 	void callGetGroups(ItemTablePtr &groupsTablePtr);
 	ItemTablePtr callGetTrigger(int requestSince = 0);
 	ItemTablePtr callGetTriggerExpandedDescription(int requestSince = 0);
+	ItemTablePtr callMergePlainTriggersAndExpandedDescriptions(
+	  const ItemTablePtr triggers, const ItemTablePtr expandedDescriptions);
 	uint64_t callGetLastEventId(void);
 	ItemTablePtr callGetHistory(const ItemIdType &itemId,
 				    const ZabbixAPI::ValueType &valueType,

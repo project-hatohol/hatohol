@@ -140,6 +140,25 @@ void test_verifyTriggerExpandedDescriptions(void)
 	assertItemTable(expectedExpandedDescTablePtr, actualExpandedDescTablePtr);
 }
 
+void test_verifyMergeTriggerExpandedDescriptions(void)
+{
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+	zbxApiTestee.testOpenSession();
+
+	ItemTablePtr plainTriggersTablePtr;
+	ItemTablePtr expandedDescriptionTablePtr;
+	ItemTablePtr mergedTablePtr;
+
+	plainTriggersTablePtr = zbxApiTestee.callGetTrigger();
+	expandedDescriptionTablePtr = zbxApiTestee.callGetTriggerExpandedDescription();
+	mergedTablePtr = zbxApiTestee.callMergePlainTriggersAndExpandedDescriptions(
+	  plainTriggersTablePtr, expandedDescriptionTablePtr);
+
+	// TODO: check the ItemTablePtr content
+}
+
 void test_verifyGroupsAndHostsGroups(void)
 {
 	MonitoringServerInfo serverInfo;
