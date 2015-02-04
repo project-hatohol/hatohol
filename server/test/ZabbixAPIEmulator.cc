@@ -265,7 +265,8 @@ bool ZabbixAPIEmulator::hasParameter
 		return false;
 
 	string value;
-	return parser.read(paramName, value);
+	parser.read(paramName, value);
+	return value == expectedValue;
 }
 
 bool ZabbixAPIEmulator::hasParameter
@@ -281,7 +282,8 @@ bool ZabbixAPIEmulator::hasParameter
 		return false;
 
 	int64_t value;
-	return parser.read(paramName, value);
+	parser.read(paramName, value);
+	return value == expectedValue;
 }
 
 string ZabbixAPIEmulator::generateAuthToken(void)
