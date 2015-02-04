@@ -309,6 +309,8 @@ protected:
 	void parseAndPushTriggerData(
 	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
+	void parseAndPushTriggerExpandedDescriptionData(
+	  JSONParser &parser, VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushItemsData(
 	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);

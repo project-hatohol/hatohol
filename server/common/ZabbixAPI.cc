@@ -316,12 +316,7 @@ ItemTablePtr ZabbixAPI::getTriggerExpandedDescription(int requestSince)
 	if (numData < 1)
 		return ItemTablePtr(tablePtr);
 	for (int i = 0; i < numData; i++) {
-		startElement(parser, i);
-		VariableItemGroupPtr grp;
-		pushUint64(parser, grp, "triggerid",   ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
-		pushString(parser, grp, "description", ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION);
-		tablePtr->add(grp);
-		parser.endElement();
+		parseAndPushTriggerExpandedDescriptionData(parser, tablePtr, i);
 	}
 
 	return ItemTablePtr(tablePtr);
@@ -1098,6 +1093,17 @@ void ZabbixAPI::parseAndPushTriggerData(
 	// get functions
 	// pushFunctionsCache(parser);
 
+	parser.endElement();
+}
+
+void ZabbixAPI::parseAndPushTriggerExpandedDescriptionData(
+  JSONParser &parser, VariableItemTablePtr &tablePtr, const int &index)
+{
+	startElement(parser, index);
+	VariableItemGroupPtr grp;
+	pushUint64(parser, grp, "triggerid",   ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+	pushString(parser, grp, "description", ITEM_ID_ZBX_TRIGGERS_DESCRIPTION);
+	tablePtr->add(grp);
 	parser.endElement();
 }
 

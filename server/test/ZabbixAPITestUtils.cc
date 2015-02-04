@@ -179,6 +179,29 @@ void ZabbixAPITestee::makeTriggersItemTable(ItemTablePtr &triggersTablePtr)
 	triggersTablePtr = ItemTablePtr(variableTriggersTablePtr);
 }
 
+void ZabbixAPITestee::makeTriggerExpandedDescriptionItemTable(
+  ItemTablePtr &triggerExpandedDescriptionsTablePtr)
+{
+	ifstream ifs("fixtures/zabbix-api-res-triggers-extend-info.json");
+	cppcut_assert_equal(false, ifs.fail());
+
+	string fixtureData;
+	getline(ifs, fixtureData);
+	JSONParser parser(fixtureData);
+	cppcut_assert_equal(false, parser.hasError());
+	startObject(parser, "result");
+
+	VariableItemTablePtr variableTriggersTablePtr;
+	int numData = parser.countElements();
+	if (numData < 1)
+		cut_fail("Value of the elements is empty.");
+	for (int i = 0; i < numData; i++)
+		parseAndPushTriggerExpandedDescriptionData(parser,
+		                                           variableTriggersTablePtr, i);
+	triggerExpandedDescriptionsTablePtr =
+	  ItemTablePtr(variableTriggersTablePtr);
+}
+
 void ZabbixAPITestee::makeGroupsItemTable(ItemTablePtr &groupsTablePtr)
 {
 	ifstream ifs("fixtures/zabbix-api-res-hostgroup-002-refer.json");
