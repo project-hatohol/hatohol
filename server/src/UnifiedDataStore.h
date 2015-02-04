@@ -121,9 +121,14 @@ public:
 	 * See also DBTablesHost::upsert().
 	 *
 	 * @param serverHostDef A host to be added/updated.
+	 * @param hostId
+	 * If this parameter is not NULL, the added/updated host ID is written
+	 * to this area.
+	 *
 	 * @return The result of the call.
 	 */
-	HatoholError upsertHost(const ServerHostDef &serverHostDef);
+	HatoholError upsertHost(const ServerHostDef &serverHostDef,
+	                        HostIdType *hostId = NULL);
 
 	/**
 	 * Add hosts. If there's hosts already exist, they will be updated.
