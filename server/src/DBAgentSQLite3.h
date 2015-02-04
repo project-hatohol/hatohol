@@ -122,6 +122,9 @@ protected:
 	  std::vector<IndexInfo> &indexInfoVect,
 	  const TableProfile &tableProfile) override;
 
+	virtual std::string makeIndexName(const TableProfile &tableProfile,
+	                                  const IndexDef &indexDef) override;
+
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;

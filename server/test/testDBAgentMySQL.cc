@@ -508,6 +508,12 @@ void test_fixupIndexes(void)
 	dbAgentTestFixupIndexes(dbAgent, dbAgentChecker);
 }
 
+void test_fixupSameNameIndexes(void)
+{
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestFixupSameNameIndexes(dbAgent, dbAgentChecker);
+}
+
 void test_insert(void)
 {
 	DBAgentMySQL dbAgent(TEST_DB_NAME);

@@ -378,6 +378,9 @@ protected:
 	  std::vector<IndexInfo> &indexInfoVect,
 	  const TableProfile &tableProfile) = 0;
 
+	virtual std::string makeIndexName(const TableProfile &tableProfile,
+	                                  const IndexDef &indexDef);
+
 private:
 	struct Impl;
 };

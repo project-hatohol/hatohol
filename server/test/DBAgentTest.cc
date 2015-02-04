@@ -397,6 +397,37 @@ void dbAgentTestFixupIndexes(DBAgent &dbAgent, DBAgentChecker &checker)
 	checker.assertFixupIndexes(dbAgent, tableProfile);
 }
 
+void dbAgentTestFixupSameNameIndexes(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	// We make a copy to update a pointer of the indexDefArray
+	DBAgent::TableProfile tableProfile = tableProfileTest;
+
+	const int columnIndexes0[] = {
+	  IDX_TEST_TABLE_AGE, IDX_TEST_TABLE_NAME, IDX_TEST_TABLE_HEIGHT,
+	  DBAgent::IndexDef::END
+	};
+
+	const int columnIndexes1[] = {
+	  IDX_TEST_TABLE_NAME, IDX_TEST_TABLE_TIME, DBAgent::IndexDef::END
+	};
+
+	DBAgent::IndexDef indexDefArray[] = {
+	  {"testIndex",    columnIndexes0, false},
+	  {NULL, NULL, false},
+	};
+
+	// create the 1st index
+	tableProfile.indexDefArray = indexDefArray;
+	dbAgent.createTable(tableProfile);
+	dbAgent.fixupIndexes(tableProfile);
+	checker.assertFixupIndexes(dbAgent, tableProfile);
+
+	// create the 2nd index with the same name
+	indexDefArray[0].columnIndexes = columnIndexes1;
+	dbAgent.fixupIndexes(tableProfile);
+	checker.assertFixupIndexes(dbAgent, tableProfile);
+}
+
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	// create table

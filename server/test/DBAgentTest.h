@@ -101,6 +101,7 @@ void dbAgentTestMakeCreateIndexStatement(
 void dbAgentTestMakeDropIndexStatement(
   DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestFixupIndexes(DBAgent &dbAgent, DBAgentChecker &checker);
+void dbAgentTestFixupSameNameIndexes(DBAgent &dbAgent, DBAgentChecker &checker);
 
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentTestInsertUint64
