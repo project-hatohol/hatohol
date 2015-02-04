@@ -108,6 +108,22 @@ void test_getAuthToken(void)
 	cppcut_assert_equal(firstToken, secondToken);
 }
 
+void test_verifyTriggers(void)
+{
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+	zbxApiTestee.testOpenSession();
+
+	ItemTablePtr actualTriggersTablePtr;
+	ItemTablePtr expectTriggersTablePtr;
+
+	zbxApiTestee.makeTriggersItemTable(expectTriggersTablePtr);
+	actualTriggersTablePtr = zbxApiTestee.callGetTrigger();
+
+	assertItemTable(expectTriggersTablePtr, actualTriggersTablePtr);
+}
+
 void test_verifyGroupsAndHostsGroups(void)
 {
 	MonitoringServerInfo serverInfo;
