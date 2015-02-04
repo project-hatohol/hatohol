@@ -308,7 +308,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function appendGraphArea() {
-    $("#main").append($("<div>", {
+    $(".graph").append($("<div>", {
       id: "item-graph",
       height: "300px",
     }))
