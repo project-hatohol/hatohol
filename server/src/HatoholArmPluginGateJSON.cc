@@ -142,11 +142,7 @@ private:
 		UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 		HostIdType hostId;
 		THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
-		  uds->upsertHost(svHostDef));
-		/* TODO: Set hostId
 		  uds->upsertHost(svHostDef, &hostId));
-		*/
-		hostId = INVALID_HOST_ID; // To pass the build and be removed
 		m_hosts[hostName] = hostId;
 		return hostId;
 	}
