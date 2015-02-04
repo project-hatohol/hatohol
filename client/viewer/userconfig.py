@@ -71,7 +71,7 @@ def index_core(request):
     item_name_list = request.GET.getlist('items[]')
 
     body = json.dumps(UserConfig.get_items(item_name_list, user_id))
-    return HttpResponse(body, mimetype='application/json')
+    return HttpResponse(body, content_type = 'application/json')
 
 def store(request, user_id):
     items = json.loads(request.body)
