@@ -762,6 +762,8 @@ SoupMessage *ZabbixAPI::queryTriggerExpandedDescription(HatoholError &queryRet,
 	if (requestSince > 0)
 		agent.add("lastChangeSince", requestSince);
 	agent.add("expandDescription", 1);
+	agent.add("selectHosts", "refer");
+	agent.addTrue("active");
 	agent.endObject(); //params
 
 	agent.add("auth", m_impl->authToken);
