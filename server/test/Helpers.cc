@@ -606,7 +606,7 @@ void _assertExistIndex(DBAgent &dbAgent, const std::string &tableName,
 		  tableName.c_str(), indexName.c_str());
 		output = execMySQL(dbName, statement);
 		StringVector lines;
-		StringUtils::split(lines, output, '\n'); 
+		StringUtils::split(lines, output, '\n');
 		cppcut_assert_equal(numColumns, lines.size());
 	} else {
 		cut_fail("Unkown type: %s", DEMANGLED_TYPE_NAME(dbAgent));
@@ -717,7 +717,7 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 
-void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo) 
+void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo)
 {
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
@@ -1010,7 +1010,7 @@ void _acquireDefaultContext(void)
 void releaseDefaultContext(void)
 {
 	if (g_acquiredContext) {
-		g_main_context_release(g_acquiredContext); 
+		g_main_context_release(g_acquiredContext);
 		g_acquiredContext = NULL;
 	}
 }
@@ -1178,7 +1178,7 @@ VariableItemGroupPtr convert(const HistoryInfo &historyInfo)
 	VariableItemGroupPtr grp;
 	grp->addNewItem(ITEM_ID_ZBX_HISTORY_ITEMID,
 			historyInfo.itemId);
-	grp->addNewItem(ITEM_ID_ZBX_HISTORY_CLOCK, 
+	grp->addNewItem(ITEM_ID_ZBX_HISTORY_CLOCK,
 			static_cast<uint64_t>(historyInfo.clock.tv_sec));
 	grp->addNewItem(ITEM_ID_ZBX_HISTORY_NS,
 			static_cast<uint64_t>(historyInfo.clock.tv_nsec));
@@ -1193,7 +1193,7 @@ VariableItemGroupPtr convert(const HistoryInfo &historyInfo)
 Watcher::Watcher(void)
 : expired(false),
   timerId(INVALID_EVENT_ID)
-{ 
+{
 }
 
 Watcher::~Watcher()
@@ -1465,4 +1465,3 @@ void TentativeEnvVariable::set(const std::string &newValue)
 	setenv(m_envVarName.c_str(), newValue.c_str(), 1);
 	cut_assert_errno();
 }
-
