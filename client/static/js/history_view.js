@@ -178,7 +178,9 @@ HistoryLoader.prototype.updateHistory = function(history) {
   }
 }
 
-HistoryLoader.prototype.setTimeRange = function(beginTimeInSec, endTimeInSec, keepHistory) {
+HistoryLoader.prototype.setTimeRange = function(beginTimeInSec, endTimeInSec,
+                                                keepHistory)
+{
   if (isNaN(beginTimeInSec))
     delete this.options.query.beginTime;
   else
@@ -233,10 +235,8 @@ var HistoryView = function(userProfile, options) {
   self.plotData = [];
   self.plotOptions = undefined;
   self.plot = undefined;
-  self.timeRange = undefined;
+  self.timeRange = getTimeRange();
   self.settingSliderTimeRange = false;
-  self.endTime = undefined;
-  self.timeSpan = secondsInHour * 6;
   self.loaders = [];
 
   appendGraphArea();
@@ -244,13 +244,14 @@ var HistoryView = function(userProfile, options) {
   load();
 
   function prepareHistoryLoaders(historyQueries) {
-    var i;
+    var i, endTime, timeSpan;
+
     for (i = 0; i < historyQueries.length; i++) {
       self.plotData[i] = initLegendData();
       self.loaders[i] = new HistoryLoader({
         index: i,
         view: self,
-        defaultTimeSpan: self.timeSpan,
+        defaultTimeSpan: self.timeRange.getSpan(),
         query: historyQueries[i],
         onLoadItem: function(item, servers) {
           this.item = item;
@@ -265,9 +266,11 @@ var HistoryView = function(userProfile, options) {
     }
 
     // TODO: allow different time ranges?
-    self.endTime = self.loaders[0].options.query.endTime;
-    self.timeSpan = self.loaders[0].getTimeSpan();
-    self.autoReloadIsEnabled = !self.endTime;
+    endTime = self.loaders[0].options.query.endTime;
+    timeSpan = self.loaders[0].getTimeSpan();
+    if (endTime)
+      self.timeRange.set(endTime - timeSpan, endTime);
+    self.autoReloadIsEnabled = !endTime;
   }
 
   function load() {
@@ -276,9 +279,9 @@ var HistoryView = function(userProfile, options) {
 
     self.clearAutoReload();
     if (self.autoReloadIsEnabled) {
-      self.endTime = Math.floor(new Date().getTime() / 1000);
+      self.timeRange.setEndTime(Math.floor(new Date().getTime() / 1000));
       for (i = 0; i < self.loaders.length; i++)
-        self.loaders[i].setTimeRange(undefined, self.endTime, true);
+        self.loaders[i].setTimeRange(undefined, self.timeRange.end, true);
     }
 
     promises = $.map(self.loaders, function(loader) { return loader.load(); });
@@ -288,8 +291,8 @@ var HistoryView = function(userProfile, options) {
     });
   }
 
-  function enableAutoRefresh(onClickButton) {
-    var button = $("#item-graph-auto-refresh");
+  function enableAutoReload(onClickButton) {
+    var button = $("#item-graph-auto-reload");
 
     button.removeClass("btn-default");
     button.addClass("btn-primary");
@@ -300,8 +303,8 @@ var HistoryView = function(userProfile, options) {
     load();
   }
 
-  function disableAutoRefresh(onClickButton) {
-    var button = $("#item-graph-auto-refresh");
+  function disableAutoReload(onClickButton) {
+    var button = $("#item-graph-auto-reload");
     self.clearAutoReload();
     self.autoReloadIsEnabled = false;
     if (!onClickButton)
@@ -323,7 +326,7 @@ var HistoryView = function(userProfile, options) {
       id: "item-graph-slider",
     }))
     .append($("<button>", {
-      id: "item-graph-auto-refresh",
+      id: "item-graph-auto-reload",
       type: "button",
       class: "btn btn-primary glyphicon glyphicon-refresh active",
     }).attr("data-toggle", "button"));
@@ -347,8 +350,7 @@ var HistoryView = function(userProfile, options) {
       setSliderTimeRange(Math.floor(ranges.xaxis.from / 1000),
                          Math.floor(ranges.xaxis.to / 1000));
 
-      // disable auto refresh
-      disableAutoRefresh();
+      disableAutoReload();
     });
 
     // zoom cancel
@@ -358,12 +360,12 @@ var HistoryView = function(userProfile, options) {
                          Math.floor(self.plotOptions.xaxis.max / 1000));
     });
 
-    // toggle auto refresh
-    $("#item-graph-auto-refresh").on("click", function() {
+    // toggle auto reload
+    $("#item-graph-auto-reload").on("click", function() {
       if ($(this).hasClass("active")) {
-        disableAutoRefresh(true);
+        disableAutoReload(true);
       } else {
-        enableAutoRefresh(true);
+        enableAutoReload(true);
       }
     });
   };
@@ -380,9 +382,17 @@ var HistoryView = function(userProfile, options) {
     return legend;
   };
 
+  function getDate(timeMSec) {
+    var plotOptions = {
+      mode: "time",
+      timezone: "browser"
+    };
+    return $.plot.dateGenerator(timeMSec, plotOptions);
+  }
+
   function formatTime(val, unit) {
     var now = new Date();
-    var date = $.plot.dateGenerator(val, self.plotOptions.xaxis);
+    var date = getDate(val);
     var format = "";
 
     if (now.getFullYear() != date.getFullYear())
@@ -476,11 +486,9 @@ var HistoryView = function(userProfile, options) {
   }
 
   function drawGraph() {
-    var beginTimeInSec = self.endTime - self.timeSpan;
-    var endTimeInSec = self.endTime;
     var i;
 
-    self.plotOptions = getPlotOptions(beginTimeInSec, endTimeInSec);
+    self.plotOptions = getPlotOptions(self.timeRange.begin, self.timeRange.end);
     fixupYAxisMapping(self.plotData, self.plotOptions);
 
     for (i = 0; i < self.plotData.length; i++) {
@@ -492,22 +500,19 @@ var HistoryView = function(userProfile, options) {
   }
 
   function getTimeRange() {
-    if (self.timeRange && !self.autoReloadIsEnabled)
-      return self.timeRange;
-
-    self.timeRange = {
-      begin: self.endTime - self.timeSpan,
-      end: self.endTime,
+    var timeRange = {
+      begin: undefined,
+      end: undefined,
       minSpan: secondsInHour,
       maxSpan: secondsInHour * 24,
       min: undefined,
-      max: self.endTime,
-      set: function(range) {
-        this.begin = range[0];
-        this.end = range[1];
-        if (this.end - this.begin > this.maxSpan)
+      max: undefined,
+      set: function(beginTime, endTime) {
+        this.setEndTime(endTime);
+        this.begin = beginTime;
+        if (this.getSpan() > this.maxSpan)
           this.begin = this.end - this.maxSpan;
-        if (this.end - this.begin < this.minSpan) {
+        if (this.getSpan() < this.minSpan) {
           if (this.begin + this.minSpan >= this.max) {
             this.end = this.max;
             this.begin = this.max - this.minSpan;
@@ -516,30 +521,38 @@ var HistoryView = function(userProfile, options) {
           }
         }
       },
-      adjustMin: function() {
+      setEndTime: function(endTime) {
+        var span = this.getSpan();
+        this.end = endTime;
+        this.begin = this.end - span;
+        if (!this.max || this.end > this.max) {
+          this.max = this.end;
+          this._adjustMin();
+        }
+      },
+      _adjustMin: function() {
         var date;
-
         // 1 week ago
         this.min = this.max - secondsInHour * 24 * 7;
         // Adjust to 00:00:00
-        date = $.plot.dateGenerator(this.min * 1000, self.plotOptions.xaxis);
+        date = getDate(this.min * 1000);
         this.min -=
           date.getHours() * 3600 +
           date.getMinutes() * 60 +
           date.getSeconds();
       },
       getSpan: function() {
-        return this.end - this.begin;
-      },
-    }
-
-    self.timeRange.adjustMin();
-
-    return self.timeRange;
+        if (this.begin && this.end)
+          return this.end - this.begin;
+        else
+          return secondsInHour * 6;
+      }
+    };
+    return timeRange;
   }
 
   function drawSlider() {
-    var timeRange = getTimeRange();
+    var timeRange = self.timeRange;
 
     $("#item-graph-slider").slider({
       range: true,
@@ -554,16 +567,14 @@ var HistoryView = function(userProfile, options) {
         if (self.isLoading())
           return;
 
-        timeRange.set(ui.values);
+        timeRange.set(ui.values[0], ui.values[1]);
         setSliderTimeRange(timeRange.begin, timeRange.end);
         setGraphTimeRange(timeRange.begin, timeRange.end);
         for (i = 0; i < self.loaders.length; i++)
           self.loaders[i].setTimeRange(timeRange.begin, timeRange.end);
-        self.endTime = timeRange.end;
-        self.timeSpan = timeRange.end - timeRange.begin;
-        disableAutoRefresh();
+        disableAutoReload();
         load();
-        $("#item-graph-auto-refresh").removeClass("active");
+        $("#item-graph-auto-reload").removeClass("active");
       },
       slide: function(event, ui) {
         var beginTime = ui.values[0], endTime = ui.values[1];
@@ -572,7 +583,7 @@ var HistoryView = function(userProfile, options) {
           endTime = ui.values[0] + timeRange.getSpan();
         if (ui.values[1] - ui.values[0] < timeRange.minSpan)
           beginTime = ui.values[1] - timeRange.minSpan;
-        timeRange.set([beginTime, endTime]);
+        timeRange.set(beginTime, endTime);
         setSliderTimeRange(timeRange.begin, timeRange.end);
       },
     });
