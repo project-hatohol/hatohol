@@ -48,7 +48,7 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 	for (; trigGrpItr != trigGrpList.end(); ++trigGrpItr) {
 		ItemGroupStream trigGroupStream(*trigGrpItr);
 		TriggerInfo trigInfo;
-		std::string extendedInfo;
+		std::string expandedDescription;
 
 		trigInfo.serverId = serverId;
 
@@ -72,12 +72,12 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 		trigGroupStream >> trigInfo.hostId;
 
 		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION);
-		trigGroupStream >> extendedInfo;
+		trigGroupStream >> expandedDescription;
 
-		if (!extendedInfo.empty()) {
+		if (!expandedDescription.empty()) {
 			JSONBuilder agent;
 			agent.startObject();
-			agent.add("expandedDescription", extendedInfo);
+			agent.add("expandedDescription", expandedDescription);
 			agent.endObject();
 			trigInfo.extendedInfo = agent.generate();
 		}
