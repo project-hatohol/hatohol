@@ -264,7 +264,8 @@ bool ZabbixAPIEmulator::hasParameter
 	if (!parser.startObject("params"))
 		return false;
 
-	return true;
+	string value;
+	return parser.read(paramName, value);
 }
 
 bool ZabbixAPIEmulator::hasParameter
@@ -279,7 +280,8 @@ bool ZabbixAPIEmulator::hasParameter
 	if (!parser.startObject("params"))
 		return false;
 
-	return true;
+	int64_t value;
+	return parser.read(paramName, value);
 }
 
 string ZabbixAPIEmulator::generateAuthToken(void)
