@@ -317,7 +317,7 @@ string UserQueryOption::getCondition(void) const
 
 	if (m_impl->hasPrivilegesFlags) {
 		string nameCond =
-		  StringUtils::sprintf("%s=%"FMT_OPPRVLG,
+		  StringUtils::sprintf("%s=%" FMT_OPPRVLG,
 		                       COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName,
 		                       m_impl->targetFlags);
 		condition = nameCond;
