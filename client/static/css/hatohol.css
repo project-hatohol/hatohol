@@ -114,7 +114,7 @@ div#noscript-background div#noscript-notice
     margin-left: 2em;
     margin-right: 1em;
     margin-top: 3.5em;
-    margin-bottom: 3.5em;
+    margin-bottom: 1em;
     white-space: nowrap;
 }
 
@@ -132,4 +132,10 @@ div#noscript-background div#noscript-notice
 
 .legend table td {
   padding: 2px;
+}
+
+div.hatohol-item-list {
+    margin-left: 1em;
+    margin-right: 1em;
+    margin-bottom: 2em;
 }
