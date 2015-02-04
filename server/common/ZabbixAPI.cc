@@ -1102,7 +1102,7 @@ void ZabbixAPI::parseAndPushTriggerExpandedDescriptionData(
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
 	pushUint64(parser, grp, "triggerid",   ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
-	pushString(parser, grp, "description", ITEM_ID_ZBX_TRIGGERS_DESCRIPTION);
+	pushString(parser, grp, "description", ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION);
 	tablePtr->add(grp);
 	parser.endElement();
 }
