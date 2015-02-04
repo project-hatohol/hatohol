@@ -20,6 +20,12 @@
 /* Override jQuery's default values to overcome bootstrap's style */
 .ui-front { z-index: 2000 !important }
 
+div.copyright {
+    text-align: center;
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
 label {
   margin-top: 6px;
   margin-bottom: 4px;
