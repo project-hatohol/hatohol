@@ -124,6 +124,22 @@ void test_verifyTriggers(void)
 	assertItemTable(expectTriggersTablePtr, actualTriggersTablePtr);
 }
 
+void test_verifyTriggerExpandedDescriptions(void)
+{
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+	zbxApiTestee.testOpenSession();
+
+	ItemTablePtr actualExpandedDescTablePtr;
+	ItemTablePtr expectedExpandedDescTablePtr;
+
+	zbxApiTestee.makeTriggerExpandedDescriptionItemTable(expectedExpandedDescTablePtr);
+	actualExpandedDescTablePtr = zbxApiTestee.callGetTriggerExpandedDescription();
+
+	assertItemTable(expectedExpandedDescTablePtr, actualExpandedDescTablePtr);
+}
+
 void test_verifyGroupsAndHostsGroups(void)
 {
 	MonitoringServerInfo serverInfo;

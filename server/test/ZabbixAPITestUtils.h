@@ -50,7 +50,7 @@ public:
 	                  ItemTablePtr &hostsGroupsTablePtr);
 	void callGetGroups(ItemTablePtr &groupsTablePtr);
 	ItemTablePtr callGetTrigger(int requestSince = 0);
-	ItemTablePtr callGetTriggerExpandedDescription(int requestSince);
+	ItemTablePtr callGetTriggerExpandedDescription(int requestSince = 0);
 	uint64_t callGetLastEventId(void);
 	ItemTablePtr callGetHistory(const ItemIdType &itemId,
 				    const ZabbixAPI::ValueType &valueType,
