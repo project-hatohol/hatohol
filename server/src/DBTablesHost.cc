@@ -500,7 +500,7 @@ static void setupUpsertArgOfServerHostDef(
 
 static string setupFmtCondSelectSvHostDef(void)
 {
-	return StringUtils::sprintf("%s=%%" FMT_SERVER_ID " AND %s=%%s",
+	return StringUtils::sprintf("%s=%%" FMT_SERVER_ID " AND %s='%%s'",
 	         COLUMN_DEF_SERVER_HOST_DEF[
 	           IDX_HOST_SERVER_HOST_DEF_SERVER_ID].columnName,
 	         COLUMN_DEF_SERVER_HOST_DEF[
