@@ -273,7 +273,6 @@ var HistoryView = function(userProfile, options) {
     $("#add-item-button").click(function() {
       var query = self.getHostFilterQuery();
       var index = self.loaders.length;
-      delete query.hostgroupId;
       query.itemId = $("#select-item").val();
       appendHistoryLoader(query);
       load();
