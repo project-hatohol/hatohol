@@ -272,7 +272,6 @@ var HistoryView = function(userProfile, options) {
     });
     $("#add-item-button").click(function() {
       var query = self.getHostFilterQuery();
-      var index = self.loaders.length;
       query.itemId = $("#select-item").val();
       appendHistoryLoader(query);
       load();
