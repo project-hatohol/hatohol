@@ -49,6 +49,8 @@ public:
 	void callGetHosts(ItemTablePtr &hostsTablePtr,
 	                  ItemTablePtr &hostsGroupsTablePtr);
 	void callGetGroups(ItemTablePtr &groupsTablePtr);
+	ItemTablePtr callGetTrigger(int requestSince = 0);
+	ItemTablePtr callGetTriggerExpandedDescription(int requestSince);
 	uint64_t callGetLastEventId(void);
 	ItemTablePtr callGetHistory(const ItemIdType &itemId,
 				    const ZabbixAPI::ValueType &valueType,

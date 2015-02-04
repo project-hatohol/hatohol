@@ -137,6 +137,16 @@ void ZabbixAPITestee::callGetGroups(ItemTablePtr &groupsTablePtr)
 	getGroups(groupsTablePtr);
 }
 
+ItemTablePtr ZabbixAPITestee::callGetTrigger(int requestSince)
+{
+	return getTrigger(requestSince);
+}
+
+ItemTablePtr ZabbixAPITestee::callGetTriggerExpandedDescription(int requestSince)
+{
+	return getTriggerExpandedDescription(requestSince);
+}
+
 uint64_t ZabbixAPITestee::callGetLastEventId(void)
 {
 	return getEndEventId(false);
