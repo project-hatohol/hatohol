@@ -448,10 +448,13 @@ bool UnifiedDataStore::isIncidentSenderActionEnabled(void)
 	return cache.getAction().isIncidentSenderEnabled();
 }
 
-HatoholError UnifiedDataStore::upsertHost(const ServerHostDef &serverHostDef)
+HatoholError UnifiedDataStore::upsertHost(const ServerHostDef &serverHostDef,
+                                          HostIdType *hostId)
 {
 	ThreadLocalDBCache cache;
-	cache.getHost().upsertHost(serverHostDef);
+	const HostIdType returnedId = cache.getHost().upsertHost(serverHostDef);
+	if (hostId)
+		*hostId = returnedId;
 	return HTERR_OK;
 }
 
