@@ -280,8 +280,7 @@ var HistoryView = function(userProfile, options) {
         text: item.brief
       }));
       tr.append($("<td>")); // TODO: Add delete button
-      tr.insertBefore(
-        ".hatohol-item-list tbody tr :last");
+      tr.insertBefore(".hatohol-item-list tbody tr :last");
     }
   }
 
