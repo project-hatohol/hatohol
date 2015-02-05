@@ -116,14 +116,14 @@ div#noscript-background div#noscript-notice
 
 .legend table td {
   padding: 2px;
-#issueTrackerEditor label
+#incident-tracker-editor label
 {
   width: 6em;
   margin-right: 0.5em;
   text-align: right;
 }
 
-#issueTrackerEditor input
+#incident-tracker-editor input
 {
   width: 80%;
 }
