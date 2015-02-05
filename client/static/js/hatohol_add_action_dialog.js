@@ -395,6 +395,10 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
      $("#inputWorkingDir").val(directory);
   }
 
+  function setupIncidentTracker(tracker) {
+    $("#selectIncidentTracker").val(tracker);
+  }
+
   function setupCommandType(type) {
     var typeSelector = $("#selectType");
     switch(type) {
@@ -472,13 +476,17 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
 
   // Fill value for update
   if (self.actionDef) {
-    setupCommandType(self.actionDef.type);
-    setupTimeOutValue(self.actionDef.timeout);
-    setupActionCommand(self.actionDef.command);
-    setupWorkingDirectory(self.actionDef.workingDirectory);
-    setupTriggerStatusValue(self.actionDef.triggerStatus);
     setupSeverityValue(self.actionDef.triggerSeverity);
     setupSevertyCompTypeValue(self.actionDef.triggerSeverityComparatorType);
+    if (self.forIncidentSetting) {
+      setupIncidentTracker(self.actionDef.command);
+    } else {
+      setupCommandType(self.actionDef.type);
+      setupTriggerStatusValue(self.actionDef.triggerStatus);
+      setupTimeOutValue(self.actionDef.timeout);
+      setupActionCommand(self.actionDef.command);
+      setupWorkingDirectory(self.actionDef.workingDirectory);
+    }
     self.setApplyButtonState(true);
   }
 }
@@ -491,8 +499,10 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
   if (self.actionDef) {
     getServersAsync();
     getHostGroupsAsync();
-    getHostsAsync();
-    getTriggersAsync();
+    if (!self.forIncidentSetting) {
+      getHostsAsync();
+      getTriggersAsync();
+    }
   }
 
   var div = $(makeMainDivHTML());
