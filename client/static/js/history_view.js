@@ -251,37 +251,56 @@ var HistoryView = function(userProfile, options) {
     initTimeRange();
   }
 
+  function getItemBriefWithUnit(item) {
+    var label = item.brief;
+    if (item.unit)
+      label += " [" + item.unit + "]";
+    return label;
+  }
+
+  function appendItem(item, servers) {
+    server = servers[item.serverId];
+    query = self.loaders[i].options.query;
+    groupName = query.hostgroupId ?
+      getHostgroupName(server, query.hostgroupId) : "-";
+
+    tr = $("<tr>");
+    tr.append($("<td>"));
+    tr.append($("<td>", {
+      text: getNickName(server, item.serverId)
+    }));
+    tr.append($("<td>", {
+      text: groupName
+    }));
+    tr.append($("<td>", {
+      text: getHostName(server, item.hostId)
+    }));
+    tr.append($("<td>", {
+      text: getItemBriefWithUnit(item)
+    }));
+    tr.append($("<td>").append(
+      $("<button>", {
+        text: gettext("DELETE"),
+        type: "button",
+        class: "btn btn-default",
+        click: function() { /* TODO implement */ }
+      })));
+    tr.insertBefore(".hatohol-item-list tbody tr :last");
+  }
+
   function setItemList() {
     var item, servers, server, groupName, query, tr;
 
-    if ($(".hatohol-item-list tbody tr").length != 2)
+    if (self.isItemListInitiated)
       return;
 
     for (i = 0; i < self.loaders.length; i++) {
       item = self.loaders[i].getItem();
       servers = self.loaders[i].getServers();
-      server = servers[item.serverId];
-      query = self.loaders[i].options.query;
-      groupName = query.hostgroupId ?
-        getHostgroupName(server, query.hostgroupId) : "-";
-
-      tr = $("<tr>");
-      tr.append($("<td>"));
-      tr.append($("<td>", {
-        text: getNickName(server, item.serverId)
-      }));
-      tr.append($("<td>", {
-        text: groupName
-      }));
-      tr.append($("<td>", {
-        text: getHostName(server, item.hostId)
-      }));
-      tr.append($("<td>", {
-        text: item.brief
-      }));
-      tr.append($("<td>")); // TODO: Add delete button
-      tr.insertBefore(".hatohol-item-list tbody tr :last");
+      appendItem(item, servers);
     }
+
+    self.isItemListInitiated = true;
   }
 
   function setupItemSelector() {
@@ -331,9 +350,7 @@ var HistoryView = function(userProfile, options) {
     query = self.getHostFilterQuery();
     self.startConnection("items?" + $.param(query), function(reply) {
       var candidates = $.map(reply.items, function(item) {
-	var label = item.brief;
-	if (item.unit)
-          label += " [" + item.unit + "]";
+        var label = getItemBriefWithUnit(item);
         return { label: label, value: item.id };
       });
       self.setFilterCandidates($("#select-item"), candidates);
@@ -420,6 +437,8 @@ var HistoryView = function(userProfile, options) {
         self.plotData[this.index] = createLegendData(item, servers);
         updateView();
         self.setupHostFilters(servers);
+        if (self.isItemListInitiated)
+          appendItem(item, servers); // TODO: should find an appropriate row
       },
       onLoadHistory: function(history) {
         self.plotData[this.index].data = history;
