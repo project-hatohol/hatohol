@@ -374,9 +374,9 @@ string HostResourceQueryOption::makeCondition(
   const string &serverIdColumnName,
   const string &hostgroupIdColumnName,
   const string &hostIdColumnName,
-  ServerIdType targetServerId,
-  HostgroupIdType targetHostgroupId,
-  HostIdType targetHostId) const
+  const ServerIdType    &targetServerId,
+  const HostgroupIdType &targetHostgroupId,
+  const HostIdType      &targetHostId) const
 {
 	// TODO: consider if we use isHostgroupEnumerationInCondition()
 	string condition;

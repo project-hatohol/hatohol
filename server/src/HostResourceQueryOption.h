@@ -146,9 +146,9 @@ protected:
 	  const std::string &serverIdColumnName,
 	  const std::string &hostgroupIdColumnName,
 	  const std::string &hostIdColumnName,
-	  ServerIdType targetServerId = ALL_SERVERS,
-	  HostgroupIdType targetHostgroup = ALL_HOST_GROUPS,
-	  HostIdType targetHostId = ALL_HOSTS) const;
+	  const ServerIdType &targetServerId = ALL_SERVERS,
+	  const HostgroupIdType &targetHostgroup = ALL_HOST_GROUPS,
+	  const HostIdType &targetHostId = ALL_HOSTS) const;
 	std::string makeConditionServer(
 	  const ServerIdSet &serverIdSet,
 	  const std::string &serverIdColumnName) const;
