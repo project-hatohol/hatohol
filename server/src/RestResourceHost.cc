@@ -647,6 +647,8 @@ void RestResourceHost::handlerGetEvent(void)
 	}
 	agent.endArray();
 	agent.add("numberOfEvents", eventList.size());
+	agent.add("totalNumberOfEvents",
+		  dataStore->getNumberOfEvents(option));
 	addServersMap(agent, NULL, false);
 	agent.endObject();
 
