@@ -77,9 +77,6 @@ typedef uint64_t TriggerIdType;
 typedef std::string HostgroupIdType;
 #define FMT_HOST_GROUP_ID "s"
 
-typedef uint64_t HostIdType;
-#define FMT_HOST_ID PRIu64
-
 typedef int IncidentTrackerIdType;
 #define FMT_INCIDENT_TRACKER_ID "d"
 
