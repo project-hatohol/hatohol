@@ -501,8 +501,8 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     getHostGroupsAsync();
     if (!self.forIncidentSetting) {
       getHostsAsync();
+      getTriggersAsync();
     }
-    getTriggersAsync();
   }
 
   var div = $(makeMainDivHTML());
