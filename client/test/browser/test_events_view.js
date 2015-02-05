@@ -131,7 +131,7 @@ describe('EventsView', function() {
     //TODO: It requires valid gettext()
     //expect(heads.first().text()).to.be(gettext("event"));
     expect($('#table')).to.have.length(1);
-    expect($('#num-events-per-page').val()).to.be("50");
+    expect($('#num-records-per-page').val()).to.be("50");
   });
 
   it('new with fake zabbix data', function() {
