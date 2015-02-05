@@ -487,6 +487,12 @@ size_t UnifiedDataStore::getNumberOfTriggers(const TriggersQueryOption &option)
 	return cache.getMonitoring().getNumberOfTriggers(option);
 }
 
+size_t UnifiedDataStore::getNumberOfEvents(const EventsQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	return cache.getMonitoring().getNumberOfEvents(option);
+}
+
 size_t UnifiedDataStore::getNumberOfGoodHosts(const TriggersQueryOption &option)
 {
 	ThreadLocalDBCache cache;
