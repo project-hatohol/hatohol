@@ -251,6 +251,40 @@ var HistoryView = function(userProfile, options) {
     initTimeRange();
   }
 
+  function setItemList() {
+    var item, servers, server, groupName, query, tr;
+
+    if ($(".hatohol-item-list tbody tr").length != 2)
+      return;
+
+    for (i = 0; i < self.loaders.length; i++) {
+      item = self.loaders[i].getItem();
+      servers = self.loaders[i].getServers();
+      server = servers[item.serverId];
+      query = self.loaders[i].options.query;
+      groupName = query.hostgroupId ?
+        getHostgroupName(server, query.hostgroupId) : "-";
+
+      tr = $("<tr>");
+      tr.append($("<td>"));
+      tr.append($("<td>", {
+        text: getNickName(server, item.serverId)
+      }));
+      tr.append($("<td>", {
+        text: groupName
+      }));
+      tr.append($("<td>", {
+        text: getHostName(server, item.hostId)
+      }));
+      tr.append($("<td>", {
+        text: item.brief
+      }));
+      tr.append($("<td>")); // TODO: Add delete button
+      tr.insertBefore(
+        ".hatohol-item-list tbody tr :last");
+    }
+  }
+
   function setupItemSelector() {
     self.setupHostQuerySelectorCallback(
       function() {
@@ -422,6 +456,7 @@ var HistoryView = function(userProfile, options) {
     $.when.apply($, promises).done(function() {
       if (self.autoReloadIsEnabled)
         self.setAutoReload(load, self.reloadIntervalSeconds);
+      setItemList();
     });
   }
 
