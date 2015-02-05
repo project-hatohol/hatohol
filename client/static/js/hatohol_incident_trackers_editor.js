@@ -211,6 +211,8 @@ HatoholIncidentTrackersEditor.prototype.generateTableRows = function(data) {
     '  <input id="editIncidentTracker' + escapeHTML(tracker["id"]) + '"' +
     '    type="button" class="btn btn-default editIncidentTracker"' +
     '    incidentTrackerId="' + escapeHTML(tracker["id"]) + '"' +
+    '    data-toggle="modal"' +
+    '    data-target="#incidentTrackerEditor"' +
     '    value="' + gettext("Edit") + '" />' +
     '</form>' +
     '</td>' +
