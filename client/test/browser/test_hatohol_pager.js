@@ -45,15 +45,19 @@ describe('HatoholPager', function() {
   it('create with 101 records', function() {
     var pager = new HatoholPager({numTotalRecords: 101});
     var i, list = $('#' + fixtureId + ' li');
-    expect(list.length).to.be(5);
-    expect($(list[0]).text()).to.be($('<div/>').html("&laquo;").text());
+    expect(list.length).to.be(7);
+    expect($(list[0]).html()).to.be($('<div/>').html('<a href="#"><i class="glyphicon glyphicon-step-backward"></i></a>').html());
     expect($(list[0]).hasClass("disabled")).to.be(true);
-    for (i = 1; i < 4; i++) {
-      expect($(list[i]).text()).to.be("" + (i));
+    expect($(list[1]).html()).to.be($('<div/>').html('<a href="#"><i class="glyphicon glyphicon-backward"></i></a>').html());
+    expect($(list[1]).hasClass("disabled")).to.be(true);
+    for (i = 2; i < 5; i++) {
+      expect($(list[i]).text()).to.be("" + (i - 1));
       expect($(list[i]).hasClass("disabled")).to.be(false);
     }
-    expect($(list[4]).text()).to.be($('<div/>').html("&raquo;").text());
-    expect($(list[i]).hasClass("disabled")).to.be(false);
+    expect($(list[i]).html()).to.be($('<div/>').html('<a href="#"><i class="glyphicon glyphicon-forward"></i></a>').html());
+    expect($(list[i]).hasClass("disabled")).to.be(true);
+    expect($(list[i + 1]).html()).to.be($('<div/>').html('<a href="#"><i class="glyphicon glyphicon-step-forward"></i></a>').html());
+    expect($(list[i + 1]).hasClass("disabled")).to.be(false);
   });
 
   it('0 records per page', function() {
