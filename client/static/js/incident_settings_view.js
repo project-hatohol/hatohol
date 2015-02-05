@@ -63,12 +63,6 @@ var IncidentSettingsView = function(userProfile) {
     });
   });
 
-  $('#issueTrackersEditor').on('show.bs.modal', function (e) {
-    new HatoholIncidentTrackersEditor({
-      changedCallback: load,
-    });
-  })
-
   //
   // Commonly used functions from a dialog.
   //
