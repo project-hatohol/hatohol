@@ -396,7 +396,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   }
 
   function setupIncidentTracker(tracker) {
-    $("#selectIncidentTracker").val(self.actionDef.command);
+    $("#selectIncidentTracker").val(tracker);
   }
 
   function setupCommandType(type) {
@@ -483,7 +483,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     setupTriggerStatusValue(self.actionDef.triggerStatus);
     setupSeverityValue(self.actionDef.triggerSeverity);
     setupSevertyCompTypeValue(self.actionDef.triggerSeverityComparatorType);
-    setupIncidentTracker(self.incidentTracker);
+    setupIncidentTracker(self.actionDef.command);
     self.setApplyButtonState(true);
   }
 }
