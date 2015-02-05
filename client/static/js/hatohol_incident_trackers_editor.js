@@ -32,7 +32,7 @@ var HatoholIncidentTrackersEditor = function(params) {
 
   // call the constructor of the super class
   var dialogAttrs = { width: "800" };
-  HatoholDialog.apply(
+  HatoholBootstrapDialog.apply(
     this, ["incident-trackers-editor", gettext("EDIT INCIDENT TRACKING SERVERS"),
            dialogButtons, dialogAttrs]);
 
@@ -253,7 +253,7 @@ var HatoholIncidentTrackerEditor = function(params) {
 
   // call the constructor of the super class
   dialogAttrs = { width: "auto" };
-  HatoholDialog.apply(
+  HatoholBootstrapDialog.apply(
     this, ["incident-tracker-editor", self.windowTitle,
            dialogButtons, dialogAttrs]);
 
