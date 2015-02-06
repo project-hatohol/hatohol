@@ -108,7 +108,6 @@ std::string makeTriggerOutput(const TriggerInfo &triggerInfo);
 std::string makeEventOutput(const EventInfo &eventInfo);
 std::string makeIncidentOutput(const IncidentInfo &incidentInfo);
 std::string makeHistoryOutput(const HistoryInfo &historyInfo);
-std::string makeHostOutput(const HostInfo &hostInfo);
 
 void _assertDatetime(int expectedClock, int actualClock);
 #define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))
@@ -265,8 +264,6 @@ VariableItemGroupPtr convert(
 ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap);
 
 VariableItemGroupPtr convert(const HistoryInfo &historyInfo);
-
-void conv(HostInfo &hostInfo, const ServerHostDef &svHostDef);
 
 class Watcher {
 	bool expired;

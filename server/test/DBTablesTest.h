@@ -155,9 +155,6 @@ size_t getNumberOfTestActions(
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
 mlpl::SmartTime getTimestampOfLastTestTrigger(const ServerIdType &serverId);
 
-void getDBCTestHostInfo(HostInfoList &hostInfoList,
-                        const ServerIdType &targetServerId = ALL_SERVERS);
-
 typedef std::map<UserIdType, std::set<int> > UserIdIndexMap;
 typedef UserIdIndexMap::iterator UserIdIndexMapIterator;
 void makeTestUserIdIndexMap(UserIdIndexMap &userIdIndexMap);

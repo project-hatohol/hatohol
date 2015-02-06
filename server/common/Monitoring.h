@@ -73,25 +73,6 @@ enum ExcludeFlag {
 };
 typedef int ExcludeFlags;
 
-struct HostInfo {
-	ServerIdType        serverId;
-	HostIdType          id;
-	std::string         hostName;
-	HostValidity        validity;
-
-	// The follwong members are currently not used.
-	std::string         ipAddr;
-	std::string         nickname;
-};
-
-typedef std::list<HostInfo>          HostInfoList;
-typedef HostInfoList::iterator       HostInfoListIterator;
-typedef HostInfoList::const_iterator HostInfoListConstIterator;
-
-typedef std::map<HostIdType, const HostInfo *> HostIdHostInfoMap;
-typedef HostIdHostInfoMap::iterator            HostIdHostInfoMapIterator;
-typedef HostIdHostInfoMap::const_iterator      HostIdHostInfoMapConstIterator;
-
 struct TriggerInfo {
 	ServerIdType        serverId;
 	TriggerIdType       id;
