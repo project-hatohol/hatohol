@@ -259,12 +259,12 @@ var HistoryView = function(userProfile, options) {
   }
 
   function appendItem(item, servers) {
-    server = servers[item.serverId];
-    query = self.loaders[i].options.query;
-    groupName = query.hostgroupId ?
+    var server = servers[item.serverId];
+    var query = self.loaders[i].options.query;
+    var groupName = query.hostgroupId ?
       getHostgroupName(server, query.hostgroupId) : "-";
+    var tr = $("<tr>");
 
-    tr = $("<tr>");
     tr.append($("<td>"));
     tr.append($("<td>", {
       text: getNickName(server, item.serverId)
