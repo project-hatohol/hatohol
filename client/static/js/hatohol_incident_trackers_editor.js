@@ -30,12 +30,6 @@ var HatoholIncidentTrackersEditor = function(params) {
   self.changedCallback = params.changedCallback;
   self.incidentTrackersData = null;
 
-  // call the constructor of the super class
-  var dialogAttrs = { width: "800" };
-  HatoholBootstrapDialog.apply(
-    this, ["incident-trackers-editor", gettext("EDIT INCIDENT TRACKING SERVERS"),
-           dialogButtons, dialogAttrs]);
-
   //
   // Dialog button handlers
   //
@@ -251,11 +245,14 @@ var HatoholIncidentTrackerEditor = function(params) {
     click: cancelButtonClickedCb
   }];
 
-  // call the constructor of the super class
-  dialogAttrs = { width: "auto" };
-  HatoholBootstrapDialog.apply(
-    this, ["incident-tracker-editor", self.windowTitle,
-           dialogButtons, dialogAttrs]);
+  var applyButton = $("#saveIncidentTrackerButton");
+  applyButton.click(function () {
+    if (applyButton)
+      applyButtonClickedCb();
+
+    var dialogId = $("#incidentTrackerEditor");
+    dialogId.modal('hide');
+  });
 
   //
   // Dialog button handlers
