@@ -418,6 +418,19 @@ var HistoryView = function(userProfile, options) {
     return legend;
   };
 
+  function updatePlotData() {
+    var i, item, servers;
+    for (i = 0; i < self.loaders.length; i++) {
+      if (self.plotData[i].data) {
+        self.plotData[i].data = self.loaders[i].history;
+      } else {
+        item = self.loaders[i].getItem();
+        servers = self.loaders[i].getServers();
+        self.plotData[i] = createLegendData(item, servers);
+      }
+    }
+  }
+
   function appendHistoryLoader(historyQuery) {
     var loader = new HistoryLoader({
       index: self.loaders.length,
@@ -425,14 +438,13 @@ var HistoryView = function(userProfile, options) {
       defaultTimeSpan: self.timeRange.getSpan(),
       query: historyQuery,
       onLoadItem: function(loader, item, servers) {
-        this.item = item;
-        self.plotData[this.index] = createLegendData(item, servers);
+        updatePlotData();
         updateView();
         self.setupHostFilters(servers);
         setItemToItemList(loader);
       },
       onLoadHistory: function(loader, history) {
-        self.plotData[this.index].data = history;
+        updatePlotData();
         updateView();
       }
     });
