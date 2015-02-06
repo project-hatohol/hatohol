@@ -64,10 +64,10 @@ struct VMInfo {
 };
 
 struct Hostgroup {
-	GenericIdType id;
-	ServerIdType  serverId;
-	std::string   idInServer;
-	std::string   name;
+	GenericIdType   id;
+	ServerIdType    serverId;
+	HostgroupIdType idInServer;
+	std::string     name;
 };
 
 typedef std::vector<Hostgroup>        HostgroupVect;
@@ -78,7 +78,7 @@ struct HostgroupMember {
 	GenericIdType   id;
 	ServerIdType    serverId;
 	LocalHostIdType hostIdInServer;
-	std::string     hostgroupIdInServer;
+	HostgroupIdType hostgroupIdInServer;
 };
 
 typedef std::vector<HostgroupMember>        HostgroupMemberVect;
