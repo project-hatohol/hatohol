@@ -50,6 +50,9 @@ typedef int ServerIdType;
 typedef uint64_t HostIdType;
 #define FMT_HOST_ID PRIu64
 
+typedef std::string LocalHostIdType;
+#define FMT_LOCAL_HOST_ID "s"
+
 typedef int ActionIdType;
 #define FMT_ACTION_ID "d"
 
