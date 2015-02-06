@@ -1658,20 +1658,6 @@ size_t getNumberOfTestActions(const ActionType &actionType)
 	return num;
 }
 
-void getDBCTestHostInfo(HostInfoList &hostInfoList,
-                        const ServerIdType &targetServerId)
-{
-	for (size_t i = 0; i < NumTestServerHostDef; i++) {
-		const ServerHostDef &svHostDef = testServerHostDef[i];
-		const ServerIdType &serverId = svHostDef.serverId;
-		if (targetServerId != ALL_SERVERS && serverId != targetServerId)
-			continue;
-		HostInfo hostInfo;
-		conv(hostInfo, svHostDef);
-		hostInfoList.push_back(hostInfo);
-	}
-}
-
 void makeTestUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
 {
 

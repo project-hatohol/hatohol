@@ -516,17 +516,6 @@ string makeHistoryOutput(const HistoryInfo &historyInfo)
 	return output;
 }
 
-string makeHostOutput(const HostInfo &hostInfo)
-{
-	string output =
-	  mlpl::StringUtils::sprintf(
-	    "%" FMT_SERVER_ID "|%" FMT_HOST_ID "|%s|%d\n",
-	    hostInfo.serverId, hostInfo.id,
-	    hostInfo.hostName.c_str(),
-	    hostInfo.validity);
-	return output;
-}
-
 static void assertDBContentForComponets(const string &expect,
                                         const string &actual,
                                         DBAgent *dbAgent)
@@ -1188,19 +1177,6 @@ VariableItemGroupPtr convert(const HistoryInfo &historyInfo)
 			historyInfo.value);
 	return grp;
 }
-
-void conv(HostInfo &hostInfo, const ServerHostDef &svHostDef)
-{
-	hostInfo.id = svHostDef.id;
-	hostInfo.serverId = svHostDef.serverId;
-
-	cppcut_assert_equal(1, sscanf(svHostDef.hostIdInServer.c_str(),
-	                              "%" FMT_HOST_ID, &hostInfo.id));
-	hostInfo.hostName = svHostDef.name;
-	hostInfo.validity = (svHostDef.status == HOST_STAT_NORMAL) ?
-	                    HOST_VALID : HOST_INVALID;
-}
-
 
 // ---------------------------------------------------------------------------
 // Watcher

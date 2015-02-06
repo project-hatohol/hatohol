@@ -39,8 +39,6 @@ static const char *testHostName = "FOO FOO FOO";
 struct AssertGetHostsArg
   : public AssertGetHostResourceArg<ServerHostDef, HostsQueryOption>
 {
-	HostInfoList expectedHostList;
-
 	AssertGetHostsArg(gconstpointer ddtParam)
 	{
 		fixtures = testServerHostDef;
