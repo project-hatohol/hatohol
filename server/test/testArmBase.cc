@@ -593,7 +593,8 @@ void test_setServerConnectStatus(void)
 	triggerInfo.status = TRIGGER_STATUS_PROBLEM;
 	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
 	triggerInfo.lastChangeTime = triggers.begin()->lastChangeTime;
-	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
+	triggerInfo.globalHostId = MONITORING_SERVER_SELF_ID;
+	triggerInfo.hostIdInServer.clear();
 	triggerInfo.hostName = "_SELF";
 	triggerInfo.brief = HatoholError(HTERR_INTERNAL_ERROR).getMessage();
 	triggerInfo.validity = TRIGGER_VALID_SELF_MONITORING;
@@ -614,7 +615,8 @@ void test_setServerConnectStatus(void)
 	eventInfo.triggerId = FAILED_INTERNAL_ERROR_TRIGGER_ID;
 	eventInfo.status = TRIGGER_STATUS_PROBLEM;
 	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
-	eventInfo.hostId = MONITORING_SERVER_SELF_ID;
+	eventInfo.globalHostId = MONITORING_SERVER_SELF_ID;
+	eventInfo.hostIdInServer.clear();
 	//eventInfo.hostName = "_SELF";
 	eventInfo.brief = HatoholError(HTERR_INTERNAL_ERROR).getMessage();
 	cppcut_assert_equal(makeEventOutput(eventInfo),

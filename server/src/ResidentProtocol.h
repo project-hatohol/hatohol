@@ -22,6 +22,7 @@
 
 #include <cstdlib>
 #include <stdint.h>
+#include <SmartBuffer.h>
 
 // definitions of packet types
 enum
@@ -106,7 +107,9 @@ static const size_t RESIDENT_PROTO_MODULE_LOADED_CODE_LEN = 4;
 
 static const size_t RESIDENT_PROTO_EVENT_ACTION_ID_LEN        = 4;
 static const size_t RESIDENT_PROTO_EVENT_SERVER_ID_LEN        = 4;
-static const size_t RESIDENT_PROTO_EVENT_HOST_ID              = 8;
+#define             RESIDENT_PROTO_EVENT_HOST_ID_SIZE_TYPE uint16_t
+static const size_t RESIDENT_PROTO_EVENT_HOST_ID_SIZE_LEN
+  = sizeof(RESIDENT_PROTO_EVENT_HOST_ID_SIZE_TYPE);
 static const size_t RESIDENT_PROTO_EVENT_EVENT_TIME_SEC_LEN   = 8;
 static const size_t RESIDENT_PROTO_EVENT_EVENT_TIME_NSEC_LEN  = 4;
 static const size_t RESIDENT_PROTO_EVENT_EVENT_ID_LEN         = 8;
@@ -115,10 +118,10 @@ static const size_t RESIDENT_PROTO_EVENT_TRIGGER_ID_LEN       = 8;
 static const size_t RESIDENT_PROTO_EVENT_TRIGGER_STATUS_LEN   = 2;
 static const size_t RESIDENT_PROTO_EVENT_TRIGGER_SEVERITY_LEN = 2;
 
-static const size_t RESIDENT_PROTO_EVENT_BODY_LEN =
+static const size_t RESIDENT_PROTO_EVENT_BODY_BASE_LEN =
  RESIDENT_PROTO_EVENT_ACTION_ID_LEN +
  RESIDENT_PROTO_EVENT_SERVER_ID_LEN +
- RESIDENT_PROTO_EVENT_HOST_ID +
+ RESIDENT_PROTO_EVENT_HOST_ID_SIZE_LEN +
  RESIDENT_PROTO_EVENT_EVENT_TIME_SEC_LEN +
  RESIDENT_PROTO_EVENT_EVENT_TIME_NSEC_LEN +
  RESIDENT_PROTO_EVENT_EVENT_ID_LEN  +
@@ -144,12 +147,17 @@ static const size_t RESIDENT_PROTO_EVENT_ACK_CODE_LEN = 4;
 #define RESIDENT_MODULE_SYMBOL_STR "hatohol_resident_module"
 
 // 1 -> 2: Add sessionId
-static const uint16_t RESIDENT_MODULE_VERSION = 2;
+static const uint16_t RESIDENT_MODULE_VERSION = 3;
+
+struct StringHeader {
+	uint16_t size;
+	uint16_t offset;
+} __attribute__((__packed__)) ;
 
 struct ResidentNotifyEventArg {
 	uint32_t actionId;
 	uint32_t serverId;
-	uint64_t hostId;
+	mlpl::SmartBuffer::StringHeader hostIdInServerHeader;
 	timespec time;
 	uint64_t eventId;
 	uint16_t eventType;

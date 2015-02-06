@@ -417,7 +417,6 @@ bool HatoholArmPluginGate::startOnDemandFetchTrigger(Closure2 *closure)
 	callback->triggerUpdatedSignal.connect(closure);
 	callback->serverId = m_impl->serverInfo.id;
 
-	HostInfoList hostInfoList;
 	HostsQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(m_impl->serverInfo.id);
 

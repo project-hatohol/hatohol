@@ -97,11 +97,14 @@ void ResidentCommunicator::setNotifyEventBody(
   const ActionIdType &actionId, const EventInfo &eventInfo,
   const string &sessionId)
 {
-	setHeader(RESIDENT_PROTO_EVENT_BODY_LEN,
+	const uint32_t bodySize =
+	  RESIDENT_PROTO_EVENT_BODY_BASE_LEN + eventInfo.hostIdInServer.size();
+	setHeader(bodySize,
 	          RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT);
 	m_impl->sbuf.add32(actionId);
 	m_impl->sbuf.add32(eventInfo.serverId);
-	m_impl->sbuf.add64(eventInfo.hostId);
+	m_impl->sbuf.add<RESIDENT_PROTO_EVENT_HOST_ID_SIZE_TYPE>(
+	  eventInfo.hostIdInServer);
 	m_impl->sbuf.add64(eventInfo.time.tv_sec);
 	m_impl->sbuf.add32(eventInfo.time.tv_nsec);
 	m_impl->sbuf.add64(eventInfo.id); // Event ID

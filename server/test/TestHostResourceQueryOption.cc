@@ -51,7 +51,7 @@ string TestHostResourceQueryOption::callMakeCondition(
   const string &hostIdColumnName,
   const ServerIdType &targetServerId,
   const HostgroupIdType &targetHostgroupId,
-  const HostIdType &targetHostId) const
+  const LocalHostIdType &targetHostId) const
 {
 	return makeCondition(srvHostGrpSetMap,
 	                     serverIdColumnName,
