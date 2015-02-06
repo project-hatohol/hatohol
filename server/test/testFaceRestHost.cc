@@ -56,50 +56,52 @@ static void assertHostsInParser(JSONParser *parser,
                                 const ServerIdType &targetServerId,
                                 DataQueryContext *dqCtx)
 {
-	HostInfoList hostInfoList;
-	getDBCTestHostInfo(hostInfoList, targetServerId);
-	// Remove data of defunct servers
-	HostInfoListIterator hostInfoItr = hostInfoList.begin();
-	while (hostInfoItr != hostInfoList.end()) {
-		HostInfoListIterator currHostInfoItr = hostInfoItr;
-		++hostInfoItr;
-		if (dqCtx->isValidServer(currHostInfoItr->serverId))
-			continue;
-		hostInfoList.erase(currHostInfoItr);
+	ServerHostDefVect svHostDefs;
+	HostsQueryOption option(dqCtx);
+	option.setTargetServerId(targetServerId);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	assertHatoholError(
+	  HTERR_OK, uds->getServerHostDefs(svHostDefs, option));
+
+	// Pick up defunct servers
+	set<size_t> excludeIdSet;
+	for (size_t i = 0; i < svHostDefs.size(); i++) {
+		if (!dqCtx->isValidServer(svHostDefs[i].serverId))
+			excludeIdSet.insert(i);
 	}
-	assertValueInParser(parser, "numberOfHosts", hostInfoList.size());
+	const size_t numValidHosts = svHostDefs.size() - excludeIdSet.size();
+	assertValueInParser(parser, "numberOfHosts", numValidHosts);
 
 	// make an index
-	map<ServerIdType, map<uint64_t, const HostInfo *> > hostInfoMap;
-	map<uint64_t, const HostInfo *>::iterator hostMapIt;
-	HostInfoListConstIterator it = hostInfoList.begin();
-	for (; it != hostInfoList.end(); ++it) {
-		const HostInfo &hostInfo = *it;
-		hostMapIt = hostInfoMap[hostInfo.serverId].find(hostInfo.id);
+	map<ServerIdType, map<LocalHostIdType, const ServerHostDef *> > hostMap;
+	map<LocalHostIdType, const ServerHostDef *>::iterator hostMapIt;
+	for (size_t i = 0; i < svHostDefs.size(); i++) {
+		if (excludeIdSet.find(i) != excludeIdSet.end())
+			continue;
+		const ServerHostDef &svHostDef = svHostDefs[i];
+		hostMapIt = hostMap[svHostDef.serverId].find(svHostDef.name);
 		cppcut_assert_equal(
-		  true, hostMapIt == hostInfoMap[hostInfo.serverId].end());
-		hostInfoMap[hostInfo.serverId][hostInfo.id] = &hostInfo;
+		  true, hostMapIt == hostMap[svHostDef.serverId].end());
+		hostMap[svHostDef.serverId][svHostDef.hostIdInServer]
+		  = &svHostDef;
 	}
 
 	assertStartObject(parser, "hosts");
-	for (size_t i = 0; i < hostInfoList.size(); i++) {
+	for (size_t i = 0; i < numValidHosts; i++) {
 		int64_t var64;
 		parser->startElement(i);
 		cppcut_assert_equal(true, parser->read("serverId", var64));
 		const ServerIdType serverId = static_cast<ServerIdType>(var64);
 
-		string hostIdString;
-		cppcut_assert_equal(true, parser->read("id", hostIdString));
-		uint64_t hostId = StringUtils::toUint64(hostIdString);
+		string hostIdInServer;
+		cppcut_assert_equal(true, parser->read("id", hostIdInServer));
+		hostMapIt = hostMap[serverId].find(hostIdInServer);
+		cppcut_assert_equal(true, hostMapIt != hostMap[serverId].end());
+		const ServerHostDef &svHostDef = *hostMapIt->second;
 
-		hostMapIt = hostInfoMap[serverId].find(hostId);
-		cppcut_assert_equal(true,
-		                    hostMapIt != hostInfoMap[serverId].end());
-		const HostInfo &hostInfo = *hostMapIt->second;
-
-		assertValueInParser(parser, "hostName", hostInfo.hostName);
+		assertValueInParser(parser, "hostName", svHostDef.name);
 		parser->endElement();
-		hostInfoMap[serverId].erase(hostMapIt);
+		hostMap[serverId].erase(hostMapIt);
 	}
 	parser->endObject();
 }
