@@ -22,6 +22,8 @@
 
 #include <cstdlib>
 #include <stdint.h>
+#include <string>
+#include <stdexcept>
 
 namespace mlpl {
 
@@ -104,6 +106,25 @@ public:
 	void add64(uint64_t val);
 	void add(const void *src, size_t len);
 	void addZero(size_t size);
+
+	/**
+	 * Add a string size followed by the content.
+	 *
+	 * @tparam T   A type of the size such as uint8_t and uint16_t
+	 * @param  str A message to be added.
+	 */
+	template<typename T>
+	void add(const std::string &str)
+	{
+		const T len = str.size();
+		const size_t maxLen = (1 << (8 * sizeof(T))) - 1;
+		if (len > maxLen) {
+			throw std::range_error(
+			        "The length of the string is too big.");
+		}
+		add(&len, sizeof(T));
+		add(str.c_str(), len);
+	}
 
 	// 'addEx' families extend buffer if needed. They are useful when
 	// the total size of the buffer is unknown. Of course, because

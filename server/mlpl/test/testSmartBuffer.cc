@@ -18,7 +18,9 @@
  */
 
 #include <cppcutter.h>
+#include <string>
 #include "SmartBuffer.h"
+using namespace std;
 using namespace mlpl;
 
 namespace testSmartBuffer {
@@ -208,6 +210,19 @@ void test_setIndex(void)
 	sbuf.alloc(100);
 	sbuf.setIndex(5);
 	cppcut_assert_equal((size_t)5, sbuf.index());
+}
+
+void test_addString(void)
+{
+	SmartBuffer sbuf(100);
+	string foo = "foo X1234";
+	sbuf.add<uint16_t>(foo);
+	const size_t expectSizeLen = sizeof(uint16_t);
+	const uint16_t expectStrLen = foo.size();
+	cppcut_assert_equal(expectSizeLen + expectStrLen, sbuf.index());
+	cppcut_assert_equal(expectStrLen, *sbuf.getPointer<const uint16_t>(0));
+	cppcut_assert_equal(
+	  foo, string(sbuf.getPointer<char>(expectSizeLen), expectStrLen));
 }
 
 } // namespace testSmartBuffer
