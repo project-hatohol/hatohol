@@ -17,8 +17,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include <cstdio>
 #include <cppcutter.h>
 #include <string>
+#include <gcutter.h>
 #include "SmartBuffer.h"
 using namespace std;
 using namespace mlpl;
@@ -223,6 +225,35 @@ void test_addString(void)
 	cppcut_assert_equal(expectStrLen, *sbuf.getPointer<const uint16_t>(0));
 	cppcut_assert_equal(
 	  foo, string(sbuf.getPointer<char>(expectSizeLen), expectStrLen));
+}
+
+void data_addTooLongString(void)
+{
+	gcut_add_datum("Maximum",
+	               "len", G_TYPE_INT, 255,
+	               "expectException", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("Over",
+	               "len", G_TYPE_INT, 256,
+	               "expectException", G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
+void test_addTooLongString(gconstpointer data)
+{
+	const int len = gcut_data_get_int(data, "len");
+	const bool expectException =
+	  gcut_data_get_boolean(data, "expectException");
+
+	SmartBuffer sbuf(512);
+	string foo;
+	for (int i = 0; i < len; i++)
+		foo += 'X';
+	bool gotException = false;
+	try {
+		sbuf.add<uint8_t>(foo);
+	} catch (const range_error &e) {
+		gotException = true;
+	}
+	cppcut_assert_equal(expectException, gotException);
 }
 
 } // namespace testSmartBuffer
