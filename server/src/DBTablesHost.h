@@ -38,12 +38,12 @@ struct Host {
 };
 
 struct ServerHostDef {
-	GenericIdType id;
-	HostIdType    hostId;
-	ServerIdType  serverId;
-	std::string   hostIdInServer;
-	std::string   name;
-	HostStatus    status;
+	GenericIdType   id;
+	HostIdType      hostId;
+	ServerIdType    serverId;
+	LocalHostIdType hostIdInServer;
+	std::string     name;
+	HostStatus      status;
 };
 
 typedef std::vector<ServerHostDef> ServerHostDefVect;
@@ -75,10 +75,10 @@ typedef HostgroupVect::iterator       HostgroupVectIterator;
 typedef HostgroupVect::const_iterator HostgroupVectConstIterator;
 
 struct HostgroupMember {
-	GenericIdType id;
-	ServerIdType  serverId;
-	std::string   hostIdInServer;
-	std::string   hostgroupIdInServer;
+	GenericIdType   id;
+	ServerIdType    serverId;
+	LocalHostIdType hostIdInServer;
+	std::string     hostgroupIdInServer;
 };
 
 typedef std::vector<HostgroupMember>        HostgroupMemberVect;
