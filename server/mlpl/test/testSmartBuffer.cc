@@ -256,4 +256,26 @@ void test_addTooLongString(gconstpointer data)
 	cppcut_assert_equal(expectException, gotException);
 }
 
+void test_getString(void)
+{
+	SmartBuffer sbuf(100);
+	string material = "ABC 123 xyz";
+	sbuf.add<uint16_t>(material);
+	const size_t indexPos = 25;
+	sbuf.setIndex(indexPos);
+	cppcut_assert_equal(material, sbuf.getString<uint16_t>(0));
+	cppcut_assert_equal(indexPos, sbuf.index());
+}
+
+void test_getStringAndIncIndex(void)
+{
+	SmartBuffer sbuf(100);
+	string material = "ABC 123 xyz";
+	sbuf.add<uint16_t>(material);
+	sbuf.resetIndex();
+	cppcut_assert_equal(material, sbuf.getStringAndIncIndex<uint16_t>());
+	const size_t expectIndex = sizeof(uint16_t) + material.size();
+	cppcut_assert_equal(expectIndex, sbuf.index());
+}
+
 } // namespace testSmartBuffer
