@@ -171,6 +171,20 @@ public:
 		return *getPointerAndIncIndex<T>();
 	}
 
+	template <typename T>
+	std::string getString(const size_t &index = SMBUF_CURR_INDEX) const {
+		size_t pos = (index == SMBUF_CURR_INDEX) ? m_index : index;
+		T len = *getPointer<T>(pos);
+		return std::string(getPointer<char>(pos + sizeof(T)), len);
+	}
+
+	template <typename T> std::string getStringAndIncIndex(void)
+	{
+		std::string s = getString<T>();
+		m_index += (sizeof(T) + s.size());
+		return s;
+	}
+
 	/**
 	 * Make a new SmartBuffer instance on the heap and the created instance
 	 * takes over the content of this buffer. After the call of this
