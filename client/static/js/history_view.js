@@ -95,7 +95,7 @@ HistoryLoader.prototype.load = function() {
         self.servers = reply.servers;
 
         if (self.options.onLoadItem)
-          self.options.onLoadItem(self.item, self.servers);
+          self.options.onLoadItem(self, self.item, self.servers);
 
         deferred.resolve();
       } else {
@@ -126,7 +126,7 @@ HistoryLoader.prototype.load = function() {
       self.updateHistory(history);
 
       if (self.options.onLoadHistory)
-        self.options.onLoadHistory(self.history);
+        self.options.onLoadHistory(self, self.history);
 
       if (history.length >= maxRecordsPerRequest) {
         $.when(loadHistory()).done(function() {
@@ -258,9 +258,11 @@ var HistoryView = function(userProfile, options) {
     return label;
   }
 
-  function appendItem(item, servers) {
+  function appendItem(loader) {
+    var item = loader.getItem();
+    var servers = loader.getServers();
     var server = servers[item.serverId];
-    var query = self.loaders[i].options.query;
+    var query = loader.options.query;
     var groupName = query.hostgroupId ?
       getHostgroupName(server, query.hostgroupId) : "-";
     var tr = $("<tr>");
@@ -289,16 +291,13 @@ var HistoryView = function(userProfile, options) {
   }
 
   function setItemList() {
-    var item, servers, server, groupName, query, tr;
+    var i, item, servers, server, groupName, query, tr;
 
     if (self.isItemListInitiated)
       return;
 
-    for (i = 0; i < self.loaders.length; i++) {
-      item = self.loaders[i].getItem();
-      servers = self.loaders[i].getServers();
-      appendItem(item, servers);
-    }
+    for (i = 0; i < self.loaders.length; i++)
+      appendItem(self.loaders[i]);
 
     self.isItemListInitiated = true;
   }
@@ -432,15 +431,15 @@ var HistoryView = function(userProfile, options) {
       view: self,
       defaultTimeSpan: self.timeRange.getSpan(),
       query: historyQuery,
-      onLoadItem: function(item, servers) {
+      onLoadItem: function(loader, item, servers) {
         this.item = item;
         self.plotData[this.index] = createLegendData(item, servers);
         updateView();
         self.setupHostFilters(servers);
         if (self.isItemListInitiated)
-          appendItem(item, servers); // TODO: should find an appropriate row
+          appendItem(loader); // TODO: should find an appropriate row
       },
-      onLoadHistory: function(history) {
+      onLoadHistory: function(loader, history) {
         self.plotData[this.index].data = history;
         updateView();
       }
