@@ -714,6 +714,7 @@ void ArmNagiosNDOUtils::getHost(bool &storedHostsChanged)
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		HostInfo hostInfo;
 		hostInfo.serverId = svInfo.id;
+		hostInfo.validity = HOST_VALID;
 		itemGroupStream >> hostInfo.id;
 		itemGroupStream >> hostInfo.hostName;
 		hostInfoList.push_back(hostInfo);
