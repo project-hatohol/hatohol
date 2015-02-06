@@ -116,14 +116,18 @@ div#noscript-background div#noscript-notice
 
 .legend table td {
   padding: 2px;
-#incident-tracker-editor label
-{
+}
+
+#incidentTrackerEditor label {
   width: 6em;
   margin-right: 0.5em;
   text-align: right;
 }
 
-#incident-tracker-editor input
-{
-  width: 80%;
+#incidentTrackerEditor .modal-wide .modal-dialog {
+  width: 95%;
+}
+
+.modal-wide .modal-body {
+  overflow-y: auto;
 }
