@@ -248,7 +248,6 @@ var HistoryView = function(userProfile, options) {
     appendGraphArea();
     for (i = 0; i < historyQueries.length; i++)
       appendHistoryLoader(historyQueries[i]);
-    initTimeRange();
   }
 
   function getItemBriefWithUnit(item) {
@@ -451,12 +450,18 @@ var HistoryView = function(userProfile, options) {
     self.loaders.push(loader);
     self.plotData.push(createLegendData());
     setItemToItemList(loader);
+    if (self.loaders.length == 1)
+      initTimeRange();
   }
 
   function initTimeRange() {
+    var emdTime, timeSpan;
+
     // TODO: allow different time ranges?
-    var endTime = self.loaders[0].options.query.endTime;
-    var timeSpan = self.loaders[0].getTimeSpan();
+    if (!self.loaders.length)
+      return;
+    endTime = self.loaders[0].options.query.endTime;
+    timeSpan = self.loaders[0].getTimeSpan();
 
     if (endTime)
       self.timeRange.set(endTime - timeSpan, endTime);
