@@ -121,7 +121,7 @@ public:
 	template<typename T>
 	void add(const std::string &str)
 	{
-		const size_t len = str.size();
+		const T len = str.size();
 		const size_t maxLen = (1 << (8 * sizeof(T))) - 1;
 		if (len > maxLen) {
 			throw std::range_error(
