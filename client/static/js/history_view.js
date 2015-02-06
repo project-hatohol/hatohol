@@ -258,28 +258,31 @@ var HistoryView = function(userProfile, options) {
     return label;
   }
 
-  function appendItem(loader) {
+  function setItemToItemList(loader) {
     var item = loader.getItem();
     var servers = loader.getServers();
-    var server = servers[item.serverId];
+    var server = item ? servers[item.serverId] : undefined;
     var query = loader.options.query;
+    var serverName = item ? getNickName(server, item.serverId) : "-";
+    var hostName = item ? getHostName(server, item.hostId) : "-";
     var groupName = query.hostgroupId ?
       getHostgroupName(server, query.hostgroupId) : "-";
-    var tr = $("<tr>");
+    var itemName = item ? getItemBriefWithUnit(item)  : "-";
+    var id = "hatohol-item-list-row-" + loader.options.index;
+    var tr;
+
+    if (item) {
+      tr = $("#" + id);
+      tr.empty();
+    } else {
+      tr = $("<tr>", { id: id });
+    }
 
     tr.append($("<td>"));
-    tr.append($("<td>", {
-      text: getNickName(server, item.serverId)
-    }));
-    tr.append($("<td>", {
-      text: groupName
-    }));
-    tr.append($("<td>", {
-      text: getHostName(server, item.hostId)
-    }));
-    tr.append($("<td>", {
-      text: getItemBriefWithUnit(item)
-    }));
+    tr.append($("<td>", { text: serverName }));
+    tr.append($("<td>", { text: groupName }));
+    tr.append($("<td>", { text: hostName }));
+    tr.append($("<td>", { text: itemName }));
     tr.append($("<td>").append(
       $("<button>", {
         text: gettext("DELETE"),
@@ -287,19 +290,9 @@ var HistoryView = function(userProfile, options) {
         class: "btn btn-default",
         click: function() { /* TODO implement */ }
       })));
-    tr.insertBefore(".hatohol-item-list tbody tr :last");
-  }
 
-  function setItemList() {
-    var i, item, servers, server, groupName, query, tr;
-
-    if (self.isItemListInitiated)
-      return;
-
-    for (i = 0; i < self.loaders.length; i++)
-      appendItem(self.loaders[i]);
-
-    self.isItemListInitiated = true;
+    if (!item)
+      tr.insertBefore(".hatohol-item-list tbody tr :last");
   }
 
   function setupItemSelector() {
@@ -436,8 +429,7 @@ var HistoryView = function(userProfile, options) {
         self.plotData[this.index] = createLegendData(item, servers);
         updateView();
         self.setupHostFilters(servers);
-        if (self.isItemListInitiated)
-          appendItem(loader); // TODO: should find an appropriate row
+        setItemToItemList(loader);
       },
       onLoadHistory: function(loader, history) {
         self.plotData[this.index].data = history;
@@ -446,6 +438,7 @@ var HistoryView = function(userProfile, options) {
     });
     self.loaders.push(loader);
     self.plotData.push(createLegendData());
+    setItemToItemList(loader);
   }
 
   function initTimeRange() {
@@ -473,7 +466,6 @@ var HistoryView = function(userProfile, options) {
     $.when.apply($, promises).done(function() {
       if (self.autoReloadIsEnabled)
         self.setAutoReload(load, self.reloadIntervalSeconds);
-      setItemList();
     });
   }
 
