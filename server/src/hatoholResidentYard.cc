@@ -100,7 +100,8 @@ static void gotNotifyEventBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	ResidentNotifyEventArg arg;
 	arg.actionId        = *sbuf.getPointerAndIncIndex<uint32_t>();
 	arg.serverId        = *sbuf.getPointerAndIncIndex<uint32_t>();
-	arg.hostId          = *sbuf.getPointerAndIncIndex<uint64_t>();
+	arg.hostIdInServerHeader =
+	  *sbuf.getPointerAndIncIndex<SmartBuffer::StringHeader>();
 	arg.time.tv_sec     = *sbuf.getPointerAndIncIndex<uint64_t>();
 	arg.time.tv_nsec    = *sbuf.getPointerAndIncIndex<uint32_t>();
 	arg.eventId         = *sbuf.getPointerAndIncIndex<uint64_t>();
@@ -134,8 +135,7 @@ static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size,
 	int pktType = ResidentCommunicator::getPacketType(sbuf);
 	if (pktType == RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT) {
 		// request to get the body
-		impl->pullData(RESIDENT_PROTO_EVENT_BODY_LEN,
-		              gotNotifyEventBodyCb);
+		impl->pullData(size, gotNotifyEventBodyCb);
 	} else {
 		MLPL_ERR("Unexpected packet: %d\n", pktType);
 		requestQuit(impl);

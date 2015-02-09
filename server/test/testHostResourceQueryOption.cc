@@ -169,7 +169,7 @@ static const string hostIdColumnName = "host_id";
 static void _assertMakeCondition(
   const ServerHostGrpSetMap &srvHostGrpSetMap, const string &expect,
   const ServerIdType &targetServerId = ALL_SERVERS,
-  const HostIdType &targetHostId = ALL_HOSTS,
+  const LocalHostIdType &targetHostId = ALL_LOCAL_HOSTS,
   const HostgroupIdType &targetHostgroupId = ALL_HOST_GROUPS)
 {
 	TestHostResourceQueryOption option;
@@ -650,7 +650,7 @@ void test_makeConditionWithTargetServerAndHost(void)
 	string expect = StringUtils::sprintf("((%s=14) AND %s=21)",
 					     serverIdColumnName.c_str(),
 					     hostIdColumnName.c_str());
-	assertMakeCondition(srvHostGrpSetMap, expect, 14, 21);
+	assertMakeCondition(srvHostGrpSetMap, expect, 14, "21");
 }
 
 void data_conditionForAdminWithTargetServerAndHost(void)
@@ -667,7 +667,7 @@ void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
 	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setTargetServerId(26);
-	option.setTargetHostId(32);
+	option.setTargetHostId("32");
 	string expect = StringUtils::sprintf("%s=26 AND %s=32",
 					     serverIdColumnName.c_str(),
 					     hostIdColumnName.c_str());

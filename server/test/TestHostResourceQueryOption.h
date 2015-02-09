@@ -40,7 +40,7 @@ public:
 	  const std::string &hostIdColumnName,
 	  const ServerIdType &targetServerId = ALL_SERVERS,
 	  const HostgroupIdType &targetHostgroupId = ALL_HOST_GROUPS,
-	  const HostIdType &targetHostId = ALL_HOSTS) const;
+	  const LocalHostIdType &targetHostId = ALL_LOCAL_HOSTS) const;
 };
 
 #endif // TestHostResourceQueryOption_h
