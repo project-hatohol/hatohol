@@ -91,9 +91,9 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"host_id",                         // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	"host_id_in_server",               // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
 	SQL_KEY_IDX,                       // keyType
