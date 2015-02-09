@@ -22,6 +22,7 @@
 #include <string>
 using namespace std;
 
+#include "StringUtils.h"
 #include "SmartBuffer.h"
 #include "Logger.h"
 using namespace mlpl;
@@ -176,6 +177,33 @@ void SmartBuffer::addZero(size_t size)
 	incIndex(size);
 }
 
+size_t SmartBuffer::insertString(const string &str, const size_t &bodyIndex)
+{
+	const size_t length = str.size();
+	const size_t maxLength = 0x10000;
+	if (length > maxLength || bodyIndex > maxLength) {
+		const string msg = StringUtils::sprintf(
+		  "Invalid paramter: string length: %zd, body index: %zd",
+		  length, bodyIndex);
+		throw std::range_error(msg);
+	}
+	const size_t sizeNullTerm = 1;
+	const size_t nextBodyIndex = bodyIndex + length + sizeNullTerm;
+	if (nextBodyIndex >= m_size) {
+		const string msg = StringUtils::sprintf(
+		  "Invalid paramter: string length: %zd, body index: %zd, "
+		  "buff size: %zd", length, bodyIndex, m_size);
+		throw std::out_of_range(msg);
+	}
+
+	add16(length);
+	add16(bodyIndex);
+	memcpy(m_buf + bodyIndex, str.c_str(), length + sizeNullTerm);
+
+	setWatermarkIfNeeded(nextBodyIndex);
+	return nextBodyIndex;
+}
+
 void SmartBuffer::addEx8(uint8_t val)
 {
 	addExTemplate<uint8_t>(val);
@@ -256,5 +284,10 @@ void SmartBuffer::handOver(SmartBuffer &sbuf)
 }
 
 // ---------------------------------------------------------------------------
-// Private methods
+// Protected methods
 // ---------------------------------------------------------------------------
+void SmartBuffer::setWatermarkIfNeeded(const size_t &index)
+{
+	if (index > m_watermark)
+		m_watermark = index;
+}

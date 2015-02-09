@@ -227,6 +227,25 @@ void test_addString(void)
 	  foo, string(sbuf.getPointer<char>(expectSizeLen), expectStrLen));
 }
 
+void test_insertString(void)
+{
+	SmartBuffer sbuf(100);
+	const string str = "foo X1234";
+	const uint32_t dummyStuff = 0x12345678;
+	const size_t bodyIndex = 50;
+	sbuf.add32(dummyStuff);
+	const size_t nextIndex = sbuf.insertString(str, bodyIndex);
+
+	sbuf.setIndex(sizeof(dummyStuff));
+	cppcut_assert_equal(static_cast<uint16_t>(str.size()),
+	                    sbuf.getValueAndIncIndex<uint16_t>());
+	cppcut_assert_equal(static_cast<uint16_t>(bodyIndex),
+	                    sbuf.getValueAndIncIndex<uint16_t>());
+	cppcut_assert_equal(str, string(sbuf.getPointer<char>(bodyIndex)));
+	cppcut_assert_equal(nextIndex, bodyIndex + str.size() + 1);
+	cppcut_assert_equal(nextIndex, sbuf.watermark());
+}
+
 void data_addTooLongString(void)
 {
 	gcut_add_datum("Maximum",
