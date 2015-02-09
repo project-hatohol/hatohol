@@ -140,7 +140,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"host_id",                         // columnName
+	"global_host_id",                  // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
 	0,                                 // decFracLength
@@ -313,9 +313,18 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"host_id",                         // columnName
+	"global_host_id",                  // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"host_id_in_server",               // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -352,7 +361,8 @@ enum {
 	IDX_EVENTS_TRIGGER_ID,
 	IDX_EVENTS_STATUS,
 	IDX_EVENTS_SEVERITY,
-	IDX_EVENTS_HOST_ID,
+	IDX_EVENTS_GLOBAL_HOST_ID,
+	IDX_EVENTS_HOST_ID_IN_SERVER,
 	IDX_EVENTS_HOST_NAME,
 	IDX_EVENTS_BRIEF,
 	NUM_IDX_EVENTS,
@@ -1815,7 +1825,8 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	builder.add(IDX_EVENTS_TRIGGER_ID);
 	builder.add(IDX_EVENTS_STATUS);
 	builder.add(IDX_EVENTS_SEVERITY);
-	builder.add(IDX_EVENTS_HOST_ID);
+	builder.add(IDX_EVENTS_GLOBAL_HOST_ID);
+	builder.add(IDX_EVENTS_HOST_ID_IN_SERVER);
 	builder.add(IDX_EVENTS_HOST_NAME);
 	builder.add(IDX_EVENTS_BRIEF);
 
@@ -1825,6 +1836,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	  tableProfileEvents, IDX_EVENTS_TRIGGER_ID, IDX_TRIGGERS_ID);
 	builder.add(IDX_TRIGGERS_STATUS);
 	builder.add(IDX_TRIGGERS_SEVERITY);
+	builder.add(IDX_TRIGGERS_GLOBAL_HOST_ID);
 	builder.add(IDX_TRIGGERS_HOST_ID_IN_SERVER);
 	builder.add(IDX_TRIGGERS_HOSTNAME);
 	builder.add(IDX_TRIGGERS_BRIEF);
@@ -1888,25 +1900,27 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 
 		TriggerStatusType   eventStatus;
 		TriggerSeverityType eventSeverity;
-		HostIdType          eventGlobalHostId = INVALID_HOST_ID; // TODO read form DB
+		HostIdType          eventGlobalHostId;
 		LocalHostIdType     eventHostIdInServer;
 		string              eventHostName;
 		string              eventBrief;
 		itemGroupStream >> eventStatus;
 		itemGroupStream >> eventSeverity;
+		itemGroupStream >> eventGlobalHostId;
 		itemGroupStream >> eventHostIdInServer;
 		itemGroupStream >> eventHostName;
 		itemGroupStream >> eventBrief;
 
 		TriggerStatusType   triggerStatus;
 		TriggerSeverityType triggerSeverity;
-		HostIdType          triggerGlobalHostId = INVALID_HOST_ID; // TODO read form DB
+		HostIdType          triggerGlobalHostId;
 		LocalHostIdType     triggerHostIdInServer;
 		string              triggerHostName;
 		string              triggerBrief;
 		string              triggerExtendedInfo;
 		itemGroupStream >> triggerStatus;
 		itemGroupStream >> triggerSeverity;
+		itemGroupStream >> triggerGlobalHostId;
 		itemGroupStream >> triggerHostIdInServer;
 		itemGroupStream >> triggerHostName;
 		itemGroupStream >> triggerBrief;
@@ -2654,6 +2668,7 @@ void DBTablesMonitoring::addEventInfoWithoutTransaction(
 	arg.add(eventInfo.triggerId);
 	arg.add(eventInfo.status);
 	arg.add(eventInfo.severity);
+	arg.add(eventInfo.globalHostId);
 	arg.add(eventInfo.hostIdInServer);
 	arg.add(eventInfo.hostName);
 	arg.add(eventInfo.brief);
