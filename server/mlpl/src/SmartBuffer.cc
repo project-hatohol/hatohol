@@ -273,9 +273,8 @@ std::string SmartBuffer::extractString(const StringHeader &header)
 
 std::string SmartBuffer::extractStringAndIncIndex(void)
 {
-	StringHeader *header = getPointerAndIncIndex<StringHeader>();
-	char *body = reinterpret_cast<char *>(m_buf) + header->offset;
-	return string(body, header->size);
+	const StringHeader &header = *getPointerAndIncIndex<StringHeader>();
+	return extractString(header);
 }
 
 SmartBuffer *SmartBuffer::takeOver(void)
