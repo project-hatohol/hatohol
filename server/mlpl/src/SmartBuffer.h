@@ -126,6 +126,23 @@ public:
 		add(str.c_str(), len);
 	}
 
+	/**
+	 * Add a string to the buffer with the size and the location.
+	 *
+	 * This method writes 16bit string length and 16bit offset of the
+	 * string body from the top of the buffer head at the current position.
+	 * Then it writes the string body at the specified position given by
+	 * the paramter 'bodyIdx'. Although the NULL terminator of the string
+	 * is copied, the written length doesn't include the terminator.
+	 * After calling this method, the current position moves to the next
+	 * to the length and the offset fields.
+	 *
+	 * @param str       A string to be written.
+	 * @param bodyIndex An address where the string body is written.
+	 * @return          The position next to the written string.
+	 */
+	size_t insertString(const std::string &str, const size_t &bodyIdx);
+
 	// 'addEx' families extend buffer if needed. They are useful when
 	// the total size of the buffer is unknown. Of course, because
 	// the reallocation might be called, performance is less than that of
@@ -208,6 +225,14 @@ public:
 
 
 protected:
+	/**
+	 * Update the warter mark if the given index is beyond the current
+	 * warter mark.
+	 *
+	 * @param index An index to be checked.
+	 */
+	void setWatermarkIfNeeded(const size_t &index);
+
 	void setWatermarkIfNeeded(void) {
 		if (m_index > m_watermark)
 			m_watermark = m_index;
