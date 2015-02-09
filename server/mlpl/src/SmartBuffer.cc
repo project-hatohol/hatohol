@@ -196,8 +196,10 @@ size_t SmartBuffer::insertString(const string &str, const size_t &bodyIndex)
 		throw std::out_of_range(msg);
 	}
 
-	add16(length);
-	add16(bodyIndex);
+	StringHeader header;
+	header.size = length;
+	header.offset = bodyIndex;
+	add(&header, sizeof(header));
 	memcpy(m_buf + bodyIndex, str.c_str(), length + sizeNullTerm);
 
 	setWatermarkIfNeeded(nextBodyIndex);
