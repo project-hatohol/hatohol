@@ -246,6 +246,34 @@ void test_insertString(void)
 	cppcut_assert_equal(nextIndex, sbuf.watermark());
 }
 
+void data_insertStringWithLongString(void)
+{
+	gcut_add_datum("2 characters (Within the limit)",
+	               "txt", G_TYPE_STRING, "A",
+	               "expectException", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("3 characters (Over the limit)",
+	               "txt", G_TYPE_STRING, "AB",
+	               "expectException", G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
+void test_insertStringWithLongString(gconstpointer data)
+{
+	const size_t bodyIndex = 10;
+	SmartBuffer sbuf(bodyIndex + 2);
+	const string txt = gcut_data_get_string(data, "txt");
+	const bool expectException =
+	  gcut_data_get_boolean(data, "expectException");
+
+	sbuf.add8(1);
+	bool gotException = false;
+	try {
+		sbuf.insertString(txt, bodyIndex);
+	} catch (const out_of_range &e) {
+		gotException = true;
+	}
+	cppcut_assert_equal(expectException, gotException);
+}
+
 void data_addTooLongString(void)
 {
 	gcut_add_datum("Maximum",

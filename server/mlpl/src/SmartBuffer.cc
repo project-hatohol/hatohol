@@ -189,7 +189,7 @@ size_t SmartBuffer::insertString(const string &str, const size_t &bodyIndex)
 	}
 	const size_t sizeNullTerm = 1;
 	const size_t nextBodyIndex = bodyIndex + length + sizeNullTerm;
-	if (nextBodyIndex >= m_size) {
+	if (nextBodyIndex > m_size) {
 		const string msg = StringUtils::sprintf(
 		  "Invalid paramter: string length: %zd, body index: %zd, "
 		  "buff size: %zd", length, bodyIndex, m_size);
