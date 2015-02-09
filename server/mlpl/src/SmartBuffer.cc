@@ -263,6 +263,13 @@ void SmartBuffer::printBuffer(void)
 	MLPL_INFO("%s", msg.c_str());
 }
 
+std::string SmartBuffer::extractStringAndIncIndex(void)
+{
+	StringHeader *header = getPointerAndIncIndex<StringHeader>();
+	char *body = reinterpret_cast<char *>(m_buf) + header->offset;
+	return string(body, header->size);
+}
+
 SmartBuffer *SmartBuffer::takeOver(void)
 {
 	SmartBuffer *sbuf = new SmartBuffer();

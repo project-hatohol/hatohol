@@ -38,6 +38,11 @@ class SmartBuffer {
 	size_t   m_size;
 	size_t   m_watermark;
 public:
+	struct StringHeader {
+		uint16_t size;
+		uint16_t offset;
+	} __attribute__((__packed__));
+
 	SmartBuffer(void);
 	SmartBuffer(size_t size);
 	SmartBuffer(const SmartBuffer &smartBuffer);
@@ -201,6 +206,14 @@ public:
 		m_index += (sizeof(T) + s.size());
 		return s;
 	}
+
+	/**
+	 * Read a string with the length and the offset at the current index,
+	 * After this method is called, the current index is incremented.
+	 *
+	 * @return a read string.
+	 */
+	std::string extractStringAndIncIndex(void);
 
 	/**
 	 * Make a new SmartBuffer instance on the heap and the created instance

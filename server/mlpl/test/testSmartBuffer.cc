@@ -325,4 +325,22 @@ void test_getStringAndIncIndex(void)
 	cppcut_assert_equal(expectIndex, sbuf.index());
 }
 
+void test_extractStringAndIncIndex(void)
+{
+	SmartBuffer sbuf(100);
+	const string str = "foo X1234";
+	const uint32_t dummyStuff = 0x12345678;
+	const size_t bodyIndex = 50;
+	sbuf.add32(dummyStuff);
+	sbuf.insertString(str, bodyIndex);
+	sbuf.resetIndex();
+	cppcut_assert_equal(dummyStuff, sbuf.getValueAndIncIndex<uint32_t>());
+	cppcut_assert_equal(str, sbuf.extractStringAndIncIndex());
+
+	// check the index after the call
+	const size_t expectIndex =
+	  sizeof(dummyStuff) + sizeof(SmartBuffer::StringHeader);
+	cppcut_assert_equal(expectIndex, sbuf.index());
+}
+
 } // namespace testSmartBuffer
