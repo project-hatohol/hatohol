@@ -135,7 +135,7 @@ string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 	    "{{collapse(ID)\\n"
 	    "\\n"
 	    "|{background:#ddd}. Server ID|%" FMT_SERVER_ID "|\\n"
-	    "|{background:#ddd}. Host ID|%" FMT_HOST_ID "|\\n"
+	    "|{background:#ddd}. Host ID|%" FMT_LOCAL_HOST_ID "|\\n"
 	    "|{background:#ddd}. Trigger ID|%" FMT_TRIGGER_ID "|\\n"
 	    "|{background:#ddd}. Event ID|%" FMT_EVENT_ID "|\\n}}\\n"
 	    "\\n"
@@ -161,7 +161,7 @@ string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 	    LabelUtils::getTriggerStatusLabel(event.status).c_str(),
 	    LabelUtils::getTriggerSeverityLabel(event.severity).c_str(),
 	    server.id,
-	    event.hostId,
+	    event.hostIdInServer.c_str(),
 	    event.triggerId,
 	    event.id,
 	    eventsURL.c_str());

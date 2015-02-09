@@ -40,7 +40,7 @@ static void _assertTestTriggerInfo(
 	assertValueInParser(parser, "lastChangeTime",
 	                    triggerInfo.lastChangeTime);
 	assertValueInParser(parser, "serverId", triggerInfo.serverId);
-	assertValueInParser(parser, "hostId", StringUtils::toString(triggerInfo.hostId));
+	assertValueInParser(parser, "hostId", triggerInfo.hostIdInServer);
 	assertValueInParser(parser, "brief", triggerInfo.brief);
 	if (!triggerInfo.extendedInfo.empty()) {
 		string parsedExtendedInfo = "";
@@ -115,7 +115,7 @@ static void assertHostsIdNameHashInParser(const TriggerInfo *triggers,
 		const TriggerInfo &triggerInfo = triggers[i];
 		assertStartObject(parser, StringUtils::toString(triggerInfo.serverId));
 		assertStartObject(parser, "hosts");
-		assertStartObject(parser, StringUtils::toString(triggerInfo.hostId));
+		assertStartObject(parser, triggerInfo.hostIdInServer);
 		assertValueInParser(parser, "name", triggerInfo.hostName);
 		parser->endObject();
 		parser->endObject();
@@ -132,7 +132,7 @@ static void assertHostsIdNameHashInParser(
 		const EventInfo &eventInfo = *expectedRecords[i];
 		assertStartObject(parser, StringUtils::toString(eventInfo.serverId));
 		assertStartObject(parser, "hosts");
-		assertStartObject(parser, StringUtils::toString(eventInfo.hostId));
+		assertStartObject(parser, eventInfo.hostIdInServer);
 		assertValueInParser(parser, "name", eventInfo.hostName);
 		parser->endObject();
 		parser->endObject();
@@ -279,7 +279,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(parser, "triggerId", StringUtils::toString(eventInfo.triggerId));
 		assertValueInParser(parser, "status",    eventInfo.status);
 		assertValueInParser(parser, "severity",  eventInfo.severity);
-		assertValueInParser(parser, "hostId",    StringUtils::toString(eventInfo.hostId));
+		assertValueInParser(parser, "hostId",    eventInfo.hostIdInServer);
 		assertValueInParser(parser, "brief",     eventInfo.brief);
 		if (!eventInfo.extendedInfo.empty()) {
 			assertValueInParser(parser, "expandedDescription",
@@ -549,7 +549,8 @@ void test_triggersJSONP(void)
 void test_triggersForOneServerOneHost(void)
 {
 	assertTriggers("/trigger", "foo",
-	               testTriggerInfo[1].serverId, testTriggerInfo[1].hostId);
+	               testTriggerInfo[1].serverId,
+	               testTriggerInfo[1].globalHostId);
 }
 
 void test_events(void)

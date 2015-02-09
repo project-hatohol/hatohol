@@ -447,13 +447,14 @@ string makeTriggerOutput(const TriggerInfo &triggerInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
-	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|%" PRIu64 "|%s|%s|%s\n",
+	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|"
+	    "%" FMT_LOCAL_HOST_ID "|%s|%s|%s\n",
 	    triggerInfo.serverId,
 	    triggerInfo.id,
 	    triggerInfo.status, triggerInfo.severity,
 	    triggerInfo.lastChangeTime.tv_sec,
 	    triggerInfo.lastChangeTime.tv_nsec,
-	    triggerInfo.hostId,
+	    triggerInfo.hostIdInServer.c_str(),
 	    triggerInfo.hostName.c_str(),
 	    triggerInfo.brief.c_str(),
 	    triggerInfo.extendedInfo.c_str());
@@ -465,12 +466,12 @@ string makeEventOutput(const EventInfo &eventInfo)
 	string output =
 	  mlpl::StringUtils::sprintf(
 	    "%" FMT_SERVER_ID "|%" FMT_EVENT_ID "|%ld|%ld|%d|%" FMT_TRIGGER_ID
-	    "|%d|%u|%" FMT_HOST_ID "|%s|%s\n",
+	    "|%d|%u|%" FMT_LOCAL_HOST_ID "|%s|%s\n",
 	    eventInfo.serverId, eventInfo.id,
 	    eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
 	    eventInfo.type, eventInfo.triggerId,
 	    eventInfo.status, eventInfo.severity,
-	    eventInfo.hostId,
+	    eventInfo.hostIdInServer.c_str(),
 	    eventInfo.hostName.c_str(),
 	    eventInfo.brief.c_str());
 	return output;

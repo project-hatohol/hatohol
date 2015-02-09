@@ -167,7 +167,7 @@ void makeEventIncidentMap(std::map<std::string, IncidentInfo*> &eventIncidentMap
 bool isAuthorized(ServerHostGrpSetMap &authMap,
                   const UserIdType &userId,
                   const ServerIdType &serverId,
-                  const HostIdType &hostId = ALL_HOSTS,
+                  const LocalHostIdType &hostIdInServer = ALL_LOCAL_HOSTS,
                   const std::set<std::string> *hgrpElementPackSet = NULL);
 
 /**

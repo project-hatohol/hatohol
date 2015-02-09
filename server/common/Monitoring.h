@@ -79,7 +79,8 @@ struct TriggerInfo {
 	TriggerStatusType   status;
 	TriggerSeverityType severity;
 	timespec            lastChangeTime;
-	HostIdType          hostId;
+	HostIdType          globalHostId;
+	LocalHostIdType     hostIdInServer;
 	std::string         hostName;
 	std::string         brief;
 	std::string         extendedInfo;
@@ -114,7 +115,8 @@ struct EventInfo {
 	// so they should be unified.
 	TriggerStatusType   status;
 	TriggerSeverityType severity;
-	HostIdType          hostId;
+	HostIdType          globalHostId;
+	LocalHostIdType     hostIdInServer;
 	std::string         hostName;
 	std::string         brief;
 	std::string         extendedInfo;

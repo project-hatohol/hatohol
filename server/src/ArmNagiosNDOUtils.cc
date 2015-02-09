@@ -586,7 +586,9 @@ void ArmNagiosNDOUtils::getTrigger(void)
 		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
 		                                      //status_update_time
 		itemGroupStream >> trigInfo.brief;    // output
-		itemGroupStream >> trigInfo.hostId;   // host_id
+		itemGroupStream >> trigInfo.hostIdInServer; // host_id
+		// TODO: itemGroupStream >> trigInfo.globalHostId;
+		trigInfo.globalHostId = INAPPLICABLE_HOST_ID;
 		itemGroupStream >> trigInfo.hostName; // hosts.display_name
 		triggerInfoList.push_back(trigInfo);
 	}
@@ -636,7 +638,7 @@ void ArmNagiosNDOUtils::getEvent(void)
 		itemGroupStream >> eventInfo.time.tv_sec; // state_time
 		itemGroupStream >> eventInfo.brief;       // output
 		itemGroupStream >> eventInfo.triggerId;   // service_id
-		itemGroupStream >> eventInfo.hostId;      // host_id
+		itemGroupStream >> eventInfo.hostIdInServer; // host_id
 		itemGroupStream >> eventInfo.hostName;    // hosts.display_name
 		eventInfoList.push_back(eventInfo);
 	}

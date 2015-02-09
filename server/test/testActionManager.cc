@@ -488,7 +488,7 @@ void _assertActionLogJustAfterExec(
 	expectedArgs.push_back(StringUtils::sprintf("%d", ctx->actDef.id));
 	expectedArgs.push_back(StringUtils::sprintf("%" PRIu32,
 	                                            evInf.serverId));
-	expectedArgs.push_back(StringUtils::sprintf("%" PRIu64, evInf.hostId));
+	expectedArgs.push_back(evInf.hostIdInServer);
 	expectedArgs.push_back(StringUtils::sprintf("%ld.%ld",
 	  evInf.time.tv_sec, evInf.time.tv_nsec));
 	expectedArgs.push_back(StringUtils::sprintf("%" PRIu64, evInf.id));
@@ -727,7 +727,9 @@ static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	const EventInfo &expected = ctx->eventInfo;
 	cppcut_assert_equal(static_cast<uint32_t>(expected.serverId),
 	                    eventArg->serverId);
-	cppcut_assert_equal(expected.hostId, eventArg->hostId);
+	cppcut_assert_equal(
+	  expected.hostIdInServer,
+	  sbuf.extractString(&eventArg->hostIdInServerHeader));
 	cppcut_assert_equal(expected.time.tv_sec, eventArg->time.tv_sec);
 	cppcut_assert_equal(expected.time.tv_nsec, eventArg->time.tv_nsec);
 	cppcut_assert_equal(expected.id, eventArg->eventId);

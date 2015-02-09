@@ -127,7 +127,7 @@ static void _assertActions(const string &path, const string &callbackName = "",
 		  ServerIdType, cond.serverId);
 		asssertActionCondition(
 		  g_parser, cond, "hostId", ACTCOND_HOST_ID,
-		  string, StringUtils::toString(cond.hostId));
+		  string, cond.hostIdInServer);
 		asssertActionCondition(
 		  g_parser, cond, "hostgroupId", ACTCOND_HOST_GROUP_ID,
 		  uint64_t, cond.hostgroupId);
