@@ -208,6 +208,15 @@ public:
 	}
 
 	/**
+	 * Read a string with the given length and the offset.
+	 * After this method is called, the current index is not changed.
+	 *
+	 * @param header A string header.
+	 * @return a read string.
+	 */
+	std::string extractString(const StringHeader &header);
+
+	/**
 	 * Read a string with the length and the offset at the current index,
 	 * After this method is called, the current index is incremented.
 	 *
