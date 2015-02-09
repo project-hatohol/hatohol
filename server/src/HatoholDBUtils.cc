@@ -69,7 +69,7 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 		trigGroupStream >> trigInfo.brief;
 
 		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_HOSTID);
-		trigGroupStream >> trigInfo.hostId;
+		trigGroupStream >> trigInfo.hostIdInServer;
 
 		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION);
 		trigGroupStream >> expandedDescription;
@@ -82,14 +82,17 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 			trigInfo.extendedInfo = agent.generate();
 		}
 
-		if (trigInfo.hostId != INAPPLICABLE_HOST_ID &&
-		    !hostInfoCache.getName(trigInfo.hostId,
+		// TODO: trigGroupStream >> trigInfo.hostId;
+		trigInfo.globalHostId = INVALID_HOST_ID;
+
+		if (trigInfo.globalHostId != INAPPLICABLE_HOST_ID &&
+		    !hostInfoCache.getName(trigInfo.globalHostId,
 		                           trigInfo.hostName)) {
 			MLPL_WARN(
 			  "Ignored a trigger whose host name was not found: "
 			  "server: %" FMT_SERVER_ID ", host: %" FMT_HOST_ID
 			  "\n",
-			  serverId, trigInfo.hostId);
+			  serverId, trigInfo.globalHostId);
 			continue;
 		}
 

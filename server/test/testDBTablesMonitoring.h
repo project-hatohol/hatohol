@@ -31,7 +31,7 @@ struct AssertGetHostResourceArg {
 	TQueryOption option;
 	UserIdType userId;
 	ServerIdType targetServerId;
-	uint64_t targetHostId;
+	LocalHostIdType targetHostId;
 	DataQueryOption::SortDirection sortDirection;
 	size_t maxNumber;
 	size_t offset;
@@ -48,7 +48,7 @@ struct AssertGetHostResourceArg {
 	AssertGetHostResourceArg(void)
 	: userId(USER_ID_SYSTEM),
 	  targetServerId(ALL_SERVERS),
-	  targetHostId(ALL_HOSTS),
+	  targetHostId(ALL_LOCAL_HOSTS),
 	  sortDirection(DataQueryOption::SORT_DONT_CARE),
 	  maxNumber(0),
 	  offset(0),
@@ -114,7 +114,7 @@ struct AssertGetHostResourceArg {
 				if (record->serverId != targetServerId)
 					continue;
 			}
-			if (targetHostId != ALL_HOSTS) {
+			if (targetHostId != ALL_LOCAL_HOSTS) {
 				if (getHostId(*record) != targetHostId)
 					continue;
 			}
@@ -122,7 +122,8 @@ struct AssertGetHostResourceArg {
 		}
 	}
 
-	virtual HostIdType getHostId(const TResourceType &record) const = 0;
+	virtual LocalHostIdType
+	  getHostId(const TResourceType &record) const = 0;
 
 	virtual const TResourceType &getExpectedRecord(size_t idx)
 	{
@@ -289,9 +290,9 @@ struct AssertGetEventsArg
 		makeEventIncidentMap(eventIncidentMap);
 	}
 
-	virtual HostIdType getHostId(const EventInfo &info) const override
+	virtual LocalHostIdType getHostId(const EventInfo &info) const override
 	{
-		return info.hostId;
+		return info.hostIdInServer;
 	}
 
 	virtual std::string makeOutputText(const EventInfo &eventInfo)

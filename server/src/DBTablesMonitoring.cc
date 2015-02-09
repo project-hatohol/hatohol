@@ -953,7 +953,8 @@ void initEventInfo(EventInfo &eventInfo)
 	eventInfo.triggerId = 0;
 	eventInfo.status = TRIGGER_STATUS_UNKNOWN;
 	eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
-	eventInfo.hostId = INVALID_HOST_ID;
+	eventInfo.globalHostId = INVALID_HOST_ID;
+	eventInfo.hostIdInServer.clear();
 }
 
 // ---------------------------------------------------------------------------
@@ -1619,7 +1620,9 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		itemGroupStream >> trigInfo.severity;
 		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
 		itemGroupStream >> trigInfo.lastChangeTime.tv_nsec;
-		itemGroupStream >> trigInfo.hostId;
+		itemGroupStream >> trigInfo.hostIdInServer;
+		// TODO: itemGroupStream >> trigInfo.hostId;
+		trigInfo.globalHostId = INVALID_HOST_ID;
 		itemGroupStream >> trigInfo.hostName;
 		itemGroupStream >> trigInfo.brief;
 		itemGroupStream >> trigInfo.extendedInfo;
@@ -1819,24 +1822,26 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 
 		TriggerStatusType   eventStatus;
 		TriggerSeverityType eventSeverity;
-		HostIdType          eventHostId;
+		HostIdType          eventGlobalHostId = INVALID_HOST_ID; // TODO read form DB
+		LocalHostIdType     eventHostIdInServer;
 		string              eventHostName;
 		string              eventBrief;
 		itemGroupStream >> eventStatus;
 		itemGroupStream >> eventSeverity;
-		itemGroupStream >> eventHostId;
+		itemGroupStream >> eventHostIdInServer;
 		itemGroupStream >> eventHostName;
 		itemGroupStream >> eventBrief;
 
 		TriggerStatusType   triggerStatus;
 		TriggerSeverityType triggerSeverity;
-		HostIdType          triggerHostId;
+		HostIdType          triggerGlobalHostId = INVALID_HOST_ID; // TODO read form DB
+		LocalHostIdType     triggerHostIdInServer;
 		string              triggerHostName;
 		string              triggerBrief;
 		string              triggerExtendedInfo;
 		itemGroupStream >> triggerStatus;
 		itemGroupStream >> triggerSeverity;
-		itemGroupStream >> triggerHostId;
+		itemGroupStream >> triggerHostIdInServer;
 		itemGroupStream >> triggerHostName;
 		itemGroupStream >> triggerBrief;
 		itemGroupStream >> triggerExtendedInfo;
@@ -1851,11 +1856,14 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		} else {
 			eventInfo.severity = triggerSeverity;
 		}
-		if (eventHostId != 0 && eventHostId != INVALID_HOST_ID) {
-			eventInfo.hostId = eventHostId;
+
+		if (eventGlobalHostId != INVALID_HOST_ID) {
+			eventInfo.globalHostId   = eventGlobalHostId;
+			eventInfo.hostIdInServer = eventHostIdInServer;
 			eventInfo.hostName = eventHostName;
 		} else {
-			eventInfo.hostId = triggerHostId;
+			eventInfo.globalHostId   = triggerGlobalHostId;
+			eventInfo.hostIdInServer = triggerHostIdInServer;
 			eventInfo.hostName = triggerHostName;
 		}
 		if (!eventBrief.empty()) {
@@ -2555,7 +2563,7 @@ void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
 	arg.add(triggerInfo.severity),
 	arg.add(triggerInfo.lastChangeTime.tv_sec);
 	arg.add(triggerInfo.lastChangeTime.tv_nsec);
-	arg.add(triggerInfo.hostId);
+	arg.add(triggerInfo.hostIdInServer);
 	arg.add(triggerInfo.hostName);
 	arg.add(triggerInfo.brief);
 	arg.add(triggerInfo.extendedInfo);
@@ -2576,7 +2584,7 @@ void DBTablesMonitoring::addEventInfoWithoutTransaction(
 	arg.add(eventInfo.triggerId);
 	arg.add(eventInfo.status);
 	arg.add(eventInfo.severity);
-	arg.add(eventInfo.hostId);
+	arg.add(eventInfo.hostIdInServer);
 	arg.add(eventInfo.hostName);
 	arg.add(eventInfo.brief);
 	arg.upsertOnDuplicate = true;

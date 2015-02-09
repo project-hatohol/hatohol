@@ -465,7 +465,7 @@ void HatoholArmPluginGate::createPluginTriggerInfo(const HAPIWtchPointInfo &resT
 
 	triggerInfo.serverId = svInfo.id;
 	triggerInfo.lastChangeTime = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
-	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
+	triggerInfo.globalHostId = MONITORING_SERVER_SELF_ID;
 	triggerInfo.hostName = 
 		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
 				     HAP_SELF_MONITORING_SUFFIX);
@@ -486,7 +486,7 @@ void HatoholArmPluginGate::createPluginEventInfo(const HAPIWtchPointInfo &resTri
 	eventInfo.serverId = svInfo.id;
 	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
 	eventInfo.time = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
-	eventInfo.hostId = MONITORING_SERVER_SELF_ID;
+	eventInfo.globalHostId = MONITORING_SERVER_SELF_ID;
 	eventInfo.triggerId = resTrigger.triggerId;
 	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
 	eventInfo.status = resTrigger.statusType;

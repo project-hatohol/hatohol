@@ -45,7 +45,7 @@ static void initParamChecker(
 	string expected = "server_id=2";
 	const type_info &optionType = typeid(option);
 	if (optionType != typeid(HostgroupsQueryOption)) {
-		option.setTargetHostId(4);
+		option.setTargetHostId("4");
 		const char *hostIdColumnName = "host_id";
 		if (optionType == typeid(HostsQueryOption)) {
 			hostIdColumnName = "host_id_in_server";
@@ -427,7 +427,7 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 	EventsQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(26);
 	option.setTargetHostgroupId("48");
-	option.setTargetHostId(32);
+	option.setTargetHostId("32");
 	string expect = StringUtils::sprintf(
 	                  "%s.%s=26 AND %s.%s=32 AND %s.%s='48'",
 			  DBTablesMonitoring::TABLE_NAME_EVENTS,

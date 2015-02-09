@@ -440,7 +440,7 @@ HatoholError DBTablesAction::addAction(ActionDef &actionDef,
 	arg.add(AUTO_INCREMENT_VALUE);
 	arg.add(actionDef.condition.serverId,
 	        getNullFlag(actionDef, ACTCOND_SERVER_ID));
-	arg.add(actionDef.condition.hostId,
+	arg.add(actionDef.condition.hostIdInServer,
 	        getNullFlag(actionDef, ACTCOND_HOST_ID));
 	arg.add(actionDef.condition.hostgroupId,
 	        getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
@@ -488,7 +488,7 @@ HatoholError DBTablesAction::updateAction(ActionDef &actionDef,
 	                                     actionIdColumnName, actionDef.id);
 	arg.add(IDX_ACTIONS_SERVER_ID, actionDef.condition.serverId,
 	        getNullFlag(actionDef, ACTCOND_SERVER_ID));
-	arg.add(IDX_ACTIONS_HOST_ID, actionDef.condition.hostId,
+	arg.add(IDX_ACTIONS_HOST_ID, actionDef.condition.hostIdInServer,
 	        getNullFlag(actionDef, ACTCOND_HOST_ID));
 	arg.add(IDX_ACTIONS_HOST_GROUP_ID, actionDef.condition.hostgroupId,
 	        getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
@@ -561,7 +561,7 @@ HatoholError DBTablesAction::getActionList(ActionDefList &actionDefList,
 
 		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_HOST_ID);
-		itemGroupStream >> actionDef.condition.hostId;
+		itemGroupStream >> actionDef.condition.hostIdInServer;
 
 		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_HOST_GROUP_ID);
@@ -890,7 +890,7 @@ static void takeTriggerInfo(TriggerInfo &triggerInfo,
 }
 
 static void getHostgroupIdStringList(string &stringHostgroupId,
-  const ServerIdType &serverId, const HostIdType &hostId)
+  const ServerIdType &serverId, const LocalHostIdType &hostId)
 {
 	HostgroupMemberVect hostgrpMembers;
 	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
@@ -1114,7 +1114,7 @@ string ActionsQueryOption::Impl::makeConditionTemplate(void)
 	// host_id;
 	const ColumnDef &colDefHostId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_ID];
 	cond += StringUtils::sprintf(
-	  "((%s IS NULL) OR (%s=%%" PRIu64 "))",
+	  "((%s IS NULL) OR (%s='%%" FMT_LOCAL_HOST_ID "'))",
 	  colDefHostId.columnName, colDefHostId.columnName);
 	cond += " AND ";
 
@@ -1282,26 +1282,29 @@ string ActionsQueryOption::getCondition(void) const
 	TriggerInfo triggerInfo;
 	// TODO: eventInfo should always be filled before this function
 	//       is called. (The conditional branch here is not good)
-	if ((eventInfo->hostId == INVALID_HOST_ID) &&
+	if ((eventInfo->globalHostId == INVALID_HOST_ID) &&
 	    (eventInfo->severity == TRIGGER_SEVERITY_UNKNOWN)) {
 		takeTriggerInfo(
 		  triggerInfo, eventInfo->serverId, eventInfo->triggerId);
 	} else {
 		triggerInfo.serverId = eventInfo->serverId;
-		triggerInfo.hostId   = eventInfo->hostId;
+		triggerInfo.globalHostId   = eventInfo->globalHostId;
+		triggerInfo.hostIdInServer = eventInfo->hostIdInServer;
 		triggerInfo.severity = eventInfo->severity;
 	}
 	string hostgroupIdList;
-	getHostgroupIdStringList(hostgroupIdList,
-	  triggerInfo.serverId, triggerInfo.hostId);
+	getHostgroupIdStringList(
+	  hostgroupIdList, triggerInfo.serverId, triggerInfo.hostIdInServer);
 	if (hostgroupIdList.empty())
 		hostgroupIdList = DB::getAlwaysFalseCondition();
 
 	if (!cond.empty())
 		cond += " AND ";
+	// TODO: We can just pass triggerInfo.globalHostId instead of
+	//       a pair of server ID and the hostIdInServer.
 	cond += StringUtils::sprintf(m_impl->conditionTemplate.c_str(),
 	                       eventInfo->serverId,
-	                       triggerInfo.hostId,
+	                       triggerInfo.hostIdInServer.c_str(),
 	                       hostgroupIdList.c_str(),
 	                       eventInfo->triggerId,
 	                       eventInfo->status,
