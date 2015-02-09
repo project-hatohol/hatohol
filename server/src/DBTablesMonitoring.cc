@@ -56,7 +56,7 @@ const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBTablesMonitoring::MONITORING_DB_VERSION = 10;
+const int   DBTablesMonitoring::MONITORING_DB_VERSION = 11;
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -148,6 +148,15 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
+	"host_id_in_server",               // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
 	"hostname",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -184,7 +193,8 @@ enum {
 	IDX_TRIGGERS_SEVERITY,
 	IDX_TRIGGERS_LAST_CHANGE_TIME_SEC,
 	IDX_TRIGGERS_LAST_CHANGE_TIME_NS,
-	IDX_TRIGGERS_HOST_ID,
+	IDX_TRIGGERS_GLOBAL_HOST_ID,
+	IDX_TRIGGERS_HOST_ID_IN_SERVER,
 	IDX_TRIGGERS_HOSTNAME,
 	IDX_TRIGGERS_BRIEF,
 	IDX_TRIGGERS_EXTENDED_INFO,
@@ -968,7 +978,7 @@ static const HostResourceQueryOption::Synapse synapseEventsQueryOption(
   tableProfileEvents,
   IDX_EVENTS_UNIFIED_ID, IDX_EVENTS_SERVER_ID,
   tableProfileTriggers,
-  IDX_TRIGGERS_HOST_ID, true,
+  IDX_TRIGGERS_HOST_ID_IN_SERVER, true,
   tableProfileHostgroupMember,
   IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID,
   IDX_HOSTGROUP_MEMBER_GROUP_ID);
@@ -1162,7 +1172,7 @@ static const HostResourceQueryOption::Synapse synapseTriggersQueryOption(
   tableProfileTriggers,
   IDX_TRIGGERS_ID, IDX_TRIGGERS_SERVER_ID,
   tableProfileTriggers,
-  IDX_TRIGGERS_HOST_ID,
+  IDX_TRIGGERS_HOST_ID_IN_SERVER,
   true,
   tableProfileHostgroupMember,
   IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID,
@@ -1232,7 +1242,7 @@ string TriggersQueryOption::getCondition(void) const
 		  StringUtils::sprintf(
 		    "%s.%s<%" FMT_HOST_ID,
 		    DBTablesMonitoring::TABLE_NAME_TRIGGERS,
-		    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName,
+		    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID_IN_SERVER].columnName,
 		    MONITORING_SERVER_SELF_ID));
 	}
 
@@ -1576,7 +1586,7 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	builder.add(IDX_TRIGGERS_SEVERITY);
 	builder.add(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
 	builder.add(IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
-	builder.add(IDX_TRIGGERS_HOST_ID);
+	builder.add(IDX_TRIGGERS_HOST_ID_IN_SERVER);
 	builder.add(IDX_TRIGGERS_HOSTNAME);
 	builder.add(IDX_TRIGGERS_BRIEF);
 	builder.add(IDX_TRIGGERS_EXTENDED_INFO);
@@ -1585,7 +1595,7 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	 tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
 	 tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
 	                       IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
-	 tableProfileTriggers, IDX_TRIGGERS_HOST_ID,
+	 tableProfileTriggers, IDX_TRIGGERS_HOST_ID_IN_SERVER,
 	                       IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 
 	DBAgent::SelectExArg &arg = builder.build();
@@ -1759,7 +1769,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	  tableProfileEvents, IDX_EVENTS_TRIGGER_ID, IDX_TRIGGERS_ID);
 	builder.add(IDX_TRIGGERS_STATUS);
 	builder.add(IDX_TRIGGERS_SEVERITY);
-	builder.add(IDX_TRIGGERS_HOST_ID);
+	builder.add(IDX_TRIGGERS_HOST_ID_IN_SERVER);
 	builder.add(IDX_TRIGGERS_HOSTNAME);
 	builder.add(IDX_TRIGGERS_BRIEF);
 	builder.add(IDX_TRIGGERS_EXTENDED_INFO);
@@ -2166,7 +2176,7 @@ size_t DBTablesMonitoring::getNumberOfTriggers(
 	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
 	  tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
 	                        IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
-	  tableProfileTriggers, IDX_TRIGGERS_HOST_ID,
+	  tableProfileTriggers, IDX_TRIGGERS_HOST_ID_IN_SERVER,
 	                        IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt = "count(*)";
 	if (option.isHostgroupUsed()) {
@@ -2244,11 +2254,11 @@ size_t DBTablesMonitoring::getNumberOfHosts(const TriggersQueryOption &option)
 	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
 	  tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
 	                        IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
-	  tableProfileTriggers, IDX_TRIGGERS_HOST_ID,
+	  tableProfileTriggers, IDX_TRIGGERS_HOST_ID_IN_SERVER,
 	                        IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
-	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
+	    option.getColumnName(IDX_TRIGGERS_HOST_ID_IN_SERVER).c_str());
 	DBAgent::SelectExArg &arg = builder.build();
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
@@ -2276,11 +2286,11 @@ size_t DBTablesMonitoring::getNumberOfBadHosts(const TriggersQueryOption &option
 	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
 	  tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
 	                        IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
-	  tableProfileTriggers, IDX_TRIGGERS_HOST_ID,
+	  tableProfileTriggers, IDX_TRIGGERS_HOST_ID_IN_SERVER,
 	                        IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
-	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
+	    option.getColumnName(IDX_TRIGGERS_HOST_ID_IN_SERVER).c_str());
 	DBAgent::SelectExArg &arg = builder.build();
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
@@ -2563,6 +2573,7 @@ void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
 	arg.add(triggerInfo.severity),
 	arg.add(triggerInfo.lastChangeTime.tv_sec);
 	arg.add(triggerInfo.lastChangeTime.tv_nsec);
+	arg.add(triggerInfo.globalHostId);
 	arg.add(triggerInfo.hostIdInServer);
 	arg.add(triggerInfo.hostName);
 	arg.add(triggerInfo.brief);
