@@ -442,7 +442,7 @@ struct FetchStarter : public HatoholThreadBase {
 		if (!wait())
 			return NULL;
 		// wait for callback of colusreCb()
-		g_main_loop_run(loop);
+		g_main_loop_run(m_localLoop.getLoop());
 		succeeded = true;
 		return NULL;
 	}
@@ -461,15 +461,18 @@ struct FetchStarter : public HatoholThreadBase {
 	void fetchItemCb(Closure0 *closure)
 	{
 		fetched = ITEM;
-		g_main_loop_quit(loop);
+		g_main_loop_quit(m_localLoop.getLoop());
 	}
 
 	void fetchHistoryCb(Closure1<HistoryInfoVect> *closure,
 			    const HistoryInfoVect &historyInfoVect)
 	{
 		fetched = HISTORY;
-		g_main_loop_quit(loop);
+		g_main_loop_quit(m_localLoop.getLoop());
 	}
+
+private:
+	GLibMainLoop m_localLoop;
 };
 
 void test_reqFetchItemDuringAcquireData(void)
