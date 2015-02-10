@@ -128,7 +128,7 @@ HatoholEventPager.prototype.update = function(params) {
 
   enable = true;
   parent.append(createItem(self.currentPage + 1, enable, function() {
-    return -1;
+    return self.currentPage;
   }).addClass("active"));
 
   enable = entrieRecords == this.numRecordsPerPage;

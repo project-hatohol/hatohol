@@ -45,6 +45,7 @@ var EventsView = function(userProfile, baseElem) {
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
+  self.pager = new HatoholEventPager();
   self.userConfig = new HatoholUserConfig();
   start();
 
@@ -64,6 +65,7 @@ var EventsView = function(userProfile, baseElem) {
         self.baseQuery.sortOrder =
           self.userConfig.findOrDefault(conf, 'event-sort-order',
                                         self.baseQuery.sortOrder);
+        updatePager();
         setupFilterValues();
         setupCallbacks();
         load();
@@ -71,6 +73,32 @@ var EventsView = function(userProfile, baseElem) {
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
         showXHRError(XMLHttpRequest);
       },
+    });
+  }
+
+  function saveConfig(items) {
+    self.userConfig.store({
+      items: items,
+      successCallback: function() {
+        // we just ignore it
+      },
+      connectErrorCallback: function(XMLHttpRequest) {
+        showXHRError(XMLHttpRequest);
+      },
+    });
+  }
+
+  function updatePager() {
+    self.pager.update({
+      numberOfEvents: self.rawData ? self.rawData["numberOfEvents"] : -1,
+      numRecordsPerPage: self.baseQuery.limit,
+      selectPageCallback: function(page) {
+        load(page);
+        if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
+          self.baseQuery.limit = self.pager.numRecordsPerPage;
+          saveConfig({'num-events-per-page': self.baseQuery.limit});
+        }
+      }
     });
   }
 
@@ -95,14 +123,14 @@ var EventsView = function(userProfile, baseElem) {
     return query;
   }
 
-  function getQuery(loadNextPage) {
-    if (loadNextPage) {
-      self.currentPage += 1;
-      if (!self.limitOfUnifiedId)
-        self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
-    } else {
+  function getQuery(page) {
+    if (!page) {
       self.currentPage = 0;
       self.limitOfUnifiedId = 0;
+    } else {
+      self.currentPage = page;
+      if (!self.limitOfUnifiedId)
+        self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
     }
 
     var query = $.extend({}, self.baseQuery, {
@@ -118,10 +146,18 @@ var EventsView = function(userProfile, baseElem) {
     return 'events?' + $.param(query);
   };
 
-  function load(loadNextPage) {
-    self.startConnection(getQuery(loadNextPage), updateCore);
-    $(document.body).scrollTop(0);
+  function load(page) {
+    self.displayUpdateTime();
     setLoading(true);
+    if (!isNaN(page)) {
+      self.currentPage = page;
+      self.disableAutoRefresh();
+    } else {
+      self.currentPage = 0;
+    }
+    self.startConnection(getQuery(self.currentPage), updateCore);
+    self.pager.update({ currentPage: self.currentPage });
+    $(document.body).scrollTop(0);
   }
 
   function setupFilterValues(servers, query) {
@@ -174,12 +210,6 @@ var EventsView = function(userProfile, baseElem) {
       self.userConfig.store(params);
     });
 
-    $('#next-events-button').click(function() {
-      var loadNextPage = true;
-      self.disableAutoRefresh();
-      load(loadNextPage);
-    });
-
     $('#latest-events-button').click(function() {
       self.enableAutoRefresh(load(), self.intervalSeconds);
     });
@@ -193,7 +223,6 @@ var EventsView = function(userProfile, baseElem) {
       $("#select-host").attr("disabled", "disabled");
       $("#num-events-per-page").attr("disabled", "disabled");
       $("#latest-events-button").attr("disabled", "disabled");
-      $("#next-events-button").attr("disabled", "disabled");
     } else {
       $("#select-severity").removeAttr("disabled");
       $("#select-status").removeAttr("disabled");
@@ -202,7 +231,6 @@ var EventsView = function(userProfile, baseElem) {
         $("#select-host").removeAttr("disabled");
       $("#num-events-per-page").removeAttr("disabled");
       $("#latest-events-button").removeAttr("disabled");
-      $("#next-events-button").removeAttr("disabled");
     }
   }
 
@@ -346,8 +374,8 @@ var EventsView = function(userProfile, baseElem) {
 
     setupFilterValues();
     drawTableContents();
+    updatePager();
     setLoading(false);
-    self.displayUpdateTime();
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 };
