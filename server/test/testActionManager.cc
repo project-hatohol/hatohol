@@ -1382,7 +1382,7 @@ void test_checkEventsWithMultipleIncidentSender(void)
 	  ActionCondition(
 	    ACTCOND_TRIGGER_STATUS | ACTCOND_TRIGGER_SEVERITY, // enableBits
 	    0,                        // serverId
-	    0,                        // hostId
+	    "",                       // hostId
 	    0,                        // hostgroupId
 	    0,                        // triggerId
 	    TRIGGER_STATUS_PROBLEM,   // triggerStatus

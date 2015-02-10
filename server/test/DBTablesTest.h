@@ -118,7 +118,7 @@ extern const size_t NumTestHostgroupMember;
  */
 void getTestTriggersIndexes(
   std::map<ServerIdType, std::map<uint64_t, size_t> > &indexMap,
-  const ServerIdType &serverId, uint64_t hostId);
+  const ServerIdType &serverId, const HostIdType &hostId);
 size_t getNumberOfTestTriggers(
   const ServerIdType &serverId,
   const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS,
