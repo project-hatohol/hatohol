@@ -1355,7 +1355,7 @@ void ZabbixAPI::pushTriggersHostid(JSONParser &parser,
 	} else  {
 		for (int i = 0; i < numElem; i++) {
 			startElement(parser, i);
-			pushUint64(parser, itemGroup, "hostid", itemId);
+			pushString(parser, itemGroup, "hostid", itemId);
 			break; // we use the first applicationid
 		}
 		parser.endElement();
