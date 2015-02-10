@@ -260,6 +260,7 @@ var LatestView = function(userProfile) {
     }
     self.startConnection(getQuery(self.currentPage), updateCore);
     self.pager.update({ currentPage: self.currentPage });
+    $(document.body).scrollTop(0);
   }
 };
 
