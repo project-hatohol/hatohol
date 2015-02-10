@@ -752,14 +752,15 @@ void test_getTriggerActionListWithAllCondition(void)
 	assertEqual(testActionDef[idxTarget], actual);
 }
 
-static void _assertGetActionWithSeverity(const TriggerSeverityType &severity,
-					 const int expectedActionIdx)
+static void _assertGetActionWithSeverity(
+  const TriggerSeverityType &severity,
+  const int &targetActionIdx, const bool &expectFound = true)
 {
 	loadTestDBAction();
 
 	// make an EventInfo instance for the test
 	EventInfo eventInfo;
-	const ActionDef &actionDef = testActionDef[expectedActionIdx];
+	const ActionDef &actionDef = testActionDef[targetActionIdx];
 	const ActionCondition condTarget = actionDef.condition;
 	eventInfo.serverId  = condTarget.serverId ? : 1129;
 	eventInfo.id        = 1192;
@@ -784,26 +785,25 @@ static void _assertGetActionWithSeverity(const TriggerSeverityType &severity,
 	  HTERR_OK,
 	  dbAction.getActionList(actionDefList, option));
 
-	if (expectedActionIdx < 0) {
+	if (!expectFound) {
 		cppcut_assert_equal((size_t)0, actionDefList.size());
 	} else {
 		cppcut_assert_equal((size_t)1, actionDefList.size());
 		// check the content
 		const ActionDef &actual = *actionDefList.begin();
-		assertEqual(testActionDef[expectedActionIdx], actual);
+		assertEqual(testActionDef[targetActionIdx], actual);
 	}
 }
-#define assertGetActionWithSeverity(S,E) \
-cut_trace(_assertGetActionWithSeverity(S,E))
+#define assertGetActionWithSeverity(S,E,...) \
+cut_trace(_assertGetActionWithSeverity(S,E,##__VA_ARGS__))
 
 void test_getActionWithLessSeverityAgainstCmpEqGt(void)
 {
 	int targetActionIdx = 1;
-	int noActionIdx = -1;
 	ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)(targetAction.condition.triggerSeverity - 1),
-	  noActionIdx);
+	  targetActionIdx, false);
 }
 
 void test_getActionWithEqualSeverityAgainstCmpEqGt(void)
@@ -827,11 +827,10 @@ void test_getActionWithGreaterSeverityAgainstCmpEqGt(void)
 void test_getActionWithLessSeverityAgainstCmpEq(void)
 {
 	int targetActionIdx = 4;
-	int noActionIdx = -1;
 	ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)(targetAction.condition.triggerSeverity - 1),
-	  noActionIdx);
+	  targetActionIdx, false);
 }
 
 void test_getActionWithEqualSeverityAgainstCmpEq(void)
@@ -846,11 +845,10 @@ void test_getActionWithEqualSeverityAgainstCmpEq(void)
 void test_getActionWithGreaterSeverityAgainstCmpEq(void)
 {
 	int targetActionIdx = 4;
-	int noActionIdx = -1;
 	ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)(targetAction.condition.triggerSeverity + 1),
-	  noActionIdx);
+	  targetActionIdx, false);
 }
 
 void test_getActionListWithNormalUser(void)
