@@ -135,7 +135,7 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"host_id",                         // columnName
+	"global_host_id",                  // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
 	0,                                 // decFracLength
