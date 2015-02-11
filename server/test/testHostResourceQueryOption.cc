@@ -668,7 +668,7 @@ void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setTargetServerId(26);
 	option.setTargetHostId("32");
-	string expect = StringUtils::sprintf("%s=26 AND %s=32",
+	string expect = StringUtils::sprintf("%s=26 AND %s='32'",
 					     serverIdColumnName.c_str(),
 					     hostIdColumnName.c_str());
 	cppcut_assert_equal(expect, option.getCondition());
