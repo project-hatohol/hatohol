@@ -647,7 +647,7 @@ void test_makeConditionWithTargetServerAndHost(void)
 	srvHostGrpSetMap[5].insert(ALL_HOST_GROUPS);
 	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
 	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
-	string expect = StringUtils::sprintf("((%s=14) AND %s=21)",
+	string expect = StringUtils::sprintf("((%s=14) AND %s='21')",
 					     serverIdColumnName.c_str(),
 					     hostIdColumnName.c_str());
 	assertMakeCondition(srvHostGrpSetMap, expect, 14, "21");
