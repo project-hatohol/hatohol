@@ -58,5 +58,7 @@ def jsonforward(request, path):
 
     response = HttpResponse(content, content_type='application/json')
 
+    response['Pragma'] = 'no-cache'
     response['Cache-Control'] = 'no-cache'
+    response['Expires'] = '0'
     return response
