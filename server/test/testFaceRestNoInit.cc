@@ -400,7 +400,7 @@ void test_parseEventParameterTargetHostId(void)
 void test_parseEventParameterInvalidTargetHostId(void)
 {
 	assertParseEventParameterTargetHostId(
-	  "", "hostid", HTERR_INVALID_PARAMETER);
+	  "", "", HTERR_INVALID_PARAMETER);
 }
 
 void test_parseEventParameterNoTargetHostgroupId(void)
