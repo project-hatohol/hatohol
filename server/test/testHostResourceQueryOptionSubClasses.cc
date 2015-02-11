@@ -36,7 +36,7 @@ namespace testHostResourceQueryOptionSubClasses {
 // NOTE: The same definitions are in testDBClientHatohol.cc
 static const string serverIdColumnName = "server_id";
 static const string hostgroupIdColumnName = "host_group_id";
-static const string hostIdColumnName = "host_id";
+static const string hostIdColumnName = "host_id_in_server";
 
 static void initParamChecker(
   gconstpointer data, HostResourceQueryOption &option)
@@ -46,11 +46,13 @@ static void initParamChecker(
 	const type_info &optionType = typeid(option);
 	if (optionType != typeid(HostgroupsQueryOption)) {
 		option.setTargetHostId("4");
-		const char *hostIdColumnName = "host_id";
-		if (optionType == typeid(HostsQueryOption)) {
-			hostIdColumnName = "host_id_in_server";
+		const char *hostIdColumnName = "host_id_in_server";
+		if (optionType == typeid(ItemsQueryOption)) {
+			// TODO: This block should be removed
+			hostIdColumnName = "host_id";
 		}
-		expected += StringUtils::sprintf(" AND %s=4", hostIdColumnName);
+		expected += StringUtils::sprintf(" AND %s='4'",
+		                                 hostIdColumnName);
 	}
 	if (typeid(option) == typeid(HostsQueryOption)) {
 		HostsQueryOption &hostsQueryOption =
@@ -429,7 +431,7 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 	option.setTargetHostgroupId("48");
 	option.setTargetHostId("32");
 	string expect = StringUtils::sprintf(
-	                  "%s.%s=26 AND %s.%s=32 AND %s.%s='48'",
+	                  "%s.%s=26 AND %s.%s='32' AND %s.%s='48'",
 			  DBTablesMonitoring::TABLE_NAME_EVENTS,
 			  serverIdColumnName.c_str(),
 			  DBTablesMonitoring::TABLE_NAME_TRIGGERS,
