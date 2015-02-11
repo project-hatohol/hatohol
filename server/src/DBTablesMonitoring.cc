@@ -990,7 +990,7 @@ static const HostResourceQueryOption::Synapse synapseEventsQueryOption(
   tableProfileTriggers,
   IDX_TRIGGERS_HOST_ID_IN_SERVER, true,
   tableProfileHostgroupMember,
-  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
   IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 struct EventsQueryOption::Impl {
@@ -1185,7 +1185,7 @@ static const HostResourceQueryOption::Synapse synapseTriggersQueryOption(
   IDX_TRIGGERS_HOST_ID_IN_SERVER,
   true,
   tableProfileHostgroupMember,
-  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
   IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 struct TriggersQueryOption::Impl {
