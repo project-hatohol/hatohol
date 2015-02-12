@@ -230,7 +230,7 @@ def generate_label_gettext(generators):
         for obj in gen.get_parameters():
             labels.add(obj['label'])
     for label in labels:
-      print 'gettext("' + label + '")'
+        print 'gettext("' + label + '")'
 
 
 def main():
