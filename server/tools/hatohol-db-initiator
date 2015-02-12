@@ -6,12 +6,12 @@ import MySQLdb
 from ctypes import *
 
 sql_file_list = [
-  {'table_name':'users', 'file_name':'init-user.sql'},
-  {'table_name':'server_types', 'file_name':'server-type-zabbix.sql'},
-  {'table_name':'server_types', 'file_name':'server-type-nagios.sql'},
-  {'table_name':'server_types', 'file_name':'server-type-hapi-zabbix.sql'},
-  {'table_name':'server_types', 'file_name':'server-type-hapi-json.sql'},
-  {'table_name':'server_types', 'file_name':'server-type-ceilometer.sql'}]
+    {'table_name':'users', 'file_name':'init-user.sql', 'target':'users'},
+    {'table_name':'server_types', 'file_name':'server-type-zabbix.sql', 'target':'zabbix'},
+    {'table_name':'server_types', 'file_name':'server-type-nagios.sql', 'target':'nagios'},
+    {'table_name':'server_types', 'file_name':'server-type-hapi-zabbix.sql', 'target':'hapi-zabbix'},
+    {'table_name':'server_types', 'file_name':'server-type-hapi-json.sql', 'target':'hapi-json'},
+    {'table_name':'server_types', 'file_name':'server-type-ceilometer.sql', 'target':'ceilometer'}]
 
 
 def create_db_if_needed(cursor, args):
@@ -106,7 +106,7 @@ def start(args):
 
     try:
         for sql_file in sql_file_list:
-            if args.target and args.target != sql_file['table_name']:
+            if args.target and args.target != sql_file['target']:
                 continue
             load_data_from_file(cursor, args,
                                 sql_file['table_name'], sql_file['file_name'])
@@ -127,6 +127,10 @@ def get_table_name_list():
     [table_name_list.append(elem['table_name']) for elem in sql_file_list]
     return table_name_list
 
+def get_target_list():
+    target_list = []
+    [target_list.append(elem['target']) for elem in sql_file_list]
+    return target_list
 
 if __name__ == '__main__':
 
@@ -148,7 +152,7 @@ if __name__ == '__main__':
                         help='A password that is used to access the database.')
     parser.add_argument('-f', '--force', action='store_true',
                         help='Delete existing data in a table before the initial data are inserted. By default, this tool skips to insert data if the table is not empty.')
-    parser.add_argument('-t', '--target', choices=get_table_name_list(),
+    parser.add_argument('-t', '--target', choices=get_target_list(),
                         help='Only the specified table is initialized.')
     args = parser.parse_args()
     start(args)
