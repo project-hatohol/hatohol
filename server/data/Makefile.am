@@ -9,8 +9,7 @@ sqldir = $(pkgdatadir)/sql
 # use a tmporary file: _tmp.$@
 HATOHOL_SERVER_TYPE_UTIL = ../tools/hatohol-server-type-util
 server-type.sql: $(HATOHOL_SERVER_TYPE_UTIL)
-	$(HATOHOL_SERVER_TYPE_UTIL) mysql > _tmp.$@
-	mv _tmp.$@ $@
+	$(HATOHOL_SERVER_TYPE_UTIL) mysql
 
 HATOHOL_INIT_USER_GENERATOR = ../tools/hatohol-init-user-generator
 init-user.sql: $(HATOHOL_INIT_USER_GENERATOR)

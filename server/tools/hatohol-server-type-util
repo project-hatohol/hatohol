@@ -49,6 +49,8 @@ class ParamGenerator:
                     'hint':'(empty: Default)'});
         return obj;
 
+    def get_sql_file_type_name(self):
+        return '';
 
 class ZabbixParamGenerator(ParamGenerator):
     def get_server_type(self):
@@ -59,6 +61,9 @@ class ZabbixParamGenerator(ParamGenerator):
 
     def get_parameters(self):
         return self.get_zabbix_params()
+
+    def get_sql_file_type_name(self):
+        return 'zabbix';
 
 
 class NagiosParamGenerator(ParamGenerator):
@@ -94,6 +99,8 @@ class NagiosParamGenerator(ParamGenerator):
                     'default':'10'});
         return obj
 
+    def get_sql_file_type_name(self):
+        return 'nagios';
 
 class HapiZabbixParamGenerator(ParamGenerator):
     def get_server_type(self):
@@ -110,6 +117,8 @@ class HapiZabbixParamGenerator(ParamGenerator):
     def get_plugin_path(self):
         return 'hatohol-arm-plugin-zabbix';
 
+    def get_sql_file_type_name(self):
+        return 'hapi-zabbix';
 
 class HapiJSONParamGenerator(ParamGenerator):
     def get_server_type(self):
@@ -145,6 +154,8 @@ class HapiJSONParamGenerator(ParamGenerator):
                     'allowEmpty':True});
         return obj
 
+    def get_sql_file_type_name(self):
+        return 'hapi-json';
 
 class HapiCeilometerGenerator(ParamGenerator):
     def get_server_type(self):
@@ -187,11 +198,15 @@ class HapiCeilometerGenerator(ParamGenerator):
     def get_plugin_path(self):
         return 'hatohol-arm-plugin-ceilometer'
 
+    def get_sql_file_type_name(self):
+        return 'ceilometer';
 
-def generate_one_type(table_name, server_type, server_label, parameters, plugin_path):
+def generate_one_type(table_name, server_type, server_label, parameters, plugin_path, file_identifier):
     line = 'INSERT ' + table_name + ' VALUES ('
     line += '%d, \'%s\', \'%s\', \'%s\');' % (server_type, server_label, parameters, plugin_path)
-    print line
+    sql = open('server-type-' + file_identifier + '.sql', 'w')
+    sql.write(line)
+    sql.close()
 
 def generate_mysql(generators):
     TABLE_NAME = 'server_types'
@@ -199,7 +214,8 @@ def generate_mysql(generators):
         generate_one_type(TABLE_NAME, gen.get_server_type(),
                           gen.get_server_type_name(),
                           json.dumps(gen.get_parameters()),
-                          gen.get_plugin_path())
+                          gen.get_plugin_path(),
+                          gen.get_sql_file_type_name())
 
 def generate_label_gettext(generators):
     labels = Set()
