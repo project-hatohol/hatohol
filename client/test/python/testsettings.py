@@ -19,7 +19,8 @@
 # Django settings for hatohol project.
 import os
 
-PROJECT_HOME = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+PROJECT_HOME = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '../..'))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -34,7 +35,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'test_hatohol_client',
-        'USER': 'hatohol',          
+        'USER': 'hatohol',
         'PASSWORD': 'hatohol',
         'HOST': '',                      # Set to empty string for localhost.
         'PORT': '',                      # Set to empty string for default.
@@ -100,7 +101,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    #'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -110,7 +111,7 @@ SECRET_KEY = '9xkobcf%(rj(u54^zf7+-c^@+59c9dqg&amp;he2ue65v88z&amp;dyy_k'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    #'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -127,7 +128,8 @@ ROOT_URLCONF = 'hatohol.urls'
 WSGI_APPLICATION = 'hatohol.wsgi.application'
 
 TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Put strings here, like "/home/html/django_templates" or
+    # "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     PROJECT_HOME,
@@ -161,9 +163,9 @@ LOGGING = {
         }
     },
     'handlers': {
-        'console':{
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
         },
         'mail_admins': {
             'level': 'ERROR',

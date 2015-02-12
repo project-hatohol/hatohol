@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 SERVER_ADDR_ENV_NAME = 'HATOHOL_SERVER_ADDR'
 SERVER_PORT_ENV_NAME = 'HATOHOL_SERVER_PORT'
 
+
 def _setup():
     # server
     global SERVER_ADDR
@@ -49,10 +50,13 @@ def _setup():
     else:
         SERVER_PORT = DEFAULT_SERVER_PORT
 
+
 def get_address():
     return SERVER_ADDR
 
+
 def get_port():
     return SERVER_PORT
+
 
 _setup()

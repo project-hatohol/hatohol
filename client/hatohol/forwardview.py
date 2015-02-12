@@ -21,6 +21,7 @@ from django.http import HttpResponse
 import hatoholserver
 import hatohol_def
 
+
 def utf8_dict(src_dict):
     dest_dict = {}
     for key, value in src_dict.iteritems():
@@ -31,21 +32,20 @@ def utf8_dict(src_dict):
         dest_dict[key] = value
     return dest_dict
 
+
 def jsonforward(request, path):
-    server  = hatoholserver.get_address()
-    port    = hatoholserver.get_port()
-    url     = 'http://%s:%d/%s' % (server, port, path)
+    server = hatoholserver.get_address()
+    port = hatoholserver.get_port()
+    url = 'http://%s:%d/%s' % (server, port, path)
     hdrs = {}
     if hatoholserver.SESSION_NAME_META in request.META:
         hdrs = {hatohol_def.FACE_REST_SESSION_ID_HEADER_NAME:
                 request.META[hatoholserver.SESSION_NAME_META]}
     if request.method == 'POST':
         encoded_query = urllib.urlencode(utf8_dict(request.POST))
-        req = urllib2.Request(url, encoded_query,
-                            headers=hdrs)
+        req = urllib2.Request(url, encoded_query, headers=hdrs)
     elif request.method == 'PUT':
-        req = urllib2.Request(url, request.read(),
-                            headers=hdrs)
+        req = urllib2.Request(url, request.read(), headers=hdrs)
         req.get_method = lambda: 'PUT'
     elif request.method == 'DELETE':
         req = urllib2.Request(url, headers=hdrs)

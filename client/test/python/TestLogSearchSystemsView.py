@@ -28,6 +28,7 @@ from hatohol.views import log_search_systems
 from hatohol_server_emulator import HatoholServerEmulator
 from hatohol import hatoholserver
 
+
 class TestLogSearchSystemsView(unittest.TestCase):
 
     def _setup_emulator(self):
@@ -75,11 +76,12 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
         # recieved in the above HatoholServerEmulatorHandler that
         # acutually doesn't verify it.
         request.META[hatoholserver.SESSION_NAME_META] = \
-          'c579a3da-65db-44b4-a0da-ebf27548f4fd';
+            'c579a3da-65db-44b4-a0da-ebf27548f4fd'
 
     def test_get_without_id(self):
-        system = LogSearchSystem(type='groonga',
-                                 base_url='http://search.example.com/#!/tables/Logs/search')
+        system = LogSearchSystem(
+            type='groonga',
+            base_url='http://search.example.com/#!/tables/Logs/search')
         system.save()
         response = self._get(None)
         self.assertEquals(response.status_code, httplib.OK)
@@ -92,8 +94,9 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
                           [record])
 
     def test_get_with_id(self):
-        system = LogSearchSystem(type='groonga',
-                                 base_url='http://search.example.com/#!/tables/Logs/search')
+        system = LogSearchSystem(
+            type='groonga',
+            base_url='http://search.example.com/#!/tables/Logs/search')
         system.save()
         response = self._get(system.id)
         self.assertEquals(response.status_code, httplib.OK)
@@ -106,8 +109,9 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
                           record)
 
     def test_get_with_id_nonexsitent(self):
-        system = LogSearchSystem(type='groonga',
-                                 base_url='http://search.example.com/#!/tables/Logs/search')
+        system = LogSearchSystem(
+            type='groonga',
+            base_url='http://search.example.com/#!/tables/Logs/search')
         system.save()
         id = system.id
         system.delete()
@@ -135,8 +139,9 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
         self.assertEquals(response.status_code, httplib.BAD_REQUEST)
 
     def test_put_with_id(self):
-        system = LogSearchSystem(type='groonga',
-                                 base_url='http://search.example.com/#!/tables/Logs/search')
+        system = LogSearchSystem(
+            type='groonga',
+            base_url='http://search.example.com/#!/tables/Logs/search')
         system.save()
         new_record = {
             'type': 'other',
@@ -153,8 +158,9 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
                           record)
 
     def test_put_with_id_nonexistent(self):
-        system = LogSearchSystem(type='groonga',
-                                 base_url='http://search.example.com/#!/tables/Logs/search')
+        system = LogSearchSystem(
+            type='groonga',
+            base_url='http://search.example.com/#!/tables/Logs/search')
         system.save()
         nonexistent_id = system.id
         system.delete()
@@ -170,8 +176,9 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
         self.assertEquals(response.status_code, httplib.BAD_REQUEST)
 
     def test_delete_with_id(self):
-        system = LogSearchSystem(type='groonga',
-                                 base_url='http://search.example.com/#!/tables/Logs/search')
+        system = LogSearchSystem(
+            type='groonga',
+            base_url='http://search.example.com/#!/tables/Logs/search')
         system.save()
         response = self._delete(system.id)
         self.assertEquals(response.status_code, httplib.OK)
@@ -190,9 +197,8 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
 class TestLogSearchSystemsViewUnauthorized(TestLogSearchSystemsView):
 
     def _setSessionId(self, request):
-        pass # Don't set session ID
+        pass  # Don't set session ID
 
     def test_get_without_id(self):
         response = self._get(None)
         self.assertEquals(response.status_code, httplib.FORBIDDEN)
-

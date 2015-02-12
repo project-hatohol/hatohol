@@ -27,6 +27,7 @@ from hatohol.models import LogSearchSystem
 from hatohol import hatoholserver
 from viewer.userconfig import get_user_id_from_hatohol_server
 
+
 def format_models(models):
     records = serializers.serialize('python', models)
     flatten_records = []
@@ -34,6 +35,7 @@ def format_models(models):
         flatten_record = dict({'id': record['pk']}, **record['fields'])
         flatten_records.append(flatten_record)
     return flatten_records
+
 
 def to_json(object):
     if hasattr(object, '__iter__'):
@@ -44,9 +46,11 @@ def to_json(object):
     else:
         return json.dumps(object)
 
+
 class LogSearchSystemForm(ModelForm):
     class Meta:
         model = LogSearchSystem
+
 
 def is_valid_session(request):
     if hatoholserver.SESSION_NAME_META not in request.META:
@@ -55,6 +59,7 @@ def is_valid_session(request):
 
     user_id = get_user_id_from_hatohol_server(session_id)
     return user_id is not None
+
 
 def log_search_systems(request, id):
     content_type = 'application/json'
@@ -84,7 +89,8 @@ def log_search_systems(request, id):
             record = http.QueryDict(request.body, encoding=request.encoding)
             form = LogSearchSystemForm(record, instance=system)
             form.save()
-            return http.HttpResponse(to_json(system), content_type=content_type)
+            return http.HttpResponse(to_json(system),
+                                     content_type=content_type)
     elif request.method == 'DELETE':
         if id is None:
             message = 'id is required'

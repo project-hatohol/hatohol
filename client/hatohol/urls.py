@@ -25,6 +25,7 @@ from django.views.generic import TemplateView
 # from django.contrib import admin
 # admin.autodiscover()
 
+
 def guess_content_type_from_ext(ext):
     if ext is "js":
         return 'text/javascript'
@@ -32,19 +33,24 @@ def guess_content_type_from_ext(ext):
         return 'text/css'
     return 'text/html'
 
+
 def static_file(request, prefix, path, ext):
     content_type = guess_content_type_from_ext(ext)
     view = TemplateView.as_view(template_name=prefix + path,
                                 content_type=content_type)
     return view(request)
 
+
 def tasting_file(request, path, ext):
     return static_file(request, "tasting/", path, ext)
+
 
 def test_file(request, path, ext):
     return static_file(request, "test/browser/", path, ext)
 
-urlpatterns = patterns('',
+
+urlpatterns = patterns(
+    '',
     # Examples:
     # url(r'^$', 'hatohol.views.home', name='home'),
     # url(r'^hatohol/', include('hatohol.foo.urls')),
@@ -63,7 +69,8 @@ urlpatterns = patterns('',
     url(r'', include('viewer.urls')),
 )
 
-urlpatterns += i18n_patterns('',
+urlpatterns += i18n_patterns(
+    '',
     url(r'^viewer/', include('viewer.urls')),
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog'),
     url(r'', include('viewer.urls')),
@@ -72,10 +79,10 @@ urlpatterns += i18n_patterns('',
 if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
     import test.python.utils
 
-    urlpatterns += patterns('',
+    urlpatterns += patterns(
+        '',
         url(r'^tasting/(.+\.(js|css|html))$', tasting_file),
         url(r'^test/hello', test.python.utils.hello),
         url(r'^test/delete_user_config', test.python.utils.delete_user_config),
         url(r'^test/(.+\.(js|css|html))$', test_file),
     )
-

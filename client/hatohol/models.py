@@ -19,6 +19,7 @@ from django.db import models
 from django.db import transaction
 import smartfield
 
+
 class UserConfig(models.Model):
     item_name = models.CharField(max_length=255, db_index=True)
     user_id = models.IntegerField(db_index=True)
@@ -26,7 +27,7 @@ class UserConfig(models.Model):
 
     def __init__(self, *args, **kwargs):
         if 'value' in kwargs:
-            value = kwargs['value'];
+            value = kwargs['value']
             kwargs['value'] = smartfield.SmartField.UserConfigValue(value)
         models.Model.__init__(self, *args, **kwargs)
 
@@ -45,7 +46,11 @@ class UserConfig(models.Model):
             If the matched item exists, it is returned. Otherwise, None is
             returned.
         """
-        objs = UserConfig.objects.filter(item_name=item_name).filter(user_id=user_id)
+        objs = UserConfig.objects.filter(
+            item_name=item_name
+        ).filter(
+            user_id=user_id
+        )
         if not objs:
             return None
         assert len(objs) == 1
@@ -80,7 +85,7 @@ class UserConfig(models.Model):
     def _store_without_transaction(self):
         obj = self.get_object(self.item_name, self.user_id)
         if obj is not None:
-            self.id = obj.id # to update on save()
+            self.id = obj.id  # to update on save()
         self.save()
 
     @transaction.commit_on_success
@@ -95,7 +100,9 @@ class UserConfig(models.Model):
     def store_items(cls, items, user_id):
         for name in items:
             value = items[name]
-            user_conf = UserConfig(item_name=name, user_id=user_id, value=value)
+            user_conf = UserConfig(item_name=name,
+                                   user_id=user_id,
+                                   value=value)
             user_conf._store_without_transaction()
 
 
