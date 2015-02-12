@@ -46,7 +46,11 @@ class UserConfig(models.Model):
             If the matched item exists, it is returned. Otherwise, None is
             returned.
         """
-        objs = UserConfig.objects.filter(item_name=item_name).filter(user_id=user_id)
+        objs = UserConfig.objects.filter(
+            item_name=item_name
+        ).filter(
+            user_id=user_id
+        )
         if not objs:
             return None
         assert len(objs) == 1
