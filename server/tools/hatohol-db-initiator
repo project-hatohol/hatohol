@@ -99,7 +99,7 @@ def start(args):
     check_sql_file(args, sql_file_list)
 
     db = MySQLdb.connect(host=args.host,
-                           user=args.db_user, passwd=args.db_password)
+                         user=args.db_user, passwd=args.db_password)
     cursor = db.cursor()
     create_db_if_needed(cursor, args)
     create_hatohol_tables(args)
