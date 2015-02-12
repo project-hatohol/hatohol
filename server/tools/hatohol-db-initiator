@@ -6,12 +6,12 @@ import MySQLdb
 from ctypes import *
 
 sql_file_list = [
-  {'table_name':'users', 'file_name':'init-user.sql', 'type_id':-1},
-  {'table_name':'server_types', 'file_name':'server-type-zabbix.sql', 'type_id':0},
-  {'table_name':'server_types', 'file_name':'server-type-nagios.sql', 'type_id':1},
-  {'table_name':'server_types', 'file_name':'server-type-hapi-zabbix.sql', 'type_id':2},
-  {'table_name':'server_types', 'file_name':'server-type-hapi-json.sql', 'type_id':4},
-  {'table_name':'server_types', 'file_name':'server-type-ceilometer.sql', 'type_id':6}]
+  {'table_name':'users', 'file_name':'init-user.sql'},
+  {'table_name':'server_types', 'file_name':'server-type-zabbix.sql'},
+  {'table_name':'server_types', 'file_name':'server-type-nagios.sql'},
+  {'table_name':'server_types', 'file_name':'server-type-hapi-zabbix.sql'},
+  {'table_name':'server_types', 'file_name':'server-type-hapi-json.sql'},
+  {'table_name':'server_types', 'file_name':'server-type-ceilometer.sql'}]
 
 
 def create_db_if_needed(cursor, args):
@@ -44,7 +44,7 @@ def execute_sql_statements_from_file(cursor, path):
             cursor.execute(statement)
     print 'Succeessfully loaded: %s' % path
 
-def load_data_from_file(cursor, args, table_name, file_path, type_id):
+def load_data_from_file(cursor, args, table_name, file_path):
     if table_name != 'server_types':
         cursor.execute('SELECT COUNT(*) FROM %s;' % table_name)
         num_rows = cursor.fetchall()[0][0]
@@ -59,20 +59,6 @@ def load_data_from_file(cursor, args, table_name, file_path, type_id):
         if num_rows > 0:
             cursor.execute('DELETE FROM %s' % table_name)
             print 'Deleted all rows in table: %s' % table_name
-    else:
-        cursor.execute('SELECT COUNT(*) FROM %s WHERE type=%d;' % (table_name, type_id))
-        num_rows = cursor.fetchall()[0][0]
-        if num_rows > 0 and not args.force:
-            print 'The row which has type=%d in table: %s ' \
-                'exists (%d)' % (type_id, table_name, num_rows)
-            print 'Skip loading data: %s' % file_path
-            print 'If you want to drop the existing table ' \
-                'and load data, use -f or --force option.'
-            return
-
-        if num_rows > 0:
-            cursor.execute('DELETE FROM %s WHERE type=%d' % (table_name, type_id))
-            print 'Deleted type=%d row in table: %s' % (type_id, table_name)
 
     execute_sql_statements_from_file(cursor, file_path)
 
@@ -105,8 +91,7 @@ def start(args):
             if args.target and args.target != sql_file['table_name']:
                 continue
             load_data_from_file(cursor, args,
-                                sql_file['table_name'], sql_file['file_name'],
-                                sql_file['type_id'])
+                                sql_file['table_name'], sql_file['file_name'])
         db.commit()
     except:
         db.rollback()
