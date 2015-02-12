@@ -238,6 +238,7 @@ var HistoryView = function(userProfile, options) {
   self.timeRange = getTimeRange();
   self.settingSliderTimeRange = false;
   self.loaders = [];
+  self.lastLoaderIndex= 0;
 
   prepare(self.parseQuery(options.query));
   load();
@@ -287,8 +288,12 @@ var HistoryView = function(userProfile, options) {
         text: gettext("DELETE"),
         type: "button",
         class: "btn btn-default",
-        click: function() { /* TODO implement */ }
-      })));
+        click: function() {
+          var index = $(this).attr("itemIndex");
+          $(this).parent().parent().remove();
+          removeHistoryLoader(index);
+        }
+      }).attr("itemIndex", loader.options.index)));
 
     if (!item)
       tr.insertBefore(".hatohol-item-list tbody tr :last");
@@ -433,7 +438,7 @@ var HistoryView = function(userProfile, options) {
 
   function appendHistoryLoader(historyQuery) {
     var loader = new HistoryLoader({
-      index: self.loaders.length,
+      index: self.lastLoaderIndex++,
       view: self,
       defaultTimeSpan: self.timeRange.getSpan(),
       query: historyQuery,
@@ -453,6 +458,19 @@ var HistoryView = function(userProfile, options) {
     setItemToItemList(loader);
     if (self.loaders.length == 1)
       initTimeRange();
+  }
+
+  function removeHistoryLoader(index) {
+    var i;
+    for (i = 0; i < self.loaders.length; i++) {
+      console.log(self.loaders[i].options.index);
+      if (self.loaders[i].options.index == index) {
+        self.loaders.splice(i, 1);
+        self.plotData.splice(i, 1);
+        updateView();
+        return;
+      }
+    }
   }
 
   function initTimeRange() {
@@ -842,7 +860,9 @@ var HistoryView = function(userProfile, options) {
   function updateTitleAndLegendLabels() {
     var i, title, item, servers, loader = self.loaders[0];
 
-    if (self.plotData.length == 1) {
+    if (self.plotData.length == 0) {
+      title = undefined;
+    } else if (self.plotData.length == 1) {
       title = buildTitle(loader.getItem(), loader.getServers());
     } else if (isSameHost()) {
       title = buildHostName(loader.getItem(), loader.getServers());
