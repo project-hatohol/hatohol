@@ -38,7 +38,7 @@ static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 
-int DBTablesConfig::CONFIG_DB_VERSION = 12;
+int DBTablesConfig::CONFIG_DB_VERSION = 13;
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
 const ServerIdSet EMPTY_INCIDENT_TRACKER_ID_SET;
@@ -147,7 +147,19 @@ static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+},
+{
+	// This column represent to plugin sql version
+	"plugin_sql_version",              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	0,                                 // defaultValue
 }
+
 };
 
 enum {
@@ -155,6 +167,7 @@ enum {
 	IDX_SERVER_TYPES_NAME,
 	IDX_SERVER_TYPES_PARAMETERS,
 	IDX_SERVER_TYPES_PLUGIN_PATH,
+	IDX_SERVER_TYPES_PLUGIN_SQL_VERSION,
 	NUM_IDX_SERVER_TYPES,
 };
 
@@ -540,6 +553,12 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileArmPlugins);
 		addColumnsArg.columnIndexes.push_back(
 			IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY);
+		dbAgent.addColumns(addColumnsArg);
+	}
+	if (oldVer < 13) {
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileServerTypes);
+		addColumnsArg.columnIndexes.push_back(
+			IDX_SERVER_TYPES_PLUGIN_SQL_VERSION);
 		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;
