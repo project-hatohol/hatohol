@@ -19,9 +19,10 @@ from django.db import models
 from django.conf import settings
 import cPickle
 import base64
- 
+
 # The document for making custom field is
 # https://docs.djangoproject.com/en/dev/howto/custom-model-fields/
+
 
 class SmartField(models.Field):
 

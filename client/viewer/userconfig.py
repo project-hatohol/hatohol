@@ -28,6 +28,7 @@ import traceback
 logger = logging.getLogger(__name__)
 logger.debug('A logger: %s has been created' % __name__)
 
+
 def get_user_id_from_hatohol_server(session_id):
     server = hatoholserver.get_address()
     port = hatoholserver.get_port()
@@ -36,10 +37,11 @@ def get_user_id_from_hatohol_server(session_id):
     hdrs = {hatohol_def.FACE_REST_SESSION_ID_HEADER_NAME: session_id}
     req = urllib2.Request(url, headers=hdrs)
     response = urllib2.urlopen(req)
-    body = response.read()    
+    body = response.read()
     user_info = json.loads(body)
     user_id = user_info['users'][0]['userId']
     return user_id
+
 
 def index(request):
     try:
@@ -47,6 +49,7 @@ def index(request):
     except:
         logger.error(traceback.format_exc())
         return HttpResponse(status=httplib.INTERNAL_SERVER_ERROR)
+
 
 def index_core(request):
     # session ID
@@ -73,8 +76,8 @@ def index_core(request):
     body = json.dumps(UserConfig.get_items(item_name_list, user_id))
     return HttpResponse(body, content_type='application/json')
 
+
 def store(request, user_id):
     items = json.loads(request.body)
     UserConfig.store_items(items, user_id)
     return HttpResponse()
-

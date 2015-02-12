@@ -1,6 +1,6 @@
 # django-realize 0.1
 # by Liu Qishuai <lqs.buaa@gmail.com>
-# This file is released under the GNU Lesser General Public License. 
+# This file is released under the GNU Lesser General Public License.
 
 import django
 import time
@@ -12,13 +12,16 @@ dict_types = (dict, django.forms.util.ErrorDict)
 unicode_types = (unicode, django.utils.functional.Promise)
 object_types = (django.db.models.Model, django.db.models.manager.Manager, django.forms.models.BaseForm)
 
+
 class InvalidType:
     pass
 
+
 def valid(obj):
     return obj != InvalidType
-    
-def realize(obj, level = 3):
+
+
+def realize(obj, level=3):
     res = InvalidType
 
     if level == 0:

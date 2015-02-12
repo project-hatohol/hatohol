@@ -29,6 +29,7 @@ from hatohol_server_emulator import HatoholServerEmulator
 from hatohol_server_emulator import EmulationHandlerNotReturnUserInfo
 from hatohol import hatoholserver
 
+
 class TestUserConfigView(unittest.TestCase):
 
     def _setSessionId(self, request):
@@ -36,7 +37,7 @@ class TestUserConfigView(unittest.TestCase):
         # recieved in the above HatoholServerEmulatorHandler that
         # acutually doesn't verify it.
         request.META[hatoholserver.SESSION_NAME_META] = \
-          'c579a3da-65db-44b4-a0da-ebf27548f4fd';
+            'c579a3da-65db-44b4-a0da-ebf27548f4fd';
 
     def _setup_emulator(self):
         self._emulator = HatoholServerEmulator()
@@ -102,7 +103,7 @@ class TestUserConfigView(unittest.TestCase):
 
     def test_store(self):
         self._setup_emulator()
-        response = self._post({'favorite':'dog'})
+        response = self._post({'favorite': 'dog'})
         self.assertEquals(response.status_code, httplib.OK)
 
     def test_store_and_get(self):
@@ -113,7 +114,7 @@ class TestUserConfigView(unittest.TestCase):
 
     def test_store_multiple_items_and_get(self):
         self._setup_emulator()
-        items = {'color':'white', 'age':17, 'hungy':True, 'Depth':0.8}
+        items = {'color': 'white', 'age': 17, 'hungy': True, 'Depth': 0.8}
         self._post(items)
 
         item_names = "&".join(["items[]=%s" % x for x in items.keys()])
@@ -123,7 +124,7 @@ class TestUserConfigView(unittest.TestCase):
 
     def test_store_multiple_items_and_get_with_non_existing_item(self):
         self._setup_emulator()
-        items = {'color':'white', 'age':17, 'hungy':True, 'Depth':0.8}
+        items = {'color': 'white', 'age': 17, 'hungy': True, 'Depth': 0.8}
         self._post(items)
 
         # we request items with non existing item names

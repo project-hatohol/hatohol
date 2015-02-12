@@ -35,7 +35,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'hatohol_client',
-        'USER': 'hatohol',          
+        'USER': 'hatohol',
         'PASSWORD': 'hatohol',
         'HOST': '',                      # Set to empty string for localhost.
         'PORT': '',                      # Set to empty string for default.
@@ -167,9 +167,9 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        'console':{
-            'level':'WARNING',
-            'class':'logging.StreamHandler',
+        'console': {
+            'level': 'WARNING',
+            'class': 'logging.StreamHandler',
         },
         'syslog': {
             'level': 'INFO',
@@ -182,12 +182,12 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'hatohol' : {
+        'hatohol': {
             'handlers': ['syslog', 'console'],
             'level': 'INFO',
             'propagate': True,
         },
-        'viewer' : {
+        'viewer': {
             'handlers': ['syslog', 'console'],
             'level': 'INFO',
             'propagate': True,

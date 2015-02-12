@@ -22,6 +22,7 @@ import unittest
 from hatohol.models import UserConfig
 from django.db import connection
 
+
 class TestUserConfig(unittest.TestCase):
 
     def setUp(self):

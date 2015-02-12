@@ -26,13 +26,14 @@ import httplib
 from hatohol import hatoholserver
 from hatohol import hatohol_def
 
+
 class HatoholServerEmulationHandler(BaseHTTPRequestHandler):
     def _request_user_me(self):
         self.send_response(httplib.OK)
         body_dict = {'apiVersion': hatohol_def.FACE_REST_API_VERSION,
                      'errorCode': hatohol_def.HTERR_OK,
                      'numberOfUsers': 1,
-                     'users': [{'userId':5, 'name':'hogetaro', 'flags':0}]}
+                     'users': [{'userId': 5, 'name': 'hogetaro', 'flags': 0}]}
         return json.dumps(body_dict)
 
     def do_GET(self):
@@ -54,6 +55,7 @@ class EmulationHandlerNotReturnUserInfo(HatoholServerEmulationHandler):
                      'numberOfUsers': 0,
                      'users': []}
         return json.dumps(body_dict)
+
 
 class HatoholServerEmulator(threading.Thread):
 

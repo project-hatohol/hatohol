@@ -80,7 +80,7 @@ class UserConfig(models.Model):
     def _store_without_transaction(self):
         obj = self.get_object(self.item_name, self.user_id)
         if obj is not None:
-            self.id = obj.id # to update on save()
+            self.id = obj.id  # to update on save()
         self.save()
 
     @transaction.commit_on_success

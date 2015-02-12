@@ -28,6 +28,7 @@ from hatohol.views import log_search_systems
 from hatohol_server_emulator import HatoholServerEmulator
 from hatohol import hatoholserver
 
+
 class TestLogSearchSystemsView(unittest.TestCase):
 
     def _setup_emulator(self):
@@ -75,7 +76,7 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
         # recieved in the above HatoholServerEmulatorHandler that
         # acutually doesn't verify it.
         request.META[hatoholserver.SESSION_NAME_META] = \
-          'c579a3da-65db-44b4-a0da-ebf27548f4fd';
+            'c579a3da-65db-44b4-a0da-ebf27548f4fd';
 
     def test_get_without_id(self):
         system = LogSearchSystem(type='groonga',
@@ -190,9 +191,8 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
 class TestLogSearchSystemsViewUnauthorized(TestLogSearchSystemsView):
 
     def _setSessionId(self, request):
-        pass # Don't set session ID
+        pass  # Don't set session ID
 
     def test_get_without_id(self):
         response = self._get(None)
         self.assertEquals(response.status_code, httplib.FORBIDDEN)
-

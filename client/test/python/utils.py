@@ -18,8 +18,10 @@
 from django.http import HttpResponse
 from hatohol.models import UserConfig
 
+
 def hello(request):
     return HttpResponse("Hello")
+
 
 def delete_user_config(request):
     UserConfig.objects.all().delete()

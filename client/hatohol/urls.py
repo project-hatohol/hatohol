@@ -25,6 +25,7 @@ from django.views.generic import TemplateView
 # from django.contrib import admin
 # admin.autodiscover()
 
+
 def guess_content_type_from_ext(ext):
     if ext is "js":
         return 'text/javascript'
@@ -32,17 +33,21 @@ def guess_content_type_from_ext(ext):
         return 'text/css'
     return 'text/html'
 
+
 def static_file(request, prefix, path, ext):
     content_type = guess_content_type_from_ext(ext)
     view = TemplateView.as_view(template_name=prefix + path,
                                 content_type=content_type)
     return view(request)
 
+
 def tasting_file(request, path, ext):
     return static_file(request, "tasting/", path, ext)
 
+
 def test_file(request, path, ext):
     return static_file(request, "test/browser/", path, ext)
+
 
 urlpatterns = patterns('',
     # Examples:
@@ -78,4 +83,3 @@ if 'HATOHOL_DEBUG' in os.environ and os.environ['HATOHOL_DEBUG'] == '1':
         url(r'^test/delete_user_config', test.python.utils.delete_user_config),
         url(r'^test/(.+\.(js|css|html))$', test_file),
     )
-
