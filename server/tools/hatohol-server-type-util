@@ -52,6 +52,9 @@ class ParamGenerator:
     def get_sql_file_type_name(self):
         return ''
 
+    def get_sql_version_number(self):
+        return 1
+
 
 class ZabbixParamGenerator(ParamGenerator):
     def get_server_type(self):
@@ -65,6 +68,9 @@ class ZabbixParamGenerator(ParamGenerator):
 
     def get_sql_file_type_name(self):
         return 'zabbix'
+
+    def get_sql_version(self):
+        return self.get_sql_version_number()
 
 
 class NagiosParamGenerator(ParamGenerator):
@@ -103,6 +109,9 @@ class NagiosParamGenerator(ParamGenerator):
     def get_sql_file_type_name(self):
         return 'nagios'
 
+    def get_sql_version(self):
+        return self.get_sql_version_number()
+
 
 class HapiZabbixParamGenerator(ParamGenerator):
     def get_server_type(self):
@@ -121,6 +130,9 @@ class HapiZabbixParamGenerator(ParamGenerator):
 
     def get_sql_file_type_name(self):
         return 'hapi-zabbix'
+
+    def get_sql_version(self):
+        return self.get_sql_version_number()
 
 
 class HapiJSONParamGenerator(ParamGenerator):
@@ -159,6 +171,9 @@ class HapiJSONParamGenerator(ParamGenerator):
 
     def get_sql_file_type_name(self):
         return 'hapi-json'
+
+    def get_sql_version(self):
+        return self.get_sql_version_number()
 
 
 class HapiCeilometerGenerator(ParamGenerator):
@@ -205,12 +220,15 @@ class HapiCeilometerGenerator(ParamGenerator):
     def get_sql_file_type_name(self):
         return 'ceilometer'
 
+    def get_sql_version(self):
+        return self.get_sql_version_number()
+
 
 def generate_one_type(table_name, server_type, server_label,
-                      parameters, plugin_path, file_identifier):
+                      parameters, plugin_path, file_identifier, sql_version):
     line = 'INSERT ' + table_name + ' VALUES ('
-    line += '%d, \'%s\', \'%s\', \'%s\');' % \
-        (server_type, server_label, parameters, plugin_path)
+    line += '%d, \'%s\', \'%s\', \'%s\', %d);' % \
+        (server_type, server_label, parameters, plugin_path, sql_version)
     sql = open('server-type-' + file_identifier + '.sql', 'w')
     sql.write(line)
     sql.close()
@@ -223,7 +241,8 @@ def generate_mysql(generators):
                           gen.get_server_type_name(),
                           json.dumps(gen.get_parameters()),
                           gen.get_plugin_path(),
-                          gen.get_sql_file_type_name())
+                          gen.get_sql_file_type_name(),
+                          gen.get_sql_version())
 
 
 def generate_label_gettext(generators):
