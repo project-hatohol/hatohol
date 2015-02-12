@@ -8,11 +8,13 @@ import datetime
 
 native_types = (int, long, float, str)
 list_types = (tuple, list, set,
-              django.db.models.query.QuerySet, django.forms.util.ErrorList)
+              django.db.models.query.QuerySet,
+              django.forms.util.ErrorList)
 dict_types = (dict, django.forms.util.ErrorDict)
 unicode_types = (unicode, django.utils.functional.Promise)
 object_types = (django.db.models.Model,
-                django.db.models.manager.Manager, django.forms.models.BaseForm)
+                django.db.models.manager.Manager,
+                django.forms.models.BaseForm)
 
 
 class InvalidType:
