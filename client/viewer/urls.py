@@ -20,7 +20,8 @@ from django.views.generic import TemplateView
 
 from hatohol import hatohol_def
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^$',
         TemplateView.as_view(template_name='viewer/dashboard_ajax.html')),
     url(r'^ajax_dashboard$',
