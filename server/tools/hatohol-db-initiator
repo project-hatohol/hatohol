@@ -6,12 +6,12 @@ import MySQLdb
 from ctypes import *
 
 sql_file_list = [
-    {'table_name':'users', 'file_name':'init-user.sql', 'target':'users'},
-    {'table_name':'server_types', 'file_name':'server-type-zabbix.sql', 'target':'zabbix'},
-    {'table_name':'server_types', 'file_name':'server-type-nagios.sql', 'target':'nagios'},
-    {'table_name':'server_types', 'file_name':'server-type-hapi-zabbix.sql', 'target':'hapi-zabbix'},
-    {'table_name':'server_types', 'file_name':'server-type-hapi-json.sql', 'target':'hapi-json'},
-    {'table_name':'server_types', 'file_name':'server-type-ceilometer.sql', 'target':'ceilometer'}]
+    {'table_name': 'users', 'file_name': 'init-user.sql', 'target': 'users'},
+    {'table_name': 'server_types', 'file_name': 'server-type-zabbix.sql', 'target': 'zabbix'},
+    {'table_name': 'server_types', 'file_name': 'server-type-nagios.sql', 'target': 'nagios'},
+    {'table_name': 'server_types', 'file_name': 'server-type-hapi-zabbix.sql', 'target': 'hapi-zabbix'},
+    {'table_name': 'server_types', 'file_name': 'server-type-hapi-json.sql', 'target': 'hapi-json'},
+    {'table_name': 'server_types', 'file_name': 'server-type-ceilometer.sql', 'target': 'ceilometer'}]
 
 
 def create_db_if_needed(cursor, args):
