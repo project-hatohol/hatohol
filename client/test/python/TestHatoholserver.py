@@ -40,13 +40,15 @@ class TestHatoholserver(unittest.TestCase):
 
     def tearDown(self):
         if self._orig_server_addr:
-            os.environ[hatoholserver.SERVER_ADDR_ENV_NAME] = self._orig_server_addr
+            os.environ[hatoholserver.SERVER_ADDR_ENV_NAME] = \
+                self._orig_server_addr
             self._orig_server_addr = None
         elif hatoholserver.SERVER_ADDR_ENV_NAME in os.environ:
             del os.environ[hatoholserver.SERVER_ADDR_ENV_NAME]
 
         if self._orig_server_port:
-            os.environ[hatoholserver.SERVER_PORT_ENV_NAME] = self._orig_server_port
+            os.environ[hatoholserver.SERVER_PORT_ENV_NAME] = \
+                self._orig_server_port
             self._orig_server_port = None
         elif hatoholserver.SERVER_PORT_ENV_NAME in os.environ:
             del os.environ[hatoholserver.SERVER_PORT_ENV_NAME]

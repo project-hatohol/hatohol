@@ -79,8 +79,9 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
             'c579a3da-65db-44b4-a0da-ebf27548f4fd'
 
     def test_get_without_id(self):
-        system = LogSearchSystem(type='groonga',
-                                 base_url='http://search.example.com/#!/tables/Logs/search')
+        system = LogSearchSystem(
+            type='groonga',
+            base_url='http://search.example.com/#!/tables/Logs/search')
         system.save()
         response = self._get(None)
         self.assertEquals(response.status_code, httplib.OK)
@@ -93,8 +94,9 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
                           [record])
 
     def test_get_with_id(self):
-        system = LogSearchSystem(type='groonga',
-                                 base_url='http://search.example.com/#!/tables/Logs/search')
+        system = LogSearchSystem(
+            type='groonga',
+            base_url='http://search.example.com/#!/tables/Logs/search')
         system.save()
         response = self._get(system.id)
         self.assertEquals(response.status_code, httplib.OK)
@@ -107,8 +109,9 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
                           record)
 
     def test_get_with_id_nonexsitent(self):
-        system = LogSearchSystem(type='groonga',
-                                 base_url='http://search.example.com/#!/tables/Logs/search')
+        system = LogSearchSystem(
+            type='groonga',
+            base_url='http://search.example.com/#!/tables/Logs/search')
         system.save()
         id = system.id
         system.delete()
@@ -136,8 +139,9 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
         self.assertEquals(response.status_code, httplib.BAD_REQUEST)
 
     def test_put_with_id(self):
-        system = LogSearchSystem(type='groonga',
-                                 base_url='http://search.example.com/#!/tables/Logs/search')
+        system = LogSearchSystem(
+            type='groonga',
+            base_url='http://search.example.com/#!/tables/Logs/search')
         system.save()
         new_record = {
             'type': 'other',
@@ -154,8 +158,9 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
                           record)
 
     def test_put_with_id_nonexistent(self):
-        system = LogSearchSystem(type='groonga',
-                                 base_url='http://search.example.com/#!/tables/Logs/search')
+        system = LogSearchSystem(
+            type='groonga',
+            base_url='http://search.example.com/#!/tables/Logs/search')
         system.save()
         nonexistent_id = system.id
         system.delete()
@@ -171,8 +176,9 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
         self.assertEquals(response.status_code, httplib.BAD_REQUEST)
 
     def test_delete_with_id(self):
-        system = LogSearchSystem(type='groonga',
-                                 base_url='http://search.example.com/#!/tables/Logs/search')
+        system = LogSearchSystem(
+            type='groonga',
+            base_url='http://search.example.com/#!/tables/Logs/search')
         system.save()
         response = self._delete(system.id)
         self.assertEquals(response.status_code, httplib.OK)

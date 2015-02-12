@@ -19,6 +19,7 @@ from django.db import models
 from django.db import transaction
 import smartfield
 
+
 class UserConfig(models.Model):
     item_name = models.CharField(max_length=255, db_index=True)
     user_id = models.IntegerField(db_index=True)
@@ -95,7 +96,9 @@ class UserConfig(models.Model):
     def store_items(cls, items, user_id):
         for name in items:
             value = items[name]
-            user_conf = UserConfig(item_name=name, user_id=user_id, value=value)
+            user_conf = UserConfig(item_name=name,
+                                   user_id=user_id,
+                                   value=value)
             user_conf._store_without_transaction()
 
 

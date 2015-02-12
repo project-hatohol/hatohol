@@ -93,7 +93,8 @@ class TestUserConfigView(unittest.TestCase):
         self.assertEquals(response.status_code, httplib.BAD_REQUEST)
 
     def test_index_server_not_return_userinfo(self):
-        self._emulator = HatoholServerEmulator(handler=EmulationHandlerNotReturnUserInfo)
+        self._emulator = HatoholServerEmulator(
+            handler=EmulationHandlerNotReturnUserInfo)
         self._emulator.start_and_wait_setup_done()
         request = HttpRequest()
         self._setSessionId(request)

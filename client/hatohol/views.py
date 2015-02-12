@@ -89,7 +89,8 @@ def log_search_systems(request, id):
             record = http.QueryDict(request.body, encoding=request.encoding)
             form = LogSearchSystemForm(record, instance=system)
             form.save()
-            return http.HttpResponse(to_json(system), content_type=content_type)
+            return http.HttpResponse(to_json(system),
+                                     content_type=content_type)
     elif request.method == 'DELETE':
         if id is None:
             message = 'id is required'
