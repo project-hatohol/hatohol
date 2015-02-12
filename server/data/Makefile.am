@@ -9,11 +9,15 @@ sql_DATA = \
 
 sqldir = $(pkgdatadir)/sql
 
-# To avoid making an incomplete .sql files, we once
-# use a tmporary file: _tmp.$@
 HATOHOL_SERVER_TYPE_UTIL = ../tools/hatohol-server-type-util
-server-type.sql: $(HATOHOL_SERVER_TYPE_UTIL)
+server-type: $(HATOHOL_SERVER_TYPE_UTIL)
 	$(HATOHOL_SERVER_TYPE_UTIL) mysql
+
+server-type-zabbix.sql: server-type
+server-type-nagios.sql: server-type
+server-type-hapi-zabbix.sql: server-type
+server-type-hapi-json.sql: server-type
+server-type-ceilometer.sql: server-type
 
 HATOHOL_INIT_USER_GENERATOR = ../tools/hatohol-init-user-generator
 init-user.sql: $(HATOHOL_INIT_USER_GENERATOR)
