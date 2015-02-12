@@ -568,7 +568,7 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 		addColumnsArg.columnIndexes.push_back(
 			IDX_SERVER_TYPES_PLUGIN_SQL_VERSION);
 		addColumnsArg.columnIndexes.push_back(
-						IDX_SERVER_TYPES_PLUGIN_ENABLED);
+			IDX_SERVER_TYPES_PLUGIN_ENABLED);
 		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;
