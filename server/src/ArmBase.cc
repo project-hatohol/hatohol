@@ -427,14 +427,15 @@ void ArmBase::createTriggerInfo(const ArmResultTriggerInfo &resTrigger,
 
 	triggerInfo.serverId = svInfo.id;
 	triggerInfo.lastChangeTime = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
-	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
+	triggerInfo.hostId   = MONITORING_SERVER_SELF_ID;
 	triggerInfo.hostName = 
 		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
 				     SERVER_SELF_MONITORING_SUFFIX);
-	triggerInfo.id = resTrigger.triggerId;
-	triggerInfo.brief = resTrigger.msg;
+	triggerInfo.id       = resTrigger.triggerId;
+	triggerInfo.brief    = resTrigger.msg;
 	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
-	triggerInfo.status = resTrigger.statusType;
+	triggerInfo.status   = resTrigger.statusType;
+	triggerInfo.validity = TRIGGER_VALID_SELF_MONITORING;
 
 	triggerInfoList.push_back(triggerInfo);
 }

@@ -47,6 +47,7 @@ enum TriggerSeverityType {
 enum TriggerValidity {
 	TRIGGER_INVALID = 0,
 	TRIGGER_VALID,
+	TRIGGER_VALID_SELF_MONITORING,
 };
 
 enum HostValidity {
