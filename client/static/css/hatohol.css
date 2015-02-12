@@ -101,7 +101,7 @@ div#noscript-background div#noscript-notice
 }
 
 /* graph */
-.graph h2 {
+h2.graph {
     text-align: center;
     font-size: large;
 }

@@ -864,7 +864,7 @@ var HistoryView = function(userProfile, options) {
 
     if (title) {
       $("title").text(title);
-      $(".graph h2").text(title);
+      $("h2.graph").text(title);
     }
   }
 };
