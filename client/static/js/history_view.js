@@ -409,7 +409,8 @@ var HistoryView = function(userProfile, options) {
     var legend = { data:[] };
 
     if (item) {
-      legend.label = buildTitle(item, servers);
+      // it will be filled by updateTitleAndLegendLabels()
+      legend.label = undefind;
       if (item.unit)
         legend.label += " [" + item.unit + "]";
     }
@@ -860,11 +861,22 @@ var HistoryView = function(userProfile, options) {
         servers = self.loaders[i].getServers();
         self.plotData[i].label = buildHostName(item, servers);
       }
+    } else {
+      for (i = 0; i < self.plotData.length; i++) {
+        item = self.loaders[i].getItem();
+        servers = self.loaders[i].getServers();
+        self.plotData[i].label = buildTitle(item, servers);
+        if (item.unit)
+          self.plotData[i].label += " [" + item.unit + "]";
+      }
     }
 
     if (title) {
       $("title").text(title);
       $("h2.graph").text(title);
+    } else {
+      $("title").text(gettext("History"));
+      $("h2.graph").text("");
     }
   }
 };
