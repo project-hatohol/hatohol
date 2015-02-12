@@ -206,9 +206,11 @@ class HapiCeilometerGenerator(ParamGenerator):
         return 'ceilometer'
 
 
-def generate_one_type(table_name, server_type, server_label, parameters, plugin_path, file_identifier):
+def generate_one_type(table_name, server_type, server_label,
+                      parameters, plugin_path, file_identifier):
     line = 'INSERT ' + table_name + ' VALUES ('
-    line += '%d, \'%s\', \'%s\', \'%s\');' % (server_type, server_label, parameters, plugin_path)
+    line += '%d, \'%s\', \'%s\', \'%s\');' % \
+        (server_type, server_label, parameters, plugin_path)
     sql = open('server-type-' + file_identifier + '.sql', 'w')
     sql.write(line)
     sql.close()
@@ -234,7 +236,8 @@ def generate_label_gettext(generators):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Hatohol Server Types Utility.")
+    parser = argparse.ArgumentParser(
+        description="Hatohol Server Types Utility.")
     parser.add_argument('command', choices=['mysql', 'label-gettext'])
     args = parser.parse_args()
 
