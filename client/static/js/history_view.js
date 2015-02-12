@@ -463,7 +463,6 @@ var HistoryView = function(userProfile, options) {
   function removeHistoryLoader(index) {
     var i;
     for (i = 0; i < self.loaders.length; i++) {
-      console.log(self.loaders[i].options.index);
       if (self.loaders[i].options.index == index) {
         self.loaders.splice(i, 1);
         self.plotData.splice(i, 1);
