@@ -68,7 +68,7 @@ def index_core(request):
         return store(request, user_id)
 
     # keys
-    if not request.GET.has_key('items[]'):
+    if 'items[]' not in request.GET:
         logger.info('Not found key: items[].')
         return HttpResponse(status=httplib.BAD_REQUEST)
     item_name_list = request.GET.getlist('items[]')
