@@ -997,7 +997,7 @@ HatoholError DBTablesConfig::addTargetServer(
 			        armPluginInfo, condForHap);
 			return (err == HTERR_OK);
 		}
-		
+
 		void operator ()(DBAgent &dbAgent) override
 		{
 			dbAgent.insert(arg);
@@ -1134,7 +1134,7 @@ void DBTablesConfig::getTargetServers(
 	//
 	// select servers.id,servers.type,... from servers inner join
 	// access_list on servers.id=access_list.server_id where user_id=5
-	// 
+	//
 	// The current query statement uses a little complicated where clause,
 	// for which the indexing mechanism may not be effective.
 
