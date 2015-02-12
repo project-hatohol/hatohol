@@ -76,7 +76,7 @@ class TestLogSearchSystemsViewAuthorized(TestLogSearchSystemsView):
         # recieved in the above HatoholServerEmulatorHandler that
         # acutually doesn't verify it.
         request.META[hatoholserver.SESSION_NAME_META] = \
-            'c579a3da-65db-44b4-a0da-ebf27548f4fd';
+            'c579a3da-65db-44b4-a0da-ebf27548f4fd'
 
     def test_get_without_id(self):
         system = LogSearchSystem(type='groonga',

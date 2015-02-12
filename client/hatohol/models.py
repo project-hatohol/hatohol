@@ -26,7 +26,7 @@ class UserConfig(models.Model):
 
     def __init__(self, *args, **kwargs):
         if 'value' in kwargs:
-            value = kwargs['value'];
+            value = kwargs['value']
             kwargs['value'] = smartfield.SmartField.UserConfigValue(value)
         models.Model.__init__(self, *args, **kwargs)
 

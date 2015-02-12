@@ -95,13 +95,13 @@ class TestUserConfig(unittest.TestCase):
 
     def test_store(self):
         user_conf = UserConfig(item_name='name', user_id=5, value=123)
-        user_conf.store();
+        user_conf.store()
         all_objs = UserConfig.objects.all()
         self.assertEquals(len(all_objs), 1)
         self.assertEquals(all_objs[0].value, 123)
 
         user_conf = UserConfig(item_name='name', user_id=5, value=55)
-        user_conf.store();
+        user_conf.store()
         all_objs = UserConfig.objects.all()
         self.assertEquals(len(all_objs), 1)
         self.assertEquals(all_objs[0].value, 55)
