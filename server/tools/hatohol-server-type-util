@@ -226,9 +226,13 @@ class HapiCeilometerGenerator(ParamGenerator):
 
 def generate_one_type(table_name, server_type, server_label,
                       parameters, plugin_path, file_identifier, sql_version):
-    line = 'INSERT ' + table_name + ' VALUES ('
-    line += '%d, \'%s\', \'%s\', \'%s\', %d);' % \
+    line = 'INSERT INTO ' + table_name;
+    line += ' (type, name, parameters, plugin_path, plugin_sql_version) VALUES ('
+    line += '%d, \'%s\', \'%s\', \'%s\', %d) ' % \
         (server_type, server_label, parameters, plugin_path, sql_version)
+    line += 'ON DUPLICATE KEY UPDATE'
+    line += ' name=\'%s\', parameters=\'%s\', plugin_path=\'%s\', plugin_sql_version=\'%d\';' % \
+        (server_label, parameters, plugin_path, sql_version)
     sql = open('server-type-' + file_identifier + '.sql', 'w')
     sql.write(line)
     sql.close()
