@@ -121,12 +121,6 @@ def start(args):
 def get_default_sql_dir():
     return os.path.dirname(__file__) + '/../share/hatohol/sql'
 
-
-def get_table_name_list():
-    table_name_list = []
-    [table_name_list.append(elem['table_name']) for elem in sql_file_list]
-    return table_name_list
-
 def get_target_list():
     target_list = []
     [target_list.append(elem['target']) for elem in sql_file_list]
