@@ -256,7 +256,6 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, ARM_WORK_STAT_INIT);
 	ADD_LINE(s, langType, ARM_WORK_STAT_OK);
 	ADD_LINE(s, langType, ARM_WORK_STAT_FAILURE);
-	APPEND(s, "\n");
 }
 
 static void makeJsDefSourceErrorMessages(string &s)
@@ -291,6 +290,7 @@ static string makeDefSource(LanguageType langType)
 		APPEND(s, "\n");
 		APPEND(s, "var hatohol = {\n");
 		makeDefSourceValues(s, langType);
+		APPEND(s, "\n");
 		makeJsDefSourceErrorMessages(s);
 		APPEND(s, "};\n");
 		APPEND(s, "\n");
