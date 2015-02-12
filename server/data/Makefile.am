@@ -1,6 +1,10 @@
 sql_DATA = \
 	create-db.sql \
-	server-type.sql \
+	server-type-zabbix.sql \
+	server-type-nagios.sql \
+	server-type-hapi-zabbix.sql \
+	server-type-hapi-json.sql \
+	server-type-ceilometer.sql \
 	init-user.sql
 
 sqldir = $(pkgdatadir)/sql
@@ -25,6 +29,10 @@ EXTRA_DIST = \
 	$(sql_DATA)
 
 CLEANFILES = \
-	server-type.sql \
+	server-type-zabbix.sql \
+	server-type-nagios.sql \
+	server-type-hapi-zabbix.sql \
+	server-type-hapi-json.sql \
+	server-type-ceilometer.sql \
 	init-user.sql \
 	_tmp.*
