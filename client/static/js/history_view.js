@@ -265,7 +265,7 @@ var HistoryView = function(userProfile, options) {
     var query = loader.options.query;
     var serverName = item ? getNickName(server, item.serverId) : "-";
     var hostName = item ? getHostName(server, item.hostId) : "-";
-    var groupName = query.hostgroupId ?
+    var groupName = query.hostgroupId && query.hostgroupId != -1 ?
       getHostgroupName(server, query.hostgroupId) : "-";
     var itemName = item ? getItemBriefWithUnit(item)  : "-";
     var id = "hatohol-item-list-row-" + loader.options.index;
