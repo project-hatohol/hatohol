@@ -237,10 +237,10 @@ void test_insertString(void)
 	const size_t nextIndex = sbuf.insertString(str, bodyIndex);
 
 	sbuf.setIndex(sizeof(dummyStuff));
-	cppcut_assert_equal(static_cast<uint16_t>(str.size()),
-	                    sbuf.getValueAndIncIndex<uint16_t>());
-	cppcut_assert_equal(static_cast<uint16_t>(bodyIndex),
-	                    sbuf.getValueAndIncIndex<uint16_t>());
+	cppcut_assert_equal(static_cast<uint32_t>(str.size()),
+	                    sbuf.getValueAndIncIndex<uint32_t>());
+	int32_t expectOffset = bodyIndex - sizeof(dummyStuff);
+	cppcut_assert_equal(expectOffset, sbuf.getValueAndIncIndex<int32_t>());
 	cppcut_assert_equal(str, string(sbuf.getPointer<char>(bodyIndex)));
 	cppcut_assert_equal(nextIndex, bodyIndex + str.size() + 1);
 	cppcut_assert_equal(nextIndex, sbuf.watermark());
@@ -323,6 +323,21 @@ void test_getStringAndIncIndex(void)
 	cppcut_assert_equal(material, sbuf.getStringAndIncIndex<uint16_t>());
 	const size_t expectIndex = sizeof(uint16_t) + material.size();
 	cppcut_assert_equal(expectIndex, sbuf.index());
+}
+
+void test_extractString(void)
+{
+	SmartBuffer sbuf(100);
+	const string str = "foo X1234";
+	const size_t bodyIndex = 50;
+	sbuf.insertString(str, bodyIndex);
+	sbuf.resetIndex(); // index -> 0
+	const SmartBuffer::StringHeader *header =
+	  sbuf.getPointer<SmartBuffer::StringHeader>();
+	cppcut_assert_equal(str, sbuf.extractString(header));
+
+	// check that the index is not changed.
+	cppcut_assert_equal((size_t)0, sbuf.index());
 }
 
 void test_extractStringAndIncIndex(void)

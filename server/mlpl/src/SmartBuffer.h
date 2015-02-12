@@ -39,8 +39,8 @@ class SmartBuffer {
 	size_t   m_watermark;
 public:
 	struct StringHeader {
-		uint16_t size;
-		uint16_t offset;
+		uint32_t size;
+		int32_t  offset;
 	} __attribute__((__packed__));
 
 	SmartBuffer(void);
@@ -134,19 +134,24 @@ public:
 	/**
 	 * Add a string to the buffer with the size and the location.
 	 *
-	 * This method writes 16bit string length and 16bit offset of the
-	 * string body from the top of the buffer head at the current position.
+	 * This method writes an unsigned 32bit string length and a signed
+	 * 32bit offset of the given string.
 	 * Then it writes the string body at the specified position given by
-	 * the paramter 'bodyIdx'. Although the NULL terminator of the string
+	 * the paramter 'bodyIndex'. Although the NULL terminator of the string
 	 * is copied, the written length doesn't include the terminator.
 	 * After calling this method, the current position moves to the next
 	 * to the length and the offset fields.
 	 *
 	 * @param str       A string to be written.
-	 * @param bodyIndex An address where the string body is written.
-	 * @return          The position next to the written string.
+	 *
+	 * @param bodyIndex
+	 * A position where the string body is written from the top of
+	 * the buffer.
+	 *
+	 * @return
+	 * The offset next to the written string from the top of the buffer.
 	 */
-	size_t insertString(const std::string &str, const size_t &bodyIdx);
+	size_t insertString(const std::string &str, const size_t &bodyIndex);
 
 	// 'addEx' families extend buffer if needed. They are useful when
 	// the total size of the buffer is unknown. Of course, because
@@ -206,6 +211,15 @@ public:
 		m_index += (sizeof(T) + s.size());
 		return s;
 	}
+
+	/**
+	 * Read a string with the given length and the offset.
+	 * After this method is called, the current index is not changed.
+	 *
+	 * @param header A point to StringHeader region in the buffer.
+	 * @return a read string.
+	 */
+	std::string extractString(const StringHeader *header);
 
 	/**
 	 * Read a string with the length and the offset at the current index,

@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <inttypes.h>
 using namespace std;
 
 #include "StringUtils.h"
@@ -180,25 +181,33 @@ void SmartBuffer::addZero(size_t size)
 size_t SmartBuffer::insertString(const string &str, const size_t &bodyIndex)
 {
 	const size_t length = str.size();
-	const size_t maxLength = 0x10000;
-	if (length > maxLength || bodyIndex > maxLength) {
+	if (length > UINT32_MAX) {
 		const string msg = StringUtils::sprintf(
-		  "Invalid paramter: string length: %zd, body index: %zd",
-		  length, bodyIndex);
+		  "Too long string length: %zd", length);
 		throw std::range_error(msg);
 	}
 	const size_t sizeNullTerm = 1;
 	const size_t nextBodyIndex = bodyIndex + length + sizeNullTerm;
 	if (nextBodyIndex > m_size) {
 		const string msg = StringUtils::sprintf(
-		  "Invalid paramter: string length: %zd, body index: %zd, "
-		  "buff size: %zd", length, bodyIndex, m_size);
+		  "Invalid paramter: string length: %zd, "
+		  "body index: %zd, buff size: %zd",
+		  length, bodyIndex, m_size);
+		throw std::out_of_range(msg);
+	}
+
+	const ssize_t offset = bodyIndex - m_index;
+	if (offset > INT32_MAX || offset < INT32_MIN) {
+		const string msg = StringUtils::sprintf(
+		  "offset overflow: string length: %zd, "
+		  "body index: %zd, buff index: %zd",
+		  length, bodyIndex, m_index);
 		throw std::out_of_range(msg);
 	}
 
 	StringHeader header;
 	header.size = length;
-	header.offset = bodyIndex;
+	header.offset = offset;
 	add(&header, sizeof(header));
 	memcpy(m_buf + bodyIndex, str.c_str(), length + sizeNullTerm);
 
@@ -265,11 +274,17 @@ void SmartBuffer::printBuffer(void)
 	MLPL_INFO("%s", msg.c_str());
 }
 
+std::string SmartBuffer::extractString(const StringHeader *header)
+{
+	const char *body =
+	  reinterpret_cast<const char *>(header) + header->offset;
+	return string(body, header->size);
+}
+
 std::string SmartBuffer::extractStringAndIncIndex(void)
 {
-	StringHeader *header = getPointerAndIncIndex<StringHeader>();
-	char *body = reinterpret_cast<char *>(m_buf) + header->offset;
-	return string(body, header->size);
+	const StringHeader *header = getPointerAndIncIndex<StringHeader>();
+	return extractString(header);
 }
 
 SmartBuffer *SmartBuffer::takeOver(void)
