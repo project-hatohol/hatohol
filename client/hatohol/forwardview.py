@@ -56,4 +56,9 @@ def jsonforward(request, path):
         req = urllib2.Request(url, headers=hdrs)
     content = urllib2.urlopen(req)
 
-    return HttpResponse(content, content_type='application/json')
+    response = HttpResponse(content, content_type='application/json')
+
+    response['Pragma'] = 'no-cache'
+    response['Cache-Control'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
