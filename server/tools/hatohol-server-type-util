@@ -6,7 +6,6 @@ import argparse
 from sets import Set
 
 class ParamGenerator:
-
     def get_plugin_path(self):
         return ''
 
@@ -64,7 +63,6 @@ class ZabbixParamGenerator(ParamGenerator):
 
     def get_sql_file_type_name(self):
         return 'zabbix';
-
 
 class NagiosParamGenerator(ParamGenerator):
     def get_server_type(self):
