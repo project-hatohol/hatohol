@@ -7,7 +7,11 @@ from ctypes import *
 
 sql_file_list = [
   {'table_name':'users', 'file_name':'init-user.sql'},
-  {'table_name':'server_types', 'file_name':'server-type.sql'}]
+  {'table_name':'server_types', 'file_name':'server-type-zabbix.sql'},
+  {'table_name':'server_types', 'file_name':'server-type-nagios.sql'},
+  {'table_name':'server_types', 'file_name':'server-type-hapi-zabbix.sql'},
+  {'table_name':'server_types', 'file_name':'server-type-hapi-json.sql'},
+  {'table_name':'server_types', 'file_name':'server-type-ceilometer.sql'}]
 
 
 def create_db_if_needed(cursor, args):
