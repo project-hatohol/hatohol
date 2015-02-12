@@ -225,14 +225,18 @@ class HapiCeilometerGenerator(ParamGenerator):
 
 
 def generate_one_type(table_name, server_type, server_label,
-                      parameters, plugin_path, file_identifier, sql_version):
+                      parameters, plugin_path, sql_version , file_identifier):
+    plugin_enabled = 1
     line = 'INSERT INTO ' + table_name;
-    line += ' (type, name, parameters, plugin_path, plugin_sql_version) VALUES ('
-    line += '%d, \'%s\', \'%s\', \'%s\', %d) ' % \
-        (server_type, server_label, parameters, plugin_path, sql_version)
+    line += ' (type, name, parameters, plugin_path, plugin_sql_version,' \
+            ' plugin_enabled) VALUES ('
+    line += '%d, \'%s\', \'%s\', \'%s\', %d, %d) ' % \
+        (server_type, server_label, parameters, plugin_path, sql_version,
+         plugin_enabled)
     line += 'ON DUPLICATE KEY UPDATE'
-    line += ' name=\'%s\', parameters=\'%s\', plugin_path=\'%s\', plugin_sql_version=\'%d\';' % \
-        (server_label, parameters, plugin_path, sql_version)
+    line += ' name=\'%s\', parameters=\'%s\', plugin_path=\'%s\',' \
+            ' plugin_sql_version=\'%d\', plugin_enabled=%d;' % \
+        (server_label, parameters, plugin_path, sql_version, plugin_enabled)
     sql = open('server-type-' + file_identifier + '.sql', 'w')
     sql.write(line)
     sql.close()
@@ -245,8 +249,8 @@ def generate_mysql(generators):
                           gen.get_server_type_name(),
                           json.dumps(gen.get_parameters()),
                           gen.get_plugin_path(),
-                          gen.get_sql_file_type_name(),
-                          gen.get_sql_version())
+                          gen.get_sql_version(),
+                          gen.get_sql_file_type_name())
 
 
 def generate_label_gettext(generators):
