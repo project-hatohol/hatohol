@@ -41,6 +41,8 @@ ServerTypeInfo testServerTypeInfo[] =
 	"Fake Monitorin",        // name
 	"User name|password",    // paramters
 	"fake-plugin",           // pluginPath
+	1,                       // plugin_sql_version
+	1,                       // plugin_enabled
 },{
 	MONITORING_SYSTEM_ZABBIX, // type
 	"Zabbix",                 // name
@@ -58,6 +60,8 @@ ServerTypeInfo testServerTypeInfo[] =
 	" \"label\": \"Retry interval (sec)\"}"
 	"]", // paramters
 	"/usr/sbin/hatohol-arm-plugin-ver2",  // pluginPath
+	1,                       // plugin_sql_version
+	1,                       // plugin_enabled
 }, {
 	MONITORING_SYSTEM_HAPI_ZABBIX,
 	"Zabbix (HAPI)",          // name
@@ -82,6 +86,8 @@ ServerTypeInfo testServerTypeInfo[] =
 	" \"label\": \"Static queue address\"}"
 	"]", // paramters
 	"/opt/bin/hatohol-arm-plugin-ver2000",  // pluginPath
+	1,                       // plugin_sql_version
+	1,                       // plugin_enabled
 },{
 	MONITORING_SYSTEM_HAPI_JSON, // type
 	"JSON",                      // name
@@ -102,6 +108,8 @@ ServerTypeInfo testServerTypeInfo[] =
 	" \"id\": \"tlsEnableVerify\", \"label\": \"TLS: Enable verify\"}"
 	"]", // paramters
 	"",  // pluginPath
+	1,                       // plugin_sql_version
+	1,                       // plugin_enabled
 }};
 size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
 
