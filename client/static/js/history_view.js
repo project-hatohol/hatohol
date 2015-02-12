@@ -560,7 +560,7 @@ var HistoryView = function(userProfile, options) {
         axis = getYAxisOptions(label);
         if (isInt)
           axis.minTickSize = 1;
-        if (i % 2 == 1)
+        if (axes.length % 2 == 1)
           axis.position = "right";
         axes.push(axis);
         table[label] = axis;
