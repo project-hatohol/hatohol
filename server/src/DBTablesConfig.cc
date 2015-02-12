@@ -147,8 +147,7 @@ static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
-},
-{
+}, {
 	// This column represent to plugin sql version
 	"plugin_sql_version",              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
@@ -158,8 +157,16 @@ static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	0,                                 // defaultValue
+}, {
+	"plugin_enabled",                  // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	1,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	0,                                 // defaultValue
 }
-
 };
 
 enum {
@@ -168,6 +175,7 @@ enum {
 	IDX_SERVER_TYPES_PARAMETERS,
 	IDX_SERVER_TYPES_PLUGIN_PATH,
 	IDX_SERVER_TYPES_PLUGIN_SQL_VERSION,
+	IDX_SERVER_TYPES_PLUGIN_ENABLED,
 	NUM_IDX_SERVER_TYPES,
 };
 
@@ -559,6 +567,8 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileServerTypes);
 		addColumnsArg.columnIndexes.push_back(
 			IDX_SERVER_TYPES_PLUGIN_SQL_VERSION);
+		addColumnsArg.columnIndexes.push_back(
+						IDX_SERVER_TYPES_PLUGIN_ENABLED);
 		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;
