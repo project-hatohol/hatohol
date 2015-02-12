@@ -146,6 +146,9 @@ public:
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
 
+	void updateTrigger(const TriggerInfoList &triggerInfoList,
+			   const ServerIdType &serverId);
+
 	/**
 	 * Get the trigger information with the specified server ID and
 	 * the trigger ID.
