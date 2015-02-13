@@ -88,13 +88,13 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 		trigInfo.globalHostId = INVALID_HOST_ID;
 
 		if (trigInfo.globalHostId != INAPPLICABLE_HOST_ID &&
-		    !hostInfoCache.getName(trigInfo.globalHostId,
+		    !hostInfoCache.getName(trigInfo.hostIdInServer,
 		                           trigInfo.hostName)) {
 			MLPL_WARN(
 			  "Ignored a trigger whose host name was not found: "
-			  "server: %" FMT_SERVER_ID ", host: %" FMT_HOST_ID
-			  "\n",
-			  serverId, trigInfo.globalHostId);
+			  "server: %" FMT_SERVER_ID ", "
+			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
+			  serverId, trigInfo.hostIdInServer.c_str());
 			continue;
 		}
 
