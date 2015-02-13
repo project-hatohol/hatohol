@@ -280,7 +280,8 @@ void test_addActionParameterOver32bit(void)
 	assertAddAction(params, userId);
 
 	// check the content in the DB
-	string statement = "select host_id, host_group_id, trigger_id from ";
+	string statement =
+	  "select host_id_in_server, host_group_id, trigger_id from ";
 	statement += DBTablesAction::getTableNameActions();
 	string expect;
 	expect += StringUtils::sprintf("%" PRIu64 "|%" PRIu64 "|%" PRIu64,
