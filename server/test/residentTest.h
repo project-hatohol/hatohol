@@ -31,4 +31,7 @@ enum ResidentTestCmdType {
 static const int RESIDENT_TEST_REPLY_GET_EVENT_INFO_BODY_LEN =
   sizeof(ResidentNotifyEventArg);
 
+#define TEST_HOST_ID_STRING "Test HOST ID in server !!!"
+const char *TEST_HOST_ID_REPLY_MAGIC_CODE = (const char *)0x12345678;
+
 #endif // residentTest_h
