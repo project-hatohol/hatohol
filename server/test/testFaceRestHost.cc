@@ -162,9 +162,10 @@ static void _assertHosts(const string &path, const string &callbackName = "",
 }
 #define assertHosts(P,...) cut_trace(_assertHosts(P,##__VA_ARGS__))
 
-static void _assertTriggers(const string &path, const string &callbackName = "",
-                            const ServerIdType &serverId = ALL_SERVERS,
-                            uint64_t hostId = ALL_HOSTS)
+static void _assertTriggers(
+  const string &path, const string &callbackName = "",
+  const ServerIdType &serverId = ALL_SERVERS,
+  const LocalHostIdType &hostIdInServer = ALL_LOCAL_HOSTS)
 {
 	loadTestDBTriggers();
 	loadTestDBServerHostDef();
@@ -178,7 +179,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 	map<ServerIdType, map<uint64_t, size_t> > indexMap;
 	map<ServerIdType, map<uint64_t, size_t> >::iterator indexMapIt;
 	map<uint64_t, size_t>::iterator trigIdIdxIt;
-	getTestTriggersIndexes(indexMap, serverId, hostId);
+	getTestTriggersIndexes(indexMap, serverId, hostIdInServer);
 	size_t expectedNumTrig = 0;
 	indexMapIt = indexMap.begin();
 	while (indexMapIt != indexMap.end()) {
@@ -198,8 +199,8 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 		queryMap["serverId"] =
 		  StringUtils::sprintf("%" PRIu32, serverId);
 	}
-	if (hostId != ALL_HOSTS)
-		queryMap["hostId"] = StringUtils::sprintf("%" PRIu64, hostId);
+	if (hostIdInServer != ALL_LOCAL_HOSTS)
+		queryMap["hostId"] = hostIdInServer;
 	arg.parameters = queryMap;
 	JSONParser *parser = getResponseAsJSONParser(arg);
 	unique_ptr<JSONParser> parserPtr(parser);
@@ -550,7 +551,7 @@ void test_triggersForOneServerOneHost(void)
 {
 	assertTriggers("/trigger", "foo",
 	               testTriggerInfo[1].serverId,
-	               testTriggerInfo[1].globalHostId);
+	               testTriggerInfo[1].hostIdInServer);
 }
 
 void test_events(void)
