@@ -807,6 +807,8 @@ var HistoryView = function(userProfile, options) {
     var title = "";
     title += item.brief;
     title += " (" + hostName + ")";
+    if (item.unit)
+      title += " [" + item.unit + "]";
     return title;
   }
 
@@ -868,12 +870,10 @@ var HistoryView = function(userProfile, options) {
       for (i = 0; i < self.plotData.length; i++) {
         // omit host names in legend labels
         item = self.loaders[i].getItem();
-        self.plotData[i].label = item.brief;
-        if (item.unit)
-          self.plotData[i].label += " [" + item.unit + "]";
+        self.plotData[i].label = getItemBriefWithUnit(item);
       }
     } else if (isSameItem()) {
-      title = loader.getItem().brief;
+      title = getItemBriefWithUnit(loader.getItem());
       for (i = 0; i < self.plotData.length; i++) {
         // omit item names in legend labels
         item = self.loaders[i].getItem();
@@ -885,8 +885,6 @@ var HistoryView = function(userProfile, options) {
         item = self.loaders[i].getItem();
         servers = self.loaders[i].getServers();
         self.plotData[i].label = buildTitle(item, servers);
-        if (item.unit)
-          self.plotData[i].label += " [" + item.unit + "]";
       }
     }
 
