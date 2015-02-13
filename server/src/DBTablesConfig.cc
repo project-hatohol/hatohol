@@ -849,6 +849,8 @@ void DBTablesConfig::registerServerType(const ServerTypeInfo &serverType)
 	arg.add(serverType.name);
 	arg.add(serverType.parameters);
 	arg.add(serverType.pluginPath);
+	arg.add(serverType.pluginSQLVersion);
+	arg.add(serverType.pluginEnabled);
 	arg.upsertOnDuplicate = true;
 	int id;
 	getDBAgent().runTransaction(arg, &id);
