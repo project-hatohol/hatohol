@@ -131,6 +131,7 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	{
 		initActionDef(actDef);
 		initEventInfo(eventInfo);
+		eventInfo.hostIdInServer = TEST_HOST_ID_STRING;
 		timerTag = g_timeout_add(timeout, timeoutHandler, this);
 	}
 
@@ -488,7 +489,8 @@ void _assertActionLogJustAfterExec(
 	expectedArgs.push_back(StringUtils::sprintf("%d", ctx->actDef.id));
 	expectedArgs.push_back(StringUtils::sprintf("%" PRIu32,
 	                                            evInf.serverId));
-	expectedArgs.push_back(evInf.hostIdInServer);
+	expectedArgs.push_back(StringUtils::sprintf(
+	  "'%" FMT_LOCAL_HOST_ID "'", evInf.hostIdInServer.c_str()));
 	expectedArgs.push_back(StringUtils::sprintf("%ld.%ld",
 	  evInf.time.tv_sec, evInf.time.tv_nsec));
 	expectedArgs.push_back(StringUtils::sprintf("%" PRIu64, evInf.id));
@@ -727,8 +729,8 @@ static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	const EventInfo &expected = ctx->eventInfo;
 	cppcut_assert_equal(static_cast<uint32_t>(expected.serverId),
 	                    eventArg->serverId);
-	cppcut_assert_equal(expected.hostIdInServer,
-	                    sbuf.extractString(eventArg->hostIdInServerHeader));
+	cppcut_assert_equal(TEST_HOST_ID_REPLY_MAGIC_CODE,
+	                    eventArg->hostIdInServer);
 	cppcut_assert_equal(expected.time.tv_sec, eventArg->time.tv_sec);
 	cppcut_assert_equal(expected.time.tv_nsec, eventArg->time.tv_nsec);
 	cppcut_assert_equal(expected.id, eventArg->eventId);
