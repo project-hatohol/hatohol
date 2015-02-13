@@ -448,12 +448,13 @@ string makeTriggerOutput(const TriggerInfo &triggerInfo)
 	string expectedOut =
 	  StringUtils::sprintf(
 	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|"
-	    "%" FMT_LOCAL_HOST_ID "|%s|%s|%s\n",
+	    "%" FMT_HOST_ID "|%" FMT_LOCAL_HOST_ID "|%s|%s|%s\n",
 	    triggerInfo.serverId,
 	    triggerInfo.id,
 	    triggerInfo.status, triggerInfo.severity,
 	    triggerInfo.lastChangeTime.tv_sec,
 	    triggerInfo.lastChangeTime.tv_nsec,
+	    triggerInfo.globalHostId,
 	    triggerInfo.hostIdInServer.c_str(),
 	    triggerInfo.hostName.c_str(),
 	    triggerInfo.brief.c_str(),
