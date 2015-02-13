@@ -113,12 +113,12 @@ extern const size_t NumTestHostgroupMember;
  * @param serverId
  * A server ID. ALL_SERVERS can be specified.
  *
- * @param hostId
- * A host ID. ALL_HOSTS can be specified.
+ * @param hostIdInServer
+ * A host ID in a server. ALL_LOCAL_HOSTS can be specified.
  */
 void getTestTriggersIndexes(
   std::map<ServerIdType, std::map<uint64_t, size_t> > &indexMap,
-  const ServerIdType &serverId, const HostIdType &hostId);
+  const ServerIdType &serverId, const LocalHostIdType &hostIdInServer);
 size_t getNumberOfTestTriggers(
   const ServerIdType &serverId,
   const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS,

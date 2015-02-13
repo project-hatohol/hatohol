@@ -1410,7 +1410,7 @@ SmartTime findTimeOfLastEvent(
 
 void getTestTriggersIndexes(
   map<ServerIdType, map<uint64_t, size_t> > &indexMap,
-  const ServerIdType &serverId, const HostIdType &hostId)
+  const ServerIdType &serverId, const LocalHostIdType &hostIdInServer)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		const TriggerInfo &trigInfo = testTriggerInfo[i];
@@ -1418,8 +1418,8 @@ void getTestTriggersIndexes(
 			if (trigInfo.serverId != serverId)
 				continue;
 		}
-		if (hostId != ALL_HOSTS) {
-			if (trigInfo.globalHostId != hostId)
+		if (hostIdInServer != ALL_LOCAL_HOSTS) {
+			if (trigInfo.hostIdInServer != hostIdInServer)
 				continue;
 		}
 		// If the following assertion fails, the test data is illegal.
