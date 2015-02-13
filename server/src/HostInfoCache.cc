@@ -72,11 +72,10 @@ void HostInfoCache::update(const ServerHostDefVect &svHostDefs)
 		update(*svHostDefIt);
 }
 
-bool HostInfoCache::getName(const HostIdType &_id, string &name) const
+bool HostInfoCache::getName(const LocalHostIdType &id, string &name) const
 {
 	bool found = false;
 	m_impl->lock.readLock();
-	const string id = StringUtils::sprintf("%" FMT_HOST_ID, _id);
 	HostIdNameMapIterator it = m_impl->hostIdNameMap.find(id);
 	if (it != m_impl->hostIdNameMap.end()) {
 		name = it->second;
