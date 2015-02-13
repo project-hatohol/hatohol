@@ -72,6 +72,11 @@ enum HostValidity {
 	HOST_VALID_SELF_MONITORING,
 };
 
+enum HostNumCahnge {
+	NO_CHANGE = 0,
+	CHANGE_NUM_OF_HOSTS
+};
+
 enum ExcludeFlag {
 	NO_EXCLUDE_HOST = 0,
 	EXCLUDE_SELF_MONITORING = (1 << 0),

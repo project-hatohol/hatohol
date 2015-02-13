@@ -228,8 +228,8 @@ public:
 	 * @param hostInfoList  A list of hosts.
 	 * @param serverId      A monitoring server ID.
 	 */
-	void updateHosts(const HostInfoList &hostInfoList,
-	                 const ServerIdType &serverId);
+	HostNumCahnge updateHosts(const HostInfoList &hostInfoList,
+				  const ServerIdType &serverId);
 
 	/**
 	 * get the last (maximum) event ID of the event that belongs to

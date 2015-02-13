@@ -2189,8 +2189,8 @@ void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 	getDBAgent().runTransaction(trx);
 }
 
-void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
-                                     const ServerIdType &serverId)
+HostNumCahnge DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
+					      const ServerIdType &serverId)
 {
 	// Make a set that contains current hosts records
 	HostsQueryOption option(USER_ID_SYSTEM);
@@ -2230,8 +2230,10 @@ void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
 		invalidHost.validity = HOST_INVALID;
 		updatedHostInfoList.push_back(invalidHost);
 	}
-
+	if (updatedHostInfoList.empty())
+		return NO_CHANGE;
 	addHostInfoList(updatedHostInfoList);
+	return CHANGE_NUM_OF_HOSTS;
 }
 
 EventIdType DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
