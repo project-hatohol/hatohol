@@ -43,6 +43,8 @@ protected:
 	void addConditionForTriggerQuery(void);
 	void addConditionForEventQuery(void);
 	void getTrigger(void);
+	void getAllTrigger(void);
+	void getTriggerReal(TriggerInfoList &triggerInfoList);
 	void getEvent(void);
 	void getItem(void);
 	void getHost(void);
