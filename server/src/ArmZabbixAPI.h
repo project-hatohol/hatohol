@@ -63,6 +63,7 @@ protected:
 	void updateGroups(void);
 
 	void makeHatoholTriggers(ItemTablePtr triggers);
+	void makeHatoholALLTriggers(void);
 	void makeHatoholEvents(ItemTablePtr events);
 	void makeHatoholItems(ItemTablePtr items, ItemTablePtr applications);
 	void makeHatoholHostgroups(ItemTablePtr groups);
