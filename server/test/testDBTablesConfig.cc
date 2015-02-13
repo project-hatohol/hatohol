@@ -175,7 +175,7 @@ void test_createTableSystem(void)
 	const string tableName = "system";
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	assertCreateTable(&dbConfig.getDBAgent(), tableName);
-	
+
 	// check content
 	string statement = "select * from " + tableName;
 	const char *expectedDatabasePath = "''";
@@ -511,7 +511,7 @@ void test_updateTargetServerWithoutPrivilege(void)
 	MonitoringServerInfo serverInfo = testServerInfo[0];
 	serverInfo.id = targetId;
 	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
-	OperationPrivilegeFlag updateFlags = 
+	OperationPrivilegeFlag updateFlags =
 	 (1 << OPPRVLG_UPDATE_SERVER) | (1 << OPPRVLG_UPDATE_ALL_SERVER);
 	privilege &= ~updateFlags;
 	assertUpdateTargetServer(
@@ -674,7 +674,7 @@ void test_getTargetServersWithArmPlugin(void)
 	ArmPluginInfoVect armPluginInfoVect;
 	MonitoringServerInfoList serverInfoList;
 	assertGetTargetServers(userId, &armPluginInfoVect, &serverInfoList);
-	
+
 	cppcut_assert_equal(serverInfoList.size(), armPluginInfoVect.size());
 	MonitoringServerInfoListIterator svInfoIt = serverInfoList.begin();
 	ArmPluginInfoVectConstIterator pluginIt = armPluginInfoVect.begin();
