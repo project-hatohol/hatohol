@@ -1609,6 +1609,7 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	builder.add(IDX_TRIGGERS_SEVERITY);
 	builder.add(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
 	builder.add(IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
+	builder.add(IDX_TRIGGERS_GLOBAL_HOST_ID);
 	builder.add(IDX_TRIGGERS_HOST_ID_IN_SERVER);
 	builder.add(IDX_TRIGGERS_HOSTNAME);
 	builder.add(IDX_TRIGGERS_BRIEF);
@@ -1654,9 +1655,8 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		itemGroupStream >> trigInfo.severity;
 		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
 		itemGroupStream >> trigInfo.lastChangeTime.tv_nsec;
+		itemGroupStream >> trigInfo.globalHostId;
 		itemGroupStream >> trigInfo.hostIdInServer;
-		// TODO: itemGroupStream >> trigInfo.hostId;
-		trigInfo.globalHostId = INVALID_HOST_ID;
 		itemGroupStream >> trigInfo.hostName;
 		itemGroupStream >> trigInfo.brief;
 		itemGroupStream >> trigInfo.extendedInfo;
