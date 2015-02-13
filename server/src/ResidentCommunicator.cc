@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -30,6 +30,13 @@ struct ResidentCommunicator::Impl {
 	SmartBuffer sbuf;
 };
 
+// This variable is only used for consistency check on the build.
+// It is not actually used in run time.
+// If the build fails at the following line, check ResidentStringHeader in
+// ResidentProtocol.h
+static size_t _check = HATOHOL_BUILD_EXPECT(
+  sizeof(mlpl::SmartBuffer::StringHeader), sizeof(ResidentStringHeader));
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -40,6 +47,14 @@ ResidentCommunicator::ResidentCommunicator(void)
 
 ResidentCommunicator::~ResidentCommunicator()
 {
+}
+
+size_t ResidentCommunicator::getBodySize(SmartBuffer &sbuf)
+{
+	HATOHOL_ASSERT(sbuf.size() >= RESIDENT_PROTO_HEADER_LEN,
+	               "Too small: sbuf.size(): %zd\n", sbuf.size());
+	sbuf.resetIndex();
+	return *sbuf.getPointer<uint32_t>();
 }
 
 int ResidentCommunicator::getPacketType(SmartBuffer &sbuf)
@@ -97,14 +112,17 @@ void ResidentCommunicator::setNotifyEventBody(
   const ActionIdType &actionId, const EventInfo &eventInfo,
   const string &sessionId)
 {
+	const size_t lenNullTerm = 1;
 	const uint32_t bodySize =
-	  RESIDENT_PROTO_EVENT_BODY_BASE_LEN + eventInfo.hostIdInServer.size();
+	  RESIDENT_PROTO_EVENT_BODY_BASE_LEN +
+	  eventInfo.hostIdInServer.size() + lenNullTerm;
+	size_t bodyIdx =
+	  RESIDENT_PROTO_HEADER_LEN + RESIDENT_PROTO_EVENT_BODY_BASE_LEN;
 	setHeader(bodySize,
 	          RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT);
 	m_impl->sbuf.add32(actionId);
 	m_impl->sbuf.add32(eventInfo.serverId);
-	m_impl->sbuf.add<RESIDENT_PROTO_EVENT_HOST_ID_SIZE_TYPE>(
-	  eventInfo.hostIdInServer);
+	bodyIdx = m_impl->sbuf.insertString(eventInfo.hostIdInServer, bodyIdx);
 	m_impl->sbuf.add64(eventInfo.time.tv_sec);
 	m_impl->sbuf.add32(eventInfo.time.tv_nsec);
 	m_impl->sbuf.add64(eventInfo.id); // Event ID
