@@ -210,15 +210,19 @@ void test_registerServerType(void)
 	svTypeInfo.name = "Fake Monitor";
 	svTypeInfo.parameters = "IP address|port|Username|Password";
 	svTypeInfo.pluginPath = "/usr/bin/hoge-ta-hoge-taro";
+	svTypeInfo.pluginSQLVersion = 2;
+	svTypeInfo.pluginEnabled = true;
 	dbConfig.registerServerType(svTypeInfo);
 
 	// check content
 	const string statement = "SELECT * FROM server_types";
 	const string expectedOut =
-	  StringUtils::sprintf("%d|%s|%s|%s\n",
+	  StringUtils::sprintf("%d|%s|%s|%s|%d|%d\n",
 	                       svTypeInfo.type, svTypeInfo.name.c_str(),
 	                       svTypeInfo.parameters.c_str(),
-	                       svTypeInfo.pluginPath.c_str());
+	                       svTypeInfo.pluginPath.c_str(),
+	                       svTypeInfo.pluginSQLVersion,
+	                       svTypeInfo.pluginEnabled);
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
@@ -232,15 +236,19 @@ void test_registerServerTypeUpdate(void)
 	svTypeInfo.name = "Fake Monitor (updated version)";
 	svTypeInfo.parameters = "IP address|port|Username|Password|Group";
 	svTypeInfo.pluginPath = "/usr/bin/hoge-ta-hoge-taro";
+	svTypeInfo.pluginSQLVersion = 3;
+	svTypeInfo.pluginEnabled = false;
 	dbConfig.registerServerType(svTypeInfo);
 
 	// check content
 	const string statement = "SELECT * FROM server_types";
 	const string expectedOut =
-	  StringUtils::sprintf("%d|%s|%s|%s\n",
+	  StringUtils::sprintf("%d|%s|%s|%s|%d|%d\n",
 	                       svTypeInfo.type, svTypeInfo.name.c_str(),
 	                       svTypeInfo.parameters.c_str(),
-	                       svTypeInfo.pluginPath.c_str());
+	                       svTypeInfo.pluginPath.c_str(),
+	                       svTypeInfo.pluginSQLVersion,
+	                       svTypeInfo.pluginEnabled);
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
