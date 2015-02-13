@@ -54,6 +54,7 @@ var HatoholEventPager = function(params) {
   self.currentPage = 0;
   self.numberOfEvents = -1; // unknown
   self.selectPageCallback = null;
+  self.previousPage = -1;
 
   self.update(params);
 
@@ -88,7 +89,6 @@ HatoholEventPager.prototype.update = function(params) {
 
   var self = this;
   var parent = this.parentElements;
-  var entrieRecords = this.numberOfEvents;
   var createItem = function(label, enable, getPageFunc) {
     var anchor = $("<a>", {
       href: "#",
@@ -103,8 +103,6 @@ HatoholEventPager.prototype.update = function(params) {
 	  return;
 	if (self.selectPageCallback)
 	  self.selectPageCallback(page);
-	self.currentPage = page;
-	self.update();
       }
     });
     var item = $("<li/>").append(anchor);
@@ -112,34 +110,43 @@ HatoholEventPager.prototype.update = function(params) {
       item.addClass("disabled");
     return item;
   };
-  var i, item, enable;
+
+  var enable;
+  var entrieRecords = this.numberOfEvents;
 
   parent.empty();
+  if (!(entrieRecords == 0)) {
+    self.previousPage = self.currentPage;
+    enable = this.currentPage > 4;
+    parent.append(createItem('<i class="glyphicon glyphicon-backward"></i>', enable, function() {
+      return self.currentPage - 5;
+    }));
 
-  enable = this.currentPage > 4;
-  parent.append(createItem('<i class="glyphicon glyphicon-backward"></i>', enable, function() {
-    return self.currentPage - 5;
-  }));
+    enable = this.currentPage > 0;
+    parent.append(createItem('<i class="glyphicon glyphicon-chevron-left"></i>', enable, function() {
+      return self.currentPage - 1;
+    }));
 
-  enable = this.currentPage > 0;
-  parent.append(createItem('<i class="glyphicon glyphicon-chevron-left"></i>', enable, function() {
-    return self.currentPage - 1;
-  }));
+    enable = true;
+    parent.append(createItem(self.currentPage + 1, enable, function() {
+      return self.currentPage;
+    }).addClass("active"));
 
-  enable = true;
-  parent.append(createItem(self.currentPage + 1, enable, function() {
-    return self.currentPage;
-  }).addClass("active"));
+    enable = entrieRecords == this.numRecordsPerPage;
+    parent.append(createItem('<i class="glyphicon glyphicon-chevron-right"></i>', enable, function() {
+      return self.currentPage + 1;
+    }));
 
-  enable = entrieRecords == this.numRecordsPerPage;
-  parent.append(createItem('<i class="glyphicon glyphicon-chevron-right"></i>', enable, function() {
-    return self.currentPage + 1;
-  }));
-
-  enable = entrieRecords == this.numRecordsPerPage;
-  parent.append(createItem('<i class="glyphicon glyphicon-forward"></i>', enable, function() {
-    return self.currentPage + 5;
-  }));
+    enable = entrieRecords == this.numRecordsPerPage;
+    parent.append(createItem('<i class="glyphicon glyphicon-forward"></i>', enable, function() {
+      return self.currentPage + 5;
+    }));
+  } else {
+    enable = true;
+    parent.append(createItem(gettext('Nothing data in this page. Please click here and return.'), enable, function() {
+      return self.previousPage;
+    }));
+  }
 
   $(self.numRecordsPerPageEntries).val(self.numRecordsPerPage);
 };
