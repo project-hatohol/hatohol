@@ -544,10 +544,8 @@ void ArmNagiosNDOUtils::addConditionForEventQuery(void)
 	arg.condition += cond;
 }
 
-void ArmNagiosNDOUtils::getTrigger(void)
+void ArmNagiosNDOUtils::getTriggerReal(TriggerInfoList &triggerInfoList)
 {
-	addConditionForTriggerQuery();
-
 	// TODO: should use transaction
 	DBAgent::SelectExArg &arg =
 	  m_impl->selectTriggerBuilder.getSelectExArg();
@@ -556,7 +554,6 @@ void ArmNagiosNDOUtils::getTrigger(void)
 	MLPL_DBG("The number of triggers: %zd\n", numTriggers);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	TriggerInfoList triggerInfoList;
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
@@ -588,10 +585,29 @@ void ArmNagiosNDOUtils::getTrigger(void)
 		itemGroupStream >> trigInfo.brief;    // output
 		itemGroupStream >> trigInfo.hostId;   // host_id
 		itemGroupStream >> trigInfo.hostName; // hosts.display_name
+		trigInfo.validity = TRIGGER_VALID;
 		triggerInfoList.push_back(trigInfo);
 	}
+}
+
+void ArmNagiosNDOUtils::getTrigger(void)
+{
+	TriggerInfoList triggerInfoList;
+	addConditionForTriggerQuery();
+	getTriggerReal(triggerInfoList);
+
 	ThreadLocalDBCache cache;
 	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
+}
+
+void ArmNagiosNDOUtils::getAllTrigger(void)
+{
+	TriggerInfoList triggerInfoList;
+	getTriggerReal(triggerInfoList);
+
+	const MonitoringServerInfo &svInfo = getServerInfo();
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().updateTrigger(triggerInfoList, svInfo.id);
 }
 
 void ArmNagiosNDOUtils::getEvent(void)
