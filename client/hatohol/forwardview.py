@@ -60,5 +60,5 @@ def jsonforward(request, path):
 
     response['Pragma'] = 'no-cache'
     response['Cache-Control'] = 'no-cache'
-    response['Expires'] = '0'
+    response['Expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
     return response
