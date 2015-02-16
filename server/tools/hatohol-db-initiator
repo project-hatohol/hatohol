@@ -115,11 +115,11 @@ def get_default_conf():
     return os.path.dirname(__file__) + '/../etc/hatohol/hatohol.conf'
 
 
-def parse_default_conf(args):
+def parse_default_conf():
     config_list = []
     config = ConfigParser.ConfigParser()
     try:
-        config.read(args.conf_file)
+        config.read(get_default_conf())
         config_list.append({'database': config.get('mysql', 'database'),
                             'user':     config.get('mysql', 'user'),
                             'password': config.get('mysql', 'password')})
@@ -177,8 +177,6 @@ if __name__ == '__main__':
                         help='A database server.')
     parser.add_argument('--sql-dir', default=get_default_sql_dir(), type=str,
                         help='A directory that contains SQL files.')
-    parser.add_argument('--conf-file', default=get_default_conf(), type=str,
-                        help='A file that contains hatohol setting.')
     parser.add_argument('--hatohol-db-user', default='hatohol', type=str,
                         help='A user who is allowed to access the database.')
     parser.add_argument('--hatohol-db-password', default='hatohol', type=str,
