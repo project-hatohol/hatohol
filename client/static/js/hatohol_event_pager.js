@@ -112,10 +112,10 @@ HatoholEventPager.prototype.update = function(params) {
   };
 
   var enable;
-  var entrieRecords = this.numberOfEvents;
+  var numEvents = this.numberOfEvents;
 
   parent.empty();
-  if (!(entrieRecords == 0)) {
+  if (!(numEvents == 0)) {
     self.previousPage = self.currentPage;
     enable = this.currentPage > 4;
     parent.append(createItem('<i class="glyphicon glyphicon-backward"></i>', enable, function() {
@@ -132,12 +132,12 @@ HatoholEventPager.prototype.update = function(params) {
       return self.currentPage;
     }).addClass("active"));
 
-    enable = entrieRecords == this.numRecordsPerPage;
+    enable = numEvents == this.numRecordsPerPage;
     parent.append(createItem('<i class="glyphicon glyphicon-chevron-right"></i>', enable, function() {
       return self.currentPage + 1;
     }));
 
-    enable = entrieRecords == this.numRecordsPerPage;
+    enable = numEvents == this.numRecordsPerPage;
     parent.append(createItem('<i class="glyphicon glyphicon-forward"></i>', enable, function() {
       return self.currentPage + 5;
     }));
