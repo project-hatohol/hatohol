@@ -142,10 +142,14 @@ HatoholEventPager.prototype.update = function(params) {
       return self.currentPage + 5;
     }));
   } else {
-    enable = true;
-    parent.append(createItem(gettext('Nothing data in this page. Please click here and return.'), enable, function() {
-      return self.previousPage;
-    }));
+    if (self.previousPage == -1) {
+        return;
+    } else {
+      enable = true;
+      parent.append(createItem(gettext('Nothing data in this page. Please click here and return.'), enable, function() {
+        return self.previousPage;
+      }));
+    }
   }
 
   $(self.numRecordsPerPageEntries).val(self.numRecordsPerPage);
