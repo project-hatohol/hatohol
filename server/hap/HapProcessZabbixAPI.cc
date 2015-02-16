@@ -81,7 +81,11 @@ void HapProcessZabbixAPI::workOnTriggers(void)
 	  getTriggerExpandedDescription(requestSince);
 	ItemTablePtr mergedTriggers =
 	  mergePlainTriggersAndExpandedDescriptions(triggers, expandedDescriptions);
-	sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, mergedTriggers);
+	if (requestSince != 0) {
+		sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, mergedTriggers);
+	} else {
+		sendTable(HAPI_CMD_SEND_UPDATED_ALLTRIGGERS, mergedTriggers);
+	}
 }
 
 void HapProcessZabbixAPI::workOnHostsAndHostgroupElements(void)
