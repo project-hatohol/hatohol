@@ -110,6 +110,10 @@ def add_sql_directory(args, sql_file_list):
         sql_file['file_name'] = args.sql_dir + '/' + sql_file['file_name']
 
 
+def get_default_conf():
+    return os.path.dirname(__file__) + '/../etc/hatohol/hatohol.conf'
+
+
 def start(args):
 
     add_sql_directory(args, sql_file_list)
@@ -158,6 +162,8 @@ if __name__ == '__main__':
                         help='A database server.')
     parser.add_argument('--sql-dir', default=get_default_sql_dir(), type=str,
                         help='A directory that contains SQL files.')
+    parser.add_argument('--conf-file', default=get_default_conf(), type=str,
+                        help='A file that contains hatohol setting.')
     parser.add_argument('--hatohol-db-user', default='hatohol', type=str,
                         help='A user who is allowed to access the database.')
     parser.add_argument('--hatohol-db-password', default='hatohol', type=str,
