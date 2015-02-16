@@ -84,6 +84,7 @@ struct HatoholArmPluginGate::Impl
 	Mutex                exitSyncLock;
 	bool                 exitSyncDone;
 	bool                 createdSelfTriggers;
+	bool                 noCahngeHosts;
 	guint                timerTag;
 	HAPIWtchPointInfo    hapiWtchPointInfo[NUM_COLLECT_NG_KIND];
 	NamedPipe            pipeRd, pipeWr;
@@ -97,6 +98,7 @@ struct HatoholArmPluginGate::Impl
 	  pluginTermSem(0),
 	  exitSyncDone(false),
 	  createdSelfTriggers(false),
+	  noCahngeHosts(true),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
 	  allowSetGLibMainContext(true)
@@ -178,6 +180,11 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	  HAPI_CMD_SEND_UPDATED_TRIGGERS,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers);
+
+	registerCommandHandler(
+	  HAPI_CMD_SEND_UPDATED_ALLTRIGGERS,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerSendUpdatedAllTriggers);
 
 	registerCommandHandler(
 	  HAPI_CMD_SEND_HOSTS,
@@ -815,11 +822,16 @@ void HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger(
 	SmartBuffer resBuf;
 	HapiResTimestampOfLastTrigger *body =
 	  setupResponseBuffer<HapiResTimestampOfLastTrigger>(resBuf);
-	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-	SmartTime last = uds->getTimestampOfLastTrigger(m_impl->serverInfo.id);
-	const timespec &lastTimespec = last.getAsTimespec();
-	body->timestamp = NtoL(lastTimespec.tv_sec);
-	body->nanosec   = NtoL(lastTimespec.tv_nsec);
+	if (m_impl->noCahngeHosts) {
+		UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+		SmartTime last = uds->getTimestampOfLastTrigger(m_impl->serverInfo.id);
+		const timespec &lastTimespec = last.getAsTimespec();
+		body->timestamp = NtoL(lastTimespec.tv_sec);
+		body->nanosec   = NtoL(lastTimespec.tv_nsec);
+	} else {
+		body->timestamp = NtoL(0);
+		body->nanosec   = NtoL(0);
+	}		
 	reply(resBuf);
 }
 
@@ -859,6 +871,25 @@ void HatoholArmPluginGate::cmdHandlerGetTimeOfLastEvent(
 	reply(resBuf);
 }
 
+void HatoholArmPluginGate::cmdHandlerSendUpdatedAllTriggers(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+
+	cmdBuf->setIndex(sizeof(HapiCommandHeader));
+	ItemTablePtr tablePtr = createItemTable(*cmdBuf);
+
+	TriggerInfoList trigInfoList;
+	HatoholDBUtils::transformTriggersToHatoholFormat(
+	  trigInfoList, tablePtr, m_impl->serverInfo.id, m_impl->hostInfoCache);
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	dbMonitoring.updateTrigger(trigInfoList, m_impl->serverInfo.id);
+
+	replyOk();
+}
 void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
   const HapiCommandHeader *header)
 {
