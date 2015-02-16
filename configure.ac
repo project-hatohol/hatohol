@@ -22,6 +22,9 @@ if test x"$sysconfdir" = x"NONE"; then
 fi
 AC_DEFINE_UNQUOTED(SYSCONFDIR, "`eval echo $sysconfdir`", "Data directory.")
 
+expanded_sysconfdir="`eval echo $sysconfdir`"
+AC_SUBST(expanded_sysconfdir)
+
 if test x"$localstatedir" = x"NONE"; then
     runstatedir=$ac_default_localstatedir
 fi
@@ -261,6 +264,7 @@ server/src/Makefile
 server/hap/Makefile
 server/data/Makefile
 server/tools/Makefile
+server/tools/hatohol-db-initiator
 server/tools/hatohol/Makefile
 server/tools/tls/Makefile
 server/tools/tls/hatohol-ca-initialize

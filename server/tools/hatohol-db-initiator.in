@@ -112,7 +112,7 @@ def add_sql_directory(args, sql_file_list):
 
 
 def get_default_conf():
-    return os.path.dirname(__file__) + '/../etc/hatohol/hatohol.conf'
+    return '@expanded_sysconfdir@/hatohol/hatohol.conf'
 
 
 def parse_default_conf():
