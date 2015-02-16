@@ -67,7 +67,8 @@ def execute_sql_statements_from_file(cursor, path):
 
 def load_data_from_file(cursor, args, table_name, file_path):
     if not has_upsert_in_sql(table_name):
-        should_skip = should_skip_updating_table(cursor, args, table_name, file_path)
+        should_skip = should_skip_updating_table(cursor, args,
+                                                 table_name, file_path)
         if should_skip:
             return
 
