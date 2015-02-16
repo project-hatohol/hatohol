@@ -27,7 +27,7 @@
 using namespace std;
 using namespace mlpl;
 
-typedef map<string, HostInfoCache::Element> HostIdNameMap;
+typedef map<LocalHostIdType, HostInfoCache::Element> HostIdNameMap;
 typedef HostIdNameMap::iterator HostIdNameMapIterator;
 
 struct HostInfoCache::Impl
