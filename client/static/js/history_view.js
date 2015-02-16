@@ -296,7 +296,7 @@ var HistoryView = function(userProfile, options) {
       }).attr("itemIndex", loader.options.index)));
 
     if (!item)
-      tr.insertBefore(".hatohol-item-list tbody tr :last");
+      tr.insertBefore("#hatohol-item-list tbody tr :last");
   }
 
   function setupItemSelector() {

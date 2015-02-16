@@ -30,53 +30,72 @@
 
     <div class="hatohol-graph"></div>
 
-    <div class="hatohol-item-list" style="display: none;">
-      <h3>{% trans "Selected items" %}</h3>
-      <form class="form-inline hatohol-filter-toolbar">
-	<table class="table table-stripped hatohol-item-list">
-	  <tbody>
-	    <tr>
-              <th><!-- color picker --></th>
-              <th>{% trans "Monitoring Server" %}</th>
-              <th>{% trans "Group" %}</th>
-              <th>{% trans "Host" %}</th>
-              <th>{% trans "Item" %}</th>
-              <th></th>
-	    </tr>
-	    <tr>
-              <td></td>
-              <td>
-		<select id="select-server" class="form-control">
-		  <option>---------</option>
-		</select>
-              </td>
-	      <td>
-		<select id="select-host-group" class="form-control">
-		  <option>---------</option>
-		</select>
-	      </td>
-	      <td>
-		<select id="select-host" class="form-control">
-		  <option>---------</option>
-		</select>
-	      </td>
-	      <td>
-		<select id="select-item" class="form-control">
-		  <option>---------</option>
-		</select>
-	      </td>
-	      <td>
-		<button id="add-item-button" type="button" class="btn btn-default">
-		  {% trans "ADD" %}
-		</button>
-	      </td>
-	    </tr>
-	  </tbody>
-	</table>
-      </form>
+    <div id="hatohol-item-list" class="modal fade"
+         role="dialog" area-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h3>{% trans "Selected items" %}</h3>
+          </div>
+          <div class="modal-body">
+            <form class="form-inline hatohol-filter-toolbar">
+              <table class="table table-stripped hatohol-item-list">
+                <tbody>
+                  <tr>
+                    <th><!-- color picker --></th>
+                    <th>{% trans "Monitoring Server" %}</th>
+                    <th>{% trans "Group" %}</th>
+                    <th>{% trans "Host" %}</th>
+                    <th>{% trans "Item" %}</th>
+                    <th></th>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>
+                      <select id="select-server" class="form-control">
+                        <option>---------</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select id="select-host-group" class="form-control">
+                        <option>---------</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select id="select-host" class="form-control">
+                        <option>---------</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select id="select-item" class="form-control">
+                        <option>---------</option>
+                      </select>
+                    </td>
+                    <td>
+                      <button id="add-item-button" type="button" class="btn btn-default">
+                        {% trans "ADD" %}
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-{% endblock %}
+
+  <div class="hatohol-graph-buttons">
+    <button type="button" class="btn btn-default"
+            data-toggle="modal" data-target="#hatohol-item-list">
+      Select items
+    </button>
+  <div>
+  {% endblock %}
 
 {% block option %}
   <script src="{{ STATIC_URL }}js.external/jquery.flot.js"></script>

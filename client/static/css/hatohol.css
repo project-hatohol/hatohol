@@ -134,8 +134,8 @@ h2.hatohol-graph {
   padding: 2px;
 }
 
-div.hatohol-item-list {
+.hatohol-graph-buttons {
+    text-align: right;
     margin-left: 1em;
     margin-right: 1em;
-    margin-bottom: 2em;
 }
