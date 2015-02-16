@@ -41,9 +41,9 @@ def create_hatohol_tables(args):
 
 def has_upsert_in_sql(table_name):
     if table_name == 'users':
-        return True
+        return False
 
-    return False
+    return True
 
 def skip_updating_table_unless_force_update(cursor, args, table_name, file_path):
     cursor.execute('SELECT COUNT(*) FROM %s;' % table_name)
