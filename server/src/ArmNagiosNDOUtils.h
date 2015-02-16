@@ -47,7 +47,7 @@ protected:
 	void getTriggerReal(TriggerInfoList &triggerInfoList);
 	void getEvent(void);
 	void getItem(void);
-	void getHost(void);
+	HostNumCahnge getHost(void);
 	void getHostgroup(void);
 	void getHostgroupMembers(void);
 	void connect(void);
