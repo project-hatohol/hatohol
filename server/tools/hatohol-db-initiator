@@ -40,7 +40,7 @@ def create_hatohol_tables(args):
 
 
 def has_upsert_in_sql(table_name):
-    return table_name == 'server_types':
+    return table_name == 'server_types'
 
 def prepare_updating_table_does_not_have_upsert(cursor, table_name):
     cursor.execute('DELETE FROM %s' % table_name)
