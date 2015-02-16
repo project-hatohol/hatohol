@@ -4,6 +4,7 @@ import os
 import argparse
 import MySQLdb
 from ctypes import *
+import ConfigParser
 
 sql_file_list = [
     {'table_name': 'users',
@@ -112,6 +113,20 @@ def add_sql_directory(args, sql_file_list):
 
 def get_default_conf():
     return os.path.dirname(__file__) + '/../etc/hatohol/hatohol.conf'
+
+
+def parse_default_conf(args):
+    config_list = []
+    config = ConfigParser.ConfigParser()
+    try:
+        config.read(args.conf_file)
+        config_list.append({'database': config.get('mysql', 'database'),
+                            'user':     config.get('mysql', 'user'),
+                            'password': config.get('mysql', 'password')})
+    except:
+        print "Could not read hatohol conf."
+
+    return config_list
 
 
 def start(args):
