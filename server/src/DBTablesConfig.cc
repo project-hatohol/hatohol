@@ -570,6 +570,11 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 		addColumnsArg.columnIndexes.push_back(
 			IDX_SERVER_TYPES_PLUGIN_ENABLED);
 		dbAgent.addColumns(addColumnsArg);
+		// enable plugin_sql_version & plugin_enabled by default
+		DBAgent::UpdateArg arg(tableProfileServerTypes);
+		arg.add(IDX_SERVER_TYPES_PLUGIN_SQL_VERSION, 1);
+		arg.add(IDX_SERVER_TYPES_PLUGIN_ENABLED, 1);
+		dbAgent.update(arg);
 	}
 	return true;
 }
