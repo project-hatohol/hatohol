@@ -161,7 +161,7 @@ HatoholPager.prototype.update = function(params) {
   if (numPages > 1 || numPages < 0) {
     enable = this.currentPage > 4;
     parent.prepend(createItem('<i class="glyphicon glyphicon-backward"></i>', enable, function() {
-      return self.currentPage - 5;
+      return self.currentPage - self.maxPagesToShow;
     }));
 
     enable = this.currentPage > 0;
@@ -171,7 +171,7 @@ HatoholPager.prototype.update = function(params) {
 
     enable = this.currentPage < numPages - 5;
     parent.append(createItem('<i class="glyphicon glyphicon-forward"></i>', enable, function() {
-      return self.currentPage + 5;
+      return self.currentPage + self.maxPagesToShow;
     }));
 
     enable = (this.currentPage != numPages - 1);
