@@ -43,6 +43,7 @@ def create_db_if_needed(cursor, args):
         print 'Created DB: %s' % args.db_name
     cursor.execute('USE %s' % args.db_name)
 
+
 def create_hatohol_tables(args):
     hatohol = cdll.LoadLibrary('libhatohol.so.0')
     ret = hatohol.createDBHatohol(c_char_p(args.db_name),
@@ -103,9 +104,11 @@ def check_sql_file(args, sql_file_list):
             print 'You can specifiy the SQL directory by --sql-dir option.'
             sys.exit(-1)
 
+
 def add_sql_directory(args, sql_file_list):
     for sql_file in sql_file_list:
         sql_file['file_name'] = args.sql_dir + '/' + sql_file['file_name']
+
 
 def start(args):
 
@@ -134,6 +137,7 @@ def start(args):
 
 def get_default_sql_dir():
     return os.path.dirname(__file__) + '/../share/hatohol/sql'
+
 
 def get_target_list():
     target_list = []
