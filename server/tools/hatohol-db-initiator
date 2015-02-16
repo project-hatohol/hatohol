@@ -129,6 +129,13 @@ def parse_default_conf():
     return config_list
 
 
+def get_default_conf_item(item_name):
+    config = parse_default_conf()
+    for conf in config:
+        item = conf[item_name]
+    return item
+
+
 def start(args):
 
     add_sql_directory(args, sql_file_list)
@@ -166,11 +173,14 @@ def get_target_list():
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Hatohol DB Initiator')
-    parser.add_argument('db_name', type=str,
+    parser.add_argument('--db_name', default=get_default_conf_item('database'),
+                        type=str,
                         help='A database name to be initialized.')
-    parser.add_argument('db_user', type=str,
+    parser.add_argument('--db_user', default=get_default_conf_item('user'),
+                        type=str,
                         help='A user for the database server.')
-    parser.add_argument('db_password', default='', type=str,
+    parser.add_argument('--db_password', default=get_default_conf_item('password'),
+                        type=str,
                         help='A password for the database server.'
                         ' If the password is not set, give \'\' for this argument.')
     parser.add_argument('--host', default='localhost', type=str,
