@@ -118,13 +118,14 @@ def get_default_conf():
 def parse_default_conf():
     config_list = []
     config = ConfigParser.ConfigParser()
+    config_file = get_default_conf()
     try:
-        config.read(get_default_conf())
+        config.read(config_file)
         config_list.append({'database': config.get('mysql', 'database'),
                             'user':     config.get('mysql', 'user'),
                             'password': config.get('mysql', 'password')})
     except:
-        print "Could not read hatohol conf."
+        print "Could not read %s." % config_file
 
     return config_list
 
