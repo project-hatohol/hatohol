@@ -38,10 +38,14 @@ def create_hatohol_tables(args):
         print 'Failed to create DBHatohol object'
         sys.exit(-1)
 
-def skip_updating_table_if_does_not_have_upsert(cursor, args, table_name, file_path):
-    if table_name != 'users':
-        return
 
+def has_upsert_in_sql(table_name):
+    if table_name == 'users':
+        return True
+
+    return False
+
+def skip_updating_table_unless_force_update(cursor, args, table_name, file_path):
     cursor.execute('SELECT COUNT(*) FROM %s;' % table_name)
     num_rows = cursor.fetchall()[0][0]
     if num_rows > 0 and not args.force:
@@ -63,7 +67,8 @@ def execute_sql_statements_from_file(cursor, path):
     print 'Succeessfully loaded: %s' % path
 
 def load_data_from_file(cursor, args, table_name, file_path):
-    skip_updating_table_if_does_not_have_upsert(cursor, args, table_name, file_path)
+    if has_upsert_in_sql(table_name):
+        skip_updating_table_unless_force_update(cursor, args, table_name, file_path)
 
     execute_sql_statements_from_file(cursor, file_path)
 
