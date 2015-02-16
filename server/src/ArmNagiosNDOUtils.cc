@@ -696,7 +696,7 @@ void ArmNagiosNDOUtils::getItem(void)
 	cache.getMonitoring().addItemInfoList(itemInfoList);
 }
 
-void ArmNagiosNDOUtils::getHost(void)
+HostNumCahnge ArmNagiosNDOUtils::getHost(void)
 {
 	// TODO: should use transaction
 	m_impl->dbAgent->select(m_impl->selectHostArg);
@@ -720,7 +720,6 @@ void ArmNagiosNDOUtils::getHost(void)
 		itemGroupStream >> svHostDef.name;
 		svHostDefs.push_back(svHostDef);
 	}
-
 	UnifiedDataStore::getInstance()->upsertHosts(svHostDefs);
 }
 
@@ -818,11 +817,15 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 	try {
 		if (!m_impl->dbAgent)
 			connect();
-		getTrigger();
-		getEvent();
-		getHost();
+		HostNumCahnge retHostNumCahnge = getHost();
 		getHostgroup();
 		getHostgroupMembers();
+		if (retHostNumCahnge == NO_CHANGE){
+			getTrigger();
+		} else {
+			getAllTrigger();
+		}
+		getEvent();
 		if (!getCopyOnDemandEnabled())
 			getItem();
 	} catch (const HatoholException &he) {
