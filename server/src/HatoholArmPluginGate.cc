@@ -921,7 +921,13 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	dbMonitoring.updateHosts(hostInfoList, m_impl->serverInfo.id);
+	HostNumCahnge retHostNumCahnge = dbMonitoring.updateHosts(
+					  hostInfoList, m_impl->serverInfo.id);
+	if (retHostNumCahnge == NO_CHANGE) {
+		m_impl->noCahngeHosts = true;
+	} else {
+		m_impl->noCahngeHosts = false;
+	}
 
 	// TODO: consider if DBClientHatohol should have the cache
 	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
