@@ -101,16 +101,16 @@ div#noscript-background div#noscript-notice
 }
 
 /* graph */
-h2.graph {
+h2.hatohol-graph {
     text-align: center;
     font-size: large;
 }
 
-#item-graph {
+#hatohol-graph {
     margin-bottom: 2em;
 }
 
-#item-graph-slider-area {
+#hatohol-graph-slider-area {
     margin-left: 2em;
     margin-right: 1em;
     margin-top: 3.5em;
@@ -118,13 +118,13 @@ h2.graph {
     white-space: nowrap;
 }
 
-#item-graph-slider {
+#hatohol-graph-slider {
     width: 95%;
     display: inline-block;
     white-space: normal;
 }
 
-#item-graph-auto-reload {
+#hatohol-graph-auto-reload {
     margin-left: 1em;
     margin-right: 0;
     margin-bottom: 3.6em;

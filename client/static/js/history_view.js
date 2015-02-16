@@ -354,24 +354,24 @@ var HistoryView = function(userProfile, options) {
   }
 
   function appendGraphArea() {
-    $("div.graph").append($("<div>", {
-      id: "item-graph",
+    $("div.hatohol-graph").append($("<div>", {
+      id: "hatohol-graph",
       height: "300px",
     }))
     .append($("<div>", {
-      id: "item-graph-slider-area",
+      id: "hatohol-graph-slider-area",
     }));
 
-    $("#item-graph-slider-area").append($("<div>", {
-      id: "item-graph-slider",
+    $("#hatohol-graph-slider-area").append($("<div>", {
+      id: "hatohol-graph-slider",
     }))
     .append($("<button>", {
-      id: "item-graph-auto-reload",
+      id: "hatohol-graph-auto-reload",
       type: "button",
       class: "btn btn-primary glyphicon glyphicon-refresh active",
     }).attr("data-toggle", "button"));
 
-    $("#item-graph").bind("plotselected", function (event, ranges) {
+    $("#hatohol-graph").bind("plotselected", function (event, ranges) {
       var plotOptions;
 
       // clamp the zooming to prevent eternal zoom
@@ -385,7 +385,7 @@ var HistoryView = function(userProfile, options) {
         xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
         yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
       });
-      $.plot("#item-graph", self.plotData, plotOptions);
+      $.plot("#hatohol-graph", self.plotData, plotOptions);
 
       setSliderTimeRange(Math.floor(ranges.xaxis.from / 1000),
                          Math.floor(ranges.xaxis.to / 1000));
@@ -394,14 +394,14 @@ var HistoryView = function(userProfile, options) {
     });
 
     // zoom cancel
-    $("#item-graph").bind("dblclick", function (event) {
-      $.plot("#item-graph", self.plotData, self.plotOptions);
+    $("#hatohol-graph").bind("dblclick", function (event) {
+      $.plot("#hatohol-graph", self.plotData, self.plotOptions);
       setSliderTimeRange(Math.floor(self.plotOptions.xaxis.min / 1000),
                          Math.floor(self.plotOptions.xaxis.max / 1000));
     });
 
     // toggle auto reload
-    $("#item-graph-auto-reload").on("click", function() {
+    $("#hatohol-graph-auto-reload").on("click", function() {
       if ($(this).hasClass("active")) {
         disableAutoReload(true);
       } else {
@@ -505,7 +505,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function enableAutoReload(onClickButton) {
-    var button = $("#item-graph-auto-reload");
+    var button = $("#hatohol-graph-auto-reload");
 
     button.removeClass("btn-default");
     button.addClass("btn-primary");
@@ -517,7 +517,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function disableAutoReload(onClickButton) {
-    var button = $("#item-graph-auto-reload");
+    var button = $("#hatohol-graph-auto-reload");
     self.clearAutoReload();
     self.autoReloadIsEnabled = false;
     if (!onClickButton)
@@ -640,7 +640,7 @@ var HistoryView = function(userProfile, options) {
         self.plotOptions.points.show = true;
     }
 
-    self.plot = $.plot($("#item-graph"), self.plotData, self.plotOptions);
+    self.plot = $.plot($("#hatohol-graph"), self.plotData, self.plotOptions);
   }
 
   function getTimeRange() {
@@ -698,7 +698,7 @@ var HistoryView = function(userProfile, options) {
   function drawSlider() {
     var timeRange = self.timeRange;
 
-    $("#item-graph-slider").slider({
+    $("#hatohol-graph-slider").slider({
       range: true,
       min: timeRange.min,
       max: timeRange.max,
@@ -718,7 +718,7 @@ var HistoryView = function(userProfile, options) {
           self.loaders[i].setTimeRange(timeRange.begin, timeRange.end);
         disableAutoReload();
         load();
-        $("#item-graph-auto-reload").removeClass("active");
+        $("#hatohol-graph-auto-reload").removeClass("active");
       },
       slide: function(event, ui) {
         var beginTime = ui.values[0], endTime = ui.values[1];
@@ -731,7 +731,7 @@ var HistoryView = function(userProfile, options) {
         setSliderTimeRange(timeRange.begin, timeRange.end);
       },
     });
-    $("#item-graph-slider").slider('pips', {
+    $("#hatohol-graph-slider").slider('pips', {
       rest: 'label',
       last: false,
       step: secondsInHour * 12,
@@ -757,7 +757,7 @@ var HistoryView = function(userProfile, options) {
         }
       },
     });
-    $("#item-graph-slider").slider('float', {
+    $("#hatohol-graph-slider").slider('float', {
       formatLabel: function(val) {
         return formatDate(val);
       },
@@ -771,11 +771,11 @@ var HistoryView = function(userProfile, options) {
       return;
 
     self.settingSliderTimeRange = true;
-    values = $("#item-graph-slider").slider("values");
+    values = $("#hatohol-graph-slider").slider("values");
     if (min != values[0])
-      $("#item-graph-slider").slider("values", 0, min);
+      $("#hatohol-graph-slider").slider("values", 0, min);
     if (max != values[1])
-      $("#item-graph-slider").slider("values", 1, max);
+      $("#hatohol-graph-slider").slider("values", 1, max);
     self.settingSliderTimeRange = false;
   }
 
@@ -890,10 +890,10 @@ var HistoryView = function(userProfile, options) {
 
     if (title) {
       $("title").text(title);
-      $("h2.graph").text(title);
+      $("h2.hatohol-graph").text(title);
     } else {
       $("title").text(gettext("History"));
-      $("h2.graph").text("");
+      $("h2.hatohol-graph").text("");
     }
   }
 };
