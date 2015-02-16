@@ -46,10 +46,10 @@ def skip_updating_table_if_does_not_have_upsert(cursor, args, table_name, file_p
     num_rows = cursor.fetchall()[0][0]
     if num_rows > 0 and not args.force:
         print 'The number of rows in table: %s ' \
-            'is not zero (%d)' % (table_name, num_rows)
+              'is not zero (%d)' % (table_name, num_rows)
         print 'Skip loading data: %s' % file_path
         print 'If you want to drop the existing table ' \
-            'and load data, use -f or --force option.'
+              'and load data, use -f or --force option.'
         return
 
     if num_rows > 0:
