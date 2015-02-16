@@ -235,7 +235,7 @@ def generate_one_type(table_name, server_type, server_label,
          plugin_enabled)
     line += 'ON DUPLICATE KEY UPDATE'
     line += ' name=\'%s\', parameters=\'%s\', plugin_path=\'%s\',' \
-            ' plugin_sql_version=\'%d\', plugin_enabled=%d;' % \
+            ' plugin_sql_version=\'%d\', plugin_enabled=\'%d\';' % \
         (server_label, parameters, plugin_path, sql_version, plugin_enabled)
     sql = open('server-type-' + file_identifier + '.sql', 'w')
     sql.write(line)
