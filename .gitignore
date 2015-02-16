@@ -53,6 +53,7 @@ Makefile.in
 /server/test/zabbix-api-response-collector
 /server/tools/build/
 /server/tools/hatohol-config-db-creator
+/server/tools/hatohol-db-initiator
 /server/tools/hatohol-def-src-file-generator
 /server/tools/hatohol/hatohol_def.py
 /server/tools/usr/
