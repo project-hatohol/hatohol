@@ -2502,6 +2502,36 @@ size_t DBTablesMonitoring::getNumberOfTriggers(const TriggersQueryOption &option
 	return getNumberOfTriggers(option, string());
 }
 
+size_t DBTablesMonitoring::getNumberOfEvents(const EventsQueryOption &option){
+	DBClientJoinBuilder builder(tableProfileEvents, &option);
+	builder.addTable(
+	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileEvents,IDX_EVENTS_SERVER_ID,IDX_HOSTS_SERVER_ID,
+	  tableProfileEvents,IDX_EVENTS_HOST_ID,IDX_HOSTS_HOST_ID);
+	string stmt = "count(*)";
+	if (option.isHostgroupUsed()) {
+		const char *fmt = NULL;
+		const type_info &dbAgentType = typeid(getDBAgent());
+		if (dbAgentType == typeid(DBAgentSQLite3))
+			fmt = "count(distinct %s || ',' || %s)";
+		else if (dbAgentType == typeid(DBAgentMySQL))
+			fmt = "count(distinct %s,%s)";
+		HATOHOL_ASSERT(fmt, "Unknown DBAgent type.");
+
+		stmt = StringUtils::sprintf(fmt,
+		  option.getColumnName(IDX_EVENTS_SERVER_ID).c_str(),
+		  option.getColumnName(IDX_EVENTS_ID).c_str());
+
+	}
+	DBAgent::SelectExArg  &arg = builder.build();
+	arg.add(stmt, SQL_COLUMN_TYPE_INT);
+	getDBAgent().runTransaction(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
+}
+
 size_t DBTablesMonitoring::getNumberOfHosts(const TriggersQueryOption &option)
 {
 	// TODO: consider if we can use hosts table.

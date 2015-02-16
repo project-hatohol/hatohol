@@ -134,6 +134,7 @@ public:
 	size_t getNumberOfBadTriggers(const TriggersQueryOption &option,
 				      TriggerSeverityType severity);
 	size_t getNumberOfTriggers(const TriggersQueryOption &option);
+	size_t getNumberOfEvents(const EventsQueryOption &option);
 	size_t getNumberOfGoodHosts(const TriggersQueryOption &option);
 	size_t getNumberOfBadHosts(const TriggersQueryOption &option);
 	size_t getNumberOfItems(const ItemsQueryOption &option,
