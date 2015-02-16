@@ -101,12 +101,14 @@ void ArmZabbixAPI::updateItems(void)
 	makeHatoholItems(items, applications);
 }
 
-void ArmZabbixAPI::updateHosts(void)
+HostNumCahnge ArmZabbixAPI::updateHosts(void)
 {
 	ItemTablePtr hostTablePtr, hostsGroupsTablePtr;
 	getHosts(hostTablePtr, hostsGroupsTablePtr);
-	makeHatoholHosts(hostTablePtr);
+	HostNumCahnge retHostNumCahnge = makeHatoholHosts(hostTablePtr);
 	makeHatoholMapHostsHostgroups(hostsGroupsTablePtr);
+
+	return retHostNumCahnge;
 }
 
 void ArmZabbixAPI::updateEvents(void)
@@ -243,18 +245,21 @@ void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
 	cache.getMonitoring().addHostgroupElementList(hostgroupElementList);
 }
 
-void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
+HostNumCahnge ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 {
 	ThreadLocalDBCache cache;
 	HostInfoList hostInfoList;
 	HatoholDBUtils::transformHostsToHatoholFormat(hostInfoList, hosts,
 	                                              m_impl->zabbixServerId);
-	cache.getMonitoring().updateHosts(hostInfoList, m_impl->zabbixServerId);
+	HostNumCahnge retHostNumCahnge = cache.getMonitoring().updateHosts(
+					  hostInfoList, m_impl->zabbixServerId);
 
 	// TODO: consider if DBClientHatohol should have the cache
 	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
 	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
 		m_impl->hostInfoCache.update(*hostInfoItr);
+
+	return retHostNumCahnge;
 }
 
 uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
@@ -288,10 +293,14 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 		return COLLECT_NG_DISCONNECT_ZABBIX;
 
 	try {
-		ItemTablePtr triggers = updateTriggers();
-		updateHosts();
+		HostNumCahnge retHostNumCahnge = updateHosts();
 		updateGroups();
-		makeHatoholTriggers(triggers);
+		if (retHostNumCahnge == NO_CHANGE){
+			ItemTablePtr triggers = updateTriggers();
+			makeHatoholTriggers(triggers);
+		} else {
+			makeHatoholALLTriggers();
+		}
 		updateEvents();
 
 		if (!getCopyOnDemandEnabled())
