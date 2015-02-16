@@ -199,7 +199,7 @@ rm -rf %{buildroot}
 %endif
 %{_datadir}/hatohol/sql/create-db.sql
 %{_datadir}/hatohol/sql/init-user.sql
-%{_datadir}/hatohol/sql/server-type.sql
+%{_datadir}/hatohol/sql/server-type-*.sql
 
 %files arm-zabbix
 %{_sbindir}/hatohol-arm-plugin-zabbix

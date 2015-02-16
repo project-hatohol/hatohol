@@ -53,6 +53,8 @@ struct ServerTypeInfo {
 	std::string          name;
 	std::string          parameters;
 	std::string          pluginPath;
+	int                  pluginSQLVersion;
+	bool                 pluginEnabled;
 };
 
 typedef std::vector<ServerTypeInfo>        ServerTypeInfoVect;

@@ -175,7 +175,7 @@ void test_createTableSystem(void)
 	const string tableName = "system";
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	assertCreateTable(&dbConfig.getDBAgent(), tableName);
-	
+
 	// check content
 	string statement = "select * from " + tableName;
 	const char *expectedDatabasePath = "''";
@@ -210,15 +210,19 @@ void test_registerServerType(void)
 	svTypeInfo.name = "Fake Monitor";
 	svTypeInfo.parameters = "IP address|port|Username|Password";
 	svTypeInfo.pluginPath = "/usr/bin/hoge-ta-hoge-taro";
+	svTypeInfo.pluginSQLVersion = 2;
+	svTypeInfo.pluginEnabled = true;
 	dbConfig.registerServerType(svTypeInfo);
 
 	// check content
 	const string statement = "SELECT * FROM server_types";
 	const string expectedOut =
-	  StringUtils::sprintf("%d|%s|%s|%s\n",
+	  StringUtils::sprintf("%d|%s|%s|%s|%d|%d\n",
 	                       svTypeInfo.type, svTypeInfo.name.c_str(),
 	                       svTypeInfo.parameters.c_str(),
-	                       svTypeInfo.pluginPath.c_str());
+	                       svTypeInfo.pluginPath.c_str(),
+	                       svTypeInfo.pluginSQLVersion,
+	                       svTypeInfo.pluginEnabled);
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
@@ -232,15 +236,19 @@ void test_registerServerTypeUpdate(void)
 	svTypeInfo.name = "Fake Monitor (updated version)";
 	svTypeInfo.parameters = "IP address|port|Username|Password|Group";
 	svTypeInfo.pluginPath = "/usr/bin/hoge-ta-hoge-taro";
+	svTypeInfo.pluginSQLVersion = 3;
+	svTypeInfo.pluginEnabled = false;
 	dbConfig.registerServerType(svTypeInfo);
 
 	// check content
 	const string statement = "SELECT * FROM server_types";
 	const string expectedOut =
-	  StringUtils::sprintf("%d|%s|%s|%s\n",
+	  StringUtils::sprintf("%d|%s|%s|%s|%d|%d\n",
 	                       svTypeInfo.type, svTypeInfo.name.c_str(),
 	                       svTypeInfo.parameters.c_str(),
-	                       svTypeInfo.pluginPath.c_str());
+	                       svTypeInfo.pluginPath.c_str(),
+	                       svTypeInfo.pluginSQLVersion,
+	                       svTypeInfo.pluginEnabled);
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
@@ -503,7 +511,7 @@ void test_updateTargetServerWithoutPrivilege(void)
 	MonitoringServerInfo serverInfo = testServerInfo[0];
 	serverInfo.id = targetId;
 	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
-	OperationPrivilegeFlag updateFlags = 
+	OperationPrivilegeFlag updateFlags =
 	 (1 << OPPRVLG_UPDATE_SERVER) | (1 << OPPRVLG_UPDATE_ALL_SERVER);
 	privilege &= ~updateFlags;
 	assertUpdateTargetServer(
@@ -666,7 +674,7 @@ void test_getTargetServersWithArmPlugin(void)
 	ArmPluginInfoVect armPluginInfoVect;
 	MonitoringServerInfoList serverInfoList;
 	assertGetTargetServers(userId, &armPluginInfoVect, &serverInfoList);
-	
+
 	cppcut_assert_equal(serverInfoList.size(), armPluginInfoVect.size());
 	MonitoringServerInfoListIterator svInfoIt = serverInfoList.begin();
 	ArmPluginInfoVectConstIterator pluginIt = armPluginInfoVect.begin();

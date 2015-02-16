@@ -38,7 +38,7 @@ static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 
-int DBTablesConfig::CONFIG_DB_VERSION = 12;
+int DBTablesConfig::CONFIG_DB_VERSION = 13;
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
 const ServerIdSet EMPTY_INCIDENT_TRACKER_ID_SET;
@@ -147,6 +147,25 @@ static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	// This column represent to plugin sql version
+	"plugin_sql_version",              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	0,                                 // defaultValue
+}, {
+	"plugin_enabled",                  // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	1,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	0,                                 // defaultValue
 }
 };
 
@@ -155,6 +174,8 @@ enum {
 	IDX_SERVER_TYPES_NAME,
 	IDX_SERVER_TYPES_PARAMETERS,
 	IDX_SERVER_TYPES_PLUGIN_PATH,
+	IDX_SERVER_TYPES_PLUGIN_SQL_VERSION,
+	IDX_SERVER_TYPES_PLUGIN_ENABLED,
 	NUM_IDX_SERVER_TYPES,
 };
 
@@ -542,6 +563,19 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 			IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY);
 		dbAgent.addColumns(addColumnsArg);
 	}
+	if (oldVer < 13) {
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileServerTypes);
+		addColumnsArg.columnIndexes.push_back(
+			IDX_SERVER_TYPES_PLUGIN_SQL_VERSION);
+		addColumnsArg.columnIndexes.push_back(
+			IDX_SERVER_TYPES_PLUGIN_ENABLED);
+		dbAgent.addColumns(addColumnsArg);
+		// enable plugin_sql_version & plugin_enabled by default
+		DBAgent::UpdateArg arg(tableProfileServerTypes);
+		arg.add(IDX_SERVER_TYPES_PLUGIN_SQL_VERSION, 1);
+		arg.add(IDX_SERVER_TYPES_PLUGIN_ENABLED, 1);
+		dbAgent.update(arg);
+	}
 	return true;
 }
 
@@ -820,6 +854,8 @@ void DBTablesConfig::registerServerType(const ServerTypeInfo &serverType)
 	arg.add(serverType.name);
 	arg.add(serverType.parameters);
 	arg.add(serverType.pluginPath);
+	arg.add(serverType.pluginSQLVersion);
+	arg.add(serverType.pluginEnabled);
 	arg.upsertOnDuplicate = true;
 	int id;
 	getDBAgent().runTransaction(arg, &id);
@@ -968,7 +1004,7 @@ HatoholError DBTablesConfig::addTargetServer(
 			        armPluginInfo, condForHap);
 			return (err == HTERR_OK);
 		}
-		
+
 		void operator ()(DBAgent &dbAgent) override
 		{
 			dbAgent.insert(arg);
@@ -1105,7 +1141,7 @@ void DBTablesConfig::getTargetServers(
 	//
 	// select servers.id,servers.type,... from servers inner join
 	// access_list on servers.id=access_list.server_id where user_id=5
-	// 
+	//
 	// The current query statement uses a little complicated where clause,
 	// for which the indexing mechanism may not be effective.
 
