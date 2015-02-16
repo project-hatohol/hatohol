@@ -45,7 +45,7 @@ def execute_sql_statements_from_file(cursor, path):
     print 'Succeessfully loaded: %s' % path
 
 def load_data_from_file(cursor, args, table_name, file_path):
-    if table_name != 'server_types':
+    if table_name == 'users':
         cursor.execute('SELECT COUNT(*) FROM %s;' % table_name)
         num_rows = cursor.fetchall()[0][0]
         if num_rows > 0 and not args.force:
