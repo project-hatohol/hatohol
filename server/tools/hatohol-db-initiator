@@ -55,11 +55,9 @@ def should_skip_updating_table(cursor, args, table_name, file_path):
         print 'Skip loading data: %s' % file_path
         print 'If you want to drop the existing table ' \
               'and load data, use -f or --force option.'
-        return
+        return True
 
-    if num_rows > 0:
-        cursor.execute('DELETE FROM %s' % table_name)
-        print 'Deleted all rows in table: %s' % table_name
+    return False
 
 def execute_sql_statements_from_file(cursor, path):
     with open(path, 'r') as sql_file:
@@ -68,9 +66,12 @@ def execute_sql_statements_from_file(cursor, path):
     print 'Succeessfully loaded: %s' % path
 
 def load_data_from_file(cursor, args, table_name, file_path):
-    if has_upsert_in_sql(table_name):
-        skip_updating_table_unless_force_update(cursor, args, table_name, file_path)
-        return
+    if not has_upsert_in_sql(table_name):
+        should_skip = should_skip_updating_table(cursor, args, table_name, file_path)
+        if should_skip:
+            return
+
+        prepare_updating_table_does_not_have_upsert(cursor, table_name)
 
     execute_sql_statements_from_file(cursor, file_path)
 
