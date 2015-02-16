@@ -84,12 +84,10 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 			trigInfo.extendedInfo = agent.generate();
 		}
 
-		// TODO: trigGroupStream >> trigInfo.hostId;
-		trigInfo.globalHostId = INVALID_HOST_ID;
-
-		if (trigInfo.globalHostId != INAPPLICABLE_HOST_ID &&
-		    !hostInfoCache.getName(trigInfo.hostIdInServer,
-		                           trigInfo.hostName)) {
+		HostInfoCache::Element cacheElem;
+		const bool found = hostInfoCache.getName(
+		  trigInfo.hostIdInServer, cacheElem);
+		if (!found) {
 			MLPL_WARN(
 			  "Ignored a trigger whose host name was not found: "
 			  "server: %" FMT_SERVER_ID ", "
@@ -97,7 +95,8 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 			  serverId, trigInfo.hostIdInServer.c_str());
 			continue;
 		}
-
+		trigInfo.globalHostId = cacheElem.hostId;
+		trigInfo.hostName         = cacheElem.name;
 		trigInfoList.push_back(trigInfo);
 	}
 }
