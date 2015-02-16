@@ -27,7 +27,7 @@
 using namespace std;
 using namespace mlpl;
 
-typedef map<string, string> HostIdNameMap;
+typedef map<string, HostInfoCache::Element> HostIdNameMap;
 typedef HostIdNameMap::iterator HostIdNameMapIterator;
 
 struct HostInfoCache::Impl
@@ -55,12 +55,15 @@ void HostInfoCache::update(const ServerHostDef &svHostDef)
 	HostIdNameMapIterator it =
 	  m_impl->hostIdNameMap.find(svHostDef.hostIdInServer);
 	if (it != m_impl->hostIdNameMap.end()) {
-		const string &hostName = it->second;
+		const Element &elem = it->second;
+		const string &hostName = elem.name;
 		if (hostName == svHostDef.name)
 			doUpdate = false;
 	}
-	if (doUpdate)
-		m_impl->hostIdNameMap[svHostDef.hostIdInServer] = svHostDef.name;
+	if (doUpdate) {
+		Element elem = {svHostDef.hostId, svHostDef.name};
+		m_impl->hostIdNameMap[svHostDef.hostIdInServer] = elem;
+	}
 	m_impl->lock.unlock();
 }
 
@@ -72,13 +75,14 @@ void HostInfoCache::update(const ServerHostDefVect &svHostDefs)
 		update(*svHostDefIt);
 }
 
-bool HostInfoCache::getName(const LocalHostIdType &id, string &name) const
+bool HostInfoCache::getName(
+  const LocalHostIdType &id, Element &elem) const
 {
 	bool found = false;
 	m_impl->lock.readLock();
 	HostIdNameMapIterator it = m_impl->hostIdNameMap.find(id);
 	if (it != m_impl->hostIdNameMap.end()) {
-		name = it->second;
+		elem = it->second;
 		found = true;
 	}
 	m_impl->lock.unlock();
