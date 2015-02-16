@@ -33,16 +33,17 @@ void test_updateAndGetName(void)
 {
 	ServerHostDef svHostDef;
 	svHostDef.id = AUTO_INCREMENT_VALUE;
-	svHostDef.hostId = INVALID_HOST_ID;
+	svHostDef.hostId = 0x1234;
 	const LocalHostIdType hostIdInServer = "2";
 	svHostDef.hostIdInServer = hostIdInServer;
 	svHostDef.name = "foo";
 
 	HostInfoCache hiCache;
 	hiCache.update(svHostDef);
-	string name;
-	cppcut_assert_equal(true, hiCache.getName(hostIdInServer, name));
-	cppcut_assert_equal(svHostDef.name, name);
+	HostInfoCache::Element cacheElem;
+	cppcut_assert_equal(true, hiCache.getName(hostIdInServer, cacheElem));
+	cppcut_assert_equal(svHostDef.name, cacheElem.name);
+	cppcut_assert_equal(svHostDef.hostId, cacheElem.hostId);
 }
 
 void test_getNameExpectFalse(void)
@@ -56,15 +57,15 @@ void test_getNameExpectFalse(void)
 
 	HostInfoCache hiCache;
 	hiCache.update(svHostDef);
-	string name;
-	cppcut_assert_equal(false, hiCache.getName("500", name));
+	HostInfoCache::Element cacheElem;
+	cppcut_assert_equal(false, hiCache.getName("500", cacheElem));
 }
 
 void test_updateTwice(void)
 {
 	ServerHostDef svHostDef;
 	svHostDef.id = AUTO_INCREMENT_VALUE;
-	svHostDef.hostId = INVALID_HOST_ID;
+	svHostDef.hostId = 0x7890;
 	svHostDef.serverId = 100;
 	const LocalHostIdType hostIdInServer = "2";
 	svHostDef.hostIdInServer = hostIdInServer;
@@ -72,15 +73,17 @@ void test_updateTwice(void)
 
 	HostInfoCache hiCache;
 	hiCache.update(svHostDef);
-	string name;
-	cppcut_assert_equal(true, hiCache.getName(hostIdInServer, name));
-	cppcut_assert_equal(svHostDef.name, name);
+	HostInfoCache::Element cacheElem;
+	cppcut_assert_equal(true, hiCache.getName(hostIdInServer, cacheElem));
+	cppcut_assert_equal(svHostDef.name, cacheElem.name);
+	cppcut_assert_equal(svHostDef.hostId, cacheElem.hostId);
 
 	// update again
 	svHostDef.name = "Dog Dog Dog Cat";
 	hiCache.update(svHostDef);
-	cppcut_assert_equal(true, hiCache.getName(hostIdInServer, name));
-	cppcut_assert_equal(svHostDef.name, name);
+	cppcut_assert_equal(true, hiCache.getName(hostIdInServer, cacheElem));
+	cppcut_assert_equal(svHostDef.name, cacheElem.name);
+	cppcut_assert_equal(svHostDef.hostId, cacheElem.hostId);
 }
 
 void test_getNameFromMany(void)
@@ -97,11 +100,18 @@ void test_getNameFromMany(void)
 	};
 	const size_t numData = ARRAY_SIZE(dataArray);
 
+	struct HostIdGen {
+		HostIdType operator ()(size_t i)
+		{
+			return (i + 1) * 2;
+		}
+	} hostIdGen;
+
 	HostInfoCache hiCache;
 	for (size_t i = 0; i < numData; i++) {
 		ServerHostDef svHostDef;
 		svHostDef.id = AUTO_INCREMENT_VALUE;
-		svHostDef.hostId = INVALID_HOST_ID;
+		svHostDef.hostId = hostIdGen(i);
 		svHostDef.serverId = 100;
 		svHostDef.hostIdInServer = dataArray[i].id;
 		svHostDef.name = dataArray[i].name;
@@ -110,10 +120,11 @@ void test_getNameFromMany(void)
 
 	// check
 	for (size_t i = 0; i < numData; i++) {
-		string name;
+		HostInfoCache::Element cacheElem;
 		const LocalHostIdType &id = dataArray[i].id;
-		cppcut_assert_equal(true, hiCache.getName(id, name));
-		cppcut_assert_equal(string(dataArray[i].name), name);
+		cppcut_assert_equal(true, hiCache.getName(id, cacheElem));
+		cppcut_assert_equal(string(dataArray[i].name), cacheElem.name);
+		cppcut_assert_equal(hostIdGen(i), cacheElem.hostId);
 	}
 }
 
