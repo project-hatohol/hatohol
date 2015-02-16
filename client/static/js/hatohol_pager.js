@@ -159,7 +159,7 @@ HatoholPager.prototype.update = function(params) {
   }
 
   if (numPages > 1 || numPages < 0) {
-    enable = this.currentPage > 4;
+    enable = this.currentPage >= self.maxPagesToShow;
     parent.prepend(createItem('<i class="glyphicon glyphicon-backward"></i>', enable, function() {
       return self.currentPage - self.maxPagesToShow;
     }));
@@ -169,7 +169,7 @@ HatoholPager.prototype.update = function(params) {
       return 0;
     }));
 
-    enable = this.currentPage < numPages - 5;
+    enable = this.currentPage < numPages - self.maxPagesToShow;
     parent.append(createItem('<i class="glyphicon glyphicon-forward"></i>', enable, function() {
       return self.currentPage + self.maxPagesToShow;
     }));
