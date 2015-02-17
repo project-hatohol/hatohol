@@ -402,7 +402,6 @@ void ArmBase::setInitialTriggerStatus(void)
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 
-	TriggerInfo triggerInfo;
 	TriggerInfoList triggerInfoList;
 
 	for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
