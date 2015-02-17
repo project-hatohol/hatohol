@@ -21,7 +21,7 @@ if test x"$sysconfdir" = x"NONE"; then
     sysconfdir=$ac_default_sysconfdir
 fi
 expanded_sysconfdir="`eval echo $sysconfdir`"
-AC_DEFINE_UNQUOTED(SYSCONFDIR, "$expanded_sysconfdir`", "Data directory.")
+AC_DEFINE_UNQUOTED(SYSCONFDIR, "$expanded_sysconfdir", "Data directory.")
 AC_SUBST(expanded_sysconfdir)
 
 if test x"$localstatedir" = x"NONE"; then
