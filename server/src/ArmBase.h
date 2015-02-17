@@ -58,6 +58,7 @@ public:
 
 	virtual bool isFetchItemsSupported(void) const;
 	virtual void fetchItems(Closure0 *closure = NULL);
+	virtual void fetchTriggers(Closure2 *closure = NULL);
 	virtual void fetchHistory(const ItemInfo &itemInfo,
 				  const time_t &beginTime,
 				  const time_t &endTime,
@@ -105,6 +106,7 @@ protected:
 	  const ItemInfo &itemInfo,
 	  const time_t &beginTime,
 	  const time_t &endTime);
+	virtual ArmPollingResult mainThreadOneProcFetchTriggers(void);
 
 	void getArmStatus(ArmStatus *&armStatus);
 	void setFailureInfo(
