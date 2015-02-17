@@ -159,6 +159,8 @@ NOTE: You have to restart qpidd after you edit /etc/qpid/qpiid.acl.
 
 (1) Setup database of MySQL
 
+To setup database used by hatohol server, you need to execute helper command `hatohol-db-initiator`.
+
 Edit mysql section in `${prefix}/etc/hatohol/hatohol.conf` which is used for database settings (username, database name and password) before you execute `hatohol-db-initiator` to prepare database.
 Specify DBUSER and PASSWORD whose MySQL administrator user, respectively.
 
