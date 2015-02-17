@@ -117,7 +117,7 @@ def get_default_conf():
 
 def parse_default_conf():
     config_file = get_default_conf()
-    if not os.path.isfile(config_file):
+    if not os.access(config_file, os.R_OK):
         print "Could not read %s." % config_file
         sys.exit(-1)
 
