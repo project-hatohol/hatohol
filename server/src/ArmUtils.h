@@ -38,6 +38,8 @@ public:
 	static void createEvent(const MonitoringServerInfo &svInfo,
 	                        const ArmTrigger &armTrigger,
 	                         EventInfoList &eventInfoList);
+	static void
+	  registerSelfMonitoringHost(const MonitoringServerInfo &svInfo);
 };
 
 #endif // ArmUtils_h

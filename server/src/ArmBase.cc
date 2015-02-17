@@ -33,8 +33,6 @@
 using namespace std;
 using namespace mlpl;
 
-const char *SERVER_SELF_MONITORING_SUFFIX = "_SELF";
-
 typedef enum {
 	UPDATE_POLLING,
 	UPDATE_ITEM_REQUEST,
@@ -371,27 +369,6 @@ void ArmBase::registerAvailableTrigger(const ArmPollingResult &type,
 	m_impl->armTriggers[type].msg       = hatoholError.getMessage();
 }
 
-void ArmBase::registerSelfMonitoringHost(void)
-{
-	const MonitoringServerInfo &svInfo = getServerInfo();
-	ServerHostDef svHostDef;
-	svHostDef.id = AUTO_INCREMENT_VALUE;
-	svHostDef.hostId = AUTO_ASSIGNED_ID;
-	svHostDef.serverId = svInfo.id;
-	// TODO: Use a more readable string host name.
-	svHostDef.hostIdInServer =
-	  StringUtils::sprintf("%" FMT_HOST_ID, MONITORING_SERVER_SELF_ID);
-	svHostDef.name = StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
-	                                      SERVER_SELF_MONITORING_SUFFIX);
-	svHostDef.status = HOST_STAT_SELF_MONITOR;
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->upsertHost(svHostDef);
-	if (err != HTERR_OK) {
-		MLPL_ERR("Failed to register a host for self monitoring: "
-		         "(%d) %s.", err.getCode(), err.getCodeName().c_str());
-	}
-}
-
 bool ArmBase::hasTrigger(const ArmPollingResult &type)
 {
 	return (m_impl->armTriggers[type].status != TRIGGER_STATUS_ALL);
@@ -415,7 +392,7 @@ void ArmBase::setInitialTriggerStatus(void)
 	}
 
 	if (!triggerInfoList.empty()) {
-		registerSelfMonitoringHost();
+		ArmUtils::registerSelfMonitoringHost(getServerInfo());
 		dbMonitoring.addTriggerInfoList(triggerInfoList);
 	}
 }
