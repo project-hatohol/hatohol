@@ -58,6 +58,7 @@ protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg);
 	virtual ArmPollingResult mainThreadOneProc(void);
 	virtual ArmPollingResult mainThreadOneProcFetchItems(void);
+	virtual ArmPollingResult mainThreadOneProcFetchTriggers(void);
 
 private:
 	struct Impl;
