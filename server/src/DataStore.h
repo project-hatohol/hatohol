@@ -39,6 +39,7 @@ public:
 	virtual void setCopyOnDemandEnable(bool enable);
 	virtual bool isFetchItemsSupported(void);
 	virtual bool startOnDemandFetchItem(Closure0 *closure);
+	virtual bool startOnDemandFetchTrigger(Closure2 *closure);
 	virtual void startOnDemandFetchHistory(
 	  const ItemInfo &itemInfo,
 	  const time_t &beginTime,
