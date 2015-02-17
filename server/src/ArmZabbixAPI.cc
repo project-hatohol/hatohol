@@ -345,6 +345,19 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProcFetchHistory(
 	return COLLECT_OK;
 }
 
+ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProcFetchTriggers(void)
+{
+	if (!updateAuthTokenIfNeeded())
+		return COLLECT_NG_DISCONNECT_ZABBIX;
+
+	try {
+		makeHatoholALLTriggers();
+	} catch (const HatoholException &he) {
+		return handleHatoholException(he);
+	}
+	return COLLECT_OK;
+}
+
 // ---------------------------------------------------------------------------
 // Private methods
 // ---------------------------------------------------------------------------
