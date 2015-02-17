@@ -239,6 +239,7 @@ var HistoryView = function(userProfile, options) {
   self.settingSliderTimeRange = false;
   self.loaders = [];
   self.lastLoaderIndex= 0;
+  self.servers = undefined;
 
   prepare(self.parseQuery(options.query));
   load();
@@ -302,15 +303,9 @@ var HistoryView = function(userProfile, options) {
   function setupItemSelector() {
     self.setupHostQuerySelectorCallback(
       function() {
-        var i, servers;
-        for (i = 0; i < self.loaders.length; i++) {
-          servers = self.loaders[i].getServers();
-          if (servers)
-            break;
-        }
-        self.setServerFilterCandidates(servers);
-        self.setHostgroupFilterCandidates(servers);
-        self.setHostFilterCandidates(servers);
+        self.setServerFilterCandidates(self.servers);
+        self.setHostgroupFilterCandidates(self.servers);
+        self.setHostFilterCandidates(self.servers);
       },
       '#select-server', '#select-host-group', '#select-host');
     $("#select-item").attr("disabled", "disabled");
@@ -443,6 +438,8 @@ var HistoryView = function(userProfile, options) {
       defaultTimeSpan: self.timeRange.getSpan(),
       query: historyQuery,
       onLoadItem: function(loader, item, servers) {
+        if (!self.servers)
+          self.servers = servers;
         updatePlotData();
         updateView();
         self.setupHostFilters(servers);
