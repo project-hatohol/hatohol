@@ -11,7 +11,7 @@ env:
   - RUN_TEST="cd server/tools/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh"
   - RUN_TEST="client/test/python/run-test.sh"
   - RUN_TEST="test/launch-hatohol-for-test.sh && mocha-phantomjs http://localhost:8000/test/index.html"
-  - RUN_TEST="sudo make install && LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH hatohol-db-initiator --db_user root --db_password '' && test/launch-hatohol-for-test.sh && casperjs test client/test/feature/*.js"
+  - RUN_TEST="./test/feature-test.sh"
   - RUN_TEST="./test/dist-check.sh"
 matrix:
   exclude:
@@ -22,7 +22,7 @@ matrix:
     - compiler: clang
       env: RUN_TEST="./test/dist-check.sh"
     - compiler: clang
-      env: RUN_TEST="sudo make install && LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH hatohol-db-initiator --db_user root --db_password '' && test/launch-hatohol-for-test.sh && casperjs test client/test/feature/*.js"
+      env: RUN_TEST="./test/feature-test.sh"
 
 install:
   - server/misc/setup-cutter.sh
