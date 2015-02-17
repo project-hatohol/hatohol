@@ -92,6 +92,11 @@ enum HapiCommandCode {
 	// Sv -> Cl
 	HAPI_CMD_REQ_FETCH_HISTORY,
 
+	// Since 15.03
+	// Sv -> Cl
+	HAPI_CMD_REQ_FETCH_TRIGGERS,
+
+	// Sv -> Cl
 	NUM_HAPI_CMD
 };
 
@@ -109,6 +114,10 @@ enum HapiResponseCode {
 	// Since 14.12
 	// Cl -> Sv
 	HAPI_RES_HISTORY,
+
+	// Since 15.03
+	// Cl -> Sv
+	HAPI_RES_TRIGGERS,
 
 	NUM_HAPI_CMD_RES
 };

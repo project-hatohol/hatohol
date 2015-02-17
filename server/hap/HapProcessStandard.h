@@ -58,6 +58,8 @@ protected:
 				       const mlpl::SmartBuffer &cmdBuf);
 	virtual HatoholError fetchHistory(const MessagingContext &msgCtx,
 					  const mlpl::SmartBuffer &cmdBuf);
+	virtual HatoholError fetchTrigger(const MessagingContext &msgCtx,
+					  const mlpl::SmartBuffer &cmdBuf);
 	virtual void onCompletedAcquistion(
 	  const HatoholError &err, const HatoholArmPluginWatchType &watchType);
 	virtual HatoholArmPluginWatchType getHapWatchType(
@@ -68,6 +70,7 @@ protected:
 	virtual void onReady(const MonitoringServerInfo &serverInfo) override;
 	virtual void onReceivedReqFetchItem(void) override;
 	virtual void onReceivedReqFetchHistory(void) override;
+	virtual void onReceivedReqFetchTrigger(void) override;
 	virtual int onCaughtException(const std::exception &e) override;
 
 	bool initHapPipe(const std::string &hapPipeName);
