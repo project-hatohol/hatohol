@@ -242,7 +242,11 @@ var HistoryView = function(userProfile, options) {
   self.servers = undefined;
 
   prepare(self.parseQuery(options.query));
-  load();
+  if (self.loaders.length > 0) {
+    load();
+  } else {
+    showItemSelector();
+  }
 
   function prepare(historyQueries) {
     var i;
@@ -250,15 +254,6 @@ var HistoryView = function(userProfile, options) {
     appendGraphArea();
     for (i = 0; i < historyQueries.length; i++)
       appendHistoryLoader(historyQueries[i]);
-
-    if (historyQueries.length == 0) {
-      /* show item selector */
-      self.startConnection("item?limit=1", function(reply) {
-        self.servers = reply.servers;
-        setupItemSelectorCandidates();
-      });
-      $('#hatohol-item-list').modal('show');
-    }
   }
 
   function getItemBriefWithUnit(item) {
@@ -510,6 +505,16 @@ var HistoryView = function(userProfile, options) {
       if (self.autoReloadIsEnabled)
         self.setAutoReload(load, self.reloadIntervalSeconds);
     });
+  }
+
+  function showItemSelector() {
+    if (!self.servers) {
+      self.startConnection("item?limit=1", function(reply) {
+	self.servers = reply.servers;
+	setupItemSelectorCandidates();
+      });
+    }
+    $('#hatohol-item-list').modal('show');
   }
 
   function enableAutoReload(onClickButton) {
