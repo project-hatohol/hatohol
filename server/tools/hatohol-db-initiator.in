@@ -188,9 +188,13 @@ if __name__ == '__main__':
                         help='A database server.')
     parser.add_argument('--sql-dir', default=get_default_sql_dir(), type=str,
                         help='A directory that contains SQL files.')
-    parser.add_argument('--hatohol-db-user', default='hatohol', type=str,
+    parser.add_argument('--hatohol-db-user',
+                        default=get_default_conf_item('user'),
+                        type=str,
                         help='A user who is allowed to access the database.')
-    parser.add_argument('--hatohol-db-password', default='hatohol', type=str,
+    parser.add_argument('--hatohol-db-password',
+                        default=get_default_conf_item('password'),
+                        type=str,
                         help='A password that is used to access the database.')
     parser.add_argument('-f', '--force', action='store_true',
                         help='Delete existing data in a table before the initial data are inserted. '
