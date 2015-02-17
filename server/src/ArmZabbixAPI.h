@@ -83,6 +83,7 @@ protected:
 	  const ItemInfo &itemInfo,
 	  const time_t &beginTime,
 	  const time_t &endTime);
+	virtual ArmPollingResult mainThreadOneProcFetchTriggers(void);
 
 private:
 	struct Impl;
