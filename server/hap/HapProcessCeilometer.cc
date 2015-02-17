@@ -883,6 +883,33 @@ HatoholError HapProcessCeilometer::fetchItem(const MessagingContext &msgCtx,
 	return err;
 }
 
+HatoholError HapProcessCeilometer::fetchTrigger(const MessagingContext &msgCtx,
+						const SmartBuffer &cmdBuf)
+{
+	MLPL_DBG("fetchTrigger\n");
+	string url = m_impl->ceilometerEP.publicURL;
+	url += "/v2/alarms";
+	HttpRequestArg arg(SOUP_METHOD_GET, url);
+	HatoholError err = sendHttpRequest(arg);
+	if (err != HTERR_OK)
+		return err;
+	SoupMessage *msg = arg.msgPtr.get();
+
+	VariableItemTablePtr trigTablePtr;
+	err = parseReplyGetAlarmList(msg, trigTablePtr);
+	if (err != HTERR_OK) {
+		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
+		         msg->response_body->length, msg->response_body->data);
+	}
+
+	SmartBuffer resBuf;
+	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_TRIGGERS, &msgCtx);
+	appendItemTable(resBuf, static_cast<ItemTablePtr>(trigTablePtr));
+	reply(msgCtx, resBuf);
+
+	return err;
+}
+
 HatoholError HapProcessCeilometer::fetchItemsOfInstance(
   VariableItemTablePtr &tablePtr, const string &instanceId)
 {
