@@ -92,6 +92,8 @@ HatoholPager.prototype.applyParams = function(params) {
     this.maxPagesToShow = params.maxPagesToShow;
   if (params && params.selectPageCallback)
     this.selectPageCallback = params.selectPageCallback;
+  if (params && !isNaN(params.numberOfEvents))
+    this.numberOfEvents = params.numberOfEvents;
 };
 
 HatoholPager.prototype.getPagesRange = function(params) {
