@@ -846,3 +846,18 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProcFetchItems(void)
 	}
 	return COLLECT_OK;
 }
+
+ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProcFetchTriggers(void)
+{
+	try {
+		if (!m_impl->dbAgent)
+			connect();
+		getAllTrigger();
+	} catch (const HatoholException &he) {
+		return handleHatoholException(he);
+	} catch (const exception &e) {
+		MLPL_ERR("Got exception: %s\n", e.what());
+		return COLLECT_NG_INTERNAL_ERROR;
+	}
+	return COLLECT_OK;
+}
