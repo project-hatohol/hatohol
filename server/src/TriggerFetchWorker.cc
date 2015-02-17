@@ -38,7 +38,7 @@ struct TriggerFetchWorker::Impl
 	size_t          remainingFetchersCount;
 	SmartTime       nextAllowedUpdateTime;
 	sem_t           updatedSemaphore;
-	Signal2         itemFetchedSignal;
+	Signal2         triggerFetchedSignal;
 
 	Impl(void)
 	: remainingFetchersCount(0)
@@ -77,7 +77,7 @@ bool TriggerFetchWorker::start(
 
 	m_impl->rwlock.writeLock();
 	if (closure)
-		m_impl->itemFetchedSignal.connect(closure);
+		m_impl->triggerFetchedSignal.connect(closure);
 	m_impl->remainingFetchersCount = allDataStores.size();
 	for (size_t i = 0; i < allDataStores.size(); i++) {
 		DataStore *dataStore = allDataStores[i];
@@ -151,8 +151,8 @@ void TriggerFetchWorker::updatedCallback(Closure2 *closure)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 	m_impl->nextAllowedUpdateTime.setCurrTime();
 	m_impl->nextAllowedUpdateTime += m_impl->minUpdateInterval;
-	m_impl->itemFetchedSignal();
-	m_impl->itemFetchedSignal.clear();
+	m_impl->triggerFetchedSignal();
+	m_impl->triggerFetchedSignal.clear();
 }
 
 bool TriggerFetchWorker::runFetcher(DataStore *dataStore)
