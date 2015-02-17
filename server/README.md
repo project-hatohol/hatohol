@@ -159,6 +159,8 @@ NOTE: You have to restart qpidd after you edit /etc/qpid/qpiid.acl.
 
 (1) Setup database of MySQL
 
+Edit `${prefix}/etc/hatohol/hatohol` which is used for database settings (username, database name and password) before you execute `hatohol-db-initiator` to prepare database.
+
     $ hatohol-db-initiator
 
 Note: Since 15.03, hatohol-db-initiator doesn't require command line argument.
