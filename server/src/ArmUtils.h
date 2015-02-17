@@ -34,6 +34,10 @@ public:
 	static void createTrigger(const MonitoringServerInfo &serverInfo,
 	                          const ArmTrigger &armTrigger,
 	                          TriggerInfoList &triggerInfoList);
+
+	static void createEvent(const MonitoringServerInfo &svInfo,
+	                        const ArmTrigger &armTrigger,
+	                         EventInfoList &eventInfoList);
 };
 
 #endif // ArmUtils_h

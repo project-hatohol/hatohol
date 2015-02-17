@@ -46,3 +46,24 @@ void ArmUtils::createTrigger(
 	triggerInfoList.push_back(triggerInfo);
 }
 
+void ArmUtils::createEvent(
+  const MonitoringServerInfo &svInfo,
+  const ArmTrigger &armTrigger, EventInfoList &eventInfoList)
+{
+	EventInfo eventInfo;
+
+	eventInfo.serverId = svInfo.id;
+	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
+	eventInfo.time = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
+	eventInfo.hostId = MONITORING_SERVER_SELF_ID;
+	eventInfo.triggerId = armTrigger.triggerId;
+	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
+	eventInfo.status = armTrigger.status;
+	if (armTrigger.status == TRIGGER_STATUS_OK)
+		eventInfo.type = EVENT_TYPE_GOOD;
+	else
+		eventInfo.type = EVENT_TYPE_BAD;
+
+	eventInfoList.push_back(eventInfo);
+}
+

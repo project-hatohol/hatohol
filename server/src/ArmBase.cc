@@ -23,6 +23,7 @@
 #include <queue>
 #include <Logger.h>
 #include <AtomicValue.h>
+#include "ArmUtils.h"
 #include "ArmBase.h"
 #include "HatoholException.h"
 #include "DBTablesMonitoring.h"
@@ -420,27 +421,6 @@ void ArmBase::setInitialTriggerStatus(void)
 	}
 }
 
-void ArmBase::createEventInfo(const ArmUtils::ArmTrigger &armTrigger,
-                              EventInfoList &eventInfoList)
-{
-	const MonitoringServerInfo &svInfo = getServerInfo();
-	EventInfo eventInfo;
-
-	eventInfo.serverId = svInfo.id;
-	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
-	eventInfo.time = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
-	eventInfo.hostId = MONITORING_SERVER_SELF_ID;
-	eventInfo.triggerId = armTrigger.triggerId;
-	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
-	eventInfo.status = armTrigger.status;
-	if (armTrigger.status == TRIGGER_STATUS_OK) {
-		eventInfo.type = EVENT_TYPE_GOOD;
-	} else {
-		eventInfo.type = EVENT_TYPE_BAD;
-	}
-	eventInfoList.push_back(eventInfo);
-}
-
 void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 {
 	TriggerInfoList triggerInfoList;
@@ -457,8 +437,10 @@ void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 				ArmUtils::createTrigger(
 				  getServerInfo(), armTrigger, triggerInfoList);
 			}
-			if (armTrigger.status == TRIGGER_STATUS_PROBLEM)
-				createEventInfo(armTrigger, eventInfoList);
+			if (armTrigger.status == TRIGGER_STATUS_PROBLEM) {
+				ArmUtils::createEvent(
+				  getServerInfo(), armTrigger, eventInfoList);
+			}
 		}
 	} else {
 		if (!hasTrigger(type))
@@ -469,7 +451,8 @@ void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 		m_impl->armTriggers[type].status = TRIGGER_STATUS_PROBLEM;
 		ArmUtils::createTrigger(
 		  getServerInfo(), m_impl->armTriggers[type], triggerInfoList);
-		createEventInfo(m_impl->armTriggers[type], eventInfoList);
+		ArmUtils::createEvent(
+		  getServerInfo(), m_impl->armTriggers[type], eventInfoList);
 
 		for (int i = static_cast<int>(type) + 1; i < NUM_COLLECT_NG_KIND; i++) {
 			if (!hasTrigger(static_cast<ArmPollingResult>(i)))
@@ -481,8 +464,10 @@ void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 				ArmUtils::createTrigger(
 				  getServerInfo(), armTrigger, triggerInfoList);
 			}
-			if (armTrigger.status == TRIGGER_STATUS_PROBLEM)
-				createEventInfo(armTrigger, eventInfoList);
+			if (armTrigger.status == TRIGGER_STATUS_PROBLEM) {
+				ArmUtils::createEvent(
+				  getServerInfo(), armTrigger, eventInfoList);
+			}
 		}
 		for (int i = 0; i < type; i++) {
 			if (!hasTrigger(static_cast<ArmPollingResult>(i)))
