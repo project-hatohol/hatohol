@@ -21,6 +21,7 @@
 #define ArmBase_h
 
 #include <string>
+#include "ArmUtils.h"
 #include "HatoholThreadBase.h"
 #include "DBTablesConfig.h"
 #include "ArmStatus.h"
@@ -111,9 +112,7 @@ protected:
 	  const std::string &comment,
 	  const ArmWorkingStatus &status = ARM_WORK_STAT_FAILURE);
 	
-	void createTriggerInfo(const ArmResultTriggerInfo &resTrigger,
-			       TriggerInfoList &triggerInfoList);
-	void createEventInfo(const ArmResultTriggerInfo &resTrigger,
+	void createEventInfo(const ArmUtils::ArmTrigger &resTrigger,
 			     EventInfoList &eventInfoList);
 	void setInitialTriggerStatus(void);
 	void registerSelfMonitoringHost(void);
