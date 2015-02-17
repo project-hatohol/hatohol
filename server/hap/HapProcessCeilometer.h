@@ -88,6 +88,9 @@ protected:
 	virtual HatoholError fetchItem(
 	                       const MessagingContext &msgCtx,
 			       const mlpl::SmartBuffer &cmdBuf) override;
+	virtual HatoholError fetchTrigger(
+	                       const MessagingContext &msgCtx,
+			       const mlpl::SmartBuffer &cmdBuf) override;
 	HatoholError fetchItemsOfInstance(
 	  VariableItemTablePtr &tablePtr, const std::string &instanceId);
 	virtual HatoholError fetchHistory(
