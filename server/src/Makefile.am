@@ -69,6 +69,7 @@ libhatohol_la_SOURCES = \
 	SessionManager.cc SessionManager.h \
 	SQLProcessorTypes.h \
 	SQLUtils.cc SQLUtils.h \
+	TriggerFetchWorker.cc TriggerFetchWorker.h \
 	UnifiedDataStore.cc UnifiedDataStore.h
 
 if HAVE_LIBRABBITMQ
