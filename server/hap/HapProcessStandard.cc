@@ -241,6 +241,12 @@ HatoholError HapProcessStandard::fetchHistory(const MessagingContext &msgCtx,
 	return HTERR_NOT_IMPLEMENTED;
 }
 
+HatoholError HapProcessStandard::fetchTrigger(const MessagingContext &msgCtx,
+					      const SmartBuffer &cmdBuf)
+{
+	return HTERR_NOT_IMPLEMENTED;
+}
+
 HatoholArmPluginWatchType HapProcessStandard::getHapWatchType(
   const HatoholError &err)
 {
@@ -326,6 +332,39 @@ void HapProcessStandard::onReceivedReqFetchHistory(void)
 		}
 	};
 	HistoryFetchTask *task = new HistoryFetchTask();
+	task->hap = this;
+
+	if (!getMessagingContext(task->msgCtx)) {
+		delete task;
+		THROW_HATOHOL_EXCEPTION("Failed to call getMessaginContext().");
+	}
+
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	if (!cmdBuf) {
+		delete task;
+		HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+	}
+	task->cmdBuf = *cmdBuf;
+
+	// We keep the order of command handling with a queue.
+	m_impl->asyncCommandTaskQueue.push(task);
+	Utils::executeOnGLibEventLoop<HapProcessStandard>(
+	  HapProcessStandard::runQueuedAsyncCommandTask, this, ASYNC);
+}
+
+void HapProcessStandard::onReceivedReqFetchTrigger(void)
+{
+	struct TriggerFetchTask : public AsyncCommandTask {
+		MessagingContext msgCtx;
+		SmartBuffer cmdBuf;
+		HapProcessStandard *hap;
+		virtual void run(void) override
+		{
+			hap->startAcquisition(&HapProcessStandard::fetchTrigger,
+			                      msgCtx, cmdBuf, false);
+		}
+	};
+	TriggerFetchTask *task = new TriggerFetchTask();
 	task->hap = this;
 
 	if (!getMessagingContext(task->msgCtx)) {
