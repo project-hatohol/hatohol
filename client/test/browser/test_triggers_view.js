@@ -160,7 +160,7 @@ describe('TriggersView', function() {
     var eventURL = "ajax_events?serverId=1&amp;triggerId=18446744073709550616";
     var expected =
       '<td>Zabbix</td>' +
-      '<td class="severity5" data-sort-value="5">Disaster</td>' +
+      '<td class="severity" data-sort-value="5">Disaster</td>' +
       '<td class="status0" data-sort-value="0">OK</td>' +
       '<td data-sort-value="1422584694">' +
       formatDate(1422584694) +
@@ -178,7 +178,7 @@ describe('TriggersView', function() {
     var eventURL = "ajax_events?serverId=1&amp;triggerId=14441";
     var expected =
       '<td>Zabbix</td>' +
-      '<td class="severity1" data-sort-value="1">Information</td>' +
+      '<td class="severity" data-sort-value="1">Information</td>' +
       '<td class="status0" data-sort-value="0">OK</td>' +
       '<td data-sort-value="0">-</td>' +
       '<td>Host2</td>' +
@@ -187,5 +187,25 @@ describe('TriggersView', function() {
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultTriggers.length + 1);
     expect($('tr :eq(2)').html()).to.be(expected);
+  });
+
+  it('With a problem trigger', function() {
+    var view = new TriggersView(getOperator());
+    var eventURL = "ajax_events?serverId=1&amp;triggerId=18446744073709550616";
+    var expected =
+      '<td>Zabbix</td>' +
+      '<td class="severity5" data-sort-value="5">Disaster</td>' +
+      '<td class="status1" data-sort-value="1">Problem</td>' +
+      '<td data-sort-value="1422584694">' +
+      formatDate(1422584694) +
+      '</td>' +
+      '<td>Zabbix_SELF</td>' +
+      '<td><a href="' + eventURL + '">Failed in connecting to Zabbix.</a></td>';
+    var triggers = [$.extend({}, defaultTriggers[0])];
+    triggers[0].status = hatohol.TRIGGER_STATUS_PROBLEM;
+    respond('{}', triggersJson(triggers, defaultServers));
+    expect($('#table')).to.have.length(1);
+    expect($('tr')).to.have.length(triggers.length + 1);
+    expect($('tr :eq(1)').html()).to.be(expected);
   });
 });
