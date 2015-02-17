@@ -126,6 +126,7 @@ def parse_default_conf():
                             'password': config.get('mysql', 'password')})
     except:
         print "Could not read %s." % config_file
+        sys.exit(-1)
 
     return config_list
 
