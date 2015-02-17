@@ -639,6 +639,14 @@ msgstr "不正なサーバータイプです。"
 msgid "Not found hypervisor."
 msgstr "ハイパーバイザが見つかりません。"
 
+#: static/js/hatohol_def.js:256
+msgid "Invalid polling interval."
+msgstr "不正なポーリング間隔です。"
+
+#: static/js/hatohol_def.js:257
+msgid "Invalid retry interval."
+msgstr "不正なリトライ間隔です。"
+
 #: static/js/hatohol_host_selector.js:31
 msgid "Host selecion"
 msgstr "ホスト選択"
