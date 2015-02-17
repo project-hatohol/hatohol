@@ -161,9 +161,13 @@ NOTE: You have to restart qpidd after you edit /etc/qpid/qpiid.acl.
 
 Edit mysql section in `${prefix}/etc/hatohol/hatohol.conf` which is used for database settings (username, database name and password) before you execute `hatohol-db-initiator` to prepare database.
 
-    $ hatohol-db-initiator
+    $ hatohol-db-initiator --db_user DBUSER --db_password DBPASSWORD
 
-Note: Since 15.03, hatohol-db-initiator doesn't require command line argument.
+Example:
+
+    $ hatohol-db-initiator --db_user root --db_password rootpass
+
+Note: Since 15.03, hatohol-db-initiator doesn't require command line argument after hatohol database created.
 `db_name`, `db_user` and `db_password` are read from `hatohol.conf` by default.
 For example, `hatohol.conf` is placed in `${prefix}/etc/hatohol/hatohol.conf`.
 
