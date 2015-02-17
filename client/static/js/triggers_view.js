@@ -155,7 +155,7 @@ var TriggersView = function(userProfile) {
 
   function drawTableBody(replyData) {
     var serverName, hostName, clock, status, severity, triggerName;
-    var html, server, trigger;
+    var html, server, trigger, severityClass;
     var x, serverId, hostId;
 
     html = "";
@@ -169,6 +169,9 @@ var TriggersView = function(userProfile) {
       clock      = trigger["lastChangeTime"];
       status     = trigger["status"];
       severity   = trigger["severity"];
+      severityClass = "severity";
+      if (status == hatohol.TRIGGER_STATUS_PROBLEM)
+	severityClass += escapeHTML(severity);
       if (trigger["expandedDescription"]) {
         triggerName  = trigger["expandedDescription"];
       } else {
@@ -176,7 +179,7 @@ var TriggersView = function(userProfile) {
       }
 
       html += "<tr><td>" + escapeHTML(nickName) + "</td>";
-      html += "<td class='severity" + escapeHTML(severity) +
+      html += "<td class='" + severityClass +
         "' data-sort-value='" + escapeHTML(severity) + "'>" +
         severity_choices[Number(severity)] + "</td>";
       html += "<td class='status" + escapeHTML(status) +
