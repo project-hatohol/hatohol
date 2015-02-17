@@ -511,13 +511,18 @@ void ArmNagiosNDOUtils::makeSelectHostgroupMembersArg(void)
 	arg.add(IDX_HOSTGROUP_MEMBERS_HOST_OBJECT_ID);
 }
 
-void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
+void ArmNagiosNDOUtils::addConditionForTriggerQuery(bool isDifference)
 {
-	ThreadLocalDBCache cache;
-	const MonitoringServerInfo &svInfo = getServerInfo();
-	time_t lastUpdateTime =
-	   cache.getMonitoring().getLastChangeTimeOfTrigger(svInfo.id);
+	time_t lastUpdateTime;
 	struct tm tm;
+	if (isDifference) {
+		ThreadLocalDBCache cache;
+		const MonitoringServerInfo &svInfo = getServerInfo();
+		lastUpdateTime =
+			cache.getMonitoring().getLastChangeTimeOfTrigger(svInfo.id);
+	} else {
+		lastUpdateTime = 0;
+	}
 	localtime_r(&lastUpdateTime, &tm);
 
 	DBAgent::SelectExArg &arg =
@@ -593,7 +598,7 @@ void ArmNagiosNDOUtils::getTriggerReal(TriggerInfoList &triggerInfoList)
 void ArmNagiosNDOUtils::getTrigger(void)
 {
 	TriggerInfoList triggerInfoList;
-	addConditionForTriggerQuery();
+	addConditionForTriggerQuery(true);
 	getTriggerReal(triggerInfoList);
 
 	ThreadLocalDBCache cache;
@@ -603,6 +608,7 @@ void ArmNagiosNDOUtils::getTrigger(void)
 void ArmNagiosNDOUtils::getAllTrigger(void)
 {
 	TriggerInfoList triggerInfoList;
+	addConditionForTriggerQuery(false);
 	getTriggerReal(triggerInfoList);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
