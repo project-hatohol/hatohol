@@ -45,7 +45,7 @@ var EventsView = function(userProfile, baseElem) {
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
-  self.pager = new HatoholEventPager();
+  self.pager = new HatoholPager();
   self.userConfig = new HatoholUserConfig();
   start();
 
@@ -54,10 +54,10 @@ var EventsView = function(userProfile, baseElem) {
   //
   function start() {
     self.userConfig.get({
-      itemNames:['num-events-per-page', 'event-sort-order'],
+      itemNames:['num-records-per-page', 'event-sort-order'],
       successCallback: function(conf) {
         self.baseQuery.limit =
-          self.userConfig.findOrDefault(conf, 'num-events-per-page',
+          self.userConfig.findOrDefault(conf, 'num-records-per-page',
                                         self.baseQuery.limit);
         self.baseQuery.sortType =
           self.userConfig.findOrDefault(conf, 'event-sort-type',
@@ -89,7 +89,7 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function updatePager() {
-    self.pager.update({
+    self.pager.updateEvent({
       currentPage: self.currentPage,
       numberOfEvents: self.rawData ? self.rawData["numberOfEvents"] : -1,
       numRecordsPerPage: self.baseQuery.limit,
@@ -97,7 +97,7 @@ var EventsView = function(userProfile, baseElem) {
         load(page);
         if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
           self.baseQuery.limit = self.pager.numRecordsPerPage;
-          saveConfig({'num-events-per-page': self.baseQuery.limit});
+          saveConfig({'num-records-per-page': self.baseQuery.limit});
         }
       }
     });
@@ -170,7 +170,7 @@ var EventsView = function(userProfile, baseElem) {
     self.setupHostFilters(servers, query);
 
     if ('limit' in query)
-      $('#num-events-per-page').val(query.limit);
+      $('#num-records-per-page').val(query.limit);
     if ("minimumSeverity" in query)
       $("#select-severity").val(query.minimumSeverity);
     if ("status" in query)
@@ -192,15 +192,15 @@ var EventsView = function(userProfile, baseElem) {
     self.setupHostQuerySelectorCallback(
       load, '#select-server', '#select-host-group', '#select-host');
 
-    $('#num-events-per-page').change(function() {
-      var val = parseInt($('#num-events-per-page').val());
+    $('#num-records-per-page').change(function() {
+      var val = parseInt($('#num-records-per-page').val());
       if (!isFinite(val))
         val = self.baseQuery.limit;
-      $('#num-events-per-page').val(val);
+      $('#num-records-per-page').val(val);
       self.baseQuery.limit = val;
 
       var params = {
-        items: {'num-events-per-page': val},
+        items: {'num-records-per-page': val},
         successCallback: function(){ /* we just ignore it */ },
         connectErrorCallback: function(XMLHttpRequest, textStatus,
                                        errorThrown) {
@@ -221,7 +221,7 @@ var EventsView = function(userProfile, baseElem) {
       $("#select-status").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
-      $("#num-events-per-page").attr("disabled", "disabled");
+      $("#num-records-per-page").attr("disabled", "disabled");
       $("#latest-events-button").attr("disabled", "disabled");
     } else {
       $("#select-severity").removeAttr("disabled");
@@ -229,7 +229,7 @@ var EventsView = function(userProfile, baseElem) {
       $("#select-server").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
-      $("#num-events-per-page").removeAttr("disabled");
+      $("#num-records-per-page").removeAttr("disabled");
       $("#latest-events-button").removeAttr("disabled");
     }
   }
