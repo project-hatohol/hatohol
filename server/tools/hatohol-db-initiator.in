@@ -116,18 +116,17 @@ def get_default_conf():
 
 
 def parse_default_conf():
-    config_list = []
-    config = ConfigParser.ConfigParser()
     config_file = get_default_conf()
-    try:
-        config.read(config_file)
-        config_list.append({'database': config.get('mysql', 'database'),
-                            'user':     config.get('mysql', 'user'),
-                            'password': config.get('mysql', 'password')})
-    except:
+    if not os.path.isfile(config_file):
         print "Could not read %s." % config_file
         sys.exit(-1)
 
+    config_list = []
+    config = ConfigParser.ConfigParser()
+    config.read(config_file)
+    config_list.append({'database': config.get('mysql', 'database'),
+                        'user':     config.get('mysql', 'user'),
+                        'password': config.get('mysql', 'password')})
     return config_list
 
 
