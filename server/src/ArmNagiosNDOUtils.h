@@ -40,7 +40,7 @@ protected:
 	void makeSelectHostArg(void);
 	void makeSelectHostgroupArg(void);
 	void makeSelectHostgroupMembersArg(void);
-	void addConditionForTriggerQuery(void);
+	void addConditionForTriggerQuery(bool isDifference);
 	void addConditionForEventQuery(void);
 	void getTrigger(void);
 	void getAllTrigger(void);
