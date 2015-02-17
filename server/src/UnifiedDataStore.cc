@@ -28,6 +28,7 @@
 #include "ActionManager.h"
 #include "ThreadLocalDBCache.h"
 #include "ItemFetchWorker.h"
+#include "TriggerFetchWorker.h"
 #include "DataStoreFactory.h"
 #include "ArmIncidentTracker.h"
 
@@ -84,6 +85,7 @@ struct UnifiedDataStore::Impl
 
 	AtomicValue<bool>        isCopyOnDemandEnabled;
 	ItemFetchWorker          itemFetchWorker;
+	TriggerFetchWorker       triggerFetchWorker;
 
 	Impl()
 	: isCopyOnDemandEnabled(false), isStarted(false)
@@ -419,6 +421,17 @@ bool UnifiedDataStore::fetchItemsAsync(Closure0 *closure,
 		return false;
 
 	return m_impl->itemFetchWorker.start(targetServerId, closure);
+}
+
+bool UnifiedDataStore::fetchTriggerAsync(Closure2 *closure,
+					 const ServerIdType &targetServerId)
+{
+	if (!getCopyOnDemandEnabled())
+		return false;
+	if (!m_impl->triggerFetchWorker.updateIsNeeded())
+		return false;
+
+	return m_impl->triggerFetchWorker.start(targetServerId, closure);
 }
 
 HatoholError UnifiedDataStore::getActionList(
