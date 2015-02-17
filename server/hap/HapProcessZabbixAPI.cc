@@ -192,6 +192,22 @@ HatoholError HapProcessZabbixAPI::fetchHistory(const MessagingContext &msgCtx,
 	return HTERR_OK;
 }
 
+HatoholError HapProcessZabbixAPI::fetchTrigger(const MessagingContext &msgCtx,
+					       const SmartBuffer &cmdBuf)
+{
+	ItemTablePtr triggers = getTrigger(0);
+	ItemTablePtr expandedDescriptions = getTriggerExpandedDescription(0);
+	ItemTablePtr mergedTriggers =
+	  mergePlainTriggersAndExpandedDescriptions(triggers, expandedDescriptions);
+
+	SmartBuffer resBuf;
+	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_TRIGGERS, &msgCtx);
+	appendItemTable(resBuf, mergedTriggers);
+	reply(msgCtx, resBuf);
+
+	return HTERR_OK;
+}
+
 HatoholArmPluginWatchType HapProcessZabbixAPI::getHapWatchType(
   const HatoholError &err)
 {

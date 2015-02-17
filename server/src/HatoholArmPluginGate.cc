@@ -373,6 +373,73 @@ void HatoholArmPluginGate::startOnDemandFetchHistory(
 	send(cmdBuf, callback);
 }
 
+bool HatoholArmPluginGate::startOnDemandFetchTrigger(Closure2 *closure)
+{
+	if (!isConnetced())
+		return false;
+
+	struct Callback : public CommandCallbacks {
+		Signal2 triggerUpdatedSignal;
+		ServerIdType serverId;
+		HostInfoCache hostInfoCache;
+		virtual void onGotReply(mlpl::SmartBuffer &replyBuf,
+		                        const HapiCommandHeader &cmdHeader)
+		                          override
+		{
+			// TODO: fill proper value
+			MonitoringServerStatus serverStatus;
+			serverStatus.serverId = serverId;
+
+			replyBuf.setIndex(sizeof(HapiResponseHeader));
+			ItemTablePtr tablePtr = createItemTable(replyBuf);
+			TriggerInfoList trigInfoList;
+			HatoholDBUtils::transformTriggersToHatoholFormat(
+			  trigInfoList, tablePtr, serverId, hostInfoCache);
+
+			ThreadLocalDBCache cache;
+			cache.getMonitoring().updateTrigger(trigInfoList, serverId);
+
+			cleanup();
+		}
+
+		virtual void onError(const HapiResponseCode &code,
+		                     const HapiCommandHeader &cmdHeader)
+		                          override
+		{
+			cleanup();
+		}
+
+		void cleanup(void)
+		{
+			triggerUpdatedSignal();
+			triggerUpdatedSignal.clear();
+			this->unref();
+		}
+	};
+	Callback *callback = new Callback();
+	callback->triggerUpdatedSignal.connect(closure);
+	callback->serverId = m_impl->serverInfo.id;
+
+	HostInfoList hostInfoList;
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(m_impl->serverInfo.id);
+
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().getHostInfoList(hostInfoList, option);
+	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
+	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
+		callback->hostInfoCache.update(*hostInfoItr);
+
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(cmdBuf, HAPI_CMD_REQ_FETCH_TRIGGERS);
+	try {
+		send(cmdBuf, callback);
+		return true;
+	} catch (const exception &e) {
+		return false;
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
