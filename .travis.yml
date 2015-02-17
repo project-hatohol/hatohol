@@ -22,7 +22,7 @@ matrix:
     - compiler: clang
       env: RUN_TEST="./test/dist-check.sh"
     - compiler: clang
-      env: RUN_TEST="test/launch-hatohol-for-test.sh && casperjs test client/test/feature/*.js"
+      env: RUN_TEST="make install && hatohol-db-initiator --db_user root --db_password '' && test/launch-hatohol-for-test.sh && casperjs test client/test/feature/*.js"
 
 install:
   - server/misc/setup-cutter.sh
