@@ -250,6 +250,15 @@ var HistoryView = function(userProfile, options) {
     appendGraphArea();
     for (i = 0; i < historyQueries.length; i++)
       appendHistoryLoader(historyQueries[i]);
+
+    if (historyQueries.length == 0) {
+      /* show item selector */
+      self.startConnection("item?limit=1", function(reply) {
+        self.servers = reply.servers;
+        setupItemSelectorCandidates();
+      });
+      $('#hatohol-item-list').modal('show');
+    }
   }
 
   function getItemBriefWithUnit(item) {
@@ -300,13 +309,15 @@ var HistoryView = function(userProfile, options) {
       tr.insertBefore("#hatohol-item-list tbody tr :last");
   }
 
+  function setupItemSelectorCandidates() {
+    self.setServerFilterCandidates(self.servers);
+    self.setHostgroupFilterCandidates(self.servers);
+    self.setHostFilterCandidates(self.servers);
+  }
+
   function setupItemSelector() {
     self.setupHostQuerySelectorCallback(
-      function() {
-        self.setServerFilterCandidates(self.servers);
-        self.setHostgroupFilterCandidates(self.servers);
-        self.setHostFilterCandidates(self.servers);
-      },
+      setupItemSelectorCandidates,
       '#select-server', '#select-host-group', '#select-host');
     $("#select-item").attr("disabled", "disabled");
     $("#add-item-button").attr("disabled", "disabled");
