@@ -20,7 +20,9 @@ AC_DEFINE_UNQUOTED(PREFIX, "$prefix", "Prefix for install directory")
 if test x"$sysconfdir" = x"NONE"; then
     sysconfdir=$ac_default_sysconfdir
 fi
-AC_DEFINE_UNQUOTED(SYSCONFDIR, "`eval echo $sysconfdir`", "Data directory.")
+expanded_sysconfdir="`eval echo $sysconfdir`"
+AC_DEFINE_UNQUOTED(SYSCONFDIR, "$expanded_sysconfdir", "Data directory.")
+AC_SUBST(expanded_sysconfdir)
 
 if test x"$localstatedir" = x"NONE"; then
     runstatedir=$ac_default_localstatedir
@@ -261,6 +263,7 @@ server/src/Makefile
 server/hap/Makefile
 server/data/Makefile
 server/tools/Makefile
+server/tools/hatohol-db-initiator
 server/tools/hatohol/Makefile
 server/tools/tls/Makefile
 server/tools/tls/hatohol-ca-initialize

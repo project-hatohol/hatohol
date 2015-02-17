@@ -70,7 +70,7 @@ packages
 
     # yum groupinstall "Development Tools"
 
-You need to register a yum repository for installing qpid-cpp-client-devel packages 
+You need to register a yum repository for installing qpid-cpp-client-devel packages
 by the following command
 
     # wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol.repo
@@ -104,7 +104,7 @@ Building & installing by following commands:
     $ su
     # make install
 
-### Example to install required libraries on ubuntu 14.04 
+### Example to install required libraries on ubuntu 14.04
 
 You should install these package to build Hatohol and required libraries.
 
@@ -127,7 +127,7 @@ installing by following commands:
     $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev qpidd libqpidmessaging2-dev libqpidtypes1-dev libqpidcommon2-dev
 
 ## How to build Hatohol
-First, you need to install required libraries.  
+First, you need to install required libraries.
 Then run the following commands to install Hatohol:
 
     $ ./autogen.sh
@@ -159,15 +159,27 @@ NOTE: You have to restart qpidd after you edit /etc/qpid/qpiid.acl.
 
 (1) Setup database of MySQL
 
-    $ hatohol-db-initiator database_name mysql_user mysql_password
+To setup database used by hatohol server, you need to execute helper command `hatohol-db-initiator`.
+
+Before you execute this helper command, you can edit mysql section in `${prefix}/etc/hatohol/hatohol.conf` which is used for database settings (username, database name and password).
+Then, run this helper command as follows:
+
+    $ hatohol-db-initiator --db_user DBUSER --db_password DBPASSWORD
+
+You must specify DBUSER and PASSWORD whose MySQL administrator user, respectively.
 
 Example:
 
-    $ hatohol-db-initiator hatohol root rootpass
+    $ hatohol-db-initiator --db_user root --db_password rootpass
+
+Note: Since 15.03, hatohol-db-initiator doesn't require command line argument after hatohol database created.
+`db_name`, `db_user` and `db_password` are read from `hatohol.conf` by default.
+For example, `hatohol.conf` is placed in `${prefix}/etc/hatohol/hatohol.conf`.
 
 Tips:
-- If the root password of the MySQL server is not set, just pass ''.
+- If the root password of the MySQL server is not set, just pass '' for `--db_password`.
 - You can change password of the created DB by --hatohol-db-user and --hatohol-db-password options.
+- You can change database, username and password by editing mysql section in `hatohol.conf`.
 - If Hatohol server and MySQL server are executed on different machines, you have to input GRANT statement manually with the mysql command line tool.
 
 For example, user/password are 'myuser'/'mypasswd' and the IP address of
@@ -298,4 +310,3 @@ Tips:
 
 * You have to install SPHINX package for making the html files.
 When you use Ubuntu 13.04, 'python3-sphinx' package is available.
-
