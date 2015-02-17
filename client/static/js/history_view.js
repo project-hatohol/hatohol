@@ -239,18 +239,37 @@ var HistoryView = function(userProfile, options) {
   self.settingSliderTimeRange = false;
   self.loaders = [];
   self.lastLoaderIndex= 0;
-  self.servers = undefined;
+  self.itemSelector = undefined;
 
   prepare(self.parseQuery(options.query));
   if (self.loaders.length > 0) {
     load();
   } else {
-    showItemSelector();
+    self.itemSelector.show();
   }
 
   function prepare(historyQueries) {
     var i;
-    setupItemSelector();
+
+    self.itemSelector = new HatoholItemSelector({
+      view: self,
+      appendItemCallback: function(query) {
+        appendHistoryLoader(query);
+        load();
+      },
+      removeItemCallback: function(index) {
+        var i;
+        for (i = 0; i < self.loaders.length; i++) {
+          if (self.loaders[i].options.index == index) {
+            self.loaders.splice(i, 1);
+            self.plotData.splice(i, 1);
+            updateView();
+            return;
+          }
+        }
+      },
+    });
+
     appendGraphArea();
     for (i = 0; i < historyQueries.length; i++)
       appendHistoryLoader(historyQueries[i]);
@@ -261,97 +280,6 @@ var HistoryView = function(userProfile, options) {
     if (item.unit)
       label += " [" + item.unit + "]";
     return label;
-  }
-
-  function setItemToItemList(loader) {
-    var item = loader.getItem();
-    var servers = loader.getServers();
-    var server = item ? servers[item.serverId] : undefined;
-    var query = loader.options.query;
-    var serverName = item ? getNickName(server, item.serverId) : "-";
-    var hostName = item ? getHostName(server, item.hostId) : "-";
-    var groupName = (query.hostgroupId && query.hostgroupId != -1) ?
-      getHostgroupName(server, query.hostgroupId) : "-";
-    var itemName = item ? getItemBriefWithUnit(item)  : "-";
-    var id = "hatohol-item-list-row-" + loader.options.index;
-    var tr;
-
-    if (item) {
-      tr = $("#" + id);
-      tr.empty();
-    } else {
-      tr = $("<tr>", { id: id });
-    }
-
-    tr.append($("<td>"));
-    tr.append($("<td>", { text: serverName }));
-    tr.append($("<td>", { text: groupName }));
-    tr.append($("<td>", { text: hostName }));
-    tr.append($("<td>", { text: itemName }));
-    tr.append($("<td>").append(
-      $("<button>", {
-        text: gettext("DELETE"),
-        type: "button",
-        class: "btn btn-default",
-        click: function() {
-          var index = $(this).attr("itemIndex");
-          $(this).parent().parent().remove();
-          removeHistoryLoader(index);
-        }
-      }).attr("itemIndex", loader.options.index)));
-
-    if (!item)
-      tr.insertBefore("#hatohol-item-list tbody tr :last");
-  }
-
-  function setupItemSelectorCandidates() {
-    self.setServerFilterCandidates(self.servers);
-    self.setHostgroupFilterCandidates(self.servers);
-    self.setHostFilterCandidates(self.servers);
-  }
-
-  function setupItemSelector() {
-    self.setupHostQuerySelectorCallback(
-      setupItemSelectorCandidates,
-      '#select-server', '#select-host-group', '#select-host');
-    $("#select-item").attr("disabled", "disabled");
-    $("#add-item-button").attr("disabled", "disabled");
-    $("#select-server").change(setupItemCandidates);
-    $("#select-host-group").change(setupItemCandidates);
-    $("#select-host").change(setupItemCandidates);
-    $("#select-item").change(function() {
-      if ($(this).val() == "---------")
-	$("#add-item-button").attr("disabled", "disabled");
-      else
-	$("#add-item-button").removeAttr("disabled");
-    });
-    $("#add-item-button").click(function() {
-      var query = self.getHostFilterQuery();
-      query.itemId = $("#select-item").val();
-      appendHistoryLoader(query);
-      load();
-    });
-  }
-
-  function setupItemCandidates() {
-    var query;
-    var hostName = $("#select-host").val();
-
-    $("#add-item-button").attr("disabled", "disabled");
-
-    if (hostName == "---------") {
-      self.setFilterCandidates($("#select-item"));
-      return;
-    }
-
-    query = self.getHostFilterQuery();
-    self.startConnection("items?" + $.param(query), function(reply) {
-      var candidates = $.map(reply.items, function(item) {
-        var label = getItemBriefWithUnit(item);
-        return { label: label, value: item.id };
-      });
-      self.setFilterCandidates($("#select-item"), candidates);
-    });
   }
 
   function appendGraphArea() {
@@ -444,12 +372,10 @@ var HistoryView = function(userProfile, options) {
       defaultTimeSpan: self.timeRange.getSpan(),
       query: historyQuery,
       onLoadItem: function(loader, item, servers) {
-        if (!self.servers)
-          self.servers = servers;
         updatePlotData();
         updateView();
-        self.setupHostFilters(servers);
-        setItemToItemList(loader);
+        self.itemSelector.setServers(servers);
+        self.itemSelector.setItem(loader);
       },
       onLoadHistory: function(loader, history) {
         updatePlotData();
@@ -458,21 +384,9 @@ var HistoryView = function(userProfile, options) {
     });
     self.loaders.push(loader);
     self.plotData.push(createLegendData());
-    setItemToItemList(loader);
+    self.itemSelector.setItem(loader);
     if (self.loaders.length == 1)
       initTimeRange();
-  }
-
-  function removeHistoryLoader(index) {
-    var i;
-    for (i = 0; i < self.loaders.length; i++) {
-      if (self.loaders[i].options.index == index) {
-        self.loaders.splice(i, 1);
-        self.plotData.splice(i, 1);
-        updateView();
-        return;
-      }
-    }
   }
 
   function initTimeRange() {
@@ -505,16 +419,6 @@ var HistoryView = function(userProfile, options) {
       if (self.autoReloadIsEnabled)
         self.setAutoReload(load, self.reloadIntervalSeconds);
     });
-  }
-
-  function showItemSelector() {
-    if (!self.servers) {
-      self.startConnection("item?limit=1", function(reply) {
-	self.servers = reply.servers;
-	setupItemSelectorCandidates();
-      });
-    }
-    $('#hatohol-item-list').modal('show');
   }
 
   function enableAutoReload(onClickButton) {
@@ -945,3 +849,138 @@ HistoryView.prototype.isLoading = function() {
       return true;
   return false;
 };
+
+
+var HatoholItemSelector = function(options) {
+  var self = this;
+
+  options = options || {};
+  this.elementId = 'hatohol-item-list';
+  this.servers = options.servers;
+  this.view = options.view; // TODO: Remove view dependency
+  this.appendItemCallback = options.appendItemCallback;
+  this.removeItemCallback = options.removeItemCallback;
+
+  setup();
+
+  function setup() {
+    self.view.setupHostQuerySelectorCallback(
+      function() { self.setupCandidates(); },
+      '#select-server', '#select-host-group', '#select-host');
+    $("#select-item").attr("disabled", "disabled");
+    $("#add-item-button").attr("disabled", "disabled");
+    $("#select-server").change(setupItemCandidates);
+    $("#select-host-group").change(setupItemCandidates);
+    $("#select-host").change(setupItemCandidates);
+    $("#select-item").change(function() {
+      if ($(this).val() == "---------")
+        $("#add-item-button").attr("disabled", "disabled");
+      else
+        $("#add-item-button").removeAttr("disabled");
+    });
+    $("#add-item-button").click(function() {
+      var query = self.view.getHostFilterQuery();
+      query.itemId = $("#select-item").val();
+      if (self.appendItemCallback)
+        self.appendItemCallback(query);
+    });
+  }
+
+  function setupItemCandidates() {
+    var query;
+    var hostName = $("#select-host").val();
+
+    $("#add-item-button").attr("disabled", "disabled");
+
+    if (hostName == "---------") {
+      self.view.setFilterCandidates($("#select-item"));
+      return;
+    }
+
+    query = self.view.getHostFilterQuery();
+    self.view.startConnection("items?" + $.param(query), function(reply) {
+      var candidates = $.map(reply.items, function(item) {
+        var label = self.getItemBriefWithUnit(item);
+        return { label: label, value: item.id };
+      });
+      self.view.setFilterCandidates($("#select-item"), candidates);
+    });
+  }
+}
+
+HatoholItemSelector.prototype.show = function() {
+  var self = this;
+  if (!self.servers) {
+    self.view.startConnection("item?limit=1", function(reply) {
+      self.servers = reply.servers;
+      self.setupCandidates();
+    });
+  }
+  $('#' + self.elementId).modal('show');
+}
+
+HatoholItemSelector.prototype.hide = function() {
+  $('#' + this.elementId).modal('hide');
+}
+
+HatoholItemSelector.prototype.getItemBriefWithUnit = function(item) {
+    var label = item.brief;
+    if (item.unit)
+      label += " [" + item.unit + "]";
+    return label;
+}
+
+HatoholItemSelector.prototype.setItem = function(loader) {
+  var self = this;
+  var item = loader.getItem();
+  var servers = loader.getServers();
+  var server = item ? servers[item.serverId] : undefined;
+  var query = loader.options.query;
+  var serverName = item ? getNickName(server, item.serverId) : "-";
+  var hostName = item ? getHostName(server, item.hostId) : "-";
+  var groupName = (query.hostgroupId && query.hostgroupId != -1) ?
+    getHostgroupName(server, query.hostgroupId) : "-";
+  var itemName = item ? self.getItemBriefWithUnit(item)  : "-";
+  var id = self.elementId + "-row-" + loader.options.index;
+  var tr;
+
+  if (item) {
+    tr = $("#" + id);
+    tr.empty();
+  } else {
+    tr = $("<tr>", { id: id });
+  }
+
+  tr.append($("<td>"));
+  tr.append($("<td>", { text: serverName }));
+  tr.append($("<td>", { text: groupName }));
+  tr.append($("<td>", { text: hostName }));
+  tr.append($("<td>", { text: itemName }));
+  tr.append($("<td>").append(
+    $("<button>", {
+      text: gettext("DELETE"),
+      type: "button",
+      class: "btn btn-default",
+      click: function() {
+        var index = $(this).attr("itemIndex");
+        $(this).parent().parent().remove();
+        if (self.removeItemCallback)
+          self.removeItemCallback(index);
+      }
+    }).attr("itemIndex", loader.options.index)));
+
+  if (!item)
+    tr.insertBefore("#" + self.elementId + " tbody tr :last");
+}
+
+HatoholItemSelector.prototype.setupCandidates = function() {
+  this.view.setServerFilterCandidates(this.servers);
+  this.view.setHostgroupFilterCandidates(this.servers);
+  this.view.setHostFilterCandidates(this.servers);
+}
+
+HatoholItemSelector.prototype.setServers = function(servers) {
+  if (!this.servers)
+    this.servers = servers;
+  this.view.setupHostFilters(servers);
+}
