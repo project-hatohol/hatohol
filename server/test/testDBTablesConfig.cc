@@ -469,6 +469,42 @@ void test_addTargetServerWithEmptyIPAddressAndHostname(void)
 	assertAddTargetServer(testInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
 }
 
+void test_addTargetServerWithValidPollingInterval(int sec)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	// MIN_POLLING_INTERVAL_SEC <= sec &&
+	// sec <= MAX_POLLING_INTERVAL_SEC
+	testInfo.pollingIntervalSec = sec;
+	assertAddTargetServer(testInfo, HTERR_OK);
+}
+
+void test_addTargetServerWithInvalidPollingInterval(int sec)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	// sec < MIN_POLLING_INTERVAL_SEC ||
+	// MAX_POLLING_INTERVAL_SEC < sec
+	testInfo.pollingIntervalSec = sec;
+	assertAddTargetServer(testInfo, HTERR_INVALID_POLLING_INTERVAL);
+}
+
+void test_addTargetServerWithValidRetryInterval(int sec)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	// MIN_RETRY_INTERVAL_SEC <= sec &&
+	// sec <= MAX_RETRY_INTERVAL_SEC
+	testInfo.retryIntervalSec = sec;
+	assertAddTargetServer(testInfo, HTERR_OK);
+}
+
+void test_addTargetServerWithInvalidRetryInterval(int sec)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	// sec < MIN_RETRY_INTERVAL_SEC ||
+	// MAX_RETRY_INTERVAL_SEC < sec
+	testInfo.retryIntervalSec = sec;
+	assertAddTargetServer(testInfo, HTERR_INVALID_RETRY_INTERVAL);
+}
+
 void _assertUpdateTargetServer(
   MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode,
   OperationPrivilege privilege = ALL_PRIVILEGES)
