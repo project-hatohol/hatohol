@@ -114,6 +114,8 @@ enum HatoholErrorCode
 
 	// 15.03
 	HTERR_DELETE_MYSELF,
+	HTERR_INVALID_POLLING_INTERVAL,	// DBTablesConfig
+	HTERR_INVALID_RETRY_INTERVAL,	// DBTablesConfig
 
 	// End of code
 	NUM_HATOHOL_ERROR_CODE
