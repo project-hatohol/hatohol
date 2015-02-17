@@ -200,4 +200,28 @@ describe('EventsView', function() {
       "http://192.168.1.100/nagios/cgi-bin/status.cgi?host=Host";
     testTableContents(nagiosURL, nagiosStatusURL, getDummyServerInfo(1));
   });
+
+
+  it('With a good event', function() {
+    var view = new EventsView(getOperator());
+    var serverURL = "http://192.168.1.100/zabbix/";
+    var hostURL =
+      "http://192.168.1.100/zabbix/latest.php?&hostid=10105";
+    var expected =
+      '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>' +
+      '<td data-sort-value="1415749496">' +
+      formatDate(1415749496) +
+      '</td>' +
+      '<td><a href="' + escapeHTML(hostURL) + '" target="_blank">Host</a></td>' +
+      '<td>Test discription.</td>' +
+      '<td class="status0" data-sort-value="0">OK</td>' +
+      '<td class="severity" data-sort-value="1">Information</td>';
+    var events = [
+      $.extend({}, dummyEventInfo[0], { type: hatohol.EVENT_TYPE_GOOD })
+    ];
+    respond(eventsJson(events, getDummyServerInfo(0)));
+    expect($('#table')).to.have.length(1);
+    expect($('tr')).to.have.length(events.length + 1);
+    expect($('tr :eq(1)').html()).to.contain(expected);
+  });
 });

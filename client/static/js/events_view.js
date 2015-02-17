@@ -261,7 +261,7 @@ var EventsView = function(userProfile, baseElem) {
   function drawTableBody() {
     var serverName, hostName, clock, status, severity, duration, description;
     var server, event, serverId, serverURL, hostId, html = "";
-    var x;
+    var x, severityClass;
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
       event      = self.rawData["events"][x];
@@ -276,6 +276,9 @@ var EventsView = function(userProfile, baseElem) {
       severity   = event["severity"];
       duration   = self.durations[serverId][event["triggerId"]][clock];
       incident   = event["incident"];
+      severityClass = "severity";
+      if (status == hatohol.EVENT_TYPE_BAD)
+	severityClass += escapeHTML(severity);
       if (event["expandedDescription"]) {
         description = event["expandedDescription"];
       }  else {
@@ -309,7 +312,7 @@ var EventsView = function(userProfile, baseElem) {
       html += "<td class='status" + escapeHTML(status) +
         "' data-sort-value='" + escapeHTML(status) + "'>" +
         status_choices[Number(status)] + "</td>";
-      html += "<td class='severity" + escapeHTML(severity) +
+      html += "<td class='" + severityClass +
         "' data-sort-value='" + escapeHTML(severity) + "'>" +
         severity_choices[Number(severity)] + "</td>";
       html += "<td data-sort-value='" + duration + "'>" +
