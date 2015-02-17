@@ -250,4 +250,3 @@ void ArmUtils::updateTriggerStatus(
 {
 	m_impl->updateTriggerStatus(triggerIdx, status);
 }
-
