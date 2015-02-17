@@ -105,7 +105,6 @@ protected:
 	  const ArmWorkingStatus &status = ARM_WORK_STAT_FAILURE);
 	
 	void setInitialTriggerStatus(void);
-	void registerSelfMonitoringHost(void);
 
 private:
 	struct Impl;
