@@ -70,7 +70,7 @@ packages
 
     # yum groupinstall "Development Tools"
 
-You need to register a yum repository for installing qpid-cpp-client-devel packages 
+You need to register a yum repository for installing qpid-cpp-client-devel packages
 by the following command
 
     # wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol.repo
@@ -104,7 +104,7 @@ Building & installing by following commands:
     $ su
     # make install
 
-### Example to install required libraries on ubuntu 14.04 
+### Example to install required libraries on ubuntu 14.04
 
 You should install these package to build Hatohol and required libraries.
 
@@ -127,7 +127,7 @@ installing by following commands:
     $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev qpidd libqpidmessaging2-dev libqpidtypes1-dev libqpidcommon2-dev
 
 ## How to build Hatohol
-First, you need to install required libraries.  
+First, you need to install required libraries.
 Then run the following commands to install Hatohol:
 
     $ ./autogen.sh
@@ -300,4 +300,3 @@ Tips:
 
 * You have to install SPHINX package for making the html files.
 When you use Ubuntu 13.04, 'python3-sphinx' package is available.
-
