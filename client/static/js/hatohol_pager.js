@@ -120,8 +120,6 @@ HatoholPager.prototype.update = function(params) {
   this.applyParams(params);
 
   var self = this;
-  var parent = this.parentElements;
-  var range = this.getPagesRange();
   var numPages = this.getTotalNumberOfPages();
   var createItem = function(label, enable, getPageFunc) {
     var anchor = $("<a>", {
@@ -146,7 +144,22 @@ HatoholPager.prototype.update = function(params) {
       item.addClass("disabled");
     return item;
   };
+  if (params)
+    params['createItem'] = createItem;
+  this.draw(params);
+};
+
+HatoholPager.prototype.draw = function(params) {
+  this.applyParams(params);
+  var parent = this.parentElements;
   var i, item, enable;
+  var range = this.getPagesRange();
+  var numPages = this.getTotalNumberOfPages();
+  if (params) {
+    var createItem = params['createItem'];
+  } else {
+    return;
+  }
 
   parent.empty();
   if (numPages == 0 || numPages == 1)
