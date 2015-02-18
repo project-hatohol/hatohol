@@ -870,7 +870,14 @@ var HatoholItemSelector = function(options) {
 
   function setup() {
     self.view.setupHostQuerySelectorCallback(
-      function() { self.setupCandidates(); },
+      function() {
+        var query = self.view.getHostFilterQuery();
+        query.limit = 1; // we only need "servers" object
+        self.view.startConnection("items?" + $.param(query), function(reply) {
+          self.servers = reply.servers;
+          self.setupCandidates();
+        });
+      },
       '#select-server', '#select-host-group', '#select-host');
     $("#select-item").attr("disabled", "disabled");
     $("#add-item-button").attr("disabled", "disabled");
