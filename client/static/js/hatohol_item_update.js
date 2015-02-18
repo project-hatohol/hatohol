@@ -37,7 +37,7 @@ var HatoholItemUpdate = function(updateParameters, connParam) {
     total++;
     new HatoholConnector($.extend({
       url: '/' + updateParameters.type + '/' + updateParameters.id[i],
-        request: "POST",
+        request: "PUT",
         context: updateParameters.id[i],
         replyCallback: function(reply, parser, context) {
         },

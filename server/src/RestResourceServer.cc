@@ -182,7 +182,7 @@ void RestResourceServer::handlerServer(void)
 {
 	string resourceName = getResourceName();
 	if (StringUtils::casecmp(resourceName, "server-trigger")){
-		if (httpMethodIs("POST")) {
+		if (httpMethodIs("PUT")) {
 			handlerTriggerUpdateServer();
 		}
 		return;
