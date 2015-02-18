@@ -15,14 +15,14 @@ casper.test.begin('Dashboard test', function(test) {
   casper.then(function() {
     casper.wait(200, function() {
       casper.log('should appear after 200ms', 'info');
-      test.assertTitle('ダッシュボード - Hatohol', 'should match dashboard title.');
-      test.assertTextExist('ダッシュボード', 'should appear dashboard text.');
+      test.assertTitle('ダッシュボード - Hatohol', 'It should match dashboard title.');
+      test.assertTextExist('ダッシュボード', 'It should appear dashboard text.');
       test.assertTextExist('グローバルステータス',
-                           'should appear dashboard global status text.');
+                           'It should appear dashboard global status text.');
       test.assertTextExist('システムステータス',
-                           'should appear dashboard system status text.');
+                           'It should appear dashboard system status text.');
       test.assertTextExist('ホストステータス',
-                           'should appear dashboard host status text.');
+                           'It should appear dashboard host status text.');
     });
   });
   casper.then(function() {util.logout(test);});
