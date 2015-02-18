@@ -180,6 +180,14 @@ static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 
 void RestResourceServer::handlerServer(void)
 {
+	string resourceName = getResourceName();
+	if (StringUtils::casecmp(resourceName, "server-trigger")){
+		if (httpMethodIs("POST")) {
+			handlerTriggerUpdateServer();
+		}
+		return;
+	}
+
 	if (httpMethodIs("GET")) {
 		handlerGetServer();
 	} else if (httpMethodIs("POST")) {
@@ -575,6 +583,55 @@ void RestResourceServer::handlerPutServer(void)
 	addHatoholError(agent, err);
 	agent.add("id", serverInfo.id);
 	agent.endObject();
+	replyJSONData(agent);
+}
+
+struct GetTriggerClosure : ClosureTemplate2<RestResourceServer>
+{
+	GetTriggerClosure(RestResourceServer *receiver,
+			  callback func)
+	: ClosureTemplate2<RestResourceServer>(receiver, func)
+	{
+		m_receiver->ref();
+	}
+
+	virtual ~GetTriggerClosure()
+	{
+		m_receiver->unref();
+	}
+};
+
+void RestResourceServer::triggerFetchedCallback(Closure2 *closure)
+{
+	unpauseResponse();
+}
+
+void RestResourceServer::handlerTriggerUpdateServer(void)
+{
+	uint64_t serverId = getResourceId();
+	if (serverId == INVALID_ID) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", getResourceIdString().c_str());
+		return;
+	}
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = HTERR_OK;
+	GetTriggerClosure *closure =
+	  new GetTriggerClosure(
+	    this, &RestResourceServer::triggerFetchedCallback);
+
+	bool handled = dataStore->fetchTriggerAsync(closure, serverId);
+	if (!handled) {
+		delete closure;
+	}
+
+	JSONBuilder agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	agent.add("id", serverId);
+	agent.endObject();
+
 	replyJSONData(agent);
 }
 
