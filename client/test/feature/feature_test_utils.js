@@ -10,13 +10,9 @@ function login(test) {
     function fail() {
       test.assertExists("input#inputPassword");
     });
-  casper.waitForSelector("form#loginForm input[type=submit][value='ログイン']",
-    function success() {
-      this.click("form#loginForm input[type=submit][value='ログイン']");
-    },
-    function fail() {
-      test.assertExists("form#loginForm input[type=submit][value='ログイン']");
-    });
+  casper.then(function() {
+    this.click('input#loginFormSubmit');
+  });
 };
 exports.login = login;
 
