@@ -183,7 +183,7 @@ HatoholPager.prototype.draw = function(params) {
       return 0;
     }));
 
-    enable = this.currentPage < numPages - self.maxPagesToShow;
+    enable = this.currentPage < (numPages - self.maxPagesToShow);
     parent.append(createItem('<i class="glyphicon glyphicon-forward"></i>', enable, function() {
       return self.currentPage + self.maxPagesToShow;
     }));
@@ -217,7 +217,7 @@ HatoholEventPager.prototype.draw = function(params) {
   }
 
   parent.empty();
-  if (!(numEvents == 0)) {
+  if (numEvents != 0) {
     for (i = range.firstPage; i <= range.lastPage; ++i) {
       enable = true;
       if (numEvents != this.numRecordsPerPage && i > self.currentPage)
@@ -239,12 +239,12 @@ HatoholEventPager.prototype.draw = function(params) {
       return self.currentPage - 5;
     }));
 
-    enable = numEvents == this.numRecordsPerPage;
+    enable = (numEvents == this.numRecordsPerPage);
     parent.append(createItem('<i class="glyphicon glyphicon-chevron-right"></i>', enable, function() {
       return self.currentPage + 1;
     }));
 
-    enable = numEvents == this.numRecordsPerPage;
+    enable = (numEvents == this.numRecordsPerPage);
     parent.append(createItem('<i class="glyphicon glyphicon-forward"></i>', enable, function() {
       return self.currentPage + 5;
     }));
