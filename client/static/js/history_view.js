@@ -931,7 +931,9 @@ HatoholItemSelector.prototype.getItemBriefWithUnit = function(item) {
     return label;
 }
 
-HatoholItemSelector.prototype.setItem = function(index, item, servers, hostgroupId) {
+HatoholItemSelector.prototype.setItem = function(index, item, servers,
+                                                 hostgroupId)
+{
   var self = this;
   var server = item ? servers[item.serverId] : undefined;
   var serverName = item ? getNickName(server, item.serverId) : "-";
