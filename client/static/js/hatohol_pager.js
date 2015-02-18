@@ -196,3 +196,69 @@ HatoholPager.prototype.draw = function(params) {
 
   $(self.numRecordsPerPageEntries).val(self.numRecordsPerPage);
 };
+
+var HatoholEventPager = function(params) {
+  HatoholPager.apply(this, params);
+};
+
+HatoholEventPager.prototype = new HatoholPager;
+
+HatoholEventPager.prototype.draw = function(params) {
+  this.applyParams(params);
+  var parent = this.parentElements;
+  var range = this.getPagesRange();
+  var i, item, enable;
+  var numEvents = this.numberOfEvents;
+
+  if (params) {
+    var createItem = params['createItem'];
+  } else {
+    return;
+  }
+
+  parent.empty();
+  if (!(numEvents == 0)) {
+    for (i = range.firstPage; i <= range.lastPage; ++i) {
+      enable = true;
+      if (numEvents != this.numRecordsPerPage && i > self.currentPage)
+        enable = false;
+      item = createItem("" + (i + 1), enable);
+      if (i == this.currentPage)
+        item.addClass("active");
+      parent.append(item);
+    }
+
+    enable = this.currentPage > 0;
+    parent.prepend(createItem('<i class="glyphicon glyphicon-chevron-left"></i>', enable, function() {
+      return self.currentPage - 1;
+    }));
+
+    self.previousPage = self.currentPage;
+    enable = this.currentPage > 4;
+    parent.prepend(createItem('<i class="glyphicon glyphicon-backward"></i>', enable, function() {
+      return self.currentPage - 5;
+    }));
+
+    enable = numEvents == this.numRecordsPerPage;
+    parent.append(createItem('<i class="glyphicon glyphicon-chevron-right"></i>', enable, function() {
+      return self.currentPage + 1;
+    }));
+
+    enable = numEvents == this.numRecordsPerPage;
+    parent.append(createItem('<i class="glyphicon glyphicon-forward"></i>', enable, function() {
+      return self.currentPage + 5;
+    }));
+
+  } else {
+    if (self.previousPage == -1) {
+        return;
+    } else {
+      enable = true;
+      parent.append(createItem(gettext('Nothing data in this page. Please click here and return.'), enable, function() {
+        return self.previousPage;
+      }));
+    }
+  }
+
+  $(self.numRecordsPerPageEntries).val(self.numRecordsPerPage);
+};
