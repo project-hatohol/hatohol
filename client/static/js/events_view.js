@@ -210,7 +210,7 @@ var EventsView = function(userProfile, baseElem) {
       self.userConfig.store(params);
     });
 
-    $('#latest-events-button').click(function() {
+    $('button.latest-button').click(function() {
       self.enableAutoRefresh(load(), self.intervalSeconds);
     });
   }
@@ -222,7 +222,8 @@ var EventsView = function(userProfile, baseElem) {
       $("#select-server").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
       $("#num-records-per-page").attr("disabled", "disabled");
-      $("#latest-events-button").attr("disabled", "disabled");
+      $("#latest-events-button1").attr("disabled", "disabled");
+      $("#latest-events-button2").attr("disabled", "disabled");
     } else {
       $("#select-severity").removeAttr("disabled");
       $("#select-status").removeAttr("disabled");
@@ -230,7 +231,8 @@ var EventsView = function(userProfile, baseElem) {
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
       $("#num-records-per-page").removeAttr("disabled");
-      $("#latest-events-button").removeAttr("disabled");
+      $("#latest-events-button1").removeAttr("disabled");
+      $("#latest-events-button2").removeAttr("disabled");
     }
   }
 
