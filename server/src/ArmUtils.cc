@@ -235,7 +235,7 @@ void ArmUtils::registerSelfMonitoringHost(void)
 	svHostDef.hostIdInServer =
 	  StringUtils::sprintf("%" FMT_HOST_ID, MONITORING_SERVER_SELF_ID);
 	svHostDef.name = StringUtils::sprintf("%s%s",
-	   m_impl->serverInfo.hostName.c_str(), SERVER_SELF_MONITORING_SUFFIX);
+	  m_impl->serverInfo.hostName.c_str(), SERVER_SELF_MONITORING_SUFFIX);
 	svHostDef.status = HOST_STAT_SELF_MONITOR;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->upsertHost(svHostDef);
