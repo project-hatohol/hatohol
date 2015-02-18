@@ -252,8 +252,8 @@ var HistoryView = function(userProfile, options) {
 
     self.itemSelector = new HatoholItemSelector({
       view: self,
-      appendItemCallback: function(query) {
-        appendHistoryLoader(query);
+      appendItemCallback: function(index, query) {
+        appendHistoryLoader(query, index);
         load();
       },
       removeItemCallback: function(index) {
@@ -365,7 +365,7 @@ var HistoryView = function(userProfile, options) {
     }
   }
 
-  function appendHistoryLoader(historyQuery) {
+  function appendHistoryLoader(historyQuery, index) {
     var loader = new HistoryLoader({
       view: self,
       defaultTimeSpan: self.timeRange.getSpan(),
@@ -383,10 +383,10 @@ var HistoryView = function(userProfile, options) {
         updateView();
       }
     });
-    var index;
     self.loaders.push(loader);
     self.plotData.push(createLegendData());
-    index = self.itemSelector.appendItem();
+    if (isNaN(index))
+      index = self.itemSelector.appendItem();
     self.itemSelector.setHistoryLoader(index, loader);
     if (self.loaders.length == 1)
       initTimeRange();
@@ -886,8 +886,9 @@ var HatoholItemSelector = function(options) {
     $("#add-item-button").click(function() {
       var query = self.view.getHostFilterQuery();
       query.itemId = $("#select-item").val();
+      var index = self.appendItem();
       if (self.appendItemCallback)
-        self.appendItemCallback(query);
+        self.appendItemCallback(index, query);
     });
   }
 
