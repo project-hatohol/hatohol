@@ -115,7 +115,7 @@ HatoholPager.prototype.getPagesRange = function(params) {
   };
 };
 
-HatoholPager.prototype.createItem = function(label, enable, getPageFunc) {
+HatoholPager.prototype.createItem = function(label, enabled, getPageFunc) {
   var self = this;
   var numPages = this.getTotalNumberOfPages();
   var anchor = $("<a>", {
@@ -129,14 +129,14 @@ HatoholPager.prototype.createItem = function(label, enable, getPageFunc) {
         page = parseInt($(this).text()) - 1;
       if (page < 0 || (numPages >= 0 && page >= numPages))
         return;
-      if (!enable)
+      if (!enabled)
         return;
       if (self.selectPageCallback)
         self.selectPageCallback(page);
     }
   });
   var item = $("<li/>").append(anchor);
-  if (!enable)
+  if (!enabled)
     item.addClass("disabled");
   return item;
 };
@@ -147,7 +147,7 @@ HatoholPager.prototype.update = function(params) {
   var self = this;
   var numPages = this.getTotalNumberOfPages();
   var parent = this.parentElements;
-  var i, item, enable;
+  var i, item, enabled;
   var range = this.getPagesRange();
 
   parent.empty();
@@ -155,31 +155,31 @@ HatoholPager.prototype.update = function(params) {
     return;
 
   for (i = range.firstPage; i <= range.lastPage; ++i) {
-    enable = true;
-    item = this.createItem("" + (i + 1), enable);
+    enabled = true;
+    item = this.createItem("" + (i + 1), enabled);
     if (i == this.currentPage)
       item.addClass("active");
     parent.append(item);
   }
 
   if (numPages > 1 || numPages < 0) {
-    enable = this.currentPage >= self.maxPagesToShow;
-    parent.prepend(this.createItem('<i class="glyphicon glyphicon-backward"></i>', enable, function() {
+    enabled = this.currentPage >= self.maxPagesToShow;
+    parent.prepend(this.createItem('<i class="glyphicon glyphicon-backward"></i>', enabled, function() {
       return self.currentPage - self.maxPagesToShow;
     }));
 
-    enable = this.currentPage > 0;
-    parent.prepend(this.createItem('<i class="glyphicon glyphicon-step-backward"></i>', enable, function() {
+    enabled = this.currentPage > 0;
+    parent.prepend(this.createItem('<i class="glyphicon glyphicon-step-backward"></i>', enabled, function() {
       return 0;
     }));
 
-    enable = this.currentPage < (numPages - self.maxPagesToShow);
-    parent.append(this.createItem('<i class="glyphicon glyphicon-forward"></i>', enable, function() {
+    enabled = this.currentPage < (numPages - self.maxPagesToShow);
+    parent.append(this.createItem('<i class="glyphicon glyphicon-forward"></i>', enabled, function() {
       return self.currentPage + self.maxPagesToShow;
     }));
 
-    enable = (this.currentPage != numPages - 1);
-    parent.append(this.createItem('<i class="glyphicon glyphicon-step-forward"></i>', enable, function() {
+    enabled = (this.currentPage != numPages - 1);
+    parent.append(this.createItem('<i class="glyphicon glyphicon-step-forward"></i>', enabled, function() {
       return numPages - 1;
     }));
   }
@@ -199,39 +199,39 @@ HatoholEventPager.prototype.update = function(params) {
   var self = this;
   var parent = this.parentElements;
   var range = this.getPagesRange();
-  var i, item, enable;
+  var i, item, enabled;
   var numEvents = this.numRecords;
 
   parent.empty();
   if (numEvents != 0) {
     for (i = range.firstPage; i <= range.lastPage; ++i) {
-      enable = true;
+      enabled = true;
       if (numEvents != this.numRecordsPerPage && i > self.currentPage)
-        enable = false;
-      item = this.createItem("" + (i + 1), enable);
+        enabled = false;
+      item = this.createItem("" + (i + 1), enabled);
       if (i == this.currentPage)
         item.addClass("active");
       parent.append(item);
     }
 
-    enable = this.currentPage > 0;
-    parent.prepend(this.createItem('<i class="glyphicon glyphicon-chevron-left"></i>', enable, function() {
+    enabled = this.currentPage > 0;
+    parent.prepend(this.createItem('<i class="glyphicon glyphicon-chevron-left"></i>', enabled, function() {
       return self.currentPage - 1;
     }));
 
     self.previousPage = self.currentPage;
-    enable = this.currentPage >= self.maxPagesToShow;
-    parent.prepend(this.createItem('<i class="glyphicon glyphicon-backward"></i>', enable, function() {
+    enabled = this.currentPage >= self.maxPagesToShow;
+    parent.prepend(this.createItem('<i class="glyphicon glyphicon-backward"></i>', enabled, function() {
       return self.currentPage - self.maxPagesToShow;
     }));
 
-    enable = (numEvents == this.numRecordsPerPage);
-    parent.append(this.createItem('<i class="glyphicon glyphicon-chevron-right"></i>', enable, function() {
+    enabled = (numEvents == this.numRecordsPerPage);
+    parent.append(this.createItem('<i class="glyphicon glyphicon-chevron-right"></i>', enabled, function() {
       return self.currentPage + 1;
     }));
 
-    enable = (numEvents == this.numRecordsPerPage);
-    parent.append(this.createItem('<i class="glyphicon glyphicon-forward"></i>', enable, function() {
+    enabled = (numEvents == this.numRecordsPerPage);
+    parent.append(this.createItem('<i class="glyphicon glyphicon-forward"></i>', enabled, function() {
       return self.currentPage + self.maxPagesToShow;
     }));
 
@@ -239,8 +239,8 @@ HatoholEventPager.prototype.update = function(params) {
     if (self.previousPage == -1) {
         return;
     } else {
-      enable = true;
-      parent.append(this.createItem(gettext('Nothing data in this page. Please click here and return.'), enable, function() {
+      enabled = true;
+      parent.append(this.createItem(gettext('Nothing data in this page. Please click here and return.'), enabled, function() {
         return self.previousPage;
       }));
     }
