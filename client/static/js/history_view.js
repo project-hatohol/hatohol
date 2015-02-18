@@ -716,6 +716,8 @@ var HistoryView = function(userProfile, options) {
   }
 
   function buildHostName(item, servers) {
+    if (!item || !servers)
+      return gettext("Unknown host")
     var server = servers[item.serverId];
     var serverName = getServerName(server, item["serverId"]);
     var hostName   = getHostName(server, item["hostId"]);
@@ -723,8 +725,12 @@ var HistoryView = function(userProfile, options) {
   }
 
   function buildTitle(item, servers) {
-    var hostName = buildHostName(item, servers);
-    var title = "";
+    var hostName, title = "";
+
+    if (!item || !servers)
+      return gettext("History");
+    hostName = buildHostName(item, servers);
+
     title += item.brief;
     title += " (" + hostName + ")";
     if (item.unit)
