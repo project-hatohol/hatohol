@@ -936,10 +936,9 @@ HatoholItemSelector.prototype.getItemBriefWithUnit = function(item) {
     return label;
 }
 
-HatoholItemSelector.prototype.appendItem = function(index, item, servers,
-                                                    hostgroupId)
+HatoholItemSelector.prototype.appendItem = function(item, servers, hostgroupId)
 {
-  return this.setItem();
+  return this.setItem(undefined, item, servers, hostgroupId);
 }
 
 HatoholItemSelector.prototype.setItem = function(index, item, servers,
