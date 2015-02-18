@@ -375,7 +375,8 @@ var HistoryView = function(userProfile, options) {
         updatePlotData();
         updateView();
         self.itemSelector.setServers(servers);
-        self.itemSelector.setItem(loader);
+        self.itemSelector.setItem(loader.options.index, item, servers,
+                                  loader.options.query.hostgroupId);
       },
       onLoadHistory: function(loader, history) {
         updatePlotData();
@@ -384,7 +385,7 @@ var HistoryView = function(userProfile, options) {
     });
     self.loaders.push(loader);
     self.plotData.push(createLegendData());
-    self.itemSelector.setItem(loader);
+    self.itemSelector.setItem(loader.options.index);
     if (self.loaders.length == 1)
       initTimeRange();
   }
@@ -930,18 +931,15 @@ HatoholItemSelector.prototype.getItemBriefWithUnit = function(item) {
     return label;
 }
 
-HatoholItemSelector.prototype.setItem = function(loader) {
+HatoholItemSelector.prototype.setItem = function(index, item, servers, hostgroupId) {
   var self = this;
-  var item = loader.getItem();
-  var servers = loader.getServers();
   var server = item ? servers[item.serverId] : undefined;
-  var query = loader.options.query;
   var serverName = item ? getNickName(server, item.serverId) : "-";
   var hostName = item ? getHostName(server, item.hostId) : "-";
-  var groupName = (query.hostgroupId && query.hostgroupId != -1) ?
-    getHostgroupName(server, query.hostgroupId) : "-";
+  var groupName = (hostgroupId && hostgroupId != -1) ?
+    getHostgroupName(server, hostgroupId) : "-";
   var itemName = item ? self.getItemBriefWithUnit(item)  : "-";
-  var id = self.elementId + "-row-" + loader.options.index;
+  var id = self.elementId + "-row-" + index;
   var tr;
 
   if (item) {
@@ -967,7 +965,7 @@ HatoholItemSelector.prototype.setItem = function(loader) {
         if (self.removeItemCallback)
           self.removeItemCallback(index);
       }
-    }).attr("itemIndex", loader.options.index)));
+    }).attr("itemIndex", index)));
 
   if (!item)
     tr.insertBefore("#" + self.elementId + " tbody tr :last");
