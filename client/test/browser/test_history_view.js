@@ -151,7 +151,6 @@ describe('HistoryView', function() {
     var view = new HistoryView(getOperator(),
                                { query: query });
     var expected = [{
-      label: "cpu usage (Zabbix: Host1) [%]",
       data: [
         [1415586892182, "97.8568"],
         [1415586952317, "97.4699"],
