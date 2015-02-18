@@ -162,8 +162,7 @@ void HatoholDBUtils::transformHostsToHatoholFormat(
 		svHostDef.serverId = serverId;
 
 		itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_HOSTID);
-		svHostDef.hostIdInServer =
-		  itemGroupStream.read<uint64_t, string>();
+		itemGroupStream >> svHostDef.hostIdInServer;
 
 		itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_NAME);
 		itemGroupStream >> svHostDef.name;
