@@ -95,7 +95,15 @@ static const HostIdType INAPPLICABLE_HOST_ID      = -3;
 static const HostIdType MONITORING_SERVER_SELF_ID = -4;
 static const HostIdType AUTO_ASSIGNED_ID          = -5;
 
+// TODO: We have to add code to escape real local host IDs that begin from
+// SPECIAL_LOCAL_HOST_ID_PREFIX. Fortunately, such ID doesn't apper for
+// ZABBIX, Nagios, and Ceilometer (OpenStack)
+#define SPECIAL_LOCAL_HOST_ID_PREFIX "__"
 static const LocalHostIdType ALL_LOCAL_HOSTS = "*";
+static const LocalHostIdType INAPPLICABLE_LOCAL_HOST_ID =
+  SPECIAL_LOCAL_HOST_ID_PREFIX "N/A";
+static const LocalHostIdType MONITORING_SELF_LOCAL_HOST_ID =
+  SPECIAL_LOCAL_HOST_ID_PREFIX "SELF_MONITOR";
 
 // Special Hostgroup IDs ======================================================
 static const HostgroupIdType ALL_HOST_GROUPS = "*";

@@ -217,8 +217,7 @@ void HatoholArmPluginGate::start(void)
 	svHostDef.id       = AUTO_INCREMENT_VALUE;
 	svHostDef.hostId   = AUTO_ASSIGNED_ID;
 	svHostDef.serverId = m_impl->serverInfo.id;
-	svHostDef.hostIdInServer =
-	  StringUtils::sprintf("%" FMT_HOST_ID, INAPPLICABLE_HOST_ID);
+	svHostDef.hostIdInServer = INAPPLICABLE_LOCAL_HOST_ID;
 	svHostDef.name     = "N/A";
 	svHostDef.status   = HOST_STAT_INAPPLICABLE;
 	UnifiedDataStore::getInstance()->upsertHost(svHostDef);

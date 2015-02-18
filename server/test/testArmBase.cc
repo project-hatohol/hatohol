@@ -521,7 +521,7 @@ void test_setServerConnectStatus(void)
 	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
 	triggerInfo.lastChangeTime = triggers.begin()->lastChangeTime;
 	triggerInfo.globalHostId = MONITORING_SERVER_SELF_ID;
-	triggerInfo.hostIdInServer.clear();
+	triggerInfo.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
 	triggerInfo.hostName = "_SELF";
 	triggerInfo.brief = HatoholError(HTERR_INTERNAL_ERROR).getMessage();
 	cppcut_assert_equal(makeTriggerOutput(triggerInfo),
@@ -542,7 +542,7 @@ void test_setServerConnectStatus(void)
 	eventInfo.status = TRIGGER_STATUS_PROBLEM;
 	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
 	eventInfo.globalHostId = MONITORING_SERVER_SELF_ID;
-	eventInfo.hostIdInServer.clear();
+	eventInfo.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
 	//eventInfo.hostName = "_SELF";
 	eventInfo.brief = HatoholError(HTERR_INTERNAL_ERROR).getMessage();
 	cppcut_assert_equal(makeEventOutput(eventInfo),
@@ -555,8 +555,7 @@ void test_setServerConnectStatus(void)
 	const ServerHostDef &actualHost = *hosts.begin();
 	cppcut_assert_equal(serverInfo.id, actualHost.serverId);
 	cppcut_assert_equal(
-	  StringUtils::sprintf("%" FMT_HOST_ID, MONITORING_SERVER_SELF_ID),
-	  actualHost.hostIdInServer);
+	  MONITORING_SELF_LOCAL_HOST_ID, actualHost.hostIdInServer);
 	cppcut_assert_equal(string("_SELF"), actualHost.name);
 	cppcut_assert_equal(HOST_STAT_SELF_MONITOR, actualHost.status);
 }

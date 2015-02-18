@@ -36,6 +36,7 @@ void ArmUtils::createTrigger(
 	triggerInfo.lastChangeTime =
 	  SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
 	triggerInfo.globalHostId = MONITORING_SERVER_SELF_ID;
+	triggerInfo.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
 	triggerInfo.hostName = StringUtils::sprintf(
 	  "%s%s", svInfo.hostName.c_str(), SERVER_SELF_MONITORING_SUFFIX);
 	triggerInfo.id       = armTrigger.triggerId;
@@ -56,6 +57,7 @@ void ArmUtils::createEvent(
 	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
 	eventInfo.time = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
 	eventInfo.globalHostId = MONITORING_SERVER_SELF_ID;
+	eventInfo.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
 	eventInfo.triggerId = armTrigger.triggerId;
 	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
 	eventInfo.status = armTrigger.status;
@@ -73,9 +75,7 @@ void ArmUtils::registerSelfMonitoringHost(const MonitoringServerInfo &svInfo)
 	svHostDef.id = AUTO_INCREMENT_VALUE;
 	svHostDef.hostId = AUTO_ASSIGNED_ID;
 	svHostDef.serverId = svInfo.id;
-	// TODO: Use a more readable string host name.
-	svHostDef.hostIdInServer =
-	  StringUtils::sprintf("%" FMT_HOST_ID, MONITORING_SERVER_SELF_ID);
+	svHostDef.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
 	svHostDef.name = StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
 	                                      SERVER_SELF_MONITORING_SUFFIX);
 	svHostDef.status = HOST_STAT_SELF_MONITOR;
