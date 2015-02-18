@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -245,6 +245,25 @@ namespace validate {
 			       "  }\n"
 			       "}\n");
 	}
+
+	void test_invalidBodyTypeValue(void)
+	{
+		assertValidate(gcut_take_new_list_string(
+				       "$.body.type must be valid type: "
+				       "<invalid>: "
+				       "available values: good, bad, unknown",
+				       NULL),
+			       "{\n"
+			       "  \"type\": \"event\"\n,"
+			       "  \"body\": {\n"
+			       "    \"id\":        1,\n"
+			       "    \"timestamp\": 1407824772.9396641,\n"
+			       "    \"hostName\":  \"www.example.com\",\n"
+			       "    \"content\":   \"Error!\",\n"
+			       "    \"type\":      \"invalid\"\n"
+			       "  }\n"
+			       "}\n");
+	}
 #undef assertValidate
 }
 
@@ -432,6 +451,71 @@ namespace severityGetter {
 		message = parse("emergency");
 		cppcut_assert_equal(TRIGGER_SEVERITY_EMERGENCY,
 				    message->getSeverity());
+	}
+}
+
+namespace typeGetter {
+	JsonParser *parser;
+	GateJSONEventMessage *message;
+
+	void cut_setup(void)
+	{
+		parser = json_parser_new();
+		message = NULL;
+	}
+
+	void cut_teardown(void)
+	{
+		delete message;
+		g_object_unref(parser);
+	}
+
+	GateJSONEventMessage *parse(const string &typeValue)
+	{
+		string json;
+
+		json += "{\n";
+		json += "  \"type\": \"event\",\n";
+		json += "  \"body\": {\n";
+		if (!typeValue.empty()) {
+			json += "\"type\": \"" + typeValue + "\",\n";
+		}
+		json += "    \"id\":        1,\n";
+		json += "    \"timestamp\": 1407824772.939664125,\n";
+		json += "    \"hostName\":  \"www.example.com\",\n";
+		json += "    \"content\":   \"Error!\"\n";
+		json += "  }\n";
+		json += "}\n";
+
+		return parseRaw(parser, json);
+	}
+
+	void test_default()
+	{
+		message = parse("");
+		cppcut_assert_equal(EVENT_TYPE_BAD,
+				    message->getType());
+	}
+
+	void test_good()
+	{
+		message = parse("good");
+		cppcut_assert_equal(EVENT_TYPE_GOOD,
+				    message->getType());
+	}
+
+	void test_bad()
+	{
+		message = parse("bad");
+		cppcut_assert_equal(EVENT_TYPE_BAD,
+				    message->getType());
+	}
+
+	void test_unknown()
+	{
+		message = parse("unknown");
+		cppcut_assert_equal(EVENT_TYPE_UNKNOWN,
+				    message->getType());
 	}
 }
 
