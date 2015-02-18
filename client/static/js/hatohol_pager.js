@@ -220,9 +220,9 @@ HatoholEventPager.prototype.update = function(params) {
     }));
 
     self.previousPage = self.currentPage;
-    enable = this.currentPage > 4;
+    enable = this.currentPage >= self.maxPagesToShow;
     parent.prepend(this.createItem('<i class="glyphicon glyphicon-backward"></i>', enable, function() {
-      return self.currentPage - 5;
+      return self.currentPage - self.maxPagesToShow;
     }));
 
     enable = (numEvents == this.numRecordsPerPage);
@@ -232,7 +232,7 @@ HatoholEventPager.prototype.update = function(params) {
 
     enable = (numEvents == this.numRecordsPerPage);
     parent.append(this.createItem('<i class="glyphicon glyphicon-forward"></i>', enable, function() {
-      return self.currentPage + 5;
+      return self.currentPage + self.maxPagesToShow;
     }));
 
   } else {
