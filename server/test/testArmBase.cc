@@ -555,8 +555,7 @@ void test_setServerConnectStatus(void)
 	const ServerHostDef &actualHost = *hosts.begin();
 	cppcut_assert_equal(serverInfo.id, actualHost.serverId);
 	cppcut_assert_equal(
-	  StringUtils::sprintf("%" FMT_HOST_ID, MONITORING_SERVER_SELF_ID),
-	  actualHost.hostIdInServer);
+	  MONITORING_SELF_LOCAL_HOST_ID, actualHost.hostIdInServer);
 	cppcut_assert_equal(string("_SELF"), actualHost.name);
 	cppcut_assert_equal(HOST_STAT_SELF_MONITOR, actualHost.status);
 }
