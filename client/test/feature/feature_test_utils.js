@@ -1,4 +1,4 @@
-function login() {
+function login(test) {
   casper.waitForSelector("input#inputUserName",
     function success() {
       this.sendKeys("input#inputUserName", "admin");
@@ -20,7 +20,7 @@ function login() {
 };
 exports.login = login;
 
-function logout() {
+function logout(test) {
   casper.then(function() {
     this.click('#userProfileButton');
     this.waitForSelector('#logoutMenuItem', function() {

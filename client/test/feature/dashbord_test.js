@@ -11,7 +11,7 @@ casper.on('page.error', function(msg, trace) {
 
 casper.test.begin('Resurrectio test', function(test) {
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
-  casper.then(function() {util.login();});
+  casper.then(function() {util.login(test);});
   casper.then(function() {
     casper.wait(200, function() {
       casper.log('should appear after 200ms', 'info');
@@ -25,6 +25,6 @@ casper.test.begin('Resurrectio test', function(test) {
                            'should appear dashboard host status text.');
     });
   });
-  casper.then(function() {util.logout();});
+  casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});
 });
