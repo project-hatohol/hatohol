@@ -57,8 +57,17 @@
     <select id="select-host" class="form-control">
       <option>---------</option>
     </select>
-    <label for="num-events-per-page">{% trans "# of events per page" %}</label>
-    <input type="text" id="num-events-per-page" class="form-control" style="width:4em;">
+    <label for="num-records-per-page">{% trans "# of events per page" %}</label>
+    <input type="text" id="num-records-per-page" class="form-control" style="width:4em;">
+  </form>
+
+  <form class="form-inline" style="text-align: center;">
+    <button id="latest-events-button1" type="button" class="btn btn-info latest-button">
+      <span class="glyphicon glyphicon-refresh"></span>
+      {% trans "Latest events" %}
+    </button>
+    <ul class="pagination">
+    </ul>
   </form>
 
   <table class="table table-condensed table-hover" id="table">
@@ -90,14 +99,12 @@
   </table>
 
   <form class="form-inline" style="text-align: center;">
-    <button id="latest-events-button" type="button" class="btn btn-info">
+    <button id="latest-events-button2" type="button" class="btn btn-info latest-button">
       <span class="glyphicon glyphicon-refresh"></span>
       {% trans "Latest events" %}
     </button>
-    <button id="next-events-button" type="button" class="btn btn-primary">
-      <span class="glyphicon glyphicon-chevron-right"></span>
-      {% trans "To next" %}
-    </button>
+    <ul class="pagination">
+    </ul>
   </form>
   <br>
 </div>

@@ -1474,6 +1474,10 @@ msgstr "日, "
 msgid "-"
 msgstr "-"
 
+#: static/js/hatohol_event_pager.js:146
+msgid "Nothing data in this page. Please click here and return."
+msgstr "このページにはデータがありません。このボタンを押して戻ってください。"
+
 #~ msgid "Invalid URI."
 #~ msgstr "不正なURIです。"
 

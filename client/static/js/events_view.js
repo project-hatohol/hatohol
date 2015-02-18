@@ -45,6 +45,7 @@ var EventsView = function(userProfile, baseElem) {
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
+  self.pager = new HatoholEventPager();
   self.userConfig = new HatoholUserConfig();
   start();
 
@@ -53,10 +54,10 @@ var EventsView = function(userProfile, baseElem) {
   //
   function start() {
     self.userConfig.get({
-      itemNames:['num-events-per-page', 'event-sort-order'],
+      itemNames:['num-records-per-page', 'event-sort-order'],
       successCallback: function(conf) {
         self.baseQuery.limit =
-          self.userConfig.findOrDefault(conf, 'num-events-per-page',
+          self.userConfig.findOrDefault(conf, 'num-records-per-page',
                                         self.baseQuery.limit);
         self.baseQuery.sortType =
           self.userConfig.findOrDefault(conf, 'event-sort-type',
@@ -64,6 +65,7 @@ var EventsView = function(userProfile, baseElem) {
         self.baseQuery.sortOrder =
           self.userConfig.findOrDefault(conf, 'event-sort-order',
                                         self.baseQuery.sortOrder);
+        updatePager();
         setupFilterValues();
         setupCallbacks();
         load();
@@ -71,6 +73,33 @@ var EventsView = function(userProfile, baseElem) {
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
         showXHRError(XMLHttpRequest);
       },
+    });
+  }
+
+  function saveConfig(items) {
+    self.userConfig.store({
+      items: items,
+      successCallback: function() {
+        // we just ignore it
+      },
+      connectErrorCallback: function(XMLHttpRequest) {
+        showXHRError(XMLHttpRequest);
+      },
+    });
+  }
+
+  function updatePager() {
+    self.pager.update({
+      currentPage: self.currentPage,
+      numRecords: self.rawData ? self.rawData["numberOfEvents"] : -1,
+      numRecordsPerPage: self.baseQuery.limit,
+      selectPageCallback: function(page) {
+        load(page);
+        if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
+          self.baseQuery.limit = self.pager.numRecordsPerPage;
+          saveConfig({'num-records-per-page': self.baseQuery.limit});
+        }
+      }
     });
   }
 
@@ -95,14 +124,14 @@ var EventsView = function(userProfile, baseElem) {
     return query;
   }
 
-  function getQuery(loadNextPage) {
-    if (loadNextPage) {
-      self.currentPage += 1;
-      if (!self.limitOfUnifiedId)
-        self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
-    } else {
+  function getQuery(page) {
+    if (!page) {
       self.currentPage = 0;
       self.limitOfUnifiedId = 0;
+    } else {
+      self.currentPage = page;
+      if (!self.limitOfUnifiedId)
+        self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
     }
 
     var query = $.extend({}, self.baseQuery, {
@@ -118,10 +147,17 @@ var EventsView = function(userProfile, baseElem) {
     return 'events?' + $.param(query);
   };
 
-  function load(loadNextPage) {
-    self.startConnection(getQuery(loadNextPage), updateCore);
-    $(document.body).scrollTop(0);
+  function load(page) {
+    self.displayUpdateTime();
     setLoading(true);
+    if (!isNaN(page)) {
+      self.currentPage = page;
+      self.disableAutoRefresh();
+    } else {
+      self.currentPage = 0;
+    }
+    self.startConnection(getQuery(self.currentPage), updateCore);
+    $(document.body).scrollTop(0);
   }
 
   function setupFilterValues(servers, query) {
@@ -134,7 +170,7 @@ var EventsView = function(userProfile, baseElem) {
     self.setupHostFilters(servers, query);
 
     if ('limit' in query)
-      $('#num-events-per-page').val(query.limit);
+      $('#num-records-per-page').val(query.limit);
     if ("minimumSeverity" in query)
       $("#select-severity").val(query.minimumSeverity);
     if ("status" in query)
@@ -156,15 +192,15 @@ var EventsView = function(userProfile, baseElem) {
     self.setupHostQuerySelectorCallback(
       load, '#select-server', '#select-host-group', '#select-host');
 
-    $('#num-events-per-page').change(function() {
-      var val = parseInt($('#num-events-per-page').val());
+    $('#num-records-per-page').change(function() {
+      var val = parseInt($('#num-records-per-page').val());
       if (!isFinite(val))
         val = self.baseQuery.limit;
-      $('#num-events-per-page').val(val);
+      $('#num-records-per-page').val(val);
       self.baseQuery.limit = val;
 
       var params = {
-        items: {'num-events-per-page': val},
+        items: {'num-records-per-page': val},
         successCallback: function(){ /* we just ignore it */ },
         connectErrorCallback: function(XMLHttpRequest, textStatus,
                                        errorThrown) {
@@ -174,13 +210,7 @@ var EventsView = function(userProfile, baseElem) {
       self.userConfig.store(params);
     });
 
-    $('#next-events-button').click(function() {
-      var loadNextPage = true;
-      self.disableAutoRefresh();
-      load(loadNextPage);
-    });
-
-    $('#latest-events-button').click(function() {
+    $('button.latest-button').click(function() {
       self.enableAutoRefresh(load(), self.intervalSeconds);
     });
   }
@@ -191,18 +221,18 @@ var EventsView = function(userProfile, baseElem) {
       $("#select-status").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
-      $("#num-events-per-page").attr("disabled", "disabled");
-      $("#latest-events-button").attr("disabled", "disabled");
-      $("#next-events-button").attr("disabled", "disabled");
+      $("#num-records-per-page").attr("disabled", "disabled");
+      $("#latest-events-button1").attr("disabled", "disabled");
+      $("#latest-events-button2").attr("disabled", "disabled");
     } else {
       $("#select-severity").removeAttr("disabled");
       $("#select-status").removeAttr("disabled");
       $("#select-server").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
-      $("#num-events-per-page").removeAttr("disabled");
-      $("#latest-events-button").removeAttr("disabled");
-      $("#next-events-button").removeAttr("disabled");
+      $("#num-records-per-page").removeAttr("disabled");
+      $("#latest-events-button1").removeAttr("disabled");
+      $("#latest-events-button2").removeAttr("disabled");
     }
   }
 
@@ -354,8 +384,8 @@ var EventsView = function(userProfile, baseElem) {
 
     setupFilterValues();
     drawTableContents();
+    updatePager();
     setLoading(false);
-    self.displayUpdateTime();
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 };

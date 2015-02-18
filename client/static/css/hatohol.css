@@ -34,6 +34,16 @@ div.hatohol-pager {
   text-align: center;
 }
 
+li {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+ul {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 div.dialog {
   display: none;
 }
