@@ -32,7 +32,7 @@ casper.test.begin('Register/Unregister server test', function(test) {
   casper.waitForSelector("form button#add-server-button",
     function success() {
       test.assertExists("form button#add-server-button",
-                       "Found add server button item");
+                        "Found add server button item");
       this.click("form button#add-server-button");
     },
     function fail() {
