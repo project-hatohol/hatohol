@@ -24,7 +24,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
                                      userPassword: "zabbix-admin"});
     });
   });
-  // move to servers page
+  // move to actions page
   casper.waitForSelector(x("//a[normalize-space(text())='アクション']"),
     function success() {
       test.assertExists(x("//a[normalize-space(text())='アクション']",
