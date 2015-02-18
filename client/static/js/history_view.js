@@ -861,6 +861,7 @@ var HatoholItemSelector = function(options) {
   self.lastIndex = 0;
   self.elementId = 'hatohol-item-list';
   self.servers = options.servers;
+  self.lastItemsData = undefined;
   self.historyLoaders = {};
   self.view = options.view; // TODO: Remove view dependency
   self.appendItemCallback = options.appendItemCallback;
@@ -885,8 +886,17 @@ var HatoholItemSelector = function(options) {
     });
     $("#add-item-button").click(function() {
       var query = self.view.getHostFilterQuery();
+      var i, index, item;
+
       query.itemId = $("#select-item").val();
-      var index = self.appendItem();
+
+      for (i = 0; i < self.lastItemsData.items.length; i++) {
+        if (self.lastItemsData.items[i].id == query.itemId)
+          item = self.lastItemsData.items[i];
+      }
+
+      index = self.appendItem(item, self.lastItemsData.servers,
+                              query.hostgroupId);
       if (self.appendItemCallback)
         self.appendItemCallback(index, query);
     });
@@ -910,6 +920,7 @@ var HatoholItemSelector = function(options) {
         return { label: label, value: item.id };
       });
       self.view.setFilterCandidates($("#select-item"), candidates);
+      self.lastItemsData = reply;
     });
   }
 }
@@ -957,7 +968,7 @@ HatoholItemSelector.prototype.setItem = function(index, item, servers,
     index = self.lastIndex++;
   id = self.elementId + "-row-" + index;
 
-  if (item) {
+  if (index in self.historyLoaders) {
     tr = $("#" + id);
     tr.empty();
   } else {
@@ -983,8 +994,10 @@ HatoholItemSelector.prototype.setItem = function(index, item, servers,
       }
     }).attr("itemIndex", index)));
 
-  if (!item)
+  if (!(index in self.historyLoaders)) {
+    self.historyLoaders[index] = undefined;
     tr.insertBefore("#" + self.elementId + " tbody tr :last");
+  }
 
   return index;
 }
@@ -1000,7 +1013,7 @@ HatoholItemSelector.prototype.getHistoryLoader = function(index) {
 HatoholItemSelector.prototype.getIndex = function(loader) {
   for (index in this.historyLoaders) {
     if (this.historyLoaders[index] == loader)
-      return index;
+      return parseInt(index);
   }
   return -1;
 }
