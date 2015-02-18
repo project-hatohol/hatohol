@@ -16,7 +16,7 @@ casper.test.begin('Register/Unregister server test', function(test) {
   casper.waitForSelector(x("//a[normalize-space(text())='監視サーバー']"),
     function success() {
       test.assertExists(x("//a[normalize-space(text())='監視サーバー']",
-                          "Found 'monitoring servers' menu"));
+                          "Found 'monitoring servers' in menu"));
       this.click(x("//a[normalize-space(text())='監視サーバー']"));
     },
     function fail() {
