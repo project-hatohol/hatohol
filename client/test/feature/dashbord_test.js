@@ -9,7 +9,7 @@ casper.on('page.error', function(msg, trace) {
    }
 });
 
-casper.test.begin('Resurrectio test', function(test) {
+casper.test.begin('Dashboard test', function(test) {
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.then(function() {
