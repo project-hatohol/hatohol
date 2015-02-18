@@ -1,6 +1,6 @@
 var x = require('casper').selectXPath;
 var util = require('feature_test_utils');
-casper.options.viewportSize = {width: 935, height: 855};
+casper.options.viewportSize = {width: 1024, height: 768};
 casper.on('page.error', function(msg, trace) {
    this.echo('Error: ' + msg, 'ERROR');
    for(var i=0; i<trace.length; i++) {
@@ -14,7 +14,6 @@ casper.test.begin('Resurrectio test', function(test) {
   casper.then(function() {util.login();});
   casper.then(function() {
     casper.wait(200, function() {
-      casper.capture('login.png');
       casper.log('should appear after 200ms', 'info');
       test.assertTitle('ダッシュボード - Hatohol', 'should match dashboard title.');
       test.assertTextExist('ダッシュボード', 'should appear dashboard text.');
