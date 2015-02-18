@@ -18,7 +18,7 @@ casper.test.begin('Dashboard test', function(test) {
       test.assertTitle('ダッシュボード - Hatohol', 'should match dashboard title.');
       test.assertTextExist('ダッシュボード', 'should appear dashboard text.');
       test.assertTextExist('グローバルステータス',
-                           'should appear dashboard global statustext.');
+                           'should appear dashboard global status text.');
       test.assertTextExist('システムステータス',
                            'should appear dashboard system status text.');
       test.assertTextExist('ホストステータス',
