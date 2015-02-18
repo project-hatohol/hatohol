@@ -91,7 +91,7 @@ var EventsView = function(userProfile, baseElem) {
   function updatePager() {
     self.pager.update({
       currentPage: self.currentPage,
-      numberOfEvents: self.rawData ? self.rawData["numberOfEvents"] : -1,
+      numRecords: self.rawData ? self.rawData["numberOfEvents"] : -1,
       numRecordsPerPage: self.baseQuery.limit,
       selectPageCallback: function(page) {
         load(page);

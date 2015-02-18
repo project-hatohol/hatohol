@@ -91,8 +91,8 @@ HatoholPager.prototype.applyParams = function(params) {
     this.maxPagesToShow = params.maxPagesToShow;
   if (params && params.selectPageCallback)
     this.selectPageCallback = params.selectPageCallback;
-  if (params && !isNaN(params.numberOfEvents))
-    this.numberOfEvents = params.numberOfEvents;
+  if (params && !isNaN(params.numRecords))
+    this.numRecords = params.numRecords;
 };
 
 HatoholPager.prototype.getPagesRange = function(params) {
@@ -208,7 +208,7 @@ HatoholEventPager.prototype.draw = function(params) {
   var parent = this.parentElements;
   var range = this.getPagesRange();
   var i, item, enable;
-  var numEvents = this.numberOfEvents;
+  var numEvents = this.numRecords;
 
   if (params) {
     var createItem = params['createItem'];
