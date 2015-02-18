@@ -19,6 +19,7 @@
 
 window.onerror = function(errorMsg, fileName, lineNumber) {
   var place = "[" + fileName + ":" + lineNumber + "]";
+  console.log(place + " " + errorMsg);
   HatoholMonitoringView.prototype.setStatus({
     "class": "Danger",
     "label": gettext("Error"),
