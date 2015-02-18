@@ -259,8 +259,9 @@ var HistoryView = function(userProfile, options) {
       },
       removeItemCallback: function(index) {
         var i;
+        var loader = self.itemSelector.getHistoryLoader(index);
         for (i = 0; i < self.loaders.length; i++) {
-          if (self.loaders[i].options.index == index) {
+          if (self.loaders[i] == loader) {
             self.loaders.splice(i, 1);
             self.plotData.splice(i, 1);
             updateView();
@@ -377,6 +378,7 @@ var HistoryView = function(userProfile, options) {
         self.itemSelector.setServers(servers);
         self.itemSelector.setItem(loader.options.index, item, servers,
                                   loader.options.query.hostgroupId);
+        self.itemSelector.setHistoryLoader(loader.options.index, loader);
       },
       onLoadHistory: function(loader, history) {
         updatePlotData();
@@ -386,6 +388,7 @@ var HistoryView = function(userProfile, options) {
     self.loaders.push(loader);
     self.plotData.push(createLegendData());
     self.itemSelector.setItem(loader.options.index);
+    self.itemSelector.setHistoryLoader(loader.options.index, loader);
     if (self.loaders.length == 1)
       initTimeRange();
   }
@@ -856,11 +859,12 @@ var HatoholItemSelector = function(options) {
   var self = this;
 
   options = options || {};
-  this.elementId = 'hatohol-item-list';
-  this.servers = options.servers;
-  this.view = options.view; // TODO: Remove view dependency
-  this.appendItemCallback = options.appendItemCallback;
-  this.removeItemCallback = options.removeItemCallback;
+  self.elementId = 'hatohol-item-list';
+  self.servers = options.servers;
+  self.historyLoaders = {};
+  self.view = options.view; // TODO: Remove view dependency
+  self.appendItemCallback = options.appendItemCallback;
+  self.removeItemCallback = options.removeItemCallback;
 
   setup();
 
@@ -971,6 +975,14 @@ HatoholItemSelector.prototype.setItem = function(index, item, servers,
 
   if (!item)
     tr.insertBefore("#" + self.elementId + " tbody tr :last");
+}
+
+HatoholItemSelector.prototype.setHistoryLoader = function(index, loader) {
+  this.historyLoaders[index] = loader;
+}
+
+HatoholItemSelector.prototype.getHistoryLoader = function(index) {
+  return this.historyLoaders[index];
 }
 
 HatoholItemSelector.prototype.setupCandidates = function() {
