@@ -115,50 +115,40 @@ HatoholPager.prototype.getPagesRange = function(params) {
   };
 };
 
+HatoholPager.prototype.createItem = function(label, enable, getPageFunc) {
+  var self = this;
+  var numPages = this.getTotalNumberOfPages();
+  var anchor = $("<a>", {
+    href: "#",
+    html: label,
+    click: function () {
+      var page;
+      if (getPageFunc)
+        page = getPageFunc();
+      else
+        page = parseInt($(this).text()) - 1;
+      if (page < 0 || (numPages >= 0 && page >= numPages))
+        return;
+      if (!enable)
+        return;
+      if (self.selectPageCallback)
+        self.selectPageCallback(page);
+    }
+  });
+  var item = $("<li/>").append(anchor);
+  if (!enable)
+    item.addClass("disabled");
+  return item;
+};
+
 HatoholPager.prototype.update = function(params) {
   this.applyParams(params);
 
   var self = this;
   var numPages = this.getTotalNumberOfPages();
-  var createItem = function(label, enable, getPageFunc) {
-    var anchor = $("<a>", {
-      href: "#",
-      html: label,
-      click: function () {
-        var page;
-        if (getPageFunc)
-          page = getPageFunc();
-        else
-          page = parseInt($(this).text()) - 1;
-        if (page < 0 || (numPages >= 0 && page >= numPages))
-          return;
-        if (!enable)
-          return;
-        if (self.selectPageCallback)
-          self.selectPageCallback(page);
-      }
-    });
-    var item = $("<li/>").append(anchor);
-    if (!enable)
-      item.addClass("disabled");
-    return item;
-  };
-  if (params)
-    params['createItem'] = createItem;
-  this.draw(params);
-};
-
-HatoholPager.prototype.draw = function(params) {
-  this.applyParams(params);
   var parent = this.parentElements;
   var i, item, enable;
   var range = this.getPagesRange();
-  var numPages = this.getTotalNumberOfPages();
-  if (params) {
-    var createItem = params['createItem'];
-  } else {
-    return;
-  }
 
   parent.empty();
   if (numPages == 0 || numPages == 1)
@@ -166,7 +156,7 @@ HatoholPager.prototype.draw = function(params) {
 
   for (i = range.firstPage; i <= range.lastPage; ++i) {
     enable = true;
-    item = createItem("" + (i + 1), enable);
+    item = this.createItem("" + (i + 1), enable);
     if (i == this.currentPage)
       item.addClass("active");
     parent.append(item);
@@ -174,22 +164,22 @@ HatoholPager.prototype.draw = function(params) {
 
   if (numPages > 1 || numPages < 0) {
     enable = this.currentPage >= self.maxPagesToShow;
-    parent.prepend(createItem('<i class="glyphicon glyphicon-backward"></i>', enable, function() {
+    parent.prepend(this.createItem('<i class="glyphicon glyphicon-backward"></i>', enable, function() {
       return self.currentPage - self.maxPagesToShow;
     }));
 
     enable = this.currentPage > 0;
-    parent.prepend(createItem('<i class="glyphicon glyphicon-step-backward"></i>', enable, function() {
+    parent.prepend(this.createItem('<i class="glyphicon glyphicon-step-backward"></i>', enable, function() {
       return 0;
     }));
 
     enable = this.currentPage < (numPages - self.maxPagesToShow);
-    parent.append(createItem('<i class="glyphicon glyphicon-forward"></i>', enable, function() {
+    parent.append(this.createItem('<i class="glyphicon glyphicon-forward"></i>', enable, function() {
       return self.currentPage + self.maxPagesToShow;
     }));
 
     enable = (this.currentPage != numPages - 1);
-    parent.append(createItem('<i class="glyphicon glyphicon-step-forward"></i>', enable, function() {
+    parent.append(this.createItem('<i class="glyphicon glyphicon-step-forward"></i>', enable, function() {
       return numPages - 1;
     }));
   }
@@ -203,18 +193,14 @@ var HatoholEventPager = function(params) {
 
 HatoholEventPager.prototype = new HatoholPager;
 
-HatoholEventPager.prototype.draw = function(params) {
+HatoholEventPager.prototype.update = function(params) {
   this.applyParams(params);
+
+  var self = this;
   var parent = this.parentElements;
   var range = this.getPagesRange();
   var i, item, enable;
   var numEvents = this.numRecords;
-
-  if (params) {
-    var createItem = params['createItem'];
-  } else {
-    return;
-  }
 
   parent.empty();
   if (numEvents != 0) {
@@ -222,30 +208,30 @@ HatoholEventPager.prototype.draw = function(params) {
       enable = true;
       if (numEvents != this.numRecordsPerPage && i > self.currentPage)
         enable = false;
-      item = createItem("" + (i + 1), enable);
+      item = this.createItem("" + (i + 1), enable);
       if (i == this.currentPage)
         item.addClass("active");
       parent.append(item);
     }
 
     enable = this.currentPage > 0;
-    parent.prepend(createItem('<i class="glyphicon glyphicon-chevron-left"></i>', enable, function() {
+    parent.prepend(this.createItem('<i class="glyphicon glyphicon-chevron-left"></i>', enable, function() {
       return self.currentPage - 1;
     }));
 
     self.previousPage = self.currentPage;
     enable = this.currentPage > 4;
-    parent.prepend(createItem('<i class="glyphicon glyphicon-backward"></i>', enable, function() {
+    parent.prepend(this.createItem('<i class="glyphicon glyphicon-backward"></i>', enable, function() {
       return self.currentPage - 5;
     }));
 
     enable = (numEvents == this.numRecordsPerPage);
-    parent.append(createItem('<i class="glyphicon glyphicon-chevron-right"></i>', enable, function() {
+    parent.append(this.createItem('<i class="glyphicon glyphicon-chevron-right"></i>', enable, function() {
       return self.currentPage + 1;
     }));
 
     enable = (numEvents == this.numRecordsPerPage);
-    parent.append(createItem('<i class="glyphicon glyphicon-forward"></i>', enable, function() {
+    parent.append(this.createItem('<i class="glyphicon glyphicon-forward"></i>', enable, function() {
       return self.currentPage + 5;
     }));
 
@@ -254,7 +240,7 @@ HatoholEventPager.prototype.draw = function(params) {
         return;
     } else {
       enable = true;
-      parent.append(createItem(gettext('Nothing data in this page. Please click here and return.'), enable, function() {
+      parent.append(this.createItem(gettext('Nothing data in this page. Please click here and return.'), enable, function() {
         return self.previousPage;
       }));
     }
