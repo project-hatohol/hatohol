@@ -52,7 +52,6 @@ var HatoholPager = function(params) {
   self.numRecordsPerPageEntries = $("input.num-records-per-page");
   self.numRecordsPerPage = 50;
   self.currentPage = 0;
-  self.numTotalRecords = -1; // unknown
   self.maxPagesToShow = 5;
   self.selectPageCallback = null;
 
@@ -133,10 +132,10 @@ HatoholPager.prototype.update = function(params) {
 	  page = parseInt($(this).text()) - 1;
 	if (page < 0 || (numPages >= 0 && page >= numPages))
 	  return;
+    if (!enable)
+      return;
 	if (self.selectPageCallback)
 	  self.selectPageCallback(page);
-	self.currentPage = page;
-	self.update();
       }
     });
     var item = $("<li/>").append(anchor);
