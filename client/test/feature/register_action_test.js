@@ -21,8 +21,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
                                      serverName: "test",
                                      ipAddress: "127.0.0.1",
                                      userName: "admin",
-                                     userPassword: "zabbix-admin"}
-                                   );
+                                     userPassword: "zabbix-admin"});
     });
   });
   // move to servers page
