@@ -874,7 +874,7 @@ var HatoholItemSelector = function(options) {
     self.view.setupHostQuerySelectorCallback(
       function() {
         var query = self.view.getHostFilterQuery();
-        query.limit = 1; // we only need "servers" object
+        query.limit = 1; // we need only "servers" object
         self.view.startConnection("items?" + $.param(query), function(reply) {
           self.servers = reply.servers;
           self.setupCandidates();
