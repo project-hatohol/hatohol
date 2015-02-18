@@ -235,6 +235,13 @@ function getTriggerBrief(server, triggerId) {
   return triggerName;
 }
 
+function getItemBriefWithUnit(item) {
+  var label = item.brief;
+  if (item.unit)
+    label += " [" + item.unit + "]";
+  return label;
+}
+
 function escapeHTML(html) {
   return $('<div/>').text(html).html();
 };

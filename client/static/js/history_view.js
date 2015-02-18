@@ -275,13 +275,6 @@ var HistoryView = function(userProfile, options) {
       appendHistoryLoader(historyQueries[i]);
   }
 
-  function getItemBriefWithUnit(item) {
-    var label = item.brief;
-    if (item.unit)
-      label += " [" + item.unit + "]";
-    return label;
-  }
-
   function appendGraphArea() {
     $("div.hatohol-graph").append($("<div>", {
       id: "hatohol-graph",
@@ -922,7 +915,7 @@ var HatoholItemSelector = function(options) {
     query = self.view.getHostFilterQuery();
     self.view.startConnection("items?" + $.param(query), function(reply) {
       var candidates = $.map(reply.items, function(item) {
-        var label = self.getItemBriefWithUnit(item);
+        var label = getItemBriefWithUnit(item);
         return { label: label, value: item.id };
       });
       self.view.setFilterCandidates($("#select-item"), candidates);
@@ -946,13 +939,6 @@ HatoholItemSelector.prototype.hide = function() {
   $('#' + this.elementId).modal('hide');
 }
 
-HatoholItemSelector.prototype.getItemBriefWithUnit = function(item) {
-    var label = item.brief;
-    if (item.unit)
-      label += " [" + item.unit + "]";
-    return label;
-}
-
 HatoholItemSelector.prototype.appendItem = function(item, servers, hostgroupId)
 {
   return this.setItem(undefined, item, servers, hostgroupId);
@@ -967,7 +953,7 @@ HatoholItemSelector.prototype.setItem = function(index, item, servers,
   var hostName = item ? getHostName(server, item.hostId) : "-";
   var groupName = (hostgroupId && hostgroupId != -1) ?
     getHostgroupName(server, hostgroupId) : "-";
-  var itemName = item ? self.getItemBriefWithUnit(item)  : "-";
+  var itemName = item ? getItemBriefWithUnit(item)  : "-";
   var id, tr;
 
   if (isNaN(index))
