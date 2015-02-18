@@ -140,10 +140,6 @@ protected:
 
 	void addInitialTrigger(HatoholArmPluginWatchType addtrigger);
 
-	void createPluginTriggerInfo(const HAPIWtchPointInfo &resTrigger,
-				     TriggerInfoList &triggerInfoList);
-	void createPluginEventInfo(const HAPIWtchPointInfo &resTrigger,
-				   EventInfoList &eventInfoList);
 	void setPluginConnectStatus(const HatoholArmPluginWatchType &type,
 				    const HatoholArmPluginErrorCode &errorCode);
 	void setPluginAvailabelTrigger(const HatoholArmPluginWatchType &type,

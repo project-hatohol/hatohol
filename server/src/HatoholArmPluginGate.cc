@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -30,6 +30,7 @@
 #include <Mutex.h>
 #include <Reaper.h>
 #include <SimpleSemaphore.h>
+#include "ArmUtils.h"
 #include "NamedPipe.h"
 #include "UnifiedDataStore.h"
 #include "HatoholArmPluginGate.h"
@@ -85,7 +86,7 @@ struct HatoholArmPluginGate::Impl
 	bool                 exitSyncDone;
 	bool                 createdSelfTriggers;
 	guint                timerTag;
-	HAPIWtchPointInfo    hapiWtchPointInfo[NUM_COLLECT_NG_KIND];
+	ArmUtils::ArmTrigger armTrigger[NUM_COLLECT_NG_KIND];
 	NamedPipe            pipeRd, pipeWr;
 	bool                 allowSetGLibMainContext;
 
@@ -122,7 +123,7 @@ struct HatoholArmPluginGate::Impl
 	void setInitialTriggerTable(void)
 	{
 		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++)
-			hapiWtchPointInfo[i].statusType = TRIGGER_STATUS_ALL;
+			armTrigger[i].status = TRIGGER_STATUS_ALL;
 	}
 };
 
@@ -457,58 +458,17 @@ void HatoholArmPluginGate::onSetPluginInitialInfo(void)
 	m_impl->createdSelfTriggers = true;
 }
 
-void HatoholArmPluginGate::createPluginTriggerInfo(const HAPIWtchPointInfo &resTrigger,
-						   TriggerInfoList &triggerInfoList)
-{
-	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
-	TriggerInfo triggerInfo;
-
-	triggerInfo.serverId = svInfo.id;
-	triggerInfo.lastChangeTime = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
-	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
-	triggerInfo.hostName = 
-		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
-				     HAP_SELF_MONITORING_SUFFIX);
-	triggerInfo.id = resTrigger.triggerId;
-	triggerInfo.brief = resTrigger.msg;
-	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
-	triggerInfo.status = resTrigger.statusType;
-
-	triggerInfoList.push_back(triggerInfo);
-}
-
-void HatoholArmPluginGate::createPluginEventInfo(const HAPIWtchPointInfo &resTrigger,
-						 EventInfoList &eventInfoList)
-{
-	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
-	EventInfo eventInfo;
-
-	eventInfo.serverId = svInfo.id;
-	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
-	eventInfo.time = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
-	eventInfo.hostId = MONITORING_SERVER_SELF_ID;
-	eventInfo.triggerId = resTrigger.triggerId;
-	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
-	eventInfo.status = resTrigger.statusType;
-	if (resTrigger.statusType == TRIGGER_STATUS_OK) {
-		eventInfo.type = EVENT_TYPE_GOOD;
-	} else {
-		eventInfo.type = EVENT_TYPE_BAD;
-	}
-	eventInfoList.push_back(eventInfo);
-}
-
 void HatoholArmPluginGate::setPluginAvailabelTrigger(const HatoholArmPluginWatchType &type,
 						     const TriggerIdType &trrigerId,
 						     const HatoholError &hatoholError)
 {
 	TriggerInfoList triggerInfoList;
-	m_impl->hapiWtchPointInfo[type].statusType = TRIGGER_STATUS_UNKNOWN;
-	m_impl->hapiWtchPointInfo[type].triggerId = trrigerId;
-	m_impl->hapiWtchPointInfo[type].msg = hatoholError.getMessage().c_str();
+	m_impl->armTrigger[type].status = TRIGGER_STATUS_UNKNOWN;
+	m_impl->armTrigger[type].triggerId = trrigerId;
+	m_impl->armTrigger[type].msg = hatoholError.getMessage().c_str();
 
-	HAPIWtchPointInfo &resTrigger = m_impl->hapiWtchPointInfo[type];
-	createPluginTriggerInfo(resTrigger, triggerInfoList);
+	ArmUtils::ArmTrigger &armTrigger = m_impl->armTrigger[type];
+	ArmUtils::createTrigger(m_impl->serverInfo, armTrigger, triggerInfoList);
 
 	ThreadLocalDBCache cache;
 	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
@@ -519,56 +479,65 @@ void HatoholArmPluginGate::setPluginConnectStatus(const HatoholArmPluginWatchTyp
 {
 	TriggerInfoList triggerInfoList;
 	EventInfoList eventInfoList;
-	TriggerStatusType istatusType;
+	TriggerStatusType istatus;
 
 	if (errorCode == HAPERR_UNAVAILABLE_HAP) {
-		istatusType = TRIGGER_STATUS_PROBLEM;
+		istatus = TRIGGER_STATUS_PROBLEM;
 	} else if (errorCode == HAPERR_OK) {
-		istatusType = TRIGGER_STATUS_OK;
+		istatus = TRIGGER_STATUS_OK;
 	} else {
-		istatusType = TRIGGER_STATUS_UNKNOWN;
+		istatus = TRIGGER_STATUS_UNKNOWN;
 	}
+	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
 
 	if (type == COLLECT_OK) {
 		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
-			HAPIWtchPointInfo &trgInfo = m_impl->hapiWtchPointInfo[i];
-			if (trgInfo.statusType == TRIGGER_STATUS_PROBLEM) {
-				trgInfo.statusType = TRIGGER_STATUS_OK;
-				createPluginTriggerInfo(trgInfo, triggerInfoList);
-				createPluginEventInfo(trgInfo, eventInfoList);
-			} else if (trgInfo.statusType == TRIGGER_STATUS_UNKNOWN) {
-				trgInfo.statusType = TRIGGER_STATUS_OK;
-				createPluginTriggerInfo(trgInfo, triggerInfoList);
-			}				
+			ArmUtils::ArmTrigger &armTrigger = m_impl->armTrigger[i];
+			if (armTrigger.status != TRIGGER_STATUS_OK) {
+				armTrigger.status = TRIGGER_STATUS_OK;
+				ArmUtils::createTrigger(
+				  svInfo, armTrigger, triggerInfoList);
+			}
+			if (armTrigger.status == TRIGGER_STATUS_PROBLEM) {
+				ArmUtils::createEvent(
+				  svInfo, armTrigger, eventInfoList);
+			}
 		}
 	}
 	else {
-		if (m_impl->hapiWtchPointInfo[type].statusType == istatusType)
+		if (m_impl->armTrigger[type].status == istatus)
 			return;
-		if (m_impl->hapiWtchPointInfo[type].statusType != TRIGGER_STATUS_UNKNOWN) {
-			m_impl->hapiWtchPointInfo[type].statusType = istatusType;
-			createPluginTriggerInfo(m_impl->hapiWtchPointInfo[type], triggerInfoList);
-			createPluginEventInfo(m_impl->hapiWtchPointInfo[type], eventInfoList);
+		if (m_impl->armTrigger[type].status != TRIGGER_STATUS_UNKNOWN) {
+			m_impl->armTrigger[type].status = istatus;
+			ArmUtils::createTrigger(
+			  svInfo, m_impl->armTrigger[type], triggerInfoList);
+			ArmUtils::createEvent(
+			  svInfo, m_impl->armTrigger[type], eventInfoList);
 		} else {
-			m_impl->hapiWtchPointInfo[type].statusType = istatusType;
-			createPluginTriggerInfo(m_impl->hapiWtchPointInfo[type], triggerInfoList);
+			m_impl->armTrigger[type].status = istatus;
+			ArmUtils::createTrigger(
+			  svInfo, m_impl->armTrigger[type], triggerInfoList);
 		}
 		for (int i = static_cast<int>(type) + 1; i < NUM_COLLECT_NG_KIND; i++) {
-			HAPIWtchPointInfo &trgInfo = m_impl->hapiWtchPointInfo[i];
-			if (trgInfo.statusType == TRIGGER_STATUS_PROBLEM) {
-				trgInfo.statusType = TRIGGER_STATUS_OK;
-				createPluginTriggerInfo(trgInfo, triggerInfoList);
-				createPluginEventInfo(trgInfo, eventInfoList);
-			} else if (trgInfo.statusType == TRIGGER_STATUS_UNKNOWN) {
-				trgInfo.statusType = TRIGGER_STATUS_OK;
-				createPluginTriggerInfo(trgInfo, triggerInfoList);
+			ArmUtils::ArmTrigger &armTrigger =
+			  m_impl->armTrigger[i];
+			if (armTrigger.status == TRIGGER_STATUS_PROBLEM) {
+				armTrigger.status = TRIGGER_STATUS_OK;
+				ArmUtils::createTrigger(
+				  svInfo, armTrigger, triggerInfoList);
+			}
+			if (armTrigger.status == TRIGGER_STATUS_PROBLEM) {
+				ArmUtils::createEvent(
+				  svInfo, armTrigger, eventInfoList);
 			}
 		}
 		for (int i = 0; i < type; i++) {
-			HAPIWtchPointInfo &trgInfo = m_impl->hapiWtchPointInfo[i];
-			if (trgInfo.statusType == TRIGGER_STATUS_OK) {
-				trgInfo.statusType = TRIGGER_STATUS_UNKNOWN;
-				createPluginTriggerInfo(trgInfo, triggerInfoList);
+			ArmUtils::ArmTrigger &armTrigger =
+			  m_impl->armTrigger[i];
+			if (armTrigger.status == TRIGGER_STATUS_OK) {
+				armTrigger.status = TRIGGER_STATUS_UNKNOWN;
+				ArmUtils::createTrigger(
+				  svInfo, armTrigger, triggerInfoList);
 			}
 		}
 	}
