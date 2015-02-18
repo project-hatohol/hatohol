@@ -45,7 +45,7 @@ var EventsView = function(userProfile, baseElem) {
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
-  self.pager = new HatoholPager();
+  self.pager = new HatoholEventPager();
   self.userConfig = new HatoholUserConfig();
   start();
 
@@ -89,7 +89,7 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function updatePager() {
-    self.pager.updateEvent({
+    self.pager.update({
       currentPage: self.currentPage,
       numberOfEvents: self.rawData ? self.rawData["numberOfEvents"] : -1,
       numRecordsPerPage: self.baseQuery.limit,
