@@ -54,8 +54,6 @@ static const size_t TIMEOUT_PLUGIN_TERM_CMD_MS     =  30 * 1000;
 static const size_t TIMEOUT_PLUGIN_TERM_SIGTERM_MS =  60 * 1000;
 static const size_t TIMEOUT_PLUGIN_TERM_SIGKILL_MS = 120 * 1000;
 
-static const char *HAP_SELF_MONITORING_SUFFIX = "_HAP";
-
 class ImpromptuArmBase : public ArmBase {
 public:
 	ImpromptuArmBase(const MonitoringServerInfo &serverInfo)
@@ -430,20 +428,7 @@ void HatoholArmPluginGate::onSetPluginInitialInfo(void)
 		return;
 
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
-	ThreadLocalDBCache cache;
-
-	ServerHostDef svHostDef;
-	svHostDef.id       = AUTO_INCREMENT_VALUE;
-	svHostDef.hostId   = AUTO_ASSIGNED_ID;
-	svHostDef.serverId = svInfo.id;
-	svHostDef.hostIdInServer =
-	  StringUtils::sprintf("%" FMT_HOST_ID,  MONITORING_SERVER_SELF_ID);
-	svHostDef.name     =
-	  StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
-	                       HAP_SELF_MONITORING_SUFFIX);
-	svHostDef.status   = HOST_STAT_INAPPLICABLE;
-	UnifiedDataStore::getInstance()->upsertHost(svHostDef);
-
+	ArmUtils::registerSelfMonitoringHost(svInfo);
 	m_impl->setInitialTriggerTable();
 
 	setPluginAvailabelTrigger(COLLECT_NG_AMQP_CONNECT_ERROR,
