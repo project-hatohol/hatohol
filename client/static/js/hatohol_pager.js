@@ -125,17 +125,17 @@ HatoholPager.prototype.update = function(params) {
       href: "#",
       html: label,
       click: function () {
-	var page;
-	if (getPageFunc)
-	  page = getPageFunc();
-	else
-	  page = parseInt($(this).text()) - 1;
-	if (page < 0 || (numPages >= 0 && page >= numPages))
-	  return;
-    if (!enable)
-      return;
-	if (self.selectPageCallback)
-	  self.selectPageCallback(page);
+        var page;
+        if (getPageFunc)
+          page = getPageFunc();
+        else
+          page = parseInt($(this).text()) - 1;
+        if (page < 0 || (numPages >= 0 && page >= numPages))
+          return;
+        if (!enable)
+          return;
+        if (self.selectPageCallback)
+          self.selectPageCallback(page);
       }
     });
     var item = $("<li/>").append(anchor);
