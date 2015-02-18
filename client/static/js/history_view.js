@@ -979,6 +979,7 @@ HatoholItemSelector.prototype.setItem = function(index, item, servers,
         $(this).parent().parent().remove();
         if (self.removeItemCallback)
           self.removeItemCallback(index);
+	delete self.historyLoaders[index];
       }
     }).attr("itemIndex", index)));
 
