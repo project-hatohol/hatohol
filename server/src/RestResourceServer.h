@@ -40,10 +40,13 @@ struct RestResourceServer : public FaceRest::ResourceHandler
 	void handlerDeleteServer(void);
 	void handlerServerType(void);
 	void handlerServerConnStat(void);
+	void handlerTriggerUpdateServer(void);
 
 	static const char *pathForServer;
 	static const char *pathForServerType;
 	static const char *pathForServerConnStat;
+
+	void triggerFetchedCallback(Closure2 *closure);
 
 	HandlerFunc m_handlerFunc;
 };
