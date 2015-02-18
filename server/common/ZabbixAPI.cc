@@ -1196,7 +1196,7 @@ void ZabbixAPI::parseAndPushHostsData(
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "hostid",       ITEM_ID_ZBX_HOSTS_HOSTID);
+	pushString(parser, grp, "hostid",       ITEM_ID_ZBX_HOSTS_HOSTID);
 	pushUint64(parser, grp, "proxy_hostid", ITEM_ID_ZBX_HOSTS_PROXY_HOSTID);
 	pushString(parser, grp, "host",         ITEM_ID_ZBX_HOSTS_HOST);
 	pushInt   (parser, grp, "status",       ITEM_ID_ZBX_HOSTS_STATUS);
