@@ -12,12 +12,6 @@ casper.on('page.error', function(msg, trace) {
 casper.test.begin('Register/Unregister server test', function(test) {
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
-  casper.then(function() {
-    this.evaluate(function() {
-      table_length = $('table').length;
-    });
-  });
-
   // move to servers page
   casper.waitForSelector(x("//a[normalize-space(text())='監視サーバー']"),
     function success() {
