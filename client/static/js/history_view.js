@@ -273,6 +273,8 @@ var HistoryView = function(userProfile, options) {
     appendGraphArea();
     for (i = 0; i < historyQueries.length; i++)
       appendHistoryLoader(historyQueries[i]);
+
+    updateView();
   }
 
   function appendGraphArea() {
