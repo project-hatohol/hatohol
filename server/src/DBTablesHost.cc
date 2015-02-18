@@ -521,8 +521,10 @@ HostIdType DBTablesHost::upsertHost(
 	HATOHOL_ASSERT(serverHostDef.hostId == AUTO_ASSIGNED_ID ||
 	               serverHostDef.hostId >= 0,
 	               "Invalid host ID: %" FMT_HOST_ID, serverHostDef.hostId);
-	HATOHOL_ASSERT(!serverHostDef.name.empty(),
-	               "Empty host name: %s", serverHostDef.name.c_str());
+	if (serverHostDef.status != HOST_STAT_SELF_MONITOR) {
+		HATOHOL_ASSERT(!serverHostDef.name.empty(),
+		               "Empty host name");
+	}
 
 	struct Proc : public DBAgent::TransactionProc {
 		const ServerHostDef &serverHostDef;
