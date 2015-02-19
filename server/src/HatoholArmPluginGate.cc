@@ -74,6 +74,7 @@ struct HatoholArmPluginGate::Impl
 	// We have a copy. The access to the object is MT-safe.
 	const MonitoringServerInfo serverInfo;
 
+	ArmUtils             utils;
 	ImpromptuArmBase     armBase;
 	ArmPluginInfo        armPluginInfo;
 	ArmStatus            armStatus;
@@ -91,6 +92,7 @@ struct HatoholArmPluginGate::Impl
 	Impl(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
 	: serverInfo(_serverInfo),
+	  utils(_serverInfo),
 	  armBase(_serverInfo),
 	  pid(0),
 	  pluginTermSem(0),
@@ -427,8 +429,7 @@ void HatoholArmPluginGate::onSetPluginInitialInfo(void)
 	if (m_impl->createdSelfTriggers)
 		return;
 
-	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
-	ArmUtils::registerSelfMonitoringHost(svInfo);
+	m_impl->utils.registerSelfMonitoringHost();
 	m_impl->setInitialTriggerTable();
 
 	setPluginAvailabelTrigger(COLLECT_NG_AMQP_CONNECT_ERROR,
@@ -453,7 +454,7 @@ void HatoholArmPluginGate::setPluginAvailabelTrigger(const HatoholArmPluginWatch
 	m_impl->armTrigger[type].msg = hatoholError.getMessage().c_str();
 
 	ArmUtils::ArmTrigger &armTrigger = m_impl->armTrigger[type];
-	ArmUtils::createTrigger(m_impl->serverInfo, armTrigger, triggerInfoList);
+	m_impl->utils.createTrigger(armTrigger, triggerInfoList);
 
 	ThreadLocalDBCache cache;
 	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
@@ -473,19 +474,18 @@ void HatoholArmPluginGate::setPluginConnectStatus(const HatoholArmPluginWatchTyp
 	} else {
 		istatus = TRIGGER_STATUS_UNKNOWN;
 	}
-	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
 
 	if (type == COLLECT_OK) {
 		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
 			ArmUtils::ArmTrigger &armTrigger = m_impl->armTrigger[i];
 			if (armTrigger.status != TRIGGER_STATUS_OK) {
 				armTrigger.status = TRIGGER_STATUS_OK;
-				ArmUtils::createTrigger(
-				  svInfo, armTrigger, triggerInfoList);
+				m_impl->utils.createTrigger(armTrigger,
+				                            triggerInfoList);
 			}
 			if (armTrigger.status == TRIGGER_STATUS_PROBLEM) {
-				ArmUtils::createEvent(
-				  svInfo, armTrigger, eventInfoList);
+				m_impl->utils.createEvent(armTrigger,
+				                          eventInfoList);
 			}
 		}
 	}
@@ -494,26 +494,26 @@ void HatoholArmPluginGate::setPluginConnectStatus(const HatoholArmPluginWatchTyp
 			return;
 		if (m_impl->armTrigger[type].status != TRIGGER_STATUS_UNKNOWN) {
 			m_impl->armTrigger[type].status = istatus;
-			ArmUtils::createTrigger(
-			  svInfo, m_impl->armTrigger[type], triggerInfoList);
-			ArmUtils::createEvent(
-			  svInfo, m_impl->armTrigger[type], eventInfoList);
+			m_impl->utils.createTrigger(m_impl->armTrigger[type],
+			                            triggerInfoList);
+			m_impl->utils.createEvent(m_impl->armTrigger[type],
+			                          eventInfoList);
 		} else {
 			m_impl->armTrigger[type].status = istatus;
-			ArmUtils::createTrigger(
-			  svInfo, m_impl->armTrigger[type], triggerInfoList);
+			m_impl->utils.createTrigger(m_impl->armTrigger[type],
+			                            triggerInfoList);
 		}
 		for (int i = static_cast<int>(type) + 1; i < NUM_COLLECT_NG_KIND; i++) {
 			ArmUtils::ArmTrigger &armTrigger =
 			  m_impl->armTrigger[i];
 			if (armTrigger.status == TRIGGER_STATUS_PROBLEM) {
 				armTrigger.status = TRIGGER_STATUS_OK;
-				ArmUtils::createTrigger(
-				  svInfo, armTrigger, triggerInfoList);
+				m_impl->utils.createTrigger(armTrigger,
+				                            triggerInfoList);
 			}
 			if (armTrigger.status == TRIGGER_STATUS_PROBLEM) {
-				ArmUtils::createEvent(
-				  svInfo, armTrigger, eventInfoList);
+				m_impl->utils.createEvent(armTrigger,
+				                          eventInfoList);
 			}
 		}
 		for (int i = 0; i < type; i++) {
@@ -521,8 +521,8 @@ void HatoholArmPluginGate::setPluginConnectStatus(const HatoholArmPluginWatchTyp
 			  m_impl->armTrigger[i];
 			if (armTrigger.status == TRIGGER_STATUS_OK) {
 				armTrigger.status = TRIGGER_STATUS_UNKNOWN;
-				ArmUtils::createTrigger(
-				  svInfo, armTrigger, triggerInfoList);
+				m_impl->utils.createTrigger(armTrigger,
+				                            triggerInfoList);
 			}
 		}
 	}

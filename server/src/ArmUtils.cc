@@ -26,19 +26,33 @@ using namespace mlpl;
 
 static const char *SERVER_SELF_MONITORING_SUFFIX = "_SELF";
 
+struct ArmUtils::Impl
+{
+	const MonitoringServerInfo &serverInfo;
+
+	Impl(const MonitoringServerInfo &_serverInfo)
+	: serverInfo(_serverInfo)
+	{
+	}
+};
+
+ArmUtils::ArmUtils(const MonitoringServerInfo &serverInfo)
+:  m_impl(new Impl(serverInfo))
+{
+}
+
 void ArmUtils::createTrigger(
-  const MonitoringServerInfo &svInfo, const ArmTrigger &armTrigger,
-  TriggerInfoList &triggerInfoList)
+  const ArmTrigger &armTrigger, TriggerInfoList &triggerInfoList)
 {
 	TriggerInfo triggerInfo;
 
-	triggerInfo.serverId = svInfo.id;
+	triggerInfo.serverId = m_impl->serverInfo.id;
 	triggerInfo.lastChangeTime =
 	  SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
 	triggerInfo.globalHostId = MONITORING_SERVER_SELF_ID;
 	triggerInfo.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
-	triggerInfo.hostName = StringUtils::sprintf(
-	  "%s%s", svInfo.hostName.c_str(), SERVER_SELF_MONITORING_SUFFIX);
+	triggerInfo.hostName = StringUtils::sprintf("%s%s",
+	  m_impl->serverInfo.hostName.c_str(), SERVER_SELF_MONITORING_SUFFIX);
 	triggerInfo.id       = armTrigger.triggerId;
 	triggerInfo.brief    = armTrigger.msg;
 	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
@@ -48,12 +62,11 @@ void ArmUtils::createTrigger(
 }
 
 void ArmUtils::createEvent(
-  const MonitoringServerInfo &svInfo,
   const ArmTrigger &armTrigger, EventInfoList &eventInfoList)
 {
 	EventInfo eventInfo;
 
-	eventInfo.serverId = svInfo.id;
+	eventInfo.serverId = m_impl->serverInfo.id;
 	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
 	eventInfo.time = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
 	eventInfo.globalHostId = MONITORING_SERVER_SELF_ID;
@@ -69,15 +82,15 @@ void ArmUtils::createEvent(
 	eventInfoList.push_back(eventInfo);
 }
 
-void ArmUtils::registerSelfMonitoringHost(const MonitoringServerInfo &svInfo)
+void ArmUtils::registerSelfMonitoringHost(void)
 {
 	ServerHostDef svHostDef;
 	svHostDef.id = AUTO_INCREMENT_VALUE;
 	svHostDef.hostId = AUTO_ASSIGNED_ID;
-	svHostDef.serverId = svInfo.id;
+	svHostDef.serverId = m_impl->serverInfo.id;
 	svHostDef.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
-	svHostDef.name = StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
-	                                      SERVER_SELF_MONITORING_SUFFIX);
+	svHostDef.name = StringUtils::sprintf("%s%s",
+	  m_impl->serverInfo.hostName.c_str(), SERVER_SELF_MONITORING_SUFFIX);
 	svHostDef.status = HOST_STAT_SELF_MONITOR;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->upsertHost(svHostDef);
