@@ -126,10 +126,8 @@ var EventsView = function(userProfile, baseElem) {
 
   function getQuery(page) {
     if (!page) {
-      self.currentPage = 0;
       self.limitOfUnifiedId = 0;
     } else {
-      self.currentPage = page;
       if (!self.limitOfUnifiedId)
         self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
     }
