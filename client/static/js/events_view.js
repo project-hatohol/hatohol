@@ -211,7 +211,7 @@ var EventsView = function(userProfile, baseElem) {
     });
 
     $('button.latest-button').click(function() {
-      self.enableAutoRefresh(load(), self.intervalSeconds);
+      load();
     });
   }
 
@@ -386,7 +386,8 @@ var EventsView = function(userProfile, baseElem) {
     drawTableContents();
     updatePager();
     setLoading(false);
-    self.setAutoReload(load, self.reloadIntervalSeconds);
+    if (self.currentPage == 0)
+      self.enableAutoRefresh(load, self.reloadIntervalSeconds);
   }
 };
 
