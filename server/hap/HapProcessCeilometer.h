@@ -72,8 +72,10 @@ protected:
 	  const unsigned int &index);
 	EventType parseAlarmHistoryDetail(const std::string &detail);
 
-	HatoholError parseAlarmHost(JSONParser &parser, HostIdType &hostId);
-	HatoholError parseAlarmHostEach(JSONParser &parser, HostIdType &hostId,
+	HatoholError parseAlarmHost(JSONParser &parser,
+	                            LocalHostIdType &hostId);
+	HatoholError parseAlarmHostEach(JSONParser &parser,
+	                                LocalHostIdType &hostId,
 	                                const unsigned int &index);
 
 	bool startObject(JSONParser &parser, const std::string &name);

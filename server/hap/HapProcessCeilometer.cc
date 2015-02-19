@@ -388,7 +388,7 @@ HatoholError HapProcessCeilometer::parseInstanceElement(
 	// fill
 	// TODO: Define ItemID without ZBX.
 	VariableItemGroupPtr grp;
-	grp->addNewItem(ITEM_ID_ZBX_HOSTS_HOSTID, generateHashU64(id));
+	grp->addNewItem(ITEM_ID_ZBX_HOSTS_HOSTID, id);
 	grp->addNewItem(ITEM_ID_ZBX_HOSTS_NAME, name);
 	tablePtr->add(grp);
 
@@ -530,12 +530,12 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 
 	// Try to get a host ID
-	HostIdType hostId = INVALID_HOST_ID;
+	LocalHostIdType hostId;
 	HatoholError err = parseAlarmHost(parser, hostId);
 	if (err != HTERR_OK)
 		return err;
-	if (hostId == INVALID_HOST_ID)
-		hostId = INAPPLICABLE_HOST_ID;
+	if (hostId.empty())
+		hostId = INAPPLICABLE_LOCAL_HOST_ID;
 
 	// brief. We use the alarm name as a brief.
 	string meterName;
@@ -763,7 +763,7 @@ EventType HapProcessCeilometer::parseAlarmHistoryDetail(
 }
 
 HatoholError HapProcessCeilometer::parseAlarmHost(
-  JSONParser &parser, HostIdType &hostId)
+  JSONParser &parser, LocalHostIdType &hostId)
 {
 	// This method and parseAlarmHostEach() return HTERR_OK when an element
 	// doesn't exists. It is a possible cause.
@@ -781,7 +781,7 @@ HatoholError HapProcessCeilometer::parseAlarmHost(
 }
 
 HatoholError HapProcessCeilometer::parseAlarmHostEach(
-  JSONParser &parser, HostIdType &hostId, const unsigned int &index)
+  JSONParser &parser, LocalHostIdType &hostId, const unsigned int &index)
 {
 	JSONParser::PositionStack parserRewinder(parser);
 	if (!parserRewinder.pushElement(index)) {
@@ -812,7 +812,7 @@ HatoholError HapProcessCeilometer::parseAlarmHostEach(
 		return HTERR_OK;
 	}
 
-	hostId = generateHashU64(value);
+	hostId = value;
 	return HTERR_OK;
 }
 
@@ -1037,7 +1037,7 @@ HatoholError HapProcessCeilometer::getResource(
 
 	// fill
 	// TODO: Don't use IDs concerned with Zabbix.
-	const HostIdType hostId = generateHashU64(instanceId);
+	LocalHostIdType hostId = instanceId;
 	const ItemIdType itemId = generateHashU64(instanceId + counter_name);
 	const int timestampSec =
 	  (int)parseStateTimestamp(timestamp).getAsTimespec().tv_sec;
