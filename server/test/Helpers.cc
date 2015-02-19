@@ -147,6 +147,23 @@ void _assertEqual(const ItemInfo &expect, const ItemInfo &actual)
 	cppcut_assert_equal(expect.unit,      actual.unit);
 }
 
+void _assertEqual(const TriggerInfo &expect, const TriggerInfo &actual)
+{
+	cppcut_assert_equal(expect.serverId,     actual.serverId);
+	cppcut_assert_equal(expect.id,           actual.id);
+	cppcut_assert_equal(expect.status,       actual.status);
+	cppcut_assert_equal(expect.severity,     actual.severity);
+	cppcut_assert_equal(expect.lastChangeTime.tv_sec,
+	                    actual.lastChangeTime.tv_sec);
+	cppcut_assert_equal(expect.lastChangeTime.tv_nsec,
+	                    actual.lastChangeTime.tv_nsec);
+	cppcut_assert_equal(expect.hostId,       actual.hostId);
+	cppcut_assert_equal(expect.hostName,     actual.hostName);
+	cppcut_assert_equal(expect.brief,        actual.brief);
+	cppcut_assert_equal(expect.extendedInfo, actual.extendedInfo);
+	cppcut_assert_equal(expect.validity,     actual.validity);
+}
+
 struct SpawnSyncContext {
 	bool running;
 	bool hasError;
@@ -447,7 +464,7 @@ string makeTriggerOutput(const TriggerInfo &triggerInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
-	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|%" PRIu64 "|%s|%s|%s\n",
+	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|%" PRIu64 "|%s|%s|%s|%d\n",
 	    triggerInfo.serverId,
 	    triggerInfo.id,
 	    triggerInfo.status, triggerInfo.severity,
@@ -456,7 +473,8 @@ string makeTriggerOutput(const TriggerInfo &triggerInfo)
 	    triggerInfo.hostId,
 	    triggerInfo.hostName.c_str(),
 	    triggerInfo.brief.c_str(),
-	    triggerInfo.extendedInfo.c_str());
+	    triggerInfo.extendedInfo.c_str(),
+	    triggerInfo.validity);
 	return expectedOut;
 }
 
@@ -515,6 +533,7 @@ string makeHistoryOutput(const HistoryInfo &historyInfo)
 	    historyInfo.value.c_str());
 	return output;
 }
+
 
 string makeHostOutput(const HostInfo &hostInfo)
 {
