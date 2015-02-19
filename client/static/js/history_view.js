@@ -293,7 +293,12 @@ var HistoryView = function(userProfile, options) {
       id: "hatohol-graph-auto-reload",
       type: "button",
       class: "btn btn-primary glyphicon glyphicon-refresh active",
-    }).attr("data-toggle", "button"));
+    }).attr("data-toggle", "button"))
+    .append($("<button>", {
+      id: "hatohol-graph-settings",
+      type: "button",
+      class: "btn btn-default glyphicon glyphicon-cog",
+    }).attr("data-toggle", "modal").attr("data-target", "#hatohol-item-list"));
 
     $("#hatohol-graph").bind("plotselected", function (event, ranges) {
       var plotOptions;
