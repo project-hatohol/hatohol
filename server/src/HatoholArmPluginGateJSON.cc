@@ -119,7 +119,7 @@ private:
 		eventInfo.serverId = m_serverInfo.id;
 		eventInfo.id = message.getID();
 		eventInfo.time = message.getTimestamp();
-		eventInfo.type = EVENT_TYPE_BAD;
+		eventInfo.type = message.getType();
 		eventInfo.severity = message.getSeverity();
 		eventInfo.hostName = message.getHostName();
 		eventInfo.hostId = findOrCreateHostID(eventInfo.hostName);

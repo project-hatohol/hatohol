@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -103,6 +103,17 @@ struct GateJSONEventMessage::Impl
 		return parseSeverity(severity);
 	}
 
+	EventType getType()
+	{
+		JsonNode *node = json_object_get_member(getBody(), "type");
+		if (!node) {
+			return EVENT_TYPE_BAD;
+		}
+
+		const string type(json_node_get_string(node));
+		return parseType(type);
+	}
+
 private:
 	JsonObject *getBody()
 	{
@@ -142,6 +153,20 @@ private:
 			return TRIGGER_SEVERITY_EMERGENCY;
 		} else {
 			return NUM_TRIGGER_SEVERITY;
+		}
+	}
+
+	static const EventType EVENT_TYPE_INVALID = static_cast<EventType>(-1);
+	EventType parseType(const string &type)
+	{
+		if (type == "good") {
+			return EVENT_TYPE_GOOD;
+		} else if (type == "bad") {
+			return EVENT_TYPE_BAD;
+		} else if (type == "unknown") {
+			return EVENT_TYPE_UNKNOWN;
+		} else {
+			return EVENT_TYPE_INVALID;
 		}
 	}
 
@@ -289,15 +314,11 @@ private:
 		return validateObjectMemberTime(errors, "$.body", body, name);
 	}
 
-	bool validateBodyMemberSeverity(StringList &errors,
-					JsonObject *body,
-					const gchar *name)
+	bool validateStringBodyMember(StringList &errors,
+				      JsonObject *body,
+				      const gchar *name,
+				      JsonNode *memberNode)
 	{
-		JsonNode *memberNode = json_object_get_member(body, name);
-		if (!memberNode) {
-			return true;
-		}
-
 		GType valueType = json_node_get_value_type(memberNode);
 		if (valueType != G_TYPE_STRING) {
 			JsonGenerator *generator = json_generator_new();
@@ -310,6 +331,22 @@ private:
 				 memberJSON);
 			g_free(memberJSON);
 			g_object_unref(generator);
+			return false;
+		}
+
+		return true;
+	}
+
+	bool validateBodyMemberSeverity(StringList &errors,
+					JsonObject *body,
+					const gchar *name)
+	{
+		JsonNode *memberNode = json_object_get_member(body, name);
+		if (!memberNode) {
+			return true;
+		}
+
+		if (!validateStringBodyMember(errors, body, name, memberNode)) {
 			return false;
 		}
 
@@ -327,6 +364,32 @@ private:
 		return true;
 	}
 
+	bool validateBodyMemberType(StringList &errors,
+				    JsonObject *body,
+				    const gchar *name)
+	{
+		JsonNode *memberNode = json_object_get_member(body, name);
+		if (!memberNode) {
+			return true;
+		}
+
+		if (!validateStringBodyMember(errors, body, name, memberNode)) {
+			return false;
+		}
+
+		const string type(json_node_get_string(memberNode));
+		if (parseType(type) == EVENT_TYPE_INVALID) {
+			addError(errors,
+				 "$.body.%s must be valid type: <%s>: "
+				 "available values: good, bad, unknown",
+				 name,
+				 type.c_str());
+			return false;
+		}
+
+		return true;
+	}
+
 	bool validateEventBody(StringList &errors, JsonObject *body)
 	{
 		if (!validateBodyMember(errors, body, "id", G_TYPE_INT64))
@@ -338,6 +401,8 @@ private:
 		if (!validateBodyMember(errors, body, "content", G_TYPE_STRING))
 			return false;
 		if (!validateBodyMemberSeverity(errors, body, "severity"))
+			return false;
+		if (!validateBodyMemberType(errors, body, "type"))
 			return false;
 		return true;
 	}
@@ -380,4 +445,9 @@ const char *GateJSONEventMessage::getContent()
 TriggerSeverityType GateJSONEventMessage::getSeverity()
 {
 	return m_impl->getSeverity();
+}
+
+EventType GateJSONEventMessage::getType()
+{
+	return m_impl->getType();
 }
