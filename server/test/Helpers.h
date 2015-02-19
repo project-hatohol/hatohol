@@ -266,6 +266,7 @@ VariableItemGroupPtr convert(
 ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap);
 
 VariableItemGroupPtr convert(const HistoryInfo &historyInfo);
+VariableItemGroupPtr convert(const TriggerInfo &triggerInfo);
 
 void conv(HostInfo &hostInfo, const ServerHostDef &svHostDef);
 

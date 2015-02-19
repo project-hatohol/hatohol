@@ -1221,6 +1221,21 @@ void conv(HostInfo &hostInfo, const ServerHostDef &svHostDef)
 }
 
 
+VariableItemGroupPtr convert(const TriggerInfo &triggerInfo)
+{
+	// TODO: Don't use IDs concerned with Zabbix.
+	VariableItemGroupPtr grp;
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID, triggerInfo.id);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_VALUE, triggerInfo.status);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_PRIORITY, triggerInfo.severity);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
+			static_cast<uint64_t>(triggerInfo.lastChangeTime.tv_sec));
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION, triggerInfo.brief);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_HOSTID, triggerInfo.hostId	);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION, triggerInfo.extendedInfo);
+	return grp;
+}
+
 // ---------------------------------------------------------------------------
 // Watcher
 // ---------------------------------------------------------------------------
