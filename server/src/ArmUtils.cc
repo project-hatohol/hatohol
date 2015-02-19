@@ -230,9 +230,7 @@ void ArmUtils::registerSelfMonitoringHost(void)
 	svHostDef.id = AUTO_INCREMENT_VALUE;
 	svHostDef.hostId = AUTO_ASSIGNED_ID;
 	svHostDef.serverId = m_impl->serverInfo.id;
-	// TODO: Use a more readable string host name.
-	svHostDef.hostIdInServer =
-	  StringUtils::sprintf("%" FMT_HOST_ID, MONITORING_SERVER_SELF_ID);
+	svHostDef.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
 	svHostDef.name = StringUtils::sprintf("%s%s",
 	  m_impl->serverInfo.hostName.c_str(), SERVER_SELF_MONITORING_SUFFIX);
 	svHostDef.status = HOST_STAT_SELF_MONITOR;
