@@ -209,7 +209,7 @@ var EventsView = function(userProfile, baseElem) {
     });
 
     $('button.latest-button').click(function() {
-      self.enableAutoRefresh(load(), self.reloadIntervalSeconds);
+      load();
     });
   }
 
