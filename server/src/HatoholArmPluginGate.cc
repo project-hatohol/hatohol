@@ -221,6 +221,7 @@ void HatoholArmPluginGate::start(void)
 	svHostDef.name     = "N/A";
 	svHostDef.status   = HOST_STAT_INAPPLICABLE;
 	UnifiedDataStore::getInstance()->upsertHost(svHostDef);
+	m_impl->hostInfoCache.update(svHostDef);
 
 	HatoholArmPluginInterface::start();
 }
