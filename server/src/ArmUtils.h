@@ -31,15 +31,19 @@ public:
 		std::string       msg;
 	};
 
-	static void createTrigger(const MonitoringServerInfo &serverInfo,
-	                          const ArmTrigger &armTrigger,
-	                          TriggerInfoList &triggerInfoList);
+	ArmUtils(const MonitoringServerInfo &serverInfo);
 
-	static void createEvent(const MonitoringServerInfo &svInfo,
-	                        const ArmTrigger &armTrigger,
-	                         EventInfoList &eventInfoList);
-	static void
-	  registerSelfMonitoringHost(const MonitoringServerInfo &svInfo);
+	void createTrigger(const ArmTrigger &armTrigger,
+	                   TriggerInfoList &triggerInfoList);
+
+	void createEvent(const ArmTrigger &armTrigger,
+	                 EventInfoList &eventInfoList);
+
+	void registerSelfMonitoringHost(void);
+
+private:
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;;
 };
 
 #endif // ArmUtils_h

@@ -106,6 +106,7 @@ struct ArmBase::Impl
 {
 	string               name;
 	MonitoringServerInfo serverInfo; // we have the copy.
+	ArmUtils             utils;
 	timespec             lastPollingTime;
 	sem_t                sleepSemaphore;
 	AtomicValue<bool>    exitRequest;
@@ -122,6 +123,7 @@ struct ArmBase::Impl
 	               const MonitoringServerInfo &_serverInfo)
 	: name(_name),
 	  serverInfo(_serverInfo),
+	  utils(serverInfo),
 	  exitRequest(false),
 	  isCopyOnDemandEnabled(false),
 	  lastFailureStatus(ARM_WORK_STAT_FAILURE)
@@ -387,12 +389,11 @@ void ArmBase::setInitialTriggerStatus(void)
 		ArmUtils::ArmTrigger &armTrigger = m_impl->armTriggers[i];
 		if (armTrigger.status != TRIGGER_STATUS_UNKNOWN)
 			continue;
-		ArmUtils::createTrigger(getServerInfo(),
-		                        armTrigger, triggerInfoList);
+		m_impl->utils.createTrigger(armTrigger, triggerInfoList);
 	}
 
 	if (!triggerInfoList.empty()) {
-		ArmUtils::registerSelfMonitoringHost(getServerInfo());
+		m_impl->utils.registerSelfMonitoringHost();
 		dbMonitoring.addTriggerInfoList(triggerInfoList);
 	}
 }
@@ -410,12 +411,12 @@ void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 			  m_impl->armTriggers[i];
 			if (armTrigger.status != TRIGGER_STATUS_OK) {
 				armTrigger.status = TRIGGER_STATUS_OK;
-				ArmUtils::createTrigger(
-				  getServerInfo(), armTrigger, triggerInfoList);
+				m_impl->utils.createTrigger(armTrigger,
+				                            triggerInfoList);
 			}
 			if (armTrigger.status == TRIGGER_STATUS_PROBLEM) {
-				ArmUtils::createEvent(
-				  getServerInfo(), armTrigger, eventInfoList);
+				m_impl->utils.createEvent(armTrigger,
+				                          eventInfoList);
 			}
 		}
 	} else {
@@ -425,10 +426,10 @@ void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 			return;
 
 		m_impl->armTriggers[type].status = TRIGGER_STATUS_PROBLEM;
-		ArmUtils::createTrigger(
-		  getServerInfo(), m_impl->armTriggers[type], triggerInfoList);
-		ArmUtils::createEvent(
-		  getServerInfo(), m_impl->armTriggers[type], eventInfoList);
+		m_impl->utils.createTrigger(m_impl->armTriggers[type],
+		                            triggerInfoList);
+		m_impl->utils.createEvent(m_impl->armTriggers[type],
+		                          eventInfoList);
 
 		for (int i = static_cast<int>(type) + 1; i < NUM_COLLECT_NG_KIND; i++) {
 			if (!hasTrigger(static_cast<ArmPollingResult>(i)))
@@ -437,12 +438,12 @@ void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 			  m_impl->armTriggers[i];
 			if (armTrigger.status != TRIGGER_STATUS_OK) {
 				armTrigger.status = TRIGGER_STATUS_OK;
-				ArmUtils::createTrigger(
-				  getServerInfo(), armTrigger, triggerInfoList);
+				m_impl->utils.createTrigger(armTrigger,
+				                            triggerInfoList);
 			}
 			if (armTrigger.status == TRIGGER_STATUS_PROBLEM) {
-				ArmUtils::createEvent(
-				  getServerInfo(), armTrigger, eventInfoList);
+				m_impl->utils.createEvent(armTrigger,
+				                          eventInfoList);
 			}
 		}
 		for (int i = 0; i < type; i++) {
@@ -451,8 +452,8 @@ void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 			ArmUtils::ArmTrigger &armTrigger = m_impl->armTriggers[i];
 			if (armTrigger.status == TRIGGER_STATUS_OK) {
 				armTrigger.status = TRIGGER_STATUS_UNKNOWN;
-				ArmUtils::createTrigger(
-				  getServerInfo(), armTrigger, triggerInfoList);
+				m_impl->utils.createTrigger(armTrigger,
+				                            triggerInfoList);
 			}
 		}
 	}
