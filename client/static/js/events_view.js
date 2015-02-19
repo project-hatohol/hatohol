@@ -89,6 +89,11 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function updatePager() {
+    if (self.currentPage == 0) {
+      self.enableAutoRefresh(load, self.reloadIntervalSeconds);
+    } else {
+      self.disableAutoRefresh();
+    }
     self.pager.update({
       currentPage: self.currentPage,
       numRecords: self.rawData ? self.rawData["numberOfEvents"] : -1,
@@ -125,14 +130,8 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function getQuery(page) {
-    if (!page) {
-      self.currentPage = 0;
-      self.limitOfUnifiedId = 0;
-    } else {
-      self.currentPage = page;
-      if (!self.limitOfUnifiedId)
-        self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
-    }
+    if (!self.limitOfUnifiedId)
+      self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
 
     var query = $.extend({}, self.baseQuery, {
       minimumSeverity:  $("#select-severity").val(),
@@ -152,7 +151,6 @@ var EventsView = function(userProfile, baseElem) {
     setLoading(true);
     if (!isNaN(page)) {
       self.currentPage = page;
-      self.disableAutoRefresh();
     } else {
       self.currentPage = 0;
     }
@@ -211,7 +209,7 @@ var EventsView = function(userProfile, baseElem) {
     });
 
     $('button.latest-button').click(function() {
-      self.enableAutoRefresh(load(), self.intervalSeconds);
+      load();
     });
   }
 
@@ -386,7 +384,6 @@ var EventsView = function(userProfile, baseElem) {
     drawTableContents();
     updatePager();
     setLoading(false);
-    self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 };
 
