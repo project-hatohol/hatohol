@@ -232,6 +232,7 @@ VariableItemGroupPtr convert(
 ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap);
 
 VariableItemGroupPtr convert(const HistoryInfo &historyInfo);
+VariableItemGroupPtr convert(const TriggerInfo &triggerInfo);
 
 class Watcher {
 	bool expired;
