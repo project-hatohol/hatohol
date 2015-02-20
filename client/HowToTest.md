@@ -101,6 +101,8 @@ Or, run feature test(s), respectively:
 > Memo: Casper.js has the method which can evaluate an expression in the current page DOM context.
 > You can use jQuery code inside evaluate function like this:
 
-    this.evaluate(function() {
-      $("div.ui-dialog-buttonset button").click();
-    });
+    casper.then(function() {
+      this.evaluate(function() {
+        $("div.ui-dialog-buttonset button").click();
+      });
+    }
