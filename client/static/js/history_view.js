@@ -1066,3 +1066,17 @@ HatoholItemSelector.prototype.setServers = function(servers) {
   this.view.setupHostFilters(servers);
 }
 
+HatoholItemSelector.prototype.getConfig = function() {
+  var i, item, data, config = { histories: [] };
+  for (i in this.rowData) {
+    item = this.rowData[i].item;
+    data = {
+      serverId: item.serverId,
+      hostId: item.hostId,
+      hostgroupId: this.rowData[i].hostgroupId,
+      itemId: item.id,
+    };
+    config.histories.push(data);
+  }
+  return config;
+}
