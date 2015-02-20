@@ -868,8 +868,7 @@ var HatoholItemSelector = function(options) {
   self.elementId = 'hatohol-item-list';
   self.servers = options.servers;
   self.lastItemsData = undefined;
-  self.items = {};
-  self.historyLoaders = {};
+  self.rowData = {};
   self.view = options.view; // TODO: Remove view dependency
   self.appendItemCallback = options.appendItemCallback;
   self.removeItemCallback = options.removeItemCallback;
@@ -918,12 +917,15 @@ var HatoholItemSelector = function(options) {
     });
   }
 
-  function isAlreadyAddedItem(item) {
-    var i;
-    for (i in self.items) {
-      if (item.serverId == self.items[i].serverId &&
-          item.hostId == self.items[i].hostId &&
-          item.id == self.items[i].id)
+  function isAlreadyAddedItem(item1) {
+    var i, item2;
+    for (i in self.rowData) {
+      item2 = self.rowData[i].item;
+      if (!item2)
+        continue;
+      if (item1.serverId == item2.serverId &&
+          item1.hostId == item2.hostId &&
+          item1.id == item2.id)
         return true;
     }
     return false;
@@ -992,7 +994,7 @@ HatoholItemSelector.prototype.setItem = function(index, item, servers,
     index = self.lastIndex++;
   id = self.elementId + "-row-" + index;
 
-  if (index in self.historyLoaders) {
+  if (index in self.rowData) {
     tr = $("#" + id);
     tr.empty();
   } else {
@@ -1014,33 +1016,38 @@ HatoholItemSelector.prototype.setItem = function(index, item, servers,
         $(this).parent().parent().remove();
         if (self.removeItemCallback)
           self.removeItemCallback(index);
-	delete self.items[index];
-	delete self.historyLoaders[index];
+        delete self.rowData[index];
       }
     }).attr("itemIndex", index)));
 
-  if (!(index in self.historyLoaders)) {
-    self.historyLoaders[index] = undefined;
+  if (!(index in self.rowData)) {
+    self.rowData[index] = {};
     tr.insertBefore("#" + self.elementId + " tbody tr :last");
   }
 
-  if (item)
-    self.items[index] = item;
+  if (item) {
+    self.rowData[index] = self.rowData[index] || {};
+    self.rowData[index].item = item;
+  }
 
   return index;
 }
 
 HatoholItemSelector.prototype.setHistoryLoader = function(index, loader) {
-  this.historyLoaders[index] = loader;
+  this.rowData[index] = this.rowData[index] || {};
+  this.rowData[index].historyLoader = loader;
 }
 
 HatoholItemSelector.prototype.getHistoryLoader = function(index) {
-  return this.historyLoaders[index];
+  if (this.rowData[index])
+    return this.rowData[index].historyLoader;
+  else
+    return undefined;
 }
 
 HatoholItemSelector.prototype.getIndex = function(loader) {
-  for (index in this.historyLoaders) {
-    if (this.historyLoaders[index] == loader)
+  for (index in this.rowData) {
+    if (this.rowData[index] && this.rowData[index].historyLoader == loader)
       return parseInt(index);
   }
   return -1;
@@ -1057,3 +1064,4 @@ HatoholItemSelector.prototype.setServers = function(servers) {
     this.servers = servers;
   this.view.setupHostFilters(servers);
 }
+
