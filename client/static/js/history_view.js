@@ -371,7 +371,7 @@ var HistoryView = function(userProfile, options) {
       defaultTimeSpan: self.timeRange.getSpan(),
       query: historyQuery,
       onLoadItem: function(loader, item, servers) {
-        var index = self.itemSelector.getIndex(loader);
+        var index = self.itemSelector.getIndexByUserData(loader);
         updatePlotData();
         updateView();
         self.itemSelector.setServers(servers);
@@ -1033,21 +1033,21 @@ HatoholItemSelector.prototype.setItem = function(index, item, servers,
   return index;
 }
 
-HatoholItemSelector.prototype.setHistoryLoader = function(index, loader) {
+HatoholItemSelector.prototype.setUserData = function(index, data) {
   this.rowData[index] = this.rowData[index] || {};
-  this.rowData[index].historyLoader = loader;
+  this.rowData[index].userData = data;
 }
 
-HatoholItemSelector.prototype.getHistoryLoader = function(index) {
+HatoholItemSelector.prototype.getUserData = function(index) {
   if (this.rowData[index])
-    return this.rowData[index].historyLoader;
+    return this.rowData[index].userData;
   else
     return undefined;
 }
 
-HatoholItemSelector.prototype.getIndex = function(loader) {
+HatoholItemSelector.prototype.getIndexByUserData = function(data) {
   for (index in this.rowData) {
-    if (this.rowData[index] && this.rowData[index].historyLoader == loader)
+    if (this.rowData[index] && this.rowData[index].userData == data)
       return parseInt(index);
   }
   return -1;
