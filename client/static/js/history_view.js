@@ -387,7 +387,7 @@ var HistoryView = function(userProfile, options) {
     self.plotData.push(createLegendData());
     if (isNaN(index))
       index = self.itemSelector.appendItem();
-    self.itemSelector.setHistoryLoader(index, loader);
+    self.itemSelector.setUserData(index, loader);
     if (self.loaders.length == 1)
       initTimeRange();
   }
