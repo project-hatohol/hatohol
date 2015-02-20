@@ -31,7 +31,11 @@ public:
 		std::string       msg;
 	};
 
-	ArmUtils(const MonitoringServerInfo &serverInfo);
+	ArmUtils(const MonitoringServerInfo &serverInfo,
+	         ArmTrigger *armTriggers, const size_t &numArmTriggers);
+
+	void initializeArmTriggers(void);
+	bool isArmTriggerUsed(const size_t &triggerIdx);
 
 	void createTrigger(const ArmTrigger &armTrigger,
 	                   TriggerInfoList &triggerInfoList);
@@ -40,6 +44,9 @@ public:
 	                 EventInfoList &eventInfoList);
 
 	void registerSelfMonitoringHost(void);
+
+	void updateTriggerStatus(
+	  const size_t &triggerIdx, const TriggerStatusType &status);
 
 private:
 	struct Impl;

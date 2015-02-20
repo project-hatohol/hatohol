@@ -92,7 +92,7 @@ struct HatoholArmPluginGate::Impl
 	Impl(const MonitoringServerInfo &_serverInfo,
 	               HatoholArmPluginGate *_hapg)
 	: serverInfo(_serverInfo),
-	  utils(_serverInfo),
+	  utils(serverInfo, armTrigger, NUM_COLLECT_NG_KIND),
 	  armBase(_serverInfo),
 	  pid(0),
 	  pluginTermSem(0),
@@ -118,12 +118,6 @@ struct HatoholArmPluginGate::Impl
 		SimpleSemaphore::Status status =
 		  pluginTermSem.timedWait(timeoutInMSec);
 		return (status == SimpleSemaphore::STAT_OK);
-	}
-
-	void setInitialTriggerTable(void)
-	{
-		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++)
-			armTrigger[i].status = TRIGGER_STATUS_ALL;
 	}
 };
 
@@ -430,7 +424,7 @@ void HatoholArmPluginGate::onSetPluginInitialInfo(void)
 		return;
 
 	m_impl->utils.registerSelfMonitoringHost();
-	m_impl->setInitialTriggerTable();
+	m_impl->utils.initializeArmTriggers();
 
 	setPluginAvailabelTrigger(COLLECT_NG_AMQP_CONNECT_ERROR,
 				  FAILED_CONNECT_BROKER_TRIGGER_ID,

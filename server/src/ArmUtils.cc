@@ -20,6 +20,7 @@
 #include <SmartTime.h>
 #include "ArmUtils.h"
 #include "UnifiedDataStore.h"
+#include "ThreadLocalDBCache.h"
 
 using namespace std;
 using namespace mlpl;
@@ -28,17 +29,153 @@ static const char *SERVER_SELF_MONITORING_SUFFIX = "_SELF";
 
 struct ArmUtils::Impl
 {
+	ArmUtils                   *obj;
 	const MonitoringServerInfo &serverInfo;
+	ArmTrigger                 *armTriggers;
+	const size_t                numArmTriggers;
 
-	Impl(const MonitoringServerInfo &_serverInfo)
-	: serverInfo(_serverInfo)
+	Impl(ArmUtils *_obj, const MonitoringServerInfo &_serverInfo,
+	     ArmTrigger *_armTriggers, const size_t &_numArmTriggers)
+	: obj(_obj),
+	  serverInfo(_serverInfo),
+	  armTriggers(_armTriggers),
+	  numArmTriggers(_numArmTriggers)
 	{
+		initializeArmTriggers();
+	}
+
+	void initializeArmTriggers(void)
+	{
+		for (size_t i = 0; i < numArmTriggers; i++)
+			armTriggers[i].status = TRIGGER_STATUS_ALL;
+	}
+
+	bool isCollectingOK(const size_t &idx)
+	{
+		return (idx == numArmTriggers + 1);
+	}
+
+	bool isUsed(const size_t &idx)
+	{
+		return (armTriggers[idx].status != TRIGGER_STATUS_ALL);
+	}
+
+	void updateTriggerStatus(
+	  const size_t &triggerIdx, const TriggerStatusType &status)
+	{
+		UpdateTriggerArg arg = {triggerIdx, status};
+
+		if (isCollectingOK(triggerIdx))
+			updateTriggersForCollectingOK(arg);
+		else
+			updateTriggersForCollectingFailure(arg);
+
+		if (!arg.triggerInfoList.empty()) {
+			ThreadLocalDBCache cache;
+			cache.getMonitoring().addTriggerInfoList(
+			  arg.triggerInfoList);
+		}
+		if (!arg.eventInfoList.empty()) {
+			UnifiedDataStore *dataStore =
+			  UnifiedDataStore::getInstance();
+			dataStore->addEventList(arg.eventInfoList);
+		}
+	}
+
+private:
+	struct UpdateTriggerArg {
+		const size_t            triggerIdx;
+		const TriggerStatusType status;
+		TriggerInfoList         triggerInfoList;
+		EventInfoList           eventInfoList;
+	};
+
+	void updateTriggersForCollectingOK(UpdateTriggerArg &arg)
+	{
+		// Since collecting has successed, all the self triggers
+		// should be OK.
+		for (size_t i = 0; i < numArmTriggers; i++) {
+			if (!isUsed(i))
+				continue;
+			setTriggerToStatusOK(arg, armTriggers[i]);
+		}
+	}
+
+	void updateTriggersForCollectingFailure(UpdateTriggerArg &arg)
+	{
+		if (!isUsed(arg.triggerIdx)) {
+			MLPL_WARN("Try to update the unused trigger: %zd\n",
+			          arg.triggerIdx);
+			return;
+		}
+
+		ArmTrigger &armTrigger = armTriggers[arg.triggerIdx];
+		if (armTrigger.status == arg.status)
+			return;
+
+		// update the target trigger
+		armTrigger.status = arg.status;
+		obj->createTrigger(armTrigger, arg.triggerInfoList);
+		if (armTrigger.status != TRIGGER_STATUS_UNKNOWN)
+			obj->createEvent(armTrigger, arg.eventInfoList);
+
+		updateLowerTriggers(arg);
+		updateUpperTriggers(arg);
+	}
+
+	void updateLowerTriggers(UpdateTriggerArg &arg)
+	{
+		for (size_t i = arg.triggerIdx + 1; i < numArmTriggers; i++) {
+			if (!isUsed(i))
+				continue;
+			setTriggerToStatusOK(arg, armTriggers[i]);
+		}
+	}
+
+	void updateUpperTriggers(UpdateTriggerArg &arg)
+	{
+		for (size_t i = arg.triggerIdx + 1; i < numArmTriggers; i++) {
+			if (!isUsed(i))
+				continue;
+			setTriggerToStatusUnknown(arg, armTriggers[i]);
+		}
+	}
+
+	void setTriggerToStatusOK(UpdateTriggerArg &arg, ArmTrigger &armTrigger)
+	{
+		const TriggerStatusType prevStat = armTrigger.status;
+		if (armTrigger.status != TRIGGER_STATUS_OK) {
+			armTrigger.status = TRIGGER_STATUS_OK;
+			obj->createTrigger(armTrigger, arg.triggerInfoList);
+		}
+		if (prevStat == TRIGGER_STATUS_PROBLEM)
+			obj->createEvent(armTrigger, arg.eventInfoList);
+	}
+
+	void setTriggerToStatusUnknown(UpdateTriggerArg &arg,
+	                               ArmTrigger &armTrigger)
+	{
+		if (armTrigger.status == TRIGGER_STATUS_OK) {
+			armTrigger.status = TRIGGER_STATUS_UNKNOWN;
+			obj->createTrigger(armTrigger, arg.triggerInfoList);
+		}
 	}
 };
 
-ArmUtils::ArmUtils(const MonitoringServerInfo &serverInfo)
-:  m_impl(new Impl(serverInfo))
+ArmUtils::ArmUtils(const MonitoringServerInfo &serverInfo,
+                   ArmTrigger *armTriggers, const size_t &numArmTriggers)
+: m_impl(new Impl(this, serverInfo, armTriggers, numArmTriggers))
 {
+}
+
+void ArmUtils::initializeArmTriggers(void)
+{
+	m_impl->initializeArmTriggers();
+}
+
+bool ArmUtils::isArmTriggerUsed(const size_t &triggerIdx)
+{
+	return m_impl->isUsed(triggerIdx);
 }
 
 void ArmUtils::createTrigger(
@@ -98,5 +235,11 @@ void ArmUtils::registerSelfMonitoringHost(void)
 		MLPL_ERR("Failed to register a host for self monitoring: "
 		         "(%d) %s.", err.getCode(), err.getCodeName().c_str());
 	}
+}
+
+void ArmUtils::updateTriggerStatus(
+  const size_t &triggerIdx, const TriggerStatusType &status)
+{
+	m_impl->updateTriggerStatus(triggerIdx, status);
 }
 
