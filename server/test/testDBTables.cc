@@ -231,6 +231,30 @@ void test_constructor(void)
 	cppcut_assert_equal(0, ver.minorVer);
 }
 
+void test_staticGetPackedVer(void)
+{
+	cppcut_assert_equal(
+	  0x01234567, DBTables::Version::getPackedVer(0x12, 0x34, 0x567));
+}
+
+void test_getPackedVer(void)
+{
+	DBTables::Version ver;
+	ver.vendorVer = 0xab;
+	ver.majorVer  = 0xcd;
+	ver.minorVer  = 0xef1;
+	cppcut_assert_equal(0x0abcdef1, ver.getPackedVer());
+}
+
+void test_setPackedVer(void)
+{
+	DBTables::Version ver;
+	ver.setPackedVer(0x0fedcba9);
+	cppcut_assert_equal(0xfe, ver.vendorVer);
+	cppcut_assert_equal(0xdc, ver.majorVer);
+	cppcut_assert_equal(0xba9, ver.minorVer);
+}
+
 } //namespace testDBTablesVersion
 
 

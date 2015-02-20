@@ -65,10 +65,10 @@ void DBTables::Version::setPackedVer(const int &packedVer)
 	minorVer = MINOR_MASK & packedVer;
 
 	shiftBits += MINOR_BITS;
-	majorVer = MAJOR_MASK & (packedVer >> shiftBits);
+	majorVer = (MAJOR_MASK & packedVer) >> shiftBits;
 
 	shiftBits += MAJOR_BITS;
-	vendorVer = VENDOR_MASK & (packedVer >> shiftBits);
+	vendorVer = (VENDOR_MASK & packedVer) >> shiftBits;
 }
 
 struct DBTables::Impl {
