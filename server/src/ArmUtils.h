@@ -33,6 +33,7 @@ public:
 
 	ArmUtils(const MonitoringServerInfo &serverInfo,
 	         ArmTrigger *armTriggers, const size_t &numArmTriggers);
+	~ArmUtils();
 
 	void initializeArmTriggers(void);
 	bool isArmTriggerUsed(const size_t &triggerIdx);

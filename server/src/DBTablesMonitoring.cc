@@ -1951,9 +1951,11 @@ SmartTime DBTablesMonitoring::getTimeOfLastEvent(
 	const string stmt = sprintf("max(%s)", colDefUniId.columnName);
 	trx.argId.add(stmt, colDefUniId.type);
 
-	trx.argId.condition = sprintf("%s=%s",
+	trx.argId.condition = sprintf("%s=%s AND %s!=%" FMT_HOST_ID,
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
-	    rhs(serverId));
+	    rhs(serverId),
+	    COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID].columnName,
+	    MONITORING_SERVER_SELF_ID);
 	if (triggerId != ALL_TRIGGERS) {
 		trx.argId.condition += sprintf(" AND %s=%s",
 		    COLUMN_DEF_EVENTS[IDX_EVENTS_TRIGGER_ID].columnName,
