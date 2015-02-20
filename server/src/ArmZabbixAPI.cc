@@ -101,14 +101,14 @@ void ArmZabbixAPI::updateItems(void)
 	makeHatoholItems(items, applications);
 }
 
-HostNumCahnge ArmZabbixAPI::updateHosts(void)
+HostNumChange ArmZabbixAPI::updateHosts(void)
 {
 	ItemTablePtr hostTablePtr, hostsGroupsTablePtr;
 	getHosts(hostTablePtr, hostsGroupsTablePtr);
-	HostNumCahnge retHostNumCahnge = makeHatoholHosts(hostTablePtr);
+	HostNumChange retHostNumChange = makeHatoholHosts(hostTablePtr);
 	makeHatoholMapHostsHostgroups(hostsGroupsTablePtr);
 
-	return retHostNumCahnge;
+	return retHostNumChange;
 }
 
 void ArmZabbixAPI::updateEvents(void)
@@ -246,7 +246,7 @@ void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
 	  uds->upsertHostgroupMembers(hostgroupMembers));
 }
 
-HostNumCahnge ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
+HostNumChange ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 {
 	ServerHostDefVect svHostDefs;
 	HatoholDBUtils::transformHostsToHatoholFormat(svHostDefs, hosts,
@@ -289,9 +289,9 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 		return COLLECT_NG_DISCONNECT_ZABBIX;
 
 	try {
-		HostNumCahnge retHostNumCahnge = updateHosts();
+		HostNumChange retHostNumChange = updateHosts();
 		updateGroups();
-		if (retHostNumCahnge == NO_CHANGE){
+		if (retHostNumChange == NO_CHANGE){
 			ItemTablePtr triggers = updateTriggers();
 			makeHatoholTriggers(triggers);
 		} else {
