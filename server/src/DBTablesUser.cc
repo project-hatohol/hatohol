@@ -470,6 +470,11 @@ void DBTablesUser::reset(void)
 	getSetupInfo().initialized = false;
 }
 
+const DBTables::SetupInfo &DBTablesUser::getConstSetupInfo(void)
+{
+	return getSetupInfo();
+}
+
 DBTablesUser::DBTablesUser(DBAgent &dbAgent)
 : DBTables(dbAgent, getSetupInfo()),
   m_impl(new Impl())

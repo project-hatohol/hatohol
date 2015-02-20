@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -31,9 +31,21 @@ static const char *DEFAULT_DB_NAME = "hatohol";
 static const char *DEFAULT_USER_NAME = "hatohol";
 static const char *DEFAULT_PASSWORD  = "hatohol";
 
+struct DBTablesMajorVersionChecker {
+	DBTablesMajorVersionChecker(DBAgent &dbAgent)
+	{
+		DBTables::checkMajorVersion<DBTablesConfig>(dbAgent);
+		DBTables::checkMajorVersion<DBTablesHost>(dbAgent);
+		DBTables::checkMajorVersion<DBTablesUser>(dbAgent);
+		DBTables::checkMajorVersion<DBTablesAction>(dbAgent);
+		DBTables::checkMajorVersion<DBTablesMonitoring>(dbAgent);
+	}
+};
+
 struct DBHatohol::Impl {
 	static SetupContext setupCtx;
 
+	DBTablesMajorVersionChecker verChecker;
 	DBTablesConfig  dbTablesConfig;
 	DBTablesHost    dbTablesHost;
 	DBTablesUser    dbTablesUser;
@@ -41,7 +53,8 @@ struct DBHatohol::Impl {
 	DBTablesMonitoring dbTablesMonitoring;
 
 	Impl(DBAgent &dbAgent)
-	: dbTablesConfig(dbAgent),
+	: verChecker(dbAgent),
+	  dbTablesConfig(dbAgent),
 	  dbTablesHost(dbAgent),
 	  dbTablesUser(dbAgent),
 	  dbTablesAction(dbAgent),

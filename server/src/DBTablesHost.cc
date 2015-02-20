@@ -353,6 +353,11 @@ void DBTablesHost::reset(void)
 	getSetupInfo().initialized = false;
 }
 
+const DBTables::SetupInfo &DBTablesHost::getConstSetupInfo(void)
+{
+	return getSetupInfo();
+}
+
 DBTablesHost::DBTablesHost(DBAgent &dbAgent)
 : DBTables(dbAgent, getSetupInfo()),
   m_impl(new Impl())

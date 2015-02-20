@@ -386,6 +386,11 @@ void DBTablesAction::reset(void)
 	getSetupInfo().initialized = false;
 }
 
+const DBTables::SetupInfo &DBTablesAction::getConstSetupInfo(void)
+{
+	return getSetupInfo();
+}
+
 void DBTablesAction::stop(void)
 {
 	Utils::executeOnGLibEventLoop(stopIdleDeleteAction);

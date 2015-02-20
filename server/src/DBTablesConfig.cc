@@ -789,6 +789,11 @@ bool DBTablesConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 	return false;
 }
 
+const DBTables::SetupInfo &DBTablesConfig::getConstSetupInfo(void)
+{
+	return getSetupInfo();
+}
+
 DBTablesConfig::DBTablesConfig(DBAgent &dbAgent)
 : DBTables(dbAgent, getSetupInfo()),
   m_impl(new Impl())

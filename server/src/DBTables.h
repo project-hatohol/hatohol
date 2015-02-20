@@ -67,7 +67,11 @@ public:
 		mlpl::Mutex             lock;
 	};
 
-	static bool isMajorVerChanged(void);
+	template <class DBT>
+	static void checkMajorVersion(DBAgent &dbAgent)
+	{
+		checkMajorVersionMain(DBT::getConstSetupInfo(), dbAgent);
+	}
 
 	DBTables(DBAgent &dbAgent, SetupInfo &setupInfo);
 	virtual ~DBTables(void);
@@ -75,6 +79,9 @@ public:
 	DBAgent &getDBAgent(void);
 
 protected:
+	static void checkMajorVersionMain(
+	  const SetupInfo &setupInfo, DBAgent &dbAgent);
+
 	void begin(void);
 	void rollback(void);
 	void commit(void);

@@ -276,6 +276,24 @@ DBAgent &DBTables::getDBAgent(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void DBTables::checkMajorVersionMain(
+  const SetupInfo &setupInfo, DBAgent &dbAgent)
+{
+	DBTables::Version versionInDB;
+	if (!Impl::getTablesVersion(versionInDB, setupInfo, dbAgent))
+		return;
+	DBTables::Version versionInProg;
+	versionInProg.setPackedVer(setupInfo.version);
+	if (versionInDB.majorVer != versionInProg.majorVer) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Invalid Major version: DB/Prog: %s/%s "
+		  "(tablesId: %d)\n",
+		  versionInDB.toString().c_str(),
+		  versionInProg.toString().c_str(),
+		  setupInfo.tablesId);
+	}
+}
+
 void DBTables::begin(void)
 {
 	getDBAgent().begin();

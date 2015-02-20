@@ -1581,6 +1581,11 @@ void DBTablesMonitoring::reset(void)
 	getSetupInfo().initialized = false;
 }
 
+const DBTables::SetupInfo &DBTablesMonitoring::getConstSetupInfo(void)
+{
+	return getSetupInfo();
+}
+
 DBTablesMonitoring::DBTablesMonitoring(DBAgent &dbAgent)
 : DBTables(dbAgent, getSetupInfo()),
   m_impl(new Impl())
