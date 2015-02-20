@@ -23,7 +23,7 @@ if test x"$NO_MAKE" != x"yes"; then
             :
             ;;
     esac
-    $MAKE $MAKE_ARGS -C $top_dir/ > /dev/null || exit 1
+    $MAKE $MAKE_ARGS -C $topdir/ > /dev/null || exit 1
 fi
 
 mysql -uroot < $server_dir/data/create-db.sql
