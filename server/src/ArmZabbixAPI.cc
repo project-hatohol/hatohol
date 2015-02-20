@@ -101,14 +101,14 @@ void ArmZabbixAPI::updateItems(void)
 	makeHatoholItems(items, applications);
 }
 
-HostNumCahnge ArmZabbixAPI::updateHosts(void)
+HostNumChange ArmZabbixAPI::updateHosts(void)
 {
 	ItemTablePtr hostTablePtr, hostsGroupsTablePtr;
 	getHosts(hostTablePtr, hostsGroupsTablePtr);
-	HostNumCahnge retHostNumCahnge = makeHatoholHosts(hostTablePtr);
+	HostNumChange retHostNumChange = makeHatoholHosts(hostTablePtr);
 	makeHatoholMapHostsHostgroups(hostsGroupsTablePtr);
 
-	return retHostNumCahnge;
+	return retHostNumChange;
 }
 
 void ArmZabbixAPI::updateEvents(void)
@@ -245,13 +245,13 @@ void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
 	cache.getMonitoring().addHostgroupElementList(hostgroupElementList);
 }
 
-HostNumCahnge ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
+HostNumChange ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 {
 	ThreadLocalDBCache cache;
 	HostInfoList hostInfoList;
 	HatoholDBUtils::transformHostsToHatoholFormat(hostInfoList, hosts,
 	                                              m_impl->zabbixServerId);
-	HostNumCahnge retHostNumCahnge = cache.getMonitoring().updateHosts(
+	HostNumChange retHostNumChange = cache.getMonitoring().updateHosts(
 					  hostInfoList, m_impl->zabbixServerId);
 
 	// TODO: consider if DBClientHatohol should have the cache
@@ -259,7 +259,7 @@ HostNumCahnge ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
 		m_impl->hostInfoCache.update(*hostInfoItr);
 
-	return retHostNumCahnge;
+	return retHostNumChange;
 }
 
 uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
@@ -293,9 +293,9 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 		return COLLECT_NG_DISCONNECT_ZABBIX;
 
 	try {
-		HostNumCahnge retHostNumCahnge = updateHosts();
+		HostNumChange retHostNumChange = updateHosts();
 		updateGroups();
-		if (retHostNumCahnge == NO_CHANGE){
+		if (retHostNumChange == NO_CHANGE){
 			ItemTablePtr triggers = updateTriggers();
 			makeHatoholTriggers(triggers);
 		} else {

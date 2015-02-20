@@ -228,7 +228,7 @@ public:
 	 * @param hostInfoList  A list of hosts.
 	 * @param serverId      A monitoring server ID.
 	 */
-	HostNumCahnge updateHosts(const HostInfoList &hostInfoList,
+	HostNumChange updateHosts(const HostInfoList &hostInfoList,
 				  const ServerIdType &serverId);
 
 	/**
