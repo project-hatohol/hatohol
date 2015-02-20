@@ -26,7 +26,9 @@ sql_file_list = [
      'file_name': 'server-type-ceilometer.sql',
      'target': 'ceilometer'}]
 
-not_found_config_file = False;
+not_found_config_file = False
+fallback_default_params = {'user': 'hatohol', 'password': 'hatohol'}
+
 
 def create_db_if_needed(cursor, args):
     cursor.execute('SHOW DATABASES')
@@ -133,9 +135,10 @@ def parse_default_conf():
 def get_default_conf_item(item_name):
     config = parse_default_conf()
     if config is None:
-       global not_found_config_file
-       not_found_config_file = True
-       return "<Unknown>"
+        global not_found_config_file
+        global fallback_default_params
+        not_found_config_file = True
+        return fallback_default_params.get(item_name, '<Unknown>')
 
     for conf in config:
         item = conf[item_name]
