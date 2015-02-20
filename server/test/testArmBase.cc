@@ -596,6 +596,7 @@ void test_setServerConnectStatus(void)
 	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
 	triggerInfo.hostName = "_SELF";
 	triggerInfo.brief = HatoholError(HTERR_INTERNAL_ERROR).getMessage();
+	triggerInfo.validity = TRIGGER_VALID_SELF_MONITORING;
 	cppcut_assert_equal(makeTriggerOutput(triggerInfo),
 			    makeTriggerOutput(*triggers.begin()));
 
