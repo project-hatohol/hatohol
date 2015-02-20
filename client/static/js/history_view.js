@@ -1028,6 +1028,7 @@ HatoholItemSelector.prototype.setItem = function(index, item, servers,
   if (item) {
     self.rowData[index] = self.rowData[index] || {};
     self.rowData[index].item = item;
+    self.rowData[index].hostgroupId = hostgroupId;
   }
 
   return index;
