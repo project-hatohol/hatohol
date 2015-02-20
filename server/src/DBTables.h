@@ -28,6 +28,22 @@
 
 class DBTables {
 public:
+	struct Version {
+		static const int VENDOR_BITS;
+		static const int MAJOR_BITS;
+		static const int MINOR_BITS;
+
+		int vendorVer;
+		int majorVer;
+		int minorVer;
+
+		static int getPackedVer(const int &vendor,
+		                        const int &major, const int &manior);
+		Version(void);
+		int getPackedVer(void) const;
+		void setPackedVer(const int &packedVer);
+	};
+
 	// TODO: remove DBClient::DBSetupFuncArg after this class is
 	// implemented.
 	typedef void (*CreateTableInitializer)(DBAgent &, void *data);
@@ -49,6 +65,8 @@ public:
 		bool                    initialized;
 		mlpl::Mutex             lock;
 	};
+
+	static bool isMajorVerChanged(void);
 
 	DBTables(DBAgent &dbAgent, SetupInfo &setupInfo);
 	virtual ~DBTables(void);

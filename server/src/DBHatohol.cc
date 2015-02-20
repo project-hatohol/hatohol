@@ -101,6 +101,7 @@ DBHatohol::DBHatohol(void)
 : DB(Impl::setupCtx),
   m_impl(new Impl(getDBAgent()))
 {
+	printf("DBHathol **********************\n");
 }
 
 DBHatohol::~DBHatohol()

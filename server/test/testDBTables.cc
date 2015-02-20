@@ -221,4 +221,16 @@ void test_tableUpdater(void)
 
 } //namespace testDBTables
 
+namespace testDBTablesVersion {
+
+void test_constructor(void)
+{
+	DBTables::Version ver;
+	cppcut_assert_equal(0, ver.vendorVer);
+	cppcut_assert_equal(0, ver.majorVer);
+	cppcut_assert_equal(0, ver.minorVer);
+}
+
+} //namespace testDBTablesVersion
+
 

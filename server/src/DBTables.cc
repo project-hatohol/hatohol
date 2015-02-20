@@ -24,6 +24,53 @@
 using namespace std;
 using namespace mlpl;
 
+const int DBTables::Version::VENDOR_BITS = 8;
+const int DBTables::Version::MAJOR_BITS  = 8;
+const int DBTables::Version::MINOR_BITS  = 12;
+
+static const int VENDOR_MASK = 0x0ff00000;
+static const int MAJOR_MASK  = 0x000ff000;
+static const int MINOR_MASK  = 0x00000fff;
+
+int DBTables::Version::getPackedVer(
+  const int &vendor, const int &major, const int &minor)
+{
+	int shiftBits = 0;
+	int ver = MINOR_MASK & minor;
+
+	shiftBits += MINOR_BITS;
+	ver += MAJOR_MASK & (major << shiftBits);
+
+	shiftBits += MAJOR_BITS;
+	ver += VENDOR_MASK & (vendor << shiftBits);
+
+	return ver;
+}
+
+DBTables::Version::Version(void)
+: vendorVer(0),
+  majorVer(0),
+  minorVer(0)
+{
+}
+
+int DBTables::Version::getPackedVer(void) const
+{
+	return getPackedVer(vendorVer, majorVer, minorVer);
+}
+
+void DBTables::Version::setPackedVer(const int &packedVer)
+{
+	int shiftBits = 0;
+	minorVer = MINOR_MASK & packedVer;
+
+	shiftBits += MINOR_BITS;
+	majorVer = MAJOR_MASK & (packedVer >> shiftBits);
+
+	shiftBits += MAJOR_BITS;
+	vendorVer = VENDOR_MASK & (packedVer >> shiftBits);
+}
+
 struct DBTables::Impl {
 	DBAgent &dbAgent;
 
