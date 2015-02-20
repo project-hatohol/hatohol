@@ -5,6 +5,29 @@
 # $ ./run-tesh.sh TestUserConfig.TestUserConfig.test_get_integer
 #
 
+export BASE_DIR="`dirname $0`"
+top_dir="$BASE_DIR/../../.."
+top_dir="`cd $top_dir; pwd`"
+client_dir="$top_dir/client"
+
+if test x"$NO_MAKE" != x"yes"; then
+    if which gmake > /dev/null; then
+        MAKE=${MAKE:-"gmake"}
+    else
+        MAKE=${MAKE:-"make"}
+    fi
+    MAKE_ARGS=
+    case `uname` in
+        Linux)
+            MAKE_ARGS="-j$(grep '^processor' /proc/cpuinfo | wc -l)"
+            ;;
+        *)
+            :
+            ;;
+    esac
+    $MAKE $MAKE_ARGS -C $client_dir/ hatohol/hatohol_def.py || exit 1
+fi
+
 cd "$(dirname "$0")"
 
 testcase=""
