@@ -325,8 +325,10 @@ struct DBTablesHost::Impl
 	}
 };
 
-static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
+static bool updateDB(
+  DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
 {
+	const int &oldVer = oldPackedVer.minorVer;
 	if (oldVer == 1) {
 		// In table ver.1 (on 14.09), this table is not used.
 		// So we can drop it.

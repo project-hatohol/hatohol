@@ -527,8 +527,10 @@ struct DBTablesConfig::Impl
 	}
 };
 
-static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
+static bool updateDB(
+  DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
 {
+	const int &oldVer = oldPackedVer.minorVer;
 	if (oldVer <= 5) {
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileSystem);
 		addColumnsArg.columnIndexes.push_back(

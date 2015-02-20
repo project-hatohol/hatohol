@@ -107,7 +107,8 @@ struct DBTables::Impl {
 		}
 	}
 
-	void setupTables(SetupInfo &setupInfo)
+	static bool getTablesVersion(
+	  Version &ver, const SetupInfo &setupInfo, DBAgent &dbAgent)
 	{
 		const DBAgent::TableProfile &tableProf =
 		  DB::getTableProfileTablesVersion();
@@ -116,9 +117,22 @@ struct DBTables::Impl {
 		  colDefs[DB::IDX_TABLES_VERSION_TABLES_ID].columnName,
 		  setupInfo.tablesId);
 		if (!dbAgent.isRecordExisting(tableProf.name, condition))
+			return false;
+		const int packedVer =
+		  getPackedTablesVersion(setupInfo, tableProf, dbAgent);
+		ver.setPackedVer(packedVer);
+		return true;
+	}
+
+	void setupTables(SetupInfo &setupInfo)
+	{
+		const DBAgent::TableProfile &tableProf =
+		  DB::getTableProfileTablesVersion();
+		Version ver;
+		if (!getTablesVersion(ver, setupInfo, dbAgent))
 			insertTablesVersion(setupInfo, tableProf);
 		else
-			updateTablesVersionIfNeeded(setupInfo, tableProf);
+			updateTablesVersionIfNeeded(setupInfo, tableProf, ver);
 
 		// Create tables
 		vector<const TableSetupInfo *> createdTableInfoVect;
@@ -161,34 +175,56 @@ struct DBTables::Impl {
 
 	void updateTablesVersionIfNeeded(
 	  const SetupInfo &setupInfo,
-	  const DBAgent::TableProfile &tableProfileTablesVersion)
+	  const DBAgent::TableProfile &tableProfileTablesVersion,
+	  const Version &versionInDB)
 	{
-		const int versionInDB =
-		  getTablesVersion(setupInfo, tableProfileTablesVersion);
-		if (versionInDB == setupInfo.version)
+		if (versionInDB.getPackedVer() == setupInfo.version)
 			return;
+		Version versionInProg;
+		versionInProg.setPackedVer(setupInfo.version);
+
+		HATOHOL_ASSERT(versionInDB.vendorVer == versionInProg.vendorVer,
+		  "Invalid Vendor version: DB/Prog: %s/%s (tablesId: %d)",
+		  versionInDB.toString().c_str(),
+		  versionInProg.toString().c_str(),
+		  setupInfo.tablesId);
+
+		HATOHOL_ASSERT(versionInDB.majorVer == versionInProg.majorVer,
+		  "Invalid Major version: DB/Prog: %s/%s (tablesId: %d)",
+		  versionInDB.toString().c_str(),
+		  versionInProg.toString().c_str(),
+		  setupInfo.tablesId);
 
 		MLPL_INFO("DBTables %d is outdated, try to update it ...\n"
-		          "\told-version: %" PRIu32 "\n"
-		          "\tnew-version: %" PRIu32 "\n",
-		          setupInfo.tablesId, versionInDB, setupInfo.version);
+		          "\told-version: %s\n"
+		          "\tnew-version: %s\n",
+		          setupInfo.tablesId,
+		          versionInDB.toString().c_str(),
+		          versionInProg.toString().c_str());
 		void *data = setupInfo.updaterData;
 		HATOHOL_ASSERT(setupInfo.updater,
-		             "Updater: NULL, new/old ver. %d/%d",
-		             setupInfo.version, versionInDB);
+		  "Updater: NULL, new/old ver. %s/%s (%d)",
+		  versionInDB.toString().c_str(),
+		  versionInProg.toString().c_str(),
+		  setupInfo.tablesId);
+
 		bool succeeded =
 		  (*setupInfo.updater)(dbAgent, versionInDB, data);
 		HATOHOL_ASSERT(succeeded,
-		               "Failed to update DB, new/old ver. %d/%d",
-		               setupInfo.version, versionInDB);
+		  "Failed to update DB, new/old ver. %s/%s (%d)",
+		  versionInDB.toString().c_str(),
+		  versionInProg.toString().c_str(),
+		  setupInfo.tablesId);
+
 		setTablesVersion(setupInfo, tableProfileTablesVersion);
-		MLPL_INFO("Succeeded in updating DBTables %" PRIu32 "\n",
+		MLPL_INFO("Succeeded in updating DBTables %d\n",
 		          setupInfo.tablesId);
 	}
 
-	int getTablesVersion(
+	static int getPackedTablesVersion(
 	  const SetupInfo &setupInfo,
-	  const DBAgent::TableProfile &tableProfileTablesVersion)
+	  const DBAgent::TableProfile &tableProfileTablesVersion,
+	  DBAgent &dbAgent)
 	{
 		DBAgent::SelectExArg arg(tableProfileTablesVersion);
 		arg.add(DB::IDX_TABLES_VERSION_VERSION);

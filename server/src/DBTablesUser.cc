@@ -224,10 +224,12 @@ static void updateAdminPrivilege(DBAgent &dbAgent,
 	dbAgent.update(arg);
 }
 
-static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
+static bool updateDB(
+  DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
 {
 	static OperationPrivilegeType old_NUM_OPPRVLG;
 
+	const int &oldVer = oldPackedVer.minorVer;
 	if (oldVer <= 1) {
 		old_NUM_OPPRVLG = static_cast<OperationPrivilegeType>(10);
 		updateAdminPrivilege(dbAgent, old_NUM_OPPRVLG);

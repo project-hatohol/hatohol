@@ -48,7 +48,7 @@ public:
 	// TODO: remove DBClient::DBSetupFuncArg after this class is
 	// implemented.
 	typedef void (*CreateTableInitializer)(DBAgent &, void *data);
-	typedef bool (*DBUpdater)(DBAgent &, const int &oldVer, void *data);
+	typedef bool (*DBUpdater)(DBAgent &, const Version &oldVer, void *data);
 
 	struct TableSetupInfo {
 		const DBAgent::TableProfile *profile;

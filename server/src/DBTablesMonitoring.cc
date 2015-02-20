@@ -2778,7 +2778,8 @@ uint64_t DBTablesMonitoring::getLastUpdateTimeOfIncidents(
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data);
+static bool updateDB(
+  DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data);
 
 DBTables::SetupInfo &DBTablesMonitoring::getSetupInfo(void)
 {
@@ -3009,8 +3010,10 @@ HatoholError DBTablesMonitoring::getHostgroupElementList
 	return HTERR_OK;
 }
 
-static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
+static bool updateDB(
+  DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
 {
+	const int &oldVer = oldPackedVer.minorVer;
 	if (oldVer == 4) {
 		const string oldTableName = "issues";
 		if (dbAgent.isTableExisting(oldTableName)) {

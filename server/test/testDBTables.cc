@@ -148,22 +148,22 @@ void test_tableUpdater(void)
 {
 	struct Gizmo {
 		bool called;
-		int oldVer;
+		DBTables::Version oldVer;
 		bool updateSuccess;
 
 		Gizmo(void)
 		: called(false),
-		  oldVer(0),
 		  updateSuccess(true)
 		{
 		}
 
-		static bool updater(DBAgent &agent, const int &oldVer,
-		                    void *data)
+		static bool updater(
+		  DBAgent &agent, const DBTables::Version &oldPackedVer,
+		  void *data)
 		{
 			Gizmo *obj = static_cast<Gizmo *>(data);
 			obj->called = true;
-			obj->oldVer = oldVer;
+			obj->oldVer = oldPackedVer;
 			return obj->updateSuccess;
 		}
 	} gizmo;
@@ -197,7 +197,7 @@ void test_tableUpdater(void)
 	TestDBTables tables2(testDB.getDBAgent(), SETUP_INFO);
 	cppcut_assert_equal(true, SETUP_INFO.initialized);
 	cppcut_assert_equal(false, gizmo.called);
-	cppcut_assert_equal(0, gizmo.oldVer);
+	cppcut_assert_equal(0, gizmo.oldVer.getPackedVer());
 
 	// Create again with the upper version of DBTables.
 	SETUP_INFO.version++;
@@ -205,7 +205,7 @@ void test_tableUpdater(void)
 	TestDBTables tables3(testDB.getDBAgent(), SETUP_INFO);
 	cppcut_assert_equal(true, SETUP_INFO.initialized);
 	cppcut_assert_equal(true, gizmo.called);
-	cppcut_assert_equal(DB_VERSION, gizmo.oldVer);
+	cppcut_assert_equal(DB_VERSION, gizmo.oldVer.getPackedVer());
 
 	// A case that an update fails.
 	SETUP_INFO.version++;
