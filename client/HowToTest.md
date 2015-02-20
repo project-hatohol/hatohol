@@ -93,3 +93,6 @@ Run feature test(s), respectively:
 NOTE: If you use non-Japanese langage environment Linux, You need to specify following environment variables before running feature test(s):
 
     $ export LANG=ja_JP.utf8 LC_ALL=ja_JP.UTF-8
+
+Hint: Casper.js test generator which is called [resurrectio](https://github.com/ebrehault/resurrectio) is provided as Chrome extension.
+You can use this Chrome extension to generate feature test skelton. This extension's Casper.js target is Casper.js **1.1-beta** series. Casper.js 1.0 or older dose *NOT* support.
