@@ -123,7 +123,7 @@ struct ArmBase::Impl
 	               const MonitoringServerInfo &_serverInfo)
 	: name(_name),
 	  serverInfo(_serverInfo),
-	  utils(serverInfo),
+	  utils(serverInfo, armTriggers, NUM_COLLECT_NG_KIND),
 	  exitRequest(false),
 	  isCopyOnDemandEnabled(false),
 	  lastFailureStatus(ARM_WORK_STAT_FAILURE)
@@ -211,12 +211,6 @@ struct ArmBase::Impl
 		}
 		rwlock.unlock();
 	}
-
-	void setInitialTriggerTable(void)
-	{
-		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++)
-			armTriggers[i].status = TRIGGER_STATUS_ALL;
-	}
 };
 
 // ---------------------------------------------------------------------------
@@ -226,7 +220,6 @@ ArmBase::ArmBase(
   const string &name, const MonitoringServerInfo &serverInfo)
 : m_impl(new Impl(name, serverInfo))
 {
-	m_impl->setInitialTriggerTable();
 }
 
 ArmBase::~ArmBase()
@@ -373,7 +366,7 @@ void ArmBase::registerAvailableTrigger(const ArmPollingResult &type,
 
 bool ArmBase::hasTrigger(const ArmPollingResult &type)
 {
-	return (m_impl->armTriggers[type].status != TRIGGER_STATUS_ALL);
+	return m_impl->utils.isArmTriggerUsed(type);
 }
 
 void ArmBase::setInitialTriggerStatus(void)
@@ -384,7 +377,7 @@ void ArmBase::setInitialTriggerStatus(void)
 	TriggerInfoList triggerInfoList;
 
 	for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
-		if (!hasTrigger(static_cast<ArmPollingResult>(i)))
+		if (!m_impl->utils.isArmTriggerUsed(i))
 			continue;
 		ArmUtils::ArmTrigger &armTrigger = m_impl->armTriggers[i];
 		if (armTrigger.status != TRIGGER_STATUS_UNKNOWN)
@@ -400,72 +393,7 @@ void ArmBase::setInitialTriggerStatus(void)
 
 void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 {
-	TriggerInfoList triggerInfoList;
-	EventInfoList eventInfoList;
-
-	if (type == COLLECT_OK) {
-		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
-			if (!hasTrigger(static_cast<ArmPollingResult>(i)))
-				continue;
-			ArmUtils::ArmTrigger &armTrigger =
-			  m_impl->armTriggers[i];
-			if (armTrigger.status != TRIGGER_STATUS_OK) {
-				armTrigger.status = TRIGGER_STATUS_OK;
-				m_impl->utils.createTrigger(armTrigger,
-				                            triggerInfoList);
-			}
-			if (armTrigger.status == TRIGGER_STATUS_PROBLEM) {
-				m_impl->utils.createEvent(armTrigger,
-				                          eventInfoList);
-			}
-		}
-	} else {
-		if (!hasTrigger(type))
-			return;
-		if (m_impl->armTriggers[type].status == TRIGGER_STATUS_PROBLEM)
-			return;
-
-		m_impl->armTriggers[type].status = TRIGGER_STATUS_PROBLEM;
-		m_impl->utils.createTrigger(m_impl->armTriggers[type],
-		                            triggerInfoList);
-		m_impl->utils.createEvent(m_impl->armTriggers[type],
-		                          eventInfoList);
-
-		for (int i = static_cast<int>(type) + 1; i < NUM_COLLECT_NG_KIND; i++) {
-			if (!hasTrigger(static_cast<ArmPollingResult>(i)))
-				continue;
-			ArmUtils::ArmTrigger &armTrigger =
-			  m_impl->armTriggers[i];
-			if (armTrigger.status != TRIGGER_STATUS_OK) {
-				armTrigger.status = TRIGGER_STATUS_OK;
-				m_impl->utils.createTrigger(armTrigger,
-				                            triggerInfoList);
-			}
-			if (armTrigger.status == TRIGGER_STATUS_PROBLEM) {
-				m_impl->utils.createEvent(armTrigger,
-				                          eventInfoList);
-			}
-		}
-		for (int i = 0; i < type; i++) {
-			if (!hasTrigger(static_cast<ArmPollingResult>(i)))
-				continue;
-			ArmUtils::ArmTrigger &armTrigger = m_impl->armTriggers[i];
-			if (armTrigger.status == TRIGGER_STATUS_OK) {
-				armTrigger.status = TRIGGER_STATUS_UNKNOWN;
-				m_impl->utils.createTrigger(armTrigger,
-				                            triggerInfoList);
-			}
-		}
-	}
-
-	if (!triggerInfoList.empty()) {
-		ThreadLocalDBCache cache;
-		cache.getMonitoring().addTriggerInfoList(triggerInfoList);
-	}
-	if (!eventInfoList.empty()) {
-		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-		dataStore->addEventList(eventInfoList);
-	}
+	m_impl->utils.updateTriggerStatus(type, TRIGGER_STATUS_PROBLEM);
 }
 
 gpointer ArmBase::mainThread(HatoholThreadArg *arg)
