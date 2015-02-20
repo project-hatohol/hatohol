@@ -16,7 +16,7 @@ Install packages (for Debian 7)
 
     # apt-get install checkinstall
     $ wget -N http://nodejs.org/dist/node-latest.tar.gz
-    $ tar xzvf node-latest.tar.gz && cd node-v* 
+    $ tar xzvf node-latest.tar.gz && cd node-v*
     $ checkinstall -y --install=no --pkgversion 0.10.24 # Replace with current version number.
     # sudo dpkg -i node_*
     # curl https://npmjs.org/install.sh | sudo sh
@@ -55,7 +55,7 @@ Then, when 'make' is executed, the following links are created.
 
 run Hatohol with a debug mode
 -----------------------------
-run Hatohol server with --test-mode  
+run Hatohol server with --test-mode
 Ex.)
 
     $ LD_LIBRARY_PATH=mlpl/src/.libs:src/.libs HATOHOL_DB_DIR=~/tmp src/.libs/hatohol --pid-file ~/tmp/hatohol.pid --foreground --test-mode
