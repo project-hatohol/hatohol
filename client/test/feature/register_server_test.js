@@ -2,11 +2,11 @@ var x = require("casper").selectXPath;
 var util = require("feature_test_utils");
 casper.options.viewportSize = {width: 1024, height: 768};
 casper.on("page.error", function(msg, trace) {
-   this.echo("Error: " + msg, "ERROR");
-   for(var i = 0; i < trace.length; i++) {
-       var step = trace[i];
-       this.echo("   " + step.file + " (line " + step.line + ")", "ERROR");
-   }
+  this.echo("Error: " + msg, "ERROR");
+  for(var i = 0; i < trace.length; i++) {
+    var step = trace[i];
+    this.echo("   " + step.file + " (line " + step.line + ")", "ERROR");
+  }
 });
 
 casper.test.begin('Register/Unregister server test', function(test) {
