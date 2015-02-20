@@ -63,8 +63,8 @@ casper.test.begin('Register/Unregister action test', function(test) {
   casper.waitForSelector(".ui-dialog-buttonset > button",
     function success() {
       test.assertExists(".ui-dialog-buttonset > button",
-                        "Confirmation dialog button appeared when \
-                        registering target action.");
+                        "Confirmation dialog button appeared when" +
+                        "registering target action.");
       this.evaluate(function() {
         $("#server-selector").find("table#selectorMainTable").find("tr").last()
           .click().change();
@@ -85,8 +85,8 @@ casper.test.begin('Register/Unregister action test', function(test) {
   casper.waitForSelector(".ui-dialog-buttonset > button",
     function success() {
       test.assertExists(".ui-dialog-buttonset > button",
-                        "Confirmation dialog button appeared when \
-                        registering action.");
+                        "Confirmation dialog button appeared when" +
+                        "registering action.");
       this.click(".ui-dialog-buttonset > button");
     },
     function fail() {
