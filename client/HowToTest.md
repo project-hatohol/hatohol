@@ -7,6 +7,7 @@ Install packages (for Ubuntu 12.04)
     # npm install -g sinon
     # apt-get install nodejs-legacy
     # npm install -g mocha-phantomjs phantomjs
+    # npm install -g casperjs
     # pip install django==1.5.4
     # pip install mysql-python
 
@@ -25,6 +26,7 @@ The above instruction is an excerpt from https://github.com/joyent/node/wiki/Ins
     # npm install -g mocha
     # npm install -g expect.js
     # npm install -g mocha-phantomjs phantomjs
+    # npm install -g casperjs
     # pip install django==1.5.4
 
 make symbolic links
@@ -77,3 +79,17 @@ Access the following URL.
 
 http://localhost:8000/test/index.html
 
+run feature test on commandline
+-------------------------------
+
+Run all feature tests:
+
+    $ casperjs test client/test/feature/*_test.js
+
+Run feature test(s), respectively:
+
+    $ casperjs test client/test/feature/feature1_test.js client/test/feature/feature2_test.js
+
+NOTE: If you use non-Japanese langage environment Linux, You need to specify following environment variables before running feature test(s):
+
+    $ export LANG=ja_JP.utf8 LC_ALL=ja_JP.UTF-8
