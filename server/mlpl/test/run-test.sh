@@ -25,7 +25,7 @@ if test x"$NO_MAKE" != x"yes"; then
             :
             ;;
     esac
-    $MAKE $MAKE_ARGS -C $mlpl_dir/ > /dev/null || exit 1
+    $MAKE $MAKE_ARGS -C $mlpl_dir/ || exit 1
 fi
 
 if test -z "$CUTTER"; then

@@ -29,7 +29,7 @@ if test x"$NO_MAKE" != x"yes"; then
             :
             ;;
     esac
-    $MAKE $MAKE_ARGS -C $top_dir/ > /dev/null || exit 1
+    $MAKE $MAKE_ARGS -C $top_dir/ || exit 1
 fi
 
 tmpfs_dir=/dev/shm
