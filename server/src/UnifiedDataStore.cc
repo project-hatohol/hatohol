@@ -421,13 +421,6 @@ bool UnifiedDataStore::fetchItemsAsync(Closure0 *closure,
 	return m_impl->itemFetchWorker.start(targetServerId, closure);
 }
 
-void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
-				   const HostsQueryOption &option)
-{
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().getHostInfoList(hostInfoList, option);
-}
-
 HatoholError UnifiedDataStore::getActionList(
   ActionDefList &actionList, const ActionsQueryOption &option)
 {
@@ -455,22 +448,67 @@ bool UnifiedDataStore::isIncidentSenderActionEnabled(void)
 	return cache.getAction().isIncidentSenderEnabled();
 }
 
-HatoholError UnifiedDataStore::getHostgroupInfoList
-  (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
+HatoholError UnifiedDataStore::upsertHost(const ServerHostDef &serverHostDef,
+                                          HostIdType *hostId)
 {
 	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	return dbMonitoring.getHostgroupInfoList(hostgroupInfoList,option);
+	const HostIdType returnedId = cache.getHost().upsertHost(serverHostDef);
+	if (hostId)
+		*hostId = returnedId;
+	return HTERR_OK;
 }
 
-HatoholError UnifiedDataStore::getHostgroupElementList(
-  HostgroupElementList &hostgroupElementList,
-  const HostgroupElementQueryOption &option)
+HatoholError UnifiedDataStore::getServerHostDefs(
+  ServerHostDefVect &svHostDefVect, const HostsQueryOption &option)
 {
 	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	return dbMonitoring.getHostgroupElementList(hostgroupElementList,
-	                                            option);
+	return cache.getHost().getServerHostDefs(svHostDefVect, option);
+}
+
+HatoholError UnifiedDataStore::getHostgroups(
+  HostgroupVect &hostgroups, const HostgroupsQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	return cache.getHost().getHostgroups(hostgroups, option);
+}
+
+HatoholError UnifiedDataStore::upsertHosts(
+  const ServerHostDefVect &serverHostDefs)
+{
+	ThreadLocalDBCache cache;
+	cache.getHost().upsertHosts(serverHostDefs);
+	return HTERR_OK;
+}
+
+HatoholError UnifiedDataStore::syncHosts(const ServerHostDefVect &svHostDefs,
+                                         const ServerIdType &serverId)
+{
+	ThreadLocalDBCache cache;
+	return cache.getHost().syncHosts(svHostDefs, serverId);
+}
+
+HatoholError UnifiedDataStore::upsertHostgroups(const HostgroupVect &hostgroups)
+{
+	ThreadLocalDBCache cache;
+	cache.getHost().upsertHostgroups(hostgroups);
+	return HTERR_OK;
+}
+
+HatoholError UnifiedDataStore::upsertHostgroupMembers(
+  const HostgroupMemberVect &hostgroupMembers)
+{
+	ThreadLocalDBCache cache;
+	cache.getHost().upsertHostgroupMembers(hostgroupMembers);
+	return HTERR_OK;
+}
+
+HatoholError UnifiedDataStore::getHostgroupMembers(
+  HostgroupMemberVect &hostgroupMembers,
+  const HostgroupMembersQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	cache.getHost().getHostgroupMembers(hostgroupMembers, option);
+	return HTERR_OK;
 }
 
 size_t UnifiedDataStore::getNumberOfBadTriggers(

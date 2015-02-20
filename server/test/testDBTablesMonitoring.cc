@@ -95,8 +95,8 @@ static void _assertGetTriggerInfoList(
   gconstpointer ddtParam, uint32_t serverId, uint64_t hostId = ALL_HOSTS)
 {
 	loadTestDBTriggers();
-	loadTestDBHosts();
-	loadTestDBHostgroupElements();
+	loadTestDBServerHostDef();
+	loadTestDBHostgroupMember();
 
 	AssertGetTriggersArg arg(ddtParam);
 	arg.targetServerId = serverId;
@@ -172,7 +172,7 @@ struct AssertGetItemsArg
 		option.setTargetItemGroupName(itemGroupName);
 	}
 
-	virtual bool filterOutExpectedRecord(ItemInfo *info) override
+	virtual bool filterOutExpectedRecord(const ItemInfo *info) override
 	{
 		if (AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
 		      ::filterOutExpectedRecord(info)) {
@@ -241,57 +241,12 @@ void _assertItemInfoList(gconstpointer data, uint32_t serverId)
 		itemInfoList.push_back(testItemInfo[i]);
 	dbMonitoring.addItemInfoList(itemInfoList);
 
-	HostgroupElementList hostgroupElementList;
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		hostgroupElementList.push_back(testHostgroupElement[i]);
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
-
-	HostgroupInfoList hostgroupInfoList;
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
-		hostgroupInfoList.push_back(testHostgroupInfo[i]);
-	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
-
 	AssertGetItemsArg arg(data);
 	arg.targetServerId = serverId;
 	assertGetItems(arg);
 }
 #define assertItemInfoList(DATA, SERVER_ID) \
 cut_trace(_assertItemInfoList(DATA, SERVER_ID))
-
-struct AssertGetHostsArg
-  : public AssertGetHostResourceArg<HostInfo, HostsQueryOption>
-{
-	HostInfoList expectedHostList;
-
-	AssertGetHostsArg(gconstpointer ddtParam)
-	{
-		fixtures = testHostInfo;
-		numberOfFixtures = NumTestHostInfo;
-		setDataDrivenTestParam(ddtParam);
-	}
-
-	virtual HostIdType getHostId(const HostInfo &info) const override
-	{
-		return info.id;
-	}
-
-	virtual string makeOutputText(const HostInfo &hostInfo)
-	{
-		return makeHostOutput(hostInfo);
-	}
-};
-
-static void _assertGetHosts(AssertGetHostsArg &arg)
-{
-	loadTestDBHosts();
-	loadTestDBHostgroupElements();
-
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	arg.fixup();
-	dbMonitoring.getHostInfoList(arg.actualRecordList, arg.option);
-	arg.assert();
-}
-#define assertGetHosts(A) cut_trace(_assertGetHosts(A))
 
 static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool status)
 {
@@ -336,41 +291,6 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 }
 #define assertTriggerInfo(E,A) cut_trace(_assertTriggerInfo(E,A))
 
-static string makeHostgroupsOutput(const HostgroupInfo &hostgroupInfo, size_t id)
-{
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|%" FMT_SERVER_ID "|%" FMT_HOST_GROUP_ID "|%s\n",
-	  id + 1, hostgroupInfo.serverId,
-	  hostgroupInfo.groupId, hostgroupInfo.groupName.c_str());
-
-	return expectedOut;
-}
-
-static string makeMapHostsHostgroupsOutput
-  (const HostgroupElement &hostgroupElement, size_t id)
-{
-	HostgroupElementQueryOption option;
-	const DBTermCodec *dbTermCodec = option.getDBTermCodec();
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|%s|%s|%s\n",
-	  id + 1,
-	  dbTermCodec->enc(hostgroupElement.serverId).c_str(),
-	  dbTermCodec->enc(hostgroupElement.hostId).c_str(),
-	  dbTermCodec->enc(hostgroupElement.groupId).c_str());
-
-	return expectedOut;
-}
-
-static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
-{
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|%" FMT_SERVER_ID "|%" FMT_HOST_ID "|%s|%d\n",
-	  id + 1, hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str(),
-	  hostInfo.validity);
-
-	return expectedOut;
-}
-
 static void prepareDataForAllHostgroupIds(void)
 {
 	set<HostgroupIdType> hostgroupIdSet = getTestHostgroupIdSet();
@@ -378,10 +298,10 @@ static void prepareDataForAllHostgroupIds(void)
 	set<HostgroupIdType>::const_iterator hostgrpIdItr =
 	  hostgroupIdSet.begin();
 	for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr) {
-		gcut_add_datum(
-		  StringUtils::sprintf("Hostgroup ID: %" FMT_HOST_GROUP_ID,
-		                       *hostgrpIdItr).c_str(),
-		  "hostgroupId", G_TYPE_UINT64, *hostgrpIdItr, NULL);
+		string label = "Hostgroup ID: ";
+		label += *hostgrpIdItr;
+		gcut_add_datum(label.c_str(), "hostgroupId",
+		               G_TYPE_STRING, hostgrpIdItr->c_str(), NULL);
 	}
 }
 
@@ -434,8 +354,8 @@ void test_addTriggerInfo(void)
 void test_getTriggerInfo(void)
 {
 	loadTestDBTriggers();
-	loadTestDBHosts();
-	loadTestDBHostgroupElements();
+	loadTestDBServerHostDef();
+	loadTestDBHostgroupMember();
 
 	int targetIdx = 2;
 	TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
@@ -510,16 +430,6 @@ void test_setTriggerInfoList(gconstpointer data)
 	const ServerIdType serverId = testTriggerInfo[0].serverId;
 	dbMonitoring.setTriggerInfoList(triggerInfoList, serverId);
 
-	HostgroupElementList hostgroupElementList;
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		hostgroupElementList.push_back(testHostgroupElement[i]);
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
-
-	HostgroupInfoList hostgroupInfoList;
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
-		hostgroupInfoList.push_back(testHostgroupInfo[i]);
-	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
-
 	AssertGetTriggersArg arg(data);
 	assertGetTriggers(arg);
 }
@@ -546,18 +456,6 @@ void test_addTriggerInfoList(gconstpointer data)
 	for (; i < NumTestTriggerInfo; i++)
 		triggerInfoList1.push_back(testTriggerInfo[i]);
 	dbMonitoring.addTriggerInfoList(triggerInfoList1);
-
-	// Add HostgroupElement
-	HostgroupElementList hostgroupElementList;
-	for (size_t j = 0; j < NumTestHostgroupElement; j++)
-		hostgroupElementList.push_back(testHostgroupElement[j]);
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
-
-	// Add HostgroupInfo
-	HostgroupInfoList hostgroupInfoList;
-	for (size_t j = 0; j < NumTestHostgroupInfo; j++)
-		hostgroupInfoList.push_back(testHostgroupInfo[j]);
-	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
 
 	// Check
 	AssertGetTriggersArg arg(data);
@@ -633,16 +531,6 @@ void test_addItemInfoList(gconstpointer data)
 	for (size_t i = 0; i < NumTestItemInfo; i++)
 		itemInfoList.push_back(testItemInfo[i]);
 	dbMonitoring.addItemInfoList(itemInfoList);
-
-	HostgroupElementList hostgroupElementList;
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		hostgroupElementList.push_back(testHostgroupElement[i]);
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
-
-	HostgroupInfoList hostgroupInfoList;
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
-		hostgroupInfoList.push_back(testHostgroupInfo[i]);
-	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
 
 	AssertGetItemsArg arg(data);
 	assertGetItems(arg);
@@ -857,65 +745,6 @@ void test_getTimeOfLastEventWithTriggerId(void)
 	  dbMonitoring.getTimeOfLastEvent(serverId, triggerId));
 }
 
-void data_getHostInfoList(void)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_getHostInfoList(gconstpointer data)
-{
-	AssertGetHostsArg arg(data);
-	assertGetHosts(arg);
-}
-
-void data_getHostInfoListForOneServer(void)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_getHostInfoListForOneServer(gconstpointer data)
-{
-	AssertGetHostsArg arg(data);
-	arg.targetServerId = 1;
-	assertGetHosts(arg);
-}
-
-void data_getHostInfoListWithNoAuthorizedServer(void)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_getHostInfoListWithNoAuthorizedServer(gconstpointer data)
-{
-	AssertGetHostsArg arg(data);
-	arg.userId = 4;
-	assertGetHosts(arg);
-}
-
-void data_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
-{
-	AssertGetHostsArg arg(data);
-	arg.userId = 5;
-	assertGetHosts(arg);
-}
-
-void data_getHostInfoListWithUserWhoCanAccessSomeHostgroups(void)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_getHostInfoListWithUserWhoCanAccessSomeHostgroups(gpointer data)
-{
-	AssertGetHostsArg arg(data);
-	arg.userId = 3;
-	assertGetHosts(arg);
-}
-
 void data_getNumberOfTriggers(void)
 {
 	prepareDataForAllHostgroupIds();
@@ -924,27 +753,27 @@ void data_getNumberOfTriggers(void)
 void test_getNumberOfTriggers(gconstpointer data)
 {
 	loadTestDBTriggers();
-	loadTestDBHostgroupElements();
+	loadTestDBHostgroupMember();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId =
-	  gcut_data_get_int(data, "hostgroupId");
+	  gcut_data_get_string(data, "hostgroupId");
 
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostgroupId(hostgroupId);
 	cppcut_assert_equal(
-	  dbMonitoring.getNumberOfTriggers(option),
 	  getNumberOfTestTriggers(targetServerId, hostgroupId),
+	  dbMonitoring.getNumberOfTriggers(option),
 	  cut_message("sv: %" FMT_SERVER_ID ", hostgroup: %" FMT_HOST_GROUP_ID,
-		      targetServerId, hostgroupId));
+	              targetServerId, hostgroupId.c_str()));
 }
 
 void test_getNumberOfTriggersForMultipleAuthorizedHostgroups(void)
 {
 	loadTestDBTriggers();
-	loadTestDBHostgroupElements();
+	loadTestDBHostgroupMember();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId = ALL_HOST_GROUPS;
@@ -955,8 +784,8 @@ void test_getNumberOfTriggersForMultipleAuthorizedHostgroups(void)
 	option.setTargetHostgroupId(hostgroupId);
 
 	cppcut_assert_equal(
-	  dbMonitoring.getNumberOfTriggers(option),
-	  getNumberOfTestTriggers(targetServerId, hostgroupId));
+	  getNumberOfTestTriggers(targetServerId, hostgroupId),
+	  dbMonitoring.getNumberOfTriggers(option));
 }
 
 void data_getNumberOfTriggersBySeverity(void)
@@ -976,12 +805,14 @@ void _assertGetNumberOfTriggers(DBTablesMonitoring &dbMonitoring,
 	  dbMonitoring.getNumberOfBadTriggers(option, severity);
 	const size_t expect = getNumberOfTestTriggers(
 	  serverId, hostgroupId, severity);
+	if (isVerboseMode())
+		cut_notify("The expected number of triggesr: %zd\n", expect);
 	cppcut_assert_equal(expect, actual,
 			    cut_message(
 			      "sv: %" FMT_SERVER_ID ", "
 			      "hostgroup: %" FMT_HOST_GROUP_ID ", "
 			      "severity: %d",
-			      serverId, hostgroupId, severity));
+			      serverId, hostgroupId.c_str(), severity));
 }
 #define assertGetNumberOfTriggers(D,S,H,V) \
 cut_trace(_assertGetNumberOfTriggers(D,S,H,V))
@@ -989,11 +820,11 @@ cut_trace(_assertGetNumberOfTriggers(D,S,H,V))
 void test_getNumberOfTriggersBySeverity(gconstpointer data)
 {
 	loadTestDBTriggers();
-	loadTestDBHostgroupElements();
+	loadTestDBHostgroupMember();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId =
-	  gcut_data_get_int(data, "hostgroupId");
+	  gcut_data_get_string(data, "hostgroupId");
 
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
@@ -1012,11 +843,11 @@ void data_getNumberOfAllBadTriggers(void)
 void test_getNumberOfAllBadTriggers(gconstpointer data)
 {
 	loadTestDBTriggers();
-	loadTestDBHostgroupElements();
+	loadTestDBHostgroupMember();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId =
-	  gcut_data_get_int(data, "hostgroupId");
+	  gcut_data_get_string(data, "hostgroupId");
 
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	assertGetNumberOfTriggers(dbMonitoring, targetServerId, hostgroupId,
@@ -1332,184 +1163,6 @@ void test_getEventWithTriggerId(gconstpointer data)
 	AssertGetEventsArg arg(data);
 	arg.triggerId = 3;
 	assertGetEventsWithFilter(arg);
-}
-
-void test_addHostgroupInfo(void)
-{
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	HostgroupInfoList hostgroupInfoList;
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = "select * from hostgroups;";
-	string expect;
-
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++) {
-		hostgroupInfoList.push_back(testHostgroupInfo[i]);
-		expect += makeHostgroupsOutput(testHostgroupInfo[i], i);
-	}
-	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
-	assertDBContent(&dbAgent, statement, expect);
-}
-
-void test_addHostgroupElement(void)
-{
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	HostgroupElementList hostgroupElementList;
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = "select * from map_hosts_hostgroups";
-	string expect;
-
-	for (size_t i = 0; i < NumTestHostgroupElement; i++) {
-		hostgroupElementList.push_back(testHostgroupElement[i]);
-		expect += makeMapHostsHostgroupsOutput(
-		            testHostgroupElement[i], i);
-	}
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
-	assertDBContent(&dbAgent, statement, expect);
-}
-
-void test_addHostInfo(void)
-{
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	HostInfoList hostInfoList;
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = "select * from hosts;";
-	string expect;
-
-	for(size_t i = 0; i < NumTestHostInfo; i++) {
-		hostInfoList.push_back(testHostInfo[i]);
-		expect += makeHostsOutput(testHostInfo[i], i);
-	}
-	dbMonitoring.addHostInfoList(hostInfoList);
-	assertDBContent(&dbAgent, statement, expect);
-}
-
-void test_updateHostsMarkInvalid(void)
-{
-	loadTestDBHosts();
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	const ServerIdType targetServerId = 1;
-
-	// We keep the valid status for the hosts whose id is even.
-	HostInfoList hostInfoList;
-	HostIdHostInfoMap hostMap;
-	for (size_t i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo &hostInfo = testHostInfo[i];
-		if (hostInfo.serverId != targetServerId)
-			continue;
-		hostMap[hostInfo.id] = &hostInfo;
-		if (hostInfo.id % 2)
-			continue;
-		hostInfoList.push_back(hostInfo);
-	}
-	// sanity check if we use the proper data
-	cppcut_assert_equal(false, hostInfoList.empty());
-
-	// Prepare for the expected result.
-	string expect;
-	HostIdHostInfoMapConstIterator hostMapItr = hostMap.begin();
-	for (; hostMapItr != hostMap.end(); ++hostMapItr) {
-		const HostInfo &hostInfo = *hostMapItr->second;
-		int valid = (hostInfo.id % 2 == 0) ? HOST_VALID : HOST_INVALID;
-		expect += StringUtils::sprintf(
-		  "%" FMT_HOST_ID "|%d\n", hostInfo.id, valid);
-	}
-
-	// Call the method to be tested and check the result
-	dbMonitoring.updateHosts(hostInfoList, targetServerId);
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = StringUtils::sprintf(
-	  "select host_id,validity from hosts where server_id=%" FMT_SERVER_ID
-	  " order by host_id asc;", targetServerId);
-	assertDBContent(&dbAgent, statement, expect);
-}
-
-void test_updateHostsAddNewHost(void)
-{
-	loadTestDBHosts();
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	const ServerIdType targetServerId = 1;
-	HostInfo newHost;
-	newHost.serverId = targetServerId;
-	newHost.id       = 123231;
-	newHost.hostName = "new test host";
-	newHost.validity = HOST_VALID;
-
-	// Sanity check the ID of the new host is not duplicated.
-	for (size_t i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo &hostInfo = testHostInfo[i];
-		if (hostInfo.serverId != targetServerId)
-			continue;
-		if (hostInfo.id == newHost.id)
-			cut_fail("We use the wrong test data");
-	}
-
-	// Prepare for the test data and the expected result.
-	HostInfoList hostInfoList;
-	string expect;
-	size_t i;
-	for (i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo &hostInfo = testHostInfo[i];
-		if (hostInfo.serverId != targetServerId)
-			continue;
-		hostInfoList.push_back(hostInfo);
-		expect += makeHostsOutput(hostInfo, i);
-	}
-	hostInfoList.push_back(newHost);
-	expect += makeHostsOutput(newHost, i);
-
-	// Call the method to be tested and check the result
-	dbMonitoring.updateHosts(hostInfoList, targetServerId);
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = StringUtils::sprintf(
-	  "select * from hosts where server_id=%" FMT_SERVER_ID
-	  " order by id asc;", targetServerId);
-	assertDBContent(&dbAgent, statement, expect);
-}
-
-void test_updateHostsChangeHostName(void)
-{
-	loadTestDBHosts();
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	const ServerIdType targetServerId = 1;
-	HostInfo updateHost;
-	updateHost.serverId = targetServerId;
-	updateHost.id       = 235012;
-	updateHost.hostName = "hostX1";
-	updateHost.validity = HOST_VALID;
-
-	// Sanity check the ID of the new host is duplicated.
-	for (size_t i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo &hostInfo = testHostInfo[i];
-		if (hostInfo.id == updateHost.id)
-			break;
-		if (i == (NumTestHostInfo - 1))
-			cut_fail("We use the wrong test data");
-	}
-
-	// Prepare for the test data and the expected result.
-	HostInfoList hostInfoList;
-	string expect;
-	size_t i;
-	for (i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo &hostInfo = testHostInfo[i];
-		if (hostInfo.serverId != targetServerId)
-			continue;
-		if (hostInfo.hostName == updateHost.hostName) {
-			hostInfoList.push_back(updateHost);
-			expect += makeHostsOutput(updateHost, i);
-		} else {
-			hostInfoList.push_back(hostInfo);
-			expect += makeHostsOutput(hostInfo, i);
-		}
-	}
-
-	// Call the method to be tested and check the result
-	dbMonitoring.updateHosts(hostInfoList, targetServerId);
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = StringUtils::sprintf(
-	  "select * from hosts where server_id=%" FMT_SERVER_ID
-	  " order by id asc;", targetServerId);
-	assertDBContent(&dbAgent, statement, expect);
 }
 
 void test_addIncidentInfo(void)

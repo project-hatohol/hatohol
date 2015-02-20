@@ -28,6 +28,7 @@
 #include "HostResourceQueryOption.h"
 #include "SmartTime.h"
 #include "Monitoring.h"
+#include "DBTablesHost.h"
 
 class EventsQueryOption : public HostResourceQueryOption {
 public:
@@ -108,34 +109,15 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-class HostsQueryOption : public HostResourceQueryOption {
-public:
-	HostsQueryOption(const UserIdType &userId = INVALID_USER_ID);
-	HostsQueryOption(const HostsQueryOption &src);
-	HostsQueryOption(DataQueryContext *dataQueryContext);
-	virtual ~HostsQueryOption();
-
-	virtual std::string getCondition(void) const override;
-
-	void setValidity(const HostValidity &validity);
-	HostValidity getValidity(void) const;
-
-private:
-	struct Impl;
-	std::unique_ptr<Impl> m_impl;
-};
-
 class HostgroupsQueryOption : public HostResourceQueryOption {
 public:
 	HostgroupsQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	HostgroupsQueryOption(DataQueryContext *dataQueryContext);
 };
 
-class HostgroupElementQueryOption: public HostResourceQueryOption {
-public:
-	HostgroupElementQueryOption(const UserIdType &userId = INVALID_USER_ID);
-	HostgroupElementQueryOption(DataQueryContext *dataQueryContext);
-};
+// TODO: Remove this typedef ater the transition to the new host namagement
+//       is done.
+typedef HostgroupMembersQueryOption HostgroupElementQueryOption;
 
 class IncidentsQueryOption : public DataQueryOption {
 public:
@@ -159,9 +141,6 @@ public:
 
 	DBTablesMonitoring(DBAgent &dbAgent);
 	virtual ~DBTablesMonitoring();
-
-	void getHostInfoList(HostInfoList &hostInfoList,
-			     const HostsQueryOption &option);
 
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
@@ -200,33 +179,6 @@ public:
 	HatoholError getEventInfoList(EventInfoList &eventInfoList,
 	                              const EventsQueryOption &option,
 				      IncidentInfoVect *incidentInfoVect = NULL);
-
-	void addHostgroupInfo(HostgroupInfo *eventInfo);
-	void addHostgroupInfoList(const HostgroupInfoList &groupInfoList);
-	HatoholError getHostgroupInfoList(HostgroupInfoList &hostgroupInfoList,
-	                      const HostgroupsQueryOption &option);
-	HatoholError getHostgroupElementList
-	  (HostgroupElementList &hostgroupElementList,
-	   const HostgroupElementQueryOption &option);
-
-	void addHostgroupElement(HostgroupElement *mapHostHostgroupsInfo);
-	void addHostgroupElementList
-	  (const HostgroupElementList &mapHostHostgroupsInfoList);
-
-	void addHostInfo(HostInfo *hostInfo);
-	void addHostInfoList(const HostInfoList &hostInfoList);
-
-	/**
-	 * Update the host records.
-	 *
-	 * The records that are not included in the given hostInfoList
-	 * are marked as HOST_INVALID.
-	 *
-	 * @param hostInfoList  A list of hosts.
-	 * @param serverId      A monitoring server ID.
-	 */
-	void updateHosts(const HostInfoList &hostInfoList,
-	                 const ServerIdType &serverId);
 
 	/**
 	 * get the last (maximum) event ID of the event that belongs to
@@ -316,12 +268,6 @@ protected:
 	  DBAgent &dbAgent, EventInfo &eventInfo);
 	static void addItemInfoWithoutTransaction(
 	  DBAgent &dbAgent, const ItemInfo &itemInfo);
-	static void addHostgroupInfoWithoutTransaction(
-	  DBAgent &dbAgent, const HostgroupInfo &groupInfo);
-	static void addHostgroupElementWithoutTransaction(
-	  DBAgent &dbAgent, const HostgroupElement &hostgroupElement);
-	static void addHostInfoWithoutTransaction(
-	  DBAgent &dbAgent, const HostInfo &hostInfo);
 	static void addMonitoringServerStatusWithoutTransaction(
 	  DBAgent &dbAgent, const MonitoringServerStatus &serverStatus);
 	static void addIncidentInfoWithoutTransaction(

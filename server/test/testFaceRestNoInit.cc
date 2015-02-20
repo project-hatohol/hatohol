@@ -43,6 +43,18 @@ public:
 };
 
 template<typename PARAM_TYPE>
+string format(const PARAM_TYPE &expectValue, const string &fmt)
+{
+	return StringUtils::sprintf(fmt.c_str(), expectValue);
+}
+
+template<>
+string format(const string &expectValue, const string &fmt)
+{
+	return expectValue;
+}
+
+template<typename PARAM_TYPE>
 void _assertParseEventParameterTempl(
   const PARAM_TYPE &expectValue, const string &fmt, const string &paramName,
   PARAM_TYPE (EventsQueryOption::*valueGetter)(void) const,
@@ -55,7 +67,7 @@ void _assertParseEventParameterTempl(
 
 	string expectStr;
 	if (forceValueStr.empty())
-		expectStr =StringUtils::sprintf(fmt.c_str(), expectValue);
+		expectStr = format<PARAM_TYPE>(expectValue, fmt);
 	else
 		expectStr = forceValueStr;
 	g_hash_table_insert(query,
@@ -83,7 +95,7 @@ void _assertParseEventParameterTargetServerId(
 cut_trace(_assertParseEventParameterTargetServerId(E, ##__VA_ARGS__))
 
 void _assertParseEventParameterTargetHostgroupId(
-  const size_t &expectValue, const string &forceValueStr = "",
+  const HostgroupIdType &expectValue, const string &forceValueStr = "",
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
@@ -403,13 +415,13 @@ void test_parseEventParameterNoTargetHostgroupId(void)
 
 void test_parseEventParameterTargetHostgroupId(void)
 {
-	assertParseEventParameterTargetHostgroupId(456);
+	assertParseEventParameterTargetHostgroupId("456");
 }
 
 void test_parseEventParameterInvalidTargetHostgroupId(void)
 {
 	assertParseEventParameterTargetHostgroupId(
-	  0, "hostgroupid", HTERR_INVALID_PARAMETER);
+	  "", "", HTERR_INVALID_PARAMETER);
 }
 
 void test_parseEventParameterNoMinimumSeverity(void)

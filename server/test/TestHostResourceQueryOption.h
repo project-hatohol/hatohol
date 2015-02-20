@@ -41,7 +41,7 @@ public:
 	  const std::string &hostgroupIdColumnName,
 	  const std::string &hostIdColumnName,
 	  uint32_t targetServerId = ALL_SERVERS,
-	  uint64_t targetHostgroupId = ALL_HOST_GROUPS,
+	  const HostgroupIdType &targetHostgroupId = ALL_HOST_GROUPS,
 	  uint64_t targetHostId = ALL_HOSTS)
 	{
 		return makeCondition(srvHostGrpSetMap,

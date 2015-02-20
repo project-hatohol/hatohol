@@ -212,34 +212,33 @@ void ArmZabbixAPI::makeHatoholItems(
 
 void ArmZabbixAPI::makeHatoholHostgroups(ItemTablePtr groups)
 {
-	ThreadLocalDBCache cache;
-	HostgroupInfoList groupInfoList;
-	HatoholDBUtils::transformGroupsToHatoholFormat(groupInfoList, groups,
+	HostgroupVect hostgroups;
+	HatoholDBUtils::transformGroupsToHatoholFormat(hostgroups, groups,
 	                                               m_impl->zabbixServerId);
-	cache.getMonitoring().addHostgroupInfoList(groupInfoList);
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  UnifiedDataStore::getInstance()->upsertHostgroups(hostgroups));
 }
 
 void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
 {
-	ThreadLocalDBCache cache;
-	HostgroupElementList hostgroupElementList;
+	HostgroupMemberVect hostgroupMembers;
 	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
-	  hostgroupElementList, hostsGroups, m_impl->zabbixServerId);
-	cache.getMonitoring().addHostgroupElementList(hostgroupElementList);
+	  hostgroupMembers, hostsGroups, m_impl->zabbixServerId);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  uds->upsertHostgroupMembers(hostgroupMembers));
 }
 
 void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 {
-	ThreadLocalDBCache cache;
-	HostInfoList hostInfoList;
-	HatoholDBUtils::transformHostsToHatoholFormat(hostInfoList, hosts,
+	ServerHostDefVect svHostDefs;
+	HatoholDBUtils::transformHostsToHatoholFormat(svHostDefs, hosts,
 	                                              m_impl->zabbixServerId);
-	cache.getMonitoring().updateHosts(hostInfoList, m_impl->zabbixServerId);
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  UnifiedDataStore::getInstance()->syncHosts(svHostDefs,
+	                                             m_impl->zabbixServerId));
 
-	// TODO: consider if DBClientHatohol should have the cache
-	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
-	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
-		m_impl->hostInfoCache.update(*hostInfoItr);
+	m_impl->hostInfoCache.update(svHostDefs);
 }
 
 uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)

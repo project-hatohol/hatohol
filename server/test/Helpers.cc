@@ -542,6 +542,8 @@ static void assertDBContentForComponets(const string &expect,
 	for (size_t i = 0; i < wordsExpect.size(); i++) {
 		if (wordsExpect[i] == DBCONTENT_MAGIC_CURR_DATETIME) {
 			assertCurrDatetime(wordsActual[i]);
+		} else if(wordsExpect[i] == DBCONTENT_MAGIC_ANY) {
+			// just pass
 		} else if(wordsExpect[i] == DBCONTENT_MAGIC_NULL) {
 			cppcut_assert_equal(getExpectedNullNotation(*dbAgent),
 			                    wordsActual[i]);
@@ -646,11 +648,9 @@ void _assertServersInDB(const ServerIdSet &excludeServerIdSet)
 	statement += " ORDER BY id ASC";
 	string expect;
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
-		ServerIdType serverId = i + 1;
 		// We must make a copy because the member will be changed.
 		MonitoringServerInfo serverInfo = testServerInfo[i];
-		serverInfo.id = serverId;
-		ServerIdSetIterator it = excludeServerIdSet.find(serverId);
+		ServerIdSetIterator it = excludeServerIdSet.find(serverInfo.id);
 		if (it != excludeServerIdSet.end())
 			continue;
 		expect += makeServerInfoOutput(serverInfo);
@@ -710,8 +710,10 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 			continue;
 		const AccessInfo &accessInfo = testAccessInfo[i];
 		expect += StringUtils::sprintf(
-		  "%" FMT_ACCESS_INFO_ID "|%" FMT_USER_ID "|%d|%" PRIu64 "\n",
-		  id, accessInfo.userId, accessInfo.serverId, accessInfo.hostgroupId);
+		  "%" FMT_ACCESS_INFO_ID "|%" FMT_USER_ID "|%d|"
+		  "%" FMT_HOST_GROUP_ID "\n",
+		  id, accessInfo.userId, accessInfo.serverId,
+		  accessInfo.hostgroupId.c_str());
 	}
 	ThreadLocalDBCache cache;
 	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
@@ -1186,6 +1188,19 @@ VariableItemGroupPtr convert(const HistoryInfo &historyInfo)
 			historyInfo.value);
 	return grp;
 }
+
+void conv(HostInfo &hostInfo, const ServerHostDef &svHostDef)
+{
+	hostInfo.id = svHostDef.id;
+	hostInfo.serverId = svHostDef.serverId;
+
+	cppcut_assert_equal(1, sscanf(svHostDef.hostIdInServer.c_str(),
+	                              "%" FMT_HOST_ID, &hostInfo.id));
+	hostInfo.hostName = svHostDef.name;
+	hostInfo.validity = (svHostDef.status == HOST_STAT_NORMAL) ?
+	                    HOST_VALID : HOST_INVALID;
+}
+
 
 // ---------------------------------------------------------------------------
 // Watcher

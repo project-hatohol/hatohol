@@ -71,7 +71,7 @@ static void assertServersInParser(
 	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		parser->startElement(i);
-		MonitoringServerInfo &svInfo = testServerInfo[i];
+		const MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertValueInParser(parser, "id",   svInfo.id);
 		assertValueInParser(parser, "type", svInfo.type);
 		assertValueInParser(parser, "hostName",  svInfo.hostName);
@@ -118,7 +118,8 @@ void _assertAddServerWithSetup(const StringMap &params,
 			       const HatoholErrorCode &expectCode)
 {
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_SERVER);
-	assertAddServer(params, userId, expectCode, NumTestServerInfo + 1);
+	assertAddServer(params, userId, expectCode,
+	                testServerInfo[NumTestServerInfo-1].id + 1);
 }
 #define assertAddServerWithSetup(P,C) cut_trace(_assertAddServerWithSetup(P,C))
 
@@ -201,7 +202,7 @@ void test_addServer(void)
 {
 	MonitoringServerInfo expected;
 	MonitoringServerInfo::initialize(expected);
-	expected.id = NumTestServerInfo + 1;
+	expected.id = testServerInfo[NumTestServerInfo-1].id + 1;
 	expected.type = MONITORING_SYSTEM_ZABBIX;
 
 	StringMap params;
@@ -221,7 +222,7 @@ void test_addServerWithHapiParams(void)
 {
 	MonitoringServerInfo expected;
 	MonitoringServerInfo::initialize(expected);
-	expected.id = NumTestServerInfo + 1;
+	expected.id = testServerInfo[NumTestServerInfo-1].id + 1;
 	expected.type = MONITORING_SYSTEM_HAPI_ZABBIX;
 
 	ArmPluginInfo armPluginInfo;
@@ -247,7 +248,7 @@ void test_addServerHapiJSON(void)
 {
 	MonitoringServerInfo expected;
 	MonitoringServerInfo::initialize(expected);
-	expected.id = NumTestServerInfo + 1;
+	expected.id = testServerInfo[NumTestServerInfo-1].id + 1;
 	expected.type = MONITORING_SYSTEM_HAPI_JSON;
 	expected.nickname = "JSON";
 	expected.hostName = "";
@@ -319,6 +320,11 @@ void test_updateServer(gconstpointer data)
 	MonitoringServerInfo srcSvInfo = testServerInfo[serverIndex];
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	ArmPluginInfo *armPluginInfo = NULL;
+
+	// Although cut_setup() loads test servers in the DB, updateServer()
+	// needs the call of addTargetServer() before it. Or the internal
+	// state becomes wrong and an error is returned.
+	srcSvInfo.id = AUTO_INCREMENT_VALUE;
 	assertHatoholError(
 	  HTERR_OK,
 	  uds->addTargetServer(srcSvInfo, *armPluginInfo,
@@ -413,7 +419,7 @@ void test_deleteServer(void)
 
 	// a copy is necessary not to change the source.
 	MonitoringServerInfo targetSvInfo = testServerInfo[0];
-
+	targetSvInfo.id = AUTO_INCREMENT_VALUE;
 	assertHatoholError(
 	  HTERR_OK,
 	  uds->addTargetServer(targetSvInfo, *armPluginInfo,
