@@ -1232,10 +1232,10 @@ string TriggersQueryOption::getCondition(void) const
 		addCondition(
 		  condition,
 		  StringUtils::sprintf(
-		    "%s.%s<%" FMT_HOST_ID,
+		    "%s.%s!=%d",
 		    DBTablesMonitoring::TABLE_NAME_TRIGGERS,
-		    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName,
-		    MONITORING_SERVER_SELF_ID));
+		    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_VALIDITY].columnName,
+		    TRIGGER_VALID_SELF_MONITORING));
 	}
 
 	if (m_impl->shouldExcludeInvalidHost()) {
@@ -1243,9 +1243,9 @@ string TriggersQueryOption::getCondition(void) const
 		  condition,
 		  StringUtils::sprintf(
 		    "%s.%s!=%d",
-		    DBTablesMonitoring::TABLE_NAME_HOSTS,
-		    COLUMN_DEF_HOSTS[IDX_HOSTS_VALIDITY].columnName,
-		    HOST_INVALID));
+		    DBTablesMonitoring::TABLE_NAME_TRIGGERS,
+		    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_VALIDITY].columnName,
+		    TRIGGER_INVALID));
 	}
 
 	if (m_impl->targetId != ALL_TRIGGERS) {
