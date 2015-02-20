@@ -524,7 +524,8 @@ void test_fetchHistory(void)
 
 void test_fetchTrigger(void)
 {
-	loadTestDBServer(); // for getItemInfoList().
+	loadTestDBServer();
+	loadTestDBHosts();
 
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	TestPair pair(arg);
@@ -537,12 +538,15 @@ void test_fetchTrigger(void)
 	cppcut_assert_equal(
 	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
 
-	// Check the obtained items
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+
 	TriggerInfoList triggerInfoList;
+	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
+	triggersQueryOption.setTargetServerId(arg.serverId);
+	triggersQueryOption.setExcludeFlags(EXCLUDE_INVALID_HOST|EXCLUDE_SELF_MONITORING);
 	dbMonitoring.getTriggerInfoList(triggerInfoList,
-					TriggersQueryOption(USER_ID_SYSTEM));
+					triggersQueryOption);
 	vector<int> expectTriggerIdxVec;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		const TriggerInfo &triggerInfo = testTriggerInfo[i];
