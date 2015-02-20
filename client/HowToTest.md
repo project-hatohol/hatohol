@@ -82,17 +82,25 @@ http://localhost:8000/test/index.html
 run feature test on commandline
 -------------------------------
 
+You can specify test files with wildcard.
 Run all feature tests:
 
     $ casperjs test client/test/feature/*_test.js
 
-Run feature test(s), respectively:
+Or, run feature test(s), respectively:
 
     $ casperjs test client/test/feature/feature1_test.js client/test/feature/feature2_test.js
 
-NOTE: If you use non-Japanese langage environment Linux, You need to specify following environment variables before running feature test(s):
+> NOTE: If you use non-Japanese langage environment Linux OS, you need to specify following environment variables before running feature test(s):
 
     $ export LANG=ja_JP.utf8 LC_ALL=ja_JP.UTF-8
 
-Hint: Casper.js test generator which is called [resurrectio](https://github.com/ebrehault/resurrectio) is provided as Google Chrome extension.
-You can use this Google Chrome extension to generate feature test skelton. This extension's Casper.js target is Casper.js **1.1-beta** series. Casper.js 1.0 or older dose *NOT* support.
+> Hint: Casper.js test generator which is called [resurrectio](https://github.com/ebrehault/resurrectio) is provided as Google Chrome extension.
+> You can use this Google Chrome extension to generate feature test skelton. This extension's Casper.js target is Casper.js **1.1-beta** series. Casper.js 1.0 or older dose *NOT* support.
+
+> Memo: Casper.js has the method which can evaluate an expression in the current page DOM context.
+> You can use jQuery code inside evaluate function like this:
+
+    this.evaluate(function() {
+      $("div.ui-dialog-buttonset button").click();
+    });
