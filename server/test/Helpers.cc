@@ -160,8 +160,7 @@ void _assertEqual(const TriggerInfo &expect, const TriggerInfo &actual)
 	cppcut_assert_equal(expect.hostId,       actual.hostId);
 	cppcut_assert_equal(expect.hostName,     actual.hostName);
 	cppcut_assert_equal(expect.brief,        actual.brief);
-	cppcut_assert_equal(expect.extendedInfo, actual.extendedInfo);
-	cppcut_assert_equal(expect.validity,     actual.validity);
+	cppcut_assert_equal(TRIGGER_VALID,       actual.validity);
 }
 
 struct SpawnSyncContext {
@@ -1229,7 +1228,7 @@ VariableItemGroupPtr convert(const TriggerInfo &triggerInfo)
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_VALUE, triggerInfo.status);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_PRIORITY, triggerInfo.severity);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
-			static_cast<uint64_t>(triggerInfo.lastChangeTime.tv_sec));
+			(int)(triggerInfo.lastChangeTime.tv_sec));
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION, triggerInfo.brief);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_HOSTID, triggerInfo.hostId	);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION, triggerInfo.extendedInfo);
