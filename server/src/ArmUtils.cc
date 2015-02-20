@@ -168,6 +168,10 @@ ArmUtils::ArmUtils(const MonitoringServerInfo &serverInfo,
 {
 }
 
+ArmUtils::~ArmUtils()
+{
+}
+
 void ArmUtils::initializeArmTriggers(void)
 {
 	m_impl->initializeArmTriggers();
