@@ -71,6 +71,12 @@ void DBTables::Version::setPackedVer(const int &packedVer)
 	vendorVer = (VENDOR_MASK & packedVer) >> shiftBits;
 }
 
+string DBTables::Version::toString(void) const
+{
+	return StringUtils::sprintf("%02d.%02d [%02d]",
+	                            majorVer, minorVer, vendorVer);
+}
+
 struct DBTables::Impl {
 	DBAgent &dbAgent;
 

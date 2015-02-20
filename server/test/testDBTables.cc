@@ -23,6 +23,8 @@
 #include "DBAgentTest.h"
 #include "Helpers.h"
 
+using namespace std;
+
 namespace testDBTables {
 
 const DBTablesId DB_TABLES_ID_TEST = 0x1234567;
@@ -253,6 +255,13 @@ void test_setPackedVer(void)
 	cppcut_assert_equal(0xfe, ver.vendorVer);
 	cppcut_assert_equal(0xdc, ver.majorVer);
 	cppcut_assert_equal(0xba9, ver.minorVer);
+}
+
+void test_toString(void)
+{
+	DBTables::Version ver;
+	ver.setPackedVer(0x02468ace);
+	cppcut_assert_equal(string("104.2766 [36]"), ver.toString());
 }
 
 } //namespace testDBTablesVersion

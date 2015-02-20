@@ -42,6 +42,7 @@ public:
 		Version(void);
 		int getPackedVer(void) const;
 		void setPackedVer(const int &packedVer);
+		std::string toString(void) const;
 	};
 
 	// TODO: remove DBClient::DBSetupFuncArg after this class is
