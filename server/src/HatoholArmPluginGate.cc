@@ -457,10 +457,7 @@ void HatoholArmPluginGate::setPluginAvailabelTrigger(const HatoholArmPluginWatch
 void HatoholArmPluginGate::setPluginConnectStatus(const HatoholArmPluginWatchType &type,
 					     const HatoholArmPluginErrorCode &errorCode)
 {
-	TriggerInfoList triggerInfoList;
-	EventInfoList eventInfoList;
 	TriggerStatusType istatus;
-
 	if (errorCode == HAPERR_UNAVAILABLE_HAP) {
 		istatus = TRIGGER_STATUS_PROBLEM;
 	} else if (errorCode == HAPERR_OK) {
@@ -468,67 +465,7 @@ void HatoholArmPluginGate::setPluginConnectStatus(const HatoholArmPluginWatchTyp
 	} else {
 		istatus = TRIGGER_STATUS_UNKNOWN;
 	}
-
-	if (type == COLLECT_OK) {
-		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
-			ArmUtils::ArmTrigger &armTrigger = m_impl->armTrigger[i];
-			if (armTrigger.status != TRIGGER_STATUS_OK) {
-				armTrigger.status = TRIGGER_STATUS_OK;
-				m_impl->utils.createTrigger(armTrigger,
-				                            triggerInfoList);
-			}
-			if (armTrigger.status == TRIGGER_STATUS_PROBLEM) {
-				m_impl->utils.createEvent(armTrigger,
-				                          eventInfoList);
-			}
-		}
-	}
-	else {
-		if (m_impl->armTrigger[type].status == istatus)
-			return;
-		if (m_impl->armTrigger[type].status != TRIGGER_STATUS_UNKNOWN) {
-			m_impl->armTrigger[type].status = istatus;
-			m_impl->utils.createTrigger(m_impl->armTrigger[type],
-			                            triggerInfoList);
-			m_impl->utils.createEvent(m_impl->armTrigger[type],
-			                          eventInfoList);
-		} else {
-			m_impl->armTrigger[type].status = istatus;
-			m_impl->utils.createTrigger(m_impl->armTrigger[type],
-			                            triggerInfoList);
-		}
-		for (int i = static_cast<int>(type) + 1; i < NUM_COLLECT_NG_KIND; i++) {
-			ArmUtils::ArmTrigger &armTrigger =
-			  m_impl->armTrigger[i];
-			if (armTrigger.status == TRIGGER_STATUS_PROBLEM) {
-				armTrigger.status = TRIGGER_STATUS_OK;
-				m_impl->utils.createTrigger(armTrigger,
-				                            triggerInfoList);
-			}
-			if (armTrigger.status == TRIGGER_STATUS_PROBLEM) {
-				m_impl->utils.createEvent(armTrigger,
-				                          eventInfoList);
-			}
-		}
-		for (int i = 0; i < type; i++) {
-			ArmUtils::ArmTrigger &armTrigger =
-			  m_impl->armTrigger[i];
-			if (armTrigger.status == TRIGGER_STATUS_OK) {
-				armTrigger.status = TRIGGER_STATUS_UNKNOWN;
-				m_impl->utils.createTrigger(armTrigger,
-				                            triggerInfoList);
-			}
-		}
-	}
-
-	if (!triggerInfoList.empty()) {
-		ThreadLocalDBCache cache;
-		cache.getMonitoring().addTriggerInfoList(triggerInfoList);
-	}
-	if (!eventInfoList.empty()) {
-		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-		dataStore->addEventList(eventInfoList);
-	}
+	m_impl->utils.updateTriggerStatus(type, istatus);
 }
 
 void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)
