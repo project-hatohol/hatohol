@@ -26,6 +26,9 @@ sql_file_list = [
      'file_name': 'server-type-ceilometer.sql',
      'target': 'ceilometer'}]
 
+not_found_config_file = False
+fallback_default_params = {'user': 'hatohol', 'password': 'hatohol'}
+
 
 def create_db_if_needed(cursor, args):
     cursor.execute('SHOW DATABASES')
@@ -118,8 +121,7 @@ def get_default_conf():
 def parse_default_conf():
     config_file = get_default_conf()
     if not os.access(config_file, os.R_OK):
-        print "Could not read %s." % config_file
-        sys.exit(-1)
+        return None
 
     config_list = []
     config = ConfigParser.ConfigParser()
@@ -132,6 +134,12 @@ def parse_default_conf():
 
 def get_default_conf_item(item_name):
     config = parse_default_conf()
+    if config is None:
+        global not_found_config_file
+        global fallback_default_params
+        not_found_config_file = True
+        return fallback_default_params.get(item_name, '<Unknown>')
+
     for conf in config:
         item = conf[item_name]
     return item
@@ -201,5 +209,13 @@ if __name__ == '__main__':
                         'By default, this tool skips to insert data if the table is not empty.')
     parser.add_argument('-t', '--target', choices=get_target_list(),
                         help='Only the specified table is initialized.')
+    parser.add_argument('-c', '--continue-no-conf', action='store_true',
+                        help='Continue this program even if the configuration file is not found.')
     args = parser.parse_args()
+
+    # Check the existence of the config file here to show the command line help
+    if not_found_config_file and not args.continue_no_conf:
+        print "Could not read %s." % get_default_conf()
+        sys.exit(-1)
+
     start(args)
