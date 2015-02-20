@@ -868,6 +868,7 @@ var HatoholItemSelector = function(options) {
   self.elementId = 'hatohol-item-list';
   self.servers = options.servers;
   self.lastItemsData = undefined;
+  self.items = {};
   self.historyLoaders = {};
   self.view = options.view; // TODO: Remove view dependency
   self.appendItemCallback = options.appendItemCallback;
@@ -888,9 +889,9 @@ var HatoholItemSelector = function(options) {
       '#select-server', '#select-host-group', '#select-host');
     $("#select-item").attr("disabled", "disabled");
     $("#add-item-button").attr("disabled", "disabled");
-    $("#select-server").change(setupItemCandidates);
-    $("#select-host-group").change(setupItemCandidates);
-    $("#select-host").change(setupItemCandidates);
+    $("#select-server").change(loadItemCandidates);
+    $("#select-host-group").change(loadItemCandidates);
+    $("#select-host").change(loadItemCandidates);
     $("#select-item").change(function() {
       if ($(this).val() == "---------")
         $("#add-item-button").attr("disabled", "disabled");
@@ -910,12 +911,36 @@ var HatoholItemSelector = function(options) {
 
       index = self.appendItem(item, self.lastItemsData.servers,
                               query.hostgroupId);
+      setItemCandidates(self.lastItemsData);
+
       if (self.appendItemCallback)
         self.appendItemCallback(index, query);
     });
   }
 
-  function setupItemCandidates() {
+  function isAlreadyAddedItem(item) {
+    var i;
+    for (i in self.items) {
+      if (item.serverId == self.items[i].serverId &&
+          item.hostId == self.items[i].hostId &&
+          item.id == self.items[i].id)
+        return true;
+    }
+    return false;
+  }
+
+  function setItemCandidates(reply) {
+    var candidates = $.map(reply.items, function(item) {
+      if (isAlreadyAddedItem(item))
+        return null;
+      var label = getItemBriefWithUnit(item);
+      return { label: label, value: item.id };
+    });
+    self.view.setFilterCandidates($("#select-item"), candidates);
+    self.lastItemsData = reply;
+  }
+
+  function loadItemCandidates() {
     var query;
     var hostName = $("#select-host").val();
 
@@ -927,14 +952,7 @@ var HatoholItemSelector = function(options) {
     }
 
     query = self.view.getHostFilterQuery();
-    self.view.startConnection("items?" + $.param(query), function(reply) {
-      var candidates = $.map(reply.items, function(item) {
-        var label = getItemBriefWithUnit(item);
-        return { label: label, value: item.id };
-      });
-      self.view.setFilterCandidates($("#select-item"), candidates);
-      self.lastItemsData = reply;
-    });
+    self.view.startConnection("items?" + $.param(query), setItemCandidates);
   }
 }
 
@@ -996,6 +1014,7 @@ HatoholItemSelector.prototype.setItem = function(index, item, servers,
         $(this).parent().parent().remove();
         if (self.removeItemCallback)
           self.removeItemCallback(index);
+	delete self.items[index];
 	delete self.historyLoaders[index];
       }
     }).attr("itemIndex", index)));
@@ -1004,6 +1023,9 @@ HatoholItemSelector.prototype.setItem = function(index, item, servers,
     self.historyLoaders[index] = undefined;
     tr.insertBefore("#" + self.elementId + " tbody tr :last");
   }
+
+  if (item)
+    self.items[index] = item;
 
   return index;
 }
