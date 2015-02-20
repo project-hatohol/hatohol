@@ -41,6 +41,8 @@ class TestArmBase : public ArmBase {
 	void       *m_oneProcFetchItemsHookData;
 	OneProcHook m_oneProcFetchHistoryHook;
 	void       *m_oneProcFetchHistoryHookData;
+	OneProcHook m_oneProcFetchTriggerHook;
+	void       *m_oneProcFetchTriggerHookData;
 
 public:
 	TestArmBase(const string name, const MonitoringServerInfo &serverInfo)
@@ -49,7 +51,9 @@ public:
 	  m_oneProcHookData(NULL),
 	  m_oneProcFetchItemsHook(NULL),
 	  m_oneProcFetchItemsHookData(NULL),
-	  m_oneProcFetchHistoryHookData(NULL)
+	  m_oneProcFetchHistoryHookData(NULL),
+	  m_oneProcFetchTriggerHook(NULL),
+	  m_oneProcFetchTriggerHookData(NULL)
 	{
 	}
 
@@ -96,6 +100,12 @@ public:
 		m_oneProcFetchHistoryHookData = data;
 	}
 
+	void setOneProcFetchTriggerHook(OneProcHook hook, void *data)
+	{
+		m_oneProcFetchTriggerHook = hook;
+		m_oneProcFetchTriggerHookData = data;
+	}
+
 protected:
 	ArmPollingResult callHook(OneProcHook hookFunc, void *hookData)
 	{
@@ -128,6 +138,12 @@ protected:
 	{
 		return callHook(m_oneProcFetchHistoryHook,
 				m_oneProcFetchHistoryHookData);
+	}
+
+	virtual ArmPollingResult mainThreadOneProcFetchTriggers(void) override
+	{
+		return callHook(m_oneProcFetchTriggerHook,
+				m_oneProcFetchTriggerHookData);
 	}
 };
 
@@ -295,10 +311,13 @@ struct TestFetchCtx {
 	AtomicValue<int>  oneProcCount;
 	AtomicValue<int>  oneProcFetchItemsCount;
 	AtomicValue<int>  oneProcFetchHistoryCount;
+	AtomicValue<int>  oneProcFetchTriggerCount;
 	AtomicValue<bool> fetchItemsClosureCalled;
 	AtomicValue<bool> fetchItemsClosureDeleted;
 	AtomicValue<bool> fetchHistoryClosureCalled;
 	AtomicValue<bool> fetchHistoryClosureDeleted;
+	AtomicValue<bool> fetchTriggerClosureCalled;
+	AtomicValue<bool> fetchTriggerClosureDeleted;
 	Mutex             startLock;
 	bool              startLockUnlocked;
 	struct FetchItemClosure : ClosureTemplate0<TestFetchCtx>
@@ -325,18 +344,32 @@ struct TestFetchCtx {
 			m_receiver->fetchHistoryClosureDeleted.set(true);
 		}
 	} *fetchHistoryClosure;
+	struct FetchTriggerClosure : ClosureTemplate2<TestFetchCtx>
+	{
+		FetchTriggerClosure(TestFetchCtx *receiver, callback func)
+		: ClosureTemplate2<TestFetchCtx>(receiver, func)
+		{
+		}
+		virtual ~FetchTriggerClosure()
+		{
+			m_receiver->fetchTriggerClosureDeleted.set(true);
+		}
+	} *fetchTriggerClosure;
 
 	TestFetchCtx(void)
 	: oneProcCount(0),
 	  oneProcFetchItemsCount(0),
 	  startLockUnlocked(false),
 	  fetchItemClosure(NULL),
-	  fetchHistoryClosure(NULL)
+	  fetchHistoryClosure(NULL),
+	  fetchTriggerClosure(NULL)
 	{
 		fetchItemClosure = new FetchItemClosure(
 		  this, &TestFetchCtx::itemFetchedCallback);
 		fetchHistoryClosure = new FetchHistoryClosure(
 		  this, &TestFetchCtx::historyFetchedCallback);
+		fetchTriggerClosure = new FetchTriggerClosure(
+		  this, &TestFetchCtx::triggerFetchedCallback);
 		startLock.lock();
 	}
 
@@ -383,6 +416,16 @@ struct TestFetchCtx {
 		return true;
 	}
 
+	static bool oneProcFetchTriggerHook(void *data)
+	{
+		TestFetchCtx *obj
+		  = static_cast<TestFetchCtx *>(data);
+		obj->oneProcFetchTriggerCount.set(
+		  obj->oneProcFetchTriggerCount.get() + 1);
+		obj->unlock();
+		return true;
+	}
+
 	void waitForFirstProc(void)
 	{
 		const size_t timeout = 5000; // ms
@@ -403,6 +446,13 @@ struct TestFetchCtx {
 		fetchHistoryClosureCalled.set(true);
 		// will be deleted by ArmBae
 		fetchHistoryClosure = NULL;
+	}
+
+	void triggerFetchedCallback(Closure2 *_closure)
+	{
+		fetchTriggerClosureCalled.set(true);
+		// will be deleted by ArmBae
+		fetchTriggerClosure = NULL;
 	}
 };
 
@@ -455,6 +505,29 @@ void test_fetchHistory(void)
 	cppcut_assert_equal(0, ctx.oneProcCount.get());
 	cppcut_assert_equal(true, ctx.fetchHistoryClosureCalled.get());
 	cppcut_assert_equal(true, ctx.fetchHistoryClosureDeleted.get());
+}
+
+void test_fetchTriggers(void)
+{
+	TestFetchCtx ctx;
+
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+
+	TestArmBase armBase(__func__, serverInfo);
+	armBase.setOneProcHook(TestFetchCtx::oneProcHook, &ctx);
+	armBase.setOneProcFetchTriggerHook(
+	  TestFetchCtx::oneProcFetchTriggerHook, &ctx);
+
+	armBase.fetchTriggers(ctx.fetchTriggerClosure);
+	armBase.start();
+	ctx.waitForFirstProc();
+	armBase.callRequestExitAndWait();
+
+	cppcut_assert_equal(1, ctx.oneProcFetchTriggerCount.get());
+	cppcut_assert_equal(0, ctx.oneProcCount.get());
+	cppcut_assert_equal(true, ctx.fetchTriggerClosureCalled.get());
+	cppcut_assert_equal(true, ctx.fetchTriggerClosureDeleted.get());
 }
 
 void test_hasTriggerWithNoTrigger(void)
