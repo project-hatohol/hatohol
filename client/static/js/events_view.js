@@ -126,10 +126,8 @@ var EventsView = function(userProfile, baseElem) {
 
   function getQuery(page) {
     if (!page) {
-      self.currentPage = 0;
       self.limitOfUnifiedId = 0;
     } else {
-      self.currentPage = page;
       if (!self.limitOfUnifiedId)
         self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
     }
@@ -211,7 +209,7 @@ var EventsView = function(userProfile, baseElem) {
     });
 
     $('button.latest-button').click(function() {
-      self.enableAutoRefresh(load(), self.intervalSeconds);
+      load();
     });
   }
 
@@ -386,7 +384,8 @@ var EventsView = function(userProfile, baseElem) {
     drawTableContents();
     updatePager();
     setLoading(false);
-    self.setAutoReload(load, self.reloadIntervalSeconds);
+    if (self.currentPage == 0)
+      self.enableAutoRefresh(load, self.reloadIntervalSeconds);
   }
 };
 
