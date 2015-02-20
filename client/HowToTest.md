@@ -73,8 +73,8 @@ directories accessible.
 
 > ** Hint ** The above two examples for client (mange.py) that use different ports can be executed at the same time.
 
-run test on the browser
------------------------
+run unit test on the browser
+----------------------------
 Access the following URL.
 
 http://localhost:8000/test/index.html
