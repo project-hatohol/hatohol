@@ -1845,12 +1845,9 @@ void DBTablesMonitoring::updateTrigger(const TriggerInfoList &triggerInfoList,
 		TriggerIdInfoMapIterator currTriggerItr = validTriggerId.find(newTriggerInfo.id);
 		if (currTriggerItr != validTriggerId.end()) {
 			const TriggerInfo &currTrigger = currTriggerItr->second;
-			if (currTrigger.validity == TRIGGER_VALID) {
-				validTriggerId.erase(currTriggerItr);
+			validTriggerId.erase(currTriggerItr);
+			if (currTrigger.validity == TRIGGER_VALID)
 				continue;
-			} else {
-				validTriggerId.erase(currTriggerItr);
-			}
 		}
 		updateTriggerList.push_back(newTriggerInfo);
 	}
