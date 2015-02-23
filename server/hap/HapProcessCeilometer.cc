@@ -397,7 +397,7 @@ HatoholError HapProcessCeilometer::parseInstanceElement(
 	return HTERR_OK;
 }
 
-HatoholError HapProcessCeilometer::getAlarmList(void)
+HatoholError HapProcessCeilometer::getAlarmListReal(VariableItemTablePtr &trigTablePtr)
 {
 	string url = m_impl->ceilometerEP.publicURL;
 	url += "/v2/alarms";
@@ -407,12 +407,25 @@ HatoholError HapProcessCeilometer::getAlarmList(void)
 		return err;
 	SoupMessage *msg = arg.msgPtr.get();
 
-	VariableItemTablePtr trigTablePtr;
 	err = parseReplyGetAlarmList(msg, trigTablePtr);
 	if (err != HTERR_OK) {
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
 	}
+
+	return err;
+}
+
+
+HatoholError HapProcessCeilometer::getAlarmList(void)
+{
+	VariableItemTablePtr trigTablePtr;
+	HatoholError err =  getAlarmListReal(trigTablePtr);
+	if (err != HTERR_OK) {
+		MLPL_DBG("Failed to get get AlarmList: %d",
+			 err.getCode());
+	}
+
 	sendTable(HAPI_CMD_SEND_RELOAD_ALL_TRIGGERS,
 	          static_cast<ItemTablePtr>(trigTablePtr));
 	return err;
@@ -886,20 +899,11 @@ HatoholError HapProcessCeilometer::fetchItem(const MessagingContext &msgCtx,
 HatoholError HapProcessCeilometer::fetchTrigger(const MessagingContext &msgCtx,
 						const SmartBuffer &cmdBuf)
 {
-	MLPL_DBG("fetchTrigger\n");
-	string url = m_impl->ceilometerEP.publicURL;
-	url += "/v2/alarms";
-	HttpRequestArg arg(SOUP_METHOD_GET, url);
-	HatoholError err = sendHttpRequest(arg);
-	if (err != HTERR_OK)
-		return err;
-	SoupMessage *msg = arg.msgPtr.get();
-
 	VariableItemTablePtr trigTablePtr;
-	err = parseReplyGetAlarmList(msg, trigTablePtr);
+	HatoholError err =  getAlarmListReal(trigTablePtr);
 	if (err != HTERR_OK) {
-		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
-		         msg->response_body->length, msg->response_body->data);
+		MLPL_DBG("Failed to get get AlarmList: %d",
+			 err.getCode());
 	}
 
 	SmartBuffer resBuf;
