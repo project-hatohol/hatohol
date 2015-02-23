@@ -36,7 +36,11 @@ const UserRoleIdSet EMPTY_USER_ROLE_ID_SET;
 //   * Add user_roles table
 // 3 -> 4:
 //   * NUM_OPPRVLG:19 -> 23
-const int   DBTablesUser::USER_DB_VERSION = 4;
+
+// -> 1.0
+//   * access_list.host_group_id -> VARCHAR
+const int DBTablesUser::USER_DB_VERSION =
+  DBTables::Version::getPackedVer(0, 1, 0);
 
 const char *DBTablesUser::TABLE_NAME_USERS = "users";
 const char *DBTablesUser::TABLE_NAME_ACCESS_LIST = "access_list";
