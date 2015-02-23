@@ -39,11 +39,6 @@ static const DBAgent::IndexDef g_indexDef[] = {
 	{NULL}
 };
 
-static const DBTables::SetupInfo DEFAULT_SETUP_INFO = {
-	DB_TABLES_ID_TEST,
-	DB_VERSION,
-};
-
 static DBTables::SetupInfo *g_setupInfo = NULL;
 
 struct TestDBKit {
@@ -61,17 +56,26 @@ struct TestDBKit {
 	DBTables::SetupInfo      setupInfo;
 
 	TestDBKit(void)
-	: tableProfile(tableProfileTest),
-	  setupInfo(DEFAULT_SETUP_INFO)
+	: tableProfile(tableProfileTest)
 	{
 		tableProfile.indexDefArray = g_indexDef;
 
 		memset(&tableInfo[0], 0, sizeof(DBTables::TableSetupInfo));
 		tableInfo[0].profile = &tableProfile;
 
-		setupInfo.numTableInfo = ARRAY_SIZE(tableInfo);
-		setupInfo.tableInfoArray = tableInfo;
+		initSetupInfo();
 		g_setupInfo = &setupInfo;
+	}
+
+	void initSetupInfo(void)
+	{
+		setupInfo.tablesId       = DB_TABLES_ID_TEST;
+		setupInfo.version        = DB_VERSION;
+		setupInfo.numTableInfo   = ARRAY_SIZE(tableInfo);
+		setupInfo.tableInfoArray = tableInfo;
+		setupInfo.updater        = NULL;
+		setupInfo.updaterData    = NULL;
+		setupInfo.initialized    = false;
 	}
 };
 

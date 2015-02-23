@@ -57,7 +57,7 @@ public:
 	};
 
 	struct SetupInfo {
-		const DBTablesId        tablesId; 
+		DBTablesId              tablesId;
 		int                     version;
 		size_t                  numTableInfo;
 		const TableSetupInfo   *tableInfoArray;
