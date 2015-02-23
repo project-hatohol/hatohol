@@ -2022,7 +2022,6 @@ void loadTestDBArmPlugin(void)
 
 void loadTestDBTriggers(void)
 {
-	MLPL_ERR("CALL loadTestDBTriggers\n");
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
