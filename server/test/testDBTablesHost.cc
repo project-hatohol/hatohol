@@ -478,6 +478,7 @@ void test_addHostgroupMember(void)
 	DBAgent &dbAgent = dbHost.getDBAgent();
 	string statement = "SELECT * FROM ";
 	statement += tableProfileHostgroupMember.name;
+	statement += " ORDER BY id";
 	string expect;
 
 	for (size_t i = 0; i < NumTestHostgroupMember; i++) {
