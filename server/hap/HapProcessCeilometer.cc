@@ -397,7 +397,7 @@ HatoholError HapProcessCeilometer::parseInstanceElement(
 	return HTERR_OK;
 }
 
-HatoholError HapProcessCeilometer::getAlarmListReal(VariableItemTablePtr &trigTablePtr)
+HatoholError HapProcessCeilometer::getAlarmInfoTable(VariableItemTablePtr &trigTablePtr)
 {
 	string url = m_impl->ceilometerEP.publicURL;
 	url += "/v2/alarms";
@@ -420,7 +420,7 @@ HatoholError HapProcessCeilometer::getAlarmListReal(VariableItemTablePtr &trigTa
 HatoholError HapProcessCeilometer::getAlarmList(void)
 {
 	VariableItemTablePtr trigTablePtr;
-	HatoholError err =  getAlarmListReal(trigTablePtr);
+	HatoholError err =  getAlarmInfoTable(trigTablePtr);
 	if (err != HTERR_OK) {
 		MLPL_DBG("Failed to get get AlarmList: %d",
 			 err.getCode());
@@ -900,7 +900,7 @@ HatoholError HapProcessCeilometer::fetchTrigger(const MessagingContext &msgCtx,
 						const SmartBuffer &cmdBuf)
 {
 	VariableItemTablePtr trigTablePtr;
-	HatoholError err =  getAlarmListReal(trigTablePtr);
+	HatoholError err =  getAlarmInfoTable(trigTablePtr);
 	if (err != HTERR_OK) {
 		MLPL_DBG("Failed to get get AlarmList: %d",
 			 err.getCode());
