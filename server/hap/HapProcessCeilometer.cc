@@ -426,7 +426,7 @@ HatoholError HapProcessCeilometer::getAlarmList(void)
 			 err.getCode());
 	}
 
-	sendTable(HAPI_CMD_SEND_RELOAD_ALL_TRIGGERS,
+	sendTable(HAPI_CMD_SEND_ALL_TRIGGERS,
 	          static_cast<ItemTablePtr>(trigTablePtr));
 	return err;
 }
