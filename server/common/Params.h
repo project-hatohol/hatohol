@@ -116,7 +116,7 @@ static const TriggerIdType FAILED_SELF_TRIGGER_ID_TERMINATION   = -1007;
 static const EventIdType EVENT_NOT_FOUND = -1;
 
 // Special Item IDs ===========================================================
-static const TriggerIdType ALL_ITEMS    = -1;
+static const ItemIdType ALL_ITEMS    = -1;
 
 // Special ItemCategory IDs ===================================================
 static const ItemCategoryIdType NO_ITEM_CATEGORY_ID = -1;
