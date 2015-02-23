@@ -132,38 +132,15 @@ void test_createTable(void)
 
 void test_createIndex(void)
 {
-	// TODO: Use TestDBKit
-	// We make a copy to update TableProfile::indexDefArray
-	DBAgent::TableProfile tableProfile = tableProfileTest;
+	TestDBKit dbKit;
+	DBTables::SetupInfo &setupInfo = dbKit.setupInfo;
+	cppcut_assert_equal(false, setupInfo.initialized);
 
-	static const int columnIndexes[] = {
-	  IDX_TEST_TABLE_AGE, IDX_TEST_TABLE_NAME, DBAgent::IndexDef::END};
-	static const DBAgent::IndexDef indexDef[] = {
-		{"index_age_name", columnIndexes, false},
-		{NULL}
-	};
-	tableProfile.indexDefArray = indexDef;
-
-	static const DBTables::TableSetupInfo TABLE_INFO[] = {
-	{
-		&tableProfile,
-	},
-	};
-
-	static DBTables::SetupInfo SETUP_INFO = {
-		DB_TABLES_ID_TEST,
-		DB_VERSION,
-		ARRAY_SIZE(TABLE_INFO),
-		TABLE_INFO,
-	};
-	cppcut_assert_equal(false, SETUP_INFO.initialized);
-
-	TestDB::setup();
-	TestDB testDB;
-	TestDBTables tables(testDB.getDBAgent(), SETUP_INFO);
-	assertExistIndex(testDB.getDBAgent(), tableProfile.name,
+	TestDB &testDB = dbKit.db;
+	TestDBTables tables(testDB.getDBAgent(), setupInfo);
+	assertExistIndex(testDB.getDBAgent(), dbKit.tableProfile.name,
 	                 "index_age_name", 2);
-	cppcut_assert_equal(true, SETUP_INFO.initialized);
+	cppcut_assert_equal(true, setupInfo.initialized);
 }
 
 void test_checkMajorVersion(void)
