@@ -412,7 +412,6 @@ HatoholError HapProcessCeilometer::getAlarmInfoTable(VariableItemTablePtr &trigT
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
 	}
-
 	return err;
 }
 
@@ -910,7 +909,6 @@ HatoholError HapProcessCeilometer::fetchTrigger(const MessagingContext &msgCtx,
 	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_TRIGGERS, &msgCtx);
 	appendItemTable(resBuf, static_cast<ItemTablePtr>(trigTablePtr));
 	reply(msgCtx, resBuf);
-
 	return err;
 }
 
