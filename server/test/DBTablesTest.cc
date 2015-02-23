@@ -213,7 +213,7 @@ TriggerInfo testTriggerInfo[] =
 	"hostX1",                 // hostName,
 	"TEST Trigger 1",         // brief,
 	"",                       // extendedInfo
-	TRIGGER_INVALID,          // validity
+	TRIGGER_VALID,          // validity
 },{
 	1,                        // serverId
 	2,                        // id
@@ -224,7 +224,7 @@ TriggerInfo testTriggerInfo[] =
 	"hostX1",                 // hostName,
 	"TEST Trigger 1a",        // brief,
 	"{\"expandedDescription\":\"Test Trigger on hostX1\"}", // extendedInfo
-	TRIGGER_INVALID,          // validity
+	TRIGGER_VALID,          // validity
 },{
 	1,                        // serverId
 	3,                        // id
@@ -235,7 +235,7 @@ TriggerInfo testTriggerInfo[] =
 	"hostX2",                 // hostName,
 	"TEST Trigger 1b",        // brief,
 	"",                       // extendedInfo
-	TRIGGER_INVALID,          // validity
+	TRIGGER_VALID,          // validity
 },{
 	1,                        // serverId
 	4,                        // id
@@ -246,7 +246,7 @@ TriggerInfo testTriggerInfo[] =
 	"hostX1",                 // hostName,
 	"TEST Trigger 1c",        // brief,
 	"",                       // extendedInfo
-	TRIGGER_INVALID,          // validity
+	TRIGGER_VALID,          // validity
 },{
 	1,                        // serverId
 	5,                        // id
@@ -257,7 +257,7 @@ TriggerInfo testTriggerInfo[] =
 	"hostX3",                 // hostName,
 	"TEST Trigger 1d",        // brief,
 	"",                       // extendedInfo
-	TRIGGER_INVALID,          // validity
+	TRIGGER_VALID,          // validity
 },{
 	3,                        // serverId
 	2,                        // id
@@ -268,7 +268,7 @@ TriggerInfo testTriggerInfo[] =
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
 	"{\"expandedDescription\":\"Test Trigger on hostZ1\"}", // extendedInfo
-	TRIGGER_INVALID,          // validity
+	TRIGGER_VALID,          // validity
 },{
 	3,                        // serverId
 	3,                        // id
@@ -279,7 +279,7 @@ TriggerInfo testTriggerInfo[] =
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
 	"",                       // extendedInfo
-	TRIGGER_INVALID,          // validity
+	TRIGGER_VALID,          // validity
 },{
 	2,                        // serverId
 	0xfedcba987654321,        // id
@@ -290,7 +290,7 @@ TriggerInfo testTriggerInfo[] =
 	"hostQ1",                 // hostName,
 	"TEST Trigger Action",    // brief,
 	"",                       // extendedInfo
-	TRIGGER_INVALID,          // validity
+	TRIGGER_VALID,          // validity
 },{
 	// This entry is used for testHatoholArmPluginGate.
 	12345,                    // serverId
@@ -302,7 +302,7 @@ TriggerInfo testTriggerInfo[] =
 	"host12345",              // hostName,
 	"Brief for host12345",    // brief,
 	"",                       // extendedInfo
-	TRIGGER_INVALID,          // validity
+	TRIGGER_VALID,          // validity
 },{
 	// This entry is for tests with a defunct server
 	defunctServerId1,         // serverId
@@ -314,7 +314,7 @@ TriggerInfo testTriggerInfo[] =
 	"defunctSv1Host1",        // hostName,
 	"defunctSv1Host1 material", // brief,
 	"",                       // extendedInfo
-	TRIGGER_INVALID,          // validity
+	TRIGGER_VALID,          // validity
 },
 };
 size_t NumTestTriggerInfo = ARRAY_SIZE(testTriggerInfo);
