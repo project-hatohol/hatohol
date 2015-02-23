@@ -84,7 +84,7 @@ void HapProcessZabbixAPI::workOnTriggers(void)
 	if (requestSince != 0) {
 		sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, mergedTriggers);
 	} else {
-		sendTable(HAPI_CMD_SEND_RELOAD_ALL_TRIGGERS, mergedTriggers);
+		sendTable(HAPI_CMD_SEND_ALL_TRIGGERS, mergedTriggers);
 	}
 }
 
