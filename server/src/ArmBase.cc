@@ -108,7 +108,7 @@ struct FetcherJob
 		(*fetchHistoryClosure)(historyInfoVect);
 	}
 
-	void run(const UpdateType updateType)
+	void run(const UpdateType &updateType)
 	{
 		HATOHOL_ASSERT(updateType == UPDATE_TRIGGER_REQUEST,
 			       "Invalid updateType: %d\n", updateType);
