@@ -393,7 +393,7 @@ msgid "DELETE MONITORING SERVER"
 msgstr "監視サーバー削除"
 
 #: viewer/servers_ajax.html:50
-msgid "RELOAD ALL TRIGGER FROM SERVER"
+msgid "RELOAD ALL TRIGGERS FROM SERVER"
 msgstr "監視サーバートリガー再読込"
 
 #: viewer/servers_ajax.html:61
