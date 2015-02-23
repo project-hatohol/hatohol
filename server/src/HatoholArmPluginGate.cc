@@ -177,7 +177,7 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	    &HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers);
 
 	registerCommandHandler(
-	  HAPI_CMD_SEND_UPDATED_ALLTRIGGERS,
+	  HAPI_CMD_SEND_RELOAD_ALL_TRIGGERS,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerSendUpdatedAllTriggers);
 
