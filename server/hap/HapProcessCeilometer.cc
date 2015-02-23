@@ -413,7 +413,7 @@ HatoholError HapProcessCeilometer::getAlarmList(void)
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
 	}
-	sendTable(HAPI_CMD_SEND_UPDATED_ALLTRIGGERS,
+	sendTable(HAPI_CMD_SEND_RELOAD_ALL_TRIGGERS,
 	          static_cast<ItemTablePtr>(trigTablePtr));
 	return err;
 }
