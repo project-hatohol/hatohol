@@ -1312,7 +1312,7 @@ static const HostResourceQueryOption::Synapse synapseItemsQueryOption(
   tableProfileItems, IDX_ITEMS_ID, IDX_ITEMS_SERVER_ID,
   tableProfileItems, IDX_ITEMS_HOST_ID,
   true,
-  tableProfileMapHostsHostgroups,
+  tableProfileHostgroupMember,
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
