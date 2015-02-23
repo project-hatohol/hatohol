@@ -857,8 +857,9 @@ void test_getServerHostDefs(gconstpointer data)
 		const ServerHostDef &act = svHostDefVect[i];
 		set<size_t>::const_iterator it = expectIds.find(act.id);
 		if (it == expectIds.end()) {
-			string errMsg = StringUtils::sprintf("act.id: %zd\n",
-			                                     act.id);
+			string errMsg
+			  = StringUtils::sprintf("act.id: %" FMT_GEN_ID "\n",
+						 act.id);
 			errMsg +=
 			  makeElementsComparisonString(expectIds, actIds);
 			cut_fail("%s", errMsg.c_str());
