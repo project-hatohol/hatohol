@@ -51,6 +51,7 @@ protected:
 	                                  VariableItemTablePtr &tablePtr,
                                           const unsigned int &index);
 
+	HatoholError getAlarmListReal(VariableItemTablePtr &trigTablePtr);
 	HatoholError getAlarmList(void);
 	HatoholError parseReplyGetAlarmList(SoupMessage *msg,
 	                                    VariableItemTablePtr &tablePtr);
