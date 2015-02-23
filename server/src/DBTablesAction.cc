@@ -329,8 +329,10 @@ static bool addColumnOwnerUserId(DBAgent &dbAgent)
 	return true;
 }
 
-static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
+static bool updateDB(
+  DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
 {
+	const int oldVer = oldPackedVer.minorVer;
 	if (oldVer <= 8) {
 		if (!addColumnOwnerUserId(dbAgent))
 			return false;
@@ -382,6 +384,11 @@ void DBTablesAction::init(void)
 void DBTablesAction::reset(void)
 {
 	getSetupInfo().initialized = false;
+}
+
+const DBTables::SetupInfo &DBTablesAction::getConstSetupInfo(void)
+{
+	return getSetupInfo();
 }
 
 void DBTablesAction::stop(void)

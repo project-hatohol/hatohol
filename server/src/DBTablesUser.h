@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -141,6 +141,7 @@ public:
 	static const size_t MAX_USER_ROLE_NAME_LENGTH;
 	static void init(void);
 	static void reset(void);
+	static const SetupInfo &getConstSetupInfo(void);
 
 	DBTablesUser(DBAgent &dbAgent);
 	virtual ~DBTablesUser();

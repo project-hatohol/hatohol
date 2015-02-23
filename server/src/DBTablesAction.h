@@ -276,6 +276,7 @@ public:
 
 	static void init(void);
 	static void reset(void);
+	static const SetupInfo &getConstSetupInfo(void);
 	static void stop(void);
 	static const char *getTableNameActions(void);
 	static const char *getTableNameActionLogs(void);

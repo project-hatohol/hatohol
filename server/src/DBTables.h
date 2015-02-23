@@ -28,10 +28,27 @@
 
 class DBTables {
 public:
+	struct Version {
+		static const int VENDOR_BITS;
+		static const int MAJOR_BITS;
+		static const int MINOR_BITS;
+
+		int vendorVer;
+		int majorVer;
+		int minorVer;
+
+		static int getPackedVer(const int &vendor,
+		                        const int &major, const int &manior);
+		Version(void);
+		int getPackedVer(void) const;
+		void setPackedVer(const int &packedVer);
+		std::string toString(void) const;
+	};
+
 	// TODO: remove DBClient::DBSetupFuncArg after this class is
 	// implemented.
 	typedef void (*CreateTableInitializer)(DBAgent &, void *data);
-	typedef bool (*DBUpdater)(DBAgent &, const int &oldVer, void *data);
+	typedef bool (*DBUpdater)(DBAgent &, const Version &oldVer, void *data);
 
 	struct TableSetupInfo {
 		const DBAgent::TableProfile *profile;
@@ -40,7 +57,7 @@ public:
 	};
 
 	struct SetupInfo {
-		const DBTablesId        tablesId; 
+		DBTablesId              tablesId;
 		int                     version;
 		size_t                  numTableInfo;
 		const TableSetupInfo   *tableInfoArray;
@@ -50,12 +67,21 @@ public:
 		mlpl::Mutex             lock;
 	};
 
+	template <class DBT>
+	static void checkMajorVersion(DBAgent &dbAgent)
+	{
+		checkMajorVersionMain(DBT::getConstSetupInfo(), dbAgent);
+	}
+
 	DBTables(DBAgent &dbAgent, SetupInfo &setupInfo);
 	virtual ~DBTables(void);
 
 	DBAgent &getDBAgent(void);
 
 protected:
+	static void checkMajorVersionMain(
+	  const SetupInfo &setupInfo, DBAgent &dbAgent);
+
 	void begin(void);
 	void rollback(void);
 	void commit(void);

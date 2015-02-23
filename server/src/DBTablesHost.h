@@ -61,6 +61,7 @@ public:
 	static const int TABLES_VERSION;
 
 	static void reset(void);
+	static const SetupInfo &getConstSetupInfo(void);
 
 	DBTablesHost(DBAgent &dbAgent);
 	virtual ~DBTablesHost();

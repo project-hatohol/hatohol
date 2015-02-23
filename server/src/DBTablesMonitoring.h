@@ -147,6 +147,7 @@ class DBTablesMonitoring : public DBTables {
 public:
 	static const int         MONITORING_DB_VERSION;
 	static void reset(void);
+	static const SetupInfo &getConstSetupInfo(void);
 
 	static const char *TABLE_NAME_TRIGGERS;
 	static const char *TABLE_NAME_EVENTS;

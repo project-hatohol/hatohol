@@ -141,6 +141,7 @@ public:
 	static int CONFIG_DB_VERSION;
 	static void reset(void);
 	static bool isHatoholArmPlugin(const MonitoringSystemType &type);
+	static const SetupInfo &getConstSetupInfo(void);
 
 	DBTablesConfig(DBAgent &dbAgent);
 	virtual ~DBTablesConfig();
