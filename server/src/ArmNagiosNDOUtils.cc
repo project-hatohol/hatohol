@@ -549,7 +549,7 @@ void ArmNagiosNDOUtils::addConditionForEventQuery(void)
 	arg.condition += cond;
 }
 
-void ArmNagiosNDOUtils::getTriggerReal(TriggerInfoList &triggerInfoList)
+void ArmNagiosNDOUtils::getTriggerInfoTable(TriggerInfoList &triggerInfoList)
 {
 	// TODO: should use transaction
 	DBAgent::SelectExArg &arg =
@@ -599,7 +599,7 @@ void ArmNagiosNDOUtils::getTrigger(void)
 {
 	TriggerInfoList triggerInfoList;
 	addConditionForTriggerQuery(true);
-	getTriggerReal(triggerInfoList);
+	getTriggerInfoTable(triggerInfoList);
 
 	ThreadLocalDBCache cache;
 	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
@@ -609,7 +609,7 @@ void ArmNagiosNDOUtils::getAllTrigger(void)
 {
 	TriggerInfoList triggerInfoList;
 	addConditionForTriggerQuery(false);
-	getTriggerReal(triggerInfoList);
+	getTriggerInfoTable(triggerInfoList);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	ThreadLocalDBCache cache;
