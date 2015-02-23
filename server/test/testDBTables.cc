@@ -30,13 +30,69 @@ namespace testDBTables {
 const DBTablesId DB_TABLES_ID_TEST = 0x1234567;
 const int DB_VERSION = 817;
 
+static const int g_columnIndexes[] = {
+	IDX_TEST_TABLE_AGE, IDX_TEST_TABLE_NAME, DBAgent::IndexDef::END
+};
+
+static const DBAgent::IndexDef g_indexDef[] = {
+	{"index_age_name", g_columnIndexes, false},
+	{NULL}
+};
+
+static const DBTables::SetupInfo DEFAULT_SETUP_INFO = {
+	DB_TABLES_ID_TEST,
+	DB_VERSION,
+};
+
+static DBTables::SetupInfo *g_setupInfo = NULL;
+
+struct TestDBKit {
+
+	struct Init {
+		Init(void)
+		{
+			TestDB::setup();
+		}
+	} __init;
+
+	TestDB                   db;
+	DBAgent::TableProfile    tableProfile;
+	DBTables::TableSetupInfo tableInfo[1];
+	DBTables::SetupInfo      setupInfo;
+
+	TestDBKit(void)
+	: tableProfile(tableProfileTest),
+	  setupInfo(DEFAULT_SETUP_INFO)
+	{
+		tableProfile.indexDefArray = g_indexDef;
+
+		memset(&tableInfo[0], 0, sizeof(DBTables::TableSetupInfo));
+		tableInfo[0].profile = &tableProfile;
+
+		setupInfo.numTableInfo = ARRAY_SIZE(tableInfo);
+		setupInfo.tableInfoArray = tableInfo;
+		g_setupInfo = &setupInfo;
+	}
+};
+
 class TestDBTables : public DBTables {
 public:
 	TestDBTables(DBAgent &dbAgent, DBTables::SetupInfo &setupInfo)
 	: DBTables(dbAgent, setupInfo)
 	{
 	}
+
+	static SetupInfo &getConstSetupInfo(void)
+	{
+		cppcut_assert_not_null(g_setupInfo);
+		return *g_setupInfo;
+	}
 };
+
+void cut_setup(void)
+{
+	g_setupInfo = NULL;
+}
 
 // ---------------------------------------------------------------------------
 // Test cases
@@ -72,6 +128,7 @@ void test_createTable(void)
 
 void test_createIndex(void)
 {
+	// TODO: Use TestDBKit
 	// We make a copy to update TableProfile::indexDefArray
 	DBAgent::TableProfile tableProfile = tableProfileTest;
 
@@ -103,6 +160,41 @@ void test_createIndex(void)
 	assertExistIndex(testDB.getDBAgent(), tableProfile.name,
 	                 "index_age_name", 2);
 	cppcut_assert_equal(true, SETUP_INFO.initialized);
+}
+
+void test_checkMajorVersion(void)
+{
+	struct VersionChecker {
+		TestDBKit    dbKit;
+
+		void operator ()(void)
+		{
+			DBTables::checkMajorVersion<TestDBTables>(
+			  dbKit.db.getDBAgent());
+		}
+	};
+
+	// First we expect the method successfully finishes.
+	VersionChecker verChecker;
+	TestDBTables   tables(verChecker.dbKit.db.getDBAgent(),
+	                      verChecker.dbKit.setupInfo);
+	verChecker();
+
+	// Next we bump the minor version up.
+	verChecker.dbKit.setupInfo.version =
+	  DBTables::Version::getPackedVer(0, 0, DB_VERSION + 1);
+	verChecker();
+
+	// Then we bump the major version up.
+	bool gotException = false;
+	try {
+		verChecker.dbKit.setupInfo.version =
+		  DBTables::Version::getPackedVer(0, 1, 0);
+		verChecker();
+	} catch (const HatoholException &e) {
+		gotException = true;
+	}
+	cppcut_assert_equal(true, gotException);
 }
 
 void test_tableInitializer(void)
