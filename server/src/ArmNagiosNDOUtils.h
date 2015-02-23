@@ -44,7 +44,7 @@ protected:
 	void addConditionForEventQuery(void);
 	void getTrigger(void);
 	void getAllTrigger(void);
-	void getTriggerReal(TriggerInfoList &triggerInfoList);
+	void getTriggerInfoTable(TriggerInfoList &triggerInfoList);
 	void getEvent(void);
 	void getItem(void);
 	HostNumChange getHost(void);
