@@ -157,7 +157,7 @@ void test_getHostsAndTriggers(void)
 	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_HOST_GROUP_ELEMENTS);
 
 	pair.plugin->callWorkOnTriggers();
-	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_RELOAD_ALL_TRIGGERS);
+	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_ALL_TRIGGERS);
 
 	// TODO: check the pattern of "HAPI_CMD_SEND_UPDATED_TRIGGERS".
 
