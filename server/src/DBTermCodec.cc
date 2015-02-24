@@ -44,8 +44,10 @@ string DBTermCodec::enc(const string &val) const
 	}
 
 	// Make a string in which quotations are escaped
-	string str = "'";
-	str.reserve(val.size() + quotPosArray.size());
+	const size_t sizeQuationsAtBothEnds = 2;
+	string str;
+	str.reserve(val.size() + quotPosArray.size() + sizeQuationsAtBothEnds);
+	str += '\'';
 	const char *head = val.c_str();
 	for (size_t i = 0; i < quotPosArray.size(); i++) {
 		const char *tail = quotPosArray[i];
