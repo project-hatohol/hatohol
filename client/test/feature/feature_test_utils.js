@@ -172,7 +172,7 @@ function moveIncidentSettingsPage(test) {
 }
 exports.moveIncidentSettingsPage = moveIncidentSettingsPage;
 
-function registerIncidentTrackerRedmine(test) {
+function registerIncidentTrackerRedmine(test, params) {
     // create incident tracker servers
   casper.waitForSelector("button#edit-incident-trackers-button",
     function success() {
@@ -201,28 +201,28 @@ function registerIncidentTrackerRedmine(test) {
    });
    casper.waitForSelector("input#editIncidentTrackerNickname",
        function success() {
-           this.sendKeys("input#editIncidentTrackerNickname", "testredmine");
+           this.sendKeys("input#editIncidentTrackerNickname", params.nickName);
        },
        function fail() {
            test.assertExists("input#editIncidentTrackerNickname");
    });
    casper.waitForSelector("input#editIncidentTrackerBaseURL",
        function success() {
-           this.sendKeys("input#editIncidentTrackerBaseURL", "http://127.0.0.1");
+           this.sendKeys("input#editIncidentTrackerBaseURL", params.ipAddress);
        },
        function fail() {
            test.assertExists("input#editIncidentTrackerBaseURL");
    });
    casper.waitForSelector("input#editIncidentTrackerProjectId",
        function success() {
-           this.sendKeys("input#editIncidentTrackerProjectId", "1");
+           this.sendKeys("input#editIncidentTrackerProjectId", params.projectId);
        },
        function fail() {
            test.assertExists("input#editIncidentTrackerProjectId");
    });
    casper.waitForSelector("input#editIncidentTrackerUserName",
        function success() {
-           this.sendKeys("input#editIncidentTrackerUserName", "testkey1");
+           this.sendKeys("input#editIncidentTrackerUserName", params.apiKey);
        },
        function fail() {
            test.assertExists("input#editIncidentTrackerUserName");
