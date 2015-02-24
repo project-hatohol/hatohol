@@ -66,8 +66,6 @@ casper.test.begin('Register/Unregister action test', function(test) {
                         "Confirmation dialog button appeared when " +
                         "registering target action.");
       this.evaluate(function() {
-        $("#server-selector").find("table#selectorMainTable").find("tr").last()
-          .click().change();
         $("div.ui-dialog-buttonset").attr("area-described-by","server-selector")
           .last().find("button").click().change();
       });
