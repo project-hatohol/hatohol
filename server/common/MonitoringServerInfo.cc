@@ -54,8 +54,8 @@ void MonitoringServerInfo::initialize(MonitoringServerInfo &monSvInfo)
 	monSvInfo.id = 0;
 	monSvInfo.type = MONITORING_SYSTEM_UNKNOWN;
 	monSvInfo.port               = 0;
-	monSvInfo.pollingIntervalSec = 0;
-	monSvInfo.retryIntervalSec   = 0;
+	monSvInfo.pollingIntervalSec = 1;
+	monSvInfo.retryIntervalSec   = 1;
 	monSvInfo.hostName  = "localhost";
 	monSvInfo.ipAddress = "127.0.0.1";
 }
