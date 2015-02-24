@@ -141,15 +141,15 @@ bool getParamWithErrorReply(
   FaceRest::ResourceHandler *job, const char *paramName, const char *scanFmt,
   T &dest, bool *exist)
 {
-	char *value = (char *)g_hash_table_lookup(job->m_query, paramName);
+	HatoholError err = getParam<T>(job->m_query, paramName, scanFmt, dest);
 	if (exist)
-		*exist = value;
-	if (!value)
+		*exist = (err != HTERR_NOT_FOUND_PARAMETER);
+	if (err == HTERR_NOT_FOUND_PARAMETER)
 		return true;
 
-	if (sscanf(value, scanFmt, &dest) != 1) {
-		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-		            "%s: %s", paramName, value);
+	if (err != HTERR_OK) {
+		REPLY_ERROR(job, err.getCode(),
+		            "%s", err.getOptionMessage().c_str());
 		return false;
 	}
 	return true;
