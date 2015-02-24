@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -76,6 +76,42 @@ void test_getUint64(gconstpointer data)
 {
 	DBTermCodec dbTermCodec;
 	string actual = dbTermCodec.enc(gcut_data_get_uint64(data, "val"));
+	string expect = gcut_data_get_string(data, "expect");
+	cppcut_assert_equal(expect, actual);
+}
+
+void data_getString(void)
+{
+	gcut_add_datum("Empty",
+	               "val", G_TYPE_STRING, "",
+	               "expect", G_TYPE_STRING, "''",
+	               NULL);
+	gcut_add_datum("No quotations",
+	               "val", G_TYPE_STRING,    "ABC foo",
+	               "expect", G_TYPE_STRING, "'ABC foo'",
+	               NULL);
+	gcut_add_datum("At the first",
+	               "val", G_TYPE_STRING,    "'ABC foo",
+	               "expect", G_TYPE_STRING, "'''ABC foo'",
+	               NULL);
+	gcut_add_datum("At the last",
+	               "val", G_TYPE_STRING,    "ABC foo'",
+	               "expect", G_TYPE_STRING, "'ABC foo'''",
+	               NULL);
+	gcut_add_datum("At the middle",
+	               "val", G_TYPE_STRING,    "AB'C fo'o",
+	               "expect", G_TYPE_STRING, "'AB''C fo''o'",
+	               NULL);
+	gcut_add_datum("Consecutive",
+	               "val", G_TYPE_STRING,    "AB'''C fo''o",
+	               "expect", G_TYPE_STRING, "'AB''''''C fo''''o'",
+	               NULL);
+}
+
+void test_getString(gconstpointer data)
+{
+	DBTermCodec dbTermCodec;
+	string actual = dbTermCodec.enc(gcut_data_get_string(data, "val"));
 	string expect = gcut_data_get_string(data, "expect");
 	cppcut_assert_equal(expect, actual);
 }
