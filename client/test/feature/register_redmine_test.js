@@ -110,7 +110,7 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
       test.assertExists("div.ui-dialog-buttonset button");
     });
 
-  // check delete-selector check box in minitoring server
+  // check delete-selector check box in incident tracker servers
   casper.then(function() {
     casper.wait(200, function() {
       this.evaluate(function() {
