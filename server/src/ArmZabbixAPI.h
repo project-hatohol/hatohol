@@ -50,7 +50,7 @@ protected:
 	/**
 	 * get all hosts in the ZABBIX server and save them in the Hatohol DB.
 	 */
-	HostNumChange updateHosts(void);
+	UpdateHostsResultStatus updateHosts(void);
 
 	void updateEvents(void);
 
@@ -68,7 +68,7 @@ protected:
 	void makeHatoholItems(ItemTablePtr items, ItemTablePtr applications);
 	void makeHatoholHostgroups(ItemTablePtr groups);
 	void makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups);
-	HostNumChange makeHatoholHosts(ItemTablePtr hosts);
+	UpdateHostsResultStatus makeHatoholHosts(ItemTablePtr hosts);
 
 	uint64_t getMaximumNumberGetEventPerOnce(void);
 

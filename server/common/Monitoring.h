@@ -72,9 +72,9 @@ enum HostValidity {
 	HOST_VALID_SELF_MONITORING,
 };
 
-enum HostNumChange {
+enum UpdateHostsResultStatus {
 	NO_CHANGE = 0,
-	CHANGE_NUM_OF_HOSTS
+	CHANGE_NUM_OF_HOSTS,
 };
 
 enum ExcludeFlag {
