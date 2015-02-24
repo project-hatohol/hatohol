@@ -9,46 +9,37 @@ casper.on("page.error", function(msg, trace) {
   }
 });
 
-casper.test.begin('Register/Unregister action test', function(test) {
+casper.test.begin('Register/Unregister incident settings test', function(test) {
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.then(function() {
     util.moveToServersPage(test);
     casper.then(function() {
+      // register Monitoring Server (Zabbix)
       util.registerMonitoringServer(test,
                                     {serverType: 0,
-                                     nickName: "test",
-                                     serverName: "test",
+                                     nickName: "zabbix",
+                                     serverName: "test-zabbix",
                                      ipAddress: "127.0.0.1",
                                      userName: "admin",
                                      userPassword: "zabbix-admin"});
     });
   });
-  // move to actions page
-  casper.waitForSelector(x("//a[normalize-space(text())='アクション']"),
-    function success() {
-      test.assertExists(x("//a[normalize-space(text())='アクション']",
-                          "Found 'actions' in menu"));
-      this.click(x("//a[normalize-space(text())='アクション']"));
-    },
-    function fail() {
-      test.assertExists(x("//a[normalize-space(text())='アクション']"));
-    });
+  casper.then(function() {util.moveToIncidentSettingsPage(test);});
   casper.then(function() {
-    casper.wait(200, function() {
-      test.assertUrlMatch(/.*ajax_actions/, "Move into actions page.");
-    });
+    util.registerIncidentTrackerRedmine(test,
+                                        {nickName: "testmine1",
+                                         ipAddress: "http://127.0.0.1",
+                                         projectId: "1",
+                                         apiKey: "testredmine"});
   });
-
-  // create actions
-  casper.waitForSelector("form button#add-action-button",
+  casper.waitForSelector("form button#add-incident-setting-button",
     function success() {
-      test.assertExists("form button#add-action-button",
-                        "Found add action button item");
-      this.click("form button#add-action-button");
+      test.assertExists("form button#add-incident-setting-button");
+      this.click("form button#add-incident-setting-button");
     },
     function fail() {
-      test.assertExists("form button#add-action-button");
+      test.assertExists("form button#add-incident-setting-button");
     });
   casper.then(function() {
     casper.evaluate(function() {
@@ -63,8 +54,8 @@ casper.test.begin('Register/Unregister action test', function(test) {
   casper.waitForSelector(".ui-dialog-buttonset > button",
     function success() {
       test.assertExists(".ui-dialog-buttonset > button",
-                        "Confirmation dialog button appeared when " +
-                        "registering target action.");
+                        "Select incident tracker server dialog button appeared when " +
+                        "registering target incident settings.");
       this.evaluate(function() {
         $("div.ui-dialog-buttonset").attr("area-described-by","server-selector")
           .last().find("button").click().change();
@@ -73,24 +64,29 @@ casper.test.begin('Register/Unregister action test', function(test) {
     function fail() {
       test.assertExists(".ui-dialog-buttonset > button");
     });
-  casper.waitForSelector("input#inputActionCommand",
-    function success() {
-      this.sendKeys("input#inputActionCommand", "getlog");
-    },
-    function fail() {
-      test.assertExists("input#inputActionCommand");
-    });
+  // add incident settings
   casper.waitForSelector(".ui-dialog-buttonset > button",
     function success() {
       test.assertExists(".ui-dialog-buttonset > button",
                         "Confirmation dialog button appeared when " +
-                        "registering action.");
+                        "registering incident settings.");
       this.click(".ui-dialog-buttonset > button");
     },
     function fail() {
       test.assertExists(".ui-dialog-buttonset > button");
     });
-
+  // close adding status dialog
+  casper.waitForSelector("div.ui-dialog-buttonset button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset button",
+                        "Confirmation dialog appeared.");
+      this.evaluate(function() {
+        $("div.ui-dialog-buttonset button").click();
+      });
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset button");
+    });
   // check delete-selector check box in minitoring server
   casper.then(function() {
     casper.wait(200, function() {
@@ -101,17 +97,16 @@ casper.test.begin('Register/Unregister action test', function(test) {
     });
   });
 
-  casper.waitForSelector("form button#delete-action-button",
+  casper.waitForSelector("form button#delete-incident-setting-button",
     function success() {
-      test.assertExists("form button#delete-action-button",
-                        "Found delete action button.");
-      this.click("form button#delete-action-button");
+      test.assertExists("form button#delete-incident-setting-button",
+                        "Found delete incident setting button.");
+      this.click("form button#delete-incident-setting-button");
     },
     function fail() {
-      test.assertExists("form button#delete-action-button");
+      test.assertExists("form button#delete-incident-setting-button");
     });
-
-  // click Yes in delete action dialog
+  // click Yes in delete incident settings dialog
   casper.waitForSelector("div.ui-dialog-buttonset button",
     function success() {
       test.assertExists("div.ui-dialog-buttonset button",
@@ -131,6 +126,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
+  casper.then(function() {util.unregisterIncidentTrackerRedmine(test);});
   casper.then(function() {
     util.moveToServersPage(test);
     util.unregisterMonitoringServer();
