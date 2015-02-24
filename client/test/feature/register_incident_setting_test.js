@@ -16,8 +16,8 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
   casper.then(function() {
     util.registerIncidentTrackerRedmine(test,
                                         {nickName: "testmine1",
-                                         ipAddress: "127.0.0.1",
-                                         projectId: 1,
+                                         ipAddress: "http://127.0.0.1",
+                                         projectId: "1",
                                          apiKey: "testredmine"});
   });
   casper.then(function() {util.unregisterIncidentTrackerRedmine(test);});
