@@ -174,7 +174,7 @@ gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 	return ArmBase::mainThread(arg);
 }
 
-void ArmZabbixAPI::makeHatoholALLTriggers(void)
+void ArmZabbixAPI::makeHatoholAllTriggers(void)
 {
 	TriggerInfoList mergedTriggerInfoList;
 	ItemTablePtr triggers, expanded, mergedTriggers;
@@ -297,7 +297,7 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 			ItemTablePtr triggers = updateTriggers();
 			makeHatoholTriggers(triggers);
 		} else {
-			makeHatoholALLTriggers();
+			makeHatoholAllTriggers();
 		}
 		updateEvents();
 
@@ -349,7 +349,7 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProcFetchTriggers(void)
 		return COLLECT_NG_DISCONNECT_ZABBIX;
 
 	try {
-		makeHatoholALLTriggers();
+		makeHatoholAllTriggers();
 	} catch (const HatoholException &he) {
 		return handleHatoholException(he);
 	}
