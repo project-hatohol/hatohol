@@ -317,7 +317,7 @@ function unregisterIncidentTrackerRedmine(test) {
   casper.waitForSelector("div.ui-dialog-buttonset button",
     function success() {
       test.assertExists("div.ui-dialog-buttonset button",
-                        "Confirmation dialog appeare, and then close it.");
+                        "Confirmation dialog appeared, and then close it.");
       this.evaluate(function() {
         $("div.ui-dialog-buttonset button").last().click();
       });
