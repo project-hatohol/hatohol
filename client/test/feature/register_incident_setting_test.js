@@ -12,6 +12,19 @@ casper.on("page.error", function(msg, trace) {
 casper.test.begin('Register/Unregister incident settings test', function(test) {
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
+  casper.then(function() {
+    util.moveServersPage(test);
+    casper.then(function() {
+      // register Monitoring Server (Zabbix)
+      util.registerMonitoringServer(test,
+                                    {serverType: 0,
+                                     nickName: "zabbix",
+                                     serverName: "test-zabbix",
+                                     ipAddress: "127.0.0.1",
+                                     userName: "admin",
+                                     userPassword: "zabbix-admin"});
+    });
+  });
   casper.then(function() {util.moveIncidentSettingsPage(test);});
   casper.then(function() {
     util.registerIncidentTrackerRedmine(test,
@@ -20,7 +33,19 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
                                          projectId: "1",
                                          apiKey: "testredmine"});
   });
+  casper.waitForSelector("form button#add-incident-setting-button",
+    function success() {
+      test.assertExists("form button#add-incident-setting-button");
+      this.click("form button#add-incident-setting-button");
+    },
+    function fail() {
+      test.assertExists("form button#add-incident-setting-button");
+    });
   casper.then(function() {util.unregisterIncidentTrackerRedmine(test);});
+  casper.then(function() {
+    util.moveServersPage(test);
+    util.unregisterMonitoringServer();
+  });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});
 });
