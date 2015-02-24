@@ -101,14 +101,14 @@ void ArmZabbixAPI::updateItems(void)
 	makeHatoholItems(items, applications);
 }
 
-UpdateHostsResultStatus ArmZabbixAPI::updateHosts(void)
+ResultofUpdateHosts ArmZabbixAPI::updateHosts(void)
 {
 	ItemTablePtr hostTablePtr, hostsGroupsTablePtr;
 	getHosts(hostTablePtr, hostsGroupsTablePtr);
-	UpdateHostsResultStatus updateHostsRetStat = makeHatoholHosts(hostTablePtr);
+	ResultofUpdateHosts resultofUpdateHosts = makeHatoholHosts(hostTablePtr);
 	makeHatoholMapHostsHostgroups(hostsGroupsTablePtr);
 
-	return updateHostsRetStat;
+	return resultofUpdateHosts;
 }
 
 void ArmZabbixAPI::updateEvents(void)
@@ -247,13 +247,13 @@ void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
 	cache.getMonitoring().addHostgroupElementList(hostgroupElementList);
 }
 
-UpdateHostsResultStatus ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
+ResultofUpdateHosts ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 {
 	ThreadLocalDBCache cache;
 	HostInfoList hostInfoList;
 	HatoholDBUtils::transformHostsToHatoholFormat(hostInfoList, hosts,
 	                                              m_impl->zabbixServerId);
-	UpdateHostsResultStatus updateHostsRetStat = cache.getMonitoring().updateHosts(
+	ResultofUpdateHosts resultofUpdateHosts = cache.getMonitoring().updateHosts(
 							hostInfoList, m_impl->zabbixServerId);
 
 	// TODO: consider if DBClientHatohol should have the cache
@@ -261,7 +261,7 @@ UpdateHostsResultStatus ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
 		m_impl->hostInfoCache.update(*hostInfoItr);
 
-	return updateHostsRetStat;
+	return resultofUpdateHosts;
 }
 
 uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
@@ -295,9 +295,9 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 		return COLLECT_NG_DISCONNECT_ZABBIX;
 
 	try {
-		UpdateHostsResultStatus updateHostsRetStat = updateHosts();
+		ResultofUpdateHosts resultofUpdateHosts = updateHosts();
 		updateGroups();
-		if (updateHostsRetStat == NO_CHANGE){
+		if (resultofUpdateHosts == NO_CHANGE){
 			ItemTablePtr triggers = updateTriggers();
 			makeHatoholTriggers(triggers);
 		} else {

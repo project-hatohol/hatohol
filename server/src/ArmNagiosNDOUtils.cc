@@ -702,7 +702,7 @@ void ArmNagiosNDOUtils::getItem(void)
 	cache.getMonitoring().addItemInfoList(itemInfoList);
 }
 
-UpdateHostsResultStatus ArmNagiosNDOUtils::getHost(void)
+ResultofUpdateHosts ArmNagiosNDOUtils::getHost(void)
 {
 	// TODO: should use transaction
 	m_impl->dbAgent->select(m_impl->selectHostArg);
@@ -818,10 +818,10 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 	try {
 		if (!m_impl->dbAgent)
 			connect();
-		UpdateHostsResultStatus updateHostsRetStat = getHost();
+		ResultofUpdateHosts resultofUpdateHosts = getHost();
 		getHostgroup();
 		getHostgroupMembers();
-		if (updateHostsRetStat == NO_CHANGE){
+		if (resultofUpdateHosts == NO_CHANGE){
 			getTrigger();
 		} else {
 			getAllTrigger();

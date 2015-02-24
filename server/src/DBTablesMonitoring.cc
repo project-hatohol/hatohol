@@ -2184,8 +2184,8 @@ void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 	getDBAgent().runTransaction(trx);
 }
 
-UpdateHostsResultStatus DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
-							const ServerIdType &serverId)
+ResultofUpdateHosts DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
+						    const ServerIdType &serverId)
 {
 	// Make a set that contains current hosts records
 	HostsQueryOption option(USER_ID_SYSTEM);
