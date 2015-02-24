@@ -195,8 +195,8 @@ void test_login(void)
 
 void test_loginFailure(void)
 {
-	assertLogin(testUserInfo[1].name, testUserInfo[0].password,
-	            HTERR_AUTH_FAILED);
+	assertLoginFailure(testUserInfo[1].name, testUserInfo[0].password,
+	                   HTERR_AUTH_FAILED);
 }
 
 void test_loginNoUserName(void)
