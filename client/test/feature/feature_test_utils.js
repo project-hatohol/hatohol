@@ -134,7 +134,6 @@ function unregisterMonitoringServer(test) {
 
   casper.waitForSelector("form button#delete-server-button",
     function success() {
-      casper.capture('unregister.png');
       this.click("form button#delete-server-button");
     },
     function fail() {
