@@ -227,6 +227,12 @@ JSONParser *getResponseAsJSONParser(RequestArg &arg)
 	return parser;
 }
 
+void getServerResponseAsFailure(RequestArg &arg)
+{
+	getServerResponse(arg);
+	cut_assert_false(SOUP_STATUS_IS_SUCCESSFUL(arg.httpStatusCode));
+}
+
 void _assertValueInParser(JSONParser *parser,
 			  const string &member, const bool expected)
 {

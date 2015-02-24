@@ -61,6 +61,7 @@ std::string makeSessionIdHeader(const std::string &sessionId);
 
 void getServerResponse(RequestArg &arg);
 JSONParser *getResponseAsJSONParser(RequestArg &arg);
+void getServerResponseAsFailure(RequestArg &arg);
 
 void _assertValueInParser(JSONParser *parser,
 			  const std::string &member,

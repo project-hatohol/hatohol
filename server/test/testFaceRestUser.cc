@@ -52,6 +52,25 @@ void _assertLogin(
 }
 #define assertLogin(U, P, ...) cut_trace(_assertLogin(U, P, ##__VA_ARGS__))
 
+void _assertLoginFailure(
+  const string &user, const string &password,
+  const HatoholErrorCode &expectCode = HTERR_OK,
+  string *sessionId = NULL)
+{
+	startFaceRest();
+
+	StringMap query;
+	if (!user.empty())
+		query["user"] = user;
+	if (!password.empty())
+		query["password"] = password;
+	RequestArg arg("/login", "cbname");
+	arg.parameters = query;
+	getServerResponseAsFailure(arg);
+}
+#define assertLoginFailure(U, P, ...) \
+  cut_trace(_assertLoginFailure(U, P, ##__VA_ARGS__))
+
 namespace testFaceRestUser {
 
 void cut_setup(void)
