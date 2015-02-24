@@ -228,8 +228,9 @@ public:
 	 * @param hostInfoList  A list of hosts.
 	 * @param serverId      A monitoring server ID.
 	 */
-	ResultofUpdateHosts updateHosts(const HostInfoList &hostInfoList,
-					const ServerIdType &serverId);
+	void updateHosts(bool &storedHostsChanged,
+			 const HostInfoList &hostInfoList,
+			 const ServerIdType &serverId);
 
 	/**
 	 * get the last (maximum) event ID of the event that belongs to
