@@ -38,14 +38,6 @@ static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 
-// 1 <= Polling Interval [s] <= 60*60*24*366 (366days)
-const int DBTablesConfig::MIN_POLLING_INTERVAL_SEC = 1;
-const int DBTablesConfig::MAX_POLLING_INTERVAL_SEC = 60*60*24*366;
-
-// 1 <= Retry Interval [s] <= 60*60*24*31 (31days)
-const int DBTablesConfig::MIN_RETRY_INTERVAL_SEC = 1;
-const int DBTablesConfig::MAX_RETRY_INTERVAL_SEC = 60*60*24*31;
-
 int DBTablesConfig::CONFIG_DB_VERSION = 13;
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
@@ -961,13 +953,12 @@ HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 	    !Utils::isValidIPAddress(serverInfo.ipAddress)) {
 		return HTERR_INVALID_IP_ADDRESS;
 	}
-	if (serverInfo.pollingIntervalSec < DBTablesConfig::MIN_POLLING_INTERVAL_SEC ||
-	    serverInfo.pollingIntervalSec > DBTablesConfig::MAX_POLLING_INTERVAL_SEC) {
+	if (serverInfo.pollingIntervalSec < MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC ||
+	    serverInfo.pollingIntervalSec > MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC) {
 		return HTERR_INVALID_POLLING_INTERVAL;
 	}
-
-	if (serverInfo.retryIntervalSec < DBTablesConfig::MIN_RETRY_INTERVAL_SEC ||
-	    serverInfo.retryIntervalSec > DBTablesConfig::MAX_RETRY_INTERVAL_SEC) {
+	if (serverInfo.retryIntervalSec < MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC ||
+	    serverInfo.retryIntervalSec > MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC) {
 		return HTERR_INVALID_RETRY_INTERVAL;
 	}
 	return HTERR_OK;

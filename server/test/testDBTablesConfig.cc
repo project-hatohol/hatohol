@@ -471,21 +471,21 @@ void test_addTargetServerWithEmptyIPAddressAndHostname(void)
 
 void data_addTargetServerWithValidPollingInterval(void)
 {
-	int	n = DBTablesConfig::MIN_POLLING_INTERVAL_SEC;
+	int	n = MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC;
 	string	s = StringUtils::sprintf("MIN (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,
 		       "expect", G_TYPE_INT, (int)HTERR_OK,
 		       NULL);
 
-	n = DBTablesConfig::MAX_POLLING_INTERVAL_SEC;
+	n = MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC;
 	s = StringUtils::sprintf("MAX (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,
 		       "expect", G_TYPE_INT, (int)HTERR_OK,
 		       NULL);
 
-	n = DBTablesConfig::MIN_POLLING_INTERVAL_SEC - 1;
+	n = MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC - 1;
 	s = StringUtils::sprintf("MIN-1 (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,
@@ -493,7 +493,7 @@ void data_addTargetServerWithValidPollingInterval(void)
 		       (int)HTERR_INVALID_POLLING_INTERVAL,
 		       NULL);
 
-	n = DBTablesConfig::MAX_POLLING_INTERVAL_SEC + 1;
+	n = MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC + 1;
 	s = StringUtils::sprintf("MAX+1 (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,
@@ -511,28 +511,28 @@ void test_addTargetServerWithValidPollingInterval(gconstpointer data)
 
 void data_addTargetServerWithValidRetryInterval(void)
 {
-	int	n = DBTablesConfig::MIN_RETRY_INTERVAL_SEC;
+	int	n = MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC;
 	string	s = StringUtils::sprintf("MIN (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,
 		       "expect", G_TYPE_INT, (int)HTERR_OK,
 		       NULL);
 
-	n = DBTablesConfig::MAX_RETRY_INTERVAL_SEC;
+	n = MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC;
 	s = StringUtils::sprintf("MAX (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,
 		       "expect", G_TYPE_INT, (int)HTERR_OK,
 		       NULL);
 
-	n = DBTablesConfig::MIN_RETRY_INTERVAL_SEC - 1;
+	n = MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC - 1;
 	s = StringUtils::sprintf("MIN-1 (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,
 		       "expect", G_TYPE_INT, (int)HTERR_INVALID_RETRY_INTERVAL,
 		       NULL);
 
-	n = DBTablesConfig::MAX_RETRY_INTERVAL_SEC + 1;
+	n = MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC + 1;
 	s = StringUtils::sprintf("MAX+1 (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,
@@ -611,28 +611,28 @@ void test_updateTargetServerWithNoHostNameAndIPAddress(void)
 
 void data_updateTargetServerWithValidPollingInterval(void)
 {
-	int	n = DBTablesConfig::MIN_POLLING_INTERVAL_SEC;
+	int	n = MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC;
 	string	s = StringUtils::sprintf("MIN (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,
 		       "expect", G_TYPE_INT, (int)HTERR_OK,
 		       NULL);
 
-	n = DBTablesConfig::MAX_POLLING_INTERVAL_SEC;
+	n = MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC;
 	s = StringUtils::sprintf("MAX (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,
 		       "expect", G_TYPE_INT, (int)HTERR_OK,
 		       NULL);
 
-	n = DBTablesConfig::MIN_POLLING_INTERVAL_SEC - 1;
+	n = MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC - 1;
 	s = StringUtils::sprintf("MIN-1 (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,
 		       "expect", G_TYPE_INT, (int)HTERR_INVALID_POLLING_INTERVAL,
 		       NULL);
 
-	n = DBTablesConfig::MAX_POLLING_INTERVAL_SEC + 1;
+	n = MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC + 1;
 	s = StringUtils::sprintf("MAX+1 (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,
@@ -652,28 +652,28 @@ void test_updateTargetServerWithValidPollingInterval(gconstpointer data)
 
 void data_updateTargetServerWithValidRetryInterval(void)
 {
-	int	n = DBTablesConfig::MIN_RETRY_INTERVAL_SEC;
+	int	n = MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC;
 	string	s = StringUtils::sprintf("MIN (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,
 		       "expect", G_TYPE_INT, (int)HTERR_OK,
 		       NULL);
 
-	n = DBTablesConfig::MAX_RETRY_INTERVAL_SEC;
+	n = MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC;
 	s = StringUtils::sprintf("MAX (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,
 		       "expect", G_TYPE_INT, (int)HTERR_OK,
 		       NULL);
 
-	n = DBTablesConfig::MIN_RETRY_INTERVAL_SEC - 1;
+	n = MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC - 1;
 	s = StringUtils::sprintf("MIN-1 (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,
 		       "expect", G_TYPE_INT, (int)HTERR_INVALID_RETRY_INTERVAL,
 		       NULL);
 
-	n = DBTablesConfig::MAX_RETRY_INTERVAL_SEC + 1;
+	n = MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC + 1;
 	s = StringUtils::sprintf("MAX+1 (%d)", n);
 	gcut_add_datum(s.c_str(),
 		       "data", G_TYPE_INT, n,

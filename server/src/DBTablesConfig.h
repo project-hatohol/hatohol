@@ -139,12 +139,6 @@ private:
 class DBTablesConfig : public DBTables {
 public:
 	static int CONFIG_DB_VERSION;
-
-	static const int MIN_POLLING_INTERVAL_SEC;
-	static const int MAX_POLLING_INTERVAL_SEC;
-	static const int MIN_RETRY_INTERVAL_SEC;
-	static const int MAX_RETRY_INTERVAL_SEC;
-
 	static void reset(void);
 	static bool isHatoholArmPlugin(const MonitoringSystemType &type);
 
