@@ -41,6 +41,91 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
     function fail() {
       test.assertExists("form button#add-incident-setting-button");
     });
+  casper.then(function() {
+    casper.evaluate(function() {
+      $("#selectServerId").val("SELECT").change();
+    });
+  });
+  casper.then(function() {
+    this.evaluate(function() {
+      $("#selectorMainTable").find("tr").last().click().change();
+    });
+  });
+  casper.waitForSelector(".ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists(".ui-dialog-buttonset > button",
+                        "Select incident tracker server dialog button appeared when " +
+                        "registering target incident settings.");
+      this.evaluate(function() {
+        $("div.ui-dialog-buttonset").attr("area-described-by","server-selector")
+          .last().find("button").click().change();
+      });
+    },
+    function fail() {
+      test.assertExists(".ui-dialog-buttonset > button");
+    });
+  // add incident settings
+  casper.waitForSelector(".ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists(".ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared when " +
+                        "registering incident settings.");
+      this.click(".ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists(".ui-dialog-buttonset > button");
+    });
+  // close adding status dialog
+  casper.waitForSelector("div.ui-dialog-buttonset button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset button",
+                        "Confirmation dialog appeared.");
+      this.evaluate(function() {
+        $("div.ui-dialog-buttonset button").click();
+      });
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset button");
+    });
+  // check delete-selector check box in minitoring server
+  casper.then(function() {
+    casper.wait(200, function() {
+      this.evaluate(function() {
+        $("tr:last").find(".selectcheckbox").click();
+        return true;
+      });
+    });
+  });
+
+  casper.waitForSelector("form button#delete-incident-setting-button",
+    function success() {
+      test.assertExists("form button#delete-incident-setting-button",
+                        "Found delete incident setting button.");
+      this.click("form button#delete-incident-setting-button");
+    },
+    function fail() {
+      test.assertExists("form button#delete-incident-setting-button");
+    });
+  // click Yes in delete incident settings dialog
+  casper.waitForSelector("div.ui-dialog-buttonset button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset button",
+                        "Confirmation dialog appeared.");
+      this.evaluate(function() {
+        $("div.ui-dialog-buttonset button").next().click();
+      });
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset button");
+    });
+  // close result confirmation dialog
+  casper.waitForSelector("div.ui-dialog-buttonset > button",
+    function success() {
+      this.click("div.ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset > button");
+    });
   casper.then(function() {util.unregisterIncidentTrackerRedmine(test);});
   casper.then(function() {
     util.moveServersPage(test);
