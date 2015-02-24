@@ -140,6 +140,9 @@ HATOHOL_SERVER_TYPE_UTIL = \
 static/js/hatohol_def.js: $(HATOHOL_DEF_GENERATOR)
 	$(HATOHOL_DEF_GENERATOR) js > $@
 
+$(HATOHOL_DEF_GENERATOR):
+	$(MAKE) -C $(top_builddir)/server/tools/ hatohol-def-src-file-generator
+
 hatohol/hatohol_def.py: $(HATOHOL_DEF_GENERATOR)
 	$(HATOHOL_DEF_GENERATOR) py > $@
 
