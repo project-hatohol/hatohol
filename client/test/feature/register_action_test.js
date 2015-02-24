@@ -121,7 +121,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
       });
     },
     function fail() {
-      test.assertExists("form button#delete-server-button");
+      test.assertExists("div.ui-dialog-buttonset button");
     });
   // close result confirmation dialog
   casper.waitForSelector("div.ui-dialog-buttonset > button",
