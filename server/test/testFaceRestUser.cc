@@ -201,17 +201,17 @@ void test_loginFailure(void)
 
 void test_loginNoUserName(void)
 {
-	assertLogin("", testUserInfo[0].password, HTERR_AUTH_FAILED);
+	assertLoginFailure("", testUserInfo[0].password, HTERR_AUTH_FAILED);
 }
 
 void test_loginNoPassword(void)
 {
-	assertLogin(testUserInfo[0].name, "", HTERR_AUTH_FAILED);
+	assertLoginFailure(testUserInfo[0].name, "", HTERR_AUTH_FAILED);
 }
 
 void test_loginNoUserNameAndPassword(void)
 {
-	assertLogin("", "", HTERR_AUTH_FAILED);
+	assertLoginFailure("", "", HTERR_AUTH_FAILED);
 }
 
 void test_logout(void)

@@ -541,14 +541,14 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 	gchar *user = (gchar *)g_hash_table_lookup(job->m_query, "user");
 	if (!user) {
 		MLPL_INFO("Not found: user\n");
-		job->replyError(HTERR_AUTH_FAILED);
+		job->replyError(HTERR_AUTH_FAILED, SOUP_STATUS_UNAUTHORIZED);
 		return;
 	}
 	gchar *password
 	  = (gchar *)g_hash_table_lookup(job->m_query, "password");
 	if (!password) {
 		MLPL_INFO("Not found: password\n");
-		job->replyError(HTERR_AUTH_FAILED);
+		job->replyError(HTERR_AUTH_FAILED, SOUP_STATUS_UNAUTHORIZED);
 		return;
 	}
 
