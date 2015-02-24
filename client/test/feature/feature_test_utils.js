@@ -26,7 +26,7 @@ function logout(test) {
 };
 exports.logout = logout;
 
-function moveServersPage(test) {
+function moveToServersPage(test) {
   // move to servers page
   casper.waitForSelector(x("//a[normalize-space(text())='監視サーバー']"),
     function success() {
@@ -43,7 +43,7 @@ function moveServersPage(test) {
     });
   });
 }
-exports.moveServersPage = moveServersPage;
+exports.moveToServersPage = moveToServersPage;
 
 function registerMonitoringServer(test, params) {
   // prepare and show monitoring server adding dialog
@@ -152,7 +152,7 @@ function unregisterMonitoringServer(test) {
 }
 exports.unregisterMonitoringServer = unregisterMonitoringServer;
 
-function moveIncidentSettingsPage(test) {
+function moveToIncidentSettingsPage(test) {
   // move to incident setting page
   casper.waitForSelector(x("//a[normalize-space(text())='インシデント管理']"),
     function success() {
@@ -170,7 +170,7 @@ function moveIncidentSettingsPage(test) {
     });
   });
 }
-exports.moveIncidentSettingsPage = moveIncidentSettingsPage;
+exports.moveToIncidentSettingsPage = moveToIncidentSettingsPage;
 
 function registerIncidentTrackerRedmine(test, params) {
     // create incident tracker servers

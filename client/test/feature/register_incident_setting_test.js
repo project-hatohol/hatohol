@@ -13,7 +13,7 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.then(function() {
-    util.moveServersPage(test);
+    util.moveToServersPage(test);
     casper.then(function() {
       // register Monitoring Server (Zabbix)
       util.registerMonitoringServer(test,
@@ -25,7 +25,7 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
                                      userPassword: "zabbix-admin"});
     });
   });
-  casper.then(function() {util.moveIncidentSettingsPage(test);});
+  casper.then(function() {util.moveToIncidentSettingsPage(test);});
   casper.then(function() {
     util.registerIncidentTrackerRedmine(test,
                                         {nickName: "testmine1",
@@ -128,7 +128,7 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
     });
   casper.then(function() {util.unregisterIncidentTrackerRedmine(test);});
   casper.then(function() {
-    util.moveServersPage(test);
+    util.moveToServersPage(test);
     util.unregisterMonitoringServer();
   });
   casper.then(function() {util.logout(test);});

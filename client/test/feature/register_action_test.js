@@ -13,7 +13,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.then(function() {
-    util.moveServersPage(test);
+    util.moveToServersPage(test);
     casper.then(function() {
       util.registerMonitoringServer(test,
                                     {serverType: 0,
@@ -132,7 +132,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
   casper.then(function() {
-    util.moveServersPage(test);
+    util.moveToServersPage(test);
     util.unregisterMonitoringServer();
   });
   casper.then(function() {util.logout(test);});
