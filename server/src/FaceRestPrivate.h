@@ -60,11 +60,13 @@ public:
 	std::string getResourceIdString(int nest = 0);
 	uint64_t    getResourceId(int nest = 0);
 
-	void replyError(const HatoholError &hatoholError);
+	void replyError(const HatoholError &hatoholError,
+			const guint &statusCode = SOUP_STATUS_OK);
 	void replyError(const HatoholErrorCode &errorCode,
-			const std::string &optionMessage = "");
+			const std::string &optionMessage = "",
+			const guint &statusCode = SOUP_STATUS_OK);
 	void replyHttpStatus(const guint &statusCode);
-	void replyJSONData(JSONBuilder &agent);
+	void replyJSONData(JSONBuilder &agent, const guint &statusCode = SOUP_STATUS_OK);
 	void addServersMap(JSONBuilder &agent,
 			   TriggerBriefMaps *triggerMaps = NULL,
 			   bool lookupTriggerBrief = false);

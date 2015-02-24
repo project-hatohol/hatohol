@@ -828,10 +828,11 @@ uint64_t FaceRest::ResourceHandler::getResourceId(int nest)
 }
 
 void FaceRest::ResourceHandler::replyError(const HatoholErrorCode &errorCode,
-					   const string &optionMessage)
+					   const string &optionMessage,
+					   const guint &statusCode)
 {
 	HatoholError hatoholError(errorCode, optionMessage);
-	replyError(hatoholError);
+	replyError(hatoholError, statusCode);
 }
 
 static string wrapForJSONP(const string &jsonBody,
@@ -844,7 +845,8 @@ static string wrapForJSONP(const string &jsonBody,
 	return jsonp;
 }
 
-void FaceRest::ResourceHandler::replyError(const HatoholError &hatoholError)
+void FaceRest::ResourceHandler::replyError(const HatoholError &hatoholError,
+					   const guint &statusCode)
 {
 	string error
 	  = StringUtils::sprintf("%d", hatoholError.getCode());
@@ -872,7 +874,7 @@ void FaceRest::ResourceHandler::replyError(const HatoholError &hatoholError)
 	                                      MIME_JSON, NULL);
 	soup_message_body_append(m_message->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
-	soup_message_set_status(m_message, SOUP_STATUS_OK);
+	soup_message_set_status(m_message, statusCode);
 
 	m_replyIsPrepared = true;
 }
@@ -883,7 +885,8 @@ void FaceRest::ResourceHandler::replyHttpStatus(const guint &statusCode)
 	m_replyIsPrepared = true;
 }
 
-void FaceRest::ResourceHandler::replyJSONData(JSONBuilder &agent)
+void FaceRest::ResourceHandler::replyJSONData(JSONBuilder &agent,
+					      const guint &statusCode)
 {
 	string response = agent.generate();
 	if (!m_jsonpCallbackName.empty())
@@ -892,7 +895,7 @@ void FaceRest::ResourceHandler::replyJSONData(JSONBuilder &agent)
 	                                      m_mimeType, NULL);
 	soup_message_body_append(m_message->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
-	soup_message_set_status(m_message, SOUP_STATUS_OK);
+	soup_message_set_status(m_message, statusCode);
 
 	m_replyIsPrepared = true;
 }
