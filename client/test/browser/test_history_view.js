@@ -195,4 +195,30 @@ describe('HistoryView', function() {
     var actual = HistoryView.prototype.parseQuery(query);
     expect(expected).eql(actual);
   });
+
+  it('get config from item selector', function() {
+    var view = new HistoryView(getOperator());
+    var selector = new HatoholItemSelector({ view: view });
+    var item1 = $.extend({}, defaultItems[0]);
+    var item2 = $.extend({}, item1, { id: 2 });
+    var hostgroupId2 = 12;
+    selector.appendItem(item1, defaultServers);
+    selector.appendItem(item2, defaultServers, hostgroupId2);
+    expect(selector.getConfig()).eql({
+      histories: [
+        {
+          serverId: 1,
+          hostId: 10101,
+          hostgroupId: undefined,
+          itemId: 1,
+        },
+        {
+          serverId: 1,
+          hostId: 10101,
+          hostgroupId: 12,
+          itemId: 2,
+        },
+      ]
+    });
+  });
 });
