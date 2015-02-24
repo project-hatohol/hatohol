@@ -111,7 +111,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
       test.assertExists("form button#delete-action-button");
     });
 
-  // close delete status dialog
+  // click Yes in delete action dialog
   casper.waitForSelector("div.ui-dialog-buttonset button",
     function success() {
       test.assertExists("div.ui-dialog-buttonset button",
