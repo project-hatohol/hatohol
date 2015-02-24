@@ -254,10 +254,32 @@ function registerIncidentTrackerRedmine(test, params) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset button");
     });
+  // close editing incident tracker dialog
+  casper.waitForSelector("div.ui-dialog-buttonset button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset button",
+                        "Confirmation dialog appeared.");
+      this.evaluate(function() {
+        $("div.ui-dialog-buttonset button").last().click();
+      });
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset button");
+    });
 }
 exports.registerIncidentTrackerRedmine = registerIncidentTrackerRedmine;
 
 function unregisterIncidentTrackerRedmine(test) {
+  // open editing incident tracker dialog
+  casper.waitForSelector("button#edit-incident-trackers-button",
+    function success() {
+      test.assertExists("button#edit-incident-trackers-button",
+                        "Found adding incident trackers button item");
+      this.click("button#edit-incident-trackers-button");
+    },
+    function fail() {
+      test.assertExists("form button#add-incident-trackers-button");
+    });
   // check delete-selector check box in incident trackers server
   casper.then(function() {
     casper.wait(200, function() {
