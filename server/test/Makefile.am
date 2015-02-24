@@ -61,6 +61,7 @@ testHatohol_la_SOURCES = \
 	testDBTablesHost.cc \
 	testDBClientJoinBuilder.cc \
 	testDBTermCodec.cc \
+	testDBTermCStringProvider.cc \
 	testOperationPrivilege.cc \
 	testSQLUtils.cc \
 	testMySQLWorkerZabbix.cc \

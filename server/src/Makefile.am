@@ -34,6 +34,7 @@ libhatohol_la_SOURCES = \
 	DBTablesHost.cc DBTablesHost.h \
 	DBClientJoinBuilder.cc DBClientJoinBuilder.h \
 	DBTermCodec.h DBTermCodec.cc \
+	DBTermCStringProvier.h DBTermCStringProvider.cc \
 	DataStore.cc DataStore.h \
 	DataStoreFactory.cc DataStoreFactory.h \
 	DataStoreManager.cc DataStoreManager.h \

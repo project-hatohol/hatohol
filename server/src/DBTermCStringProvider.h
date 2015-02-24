@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 Project Hatohol
+ * Copyright (C) 2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -17,17 +17,30 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBTermCodec_h
-#define DBTermCodec_h
+#ifndef DBTermCStringProvider_h
+#define DBTermCStringProvider_h
 
 #include <string>
+#include <list>
 #include <stdint.h>
+#include <memory>
+#include "DBTermCodec.h"
 
-class DBTermCodec {
+class DBTermCStringProvider {
 public:
-	virtual std::string enc(const int &val) const;
-	virtual std::string enc(const uint64_t &val) const;
-	virtual std::string enc(const std::string &val) const;
+	DBTermCStringProvider(const DBTermCodec &codec);
+	~DBTermCStringProvider();
+
+	const char * operator()(const int &val);
+	const char * operator()(const uint64_t &val);
+	const char * operator()(const std::string &val);
+
+	const std::list<std::string> &getStoredStringList(void) const;
+
+private:
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DBTermCodec_h
+#endif // DBTermCStringProvider_h
+
