@@ -97,7 +97,7 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
     function fail() {
       test.assertExists(".ui-dialog-buttonset > button");
     });
-  // close delete status dialog
+  // close adding status dialog
   casper.waitForSelector("div.ui-dialog-buttonset button",
     function success() {
       test.assertExists("div.ui-dialog-buttonset button",
