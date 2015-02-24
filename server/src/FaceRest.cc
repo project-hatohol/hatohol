@@ -557,7 +557,7 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 	if (userId == INVALID_USER_ID) {
 		MLPL_INFO("Failed to authenticate: Client: %s, User: %s.\n",
 			  soup_client_context_get_host(job->m_client), user);
-		job->replyError(HTERR_AUTH_FAILED);
+		job->replyError(HTERR_AUTH_FAILED, SOUP_STATUS_UNAUTHORIZED);
 		return;
 	}
 
