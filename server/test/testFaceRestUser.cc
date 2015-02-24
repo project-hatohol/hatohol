@@ -66,7 +66,12 @@ void _assertLoginFailure(
 		query["password"] = password;
 	RequestArg arg("/login", "cbname");
 	arg.parameters = query;
-	getServerResponseAsFailure(arg);
+	unique_ptr<JSONParser> parserPtr(getServerResponseAsJSONParserWithFailure(arg));
+	assertErrorCode(parserPtr.get(), expectCode);
+	if (sessionId) {
+		cppcut_assert_equal(true, parserPtr.get()->read("sessionId",
+		                                                *sessionId));
+	}
 }
 #define assertLoginFailure(U, P, ...) \
   cut_trace(_assertLoginFailure(U, P, ##__VA_ARGS__))
@@ -196,7 +201,7 @@ void test_login(void)
 void test_loginFailure(void)
 {
 	assertLoginFailure(testUserInfo[1].name, testUserInfo[0].password,
-	                   HTERR_AUTH_FAILED);
+			   HTERR_AUTH_FAILED);
 }
 
 void test_loginNoUserName(void)
