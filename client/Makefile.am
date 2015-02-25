@@ -76,6 +76,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/hatohol_connector.js \
 	static/js/hatohol_graph.js \
 	static/js/hatohol_session_manager.js \
+	static/js/hatohol_item_selector.js \
 	static/js/hatohol_login_dialog.js \
 	static/js/hatohol_message_box.js \
 	static/js/hatohol_navi.js \
@@ -94,6 +95,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/hatohol_server_selector.js \
 	static/js/hatohol_hostgroup_privilege_edit_dialog.js \
 	static/js/hatohol_privilege_edit_dialog.js \
+	static/js/hatohol_history_loader.js \
 	static/js/hatohol_host_selector.js \
 	static/js/hatohol_selector_dialog.js \
 	static/js/hatohol_trigger_selector.js \

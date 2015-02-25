@@ -104,7 +104,7 @@ var HistoryView = function(userProfile, options) {
   };
 
   function appendHistoryLoader(historyQuery, index) {
-    var loader = new HistoryLoader({
+    var loader = new HatoholHistoryLoader({
       view: self,
       defaultTimeSpan: self.timeRange.getSpan(),
       query: historyQuery,
