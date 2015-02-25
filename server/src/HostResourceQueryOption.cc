@@ -20,6 +20,7 @@
 #include "Params.h"
 #include "HostResourceQueryOption.h"
 #include "DBTablesMonitoring.h"
+#include "DBTermCStringProvider.h"
 #include "DBHatohol.h"
 
 using namespace std;
@@ -117,7 +118,7 @@ const char *HostResourceQueryOption::getPrimaryTableName(void) const
 
 string HostResourceQueryOption::getCondition(void) const
 {
-	const DBTermCodec *dbTermCodec = getDBTermCodec();
+	DBTermCStringProvider dbTerm(*getDBTermCodec());
 	string condition;
 	if (getFilterForDataOfDefunctServers()) {
 		addCondition(
@@ -137,7 +138,7 @@ string HostResourceQueryOption::getCondition(void) const
 			  StringUtils::sprintf(
 				"%s=%s",
 				getServerIdColumnName().c_str(),
-				dbTermCodec->enc(m_impl->targetServerId).c_str())
+				dbTerm(m_impl->targetServerId))
 			);
 		}
 		if (m_impl->targetHostId != ALL_HOSTS) {
@@ -145,15 +146,15 @@ string HostResourceQueryOption::getCondition(void) const
 			  StringUtils::sprintf(
 				"%s=%s",
 				getHostIdColumnName().c_str(),
-				dbTermCodec->enc(m_impl->targetHostId).c_str())
+				dbTerm(m_impl->targetHostId))
 			);
 		}
 		if (m_impl->targetHostgroupId != ALL_HOST_GROUPS) {
 			addCondition(condition,
 			  StringUtils::sprintf(
-				"%s='%" FMT_HOST_GROUP_ID "'",
+				"%s=%s",
 				getHostgroupIdColumnName().c_str(),
-				m_impl->targetHostgroupId.c_str())
+				dbTerm(m_impl->targetHostgroupId))
 			);
 		}
 		return condition;
@@ -298,7 +299,9 @@ string HostResourceQueryOption::getHostIdColumnName(void) const
 
 string HostResourceQueryOption::makeConditionHostgroup(
   const HostgroupIdSet &hostgroupIdSet, const string &hostgroupIdColumnName)
+  const
 {
+	DBTermCStringProvider dbTerm(*getDBTermCodec());
 	string hostGrps;
 	HostgroupIdSetConstIterator it = hostgroupIdSet.begin();
 	size_t commaCnt = hostgroupIdSet.size() - 1;
@@ -306,9 +309,7 @@ string HostResourceQueryOption::makeConditionHostgroup(
 		const HostgroupIdType &hostgroupId = *it;
 		if (hostgroupId == ALL_HOST_GROUPS)
 			return "";
-		hostGrps += "'";
-		hostGrps += hostgroupId;
-		hostGrps += "'";
+		hostGrps += dbTerm(hostgroupId);
 		if (commaCnt)
 			hostGrps += ",";
 	}
@@ -328,14 +329,13 @@ string HostResourceQueryOption::makeConditionServer(
 
 	ServerIdSetConstIterator serverId = serverIdSet.begin();
 	bool first = true;
-	const DBTermCodec *dbTermCodec = getDBTermCodec();
+	DBTermCStringProvider dbTerm(*getDBTermCodec());
 	for (; serverId != serverIdSet.end(); ++serverId) {
 		if (first)
 			first = false;
 		else
 			condition += ",";
-		condition += StringUtils::sprintf(
-		  "%s", dbTermCodec->enc(*serverId).c_str());
+		condition += dbTerm(*serverId);
 	}
 	condition += ")";
 	return condition;
@@ -346,11 +346,10 @@ string HostResourceQueryOption::makeConditionServer(
   const string &serverIdColumnName, const string &hostgroupIdColumnName,
   const HostgroupIdType &hostgroupId) const
 {
-	const DBTermCodec *dbTermCodec = getDBTermCodec();
+	DBTermCStringProvider dbTerm(*getDBTermCodec());
 	string condition;
 	condition = StringUtils::sprintf(
-	  "%s=%s", serverIdColumnName.c_str(),
-	  dbTermCodec->enc(serverId).c_str());
+	  "%s=%s", serverIdColumnName.c_str(), dbTerm(serverId));
 
 	string conditionHostgroup;
 	if (hostgroupId == ALL_HOST_GROUPS) {
@@ -358,8 +357,8 @@ string HostResourceQueryOption::makeConditionServer(
 		  makeConditionHostgroup(hostgroupIdSet, hostgroupIdColumnName);
 	} else {
 		conditionHostgroup = StringUtils::sprintf(
-		  "%s='%" FMT_HOST_GROUP_ID "'", hostgroupIdColumnName.c_str(),
-		  hostgroupId.c_str());
+		  "%s=%s", hostgroupIdColumnName.c_str(),
+		  dbTerm(hostgroupId.c_str()));
 	}
 	if (!conditionHostgroup.empty()) {
 		return StringUtils::sprintf("(%s AND %s)",
@@ -415,11 +414,11 @@ string HostResourceQueryOption::makeCondition(
 	}
 
 	if (targetHostId != ALL_HOSTS) {
-		const DBTermCodec *dbTermCodec = getDBTermCodec();
+		DBTermCStringProvider dbTerm(*getDBTermCodec());
 		return StringUtils::sprintf(
 		  "((%s) AND %s=%s)",
 		  condition.c_str(), hostIdColumnName.c_str(),
-		  dbTermCodec->enc(targetHostId).c_str());
+		  dbTerm(targetHostId));
 	}
 
 	if (numServers == 1)
