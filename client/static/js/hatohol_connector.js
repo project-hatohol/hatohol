@@ -131,7 +131,7 @@ HatoholConnector.prototype.start = function(connectParams) {
         parseLoginResult(data);
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
-        formatLoginResultWithError(XMLHttpRequest, textStatus, errorThrown);
+        parseLoginResultWithError(XMLHttpRequest, textStatus, errorThrown);
       },
     });
   }
@@ -149,13 +149,24 @@ HatoholConnector.prototype.start = function(connectParams) {
     request();
   }
 
-  function formatLoginResultWithError(XMLHttpRequest, textStatus, errorThrown) {
-    var status = XMLHttpRequest.status;
-    if (!(status >= 200 && status < 300)) {
-      var msg =
-        gettext("Failed to login. ") + gettext("Invalid user name or password.");
-      hatoholErrorMsgBox(msg);
-    return;
+  function parseLoginResultWithError(XMLHttpRequest, textStatus, errorThrown) {
+    var response = XMLHttpRequest.responseText;
+    var data = $.parseJSON(response);
+    if (data) {
+      var parser = new HatoholLoginReplyParser(data);
+      if (parser.getStatus() != REPLY_STATUS.OK) {
+        var msg = gettext("Failed to login. ") + parser.getMessage();
+        hatoholErrorMsgBox(msg);
+        return;
+      }
+    } else {
+      var status = XMLHttpRequest.status;
+      if (!(status >= 200 && status < 300)) {
+        var errorMsg = "Error: " + textStatus + ": " + errorThrown;
+        var unknownErrorMsg = gettext("Failed to login. ") + errorMsg;
+        hatoholErrorMsgBox(unknownErrorMsg);
+        return;
+      }
     }
   }
 
