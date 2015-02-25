@@ -59,7 +59,7 @@ def jsonforward(request, path):
 
         response = HttpResponse(content, content_type='application/json')
     except urllib2.URLError, e:
-        response = HttpResponse('{}', content_type='application/json', status=e.code)
+        response = HttpResponse(e.read(), content_type='application/json', status=e.code)
 
     response['Pragma'] = 'no-cache'
     response['Cache-Control'] = 'no-cache'
