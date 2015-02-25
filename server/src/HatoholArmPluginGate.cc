@@ -172,6 +172,11 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	    &HatoholArmPluginGate::cmdHandlerGetTimeOfLastEvent);
 
 	registerCommandHandler(
+	  HAPI_CMD_GET_TRIGGERS_COLLECT_TYPE,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerGetTriggerCollectStat);
+
+	registerCommandHandler(
 	  HAPI_CMD_SEND_UPDATED_TRIGGERS,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers);
@@ -242,6 +247,7 @@ const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const
 
 void HatoholArmPluginGate::exitSync(void)
 {
+
 	AutoMutex autoMutex(&m_impl->exitSyncLock);
 	if (m_impl->exitSyncDone)
 		return;
@@ -773,16 +779,11 @@ void HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger(
 	SmartBuffer resBuf;
 	HapiResTimestampOfLastTrigger *body =
 	  setupResponseBuffer<HapiResTimestampOfLastTrigger>(resBuf);
-	if (m_impl->noCahngeHosts) {
-		UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-		SmartTime last = uds->getTimestampOfLastTrigger(m_impl->serverInfo.id);
-		const timespec &lastTimespec = last.getAsTimespec();
-		body->timestamp = NtoL(lastTimespec.tv_sec);
-		body->nanosec   = NtoL(lastTimespec.tv_nsec);
-	} else {
-		body->timestamp = NtoL(0);
-		body->nanosec   = NtoL(0);
-	}		
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	SmartTime last = uds->getTimestampOfLastTrigger(m_impl->serverInfo.id);
+	const timespec &lastTimespec = last.getAsTimespec();
+	body->timestamp = NtoL(lastTimespec.tv_sec);
+	body->nanosec   = NtoL(lastTimespec.tv_nsec);
 	reply(resBuf);
 }
 
@@ -819,6 +820,22 @@ void HatoholArmPluginGate::cmdHandlerGetTimeOfLastEvent(
 	const timespec &ts = time.getAsTimespec();
 	body->sec = ts.tv_sec;
 	body->nsec = ts.tv_nsec;
+	reply(resBuf);
+}
+
+void HatoholArmPluginGate::cmdHandlerGetTriggerCollectStat(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer resBuf;
+	HapiTriggerCollect *body =
+	  setupResponseBuffer<HapiTriggerCollect>(resBuf);
+	HapiTriggerCollectType type;
+	if (m_impl->noCahngeHosts) {
+		type = DIFFERENCE_TRIGGER_COLLECT;
+	} else {
+		type = ALL_TRIGGER_COLLECT;
+	}
+	body->type = NtoL(type);
 	reply(resBuf);
 }
 
