@@ -141,6 +141,8 @@ protected:
 	void cmdHandlerSendArmInfo(const HapiCommandHeader *header);
 	void cmdHandlerSendHapSelfTriggers(const HapiCommandHeader *header);
 
+	void parseCmdHandlerTriggerList(TriggerInfoList &trigInfoList);
+
 	void addInitialTrigger(HatoholArmPluginWatchType addtrigger);
 
 	void setPluginConnectStatus(const HatoholArmPluginWatchType &type,
