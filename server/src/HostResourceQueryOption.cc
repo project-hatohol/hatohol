@@ -357,9 +357,9 @@ string HostResourceQueryOption::makeConditionServer(
 string HostResourceQueryOption::makeConditionServer(
   const ServerIdType &serverId, const HostgroupIdSet &hostgroupIdSet,
   const string &serverIdColumnName, const string &hostgroupIdColumnName,
-  const HostgroupIdType &hostgroupId)
+  const HostgroupIdType &hostgroupId) const
 {
-	const DBTermCodec *dbTermCodec = Impl::dbTermCodec;
+	const DBTermCodec *dbTermCodec = getDBTermCodec();
 	string condition;
 	condition = StringUtils::sprintf(
 	  "%s=%s", serverIdColumnName.c_str(),
@@ -390,7 +390,7 @@ string HostResourceQueryOption::makeCondition(
   const string &hostIdColumnName,
   ServerIdType targetServerId,
   HostgroupIdType targetHostgroupId,
-  HostIdType targetHostId)
+  HostIdType targetHostId) const
 {
 	// TODO: consider if we use isHostgroupEnumerationInCondition()
 	string condition;

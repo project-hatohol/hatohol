@@ -143,23 +143,23 @@ protected:
 	std::string getHostgroupIdColumnName(void) const;
 	std::string getHostIdColumnName(void) const;
 
-	static std::string makeCondition(
+	std::string makeCondition(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostgroupIdColumnName,
 	  const std::string &hostIdColumnName,
 	  ServerIdType targetServerId = ALL_SERVERS,
 	  HostgroupIdType targetHostgroup = ALL_HOST_GROUPS,
-	  HostIdType targetHostId = ALL_HOSTS);
+	  HostIdType targetHostId = ALL_HOSTS) const;
 	std::string makeConditionServer(
 	  const ServerIdSet &serverIdSet,
 	  const std::string &serverIdColumnName) const;
-	static std::string makeConditionServer(
+	std::string makeConditionServer(
 	  const ServerIdType &serverId,
 	  const HostgroupIdSet &hostgroupIdSet,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostgroupIdColumnName,
-	  const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS);
+	  const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS) const;
 	static std::string makeConditionHostgroup(
 	  const HostgroupIdSet &hostgroupIdSet,
 	  const std::string &hostgroupIdColumnName);

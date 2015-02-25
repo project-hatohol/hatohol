@@ -167,18 +167,14 @@ static const string hostIdColumnName = "host_id";
 // FIXME: Change order of parameter.
 static void _assertMakeCondition(
   const ServerHostGrpSetMap &srvHostGrpSetMap, const string &expect,
-  const ServerIdType targetServerId = ALL_SERVERS,
-  const HostIdType targetHostId = ALL_HOSTS,
-  const HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS)
+  const ServerIdType &targetServerId = ALL_SERVERS,
+  const HostIdType &targetHostId = ALL_HOSTS,
+  const HostgroupIdType &targetHostgroupId = ALL_HOST_GROUPS)
 {
-	string cond = TestHostResourceQueryOption::callMakeCondition(
-			srvHostGrpSetMap,
-			serverIdColumnName,
-			hostgroupIdColumnName,
-			hostIdColumnName,
-			targetServerId,
-			targetHostgroupId,
-			targetHostId);
+	TestHostResourceQueryOption option;
+	string cond = option.callMakeCondition(
+	  srvHostGrpSetMap, serverIdColumnName, hostgroupIdColumnName,
+	  hostIdColumnName, targetServerId, targetHostgroupId, targetHostId);
 	cppcut_assert_equal(expect, cond);
 }
 #define assertMakeCondition(M, ...) \
@@ -228,7 +224,8 @@ static string makeExpectedConditionForUser(
 	  nameBuilder(TEST_PRIMARY_TABLE_NAME, hostIdColumnName);
 	// TODO: consider that the following way (using a part of test
 	//       target method) is good.
-	const string exp = TestHostResourceQueryOption::callMakeCondition(
+	TestHostResourceQueryOption option;
+	const string exp = option.callMakeCondition(
 	  srvHostGrpSetMap, svIdColName, hgrpIdColName, hostIdColName);
 	return exp;
 }

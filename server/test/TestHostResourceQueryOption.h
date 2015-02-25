@@ -27,34 +27,20 @@ class TestHostResourceQueryOption : public HostResourceQueryOption {
 public:
 	TestHostResourceQueryOption(const UserIdType &userId = INVALID_USER_ID);
 
-	std::string callGetServerIdColumnName(void) const
-	{
-		return getServerIdColumnName();
-	}
+	std::string callGetServerIdColumnName(void) const;
 
 	std::string callMakeConditionServer(
-	  const ServerIdSet &serverIdSet, const std::string &serverIdColumnName)
-	{
-		return makeConditionServer(serverIdSet, serverIdColumnName);
-	}
+	  const ServerIdSet &serverIdSet,
+	  const std::string &serverIdColumnName) const;
 
-	static std::string callMakeCondition(
+	std::string callMakeCondition(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostgroupIdColumnName,
 	  const std::string &hostIdColumnName,
-	  uint32_t targetServerId = ALL_SERVERS,
-	  uint64_t targetHostgroupId = ALL_HOST_GROUPS,
-	  uint64_t targetHostId = ALL_HOSTS)
-	{
-		return makeCondition(srvHostGrpSetMap,
-		                     serverIdColumnName,
-		                     hostgroupIdColumnName,
-		                     hostIdColumnName,
-		                     targetServerId,
-		                     targetHostgroupId,
-		                     targetHostId);
-	}
+	  const ServerIdType &targetServerId = ALL_SERVERS,
+	  const HostgroupIdType &targetHostgroupId = ALL_HOST_GROUPS,
+	  const HostIdType &targetHostId = ALL_HOSTS) const;
 };
 
 #endif // TestHostResourceQueryOption_h
