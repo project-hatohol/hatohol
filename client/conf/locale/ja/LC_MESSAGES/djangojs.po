@@ -101,11 +101,11 @@ msgstr "TLSクライアント証明書のパス"
 #: static/js/log_search_systems_view.js:53 static/js/servers_view.js:61
 #: static/js/users_view.js:57
 msgid "Do you delete the selected items ?"
-msgstr "選択項目を削除してもよろしいですか？"
+msgstr "選択項目を削除しますか？"
 
 #: static/js/servers_view.js:67
-msgid "Do you reload trigger from select itmes ?"
-msgstr "選択項目からトリガーを再収集してもよろしいですか？"
+msgid "Do you reload triggers from the selected itmes ?"
+msgstr "選択項目からトリガーを再収集しますか？"
 
 #: static/js/actions_view.js:110
 #: static/js/hatohol_incident_trackers_editor.js:66
