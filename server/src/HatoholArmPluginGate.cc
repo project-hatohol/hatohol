@@ -958,15 +958,8 @@ void HatoholArmPluginGate::cmdHandlerGetTriggerCollectStat(
 void HatoholArmPluginGate::cmdHandlerSendUpdatedAllTriggers(
   const HapiCommandHeader *header)
 {
-	SmartBuffer *cmdBuf = getCurrBuffer();
-	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
-
-	cmdBuf->setIndex(sizeof(HapiCommandHeader));
-	ItemTablePtr tablePtr = createItemTable(*cmdBuf);
-
 	TriggerInfoList trigInfoList;
-	HatoholDBUtils::transformTriggersToHatoholFormat(
-	  trigInfoList, tablePtr, m_impl->serverInfo.id, m_impl->hostInfoCache);
+	parseCmdHandlerTriggerList(trigInfoList);
 
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
@@ -977,15 +970,8 @@ void HatoholArmPluginGate::cmdHandlerSendUpdatedAllTriggers(
 void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
   const HapiCommandHeader *header)
 {
-	SmartBuffer *cmdBuf = getCurrBuffer();
-	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
-
-	cmdBuf->setIndex(sizeof(HapiCommandHeader));
-	ItemTablePtr tablePtr = createItemTable(*cmdBuf);
-
 	TriggerInfoList trigInfoList;
-	HatoholDBUtils::transformTriggersToHatoholFormat(
-	  trigInfoList, tablePtr, m_impl->serverInfo.id, m_impl->hostInfoCache);
+	parseCmdHandlerTriggerList(trigInfoList);
 
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
@@ -1120,6 +1106,20 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 
 	replyOk();
 
+}
+
+void HatoholArmPluginGate::parseCmdHandlerTriggerList(TriggerInfoList &trigInfoList)
+{
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+
+	cmdBuf->setIndex(sizeof(HapiCommandHeader));
+	ItemTablePtr tablePtr = createItemTable(*cmdBuf);
+
+	HatoholDBUtils::transformTriggersToHatoholFormat(
+	  trigInfoList, tablePtr, m_impl->serverInfo.id, m_impl->hostInfoCache);
+
+	return;
 }
 
 void HatoholArmPluginGate::addInitialTrigger(HatoholArmPluginWatchType addtrigger)
