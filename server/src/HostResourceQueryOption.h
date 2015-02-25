@@ -158,9 +158,9 @@ protected:
 	  const std::string &serverIdColumnName,
 	  const std::string &hostgroupIdColumnName,
 	  const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS) const;
-	static std::string makeConditionHostgroup(
+	std::string makeConditionHostgroup(
 	  const HostgroupIdSet &hostgroupIdSet,
-	  const std::string &hostgroupIdColumnName);
+	  const std::string &hostgroupIdColumnName) const;
 
 	virtual std::string getFromClauseForOneTable(void) const;
 	virtual std::string getFromClauseWithHostgroup(void) const;
