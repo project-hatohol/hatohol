@@ -326,3 +326,34 @@ function unregisterIncidentTrackerRedmine(test) {
     });
 }
 exports.unregisterIncidentTrackerRedmine = unregisterIncidentTrackerRedmine;
+
+function moveToDashboardPage(test) {
+  // move to dashboard page
+  casper.then(function () {
+    this.click(x("//a[normalize-space(text())='ダッシュボード']"));
+  });
+  casper.then(function() {
+    casper.wait(200, function() {
+      test.assertUrlMatch(/.*ajax_dashboard/, "Move into dashboard page.");
+    });
+  });
+}
+exports.moveToDashboardPage = moveToDashboardPage;
+
+function moveToLogSearchSystemPage(test) {
+  casper.waitForSelector(x("//a[normalize-space(text())='ログ検索システム']"),
+    function success() {
+      test.assertExists(x("//a[normalize-space(text())='ログ検索システム']"));
+      this.click(x("//a[normalize-space(text())='ログ検索システム']"));
+    },
+    function fail() {
+      test.assertExists(x("//a[normalize-space(text())='ログ検索システム']"));
+    });
+  casper.then(function() {
+    casper.wait(200, function() {
+      test.assertUrlMatch(/.*ajax_log_search_system/,
+                          "Move into logsearch system page.");
+    });
+  });
+}
+exports.moveToLogSearchSystemPage = moveToLogSearchSystemPage;
