@@ -25,13 +25,11 @@ var HistoryView = function(userProfile, options) {
 
   self.reloadIntervalSeconds = 60;
   self.autoReloadIsEnabled = false;
-  self.plotData = [];
-  self.plotOptions = undefined;
-  self.plot = undefined;
   self.timeRange = getTimeRange();
   self.settingSliderTimeRange = false;
-  self.loaders = [];
+  self.graph = undefined;
   self.itemSelector = undefined;
+  self.loaders = [];
 
   prepare(self.parseQuery(options.query));
   if (self.loaders.length > 0) {
@@ -50,16 +48,8 @@ var HistoryView = function(userProfile, options) {
         load();
       },
       removeItemCallback: function(index) {
-        var i;
         var loader = self.itemSelector.getUserData(index);
-        for (i = 0; i < self.loaders.length; i++) {
-          if (self.loaders[i] == loader) {
-            self.loaders.splice(i, 1);
-            self.plotData.splice(i, 1);
-            updateView();
-            return;
-          }
-        }
+	removeHistoryLoader(loader);
       },
     });
 
@@ -95,35 +85,6 @@ var HistoryView = function(userProfile, options) {
       class: "btn btn-default glyphicon glyphicon-cog",
     }).attr("data-toggle", "modal").attr("data-target", "#hatohol-item-list"));
 
-    $("#hatohol-graph").bind("plotselected", function (event, ranges) {
-      var plotOptions;
-
-      // clamp the zooming to prevent eternal zoom
-      if (ranges.xaxis.to - ranges.xaxis.from < 60 * 1000) {
-        ranges.xaxis.from -= 30 * 1000;
-        ranges.xaxis.to = ranges.xaxis.from + 60 * 1000;
-      }
-
-      // zoom
-      plotOptions = $.extend(true, {}, self.plotOptions, {
-        xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
-        yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
-      });
-      $.plot("#hatohol-graph", self.plotData, plotOptions);
-
-      setSliderTimeRange(Math.floor(ranges.xaxis.from / 1000),
-                         Math.floor(ranges.xaxis.to / 1000));
-
-      disableAutoReload();
-    });
-
-    // zoom cancel
-    $("#hatohol-graph").bind("dblclick", function (event) {
-      $.plot("#hatohol-graph", self.plotData, self.plotOptions);
-      setSliderTimeRange(Math.floor(self.plotOptions.xaxis.min / 1000),
-                         Math.floor(self.plotOptions.xaxis.max / 1000));
-    });
-
     // toggle auto reload
     $("#hatohol-graph-auto-reload").on("click", function() {
       if ($(this).hasClass("active")) {
@@ -132,33 +93,15 @@ var HistoryView = function(userProfile, options) {
         enableAutoReload(true);
       }
     });
+
+    self.graph = new HatoholGraph({
+      id: "hatohol-graph",
+      zoomCallback: function(minSec, maxSec) {
+	setSliderTimeRange(minSec, maxSec);
+	disableAutoReload();
+      },
+    });
   };
-
-  function createLegendData(item, servers) {
-    var legend = { data:[] };
-
-    if (item) {
-      // it will be filled by updateTitleAndLegendLabels()
-      legend.label = undefind;
-      if (item.unit)
-        legend.label += " [" + item.unit + "]";
-    }
-
-    return legend;
-  };
-
-  function updatePlotData() {
-    var i, item, servers;
-    for (i = 0; i < self.loaders.length; i++) {
-      if (self.plotData[i].data) {
-        self.plotData[i].data = self.loaders[i].history;
-      } else {
-        item = self.loaders[i].getItem();
-        servers = self.loaders[i].getServers();
-        self.plotData[i] = createLegendData(item, servers);
-      }
-    }
-  }
 
   function appendHistoryLoader(historyQuery, index) {
     var loader = new HistoryLoader({
@@ -167,24 +110,33 @@ var HistoryView = function(userProfile, options) {
       query: historyQuery,
       onLoadItem: function(loader, item, servers) {
         var index = self.itemSelector.getIndexByUserData(loader);
-        updatePlotData();
         updateView();
         self.itemSelector.setServers(servers);
         self.itemSelector.setItem(index, item, servers,
                                   loader.options.query.hostgroupId);
       },
       onLoadHistory: function(loader, history) {
-        updatePlotData();
         updateView();
       }
     });
     self.loaders.push(loader);
-    self.plotData.push(createLegendData());
+    self.graph.appendHistoryLoader(loader);
     if (isNaN(index))
       index = self.itemSelector.appendItem();
     self.itemSelector.setUserData(index, loader);
     if (self.loaders.length == 1)
       initTimeRange();
+  }
+
+  function removeHistoryLoader(loader) {
+    var i;
+    for (i = 0; i < self.loaders.length; i++) {
+      if (loader) {
+	self.loaders.splice(i, 1);
+	break;
+      }
+    }
+    self.graph.removeHistoryLoader(loader);
   }
 
   function initTimeRange() {
@@ -247,115 +199,6 @@ var HistoryView = function(userProfile, options) {
       timezone: "browser"
     };
     return $.plot.dateGenerator(timeMSec, plotOptions);
-  }
-
-  function formatTime(val, unit) {
-    var now = new Date();
-    var date = getDate(val);
-    var format = "";
-
-    if (now.getFullYear() != date.getFullYear())
-      format += "%Y/";
-    if (now.getFullYear() != date.getFullYear() ||
-        now.getMonth() != date.getMonth() ||
-        now.getDate() != date.getDate()) {
-      format += "%m/%d ";
-    }
-    if (unit == "hour" || unit == "minute" || unit == "second")
-      format += "%H:%M";
-    if (unit == "second")
-      format += ":%S";
-
-    return $.plot.formatDate(date, format);
-  }
-
-  function getYAxisOptions(unit) {
-    return {
-      min: 0,
-      unit: unit,
-      tickFormatter: function(val, axis) {
-        return formatItemValue("" + val, this.unit);
-      }
-    };
-  }
-
-  function getYAxesOptions() {
-    var i, item, label, axis, axes = [], table = {}, isInt;
-    for (i = 0; i < self.loaders.length; i++) {
-      item = self.loaders[i].getItem();
-      label = item ? item.unit : "";
-      axis = item ? table[item.unit] : undefined;
-      isInt = item && (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER);
-      if (axis) {
-        if (!isInt)
-          delete axis.minTickSize;
-      } else {
-        axis = getYAxisOptions(label);
-        if (isInt)
-          axis.minTickSize = 1;
-        if (axes.length % 2 == 1)
-          axis.position = "right";
-        axes.push(axis);
-        table[label] = axis;
-      }
-    }
-    return axes;
-  }
-
-  function getPlotOptions(beginTimeInSec, endTimeInSec) {
-    return {
-      xaxis: {
-        mode: "time",
-        timezone: "browser",
-        tickFormatter: function(val, axis) {
-          var unit = axis.tickSize[1];
-          return formatTime(val, unit);
-        },
-        min: beginTimeInSec * 1000,
-        max: endTimeInSec * 1000,
-      },
-      yaxes: getYAxesOptions(),
-      legend: {
-        show: (self.plotData.length > 1),
-        position: "sw",
-      },
-      points: {
-      },
-      selection: {
-        mode: "x",
-      },
-    };
-  }
-
-  function fixupYAxisMapping(plotData, plotOptions) {
-    function findYAxis(yaxes, item) {
-      var i;
-      for (i = 0; item && i < yaxes.length; i++) {
-        if (yaxes[i].unit == item.unit)
-          return i + 1;
-      }
-      return 1;
-    }
-    var i, item;
-
-    for (i = 0; i < self.loaders.length; i++) {
-      item = self.loaders[i].getItem();
-      plotData[i].yaxis = findYAxis(plotOptions.yaxes, item);
-    }
-  }
-
-  function drawGraph() {
-    var i;
-
-    self.plotOptions = getPlotOptions(self.timeRange.begin, self.timeRange.end);
-    fixupYAxisMapping(self.plotData, self.plotOptions);
-
-    for (i = 0; i < self.plotData.length; i++) {
-      if (self.plotData[i].data.length == 1)
-        self.plotOptions.points.show = true;
-    }
-
-    self.plot = $.plot($("#hatohol-graph"), self.plotData, self.plotOptions);
   }
 
   function getTimeRange() {
@@ -428,7 +271,7 @@ var HistoryView = function(userProfile, options) {
 
         timeRange.set(ui.values[0], ui.values[1]);
         setSliderTimeRange(timeRange.begin, timeRange.end);
-        setGraphTimeRange(timeRange.begin, timeRange.end);
+        self.graph.setTimeRange(timeRange.begin, timeRange.end);
         for (i = 0; i < self.loaders.length; i++)
           self.loaders[i].setTimeRange(timeRange.begin, timeRange.end);
         disableAutoReload();
@@ -494,121 +337,7 @@ var HistoryView = function(userProfile, options) {
     self.settingSliderTimeRange = false;
   }
 
-  function setGraphTimeRange(min, max) {
-    $.each(self.plot.getXAxes(), function(index, axis) {
-      axis.options.min = min * 1000;
-      axis.options.max = max * 1000;
-    });
-    self.plot.setupGrid();
-    self.plot.draw();
-  }
-
-  function updateView() {
-    updateTitleAndLegendLabels();
-    drawGraph();
-    drawSlider();
-    self.displayUpdateTime();
-  }
-
-  function buildHostName(item, servers) {
-    if (!item || !servers)
-      return gettext("Unknown host")
-    var server = servers[item.serverId];
-    var serverName = getServerName(server, item["serverId"]);
-    var hostName   = getHostName(server, item["hostId"]);
-    return serverName + ": " + hostName;
-  }
-
-  function buildTitle(item, servers) {
-    var hostName, title = "";
-
-    if (!item || !servers)
-      return gettext("History");
-    hostName = buildHostName(item, servers);
-
-    title += item.brief;
-    title += " (" + hostName + ")";
-    if (item.unit)
-      title += " [" + item.unit + "]";
-    return title;
-  }
-
-  function isSameHost() {
-    var i, item, prevItem = self.loaders[0].getItem();
-
-    if (!prevItem)
-      return false;
-
-    for (i = 1; i < self.loaders.length; i++) {
-      if (!self.loaders[i])
-        return false;
-
-      item = self.loaders[i].getItem();
-      if (!item)
-        return false;
-      if (item.serverId != prevItem.serverId)
-        return false;
-      if (item.hostId != prevItem.hostId)
-        return false;
-
-      prevItem = item;
-    }
-
-    return true;
-  }
-
-  function isSameItem() {
-    var i, item, prevItem = self.loaders[0].getItem();
-
-    if (!prevItem)
-      return false;
-
-    for (i = 1; i < self.loaders.length; i++) {
-      if (!self.loaders[i])
-        return false;
-
-      item = self.loaders[i].getItem();
-      if (!item)
-        return false;
-      if (item.brief != prevItem.brief)
-        return false;
-
-      prevItem = item;
-    }
-
-    return true;
-  }
-
-  function updateTitleAndLegendLabels() {
-    var i, title, item, servers, loader = self.loaders[0];
-
-    if (self.plotData.length == 0) {
-      title = undefined;
-    } else if (self.plotData.length == 1) {
-      title = buildTitle(loader.getItem(), loader.getServers());
-    } else if (isSameHost()) {
-      title = buildHostName(loader.getItem(), loader.getServers());
-      for (i = 0; i < self.plotData.length; i++) {
-        // omit host names in legend labels
-        item = self.loaders[i].getItem();
-        self.plotData[i].label = getItemBriefWithUnit(item);
-      }
-    } else if (isSameItem()) {
-      title = getItemBriefWithUnit(loader.getItem());
-      for (i = 0; i < self.plotData.length; i++) {
-        // omit item names in legend labels
-        item = self.loaders[i].getItem();
-        servers = self.loaders[i].getServers();
-        self.plotData[i].label = buildHostName(item, servers);
-      }
-    } else {
-      for (i = 0; i < self.plotData.length; i++) {
-        item = self.loaders[i].getItem();
-        servers = self.loaders[i].getServers();
-        self.plotData[i].label = buildTitle(item, servers);
-      }
-    }
-
+  function setTitle(title) {
     if (title) {
       $("title").text(title);
       $("h2.hatohol-graph").text(title);
@@ -616,6 +345,13 @@ var HistoryView = function(userProfile, options) {
       $("title").text(gettext("History"));
       $("h2.hatohol-graph").text("");
     }
+  }
+
+  function updateView() {
+    self.graph.draw(self.timeRange.begin, self.timeRange.end);
+    drawSlider();
+    setTitle(self.graph.title);
+    self.displayUpdateTime();
   }
 };
 
