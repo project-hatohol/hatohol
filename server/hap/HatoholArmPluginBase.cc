@@ -292,6 +292,43 @@ SmartTime HatoholArmPluginBase::getTimeOfLastEvent(
 	return cb->lastTime;
 }
 
+HapiTriggerCollectType HatoholArmPluginBase::getTriggerCollectType(void)
+{
+	struct Callback : public SyncCommand {
+		HapiTriggerCollectType type;
+
+		Callback(HatoholArmPluginBase *obj)
+		: SyncCommand(obj)
+		{
+		}
+
+		virtual void onGotReply(
+		  mlpl::SmartBuffer &replyBuf,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			SemaphorePoster poster(this);
+			const HapiTriggerCollect *body =
+			  getObject()->getResponseBody
+			    <HapiTriggerCollect>(replyBuf);
+			type = (HapiTriggerCollectType)LtoN(body->type);
+			setSucceeded();
+		}
+
+	} *cb = new Callback(this);
+	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
+
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(
+	  cmdBuf, HAPI_CMD_GET_TRIGGERS_COLLECT_TYPE);
+	send(cmdBuf, cb);
+	cb->wait();
+	if (!cb->getSucceeded()) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call HAPI_CMD_GET_TRIGGERS_COLLECT_STAT\n");
+	}
+	return cb->type;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
