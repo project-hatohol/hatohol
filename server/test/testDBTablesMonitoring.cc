@@ -1415,8 +1415,7 @@ void test_updateHostsMarkInvalid(void)
 	}
 
 	// Call the method to be tested and check the result
-	bool storedHostsChanged;
-	dbMonitoring.updateHosts(storedHostsChanged, hostInfoList, targetServerId);
+	dbMonitoring.updateHosts(hostInfoList, targetServerId);
 	DBAgent &dbAgent = dbMonitoring.getDBAgent();
 	string statement = StringUtils::sprintf(
 	  "select host_id,validity from hosts where server_id=%" FMT_SERVER_ID
@@ -1459,8 +1458,7 @@ void test_updateHostsAddNewHost(void)
 	expect += makeHostsOutput(newHost, i);
 
 	// Call the method to be tested and check the result
-	bool storedHostsChanged;
-	dbMonitoring.updateHosts(storedHostsChanged, hostInfoList, targetServerId);
+	dbMonitoring.updateHosts(hostInfoList, targetServerId);
 	DBAgent &dbAgent = dbMonitoring.getDBAgent();
 	string statement = StringUtils::sprintf(
 	  "select * from hosts where server_id=%" FMT_SERVER_ID
@@ -1506,8 +1504,7 @@ void test_updateHostsChangeHostName(void)
 	}
 
 	// Call the method to be tested and check the result
-	bool storedHostsChanged;
-	dbMonitoring.updateHosts(storedHostsChanged, hostInfoList, targetServerId);
+	dbMonitoring.updateHosts(hostInfoList, targetServerId);
 	DBAgent &dbAgent = dbMonitoring.getDBAgent();
 	string statement = StringUtils::sprintf(
 	  "select * from hosts where server_id=%" FMT_SERVER_ID

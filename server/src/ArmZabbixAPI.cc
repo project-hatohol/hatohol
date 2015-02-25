@@ -254,8 +254,8 @@ void ArmZabbixAPI::makeHatoholHosts(bool &storedHostsChanged,
 	HostInfoList hostInfoList;
 	HatoholDBUtils::transformHostsToHatoholFormat(hostInfoList, hosts,
 	                                              m_impl->zabbixServerId);
-	cache.getMonitoring().updateHosts(storedHostsChanged,
-					  hostInfoList, m_impl->zabbixServerId);
+	cache.getMonitoring().updateHosts(hostInfoList, m_impl->zabbixServerId,
+					  &storedHostsChanged);
 
 	// TODO: consider if DBClientHatohol should have the cache
 	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();

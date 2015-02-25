@@ -720,8 +720,8 @@ void ArmNagiosNDOUtils::getHost(bool &storedHostsChanged)
 		hostInfoList.push_back(hostInfo);
 	}
 	ThreadLocalDBCache cache;
-	cache.getMonitoring().updateHosts(storedHostsChanged,
-					  hostInfoList, svInfo.id);
+	cache.getMonitoring().updateHosts(hostInfoList, svInfo.id,
+					  &storedHostsChanged);
 }
 
 void ArmNagiosNDOUtils::getHostgroup(void)

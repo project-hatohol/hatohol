@@ -227,10 +227,12 @@ public:
 	 *
 	 * @param hostInfoList  A list of hosts.
 	 * @param serverId      A monitoring server ID.
+	 * @param storedHostsChanged (option)(out-paramater)
+	 * true if no change in host registration, otherwise false.
 	 */
-	void updateHosts(bool &storedHostsChanged,
-			 const HostInfoList &hostInfoList,
-			 const ServerIdType &serverId);
+	void updateHosts(const HostInfoList &hostInfoList,
+			 const ServerIdType &serverId,
+			 bool *storedHostsChanged = NULL);
 
 	/**
 	 * get the last (maximum) event ID of the event that belongs to
