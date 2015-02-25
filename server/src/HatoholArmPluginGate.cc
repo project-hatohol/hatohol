@@ -184,7 +184,7 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	registerCommandHandler(
 	  HAPI_CMD_SEND_ALL_TRIGGERS,
 	  (CommandHandler)
-	    &HatoholArmPluginGate::cmdHandlerSendUpdatedAllTriggers);
+	    &HatoholArmPluginGate::cmdHandlerSendAllTriggers);
 
 	registerCommandHandler(
 	  HAPI_CMD_SEND_HOSTS,
@@ -839,7 +839,7 @@ void HatoholArmPluginGate::cmdHandlerGetTriggerCollectStat(
 	reply(resBuf);
 }
 
-void HatoholArmPluginGate::cmdHandlerSendUpdatedAllTriggers(
+void HatoholArmPluginGate::cmdHandlerSendAllTriggers(
   const HapiCommandHeader *header)
 {
 	TriggerInfoList trigInfoList;
