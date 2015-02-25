@@ -81,13 +81,6 @@ struct HostResourceQueryOption::Impl {
 	}
 };
 
-// TODO: Use a more smart way
-//static DBTermCodec _dbTermCodec;
-//const DBTermCodec *HostResourceQueryOption::Impl::dbTermCodec =
-//  &_dbTermCodec;
-// Use this if the backend DB is SQLite3:
-//  DBAgentSQLite3::getDBTermCodecStatic();
-
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
