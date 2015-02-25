@@ -130,8 +130,8 @@ HatoholConnector.prototype.start = function(connectParams) {
       success: function(data) {
         parseLoginResult(data);
       },
-      error:  function(data) {
-        parseLoginResult(data);
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        formatLoginResultWithError(XMLHttpRequest, textStatus, errorThrown);
       },
     });
   }
@@ -147,6 +147,16 @@ HatoholConnector.prototype.start = function(connectParams) {
     HatoholSessionManager.set(sessionId);
     self.dialog.closeDialog();
     request();
+  }
+
+  function formatLoginResultWithError(XMLHttpRequest, textStatus, errorThrown) {
+    var status = XMLHttpRequest.status;
+    if (!(status >= 200 && status < 300)) {
+      var msg =
+        gettext("Failed to login. ") + gettext("Invalid user name or password.");
+      hatoholErrorMsgBox(msg);
+    return;
+    }
   }
 
   function request() {
