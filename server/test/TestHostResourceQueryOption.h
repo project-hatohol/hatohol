@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -21,37 +21,26 @@
 #define TestHostResourceQueryOption_h
 
 #include <string>
+#include <HostResourceQueryOption.h>
 
 class TestHostResourceQueryOption : public HostResourceQueryOption {
 public:
-	std::string callGetServerIdColumnName(void) const
-	{
-		return getServerIdColumnName();
-	}
+	TestHostResourceQueryOption(const UserIdType &userId = INVALID_USER_ID);
 
-	static std::string callMakeConditionServer(
-	  const ServerIdSet &serverIdSet, const std::string &serverIdColumnName)
-	{
-		return makeConditionServer(serverIdSet, serverIdColumnName);
-	}
+	std::string callGetServerIdColumnName(void) const;
 
-	static std::string callMakeCondition(
+	std::string callMakeConditionServer(
+	  const ServerIdSet &serverIdSet,
+	  const std::string &serverIdColumnName) const;
+
+	std::string callMakeCondition(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostgroupIdColumnName,
 	  const std::string &hostIdColumnName,
-	  uint32_t targetServerId = ALL_SERVERS,
-	  uint64_t targetHostgroupId = ALL_HOST_GROUPS,
-	  uint64_t targetHostId = ALL_HOSTS)
-	{
-		return makeCondition(srvHostGrpSetMap,
-		                     serverIdColumnName,
-		                     hostgroupIdColumnName,
-		                     hostIdColumnName,
-		                     targetServerId,
-		                     targetHostgroupId,
-		                     targetHostId);
-	}
+	  const ServerIdType &targetServerId = ALL_SERVERS,
+	  const HostgroupIdType &targetHostgroupId = ALL_HOST_GROUPS,
+	  const HostIdType &targetHostId = ALL_HOSTS) const;
 };
 
 #endif // TestHostResourceQueryOption_h

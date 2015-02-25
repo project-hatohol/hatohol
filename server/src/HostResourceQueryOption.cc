@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -20,12 +20,10 @@
 #include "Params.h"
 #include "HostResourceQueryOption.h"
 #include "DBTablesMonitoring.h"
-#include "DBAgentSQLite3.h" // TODO: Shouldn't use explicitly
 #include "DBHatohol.h"
+
 using namespace std;
 using namespace mlpl;
-
-// *** TODO: use OptionTermGenrator to make SQL's clauses ****
 
 // ---------------------------------------------------------------------------
 // Synapse
@@ -58,7 +56,6 @@ HostResourceQueryOption::Synapse::Synapse(
 // Impl
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::Impl {
-	static const DBTermCodec *dbTermCodec;
 	const Synapse  &synapse;
 	ServerIdType    targetServerId;
 	HostIdType      targetHostId;
@@ -83,13 +80,6 @@ struct HostResourceQueryOption::Impl {
 		return *this;
 	}
 };
-
-// TODO: Use a more smart way
-static DBTermCodec _dbTermCodec;
-const DBTermCodec *HostResourceQueryOption::Impl::dbTermCodec =
-  &_dbTermCodec;
-// Use this if the backend DB is SQLite3:
-//  DBAgentSQLite3::getDBTermCodecStatic();
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -127,7 +117,7 @@ const char *HostResourceQueryOption::getPrimaryTableName(void) const
 
 string HostResourceQueryOption::getCondition(void) const
 {
-	const DBTermCodec *dbTermCodec = Impl::dbTermCodec;
+	const DBTermCodec *dbTermCodec = getDBTermCodec();
 	string condition;
 	if (getFilterForDataOfDefunctServers()) {
 		addCondition(
@@ -286,11 +276,6 @@ const bool &HostResourceQueryOption::getFilterForDataOfDefunctServers(void) cons
 	return m_impl->filterDataOfDefunctServers;
 }
 
-const DBTermCodec *HostResourceQueryOption::getDBTermCodec(void) const
-{
-	return m_impl->dbTermCodec;
-}
-
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -331,7 +316,7 @@ string HostResourceQueryOption::makeConditionHostgroup(
 }
 
 string HostResourceQueryOption::makeConditionServer(
-  const ServerIdSet &serverIdSet, const std::string &serverIdColumnName)
+  const ServerIdSet &serverIdSet, const std::string &serverIdColumnName) const
 {
 	if (serverIdSet.empty())
 		return DBHatohol::getAlwaysFalseCondition();
@@ -341,7 +326,7 @@ string HostResourceQueryOption::makeConditionServer(
 
 	ServerIdSetConstIterator serverId = serverIdSet.begin();
 	bool first = true;
-	const DBTermCodec *dbTermCodec = Impl::dbTermCodec;
+	const DBTermCodec *dbTermCodec = getDBTermCodec();
 	for (; serverId != serverIdSet.end(); ++serverId) {
 		if (first)
 			first = false;
@@ -357,9 +342,9 @@ string HostResourceQueryOption::makeConditionServer(
 string HostResourceQueryOption::makeConditionServer(
   const ServerIdType &serverId, const HostgroupIdSet &hostgroupIdSet,
   const string &serverIdColumnName, const string &hostgroupIdColumnName,
-  const HostgroupIdType &hostgroupId)
+  const HostgroupIdType &hostgroupId) const
 {
-	const DBTermCodec *dbTermCodec = Impl::dbTermCodec;
+	const DBTermCodec *dbTermCodec = getDBTermCodec();
 	string condition;
 	condition = StringUtils::sprintf(
 	  "%s=%s", serverIdColumnName.c_str(),
@@ -390,7 +375,7 @@ string HostResourceQueryOption::makeCondition(
   const string &hostIdColumnName,
   ServerIdType targetServerId,
   HostgroupIdType targetHostgroupId,
-  HostIdType targetHostId)
+  HostIdType targetHostId) const
 {
 	// TODO: consider if we use isHostgroupEnumerationInCondition()
 	string condition;
@@ -428,7 +413,7 @@ string HostResourceQueryOption::makeCondition(
 	}
 
 	if (targetHostId != ALL_HOSTS) {
-		const DBTermCodec *dbTermCodec = Impl::dbTermCodec;
+		const DBTermCodec *dbTermCodec = getDBTermCodec();
 		return StringUtils::sprintf(
 		  "((%s) AND %s=%s)",
 		  condition.c_str(), hostIdColumnName.c_str(),
