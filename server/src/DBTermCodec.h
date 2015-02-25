@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -27,6 +27,7 @@ class DBTermCodec {
 public:
 	virtual std::string enc(const int &val) const;
 	virtual std::string enc(const uint64_t &val) const;
+	virtual std::string enc(const std::string &val) const;
 };
 
 #endif // DBTermCodec_h

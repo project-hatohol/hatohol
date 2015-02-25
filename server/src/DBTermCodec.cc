@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -31,4 +31,32 @@ string DBTermCodec::enc(const int &val) const
 string DBTermCodec::enc(const uint64_t &val) const
 {
 	return StringUtils::sprintf("%" PRIu64, val);
+}
+
+string DBTermCodec::enc(const string &val) const
+{
+	// Find quotations that might cause an SQL injection
+	vector<const char *> quotPosArray;
+
+	for (const char *ch = val.c_str(); *ch; ch++) {
+		if (*ch == '\'')
+			quotPosArray.push_back(ch);
+	}
+
+	// Make a string in which quotations are escaped
+	const size_t sizeQuationsAtBothEnds = 2;
+	string str;
+	str.reserve(val.size() + quotPosArray.size() + sizeQuationsAtBothEnds);
+	str += '\'';
+	const char *head = val.c_str();
+	for (size_t i = 0; i < quotPosArray.size(); i++) {
+		const char *tail = quotPosArray[i];
+		const size_t len = tail - head + 1;
+		str.append(head, len);
+		str += '\'';
+		head = tail + 1;
+	}
+	str.append(head);
+	str += '\'';
+	return str;
 }
