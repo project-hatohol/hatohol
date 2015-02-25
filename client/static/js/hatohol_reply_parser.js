@@ -40,7 +40,7 @@ var HatoholReplyParser = function(reply) {
     this.stat = REPLY_STATUS.NULL_OR_UNDEFINED;
     return;
   }
-  
+
   // API version
   if (!("apiVersion" in reply)) {
     this.stat = REPLY_STATUS.NOT_FOUND_API_VERSION;
@@ -153,4 +153,3 @@ HatoholLoginReplyParser.prototype.constructor = HatoholLoginReplyParser;
 HatoholLoginReplyParser.prototype.getSessionId = function() {
   return this.sessionId;
 };
-
