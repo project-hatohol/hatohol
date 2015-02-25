@@ -96,6 +96,7 @@ enum HapiCommandCode {
 	HAPI_CMD_REQ_FETCH_TRIGGERS,
 	// Cl -> Sv
 	HAPI_CMD_SEND_ALL_TRIGGERS,
+	HAPI_CMD_GET_TRIGGERS_COLLECT_TYPE,
 
 	// Sv -> Cl
 	NUM_HAPI_CMD
@@ -122,6 +123,11 @@ enum HapiResponseCode {
 
 	NUM_HAPI_CMD_RES
 };
+
+typedef enum {
+	DIFFERENCE_TRIGGER_COLLECT = 0,
+	ALL_TRIGGER_COLLECT,
+} HapiTriggerCollectType;
 
 // ---------------------------------------------------------------------------
 // Structure of the message header
@@ -269,6 +275,9 @@ struct HapiParamReqFetchHistory {
 	uint64_t endTime;
 } __attribute__((__packed__));
 
+struct HapiTriggerCollect {
+	uint64_t type;
+} __attribute__((__packed__));
 
 class HatoholArmPluginInterface :
   public HatoholThreadBase, public EndianConverter {

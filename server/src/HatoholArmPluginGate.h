@@ -131,6 +131,7 @@ protected:
 	  const HapiCommandHeader *header);
 	void cmdHandlerGetLastEventId(const HapiCommandHeader *header);
 	void cmdHandlerGetTimeOfLastEvent(const HapiCommandHeader *header);
+	void cmdHandlerGetTriggerCollectStat(const HapiCommandHeader *header);
 	void cmdHandlerSendUpdatedTriggers(const HapiCommandHeader *header);
 	void cmdHandlerSendUpdatedAllTriggers(const HapiCommandHeader *header);
 	void cmdHandlerSendHosts(const HapiCommandHeader *header);

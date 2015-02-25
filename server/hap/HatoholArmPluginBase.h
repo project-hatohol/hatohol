@@ -64,6 +64,8 @@ public:
 	mlpl::SmartTime getTimeOfLastEvent(
 	  const TriggerIdType &triggerId = ALL_TRIGGERS);
 
+	HapiTriggerCollectType getTriggerCollectType(void);
+
 protected:
 	static const size_t WAIT_INFINITE;
 
