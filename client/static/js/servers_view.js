@@ -64,7 +64,7 @@ var ServersView = function(userProfile) {
   });
 
   $("#update-tirgger-server-button").click(function() {
-    var msg = gettext("Do you reload trigger from select itmes ?");
+    var msg = gettext("Do you reload triggers from the selected itmes ?");
     hatoholNoYesMsgBox(msg, updateTriggerServers);
   });
 
