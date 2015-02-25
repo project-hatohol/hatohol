@@ -49,7 +49,7 @@ var HistoryView = function(userProfile, options) {
       },
       removeItemCallback: function(index) {
         var loader = self.itemSelector.getUserData(index);
-	removeHistoryLoader(loader);
+        removeHistoryLoader(loader);
       },
     });
 
@@ -97,8 +97,8 @@ var HistoryView = function(userProfile, options) {
     self.graph = new HatoholGraph({
       id: "hatohol-graph",
       zoomCallback: function(minSec, maxSec) {
-	setSliderTimeRange(minSec, maxSec);
-	disableAutoReload();
+        setSliderTimeRange(minSec, maxSec);
+        disableAutoReload();
       },
     });
   };
@@ -132,8 +132,8 @@ var HistoryView = function(userProfile, options) {
     var i;
     for (i = 0; i < self.loaders.length; i++) {
       if (loader) {
-	self.loaders.splice(i, 1);
-	break;
+        self.loaders.splice(i, 1);
+        break;
       }
     }
     self.graph.removeHistoryLoader(loader);
