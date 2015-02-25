@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -20,12 +20,10 @@
 #include "Params.h"
 #include "HostResourceQueryOption.h"
 #include "DBTablesMonitoring.h"
-#include "DBAgentSQLite3.h" // TODO: Shouldn't use explicitly
 #include "DBHatohol.h"
+
 using namespace std;
 using namespace mlpl;
-
-// *** TODO: use OptionTermGenrator to make SQL's clauses ****
 
 // ---------------------------------------------------------------------------
 // Synapse
@@ -58,7 +56,6 @@ HostResourceQueryOption::Synapse::Synapse(
 // Impl
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::Impl {
-	static const DBTermCodec *dbTermCodec;
 	const Synapse  &synapse;
 	ServerIdType    targetServerId;
 	HostIdType      targetHostId;
@@ -85,9 +82,9 @@ struct HostResourceQueryOption::Impl {
 };
 
 // TODO: Use a more smart way
-static DBTermCodec _dbTermCodec;
-const DBTermCodec *HostResourceQueryOption::Impl::dbTermCodec =
-  &_dbTermCodec;
+//static DBTermCodec _dbTermCodec;
+//const DBTermCodec *HostResourceQueryOption::Impl::dbTermCodec =
+//  &_dbTermCodec;
 // Use this if the backend DB is SQLite3:
 //  DBAgentSQLite3::getDBTermCodecStatic();
 
@@ -286,11 +283,6 @@ const bool &HostResourceQueryOption::getFilterForDataOfDefunctServers(void) cons
 	return m_impl->filterDataOfDefunctServers;
 }
 
-const DBTermCodec *HostResourceQueryOption::getDBTermCodec(void) const
-{
-	return m_impl->dbTermCodec;
-}
-
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -428,7 +420,7 @@ string HostResourceQueryOption::makeCondition(
 	}
 
 	if (targetHostId != ALL_HOSTS) {
-		const DBTermCodec *dbTermCodec = Impl::dbTermCodec;
+		const DBTermCodec *dbTermCodec = getDBTermCodec();
 		return StringUtils::sprintf(
 		  "((%s) AND %s=%s)",
 		  condition.c_str(), hostIdColumnName.c_str(),

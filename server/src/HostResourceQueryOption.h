@@ -134,8 +134,6 @@ public:
 	 */
 	const bool &getFilterForDataOfDefunctServers(void) const;
 
-	virtual const DBTermCodec *getDBTermCodec(void) const override;
-
 	std::string getJoinClause(void) const;
 
 protected:
