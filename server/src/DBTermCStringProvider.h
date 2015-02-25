@@ -24,6 +24,7 @@
 #include <list>
 #include <stdint.h>
 #include <memory>
+#include <Params.h>
 #include "DBTermCodec.h"
 
 class DBTermCStringProvider {
