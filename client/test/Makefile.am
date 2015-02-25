@@ -37,6 +37,7 @@ EXTRA_DIST = \
 	feature/login_logout_test.js \
 	feature/register_action_test.js \
 	feature/register_incident_setting_test.js \
+	register_log_search_system_test.js \
 	feature/register_redmine_test.js \
 	feature/register_server_test.js \
 	feature/run-test.sh \
