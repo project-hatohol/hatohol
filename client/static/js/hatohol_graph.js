@@ -614,16 +614,6 @@ HatoholGraph.prototype.draw = function(beginSec, endSec) {
   }
 }
 
-HatoholGraph.prototype.setTimeRange = function(min, max) {
-  var self = this;
-  $.each(self.plot.getXAxes(), function(index, axis) {
-    axis.options.min = min * 1000;
-    axis.options.max = max * 1000;
-  });
-  self.plot.setupGrid();
-  self.plot.draw();
-}
-
 HatoholGraph.prototype._createLegendData = function(item, servers) {
   var legend = { data:[] };
 

@@ -271,7 +271,7 @@ var HistoryView = function(userProfile, options) {
 
         timeRange.set(ui.values[0], ui.values[1]);
         setSliderTimeRange(timeRange.begin, timeRange.end);
-        self.graph.setTimeRange(timeRange.begin, timeRange.end);
+        self.graph.draw(timeRange.begin, timeRange.end);
         for (i = 0; i < self.loaders.length; i++)
           self.loaders[i].setTimeRange(timeRange.begin, timeRange.end);
         disableAutoReload();
