@@ -798,7 +798,7 @@ HatoholError DBTablesUser::deleteAccessInfo(const AccessInfoIdType id,
 bool DBTablesUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 {
 	UserInfoList userInfoList;
-	string condition = StringUtils::sprintf("%s='%" FMT_USER_ID "'",
+	string condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
 	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
 	getUserInfoList(userInfoList, condition);
 	if (userInfoList.empty())
