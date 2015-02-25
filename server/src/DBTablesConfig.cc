@@ -960,6 +960,14 @@ HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 	    !Utils::isValidIPAddress(serverInfo.ipAddress)) {
 		return HTERR_INVALID_IP_ADDRESS;
 	}
+	if (serverInfo.pollingIntervalSec < MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC ||
+	    serverInfo.pollingIntervalSec > MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC) {
+		return HTERR_INVALID_POLLING_INTERVAL;
+	}
+	if (serverInfo.retryIntervalSec < MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC ||
+	    serverInfo.retryIntervalSec > MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC) {
+		return HTERR_INVALID_RETRY_INTERVAL;
+	}
 	return HTERR_OK;
 }
 

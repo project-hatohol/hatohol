@@ -24,6 +24,14 @@
 using namespace std;
 using namespace mlpl;
 
+// 1 <= Polling Interval [s] <= 60*60*24*366 (366days)
+const int MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC = 1;
+const int MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC = 60*60*24*366;
+
+// 1 <= Retry Interval [s] <= 60*60*24*31 (31days)
+const int MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC = 1;
+const int MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC = 60*60*24*31;
+
 string MonitoringServerInfo::getHostAddress(bool forURI) const
 {
 	if (ipAddress.empty())
@@ -54,8 +62,8 @@ void MonitoringServerInfo::initialize(MonitoringServerInfo &monSvInfo)
 	monSvInfo.id = 0;
 	monSvInfo.type = MONITORING_SYSTEM_UNKNOWN;
 	monSvInfo.port               = 0;
-	monSvInfo.pollingIntervalSec = 0;
-	monSvInfo.retryIntervalSec   = 0;
+	monSvInfo.pollingIntervalSec = MAX_POLLING_INTERVAL_SEC;
+	monSvInfo.retryIntervalSec   = MAX_RETRY_INTERVAL_SEC;
 	monSvInfo.hostName  = "localhost";
 	monSvInfo.ipAddress = "127.0.0.1";
 }

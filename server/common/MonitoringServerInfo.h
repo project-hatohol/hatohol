@@ -47,6 +47,11 @@ struct MonitoringServerInfo {
 	int                  pollingIntervalSec;
 	int                  retryIntervalSec;
 
+	static const int MIN_POLLING_INTERVAL_SEC;
+	static const int MAX_POLLING_INTERVAL_SEC;
+	static const int MIN_RETRY_INTERVAL_SEC;
+	static const int MAX_RETRY_INTERVAL_SEC;
+
 	// The following variables are used in different purposes
 	// depending on the MonitoringSystemType.
 	//

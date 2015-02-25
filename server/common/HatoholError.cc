@@ -72,6 +72,10 @@ void HatoholError::init(void)
 		   "Invalid incident tracker type.");
 	DEFINE_ERR(NO_INCIDENT_TRACKER_LOCATION,
 		   "NO incident tracker location.");
+	DEFINE_ERR(INVALID_POLLING_INTERVAL,
+		   "Invalid polling interval.");
+	DEFINE_ERR(INVALID_RETRY_INTERVAL,
+		   "Invalid retry interval.");
 
 	// DBTablesUser
 	DEFINE_ERR(EMPTY_USER_NAME,

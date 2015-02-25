@@ -469,6 +469,86 @@ void test_addTargetServerWithEmptyIPAddressAndHostname(void)
 	assertAddTargetServer(testInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
 }
 
+void data_addTargetServerWithValidPollingInterval(void)
+{
+	int	n = MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC;
+	string	s = StringUtils::sprintf("MIN (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC;
+	s = StringUtils::sprintf("MAX (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC - 1;
+	s = StringUtils::sprintf("MIN-1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT,
+		       (int)HTERR_INVALID_POLLING_INTERVAL,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC + 1;
+	s = StringUtils::sprintf("MAX+1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_INVALID_POLLING_INTERVAL,
+		       NULL);
+}
+
+void test_addTargetServerWithValidPollingInterval(gconstpointer data)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.pollingIntervalSec = gcut_data_get_int(data, "data");
+	assertAddTargetServer(testInfo,
+		(HatoholErrorCode)gcut_data_get_int(data, "expect"));
+}
+
+void data_addTargetServerWithValidRetryInterval(void)
+{
+	int	n = MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC;
+	string	s = StringUtils::sprintf("MIN (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC;
+	s = StringUtils::sprintf("MAX (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC - 1;
+	s = StringUtils::sprintf("MIN-1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_INVALID_RETRY_INTERVAL,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC + 1;
+	s = StringUtils::sprintf("MAX+1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT,
+		       (int)HTERR_INVALID_RETRY_INTERVAL,
+		       NULL);
+}
+
+void test_addTargetServerWithValidRetryInterval(gconstpointer data)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.retryIntervalSec = gcut_data_get_int(data, "data");
+	assertAddTargetServer(testInfo,
+		(HatoholErrorCode)gcut_data_get_int(data, "expect"));
+}
+
 void _assertUpdateTargetServer(
   MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode,
   OperationPrivilege privilege = ALL_PRIVILEGES)
@@ -527,6 +607,88 @@ void test_updateTargetServerWithNoHostNameAndIPAddress(void)
 	serverInfo.ipAddress = "";
 	assertUpdateTargetServer(
 	  serverInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
+}
+
+void data_updateTargetServerWithValidPollingInterval(void)
+{
+	int	n = MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC;
+	string	s = StringUtils::sprintf("MIN (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC;
+	s = StringUtils::sprintf("MAX (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC - 1;
+	s = StringUtils::sprintf("MIN-1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_INVALID_POLLING_INTERVAL,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC + 1;
+	s = StringUtils::sprintf("MAX+1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_INVALID_POLLING_INTERVAL,
+		       NULL);
+}
+
+void test_updateTargetServerWithValidPollingInterval(gconstpointer data)
+{
+	int targetId = 2;
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.id = targetId;
+	testInfo.pollingIntervalSec = gcut_data_get_int(data, "data");
+	assertUpdateTargetServer(testInfo,
+		(HatoholErrorCode)gcut_data_get_int(data, "expect"));
+}
+
+void data_updateTargetServerWithValidRetryInterval(void)
+{
+	int	n = MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC;
+	string	s = StringUtils::sprintf("MIN (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC;
+	s = StringUtils::sprintf("MAX (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC - 1;
+	s = StringUtils::sprintf("MIN-1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_INVALID_RETRY_INTERVAL,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC + 1;
+	s = StringUtils::sprintf("MAX+1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_INVALID_RETRY_INTERVAL,
+		       NULL);
+}
+
+void test_updateTargetServerWithValidRetryInterval(gconstpointer data)
+{
+	int targetId = 2;
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.id = targetId;
+	testInfo.retryIntervalSec = gcut_data_get_int(data, "data");
+	assertUpdateTargetServer(testInfo,
+		(HatoholErrorCode)gcut_data_get_int(data, "expect"));
 }
 
 void data_deleteTargetServer(void)
