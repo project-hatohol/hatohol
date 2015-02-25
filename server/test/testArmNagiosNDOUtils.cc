@@ -35,7 +35,7 @@ public:
 
 	void getTrigger(void)
 	{
-		ArmNagiosNDOUtils::getTrigger();
+		ArmNagiosNDOUtils::getTrigger(true);
 	} 
 
 	void getEvent(void)
