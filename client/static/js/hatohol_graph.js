@@ -631,7 +631,8 @@ HatoholGraph.prototype.appendHistoryLoader = function(loader) {
   var self = this;
 
   self.loaders.push(loader);
-  self.plotData.push(self._createLegendData());
+  self.plotData.push(self._createLegendData(loader.getItem(),
+                                            loader.getServers()));
 }
 
 HatoholGraph.prototype.removeHistoryLoader = function(loader) {
