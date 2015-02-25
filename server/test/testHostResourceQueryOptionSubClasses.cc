@@ -43,13 +43,23 @@ static void initParamChecker(
 {
 	option.setTargetServerId(2);
 	string expected = "server_id=2";
-	if (typeid(option) != typeid(HostgroupsQueryOption)) {
+	const type_info &optionType = typeid(option);
+	if (optionType != typeid(HostgroupsQueryOption)) {
 		option.setTargetHostId(4);
-		expected += " AND host_id=4";
+		const char *hostIdColumnName = "host_id";
+		if (optionType == typeid(HostsQueryOption)) {
+			hostIdColumnName = "host_id_in_server";
+		}
+		expected += StringUtils::sprintf(" AND %s=4", hostIdColumnName);
 	}
 	if (typeid(option) == typeid(HostsQueryOption)) {
-		expected += StringUtils::sprintf(" AND validity>=%d",
-		                                 HOST_VALID);
+		HostsQueryOption &hostsQueryOption =
+		  dynamic_cast<HostsQueryOption &>(option);
+		HostStatus status = hostsQueryOption.getStatus();
+		if (status != HOST_STAT_ALL) {
+			expected += StringUtils::sprintf(" AND status=%d",
+			                                 status);
+		}
 	}
 	// TODO: call setHostgroupId()
 	fixupForFilteringDefunctServer(data, expected, option);
@@ -415,17 +425,16 @@ void data_eventQueryOptionGetServerIdColumnName(void)
 void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
-	const string hostgroupTableAlias = "map_hosts_hostgroups";
 	option.setTargetServerId(26);
-	option.setTargetHostgroupId(48);
+	option.setTargetHostgroupId("48");
 	option.setTargetHostId(32);
 	string expect = StringUtils::sprintf(
-	                  "%s.%s=26 AND %s.%s=32 AND %s.%s=48",
+	                  "%s.%s=26 AND %s.%s=32 AND %s.%s='48'",
 			  DBTablesMonitoring::TABLE_NAME_EVENTS,
 			  serverIdColumnName.c_str(),
 			  DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			  hostIdColumnName.c_str(),
-			  hostgroupTableAlias.c_str(),
+	                  tableProfileHostgroupMember.name,
 			  hostgroupIdColumnName.c_str());
 	fixupForFilteringDefunctServer(data, expect, option);
 	cppcut_assert_equal(expect, option.getCondition());
@@ -523,14 +532,14 @@ void test_hostsQueryOptionFromDataQueryContext(gconstpointer data)
 void test_hostsQueryOptionGetValidtyDefault(void)
 {
 	HostsQueryOption option(USER_ID_SYSTEM);
-	cppcut_assert_equal(HOST_ALL_VALID, option.getValidity());
+	cppcut_assert_equal(HOST_STAT_ALL, option.getStatus());
 }
 
 void test_hostsQueryOptionSetGetValidty(void)
 {
 	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setValidity(HOST_VALID);
-	cppcut_assert_equal(HOST_VALID, option.getValidity());
+	option.setStatus(HOST_STAT_NORMAL);
+	cppcut_assert_equal(HOST_STAT_NORMAL, option.getStatus());
 }
 
 void data_hostsQueryOptionGetConditionForHostValid(void)
@@ -541,9 +550,9 @@ void data_hostsQueryOptionGetConditionForHostValid(void)
 void test_hostsQueryOptionGetConditionForHostValid(gconstpointer data)
 {
 	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setValidity(HOST_VALID);
-	cppcut_assert_equal(HOST_VALID, option.getValidity());
-	string expected = StringUtils::sprintf("validity=%d", HOST_VALID);
+	option.setStatus(HOST_STAT_NORMAL);
+	cppcut_assert_equal(HOST_STAT_NORMAL, option.getStatus());
+	string expected = StringUtils::sprintf("status=%d", HOST_STAT_NORMAL);
 	fixupForFilteringDefunctServer(data, expected, option);
 }
 
@@ -578,7 +587,7 @@ void test_hostgroupsQueryOptionCallGetConditionFromUserWithoutAllServers(void)
 	HostgroupsQueryOption option(userId);
 	option.setFilterForDataOfDefunctServers(false);
 	const string actual = option.getCondition();
-	const string expect = "(server_id=1 AND host_group_id IN (0,1))";
+	const string expect = "(server_id=1 AND host_group_id IN ('0','1'))";
 	cppcut_assert_equal(expect, actual);
 }
 

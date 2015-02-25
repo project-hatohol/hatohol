@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <Mutex.h>
+#include "UnifiedDataStore.h"
 #include "DBAgentFactory.h"
 #include "DBTablesMonitoring.h"
 #include "DBTablesUser.h"
@@ -27,6 +28,10 @@
 #include "Params.h"
 #include "ItemGroupStream.h"
 #include "DBClientJoinBuilder.h"
+
+// TODO: remove the follwoing include file after we complete migration of
+// host management with DBTablesHost.
+#include "DBTablesHost.h"
 
 // TODO: rmeove the followin two include files!
 // This class should not be aware of it.
@@ -67,6 +72,8 @@ void operator>>(ItemGroupStream &itemGroupStream, HostValidity &rhs)
 {
 	rhs = itemGroupStream.read<int, HostValidity>();
 }
+
+extern void operator>>(ItemGroupStream &itemGroupStream, HostStatus &rhs);
 
 // ----------------------------------------------------------------------------
 // Table: triggers
@@ -956,9 +963,9 @@ static const HostResourceQueryOption::Synapse synapseEventsQueryOption(
   IDX_EVENTS_UNIFIED_ID, IDX_EVENTS_SERVER_ID,
   tableProfileTriggers,
   IDX_TRIGGERS_HOST_ID, true,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 struct EventsQueryOption::Impl {
 	uint64_t limitOfUnifiedId;
@@ -1151,9 +1158,9 @@ static const HostResourceQueryOption::Synapse synapseTriggersQueryOption(
   tableProfileTriggers,
   IDX_TRIGGERS_HOST_ID,
   true,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 struct TriggersQueryOption::Impl {
 	TriggerIdType targetId;
@@ -1227,10 +1234,10 @@ string TriggersQueryOption::getCondition(void) const
 		addCondition(
 		  condition,
 		  StringUtils::sprintf(
-		    "%s.%s!=%d",
-		    DBTablesMonitoring::TABLE_NAME_HOSTS,
-		    COLUMN_DEF_HOSTS[IDX_HOSTS_VALIDITY].columnName,
-		    HOST_INVALID));
+		    "%s=%d",
+		    tableProfileServerHostDef.getFullColumnName(
+		      IDX_HOST_SERVER_HOST_DEF_HOST_STATUS).c_str(),
+		    HOST_STAT_NORMAL));
 	}
 
 	if (m_impl->targetId != ALL_TRIGGERS) {
@@ -1304,7 +1311,7 @@ static const HostResourceQueryOption::Synapse synapseItemsQueryOption(
   tableProfileItems, IDX_ITEMS_ID, IDX_ITEMS_SERVER_ID,
   tableProfileItems, IDX_ITEMS_HOST_ID,
   true,
-  tableProfileMapHostsHostgroups,
+  tableProfileHostgroupMember,
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
   IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
 
@@ -1362,10 +1369,10 @@ string ItemsQueryOption::getCondition(void) const
 		addCondition(
 		  condition,
 		  StringUtils::sprintf(
-		    "%s.%s!=%d",
-		    DBTablesMonitoring::TABLE_NAME_HOSTS,
-		    COLUMN_DEF_HOSTS[IDX_HOSTS_VALIDITY].columnName,
-		    HOST_INVALID));
+		    "%s=%d",
+		    tableProfileServerHostDef.getFullColumnName(
+		      IDX_HOST_SERVER_HOST_DEF_HOST_STATUS).c_str(),
+		    HOST_STAT_NORMAL));
 	}
 
 	if (m_impl->targetId != ALL_ITEMS) {
@@ -1442,79 +1449,6 @@ void ItemsQueryOption::setExcludeFlags(const ExcludeFlags &flg)
 }
 
 //
-// HostsQueryOption
-//
-static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
-  tableProfileHosts, IDX_HOSTS_ID, IDX_HOSTS_SERVER_ID,
-  tableProfileHosts, IDX_HOSTS_HOST_ID,
-  true,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
-
-struct HostsQueryOption::Impl {
-	HostValidity validity;
-
-	Impl()
-	: validity(HOST_ALL_VALID)
-	{
-	}
-};
-
-HostsQueryOption::HostsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseHostsQueryOption, userId),
-  m_impl(new Impl())
-{
-}
-
-HostsQueryOption::HostsQueryOption(const HostsQueryOption &src)
-: HostResourceQueryOption(src),
-  m_impl(new Impl())
-{
-	*m_impl = *src.m_impl;
-}
-
-HostsQueryOption::HostsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseHostsQueryOption, dataQueryContext),
-  m_impl(new Impl())
-{
-}
-
-HostsQueryOption::~HostsQueryOption(void)
-{
-}
-
-string HostsQueryOption::getCondition(void) const
-{
-	string condition = HostResourceQueryOption::getCondition();
-	if (m_impl->validity == HOST_ANY_VALIDITY)
-		return condition;
-	if (!condition.empty())
-		condition += " AND ";
-
-	string columnName = COLUMN_DEF_HOSTS[IDX_HOSTS_VALIDITY].columnName;
-	if (m_impl->validity == HOST_ALL_VALID) {
-		condition += StringUtils::sprintf("%s>=%d",
-		  columnName.c_str(), HOST_VALID);
-	} else {
-		condition += StringUtils::sprintf("%s=%d",
-		  columnName.c_str(), HOST_VALID);
-	}
-	return condition;
-}
-
-void HostsQueryOption::setValidity(const HostValidity &validity)
-{
-	m_impl->validity = validity;
-}
-
-HostValidity HostsQueryOption::getValidity(void) const
-{
-	return m_impl->validity;
-}
-
-
-//
 // HostgroupsQueryOption
 //
 static const HostResourceQueryOption::Synapse synapseHostgroupsQueryOption(
@@ -1534,29 +1468,6 @@ HostgroupsQueryOption::HostgroupsQueryOption(const UserIdType &userId)
 
 HostgroupsQueryOption::HostgroupsQueryOption(DataQueryContext *dataQueryContext)
 : HostResourceQueryOption(synapseHostgroupsQueryOption, dataQueryContext)
-{
-}
-
-//
-// HostgroupElementQueryOption
-//
-static const HostResourceQueryOption::Synapse synapseHostgroupElementQueryOption(
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_ID, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID, false,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
-
-HostgroupElementQueryOption::HostgroupElementQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseHostgroupElementQueryOption, userId)
-{
-}
-
-HostgroupElementQueryOption::HostgroupElementQueryOption(
-  DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseHostgroupElementQueryOption, dataQueryContext)
 {
 }
 
@@ -1594,37 +1505,6 @@ DBTablesMonitoring::DBTablesMonitoring(DBAgent &dbAgent)
 
 DBTablesMonitoring::~DBTablesMonitoring()
 {
-}
-
-void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
-				      const HostsQueryOption &option)
-{
-	DBAgent::SelectExArg arg(tableProfileHosts);
-	arg.tableField = option.getFromClause();
-	arg.useDistinct = option.isHostgroupUsed();
-	arg.useFullName = option.isHostgroupUsed();
-	arg.add(IDX_HOSTS_SERVER_ID);
-	arg.add(IDX_HOSTS_HOST_ID);
-	arg.add(IDX_HOSTS_HOST_NAME);
-	arg.add(IDX_HOSTS_VALIDITY);
-
-	// condition
-	arg.condition = option.getCondition();
-
-	getDBAgent().runTransaction(arg);
-
-	// get the result
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator itemGrpItr = grpList.begin();
-	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		ItemGroupStream itemGroupStream(*itemGrpItr);
-		hostInfoList.push_back(HostInfo());
-		HostInfo &hostInfo = hostInfoList.back();
-		itemGroupStream >> hostInfo.serverId;
-		itemGroupStream >> hostInfo.id;
-		itemGroupStream >> hostInfo.hostName;
-		itemGroupStream >> hostInfo.validity;
-	}
 }
 
 void DBTablesMonitoring::addTriggerInfo(TriggerInfo *triggerInfo)
@@ -1698,9 +1578,11 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	builder.add(IDX_TRIGGERS_EXTENDED_INFO);
 
 	builder.addTable(
-	 tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
-	 tableProfileTriggers,IDX_TRIGGERS_SERVER_ID,IDX_HOSTS_SERVER_ID,
-	 tableProfileTriggers,IDX_TRIGGERS_HOST_ID,IDX_HOSTS_HOST_ID);
+	 tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	 tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
+	                       IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	 tableProfileTriggers, IDX_TRIGGERS_HOST_ID,
+	                       IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 
 	DBAgent::SelectExArg &arg = builder.build();
 	arg.useDistinct = option.isHostgroupUsed();
@@ -2008,174 +1890,6 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	return HatoholError(HTERR_OK);
 }
 
-void DBTablesMonitoring::addHostgroupInfo(HostgroupInfo *groupInfo)
-{
-	struct TrxProc : public DBAgent::TransactionProc {
-		HostgroupInfo *groupInfo;
-
-		TrxProc(HostgroupInfo *_groupInfo)
-		: groupInfo(_groupInfo)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			addHostgroupInfoWithoutTransaction(dbAgent, *groupInfo);
-		}
-	} trx(groupInfo);
-	getDBAgent().runTransaction(trx);
-}
-
-void DBTablesMonitoring::addHostgroupInfoList(
-  const HostgroupInfoList &groupInfoList)
-{
-	struct TrxProc : public DBAgent::TransactionProc {
-		const HostgroupInfoList &groupInfoList;
-
-		TrxProc(const HostgroupInfoList &_groupInfoList)
-		: groupInfoList(_groupInfoList)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			HostgroupInfoListConstIterator it =
-			  groupInfoList.begin();
-			for (; it != groupInfoList.end(); ++it)
-				addHostgroupInfoWithoutTransaction(dbAgent, *it);
-		}
-	} trx(groupInfoList);
-	getDBAgent().runTransaction(trx);
-
-}
-
-void DBTablesMonitoring::addHostgroupElement(
-  HostgroupElement *hostgroupElement)
-{
-	struct TrxProc : public DBAgent::TransactionProc {
-		HostgroupElement *hostgroupElement;
-
-		TrxProc(HostgroupElement *_hostgroupElement)
-		: hostgroupElement(_hostgroupElement)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			addHostgroupElementWithoutTransaction(
-			  dbAgent, *hostgroupElement);
-		}
-	} trx(hostgroupElement);
-	getDBAgent().runTransaction(trx);
-}
-
-void DBTablesMonitoring::addHostgroupElementList(
-  const HostgroupElementList &hostgroupElementList)
-{
-	struct TrxProc : public DBAgent::TransactionProc {
-		const HostgroupElementList &hostgroupElementList;
-
-		TrxProc(const HostgroupElementList &_hostgroupElementList)
-		: hostgroupElementList(_hostgroupElementList)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			HostgroupElementListConstIterator it =
-			  hostgroupElementList.begin();
-			for (; it != hostgroupElementList.end(); ++it) {
-				addHostgroupElementWithoutTransaction(dbAgent,
-				                                      *it);
-			}
-		}
-	} trx(hostgroupElementList);
-	getDBAgent().runTransaction(trx);
-}
-
-void DBTablesMonitoring::addHostInfo(HostInfo *hostInfo)
-{
-	struct TrxProc : public DBAgent::TransactionProc {
-		HostInfo *hostInfo;
-
-		TrxProc(HostInfo *_hostInfo)
-		: hostInfo(_hostInfo)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			addHostInfoWithoutTransaction(dbAgent, *hostInfo);
-		}
-	} trx(hostInfo);
-	getDBAgent().runTransaction(trx);
-}
-
-void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
-{
-	struct TrxProc : public DBAgent::TransactionProc {
-		const HostInfoList &hostInfoList;
-
-		TrxProc(const HostInfoList &_hostInfoList)
-		: hostInfoList(_hostInfoList)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			HostInfoListConstIterator it = hostInfoList.begin();
-			for(; it != hostInfoList.end(); ++it)
-				addHostInfoWithoutTransaction(dbAgent, *it);
-		}
-	} trx(hostInfoList);
-	getDBAgent().runTransaction(trx);
-}
-
-void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
-                                     const ServerIdType &serverId)
-{
-	// Make a set that contains current hosts records
-	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setValidity(HOST_VALID);
-	option.setTargetServerId(serverId);
-	HostInfoList currHosts;
-	getHostInfoList(currHosts, option);
-	HostIdHostInfoMap currValidHosts;
-	HostInfoListConstIterator currHostsItr = currHosts.begin();
-	for (; currHostsItr != currHosts.end(); ++currHostsItr) {
-		const HostInfo &hostInfo = *currHostsItr;
-		currValidHosts[hostInfo.id] = &hostInfo;
-	}
-
-	// Pick up hosts to be added.
-	HostInfoList updatedHostInfoList;
-	HostInfoListConstIterator newHostsItr = hostInfoList.begin();
-	for (; newHostsItr != hostInfoList.end(); ++newHostsItr) {
-		const HostInfo &newHostInfo = *newHostsItr;
-		HostIdHostInfoMapIterator currHostItr = currValidHosts.find(newHostInfo.id);
-		if (currHostItr != currValidHosts.end()) {
-			const HostInfo &currHost = *currHostItr->second;
-			if (currHost.hostName == newHostInfo.hostName){
-				// The host already exits and doesn't changes.
-				// We have to do nothing.
-				currValidHosts.erase(currHostItr);
-				continue;
-			}
-		}
-		updatedHostInfoList.push_back(newHostInfo);
-	}
-
-	// Add hosts to be marked as invalid
-	HostIdHostInfoMapIterator hostMapItr = currValidHosts.begin();
-	for (; hostMapItr != currValidHosts.end(); ++hostMapItr) {
-		HostInfo invalidHost = *hostMapItr->second;
-		invalidHost.validity = HOST_INVALID;
-		updatedHostInfoList.push_back(invalidHost);
-	}
-
-	addHostInfoList(updatedHostInfoList);
-}
-
 EventIdType DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 {
 	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
@@ -2322,9 +2036,11 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	builder.add(IDX_ITEMS_VALUE_TYPE);
 	builder.add(IDX_ITEMS_UNIT);
 	builder.addTable(
-	  tableProfileHosts,DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileItems,IDX_ITEMS_SERVER_ID,IDX_HOSTS_SERVER_ID,
-	  tableProfileItems,IDX_ITEMS_HOST_ID,IDX_HOSTS_HOST_ID);
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileItems, IDX_ITEMS_SERVER_ID,
+	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileItems, IDX_ITEMS_HOST_ID,
+	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	
 	DBAgent::SelectExArg &arg = builder.build();
 	arg.useDistinct = option.isHostgroupUsed();
@@ -2377,9 +2093,11 @@ void DBTablesMonitoring::getApplicationInfoVect(ApplicationInfoVect &application
 	DBClientJoinBuilder builder(tableProfileItems, &option);
 	builder.add(IDX_ITEMS_ITEM_GROUP_NAME);
 	builder.addTable(
-	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileItems,IDX_ITEMS_SERVER_ID,IDX_HOSTS_SERVER_ID,
-	  tableProfileItems,IDX_ITEMS_HOST_ID,IDX_HOSTS_HOST_ID);
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileItems, IDX_ITEMS_SERVER_ID,
+	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileItems, IDX_ITEMS_HOST_ID,
+	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 
 	DBAgent::SelectExArg &arg = builder.build();
 
@@ -2435,9 +2153,11 @@ size_t DBTablesMonitoring::getNumberOfTriggers(
 {
 	DBClientJoinBuilder builder(tableProfileTriggers, &option);
 	builder.addTable(
-	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileTriggers,IDX_TRIGGERS_SERVER_ID,IDX_HOSTS_SERVER_ID,
-	  tableProfileTriggers,IDX_TRIGGERS_HOST_ID,IDX_HOSTS_HOST_ID);
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
+	                        IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileTriggers, IDX_TRIGGERS_HOST_ID,
+	                        IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt = "count(*)";
 	if (option.isHostgroupUsed()) {
 		// Because a same trigger can be counted multiple times in
@@ -2483,21 +2203,20 @@ size_t DBTablesMonitoring::getNumberOfBadTriggers(
   const TriggersQueryOption &option, TriggerSeverityType severity)
 {
 	string additionalCondition;
+	const string statusProblemCond = StringUtils::sprintf("%s=%d",
+	  tableProfileTriggers.getFullColumnName(IDX_TRIGGERS_STATUS).c_str(),
+	  TRIGGER_STATUS_PROBLEM);
 
 	if (severity == TRIGGER_SEVERITY_ALL) {
-		additionalCondition
-		  = StringUtils::sprintf(
-		      "%s=%d",
-		      option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
-		      TRIGGER_STATUS_PROBLEM);
+		additionalCondition = statusProblemCond;
 	} else {
 		additionalCondition
 		  = StringUtils::sprintf(
-		      "%s=%d and %s=%d",
-		      option.getColumnName(IDX_TRIGGERS_SEVERITY).c_str(),
+		      "%s=%d and %s",
+		      tableProfileTriggers.getFullColumnName(
+		        IDX_TRIGGERS_SEVERITY).c_str(),
 		      severity,
-		      option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
-		      TRIGGER_STATUS_PROBLEM);
+		      statusProblemCond.c_str());
 	}
 	return getNumberOfTriggers(option, additionalCondition);
 }
@@ -2512,9 +2231,11 @@ size_t DBTablesMonitoring::getNumberOfHosts(const TriggersQueryOption &option)
 	// TODO: consider if we can use hosts table.
 	DBClientJoinBuilder builder(tableProfileTriggers, &option);
 	builder.addTable(
-	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileTriggers,IDX_TRIGGERS_SERVER_ID,IDX_HOSTS_SERVER_ID,
-	  tableProfileTriggers,IDX_TRIGGERS_HOST_ID,IDX_HOSTS_HOST_ID);
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
+	                        IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileTriggers, IDX_TRIGGERS_HOST_ID,
+	                        IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
 	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
@@ -2542,9 +2263,11 @@ size_t DBTablesMonitoring::getNumberOfBadHosts(const TriggersQueryOption &option
 {
 	DBClientJoinBuilder builder(tableProfileTriggers, &option);
 	builder.addTable(
-	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileTriggers,IDX_TRIGGERS_SERVER_ID,IDX_HOSTS_SERVER_ID,
-	  tableProfileTriggers,IDX_TRIGGERS_HOST_ID,IDX_HOSTS_HOST_ID);
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
+	                        IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileTriggers, IDX_TRIGGERS_HOST_ID,
+	                        IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
 	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
@@ -2571,9 +2294,11 @@ size_t DBTablesMonitoring::getNumberOfItems(
 {
 	DBClientJoinBuilder builder(tableProfileItems, &option);
 	builder.addTable(
-	  tableProfileHosts, DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileItems,IDX_ITEMS_SERVER_ID,IDX_HOSTS_SERVER_ID,
-	  tableProfileItems,IDX_ITEMS_HOST_ID,IDX_HOSTS_HOST_ID);
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileItems, IDX_ITEMS_SERVER_ID,
+	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileItems, IDX_ITEMS_HOST_ID,
+	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt = "count(*)";
 	if (option.isHostgroupUsed()) {
 		// TODO: It has a same issue with getNumberOfTriggers();
@@ -2876,53 +2601,6 @@ void DBTablesMonitoring::addItemInfoWithoutTransaction(
 	dbAgent.insert(arg);
 }
 
-void DBTablesMonitoring::addHostgroupInfoWithoutTransaction(
-  DBAgent &dbAgent, const HostgroupInfo &groupInfo)
-{
-	DBAgent::InsertArg arg(tableProfileHostgroups);
-	arg.add(groupInfo.id);
-	arg.add(groupInfo.serverId);
-	arg.add(groupInfo.groupId);
-	arg.add(groupInfo.groupName);
-	arg.upsertOnDuplicate = true;
-	dbAgent.insert(arg);
-}
-
-void DBTablesMonitoring::addHostgroupElementWithoutTransaction(
-  DBAgent &dbAgent, const HostgroupElement &hostgroupElement)
-{
-	// TODO: create the condition outside of the transaction.
-	const DBTermCodec *dbTermCodec = dbAgent.getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "server_id=%s AND host_id=%s AND host_group_id=%s",
-	  dbTermCodec->enc(hostgroupElement.serverId).c_str(),
-	  dbTermCodec->enc(hostgroupElement.hostId).c_str(),
-	  dbTermCodec->enc(hostgroupElement.groupId).c_str());
-
-	if (!dbAgent.isRecordExisting(TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
-	                              condition)) {
-		DBAgent::InsertArg arg(tableProfileMapHostsHostgroups);
-		arg.add(hostgroupElement.id);
-		arg.add(hostgroupElement.serverId);
-		arg.add(hostgroupElement.hostId);
-		arg.add(hostgroupElement.groupId);
-		dbAgent.insert(arg);
-	}
-}
-
-void DBTablesMonitoring::addHostInfoWithoutTransaction(
-  DBAgent &dbAgent, const HostInfo &hostInfo)
-{
-	DBAgent::InsertArg arg(tableProfileHosts);
-	arg.add(AUTO_INCREMENT_VALUE);
-	arg.add(hostInfo.serverId);
-	arg.add(hostInfo.id);
-	arg.add(hostInfo.hostName);
-	arg.add(hostInfo.validity);
-	arg.upsertOnDuplicate = true;
-	dbAgent.insert(arg);
-}
-
 void DBTablesMonitoring::addMonitoringServerStatusWithoutTransaction(
   DBAgent &dbAgent, const MonitoringServerStatus &serverStatus)
 {
@@ -2954,65 +2632,6 @@ void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
 	arg.add(incidentInfo.unifiedEventId);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
-}
-
-HatoholError DBTablesMonitoring::getHostgroupInfoList
-  (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
-{
-	DBAgent::SelectExArg arg(tableProfileHostgroups);
-	arg.add(IDX_HOSTGROUPS_ID);
-	arg.add(IDX_HOSTGROUPS_SERVER_ID);
-	arg.add(IDX_HOSTGROUPS_GROUP_ID);
-	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
-	arg.condition = option.getCondition();
-
-	getDBAgent().runTransaction(arg);
-
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator itemGrpItr = grpList.begin();
-	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		ItemGroupStream itemGroupStream(*itemGrpItr);
-		hostgroupInfoList.push_back(HostgroupInfo());
-		HostgroupInfo &hostgroupInfo = hostgroupInfoList.back();
-
-		itemGroupStream >> hostgroupInfo.id;
-		itemGroupStream >> hostgroupInfo.serverId;
-		itemGroupStream >> hostgroupInfo.groupId;
-		itemGroupStream >> hostgroupInfo.groupName;
-	}
-
-	return HTERR_OK;
-}
-
-// TODO: In this implementation, behavior of this function is inefficient.
-//       Because this function returns unnecessary informations.
-//       Add a new function which returns only hostgroupId.
-HatoholError DBTablesMonitoring::getHostgroupElementList
-  (HostgroupElementList &hostgroupElementList,
-   const HostgroupElementQueryOption &option)
-{
-	DBAgent::SelectExArg arg(tableProfileMapHostsHostgroups);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_ID);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
-	arg.condition = option.getCondition();
-
-	getDBAgent().runTransaction(arg);
-
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator itemGrpItr = grpList.begin();
-	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		ItemGroupStream itemGroupStream(*itemGrpItr);
-		hostgroupElementList.push_back(HostgroupElement());
-		HostgroupElement &hostgroupElement = hostgroupElementList.back();
-		itemGroupStream >> hostgroupElement.id;
-		itemGroupStream >> hostgroupElement.serverId;
-		itemGroupStream >> hostgroupElement.hostId;
-		itemGroupStream >> hostgroupElement.groupId;
-	}
-
-	return HTERR_OK;
 }
 
 static bool updateDB(

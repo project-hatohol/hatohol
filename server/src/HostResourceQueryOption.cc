@@ -20,7 +20,6 @@
 #include "Params.h"
 #include "HostResourceQueryOption.h"
 #include "DBTablesMonitoring.h"
-#include "DBAgentSQLite3.h" // TODO: Shouldn't use explicitly
 #include "DBHatohol.h"
 using namespace std;
 using namespace mlpl;
@@ -161,9 +160,9 @@ string HostResourceQueryOption::getCondition(void) const
 		if (m_impl->targetHostgroupId != ALL_HOST_GROUPS) {
 			addCondition(condition,
 			  StringUtils::sprintf(
-				"%s=%s",
+				"%s='%" FMT_HOST_GROUP_ID "'",
 				getHostgroupIdColumnName().c_str(),
-				dbTermCodec->enc(m_impl->targetHostgroupId).c_str())
+				m_impl->targetHostgroupId.c_str())
 			);
 		}
 		return condition;
@@ -318,10 +317,12 @@ string HostResourceQueryOption::makeConditionHostgroup(
 	HostgroupIdSetConstIterator it = hostgroupIdSet.begin();
 	size_t commaCnt = hostgroupIdSet.size() - 1;
 	for (; it != hostgroupIdSet.end(); ++it, commaCnt--) {
-		const uint64_t hostgroupId = *it;
+		const HostgroupIdType &hostgroupId = *it;
 		if (hostgroupId == ALL_HOST_GROUPS)
 			return "";
-		hostGrps += StringUtils::sprintf("%" PRIu64, hostgroupId);
+		hostGrps += "'";
+		hostGrps += hostgroupId;
+		hostGrps += "'";
 		if (commaCnt)
 			hostGrps += ",";
 	}
@@ -371,8 +372,8 @@ string HostResourceQueryOption::makeConditionServer(
 		  makeConditionHostgroup(hostgroupIdSet, hostgroupIdColumnName);
 	} else {
 		conditionHostgroup = StringUtils::sprintf(
-		  "%s=%s", hostgroupIdColumnName.c_str(),
-		  dbTermCodec->enc(hostgroupId).c_str());
+		  "%s='%" FMT_HOST_GROUP_ID "'", hostgroupIdColumnName.c_str(),
+		  hostgroupId.c_str());
 	}
 	if (!conditionHostgroup.empty()) {
 		return StringUtils::sprintf("(%s AND %s)",

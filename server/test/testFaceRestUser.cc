@@ -437,17 +437,15 @@ void test_updateOrAddUserUpdate(void)
 void test_addAccessInfoWithAllHostgroups(void)
 {
 	const string serverId = "2";
-	const string hostgroupId =
-	  StringUtils::sprintf("%" PRIu64, ALL_HOST_GROUPS);
+	const string hostgroupId = ALL_HOST_GROUPS;
 	assertAddAccessInfoWithCond(serverId, hostgroupId);
 }
 
 void test_addAccessInfoWithAllHostgroupsNegativeValue(void)
 {
 	const string serverId = "2";
-	const string hostgroupId = "-1";
-	const string expectHostgroup =
-	  StringUtils::sprintf("%" PRIu64, ALL_HOST_GROUPS);
+	const string hostgroupId = ALL_HOST_GROUPS;
+	const string expectHostgroup = ALL_HOST_GROUPS;
 	assertAddAccessInfoWithCond(serverId, hostgroupId, expectHostgroup);
 }
 
@@ -529,13 +527,8 @@ static void _assertServerAccessInfo(
 	assertStartObject(parser, "allowedHostgroups");
 	HostGrpAccessInfoMapIterator it = expected.begin();
 	for (size_t i = 0; i < expected.size(); i++) {
-		uint64_t hostgroupId = it->first;
-		string idStr;
-		if (hostgroupId == ALL_HOST_GROUPS)
-			idStr = "-1";
-		else
-			idStr = StringUtils::sprintf("%" PRIu64, hostgroupId);
-		assertStartObject(parser, idStr);
+		const HostgroupIdType &hostgroupId = it->first;
+		assertStartObject(parser, hostgroupId);
 		AccessInfo *info = it->second;
 		assertValueInParser(parser, "accessInfoId",
 				    static_cast<uint64_t>(info->id));

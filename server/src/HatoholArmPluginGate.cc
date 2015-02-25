@@ -214,13 +214,15 @@ void HatoholArmPluginGate::start(void)
 {
 	m_impl->armStatus.setRunningStatus(true);
 
-	HostInfo hostInfo;
-	hostInfo.serverId = m_impl->serverInfo.id;
-	hostInfo.id       = INAPPLICABLE_HOST_ID;
-	hostInfo.hostName = "N/A";
-	hostInfo.validity = HOST_VALID_INAPPLICABLE;
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().addHostInfo(&hostInfo);
+	ServerHostDef svHostDef;
+	svHostDef.id       = AUTO_INCREMENT_VALUE;
+	svHostDef.hostId   = AUTO_ASSIGNED_ID;
+	svHostDef.serverId = m_impl->serverInfo.id;
+	svHostDef.hostIdInServer =
+	  StringUtils::sprintf("%" FMT_HOST_ID, INAPPLICABLE_HOST_ID);
+	svHostDef.name     = "N/A";
+	svHostDef.status   = HOST_STAT_INAPPLICABLE;
+	UnifiedDataStore::getInstance()->upsertHost(svHostDef);
 
 	HatoholArmPluginInterface::start();
 }
@@ -428,16 +430,18 @@ void HatoholArmPluginGate::onSetPluginInitialInfo(void)
 
 	const MonitoringServerInfo &svInfo = m_impl->serverInfo;
 	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 
-	HostInfo hostInfo;
-	hostInfo.serverId = svInfo.id;
-	hostInfo.id = MONITORING_SERVER_SELF_ID;
-	hostInfo.hostName = 
-		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
-				     HAP_SELF_MONITORING_SUFFIX);
-	hostInfo.validity = HOST_VALID_SELF_MONITORING;
-	dbMonitoring.addHostInfo(&hostInfo);
+	ServerHostDef svHostDef;
+	svHostDef.id       = AUTO_INCREMENT_VALUE;
+	svHostDef.hostId   = AUTO_ASSIGNED_ID;
+	svHostDef.serverId = svInfo.id;
+	svHostDef.hostIdInServer =
+	  StringUtils::sprintf("%" FMT_HOST_ID,  MONITORING_SERVER_SELF_ID);
+	svHostDef.name     =
+	  StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
+	                       HAP_SELF_MONITORING_SUFFIX);
+	svHostDef.status   = HOST_STAT_INAPPLICABLE;
+	UnifiedDataStore::getInstance()->upsertHost(svHostDef);
 
 	m_impl->setInitialTriggerTable();
 
@@ -883,19 +887,15 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 	cmdBuf->setIndex(sizeof(HapiCommandHeader));
 	ItemTablePtr hostTablePtr = createItemTable(*cmdBuf);
 
-	HostInfoList hostInfoList;
+	ServerHostDefVect svHostDefs;
 	HatoholDBUtils::transformHostsToHatoholFormat(
-	  hostInfoList, hostTablePtr, m_impl->serverInfo.id);
+	  svHostDefs, hostTablePtr, m_impl->serverInfo.id);
 
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	dbMonitoring.updateHosts(hostInfoList, m_impl->serverInfo.id);
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  UnifiedDataStore::getInstance()->syncHosts(svHostDefs,
+	                                             m_impl->serverInfo.id));
 
-	// TODO: consider if DBClientHatohol should have the cache
-	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
-	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
-		m_impl->hostInfoCache.update(*hostInfoItr);
-
+	m_impl->hostInfoCache.update(svHostDefs);
 	replyOk();
 }
 
@@ -908,13 +908,13 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroupElements(
 	cmdBuf->setIndex(sizeof(HapiCommandHeader));
 	ItemTablePtr hostgroupElementTablePtr = createItemTable(*cmdBuf);
 
-	HostgroupElementList hostgroupElementList;
+	HostgroupMemberVect hostgroupMembers;
 	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
-	  hostgroupElementList, hostgroupElementTablePtr, m_impl->serverInfo.id);
+	  hostgroupMembers, hostgroupElementTablePtr, m_impl->serverInfo.id);
 
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  uds->upsertHostgroupMembers(hostgroupMembers));
 
 	replyOk();
 }
@@ -928,13 +928,12 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroups(
 	cmdBuf->setIndex(sizeof(HapiCommandHeader));
 	ItemTablePtr hostgroupTablePtr = createItemTable(*cmdBuf);
 
-	HostgroupInfoList hostgroupInfoList;
+	HostgroupVect hostgroups;
 	HatoholDBUtils::transformGroupsToHatoholFormat(
-	  hostgroupInfoList, hostgroupTablePtr, m_impl->serverInfo.id);
+	  hostgroups, hostgroupTablePtr, m_impl->serverInfo.id);
 
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  UnifiedDataStore::getInstance()->upsertHostgroups(hostgroups));
 
 	replyOk();
 }

@@ -109,15 +109,47 @@ public:
 	*/
 
 	// Host and Hostgroup
-	void getHostList(HostInfoList &hostInfoList,
-	                 const HostsQueryOption &option);
-	HatoholError getHostgroupInfoList(
-	  HostgroupInfoList &hostgroupInfoList,
-	  const HostgroupsQueryOption &option);
-	HatoholError getHostgroupElementList(
-	  HostgroupElementList &hostgroupElementList,
-	  const HostgroupElementQueryOption &option);
+	HatoholError getServerHostDefs(ServerHostDefVect &svHostDefVect,
+	                               const HostsQueryOption &option);
 
+	HatoholError getHostgroups(HostgroupVect &hostgroups,
+	                           const HostgroupsQueryOption &option);
+
+	/**
+	 * Add hosts. If there's hosts already exist, they will be updated.
+	 *
+	 * See also DBTablesHost::upsert().
+	 *
+	 * @param serverHostDef A host to be added/updated.
+	 * @param hostId
+	 * If this parameter is not NULL, the added/updated host ID is written
+	 * to this area.
+	 *
+	 * @return The result of the call.
+	 */
+	HatoholError upsertHost(const ServerHostDef &serverHostDef,
+	                        HostIdType *hostId = NULL);
+
+	/**
+	 * Add hosts. If there's hosts already exist, they will be updated.
+	 *
+	 * See also DBTablesHost::upsert().
+	 *
+	 * @param serverHostDef Hosts to be added/updated.
+	 * @return The result of the call.
+	 */
+	HatoholError upsertHosts(const ServerHostDefVect &serverHostDefs);
+
+	HatoholError syncHosts(const ServerHostDefVect &svHostDefs,
+	                       const ServerIdType &serverId);
+
+	HatoholError upsertHostgroups(const HostgroupVect &hostgroups);
+	HatoholError upsertHostgroupMembers(
+	  const HostgroupMemberVect &hostgroupMembers);
+
+	HatoholError getHostgroupMembers(
+	  HostgroupMemberVect &hostgroupMembers,
+	  const HostgroupMembersQueryOption &option);
 
 	// Action
 	HatoholError getActionList(ActionDefList &actionList,

@@ -18,8 +18,10 @@
  */
 
 #include <cppcutter.h>
+#include <StringUtils.h>
 #include "HostInfoCache.h"
 using namespace std;
+using namespace mlpl;
 
 namespace testHostInfoCache {
 
@@ -29,49 +31,58 @@ namespace testHostInfoCache {
 
 void test_updateAndGetName(void)
 {
-	HostInfo hostInfo;
-	hostInfo.serverId = 100;
-	hostInfo.id = 2;
-	hostInfo.hostName = "foo";
+	ServerHostDef svHostDef;
+	svHostDef.id = AUTO_INCREMENT_VALUE;
+	svHostDef.hostId = INVALID_HOST_ID;
+	const HostIdType hostIdInServer = 2;
+	svHostDef.hostIdInServer = StringUtils::sprintf("%" FMT_HOST_ID,
+	                                                hostIdInServer);
+	svHostDef.name = "foo";
 
 	HostInfoCache hiCache;
-	hiCache.update(hostInfo);
+	hiCache.update(svHostDef);
 	string name;
-	cppcut_assert_equal(true, hiCache.getName(hostInfo.id, name));
-	cppcut_assert_equal(hostInfo.hostName, name);
+	cppcut_assert_equal(true, hiCache.getName(hostIdInServer, name));
+	cppcut_assert_equal(svHostDef.name, name);
 }
 
 void test_getNameExpectFalse(void)
 {
-	HostInfo hostInfo;
-	hostInfo.serverId = 100;
-	hostInfo.id = 2;
-	hostInfo.hostName = "foo";
+	ServerHostDef svHostDef;
+	svHostDef.id = AUTO_INCREMENT_VALUE;
+	svHostDef.hostId = INVALID_HOST_ID;
+	svHostDef.serverId = 100;
+	svHostDef.hostIdInServer = "2";
+	svHostDef.name = "foo";
 
 	HostInfoCache hiCache;
-	hiCache.update(hostInfo);
+	hiCache.update(svHostDef);
 	string name;
 	cppcut_assert_equal(false, hiCache.getName(500, name));
 }
 
 void test_updateTwice(void)
 {
-	HostInfo hostInfo;
-	hostInfo.serverId = 100;
-	hostInfo.id = 2;
-	hostInfo.hostName = "foo";
+	ServerHostDef svHostDef;
+	svHostDef.id = AUTO_INCREMENT_VALUE;
+	svHostDef.hostId = INVALID_HOST_ID;
+	svHostDef.serverId = 100;
+	const HostIdType hostIdInServer = 2;
+	svHostDef.hostIdInServer = StringUtils::sprintf("%" FMT_HOST_ID,
+	                                                hostIdInServer);
+	svHostDef.name = "foo";
 
 	HostInfoCache hiCache;
-	hiCache.update(hostInfo);
+	hiCache.update(svHostDef);
 	string name;
-	cppcut_assert_equal(true, hiCache.getName(hostInfo.id, name));
-	cppcut_assert_equal(hostInfo.hostName, name);
+	cppcut_assert_equal(true, hiCache.getName(hostIdInServer, name));
+	cppcut_assert_equal(svHostDef.name, name);
 
 	// update again
-	hostInfo.hostName = "Dog Dog Dog Cat";
-	hiCache.update(hostInfo);
-	cppcut_assert_equal(true, hiCache.getName(hostInfo.id, name));
-	cppcut_assert_equal(hostInfo.hostName, name);
+	svHostDef.name = "Dog Dog Dog Cat";
+	hiCache.update(svHostDef);
+	cppcut_assert_equal(true, hiCache.getName(hostIdInServer, name));
+	cppcut_assert_equal(svHostDef.name, name);
 }
 
 void test_getNameFromMany(void)
@@ -90,11 +101,14 @@ void test_getNameFromMany(void)
 
 	HostInfoCache hiCache;
 	for (size_t i = 0; i < numData; i++) {
-		HostInfo hostInfo;
-		hostInfo.serverId = 100;
-		hostInfo.id = dataArray[i].id;
-		hostInfo.hostName = dataArray[i].name;
-		hiCache.update(hostInfo);
+		ServerHostDef svHostDef;
+		svHostDef.id = AUTO_INCREMENT_VALUE;
+		svHostDef.hostId = INVALID_HOST_ID;
+		svHostDef.serverId = 100;
+		svHostDef.hostIdInServer =
+		  StringUtils::sprintf("%" FMT_HOST_ID,  dataArray[i].id);
+		svHostDef.name = dataArray[i].name;
+		hiCache.update(svHostDef);
 	}
 
 	// check
