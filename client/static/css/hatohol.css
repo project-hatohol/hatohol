@@ -20,6 +20,12 @@
 /* Override jQuery's default values to overcome bootstrap's style */
 .ui-front { z-index: 2000 !important }
 
+div.copyright {
+    text-align: center;
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
 label {
   margin-top: 6px;
   margin-bottom: 4px;
@@ -95,31 +101,37 @@ div#noscript-background div#noscript-notice
 }
 
 /* graph */
-.graph h2 {
+h2.hatohol-graph {
     text-align: center;
     font-size: large;
 }
 
-#item-graph {
+#hatohol-graph {
     margin-bottom: 2em;
 }
 
-#item-graph-slider-area {
+#hatohol-graph-slider-area {
     margin-left: 2em;
     margin-right: 1em;
     margin-top: 3.5em;
-    margin-bottom: 3.5em;
+    margin-bottom: 1em;
     white-space: nowrap;
 }
 
-#item-graph-slider {
-    width: 95%;
+#hatohol-graph-slider {
+    width: 90%;
     display: inline-block;
     white-space: normal;
 }
 
-#item-graph-auto-reload {
+#hatohol-graph-auto-reload {
     margin-left: 1em;
+    margin-right: 0;
+    margin-bottom: 3.6em;
+}
+
+#hatohol-graph-settings {
+    margin-left: 0.3em;
     margin-right: 0;
     margin-bottom: 3.6em;
 }

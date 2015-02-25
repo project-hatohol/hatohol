@@ -95,7 +95,7 @@ HistoryLoader.prototype.load = function() {
         self.servers = reply.servers;
 
         if (self.options.onLoadItem)
-          self.options.onLoadItem(self.item, self.servers);
+          self.options.onLoadItem(self, self.item, self.servers);
 
         deferred.resolve();
       } else {
@@ -126,7 +126,7 @@ HistoryLoader.prototype.load = function() {
       self.updateHistory(history);
 
       if (self.options.onLoadHistory)
-        self.options.onLoadHistory(self.history);
+        self.options.onLoadHistory(self, self.history);
 
       if (history.length >= maxRecordsPerRequest) {
         $.when(loadHistory()).done(function() {
@@ -238,36 +238,171 @@ var HistoryView = function(userProfile, options) {
   self.timeRange = getTimeRange();
   self.settingSliderTimeRange = false;
   self.loaders = [];
+  self.itemSelector = undefined;
 
-  appendGraphArea();
-  prepareHistoryLoaders(self.parseQuery(options.query));
-  load();
+  prepare(self.parseQuery(options.query));
+  if (self.loaders.length > 0) {
+    load();
+  } else {
+    self.itemSelector.show();
+  }
 
-  function prepareHistoryLoaders(historyQueries) {
-    var i, endTime, timeSpan;
+  function prepare(historyQueries) {
+    var i;
 
-    for (i = 0; i < historyQueries.length; i++) {
-      self.plotData[i] = initLegendData();
-      self.loaders[i] = new HistoryLoader({
-        index: i,
-        view: self,
-        defaultTimeSpan: self.timeRange.getSpan(),
-        query: historyQueries[i],
-        onLoadItem: function(item, servers) {
-          this.item = item;
-          self.plotData[this.index] = initLegendData(item, servers);
-          updateView();
-        },
-        onLoadHistory: function(history) {
-          self.plotData[this.index].data = history;
-          updateView();
+    self.itemSelector = new HatoholItemSelector({
+      view: self,
+      appendItemCallback: function(index, query) {
+        appendHistoryLoader(query, index);
+        load();
+      },
+      removeItemCallback: function(index) {
+        var i;
+        var loader = self.itemSelector.getUserData(index);
+        for (i = 0; i < self.loaders.length; i++) {
+          if (self.loaders[i] == loader) {
+            self.loaders.splice(i, 1);
+            self.plotData.splice(i, 1);
+            updateView();
+            return;
+          }
         }
+      },
+    });
+
+    appendGraphArea();
+    for (i = 0; i < historyQueries.length; i++)
+      appendHistoryLoader(historyQueries[i]);
+
+    updateView();
+  }
+
+  function appendGraphArea() {
+    $("div.hatohol-graph").append($("<div>", {
+      id: "hatohol-graph",
+      height: "300px",
+    }))
+    .append($("<div>", {
+      id: "hatohol-graph-slider-area",
+    }));
+
+    $("#hatohol-graph-slider-area").append($("<div>", {
+      id: "hatohol-graph-slider",
+    }))
+    .append($("<button>", {
+      id: "hatohol-graph-auto-reload",
+      type: "button",
+      title: gettext("Toggle auto refresh"),
+      class: "btn btn-primary glyphicon glyphicon-refresh active",
+    }).attr("data-toggle", "button"))
+    .append($("<button>", {
+      id: "hatohol-graph-settings",
+      type: "button",
+      title: gettext("Select items"),
+      class: "btn btn-default glyphicon glyphicon-cog",
+    }).attr("data-toggle", "modal").attr("data-target", "#hatohol-item-list"));
+
+    $("#hatohol-graph").bind("plotselected", function (event, ranges) {
+      var plotOptions;
+
+      // clamp the zooming to prevent eternal zoom
+      if (ranges.xaxis.to - ranges.xaxis.from < 60 * 1000) {
+        ranges.xaxis.from -= 30 * 1000;
+        ranges.xaxis.to = ranges.xaxis.from + 60 * 1000;
+      }
+
+      // zoom
+      plotOptions = $.extend(true, {}, self.plotOptions, {
+        xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
+        yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
       });
+      $.plot("#hatohol-graph", self.plotData, plotOptions);
+
+      setSliderTimeRange(Math.floor(ranges.xaxis.from / 1000),
+                         Math.floor(ranges.xaxis.to / 1000));
+
+      disableAutoReload();
+    });
+
+    // zoom cancel
+    $("#hatohol-graph").bind("dblclick", function (event) {
+      $.plot("#hatohol-graph", self.plotData, self.plotOptions);
+      setSliderTimeRange(Math.floor(self.plotOptions.xaxis.min / 1000),
+                         Math.floor(self.plotOptions.xaxis.max / 1000));
+    });
+
+    // toggle auto reload
+    $("#hatohol-graph-auto-reload").on("click", function() {
+      if ($(this).hasClass("active")) {
+        disableAutoReload(true);
+      } else {
+        enableAutoReload(true);
+      }
+    });
+  };
+
+  function createLegendData(item, servers) {
+    var legend = { data:[] };
+
+    if (item) {
+      // it will be filled by updateTitleAndLegendLabels()
+      legend.label = undefind;
+      if (item.unit)
+        legend.label += " [" + item.unit + "]";
     }
 
+    return legend;
+  };
+
+  function updatePlotData() {
+    var i, item, servers;
+    for (i = 0; i < self.loaders.length; i++) {
+      if (self.plotData[i].data) {
+        self.plotData[i].data = self.loaders[i].history;
+      } else {
+        item = self.loaders[i].getItem();
+        servers = self.loaders[i].getServers();
+        self.plotData[i] = createLegendData(item, servers);
+      }
+    }
+  }
+
+  function appendHistoryLoader(historyQuery, index) {
+    var loader = new HistoryLoader({
+      view: self,
+      defaultTimeSpan: self.timeRange.getSpan(),
+      query: historyQuery,
+      onLoadItem: function(loader, item, servers) {
+        var index = self.itemSelector.getIndexByUserData(loader);
+        updatePlotData();
+        updateView();
+        self.itemSelector.setServers(servers);
+        self.itemSelector.setItem(index, item, servers,
+                                  loader.options.query.hostgroupId);
+      },
+      onLoadHistory: function(loader, history) {
+        updatePlotData();
+        updateView();
+      }
+    });
+    self.loaders.push(loader);
+    self.plotData.push(createLegendData());
+    if (isNaN(index))
+      index = self.itemSelector.appendItem();
+    self.itemSelector.setUserData(index, loader);
+    if (self.loaders.length == 1)
+      initTimeRange();
+  }
+
+  function initTimeRange() {
+    var emdTime, timeSpan;
+
     // TODO: allow different time ranges?
+    if (!self.loaders.length)
+      return;
     endTime = self.loaders[0].options.query.endTime;
     timeSpan = self.loaders[0].getTimeSpan();
+
     if (endTime)
       self.timeRange.set(endTime - timeSpan, endTime);
     self.autoReloadIsEnabled = !endTime;
@@ -292,7 +427,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function enableAutoReload(onClickButton) {
-    var button = $("#item-graph-auto-reload");
+    var button = $("#hatohol-graph-auto-reload");
 
     button.removeClass("btn-default");
     button.addClass("btn-primary");
@@ -304,7 +439,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function disableAutoReload(onClickButton) {
-    var button = $("#item-graph-auto-reload");
+    var button = $("#hatohol-graph-auto-reload");
     self.clearAutoReload();
     self.autoReloadIsEnabled = false;
     if (!onClickButton)
@@ -312,75 +447,6 @@ var HistoryView = function(userProfile, options) {
     button.removeClass("btn-primary");
     button.addClass("btn-default");
   }
-
-  function appendGraphArea() {
-    $("#main").append($("<div>", {
-      id: "item-graph",
-      height: "300px",
-    }))
-    .append($("<div>", {
-      id: "item-graph-slider-area",
-    }));
-
-    $("#item-graph-slider-area").append($("<div>", {
-      id: "item-graph-slider",
-    }))
-    .append($("<button>", {
-      id: "item-graph-auto-reload",
-      type: "button",
-      class: "btn btn-primary glyphicon glyphicon-refresh active",
-    }).attr("data-toggle", "button"));
-
-    $("#item-graph").bind("plotselected", function (event, ranges) {
-      var plotOptions;
-
-      // clamp the zooming to prevent eternal zoom
-      if (ranges.xaxis.to - ranges.xaxis.from < 60 * 1000) {
-        ranges.xaxis.from -= 30 * 1000;
-        ranges.xaxis.to = ranges.xaxis.from + 60 * 1000;
-      }
-
-      // zoom
-      plotOptions = $.extend(true, {}, self.plotOptions, {
-        xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to },
-        yaxis: { min: ranges.yaxis.from, max: ranges.yaxis.to }
-      });
-      $.plot("#item-graph", self.plotData, plotOptions);
-
-      setSliderTimeRange(Math.floor(ranges.xaxis.from / 1000),
-                         Math.floor(ranges.xaxis.to / 1000));
-
-      disableAutoReload();
-    });
-
-    // zoom cancel
-    $("#item-graph").bind("dblclick", function (event) {
-      $.plot("#item-graph", self.plotData, self.plotOptions);
-      setSliderTimeRange(Math.floor(self.plotOptions.xaxis.min / 1000),
-                         Math.floor(self.plotOptions.xaxis.max / 1000));
-    });
-
-    // toggle auto reload
-    $("#item-graph-auto-reload").on("click", function() {
-      if ($(this).hasClass("active")) {
-        disableAutoReload(true);
-      } else {
-        enableAutoReload(true);
-      }
-    });
-  };
-
-  function initLegendData(item, servers) {
-    var legend = { data:[] };
-
-    if (item) {
-      legend.label = buildTitle(item, servers);
-      if (item.unit)
-        legend.label += " [" + item.unit + "]";
-    }
-
-    return legend;
-  };
 
   function getDate(timeMSec) {
     var plotOptions = {
@@ -434,7 +500,7 @@ var HistoryView = function(userProfile, options) {
         axis = getYAxisOptions(label);
         if (isInt)
           axis.minTickSize = 1;
-        if (i % 2 == 1)
+        if (axes.length % 2 == 1)
           axis.position = "right";
         axes.push(axis);
         table[label] = axis;
@@ -496,7 +562,7 @@ var HistoryView = function(userProfile, options) {
         self.plotOptions.points.show = true;
     }
 
-    self.plot = $.plot($("#item-graph"), self.plotData, self.plotOptions);
+    self.plot = $.plot($("#hatohol-graph"), self.plotData, self.plotOptions);
   }
 
   function getTimeRange() {
@@ -554,7 +620,7 @@ var HistoryView = function(userProfile, options) {
   function drawSlider() {
     var timeRange = self.timeRange;
 
-    $("#item-graph-slider").slider({
+    $("#hatohol-graph-slider").slider({
       range: true,
       min: timeRange.min,
       max: timeRange.max,
@@ -574,7 +640,7 @@ var HistoryView = function(userProfile, options) {
           self.loaders[i].setTimeRange(timeRange.begin, timeRange.end);
         disableAutoReload();
         load();
-        $("#item-graph-auto-reload").removeClass("active");
+        $("#hatohol-graph-auto-reload").removeClass("active");
       },
       slide: function(event, ui) {
         var beginTime = ui.values[0], endTime = ui.values[1];
@@ -587,7 +653,7 @@ var HistoryView = function(userProfile, options) {
         setSliderTimeRange(timeRange.begin, timeRange.end);
       },
     });
-    $("#item-graph-slider").slider('pips', {
+    $("#hatohol-graph-slider").slider('pips', {
       rest: 'label',
       last: false,
       step: secondsInHour * 12,
@@ -613,7 +679,7 @@ var HistoryView = function(userProfile, options) {
         }
       },
     });
-    $("#item-graph-slider").slider('float', {
+    $("#hatohol-graph-slider").slider('float', {
       formatLabel: function(val) {
         return formatDate(val);
       },
@@ -627,11 +693,11 @@ var HistoryView = function(userProfile, options) {
       return;
 
     self.settingSliderTimeRange = true;
-    values = $("#item-graph-slider").slider("values");
+    values = $("#hatohol-graph-slider").slider("values");
     if (min != values[0])
-      $("#item-graph-slider").slider("values", 0, min);
+      $("#hatohol-graph-slider").slider("values", 0, min);
     if (max != values[1])
-      $("#item-graph-slider").slider("values", 1, max);
+      $("#hatohol-graph-slider").slider("values", 1, max);
     self.settingSliderTimeRange = false;
   }
 
@@ -652,6 +718,8 @@ var HistoryView = function(userProfile, options) {
   }
 
   function buildHostName(item, servers) {
+    if (!item || !servers)
+      return gettext("Unknown host")
     var server = servers[item.serverId];
     var serverName = getServerName(server, item["serverId"]);
     var hostName   = getHostName(server, item["hostId"]);
@@ -659,10 +727,16 @@ var HistoryView = function(userProfile, options) {
   }
 
   function buildTitle(item, servers) {
-    var hostName = buildHostName(item, servers);
-    var title = "";
+    var hostName, title = "";
+
+    if (!item || !servers)
+      return gettext("History");
+    hostName = buildHostName(item, servers);
+
     title += item.brief;
     title += " (" + hostName + ")";
+    if (item.unit)
+      title += " [" + item.unit + "]";
     return title;
   }
 
@@ -715,30 +789,39 @@ var HistoryView = function(userProfile, options) {
   function updateTitleAndLegendLabels() {
     var i, title, item, servers, loader = self.loaders[0];
 
-    if (self.plotData.length == 1) {
+    if (self.plotData.length == 0) {
+      title = undefined;
+    } else if (self.plotData.length == 1) {
       title = buildTitle(loader.getItem(), loader.getServers());
     } else if (isSameHost()) {
       title = buildHostName(loader.getItem(), loader.getServers());
       for (i = 0; i < self.plotData.length; i++) {
         // omit host names in legend labels
         item = self.loaders[i].getItem();
-        self.plotData[i].label = item.brief;
-        if (item.unit)
-          self.plotData[i].label += " [" + item.unit + "]";
+        self.plotData[i].label = getItemBriefWithUnit(item);
       }
     } else if (isSameItem()) {
-      title = loader.getItem().brief;
+      title = getItemBriefWithUnit(loader.getItem());
       for (i = 0; i < self.plotData.length; i++) {
         // omit item names in legend labels
         item = self.loaders[i].getItem();
         servers = self.loaders[i].getServers();
         self.plotData[i].label = buildHostName(item, servers);
       }
+    } else {
+      for (i = 0; i < self.plotData.length; i++) {
+        item = self.loaders[i].getItem();
+        servers = self.loaders[i].getServers();
+        self.plotData[i].label = buildTitle(item, servers);
+      }
     }
 
     if (title) {
       $("title").text(title);
-      $(".graph h2").text(title);
+      $("h2.hatohol-graph").text(title);
+    } else {
+      $("title").text(gettext("History"));
+      $("h2.hatohol-graph").text("");
     }
   }
 };
@@ -777,3 +860,225 @@ HistoryView.prototype.isLoading = function() {
       return true;
   return false;
 };
+
+
+var HatoholItemSelector = function(options) {
+  var self = this;
+
+  options = options || {};
+  self.lastIndex = 0;
+  self.elementId = 'hatohol-item-list';
+  self.servers = options.servers;
+  self.lastItemsData = undefined;
+  self.rowData = {};
+  self.view = options.view; // TODO: Remove view dependency
+  self.appendItemCallback = options.appendItemCallback;
+  self.removeItemCallback = options.removeItemCallback;
+
+  setup();
+
+  function setup() {
+    self.view.setupHostQuerySelectorCallback(
+      function() {
+        var query = self.view.getHostFilterQuery();
+        query.limit = 1; // we need only "servers" object
+        self.view.startConnection("items?" + $.param(query), function(reply) {
+          self.servers = reply.servers;
+          self.setupCandidates();
+        });
+      },
+      '#select-server', '#select-host-group', '#select-host');
+    $("#select-item").attr("disabled", "disabled");
+    $("#add-item-button").attr("disabled", "disabled");
+    $("#select-server").change(loadItemCandidates);
+    $("#select-host-group").change(loadItemCandidates);
+    $("#select-host").change(loadItemCandidates);
+    $("#select-item").change(function() {
+      if ($(this).val() == "---------")
+        $("#add-item-button").attr("disabled", "disabled");
+      else
+        $("#add-item-button").removeAttr("disabled");
+    });
+    $("#add-item-button").click(function() {
+      var query = self.view.getHostFilterQuery();
+      var i, index, item;
+
+      query.itemId = $("#select-item").val();
+
+      for (i = 0; i < self.lastItemsData.items.length; i++) {
+        if (self.lastItemsData.items[i].id == query.itemId)
+          item = self.lastItemsData.items[i];
+      }
+
+      index = self.appendItem(item, self.lastItemsData.servers,
+                              query.hostgroupId);
+      setItemCandidates(self.lastItemsData);
+
+      if (self.appendItemCallback)
+        self.appendItemCallback(index, query);
+    });
+  }
+
+  function isAlreadyAddedItem(item1) {
+    var i, item2;
+    for (i in self.rowData) {
+      item2 = self.rowData[i].item;
+      if (!item2)
+        continue;
+      if (item1.serverId == item2.serverId &&
+          item1.hostId == item2.hostId &&
+          item1.id == item2.id)
+        return true;
+    }
+    return false;
+  }
+
+  function setItemCandidates(reply) {
+    var candidates = $.map(reply.items, function(item) {
+      if (isAlreadyAddedItem(item))
+        return null;
+      var label = getItemBriefWithUnit(item);
+      return { label: label, value: item.id };
+    });
+    self.view.setFilterCandidates($("#select-item"), candidates);
+    self.lastItemsData = reply;
+  }
+
+  function loadItemCandidates() {
+    var query;
+    var hostName = $("#select-host").val();
+
+    $("#add-item-button").attr("disabled", "disabled");
+
+    if (hostName == "---------") {
+      self.view.setFilterCandidates($("#select-item"));
+      return;
+    }
+
+    query = self.view.getHostFilterQuery();
+    self.view.startConnection("items?" + $.param(query), setItemCandidates);
+  }
+}
+
+HatoholItemSelector.prototype.show = function() {
+  var self = this;
+  if (!self.servers) {
+    self.view.startConnection("item?limit=1", function(reply) {
+      self.servers = reply.servers;
+      self.setupCandidates();
+    });
+  }
+  $('#' + self.elementId).modal('show');
+}
+
+HatoholItemSelector.prototype.hide = function() {
+  $('#' + this.elementId).modal('hide');
+}
+
+HatoholItemSelector.prototype.appendItem = function(item, servers, hostgroupId)
+{
+  return this.setItem(undefined, item, servers, hostgroupId);
+}
+
+HatoholItemSelector.prototype.setItem = function(index, item, servers,
+                                                 hostgroupId)
+{
+  var self = this;
+  var server = item ? servers[item.serverId] : undefined;
+  var serverName = item ? getNickName(server, item.serverId) : "-";
+  var hostName = item ? getHostName(server, item.hostId) : "-";
+  var groupName = (hostgroupId && hostgroupId != -1) ?
+    getHostgroupName(server, hostgroupId) : "-";
+  var itemName = item ? getItemBriefWithUnit(item)  : "-";
+  var id, tr;
+
+  if (isNaN(index))
+    index = self.lastIndex++;
+  id = self.elementId + "-row-" + index;
+
+  if (index in self.rowData) {
+    tr = $("#" + id);
+    tr.empty();
+  } else {
+    tr = $("<tr>", { id: id });
+  }
+
+  tr.append($("<td>"));
+  tr.append($("<td>", { text: serverName }));
+  tr.append($("<td>", { text: groupName }));
+  tr.append($("<td>", { text: hostName }));
+  tr.append($("<td>", { text: itemName }));
+  tr.append($("<td>").append(
+    $("<button>", {
+      text: gettext("DELETE"),
+      type: "button",
+      class: "btn btn-default",
+      click: function() {
+        var index = $(this).attr("itemIndex");
+        $(this).parent().parent().remove();
+        if (self.removeItemCallback)
+          self.removeItemCallback(index);
+        delete self.rowData[index];
+      }
+    }).attr("itemIndex", index)));
+
+  if (!(index in self.rowData)) {
+    self.rowData[index] = {};
+    tr.insertBefore("#" + self.elementId + " tbody tr :last");
+  }
+
+  if (item) {
+    self.rowData[index] = self.rowData[index] || {};
+    self.rowData[index].item = item;
+    self.rowData[index].hostgroupId = hostgroupId;
+  }
+
+  return index;
+}
+
+HatoholItemSelector.prototype.setUserData = function(index, data) {
+  this.rowData[index] = this.rowData[index] || {};
+  this.rowData[index].userData = data;
+}
+
+HatoholItemSelector.prototype.getUserData = function(index) {
+  if (this.rowData[index])
+    return this.rowData[index].userData;
+  else
+    return undefined;
+}
+
+HatoholItemSelector.prototype.getIndexByUserData = function(data) {
+  for (index in this.rowData) {
+    if (this.rowData[index] && this.rowData[index].userData == data)
+      return parseInt(index);
+  }
+  return -1;
+}
+
+HatoholItemSelector.prototype.setupCandidates = function() {
+  this.view.setServerFilterCandidates(this.servers);
+  this.view.setHostgroupFilterCandidates(this.servers);
+  this.view.setHostFilterCandidates(this.servers);
+}
+
+HatoholItemSelector.prototype.setServers = function(servers) {
+  if (!this.servers)
+    this.servers = servers;
+  this.view.setupHostFilters(servers);
+}
+
+HatoholItemSelector.prototype.getConfig = function() {
+  var i, item, data, config = { histories: [] };
+  for (i in this.rowData) {
+    item = this.rowData[i].item;
+    data = {
+      serverId: item.serverId,
+      hostId: item.hostId,
+      hostgroupId: this.rowData[i].hostgroupId,
+      itemId: item.id,
+    };
+    config.histories.push(data);
+  }
+  return config;
+}

@@ -151,7 +151,6 @@ describe('HistoryView', function() {
     var view = new HistoryView(getOperator(),
                                { query: query });
     var expected = [{
-      label: "cpu usage (Zabbix: Host1) [%]",
       data: [
         [1415586892182, "97.8568"],
         [1415586952317, "97.4699"],
@@ -195,5 +194,31 @@ describe('HistoryView', function() {
     var query = $.param(queryObj);
     var actual = HistoryView.prototype.parseQuery(query);
     expect(expected).eql(actual);
+  });
+
+  it('get config from item selector', function() {
+    var view = new HistoryView(getOperator());
+    var selector = new HatoholItemSelector({ view: view });
+    var item1 = $.extend({}, defaultItems[0]);
+    var item2 = $.extend({}, item1, { id: 2 });
+    var hostgroupId2 = 12;
+    selector.appendItem(item1, defaultServers);
+    selector.appendItem(item2, defaultServers, hostgroupId2);
+    expect(selector.getConfig()).eql({
+      histories: [
+        {
+          serverId: 1,
+          hostId: 10101,
+          hostgroupId: undefined,
+          itemId: 1,
+        },
+        {
+          serverId: 1,
+          hostId: 10101,
+          hostgroupId: 12,
+          itemId: 2,
+        },
+      ]
+    });
   });
 });
