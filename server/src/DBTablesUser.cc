@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -22,6 +22,7 @@
 #include "DBTablesConfig.h"
 #include "ItemGroupStream.h"
 #include "DBHatohol.h"
+#include "DBTermCStringProvider.h"
 using namespace std;
 using namespace mlpl;
 
@@ -334,10 +335,11 @@ string UserQueryOption::getCondition(void) const
 	if (!m_impl->targetName.empty()) {
 		// The validity of 'targetName' has been checked in
 		// setTargetName().
+		DBTermCStringProvider rhs(*getDBTermCodec());
 		string nameCond =
-		  StringUtils::sprintf("%s='%s'",
+		  StringUtils::sprintf("%s=%s",
 		    COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
-		   m_impl->targetName.c_str());
+		    rhs(m_impl->targetName));
 		DataQueryOption::addCondition(condition, nameCond);
 	}
 	return condition;
@@ -515,13 +517,14 @@ HatoholError DBTablesUser::addUserInfo(
 
 		bool preproc(DBAgent &dbAgent) override
 		{
+			DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
 			arg.add(AUTO_INCREMENT_VALUE);
 			arg.add(userInfo.name);
 			arg.add(Utils::sha256(userInfo.password));
 			arg.add(userInfo.flags);
-			dupCheckCond = StringUtils::sprintf("%s='%s'",
+			dupCheckCond = StringUtils::sprintf("%s=%s",
 			  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
-			  userInfo.name.c_str());
+			  rhs(userInfo.name));
 			return true;
 		}
 
@@ -603,13 +606,18 @@ HatoholError DBTablesUser::updateUserInfo(
 			arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
 			  COLUMN_DEF_USERS[IDX_USERS_ID].columnName,
 			  userInfo.id);
+		}
 
+		bool preproc(DBAgent &dbAgent) override
+		{
+			DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
 			dupCheckCond = StringUtils::sprintf(
-			  "(%s='%s' and %s<>%" FMT_USER_ID ")",
+			  "(%s=%s and %s<>%" FMT_USER_ID ")",
 			  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
-			  userInfo.name.c_str(),
+			  rhs(userInfo.name),
 			  COLUMN_DEF_USERS[IDX_USERS_ID].columnName,
 			  userInfo.id);
+			return true;
 		}
 
 		bool hasRecord(DBAgent &dbAgent, const string &condition)
@@ -716,11 +724,12 @@ UserIdType DBTablesUser::getUserId(const string &user, const string &password)
 	if (isValidPassword(password) != HTERR_OK)
 		return INVALID_USER_ID;
 
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	DBAgent::SelectExArg arg(tableProfileUsers);
 	arg.add(IDX_USERS_ID);
 	arg.add(IDX_USERS_PASSWORD);
-	arg.condition = StringUtils::sprintf("%s='%s'",
-	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, user.c_str());
+	arg.condition = StringUtils::sprintf("%s=%s",
+	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, rhs(user));
 	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -979,10 +988,12 @@ HatoholError DBTablesUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 			err = HTERR_OK;
 		}
 	} trx(userRoleInfo);
+
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	trx.dupChkCond = StringUtils::sprintf(
-	  "(%s='%s' or %s=%" FMT_OPPRVLG ")",
+	  "(%s=%s or %s=%" FMT_OPPRVLG ")",
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
-	  StringUtils::replace(userRoleInfo.name, "'", "''").c_str(),
+	  rhs(userRoleInfo.name),
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS].columnName,
 	  userRoleInfo.flags);
 	getDBAgent().runTransaction(trx);
@@ -1043,10 +1054,11 @@ HatoholError DBTablesUser::updateUserRoleInfo(
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
 	  userRoleInfo.id);
 
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	trx.dupChkCond = StringUtils::sprintf(
-	  "((%s='%s' or %s=%" FMT_OPPRVLG ") and %s<>%" FMT_USER_ROLE_ID ")",
+	  "((%s=%s or %s=%" FMT_OPPRVLG ") and %s<>%" FMT_USER_ROLE_ID ")",
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
-	  StringUtils::replace(userRoleInfo.name, "'", "''").c_str(),
+	  rhs(userRoleInfo.name),
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS].columnName,
 	  userRoleInfo.flags,
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
