@@ -258,7 +258,7 @@ var HistoryView = function(userProfile, options) {
       },
       removeItemCallback: function(index) {
         var i;
-        var loader = self.itemSelector.getHistoryLoader(index);
+        var loader = self.itemSelector.getUserData(index);
         for (i = 0; i < self.loaders.length; i++) {
           if (self.loaders[i] == loader) {
             self.loaders.splice(i, 1);
