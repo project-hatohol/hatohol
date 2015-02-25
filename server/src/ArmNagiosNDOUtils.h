@@ -42,8 +42,7 @@ protected:
 	void makeSelectHostgroupMembersArg(void);
 	void addConditionForTriggerQuery(bool isDifference);
 	void addConditionForEventQuery(void);
-	void getTrigger(void);
-	void getAllTrigger(void);
+	void getTrigger(bool isUpdateTrigger);
 	void getTriggerInfoTable(TriggerInfoList &triggerInfoList);
 	void getEvent(void);
 	void getItem(void);

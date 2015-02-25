@@ -595,25 +595,20 @@ void ArmNagiosNDOUtils::getTriggerInfoTable(TriggerInfoList &triggerInfoList)
 	}
 }
 
-void ArmNagiosNDOUtils::getTrigger(void)
+void ArmNagiosNDOUtils::getTrigger(bool isUpdateTrigger)
 {
 	TriggerInfoList triggerInfoList;
-	addConditionForTriggerQuery(true);
+	addConditionForTriggerQuery(isUpdateTrigger);
 	getTriggerInfoTable(triggerInfoList);
 
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
-}
-
-void ArmNagiosNDOUtils::getAllTrigger(void)
-{
-	TriggerInfoList triggerInfoList;
-	addConditionForTriggerQuery(false);
-	getTriggerInfoTable(triggerInfoList);
-
-	const MonitoringServerInfo &svInfo = getServerInfo();
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().updateTrigger(triggerInfoList, svInfo.id);
+	if (isUpdateTrigger) {
+		ThreadLocalDBCache cache;
+		cache.getMonitoring().addTriggerInfoList(triggerInfoList);
+	} else {
+		const MonitoringServerInfo &svInfo = getServerInfo();
+		ThreadLocalDBCache cache;
+		cache.getMonitoring().updateTrigger(triggerInfoList, svInfo.id);
+	}		
 }
 
 void ArmNagiosNDOUtils::getEvent(void)
@@ -823,11 +818,7 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 		getHost(storedHostsChanged);
 		getHostgroup();
 		getHostgroupMembers();
-		if (storedHostsChanged){
-			getTrigger();
-		} else {
-			getAllTrigger();
-		}
+		getTrigger(storedHostsChanged);
 		getEvent();
 		if (!getCopyOnDemandEnabled())
 			getItem();
@@ -860,7 +851,8 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProcFetchTriggers(void
 	try {
 		if (!m_impl->dbAgent)
 			connect();
-		getAllTrigger();
+		//getAllTrigger();
+		getTrigger(false);
 	} catch (const HatoholException &he) {
 		return handleHatoholException(he);
 	} catch (const exception &e) {
