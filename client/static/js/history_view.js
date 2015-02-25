@@ -50,6 +50,7 @@ var HistoryView = function(userProfile, options) {
       removeItemCallback: function(index) {
         var loader = self.itemSelector.getUserData(index);
         removeHistoryLoader(loader);
+        updateView();
       },
     });
 
