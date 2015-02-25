@@ -151,17 +151,17 @@ var ServersView = function(userProfile) {
   }
 
   function updateTriggerServers() {
-    var delId = [], serverId;
+    var updateIds = [], serverId;
     var checkbox = $(".selectcheckbox");
     $(this).dialog("close");
     for (var i = 0; i < checkbox.length; i++) {
       if (!checkbox[i].checked)
         continue;
       serverId = checkbox[i].getAttribute("serverId");
-      delId.push(serverId);
+      updateIds.push(serverId);
     }
     new HatoholItemUpdate({
-      id: delId,
+      id: updateIds,
       type: "server-trigger",
       completionCallback: function() {
         self.startConnection("server", updateCore);

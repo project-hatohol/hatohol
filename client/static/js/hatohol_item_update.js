@@ -18,15 +18,15 @@
  */
 
 // ---------------------------------------------------------------------------
-// HatoholItemRemover
+// HatoholItemUpdate
 // ---------------------------------------------------------------------------
-var HatoholItemUpdate = function(updateParameters, connParam) {
+var HatoholItemUpdate = function(updateParameters, connParameters) {
   //
   // updateParameters has following parameters.
   //
-  // * id: Please enumerate an array of ID to update.
-  // * type
-  // TODO: Add the description.
+  // * id: An array of ID to update.
+  // * type: A type to be included in the request URL.
+  // * completionCallback: Callback to be executed after completion.
   //
   var count = 0;
   var total = 0;
@@ -56,15 +56,15 @@ var HatoholItemUpdate = function(updateParameters, connParam) {
           errors++;
         },
         completionCallback: function(context) {
-          compleOneDel();
+          compleOneUpdate();
         }
-    }, connParam || {}));
+    }, connParameters || {}));
   }
 
-  function compleOneDel() {
+  function compleOneUpdate() {
     count--;
     var completed = total - count;
-    hatoholErrorMsgBox(msg + gettext("Deleting...") + " " + completed +
+    hatoholErrorMsgBox(msg + gettext("Reloading...") + " " + completed +
                        " / " + total);
     if (count > 0)
       return;
