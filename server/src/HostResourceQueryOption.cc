@@ -127,7 +127,7 @@ const char *HostResourceQueryOption::getPrimaryTableName(void) const
 
 string HostResourceQueryOption::getCondition(void) const
 {
-	const DBTermCodec *dbTermCodec = Impl::dbTermCodec;
+	const DBTermCodec *dbTermCodec = getDBTermCodec();
 	string condition;
 	if (getFilterForDataOfDefunctServers()) {
 		addCondition(
@@ -331,7 +331,7 @@ string HostResourceQueryOption::makeConditionHostgroup(
 }
 
 string HostResourceQueryOption::makeConditionServer(
-  const ServerIdSet &serverIdSet, const std::string &serverIdColumnName)
+  const ServerIdSet &serverIdSet, const std::string &serverIdColumnName) const
 {
 	if (serverIdSet.empty())
 		return DBHatohol::getAlwaysFalseCondition();
@@ -341,7 +341,7 @@ string HostResourceQueryOption::makeConditionServer(
 
 	ServerIdSetConstIterator serverId = serverIdSet.begin();
 	bool first = true;
-	const DBTermCodec *dbTermCodec = Impl::dbTermCodec;
+	const DBTermCodec *dbTermCodec = getDBTermCodec();
 	for (; serverId != serverIdSet.end(); ++serverId) {
 		if (first)
 			first = false;

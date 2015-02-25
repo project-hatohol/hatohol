@@ -47,7 +47,7 @@ testHatohol_la_SOURCES = \
 	testHatoholThreadBase.cc \
 	testHatoholDBUtils.cc \
 	testHostInfoCache.cc \
-	TestHostResourceQueryOption.h \
+	TestHostResourceQueryOption.cc TestHostResourceQueryOption.h \
 	testHostResourceQueryOption.cc \
 	testHostResourceQueryOptionSubClasses.cc \
 	testDBAgent.cc \

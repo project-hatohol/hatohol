@@ -455,8 +455,9 @@ void test_makeConditionServer(void)
 	for (size_t i = 0; i < numServerIds; i++)
 		svIdSet.insert(serverIds[i]);
 
-	string actual = TestHostResourceQueryOption::callMakeConditionServer(
-	                  svIdSet, serverIdColumnName);
+	TestHostResourceQueryOption option;
+	string actual =
+	  option.callMakeConditionServer(svIdSet, serverIdColumnName);
 
 	// check
 	string expectHead = serverIdColumnName;
@@ -484,8 +485,8 @@ void test_makeConditionServer(void)
 void test_makeConditionServerWithEmptyIdSet(void)
 {
 	ServerIdSet svIdSet;
-	string actual = TestHostResourceQueryOption::callMakeConditionServer(
-	                  svIdSet, "meet");
+	TestHostResourceQueryOption option;
+	string actual = option.callMakeConditionServer(svIdSet, "meet");
 	cppcut_assert_equal(DBHatohol::getAlwaysFalseCondition(), actual);
 }
 

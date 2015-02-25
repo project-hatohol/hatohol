@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -21,15 +21,18 @@
 #define TestHostResourceQueryOption_h
 
 #include <string>
+#include <HostResourceQueryOption.h>
 
 class TestHostResourceQueryOption : public HostResourceQueryOption {
 public:
+	TestHostResourceQueryOption(const UserIdType &userId = INVALID_USER_ID);
+
 	std::string callGetServerIdColumnName(void) const
 	{
 		return getServerIdColumnName();
 	}
 
-	static std::string callMakeConditionServer(
+	std::string callMakeConditionServer(
 	  const ServerIdSet &serverIdSet, const std::string &serverIdColumnName)
 	{
 		return makeConditionServer(serverIdSet, serverIdColumnName);
