@@ -130,7 +130,9 @@ HatoholConnector.prototype.start = function(connectParams) {
       success: function(data) {
         parseLoginResult(data);
       },
-      error: connectError,
+      error:  function(data) {
+        parseLoginResult(data);
+      },
     });
   }
 
