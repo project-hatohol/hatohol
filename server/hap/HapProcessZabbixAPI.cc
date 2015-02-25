@@ -71,7 +71,7 @@ void HapProcessZabbixAPI::setMonitoringServerInfo(void)
 void HapProcessZabbixAPI::workOnTriggers(void)
 {
 	HapiTriggerCollectType type = getTriggerCollectType();
-	if (type == ALL_TRIGGER_COLLECT) {
+	if (type == DIFFERENCE_TRIGGER_COLLECT) {
 		SmartTime lastTriggerTime = getTimestampOfLastTrigger();
 		// TODO: getTrigger() should accept SmartTime directly.
 		// TODO: We should add a way to get newly added triggers.
