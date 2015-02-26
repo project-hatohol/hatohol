@@ -153,7 +153,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function initTimeRange() {
-    var emdTime, timeSpan;
+    var endTime, timeSpan;
 
     // TODO: allow different time ranges?
     if (!self.loaders.length)
