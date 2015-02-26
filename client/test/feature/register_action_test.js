@@ -35,7 +35,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
       test.assertExists(x("//a[normalize-space(text())='アクション']"));
     });
   casper.then(function() {
-    casper.waitForUrl(function() {
+    casper.waitForUrl(/.*ajax_actions/, function() {
       test.assertUrlMatch(/.*ajax_actions/, "Move into actions page.");
     });
   });

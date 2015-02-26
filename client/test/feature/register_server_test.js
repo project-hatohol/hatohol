@@ -23,7 +23,7 @@ casper.test.begin('Register/Unregister server test', function(test) {
       test.assertExists(x("//a[normalize-space(text())='監視サーバー']"));
     });
   casper.then(function() {
-    casper.waitForUrl(function() {
+    casper.waitForUrl(/.*ajax_servers/, function() {
       test.assertUrlMatch(/.*ajax_servers/, "Move into servers page.");
     });
   });
