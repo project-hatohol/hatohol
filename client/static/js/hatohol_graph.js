@@ -192,7 +192,7 @@ HatoholGraph.prototype._createLegendData = function(item, servers) {
 
   if (item) {
     // it will be filled by updateTitleAndLegendLabels()
-    legend.label = undefind;
+    legend.label = undefined;
     if (item.unit)
       legend.label += " [" + item.unit + "]";
   }
