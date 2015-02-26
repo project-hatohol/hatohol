@@ -22,7 +22,7 @@ var HatoholTimeRangeSelector = function(options) {
   var secondsInHour = 60 * 60;
 
   self.options = options || {};
-  self.id = self.options.id;
+  self.id = self.options.id || "hatohol-time-range-selector";
   self.timeRange = getTimeRange();
   self.settingTimeRange = false;
   self.slider = undefined;
