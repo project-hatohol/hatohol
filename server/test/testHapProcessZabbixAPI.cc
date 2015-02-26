@@ -136,6 +136,8 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_getHostsAndTriggers(void)
 {
+	loadTestDBServer();
+
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	arg.serverIpAddr = "127.0.0.1";
 	arg.serverPort   = EMULATOR_PORT;
@@ -158,6 +160,10 @@ void test_getHostsAndTriggers(void)
 
 	pair.plugin->callWorkOnTriggers();
 	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_ALL_TRIGGERS);
+
+	pair.plugin->callWorkOnHostsAndHostgroups();
+	pair.plugin->callWorkOnTriggers();
+	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_UPDATED_TRIGGERS);
 
 	// TODO: check the pattern of "HAPI_CMD_SEND_UPDATED_TRIGGERS".
 
