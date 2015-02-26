@@ -54,9 +54,12 @@ def jsonforward(request, path):
         encoded_query = urllib.urlencode(utf8_dict(request.GET))
         url += '?' + encoded_query
         req = urllib2.Request(url, headers=hdrs)
-    content = urllib2.urlopen(req)
+    try:
+        content = urllib2.urlopen(req)
 
-    response = HttpResponse(content, content_type='application/json')
+        response = HttpResponse(content, content_type='application/json')
+    except urllib2.URLError, e:
+        response = HttpResponse(e.read(), content_type='application/json', status=e.code)
 
     response['Pragma'] = 'no-cache'
     response['Cache-Control'] = 'no-cache'

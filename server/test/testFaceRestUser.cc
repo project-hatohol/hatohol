@@ -52,6 +52,30 @@ void _assertLogin(
 }
 #define assertLogin(U, P, ...) cut_trace(_assertLogin(U, P, ##__VA_ARGS__))
 
+void _assertLoginFailure(
+  const string &user, const string &password,
+  const HatoholErrorCode &expectCode = HTERR_OK,
+  string *sessionId = NULL)
+{
+	startFaceRest();
+
+	StringMap query;
+	if (!user.empty())
+		query["user"] = user;
+	if (!password.empty())
+		query["password"] = password;
+	RequestArg arg("/login", "cbname");
+	arg.parameters = query;
+	unique_ptr<JSONParser> parserPtr(getServerResponseAsJSONParserWithFailure(arg));
+	assertErrorCode(parserPtr.get(), expectCode);
+	if (sessionId) {
+		cppcut_assert_equal(true, parserPtr.get()->read("sessionId",
+		                                                *sessionId));
+	}
+}
+#define assertLoginFailure(U, P, ...) \
+  cut_trace(_assertLoginFailure(U, P, ##__VA_ARGS__))
+
 namespace testFaceRestUser {
 
 void cut_setup(void)
@@ -176,23 +200,23 @@ void test_login(void)
 
 void test_loginFailure(void)
 {
-	assertLogin(testUserInfo[1].name, testUserInfo[0].password,
-	            HTERR_AUTH_FAILED);
+	assertLoginFailure(testUserInfo[1].name, testUserInfo[0].password,
+			   HTERR_AUTH_FAILED);
 }
 
 void test_loginNoUserName(void)
 {
-	assertLogin("", testUserInfo[0].password, HTERR_AUTH_FAILED);
+	assertLoginFailure("", testUserInfo[0].password, HTERR_AUTH_FAILED);
 }
 
 void test_loginNoPassword(void)
 {
-	assertLogin(testUserInfo[0].name, "", HTERR_AUTH_FAILED);
+	assertLoginFailure(testUserInfo[0].name, "", HTERR_AUTH_FAILED);
 }
 
 void test_loginNoUserNameAndPassword(void)
 {
-	assertLogin("", "", HTERR_AUTH_FAILED);
+	assertLoginFailure("", "", HTERR_AUTH_FAILED);
 }
 
 void test_logout(void)

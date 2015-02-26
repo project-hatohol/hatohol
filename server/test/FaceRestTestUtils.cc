@@ -227,6 +227,40 @@ JSONParser *getResponseAsJSONParser(RequestArg &arg)
 	return parser;
 }
 
+JSONParser *getServerResponseAsJSONParserWithFailure(RequestArg &arg)
+{
+	getServerResponse(arg);
+	cut_assert_false(SOUP_STATUS_IS_SUCCESSFUL(arg.httpStatusCode));
+
+	// if JSONP, check the callback name
+	if (!arg.callbackName.empty()) {
+		size_t lenCallbackName = arg.callbackName.size();
+		size_t minimumLen = lenCallbackName + 2; // +2 for ''(' and ')'
+		cppcut_assert_equal(true, arg.response.size() > minimumLen,
+		  cut_message("length: %zd, minmumLen: %zd\n%s",
+		              arg.response.size(), minimumLen,
+		              arg.response.c_str()));
+
+		cut_assert_equal_substring(
+		  arg.callbackName.c_str(), arg.response.c_str(),
+		  lenCallbackName);
+		cppcut_assert_equal(')', arg.response[arg.response.size()-1]);
+		arg.response = string(arg.response, lenCallbackName+1,
+		                      arg.response.size() - minimumLen);
+	}
+
+	// check the JSON body
+	if (isVerboseMode())
+		cut_notify("<<response>>\n%s\n", arg.response.c_str());
+	JSONParser *parser = new JSONParser(arg.response);
+	if (parser->hasError()) {
+		string parserErrMsg = parser->getErrorMessage();
+		delete parser;
+		cut_fail("%s\n%s", parserErrMsg.c_str(), arg.response.c_str());
+	}
+	return parser;
+}
+
 void _assertValueInParser(JSONParser *parser,
 			  const string &member, const bool expected)
 {
