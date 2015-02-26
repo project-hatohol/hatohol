@@ -20,9 +20,9 @@
 var HatoholGraph = function(options) {
   var self = this;
 
-  options = options || {};
-
-  self.id = options.id || "hatohol-graph";
+  self.options = options || {};
+  self.id = self.options.id || "hatohol-graph";
+  self.options = options;
   self.plotData = [];
   self.plotOptions = undefined;
   self.plot = undefined;
@@ -48,18 +48,18 @@ var HatoholGraph = function(options) {
       });
       $.plot("#" + self.id, self.plotData, plotOptions);
 
-      if (options.zoomCallback)
-        options.zoomCallback(Math.floor(ranges.xaxis.from / 1000),
-                             Math.floor(ranges.xaxis.to / 1000));
+      if (self.options.zoomCallback)
+        self.options.zoomCallback(Math.floor(ranges.xaxis.from / 1000),
+                                  Math.floor(ranges.xaxis.to / 1000));
     });
 
     // zoom cancel
     $("#" + self.id).bind("dblclick", function (event) {
       $.plot("#" + self.id, self.plotData, self.plotOptions);
 
-      if (options.zoomCallback)
-        options.zoomCallback(Math.floor(self.plotOptions.xaxis.min / 1000),
-                             Math.floor(self.plotOptions.xaxis.max / 1000));
+      if (self.options.zoomCallback)
+        self.options.zoomCallback(Math.floor(self.plotOptions.xaxis.min / 1000),
+                                  Math.floor(self.plotOptions.xaxis.max / 1000));
     });
   }
 }

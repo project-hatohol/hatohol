@@ -20,15 +20,15 @@
 var HatoholItemSelector = function(options) {
   var self = this;
 
-  options = options || {};
+  self.options = options || {};
   self.lastIndex = 0;
   self.elementId = 'hatohol-item-list';
-  self.servers = options.servers;
+  self.servers = self.options.servers;
   self.lastItemsData = undefined;
   self.rowData = {};
-  self.view = options.view; // TODO: Remove view dependency
-  self.appendItemCallback = options.appendItemCallback;
-  self.removeItemCallback = options.removeItemCallback;
+  self.view = self.options.view; // TODO: Remove view dependency
+  self.appendItemCallback = self.options.appendItemCallback;
+  self.removeItemCallback = self.options.removeItemCallback;
 
   setup();
 

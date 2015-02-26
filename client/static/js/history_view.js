@@ -21,10 +21,8 @@ var HatoholTimeRangeSelector = function(options) {
   var self = this;
   var secondsInHour = 60 * 60;
 
-  options = options || {};
-
-  self.id = options.id;
-  self.options = options;
+  self.options = options || {};
+  self.id = self.options.id;
   self.timeRange = getTimeRange();
   self.settingTimeRange = false;
 
@@ -187,8 +185,7 @@ var HistoryView = function(userProfile, options) {
   var self = this;
   var secondsInHour = 60 * 60;
 
-  options = options || {};
-
+  self.options = options || {};
   self.reloadIntervalSeconds = 60;
   self.autoReloadIsEnabled = false;
   self.graph = undefined;
@@ -196,7 +193,7 @@ var HistoryView = function(userProfile, options) {
   self.itemSelector = undefined;
   self.loaders = [];
 
-  prepare(self.parseQuery(options.query));
+  prepare(self.parseQuery(self.options.query));
   if (self.loaders.length > 0) {
     load();
   } else {
