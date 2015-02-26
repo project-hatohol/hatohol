@@ -326,7 +326,7 @@ var HistoryView = function(userProfile, options) {
     timeSpan = self.loaders[0].getTimeSpan();
 
     if (endTime)
-      self.setTimeRange(endTime - timeSpan, endTime);
+      self.slider.setTimeRange(endTime - timeSpan, endTime);
     self.autoReloadIsEnabled = !endTime;
   }
 
