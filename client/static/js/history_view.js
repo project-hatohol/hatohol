@@ -25,6 +25,7 @@ var HatoholTimeRangeSelector = function(options) {
   self.id = self.options.id;
   self.timeRange = getTimeRange();
   self.settingTimeRange = false;
+  self.slider = undefined;
 
   function getTimeRange() {
     var timeRange = {
@@ -92,7 +93,7 @@ HatoholTimeRangeSelector.prototype.draw = function() {
   var secondsInHour = 60 * 60;
   var timeRange = self.timeRange;
 
-  $("#" + self.id).slider({
+  self.slider = $("#" + self.id).slider({
     range: true,
     min: timeRange.min,
     max: timeRange.max,
@@ -118,7 +119,7 @@ HatoholTimeRangeSelector.prototype.draw = function() {
       self.setTimeRange(beginTime, endTime);
     },
   });
-  $("#" + self.id).slider('pips', {
+  self.slider.slider('pips', {
     rest: 'label',
     last: false,
     step: secondsInHour * 12,
@@ -144,7 +145,7 @@ HatoholTimeRangeSelector.prototype.draw = function() {
       }
     },
   });
-  $("#" + self.id).slider('float', {
+  self.slider.slider('float', {
     formatLabel: function(val) {
       return formatDate(val);
     },
@@ -158,8 +159,12 @@ HatoholTimeRangeSelector.prototype.setTimeRange = function(minSec, maxSec) {
   if (self.settingTimeRange)
     return;
 
-  self.settingTimeRange = true;
   self.timeRange.set(minSec, maxSec);
+
+  if (!self.slider)
+    return;
+
+  self.settingTimeRange = true;
   values = $("#" + self.id).slider("values");
   if (self.timeRange.begin != values[0])
     $("#" + self.id).slider("values", 0, self.timeRange.begin);
