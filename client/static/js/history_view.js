@@ -61,13 +61,13 @@ var HistoryView = function(userProfile, options) {
       id: "hatohol-graph-auto-reload",
       type: "button",
       title: gettext("Toggle auto refresh"),
-      class: "btn btn-primary glyphicon glyphicon-refresh active"
+      "class": "btn btn-primary glyphicon glyphicon-refresh active"
     }).attr("data-toggle", "button"))
     .append($("<button>", {
       id: "hatohol-graph-settings",
       type: "button",
       title: gettext("Select items"),
-      class: "btn btn-default glyphicon glyphicon-cog"
+      "class": "btn btn-default glyphicon glyphicon-cog"
     }).attr("data-toggle", "modal").attr("data-target", "#hatohol-item-list"));
 
     // toggle auto reload

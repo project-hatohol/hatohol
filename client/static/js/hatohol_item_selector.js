@@ -168,7 +168,7 @@ HatoholItemSelector.prototype.setItem = function(index, item, servers,
     $("<button>", {
       text: gettext("DELETE"),
       type: "button",
-      class: "btn btn-default",
+      "class": "btn btn-default",
       click: function() {
         var index = $(this).attr("itemIndex");
         $(this).parent().parent().remove();
