@@ -22,6 +22,7 @@
 #include "ItemGroupStream.h"
 #include "ThreadLocalDBCache.h"
 #include "DBClientJoinBuilder.h"
+#include "DBTermCStringProvider.h"
 using namespace std;
 using namespace mlpl;
 
@@ -507,7 +508,7 @@ static void setupUpsertArgOfServerHostDef(
 
 static string setupFmtCondSelectSvHostDef(void)
 {
-	return StringUtils::sprintf("%s=%%" FMT_SERVER_ID " AND %s='%%s'",
+	return StringUtils::sprintf("%s=%%" FMT_SERVER_ID " AND %s=%%s",
 	         COLUMN_DEF_SERVER_HOST_DEF[
 	           IDX_HOST_SERVER_HOST_DEF_SERVER_ID].columnName,
 	         COLUMN_DEF_SERVER_HOST_DEF[
@@ -599,6 +600,7 @@ HostIdType DBTablesHost::upsertHost(
 		bool selectServerHostDef(DBAgent &dbAgent,
 		                         ServerHostDef &svHostDef)
 		{
+			DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
 			DBAgent::SelectExArg arg(tableProfileServerHostDef);
 			arg.add(IDX_HOST_SERVER_HOST_DEF_ID);
 			arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID);
@@ -609,7 +611,7 @@ HostIdType DBTablesHost::upsertHost(
 			arg.condition = StringUtils::sprintf(
 			                  fmtCondSelectSvHostDef.c_str(),
 			                  serverHostDef.serverId,
-			                  serverHostDef.hostIdInServer.c_str());
+			                  rhs(serverHostDef.hostIdInServer));
 			dbAgent.select(arg);
 
 			const ItemGroupList &grpList =
