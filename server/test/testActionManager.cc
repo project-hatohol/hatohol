@@ -490,7 +490,7 @@ void _assertActionLogJustAfterExec(
 	expectedArgs.push_back(StringUtils::sprintf("%" PRIu32,
 	                                            evInf.serverId));
 	expectedArgs.push_back(StringUtils::sprintf(
-	  "'%" FMT_LOCAL_HOST_ID "'", evInf.hostIdInServer.c_str()));
+	  "%" FMT_LOCAL_HOST_ID, evInf.hostIdInServer.c_str()));
 	expectedArgs.push_back(StringUtils::sprintf("%ld.%ld",
 	  evInf.time.tv_sec, evInf.time.tv_nsec));
 	expectedArgs.push_back(StringUtils::sprintf("%" PRIu64, evInf.id));
