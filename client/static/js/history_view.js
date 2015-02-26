@@ -48,26 +48,26 @@ var HistoryView = function(userProfile, options) {
   function appendWidgets() {
     $("div.hatohol-graph").append($("<div>", {
       id: "hatohol-graph",
-      height: "300px",
+      height: "300px"
     }))
     .append($("<div>", {
-      id: "hatohol-graph-slider-area",
+      id: "hatohol-graph-slider-area"
     }));
 
     $("#hatohol-graph-slider-area").append($("<div>", {
-      id: "hatohol-graph-slider",
+      id: "hatohol-graph-slider"
     }))
     .append($("<button>", {
       id: "hatohol-graph-auto-reload",
       type: "button",
       title: gettext("Toggle auto refresh"),
-      class: "btn btn-primary glyphicon glyphicon-refresh active",
+      class: "btn btn-primary glyphicon glyphicon-refresh active"
     }).attr("data-toggle", "button"))
     .append($("<button>", {
       id: "hatohol-graph-settings",
       type: "button",
       title: gettext("Select items"),
-      class: "btn btn-default glyphicon glyphicon-cog",
+      class: "btn btn-default glyphicon glyphicon-cog"
     }).attr("data-toggle", "modal").attr("data-target", "#hatohol-item-list"));
 
     // toggle auto reload
@@ -84,7 +84,7 @@ var HistoryView = function(userProfile, options) {
       zoomCallback: function(minSec, maxSec) {
         self.slider.setTimeRange(minSec, maxSec);
         disableAutoReload();
-      },
+      }
     });
 
     self.slider = new HatoholTimeRangeSelector({
@@ -99,7 +99,7 @@ var HistoryView = function(userProfile, options) {
         disableAutoReload();
         load();
         $("#hatohol-graph-auto-reload").removeClass("active");
-      },
+      }
     });
 
     self.itemSelector = new HatoholItemSelector({
@@ -112,7 +112,7 @@ var HistoryView = function(userProfile, options) {
         var loader = self.itemSelector.getUserData(index);
         removeHistoryLoader(loader);
         updateView();
-      },
+      }
     });
   };
 

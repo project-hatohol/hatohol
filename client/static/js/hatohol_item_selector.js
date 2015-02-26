@@ -233,7 +233,7 @@ HatoholItemSelector.prototype.getConfig = function() {
       serverId: item.serverId,
       hostId: item.hostId,
       hostgroupId: this.rowData[i].hostgroupId,
-      itemId: item.id,
+      itemId: item.id
     };
     config.histories.push(data);
   }

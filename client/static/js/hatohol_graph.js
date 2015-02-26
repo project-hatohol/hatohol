@@ -154,18 +154,18 @@ HatoholGraph.prototype.draw = function(beginSec, endSec) {
           return formatTime(val, unit);
         },
         min: beginTimeInSec * 1000,
-        max: endTimeInSec * 1000,
+        max: endTimeInSec * 1000
       },
       yaxes: getYAxesOptions(),
       legend: {
         show: (self.plotData.length > 1),
-        position: "sw",
+        position: "sw"
       },
       points: {
       },
       selection: {
-        mode: "x",
-      },
+        mode: "x"
+      }
     };
   }
 

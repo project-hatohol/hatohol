@@ -117,7 +117,7 @@ HatoholTimeRangeSelector.prototype.draw = function() {
       if (ui.values[1] - ui.values[0] < timeRange.minSpan)
         beginTime = ui.values[1] - timeRange.minSpan;
       self.setTimeRange(beginTime, endTime);
-    },
+    }
   });
   self.slider.slider('pips', {
     rest: 'label',
@@ -133,7 +133,7 @@ HatoholTimeRangeSelector.prototype.draw = function() {
         3: gettext("Wed"),
         4: gettext("Thu"),
         5: gettext("Fri"),
-        6: gettext("Sat"),
+        6: gettext("Sat")
       };
       if (date.getHours() == 0) {
         if (now.getTime() - date.getTime() > secondsInHour * 24 * 7 * 1000)
@@ -143,12 +143,12 @@ HatoholTimeRangeSelector.prototype.draw = function() {
       } else {
         return "";
       }
-    },
+    }
   });
   self.slider.slider('float', {
     formatLabel: function(val) {
       return formatDate(val);
-    },
+    }
   });
 };
 
