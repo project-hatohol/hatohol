@@ -28,6 +28,7 @@
 #include "Mutex.h"
 #include "ItemGroupStream.h"
 #include "UnifiedDataStore.h"
+#include "DBTermCStringProvider.h"
 using namespace std;
 using namespace mlpl;
 
@@ -1114,7 +1115,7 @@ string ActionsQueryOption::Impl::makeConditionTemplate(void)
 	// host_id;
 	const ColumnDef &colDefHostId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_ID];
 	cond += StringUtils::sprintf(
-	  "((%s IS NULL) OR (%s='%%" FMT_LOCAL_HOST_ID "'))",
+	  "((%s IS NULL) OR (%s=%%s))",
 	  colDefHostId.columnName, colDefHostId.columnName);
 	cond += " AND ";
 
@@ -1302,10 +1303,11 @@ string ActionsQueryOption::getCondition(void) const
 		cond += " AND ";
 	// TODO: We can just pass triggerInfo.globalHostId instead of
 	//       a pair of server ID and the hostIdInServer.
+	DBTermCStringProvider rhs(*getDBTermCodec());
 	cond += StringUtils::sprintf(m_impl->conditionTemplate.c_str(),
 	                       eventInfo->serverId,
-	                       triggerInfo.hostIdInServer.c_str(),
-	                       hostgroupIdList.c_str(),
+	                       rhs(triggerInfo.hostIdInServer),
+	                       rhs(hostgroupIdList),
 	                       eventInfo->triggerId,
 	                       eventInfo->status,
 	                       triggerInfo.severity,

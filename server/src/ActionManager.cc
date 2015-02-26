@@ -754,7 +754,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	argVect.push_back(NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC);
 	argVect.push_back(StringUtils::sprintf("%d", actionDef.id));
 	argVect.push_back(StringUtils::sprintf("%" PRIu32, eventInfo.serverId));
-	argVect.push_back(eventInfo.hostIdInServer.c_str());
+	argVect.push_back(eventInfo.hostIdInServer);
 	argVect.push_back(StringUtils::sprintf("%ld.%ld",
 	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec));
 	argVect.push_back(StringUtils::sprintf("%" PRIu64, eventInfo.id));

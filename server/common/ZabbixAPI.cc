@@ -1350,7 +1350,7 @@ void ZabbixAPI::pushTriggersHostid(JSONParser &parser,
 	startObject(parser, "hosts");
 	int numElem = parser.countElements();
 	if (numElem == 0) {
-		const uint64_t dummyData = 0;
+		const string dummyData;
 		itemGroup->addNewItem(itemId, dummyData, ITEM_DATA_NULL);
 	} else  {
 		for (int i = 0; i < numElem; i++) {
