@@ -245,9 +245,9 @@ void test_parseLogLevel(gconstpointer data)
 	cppcut_assert_equal(level, string(currEnv));
 }
 
-void test_parseFaceRestWorkersDefault(void)
+void test_parseFaceRestNumWorkersDefault(void)
 {
-	int actual = ConfigManager::getInstance()->getFaceRestWorkers();
+	int actual = ConfigManager::getInstance()->getFaceRestNumWorkers();
 	if (actual > 0) {
 		cppcut_assert_equal(4, actual);
 	} else {
@@ -255,9 +255,9 @@ void test_parseFaceRestWorkersDefault(void)
 	}
 }
 
-void data_parseFaceRestWorkers(void)
+void data_parseFaceRestNumWorkers(void)
 {
-	int expect = ConfigManager::getInstance()->getFaceRestWorkers();
+	int expect = ConfigManager::getInstance()->getFaceRestNumWorkers();
 	gcut_add_datum("Negative",
 		       "data", G_TYPE_INT, -1,
 		       "expect", G_TYPE_INT, expect,
@@ -272,7 +272,7 @@ void data_parseFaceRestWorkers(void)
 		       NULL);
 }
 
-void test_parseFaceRestWorkers(gconstpointer data)
+void test_parseFaceRestNumWorkers(gconstpointer data)
 {
 	int val = gcut_data_get_int(data, "data");
 	string str = StringUtils::sprintf("%d", val);
@@ -284,25 +284,25 @@ void test_parseFaceRestWorkers(gconstpointer data)
 	cmds.activate();
 
 	cppcut_assert_equal(
-		ConfigManager::getInstance()->getFaceRestWorkers(),
+		ConfigManager::getInstance()->getFaceRestNumWorkers(),
 		expect);
 }
 
-void test_setFaceRestWorkers(void)
+void test_setFaceRestNumWorkers(void)
 {
-	const int n = 10;
+	const int numWorker = 10;
 	ConfigManager *mng = ConfigManager::getInstance();
-	mng->setFaceRestWorkers(n);
-	cppcut_assert_equal(n, mng->getFaceRestWorkers());
+	mng->setFaceRestNumWorkers(numWorker);
+	cppcut_assert_equal(numWorker, mng->getFaceRestNumWorkers());
 }
 
-void test_getFaceRestWorkers(void)
+void test_getFaceRestNumWorkers(void)
 {
 	ConfigManager *mng = ConfigManager::getInstance();
-	int n = mng->getFaceRestWorkers();
-	int expect = n + 5;
-	mng->setFaceRestWorkers(expect);
-	int actual = mng->getFaceRestWorkers();
+	int numWorker = mng->getFaceRestNumWorkers();
+	int expect = numWorker + 5;
+	mng->setFaceRestNumWorkers(expect);
+	int actual = mng->getFaceRestNumWorkers();
 	cppcut_assert_equal(expect, actual);
 }
 

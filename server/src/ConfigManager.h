@@ -37,7 +37,7 @@ struct CommandLineOptions {
 	gboolean  disableCopyOnDemand;
 	gboolean  loadOldEvents;
 	gint      faceRestPort;
-	gint      faceRestWorkers;
+	gint      faceRestNumWorkers;
 
 	CommandLineOptions(void);
 };
@@ -128,9 +128,9 @@ public:
 
 	bool getLoadOldEvents(void) const;
 
-	int getFaceRestWorkers(void) const;
+	int getFaceRestNumWorkers(void) const;
 
-	void setFaceRestWorkers(const int &num);
+	void setFaceRestNumWorkers(const int &num);
 
 protected:
 	void loadConfFile(void);

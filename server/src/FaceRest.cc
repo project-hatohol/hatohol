@@ -251,7 +251,7 @@ FaceRest::FaceRest(FaceRestParam *param)
 			m_impl->port = port;
 	}
 
-	int num = ConfigManager::getInstance()->getFaceRestWorkers();
+	int num = ConfigManager::getInstance()->getFaceRestNumWorkers();
 	if (num > 0) {
 		setNumberOfPreLoadWorkers(num);
 	}

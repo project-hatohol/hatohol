@@ -35,7 +35,7 @@ enum {
 	CONF_MGR_ERROR_INVALID_PORT,
 	CONF_MGR_ERROR_INVALID_LOG_LEVEL,
 	CONF_MGR_ERROR_INTERNAL,
-	CONF_MGR_ERROR_INVALID_WORKERS,
+	CONF_MGR_ERROR_INVALID_NUM_WORKERS,
 };
 
 const char *ConfigManager::HATOHOL_DB_DIR_ENV_VAR_NAME = "HATOHOL_DB_DIR";
@@ -79,7 +79,7 @@ static void showVersion(void)
 	       VERSION, __DATE__, __TIME__);
 }
 
-static gboolean parseFaceRestWorkers(
+static gboolean parseFaceRestNumWorkers(
   const gchar *option_name, const gchar *value,
   gpointer data, GError **error)
 {
@@ -93,14 +93,14 @@ static gboolean parseFaceRestWorkers(
 		return FALSE;
 	}
 
-	int n = atoi(value);
-	if (n <= 0) {
-		g_set_error(error, quark, CONF_MGR_ERROR_INVALID_WORKERS,
-		            "value: %s, %d.", value, n);
+	int numWorkers = atoi(value);
+	if (numWorkers <= 0) {
+		g_set_error(error, quark, CONF_MGR_ERROR_INVALID_NUM_WORKERS,
+		            "value: %s, %d.", value, numWorkers);
 		return FALSE;
 	}
 
-	obj->faceRestWorkers = n;
+	obj->faceRestNumWorkers = numWorkers;
 
 	return TRUE;
 }
@@ -122,7 +122,7 @@ CommandLineOptions::CommandLineOptions(void)
   disableCopyOnDemand(FALSE),
   loadOldEvents(FALSE),
   faceRestPort(-1),
-  faceRestWorkers(0)
+  faceRestNumWorkers(0)
 {
 }
 
@@ -145,7 +145,7 @@ struct ConfigManager::Impl {
 	string                user;
 	string                pidFilePath;
 	bool                  loadOldEvents;
-	int                   faceRestWorkers;
+	int                   faceRestNumWorkers;
 
 	// methods
 	Impl(void)
@@ -156,7 +156,7 @@ struct ConfigManager::Impl {
 	  copyOnDemand(UNKNOWN),
 	  faceRestPort(0),
 	  pidFilePath(DEFAULT_PID_FILE_PATH),
-	  faceRestWorkers(0)
+	  faceRestNumWorkers(0)
 	{
 	}
 
@@ -243,8 +243,8 @@ struct ConfigManager::Impl {
 			user = cmdLineOpts.user;
 		if (cmdLineOpts.loadOldEvents)
 			loadOldEvents = cmdLineOpts.loadOldEvents;
-		if (cmdLineOpts.faceRestWorkers > 0)
-			faceRestWorkers = cmdLineOpts.faceRestWorkers;
+		if (cmdLineOpts.faceRestNumWorkers > 0)
+			faceRestNumWorkers = cmdLineOpts.faceRestNumWorkers;
 	}
 
 private:
@@ -277,7 +277,7 @@ private:
 		gint num = g_key_file_get_integer(keyFile, group,
 						  "workers", NULL);
 		if (num > 0) {
-			getInstance()->setFaceRestWorkers(num);
+			getInstance()->setFaceRestNumWorkers(num);
 			MLPL_INFO("ConfigFile: [FaceRest] workers=%d\n", num);
 		} else {
 			MLPL_WARN("ConfigFile: [FaceRest] workers=%d: Invalid value. Ignored.\n", num);
@@ -342,7 +342,7 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 		 &cmdLineOpts->loadOldEvents,
 		 "Load old events when adding new monitoring server.", NULL},
 		{"face-rest-workers",
-		 'T', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseFaceRestWorkers,
+		 'T', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseFaceRestNumWorkers,
 		 "Number of FaceRest worker threads", NULL},
 		{ NULL }
 	};
@@ -509,14 +509,14 @@ bool ConfigManager::getLoadOldEvents(void) const
 	return m_impl->loadOldEvents;
 }
 
-int ConfigManager::getFaceRestWorkers(void) const
+int ConfigManager::getFaceRestNumWorkers(void) const
 {
-	return m_impl->faceRestWorkers;
+	return m_impl->faceRestNumWorkers;
 }
 
-void ConfigManager::setFaceRestWorkers(const int &num)
+void ConfigManager::setFaceRestNumWorkers(const int &num)
 {
-	m_impl->faceRestWorkers = num;
+	m_impl->faceRestNumWorkers = num;
 }
 
 // ---------------------------------------------------------------------------
