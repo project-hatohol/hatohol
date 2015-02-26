@@ -55,11 +55,13 @@ var HatoholGraph = function(options) {
 
     // zoom cancel
     $("#" + self.id).bind("dblclick", function (event) {
+      var minSec = Math.floor(self.plotOptions.xaxis.min / 1000);
+      var maxSec = Math.floor(self.plotOptions.xaxis.max / 1000);
+
       $.plot("#" + self.id, self.plotData, self.plotOptions);
 
       if (self.options.zoomCallback)
-        self.options.zoomCallback(Math.floor(self.plotOptions.xaxis.min / 1000),
-                                  Math.floor(self.plotOptions.xaxis.max / 1000));
+        self.options.zoomCallback(minSec, maxSec);
     });
   }
 }
