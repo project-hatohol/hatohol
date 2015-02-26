@@ -208,19 +208,6 @@ var HistoryView = function(userProfile, options) {
   function prepare(historyQueries) {
     var i;
 
-    self.itemSelector = new HatoholItemSelector({
-      view: self,
-      appendItemCallback: function(index, query) {
-        appendHistoryLoader(query, index);
-        load();
-      },
-      removeItemCallback: function(index) {
-        var loader = self.itemSelector.getUserData(index);
-        removeHistoryLoader(loader);
-        updateView();
-      },
-    });
-
     appendGraphArea();
     for (i = 0; i < historyQueries.length; i++)
       appendHistoryLoader(historyQueries[i]);
@@ -269,6 +256,7 @@ var HistoryView = function(userProfile, options) {
         disableAutoReload();
       },
     });
+
     self.slider = new HatoholTimeRangeSelector({
       id: "hatohol-graph-slider",
       setTimeRangeCallback: function(minSec, maxSec) {
@@ -281,6 +269,19 @@ var HistoryView = function(userProfile, options) {
         disableAutoReload();
         load();
         $("#hatohol-graph-auto-reload").removeClass("active");
+      },
+    });
+
+    self.itemSelector = new HatoholItemSelector({
+      view: self,
+      appendItemCallback: function(index, query) {
+        appendHistoryLoader(query, index);
+        load();
+      },
+      removeItemCallback: function(index) {
+        var loader = self.itemSelector.getUserData(index);
+        removeHistoryLoader(loader);
+        updateView();
       },
     });
   };
