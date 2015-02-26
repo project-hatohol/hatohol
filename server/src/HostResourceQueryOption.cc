@@ -152,7 +152,7 @@ string HostResourceQueryOption::getCondition(void) const
 		if (m_impl->targetHostgroupId != ALL_HOST_GROUPS) {
 			addCondition(condition,
 			  StringUtils::sprintf(
-				"%s='%" FMT_HOST_GROUP_ID "'",
+				"%s=%s",
 				getHostgroupIdColumnName().c_str(),
 				rhs(m_impl->targetHostgroupId))
 			);
