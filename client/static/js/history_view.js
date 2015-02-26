@@ -39,13 +39,13 @@ var HistoryView = function(userProfile, options) {
   function prepare(historyQueries) {
     var i;
 
-    appendGraphArea();
+    appendWidgets();
     for (i = 0; i < historyQueries.length; i++)
       appendHistoryLoader(historyQueries[i]);
     updateView();
   }
 
-  function appendGraphArea() {
+  function appendWidgets() {
     $("div.hatohol-graph").append($("<div>", {
       id: "hatohol-graph",
       height: "300px",
