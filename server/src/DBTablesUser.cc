@@ -760,20 +760,20 @@ HatoholError DBTablesUser::addAccessInfo(AccessInfo &accessInfo,
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	// check existing data
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	DBAgent::SelectExArg selarg(tableProfileAccessList);
 	selarg.add(IDX_ACCESS_LIST_ID);
 	selarg.add(IDX_ACCESS_LIST_USER_ID);
 	selarg.add(IDX_ACCESS_LIST_SERVER_ID);
 	selarg.add(IDX_ACCESS_LIST_HOST_GROUP_ID);
 	selarg.condition = StringUtils::sprintf(
-	  "%s=%" FMT_USER_ID " AND %s=%" PRIu32 " AND "
-	  "%s='%" FMT_HOST_GROUP_ID "'",
+	  "%s=%" FMT_USER_ID " AND %s=%" PRIu32 " AND %s=%s",
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
 	  accessInfo.userId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
 	  accessInfo.serverId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
-	  accessInfo.hostgroupId.c_str());
+	  rhs(accessInfo.hostgroupId));
 	getDBAgent().runTransaction(selarg);
 
 	const ItemGroupList &grpList = selarg.dataTable->getItemGroupList();
@@ -1160,10 +1160,10 @@ bool DBTablesUser::isAccessible(const ServerIdType &serverId,
 		return false;
 	}
 
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	string condition = StringUtils::sprintf(
 	  "%s=%" FMT_USER_ID " AND "
-	  "(%s=%" FMT_SERVER_ID " OR %s=%" FMT_SERVER_ID ") AND "
-	  "%s='%" FMT_HOST_GROUP_ID "'",
+	  "(%s=%" FMT_SERVER_ID " OR %s=%" FMT_SERVER_ID ") AND %s=%s",
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
 	  userId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
@@ -1171,7 +1171,7 @@ bool DBTablesUser::isAccessible(const ServerIdType &serverId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
 	  ALL_SERVERS,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
-	  ALL_HOST_GROUPS.c_str());
+	  rhs(ALL_HOST_GROUPS));
 
 	DBAgent::SelectExArg arg(tableProfileAccessList);
 	arg.add("count(*)", SQL_COLUMN_TYPE_INT);
@@ -1194,12 +1194,13 @@ bool DBTablesUser::isAccessible(
   const ServerIdType &serverId, const HostgroupIdType &hostgroupId,
   const OperationPrivilege &privilege, const bool &useTransaction)
 {
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	const UserIdType userId = privilege.getUserId();
 	string condition = StringUtils::sprintf(
 	  "%s=%" FMT_USER_ID " AND "
 	  "((%s=%" FMT_SERVER_ID ") OR "
 	  " (%s=%" FMT_SERVER_ID " AND "
-	  "  (%s='%" FMT_HOST_GROUP_ID "' OR %s='%" FMT_HOST_GROUP_ID "')))",
+	  "  (%s=%s OR %s=%s)))",
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
 	  userId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
@@ -1207,9 +1208,9 @@ bool DBTablesUser::isAccessible(
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
 	  serverId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
-	  ALL_HOST_GROUPS.c_str(),
+	  rhs(ALL_HOST_GROUPS),
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
-	  hostgroupId.c_str());
+	  rhs(hostgroupId));
 
 	return isAccessible(privilege, condition, useTransaction);
 }
