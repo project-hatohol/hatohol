@@ -68,6 +68,7 @@ var HatoholItemSelector = function(options) {
       index = self.appendItem(item, self.lastItemsData.servers,
                               query.hostgroupId);
       setItemCandidates(self.lastItemsData);
+      $("#add-item-button").attr("disabled", "disabled");
 
       if (self.appendItemCallback)
         self.appendItemCallback(index, query);
