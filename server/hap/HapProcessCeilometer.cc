@@ -552,6 +552,7 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
 	                (int)lastChangeTime.getAsTimespec().tv_sec);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION, brief);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION, "");
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_HOSTID,      hostId);
 	tablePtr->add(grp);
 
