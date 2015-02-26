@@ -17,6 +17,172 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+var HatoholTimeRangeSelector = function(options) {
+  var self = this;
+  var secondsInHour = 60 * 60;
+
+  options = options || {};
+
+  self.id = options.id;
+  self.options = options;
+  self.timeRange = getTimeRange();
+  self.settingTimeRange = false;
+
+  function getTimeRange() {
+    var timeRange = {
+      begin: undefined,
+      end: undefined,
+      minSpan: secondsInHour,
+      maxSpan: secondsInHour * 24,
+      min: undefined,
+      max: undefined,
+      set: function(beginTime, endTime) {
+        this.setEndTime(endTime);
+        this.begin = beginTime;
+        if (this.getSpan() > this.maxSpan)
+          this.begin = this.end - this.maxSpan;
+        if (this.getSpan() < this.minSpan) {
+          if (this.begin + this.minSpan >= this.max) {
+            this.end = this.max;
+            this.begin = this.max - this.minSpan;
+          } else {
+            this.end = this.begin + this.minSpan;
+          }
+        }
+      },
+      setEndTime: function(endTime) {
+        var span = this.getSpan();
+        this.end = endTime;
+        this.begin = this.end - span;
+        if (!this.max || this.end > this.max) {
+          this.max = this.end;
+          this._adjustMin();
+        }
+      },
+      _adjustMin: function() {
+        var date;
+        // 1 week ago
+        this.min = this.max - secondsInHour * 24 * 7;
+        // Adjust to 00:00:00
+        date = getDate(this.min * 1000);
+        this.min -=
+          date.getHours() * 3600 +
+          date.getMinutes() * 60 +
+          date.getSeconds();
+      },
+      getSpan: function() {
+        if (this.begin && this.end)
+          return this.end - this.begin;
+        else
+          return secondsInHour * 6;
+      }
+    };
+    return timeRange;
+  }
+
+  function getDate(timeMSec) {
+    var plotOptions = {
+      mode: "time",
+      timezone: "browser"
+    };
+    return $.plot.dateGenerator(timeMSec, plotOptions);
+  }
+}
+
+HatoholTimeRangeSelector.prototype.draw = function() {
+  var self = this;
+  var secondsInHour = 60 * 60;
+  var timeRange = self.timeRange;
+
+  $("#" + self.id).slider({
+    range: true,
+    min: timeRange.min,
+    max: timeRange.max,
+    values: [timeRange.begin, timeRange.end],
+    change: function(event, ui) {
+      var i;
+
+      if (self.settingTimeRange)
+        return;
+
+      self.setTimeRange(ui.values[0], ui.values[1]);
+
+      if (self.options.setTimeRangeCallback)
+        self.options.setTimeRangeCallback(timeRange.begin, timeRange.end);
+    },
+    slide: function(event, ui) {
+      var beginTime = ui.values[0], endTime = ui.values[1];
+
+      if (timeRange.begin != ui.values[0])
+        endTime = ui.values[0] + timeRange.getSpan();
+      if (ui.values[1] - ui.values[0] < timeRange.minSpan)
+        beginTime = ui.values[1] - timeRange.minSpan;
+      self.setTimeRange(beginTime, endTime);
+    },
+  });
+  $("#" + self.id).slider('pips', {
+    rest: 'label',
+    last: false,
+    step: secondsInHour * 12,
+    formatLabel: function(val) {
+      var now = new Date();
+      var date = new Date(val * 1000);
+      var dayLabel = {
+        0: gettext("Sun"),
+        1: gettext("Mon"),
+        2: gettext("Tue"),
+        3: gettext("Wed"),
+        4: gettext("Thu"),
+        5: gettext("Fri"),
+        6: gettext("Sat"),
+      }
+      if (date.getHours() == 0) {
+        if (now.getTime() - date.getTime() > secondsInHour * 24 * 7 * 1000)
+          return formatDate(val);
+        else
+          return dayLabel[date.getDay()];
+      } else {
+        return "";
+      }
+    },
+  });
+  $("#" + self.id).slider('float', {
+    formatLabel: function(val) {
+      return formatDate(val);
+    },
+  });
+}
+
+HatoholTimeRangeSelector.prototype.setTimeRange = function(minSec, maxSec) {
+  var self = this;
+  var values;
+
+  if (self.settingTimeRange)
+    return;
+
+  self.settingTimeRange = true;
+  self.timeRange.set(minSec, maxSec);
+  values = $("#" + self.id).slider("values");
+  if (self.timeRange.begin != values[0])
+    $("#" + self.id).slider("values", 0, self.timeRange.begin);
+  if (self.timeRange.end != values[1])
+    $("#" + self.id).slider("values", 1, self.timeRange.end);
+  self.settingTimeRange = false;
+}
+
+HatoholTimeRangeSelector.prototype.getTimeSpan = function() {
+  return this.timeRange.getSpan();
+}
+
+HatoholTimeRangeSelector.prototype.getBeginTime = function() {
+  return this.timeRange.begin;
+}
+
+HatoholTimeRangeSelector.prototype.getEndTime = function() {
+  return this.timeRange.end;
+}
+
+
 var HistoryView = function(userProfile, options) {
   var self = this;
   var secondsInHour = 60 * 60;
@@ -25,9 +191,8 @@ var HistoryView = function(userProfile, options) {
 
   self.reloadIntervalSeconds = 60;
   self.autoReloadIsEnabled = false;
-  self.timeRange = getTimeRange();
-  self.settingSliderTimeRange = false;
   self.graph = undefined;
+  self.slider = undefined;
   self.itemSelector = undefined;
   self.loaders = [];
 
@@ -98,8 +263,22 @@ var HistoryView = function(userProfile, options) {
     self.graph = new HatoholGraph({
       id: "hatohol-graph",
       zoomCallback: function(minSec, maxSec) {
-        setSliderTimeRange(minSec, maxSec);
+        self.slider.setTimeRange(minSec, maxSec);
         disableAutoReload();
+      },
+    });
+    self.slider = new HatoholTimeRangeSelector({
+      id: "hatohol-graph-slider",
+      setTimeRangeCallback: function(minSec, maxSec) {
+        var i;
+        if (self.isLoading())
+          return;
+        self.graph.draw(minSec, maxSec);
+        for (i = 0; i < self.loaders.length; i++)
+          self.loaders[i].setTimeRange(minSec, maxSec);
+        disableAutoReload();
+        load();
+        $("#hatohol-graph-auto-reload").removeClass("active");
       },
     });
   };
@@ -107,7 +286,7 @@ var HistoryView = function(userProfile, options) {
   function appendHistoryLoader(historyQuery, index) {
     var loader = new HatoholHistoryLoader({
       view: self,
-      defaultTimeSpan: self.timeRange.getSpan(),
+      defaultTimeSpan: self.slider.getTimeSpan(),
       query: historyQuery,
       onLoadItem: function(loader, item, servers) {
         var index = self.itemSelector.getIndexByUserData(loader);
@@ -150,19 +329,21 @@ var HistoryView = function(userProfile, options) {
     timeSpan = self.loaders[0].getTimeSpan();
 
     if (endTime)
-      self.timeRange.set(endTime - timeSpan, endTime);
+      self.setTimeRange(endTime - timeSpan, endTime);
     self.autoReloadIsEnabled = !endTime;
   }
 
   function load() {
     var promises;
     var i;
+    var endTime = Math.floor(new Date().getTime() / 1000);
+    var beginTime = endTime - self.slider.getTimeSpan();
 
     self.clearAutoReload();
     if (self.autoReloadIsEnabled) {
-      self.timeRange.setEndTime(Math.floor(new Date().getTime() / 1000));
+      self.slider.setTimeRange(beginTime, endTime);
       for (i = 0; i < self.loaders.length; i++)
-        self.loaders[i].setTimeRange(undefined, self.timeRange.end, true);
+        self.loaders[i].setTimeRange(undefined, self.slider.getEndTime(), true);
     }
 
     promises = $.map(self.loaders, function(loader) { return loader.load(); });
@@ -194,150 +375,6 @@ var HistoryView = function(userProfile, options) {
     button.addClass("btn-default");
   }
 
-  function getDate(timeMSec) {
-    var plotOptions = {
-      mode: "time",
-      timezone: "browser"
-    };
-    return $.plot.dateGenerator(timeMSec, plotOptions);
-  }
-
-  function getTimeRange() {
-    var timeRange = {
-      begin: undefined,
-      end: undefined,
-      minSpan: secondsInHour,
-      maxSpan: secondsInHour * 24,
-      min: undefined,
-      max: undefined,
-      set: function(beginTime, endTime) {
-        this.setEndTime(endTime);
-        this.begin = beginTime;
-        if (this.getSpan() > this.maxSpan)
-          this.begin = this.end - this.maxSpan;
-        if (this.getSpan() < this.minSpan) {
-          if (this.begin + this.minSpan >= this.max) {
-            this.end = this.max;
-            this.begin = this.max - this.minSpan;
-          } else {
-            this.end = this.begin + this.minSpan;
-          }
-        }
-      },
-      setEndTime: function(endTime) {
-        var span = this.getSpan();
-        this.end = endTime;
-        this.begin = this.end - span;
-        if (!this.max || this.end > this.max) {
-          this.max = this.end;
-          this._adjustMin();
-        }
-      },
-      _adjustMin: function() {
-        var date;
-        // 1 week ago
-        this.min = this.max - secondsInHour * 24 * 7;
-        // Adjust to 00:00:00
-        date = getDate(this.min * 1000);
-        this.min -=
-          date.getHours() * 3600 +
-          date.getMinutes() * 60 +
-          date.getSeconds();
-      },
-      getSpan: function() {
-        if (this.begin && this.end)
-          return this.end - this.begin;
-        else
-          return secondsInHour * 6;
-      }
-    };
-    return timeRange;
-  }
-
-  function drawSlider() {
-    var timeRange = self.timeRange;
-
-    $("#hatohol-graph-slider").slider({
-      range: true,
-      min: timeRange.min,
-      max: timeRange.max,
-      values: [timeRange.begin, timeRange.end],
-      change: function(event, ui) {
-        var i;
-
-        if (self.settingSliderTimeRange)
-          return;
-        if (self.isLoading())
-          return;
-
-        timeRange.set(ui.values[0], ui.values[1]);
-        setSliderTimeRange(timeRange.begin, timeRange.end);
-        self.graph.draw(timeRange.begin, timeRange.end);
-        for (i = 0; i < self.loaders.length; i++)
-          self.loaders[i].setTimeRange(timeRange.begin, timeRange.end);
-        disableAutoReload();
-        load();
-        $("#hatohol-graph-auto-reload").removeClass("active");
-      },
-      slide: function(event, ui) {
-        var beginTime = ui.values[0], endTime = ui.values[1];
-
-        if (timeRange.begin != ui.values[0])
-          endTime = ui.values[0] + timeRange.getSpan();
-        if (ui.values[1] - ui.values[0] < timeRange.minSpan)
-          beginTime = ui.values[1] - timeRange.minSpan;
-        timeRange.set(beginTime, endTime);
-        setSliderTimeRange(timeRange.begin, timeRange.end);
-      },
-    });
-    $("#hatohol-graph-slider").slider('pips', {
-      rest: 'label',
-      last: false,
-      step: secondsInHour * 12,
-      formatLabel: function(val) {
-        var now = new Date();
-        var date = new Date(val * 1000);
-        var dayLabel = {
-          0: gettext("Sun"),
-          1: gettext("Mon"),
-          2: gettext("Tue"),
-          3: gettext("Wed"),
-          4: gettext("Thu"),
-          5: gettext("Fri"),
-          6: gettext("Sat"),
-        }
-        if (date.getHours() == 0) {
-          if (now.getTime() - date.getTime() > secondsInHour * 24 * 7 * 1000)
-            return formatDate(val);
-          else
-            return dayLabel[date.getDay()];
-        } else {
-          return "";
-        }
-      },
-    });
-    $("#hatohol-graph-slider").slider('float', {
-      formatLabel: function(val) {
-        return formatDate(val);
-      },
-    });
-  }
-
-  function setSliderTimeRange(min, max) {
-    var values;
-
-    if (self.settingSliderTimeRange)
-      return;
-
-    self.settingSliderTimeRange = true;
-    values = $("#hatohol-graph-slider").slider("values");
-    if (min != values[0])
-      $("#hatohol-graph-slider").slider("values", 0, min);
-    if (max != values[1])
-      $("#hatohol-graph-slider").slider("values", 1, max);
-    self.settingSliderTimeRange = false;
-  }
-
   function setTitle(title) {
     if (title) {
       $("title").text(title);
@@ -349,8 +386,9 @@ var HistoryView = function(userProfile, options) {
   }
 
   function updateView() {
-    self.graph.draw(self.timeRange.begin, self.timeRange.end);
-    drawSlider();
+    self.graph.draw(self.slider.getBeginTime(),
+                    self.slider.getEndTime());
+    self.slider.draw();
     setTitle(self.graph.title);
     self.displayUpdateTime();
   }
