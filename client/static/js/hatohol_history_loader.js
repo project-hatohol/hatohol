@@ -51,7 +51,7 @@ HatoholHistoryLoader.prototype.load = function() {
       serverId: options.serverId,
       hostId: options.hostId,
       itemId: options.itemId
-    }
+    };
     return 'item?' + $.param(itemQuery);
   };
 
@@ -176,7 +176,7 @@ HatoholHistoryLoader.prototype.updateHistory = function(history) {
       history.shift();
     }
   }
-}
+};
 
 HatoholHistoryLoader.prototype.setTimeRange = function(beginTimeInSec,
                                                        endTimeInSec,
@@ -197,7 +197,7 @@ HatoholHistoryLoader.prototype.setTimeRange = function(beginTimeInSec,
 
   if (!keepHistory)
     this.history = [];
-}
+};
 
 HatoholHistoryLoader.prototype.getTimeSpan = function() {
   var query = this.options.query;
@@ -210,16 +210,16 @@ HatoholHistoryLoader.prototype.getTimeSpan = function() {
     this.options.defaultTimeSpan = secondsInHour * 6;
 
   return this.options.defaultTimeSpan;
-}
+};
 
 HatoholHistoryLoader.prototype.isLoading = function() {
   return this.loading;
-}
+};
 
 HatoholHistoryLoader.prototype.getItem = function() {
   return this.item;
-}
+};
 
 HatoholHistoryLoader.prototype.getServers = function() {
   return this.servers;
-}
+};
