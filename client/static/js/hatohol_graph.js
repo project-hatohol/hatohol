@@ -50,7 +50,7 @@ var HatoholGraph = function(options) {
 
       if (options.zoomCallback)
         options.zoomCallback(Math.floor(ranges.xaxis.from / 1000),
-                             Math.floor(ranges.yaxis.to / 1000));
+                             Math.floor(ranges.xaxis.to / 1000));
     });
 
     // zoom cancel
