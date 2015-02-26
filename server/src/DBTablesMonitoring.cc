@@ -27,6 +27,7 @@
 #include "Params.h"
 #include "ItemGroupStream.h"
 #include "DBClientJoinBuilder.h"
+#include "DBTermCStringProvider.h"
 
 // TODO: rmeove the followin two include files!
 // This class should not be aware of it.
@@ -1234,14 +1235,14 @@ string TriggersQueryOption::getCondition(void) const
 	}
 
 	if (m_impl->targetId != ALL_TRIGGERS) {
-		const DBTermCodec *dbTermCodec = getDBTermCodec();
+		DBTermCStringProvider rhs(*getDBTermCodec());
 		if (!condition.empty())
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s=%s",
 			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
-			dbTermCodec->enc(m_impl->targetId).c_str());
+			rhs(m_impl->targetId));
 	}
 
 	if (m_impl->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
@@ -1369,38 +1370,36 @@ string ItemsQueryOption::getCondition(void) const
 	}
 
 	if (m_impl->targetId != ALL_ITEMS) {
-		const DBTermCodec *dbTermCodec = getDBTermCodec();
+		DBTermCStringProvider rhs(*getDBTermCodec());
 		if (!condition.empty())
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s=%s",
 			DBTablesMonitoring::TABLE_NAME_ITEMS,
 			COLUMN_DEF_ITEMS[IDX_ITEMS_ID].columnName,
-			dbTermCodec->enc(m_impl->targetId).c_str());
+			rhs(m_impl->targetId));
 	}
 
 	if (!m_impl->itemGroupName.empty()) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
 		if (!condition.empty())
 			condition += " AND ";
-		string escaped = StringUtils::replace(m_impl->itemGroupName,
-						      "'", "''");
 		condition += StringUtils::sprintf(
-			"%s.%s='%s'",
+			"%s.%s=%s",
 			DBTablesMonitoring::TABLE_NAME_ITEMS,
 			COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME].columnName,
-			escaped.c_str());
+			rhs(m_impl->itemGroupName));
 	}
 
 	if (!m_impl->appName.empty()){
+		DBTermCStringProvider rhs(*getDBTermCodec());
 		if (!condition.empty())
 			condition += " AND ";
-		string escapedAppName = StringUtils::replace(m_impl->appName,
-						      "'", "''");
 		condition += StringUtils::sprintf(
-			"%s.%s='%s'",
+			"%s.%s=%s",
 			DBTablesMonitoring::TABLE_NAME_ITEMS,
 			COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME].columnName,
-			escapedAppName.c_str());
+			rhs(m_impl->appName));
 	}
 
 	return condition;
@@ -1764,11 +1763,10 @@ void DBTablesMonitoring::setTriggerInfoList(
 		{
 			// TODO: This way is too rough and inefficient.
 			//       We should update only the changed triggers.
-			const DBTermCodec *dbTermCodec =
-			  dbAgent.getDBTermCodec();
+			DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
 			deleteArg.condition = StringUtils::sprintf("%s=%s",
 			  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
-			  dbTermCodec->enc(serverId).c_str());
+			  rhs(serverId));
 			return true;
 		}
 
@@ -1786,14 +1784,14 @@ void DBTablesMonitoring::setTriggerInfoList(
 
 int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt = StringUtils::sprintf("coalesce(max(%s), 0)",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName);
 	arg.add(stmt, COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
 	arg.condition = StringUtils::sprintf("%s=%s AND %s < %" FMT_TRIGGER_ID,
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
-	    dbTermCodec->enc(serverId).c_str(),
+	    rhs(serverId),
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
 	    FAILED_SELF_TRIGGER_ID_TERMINATION);
 
@@ -2178,14 +2176,14 @@ void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
 
 EventIdType DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	DBAgent::SelectExArg arg(tableProfileEvents);
 	string stmt = StringUtils::sprintf("coalesce(max(%s), -1)",
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
 	arg.add(stmt, COLUMN_DEF_EVENTS[IDX_EVENTS_ID].type);
 	arg.condition = StringUtils::sprintf("%s=%s",
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
-	    dbTermCodec->enc(serverId).c_str());
+	    rhs(serverId));
 
 	getDBAgent().runTransaction(arg);
 
@@ -2234,18 +2232,18 @@ SmartTime DBTablesMonitoring::getTimeOfLastEvent(
 
 	// First get the event ID.
 	// TODO: Get it with the one statemetn by using sub query.
-	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	const ColumnDef &colDefUniId = COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID];
 	const string stmt = sprintf("max(%s)", colDefUniId.columnName);
 	trx.argId.add(stmt, colDefUniId.type);
 
 	trx.argId.condition = sprintf("%s=%s",
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
-	    dbTermCodec->enc(serverId).c_str());
+	    rhs(serverId));
 	if (triggerId != ALL_TRIGGERS) {
 		trx.argId.condition += sprintf(" AND %s=%s",
 		    COLUMN_DEF_EVENTS[IDX_EVENTS_TRIGGER_ID].columnName,
-		    dbTermCodec->enc(triggerId).c_str());
+		    rhs(triggerId));
 	}
 
 	// Then get the time of the event ID.
@@ -2762,7 +2760,7 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 uint64_t DBTablesMonitoring::getLastUpdateTimeOfIncidents(
   const IncidentTrackerIdType &trackerId)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	DBAgent::SelectExArg arg(tableProfileIncidents);
 	string stmt = StringUtils::sprintf("coalesce(max(%s), 0)",
 	    COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_UPDATED_AT_SEC].columnName);
@@ -2770,7 +2768,7 @@ uint64_t DBTablesMonitoring::getLastUpdateTimeOfIncidents(
 	if (trackerId != ALL_INCIDENT_TRACKERS) {
 		arg.condition = StringUtils::sprintf("%s=%s",
 		    COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_TRACKER_ID].columnName,
-		    dbTermCodec->enc(trackerId).c_str());
+		    rhs(trackerId));
 	}
 
 	getDBAgent().runTransaction(arg);
@@ -2892,12 +2890,12 @@ void DBTablesMonitoring::addHostgroupElementWithoutTransaction(
   DBAgent &dbAgent, const HostgroupElement &hostgroupElement)
 {
 	// TODO: create the condition outside of the transaction.
-	const DBTermCodec *dbTermCodec = dbAgent.getDBTermCodec();
+	DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
 	string condition = StringUtils::sprintf(
 	  "server_id=%s AND host_id=%s AND host_group_id=%s",
-	  dbTermCodec->enc(hostgroupElement.serverId).c_str(),
-	  dbTermCodec->enc(hostgroupElement.hostId).c_str(),
-	  dbTermCodec->enc(hostgroupElement.groupId).c_str());
+	  rhs(hostgroupElement.serverId),
+	  rhs(hostgroupElement.hostId),
+	  rhs(hostgroupElement.groupId));
 
 	if (!dbAgent.isRecordExisting(TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
 	                              condition)) {
