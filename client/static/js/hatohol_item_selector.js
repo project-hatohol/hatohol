@@ -205,6 +205,7 @@ HatoholItemSelector.prototype.getUserData = function(index) {
 };
 
 HatoholItemSelector.prototype.getIndexByUserData = function(data) {
+  var index;
   for (index in this.rowData) {
     if (this.rowData[index] && this.rowData[index].userData == data)
       return parseInt(index);
