@@ -755,7 +755,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	argVect.push_back(StringUtils::sprintf("%d", actionDef.id));
 	argVect.push_back(StringUtils::sprintf("%" PRIu32, eventInfo.serverId));
 	argVect.push_back(StringUtils::sprintf(
-	  "'%" FMT_LOCAL_HOST_ID "'", eventInfo.hostIdInServer.c_str()));
+	  "%" FMT_LOCAL_HOST_ID, eventInfo.hostIdInServer.c_str()));
 	argVect.push_back(StringUtils::sprintf("%ld.%ld",
 	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec));
 	argVect.push_back(StringUtils::sprintf("%" PRIu64, eventInfo.id));
@@ -1543,7 +1543,7 @@ void ActionManager::postProcSpawnFailure(
 	  "server ID: %d, event ID: %" PRIu64 ", "
 	  "time: %ld.%09ld, type: %s, "
 	  "trigger ID: %" PRIu64 ", status: %s, severity: %s, "
-	  "host ID: '%" FMT_LOCAL_HOST_ID "'\n",
+	  "host ID: %" FMT_LOCAL_HOST_ID "\n",
 	  error->message, actionDef.id, actorInfo->logId,
 	  eventInfo.serverId, eventInfo.id,
 	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
