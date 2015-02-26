@@ -64,7 +64,7 @@ var HatoholGraph = function(options) {
         self.options.zoomCallback(minSec, maxSec);
     });
   }
-}
+};
 
 HatoholGraph.prototype.draw = function(beginSec, endSec) {
   var self = this;
@@ -185,7 +185,7 @@ HatoholGraph.prototype.draw = function(beginSec, endSec) {
       plotData[i].yaxis = findYAxis(plotOptions.yaxes, item);
     }
   }
-}
+};
 
 HatoholGraph.prototype._createLegendData = function(item, servers) {
   var legend = { data:[] };
@@ -198,7 +198,7 @@ HatoholGraph.prototype._createLegendData = function(item, servers) {
   }
 
   return legend;
-}
+};
 
 HatoholGraph.prototype.appendHistoryLoader = function(loader) {
   var self = this;
@@ -206,7 +206,7 @@ HatoholGraph.prototype.appendHistoryLoader = function(loader) {
   self.loaders.push(loader);
   self.plotData.push(self._createLegendData(loader.getItem(),
                                             loader.getServers()));
-}
+};
 
 HatoholGraph.prototype.removeHistoryLoader = function(loader) {
   var self = this;
@@ -218,7 +218,7 @@ HatoholGraph.prototype.removeHistoryLoader = function(loader) {
       return;
     }
   }
-}
+};
 
 HatoholGraph.prototype._updatePlotData = function() {
   var self = this;
@@ -232,7 +232,7 @@ HatoholGraph.prototype._updatePlotData = function() {
       self.plotData[i] = self._createLegendData(item, servers);
     }
   }
-}
+};
 
 HatoholGraph.prototype._updateTitleAndLegendLabels = function() {
   var self = this;
@@ -241,7 +241,7 @@ HatoholGraph.prototype._updateTitleAndLegendLabels = function() {
 
   function buildHostName(item, servers) {
     if (!item || !servers)
-      return gettext("Unknown host")
+      return gettext("Unknown host");
     var server = servers[item.serverId];
     var serverName = getServerName(server, item["serverId"]);
     var hostName   = getHostName(server, item["hostId"]);
@@ -340,4 +340,4 @@ HatoholGraph.prototype._updateTitleAndLegendLabels = function() {
       }
     }
   }
-}
+};

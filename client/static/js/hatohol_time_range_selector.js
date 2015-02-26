@@ -86,7 +86,7 @@ var HatoholTimeRangeSelector = function(options) {
     };
     return $.plot.dateGenerator(timeMSec, plotOptions);
   }
-}
+};
 
 HatoholTimeRangeSelector.prototype.draw = function() {
   var self = this;
@@ -134,7 +134,7 @@ HatoholTimeRangeSelector.prototype.draw = function() {
         4: gettext("Thu"),
         5: gettext("Fri"),
         6: gettext("Sat"),
-      }
+      };
       if (date.getHours() == 0) {
         if (now.getTime() - date.getTime() > secondsInHour * 24 * 7 * 1000)
           return formatDate(val);
@@ -150,7 +150,7 @@ HatoholTimeRangeSelector.prototype.draw = function() {
       return formatDate(val);
     },
   });
-}
+};
 
 HatoholTimeRangeSelector.prototype.setTimeRange = function(minSec, maxSec) {
   var self = this;
@@ -171,16 +171,16 @@ HatoholTimeRangeSelector.prototype.setTimeRange = function(minSec, maxSec) {
   if (self.timeRange.end != values[1])
     $("#" + self.id).slider("values", 1, self.timeRange.end);
   self.settingTimeRange = false;
-}
+};
 
 HatoholTimeRangeSelector.prototype.getTimeSpan = function() {
   return this.timeRange.getSpan();
-}
+};
 
 HatoholTimeRangeSelector.prototype.getBeginTime = function() {
   return this.timeRange.begin;
-}
+};
 
 HatoholTimeRangeSelector.prototype.getEndTime = function() {
   return this.timeRange.end;
-}
+};

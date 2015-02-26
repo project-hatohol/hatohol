@@ -114,7 +114,7 @@ var HatoholItemSelector = function(options) {
     query = self.view.getHostFilterQuery();
     self.view.startConnection("items?" + $.param(query), setItemCandidates);
   }
-}
+};
 
 HatoholItemSelector.prototype.show = function() {
   var self = this;
@@ -125,16 +125,16 @@ HatoholItemSelector.prototype.show = function() {
     });
   }
   $('#' + self.elementId).modal('show');
-}
+};
 
 HatoholItemSelector.prototype.hide = function() {
   $('#' + this.elementId).modal('hide');
-}
+};
 
 HatoholItemSelector.prototype.appendItem = function(item, servers, hostgroupId)
 {
   return this.setItem(undefined, item, servers, hostgroupId);
-}
+};
 
 HatoholItemSelector.prototype.setItem = function(index, item, servers,
                                                  hostgroupId)
@@ -190,19 +190,19 @@ HatoholItemSelector.prototype.setItem = function(index, item, servers,
   }
 
   return index;
-}
+};
 
 HatoholItemSelector.prototype.setUserData = function(index, data) {
   this.rowData[index] = this.rowData[index] || {};
   this.rowData[index].userData = data;
-}
+};
 
 HatoholItemSelector.prototype.getUserData = function(index) {
   if (this.rowData[index])
     return this.rowData[index].userData;
   else
     return undefined;
-}
+};
 
 HatoholItemSelector.prototype.getIndexByUserData = function(data) {
   for (index in this.rowData) {
@@ -210,19 +210,19 @@ HatoholItemSelector.prototype.getIndexByUserData = function(data) {
       return parseInt(index);
   }
   return -1;
-}
+};
 
 HatoholItemSelector.prototype.setupCandidates = function() {
   this.view.setServerFilterCandidates(this.servers);
   this.view.setHostgroupFilterCandidates(this.servers);
   this.view.setHostFilterCandidates(this.servers);
-}
+};
 
 HatoholItemSelector.prototype.setServers = function(servers) {
   if (!this.servers)
     this.servers = servers;
   this.view.setupHostFilters(servers);
-}
+};
 
 HatoholItemSelector.prototype.getConfig = function() {
   var i, item, data, config = { histories: [] };
@@ -237,4 +237,4 @@ HatoholItemSelector.prototype.getConfig = function() {
     config.histories.push(data);
   }
   return config;
-}
+};

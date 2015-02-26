@@ -232,7 +232,7 @@ HistoryView.prototype.constructor = HistoryView;
 
 HistoryView.prototype.parseQuery = function(query) {
   var allParams = deparam(query);
-  var histories = allParams["histories"]
+  var histories = allParams["histories"];
   var i, tables = [];
 
   var addHistoryQuery = function(params) {
@@ -245,7 +245,7 @@ HistoryView.prototype.parseQuery = function(query) {
     }
     if (Object.keys(table).length > 0)
       tables.push(table);
-  }
+  };
 
   addHistoryQuery(allParams);
   for (i = 0; histories && i < histories.length; i++)
