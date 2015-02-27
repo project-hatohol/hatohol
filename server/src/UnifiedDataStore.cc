@@ -794,8 +794,8 @@ DataStorePtr UnifiedDataStore::getDataStore(const ServerIdType &serverId)
 	return m_impl->getDataStore(serverId);
 }
 
-static bool getIncidentTrackerInfo(const IncidentTrackerIdType &trackerId,
-				   IncidentTrackerInfo &trackerInfo)
+bool UnifiedDataStore::getIncidentTrackerInfo(const IncidentTrackerIdType &trackerId,
+					      IncidentTrackerInfo &trackerInfo)
 {
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();

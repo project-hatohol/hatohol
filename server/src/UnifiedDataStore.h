@@ -231,6 +231,8 @@ public:
 	 * returns false.
 	 */
 	DataStorePtr getDataStore(const ServerIdType &serverId);
+	bool getIncidentTrackerInfo(const IncidentTrackerIdType &trackerId,
+                                    IncidentTrackerInfo &trackerInfo);
 
 protected:
 	void fetchItems(const ServerIdType &targetServerId = ALL_SERVERS);
