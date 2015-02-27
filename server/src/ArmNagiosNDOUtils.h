@@ -46,7 +46,7 @@ protected:
 	void getTriggerInfoTable(TriggerInfoList &triggerInfoList);
 	void getEvent(void);
 	void getItem(void);
-	void getHost(bool &storedHostsChanged);
+	void getHost(void);
 	void getHostgroup(void);
 	void getHostgroupMembers(void);
 	void connect(void);
