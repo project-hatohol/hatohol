@@ -697,7 +697,7 @@ void ArmNagiosNDOUtils::getItem(void)
 	cache.getMonitoring().addItemInfoList(itemInfoList);
 }
 
-void ArmNagiosNDOUtils::getHost(bool &storedHostsChanged)
+void ArmNagiosNDOUtils::getHost(void)
 {
 	// TODO: should use transaction
 	m_impl->dbAgent->select(m_impl->selectHostArg);
@@ -724,7 +724,6 @@ void ArmNagiosNDOUtils::getHost(bool &storedHostsChanged)
 	}
 	UnifiedDataStore *uds =  UnifiedDataStore::getInstance();
 	uds->syncHosts(svHostDefs, svInfo.id);
-	storedHostsChanged = uds->isStoredHostsChanged();
 }
 
 void ArmNagiosNDOUtils::getHostgroup(void)
@@ -821,11 +820,10 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 	try {
 		if (!m_impl->dbAgent)
 			connect();
-		bool storedHostsChanged;
-		getHost(storedHostsChanged);
+		getHost();
 		getHostgroup();
 		getHostgroupMembers();
-		getTrigger(storedHostsChanged);
+		getTrigger(UnifiedDataStore::getInstance()->isStoredHostsChanged());
 		getEvent();
 		if (!getCopyOnDemandEnabled())
 			getItem();
