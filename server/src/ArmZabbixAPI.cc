@@ -254,9 +254,10 @@ void ArmZabbixAPI::makeHatoholHosts(bool &storedHostsChanged,
 	ServerHostDefVect svHostDefs;
 	HatoholDBUtils::transformHostsToHatoholFormat(svHostDefs, hosts,
 	                                              m_impl->zabbixServerId);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
-	  UnifiedDataStore::getInstance()->syncHosts(svHostDefs,
-	                                             m_impl->zabbixServerId));
+	  uds->syncHosts(svHostDefs, m_impl->zabbixServerId));
+	storedHostsChanged = uds->isStoredHostsChanged();
 
 	m_impl->hostInfoCache.update(svHostDefs);
 }
