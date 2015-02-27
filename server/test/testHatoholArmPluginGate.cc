@@ -525,7 +525,10 @@ void test_fetchHistory(void)
 void test_fetchTrigger(void)
 {
 	loadTestDBServer();
-	loadTestDBHosts();
+	loadTestDBServerHostDef();
+	loadTestDBVMInfo();
+	loadTestDBHostgroup();
+	loadTestDBHostgroupMember();
 
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	TestPair pair(arg);
