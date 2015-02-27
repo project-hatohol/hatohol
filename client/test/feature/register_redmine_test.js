@@ -23,7 +23,7 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
       test.assertExists(x("//a[normalize-space(text())='インシデント管理']"));
     });
   casper.then(function() {
-    casper.wait(200, function() {
+    casper.waitForUrl(/.*ajax_incident_settings/, function() {
       test.assertUrlMatch(/.*ajax_incident_settings/,
                           "Move into incident settings page.");
     });

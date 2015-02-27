@@ -38,7 +38,7 @@ function moveToServersPage(test) {
       test.assertExists(x("//a[normalize-space(text())='監視サーバー']"));
     });
   casper.then(function() {
-    casper.wait(200, function() {
+    casper.waitForUrl(/.*ajax_servers/, function() {
       test.assertUrlMatch(/.*ajax_servers/, "Move into servers page.");
     });
   });
@@ -163,7 +163,7 @@ function moveToIncidentSettingsPage(test) {
       test.assertExists(x("//a[normalize-space(text())='インシデント管理']"));
     });
   casper.then(function() {
-    casper.wait(200, function() {
+    casper.waitForUrl(/.*ajax_incident_settings/, function() {
       test.assertUrlMatch(/.*ajax_incident_settings/,
                           "Move into incident settings page.");
     });
@@ -333,7 +333,7 @@ function moveToDashboardPage(test) {
     this.click(x("//a[normalize-space(text())='ダッシュボード']"));
   });
   casper.then(function() {
-    casper.wait(200, function() {
+    casper.waitForUrl(/.*ajax_dashboard/, function() {
       test.assertUrlMatch(/.*ajax_dashboard/, "Move into dashboard page.");
     });
   });
@@ -350,7 +350,7 @@ function moveToLogSearchSystemPage(test) {
       test.assertExists(x("//a[normalize-space(text())='ログ検索システム']"));
     });
   casper.then(function() {
-    casper.wait(200, function() {
+    casper.waitForUrl(/.*ajax_log_search_system/, function() {
       test.assertUrlMatch(/.*ajax_log_search_system/,
                           "Move into logsearch system page.");
     });
