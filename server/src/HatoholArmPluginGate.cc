@@ -992,9 +992,10 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 	HatoholDBUtils::transformHostsToHatoholFormat(
 	  svHostDefs, hostTablePtr, m_impl->serverInfo.id);
 
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
-	  UnifiedDataStore::getInstance()->syncHosts(svHostDefs,
-	                                             m_impl->serverInfo.id));
+	  uds->syncHosts(svHostDefs, m_impl->serverInfo.id));
+	m_impl->noCahngeHosts = uds->isStoredHostsChanged();
 
 	m_impl->hostInfoCache.update(svHostDefs);
 	replyOk();
