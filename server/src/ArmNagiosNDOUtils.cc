@@ -855,7 +855,6 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProcFetchTriggers(void
 	try {
 		if (!m_impl->dbAgent)
 			connect();
-		//getAllTrigger();
 		getTrigger(false);
 	} catch (const HatoholException &he) {
 		return handleHatoholException(he);

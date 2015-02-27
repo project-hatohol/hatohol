@@ -941,7 +941,9 @@ static const DBAgent::TableProfile tableProfileIncidents =
 
 struct DBTablesMonitoring::Impl
 {
+	bool storedHostsChanged;
 	Impl(void)
+	: storedHostsChanged(true)
 	{
 	}
 

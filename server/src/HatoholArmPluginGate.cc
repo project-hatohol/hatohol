@@ -877,9 +877,21 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 	HatoholDBUtils::transformHostsToHatoholFormat(
 	  svHostDefs, hostTablePtr, m_impl->serverInfo.id);
 
+<<<<<<< HEAD
 	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
 	  UnifiedDataStore::getInstance()->syncHosts(svHostDefs,
 	                                             m_impl->serverInfo.id));
+=======
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	dbMonitoring.updateHosts(hostInfoList, m_impl->serverInfo.id);
+	m_impl->noCahngeHosts = dbMonitoring.isStoredHostsChanged();
+
+	// TODO: consider if DBClientHatohol should have the cache
+	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
+	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
+		m_impl->hostInfoCache.update(*hostInfoItr);
+>>>>>>> [server][arm] Modified how to get the changes in host registration.
 
 	m_impl->hostInfoCache.update(svHostDefs);
 	replyOk();
