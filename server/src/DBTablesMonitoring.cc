@@ -1235,10 +1235,10 @@ string TriggersQueryOption::getCondition(void) const
 		addCondition(
 		  condition,
 		  StringUtils::sprintf(
-		    "%s=%d",
+		    "%s!=%d",
 		    tableProfileServerHostDef.getFullColumnName(
 		      IDX_HOST_SERVER_HOST_DEF_HOST_STATUS).c_str(),
-		    HOST_STAT_NORMAL));
+		    HOST_STAT_REMOVED));
 	}
 
 	if (m_impl->targetId != ALL_TRIGGERS) {
@@ -1370,10 +1370,10 @@ string ItemsQueryOption::getCondition(void) const
 		addCondition(
 		  condition,
 		  StringUtils::sprintf(
-		    "%s=%d",
+		    "%s!=%d",
 		    tableProfileServerHostDef.getFullColumnName(
 		      IDX_HOST_SERVER_HOST_DEF_HOST_STATUS).c_str(),
-		    HOST_STAT_NORMAL));
+		    HOST_STAT_REMOVED));
 	}
 
 	if (m_impl->targetId != ALL_ITEMS) {
