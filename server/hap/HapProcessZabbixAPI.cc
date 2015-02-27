@@ -70,6 +70,7 @@ void HapProcessZabbixAPI::setMonitoringServerInfo(void)
 
 void HapProcessZabbixAPI::workOnTriggers(void)
 {
+	int requestSince;
 	HapiTriggerCollectType type = getTriggerCollectType();
 	if (type == DIFFERENCE_TRIGGER_COLLECT) {
 		SmartTime lastTriggerTime = getTimestampOfLastTrigger();
@@ -77,18 +78,19 @@ void HapProcessZabbixAPI::workOnTriggers(void)
 		// TODO: We should add a way to get newly added triggers.
 		//       Their timestamp are 0 in UNIX time. So the following way
 		//       cannot retrieve them.
-		const int requestSince = lastTriggerTime.getAsTimespec().tv_sec;
-		ItemTablePtr triggers = getTrigger(requestSince);
-		ItemTablePtr expandedDescriptions =
-			getTriggerExpandedDescription(requestSince);
-		ItemTablePtr mergedTriggers =
-			mergePlainTriggersAndExpandedDescriptions(triggers, expandedDescriptions);
+		requestSince = lastTriggerTime.getAsTimespec().tv_sec;
+	} else {
+		requestSince = 0;
+	}
+	ItemTablePtr triggers = getTrigger(requestSince);
+	ItemTablePtr expandedDescriptions =
+		getTriggerExpandedDescription(requestSince);
+	ItemTablePtr mergedTriggers =
+		mergePlainTriggersAndExpandedDescriptions(triggers, expandedDescriptions);
+
+	if (type == DIFFERENCE_TRIGGER_COLLECT) {
 		sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, mergedTriggers);
 	} else {
-		ItemTablePtr triggers = getTrigger(0);
-		ItemTablePtr expandedDescriptions = getTriggerExpandedDescription(0);
-		ItemTablePtr mergedTriggers =
-			mergePlainTriggersAndExpandedDescriptions(triggers, expandedDescriptions);
 		sendTable(HAPI_CMD_SEND_ALL_TRIGGERS, mergedTriggers);
 	}
 }
