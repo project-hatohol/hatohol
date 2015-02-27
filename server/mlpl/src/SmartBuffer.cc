@@ -267,7 +267,7 @@ void SmartBuffer::printBuffer(void)
 
 std::string SmartBuffer::extractString(const StringHeader &header)
 {
-	char *body = reinterpret_cast<char *>(m_buf) + header.offset;
+	const char *body = reinterpret_cast<char *>(m_buf) + header.offset;
 	return string(body, header.size);
 }
 
