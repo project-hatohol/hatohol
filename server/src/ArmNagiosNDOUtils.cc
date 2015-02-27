@@ -717,6 +717,7 @@ void ArmNagiosNDOUtils::getHost(bool &storedHostsChanged)
 		svHostDef.id = AUTO_INCREMENT_VALUE;
 		svHostDef.hostId = AUTO_ASSIGNED_ID;
 		svHostDef.serverId = svInfo.id;
+		svHostDef.status = HOST_STAT_NORMAL;
 		svHostDef.hostIdInServer = itemGroupStream.read<int, string>();
 		itemGroupStream >> svHostDef.name;
 		svHostDefs.push_back(svHostDef);
