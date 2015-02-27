@@ -95,6 +95,9 @@ public:
 	                        const ItemsQueryOption &option);
 	bool fetchItemsAsync(Closure0 *closure,
 	                     const ServerIdType &targetServerId = ALL_SERVERS);
+	bool fetchTriggerAsync(Closure2 *closure,
+			       const ServerIdType &targetServerId = ALL_SERVERS);
+
 	/*
 	 *  We don't provide a function to get history.
 	 *  Please get a DataStore by getDataStore() and use
@@ -142,6 +145,7 @@ public:
 
 	HatoholError syncHosts(const ServerHostDefVect &svHostDefs,
 	                       const ServerIdType &serverId);
+	bool isStoredHostsChanged(void);
 
 	HatoholError upsertHostgroups(const HostgroupVect &hostgroups);
 	HatoholError upsertHostgroupMembers(

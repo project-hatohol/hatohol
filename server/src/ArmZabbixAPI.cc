@@ -107,6 +107,8 @@ void ArmZabbixAPI::updateHosts(void)
 	getHosts(hostTablePtr, hostsGroupsTablePtr);
 	makeHatoholHosts(hostTablePtr);
 	makeHatoholMapHostsHostgroups(hostsGroupsTablePtr);
+
+	return;
 }
 
 void ArmZabbixAPI::updateEvents(void)
@@ -172,9 +174,24 @@ gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 	return ArmBase::mainThread(arg);
 }
 
+void ArmZabbixAPI::makeHatoholAllTriggers(void)
+{
+	TriggerInfoList mergedTriggerInfoList;
+	ItemTablePtr triggers, expanded, mergedTriggers;
+	triggers = getTrigger(0);
+	expanded = getTriggerExpandedDescription(0);
+	mergedTriggers =
+	  mergePlainTriggersAndExpandedDescriptions(triggers, expanded);
+	HatoholDBUtils::transformTriggersToHatoholFormat(
+	  mergedTriggerInfoList, mergedTriggers, m_impl->zabbixServerId,
+	  m_impl->hostInfoCache);
+
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().updateTrigger(mergedTriggerInfoList, m_impl->zabbixServerId);
+}
+
 void ArmZabbixAPI::makeHatoholTriggers(ItemTablePtr triggers)
 {
-	ThreadLocalDBCache cache;
 	TriggerInfoList mergedTriggerInfoList;
 	ItemTablePtr expandedDescriptions, mergedTriggers;
 	expandedDescriptions = updateTriggerExpandedDescriptions();
@@ -183,6 +200,8 @@ void ArmZabbixAPI::makeHatoholTriggers(ItemTablePtr triggers)
 	HatoholDBUtils::transformTriggersToHatoholFormat(
 	  mergedTriggerInfoList, mergedTriggers, m_impl->zabbixServerId,
 	  m_impl->hostInfoCache);
+
+	ThreadLocalDBCache cache;
 	cache.getMonitoring().addTriggerInfoList(mergedTriggerInfoList);
 }
 
@@ -234,9 +253,9 @@ void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 	ServerHostDefVect svHostDefs;
 	HatoholDBUtils::transformHostsToHatoholFormat(svHostDefs, hosts,
 	                                              m_impl->zabbixServerId);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
-	  UnifiedDataStore::getInstance()->syncHosts(svHostDefs,
-	                                             m_impl->zabbixServerId));
+	  uds->syncHosts(svHostDefs, m_impl->zabbixServerId));
 
 	m_impl->hostInfoCache.update(svHostDefs);
 }
@@ -272,10 +291,14 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 		return COLLECT_NG_DISCONNECT_ZABBIX;
 
 	try {
-		ItemTablePtr triggers = updateTriggers();
 		updateHosts();
 		updateGroups();
-		makeHatoholTriggers(triggers);
+		if (UnifiedDataStore::getInstance()->isStoredHostsChanged()){
+			ItemTablePtr triggers = updateTriggers();
+			makeHatoholTriggers(triggers);
+		} else {
+			makeHatoholAllTriggers();
+		}
 		updateEvents();
 
 		if (!getCopyOnDemandEnabled())
@@ -314,6 +337,19 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProcFetchHistory(
 		  beginTime, endTime);
 		HatoholDBUtils::transformHistoryToHatoholFormat(
 		  historyInfoVect, itemTablePtr, m_impl->zabbixServerId);
+	} catch (const HatoholException &he) {
+		return handleHatoholException(he);
+	}
+	return COLLECT_OK;
+}
+
+ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProcFetchTriggers(void)
+{
+	if (!updateAuthTokenIfNeeded())
+		return COLLECT_NG_DISCONNECT_ZABBIX;
+
+	try {
+		makeHatoholAllTriggers();
 	} catch (const HatoholException &he) {
 		return handleHatoholException(he);
 	}

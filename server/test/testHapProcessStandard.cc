@@ -135,6 +135,16 @@ public:
 		return HTERR_OK;
 	}
 
+	virtual HatoholError fetchTrigger(const MessagingContext &msgCtx,
+					  const SmartBuffer &cmdBuf) override
+	{
+		SmartBuffer resBuf;
+		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_TRIGGERS, &msgCtx);
+		appendItemTable(resBuf, ItemTablePtr());
+		reply(msgCtx, resBuf);
+		return HTERR_OK;
+	}
+
 	virtual void onCompletedAcquistion(
 	  const HatoholError &err,
 	  const HatoholArmPluginWatchType &watchType) override
@@ -380,6 +390,7 @@ struct FetchStarter : public HatoholThreadBase {
 		INVALID,
 		ITEM,
 		HISTORY,
+		TRIGGER,
 		NUM_RESOURCE_TYPES
 	} ResourceType;
 
@@ -426,6 +437,13 @@ struct FetchStarter : public HatoholThreadBase {
 		  itemInfo, beginTime, endTime, closure);
 	}
 
+	void startFetchTrigger(void) {
+		ClosureTemplate2<FetchStarter> *closure =
+		  new ClosureTemplate2<FetchStarter>(this,
+		    &FetchStarter::fetchTriggerCb);
+		pair->gate->startOnDemandFetchTrigger(closure);
+	}
+
 	virtual gpointer mainThread(HatoholThreadArg *arg) override
 	{
 		Reaper<GMainLoop> loopQuiter(loop, g_main_loop_quit);
@@ -438,6 +456,8 @@ struct FetchStarter : public HatoholThreadBase {
 			startFetchItem();
 		else if (resourceType == HISTORY)
 			startFetchHistory();
+		else if (resourceType == TRIGGER)
+			startFetchTrigger();
 		pair->plugin->m_acquireSyncCommandSem.post();
 		if (!wait())
 			return NULL;
@@ -468,6 +488,12 @@ struct FetchStarter : public HatoholThreadBase {
 			    const HistoryInfoVect &historyInfoVect)
 	{
 		fetched = HISTORY;
+		g_main_loop_quit(m_localLoop.getLoop());
+	}
+
+	void fetchTriggerCb(Closure2 *closure)
+	{
+		fetched = TRIGGER;
 		g_main_loop_quit(m_localLoop.getLoop());
 	}
 
@@ -516,6 +542,28 @@ void test_reqFetchHistoryDuringAcquireData(void)
 	g_main_loop_run(fetchHistoryStarter.loop);
 	cppcut_assert_equal(true, fetchHistoryStarter.succeeded);
 	cppcut_assert_equal(FetchStarter::HISTORY, fetchHistoryStarter.fetched);
+}
+
+void test_reqFetchTriggerDuringAcquireData(void)
+{
+	FetchStarter fetchTriggerStarter;
+	fetchTriggerStarter.resourceType = FetchStarter::TRIGGER;
+
+	GLibMainLoop glibMainLoopForGate;
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestHapProcessStandard::CtorParams ctorParams;
+	ctorParams.callSyncCommandInAcquireData = true;
+	arg.hapClassParameters = &ctorParams;
+	arg.hapgCtx.glibMainContext = glibMainLoopForGate.getContext();
+	glibMainLoopForGate.start();
+	TestPair pair(arg);
+	fetchTriggerStarter.pair = &pair;
+	fetchTriggerStarter.start();
+
+	// acquireData() is supposed to be invoked on this event loop.
+	g_main_loop_run(fetchTriggerStarter.loop);
+	cppcut_assert_equal(true, fetchTriggerStarter.succeeded);
+	cppcut_assert_equal(FetchStarter::TRIGGER, fetchTriggerStarter.fetched);
 }
 
 } // namespace testHapProcessStandardPair

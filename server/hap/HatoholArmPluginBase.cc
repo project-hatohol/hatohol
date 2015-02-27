@@ -123,6 +123,11 @@ HatoholArmPluginBase::HatoholArmPluginBase(void)
 	    &HatoholArmPluginBase::cmdHandlerFetchHistory);
 
 	registerCommandHandler(
+	  HAPI_CMD_REQ_FETCH_TRIGGERS,
+	  (CommandHandler)
+	    &HatoholArmPluginBase::cmdHandlerFetchTriggers);
+
+	registerCommandHandler(
 	  HAPI_CMD_REQ_TERMINATE,
 	  (CommandHandler)
 	    &HatoholArmPluginBase::cmdHandlerTerminate);
@@ -287,6 +292,43 @@ SmartTime HatoholArmPluginBase::getTimeOfLastEvent(
 	return cb->lastTime;
 }
 
+HapiTriggerCollectType HatoholArmPluginBase::getTriggerCollectType(void)
+{
+	struct Callback : public SyncCommand {
+		HapiTriggerCollectType type;
+
+		Callback(HatoholArmPluginBase *obj)
+		: SyncCommand(obj)
+		{
+		}
+
+		virtual void onGotReply(
+		  mlpl::SmartBuffer &replyBuf,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			SemaphorePoster poster(this);
+			const HapiTriggerCollect *body =
+			  getObject()->getResponseBody
+			    <HapiTriggerCollect>(replyBuf);
+			type = (HapiTriggerCollectType)LtoN(body->type);
+			setSucceeded();
+		}
+
+	} *cb = new Callback(this);
+	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
+
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(
+	  cmdBuf, HAPI_CMD_GET_TRIGGERS_COLLECT_TYPE);
+	send(cmdBuf, cb);
+	cb->wait();
+	if (!cb->getSucceeded()) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call HAPI_CMD_GET_TRIGGERS_COLLECT_STAT\n");
+	}
+	return cb->type;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -306,6 +348,12 @@ void HatoholArmPluginBase::onReceivedReqFetchHistory(void)
 {
 	MLPL_WARN("Received fetch history request. "
 	          "onReceivedReqFetchHistory() should be overridden\n");
+}
+
+void HatoholArmPluginBase::onReceivedReqFetchTrigger(void)
+{
+	MLPL_WARN("Received fetch trigger request. "
+	          "onReceivedReqFetchTrigger() should be overridden\n");
 }
 
 void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(
@@ -452,6 +500,12 @@ void HatoholArmPluginBase::cmdHandlerFetchHistory(
   const HapiCommandHeader *header)
 {
 	onReceivedReqFetchHistory();
+}
+
+void HatoholArmPluginBase::cmdHandlerFetchTriggers(
+  const HapiCommandHeader *header)
+{
+	onReceivedReqFetchTrigger();
 }
 
 void HatoholArmPluginBase::cmdHandlerTerminate(const HapiCommandHeader *header)

@@ -363,6 +363,27 @@ struct HatoholArmPluginBaseTest :
 		reply(resBuf);
 	}
 
+	virtual void onReceivedReqFetchTrigger(void) override
+	{
+		SmartBuffer resBuf;
+		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_TRIGGERS);
+
+		VariableItemTablePtr itemTablePtr;
+		for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+			const TriggerInfo &triggerInfo = testTriggerInfo[i];
+			if (triggerInfo.serverId != serverIdOfHapGate)
+				continue;
+			itemTablePtr->add(convert(triggerInfo));
+		}
+		HATOHOL_ASSERT(itemTablePtr->getNumberOfRows() >= 1,
+		               "There's no test items. Inappropriate server "
+		               "ID for HatoholArmPluginGate may be used.");
+		appendItemTable(resBuf,
+		                static_cast<ItemTablePtr>(itemTablePtr));
+
+		reply(resBuf);
+	}
+
 	ServerIdType serverIdOfHapGate;
 	SimpleSemaphore terminateSem;
 };
@@ -389,6 +410,12 @@ struct TestReceiver {
 		historyInfoVect = _historyInfoVect;
 		sem.post();
 	}
+
+	void callbackTrigger(Closure2 *closure)
+	{
+		sem.post();
+	}
+
 };
 
 void test_sendTerminateCommand(void)
@@ -493,6 +520,49 @@ void test_fetchHistory(void)
 		actual += makeHistoryOutput(receiver.historyInfoVect[i]);
 	cppcut_assert_equal(expected, actual);
 	cppcut_assert_not_equal((size_t)0, receiver.historyInfoVect.size());
+}
+
+void test_fetchTrigger(void)
+{
+	loadTestDBServer();
+	loadTestDBServerHostDef();
+	loadTestDBVMInfo();
+	loadTestDBHostgroup();
+	loadTestDBHostgroupMember();
+
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
+	pair.plugin->serverIdOfHapGate = arg.serverId;
+
+	TestReceiver receiver;
+	pair.gate->startOnDemandFetchTrigger(
+	  new ClosureTemplate2<TestReceiver>(
+	    &receiver, &TestReceiver::callbackTrigger));
+	cppcut_assert_equal(
+	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+
+	TriggerInfoList triggerInfoList;
+	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
+	triggersQueryOption.setTargetServerId(arg.serverId);
+	triggersQueryOption.setExcludeFlags(EXCLUDE_INVALID_HOST|EXCLUDE_SELF_MONITORING);
+	dbMonitoring.getTriggerInfoList(triggerInfoList,
+					triggersQueryOption);
+	vector<int> expectTriggerIdxVec;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		const TriggerInfo &triggerInfo = testTriggerInfo[i];
+		if (triggerInfo.serverId != arg.serverId)
+			continue;
+		expectTriggerIdxVec.push_back(i);
+	}
+	cppcut_assert_equal(expectTriggerIdxVec.size(), triggerInfoList.size());
+	TriggerInfoListConstIterator actual = triggerInfoList.begin();
+	for (int idx = 0; actual != triggerInfoList.end(); ++actual, idx++) {
+		const TriggerInfo &expect = testTriggerInfo[expectTriggerIdxVec[idx]];
+		assertEqual(expect, *actual);
+	}
 }
 
 } // namespace testHatoholArmPluginGatePair

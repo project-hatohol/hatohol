@@ -47,6 +47,9 @@ protected:
 	  const mlpl::SmartBuffer &cmdBuf) override;
 	virtual HatoholArmPluginWatchType getHapWatchType(
 	  const HatoholError &err) override;
+	virtual HatoholError fetchTrigger(
+	  const MessagingContext &msgCtx,
+	  const mlpl::SmartBuffer &cmdBuf) override;
 
 	virtual void onGotNewEvents(ItemTablePtr eventsTablePtr);
 
