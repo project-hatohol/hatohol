@@ -21,6 +21,7 @@
 #include "StringUtils.h"
 #include "LabelUtils.h"
 #include "ThreadLocalDBCache.h"
+#include "UnifiedDataStore.h"
 #include <Mutex.h>
 #include "SimpleSemaphore.h"
 #include "Reaper.h"
@@ -229,6 +230,17 @@ bool IncidentSender::isIdling(void)
 
 const IncidentTrackerInfo &IncidentSender::getIncidentTrackerInfo(void)
 {
+	if (!m_impl->onChanged)
+		return m_impl->incidentTrackerInfo;
+
+	IncidentTrackerInfo trackerInfo;
+	IncidentTrackerIdType trackerId = m_impl->incidentTrackerInfo.id;
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	if (dataStore->getIncidentTrackerInfo(trackerId, trackerInfo)) {
+		m_impl->incidentTrackerInfo = trackerInfo;
+		return m_impl->incidentTrackerInfo;
+	}
+
 	return m_impl->incidentTrackerInfo;
 }
 
