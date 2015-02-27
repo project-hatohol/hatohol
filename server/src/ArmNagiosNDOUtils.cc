@@ -720,8 +720,9 @@ void ArmNagiosNDOUtils::getHost(bool &storedHostsChanged)
 		hostInfoList.push_back(hostInfo);
 	}
 	ThreadLocalDBCache cache;
-	cache.getMonitoring().updateHosts(hostInfoList, svInfo.id,
-					  &storedHostsChanged);
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	dbMonitoring.updateHosts(hostInfoList, svInfo.id);
+	storedHostsChanged = dbMonitoring.isStoredHostsChanged();
 }
 
 void ArmNagiosNDOUtils::getHostgroup(void)
@@ -852,7 +853,6 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProcFetchTriggers(void
 	try {
 		if (!m_impl->dbAgent)
 			connect();
-		//getAllTrigger();
 		getTrigger(false);
 	} catch (const HatoholException &he) {
 		return handleHatoholException(he);

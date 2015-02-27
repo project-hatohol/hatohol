@@ -160,6 +160,8 @@ public:
 	DBTablesMonitoring(DBAgent &dbAgent);
 	virtual ~DBTablesMonitoring();
 
+	bool isStoredHostsChanged(void);
+
 	void getHostInfoList(HostInfoList &hostInfoList,
 			     const HostsQueryOption &option);
 
@@ -231,8 +233,7 @@ public:
 	 * true if no change in host registration, otherwise false.
 	 */
 	void updateHosts(const HostInfoList &hostInfoList,
-			 const ServerIdType &serverId,
-			 bool *storedHostsChanged = NULL);
+			 const ServerIdType &serverId);
 
 	/**
 	 * get the last (maximum) event ID of the event that belongs to

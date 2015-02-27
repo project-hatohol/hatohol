@@ -933,7 +933,9 @@ static const DBAgent::TableProfile tableProfileIncidents =
 
 struct DBTablesMonitoring::Impl
 {
+	bool storedHostsChanged;
 	Impl(void)
+	: storedHostsChanged(true)
 	{
 	}
 
@@ -1606,6 +1608,12 @@ DBTablesMonitoring::~DBTablesMonitoring()
 {
 }
 
+bool DBTablesMonitoring::isStoredHostsChanged(void)
+{
+	return m_impl->storedHostsChanged;
+}
+
+
 void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
 				      const HostsQueryOption &option)
 {
@@ -2185,8 +2193,7 @@ void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
 }
 
 void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
-				     const ServerIdType &serverId,
-				     bool *storedHostsChanged)
+				     const ServerIdType &serverId)
 {
 	// Make a set that contains current hosts records
 	HostsQueryOption option(USER_ID_SYSTEM);
@@ -2227,13 +2234,11 @@ void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
 		updatedHostInfoList.push_back(invalidHost);
 	}
 	if (updatedHostInfoList.empty()) {
-		if (storedHostsChanged != NULL)
-			*storedHostsChanged = true;
+		m_impl->storedHostsChanged=true;
 		return;
 	}
 	addHostInfoList(updatedHostInfoList);
-	if (storedHostsChanged != NULL)
-		*storedHostsChanged = false;
+	m_impl->storedHostsChanged=false;
 	return;
 }
 
