@@ -84,7 +84,6 @@ struct HatoholArmPluginGate::Impl
 	Mutex                exitSyncLock;
 	bool                 exitSyncDone;
 	bool                 createdSelfTriggers;
-	bool                 noCahngeHosts;
 	guint                timerTag;
 	HAPIWtchPointInfo    hapiWtchPointInfo[NUM_COLLECT_NG_KIND];
 	NamedPipe            pipeRd, pipeWr;
@@ -98,7 +97,6 @@ struct HatoholArmPluginGate::Impl
 	  pluginTermSem(0),
 	  exitSyncDone(false),
 	  createdSelfTriggers(false),
-	  noCahngeHosts(true),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
 	  pipeWr(NamedPipe::END_TYPE_MASTER_WRITE),
 	  allowSetGLibMainContext(true)
@@ -945,7 +943,7 @@ void HatoholArmPluginGate::cmdHandlerGetTriggerCollectStat(
 	HapiTriggerCollect *body =
 	  setupResponseBuffer<HapiTriggerCollect>(resBuf);
 	HapiTriggerCollectType type;
-	if (m_impl->noCahngeHosts) {
+	if (UnifiedDataStore::getInstance()->isStoredHostsChanged()) {
 		type = DIFFERENCE_TRIGGER_COLLECT;
 	} else {
 		type = ALL_TRIGGER_COLLECT;
@@ -995,7 +993,6 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
 	  uds->syncHosts(svHostDefs, m_impl->serverInfo.id));
-	m_impl->noCahngeHosts = uds->isStoredHostsChanged();
 
 	m_impl->hostInfoCache.update(svHostDefs);
 	replyOk();
