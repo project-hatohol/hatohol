@@ -56,7 +56,8 @@ const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBTablesMonitoring::MONITORING_DB_VERSION = 11;
+const int   DBTablesMonitoring::MONITORING_DB_VERSION =
+  DBTables::Version::getPackedVer(0, 1, 0);
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
