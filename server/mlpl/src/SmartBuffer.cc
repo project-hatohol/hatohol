@@ -20,8 +20,10 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <inttypes.h>
 using namespace std;
 
+#include "StringUtils.h"
 #include "SmartBuffer.h"
 #include "Logger.h"
 using namespace mlpl;
@@ -176,6 +178,43 @@ void SmartBuffer::addZero(size_t size)
 	incIndex(size);
 }
 
+size_t SmartBuffer::insertString(const string &str, const size_t &bodyIndex)
+{
+	const size_t length = str.size();
+	if (length > UINT32_MAX) {
+		const string msg = StringUtils::sprintf(
+		  "Too long string length: %zd", length);
+		throw std::range_error(msg);
+	}
+	const size_t sizeNullTerm = 1;
+	const size_t nextBodyIndex = bodyIndex + length + sizeNullTerm;
+	if (nextBodyIndex > m_size) {
+		const string msg = StringUtils::sprintf(
+		  "Invalid paramter: string length: %zd, "
+		  "body index: %zd, buff size: %zd",
+		  length, bodyIndex, m_size);
+		throw std::out_of_range(msg);
+	}
+
+	const ssize_t offset = bodyIndex - m_index;
+	if (offset > INT32_MAX || offset < INT32_MIN) {
+		const string msg = StringUtils::sprintf(
+		  "offset overflow: string length: %zd, "
+		  "body index: %zd, buff index: %zd",
+		  length, bodyIndex, m_index);
+		throw std::out_of_range(msg);
+	}
+
+	StringHeader header;
+	header.size = length;
+	header.offset = offset;
+	add(&header, sizeof(header));
+	memcpy(m_buf + bodyIndex, str.c_str(), length + sizeNullTerm);
+
+	setWatermarkIfNeeded(nextBodyIndex);
+	return nextBodyIndex;
+}
+
 void SmartBuffer::addEx8(uint8_t val)
 {
 	addExTemplate<uint8_t>(val);
@@ -235,6 +274,19 @@ void SmartBuffer::printBuffer(void)
 	MLPL_INFO("%s", msg.c_str());
 }
 
+std::string SmartBuffer::extractString(const StringHeader *header)
+{
+	const char *body =
+	  reinterpret_cast<const char *>(header) + header->offset;
+	return string(body, header->size);
+}
+
+std::string SmartBuffer::extractStringAndIncIndex(void)
+{
+	const StringHeader *header = getPointerAndIncIndex<StringHeader>();
+	return extractString(header);
+}
+
 SmartBuffer *SmartBuffer::takeOver(void)
 {
 	SmartBuffer *sbuf = new SmartBuffer();
@@ -256,5 +308,10 @@ void SmartBuffer::handOver(SmartBuffer &sbuf)
 }
 
 // ---------------------------------------------------------------------------
-// Private methods
+// Protected methods
 // ---------------------------------------------------------------------------
+void SmartBuffer::setWatermarkIfNeeded(const size_t &index)
+{
+	if (index > m_watermark)
+		m_watermark = index;
+}
