@@ -353,7 +353,9 @@ const DBAgent::TableProfile tableProfileHostgroupMember =
 
 struct DBTablesHost::Impl
 {
+	bool storedHostsChanged;
 	Impl(void)
+	:storedHostsChanged(true)
 	{
 	}
 
@@ -1098,6 +1100,11 @@ HatoholError DBTablesHost::getServerHostDefs(
 	return HTERR_OK;
 }
 
+bool DBTablesHost::isStoredHostsChanged(void)
+{
+	return m_impl->storedHostsChanged;
+}
+
 HatoholError DBTablesHost::syncHosts(const ServerHostDefVect &svHostDefs,
                                      const ServerIdType &serverId)
 {
@@ -1141,7 +1148,12 @@ HatoholError DBTablesHost::syncHosts(const ServerHostDefVect &svHostDefs,
 		serverHostDefs.push_back(invalidHost);
 	}
 
+	if (serverHostDefs.empty()){
+		m_impl->storedHostsChanged = true;
+		return HTERR_OK;
+	}
 	upsertHosts(serverHostDefs);
+	m_impl->storedHostsChanged = false;
 	return HTERR_OK;
 }
 

@@ -349,6 +349,8 @@ public:
 	HatoholError getServerHostDefs(ServerHostDefVect &svHostDefVect,
 	                               const HostsQueryOption &option);
 
+	bool isStoredHostsChanged(void);
+
 	/**
 	 * Synchronize records.
 	 *

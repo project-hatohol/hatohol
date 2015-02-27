@@ -145,6 +145,7 @@ public:
 
 	HatoholError syncHosts(const ServerHostDefVect &svHostDefs,
 	                       const ServerIdType &serverId);
+	bool isStoredHostsChanged(void);
 
 	HatoholError upsertHostgroups(const HostgroupVect &hostgroups);
 	HatoholError upsertHostgroupMembers(
