@@ -208,6 +208,16 @@ var HistoryView = function(userProfile, options) {
     button.addClass("btn-default");
   }
 
+  function setSliderWidth() {
+    var buttons = $("#hatohol-graph-slider-area button");
+    var sliderArea = $("#hatohol-graph-slider-area");
+    var i, width = sliderArea.width();
+    for (i = 0; i < buttons.length; i++)
+      width -= $(buttons[i]).outerWidth();
+    width -= parseInt(sliderArea.css("margin-left"), 10);
+    $("#hatohol-graph-slider").width(width);
+  }
+
   function setTitle(title) {
     if (title) {
       $("title").text(title);
@@ -221,6 +231,7 @@ var HistoryView = function(userProfile, options) {
   function updateView() {
     self.graph.draw(self.slider.getBeginTime(),
                     self.slider.getEndTime());
+    setSliderWidth();
     self.slider.draw();
     setTitle(self.graph.title);
     self.displayUpdateTime();
