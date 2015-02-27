@@ -107,7 +107,7 @@ struct IncidentSender::Impl
 	  retryIntervalMSec(DEFAULT_RETRY_INTERVAL_MSEC)
 	{
 	}
- 
+
 	~Impl()
 	{
 		queueLock.lock();

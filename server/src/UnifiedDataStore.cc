@@ -751,6 +751,7 @@ HatoholError UnifiedDataStore::updateIncidentTracker(
 	DBTablesConfig &dbConfig = cache.getConfig();
 	HatoholError err =
 	  dbConfig.updateIncidentTracker(incidentTrackerInfo, privilege);
+
 	if (err != HTERR_OK)
 		return err;
 	stopArmIncidentTrackerIfNeeded(incidentTrackerInfo.id);
