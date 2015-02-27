@@ -98,6 +98,7 @@ struct IncidentSender::Impl
 	SimpleSemaphore jobSemaphore;
 	size_t retryLimit;
 	unsigned int retryIntervalMSec;
+	AtomicValue<bool> onChanged;
 
 	Impl(IncidentSender &_sender)
 	: sender(_sender), runningJob(NULL), jobSemaphore(0),
@@ -229,6 +230,10 @@ bool IncidentSender::isIdling(void)
 const IncidentTrackerInfo &IncidentSender::getIncidentTrackerInfo(void)
 {
 	return m_impl->incidentTrackerInfo;
+}
+
+void IncidentSender::setOnChangedIncidentTracker(void) {
+	m_impl->onChanged = true;
 }
 
 bool IncidentSender::getServerInfo(const EventInfo &event,
