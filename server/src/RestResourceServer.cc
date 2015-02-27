@@ -85,12 +85,12 @@ static void addNumberOfAllowedHostgroups(UnifiedDataStore *dataStore,
 	AccessInfoQueryOption allowedHostgroupOption(userId);
 	hostgroupOption.setTargetServerId(targetServer);
 	allowedHostgroupOption.setTargetUserId(targetUser);
-	HostgroupInfoList hostgroupInfoList;
+	HostgroupVect hostgroups;
 	ServerAccessInfoMap serversMap;
-	dataStore->getHostgroupInfoList(hostgroupInfoList, hostgroupOption);
+	dataStore->getHostgroups(hostgroups, hostgroupOption);
 	dataStore->getAccessInfoMap(serversMap, allowedHostgroupOption);
 
-	size_t numberOfHostgroups = hostgroupInfoList.size();
+	const size_t numberOfHostgroups = hostgroups.size();
 	size_t numberOfAllowedHostgroups = 0;
 	ServerAccessInfoMapIterator serverIt = serversMap.find(targetServer);
 	if (serverIt != serversMap.end()) {

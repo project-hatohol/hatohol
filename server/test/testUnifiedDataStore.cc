@@ -267,7 +267,7 @@ void test_getServerConnStatusVector(void)
 	cppcut_assert_equal(NumTestServerInfo, svConnStatVect.size());
 	ServerIdSet expectIdSet;
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
-		const ServerIdType expectId = i + 1;
+		const ServerIdType expectId = testServerInfo[i].id;
 		expectIdSet.insert(expectId);
 	}
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
@@ -275,6 +275,39 @@ void test_getServerConnStatusVector(void)
 		ServerIdSetIterator it = expectIdSet.find(svId);
 		cppcut_assert_equal(true, it != expectIdSet.end());
 		expectIdSet.erase(it);
+	}
+}
+
+void data_upsertHost(void)
+{
+	gcut_add_datum("Getting returned host ID",
+	               "getHostId", G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("Ignore returned host ID",
+	               "getHostId", G_TYPE_BOOLEAN, FALSE, NULL);
+}
+
+void test_upsertHost(gconstpointer data)
+{
+	const bool getHostId = gcut_data_get_boolean(data, "getHostId");
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	ServerHostDef svHostDef;
+	svHostDef.id = AUTO_INCREMENT_VALUE;
+	svHostDef.hostId = AUTO_ASSIGNED_ID;
+	svHostDef.serverId = 5;
+	svHostDef.hostIdInServer = "AiDee";
+	svHostDef.name = "GOHOUMEI";
+	svHostDef.status = HOST_STAT_NORMAL;
+
+	HostIdType returnedId = INVALID_HOST_ID;
+	HatoholError err =
+	  uds->upsertHost(svHostDef, getHostId ? & returnedId : NULL);
+	assertHatoholError(HTERR_OK, err);
+	if (getHostId) {
+		cppcut_assert_not_equal(INVALID_HOST_ID, returnedId);
+		cppcut_assert_equal(true, returnedId > 0,
+		                    cut_message("%" FMT_HOST_ID, returnedId));
+	} else {
+		cppcut_assert_equal(INVALID_HOST_ID, returnedId);
 	}
 }
 

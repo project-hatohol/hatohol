@@ -250,6 +250,14 @@ public:
 	 */
 	static bool isValidURI(const std::string &uri);
 
+	/**
+	 * Convert a decimal number string into a number.
+	 *
+	 * @param dest A destination.
+	 * @param src  A srouce string.
+	 */
+	static void conv(uint64_t &dest, const std::string &src);
+
 protected:
 	static std::string makeDemangledStackTraceString(
 	  const std::string &stackTraceLine);

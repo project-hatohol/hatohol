@@ -338,16 +338,8 @@ void RestResourceUser::handlerGetAccessInfo(void)
 		HostGrpAccessInfoMapIterator it2 = hostgroupsMap->begin();
 		for (; it2 != hostgroupsMap->end(); it2++) {
 			AccessInfo *info = it2->second;
-			uint64_t hostgroupId = it2->first;
-			string hostgroupIdString;
-			if (hostgroupId == ALL_HOST_GROUPS) {
-				hostgroupIdString = StringUtils::toString(-1);
-			} else {
-				hostgroupIdString
-				  = StringUtils::sprintf("%" PRIu64,
-				                         hostgroupId);
-			}
-			agent.startObject(hostgroupIdString);
+			const HostgroupIdType &hostgroupId = it2->first;
+			agent.startObject(hostgroupId);
 			agent.add("accessInfoId", info->id);
 			agent.endObject();
 		}
@@ -385,15 +377,12 @@ void RestResourceUser::handlerPostAccessInfo(void)
 	}
 
 	// hostgroupId
-	succeeded = getParamWithErrorReply<uint64_t>(
-	              this, "hostgroupId", "%" PRIu64,
-	              accessInfo.hostgroupId, &exist);
-	if (!succeeded)
-		return;
-	if (!exist) {
+	char *value = (char *)g_hash_table_lookup(m_query, "hostgroupId");
+	if (!value) {
 		REPLY_ERROR(this, HTERR_NOT_FOUND_PARAMETER, "hostgroupId");
 		return;
 	}
+	accessInfo.hostgroupId = value;
 
 	// try to add
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();

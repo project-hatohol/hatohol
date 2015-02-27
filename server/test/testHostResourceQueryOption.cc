@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include <gcutter.h>
 #include <StringUtils.h>
+#include <SeparatorInjector.h>
 #include "Hatohol.h"
 #include "HostResourceQueryOption.h"
 #include "TestHostResourceQueryOption.h"
@@ -180,6 +181,20 @@ static void _assertMakeCondition(
 #define assertMakeCondition(M, ...) \
   cut_trace(_assertMakeCondition(M, ##__VA_ARGS__))
 
+static string makeInOpContent(const HostgroupIdSet &hostgrpIdSet)
+{
+	string s;
+	SeparatorInjector commaSeparator(",");
+	HostgroupIdSetConstIterator hostgrpIdItr = hostgrpIdSet.begin();
+	for (;hostgrpIdItr != hostgrpIdSet.end(); ++hostgrpIdItr) {
+		commaSeparator(s);
+		s += "'";
+		s += *hostgrpIdItr;
+		s += "'";
+	}
+	return s;
+}
+
 namespace testHostResourceQueryOption {
 
 static string makeExpectedConditionForUser(
@@ -311,7 +326,7 @@ void test_getFromClauseWithAllHostgroup(void)
 void test_getFromClauseWithSpecificHostgroup(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE);
-	option.setTargetHostgroupId(5);
+	option.setTargetHostgroupId("5");
 	const string expect = 
 	  "test_table_name INNER JOIN test_hgrp_table_name ON "
 	  "((test_table_name.server_id=test_hgrp_table_name.server_id) AND "
@@ -332,14 +347,14 @@ void test_isHostgroupUsed(gconstpointer data)
 	const bool useHostgroup = gcut_data_get_boolean(data, "useHostgroup");
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	if (useHostgroup)
-		option.setTargetHostgroupId(5);
+		option.setTargetHostgroupId("5");
 	cppcut_assert_equal(useHostgroup, option.isHostgroupUsed());
 }
 
 void test_isHostgroupUsedForHostgroupTable(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE_HGRP);
-	option.setTargetHostgroupId(5);
+	option.setTargetHostgroupId("5");
 	// It shall always be false.
 	cppcut_assert_equal(false, option.isHostgroupUsed());
 }
@@ -356,7 +371,7 @@ void test_getColumnNameWithTableName(void)
 {
 	const size_t idx = IDX_TEST_TABLE_HOST_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
-	option.setTargetHostgroupId(5);
+	option.setTargetHostgroupId("5");
 	string expect = TEST_PRIMARY_TABLE_NAME;
 	expect += ".";
 	expect += COLUMN_DEF_TEST[idx].columnName;
@@ -367,7 +382,7 @@ void test_getColumnNameFull(void)
 {
 	const size_t idx = IDX_TEST_TABLE_HOST_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
-	option.setTargetHostgroupId(5);
+	option.setTargetHostgroupId("5");
 	string expect = TEST_PRIMARY_TABLE_NAME;
 	expect += ".";
 	expect += COLUMN_DEF_TEST[idx].columnName;
@@ -399,7 +414,7 @@ void test_getHostgroupColumnNameWithTableName(gconstpointer data)
 	const size_t idx = IDX_TEST_HGRP_TABLE_SERVER_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	if (useHostgroup)
-		option.setTargetHostgroupId(5);
+		option.setTargetHostgroupId("5");
 	string expect;
 	if (useHostgroup) {
 		expect = TEST_HGRP_TABLE_NAME;
@@ -407,6 +422,15 @@ void test_getHostgroupColumnNameWithTableName(gconstpointer data)
 	}
 	expect += COLUMN_DEF_TEST_HGRP[idx].columnName;
 	cppcut_assert_equal(expect, option.getHostgroupColumnName(idx));
+}
+
+void test_getDBTermCodec(void)
+{
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	cppcut_assert_equal(typeid(*dbMonitoring.getDBAgent().getDBTermCodec()),
+	                    typeid(*option.getDBTermCodec()));
 }
 
 } // namespace testHostResourceQueryOption
@@ -534,9 +558,9 @@ void test_makeConditionAllServers(void)
 void test_makeConditionAllServersWithOthers(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	srvHostGrpSetMap[1].insert(1);
-	srvHostGrpSetMap[1].insert(2);
-	srvHostGrpSetMap[3].insert(1);
+	srvHostGrpSetMap[1].insert("1");
+	srvHostGrpSetMap[1].insert("2");
+	srvHostGrpSetMap[3].insert("1");
 	srvHostGrpSetMap[ALL_SERVERS].insert(ALL_HOST_GROUPS);
 	string expect = "";
 	assertMakeCondition(srvHostGrpSetMap, expect);
@@ -545,7 +569,7 @@ void test_makeConditionAllServersWithOthers(void)
 void test_makeConditionAllServersWithSpecifiedHostgroup(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	srvHostGrpSetMap[ALL_SERVERS].insert(1);
+	srvHostGrpSetMap[ALL_SERVERS].insert("1");
 	string expect = "";
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
@@ -562,9 +586,9 @@ void test_makeConditionOneServerAllHostGrp(void)
 void test_makeConditionOneServerAndOneHostgroup(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	srvHostGrpSetMap[1].insert(3);
+	srvHostGrpSetMap[1].insert("3");
 	string expect =
-	  StringUtils::sprintf("(%s=1 AND %s IN (3))",
+	  StringUtils::sprintf("(%s=1 AND %s IN ('3'))",
 	  serverIdColumnName.c_str(),
 	  hostgroupIdColumnName.c_str());
 	assertMakeCondition(srvHostGrpSetMap, expect);
@@ -573,13 +597,14 @@ void test_makeConditionOneServerAndOneHostgroup(void)
 void test_makeConditionOneServerAndHostgroups(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	srvHostGrpSetMap[1].insert(3);
-	srvHostGrpSetMap[1].insert(1003);
-	srvHostGrpSetMap[1].insert(2048);
+	srvHostGrpSetMap[1].insert("3");
+	srvHostGrpSetMap[1].insert("1003");
+	srvHostGrpSetMap[1].insert("2048");
 	string expect =
-	  StringUtils::sprintf("(%s=1 AND %s IN (3,1003,2048))",
+	  StringUtils::sprintf("(%s=1 AND %s IN (%s))",
 	  serverIdColumnName.c_str(),
-	  hostgroupIdColumnName.c_str());
+	  hostgroupIdColumnName.c_str(),
+	  makeInOpContent(srvHostGrpSetMap[1]).c_str());
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
@@ -652,38 +677,38 @@ void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
 void test_makeConditionComplicated(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	srvHostGrpSetMap[5].insert(205);
-	srvHostGrpSetMap[5].insert(800);
+	srvHostGrpSetMap[5].insert("205");
+	srvHostGrpSetMap[5].insert("800");
 	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
-	srvHostGrpSetMap[768].insert(817);
-	srvHostGrpSetMap[768].insert(818);
-	srvHostGrpSetMap[768].insert(12817);
+	srvHostGrpSetMap[768].insert("817");
+	srvHostGrpSetMap[768].insert("818");
+	srvHostGrpSetMap[768].insert("12817");
 	srvHostGrpSetMap[2000].insert(ALL_HOST_GROUPS);
 	srvHostGrpSetMap[2001].insert(ALL_HOST_GROUPS);
-	srvHostGrpSetMap[8192].insert(4096);
+	srvHostGrpSetMap[8192].insert("4096");
+
 	string expect = StringUtils::sprintf(
-	  "((%s=5 AND %s IN (205,800)) OR "
+	  "((%s=5 AND %s IN (%s)) OR ",
+	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str(),
+	  makeInOpContent(srvHostGrpSetMap[5]).c_str());
+
+	expect += StringUtils::sprintf(
 	  "%s=14 OR "
-	  "(%s=768 AND %s IN (817,818,12817)) OR "
+	  "(%s=768 AND %s IN (%s)) OR ",
+	  serverIdColumnName.c_str(),
+	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str(),
+	  makeInOpContent(srvHostGrpSetMap[768]).c_str());
+
+	expect += StringUtils::sprintf(
 	  "%s=2000 OR "
 	  "%s=2001 OR "
-	  "(%s=8192 AND %s IN (4096)))",
+	  "(%s=8192 AND %s IN (%s)))",
+	  serverIdColumnName.c_str(),
+	  serverIdColumnName.c_str(),
 	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str(),
-	  serverIdColumnName.c_str(),
-	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str(),
-	  serverIdColumnName.c_str(),
-	  serverIdColumnName.c_str(),
-	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str());
-	assertMakeCondition(srvHostGrpSetMap, expect);
-}
+	  makeInOpContent(srvHostGrpSetMap[8192]).c_str());
 
-void test_getDBTermCodec(void)
-{
-	HostResourceQueryOption option(TEST_SYNAPSE);
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	cppcut_assert_equal(typeid(*dbMonitoring.getDBAgent().getDBTermCodec()),
-	                    typeid(*option.getDBTermCodec()));
+	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
 } // namespace testHostResourceQueryOptionWithoutDBSetup

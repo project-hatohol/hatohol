@@ -59,7 +59,7 @@ std::string MonitoringServerInfo::getDisplayName(void) const
 
 void MonitoringServerInfo::initialize(MonitoringServerInfo &monSvInfo)
 {
-	monSvInfo.id = 0;
+	monSvInfo.id = AUTO_INCREMENT_VALUE;
 	monSvInfo.type = MONITORING_SYSTEM_UNKNOWN;
 	monSvInfo.port               = 0;
 	monSvInfo.pollingIntervalSec = MAX_POLLING_INTERVAL_SEC;

@@ -18,6 +18,7 @@
  */
 
 #include <exception>
+#include <SeparatorInjector.h>
 #include "Utils.h"
 #include "ConfigManager.h"
 #include "ThreadLocalDBCache.h"
@@ -26,6 +27,7 @@
 #include "DBTablesMonitoring.h"
 #include "Mutex.h"
 #include "ItemGroupStream.h"
+#include "UnifiedDataStore.h"
 using namespace std;
 using namespace mlpl;
 
@@ -890,24 +892,22 @@ static void takeTriggerInfo(TriggerInfo &triggerInfo,
 static void getHostgroupIdStringList(string &stringHostgroupId,
   const ServerIdType &serverId, const HostIdType &hostId)
 {
-	ThreadLocalDBCache cache;
-	HostgroupElementList hostgroupElementList;
-	HostgroupElementQueryOption option(USER_ID_SYSTEM);
+	HostgroupMemberVect hostgrpMembers;
+	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(serverId);
 	option.setTargetHostId(hostId);
-	cache.getMonitoring().getHostgroupElementList(hostgroupElementList,
-	                                              option);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	uds->getHostgroupMembers(hostgrpMembers, option);
 
-	HostgroupElementListIterator it = hostgroupElementList.begin();
-	for(; it != hostgroupElementList.end(); ++it) {
-		HostgroupElement hostgroupElement = *it;
-		stringHostgroupId += StringUtils::sprintf(
-		  "%" FMT_HOST_GROUP_ID ",", hostgroupElement.groupId);
+	if (hostgrpMembers.empty())
+		return;
+
+	SeparatorInjector commaInjector(",");
+	for (size_t i = 0; i < hostgrpMembers.size(); i++) {
+		const HostgroupMember &hostgrpMember = hostgrpMembers[i];
+		commaInjector(stringHostgroupId);
+		stringHostgroupId += hostgrpMember.hostgroupIdInServer;
 	}
-	if (!stringHostgroupId.empty())
-		stringHostgroupId.erase(--stringHostgroupId.end());
-	else
-		stringHostgroupId = "0";
 }
 
 bool DBTablesAction::getLog(ActionLog &actionLog, const string &condition)
@@ -1294,6 +1294,9 @@ string ActionsQueryOption::getCondition(void) const
 	string hostgroupIdList;
 	getHostgroupIdStringList(hostgroupIdList,
 	  triggerInfo.serverId, triggerInfo.hostId);
+	if (hostgroupIdList.empty())
+		hostgroupIdList = DB::getAlwaysFalseCondition();
+
 	if (!cond.empty())
 		cond += " AND ";
 	cond += StringUtils::sprintf(m_impl->conditionTemplate.c_str(),

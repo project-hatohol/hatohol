@@ -101,7 +101,7 @@ void cut_teardown(void)
 
 string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 {
-	MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
+	const MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
 	string eventsURL =
 	  TestRedmineSender::callBuildURLMonitoringServerEvent(event, &server);
 
@@ -263,7 +263,7 @@ void _assertSend(const HatoholErrorCode &expected,
 		return;
 
 	// verify the reply
-	MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
+	const MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
 	JSONParser agent(g_redmineEmulator.getLastResponseBody());
 	cppcut_assert_equal(true, agent.startObject("issue"));
 	string expectedDescription

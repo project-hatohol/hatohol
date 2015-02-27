@@ -36,6 +36,7 @@
 
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
 #define DBCONTENT_MAGIC_NULL          "#NULL#"
+#define DBCONTENT_MAGIC_ANY           "#ANY#"
 
 typedef std::pair<int,int>      IntIntPair;
 typedef std::vector<IntIntPair> IntIntPairVector;
@@ -222,6 +223,39 @@ void _assertFileContent(const std::string &expect, const std::string &path);
 void _assertGError(const GError *error);
 #define assertGError(E) cut_trace(_assertGError(E))
 
+template<typename T0, typename T1>
+std::string _makeElementsComparisonString(const T0 &exp, const T1 &act)
+{
+	std::stringstream ss;
+	ss << "<<expect>>\n";
+	typename T0::const_iterator it0;
+	for (it0 = exp.begin(); it0 != exp.end(); ++it0) {
+		ss << *it0;
+		ss << ",";
+	}
+	typename T1::const_iterator it1;
+	ss << "\n<<actual>>\n";
+	for (it1 = act.begin(); it1 != act.end(); ++it1) {
+		ss << *it1;
+		ss << ",";
+	}
+	return ss.str();
+}
+#define makeElementsComparisonString(E,A) \
+  _makeElementsComparisonString<__typeof__(E), __typeof__(A)>(E,A)
+
+template<typename T0, typename T1>
+void _assertEqualSize(const T0 &exp, const T1 &act)
+{
+	std::string errMsg;
+	if (exp.size() != act.size())
+		errMsg = makeElementsComparisonString(exp, act);
+	cppcut_assert_equal(exp.size(), act.size(),
+	                    cut_message("%s", errMsg.c_str()));
+}
+#define assertEqualSize(E, A) \
+  cut_trace((_assertEqualSize<__typeof__(E), __typeof__(A)>(E,A)))
+
 void prepareDataWithAndWithoutArmPlugin(void);
 
 VariableItemGroupPtr convert(
@@ -231,6 +265,8 @@ VariableItemGroupPtr convert(
 ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap);
 
 VariableItemGroupPtr convert(const HistoryInfo &historyInfo);
+
+void conv(HostInfo &hostInfo, const ServerHostDef &svHostDef);
 
 class Watcher {
 	bool expired;

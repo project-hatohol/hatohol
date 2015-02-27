@@ -22,6 +22,7 @@
 #include "ItemGroupStream.h"
 #include "ThreadLocalDBCache.h"
 #include "DBClientJoinBuilder.h"
+#include "DBTermCStringProvider.h"
 using namespace std;
 using namespace mlpl;
 
@@ -29,12 +30,19 @@ static const char *TABLE_NAME_HOST_LIST       = "host_list";
 static const char *TABLE_NAME_SERVER_HOST_DEF = "server_host_def";
 static const char *TABLE_NAME_HOST_ACCESS     = "host_access";
 static const char *TABLE_NAME_VM_LIST         = "vm_list";
-static const char *TABLE_NAME_HOST_HOSTGROUP  = "host_hostgroup";
+static const char *TABLE_NAME_HOSTGROUP_LIST  = "hostgroup_list";
+static const char *TABLE_NAME_HOSTGROUP_MEMBER  = "hostgroup_member";
 
-const int DBTablesHost::TABLES_VERSION = 2;
+const int DBTablesHost::TABLES_VERSION = 3;
 
 const uint64_t NO_HYPERVISOR = -1;
 const size_t MAX_HOST_NAME_LENGTH =  255;
+
+void operator>>(ItemGroupStream &itemGroupStream, HostStatus &rhs)
+{
+	rhs = itemGroupStream.read<int, HostStatus>();
+}
+
 
 static const ColumnDef COLUMN_DEF_HOST_LIST[] = {
 {
@@ -58,13 +66,7 @@ static const ColumnDef COLUMN_DEF_HOST_LIST[] = {
 },
 };
 
-enum {
-	IDX_HOST_LIST_ID,
-	IDX_HOST_LIST_NAME,
-	NUM_IDX_HOST_LIST
-};
-
-static const DBAgent::TableProfile tableProfileHostList =
+const DBAgent::TableProfile tableProfileHostList =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOST_LIST,
 			    COLUMN_DEF_HOST_LIST,
 			    NUM_IDX_HOST_LIST);
@@ -119,16 +121,16 @@ static const ColumnDef COLUMN_DEF_SERVER_HOST_DEF[] = {
 	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"status",                          // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
 },
-};
-
-enum {
-	IDX_HOST_SERVER_HOST_DEF_ID,
-	IDX_HOST_SERVER_HOST_DEF_HOST_ID,
-	IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
-	IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
-	IDX_HOST_SERVER_HOST_DEF_HOST_NAME,
-	NUM_IDX_SERVER_HOST_DEF
 };
 
 static const int columnIndexesHostServerDefIdx[] = {
@@ -137,11 +139,11 @@ static const int columnIndexesHostServerDefIdx[] = {
 };
 
 static const DBAgent::IndexDef indexDefsHostServerDef[] = {
-  {"HostServerDefIdx", (const int *)columnIndexesHostServerDefIdx, false},
+  {"HostServerDefIdx", (const int *)columnIndexesHostServerDefIdx, true},
   {NULL}
 };
 
-static const DBAgent::TableProfile tableProfileServerHostDef =
+const DBAgent::TableProfile tableProfileServerHostDef =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SERVER_HOST_DEF,
 			    COLUMN_DEF_SERVER_HOST_DEF,
 			    NUM_IDX_SERVER_HOST_DEF,
@@ -192,15 +194,7 @@ static const ColumnDef COLUMN_DEF_HOST_ACCESS[] = {
 },
 };
 
-enum {
-	IDX_HOST_ACCESS_ID,
-	IDX_HOST_ACCESS_HOST_ID,
-	IDX_HOST_ACCESS_IP_ADDR_OR_FQDN,
-	IDX_HOST_ACCESS_PRIORITY,
-	NUM_IDX_HOST_ACCESS
-};
-
-static const DBAgent::TableProfile tableProfileHostAccess =
+const DBAgent::TableProfile tableProfileHostAccess =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOST_ACCESS,
 			    COLUMN_DEF_HOST_ACCESS,
 			    NUM_IDX_HOST_ACCESS);
@@ -236,19 +230,12 @@ static const ColumnDef COLUMN_DEF_VM_LIST[] = {
 },
 };
 
-enum {
-	IDX_HOST_VM_LIST_ID,
-	IDX_HOST_VM_LIST_HOST_ID,
-	IDX_HOST_VM_LIST_HYPERVISOR_HOST_ID,
-	NUM_IDX_VM_LIST
-};
-
-static const DBAgent::TableProfile tableProfileVMList =
+const DBAgent::TableProfile tableProfileVMList =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_VM_LIST,
 			    COLUMN_DEF_VM_LIST,
 			    NUM_IDX_VM_LIST);
 
-static const ColumnDef COLUMN_DEF_HOST_HOSTGROUP[] = {
+static const ColumnDef COLUMN_DEF_HOSTGROUP_LIST[] = {
 {
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
@@ -264,7 +251,64 @@ static const ColumnDef COLUMN_DEF_HOST_HOSTGROUP[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE, // indexDefsHostHostgroup // keyType
+	SQL_KEY_NONE, // indexDefsHostgroups // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"id_in_server",                    // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"name",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+static const int columnIndexesHostgroupListUniqId[] = {
+  IDX_HOSTGROUP_LIST_SERVER_ID, IDX_HOSTGROUP_LIST_ID_IN_SERVER,
+  DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsHostgroupList[] = {
+  {"HostgroupListUniqId", (const int *)columnIndexesHostgroupListUniqId, true},
+  {NULL}
+};
+
+const DBAgent::TableProfile tableProfileHostgroupList =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOSTGROUP_LIST,
+			    COLUMN_DEF_HOSTGROUP_LIST,
+			    NUM_IDX_HOSTGROUP_LIST,
+			    indexDefsHostgroupList);
+
+
+static const ColumnDef COLUMN_DEF_HOSTGROUP_MEMBER[] = {
+{
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+}, {
+	"server_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE, // indexDefsHostgroupMember // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -288,31 +332,24 @@ static const ColumnDef COLUMN_DEF_HOST_HOSTGROUP[] = {
 },
 };
 
-enum {
-	IDX_HOST_HOSTGROUP_ID,
-	IDX_HOST_HOSTGROUP_SERVER_ID,
-	IDX_HOST_HOSTGROUP_HOST_ID,
-	IDX_HOST_HOSTGROUP_GROUP_ID,
-	NUM_IDX_HOST_HOSTGROUP,
-};
-
-static const int columnIndexesHostHostgroupUniqId[] = {
-  IDX_HOST_HOSTGROUP_SERVER_ID, IDX_HOST_HOSTGROUP_ID,
+static const int columnIndexesHostgroupMemberUniqId[] = {
+  IDX_HOSTGROUP_MEMBER_SERVER_ID,
+  IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID,
   DBAgent::IndexDef::END,
 };
 
-static const DBAgent::IndexDef indexDefsHostHostgroup[] = {
+static const DBAgent::IndexDef indexDefsHostgroupMember[] = {
   {"HostsHostgroupUniqId",
-   (const int *)columnIndexesHostHostgroupUniqId, true},
+   (const int *)columnIndexesHostgroupMemberUniqId, true},
   {NULL}
 };
 
-static const DBAgent::TableProfile tableProfileHostHostgroup =
-  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOST_HOSTGROUP,
-			    COLUMN_DEF_HOST_HOSTGROUP,
-			    NUM_IDX_HOST_HOSTGROUP,
-			    indexDefsHostHostgroup);
-
+const DBAgent::TableProfile tableProfileHostgroupMember =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_HOSTGROUP_MEMBER,
+			    COLUMN_DEF_HOSTGROUP_MEMBER,
+			    NUM_IDX_HOSTGROUP_MEMBER,
+			    indexDefsHostgroupMember);
 
 struct DBTablesHost::Impl
 {
@@ -329,19 +366,97 @@ static bool updateDB(
   DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
 {
 	const int &oldVer = oldPackedVer.minorVer;
-	if (oldVer == 1) {
-		// In table ver.1 (on 14.09), this table is not used.
-		// So we can drop it.
+	if (oldVer == 1 || oldVer == 2) {
+		// In table ver.1 and 2 (on 14.09 and 14.12), these table is
+		// not used. So we can drop it.
 		dbAgent.dropTable(tableProfileHostList.name);
+		dbAgent.dropTable(tableProfileServerHostDef.name);
 	}
 	return true;
 }
 
 // ---------------------------------------------------------------------------
-// HostQueryOption
+// HostsQueryOption
 // ---------------------------------------------------------------------------
-HostQueryOption::HostQueryOption(const UserIdType &userId)
-: DataQueryOption(userId)
+static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
+  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
+  IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
+  true,
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID);
+
+struct HostsQueryOption::Impl {
+	HostStatus status;
+
+	Impl()
+	: status(HOST_STAT_ALL)
+	{
+	}
+};
+
+HostsQueryOption::HostsQueryOption(const UserIdType &userId)
+: HostResourceQueryOption(synapseHostsQueryOption, userId),
+  m_impl(new Impl())
+{
+}
+
+HostsQueryOption::HostsQueryOption(DataQueryContext *dataQueryContext)
+: HostResourceQueryOption(synapseHostsQueryOption, dataQueryContext),
+  m_impl(new Impl())
+{
+}
+
+HostsQueryOption::~HostsQueryOption(void)
+{
+}
+
+string HostsQueryOption::getCondition(void) const
+{
+	string condition = HostResourceQueryOption::getCondition();
+	if (m_impl->status == HOST_STAT_ALL)
+		return condition;
+	if (!condition.empty())
+		condition += " AND ";
+
+	string columnName =
+	  tableProfileServerHostDef.columnDefs[IDX_HOST_SERVER_HOST_DEF_HOST_STATUS].columnName;
+	condition += StringUtils::sprintf("%s=%d",
+	                                  columnName.c_str(), m_impl->status);
+	return condition;
+}
+
+void HostsQueryOption::setStatus(const HostStatus &status)
+{
+	m_impl->status = status;
+}
+
+HostStatus HostsQueryOption::getStatus(void) const
+{
+	return m_impl->status;
+}
+
+// ---------------------------------------------------------------------------
+// HostgroupMembersQueryOption
+// ---------------------------------------------------------------------------
+static const HostResourceQueryOption::Synapse synapseHostgroupMembersQueryOption(
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_ID, IDX_HOSTGROUP_MEMBER_SERVER_ID,
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_HOST_ID, false,
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID);
+
+HostgroupMembersQueryOption::HostgroupMembersQueryOption(const UserIdType &userId)
+: HostResourceQueryOption(synapseHostgroupMembersQueryOption, userId)
+{
+}
+
+HostgroupMembersQueryOption::HostgroupMembersQueryOption(
+  DataQueryContext *dataQueryContext)
+: HostResourceQueryOption(synapseHostgroupMembersQueryOption, dataQueryContext)
 {
 }
 
@@ -378,6 +493,240 @@ HostIdType DBTablesHost::addHost(const string &name)
 	return hostId;
 }
 
+static void setupUpsertArgOfServerHostDef(
+  DBAgent::InsertArg &arg, const ServerHostDef &serverHostDef,
+  const HostIdType &hostId)
+{
+	arg.add(serverHostDef.id);
+	arg.add(hostId);
+	arg.add(serverHostDef.serverId);
+	arg.add(serverHostDef.hostIdInServer);
+	arg.add(serverHostDef.name);
+	arg.add(serverHostDef.status);
+	arg.upsertOnDuplicate = true;
+}
+
+static string setupFmtCondSelectSvHostDef(void)
+{
+	return StringUtils::sprintf("%s=%%" FMT_SERVER_ID " AND %s=%%s",
+	         COLUMN_DEF_SERVER_HOST_DEF[
+	           IDX_HOST_SERVER_HOST_DEF_SERVER_ID].columnName,
+	         COLUMN_DEF_SERVER_HOST_DEF[
+	           IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER].columnName);
+}
+
+HostIdType DBTablesHost::upsertHost(
+  const ServerHostDef &serverHostDef, const bool &useTransaction)
+{
+	HATOHOL_ASSERT(serverHostDef.hostId == AUTO_ASSIGNED_ID ||
+	               serverHostDef.hostId >= 0,
+	               "Invalid host ID: %" FMT_HOST_ID, serverHostDef.hostId);
+	HATOHOL_ASSERT(!serverHostDef.name.empty(),
+	               "Empty host name: %s", serverHostDef.name.c_str());
+
+	struct Proc : public DBAgent::TransactionProc {
+		const ServerHostDef &serverHostDef;
+		DBAgent::InsertArg serverHostDefArg;
+		string fmtCondSelectSvHostDef;
+		HostIdType hostId;
+
+		Proc(const ServerHostDef &_serverHostDef)
+		: serverHostDef(_serverHostDef),
+		  serverHostDefArg(tableProfileServerHostDef),
+		  fmtCondSelectSvHostDef(setupFmtCondSelectSvHostDef()),
+		  hostId(INVALID_HOST_ID)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			ServerHostDef currSvHostDef;
+			bool tookNewHostId = false;
+			const bool found = selectServerHostDef(dbAgent,
+			                                       currSvHostDef);
+			if (found) {
+				if (!isChanged(serverHostDef, currSvHostDef)) {
+					hostId = currSvHostDef.hostId;
+					return;
+				}
+				if (serverHostDef.hostId != AUTO_ASSIGNED_ID)
+					assertHostIdConsistency(currSvHostDef);
+				hostId = currSvHostDef.hostId;
+			} else {
+				bool shouldAddHost = false;
+				if (serverHostDef.hostId == AUTO_ASSIGNED_ID) {
+					shouldAddHost = true;
+				} else {
+					hostId = serverHostDef.hostId;
+					shouldAddHost =
+					  !hasHost(dbAgent, hostId);
+				}
+
+				if (shouldAddHost) {
+					hostId = addHost(dbAgent,
+					                 serverHostDef.hostId,
+					                 serverHostDef.name);
+					tookNewHostId = true;
+				}
+			}
+
+			setupUpsertArgOfServerHostDef(serverHostDefArg,
+			                              serverHostDef, hostId);
+			dbAgent.insert(serverHostDefArg);
+			dbAgent.getLastInsertId();
+			if (dbAgent.lastUpsertDidUpdate() && tookNewHostId) {
+				// This path is rare.
+				// [Assumed scenario]
+				// Other session tried to query the record
+				// and didn't find it. Then the insert() was
+				// invoked right before that of this session.
+				removeHost(dbAgent, hostId);
+				HATOHOL_ASSERT(
+				  selectServerHostDef(dbAgent, currSvHostDef),
+				  "Record is not found.");
+				hostId = currSvHostDef.hostId;
+			}
+		}
+
+		/**
+		 * Get the record whose server ID and the host ID in server are
+		 * equals to serverHostDef.serverId and
+		 * serverHostDef.hostIdInServer.
+		 *
+		 * @param svHostDef The obtained record is saved here
+		 *
+		 * @return true if the record is found. Otherwise false.
+		 */
+		bool selectServerHostDef(DBAgent &dbAgent,
+		                         ServerHostDef &svHostDef)
+		{
+			DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
+			DBAgent::SelectExArg arg(tableProfileServerHostDef);
+			arg.add(IDX_HOST_SERVER_HOST_DEF_ID);
+			arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID);
+			arg.add(IDX_HOST_SERVER_HOST_DEF_SERVER_ID);
+			arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
+			arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_NAME);
+			arg.add(IDX_HOST_SERVER_HOST_DEF_HOST_STATUS);
+			arg.condition = StringUtils::sprintf(
+			                  fmtCondSelectSvHostDef.c_str(),
+			                  serverHostDef.serverId,
+			                  rhs(serverHostDef.hostIdInServer));
+			dbAgent.select(arg);
+
+			const ItemGroupList &grpList =
+			  arg.dataTable->getItemGroupList();
+			if (grpList.empty())
+				return false;
+			const size_t numHosts = grpList.size();
+			if (numHosts> 1) {
+				MLPL_BUG(
+				  "Found %zd records. ServerID: %"
+				  FMT_SERVER_ID ", host ID in server: %s\n",
+				  numHosts, serverHostDef.serverId,
+				  serverHostDef.hostIdInServer.c_str());
+			}
+			ItemGroupStream itemGroupStream(*grpList.begin());
+			itemGroupStream >> svHostDef.id;
+			itemGroupStream >> svHostDef.hostId;
+			itemGroupStream >> svHostDef.serverId;
+			itemGroupStream >> svHostDef.hostIdInServer;
+			itemGroupStream >> svHostDef.name;
+			itemGroupStream >> svHostDef.status;
+			return true;
+		}
+
+		bool isChanged(const ServerHostDef &shd0,
+		               const ServerHostDef &shd1)
+		{
+			// serverId and hostIdInServer is not checked because
+			// they are used as a condition in selectServerHostDef()
+			// And hostIds should be the same if a combination of
+			// serverId and hostIdInServer is identical.
+			if (shd0.name != shd1.name)
+				return true;
+			if (shd0.status != shd1.status)
+				return true;
+			return false;
+		}
+
+		HostIdType addHost(DBAgent &dbAgent, const HostIdType &hostId,
+		                   const string &name)
+		{
+			DBAgent::InsertArg arg(tableProfileHostList);
+			if (hostId == AUTO_ASSIGNED_ID)
+				arg.add(AUTO_INCREMENT_VALUE);
+			else
+				arg.add(hostId);
+			arg.add(name);
+			arg.upsertOnDuplicate = (hostId != AUTO_ASSIGNED_ID);
+			dbAgent.insert(arg);
+			return (hostId == AUTO_ASSIGNED_ID) ?
+			         dbAgent.getLastInsertId() : hostId;
+		}
+
+		void removeHost(DBAgent &dbAgent, const HostIdType &hostId)
+		{
+			DBAgent::DeleteArg arg(tableProfileHostList);
+			arg.condition =
+			  StringUtils::sprintf("%s=%" FMT_HOST_ID,
+			    COLUMN_DEF_HOST_LIST[IDX_HOST_LIST_ID].columnName,
+			    hostId);
+			dbAgent.deleteRows(arg);
+		}
+
+		void assertHostIdConsistency(const ServerHostDef currSvHostDef)
+		{
+			HATOHOL_ASSERT(
+			  currSvHostDef.hostId == serverHostDef.hostId,
+			  "Host ID inconsistent: DB: %" FMT_HOST_ID ", "
+			  "Input: %" FMT_HOST_ID,
+			  currSvHostDef.hostId, serverHostDef.hostId);
+		}
+
+		bool hasHost(DBAgent &dbAgent, const HostIdType &hostId)
+		{
+			string cond =
+			  StringUtils::sprintf("%s=%" FMT_HOST_ID,
+			    COLUMN_DEF_HOST_LIST[IDX_HOST_LIST_ID].columnName,
+			    hostId);
+			return dbAgent.isRecordExisting(TABLE_NAME_HOST_LIST,
+		                                        cond);
+		}
+
+	} proc(serverHostDef);
+
+	if (useTransaction)
+		getDBAgent().runTransaction(proc);
+	else
+		proc(getDBAgent());
+
+	return proc.hostId;
+}
+
+void DBTablesHost::upsertHosts(const ServerHostDefVect &serverHostDefs)
+{
+	struct Proc : public DBAgent::TransactionProc {
+		DBTablesHost &dbHost;
+		const ServerHostDefVect &serverHostDefs;
+
+		Proc(DBTablesHost &_dbHost, const ServerHostDefVect &_serverHostDefs)
+		: dbHost(_dbHost),
+		  serverHostDefs(_serverHostDefs)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			ServerHostDefVectConstIterator svHostDefItr =
+			  serverHostDefs.begin();
+			for (; svHostDefItr != serverHostDefs.end(); ++svHostDefItr)
+				dbHost.upsertHost(*svHostDefItr, false);
+		}
+	} proc(*this, serverHostDefs);
+	getDBAgent().runTransaction(proc);
+}
+
 GenericIdType DBTablesHost::upsertServerHostDef(
   const ServerHostDef &serverHostDef)
 {
@@ -388,6 +737,7 @@ GenericIdType DBTablesHost::upsertServerHostDef(
 	arg.add(serverHostDef.serverId);
 	arg.add(serverHostDef.hostIdInServer);
 	arg.add(serverHostDef.name);
+	arg.add(serverHostDef.status);
 	arg.upsertOnDuplicate = true;
 	getDBAgent().runTransaction(arg, &id);
 	return id;
@@ -418,23 +768,159 @@ GenericIdType DBTablesHost::upsertVMInfo(const VMInfo &vmInfo)
 	return id;
 }
 
-GenericIdType DBTablesHost::upsertHostHostgroup(
-  const HostHostgroup &hostHostgroup)
+GenericIdType DBTablesHost::upsertHostgroup(const Hostgroup &hostgroup,
+	                                    const bool &useTransaction)
 {
 	GenericIdType id;
-	DBAgent::InsertArg arg(tableProfileHostHostgroup);
-	arg.add(hostHostgroup.id);
-	arg.add(hostHostgroup.serverId);
-	arg.add(hostHostgroup.hostIdInServer);
-	arg.add(hostHostgroup.hostgroupIdInServer);
+	DBAgent::InsertArg arg(tableProfileHostgroupList);
+	arg.add(hostgroup.id);
+	arg.add(hostgroup.serverId);
+	arg.add(hostgroup.idInServer);
+	arg.add(hostgroup.name);
 	arg.upsertOnDuplicate = true;
-	getDBAgent().runTransaction(arg, &id);
+
+	DBAgent &dbAgent = getDBAgent();
+	if (useTransaction) {
+		dbAgent.runTransaction(arg, &id);
+	} else {
+		dbAgent.insert(arg);
+		id = dbAgent.getLastInsertId();
+	}
+
 	return id;
+}
+
+void DBTablesHost::upsertHostgroups(const HostgroupVect &hostgroups)
+{
+	struct Proc : public DBAgent::TransactionProc {
+		DBTablesHost &dbHost;
+		const HostgroupVect &hostgroups;
+
+		Proc(DBTablesHost &_dbHost, const HostgroupVect &_hostgroups)
+		: dbHost(_dbHost),
+		  hostgroups(_hostgroups)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			HostgroupVectConstIterator hostgrpItr =
+			  hostgroups.begin();
+			for (; hostgrpItr != hostgroups.end(); ++hostgrpItr)
+				dbHost.upsertHostgroup(*hostgrpItr, false);
+		}
+	} proc(*this, hostgroups);
+	getDBAgent().runTransaction(proc);
+}
+
+HatoholError DBTablesHost::getHostgroups(HostgroupVect &hostgroups,
+                                         const HostgroupsQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileHostgroupList);
+	arg.add(IDX_HOSTGROUP_LIST_ID);
+	arg.add(IDX_HOSTGROUP_LIST_SERVER_ID);
+	arg.add(IDX_HOSTGROUP_LIST_ID_IN_SERVER);
+	arg.add(IDX_HOSTGROUP_LIST_NAME);
+	arg.condition = option.getCondition();
+
+	getDBAgent().runTransaction(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+
+		Hostgroup hostgrp;
+		itemGroupStream >> hostgrp.id;
+		itemGroupStream >> hostgrp.serverId;
+		itemGroupStream >> hostgrp.idInServer;
+		itemGroupStream >> hostgrp.name;
+		hostgroups.push_back(hostgrp);
+	}
+
+	return HTERR_OK;
+}
+
+GenericIdType DBTablesHost::upsertHostgroupMember(
+  const HostgroupMember &hostgroupMember, const bool &useTransaction)
+{
+	GenericIdType id;
+	DBAgent::InsertArg arg(tableProfileHostgroupMember);
+	arg.add(hostgroupMember.id);
+	arg.add(hostgroupMember.serverId);
+	arg.add(hostgroupMember.hostIdInServer);
+	arg.add(hostgroupMember.hostgroupIdInServer);
+	arg.upsertOnDuplicate = true;
+
+	DBAgent &dbAgent = getDBAgent();
+	if (useTransaction) {
+		dbAgent.runTransaction(arg, &id);
+	} else {
+		dbAgent.insert(arg);
+		id = dbAgent.getLastInsertId();
+	}
+
+	return id;
+}
+
+void DBTablesHost::upsertHostgroupMembers(
+  const HostgroupMemberVect &hostgroupMembers)
+{
+	struct Proc : public DBAgent::TransactionProc {
+		DBTablesHost &dbHost;
+		const HostgroupMemberVect &hostgrpMembers;
+
+		Proc(DBTablesHost &_dbHost,
+		     const HostgroupMemberVect &_hostgrpMembers)
+		: dbHost(_dbHost),
+		  hostgrpMembers(_hostgrpMembers)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			HostgroupMemberVectConstIterator hgrpMemIt =
+			  hostgrpMembers.begin();
+			for (; hgrpMemIt != hostgrpMembers.end(); ++hgrpMemIt)
+				dbHost.upsertHostgroupMember(*hgrpMemIt, false);
+		}
+	} proc(*this, hostgroupMembers);
+	getDBAgent().runTransaction(proc);
+}
+
+HatoholError DBTablesHost::getHostgroupMembers(
+  HostgroupMemberVect &hostgroupMembers,
+  const HostgroupMembersQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileHostgroupMember);
+	arg.add(IDX_HOSTGROUP_MEMBER_ID);
+	arg.add(IDX_HOSTGROUP_MEMBER_SERVER_ID);
+	arg.add(IDX_HOSTGROUP_MEMBER_HOST_ID);
+	arg.add(IDX_HOSTGROUP_MEMBER_GROUP_ID);
+
+	arg.condition = option.getCondition();
+
+	getDBAgent().runTransaction(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	hostgroupMembers.reserve(grpList.size());
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		HostgroupMember hostgrpMember;
+		hostgrpMember.id = itemGroupStream.read<GenericIdType>();
+		itemGroupStream >> hostgrpMember.serverId;
+		itemGroupStream >> hostgrpMember.hostIdInServer;
+		itemGroupStream >> hostgrpMember.hostgroupIdInServer;
+		hostgroupMembers.push_back(hostgrpMember);
+	}
+
+	return HTERR_OK;
 }
 
 HatoholError DBTablesHost::getVirtualMachines(
   HostIdVector &virtualMachines, const HostIdType &hypervisorHostId,
-  const HostQueryOption &option)
+  const HostsQueryOption &option)
 {
 	if (option.getUserId() == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
@@ -468,7 +954,7 @@ HatoholError DBTablesHost::getVirtualMachines(
 
 HatoholError DBTablesHost::getHypervisor(HostIdType &hypervisorHostId,
                                          const HostIdType &hostId,
-                                         const HostQueryOption &option)
+                                         const HostsQueryOption &option)
 {
 	if (option.getUserId() == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
@@ -507,7 +993,7 @@ HatoholError DBTablesHost::getHypervisor(HostIdType &hypervisorHostId,
 }
 
 bool DBTablesHost::isAccessible(
-  const HostIdType &hostId, const HostQueryOption &option)
+  const HostIdType &hostId, const HostsQueryOption &option)
 {
 	// Get the server ID and host ID (in the server)
 	DBClientJoinBuilder builder(tableProfileServerHostDef);
@@ -515,12 +1001,12 @@ bool DBTablesHost::isAccessible(
 
 	// TODO: add a column including host_id and use it
 	builder.addTable(
-	  tableProfileHostHostgroup, DBClientJoinBuilder::INNER_JOIN,
+	  tableProfileHostgroupMember, DBClientJoinBuilder::INNER_JOIN,
 	  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
-	  IDX_HOST_HOSTGROUP_SERVER_ID,
+	  IDX_HOSTGROUP_MEMBER_SERVER_ID,
 	  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
-	  IDX_HOST_HOSTGROUP_HOST_ID);
-	builder.add(IDX_HOST_HOSTGROUP_GROUP_ID);
+	  IDX_HOSTGROUP_MEMBER_HOST_ID);
+	builder.add(IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 	DBAgent::SelectExArg &arg = builder.build();
 	arg.condition = StringUtils::sprintf(
@@ -539,17 +1025,124 @@ bool DBTablesHost::isAccessible(
 		string hostgroupIdInServer;
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		itemGroupStream >> serverId;
-		itemGroupStream >> hostgroupIdInServer;
 		// TODO: DBTablesUser should handle hostgroup ID as a string
-		HostgroupIdType hostgroupId;
-		int ret = sscanf(hostgroupIdInServer.c_str(),
-		                 "%" FMT_HOST_GROUP_ID, &hostgroupId);
-		HATOHOL_ASSERT(ret == 1, "ret: %d, str: %s\n",
-		               ret, hostgroupIdInServer.c_str());
+		HostgroupIdType hostgroupId =
+		  itemGroupStream.read<string, HostgroupIdType>();
 		if (dbUser.isAccessible(serverId, hostgroupId, option))
 			return true;
 	}
 	return false;
+}
+
+HatoholError DBTablesHost::getServerHostDefs(
+  ServerHostDefVect &svHostDefVect, const HostsQueryOption &option)
+{
+	DBClientJoinBuilder builder(tableProfileServerHostDef);
+	builder.add(IDX_HOST_SERVER_HOST_DEF_ID);
+	builder.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID);
+	builder.add(IDX_HOST_SERVER_HOST_DEF_SERVER_ID);
+	builder.add(IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
+	builder.add(IDX_HOST_SERVER_HOST_DEF_HOST_NAME);
+	builder.add(IDX_HOST_SERVER_HOST_DEF_HOST_STATUS);
+
+	if (option.isHostgroupUsed()) {
+		// TODO: add a column including host_id and use it
+		builder.addTable(
+		  tableProfileHostgroupMember, DBClientJoinBuilder::INNER_JOIN,
+		  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+		  IDX_HOSTGROUP_MEMBER_SERVER_ID,
+		  tableProfileServerHostDef,
+		  IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
+		  IDX_HOSTGROUP_MEMBER_HOST_ID);
+	}
+
+	DBAgent::SelectExArg &arg = builder.build();
+	if (option.isHostgroupUsed()) {
+		// TODO: FIX This low level implementation is temporary
+		// We should make a framework to use a sub query
+		string matchCond = StringUtils::sprintf("%s=%s AND %s=%s",
+		  tableProfileServerHostDef.getFullColumnName(IDX_HOST_SERVER_HOST_DEF_SERVER_ID).c_str(),
+		  tableProfileHostgroupMember.getFullColumnName(IDX_HOSTGROUP_MEMBER_SERVER_ID).c_str(),
+		  tableProfileServerHostDef.getFullColumnName(IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER).c_str(),
+		  tableProfileHostgroupMember.getFullColumnName(IDX_HOSTGROUP_MEMBER_HOST_ID).c_str());
+
+		arg.tableField = tableProfileServerHostDef.name;
+		arg.condition = "EXISTS (SELECT * from ";
+		arg.condition += tableProfileHostgroupMember.name;
+		arg.condition += " WHERE (";
+		arg.condition += matchCond;
+		arg.condition += ") AND (";
+		arg.condition += option.getCondition();
+		arg.condition += "))";
+	} else {
+		arg.condition = option.getCondition();
+	}
+	getDBAgent().runTransaction(arg);
+
+	// get the result
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	svHostDefVect.reserve(svHostDefVect.size() + grpList.size());
+
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		ServerHostDef svHostDef;
+		itemGroupStream >> svHostDef.id;
+		itemGroupStream >> svHostDef.hostId;
+		itemGroupStream >> svHostDef.serverId;
+		itemGroupStream >> svHostDef.hostIdInServer;
+		itemGroupStream >> svHostDef.name;
+		itemGroupStream >> svHostDef.status;
+		svHostDefVect.push_back(svHostDef);
+	}
+	return HTERR_OK;
+}
+
+HatoholError DBTablesHost::syncHosts(const ServerHostDefVect &svHostDefs,
+                                     const ServerIdType &serverId)
+{
+	// Make a set that contains current hosts records
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setStatus(HOST_STAT_NORMAL);
+	option.setTargetServerId(serverId);
+
+	ServerHostDefVect _currHosts;
+	HatoholError err = getServerHostDefs(_currHosts, option);
+	if (err != HTERR_OK)
+		return err;
+	const ServerHostDefVect &currHosts(_currHosts); // To avoid changing
+
+	map<string, const ServerHostDef *> currValidHosts;
+	ServerHostDefVectConstIterator currHostsItr = currHosts.begin();
+	for (; currHostsItr != currHosts.end(); ++currHostsItr) {
+		const ServerHostDef &svHostDef = *currHostsItr;
+		currValidHosts[svHostDef.hostIdInServer] = &svHostDef;
+	}
+
+	// Pick up hosts to be added.
+	ServerHostDefVect serverHostDefs;
+	ServerHostDefVectConstIterator newHostsItr = svHostDefs.begin();
+	for (; newHostsItr != svHostDefs.end(); ++newHostsItr) {
+		const ServerHostDef &newSvHostDef = *newHostsItr;
+		if (currValidHosts.erase(newSvHostDef.hostIdInServer) >= 1) {
+			// The host already exits. We have nothing to do.
+			continue;
+		}
+		// TODO: avoid the copy
+		serverHostDefs.push_back(newSvHostDef);
+	}
+
+	// Add hosts to be marked as invalid
+	map<string, const ServerHostDef *>::const_iterator
+	  hostMapItr = currValidHosts.begin();
+	for (; hostMapItr != currValidHosts.end(); ++hostMapItr) {
+		ServerHostDef invalidHost = *hostMapItr->second; // make a copy
+		invalidHost.status = HOST_STAT_REMOVED;
+		serverHostDefs.push_back(invalidHost);
+	}
+
+	upsertHosts(serverHostDefs);
+	return HTERR_OK;
 }
 
 // ---------------------------------------------------------------------------
@@ -570,7 +1163,9 @@ DBTables::SetupInfo &DBTablesHost::getSetupInfo(void)
 	}, {
 		&tableProfileVMList,
 	}, {
-		&tableProfileHostHostgroup,
+		&tableProfileHostgroupList,
+	}, {
+		&tableProfileHostgroupMember,
 	}
 	};
 	static const size_t NUM_TABLE_INFO =

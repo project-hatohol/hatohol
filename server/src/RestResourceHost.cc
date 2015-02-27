@@ -133,7 +133,7 @@ static HatoholError parseHostResourceQueryParameter(
 	option.setTargetServerId(targetServerId);
 
 	// target host group id
-	HostIdType targetHostgroupId = ALL_HOST_GROUPS;
+	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
 	err = getParam<HostgroupIdType>(query, "hostgroupId",
 					"%" FMT_HOST_GROUP_ID,
 					targetHostgroupId);
@@ -315,12 +315,14 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 
 	// TODO: This implementeation is not effective.
 	//       We should add a function only to get the number of list.
-	HostInfoList hostInfoList;
+	ServerHostDefVect svHostDefs;
 	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(svInfo.id);
-	option.setValidity(HOST_VALID);
-	dataStore->getHostList(hostInfoList, option);
-	agent.add("numberOfHosts", hostInfoList.size());
+	option.setStatus(HOST_STAT_NORMAL);
+	err = dataStore->getServerHostDefs(svHostDefs, option);
+	if (err != HTERR_OK)
+		return err;
+	agent.add("numberOfHosts", svHostDefs.size());
 
 	ItemsQueryOption itemsQueryOption(job->m_dataQueryContextPtr);
 	itemsQueryOption.setTargetServerId(svInfo.id);
@@ -363,23 +365,23 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	// TODO: We temtatively returns 'No group'. We should fix it
 	//       after host group is supported in Hatohol server.
 	agent.startObject("hostgroups");
-	HostgroupInfoList hostgroupInfoList;
-	err = job->addHostgroupsMap(agent, svInfo, hostgroupInfoList);
+	HostgroupVect hostgroups;
+	err = job->addHostgroupsMap(agent, svInfo, hostgroups);
 	if (err != HTERR_OK) {
-		HostgroupInfo hgrpInfo;
-		hgrpInfo.id = 0;
-		hgrpInfo.serverId = svInfo.id;
-		hgrpInfo.groupId = ALL_HOST_GROUPS;
-		hgrpInfo.groupName = "All host groups";
-		hostgroupInfoList.push_back(hgrpInfo);
+		Hostgroup hostgrp;
+		hostgrp.id         = 0;
+		hostgrp.serverId   = svInfo.id;
+		hostgrp.idInServer = ALL_HOST_GROUPS;
+		hostgrp.name       = "All host groups";
+		hostgroups.push_back(hostgrp);
 	}
 	agent.endObject();
 
 	// SystemStatus
 	agent.startArray("systemStatus");
-	HostgroupInfoListConstIterator hostgrpItr = hostgroupInfoList.begin();
-	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
-		const HostgroupIdType hostgroupId = hostgrpItr->groupId;
+	HostgroupVectConstIterator hostgrpItr = hostgroups.begin();
+	for (; hostgrpItr != hostgroups.end(); ++ hostgrpItr) {
+		const HostgroupIdType &hostgroupId = hostgrpItr->idInServer;
 		for (int severity = 0;
 		     severity < NUM_TRIGGER_SEVERITY; severity++) {
 			TriggersQueryOption option(job->m_dataQueryContextPtr);
@@ -400,9 +402,9 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 
 	// HostStatus
 	agent.startArray("hostStatus");
-	hostgrpItr = hostgroupInfoList.begin();
-	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
-		const HostgroupIdType hostgroupId = hostgrpItr->groupId;
+	hostgrpItr = hostgroups.begin();
+	for (; hostgrpItr != hostgroups.end(); ++ hostgrpItr) {
+		const HostgroupIdType &hostgroupId = hostgrpItr->idInServer;
 		TriggersQueryOption option(job->m_dataQueryContextPtr);
 		option.setExcludeFlags(EXCLUDE_INVALID_HOST|EXCLUDE_SELF_MONITORING);
 		option.setTargetServerId(svInfo.id);
@@ -485,22 +487,23 @@ static void addHosts(FaceRest::ResourceHandler *job, JSONBuilder &agent,
                      const HostIdType &targetHostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HostInfoList hostInfoList;
+	ServerHostDefVect svHostDefs;
 	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostgroupId(targetHostgroupId);
 	option.setTargetHostId(targetHostId);
-	dataStore->getHostList(hostInfoList, option);
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  dataStore->getServerHostDefs(svHostDefs, option));
 
-	agent.add("numberOfHosts", hostInfoList.size());
+	agent.add("numberOfHosts", svHostDefs.size());
 	agent.startArray("hosts");
-	HostInfoListIterator it = hostInfoList.begin();
-	for (; it != hostInfoList.end(); ++it) {
-		HostInfo &hostInfo = *it;
+	ServerHostDefVectConstIterator svHostIt = svHostDefs.begin();
+	for (; svHostIt != svHostDefs.end(); ++svHostIt) {
+		const ServerHostDef &svHostDef = *svHostIt;
 		agent.startObject();
-		agent.add("id", StringUtils::toString(hostInfo.id));
-		agent.add("serverId", hostInfo.serverId);
-		agent.add("hostName", hostInfo.hostName);
+		agent.add("id", svHostDef.hostIdInServer);
+		agent.add("serverId", svHostDef.serverId);
+		agent.add("hostName", svHostDef.name);
 		agent.endObject();
 	}
 	agent.endArray();
@@ -927,22 +930,22 @@ void RestResourceHost::historyFetchedCallback(
 
 static void addHostsIsMemberOfGroup(
   FaceRest::ResourceHandler *job, JSONBuilder &agent,
-  uint64_t targetServerId, uint64_t targetGroupId)
+  uint64_t targetServerId, const string &targetGroupId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
-	HostgroupElementList hostgroupElementList;
+	HostgroupMemberVect hostgrpMembers;
 	HostgroupElementQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
+
 	option.setTargetHostgroupId(targetGroupId);
-	dataStore->getHostgroupElementList(hostgroupElementList, option);
+	dataStore->getHostgroupMembers(hostgrpMembers, option);
 
 	agent.startArray("hosts");
-	HostgroupElementListIterator it = hostgroupElementList.begin();
-	for (; it != hostgroupElementList.end(); ++it) {
-		HostgroupElement hostgroupElement = *it;
-		agent.add(StringUtils::toString(hostgroupElement.hostId));
-	}
+	HostgroupMemberVectConstIterator hostgrpMemberIt =
+	  hostgrpMembers.begin();
+	for (; hostgrpMemberIt != hostgrpMembers.end(); ++hostgrpMemberIt)
+		agent.add(hostgrpMemberIt->hostIdInServer);
 	agent.endArray();
 }
 
@@ -957,25 +960,28 @@ void RestResourceHost::handlerGetHostgroup(void)
 	}
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HostgroupInfoList hostgroupInfoList;
-	err = dataStore->getHostgroupInfoList(hostgroupInfoList, option);
+	HostgroupVect hostgroups;
+	err = dataStore->getHostgroups(hostgroups, option);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
 
 	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	agent.add("numberOfHostgroups", hostgroupInfoList.size());
+	agent.add("numberOfHostgroups", hostgroups.size());
 	agent.startArray("hostgroups");
-	HostgroupInfoListIterator it = hostgroupInfoList.begin();
-	for (; it != hostgroupInfoList.end(); ++it) {
-		HostgroupInfo hostgroupInfo = *it;
+	HostgroupVectConstIterator it = hostgroups.begin();
+	for (; it != hostgroups.end(); ++it) {
+		const Hostgroup &hostgrp = *it;
 		agent.startObject();
-		agent.add("id", hostgroupInfo.id);
-		agent.add("serverId", hostgroupInfo.serverId);
-		agent.add("groupId", hostgroupInfo.groupId);
-		agent.add("groupName", hostgroupInfo.groupName.c_str());
+		agent.add("id",        hostgrp.id);
+		agent.add("serverId",  hostgrp.serverId);
+		agent.add("groupId",   hostgrp.idInServer);
+		agent.add("groupName", hostgrp.name);
 		addHostsIsMemberOfGroup(this, agent,
-		                        hostgroupInfo.serverId,
-		                        hostgroupInfo.groupId);
+		                        hostgrp.serverId, hostgrp.idInServer);
 		agent.endObject();
 	}
 	agent.endArray();

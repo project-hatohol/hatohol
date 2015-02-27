@@ -51,7 +51,7 @@
 using namespace std;
 using namespace mlpl;
 
-int FaceRest::API_VERSION = 3;
+int FaceRest::API_VERSION = 4;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
 const int FaceRest::DEFAULT_NUM_WORKERS = 4;
 
@@ -81,6 +81,17 @@ typedef map<FormatType, const char *> MimeTypeMap;
 typedef MimeTypeMap::iterator   MimeTypeMapIterator;
 static MimeTypeMap g_mimeTypeMap;
 
+// FaceRestPrivate ===========================================================
+template<>
+int scanParam(const char *value, const char *scanFmt, std::string &dest)
+{
+	if (!value)
+		return 0;
+	dest = value;
+	return !dest.empty();
+}
+
+// FaceRest ==================================================================
 struct FaceRest::Impl {
 	struct MainThreadCleaner;
 	static Mutex        lock;
@@ -918,25 +929,26 @@ static void addHostsMap(
 	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
 	char *value = (char *)g_hash_table_lookup(job->m_query, "hostgroupId");
 	if (value)
-		sscanf(value, "%" FMT_HOST_GROUP_ID, &targetHostgroupId);
+		targetHostgroupId = value;
 
-	HostInfoList hostList;
+	ServerHostDefVect svHostDefVect;
 	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(serverInfo.id);
 	option.setTargetHostgroupId(targetHostgroupId);
 	// TODO:
 	// This is a workaround to show host name that was deleted in the
 	// Event page. We should save host name in Event table.
-	option.setValidity(HOST_ANY_VALIDITY);
+	option.setStatus(HOST_STAT_ALL);
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->getHostList(hostList, option);
-	HostInfoListIterator it = hostList.begin();
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  dataStore->getServerHostDefs(svHostDefVect, option));
+	ServerHostDefVectConstIterator svHostIt = svHostDefVect.begin();
 	agent.startObject("hosts");
-	for (; it != hostList.end(); ++it) {
-		HostInfo &host = *it;
-		agent.startObject(StringUtils::toString(host.id));
-		agent.add("name", host.hostName);
+	for (; svHostIt != svHostDefVect.end(); ++svHostIt) {
+		const ServerHostDef &svHostDef = *svHostIt;
+		agent.startObject(svHostDef.hostIdInServer);
+		agent.add("name", svHostDef.name);
 		agent.endObject();
 	}
 	agent.endObject();
@@ -996,13 +1008,12 @@ static void addTriggersIdBriefHash(
 
 HatoholError FaceRest::ResourceHandler::addHostgroupsMap(
   JSONBuilder &outputJSON, const MonitoringServerInfo &serverInfo,
-  HostgroupInfoList &hostgroupList)
+  HostgroupVect &hostgroups)
 {
 	HostgroupsQueryOption option(m_dataQueryContextPtr);
 	option.setTargetServerId(serverInfo.id);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->getHostgroupInfoList(hostgroupList,
-	                                                   option);
+	HatoholError err = dataStore->getHostgroups(hostgroups, option);
 	if (err != HTERR_OK) {
 		MLPL_ERR("Error: %d, user ID: %" FMT_USER_ID ", "
 		         "sv ID: %" FMT_SERVER_ID "\n",
@@ -1010,12 +1021,11 @@ HatoholError FaceRest::ResourceHandler::addHostgroupsMap(
 		return err;
 	}
 
-	HostgroupInfoListIterator it = hostgroupList.begin();
-	for (; it != hostgroupList.end(); ++it) {
-		const HostgroupInfo &hostgroupInfo = *it;
-		outputJSON.startObject(
-		  StringUtils::toString(hostgroupInfo.groupId));
-		outputJSON.add("name", hostgroupInfo.groupName);
+	HostgroupVectConstIterator it = hostgroups.begin();
+	for (; it != hostgroups.end(); ++it) {
+		const Hostgroup &hostgrp = *it;
+		outputJSON.startObject(hostgrp.idInServer);
+		outputJSON.add("name", hostgrp.name);
 		outputJSON.endObject();
 	}
 	return HTERR_OK;
@@ -1047,11 +1057,9 @@ void FaceRest::ResourceHandler::addServersMap(
 			                       lookupTriggerBrief);
 		}
 		agent.startObject("groups");
-		// Even if the following function retrun an error,
-		// We cannot do anything. The receiver (client) should handle
-		// the returned empty or unperfect group information.
-		HostgroupInfoList hostgroupList;
-		addHostgroupsMap(agent, serverInfo, hostgroupList);
+		HostgroupVect hostgroups;
+		THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+		  addHostgroupsMap(agent, serverInfo, hostgroups));
 		agent.endObject(); // "gropus"
 		agent.endObject(); // toString(serverInfo.id)
 	}

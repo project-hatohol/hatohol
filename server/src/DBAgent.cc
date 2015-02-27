@@ -22,6 +22,7 @@
 #include "DBAgent.h"
 #include "HatoholException.h"
 #include "SeparatorInjector.h"
+#include "DBTermCStringProvider.h"
 using namespace std;
 using namespace mlpl;
 
@@ -568,10 +569,8 @@ string DBAgent::getColumnValueString(const ColumnDef *columnDef,
 	case SQL_COLUMN_TYPE_CHAR:
 	case SQL_COLUMN_TYPE_TEXT:
 	{
-		string escaped =
-		  StringUtils::replace((string)*itemData, "'", "''");
-		valueStr =
-		  StringUtils::sprintf("'%s'", escaped.c_str());
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		valueStr = rhs(static_cast<string>(*itemData));
 		break;
 	}
 	case SQL_COLUMN_TYPE_DOUBLE:

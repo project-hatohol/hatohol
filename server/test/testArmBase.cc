@@ -26,6 +26,7 @@
 #include <ThreadLocalDBCache.h>
 #include "Helpers.h"
 #include "DBTablesTest.h"
+#include "UnifiedDataStore.h"
 using namespace std;
 using namespace mlpl;
 
@@ -493,6 +494,7 @@ void test_setServerConnectStatusWithNoTrigger(void)
 
 void test_setServerConnectStatus(void)
 {
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	serverInfo.id = 1;
@@ -545,17 +547,16 @@ void test_setServerConnectStatus(void)
 			    makeEventOutput(*events.begin()));
 
 	// check the generated host
-	HostInfoList hosts;
-	dbMonitoring.getHostInfoList(hosts, HostsQueryOption(USER_ID_SYSTEM));
+	ServerHostDefVect hosts;
+	uds->getServerHostDefs(hosts, HostsQueryOption(USER_ID_SYSTEM));
 	cppcut_assert_equal((size_t)1, (size_t)hosts.size());
-
-	HostInfo hostInfo;
-	hostInfo.serverId = serverInfo.id;
-	hostInfo.id = MONITORING_SERVER_SELF_ID;
-	hostInfo.hostName = "_SELF";
-	hostInfo.validity = HOST_VALID_SELF_MONITORING;
-	cppcut_assert_equal(makeHostOutput(hostInfo),
-			    makeHostOutput(*hosts.begin()));
+	const ServerHostDef &actualHost = *hosts.begin();
+	cppcut_assert_equal(serverInfo.id, actualHost.serverId);
+	cppcut_assert_equal(
+	  StringUtils::sprintf("%" FMT_HOST_ID, MONITORING_SERVER_SELF_ID),
+	  actualHost.hostIdInServer);
+	cppcut_assert_equal(string("_SELF"), actualHost.name);
+	cppcut_assert_equal(HOST_STAT_SELF_MONITOR, actualHost.status);
 }
 
 } // namespace testArmBase

@@ -74,8 +74,8 @@ typedef uint64_t ItemCategoryIdType;
 typedef uint64_t TriggerIdType;
 #define FMT_TRIGGER_ID PRIu64
 
-typedef uint64_t HostgroupIdType;
-#define FMT_HOST_GROUP_ID PRIu64
+typedef std::string HostgroupIdType;
+#define FMT_HOST_GROUP_ID "s"
 
 typedef uint64_t HostIdType;
 #define FMT_HOST_ID PRIu64
@@ -93,9 +93,10 @@ static const HostIdType ALL_HOSTS                 = -1;
 static const HostIdType INVALID_HOST_ID           = -2;
 static const HostIdType INAPPLICABLE_HOST_ID      = -3;
 static const HostIdType MONITORING_SERVER_SELF_ID = -4;
+static const HostIdType AUTO_ASSIGNED_ID          = -5;
 
 // Special Hostgroup IDs ======================================================
-static const HostgroupIdType ALL_HOST_GROUPS = -1;
+static const HostgroupIdType ALL_HOST_GROUPS = "*";
 
 // Special Indent Tracker IDs =================================================
 static const IncidentTrackerIdType ALL_INCIDENT_TRACKERS = -1;
@@ -187,4 +188,9 @@ enum SyncType {
 	SYNC,
 	ASYNC,
 };
+
+// Mainly used for DB access.
+static const int      AUTO_INCREMENT_VALUE = 0;
+static const uint64_t AUTO_INCREMENT_VALUE_U64 = 0;
+
 #endif // Params_h

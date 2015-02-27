@@ -113,7 +113,7 @@ ServerTypeInfo testServerTypeInfo[] =
 }};
 size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
 
-MonitoringServerInfo testServerInfo[] =
+const MonitoringServerInfo testServerInfo[] =
 {{
 	1,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -150,8 +150,44 @@ MonitoringServerInfo testServerInfo[] =
 	"Fermi",                  // user_name
 	"fermion",                // password
 	"",                       // db_name
+},{
+	4,                        // id
+	MONITORING_SYSTEM_ZABBIX, // type
+	"mosquito.example.com",   // hostname
+	"10.100.10.52",           // ip_address
+	"KA",                     // nickname
+	30000,                    // port
+	3600,                     // polling_interval_sec
+	600,                      // retry_interval_sec
+	"Z",                      // user_name
+	"OTSU",                   // password
+	"zzz",                    // db_name
+},{
+	211,                      // id
+	MONITORING_SYSTEM_ZABBIX, // type
+	"x-men.example.com",      // hostname
+	"172.16.32.51",           // ip_address
+	"(^_^)",                  // nickname
+	12345,                    // port
+	10,                       // polling_interval_sec
+	10,                       // retry_interval_sec
+	"sake",                   // user_name
+	"siranami",               // password
+	"zabbix",                 // db_name
+},{
+	222,                      // id
+	MONITORING_SYSTEM_ZABBIX, // type
+	"zoo.example.com",        // hostname
+	"10.0.0.48",              // ip_address
+	"Akira",                  // nickname
+	80,                       // port
+	300,                      // polling_interval_sec
+	60,                       // retry_interval_sec
+	"ponta",                  // user_name
+	"doradora",               // password
+	"z@bb1x",                 // db_name
 }};
-size_t NumTestServerInfo = ARRAY_SIZE(testServerInfo);
+const size_t NumTestServerInfo = ARRAY_SIZE(testServerInfo);
 
 MonitoringServerStatus testServerStatus[] =
 {{
@@ -243,7 +279,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_WARNING, // severity
 	{1362951000,0},           // lastChangeTime
-	0x89abcdeffffffff,       // hostId,
+	0x89abcdefffffffff,       // hostId,
 	"hostQ1",                 // hostName,
 	"TEST Trigger Action",    // brief,
 	"",                       // extendedInfo
@@ -276,7 +312,7 @@ size_t NumTestTriggerInfo = ARRAY_SIZE(testTriggerInfo);
 static const TriggerInfo &trigInfoDefunctSv1 =
   testTriggerInfo[NumTestTriggerInfo-1];
 
-EventInfo testEventInfo[] = {
+const EventInfo testEventInfo[] = {
 {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
@@ -367,7 +403,7 @@ EventInfo testEventInfo[] = {
 // See also the definition of trigInfoDefunctSv1 above. Anyway,
 // ******* DON'T APPEND RECORDS AFTER HERE *******
 };
-size_t NumTestEventInfo = ARRAY_SIZE(testEventInfo);
+const size_t NumTestEventInfo = ARRAY_SIZE(testEventInfo);
 
 EventInfo testDupEventInfo[] = {
 {
@@ -687,12 +723,12 @@ AccessInfo testAccessInfo[] = {
 	0,                 // id
 	1,                 // userId
 	1,                 // serverId
-	0,                 // hostgroupId
+	"0",               // hostgroupId
 }, {
 	0,                 // id
 	1,                 // userId
 	1,                 // serverId
-	1,                 // hostgroupId
+	"1",               // hostgroupId
 }, {
 	0,                 // id
 	2,                 // userId
@@ -707,22 +743,22 @@ AccessInfo testAccessInfo[] = {
 	0,                 // id
 	3,                 // userId
 	2,                 // serverId
-	1,                 // hostgroupId
+	"1",               // hostgroupId
 }, {
 	0,                 // id
 	3,                 // userId
 	2,                 // serverId
-	2,                 // hostgroupId
+	"2",               // hostgroupId
 }, {
 	0,                 // id
 	3,                 // userId
 	4,                 // serverId
-	1,                 // hostgroupId
+	"1",               // hostgroupId
 }, {
 	0,                 // id
 	3,                 // userId
 	211,               // serverId
-	123,               // hostgroupId
+	"123",             // hostgroupId
 }, {
 	0,                 // id
 	5,                 // userId
@@ -732,22 +768,22 @@ AccessInfo testAccessInfo[] = {
 	0,                 // id
 	6,                 // userId
 	211,               // serverId
-	124,               // hostgroupId
+	"124",             // hostgroupId
 }, {
 	0,                 // id
 	6,                 // userId
 	222,               // serverId
-	124,               // hostgroupId
+	"124",             // hostgroupId
 }, {
 	0,                 // id
 	userIdWithMultipleAuthorizedHostgroups, // userId
 	1,                 // serverId
-	1,                 // hostgroupId
+	"1",               // hostgroupId
 }, {
 	0,                 // id
 	userIdWithMultipleAuthorizedHostgroups, // userId
 	1,                 // serverId
-	2,                 // hostgroupId
+	"2",               // hostgroupId
 }, {
 	0,                 // id
 	2,                 // userId
@@ -757,180 +793,49 @@ AccessInfo testAccessInfo[] = {
 };
 const size_t NumTestAccessInfo = ARRAY_SIZE(testAccessInfo);
 
-HostgroupInfo testHostgroupInfo[] = {
+static HostgroupInfo testHostgroupInfo[] = {
 {
 	AUTO_INCREMENT_VALUE,  // id
 	1,                     // serverId
-	1,                     // groupId
+	"1",                   // groupId
 	"Monitor Servers"      // groupName
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	1,                     // serverId
-	2,                     // groupId
+	"2",                   // groupId
 	"Monitored Servers"    // groupName
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	3,                     // serverId
-	1,                     // groupId
+	"1",                   // groupId
 	"Checking Servers"     // groupName
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	3,                     // serverId
-	2,                     // groupId
+	"2",                   // groupId
 	"Checked Servers"      // groupName
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	4,                     // serverId
-	1,                     // groupId
+	"1",                   // groupId
 	"Watching Servers"     // groupName
 }, {
 	AUTO_INCREMENT_VALUE,  // id
 	4,                     // serverId
-	2,                     // groupId
+	"2",                   // groupId
 	"Watched Servers"      // groupName
 }, {
 	// This entry is for tests with a defunct server
 	AUTO_INCREMENT_VALUE,  // id
 	trigInfoDefunctSv1.serverId, // serverId
-	1,                     // groupId
+	"1",                   // groupId
 	"Hostgroup on a defunct servers" // groupName
 }
 };
-const size_t NumTestHostgroupInfo = ARRAY_SIZE(testHostgroupInfo);
+static const size_t NumTestHostgroupInfo = ARRAY_SIZE(testHostgroupInfo);
 
 static const string _HOST_VALID_STRING = StringUtils::sprintf("%d", HOST_VALID);
 static const char *HOST_VALID_STRING = _HOST_VALID_STRING.c_str();
-HostInfo testHostInfo[] = {
-{
-	1,                     // serverId
-	235012,                // id(hostId)
-	"hostX1",              // hostName
-	HOST_VALID,            // valid
-}, {
-	1,                     // serverId
-	235013,                // id(hostId)
-	"hostX2",              // hostName
-	HOST_VALID,            // valid
-}, {
-	1,                     // serverId
-	1129,                  // id(hostId)
-	"hostX3",              // hostName
-	HOST_VALID,            // valid
-} ,{
-	3,                     // serverId
-	10001,                 // id(hostId)
-	"hostZ1",              // hostName
-	HOST_VALID,            // valid
-} ,{
-	2,                     // serverId
-	512,                   // id(hostId)
-	"multi-host group",    // hostName
-	HOST_VALID,            // valid
-}, {
-	3,                     // serverId
-	10002,                 // id(hostId)
-	"hostZ2",              // hostName
-	HOST_VALID,            // valid
-}, {
-	3,                     // serverId
-	5,                     // id(hostId)
-	"frog",                // hostName
-	HOST_VALID,            // valid
-} ,{
-	3,                     // serverId
-	100,                   // id(hostId)
-	"dolphin",             // hostName
-	HOST_VALID,            // valid
-}, {
-	4,                     // serverId
-	100,                   // id(hostId)
-	"squirrel",            // hostName
-	HOST_VALID             // valid
-}, {
-	2,                     // serverId
-	0x89abcdeffffffff,     // id(hostId)
-	"hostQ1",              // hostName
-	HOST_VALID,            // valid
-}, {
-	// This entry is for tests with a defunct server
-	trigInfoDefunctSv1.serverId, // serverId
-	trigInfoDefunctSv1.hostId,   // hostId,
-	trigInfoDefunctSv1.hostName, // hostName,
-	HOST_VALID,            // valid
-}
-};
-const size_t NumTestHostInfo = ARRAY_SIZE(testHostInfo);
-
-HostgroupElement testHostgroupElement[] = {
-{
-	AUTO_INCREMENT_VALUE,  // id
-	1,                     // serverId
-	235012,                // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	1,                     // serverId
-	235012,                // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	1,                     // serverId
-	235013,                // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	1,                     // serverId
-	1129,                  // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	2,                     // serverId
-	512,                   // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	2,                     // serverId
-	512,                   // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	3,                     // serverId
-	10001,                 // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	3,                     // serverId
-	10002,                 // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	3,                     // serverId
-	5,                     // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	3,                     // serverId
-	100,                   // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	4,                     // serverId
-	100,                   // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	2,                     // serverId
-	0x89abcdefffffffff,    // hostId
-	0x8000000000000000,    // hostGroupId
-}, {
-	// This entry is for tests with a defunct server
-	AUTO_INCREMENT_VALUE,        // id
-	trigInfoDefunctSv1.serverId, // serverId
-	trigInfoDefunctSv1.hostId,   // hostId,
-	1,                           // groupId
-}
-};
-const size_t NumTestHostgroupElement = ARRAY_SIZE(testHostgroupElement);
 
 UserRoleInfo testUserRoleInfo[] = {
 {
@@ -1135,34 +1040,103 @@ size_t NumTestHistoryInfo = ARRAY_SIZE(testHistoryInfo);
 const ServerHostDef testServerHostDef[] = {
 {
 	AUTO_INCREMENT_VALUE,            // id
+	10,                              // hostId
+	1,                               // serverId
+	"235012",                        // hostIdInServer
+	"hostX1",                        // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	11,                              // hostId
+	1,                               // serverId
+	"235013",                        // hostIdInServer
+	"hostX2",                        // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	30,                              // hostId
+	1,                               // serverId
+	"1129",                          // hostIdInServer
+	"hostX3",                        // name
+} ,{
+	AUTO_INCREMENT_VALUE,            // id
+	35,                              // hostId
+	3,                               // serverId
+	"10001",                         // hostIdInServer
+	"hostZ1",                        // name
+} ,{
+	AUTO_INCREMENT_VALUE,            // id
+	40,                              // hostId
+	2,                               // serverId
+	"512",                           // hostIdInServer
+	"multi-host group",              // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	41,                              // hostId
+	3,                               // serverId
+	"10002",                         // hostIdInServer
+	"hostZ2",                        // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	42,                              // hostId
+	3,                               // serverId
+	"5",                             // hostIdInServer
+	"frog",                          // name
+} ,{
+	AUTO_INCREMENT_VALUE,            // id
+	45,                              // hostId
+	3,                               // serverId
+	"100",                           // hostIdInServer
+	"dolphin",                       // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	100,                             // hostId
+	4,                               // serverId
+	"100",                           // hostIdInServer
+	"squirrel",                      // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	101,                             // hostId
+	2,                               // serverId
+	//"0x89abcdefffffffff",          // hostIdInServer
+	"9920249034889494527",           // getHostInfoList() handles HostID As decimal
+	"hostQ1",                        // name
+}, {
+	// This entry is for tests with a defunct server
+	AUTO_INCREMENT_VALUE,            // id
+	494,                             // host_id
+	trigInfoDefunctSv1.serverId,     // serverId
+	//trigInfoDefunctSv1.hostId,       // hostIdInServer
+	"10002", // TODO: use the above after host ID in trigger becomes string
+	trigInfoDefunctSv1.hostName,     // name,
+}, {
+	AUTO_INCREMENT_VALUE,            // id
 	1050,                            // hostId
 	211,                             // serverId
-	"200",                           // host_id_in_server
+	"200",                           // hostIdInServer
 	"host 200",                      // name
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	2111,                            // hostId
 	211,                             // serverId
-	"12111",                         // host_id_in_server
-	"host 12111",                     // name
+	"12111",                         // hostIdInServer
+	"host 12111",                    // name
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	2112,                            // hostId
 	211,                             // serverId
-	"12112",                         // host_id_in_server
-	"host 12112",                     // name
+	"12112",                         // hostIdInServer
+	"host 12112",                    // name
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	2113,                            // hostId
 	211,                             // serverId
-	"12113",                         // host_id_in_server
-	"host 12113",                     // name
+	"12113",                         // hostIdInServer
+	"host 12113",                    // name
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	10005,                           // hostId
 	222,                             // serverId
-	"110005",                        // host_id_in_server
-	"host 110005",                    // name
+	"110005",                        // hostIdInServer
+	"host 110005",                   // name
 }
 };
 const size_t NumTestServerHostDef = ARRAY_SIZE(testServerHostDef);
@@ -1188,8 +1162,118 @@ const VMInfo testVMInfo[] = {
 };
 const size_t NumTestVMInfo = ARRAY_SIZE(testVMInfo);
 
-const HostHostgroup testHostHostgroup[] = {
+const Hostgroup testHostgroup[] = {
 {
+	AUTO_INCREMENT_VALUE,  // id
+	1,                     // serverId
+	"1",                   // idInServer
+	"Monitor Servers"      // name
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	1,                     // serverId
+	"2",                   // idInServer
+	"Monitored Servers"    // name
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	3,                     // serverId
+	"1",                   // idInServer
+	"Checking Servers"     // name
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	3,                     // serverId
+	"2",                   // idInServer
+	"Checked Servers"      // name
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	4,                     // serverId
+	"1",                   // idInServer
+	"Watching Servers"     // name
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	4,                     // serverId
+	"2",                   // idInServer
+	"Watched Servers"      // name
+}, {
+	// This entry is for tests with a defunct server
+	AUTO_INCREMENT_VALUE,  // id
+	trigInfoDefunctSv1.serverId, // serverId
+	"1",                   // idInServer
+	"Hostgroup on a defunct servers" // name
+}
+};
+const size_t NumTestHostgroup = ARRAY_SIZE(testHostgroup);
+
+const HostgroupMember testHostgroupMember[] = {
+{
+	AUTO_INCREMENT_VALUE,            // id
+	1,                               // serverId
+	"235012",                        // hostIdInServer
+	"1",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	1,                               // serverId
+	"235012",                        // hostIdInServer
+	"2",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	1,                               // serverId
+	"235013",                        // hostIdInServer
+	"2",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	1,                               // serverId
+	"1129",                          // hostIdInServer
+	"1",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2,                               // serverId
+	"512",                           // hostIdInServer
+	"1",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2,                               // serverId
+	"512",                           // hostIdInServer
+	"2",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	3,                               // serverId
+	"10001",                         // hostIdInServer
+	"2",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	3,                               // serverId
+	"10002",                         // hostIdInServer
+	"1",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	3,                               // serverId
+	"5",                             // hostIdInServer
+	"1",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	3,                               // serverId
+	"100",                           // hostIdInServer
+	"2",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	4,                               // serverId
+	"100",                           // hostIdInServer
+	"1",                             // hostgroupIdInServer
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2,                               // serverId
+	//"0x89abcdefffffffff",          // hostIdInServer
+	"9920249034889494527",           // getHostInfoList() handles HostID As decimal
+	// "0x8000000000000000",            // hostgroupIdInServer
+	"9223372036854775808",
+}, {
+	// This entry is for tests with a defunct server
+	AUTO_INCREMENT_VALUE,            // id
+	trigInfoDefunctSv1.serverId,     // serverId
+	// trigInfoDefunctSv1.hostIdInServer, // hostId,
+	"10002", // TODO: use the above after host ID in trigger becomes string
+	"1",                             // hostgroupIdInServer
+}, {
 	AUTO_INCREMENT_VALUE,            // id
 	211,                             // serverId
 	"200",                           // hostIdInServer
@@ -1216,7 +1300,7 @@ const HostHostgroup testHostHostgroup[] = {
 	"124",                           // hostgroupIdInServer
 }
 };
-const size_t NumTestHostHostgroup = ARRAY_SIZE(testHostHostgroup);
+const size_t NumTestHostgroupMember = ARRAY_SIZE(testHostgroupMember);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
@@ -1259,7 +1343,7 @@ EventIdType findLastEventId(const ServerIdType &serverId)
 	bool found = false;
 	EventIdType maxId = 0;
 	for (size_t i = 0; i < NumTestEventInfo; i++) {
-		EventInfo &eventInfo = testEventInfo[i];
+		const EventInfo &eventInfo = testEventInfo[i];
 		if (eventInfo.serverId != serverId)
 			continue;
 		if (eventInfo.id >= maxId) {
@@ -1276,9 +1360,9 @@ SmartTime findTimeOfLastEvent(
   const ServerIdType &serverId, const TriggerIdType &triggerId)
 {
 	EventIdType maxId = 0;
-	timespec   *lastTime = NULL;
+	const timespec *lastTime = NULL;
 	for (size_t i = 0; i < NumTestEventInfo; i++) {
-		EventInfo &eventInfo = testEventInfo[i];
+		const EventInfo &eventInfo = testEventInfo[i];
 		if (eventInfo.serverId != serverId)
 			continue;
 		if (triggerId != ALL_TRIGGERS &&
@@ -1286,7 +1370,7 @@ SmartTime findTimeOfLastEvent(
 			continue;
 		if (eventInfo.id >= maxId) {
 			maxId = eventInfo.id;
-			lastTime =& eventInfo.time;
+			lastTime = &eventInfo.time;
 		}
 	}
 	if (!lastTime)
@@ -1351,12 +1435,14 @@ size_t getNumberOfTestItems(const ServerIdType &serverId)
 
 static string makeHostgroupElementPack(
   const ServerIdType &serverId,
-  const HostIdType &hostId, const HostgroupIdType &hostgroupId)
+  const string hostId, const string hostgroupId)
 {
 	string s;
-	s.append((char *)&serverId,    sizeof(serverId));
-	s.append((char *)&hostId,      sizeof(hostId));
-	s.append((char *)&hostgroupId, sizeof(hostgroupId));
+	s.append((char *)&serverId, sizeof(serverId));
+	s += ":";
+	s += hostId;
+	s += ":";
+	s += hostgroupId;
 	return s;
 }
 
@@ -1367,41 +1453,17 @@ static string makeHostgroupElementPack(
  *
  * @return a set of HostGroupElementPack.
  */
-static const set<string> &getHostgroupElementPackSet(void)
-{
-	static set<string> hostgroupElementPackSet;
-	if (!hostgroupElementPackSet.empty())
-		return hostgroupElementPackSet;
-	for (size_t i = 0; i < NumTestHostgroupElement; i++) {
-		const HostgroupElement &hgrpElem = testHostgroupElement[i];
-		const string mash =
-		  makeHostgroupElementPack(
-		    hgrpElem.serverId, hgrpElem.hostId, hgrpElem.groupId);
-		pair<set<string>::iterator, bool> result =
-		  hostgroupElementPackSet.insert(mash);
-		cppcut_assert_equal(true, result.second);
-	}
-	return hostgroupElementPackSet;
-}
-
-static const set<string> &getHostHostgroupPackSet(void)
+static const set<string> &getHostgroupMemberPackSet(void)
 {
 	static set<string> hostHGrpPackSet;
 	if (!hostHGrpPackSet.empty())
 		return hostHGrpPackSet;
-	for (size_t i = 0; i < NumTestHostHostgroup; i++) {
-		const HostHostgroup &hhgr = testHostHostgroup[i];
-
-		HostIdType hostId;
-		HostgroupIdType hostgroupId;
-		cppcut_assert_equal(
-		  1, sscanf(hhgr.hostIdInServer.c_str(),
-		            "%" FMT_HOST_ID, &hostId));
-		cppcut_assert_equal(
-		  1, sscanf(hhgr.hostgroupIdInServer.c_str(),
-		            "%" FMT_HOST_GROUP_ID, &hostgroupId));
+	for (size_t i = 0; i < NumTestHostgroupMember; i++) {
+		const HostgroupMember &hhgr = testHostgroupMember[i];
 		const string mash =
-		  makeHostgroupElementPack(hhgr.serverId, hostId, hostgroupId);
+		  makeHostgroupElementPack(
+		    hhgr.serverId, hhgr.hostIdInServer,
+		    hhgr.hostgroupIdInServer);
 		pair<set<string>::iterator, bool> result =
 		  hostHGrpPackSet.insert(mash);
 		cppcut_assert_equal(true, result.second);
@@ -1416,11 +1478,13 @@ static bool isInHostgroup(const TriggerInfo &trigInfo,
 		return true;
 
 	const set<string> &hostgroupElementPackSet =
-	  getHostgroupElementPackSet();
+	  getHostgroupMemberPackSet();
 
 	const string pack =
-	  makeHostgroupElementPack(trigInfo.serverId,
-	                           trigInfo.hostId, hostgroupId);
+	  makeHostgroupElementPack(
+	    trigInfo.serverId,
+	    StringUtils::sprintf("%" FMT_HOST_ID, trigInfo.hostId),
+	    StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupId.c_str()));
 	set<string>::const_iterator it = hostgroupElementPackSet.find(pack);
 	return it != hostgroupElementPackSet.end();
 }
@@ -1454,7 +1518,7 @@ static bool isGoodStatus(const TriggerInfo &triggerInfo)
 }
 
 static void removeHostIdIfNeeded(ServerIdHostgroupHostIdMap &svIdHostGrpIdMap,
-                                 uint64_t hostGrpIdForTrig,
+                                 const HostgroupIdType &hostGrpIdForTrig,
                                  const TriggerInfo &trigInfo)
 {
 	ServerIdHostgroupHostIdMapIterator svIt;
@@ -1474,12 +1538,17 @@ static void removeHostIdIfNeeded(ServerIdHostgroupHostIdMap &svIdHostGrpIdMap,
 size_t getNumberOfTestHosts(
   const ServerIdType &serverId, const HostgroupIdType &hostgroupId)
 {
+	HATOHOL_ASSERT(hostgroupId == ALL_HOST_GROUPS,
+	  "Not implemented the feature to take care host groups: "
+	  "hostgroupID: %" FMT_HOST_GROUP_ID ".", hostgroupId.c_str());
+
 	size_t numberOfTestHosts = 0;
-	for (size_t i = 0; i < NumTestHostInfo; i++) {
-		HostInfo hostInfo = testHostInfo[i];
-		ServerIdType hostInfoServerId = hostInfo.serverId;
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		const ServerHostDef &svHostDef = testServerHostDef[i];
+		const ServerIdType &hostInfoServerId = svHostDef.serverId;
 		if (hostInfoServerId == serverId)
 			numberOfTestHosts++;
+		// TODO: compare with hostgroup ID.
 	}
 	return numberOfTestHosts;
 }
@@ -1592,11 +1661,13 @@ size_t getNumberOfTestActions(const ActionType &actionType)
 void getDBCTestHostInfo(HostInfoList &hostInfoList,
                         const ServerIdType &targetServerId)
 {
-	for (size_t i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo hostInfo = testHostInfo[i];
-		const ServerIdType &serverId = hostInfo.serverId;
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		const ServerHostDef &svHostDef = testServerHostDef[i];
+		const ServerIdType &serverId = svHostDef.serverId;
 		if (targetServerId != ALL_SERVERS && serverId != targetServerId)
 			continue;
+		HostInfo hostInfo;
+		conv(hostInfo, svHostDef);
 		hostInfoList.push_back(hostInfo);
 	}
 }
@@ -1681,11 +1752,13 @@ bool isAuthorized(
 
 	// check if the user is allowed to access to the host
 	if (!hgrpElementPackSet)
-		hgrpElementPackSet = &getHostgroupElementPackSet();
+		hgrpElementPackSet = &getHostgroupMemberPackSet();
 	HostgroupIdSetConstIterator hostgroupIdItr = hostgroupIds.begin();
 	for (; hostgroupIdItr != hostgroupIds.end(); ++hostgroupIdItr) {
 		const string pack =
-		  makeHostgroupElementPack(serverId, hostId, *hostgroupIdItr);
+		  makeHostgroupElementPack(serverId,
+		    StringUtils::sprintf("%" FMT_HOST_ID, hostId),
+		    StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupIdItr->c_str()));
 		if (hgrpElementPackSet->find(pack) != hgrpElementPackSet->end())
 			return true;
 	}
@@ -1716,7 +1789,7 @@ bool isAuthorized(
 	ServerHostGrpSetMap authMap;
 	makeServerHostGrpSetMap(authMap, userId);
 	cppcut_assert_equal(serverIds.size(), hostIds.size());
-	const set<string> &hostHGrpPackSet = getHostHostgroupPackSet();
+	const set<string> &hostHGrpPackSet = getHostgroupMemberPackSet();
 	for (size_t i = 0; i < serverIds.size(); i++) {
 		if (isAuthorized(authMap, userId, serverIds[i], hostIds[i],
 		                 &hostHGrpPackSet))
@@ -1724,6 +1797,16 @@ bool isAuthorized(
 	}
 
 	return false;
+}
+
+bool isDefunctTestServer(const ServerIdType &serverId)
+{
+	static ServerIdSet svIdSet;
+	if (svIdSet.empty()) {
+		for (size_t i = 0; i < NumTestServerInfo; i++)
+			svIdSet.insert(testServerInfo[i].id);
+	}
+	return svIdSet.find(serverId) == svIdSet.end();
 }
 
 size_t findIndexFromTestActionDef(const UserIdType &userId)
@@ -1762,8 +1845,10 @@ const HostgroupIdSet &getTestHostgroupIdSet(void)
 	if (!testHostgroupIdSet.empty())
 		return testHostgroupIdSet;
 
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		testHostgroupIdSet.insert(testHostgroupElement[i].groupId);
+	for (size_t i = 0; i < NumTestHostgroupMember; i++) {
+		testHostgroupIdSet.insert(
+		  testHostgroupMember[i].hostgroupIdInServer);
+	}
 	return testHostgroupIdSet;
 }
 
@@ -1869,8 +1954,12 @@ void loadTestDBServer(void)
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestServerInfo; i++)
-		dbConfig.addTargetServer(&testServerInfo[i], privilege);
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		// We have to make a copy since addTargetServer() changes
+		// a member of MonitoringServerInfo.
+		MonitoringServerInfo svInfo = testServerInfo[i];
+		dbConfig.addTargetServer(&svInfo, privilege);
+	}
 }
 
 void loadTestDBUser(void)
@@ -1935,8 +2024,11 @@ void loadTestDBEvents(void)
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestEventInfo; i++)
-		dbMonitoring.addEventInfo(&testEventInfo[i]);
+	for (size_t i = 0; i < NumTestEventInfo; i++) {
+		// Make a copy since EventInfo.id will be changed.
+		EventInfo evtInfo = testEventInfo[i];
+		dbMonitoring.addEventInfo(&evtInfo);
+	}
 }
 
 void loadTestDBItems(void)
@@ -1946,30 +2038,6 @@ void loadTestDBItems(void)
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestItemInfo; i++)
 		dbMonitoring.addItemInfo(&testItemInfo[i]);
-}
-
-void loadTestDBHosts(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestHostInfo; i++)
-		dbMonitoring.addHostInfo(&testHostInfo[i]);
-}
-
-void loadTestDBHostgroups(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
-		dbMonitoring.addHostgroupInfo(&testHostgroupInfo[i]);
-}
-
-void loadTestDBHostgroupElements(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		dbMonitoring.addHostgroupElement(&testHostgroupElement[i]);
 }
 
 void loadTestDBAction(void)
@@ -2051,11 +2119,20 @@ void loadTestDBVMInfo(void)
 		dbHost.upsertVMInfo(testVMInfo[i]);
 }
 
-void loadTestDBHostHostgroup(void)
+void loadTestDBHostgroup(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesHost &dbHost = cache.getHost();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestHostHostgroup; i++)
-		dbHost.upsertHostHostgroup(testHostHostgroup[i]);
+	for (size_t i = 0; i < NumTestHostgroup; i++)
+		dbHost.upsertHostgroup(testHostgroup[i]);
+}
+
+void loadTestDBHostgroupMember(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestHostgroupMember; i++)
+		dbHost.upsertHostgroupMember(testHostgroupMember[i]);
 }

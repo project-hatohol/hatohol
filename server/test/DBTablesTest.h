@@ -34,7 +34,7 @@ typedef HostIdSet::iterator HostIdSetIterator;
 typedef std::map<uint32_t, HostIdSet> ServerIdHostIdMap;
 typedef ServerIdHostIdMap::iterator   ServerIdHostIdMapIterator;
 
-typedef std::map<uint64_t, HostIdSet> HostgroupHostIdMap;
+typedef std::map<HostgroupIdType, HostIdSet> HostgroupHostIdMap;
 typedef HostgroupHostIdMap::iterator  HostgroupHostIdMapIterator;
 typedef std::map<uint32_t, HostgroupHostIdMap> ServerIdHostgroupHostIdMap;
 typedef ServerIdHostgroupHostIdMap::iterator ServerIdHostgroupHostIdMapIterator;
@@ -42,8 +42,8 @@ typedef ServerIdHostgroupHostIdMap::iterator ServerIdHostgroupHostIdMapIterator;
 extern ServerTypeInfo testServerTypeInfo[];
 extern size_t NumTestServerTypeInfo;
 
-extern MonitoringServerInfo testServerInfo[];
-extern size_t NumTestServerInfo;
+extern const MonitoringServerInfo testServerInfo[];
+extern const size_t NumTestServerInfo;
 
 extern MonitoringServerStatus testServerStatus[];
 extern size_t NumTestServerStatus;
@@ -51,8 +51,8 @@ extern size_t NumTestServerStatus;
 extern TriggerInfo testTriggerInfo[];
 extern size_t NumTestTriggerInfo;
 
-extern EventInfo testEventInfo[];
-extern size_t NumTestEventInfo;
+extern const EventInfo testEventInfo[];
+extern const size_t NumTestEventInfo;
 extern EventIdType findLastEventId(const ServerIdType &serverId);
 extern mlpl::SmartTime findTimeOfLastEvent(
   const ServerIdType &serverId, const TriggerIdType &triggerId = ALL_TRIGGERS);
@@ -75,15 +75,6 @@ extern const UserIdType userIdWithMultipleAuthorizedHostgroups;
 extern AccessInfo testAccessInfo[];
 extern const size_t NumTestAccessInfo;
 
-extern HostgroupInfo testHostgroupInfo[];
-extern const size_t NumTestHostgroupInfo;
-
-extern HostInfo testHostInfo[];
-extern const size_t NumTestHostInfo;
-
-extern HostgroupElement testHostgroupElement[];
-extern const size_t NumTestHostgroupElement;
-
 extern UserRoleInfo testUserRoleInfo[];
 extern const size_t NumTestUserRoleInfo;
 
@@ -104,6 +95,12 @@ extern const size_t NumTestServerHostDef;
 
 extern const VMInfo testVMInfo[];
 extern const size_t NumTestVMInfo;
+
+extern const Hostgroup testHostgroup[];
+extern const size_t NumTestHostgroup;
+
+extern const HostgroupMember testHostgroupMember[];
+extern const size_t NumTestHostgroupMember;
 
 /**
  * get the test trigger data indexes whose serverId and hostId are
@@ -186,6 +183,11 @@ bool isAuthorized(ServerHostGrpSetMap &authMap,
  */
 bool isAuthorized(const UserIdType &userId, const HostIdType &hostId);
 
+/**
+ * @return if the test server is not in the test data, true is returned.
+ */
+bool isDefunctTestServer(const ServerIdType &serverId);
+
 size_t findIndexFromTestActionDef(const UserIdType &userId);
 size_t findIndexFromTestActionDef(const ActionType &type);
 
@@ -243,9 +245,6 @@ void loadTestDBArmPlugin(void);
 void loadTestDBTriggers(void);
 void loadTestDBEvents(void);
 void loadTestDBItems(void);
-void loadTestDBHosts(void);
-void loadTestDBHostgroups(void);
-void loadTestDBHostgroupElements(void);
 void loadTestDBServerStatus(void);
 
 void loadTestDBAction(void);
@@ -254,6 +253,7 @@ void loadTestDBIncidentTracker(void);
 
 void loadTestDBServerHostDef(void);
 void loadTestDBVMInfo(void);
-void loadTestDBHostHostgroup(void);
+void loadTestDBHostgroup(void);
+void loadTestDBHostgroupMember(void);
 
 #endif // DBClientTest_h

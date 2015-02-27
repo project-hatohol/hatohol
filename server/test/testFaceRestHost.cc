@@ -104,13 +104,13 @@ static void assertHostsInParser(JSONParser *parser,
 	parser->endObject();
 }
 
-static void assertHostsIdNameHashInParser(TriggerInfo *triggers,
+static void assertHostsIdNameHashInParser(const TriggerInfo *triggers,
                                           size_t numberOfTriggers,
                                           JSONParser *parser)
 {
 	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < numberOfTriggers; i++) {
-		TriggerInfo &triggerInfo = triggers[i];
+		const TriggerInfo &triggerInfo = triggers[i];
 		assertStartObject(parser, StringUtils::toString(triggerInfo.serverId));
 		assertStartObject(parser, "hosts");
 		assertStartObject(parser, StringUtils::toString(triggerInfo.hostId));
@@ -123,7 +123,7 @@ static void assertHostsIdNameHashInParser(TriggerInfo *triggers,
 }
 
 static void assertHostsIdNameHashInParser(
-  const vector<EventInfo *> &expectedRecords, JSONParser *parser)
+  const vector<const EventInfo *> &expectedRecords, JSONParser *parser)
 {
 	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < expectedRecords.size(); i++) {
@@ -142,7 +142,7 @@ static void assertHostsIdNameHashInParser(
 static void _assertHosts(const string &path, const string &callbackName = "",
                          const ServerIdType &serverId = ALL_SERVERS)
 {
-	loadTestDBHosts();
+	loadTestDBServerHostDef();
 	startFaceRest();
 
 	StringMap queryMap;
@@ -165,7 +165,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
                             uint64_t hostId = ALL_HOSTS)
 {
 	loadTestDBTriggers();
-	loadTestDBHosts();
+	loadTestDBServerHostDef();
 	startFaceRest();
 
 	RequestArg arg(path, callbackName);
@@ -238,7 +238,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 {
 	loadTestDBTriggers();
 	loadTestDBEvents();
-	loadTestDBHosts();
+	loadTestDBServerHostDef();
 	startFaceRest();
 
 	// build expected data
@@ -264,10 +264,10 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	assertValueInParser(parser, "haveIncident", shouldHaveIncident);
 
 	assertStartObject(parser, "events");
-	vector<EventInfo*>::reverse_iterator it
+	vector<const EventInfo*>::reverse_iterator it
 	  = eventsArg.expectedRecords.rbegin();
 	for (size_t i = 0; it != eventsArg.expectedRecords.rend(); i++, ++it) {
-		EventInfo &eventInfo = *(*it);
+		const EventInfo &eventInfo = *(*it);
 		uint64_t unifiedId = eventsArg.idMap[*it];
 		parser->startElement(i);
 		assertValueInParser(parser, "unifiedId", unifiedId);
@@ -285,7 +285,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		}
 		if (shouldHaveIncident) {
 			assertStartObject(parser, "incident");
-			IncidentInfo incident
+			const IncidentInfo incident
 			  = eventsArg.getExpectedIncidentInfo(eventInfo);
 			assertValueInParser(parser, "location",
 					    incident.location);
@@ -305,7 +305,7 @@ static void _assertItems(const string &path, const string &callbackName = "",
 			 ssize_t numExpectedItems = -1)
 {
 	loadTestDBItems();
-	loadTestDBHosts();
+	loadTestDBServerHostDef();
 	startFaceRest();
 
 	RequestArg arg(path, callbackName);
@@ -384,18 +384,15 @@ static void assertHostgroupsInParser(JSONParser *parser,
                                      HostgroupIdSet &hostgroupIdSet)
 {
 	assertStartObject(parser, "hostgroups");
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++) {
-		const HostgroupInfo &hgrpInfo = testHostgroupInfo[i];
+	for (size_t i = 0; i < NumTestHostgroup; i++) {
+		const Hostgroup &hostgrp = testHostgroup[i];
 		// TODO: fix this inefficient algorithm
-		if (hgrpInfo.serverId != serverId)
+		if (hostgrp.serverId != serverId)
 			continue;
-		const HostgroupIdType hostgroupId = hgrpInfo.groupId;
-		const string expectKey =
-		  StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupId);
-		assertStartObject(parser, expectKey);
-		assertValueInParser(parser, string("name"), hgrpInfo.groupName);
+		assertStartObject(parser, hostgrp.idInServer);
+		assertValueInParser(parser, string("name"), hostgrp.name);
 		parser->endObject();
-		hostgroupIdSet.insert(hostgroupId);
+		hostgroupIdSet.insert(hostgrp.idInServer);
 	}
 	parser->endObject();
 }
@@ -467,7 +464,7 @@ static void _assertOverviewInParser(JSONParser *parser, RequestArg &arg)
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		HostgroupIdSet hostgroupIdSet;
 		parser->startElement(i);
-		MonitoringServerInfo &svInfo = testServerInfo[i];
+		const MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertValueInParser(parser, "serverId", svInfo.id);
 		assertValueInParser(parser, "serverHostName", svInfo.hostName);
 		assertValueInParser(parser, "serverIpAddr", svInfo.ipAddress);
@@ -610,10 +607,10 @@ void test_overview(void)
 	startFaceRest();
 	loadTestDBTriggers();
 	loadTestDBItems();
-	loadTestDBHosts();
-	loadTestDBHostgroups();
-	loadTestDBHostgroupElements();
 	loadTestDBServerStatus();
+	loadTestDBServerHostDef();
+	loadTestDBHostgroup();
+	loadTestDBHostgroupMember();
 
 	RequestArg arg("/overview");
 	// It's supposed to be a user with ID:2, who can access all hosts.
@@ -639,7 +636,7 @@ void test_getHistoryWithMinimumParameter(void)
 {
 	startFaceRest();
 	loadTestDBItems();
-	loadTestDBHosts();
+	loadTestDBServerHostDef();
 
 	RequestArg arg("/history");
 	StringMap params;

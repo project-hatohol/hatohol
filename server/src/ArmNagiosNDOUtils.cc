@@ -689,21 +689,23 @@ void ArmNagiosNDOUtils::getHost(void)
 	MLPL_DBG("The number of hosts: %zd\n", numHosts);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	HostInfoList hostInfoList;
+	ServerHostDefVect svHostDefs;
 	const ItemGroupList &grpList =
 	  m_impl->selectHostArg.dataTable->getItemGroupList();
+	svHostDefs.reserve(grpList.size());
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
-		HostInfo hostInfo;
-		hostInfo.serverId = svInfo.id;
-		hostInfo.validity = HOST_VALID;
-		itemGroupStream >> hostInfo.id;
-		itemGroupStream >> hostInfo.hostName;
-		hostInfoList.push_back(hostInfo);
+		ServerHostDef svHostDef;
+		svHostDef.id = AUTO_INCREMENT_VALUE;
+		svHostDef.hostId = AUTO_ASSIGNED_ID;
+		svHostDef.serverId = svInfo.id;
+		svHostDef.hostIdInServer = itemGroupStream.read<int, string>();
+		itemGroupStream >> svHostDef.name;
+		svHostDefs.push_back(svHostDef);
 	}
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().updateHosts(hostInfoList, svInfo.id);
+
+	UnifiedDataStore::getInstance()->upsertHosts(svHostDefs);
 }
 
 void ArmNagiosNDOUtils::getHostgroup(void)
@@ -715,21 +717,22 @@ void ArmNagiosNDOUtils::getHostgroup(void)
 	MLPL_DBG("The number of hostgroups: %zd\n", numHostgroups);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
+	HostgroupVect hostgroups;
 	HostgroupInfoList hostgroupInfoList;
 	const ItemGroupList &grpList =
 	  m_impl->selectHostgroupArg.dataTable->getItemGroupList();
+	hostgroups.reserve(grpList.size());
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
-		HostgroupInfo hostgroupInfo;
-		hostgroupInfo.id = AUTO_INCREMENT_VALUE;
-		hostgroupInfo.serverId = svInfo.id;
-		itemGroupStream >> hostgroupInfo.groupId;
-		itemGroupStream >> hostgroupInfo.groupName;
-		hostgroupInfoList.push_back(hostgroupInfo);
+		Hostgroup hostgrp;
+		hostgrp.id = AUTO_INCREMENT_VALUE;
+		hostgrp.serverId = svInfo.id;
+		hostgrp.idInServer = itemGroupStream.read<int, string>();
+		itemGroupStream >> hostgrp.name;
+		hostgroups.push_back(hostgrp);
 	}
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().addHostgroupInfoList(hostgroupInfoList);
+	UnifiedDataStore::getInstance()->upsertHostgroups(hostgroups);
 }
 
 void ArmNagiosNDOUtils::getHostgroupMembers(void)
@@ -741,21 +744,23 @@ void ArmNagiosNDOUtils::getHostgroupMembers(void)
 	MLPL_DBG("The number of hostgroupMembers: %zd\n", numHostgroupMembers);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	HostgroupElementList hostgroupElementList;
+	HostgroupMemberVect hostgroupMembers;
 	const ItemGroupList &grpList =
 	  m_impl->selectHostgroupMembersArg.dataTable->getItemGroupList();
+	hostgroupMembers.reserve(grpList.size());
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
-		HostgroupElement hostgroupElement;
-		hostgroupElement.id = AUTO_INCREMENT_VALUE;
-		hostgroupElement.serverId = svInfo.id;
-		itemGroupStream >> hostgroupElement.groupId;
-		itemGroupStream >> hostgroupElement.hostId;
-		hostgroupElementList.push_back(hostgroupElement);
+		HostgroupMember hostgrpMember;
+		hostgrpMember.id = AUTO_INCREMENT_VALUE;
+		hostgrpMember.serverId = svInfo.id;
+		hostgrpMember.hostIdInServer =
+		  itemGroupStream.read<int, string>();
+		hostgrpMember.hostgroupIdInServer =
+		  itemGroupStream.read<int, string>();
+		hostgroupMembers.push_back(hostgrpMember);
 	}
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().addHostgroupElementList(hostgroupElementList);
+	UnifiedDataStore::getInstance()->upsertHostgroupMembers(hostgroupMembers);
 }
 
 void ArmNagiosNDOUtils::connect(void)

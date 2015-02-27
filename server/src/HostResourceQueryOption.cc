@@ -20,6 +20,7 @@
 #include "Params.h"
 #include "HostResourceQueryOption.h"
 #include "DBTablesMonitoring.h"
+#include "DBTermCStringProvider.h"
 #include "DBHatohol.h"
 
 using namespace std;
@@ -117,7 +118,7 @@ const char *HostResourceQueryOption::getPrimaryTableName(void) const
 
 string HostResourceQueryOption::getCondition(void) const
 {
-	const DBTermCodec *dbTermCodec = getDBTermCodec();
+	DBTermCStringProvider rhs(*getDBTermCodec());
 	string condition;
 	if (getFilterForDataOfDefunctServers()) {
 		addCondition(
@@ -137,7 +138,7 @@ string HostResourceQueryOption::getCondition(void) const
 			  StringUtils::sprintf(
 				"%s=%s",
 				getServerIdColumnName().c_str(),
-				dbTermCodec->enc(m_impl->targetServerId).c_str())
+				rhs(m_impl->targetServerId))
 			);
 		}
 		if (m_impl->targetHostId != ALL_HOSTS) {
@@ -145,7 +146,7 @@ string HostResourceQueryOption::getCondition(void) const
 			  StringUtils::sprintf(
 				"%s=%s",
 				getHostIdColumnName().c_str(),
-				dbTermCodec->enc(m_impl->targetHostId).c_str())
+				rhs(m_impl->targetHostId))
 			);
 		}
 		if (m_impl->targetHostgroupId != ALL_HOST_GROUPS) {
@@ -153,7 +154,7 @@ string HostResourceQueryOption::getCondition(void) const
 			  StringUtils::sprintf(
 				"%s=%s",
 				getHostgroupIdColumnName().c_str(),
-				dbTermCodec->enc(m_impl->targetHostgroupId).c_str())
+				rhs(m_impl->targetHostgroupId))
 			);
 		}
 		return condition;
@@ -298,15 +299,17 @@ string HostResourceQueryOption::getHostIdColumnName(void) const
 
 string HostResourceQueryOption::makeConditionHostgroup(
   const HostgroupIdSet &hostgroupIdSet, const string &hostgroupIdColumnName)
+  const
 {
+	DBTermCStringProvider rhs(*getDBTermCodec());
 	string hostGrps;
 	HostgroupIdSetConstIterator it = hostgroupIdSet.begin();
 	size_t commaCnt = hostgroupIdSet.size() - 1;
 	for (; it != hostgroupIdSet.end(); ++it, commaCnt--) {
-		const uint64_t hostgroupId = *it;
+		const HostgroupIdType &hostgroupId = *it;
 		if (hostgroupId == ALL_HOST_GROUPS)
 			return "";
-		hostGrps += StringUtils::sprintf("%" PRIu64, hostgroupId);
+		hostGrps += rhs(hostgroupId);
 		if (commaCnt)
 			hostGrps += ",";
 	}
@@ -326,14 +329,13 @@ string HostResourceQueryOption::makeConditionServer(
 
 	ServerIdSetConstIterator serverId = serverIdSet.begin();
 	bool first = true;
-	const DBTermCodec *dbTermCodec = getDBTermCodec();
+	DBTermCStringProvider rhs(*getDBTermCodec());
 	for (; serverId != serverIdSet.end(); ++serverId) {
 		if (first)
 			first = false;
 		else
 			condition += ",";
-		condition += StringUtils::sprintf(
-		  "%s", dbTermCodec->enc(*serverId).c_str());
+		condition += rhs(*serverId);
 	}
 	condition += ")";
 	return condition;
@@ -344,11 +346,10 @@ string HostResourceQueryOption::makeConditionServer(
   const string &serverIdColumnName, const string &hostgroupIdColumnName,
   const HostgroupIdType &hostgroupId) const
 {
-	const DBTermCodec *dbTermCodec = getDBTermCodec();
+	DBTermCStringProvider rhs(*getDBTermCodec());
 	string condition;
 	condition = StringUtils::sprintf(
-	  "%s=%s", serverIdColumnName.c_str(),
-	  dbTermCodec->enc(serverId).c_str());
+	  "%s=%s", serverIdColumnName.c_str(), rhs(serverId));
 
 	string conditionHostgroup;
 	if (hostgroupId == ALL_HOST_GROUPS) {
@@ -357,7 +358,7 @@ string HostResourceQueryOption::makeConditionServer(
 	} else {
 		conditionHostgroup = StringUtils::sprintf(
 		  "%s=%s", hostgroupIdColumnName.c_str(),
-		  dbTermCodec->enc(hostgroupId).c_str());
+		  rhs(hostgroupId.c_str()));
 	}
 	if (!conditionHostgroup.empty()) {
 		return StringUtils::sprintf("(%s AND %s)",
@@ -413,11 +414,11 @@ string HostResourceQueryOption::makeCondition(
 	}
 
 	if (targetHostId != ALL_HOSTS) {
-		const DBTermCodec *dbTermCodec = getDBTermCodec();
+		DBTermCStringProvider rhs(*getDBTermCodec());
 		return StringUtils::sprintf(
 		  "((%s) AND %s=%s)",
 		  condition.c_str(), hostIdColumnName.c_str(),
-		  dbTermCodec->enc(targetHostId).c_str());
+		  rhs(targetHostId));
 	}
 
 	if (numServers == 1)
