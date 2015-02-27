@@ -40,9 +40,9 @@ protected:
 	void makeSelectHostArg(void);
 	void makeSelectHostgroupArg(void);
 	void makeSelectHostgroupMembersArg(void);
-	void addConditionForTriggerQuery(bool isDifference);
+	void addConditionForTriggerQuery(const bool &isUpdateTrigger);
 	void addConditionForEventQuery(void);
-	void getTrigger(bool isUpdateTrigger);
+	void getTrigger(const bool &isUpdateTrigger);
 	void getTriggerInfoTable(TriggerInfoList &triggerInfoList);
 	void getEvent(void);
 	void getItem(void);

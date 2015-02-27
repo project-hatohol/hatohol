@@ -511,11 +511,11 @@ void ArmNagiosNDOUtils::makeSelectHostgroupMembersArg(void)
 	arg.add(IDX_HOSTGROUP_MEMBERS_HOST_OBJECT_ID);
 }
 
-void ArmNagiosNDOUtils::addConditionForTriggerQuery(bool isDifference)
+void ArmNagiosNDOUtils::addConditionForTriggerQuery(const bool &isUpdateTrigger)
 {
 	time_t lastUpdateTime;
 	struct tm tm;
-	if (isDifference) {
+	if (isUpdateTrigger) {
 		ThreadLocalDBCache cache;
 		const MonitoringServerInfo &svInfo = getServerInfo();
 		lastUpdateTime =
@@ -595,7 +595,7 @@ void ArmNagiosNDOUtils::getTriggerInfoTable(TriggerInfoList &triggerInfoList)
 	}
 }
 
-void ArmNagiosNDOUtils::getTrigger(bool isUpdateTrigger)
+void ArmNagiosNDOUtils::getTrigger(const bool &isUpdateTrigger)
 {
 	TriggerInfoList triggerInfoList;
 	addConditionForTriggerQuery(isUpdateTrigger);
