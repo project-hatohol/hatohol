@@ -722,7 +722,9 @@ void ArmNagiosNDOUtils::getHost(bool &storedHostsChanged)
 		itemGroupStream >> svHostDef.name;
 		svHostDefs.push_back(svHostDef);
 	}
-	UnifiedDataStore::getInstance()->upsertHosts(svHostDefs);
+	UnifiedDataStore *uds =  UnifiedDataStore::getInstance();
+	uds->syncHosts(svHostDefs, svInfo.id);
+	storedHostsChanged = uds->isStoredHostsChanged();
 }
 
 void ArmNagiosNDOUtils::getHostgroup(void)
