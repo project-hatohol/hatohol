@@ -212,8 +212,7 @@ public:
 
 	void callUpdateGroupInformation(void)
 	{
-		bool storedHostsChanged;
-		ArmZabbixAPI::updateHosts(storedHostsChanged);
+		ArmZabbixAPI::updateHosts();
 		ArmZabbixAPI::updateGroups();
 	}
 
@@ -319,8 +318,7 @@ protected:
 
 	bool threadOneProcHosts(void)
 	{
-		bool storedHostsChanged;
-		updateHosts(storedHostsChanged);
+		updateHosts();
 		return true;
 	}
 
