@@ -114,8 +114,10 @@ HatoholTimeRangeSelector.prototype.draw = function() {
 
       if (timeRange.begin != ui.values[0])
         endTime = ui.values[0] + timeRange.getSpan();
-      if (ui.values[1] - ui.values[0] < timeRange.minSpan)
-        beginTime = ui.values[1] - timeRange.minSpan;
+      if (endTime > timeRange.max)
+	endTime = timeRange.max;
+      if (endTime - ui.values[0] < timeRange.minSpan)
+        beginTime = endTime - timeRange.minSpan;
       self.setTimeRange(beginTime, endTime);
     }
   });
