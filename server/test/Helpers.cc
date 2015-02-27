@@ -147,6 +147,22 @@ void _assertEqual(const ItemInfo &expect, const ItemInfo &actual)
 	cppcut_assert_equal(expect.unit,      actual.unit);
 }
 
+void _assertEqual(const TriggerInfo &expect, const TriggerInfo &actual)
+{
+	cppcut_assert_equal(expect.serverId,     actual.serverId);
+	cppcut_assert_equal(expect.id,           actual.id);
+	cppcut_assert_equal(expect.status,       actual.status);
+	cppcut_assert_equal(expect.severity,     actual.severity);
+	cppcut_assert_equal(expect.lastChangeTime.tv_sec,
+	                    actual.lastChangeTime.tv_sec);
+	cppcut_assert_equal(expect.lastChangeTime.tv_nsec,
+	                    actual.lastChangeTime.tv_nsec);
+	cppcut_assert_equal(expect.hostId,       actual.hostId);
+	cppcut_assert_equal(expect.hostName,     actual.hostName);
+	cppcut_assert_equal(expect.brief,        actual.brief);
+	cppcut_assert_equal(TRIGGER_VALID,       actual.validity);
+}
+
 struct SpawnSyncContext {
 	bool running;
 	bool hasError;
@@ -447,7 +463,7 @@ string makeTriggerOutput(const TriggerInfo &triggerInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
-	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|%" PRIu64 "|%s|%s|%s\n",
+	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|%" PRIu64 "|%s|%s|%s|%d\n",
 	    triggerInfo.serverId,
 	    triggerInfo.id,
 	    triggerInfo.status, triggerInfo.severity,
@@ -456,7 +472,8 @@ string makeTriggerOutput(const TriggerInfo &triggerInfo)
 	    triggerInfo.hostId,
 	    triggerInfo.hostName.c_str(),
 	    triggerInfo.brief.c_str(),
-	    triggerInfo.extendedInfo.c_str());
+	    triggerInfo.extendedInfo.c_str(),
+	    triggerInfo.validity);
 	return expectedOut;
 }
 
@@ -515,6 +532,7 @@ string makeHistoryOutput(const HistoryInfo &historyInfo)
 	    historyInfo.value.c_str());
 	return output;
 }
+
 
 string makeHostOutput(const HostInfo &hostInfo)
 {
@@ -1184,6 +1202,21 @@ VariableItemGroupPtr convert(const HistoryInfo &historyInfo)
 			static_cast<uint64_t>(historyInfo.clock.tv_nsec));
 	grp->addNewItem(ITEM_ID_ZBX_HISTORY_VALUE,
 			historyInfo.value);
+	return grp;
+}
+
+VariableItemGroupPtr convert(const TriggerInfo &triggerInfo)
+{
+	// TODO: Don't use IDs concerned with Zabbix.
+	VariableItemGroupPtr grp;
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID, triggerInfo.id);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_VALUE, triggerInfo.status);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_PRIORITY, triggerInfo.severity);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
+			(int)(triggerInfo.lastChangeTime.tv_sec));
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION, triggerInfo.brief);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_HOSTID, triggerInfo.hostId	);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION, triggerInfo.extendedInfo);
 	return grp;
 }
 

@@ -50,7 +50,7 @@ protected:
 	/**
 	 * get all hosts in the ZABBIX server and save them in the Hatohol DB.
 	 */
-	void updateHosts(void);
+	void updateHosts(bool &storedHostsChanged);
 
 	void updateEvents(void);
 
@@ -63,11 +63,13 @@ protected:
 	void updateGroups(void);
 
 	void makeHatoholTriggers(ItemTablePtr triggers);
+	void makeHatoholAllTriggers(void);
 	void makeHatoholEvents(ItemTablePtr events);
 	void makeHatoholItems(ItemTablePtr items, ItemTablePtr applications);
 	void makeHatoholHostgroups(ItemTablePtr groups);
 	void makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups);
-	void makeHatoholHosts(ItemTablePtr hosts);
+	void makeHatoholHosts(bool &storedHostsChanged,
+			      ItemTablePtr hosts);
 
 	uint64_t getMaximumNumberGetEventPerOnce(void);
 
@@ -82,6 +84,7 @@ protected:
 	  const ItemInfo &itemInfo,
 	  const time_t &beginTime,
 	  const time_t &endTime);
+	virtual ArmPollingResult mainThreadOneProcFetchTriggers(void);
 
 private:
 	struct Impl;

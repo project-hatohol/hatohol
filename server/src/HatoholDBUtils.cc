@@ -52,6 +52,8 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 
 		trigInfo.serverId = serverId;
 
+		trigInfo.validity = TRIGGER_VALID;
+
 		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
 		trigGroupStream >> trigInfo.id;
 

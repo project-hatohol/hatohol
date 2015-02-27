@@ -35,6 +35,11 @@ bool DataStore::startOnDemandFetchItem(Closure0 *closure)
 	return false;
 }
 
+bool DataStore::startOnDemandFetchTrigger(Closure2 *closure)
+{
+       return false;
+}
+
 bool DataStore::isFetchItemsSupported(void)
 {
 	return false;

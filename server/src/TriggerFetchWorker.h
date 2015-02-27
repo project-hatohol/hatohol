@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -17,28 +17,31 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DataStoreNagios_h
-#define DataStoreNagios_h
+#ifndef TriggerFetchWorker_h
+#define TriggerFetchWorker_h
 
-#include "ArmNagiosNDOUtils.h"
+#include "Params.h"
+#include "Closure.h"
 #include "DataStore.h"
 
-class DataStoreNagios : public DataStore {
+class TriggerFetchWorker
+{
 public:
-	DataStoreNagios(const MonitoringServerInfo &serverInfo,
-	                const bool &autoStart = true);
-	virtual ~DataStoreNagios();
+	TriggerFetchWorker(void);
+	virtual ~TriggerFetchWorker();
 
-	virtual const MonitoringServerInfo
-	  &getMonitoringServerInfo(void) const override;
-	virtual const ArmStatus &getArmStatus(void) const override;
-	virtual void setCopyOnDemandEnable(bool enable);
-	virtual bool isFetchItemsSupported(void) override;
-	virtual bool startOnDemandFetchItem(Closure0 *closure) override;
-	virtual bool startOnDemandFetchTrigger(Closure2 *closure) override;
+	bool start(const ServerIdType &targetServerId = ALL_SERVERS,
+	           Closure2 *closure = NULL);
+	bool updateIsNeeded(void);
+	void waitCompletion(void);
+
+protected:
+	void updatedCallback(Closure2 *closure);
+	bool runFetcher(DataStore *dataStore);
+
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DataStoreNagios_h
+#endif // TriggerFetchWorker_h

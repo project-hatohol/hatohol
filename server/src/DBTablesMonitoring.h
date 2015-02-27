@@ -167,6 +167,9 @@ public:
 	void addTriggerInfo(TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
 
+	void updateTrigger(const TriggerInfoList &triggerInfoList,
+			   const ServerIdType &serverId);
+
 	/**
 	 * Get the trigger information with the specified server ID and
 	 * the trigger ID.
@@ -225,9 +228,12 @@ public:
 	 *
 	 * @param hostInfoList  A list of hosts.
 	 * @param serverId      A monitoring server ID.
+	 * @param storedHostsChanged (option)(out-paramater)
+	 * true if no change in host registration, otherwise false.
 	 */
 	void updateHosts(const HostInfoList &hostInfoList,
-	                 const ServerIdType &serverId);
+			 const ServerIdType &serverId,
+			 bool *storedHostsChanged = NULL);
 
 	/**
 	 * get the last (maximum) event ID of the event that belongs to

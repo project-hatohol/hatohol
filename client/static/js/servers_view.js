@@ -33,6 +33,7 @@ var ServersView = function(userProfile) {
     $("#delete-server-button").show();
   }
   self.startConnection('server', updateCore);
+  $("#update-tirgger-server-button").show();
 
   $("#table").stupidtable();
   $("#table").bind('aftertablesort', function(event, data) {
@@ -60,6 +61,11 @@ var ServersView = function(userProfile) {
   $("#delete-server-button").click(function() {
     var msg = gettext("Do you delete the selected items ?");
     hatoholNoYesMsgBox(msg, deleteServers);
+  });
+
+  $("#update-tirgger-server-button").click(function() {
+    var msg = gettext("Do you reload triggers from the selected itmes ?");
+    hatoholNoYesMsgBox(msg, updateTriggerServers);
   });
 
   function addOrUpdateSucceededCb() {
@@ -144,6 +150,26 @@ var ServersView = function(userProfile) {
     hatoholInfoMsgBox("Deleting...");
   }
 
+  function updateTriggerServers() {
+    var updateIds = [], serverId;
+    var checkbox = $(".selectcheckbox");
+    $(this).dialog("close");
+    for (var i = 0; i < checkbox.length; i++) {
+      if (!checkbox[i].checked)
+        continue;
+      serverId = checkbox[i].getAttribute("serverId");
+      updateIds.push(serverId);
+    }
+    new HatoholItemUpdate({
+      id: updateIds,
+      type: "server-trigger",
+      completionCallback: function() {
+        self.startConnection("server", updateCore);
+      },
+    });
+    hatoholInfoMsgBox("Reloading...");
+  }
+
   function getServerTypeLabel(type) {
     switch(type) {
     case hatohol.MONITORING_SYSTEM_ZABBIX:
@@ -226,6 +252,7 @@ var ServersView = function(userProfile) {
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody(reply));
     self.setupCheckboxForDelete($("#delete-server-button"));
+    self.setupCheckboxForDelete($("#update-tirgger-server-button"));
     if (self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER) ||
 	self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ALL_SERVER)) {
       $(".delete-selector").show();

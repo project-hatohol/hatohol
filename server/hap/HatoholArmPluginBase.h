@@ -64,6 +64,8 @@ public:
 	mlpl::SmartTime getTimeOfLastEvent(
 	  const TriggerIdType &triggerId = ALL_TRIGGERS);
 
+	HapiTriggerCollectType getTriggerCollectType(void);
+
 protected:
 	static const size_t WAIT_INFINITE;
 
@@ -74,6 +76,7 @@ protected:
 	virtual void onReceivedTerminate(void);
 	virtual void onReceivedReqFetchItem(void);
 	virtual void onReceivedReqFetchHistory(void);
+	virtual void onReceivedReqFetchTrigger(void);
 	virtual void onFailureReceivedMessage(void) override;
 
 	void sendCmdGetMonitoringServerInfo(CommandCallbacks *callbacks);
@@ -89,6 +92,7 @@ protected:
 				 const HatoholArmPluginWatchType *TriggerList);
 	void cmdHandlerFetchItems(const HapiCommandHeader *header);
 	void cmdHandlerFetchHistory(const HapiCommandHeader *header);
+	void cmdHandlerFetchTriggers(const HapiCommandHeader *header);
 	void cmdHandlerTerminate(const HapiCommandHeader *header);
 
 private:

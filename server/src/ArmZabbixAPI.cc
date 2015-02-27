@@ -101,12 +101,14 @@ void ArmZabbixAPI::updateItems(void)
 	makeHatoholItems(items, applications);
 }
 
-void ArmZabbixAPI::updateHosts(void)
+void ArmZabbixAPI::updateHosts(bool &storedHostsChanged)
 {
 	ItemTablePtr hostTablePtr, hostsGroupsTablePtr;
 	getHosts(hostTablePtr, hostsGroupsTablePtr);
-	makeHatoholHosts(hostTablePtr);
+	makeHatoholHosts(storedHostsChanged, hostTablePtr);
 	makeHatoholMapHostsHostgroups(hostsGroupsTablePtr);
+
+	return;
 }
 
 void ArmZabbixAPI::updateEvents(void)
@@ -172,9 +174,24 @@ gpointer ArmZabbixAPI::mainThread(HatoholThreadArg *arg)
 	return ArmBase::mainThread(arg);
 }
 
+void ArmZabbixAPI::makeHatoholAllTriggers(void)
+{
+	TriggerInfoList mergedTriggerInfoList;
+	ItemTablePtr triggers, expanded, mergedTriggers;
+	triggers = getTrigger(0);
+	expanded = getTriggerExpandedDescription(0);
+	mergedTriggers =
+	  mergePlainTriggersAndExpandedDescriptions(triggers, expanded);
+	HatoholDBUtils::transformTriggersToHatoholFormat(
+	  mergedTriggerInfoList, mergedTriggers, m_impl->zabbixServerId,
+	  m_impl->hostInfoCache);
+
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().updateTrigger(mergedTriggerInfoList, m_impl->zabbixServerId);
+}
+
 void ArmZabbixAPI::makeHatoholTriggers(ItemTablePtr triggers)
 {
-	ThreadLocalDBCache cache;
 	TriggerInfoList mergedTriggerInfoList;
 	ItemTablePtr expandedDescriptions, mergedTriggers;
 	expandedDescriptions = updateTriggerExpandedDescriptions();
@@ -183,6 +200,8 @@ void ArmZabbixAPI::makeHatoholTriggers(ItemTablePtr triggers)
 	HatoholDBUtils::transformTriggersToHatoholFormat(
 	  mergedTriggerInfoList, mergedTriggers, m_impl->zabbixServerId,
 	  m_impl->hostInfoCache);
+
+	ThreadLocalDBCache cache;
 	cache.getMonitoring().addTriggerInfoList(mergedTriggerInfoList);
 }
 
@@ -228,18 +247,22 @@ void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
 	cache.getMonitoring().addHostgroupElementList(hostgroupElementList);
 }
 
-void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
+void ArmZabbixAPI::makeHatoholHosts(bool &storedHostsChanged,
+				    ItemTablePtr hosts)
 {
 	ThreadLocalDBCache cache;
 	HostInfoList hostInfoList;
 	HatoholDBUtils::transformHostsToHatoholFormat(hostInfoList, hosts,
 	                                              m_impl->zabbixServerId);
-	cache.getMonitoring().updateHosts(hostInfoList, m_impl->zabbixServerId);
+	cache.getMonitoring().updateHosts(hostInfoList, m_impl->zabbixServerId,
+					  &storedHostsChanged);
 
 	// TODO: consider if DBClientHatohol should have the cache
 	HostInfoListConstIterator hostInfoItr = hostInfoList.begin();
 	for (; hostInfoItr != hostInfoList.end(); ++hostInfoItr)
 		m_impl->hostInfoCache.update(*hostInfoItr);
+
+	return;
 }
 
 uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
@@ -273,10 +296,15 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 		return COLLECT_NG_DISCONNECT_ZABBIX;
 
 	try {
-		ItemTablePtr triggers = updateTriggers();
-		updateHosts();
+		bool storedHostsChanged;
+		updateHosts(storedHostsChanged);
 		updateGroups();
-		makeHatoholTriggers(triggers);
+		if (storedHostsChanged){
+			ItemTablePtr triggers = updateTriggers();
+			makeHatoholTriggers(triggers);
+		} else {
+			makeHatoholAllTriggers();
+		}
 		updateEvents();
 
 		if (!getCopyOnDemandEnabled())
@@ -315,6 +343,19 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProcFetchHistory(
 		  beginTime, endTime);
 		HatoholDBUtils::transformHistoryToHatoholFormat(
 		  historyInfoVect, itemTablePtr, m_impl->zabbixServerId);
+	} catch (const HatoholException &he) {
+		return handleHatoholException(he);
+	}
+	return COLLECT_OK;
+}
+
+ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProcFetchTriggers(void)
+{
+	if (!updateAuthTokenIfNeeded())
+		return COLLECT_NG_DISCONNECT_ZABBIX;
+
+	try {
+		makeHatoholAllTriggers();
 	} catch (const HatoholException &he) {
 		return handleHatoholException(he);
 	}
