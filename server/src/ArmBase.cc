@@ -23,6 +23,7 @@
 #include <queue>
 #include <Logger.h>
 #include <AtomicValue.h>
+#include "ArmUtils.h"
 #include "ArmBase.h"
 #include "HatoholException.h"
 #include "DBTablesMonitoring.h"
@@ -31,8 +32,6 @@
 
 using namespace std;
 using namespace mlpl;
-
-const char *SERVER_SELF_MONITORING_SUFFIX = "_SELF";
 
 typedef enum {
 	UPDATE_POLLING,
@@ -107,6 +106,7 @@ struct ArmBase::Impl
 {
 	string               name;
 	MonitoringServerInfo serverInfo; // we have the copy.
+	ArmUtils             utils;
 	timespec             lastPollingTime;
 	sem_t                sleepSemaphore;
 	AtomicValue<bool>    exitRequest;
@@ -117,12 +117,13 @@ struct ArmBase::Impl
 	ArmWorkingStatus     lastFailureStatus;
 	queue<FetcherJob *>  jobQueue;
 
-	ArmResultTriggerInfo ArmResultTriggerTable[NUM_COLLECT_NG_KIND];
+	ArmUtils::ArmTrigger armTriggers[NUM_COLLECT_NG_KIND];
 
 	Impl(const string &_name,
 	               const MonitoringServerInfo &_serverInfo)
 	: name(_name),
 	  serverInfo(_serverInfo),
+	  utils(serverInfo, armTriggers, NUM_COLLECT_NG_KIND),
 	  exitRequest(false),
 	  isCopyOnDemandEnabled(false),
 	  lastFailureStatus(ARM_WORK_STAT_FAILURE)
@@ -210,12 +211,6 @@ struct ArmBase::Impl
 		}
 		rwlock.unlock();
 	}
-
-	void setInitialTriggerTable(void)
-	{
-		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++)
-			ArmResultTriggerTable[i].statusType = TRIGGER_STATUS_ALL;
-	}
 };
 
 // ---------------------------------------------------------------------------
@@ -225,7 +220,6 @@ ArmBase::ArmBase(
   const string &name, const MonitoringServerInfo &serverInfo)
 : m_impl(new Impl(name, serverInfo))
 {
-	m_impl->setInitialTriggerTable();
 }
 
 ArmBase::~ArmBase()
@@ -365,35 +359,14 @@ void ArmBase::registerAvailableTrigger(const ArmPollingResult &type,
 				       const TriggerIdType  &trrigerId,
 				       const HatoholError   &hatoholError)
 {
-	m_impl->ArmResultTriggerTable[type].statusType = TRIGGER_STATUS_UNKNOWN;
-	m_impl->ArmResultTriggerTable[type].triggerId = trrigerId;
-	m_impl->ArmResultTriggerTable[type].msg = hatoholError.getMessage().c_str();
-}
-
-void ArmBase::registerSelfMonitoringHost(void)
-{
-	const MonitoringServerInfo &svInfo = getServerInfo();
-	ServerHostDef svHostDef;
-	svHostDef.id = AUTO_INCREMENT_VALUE;
-	svHostDef.hostId = AUTO_ASSIGNED_ID;
-	svHostDef.serverId = svInfo.id;
-	// TODO: Use a more readable string host name.
-	svHostDef.hostIdInServer =
-	  StringUtils::sprintf("%" FMT_HOST_ID, MONITORING_SERVER_SELF_ID);
-	svHostDef.name = StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
-	                                      SERVER_SELF_MONITORING_SUFFIX);
-	svHostDef.status = HOST_STAT_SELF_MONITOR;
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->upsertHost(svHostDef);
-	if (err != HTERR_OK) {
-		MLPL_ERR("Failed to register a host for self monitoring: "
-		         "(%d) %s.", err.getCode(), err.getCodeName().c_str());
-	}
+	m_impl->armTriggers[type].status    = TRIGGER_STATUS_UNKNOWN;
+	m_impl->armTriggers[type].triggerId = trrigerId;
+	m_impl->armTriggers[type].msg       = hatoholError.getMessage();
 }
 
 bool ArmBase::hasTrigger(const ArmPollingResult &type)
 {
-	return (m_impl->ArmResultTriggerTable[type].statusType != TRIGGER_STATUS_ALL);
+	return m_impl->utils.isArmTriggerUsed(type);
 }
 
 void ArmBase::setInitialTriggerStatus(void)
@@ -401,127 +374,26 @@ void ArmBase::setInitialTriggerStatus(void)
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 
-	TriggerInfo triggerInfo;
 	TriggerInfoList triggerInfoList;
 
 	for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
-		if (!hasTrigger(static_cast<ArmPollingResult>(i)))
+		if (!m_impl->utils.isArmTriggerUsed(i))
 			continue;
-		ArmResultTriggerInfo &trgInfo = m_impl->ArmResultTriggerTable[i];
-		if (TRIGGER_STATUS_UNKNOWN == trgInfo.statusType) {
-			createTriggerInfo(trgInfo, triggerInfoList);
-		}
+		ArmUtils::ArmTrigger &armTrigger = m_impl->armTriggers[i];
+		if (armTrigger.status != TRIGGER_STATUS_UNKNOWN)
+			continue;
+		m_impl->utils.createTrigger(armTrigger, triggerInfoList);
 	}
 
 	if (!triggerInfoList.empty()) {
-		registerSelfMonitoringHost();
+		m_impl->utils.registerSelfMonitoringHost();
 		dbMonitoring.addTriggerInfoList(triggerInfoList);
 	}
 }
 
-void ArmBase::createTriggerInfo(const ArmResultTriggerInfo &resTrigger,
-				TriggerInfoList &triggerInfoList)
-{
-	const MonitoringServerInfo &svInfo = getServerInfo();
-	TriggerInfo triggerInfo;
-
-	triggerInfo.serverId = svInfo.id;
-	triggerInfo.lastChangeTime = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
-	triggerInfo.hostId = MONITORING_SERVER_SELF_ID;
-	triggerInfo.hostName = 
-		StringUtils::sprintf("%s%s", svInfo.hostName.c_str(),
-				     SERVER_SELF_MONITORING_SUFFIX);
-	triggerInfo.id = resTrigger.triggerId;
-	triggerInfo.brief = resTrigger.msg;
-	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
-	triggerInfo.status = resTrigger.statusType;
-
-	triggerInfoList.push_back(triggerInfo);
-}
-
-void ArmBase::createEventInfo(const ArmResultTriggerInfo &resTrigger,
-			      EventInfoList &eventInfoList)
-{
-	const MonitoringServerInfo &svInfo = getServerInfo();
-	EventInfo eventInfo;
-
-	eventInfo.serverId = svInfo.id;
-	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
-	eventInfo.time = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
-	eventInfo.hostId = MONITORING_SERVER_SELF_ID;
-	eventInfo.triggerId = resTrigger.triggerId;
-	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
-	eventInfo.status = resTrigger.statusType;
-	if (resTrigger.statusType == TRIGGER_STATUS_OK) {
-		eventInfo.type = EVENT_TYPE_GOOD;
-	} else {
-		eventInfo.type = EVENT_TYPE_BAD;
-	}
-	eventInfoList.push_back(eventInfo);
-}
-
 void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 {
-	TriggerInfoList triggerInfoList;
-	EventInfoList eventInfoList;
-
-	if (type == COLLECT_OK) {
-		for (int i = 0; i < NUM_COLLECT_NG_KIND; i++) {
-			if (!hasTrigger(static_cast<ArmPollingResult>(i)))
-				continue;
-			ArmResultTriggerInfo &trgInfo = m_impl->ArmResultTriggerTable[i];
-			if (trgInfo.statusType == TRIGGER_STATUS_PROBLEM) {
-				trgInfo.statusType = TRIGGER_STATUS_OK;
-				createTriggerInfo(trgInfo, triggerInfoList);
-				createEventInfo(trgInfo, eventInfoList);
-			} else if (trgInfo.statusType == TRIGGER_STATUS_UNKNOWN) {
-				trgInfo.statusType = TRIGGER_STATUS_OK;
-				createTriggerInfo(trgInfo, triggerInfoList);
-			}				
-		}
-	}
-	else {
-		if (!hasTrigger(type))
-			return;
-		if (m_impl->ArmResultTriggerTable[type].statusType == TRIGGER_STATUS_PROBLEM)
-			return;
-
-		m_impl->ArmResultTriggerTable[type].statusType = TRIGGER_STATUS_PROBLEM;
-		createTriggerInfo(m_impl->ArmResultTriggerTable[type], triggerInfoList);
-		createEventInfo(m_impl->ArmResultTriggerTable[type], eventInfoList);
-
-		for (int i = static_cast<int>(type) + 1; i < NUM_COLLECT_NG_KIND; i++) {
-			if (!hasTrigger(static_cast<ArmPollingResult>(i)))
-				continue;
-			ArmResultTriggerInfo &trgInfo = m_impl->ArmResultTriggerTable[i];
-			if (trgInfo.statusType == TRIGGER_STATUS_PROBLEM) {
-				trgInfo.statusType = TRIGGER_STATUS_OK;
-				createTriggerInfo(trgInfo, triggerInfoList);
-				createEventInfo(trgInfo, eventInfoList);
-			} else if (trgInfo.statusType == TRIGGER_STATUS_UNKNOWN) {
-				trgInfo.statusType = TRIGGER_STATUS_OK;
-				createTriggerInfo(trgInfo, triggerInfoList);
-			}
-		}
-		for (int i = 0; i < type; i++) {
-			if (!hasTrigger(static_cast<ArmPollingResult>(i)))
-				continue;
-			ArmResultTriggerInfo &trgInfo = m_impl->ArmResultTriggerTable[i];
-			if (trgInfo.statusType == TRIGGER_STATUS_OK) {
-				trgInfo.statusType = TRIGGER_STATUS_UNKNOWN;
-				createTriggerInfo(trgInfo, triggerInfoList);
-			}
-		}
-	}
-
-	if (!triggerInfoList.empty()) {
-		ThreadLocalDBCache cache;
-		cache.getMonitoring().addTriggerInfoList(triggerInfoList);
-	}
-	if (!eventInfoList.empty()) {
-		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-		dataStore->addEventList(eventInfoList);
-	}
+	m_impl->utils.updateTriggerStatus(type, TRIGGER_STATUS_PROBLEM);
 }
 
 gpointer ArmBase::mainThread(HatoholThreadArg *arg)

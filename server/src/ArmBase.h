@@ -38,13 +38,6 @@ public:
 		NUM_COLLECT_NG_KIND,
 		COLLECT_OK,
 	} ArmPollingResult;
-
-	struct ArmResultTriggerInfo {
-		TriggerStatusType statusType;
-		TriggerIdType triggerId;
-		std::string msg;
-	};
-
 public:
 	ArmBase(const std::string &name,
 	        const MonitoringServerInfo &serverInfo);
@@ -111,12 +104,7 @@ protected:
 	  const std::string &comment,
 	  const ArmWorkingStatus &status = ARM_WORK_STAT_FAILURE);
 	
-	void createTriggerInfo(const ArmResultTriggerInfo &resTrigger,
-			       TriggerInfoList &triggerInfoList);
-	void createEventInfo(const ArmResultTriggerInfo &resTrigger,
-			     EventInfoList &eventInfoList);
 	void setInitialTriggerStatus(void);
-	void registerSelfMonitoringHost(void);
 
 private:
 	struct Impl;
