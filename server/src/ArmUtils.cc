@@ -134,7 +134,7 @@ private:
 
 	void updateUpperTriggers(UpdateTriggerArg &arg)
 	{
-		for (size_t i = arg.triggerIdx + 1; i < numArmTriggers; i++) {
+		for (size_t i = 0; i < arg.triggerIdx; i++) {
 			if (!isUsed(i))
 				continue;
 			setTriggerToStatusUnknown(arg, armTriggers[i]);
