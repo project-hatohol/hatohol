@@ -14,6 +14,12 @@ def finish_if_require_option_is_fault(args):
         sys.exit(os.EX_USAGE)
 
 
+def start(args):
+    db = MySQLdb.connect(host=args.db_host, db=args.db_name,
+                         user=args.db_user, passwd=args.db_password)
+    cursor = db.cursor()
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Hatohol House Keeper')
     # TODO: Fix description of options.
@@ -38,3 +44,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     finish_if_require_option_is_fault(args)
+    start(args)
