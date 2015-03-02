@@ -109,3 +109,8 @@ class UserConfig(models.Model):
 class LogSearchSystem(models.Model):
     type = models.CharField(max_length=128)
     base_url = models.CharField(max_length=512)
+
+
+class Graph(models.Model):
+    user_id = models.IntegerField(db_index=True)
+    settings_json = models.TextField()
