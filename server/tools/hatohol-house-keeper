@@ -14,10 +14,27 @@ def finish_if_require_option_is_fault(args):
         sys.exit(os.EX_USAGE)
 
 
+def show_number_of(table_name, cursor):
+    query = 'SELECT count(*) FROM %s' % table_name
+    cursor.execute(query)
+    row = cursor.fetchone()
+
+    print '%s: %d' % (table_name, row[0])
+
+
+def show_status(cursor):
+    show_number_of('events', cursor)
+    show_number_of('action_logs', cursor)
+    sys.exit(os.EX_OK)
+
+
 def start(args):
     db = MySQLdb.connect(host=args.db_host, db=args.db_name,
                          user=args.db_user, passwd=args.db_password)
     cursor = db.cursor()
+
+    if args.stat:
+        show_status(cursor)
 
 
 if __name__ == '__main__':
