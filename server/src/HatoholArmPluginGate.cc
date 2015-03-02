@@ -529,15 +529,15 @@ void HatoholArmPluginGate::setPluginAvailabelTrigger(const HatoholArmPluginWatch
 void HatoholArmPluginGate::setPluginConnectStatus(const HatoholArmPluginWatchType &type,
 					     const HatoholArmPluginErrorCode &errorCode)
 {
-	TriggerStatusType istatus;
+	TriggerStatusType status;
 	if (errorCode == HAPERR_UNAVAILABLE_HAP) {
-		istatus = TRIGGER_STATUS_PROBLEM;
+		status = TRIGGER_STATUS_PROBLEM;
 	} else if (errorCode == HAPERR_OK) {
-		istatus = TRIGGER_STATUS_OK;
+		status = TRIGGER_STATUS_OK;
 	} else {
-		istatus = TRIGGER_STATUS_UNKNOWN;
+		status = TRIGGER_STATUS_UNKNOWN;
 	}
-	m_impl->utils.updateTriggerStatus(type, istatus);
+	m_impl->utils.updateTriggerStatus(type, status);
 }
 
 void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)
