@@ -1,4 +1,4 @@
-# Copyright (C) 2014 Project Hatohol
+# Copyright (C) 2014 -2015 Project Hatohol
 #
 # This file is part of Hatohol.
 #
@@ -53,12 +53,11 @@ class LogSearchSystemForm(ModelForm):
 
 
 def is_valid_session(request):
-    if hatoholserver.SESSION_NAME_META not in request.META:
+    try:
+        user_id = get_user_id_from_hatohol_server(request)
+        return True
+    except:
         return False
-    session_id = request.META[hatoholserver.SESSION_NAME_META]
-
-    user_id = get_user_id_from_hatohol_server(session_id)
-    return user_id is not None
 
 
 def log_search_systems(request, id):

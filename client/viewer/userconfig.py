@@ -1,4 +1,4 @@
-# Copyright (C) 2013 Project Hatohol
+# Copyright (C) 2013 -2015 Project Hatohol
 #
 # This file is part of Hatohol.
 #
@@ -29,7 +29,18 @@ logger = logging.getLogger(__name__)
 logger.debug('A logger: %s has been created' % __name__)
 
 
-def get_user_id_from_hatohol_server(session_id):
+class NoHatoholSession(Exception):
+    pass
+
+
+class NoHatoholUser(Exception):
+    pass
+
+
+def get_user_id_from_hatohol_server(request):
+    if hatoholserver.SESSION_NAME_META not in request.META:
+        raise NoHatoholSession
+    session_id = request.META[hatoholserver.SESSION_NAME_META]
     server = hatoholserver.get_address()
     port = hatoholserver.get_port()
     path = '/user/me'
@@ -40,6 +51,8 @@ def get_user_id_from_hatohol_server(session_id):
     body = response.read()
     user_info = json.loads(body)
     user_id = user_info['users'][0]['userId']
+    if user_id is None:
+        raise NoHatoholUser
     return user_id
 
 
@@ -53,13 +66,12 @@ def index(request):
 
 def index_core(request):
     # session ID
-    if hatoholserver.SESSION_NAME_META not in request.META:
+    try:
+        user_id = get_user_id_from_hatohol_server(request)
+    except NoHatoholSession:
         logger.info('Session ID is missing.')
         return HttpResponse(status=httplib.BAD_REQUEST)
-    session_id = request.META[hatoholserver.SESSION_NAME_META]
-
-    user_id = get_user_id_from_hatohol_server(session_id)
-    if user_id is None:
+    except NoHatoholUser:
         logger.info('Failed to get user ID.')
         return HttpResponse(status=httplib.UNAUTHORIZED)
 
