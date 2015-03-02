@@ -1,4 +1,4 @@
-# Copyright (C) 2013 Project Hatohol
+# Copyright (C) 2013 - 2015 Project Hatohol
 #
 # This file is part of Hatohol.
 #
