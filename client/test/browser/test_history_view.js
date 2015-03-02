@@ -161,7 +161,7 @@ describe('HistoryView', function() {
       yaxis: 1
     }];
     respond(itemsJson(), historyJson());
-    expect(view.plotData).eql(expected);
+    expect(view.graph.plotData).eql(expected);
   });
 
   it('parse multiple items query', function() {
