@@ -107,11 +107,11 @@ void _assertParseEventParameterTargetHostgroupId(
 cut_trace(_assertParseEventParameterTargetHostgroupId(E, ##__VA_ARGS__))
 
 void _assertParseEventParameterTargetHostId(
-  const size_t &expectValue, const string &forceValueStr = "",
+  const LocalHostIdType &expectValue, const string &forceValueStr = "",
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
-	  HostIdType, expectValue, "%" FMT_HOST_ID, "hostId",
+	  LocalHostIdType, expectValue, "%" FMT_LOCAL_HOST_ID, "hostId",
 	  &EventsQueryOption::getTargetHostId, expectCode, forceValueStr);
 }
 #define assertParseEventParameterTargetHostId(E, ...) \
@@ -389,18 +389,18 @@ void test_parseEventParameterNoTargetHostId(void)
 	Reaper<GHashTable> queryReaper(query, g_hash_table_unref);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
-	cppcut_assert_equal(ALL_HOSTS, option.getTargetHostId());
+	cppcut_assert_equal(ALL_LOCAL_HOSTS, option.getTargetHostId());
 }
 
 void test_parseEventParameterTargetHostId(void)
 {
-	assertParseEventParameterTargetHostId(456);
+	assertParseEventParameterTargetHostId("456");
 }
 
 void test_parseEventParameterInvalidTargetHostId(void)
 {
 	assertParseEventParameterTargetHostId(
-	  0, "hostid", HTERR_INVALID_PARAMETER);
+	  "", "", HTERR_INVALID_PARAMETER);
 }
 
 void test_parseEventParameterNoTargetHostgroupId(void)

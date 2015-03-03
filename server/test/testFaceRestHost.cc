@@ -40,7 +40,7 @@ static void _assertTestTriggerInfo(
 	assertValueInParser(parser, "lastChangeTime",
 	                    triggerInfo.lastChangeTime);
 	assertValueInParser(parser, "serverId", triggerInfo.serverId);
-	assertValueInParser(parser, "hostId", StringUtils::toString(triggerInfo.hostId));
+	assertValueInParser(parser, "hostId", triggerInfo.hostIdInServer);
 	assertValueInParser(parser, "brief", triggerInfo.brief);
 	if (!triggerInfo.extendedInfo.empty()) {
 		string parsedExtendedInfo = "";
@@ -56,50 +56,52 @@ static void assertHostsInParser(JSONParser *parser,
                                 const ServerIdType &targetServerId,
                                 DataQueryContext *dqCtx)
 {
-	HostInfoList hostInfoList;
-	getDBCTestHostInfo(hostInfoList, targetServerId);
-	// Remove data of defunct servers
-	HostInfoListIterator hostInfoItr = hostInfoList.begin();
-	while (hostInfoItr != hostInfoList.end()) {
-		HostInfoListIterator currHostInfoItr = hostInfoItr;
-		++hostInfoItr;
-		if (dqCtx->isValidServer(currHostInfoItr->serverId))
-			continue;
-		hostInfoList.erase(currHostInfoItr);
+	ServerHostDefVect svHostDefs;
+	HostsQueryOption option(dqCtx);
+	option.setTargetServerId(targetServerId);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	assertHatoholError(
+	  HTERR_OK, uds->getServerHostDefs(svHostDefs, option));
+
+	// Pick up defunct servers
+	set<size_t> excludeIdSet;
+	for (size_t i = 0; i < svHostDefs.size(); i++) {
+		if (!dqCtx->isValidServer(svHostDefs[i].serverId))
+			excludeIdSet.insert(i);
 	}
-	assertValueInParser(parser, "numberOfHosts", hostInfoList.size());
+	const size_t numValidHosts = svHostDefs.size() - excludeIdSet.size();
+	assertValueInParser(parser, "numberOfHosts", numValidHosts);
 
 	// make an index
-	map<ServerIdType, map<uint64_t, const HostInfo *> > hostInfoMap;
-	map<uint64_t, const HostInfo *>::iterator hostMapIt;
-	HostInfoListConstIterator it = hostInfoList.begin();
-	for (; it != hostInfoList.end(); ++it) {
-		const HostInfo &hostInfo = *it;
-		hostMapIt = hostInfoMap[hostInfo.serverId].find(hostInfo.id);
+	map<ServerIdType, map<LocalHostIdType, const ServerHostDef *> > hostMap;
+	map<LocalHostIdType, const ServerHostDef *>::iterator hostMapIt;
+	for (size_t i = 0; i < svHostDefs.size(); i++) {
+		if (excludeIdSet.find(i) != excludeIdSet.end())
+			continue;
+		const ServerHostDef &svHostDef = svHostDefs[i];
+		hostMapIt = hostMap[svHostDef.serverId].find(svHostDef.name);
 		cppcut_assert_equal(
-		  true, hostMapIt == hostInfoMap[hostInfo.serverId].end());
-		hostInfoMap[hostInfo.serverId][hostInfo.id] = &hostInfo;
+		  true, hostMapIt == hostMap[svHostDef.serverId].end());
+		hostMap[svHostDef.serverId][svHostDef.hostIdInServer]
+		  = &svHostDef;
 	}
 
 	assertStartObject(parser, "hosts");
-	for (size_t i = 0; i < hostInfoList.size(); i++) {
+	for (size_t i = 0; i < numValidHosts; i++) {
 		int64_t var64;
 		parser->startElement(i);
 		cppcut_assert_equal(true, parser->read("serverId", var64));
 		const ServerIdType serverId = static_cast<ServerIdType>(var64);
 
-		string hostIdString;
-		cppcut_assert_equal(true, parser->read("id", hostIdString));
-		uint64_t hostId = StringUtils::toUint64(hostIdString);
+		string hostIdInServer;
+		cppcut_assert_equal(true, parser->read("id", hostIdInServer));
+		hostMapIt = hostMap[serverId].find(hostIdInServer);
+		cppcut_assert_equal(true, hostMapIt != hostMap[serverId].end());
+		const ServerHostDef &svHostDef = *hostMapIt->second;
 
-		hostMapIt = hostInfoMap[serverId].find(hostId);
-		cppcut_assert_equal(true,
-		                    hostMapIt != hostInfoMap[serverId].end());
-		const HostInfo &hostInfo = *hostMapIt->second;
-
-		assertValueInParser(parser, "hostName", hostInfo.hostName);
+		assertValueInParser(parser, "hostName", svHostDef.name);
 		parser->endElement();
-		hostInfoMap[serverId].erase(hostMapIt);
+		hostMap[serverId].erase(hostMapIt);
 	}
 	parser->endObject();
 }
@@ -113,7 +115,7 @@ static void assertHostsIdNameHashInParser(const TriggerInfo *triggers,
 		const TriggerInfo &triggerInfo = triggers[i];
 		assertStartObject(parser, StringUtils::toString(triggerInfo.serverId));
 		assertStartObject(parser, "hosts");
-		assertStartObject(parser, StringUtils::toString(triggerInfo.hostId));
+		assertStartObject(parser, triggerInfo.hostIdInServer);
 		assertValueInParser(parser, "name", triggerInfo.hostName);
 		parser->endObject();
 		parser->endObject();
@@ -130,7 +132,7 @@ static void assertHostsIdNameHashInParser(
 		const EventInfo &eventInfo = *expectedRecords[i];
 		assertStartObject(parser, StringUtils::toString(eventInfo.serverId));
 		assertStartObject(parser, "hosts");
-		assertStartObject(parser, StringUtils::toString(eventInfo.hostId));
+		assertStartObject(parser, eventInfo.hostIdInServer);
 		assertValueInParser(parser, "name", eventInfo.hostName);
 		parser->endObject();
 		parser->endObject();
@@ -160,9 +162,10 @@ static void _assertHosts(const string &path, const string &callbackName = "",
 }
 #define assertHosts(P,...) cut_trace(_assertHosts(P,##__VA_ARGS__))
 
-static void _assertTriggers(const string &path, const string &callbackName = "",
-                            const ServerIdType &serverId = ALL_SERVERS,
-                            uint64_t hostId = ALL_HOSTS)
+static void _assertTriggers(
+  const string &path, const string &callbackName = "",
+  const ServerIdType &serverId = ALL_SERVERS,
+  const LocalHostIdType &hostIdInServer = ALL_LOCAL_HOSTS)
 {
 	loadTestDBTriggers();
 	loadTestDBServerHostDef();
@@ -176,7 +179,7 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 	map<ServerIdType, map<uint64_t, size_t> > indexMap;
 	map<ServerIdType, map<uint64_t, size_t> >::iterator indexMapIt;
 	map<uint64_t, size_t>::iterator trigIdIdxIt;
-	getTestTriggersIndexes(indexMap, serverId, hostId);
+	getTestTriggersIndexes(indexMap, serverId, hostIdInServer);
 	size_t expectedNumTrig = 0;
 	indexMapIt = indexMap.begin();
 	while (indexMapIt != indexMap.end()) {
@@ -196,8 +199,8 @@ static void _assertTriggers(const string &path, const string &callbackName = "",
 		queryMap["serverId"] =
 		  StringUtils::sprintf("%" PRIu32, serverId);
 	}
-	if (hostId != ALL_HOSTS)
-		queryMap["hostId"] = StringUtils::sprintf("%" PRIu64, hostId);
+	if (hostIdInServer != ALL_LOCAL_HOSTS)
+		queryMap["hostId"] = hostIdInServer;
 	arg.parameters = queryMap;
 	JSONParser *parser = getResponseAsJSONParser(arg);
 	unique_ptr<JSONParser> parserPtr(parser);
@@ -277,7 +280,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(parser, "triggerId", StringUtils::toString(eventInfo.triggerId));
 		assertValueInParser(parser, "status",    eventInfo.status);
 		assertValueInParser(parser, "severity",  eventInfo.severity);
-		assertValueInParser(parser, "hostId",    StringUtils::toString(eventInfo.hostId));
+		assertValueInParser(parser, "hostId",    eventInfo.hostIdInServer);
 		assertValueInParser(parser, "brief",     eventInfo.brief);
 		if (!eventInfo.extendedInfo.empty()) {
 			assertValueInParser(parser, "expandedDescription",
@@ -547,7 +550,8 @@ void test_triggersJSONP(void)
 void test_triggersForOneServerOneHost(void)
 {
 	assertTriggers("/trigger", "foo",
-	               testTriggerInfo[1].serverId, testTriggerInfo[1].hostId);
+	               testTriggerInfo[1].serverId,
+	               testTriggerInfo[1].hostIdInServer);
 }
 
 void test_events(void)

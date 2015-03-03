@@ -288,9 +288,9 @@ string IncidentSender::buildDescription(const EventInfo &event,
 	}
 	desc += "\n";
 	desc += StringUtils::sprintf(
-		  "Host ID: %" FMT_HOST_ID "\n"
+		  "Host ID: '%" FMT_LOCAL_HOST_ID "'\n"
 		  "    Hostname:   \"%s\"\n",
-		  event.hostId, event.hostName.c_str());
+		  event.hostIdInServer.c_str(), event.hostName.c_str());
 	desc += "\n";
 	desc += StringUtils::sprintf(
 		  "Event ID: %" FMT_EVENT_ID "\n"

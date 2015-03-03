@@ -69,7 +69,7 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 		trigGroupStream >> trigInfo.brief;
 
 		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_HOSTID);
-		trigGroupStream >> trigInfo.hostId;
+		trigGroupStream >> trigInfo.hostIdInServer;
 
 		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION);
 		trigGroupStream >> expandedDescription;
@@ -82,17 +82,19 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 			trigInfo.extendedInfo = agent.generate();
 		}
 
-		if (trigInfo.hostId != INAPPLICABLE_HOST_ID &&
-		    !hostInfoCache.getName(trigInfo.hostId,
-		                           trigInfo.hostName)) {
+		HostInfoCache::Element cacheElem;
+		const bool found = hostInfoCache.getName(
+		  trigInfo.hostIdInServer, cacheElem);
+		if (!found) {
 			MLPL_WARN(
 			  "Ignored a trigger whose host name was not found: "
-			  "server: %" FMT_SERVER_ID ", host: %" FMT_HOST_ID
-			  "\n",
-			  serverId, trigInfo.hostId);
+			  "server: %" FMT_SERVER_ID ", "
+			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
+			  serverId, trigInfo.hostIdInServer.c_str());
 			continue;
 		}
-
+		trigInfo.globalHostId = cacheElem.hostId;
+		trigInfo.hostName         = cacheElem.name;
 		trigInfoList.push_back(trigInfo);
 	}
 }
@@ -158,8 +160,7 @@ void HatoholDBUtils::transformHostsToHatoholFormat(
 		svHostDef.serverId = serverId;
 
 		itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_HOSTID);
-		svHostDef.hostIdInServer =
-		  itemGroupStream.read<uint64_t, string>();
+		itemGroupStream >> svHostDef.hostIdInServer;
 
 		itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_NAME);
 		itemGroupStream >> svHostDef.name;

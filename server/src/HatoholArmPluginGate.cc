@@ -213,11 +213,11 @@ void HatoholArmPluginGate::start(void)
 	svHostDef.id       = AUTO_INCREMENT_VALUE;
 	svHostDef.hostId   = AUTO_ASSIGNED_ID;
 	svHostDef.serverId = m_impl->serverInfo.id;
-	svHostDef.hostIdInServer =
-	  StringUtils::sprintf("%" FMT_HOST_ID, INAPPLICABLE_HOST_ID);
+	svHostDef.hostIdInServer = INAPPLICABLE_LOCAL_HOST_ID;
 	svHostDef.name     = "N/A";
 	svHostDef.status   = HOST_STAT_INAPPLICABLE;
 	UnifiedDataStore::getInstance()->upsertHost(svHostDef);
+	m_impl->hostInfoCache.update(svHostDef);
 
 	HatoholArmPluginInterface::start();
 }
@@ -457,15 +457,15 @@ void HatoholArmPluginGate::setPluginAvailabelTrigger(const HatoholArmPluginWatch
 void HatoholArmPluginGate::setPluginConnectStatus(const HatoholArmPluginWatchType &type,
 					     const HatoholArmPluginErrorCode &errorCode)
 {
-	TriggerStatusType istatus;
+	TriggerStatusType status;
 	if (errorCode == HAPERR_UNAVAILABLE_HAP) {
-		istatus = TRIGGER_STATUS_PROBLEM;
+		status = TRIGGER_STATUS_PROBLEM;
 	} else if (errorCode == HAPERR_OK) {
-		istatus = TRIGGER_STATUS_OK;
+		status = TRIGGER_STATUS_OK;
 	} else {
-		istatus = TRIGGER_STATUS_UNKNOWN;
+		status = TRIGGER_STATUS_UNKNOWN;
 	}
-	m_impl->utils.updateTriggerStatus(type, istatus);
+	m_impl->utils.updateTriggerStatus(type, status);
 }
 
 void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)

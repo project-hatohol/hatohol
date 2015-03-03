@@ -109,8 +109,8 @@ public:
 
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
-	virtual HostIdType getTargetHostId(void) const;
-	virtual void setTargetHostId(HostIdType targetHostId);
+	virtual LocalHostIdType getTargetHostId(void) const;
+	virtual void setTargetHostId(const LocalHostIdType &targetHostId);
 	virtual HostgroupIdType getTargetHostgroupId(void) const;
 	virtual void setTargetHostgroupId(HostgroupIdType targetHostgroupId);
 
@@ -146,9 +146,9 @@ protected:
 	  const std::string &serverIdColumnName,
 	  const std::string &hostgroupIdColumnName,
 	  const std::string &hostIdColumnName,
-	  ServerIdType targetServerId = ALL_SERVERS,
-	  HostgroupIdType targetHostgroup = ALL_HOST_GROUPS,
-	  HostIdType targetHostId = ALL_HOSTS) const;
+	  const ServerIdType &targetServerId = ALL_SERVERS,
+	  const HostgroupIdType &targetHostgroup = ALL_HOST_GROUPS,
+	  const LocalHostIdType &targetHostId = ALL_LOCAL_HOSTS) const;
 	std::string makeConditionServer(
 	  const ServerIdSet &serverIdSet,
 	  const std::string &serverIdColumnName) const;
