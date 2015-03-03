@@ -94,7 +94,6 @@ class TestGraphsViewAuthorized(TestGraphsView):
                           [record])
 
 
-
 class TestGraphsViewUnauthorized(TestGraphsView):
 
     def _setSessionId(self, request):
