@@ -830,7 +830,8 @@ HatoholAddActionDialog.prototype.setupIncidentTrackersEditor = function()
     if (self.changedCallback)
       self.changedCallback();
     self.setApplyButtonState(!!self.getCommand());
-    $("#selectIncidentTracker").val(self.actionDef.command);
+    if (self.actionDef)
+      $("#selectIncidentTracker").val(self.actionDef.command);
   };
   $("#editIncidentTrackers").click(function() {
     new HatoholIncidentTrackersEditor({
