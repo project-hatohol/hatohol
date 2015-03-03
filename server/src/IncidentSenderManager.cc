@@ -163,7 +163,8 @@ IncidentSender *IncidentSenderManager::getSender(
 	return m_impl->getSender(id, autoCreate);
 }
 
-void IncidentSenderManager::setOnChangedIncidentTracker(const IncidentTrackerIdType id) {
+void IncidentSenderManager::setOnChangedIncidentTracker(const IncidentTrackerIdType id)
+{
 	IncidentSender *sender = m_impl->getSender(id);
 	sender->setOnChangedIncidentTracker();
 }
