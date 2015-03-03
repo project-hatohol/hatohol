@@ -254,7 +254,7 @@ var IncidentSettingsView = function(userProfile) {
 
   function onGotIncidentSettings(incidentSettingsData) {
     self.incidentSettingsData = incidentSettingsData;
-    self.startConnection("incident-trackers", onGotIncidentTrackers);
+    self.startConnection("incident-tracker", onGotIncidentTrackers);
   }
 
   function getQuery() {
