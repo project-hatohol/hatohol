@@ -34,6 +34,10 @@ def format_models(models):
     flatten_records = []
     for record in records:
         flatten_record = dict({'id': record['pk']}, **record['fields'])
+        if ('settings_json' in flatten_record):
+            settings = json.loads(record['fields']['settings_json'])
+            del flatten_record['settings_json']
+            flatten_record.update(settings)
         flatten_records.append(flatten_record)
     return flatten_records
 

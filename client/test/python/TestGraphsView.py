@@ -88,7 +88,9 @@ class TestGraphsViewAuthorized(TestGraphsView):
         record = {
             'id': graph.id,
             'user_id': 5,
-            'settings_json': graph.settings_json,
+            'server_id': 1,
+            'host_id': 2,
+            'item_id': 3,
         }
         self.assertEquals(json.loads(response.content),
                           [record])
