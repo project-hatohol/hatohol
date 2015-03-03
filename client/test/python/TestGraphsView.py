@@ -120,6 +120,12 @@ class TestGraphsViewAuthorized(TestGraphsView):
         self.assertEquals(json.loads(response.content),
                           record)
 
+    def test_post_broken_json(self):
+        user_id = 5
+        body = '{server_id:1,host_id:2,item_id:3}'
+        response = self._post(body)
+        self.assertEquals(response.status_code, httplib.BAD_REQUEST)
+
 
 class TestGraphsViewUnauthorized(TestGraphsView):
 

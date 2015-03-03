@@ -17,7 +17,9 @@
 
 from django.db import models
 from django.db import transaction
+from django.core.exceptions import ValidationError
 import smartfield
+import json
 
 
 class UserConfig(models.Model):
@@ -114,3 +116,9 @@ class LogSearchSystem(models.Model):
 class Graph(models.Model):
     user_id = models.IntegerField(db_index=True)
     settings_json = models.TextField()
+
+    def clean(self):
+        try:
+            json.loads(self.settings_json)
+        except ValueError as e:
+            raise ValidationError('Broken JSON')

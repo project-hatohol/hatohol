@@ -22,6 +22,7 @@ from django.core import serializers
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.forms import ModelForm
+from django.core.exceptions import ValidationError
 
 from hatohol.models import LogSearchSystem, Graph
 from hatohol import hatoholserver
@@ -132,6 +133,11 @@ def graphs(request, id):
 
     if request.method == 'POST':
         graph = Graph(user_id=user_id, settings_json=request.POST)
+        try:
+            graph.full_clean()
+        except ValidationError as e:
+            return http.HttpResponseBadRequest(json.dumps(e.messages),
+                                               content_type=content_type)
         graph.save()
         response = http.HttpResponse(to_json(graph),
                                      content_type=content_type,
