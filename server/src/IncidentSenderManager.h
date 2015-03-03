@@ -38,6 +38,7 @@ public:
 		   IncidentSender::UpdateIncidentCallback callback = NULL,
 		   void *userData = NULL);
 	bool isIdling(void);
+	void setOnChangedIncidentTracker(const IncidentTrackerIdType id);
 
 protected:
 	IncidentSenderManager(void);
