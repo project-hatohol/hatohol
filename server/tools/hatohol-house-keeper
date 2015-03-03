@@ -33,8 +33,8 @@ def start(args):
         db = MySQLdb.connect(host=args.db_host, db=args.db_name,
                              user=args.db_user, passwd=args.db_password)
         cursor = db.cursor()
-    except MySQLdb.Error as e:
-        print 'MySQL Error [%d]: %s' % (e.args[0], e.args[1])
+    except MySQLdb.Error as (errno, msg):
+        print 'MySQL Error [%d]: %s' % (errno, msg)
         sys.exit(os.EX_DATAERR)
 
     if args.stat:
