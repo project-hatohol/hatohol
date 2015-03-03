@@ -24,6 +24,7 @@ from django.db import models
 from django.forms import ModelForm
 
 from hatohol.models import LogSearchSystem
+from hatohol.models import Graph
 from hatohol import hatoholserver
 from viewer.userconfig import get_user_id_from_hatohol_server
 
@@ -113,3 +114,20 @@ def log_search_systems(request, id):
             systems = LogSearchSystem.objects.all().order_by('id')
             response = systems
         return http.HttpResponse(to_json(response), content_type=content_type)
+
+
+class GraphForm(ModelForm):
+    class Meta:
+        model = Graph
+
+
+def graphs(request, id):
+
+    content_type = 'application/json'
+
+    if not is_valid_session(request):
+        return http.HttpResponseForbidden(content_type=content_type)
+
+    graphs = Graph.objects.all().order_by('id')
+    response = graphs
+    return http.HttpResponse(to_json(response), content_type=content_type)
