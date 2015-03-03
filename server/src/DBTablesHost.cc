@@ -1100,7 +1100,7 @@ HatoholError DBTablesHost::getServerHostDefs(
 	return HTERR_OK;
 }
 
-bool DBTablesHost::isStoredHostsChanged(void)
+bool DBTablesHost::wasStoredHostsChanged(void)
 {
 	return m_impl->storedHostsChanged;
 }

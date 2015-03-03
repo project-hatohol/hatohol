@@ -293,7 +293,7 @@ ArmBase::ArmPollingResult ArmZabbixAPI::mainThreadOneProc(void)
 	try {
 		updateHosts();
 		updateGroups();
-		if (UnifiedDataStore::getInstance()->isStoredHostsChanged()){
+		if (UnifiedDataStore::getInstance()->wasStoredHostsChanged()){
 			ItemTablePtr triggers = updateTriggers();
 			makeHatoholTriggers(triggers);
 		} else {

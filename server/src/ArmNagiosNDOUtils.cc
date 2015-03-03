@@ -823,7 +823,7 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 		getHost();
 		getHostgroup();
 		getHostgroupMembers();
-		getTrigger(UnifiedDataStore::getInstance()->isStoredHostsChanged());
+		getTrigger(UnifiedDataStore::getInstance()->wasStoredHostsChanged());
 		getEvent();
 		if (!getCopyOnDemandEnabled())
 			getItem();

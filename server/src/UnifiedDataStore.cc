@@ -500,10 +500,10 @@ HatoholError UnifiedDataStore::syncHosts(const ServerHostDefVect &svHostDefs,
 	return cache.getHost().syncHosts(svHostDefs, serverId);
 }
 
-bool UnifiedDataStore::isStoredHostsChanged(void)
+bool UnifiedDataStore::wasStoredHostsChanged(void)
 {
 	ThreadLocalDBCache cache;
-	return cache.getHost().isStoredHostsChanged();
+	return cache.getHost().wasStoredHostsChanged();
 }
 
 HatoholError UnifiedDataStore::upsertHostgroups(const HostgroupVect &hostgroups)
