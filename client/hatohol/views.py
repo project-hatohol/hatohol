@@ -122,11 +122,6 @@ def log_search_systems(request, id):
         return http.HttpResponse(to_json(response), content_type=content_type)
 
 
-class GraphForm(ModelForm):
-    class Meta:
-        model = Graph
-
-
 def graphs(request, id):
 
     content_type = 'application/json'
