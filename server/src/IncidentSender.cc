@@ -228,7 +228,7 @@ bool IncidentSender::isIdling(void)
 	return !m_impl->runningJob;
 }
 
-const IncidentTrackerInfo &IncidentSender::getIncidentTrackerInfo(void)
+const IncidentTrackerInfo IncidentSender::getIncidentTrackerInfo(void)
 {
 	Mutex trackerLock;
 	AutoMutex autoMutex(&trackerLock);

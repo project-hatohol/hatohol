@@ -153,7 +153,7 @@ public:
 	 */
 	bool isIdling(void);
 
-	const IncidentTrackerInfo &getIncidentTrackerInfo(void);
+	const IncidentTrackerInfo getIncidentTrackerInfo(void);
 	void setOnChangedIncidentTracker(void);
 
 protected:
