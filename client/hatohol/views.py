@@ -27,7 +27,6 @@ from hatohol.models import LogSearchSystem, Graph
 from hatohol import hatoholserver
 from viewer.userconfig import get_user_id_from_hatohol_server
 from viewer.userconfig import NoHatoholUser, NoHatoholSession
-import pprint
 
 
 def format_models(models):
