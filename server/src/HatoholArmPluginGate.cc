@@ -172,7 +172,7 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	registerCommandHandler(
 	  HAPI_CMD_GET_IF_HOSTS_CHANGED,
 	  (CommandHandler)
-	    &HatoholArmPluginGate::cmdHandlerGetTriggerCollectStat);
+	    &HatoholArmPluginGate::cmdHandlerGetHostsChanged);
 
 	registerCommandHandler(
 	  HAPI_CMD_SEND_UPDATED_TRIGGERS,
@@ -820,18 +820,14 @@ void HatoholArmPluginGate::cmdHandlerGetTimeOfLastEvent(
 	reply(resBuf);
 }
 
-void HatoholArmPluginGate::cmdHandlerGetTriggerCollectStat(
+void HatoholArmPluginGate::cmdHandlerGetHostsChanged(
   const HapiCommandHeader *header)
 {
 	SmartBuffer resBuf;
 	HapiTriggerCollect *body =
 	  setupResponseBuffer<HapiTriggerCollect>(resBuf);
-	HapiTriggerCollectType type;
-	if (UnifiedDataStore::getInstance()->isStoredHostsChanged()) {
-		type = DIFFERENCE_TRIGGER_COLLECT;
-	} else {
-		type = ALL_TRIGGER_COLLECT;
-	}
+	HapiWasHostsChanged type;
+	type = UnifiedDataStore::getInstance()->isStoredHostsChanged();
 	body->type = NtoL(type);
 	reply(resBuf);
 }

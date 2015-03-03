@@ -124,10 +124,7 @@ enum HapiResponseCode {
 	NUM_HAPI_CMD_RES
 };
 
-typedef enum {
-	DIFFERENCE_TRIGGER_COLLECT = 0,
-	ALL_TRIGGER_COLLECT,
-} HapiTriggerCollectType;
+typedef bool HapiWasHostsChanged;
 
 // ---------------------------------------------------------------------------
 // Structure of the message header

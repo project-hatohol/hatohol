@@ -292,10 +292,10 @@ SmartTime HatoholArmPluginBase::getTimeOfLastEvent(
 	return cb->lastTime;
 }
 
-HapiTriggerCollectType HatoholArmPluginBase::getTriggerCollectType(void)
+HapiWasHostsChanged HatoholArmPluginBase::getWasHostsChanged(void)
 {
 	struct Callback : public SyncCommand {
-		HapiTriggerCollectType type;
+		HapiWasHostsChanged status;
 
 		Callback(HatoholArmPluginBase *obj)
 		: SyncCommand(obj)
@@ -310,7 +310,7 @@ HapiTriggerCollectType HatoholArmPluginBase::getTriggerCollectType(void)
 			const HapiTriggerCollect *body =
 			  getObject()->getResponseBody
 			    <HapiTriggerCollect>(replyBuf);
-			type = (HapiTriggerCollectType)LtoN(body->type);
+			status = (HapiWasHostsChanged)LtoN(body->type);
 			setSucceeded();
 		}
 
@@ -326,7 +326,7 @@ HapiTriggerCollectType HatoholArmPluginBase::getTriggerCollectType(void)
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to call HAPI_CMD_GET_TRIGGERS_COLLECT_STAT\n");
 	}
-	return cb->type;
+	return cb->status;
 }
 
 // ---------------------------------------------------------------------------
