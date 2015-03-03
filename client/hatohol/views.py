@@ -158,6 +158,13 @@ def graphs(request, id):
             graph.delete()
             return http.HttpResponse()
     else:
-        graphs = Graph.objects.filter(user_id=user_id).order_by('id')
-        response = graphs
+        if id:
+            try:
+                graph = Graph.objects.get(id=id)
+            except Graph.DoesNotExist:
+                return http.HttpResponseNotFound()
+            response = graph
+        else:
+            graphs = Graph.objects.filter(user_id=user_id).order_by('id')
+            response = graphs
         return http.HttpResponse(to_json(response), content_type=content_type)

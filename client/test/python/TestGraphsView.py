@@ -87,7 +87,7 @@ class TestGraphsViewAuthorized(TestGraphsView):
         self.assertEquals(response.status_code, httplib.OK)
         record = {
             'id': graph.id,
-            'user_id': 5,
+            'user_id': graph.user_id,
             'server_id': 1,
             'host_id': 2,
             'item_id': 3,
@@ -104,6 +104,33 @@ class TestGraphsViewAuthorized(TestGraphsView):
         self.assertEquals(response.status_code, httplib.OK)
         self.assertEquals(json.loads(response.content),
                           [])
+
+    def test_get_with_id(self):
+        graph = Graph(
+            user_id=5,
+            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+        graph.save()
+        response = self._get(graph.id)
+        self.assertEquals(response.status_code, httplib.OK)
+        record = {
+            'id': graph.id,
+            'user_id': graph.user_id,
+            'server_id': 1,
+            'host_id': 2,
+            'item_id': 3
+        }
+        self.assertEquals(json.loads(response.content),
+                          record)
+
+    def test_get_with_id_nonexsitent(self):
+        graph = Graph(
+            user_id=5,
+            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+        graph.save()
+        id = graph.id
+        graph.delete()
+        response = self._get(id)
+        self.assertEquals(response.status_code, httplib.NOT_FOUND)
 
     def test_post(self):
         user_id = 5
