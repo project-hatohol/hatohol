@@ -71,7 +71,7 @@ ArmIncidentTracker::~ArmIncidentTracker()
 {
 }
 
-const IncidentTrackerInfo &ArmIncidentTracker::getIncidentTrackerInfo(void)
+const IncidentTrackerInfo ArmIncidentTracker::getIncidentTrackerInfo(void)
 {
 	return m_impl->m_incidentTrackerInfo;
 }

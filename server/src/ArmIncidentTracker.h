@@ -37,7 +37,7 @@ public:
 	  const IncidentTrackerInfo &trackerInfo);
 
 protected:
-	const IncidentTrackerInfo &getIncidentTrackerInfo(void);
+	const IncidentTrackerInfo getIncidentTrackerInfo(void);
 
 private:
 	struct Impl;

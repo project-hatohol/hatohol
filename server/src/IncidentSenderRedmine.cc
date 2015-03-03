@@ -80,7 +80,7 @@ IncidentSenderRedmine::~IncidentSenderRedmine()
 
 string IncidentSenderRedmine::getProjectURL(void)
 {
-	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
+	const IncidentTrackerInfo trackerInfo = getIncidentTrackerInfo();
 	string url = trackerInfo.baseURL;
 	if (!StringUtils::hasSuffix(url, "/"))
 		url += "/";
@@ -98,7 +98,7 @@ string IncidentSenderRedmine::getProjectURL(void)
 
 string IncidentSenderRedmine::getIssuesJSONURL(void)
 {
-	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
+	const IncidentTrackerInfo trackerInfo = getIncidentTrackerInfo();
 	string url = trackerInfo.baseURL;
 	if (!StringUtils::hasSuffix(url, "/"))
 		url += "/";
@@ -108,7 +108,7 @@ string IncidentSenderRedmine::getIssuesJSONURL(void)
 
 string IncidentSenderRedmine::getIssueURL(const string &id)
 {
-	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
+	const IncidentTrackerInfo trackerInfo = getIncidentTrackerInfo();
 	return RedmineAPI::getIssueURL(trackerInfo, id);
 }
 
@@ -235,7 +235,7 @@ string IncidentSenderRedmine::buildJSON(const EventInfo &event)
 	if (getServerInfo(event, serverInfo))
 		server = &serverInfo;
 
-	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
+	const IncidentTrackerInfo trackerInfo = getIncidentTrackerInfo();
 	JSONBuilder agent;
 	agent.startObject();
 	agent.startObject("issue");
@@ -279,7 +279,7 @@ void IncidentSenderRedmine::Impl::authenticateCallback(
 {
 	IncidentSenderRedmine *sender
 	  = reinterpret_cast<IncidentSenderRedmine*>(user_data);
-	const IncidentTrackerInfo &tracker = sender->getIncidentTrackerInfo();
+	const IncidentTrackerInfo tracker = sender->getIncidentTrackerInfo();
 	soup_auth_authenticate(
 	  auth, tracker.userName.c_str(), tracker.password.c_str());
 }
@@ -324,7 +324,7 @@ HatoholError IncidentSenderRedmine::parseResponse(
 HatoholError IncidentSenderRedmine::buildIncidentInfo(
   IncidentInfo &incidentInfo, const string &response, const EventInfo &event)
 {
-	const IncidentTrackerInfo &tracker = getIncidentTrackerInfo();
+	const IncidentTrackerInfo tracker = getIncidentTrackerInfo();
 	incidentInfo.trackerId = tracker.id;
 	incidentInfo.serverId = event.serverId;
 	incidentInfo.eventId = event.id;
@@ -416,7 +416,7 @@ HatoholError IncidentSenderRedmine::send(const IncidentInfo &incident,
 	string json = buildJSON(incident, comment);
 	string response;
 
-	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
+	const IncidentTrackerInfo trackerInfo = getIncidentTrackerInfo();
 	if (incident.trackerId != trackerInfo.id)
 		return HTERR_FAILED_TO_SEND_INCIDENT;
 
