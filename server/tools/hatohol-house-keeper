@@ -3,6 +3,7 @@ import sys
 import os
 import argparse
 import MySQLdb
+import time
 
 
 def finish_if_require_option_is_fault(args):
@@ -26,6 +27,12 @@ def show_status(cursor):
     show_number_of('events', cursor)
     show_number_of('action_logs', cursor)
     sys.exit(os.EX_OK)
+
+
+def return_unix_time(date):
+    format = '%Y-%m-%d %H:%M:%S'
+    date += ' 00:00:00'
+    return int(time.mktime(time.strptime(date, format)))
 
 
 def start(args):
