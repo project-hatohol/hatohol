@@ -292,7 +292,7 @@ SmartTime HatoholArmPluginBase::getTimeOfLastEvent(
 	return cb->lastTime;
 }
 
-bool HatoholArmPluginBase::getWasHostsChanged(void)
+bool HatoholArmPluginBase::wasHostsInServerDBChanged(void)
 {
 	struct Callback : public SyncCommand {
 		bool status;

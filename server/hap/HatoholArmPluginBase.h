@@ -64,7 +64,7 @@ public:
 	mlpl::SmartTime getTimeOfLastEvent(
 	  const TriggerIdType &triggerId = ALL_TRIGGERS);
 
-	bool getWasHostsChanged(void);
+	bool wasHostsInServerDBChanged(void);
 
 protected:
 	static const size_t WAIT_INFINITE;

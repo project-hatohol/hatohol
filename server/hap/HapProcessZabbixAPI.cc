@@ -71,8 +71,8 @@ void HapProcessZabbixAPI::setMonitoringServerInfo(void)
 void HapProcessZabbixAPI::workOnTriggers(void)
 {
 	int requestSince;
-	bool status = getWasHostsChanged();
-	if (status) {
+	const bool hostsChanged = wasHostsInServerDBChanged();
+	if (hostsChanged) {
 		SmartTime lastTriggerTime = getTimestampOfLastTrigger();
 		// TODO: getTrigger() should accept SmartTime directly.
 		// TODO: We should add a way to get newly added triggers.
@@ -88,7 +88,7 @@ void HapProcessZabbixAPI::workOnTriggers(void)
 	ItemTablePtr mergedTriggers =
 		mergePlainTriggersAndExpandedDescriptions(triggers, expandedDescriptions);
 
-	if (status) {
+	if (hostsChanged) {
 		sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, mergedTriggers);
 	} else {
 		sendTable(HAPI_CMD_SEND_ALL_TRIGGERS, mergedTriggers);
