@@ -150,9 +150,14 @@ def start(args):
     add_sql_directory(args, sql_file_list)
     check_sql_file(args, sql_file_list)
 
-    db = MySQLdb.connect(host=args.host,
-                         user=args.db_user, passwd=args.db_password)
-    cursor = db.cursor()
+    try:
+        db = MySQLdb.connect(host=args.host,
+                             user=args.db_user, passwd=args.db_password)
+        cursor = db.cursor()
+    except MySQLdb.Error as (errno, msg):
+        print 'MySQL Error [%d]: %s' % (errno, msg)
+        sys.exit(os.EX_DATAERR)
+
     create_db_if_needed(cursor, args)
     create_hatohol_tables(args)
 
