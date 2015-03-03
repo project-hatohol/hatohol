@@ -126,7 +126,7 @@ class TestGraphsViewAuthorized(TestGraphsView):
         self.assertEquals(json.loads(response.content),
                           record)
 
-    def test_get_graph_of_other_user(self):
+    def test_get_graph_with_id_nonowner(self):
         graph = Graph(
             user_id=4,
             settings_json='{"server_id":1,"host_id":2,"item_id":3}')
@@ -239,7 +239,7 @@ class TestGraphsViewAuthorized(TestGraphsView):
         self.assertRaises(Graph.DoesNotExist,
                           lambda: Graph.objects.get(id=graph.id))
 
-    def test_delete_graph_of_other_owner(self):
+    def test_delete_with_id_nonowner(self):
         graph = Graph(
             user_id=4,
             settings_json='{"server_id":1,"host_id":2,"item_id":3}')
