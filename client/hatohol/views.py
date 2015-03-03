@@ -145,6 +145,25 @@ def graphs(request, id):
         response['Location'] = reverse('hatohol.views.graphs',
                                        args=[graph.id])
         return response
+    elif request.method == 'PUT':
+        if id is None:
+            message = 'id is required'
+            return http.HttpResponseBadRequest(to_json(message),
+                                               content_type=content_type)
+        try:
+            graph = Graph.objects.get(id=id)
+            if graph.user_id != user_id:
+                return http.HttpResponseForbidden(content_type=content_type)
+            graph.settings_json = request.body
+            graph.full_clean()
+            graph.save()
+            return http.HttpResponse(to_json(graph),
+                                     content_type=content_type)
+        except Graph.DoesNotExist:
+            return http.HttpResponseNotFound(content_type=content_type)
+        except ValidationError as e:
+            return http.HttpResponseBadRequest(json.dumps(e.messages),
+                                               content_type=content_type)
     elif request.method == 'DELETE':
         if id is None:
             message = 'id is required'

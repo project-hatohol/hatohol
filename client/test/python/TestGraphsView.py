@@ -35,15 +35,19 @@ class TestGraphsView(unittest.TestCase):
         self._emulator = HatoholServerEmulator()
         self._emulator.start_and_wait_setup_done()
 
-    def _request(self, method, id=None, body=None, POST=None):
+    def _request(self, method, id=None, body=None, POST=None, PUT=None):
         request = HttpRequest()
         request.method = method
         self._setSessionId(request)
-        if body:
+        if PUT:
+            request.META['CONTENT_TYPE'] = "application/json"
+            request._body = PUT
+        elif POST:
+            request.META['CONTENT_TYPE'] = "application/json"
+            request.POST = POST
+        elif body:
             request.META['CONTENT_TYPE'] = "application/x-www-form-urlencoded"
             request._body = urllib.urlencode(body)
-        if POST:
-            request.POST = POST
         return graphs(request, id)
 
     def _get(self, id=None):
@@ -53,7 +57,7 @@ class TestGraphsView(unittest.TestCase):
         return self._request('POST', POST=body)
 
     def _put(self, id=None, body=None):
-        return self._request('PUT', id=id, body=body)
+        return self._request('PUT', id=id, PUT=body)
 
     def _delete(self, id=None):
         return self._request('DELETE', id=id)
@@ -159,6 +163,67 @@ class TestGraphsViewAuthorized(TestGraphsView):
         broken_json = '{server_id:1,host_id:2,item_id:3}'
         response = self._post(broken_json)
         self.assertEquals(response.status_code, httplib.BAD_REQUEST)
+
+    def test_put_without_id(self):
+        record = {
+            'server_id': 1,
+            'host_id': 2,
+            'item_id': 3,
+        }
+        response = self._put(None, json.dumps(record))
+        self.assertEquals(response.status_code, httplib.BAD_REQUEST)
+
+    def test_put_with_id(self):
+        graph = Graph(
+            user_id=5,
+            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+        graph.save()
+        new_record = {
+            'server_id': 4,
+            'host_id': 5,
+            'item_id': 6,
+        }
+        settings_json = json.dumps(new_record)
+        response = self._put(graph.id, settings_json)
+        self.assertEquals(response.status_code, httplib.OK)
+        record = {
+            'id': graph.id,
+            'user_id': graph.user_id,
+        }
+        record.update(new_record)
+        self.assertEquals(json.loads(response.content),
+                          record)
+
+    def test_put_with_id_nonowner(self):
+        graph = Graph(
+            user_id=4,
+            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+        graph.save()
+        new_record = {
+            'server_id': 4,
+            'host_id': 5,
+            'item_id': 6,
+        }
+        settings_json = json.dumps(new_record)
+        response = self._put(graph.id, settings_json)
+        self.assertEquals(response.status_code, httplib.FORBIDDEN)
+        graph_in_db = Graph.objects.get(id=graph.id)
+        self.assertEquals(graph, graph_in_db)
+
+    def test_put_with_id_nonexistent(self):
+        graph = Graph(
+            user_id=5,
+            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+        graph.save()
+        nonexistent_id = graph.id
+        graph.delete()
+        record = {
+            'server_id': 4,
+            'host_id': 5,
+            'item_id': 6,
+        }
+        response = self._put(nonexistent_id, record)
+        self.assertEquals(response.status_code, httplib.NOT_FOUND)
 
     def test_delete_without_id(self):
         response = self._delete(None)
