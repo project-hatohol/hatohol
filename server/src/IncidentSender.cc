@@ -230,6 +230,9 @@ bool IncidentSender::isIdling(void)
 
 const IncidentTrackerInfo &IncidentSender::getIncidentTrackerInfo(void)
 {
+	Mutex trackerLock;
+	AutoMutex autoMutex(&trackerLock);
+
 	if (!m_impl->onChanged)
 		return m_impl->incidentTrackerInfo;
 
