@@ -100,6 +100,7 @@ struct IncidentSender::Impl
 	size_t retryLimit;
 	unsigned int retryIntervalMSec;
 	AtomicValue<bool> onChanged;
+	Mutex trackerLock;
 
 	Impl(IncidentSender &_sender)
 	: sender(_sender), runningJob(NULL), jobSemaphore(0),
@@ -230,8 +231,7 @@ bool IncidentSender::isIdling(void)
 
 const IncidentTrackerInfo IncidentSender::getIncidentTrackerInfo(void)
 {
-	Mutex trackerLock;
-	AutoMutex autoMutex(&trackerLock);
+	AutoMutex autoMutex(&m_impl->trackerLock);
 
 	if (!m_impl->onChanged)
 		return m_impl->incidentTrackerInfo;
