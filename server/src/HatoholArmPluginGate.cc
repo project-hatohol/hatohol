@@ -170,7 +170,7 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	    &HatoholArmPluginGate::cmdHandlerGetTimeOfLastEvent);
 
 	registerCommandHandler(
-	  HAPI_CMD_GET_TRIGGERS_COLLECT_TYPE,
+	  HAPI_CMD_GET_IF_HOSTS_CHANGED,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerGetTriggerCollectStat);
 

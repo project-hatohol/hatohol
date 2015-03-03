@@ -319,7 +319,7 @@ HapiTriggerCollectType HatoholArmPluginBase::getTriggerCollectType(void)
 
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(
-	  cmdBuf, HAPI_CMD_GET_TRIGGERS_COLLECT_TYPE);
+	  cmdBuf, HAPI_CMD_GET_IF_HOSTS_CHANGED);
 	send(cmdBuf, cb);
 	cb->wait();
 	if (!cb->getSucceeded()) {
