@@ -1252,10 +1252,10 @@ string TriggersQueryOption::getCondition(void) const
 		addCondition(
 		  condition,
 		  StringUtils::sprintf(
-		    "%s!=%d",
-		    tableProfileServerHostDef.getFullColumnName(
-		      IDX_HOST_SERVER_HOST_DEF_HOST_STATUS).c_str(),
-		    HOST_STAT_REMOVED));
+		    "%s.%s!=%d",
+		    DBTablesMonitoring::TABLE_NAME_TRIGGERS,
+		    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_VALIDITY].columnName,
+		    TRIGGER_INVALID));
 	}
 
 	if (m_impl->targetId != ALL_TRIGGERS) {
