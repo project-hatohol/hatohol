@@ -161,7 +161,7 @@ string IncidentSenderRedmine::buildDescription(
 		 "%a, %d %b %Y %T %z", &eventTime);
 
 	if (server) {
-		description += 
+		description +=
 		  StringUtils::sprintf(
 		    "h2. Monitoring server\n"
 		    "\n"
@@ -174,7 +174,7 @@ string IncidentSenderRedmine::buildDescription(
 		    server->ipAddress.c_str());
 	}
 
-	description += 
+	description +=
 	  StringUtils::sprintf(
 	    "h2. Event details\n"
 	    "\n"
@@ -195,13 +195,13 @@ string IncidentSenderRedmine::buildDescription(
 	    LabelUtils::getTriggerSeverityLabel(event.severity).c_str());
 
 	if (server) {
-		description += 
+		description +=
 		  StringUtils::sprintf(
 		    "|{background:#ddd}. Server ID|%" FMT_SERVER_ID "|\n",
 		    event.serverId);
 	}
 
-	description += 
+	description +=
 	  StringUtils::sprintf(
 	    "|{background:#ddd}. Host ID|%" FMT_HOST_ID "|\n"
 	    "|{background:#ddd}. Trigger ID|%" FMT_TRIGGER_ID "|\n"
