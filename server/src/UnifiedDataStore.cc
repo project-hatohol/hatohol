@@ -30,6 +30,7 @@
 #include "ItemFetchWorker.h"
 #include "DataStoreFactory.h"
 #include "ArmIncidentTracker.h"
+#include "IncidentSenderManager.h"
 
 using namespace std;
 using namespace mlpl;
@@ -749,11 +750,13 @@ HatoholError UnifiedDataStore::updateIncidentTracker(
 {
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
+	IncidentSenderManager &senderManager = IncidentSenderManager::getInstance();
 	HatoholError err =
 	  dbConfig.updateIncidentTracker(incidentTrackerInfo, privilege);
 	if (err != HTERR_OK)
 		return err;
 	stopArmIncidentTrackerIfNeeded(incidentTrackerInfo.id);
+	senderManager.setOnChangedIncidentTracker(incidentTrackerInfo.id);
 	startArmIncidentTrackerIfNeeded(incidentTrackerInfo.id);
 	return HTERR_OK;
 }

@@ -241,6 +241,7 @@ const IncidentTrackerInfo IncidentSender::getIncidentTrackerInfo(void)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	if (dataStore->getIncidentTrackerInfo(trackerId, trackerInfo)) {
 		m_impl->incidentTrackerInfo = trackerInfo;
+		m_impl->onChanged = false;
 		return m_impl->incidentTrackerInfo;
 	}
 
