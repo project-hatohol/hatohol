@@ -105,6 +105,21 @@ class TestGraphsViewAuthorized(TestGraphsView):
         self.assertEquals(json.loads(response.content),
                           [])
 
+    def test_post(self):
+        user_id = 5
+        record = {
+            'server_id': 1,
+            'host_id': 2,
+            'item_id': 3,
+        }
+        response = self._post(json.dumps(record))
+        self.assertEquals(response.status_code, httplib.CREATED)
+        graph = Graph.objects.get(user_id=user_id)
+        record['id'] = graph.id
+        record['user_id'] = user_id
+        self.assertEquals(json.loads(response.content),
+                          record)
+
 
 class TestGraphsViewUnauthorized(TestGraphsView):
 

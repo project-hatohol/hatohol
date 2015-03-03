@@ -64,6 +64,8 @@ urlpatterns = patterns(
     url(r'^tunnel/(?P<path>.+)', jsonforward),
     url(r'^log-search-systems/(?P<id>\d+)?$',
         'hatohol.views.log_search_systems'),
+    url(r'^graphs/(?P<id>\d+)?$',
+        'hatohol.views.graphs'),
     url(r'^userconfig$', 'viewer.userconfig.index'),
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog'),
     url(r'', include('viewer.urls')),

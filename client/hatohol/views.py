@@ -27,6 +27,7 @@ from hatohol.models import LogSearchSystem, Graph
 from hatohol import hatoholserver
 from viewer.userconfig import get_user_id_from_hatohol_server
 from viewer.userconfig import NoHatoholUser, NoHatoholSession
+import pprint
 
 
 def format_models(models):
@@ -135,6 +136,16 @@ def graphs(request, id):
     except (NoHatoholUser, NoHatoholSession):
         return http.HttpResponseForbidden(content_type=content_type)
 
-    graphs = Graph.objects.filter(user_id=user_id).order_by('id')
-    response = graphs
-    return http.HttpResponse(to_json(response), content_type=content_type)
+    if request.method == 'POST':
+        graph = Graph(user_id=user_id, settings_json=request.POST)
+        graph.save()
+        response = http.HttpResponse(to_json(graph),
+                                     content_type=content_type,
+                                     status=201)
+        response['Location'] = reverse('hatohol.views.graphs',
+                                       args=[graph.id])
+        return response
+    else:
+        graphs = Graph.objects.filter(user_id=user_id).order_by('id')
+        response = graphs
+        return http.HttpResponse(to_json(response), content_type=content_type)
