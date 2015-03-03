@@ -155,6 +155,8 @@ def graphs(request, id):
         except Graph.DoesNotExist:
             return http.HttpResponseNotFound()
         else:
+            if graph.user_id != user_id:
+                return http.HttpResponseForbidden(content_type=content_type)
             graph.delete()
             return http.HttpResponse()
     else:
@@ -163,6 +165,8 @@ def graphs(request, id):
                 graph = Graph.objects.get(id=id)
             except Graph.DoesNotExist:
                 return http.HttpResponseNotFound()
+            if graph.user_id != user_id:
+                return http.HttpResponseForbidden(content_type=content_type)
             response = graph
         else:
             graphs = Graph.objects.filter(user_id=user_id).order_by('id')

@@ -122,6 +122,14 @@ class TestGraphsViewAuthorized(TestGraphsView):
         self.assertEquals(json.loads(response.content),
                           record)
 
+    def test_get_graph_of_other_user(self):
+        graph = Graph(
+            user_id=4,
+            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+        graph.save()
+        response = self._get(graph.id)
+        self.assertEquals(response.status_code, httplib.FORBIDDEN)
+
     def test_get_with_id_nonexsitent(self):
         graph = Graph(
             user_id=5,
@@ -165,6 +173,14 @@ class TestGraphsViewAuthorized(TestGraphsView):
         self.assertEquals(response.status_code, httplib.OK)
         self.assertRaises(Graph.DoesNotExist,
                           lambda: Graph.objects.get(id=graph.id))
+
+    def test_delete_graph_of_other_owner(self):
+        graph = Graph(
+            user_id=4,
+            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+        graph.save()
+        response = self._delete(graph.id)
+        self.assertEquals(response.status_code, httplib.FORBIDDEN)
 
     def test_delete_with_id_nonexistent(self):
         graph = Graph(
