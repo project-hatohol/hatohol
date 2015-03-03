@@ -826,7 +826,7 @@ void HatoholArmPluginGate::cmdHandlerGetHostsChanged(
 	SmartBuffer resBuf;
 	HapiTriggerCollect *body =
 	  setupResponseBuffer<HapiTriggerCollect>(resBuf);
-	HapiWasHostsChanged type;
+	bool type;
 	type = UnifiedDataStore::getInstance()->wasStoredHostsChanged();
 	body->type = NtoL(type);
 	reply(resBuf);

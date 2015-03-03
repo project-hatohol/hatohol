@@ -292,10 +292,10 @@ SmartTime HatoholArmPluginBase::getTimeOfLastEvent(
 	return cb->lastTime;
 }
 
-HapiWasHostsChanged HatoholArmPluginBase::getWasHostsChanged(void)
+bool HatoholArmPluginBase::getWasHostsChanged(void)
 {
 	struct Callback : public SyncCommand {
-		HapiWasHostsChanged status;
+		bool status;
 
 		Callback(HatoholArmPluginBase *obj)
 		: SyncCommand(obj)
@@ -310,7 +310,7 @@ HapiWasHostsChanged HatoholArmPluginBase::getWasHostsChanged(void)
 			const HapiTriggerCollect *body =
 			  getObject()->getResponseBody
 			    <HapiTriggerCollect>(replyBuf);
-			status = (HapiWasHostsChanged)LtoN(body->type);
+			status = (bool)LtoN(body->type);
 			setSucceeded();
 		}
 

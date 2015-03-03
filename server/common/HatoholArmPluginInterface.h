@@ -124,8 +124,6 @@ enum HapiResponseCode {
 	NUM_HAPI_CMD_RES
 };
 
-typedef bool HapiWasHostsChanged;
-
 // ---------------------------------------------------------------------------
 // Structure of the message header
 //

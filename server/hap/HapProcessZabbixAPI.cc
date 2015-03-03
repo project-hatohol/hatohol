@@ -71,7 +71,7 @@ void HapProcessZabbixAPI::setMonitoringServerInfo(void)
 void HapProcessZabbixAPI::workOnTriggers(void)
 {
 	int requestSince;
-	HapiWasHostsChanged status = getWasHostsChanged();
+	bool status = getWasHostsChanged();
 	if (status) {
 		SmartTime lastTriggerTime = getTimestampOfLastTrigger();
 		// TODO: getTrigger() should accept SmartTime directly.
