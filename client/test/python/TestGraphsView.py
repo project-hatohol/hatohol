@@ -125,6 +125,30 @@ class TestGraphsViewAuthorized(TestGraphsView):
         response = self._post(broken_json)
         self.assertEquals(response.status_code, httplib.BAD_REQUEST)
 
+    def test_delete_without_id(self):
+        response = self._delete(None)
+        self.assertEquals(response.status_code, httplib.BAD_REQUEST)
+
+    def test_delete_with_id(self):
+        graph = Graph(
+            user_id=5,
+            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+        graph.save()
+        response = self._delete(graph.id)
+        self.assertEquals(response.status_code, httplib.OK)
+        self.assertRaises(Graph.DoesNotExist,
+                          lambda: Graph.objects.get(id=graph.id))
+
+    def test_delete_with_id_nonexistent(self):
+        graph = Graph(
+            user_id=5
+        )
+        graph.save()
+        nonexistent_id = graph.id
+        graph.delete()
+        response = self._delete(nonexistent_id)
+        self.assertEquals(response.status_code, httplib.NOT_FOUND)
+
 
 class TestGraphsViewUnauthorized(TestGraphsView):
 

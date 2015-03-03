@@ -145,6 +145,18 @@ def graphs(request, id):
         response['Location'] = reverse('hatohol.views.graphs',
                                        args=[graph.id])
         return response
+    elif request.method == 'DELETE':
+        if id is None:
+            message = 'id is required'
+            return http.HttpResponseBadRequest(to_json(message),
+                                               content_type=content_type)
+        try:
+            graph = Graph.objects.get(id=id)
+        except Graph.DoesNotExist:
+            return http.HttpResponseNotFound()
+        else:
+            graph.delete()
+            return http.HttpResponse()
     else:
         graphs = Graph.objects.filter(user_id=user_id).order_by('id')
         response = graphs
