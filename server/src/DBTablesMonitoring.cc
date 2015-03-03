@@ -52,7 +52,11 @@ const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBTablesMonitoring::MONITORING_DB_VERSION = 11;
+// -> 1.0
+//   * remove IDX_TRIGGERS_HOST_ID,
+//   * add IDX_TRIGGERS_GLOBAL_HOST_ID and IDX_TRIGGERS_HOST_ID_IN_SERVER
+const int DBTablesMonitoring::MONITORING_DB_VERSION =
+  DBTables::Version::getPackedVer(0, 1, 0);
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
