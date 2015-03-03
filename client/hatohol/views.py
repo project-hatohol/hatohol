@@ -23,10 +23,10 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.forms import ModelForm
 
-from hatohol.models import LogSearchSystem
-from hatohol.models import Graph
+from hatohol.models import LogSearchSystem, Graph
 from hatohol import hatoholserver
 from viewer.userconfig import get_user_id_from_hatohol_server
+from viewer.userconfig import NoHatoholUser, NoHatoholSession
 
 
 def format_models(models):
@@ -125,9 +125,11 @@ def graphs(request, id):
 
     content_type = 'application/json'
 
-    if not is_valid_session(request):
+    try:
+        user_id = get_user_id_from_hatohol_server(request)
+    except (NoHatoholUser, NoHatoholSession):
         return http.HttpResponseForbidden(content_type=content_type)
 
-    graphs = Graph.objects.all().order_by('id')
+    graphs = Graph.objects.filter(user_id=user_id).order_by('id')
     response = graphs
     return http.HttpResponse(to_json(response), content_type=content_type)

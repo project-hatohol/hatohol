@@ -93,6 +93,16 @@ class TestGraphsViewAuthorized(TestGraphsView):
         self.assertEquals(json.loads(response.content),
                           [record])
 
+    def test_get_without_own_record(self):
+        graph = Graph(
+            user_id=4,
+            settings_json='{server_id:1,host_id:2,item_id:3}')
+        graph.save()
+        response = self._get(None)
+        self.assertEquals(response.status_code, httplib.OK)
+        self.assertEquals(json.loads(response.content),
+                          [])
+
 
 class TestGraphsViewUnauthorized(TestGraphsView):
 
