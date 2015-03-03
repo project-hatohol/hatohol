@@ -248,7 +248,8 @@ const IncidentTrackerInfo IncidentSender::getIncidentTrackerInfo(void)
 	return m_impl->incidentTrackerInfo;
 }
 
-void IncidentSender::setOnChangedIncidentTracker(void) {
+void IncidentSender::setOnChangedIncidentTracker(void)
+{
 	m_impl->onChanged = true;
 }
 
