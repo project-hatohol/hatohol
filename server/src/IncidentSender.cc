@@ -99,7 +99,7 @@ struct IncidentSender::Impl
 	SimpleSemaphore jobSemaphore;
 	size_t retryLimit;
 	unsigned int retryIntervalMSec;
-	AtomicValue<bool> onChanged;
+	AtomicValue<bool> trackerChanged;
 	Mutex trackerLock;
 
 	Impl(IncidentSender &_sender)
@@ -233,7 +233,7 @@ const IncidentTrackerInfo IncidentSender::getIncidentTrackerInfo(void)
 {
 	AutoMutex autoMutex(&m_impl->trackerLock);
 
-	if (!m_impl->onChanged)
+	if (!m_impl->trackerChanged)
 		return m_impl->incidentTrackerInfo;
 
 	IncidentTrackerInfo trackerInfo;
@@ -241,7 +241,7 @@ const IncidentTrackerInfo IncidentSender::getIncidentTrackerInfo(void)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	if (dataStore->getIncidentTrackerInfo(trackerId, trackerInfo)) {
 		m_impl->incidentTrackerInfo = trackerInfo;
-		m_impl->onChanged = false;
+		m_impl->trackerChanged = false;
 		return m_impl->incidentTrackerInfo;
 	}
 
@@ -250,7 +250,7 @@ const IncidentTrackerInfo IncidentSender::getIncidentTrackerInfo(void)
 
 void IncidentSender::setOnChangedIncidentTracker(void)
 {
-	m_impl->onChanged = true;
+	m_impl->trackerChanged = true;
 }
 
 bool IncidentSender::getServerInfo(const EventInfo &event,
