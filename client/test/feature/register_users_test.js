@@ -78,17 +78,21 @@ casper.test.begin('Register/Unregister user test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
-  casper.then(function() {
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 1;
+    });
+  }, function then() {
     test.assertTextExists(userName,
                           "Registered user's name exists in the user table.");
+  }, function timeout() {
+    this.echo("Cannot find " + userName + "in the users table.");
   });
-  // check delete-selector check box in user
+
   casper.then(function() {
-    casper.wait(200, function() {
-      this.evaluate(function() {
-        $("tr:last").find(".selectcheckbox").click();
-        return true;
-      });
+    this.evaluate(function() {
+      $("tr:last").find(".selectcheckbox").click();
+      return true;
     });
   });
   casper.waitForSelector("form button#delete-user-button",
@@ -111,9 +115,25 @@ casper.test.begin('Register/Unregister user test', function(test) {
     function fail() {
       test.assertExists("form button#delete-user-button");
     });
-  casper.then(function() {
-    test.assertDosentTextExist(userName,
-                               "Registered user's name does not exist in the user table.");
+  // close comfirm dialog
+  casper.waitForSelector("div.ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared after registering.");
+      this.click("div.ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset > button");
+    });
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 1;
+    });
+  }, function then() {
+      test.assertTextDoesntExist(userName,
+                                 "Registered user's name does not exist in the user table.");
+  }, function timeout() {
+    this.echo("Oops, find " + userName + " in the users table.");
   });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});
