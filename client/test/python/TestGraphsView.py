@@ -44,7 +44,7 @@ class TestGraphsView(unittest.TestCase):
             request._body = PUT
         elif POST:
             request.META['CONTENT_TYPE'] = "application/json"
-            request.POST = POST
+            request._body = POST
         elif body:
             request.META['CONTENT_TYPE'] = "application/x-www-form-urlencoded"
             request._body = urllib.urlencode(body)

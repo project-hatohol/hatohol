@@ -132,7 +132,7 @@ def graphs(request, id):
         return http.HttpResponseForbidden(content_type=content_type)
 
     if request.method == 'POST':
-        graph = Graph(user_id=user_id, settings_json=request.POST)
+        graph = Graph(user_id=user_id, settings_json=request.body)
         try:
             graph.full_clean()
         except ValidationError as e:
