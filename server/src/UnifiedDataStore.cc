@@ -840,8 +840,8 @@ HatoholError UnifiedDataStore::deleteIncidentTracker(
 	  dbConfig.deleteIncidentTracker(incidentTrackerId, privilege);
 	if (err != HTERR_OK)
 		return err;
-	stopArmIncidentTrackerForcely(incidentTrackerId);
 	senderManager.deleteIncidentTracker(incidentTrackerId);
+	stopArmIncidentTrackerForcely(incidentTrackerId);
 	return HTERR_OK;
 }
 
