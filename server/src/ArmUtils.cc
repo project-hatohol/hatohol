@@ -190,7 +190,8 @@ void ArmUtils::createTrigger(
 	triggerInfo.serverId = m_impl->serverInfo.id;
 	triggerInfo.lastChangeTime =
 	  SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
-	triggerInfo.hostId   = MONITORING_SERVER_SELF_ID;
+	triggerInfo.globalHostId = MONITORING_SERVER_SELF_ID;
+	triggerInfo.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
 	triggerInfo.hostName = StringUtils::sprintf(
 	  "%s%s", m_impl->serverInfo.hostName.c_str(),
 	  SERVER_SELF_MONITORING_SUFFIX);
@@ -210,7 +211,8 @@ void ArmUtils::createEvent(
 	eventInfo.serverId = m_impl->serverInfo.id;
 	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
 	eventInfo.time = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
-	eventInfo.hostId = MONITORING_SERVER_SELF_ID;
+	eventInfo.globalHostId = MONITORING_SERVER_SELF_ID;
+	eventInfo.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
 	eventInfo.triggerId = armTrigger.triggerId;
 	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
 	eventInfo.status = armTrigger.status;
@@ -228,11 +230,9 @@ void ArmUtils::registerSelfMonitoringHost(void)
 	svHostDef.id = AUTO_INCREMENT_VALUE;
 	svHostDef.hostId = AUTO_ASSIGNED_ID;
 	svHostDef.serverId = m_impl->serverInfo.id;
-	// TODO: Use a more readable string host name.
-	svHostDef.hostIdInServer =
-	  StringUtils::sprintf("%" FMT_HOST_ID, MONITORING_SERVER_SELF_ID);
+	svHostDef.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
 	svHostDef.name = StringUtils::sprintf("%s%s",
-	   m_impl->serverInfo.hostName.c_str(), SERVER_SELF_MONITORING_SUFFIX);
+	  m_impl->serverInfo.hostName.c_str(), SERVER_SELF_MONITORING_SUFFIX);
 	svHostDef.status = HOST_STAT_SELF_MONITOR;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = dataStore->upsertHost(svHostDef);
@@ -247,4 +247,3 @@ void ArmUtils::updateTriggerStatus(
 {
 	m_impl->updateTriggerStatus(triggerIdx, status);
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -31,6 +31,13 @@ class ResidentCommunicator {
 public:
 	ResidentCommunicator(void);
 	virtual ~ResidentCommunicator();
+
+	/**
+	 * Get the body size.
+	 *
+	 * After calling this function, the index of sbuf is changed.
+	 */
+	static size_t getBodySize(mlpl::SmartBuffer &sbuf);
 
 	/**
 	 * Get the packet type.

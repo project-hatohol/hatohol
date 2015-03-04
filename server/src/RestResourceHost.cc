@@ -142,10 +142,9 @@ static HatoholError parseHostResourceQueryParameter(
 	option.setTargetHostgroupId(targetHostgroupId);
 
 	// target host id
-	HostIdType targetHostId = ALL_HOSTS;
-	err = getParam<HostIdType>(query, "hostId",
-				   "%" FMT_HOST_ID,
-				   targetHostId);
+	LocalHostIdType targetHostId = ALL_LOCAL_HOSTS;
+	err = getParam<LocalHostIdType>(query, "hostId", "%" FMT_LOCAL_HOST_ID,
+	                                targetHostId);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 	option.setTargetHostId(targetHostId);
@@ -484,7 +483,7 @@ bool RestResourceHost::parseExtendedInfo(const std::string &extendedInfo,
 static void addHosts(FaceRest::ResourceHandler *job, JSONBuilder &agent,
                      const ServerIdType &targetServerId,
                      const HostgroupIdType &targetHostgroupId,
-                     const HostIdType &targetHostId)
+                     const LocalHostIdType &targetHostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerHostDefVect svHostDefs;
@@ -564,7 +563,7 @@ void RestResourceHost::handlerGetTrigger(void)
 		agent.add("lastChangeTime",
 		          triggerInfo.lastChangeTime.tv_sec);
 		agent.add("serverId", triggerInfo.serverId);
-		agent.add("hostId",   StringUtils::toString(triggerInfo.hostId));
+		agent.add("hostId",   triggerInfo.hostIdInServer);
 		agent.add("brief",    triggerInfo.brief);
 		if (foundExtendedInfo)
 			agent.add("expandedDescription", extendedInfoValue);
@@ -667,7 +666,7 @@ void RestResourceHost::handlerGetEvent(void)
 		agent.add("triggerId", StringUtils::toString(eventInfo.triggerId));
 		agent.add("status",    eventInfo.status);
 		agent.add("severity",  eventInfo.severity);
-		agent.add("hostId",    StringUtils::toString(eventInfo.hostId));
+		agent.add("hostId",    eventInfo.hostIdInServer);
 		agent.add("brief",     eventInfo.brief);
 		if (foundExtendedInfo)
 			agent.add("expandedDescription", extendedInfoValue);

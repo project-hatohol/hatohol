@@ -1196,7 +1196,7 @@ void ZabbixAPI::parseAndPushHostsData(
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "hostid",       ITEM_ID_ZBX_HOSTS_HOSTID);
+	pushString(parser, grp, "hostid",       ITEM_ID_ZBX_HOSTS_HOSTID);
 	pushUint64(parser, grp, "proxy_hostid", ITEM_ID_ZBX_HOSTS_PROXY_HOSTID);
 	pushString(parser, grp, "host",         ITEM_ID_ZBX_HOSTS_HOST);
 	pushInt   (parser, grp, "status",       ITEM_ID_ZBX_HOSTS_STATUS);
@@ -1355,7 +1355,7 @@ void ZabbixAPI::pushTriggersHostid(JSONParser &parser,
 	} else  {
 		for (int i = 0; i < numElem; i++) {
 			startElement(parser, i);
-			pushUint64(parser, itemGroup, "hostid", itemId);
+			pushString(parser, itemGroup, "hostid", itemId);
 			break; // we use the first applicationid
 		}
 		parser.endElement();

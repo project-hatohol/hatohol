@@ -127,7 +127,7 @@ static void _assertActions(const string &path, const string &callbackName = "",
 		  ServerIdType, cond.serverId);
 		asssertActionCondition(
 		  g_parser, cond, "hostId", ACTCOND_HOST_ID,
-		  string, StringUtils::toString(cond.hostId));
+		  string, cond.hostIdInServer);
 		asssertActionCondition(
 		  g_parser, cond, "hostgroupId", ACTCOND_HOST_GROUP_ID,
 		  uint64_t, cond.hostgroupId);
@@ -280,7 +280,8 @@ void test_addActionParameterOver32bit(void)
 	assertAddAction(params, userId);
 
 	// check the content in the DB
-	string statement = "select host_id, host_group_id, trigger_id from ";
+	string statement =
+	  "select host_id_in_server, host_group_id, trigger_id from ";
 	statement += DBTablesAction::getTableNameActions();
 	string expect;
 	expect += StringUtils::sprintf("%" PRIu64 "|%" PRIu64 "|%" PRIu64,

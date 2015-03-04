@@ -39,8 +39,6 @@ static const char *testHostName = "FOO FOO FOO";
 struct AssertGetHostsArg
   : public AssertGetHostResourceArg<ServerHostDef, HostsQueryOption>
 {
-	HostInfoList expectedHostList;
-
 	AssertGetHostsArg(gconstpointer ddtParam)
 	{
 		fixtures = testServerHostDef;
@@ -54,13 +52,10 @@ struct AssertGetHostsArg
 		return ::isAuthorized(userId, svHostDef.hostId);
 	}
 
-	virtual HostIdType getHostId(const ServerHostDef &svHostDef) const override
+	virtual LocalHostIdType
+	  getHostId(const ServerHostDef &svHostDef) const override
 	{
-		HostIdType hostId;
-		cppcut_assert_equal(
-		  1, sscanf(svHostDef.hostIdInServer.c_str(), "%" FMT_HOST_ID,
-		            &hostId));
-		return hostId;
+		return svHostDef.hostIdInServer;
 	}
 
 	virtual string makeOutputText(const ServerHostDef &svHostDef)

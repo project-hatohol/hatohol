@@ -754,7 +754,8 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	argVect.push_back(NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC);
 	argVect.push_back(StringUtils::sprintf("%d", actionDef.id));
 	argVect.push_back(StringUtils::sprintf("%" PRIu32, eventInfo.serverId));
-	argVect.push_back(StringUtils::sprintf("%" PRIu64, eventInfo.hostId));
+	argVect.push_back(StringUtils::sprintf(
+	  "%" FMT_LOCAL_HOST_ID, eventInfo.hostIdInServer.c_str()));
 	argVect.push_back(StringUtils::sprintf("%ld.%ld",
 	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec));
 	argVect.push_back(StringUtils::sprintf("%" PRIu64, eventInfo.id));
@@ -1542,7 +1543,7 @@ void ActionManager::postProcSpawnFailure(
 	  "server ID: %d, event ID: %" PRIu64 ", "
 	  "time: %ld.%09ld, type: %s, "
 	  "trigger ID: %" PRIu64 ", status: %s, severity: %s, "
-	  "host ID: %" PRIu64 "\n", 
+	  "host ID: %" FMT_LOCAL_HOST_ID "\n",
 	  error->message, actionDef.id, actorInfo->logId,
 	  eventInfo.serverId, eventInfo.id,
 	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
@@ -1550,7 +1551,7 @@ void ActionManager::postProcSpawnFailure(
 	  eventInfo.triggerId,
 	  LabelUtils::getTriggerStatusLabel(eventInfo.status).c_str(),
 	  LabelUtils::getTriggerSeverityLabel(eventInfo.severity).c_str(),
-	  eventInfo.hostId);
+	  eventInfo.hostIdInServer.c_str());
 
 	// copy the log ID
 	if (logId)
@@ -1568,14 +1569,16 @@ void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 	bool succedded = dbMonitoring.getTriggerInfo(triggerInfo, option);
 	if (succedded) {
 		eventInfo.severity = triggerInfo.severity;
-		eventInfo.hostId   = triggerInfo.hostId;
+		eventInfo.globalHostId   = triggerInfo.globalHostId;
+		eventInfo.hostIdInServer = triggerInfo.hostIdInServer;
 		eventInfo.hostName = triggerInfo.hostName;
 		eventInfo.brief    = triggerInfo.brief;
 	} else {
 		MLPL_ERR("Not found: svID: %" PRIu32 ", trigID: %" PRIu64 "\n",
 		         eventInfo.serverId, eventInfo.triggerId);
 		eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
-		eventInfo.hostId   = INVALID_HOST_ID;
+		eventInfo.globalHostId = INVALID_HOST_ID;
+		eventInfo.hostIdInServer.clear();
 		eventInfo.hostName.clear();
 		eventInfo.brief.clear();
 	}

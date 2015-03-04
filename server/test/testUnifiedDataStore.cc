@@ -46,14 +46,15 @@ static const string triggerSeverityToString(TriggerSeverityType type)
 static string dumpTriggerInfo(const TriggerInfo &info)
 {
 	return StringUtils::sprintf(
-		"%" PRIu32 "|%" PRIu64 "|%s|%s|%lu|%ld|%" PRIu64 "|%s|%s\n",
+		"%" PRIu32 "|%" PRIu64 "|%s|%s|%lu|%ld|%" FMT_LOCAL_HOST_ID
+		"|%s|%s\n",
 		info.serverId,
 		info.id,
 		triggerStatusToString(info.status).c_str(),
 		triggerSeverityToString(info.severity).c_str(),
 		info.lastChangeTime.tv_sec,
 		info.lastChangeTime.tv_nsec,
-		info.hostId,
+		info.hostIdInServer.c_str(),
 		info.hostName.c_str(),
 		info.brief.c_str());
 }
@@ -66,7 +67,8 @@ static string eventTypeToString(EventType type)
 static string dumpEventInfo(const EventInfo &info)
 {
 	return StringUtils::sprintf(
-		"%" PRIu32 "|%" PRIu64 "|%lu|%ld|%s|%s|%s|%" PRIu64 "|%s|%s\n",
+		"%" PRIu32 "|%" PRIu64 "|%lu|%ld|%s|%s|%s|%" FMT_LOCAL_HOST_ID
+		"|%s|%s\n",
 		info.serverId,
 		info.id,
 		info.time.tv_sec,
@@ -74,7 +76,7 @@ static string dumpEventInfo(const EventInfo &info)
 		eventTypeToString(info.type).c_str(),
 		triggerStatusToString(info.status).c_str(),
 		triggerSeverityToString(info.severity).c_str(),
-		info.hostId,
+		info.hostIdInServer.c_str(),
 		info.hostName.c_str(),
 		info.brief.c_str());
 }

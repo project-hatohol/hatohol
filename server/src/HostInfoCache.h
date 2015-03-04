@@ -29,6 +29,11 @@
  */
 class HostInfoCache {
 public:
+	struct Element {
+		HostIdType  hostId;
+		std::string name;
+	};
+
 	HostInfoCache(void);
 	virtual ~HostInfoCache();
 	void update(const ServerHostDef &svHostDef);
@@ -37,12 +42,12 @@ public:
 	/**
 	 * Get the name corresponding to the specified host ID.
 	 *
-	 * @param id A target host ID.
-	 * @param name The obtained name is store in this paramter.
+	 * @param idInServer A target host ID in the server.
+	 * @param elem The obtained element is store in this paramter.
 	 *
 	 * @return true if the host is found, or false.
 	 */
-	bool getName(const HostIdType &id, std::string &name) const;
+	bool getName(const LocalHostIdType &idInServer, Element &elem) const;
 
 private:
 	struct Impl;
