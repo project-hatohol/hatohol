@@ -50,7 +50,7 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     function fail() {
       test.assertExists("input#editUserRoleName");
     });
-  // 全てのユーザーの取得
+  // getting all users
   casper.waitForSelector("input#privilegeFlagId3",
     function success() {
       test.assertExists("input#privilegeFlagId3",
@@ -60,7 +60,7 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     function fail() {
       test.assertExists("input#privilegeFlagId3");
     });
-  // 全ての監視サーバーの取得
+  // getting all monitoring servers
   casper.waitForSelector("input#privilegeFlagId9",
     function success() {
       test.assertExists("input#privilegeFlagId9",
@@ -70,7 +70,7 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     function fail() {
       test.assertExists("input#privilegeFlagId9");
     });
-  // 全てのアクションの取得
+  // getting all actions
   casper.waitForSelector("input#privilegeFlagId15",
     function success() {
       test.assertExists("input#privilegeFlagId15",
@@ -80,7 +80,7 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     function fail() {
       test.assertExists("input#privilegeFlagId15");
     });
-  // 全てのインシデント管理設定の取得
+  // getting all incident settings
   casper.waitForSelector("input#privilegeFlagId22",
     function success() {
       test.assertExists("input#privilegeFlagId22",
