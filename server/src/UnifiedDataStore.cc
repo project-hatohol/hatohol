@@ -272,8 +272,6 @@ struct UnifiedDataStore::Impl
 			return;
 		ArmIncidentTracker *arm = it->second;
 		armIncidentTrackerMap.erase(it);
-		MLPL_DBG("Delete ArmIncidentTracker TrackerId: "
-			 "%" FMT_INCIDENT_TRACKER_ID "\n", trackerId);
 		delete arm;
 	}
 
