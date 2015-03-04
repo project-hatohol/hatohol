@@ -111,7 +111,10 @@ casper.test.begin('Register/Unregister user test', function(test) {
     function fail() {
       test.assertExists("form button#delete-user-button");
     });
-
+  casper.then(function() {
+    test.assertDosentTextExist(userName,
+                               "Registered user's name does not exist in the user table.");
+  });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});
 });
