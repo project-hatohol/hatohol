@@ -10,6 +10,7 @@ casper.on("page.error", function(msg, trace) {
 });
 
 casper.test.begin('Register/Unregister user test', function(test) {
+  var userName = "testuser1";
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.waitForSelector(x("//a[normalize-space(text())='ユーザー']"),
@@ -45,7 +46,7 @@ casper.test.begin('Register/Unregister user test', function(test) {
     });
   casper.waitForSelector("input#editUserName",
     function success() {
-      this.sendKeys("input#editUserName", "testuser1");
+      this.sendKeys("input#editUserName", userName);
     },
     function fail() {
       test.assertExists("input#editUserName");
@@ -77,6 +78,10 @@ casper.test.begin('Register/Unregister user test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
+  casper.then(function() {
+    test.assertTextExists(userName,
+                          "Registered user's name exists in the user table.");
+  });
   // check delete-selector check box in user
   casper.then(function() {
     casper.wait(200, function() {
