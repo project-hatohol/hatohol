@@ -107,7 +107,7 @@ struct IncidentSenderManager::Impl
 				 FMT_INCIDENT_TRACKER_ID "\n", id);
 			return;
 		}
-		sendersMap.erase(it->first);
+		sendersMap.erase(it);
 		delete it->second;
 	}
 };
