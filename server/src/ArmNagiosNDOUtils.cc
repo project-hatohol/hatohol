@@ -511,13 +511,18 @@ void ArmNagiosNDOUtils::makeSelectHostgroupMembersArg(void)
 	arg.add(IDX_HOSTGROUP_MEMBERS_HOST_OBJECT_ID);
 }
 
-void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
+void ArmNagiosNDOUtils::addConditionForTriggerQuery(const bool &isUpdateTrigger)
 {
-	ThreadLocalDBCache cache;
-	const MonitoringServerInfo &svInfo = getServerInfo();
-	time_t lastUpdateTime =
-	   cache.getMonitoring().getLastChangeTimeOfTrigger(svInfo.id);
+	time_t lastUpdateTime;
 	struct tm tm;
+	if (isUpdateTrigger) {
+		ThreadLocalDBCache cache;
+		const MonitoringServerInfo &svInfo = getServerInfo();
+		lastUpdateTime =
+			cache.getMonitoring().getLastChangeTimeOfTrigger(svInfo.id);
+	} else {
+		lastUpdateTime = 0;
+	}
 	localtime_r(&lastUpdateTime, &tm);
 
 	DBAgent::SelectExArg &arg =
@@ -544,10 +549,8 @@ void ArmNagiosNDOUtils::addConditionForEventQuery(void)
 	arg.condition += cond;
 }
 
-void ArmNagiosNDOUtils::getTrigger(void)
+void ArmNagiosNDOUtils::getTriggerInfoTable(TriggerInfoList &triggerInfoList)
 {
-	addConditionForTriggerQuery();
-
 	// TODO: should use transaction
 	DBAgent::SelectExArg &arg =
 	  m_impl->selectTriggerBuilder.getSelectExArg();
@@ -556,7 +559,6 @@ void ArmNagiosNDOUtils::getTrigger(void)
 	MLPL_DBG("The number of triggers: %zd\n", numTriggers);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	TriggerInfoList triggerInfoList;
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
@@ -588,10 +590,25 @@ void ArmNagiosNDOUtils::getTrigger(void)
 		itemGroupStream >> trigInfo.brief;    // output
 		itemGroupStream >> trigInfo.hostId;   // host_id
 		itemGroupStream >> trigInfo.hostName; // hosts.display_name
+		trigInfo.validity = TRIGGER_VALID;
 		triggerInfoList.push_back(trigInfo);
 	}
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
+}
+
+void ArmNagiosNDOUtils::getTrigger(const bool &isUpdateTrigger)
+{
+	TriggerInfoList triggerInfoList;
+	addConditionForTriggerQuery(isUpdateTrigger);
+	getTriggerInfoTable(triggerInfoList);
+
+	if (isUpdateTrigger) {
+		ThreadLocalDBCache cache;
+		cache.getMonitoring().addTriggerInfoList(triggerInfoList);
+	} else {
+		const MonitoringServerInfo &svInfo = getServerInfo();
+		ThreadLocalDBCache cache;
+		cache.getMonitoring().updateTrigger(triggerInfoList, svInfo.id);
+	}		
 }
 
 void ArmNagiosNDOUtils::getEvent(void)
@@ -700,12 +717,13 @@ void ArmNagiosNDOUtils::getHost(void)
 		svHostDef.id = AUTO_INCREMENT_VALUE;
 		svHostDef.hostId = AUTO_ASSIGNED_ID;
 		svHostDef.serverId = svInfo.id;
+		svHostDef.status = HOST_STAT_NORMAL;
 		svHostDef.hostIdInServer = itemGroupStream.read<int, string>();
 		itemGroupStream >> svHostDef.name;
 		svHostDefs.push_back(svHostDef);
 	}
-
-	UnifiedDataStore::getInstance()->upsertHosts(svHostDefs);
+	UnifiedDataStore *uds =  UnifiedDataStore::getInstance();
+	uds->syncHosts(svHostDefs, svInfo.id);
 }
 
 void ArmNagiosNDOUtils::getHostgroup(void)
@@ -802,11 +820,11 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 	try {
 		if (!m_impl->dbAgent)
 			connect();
-		getTrigger();
-		getEvent();
 		getHost();
 		getHostgroup();
 		getHostgroupMembers();
+		getTrigger(UnifiedDataStore::getInstance()->wasStoredHostsChanged());
+		getEvent();
 		if (!getCopyOnDemandEnabled())
 			getItem();
 	} catch (const HatoholException &he) {
@@ -824,6 +842,21 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProcFetchItems(void)
 		if (!m_impl->dbAgent)
 			connect();
 		getItem();
+	} catch (const HatoholException &he) {
+		return handleHatoholException(he);
+	} catch (const exception &e) {
+		MLPL_ERR("Got exception: %s\n", e.what());
+		return COLLECT_NG_INTERNAL_ERROR;
+	}
+	return COLLECT_OK;
+}
+
+ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProcFetchTriggers(void)
+{
+	try {
+		if (!m_impl->dbAgent)
+			connect();
+		getTrigger(false);
 	} catch (const HatoholException &he) {
 		return handleHatoholException(he);
 	} catch (const exception &e) {

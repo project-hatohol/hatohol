@@ -397,7 +397,7 @@ HatoholError HapProcessCeilometer::parseInstanceElement(
 	return HTERR_OK;
 }
 
-HatoholError HapProcessCeilometer::getAlarmList(void)
+HatoholError HapProcessCeilometer::getAlarmTable(VariableItemTablePtr &trigTablePtr)
 {
 	string url = m_impl->ceilometerEP.publicURL;
 	url += "/v2/alarms";
@@ -407,13 +407,25 @@ HatoholError HapProcessCeilometer::getAlarmList(void)
 		return err;
 	SoupMessage *msg = arg.msgPtr.get();
 
-	VariableItemTablePtr trigTablePtr;
 	err = parseReplyGetAlarmList(msg, trigTablePtr);
 	if (err != HTERR_OK) {
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
 	}
-	sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS,
+	return err;
+}
+
+
+HatoholError HapProcessCeilometer::getAlarmList(void)
+{
+	VariableItemTablePtr trigTablePtr;
+	HatoholError err =  getAlarmTable(trigTablePtr);
+	if (err != HTERR_OK) {
+		MLPL_DBG("Failed to get get AlarmList: %d",
+			 err.getCode());
+	}
+
+	sendTable(HAPI_CMD_SEND_ALL_TRIGGERS,
 	          static_cast<ItemTablePtr>(trigTablePtr));
 	return err;
 }
@@ -540,6 +552,7 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
 	                (int)lastChangeTime.getAsTimespec().tv_sec);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION, brief);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION, "");
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_HOSTID,      hostId);
 	tablePtr->add(grp);
 
@@ -879,6 +892,23 @@ HatoholError HapProcessCeilometer::fetchItem(const MessagingContext &msgCtx,
 	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS, &msgCtx);
 	appendItemTable(resBuf, static_cast<ItemTablePtr>(tablePtr));
 	appendItemTable(resBuf, ItemTablePtr()); // Item Category
+	reply(msgCtx, resBuf);
+	return err;
+}
+
+HatoholError HapProcessCeilometer::fetchTrigger(const MessagingContext &msgCtx,
+						const SmartBuffer &cmdBuf)
+{
+	VariableItemTablePtr trigTablePtr;
+	HatoholError err =  getAlarmTable(trigTablePtr);
+	if (err != HTERR_OK) {
+		MLPL_DBG("Failed to get get AlarmList: %d",
+			 err.getCode());
+	}
+
+	SmartBuffer resBuf;
+	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_TRIGGERS, &msgCtx);
+	appendItemTable(resBuf, static_cast<ItemTablePtr>(trigTablePtr));
 	reply(msgCtx, resBuf);
 	return err;
 }

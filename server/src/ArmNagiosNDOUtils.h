@@ -40,9 +40,10 @@ protected:
 	void makeSelectHostArg(void);
 	void makeSelectHostgroupArg(void);
 	void makeSelectHostgroupMembersArg(void);
-	void addConditionForTriggerQuery(void);
+	void addConditionForTriggerQuery(const bool &isUpdateTrigger);
 	void addConditionForEventQuery(void);
-	void getTrigger(void);
+	void getTrigger(const bool &isUpdateTrigger);
+	void getTriggerInfoTable(TriggerInfoList &triggerInfoList);
 	void getEvent(void);
 	void getItem(void);
 	void getHost(void);
@@ -56,6 +57,7 @@ protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg);
 	virtual ArmPollingResult mainThreadOneProc(void);
 	virtual ArmPollingResult mainThreadOneProcFetchItems(void);
+	virtual ArmPollingResult mainThreadOneProcFetchTriggers(void);
 
 private:
 	struct Impl;

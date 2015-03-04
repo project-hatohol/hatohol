@@ -170,9 +170,19 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	    &HatoholArmPluginGate::cmdHandlerGetTimeOfLastEvent);
 
 	registerCommandHandler(
+	  HAPI_CMD_GET_IF_HOSTS_CHANGED,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerGetHostsChanged);
+
+	registerCommandHandler(
 	  HAPI_CMD_SEND_UPDATED_TRIGGERS,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers);
+
+	registerCommandHandler(
+	  HAPI_CMD_SEND_ALL_TRIGGERS,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerSendAllTriggers);
 
 	registerCommandHandler(
 	  HAPI_CMD_SEND_HOSTS,
@@ -235,6 +245,7 @@ const ArmStatus &HatoholArmPluginGate::getArmStatus(void) const
 
 void HatoholArmPluginGate::exitSync(void)
 {
+
 	AutoMutex autoMutex(&m_impl->exitSyncLock);
 	if (m_impl->exitSyncDone)
 		return;
@@ -361,6 +372,72 @@ void HatoholArmPluginGate::startOnDemandFetchHistory(
 	body->beginTime = NtoL(beginTime);
 	body->endTime   = NtoL(endTime);
 	send(cmdBuf, callback);
+}
+
+bool HatoholArmPluginGate::startOnDemandFetchTrigger(Closure2 *closure)
+{
+	if (!isConnetced())
+		return false;
+
+	struct Callback : public CommandCallbacks {
+		Signal2 triggerUpdatedSignal;
+		ServerIdType serverId;
+		HostInfoCache hostInfoCache;
+		virtual void onGotReply(mlpl::SmartBuffer &replyBuf,
+		                        const HapiCommandHeader &cmdHeader)
+		                          override
+		{
+			// TODO: fill proper value
+			MonitoringServerStatus serverStatus;
+			serverStatus.serverId = serverId;
+
+			replyBuf.setIndex(sizeof(HapiResponseHeader));
+			ItemTablePtr tablePtr = createItemTable(replyBuf);
+			TriggerInfoList trigInfoList;
+			HatoholDBUtils::transformTriggersToHatoholFormat(
+			  trigInfoList, tablePtr, serverId, hostInfoCache);
+
+			ThreadLocalDBCache cache;
+			cache.getMonitoring().updateTrigger(trigInfoList, serverId);
+
+			cleanup();
+		}
+
+		virtual void onError(const HapiResponseCode &code,
+		                     const HapiCommandHeader &cmdHeader)
+		                          override
+		{
+			cleanup();
+		}
+
+		void cleanup(void)
+		{
+			triggerUpdatedSignal();
+			triggerUpdatedSignal.clear();
+			this->unref();
+		}
+	};
+	Callback *callback = new Callback();
+	callback->triggerUpdatedSignal.connect(closure);
+	callback->serverId = m_impl->serverInfo.id;
+
+	HostInfoList hostInfoList;
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(m_impl->serverInfo.id);
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	ServerHostDefVect svHostDefs;
+	dataStore->getServerHostDefs(svHostDefs, option);
+	callback->hostInfoCache.update(svHostDefs);
+
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(cmdBuf, HAPI_CMD_REQ_FETCH_TRIGGERS);
+	try {
+		send(cmdBuf, callback);
+		return true;
+	} catch (const exception &e) {
+		return false;
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -743,18 +820,35 @@ void HatoholArmPluginGate::cmdHandlerGetTimeOfLastEvent(
 	reply(resBuf);
 }
 
+void HatoholArmPluginGate::cmdHandlerGetHostsChanged(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer resBuf;
+	HapiTriggerCollect *body =
+	  setupResponseBuffer<HapiTriggerCollect>(resBuf);
+	bool type;
+	type = UnifiedDataStore::getInstance()->wasStoredHostsChanged();
+	body->type = NtoL(type);
+	reply(resBuf);
+}
+
+void HatoholArmPluginGate::cmdHandlerSendAllTriggers(
+  const HapiCommandHeader *header)
+{
+	TriggerInfoList trigInfoList;
+	parseCmdHandlerTriggerList(trigInfoList);
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	dbMonitoring.updateTrigger(trigInfoList, m_impl->serverInfo.id);
+
+	replyOk();
+}
 void HatoholArmPluginGate::cmdHandlerSendUpdatedTriggers(
   const HapiCommandHeader *header)
 {
-	SmartBuffer *cmdBuf = getCurrBuffer();
-	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
-
-	cmdBuf->setIndex(sizeof(HapiCommandHeader));
-	ItemTablePtr tablePtr = createItemTable(*cmdBuf);
-
 	TriggerInfoList trigInfoList;
-	HatoholDBUtils::transformTriggersToHatoholFormat(
-	  trigInfoList, tablePtr, m_impl->serverInfo.id, m_impl->hostInfoCache);
+	parseCmdHandlerTriggerList(trigInfoList);
 
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
@@ -776,9 +870,9 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 	HatoholDBUtils::transformHostsToHatoholFormat(
 	  svHostDefs, hostTablePtr, m_impl->serverInfo.id);
 
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
-	  UnifiedDataStore::getInstance()->syncHosts(svHostDefs,
-	                                             m_impl->serverInfo.id));
+	  uds->syncHosts(svHostDefs, m_impl->serverInfo.id));
 
 	m_impl->hostInfoCache.update(svHostDefs);
 	replyOk();
@@ -889,6 +983,20 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 
 	replyOk();
 
+}
+
+void HatoholArmPluginGate::parseCmdHandlerTriggerList(TriggerInfoList &trigInfoList)
+{
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+
+	cmdBuf->setIndex(sizeof(HapiCommandHeader));
+	ItemTablePtr tablePtr = createItemTable(*cmdBuf);
+
+	HatoholDBUtils::transformTriggersToHatoholFormat(
+	  trigInfoList, tablePtr, m_impl->serverInfo.id, m_impl->hostInfoCache);
+
+	return;
 }
 
 void HatoholArmPluginGate::addInitialTrigger(HatoholArmPluginWatchType addtrigger)

@@ -91,6 +91,14 @@ enum HapiCommandCode {
 	// Sv -> Cl
 	HAPI_CMD_REQ_FETCH_HISTORY,
 
+	// Since 15.03
+	// Sv -> Cl
+	HAPI_CMD_REQ_FETCH_TRIGGERS,
+	// Cl -> Sv
+	HAPI_CMD_SEND_ALL_TRIGGERS,
+	HAPI_CMD_GET_IF_HOSTS_CHANGED,
+
+	// Sv -> Cl
 	NUM_HAPI_CMD
 };
 
@@ -108,6 +116,10 @@ enum HapiResponseCode {
 	// Since 14.12
 	// Cl -> Sv
 	HAPI_RES_HISTORY,
+
+	// Since 15.03
+	// Cl -> Sv
+	HAPI_RES_TRIGGERS,
 
 	NUM_HAPI_CMD_RES
 };
@@ -258,6 +270,9 @@ struct HapiParamReqFetchHistory {
 	uint64_t endTime;
 } __attribute__((__packed__));
 
+struct HapiTriggerCollect {
+	uint64_t type;
+} __attribute__((__packed__));
 
 class HatoholArmPluginInterface :
   public HatoholThreadBase, public EndianConverter {

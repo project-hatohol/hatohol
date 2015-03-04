@@ -70,18 +70,29 @@ void HapProcessZabbixAPI::setMonitoringServerInfo(void)
 
 void HapProcessZabbixAPI::workOnTriggers(void)
 {
-	SmartTime lastTriggerTime = getTimestampOfLastTrigger();
-	// TODO: getTrigger() should accept SmartTime directly.
-	// TODO: We should add a way to get newly added triggers.
-	//       Their timestamp are 0 in UNIX time. So the following way
-	//       cannot retrieve them.
-	const int requestSince = lastTriggerTime.getAsTimespec().tv_sec;
+	int requestSince;
+	const bool hostsChanged = wasHostsInServerDBChanged();
+	if (hostsChanged) {
+		SmartTime lastTriggerTime = getTimestampOfLastTrigger();
+		// TODO: getTrigger() should accept SmartTime directly.
+		// TODO: We should add a way to get newly added triggers.
+		//       Their timestamp are 0 in UNIX time. So the following way
+		//       cannot retrieve them.
+		requestSince = lastTriggerTime.getAsTimespec().tv_sec;
+	} else {
+		requestSince = 0;
+	}
 	ItemTablePtr triggers = getTrigger(requestSince);
 	ItemTablePtr expandedDescriptions =
-	  getTriggerExpandedDescription(requestSince);
+		getTriggerExpandedDescription(requestSince);
 	ItemTablePtr mergedTriggers =
-	  mergePlainTriggersAndExpandedDescriptions(triggers, expandedDescriptions);
-	sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, mergedTriggers);
+		mergePlainTriggersAndExpandedDescriptions(triggers, expandedDescriptions);
+
+	if (hostsChanged) {
+		sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, mergedTriggers);
+	} else {
+		sendTable(HAPI_CMD_SEND_ALL_TRIGGERS, mergedTriggers);
+	}
 }
 
 void HapProcessZabbixAPI::workOnHostsAndHostgroupElements(void)
@@ -183,6 +194,22 @@ HatoholError HapProcessZabbixAPI::fetchHistory(const MessagingContext &msgCtx,
 	SmartBuffer resBuf;
 	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY, &msgCtx);
 	appendItemTable(resBuf, items);
+	reply(msgCtx, resBuf);
+
+	return HTERR_OK;
+}
+
+HatoholError HapProcessZabbixAPI::fetchTrigger(const MessagingContext &msgCtx,
+					       const SmartBuffer &cmdBuf)
+{
+	ItemTablePtr triggers = getTrigger(0);
+	ItemTablePtr expandedDescriptions = getTriggerExpandedDescription(0);
+	ItemTablePtr mergedTriggers =
+	  mergePlainTriggersAndExpandedDescriptions(triggers, expandedDescriptions);
+
+	SmartBuffer resBuf;
+	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_TRIGGERS, &msgCtx);
+	appendItemTable(resBuf, mergedTriggers);
 	reply(msgCtx, resBuf);
 
 	return HTERR_OK;

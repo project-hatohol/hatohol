@@ -37,6 +37,7 @@ typedef enum {
 	UPDATE_POLLING,
 	UPDATE_ITEM_REQUEST,
 	UPDATE_HISTORY_REQUEST,
+	UPDATE_TRIGGER_REQUEST,
 } UpdateType;
 
 struct FetcherJob
@@ -66,6 +67,12 @@ struct FetcherJob
 		   const time_t &_beginTime, const time_t &_endTime)
 	: updateType(UPDATE_HISTORY_REQUEST), closure(_closure),
 	  historyQuery(new HistoryQuery(_itemInfo, _beginTime, _endTime))
+	{
+	}
+
+	FetcherJob(Closure2 *_closure)
+	: updateType(UPDATE_TRIGGER_REQUEST), closure(_closure),
+	  historyQuery(NULL)
 	{
 	}
 
@@ -99,6 +106,22 @@ struct FetcherJob
 		HATOHOL_ASSERT(fetchHistoryClosure, "Invalid closure\n");
 
 		(*fetchHistoryClosure)(historyInfoVect);
+	}
+
+	void run(const UpdateType &updateType)
+	{
+		HATOHOL_ASSERT(updateType == UPDATE_TRIGGER_REQUEST,
+			       "Invalid updateType: %d\n", updateType);
+
+		if (!closure)
+			return;
+		if (updateType == UPDATE_TRIGGER_REQUEST) {
+			Closure2 *fetchItemClosure =
+				dynamic_cast<Closure2*>(closure);
+			HATOHOL_ASSERT(fetchItemClosure, "Invalid closure\n");
+			
+			(*fetchItemClosure)();
+		}
 	}
 };
 
@@ -205,6 +228,8 @@ struct ArmBase::Impl
 			} else if (job->updateType == UPDATE_HISTORY_REQUEST) {
 				HistoryInfoVect historyInfoVect;
 				job->run(historyInfoVect);
+			} else 	if (job->updateType == UPDATE_TRIGGER_REQUEST) {
+				job->run(job->updateType);
 			}
 			jobQueue.pop();
 			delete job;
@@ -247,6 +272,13 @@ bool ArmBase::isFetchItemsSupported(void) const
 }
 
 void ArmBase::fetchItems(Closure0 *closure)
+{
+	m_impl->pushJob(new FetcherJob(closure));
+	if (sem_post(&m_impl->sleepSemaphore) == -1)
+		MLPL_ERR("Failed to call sem_post: %d\n", errno);
+}
+
+void ArmBase::fetchTriggers(Closure2 *closure)
 {
 	m_impl->pushJob(new FetcherJob(closure));
 	if (sem_post(&m_impl->sleepSemaphore) == -1)
@@ -419,6 +451,10 @@ gpointer ArmBase::mainThread(HatoholThreadArg *arg)
 			    historyInfoVect, query.itemInfo,
 			    query.beginTime, query.endTime);
 			job->run(historyInfoVect);
+		} else 	if (updateType == UPDATE_TRIGGER_REQUEST) {
+			HATOHOL_ASSERT(job, "Invalid FetcherJob");
+			armPollingResult = mainThreadOneProcFetchTriggers();
+			job->run(updateType);
 		} else {
 			armPollingResult = mainThreadOneProc();
 		}
@@ -463,6 +499,11 @@ ArmBase::ArmPollingResult ArmBase::mainThreadOneProcFetchItems(void)
 ArmBase::ArmPollingResult ArmBase::mainThreadOneProcFetchHistory(
   HistoryInfoVect &historyInfoVect,
  const ItemInfo &itemInfo, const time_t &beginTime, const time_t &endTime)
+{
+	return COLLECT_OK;
+}
+
+ArmBase::ArmPollingResult ArmBase::mainThreadOneProcFetchTriggers(void)
 {
 	return COLLECT_OK;
 }

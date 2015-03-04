@@ -63,6 +63,7 @@ protected:
 	void updateGroups(void);
 
 	void makeHatoholTriggers(ItemTablePtr triggers);
+	void makeHatoholAllTriggers(void);
 	void makeHatoholEvents(ItemTablePtr events);
 	void makeHatoholItems(ItemTablePtr items, ItemTablePtr applications);
 	void makeHatoholHostgroups(ItemTablePtr groups);
@@ -82,6 +83,7 @@ protected:
 	  const ItemInfo &itemInfo,
 	  const time_t &beginTime,
 	  const time_t &endTime);
+	virtual ArmPollingResult mainThreadOneProcFetchTriggers(void);
 
 private:
 	struct Impl;

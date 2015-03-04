@@ -198,6 +198,7 @@ void ArmUtils::createTrigger(
 	triggerInfo.brief    = armTrigger.msg;
 	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
 	triggerInfo.status   = armTrigger.status;
+	triggerInfo.validity  = TRIGGER_VALID_SELF_MONITORING;
 
 	triggerInfoList.push_back(triggerInfo);
 }

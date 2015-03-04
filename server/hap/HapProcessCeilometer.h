@@ -51,6 +51,7 @@ protected:
 	                                  VariableItemTablePtr &tablePtr,
                                           const unsigned int &index);
 
+	HatoholError getAlarmTable(VariableItemTablePtr &trigTablePtr);
 	HatoholError getAlarmList(void);
 	HatoholError parseReplyGetAlarmList(SoupMessage *msg,
 	                                    VariableItemTablePtr &tablePtr);
@@ -86,6 +87,9 @@ protected:
 	                       const MessagingContext &msgCtx,
 			       const mlpl::SmartBuffer &cmdBuf) override;
 	virtual HatoholError fetchItem(
+	                       const MessagingContext &msgCtx,
+			       const mlpl::SmartBuffer &cmdBuf) override;
+	virtual HatoholError fetchTrigger(
 	                       const MessagingContext &msgCtx,
 			       const mlpl::SmartBuffer &cmdBuf) override;
 	HatoholError fetchItemsOfInstance(

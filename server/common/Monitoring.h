@@ -44,6 +44,12 @@ enum TriggerSeverityType {
 	NUM_TRIGGER_SEVERITY,
 };
 
+enum TriggerValidity {
+	TRIGGER_INVALID = 0,
+	TRIGGER_VALID,
+	TRIGGER_VALID_SELF_MONITORING,
+};
+
 enum HostValidity {
 
 	// Hosts that are in HOST_VALID, HOST_VALID_INAPPLICABLE, and
@@ -102,6 +108,7 @@ struct TriggerInfo {
 	std::string         hostName;
 	std::string         brief;
 	std::string         extendedInfo;
+	TriggerValidity     validity;
 };
 
 typedef std::list<TriggerInfo>          TriggerInfoList;

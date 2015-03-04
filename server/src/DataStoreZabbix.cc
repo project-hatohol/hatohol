@@ -70,6 +70,12 @@ void DataStoreZabbix::startOnDemandFetchHistory(
 	m_armApi.fetchHistory(itemInfo, beginTime, endTime, closure);
 }
 
+bool DataStoreZabbix::startOnDemandFetchTrigger(Closure2 *closure)
+{
+	m_armApi.fetchTriggers(closure);
+	return true;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

@@ -84,6 +84,7 @@ public:
 	  const time_t &beginTime,
 	  const time_t &endTime,
 	  Closure1<HistoryInfoVect> *closure) override;
+	virtual bool startOnDemandFetchTrigger(Closure2 *closure) override;
 
 protected:
 	// To avoid an instance from being created on a stack.
@@ -130,13 +131,17 @@ protected:
 	  const HapiCommandHeader *header);
 	void cmdHandlerGetLastEventId(const HapiCommandHeader *header);
 	void cmdHandlerGetTimeOfLastEvent(const HapiCommandHeader *header);
+	void cmdHandlerGetHostsChanged(const HapiCommandHeader *header);
 	void cmdHandlerSendUpdatedTriggers(const HapiCommandHeader *header);
+	void cmdHandlerSendAllTriggers(const HapiCommandHeader *header);
 	void cmdHandlerSendHosts(const HapiCommandHeader *header);
 	void cmdHandlerSendHostgroupElements(const HapiCommandHeader *header);
 	void cmdHandlerSendHostgroups(const HapiCommandHeader *header);
 	void cmdHandlerSendUpdatedEvents(const HapiCommandHeader *header);
 	void cmdHandlerSendArmInfo(const HapiCommandHeader *header);
 	void cmdHandlerSendHapSelfTriggers(const HapiCommandHeader *header);
+
+	void parseCmdHandlerTriggerList(TriggerInfoList &trigInfoList);
 
 	void addInitialTrigger(HatoholArmPluginWatchType addtrigger);
 

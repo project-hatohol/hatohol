@@ -89,6 +89,7 @@ extern void _assertEqual(
   const MonitoringServerInfo &expect, const MonitoringServerInfo &actual);
 extern void _assertEqual(const ArmInfo &expect, const ArmInfo &actual);
 extern void _assertEqual(const ItemInfo &expect, const ItemInfo &actual);
+extern void _assertEqual(const TriggerInfo &expect, const TriggerInfo &actual);
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
 std::string executeCommand(const std::string &commandLine);
@@ -265,6 +266,7 @@ VariableItemGroupPtr convert(
 ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap);
 
 VariableItemGroupPtr convert(const HistoryInfo &historyInfo);
+VariableItemGroupPtr convert(const TriggerInfo &triggerInfo);
 
 void conv(HostInfo &hostInfo, const ServerHostDef &svHostDef);
 

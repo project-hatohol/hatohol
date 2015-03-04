@@ -52,7 +52,7 @@ const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBTablesMonitoring::MONITORING_DB_VERSION = 10;
+const int   DBTablesMonitoring::MONITORING_DB_VERSION = 11;
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -75,6 +75,11 @@ void operator>>(ItemGroupStream &itemGroupStream, HostValidity &rhs)
 }
 
 extern void operator>>(ItemGroupStream &itemGroupStream, HostStatus &rhs);
+
+void operator>>(ItemGroupStream &itemGroupStream, TriggerValidity &rhs)
+{
+	rhs = itemGroupStream.read<int, TriggerValidity>();
+}
 
 // ----------------------------------------------------------------------------
 // Table: triggers
@@ -170,7 +175,16 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
-}
+}, {
+	"validity",                        // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	"1",                               // defaultValue
+},
 };
 
 enum {
@@ -184,6 +198,7 @@ enum {
 	IDX_TRIGGERS_HOSTNAME,
 	IDX_TRIGGERS_BRIEF,
 	IDX_TRIGGERS_EXTENDED_INFO,
+	IDX_TRIGGERS_VALIDITY,
 	NUM_IDX_TRIGGERS,
 };
 
@@ -926,7 +941,9 @@ static const DBAgent::TableProfile tableProfileIncidents =
 
 struct DBTablesMonitoring::Impl
 {
+	bool storedHostsChanged;
 	Impl(void)
+	: storedHostsChanged(true)
 	{
 	}
 
@@ -1225,20 +1242,20 @@ string TriggersQueryOption::getCondition(void) const
 		addCondition(
 		  condition,
 		  StringUtils::sprintf(
-		    "%s.%s<%" FMT_HOST_ID,
+		    "%s.%s!=%d",
 		    DBTablesMonitoring::TABLE_NAME_TRIGGERS,
-		    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOST_ID].columnName,
-		    MONITORING_SERVER_SELF_ID));
+		    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_VALIDITY].columnName,
+		    TRIGGER_VALID_SELF_MONITORING));
 	}
 
 	if (m_impl->shouldExcludeInvalidHost()) {
 		addCondition(
 		  condition,
 		  StringUtils::sprintf(
-		    "%s!=%d",
-		    tableProfileServerHostDef.getFullColumnName(
-		      IDX_HOST_SERVER_HOST_DEF_HOST_STATUS).c_str(),
-		    HOST_STAT_REMOVED));
+		    "%s.%s!=%d",
+		    DBTablesMonitoring::TABLE_NAME_TRIGGERS,
+		    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_VALIDITY].columnName,
+		    TRIGGER_INVALID));
 	}
 
 	if (m_impl->targetId != ALL_TRIGGERS) {
@@ -1575,6 +1592,7 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 	builder.add(IDX_TRIGGERS_HOSTNAME);
 	builder.add(IDX_TRIGGERS_BRIEF);
 	builder.add(IDX_TRIGGERS_EXTENDED_INFO);
+	builder.add(IDX_TRIGGERS_VALIDITY);
 
 	builder.addTable(
 	 tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
@@ -1619,6 +1637,7 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		itemGroupStream >> trigInfo.hostName;
 		itemGroupStream >> trigInfo.brief;
 		itemGroupStream >> trigInfo.extendedInfo;
+		itemGroupStream >> trigInfo.validity;
 
 		triggerInfoList.push_back(trigInfo);
 	}
@@ -1688,6 +1707,47 @@ int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 	//       However, I don't have a good idea. Propably constexpr,
 	//       feature of C++11, may solve this problem.
 	return itemGroupStream.read<int>();
+}
+
+void DBTablesMonitoring::updateTrigger(const TriggerInfoList &triggerInfoList,
+				       const ServerIdType &serverId)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	option.setExcludeFlags(EXCLUDE_SELF_MONITORING);
+	TriggerInfoList currTrigger;
+	getTriggerInfoList(currTrigger, option);
+	TriggerIdInfoMap validTriggerId;
+	TriggerInfoListConstIterator currTriggerItr = currTrigger.begin();
+	for (; currTriggerItr != currTrigger.end(); ++currTriggerItr){
+		const TriggerInfo &triggerInfo = *currTriggerItr;
+		validTriggerId[triggerInfo.id] = triggerInfo;
+	}
+
+
+	TriggerInfoList updateTriggerList;
+	TriggerInfoListConstIterator newTriggerItr = triggerInfoList.begin();
+	for (; newTriggerItr != triggerInfoList.end(); ++newTriggerItr){
+		const TriggerInfo &newTriggerInfo = *newTriggerItr;
+		TriggerIdInfoMapIterator currTriggerItr = validTriggerId.find(newTriggerInfo.id);
+		if (currTriggerItr != validTriggerId.end()) {
+			const TriggerInfo &currTrigger = currTriggerItr->second;
+			validTriggerId.erase(currTriggerItr);
+			if (currTrigger.validity == TRIGGER_VALID)
+				continue;
+		}
+		updateTriggerList.push_back(newTriggerInfo);
+	}
+
+	
+	TriggerIdInfoMapIterator invTriggerItr = validTriggerId.begin();
+	for (; invTriggerItr != validTriggerId.end(); ++invTriggerItr) {
+		TriggerInfo invTrigger = invTriggerItr->second;
+		invTrigger.validity = TRIGGER_INVALID;
+		updateTriggerList.push_back(invTrigger);
+	}
+	
+	addTriggerInfoList(updateTriggerList);
 }
 
 void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)
@@ -2557,6 +2617,7 @@ void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
 	arg.add(triggerInfo.hostName);
 	arg.add(triggerInfo.brief);
 	arg.add(triggerInfo.extendedInfo);
+	arg.add(triggerInfo.validity);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
@@ -2691,6 +2752,11 @@ static bool updateDB(
 		// add a new column "extended_info" to triggers
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileTriggers);
 		addColumnsArg.columnIndexes.push_back(IDX_TRIGGERS_EXTENDED_INFO);
+		dbAgent.addColumns(addColumnsArg);
+	}
+	if (oldVer <= 10) {
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileTriggers);
+		addColumnsArg.columnIndexes.push_back(IDX_TRIGGERS_VALIDITY);
 		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;
