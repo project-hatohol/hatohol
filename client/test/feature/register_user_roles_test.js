@@ -26,16 +26,6 @@ casper.test.begin('Register/Unregister user test', function(test) {
     });
   });
   // create user role
-  casper.waitForSelector("form button#add-user-button",
-    function success() {
-      test.assertExists("form button#add-user-button",
-                        "Found add user button item.");
-      this.click("form button#add-user-button");
-    },
-    function fail() {
-      test.assertExists("form button#add-user-button");
-    });
-
   casper.waitForSelector("form button#edit-user-roles-button",
     function success() {
       test.assertExists("form button#edit-user-roles-button");
