@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -153,7 +153,8 @@ public:
 	 */
 	bool isIdling(void);
 
-	const IncidentTrackerInfo &getIncidentTrackerInfo(void);
+	const IncidentTrackerInfo getIncidentTrackerInfo(void);
+	void setOnChangedIncidentTracker(void);
 
 protected:
 	bool getServerInfo(const EventInfo &event,
@@ -174,4 +175,3 @@ private:
 };
 
 #endif // IncidentSender_h
-

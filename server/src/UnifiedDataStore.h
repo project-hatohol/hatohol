@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -267,6 +267,8 @@ public:
 	 * returns false.
 	 */
 	DataStorePtr getDataStore(const ServerIdType &serverId);
+	bool getIncidentTrackerInfo(const IncidentTrackerIdType &trackerId,
+                                    IncidentTrackerInfo &trackerInfo);
 
 protected:
 	void fetchItems(const ServerIdType &targetServerId = ALL_SERVERS);

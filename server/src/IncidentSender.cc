@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -21,6 +21,7 @@
 #include "StringUtils.h"
 #include "LabelUtils.h"
 #include "ThreadLocalDBCache.h"
+#include "UnifiedDataStore.h"
 #include <Mutex.h>
 #include "SimpleSemaphore.h"
 #include "Reaper.h"
@@ -98,6 +99,8 @@ struct IncidentSender::Impl
 	SimpleSemaphore jobSemaphore;
 	size_t retryLimit;
 	unsigned int retryIntervalMSec;
+	AtomicValue<bool> trackerChanged;
+	Mutex trackerLock;
 
 	Impl(IncidentSender &_sender)
 	: sender(_sender), runningJob(NULL), jobSemaphore(0),
@@ -105,7 +108,7 @@ struct IncidentSender::Impl
 	  retryIntervalMSec(DEFAULT_RETRY_INTERVAL_MSEC)
 	{
 	}
- 
+
 	~Impl()
 	{
 		queueLock.lock();
@@ -226,9 +229,28 @@ bool IncidentSender::isIdling(void)
 	return !m_impl->runningJob;
 }
 
-const IncidentTrackerInfo &IncidentSender::getIncidentTrackerInfo(void)
+const IncidentTrackerInfo IncidentSender::getIncidentTrackerInfo(void)
 {
+	AutoMutex autoMutex(&m_impl->trackerLock);
+
+	if (!m_impl->trackerChanged)
+		return m_impl->incidentTrackerInfo;
+
+	IncidentTrackerInfo trackerInfo;
+	IncidentTrackerIdType trackerId = m_impl->incidentTrackerInfo.id;
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	if (dataStore->getIncidentTrackerInfo(trackerId, trackerInfo)) {
+		m_impl->incidentTrackerInfo = trackerInfo;
+		m_impl->trackerChanged = false;
+		return m_impl->incidentTrackerInfo;
+	}
+
 	return m_impl->incidentTrackerInfo;
+}
+
+void IncidentSender::setOnChangedIncidentTracker(void)
+{
+	m_impl->trackerChanged = true;
 }
 
 bool IncidentSender::getServerInfo(const EventInfo &event,

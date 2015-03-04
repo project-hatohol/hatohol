@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -163,3 +163,8 @@ IncidentSender *IncidentSenderManager::getSender(
 	return m_impl->getSender(id, autoCreate);
 }
 
+void IncidentSenderManager::setOnChangedIncidentTracker(const IncidentTrackerIdType id)
+{
+	IncidentSender *sender = m_impl->getSender(id);
+	sender->setOnChangedIncidentTracker();
+}

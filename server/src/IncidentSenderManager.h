@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -38,6 +38,7 @@ public:
 		   IncidentSender::UpdateIncidentCallback callback = NULL,
 		   void *userData = NULL);
 	bool isIdling(void);
+	void setOnChangedIncidentTracker(const IncidentTrackerIdType id);
 
 protected:
 	IncidentSenderManager(void);

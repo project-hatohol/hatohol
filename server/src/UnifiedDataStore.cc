@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -31,6 +31,7 @@
 #include "TriggerFetchWorker.h"
 #include "DataStoreFactory.h"
 #include "ArmIncidentTracker.h"
+#include "IncidentSenderManager.h"
 
 using namespace std;
 using namespace mlpl;
@@ -804,7 +805,15 @@ HatoholError UnifiedDataStore::updateIncidentTracker(
 {
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
-	return dbConfig.updateIncidentTracker(incidentTrackerInfo, privilege);
+	IncidentSenderManager &senderManager = IncidentSenderManager::getInstance();
+	HatoholError err =
+	  dbConfig.updateIncidentTracker(incidentTrackerInfo, privilege);
+	if (err != HTERR_OK)
+		return err;
+	stopArmIncidentTrackerIfNeeded(incidentTrackerInfo.id);
+	senderManager.setOnChangedIncidentTracker(incidentTrackerInfo.id);
+	startArmIncidentTrackerIfNeeded(incidentTrackerInfo.id);
+	return HTERR_OK;
 }
 
 HatoholError UnifiedDataStore::deleteIncidentTracker(
@@ -843,8 +852,8 @@ DataStorePtr UnifiedDataStore::getDataStore(const ServerIdType &serverId)
 	return m_impl->getDataStore(serverId);
 }
 
-static bool getIncidentTrackerInfo(const IncidentTrackerIdType &trackerId,
-				   IncidentTrackerInfo &trackerInfo)
+bool UnifiedDataStore::getIncidentTrackerInfo(const IncidentTrackerIdType &trackerId,
+					      IncidentTrackerInfo &trackerInfo)
 {
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
