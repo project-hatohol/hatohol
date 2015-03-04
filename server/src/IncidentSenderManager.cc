@@ -105,8 +105,10 @@ struct IncidentSenderManager::Impl
 		if (it == sendersMap.end()) {
 			MLPL_ERR("Not found IncidentTrackerInfo: %"
 				 FMT_INCIDENT_TRACKER_ID "\n", id);
+			return;
 		}
 		sendersMap.erase(it->first);
+		delete it->second;
 	}
 };
 
@@ -183,5 +185,7 @@ void IncidentSenderManager::setOnChangedIncidentTracker(const IncidentTrackerIdT
 
 void IncidentSenderManager::deleteIncidentTracker(const IncidentTrackerIdType id)
 {
+	MLPL_DBG("Delete IncidentSender for: "
+		 "%" FMT_INCIDENT_TRACKER_ID "\n", id);
 	m_impl->deleteSender(id);
 }
