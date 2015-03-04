@@ -387,10 +387,6 @@ bool HatoholArmPluginGate::startOnDemandFetchTrigger(Closure2 *closure)
 		                        const HapiCommandHeader &cmdHeader)
 		                          override
 		{
-			// TODO: fill proper value
-			MonitoringServerStatus serverStatus;
-			serverStatus.serverId = serverId;
-
 			replyBuf.setIndex(sizeof(HapiResponseHeader));
 			ItemTablePtr tablePtr = createItemTable(replyBuf);
 			TriggerInfoList trigInfoList;
