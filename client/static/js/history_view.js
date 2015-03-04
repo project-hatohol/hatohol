@@ -114,7 +114,29 @@ var HistoryView = function(userProfile, options) {
         updateView();
       }
     });
-  };
+
+    $("#hatohol-graph-save").click(function() {
+      saveConfig();
+    });
+  }
+
+  function saveConfig() {
+    var url = "/graphs/";
+    if (self.graphId)
+      url += self.graphId;
+    new HatoholConnector({
+      pathPrefix: "",
+      url: url,
+      request: self.graphId ? "PUT" : "POST",
+      data: JSON.stringify(self.itemSelector.getConfig()),
+      replyCallback: function(reply, parser) {
+        self.graphId = reply.id;
+        self.itemSelector.hide()
+        hatoholInfoMsgBox(gettext("Successfully saved."));
+      },
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
 
   function appendHistoryLoader(historyQuery, index) {
     var loader = new HatoholHistoryLoader({
