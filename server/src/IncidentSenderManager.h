@@ -48,6 +48,7 @@ protected:
 	IncidentSender *getSender(const IncidentTrackerIdType &id,
 				  bool autoCreate = false);
 	void deleteSender(const IncidentTrackerIdType &id);
+
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
