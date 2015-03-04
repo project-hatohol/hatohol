@@ -130,8 +130,8 @@ casper.test.begin('Register/Unregister user test', function(test) {
       return document.querySelectorAll("div.ui-dialog").length < 1;
     });
   }, function then() {
-      test.assertTextDoesntExist(userName,
-                                 "Registered user's name does not exist in the user table.");
+    test.assertTextDoesntExist(userName,
+                               "Registered user's name does not exist in the user table.");
   }, function timeout() {
     this.echo("Oops, find " + userName + " in the users table.");
   });
