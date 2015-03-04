@@ -789,14 +789,14 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '</div>';
     return s;
   }
-}
+};
 
 HatoholAddActionDialog.prototype.getCommand = function() {
   if (this.forIncidentSetting)
     return $("#selectIncidentTracker").val();
   else
     return $("#inputActionCommand").val();
-}
+};
 
 HatoholAddActionDialog.prototype.updateIncidentTrackers = function(incidentTrackers) {
   var label, incidentTraker;
@@ -819,7 +819,7 @@ HatoholAddActionDialog.prototype.updateIncidentTrackers = function(incidentTrack
       })
     );
   }
-}
+};
 
 HatoholAddActionDialog.prototype.setupIncidentTrackersEditor = function()
 {
@@ -842,7 +842,7 @@ HatoholAddActionDialog.prototype.setupIncidentTrackersEditor = function()
     self.setApplyButtonState(!!self.getCommand());
   });
   changedCallback(self.incidentTrackers);
-}
+};
 
 HatoholAddActionDialog.prototype.onAppendMainElement = function() {
   var self = this;
@@ -885,7 +885,7 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
     $("label[for='selectTriggerStatus']").hide();
     $("#selectTriggerStatus").hide();
   }
-}
+};
 
 HatoholAddActionDialog.prototype.setApplyButtonState = function(state) {
   var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
@@ -897,4 +897,4 @@ HatoholAddActionDialog.prototype.setApplyButtonState = function(state) {
      btn.attr("disabled", "disabled");
      btn.addClass("ui-state-disabled");
   }
-}
+};
