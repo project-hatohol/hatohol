@@ -267,7 +267,7 @@ FaceRest::FaceRest(FaceRestParam *param)
 		setNumberOfPreLoadWorkers(num);
 	}
 
-	MLPL_INFO("started face-rest, port: %d, workers: %lu\n",
+	MLPL_INFO("started face-rest, port: %d, workers: %zu\n",
 		  m_impl->port, m_impl->numPreLoadWorkers);
 }
 
