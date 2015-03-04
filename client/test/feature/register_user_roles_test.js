@@ -110,13 +110,17 @@ casper.test.begin('Register/Unregister user test', function(test) {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
   // check delete-selector check box in user
-  casper.then(function() {
-    casper.wait(200, function() {
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 2;
+    });
+  }, function then() {
       this.evaluate(function() {
-        $("tr:last").find(".selectcheckbox").click();
+        $("input.userRoleSelectCheckbox:last").click();
         return true;
       });
-    });
+  }, function timeout() {
+    this.echo("Oops, confirmation dialog seems not to be closed.");
   });
   casper.waitForSelector("form button#delete-user-button",
     function success() {
