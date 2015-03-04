@@ -180,3 +180,8 @@ void IncidentSenderManager::setOnChangedIncidentTracker(const IncidentTrackerIdT
 	IncidentSender *sender = m_impl->getSender(id);
 	sender->setOnChangedIncidentTracker();
 }
+
+void IncidentSenderManager::deleteIncidentTracker(const IncidentTrackerIdType id)
+{
+	m_impl->deleteSender(id);
+}
