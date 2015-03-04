@@ -426,8 +426,6 @@ bool UnifiedDataStore::fetchItemsAsync(Closure0 *closure,
 bool UnifiedDataStore::fetchTriggerAsync(Closure2 *closure,
 					 const ServerIdType &targetServerId)
 {
-	if (!getCopyOnDemandEnabled())
-		return false;
 	if (!m_impl->triggerFetchWorker.updateIsNeeded())
 		return false;
 
