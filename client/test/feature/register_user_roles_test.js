@@ -10,6 +10,7 @@ casper.on("page.error", function(msg, trace) {
 });
 
 casper.test.begin('Register/Unregister user role test', function(test) {
+  var roleName = "watcher";
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.waitForSelector(x("//a[normalize-space(text())='ユーザー']"),
@@ -44,7 +45,7 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     });
   casper.waitForSelector("input#editUserRoleName",
     function success() {
-      this.sendKeys("input#editUserRoleName", "watcher");
+      this.sendKeys("input#editUserRoleName", roleName);
     },
     function fail() {
       test.assertExists("input#editUserRoleName");
@@ -109,24 +110,30 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
-  // check delete-selector check box in user role
+  // assert for added user role name
   casper.waitFor(function() {
     return this.evaluate(function() {
       return document.querySelectorAll("div.ui-dialog").length < 2;
     });
   }, function then() {
-      this.evaluate(function() {
-        $("input.userRoleSelectCheckbox:last").click();
-        return true;
-      });
+    test.assertTextExists(roleName,
+                          "Registered user role's name exists in the user role table.");
   }, function timeout() {
     this.echo("Oops, confirmation dialog seems not to be closed.");
+  });
+  // check delete-selector check box in user role
+  casper.then(function() {
+    this.evaluate(function() {
+      $("input.userRoleSelectCheckbox:last").click();
+      return true;
+    });
   });
   casper.waitForSelector("input#deleteUserRolesButton",
     function success() {
       test.assertExists("input#deleteUserRolesButton",
                         "Found delete user roles button.");
       this.click("input#deleteUserRolesButton");
+
     },
     function fail() {
       test.assertExists("input#deleteUserRolesButton");
@@ -153,6 +160,16 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 2;
+    });
+  }, function then() {
+    test.assertTextDoesntExist(roleName,
+                               "Registered user role's name does not exist in the user table.");
+  }, function timeout() {
+    this.echo("Oops, find " + roleName + " in the user roles table.");
+  });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});
 });
