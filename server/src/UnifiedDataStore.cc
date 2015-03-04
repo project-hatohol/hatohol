@@ -262,6 +262,21 @@ struct UnifiedDataStore::Impl
 		delete arm;
 	}
 
+	void stopArmIncidentTrackerForcely(
+	  const IncidentTrackerIdType &trackerId)
+	{
+		AutoMutex autoLock(&armIncidentTrackerMapMutex);
+		ArmIncidentTrackerMapIterator it
+		  = armIncidentTrackerMap.find(trackerId);
+		if (it == armIncidentTrackerMap.end())
+			return;
+		ArmIncidentTracker *arm = it->second;
+		armIncidentTrackerMap.erase(it);
+		MLPL_DBG("Delete ArmIncidentTracker TrackerId: "
+			 "%" FMT_INCIDENT_TRACKER_ID "\n", trackerId);
+		delete arm;
+	}
+
 	void startAllArmIncidentTrackers(const bool &autoRun)
 	{
 		if (!autoRun)
@@ -898,6 +913,12 @@ void UnifiedDataStore::stopArmIncidentTrackerIfNeeded(
 	IncidentTrackerInfo trackerInfo;
 	if (getIncidentTrackerInfo(trackerId, trackerInfo))
 		m_impl->stopArmIncidentTrackerIfNeeded(trackerInfo);
+}
+
+void UnifiedDataStore::stopArmIncidentTrackerForcely(
+  const IncidentTrackerIdType &trackerId)
+{
+	m_impl->stopArmIncidentTrackerForcely(trackerId);
 }
 
 // ---------------------------------------------------------------------------
