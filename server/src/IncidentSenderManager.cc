@@ -103,7 +103,7 @@ struct IncidentSenderManager::Impl
 		map<IncidentTrackerIdType, IncidentSender*>::iterator it;
 		it = sendersMap.find(id);
 		if (it == sendersMap.end()) {
-			MLPL_ERR("Not found IncidentTrackerInfo: %"
+			MLPL_ERR("Not found IncidentTrackerId: %"
 				 FMT_INCIDENT_TRACKER_ID "\n", id);
 			return;
 		}
