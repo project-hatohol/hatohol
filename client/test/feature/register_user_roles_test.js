@@ -145,7 +145,6 @@ casper.test.begin('Register/Unregister user role test', function(test) {
       this.evaluate(function() {
         $("div.ui-dialog-buttonset button").next().click();
       });
-
     },
     function fail() {
       test.assertExists("form button#delete-user-button");
