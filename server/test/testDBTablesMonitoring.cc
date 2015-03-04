@@ -61,9 +61,9 @@ struct AssertGetTriggersArg
 		setDataDrivenTestParam(ddtParam);
 	}
 
-	virtual HostIdType getHostId(const TriggerInfo &info) const override
+	virtual LocalHostIdType getHostId(const TriggerInfo &info) const override
 	{
-		return info.hostId;
+		return info.hostIdInServer;
 	}
 
 	virtual string makeOutputText(const TriggerInfo &triggerInfo)
@@ -92,7 +92,9 @@ static void _assertGetTriggersWithFilter(AssertGetTriggersArg &arg)
 cut_trace(_assertGetTriggersWithFilter(ARG))
 
 static void _assertGetTriggerInfoList(
-  gconstpointer ddtParam, uint32_t serverId, uint64_t hostId = ALL_HOSTS)
+  gconstpointer ddtParam,
+  const ServerIdType &serverId,
+  const HostIdType &hostId = ALL_HOSTS)
 {
 	loadTestDBTriggers();
 	loadTestDBServerHostDef();
@@ -192,9 +194,10 @@ struct AssertGetItemsArg
 		return false;
 	}
 
-	virtual HostIdType getHostId(const ItemInfo &info) const override
+	virtual LocalHostIdType getHostId(const ItemInfo &info) const override
 	{
-		return info.hostId;
+		// TODO: add hostIdInServer
+		return StringUtils::sprintf("%" FMT_HOST_ID, info.hostId);
 	}
 
 	virtual string makeOutputText(const ItemInfo &itemInfo) override
@@ -285,7 +288,8 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 	                    actual.lastChangeTime.tv_sec);
 	cppcut_assert_equal(expect.lastChangeTime.tv_nsec,
 	                    actual.lastChangeTime.tv_nsec);
-	cppcut_assert_equal(expect.hostId, actual.hostId);
+	cppcut_assert_equal(expect.globalHostId, actual.globalHostId);
+	cppcut_assert_equal(expect.hostIdInServer, actual.hostIdInServer);
 	cppcut_assert_equal(expect.hostName, actual.hostName);
 	cppcut_assert_equal(expect.brief, actual.brief);
 }
@@ -412,7 +416,7 @@ void data_getTriggerInfoListForOneServerOneHost(void)
 void test_getTriggerInfoListForOneServerOneHost(gconstpointer data)
 {
 	const ServerIdType targetServerId = testTriggerInfo[1].serverId;
-	const HostIdType targetHostId = testTriggerInfo[1].hostId;
+	const HostIdType targetHostId = testTriggerInfo[1].globalHostId;
 	assertGetTriggerInfoList(data, targetServerId, targetHostId);
 }
 

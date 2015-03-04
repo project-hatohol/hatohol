@@ -203,12 +203,12 @@ string IncidentSenderRedmine::buildDescription(
 
 	description +=
 	  StringUtils::sprintf(
-	    "|{background:#ddd}. Host ID|%" FMT_HOST_ID "|\n"
+	    "|{background:#ddd}. Host ID|'%" FMT_LOCAL_HOST_ID "'|\n"
 	    "|{background:#ddd}. Trigger ID|%" FMT_TRIGGER_ID "|\n"
 	    "|{background:#ddd}. Event ID|%" FMT_EVENT_ID "|\n"
 	    "}}\n"
 	    "\n",
-	    event.hostId,
+	    event.hostIdInServer.c_str(),
 	    event.triggerId,
 	    event.id);
 

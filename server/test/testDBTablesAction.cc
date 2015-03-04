@@ -44,7 +44,8 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 	            StringUtils::sprintf("%d|", cond.serverId) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_HOST_ID) ?
-	            StringUtils::sprintf("%" PRIu64 "|", cond.hostId) :
+	            StringUtils::sprintf("%" FMT_LOCAL_HOST_ID "|",
+	                                 cond.hostIdInServer.c_str()) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_HOST_GROUP_ID) ?
 	            StringUtils::sprintf("%" PRIu64 "|", cond.hostgroupId) :
@@ -121,8 +122,8 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 		                    actual.condition.serverId);
 	}
 	if (expect.condition.enableBits & ACTCOND_HOST_ID) {
-		cppcut_assert_equal(expect.condition.hostId,
-		                    actual.condition.hostId);
+		cppcut_assert_equal(expect.condition.hostIdInServer,
+		                    actual.condition.hostIdInServer);
 	}
 	if (expect.condition.enableBits & ACTCOND_HOST_GROUP_ID) {
 		cppcut_assert_equal(expect.condition.hostgroupId,
@@ -695,7 +696,7 @@ void test_getTriggerActionList(void)
 	eventInfo.triggerId = condDummy.triggerId;
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
 	eventInfo.severity  = (TriggerSeverityType) condTarget.triggerSeverity;
-	eventInfo.hostId    = condDummy2.hostId;
+	eventInfo.hostIdInServer = condDummy2.hostIdInServer;
 	eventInfo.hostName  = "foo";
 	eventInfo.brief     = "foo foo foo";
 
@@ -731,7 +732,8 @@ void test_getTriggerActionListWithAllCondition(void)
 	eventInfo.triggerId = condTarget.triggerId;
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
 	eventInfo.severity  = (TriggerSeverityType) condTarget.triggerSeverity;
-	eventInfo.hostId    = condTarget.hostId;
+	// TODO: ? eventInfo.globalHostId = ???
+	eventInfo.hostIdInServer = condTarget.hostIdInServer;
 	eventInfo.hostName  = "foo";
 	eventInfo.brief     = "foo foo foo";
 
@@ -750,14 +752,15 @@ void test_getTriggerActionListWithAllCondition(void)
 	assertEqual(testActionDef[idxTarget], actual);
 }
 
-static void _assertGetActionWithSeverity(const TriggerSeverityType &severity,
-					 const int expectedActionIdx)
+static void _assertGetActionWithSeverity(
+  const TriggerSeverityType &severity,
+  const int &targetActionIdx, const bool &expectFound = true)
 {
 	loadTestDBAction();
 
 	// make an EventInfo instance for the test
 	EventInfo eventInfo;
-	const ActionDef &actionDef = testActionDef[expectedActionIdx];
+	const ActionDef &actionDef = testActionDef[targetActionIdx];
 	const ActionCondition condTarget = actionDef.condition;
 	eventInfo.serverId  = condTarget.serverId ? : 1129;
 	eventInfo.id        = 1192;
@@ -767,7 +770,8 @@ static void _assertGetActionWithSeverity(const TriggerSeverityType &severity,
 	eventInfo.triggerId = condTarget.triggerId ? : 1;
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
 	eventInfo.severity = severity;
-	eventInfo.hostId    = condTarget.hostId ? : 1;
+	// TODO: eventInfo.globalHostId = ???
+	eventInfo.hostIdInServer = condTarget.hostIdInServer;
 	eventInfo.hostName  = "foo";
 	eventInfo.brief     = "foo foo foo";
 
@@ -781,26 +785,25 @@ static void _assertGetActionWithSeverity(const TriggerSeverityType &severity,
 	  HTERR_OK,
 	  dbAction.getActionList(actionDefList, option));
 
-	if (expectedActionIdx < 0) {
+	if (!expectFound) {
 		cppcut_assert_equal((size_t)0, actionDefList.size());
 	} else {
 		cppcut_assert_equal((size_t)1, actionDefList.size());
 		// check the content
 		const ActionDef &actual = *actionDefList.begin();
-		assertEqual(testActionDef[expectedActionIdx], actual);
+		assertEqual(testActionDef[targetActionIdx], actual);
 	}
 }
-#define assertGetActionWithSeverity(S,E) \
-cut_trace(_assertGetActionWithSeverity(S,E))
+#define assertGetActionWithSeverity(S,E,...) \
+cut_trace(_assertGetActionWithSeverity(S,E,##__VA_ARGS__))
 
 void test_getActionWithLessSeverityAgainstCmpEqGt(void)
 {
 	int targetActionIdx = 1;
-	int noActionIdx = -1;
 	ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)(targetAction.condition.triggerSeverity - 1),
-	  noActionIdx);
+	  targetActionIdx, false);
 }
 
 void test_getActionWithEqualSeverityAgainstCmpEqGt(void)
@@ -824,11 +827,10 @@ void test_getActionWithGreaterSeverityAgainstCmpEqGt(void)
 void test_getActionWithLessSeverityAgainstCmpEq(void)
 {
 	int targetActionIdx = 4;
-	int noActionIdx = -1;
 	ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)(targetAction.condition.triggerSeverity - 1),
-	  noActionIdx);
+	  targetActionIdx, false);
 }
 
 void test_getActionWithEqualSeverityAgainstCmpEq(void)
@@ -843,11 +845,10 @@ void test_getActionWithEqualSeverityAgainstCmpEq(void)
 void test_getActionWithGreaterSeverityAgainstCmpEq(void)
 {
 	int targetActionIdx = 4;
-	int noActionIdx = -1;
 	ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)(targetAction.condition.triggerSeverity + 1),
-	  noActionIdx);
+	  targetActionIdx, false);
 }
 
 void test_getActionListWithNormalUser(void)
@@ -1032,15 +1033,16 @@ void test_withEventInfo(void)
 	    "(owner_user_id=%" FMT_USER_ID " AND "
 	    "action_type>=0 AND action_type<2) AND "
 	    "((server_id IS NULL) OR (server_id=%" FMT_SERVER_ID ")) AND "
-	    "((host_id IS NULL) OR (host_id=%" FMT_HOST_ID ")) AND "
+	    "((host_id_in_server IS NULL) OR "
+	    "(host_id_in_server='%" FMT_LOCAL_HOST_ID "')) AND "
 	    // test with empty hostgroups
-	    "((host_group_id IS NULL) OR host_group_id IN (0)) AND "
+	    "((host_group_id IS NULL) OR host_group_id IN ('0')) AND "
 	    "((trigger_id IS NULL) OR (trigger_id=%" FMT_TRIGGER_ID ")) AND "
 	    "((trigger_status IS NULL) OR (trigger_status=%d)) AND "
 	    "((trigger_severity IS NULL) OR "
 	    "(trigger_severity_comp_type=1 AND trigger_severity=%d) OR "
 	    "(trigger_severity_comp_type=2 AND trigger_severity<=%d))",
-	    id, event.serverId, event.hostId, event.triggerId,
+	    id, event.serverId, event.hostIdInServer.c_str(), event.triggerId,
 	    event.status, event.severity, event.severity);
 	cppcut_assert_equal(expected, option.getCondition());
 }

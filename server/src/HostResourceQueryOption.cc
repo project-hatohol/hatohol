@@ -59,14 +59,14 @@ HostResourceQueryOption::Synapse::Synapse(
 struct HostResourceQueryOption::Impl {
 	const Synapse  &synapse;
 	ServerIdType    targetServerId;
-	HostIdType      targetHostId;
+	LocalHostIdType targetHostId;
 	HostgroupIdType targetHostgroupId;
 	bool            filterDataOfDefunctServers;
 
 	Impl(const Synapse &_synapse)
 	: synapse(_synapse),
 	  targetServerId(ALL_SERVERS),
-	  targetHostId(ALL_HOSTS),
+	  targetHostId(ALL_LOCAL_HOSTS),
 	  targetHostgroupId(ALL_HOST_GROUPS),
 	  filterDataOfDefunctServers(true)
 	{
@@ -141,7 +141,7 @@ string HostResourceQueryOption::getCondition(void) const
 				rhs(m_impl->targetServerId))
 			);
 		}
-		if (m_impl->targetHostId != ALL_HOSTS) {
+		if (m_impl->targetHostId != ALL_LOCAL_HOSTS) {
 			addCondition(condition,
 			  StringUtils::sprintf(
 				"%s=%s",
@@ -169,7 +169,8 @@ string HostResourceQueryOption::getCondition(void) const
 	// getHostIdColumnName() throws an exception. In that case,
 	// targetHostId shall be ALL_HOSTS.
 	const string hostIdColumnName =
-	  (m_impl->targetHostId != ALL_HOSTS) ?  getHostIdColumnName() : "";
+	  (m_impl->targetHostId != ALL_LOCAL_HOSTS) ?
+	    getHostIdColumnName() : "";
 
 	const ServerHostGrpSetMap &srvHostGrpSetMap =
 	  getDataQueryContext().getServerHostGrpSetMap();
@@ -245,12 +246,13 @@ void HostResourceQueryOption::setTargetServerId(const ServerIdType &targetServer
 	m_impl->targetServerId = targetServerId;
 }
 
-HostIdType HostResourceQueryOption::getTargetHostId(void) const
+LocalHostIdType HostResourceQueryOption::getTargetHostId(void) const
 {
 	return m_impl->targetHostId;
 }
 
-void HostResourceQueryOption::setTargetHostId(HostIdType targetHostId)
+void HostResourceQueryOption::setTargetHostId(
+  const LocalHostIdType &targetHostId)
 {
 	m_impl->targetHostId = targetHostId;
 }
@@ -374,9 +376,9 @@ string HostResourceQueryOption::makeCondition(
   const string &serverIdColumnName,
   const string &hostgroupIdColumnName,
   const string &hostIdColumnName,
-  ServerIdType targetServerId,
-  HostgroupIdType targetHostgroupId,
-  HostIdType targetHostId) const
+  const ServerIdType    &targetServerId,
+  const HostgroupIdType &targetHostgroupId,
+  const LocalHostIdType &targetHostId) const
 {
 	// TODO: consider if we use isHostgroupEnumerationInCondition()
 	string condition;
@@ -413,12 +415,12 @@ string HostResourceQueryOption::makeCondition(
 		++numServers;
 	}
 
-	if (targetHostId != ALL_HOSTS) {
+	if (targetHostId != ALL_LOCAL_HOSTS) {
 		DBTermCStringProvider rhs(*getDBTermCodec());
 		return StringUtils::sprintf(
-		  "((%s) AND %s=%s)",
-		  condition.c_str(), hostIdColumnName.c_str(),
-		  rhs(targetHostId));
+		         "((%s) AND %s=%s)",
+		         condition.c_str(), hostIdColumnName.c_str(),
+		         rhs(targetHostId));
 	}
 
 	if (numServers == 1)

@@ -312,7 +312,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUP_MEMBER[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"host_id",                         // columnName
+	"host_id_in_server",               // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
 	0,                                 // decFracLength
@@ -334,7 +334,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUP_MEMBER[] = {
 
 static const int columnIndexesHostgroupMemberUniqId[] = {
   IDX_HOSTGROUP_MEMBER_SERVER_ID,
-  IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
   IDX_HOSTGROUP_MEMBER_GROUP_ID,
   DBAgent::IndexDef::END,
 };
@@ -386,7 +386,7 @@ static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
   tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
   true,
   tableProfileHostgroupMember,
-  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
   IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 struct HostsQueryOption::Impl {
@@ -446,9 +446,9 @@ static const HostResourceQueryOption::Synapse synapseHostgroupMembersQueryOption
   tableProfileHostgroupMember,
   IDX_HOSTGROUP_MEMBER_ID, IDX_HOSTGROUP_MEMBER_SERVER_ID,
   tableProfileHostgroupMember,
-  IDX_HOSTGROUP_MEMBER_HOST_ID, false,
+  IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER, false,
   tableProfileHostgroupMember,
-  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
   IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 HostgroupMembersQueryOption::HostgroupMembersQueryOption(const UserIdType &userId)
@@ -523,8 +523,10 @@ HostIdType DBTablesHost::upsertHost(
 	HATOHOL_ASSERT(serverHostDef.hostId == AUTO_ASSIGNED_ID ||
 	               serverHostDef.hostId >= 0,
 	               "Invalid host ID: %" FMT_HOST_ID, serverHostDef.hostId);
-	HATOHOL_ASSERT(!serverHostDef.name.empty(),
-	               "Empty host name: %s", serverHostDef.name.c_str());
+	if (serverHostDef.status != HOST_STAT_SELF_MONITOR) {
+		HATOHOL_ASSERT(!serverHostDef.name.empty(),
+		               "Empty host name");
+	}
 
 	struct Proc : public DBAgent::TransactionProc {
 		const ServerHostDef &serverHostDef;
@@ -897,7 +899,7 @@ HatoholError DBTablesHost::getHostgroupMembers(
 	DBAgent::SelectExArg arg(tableProfileHostgroupMember);
 	arg.add(IDX_HOSTGROUP_MEMBER_ID);
 	arg.add(IDX_HOSTGROUP_MEMBER_SERVER_ID);
-	arg.add(IDX_HOSTGROUP_MEMBER_HOST_ID);
+	arg.add(IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER);
 	arg.add(IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 	arg.condition = option.getCondition();
@@ -1007,7 +1009,7 @@ bool DBTablesHost::isAccessible(
 	  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
 	  IDX_HOSTGROUP_MEMBER_SERVER_ID,
 	  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
-	  IDX_HOSTGROUP_MEMBER_HOST_ID);
+	  IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER);
 	builder.add(IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 	DBAgent::SelectExArg &arg = builder.build();
@@ -1055,7 +1057,7 @@ HatoholError DBTablesHost::getServerHostDefs(
 		  IDX_HOSTGROUP_MEMBER_SERVER_ID,
 		  tableProfileServerHostDef,
 		  IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
-		  IDX_HOSTGROUP_MEMBER_HOST_ID);
+		  IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER);
 	}
 
 	DBAgent::SelectExArg &arg = builder.build();
@@ -1066,7 +1068,7 @@ HatoholError DBTablesHost::getServerHostDefs(
 		  tableProfileServerHostDef.getFullColumnName(IDX_HOST_SERVER_HOST_DEF_SERVER_ID).c_str(),
 		  tableProfileHostgroupMember.getFullColumnName(IDX_HOSTGROUP_MEMBER_SERVER_ID).c_str(),
 		  tableProfileServerHostDef.getFullColumnName(IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER).c_str(),
-		  tableProfileHostgroupMember.getFullColumnName(IDX_HOSTGROUP_MEMBER_HOST_ID).c_str());
+		  tableProfileHostgroupMember.getFullColumnName(IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER).c_str());
 
 		arg.tableField = tableProfileServerHostDef.name;
 		arg.condition = "EXISTS (SELECT * from ";

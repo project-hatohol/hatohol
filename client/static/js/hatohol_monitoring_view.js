@@ -190,7 +190,7 @@ HatoholMonitoringView.prototype.getHostFilterQuery = function() {
   var hostId = this.getTargetHostId();
   query.serverId = serverId ? serverId : "-1";
   query.hostgroupId = hostgroupId ? hostgroupId : "*";
-  query.hostId = hostId ? hostId : "-1";
+  query.hostId = hostId ? hostId : "*";
   return query;
 };
 

@@ -209,7 +209,8 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957197,0},           // lastChangeTime
-	235012,                   // hostId,
+	1,                        // globalHostId,
+	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1",         // brief,
 	"",                       // extendedInfo
@@ -220,7 +221,8 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957198,0},           // lastChangeTime
-	235012,                   // hostId,
+	1,                        // globalHostId,
+	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1a",        // brief,
 	"{\"expandedDescription\":\"Test Trigger on hostX1\"}", // extendedInfo
@@ -231,7 +233,8 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957117,0},           // lastChangeTime
-	235013,                   // hostId,
+	2,                        // globalHostId,
+	"235013",                 // hostIdInServer,
 	"hostX2",                 // hostName,
 	"TEST Trigger 1b",        // brief,
 	"",                       // extendedInfo
@@ -242,7 +245,8 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957197,0},           // lastChangeTime
-	235012,                   // hostId,
+	1,                        // globalHostId,
+	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1c",        // brief,
 	"",                       // extendedInfo
@@ -253,7 +257,8 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957198,0},           // lastChangeTime
-	1129,                     // hostId,
+	3,                        // globalHostId,
+	"1129",                   // hostIdInServer,
 	"hostX3",                 // hostName,
 	"TEST Trigger 1d",        // brief,
 	"",                       // extendedInfo
@@ -264,7 +269,8 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
 	{1362957200,0},           // lastChangeTime
-	10001,                    // hostId,
+	4,                        // globalHostId,
+	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
 	"{\"expandedDescription\":\"Test Trigger on hostZ1\"}", // extendedInfo
@@ -275,7 +281,8 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362951000,0},           // lastChangeTime
-	10002,                    // hostId,
+	6,                        // globalHostId,
+	"10002",                  // hostIdInServer,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
 	"",                       // extendedInfo
@@ -286,7 +293,8 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_WARNING, // severity
 	{1362951000,0},           // lastChangeTime
-	0x89abcdefffffffff,       // hostId,
+	10,                       // globalHostId,
+	"9920249034889494527",    // hostIdInServer,
 	"hostQ1",                 // hostName,
 	"TEST Trigger Action",    // brief,
 	"",                       // extendedInfo
@@ -298,7 +306,8 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957117,0},           // lastChangeTime
-	10002,                    // hostId,
+	12345,                    // globalHostId,
+	"10002",                  // hostIdInServer,
 	"host12345",              // hostName,
 	"Brief for host12345",    // brief,
 	"",                       // extendedInfo
@@ -310,7 +319,8 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957117,0},           // lastChangeTime
-	10002,                    // hostId,
+	0xffeeddcc,               // globalHostId,
+	"10002",                  // hostIdInServer,
 	"defunctSv1Host1",        // hostName,
 	"defunctSv1Host1 material", // brief,
 	"",                       // extendedInfo
@@ -332,7 +342,8 @@ const EventInfo testEventInfo[] = {
 	2,                        // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
-	10001,                    // hostId,
+	4,                        // globalHostId,
+	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
 }, {
@@ -344,7 +355,8 @@ const EventInfo testEventInfo[] = {
 	3,                        // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	10002,                    // hostId,
+	6,                        // globalHostId,
+	"10002",                  // hostIdInServer,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
 }, {
@@ -356,7 +368,8 @@ const EventInfo testEventInfo[] = {
 	2,                        // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	235012,                   // hostId,
+	1,                        // globalHostId,
+	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1a",        // brief,
 }, {
@@ -368,7 +381,8 @@ const EventInfo testEventInfo[] = {
 	1,                        // triggerId
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	235012,                   // hostId,
+	1,                        // globalHostId,
+	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1",         // brief,
 }, {
@@ -380,7 +394,8 @@ const EventInfo testEventInfo[] = {
 	3,                        // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	235013,                   // hostId,
+	2,                        // globalHostId,
+	"235013",                 // hostIdInServer,
 	"hostX2",                 // hostName,
 	"TEST Trigger 1b",        // brief,
 }, {
@@ -392,7 +407,8 @@ const EventInfo testEventInfo[] = {
 	2,                        // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
-	10001,                    // hostId,
+	4,                        // globalHostId,
+	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
 }, {
@@ -401,13 +417,14 @@ const EventInfo testEventInfo[] = {
 	trigInfoDefunctSv1.serverId, // serverId
 	1,                        // id
 	trigInfoDefunctSv1.lastChangeTime, // time
-	EVENT_TYPE_BAD,           // type
-	3,                        // triggerId
-	trigInfoDefunctSv1.status,   // status
-	trigInfoDefunctSv1.severity, // severity
-	trigInfoDefunctSv1.hostId,   // hostId,
-	trigInfoDefunctSv1.hostName, // hostName,
-	trigInfoDefunctSv1.brief,    // brief,
+	EVENT_TYPE_BAD,                    // type
+	3,                                 // triggerId
+	trigInfoDefunctSv1.status,         // status
+	trigInfoDefunctSv1.severity,       // severity
+	trigInfoDefunctSv1.globalHostId,   // globalHostId,
+	trigInfoDefunctSv1.hostIdInServer, // hostIdInServer,
+	trigInfoDefunctSv1.hostName,       // hostName,
+	trigInfoDefunctSv1.brief,          // brief,
 },
 // We assumed the data of the default server's is at the tail in testEventInfo.
 // See also the definition of trigInfoDefunctSv1 above. Anyway,
@@ -425,7 +442,8 @@ EventInfo testDupEventInfo[] = {
 	2,                        // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
-	10001,                    // hostId,
+	4,                        // globalHostId,
+	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
 }, {
@@ -437,7 +455,8 @@ EventInfo testDupEventInfo[] = {
 	3,                        // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	10002,                    // hostId,
+	6,                        // globalHostId,
+	"10002",                  // hostIdInServer,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
 }, {
@@ -449,7 +468,8 @@ EventInfo testDupEventInfo[] = {
 	3,                        // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	10002,                    // hostId,
+	6,                        // globalHostId,
+	"10002",                  // hostIdInServer,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
 },
@@ -516,7 +536,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_SERVER_ID |
 	  ACTCOND_TRIGGER_STATUS,   // enableBits
 	  1,                        // serverId
-	  10,                       // hostId
+	  "10",                     // hostIdInServer
 	  5,                        // hostgroupId
 	  3,                        // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
@@ -534,7 +554,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_STATUS |
 	  ACTCOND_TRIGGER_SEVERITY, // enableBits
 	  0,                        // serverId
-	  0,                        // hostId
+	  "0",                      // hostIdInServer
 	  0,                        // hostgroupId
 	  0x12345,                  // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
@@ -551,8 +571,8 @@ ActionDef testActionDef[] = {
 	ActionCondition(
 	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
-	  100,                      // serverId
-	  0x7fffffffffffffff,       // hostId
+	  100,                      // serverIdInServer
+	  "9223372036854775807",    // hostIdInServer (0x7fffffffffffffff)
 	  0x8000000000000000,       // hostgroupId
 	  0xfedcba9876543210,       // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
@@ -571,7 +591,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS |
 	   ACTCOND_TRIGGER_SEVERITY,   // enableBits
 	  2,                        // serverId
-	  0x89abcdefffffffff,       // hostId
+	  "9920249034889494527",    // hostIdInServer
 	  0x8000000000000000,       // hostGroupId
 	  0xfedcba9876543210,       // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
@@ -590,7 +610,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_ID |
 	  ACTCOND_TRIGGER_STATUS | ACTCOND_TRIGGER_SEVERITY, // enableBits
 	  100001,                   // serverId
-	  100001,                   // hostId
+	  "100001",                 // hostIdInServer
 	  100001,                   // hostgroupId
 	  0x12345,                  // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
@@ -608,7 +628,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
 	  101,                      // serverId
-	  0x7fffffffffffffff,       // hostId
+	  "9223372036854775807",    // hostIdInServer (0x7fffffffffffffff)
 	  0x8000000000000000,       // hostgroupId
 	  0xfedcba9876543210,       // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
@@ -626,7 +646,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID |
 	  ACTCOND_HOST_GROUP_ID,    // enableBits
 	  1,                        // serverId
-	  10,                       // hostId
+	  "10",                     // hostIdInServer
 	  5,                        // hostgroupId
 	  0,                        // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
@@ -650,7 +670,7 @@ ActionDef testUpdateActionDef = {
 		ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS |
 		ACTCOND_TRIGGER_SEVERITY, // enableBits
 		2,                        // serverId
-		1001,                     // hostId
+		"1001",                   // hostIdInServer
 		2001,                     // hostGroupId
 		14000,                    // triggerId
 		TRIGGER_STATUS_OK,        // triggerStatus
@@ -1049,61 +1069,61 @@ size_t NumTestHistoryInfo = ARRAY_SIZE(testHistoryInfo);
 
 const ServerHostDef testServerHostDef[] = {
 {
-	AUTO_INCREMENT_VALUE,            // id
+	AUTO_INCREMENT_VALUE, // 1       // id
 	10,                              // hostId
 	1,                               // serverId
 	"235012",                        // hostIdInServer
 	"hostX1",                        // name
 }, {
-	AUTO_INCREMENT_VALUE,            // id
+	AUTO_INCREMENT_VALUE, // 2       // id
 	11,                              // hostId
 	1,                               // serverId
 	"235013",                        // hostIdInServer
 	"hostX2",                        // name
 }, {
-	AUTO_INCREMENT_VALUE,            // id
+	AUTO_INCREMENT_VALUE, // 3       // id
 	30,                              // hostId
 	1,                               // serverId
 	"1129",                          // hostIdInServer
 	"hostX3",                        // name
 } ,{
-	AUTO_INCREMENT_VALUE,            // id
+	AUTO_INCREMENT_VALUE, // 4       // id
 	35,                              // hostId
 	3,                               // serverId
 	"10001",                         // hostIdInServer
 	"hostZ1",                        // name
 } ,{
-	AUTO_INCREMENT_VALUE,            // id
+	AUTO_INCREMENT_VALUE, // 5       // id
 	40,                              // hostId
 	2,                               // serverId
 	"512",                           // hostIdInServer
 	"multi-host group",              // name
 }, {
-	AUTO_INCREMENT_VALUE,            // id
+	AUTO_INCREMENT_VALUE, // 6       // id
 	41,                              // hostId
 	3,                               // serverId
 	"10002",                         // hostIdInServer
 	"hostZ2",                        // name
 }, {
-	AUTO_INCREMENT_VALUE,            // id
+	AUTO_INCREMENT_VALUE, // 7       // id
 	42,                              // hostId
 	3,                               // serverId
 	"5",                             // hostIdInServer
 	"frog",                          // name
 } ,{
-	AUTO_INCREMENT_VALUE,            // id
+	AUTO_INCREMENT_VALUE, // 8       // id
 	45,                              // hostId
 	3,                               // serverId
 	"100",                           // hostIdInServer
 	"dolphin",                       // name
 }, {
-	AUTO_INCREMENT_VALUE,            // id
+	AUTO_INCREMENT_VALUE, // 9       // id
 	100,                             // hostId
 	4,                               // serverId
 	"100",                           // hostIdInServer
 	"squirrel",                      // name
 }, {
-	AUTO_INCREMENT_VALUE,            // id
+	AUTO_INCREMENT_VALUE, // 10      // id
 	101,                             // hostId
 	2,                               // serverId
 	//"0x89abcdefffffffff",          // hostIdInServer
@@ -1111,7 +1131,7 @@ const ServerHostDef testServerHostDef[] = {
 	"hostQ1",                        // name
 }, {
 	// This entry is for tests with a defunct server
-	AUTO_INCREMENT_VALUE,            // id
+	AUTO_INCREMENT_VALUE, // 11      // id
 	494,                             // host_id
 	trigInfoDefunctSv1.serverId,     // serverId
 	//trigInfoDefunctSv1.hostId,       // hostIdInServer
@@ -1390,7 +1410,7 @@ SmartTime findTimeOfLastEvent(
 
 void getTestTriggersIndexes(
   map<ServerIdType, map<uint64_t, size_t> > &indexMap,
-  const ServerIdType &serverId, uint64_t hostId)
+  const ServerIdType &serverId, const LocalHostIdType &hostIdInServer)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		const TriggerInfo &trigInfo = testTriggerInfo[i];
@@ -1398,8 +1418,8 @@ void getTestTriggersIndexes(
 			if (trigInfo.serverId != serverId)
 				continue;
 		}
-		if (hostId != ALL_HOSTS) {
-			if (trigInfo.hostId != hostId)
+		if (hostIdInServer != ALL_LOCAL_HOSTS) {
+			if (trigInfo.hostIdInServer != hostIdInServer)
 				continue;
 		}
 		// If the following assertion fails, the test data is illegal.
@@ -1445,7 +1465,7 @@ size_t getNumberOfTestItems(const ServerIdType &serverId)
 
 static string makeHostgroupElementPack(
   const ServerIdType &serverId,
-  const string hostId, const string hostgroupId)
+  const string &hostId, const string &hostgroupId)
 {
 	string s;
 	s.append((char *)&serverId, sizeof(serverId));
@@ -1490,11 +1510,9 @@ static bool isInHostgroup(const TriggerInfo &trigInfo,
 	const set<string> &hostgroupElementPackSet =
 	  getHostgroupMemberPackSet();
 
-	const string pack =
-	  makeHostgroupElementPack(
-	    trigInfo.serverId,
-	    StringUtils::sprintf("%" FMT_HOST_ID, trigInfo.hostId),
-	    StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupId.c_str()));
+	const string pack = makeHostgroupElementPack(trigInfo.serverId,
+	                                             trigInfo.hostIdInServer,
+	                                             hostgroupId.c_str());
 	set<string>::const_iterator it = hostgroupElementPackSet.find(pack);
 	return it != hostgroupElementPackSet.end();
 }
@@ -1542,7 +1560,7 @@ static void removeHostIdIfNeeded(ServerIdHostgroupHostIdMap &svIdHostGrpIdMap,
 	if (hostIt == hostGrpIdMap.end())
 		return;
 	HostIdSet &hostIdSet = hostIt->second;
-	hostIdSet.erase(trigInfo.hostId);
+	hostIdSet.erase(trigInfo.globalHostId);
 }
 
 size_t getNumberOfTestHosts(
@@ -1578,7 +1596,8 @@ size_t getNumberOfTestHostsWithStatus(
 		const TriggerInfo &trigInfo = testTriggerInfo[i];
 		if (serverId != ALL_SERVERS && trigInfo.serverId != serverId)
 			continue;
-		if (!isAuthorized(authMap, userId, serverId, trigInfo.hostId))
+		if (!isAuthorized(authMap, userId, serverId,
+		                  trigInfo.hostIdInServer))
 			continue;
 		if (!isInHostgroup(trigInfo, hostgroupId))
 			continue;
@@ -1598,7 +1617,7 @@ size_t getNumberOfTestHostsWithStatus(
 			// svIdHostGrpMap doesn't have value pair
 			// for this server
 			HostIdSet hostIdSet;
-			hostIdSet.insert(trigInfo.hostId);
+			hostIdSet.insert(trigInfo.globalHostId);
 			HostgroupHostIdMap hostMap;
 			hostMap[hostgroupId] = hostIdSet;
 			svIdHostGrpIdMap[trigInfo.serverId] = hostMap;
@@ -1611,7 +1630,7 @@ size_t getNumberOfTestHostsWithStatus(
 			// svIdHostGrpMap doesn't have value pair
 			// for this host group
 			HostIdSet hostIdSet;
-			hostIdSet.insert(trigInfo.hostId);
+			hostIdSet.insert(trigInfo.globalHostId);
 			hostGrpIdMap[hostgroupId] = hostIdSet;
 			continue;
 		}
@@ -1622,7 +1641,7 @@ size_t getNumberOfTestHostsWithStatus(
 		// cause other side effects.
 		// This behavior is no problem for this function and we
 		// can skip the check of the existence in the set.
-		hostIdSet.insert(trigInfo.hostId);
+		hostIdSet.insert(trigInfo.globalHostId);
 	}
 
 	// get the number of hosts that matches with the requested condition
@@ -1666,20 +1685,6 @@ size_t getNumberOfTestActions(const ActionType &actionType)
 			++num;
 	}
 	return num;
-}
-
-void getDBCTestHostInfo(HostInfoList &hostInfoList,
-                        const ServerIdType &targetServerId)
-{
-	for (size_t i = 0; i < NumTestServerHostDef; i++) {
-		const ServerHostDef &svHostDef = testServerHostDef[i];
-		const ServerIdType &serverId = svHostDef.serverId;
-		if (targetServerId != ALL_SERVERS && serverId != targetServerId)
-			continue;
-		HostInfo hostInfo;
-		conv(hostInfo, svHostDef);
-		hostInfoList.push_back(hostInfo);
-	}
 }
 
 void makeTestUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
@@ -1736,7 +1741,7 @@ void makeServerHostGrpSetMap(ServerHostGrpSetMap &map, const UserIdType &userId)
 
 bool isAuthorized(
   ServerHostGrpSetMap &authMap, const UserIdType &userId,
-  const ServerIdType &serverId, const HostIdType &hostId,
+  const ServerIdType &serverId, const LocalHostIdType &hostIdInServer,
   const set<string> *hgrpElementPackSet)
 {
 	if (userId == USER_ID_SYSTEM)
@@ -1753,7 +1758,7 @@ bool isAuthorized(
 	if (serverIt == authMap.end())
 		return false;
 
-	if (hostId == ALL_HOSTS)
+	if (hostIdInServer == ALL_LOCAL_HOSTS)
 		return true;
 
 	const HostgroupIdSet &hostgroupIds = serverIt->second;
@@ -1767,8 +1772,7 @@ bool isAuthorized(
 	for (; hostgroupIdItr != hostgroupIds.end(); ++hostgroupIdItr) {
 		const string pack =
 		  makeHostgroupElementPack(serverId,
-		    StringUtils::sprintf("%" FMT_HOST_ID, hostId),
-		    StringUtils::sprintf("%" FMT_HOST_GROUP_ID, hostgroupIdItr->c_str()));
+		                           hostIdInServer, *hostgroupIdItr);
 		if (hgrpElementPackSet->find(pack) != hgrpElementPackSet->end())
 			return true;
 	}
@@ -1780,18 +1784,13 @@ bool isAuthorized(
   const UserIdType &userId, const HostIdType &hostId)
 {
 	vector<ServerIdType> serverIds;
-	vector<HostIdType>   hostIds; // Host ID for the server
+	vector<LocalHostIdType> hostIds;
 	for (size_t i = 0; i < NumTestServerHostDef; i++) {
 		const ServerHostDef svHostDef = testServerHostDef[i];
 		if (svHostDef.hostId != hostId)
 			continue;
 		serverIds.push_back(svHostDef.serverId);
-		HostIdType hostIdInServer;
-		cppcut_assert_equal(
-		  1,
-		  sscanf(svHostDef.hostIdInServer.c_str(), "%" FMT_HOST_ID,
-		         &hostIdInServer));
-		hostIds.push_back(hostIdInServer);
+		hostIds.push_back(svHostDef.hostIdInServer);
 	}
 	if (serverIds.empty())
 		return false;

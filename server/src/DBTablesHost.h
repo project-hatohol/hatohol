@@ -38,12 +38,12 @@ struct Host {
 };
 
 struct ServerHostDef {
-	GenericIdType id;
-	HostIdType    hostId;
-	ServerIdType  serverId;
-	std::string   hostIdInServer;
-	std::string   name;
-	HostStatus    status;
+	GenericIdType   id;
+	HostIdType      hostId;
+	ServerIdType    serverId;
+	LocalHostIdType hostIdInServer;
+	std::string     name;
+	HostStatus      status;
 };
 
 typedef std::vector<ServerHostDef> ServerHostDefVect;
@@ -64,10 +64,10 @@ struct VMInfo {
 };
 
 struct Hostgroup {
-	GenericIdType id;
-	ServerIdType  serverId;
-	std::string   idInServer;
-	std::string   name;
+	GenericIdType   id;
+	ServerIdType    serverId;
+	HostgroupIdType idInServer;
+	std::string     name;
 };
 
 typedef std::vector<Hostgroup>        HostgroupVect;
@@ -75,10 +75,10 @@ typedef HostgroupVect::iterator       HostgroupVectIterator;
 typedef HostgroupVect::const_iterator HostgroupVectConstIterator;
 
 struct HostgroupMember {
-	GenericIdType id;
-	ServerIdType  serverId;
-	std::string   hostIdInServer;
-	std::string   hostgroupIdInServer;
+	GenericIdType   id;
+	ServerIdType    serverId;
+	LocalHostIdType hostIdInServer;
+	HostgroupIdType hostgroupIdInServer;
 };
 
 typedef std::vector<HostgroupMember>        HostgroupMemberVect;
@@ -127,7 +127,7 @@ enum {
 enum {
 	IDX_HOSTGROUP_MEMBER_ID,
 	IDX_HOSTGROUP_MEMBER_SERVER_ID,
-	IDX_HOSTGROUP_MEMBER_HOST_ID,
+	IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
 	IDX_HOSTGROUP_MEMBER_GROUP_ID,
 	NUM_IDX_HOSTGROUP_MEMBER,
 };

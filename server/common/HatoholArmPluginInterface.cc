@@ -551,7 +551,7 @@ ItemTablePtr HatoholArmPluginInterface::createItemTable(mlpl::SmartBuffer &sbuf)
 {
 	// read header
 	HATOHOL_ASSERT(sbuf.remainingSize() >= sizeof(HapiItemTableHeader),
-	 "Remain size (header) is too small: %zd\n", sbuf.remainingSize());
+	 "Remaining size (header) is too small: %zd\n", sbuf.remainingSize());
 	const size_t index0 = sbuf.index();
 	const HapiItemTableHeader *header =
 	  sbuf.getPointerAndIncIndex<HapiItemTableHeader>();

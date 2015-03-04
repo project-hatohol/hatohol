@@ -157,7 +157,8 @@ void _assertEqual(const TriggerInfo &expect, const TriggerInfo &actual)
 	                    actual.lastChangeTime.tv_sec);
 	cppcut_assert_equal(expect.lastChangeTime.tv_nsec,
 	                    actual.lastChangeTime.tv_nsec);
-	cppcut_assert_equal(expect.hostId,       actual.hostId);
+	cppcut_assert_equal(expect.globalHostId,   actual.globalHostId);
+	cppcut_assert_equal(expect.hostIdInServer, actual.hostIdInServer);
 	cppcut_assert_equal(expect.hostName,     actual.hostName);
 	cppcut_assert_equal(expect.brief,        actual.brief);
 	cppcut_assert_equal(TRIGGER_VALID,       actual.validity);
@@ -463,13 +464,15 @@ string makeTriggerOutput(const TriggerInfo &triggerInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
-	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|%" PRIu64 "|%s|%s|%s|%d\n",
+	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|"
+	    "%" FMT_HOST_ID "|%" FMT_LOCAL_HOST_ID "|%s|%s|%s|%d\n",
 	    triggerInfo.serverId,
 	    triggerInfo.id,
 	    triggerInfo.status, triggerInfo.severity,
 	    triggerInfo.lastChangeTime.tv_sec,
 	    triggerInfo.lastChangeTime.tv_nsec,
-	    triggerInfo.hostId,
+	    triggerInfo.globalHostId,
+	    triggerInfo.hostIdInServer.c_str(),
 	    triggerInfo.hostName.c_str(),
 	    triggerInfo.brief.c_str(),
 	    triggerInfo.extendedInfo.c_str(),
@@ -482,12 +485,13 @@ string makeEventOutput(const EventInfo &eventInfo)
 	string output =
 	  mlpl::StringUtils::sprintf(
 	    "%" FMT_SERVER_ID "|%" FMT_EVENT_ID "|%ld|%ld|%d|%" FMT_TRIGGER_ID
-	    "|%d|%u|%" FMT_HOST_ID "|%s|%s\n",
+	    "|%d|%u|%" FMT_HOST_ID "|%" FMT_LOCAL_HOST_ID "|%s|%s\n",
 	    eventInfo.serverId, eventInfo.id,
 	    eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
 	    eventInfo.type, eventInfo.triggerId,
 	    eventInfo.status, eventInfo.severity,
-	    eventInfo.hostId,
+	    eventInfo.globalHostId,
+	    eventInfo.hostIdInServer.c_str(),
 	    eventInfo.hostName.c_str(),
 	    eventInfo.brief.c_str());
 	return output;
@@ -530,18 +534,6 @@ string makeHistoryOutput(const HistoryInfo &historyInfo)
 	    (uint64_t)historyInfo.clock.tv_sec,
 	    (uint64_t)historyInfo.clock.tv_nsec,
 	    historyInfo.value.c_str());
-	return output;
-}
-
-
-string makeHostOutput(const HostInfo &hostInfo)
-{
-	string output =
-	  mlpl::StringUtils::sprintf(
-	    "%" FMT_SERVER_ID "|%" FMT_HOST_ID "|%s|%d\n",
-	    hostInfo.serverId, hostInfo.id,
-	    hostInfo.hostName.c_str(),
-	    hostInfo.validity);
 	return output;
 }
 
@@ -1207,19 +1199,6 @@ VariableItemGroupPtr convert(const HistoryInfo &historyInfo)
 	return grp;
 }
 
-void conv(HostInfo &hostInfo, const ServerHostDef &svHostDef)
-{
-	hostInfo.id = svHostDef.id;
-	hostInfo.serverId = svHostDef.serverId;
-
-	cppcut_assert_equal(1, sscanf(svHostDef.hostIdInServer.c_str(),
-	                              "%" FMT_HOST_ID, &hostInfo.id));
-	hostInfo.hostName = svHostDef.name;
-	hostInfo.validity = (svHostDef.status == HOST_STAT_NORMAL) ?
-	                    HOST_VALID : HOST_INVALID;
-}
-
-
 VariableItemGroupPtr convert(const TriggerInfo &triggerInfo)
 {
 	// TODO: Don't use IDs concerned with Zabbix.
@@ -1228,9 +1207,9 @@ VariableItemGroupPtr convert(const TriggerInfo &triggerInfo)
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_VALUE, triggerInfo.status);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_PRIORITY, triggerInfo.severity);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
-			(int)(triggerInfo.lastChangeTime.tv_sec));
+	(int)(triggerInfo.lastChangeTime.tv_sec));
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION, triggerInfo.brief);
-	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_HOSTID, triggerInfo.hostId	);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_HOSTID, triggerInfo.hostIdInServer);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION, triggerInfo.extendedInfo);
 	return grp;
 }

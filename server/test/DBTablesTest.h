@@ -113,12 +113,12 @@ extern const size_t NumTestHostgroupMember;
  * @param serverId
  * A server ID. ALL_SERVERS can be specified.
  *
- * @param hostId
- * A host ID. ALL_HOSTS can be specified.
+ * @param hostIdInServer
+ * A host ID in a server. ALL_LOCAL_HOSTS can be specified.
  */
 void getTestTriggersIndexes(
   std::map<ServerIdType, std::map<uint64_t, size_t> > &indexMap,
-  const ServerIdType &serverId, uint64_t hostId);
+  const ServerIdType &serverId, const LocalHostIdType &hostIdInServer);
 size_t getNumberOfTestTriggers(
   const ServerIdType &serverId,
   const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS,
@@ -155,9 +155,6 @@ size_t getNumberOfTestActions(
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo);
 mlpl::SmartTime getTimestampOfLastTestTrigger(const ServerIdType &serverId);
 
-void getDBCTestHostInfo(HostInfoList &hostInfoList,
-                        const ServerIdType &targetServerId = ALL_SERVERS);
-
 typedef std::map<UserIdType, std::set<int> > UserIdIndexMap;
 typedef UserIdIndexMap::iterator UserIdIndexMapIterator;
 void makeTestUserIdIndexMap(UserIdIndexMap &userIdIndexMap);
@@ -170,7 +167,7 @@ void makeEventIncidentMap(std::map<std::string, IncidentInfo*> &eventIncidentMap
 bool isAuthorized(ServerHostGrpSetMap &authMap,
                   const UserIdType &userId,
                   const ServerIdType &serverId,
-                  const HostIdType &hostId = ALL_HOSTS,
+                  const LocalHostIdType &hostIdInServer = ALL_LOCAL_HOSTS,
                   const std::set<std::string> *hgrpElementPackSet = NULL);
 
 /**
