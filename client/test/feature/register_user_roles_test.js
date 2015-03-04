@@ -138,11 +138,21 @@ casper.test.begin('Register/Unregister user test', function(test) {
       this.evaluate(function() {
         $("div.ui-dialog-buttonset button").next().click();
       });
+
     },
     function fail() {
       test.assertExists("form button#delete-user-button");
     });
-
+  // close comfirm dialog
+  casper.waitForSelector("div.ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared after registering.");
+      this.click("div.ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset > button");
+    });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});
 });
