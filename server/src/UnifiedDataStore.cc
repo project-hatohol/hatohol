@@ -822,7 +822,12 @@ HatoholError UnifiedDataStore::deleteIncidentTracker(
 {
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
-	return dbConfig.deleteIncidentTracker(incidentTrackerId, privilege);
+	HatoholError err =
+	  dbConfig.deleteIncidentTracker(incidentTrackerId, privilege);
+	if (err != HTERR_OK)
+		return err;
+	stopArmIncidentTrackerIfNeeded(incidentTrackerId);
+	return HTERR_OK;
 }
 
 uint64_t UnifiedDataStore::getLastUpdateTimeOfIncidents(
