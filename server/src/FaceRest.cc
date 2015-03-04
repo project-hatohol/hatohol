@@ -262,7 +262,13 @@ FaceRest::FaceRest(FaceRestParam *param)
 			m_impl->port = port;
 	}
 
-	MLPL_INFO("started face-rest, port: %d\n", m_impl->port);
+	int num = ConfigManager::getInstance()->getFaceRestNumWorkers();
+	if (num > 0) {
+		setNumberOfPreLoadWorkers(num);
+	}
+
+	MLPL_INFO("started face-rest, port: %d, workers: %lu\n",
+		  m_impl->port, m_impl->numPreLoadWorkers);
 }
 
 FaceRest::~FaceRest()

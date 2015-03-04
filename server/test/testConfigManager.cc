@@ -245,4 +245,65 @@ void test_parseLogLevel(gconstpointer data)
 	cppcut_assert_equal(level, string(currEnv));
 }
 
+void test_parseFaceRestNumWorkersDefault(void)
+{
+	int actual = ConfigManager::getInstance()->getFaceRestNumWorkers();
+	if (actual > 0) {
+		cppcut_assert_equal(4, actual);
+	} else {
+		cppcut_assert_equal(0, actual);
+	}
+}
+
+void data_parseFaceRestNumWorkers(void)
+{
+	int expect = ConfigManager::getInstance()->getFaceRestNumWorkers();
+	gcut_add_datum("Negative",
+		       "data", G_TYPE_INT, -1,
+		       "expect", G_TYPE_INT, expect,
+		       NULL);
+	gcut_add_datum("Zero",
+		       "data", G_TYPE_INT, 0,
+		       "expect", G_TYPE_INT, expect,
+		       NULL);
+	gcut_add_datum("One",
+		       "data", G_TYPE_INT, 1,
+		       "expect", G_TYPE_INT, 1,
+		       NULL);
+}
+
+void test_parseFaceRestNumWorkers(gconstpointer data)
+{
+	int val = gcut_data_get_int(data, "data");
+	string str = StringUtils::sprintf("%d", val);
+	int expect = gcut_data_get_int(data, "expect");
+
+	CommandArgHelper cmds;
+	cmds << "--face-rest-workers";
+	cmds << str.c_str();
+	cmds.activate();
+
+	cppcut_assert_equal(
+		ConfigManager::getInstance()->getFaceRestNumWorkers(),
+		expect);
+}
+
+void test_setFaceRestNumWorkers(void)
+{
+	const int numWorker = 10;
+	ConfigManager *mng = ConfigManager::getInstance();
+	mng->setFaceRestNumWorkers(numWorker);
+	cppcut_assert_equal(numWorker, mng->getFaceRestNumWorkers());
+}
+
+void test_getFaceRestNumWorkers(void)
+{
+	ConfigManager *mng = ConfigManager::getInstance();
+	int numWorker = mng->getFaceRestNumWorkers();
+	int expect = numWorker + 5;
+	mng->setFaceRestNumWorkers(expect);
+	int actual = mng->getFaceRestNumWorkers();
+	cppcut_assert_equal(expect, actual);
+}
+
 } // namespace testConfigManager

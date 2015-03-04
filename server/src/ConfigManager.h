@@ -37,6 +37,7 @@ struct CommandLineOptions {
 	gboolean  disableCopyOnDemand;
 	gboolean  loadOldEvents;
 	gint      faceRestPort;
+	gint      faceRestNumWorkers;
 
 	CommandLineOptions(void);
 };
@@ -126,6 +127,11 @@ public:
 	std::string getUser(void) const;
 
 	bool getLoadOldEvents(void) const;
+
+	int getFaceRestNumWorkers(void) const;
+
+	void setFaceRestNumWorkers(const int &num);
+
 protected:
 	void loadConfFile(void);
 	static gboolean parseLogLevel(
