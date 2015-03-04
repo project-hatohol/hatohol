@@ -9,7 +9,7 @@ casper.on("page.error", function(msg, trace) {
   }
 });
 
-casper.test.begin('Register/Unregister user test', function(test) {
+casper.test.begin('Register/Unregister user role test', function(test) {
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.waitForSelector(x("//a[normalize-space(text())='ユーザー']"),
@@ -109,7 +109,7 @@ casper.test.begin('Register/Unregister user test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
-  // check delete-selector check box in user
+  // check delete-selector check box in user role
   casper.waitFor(function() {
     return this.evaluate(function() {
       return document.querySelectorAll("div.ui-dialog").length < 2;
