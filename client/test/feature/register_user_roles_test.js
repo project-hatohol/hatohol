@@ -122,14 +122,14 @@ casper.test.begin('Register/Unregister user test', function(test) {
   }, function timeout() {
     this.echo("Oops, confirmation dialog seems not to be closed.");
   });
-  casper.waitForSelector("form button#delete-user-button",
+  casper.waitForSelector("input#deleteUserRolesButton",
     function success() {
-      test.assertExists("form button#delete-user-button",
-                        "Found delete user button.");
-      this.click("form button#delete-user-button");
+      test.assertExists("input#deleteUserRolesButton",
+                        "Found delete user roles button.");
+      this.click("input#deleteUserRolesButton");
     },
     function fail() {
-      test.assertExists("form button#delete-user-button");
+      test.assertExists("input#deleteUserRolesButton");
     });
   casper.waitForSelector("div.ui-dialog-buttonset button",
     function success() {
