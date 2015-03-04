@@ -40,6 +40,8 @@ EXTRA_DIST = \
 	feature/register_log_search_system_test.js \
 	feature/register_redmine_test.js \
 	feature/register_server_test.js \
+	feature/register_user_roles_test.js \
+	feature/register_users_test.js \
 	feature/run-test.sh \
 	python/TestHatoholserver.py \
 	python/TestUserConfig.py \
