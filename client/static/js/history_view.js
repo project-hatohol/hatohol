@@ -22,8 +22,8 @@ var HistoryView = function(userProfile, options) {
   var secondsInHour = 60 * 60;
 
   self.options = options || {};
-  self.queryParams = deparam(self.options.query);
-  self.graphId = self.queryParams["graphId"];
+  self.config = deparam(self.options.query);
+  self.graphId = self.config["id"];
   self.reloadIntervalSeconds = 60;
   self.autoReloadIsEnabled = false;
   self.graph = undefined;
@@ -219,7 +219,7 @@ var HistoryView = function(userProfile, options) {
     self.startConnection(
       'graphs/' + self.graphId,
       function(reply) {
-        self.queryParams = reply;
+        self.config = reply;
         setupGraphItems(self.parseGraphItems());
         load();
       },
@@ -283,7 +283,7 @@ HistoryView.prototype = Object.create(HatoholMonitoringView.prototype);
 HistoryView.prototype.constructor = HistoryView;
 
 HistoryView.prototype.parseGraphItems = function(query) {
-  var allParams = query ? deparam(query) : this.queryParams;
+  var allParams = query ? deparam(query) : this.config;
   var histories = allParams["histories"];
   var i, tables = [];
 

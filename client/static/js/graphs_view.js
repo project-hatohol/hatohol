@@ -89,7 +89,7 @@ var GraphsView = function(userProfile) {
     graphs.forEach(function(graph) {
       var title = graph.title ? escapeHTML(graph.title) : gettext("No title");
       var graphID = escapeHTML(graph.id);
-      var graphURL = "ajax_history?graphId=" + graphID;
+      var graphURL = "ajax_history?id=" + graphID;
       table += "<tr>";
       table += "<td class='delete-selector' style='display:none'>";
       table += "<input type='checkbox' class='selectcheckbox' " +
