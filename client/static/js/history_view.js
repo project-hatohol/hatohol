@@ -30,21 +30,17 @@ var HistoryView = function(userProfile, options) {
   self.itemSelector = undefined;
   self.loaders = [];
 
-  prepare(self.parseQuery());
+  appendWidgets();
+  self.parseGraphItems().forEach(function(item) {
+    appendHistoryLoader(item);
+  });
+  updateView();
+
   if (self.loaders.length > 0) {
     load();
   } else {
     $("#hatohol-item-list .modal-footer").show();
     self.itemSelector.show();
-  }
-
-  function prepare(historyQueries) {
-    var i;
-
-    appendWidgets();
-    for (i = 0; i < historyQueries.length; i++)
-      appendHistoryLoader(historyQueries[i]);
-    updateView();
   }
 
   function appendWidgets() {
@@ -265,7 +261,7 @@ var HistoryView = function(userProfile, options) {
 HistoryView.prototype = Object.create(HatoholMonitoringView.prototype);
 HistoryView.prototype.constructor = HistoryView;
 
-HistoryView.prototype.parseQuery = function(query) {
+HistoryView.prototype.parseGraphItems = function(query) {
   var allParams = query ? deparam(query) : this.queryParams;
   var histories = allParams["histories"];
   var i, tables = [];
