@@ -224,6 +224,7 @@ var HistoryView = function(userProfile, options) {
       'graphs/' + self.graphId,
       function(reply) {
         self.config = reply;
+        $("#edit-graph-title").val(self.config.title);
         setupGraphItems(self.parseGraphItems());
         load();
       },
