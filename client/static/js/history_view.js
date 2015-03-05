@@ -34,6 +34,7 @@ var HistoryView = function(userProfile, options) {
   if (self.loaders.length > 0) {
     load();
   } else {
+    $("#hatohol-item-list .modal-footer").show();
     self.itemSelector.show();
   }
 
