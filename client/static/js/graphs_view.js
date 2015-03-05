@@ -88,12 +88,14 @@ var GraphsView = function(userProfile) {
     var table = "";
     graphs.forEach(function(graph) {
       var title = graph.title ? escapeHTML(graph.title) : gettext("No title");
+      var graphID = escapeHTML(graph.id);
+      var graphURL = "ajax_history?graphId=" + graphID;
       table += "<tr>";
       table += "<td class='delete-selector' style='display:none'>";
       table += "<input type='checkbox' class='selectcheckbox' " +
-        "graphID='" + escapeHTML(graph.id) + "'></td>";
-      table += "<td>" + escapeHTML(graph.id) + "</td>";
-      table += "<td>" + title + "</td>";
+        "graphID='" + graphID + "'></td>";
+      table += "<td>" + graphID + "</td>";
+      table += "<td><a href=\"" + graphURL +  "\">" + title + "</a></td>";
       table += "</tr>";
     });
     return table;
