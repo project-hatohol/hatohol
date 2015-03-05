@@ -23,6 +23,7 @@ var HistoryView = function(userProfile, options) {
 
   self.options = options || {};
   self.queryParams = deparam(self.options.query);
+  self.graphId = self.queryParams["graphId"];
   self.reloadIntervalSeconds = 60;
   self.autoReloadIsEnabled = false;
   self.graph = undefined;
@@ -31,12 +32,22 @@ var HistoryView = function(userProfile, options) {
   self.loaders = [];
 
   appendWidgets();
-  self.parseGraphItems().forEach(function(item) {
-    appendHistoryLoader(item);
-  });
+  if (!self.graphId)
+    setupGraphItems(self.parseGraphItems());
   updateView();
 
-  if (self.loaders.length > 0) {
+  if (self.graphId) {
+    $("#hatohol-item-list .modal-footer").show();
+    self.startConnection(
+      'graphs/' + self.graphId,
+      function(reply) {
+        self.queryParams = reply;
+        setupGraphItems(self.parseGraphItems());
+        load();
+      },
+      null,
+      {pathPrefix: ''});
+  } else if (self.loaders.length > 0) {
     load();
   } else {
     $("#hatohol-item-list .modal-footer").show();
@@ -115,6 +126,12 @@ var HistoryView = function(userProfile, options) {
 
     $("#hatohol-graph-save").click(function() {
       saveConfig();
+    });
+  }
+
+  function setupGraphItems(items) {
+    items.forEach(function(item) {
+      appendHistoryLoader(item);
     });
   }
 
