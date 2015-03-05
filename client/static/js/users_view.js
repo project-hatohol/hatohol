@@ -54,7 +54,7 @@ var UsersView = function(userProfile) {
   });
 
   $("#delete-user-button").click(function() {
-    var msg = gettext("Do you delete the selected items ?");
+    var msg = gettext("Delete the selected items ?");
     hatoholNoYesMsgBox(msg, deleteUsers);
   });
 

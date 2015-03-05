@@ -100,11 +100,12 @@ msgstr "TLSクライアント証明書のパス"
 #: static/js/actions_view.js:56 static/js/incident_settings_view.js:56
 #: static/js/log_search_systems_view.js:53 static/js/servers_view.js:61
 #: static/js/users_view.js:57
-msgid "Do you delete the selected items ?"
+#: static/js/hatohol_user_roles_editor.js:80
+msgid "Delete the selected items ?"
 msgstr "選択項目を削除しますか？"
 
 #: static/js/servers_view.js:67
-msgid "Do you reload triggers from the selected itmes ?"
+msgid "Reload the triggers from the selected itmes ?"
 msgstr "選択項目からトリガーを再収集しますか？"
 
 #: static/js/actions_view.js:110
@@ -741,8 +742,8 @@ msgid "EDIT INCIDENT TRACKING SERVERS"
 msgstr "インシデント管理サーバー編集"
 
 #: static/js/hatohol_incident_trackers_editor.js:79
-msgid "Are you sure to delete incident tracking servers?"
-msgstr "インシデント管理サーバーを削除してもよろしいですか？"
+msgid "Delete incident tracking servers ?"
+msgstr "インシデント管理サーバーを削除しますか？"
 
 #: static/js/hatohol_incident_trackers_editor.js:168
 #: static/js/hatohol_user_roles_editor.js:169
@@ -1193,10 +1194,6 @@ msgstr "管理者"
 #: static/js/hatohol_user_roles_editor.js:35
 msgid "EDIT USER ROLES"
 msgstr "ユーザー種別編集"
-
-#: static/js/hatohol_user_roles_editor.js:80
-msgid "Are you sure to delete selected items?"
-msgstr "選択項目を削除してもよろしいですか？"
 
 #: static/js/hatohol_user_roles_editor.js:178
 msgid "Name"

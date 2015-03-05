@@ -475,7 +475,7 @@ msgstr "アクセス可能な監視サーバー / ホストグループ"
 #~ msgid "Comment"
 #~ msgstr "コメント"
 
-#~ msgid "Do you delete the selected items ?"
+#~ msgid "Delete the selected items ?"
 #~ msgstr "選択項目を削除しますか？"
 
 #~ msgid "Deleting..."

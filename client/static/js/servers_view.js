@@ -59,12 +59,12 @@ var ServersView = function(userProfile) {
 
 
   $("#delete-server-button").click(function() {
-    var msg = gettext("Do you delete the selected items ?");
+    var msg = gettext("Delete the selected items ?");
     hatoholNoYesMsgBox(msg, deleteServers);
   });
 
   $("#update-tirgger-server-button").click(function() {
-    var msg = gettext("Do you reload triggers from the selected itmes ?");
+    var msg = gettext("Reload the triggers from the selected itmes ?");
     hatoholNoYesMsgBox(msg, updateTriggerServers);
   });
 
