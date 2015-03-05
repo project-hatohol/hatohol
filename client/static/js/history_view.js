@@ -38,15 +38,7 @@ var HistoryView = function(userProfile, options) {
 
   if (self.graphId) {
     $("#hatohol-item-list .modal-footer").show();
-    self.startConnection(
-      'graphs/' + self.graphId,
-      function(reply) {
-        self.queryParams = reply;
-        setupGraphItems(self.parseGraphItems());
-        load();
-      },
-      null,
-      {pathPrefix: ''});
+    loadConfig();
   } else if (self.loaders.length > 0) {
     load();
   } else {
@@ -221,6 +213,18 @@ var HistoryView = function(userProfile, options) {
       if (self.autoReloadIsEnabled)
         self.setAutoReload(load, self.reloadIntervalSeconds);
     });
+  }
+
+  function loadConfig() {
+    self.startConnection(
+      'graphs/' + self.graphId,
+      function(reply) {
+        self.queryParams = reply;
+        setupGraphItems(self.parseGraphItems());
+        load();
+      },
+      null,
+      { pathPrefix: '' });
   }
 
   function enableAutoReload(onClickButton) {
