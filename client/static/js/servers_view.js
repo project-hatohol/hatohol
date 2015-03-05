@@ -218,8 +218,7 @@ var ServersView = function(userProfile) {
            ">" + escapeHTML(gettext("Checking")) + "</td>";
       s += "<td>" + getServerTypeLabel(o["type"]) + "</td>";
       if (serverURL) {
-        if (o["type"] == hatohol.MONITORING_SYSTEM_NAGIOS ||
-	    o["type"] == hatohol.MONITORING_SYSTEM_HAPI_NAGIOS) {
+        if (o["type"] == hatohol.MONITORING_SYSTEM_NAGIOS) {
           s += "<td>" + escapeHTML(o["hostName"]) + "</td>";
           s += "<td>" + escapeHTML(ip) + "</td>";
 	} else {
