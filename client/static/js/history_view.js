@@ -22,6 +22,7 @@ var HistoryView = function(userProfile, options) {
   var secondsInHour = 60 * 60;
 
   self.options = options || {};
+  self.queryParams = deparam(self.options.query);
   self.reloadIntervalSeconds = 60;
   self.autoReloadIsEnabled = false;
   self.graph = undefined;
@@ -29,7 +30,7 @@ var HistoryView = function(userProfile, options) {
   self.itemSelector = undefined;
   self.loaders = [];
 
-  prepare(self.parseQuery(self.options.query));
+  prepare(self.parseQuery());
   if (self.loaders.length > 0) {
     load();
   } else {
@@ -264,7 +265,7 @@ HistoryView.prototype = Object.create(HatoholMonitoringView.prototype);
 HistoryView.prototype.constructor = HistoryView;
 
 HistoryView.prototype.parseQuery = function(query) {
-  var allParams = deparam(query);
+  var allParams = query ? deparam(query) : this.queryParams;
   var histories = allParams["histories"];
   var i, tables = [];
 
