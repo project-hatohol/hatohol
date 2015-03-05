@@ -262,7 +262,7 @@ struct UnifiedDataStore::Impl
 		delete arm;
 	}
 
-	void stopArmIncidentTrackerForcely(
+	void stopArmIncidentTrackerIfNeeded(
 	  const IncidentTrackerIdType &trackerId)
 	{
 		AutoMutex autoLock(&armIncidentTrackerMapMutex);
@@ -916,7 +916,7 @@ void UnifiedDataStore::stopArmIncidentTrackerIfNeeded(
 void UnifiedDataStore::stopArmIncidentTrackerForcely(
   const IncidentTrackerIdType &trackerId)
 {
-	m_impl->stopArmIncidentTrackerForcely(trackerId);
+	m_impl->stopArmIncidentTrackerIfNeeded(trackerId);
 }
 
 // ---------------------------------------------------------------------------
