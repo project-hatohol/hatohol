@@ -43,10 +43,6 @@ var GraphsView = function(userProfile) {
     th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
   });
 
-  $("#add-graph-button").click(function() {
-    // TODO
-  });
-
   $("#delete-graph-button").click(function() {
     var msg = gettext("Do you delete the selected items ?");
     hatoholNoYesMsgBox(msg, deleteGraphs);
