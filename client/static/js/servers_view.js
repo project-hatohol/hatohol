@@ -218,10 +218,16 @@ var ServersView = function(userProfile) {
            ">" + escapeHTML(gettext("Checking")) + "</td>";
       s += "<td>" + getServerTypeLabel(o["type"]) + "</td>";
       if (serverURL) {
-        s += "<td><a href='" + serverURL + "' target='_blank'>"
-             + escapeHTML(o["hostName"])  + "</a></td>";
-        s += "<td><a href='" + serverURL + "' target='_blank'>"
-             + escapeHTML(ip) + "</a></td>";
+        if (o["type"] == hatohol.MONITORING_SYSTEM_NAGIOS ||
+	    o["type"] == hatohol.MONITORING_SYSTEM_HAPI_NAGIOS) {
+          s += "<td>" + escapeHTML(o["hostName"]) + "</td>";
+          s += "<td>" + escapeHTML(ip) + "</td>";
+	} else {
+          s += "<td><a href='" + serverURL + "' target='_blank'>"
+            + escapeHTML(o["hostName"])  + "</a></td>";
+          s += "<td><a href='" + serverURL + "' target='_blank'>"
+            + escapeHTML(ip) + "</a></td>";
+        }
       } else if (o["type"] == hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER){
         s += "<td>" + escapeHTML(o["hostName"])  + "</td>";
         s += "<td>N/A</td>";
