@@ -37,12 +37,12 @@ var HistoryView = function(userProfile, options) {
   updateView();
 
   if (self.graphId) {
-    $("#hatohol-item-list .modal-footer").show();
     loadConfig();
   } else if (self.loaders.length > 0) {
+    $("#edit-graph-title-area").hide();
+    $("#hatohol-item-list .modal-footer").hide();
     load();
   } else {
-    $("#hatohol-item-list .modal-footer").show();
     self.itemSelector.show();
   }
 
@@ -129,17 +129,21 @@ var HistoryView = function(userProfile, options) {
 
   function saveConfig() {
     var url = "/graphs/";
+    var config = self.itemSelector.getConfig();
+    config.title = $("#edit-graph-title").val();
     if (self.graphId)
       url += self.graphId;
     new HatoholConnector({
       pathPrefix: "",
       url: url,
       request: self.graphId ? "PUT" : "POST",
-      data: JSON.stringify(self.itemSelector.getConfig()),
+      data: JSON.stringify(config),
       replyCallback: function(reply, parser) {
         self.graphId = reply.id;
+        self.config = reply;
         self.itemSelector.hide()
         hatoholInfoMsgBox(gettext("Successfully saved."));
+        updateView();
       },
       parseErrorCallback: hatoholErrorMsgBoxForParser
     });
@@ -270,11 +274,12 @@ var HistoryView = function(userProfile, options) {
   }
 
   function updateView() {
+    var title = self.config.title || self.graph.title;
     self.graph.draw(self.slider.getBeginTime(),
                     self.slider.getEndTime());
     setSliderWidth();
     self.slider.draw();
-    setTitle(self.graph.title);
+    setTitle(title);
     self.displayUpdateTime();
   }
 };
