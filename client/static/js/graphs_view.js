@@ -87,12 +87,13 @@ var GraphsView = function(userProfile) {
   function drawTableBody(graphs) {
     var table = "";
     graphs.forEach(function(graph) {
+      var title = graph.title ? escapeHTML(graph.title) : gettext("No title");
       table += "<tr>";
       table += "<td class='delete-selector' style='display:none'>";
       table += "<input type='checkbox' class='selectcheckbox' " +
         "graphID='" + escapeHTML(graph.id) + "'></td>";
       table += "<td>" + escapeHTML(graph.id) + "</td>";
-      table += "<td>" + escapeHTML(graph.title) + "</td>";
+      table += "<td>" + title + "</td>";
       table += "</tr>";
     });
     return table;
