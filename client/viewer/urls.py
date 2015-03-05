@@ -50,6 +50,8 @@ urlpatterns = patterns(
     url(r'^ajax_log_search_systems$',
         TemplateView.as_view(
             template_name='viewer/log_search_systems_ajax.html')),
+    url(r'^ajax_graphs$',
+        TemplateView.as_view(template_name='viewer/graphs_ajax.html')),
     url(r'^ajax_users$',
         TemplateView.as_view(template_name='viewer/users_ajax.html')),
     url(r'^ajax_hosts$',
