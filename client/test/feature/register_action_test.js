@@ -111,7 +111,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
                           "Registered actionCommand: \"" +actionCommand+
                           "\" exists in the user role table.");
   }, function timeout() {
-    this.echo("Cannot find .selectcheckbox in the actions table.");
+    this.echo("Oops, confirmation dialog dose not to be closed.");
   });
   casper.then(function() {
     this.evaluate(function() {
@@ -158,7 +158,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
                           "Registered actionCommand: \"" +actionCommand+
                           "\" does not exist in the user role table.");
   }, function timeout() {
-    this.echo("Oops, find " + actionCommand + " in the user roles table.");
+    this.echo("Oops, confirmation dialog dose not to be closed.");
   });
   casper.then(function() {
     util.moveToServersPage(test);

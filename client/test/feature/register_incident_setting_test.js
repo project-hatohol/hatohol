@@ -98,7 +98,7 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
       return true;
     });
   }, function timeout() {
-    this.echo("Cannot find .selectcheckbox in the monitoring servers table.");
+    this.echo("Oops, confirmation dialog dose not to be closed.");
   });
 
   casper.waitForSelector("form button#delete-incident-setting-button",

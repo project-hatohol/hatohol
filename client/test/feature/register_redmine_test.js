@@ -121,7 +121,7 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
       return true;
     });
   }, function timeout() {
-    this.echo("Cannot find .incidentTrackerSelectCheckbox in the incident servers table.");
+    this.echo("Oops, confirmation dialog dose not to be closed.");
   });
   casper.waitForSelector("input#deleteIncidentTrackersButton",
     function success() {

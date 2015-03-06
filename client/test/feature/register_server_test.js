@@ -120,7 +120,7 @@ casper.test.begin('Register/Unregister server test', function(test) {
                           "Registered server's nickName \"" +server.nickName+
                           "\" exists in the monitoring servers table.");
   }, function timeout() {
-    this.echo("Cannot find .selectcheckbox in the monitoring servers table.");
+    this.echo("Oops, confirmation dialog dose not to be closed.");
   });
   casper.then(function() {
     this.evaluate(function() {
@@ -167,7 +167,7 @@ casper.test.begin('Register/Unregister server test', function(test) {
                                "Registered server's nickName \"" +server.nickName+
                                "\" does not exists in the monitoring servers table.");
   }, function timeout() {
-    this.echo("Oops, find " + server.nickName + " in the monitoring servers table.");
+    this.echo("Oops, confirmation dialog dose not to be closed.");
   });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});

@@ -78,7 +78,7 @@ casper.test.begin('Register/Unregister log search system test', function(test) {
       return true;
     });
   }, function timeout() {
-    this.echo("Cannot find .selectcheckbox in the logserver syetems table.");
+    this.echo("Oops, confirmation dialog dose not to be closed.");
   });
 
   casper.waitForSelector("form button#delete-log-search-system-button",

@@ -167,7 +167,7 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     test.assertTextDoesntExist(roleName,
                                "Registered user role's name does not exist in the user table.");
   }, function timeout() {
-    this.echo("Oops, find " + roleName + " in the user roles table.");
+    this.echo("Oops, confirmation dialog dose not to be closed.");
   });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});
