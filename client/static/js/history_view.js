@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 - 2015 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -227,8 +227,8 @@ var HistoryView = function(userProfile, options) {
       'graphs/' + self.graphId,
       function(reply) {
         self.config = reply;
-	delete self.config.id;
-	delete self.config.user_id;
+        delete self.config.id;
+        delete self.config.user_id;
         $("#edit-graph-title").val(self.config.title);
         setupGraphItems(self.parseGraphItems());
         load();
