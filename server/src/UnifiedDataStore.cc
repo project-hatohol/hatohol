@@ -252,14 +252,7 @@ struct UnifiedDataStore::Impl
 	void stopArmIncidentTrackerIfNeeded(
 	  const IncidentTrackerInfo &trackerInfo)
 	{
-		AutoMutex autoLock(&armIncidentTrackerMapMutex);
-		ArmIncidentTrackerMapIterator it
-		  = armIncidentTrackerMap.find(trackerInfo.id);
-		if (it == armIncidentTrackerMap.end())
-			return;
-		ArmIncidentTracker *arm = it->second;
-		armIncidentTrackerMap.erase(it);
-		delete arm;
+		stopArmIncidentTrackerIfNeeded(trackerInfo.id);
 	}
 
 	void stopArmIncidentTrackerIfNeeded(
