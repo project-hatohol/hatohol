@@ -10,6 +10,10 @@ casper.on("page.error", function(msg, trace) {
 });
 
 casper.test.begin('Register/Unregister incident tracker(Redmine) test', function(test) {
+  var incidentTracker = {nickName: "testredmine",
+                        baseURL: "http://127.0.0.1",
+                        projectId: "test-tracker-project",
+                        key: "test-tracker-key1"};
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   // move to incident setting page
@@ -56,28 +60,32 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
    });
    casper.waitForSelector("input#editIncidentTrackerNickname",
        function success() {
-           this.sendKeys("input#editIncidentTrackerNickname", "testredmine");
+           this.sendKeys("input#editIncidentTrackerNickname",
+                         incidentTracker.nickName);
        },
        function fail() {
            test.assertExists("input#editIncidentTrackerNickname");
    });
    casper.waitForSelector("input#editIncidentTrackerBaseURL",
        function success() {
-           this.sendKeys("input#editIncidentTrackerBaseURL", "http://127.0.0.1");
+           this.sendKeys("input#editIncidentTrackerBaseURL",
+                         incidentTracker.baseURL);
        },
        function fail() {
            test.assertExists("input#editIncidentTrackerBaseURL");
    });
    casper.waitForSelector("input#editIncidentTrackerProjectId",
        function success() {
-           this.sendKeys("input#editIncidentTrackerProjectId", "1");
+           this.sendKeys("input#editIncidentTrackerProjectId",
+                         incidentTracker.projectId);
        },
        function fail() {
            test.assertExists("input#editIncidentTrackerProjectId");
    });
    casper.waitForSelector("input#editIncidentTrackerUserName",
        function success() {
-           this.sendKeys("input#editIncidentTrackerUserName", "testkey1");
+           this.sendKeys("input#editIncidentTrackerUserName",
+                         incidentTracker.key);
        },
        function fail() {
            test.assertExists("input#editIncidentTrackerUserName");
