@@ -91,14 +91,18 @@ casper.test.begin('Register/Unregister action test', function(test) {
       test.assertExists(".ui-dialog-buttonset > button");
     });
 
-  // check delete-selector check box in minitoring server
-  casper.then(function() {
-    casper.wait(200, function() {
-      this.evaluate(function() {
-        $("tr:last").find(".selectcheckbox").click();
-        return true;
-      });
+  // check delete-selector checkbox in action
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 1;
     });
+  }, function then() {
+    this.evaluate(function() {
+      $("tr:last").find(".selectcheckbox").click();
+      return true;
+    });
+  }, function timeout() {
+    this.echo("Cannot find .selectcheckbox in the actions table.");
   });
 
   casper.waitForSelector("form button#delete-action-button",
