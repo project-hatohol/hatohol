@@ -20,6 +20,34 @@
 describe("GraphsView", function() {
   var TEST_FIXTURE_ID = "graphsViewFixture";
   var graphsViewHTML;
+  var defaultGraphs = [
+    {
+      "id": 2,
+      "user_id": 1,
+      title: "Graph1",
+      histories: [
+        {
+          "serverId": 1,
+          "hostId": "10101",
+          "itemId": "10002"
+        },
+        {
+          "serverId": 2,
+          "hostId": "10102",
+          "itemId": "10003"
+        }
+      ]
+    },
+  ];
+
+  function getOperator() {
+    var operator = {
+      "userId": 1,
+      "name": "admin",
+      "flags": hatohol.ALL_PRIVILEGES
+    };
+    return new HatoholUserProfile(operator);
+  }
 
   function fakeAjax() {
     var requests = this.requests = [];
@@ -46,6 +74,11 @@ describe("GraphsView", function() {
     $("body").append(iframe);
   }
 
+  function respond(graphs) {
+    var header = { "Content-Type": "application/json" };
+    this.requests[0].respond(200, header, JSON.stringify(graphs));
+  }
+
   beforeEach(function(done) {
     $("body").append($("<div>", { id: TEST_FIXTURE_ID }));
     var setupFixture = function(html) {
@@ -68,17 +101,28 @@ describe("GraphsView", function() {
   });
 
   it("Base elements", function() {
-    var operator = {
-      "userId": 1,
-      "name": "admin",
-      "flags": hatohol.ALL_PRIVILEGES
-    };
-    var userProfile = new HatoholUserProfile(operator);
-    var view = new GraphsView(userProfile);
+    var view = new GraphsView(getOperator());
     var heads = $("div#" + TEST_FIXTURE_ID + " h2");
 
     expect(heads).to.have.length(1);
     expect($("#table")).to.have.length(1);
     expect($("tr")).to.have.length(1);
+  });
+
+  it('load a graph setting', function() {
+    var view = new GraphsView(getOperator());
+    var expected =
+      '<td class="delete-selector" style="">' +
+      '<input class="selectcheckbox" graphid="2" type="checkbox">' +
+      '</td>' +
+      '<td>2</td>' +
+      '<td><a href="ajax_history?id=2">Graph1</a></td>'
+
+    respond(defaultGraphs);
+    expect(view).to.be.a(GraphsView);
+    expect(requests[0].url).to.be(
+      "/graphs/");
+    expect($('tr')).to.have.length(defaultGraphs.length + 1);
+    expect($('tr :eq(1)').html()).to.contain(expected);
   });
 });
