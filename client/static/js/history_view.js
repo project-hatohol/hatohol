@@ -39,10 +39,14 @@ var HistoryView = function(userProfile, options) {
 
   if (self.graphId) {
     loadConfig();
+    if (isEditMode())
+      self.itemSelector.show();
   } else if (self.loaders.length > 0 && !isCreateMode()) {
     $("#edit-graph-title-area").hide();
     $("#hatohol-item-list .modal-footer").hide();
     load();
+    if (isEditMode())
+      self.itemSelector.show();
   } else {
     self.itemSelector.show();
     $('#hatohol-item-list').on('hide.bs.modal', function (e) {
@@ -64,6 +68,10 @@ var HistoryView = function(userProfile, options) {
 
   function isCreateMode() {
     return strToBool(self.queryParams['create']);
+  }
+
+  function isEditMode() {
+    return strToBool(self.queryParams['edit']);
   }
 
   function appendWidgets() {
