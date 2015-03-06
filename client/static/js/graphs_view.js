@@ -92,8 +92,8 @@ var GraphsView = function(userProfile) {
       var graphURL = "ajax_history?id=" + graphID;
       table += "<tr>";
       table += "<td class='delete-selector' style='display:none'>";
-      table += "<input type='checkbox' class='selectcheckbox' " +
-        "graphID='" + graphID + "'></td>";
+      table += "<input class='selectcheckbox' graphID='" + graphID +
+	"' type='checkbox'></td>";
       table += "<td>" + graphID + "</td>";
       table += "<td><a href=\"" + graphURL +  "\">" + title + "</a></td>";
       table += "<td><a href=\"ajax_history?edit=true&id=" + graphID + "\" " +
