@@ -10,6 +10,7 @@ casper.on("page.error", function(msg, trace) {
 });
 
 casper.test.begin('Register/Unregister action test', function(test) {
+  var actionCommand = "getlog";
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.then(function() {
@@ -75,7 +76,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
     });
   casper.waitForSelector("input#inputActionCommand",
     function success() {
-      this.sendKeys("input#inputActionCommand", "getlog");
+      this.sendKeys("input#inputActionCommand", actionCommand);
     },
     function fail() {
       test.assertExists("input#inputActionCommand");
@@ -90,21 +91,34 @@ casper.test.begin('Register/Unregister action test', function(test) {
     function fail() {
       test.assertExists(".ui-dialog-buttonset > button");
     });
-
+  // close comfirm dialog
+  casper.waitForSelector("div.ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared after registering.");
+      this.click("div.ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset > button");
+    });
   // check delete-selector checkbox in action
   casper.waitFor(function() {
     return this.evaluate(function() {
       return document.querySelectorAll("div.ui-dialog").length < 1;
     });
   }, function then() {
+    test.assertTextExists(actionCommand,
+                          "Registered actionCommand: \"" +actionCommand+
+                          "\" exists in the user role table.");
+  }, function timeout() {
+    this.echo("Cannot find .selectcheckbox in the actions table.");
+  });
+  casper.then(function() {
     this.evaluate(function() {
       $("tr:last").find(".selectcheckbox").click();
       return true;
     });
-  }, function timeout() {
-    this.echo("Cannot find .selectcheckbox in the actions table.");
   });
-
   casper.waitForSelector("form button#delete-action-button",
     function success() {
       test.assertExists("form button#delete-action-button",
@@ -135,6 +149,17 @@ casper.test.begin('Register/Unregister action test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 1;
+    });
+  }, function then() {
+    test.assertTextDoesntExist(actionCommand,
+                          "Registered actionCommand: \"" +actionCommand+
+                          "\" does not exist in the user role table.");
+  }, function timeout() {
+    this.echo("Oops, find " + actionCommand + " in the user roles table.");
+  });
   casper.then(function() {
     util.moveToServersPage(test);
     util.unregisterMonitoringServer();
