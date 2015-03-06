@@ -124,12 +124,18 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
       return document.querySelectorAll("div.ui-dialog").length < 2;
     });
   }, function then() {
+    test.assertTextExists(incidentTracker.nickName,
+                          "Registered incident tracker's nickName \""
+                          +incidentTracker.nickName+
+                          "\" exists in the user table.");
+  }, function timeout() {
+    this.echo("Oops, confirmation dialog dose not to be closed.");
+  });
+  casper.then(function() {
     this.evaluate(function() {
       $("tr:last").find(".incidentTrackerSelectCheckbox").click();
       return true;
     });
-  }, function timeout() {
-    this.echo("Oops, confirmation dialog dose not to be closed.");
   });
   casper.waitForSelector("input#deleteIncidentTrackersButton",
     function success() {
@@ -166,6 +172,18 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
     function fail() {
       test.assertExists("div.ui-dialog-buttonset button");
     });
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 2;
+    });
+  }, function then() {
+    test.assertTextDoesntExist(incidentTracker.nickName,
+                               "Registered incident tracker's nickName \""
+                               +incidentTracker.nickName+
+                               "\" dose not exist in the user table.");
+  }, function timeout() {
+    this.echo("Oops, confirmation dialog dose not closed.");
+  });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});
 });
