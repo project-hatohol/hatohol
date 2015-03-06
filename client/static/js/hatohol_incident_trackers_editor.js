@@ -76,7 +76,7 @@ var HatoholIncidentTrackersEditor = function(params) {
   });
 
   $("#deleteIncidentTrackersButton").click(function() {
-    var msg = gettext("Are you sure to delete incident tracking servers?");
+    var msg = gettext("Delete incident tracking servers ?");
     hatoholNoYesMsgBox(msg, deleteIncidentTrackers);
   });
 

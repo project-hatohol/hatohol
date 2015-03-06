@@ -77,7 +77,7 @@ var HatoholUserRolesEditor = function(params) {
   });
 
   $("#deleteUserRolesButton").click(function() {
-    var msg = gettext("Are you sure to delete selected items?");
+    var msg = gettext("Delete the selected items ?");
     hatoholNoYesMsgBox(msg, deleteUserRoles);
   });
 
