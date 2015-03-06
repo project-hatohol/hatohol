@@ -55,6 +55,8 @@ const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 // -> 1.0
 //   * remove IDX_TRIGGERS_HOST_ID,
 //   * add IDX_TRIGGERS_GLOBAL_HOST_ID and IDX_TRIGGERS_HOST_ID_IN_SERVER
+//   * triggers.id -> VARCHAR
+//   * events.trigger_id -> VARCHAR
 const int DBTablesMonitoring::MONITORING_DB_VERSION =
   DBTables::Version::getPackedVer(0, 1, 0);
 
@@ -100,8 +102,8 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	NULL,                              // defaultValue
 }, {
 	"id",                              // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -291,8 +293,8 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	"trigger_id",                      // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -807,8 +809,8 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	"trigger_id",                      // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -987,7 +989,7 @@ void initEventInfo(EventInfo &eventInfo)
 	eventInfo.time.tv_sec = 0;
 	eventInfo.time.tv_nsec = 0;
 	eventInfo.type = EVENT_TYPE_UNKNOWN;
-	eventInfo.triggerId = 0;
+	eventInfo.triggerId.clear();
 	eventInfo.status = TRIGGER_STATUS_UNKNOWN;
 	eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
 	eventInfo.globalHostId = INVALID_HOST_ID;
@@ -1092,12 +1094,13 @@ string EventsQueryOption::getCondition(void) const
 	}
 
 	if (m_impl->triggerId != ALL_TRIGGERS) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
 		if (!condition.empty())
 			condition += " AND ";
 		condition += StringUtils::sprintf(
-			"%s=%" FMT_TRIGGER_ID,
+			"%s=%s",
 			getColumnName(IDX_EVENTS_TRIGGER_ID).c_str(),
-			m_impl->triggerId);
+			rhs(m_impl->triggerId));
 	}
 
 	return condition;
@@ -1717,11 +1720,12 @@ int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 	string stmt = StringUtils::sprintf("coalesce(max(%s), 0)",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName);
 	arg.add(stmt, COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
-	arg.condition = StringUtils::sprintf("%s=%s AND %s < %" FMT_TRIGGER_ID,
+	arg.condition = StringUtils::sprintf(
+	    "%s=%s AND %s!=%d",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
 	    rhs(serverId),
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
-	    FAILED_SELF_TRIGGER_ID_TERMINATION);
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_VALIDITY].columnName,
+	    TRIGGER_VALID_SELF_MONITORING);
 
 	getDBAgent().runTransaction(arg);
 
@@ -1759,8 +1763,9 @@ void DBTablesMonitoring::updateTrigger(const TriggerInfoList &triggerInfoList,
 		TriggerIdInfoMapIterator currTriggerItr = validTriggerId.find(newTriggerInfo.id);
 		if (currTriggerItr != validTriggerId.end()) {
 			const TriggerInfo &currTrigger = currTriggerItr->second;
+			const TriggerValidity validity = currTrigger.validity;
 			validTriggerId.erase(currTriggerItr);
-			if (currTrigger.validity == TRIGGER_VALID)
+			if (validity == TRIGGER_VALID)
 				continue;
 		}
 		updateTriggerList.push_back(newTriggerInfo);

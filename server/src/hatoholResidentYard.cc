@@ -106,7 +106,8 @@ static void gotNotifyEventBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	arg.time.tv_nsec    = *sbuf.getPointerAndIncIndex<uint32_t>();
 	arg.eventId         = *sbuf.getPointerAndIncIndex<uint64_t>();
 	arg.eventType       = *sbuf.getPointerAndIncIndex<uint16_t>();
-	arg.triggerId       = *sbuf.getPointerAndIncIndex<uint64_t>();
+	const string triggerId = sbuf.extractStringAndIncIndex();
+	arg.triggerId       = triggerId.c_str();
 	arg.triggerStatus   = *sbuf.getPointerAndIncIndex<uint16_t>();
 	arg.triggerSeverity = *sbuf.getPointerAndIncIndex<uint16_t>();
 	memcpy(arg.sessionId, sbuf.getPointer<char>(), HATOHOL_SESSION_ID_LEN);

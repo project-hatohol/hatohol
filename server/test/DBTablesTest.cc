@@ -214,7 +214,7 @@ size_t NumTestServerStatus = ARRAY_SIZE(testServerStatus);
 TriggerInfo testTriggerInfo[] =
 {{
 	1,                        // serverId
-	1,                        // id
+	"1",                      // id
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957197,0},           // lastChangeTime
@@ -226,7 +226,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_VALID,          // validity
 },{
 	1,                        // serverId
-	2,                        // id
+	"2",                      // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957198,0},           // lastChangeTime
@@ -238,7 +238,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_VALID,          // validity
 },{
 	1,                        // serverId
-	3,                        // id
+	"3",                      // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957117,0},           // lastChangeTime
@@ -250,7 +250,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_VALID,          // validity
 },{
 	1,                        // serverId
-	4,                        // id
+	"4",                      // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957197,0},           // lastChangeTime
@@ -262,7 +262,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_VALID,          // validity
 },{
 	1,                        // serverId
-	5,                        // id
+	"5",                      // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957198,0},           // lastChangeTime
@@ -274,7 +274,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_VALID,          // validity
 },{
 	3,                        // serverId
-	2,                        // id
+	"2",                      // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
 	{1362957200,0},           // lastChangeTime
@@ -286,7 +286,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_VALID,          // validity
 },{
 	3,                        // serverId
-	3,                        // id
+	"3",                      // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362951000,0},           // lastChangeTime
@@ -298,7 +298,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_VALID,          // validity
 },{
 	2,                        // serverId
-	0xfedcba987654321,        // id
+	"1147797409030816545", // 0xfedcba987654321 // id
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_WARNING, // severity
 	{1362951000,0},           // lastChangeTime
@@ -310,7 +310,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_VALID,          // validity
 },{
 	2,                        // serverId
-	0xfedcba9876543210,       // id
+	"18364758544493064720", // 0xfedcba9876543210, // id
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_WARNING, // severity
 	{1362951234,0},           // lastChangeTime
@@ -323,7 +323,7 @@ TriggerInfo testTriggerInfo[] =
 },{
 	// This entry is used for testHatoholArmPluginGate.
 	12345,                    // serverId
-	2468,                     // id
+	"2468",                   // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957117,0},           // lastChangeTime
@@ -336,7 +336,7 @@ TriggerInfo testTriggerInfo[] =
 },{
 	// This entry is for tests with a defunct server
 	defunctServerId1,         // serverId
-	3,                        // id
+	"3",                      // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957117,0},           // lastChangeTime
@@ -360,7 +360,7 @@ const EventInfo testEventInfo[] = {
 	1,                        // id
 	{1362957200,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	2,                        // triggerId
+	"2",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
 	4,                        // globalHostId,
@@ -373,7 +373,7 @@ const EventInfo testEventInfo[] = {
 	2,                        // id
 	{1362958000,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	3,                        // triggerId
+	"3",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	6,                        // globalHostId,
@@ -386,7 +386,7 @@ const EventInfo testEventInfo[] = {
 	1,                        // id
 	{1363123456,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	2,                        // triggerId
+	"2",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	1,                        // globalHostId,
@@ -399,7 +399,7 @@ const EventInfo testEventInfo[] = {
 	2,                        // id
 	{1378900022,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	1,                        // triggerId
+	"1",                      // triggerId
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	1,                        // globalHostId,
@@ -412,7 +412,7 @@ const EventInfo testEventInfo[] = {
 	3,                        // id
 	{1389123457,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	3,                        // triggerId
+	"3",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	2,                        // globalHostId,
@@ -425,7 +425,7 @@ const EventInfo testEventInfo[] = {
 	3,                        // id
 	{1390000000,123456789},   // time
 	EVENT_TYPE_BAD,           // type
-	2,                        // triggerId
+	"2",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
 	4,                        // globalHostId,
@@ -439,7 +439,7 @@ const EventInfo testEventInfo[] = {
 	1,                        // id
 	trigInfoDefunctSv1.lastChangeTime, // time
 	EVENT_TYPE_BAD,                    // type
-	3,                                 // triggerId
+	"3",                               // triggerId
 	trigInfoDefunctSv1.status,         // status
 	trigInfoDefunctSv1.severity,       // severity
 	trigInfoDefunctSv1.globalHostId,   // globalHostId,
@@ -460,7 +460,7 @@ EventInfo testDupEventInfo[] = {
 	DISCONNECT_SERVER_EVENT_ID, // id
 	{1362957200,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	2,                        // triggerId
+	"2",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
 	4,                        // globalHostId,
@@ -473,7 +473,7 @@ EventInfo testDupEventInfo[] = {
 	DISCONNECT_SERVER_EVENT_ID, // id
 	{1362951000,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	3,                        // triggerId
+	"3",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	6,                        // globalHostId,
@@ -486,7 +486,7 @@ EventInfo testDupEventInfo[] = {
 	DISCONNECT_SERVER_EVENT_ID, // id
 	{1362951000,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	3,                        // triggerId
+	"3",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	6,                        // globalHostId,
@@ -559,7 +559,7 @@ ActionDef testActionDef[] = {
 	  1,                        // serverId
 	  "10",                     // hostIdInServer
 	  5,                        // hostgroupId
-	  3,                        // triggerId
+	  "3",                      // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_INFO,    // triggerSeverity
 	  CMP_INVALID               // triggerSeverityCompType;
@@ -577,7 +577,7 @@ ActionDef testActionDef[] = {
 	  0,                        // serverId
 	  "0",                      // hostIdInServer
 	  0,                        // hostgroupId
-	  0x12345,                  // triggerId
+	  "74565", // 0x12345,      // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
 	  CMP_EQ_GT                 // triggerSeverityCompType;
@@ -595,7 +595,7 @@ ActionDef testActionDef[] = {
 	  100,                      // serverIdInServer
 	  "9223372036854775807",    // hostIdInServer (0x7fffffffffffffff)
 	  0x8000000000000000,       // hostgroupId
-	  0xfedcba9876543210,       // triggerId
+	  "18364758544493064720", // 0xfedcba9876543210, // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
 	  CMP_EQ                    // triggerSeverityCompType;
@@ -614,7 +614,7 @@ ActionDef testActionDef[] = {
 	  2,                        // serverId
 	  "9920249034889494527",    // hostIdInServer
 	  0x8000000000000000,       // hostGroupId
-	  0xfedcba9876543210,       // triggerId
+	  "18364758544493064720", // 0xfedcba9876543210, // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
 	  CMP_EQ_GT                 // triggerSeverityCompType;
@@ -633,7 +633,7 @@ ActionDef testActionDef[] = {
 	  100001,                   // serverId
 	  "100001",                 // hostIdInServer
 	  100001,                   // hostgroupId
-	  0x12345,                  // triggerId
+	  "74565", // 0x12345,      // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
 	  CMP_EQ                    // triggerSeverityCompType;
@@ -651,7 +651,7 @@ ActionDef testActionDef[] = {
 	  101,                      // serverId
 	  "9223372036854775807",    // hostIdInServer (0x7fffffffffffffff)
 	  0x8000000000000000,       // hostgroupId
-	  0xfedcba9876543210,       // triggerId
+	  "18364758544493064720", // 0xfedcba9876543210, // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
 	  CMP_EQ                    // triggerSeverityCompType;
@@ -669,7 +669,7 @@ ActionDef testActionDef[] = {
 	  1,                        // serverId
 	  "10",                     // hostIdInServer
 	  5,                        // hostgroupId
-	  0,                        // triggerId
+	  "0",                      // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
 	  CMP_INVALID               // triggerSeverityCompType;
@@ -693,7 +693,7 @@ ActionDef testUpdateActionDef = {
 		2,                        // serverId
 		"1001",                   // hostIdInServer
 		2001,                     // hostGroupId
-		14000,                    // triggerId
+		"14000",                  // triggerId
 		TRIGGER_STATUS_OK,        // triggerStatus
 		TRIGGER_SEVERITY_WARNING, // triggerSeverity
 		CMP_EQ_GT                 // triggerSeverityCompType;
@@ -1001,7 +1001,7 @@ IncidentInfo testIncidentInfo[] = {
 	3,                        // trackerId
 	1,                        // serverId
 	1,                        // eventId
-	2,                        // triggerId
+	"2",                      // triggerId
 	"100",                    // identifier
 	"http://localhost:44444/issues/100", // location
 	"New",                    // status
@@ -1017,7 +1017,7 @@ IncidentInfo testIncidentInfo[] = {
 	3,                        // trackerId
 	1,                        // serverId
 	2,                        // eventId
-	1,                        // triggerId
+	"1",                      // triggerId
 	"101",                    // identifier
 	"http://localhost:44444/issues/101", // location
 	"New",                    // status
@@ -1033,7 +1033,7 @@ IncidentInfo testIncidentInfo[] = {
 	5,                        // trackerId
 	2,                        // serverId
 	2,                        // eventId
-	3,                        // triggerId
+	"3",                      // triggerId
 	"123",                    // identifier
 	"http://localhost/issues/123", // location
 	"New",                    // status
@@ -1363,8 +1363,8 @@ const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 			continue;
 		return trigInfo;
 	}
-	cut_fail("Not found: server ID: %u, trigger ID: %" PRIu64,
-	         eventInfo.serverId, eventInfo.triggerId);
+	cut_fail("Not found: server ID: %u, trigger ID: %" FMT_TRIGGER_ID,
+	         eventInfo.serverId, eventInfo.triggerId.c_str());
 	return *(new TriggerInfo()); // never exectuted, just to pass build
 }
 
@@ -1430,7 +1430,7 @@ SmartTime findTimeOfLastEvent(
 }
 
 void getTestTriggersIndexes(
-  map<ServerIdType, map<uint64_t, size_t> > &indexMap,
+  ServerIdTriggerIdIdxMap &indexMap,
   const ServerIdType &serverId, const LocalHostIdType &hostIdInServer)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {

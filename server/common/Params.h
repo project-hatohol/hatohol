@@ -74,8 +74,8 @@ typedef uint64_t ItemIdType;
 typedef uint64_t ItemCategoryIdType;
 #define FMT_ITEM_CATEGORY_ID PRIu64
 
-typedef uint64_t TriggerIdType;
-#define FMT_TRIGGER_ID PRIu64
+typedef std::string TriggerIdType;
+#define FMT_TRIGGER_ID "s"
 
 typedef std::string HostgroupIdType;
 #define FMT_HOST_GROUP_ID "s"
@@ -112,16 +112,25 @@ static const HostgroupIdType ALL_HOST_GROUPS = "*";
 static const IncidentTrackerIdType ALL_INCIDENT_TRACKERS = -1;
 
 // Special Trigger IDs ========================================================
-static const TriggerIdType ALL_TRIGGERS                    = -1;
+#define SPECIAL_TRIGGER_ID_PREFIX "__"
+static const TriggerIdType ALL_TRIGGERS                    = "*";
 
-static const TriggerIdType FAILED_CONNECT_ZABBIX_TRIGGER_ID     = -1000;
-static const TriggerIdType FAILED_CONNECT_MYSQL_TRIGGER_ID      = -1001;
-static const TriggerIdType FAILED_INTERNAL_ERROR_TRIGGER_ID     = -1002;
-static const TriggerIdType FAILED_PARSER_JSON_DATA_TRIGGER_ID   = -1003;
-static const TriggerIdType FAILED_CONNECT_BROKER_TRIGGER_ID     = -1004;
-static const TriggerIdType FAILED_CONNECT_HAP_TRIGGER_ID        = -1005;
-static const TriggerIdType FAILED_HAP_INTERNAL_ERROR_TRIGGER_ID = -1006;
-static const TriggerIdType FAILED_SELF_TRIGGER_ID_TERMINATION   = -1007;
+static const TriggerIdType FAILED_CONNECT_ZABBIX_TRIGGER_ID     =
+  SPECIAL_TRIGGER_ID_PREFIX "CON_ZBX";
+static const TriggerIdType FAILED_CONNECT_MYSQL_TRIGGER_ID      =
+  SPECIAL_TRIGGER_ID_PREFIX "CON_MYSQL";
+static const TriggerIdType FAILED_INTERNAL_ERROR_TRIGGER_ID     =
+  SPECIAL_TRIGGER_ID_PREFIX "INTERNAL_ERR";
+static const TriggerIdType FAILED_PARSER_JSON_DATA_TRIGGER_ID   =
+  SPECIAL_TRIGGER_ID_PREFIX "PARSE_JSON";
+static const TriggerIdType FAILED_CONNECT_BROKER_TRIGGER_ID     =
+  SPECIAL_TRIGGER_ID_PREFIX "CON_BROKER";
+static const TriggerIdType FAILED_CONNECT_HAP_TRIGGER_ID        =
+  SPECIAL_TRIGGER_ID_PREFIX "CON_HAP";
+static const TriggerIdType FAILED_HAP_INTERNAL_ERROR_TRIGGER_ID =
+  SPECIAL_TRIGGER_ID_PREFIX "HAP_INTERNAL_ERR";
+static const TriggerIdType FAILED_SELF_TRIGGER_ID_TERMINATION   =
+  SPECIAL_TRIGGER_ID_PREFIX "TERM";
 
 // Special Event IDs ==========================================================
 static const EventIdType EVENT_NOT_FOUND = -1;

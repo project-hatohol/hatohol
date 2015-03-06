@@ -344,8 +344,8 @@ ItemTablePtr ZabbixAPI::mergePlainTriggersAndExpandedDescriptions(
 	for (; expandedDescGrpItr != expandedDescriptionGrpList.end(); ++expandedDescGrpItr) {
 		const ItemGroup *itemGroup = *expandedDescGrpItr;
 		ItemGroupPtr expandedDescGrpPtr = *expandedDescGrpItr;
-		uint64_t expandedItemGrpId =
-		  static_cast<uint64_t>(*expandedDescGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID));
+		const TriggerIdType &expandedItemGrpId =
+		  *expandedDescGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
 		expandedTrigIdGrpMap.insert(
 		  pair<TriggerIdType, ItemGroupPtr>(expandedItemGrpId, itemGroup));
 	}
@@ -353,7 +353,7 @@ ItemTablePtr ZabbixAPI::mergePlainTriggersAndExpandedDescriptions(
 	VariableItemTablePtr mergedTablePtr;
 	for (; trigGrpItr != trigGrpList.end(); ++trigGrpItr) {
 		ItemGroupPtr trigItemGrpPtr = *trigGrpItr;
-		uint64_t trigItemGrpId =
+		const TriggerIdType &trigItemGrpId =
 		  *trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
 		TriggerIdItemGrpMapConstIterator it =
 		  expandedTrigIdGrpMap.find(trigItemGrpId);
@@ -1059,7 +1059,7 @@ void ZabbixAPI::parseAndPushTriggerData(
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "triggerid",   ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+	pushString(parser, grp, "triggerid",   ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
 	pushString(parser, grp, "expression",  ITEM_ID_ZBX_TRIGGERS_EXPRESSION);
 	pushString(parser, grp, "description", ITEM_ID_ZBX_TRIGGERS_DESCRIPTION);
 	pushString(parser, grp, "url",         ITEM_ID_ZBX_TRIGGERS_URL);
@@ -1101,7 +1101,7 @@ void ZabbixAPI::parseAndPushTriggerExpandedDescriptionData(
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "triggerid",   ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+	pushString(parser, grp, "triggerid",   ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
 	pushString(parser, grp, "description", ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION);
 	tablePtr->add(grp);
 	parser.endElement();
@@ -1324,7 +1324,7 @@ void ZabbixAPI::parseAndPushEventsData(
 	pushUint64(parser, grp, "eventid",      ITEM_ID_ZBX_EVENTS_EVENTID);
 	pushInt   (parser, grp, "source",       ITEM_ID_ZBX_EVENTS_SOURCE);
 	pushInt   (parser, grp, "object",       ITEM_ID_ZBX_EVENTS_OBJECT);
-	pushUint64(parser, grp, "objectid",     ITEM_ID_ZBX_EVENTS_OBJECTID);
+	pushString(parser, grp, "objectid",     ITEM_ID_ZBX_EVENTS_OBJECTID);
 	pushInt   (parser, grp, "clock",        ITEM_ID_ZBX_EVENTS_CLOCK);
 	pushInt   (parser, grp, "value",        ITEM_ID_ZBX_EVENTS_VALUE);
 	pushInt   (parser, grp, "acknowledged",

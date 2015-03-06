@@ -464,10 +464,10 @@ string makeTriggerOutput(const TriggerInfo &triggerInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
-	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|"
+	    "%" FMT_SERVER_ID "|%" FMT_TRIGGER_ID "|%d|%d|%ld|%lu|"
 	    "%" FMT_HOST_ID "|%" FMT_LOCAL_HOST_ID "|%s|%s|%s|%d\n",
 	    triggerInfo.serverId,
-	    triggerInfo.id,
+	    triggerInfo.id.c_str(),
 	    triggerInfo.status, triggerInfo.severity,
 	    triggerInfo.lastChangeTime.tv_sec,
 	    triggerInfo.lastChangeTime.tv_nsec,
@@ -488,7 +488,7 @@ string makeEventOutput(const EventInfo &eventInfo)
 	    "|%d|%u|%" FMT_HOST_ID "|%" FMT_LOCAL_HOST_ID "|%s|%s\n",
 	    eventInfo.serverId, eventInfo.id,
 	    eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
-	    eventInfo.type, eventInfo.triggerId,
+	    eventInfo.type, eventInfo.triggerId.c_str(),
 	    eventInfo.status, eventInfo.severity,
 	    eventInfo.globalHostId,
 	    eventInfo.hostIdInServer.c_str(),
@@ -508,7 +508,7 @@ string makeIncidentOutput(const IncidentInfo &incidentInfo)
 	    incidentInfo.trackerId,
 	    incidentInfo.serverId,
 	    incidentInfo.eventId,
-	    incidentInfo.triggerId,
+	    incidentInfo.triggerId.c_str(),
 	    incidentInfo.identifier.c_str(),
 	    incidentInfo.location.c_str(),
 	    incidentInfo.status.c_str(),

@@ -121,8 +121,7 @@ void RestResourceAction::handleGet(void)
 		  agent, cond, "hostgroupId", ACTCOND_HOST_GROUP_ID,
 		   cond.hostgroupId);
 		setActionCondition<std::string>(
-		  agent, cond, "triggerId", ACTCOND_TRIGGER_ID,
-		  StringUtils::toString(cond.triggerId));
+		  agent, cond, "triggerId", ACTCOND_TRIGGER_ID, cond.triggerId);
 		setActionCondition<uint32_t>(
 		  agent, cond, "triggerStatus", ACTCOND_TRIGGER_STATUS,
 		  cond.triggerStatus);
@@ -232,8 +231,9 @@ static HatoholError parseActionParameter(FaceRest::ResourceHandler *job,
 		cond.enable(ACTCOND_HOST_GROUP_ID);
 
 	// triggerId
-	succeeded = getParamWithErrorReply<uint64_t>(
-	              job, "triggerId", "%" PRIu64, cond.triggerId, &exist);
+	succeeded = getParamWithErrorReply<TriggerIdType>(
+	              job, "triggerId", "%" FMT_TRIGGER_ID,
+	              cond.triggerId, &exist);
 	if (!succeeded)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "triggerId");
 	if (exist)
