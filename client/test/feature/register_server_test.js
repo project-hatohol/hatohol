@@ -10,7 +10,7 @@ casper.on("page.error", function(msg, trace) {
 });
 
 casper.test.begin('Register/Unregister server test', function(test) {
-  var server = {type: 0, // Zabbix
+  var server = {serverType: 0, // Zabbix
                 nickName: "test",
                 serverName: "testhost",
                 ipAddress: "127.0.0.1",
@@ -51,7 +51,7 @@ casper.test.begin('Register/Unregister server test', function(test) {
       this.evaluate(function(type) {
         $('select#selectServerType').val(type).change();
         return true;
-      }, server.type);
+      }, server.serverType);
     },
     function fail() {
       test.assertExists("select#selectServerType");
