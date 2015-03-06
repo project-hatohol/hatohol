@@ -96,6 +96,20 @@ struct IncidentSenderManager::Impl
 
 		return sender;
 	}
+
+	void deleteSender(const IncidentTrackerIdType &id)
+	{
+		AutoMutex autoMutex(&sendersLock);
+		map<IncidentTrackerIdType, IncidentSender*>::iterator it;
+		it = sendersMap.find(id);
+		if (it == sendersMap.end()) {
+			MLPL_ERR("Not found IncidentTrackerId: %"
+				 FMT_INCIDENT_TRACKER_ID "\n", id);
+			return;
+		}
+		sendersMap.erase(it);
+		delete it->second;
+	}
 };
 
 IncidentSenderManager IncidentSenderManager::Impl::instance;
@@ -167,4 +181,11 @@ void IncidentSenderManager::setOnChangedIncidentTracker(const IncidentTrackerIdT
 {
 	IncidentSender *sender = m_impl->getSender(id);
 	sender->setOnChangedIncidentTracker();
+}
+
+void IncidentSenderManager::deleteIncidentTracker(const IncidentTrackerIdType id)
+{
+	MLPL_DBG("Delete IncidentSender for: "
+		 "%" FMT_INCIDENT_TRACKER_ID "\n", id);
+	m_impl->deleteSender(id);
 }

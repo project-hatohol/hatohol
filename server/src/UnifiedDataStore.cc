@@ -252,9 +252,15 @@ struct UnifiedDataStore::Impl
 	void stopArmIncidentTrackerIfNeeded(
 	  const IncidentTrackerInfo &trackerInfo)
 	{
+		stopArmIncidentTrackerIfNeeded(trackerInfo.id);
+	}
+
+	void stopArmIncidentTrackerIfNeeded(
+	  const IncidentTrackerIdType &trackerId)
+	{
 		AutoMutex autoLock(&armIncidentTrackerMapMutex);
 		ArmIncidentTrackerMapIterator it
-		  = armIncidentTrackerMap.find(trackerInfo.id);
+		  = armIncidentTrackerMap.find(trackerId);
 		if (it == armIncidentTrackerMap.end())
 			return;
 		ArmIncidentTracker *arm = it->second;
@@ -822,7 +828,14 @@ HatoholError UnifiedDataStore::deleteIncidentTracker(
 {
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
-	return dbConfig.deleteIncidentTracker(incidentTrackerId, privilege);
+	IncidentSenderManager &senderManager = IncidentSenderManager::getInstance();
+	HatoholError err =
+	  dbConfig.deleteIncidentTracker(incidentTrackerId, privilege);
+	if (err != HTERR_OK)
+		return err;
+	senderManager.deleteIncidentTracker(incidentTrackerId);
+	stopArmIncidentTrackerIfNeeded(incidentTrackerId);
+	return HTERR_OK;
 }
 
 uint64_t UnifiedDataStore::getLastUpdateTimeOfIncidents(
@@ -888,9 +901,7 @@ void UnifiedDataStore::startArmIncidentTrackerIfNeeded(
 void UnifiedDataStore::stopArmIncidentTrackerIfNeeded(
   const IncidentTrackerIdType &trackerId)
 {
-	IncidentTrackerInfo trackerInfo;
-	if (getIncidentTrackerInfo(trackerId, trackerInfo))
-		m_impl->stopArmIncidentTrackerIfNeeded(trackerInfo);
+	m_impl->stopArmIncidentTrackerIfNeeded(trackerId);
 }
 
 // ---------------------------------------------------------------------------

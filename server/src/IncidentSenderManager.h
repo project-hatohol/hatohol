@@ -39,6 +39,7 @@ public:
 		   void *userData = NULL);
 	bool isIdling(void);
 	void setOnChangedIncidentTracker(const IncidentTrackerIdType id);
+	void deleteIncidentTracker(const IncidentTrackerIdType id);
 
 protected:
 	IncidentSenderManager(void);
@@ -46,6 +47,7 @@ protected:
 
 	IncidentSender *getSender(const IncidentTrackerIdType &id,
 				  bool autoCreate = false);
+	void deleteSender(const IncidentTrackerIdType &id);
 
 private:
 	struct Impl;
