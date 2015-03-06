@@ -22,7 +22,8 @@ var HistoryView = function(userProfile, options) {
   var secondsInHour = 60 * 60;
 
   self.options = options || {};
-  self.config = deparam(self.options.query);
+  self.queryParams = deparam(self.options.query)
+  self.config = $.extend({}, self.queryParams);
   self.graphId = self.config["id"];
   self.reloadIntervalSeconds = 60;
   self.autoReloadIsEnabled = false;
@@ -130,9 +131,11 @@ var HistoryView = function(userProfile, options) {
   function saveConfig() {
     var url = "/graphs/";
     var config = self.itemSelector.getConfig();
+
     config.title = $("#edit-graph-title").val();
     if (self.graphId)
       url += self.graphId;
+
     new HatoholConnector({
       pathPrefix: "",
       url: url,
@@ -140,7 +143,7 @@ var HistoryView = function(userProfile, options) {
       data: JSON.stringify(config),
       replyCallback: function(reply, parser) {
         self.graphId = reply.id;
-        self.config = reply;
+        self.config = config;
         self.itemSelector.hide()
         hatoholInfoMsgBox(gettext("Successfully saved."));
         updateView();
@@ -224,6 +227,8 @@ var HistoryView = function(userProfile, options) {
       'graphs/' + self.graphId,
       function(reply) {
         self.config = reply;
+	delete self.config.id;
+	delete self.config.user_id;
         $("#edit-graph-title").val(self.config.title);
         setupGraphItems(self.parseGraphItems());
         load();
