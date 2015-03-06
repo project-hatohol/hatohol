@@ -38,10 +38,12 @@ var HistoryView = function(userProfile, options) {
   updateView();
 
   if (self.graphId) {
+    // load config from server
     loadConfig();
     if (isEditMode())
       self.itemSelector.show();
   } else if (self.loaders.length > 0) {
+    // load config from query parameters
     if (!isCreateMode()) {
       $("#edit-graph-title-area").hide();
       $("#hatohol-item-list .modal-footer").hide();
@@ -50,6 +52,7 @@ var HistoryView = function(userProfile, options) {
     if (isCreateMode() || isEditMode())
       self.itemSelector.show();
   } else {
+    // open the dialog to create a new config
     self.itemSelector.show();
     $('#hatohol-item-list').on('hide.bs.modal', function (e) {
       if (!isCreateMode())
