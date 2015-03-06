@@ -105,15 +105,18 @@ casper.test.begin('Register/Unregister server test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
-
-  // check delete-selector check box in minitoring server
-  casper.then(function() {
-    casper.wait(200, function() {
-      this.evaluate(function() {
-        $("tr:last").find(".selectcheckbox").click();
-        return true;
-      });
+  // check delete-selector checkbox in minitoring server
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 1;
     });
+  }, function then() {
+    this.evaluate(function() {
+      $("tr:last").find(".selectcheckbox").click();
+      return true;
+    });
+  }, function timeout() {
+    this.echo("Cannot find .selectcheckbox in the monitoring servers table.");
   });
   casper.waitForSelector("form button#delete-server-button",
     function success() {
