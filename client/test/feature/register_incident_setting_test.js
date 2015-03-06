@@ -87,7 +87,6 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset button");
     });
-  // check delete-selector checkbox in incident setting
   casper.waitForSelector("input.selectcheckbox", function() {
     test.assertTextExists(incidentSetting.serverName,
                           "Registered incident setting's server name \""
@@ -100,6 +99,7 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
       return true;
     });
   });
+  // check delete-selector checkbox in incident setting
   casper.waitForSelector("form button#delete-incident-setting-button",
     function success() {
       test.assertExists("form button#delete-incident-setting-button",
