@@ -841,7 +841,7 @@ HatoholError UnifiedDataStore::deleteIncidentTracker(
 	if (err != HTERR_OK)
 		return err;
 	senderManager.deleteIncidentTracker(incidentTrackerId);
-	stopArmIncidentTrackerForcely(incidentTrackerId);
+	stopArmIncidentTrackerIfNeeded(incidentTrackerId);
 	return HTERR_OK;
 }
 
@@ -906,14 +906,6 @@ void UnifiedDataStore::startArmIncidentTrackerIfNeeded(
 }
 
 void UnifiedDataStore::stopArmIncidentTrackerIfNeeded(
-  const IncidentTrackerIdType &trackerId)
-{
-	IncidentTrackerInfo trackerInfo;
-	if (getIncidentTrackerInfo(trackerId, trackerInfo))
-		m_impl->stopArmIncidentTrackerIfNeeded(trackerInfo);
-}
-
-void UnifiedDataStore::stopArmIncidentTrackerForcely(
   const IncidentTrackerIdType &trackerId)
 {
 	m_impl->stopArmIncidentTrackerIfNeeded(trackerId);

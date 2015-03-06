@@ -277,8 +277,6 @@ protected:
 	  const IncidentTrackerIdType &trackerId);
 	void stopArmIncidentTrackerIfNeeded(
 	  const IncidentTrackerIdType &trackerId);
-	void stopArmIncidentTrackerForcely(
-	  const IncidentTrackerIdType &trackerId);
 
 private:
 	struct Impl;
