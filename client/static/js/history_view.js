@@ -39,20 +39,31 @@ var HistoryView = function(userProfile, options) {
 
   if (self.graphId) {
     loadConfig();
-  } else if (self.loaders.length > 0 && !self.queryParams['create']) {
+  } else if (self.loaders.length > 0 && !isCreateMode()) {
     $("#edit-graph-title-area").hide();
     $("#hatohol-item-list .modal-footer").hide();
     load();
   } else {
     self.itemSelector.show();
     $('#hatohol-item-list').on('hide.bs.modal', function (e) {
-      if (!self.queryParams['create'])
+      if (!isCreateMode())
 	return;
       if (self.grpahId)
         return;
       if (!self.config.histories || self.config.histories.length <= 0)
         window.location.href = "ajax_graphs"
     });
+  }
+
+  function strToBool(val) {
+    if (!val)
+      return false;
+    val = val.toLowerCase();
+    return (val == "1" || val == "true")
+  }
+
+  function isCreateMode() {
+    return strToBool(self.queryParams['create']);
   }
 
   function appendWidgets() {
