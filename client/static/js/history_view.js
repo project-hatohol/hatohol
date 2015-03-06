@@ -41,11 +41,13 @@ var HistoryView = function(userProfile, options) {
     loadConfig();
     if (isEditMode())
       self.itemSelector.show();
-  } else if (self.loaders.length > 0 && !isCreateMode()) {
-    $("#edit-graph-title-area").hide();
-    $("#hatohol-item-list .modal-footer").hide();
+  } else if (self.loaders.length > 0) {
+    if (!isCreateMode()) {
+      $("#edit-graph-title-area").hide();
+      $("#hatohol-item-list .modal-footer").hide();
+    }
     load();
-    if (isEditMode())
+    if (isCreateMode() || isEditMode())
       self.itemSelector.show();
   } else {
     self.itemSelector.show();
