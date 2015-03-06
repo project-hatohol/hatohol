@@ -104,14 +104,14 @@ casper.test.begin('Register/Unregister action test', function(test) {
   // check delete-selector checkbox in action
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 1;
+      return document.querySelectorAll("tr").length > 1;
     });
   }, function then() {
     test.assertTextExists(actionCommand,
                           "Registered actionCommand: \"" +actionCommand+
                           "\" exists in the user role table.");
   }, function timeout() {
-    this.echo("Oops, confirmation dialog dose not to be closed.");
+    this.echo("Oops, table element does not to be newly created.");
   });
   casper.then(function() {
     this.evaluate(function() {

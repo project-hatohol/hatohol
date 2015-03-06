@@ -80,14 +80,14 @@ casper.test.begin('Register/Unregister user test', function(test) {
     });
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 1;
+      return document.querySelectorAll("tr").length > 1;
     });
   }, function then() {
     test.assertTextExists(userName,
                           "Registered user's name \"" +userName+
                           "\"exists in the user table.");
   }, function timeout() {
-    this.echo("Oops, confirmation dialog dose not to be closed.");
+    this.echo("Oops, table element does not to be newly created.");
   });
 
   casper.then(function() {
