@@ -96,6 +96,8 @@ var GraphsView = function(userProfile) {
         "graphID='" + graphID + "'></td>";
       table += "<td>" + graphID + "</td>";
       table += "<td><a href=\"" + graphURL +  "\">" + title + "</a></td>";
+      table += "<td><a href=\"ajax_history?edit=true&id=" + graphID + "\" " +
+        "class='btn btn-default'>" + gettext("EDIT") + "</a></td>";
       table += "</tr>";
     });
     return table;
