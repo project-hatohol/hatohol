@@ -87,11 +87,17 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset button");
     });
-  casper.waitForSelector("input.selectcheckbox", function() {
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("tr").length > 1;
+    });
+  }, function then() {
     test.assertTextExists(incidentSetting.serverName,
                           "Registered incident setting's server name \""
                           +incidentSetting.serverName+
                           "\" exists in the incident settings table.");
+  }, function timeout() {
+    this.echo("Oops, table element does not to be newly created.");
   });
   casper.then(function() {
     this.evaluate(function() {
