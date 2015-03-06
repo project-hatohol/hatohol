@@ -117,7 +117,8 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     });
   }, function then() {
     test.assertTextExists(roleName,
-                          "Registered user role's name exists in the user role table.");
+                          "Registered user role's name \"" +roleName+
+                          "\" exists in the user role table.");
   }, function timeout() {
     this.echo("Oops, confirmation dialog seems not to be closed.");
   });
@@ -165,7 +166,8 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     });
   }, function then() {
     test.assertTextDoesntExist(roleName,
-                               "Registered user role's name does not exist in the user table.");
+                               "Registered user role's name \"" +roleName+
+                               "\" does not exist in the user table.");
   }, function timeout() {
     this.echo("Oops, confirmation dialog dose not to be closed.");
   });
