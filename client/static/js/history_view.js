@@ -132,6 +132,11 @@ var HistoryView = function(userProfile, options) {
     var url = "/graphs/";
     var config = self.itemSelector.getConfig();
 
+    if (!config.histories || config.histories.length <= 0) {
+      hatoholErrorMsgBox(gettext("No item is specified!"));
+      return;
+    }
+
     config.title = $("#edit-graph-title").val();
     if (self.graphId)
       url += self.graphId;
