@@ -36,6 +36,20 @@ struct BriefElem {
 	int    variableIndex;
 };
 
+static bool findHostCache(
+  const ServerIdType &serverId, const LocalHostIdType &hostIdInServer,
+  const HostInfoCache &hostInfoCache, HostInfoCache::Element &elem)
+{
+	const bool found = hostInfoCache.getName(hostIdInServer, elem);
+	if (found)
+		return true;
+	MLPL_WARN(
+	  "Host cache: not found. server: %" FMT_SERVER_ID ", "
+	  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
+	  serverId, hostIdInServer.c_str());
+	return false;
+}
+
 // ----------------------------------------------------------------------------
 // Public methods
 // ----------------------------------------------------------------------------
@@ -85,16 +99,11 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 		}
 
 		HostInfoCache::Element cacheElem;
-		const bool found = hostInfoCache.getName(
-		  trigInfo.hostIdInServer, cacheElem);
-		if (!found) {
-			MLPL_WARN(
-			  "Ignored a trigger whose host name was not found: "
-			  "server: %" FMT_SERVER_ID ", "
-			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
-			  serverId, trigInfo.hostIdInServer.c_str());
+		const bool found = findHostCache(
+		                     serverId, trigInfo.hostIdInServer,
+		                     hostInfoCache,  cacheElem);
+		if (!found)
 			continue;
-		}
 		trigInfo.globalHostId = cacheElem.hostId;
 		trigInfo.hostName         = cacheElem.name;
 		trigInfoList.push_back(trigInfo);
@@ -175,7 +184,8 @@ void HatoholDBUtils::transformHostsToHatoholFormat(
 
 void HatoholDBUtils::transformItemsToHatoholFormat(
   ItemInfoList &itemInfoList, MonitoringServerStatus &serverStatus,
-  const ItemTablePtr items, const ItemTablePtr applications)
+  const ItemTablePtr items, const ItemTablePtr applications,
+  const ServerIdType &serverId, const HostInfoCache &hostInfoCache)
 {
 	// Make application map
 	ItemCategoryNameMap itemCategoryNameMap;
@@ -201,8 +211,10 @@ void HatoholDBUtils::transformItemsToHatoholFormat(
 	for (; it != itemGroupList.end(); ++it) {
 		ItemInfo itemInfo;
 		itemInfo.serverId = serverStatus.serverId;
-		if (!transformItemItemGroupToItemInfo(itemInfo, *it,
-		                                      itemCategoryNameMap))
+		const bool succeeded = transformItemItemGroupToItemInfo(
+		                         itemInfo, *it, itemCategoryNameMap,
+		                         serverId, hostInfoCache);
+		if (!succeeded)
 			continue;
 		itemInfoList.push_back(itemInfo);
 	}
@@ -408,7 +420,8 @@ void HatoholDBUtils::transformHostsGroupsItemGroupToHatoholFormat(
 
 bool HatoholDBUtils::transformItemItemGroupToItemInfo(
   ItemInfo &itemInfo, const ItemGroup *itemItemGroup,
-  const ItemCategoryNameMap &itemCategoryNameMap)
+  const ItemCategoryNameMap &itemCategoryNameMap,
+  const ServerIdType &serverId, const HostInfoCache &hostInfoCache)
 {
 	itemInfo.lastValueTime.tv_nsec = 0;
 	itemInfo.brief = makeItemBrief(itemItemGroup);
@@ -419,7 +432,14 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 	itemGroupStream >> itemInfo.id;
 
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_HOSTID);
-	itemGroupStream >> itemInfo.hostId;
+	itemGroupStream >> itemInfo.hostIdInServer;
+
+	HostInfoCache::Element cacheElem;
+	const bool found = findHostCache(serverId, itemInfo.hostIdInServer,
+	                                 hostInfoCache, cacheElem);
+	if (!found)
+		return false;
+	itemInfo.globalHostId = cacheElem.hostId;
 
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_LASTCLOCK),
 	itemGroupStream >> itemInfo.lastValueTime.tv_sec;

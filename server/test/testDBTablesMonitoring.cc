@@ -141,9 +141,11 @@ static string makeItemOutput(const ItemInfo &itemInfo)
 {
 	string expectedOut =
 	  StringUtils::sprintf(
-	    "%" PRIu32 "|%" PRIu64 "|%" PRIu64 "|%s|%ld|%lu|%s|%s|%s|%d|%s\n",
+	    "%" FMT_SERVER_ID "|%" FMT_ITEM_ID "|%" FMT_HOST_ID
+	    "|%" FMT_LOCAL_HOST_ID "|%s|%ld|%lu|%s|%s|%s|%d|%s\n",
 	    itemInfo.serverId, itemInfo.id,
-	    itemInfo.hostId,
+	    itemInfo.globalHostId,
+	    itemInfo.hostIdInServer.c_str(),
 	    itemInfo.brief.c_str(),
 	    itemInfo.lastValueTime.tv_sec,
 	    itemInfo.lastValueTime.tv_nsec,
@@ -196,8 +198,7 @@ struct AssertGetItemsArg
 
 	virtual LocalHostIdType getHostId(const ItemInfo &info) const override
 	{
-		// TODO: add hostIdInServer
-		return StringUtils::sprintf("%" FMT_HOST_ID, info.hostId);
+		return info.hostIdInServer;
 	}
 
 	virtual string makeOutputText(const ItemInfo &itemInfo) override

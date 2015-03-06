@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -401,6 +401,30 @@ void ZabbixAPIEmulator::APIHandlerAPIVersion(APIHandlerArg &arg)
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
+}
+
+void ZabbixAPIEmulator::loadHostInfoCache(
+  HostInfoCache &hostInfoCache, const ServerIdType &serverId)
+{
+	static const LocalHostIdType localIDs[] = {
+	  "10001", "10047", "10050", "10056", "10060", "10065", "10066",
+	  "10067", "10069", "10071", "10072", "10073", "10074", "10075",
+	  "10076", "10077", "10078", "10079", "10081", "10082", "10083",
+	  "10084", "10085", "10088", "10089", "10090", "10091", "10105",
+	  "10106", "10107", "10108", "10109", "10110", "10111", "10112",
+	  "10113", "10114",
+	};
+	static const size_t numLocalIDs = ARRAY_SIZE(localIDs);
+	ServerHostDef svHostDef;
+	for (size_t i = 0; i < numLocalIDs; i++) {
+		svHostDef.id = i + 1;
+		svHostDef.hostId = INVALID_HOST_ID;
+		svHostDef.serverId = serverId;
+		svHostDef.hostIdInServer = localIDs[i];
+		svHostDef.name = "Jane Doe";
+		svHostDef.status = HOST_STAT_NORMAL;
+		hostInfoCache.update(svHostDef);
+	}
 }
 
 void ZabbixAPIEmulator::APIHandlerUserLogin(APIHandlerArg &arg)

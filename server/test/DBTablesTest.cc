@@ -501,7 +501,8 @@ ItemInfo testItemInfo[] = {
 {
 	1,                        // serverId
 	2,                        // id
-	1129,                     // hostId
+	30,                       // globalHostId
+	"1129",                   // hostIdInServer
 	"Rome wasn't built in a day",// brief
 	{1362951129,0},           // lastValueTime
 	"Fukuoka",                // lastValue
@@ -513,7 +514,8 @@ ItemInfo testItemInfo[] = {
 }, {
 	3,                        // serverId
 	1,                        // id
-	5,                        // hostId
+	42,                       // globalHostId
+	"5",                      // hostIdInServer
 	"The age of the cat.",    // brief
 	{1362957200,0},           // lastValueTime
 	"1",                      // lastValue
@@ -525,7 +527,8 @@ ItemInfo testItemInfo[] = {
 }, {
 	3,                        // serverId
 	2,                        // id
-	100,                      // hostId
+	45,                       // globalHostId
+	"100",                    // hostIdInServer
 	"All roads lead to Rome.",// brief
 	{1362951000,0},           // lastValueTime
 	"Osaka",                  // lastValue
@@ -537,7 +540,8 @@ ItemInfo testItemInfo[] = {
 }, {
 	4,                        // serverId
 	1,                        // id
-	100,                      // hostId
+	100,                      // globalHostId
+	"100",                    // hostIdInServer
 	"All roads lead to Rome.",// brief
 	{1362951000,0},           // lastValueTime
 	"Osaka",                  // lastValue
@@ -1921,6 +1925,17 @@ void makeEventIncidentMap(map<string, IncidentInfo*> &eventIncidentMap)
 			       testIncidentInfo[i].serverId,
 			       testIncidentInfo[i].eventId);
 		eventIncidentMap[key] = &testIncidentInfo[i];
+	}
+}
+
+void loadHostInfoCache(
+  HostInfoCache &hostInfoCache, const ServerIdType &serverId)
+{
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		const ServerHostDef &svHostDef = testServerHostDef[i];
+		if (svHostDef.serverId != serverId)
+			continue;
+		hostInfoCache.update(svHostDef);
 	}
 }
 

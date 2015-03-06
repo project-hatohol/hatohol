@@ -28,6 +28,7 @@
 #include "DBTablesUser.h"
 #include "DBTablesAction.h"
 #include "DBTablesHost.h"
+#include "HostInfoCache.h"
 
 typedef std::set<uint64_t>  HostIdSet;
 typedef HostIdSet::iterator HostIdSetIterator;
@@ -218,6 +219,9 @@ const ArmPluginInfo &getTestArmPluginInfo(const MonitoringSystemType &type);
 extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST;
 extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST;
 extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_PASSIVE;
+
+void loadHostInfoCache(
+  HostInfoCache &hostInfoCache, const ServerIdType &serverId);
 
 /**
  * Setup database for test.

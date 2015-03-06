@@ -142,16 +142,8 @@ void test_getHostsAndTriggers(void)
 	arg.serverIpAddr = "127.0.0.1";
 	arg.serverPort   = EMULATOR_PORT;
 	HatoholArmPluginTestPair<HapProcessZabbixAPITest> pair(arg);
+	pair.gate->loadHostInfoCacheForEmulator();
 
-	// TODO: Suppress warning.
-	// We get host data before triggers since the host name is needed
-	// when the trigger is saved on the Hatohol DB.
-	// However, the following warnigs are shown.
-	//     [WARN] <HatoholArmPluginGate.cc:348> Ignored a trigger whose host name was not found: server: 5, host: 10010
-	// The reason why is the mismatch of host data and trigger data.
-	// ZabbixAPIEmulator generates trigger data with
-	// zabbix-api-res-triggers-003-hosts.json.  But the host data is
-	// beased on zabbix-api-res-hosts-002.json.
 	pair.plugin->assertWaitReady();
 	pair.plugin->callUpdateAuthTokenIfNeeded();
 	pair.plugin->callWorkOnHostsAndHostgroups();

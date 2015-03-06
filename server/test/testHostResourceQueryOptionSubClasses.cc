@@ -47,10 +47,6 @@ static void initParamChecker(
 	if (optionType != typeid(HostgroupsQueryOption)) {
 		option.setTargetHostId("4");
 		const char *hostIdColumnName = "host_id_in_server";
-		if (optionType == typeid(ItemsQueryOption)) {
-			// TODO: This block should be removed
-			hostIdColumnName = "host_id";
-		}
 		expected += StringUtils::sprintf(" AND %s='4'",
 		                                 hostIdColumnName);
 	}

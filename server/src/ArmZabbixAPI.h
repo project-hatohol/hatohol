@@ -26,6 +26,7 @@
 #include "ItemTablePtr.h"
 #include "JSONBuilder.h"
 #include "DBTablesConfig.h"
+#include "HostInfoCache.h"
 
 class ArmZabbixAPI : public ZabbixAPI, public ArmBase
 {
@@ -71,6 +72,7 @@ protected:
 	void makeHatoholHosts(ItemTablePtr hosts);
 
 	uint64_t getMaximumNumberGetEventPerOnce(void);
+	HostInfoCache &getHostInfoCache(void);
 
 	ArmPollingResult handleHatoholException(const HatoholException &he);
 

@@ -1117,7 +1117,7 @@ void ZabbixAPI::parseAndPushItemsData(
 	pushString(parser, grp, "snmp_community",
 	           ITEM_ID_ZBX_ITEMS_SNMP_COMMUNITY);
 	pushString(parser, grp, "snmp_oid",     ITEM_ID_ZBX_ITEMS_SNMP_OID);
-	pushUint64(parser, grp, "hostid",       ITEM_ID_ZBX_ITEMS_HOSTID);
+	pushString(parser, grp, "hostid",       ITEM_ID_ZBX_ITEMS_HOSTID);
 	pushString(parser, grp, "name",         ITEM_ID_ZBX_ITEMS_NAME);
 	pushString(parser, grp, "key_",         ITEM_ID_ZBX_ITEMS_KEY_);
 	pushInt   (parser, grp, "delay",        ITEM_ID_ZBX_ITEMS_DELAY);
