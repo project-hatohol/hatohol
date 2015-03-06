@@ -557,7 +557,7 @@ void RestResourceHost::handlerGetTrigger(void)
 		                                      extendedInfoValue);
 
 		agent.startObject();
-		agent.add("id",       StringUtils::toString(triggerInfo.id));
+		agent.add("id",       triggerInfo.id);
 		agent.add("status",   triggerInfo.status);
 		agent.add("severity", triggerInfo.severity);
 		agent.add("lastChangeTime",
@@ -663,7 +663,7 @@ void RestResourceHost::handlerGetEvent(void)
 		agent.add("serverId",  eventInfo.serverId);
 		agent.add("time",      eventInfo.time.tv_sec);
 		agent.add("type",      eventInfo.type);
-		agent.add("triggerId", StringUtils::toString(eventInfo.triggerId));
+		agent.add("triggerId", eventInfo.triggerId);
 		agent.add("status",    eventInfo.status);
 		agent.add("severity",  eventInfo.severity);
 		agent.add("hostId",    eventInfo.hostIdInServer);

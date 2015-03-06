@@ -116,8 +116,15 @@ extern const size_t NumTestHostgroupMember;
  * @param hostIdInServer
  * A host ID in a server. ALL_LOCAL_HOSTS can be specified.
  */
+
+typedef std::map<TriggerIdType, size_t> TriggerIdIdxMap;
+typedef TriggerIdIdxMap::iterator       TriggerIdIdxMapIterator;
+
+typedef std::map<ServerIdType, TriggerIdIdxMap> ServerIdTriggerIdIdxMap;
+typedef ServerIdTriggerIdIdxMap::iterator       ServerIdTriggerIdIdxMapIterator;
+
 void getTestTriggersIndexes(
-  std::map<ServerIdType, std::map<uint64_t, size_t> > &indexMap,
+  ServerIdTriggerIdIdxMap &indexMap,
   const ServerIdType &serverId, const LocalHostIdType &hostIdInServer);
 size_t getNumberOfTestTriggers(
   const ServerIdType &serverId,

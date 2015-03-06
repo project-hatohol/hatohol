@@ -133,7 +133,7 @@ static void _assertActions(const string &path, const string &callbackName = "",
 		  uint64_t, cond.hostgroupId);
 		asssertActionCondition(
 		  g_parser, cond, "triggerId", ACTCOND_TRIGGER_ID,
-		  string, StringUtils::toString(cond.triggerId));
+		  string, cond.triggerId);
 		asssertActionCondition(
 		  g_parser, cond, "triggerStatus", ACTCOND_TRIGGER_STATUS,
 		  uint32_t, cond.triggerStatus);

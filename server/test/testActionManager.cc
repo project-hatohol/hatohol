@@ -495,8 +495,7 @@ void _assertActionLogJustAfterExec(
 	  evInf.time.tv_sec, evInf.time.tv_nsec));
 	expectedArgs.push_back(StringUtils::sprintf("%" PRIu64, evInf.id));
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.type));
-	expectedArgs.push_back(
-	  StringUtils::sprintf("%" PRIu64, evInf.triggerId));
+	expectedArgs.push_back(evInf.triggerId);
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.status));
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.severity));
 	getArguments(ctx, expectedArgs);
@@ -735,7 +734,8 @@ static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	cppcut_assert_equal(expected.time.tv_nsec, eventArg->time.tv_nsec);
 	cppcut_assert_equal(expected.id, eventArg->eventId);
 	cppcut_assert_equal(expected.type, (EventType)eventArg->eventType);
-	cppcut_assert_equal(expected.triggerId, eventArg->triggerId);
+	cppcut_assert_equal(TEST_TRIGGER_ID_REPLY_MAGIC_CODE,
+	                    eventArg->triggerId);
 	cppcut_assert_equal(expected.status,
 	                    (TriggerStatusType)eventArg->triggerStatus);
 	cppcut_assert_equal(expected.severity,
@@ -1386,7 +1386,7 @@ void test_checkEventsWithMultipleIncidentSender(void)
 	    0,                        // serverId
 	    "",                       // hostId
 	    0,                        // hostgroupId
-	    0,                        // triggerId
+	    "",                       // triggerId
 	    TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	    TRIGGER_SEVERITY_INFO,    // triggerSeverity
 	    CMP_EQ_GT                 // triggerSeverityCompType;

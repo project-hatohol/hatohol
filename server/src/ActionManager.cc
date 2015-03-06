@@ -508,7 +508,7 @@ static bool shouldSkipIncidentSender(
 			 "Trigger:%" FMT_TRIGGER_ID " because "
 			 "IncidentSenderAction:%" FMT_ACTION_ID " has "
 			 "higher priority.",
-			 actionDef.id, eventInfo.triggerId,
+			 actionDef.id, eventInfo.triggerId.c_str(),
 			 incidentSenderActionId);
 		return true;
 	}
@@ -759,8 +759,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec));
 	argVect.push_back(StringUtils::sprintf("%" PRIu64, eventInfo.id));
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.type));
-	argVect.push_back(StringUtils::sprintf("%" PRIu64,
-	   eventInfo.triggerId));
+	argVect.push_back(eventInfo.triggerId);
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.status));
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.severity));
 
@@ -1541,13 +1540,13 @@ void ActionManager::postProcSpawnFailure(
 	  "%s, action ID: %d, log ID: %" PRIu64 ", "
 	  "server ID: %d, event ID: %" PRIu64 ", "
 	  "time: %ld.%09ld, type: %s, "
-	  "trigger ID: %" PRIu64 ", status: %s, severity: %s, "
+	  "trigger ID: %" FMT_TRIGGER_ID ", status: %s, severity: %s, "
 	  "host ID: %" FMT_LOCAL_HOST_ID "\n",
 	  error->message, actionDef.id, actorInfo->logId,
 	  eventInfo.serverId, eventInfo.id,
 	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
 	  LabelUtils::getEventTypeLabel(eventInfo.type).c_str(),
-	  eventInfo.triggerId,
+	  eventInfo.triggerId.c_str(),
 	  LabelUtils::getTriggerStatusLabel(eventInfo.status).c_str(),
 	  LabelUtils::getTriggerSeverityLabel(eventInfo.severity).c_str(),
 	  eventInfo.hostIdInServer.c_str());
@@ -1573,8 +1572,9 @@ void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 		eventInfo.hostName = triggerInfo.hostName;
 		eventInfo.brief    = triggerInfo.brief;
 	} else {
-		MLPL_ERR("Not found: svID: %" PRIu32 ", trigID: %" PRIu64 "\n",
-		         eventInfo.serverId, eventInfo.triggerId);
+		MLPL_ERR("Not found: svID: %" PRIu32 ", "
+		         "trigID: %" FMT_TRIGGER_ID "\n",
+		         eventInfo.serverId, eventInfo.triggerId.c_str());
 		eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
 		eventInfo.globalHostId = INVALID_HOST_ID;
 		eventInfo.hostIdInServer.clear();

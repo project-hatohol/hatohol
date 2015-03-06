@@ -799,7 +799,10 @@ void HatoholArmPluginGate::cmdHandlerGetTimeOfLastEvent(
 	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
 	HapiParamTimeOfLastEvent *param =
 	  getCommandBody<HapiParamTimeOfLastEvent>(*cmdBuf);
-	const TriggerIdType triggerId = LtoN(param->triggerId);
+	
+	const TriggerIdType triggerId =
+	   getString(*cmdBuf, param,
+	             param->triggerIdOffset, param->triggerIdLength);
 
 	// Make a response buffer.
 	SmartBuffer resBuf;

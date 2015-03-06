@@ -378,7 +378,7 @@ void test_getTriggerInfoNotFound(void)
 	loadTestDBTriggers();
 
 	const UserIdType invalidSvId = -1;
-	const TriggerIdType invalidTrigId = -1;
+	const TriggerIdType invalidTrigId;
 	TriggerInfo triggerInfo;
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	TriggersQueryOption option(invalidSvId);
@@ -743,7 +743,7 @@ void test_getTimeOfLastEventWithTriggerId(void)
 
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	const ServerIdType serverId = 3;
-	const TriggerIdType triggerId = 3;
+	const TriggerIdType triggerId = "3";
 	cppcut_assert_equal(
 	  findTimeOfLastEvent(serverId, triggerId),
 	  dbMonitoring.getTimeOfLastEvent(serverId, triggerId));
