@@ -111,15 +111,18 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
     });
 
   // check delete-selector check box in incident trackers server
-  casper.then(function() {
-    casper.wait(200, function() {
-      this.evaluate(function() {
-        $("tr:last").find(".incidentTrackerSelectCheckbox").click();
-        return true;
-      });
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 2;
     });
+  }, function then() {
+    this.evaluate(function() {
+      $("tr:last").find(".incidentTrackerSelectCheckbox").click();
+      return true;
+    });
+  }, function timeout() {
+    this.echo("Cannot find .incidentTrackerSelectCheckbox in the incident servers table.");
   });
-
   casper.waitForSelector("input#deleteIncidentTrackersButton",
     function success() {
       test.assertExists("input#deleteIncidentTrackersButton",
