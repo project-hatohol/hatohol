@@ -123,7 +123,7 @@ var HistoryView = function(userProfile, options) {
   }
 
   function setupGraphItems(items) {
-    items.forEach(function(item) {
+    $.each(items, function(index, item) {
       appendHistoryLoader(item);
     });
   }
