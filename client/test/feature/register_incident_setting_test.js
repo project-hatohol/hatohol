@@ -88,17 +88,11 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
       test.assertExists("div.ui-dialog-buttonset button");
     });
   // check delete-selector checkbox in incident setting
-  casper.waitFor(function() {
-    return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 1;
-    });
-  }, function then() {
+  casper.waitForSelector("input.selectcheckbox", function() {
     test.assertTextExists(incidentSetting.serverName,
                           "Registered incident setting's server name \""
                           +incidentSetting.serverName+
                           "\" exists in the incident settings table.");
-  }, function timeout() {
-    this.echo("Oops, confirmation dialog dose not to be closed.");
   });
   casper.then(function() {
     this.evaluate(function() {
