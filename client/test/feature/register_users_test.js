@@ -84,7 +84,8 @@ casper.test.begin('Register/Unregister user test', function(test) {
     });
   }, function then() {
     test.assertTextExists(userName,
-                          "Registered user's name exists in the user table.");
+                          "Registered user's name \"" +userName+
+                          "\"exists in the user table.");
   }, function timeout() {
     this.echo("Oops, confirmation dialog dose not to be closed.");
   });
