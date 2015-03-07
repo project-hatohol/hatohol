@@ -120,7 +120,7 @@ casper.test.begin('Register/Unregister user role test', function(test) {
                           "Registered user role's name \"" +roleName+
                           "\" exists in the user role table.");
   }, function timeout() {
-    this.echo("Oops, confirmation dialog seems not to be closed.");
+    this.echo("Oops, table element does not to be newly created.");
   });
   // check delete-selector check box in user role
   casper.then(function() {

@@ -127,9 +127,9 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
     test.assertTextExists(incidentTracker.nickName,
                           "Registered incident tracker's nickName \""
                           +incidentTracker.nickName+
-                          "\" exists in the user table.");
+                          "\" exists in the incdent servers table.");
   }, function timeout() {
-    this.echo("Oops, confirmation dialog dose not to be closed.");
+    this.echo("Oops, table element does not to be newly created.");
   });
   casper.then(function() {
     this.evaluate(function() {
