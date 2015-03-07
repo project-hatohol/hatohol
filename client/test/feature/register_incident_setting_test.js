@@ -11,11 +11,11 @@ casper.on("page.error", function(msg, trace) {
 
 casper.test.begin('Register/Unregister incident settings test', function(test) {
   var incidentSetting = {serverType: 0,
-                                     nickName: "zabbix",
-                                     serverName: "test-zabbix",
-                                     ipAddress: "127.0.0.1",
-                                     userName: "admin",
-                                     userPassword: "zabbix-admin"};
+                         nickName: "zabbix",
+                         serverName: "test-zabbix",
+                         ipAddress: "127.0.0.1",
+                         userName: "admin",
+                         userPassword: "zabbix-admin"};
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.then(function() {
