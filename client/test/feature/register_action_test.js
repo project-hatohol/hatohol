@@ -104,7 +104,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
   // check delete-selector checkbox in action
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("tr").length > 1;
+      return document.querySelectorAll("table tr").length > 1;
     });
   }, function then() {
     test.assertTextExists(actionCommand,

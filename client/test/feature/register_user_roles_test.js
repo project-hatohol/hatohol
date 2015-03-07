@@ -113,7 +113,7 @@ casper.test.begin('Register/Unregister user role test', function(test) {
   // assert for added user role name
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 2;
+      return document.querySelectorAll("table#userRoleEditorMainTable tr").length > 1;
     });
   }, function then() {
     test.assertTextExists(roleName,

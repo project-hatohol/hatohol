@@ -121,7 +121,7 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
   // check delete-selector check box in incident trackers server
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 2;
+      return document.querySelectorAll("table#incidentTrackersEditorMainTable tr").length > 1;
     });
   }, function then() {
     test.assertTextExists(incidentTracker.nickName,

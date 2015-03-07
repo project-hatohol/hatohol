@@ -80,7 +80,7 @@ casper.test.begin('Register/Unregister user test', function(test) {
     });
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("tr").length > 1;
+      return document.querySelectorAll("table tr").length > 1;
     });
   }, function then() {
     test.assertTextExists(userName,
