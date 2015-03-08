@@ -773,8 +773,22 @@ void test_sessionErrorAuthToken(void)
 
 }
 
+static void addDummyFirstEvent(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	EventInfo eventInfo = testEventInfo[0];
+	eventInfo.serverId = 1;
+	eventInfo.id = 0;
+	eventInfo.time.tv_sec = 0;
+	eventInfo.time.tv_nsec = 0;
+	dbMonitoring.addEventInfo(&eventInfo);
+}
+
 void test_verifyEventsObtanedBySplitWay(void)
 {
+	addDummyFirstEvent();
+
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
 	armZbxApiTestee.testOpenSession();
 
@@ -816,6 +830,8 @@ void test_oneNewEvent(void)
 // (can't get events when the first event ID is bigger than 1000)
 void test_getStubbedEventList(void)
 {
+	addDummyFirstEvent();
+
 	MonitoringServerInfo serverInfo = setupServer();
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	armZbxApiTestee.testOpenSession();
@@ -830,8 +846,9 @@ void test_getStubbedEventList(void)
 	EventInfoList eventList;
 	EventsQueryOption option(USER_ID_SYSTEM);
 	dbMonitoring.getEventInfoList(eventList, option);
+	size_t actualSize = eventList.size() - 1; // subtract a dummy event
 	cppcut_assert_equal(expectedLastEventId - expectedFirstEventId + 1,
-			    static_cast<uint64_t>(eventList.size()));
+			    static_cast<uint64_t>(actualSize));
 }
 
 } // namespace testArmZabbixAPI

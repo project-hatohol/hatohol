@@ -156,6 +156,7 @@ struct ConfigManager::Impl {
 	  copyOnDemand(UNKNOWN),
 	  faceRestPort(0),
 	  pidFilePath(DEFAULT_PID_FILE_PATH),
+	  loadOldEvents(false),
 	  faceRestNumWorkers(0)
 	{
 	}
