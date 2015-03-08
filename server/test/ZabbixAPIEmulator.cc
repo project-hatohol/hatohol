@@ -265,7 +265,8 @@ bool ZabbixAPIEmulator::hasParameter
 		return false;
 
 	string value;
-	parser.read(paramName, value);
+	if (!parser.read(paramName, value));
+		return false;
 	return value == expectedValue;
 }
 
@@ -282,7 +283,8 @@ bool ZabbixAPIEmulator::hasParameter
 		return false;
 
 	int64_t value;
-	parser.read(paramName, value);
+	if (!parser.read(paramName, value));
+		return false;
 	return value == expectedValue;
 }
 
