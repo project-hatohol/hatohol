@@ -309,6 +309,18 @@ TriggerInfo testTriggerInfo[] =
 	"",                       // extendedInfo
 	TRIGGER_VALID,          // validity
 },{
+	2,                        // serverId
+	0xfedcba9876543210,       // id
+	TRIGGER_STATUS_OK,        // status
+	TRIGGER_SEVERITY_WARNING, // severity
+	{1362951234,0},           // lastChangeTime
+	10,                       // globalHostId,
+	"9920249034889494527",    // hostIdInServer,
+	"hostQ1",                 // hostName,
+	"TEST Trigger Action 2",  // brief,
+	"",                       // extendedInfo
+	TRIGGER_VALID,          // validity
+},{
 	// This entry is used for testHatoholArmPluginGate.
 	12345,                    // serverId
 	2468,                     // id
