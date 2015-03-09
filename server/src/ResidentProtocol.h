@@ -161,7 +161,7 @@ struct ResidentNotifyEventArg {
 	timespec time;
 	uint64_t eventId;
 	uint16_t eventType;
-	uint64_t triggerId;
+	const char *triggerId;
 	uint16_t triggerStatus;
 	uint16_t triggerSeverity;
 	char sessionId[HATOHOL_SESSION_ID_LEN+1]; // +1 means NULL terminator

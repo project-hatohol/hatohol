@@ -111,8 +111,8 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	"trigger_id",                      // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -1131,7 +1131,7 @@ string ActionsQueryOption::Impl::makeConditionTemplate(void)
 	const ColumnDef &colDefTrigId =
 	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_ID];
 	cond += StringUtils::sprintf(
-	  "((%s IS NULL) OR (%s=%%" PRIu64 "))",
+	  "((%s IS NULL) OR (%s=%%s))",
 	  colDefTrigId.columnName, colDefTrigId.columnName);
 	cond += " AND ";
 
@@ -1308,7 +1308,7 @@ string ActionsQueryOption::getCondition(void) const
 	                       eventInfo->serverId,
 	                       rhs(triggerInfo.hostIdInServer),
 	                       rhs(hostgroupIdList),
-	                       eventInfo->triggerId,
+	                       rhs(eventInfo->triggerId),
 	                       eventInfo->status,
 	                       triggerInfo.severity,
 	                       triggerInfo.severity);

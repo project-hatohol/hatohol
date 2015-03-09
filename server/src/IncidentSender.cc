@@ -329,7 +329,7 @@ string IncidentSender::buildDescription(const EventInfo &event,
 		  "Trigger ID: %" FMT_TRIGGER_ID "\n"
 		  "    Status:     \"%d (%s)\"\n"
 		  "    Severity:   \"%d (%s)\"\n",
-		  event.triggerId,
+		  event.triggerId.c_str(),
 		  event.status,
 		  LabelUtils::getTriggerStatusLabel(event.status).c_str(),
 		  event.severity,

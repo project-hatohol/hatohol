@@ -137,7 +137,7 @@ string IncidentSenderRedmine::buildURLMonitoringServerEvent(
 		  "/zabbix/tr_events.php"
 		  "?triggerid=%" FMT_TRIGGER_ID
 		  "&eventid=%" FMT_EVENT_ID,
-		  event.triggerId,
+		  event.triggerId.c_str(),
 		  event.id);
 		break;
 	}
@@ -209,7 +209,7 @@ string IncidentSenderRedmine::buildDescription(
 	    "}}\n"
 	    "\n",
 	    event.hostIdInServer.c_str(),
-	    event.triggerId,
+	    event.triggerId.c_str(),
 	    event.id);
 
 	string monitoringServerEventPage

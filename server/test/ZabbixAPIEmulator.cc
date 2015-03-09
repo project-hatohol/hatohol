@@ -252,8 +252,10 @@ void ZabbixAPIEmulator::handlerAPI
 	}
 }
 
-bool ZabbixAPIEmulator::hasParameter
-  (APIHandlerArg &arg, const string &paramName, const string &expectedValue)
+template <typename T>
+static bool hasParameterTempl(
+  ZabbixAPIEmulator::APIHandlerArg &arg,
+  const string &paramName, const T &expectedValue)
 {
 	string request(arg.msg->request_body->data,
 	               arg.msg->request_body->length);
@@ -264,26 +266,22 @@ bool ZabbixAPIEmulator::hasParameter
 	if (!parser.startObject("params"))
 		return false;
 
-	string value;
-	parser.read(paramName, value);
+	T value;
+	if (!parser.read(paramName, value));
+		return false;
 	return value == expectedValue;
 }
 
-bool ZabbixAPIEmulator::hasParameter
-  (APIHandlerArg &arg, const string &paramName, const int64_t &expectedValue)
+bool ZabbixAPIEmulator::hasParameter(
+  APIHandlerArg &arg, const string &paramName, const int64_t &expectedValue)
 {
-	string request(arg.msg->request_body->data,
-	               arg.msg->request_body->length);
-	JSONParser parser(request);
-	if (parser.hasError())
-		THROW_HATOHOL_EXCEPTION("Failed to parse: %s", request.c_str());
+	return hasParameterTempl<int64_t>(arg, paramName, expectedValue);
+}
 
-	if (!parser.startObject("params"))
-		return false;
-
-	int64_t value;
-	parser.read(paramName, value);
-	return value == expectedValue;
+bool ZabbixAPIEmulator::hasParameter(
+  APIHandlerArg &arg, const string &paramName, const string &expectedValue)
+{
+	return hasParameterTempl<string>(arg, paramName, expectedValue);
 }
 
 string ZabbixAPIEmulator::generateAuthToken(void)

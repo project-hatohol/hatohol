@@ -617,7 +617,7 @@ string  HapProcessCeilometer::getHistoryQueryOption(
 HatoholError HapProcessCeilometer::getAlarmHistory(const unsigned int &index)
 {
 	const char *alarmId = m_impl->acquireCtx.alarmIds[index].c_str();
-	const SmartTime lastTime = getTimeOfLastEvent(generateHashU64(alarmId));
+	const SmartTime lastTime = getTimeOfLastEvent(alarmId);
 	string url = StringUtils::sprintf(
 	               "%s/v2/alarms/%s/history%s",
 	               m_impl->ceilometerEP.publicURL.c_str(),

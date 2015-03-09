@@ -281,8 +281,11 @@ SmartTime HatoholArmPluginBase::getTimeOfLastEvent(
 	HapiParamTimeOfLastEvent *param = 
 	  setupCommandHeader<HapiParamTimeOfLastEvent>(
 	    cmdBuf, HAPI_CMD_GET_TIME_OF_LAST_EVENT,
-	    sizeof(HapiParamTimeOfLastEvent));
-	param->triggerId = triggerId;
+	    sizeof(HapiParamTimeOfLastEvent) + triggerId.size() + 1);
+	char *buf = reinterpret_cast<char *>(param + 1);
+	buf = putString(buf, param, triggerId,
+	                &param->triggerIdOffset, &param->triggerIdLength);
+	cmdBuf.printBuffer();
 	send(cmdBuf, cb);
 	cb->wait();
 	if (!cb->getSucceeded()) {
