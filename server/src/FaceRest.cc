@@ -970,6 +970,12 @@ static string getTriggerBrief(
 	triggersQueryOption.setTargetServerId(serverId);
 	triggersQueryOption.setTargetId(triggerId);
 	dataStore->getTriggerList(triggerInfoList, triggersQueryOption);
+	if (triggerInfoList.empty()) {
+		MLPL_WARN("Failed to getTriggerInfo (Not found trigger): "
+		          "%" FMT_SERVER_ID ", %" FMT_TRIGGER_ID "\n",
+		          serverId, triggerId);
+		return "";
+	}
 
 	TriggerInfoListIterator it = triggerInfoList.begin();
 	TriggerInfo &firstTriggerInfo = *it;
