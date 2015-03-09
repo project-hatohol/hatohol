@@ -859,8 +859,8 @@ void test_getServerHostDefs(gconstpointer data)
 			  makeElementsComparisonString(expectIds, actIds);
 			cut_fail("%s", errMsg.c_str());
 		}
-		expectIds.erase(it);
 		const size_t expectedIdx = *it - 1;
+		expectIds.erase(it);
 		const ServerHostDef &exp = testServerHostDef[expectedIdx];
 		cppcut_assert_equal(exp.hostId, act.hostId);
 		cppcut_assert_equal(exp.serverId, act.serverId);
