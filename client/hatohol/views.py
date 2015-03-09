@@ -1,4 +1,4 @@
-# Copyright (C) 2014 Project Hatohol
+# Copyright (C) 2014-2015 Project Hatohol
 #
 # This file is part of Hatohol.
 #
@@ -22,10 +22,12 @@ from django.core import serializers
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.forms import ModelForm
+from django.core.exceptions import ValidationError
 
-from hatohol.models import LogSearchSystem
+from hatohol.models import LogSearchSystem, Graph
 from hatohol import hatoholserver
 from viewer.userconfig import get_user_id_from_hatohol_server
+from viewer.userconfig import NoHatoholUser, NoHatoholSession
 
 
 def format_models(models):
@@ -33,6 +35,11 @@ def format_models(models):
     flatten_records = []
     for record in records:
         flatten_record = dict({'id': record['pk']}, **record['fields'])
+        if 'settings_json' in flatten_record:
+            settings = json.loads(record['fields']['settings_json'])
+            del flatten_record['settings_json']
+            settings.update(flatten_record)
+            flatten_record = settings
         flatten_records.append(flatten_record)
     return flatten_records
 
@@ -53,12 +60,11 @@ class LogSearchSystemForm(ModelForm):
 
 
 def is_valid_session(request):
-    if hatoholserver.SESSION_NAME_META not in request.META:
+    try:
+        user_id = get_user_id_from_hatohol_server(request)
+        return True
+    except:
         return False
-    session_id = request.META[hatoholserver.SESSION_NAME_META]
-
-    user_id = get_user_id_from_hatohol_server(session_id)
-    return user_id is not None
 
 
 def log_search_systems(request, id):
@@ -113,4 +119,75 @@ def log_search_systems(request, id):
         else:
             systems = LogSearchSystem.objects.all().order_by('id')
             response = systems
+        return http.HttpResponse(to_json(response), content_type=content_type)
+
+
+def graphs(request, id):
+
+    content_type = 'application/json'
+
+    try:
+        user_id = get_user_id_from_hatohol_server(request)
+    except (NoHatoholUser, NoHatoholSession):
+        return http.HttpResponseForbidden(content_type=content_type)
+
+    if request.method == 'POST':
+        graph = Graph(user_id=user_id, settings_json=request.body)
+        try:
+            graph.full_clean()
+        except ValidationError as e:
+            return http.HttpResponseBadRequest(json.dumps(e.messages),
+                                               content_type=content_type)
+        graph.save()
+        response = http.HttpResponse(to_json(graph),
+                                     content_type=content_type,
+                                     status=201)
+        response['Location'] = reverse('hatohol.views.graphs',
+                                       args=[graph.id])
+        return response
+    elif request.method == 'PUT':
+        if id is None:
+            message = 'id is required'
+            return http.HttpResponseBadRequest(to_json(message),
+                                               content_type=content_type)
+        try:
+            graph = Graph.objects.get(id=id)
+            if graph.user_id != user_id:
+                return http.HttpResponseForbidden(content_type=content_type)
+            graph.settings_json = request.body
+            graph.full_clean()
+            graph.save()
+            return http.HttpResponse(to_json(graph),
+                                     content_type=content_type)
+        except Graph.DoesNotExist:
+            return http.HttpResponseNotFound(content_type=content_type)
+        except ValidationError as e:
+            return http.HttpResponseBadRequest(json.dumps(e.messages),
+                                               content_type=content_type)
+    elif request.method == 'DELETE':
+        if id is None:
+            message = 'id is required'
+            return http.HttpResponseBadRequest(to_json(message),
+                                               content_type=content_type)
+        try:
+            graph = Graph.objects.get(id=id)
+        except Graph.DoesNotExist:
+            return http.HttpResponseNotFound()
+        else:
+            if graph.user_id != user_id:
+                return http.HttpResponseForbidden(content_type=content_type)
+            graph.delete()
+            return http.HttpResponse()
+    else:
+        if id:
+            try:
+                graph = Graph.objects.get(id=id)
+            except Graph.DoesNotExist:
+                return http.HttpResponseNotFound()
+            if graph.user_id != user_id:
+                return http.HttpResponseForbidden(content_type=content_type)
+            response = graph
+        else:
+            graphs = Graph.objects.filter(user_id=user_id).order_by('id')
+            response = graphs
         return http.HttpResponse(to_json(response), content_type=content_type)

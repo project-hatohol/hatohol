@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 - 2015 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -22,6 +22,9 @@ var HistoryView = function(userProfile, options) {
   var secondsInHour = 60 * 60;
 
   self.options = options || {};
+  self.queryParams = deparam(self.options.query)
+  self.config = $.extend({}, self.queryParams);
+  self.graphId = self.config["id"];
   self.reloadIntervalSeconds = 60;
   self.autoReloadIsEnabled = false;
   self.graph = undefined;
@@ -29,20 +32,51 @@ var HistoryView = function(userProfile, options) {
   self.itemSelector = undefined;
   self.loaders = [];
 
-  prepare(self.parseQuery(self.options.query));
-  if (self.loaders.length > 0) {
+  appendWidgets();
+  if (!self.graphId)
+    setupGraphItems(self.parseGraphItems());
+  updateView();
+
+  if (self.graphId) {
+    // load config from server
+    loadConfig();
+    if (isEditMode())
+      self.itemSelector.show();
+  } else if (self.loaders.length > 0) {
+    // load config from query parameters
+    if (!isCreateMode()) {
+      $("#edit-graph-title-area").hide();
+      $("#hatohol-item-list .modal-footer").hide();
+    }
     load();
+    if (isCreateMode() || isEditMode())
+      self.itemSelector.show();
   } else {
+    // open the dialog to create a new config
     self.itemSelector.show();
+    $('#hatohol-item-list').on('hide.bs.modal', function (e) {
+      if (!isCreateMode())
+	return;
+      if (self.grpahId)
+        return;
+      if (!self.config.histories || self.config.histories.length <= 0)
+        window.location.href = "ajax_graphs"
+    });
   }
 
-  function prepare(historyQueries) {
-    var i;
+  function strToBool(val) {
+    if (!val)
+      return false;
+    val = val.toLowerCase();
+    return (val == "1" || val == "true")
+  }
 
-    appendWidgets();
-    for (i = 0; i < historyQueries.length; i++)
-      appendHistoryLoader(historyQueries[i]);
-    updateView();
+  function isCreateMode() {
+    return strToBool(self.queryParams['create']);
+  }
+
+  function isEditMode() {
+    return strToBool(self.queryParams['edit']);
   }
 
   function appendWidgets() {
@@ -114,7 +148,46 @@ var HistoryView = function(userProfile, options) {
         updateView();
       }
     });
-  };
+
+    $("#hatohol-graph-save").click(function() {
+      saveConfig();
+    });
+  }
+
+  function setupGraphItems(items) {
+    $.each(items, function(index, item) {
+      appendHistoryLoader(item);
+    });
+  }
+
+  function saveConfig() {
+    var url = "/graphs/";
+    var config = self.itemSelector.getConfig();
+
+    if (!config.histories || config.histories.length <= 0) {
+      hatoholErrorMsgBox(gettext("No item is specified!"));
+      return;
+    }
+
+    config.title = $("#edit-graph-title").val();
+    if (self.graphId)
+      url += self.graphId;
+
+    new HatoholConnector({
+      pathPrefix: "",
+      url: url,
+      request: self.graphId ? "PUT" : "POST",
+      data: JSON.stringify(config),
+      replyCallback: function(reply, parser) {
+        self.graphId = reply.id;
+        self.config = config;
+        self.itemSelector.hide()
+        hatoholInfoMsgBox(gettext("Successfully saved."));
+        updateView();
+      },
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
 
   function appendHistoryLoader(historyQuery, index) {
     var loader = new HatoholHistoryLoader({
@@ -186,6 +259,21 @@ var HistoryView = function(userProfile, options) {
     });
   }
 
+  function loadConfig() {
+    self.startConnection(
+      'graphs/' + self.graphId,
+      function(reply) {
+        self.config = reply;
+        delete self.config.id;
+        delete self.config.user_id;
+        $("#edit-graph-title").val(self.config.title);
+        setupGraphItems(self.parseGraphItems());
+        load();
+      },
+      null,
+      { pathPrefix: '' });
+  }
+
   function enableAutoReload(onClickButton) {
     var button = $("#hatohol-graph-auto-reload");
 
@@ -229,11 +317,12 @@ var HistoryView = function(userProfile, options) {
   }
 
   function updateView() {
+    var title = self.config.title || self.graph.title;
     self.graph.draw(self.slider.getBeginTime(),
                     self.slider.getEndTime());
     setSliderWidth();
     self.slider.draw();
-    setTitle(self.graph.title);
+    setTitle(title);
     self.displayUpdateTime();
   }
 };
@@ -241,8 +330,8 @@ var HistoryView = function(userProfile, options) {
 HistoryView.prototype = Object.create(HatoholMonitoringView.prototype);
 HistoryView.prototype.constructor = HistoryView;
 
-HistoryView.prototype.parseQuery = function(query) {
-  var allParams = deparam(query);
+HistoryView.prototype.parseGraphItems = function(query) {
+  var allParams = query ? deparam(query) : this.config;
   var histories = allParams["histories"];
   var i, tables = [];
 

@@ -192,7 +192,7 @@ describe('HistoryView', function() {
       histories: [expected[1], expected[2]]
     }, expected[0]);
     var query = $.param(queryObj);
-    var actual = HistoryView.prototype.parseQuery(query);
+    var actual = HistoryView.prototype.parseGraphItems(query);
     expect(expected).eql(actual);
   });
 

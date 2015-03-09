@@ -1,4 +1,4 @@
-# Copyright (C) 2013 Project Hatohol
+# Copyright (C) 2013-2015 Project Hatohol
 #
 # This file is part of Hatohol.
 #
@@ -17,7 +17,9 @@
 
 from django.db import models
 from django.db import transaction
+from django.core.exceptions import ValidationError
 import smartfield
+import json
 
 
 class UserConfig(models.Model):
@@ -109,3 +111,14 @@ class UserConfig(models.Model):
 class LogSearchSystem(models.Model):
     type = models.CharField(max_length=128)
     base_url = models.CharField(max_length=512)
+
+
+class Graph(models.Model):
+    user_id = models.IntegerField(db_index=True)
+    settings_json = models.TextField()
+
+    def clean(self):
+        try:
+            json.loads(self.settings_json)
+        except ValueError as e:
+            raise ValidationError('Broken JSON')

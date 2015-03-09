@@ -56,6 +56,10 @@ var HatoholNavi = function(userProfile, currentPage) {
           href:  "ajax_actions"
         },
         {
+          title: gettext("Graphs"),
+          href:  "ajax_graphs"
+        },
+        {
           title: gettext("Incident tracking"),
           href:  "ajax_incident_settings",
           flags: (1 << hatohol.OPPRVLG_CREATE_INCIDENT_SETTING) |

@@ -38,9 +38,14 @@
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
-            <h3>{% trans "Select items" %}</h3>
+            <h3>{% trans "Graph settings" %}</h3>
           </div>
           <div class="modal-body">
+            <div id="edit-graph-title-area" class="hatohol-config-section">
+              <label for="edit-graph-title">{% trans "Title" %}</label>
+              <input id="edit-graph-title" type="text"></input>
+            </div>
+            <label>{% trans "Items to plot" %}</label>
             <form class="form-inline hatohol-filter-toolbar">
               <table class="table table-stripped hatohol-item-list">
                 <tbody>
@@ -83,6 +88,15 @@
                 </tbody>
               </table>
             </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+              {% trans "CLOSE" %}
+            </button>
+            <button id="hatohol-graph-save" type="button"
+		    class="btn btn-primary">
+              {% trans "SAVE" %}
+            </button>
           </div>
         </div>
       </div>

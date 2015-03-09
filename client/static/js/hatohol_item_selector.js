@@ -143,7 +143,7 @@ HatoholItemSelector.prototype.setItem = function(index, item, servers,
   var server = item ? servers[item.serverId] : undefined;
   var serverName = item ? getNickName(server, item.serverId) : "-";
   var hostName = item ? getHostName(server, item.hostId) : "-";
-  var groupName = (hostgroupId && hostgroupId != -1) ?
+  var groupName = (hostgroupId && hostgroupId != "*") ?
     getHostgroupName(server, hostgroupId) : "-";
   var itemName = item ? getItemBriefWithUnit(item)  : "-";
   var id, tr;

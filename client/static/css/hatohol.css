@@ -130,6 +130,19 @@ h2.hatohol-graph {
     margin-bottom: 3.6em;
 }
 
+#hatohol-item-list label {
+    font-size: 18px;
+    margin-right: 0.5em;
+}
+
+.hatohol-config-section {
+     margin-bottom: 1em;
+}
+
+#edit-graph-title {
+    width: 90%;
+}
+
 .legend table td {
   padding: 2px;
 }

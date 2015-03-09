@@ -71,6 +71,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/actions_view.js \
 	static/js/incident_settings_view.js \
 	static/js/log_search_systems_view.js \
+	static/js/graphs_view.js \
 	static/js/users_view.js \
 	static/js/hatohol_def.js \
 	static/js/hatohol_connector.js \
@@ -124,6 +125,7 @@ nobase_dist_hatohol_client_DATA = \
 	viewer/hosts_ajax.html \
 	viewer/history_ajax.html \
 	viewer/log_search_systems_ajax.html \
+	viewer/graphs_ajax.html \
 	viewer/tests.py
 
 MO_FILES = \

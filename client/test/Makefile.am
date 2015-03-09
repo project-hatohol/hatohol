@@ -31,6 +31,7 @@ EXTRA_DIST = \
 	browser/test_users_view.js \
 	browser/test_utils.js \
 	browser/test_log_search_systems_view.js \
+	browser/test_graphs_view.js \
 	browser/test_triggers_view.js \
 	feature/dashboard_test.js \
 	feature/feature_test_utils.js \
