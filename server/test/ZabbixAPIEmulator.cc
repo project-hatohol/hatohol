@@ -267,7 +267,8 @@ static bool hasParameterTempl(
 		return false;
 
 	T value;
-	parser.read(paramName, value);
+	if (!parser.read(paramName, value))
+		return false;
 	return value == expectedValue;
 }
 
