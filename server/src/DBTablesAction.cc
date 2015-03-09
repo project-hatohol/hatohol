@@ -704,6 +704,8 @@ void DBTablesAction::deleteInvalidActions()
 	DBAgent::SelectExArg arg(tableProfileActions);
 	arg.add(IDX_ACTIONS_ACTION_ID);
 	arg.add(IDX_ACTIONS_OWNER_USER_ID);
+	arg.add(IDX_ACTIONS_ACTION_TYPE);
+	arg.add(IDX_ACTIONS_COMMAND);
 
 	getDBAgent().runTransaction(arg);
 
@@ -717,6 +719,8 @@ void DBTablesAction::deleteInvalidActions()
 
 		itemGroupStream >> actionId;
 		itemGroupStream >> actionDef.ownerUserId;
+		itemGroupStream >> actionDef.type;
+		itemGroupStream >> actionDef.command;
 
 		if (!validator.isValid(actionDef))
 		        actionIdList.push_back(actionId);
