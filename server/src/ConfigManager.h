@@ -68,7 +68,8 @@ public:
 	static bool parseCommandLine(gint *argc, gchar ***argv,
 	                             CommandLineOptions *cmdLineOpt);
 
-	static void reset(const CommandLineOptions *cmdLineOpt = NULL);
+	static void reset(const CommandLineOptions *cmdLineOpt = NULL,
+			  bool loadConfigFile = true);
 
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
 	                      ServerQueryOption &option);

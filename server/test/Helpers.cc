@@ -1442,7 +1442,8 @@ bool CommandArgHelper::activate(void)
 	const bool succeeded =
 	  ConfigManager::parseCommandLine(&argc, (gchar ***)&argv,
 	                                  &cmdLineOpts);
-	ConfigManager::reset(&cmdLineOpts);
+	bool loadConfigFile = true;
+	ConfigManager::reset(&cmdLineOpts, !loadConfigFile);
 	return succeeded;
 }
 

@@ -375,12 +375,14 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 	return true;
 }
 
-void ConfigManager::reset(const CommandLineOptions *cmdLineOpts)
+void ConfigManager::reset(const CommandLineOptions *cmdLineOpts,
+			  bool loadConfigFile)
 {
 	delete Impl::instance;
 	Impl::instance = NULL;
 	ConfigManager *confMgr = getInstance();
-	confMgr->loadConfFile();
+	if (loadConfigFile)
+		confMgr->loadConfFile();
 
 	confMgr->m_impl->actionCommandDirectory =
 	  StringUtils::sprintf("%s/%s/action", LIBEXECDIR, PACKAGE);
