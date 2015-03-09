@@ -199,6 +199,15 @@ MonitoringServerStatus testServerStatus[] =
 },{
 	3,                        // id
 	1.3,                      // nvps
+},{
+	4,                        // id
+	10.4,                     // nvps
+},{
+	211,                      // id
+	10.5,                     // nvps
+},{
+	222,                      // id
+	0.00051234,               // nvps
 }};
 size_t NumTestServerStatus = ARRAY_SIZE(testServerStatus);
 
