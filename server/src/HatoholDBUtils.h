@@ -48,7 +48,8 @@ public:
 
 	static void transformItemsToHatoholFormat(
 	  ItemInfoList &itemInfoList, MonitoringServerStatus &serverStatus,
-	  const ItemTablePtr items, const ItemTablePtr applications);
+	  const ItemTablePtr items, const ItemTablePtr applications,
+	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
 
 	static void transformHistoryToHatoholFormat(
 	  HistoryInfoVect &historyInfoVect, const ItemTablePtr items,
@@ -81,7 +82,8 @@ protected:
 
 	static bool transformItemItemGroupToItemInfo(
 	  ItemInfo &itemInfo, const ItemGroup *item,
-	  const ItemCategoryNameMap &itemCategoryNameMap);
+	  const ItemCategoryNameMap &itemCategoryNameMap,
+	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
 
 	static void transformHistoryItemGroupToHistoryInfo(
 	  HistoryInfo &historyInfo, const ItemGroup *item);

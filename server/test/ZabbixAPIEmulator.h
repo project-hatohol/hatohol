@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -25,6 +25,7 @@
 #include <libsoup/soup.h>
 #include "JSONParser.h"
 #include "HttpServerStub.h"
+#include "HostInfoCache.h"
 
 enum OperationMode {
 	OPE_MODE_NORMAL,
@@ -64,6 +65,8 @@ public:
 	void setExpectedLastEventId(const EventIdType &id);
 
 	static std::string getAPIVersionString(APIVersion version);
+	static void loadHostInfoCache(HostInfoCache &hostInfoCache,
+	                              const ServerIdType &serverId);
 
 protected:
 	virtual void setSoupHandlers(SoupServer *soupServer);

@@ -428,7 +428,8 @@ struct FetchStarter : public HatoholThreadBase {
 		      this, &FetchStarter::fetchHistoryCb);
 		ItemInfo itemInfo;
 		itemInfo.serverId = ALL_SERVERS; // dummy
-		itemInfo.hostId = ALL_HOSTS; // dummy
+		itemInfo.globalHostId = ALL_HOSTS; // dummy
+		itemInfo.hostIdInServer = ALL_LOCAL_HOSTS; // dummy
 		itemInfo.id = 1;
 		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
 		time_t endTime = time(NULL);

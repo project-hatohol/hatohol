@@ -726,7 +726,7 @@ void RestResourceHost::replyGetItem(void)
 		agent.startObject();
 		agent.add("id",        itemInfo.id);
 		agent.add("serverId",  itemInfo.serverId);
-		agent.add("hostId",    StringUtils::toString(itemInfo.hostId));
+		agent.add("hostId",    itemInfo.hostIdInServer);
 		agent.add("brief",     itemInfo.brief.c_str());
 		agent.add("lastValueTime",
 		          itemInfo.lastValueTime.tv_sec);

@@ -78,6 +78,7 @@ public:
 
 	ArmZabbixAPITestee(const MonitoringServerInfo &serverInfo)
 	: ArmZabbixAPI(serverInfo),
+	  m_serverId(serverInfo.id),
 	  m_result(false),
 	  m_threadOneProc(&ArmZabbixAPITestee::defaultThreadOneProc),
 	  m_countThreadOneProc(0),
@@ -172,7 +173,7 @@ public:
 		ItemInfo itemInfo;
 		itemInfo.serverId = 1;
 		itemInfo.id = 25490;
-		itemInfo.hostId = 0;
+		itemInfo.globalHostId = 0;
 		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
 		const ArmPollingResult oneProcEndType
 		  = ArmZabbixAPI::mainThreadOneProcFetchHistory(
@@ -245,6 +246,12 @@ public:
 		for (int i = 0; i < numData; i++)
 			ArmZabbixAPI::parseAndPushEventsData(parser, tablePtr, i);
 		return ItemTablePtr(tablePtr);
+	}
+
+	void loadHostInfoCacheForEmulator(void)
+	{
+		ZabbixAPIEmulator::loadHostInfoCache(getHostInfoCache(),
+		                                     m_serverId);
 	}
 
 protected:
@@ -354,6 +361,7 @@ protected:
 	}
 
 private:
+	const ServerIdType m_serverId;
 	bool m_result;
 	string m_errorMessage;
 	ThreadOneProc m_threadOneProc;
@@ -394,6 +402,7 @@ static void _assertReceiveData(ArmZabbixAPITestee::GetTestType testType,
 	serverInfo.port = getTestPort();
 
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	armZbxApiTestee.loadHostInfoCacheForEmulator();
 	g_apiEmulator.setAPIVersion(expectedVersion);
 	cppcut_assert_equal
 	  (true, armZbxApiTestee.testGet(testType, expectedVersion),
@@ -535,6 +544,7 @@ void test_mainThreadOneProc()
 	serverInfo.id = svId;
 	serverInfo.port = getTestPort();
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	armZbxApiTestee.loadHostInfoCacheForEmulator();
 	cppcut_assert_equal(true, armZbxApiTestee.testMainThreadOneProc());
 }
 
@@ -561,6 +571,7 @@ MonitoringServerInfo setupServer(void)
 void test_oneProcWithoutFetchItems()
 {
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.loadHostInfoCacheForEmulator();
 	armZbxApiTestee.testMainThreadOneProc();
 
 	ThreadLocalDBCache cache;
@@ -600,6 +611,7 @@ void test_oneProcWithoutFetchItems()
 void test_oneProcWithCopyOnDemandEnabled()
 {
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.loadHostInfoCacheForEmulator();
 	armZbxApiTestee.testSetCopyOnDemandEnabled(true);
 	armZbxApiTestee.testMainThreadOneProc();
 
@@ -640,6 +652,7 @@ void test_oneProcWithCopyOnDemandEnabled()
 void test_oneProcWithFetchItems()
 {
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.loadHostInfoCacheForEmulator();
 	armZbxApiTestee.testMainThreadOneProcFetchItems();
 
 	// DBClientHatoholl::getItemInfoList() function

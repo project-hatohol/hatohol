@@ -358,8 +358,7 @@ static void _assertItems(const string &path, const string &callbackName = "",
 		const ItemInfo &itemInfo = *itemInfoPtr;
 
 		assertValueInParser(parser, "serverId", itemInfo.serverId);
-		assertValueInParser(parser, "hostId",
-				    StringUtils::toString(itemInfo.hostId));
+		assertValueInParser(parser, "hostId", itemInfo.hostIdInServer);
 		assertValueInParser(parser, "brief", itemInfo.brief);
 		assertValueInParser(parser, "lastValueTime",
 		                    itemInfo.lastValueTime);

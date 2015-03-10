@@ -275,11 +275,14 @@ bool HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)
 		return false;
 
 	struct Callback : public CommandCallbacks {
-		const ServerIdType serverId;
+		const ServerIdType  &serverId;
+		const HostInfoCache &hostInfoCache;
 		Signal0 itemUpdatedSignal;
 
-		Callback(const ServerIdType &_serverId)
-		: serverId(_serverId)
+		Callback(const ServerIdType &_serverId,
+		         const HostInfoCache &_hostInfoCache)
+		: serverId(_serverId),
+		  hostInfoCache(_hostInfoCache)
 		{
 		}
 
@@ -296,7 +299,8 @@ bool HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)
 			ItemTablePtr appTablePtr  = createItemTable(replyBuf);
 			ItemInfoList itemList;
 			HatoholDBUtils::transformItemsToHatoholFormat(
-			  itemList, serverStatus, itemTablePtr, appTablePtr);
+			  itemList, serverStatus, itemTablePtr, appTablePtr,
+			  serverId, hostInfoCache);
 			UnifiedDataStore::getInstance()->addItemList(itemList);
 			cleanup();
 		}
@@ -315,7 +319,8 @@ bool HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)
 			this->unref();
 		}
 	};
-	Callback *callback = new Callback(m_impl->serverInfo.id);
+	Callback *callback =
+	  new Callback(m_impl->serverInfo.id, m_impl->hostInfoCache);
 	callback->itemUpdatedSignal.connect(closure);
 
 	SmartBuffer cmdBuf;
@@ -371,11 +376,14 @@ void HatoholArmPluginGate::startOnDemandFetchHistory(
 	HapiParamReqFetchHistory *body =
 	  setupCommandHeader<HapiParamReqFetchHistory>(
 	    cmdBuf, HAPI_CMD_REQ_FETCH_HISTORY);
-	body->hostId    = NtoL(itemInfo.hostId);
 	body->itemId    = NtoL(itemInfo.id);
 	body->valueType = NtoL(static_cast<uint16_t>(itemInfo.valueType));
 	body->beginTime = NtoL(beginTime);
 	body->endTime   = NtoL(endTime);
+
+	char *buf = reinterpret_cast<char *>(body + 1);
+	buf = putString(buf, body, itemInfo.hostIdInServer,
+	                &body->hostIdOffset, &body->hostIdLength);
 	send(cmdBuf, callback);
 }
 
@@ -387,6 +395,7 @@ bool HatoholArmPluginGate::startOnDemandFetchTrigger(Closure2 *closure)
 	struct Callback : public CommandCallbacks {
 		Signal2 triggerUpdatedSignal;
 		ServerIdType serverId;
+		// TODO: Consider if we can use m_impl->hostInfoCache ?
 		HostInfoCache hostInfoCache;
 		virtual void onGotReply(mlpl::SmartBuffer &replyBuf,
 		                        const HapiCommandHeader &cmdHeader)
@@ -1069,6 +1078,11 @@ void HatoholArmPluginGate::setGLibMainContext(GMainContext *context)
 	HATOHOL_ASSERT(m_impl->allowSetGLibMainContext,
 	               "Calling setGLibMainContext() is too late.");
 	HatoholArmPluginInterface::setGLibMainContext(context);
+}
+
+HostInfoCache &HatoholArmPluginGate::getHostInfoCache(void)
+{
+	return m_impl->hostInfoCache;
 }
 
 gboolean HatoholArmPluginGate::pipeRdErrCb(

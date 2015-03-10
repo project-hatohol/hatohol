@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -147,7 +147,8 @@ enum ItemInfoValueType {
 struct ItemInfo {
 	ServerIdType        serverId;
 	ItemIdType          id;
-	HostIdType          hostId;
+	HostIdType          globalHostId;
+	LocalHostIdType     hostIdInServer;
 	std::string         brief;
 	timespec            lastValueTime;
 	std::string         lastValue;

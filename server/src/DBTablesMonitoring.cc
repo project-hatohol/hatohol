@@ -55,6 +55,7 @@ const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 // -> 1.0
 //   * remove IDX_TRIGGERS_HOST_ID,
 //   * add IDX_TRIGGERS_GLOBAL_HOST_ID and IDX_TRIGGERS_HOST_ID_IN_SERVER
+//   * add IDX_ITEMS_GLOBAL_HOST_ID and IDX_ITEMS_HOST_ID_IN_SERVER
 //   * triggers.id -> VARCHAR
 //   * events.trigger_id -> VARCHAR
 const int DBTablesMonitoring::MONITORING_DB_VERSION =
@@ -418,9 +419,18 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"host_id",                         // columnName
+	"global_host_id",                  // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"host_id_in_server",               // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -504,7 +514,8 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 enum {
 	IDX_ITEMS_SERVER_ID,
 	IDX_ITEMS_ID,
-	IDX_ITEMS_HOST_ID,
+	IDX_ITEMS_GLOBAL_HOST_ID,
+	IDX_ITEMS_HOST_ID_IN_SERVER,
 	IDX_ITEMS_BRIEF,
 	IDX_ITEMS_LAST_VALUE_TIME_SEC,
 	IDX_ITEMS_LAST_VALUE_TIME_NS,
@@ -1355,7 +1366,7 @@ TriggerStatusType TriggersQueryOption::getTriggerStatus(void) const
 //
 static const HostResourceQueryOption::Synapse synapseItemsQueryOption(
   tableProfileItems, IDX_ITEMS_ID, IDX_ITEMS_SERVER_ID,
-  tableProfileItems, IDX_ITEMS_HOST_ID,
+  tableProfileItems, IDX_ITEMS_HOST_ID_IN_SERVER,
   true,
   tableProfileHostgroupMember,
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
@@ -2127,7 +2138,8 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	DBClientJoinBuilder builder(tableProfileItems, &option);
 	builder.add(IDX_ITEMS_SERVER_ID);
 	builder.add(IDX_ITEMS_ID);
-	builder.add(IDX_ITEMS_HOST_ID);
+	builder.add(IDX_ITEMS_GLOBAL_HOST_ID);
+	builder.add(IDX_ITEMS_HOST_ID_IN_SERVER);
 	builder.add(IDX_ITEMS_BRIEF);
 	builder.add(IDX_ITEMS_LAST_VALUE_TIME_SEC);
 	builder.add(IDX_ITEMS_LAST_VALUE_TIME_NS);
@@ -2140,7 +2152,7 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
 	  tableProfileItems, IDX_ITEMS_SERVER_ID,
 	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
-	  tableProfileItems, IDX_ITEMS_HOST_ID,
+	  tableProfileItems, IDX_ITEMS_HOST_ID_IN_SERVER,
 	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	
 	DBAgent::SelectExArg &arg = builder.build();
@@ -2174,7 +2186,8 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 
 		itemGroupStream >> itemInfo.serverId;
 		itemGroupStream >> itemInfo.id;
-		itemGroupStream >> itemInfo.hostId;
+		itemGroupStream >> itemInfo.globalHostId;
+		itemGroupStream >> itemInfo.hostIdInServer;
 		itemGroupStream >> itemInfo.brief;
 		itemGroupStream >> itemInfo.lastValueTime.tv_sec;
 		itemGroupStream >> itemInfo.lastValueTime.tv_nsec;
@@ -2197,7 +2210,7 @@ void DBTablesMonitoring::getApplicationInfoVect(ApplicationInfoVect &application
 	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
 	  tableProfileItems, IDX_ITEMS_SERVER_ID,
 	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
-	  tableProfileItems, IDX_ITEMS_HOST_ID,
+	  tableProfileItems, IDX_ITEMS_HOST_ID_IN_SERVER,
 	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 
 	DBAgent::SelectExArg &arg = builder.build();
@@ -2398,7 +2411,7 @@ size_t DBTablesMonitoring::getNumberOfItems(
 	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
 	  tableProfileItems, IDX_ITEMS_SERVER_ID,
 	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
-	  tableProfileItems, IDX_ITEMS_HOST_ID,
+	  tableProfileItems, IDX_ITEMS_HOST_ID_IN_SERVER,
 	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt = "count(*)";
 	if (option.isHostgroupUsed()) {
@@ -2692,7 +2705,8 @@ void DBTablesMonitoring::addItemInfoWithoutTransaction(
 	DBAgent::InsertArg arg(tableProfileItems);
 	arg.add(itemInfo.serverId);
 	arg.add(itemInfo.id);
-	arg.add(itemInfo.hostId);
+	arg.add(itemInfo.globalHostId);
+	arg.add(itemInfo.hostIdInServer);
 	arg.add(itemInfo.brief);
 	arg.add(itemInfo.lastValueTime.tv_sec);
 	arg.add(itemInfo.lastValueTime.tv_nsec);

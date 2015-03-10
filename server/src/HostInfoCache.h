@@ -43,7 +43,7 @@ public:
 	 * Get the name corresponding to the specified host ID.
 	 *
 	 * @param idInServer A target host ID in the server.
-	 * @param elem The obtained element is store in this paramter.
+	 * @param elem The obtained element is stored in this paramter.
 	 *
 	 * @return true if the host is found, or false.
 	 */

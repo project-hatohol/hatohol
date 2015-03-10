@@ -133,7 +133,8 @@ void _assertEqual(const ItemInfo &expect, const ItemInfo &actual)
 {
 	cppcut_assert_equal(expect.serverId,  actual.serverId);
 	cppcut_assert_equal(expect.id,        actual.id);
-	cppcut_assert_equal(expect.hostId,    actual.hostId);
+	cppcut_assert_equal(expect.globalHostId,   actual.globalHostId);
+	cppcut_assert_equal(expect.hostIdInServer, actual.hostIdInServer);
 	cppcut_assert_equal(expect.brief,     actual.brief);
 	cppcut_assert_equal(expect.lastValueTime.tv_sec,
 	                    actual.lastValueTime.tv_sec);
@@ -1155,7 +1156,7 @@ VariableItemGroupPtr convert(const ItemInfo &itemInfo,
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_KEY_, "");
 
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_ITEMID, itemInfo.id);
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_HOSTID, itemInfo.hostId);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_HOSTID, itemInfo.hostIdInServer);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTCLOCK,
 	                (int)itemInfo.lastValueTime.tv_sec);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTVALUE, itemInfo.lastValue);

@@ -224,7 +224,8 @@ void ArmZabbixAPI::makeHatoholItems(
 	MonitoringServerStatus serverStatus;
 	serverStatus.serverId = m_impl->zabbixServerId;
 	HatoholDBUtils::transformItemsToHatoholFormat(
-	  itemInfoList, serverStatus, items, applications);
+	  itemInfoList, serverStatus, items, applications,
+	  m_impl->zabbixServerId, m_impl->hostInfoCache);
 	dbMonitoring.addItemInfoList(itemInfoList);
 	dbMonitoring.addMonitoringServerStatus(&serverStatus);
 }
@@ -263,6 +264,11 @@ void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)
 {
 	return NUMBER_OF_GET_EVENT_PER_ONCE;
+}
+
+HostInfoCache &ArmZabbixAPI::getHostInfoCache(void)
+{
+	return m_impl->hostInfoCache;
 }
 
 ArmBase::ArmPollingResult ArmZabbixAPI::handleHatoholException(

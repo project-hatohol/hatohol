@@ -105,6 +105,8 @@ public:
 	void canncelRetrySleepIfNeeded(void);
 	NamedPipe &callGetHapPipeForRead(void);
 	NamedPipe &callGetHapPipeForWrite(void);
+	void loadTestHostInfoCache(void);
+	void loadHostInfoCacheForEmulator(void);
 
 private:
 	HapgTestCtx       &m_ctx;

@@ -684,7 +684,8 @@ void ArmNagiosNDOUtils::getItem(void)
 		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_STRING;
 
 		itemGroupStream >> itemInfo.id;        // service_id
-		itemGroupStream >> itemInfo.hostId;    // host_id
+		itemInfo.globalHostId = INVALID_HOST_ID;
+		itemGroupStream >> itemInfo.hostIdInServer; // host_id
 		itemGroupStream >> itemInfo.brief;     // check_command
 		itemGroupStream >> itemInfo.lastValueTime.tv_sec;
 		                                       // status_update_time

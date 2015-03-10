@@ -494,7 +494,7 @@ void test_fetchHistory(void)
 	ItemInfo itemInfo;
 	itemInfo.id = 0;
 	itemInfo.serverId = 0;
-	itemInfo.hostId = 0;
+	itemInfo.globalHostId = 0;
 	itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
 	armBase.fetchHistory(itemInfo, 0, 0, ctx.fetchHistoryClosure);
 	armBase.start();

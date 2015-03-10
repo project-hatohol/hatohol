@@ -29,6 +29,7 @@
 #include "DBTablesConfig.h"
 #include "DataStore.h"
 #include "Closure.h"
+#include "HostInfoCache.h"
 
 class HatoholArmPluginGate : public DataStore, public HatoholArmPluginInterface {
 public:
@@ -154,6 +155,7 @@ protected:
 	NamedPipe &getHapPipeForRead(void);
 	NamedPipe &getHapPipeForWrite(void);
 	void setGLibMainContext(GMainContext *context);
+	HostInfoCache &getHostInfoCache(void);
 
 	static gboolean detectedArmPluginTimeout(void *data);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -18,6 +18,7 @@
  */
 
 #include "HatoholArmPluginGateTest.h"
+#include "ZabbixAPIEmulator.h"
 
 using namespace std;
 using namespace mlpl;
@@ -139,4 +140,15 @@ NamedPipe &HatoholArmPluginGateTest::callGetHapPipeForRead(void)
 NamedPipe &HatoholArmPluginGateTest::callGetHapPipeForWrite(void)
 {
 	return getHapPipeForWrite();
+}
+
+void HatoholArmPluginGateTest::loadTestHostInfoCache(void)
+{
+	loadHostInfoCache(getHostInfoCache(), getMonitoringServerInfo().id);
+}
+
+void HatoholArmPluginGateTest::loadHostInfoCacheForEmulator(void)
+{
+	ZabbixAPIEmulator::loadHostInfoCache(
+	  getHostInfoCache(), getMonitoringServerInfo().id);
 }

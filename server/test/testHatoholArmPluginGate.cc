@@ -435,6 +435,7 @@ void test_fetchItem(void)
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	TestPair pair(arg);
 	pair.plugin->serverIdOfHapGate = arg.serverId;
+	pair.gate->loadTestHostInfoCache();
 
 	TestReceiver receiver;
 	pair.gate->startOnDemandFetchItem(
@@ -473,7 +474,8 @@ void test_fetchEmptyHistory(void)
 	TestReceiver receiver;
 	ItemInfo itemInfo;
 	itemInfo.serverId = arg.serverId;
-	itemInfo.hostId = ALL_HOSTS; // dummy
+	itemInfo.globalHostId = ALL_HOSTS; // dummy
+	itemInfo.hostIdInServer = ALL_LOCAL_HOSTS; // dummy
 	itemInfo.id = 1;
 	itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
 	pair.gate->startOnDemandFetchHistory(
@@ -493,7 +495,8 @@ void test_fetchHistory(void)
 
 	ItemInfo itemInfo;
 	itemInfo.serverId = testHistoryInfo[0].serverId;
-	itemInfo.hostId = ALL_HOSTS;
+	itemInfo.globalHostId = ALL_HOSTS;
+	itemInfo.hostIdInServer = ALL_LOCAL_HOSTS;
 	itemInfo.id = testHistoryInfo[0].itemId;
 	itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
 	time_t beginTime = testHistoryInfo[0].clock.tv_sec + 1;
