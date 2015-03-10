@@ -99,12 +99,12 @@ describe('EventsView', function() {
     return dummyServerInfo;
   }
 
-  function testTableContents(serverURL, hostURL, dummyServerInfo, eventURL){
+  function testTableContents(serverURL, hostURL, dummyServerInfo, params){
     var view = new EventsView(getOperator());
     var expected =
       '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>';
-    if (eventURL) {
-      expected += '<td><a href="' + escapeHTML(eventURL) +
+    if (params) {
+      expected += '<td><a href="' + escapeHTML(params.eventURL) +
                   '" target="_blank">' + escapeHTML(formatDate(1415749496)) +
                   '</a></td>';
     } else {
@@ -125,13 +125,13 @@ describe('EventsView', function() {
   }
 
   function testTableContentsWithExpandedDescription(serverURL, hostURL,
-                                                    dummyServerInfo, eventURL)
+                                                    dummyServerInfo, params)
   {
     var view = new EventsView(getOperator());
     var expected =
       '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>';
-    if (eventURL) {
-      expected += '<td><a href="' + escapeHTML(eventURL) +
+    if (params) {
+      expected += '<td><a href="' + escapeHTML(params.eventURL) +
                   '" target="_blank">' + escapeHTML(formatDate(1415759496)) +
                   '</a></td>';
     } else {
@@ -198,19 +198,19 @@ describe('EventsView', function() {
     var zabbixURL = "http://192.168.1.100/zabbix/";
     var zabbixLatestURL =
       "http://192.168.1.100/zabbix/latest.php?&hostid=10105";
-    var eventURL =
-      "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=12332";
-    testTableContents(zabbixURL, zabbixLatestURL, getDummyServerInfo(0), eventURL);
+    var params =
+      {eventURL: "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=12332"};
+    testTableContents(zabbixURL, zabbixLatestURL, getDummyServerInfo(0), params);
   });
 
   it('new with fake zabbix data included expanded description', function() {
     var zabbixURL = "http://192.168.1.100/zabbix/";
     var zabbixLatestURL =
       "http://192.168.1.100/zabbix/latest.php?&hostid=10106";
-    var eventURL =
-      "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=18483";
+    var params =
+      {eventURL: "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=18483"};
     testTableContentsWithExpandedDescription(zabbixURL, zabbixLatestURL,
-                                             getDummyServerInfo(0), eventURL);
+                                             getDummyServerInfo(0), params);
   });
 
   it('new with fake nagios data', function() {
