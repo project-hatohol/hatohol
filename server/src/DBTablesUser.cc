@@ -465,10 +465,10 @@ void DBTablesUser::init(void)
 		Impl::validUsernameChars[c] = true;
 	for (uint8_t c = '0'; c <= '9'; c++)
 		Impl::validUsernameChars[c] = true;
-	Impl::validUsernameChars['.'] = true;
-	Impl::validUsernameChars['-'] = true;
-	Impl::validUsernameChars['_'] = true;
-	Impl::validUsernameChars['@'] = true;
+	Impl::validUsernameChars[static_cast<uint8_t>('.')] = true;
+	Impl::validUsernameChars[static_cast<uint8_t>('-')] = true;
+	Impl::validUsernameChars[static_cast<uint8_t>('_')] = true;
+	Impl::validUsernameChars[static_cast<uint8_t>('@')] = true;
 }
 
 void DBTablesUser::reset(void)
