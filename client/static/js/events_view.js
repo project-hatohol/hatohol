@@ -290,6 +290,35 @@ var EventsView = function(userProfile, baseElem) {
     return  hostId == "__SELF_MONITOR";
   }
 
+  function generateTimeColumn(serverURL, hostId, triggerId, eventId, clock) {
+    var html = "";
+    if (serverURL.indexOf("zabbix") >= 1 && !isSelfMonitoringHost(hostId)) {
+      html += "<td><a href='" + serverURL + "tr_events.php?&triggerid="
+              + triggerId + "&eventid=" + eventId
+              + "' target='_blank'>" + escapeHTML(formatDate(clock))
+              + "</a></td>";
+    } else {
+      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
+              formatDate(clock) + "</td>";
+    }
+    return html;
+  }
+
+  function generateHostColumn(serverURL, hostId, hostName) {
+    var html = "";
+    if (serverURL.indexOf("zabbix") >= 0 && !isSelfMonitoringHost(hostId)) {
+      html += "<td><a href='" + serverURL + "latest.php?&hostid="
+              + hostId + "' target='_blank'>" + escapeHTML(hostName)
+              + "</a></td>";
+    } else if (serverURL.indexOf("nagios")>=0) {
+      html += "<td><a href='" + serverURL + "cgi-bin/status.cgi?host="
+        + hostName + "' target='_blank'>" + escapeHTML(hostName) + "</a></td>";
+    } else {
+      html += "<td>" + escapeHTML(hostName) + "</td>";
+    }
+    return html;
+  }
+
   function drawTableBody() {
     var serverName, nickName, hostName, clock, status, severity, incident, duration, description;
     var server, event, eventId, serverId, serverURL, hostId, triggerId, html = "";
@@ -322,25 +351,8 @@ var EventsView = function(userProfile, baseElem) {
       if (serverURL) {
         html += "<tr><td><a href='" + serverURL + "' target='_blank'>" + escapeHTML(nickName)
                 + "</a></td>";
-        if (serverURL.indexOf("zabbix") >= 1 && !isSelfMonitoringHost(hostId)) {
-          html += "<td><a href='" + serverURL + "tr_events.php?&triggerid="
-                  + triggerId + "&eventid=" + eventId
-                  + "' target='_blank'>" + escapeHTML(formatDate(clock))
-                  + "</a></td>";
-        } else {
-          html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
-                  formatDate(clock) + "</td>";
-        }
-        if (serverURL.indexOf("zabbix") >= 0 && !isSelfMonitoringHost(hostId)) {
-          html += "<td><a href='" + serverURL + "latest.php?&hostid="
-                  + hostId + "' target='_blank'>" + escapeHTML(hostName)
-                  + "</a></td>";
-        } else if (serverURL.indexOf("nagios")>=0) {
-          html += "<td><a href='" + serverURL + "cgi-bin/status.cgi?host="
-                  + hostName + "' target='_blank'>" + escapeHTML(hostName) + "</a></td>";
-        } else {
-          html += "<td>" + escapeHTML(hostName) + "</td>";
-        }
+        html += generateTimeColumn(serverURL, hostId, triggerId, eventId, clock);
+        html += generateHostColumn(serverURL, hostId, hostName);
       } else {
         html += "<tr><td>" + escapeHTML(nickName)+ "</td>";
         html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
