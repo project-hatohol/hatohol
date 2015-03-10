@@ -317,13 +317,22 @@ var EventsView = function(userProfile, baseElem) {
       if (serverURL) {
         html += "<tr><td><a href='" + serverURL + "' target='_blank'>" + escapeHTML(nickName)
                 + "</a></td>";
-        html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
-                formatDate(clock) + "</td>";
+        if (hostName.match(/_SELF$/)) {
+          html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
+                  formatDate(clock) + "</td>";
+        } else if (serverURL.indexOf("zabbix") >= 0) {
+          html += "<td><a href='" + serverURL + "events.php?&triggerid="
+                  + triggerId + "' target='_blank'>" + escapeHTML(formatDate(clock))
+                  + "</a></td>";
+        } else {
+          html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
+                  formatDate(clock) + "</td>";
+        }
         if (hostName.match(/_SELF$/)) {
           html += "<td>" + escapeHTML(hostName) + "</td>";
         } else if (serverURL.indexOf("zabbix") >= 0) {
-          html += "<td><a href='" + serverURL + "events.php?&triggerid="
-                  + triggerId + "' target='_blank'>" + escapeHTML(hostName)
+          html += "<td><a href='" + serverURL + "latest.php?&hostid="
+                  + hostId + "' target='_blank'>" + escapeHTML(hostName)
                   + "</a></td>";
         } else if (serverURL.indexOf("nagios")>=0) {
           html += "<td><a href='" + serverURL + "cgi-bin/status.cgi?host="
