@@ -677,7 +677,7 @@ msgstr "そのような項目はありません: "
 
 #: static/js/hatohol_history_loader.js:109
 msgid "Too many items are found for "
-msgstr "見つかった項目が多すぎます。項目: "
+msgstr "見つかったアイテムが多すぎます。アイテム: "
 
 #: static/js/hatohol_host_selector.js:31
 msgid "Host selecion"
