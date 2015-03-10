@@ -319,6 +319,28 @@ var EventsView = function(userProfile, baseElem) {
     return html;
   }
 
+  function generateIncidentColumns(haveIncident, incident) {
+    var html = "";
+    if (haveIncident) {
+      html += "<td class='incident'>";
+      html += "<a href='" + escapeHTML(incident.location)
+              + "' target='_blank'>";
+      html += escapeHTML(incident.status) + "</a>";
+      html += "</td>";
+      html += "<td class='incident'>";
+      html += escapeHTML(incident.priority);
+      html += "</td>";
+      html += "<td class='incident'>";
+      html += escapeHTML(incident.assignee);
+      html += "</td>";
+      html += "<td class='incident'>";
+      if (incident.status)
+        html += escapeHTML(incident.doneRatio) + "%";
+      html += "</td>";
+    }
+    return html;
+  }
+
   function drawTableBody() {
     var serverName, nickName, hostName, clock, status, severity, incident, duration, description;
     var server, event, eventId, serverId, serverURL, hostId, triggerId, html = "";
@@ -368,23 +390,7 @@ var EventsView = function(userProfile, baseElem) {
         severity_choices[Number(severity)] + "</td>";
       html += "<td data-sort-value='" + duration + "'>" +
         formatSecond(duration) + "</td>";
-      if (self.rawData["haveIncident"]) {
-        html += "<td class='incident'>";
-        html += "<a href='" + escapeHTML(incident.location)
-                + "' target='_blank'>";
-        html += escapeHTML(incident.status) + "</a>";
-        html += "</td>";
-        html += "<td class='incident'>";
-        html += escapeHTML(incident.priority);
-        html += "</td>";
-        html += "<td class='incident'>";
-        html += escapeHTML(incident.assignee);
-        html += "</td>";
-        html += "<td class='incident'>";
-        if (incident.status)
-          html += escapeHTML(incident.doneRatio) + "%";
-        html += "</td>";
-      }
+      html += generateIncidentColumns(self.rawData["haveIncident"], incident);
       html += "</tr>";
     }
 
