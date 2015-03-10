@@ -1416,11 +1416,11 @@ msgstr "権限"
 
 #: static/js/history_view.js:97
 msgid "Toggle auto refresh"
-msgstr ""
+msgstr "自動読み込み有効無効切り替え"
 
 #: static/js/history_view.js:103
 msgid "Select items"
-msgstr ""
+msgstr "項目を選択する"
 
 #: static/js/history_view.js:168
 msgid "No item is specified!"
