@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -25,7 +25,7 @@
 #include "DBTables.h"
 #include "Params.h"
 
-const static uint64_t INVALID_ACTION_LOG_ID = -1;
+const static ActionLogIdType INVALID_ACTION_LOG_ID = -1;
 
 enum ActionType {
 	ACTION_USER_DEFINED = -2, // COMMAND & RESIDENT
@@ -262,7 +262,7 @@ class DBTablesAction : public DBTables {
 
 public:
 	struct LogEndExecActionArg {
-		uint64_t logId;
+		ActionLogIdType logId;
 		ActionLogStatus status;
 		int   exitCode;
 		ActionLogExecFailureCode failureCode;
@@ -312,7 +312,7 @@ public:
 	 *
 	 * @return a created action log ID.
 	 */
-	uint64_t createActionLog
+	ActionLogIdType createActionLog
 	  (const ActionDef &actionDef, const EventInfo &eventInfo,
 	   ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE,
 	   ActionLogStatus initialStatus = ACTLOG_STAT_STARTED);
@@ -335,7 +335,7 @@ public:
 	 *
 	 * @param logId A logID to be updated.
 	 */
-	void updateLogStatusToStart(uint64_t logId);
+	void updateLogStatusToStart(const ActionLogIdType &logId);
 
 	/**
 	 * Get the action log.
@@ -346,7 +346,7 @@ public:
 	 *
 	 * @return true if the log is found. Otherwise false.
 	 */
-	bool getLog(ActionLog &actionLog, uint64_t logId);
+	bool getLog(ActionLog &actionLog, const ActionLogIdType &logId);
 
 	/**
 	 * Get the event log.

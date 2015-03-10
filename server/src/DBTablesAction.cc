@@ -775,7 +775,7 @@ uint64_t DBTablesAction::createActionLog(
 	arg.row->addNewItem(eventInfo.serverId);
 	arg.row->addNewItem(eventInfo.id);
 
-	uint64_t logId;
+	ActionLogIdType logId;
 	getDBAgent().runTransaction(arg, &logId);
 	return logId;
 }
@@ -786,7 +786,7 @@ void DBTablesAction::logEndExecAction(const LogEndExecActionArg &logArg)
 
 	const char *actionLogIdColumnName =
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
-	arg.condition = StringUtils::sprintf("%s=%" PRIu64,
+	arg.condition = StringUtils::sprintf("%s=%" FMT_ACTION_LOG_ID,
 	                                     actionLogIdColumnName,
 	                                     logArg.logId);
 	// status
@@ -804,13 +804,13 @@ void DBTablesAction::logEndExecAction(const LogEndExecActionArg &logArg)
 	getDBAgent().runTransaction(arg);
 }
 
-void DBTablesAction::updateLogStatusToStart(uint64_t logId)
+void DBTablesAction::updateLogStatusToStart(const ActionLogIdType &logId)
 {
 	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
 	const char *actionLogIdColumnName =
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
-	arg.condition = StringUtils::sprintf("%s=%" PRIu64,
+	arg.condition = StringUtils::sprintf("%s=%" FMT_ACTION_LOG_ID,
 	                                     actionLogIdColumnName, logId);
 	arg.add(IDX_ACTION_LOGS_STATUS, ACTLOG_STAT_STARTED);
 	arg.add(IDX_ACTION_LOGS_START_TIME, CURR_DATETIME);
@@ -818,11 +818,11 @@ void DBTablesAction::updateLogStatusToStart(uint64_t logId)
 	getDBAgent().runTransaction(arg);
 }
 
-bool DBTablesAction::getLog(ActionLog &actionLog, uint64_t logId)
+bool DBTablesAction::getLog(ActionLog &actionLog, const ActionLogIdType &logId)
 {
 	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
 	const char *idColName = def[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
-	string condition = StringUtils::sprintf("%s=%" PRIu64,
+	string condition = StringUtils::sprintf("%s=%" FMT_ACTION_LOG_ID,
 	                                        idColName, logId);
 	return getLog(actionLog, condition);
 }

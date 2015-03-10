@@ -83,6 +83,9 @@ typedef std::string HostgroupIdType;
 typedef int IncidentTrackerIdType;
 #define FMT_INCIDENT_TRACKER_ID "d"
 
+typedef uint64_t ActionLogIdType;
+#define FMT_ACTION_LOG_ID PRIu64
+
 // Special Server IDs =========================================================
 static const ServerIdType ALL_SERVERS       = -1;
 static const ServerIdType INVALID_SERVER_ID = -2;
