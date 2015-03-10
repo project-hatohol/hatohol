@@ -275,8 +275,14 @@ bool HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)
 		return false;
 
 	struct Callback : public CommandCallbacks {
+		const ServerIdType serverId;
 		Signal0 itemUpdatedSignal;
-		ServerIdType serverId;
+
+		Callback(const ServerIdType &_serverId)
+		: serverId(_serverId)
+		{
+		}
+
 		virtual void onGotReply(mlpl::SmartBuffer &replyBuf,
 		                        const HapiCommandHeader &cmdHeader)
 		                          override
@@ -309,9 +315,8 @@ bool HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)
 			this->unref();
 		}
 	};
-	Callback *callback = new Callback();
+	Callback *callback = new Callback(m_impl->serverInfo.id);
 	callback->itemUpdatedSignal.connect(closure);
-	callback->serverId = m_impl->serverInfo.id;
 
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(cmdBuf, HAPI_CMD_REQ_FETCH_ITEMS);
