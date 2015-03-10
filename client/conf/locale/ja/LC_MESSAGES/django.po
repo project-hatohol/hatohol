@@ -304,11 +304,11 @@ msgstr "タイトル"
 
 #: viewer/history_ajax.html:48
 msgid "Items to plot"
-msgstr "プロット項目"
+msgstr "プロットするアイテム"
 
 #: viewer/history_ajax.html:57
 msgid "Item"
-msgstr "項目"
+msgstr "アイテム"
 
 #: viewer/history_ajax.html:94
 msgid "CLOSE"
