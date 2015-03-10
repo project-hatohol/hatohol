@@ -664,6 +664,7 @@ void RestResourceHost::handlerGetEvent(void)
 		agent.add("time",      eventInfo.time.tv_sec);
 		agent.add("type",      eventInfo.type);
 		agent.add("triggerId", eventInfo.triggerId);
+		agent.add("eventId",   eventInfo.id);
 		agent.add("status",    eventInfo.status);
 		agent.add("severity",  eventInfo.severity);
 		agent.add("hostId",    eventInfo.hostIdInServer);
