@@ -624,7 +624,8 @@ void test_setServerConnectStatus(void)
 
 	// check the generated host
 	ServerHostDefVect hosts;
-	uds->getServerHostDefs(hosts, HostsQueryOption(USER_ID_SYSTEM));
+	HostsQueryOption option(USER_ID_SYSTEM);
+	uds->getServerHostDefs(hosts, option);
 	cppcut_assert_equal((size_t)1, (size_t)hosts.size());
 	const ServerHostDef &actualHost = *hosts.begin();
 	cppcut_assert_equal(serverInfo.id, actualHost.serverId);
