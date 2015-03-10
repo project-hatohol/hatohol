@@ -310,7 +310,7 @@ var EventsView = function(userProfile, baseElem) {
       html += "<td><a href='" + serverURL + "latest.php?&hostid="
               + hostId + "' target='_blank'>" + escapeHTML(hostName)
               + "</a></td>";
-    } else if (serverURL.indexOf("nagios")>=0 && !isSelfMonitoringHost(hostId)) {
+    } else if (serverURL.indexOf("nagios") >= 0 && !isSelfMonitoringHost(hostId)) {
       html += "<td><a href='" + serverURL + "cgi-bin/status.cgi?host="
         + hostName + "' target='_blank'>" + escapeHTML(hostName) + "</a></td>";
     } else {
