@@ -33,6 +33,7 @@
 #endif
 
 #define HATOHOL_STACK_TRACE_SET_ENV "HATOHOL_EXCEPTION_STACK_TRACE"
+#define HATOHOL_EXCEPTION_ABORT_ENV "HATOHOL_EXCEPTION_ABORT"
 
 class HatoholException : public std::exception
 {
@@ -64,6 +65,7 @@ protected:
 
 private:
 	static bool m_saveStackTrace;
+	static bool m_abort;
 
 	std::string m_what;
 	mutable std::string m_whatCache;
