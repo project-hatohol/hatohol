@@ -287,7 +287,7 @@ var EventsView = function(userProfile, baseElem) {
   }
 
   function drawTableBody() {
-    var serverName, hostName, clock, status, severity, duration, description;
+    var serverName, nickName, hostName, clock, status, severity, incident, duration, description;
     var server, event, serverId, serverURL, hostId, triggerId, html = "";
     var x, severityClass;
 
