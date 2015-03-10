@@ -8,6 +8,7 @@ describe('EventsView', function() {
       "time":1415749496,
       "type":1,
       "triggerId":"13569",
+      "eventId": "12332",
       "status":1,
       "severity":1,
       "hostId":"10105",
@@ -19,6 +20,7 @@ describe('EventsView', function() {
       "time":1415759496,
       "type":1,
       "triggerId":"13569",
+      "eventId": "18483",
       "status":1,
       "severity":1,
       "hostId":"10106",
@@ -97,17 +99,23 @@ describe('EventsView', function() {
     return dummyServerInfo;
   }
 
-  function testTableContents(serverURL, hostURL, dummyServerInfo){
+  function testTableContents(serverURL, hostURL, dummyServerInfo, params){
     var view = new EventsView(getOperator());
     var expected =
-      '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>' +
-      '<td data-sort-value="1415749496">' +
-      formatDate(1415749496) +
-      '</td>' +
-      '<td><a href="' + escapeHTML(hostURL) + '" target="_blank">Host</a></td>' +
-      '<td>Test discription.</td>' +
-      '<td class="status1" data-sort-value="1">Problem</td>' +
-      '<td class="severity1" data-sort-value="1">Information</td>';
+      '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>';
+    if (params) {
+      expected += '<td><a href="' + escapeHTML(params.eventURL) +
+                  '" target="_blank">' + escapeHTML(formatDate(1415749496)) +
+                  '</a></td>';
+    } else {
+      expected += '<td data-sort-value="1415749496">' +
+                  formatDate(1415749496) + '</td>';
+    }
+    expected += '<td><a href="' + escapeHTML(hostURL) +
+                '" target="_blank">Host</a></td>' +
+                '<td>Test discription.</td>' +
+                '<td class="status1" data-sort-value="1">Problem</td>' +
+                '<td class="severity1" data-sort-value="1">Information</td>';
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
@@ -117,18 +125,25 @@ describe('EventsView', function() {
   }
 
   function testTableContentsWithExpandedDescription(serverURL, hostURL,
-                                                    dummyServerInfo)
+                                                    dummyServerInfo, params)
   {
     var view = new EventsView(getOperator());
     var expected =
-      '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>' +
-      '<td data-sort-value="1415759496">' +
-      formatDate(1415759496) +
-      '</td>' +
-      '<td><a href="' + escapeHTML(hostURL) + '" target="_blank">Host2</a></td>' +
-      '<td>Expanded test description 2.</td>' +
-      '<td class="status1" data-sort-value="1">Problem</td>' +
-      '<td class="severity1" data-sort-value="1">Information</td>';
+      '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>';
+    if (params) {
+      expected += '<td><a href="' + escapeHTML(params.eventURL) +
+                  '" target="_blank">' + escapeHTML(formatDate(1415759496)) +
+                  '</a></td>';
+    } else {
+      expected += '<td data-sort-value="1415759496">' +
+                  formatDate(1415759496) +
+                  '</td>';
+    }
+    expected += '<td><a href="' + escapeHTML(hostURL) +
+                '" target="_blank">Host2</a></td>' +
+                '<td>Expanded test description 2.</td>' +
+                '<td class="status1" data-sort-value="1">Problem</td>' +
+                '<td class="severity1" data-sort-value="1">Information</td>';
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
@@ -140,7 +155,7 @@ describe('EventsView', function() {
   beforeEach(function(done) {
     var contentId = "main";
     var setupFixture = function() {
-      $("#" + TEST_FIXTURE_ID).append($("<div>", { id: contentId }))
+      $("#" + TEST_FIXTURE_ID).append($("<div>", { id: contentId }));
       $("#" + contentId).html(viewHTML);
       fakeAjax();
       done();
@@ -158,7 +173,7 @@ describe('EventsView', function() {
           viewHTML = $("#" + contentId, this.contentDocument).html();
           setupFixture();
         }
-      })
+      });
       $("#" + TEST_FIXTURE_ID).append(iframe);
     }
   });
@@ -183,15 +198,19 @@ describe('EventsView', function() {
     var zabbixURL = "http://192.168.1.100/zabbix/";
     var zabbixLatestURL =
       "http://192.168.1.100/zabbix/latest.php?&hostid=10105";
-    testTableContents(zabbixURL, zabbixLatestURL, getDummyServerInfo(0));
+    var params =
+      {eventURL: "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=12332"};
+    testTableContents(zabbixURL, zabbixLatestURL, getDummyServerInfo(0), params);
   });
 
   it('new with fake zabbix data included expanded description', function() {
     var zabbixURL = "http://192.168.1.100/zabbix/";
     var zabbixLatestURL =
       "http://192.168.1.100/zabbix/latest.php?&hostid=10106";
+    var params =
+      {eventURL: "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=18483"};
     testTableContentsWithExpandedDescription(zabbixURL, zabbixLatestURL,
-                                             getDummyServerInfo(0));
+                                             getDummyServerInfo(0), params);
   });
 
   it('new with fake nagios data', function() {
@@ -207,11 +226,13 @@ describe('EventsView', function() {
     var serverURL = "http://192.168.1.100/zabbix/";
     var hostURL =
       "http://192.168.1.100/zabbix/latest.php?&hostid=10105";
+    var eventURL =
+      "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=12332";
     var expected =
       '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>' +
-      '<td data-sort-value="1415749496">' +
-      formatDate(1415749496) +
-      '</td>' +
+      '<td><a href="' + escapeHTML(eventURL) +
+      '" target="_blank">' + escapeHTML(formatDate(1415749496)) +
+      '</a></td>' +
       '<td><a href="' + escapeHTML(hostURL) + '" target="_blank">Host</a></td>' +
       '<td>Test discription.</td>' +
       '<td class="status0" data-sort-value="0">OK</td>' +
