@@ -268,7 +268,7 @@ msgstr "進捗率"
 
 #: viewer/graphs_ajax.html:24 viewer/graphs_ajax.html.py:29
 msgid "Graphs"
-msgstr "複数グラフ"
+msgstr "グラフ"
 
 #: viewer/graphs_ajax.html:37 viewer/history_ajax.html:84
 #: viewer/incident_settings_ajax.html:35
