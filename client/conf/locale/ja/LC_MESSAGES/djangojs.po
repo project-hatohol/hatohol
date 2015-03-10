@@ -673,7 +673,7 @@ msgstr "履歴"
 
 #: static/js/hatohol_history_loader.js:107
 msgid "No such item: "
-msgstr "そのような項目はありません: "
+msgstr "そのようなアイテムはありません: "
 
 #: static/js/hatohol_history_loader.js:109
 msgid "Too many items are found for "
@@ -1420,11 +1420,11 @@ msgstr "自動読み込み有効無効切り替え"
 
 #: static/js/history_view.js:103
 msgid "Select items"
-msgstr "項目を選択する"
+msgstr "アイテムを選択する"
 
 #: static/js/history_view.js:168
 msgid "No item is specified!"
-msgstr "項目が選択されていません！"
+msgstr "アイテムが選択されていません！"
 
 #: static/js/history_view.js:185
 msgid "Successfully saved."
