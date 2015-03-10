@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -18,6 +18,7 @@
  */
 
 #include <cppcutter.h>
+#include <gcutter.h>
 #include <errno.h>
 #include <unistd.h>
 #include <sys/time.h>
@@ -418,6 +419,22 @@ void test_setGLibTimer(void)
 	cppcut_assert_not_equal(INVALID_EVENT_ID, id);
 	g_main_loop_run(gizmo.loop);
 	cppcut_assert_equal(true, gizmo.called);
+}
+
+void data_add(void)
+{
+	gcut_add_datum("Simple",
+	               "num0",   G_TYPE_STRING, "1",
+	               "num1",   G_TYPE_UINT64, 2,
+	               "expect", G_TYPE_UINT64, 3, NULL);
+}
+
+void test_add(gconstpointer data)
+{
+	const gchar *num0 = gcut_data_get_string(data, "num0");
+	const uint64_t num1 = gcut_data_get_uint64(data, "num1");
+	const uint64_t expect = gcut_data_get_uint64(data, "expect");
+	cppcut_assert_equal(expect, Utils::add(num0, num1));
 }
 
 } // namespace testUtils

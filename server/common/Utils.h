@@ -258,6 +258,16 @@ public:
 	 */
 	static void conv(uint64_t &dest, const std::string &src);
 
+	/**
+	 * Calculate addition with the number as a string.
+	 *
+	 * @param num0 A number represented by a string.
+	 * @param num1 An another number.
+	 *
+	 * @return A calculated result.
+	 */
+	static uint64_t add(const std::string &num0, const uint64_t num1);
+
 protected:
 	static std::string makeDemangledStackTraceString(
 	  const std::string &stackTraceLine);
