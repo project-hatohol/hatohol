@@ -288,13 +288,14 @@ var EventsView = function(userProfile, baseElem) {
 
   function drawTableBody() {
     var serverName, hostName, clock, status, severity, duration, description;
-    var server, event, serverId, serverURL, hostId, html = "";
+    var server, event, serverId, serverURL, hostId, triggerId, html = "";
     var x, severityClass;
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
       event      = self.rawData["events"][x];
       serverId   = event["serverId"];
       hostId     = event["hostId"];
+      triggerId  = event["triggerId"];
       server     = self.rawData["servers"][serverId];
       nickName   = getNickName(server, serverId);
       serverURL  = getServerLocation(server);
@@ -321,8 +322,8 @@ var EventsView = function(userProfile, baseElem) {
         if (hostName.match(/_SELF$/)) {
           html += "<td>" + escapeHTML(hostName) + "</td>";
         } else if (serverURL.indexOf("zabbix") >= 0) {
-          html += "<td><a href='" + serverURL + "latest.php?&hostid="
-                  + hostId + "' target='_blank'>" + escapeHTML(hostName)
+          html += "<td><a href='" + serverURL + "events.php?&triggerid="
+                  + triggerId + "' target='_blank'>" + escapeHTML(hostName)
                   + "</a></td>";
         } else if (serverURL.indexOf("nagios")>=0) {
           html += "<td><a href='" + serverURL + "cgi-bin/status.cgi?host="
