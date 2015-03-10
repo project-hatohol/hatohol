@@ -276,6 +276,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(parser, "time", eventInfo.time);
 		assertValueInParser(parser, "type", eventInfo.type);
 		assertValueInParser(parser, "triggerId", (eventInfo.triggerId));
+		assertValueInParser(parser, "eventId",   eventInfo.id);
 		assertValueInParser(parser, "status",    eventInfo.status);
 		assertValueInParser(parser, "severity",  eventInfo.severity);
 		assertValueInParser(parser, "hostId",    eventInfo.hostIdInServer);
