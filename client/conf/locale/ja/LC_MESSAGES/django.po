@@ -6,14 +6,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-05 03:16-0600\n"
+"POT-Creation-Date: 2015-03-09 20:25-0500\n"
 "PO-Revision-Date: 2014-11-12 13:36+0900\n"
 "Last-Translator: Osamu Wakabayashi <osamu.wakabayashi@miraclelinux.com>\n"
 "Language-Team: Project Hatohol\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: viewer/actions_ajax.html:24 viewer/actions_ajax.html.py:29
 msgid "Actions"
@@ -29,13 +29,13 @@ msgstr "アクション削除"
 
 #: viewer/actions_ajax.html:55 viewer/dashboard_ajax.html:76
 #: viewer/dashboard_ajax.html.py:98 viewer/events_ajax.html:76
-#: viewer/history_ajax.html:49 viewer/incident_settings_ajax.html:59
+#: viewer/history_ajax.html:54 viewer/incident_settings_ajax.html:59
 #: viewer/latest_ajax.html:64 viewer/triggers_ajax.html:70
 msgid "Monitoring Server"
 msgstr "監視サーバー"
 
 #: viewer/actions_ajax.html:56 viewer/events_ajax.html:78
-#: viewer/history_ajax.html:51 viewer/latest_ajax.html:65
+#: viewer/history_ajax.html:56 viewer/latest_ajax.html:65
 #: viewer/triggers_ajax.html:74
 msgid "Host"
 msgstr "ホスト"
@@ -140,7 +140,7 @@ msgid "System status"
 msgstr "システムステータス"
 
 #: viewer/dashboard_ajax.html:77 viewer/dashboard_ajax.html.py:99
-#: viewer/history_ajax.html:50
+#: viewer/history_ajax.html:55
 msgid "Group"
 msgstr "グループ"
 
@@ -266,22 +266,59 @@ msgstr "担当者"
 msgid "% Done"
 msgstr "進捗率"
 
+#: viewer/graphs_ajax.html:24 viewer/graphs_ajax.html.py:29
+#, fuzzy
+msgid "Graphs"
+msgstr "グラフ"
+
+#: viewer/graphs_ajax.html:37 viewer/history_ajax.html:84
+#: viewer/incident_settings_ajax.html:35
+#: viewer/log_search_systems_ajax.html:37
+msgid "ADD"
+msgstr "追加"
+
+#: viewer/graphs_ajax.html:44 viewer/incident_settings_ajax.html:39
+#: viewer/log_search_systems_ajax.html:45
+msgid "DELETE"
+msgstr "削除"
+
+#: viewer/graphs_ajax.html:56 viewer/hosts_ajax.html:39
+#: viewer/users_ajax.html:59
+msgid "ID"
+msgstr "ID"
+
+#: viewer/graphs_ajax.html:57
+#, fuzzy
+msgid "Graph name"
+msgstr "グラフ"
+
 #: viewer/history_ajax.html:24
 msgid "History"
 msgstr "履歴"
 
 #: viewer/history_ajax.html:41
-msgid "Select items"
+msgid "Graph settings"
 msgstr ""
 
-#: viewer/history_ajax.html:52
+#: viewer/history_ajax.html:45
+msgid "Title"
+msgstr ""
+
+#: viewer/history_ajax.html:48
+msgid "Items to plot"
+msgstr ""
+
+#: viewer/history_ajax.html:57
 msgid "Item"
 msgstr ""
 
-#: viewer/history_ajax.html:79 viewer/incident_settings_ajax.html:35
-#: viewer/log_search_systems_ajax.html:37
-msgid "ADD"
-msgstr "追加"
+#: viewer/history_ajax.html:94
+msgid "CLOSE"
+msgstr "閉じる"
+
+#: viewer/history_ajax.html:98
+msgid "SAVE"
+msgstr ""
 
 #: viewer/hosts_ajax.html:24
 msgid "Hosts"
@@ -290,10 +327,6 @@ msgstr "ホスト"
 #: viewer/hosts_ajax.html:28
 msgid "SHOW GROUP"
 msgstr "グループを表示"
-
-#: viewer/hosts_ajax.html:39 viewer/users_ajax.html:59
-msgid "ID"
-msgstr "ID"
 
 #: viewer/hosts_ajax.html:41 viewer/servers_ajax.html:68
 msgid "Hostname"
@@ -315,11 +348,6 @@ msgstr "マップ"
 #: viewer/incident_settings_ajax.html:24 viewer/incident_settings_ajax.html:29
 msgid "Incident tracking settings"
 msgstr "インシデント管理設定"
-
-#: viewer/incident_settings_ajax.html:39
-#: viewer/log_search_systems_ajax.html:45
-msgid "DELETE"
-msgstr "削除"
 
 #: viewer/incident_settings_ajax.html:43
 msgid "EDIT INCIDENT TRACKING SERVERS"
@@ -537,9 +565,6 @@ msgstr "アクセス可能な監視サーバー / ホストグループ"
 
 #~ msgid "Action"
 #~ msgstr "アクション"
-
-#~ msgid "CLOSE"
-#~ msgstr "閉じる"
 
 #~ msgid "NO"
 #~ msgstr "いいえ"
