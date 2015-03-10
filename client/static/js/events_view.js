@@ -286,6 +286,10 @@ var EventsView = function(userProfile, baseElem) {
     return durations;
   }
 
+  function isSelfMonitoringHost(hostId) {
+    return  hostId == "__SELF_MONITOR";
+  }
+
   function drawTableBody() {
     var serverName, nickName, hostName, clock, status, severity, incident, duration, description;
     var server, event, eventId, serverId, serverURL, hostId, triggerId, html = "";
@@ -318,10 +322,7 @@ var EventsView = function(userProfile, baseElem) {
       if (serverURL) {
         html += "<tr><td><a href='" + serverURL + "' target='_blank'>" + escapeHTML(nickName)
                 + "</a></td>";
-        if (hostId == "__SELF_MONITOR") {
-          html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
-                  formatDate(clock) + "</td>";
-        } else if (serverURL.indexOf("zabbix") >= 1) {
+        if (serverURL.indexOf("zabbix") >= 1 && !isSelfMonitoringHost(hostId)) {
           html += "<td><a href='" + serverURL + "tr_events.php?&triggerid="
                   + triggerId + "&eventid=" + eventId
                   + "' target='_blank'>" + escapeHTML(formatDate(clock))
@@ -330,9 +331,7 @@ var EventsView = function(userProfile, baseElem) {
           html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
                   formatDate(clock) + "</td>";
         }
-        if (hostId == "__SELF_MONITOR") {
-          html += "<td>" + escapeHTML(hostName) + "</td>";
-        } else if (serverURL.indexOf("zabbix") >= 0) {
+        if (serverURL.indexOf("zabbix") >= 0 && !isSelfMonitoringHost(hostId)) {
           html += "<td><a href='" + serverURL + "latest.php?&hostid="
                   + hostId + "' target='_blank'>" + escapeHTML(hostName)
                   + "</a></td>";
