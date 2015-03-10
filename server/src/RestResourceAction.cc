@@ -339,7 +339,7 @@ void RestResourceAction::handlePut(void)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	ActionDef actionDef;
-	uint32_t actionId;
+	uint64_t actionId;
 
 	// action id
 	actionId = getResourceId();
