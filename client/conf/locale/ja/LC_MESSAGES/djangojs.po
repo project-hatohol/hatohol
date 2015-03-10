@@ -994,7 +994,7 @@ msgstr "アクション"
 #: static/js/hatohol_navi.js:59 test/browser/test_hatohol_navi.js:61
 #: test/browser/test_hatohol_navi.js:103
 msgid "Graphs"
-msgstr "複数グラフ"
+msgstr "グラフ"
 
 #: static/js/hatohol_navi.js:63 static/js/hatohol_user_roles_editor.js:480
 #: static/js/hatohol_user_roles_editor.js:485
