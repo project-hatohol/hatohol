@@ -288,7 +288,7 @@ var EventsView = function(userProfile, baseElem) {
 
   function drawTableBody() {
     var serverName, nickName, hostName, clock, status, severity, incident, duration, description;
-    var server, event, serverId, serverURL, hostId, triggerId, html = "";
+    var server, event, eventId, serverId, serverURL, hostId, triggerId, html = "";
     var x, severityClass;
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
@@ -296,6 +296,7 @@ var EventsView = function(userProfile, baseElem) {
       serverId   = event["serverId"];
       hostId     = event["hostId"];
       triggerId  = event["triggerId"];
+      eventId    = event["eventId"];
       server     = self.rawData["servers"][serverId];
       nickName   = getNickName(server, serverId);
       serverURL  = getServerLocation(server);
@@ -320,9 +321,10 @@ var EventsView = function(userProfile, baseElem) {
         if (hostName.match(/_SELF$/)) {
           html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
                   formatDate(clock) + "</td>";
-        } else if (serverURL.indexOf("zabbix") >= 0) {
-          html += "<td><a href='" + serverURL + "events.php?&triggerid="
-                  + triggerId + "' target='_blank'>" + escapeHTML(formatDate(clock))
+        } else if (serverURL.indexOf("zabbix") >= 1) {
+          html += "<td><a href='" + serverURL + "tr_events.php?&triggerid="
+                  + triggerId + "&eventid=" + eventId
+                  + "' target='_blank'>" + escapeHTML(formatDate(clock))
                   + "</a></td>";
         } else {
           html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
