@@ -285,7 +285,6 @@ SmartTime HatoholArmPluginBase::getTimeOfLastEvent(
 	char *buf = reinterpret_cast<char *>(param + 1);
 	buf = putString(buf, param, triggerId,
 	                &param->triggerIdOffset, &param->triggerIdLength);
-	cmdBuf.printBuffer();
 	send(cmdBuf, cb);
 	cb->wait();
 	if (!cb->getSucceeded()) {
