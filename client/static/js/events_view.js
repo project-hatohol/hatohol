@@ -318,7 +318,7 @@ var EventsView = function(userProfile, baseElem) {
       if (serverURL) {
         html += "<tr><td><a href='" + serverURL + "' target='_blank'>" + escapeHTML(nickName)
                 + "</a></td>";
-        if (hostName.match(/_SELF$/)) {
+        if (hostId == "__SELF_MONITOR") {
           html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
                   formatDate(clock) + "</td>";
         } else if (serverURL.indexOf("zabbix") >= 1) {
@@ -330,7 +330,7 @@ var EventsView = function(userProfile, baseElem) {
           html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
                   formatDate(clock) + "</td>";
         }
-        if (hostName.match(/_SELF$/)) {
+        if (hostId == "__SELF_MONITOR") {
           html += "<td>" + escapeHTML(hostName) + "</td>";
         } else if (serverURL.indexOf("zabbix") >= 0) {
           html += "<td><a href='" + serverURL + "latest.php?&hostid="
