@@ -24,6 +24,7 @@ using namespace std;
 using namespace mlpl;
 
 bool HatoholException::m_saveStackTrace = false;
+bool HatoholException::m_abort = false;
 const int HatoholException::UNKNOWN_LINE_NUMBER = -1;
 
 // ---------------------------------------------------------------------------
@@ -31,11 +32,20 @@ const int HatoholException::UNKNOWN_LINE_NUMBER = -1;
 // ---------------------------------------------------------------------------
 void HatoholException::init(void)
 {
-	char *env = getenv(HATOHOL_STACK_TRACE_SET_ENV);
-	if (!env)
-		return;
-	if (string("1") == env)
-		m_saveStackTrace = true;
+	struct {
+		void operator ()(const char *envStr, bool &var)
+		{
+			var = false;
+			char *env = getenv(envStr);
+			if (!env)
+				return;
+			if (string(env) == "1")
+				var = true;
+		}
+	} envChecker;
+
+	envChecker(HATOHOL_STACK_TRACE_SET_ENV, m_saveStackTrace);
+	envChecker(HATOHOL_EXCEPTION_ABORT_ENV, m_abort);
 }
 
 HatoholException::HatoholException(
@@ -49,6 +59,8 @@ HatoholException::HatoholException(
 	         brief.c_str());
 	if (m_saveStackTrace)
 		saveStackTrace();
+	if (m_abort)
+		abort();
 }
 
 HatoholException::HatoholException(
@@ -62,6 +74,8 @@ HatoholException::HatoholException(
 	         lineNumber, brief.c_str());
 	if (m_saveStackTrace)
 		saveStackTrace();
+	if (m_abort)
+		abort();
 }
 
 HatoholException::~HatoholException() _HATOHOL_NOEXCEPT
