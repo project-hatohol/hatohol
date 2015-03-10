@@ -155,7 +155,7 @@ describe('EventsView', function() {
   beforeEach(function(done) {
     var contentId = "main";
     var setupFixture = function() {
-      $("#" + TEST_FIXTURE_ID).append($("<div>", { id: contentId }))
+      $("#" + TEST_FIXTURE_ID).append($("<div>", { id: contentId }));
       $("#" + contentId).html(viewHTML);
       fakeAjax();
       done();
@@ -173,7 +173,7 @@ describe('EventsView', function() {
           viewHTML = $("#" + contentId, this.contentDocument).html();
           setupFixture();
         }
-      })
+      });
       $("#" + TEST_FIXTURE_ID).append(iframe);
     }
   });
