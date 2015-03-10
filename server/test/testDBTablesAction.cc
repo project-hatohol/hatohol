@@ -71,7 +71,8 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 }
 
 static string makeExpectedLogString(
-  const ActionDef &actDef, const EventInfo &eventInfo, uint64_t logId,
+  const ActionDef &actDef, const EventInfo &eventInfo,
+  const ActionLogIdType &logId,
   ActionLogStatus status = ACTLOG_STAT_STARTED,
   ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE)
 {
@@ -88,13 +89,14 @@ static string makeExpectedLogString(
 
 	string expect =
 	  StringUtils::sprintf(
-	    "%" PRIu64 "|%d|%d|%d|%s|%s|%s|%d|%s|%" PRIu32 "|%" PRIu64 "\n",
+	    "%" FMT_ACTION_LOG_ID "|%d|%d|%d|%s|%s|%s|%d|%s|"
+	    "%" FMT_SERVER_ID "|%" FMT_EVENT_ID "\n",
 	    logId, actDef.id, status, expectedStarterId,
 	    DBCONTENT_MAGIC_NULL,
 	    DBCONTENT_MAGIC_CURR_DATETIME,
 	    expectedExitTime, failureCode,
 	    DBCONTENT_MAGIC_NULL,
-	    eventInfo.serverId, eventInfo.id);
+	    eventInfo.serverId, eventInfo.id.c_str());
 	return expect;
 }
 
@@ -616,7 +618,7 @@ void test_startExecAction(void)
 			status = ACTLOG_STAT_STARTED;
 			cut_fail("Unknown action type: %d\n", actDef.type);
 		}
-		uint64_t logId =
+		const ActionLogIdType logId =
 		  dbAction.createActionLog(actDef, eventInfo,
 		                           ACTLOG_EXECFAIL_NONE, status);
 		const uint64_t expectedId = i + 1;
@@ -690,7 +692,7 @@ void test_getTriggerActionList(void)
 	const ActionCondition condTarget = testActionDef[idxTarget].condition;
 	EventInfo eventInfo;
 	eventInfo.serverId  = condTarget.serverId;
-	eventInfo.id        = 0;
+	eventInfo.id        = "0";
 	eventInfo.time.tv_sec  = 1378339653;
 	eventInfo.time.tv_nsec = 6889;
 	eventInfo.type      = EVENT_TYPE_GOOD;
@@ -727,7 +729,7 @@ void test_getTriggerActionListWithAllCondition(void)
 	const ActionCondition condTarget = testActionDef[idxTarget].condition;
 	EventInfo eventInfo;
 	eventInfo.serverId  = condTarget.serverId;
-	eventInfo.id        = 0;
+	eventInfo.id        = "0";
 	eventInfo.time.tv_sec  = 1378339653;
 	eventInfo.time.tv_nsec = 6889;
 	eventInfo.type      = EVENT_TYPE_GOOD;
@@ -765,7 +767,7 @@ static void _assertGetActionWithSeverity(
 	const ActionDef &actionDef = testActionDef[targetActionIdx];
 	const ActionCondition condTarget = actionDef.condition;
 	eventInfo.serverId  = condTarget.serverId ? : 1129;
-	eventInfo.id        = 1192;
+	eventInfo.id        = "1192";
 	eventInfo.time.tv_sec  = 1378339653;
 	eventInfo.time.tv_nsec = 6889;
 	eventInfo.type      = EVENT_TYPE_BAD;

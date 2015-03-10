@@ -319,7 +319,7 @@ string IncidentSender::buildDescription(const EventInfo &event,
 		  "    Time:       \"%ld.%09ld (%s)\"\n"
 		  "    Type:       \"%d (%s)\"\n"
 		  "    Brief:      \"%s\"\n",
-		  event.id,
+		  event.id.c_str(),
 		  event.time.tv_sec, event.time.tv_nsec, timeString,
 		  event.type,
 		  LabelUtils::getEventTypeLabel(event.type).c_str(),

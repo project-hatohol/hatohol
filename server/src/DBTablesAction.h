@@ -272,7 +272,7 @@ public:
 		LogEndExecActionArg(void);
 	};
 
-	static int ACTION_DB_VERSION;
+	static const int ACTION_DB_VERSION;
 
 	static void init(void);
 	static void reset(void);
@@ -358,7 +358,7 @@ public:
 	 * @return true if the log is found. Otherwise false.
 	 */
 	bool getLog(ActionLog &actionLog, const ServerIdType &serverId,
-	            uint64_t eventId);
+	            const EventIdType &eventId);
 
 	/**
 	 * Check whether IncidentSender type action exists or not

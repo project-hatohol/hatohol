@@ -643,12 +643,12 @@ string ZabbixAPIEmulator::addJSONResponse(const string &slice,
 	return StringUtils::sprintf(fmt, slice.c_str(), arg.id);
 }
 
-void ZabbixAPIEmulator::setExpectedFirstEventId(const EventIdType &id)
+void ZabbixAPIEmulator::setExpectedFirstEventId(const uint64_t &id)
 {
 	m_ctx->expectedFirstEventId = id;
 }
 
-void ZabbixAPIEmulator::setExpectedLastEventId(const EventIdType &id)
+void ZabbixAPIEmulator::setExpectedLastEventId(const uint64_t &id)
 {
 	m_ctx->expectedLastEventId = id;
 }

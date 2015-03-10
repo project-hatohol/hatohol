@@ -159,7 +159,7 @@ struct ResidentNotifyEventArg {
 	uint32_t serverId;
 	const char *hostIdInServer;
 	timespec time;
-	uint64_t eventId;
+	const char *eventId;
 	uint16_t eventType;
 	const char *triggerId;
 	uint16_t triggerStatus;

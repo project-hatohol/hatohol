@@ -163,7 +163,7 @@ string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 	    server.id,
 	    event.hostIdInServer.c_str(),
 	    event.triggerId.c_str(),
-	    event.id,
+	    event.id.c_str(),
 	    eventsURL.c_str());
 	return expected;
 }

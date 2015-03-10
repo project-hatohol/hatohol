@@ -250,7 +250,9 @@ struct HapiResTimestampOfLastTrigger {
 } __attribute__((__packed__));
 
 struct HapiResLastEventId {
-	uint64_t lastEventId;
+	uint16_t lastEventIdLength;  // Not include the NULL terminator
+	uint16_t lastEventIdOffset;  // from the top of this structure
+	// Body of lastEventId (including NULL terminator)
 } __attribute__((__packed__));
 
 struct HapiResTimeOfLastEvent {

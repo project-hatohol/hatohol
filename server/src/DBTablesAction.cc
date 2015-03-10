@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -38,7 +38,10 @@ const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 const static guint DEFAULT_ACTION_DELETE_INTERVAL_MSEC = 3600 * 1000; // 1hour
 
 // 8 -> 9: Add actions.onwer_user_id
-int DBTablesAction::ACTION_DB_VERSION = 9;
+// -> 1.0
+//   * action_logs.id -> VARCHAR
+const int DBTablesAction::ACTION_DB_VERSION =
+  DBTables::Version::getPackedVer(0, 1, 0);
 
 static void operator>>(
   ItemGroupStream &itemGroupStream, ComparisonType &compType)
@@ -308,8 +311,8 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	NULL,                              // defaultValue
 }, {
 	"event_id",                        // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -827,15 +830,17 @@ bool DBTablesAction::getLog(ActionLog &actionLog, const ActionLogIdType &logId)
 	return getLog(actionLog, condition);
 }
 
-bool DBTablesAction::getLog(ActionLog &actionLog,
-                            const ServerIdType &serverId, uint64_t eventId)
+bool DBTablesAction::getLog(
+  ActionLog &actionLog,
+  const ServerIdType &serverId, const EventIdType &eventId)
 {
 	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
 	const char *idColNameSvId = def[IDX_ACTION_LOGS_SERVER_ID].columnName;
 	const char *idColNameEvtId = def[IDX_ACTION_LOGS_EVENT_ID].columnName;
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	string condition = StringUtils::sprintf(
-	  "%s=%" FMT_SERVER_ID " AND %s=%" PRIu64,
-	  idColNameSvId, serverId, idColNameEvtId, eventId);
+	  "%s=%" FMT_SERVER_ID " AND %s=%s",
+	  idColNameSvId, serverId, idColNameEvtId, rhs(eventId));
 	return getLog(actionLog, condition);
 }
 

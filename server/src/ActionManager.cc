@@ -757,7 +757,7 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	argVect.push_back(eventInfo.hostIdInServer);
 	argVect.push_back(StringUtils::sprintf("%ld.%ld",
 	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec));
-	argVect.push_back(StringUtils::sprintf("%" PRIu64, eventInfo.id));
+	argVect.push_back(eventInfo.id);
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.type));
 	argVect.push_back(eventInfo.triggerId);
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.status));
@@ -1537,13 +1537,13 @@ void ActionManager::postProcSpawnFailure(
 
 	// MLPL log
 	MLPL_ERR(
-	  "%s, action ID: %d, log ID: %" PRIu64 ", "
-	  "server ID: %d, event ID: %" PRIu64 ", "
+	  "%s, action ID: %d, log ID: %" FMT_ACTION_LOG_ID ", "
+	  "server ID: %" FMT_SERVER_ID ", event ID: %" FMT_EVENT_ID ", "
 	  "time: %ld.%09ld, type: %s, "
 	  "trigger ID: %" FMT_TRIGGER_ID ", status: %s, severity: %s, "
 	  "host ID: %" FMT_LOCAL_HOST_ID "\n",
 	  error->message, actionDef.id, actorInfo->logId,
-	  eventInfo.serverId, eventInfo.id,
+	  eventInfo.serverId, eventInfo.id.c_str(),
 	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
 	  LabelUtils::getEventTypeLabel(eventInfo.type).c_str(),
 	  eventInfo.triggerId.c_str(),

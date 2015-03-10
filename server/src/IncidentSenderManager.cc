@@ -127,7 +127,7 @@ void IncidentSenderManager::queue(
 	if (!sender) {
 		MLPL_ERR("Failed to queue sending an incident"
 			 " for the event: %" FMT_EVENT_ID "\n",
-			 eventInfo.id);
+			 eventInfo.id.c_str());
 		return;
 	}
 	sender->queue(eventInfo, callback, userData);

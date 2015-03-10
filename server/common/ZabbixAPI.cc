@@ -1321,7 +1321,7 @@ void ZabbixAPI::parseAndPushEventsData(
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "eventid",      ITEM_ID_ZBX_EVENTS_EVENTID);
+	pushString(parser, grp, "eventid",      ITEM_ID_ZBX_EVENTS_EVENTID);
 	pushInt   (parser, grp, "source",       ITEM_ID_ZBX_EVENTS_SOURCE);
 	pushInt   (parser, grp, "object",       ITEM_ID_ZBX_EVENTS_OBJECT);
 	pushString(parser, grp, "objectid",     ITEM_ID_ZBX_EVENTS_OBJECTID);
