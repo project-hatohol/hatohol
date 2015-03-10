@@ -211,13 +211,12 @@ msgid "Disaster"
 msgstr "致命的な障害"
 
 #: static/js/graphs_view.js:47
-#, fuzzy
 msgid "Do you delete the selected items ?"
 msgstr "選択項目を削除しますか？"
 
 #: static/js/graphs_view.js:90
 msgid "No title"
-msgstr ""
+msgstr "タイトルなし"
 
 #: static/js/hatohol_actor_mail_dialog.js:26
 #: static/js/hatohol_actor_mail_dialog.js:118
@@ -665,13 +664,12 @@ msgid "Invalid retry interval."
 msgstr "不正なリトライ間隔です。"
 
 #: static/js/hatohol_graph.js:244
-#, fuzzy
 msgid "Unknown host"
-msgstr "不明"
+msgstr "不明なホスト"
 
 #: static/js/hatohol_graph.js:255 static/js/history_view.js:314
 msgid "History"
-msgstr ""
+msgstr "履歴"
 
 #: static/js/hatohol_history_loader.js:107
 msgid "No such item: "
@@ -679,7 +677,7 @@ msgstr "そのような項目はありません: "
 
 #: static/js/hatohol_history_loader.js:109
 msgid "Too many items are found for "
-msgstr ""
+msgstr "見つかった項目が多すぎます。項目: "
 
 #: static/js/hatohol_host_selector.js:31
 msgid "Host selecion"
@@ -995,9 +993,8 @@ msgstr "アクション"
 
 #: static/js/hatohol_navi.js:59 test/browser/test_hatohol_navi.js:61
 #: test/browser/test_hatohol_navi.js:103
-#, fuzzy
 msgid "Graphs"
-msgstr "グラフ"
+msgstr "複数グラフ"
 
 #: static/js/hatohol_navi.js:63 static/js/hatohol_user_roles_editor.js:480
 #: static/js/hatohol_user_roles_editor.js:485
@@ -1426,14 +1423,12 @@ msgid "Select items"
 msgstr ""
 
 #: static/js/history_view.js:168
-#, fuzzy
 msgid "No item is specified!"
-msgstr "未分類"
+msgstr "項目が選択されていません！"
 
 #: static/js/history_view.js:185
-#, fuzzy
 msgid "Successfully saved."
-msgstr "正常に更新されました。"
+msgstr "正常に保存されました。"
 
 #: static/js/latest_view.js:165
 msgid "Graph"

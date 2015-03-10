@@ -267,9 +267,8 @@ msgid "% Done"
 msgstr "進捗率"
 
 #: viewer/graphs_ajax.html:24 viewer/graphs_ajax.html.py:29
-#, fuzzy
 msgid "Graphs"
-msgstr "グラフ"
+msgstr "複数グラフ"
 
 #: viewer/graphs_ajax.html:37 viewer/history_ajax.html:84
 #: viewer/incident_settings_ajax.html:35
@@ -288,9 +287,8 @@ msgid "ID"
 msgstr "ID"
 
 #: viewer/graphs_ajax.html:57
-#, fuzzy
 msgid "Graph name"
-msgstr "グラフ"
+msgstr "グラフ名"
 
 #: viewer/history_ajax.html:24
 msgid "History"
@@ -298,19 +296,19 @@ msgstr "履歴"
 
 #: viewer/history_ajax.html:41
 msgid "Graph settings"
-msgstr ""
+msgstr "グラフ設定"
 
 #: viewer/history_ajax.html:45
 msgid "Title"
-msgstr ""
+msgstr "タイトル"
 
 #: viewer/history_ajax.html:48
 msgid "Items to plot"
-msgstr ""
+msgstr "プロット項目"
 
 #: viewer/history_ajax.html:57
 msgid "Item"
-msgstr ""
+msgstr "項目"
 
 #: viewer/history_ajax.html:94
 msgid "CLOSE"
@@ -318,7 +316,7 @@ msgstr "閉じる"
 
 #: viewer/history_ajax.html:98
 msgid "SAVE"
-msgstr ""
+msgstr "保存"
 
 #: viewer/hosts_ajax.html:24
 msgid "Hosts"
