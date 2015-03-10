@@ -113,13 +113,14 @@ casper.test.begin('Register/Unregister user role test', function(test) {
   // assert for added user role name
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 2;
+      return document.querySelectorAll("table#userRoleEditorMainTable tr").length > 1;
     });
   }, function then() {
     test.assertTextExists(roleName,
-                          "Registered user role's name exists in the user role table.");
+                          "Registered user role's name \"" +roleName+
+                          "\" exists in the user role table.");
   }, function timeout() {
-    this.echo("Oops, confirmation dialog seems not to be closed.");
+    this.echo("Oops, table element does not to be newly created.");
   });
   // check delete-selector check box in user role
   casper.then(function() {
@@ -165,9 +166,10 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     });
   }, function then() {
     test.assertTextDoesntExist(roleName,
-                               "Registered user role's name does not exist in the user table.");
+                               "Registered user role's name \"" +roleName+
+                               "\" does not exist in the user table.");
   }, function timeout() {
-    this.echo("Oops, find " + roleName + " in the user roles table.");
+    this.echo("Oops, confirmation dialog dose not to be closed.");
   });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});

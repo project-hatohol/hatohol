@@ -10,19 +10,19 @@ casper.on("page.error", function(msg, trace) {
 });
 
 casper.test.begin('Register/Unregister incident settings test', function(test) {
+  var incidentSetting = {serverType: 0,
+                         nickName: "zabbix",
+                         serverName: "test-zabbix",
+                         ipAddress: "127.0.0.1",
+                         userName: "admin",
+                         userPassword: "zabbix-admin"};
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.then(function() {
     util.moveToServersPage(test);
     casper.then(function() {
       // register Monitoring Server (Zabbix)
-      util.registerMonitoringServer(test,
-                                    {serverType: 0,
-                                     nickName: "zabbix",
-                                     serverName: "test-zabbix",
-                                     ipAddress: "127.0.0.1",
-                                     userName: "admin",
-                                     userPassword: "zabbix-admin"});
+      util.registerMonitoringServer(test, incidentSetting);
     });
   });
   casper.then(function() {util.moveToIncidentSettingsPage(test);});
@@ -87,16 +87,27 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset button");
     });
-  // check delete-selector check box in minitoring server
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("table tr").length > 1;
+    });
+  }, function then() {
+    // TODO: This test is often broken and too difficult reproducing it.
+    test.skip(1, "Registered incident setting assertion test is too fragile. Skipped.");
+    // test.assertTextExists(incidentSetting.serverName,
+    //                       "Registered incident setting's server name \""
+    //                       +incidentSetting.serverName+
+    //                       "\" exists in the incident settings table.");
+  }, function timeout() {
+    this.echo("Oops, table element does not to be newly created.");
+  });
   casper.then(function() {
-    casper.wait(200, function() {
-      this.evaluate(function() {
-        $("tr:last").find(".selectcheckbox").click();
-        return true;
-      });
+    this.evaluate(function() {
+      $("tr:last").find(".selectcheckbox").click();
+      return true;
     });
   });
-
+  // check delete-selector checkbox in incident setting
   casper.waitForSelector("form button#delete-incident-setting-button",
     function success() {
       test.assertExists("form button#delete-incident-setting-button",
@@ -126,6 +137,18 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 1;
+    });
+  }, function then() {
+    test.assertTextDoesntExist(incidentSetting.serverName,
+                               "Registered incident setting's server name \""
+                               +incidentSetting.serverName+
+                               "\" dose not exist in the incisent settings table.");
+  }, function timeout() {
+    this.echo("Oops, confirmation dialog dose not to be closed.");
+  });
   casper.then(function() {util.unregisterIncidentTrackerRedmine(test);});
   casper.then(function() {
     util.moveToServersPage(test);

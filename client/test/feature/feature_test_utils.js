@@ -122,14 +122,18 @@ function registerMonitoringServer(test, params) {
 exports.registerMonitoringServer = registerMonitoringServer;
 
 function unregisterMonitoringServer(test) {
-  // check delete-selector check box in minitoring server
-  casper.then(function() {
-    casper.wait(200, function() {
-      this.evaluate(function() {
-        $("tr:last").find(".selectcheckbox").click();
-        return true;
-      });
+  // check delete-selector checkbox in minitoring server
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 1;
     });
+  }, function then() {
+    this.evaluate(function() {
+      $("tr:last").find(".selectcheckbox").click();
+      return true;
+    });
+  }, function timeout() {
+    this.echo("Oops, confirmation dialog dose not to be closed.");
   });
 
   casper.waitForSelector("form button#delete-server-button",
@@ -280,13 +284,17 @@ function unregisterIncidentTrackerRedmine(test) {
       test.assertExists("form button#add-incident-trackers-button");
     });
   // check delete-selector check box in incident trackers server
-  casper.then(function() {
-    casper.wait(200, function() {
-      this.evaluate(function() {
-        $("tr:last").find(".incidentTrackerSelectCheckbox").click();
-        return true;
-      });
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 2;
     });
+  }, function then() {
+    this.evaluate(function() {
+      $("tr:last").find(".incidentTrackerSelectCheckbox").click();
+      return true;
+    });
+  }, function timeout() {
+    this.echo("Oops, confirmation dialog dose not to be closed.");
   });
 
   casper.waitForSelector("input#deleteIncidentTrackersButton",

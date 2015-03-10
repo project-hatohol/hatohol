@@ -68,14 +68,19 @@ casper.test.begin('Register/Unregister log search system test', function(test) {
   casper.then(function() {util.moveToLogSearchSystemPage(test);});
 
   // check delete-selector check box in log search system
-  casper.then(function() {
-    casper.wait(200, function() {
-      this.evaluate(function() {
-        $("tr:last").find(".selectcheckbox").click();
-        return true;
-      });
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 1;
     });
+  }, function then() {
+    this.evaluate(function() {
+      $("tr:last").find(".selectcheckbox").click();
+      return true;
+    });
+  }, function timeout() {
+    this.echo("Oops, confirmation dialog dose not to be closed.");
   });
+
   casper.waitForSelector("form button#delete-log-search-system-button",
     function success() {
       test.assertExists("form button#delete-log-search-system-button",

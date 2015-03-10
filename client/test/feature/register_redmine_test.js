@@ -10,6 +10,10 @@ casper.on("page.error", function(msg, trace) {
 });
 
 casper.test.begin('Register/Unregister incident tracker(Redmine) test', function(test) {
+  var incidentTracker = {nickName: "testredmine",
+                        baseURL: "http://127.0.0.1",
+                        projectId: "test-tracker-project",
+                        key: "test-tracker-key1"};
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   // move to incident setting page
@@ -56,28 +60,32 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
    });
    casper.waitForSelector("input#editIncidentTrackerNickname",
        function success() {
-           this.sendKeys("input#editIncidentTrackerNickname", "testredmine");
+           this.sendKeys("input#editIncidentTrackerNickname",
+                         incidentTracker.nickName);
        },
        function fail() {
            test.assertExists("input#editIncidentTrackerNickname");
    });
    casper.waitForSelector("input#editIncidentTrackerBaseURL",
        function success() {
-           this.sendKeys("input#editIncidentTrackerBaseURL", "http://127.0.0.1");
+           this.sendKeys("input#editIncidentTrackerBaseURL",
+                         incidentTracker.baseURL);
        },
        function fail() {
            test.assertExists("input#editIncidentTrackerBaseURL");
    });
    casper.waitForSelector("input#editIncidentTrackerProjectId",
        function success() {
-           this.sendKeys("input#editIncidentTrackerProjectId", "1");
+           this.sendKeys("input#editIncidentTrackerProjectId",
+                         incidentTracker.projectId);
        },
        function fail() {
            test.assertExists("input#editIncidentTrackerProjectId");
    });
    casper.waitForSelector("input#editIncidentTrackerUserName",
        function success() {
-           this.sendKeys("input#editIncidentTrackerUserName", "testkey1");
+           this.sendKeys("input#editIncidentTrackerUserName",
+                         incidentTracker.key);
        },
        function fail() {
            test.assertExists("input#editIncidentTrackerUserName");
@@ -111,15 +119,24 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
     });
 
   // check delete-selector check box in incident trackers server
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("table#incidentTrackersEditorMainTable tr").length > 1;
+    });
+  }, function then() {
+    test.assertTextExists(incidentTracker.nickName,
+                          "Registered incident tracker's nickName \""
+                          +incidentTracker.nickName+
+                          "\" exists in the incdent servers table.");
+  }, function timeout() {
+    this.echo("Oops, table element does not to be newly created.");
+  });
   casper.then(function() {
-    casper.wait(200, function() {
-      this.evaluate(function() {
-        $("tr:last").find(".incidentTrackerSelectCheckbox").click();
-        return true;
-      });
+    this.evaluate(function() {
+      $("tr:last").find(".incidentTrackerSelectCheckbox").click();
+      return true;
     });
   });
-
   casper.waitForSelector("input#deleteIncidentTrackersButton",
     function success() {
       test.assertExists("input#deleteIncidentTrackersButton",
@@ -155,6 +172,18 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
     function fail() {
       test.assertExists("div.ui-dialog-buttonset button");
     });
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 2;
+    });
+  }, function then() {
+    test.assertTextDoesntExist(incidentTracker.nickName,
+                               "Registered incident tracker's nickName \""
+                               +incidentTracker.nickName+
+                               "\" dose not exist in the user table.");
+  }, function timeout() {
+    this.echo("Oops, confirmation dialog dose not closed.");
+  });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});
 });

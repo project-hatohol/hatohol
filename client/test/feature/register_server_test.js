@@ -10,6 +10,12 @@ casper.on("page.error", function(msg, trace) {
 });
 
 casper.test.begin('Register/Unregister server test', function(test) {
+  var server = {serverType: 0, // Zabbix
+                nickName: "test",
+                serverName: "testhost",
+                ipAddress: "127.0.0.1",
+                userName: "admin",
+                userPassword: "zabbix-admin"};
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   // move to servers page
@@ -42,45 +48,45 @@ casper.test.begin('Register/Unregister server test', function(test) {
   casper.waitForSelector("select#selectServerType",
     function success() {
       test.assertExists("select#selectServerType", "Found server type selector.");
-      this.evaluate(function() {
-        $('select#selectServerType').val(0).change();
+      this.evaluate(function(type) {
+        $('select#selectServerType').val(type).change();
         return true;
-      });
+      }, server.serverType);
     },
     function fail() {
       test.assertExists("select#selectServerType");
     });
   casper.waitForSelector("input#server-edit-dialog-param-form-0",
     function success() {
-      this.sendKeys("input#server-edit-dialog-param-form-0", "test");
+      this.sendKeys("input#server-edit-dialog-param-form-0", server.nickName);
     },
     function fail() {
       test.assertExists("input#server-edit-dialog-param-form-0");
     });
   casper.waitForSelector("input#server-edit-dialog-param-form-1",
     function success() {
-      this.sendKeys("input#server-edit-dialog-param-form-1", "testhost");
+      this.sendKeys("input#server-edit-dialog-param-form-1", server.serverName);
     },
     function fail() {
       test.assertExists("input#server-edit-dialog-param-form-1");
     });
   casper.waitForSelector("input#server-edit-dialog-param-form-2",
     function success() {
-      this.sendKeys("input#server-edit-dialog-param-form-2", "127.0.0.1");
+      this.sendKeys("input#server-edit-dialog-param-form-2", server.ipAddress);
     },
     function fail() {
       test.assertExists("input#server-edit-dialog-param-form-2");
     });
   casper.waitForSelector("input#server-edit-dialog-param-form-4",
     function success() {
-      this.sendKeys("input#server-edit-dialog-param-form-4", "admin");
+      this.sendKeys("input#server-edit-dialog-param-form-4", server.userName);
     },
     function fail() {
       test.assertExists("input#server-edit-dialog-param-form-4");
     });
   casper.waitForSelector("input#server-edit-dialog-param-form-5",
     function success() {
-      this.sendKeys("input#server-edit-dialog-param-form-5", "zabbix-admin");
+      this.sendKeys("input#server-edit-dialog-param-form-5", server.userPassword);
     },
     function fail() {
       test.assertExists("input#server-edit-dialog-param-form-5");
@@ -105,14 +111,22 @@ casper.test.begin('Register/Unregister server test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
-
-  // check delete-selector check box in minitoring server
+  // check delete-selector checkbox in minitoring server
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 1;
+    });
+  }, function then() {
+    test.assertTextExists(server.nickName,
+                          "Registered server's nickName \"" +server.nickName+
+                          "\" exists in the monitoring servers table.");
+  }, function timeout() {
+    this.echo("Oops, confirmation dialog dose not to be closed.");
+  });
   casper.then(function() {
-    casper.wait(200, function() {
-      this.evaluate(function() {
-        $("tr:last").find(".selectcheckbox").click();
-        return true;
-      });
+    this.evaluate(function() {
+      $("tr:last").find(".selectcheckbox").click();
+      return true;
     });
   });
   casper.waitForSelector("form button#delete-server-button",
@@ -135,7 +149,27 @@ casper.test.begin('Register/Unregister server test', function(test) {
     function fail() {
       test.assertExists("form button#delete-server-button");
     });
-
+  // close comfirm dialog
+  casper.waitForSelector("div.ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared after registering.");
+      this.click("div.ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset > button");
+    });
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 1;
+    });
+  }, function then() {
+    test.assertTextDoesntExist(server.nickName,
+                               "Registered server's nickName \"" +server.nickName+
+                               "\" does not exists in the monitoring servers table.");
+  }, function timeout() {
+    this.echo("Oops, confirmation dialog dose not to be closed.");
+  });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});
 });

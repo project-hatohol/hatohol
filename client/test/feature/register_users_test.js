@@ -80,13 +80,14 @@ casper.test.begin('Register/Unregister user test', function(test) {
     });
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 1;
+      return document.querySelectorAll("table tr").length > 1;
     });
   }, function then() {
     test.assertTextExists(userName,
-                          "Registered user's name exists in the user table.");
+                          "Registered user's name \"" +userName+
+                          "\" exists in the user table.");
   }, function timeout() {
-    this.echo("Cannot find " + userName + "in the users table.");
+    this.echo("Oops, table element does not to be newly created.");
   });
 
   casper.then(function() {
@@ -131,9 +132,10 @@ casper.test.begin('Register/Unregister user test', function(test) {
     });
   }, function then() {
     test.assertTextDoesntExist(userName,
-                               "Registered user's name does not exist in the user table.");
+                               "Registered user's name \"" +userName+
+                               "\" does not exist in the user table.");
   }, function timeout() {
-    this.echo("Oops, find " + userName + " in the users table.");
+    this.echo("Oops, confirmation dialog dose not closed.");
   });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});
