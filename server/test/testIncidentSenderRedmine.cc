@@ -162,7 +162,7 @@ string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 	    LabelUtils::getTriggerSeverityLabel(event.severity).c_str(),
 	    server.id,
 	    event.hostIdInServer.c_str(),
-	    event.triggerId,
+	    event.triggerId.c_str(),
 	    event.id,
 	    eventsURL.c_str());
 	return expected;

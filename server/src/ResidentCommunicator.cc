@@ -115,7 +115,8 @@ void ResidentCommunicator::setNotifyEventBody(
 	const size_t lenNullTerm = 1;
 	const uint32_t bodySize =
 	  RESIDENT_PROTO_EVENT_BODY_BASE_LEN +
-	  eventInfo.hostIdInServer.size() + lenNullTerm;
+	  eventInfo.hostIdInServer.size() + lenNullTerm +
+	  eventInfo.triggerId.size()      + lenNullTerm;
 	size_t bodyIdx =
 	  RESIDENT_PROTO_HEADER_LEN + RESIDENT_PROTO_EVENT_BODY_BASE_LEN;
 	setHeader(bodySize,
@@ -127,7 +128,7 @@ void ResidentCommunicator::setNotifyEventBody(
 	m_impl->sbuf.add32(eventInfo.time.tv_nsec);
 	m_impl->sbuf.add64(eventInfo.id); // Event ID
 	m_impl->sbuf.add16(eventInfo.type);
-	m_impl->sbuf.add64(eventInfo.triggerId);
+	bodyIdx = m_impl->sbuf.insertString(eventInfo.triggerId, bodyIdx);
 	m_impl->sbuf.add16(eventInfo.status);
 	m_impl->sbuf.add16(eventInfo.severity);
 	m_impl->sbuf.add(sessionId.c_str(), HATOHOL_SESSION_ID_LEN);

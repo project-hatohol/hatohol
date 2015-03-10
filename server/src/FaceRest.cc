@@ -961,7 +961,8 @@ static void addHostsMap(
 }
 
 static string getTriggerBrief(
-  FaceRest::ResourceHandler *job, const ServerIdType serverId, const TriggerIdType triggerId)
+  FaceRest::ResourceHandler *job, const ServerIdType &serverId,
+  const TriggerIdType &triggerId)
 {
 	string triggerBrief;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -973,7 +974,7 @@ static string getTriggerBrief(
 	if (triggerInfoList.empty()) {
 		MLPL_WARN("Failed to getTriggerInfo (Not found trigger): "
 		          "%" FMT_SERVER_ID ", %" FMT_TRIGGER_ID "\n",
-		          serverId, triggerId);
+		          serverId, triggerId.c_str());
 		return "";
 	}
 
@@ -987,7 +988,7 @@ static string getTriggerBrief(
 		} else {
 			MLPL_WARN("Failed to getTriggerInfo: "
 			          "%" FMT_SERVER_ID ", %" FMT_TRIGGER_ID "\n",
-			          serverId, triggerId);
+			          serverId, triggerId.c_str());
 		}
 	}
 
@@ -1011,7 +1012,7 @@ static void addTriggersIdBriefHash(
 			triggerBrief = getTriggerBrief(job,
 						       serverId,
 						       triggerId);
-		agent.startObject(StringUtils::toString(triggerId));
+		agent.startObject(triggerId);
 		agent.add("brief", triggerBrief);
 		agent.endObject();
 	}

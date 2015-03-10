@@ -46,10 +46,11 @@ static const string triggerSeverityToString(TriggerSeverityType type)
 static string dumpTriggerInfo(const TriggerInfo &info)
 {
 	return StringUtils::sprintf(
-		"%" PRIu32 "|%" PRIu64 "|%s|%s|%lu|%ld|%" FMT_LOCAL_HOST_ID
+		"%" FMT_SERVER_ID "|%" FMT_TRIGGER_ID "|%s|%s"
+		"|%lu|%ld|%" FMT_LOCAL_HOST_ID
 		"|%s|%s\n",
 		info.serverId,
-		info.id,
+		info.id.c_str(),
 		triggerStatusToString(info.status).c_str(),
 		triggerSeverityToString(info.severity).c_str(),
 		info.lastChangeTime.tv_sec,

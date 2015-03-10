@@ -159,6 +159,7 @@ static uint32_t notifyEvent(ResidentNotifyEventArg *arg)
 		crash();
 	ctx.notifyEvent = *arg;
 	ctx.notifyEvent.hostIdInServer = TEST_HOST_ID_REPLY_MAGIC_CODE;
+	ctx.notifyEvent.triggerId      = TEST_TRIGGER_ID_REPLY_MAGIC_CODE;
 	ctx.countNotified++;
 	if (ctx.sendEventInfo) {
 		sendEventInfo(&ctx);

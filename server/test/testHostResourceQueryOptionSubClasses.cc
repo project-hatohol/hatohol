@@ -219,10 +219,10 @@ void data_triggersQueryOptionWithTargetId(void)
 void test_triggersQueryOptionWithTargetId(gconstpointer data)
 {
 	TriggersQueryOption option(USER_ID_SYSTEM);
-	TriggerIdType expectedId = 634;
+	TriggerIdType expectedId = "634";
 	option.setTargetId(expectedId);
 	string expected = StringUtils::sprintf(
-		"triggers.id=%" FMT_TRIGGER_ID, expectedId);
+		"triggers.id='%" FMT_TRIGGER_ID "'", expectedId.c_str());
 	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(expectedId, option.getTargetId());
 	cppcut_assert_equal(expected, option.getCondition());

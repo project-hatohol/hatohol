@@ -176,9 +176,9 @@ static void _assertTriggers(
 	DataQueryContextPtr dqCtxPtr(new DataQueryContext(arg.userId), false);
 
 	// calculate the expected test triggers
-	map<ServerIdType, map<uint64_t, size_t> > indexMap;
-	map<ServerIdType, map<uint64_t, size_t> >::iterator indexMapIt;
-	map<uint64_t, size_t>::iterator trigIdIdxIt;
+	ServerIdTriggerIdIdxMap         indexMap;
+	ServerIdTriggerIdIdxMapIterator indexMapIt;
+	TriggerIdIdxMapIterator         trigIdIdxIt;
 	getTestTriggersIndexes(indexMap, serverId, hostIdInServer);
 	size_t expectedNumTrig = 0;
 	indexMapIt = indexMap.begin();
@@ -217,10 +217,8 @@ static void _assertTriggers(
 		const ServerIdType actSvId =
 		  static_cast<ServerIdType>(var64);
 
-		string trigIdString;
-		cppcut_assert_equal(true, parser->read("id", trigIdString));
-		uint64_t actTrigId = StringUtils::toUint64(trigIdString);
-
+		string actTrigId;
+		cppcut_assert_equal(true, parser->read("id", actTrigId));
 		trigIdIdxIt = indexMap[actSvId].find(actTrigId);
 		cppcut_assert_equal(
 		  true, trigIdIdxIt != indexMap[actSvId].end());
@@ -277,7 +275,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(parser, "serverId", eventInfo.serverId);
 		assertValueInParser(parser, "time", eventInfo.time);
 		assertValueInParser(parser, "type", eventInfo.type);
-		assertValueInParser(parser, "triggerId", StringUtils::toString(eventInfo.triggerId));
+		assertValueInParser(parser, "triggerId", (eventInfo.triggerId));
 		assertValueInParser(parser, "status",    eventInfo.status);
 		assertValueInParser(parser, "severity",  eventInfo.severity);
 		assertValueInParser(parser, "hostId",    eventInfo.hostIdInServer);

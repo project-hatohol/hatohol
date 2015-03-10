@@ -32,6 +32,8 @@ using namespace mlpl;
 // ---------------------------------------------------------------------------
 namespace testFaceRestNoInit {
 
+static const char *FORCE_EMPTY_STRING = "#__EMPTY__";
+
 class TestFaceRestNoInit : public RestResourceHost {
 public:
 	static HatoholError callParseEventParameter(
@@ -68,6 +70,8 @@ void _assertParseEventParameterTempl(
 	string expectStr;
 	if (forceValueStr.empty())
 		expectStr = format<PARAM_TYPE>(expectValue, fmt);
+	else if (forceValueStr == FORCE_EMPTY_STRING)
+		expectStr = "";
 	else
 		expectStr = forceValueStr;
 	g_hash_table_insert(query,
@@ -480,16 +484,15 @@ void test_parseEventParameterNoTriggerId(void)
 
 void test_parseEventParameterTriggerId(void)
 {
-	TriggerIdType triggerId = 3;
+	TriggerIdType triggerId = "3";
 	assertParseEventParameterTriggerId(triggerId);
 }
 
 void test_parseEventParameterInvalidTriggerId(void)
 {
-	TriggerIdType triggerId = 3;
+	TriggerIdType triggerId = "3";
 	assertParseEventParameterTriggerId(
-	  triggerId, "problem",
-	  HTERR_INVALID_PARAMETER);
+	  triggerId, FORCE_EMPTY_STRING, HTERR_INVALID_PARAMETER);
 }
 
 } // namespace testFaceRestNoInit

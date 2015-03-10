@@ -208,7 +208,8 @@ struct HapiArmInfo {
 } __attribute__((__packed__));
 
 struct HapiParamTimeOfLastEvent {
-	uint64_t triggerId;
+	uint16_t triggerIdLength; // Not include the NULL terminator
+	uint16_t triggerIdOffset; // from the top of this structure
 } __attribute__((__packed__));
 
 struct HapiResponseHeader {

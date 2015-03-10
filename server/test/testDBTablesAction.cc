@@ -51,7 +51,8 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 	            StringUtils::sprintf("%" PRIu64 "|", cond.hostgroupId) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_TRIGGER_ID) ?
-	             StringUtils::sprintf("%" PRIu64 "|", cond.triggerId) :
+	             StringUtils::sprintf("%" FMT_TRIGGER_ID "|",
+	                                  cond.triggerId.c_str()) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_TRIGGER_STATUS) ?
 	            StringUtils::sprintf("%d|", cond.triggerStatus) :
@@ -696,6 +697,7 @@ void test_getTriggerActionList(void)
 	eventInfo.triggerId = condDummy.triggerId;
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
 	eventInfo.severity  = (TriggerSeverityType) condTarget.triggerSeverity;
+	eventInfo.globalHostId = INVALID_HOST_ID;
 	eventInfo.hostIdInServer = condDummy2.hostIdInServer;
 	eventInfo.hostName  = "foo";
 	eventInfo.brief     = "foo foo foo";
@@ -732,7 +734,7 @@ void test_getTriggerActionListWithAllCondition(void)
 	eventInfo.triggerId = condTarget.triggerId;
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
 	eventInfo.severity  = (TriggerSeverityType) condTarget.triggerSeverity;
-	// TODO: ? eventInfo.globalHostId = ???
+	eventInfo.globalHostId = INVALID_HOST_ID;
 	eventInfo.hostIdInServer = condTarget.hostIdInServer;
 	eventInfo.hostName  = "foo";
 	eventInfo.brief     = "foo foo foo";
@@ -767,10 +769,13 @@ static void _assertGetActionWithSeverity(
 	eventInfo.time.tv_sec  = 1378339653;
 	eventInfo.time.tv_nsec = 6889;
 	eventInfo.type      = EVENT_TYPE_BAD;
-	eventInfo.triggerId = condTarget.triggerId ? : 1;
+	if (!condTarget.triggerId.empty())
+		eventInfo.triggerId = condTarget.triggerId;
+	else
+		eventInfo.triggerId = "1";
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
 	eventInfo.severity = severity;
-	// TODO: eventInfo.globalHostId = ???
+	eventInfo.globalHostId = INVALID_HOST_ID;
 	eventInfo.hostIdInServer = condTarget.hostIdInServer;
 	eventInfo.hostName  = "foo";
 	eventInfo.brief     = "foo foo foo";
@@ -1037,12 +1042,13 @@ void test_withEventInfo(void)
 	    "(host_id_in_server='%" FMT_LOCAL_HOST_ID "')) AND "
 	    // test with empty hostgroups
 	    "((host_group_id IS NULL) OR host_group_id IN ('0')) AND "
-	    "((trigger_id IS NULL) OR (trigger_id=%" FMT_TRIGGER_ID ")) AND "
+	    "((trigger_id IS NULL) OR (trigger_id='%" FMT_TRIGGER_ID "')) AND "
 	    "((trigger_status IS NULL) OR (trigger_status=%d)) AND "
 	    "((trigger_severity IS NULL) OR "
 	    "(trigger_severity_comp_type=1 AND trigger_severity=%d) OR "
 	    "(trigger_severity_comp_type=2 AND trigger_severity<=%d))",
-	    id, event.serverId, event.hostIdInServer.c_str(), event.triggerId,
+	    id, event.serverId, event.hostIdInServer.c_str(),
+	    event.triggerId.c_str(),
 	    event.status, event.severity, event.severity);
 	cppcut_assert_equal(expected, option.getCondition());
 }
