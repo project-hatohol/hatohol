@@ -268,8 +268,10 @@ static HatoholError parseActionParameter(FaceRest::ResourceHandler *job,
 		}
 		if (!(cond.triggerSeverityCompType == CMP_EQ ||
 		      cond.triggerSeverityCompType == CMP_EQ_GT)) {
-			return HatoholError(HTERR_INVALID_PARAMETER,
-			                    "type: " + cond.triggerSeverityCompType);
+			string message =
+			  StringUtils::sprintf(
+			    "type: %d", cond.triggerSeverityCompType);
+			return HatoholError(HTERR_INVALID_PARAMETER, message);
 		}
 	}
 
