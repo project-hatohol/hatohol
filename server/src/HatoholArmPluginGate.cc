@@ -372,10 +372,12 @@ void HatoholArmPluginGate::startOnDemandFetchHistory(
 	callback->historyUpdatedSignal.connect(closure);
 	callback->serverId = m_impl->serverInfo.id;
 
+	const size_t additionalSize =
+	  itemInfo.hostIdInServer.size() + 1; // +1: NULL term.
 	SmartBuffer cmdBuf;
 	HapiParamReqFetchHistory *body =
 	  setupCommandHeader<HapiParamReqFetchHistory>(
-	    cmdBuf, HAPI_CMD_REQ_FETCH_HISTORY);
+	    cmdBuf, HAPI_CMD_REQ_FETCH_HISTORY, additionalSize);
 	body->itemId    = NtoL(itemInfo.id);
 	body->valueType = NtoL(static_cast<uint16_t>(itemInfo.valueType));
 	body->beginTime = NtoL(beginTime);
