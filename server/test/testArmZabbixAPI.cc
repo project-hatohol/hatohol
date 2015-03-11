@@ -228,7 +228,7 @@ public:
 		}
 	}
 
-	ItemTablePtr testMakeEventsItemTable(void)
+	ItemTablePtr makeExpectedEventsItemTable(bool lastOnly = false)
 	{
 		ifstream ifs("fixtures/zabbix-api-res-events-002.json");
 		cppcut_assert_equal(false, ifs.fail());
@@ -243,7 +243,10 @@ public:
 		int numData = parser.countElements();
 		if (numData < 1)
 			cut_fail("Value of the elements is empty.");
-		for (int i = 0; i < numData; i++)
+		int i = 0;
+		if (lastOnly)
+			i = numData - 1;
+		for (; i < numData; i++)
 			ArmZabbixAPI::parseAndPushEventsData(parser, tablePtr, i);
 		return ItemTablePtr(tablePtr);
 	}
@@ -798,14 +801,15 @@ static void addDummyFirstEvent(void)
 	dbMonitoring.addEventInfo(&eventInfo);
 }
 
-void test_verifyEventsObtanedBySplitWay(void)
+void test_getEventsBySplitWay(void)
 {
 	addDummyFirstEvent();
 
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
 	armZbxApiTestee.testOpenSession();
 
-	ItemTablePtr expectTable = armZbxApiTestee.testMakeEventsItemTable();
+	ItemTablePtr expectTable
+	  = armZbxApiTestee.makeExpectedEventsItemTable();
 	armZbxApiTestee.callUpdateEvents();
 	assertItemTable(expectTable,
 	                ItemTablePtr(armZbxApiTestee.m_actualEventTablePtr));
@@ -815,6 +819,36 @@ void test_verifyEventsObtanedBySplitWay(void)
 	   armZbxApiTestee.m_numbersOfGotEvents.begin();
 	for (; itr != armZbxApiTestee.m_numbersOfGotEvents.end(); ++itr)
 		cppcut_assert_equal(true, *itr <= upperLimitOfEventsAtOneTime);
+}
+
+void test_getInitialEvent(void)
+{
+	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.testOpenSession();
+
+	bool lastOnly = true;
+	ItemTablePtr expectTable
+	  = armZbxApiTestee.makeExpectedEventsItemTable(lastOnly);
+	armZbxApiTestee.callUpdateEvents();
+	assertItemTable(expectTable,
+	                ItemTablePtr(armZbxApiTestee.m_actualEventTablePtr));
+}
+
+void test_getOldEvents(void)
+{
+	CommandArgHelper commandArgs;
+	commandArgs << "--test-mode";
+	commandArgs << "--load-old-events";
+	commandArgs.activate();
+
+	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.testOpenSession();
+
+	ItemTablePtr expectTable
+	  = armZbxApiTestee.makeExpectedEventsItemTable();
+	armZbxApiTestee.callUpdateEvents();
+	assertItemTable(expectTable,
+	                ItemTablePtr(armZbxApiTestee.m_actualEventTablePtr));
 }
 
 // for issue #447 (can't fetch one new event)
