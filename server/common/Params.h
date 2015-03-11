@@ -71,8 +71,8 @@ typedef uint64_t UnifiedEventIdType;
 typedef std::string EventIdType;
 #define FMT_EVENT_ID "s"
 
-typedef uint64_t ItemIdType;
-#define FMT_ITEM_ID PRIu64
+typedef std::string ItemIdType;
+#define FMT_ITEM_ID "s"
 
 typedef uint64_t ItemCategoryIdType;
 #define FMT_ITEM_CATEGORY_ID PRIu64
@@ -142,7 +142,7 @@ static const TriggerIdType FAILED_SELF_TRIGGER_ID_TERMINATION   =
 static const EventIdType EVENT_NOT_FOUND = "";
 
 // Special Item IDs ===========================================================
-static const ItemIdType ALL_ITEMS    = -1;
+static const ItemIdType ALL_ITEMS    = "*";
 
 // Special ItemCategory IDs ===================================================
 static const ItemCategoryIdType NO_ITEM_CATEGORY_ID = -1;

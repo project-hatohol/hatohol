@@ -172,7 +172,7 @@ public:
 	{
 		ItemInfo itemInfo;
 		itemInfo.serverId = 1;
-		itemInfo.id = 25490;
+		itemInfo.id = "25490";
 		itemInfo.globalHostId = 0;
 		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
 		const ArmPollingResult oneProcEndType

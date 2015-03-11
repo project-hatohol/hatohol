@@ -348,7 +348,7 @@ static void _assertItems(const string &path, const string &callbackName = "",
 	set<ItemInfo *> itemInfoPtrSet;
 	for (ssize_t i = 0; i < numItems; i++) {
 		int64_t serverId = 0;
-		int64_t itemInfoId = 0;
+		ItemIdType itemInfoId;
 
 		parser->startElement(i);
 		cppcut_assert_equal(true, parser->read("serverId", serverId));
@@ -647,7 +647,7 @@ void test_getHistoryWithMinimumParameter(void)
 	RequestArg arg("/history");
 	StringMap params;
 	params["serverId"] = StringUtils::toString(testItemInfo[0].serverId);
-	params["itemId"] = StringUtils::toString(testItemInfo[0].id);
+	params["itemId"] = testItemInfo[0].id;
 	arg.parameters = params;
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	JSONParser *parser = getResponseAsJSONParser(arg);
@@ -664,7 +664,7 @@ void test_getHistoryWithInvalidItemId(void)
 	RequestArg arg("/history");
 	StringMap params;
 	params["serverId"] = StringUtils::toString(testItemInfo[0].serverId);
-	params["itemId"] = StringUtils::toString(testItemInfo[0].id);
+	params["itemId"] = testItemInfo[0].id;
 	arg.parameters = params;
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	JSONParser *parser = getResponseAsJSONParser(arg);

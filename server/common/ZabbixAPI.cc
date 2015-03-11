@@ -454,7 +454,7 @@ ItemTablePtr ZabbixAPI::getHistory(const ItemIdType &itemId,
 	for (int i = 0; i < numData; i++) {
 		startElement(parser, i);
 		VariableItemGroupPtr grp;
-		pushUint64(parser, grp, "itemid", ITEM_ID_ZBX_HISTORY_ITEMID);
+		pushString(parser, grp, "itemid", ITEM_ID_ZBX_HISTORY_ITEMID);
 		pushUint64(parser, grp, "clock",  ITEM_ID_ZBX_HISTORY_CLOCK);
 		pushUint64(parser, grp, "ns",     ITEM_ID_ZBX_HISTORY_NS);
 		pushString(parser, grp, "value",  ITEM_ID_ZBX_HISTORY_VALUE);
@@ -1112,7 +1112,7 @@ void ZabbixAPI::parseAndPushItemsData(
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "itemid",       ITEM_ID_ZBX_ITEMS_ITEMID);
+	pushString(parser, grp, "itemid",       ITEM_ID_ZBX_ITEMS_ITEMID);
 	pushInt   (parser, grp, "type",         ITEM_ID_ZBX_ITEMS_TYPE);
 	pushString(parser, grp, "snmp_community",
 	           ITEM_ID_ZBX_ITEMS_SNMP_COMMUNITY);

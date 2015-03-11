@@ -531,7 +531,7 @@ string makeHistoryOutput(const HistoryInfo &historyInfo)
 	    "%" FMT_SERVER_ID "|%" FMT_ITEM_ID
 	    "|%" PRIu64 "|%" PRIu64
 	    "|%s\n",
-	    historyInfo.serverId, historyInfo.itemId,
+	    historyInfo.serverId, historyInfo.itemId.c_str(),
 	    (uint64_t)historyInfo.clock.tv_sec,
 	    (uint64_t)historyInfo.clock.tv_nsec,
 	    historyInfo.value.c_str());

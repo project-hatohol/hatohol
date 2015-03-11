@@ -851,7 +851,7 @@ static HatoholError parseHistoryParameter(
 void RestResourceHost::handlerGetHistory(void)
 {
 	ServerIdType serverId = ALL_SERVERS;
-	ItemId itemId = ALL_ITEMS;
+	ItemIdType itemId = ALL_ITEMS;
 	const time_t SECONDS_IN_A_DAY = 60 * 60 * 24;
 	time_t endTime = time(NULL);
 	time_t beginTime = endTime - SECONDS_IN_A_DAY;
@@ -875,7 +875,7 @@ void RestResourceHost::handlerGetHistory(void)
 		// We assume that items are alreay fetched.
 		// Because clients can't know the itemId wihout them.
 		string message = StringUtils::sprintf("itemId: %" FMT_ITEM_ID,
-						      itemId);
+						      itemId.c_str());
 		HatoholError err(HTERR_NOT_FOUND_TARGET_RECORD, message);
 		replyError(err);
 		return;

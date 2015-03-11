@@ -199,7 +199,7 @@ void test_getHistory(void)
 	zbxApiTestee.testOpenSession();
 	ZabbixAPI::ValueType valueTypeFloat = ZabbixAPI::VALUE_TYPE_FLOAT;
 	ItemTablePtr history =
-	  zbxApiTestee.callGetHistory(25490, valueTypeFloat,
+	  zbxApiTestee.callGetHistory("25490", valueTypeFloat,
 				      1413265550, 1413268970);
 	const ItemGroupList &list = history->getItemGroupList();
 	ItemGroupListConstIterator it = list.begin();
@@ -221,12 +221,12 @@ void test_getHistory(void)
 			json += ",";
 		json += mlpl::StringUtils::sprintf(
 			"{"
-			"\"itemid\":\"%" PRIu64 "\","
+			"\"itemid\":\"%" FMT_ITEM_ID "\","
 			"\"clock\":\"%" PRIu64 "\","
 			"\"value\":\"%s\","
 			"\"ns\":\"%" PRIu64 "\""
 			"}",
-			itemid, clock, value.c_str(), ns);
+			itemid.c_str(), clock, value.c_str(), ns);
 	}
 	string path = getFixturesDir() + "zabbix-api-res-history.json";
 	gchar *contents = NULL;

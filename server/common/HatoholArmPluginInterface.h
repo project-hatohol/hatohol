@@ -268,11 +268,13 @@ struct HapiHapSelfTriggers {
 struct HapiParamReqFetchHistory {
 	uint16_t hostIdLength;  // Not include the NULL terminator
 	uint16_t hostIdOffset;  // from the top of this structure
-	uint64_t itemId;
+	uint16_t itemIdLength;  // Not include the NULL terminator
+	uint16_t itemIdOffset;  // from the top of this structure
 	uint16_t valueType;
 	uint64_t beginTime;
 	uint64_t endTime;
 	// Body of hostId  (including NULL terminator)
+	// Body of itemId  (including NULL terminator)
 } __attribute__((__packed__));
 
 struct HapiTriggerCollect {
