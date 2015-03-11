@@ -132,8 +132,8 @@ var HatoholNavi = function(userProfile, currentPage) {
     return $("<li/>", {
       html: title,
       class: klass,
-    })
-  }
+    });
+  };
   var item, children, child, dropDown;
 
   for (i = 0; i < menuItems.length; ++i) {

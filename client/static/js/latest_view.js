@@ -83,7 +83,7 @@ var LatestView = function(userProfile) {
         load(page);
         if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
           self.baseQuery.limit = self.pager.numRecordsPerPage;
-          saveConfig({'num-items-per-page': self.baseQuery.limit})
+          saveConfig({'num-items-per-page': self.baseQuery.limit});
         }
       }
     });
@@ -151,7 +151,7 @@ var LatestView = function(userProfile) {
       serverId: item["serverId"],
       hostId:   item["hostId"],
       itemId:   item["id"]
-    }
+    };
     return "ajax_history?" + $.param(query);
   }
 
@@ -161,7 +161,7 @@ var LatestView = function(userProfile) {
          item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_INTEGER)) {
       return "";
     }
-    var link = "<a href='" + getGraphURL(item) + "'>"
+    var link = "<a href='" + getGraphURL(item) + "'>";
     link += gettext("Graph");
     link += "</a>";
     return link;

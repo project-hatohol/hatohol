@@ -22,7 +22,7 @@ var HistoryView = function(userProfile, options) {
   var secondsInHour = 60 * 60;
 
   self.options = options || {};
-  self.queryParams = deparam(self.options.query)
+  self.queryParams = deparam(self.options.query);
   self.config = $.extend({}, self.queryParams);
   self.graphId = self.config["id"];
   self.reloadIntervalSeconds = 60;
@@ -60,7 +60,7 @@ var HistoryView = function(userProfile, options) {
       if (self.grpahId)
         return;
       if (!self.config.histories || self.config.histories.length <= 0)
-        window.location.href = "ajax_graphs"
+        window.location.href = "ajax_graphs";
     });
   }
 
@@ -68,7 +68,7 @@ var HistoryView = function(userProfile, options) {
     if (!val)
       return false;
     val = val.toLowerCase();
-    return (val == "1" || val == "true")
+    return (val == "1" || val == "true");
   }
 
   function isCreateMode() {
@@ -181,7 +181,7 @@ var HistoryView = function(userProfile, options) {
       replyCallback: function(reply, parser) {
         self.graphId = reply.id;
         self.config = config;
-        self.itemSelector.hide()
+        self.itemSelector.hide();
         hatoholInfoMsgBox(gettext("Successfully saved."));
         updateView();
       },

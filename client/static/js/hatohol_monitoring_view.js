@@ -383,7 +383,7 @@ function()
   }();
   $("#update-time").empty();
   $("#update-time").append(gettext("Last update time:") + " " + date.getCurrentTime());
-}
+};
 
 HatoholMonitoringView.prototype.enableAutoRefresh =
 function(reloadFunc, reloadIntervalSeconds)
@@ -393,7 +393,7 @@ function(reloadFunc, reloadIntervalSeconds)
   button.addClass("btn-primary");
   button.addClass("active");
   this.setAutoReload(reloadFunc, reloadIntervalSeconds);
-}
+};
 
 HatoholMonitoringView.prototype.disableAutoRefresh =
 function()
@@ -403,7 +403,7 @@ function()
   button.removeClass("btn-primary");
   button.removeClass("active");
   button.addClass("btn-default");
-}
+};
 
 HatoholMonitoringView.prototype.setupToggleAutoRefreshButtonHandler =
 function(reloadFunc, intervalSeconds)
@@ -416,10 +416,10 @@ function(reloadFunc, intervalSeconds)
       self.enableAutoRefresh(reloadFunc, intervalSeconds);
     }
   });
-}
+};
 
 HatoholMonitoringView.prototype.showToggleAutoRefreshButton =
 function()
 {
   $("#toggleAutoRefreshButton").show();
-}
+};

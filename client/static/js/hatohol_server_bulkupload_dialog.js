@@ -402,7 +402,7 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
       var tr = $('<tr>');
       var cols;
       var badCols = 0;
-      var idBadl
+      var idBadl;
 
       if (line.length == 0)
         continue;
@@ -520,13 +520,13 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
 
     var defaultValue = '';
     if (param.default != undefined)
-      defaultValue = param.default
+      defaultValue = param.default;
 
     var inputStyle = param.inputStyle;
     if (inputStyle == undefined)
       inputStyle = 'text';
 
-    var hint = ''
+    var hint = '';
     if (param.hint != undefined)
       hint = param.hint;
 

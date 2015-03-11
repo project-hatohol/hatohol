@@ -30,7 +30,7 @@ var HatoholLoginDialog = function(readyCallback) {
   var title = gettext("Login");
   var dialogAttr = { width: "auto" };
   HatoholDialog.apply(this, [id, title, dialogButtons, dialogAttr]);
-}
+};
 
 //
 // Override methods
@@ -56,7 +56,7 @@ HatoholLoginDialog.prototype.createMainElement = function() {
     s += '</form>';
     return s;
   }
-}
+};
 
 HatoholLoginDialog.prototype.onAppendMainElement = function () {
 
@@ -91,11 +91,11 @@ HatoholLoginDialog.prototype.onAppendMainElement = function () {
     self.readyCallback(user, password);
     return false;
   });
-}
+};
 
 //
 // Methods defined in this object
 //
 HatoholLoginDialog.prototype.makeInput = function(user, password) {
   this.readyCallback(user, password);
-}
+};

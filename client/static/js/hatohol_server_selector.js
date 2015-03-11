@@ -25,7 +25,7 @@ var HatoholServerSelector = function(selectedCb) {
   HatoholSelectorDialog.apply(
     this, ["server-selector", gettext("Server selecion"), selectedCb]);
   self.start("/server", "GET");
-}
+};
 
 HatoholServerSelector.prototype =
   Object.create(HatoholSelectorDialog.prototype);
@@ -33,7 +33,7 @@ HatoholServerSelector.prototype.constructor = HatoholServerSelector;
 
 HatoholServerSelector.prototype.getNumberOfObjects = function(reply) {
   return reply.numberOfServers;
-}
+};
 
 HatoholServerSelector.prototype.generateMainTable = function(tableId) {
   var html =
@@ -49,9 +49,9 @@ HatoholServerSelector.prototype.generateMainTable = function(tableId) {
   '    </tr>' +
   '  </thead>' +
   '  <tbody></tbody>' +
-  '</table>'
+  '</table>';
   return html;
-}
+};
 
 HatoholServerSelector.prototype.generateTableRows = function(reply) {
   var s = "";
@@ -67,4 +67,4 @@ HatoholServerSelector.prototype.generateTableRows = function(reply) {
     s += '</tr>';
   }
   return s;
-}
+};

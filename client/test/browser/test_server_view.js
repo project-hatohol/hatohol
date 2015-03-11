@@ -79,9 +79,9 @@ describe('ServerView', function() {
       load: function() {
         var html = $("#main", this.contentDocument).html();
         onLoad(html);
-        $('#loaderFrame').remove()
+        $('#loaderFrame').remove();
       }
-    })
+    });
     $('body').append(iframe);
   }
 

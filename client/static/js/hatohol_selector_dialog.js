@@ -35,7 +35,7 @@ var HatoholSelectorDialog = function(id, title, selectedCallback) {
   HatoholDialog.apply(this, [id, title, dialogButtons]);
 
   self.setSelectButtonState(false);
-}
+};
 
 HatoholSelectorDialog.prototype = Object.create(HatoholDialog.prototype);
 HatoholSelectorDialog.prototype.constructor = HatoholSelectorDialog;
@@ -45,7 +45,7 @@ HatoholSelectorDialog.prototype.createMainElement = function() {
   ptag.attr("id", "selectorDialogMsgArea");
   ptag.text(gettext("Now getting information..."));
   return ptag;
-}
+};
 
 HatoholSelectorDialog.prototype.selectButtonClicked = function() {
   if (!this.selectedCallback)
@@ -55,13 +55,13 @@ HatoholSelectorDialog.prototype.selectButtonClicked = function() {
   else
     this.selectedCallback(this.objectArray[this.selectedRow.index()]);
   this.closeDialog();
-}
+};
 
 HatoholSelectorDialog.prototype.cancelButtonClicked = function() {
   if (this.selectedCallback)
     this.selectedCallback(null);
   this.closeDialog();
-}
+};
 
 HatoholSelectorDialog.prototype.setSelectButtonState = function(state) {
   var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
@@ -73,27 +73,27 @@ HatoholSelectorDialog.prototype.setSelectButtonState = function(state) {
      btn.attr("disabled", "disable");
      btn.addClass("ui-state-disabled");
   }
-}
+};
 
 HatoholSelectorDialog.prototype.setMessage = function(msg) {
   $("#selectorDialogMsgArea").text(msg);
-}
+};
 
 HatoholSelectorDialog.prototype.setObjectArray = function(ary) {
   this.objectArray = ary;
-}
+};
 
 HatoholSelectorDialog.prototype.setSelectedRow = function(row) {
   this.selectedRow = row;
-}
+};
 
 HatoholSelectorDialog.prototype.getSelectedRow = function() {
   return this.selectedRow;
-}
+};
 
 HatoholSelectorDialog.prototype.makeQueryData= function() {
   return {};
-}
+};
 
 HatoholSelectorDialog.prototype.start = function(url, requestType) {
   var self = this;
@@ -133,4 +133,4 @@ HatoholSelectorDialog.prototype.start = function(url, requestType) {
       self.setMessage(errorMsg);
     }
   })
-}
+};

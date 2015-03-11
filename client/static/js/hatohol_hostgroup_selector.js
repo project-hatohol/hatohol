@@ -25,7 +25,7 @@ var HatoholHostgroupSelector = function(serverId, selectedCb) {
   HatoholSelectorDialog.apply(
     this, ["hostgroup-selector", gettext("Hostgroup selecion"), selectedCb]);
   self.start("/hostgroup", "GET");
-}
+};
 
 HatoholHostgroupSelector.prototype =
   Object.create(HatoholSelectorDialog.prototype);
@@ -33,11 +33,11 @@ HatoholHostgroupSelector.prototype.constructor = HatoholHostgroupSelector;
 
 HatoholHostgroupSelector.prototype.makeQueryData = function() {
     return this.queryData;
-}
+};
 
 HatoholHostgroupSelector.prototype.getNumberOfObjects = function(reply) {
   return reply.numberOfHosts;
-}
+};
 
 HatoholHostgroupSelector.prototype.generateMainTable = function(tableId) {
   var html =
@@ -51,9 +51,9 @@ HatoholHostgroupSelector.prototype.generateMainTable = function(tableId) {
   '    </tr>' +
   '  </thead>' +
   '  <tbody></tbody>' +
-  '</table>'
+  '</table>';
   return html;
-}
+};
 
 HatoholHostgroupSelector.prototype.generateTableRows = function(reply) {
   var s = "";
@@ -67,4 +67,4 @@ HatoholHostgroupSelector.prototype.generateTableRows = function(reply) {
     s += '</tr>';
   }
   return s;
-}
+};
