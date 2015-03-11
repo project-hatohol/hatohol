@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-09 20:25-0500\n"
+"POT-Creation-Date: 2015-03-11 00:22-0500\n"
 "PO-Revision-Date: 2014-11-11 17:04+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -39,45 +39,49 @@ msgstr "TLS: 確認を有効化"
 msgid "Static queue address"
 msgstr "静的キューアドレス"
 
-#: misc/external-labels.js:7 static/js/hatohol_incident_trackers_editor.js:390
+#: misc/external-labels.js:7
+msgid "Passive mode"
+msgstr "パッシブモード"
+
+#: misc/external-labels.js:8 static/js/hatohol_incident_trackers_editor.js:390
 #: static/js/hatohol_incident_trackers_editor.js:415
 #: static/js/hatohol_login_dialog.js:48
 #: static/js/hatohol_user_edit_dialog.js:158
 msgid "User name"
 msgstr "ユーザー名"
 
-#: misc/external-labels.js:8
+#: misc/external-labels.js:9
 msgid "IP address"
 msgstr "IPアドレス"
 
-#: misc/external-labels.js:9
-msgid "Passive mode"
-msgstr "パッシブモード"
-
 #: misc/external-labels.js:10
+msgid "Web UI URL"
+msgstr ""
+
+#: misc/external-labels.js:11
 msgid "Polling interval (sec)"
 msgstr "ポーリング間隔（秒）"
 
-#: misc/external-labels.js:11
+#: misc/external-labels.js:12
 msgid "Broker URL"
 msgstr "ブローカーURL"
 
-#: misc/external-labels.js:12
+#: misc/external-labels.js:13
 msgid "DB name"
 msgstr "データベース名"
 
-#: misc/external-labels.js:13
+#: misc/external-labels.js:14
 msgid "Retry interval (sec)"
 msgstr "リトライ間隔（秒）"
 
-#: misc/external-labels.js:14
+#: misc/external-labels.js:15
 #: static/js/hatohol_incident_trackers_editor.js:395
 #: static/js/hatohol_login_dialog.js:50
 #: static/js/hatohol_user_edit_dialog.js:160
 msgid "Password"
 msgstr "パスワード"
 
-#: misc/external-labels.js:15
+#: misc/external-labels.js:16
 #: static/js/hatohol_incident_trackers_editor.js:178
 #: static/js/hatohol_incident_trackers_editor.js:369
 #: static/js/hatohol_privilege_edit_dialog.js:202
@@ -85,15 +89,15 @@ msgstr "パスワード"
 msgid "Nickname"
 msgstr "ニックネーム"
 
-#: misc/external-labels.js:16
+#: misc/external-labels.js:17
 msgid "Port"
 msgstr "ポート番号"
 
-#: misc/external-labels.js:17
+#: misc/external-labels.js:18
 msgid "Host name"
 msgstr "ホスト名"
 
-#: misc/external-labels.js:18
+#: misc/external-labels.js:19
 msgid "TLS client certificate path"
 msgstr "TLSクライアント証明書のパス"
 
@@ -129,7 +133,7 @@ msgstr "制限なし"
 #: static/js/hatohol_add_action_dialog.js:776
 #: static/js/hatohol_user_edit_dialog.js:172
 #: static/js/incident_settings_view.js:207
-#: static/js/log_search_systems_view.js:120 static/js/servers_view.js:243
+#: static/js/log_search_systems_view.js:120 static/js/servers_view.js:249
 msgid "EDIT"
 msgstr "編集"
 
@@ -154,7 +158,7 @@ msgid "New values per second"
 msgstr "１秒あたりの監視項目数"
 
 #: static/js/events_view.js:40 static/js/hatohol_add_action_dialog.js:715
-#: static/js/servers_view.js:352 static/js/triggers_view.js:92
+#: static/js/servers_view.js:358 static/js/triggers_view.js:92
 #: static/js/utils.js:59
 msgid "OK"
 msgstr "正常"
@@ -170,11 +174,11 @@ msgstr "障害"
 #: static/js/triggers_view.js:94 static/js/users_view.js:150
 #: static/js/utils.js:183 static/js/utils.js.c:189 static/js/utils.js.c:195
 #: static/js/utils.js:210 static/js/utils.js.c:225
-#: test/browser/test_utils.js:356 test/browser/test_utils.js.c:362
-#: test/browser/test_utils.js:383 test/browser/test_utils.js.c:389
-#: test/browser/test_utils.js:412 test/browser/test_utils.js.c:418
-#: test/browser/test_utils.js:440 test/browser/test_utils.js.c:446
-#: test/browser/test_utils.js:468 test/browser/test_utils.js.c:474
+#: test/browser/test_utils.js:362 test/browser/test_utils.js.c:368
+#: test/browser/test_utils.js:389 test/browser/test_utils.js.c:395
+#: test/browser/test_utils.js:418 test/browser/test_utils.js.c:424
+#: test/browser/test_utils.js:446 test/browser/test_utils.js.c:452
+#: test/browser/test_utils.js:474 test/browser/test_utils.js.c:480
 msgid "Unknown"
 msgstr "不明"
 
@@ -684,7 +688,7 @@ msgid "Host selecion"
 msgstr "ホスト選択"
 
 #: static/js/hatohol_host_selector.js:54
-#: static/js/hatohol_hostgroup_selector.js:48 static/js/servers_view.js:214
+#: static/js/hatohol_hostgroup_selector.js:48 static/js/servers_view.js:215
 msgid "Server ID"
 msgstr "サーバーID"
 
@@ -895,7 +899,7 @@ msgid "YES"
 msgstr "はい"
 
 #: static/js/hatohol_message_box.js:189
-#: static/js/hatohol_monitoring_view.js:25 static/js/servers_view.js:354
+#: static/js/hatohol_monitoring_view.js:25 static/js/servers_view.js:360
 msgid "Error"
 msgstr "エラー"
 
@@ -1464,63 +1468,63 @@ msgstr "General Plugin"
 msgid "Ceilometer"
 msgstr "Ceilometer"
 
-#: static/js/servers_view.js:218
+#: static/js/servers_view.js:219
 msgid "Checking"
 msgstr "チェック中"
 
-#: static/js/servers_view.js:235
+#: static/js/servers_view.js:241
 msgid "Show Maps"
 msgstr "マップを表示"
 
-#: static/js/servers_view.js:272
+#: static/js/servers_view.js:278
 msgid "Failed to get"
 msgstr "取得失敗"
 
-#: static/js/servers_view.js:346
+#: static/js/servers_view.js:352
 msgid "N/A"
 msgstr "N/A"
 
-#: static/js/servers_view.js:350
+#: static/js/servers_view.js:356
 msgid "Initial State"
 msgstr "初期状態"
 
-#: static/js/servers_view.js:356
+#: static/js/servers_view.js:362
 msgid "Unknown:"
 msgstr "不明"
 
-#: static/js/servers_view.js:369 test/browser/test_server_view.js:213
+#: static/js/servers_view.js:375 test/browser/test_server_view.js:213
 msgid "Running"
 msgstr "稼働"
 
-#: static/js/servers_view.js:372
+#: static/js/servers_view.js:378
 msgid "No"
 msgstr "いいえ"
 
-#: static/js/servers_view.js:375 test/browser/test_server_view.js:213
+#: static/js/servers_view.js:381 test/browser/test_server_view.js:213
 msgid "Yes"
 msgstr "はい"
 
-#: static/js/servers_view.js:385 test/browser/test_server_view.js:214
+#: static/js/servers_view.js:391 test/browser/test_server_view.js:214
 msgid "Status update time"
 msgstr "状態更新時刻"
 
-#: static/js/servers_view.js:390 test/browser/test_server_view.js:215
+#: static/js/servers_view.js:396 test/browser/test_server_view.js:215
 msgid "Last success time"
 msgstr "最終成功時刻"
 
-#: static/js/servers_view.js:395 test/browser/test_server_view.js:216
+#: static/js/servers_view.js:401 test/browser/test_server_view.js:216
 msgid "Last failure time"
 msgstr "最終失敗時刻"
 
-#: static/js/servers_view.js:403 test/browser/test_server_view.js:217
+#: static/js/servers_view.js:409 test/browser/test_server_view.js:217
 msgid "Number of communication"
 msgstr "通信回数"
 
-#: static/js/servers_view.js:411 test/browser/test_server_view.js:218
+#: static/js/servers_view.js:417 test/browser/test_server_view.js:218
 msgid "Number of failure"
 msgstr "失敗回数"
 
-#: static/js/servers_view.js:415 test/browser/test_server_view.js:219
+#: static/js/servers_view.js:421 test/browser/test_server_view.js:219
 msgid "Comment for the failure"
 msgstr "失敗備考"
 
