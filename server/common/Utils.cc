@@ -474,7 +474,7 @@ void Utils::conv(uint64_t &dest, const string &src)
 	}
 }
 
-uint64_t Utils::add(const string &num0, const uint64_t num1)
+uint64_t Utils::sum(const string &num0, const uint64_t num1)
 {
 	uint64_t n;
 	conv(n, num0);

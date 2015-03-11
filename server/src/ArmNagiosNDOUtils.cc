@@ -550,7 +550,7 @@ void ArmNagiosNDOUtils::addConditionForEventQuery(void)
 			THROW_HATOHOL_EXCEPTION("Unexpected event ID: %s\n",
 			                        lastEventId.c_str());
 		}
-		const uint64_t eventId = Utils::add(lastEventId, 1);
+		const uint64_t eventId = Utils::sum(lastEventId, 1);
 		cond = StringUtils::toString(eventId);
 	}
 	arg.condition += cond;
