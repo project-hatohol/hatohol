@@ -214,7 +214,8 @@ public:
 			     const ItemsQueryOption &option);
 	void getApplicationInfoVect(ApplicationInfoVect &applicationInfoVect,
 			     const ItemsQueryOption &option);
-	void addMonitoringServerStatus(MonitoringServerStatus *serverStatus);
+	void addMonitoringServerStatus(
+	  const MonitoringServerStatus &serverStatus);
 
 	/**
 	 * get the number of triggers with the given server ID, host group ID,

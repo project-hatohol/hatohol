@@ -218,16 +218,15 @@ void ArmZabbixAPI::makeHatoholEvents(ItemTablePtr events)
 void ArmZabbixAPI::makeHatoholItems(
   ItemTablePtr items, ItemTablePtr applications)
 {
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	ItemInfoList itemInfoList;
 	MonitoringServerStatus serverStatus;
 	serverStatus.serverId = m_impl->zabbixServerId;
 	HatoholDBUtils::transformItemsToHatoholFormat(
 	  itemInfoList, serverStatus, items, applications,
 	  m_impl->zabbixServerId, m_impl->hostInfoCache);
-	dbMonitoring.addItemInfoList(itemInfoList);
-	dbMonitoring.addMonitoringServerStatus(&serverStatus);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->addItemList(itemInfoList);
+	dataStore->addMonitoringServerStatus(serverStatus);
 }
 
 void ArmZabbixAPI::makeHatoholHostgroups(ItemTablePtr groups)

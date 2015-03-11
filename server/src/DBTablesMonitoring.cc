@@ -2243,12 +2243,12 @@ void DBTablesMonitoring::getApplicationInfoVect(ApplicationInfoVect &application
 }
 
 void DBTablesMonitoring::addMonitoringServerStatus(
-  MonitoringServerStatus *serverStatus)
+  const MonitoringServerStatus &serverStatus)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
-		MonitoringServerStatus *serverStatus;
+		const MonitoringServerStatus &serverStatus;
 
-		TrxProc(MonitoringServerStatus *_serverStatus)
+		TrxProc(const MonitoringServerStatus &_serverStatus)
 		: serverStatus(_serverStatus)
 		{
 		}
@@ -2256,7 +2256,7 @@ void DBTablesMonitoring::addMonitoringServerStatus(
 		void operator ()(DBAgent &dbAgent) override
 		{
 			addMonitoringServerStatusWithoutTransaction(
-			  dbAgent, *serverStatus);
+			  dbAgent, serverStatus);
 		}
 	} trx(serverStatus);
 	getDBAgent().runTransaction(trx);

@@ -610,6 +610,14 @@ void UnifiedDataStore::addItemList(const ItemInfoList &itemList)
 	dbMonitoring.addItemInfoList(itemList);
 }
 
+void UnifiedDataStore::addMonitoringServerStatus(
+  const MonitoringServerStatus &serverStatus)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	dbMonitoring.addMonitoringServerStatus(serverStatus);
+}
+
 void UnifiedDataStore::getUserList(UserInfoList &userList,
                                    const UserQueryOption &option)
 {
