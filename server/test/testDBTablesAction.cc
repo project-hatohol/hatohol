@@ -48,7 +48,8 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 	                                 cond.hostIdInServer.c_str()) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_HOST_GROUP_ID) ?
-	            StringUtils::sprintf("%" PRIu64 "|", cond.hostgroupId) :
+	            StringUtils::sprintf("%" FMT_HOST_GROUP_ID "|",
+	                                 cond.hostgroupId.c_str()) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_TRIGGER_ID) ?
 	             StringUtils::sprintf("%" FMT_TRIGGER_ID "|",

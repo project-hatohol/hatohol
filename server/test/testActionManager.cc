@@ -1386,7 +1386,7 @@ void test_checkEventsWithMultipleIncidentSender(void)
 	    ACTCOND_TRIGGER_STATUS | ACTCOND_TRIGGER_SEVERITY, // enableBits
 	    0,                        // serverId
 	    "",                       // hostId
-	    0,                        // hostgroupId
+	    "",                       // hostgroupId
 	    "",                       // triggerId
 	    TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	    TRIGGER_SEVERITY_INFO,    // triggerSeverity

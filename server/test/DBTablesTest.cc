@@ -562,7 +562,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_STATUS,   // enableBits
 	  1,                        // serverId
 	  "10",                     // hostIdInServer
-	  5,                        // hostgroupId
+	  "5",                      // hostgroupId
 	  "3",                      // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_INFO,    // triggerSeverity
@@ -580,7 +580,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_SEVERITY, // enableBits
 	  0,                        // serverId
 	  "0",                      // hostIdInServer
-	  0,                        // hostgroupId
+	  "0",                      // hostgroupId
 	  "74565", // 0x12345,      // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
@@ -598,7 +598,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
 	  100,                      // serverIdInServer
 	  "9223372036854775807",    // hostIdInServer (0x7fffffffffffffff)
-	  0x8000000000000000,       // hostgroupId
+	  "9223372036854775808",  // 0x8000000000000000, // hostgroupId
 	  "18364758544493064720", // 0xfedcba9876543210, // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
@@ -617,7 +617,7 @@ ActionDef testActionDef[] = {
 	   ACTCOND_TRIGGER_SEVERITY,   // enableBits
 	  2,                        // serverId
 	  "9920249034889494527",    // hostIdInServer
-	  0x8000000000000000,       // hostGroupId
+	  "9223372036854775808",  // 0x8000000000000000, // hostgroupId
 	  "18364758544493064720", // 0xfedcba9876543210, // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
@@ -636,7 +636,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_STATUS | ACTCOND_TRIGGER_SEVERITY, // enableBits
 	  100001,                   // serverId
 	  "100001",                 // hostIdInServer
-	  100001,                   // hostgroupId
+	  "100001",                 // hostgroupId
 	  "74565", // 0x12345,      // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
@@ -654,7 +654,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
 	  101,                      // serverId
 	  "9223372036854775807",    // hostIdInServer (0x7fffffffffffffff)
-	  0x8000000000000000,       // hostgroupId
+	  "9223372036854775808",  // 0x8000000000000000, // hostgroupId
 	  "18364758544493064720", // 0xfedcba9876543210, // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
@@ -672,7 +672,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_HOST_GROUP_ID,    // enableBits
 	  1,                        // serverId
 	  "10",                     // hostIdInServer
-	  5,                        // hostgroupId
+	  "5",                      // hostgroupId
 	  "0",                      // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
@@ -696,7 +696,7 @@ ActionDef testUpdateActionDef = {
 		ACTCOND_TRIGGER_SEVERITY, // enableBits
 		2,                        // serverId
 		"1001",                   // hostIdInServer
-		2001,                     // hostGroupId
+		"2001",                   // hostGroupId
 		"14000",                  // triggerId
 		TRIGGER_STATUS_OK,        // triggerStatus
 		TRIGGER_SEVERITY_WARNING, // triggerSeverity

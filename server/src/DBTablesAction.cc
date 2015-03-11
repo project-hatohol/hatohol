@@ -39,7 +39,9 @@ const static guint DEFAULT_ACTION_DELETE_INTERVAL_MSEC = 3600 * 1000; // 1hour
 
 // 8 -> 9: Add actions.onwer_user_id
 // -> 1.0
-//   * action_logs.id -> VARCHAR
+//   * action_def.trigger_id    -> VARCHAR
+//   * action_def.host_group_id -> VARCHAR
+//   * action_logs.id           -> VARCHAR
 const int DBTablesAction::ACTION_DB_VERSION =
   DBTables::Version::getPackedVer(0, 1, 0);
 
@@ -105,8 +107,8 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	"host_group_id",                   // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
 	SQL_KEY_IDX,                       // keyType
