@@ -38,7 +38,7 @@ static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 
-int DBTablesConfig::CONFIG_DB_VERSION = 13;
+int DBTablesConfig::CONFIG_DB_VERSION = 14;
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
 const ServerIdSet EMPTY_INCIDENT_TRACKER_ID_SET;
@@ -284,6 +284,15 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"base_url",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	32767,                              // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 
@@ -299,6 +308,7 @@ enum {
 	IDX_SERVERS_USER_NAME,
 	IDX_SERVERS_PASSWORD,
 	IDX_SERVERS_DB_NAME,
+	IDX_SERVERS_BASE_URL,
 	NUM_IDX_SERVERS,
 };
 
@@ -577,6 +587,11 @@ static bool updateDB(
 		arg.add(IDX_SERVER_TYPES_PLUGIN_SQL_VERSION, 1);
 		arg.add(IDX_SERVER_TYPES_PLUGIN_ENABLED, 1);
 		dbAgent.update(arg);
+	}
+	if (oldVer < 14) {
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileServers);
+		addColumnsArg.columnIndexes.push_back(IDX_SERVERS_BASE_URL);
+		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;
 }
@@ -1010,6 +1025,7 @@ HatoholError DBTablesConfig::addTargetServer(
 			arg.add(monitoringServerInfo.userName);
 			arg.add(monitoringServerInfo.password);
 			arg.add(monitoringServerInfo.dbName);
+			arg.add(monitoringServerInfo.baseURL);
 		}
 
 		bool preproc(DBAgent &dbAgent) override
@@ -1112,6 +1128,7 @@ HatoholError DBTablesConfig::updateTargetServer(
 	trx.arg.add(IDX_SERVERS_USER_NAME,  monitoringServerInfo->userName);
 	trx.arg.add(IDX_SERVERS_PASSWORD,   monitoringServerInfo->password);
 	trx.arg.add(IDX_SERVERS_DB_NAME,    monitoringServerInfo->dbName);
+	trx.arg.add(IDX_SERVERS_BASE_URL,   monitoringServerInfo->baseURL);
 	trx.arg.condition =
 	   StringUtils::sprintf("id=%u", monitoringServerInfo->id);
 
@@ -1175,6 +1192,7 @@ void DBTablesConfig::getTargetServers(
 	builder.add(IDX_SERVERS_USER_NAME);
 	builder.add(IDX_SERVERS_PASSWORD);
 	builder.add(IDX_SERVERS_DB_NAME);
+	builder.add(IDX_SERVERS_BASE_URL);
 
 	builder.addTable(tableProfileArmPlugins, DBClientJoinBuilder::LEFT_JOIN,
 	                 IDX_SERVERS_ID, IDX_ARM_PLUGINS_SERVER_ID);
@@ -1217,6 +1235,7 @@ void DBTablesConfig::getTargetServers(
 		itemGroupStream >> svInfo.userName;
 		itemGroupStream >> svInfo.password;
 		itemGroupStream >> svInfo.dbName;
+		itemGroupStream >> svInfo.baseURL;
 
 		// ArmPluginInfo
 		if (!armPluginInfoVect)

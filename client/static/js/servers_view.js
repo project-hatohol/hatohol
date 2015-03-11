@@ -218,9 +218,9 @@ var ServersView = function(userProfile) {
            ">" + escapeHTML(gettext("Checking")) + "</td>";
       s += "<td>" + getServerTypeLabel(o["type"]) + "</td>";
       if (serverURL) {
-        s += "<td><a href='" + serverURL + "' target='_blank'>"
+        s += "<td class='server-url-link'><a href='" + serverURL + "' target='_blank'>"
              + escapeHTML(o["hostName"])  + "</a></td>";
-        s += "<td><a href='" + serverURL + "' target='_blank'>"
+        s += "<td class='server-ip-link'><a href='" + serverURL + "' target='_blank'>"
              + escapeHTML(ip) + "</a></td>";
       } else if (o["type"] == hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER){
         s += "<td>" + escapeHTML(o["hostName"])  + "</td>";

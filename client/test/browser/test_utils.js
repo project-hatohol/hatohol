@@ -59,6 +59,18 @@ describe('getServerLocation', function() {
     expect(getServerLocation(server)).to.be(expected);
   });
 
+  it('nagios server with baseURL', function() {
+    var server = {
+      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
+      "ipAddress": "127.0.0.1",
+      "name": "localhost",
+      "port": 8080,
+      "baseURL": "http://127.0.0.1/nagios3/"
+    };
+    var expected = "http://127.0.0.1/nagios3/";
+    expect(getServerLocation(server)).to.be(expected);
+  });
+
   it('ipv6 nagios server', function() {
     var server = {
       "type": hatohol.MONITORING_SYSTEM_NAGIOS,
