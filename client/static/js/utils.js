@@ -193,7 +193,7 @@ function getNickName(server, serverId) {
 function getHostgroupName(server, hostgroupId) {
   var getNamelessHostgroupName = function(hostgroupId) {
     return gettext("Unknown") + " (ID: " + hostgroupId + ")";
-  }
+  };
 
   if (!server || !server["groups"] || !(hostgroupId in server["groups"]))
     return getNamelessHostgroupName(hostgroupId);
@@ -208,7 +208,7 @@ function getHostgroupName(server, hostgroupId) {
 function getHostName(server, hostId) {
   var getNamelessHostName = function(hostId) {
     return gettext("Unknown") + " (ID: " + hostId + ")";
-  }
+  };
 
   if (!server || !server["hosts"] || !(hostId in server["hosts"]))
     return getNamelessHostName(hostId);
@@ -223,7 +223,7 @@ function getHostName(server, hostId) {
 function getTriggerBrief(server, triggerId) {
   var getNamelessTriggerName = function(triggerId) {
     return gettext("Unknown") + " (ID: " + triggerId + ")";
-  }
+  };
 
   if (!server || !server["triggers"] || !(triggerId in server["triggers"]))
     return getNamelessTriggerName(triggerId);
@@ -287,7 +287,7 @@ function formatMetricPrefix(value, unit, step, pow, digits) {
     'ms': true,
     'rpm': true,
     'RPM': true,
-  }
+  };
 
   if (isNaN(value))
     return escapeHTML(value);
