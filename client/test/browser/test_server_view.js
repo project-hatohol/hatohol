@@ -29,6 +29,20 @@ describe('ServerView', function() {
       "dbName": "nagiosndoutils",
       "baseURL": "http://127.0.1.1/nagios3"
     },
+    {
+      "id": 3,
+      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
+      "hostName": "Test Nagios2",
+      "ipAddress": "10.0.0.10",
+      "nickname": "Test Nagios2",
+      "port": 3306,
+      "pollinInterval": 60,
+      "retryInterval": 10,
+      "userName": "TestNagiosUser2",
+      "passowrd": "nagiosadministrator",
+      "dbName": "nagios-ndoutils",
+      "baseURL": ""
+    },
   ];
 
   function getServersJson(servers) {
@@ -99,7 +113,7 @@ describe('ServerView', function() {
     var deleteButton = $('#delete-server-button');
     var checkboxes = $('.delete-selector .selectcheckbox');
     expect(deleteButton).to.have.length(1);
-    expect(checkboxes).to.have.length(2);
+    expect(checkboxes).to.have.length(3);
     expect(deleteButton.is(":visible")).to.be(expectedVisibility);
     expect(checkboxes.is(":visible")).to.be(expectedVisibility);
   }
@@ -112,7 +126,7 @@ describe('ServerView', function() {
     var editButton = $('#edit-server1');
     var editColumn = $('td.edit-server-column');
     expect(editButton).to.have.length(1);
-    expect(editColumn).to.have.length(2);
+    expect(editColumn).to.have.length(3);
     expect(editButton.is(":visible")).to.be(expectedVisibility);
     expect(editColumn.is(":visible")).to.be(expectedVisibility);
   }
