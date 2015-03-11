@@ -167,11 +167,11 @@ string Logger::createHeader(LogLevel level, const char *fileName,
 string Logger::createExtraInfoString(void)
 {
 	string extraInfoString = "";
-	if (extraInfoFlag['C'])
+	if (extraInfoFlag[static_cast<uint8_t>('C')])
 		addCurrentTime(extraInfoString);
-	if (extraInfoFlag['P'])
+	if (extraInfoFlag[static_cast<uint8_t>('P')])
 		addProcessId(extraInfoString);
-	if (extraInfoFlag['T'])
+	if (extraInfoFlag[static_cast<uint8_t>('T')])
 		addThreadId(extraInfoString);
 
 	return extraInfoString;

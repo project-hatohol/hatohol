@@ -35,9 +35,6 @@ static const char *TABLE_NAME_HOSTGROUP_MEMBER  = "hostgroup_member";
 
 const int DBTablesHost::TABLES_VERSION = 3;
 
-const uint64_t NO_HYPERVISOR = -1;
-const size_t MAX_HOST_NAME_LENGTH =  255;
-
 void operator>>(ItemGroupStream &itemGroupStream, HostStatus &rhs)
 {
 	rhs = itemGroupStream.read<int, HostStatus>();
