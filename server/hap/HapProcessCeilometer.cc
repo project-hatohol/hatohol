@@ -501,13 +501,12 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 	}
 
 	// trigger ID (alarm_id)
-	string alarmId;
-	if (!read(parser, "alarm_id", alarmId))
+	string triggerIdStr;
+	if (!read(parser, "alarm_id", triggerIdStr))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 	// TODO: Fix a structure to save ID.
 	// We temporarily generate the 64bit triggerID and host ID from UUID.
 	// Strictly speaking, this way is not safe.
-	string triggerId = StringUtils::toString(generateHashU64(alarmId));
 
 	// status
 	string state;
@@ -546,7 +545,7 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 	// fill
 	// TODO: Define ItemID without ZBX.
 	VariableItemGroupPtr grp;
-	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,   triggerId);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,   triggerIdStr);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_VALUE,       status);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_PRIORITY,    severity);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
@@ -557,7 +556,7 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 	tablePtr->add(grp);
 
 	// Register the Alarm ID
-	m_impl->acquireCtx.alarmIds.push_back(alarmId);
+	m_impl->acquireCtx.alarmIds.push_back(triggerIdStr);
 
 	return HTERR_OK;
 }
@@ -688,7 +687,6 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
 	// TODO: Fix a structure to save ID.
 	// We temporarily generate the 64bit triggerID and host ID from UUID.
 	// Strictly speaking, this way is not safe.
-	string eventId = StringUtils::toString(generateHashU64(eventIdStr));
 
 	// Timestamp
 	string timestampStr;
@@ -716,7 +714,6 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
 	string alarmIdStr;
 	if (!read(parser, "alarm_id", alarmIdStr))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
-	string alarmId = StringUtils::toString(generateHashU64(alarmIdStr));
 
 	// Fill table.
 	// TODO: Define ItemID without ZBX.
@@ -725,9 +722,9 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
 	static const int EVENT_OBJECT_TRIGGER = 0;
 	const timespec &ts = timestamp.getAsTimespec();
 	VariableItemGroupPtr grp;
-	grp->addNewItem(ITEM_ID_ZBX_EVENTS_EVENTID,   eventId);
+	grp->addNewItem(ITEM_ID_ZBX_EVENTS_EVENTID,   eventIdStr);
 	grp->addNewItem(ITEM_ID_ZBX_EVENTS_OBJECT,    EVENT_OBJECT_TRIGGER);
-	grp->addNewItem(ITEM_ID_ZBX_EVENTS_OBJECTID,  alarmId);
+	grp->addNewItem(ITEM_ID_ZBX_EVENTS_OBJECTID,  alarmIdStr);
 	grp->addNewItem(ITEM_ID_ZBX_EVENTS_CLOCK,     (int)ts.tv_sec);
 	grp->addNewItem(ITEM_ID_ZBX_EVENTS_VALUE,     type);
 	grp->addNewItem(ITEM_ID_ZBX_EVENTS_NS,        (int)ts.tv_nsec);
