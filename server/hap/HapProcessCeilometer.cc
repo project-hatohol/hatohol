@@ -504,9 +504,6 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 	string triggerIdStr;
 	if (!read(parser, "alarm_id", triggerIdStr))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
-	// TODO: Fix a structure to save ID.
-	// We temporarily generate the 64bit triggerID and host ID from UUID.
-	// Strictly speaking, this way is not safe.
 
 	// status
 	string state;
@@ -684,9 +681,6 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
 	string eventIdStr;
 	if (!read(parser, "event_id", eventIdStr))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
-	// TODO: Fix a structure to save ID.
-	// We temporarily generate the 64bit triggerID and host ID from UUID.
-	// Strictly speaking, this way is not safe.
 
 	// Timestamp
 	string timestampStr;
