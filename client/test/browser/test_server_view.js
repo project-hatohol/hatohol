@@ -13,7 +13,8 @@ describe('ServerView', function() {
       "retryInterval": 10,
       "userName": "TestZabbixUser",
       "passowrd": "zabbix",
-      "dbName": ""
+      "dbName": "",
+      "baseURL": ""
     },
     {
       "id": 2,
