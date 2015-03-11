@@ -25,7 +25,7 @@ var HatoholTriggerSelector = function(serverId, hostId, selectedCb) {
   HatoholSelectorDialog.apply(
     this, ["trigger-selector", gettext("Trigger selecion"), selectedCb]);
   self.start("/trigger", "GET");
-}
+};
 
 HatoholTriggerSelector.prototype =
   Object.create(HatoholSelectorDialog.prototype);
@@ -33,11 +33,11 @@ HatoholTriggerSelector.prototype.constructor = HatoholTriggerSelector;
 
 HatoholTriggerSelector.prototype.makeQueryData = function() {
     return this.queryData;
-}
+};
 
 HatoholTriggerSelector.prototype.getNumberOfObjects = function(reply) {
   return reply.numberOfTriggers;
-}
+};
 
 HatoholTriggerSelector.prototype.generateMainTable = function(tableId) {
   var html =
@@ -50,9 +50,9 @@ HatoholTriggerSelector.prototype.generateMainTable = function(tableId) {
   '    </tr>' +
   '  </thead>' +
   '  <tbody></tbody>' +
-  '</table>'
+  '</table>';
   return html;
-}
+};
 
 HatoholTriggerSelector.prototype.generateTableRows = function(reply) {
   var s = "";
@@ -65,4 +65,4 @@ HatoholTriggerSelector.prototype.generateTableRows = function(reply) {
     s += '</tr>';
   }
   return s;
-}
+};
