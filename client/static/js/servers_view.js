@@ -292,7 +292,7 @@ var ServersView = function(userProfile) {
       }
       var label = connStatParser.getStatusLabel();
       var msgClass = connStatParser.getStatusLabel();
-      var html = "<span class='" + label.msgClass + "'>" + label.msg + "</span>"
+      var html = "<span class='" + label.msgClass + "'>" + label.msg + "</span>";
 
       var idConnStat = getIdConnStat(serverId);
       $("#" + idConnStat).html(html);
@@ -324,7 +324,7 @@ var ServerConnStatParser = function(reply) {
 
 ServerConnStatParser.prototype.isBadPacket = function() {
     return this.badPacket;
-}
+};
 
 ServerConnStatParser.prototype.setServerId = function(serverId) {
   var self = this;
@@ -335,7 +335,7 @@ ServerConnStatParser.prototype.setServerId = function(serverId) {
   self.currServerId = serverId;
   self.currConnStat = connStat;
   return true;
-}
+};
 
 ServerConnStatParser.prototype.getStatusLabel = function() {
   var self = this;
@@ -366,7 +366,7 @@ ServerConnStatParser.prototype.getInfoHTML = function() {
 
   // running
   var running = self.currConnStat.running;
-  s += gettext("Running") + ": "
+  s += gettext("Running") + ": ";
   switch (running) {
   case 0:
     s += gettext("No");
@@ -422,7 +422,7 @@ ServerConnStatParser.prototype.getInfoHTML = function() {
     s += failureComment;
 
   return s;
-}
+};
 
 ServerConnStatParser.prototype.unixTimeToVisible = function(unixTimeString) {
   if (unixTimeString == undefined)
@@ -453,4 +453,4 @@ ServerConnStatParser.prototype.unixTimeToVisible = function(unixTimeString) {
   var showString = year + "-" + month + "-" + day + " " +
                    hour + ":" + min + ":" + sec;
   return showString;
-}
+};
