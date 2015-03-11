@@ -228,7 +228,7 @@ public:
 		}
 	}
 
-	ItemTablePtr makeExpectedEventsItemTable(bool lastOnly = false)
+	ItemTablePtr makeExpectedEventsItemTable(const bool &lastOnly = false)
 	{
 		ifstream ifs("fixtures/zabbix-api-res-events-002.json");
 		cppcut_assert_equal(false, ifs.fail());
@@ -826,7 +826,7 @@ void test_getInitialEvent(void)
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
 	armZbxApiTestee.testOpenSession();
 
-	bool lastOnly = true;
+	const bool lastOnly = true;
 	ItemTablePtr expectTable
 	  = armZbxApiTestee.makeExpectedEventsItemTable(lastOnly);
 	armZbxApiTestee.callUpdateEvents();
