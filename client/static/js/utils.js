@@ -143,7 +143,7 @@ function getServerLocation(server) {
     url = undefined;
     break;
   }
-  return url;
+  return url ? escapeHTML(url) : url;
 }
 
 function getItemGraphLocation(server, itemId) {
