@@ -2059,7 +2059,7 @@ void loadTestDBServerStatus(void)
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	for (size_t i = 0; i < NumTestServerStatus; i++) {
 		MonitoringServerStatus *serverStatus = &testServerStatus[i];
-		dbMonitoring.addMonitoringServerStatus(serverStatus);
+		dbMonitoring.addMonitoringServerStatus(*serverStatus);
 	}
 }
 

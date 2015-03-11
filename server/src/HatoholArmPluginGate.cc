@@ -301,7 +301,9 @@ bool HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)
 			HatoholDBUtils::transformItemsToHatoholFormat(
 			  itemList, serverStatus, itemTablePtr, appTablePtr,
 			  serverId, hostInfoCache);
-			UnifiedDataStore::getInstance()->addItemList(itemList);
+			UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+			dataStore->addItemList(itemList);
+			dataStore->addMonitoringServerStatus(serverStatus);
 			cleanup();
 		}
 
