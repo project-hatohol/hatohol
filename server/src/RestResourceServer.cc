@@ -140,6 +140,7 @@ static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 		agent.add("port", serverInfo.port);
 		agent.add("pollingInterval", serverInfo.pollingIntervalSec);
 		agent.add("retryInterval", serverInfo.retryIntervalSec);
+		agent.add("baseURL", serverInfo.baseURL);
 		if (canUpdateServer(option, serverInfo)) {
 			// Shouldn't show account information of the server to
 			// a user who isn't allowed to update it.
@@ -410,6 +411,14 @@ static HatoholError parseServerParameter(
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		svInfo.dbName = value;
+
+	// baseURL
+	key = "baseURL";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		svInfo.baseURL = value;
 
 	//
 	// HAPI's parameters
