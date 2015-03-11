@@ -507,7 +507,7 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 	// TODO: Fix a structure to save ID.
 	// We temporarily generate the 64bit triggerID and host ID from UUID.
 	// Strictly speaking, this way is not safe.
-	const uint64_t triggerId = generateHashU64(alarmId);
+	string triggerId = StringUtils::toString(generateHashU64(alarmId));
 
 	// status
 	string state;
@@ -688,7 +688,7 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
 	// TODO: Fix a structure to save ID.
 	// We temporarily generate the 64bit triggerID and host ID from UUID.
 	// Strictly speaking, this way is not safe.
-	const uint64_t eventId = generateHashU64(eventIdStr);
+	string eventId = StringUtils::toString(generateHashU64(eventIdStr));
 
 	// Timestamp
 	string timestampStr;
@@ -716,7 +716,7 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
 	string alarmIdStr;
 	if (!read(parser, "alarm_id", alarmIdStr))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
-	const uint64_t alarmId = generateHashU64(alarmIdStr);
+	string alarmId = StringUtils::toString(generateHashU64(alarmIdStr));
 
 	// Fill table.
 	// TODO: Define ItemID without ZBX.
