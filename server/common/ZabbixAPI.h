@@ -164,7 +164,7 @@ protected:
 	 *
 	 * @return The obtained triggers as an ItemTable format.
 	 */
-	ItemTablePtr getApplications(const std::vector<uint64_t> &appIdVector);
+	ItemTablePtr getApplications(const ItemCategoryIdVector &appIdVector);
 	ItemTablePtr getApplications(ItemTablePtr items);
 
 	/**
@@ -257,7 +257,7 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector,
+	SoupMessage *queryApplication(const ItemCategoryIdVector &appIdVector,
 				      HatoholError &queryRet);
 
 	/**
@@ -336,6 +336,12 @@ protected:
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
+
+	template <typename T>
+	void pushSomethingId(
+	  JSONParser &parser, ItemGroup *itemGroup, const ItemId &itemId,
+	  const std::string &objectName, const std::string &elementName,
+	  const T &dummyValue);
 };
 
 #endif // ZabbixAPI_h

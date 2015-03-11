@@ -314,7 +314,8 @@ struct HatoholArmPluginBaseTest :
 			const ItemInfo &itemInfo = testItemInfo[i];
 			if (itemInfo.serverId != serverIdOfHapGate)
 				continue;
-			const ItemCategoryIdType itemCategoryId = i + 100;
+			const ItemCategoryIdType itemCategoryId =
+			  StringUtils::sprintf("%zd", i + 100);
 			itemTablePtr->add(convert(itemInfo, itemCategoryId));
 			itemCategoryNameMap[itemCategoryId] =
 			  itemInfo.itemGroupName;

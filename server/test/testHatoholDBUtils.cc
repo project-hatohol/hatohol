@@ -53,7 +53,7 @@ public:
 	  const bool useItemCategoryNameMap)
 	{
 		const ItemCategoryIdType itemCategoryId =
-		  useItemCategoryNameMap ? 1234 : NO_ITEM_CATEGORY_ID;
+		  useItemCategoryNameMap ? "1234" : NO_ITEM_CATEGORY_ID;
 		ItemInfo expect = testItemInfo[0]; // make a copy
 		VariableItemGroupPtr item = convert(expect, itemCategoryId);
 
