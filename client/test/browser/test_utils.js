@@ -610,12 +610,12 @@ describe('formatItemValue', function() {
   });
 
   it('Mega Bytes', function() {
-    var bytes = "" + (2.5184 * 1024 * 1024)
+    var bytes = "" + (2.5184 * 1024 * 1024);
     expect(formatItemValue(bytes, 'B')).eql("2.518 MB");
   });
 
   it('Giga Bytes', function() {
-    var bytes = "" + (2.5189 * 1024 * 1024 * 1024)
+    var bytes = "" + (2.5189 * 1024 * 1024 * 1024);
     expect(formatItemValue(bytes, 'B')).eql("2.519 GB");
   });
 });
