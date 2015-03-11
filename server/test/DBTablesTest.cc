@@ -126,6 +126,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"foo",                    // user_name
 	"goo",                    // password
 	"dbX",                    // db_name
+	"",                       // base_url
 },{
 	2,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -138,6 +139,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"Einstein",               // user_name
 	"Albert",                 // password
 	"gravity",                // db_name
+	"",                       // base_url
 },{
 	3,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -150,6 +152,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"Fermi",                  // user_name
 	"fermion",                // password
 	"",                       // db_name
+	"",                       // base_url
 },{
 	4,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -162,6 +165,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"Z",                      // user_name
 	"OTSU",                   // password
 	"zzz",                    // db_name
+	"",                       // base_url
 },{
 	211,                      // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -174,6 +178,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"sake",                   // user_name
 	"siranami",               // password
 	"zabbix",                 // db_name
+	"",                       // base_url
 },{
 	222,                      // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -186,6 +191,20 @@ const MonitoringServerInfo testServerInfo[] =
 	"ponta",                  // user_name
 	"doradora",               // password
 	"z@bb1x",                 // db_name
+	"",                       // base_url
+},{
+	301,                      // id
+	MONITORING_SYSTEM_NAGIOS, // type
+	"nagios.example.com",     // hostname
+	"10.0.0.32",              // ip_address
+	"Akira",                  // nickname
+	3306,                     // port
+	300,                      // polling_interval_sec
+	60,                       // retry_interval_sec
+	"nagios-operator",        // user_name
+	"5t64k-f3-ui.l76n",       // password
+	"nAgiOs_ndoutils",        // db_name
+	"http://10.0.0.32/nagios3", // base_url
 }};
 const size_t NumTestServerInfo = ARRAY_SIZE(testServerInfo);
 
