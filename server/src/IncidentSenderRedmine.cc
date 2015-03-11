@@ -138,7 +138,7 @@ string IncidentSenderRedmine::buildURLMonitoringServerEvent(
 		  "?triggerid=%" FMT_TRIGGER_ID
 		  "&eventid=%" FMT_EVENT_ID,
 		  event.triggerId.c_str(),
-		  event.id);
+		  event.id.c_str());
 		break;
 	}
 	case MONITORING_SYSTEM_NAGIOS:
@@ -210,7 +210,7 @@ string IncidentSenderRedmine::buildDescription(
 	    "\n",
 	    event.hostIdInServer.c_str(),
 	    event.triggerId.c_str(),
-	    event.id);
+	    event.id.c_str());
 
 	string monitoringServerEventPage
 	  = buildURLMonitoringServerEvent(event, server);

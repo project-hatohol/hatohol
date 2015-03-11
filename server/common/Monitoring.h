@@ -111,7 +111,7 @@ struct EventInfo {
 	// 'unifiedId' is the unique ID in the event table of Hatohol cache DB.
 	// 'id' is the unique in a 'serverId'. It is typically the same as
 	// the event ID of a monitroing system such as ZABBIX and Nagios.
-	uint64_t            unifiedId;
+	UnifiedEventIdType  unifiedId;
 	ServerIdType        serverId;
 	EventIdType         id;
 	timespec            time;
@@ -134,7 +134,7 @@ typedef std::list<EventInfo>          EventInfoList;
 typedef EventInfoList::iterator       EventInfoListIterator;
 typedef EventInfoList::const_iterator EventInfoListConstIterator;
 
-static const EventIdType DISCONNECT_SERVER_EVENT_ID = 0;
+static const EventIdType DISCONNECT_SERVER_EVENT_ID = "";
 
 enum ItemInfoValueType {
 	ITEM_INFO_VALUE_TYPE_UNKNOWN,

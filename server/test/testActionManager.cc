@@ -493,7 +493,7 @@ void _assertActionLogJustAfterExec(
 	  "%" FMT_LOCAL_HOST_ID, evInf.hostIdInServer.c_str()));
 	expectedArgs.push_back(StringUtils::sprintf("%ld.%ld",
 	  evInf.time.tv_sec, evInf.time.tv_nsec));
-	expectedArgs.push_back(StringUtils::sprintf("%" PRIu64, evInf.id));
+	expectedArgs.push_back(evInf.id);
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.type));
 	expectedArgs.push_back(evInf.triggerId);
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.status));
@@ -732,7 +732,8 @@ static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	                    eventArg->hostIdInServer);
 	cppcut_assert_equal(expected.time.tv_sec, eventArg->time.tv_sec);
 	cppcut_assert_equal(expected.time.tv_nsec, eventArg->time.tv_nsec);
-	cppcut_assert_equal(expected.id, eventArg->eventId);
+	cppcut_assert_equal(TEST_EVENT_ID_REPLY_MAGIC_CODE,
+	                    eventArg->eventId);
 	cppcut_assert_equal(expected.type, (EventType)eventArg->eventType);
 	cppcut_assert_equal(TEST_TRIGGER_ID_REPLY_MAGIC_CODE,
 	                    eventArg->triggerId);

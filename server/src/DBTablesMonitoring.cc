@@ -56,8 +56,10 @@ const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 //   * remove IDX_TRIGGERS_HOST_ID,
 //   * add IDX_TRIGGERS_GLOBAL_HOST_ID and IDX_TRIGGERS_HOST_ID_IN_SERVER
 //   * add IDX_ITEMS_GLOBAL_HOST_ID and IDX_ITEMS_HOST_ID_IN_SERVER
-//   * triggers.id -> VARCHAR
-//   * events.trigger_id -> VARCHAR
+//   * triggers.id        -> VARCHAR
+//   * events.trigger_id  -> VARCHAR
+//   * events.id          -> VARCHAR
+//   * incidents.event_id -> VARCHAR
 const int DBTablesMonitoring::MONITORING_DB_VERSION =
   DBTables::Version::getPackedVer(0, 1, 0);
 
@@ -258,8 +260,8 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	"id",                              // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -811,8 +813,8 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	"event_id",                        // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
@@ -996,7 +998,7 @@ void initEventInfo(EventInfo &eventInfo)
 {
 	eventInfo.unifiedId = 0;
 	eventInfo.serverId = 0;
-	eventInfo.id = 0;
+	eventInfo.id.clear();
 	eventInfo.time.tv_sec = 0;
 	eventInfo.time.tv_nsec = 0;
 	eventInfo.type = EVENT_TYPE_UNKNOWN;
@@ -2004,7 +2006,8 @@ EventIdType DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
 {
 	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	DBAgent::SelectExArg arg(tableProfileEvents);
-	string stmt = StringUtils::sprintf("coalesce(max(%s), -1)",
+	// TODO: This is inefficient
+	string stmt = StringUtils::sprintf("max(cast(%s as unsigned))",
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
 	arg.add(stmt, COLUMN_DEF_EVENTS[IDX_EVENTS_ID].type);
 	arg.condition = StringUtils::sprintf("%s=%s",
@@ -2045,13 +2048,14 @@ SmartTime DBTablesMonitoring::getTimeOfLastEvent(
 			foundEvent = true;
 
 			ItemGroupStream itemGroupStream(*grpList.begin());
-			const EventIdType eventId =
-			  itemGroupStream.read<EventIdType>();
+			const UnifiedEventIdType unifiedId =
+			  itemGroupStream.read<UnifiedEventIdType>();
 
 			// Get the time
-			argTime.condition = sprintf("%s=%" FMT_EVENT_ID,
+			DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
+			argTime.condition = sprintf("%s=%" FMT_UNIFIED_EVENT_ID,
 			  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
-			  eventId);
+			  unifiedId);
 			dbAgent.select(argTime);
 		}
 	} trx;

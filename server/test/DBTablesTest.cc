@@ -357,7 +357,7 @@ const EventInfo testEventInfo[] = {
 {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
-	1,                        // id
+	"1",                      // id
 	{1362957200,0},           // time
 	EVENT_TYPE_GOOD,          // type
 	"2",                      // triggerId
@@ -370,7 +370,7 @@ const EventInfo testEventInfo[] = {
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
-	2,                        // id
+	"2",                      // id
 	{1362958000,0},           // time
 	EVENT_TYPE_GOOD,          // type
 	"3",                      // triggerId
@@ -383,7 +383,7 @@ const EventInfo testEventInfo[] = {
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	1,                        // serverId
-	1,                        // id
+	"1",                      // id
 	{1363123456,0},           // time
 	EVENT_TYPE_GOOD,          // type
 	"2",                      // triggerId
@@ -396,7 +396,7 @@ const EventInfo testEventInfo[] = {
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	1,                        // serverId
-	2,                        // id
+	"2",                      // id
 	{1378900022,0},           // time
 	EVENT_TYPE_GOOD,          // type
 	"1",                      // triggerId
@@ -409,7 +409,7 @@ const EventInfo testEventInfo[] = {
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	1,                        // serverId
-	3,                        // id
+	"3",                      // id
 	{1389123457,0},           // time
 	EVENT_TYPE_GOOD,          // type
 	"3",                      // triggerId
@@ -422,7 +422,7 @@ const EventInfo testEventInfo[] = {
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
-	3,                        // id
+	"3",                      // id
 	{1390000000,123456789},   // time
 	EVENT_TYPE_BAD,           // type
 	"2",                      // triggerId
@@ -436,7 +436,7 @@ const EventInfo testEventInfo[] = {
 	// This entry is for tests with a defunct server
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	trigInfoDefunctSv1.serverId, // serverId
-	1,                        // id
+	"1",                        // id
 	trigInfoDefunctSv1.lastChangeTime, // time
 	EVENT_TYPE_BAD,                    // type
 	"3",                               // triggerId
@@ -963,7 +963,7 @@ IncidentInfo testIncidentInfo[] = {
 {
 	3,                        // trackerId
 	1,                        // serverId
-	1,                        // eventId
+	"1",                      // eventId
 	"2",                      // triggerId
 	"100",                    // identifier
 	"http://localhost:44444/issues/100", // location
@@ -979,7 +979,7 @@ IncidentInfo testIncidentInfo[] = {
 {
 	3,                        // trackerId
 	1,                        // serverId
-	2,                        // eventId
+	"2",                      // eventId
 	"1",                      // triggerId
 	"101",                    // identifier
 	"http://localhost:44444/issues/101", // location
@@ -995,7 +995,7 @@ IncidentInfo testIncidentInfo[] = {
 {
 	5,                        // trackerId
 	2,                        // serverId
-	2,                        // eventId
+	"2",                      // eventId
 	"3",                      // triggerId
 	"123",                    // identifier
 	"http://localhost/issues/123", // location
@@ -1355,25 +1355,27 @@ SmartTime getTimestampOfLastTestTrigger(const ServerIdType &serverId)
 EventIdType findLastEventId(const ServerIdType &serverId)
 {
 	bool found = false;
-	EventIdType maxId = 0;
+	uint64_t maxId = 0;
 	for (size_t i = 0; i < NumTestEventInfo; i++) {
 		const EventInfo &eventInfo = testEventInfo[i];
 		if (eventInfo.serverId != serverId)
 			continue;
-		if (eventInfo.id >= maxId) {
-			maxId = eventInfo.id;
+		uint64_t eventId;
+		Utils::conv(eventId, eventInfo.id);
+		if (eventId >= maxId) {
+			maxId = eventId;
 			found = true;
 		}
 	}
 	if (!found)
 		return EVENT_NOT_FOUND;
-	return maxId;
+	return StringUtils::toString(maxId);
 }
 
 SmartTime findTimeOfLastEvent(
   const ServerIdType &serverId, const TriggerIdType &triggerId)
 {
-	EventIdType maxId = 0;
+	uint64_t maxId = 0;
 	const timespec *lastTime = NULL;
 	for (size_t i = 0; i < NumTestEventInfo; i++) {
 		const EventInfo &eventInfo = testEventInfo[i];
@@ -1382,8 +1384,10 @@ SmartTime findTimeOfLastEvent(
 		if (triggerId != ALL_TRIGGERS &&
 		    eventInfo.triggerId != triggerId)
 			continue;
-		if (eventInfo.id >= maxId) {
-			maxId = eventInfo.id;
+		uint64_t eventId;
+		Utils::conv(eventId, eventInfo.id);
+		if (eventId >= maxId) {
+			maxId = eventId;
 			lastTime = &eventInfo.time;
 		}
 	}
@@ -1873,7 +1877,7 @@ const ArmPluginInfo &getTestArmPluginInfo(const MonitoringSystemType &type)
 string makeEventIncidentMapKey(const EventInfo &eventInfo)
 {
 	return StringUtils::sprintf("%" FMT_SERVER_ID ":%" FMT_EVENT_ID,
-				    eventInfo.serverId, eventInfo.id);
+				    eventInfo.serverId, eventInfo.id.c_str());
 }
 
 void makeEventIncidentMap(map<string, IncidentInfo*> &eventIncidentMap)
@@ -1882,7 +1886,7 @@ void makeEventIncidentMap(map<string, IncidentInfo*> &eventIncidentMap)
 		string key = StringUtils::sprintf(
 			       "%" FMT_SERVER_ID ":%" FMT_EVENT_ID,
 			       testIncidentInfo[i].serverId,
-			       testIncidentInfo[i].eventId);
+			       testIncidentInfo[i].eventId.c_str());
 		eventIncidentMap[key] = &testIncidentInfo[i];
 	}
 }

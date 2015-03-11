@@ -68,10 +68,11 @@ static string eventTypeToString(EventType type)
 static string dumpEventInfo(const EventInfo &info)
 {
 	return StringUtils::sprintf(
-		"%" PRIu32 "|%" PRIu64 "|%lu|%ld|%s|%s|%s|%" FMT_LOCAL_HOST_ID
+		"%" FMT_SERVER_ID "|%" FMT_EVENT_ID
+		"|%lu|%ld|%s|%s|%s|%" FMT_LOCAL_HOST_ID
 		"|%s|%s\n",
 		info.serverId,
-		info.id,
+		info.id.c_str(),
 		info.time.tv_sec,
 		info.time.tv_nsec,
 		eventTypeToString(info.type).c_str(),

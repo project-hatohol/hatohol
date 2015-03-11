@@ -34,5 +34,6 @@ static const int RESIDENT_TEST_REPLY_GET_EVENT_INFO_BODY_LEN =
 #define TEST_HOST_ID_STRING "Test HOST ID in server !!!"
 const char *TEST_HOST_ID_REPLY_MAGIC_CODE = (const char *)0x12345678;
 const char *TEST_TRIGGER_ID_REPLY_MAGIC_CODE = (const char *)0x122333;
+const char *TEST_EVENT_ID_REPLY_MAGIC_CODE   = (const char *)0x76543210;
 
 #endif // residentTest_h

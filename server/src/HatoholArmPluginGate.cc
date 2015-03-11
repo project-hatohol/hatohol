@@ -374,10 +374,12 @@ void HatoholArmPluginGate::startOnDemandFetchHistory(
 	callback->historyUpdatedSignal.connect(closure);
 	callback->serverId = m_impl->serverInfo.id;
 
+	const size_t additionalSize =
+	  itemInfo.hostIdInServer.size() + 1; // +1: NULL term.
 	SmartBuffer cmdBuf;
 	HapiParamReqFetchHistory *body =
 	  setupCommandHeader<HapiParamReqFetchHistory>(
-	    cmdBuf, HAPI_CMD_REQ_FETCH_HISTORY);
+	    cmdBuf, HAPI_CMD_REQ_FETCH_HISTORY, additionalSize);
 	body->itemId    = NtoL(itemInfo.id);
 	body->valueType = NtoL(static_cast<uint16_t>(itemInfo.valueType));
 	body->beginTime = NtoL(beginTime);
@@ -798,12 +800,16 @@ void HatoholArmPluginGate::cmdHandlerGetTimestampOfLastTrigger(
 void HatoholArmPluginGate::cmdHandlerGetLastEventId(
   const HapiCommandHeader *header)
 {
+	ThreadLocalDBCache cache;
+	const EventIdType lastEventId =
+	  cache.getMonitoring().getLastEventId(m_impl->serverInfo.id);
+	const size_t additionalSize = lastEventId.size() + 1;
 	SmartBuffer resBuf;
 	HapiResLastEventId *body =
-	  setupResponseBuffer<HapiResLastEventId>(resBuf);
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	body->lastEventId = dbMonitoring.getLastEventId(m_impl->serverInfo.id);
+	  setupResponseBuffer<HapiResLastEventId>(resBuf, additionalSize);
+	char *buf = reinterpret_cast<char *>(body + 1);
+	buf = putString(buf, body, lastEventId,
+	                &body->lastEventIdOffset, &body->lastEventIdLength);
 	reply(resBuf);
 }
 

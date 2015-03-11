@@ -218,8 +218,7 @@ EventIdType HatoholArmPluginBase::getLastEventId(void)
 		EventIdType eventId;
 
 		Callback(HatoholArmPluginBase *obj)
-		: SyncCommand(obj),
-		  eventId(INVALID_EVENT_ID)
+		: SyncCommand(obj)
 		{
 		}
 
@@ -231,7 +230,9 @@ EventIdType HatoholArmPluginBase::getLastEventId(void)
 			const HapiResLastEventId *body =
 			  getObject()->getResponseBody
 			    <HapiResLastEventId>(replyBuf);
-			eventId = body->lastEventId;
+			eventId = getString(replyBuf, body,
+			                    body->lastEventIdOffset,
+			                    body->lastEventIdLength);
 			setSucceeded();
 		}
 	} *cb = new Callback(this);

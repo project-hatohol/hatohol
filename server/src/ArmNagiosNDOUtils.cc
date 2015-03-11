@@ -538,14 +538,21 @@ void ArmNagiosNDOUtils::addConditionForEventQuery(void)
 {
 	ThreadLocalDBCache cache;
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	uint64_t lastEventId = cache.getMonitoring().getLastEventId(svInfo.id);
+	const EventIdType lastEventId =
+	  cache.getMonitoring().getLastEventId(svInfo.id);
 	string cond;
 	DBAgent::SelectExArg &arg = m_impl->selectEventBuilder.getSelectExArg();
 	arg.condition = m_impl->selectEventBaseCondition;
-	if (lastEventId == EVENT_NOT_FOUND)
+	if (lastEventId == EVENT_NOT_FOUND) {
 		cond = "0";
-	else
-		cond = StringUtils::sprintf("%" PRIu64, lastEventId+1);
+	} else {
+		if (!StringUtils::isNumber(lastEventId)) {
+			THROW_HATOHOL_EXCEPTION("Unexpected event ID: %s\n",
+			                        lastEventId.c_str());
+		}
+		const uint64_t eventId = Utils::sum(lastEventId, 1);
+		cond = StringUtils::toString(eventId);
+	}
 	arg.condition += cond;
 }
 

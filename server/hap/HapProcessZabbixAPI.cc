@@ -118,10 +118,11 @@ void HapProcessZabbixAPI::workOnEvents(void)
 	// TOOD: we should exit immediately if the Zabbix server does not
 	// have any events at all.
 
-	uint64_t lastEventIdOfHatohol = HatoholArmPluginBase::getLastEventId();
+	const EventIdType lastEventIdOfHatohol =
+	  HatoholArmPluginBase::getLastEventId();
 	uint64_t eventIdOffset = 0;
 	if (lastEventIdOfHatohol != EVENT_NOT_FOUND)
-		eventIdOffset = lastEventIdOfHatohol + 1;
+		eventIdOffset = Utils::sum(lastEventIdOfHatohol, 1);
 
 	while (eventIdOffset < lastEventIdOfZbxSv) {
 		const uint64_t eventIdTill =

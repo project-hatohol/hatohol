@@ -65,8 +65,11 @@ typedef int AccessInfoIdType;
 typedef int UserRoleIdType;
 #define FMT_USER_ROLE_ID "d"
 
-typedef uint64_t EventIdType;
-#define FMT_EVENT_ID PRIu64
+typedef uint64_t UnifiedEventIdType;
+#define FMT_UNIFIED_EVENT_ID PRIu64
+
+typedef std::string EventIdType;
+#define FMT_EVENT_ID "s"
 
 typedef uint64_t ItemIdType;
 #define FMT_ITEM_ID PRIu64
@@ -82,6 +85,9 @@ typedef std::string HostgroupIdType;
 
 typedef int IncidentTrackerIdType;
 #define FMT_INCIDENT_TRACKER_ID "d"
+
+typedef uint64_t ActionLogIdType;
+#define FMT_ACTION_LOG_ID PRIu64
 
 // Special Server IDs =========================================================
 static const ServerIdType ALL_SERVERS       = -1;
@@ -133,7 +139,7 @@ static const TriggerIdType FAILED_SELF_TRIGGER_ID_TERMINATION   =
   SPECIAL_TRIGGER_ID_PREFIX "TERM";
 
 // Special Event IDs ==========================================================
-static const EventIdType EVENT_NOT_FOUND = -1;
+static const EventIdType EVENT_NOT_FOUND = "";
 
 // Special Item IDs ===========================================================
 static const ItemIdType ALL_ITEMS    = -1;

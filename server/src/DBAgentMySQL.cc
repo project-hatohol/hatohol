@@ -646,7 +646,7 @@ string DBAgentMySQL::getColumnValueString(const ColumnDef *columnDef,
 	{ // bracket is used to avoid an error:
 	  // jump to case label
 		string src = itemData->getString();
-		char *escaped = new char[src.size() * 2 + 1]; 
+		char *escaped = new char[src.size() * 2 + 1];
 		mysql_real_escape_string(&m_impl->mysql, escaped, src.c_str(), src.size());
 		string val = sprintf("'%s'", escaped);
 		delete [] escaped;

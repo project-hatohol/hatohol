@@ -792,7 +792,7 @@ static void addDummyFirstEvent(void)
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	EventInfo eventInfo = testEventInfo[0];
 	eventInfo.serverId = 1;
-	eventInfo.id = 0;
+	eventInfo.id = "0";
 	eventInfo.time.tv_sec = 0;
 	eventInfo.time.tv_nsec = 0;
 	dbMonitoring.addEventInfo(&eventInfo);
@@ -829,13 +829,14 @@ void test_oneNewEvent(void)
 	armZbxApiTestee.callUpdateEvents();
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-        uint64_t actualEventId = dbMonitoring.getLastEventId(serverInfo.id);
+	uint64_t actualEventId;
+	Utils::conv(actualEventId, dbMonitoring.getLastEventId(serverInfo.id));
 	cppcut_assert_equal(expectedEventId, actualEventId);
 
 	++expectedEventId;
 	g_apiEmulator.setExpectedLastEventId(expectedEventId);
 	armZbxApiTestee.callUpdateEvents();
-        actualEventId = dbMonitoring.getLastEventId(serverInfo.id);
+	Utils::conv(actualEventId, dbMonitoring.getLastEventId(serverInfo.id));
 	cppcut_assert_equal(expectedEventId, actualEventId);
 }
 
