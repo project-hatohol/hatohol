@@ -161,7 +161,7 @@ HatoholHostgroupPrivilegeEditDialog.prototype.setupAllCheckButton = function() {
     for (var i = 0; i < checkboxes.length; i++)
       checkboxes[i].checked = false;
   });
-}
+};
 
 HatoholHostgroupPrivilegeEditDialog.prototype.generateMainTable = function() {
   var html =
