@@ -76,4 +76,4 @@ var HatoholItemRemover = function(deleteParameters, connParam) {
     if (deleteParameters.completionCallback)
       deleteParameters.completionCallback();
   }
-}
+};
