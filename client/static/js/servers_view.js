@@ -194,7 +194,7 @@ var ServersView = function(userProfile) {
     var x;
     var s;
     var o;
-    var ip, serverURL, mapsURL;
+    var ip, serverURL, mapsURL, baseURL;
 
     s = "";
     for (x = 0; x < rd["servers"].length; ++x) {
@@ -206,6 +206,7 @@ var ServersView = function(userProfile) {
       var idConnStat = getIdConnStat(serverId);
       serverURL = getServerLocation(o);
       mapsURL = getMapsLocation(o);
+      baseURL = o["baseURL"];
       s += "<tr>";
       s += "<td class='delete-selector' style='display:none;'>";
       s += "<input type='checkbox' class='selectcheckbox' serverId='" + escapeHTML(o["id"]) + "'>";
@@ -225,6 +226,11 @@ var ServersView = function(userProfile) {
       } else if (o["type"] == hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER){
         s += "<td>" + escapeHTML(o["hostName"])  + "</td>";
         s += "<td>N/A</td>";
+      } else if (baseURL) {
+        s += "<td><a href='" + baseURL + "' target='_blank'>"
+             + escapeHTML(o["hostName"])  + "</a></td>";
+        s += "<td><a href='" + baseURL + "' target='_blank'>"
+             + escapeHTML(ip) + "</a></td>";
       } else {
         s += "<td>" + escapeHTML(o["hostName"])  + "</td>";
         s += "<td>" + escapeHTML(ip) + "</td>";
