@@ -101,8 +101,15 @@ describe('EventsView', function() {
 
   function testTableContents(serverURL, hostURL, dummyServerInfo, params){
     var view = new EventsView(getOperator());
-    var expected =
-      '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>';
+    var expected;
+
+    if (serverURL) {
+      expected =
+        '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>';
+    } else {
+      expected = '<td>Server</td>';
+    }
+
     if (params) {
       expected += '<td><a href="' + escapeHTML(params.eventURL) +
                   '" target="_blank">' + escapeHTML(formatDate(1415749496)) +
@@ -111,11 +118,18 @@ describe('EventsView', function() {
       expected += '<td data-sort-value="1415749496">' +
                   formatDate(1415749496) + '</td>';
     }
-    expected += '<td><a href="' + escapeHTML(hostURL) +
-                '" target="_blank">Host</a></td>' +
-                '<td>Test discription.</td>' +
-                '<td class="status1" data-sort-value="1">Problem</td>' +
-                '<td class="severity1" data-sort-value="1">Information</td>';
+
+    if (hostURL) {
+      expected =
+	'<td><a href="' + escapeHTML(hostURL) + '" target="_blank">Host</a></td>';
+    } else {
+      expected = '<td>Host</td>';
+    }
+
+    expected +=
+      '<td>Test discription.</td>' +
+      '<td class="status1" data-sort-value="1">Problem</td>' +
+      '<td class="severity1" data-sort-value="1">Information</td>';
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
@@ -214,9 +228,12 @@ describe('EventsView', function() {
   });
 
   it('new with fake nagios data', function() {
-    var nagiosURL = "http://192.168.1.100/nagios/";
-    var nagiosStatusURL =
-      "http://192.168.1.100/nagios/cgi-bin/status.cgi?host=Host";
+    // issue #839
+    //var nagiosURL = "http://192.168.1.100/nagios/";
+    //var nagiosStatusURL =
+    //  "http://192.168.1.100/nagios/cgi-bin/status.cgi?host=Host";
+    var nagiosURL = undefined;
+    var nagiosStatusURL = undefined;
     testTableContents(nagiosURL, nagiosStatusURL, getDummyServerInfo(1));
   });
 
