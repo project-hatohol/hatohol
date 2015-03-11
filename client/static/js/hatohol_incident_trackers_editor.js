@@ -273,7 +273,7 @@ var HatoholIncidentTrackerEditor = function(params) {
 
   function makeQueryData() {
     var queryData = {};
-    queryData.type = $("#selectIncidentTrackerType").val()
+    queryData.type = $("#selectIncidentTrackerType").val();
     queryData.nickname = $("#editIncidentTrackerNickname").val();
     queryData.baseURL = $("#editIncidentTrackerBaseURL").val();
     queryData.projectId = $("#editIncidentTrackerProjectId").val();
