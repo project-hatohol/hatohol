@@ -77,7 +77,7 @@ struct MonitoringServerInfo {
 	 * automatically for IPv6 address. It's required to build an URI.
 	 * e.g.) ::1 -> [::1]
          *       (for building an URI like http://[::1]:80/path)
-	 * 
+	 *
 	 * @return
 	 * If ipAddress is set, it is returned. Otherwise, if hostName is set,
 	 * it is returned.
@@ -86,7 +86,7 @@ struct MonitoringServerInfo {
 
 	/**
 	 * Ensure to return an human friendly name.
-	 * 
+	 *
 	 * @return
 	 * If nickname is set, it is returned. Otherwise, if hostName is set,
 	 * it is returned. If both of them are empty, ipAddress is returned.
