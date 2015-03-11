@@ -121,6 +121,10 @@ class NagiosParamGenerator(ParamGenerator):
         obj.append({'label': 'Retry interval (sec)',
                     'id': 'retryInterval',
                     'default': '10'})
+        obj.append({'id': 'baseURL',
+                    'label': 'Web UI URL',
+                    'allowEmpty': True,
+                    'hint': '(empty: Default)'})
         return obj
 
     def get_sql_file_type_name(self):
