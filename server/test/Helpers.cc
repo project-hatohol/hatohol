@@ -406,7 +406,7 @@ string getExpectedNullNotation(DBAgent &dbAgent)
 string makeServerInfoOutput(const MonitoringServerInfo &serverInfo)
 {
 	string expectedOut = StringUtils::sprintf
-	                       ("%u|%d|%s|%s|%s|%d|%d|%d|%s|%s|%s\n",
+	                       ("%u|%d|%s|%s|%s|%d|%d|%d|%s|%s|%s|%s\n",
 	                        serverInfo.id, serverInfo.type,
 	                        serverInfo.hostName.c_str(),
 	                        serverInfo.ipAddress.c_str(),
@@ -416,7 +416,8 @@ string makeServerInfoOutput(const MonitoringServerInfo &serverInfo)
 	                        serverInfo.retryIntervalSec,
 	                        serverInfo.userName.c_str(),
 	                        serverInfo.password.c_str(),
-	                        serverInfo.dbName.c_str());
+	                        serverInfo.dbName.c_str(),
+	                        serverInfo.baseURL.c_str());
 	return expectedOut;
 }
 
