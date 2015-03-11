@@ -131,6 +131,17 @@ describe('ServerView', function() {
     expect(editColumn.is(":visible")).to.be(expectedVisibility);
   }
 
+  function expectLinkVisibility(operator, expectedVisibleLinkNums) {
+    var userProfile = new HatoholUserProfile(operator);
+    var view = new ServersView(userProfile);
+    respond();
+
+    var hostnameColumn = $('td.server-url-link');
+    var ipAddressColumn = $('td.server-ip-link');
+    expect(hostnameColumn).to.have.length(expectedVisibleLinkNums);
+    expect(ipAddressColumn).to.have.length(expectedVisibleLinkNums);
+  }
+
   function checkGetStatusLabel(stat, expectMsg, expectMsgClass) {
     var pkt = {serverConnStat:{'5':{status:stat}}};
     var parser = new ServerConnStatParser(pkt);
@@ -311,4 +322,13 @@ describe('ServerView', function() {
     expectEditButtonVisibility(operator, expected);
   });
 
+  it('without update privilege', function() {
+    var operator = {
+      "userId": 2,
+      "name": "guest",
+      "flags": 0
+    };
+    var expectedVisibleLinkNums = 2;
+    expectLinkVisibility(operator, expectedVisibleLinkNums);
+  });
 });
