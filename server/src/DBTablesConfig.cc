@@ -1235,6 +1235,7 @@ void DBTablesConfig::getTargetServers(
 		itemGroupStream >> svInfo.userName;
 		itemGroupStream >> svInfo.password;
 		itemGroupStream >> svInfo.dbName;
+		itemGroupStream >> svInfo.baseURL;
 
 		// ArmPluginInfo
 		if (!armPluginInfoVect)
