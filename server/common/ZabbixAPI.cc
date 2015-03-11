@@ -1364,24 +1364,12 @@ void ZabbixAPI::pushSomethingId(
 	parser.endObject();
 }
 
-void ZabbixAPI::pushTriggersHostid(JSONParser &parser,
-                                   ItemGroup *itemGroup)
+void ZabbixAPI::pushTriggersHostid(JSONParser &parser, ItemGroup *itemGroup)
 {
-	ItemId itemId = ITEM_ID_ZBX_TRIGGERS_HOSTID;
-	startObject(parser, "hosts");
-	int numElem = parser.countElements();
-	if (numElem == 0) {
-		const string dummyData;
-		itemGroup->addNewItem(itemId, dummyData, ITEM_DATA_NULL);
-	} else  {
-		for (int i = 0; i < numElem; i++) {
-			startElement(parser, i);
-			pushString(parser, itemGroup, "hostid", itemId);
-			break; // we use the first applicationid
-		}
-		parser.endElement();
-	}
-	parser.endObject();
+	static const LocalHostIdType dummyHostName = "";
+	pushSomethingId<LocalHostIdType>(
+	  parser, itemGroup, ITEM_ID_ZBX_TRIGGERS_HOSTID,
+	  "hosts", "hostid", dummyHostName);
 }
 
 void ZabbixAPI::pushApplicationid(JSONParser &parser, ItemGroup *itemGroup)
