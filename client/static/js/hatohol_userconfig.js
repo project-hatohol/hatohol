@@ -51,7 +51,7 @@ HatoholUserConfig.prototype.get = function(params) {
     connectErrorCallback: params.connectErrorCallback,
     replyParser: getInactionParser(),
   });
-}
+};
 
 HatoholUserConfig.prototype.store = function(params) {
   //
@@ -81,7 +81,7 @@ HatoholUserConfig.prototype.store = function(params) {
     connectErrorCallback: params.connectErrorCallback,
     replyParser: getInactionParser(),
   });
-}
+};
 
 HatoholUserConfig.prototype.findOrDefault = function(obj, confName, defaultVal) {
   if (!(confName in obj))
@@ -91,4 +91,4 @@ HatoholUserConfig.prototype.findOrDefault = function(obj, confName, defaultVal) 
   if (typeof confVal !== typeof defaultVal)
     return defaultVal;
   return confVal;
-}
+};
