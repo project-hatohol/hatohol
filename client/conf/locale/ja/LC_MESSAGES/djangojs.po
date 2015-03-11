@@ -56,7 +56,7 @@ msgstr "IPアドレス"
 
 #: misc/external-labels.js:10
 msgid "Web UI URL"
-msgstr ""
+msgstr "Web UI URL"
 
 #: misc/external-labels.js:11
 msgid "Polling interval (sec)"
