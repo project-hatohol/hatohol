@@ -127,7 +127,11 @@ function getServerLocation(server) {
     url += "/zabbix/";
     break;
   case hatohol.MONITORING_SYSTEM_NAGIOS:
-    url = undefined;    // issue-839
+    if (server["baseURL"]) {
+      url = server["baseURL"];
+    } else {
+      url = undefined;    // issue-839
+    }
     break;
   case hatohol.MONITORING_SYSTEM_HAPI_ZABBIX:
     url += "/zabbix/";
