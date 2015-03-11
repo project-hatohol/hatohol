@@ -1025,6 +1025,7 @@ HatoholError DBTablesConfig::addTargetServer(
 			arg.add(monitoringServerInfo.userName);
 			arg.add(monitoringServerInfo.password);
 			arg.add(monitoringServerInfo.dbName);
+			arg.add(monitoringServerInfo.baseURL);
 		}
 
 		bool preproc(DBAgent &dbAgent) override
@@ -1127,6 +1128,7 @@ HatoholError DBTablesConfig::updateTargetServer(
 	trx.arg.add(IDX_SERVERS_USER_NAME,  monitoringServerInfo->userName);
 	trx.arg.add(IDX_SERVERS_PASSWORD,   monitoringServerInfo->password);
 	trx.arg.add(IDX_SERVERS_DB_NAME,    monitoringServerInfo->dbName);
+	trx.arg.add(IDX_SERVERS_BASE_URL,   monitoringServerInfo->baseURL);
 	trx.arg.condition =
 	   StringUtils::sprintf("id=%u", monitoringServerInfo->id);
 
@@ -1190,6 +1192,7 @@ void DBTablesConfig::getTargetServers(
 	builder.add(IDX_SERVERS_USER_NAME);
 	builder.add(IDX_SERVERS_PASSWORD);
 	builder.add(IDX_SERVERS_DB_NAME);
+	builder.add(IDX_SERVERS_BASE_URL);
 
 	builder.addTable(tableProfileArmPlugins, DBClientJoinBuilder::LEFT_JOIN,
 	                 IDX_SERVERS_ID, IDX_ARM_PLUGINS_SERVER_ID);
