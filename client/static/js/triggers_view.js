@@ -82,7 +82,7 @@ var TriggersView = function(userProfile) {
         load(page);
         if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
           self.baseQuery.limit = self.pager.numRecordsPerPage;
-          saveConfig({'num-triggers-per-page': self.baseQuery.limit})
+          saveConfig({'num-triggers-per-page': self.baseQuery.limit});
         }
       }
     });
