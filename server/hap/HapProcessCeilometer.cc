@@ -1074,16 +1074,16 @@ ItemTablePtr HapProcessCeilometer::getHistory(
 	string targetItem, instanceId;
 	if (!m_impl->getQueryParamInfo(itemId, instanceId, targetItem))
 		return ItemTablePtr(tablePtr);
-		
+
 	string url = StringUtils::sprintf(
 			"%s/v2/meters/%s"
 			"?q.field=resource_id&q.field=timestamp&q.field=timestamp"
 			"&q.op=eq&q.op=gt&q.op=lt"
 			"&q.value=%s&q.value=%s&q.value=%s",
 			m_impl->ceilometerEP.publicURL.c_str(),
-			targetItem.c_str(), 
+			targetItem.c_str(),
 			instanceId.c_str(),
-			getHistoryTimeString(beginTimeSpec).c_str(), 
+			getHistoryTimeString(beginTimeSpec).c_str(),
 			getHistoryTimeString(endTimeSpec).c_str());
 	HttpRequestArg arg(SOUP_METHOD_GET, url);
 	HatoholError err = sendHttpRequest(arg);
@@ -1097,9 +1097,8 @@ ItemTablePtr HapProcessCeilometer::getHistory(
 	}
 
 	const unsigned int element = parser.countElements();
-	if (element == 0) {
+	if (element == 0)
 		return ItemTablePtr(tablePtr);
-	}
 
 	for (int index = element - 1; index >= 0; index--){
 		JSONParser::PositionStack parserRewinder(parser);
@@ -1107,10 +1106,10 @@ ItemTablePtr HapProcessCeilometer::getHistory(
 			MLPL_ERR("Failed to parse an element, index: %u\n", index);
 			return ItemTablePtr(tablePtr);
 		}
-		
+
 		double counterVolume;
 		if (!read(parser, "counter_volume", counterVolume)){
-			return ItemTablePtr(tablePtr);
+			return ItemTablePtr(tablePtr);;
 		}
 
 		string timestamp;
@@ -1120,12 +1119,12 @@ ItemTablePtr HapProcessCeilometer::getHistory(
 
 		const int timestampSec =
 			(int)parseStateTimestamp(timestamp).getAsTimespec().tv_sec;
-		
+
 		VariableItemGroupPtr grp;
 		grp->addNewItem(ITEM_ID_ZBX_HISTORY_ITEMID, itemId);
 		grp->addNewItem(ITEM_ID_ZBX_HISTORY_CLOCK,  timestampSec);
 		grp->addNewItem(ITEM_ID_ZBX_HISTORY_NS,     0);
-		grp->addNewItem(ITEM_ID_ZBX_HISTORY_VALUE, 
+		grp->addNewItem(ITEM_ID_ZBX_HISTORY_VALUE,
 				StringUtils::sprintf("%lf", counterVolume));
 		tablePtr->add(grp);
 	}
