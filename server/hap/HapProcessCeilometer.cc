@@ -483,7 +483,7 @@ SmartTime HapProcessCeilometer::parseStateTimestamp(
 	tm.tm_year = year - 1900;
 	// mktime() assumes that tm contains values of localtime. However,
 	// it is in GMT in fact. So we have to subtract timezone.
-	const timespec ts = {mktime(&tm) - timezone, us*1000};
+	const timespec ts = {mktime(&tm) - timezone, us * 1000};
 	return SmartTime(ts);
 }
 
@@ -596,8 +596,8 @@ string HapProcessCeilometer::getHistoryTimeString(const timespec &ts)
 	  "Failed to call gmtime_r(): %ld.%09ld\n", ts.tv_sec, ts.tv_nsec);
 	string timeStr = StringUtils::sprintf(
 	  "%04d-%02d-%02dT%02d%%3A%02d%%3A%02d.%06ld",
-	  1900+tm.tm_year, tm.tm_mon + 1, tm.tm_mday, 
-	  tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec/1000);
+	  1900 + tm.tm_year, tm.tm_mon + 1, tm.tm_mday, 
+	  tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec / 1000);
 	return timeStr;
 }
 
