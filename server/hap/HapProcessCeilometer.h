@@ -60,7 +60,6 @@ protected:
                                        const unsigned int &index);
 	TriggerStatusType parseAlarmState(const std::string &state);
 	mlpl::SmartTime parseStateTimestamp(const std::string &stateTimestamp);
-	uint64_t generateHashU64(const std::string &str);
 
 	HatoholError getAlarmHistories(void);
 	HatoholError getAlarmHistory(const unsigned int &index);

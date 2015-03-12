@@ -475,21 +475,6 @@ SmartTime HapProcessCeilometer::parseStateTimestamp(
 	return SmartTime(ts);
 }
 
-uint64_t HapProcessCeilometer::generateHashU64(const string &str)
-{
-	GChecksum *checkSum =  g_checksum_new(G_CHECKSUM_MD5);
-	g_checksum_update(checkSum, (const guchar *)str.c_str(), str.size());
-
-	gsize len = 16;
-	guint8 buf[len];
-	g_checksum_get_digest(checkSum, buf, &len);
-	g_checksum_free(checkSum);
-
-	uint64_t csum64;
-	memcpy(&csum64, buf, sizeof(uint64_t));
-	return csum64;
-}
-
 HatoholError HapProcessCeilometer::parseAlarmElement(
   JSONParser &parser, VariableItemTablePtr &tablePtr,
   const unsigned int &index)
