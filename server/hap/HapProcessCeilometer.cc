@@ -501,8 +501,8 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 	}
 
 	// trigger ID (alarm_id)
-	string triggerIdStr;
-	if (!read(parser, "alarm_id", triggerIdStr))
+	string triggerId;
+	if (!read(parser, "alarm_id", triggerId))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 
 	// status
@@ -542,7 +542,7 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 	// fill
 	// TODO: Define ItemID without ZBX.
 	VariableItemGroupPtr grp;
-	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,   triggerIdStr);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,   triggerId);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_VALUE,       status);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_PRIORITY,    severity);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
@@ -553,7 +553,7 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 	tablePtr->add(grp);
 
 	// Register the Alarm ID
-	m_impl->acquireCtx.alarmIds.push_back(triggerIdStr);
+	m_impl->acquireCtx.alarmIds.push_back(triggerId);
 
 	return HTERR_OK;
 }
@@ -678,8 +678,8 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
 	}
 
 	// Event ID
-	string eventIdStr;
-	if (!read(parser, "event_id", eventIdStr))
+	string eventId;
+	if (!read(parser, "event_id", eventId))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 
 	// Timestamp
@@ -705,8 +705,8 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
 	}
 
 	// Trigger ID (alarm ID)
-	string alarmIdStr;
-	if (!read(parser, "alarm_id", alarmIdStr))
+	string alarmId;
+	if (!read(parser, "alarm_id", alarmId))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 
 	// Fill table.
@@ -716,9 +716,9 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
 	static const int EVENT_OBJECT_TRIGGER = 0;
 	const timespec &ts = timestamp.getAsTimespec();
 	VariableItemGroupPtr grp;
-	grp->addNewItem(ITEM_ID_ZBX_EVENTS_EVENTID,   eventIdStr);
+	grp->addNewItem(ITEM_ID_ZBX_EVENTS_EVENTID,   eventId);
 	grp->addNewItem(ITEM_ID_ZBX_EVENTS_OBJECT,    EVENT_OBJECT_TRIGGER);
-	grp->addNewItem(ITEM_ID_ZBX_EVENTS_OBJECTID,  alarmIdStr);
+	grp->addNewItem(ITEM_ID_ZBX_EVENTS_OBJECTID,  alarmId);
 	grp->addNewItem(ITEM_ID_ZBX_EVENTS_CLOCK,     (int)ts.tv_sec);
 	grp->addNewItem(ITEM_ID_ZBX_EVENTS_VALUE,     type);
 	grp->addNewItem(ITEM_ID_ZBX_EVENTS_NS,        (int)ts.tv_nsec);
