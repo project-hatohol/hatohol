@@ -330,7 +330,7 @@ protected:
 	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 
-	void pushTriggersHostid(JSONParser &parser, ItemGroup *itemGroup);
+	void pushTriggersHostId(JSONParser &parser, ItemGroup *itemGroup);
 	void pushApplicationid(JSONParser &parser, ItemGroup *itemGroup);
 
 private:

@@ -1084,7 +1084,7 @@ void ZabbixAPI::parseAndPushTriggerData(
 	pushInt   (parser, grp, "flags",       ITEM_ID_ZBX_TRIGGERS_FLAGS);
 
 	// get hostid
-	pushTriggersHostid(parser, grp);
+	pushTriggersHostId(parser, grp);
 
 	tablePtr->add(grp);
 
@@ -1364,7 +1364,7 @@ void ZabbixAPI::pushSomethingId(
 	parser.endObject();
 }
 
-void ZabbixAPI::pushTriggersHostid(JSONParser &parser, ItemGroup *itemGroup)
+void ZabbixAPI::pushTriggersHostId(JSONParser &parser, ItemGroup *itemGroup)
 {
 	static const LocalHostIdType dummyHostName = "";
 	pushSomethingId<LocalHostIdType>(
