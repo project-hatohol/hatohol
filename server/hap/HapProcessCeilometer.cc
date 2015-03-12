@@ -112,19 +112,12 @@ struct HapProcessCeilometer::Impl {
 	bool getQueryParamInfo(const ItemIdType &itemId, 
 	  std::string &instanceId, std::string &targetItem)
 	{
-		StringList list;
+		StringVector list;
 		StringUtils::split(list, itemId, '/');
 		if (list.size() != 2)
 			return false;
-
-		StringListIterator it = list.begin();
-		for (size_t i = 0; it != list.end(); ++i, ++it) {
-			const string &str = *it;
-			if (i == 0)
-				instanceId = str;
-			else
-				targetItem = str;
-		}
+		instanceId = list[0];
+		targetItem = list[1];
 		return true;
 	}
 };
