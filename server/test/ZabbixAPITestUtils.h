@@ -58,6 +58,10 @@ public:
 				    const ZabbixAPI::ValueType &valueType,
 				    const time_t &beginTime,
 				    const time_t &endTime);
+	std::string callPushString(
+	  JSONParser &parser, ItemGroup *itemGroup,
+	  const std::string &name, const ItemId &itemId,
+	  const size_t &digitNum, const char &padChar);
 
 	void makeTriggersItemTable(ItemTablePtr &triggersTablePtr);
 	void makeTriggerExpandedDescriptionItemTable(

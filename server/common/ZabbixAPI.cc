@@ -34,6 +34,7 @@ static const guint DEFAULT_TIMEOUT = 60;
 static const size_t HISTORY_LIMIT_PER_ONCE = 1000;
 
 const uint64_t ZabbixAPI::EVENT_ID_NOT_FOUND = -1;
+const size_t ZabbixAPI::EVENT_ID_DIGIT_NUM = 20;
 
 struct ZabbixAPI::Impl {
 
@@ -1053,6 +1054,22 @@ string ZabbixAPI::pushString(JSONParser &parser, ItemGroup *itemGroup,
 	return value;
 }
 
+string ZabbixAPI::pushString(
+  JSONParser &parser, ItemGroup *itemGroup,
+  const string &name, const ItemId &itemId,
+  const size_t &digitNum, const char &padChar)
+{
+	string value;
+	getString(parser, name, value);
+	int numPads = digitNum - value.size();
+	string fixedValue;
+	if (numPads > 0)
+		fixedValue = string(numPads, padChar);
+	fixedValue += value;
+	itemGroup->add(new ItemString(itemId, fixedValue), false);
+	return fixedValue;
+}
+
 void ZabbixAPI::parseAndPushTriggerData(
   JSONParser &parser, VariableItemTablePtr &tablePtr, const int &index)
 {
@@ -1320,7 +1337,8 @@ void ZabbixAPI::parseAndPushEventsData(
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
-	pushString(parser, grp, "eventid",      ITEM_ID_ZBX_EVENTS_EVENTID);
+	pushString(parser, grp, "eventid",      ITEM_ID_ZBX_EVENTS_EVENTID,
+	           EVENT_ID_DIGIT_NUM, '0');
 	pushInt   (parser, grp, "source",       ITEM_ID_ZBX_EVENTS_SOURCE);
 	pushInt   (parser, grp, "object",       ITEM_ID_ZBX_EVENTS_OBJECT);
 	pushString(parser, grp, "objectid",     ITEM_ID_ZBX_EVENTS_OBJECTID);

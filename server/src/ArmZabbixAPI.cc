@@ -121,7 +121,7 @@ void ArmZabbixAPI::updateEvents(void)
 
 	ThreadLocalDBCache cache;
 	const EventIdType _dbLastEventId =
-	  cache.getMonitoring().getLastEventId(m_impl->zabbixServerId);
+	  cache.getMonitoring().getMaxEventId(m_impl->zabbixServerId);
 	uint64_t dbLastEventId = EVENT_ID_NOT_FOUND;
 	if (_dbLastEventId != EVENT_NOT_FOUND)
 		Utils::conv(dbLastEventId, _dbLastEventId);

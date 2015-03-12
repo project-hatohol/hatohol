@@ -864,13 +864,13 @@ void test_oneNewEvent(void)
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	uint64_t actualEventId;
-	Utils::conv(actualEventId, dbMonitoring.getLastEventId(serverInfo.id));
+	Utils::conv(actualEventId, dbMonitoring.getMaxEventId(serverInfo.id));
 	cppcut_assert_equal(expectedEventId, actualEventId);
 
 	++expectedEventId;
 	g_apiEmulator.setExpectedLastEventId(expectedEventId);
 	armZbxApiTestee.callUpdateEvents();
-	Utils::conv(actualEventId, dbMonitoring.getLastEventId(serverInfo.id));
+	Utils::conv(actualEventId, dbMonitoring.getMaxEventId(serverInfo.id));
 	cppcut_assert_equal(expectedEventId, actualEventId);
 }
 

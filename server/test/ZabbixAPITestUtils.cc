@@ -166,6 +166,15 @@ ItemTablePtr ZabbixAPITestee::callGetHistory(
 	return getHistory(itemId, valueType, beginTime, endTime);
 }
 
+string ZabbixAPITestee::callPushString(
+  JSONParser &parser, ItemGroup *itemGroup,
+  const string &name, const ItemId &itemId,
+  const size_t &digitNum, const char &padChar)
+{
+	return pushString(parser, itemGroup, name, itemId, digitNum, padChar);
+}
+
+
 void ZabbixAPITestee::makeTriggersItemTable(ItemTablePtr &triggersTablePtr)
 {
 	ifstream ifs("fixtures/zabbix-api-res-triggers-003-hosts.json");

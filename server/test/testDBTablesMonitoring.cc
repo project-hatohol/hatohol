@@ -711,21 +711,21 @@ void data_getLastEventId(void)
 	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
-void test_getLastEventId(gconstpointer data)
+void test_getMaxEventId(gconstpointer data)
 {
 	test_addEventInfoList(data);
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	const ServerIdType serverid = 3;
 	cppcut_assert_equal(findLastEventId(serverid),
-	                    dbMonitoring.getLastEventId(serverid));
+	                    dbMonitoring.getMaxEventId(serverid));
 }
 
-void test_getLastEventIdWithNoEvent(void)
+void test_getMaxEventIdWithNoEvent(void)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	const ServerIdType serverid = 3;
 	cppcut_assert_equal(EVENT_NOT_FOUND,
-	                    dbMonitoring.getLastEventId(serverid));
+	                    dbMonitoring.getMaxEventId(serverid));
 }
 
 void test_getTimeOfLastEvent(void)
