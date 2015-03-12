@@ -1105,7 +1105,6 @@ ItemTablePtr HapProcessCeilometer::getHistory(
 
 	const unsigned int element = parser.countElements();
 	if (element == 0) {
-		MLPL_WARN("Return count: %d, url: %s\n", element, url.c_str());
 		return ItemTablePtr(tablePtr);
 	}
 
