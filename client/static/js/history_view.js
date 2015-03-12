@@ -64,13 +64,6 @@ var HistoryView = function(userProfile, options) {
     });
   }
 
-  function strToBool(val) {
-    if (!val)
-      return false;
-    val = val.toLowerCase();
-    return (val == "1" || val == "true");
-  }
-
   function isCreateMode() {
     var mode = self.queryParams['mode'];
     if (!mode)
