@@ -143,7 +143,7 @@ static string makeItemOutput(const ItemInfo &itemInfo)
 	  StringUtils::sprintf(
 	    "%" FMT_SERVER_ID "|%" FMT_ITEM_ID "|%" FMT_HOST_ID
 	    "|%" FMT_LOCAL_HOST_ID "|%s|%ld|%lu|%s|%s|%s|%d|%s\n",
-	    itemInfo.serverId, itemInfo.id,
+	    itemInfo.serverId, itemInfo.id.c_str(),
 	    itemInfo.globalHostId,
 	    itemInfo.hostIdInServer.c_str(),
 	    itemInfo.brief.c_str(),

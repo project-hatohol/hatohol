@@ -192,7 +192,7 @@ void HatoholDBUtils::transformItemsToHatoholFormat(
 	const ItemGroupList &appGroupList = applications->getItemGroupList();
 	ItemGroupListConstIterator appGrpItr = appGroupList.begin();
 	for (; appGrpItr != appGroupList.end(); ++appGrpItr) {
-		uint64_t appId;
+		ItemCategoryIdType appId;
 		string   appName;
 		ItemGroupStream itemGroupStream(*appGrpItr);
 
@@ -478,8 +478,9 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 		ItemCategoryNameMapConstIterator it =
 		  itemCategoryNameMap.find(itemCategoryId);
 		if (it == itemCategoryNameMap.end()) {
-			MLPL_ERR("Failed to get item category name: %"
-			         FMT_ITEM_CATEGORY_ID "\n", itemCategoryId);
+			MLPL_ERR("Failed to get item category name: "
+			         "%" FMT_ITEM_CATEGORY_ID "\n",
+			         itemCategoryId.c_str());
 			return false;
 		}
 		itemInfo.itemGroupName = it->second;

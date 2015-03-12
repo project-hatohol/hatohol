@@ -314,7 +314,8 @@ struct HatoholArmPluginBaseTest :
 			const ItemInfo &itemInfo = testItemInfo[i];
 			if (itemInfo.serverId != serverIdOfHapGate)
 				continue;
-			const ItemCategoryIdType itemCategoryId = i + 100;
+			const ItemCategoryIdType itemCategoryId =
+			  StringUtils::sprintf("%zd", i + 100);
 			itemTablePtr->add(convert(itemInfo, itemCategoryId));
 			itemCategoryNameMap[itemCategoryId] =
 			  itemInfo.itemGroupName;
@@ -338,7 +339,9 @@ struct HatoholArmPluginBaseTest :
 		SmartBuffer *cmdBuf = getCurrBuffer();
 		HapiParamReqFetchHistory *params =
 		  getCommandBody<HapiParamReqFetchHistory>(*cmdBuf);
-		ItemId itemId = static_cast<ItemIdType>(LtoN(params->itemId));
+		ItemIdType itemId = getString(*cmdBuf, params,
+		                      params->itemIdOffset,
+		                      params->itemIdLength);
 		time_t beginTime = static_cast<time_t>(LtoN(params->beginTime));
 		time_t endTime = static_cast<time_t>(LtoN(params->endTime));
 

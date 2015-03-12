@@ -130,7 +130,7 @@ static void _assertActions(const string &path, const string &callbackName = "",
 		  string, cond.hostIdInServer);
 		asssertActionCondition(
 		  g_parser, cond, "hostgroupId", ACTCOND_HOST_GROUP_ID,
-		  uint64_t, cond.hostgroupId);
+		  HostgroupIdType, cond.hostgroupId);
 		asssertActionCondition(
 		  g_parser, cond, "triggerId", ACTCOND_TRIGGER_ID,
 		  string, cond.triggerId);

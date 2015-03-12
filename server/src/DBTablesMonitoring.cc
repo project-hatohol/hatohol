@@ -60,6 +60,7 @@ const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 //   * events.trigger_id  -> VARCHAR
 //   * events.id          -> VARCHAR
 //   * incidents.event_id -> VARCHAR
+//   * items.id           -> VARCHAR
 const int DBTablesMonitoring::MONITORING_DB_VERSION =
   DBTables::Version::getPackedVer(0, 1, 0);
 
@@ -413,8 +414,8 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	NULL,                              // defaultValue
 }, {
 	"id",                              // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType

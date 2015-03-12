@@ -174,7 +174,7 @@ bool ZabbixAPIResponseCollector::commandFuncApplication(CommandContext &ctx)
 	if (!commandFuncOpenSilent(ctx))
 		return false;
 
-	vector<uint64_t> hostIds; // empty means all hosts.
+	const ItemCategoryIdVector hostIds; // empty means all hosts.
 	HatoholError queryRet;
 	SoupMessage *msg = queryApplication(hostIds, queryRet);
 	if (!msg)

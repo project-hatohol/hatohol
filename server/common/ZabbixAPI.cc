@@ -454,7 +454,7 @@ ItemTablePtr ZabbixAPI::getHistory(const ItemIdType &itemId,
 	for (int i = 0; i < numData; i++) {
 		startElement(parser, i);
 		VariableItemGroupPtr grp;
-		pushUint64(parser, grp, "itemid", ITEM_ID_ZBX_HISTORY_ITEMID);
+		pushString(parser, grp, "itemid", ITEM_ID_ZBX_HISTORY_ITEMID);
 		pushUint64(parser, grp, "clock",  ITEM_ID_ZBX_HISTORY_CLOCK);
 		pushUint64(parser, grp, "ns",     ITEM_ID_ZBX_HISTORY_NS);
 		pushString(parser, grp, "value",  ITEM_ID_ZBX_HISTORY_VALUE);
@@ -539,7 +539,7 @@ void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 	groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
 }
 
-ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
+ItemTablePtr ZabbixAPI::getApplications(const ItemCategoryIdVector &appIdVector)
 {
 	HatoholError queryRet;
 	SoupMessage *msg = queryApplication(appIdVector, queryRet);
@@ -576,9 +576,10 @@ ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 
 ItemTablePtr ZabbixAPI::getApplications(ItemTablePtr items)
 {
-	vector<uint64_t> appIdVector;
+	ItemCategoryIdVector appIdVector;
 	const ItemGroupList &itemGroupList = items->getItemGroupList();
 	ItemGroupListConstIterator itemGrpIt = itemGroupList.begin();
+	appIdVector.reserve(itemGroupList.size());
 	for (; itemGrpIt != itemGroupList.end(); ++itemGrpIt) {
 		const ItemGroup *itemGrp = *itemGrpIt;
 		appIdVector.push_back(
@@ -855,8 +856,8 @@ SoupMessage *ZabbixAPI::queryGroup(HatoholError &queryRet)
 	return queryCommon(agent, queryRet);
 }
 
-SoupMessage *ZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector,
-					 HatoholError &queryRet)
+SoupMessage *ZabbixAPI::queryApplication(
+  const ItemCategoryIdVector &appIdVector, HatoholError &queryRet)
 {
 	JSONBuilder agent;
 	agent.startObject();
@@ -867,7 +868,7 @@ SoupMessage *ZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector,
 	agent.add("output", "extend");
 	if (!appIdVector.empty()) {
 		agent.startArray("applicationids");
-		vector<uint64_t>::const_iterator it = appIdVector.begin();
+		ItemCategoryIdVecotrConstIterator it = appIdVector.begin();
 		for (; it != appIdVector.end(); ++it)
 			agent.add(*it);
 		agent.endArray();
@@ -1081,7 +1082,7 @@ void ZabbixAPI::parseAndPushTriggerData(
 	pushInt   (parser, grp, "flags",       ITEM_ID_ZBX_TRIGGERS_FLAGS);
 
 	// get hostid
-	pushTriggersHostid(parser, grp);
+	pushTriggersHostId(parser, grp);
 
 	tablePtr->add(grp);
 
@@ -1110,7 +1111,7 @@ void ZabbixAPI::parseAndPushItemsData(
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "itemid",       ITEM_ID_ZBX_ITEMS_ITEMID);
+	pushString(parser, grp, "itemid",       ITEM_ID_ZBX_ITEMS_ITEMID);
 	pushInt   (parser, grp, "type",         ITEM_ID_ZBX_ITEMS_TYPE);
 	pushString(parser, grp, "snmp_community",
 	           ITEM_ID_ZBX_ITEMS_SNMP_COMMUNITY);
@@ -1182,7 +1183,7 @@ void ZabbixAPI::parseAndPushItemsData(
 	pushString(parser, grp, "lifetime",    ITEM_ID_ZBX_ITEMS_LIFETIME);
 
 	// application
-	pushApplicationid(parser, grp);
+	pushApplicationId(parser, grp);
 
 	tablePtr->add(grp);
 
@@ -1290,9 +1291,9 @@ void ZabbixAPI::parseAndPushApplicationsData(
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "applicationid",
+	pushString(parser, grp, "applicationid",
 	           ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID);
-	pushUint64(parser, grp, "hostid", ITEM_ID_ZBX_APPLICATIONS_HOSTID);
+	pushString(parser, grp, "hostid", ITEM_ID_ZBX_APPLICATIONS_HOSTID);
 	pushString(parser, grp, "name",   ITEM_ID_ZBX_APPLICATIONS_NAME);
 	if (checkAPIVersion(2, 2, 0)) {
 		// TODO: Zabbix 2.2 returns array of templateid, but Hatohol
@@ -1340,20 +1341,20 @@ void ZabbixAPI::parseAndPushEventsData(
 	parser.endElement();
 }
 
-
-void ZabbixAPI::pushTriggersHostid(JSONParser &parser,
-                                   ItemGroup *itemGroup)
+template <typename T>
+void ZabbixAPI::pushSomethingId(
+  JSONParser &parser, ItemGroup *itemGroup, const ItemId &itemId,
+  const string &objectName, const string &elementName, const T &dummyValue)
 {
-	ItemId itemId = ITEM_ID_ZBX_TRIGGERS_HOSTID;
-	startObject(parser, "hosts");
+	startObject(parser, objectName);
 	int numElem = parser.countElements();
 	if (numElem == 0) {
-		const string dummyData;
+		const T dummyData = dummyValue;
 		itemGroup->addNewItem(itemId, dummyData, ITEM_DATA_NULL);
 	} else  {
 		for (int i = 0; i < numElem; i++) {
 			startElement(parser, i);
-			pushString(parser, itemGroup, "hostid", itemId);
+			pushString(parser, itemGroup, elementName, itemId);
 			break; // we use the first applicationid
 		}
 		parser.endElement();
@@ -1361,23 +1362,19 @@ void ZabbixAPI::pushTriggersHostid(JSONParser &parser,
 	parser.endObject();
 }
 
-void ZabbixAPI::pushApplicationid(JSONParser &parser, ItemGroup *itemGroup)
+void ZabbixAPI::pushTriggersHostId(JSONParser &parser, ItemGroup *itemGroup)
 {
-	ItemId itemId = ITEM_ID_ZBX_ITEMS_APPLICATIONID;
-	startObject(parser, "applications");
-	int numElem = parser.countElements();
-	if (numElem == 0) {
-		const uint64_t dummyData = 0;
-		itemGroup->addNewItem(itemId, dummyData, ITEM_DATA_NULL);
-	} else  {
-		for (int i = 0; i < numElem; i++) {
-			startElement(parser, i);
-			pushUint64(parser, itemGroup, "applicationid", itemId);
-			break; // we use the first applicationid
-		}
-		parser.endElement();
-	}
-	parser.endObject();
+	static const LocalHostIdType dummyHostName = "";
+	pushSomethingId<LocalHostIdType>(
+	  parser, itemGroup, ITEM_ID_ZBX_TRIGGERS_HOSTID,
+	  "hosts", "hostid", dummyHostName);
+}
+
+void ZabbixAPI::pushApplicationId(JSONParser &parser, ItemGroup *itemGroup)
+{
+	pushSomethingId<ItemCategoryIdType>(
+	  parser, itemGroup, ITEM_ID_ZBX_ITEMS_APPLICATIONID,
+	  "applications", "applicationid", NO_ITEM_CATEGORY_ID);
 }
 
 ItemInfoValueType ZabbixAPI::toItemValueType(

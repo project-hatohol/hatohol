@@ -89,7 +89,7 @@ static string dumpItemInfo(const ItemInfo &info)
 		"%" FMT_SERVER_ID "|%" FMT_ITEM_ID "|%" FMT_HOST_ID
 		"|%" FMT_LOCAL_HOST_ID "|%s|%lu|%ld|%s|%s|%s\n",
 		info.serverId,
-		info.id,
+		info.id.c_str(),
 		info.globalHostId,
 		info.hostIdInServer.c_str(),
 		info.brief.c_str(),

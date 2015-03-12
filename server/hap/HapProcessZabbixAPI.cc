@@ -186,12 +186,12 @@ HatoholError HapProcessZabbixAPI::fetchHistory(const MessagingContext &msgCtx,
 	ZabbixAPI::ValueType valueType =
 	  ZabbixAPI::fromItemValueType(
 	    static_cast<ItemInfoValueType>(LtoN(params->valueType)));
-	ItemTablePtr items =
-	  getHistory(static_cast<ItemIdType>(LtoN(params->itemId)),
-		     valueType,
-		     static_cast<time_t>(LtoN(params->beginTime)),
-		     static_cast<time_t>(LtoN(params->endTime)));
-
+	const char *itemId = HatoholArmPluginInterface::getString(
+	                       cmdBuf, params,
+	                       params->itemIdOffset, params->itemIdLength);
+	ItemTablePtr items = getHistory(itemId, valueType,
+	                       static_cast<time_t>(LtoN(params->beginTime)),
+	                       static_cast<time_t>(LtoN(params->endTime)));
 	SmartBuffer resBuf;
 	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY, &msgCtx);
 	appendItemTable(resBuf, items);

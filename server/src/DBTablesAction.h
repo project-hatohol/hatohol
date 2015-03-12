@@ -56,7 +56,7 @@ struct ActionCondition {
 
 	ServerIdType serverId;
 	LocalHostIdType hostIdInServer;
-	uint64_t hostgroupId;
+	HostgroupIdType hostgroupId;
 	TriggerIdType triggerId;
 	int      triggerStatus;
 	int      triggerSeverity;
@@ -70,8 +70,9 @@ struct ActionCondition {
 	}
 
 	ActionCondition(uint32_t _enableBits, const ServerIdType &_serverId,
-	                const LocalHostIdType _hostIdInServer,
-	                uint64_t _hostgroupId, const TriggerIdType & _triggerId,
+	                const LocalHostIdType &_hostIdInServer,
+	                const HostgroupIdType &_hostgroupId,
+	                const TriggerIdType & _triggerId,
 	                int _triggerStatus, int _triggerSeverity,
 	                ComparisonType _triggerSeverityCompType)
 	: enableBits(_enableBits),

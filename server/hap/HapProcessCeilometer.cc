@@ -1038,7 +1038,7 @@ HatoholError HapProcessCeilometer::getResource(
 	// fill
 	// TODO: Don't use IDs concerned with Zabbix.
 	LocalHostIdType hostId = instanceId;
-	const ItemIdType itemId = generateHashU64(instanceId + counter_name);
+	const ItemIdType itemId = instanceId + "/" + counter_name;
 	const int timestampSec =
 	  (int)parseStateTimestamp(timestamp).getAsTimespec().tv_sec;
 	const string name = counter_name + " (" + counter_unit + ")";

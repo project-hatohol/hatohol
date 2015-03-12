@@ -519,7 +519,7 @@ size_t NumTestDupEventInfo = ARRAY_SIZE(testDupEventInfo);
 ItemInfo testItemInfo[] = {
 {
 	1,                        // serverId
-	2,                        // id
+	"2",                      // id
 	30,                       // globalHostId
 	"1129",                   // hostIdInServer
 	"Rome wasn't built in a day",// brief
@@ -532,7 +532,7 @@ ItemInfo testItemInfo[] = {
 	"",                       // unit
 }, {
 	3,                        // serverId
-	1,                        // id
+	"1",                      // id
 	42,                       // globalHostId
 	"5",                      // hostIdInServer
 	"The age of the cat.",    // brief
@@ -545,7 +545,7 @@ ItemInfo testItemInfo[] = {
 	"age",                    // unit
 }, {
 	3,                        // serverId
-	2,                        // id
+	"2",                      // id
 	45,                       // globalHostId
 	"100",                    // hostIdInServer
 	"All roads lead to Rome.",// brief
@@ -558,7 +558,7 @@ ItemInfo testItemInfo[] = {
 	"",                       // unit
 }, {
 	4,                        // serverId
-	1,                        // id
+	"1",                      // id
 	100,                      // globalHostId
 	"100",                    // hostIdInServer
 	"All roads lead to Rome.",// brief
@@ -581,7 +581,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_STATUS,   // enableBits
 	  1,                        // serverId
 	  "10",                     // hostIdInServer
-	  5,                        // hostgroupId
+	  "5",                      // hostgroupId
 	  "3",                      // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_INFO,    // triggerSeverity
@@ -599,7 +599,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_SEVERITY, // enableBits
 	  0,                        // serverId
 	  "0",                      // hostIdInServer
-	  0,                        // hostgroupId
+	  "0",                      // hostgroupId
 	  "74565", // 0x12345,      // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
@@ -617,7 +617,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
 	  100,                      // serverIdInServer
 	  "9223372036854775807",    // hostIdInServer (0x7fffffffffffffff)
-	  0x8000000000000000,       // hostgroupId
+	  "9223372036854775808",  // 0x8000000000000000, // hostgroupId
 	  "18364758544493064720", // 0xfedcba9876543210, // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
@@ -636,7 +636,7 @@ ActionDef testActionDef[] = {
 	   ACTCOND_TRIGGER_SEVERITY,   // enableBits
 	  2,                        // serverId
 	  "9920249034889494527",    // hostIdInServer
-	  0x8000000000000000,       // hostGroupId
+	  "9223372036854775808",  // 0x8000000000000000, // hostgroupId
 	  "18364758544493064720", // 0xfedcba9876543210, // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
@@ -655,7 +655,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_STATUS | ACTCOND_TRIGGER_SEVERITY, // enableBits
 	  100001,                   // serverId
 	  "100001",                 // hostIdInServer
-	  100001,                   // hostgroupId
+	  "100001",                 // hostgroupId
 	  "74565", // 0x12345,      // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
@@ -673,7 +673,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
 	  101,                      // serverId
 	  "9223372036854775807",    // hostIdInServer (0x7fffffffffffffff)
-	  0x8000000000000000,       // hostgroupId
+	  "9223372036854775808",  // 0x8000000000000000, // hostgroupId
 	  "18364758544493064720", // 0xfedcba9876543210, // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
@@ -691,7 +691,7 @@ ActionDef testActionDef[] = {
 	  ACTCOND_HOST_GROUP_ID,    // enableBits
 	  1,                        // serverId
 	  "10",                     // hostIdInServer
-	  5,                        // hostgroupId
+	  "5",                      // hostgroupId
 	  "0",                      // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
@@ -715,7 +715,7 @@ ActionDef testUpdateActionDef = {
 		ACTCOND_TRIGGER_SEVERITY, // enableBits
 		2,                        // serverId
 		"1001",                   // hostIdInServer
-		2001,                     // hostGroupId
+		"2001",                   // hostGroupId
 		"14000",                  // triggerId
 		TRIGGER_STATUS_OK,        // triggerStatus
 		TRIGGER_SEVERITY_WARNING, // triggerSeverity
@@ -1033,37 +1033,37 @@ size_t NumTestIncidentInfo = ARRAY_SIZE(testIncidentInfo);
 HistoryInfo testHistoryInfo[] = {
 {
 	3,              // serverId
-	1,              // itemId
+	"1",            // itemId
 	"0.0",          // value
 	{1205277200,0}, // clock
 },
 {
 	3,              // serverId
-	1,              // itemId
+	"1",            // itemId
 	"1.0",          // value
 	{1236813200,0}, // clock
 },
 {
 	3,              // serverId
-	1,              // itemId
+	"1",            // itemId
 	"2.0",          // value
 	{1268349200,0}, // clock
 },
 {
 	3,              // serverId
-	1,              // itemId
+	"1",            // itemId
 	"3.0",          // value
 	{1299885200,0}, // clock
 },
 {
 	3,              // serverId
-	1,              // itemId
+	"1",            // itemId
 	"4.0",          // value
 	{1331421200,0}, // clock
 },
 {
 	3,              // serverId
-	1,              // itemId
+	"1",            // itemId
 	"5.0",          // value
 	{1362957200,0}, // clock
 },
@@ -1446,7 +1446,7 @@ void getTestItemsIndexes(ServerIdItemInfoIdIndexMapMap &indexMap)
 
 ItemInfo *findTestItem(
   const ServerIdItemInfoIdIndexMapMap &indexMap,
-  const ServerIdType &serverId, const uint64_t itemId)
+  const ServerIdType &serverId, const ItemIdType &itemId)
 {
 	ServerIdItemInfoIdIndexMapMapConstIterator it = indexMap.find(serverId);
 	if (it == indexMap.end())

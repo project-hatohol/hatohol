@@ -492,7 +492,7 @@ void test_fetchHistory(void)
 	  TestFetchCtx::oneProcFetchHistoryHook, &ctx);
 
 	ItemInfo itemInfo;
-	itemInfo.id = 0;
+	itemInfo.id = "0";
 	itemInfo.serverId = 0;
 	itemInfo.globalHostId = 0;
 	itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;

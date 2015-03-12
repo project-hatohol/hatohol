@@ -71,11 +71,11 @@ typedef uint64_t UnifiedEventIdType;
 typedef std::string EventIdType;
 #define FMT_EVENT_ID "s"
 
-typedef uint64_t ItemIdType;
-#define FMT_ITEM_ID PRIu64
+typedef std::string ItemIdType;
+#define FMT_ITEM_ID "s"
 
-typedef uint64_t ItemCategoryIdType;
-#define FMT_ITEM_CATEGORY_ID PRIu64
+typedef std::string ItemCategoryIdType;
+#define FMT_ITEM_CATEGORY_ID "s"
 
 typedef std::string TriggerIdType;
 #define FMT_TRIGGER_ID "s"
@@ -142,10 +142,10 @@ static const TriggerIdType FAILED_SELF_TRIGGER_ID_TERMINATION   =
 static const EventIdType EVENT_NOT_FOUND = "";
 
 // Special Item IDs ===========================================================
-static const ItemIdType ALL_ITEMS    = -1;
+static const ItemIdType ALL_ITEMS    = "*";
 
 // Special ItemCategory IDs ===================================================
-static const ItemCategoryIdType NO_ITEM_CATEGORY_ID = -1;
+static const ItemCategoryIdType NO_ITEM_CATEGORY_ID = "";
 
 // Special User IDs ===========================================================
 static const UserIdType INVALID_USER_ID = -1;
@@ -204,6 +204,10 @@ typedef HostgroupIdSet::const_iterator      HostgroupIdSetConstIterator;
 typedef std::map<ServerIdType, HostgroupIdSet> ServerHostGrpSetMap;
 typedef ServerHostGrpSetMap::iterator       ServerHostGrpSetMapIterator;
 typedef ServerHostGrpSetMap::const_iterator ServerHostGrpSetMapConstIterator;
+
+typedef std::vector<ItemCategoryIdType>      ItemCategoryIdVector;
+typedef ItemCategoryIdVector::iterator       ItemCategoryIdVecotrIterator;
+typedef ItemCategoryIdVector::const_iterator ItemCategoryIdVecotrConstIterator;
 
 typedef std::map<ItemCategoryIdType, std::string> ItemCategoryNameMap;
 typedef ItemCategoryNameMap::iterator       ItemCategoryNameMapIterator;
