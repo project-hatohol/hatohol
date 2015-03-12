@@ -1019,18 +1019,18 @@ HatoholError HapProcessCeilometer::getResource(
 	}
 
 	// counter_volume
-	double counter_volume;
-	if (!read(parser, "counter_volume", counter_volume))
+	double counterVolume;
+	if (!read(parser, "counter_volume", counterVolume))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 
 	// counter_name
-	string counter_name;
-	if (!read(parser, "counter_name", counter_name))
+	string counterName;
+	if (!read(parser, "counter_name", counterName))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 
 	// counter_unit
-	string counter_unit;
-	if (!read(parser, "counter_unit", counter_unit))
+	string counterUnit;
+	if (!read(parser, "counter_unit", counterUnit))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 
 	// timestamp
@@ -1041,10 +1041,10 @@ HatoholError HapProcessCeilometer::getResource(
 	// fill
 	// TODO: Don't use IDs concerned with Zabbix.
 	LocalHostIdType hostId = instanceId;
-	const ItemIdType itemId = instanceId + "/" + counter_name;
+	const ItemIdType itemId = instanceId + "/" + counterName;
 	const int timestampSec =
 	  (int)parseStateTimestamp(timestamp).getAsTimespec().tv_sec;
-	const string name = counter_name + " (" + counter_unit + ")";
+	const string name = counterName + " (" + counterUnit + ")";
 	const int zbxValueTypeFloat = 0; // TODO: remove zabbix dependency!
 
 	VariableItemGroupPtr grp;
@@ -1054,11 +1054,11 @@ HatoholError HapProcessCeilometer::getResource(
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_HOSTID,    hostId);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTCLOCK, timestampSec);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTVALUE,
-	                StringUtils::sprintf("%lf", counter_volume));
+	                StringUtils::sprintf("%lf", counterVolume));
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_PREVVALUE, "N/A");
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_DELAY,     0);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID, NO_ITEM_CATEGORY_ID);
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_UNITS, counter_unit);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_UNITS, counterUnit);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_VALUE_TYPE, zbxValueTypeFloat);
 	tablePtr->add(grp);
 
@@ -1108,8 +1108,8 @@ ItemTablePtr HapProcessCeilometer::getHistory(
 			return ItemTablePtr(tablePtr);
 		}
 		
-		double counter_volume;
-		if (!read(parser, "counter_volume", counter_volume)){
+		double counterVolume;
+		if (!read(parser, "counter_volume", counterVolume)){
 			return ItemTablePtr(tablePtr);
 		}
 
@@ -1126,7 +1126,7 @@ ItemTablePtr HapProcessCeilometer::getHistory(
 		grp->addNewItem(ITEM_ID_ZBX_HISTORY_CLOCK,  timestampSec);
 		grp->addNewItem(ITEM_ID_ZBX_HISTORY_NS,     0);
 		grp->addNewItem(ITEM_ID_ZBX_HISTORY_VALUE, 
-				StringUtils::sprintf("%lf", counter_volume));
+				StringUtils::sprintf("%lf", counterVolume));
 		tablePtr->add(grp);
 	}
 	return ItemTablePtr(tablePtr);
