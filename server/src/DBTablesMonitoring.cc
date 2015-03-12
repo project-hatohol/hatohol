@@ -1763,10 +1763,10 @@ void DBTablesMonitoring::updateTrigger(const TriggerInfoList &triggerInfoList,
 	TriggerInfoList currTrigger;
 	getTriggerInfoList(currTrigger, option);
 	TriggerIdInfoMap validTriggerId;
-	TriggerInfoListConstIterator currTriggerItr = currTrigger.begin();
+	TriggerInfoListIterator currTriggerItr = currTrigger.begin();
 	for (; currTriggerItr != currTrigger.end(); ++currTriggerItr){
-		const TriggerInfo &triggerInfo = *currTriggerItr;
-		validTriggerId[triggerInfo.id] = triggerInfo;
+		TriggerInfo &triggerInfo = *currTriggerItr;
+		validTriggerId[triggerInfo.id] = &triggerInfo;
 	}
 
 
@@ -1776,8 +1776,8 @@ void DBTablesMonitoring::updateTrigger(const TriggerInfoList &triggerInfoList,
 		const TriggerInfo &newTriggerInfo = *newTriggerItr;
 		TriggerIdInfoMapIterator currTriggerItr = validTriggerId.find(newTriggerInfo.id);
 		if (currTriggerItr != validTriggerId.end()) {
-			const TriggerInfo &currTrigger = currTriggerItr->second;
-			const TriggerValidity validity = currTrigger.validity;
+			const TriggerInfo *currTrigger = currTriggerItr->second;
+			const TriggerValidity validity = currTrigger->validity;
 			validTriggerId.erase(currTriggerItr);
 			if (validity == TRIGGER_VALID)
 				continue;
@@ -1788,9 +1788,9 @@ void DBTablesMonitoring::updateTrigger(const TriggerInfoList &triggerInfoList,
 	
 	TriggerIdInfoMapIterator invTriggerItr = validTriggerId.begin();
 	for (; invTriggerItr != validTriggerId.end(); ++invTriggerItr) {
-		TriggerInfo invTrigger = invTriggerItr->second;
-		invTrigger.validity = TRIGGER_INVALID;
-		updateTriggerList.push_back(invTrigger);
+		TriggerInfo *invalidTrigger = invTriggerItr->second;
+		invalidTrigger->validity = TRIGGER_INVALID;
+		updateTriggerList.push_back(*invalidTrigger);
 	}
 	
 	addTriggerInfoList(updateTriggerList);
