@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -41,6 +41,7 @@ public:
 		VALUE_TYPE_INTEGER = 3,
 		VALUE_TYPE_TEXT    = 4
 	} ValueType;
+	static const size_t EVENT_ID_DIGIT_NUM;
 
 	ZabbixAPI(void);
 	virtual ~ZabbixAPI();
@@ -306,6 +307,29 @@ protected:
 	                    const std::string &name, const ItemId &itemId);
 	std::string pushString(JSONParser &parser, ItemGroup *itemGroup,
 	                       const std::string &name, const ItemId &itemId);
+
+	/**
+	 * Get the value form the JSONParser as a string, pad the specified
+	 * character to the head of the string, and add it to ItemGroup.
+	 *
+	 * @parser    A JSONParser.
+	 * @itemGroup A pointer to the ItemGroup.
+	 * @name      A name of the JSON element to be gotten.
+	 * @itemId    An item ID of the ItemData to be created.
+	 * @digitNum
+	 * A digit nubmer of the created string for the ItemData. If the
+	 * length of the original string is smaller than this value, the
+	 * specified character \padChar is filled at the head of the
+	 * created string.
+	 * @padChar   A character for padding.
+	 *
+	 * @return    A created string with padding.
+	 */
+	std::string pushString(
+	  JSONParser &parser, ItemGroup *itemGroup,
+	  const std::string &name, const ItemId &itemId,
+	  const size_t &digitNum, const char &padChar);
+
 	void parseAndPushTriggerData(
 	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);

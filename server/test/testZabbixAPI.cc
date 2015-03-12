@@ -23,6 +23,7 @@
 #include "ZabbixAPITestUtils.h"
 
 using namespace std;
+using namespace mlpl;
 
 namespace testZabbixAPI {
 
@@ -235,6 +236,51 @@ void test_getHistory(void)
 	json = string("{\"jsonrpc\":\"2.0\",\"result\":[")
 		+ json + string("],\"id\":1}");
 	cppcut_assert_equal(expected, json);
+}
+
+void data_pushStringWithPadding(void)
+{
+	gcut_add_datum("Fill",
+	               "digitNum", G_TYPE_INT,    8,
+	               "body",     G_TYPE_STRING, "ABC",
+	               "padChar",  G_TYPE_CHAR,   '#',
+	               "expect",   G_TYPE_STRING, "#####ABC", NULL);
+	gcut_add_datum("Same size",
+	               "digitNum", G_TYPE_INT,    3,
+	               "body",     G_TYPE_STRING, "ABC",
+	               "padChar",  G_TYPE_CHAR,   '#',
+	               "expect",   G_TYPE_STRING, "ABC", NULL);
+	gcut_add_datum("Long string",
+	               "digitNum", G_TYPE_INT,    3,
+	               "body",     G_TYPE_STRING, "ABCDEF",
+	               "padChar",  G_TYPE_CHAR,   '#',
+	               "expect",   G_TYPE_STRING, "ABCDEF", NULL);
+}
+
+void test_pushStringWithPadding(gconstpointer data)
+{
+	using StringUtils::sprintf;
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+
+	const ItemId  itemId   = 100;
+	const char   *name     = "foo";
+	const size_t  digitNum = gcut_data_get_int(data, "digitNum");
+	const char   *body     = gcut_data_get_string(data, "body");
+	const char    padChar  = gcut_data_get_char(data, "padChar");
+	const string  expected = gcut_data_get_string(data, "expect");
+	JSONParser parser(sprintf("{\"%s\":\"%s\"}", name, body));
+	VariableItemGroupPtr itemGrpPtr;
+	
+	const string createdString =
+	  zbxApiTestee.callPushString(parser, itemGrpPtr, name, itemId,
+	                              digitNum, padChar);
+	cppcut_assert_equal(expected, createdString);
+	cppcut_assert_equal((size_t)1, itemGrpPtr->getNumberOfItems());
+	const ItemData *itemData = itemGrpPtr->getItem(itemId);
+	cppcut_assert_not_null(itemData);
+	cppcut_assert_equal(expected, itemData->getString());
 }
 
 } // namespace testZabbixAPI
