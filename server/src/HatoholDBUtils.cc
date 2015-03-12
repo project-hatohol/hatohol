@@ -99,13 +99,13 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 		}
 
 		HostInfoCache::Element cacheElem;
-		const bool found = findHostCache(
-		                     serverId, trigInfo.hostIdInServer,
-		                     hostInfoCache,  cacheElem);
+		const bool found =
+		  findHostCache(serverId, trigInfo.hostIdInServer,
+		                hostInfoCache,  cacheElem);
 		if (!found)
 			continue;
 		trigInfo.globalHostId = cacheElem.hostId;
-		trigInfo.hostName         = cacheElem.name;
+		trigInfo.hostName     = cacheElem.name;
 		trigInfoList.push_back(trigInfo);
 	}
 }
