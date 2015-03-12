@@ -1109,7 +1109,6 @@ ItemTablePtr HapProcessCeilometer::getHistory(
 		return ItemTablePtr(tablePtr);
 	}
 
-	//for (unsigned int index = 0; index < element; index++){
 	for (int index = element-1 ; index >= 0; index--){
 		JSONParser::PositionStack parserRewinder(parser);
 		if (!parserRewinder.pushElement(index)) {
