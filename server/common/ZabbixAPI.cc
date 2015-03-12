@@ -667,6 +667,8 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdFrom, uint64_t eventIdTill,
 				   HatoholError &queryRet)
 {
+	using StringUtils::sprintf;
+
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
@@ -674,13 +676,9 @@ SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdFrom, uint64_t eventIdTill,
 
 	agent.startObject("params");
 	agent.add("output", "extend");
-	string strEventIdFrom = StringUtils::sprintf("%" PRId64, eventIdFrom);
-	agent.add("eventid_from", strEventIdFrom.c_str());
-	if (eventIdTill != UNLIMITED) {
-		string strEventIdTill = StringUtils::sprintf("%" PRId64,
-		                                             eventIdTill);
-		agent.add("eventid_till", strEventIdTill.c_str());
-	}
+	agent.add("eventid_from", sprintf("%" PRIu64, eventIdFrom));
+	if (eventIdTill != UNLIMITED)
+		agent.add("eventid_till", sprintf("%" PRIu64, eventIdTill));
 	agent.endObject(); // params
 
 	agent.add("auth", m_impl->authToken);
