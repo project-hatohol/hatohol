@@ -504,10 +504,6 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 	string alarmId;
 	if (!read(parser, "alarm_id", alarmId))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
-	// TODO: Fix a structure to save ID.
-	// We temporarily generate the 64bit triggerID and host ID from UUID.
-	// Strictly speaking, this way is not safe.
-	const uint64_t triggerId = generateHashU64(alarmId);
 
 	// status
 	string state;
@@ -546,7 +542,7 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 	// fill
 	// TODO: Define ItemID without ZBX.
 	VariableItemGroupPtr grp;
-	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,   triggerId);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,   alarmId);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_VALUE,       status);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_PRIORITY,    severity);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
@@ -682,13 +678,9 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
 	}
 
 	// Event ID
-	string eventIdStr;
-	if (!read(parser, "event_id", eventIdStr))
+	string eventId;
+	if (!read(parser, "event_id", eventId))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
-	// TODO: Fix a structure to save ID.
-	// We temporarily generate the 64bit triggerID and host ID from UUID.
-	// Strictly speaking, this way is not safe.
-	const uint64_t eventId = generateHashU64(eventIdStr);
 
 	// Timestamp
 	string timestampStr;
@@ -713,10 +705,9 @@ HatoholError HapProcessCeilometer::parseReplyGetAlarmHistoryElement(
 	}
 
 	// Trigger ID (alarm ID)
-	string alarmIdStr;
-	if (!read(parser, "alarm_id", alarmIdStr))
+	string alarmId;
+	if (!read(parser, "alarm_id", alarmId))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
-	const uint64_t alarmId = generateHashU64(alarmIdStr);
 
 	// Fill table.
 	// TODO: Define ItemID without ZBX.
