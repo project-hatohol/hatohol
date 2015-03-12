@@ -72,11 +72,17 @@ var HistoryView = function(userProfile, options) {
   }
 
   function isCreateMode() {
-    return strToBool(self.queryParams['create']);
+    var mode = self.queryParams['mode'];
+    if (!mode)
+      return false;
+    return (mode.toLowerCase() == "create");
   }
 
   function isEditMode() {
-    return strToBool(self.queryParams['edit']);
+    var mode = self.queryParams['mode'];
+    if (!mode)
+      return false;
+    return (mode.toLowerCase() == "edit");
   }
 
   function appendWidgets() {

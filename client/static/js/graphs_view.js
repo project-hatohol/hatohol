@@ -96,7 +96,7 @@ var GraphsView = function(userProfile) {
 	"' type='checkbox'></td>";
       table += "<td>" + graphID + "</td>";
       table += "<td><a href=\"" + graphURL +  "\">" + title + "</a></td>";
-      table += "<td><a href=\"ajax_history?edit=true&id=" + graphID + "\" " +
+      table += "<td><a href=\"ajax_history?mode=edit&id=" + graphID + "\" " +
         "class='btn btn-default'>" + gettext("EDIT") + "</a></td>";
       table += "</tr>";
     });
