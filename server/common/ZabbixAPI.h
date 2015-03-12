@@ -331,7 +331,7 @@ protected:
 	  VariableItemTablePtr &tablePtr, const int &index);
 
 	void pushTriggersHostId(JSONParser &parser, ItemGroup *itemGroup);
-	void pushApplicationid(JSONParser &parser, ItemGroup *itemGroup);
+	void pushApplicationId(JSONParser &parser, ItemGroup *itemGroup);
 
 private:
 	struct Impl;

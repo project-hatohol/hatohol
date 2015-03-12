@@ -1185,7 +1185,7 @@ void ZabbixAPI::parseAndPushItemsData(
 	pushString(parser, grp, "lifetime",    ITEM_ID_ZBX_ITEMS_LIFETIME);
 
 	// application
-	pushApplicationid(parser, grp);
+	pushApplicationId(parser, grp);
 
 	tablePtr->add(grp);
 
@@ -1372,7 +1372,7 @@ void ZabbixAPI::pushTriggersHostId(JSONParser &parser, ItemGroup *itemGroup)
 	  "hosts", "hostid", dummyHostName);
 }
 
-void ZabbixAPI::pushApplicationid(JSONParser &parser, ItemGroup *itemGroup)
+void ZabbixAPI::pushApplicationId(JSONParser &parser, ItemGroup *itemGroup)
 {
 	pushSomethingId<ItemCategoryIdType>(
 	  parser, itemGroup, ITEM_ID_ZBX_ITEMS_APPLICATIONID,
