@@ -539,7 +539,7 @@ void ArmNagiosNDOUtils::addConditionForEventQuery(void)
 	ThreadLocalDBCache cache;
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	const EventIdType lastEventId =
-	  cache.getMonitoring().getLastEventId(svInfo.id);
+	  cache.getMonitoring().getMaxEventId(svInfo.id);
 	string cond;
 	DBAgent::SelectExArg &arg = m_impl->selectEventBuilder.getSelectExArg();
 	arg.condition = m_impl->selectEventBaseCondition;

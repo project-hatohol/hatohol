@@ -2002,15 +2002,17 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	return HatoholError(HTERR_OK);
 }
 
-EventIdType DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
+EventIdType DBTablesMonitoring::getMaxEventId(const ServerIdType &serverId)
 {
+	using StringUtils::sprintf;
 	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	DBAgent::SelectExArg arg(tableProfileEvents);
-	// TODO: This is inefficient
-	string stmt = StringUtils::sprintf("max(cast(%s as unsigned))",
-	    COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
+	string stmt = sprintf("coalesce(max(%s), '%s')",
+	                      COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName,
+	                      EVENT_NOT_FOUND.c_str());
 	arg.add(stmt, COLUMN_DEF_EVENTS[IDX_EVENTS_ID].type);
-	arg.condition = StringUtils::sprintf("%s=%s",
+	arg.condition =
+	  sprintf("%s=%s",
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
 	    rhs(serverId));
 

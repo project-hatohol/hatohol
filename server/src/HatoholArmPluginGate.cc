@@ -802,7 +802,7 @@ void HatoholArmPluginGate::cmdHandlerGetLastEventId(
 {
 	ThreadLocalDBCache cache;
 	const EventIdType lastEventId =
-	  cache.getMonitoring().getLastEventId(m_impl->serverInfo.id);
+	  cache.getMonitoring().getMaxEventId(m_impl->serverInfo.id);
 	const size_t additionalSize = lastEventId.size() + 1;
 	SmartBuffer resBuf;
 	HapiResLastEventId *body =

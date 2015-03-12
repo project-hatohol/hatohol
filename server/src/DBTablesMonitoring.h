@@ -185,14 +185,14 @@ public:
 				      IncidentInfoVect *incidentInfoVect = NULL);
 
 	/**
-	 * get the last (maximum) event ID of the event that belongs to
-	 * the specified server
+	 * get the maximum event ID that belongs to the specified server
+	 *
 	 * @param serverId A target server ID.
 	 * @return
-	 * The last event ID. If there is no event data, EVENT_NOT_FOUND
+	 * The max event ID. If there is no event data, EVENT_NOT_FOUND
 	 * is returned.
 	 */
-	EventIdType getLastEventId(const ServerIdType &serverId);
+	EventIdType getMaxEventId(const ServerIdType &serverId);
 
 	/**
 	 * Get the time of the last event.
