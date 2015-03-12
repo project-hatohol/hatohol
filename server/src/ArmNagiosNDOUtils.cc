@@ -733,7 +733,10 @@ void ArmNagiosNDOUtils::getHost(void)
 		svHostDefs.push_back(svHostDef);
 	}
 	UnifiedDataStore *uds =  UnifiedDataStore::getInstance();
-	uds->syncHosts(svHostDefs, svInfo.id);
+
+	// TODO: should have hostInfoCache as a member.
+	HostInfoCache hostInfoCache;
+	uds->syncHosts(svHostDefs, svInfo.id, hostInfoCache);
 }
 
 void ArmNagiosNDOUtils::getHostgroup(void)

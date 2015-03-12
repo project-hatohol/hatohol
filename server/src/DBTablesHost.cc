@@ -705,15 +705,21 @@ HostIdType DBTablesHost::upsertHost(
 	return proc.hostId;
 }
 
-void DBTablesHost::upsertHosts(const ServerHostDefVect &serverHostDefs)
+void DBTablesHost::upsertHosts(
+  const ServerHostDefVect &serverHostDefs,
+  HostHostIdMap *hostHostIdMapPtr)
 {
 	struct Proc : public DBAgent::TransactionProc {
 		DBTablesHost &dbHost;
 		const ServerHostDefVect &serverHostDefs;
+		HostHostIdMap  *hostHostIdMapPtr;
 
-		Proc(DBTablesHost &_dbHost, const ServerHostDefVect &_serverHostDefs)
+		Proc(DBTablesHost &_dbHost,
+		     const ServerHostDefVect &_serverHostDefs,
+		     HostHostIdMap  *_hostHostIdMapPtr)
 		: dbHost(_dbHost),
-		  serverHostDefs(_serverHostDefs)
+		  serverHostDefs(_serverHostDefs),
+		  hostHostIdMapPtr(_hostHostIdMapPtr)
 		{
 		}
 
@@ -721,10 +727,21 @@ void DBTablesHost::upsertHosts(const ServerHostDefVect &serverHostDefs)
 		{
 			ServerHostDefVectConstIterator svHostDefItr =
 			  serverHostDefs.begin();
-			for (; svHostDefItr != serverHostDefs.end(); ++svHostDefItr)
-				dbHost.upsertHost(*svHostDefItr, false);
+			while (svHostDefItr != serverHostDefs.end()) {
+				doUpsert(*svHostDefItr);
+				++svHostDefItr;
+			}
 		}
-	} proc(*this, serverHostDefs);
+
+		void doUpsert(const ServerHostDef &svHostDef)
+		{
+			const HostIdType hostId =
+			  dbHost.upsertHost(svHostDef, false);
+			if (!hostHostIdMapPtr)
+				return;
+			(*hostHostIdMapPtr)[svHostDef.hostIdInServer] = hostId;
+		}
+	} proc(*this, serverHostDefs, hostHostIdMapPtr);
 	getDBAgent().runTransaction(proc);
 }
 
@@ -1104,8 +1121,9 @@ bool DBTablesHost::wasStoredHostsChanged(void)
 	return m_impl->storedHostsChanged;
 }
 
-HatoholError DBTablesHost::syncHosts(const ServerHostDefVect &svHostDefs,
-                                     const ServerIdType &serverId)
+HatoholError DBTablesHost::syncHosts(
+  const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
+  HostHostIdMap *hostHostIdMapPtr)
 {
 	// Make a set that contains current hosts records
 	HostsQueryOption option(USER_ID_SYSTEM);
@@ -1151,7 +1169,7 @@ HatoholError DBTablesHost::syncHosts(const ServerHostDefVect &svHostDefs,
 		m_impl->storedHostsChanged = true;
 		return HTERR_OK;
 	}
-	upsertHosts(serverHostDefs);
+	upsertHosts(serverHostDefs, hostHostIdMapPtr);
 	m_impl->storedHostsChanged = false;
 	return HTERR_OK;
 }

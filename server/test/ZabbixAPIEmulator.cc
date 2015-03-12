@@ -418,7 +418,7 @@ void ZabbixAPIEmulator::loadHostInfoCache(
 	ServerHostDef svHostDef;
 	for (size_t i = 0; i < numLocalIDs; i++) {
 		svHostDef.id = i + 1;
-		svHostDef.hostId = INVALID_HOST_ID;
+		svHostDef.hostId = i + 1;
 		svHostDef.serverId = serverId;
 		svHostDef.hostIdInServer = localIDs[i];
 		svHostDef.name = "Jane Doe";

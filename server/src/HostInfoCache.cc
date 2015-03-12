@@ -23,6 +23,8 @@
 #include <ReadWriteLock.h>
 #include "Params.h"
 #include "HostInfoCache.h"
+#include "UnifiedDataStore.h"
+#include "HatoholException.h"
 
 using namespace std;
 using namespace mlpl;
@@ -39,16 +41,27 @@ struct HostInfoCache::Impl
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-HostInfoCache::HostInfoCache(void)
+HostInfoCache::HostInfoCache(const ServerIdType *serverId)
 : m_impl(new Impl())
 {
+	if (!serverId)
+		return;
+
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(*serverId);
+	ServerHostDefVect svHostDefs;
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  uds->getServerHostDefs(svHostDefs, option));
+	update(svHostDefs);
 }
 
 HostInfoCache::~HostInfoCache()
 {
 }
 
-void HostInfoCache::update(const ServerHostDef &svHostDef)
+void HostInfoCache::update(const ServerHostDef &svHostDef,
+                           const HostIdType &hostId)
 {
 	bool doUpdate = true;
 	m_impl->lock.writeLock();
@@ -61,18 +74,44 @@ void HostInfoCache::update(const ServerHostDef &svHostDef)
 			doUpdate = false;
 	}
 	if (doUpdate) {
-		Element elem = {svHostDef.hostId, svHostDef.name};
+		Element elem;
+		elem.hostId =
+		  (hostId != INVALID_HOST_ID) ? hostId : svHostDef.hostId;
+		elem.name = svHostDef.name;
+		HATOHOL_ASSERT(elem.hostId != INVALID_HOST_ID,
+		               "INVALID_HOST_ID: server: %d, host: %s\n",
+		               svHostDef.serverId,
+		               svHostDef.hostIdInServer.c_str());
 		m_impl->hostIdNameMap[svHostDef.hostIdInServer] = elem;
 	}
 	m_impl->lock.unlock();
 }
 
-void HostInfoCache::update(const ServerHostDefVect &svHostDefs)
+void HostInfoCache::update(const ServerHostDefVect &svHostDefs,
+                           const HostHostIdMap *hostHostIdMapPtr)
 {
+	struct {
+		HostIdType operator()(
+		  const ServerHostDef &svHostDef,
+		  const HostHostIdMap *hostHostIdMapPtr)
+		{
+			HostIdType hostId = INVALID_HOST_ID;
+			if (!hostHostIdMapPtr)
+				return hostId;
+			HostHostIdMapConstIterator it =
+			  hostHostIdMapPtr->find(svHostDef.hostIdInServer);
+			if (it != hostHostIdMapPtr->end())
+				hostId = it->second;
+			return hostId;
+		}
+	} getHostId;
+
 	// TODO: consider if DBTablesHost should have the cache
 	ServerHostDefVectConstIterator svHostDefIt = svHostDefs.begin();
-	for (; svHostDefIt != svHostDefs.end(); ++svHostDefIt)
-		update(*svHostDefIt);
+	for (; svHostDefIt != svHostDefs.end(); ++svHostDefIt) {
+		const ServerHostDef &svHostDef = *svHostDefIt;
+		update(svHostDef, getHostId(svHostDef, hostHostIdMapPtr));
+	}
 }
 
 bool HostInfoCache::getName(

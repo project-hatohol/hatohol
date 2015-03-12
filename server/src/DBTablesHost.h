@@ -50,6 +50,10 @@ typedef std::vector<ServerHostDef> ServerHostDefVect;
 typedef ServerHostDefVect::iterator       ServerHostDefVectIterator;
 typedef ServerHostDefVect::const_iterator ServerHostDefVectConstIterator;
 
+typedef std::map<LocalHostIdType, HostIdType> HostHostIdMap;
+typedef HostHostIdMap::iterator               HostHostIdMapIterator;
+typedef HostHostIdMap::const_iterator         HostHostIdMapConstIterator;
+
 struct HostAccess {
 	GenericIdType id;
 	HostIdType    hostId;
@@ -207,7 +211,16 @@ public:
 	HostIdType upsertHost(const ServerHostDef &serverHostDef,
 	                      const bool &useTransaction = true);
 
-	void upsertHosts(const ServerHostDefVect &serverHostDefs);
+	/**
+	 * Call upsertHost() for multiple hosts.
+	 *
+	 * @param serverHostDefs Target hosts.
+	 * @param hostHostIdMapPtr
+	 * If this parameter is not NULL, the address of the ServerHostDef
+	 * and the corresponding host IDs are stored in it.
+	 */
+	void upsertHosts(const ServerHostDefVect &serverHostDefs,
+	                 HostHostIdMap *hostHostIdMapPtr = NULL);
 
 	/**
 	 * Insert or update a record to/in the server-host-definition table
@@ -357,8 +370,9 @@ public:
 	 * If new hosts are added or any hosts are removed,
 	 * the method follows them (inserts or deletes uncessary records).
 	 */
-	HatoholError syncHosts(const ServerHostDefVect &svHostDefs,
-	                       const ServerIdType &serverId);
+	HatoholError syncHosts(
+	  const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
+	  HostHostIdMap *hostHostIdMapPtr = NULL);
 
 protected:
 	static SetupInfo &getSetupInfo(void);

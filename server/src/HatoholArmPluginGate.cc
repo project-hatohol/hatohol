@@ -96,6 +96,7 @@ struct HatoholArmPluginGate::Impl
 	  armBase(_serverInfo),
 	  pid(0),
 	  pluginTermSem(0),
+	  hostInfoCache(&_serverInfo.id),
 	  exitSyncDone(false),
 	  createdSelfTriggers(false),
 	  pipeRd(NamedPipe::END_TYPE_MASTER_READ),
@@ -401,8 +402,7 @@ bool HatoholArmPluginGate::startOnDemandFetchTrigger(Closure2 *closure)
 	struct Callback : public CommandCallbacks {
 		Signal2 triggerUpdatedSignal;
 		ServerIdType serverId;
-		// TODO: Consider if we can use m_impl->hostInfoCache ?
-		HostInfoCache hostInfoCache;
+		HostInfoCache *hostInfoCache;
 		virtual void onGotReply(mlpl::SmartBuffer &replyBuf,
 		                        const HapiCommandHeader &cmdHeader)
 		                          override
@@ -411,7 +411,7 @@ bool HatoholArmPluginGate::startOnDemandFetchTrigger(Closure2 *closure)
 			ItemTablePtr tablePtr = createItemTable(replyBuf);
 			TriggerInfoList trigInfoList;
 			HatoholDBUtils::transformTriggersToHatoholFormat(
-			  trigInfoList, tablePtr, serverId, hostInfoCache);
+			  trigInfoList, tablePtr, serverId, *hostInfoCache);
 
 			ThreadLocalDBCache cache;
 			cache.getMonitoring().updateTrigger(trigInfoList, serverId);
@@ -436,6 +436,7 @@ bool HatoholArmPluginGate::startOnDemandFetchTrigger(Closure2 *closure)
 	Callback *callback = new Callback();
 	callback->triggerUpdatedSignal.connect(closure);
 	callback->serverId = m_impl->serverInfo.id;
+	callback->hostInfoCache = &m_impl->hostInfoCache;
 
 	HostsQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(m_impl->serverInfo.id);
@@ -443,7 +444,7 @@ bool HatoholArmPluginGate::startOnDemandFetchTrigger(Closure2 *closure)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerHostDefVect svHostDefs;
 	dataStore->getServerHostDefs(svHostDefs, option);
-	callback->hostInfoCache.update(svHostDefs);
+	callback->hostInfoCache->update(svHostDefs);
 
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(cmdBuf, HAPI_CMD_REQ_FETCH_TRIGGERS);
@@ -894,9 +895,8 @@ void HatoholArmPluginGate::cmdHandlerSendHosts(
 
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
-	  uds->syncHosts(svHostDefs, m_impl->serverInfo.id));
-
-	m_impl->hostInfoCache.update(svHostDefs);
+	  uds->syncHosts(svHostDefs, m_impl->serverInfo.id,
+	                 m_impl->hostInfoCache));
 	replyOk();
 }
 

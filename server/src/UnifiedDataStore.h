@@ -27,6 +27,7 @@
 #include "Utils.h"
 #include "Closure.h"
 #include "DataStore.h"
+#include "HostInfoCache.h"
 
 struct ServerConnStatus {
 	ServerIdType serverId;
@@ -142,12 +143,22 @@ public:
 	 * See also DBTablesHost::upsert().
 	 *
 	 * @param serverHostDef Hosts to be added/updated.
+	 * @param hostHostIdMapPtr
+	 * If this parameter is not NULL, the address of the ServerHostDef
+	 * and the corresponding host IDs are stored in it.
+	 *
 	 * @return The result of the call.
 	 */
-	HatoholError upsertHosts(const ServerHostDefVect &serverHostDefs);
+	HatoholError
+	  upsertHosts(const ServerHostDefVect &serverHostDefs,
+	              HostHostIdMap *hostHostIdMapPtr = NULL);
 
-	HatoholError syncHosts(const ServerHostDefVect &svHostDefs,
-	                       const ServerIdType &serverId);
+	/**
+	 * call upsertHosts for given hosts and update HostInfoCache.
+	 */
+	HatoholError syncHosts(
+	  const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
+	  HostInfoCache &hostInfoCache);
 	bool wasStoredHostsChanged(void);
 
 	HatoholError upsertHostgroups(const HostgroupVect &hostgroups);

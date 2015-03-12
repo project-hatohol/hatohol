@@ -50,7 +50,7 @@ void test_getNameExpectFalse(void)
 {
 	ServerHostDef svHostDef;
 	svHostDef.id = AUTO_INCREMENT_VALUE;
-	svHostDef.hostId = INVALID_HOST_ID;
+	svHostDef.hostId = 0;
 	svHostDef.serverId = 100;
 	svHostDef.hostIdInServer = "2";
 	svHostDef.name = "foo";

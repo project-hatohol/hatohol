@@ -593,7 +593,7 @@ void test_setServerConnectStatus(void)
 	triggerInfo.status = TRIGGER_STATUS_PROBLEM;
 	triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
 	triggerInfo.lastChangeTime = triggers.begin()->lastChangeTime;
-	triggerInfo.globalHostId = MONITORING_SERVER_SELF_ID;
+	triggerInfo.globalHostId = 1;
 	triggerInfo.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
 	triggerInfo.hostName = "_SELF";
 	triggerInfo.brief = HatoholError(HTERR_INTERNAL_ERROR).getMessage();
@@ -615,7 +615,7 @@ void test_setServerConnectStatus(void)
 	eventInfo.triggerId = FAILED_INTERNAL_ERROR_TRIGGER_ID;
 	eventInfo.status = TRIGGER_STATUS_PROBLEM;
 	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
-	eventInfo.globalHostId = MONITORING_SERVER_SELF_ID;
+	eventInfo.globalHostId = 1;
 	eventInfo.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
 	//eventInfo.hostName = "_SELF";
 	eventInfo.brief = HatoholError(HTERR_INTERNAL_ERROR).getMessage();
