@@ -104,6 +104,10 @@ protected:
 	HatoholError getResource(
 	  VariableItemTablePtr &tablePtr, const std::string &url,
 	  const std::string &instanceId);
+	std::string getHistoryTimeString(const timespec &timeSpec);
+	ItemTablePtr getHistory(
+	  const ItemIdType &itemId, const time_t &beginTime,
+	  const time_t &endTime);
 
 private:
 	struct Impl;
