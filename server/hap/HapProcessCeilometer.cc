@@ -501,8 +501,8 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 	}
 
 	// trigger ID (alarm_id)
-	string triggerId;
-	if (!read(parser, "alarm_id", triggerId))
+	string alarmId;
+	if (!read(parser, "alarm_id", alarmId))
 		return HTERR_FAILED_TO_PARSE_JSON_DATA;
 
 	// status
@@ -542,7 +542,7 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 	// fill
 	// TODO: Define ItemID without ZBX.
 	VariableItemGroupPtr grp;
-	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,   triggerId);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,   alarmId);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_VALUE,       status);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_PRIORITY,    severity);
 	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
@@ -553,7 +553,7 @@ HatoholError HapProcessCeilometer::parseAlarmElement(
 	tablePtr->add(grp);
 
 	// Register the Alarm ID
-	m_impl->acquireCtx.alarmIds.push_back(triggerId);
+	m_impl->acquireCtx.alarmIds.push_back(alarmId);
 
 	return HTERR_OK;
 }
