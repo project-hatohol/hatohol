@@ -1109,12 +1109,16 @@ ItemTablePtr HapProcessCeilometer::getHistory(
 
 		double counterVolume;
 		if (!read(parser, "counter_volume", counterVolume)){
-			return ItemTablePtr(tablePtr);;
+			MLPL_ERR("Failed to parse, counter_volume not found, index: %u\n",
+				 index);
+			continue;
 		}
 
 		string timestamp;
 		if (!read(parser, "timestamp", timestamp)){
-			return ItemTablePtr(tablePtr);;
+			MLPL_ERR("Failed to parse, timestamp not found, index: %u\n",
+				 index);
+			continue;
 		}
 
 		const int timestampSec =
