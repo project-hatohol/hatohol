@@ -109,8 +109,8 @@ struct HapProcessCeilometer::Impl {
 		tokenExpires = SmartTime();
 	}
 
-	bool getItemInfoVectl(const ItemIdType &itemId, 
-			      std::string &instanceId, std::string &targetItem)
+	bool getQueryParamInfo(const ItemIdType &itemId, 
+	  std::string &instanceId, std::string &targetItem)
 	{
 		StringList list;
 		StringUtils::split(list, itemId, '/');
@@ -1079,7 +1079,7 @@ ItemTablePtr HapProcessCeilometer::getHistory(
 	const timespec beginTimeSpec = {beginTime, 0};
 	const timespec endTimeSpec   = {endTime, 0};
 	string targetItem,instanceId;
-	if (!m_impl->getItemInfoVectl(itemId, instanceId, targetItem))
+	if (!m_impl->getQueryParamInfo(itemId, instanceId, targetItem))
 		return ItemTablePtr(tablePtr);
 		
 	string url = StringUtils::sprintf(
