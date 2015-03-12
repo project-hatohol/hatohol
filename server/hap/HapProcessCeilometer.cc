@@ -1073,12 +1073,12 @@ HatoholError HapProcessCeilometer::getResource(
 }
 
 ItemTablePtr HapProcessCeilometer::getHistory(
-      const ItemIdType &itemId, const time_t &beginTime, const time_t &endTime)
+  const ItemIdType &itemId, const time_t &beginTime, const time_t &endTime)
 {
 	VariableItemTablePtr tablePtr;
 	const timespec beginTimeSpec = {beginTime, 0};
 	const timespec endTimeSpec   = {endTime, 0};
-	string targetItem,instanceId;
+	string targetItem, instanceId;
 	if (!m_impl->getQueryParamInfo(itemId, instanceId, targetItem))
 		return ItemTablePtr(tablePtr);
 		
@@ -1108,7 +1108,7 @@ ItemTablePtr HapProcessCeilometer::getHistory(
 		return ItemTablePtr(tablePtr);
 	}
 
-	for (int index = element-1 ; index >= 0; index--){
+	for (int index = element - 1; index >= 0; index--){
 		JSONParser::PositionStack parserRewinder(parser);
 		if (!parserRewinder.pushElement(index)) {
 			MLPL_ERR("Failed to parse an element, index: %u\n", index);
