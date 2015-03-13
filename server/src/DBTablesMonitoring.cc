@@ -1375,7 +1375,8 @@ static const HostResourceQueryOption::Synapse synapseItemsQueryOption(
   true,
   tableProfileHostgroupMember,
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID,
+  IDX_ITEMS_GLOBAL_HOST_ID, IDX_HOSTGROUP_MEMBER_HOST_ID);
 
 struct ItemsQueryOption::Impl {
 	ItemIdType targetId;
