@@ -1040,12 +1040,10 @@ bool DBTablesHost::isAccessible(
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ServerIdType serverId;
-		string hostgroupIdInServer;
+		HostgroupIdType hostgroupId;
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		itemGroupStream >> serverId;
-		// TODO: DBTablesUser should handle hostgroup ID as a string
-		HostgroupIdType hostgroupId =
-		  itemGroupStream.read<string, HostgroupIdType>();
+		itemGroupStream >> hostgroupId;
 		if (dbUser.isAccessible(serverId, hostgroupId, option))
 			return true;
 	}
