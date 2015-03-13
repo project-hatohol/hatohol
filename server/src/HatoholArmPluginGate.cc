@@ -911,7 +911,8 @@ void HatoholArmPluginGate::cmdHandlerSendHostgroupElements(
 
 	HostgroupMemberVect hostgroupMembers;
 	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
-	  hostgroupMembers, hostgroupElementTablePtr, m_impl->serverInfo.id);
+	  hostgroupMembers, hostgroupElementTablePtr, m_impl->serverInfo.id,
+	  m_impl->hostInfoCache);
 
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(

@@ -83,6 +83,7 @@ struct HostgroupMember {
 	ServerIdType    serverId;
 	LocalHostIdType hostIdInServer;
 	HostgroupIdType hostgroupIdInServer;
+	HostIdType      hostId;
 };
 
 typedef std::vector<HostgroupMember>        HostgroupMemberVect;
@@ -133,6 +134,7 @@ enum {
 	IDX_HOSTGROUP_MEMBER_SERVER_ID,
 	IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
 	IDX_HOSTGROUP_MEMBER_GROUP_ID,
+	IDX_HOSTGROUP_MEMBER_HOST_ID,
 	NUM_IDX_HOSTGROUP_MEMBER,
 };
 

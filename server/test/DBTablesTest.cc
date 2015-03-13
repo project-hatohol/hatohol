@@ -1242,63 +1242,73 @@ const HostgroupMember testHostgroupMember[] = {
 	1,                               // serverId
 	"235012",                        // hostIdInServer
 	"1",                             // hostgroupIdInServer
+	10,                              // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	1,                               // serverId
 	"235012",                        // hostIdInServer
 	"2",                             // hostgroupIdInServer
+	10,                              // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	1,                               // serverId
 	"235013",                        // hostIdInServer
 	"2",                             // hostgroupIdInServer
+	11,                              // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	1,                               // serverId
 	"1129",                          // hostIdInServer
 	"1",                             // hostgroupIdInServer
+	30,                              // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	2,                               // serverId
 	"512",                           // hostIdInServer
 	"1",                             // hostgroupIdInServer
+	40,                              // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	2,                               // serverId
 	"512",                           // hostIdInServer
 	"2",                             // hostgroupIdInServer
+	40,                              // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	3,                               // serverId
 	"10001",                         // hostIdInServer
 	"2",                             // hostgroupIdInServer
+	35,                              // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	3,                               // serverId
 	"10002",                         // hostIdInServer
 	"1",                             // hostgroupIdInServer
+	41,                              // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	3,                               // serverId
 	"5",                             // hostIdInServer
 	"1",                             // hostgroupIdInServer
+	42,                              // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	3,                               // serverId
 	"100",                           // hostIdInServer
 	"2",                             // hostgroupIdInServer
+	45,                              // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	4,                               // serverId
 	"100",                           // hostIdInServer
 	"1",                             // hostgroupIdInServer
+	100,                             // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	2,                               // serverId
-	//"0x89abcdefffffffff",          // hostIdInServer
-	"9920249034889494527",           // getHostInfoList() handles HostID As decimal
-	// "0x8000000000000000",            // hostgroupIdInServer
-	"9223372036854775808",
+	"9920249034889494527", //"0x89abcdefffffffff",  // hostIdInServer
+	"9223372036854775808", // "0x8000000000000000", // hostgroupIdInServer
+	101,                             // hostId
 }, {
 	// This entry is for tests with a defunct server
 	AUTO_INCREMENT_VALUE,            // id
@@ -1306,31 +1316,37 @@ const HostgroupMember testHostgroupMember[] = {
 	// trigInfoDefunctSv1.hostIdInServer, // hostId,
 	"10002", // TODO: use the above after host ID in trigger becomes string
 	"1",                             // hostgroupIdInServer
+	494,                             // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	211,                             // serverId
 	"200",                           // hostIdInServer
 	"0",                             // hostgroupIdInServer
+	1050,                            // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	211,                             // serverId
 	"12111",                         // hostIdInServer
 	"123",                           // hostgroupIdInServer
+	2111,                            // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	211,                             // serverId
 	"12112",                         // hostIdInServer
 	"123",                           // hostgroupIdInServer
+	2112,                            // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	211,                             // serverId
 	"12113",                         // hostIdInServer
 	"124",                           // hostgroupIdInServer
+	2113,                            // hostId
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	222,                             // serverId
 	"110005",                        // hostIdInServer
 	"124",                           // hostgroupIdInServer
+	10005,                           // hostId
 }
 };
 const size_t NumTestHostgroupMember = ARRAY_SIZE(testHostgroupMember);

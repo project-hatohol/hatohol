@@ -40,7 +40,7 @@ public:
 	static void transformHostsGroupsToHatoholFormat(
 	  HostgroupMemberVect &hostgroupMembers,
 	  const ItemTablePtr mapHostHostgroups,
-	  const ServerIdType &serverId);
+	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
 
 	static void transformHostsToHatoholFormat(
 	  ServerHostDefVect &svHostDefs, const ItemTablePtr hosts,
@@ -78,7 +78,8 @@ protected:
 	  Hostgroup &hostgroup, const ItemGroup *groupItemGroup);
 
 	static void transformHostsGroupsItemGroupToHatoholFormat(
-	  HostgroupMember &hostgrpMember, const ItemGroup *groupHostsGroups);
+	  HostgroupMember &hostgrpMember, const ItemGroup *groupHostsGroups,
+	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
 
 	static bool transformItemItemGroupToItemInfo(
 	  ItemInfo &itemInfo, const ItemGroup *item,

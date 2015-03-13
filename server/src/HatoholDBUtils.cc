@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -142,8 +142,8 @@ void HatoholDBUtils::transformGroupsToHatoholFormat(
 }
 
 void HatoholDBUtils::transformHostsGroupsToHatoholFormat(
-  HostgroupMemberVect &hostgroupMembers,
-  const ItemTablePtr mapHostHostgroups, const ServerIdType &serverId)
+  HostgroupMemberVect &hostgroupMembers, const ItemTablePtr mapHostHostgroups,
+  const ServerIdType &serverId, const HostInfoCache &hostInfoCache)
 {
 	const ItemGroupList &itemGroupList = mapHostHostgroups->getItemGroupList();
 	ItemGroupListConstIterator it = itemGroupList.begin();
@@ -151,7 +151,7 @@ void HatoholDBUtils::transformHostsGroupsToHatoholFormat(
 		HostgroupMember hostgrpMember;
 		hostgrpMember.serverId = serverId;
 		transformHostsGroupsItemGroupToHatoholFormat(
-		  hostgrpMember, *it);
+		  hostgrpMember, *it, serverId, hostInfoCache);
 		hostgroupMembers.push_back(hostgrpMember);
 	}
 }
@@ -402,7 +402,8 @@ void HatoholDBUtils::transformGroupItemGroupToHostgroupInfo(
 }
 
 void HatoholDBUtils::transformHostsGroupsItemGroupToHatoholFormat(
-  HostgroupMember &hostgrpMember, const ItemGroup *groupHostsGroups)
+  HostgroupMember &hostgrpMember, const ItemGroup *groupHostsGroups,
+  const ServerIdType &serverId, const HostInfoCache &hostInfoCache)
 {
 	hostgrpMember.id = AUTO_INCREMENT_VALUE;
 
@@ -416,6 +417,13 @@ void HatoholDBUtils::transformHostsGroupsItemGroupToHatoholFormat(
 	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
 	hostgrpMember.hostgroupIdInServer =
 	  itemGroupStream.read<uint64_t, string>();
+
+	HostInfoCache::Element cacheElem;
+	const bool found = findHostCache(serverId, hostgrpMember.hostIdInServer,
+	                                 hostInfoCache,  cacheElem);
+	if (!found)
+		return;
+	hostgrpMember.hostId = cacheElem.hostId;
 }
 
 bool HatoholDBUtils::transformItemItemGroupToItemInfo(

@@ -247,7 +247,8 @@ void ArmZabbixAPI::makeHatoholMapHostsHostgroups(ItemTablePtr hostsGroups)
 {
 	HostgroupMemberVect hostgroupMembers;
 	HatoholDBUtils::transformHostsGroupsToHatoholFormat(
-	  hostgroupMembers, hostsGroups, m_impl->zabbixServerId);
+	  hostgroupMembers, hostsGroups, m_impl->zabbixServerId,
+	  m_impl->hostInfoCache);
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
 	  uds->upsertHostgroupMembers(hostgroupMembers));
