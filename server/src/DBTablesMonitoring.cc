@@ -1024,7 +1024,9 @@ static const HostResourceQueryOption::Synapse synapseEventsQueryOption(
   IDX_TRIGGERS_HOST_ID_IN_SERVER, true,
   tableProfileHostgroupMember,
   IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
-  IDX_HOSTGROUP_MEMBER_GROUP_ID);
+  IDX_HOSTGROUP_MEMBER_GROUP_ID,
+  IDX_EVENTS_GLOBAL_HOST_ID, IDX_HOSTGROUP_MEMBER_HOST_ID
+);
 
 struct EventsQueryOption::Impl {
 	uint64_t limitOfUnifiedId;
