@@ -1854,16 +1854,12 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	builder.add(IDX_EVENTS_HOST_NAME);
 	builder.add(IDX_EVENTS_BRIEF);
 
+	// TODO: CONSIDER:  Should we also have extended_info in the event
+	// table ? Then we can delte the following complicated join.
 	builder.addTable(
 	  tableProfileTriggers, DBClientJoinBuilder::LEFT_JOIN,
 	  tableProfileEvents, IDX_EVENTS_SERVER_ID, IDX_TRIGGERS_SERVER_ID,
 	  tableProfileEvents, IDX_EVENTS_TRIGGER_ID, IDX_TRIGGERS_ID);
-	builder.add(IDX_TRIGGERS_STATUS);
-	builder.add(IDX_TRIGGERS_SEVERITY);
-	builder.add(IDX_TRIGGERS_GLOBAL_HOST_ID);
-	builder.add(IDX_TRIGGERS_HOST_ID_IN_SERVER);
-	builder.add(IDX_TRIGGERS_HOSTNAME);
-	builder.add(IDX_TRIGGERS_BRIEF);
 	builder.add(IDX_TRIGGERS_EXTENDED_INFO);
 
 	if (incidentInfoVect) {
@@ -1921,63 +1917,17 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		itemGroupStream >> eventInfo.time.tv_nsec;
 		itemGroupStream >> eventInfo.type;
 		itemGroupStream >> eventInfo.triggerId;
+		itemGroupStream >> eventInfo.status;
+		itemGroupStream >> eventInfo.severity;
+		itemGroupStream >> eventInfo.globalHostId;
+		itemGroupStream >> eventInfo.hostIdInServer;
+		itemGroupStream >> eventInfo.hostName;
+		itemGroupStream >> eventInfo.brief;
 
-		TriggerStatusType   eventStatus;
-		TriggerSeverityType eventSeverity;
-		HostIdType          eventGlobalHostId;
-		LocalHostIdType     eventHostIdInServer;
-		string              eventHostName;
-		string              eventBrief;
-		itemGroupStream >> eventStatus;
-		itemGroupStream >> eventSeverity;
-		itemGroupStream >> eventGlobalHostId;
-		itemGroupStream >> eventHostIdInServer;
-		itemGroupStream >> eventHostName;
-		itemGroupStream >> eventBrief;
-
-		TriggerStatusType   triggerStatus;
-		TriggerSeverityType triggerSeverity;
-		HostIdType          triggerGlobalHostId;
-		LocalHostIdType     triggerHostIdInServer;
-		string              triggerHostName;
-		string              triggerBrief;
-		string              triggerExtendedInfo;
-		itemGroupStream >> triggerStatus;
-		itemGroupStream >> triggerSeverity;
-		itemGroupStream >> triggerGlobalHostId;
-		itemGroupStream >> triggerHostIdInServer;
-		itemGroupStream >> triggerHostName;
-		itemGroupStream >> triggerBrief;
+		string triggerExtendedInfo;
 		itemGroupStream >> triggerExtendedInfo;
-
-		if (eventStatus != TRIGGER_STATUS_UNKNOWN) {
-			eventInfo.status = eventStatus;
-		} else {
-			eventInfo.status = triggerStatus;
-		}
-		if (eventSeverity != TRIGGER_SEVERITY_UNKNOWN) {
-			eventInfo.severity = eventSeverity;
-		} else {
-			eventInfo.severity = triggerSeverity;
-		}
-
-		if (eventGlobalHostId != INVALID_HOST_ID) {
-			eventInfo.globalHostId   = eventGlobalHostId;
-			eventInfo.hostIdInServer = eventHostIdInServer;
-			eventInfo.hostName = eventHostName;
-		} else {
-			eventInfo.globalHostId   = triggerGlobalHostId;
-			eventInfo.hostIdInServer = triggerHostIdInServer;
-			eventInfo.hostName = triggerHostName;
-		}
-		if (!eventBrief.empty()) {
-			eventInfo.brief = eventBrief;
-		} else {
-			eventInfo.brief = triggerBrief;
-		}
-		if (!triggerExtendedInfo.empty()) {
+		if (!triggerExtendedInfo.empty())
 			eventInfo.extendedInfo = triggerExtendedInfo;
-		}
 
 		if (incidentInfoVect) {
 			incidentInfoVect->push_back(IncidentInfo());
