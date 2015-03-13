@@ -86,6 +86,7 @@ describe('EventsView', function() {
         "nickname" : "Server",
         "type": type,
         "ipAddress": "192.168.1.100",
+        "baseURL": "http://192.168.1.100/base/",
         "hosts": {
           "10105": {
             "name": "Host",
@@ -237,6 +238,11 @@ describe('EventsView', function() {
     testTableContents(nagiosURL, nagiosStatusURL, getDummyServerInfo(1));
   });
 
+  it('new with nagios data included baseURL', function() {
+    var nagiosURL = "http://192.168.1.100/base/";
+    var nagiosStatusURL = undefined;
+    testTableContents(nagiosURL, nagiosStatusURL, getDummyServerInfo(1));
+  });
 
   it('With a good event', function() {
     var view = new EventsView(getOperator());
