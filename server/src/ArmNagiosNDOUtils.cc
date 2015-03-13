@@ -806,6 +806,8 @@ void ArmNagiosNDOUtils::getHostgroupMembers(void)
 		  itemGroupStream.read<int, string>();
 		hostgrpMember.hostgroupIdInServer =
 		  itemGroupStream.read<int, string>();
+		hostgrpMember.hostId =
+		  m_impl->getGlobalHostId(hostgrpMember.hostIdInServer);
 		hostgroupMembers.push_back(hostgrpMember);
 	}
 	UnifiedDataStore::getInstance()->upsertHostgroupMembers(hostgroupMembers);

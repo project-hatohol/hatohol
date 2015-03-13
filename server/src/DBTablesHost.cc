@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -375,10 +375,11 @@ static bool updateDB(
 {
 	const int &oldVer = oldPackedVer.minorVer;
 	if (oldVer == 1 || oldVer == 2) {
-		// In table ver.1 and 2 (on 14.09 and 14.12), these table is
+		// In table ver.1 and 2 (on 14.09 and 14.12), these tables are
 		// not used. So we can drop it.
 		dbAgent.dropTable(tableProfileHostList.name);
 		dbAgent.dropTable(tableProfileServerHostDef.name);
+		dbAgent.dropTable(tableProfileHostgroupMember.name);
 	}
 	return true;
 }
