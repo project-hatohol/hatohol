@@ -891,16 +891,6 @@ ItemDataNullFlagType DBTablesAction::getNullFlag
 		return ITEM_DATA_NULL;
 }
 
-static void takeTriggerInfo(TriggerInfo &triggerInfo,
-  const ServerIdType &serverId, const TriggerIdType &triggerId)
-{
-	ThreadLocalDBCache cache;
-	TriggersQueryOption option(USER_ID_SYSTEM);
-	option.setTargetServerId(serverId);
-	option.setTargetId(triggerId);
-	cache.getMonitoring().getTriggerInfo(triggerInfo, option);
-}
-
 static void getHostgroupIdStringList(string &stringHostgroupId,
   const ServerIdType &serverId, const LocalHostIdType &hostId)
 {
@@ -1267,6 +1257,7 @@ string ActionsQueryOption::Impl::getActionTypeAndOwnerCondition(void)
 
 string ActionsQueryOption::getCondition(void) const
 {
+	using StringUtils::sprintf;
 	string cond;
 
 	// filter by action type
@@ -1291,22 +1282,9 @@ string ActionsQueryOption::getCondition(void) const
 
 	HATOHOL_ASSERT(!m_impl->conditionTemplate.empty(),
 	               "ActionDef condition template is empty.");
-	TriggerInfo triggerInfo;
-	// TODO: eventInfo should always be filled before this function
-	//       is called. (The conditional branch here is not good)
-	if ((eventInfo->globalHostId == INVALID_HOST_ID) &&
-	    (eventInfo->severity == TRIGGER_SEVERITY_UNKNOWN)) {
-		takeTriggerInfo(
-		  triggerInfo, eventInfo->serverId, eventInfo->triggerId);
-	} else {
-		triggerInfo.serverId = eventInfo->serverId;
-		triggerInfo.globalHostId   = eventInfo->globalHostId;
-		triggerInfo.hostIdInServer = eventInfo->hostIdInServer;
-		triggerInfo.severity = eventInfo->severity;
-	}
 	string hostgroupIdList;
 	getHostgroupIdStringList(
-	  hostgroupIdList, triggerInfo.serverId, triggerInfo.hostIdInServer);
+	  hostgroupIdList, eventInfo->serverId, eventInfo->hostIdInServer);
 	if (hostgroupIdList.empty())
 		hostgroupIdList = DB::getAlwaysFalseCondition();
 
@@ -1315,14 +1293,13 @@ string ActionsQueryOption::getCondition(void) const
 	// TODO: We can just pass triggerInfo.globalHostId instead of
 	//       a pair of server ID and the hostIdInServer.
 	DBTermCStringProvider rhs(*getDBTermCodec());
-	cond += StringUtils::sprintf(m_impl->conditionTemplate.c_str(),
-	                       eventInfo->serverId,
-	                       rhs(triggerInfo.hostIdInServer),
-	                       rhs(hostgroupIdList),
-	                       rhs(eventInfo->triggerId),
-	                       eventInfo->status,
-	                       triggerInfo.severity,
-	                       triggerInfo.severity);
+	cond += sprintf(m_impl->conditionTemplate.c_str(),
+	                eventInfo->serverId,
+	                rhs(eventInfo->hostIdInServer),
+	                rhs(hostgroupIdList),
+	                rhs(eventInfo->triggerId),
+	                eventInfo->status,
+	                eventInfo->severity, eventInfo->severity);
 	return cond;
 }
 
