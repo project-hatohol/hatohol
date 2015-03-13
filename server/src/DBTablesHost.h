@@ -32,11 +32,6 @@ enum HostStatus {
 	HOST_STAT_INAPPLICABLE,
 };
 
-struct Host {
-	HostIdType  id;
-	std::string name;
-};
-
 struct ServerHostDef {
 	GenericIdType   id;
 	HostIdType      hostId;
