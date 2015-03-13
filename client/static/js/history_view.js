@@ -64,19 +64,18 @@ var HistoryView = function(userProfile, options) {
     });
   }
 
-  function strToBool(val) {
-    if (!val)
-      return false;
-    val = val.toLowerCase();
-    return (val == "1" || val == "true");
-  }
-
   function isCreateMode() {
-    return strToBool(self.queryParams['create']);
+    var mode = self.queryParams['mode'];
+    if (!mode)
+      return false;
+    return (mode.toLowerCase() == "create");
   }
 
   function isEditMode() {
-    return strToBool(self.queryParams['edit']);
+    var mode = self.queryParams['mode'];
+    if (!mode)
+      return false;
+    return (mode.toLowerCase() == "edit");
   }
 
   function appendWidgets() {
