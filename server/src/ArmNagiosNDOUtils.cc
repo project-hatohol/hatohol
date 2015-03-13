@@ -62,8 +62,8 @@ enum
 static const ColumnDef COLUMN_DEF_SERVICES[] = {
 {
 	"service_id",                      // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
@@ -71,8 +71,8 @@ static const ColumnDef COLUMN_DEF_SERVICES[] = {
 	NULL,                              // defaultValue
 }, {
 	"host_object_id",                  // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
@@ -179,8 +179,8 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	NULL,                              // defaultValue
 }, {
 	"host_object_id",                  // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -282,8 +282,8 @@ static const DBAgent::TableProfile tableProfileHostgroupMembers =
 static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 {
 	"statehistory_id",                 // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
@@ -747,7 +747,7 @@ void ArmNagiosNDOUtils::getHost(void)
 		svHostDef.hostId = AUTO_ASSIGNED_ID;
 		svHostDef.serverId = svInfo.id;
 		svHostDef.status = HOST_STAT_NORMAL;
-		svHostDef.hostIdInServer = itemGroupStream.read<int, string>();
+		itemGroupStream >> svHostDef.hostIdInServer;
 		itemGroupStream >> svHostDef.name;
 		svHostDefs.push_back(svHostDef);
 	}
