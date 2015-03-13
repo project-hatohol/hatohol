@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -368,6 +368,7 @@ struct ArmNagiosNDOUtils::Impl
 	string               selectEventBaseCondition;
 	UnifiedDataStore    *dataStore;
 	MonitoringServerInfo serverInfo;
+	HostInfoCache        hostInfoCache;
 
 	// methods
 	Impl(const MonitoringServerInfo &_serverInfo)
@@ -379,7 +380,8 @@ struct ArmNagiosNDOUtils::Impl
 	  selectHostgroupArg(tableProfileHostgroups),
 	  selectHostgroupMembersArg(tableProfileHostgroupMembers),
 	  dataStore(NULL),
-	  serverInfo(_serverInfo)
+	  serverInfo(_serverInfo),
+	  hostInfoCache(&_serverInfo.id)
 	{
 		dataStore = UnifiedDataStore::getInstance();
 	}
@@ -396,6 +398,19 @@ struct ArmNagiosNDOUtils::Impl
 		  serverInfo.dbName.c_str(), serverInfo.userName.c_str(),
 		  serverInfo.password.c_str(),
 		  serverInfo.getHostAddress().c_str(), serverInfo.port);
+	}
+
+	HostIdType getGlobalHostId(const LocalHostIdType &hostIdInServer)
+	{
+		HostInfoCache::Element elem;
+		const bool found = hostInfoCache.getName(hostIdInServer, elem);
+		if (found)
+			return elem.hostId;
+		MLPL_WARN(
+		  "Host cache: not found. server: %" FMT_SERVER_ID ", "
+		  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
+		  serverInfo.id, hostIdInServer.c_str());
+		return INVALID_HOST_ID;
 	}
 };
 
@@ -596,7 +611,8 @@ void ArmNagiosNDOUtils::getTriggerInfoTable(TriggerInfoList &triggerInfoList)
 		                                      //status_update_time
 		itemGroupStream >> trigInfo.brief;    // output
 		itemGroupStream >> trigInfo.hostIdInServer; // host_id
-		// TODO: itemGroupStream >> trigInfo.globalHostId;
+		trigInfo.globalHostId =
+		  m_impl->getGlobalHostId(trigInfo.hostIdInServer);
 		trigInfo.globalHostId = INAPPLICABLE_HOST_ID;
 		itemGroupStream >> trigInfo.hostName; // hosts.display_name
 		trigInfo.validity = TRIGGER_VALID;
@@ -663,6 +679,8 @@ void ArmNagiosNDOUtils::getEvent(void)
 		itemGroupStream >> eventInfo.brief;       // output
 		itemGroupStream >> eventInfo.triggerId;   // service_id
 		itemGroupStream >> eventInfo.hostIdInServer; // host_id
+		eventInfo.globalHostId =
+		  m_impl->getGlobalHostId(eventInfo.hostIdInServer);
 		itemGroupStream >> eventInfo.hostName;    // hosts.display_name
 		eventInfoList.push_back(eventInfo);
 	}
@@ -691,8 +709,9 @@ void ArmNagiosNDOUtils::getItem(void)
 		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_STRING;
 
 		itemGroupStream >> itemInfo.id;        // service_id
-		itemInfo.globalHostId = INVALID_HOST_ID;
 		itemGroupStream >> itemInfo.hostIdInServer; // host_id
+		itemInfo.globalHostId =
+		  m_impl->getGlobalHostId(itemInfo.hostIdInServer);
 		itemGroupStream >> itemInfo.brief;     // check_command
 		itemGroupStream >> itemInfo.lastValueTime.tv_sec;
 		                                       // status_update_time
@@ -733,7 +752,8 @@ void ArmNagiosNDOUtils::getHost(void)
 		svHostDefs.push_back(svHostDef);
 	}
 	UnifiedDataStore *uds =  UnifiedDataStore::getInstance();
-	uds->syncHosts(svHostDefs, svInfo.id);
+
+	uds->syncHosts(svHostDefs, svInfo.id, m_impl->hostInfoCache);
 }
 
 void ArmNagiosNDOUtils::getHostgroup(void)

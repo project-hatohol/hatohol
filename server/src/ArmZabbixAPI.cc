@@ -48,7 +48,8 @@ struct ArmZabbixAPI::Impl
 
 	// constructors
 	Impl(const MonitoringServerInfo &serverInfo)
-	: zabbixServerId(serverInfo.id)
+	: zabbixServerId(serverInfo.id),
+	  hostInfoCache(&serverInfo.id)
 	{
 	}
 };
@@ -259,9 +260,8 @@ void ArmZabbixAPI::makeHatoholHosts(ItemTablePtr hosts)
 	                                              m_impl->zabbixServerId);
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
-	  uds->syncHosts(svHostDefs, m_impl->zabbixServerId));
-
-	m_impl->hostInfoCache.update(svHostDefs);
+	  uds->syncHosts(svHostDefs, m_impl->zabbixServerId,
+	                 m_impl->hostInfoCache));
 }
 
 uint64_t ArmZabbixAPI::getMaximumNumberGetEventPerOnce(void)

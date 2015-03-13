@@ -33,13 +33,15 @@ struct ArmUtils::Impl
 	const MonitoringServerInfo &serverInfo;
 	ArmTrigger                 *armTriggers;
 	const size_t                numArmTriggers;
+	HostIdType                  globalHostId;
 
 	Impl(ArmUtils *_obj, const MonitoringServerInfo &_serverInfo,
 	     ArmTrigger *_armTriggers, const size_t &_numArmTriggers)
 	: obj(_obj),
 	  serverInfo(_serverInfo),
 	  armTriggers(_armTriggers),
-	  numArmTriggers(_numArmTriggers)
+	  numArmTriggers(_numArmTriggers),
+	  globalHostId(INVALID_HOST_ID)
 	{
 		initializeArmTriggers();
 	}
@@ -190,7 +192,7 @@ void ArmUtils::createTrigger(
 	triggerInfo.serverId = m_impl->serverInfo.id;
 	triggerInfo.lastChangeTime =
 	  SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
-	triggerInfo.globalHostId = MONITORING_SERVER_SELF_ID;
+	triggerInfo.globalHostId = m_impl->globalHostId;
 	triggerInfo.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
 	triggerInfo.hostName = StringUtils::sprintf(
 	  "%s%s", m_impl->serverInfo.hostName.c_str(),
@@ -212,7 +214,7 @@ void ArmUtils::createEvent(
 	eventInfo.serverId = m_impl->serverInfo.id;
 	eventInfo.id = DISCONNECT_SERVER_EVENT_ID;
 	eventInfo.time = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
-	eventInfo.globalHostId = MONITORING_SERVER_SELF_ID;
+	eventInfo.globalHostId = m_impl->globalHostId;
 	eventInfo.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
 	eventInfo.triggerId = armTrigger.triggerId;
 	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
@@ -236,7 +238,8 @@ void ArmUtils::registerSelfMonitoringHost(void)
 	  m_impl->serverInfo.hostName.c_str(), SERVER_SELF_MONITORING_SUFFIX);
 	svHostDef.status = HOST_STAT_SELF_MONITOR;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->upsertHost(svHostDef);
+	HatoholError err = dataStore->upsertHost(svHostDef,
+	                                         &m_impl->globalHostId);
 	if (err != HTERR_OK) {
 		MLPL_ERR("Failed to register a host for self monitoring: "
 		         "(%d) %s.", err.getCode(), err.getCodeName().c_str());

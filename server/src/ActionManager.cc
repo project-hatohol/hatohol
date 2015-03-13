@@ -1572,7 +1572,7 @@ void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 		eventInfo.hostName = triggerInfo.hostName;
 		eventInfo.brief    = triggerInfo.brief;
 	} else {
-		MLPL_ERR("Not found: svID: %" PRIu32 ", "
+		MLPL_ERR("Not found: svID: %" FMT_SERVER_ID ", "
 		         "trigID: %" FMT_TRIGGER_ID "\n",
 		         eventInfo.serverId, eventInfo.triggerId.c_str());
 		eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;

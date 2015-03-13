@@ -737,7 +737,7 @@ void test_upsertHost(gconstpointer data)
 	assertUpsertHost(hostId);
 }
 
-void test_upsertHostUpdate(void)
+void test_upsertHostUpdate(gconstpointer data)
 {
 	assertUpsertHost(AUTO_ASSIGNED_ID);
 
@@ -810,6 +810,36 @@ void test_upsertHosts(void)
 			expect += "\n";
 	}
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
+}
+
+void test_upsertHostsWithHostIdMap(void)
+{
+	ServerHostDefVect serverHostDefs;
+	ServerHostDef serverHostDef;
+	serverHostDef.id = AUTO_INCREMENT_VALUE;
+	serverHostDef.hostId = AUTO_ASSIGNED_ID;
+	serverHostDef.serverId = 10;
+	serverHostDef.hostIdInServer= "123456";
+	serverHostDef.name = "GO GO GO GO";
+	serverHostDef.status = HOST_STAT_NORMAL;
+
+	serverHostDefs.push_back(serverHostDef);
+	serverHostDef.hostIdInServer= "887766";
+	serverHostDefs.push_back(serverHostDef);
+
+	HostHostIdMap hostHostIdMap;
+	DBHatohol dbHatohol;
+	DBTablesHost &dbHost = dbHatohol.getDBTablesHost();
+	dbHost.upsertHosts(serverHostDefs, &hostHostIdMap);
+	cppcut_assert_equal((size_t)2, hostHostIdMap.size());
+	for (size_t i = 0; i < serverHostDefs.size(); i++) {
+		const ServerHostDef &svHostDef = serverHostDefs[i];
+		HostHostIdMapConstIterator it =
+		  hostHostIdMap.find(svHostDef.hostIdInServer);
+		cppcut_assert_equal(true, it != hostHostIdMap.end());
+		const HostIdType expectedHostId = i + 1;
+		cppcut_assert_equal(expectedHostId, it->second);
+	}
 }
 
 void data_getServerHostDefs(void)

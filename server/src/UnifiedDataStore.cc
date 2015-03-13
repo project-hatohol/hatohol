@@ -491,18 +491,25 @@ HatoholError UnifiedDataStore::getHostgroups(
 }
 
 HatoholError UnifiedDataStore::upsertHosts(
-  const ServerHostDefVect &serverHostDefs)
+  const ServerHostDefVect &serverHostDefs, HostHostIdMap *hostHostIdMapPtr)
 {
 	ThreadLocalDBCache cache;
-	cache.getHost().upsertHosts(serverHostDefs);
+	cache.getHost().upsertHosts(serverHostDefs, hostHostIdMapPtr);
 	return HTERR_OK;
 }
 
-HatoholError UnifiedDataStore::syncHosts(const ServerHostDefVect &svHostDefs,
-                                         const ServerIdType &serverId)
+HatoholError UnifiedDataStore::syncHosts(
+  const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
+  HostInfoCache &hostInfoCache)
 {
 	ThreadLocalDBCache cache;
-	return cache.getHost().syncHosts(svHostDefs, serverId);
+	HostHostIdMap hostHostIdMap;
+	HatoholError err = cache.getHost().syncHosts(svHostDefs, serverId,
+	                                             &hostHostIdMap);
+	if (err != HTERR_OK)
+		return err;
+	hostInfoCache.update(svHostDefs, &hostHostIdMap);
+	return HTERR_OK;
 }
 
 bool UnifiedDataStore::wasStoredHostsChanged(void)

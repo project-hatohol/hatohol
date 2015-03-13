@@ -34,10 +34,12 @@ public:
 		std::string name;
 	};
 
-	HostInfoCache(void);
+	HostInfoCache(const ServerIdType *serverId = NULL);
 	virtual ~HostInfoCache();
-	void update(const ServerHostDef &svHostDef);
-	void update(const ServerHostDefVect &svHostDefs);
+	void update(const ServerHostDef &svHostDef,
+	            const HostIdType &hostId = INVALID_HOST_ID);
+	void update(const ServerHostDefVect &svHostDefs,
+	            const HostHostIdMap *hostHostIdMapPtr = NULL);
 
 	/**
 	 * Get the name corresponding to the specified host ID.
