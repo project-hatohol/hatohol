@@ -326,6 +326,15 @@ static const ColumnDef COLUMN_DEF_HOSTGROUP_MEMBER[] = {
 	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"host_id",                         // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -868,6 +877,7 @@ GenericIdType DBTablesHost::upsertHostgroupMember(
 	arg.add(hostgroupMember.serverId);
 	arg.add(hostgroupMember.hostIdInServer);
 	arg.add(hostgroupMember.hostgroupIdInServer);
+	arg.add(hostgroupMember.hostId);
 	arg.upsertOnDuplicate = true;
 
 	DBAgent &dbAgent = getDBAgent();

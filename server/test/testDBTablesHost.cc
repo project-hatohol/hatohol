@@ -133,11 +133,12 @@ static string makeMapHostsHostgroupsOutput(
   const HostgroupMember &hostgrpMember, const size_t &id)
 {
 	string expectedOut = StringUtils::sprintf(
-	  "%zd|%" FMT_SERVER_ID "|%s|%s\n",
+	  "%zd|%" FMT_SERVER_ID "|%s|%s|%" FMT_HOST_ID "\n",
 	  id + 1,
 	  hostgrpMember.serverId,
 	  hostgrpMember.hostIdInServer.c_str(),
-	  hostgrpMember.hostgroupIdInServer.c_str());
+	  hostgrpMember.hostgroupIdInServer.c_str(),
+	  hostgrpMember.hostId);
 
 	return expectedOut;
 }
@@ -455,11 +456,12 @@ void test_upsertHostgroupMember(void)
 	hostgroupMember.serverId = 52;
 	hostgroupMember.hostIdInServer = "88664422";
 	hostgroupMember.hostgroupIdInServer = "1133";
+	hostgroupMember.hostId = 10;
 
 	DECLARE_DBTABLES_HOST(dbHost);
 	GenericIdType id = dbHost.upsertHostgroupMember(hostgroupMember);
 	const string expect = StringUtils::sprintf(
-	  "%" FMT_GEN_ID "|52|88664422|1133", id);
+	  "%" FMT_GEN_ID "|52|88664422|1133|10", id);
 	const string statement = StringUtils::sprintf(
 	  "SELECT * FROM %s", tableProfileHostgroupMember.name);
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
@@ -492,14 +494,15 @@ void test_upsertHostgroupMemberAutoIncrement(void)
 	hostgroupMember.serverId = 52;
 	hostgroupMember.hostIdInServer = "88664422";
 	hostgroupMember.hostgroupIdInServer = "1133";
+	hostgroupMember.hostId = 0xfedcba9876543210;
 
 	DECLARE_DBTABLES_HOST(dbHost);
 	GenericIdType id0 = dbHost.upsertHostgroupMember(hostgroupMember);
 	hostgroupMember.hostgroupIdInServer = "Lion";
 	GenericIdType id1 = dbHost.upsertHostgroupMember(hostgroupMember);
 	const string expect = StringUtils::sprintf(
-	  "%" FMT_GEN_ID "|52|88664422|1133\n"
-	  "%" FMT_GEN_ID "|52|88664422|Lion", id0, id1);
+	  "%" FMT_GEN_ID "|52|88664422|1133|18364758544493064720\n"
+	  "%" FMT_GEN_ID "|52|88664422|Lion|18364758544493064720", id0, id1);
 	const string statement = StringUtils::sprintf(
 	  "SELECT * FROM %s ORDER BY id", tableProfileHostgroupMember.name);
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
@@ -514,13 +517,14 @@ void test_upsertHostgroupMemberUpdate(void)
 	hostgroupMember.serverId = 52;
 	hostgroupMember.hostIdInServer = "88664422";
 	hostgroupMember.hostgroupIdInServer = "1133";
+	hostgroupMember.hostId = 123456789;
 
 	DECLARE_DBTABLES_HOST(dbHost);
 	GenericIdType id0 = dbHost.upsertHostgroupMember(hostgroupMember);
 	hostgroupMember.id = id0;
 	GenericIdType id1 = dbHost.upsertHostgroupMember(hostgroupMember);
 	const string expect = StringUtils::sprintf(
-	  "%" FMT_GEN_ID "|52|88664422|1133", id1);
+	  "%" FMT_GEN_ID "|52|88664422|1133|123456789", id1);
 	const string statement = StringUtils::sprintf(
 	  "SELECT * FROM %s", tableProfileHostgroupMember.name);
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
@@ -535,12 +539,13 @@ void test_upsertHostgroupMemberUpdateUsingIndex(void)
 	hostgroupMember.serverId = 52;
 	hostgroupMember.hostIdInServer = "88664422";
 	hostgroupMember.hostgroupIdInServer = "1133";
+	hostgroupMember.hostId = 11223344;
 
 	DECLARE_DBTABLES_HOST(dbHost);
 	GenericIdType id0 = dbHost.upsertHostgroupMember(hostgroupMember);
 	GenericIdType id1 = dbHost.upsertHostgroupMember(hostgroupMember);
 	const string expect = StringUtils::sprintf(
-	  "%" FMT_GEN_ID "|52|88664422|1133", id1);
+	  "%" FMT_GEN_ID "|52|88664422|1133|11223344", id1);
 	const string statement = StringUtils::sprintf(
 	  "SELECT * FROM %s", tableProfileHostgroupMember.name);
 	assertDBContent(&dbHost.getDBAgent(), statement, expect);
