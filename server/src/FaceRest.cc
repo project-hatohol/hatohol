@@ -1063,6 +1063,7 @@ void FaceRest::ResourceHandler::addServersMap(
 		agent.add("nickname", serverInfo.nickname);
 		agent.add("type", serverInfo.type);
 		agent.add("ipAddress", serverInfo.ipAddress);
+		agent.add("baseURL", serverInfo.baseURL);
 		addHostsMap(this, agent, serverInfo);
 		if (triggerMaps) {
 			addTriggersIdBriefHash(this, agent, serverInfo,
