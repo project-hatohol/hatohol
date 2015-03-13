@@ -522,8 +522,8 @@ void ArmNagiosNDOUtils::makeSelectHostgroupArg(void)
 void ArmNagiosNDOUtils::makeSelectHostgroupMembersArg(void)
 {
 	DBAgent::SelectExArg &arg = m_impl->selectHostgroupMembersArg;
-	arg.add(IDX_HOSTGROUP_MEMBERS_HOSTGROUP_ID);
 	arg.add(IDX_HOSTGROUP_MEMBERS_HOST_OBJECT_ID);
+	arg.add(IDX_HOSTGROUP_MEMBERS_HOSTGROUP_ID);
 }
 
 void ArmNagiosNDOUtils::addConditionForTriggerQuery(const bool &isUpdateTrigger)
@@ -590,7 +590,7 @@ void ArmNagiosNDOUtils::getTriggerInfoTable(TriggerInfoList &triggerInfoList)
 		trigInfo.serverId = svInfo.id;
 		trigInfo.lastChangeTime.tv_nsec = 0;
 
-		itemGroupStream >> trigInfo.id;      // service_id
+		trigInfo.id = itemGroupStream.read<int, string>(); // service_id
 
 		// TODO: severity should not depend on the status.
 		// status and severity (current_status)
@@ -610,7 +610,7 @@ void ArmNagiosNDOUtils::getTriggerInfoTable(TriggerInfoList &triggerInfoList)
 		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
 		                                      //status_update_time
 		itemGroupStream >> trigInfo.brief;    // output
-		itemGroupStream >> trigInfo.hostIdInServer; // host_id
+		trigInfo.hostIdInServer = itemGroupStream.read<int, string>(); // host_id
 		trigInfo.globalHostId =
 		  m_impl->getGlobalHostId(trigInfo.hostIdInServer);
 		trigInfo.globalHostId = INAPPLICABLE_HOST_ID;
@@ -658,7 +658,7 @@ void ArmNagiosNDOUtils::getEvent(void)
 		eventInfo.serverId = svInfo.id;
 		eventInfo.time.tv_nsec = 0;
 
-		itemGroupStream >> eventInfo.id; // statehistory_id
+		eventInfo.id = itemGroupStream.read<int, string>(); // statehistory_id
 		// type, status, and severity (state)
 		itemGroupStream >> state;
 		if (state == STATE_OK) {
@@ -677,8 +677,8 @@ void ArmNagiosNDOUtils::getEvent(void)
 		}
 		itemGroupStream >> eventInfo.time.tv_sec; // state_time
 		itemGroupStream >> eventInfo.brief;       // output
-		itemGroupStream >> eventInfo.triggerId;   // service_id
-		itemGroupStream >> eventInfo.hostIdInServer; // host_id
+		eventInfo.triggerId = itemGroupStream.read<int, string>(); // service_id
+		eventInfo.hostIdInServer = itemGroupStream.read<int, string>(); // host_id
 		eventInfo.globalHostId =
 		  m_impl->getGlobalHostId(eventInfo.hostIdInServer);
 		itemGroupStream >> eventInfo.hostName;    // hosts.display_name
@@ -708,8 +708,8 @@ void ArmNagiosNDOUtils::getItem(void)
 		itemInfo.prevValue = "N/A";
 		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_STRING;
 
-		itemGroupStream >> itemInfo.id;        // service_id
-		itemGroupStream >> itemInfo.hostIdInServer; // host_id
+		itemInfo.id = itemGroupStream.read<int, string>(); // service_id
+		itemInfo.hostIdInServer = itemGroupStream.read<int, string>(); // host_id
 		itemInfo.globalHostId =
 		  m_impl->getGlobalHostId(itemInfo.hostIdInServer);
 		itemGroupStream >> itemInfo.brief;     // check_command
