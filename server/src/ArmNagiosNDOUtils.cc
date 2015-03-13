@@ -522,8 +522,8 @@ void ArmNagiosNDOUtils::makeSelectHostgroupArg(void)
 void ArmNagiosNDOUtils::makeSelectHostgroupMembersArg(void)
 {
 	DBAgent::SelectExArg &arg = m_impl->selectHostgroupMembersArg;
-	arg.add(IDX_HOSTGROUP_MEMBERS_HOSTGROUP_ID);
 	arg.add(IDX_HOSTGROUP_MEMBERS_HOST_OBJECT_ID);
+	arg.add(IDX_HOSTGROUP_MEMBERS_HOSTGROUP_ID);
 }
 
 void ArmNagiosNDOUtils::addConditionForTriggerQuery(const bool &isUpdateTrigger)
