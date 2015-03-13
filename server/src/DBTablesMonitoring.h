@@ -277,6 +277,25 @@ protected:
 	  DBAgent &dbAgent, const MonitoringServerStatus &serverStatus);
 	static void addIncidentInfoWithoutTransaction(
 	  DBAgent &dbAgent, const IncidentInfo &incidentInfo);
+
+	/**
+	 * Fill the following members if they are not set, with the
+	 * corresponding trigger information.
+	 *   - severity
+	 *   - globalHostId
+	 *   - hostIdInServer
+	 *   - hostName
+	 *   - brief
+	 *   - extenededInfo
+	 *
+	 * @param eventInfo An EventInfo instance to be set.
+	 *
+	 * @return
+	 * true if the corresponding trigger is found and the values are set.
+	 * Otherwise false is returned.
+	 */
+	static bool mergeTriggerInfo(DBAgent &dbAgent, EventInfo &eventInfo);
+
 	size_t getNumberOfTriggers(const TriggersQueryOption &option,
 				   const std::string &additionalCondition);
 

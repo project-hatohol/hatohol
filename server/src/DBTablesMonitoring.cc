@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -2688,6 +2688,8 @@ void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
 void DBTablesMonitoring::addEventInfoWithoutTransaction(
   DBAgent &dbAgent, EventInfo &eventInfo)
 {
+	mergeTriggerInfo(dbAgent, eventInfo);
+
 	DBAgent::InsertArg arg(tableProfileEvents);
 	arg.add(AUTO_INCREMENT_VALUE_U64);
 	arg.add(eventInfo.serverId);
@@ -2824,5 +2826,69 @@ static bool updateDB(
 		addColumnsArg.columnIndexes.push_back(IDX_TRIGGERS_VALIDITY);
 		dbAgent.addColumns(addColumnsArg);
 	}
+	return true;
+}
+
+template <typename T>
+static void substIfNeeded(T &lhs, const T &rhs, const T &initialValue)
+{
+	if (lhs == initialValue)
+		lhs = rhs;
+}
+
+bool DBTablesMonitoring::mergeTriggerInfo(
+  DBAgent &dbAgent, EventInfo &eventInfo)
+{
+	struct {
+		void operator()(string &lhs, const string &rhs)
+		{
+			substIfNeeded<string>(lhs, rhs, "");
+		}
+
+		void operator()(HostIdType &lhs, const HostIdType &rhs)
+		{
+			substIfNeeded<HostIdType>(lhs, rhs, INVALID_HOST_ID);
+		}
+
+		void operator()(
+		  TriggerSeverityType &lhs, const TriggerSeverityType &rhs)
+		{
+			substIfNeeded<TriggerSeverityType>(
+			  lhs, rhs, TRIGGER_SEVERITY_UNKNOWN);
+		}
+	} setIfNeeded;
+
+	// Get the corresponding trigger
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(eventInfo.serverId);
+	option.setTargetId(eventInfo.triggerId);
+	DBAgent::SelectExArg arg(tableProfileTriggers);
+	arg.add(IDX_TRIGGERS_SEVERITY);
+	arg.add(IDX_TRIGGERS_GLOBAL_HOST_ID);
+	arg.add(IDX_TRIGGERS_HOST_ID_IN_SERVER);
+	arg.add(IDX_TRIGGERS_HOSTNAME);
+	arg.add(IDX_TRIGGERS_BRIEF);
+	arg.add(IDX_TRIGGERS_EXTENDED_INFO);
+	arg.condition = option.getCondition();
+	dbAgent.select(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	if (grpList.empty())
+		return false;
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	TriggerInfo trigInfo;
+	itemGroupStream >> trigInfo.severity;
+	itemGroupStream >> trigInfo.globalHostId;
+	itemGroupStream >> trigInfo.hostIdInServer;
+	itemGroupStream >> trigInfo.hostName;
+	itemGroupStream >> trigInfo.brief;
+	itemGroupStream >> trigInfo.extendedInfo;
+
+	setIfNeeded(eventInfo.severity,       trigInfo.severity);
+	setIfNeeded(eventInfo.globalHostId,   trigInfo.globalHostId);
+	setIfNeeded(eventInfo.hostIdInServer, trigInfo.hostIdInServer);
+	setIfNeeded(eventInfo.hostName,       trigInfo.hostName);
+	setIfNeeded(eventInfo.brief,          trigInfo.brief);
+	setIfNeeded(eventInfo.extendedInfo,   trigInfo.extendedInfo);
 	return true;
 }
