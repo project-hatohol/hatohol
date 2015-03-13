@@ -62,8 +62,8 @@ enum
 static const ColumnDef COLUMN_DEF_SERVICES[] = {
 {
 	"service_id",                      // columnName
-	SQL_COLUMN_TYPE_VARCHAR,           // type
-	255,                               // columnLength
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
@@ -71,8 +71,8 @@ static const ColumnDef COLUMN_DEF_SERVICES[] = {
 	NULL,                              // defaultValue
 }, {
 	"host_object_id",                  // columnName
-	SQL_COLUMN_TYPE_VARCHAR,           // type
-	255,                               // columnLength
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
@@ -179,8 +179,8 @@ static const ColumnDef COLUMN_DEF_HOSTS[] = {
 	NULL,                              // defaultValue
 }, {
 	"host_object_id",                  // columnName
-	SQL_COLUMN_TYPE_VARCHAR,           // type
-	255,                               // columnLength
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -282,8 +282,8 @@ static const DBAgent::TableProfile tableProfileHostgroupMembers =
 static const ColumnDef COLUMN_DEF_STATEHISTORY[] = {
 {
 	"statehistory_id",                 // columnName
-	SQL_COLUMN_TYPE_VARCHAR,           // type
-	255,                               // columnLength
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
@@ -590,7 +590,7 @@ void ArmNagiosNDOUtils::getTriggerInfoTable(TriggerInfoList &triggerInfoList)
 		trigInfo.serverId = svInfo.id;
 		trigInfo.lastChangeTime.tv_nsec = 0;
 
-		itemGroupStream >> trigInfo.id;      // service_id
+		trigInfo.id = itemGroupStream.read<int, string>(); // service_id
 
 		// TODO: severity should not depend on the status.
 		// status and severity (current_status)
@@ -610,7 +610,7 @@ void ArmNagiosNDOUtils::getTriggerInfoTable(TriggerInfoList &triggerInfoList)
 		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
 		                                      //status_update_time
 		itemGroupStream >> trigInfo.brief;    // output
-		itemGroupStream >> trigInfo.hostIdInServer; // host_id
+		trigInfo.hostIdInServer = itemGroupStream.read<int, string>(); // host_id
 		trigInfo.globalHostId =
 		  m_impl->getGlobalHostId(trigInfo.hostIdInServer);
 		trigInfo.globalHostId = INAPPLICABLE_HOST_ID;
@@ -658,7 +658,7 @@ void ArmNagiosNDOUtils::getEvent(void)
 		eventInfo.serverId = svInfo.id;
 		eventInfo.time.tv_nsec = 0;
 
-		itemGroupStream >> eventInfo.id; // statehistory_id
+		eventInfo.id = itemGroupStream.read<int, string>(); // statehistory_id
 		// type, status, and severity (state)
 		itemGroupStream >> state;
 		if (state == STATE_OK) {
@@ -677,8 +677,8 @@ void ArmNagiosNDOUtils::getEvent(void)
 		}
 		itemGroupStream >> eventInfo.time.tv_sec; // state_time
 		itemGroupStream >> eventInfo.brief;       // output
-		itemGroupStream >> eventInfo.triggerId;   // service_id
-		itemGroupStream >> eventInfo.hostIdInServer; // host_id
+		eventInfo.triggerId = itemGroupStream.read<int, string>(); // service_id
+		eventInfo.hostIdInServer = itemGroupStream.read<int, string>(); // host_id
 		eventInfo.globalHostId =
 		  m_impl->getGlobalHostId(eventInfo.hostIdInServer);
 		itemGroupStream >> eventInfo.hostName;    // hosts.display_name
@@ -708,8 +708,8 @@ void ArmNagiosNDOUtils::getItem(void)
 		itemInfo.prevValue = "N/A";
 		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_STRING;
 
-		itemGroupStream >> itemInfo.id;        // service_id
-		itemGroupStream >> itemInfo.hostIdInServer; // host_id
+		itemInfo.id = itemGroupStream.read<int, string>(); // service_id
+		itemInfo.hostIdInServer = itemGroupStream.read<int, string>(); // host_id
 		itemInfo.globalHostId =
 		  m_impl->getGlobalHostId(itemInfo.hostIdInServer);
 		itemGroupStream >> itemInfo.brief;     // check_command
@@ -747,7 +747,7 @@ void ArmNagiosNDOUtils::getHost(void)
 		svHostDef.hostId = AUTO_ASSIGNED_ID;
 		svHostDef.serverId = svInfo.id;
 		svHostDef.status = HOST_STAT_NORMAL;
-		itemGroupStream >> svHostDef.hostIdInServer;
+		svHostDef.hostIdInServer = itemGroupStream.read<int, string>();
 		itemGroupStream >> svHostDef.name;
 		svHostDefs.push_back(svHostDef);
 	}
