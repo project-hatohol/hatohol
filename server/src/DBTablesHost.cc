@@ -925,6 +925,7 @@ HatoholError DBTablesHost::getHostgroupMembers(
 	arg.add(IDX_HOSTGROUP_MEMBER_SERVER_ID);
 	arg.add(IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER);
 	arg.add(IDX_HOSTGROUP_MEMBER_GROUP_ID);
+	arg.add(IDX_HOSTGROUP_MEMBER_HOST_ID);
 
 	arg.condition = option.getCondition();
 
@@ -940,6 +941,7 @@ HatoholError DBTablesHost::getHostgroupMembers(
 		itemGroupStream >> hostgrpMember.serverId;
 		itemGroupStream >> hostgrpMember.hostIdInServer;
 		itemGroupStream >> hostgrpMember.hostgroupIdInServer;
+		itemGroupStream >> hostgrpMember.hostId;
 		hostgroupMembers.push_back(hostgrpMember);
 	}
 
@@ -1027,13 +1029,9 @@ bool DBTablesHost::isAccessible(
 	DBClientJoinBuilder builder(tableProfileServerHostDef);
 	builder.add(IDX_HOST_SERVER_HOST_DEF_SERVER_ID);
 
-	// TODO: add a column including host_id and use it
 	builder.addTable(
 	  tableProfileHostgroupMember, DBClientJoinBuilder::INNER_JOIN,
-	  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
-	  IDX_HOSTGROUP_MEMBER_SERVER_ID,
-	  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
-	  IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER);
+	  IDX_HOST_SERVER_HOST_DEF_HOST_ID, IDX_HOSTGROUP_MEMBER_HOST_ID);
 	builder.add(IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 	DBAgent::SelectExArg &arg = builder.build();
@@ -1074,25 +1072,21 @@ HatoholError DBTablesHost::getServerHostDefs(
 	builder.add(IDX_HOST_SERVER_HOST_DEF_HOST_STATUS);
 
 	if (option.isHostgroupUsed()) {
-		// TODO: add a column including host_id and use it
 		builder.addTable(
 		  tableProfileHostgroupMember, DBClientJoinBuilder::INNER_JOIN,
-		  tableProfileServerHostDef, IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
-		  IDX_HOSTGROUP_MEMBER_SERVER_ID,
-		  tableProfileServerHostDef,
-		  IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER,
-		  IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER);
+		  IDX_HOST_SERVER_HOST_DEF_HOST_ID,
+		  IDX_HOSTGROUP_MEMBER_HOST_ID);
 	}
 
 	DBAgent::SelectExArg &arg = builder.build();
 	if (option.isHostgroupUsed()) {
 		// TODO: FIX This low level implementation is temporary
 		// We should make a framework to use a sub query
-		string matchCond = StringUtils::sprintf("%s=%s AND %s=%s",
-		  tableProfileServerHostDef.getFullColumnName(IDX_HOST_SERVER_HOST_DEF_SERVER_ID).c_str(),
-		  tableProfileHostgroupMember.getFullColumnName(IDX_HOSTGROUP_MEMBER_SERVER_ID).c_str(),
-		  tableProfileServerHostDef.getFullColumnName(IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER).c_str(),
-		  tableProfileHostgroupMember.getFullColumnName(IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER).c_str());
+		string matchCond = StringUtils::sprintf("%s=%s",
+		  tableProfileServerHostDef.getFullColumnName(
+		    IDX_HOST_SERVER_HOST_DEF_HOST_ID).c_str(),
+		  tableProfileHostgroupMember.getFullColumnName(
+		    IDX_HOSTGROUP_MEMBER_HOST_ID).c_str());
 
 		arg.tableField = tableProfileServerHostDef.name;
 		arg.condition = "EXISTS (SELECT * from ";

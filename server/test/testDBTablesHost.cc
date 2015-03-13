@@ -553,6 +553,41 @@ void test_upsertHostgroupMemberUpdateUsingIndex(void)
 	cppcut_assert_equal(id0, id1);
 }
 
+void test_getHostgroupMembers(void)
+{
+	loadTestDBServer();
+
+	HostgroupMember hostgroupMember;
+	hostgroupMember.id = AUTO_INCREMENT_VALUE;
+	hostgroupMember.serverId = testServerInfo[0].id;
+	hostgroupMember.hostIdInServer = "88664422";
+	hostgroupMember.hostgroupIdInServer = "1133";
+	hostgroupMember.hostId = 11223344;
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	GenericIdType id0 = dbHost.upsertHostgroupMember(hostgroupMember);
+	const string expected0 =
+	  makeMapHostsHostgroupsOutput(hostgroupMember, id0);
+
+	hostgroupMember.hostIdInServer = "0817";
+	hostgroupMember.hostgroupIdInServer = "1155";
+	hostgroupMember.hostId = 1976;
+	GenericIdType id1 = dbHost.upsertHostgroupMember(hostgroupMember);
+	const string expected1 =
+	  makeMapHostsHostgroupsOutput(hostgroupMember, id1);
+
+	// Read the data out and check them
+	HostgroupMemberVect actualMembers;
+	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
+	HatoholError err = dbHost.getHostgroupMembers(actualMembers, option);
+	assertHatoholError(HTERR_OK, err);
+	cppcut_assert_equal((size_t)2, actualMembers.size());
+	cppcut_assert_equal(expected0,
+	  makeMapHostsHostgroupsOutput(actualMembers[0], id0));
+	cppcut_assert_equal(expected1,
+	  makeMapHostsHostgroupsOutput(actualMembers[1], id1));
+}
+
 void test_getHypervisor(void)
 {
 	loadTestDBVMInfo();
