@@ -425,7 +425,12 @@ void ArmBase::setInitialTriggerStatus(void)
 
 void ArmBase::setServerConnectStatus(const ArmPollingResult &type)
 {
-	m_impl->utils.updateTriggerStatus(type, TRIGGER_STATUS_PROBLEM);
+	TriggerStatusType status;
+	if (type == COLLECT_OK)
+		status = TRIGGER_STATUS_OK;
+	else
+		status = TRIGGER_STATUS_PROBLEM;
+	m_impl->utils.updateTriggerStatus(type, status);
 }
 
 gpointer ArmBase::mainThread(HatoholThreadArg *arg)
