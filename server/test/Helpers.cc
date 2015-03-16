@@ -487,7 +487,7 @@ string makeEventOutput(const EventInfo &eventInfo)
 	string output =
 	  mlpl::StringUtils::sprintf(
 	    "%" FMT_SERVER_ID "|%" FMT_EVENT_ID "|%ld|%ld|%d|%" FMT_TRIGGER_ID
-	    "|%d|%u|%" FMT_HOST_ID "|%" FMT_LOCAL_HOST_ID "|%s|%s\n",
+	    "|%d|%u|%" FMT_HOST_ID "|%" FMT_LOCAL_HOST_ID "|%s|%s|%s\n",
 	    eventInfo.serverId, eventInfo.id.c_str(),
 	    eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
 	    eventInfo.type, eventInfo.triggerId.c_str(),
@@ -495,7 +495,8 @@ string makeEventOutput(const EventInfo &eventInfo)
 	    eventInfo.globalHostId,
 	    eventInfo.hostIdInServer.c_str(),
 	    eventInfo.hostName.c_str(),
-	    eventInfo.brief.c_str());
+	    eventInfo.brief.c_str(),
+	    eventInfo.extendedInfo.c_str());
 	return output;
 }
 

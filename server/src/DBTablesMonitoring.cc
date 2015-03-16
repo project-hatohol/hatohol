@@ -62,7 +62,7 @@ const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 //   * incidents.event_id -> VARCHAR
 //   * items.id           -> VARCHAR
 const int DBTablesMonitoring::MONITORING_DB_VERSION =
-  DBTables::Version::getPackedVer(0, 1, 0);
+  DBTables::Version::getPackedVer(0, 1, 1);
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -358,6 +358,15 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"extended_info",                   // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	32767,                             // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -375,6 +384,7 @@ enum {
 	IDX_EVENTS_HOST_ID_IN_SERVER,
 	IDX_EVENTS_HOST_NAME,
 	IDX_EVENTS_BRIEF,
+	IDX_EVENTS_EXTENDED_INFO,
 	NUM_IDX_EVENTS,
 };
 
@@ -1089,12 +1099,10 @@ string EventsQueryOption::getCondition(void) const
 	if (m_impl->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
 		if (!condition.empty())
 			condition += " AND ";
-		// Use triggers table because events tables doesn't contain
-		// collect severity.
+		// Use events table because events tables contains severity.
 		condition += StringUtils::sprintf(
-			"%s.%s>=%d",
-			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
-			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName,
+			"%s>=%d",
+			COLUMN_DEF_EVENTS[IDX_EVENTS_SEVERITY].columnName,
 			m_impl->minSeverity);
 	}
 
@@ -1767,14 +1775,14 @@ void DBTablesMonitoring::updateTrigger(const TriggerInfoList &triggerInfoList,
 		updateTriggerList.push_back(newTriggerInfo);
 	}
 
-	
+
 	TriggerIdInfoMapIterator invalidTriggerItr = triggerMap.begin();
 	for (; invalidTriggerItr != triggerMap.end(); ++invalidTriggerItr) {
 		TriggerInfo *invalidTrigger = invalidTriggerItr->second;
 		invalidTrigger->validity = TRIGGER_INVALID;
 		updateTriggerList.push_back(*invalidTrigger);
 	}
-	
+
 	addTriggerInfoList(updateTriggerList);
 }
 
@@ -1834,14 +1842,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	builder.add(IDX_EVENTS_HOST_ID_IN_SERVER);
 	builder.add(IDX_EVENTS_HOST_NAME);
 	builder.add(IDX_EVENTS_BRIEF);
-
-	// TODO: CONSIDER:  Should we also have extended_info in the event
-	// table ? Then we can delte the following complicated join.
-	builder.addTable(
-	  tableProfileTriggers, DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileEvents, IDX_EVENTS_SERVER_ID, IDX_TRIGGERS_SERVER_ID,
-	  tableProfileEvents, IDX_EVENTS_TRIGGER_ID, IDX_TRIGGERS_ID);
-	builder.add(IDX_TRIGGERS_EXTENDED_INFO);
+	builder.add(IDX_EVENTS_EXTENDED_INFO);
 
 	if (incidentInfoVect) {
 		builder.addTable(
@@ -2093,7 +2094,7 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
 	  tableProfileItems, IDX_ITEMS_HOST_ID_IN_SERVER,
 	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
-	
+
 	DBAgent::SelectExArg &arg = builder.build();
 	arg.useDistinct = option.isHostgroupUsed();
 	arg.useFullName = option.isHostgroupUsed();
@@ -2635,6 +2636,7 @@ void DBTablesMonitoring::addEventInfoWithoutTransaction(
 	arg.add(eventInfo.hostIdInServer);
 	arg.add(eventInfo.hostName);
 	arg.add(eventInfo.brief);
+	arg.add(eventInfo.extendedInfo);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 	eventInfo.unifiedId = dbAgent.getLastInsertId();
@@ -2696,7 +2698,8 @@ void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
 static bool updateDB(
   DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
 {
-	const int &oldVer = oldPackedVer.minorVer;
+	const int &oldVer = oldPackedVer.getPackedVer();
+
 	if (oldVer == 4) {
 		const string oldTableName = "issues";
 		if (dbAgent.isTableExisting(oldTableName)) {
@@ -2756,6 +2759,13 @@ static bool updateDB(
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileTriggers);
 		addColumnsArg.columnIndexes.push_back(IDX_TRIGGERS_VALIDITY);
 		dbAgent.addColumns(addColumnsArg);
+	}
+	if (oldVer <= DBTables::Version::getPackedVer(0, 1, 1)) {
+		// add a new column "extended_info" to events
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileEvents);
+		addColumnsArg.columnIndexes.push_back(IDX_EVENTS_EXTENDED_INFO);
+		dbAgent.addColumns(addColumnsArg);
+		return true;
 	}
 	return true;
 }
