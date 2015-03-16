@@ -1800,14 +1800,14 @@ void DBTablesMonitoring::updateTrigger(const TriggerInfoList &triggerInfoList,
 		updateTriggerList.push_back(newTriggerInfo);
 	}
 
-	
+
 	TriggerIdInfoMapIterator invalidTriggerItr = triggerMap.begin();
 	for (; invalidTriggerItr != triggerMap.end(); ++invalidTriggerItr) {
 		TriggerInfo *invalidTrigger = invalidTriggerItr->second;
 		invalidTrigger->validity = TRIGGER_INVALID;
 		updateTriggerList.push_back(*invalidTrigger);
 	}
-	
+
 	addTriggerInfoList(updateTriggerList);
 }
 
@@ -2126,7 +2126,7 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
 	  tableProfileItems, IDX_ITEMS_HOST_ID_IN_SERVER,
 	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
-	
+
 	DBAgent::SelectExArg &arg = builder.build();
 	arg.useDistinct = option.isHostgroupUsed();
 	arg.useFullName = option.isHostgroupUsed();
