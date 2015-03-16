@@ -585,7 +585,7 @@ void test_hostgroupsQueryOptionCallGetConditionFromUserWithoutAllServers(void)
 	HostgroupsQueryOption option(userId);
 	option.setFilterForDataOfDefunctServers(false);
 	const string actual = option.getCondition();
-	const string expect = "(server_id=1 AND host_group_id IN ('0','1'))";
+	const string expect = "(server_id=1 AND id_in_server IN ('0','1'))";
 	cppcut_assert_equal(expect, actual);
 }
 
