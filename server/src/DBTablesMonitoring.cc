@@ -1869,14 +1869,6 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	builder.add(IDX_EVENTS_BRIEF);
 	builder.add(IDX_EVENTS_EXTENDED_INFO);
 
-	// TODO: CONSIDER:  Should we also have extended_info in the event
-	// table ? Then we can delte the following complicated join.
-	builder.addTable(
-	  tableProfileTriggers, DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileEvents, IDX_EVENTS_SERVER_ID, IDX_TRIGGERS_SERVER_ID,
-	  tableProfileEvents, IDX_EVENTS_TRIGGER_ID, IDX_TRIGGERS_ID);
-	builder.add(IDX_TRIGGERS_EXTENDED_INFO);
-
 	if (incidentInfoVect) {
 		builder.addTable(
 		  tableProfileIncidents, DBClientJoinBuilder::LEFT_JOIN,
