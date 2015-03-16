@@ -1099,12 +1099,10 @@ string EventsQueryOption::getCondition(void) const
 	if (m_impl->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
 		if (!condition.empty())
 			condition += " AND ";
-		// Use triggers table because events tables doesn't contain
-		// collect severity.
+		// Use events table because events tables contains severity.
 		condition += StringUtils::sprintf(
-			"%s.%s>=%d",
-			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
-			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName,
+			"%s>=%d",
+			COLUMN_DEF_EVENTS[IDX_EVENTS_SEVERITY].columnName,
 			m_impl->minSeverity);
 	}
 
