@@ -66,6 +66,8 @@ protected:
 	std::string  getHistoryQueryOption(const mlpl::SmartTime &lastTime);
 	HatoholError parseReplyGetAlarmHistory(SoupMessage *msg,
 	                                       AlarmTimeMap &alarmTimeMap);
+	HatoholError parseReplyGetAlarmLastHistory(SoupMessage *msg,
+						   AlarmTimeMap &alarmTimeMap);
 	HatoholError parseReplyGetAlarmHistoryElement(
 	  JSONParser &parser, AlarmTimeMap &alarmTimeMap,
 	  const unsigned int &index);
