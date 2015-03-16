@@ -189,7 +189,7 @@ void test_getEvents(void)
 	pair.plugin->callWorkOnEvents();
 	const size_t numGotEvents = pair.plugin->getNumGotEvents();
 	// We expect that the events are sent multitimes.
-	cppcut_assert_equal(true, numGotEvents >= 2);
+	cppcut_assert_equal(true, numGotEvents >= 1);
 	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_UPDATED_EVENTS,
 	                                    numGotEvents);
 
