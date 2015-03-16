@@ -17,9 +17,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include <ZabbixAPI.h>
 #include "HatoholDBUtils.h"
 #include "DBTablesMonitoring.h"
-#include <ZabbixAPI.h>
+#include "ThreadLocalDBCache.h"
 
 using namespace std;
 using namespace mlpl;

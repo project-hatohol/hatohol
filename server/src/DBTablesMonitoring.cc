@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -1854,16 +1854,12 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	builder.add(IDX_EVENTS_HOST_NAME);
 	builder.add(IDX_EVENTS_BRIEF);
 
+	// TODO: CONSIDER:  Should we also have extended_info in the event
+	// table ? Then we can delte the following complicated join.
 	builder.addTable(
 	  tableProfileTriggers, DBClientJoinBuilder::LEFT_JOIN,
 	  tableProfileEvents, IDX_EVENTS_SERVER_ID, IDX_TRIGGERS_SERVER_ID,
 	  tableProfileEvents, IDX_EVENTS_TRIGGER_ID, IDX_TRIGGERS_ID);
-	builder.add(IDX_TRIGGERS_STATUS);
-	builder.add(IDX_TRIGGERS_SEVERITY);
-	builder.add(IDX_TRIGGERS_GLOBAL_HOST_ID);
-	builder.add(IDX_TRIGGERS_HOST_ID_IN_SERVER);
-	builder.add(IDX_TRIGGERS_HOSTNAME);
-	builder.add(IDX_TRIGGERS_BRIEF);
 	builder.add(IDX_TRIGGERS_EXTENDED_INFO);
 
 	if (incidentInfoVect) {
@@ -1921,63 +1917,17 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		itemGroupStream >> eventInfo.time.tv_nsec;
 		itemGroupStream >> eventInfo.type;
 		itemGroupStream >> eventInfo.triggerId;
+		itemGroupStream >> eventInfo.status;
+		itemGroupStream >> eventInfo.severity;
+		itemGroupStream >> eventInfo.globalHostId;
+		itemGroupStream >> eventInfo.hostIdInServer;
+		itemGroupStream >> eventInfo.hostName;
+		itemGroupStream >> eventInfo.brief;
 
-		TriggerStatusType   eventStatus;
-		TriggerSeverityType eventSeverity;
-		HostIdType          eventGlobalHostId;
-		LocalHostIdType     eventHostIdInServer;
-		string              eventHostName;
-		string              eventBrief;
-		itemGroupStream >> eventStatus;
-		itemGroupStream >> eventSeverity;
-		itemGroupStream >> eventGlobalHostId;
-		itemGroupStream >> eventHostIdInServer;
-		itemGroupStream >> eventHostName;
-		itemGroupStream >> eventBrief;
-
-		TriggerStatusType   triggerStatus;
-		TriggerSeverityType triggerSeverity;
-		HostIdType          triggerGlobalHostId;
-		LocalHostIdType     triggerHostIdInServer;
-		string              triggerHostName;
-		string              triggerBrief;
-		string              triggerExtendedInfo;
-		itemGroupStream >> triggerStatus;
-		itemGroupStream >> triggerSeverity;
-		itemGroupStream >> triggerGlobalHostId;
-		itemGroupStream >> triggerHostIdInServer;
-		itemGroupStream >> triggerHostName;
-		itemGroupStream >> triggerBrief;
+		string triggerExtendedInfo;
 		itemGroupStream >> triggerExtendedInfo;
-
-		if (eventStatus != TRIGGER_STATUS_UNKNOWN) {
-			eventInfo.status = eventStatus;
-		} else {
-			eventInfo.status = triggerStatus;
-		}
-		if (eventSeverity != TRIGGER_SEVERITY_UNKNOWN) {
-			eventInfo.severity = eventSeverity;
-		} else {
-			eventInfo.severity = triggerSeverity;
-		}
-
-		if (eventGlobalHostId != INVALID_HOST_ID) {
-			eventInfo.globalHostId   = eventGlobalHostId;
-			eventInfo.hostIdInServer = eventHostIdInServer;
-			eventInfo.hostName = eventHostName;
-		} else {
-			eventInfo.globalHostId   = triggerGlobalHostId;
-			eventInfo.hostIdInServer = triggerHostIdInServer;
-			eventInfo.hostName = triggerHostName;
-		}
-		if (!eventBrief.empty()) {
-			eventInfo.brief = eventBrief;
-		} else {
-			eventInfo.brief = triggerBrief;
-		}
-		if (!triggerExtendedInfo.empty()) {
+		if (!triggerExtendedInfo.empty())
 			eventInfo.extendedInfo = triggerExtendedInfo;
-		}
 
 		if (incidentInfoVect) {
 			incidentInfoVect->push_back(IncidentInfo());
@@ -2688,6 +2638,8 @@ void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
 void DBTablesMonitoring::addEventInfoWithoutTransaction(
   DBAgent &dbAgent, EventInfo &eventInfo)
 {
+	mergeTriggerInfo(dbAgent, eventInfo);
+
 	DBAgent::InsertArg arg(tableProfileEvents);
 	arg.add(AUTO_INCREMENT_VALUE_U64);
 	arg.add(eventInfo.serverId);
@@ -2824,5 +2776,69 @@ static bool updateDB(
 		addColumnsArg.columnIndexes.push_back(IDX_TRIGGERS_VALIDITY);
 		dbAgent.addColumns(addColumnsArg);
 	}
+	return true;
+}
+
+template <typename T>
+static void substIfNeeded(T &lhs, const T &rhs, const T &initialValue)
+{
+	if (lhs == initialValue)
+		lhs = rhs;
+}
+
+bool DBTablesMonitoring::mergeTriggerInfo(
+  DBAgent &dbAgent, EventInfo &eventInfo)
+{
+	struct {
+		void operator()(string &lhs, const string &rhs)
+		{
+			substIfNeeded<string>(lhs, rhs, "");
+		}
+
+		void operator()(HostIdType &lhs, const HostIdType &rhs)
+		{
+			substIfNeeded<HostIdType>(lhs, rhs, INVALID_HOST_ID);
+		}
+
+		void operator()(
+		  TriggerSeverityType &lhs, const TriggerSeverityType &rhs)
+		{
+			substIfNeeded<TriggerSeverityType>(
+			  lhs, rhs, TRIGGER_SEVERITY_UNKNOWN);
+		}
+	} setIfNeeded;
+
+	// Get the corresponding trigger
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(eventInfo.serverId);
+	option.setTargetId(eventInfo.triggerId);
+	DBAgent::SelectExArg arg(tableProfileTriggers);
+	arg.add(IDX_TRIGGERS_SEVERITY);
+	arg.add(IDX_TRIGGERS_GLOBAL_HOST_ID);
+	arg.add(IDX_TRIGGERS_HOST_ID_IN_SERVER);
+	arg.add(IDX_TRIGGERS_HOSTNAME);
+	arg.add(IDX_TRIGGERS_BRIEF);
+	arg.add(IDX_TRIGGERS_EXTENDED_INFO);
+	arg.condition = option.getCondition();
+	dbAgent.select(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	if (grpList.empty())
+		return false;
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	TriggerInfo trigInfo;
+	itemGroupStream >> trigInfo.severity;
+	itemGroupStream >> trigInfo.globalHostId;
+	itemGroupStream >> trigInfo.hostIdInServer;
+	itemGroupStream >> trigInfo.hostName;
+	itemGroupStream >> trigInfo.brief;
+	itemGroupStream >> trigInfo.extendedInfo;
+
+	setIfNeeded(eventInfo.severity,       trigInfo.severity);
+	setIfNeeded(eventInfo.globalHostId,   trigInfo.globalHostId);
+	setIfNeeded(eventInfo.hostIdInServer, trigInfo.hostIdInServer);
+	setIfNeeded(eventInfo.hostName,       trigInfo.hostName);
+	setIfNeeded(eventInfo.brief,          trigInfo.brief);
+	setIfNeeded(eventInfo.extendedInfo,   trigInfo.extendedInfo);
 	return true;
 }

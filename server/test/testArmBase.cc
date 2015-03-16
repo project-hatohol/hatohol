@@ -617,7 +617,7 @@ void test_setServerConnectStatus(void)
 	eventInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
 	eventInfo.globalHostId = 1;
 	eventInfo.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
-	//eventInfo.hostName = "_SELF";
+	eventInfo.hostName = "_SELF";
 	eventInfo.brief = HatoholError(HTERR_INTERNAL_ERROR).getMessage();
 	cppcut_assert_equal(makeEventOutput(eventInfo),
 			    makeEventOutput(*events.begin()));
