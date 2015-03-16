@@ -1511,29 +1511,6 @@ void ItemsQueryOption::setExcludeFlags(const ExcludeFlags &flg)
 }
 
 //
-// HostgroupsQueryOption
-//
-static const HostResourceQueryOption::Synapse synapseHostgroupsQueryOption(
-  tableProfileHostgroups,
-  IDX_HOSTGROUPS_GROUP_ID, IDX_HOSTGROUPS_SERVER_ID,
-  tableProfileHostgroups,
-  INVALID_COLUMN_IDX,
-  false,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
-
-HostgroupsQueryOption::HostgroupsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseHostgroupsQueryOption, userId)
-{
-}
-
-HostgroupsQueryOption::HostgroupsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseHostgroupsQueryOption, dataQueryContext)
-{
-}
-
-//
 // IncidentsQueryOption
 //
 IncidentsQueryOption::IncidentsQueryOption(const UserIdType &userId)

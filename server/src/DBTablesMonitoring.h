@@ -109,16 +109,6 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-class HostgroupsQueryOption : public HostResourceQueryOption {
-public:
-	HostgroupsQueryOption(const UserIdType &userId = INVALID_USER_ID);
-	HostgroupsQueryOption(DataQueryContext *dataQueryContext);
-};
-
-// TODO: Remove this typedef ater the transition to the new host namagement
-//       is done.
-typedef HostgroupMembersQueryOption HostgroupElementQueryOption;
-
 class IncidentsQueryOption : public DataQueryOption {
 public:
 	IncidentsQueryOption(const UserIdType &userId = INVALID_USER_ID);
