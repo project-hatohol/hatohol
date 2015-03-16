@@ -77,7 +77,7 @@ void _assertPrimaryTableName(const HostResourceQueryOption &option)
 	else if (typeinfo == typeid(HostsQueryOption))
 		expectedTableName = DBTablesMonitoring::TABLE_NAME_HOSTS;
 	else if (typeinfo == typeid(HostgroupsQueryOption))
-		expectedTableName = DBTablesMonitoring::TABLE_NAME_HOSTGROUPS;
+		expectedTableName = "hostgroup_list";
 	else if (typeinfo == typeid(HostgroupMembersQueryOption))
 		expectedTableName = "hostgroup_member";
 	else
