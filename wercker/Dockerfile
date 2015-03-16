@@ -26,4 +26,4 @@ RUN cd ~/hatohol && make -j `cat /proc/cpuinfo | grep processor | wc -l`
 RUN cd ~/hatohol && make dist -j `cat /proc/cpuinfo | grep processor | wc -l`
 # rpm build
 RUN yum install -y rpm-build
-RUN  cd ~/hatohol && rpmbuild -bb hatohol.spec
+RUN cd ~/hatohol && MAKEFLAGS="-j `cat /proc/cpuinfo | grep processor | wc -l`" rpmbuild -tb hatohol-*.tar.bz2
