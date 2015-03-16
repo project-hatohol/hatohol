@@ -282,8 +282,11 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 		assertValueInParser(parser, "hostId",    eventInfo.hostIdInServer);
 		assertValueInParser(parser, "brief",     eventInfo.brief);
 		if (!eventInfo.extendedInfo.empty()) {
+			string parsedExtendedInfo = "";
+			RestResourceHost::parseExtendedInfo(eventInfo.extendedInfo,
+							    parsedExtendedInfo);
 			assertValueInParser(parser, "expandedDescription",
-			                    eventInfo.extendedInfo);
+			                    parsedExtendedInfo);
 		}
 		if (shouldHaveIncident) {
 			assertStartObject(parser, "incident");
