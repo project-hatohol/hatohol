@@ -358,6 +358,15 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"extended_info",                   // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	32767,                             // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -375,6 +384,7 @@ enum {
 	IDX_EVENTS_HOST_ID_IN_SERVER,
 	IDX_EVENTS_HOST_NAME,
 	IDX_EVENTS_BRIEF,
+	IDX_EVENTS_EXTENDED_INFO,
 	NUM_IDX_EVENTS,
 };
 
