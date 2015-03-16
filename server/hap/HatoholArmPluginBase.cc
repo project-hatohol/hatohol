@@ -332,6 +332,43 @@ bool HatoholArmPluginBase::wasHostsInServerDBChanged(void)
 	return cb->status;
 }
 
+bool HatoholArmPluginBase::shouldLoadOldEvent(void)
+{
+	struct Callback : public SyncCommand {
+		bool status;
+
+		Callback(HatoholArmPluginBase *obj)
+		: SyncCommand(obj)
+		{
+		}
+
+		virtual void onGotReply(
+		  mlpl::SmartBuffer &replyBuf,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			SemaphorePoster poster(this);
+			const HapiResShouldLoadOldEvent *body =
+			  getObject()->getResponseBody
+			    <HapiResShouldLoadOldEvent>(replyBuf);
+			status = (bool)LtoN(body->type);
+			setSucceeded();
+		}
+
+	} *cb = new Callback(this);
+	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
+
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(
+	  cmdBuf, HAPI_CMD_GET_SHOULD_LOAD_OLD_EVENT);
+	send(cmdBuf, cb);
+	cb->wait();
+	if (!cb->getSucceeded()) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call HAPI_CMD_GET_LOAD_OLD_EVENT\n");
+	}
+	return cb->status;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

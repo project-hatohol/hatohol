@@ -97,6 +97,7 @@ enum HapiCommandCode {
 	// Cl -> Sv
 	HAPI_CMD_SEND_ALL_TRIGGERS,
 	HAPI_CMD_GET_IF_HOSTS_CHANGED,
+	HAPI_CMD_GET_SHOULD_LOAD_OLD_EVENT,
 
 	// Sv -> Cl
 	NUM_HAPI_CMD
@@ -278,6 +279,10 @@ struct HapiParamReqFetchHistory {
 } __attribute__((__packed__));
 
 struct HapiTriggerCollect {
+	uint64_t type;
+} __attribute__((__packed__));
+
+struct HapiResShouldLoadOldEvent {
 	uint64_t type;
 } __attribute__((__packed__));
 

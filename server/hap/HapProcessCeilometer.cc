@@ -617,7 +617,13 @@ HatoholError HapProcessCeilometer::getAlarmHistory(const unsigned int &index)
 	SoupMessage *msg = arg.msgPtr.get();
 
 	AlarmTimeMap alarmTimeMap;
-	err = parseReplyGetAlarmHistory(msg, alarmTimeMap);
+	const timespec &ts = lastTime.getAsTimespec();
+	if (ts.tv_sec == 0 && ts.tv_nsec == 0 &&
+	    !shouldLoadOldEvent()) {
+		err = parseReplyGetAlarmLastHistory(msg, alarmTimeMap);
+	} else {
+		err = parseReplyGetAlarmHistory(msg, alarmTimeMap);
+	}
 	if (err != HTERR_OK) {
 		MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
 		         msg->response_body->length, msg->response_body->data);
@@ -639,6 +645,20 @@ HatoholError HapProcessCeilometer::getAlarmHistory(const unsigned int &index)
 	sendTable(HAPI_CMD_SEND_UPDATED_EVENTS,
 	          static_cast<ItemTablePtr>(eventTablePtr));
 	return HTERR_OK;
+}
+
+HatoholError HapProcessCeilometer::parseReplyGetAlarmLastHistory(
+  SoupMessage *msg, AlarmTimeMap &alarmTimeMap)
+{
+	JSONParser parser(msg->response_body->data);
+	if (parser.hasError()) {
+		MLPL_ERR("Failed to parser %s\n", parser.getErrorMessage());
+		return HTERR_FAILED_TO_PARSE_JSON_DATA;
+	}
+
+	HatoholError err(HTERR_OK);
+	err = parseReplyGetAlarmHistoryElement(parser, alarmTimeMap, 0);
+	return err;
 }
 
 HatoholError HapProcessCeilometer::parseReplyGetAlarmHistory(

@@ -179,6 +179,11 @@ void test_getHostgroups(void)
 
 void test_getEvents(void)
 {
+	CommandArgHelper commandArgs;
+	commandArgs << "--test-mode";
+	commandArgs << "--load-old-events";
+	commandArgs.activate();
+	
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	arg.serverIpAddr = "127.0.0.1";
 	arg.serverPort   = EMULATOR_PORT;
@@ -194,6 +199,23 @@ void test_getEvents(void)
 	                                    numGotEvents);
 
 	// TODO: check the DB content
+}
+
+void test_getOneEvents(void)
+{
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	arg.serverIpAddr = "127.0.0.1";
+	arg.serverPort   = EMULATOR_PORT;
+	HatoholArmPluginTestPair<HapProcessZabbixAPITest> pair(arg);
+
+	pair.plugin->assertWaitReady();
+	pair.plugin->callUpdateAuthTokenIfNeeded();
+	pair.plugin->callWorkOnEvents();
+	const size_t numGotEvents = pair.plugin->getNumGotEvents();
+	// We expect that the events are sent multitimes.
+	cppcut_assert_equal(true, numGotEvents >= 1);
+	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_UPDATED_EVENTS,
+	                                    numGotEvents);
 }
 
 } // namespace testHapProcessZabbixAPI

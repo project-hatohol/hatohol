@@ -121,10 +121,14 @@ void HapProcessZabbixAPI::workOnEvents(void)
 	const EventIdType lastEventIdOfHatohol =
 	  HatoholArmPluginBase::getLastEventId();
 	uint64_t eventIdOffset = 0;
-	if (lastEventIdOfHatohol != EVENT_NOT_FOUND)
+	if (lastEventIdOfHatohol != EVENT_NOT_FOUND) {
 		eventIdOffset = Utils::sum(lastEventIdOfHatohol, 1);
+	} else {
+		if (!shouldLoadOldEvent())
+			eventIdOffset = lastEventIdOfZbxSv;
+	}
 
-	while (eventIdOffset < lastEventIdOfZbxSv) {
+	while (eventIdOffset <= lastEventIdOfZbxSv) {
 		const uint64_t eventIdTill =
 		  eventIdOffset + NUMBER_OF_GET_EVENT_PER_ONCE;
 		ItemTablePtr eventsTablePtr =
