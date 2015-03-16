@@ -124,7 +124,6 @@ public:
 	static const char *TABLE_NAME_TRIGGERS;
 	static const char *TABLE_NAME_EVENTS;
 	static const char *TABLE_NAME_ITEMS;
-	static const char *TABLE_NAME_HOSTS;
 	static const char *TABLE_NAME_SERVER_STATUS;
 	static const char *TABLE_NAME_INCIDENTS;
 
@@ -231,9 +230,6 @@ public:
 	HatoholError getNumberOfMonitoredItemsPerSecond(
 	  const DataQueryOption &option,
 	  MonitoringServerStatus &serverStatus);
-
-	void pickupAbsentHostIds(std::vector<uint64_t> &absentHostIdVector,
-	                         const std::vector<uint64_t> &hostIdVector);
 
 	void addIncidentInfo(IncidentInfo *incidentInfo);
 	HatoholError getIncidentInfoVect(IncidentInfoVect &incidentInfoVect,
