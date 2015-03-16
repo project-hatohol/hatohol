@@ -332,7 +332,7 @@ bool HatoholArmPluginBase::wasHostsInServerDBChanged(void)
 	return cb->status;
 }
 
-bool HatoholArmPluginBase::wasLoadOldEvent(void)
+bool HatoholArmPluginBase::shouldLoadOldEvent(void)
 {
 	struct Callback : public SyncCommand {
 		bool status;

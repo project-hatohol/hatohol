@@ -66,7 +66,7 @@ public:
 
 	bool wasHostsInServerDBChanged(void);
 
-	bool wasLoadOldEvent(void);
+	bool shouldLoadOldEvent(void);
 
 protected:
 	static const size_t WAIT_INFINITE;

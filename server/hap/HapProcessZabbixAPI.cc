@@ -124,7 +124,7 @@ void HapProcessZabbixAPI::workOnEvents(void)
 	if (lastEventIdOfHatohol != EVENT_NOT_FOUND) {
 		eventIdOffset = Utils::sum(lastEventIdOfHatohol, 1);
 	} else {
-		if (!wasLoadOldEvent())
+		if (!shouldLoadOldEvent())
 			eventIdOffset = lastEventIdOfZbxSv;
 	}
 

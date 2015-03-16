@@ -619,7 +619,7 @@ HatoholError HapProcessCeilometer::getAlarmHistory(const unsigned int &index)
 	AlarmTimeMap alarmTimeMap;
 	const timespec &ts = lastTime.getAsTimespec();
 	if (ts.tv_sec == 0 && ts.tv_nsec == 0 &&
-	    !wasLoadOldEvent()) {
+	    !shouldLoadOldEvent()) {
 		err = parseReplyGetAlarmLastHistory(msg, alarmTimeMap);
 	} else {
 		err = parseReplyGetAlarmHistory(msg, alarmTimeMap);
