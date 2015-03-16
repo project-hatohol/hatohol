@@ -359,7 +359,7 @@ bool HatoholArmPluginBase::shouldLoadOldEvent(void)
 
 	SmartBuffer cmdBuf;
 	setupCommandHeader<void>(
-	  cmdBuf, HAPI_CMD_GET_IF_LOAD_OLD_EVENT);
+	  cmdBuf, HAPI_CMD_GET_SHOULD_LOAD_OLD_EVENT);
 	send(cmdBuf, cb);
 	cb->wait();
 	if (!cb->getSucceeded()) {

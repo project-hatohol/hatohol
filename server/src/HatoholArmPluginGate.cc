@@ -172,7 +172,7 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	    &HatoholArmPluginGate::cmdHandlerGetTimeOfLastEvent);
 
 	registerCommandHandler(
-	  HAPI_CMD_GET_IF_LOAD_OLD_EVENT,
+	  HAPI_CMD_GET_SHOULD_LOAD_OLD_EVENT,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerShouldLoadOldEvent);
 
