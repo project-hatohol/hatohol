@@ -108,18 +108,6 @@ struct HapProcessCeilometer::Impl {
 		novaEP.clear();
 		tokenExpires = SmartTime();
 	}
-
-	bool getQueryParamInfo(const ItemIdType &itemId, 
-	  std::string &instanceId, std::string &targetItem)
-	{
-		StringVector list;
-		StringUtils::split(list, itemId, '/');
-		if (list.size() != 2)
-			return false;
-		instanceId = list[0];
-		targetItem = list[1];
-		return true;
-	}
 };
 
 // ---------------------------------------------------------------------------
@@ -956,8 +944,11 @@ HatoholError HapProcessCeilometer::fetchHistory(const MessagingContext &msgCtx,
 	const char *itemId = HatoholArmPluginInterface::getString(
 	                       cmdBuf, params,
 	                       params->itemIdOffset, params->itemIdLength);
+	const char *hostId = HatoholArmPluginInterface::getString(
+	                       cmdBuf, params,
+	                       params->hostIdOffset, params->hostIdLength);
 	ItemTablePtr items =
-		getHistory(itemId,
+		getHistory(itemId, hostId,
 		     static_cast<time_t>(LtoN(params->beginTime)),
 		     static_cast<time_t>(LtoN(params->endTime)));
 
@@ -1066,14 +1057,12 @@ HatoholError HapProcessCeilometer::getResource(
 }
 
 ItemTablePtr HapProcessCeilometer::getHistory(
-  const ItemIdType &itemId, const time_t &beginTime, const time_t &endTime)
+  const ItemIdType &itemId, const LocalHostIdType &hostId,
+  const time_t &beginTime, const time_t &endTime)
 {
 	VariableItemTablePtr tablePtr;
 	const timespec beginTimeSpec = {beginTime, 0};
 	const timespec endTimeSpec   = {endTime, 0};
-	string targetItem, instanceId;
-	if (!m_impl->getQueryParamInfo(itemId, instanceId, targetItem))
-		return ItemTablePtr(tablePtr);
 
 	string url = StringUtils::sprintf(
 			"%s/v2/meters/%s"
@@ -1081,8 +1070,8 @@ ItemTablePtr HapProcessCeilometer::getHistory(
 			"&q.op=eq&q.op=gt&q.op=lt"
 			"&q.value=%s&q.value=%s&q.value=%s",
 			m_impl->ceilometerEP.publicURL.c_str(),
-			targetItem.c_str(),
-			instanceId.c_str(),
+			itemId.c_str(),
+			hostId.c_str(),
 			getHistoryTimeString(beginTimeSpec).c_str(),
 			getHistoryTimeString(endTimeSpec).c_str());
 	HttpRequestArg arg(SOUP_METHOD_GET, url);

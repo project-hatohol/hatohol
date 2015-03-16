@@ -106,8 +106,8 @@ protected:
 	  const std::string &instanceId);
 	std::string getHistoryTimeString(const timespec &timeSpec);
 	ItemTablePtr getHistory(
-	  const ItemIdType &itemId, const time_t &beginTime,
-	  const time_t &endTime);
+	  const ItemIdType &itemId, const LocalHostIdType &hostId,
+	  const time_t &beginTime, const time_t &endTime);
 
 private:
 	struct Impl;
