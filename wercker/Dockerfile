@@ -23,6 +23,7 @@ RUN git clone https://github.com/project-hatohol/hatohol.git ~/hatohol
 RUN cd ~/hatohol && libtoolize && autoreconf -i
 RUN cd ~/hatohol && ./configure
 RUN cd ~/hatohol && make -j `cat /proc/cpuinfo | grep processor | wc -l`
+RUN cd ~/hatohol && make dist -j `cat /proc/cpuinfo | grep processor | wc -l`
 # rpm build
 RUN yum install -y rpm-build
 RUN  cd ~/hatohol && rpmbuild -bb hatohol.spec
