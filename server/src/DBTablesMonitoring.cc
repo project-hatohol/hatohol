@@ -1867,6 +1867,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	builder.add(IDX_EVENTS_HOST_ID_IN_SERVER);
 	builder.add(IDX_EVENTS_HOST_NAME);
 	builder.add(IDX_EVENTS_BRIEF);
+	builder.add(IDX_EVENTS_EXTENDED_INFO);
 
 	// TODO: CONSIDER:  Should we also have extended_info in the event
 	// table ? Then we can delte the following complicated join.
@@ -2668,6 +2669,7 @@ void DBTablesMonitoring::addEventInfoWithoutTransaction(
 	arg.add(eventInfo.hostIdInServer);
 	arg.add(eventInfo.hostName);
 	arg.add(eventInfo.brief);
+	arg.add(eventInfo.extendedInfo);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 	eventInfo.unifiedId = dbAgent.getLastInsertId();
