@@ -282,7 +282,7 @@ struct HapiTriggerCollect {
 	uint64_t type;
 } __attribute__((__packed__));
 
-struct HapiLoadOldEvent {
+struct HapiResShouldLoadOldEvent {
 	uint64_t type;
 } __attribute__((__packed__));
 

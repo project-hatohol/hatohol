@@ -347,9 +347,9 @@ bool HatoholArmPluginBase::shouldLoadOldEvent(void)
 		  const HapiCommandHeader &cmdHeader) override
 		{
 			SemaphorePoster poster(this);
-			const HapiLoadOldEvent *body =
+			const HapiResShouldLoadOldEvent *body =
 			  getObject()->getResponseBody
-			    <HapiLoadOldEvent>(replyBuf);
+			    <HapiResShouldLoadOldEvent>(replyBuf);
 			status = (bool)LtoN(body->type);
 			setSucceeded();
 		}

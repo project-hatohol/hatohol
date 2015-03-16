@@ -853,8 +853,8 @@ void HatoholArmPluginGate::cmdHandlerShouldLoadOldEvent(
   const HapiCommandHeader *header)
 {
 	SmartBuffer resBuf;
-	HapiLoadOldEvent *body =
-	  setupResponseBuffer<HapiLoadOldEvent>(resBuf);
+	HapiResShouldLoadOldEvent *body =
+	  setupResponseBuffer<HapiResShouldLoadOldEvent>(resBuf);
 	bool type;
 	type = ConfigManager::getInstance()->getLoadOldEvents();
 	body->type = NtoL(type);
