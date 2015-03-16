@@ -10,15 +10,20 @@ RUN echo "NETWORKING=yes" > /etc/sysconfig/network
 RUN rpm -ivh --force http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 RUN yum install -y librabbitmq-devel wget
 RUN wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol.repo
-RUN yum install -y json-glib-devel qpid-cpp-server-devel
 # setup qpid
+RUN yum install -y json-glib-devel qpid-cpp-server-devel
+# setup build environment
 RUN yum groupinstall -y 'Development tools'
 RUN yum install -y Django
 RUN rpm -Uvh http://sourceforge.net/projects/cutter/files/centos/cutter-release-1.1.0-0.noarch.rpm
-RUN yum install -y cutter
+RUN yum install -y cutter tar
 # git clone
 RUN git clone https://github.com/project-hatohol/hatohol.git ~/hatohol
 # build
 RUN cd ~/hatohol && libtoolize && autoreconf -i
 RUN cd ~/hatohol && ./configure
 RUN cd ~/hatohol && make -j `cat /proc/cpuinfo | grep processor | wc -l`
+RUN cd ~/hatohol && make dist -j `cat /proc/cpuinfo | grep processor | wc -l`
+# rpm build
+RUN yum install -y rpm-build
+RUN cd ~/hatohol && MAKEFLAGS="-j `cat /proc/cpuinfo | grep processor | wc -l`" rpmbuild -tb hatohol-*.tar.bz2
