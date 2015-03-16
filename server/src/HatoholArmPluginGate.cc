@@ -174,7 +174,7 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	registerCommandHandler(
 	  HAPI_CMD_GET_IF_LOAD_OLD_EVENT,
 	  (CommandHandler)
-	    &HatoholArmPluginGate::cmdHandlerLoadOldEvent);
+	    &HatoholArmPluginGate::cmdHandlerShouldLoadOldEvent);
 
 	registerCommandHandler(
 	  HAPI_CMD_GET_IF_HOSTS_CHANGED,
@@ -849,7 +849,7 @@ void HatoholArmPluginGate::cmdHandlerGetTimeOfLastEvent(
 	reply(resBuf);
 }
 
-void HatoholArmPluginGate::cmdHandlerLoadOldEvent(
+void HatoholArmPluginGate::cmdHandlerShouldLoadOldEvent(
   const HapiCommandHeader *header)
 {
 	SmartBuffer resBuf;
