@@ -40,6 +40,7 @@
 #include "HostInfoCache.h"
 #include "HatoholDBUtils.h"
 #include "UnifiedDataStore.h"
+#include "ConfigManager.h"
 
 using namespace std;
 using namespace mlpl;
@@ -169,6 +170,11 @@ HatoholArmPluginGate::HatoholArmPluginGate(
 	  HAPI_CMD_GET_TIME_OF_LAST_EVENT,
 	  (CommandHandler)
 	    &HatoholArmPluginGate::cmdHandlerGetTimeOfLastEvent);
+
+	registerCommandHandler(
+	  HAPI_CMD_GET_IF_LOAD_OLD_EVENT,
+	  (CommandHandler)
+	    &HatoholArmPluginGate::cmdHandlerLoadOldEvent);
 
 	registerCommandHandler(
 	  HAPI_CMD_GET_IF_HOSTS_CHANGED,
@@ -840,6 +846,18 @@ void HatoholArmPluginGate::cmdHandlerGetTimeOfLastEvent(
 	const timespec &ts = time.getAsTimespec();
 	body->sec = ts.tv_sec;
 	body->nsec = ts.tv_nsec;
+	reply(resBuf);
+}
+
+void HatoholArmPluginGate::cmdHandlerLoadOldEvent(
+  const HapiCommandHeader *header)
+{
+	SmartBuffer resBuf;
+	HapiLoadOldEvent *body =
+	  setupResponseBuffer<HapiLoadOldEvent>(resBuf);
+	bool type;
+	type = ConfigManager::getInstance()->getLoadOldEvents();
+	body->type = NtoL(type);
 	reply(resBuf);
 }
 
