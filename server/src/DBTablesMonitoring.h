@@ -126,7 +126,6 @@ public:
 	static const char *TABLE_NAME_ITEMS;
 	static const char *TABLE_NAME_HOSTS;
 	static const char *TABLE_NAME_HOSTGROUPS;
-	static const char *TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
 	static const char *TABLE_NAME_SERVER_STATUS;
 	static const char *TABLE_NAME_INCIDENTS;
 

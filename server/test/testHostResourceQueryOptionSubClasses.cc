@@ -79,7 +79,7 @@ void _assertPrimaryTableName(const HostResourceQueryOption &option)
 	else if (typeinfo == typeid(HostgroupsQueryOption))
 		expectedTableName = DBTablesMonitoring::TABLE_NAME_HOSTGROUPS;
 	else if (typeinfo == typeid(HostgroupMembersQueryOption))
-		expectedTableName = DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
+		expectedTableName = "hostgroup_member";
 	else
 		cut_fail("Unknown type name: %s\n", typeinfo.name());
 }

@@ -47,8 +47,6 @@ const char *DBTablesMonitoring::TABLE_NAME_EVENTS     = "events";
 const char *DBTablesMonitoring::TABLE_NAME_ITEMS      = "items";
 const char *DBTablesMonitoring::TABLE_NAME_HOSTS      = "hosts";
 const char *DBTablesMonitoring::TABLE_NAME_HOSTGROUPS = "hostgroups";
-const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
-                                                   = "map_hosts_hostgroups";
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
@@ -697,74 +695,6 @@ static const DBAgent::TableProfile tableProfileHostgroups =
 			    indexDefsHostgroups);
 
 // ----------------------------------------------------------------------------
-// Table: map_hosts_hostgroups
-// ----------------------------------------------------------------------------
-static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
-{
-	"id",                              // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_PRI,                       // keyType
-	SQL_COLUMN_FLAG_AUTO_INC,          // flags
-	NULL,                              // defaultValue
-}, {
-	"server_id",                       // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE, // indexDefsMapHostsHostgroups // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	"host_id",                         // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_IDX,                       // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	"host_group_id",                   // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_IDX,                       // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-},
-};
-
-enum {
-	IDX_MAP_HOSTS_HOSTGROUPS_ID,
-	IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID,
-	IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-	IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID,
-	NUM_IDX_MAP_HOSTS_HOSTGROUPS,
-};
-
-static const int columnIndexesMapHostsHostgroupsUniqId[] = {
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_ID,
-  DBAgent::IndexDef::END,
-};
-
-static const DBAgent::IndexDef indexDefsMapHostsHostgroups[] = {
-  {"MapHostsHostgroupsUniqId",
-   (const int *)columnIndexesMapHostsHostgroupsUniqId, true},
-  {NULL}
-};
-
-static const DBAgent::TableProfile tableProfileMapHostsHostgroups =
-  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
-			    COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
-			    NUM_IDX_MAP_HOSTS_HOSTGROUPS,
-			    indexDefsMapHostsHostgroups);
-
-// ----------------------------------------------------------------------------
 // Table: server_status
 // ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
@@ -1383,9 +1313,9 @@ static const HostResourceQueryOption::Synapse synapseItemsQueryOption(
   tableProfileItems, IDX_ITEMS_HOST_ID_IN_SERVER,
   true,
   tableProfileHostgroupMember,
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID,
-  IDX_ITEMS_GLOBAL_HOST_ID, IDX_HOSTGROUP_MEMBER_HOST_ID);
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID,
+  IDX_TRIGGERS_GLOBAL_HOST_ID, IDX_HOSTGROUP_MEMBER_HOST_ID);
 
 struct ItemsQueryOption::Impl {
 	ItemIdType targetId;
@@ -2578,8 +2508,6 @@ DBTables::SetupInfo &DBTablesMonitoring::getSetupInfo(void)
 		&tableProfileHosts,
 	}, {
 		&tableProfileHostgroups,
-	}, {
-		&tableProfileMapHostsHostgroups,
 	}, {
 		&tableProfileServerStatus,
 	}, {
