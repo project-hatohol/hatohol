@@ -447,6 +447,38 @@ HostStatus HostsQueryOption::getStatus(void) const
 }
 
 // ---------------------------------------------------------------------------
+// HostgroupsQueryOption
+// ---------------------------------------------------------------------------
+// TODO:
+// HostgroupsQueryOption shouldn't inherit HostResourceQueryOption because
+// it's not belong to a host.
+static const HostResourceQueryOption::Synapse synapseHostgroupsQueryOption(
+  tableProfileHostgroupList,
+  IDX_HOSTGROUP_LIST_ID_IN_SERVER, IDX_HOSTGROUP_LIST_SERVER_ID,
+  tableProfileHostgroupList,
+  INVALID_COLUMN_IDX,
+  false,
+  tableProfileHostgroupMember, // TODO: It's dummy.
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID);
+
+HostgroupsQueryOption::HostgroupsQueryOption(const UserIdType &userId)
+: HostResourceQueryOption(synapseHostgroupsQueryOption, userId)
+{
+}
+
+HostgroupsQueryOption::HostgroupsQueryOption(DataQueryContext *dataQueryContext)
+: HostResourceQueryOption(synapseHostgroupsQueryOption, dataQueryContext)
+{
+}
+
+std::string HostgroupsQueryOption::getHostgroupColumnName(const size_t &idx) const
+{
+	return getColumnNameCommon(tableProfileHostgroupList,
+				   IDX_HOSTGROUP_LIST_ID_IN_SERVER);
+}
+
+// ---------------------------------------------------------------------------
 // HostgroupMembersQueryOption
 // ---------------------------------------------------------------------------
 static const HostResourceQueryOption::Synapse synapseHostgroupMembersQueryOption(

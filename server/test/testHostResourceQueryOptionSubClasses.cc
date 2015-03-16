@@ -78,7 +78,7 @@ void _assertPrimaryTableName(const HostResourceQueryOption &option)
 		expectedTableName = DBTablesMonitoring::TABLE_NAME_HOSTS;
 	else if (typeinfo == typeid(HostgroupsQueryOption))
 		expectedTableName = DBTablesMonitoring::TABLE_NAME_HOSTGROUPS;
-	else if (typeinfo == typeid(HostgroupElementQueryOption))
+	else if (typeinfo == typeid(HostgroupMembersQueryOption))
 		expectedTableName = DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
 	else
 		cut_fail("Unknown type name: %s\n", typeinfo.name());
@@ -585,32 +585,32 @@ void test_hostgroupsQueryOptionCallGetConditionFromUserWithoutAllServers(void)
 	HostgroupsQueryOption option(userId);
 	option.setFilterForDataOfDefunctServers(false);
 	const string actual = option.getCondition();
-	const string expect = "(server_id=1 AND host_group_id IN ('0','1'))";
+	const string expect = "(server_id=1 AND id_in_server IN ('0','1'))";
 	cppcut_assert_equal(expect, actual);
 }
 
 //
-// HostgroupElementQueryOption
+// HostgroupMembersQueryOption
 //
-void data_hostgroupElementQueryOptionConstructorWithUserId(void)
+void data_hostgroupMembersQueryOptionConstructorWithUserId(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
-void test_hostgroupElementQueryOptionConstructorWithUserId(gconstpointer data)
+void test_hostgroupMembersQueryOptionConstructorWithUserId(gconstpointer data)
 {
-	assertQueryOptionConstructorWithUserId(HostgroupElementQueryOption,
+	assertQueryOptionConstructorWithUserId(HostgroupMembersQueryOption,
 	                                       data);
 }
 
-void data_hostgroupElementQueryOptionFromDataQueryContext(void)
+void data_hostgroupMembersQueryOptionFromDataQueryContext(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
-void test_hostgroupElementQueryOptionFromDataQueryContext(gconstpointer data)
+void test_hostgroupMembersQueryOptionFromDataQueryContext(gconstpointer data)
 {
-	assertQueryOptionFromDataQueryContext(HostgroupElementQueryOption,
+	assertQueryOptionFromDataQueryContext(HostgroupMembersQueryOption,
 	                                      data);
 }
 

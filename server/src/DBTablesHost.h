@@ -156,8 +156,13 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-// TODO: move the class form DBTablesMonitoring.
-class HostgroupsQueryOption;
+class HostgroupsQueryOption : public HostResourceQueryOption {
+public:
+	HostgroupsQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	HostgroupsQueryOption(DataQueryContext *dataQueryContext);
+
+	std::string getHostgroupColumnName(const size_t &idx) const override;
+};
 
 class HostgroupMembersQueryOption: public HostResourceQueryOption {
 public:

@@ -589,7 +589,7 @@ void test_oneProcWithoutFetchItems()
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
 	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
-	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
+	HostgroupMembersQueryOption hostgroupMembersQueryOption(USER_ID_SYSTEM);
 
 	dbMonitoring.getEventInfoList(eventInfoList, eventsQueryOption);
 	dbMonitoring.getTriggerInfoList(triggerInfoList, triggersQueryOption);
@@ -600,7 +600,7 @@ void test_oneProcWithoutFetchItems()
 	  HTERR_OK, uds->getHostgroups(hostgrps, hostgroupsQueryOption));
 	assertHatoholError(
 	  HTERR_OK,
-	  uds->getHostgroupMembers(hostgrpMembers, hostgroupElementQueryOption));
+	  uds->getHostgroupMembers(hostgrpMembers, hostgroupMembersQueryOption));
 
 	// FIXME: should check contents
 	cppcut_assert_equal(false, hostgrps.empty());
@@ -630,7 +630,7 @@ void test_oneProcWithCopyOnDemandEnabled()
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
 	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
-	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
+	HostgroupMembersQueryOption hostgroupMembersQueryOption(USER_ID_SYSTEM);
 
 	dbMonitoring.getEventInfoList(eventInfoList, eventsQueryOption);
 	dbMonitoring.getTriggerInfoList(triggerInfoList, triggersQueryOption);
@@ -641,7 +641,7 @@ void test_oneProcWithCopyOnDemandEnabled()
 	  HTERR_OK, uds->getHostgroups(hostgrps, hostgroupsQueryOption));
 	assertHatoholError(
 	  HTERR_OK,
-	  uds->getHostgroupMembers(hostgrpMembers, hostgroupElementQueryOption));
+	  uds->getHostgroupMembers(hostgrpMembers, hostgroupMembersQueryOption));
 
 	// FIXME: should check contents
 	cppcut_assert_equal(false, hostgrps.empty());
@@ -674,7 +674,7 @@ void test_oneProcWithFetchItems()
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
 	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
-	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
+	HostgroupMembersQueryOption hostgroupMembersQueryOption(USER_ID_SYSTEM);
 
 	dbMonitoring.getEventInfoList(eventInfoList, eventsQueryOption);
 	dbMonitoring.getTriggerInfoList(triggerInfoList, triggersQueryOption);
@@ -685,7 +685,7 @@ void test_oneProcWithFetchItems()
 	  HTERR_OK, uds->getHostgroups(hostgrps, hostgroupsQueryOption));
 	assertHatoholError(
 	  HTERR_OK,
-	  uds->getHostgroupMembers(hostgrpMembers, hostgroupElementQueryOption));
+	  uds->getHostgroupMembers(hostgrpMembers, hostgroupMembersQueryOption));
 
 	// FIXME: should check contents
 	cppcut_assert_equal(false, hostgrps.empty());
@@ -714,7 +714,7 @@ void test_oneProcFetchHistory()
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
 	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
-	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
+	HostgroupMembersQueryOption hostgroupMembersQueryOption(USER_ID_SYSTEM);
 
 	dbMonitoring.getEventInfoList(eventInfoList, eventsQueryOption);
 	dbMonitoring.getTriggerInfoList(triggerInfoList, triggersQueryOption);
@@ -725,7 +725,7 @@ void test_oneProcFetchHistory()
 	  HTERR_OK, uds->getHostgroups(hostgrps, hostgroupsQueryOption));
 	assertHatoholError(
 	  HTERR_OK,
-	  uds->getHostgroupMembers(hostgrpMembers, hostgroupElementQueryOption));
+	  uds->getHostgroupMembers(hostgrpMembers, hostgroupMembersQueryOption));
 
 	cppcut_assert_equal(true, hostgrps.empty());
 	cppcut_assert_equal(true, hostgrpMembers.empty());
