@@ -377,7 +377,7 @@ void test_eventQueryOptionWithMinimumSeverity(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
 	option.setMinimumSeverity(TRIGGER_SEVERITY_CRITICAL);
-	string expected =  "triggers.severity>=4";
+	string expected =  "severity>=4";
 	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_SEVERITY_CRITICAL,
 			    option.getMinimumSeverity());
