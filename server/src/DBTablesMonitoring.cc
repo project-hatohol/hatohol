@@ -2729,9 +2729,7 @@ void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
 static bool updateDB(
   DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
 {
-	const int &oldVer = oldPackedVer.minorVer;
-	const int &oldMajorVer = oldPackedVer.majorVer;
-	const int &oldVendorVer = oldPackedVer.vendorVer;
+	const int &oldVer = oldPackedVer.getPackedVer();
 
 	if (oldVer == 4) {
 		const string oldTableName = "issues";
@@ -2793,8 +2791,7 @@ static bool updateDB(
 		addColumnsArg.columnIndexes.push_back(IDX_TRIGGERS_VALIDITY);
 		dbAgent.addColumns(addColumnsArg);
 	}
-	if (DBTables::Version::getPackedVer(oldVendorVer, oldMajorVer, oldVer)
-	    <= DBTables::Version::getPackedVer(0, 1, 1)) {
+	if (oldVer <= DBTables::Version::getPackedVer(0, 1, 1)) {
 		// add a new column "extended_info" to events
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileEvents);
 		addColumnsArg.columnIndexes.push_back(IDX_EVENTS_EXTENDED_INFO);
