@@ -237,7 +237,7 @@ HatoholPrivilegeEditDialog.prototype.updateAllowCheckboxes = function() {
 
   var i, serverId, checkboxes = $(".serverSelectCheckbox");
   var allHostgroupIsEnabled = function(server) {
-    var ALL_HOST_GROUPS = -1, hostgroup;
+    var ALL_HOST_GROUPS = "*", hostgroup;
     if (!server || !server["allowedHostgroups"])
       return false;
     hostgroup = server["allowedHostgroups"][ALL_HOST_GROUPS];
@@ -319,7 +319,7 @@ HatoholPrivilegeEditDialog.prototype.applyPrivileges = function() {
   var checkboxes = $(".serverSelectCheckbox");
   var getAccessInfoId = function(serverId) {
     var id, allowedHostgroups, allowedHostgroup;
-    var ALL_HOST_GROUPS = -1;
+    var ALL_HOST_GROUPS = "*";
     if (self.allowedServers && self.allowedServers[serverId])
       allowedHostgroups = self.allowedServers[serverId]["allowedHostgroups"];
     if (allowedHostgroups)
@@ -340,7 +340,7 @@ HatoholPrivilegeEditDialog.prototype.applyPrivileges = function() {
 
     if (checkboxes[i].checked) {
       if (!accessInfoId)
-        this.addAccessInfo({ serverId: serverId, hostgroupId: -1 });
+        this.addAccessInfo({ serverId: serverId, hostgroupId: "*" });
       else
         self.applyResult.numSucceeded += 1;
     } else {
