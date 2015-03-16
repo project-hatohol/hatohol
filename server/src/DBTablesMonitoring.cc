@@ -62,7 +62,7 @@ const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 //   * incidents.event_id -> VARCHAR
 //   * items.id           -> VARCHAR
 const int DBTablesMonitoring::MONITORING_DB_VERSION =
-  DBTables::Version::getPackedVer(0, 1, 0);
+  DBTables::Version::getPackedVer(0, 1, 1);
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -2730,6 +2730,9 @@ static bool updateDB(
   DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
 {
 	const int &oldVer = oldPackedVer.minorVer;
+	const int &oldMajorVer = oldPackedVer.majorVer;
+	const int &oldVendorVer = oldPackedVer.vendorVer;
+
 	if (oldVer == 4) {
 		const string oldTableName = "issues";
 		if (dbAgent.isTableExisting(oldTableName)) {
@@ -2789,6 +2792,14 @@ static bool updateDB(
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileTriggers);
 		addColumnsArg.columnIndexes.push_back(IDX_TRIGGERS_VALIDITY);
 		dbAgent.addColumns(addColumnsArg);
+	}
+	if (DBTables::Version::getPackedVer(oldVendorVer, oldMajorVer, oldVer)
+	    <= DBTables::Version::getPackedVer(0, 1, 1)) {
+		// add a new column "extended_info" to events
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileEvents);
+		addColumnsArg.columnIndexes.push_back(IDX_EVENTS_EXTENDED_INFO);
+		dbAgent.addColumns(addColumnsArg);
+		return true;
 	}
 	return true;
 }
