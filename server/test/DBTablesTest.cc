@@ -237,7 +237,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957197,0},           // lastChangeTime
-	1,                        // globalHostId,
+	10,                       // globalHostId,
 	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1",         // brief,
@@ -249,7 +249,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957198,0},           // lastChangeTime
-	1,                        // globalHostId,
+	10,                       // globalHostId,
 	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1a",        // brief,
@@ -261,7 +261,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957117,0},           // lastChangeTime
-	2,                        // globalHostId,
+	11,                       // globalHostId,
 	"235013",                 // hostIdInServer,
 	"hostX2",                 // hostName,
 	"TEST Trigger 1b",        // brief,
@@ -273,7 +273,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957197,0},           // lastChangeTime
-	1,                        // globalHostId,
+	10,                       // globalHostId,
 	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1c",        // brief,
@@ -285,7 +285,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957198,0},           // lastChangeTime
-	3,                        // globalHostId,
+	30,                       // globalHostId,
 	"1129",                   // hostIdInServer,
 	"hostX3",                 // hostName,
 	"TEST Trigger 1d",        // brief,
@@ -297,7 +297,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
 	{1362957200,0},           // lastChangeTime
-	4,                        // globalHostId,
+	35,                       // globalHostId,
 	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
@@ -309,7 +309,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362951000,0},           // lastChangeTime
-	6,                        // globalHostId,
+	41,                       // globalHostId,
 	"10002",                  // hostIdInServer,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
@@ -321,7 +321,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_WARNING, // severity
 	{1362951000,0},           // lastChangeTime
-	10,                       // globalHostId,
+	101,                      // globalHostId,
 	"9920249034889494527",    // hostIdInServer,
 	"hostQ1",                 // hostName,
 	"TEST Trigger Action",    // brief,
@@ -333,7 +333,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_WARNING, // severity
 	{1362951234,0},           // lastChangeTime
-	10,                       // globalHostId,
+	101,                      // globalHostId,
 	"9920249034889494527",    // hostIdInServer,
 	"hostQ1",                 // hostName,
 	"TEST Trigger Action 2",  // brief,
@@ -346,7 +346,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957117,0},           // lastChangeTime
-	12345,                    // globalHostId,
+	12345,                    // globalHostId, (not in testServerHostDef)
 	"10002",                  // hostIdInServer,
 	"host12345",              // hostName,
 	"Brief for host12345",    // brief,
@@ -359,7 +359,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957117,0},           // lastChangeTime
-	0xffeeddcc,               // globalHostId,
+	0xffeeddcc,               // globalHostId,(not in testServerHostDef)
 	"10002",                  // hostIdInServer,
 	"defunctSv1Host1",        // hostName,
 	"defunctSv1Host1 material", // brief,

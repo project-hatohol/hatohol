@@ -1024,7 +1024,9 @@ static const HostResourceQueryOption::Synapse synapseEventsQueryOption(
   IDX_TRIGGERS_HOST_ID_IN_SERVER, true,
   tableProfileHostgroupMember,
   IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
-  IDX_HOSTGROUP_MEMBER_GROUP_ID);
+  IDX_HOSTGROUP_MEMBER_GROUP_ID,
+  IDX_EVENTS_GLOBAL_HOST_ID, IDX_HOSTGROUP_MEMBER_HOST_ID
+);
 
 struct EventsQueryOption::Impl {
 	uint64_t limitOfUnifiedId;
@@ -1220,7 +1222,8 @@ static const HostResourceQueryOption::Synapse synapseTriggersQueryOption(
   true,
   tableProfileHostgroupMember,
   IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
-  IDX_HOSTGROUP_MEMBER_GROUP_ID);
+  IDX_HOSTGROUP_MEMBER_GROUP_ID,
+  IDX_TRIGGERS_GLOBAL_HOST_ID, IDX_HOSTGROUP_MEMBER_HOST_ID);
 
 struct TriggersQueryOption::Impl {
 	TriggerIdType targetId;
@@ -1373,7 +1376,8 @@ static const HostResourceQueryOption::Synapse synapseItemsQueryOption(
   true,
   tableProfileHostgroupMember,
   IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID,
+  IDX_ITEMS_GLOBAL_HOST_ID, IDX_HOSTGROUP_MEMBER_HOST_ID);
 
 struct ItemsQueryOption::Impl {
 	ItemIdType targetId;

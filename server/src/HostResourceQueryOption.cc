@@ -39,7 +39,9 @@ HostResourceQueryOption::Synapse::Synapse(
   const DBAgent::TableProfile &_hostgroupMapTableProfile,
   const size_t &_hostgroupMapServerIdColumnIdx,
   const size_t &_hostgroupMapHostIdColumnIdx,
-  const size_t &_hostgroupMapGroupIdColumnIdx)
+  const size_t &_hostgroupMapGroupIdColumnIdx,
+  const size_t &_globalHostIdColumnIdx,
+  const size_t &_hostgroupMapGlobalHostIdColumnIdx)
 : tableProfile(_tableProfile),
   selfIdColumnIdx(_selfIdColumnIdx),
   serverIdColumnIdx(_serverIdColumnIdx),
@@ -49,7 +51,9 @@ HostResourceQueryOption::Synapse::Synapse(
   hostgroupMapTableProfile(_hostgroupMapTableProfile),
   hostgroupMapServerIdColumnIdx(_hostgroupMapServerIdColumnIdx),
   hostgroupMapHostIdColumnIdx(_hostgroupMapHostIdColumnIdx),
-  hostgroupMapGroupIdColumnIdx(_hostgroupMapGroupIdColumnIdx)
+  hostgroupMapGroupIdColumnIdx(_hostgroupMapGroupIdColumnIdx),
+  globalHostIdColumnIdx(_globalHostIdColumnIdx),
+  hostgroupMapGlobalHostIdColumnIdx(_hostgroupMapGlobalHostIdColumnIdx)
 {
 }
 
@@ -195,10 +199,22 @@ string HostResourceQueryOption::getFromClause(void) const
 
 string HostResourceQueryOption::getJoinClause(void) const
 {
+	struct {
+		bool operator()(const size_t &index)
+		{
+			return index != INVALID_COLUMN_IDX;
+		}
+	} valid;
+
 	if (!isHostgroupUsed())
 		return string();
 
 	const Synapse &synapse = m_impl->synapse;
+	if (valid(synapse.globalHostIdColumnIdx) &&
+	    valid(synapse.hostgroupMapGlobalHostIdColumnIdx)) {
+		return getJoinClauseWithGlobalHostId();
+	}
+
 	const ColumnDef *hgrpColumnDefs =
 	  synapse.hostgroupMapTableProfile.columnDefs;
 
@@ -476,4 +492,16 @@ bool HostResourceQueryOption::isHostgroupEnumerationInCondition(void) const
 			return true;
 	}
 	return false;
+}
+
+string HostResourceQueryOption::getJoinClauseWithGlobalHostId(void) const
+{
+	const Synapse &synapse = m_impl->synapse;
+	return StringUtils::sprintf(
+	  "INNER JOIN %s ON %s=%s",
+	  synapse.hostgroupMapTableProfile.name,
+	  synapse.tableProfile.getFullColumnName(
+	    synapse.globalHostIdColumnIdx).c_str(),
+	  synapse.hostgroupMapTableProfile.getFullColumnName(
+	    synapse.hostgroupMapGlobalHostIdColumnIdx).c_str());
 }

@@ -34,13 +34,15 @@ public:
 
 		const DBAgent::TableProfile &hostTableProfile;
 		const size_t                 hostIdColumnIdx;
-
 		const bool                   needToJoinHostgroup;
 
 		const DBAgent::TableProfile &hostgroupMapTableProfile;
 		const size_t                 hostgroupMapServerIdColumnIdx;
 		const size_t                 hostgroupMapHostIdColumnIdx;
 		const size_t                 hostgroupMapGroupIdColumnIdx;
+
+		const size_t                 globalHostIdColumnIdx;
+		const size_t                 hostgroupMapGlobalHostIdColumnIdx;
 		
 		Synapse(const DBAgent::TableProfile &tableProfile,
 		     const size_t &selfIdColumnIdx,
@@ -51,7 +53,11 @@ public:
 		     const DBAgent::TableProfile &hostgroupMapTableProfile,
 		     const size_t &hostgroupMapServerIdColumnIdx,
 		     const size_t &hostgroupMapHostIdColumnIdx,
-		     const size_t &hostgroupMapGroupIdColumnIdx);
+		     const size_t &hostgroupMapGroupIdColumnIdx,
+		     const size_t &globalHostIdColumnIdx
+		       = INVALID_COLUMN_IDX,
+		     const size_t &hostgroupMapGlobalHostIdColumnIdx
+		       = INVALID_COLUMN_IDX);
 	};
 
 	HostResourceQueryOption(const Synapse &synapse,
@@ -168,6 +174,7 @@ protected:
 	std::string getColumnNameCommon(
 	  const DBAgent::TableProfile &tableProfile, const size_t &idx) const;
 	bool isHostgroupEnumerationInCondition(void) const;
+	std::string getJoinClauseWithGlobalHostId(void) const;
 
 private:
 	struct Impl;
