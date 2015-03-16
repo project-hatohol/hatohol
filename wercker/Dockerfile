@@ -16,7 +16,7 @@ RUN yum install -y json-glib-devel qpid-cpp-server-devel
 RUN yum groupinstall -y 'Development tools'
 RUN yum install -y Django
 RUN rpm -Uvh http://sourceforge.net/projects/cutter/files/centos/cutter-release-1.1.0-0.noarch.rpm
-RUN yum install -y cutter
+RUN yum install -y cutter tar
 # git clone
 RUN git clone https://github.com/project-hatohol/hatohol.git ~/hatohol
 # build
