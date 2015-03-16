@@ -652,13 +652,14 @@ void ArmNagiosNDOUtils::getEvent(void)
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		int state;
+		int state, eventId;
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		EventInfo eventInfo;
 		eventInfo.serverId = svInfo.id;
 		eventInfo.time.tv_nsec = 0;
 
-		eventInfo.id = itemGroupStream.read<int, string>(); // statehistory_id
+		itemGroupStream >> eventId;
+		eventInfo.id = StringUtils::sprintf("%020d", eventId);
 		// type, status, and severity (state)
 		itemGroupStream >> state;
 		if (state == STATE_OK) {
