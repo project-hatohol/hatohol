@@ -935,7 +935,7 @@ static void addHostsIsMemberOfGroup(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
 	HostgroupMemberVect hostgrpMembers;
-	HostgroupElementQueryOption option(job->m_dataQueryContextPtr);
+	HostgroupMembersQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
 
 	option.setTargetHostgroupId(targetGroupId);

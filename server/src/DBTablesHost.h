@@ -170,10 +170,6 @@ public:
 	HostgroupMembersQueryOption(DataQueryContext *dataQueryContext);
 };
 
-// TODO: Remove this typedef ater the transition to the new host namagement
-//       is done.
-typedef HostgroupMembersQueryOption HostgroupElementQueryOption;
-
 class DBTablesHost : public DBTables {
 public:
 	static const int TABLES_VERSION;
