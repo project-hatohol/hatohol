@@ -288,8 +288,22 @@ describe('ServerView', function() {
       "name": "guest",
       "flags": 0
     };
-    var expected = false;
-    expectDeleteButtonVisibility(operator, expected);
+
+    // issue #1108 & #1122
+    // Always show them for "RELOAD ALL TRIGGERS FROM SERVER" button
+    //var expected = false;
+    //expectDeleteButtonVisibility(operator, expected);
+
+    var userProfile = new HatoholUserProfile(operator);
+    var view = new ServersView(userProfile);
+    respond();
+
+    var deleteButton = $('#delete-server-button');
+    var checkboxes = $('.delete-selector .selectcheckbox');
+    expect(deleteButton).to.have.length(1);
+    expect(checkboxes).to.have.length(3);
+    expect(deleteButton.is(":visible")).to.be(false);
+    expect(checkboxes.is(":visible")).to.be(true);
   });
 
   it('with update privilege', function() {
