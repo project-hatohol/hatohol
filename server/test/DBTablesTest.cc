@@ -386,6 +386,7 @@ const EventInfo testEventInfo[] = {
 	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
+	"{\"expandedDescription\":\"Test Trigger on hostZ1\"}", // extendedInfo
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
@@ -399,6 +400,7 @@ const EventInfo testEventInfo[] = {
 	"10002",                  // hostIdInServer,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
+	"",
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	1,                        // serverId
@@ -412,6 +414,7 @@ const EventInfo testEventInfo[] = {
 	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1a",        // brief,
+	"{\"expandedDescription\":\"Test Trigger on hostX1\"}", // extendedInfo
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	1,                        // serverId
@@ -425,6 +428,7 @@ const EventInfo testEventInfo[] = {
 	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1",         // brief,
+	"",
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	1,                        // serverId
@@ -451,6 +455,7 @@ const EventInfo testEventInfo[] = {
 	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
+	"{\"expandedDescription\":\"Test Trigger on hostZ1\"}", // extendedInfo
 }, {
 	// This entry is for tests with a defunct server
 	AUTO_INCREMENT_VALUE,     // unifiedId
@@ -465,6 +470,7 @@ const EventInfo testEventInfo[] = {
 	trigInfoDefunctSv1.hostIdInServer, // hostIdInServer,
 	trigInfoDefunctSv1.hostName,       // hostName,
 	trigInfoDefunctSv1.brief,          // brief,
+	"",
 },
 // We assumed the data of the default server's is at the tail in testEventInfo.
 // See also the definition of trigInfoDefunctSv1 above. Anyway,
@@ -486,6 +492,7 @@ EventInfo testDupEventInfo[] = {
 	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
+	"{\"expandedDescription\":\"Test Trigger on hostZ1\"}", // extendedInfo
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
@@ -499,6 +506,7 @@ EventInfo testDupEventInfo[] = {
 	"10002",                  // hostIdInServer,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
+	"",
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
@@ -512,6 +520,7 @@ EventInfo testDupEventInfo[] = {
 	"10002",                  // hostIdInServer,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
+	"",
 },
 };
 size_t NumTestDupEventInfo = ARRAY_SIZE(testDupEventInfo);
