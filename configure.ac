@@ -1,6 +1,6 @@
 AC_PREREQ(2.63)
 
-AC_INIT(hatohol, 15.03_dev)
+AC_INIT(hatohol, 15.03_pre1)
 AM_INIT_AUTOMAKE([1.9 foreign no-dist-gzip dist-bzip2 tar-pax])
 
 AC_CONFIG_HEADER(config.h)
