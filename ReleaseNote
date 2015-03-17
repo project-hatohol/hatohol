@@ -1,5 +1,16 @@
 2014-3-31 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 15.03
 
+	* New Features
+	[WebUI] Graph: Support multiple legends
+	[WebUI] Don't colorize non-fired triggers & events
+
+	* Bugfixes
+	[Server] Fix a crash in which an invalid URL is registered for an
+	incident tracking server (#955)
+	[Server] Fix a bug that "New values per second" of HAPI Zabbix is
+	always 0.0 (#1083)
+	[WebUI] Resume deleting actions after session timeout & reconnect (#938)
+
 2014-12-26 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12
 
 	* New Features
