@@ -573,13 +573,6 @@ void test_triggersForOneServerOneHost(void)
 	               testTriggerInfo[1].hostIdInServer);
 }
 
-void test_eventsForOneServerOneHost(void)
-{
-	assertEvents("/event", "foo",
-		     testEventInfo[1].serverId,
-		     testEventInfo[1].hostIdInServer);
-}
-
 void test_events(void)
 {
 	assertEvents("/event");
@@ -596,6 +589,13 @@ void test_eventsWithIncidents(void)
 void test_eventsJSONP(void)
 {
 	assertEvents("/event", "foo");
+}
+
+void test_eventsForOneServerOneHost(void)
+{
+	assertEvents("/event", "foo",
+		     testEventInfo[1].serverId,
+		     testEventInfo[1].hostIdInServer);
 }
 
 void test_items(void)
