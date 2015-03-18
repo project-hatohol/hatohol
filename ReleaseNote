@@ -1,5 +1,16 @@
 2014-3-31 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 15.03
 
+	* New Features
+	[Server] Save some information such as Event IDs, Host IDs, and
+	Trigger IDs as strings as it is without irreversible integer transform.
+
+	NOTE: This feature breaks compatibility of DB schema with the previous
+	versions of Hatohol. If you would like to migrate them, contact
+	us via mailing lists or GitHub's issue.
+
+	[Server] Add a framework to management the relationship between
+	VMs and the host machines.
+
 2014-12-26 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12
 
 	* New Features
