@@ -63,7 +63,7 @@ struct DBAgentMySQL::Impl {
 		if (sem_destroy(&sleepSemaphore) != 0)
 			MLPL_ERR("Failed to call sem_destroy(): %d\n", errno);
 	}
-	
+
 	bool shouldRetry(unsigned int errorNumber)
 	{
 		return retryErrorSet.find(errorNumber) != retryErrorSet.end();
@@ -83,7 +83,6 @@ void DBAgentMySQL::init(void)
 		MLPL_INFO("Use memory engine\n");
 		Impl::engineStr = " ENGINE=MEMORY";
 	}
-
 	Impl::retryErrorSet.insert(CR_SERVER_GONE_ERROR);
 }
 
@@ -100,7 +99,7 @@ DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
 	if (!m_impl->connected) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 		  HTERR_FAILED_CONNECT_MYSQL,
-		  "Failed to connect to MySQL: %s: %s\n", 
+		  "Failed to connect to MySQL: %s: %s\n",
 		  db, mysql_error(&m_impl->mysql));
 	}
 }
@@ -295,7 +294,7 @@ void DBAgentMySQL::createTable(const TableProfile &tableProfile)
 	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 	string query = StringUtils::sprintf("CREATE TABLE %s (",
 	                                    tableProfile.name);
-	
+
 	for (size_t i = 0; i < tableProfile.numColumns; i++) {
 		const ColumnDef &columnDef = tableProfile.columnDefs[i];
 		query += getColumnDefinitionQuery(columnDef);
@@ -729,7 +728,7 @@ void DBAgentMySQL::getIndexInfoVect(vector<IndexInfo> &indexInfoVect,
 		ColumnIndexDict(const TableProfile &tableProfile)
 		{
 			for (size_t i = 0; i < tableProfile.numColumns; i++) {
-				const ColumnDef &columnDef = 
+				const ColumnDef &columnDef =
 				  tableProfile.columnDefs[i];
 				dict[columnDef.columnName] = i;
 			}
@@ -751,7 +750,7 @@ void DBAgentMySQL::getIndexInfoVect(vector<IndexInfo> &indexInfoVect,
 
 	vector<IndexStruct> indexStructVect;
 	getIndexes(indexStructVect, tableProfile.name);
-	
+
 	// Group the same index
 	IndexStructMap indexStructMap;
 	for (size_t i = 0; i < indexStructVect.size(); i++) {
@@ -788,4 +787,3 @@ void DBAgentMySQL::getIndexInfoVect(vector<IndexInfo> &indexInfoVect,
 		indexInfoVect.push_back(idxInfo);
 	}
 }
-
