@@ -3,25 +3,9 @@
 	* New Features
 	[LICENSE] Change the license to LGPLv3.
 	[Server] ArmZabbixAPI: Do not get old events at first by default.  You can restore old behavior by --load-old-events option.
-
-	* Bug fixes
-	[WebUI] Prevent clients (browsers/proxy servers) from caching web requests/responses.
-
-	* New Features
 	[WebUI] Graph: Support multiple legends
 	[WebUI] Don't colorize non-fired triggers & events
-
-	* Bugfixes
-	[Server] Fix a crash in which an invalid URL is registered for an
-	incident tracking server (#955)
-	[Server] Fix a bug that "New values per second" of HAPI Zabbix is
-	always 0.0 (#1083)
-	[WebUI] Resume deleting actions after session timeout & reconnect (#938)
-
-	* New Features
 	[Server] HAPI-JSON supports event type (#1011)
-
-	* New Features
 	[Server] Save some information such as Event IDs, Host IDs, and
 	Trigger IDs as strings without irreversible integer transform.
 
@@ -31,6 +15,14 @@
 
 	[Server] Add a framework to manage the relationship between
 	VMs and the host machines.
+
+	* Bugfixes
+	[Server] Fix a crash in which an invalid URL is registered for an
+	incident tracking server (#955)
+	[Server] Fix a bug that "New values per second" of HAPI Zabbix is
+	always 0.0 (#1083)
+	[WebUI] Resume deleting actions after session timeout & reconnect (#938)
+	[WebUI] Prevent clients (browsers/proxy servers) from caching web requests/responses.
 
 2014-12-26 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12
 
