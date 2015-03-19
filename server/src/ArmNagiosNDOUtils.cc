@@ -613,7 +613,6 @@ void ArmNagiosNDOUtils::getTriggerInfoTable(TriggerInfoList &triggerInfoList)
 		trigInfo.hostIdInServer = itemGroupStream.read<int, string>(); // host_id
 		trigInfo.globalHostId =
 		  m_impl->getGlobalHostId(trigInfo.hostIdInServer);
-		trigInfo.globalHostId = INAPPLICABLE_HOST_ID;
 		itemGroupStream >> trigInfo.hostName; // hosts.display_name
 		trigInfo.validity = TRIGGER_VALID;
 		triggerInfoList.push_back(trigInfo);
