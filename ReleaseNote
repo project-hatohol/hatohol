@@ -20,6 +20,9 @@
 	- [Package] Experimental support for CentOS 7. (#757)
 	- [WebUI] Improve pagination. (#818)
 	- [Server] hatohol-db-initiator uses hatohol.conf. (#1004)
+	- [Server] Graphs for Ceilometer items.
+	- [Server] Synchronize trigger of the monitoring server at user request. (#20)
+	- [Server] Hide the trigger and items of invalid host.
 
 	* Bugfixes
 	- [Server] Fix a crash problem when an invalid URL is registered for an
