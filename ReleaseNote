@@ -23,6 +23,9 @@
 	[WebUI] Add event detail links for Zabbix web interface (#1079)
 	[Specfile] Suppert build and install of CentOS 7 (#757)
 	[WebUI] Replace 'To next' button to pagination in Events page (#818)
+	[server] Graphs for Ceilometer items
+	[server] Synchronize trigger of the monitoring server at user request (#20)
+	[server] Hide the trigger and items of invalid host
 
 	* Bugfixes
 	[Server] Fix a crash in which an invalid URL is registered for an
