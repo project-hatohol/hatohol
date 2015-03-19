@@ -430,7 +430,7 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 	                  "%s.%s=26 AND %s.%s='32' AND %s.%s='48'",
 			  DBTablesMonitoring::TABLE_NAME_EVENTS,
 			  serverIdColumnName.c_str(),
-			  DBTablesMonitoring::TABLE_NAME_TRIGGERS,
+			  DBTablesMonitoring::TABLE_NAME_EVENTS,
 			  hostIdColumnName.c_str(),
 	                  tableProfileHostgroupMember.name,
 			  hostgroupIdColumnName.c_str());
