@@ -24,6 +24,21 @@
 	[WebUI] Resume deleting actions after session timeout & reconnect (#938)
 	[WebUI] Prevent clients (browsers/proxy servers) from caching web requests/responses.
 
+	* New Features
+	[WebUI] Support disabling auto refresh (#817, #823)
+	[WebUI][Server] Support editing actions and incident Settings (#828)
+	[WebUI][Server] Support Zabbix macro expansion in triggers and events page (#958, #959, #967, #970, #974, #983)
+	[Server] Support updating server_types individually (#1000, 1002)
+	[WebUI] Add event detail links for Zabbix web interface (#1079)
+
+	* Bugfixes
+	[WebUI][Server] Fix a bug which displays unknown user type after updating user privileges (#890)
+	[WebUI][Server] Fix a bug which is not reflecting change about incident monitoring server settings (#839)
+	[WebUI][Server] Support generating Nagios WebUI link by user specified URL (#839)
+	[WebUI] Fix a bug that unexpectedly changing monitoring server when updating incident settings (#988)
+	[Server] hatohol-db-initiator starts to use hatohol.conf (#1004)
+	[Server] Support returning non 200 HTTP status (#1030)
+
 2014-12-26 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12
 
 	* New Features
