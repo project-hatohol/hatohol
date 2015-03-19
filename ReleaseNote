@@ -18,6 +18,9 @@
 	always 0.0 (#1083)
 	[WebUI] Resume deleting actions after session timeout & reconnect (#938)
 
+	* New Features
+	[Server] HAPI-JSON supports event type (#1011)
+
 2014-12-26 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12
 
 	* New Features
