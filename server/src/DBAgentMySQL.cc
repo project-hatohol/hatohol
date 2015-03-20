@@ -578,11 +578,6 @@ void DBAgentMySQL::connect(void)
 
 void DBAgentMySQL::sleepAndReconnect(unsigned int sleepTimeSec)
 {
-	// TODO:
-	// add mechanism to wake up immediately if the program is
-	// going to exit. We should make an interrputible sleep object
-	// which is similar to ArmBase::sleepInterruptible().
-	// sleep with timeout
 	m_impl->waitSem.timedWait(sleepTimeSec * 1000);
 
 	mysql_close(&m_impl->mysql);
