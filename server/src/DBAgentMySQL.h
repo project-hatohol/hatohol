@@ -97,5 +97,3 @@ private:
 };
 
 #endif // DBAgentMySQL_h
-
-

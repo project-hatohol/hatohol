@@ -634,7 +634,7 @@ void ArmNagiosNDOUtils::getTrigger(const bool &isUpdateTrigger)
 		const MonitoringServerInfo &svInfo = getServerInfo();
 		ThreadLocalDBCache cache;
 		cache.getMonitoring().updateTrigger(triggerInfoList, svInfo.id);
-	}		
+	}
 }
 
 void ArmNagiosNDOUtils::getEvent(void)
