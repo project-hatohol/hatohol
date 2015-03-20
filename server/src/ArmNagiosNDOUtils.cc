@@ -431,6 +431,7 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 
 ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 {
+	m_impl->dbAgent->requestExit();
 	requestExitAndWait();
 }
 
