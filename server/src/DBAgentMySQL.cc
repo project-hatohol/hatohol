@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <semaphore.h>
 #include <errno.h>
+#include <AtomicValue.h>
 #include "DBAgentMySQL.h"
 #include "SQLUtils.h"
 #include "SeparatorInjector.h"
@@ -44,11 +45,13 @@ struct DBAgentMySQL::Impl {
 	unsigned int port;
 	bool inTransaction;
 	sem_t sleepSemaphore;
+	AtomicValue<bool> exitRequest;
 
 	Impl(void)
 	: connected(false),
 	  port(0),
-	  inTransaction(false)
+	  inTransaction(false),
+	  exitRequest(false)
 	{
 		static const int PSHARED = 1;
 		HATOHOL_ASSERT(sem_init(&sleepSemaphore, PSHARED, 0) == 0,
@@ -539,6 +542,15 @@ void DBAgentMySQL::renameTable(const string &srcName, const string &destName)
 	execSql(query);
 }
 
+void DBAgentMySQL::requestExit(void)
+{
+	m_impl->exitRequest = true;
+
+	// to return immediately from the waiting.
+	if (sem_post(&m_impl->sleepSemaphore) == -1)
+		MLPL_ERR("Failed to call sem_post: %d\n", errno);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -597,6 +609,11 @@ retry:
 	mysql_close(&m_impl->mysql);
 	m_impl->connected = false;
 	connect();
+}
+
+bool DBAgentMySQL::hasExitRequest(void) const
+{
+	return m_impl->exitRequest;
 }
 
 void DBAgentMySQL::queryWithRetry(const string &statement)
