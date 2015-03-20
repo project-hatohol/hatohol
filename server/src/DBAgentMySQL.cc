@@ -45,13 +45,13 @@ struct DBAgentMySQL::Impl {
 	unsigned int port;
 	bool inTransaction;
 	sem_t sleepSemaphore;
-	AtomicValue<bool> exitRequest;
+	AtomicValue<bool> cancelRequest;
 
 	Impl(void)
 	: connected(false),
 	  port(0),
 	  inTransaction(false),
-	  exitRequest(false)
+	  cancelRequest(false)
 	{
 		static const int PSHARED = 1;
 		HATOHOL_ASSERT(sem_init(&sleepSemaphore, PSHARED, 0) == 0,
@@ -542,9 +542,9 @@ void DBAgentMySQL::renameTable(const string &srcName, const string &destName)
 	execSql(query);
 }
 
-void DBAgentMySQL::requestExit(void)
+void DBAgentMySQL::requestCancel(void)
 {
-	m_impl->exitRequest = true;
+	m_impl->cancelRequest = true;
 
 	// to return immediately from the waiting.
 	if (sem_post(&m_impl->sleepSemaphore) == -1)
@@ -611,9 +611,9 @@ retry:
 	connect();
 }
 
-bool DBAgentMySQL::hasExitRequest(void) const
+bool DBAgentMySQL::hasCancelRequest(void) const
 {
-	return m_impl->exitRequest;
+	return m_impl->cancelRequest;
 }
 
 void DBAgentMySQL::queryWithRetry(const string &statement)
@@ -621,7 +621,7 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 	unsigned int errorNumber = 0;
 	size_t numRetry = DEFAULT_NUM_RETRY;
 	for (size_t i = 0; i < numRetry; i++) {
-		if (hasExitRequest())
+		if (hasCancelRequest())
 			break;
 		if (mysql_query(&m_impl->mysql, statement.c_str()) == 0) {
 			if (i >= 1) {
@@ -644,7 +644,7 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 		// retry repeatedly until the connection is established or
 		// the maximum retry count.
 		for (; i < numRetry; i++) {
-			if (hasExitRequest())
+			if (hasCancelRequest())
 				break;
 			size_t sleepTimeSec = RETRY_INTERVAL[i];
 			MLPL_INFO("Try to connect after %zd sec. (%zd/%zd)\n",
