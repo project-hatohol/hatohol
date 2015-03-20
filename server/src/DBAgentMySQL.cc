@@ -45,14 +45,14 @@ struct DBAgentMySQL::Impl {
 	string host;
 	unsigned int port;
 	bool inTransaction;
-	AtomicValue<bool> cancelRequest;
+	AtomicValue<bool> cancelRequested;
 	SimpleSemaphore waitSem;
 
 	Impl(void)
 	: connected(false),
 	  port(0),
 	  inTransaction(false),
-	  cancelRequest(false),
+	  cancelRequested(false),
 	  waitSem(0)
 	{
 	}
@@ -541,7 +541,7 @@ void DBAgentMySQL::renameTable(const string &srcName, const string &destName)
 
 void DBAgentMySQL::requestCancel(void)
 {
-	m_impl->cancelRequest = true;
+	m_impl->cancelRequested = true;
 
 	m_impl->waitSem.post();
 }
@@ -592,7 +592,7 @@ void DBAgentMySQL::sleepAndReconnect(unsigned int sleepTimeSec)
 
 bool DBAgentMySQL::hasCancelRequest(void) const
 {
-	return m_impl->cancelRequest;
+	return m_impl->cancelRequested;
 }
 
 void DBAgentMySQL::queryWithRetry(const string &statement)
