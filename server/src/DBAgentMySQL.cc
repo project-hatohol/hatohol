@@ -22,6 +22,7 @@
 #include <semaphore.h>
 #include <errno.h>
 #include <AtomicValue.h>
+#include <SimpleSemaphore.h>
 #include "DBAgentMySQL.h"
 #include "SQLUtils.h"
 #include "SeparatorInjector.h"
@@ -44,18 +45,16 @@ struct DBAgentMySQL::Impl {
 	string host;
 	unsigned int port;
 	bool inTransaction;
-	sem_t sleepSemaphore;
 	AtomicValue<bool> cancelRequest;
+	SimpleSemaphore waitSem;
 
 	Impl(void)
 	: connected(false),
 	  port(0),
 	  inTransaction(false),
-	  cancelRequest(false)
+	  cancelRequest(false),
+	  waitSem(0)
 	{
-		static const int PSHARED = 1;
-		HATOHOL_ASSERT(sem_init(&sleepSemaphore, PSHARED, 0) == 0,
-		              "Failed to sem_init(): %d\n", errno);
 	}
 
 	~Impl(void)
@@ -63,8 +62,6 @@ struct DBAgentMySQL::Impl {
 		if (connected) {
 			mysql_close(&mysql);
 		}
-		if (sem_destroy(&sleepSemaphore) != 0)
-			MLPL_ERR("Failed to call sem_destroy(): %d\n", errno);
 	}
 
 	bool shouldRetry(unsigned int errorNumber)
@@ -546,9 +543,7 @@ void DBAgentMySQL::requestCancel(void)
 {
 	m_impl->cancelRequest = true;
 
-	// to return immediately from the waiting.
-	if (sem_post(&m_impl->sleepSemaphore) == -1)
-		MLPL_ERR("Failed to call sem_post: %d\n", errno);
+	m_impl->waitSem.post();
 }
 
 // ---------------------------------------------------------------------------
@@ -588,23 +583,7 @@ void DBAgentMySQL::sleepAndReconnect(unsigned int sleepTimeSec)
 	// going to exit. We should make an interrputible sleep object
 	// which is similar to ArmBase::sleepInterruptible().
 	// sleep with timeout
-	timespec ts;
-	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-		MLPL_ERR("Failed to call clock_gettime: %d\n", errno);
-		sleep(10); // to avoid burnup
-		return;
-	}
-	ts.tv_sec += sleepTimeSec;
-retry:
-	int result = sem_timedwait(&m_impl->sleepSemaphore, &ts);
-	if (result == -1) {
-		if (errno == ETIMEDOUT)
-			; // This is normal case
-		else if (errno == EINTR)
-			goto retry;
-		else
-			MLPL_ERR("sem_timedwait(): errno: %d\n", errno);
-	}
+	m_impl->waitSem.timedWait(sleepTimeSec);
 
 	mysql_close(&m_impl->mysql);
 	m_impl->connected = false;
