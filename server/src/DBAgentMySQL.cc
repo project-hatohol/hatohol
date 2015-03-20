@@ -106,9 +106,6 @@ DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
 
 DBAgentMySQL::~DBAgentMySQL()
 {
-	// to return immediately from the waiting.
-	if (sem_post(&m_impl->sleepSemaphore) == -1)
-		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 }
 
 string DBAgentMySQL::getDBName(void) const
