@@ -632,8 +632,6 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 			MLPL_INFO("Try to connect after %zd sec. (%zd/%zd)\n",
 			          sleepTimeSec, i+1, numRetry);
 			sleepAndReconnect(sleepTimeSec);
-			if (sem_post(&m_impl->sleepSemaphore) == -1)
-				MLPL_ERR("Failed to call sem_post: %d\n", errno);
 			if (m_impl->connected)
 				break;
 		}
