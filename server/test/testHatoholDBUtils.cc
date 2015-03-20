@@ -34,11 +34,6 @@ public:
 		HatoholDBUtils::extractItemKeys(params, key);
 	}
 
-	static int getItemVariable(const string &word) 
-	{
-		return HatoholDBUtils::getItemVariable(word);
-	}
-
 	static void testMakeItemBrief(const string &name, const string &key,
 	                              const string &expected)
 	{
@@ -133,26 +128,6 @@ void test_extractItemKeysWithEmptyParams(void)
 	assertStringVectorVA(&vect, "", "", "run", NULL);
 }
 
-void test_getItemVariable(void)
-{
-	cppcut_assert_equal(1, HatoholDBUtilsTest::getItemVariable("$1"));
-}
-
-void test_getItemVariableMultipleDigits(void)
-{
-	cppcut_assert_equal(123, HatoholDBUtilsTest::getItemVariable("$123"));
-}
-
-void test_getItemVariableWord(void)
-{
-	cppcut_assert_equal(-1, HatoholDBUtilsTest::getItemVariable("abc"));
-}
-
-void test_getItemVariableDoubleDollar(void)
-{
-	cppcut_assert_equal(-1, HatoholDBUtilsTest::getItemVariable("$$"));
-}
-
 void test_makeItemBrief(void)
 {
 	HatoholDBUtilsTest::testMakeItemBrief(
@@ -160,11 +135,48 @@ void test_makeItemBrief(void)
 	  "CPU idle time");
 }
 
-void test_makeItemBriefOverNumVariable10(void)
+void test_makeItemBriefNoSpace(void)
 {
 	HatoholDBUtilsTest::testMakeItemBrief(
-	  "ABC $12", "foo[P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13]",
+	  "CPU $2time", "system.cpu.util[,idle]",
+	  "CPU idletime");
+}
+
+void test_makeItemBriefTrailingDollar(void)
+{
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "Trailing dollar $", "system.cpu.util[,idle]",
+	  "Trailing dollar $");
+}
+
+void test_makeItemBriefHeadingVariable(void)
+{
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "$2 time", "system.cpu.util[,idle]",
+	  "idle time");
+}
+
+void test_makeItemBriefContinuousVariable(void)
+{
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "$2$1 time", "system.cpu.util[0,idle]",
+	  "idle0 time");
+}
+
+void test_makeItemBriefOverNumVariable10(void)
+{
+	// Zabbix supports only $1 - $9, so "$12" should be treated as "$1" + "2"
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "ABC $12", "foo[P1,P2,P3,P4,P5,P6,P7,P8,P9,Pa,Pb,Pc,Pd]",
 	  "ABC P12");
+}
+
+void test_makeItemBriefNumVariable0(void)
+{
+	// Zabbix doesn't expand "$0"
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "ABC $0", "foo[P1,P2,P3,P4,P5,P6,P7,P8,P9,Pa,Pb,Pc,Pd]",
+	  "ABC $0");
 }
 
 void test_makeItemBriefTwoParam(void)
