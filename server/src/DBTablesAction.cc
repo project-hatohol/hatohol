@@ -1297,7 +1297,7 @@ string ActionsQueryOption::getCondition(void) const
 	cond += sprintf(m_impl->conditionTemplate.c_str(),
 	                eventInfo->serverId,
 	                rhs(eventInfo->hostIdInServer),
-	                rhs(hostgroupIdList),
+	                hostgroupIdList.c_str(),
 	                rhs(eventInfo->triggerId),
 	                eventInfo->status,
 	                eventInfo->severity, eventInfo->severity);
