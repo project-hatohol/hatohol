@@ -117,6 +117,8 @@ enum HatoholErrorCode
 	HTERR_INVALID_POLLING_INTERVAL,	// DBTablesConfig
 	HTERR_INVALID_RETRY_INTERVAL,	// DBTablesConfig
 
+        // 15.06
+        HTERR_VALID_DBAGENT_NO_LONGER_EXISTS, // DBAgentMySQL
 	// End of code
 	NUM_HATOHOL_ERROR_CODE
 };
