@@ -142,6 +142,27 @@ void test_makeItemBriefNoSpace(void)
 	  "CPU idletime");
 }
 
+void test_makeItemBriefFromEmptyName(void)
+{
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "", "system.cpu.util[,idle]",
+	  "");
+}
+
+void test_makeItemBriefFromEmptyKey(void)
+{
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "CPU $2time", "",
+	  "CPU <INTERNAL ERROR>time");
+}
+
+void test_makeItemBriefFromEmptyNameAndKey(void)
+{
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "", "system.cpu.util[,idle]",
+	  "");
+}
+
 void test_makeItemBriefTrailingDollar(void)
 {
 	HatoholDBUtilsTest::testMakeItemBrief(
