@@ -223,6 +223,15 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	0,                                      // flags
 	NULL,                                   // defaultValue
 }, {
+	"hostgroup_object_id",                  // columnName
+	SQL_COLUMN_TYPE_INT,                    // type
+	11,                                     // columnLength
+	0,                                      // decFracLength
+	false,                                  // canBeNull
+	SQL_KEY_NONE,                           // keyType
+	0,                                      // flags
+	NULL,                                   // defaultValue
+}, {
 	"alias",                                // columnName
 	SQL_COLUMN_TYPE_VARCHAR,                // type
 	255,                                    // columnLength
@@ -236,6 +245,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 
 enum {
 	IDX_HOSTGROUPS_HOSTGROUP_ID,
+	IDX_HOSTGROUPS_HOSTGROUP_OBJECT_ID,
 	IDX_HOSTGROUPS_ALIAS,
 	NUM_IDX_HOSTGROUPS,
 };
@@ -436,8 +446,8 @@ struct ArmNagiosNDOUtils::Impl
 	DBClientJoinBuilder  selectTriggerBuilder;
 	DBClientJoinBuilder  selectEventBuilder;
 	DBClientJoinBuilder  selectItemBuilder;
-	DBAgent::SelectExArg selectHostArg;
-	DBAgent::SelectExArg selectHostgroupArg;
+	DBClientJoinBuilder  selectHostBuilder;
+	DBClientJoinBuilder  selectHostgroupBuilder;
 	DBAgent::SelectExArg selectHostgroupMembersArg;
 	string               selectTriggerBaseCondition;
 	string               selectEventBaseCondition;
@@ -451,8 +461,8 @@ struct ArmNagiosNDOUtils::Impl
 	  selectTriggerBuilder(tableProfileServices),
 	  selectEventBuilder(tableProfileStateHistory),
 	  selectItemBuilder(tableProfileServices),
-	  selectHostArg(tableProfileHosts),
-	  selectHostgroupArg(tableProfileHostgroups),
+	  selectHostBuilder(tableProfileHosts),
+	  selectHostgroupBuilder(tableProfileHostgroups),
 	  selectHostgroupMembersArg(tableProfileHostgroupMembers),
 	  dataStore(NULL),
 	  serverInfo(_serverInfo),
@@ -584,16 +594,26 @@ void ArmNagiosNDOUtils::makeSelectItemBuilder(void)
 
 void ArmNagiosNDOUtils::makeSelectHostArg(void)
 {
-	DBAgent::SelectExArg &arg = m_impl->selectHostArg;
-	arg.add(IDX_HOSTS_HOST_OBJECT_ID);
-	arg.add(IDX_HOSTS_DISPLAY_NAME);
+	DBClientJoinBuilder &builder = m_impl->selectHostBuilder;
+	builder.add(IDX_HOSTS_HOST_OBJECT_ID);
+	builder.add(IDX_HOSTS_DISPLAY_NAME);
+
+	builder.addTable(
+	  tableProfileObjects, DBClientJoinBuilder::INNER_JOIN,
+	  IDX_HOSTS_HOST_OBJECT_ID, IDX_OBJECTS_OBJECT_ID);
+	builder.add(IDX_OBJECTS_NAME1);
 }
 
 void ArmNagiosNDOUtils::makeSelectHostgroupArg(void)
 {
-	DBAgent::SelectExArg &arg = m_impl->selectHostgroupArg;
-	arg.add(IDX_HOSTGROUPS_HOSTGROUP_ID);
-	arg.add(IDX_HOSTGROUPS_ALIAS);
+	DBClientJoinBuilder &builder = m_impl->selectHostgroupBuilder;
+	builder.add(IDX_HOSTGROUPS_HOSTGROUP_ID);
+	builder.add(IDX_HOSTGROUPS_ALIAS);
+
+	builder.addTable(
+	  tableProfileObjects, DBClientJoinBuilder::INNER_JOIN,
+	  IDX_HOSTGROUPS_HOSTGROUP_OBJECT_ID, IDX_OBJECTS_OBJECT_ID);
+	builder.add(IDX_OBJECTS_NAME1);
 }
 
 void ArmNagiosNDOUtils::makeSelectHostgroupMembersArg(void)
@@ -806,26 +826,29 @@ void ArmNagiosNDOUtils::getItem(void)
 void ArmNagiosNDOUtils::getHost(void)
 {
 	// TODO: should use transaction
-	m_impl->dbAgent->select(m_impl->selectHostArg);
+	DBAgent::SelectExArg &arg = m_impl->selectHostBuilder.getSelectExArg();
+	m_impl->dbAgent->select(arg);
 	size_t numHosts =
-	  m_impl->selectHostArg.dataTable->getNumberOfRows();
+	  arg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of hosts: %zd\n", numHosts);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	ServerHostDefVect svHostDefs;
 	const ItemGroupList &grpList =
-	  m_impl->selectHostArg.dataTable->getItemGroupList();
+	  arg.dataTable->getItemGroupList();
 	svHostDefs.reserve(grpList.size());
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		ServerHostDef svHostDef;
+		int hostId;
 		svHostDef.id = AUTO_INCREMENT_VALUE;
 		svHostDef.hostId = AUTO_ASSIGNED_ID;
 		svHostDef.serverId = svInfo.id;
 		svHostDef.status = HOST_STAT_NORMAL;
-		svHostDef.hostIdInServer = itemGroupStream.read<int, string>();
+		itemGroupStream >> hostId;
 		itemGroupStream >> svHostDef.name;
+		itemGroupStream >> svHostDef.hostIdInServer;
 		svHostDefs.push_back(svHostDef);
 	}
 	UnifiedDataStore *uds =  UnifiedDataStore::getInstance();
@@ -836,25 +859,28 @@ void ArmNagiosNDOUtils::getHost(void)
 void ArmNagiosNDOUtils::getHostgroup(void)
 {
 	// TODO: should use transaction
-	m_impl->dbAgent->select(m_impl->selectHostgroupArg);
+	DBAgent::SelectExArg &arg = m_impl->selectHostgroupBuilder.getSelectExArg();
+	m_impl->dbAgent->select(arg);
 	size_t numHostgroups =
-	  m_impl->selectHostgroupArg.dataTable->getNumberOfRows();
+	  arg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of hostgroups: %zd\n", numHostgroups);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
 	HostgroupVect hostgroups;
 	HostgroupInfoList hostgroupInfoList;
 	const ItemGroupList &grpList =
-	  m_impl->selectHostgroupArg.dataTable->getItemGroupList();
+	  arg.dataTable->getItemGroupList();
 	hostgroups.reserve(grpList.size());
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		Hostgroup hostgrp;
+		int hostgroupId;
 		hostgrp.id = AUTO_INCREMENT_VALUE;
 		hostgrp.serverId = svInfo.id;
-		hostgrp.idInServer = itemGroupStream.read<int, string>();
+		itemGroupStream >> hostgroupId;
 		itemGroupStream >> hostgrp.name;
+		itemGroupStream >> hostgrp.idInServer;
 		hostgroups.push_back(hostgrp);
 	}
 	UnifiedDataStore::getInstance()->upsertHostgroups(hostgroups);
