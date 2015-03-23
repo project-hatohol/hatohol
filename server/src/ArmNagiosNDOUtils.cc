@@ -681,7 +681,7 @@ void ArmNagiosNDOUtils::getTriggerInfoTable(TriggerInfoList &triggerInfoList)
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		int currentStatus;
+		int currentStatus, hostId;
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		TriggerInfo trigInfo;
 		trigInfo.serverId = svInfo.id;
@@ -707,7 +707,9 @@ void ArmNagiosNDOUtils::getTriggerInfoTable(TriggerInfoList &triggerInfoList)
 		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
 		                                      //status_update_time
 		itemGroupStream >> trigInfo.brief;    // output
-		trigInfo.hostIdInServer = itemGroupStream.read<int, string>(); // host_id
+		itemGroupStream >> hostId;
+		if (m_impl->hostMap.find(hostId) != m_impl->hostMap.end())
+			trigInfo.hostIdInServer = m_impl->hostMap[hostId];
 		trigInfo.globalHostId =
 		  m_impl->getGlobalHostId(trigInfo.hostIdInServer);
 		itemGroupStream >> trigInfo.hostName; // hosts.display_name
@@ -748,7 +750,7 @@ void ArmNagiosNDOUtils::getEvent(void)
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		int state, eventId;
+		int state, eventId, hostId;
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		EventInfo eventInfo;
 		eventInfo.serverId = svInfo.id;
@@ -775,7 +777,9 @@ void ArmNagiosNDOUtils::getEvent(void)
 		itemGroupStream >> eventInfo.time.tv_sec; // state_time
 		itemGroupStream >> eventInfo.brief;       // output
 		eventInfo.triggerId = itemGroupStream.read<int, string>(); // service_id
-		eventInfo.hostIdInServer = itemGroupStream.read<int, string>(); // host_id
+		itemGroupStream >> hostId;
+		if (m_impl->hostMap.find(hostId) != m_impl->hostMap.end())
+			eventInfo.hostIdInServer = m_impl->hostMap[hostId];
 		eventInfo.globalHostId =
 		  m_impl->getGlobalHostId(eventInfo.hostIdInServer);
 		itemGroupStream >> eventInfo.hostName;    // hosts.display_name
