@@ -454,6 +454,8 @@ struct ArmNagiosNDOUtils::Impl
 	UnifiedDataStore    *dataStore;
 	MonitoringServerInfo serverInfo;
 	HostInfoCache        hostInfoCache;
+	map<int, string>     hostMap;
+	map<int, string>     hostgroupMap;
 
 	// methods
 	Impl(const MonitoringServerInfo &_serverInfo)
@@ -825,6 +827,8 @@ void ArmNagiosNDOUtils::getItem(void)
 
 void ArmNagiosNDOUtils::getHost(void)
 {
+	m_impl->hostMap.clear();
+
 	// TODO: should use transaction
 	DBAgent::SelectExArg &arg = m_impl->selectHostBuilder.getSelectExArg();
 	m_impl->dbAgent->select(arg);
@@ -850,6 +854,7 @@ void ArmNagiosNDOUtils::getHost(void)
 		itemGroupStream >> svHostDef.name;
 		itemGroupStream >> svHostDef.hostIdInServer;
 		svHostDefs.push_back(svHostDef);
+		m_impl->hostMap[hostId] = svHostDef.hostIdInServer;
 	}
 	UnifiedDataStore *uds =  UnifiedDataStore::getInstance();
 
@@ -858,6 +863,8 @@ void ArmNagiosNDOUtils::getHost(void)
 
 void ArmNagiosNDOUtils::getHostgroup(void)
 {
+	m_impl->hostgroupMap.clear();
+
 	// TODO: should use transaction
 	DBAgent::SelectExArg &arg = m_impl->selectHostgroupBuilder.getSelectExArg();
 	m_impl->dbAgent->select(arg);
@@ -882,6 +889,7 @@ void ArmNagiosNDOUtils::getHostgroup(void)
 		itemGroupStream >> hostgrp.name;
 		itemGroupStream >> hostgrp.idInServer;
 		hostgroups.push_back(hostgrp);
+		m_impl->hostgroupMap[hostgroupId] = hostgrp.idInServer;
 	}
 	UnifiedDataStore::getInstance()->upsertHostgroups(hostgroups);
 }
@@ -903,12 +911,21 @@ void ArmNagiosNDOUtils::getHostgroupMembers(void)
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		HostgroupMember hostgrpMember;
+		int hostId, hostgroupId;
+		itemGroupStream >> hostId;
+		itemGroupStream >> hostgroupId;
+		if (m_impl->hostMap.find(hostId) ==
+		    m_impl->hostMap.end())
+			continue;
+		if (m_impl->hostgroupMap.find(hostgroupId) ==
+		    m_impl->hostgroupMap.end())
+			continue;
 		hostgrpMember.id = AUTO_INCREMENT_VALUE;
 		hostgrpMember.serverId = svInfo.id;
 		hostgrpMember.hostIdInServer =
-		  itemGroupStream.read<int, string>();
+		  m_impl->hostMap[hostId];
 		hostgrpMember.hostgroupIdInServer =
-		  itemGroupStream.read<int, string>();
+		  m_impl->hostgroupMap[hostgroupId];
 		hostgrpMember.hostId =
 		  m_impl->getGlobalHostId(hostgrpMember.hostIdInServer);
 		hostgroupMembers.push_back(hostgrpMember);
