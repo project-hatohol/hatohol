@@ -587,6 +587,12 @@ void DBAgentMySQL::sleepAndReconnect(unsigned int sleepTimeSec)
 
 bool DBAgentMySQL::hasCancelRequest(void) const
 {
+	if (m_impl->cancelRequested) {
+		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+			HTERR_VALID_DBAGENT_NO_LONGER_EXISTS,
+			"Valid DBAgentMySQL no longer exists.\n");
+	}
+
 	return m_impl->cancelRequested;
 }
 
