@@ -35,6 +35,14 @@ enum {
 struct BriefElem {
 	string word;
 	int    variableIndex;
+	BriefElem(const string &_word)
+	: word(_word), variableIndex(-1)
+	{
+	}
+	BriefElem(const int &index)
+	: variableIndex(index)
+	{
+	}
 };
 
 static bool findHostCache(
@@ -246,29 +254,6 @@ void HatoholDBUtils::transformHistoryToHatoholFormat(
 // ----------------------------------------------------------------------------
 // Protected methods
 // ----------------------------------------------------------------------------
-int HatoholDBUtils::getItemVariable(const string &word)
-{
-	if (word.empty())
-		return -1;
-
-	// check the first '$'
-	const char *wordPtr = word.c_str();
-	if (wordPtr[0] != '$')
-		return -1;
-
-	// check if the remaining characters are all numbers.
-	int val = 0;
-	for (size_t idx = 1; wordPtr[idx]; idx++) {
-		val *= 10;
-		if (wordPtr[idx] < '0')
-			return -1;
-		if (wordPtr[idx] > '9')
-			return -1;
-		val += wordPtr[idx] - '0';
-	}
-	return val;
-}
-
 void HatoholDBUtils::extractItemKeys(StringVector &params, const string &key)
 {
 	// find '['
@@ -300,17 +285,31 @@ string HatoholDBUtils::makeItemBrief(const ItemGroup *itemItemGroup)
 	string name;
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_NAME);
 	itemGroupStream >> name;
-	StringVector vect;
-	StringUtils::split(vect, name, ' ');
 
-	// summarize word and variables ($n : n = 1,2,3,..)
+	// summarize word and variables ($1 - $9)
 	vector<BriefElem> briefElemVect;
-	for (size_t i = 0; i < vect.size(); i++) {
-		briefElemVect.push_back(BriefElem());
-		BriefElem &briefElem = briefElemVect.back();
-		briefElem.variableIndex = getItemVariable(vect[i]);
-		if (briefElem.variableIndex <= 0)
-			briefElem.word = vect[i];
+	size_t i, tail = 0;
+	for (i = 0; i < name.size(); i++) {
+		if (name[i] != '$')
+			continue;
+		if (i >= name.size() - 1)
+			continue;
+		if (name[i + 1] < '1')
+			continue;
+		if (name[i + 1] > '9')
+			continue;
+		if (i > tail) {
+			string word = name.substr(tail, i - tail);
+			briefElemVect.push_back(BriefElem(word));
+		}
+		size_t index = name[i + 1] - '0';
+		briefElemVect.push_back(BriefElem(index));
+		i = i + 1;
+		tail = i + 1;
+	}
+	if (i > tail) {
+		string word = name.substr(tail, i - tail);
+		briefElemVect.push_back(BriefElem(word));
 	}
 
 	// extract words to be replace
@@ -337,8 +336,6 @@ string HatoholDBUtils::makeItemBrief(const ItemGroup *itemItemGroup)
 			          name.c_str(), itemKey.c_str());
 			brief += "<INTERNAL ERROR>";
 		}
-		if (i < briefElemVect.size()-1)
-			brief += " ";
 	}
 
 	return brief;
