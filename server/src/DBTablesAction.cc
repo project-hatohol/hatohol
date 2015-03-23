@@ -905,10 +905,11 @@ static void getHostgroupIdStringList(string &stringHostgroupId,
 		return;
 
 	SeparatorInjector commaInjector(",");
+	DBTermCodec dbCodec;
 	for (size_t i = 0; i < hostgrpMembers.size(); i++) {
 		const HostgroupMember &hostgrpMember = hostgrpMembers[i];
 		commaInjector(stringHostgroupId);
-		stringHostgroupId += hostgrpMember.hostgroupIdInServer;
+		stringHostgroupId += dbCodec.enc(hostgrpMember.hostgroupIdInServer);
 	}
 }
 
