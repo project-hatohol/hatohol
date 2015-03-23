@@ -585,7 +585,7 @@ void DBAgentMySQL::sleepAndReconnect(unsigned int sleepTimeSec)
 	connect();
 }
 
-bool DBAgentMySQL::hasCancelRequest(void) const
+bool DBAgentMySQL::throwExceptionIfCancelRequested(void) const
 {
 	if (m_impl->cancelRequested) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
@@ -601,7 +601,7 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 	unsigned int errorNumber = 0;
 	size_t numRetry = DEFAULT_NUM_RETRY;
 	for (size_t i = 0; i < numRetry; i++) {
-		if (hasCancelRequest())
+		if (throwExceptionIfCancelRequested())
 			break;
 		if (mysql_query(&m_impl->mysql, statement.c_str()) == 0) {
 			if (i >= 1) {
@@ -624,7 +624,7 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 		// retry repeatedly until the connection is established or
 		// the maximum retry count.
 		for (; i < numRetry; i++) {
-			if (hasCancelRequest())
+			if (throwExceptionIfCancelRequested())
 				break;
 			size_t sleepTimeSec = RETRY_INTERVAL[i];
 			MLPL_INFO("Try to connect after %zd sec. (%zd/%zd)\n",
