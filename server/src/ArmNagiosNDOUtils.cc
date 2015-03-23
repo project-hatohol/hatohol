@@ -830,6 +830,12 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::handleHatoholException(
 		delete m_impl->dbAgent;
 		m_impl->dbAgent = NULL;
 		return COLLECT_NG_DISCONNECT_NAGIOS;
+	} else if (he.getErrCode() == HTERR_VALID_DBAGENT_NO_LONGER_EXISTS) {
+		MLPL_ERR("DBAgentMySQL object is gone: %s %d\n",
+			 he.what(), he.getErrCode());
+		delete m_impl->dbAgent;
+		m_impl->dbAgent = NULL;
+		return COLLECT_NG_OBJECT_GONE;
 	} else {
 		MLPL_ERR("Got exception: %s\n", he.what());
 		return COLLECT_NG_INTERNAL_ERROR;
