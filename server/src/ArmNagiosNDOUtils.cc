@@ -36,6 +36,7 @@ static const char *TABLE_NAME_HOSTS         = "nagios_hosts";
 static const char *TABLE_NAME_STATEHISTORY  = "nagios_statehistory";
 static const char *TABLE_NAME_HOSTGROUPS    = "nagios_hostgroups";
 static const char *TABLE_NAME_HOSTGROUP_MEMBERS = "nagios_hostgroup_members";
+static const char *TABLE_NAME_OBJECTS       = "nagios_objects";
 
 enum
 {
@@ -351,6 +352,80 @@ static const DBAgent::TableProfile tableProfileStateHistory =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_STATEHISTORY,
 			    COLUMN_DEF_STATEHISTORY,
 			    NUM_IDX_STATEHISTORY);
+
+// Definitions: nagios_objects
+static const ColumnDef COLUMN_DEF_OBJECTS[] = {
+{
+	"object_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"instance_id",                     // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	6,                                 // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	"objecttype_id",                   // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	6,                                 // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	"name1",                           // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	128,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                               // defaultValue
+}, {
+	"name2",                           // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	128,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                               // defaultValue
+}, {
+	"is_active",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	6,                                 // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+},
+};
+
+enum {
+	IDX_OBJECTS_OBJECT_ID,
+	IDX_OBJECT_INSTANCE_ID,
+	IDX_OBJECTS_OBJECTTYPE_ID,
+	IDX_OBJECTS_NAME1,
+	IDX_OBJECTS_NAME2,
+	IDX_OBJECTS_IS_ACTIVE,
+	NUM_IDX_OBJECTS,
+};
+
+static const DBAgent::TableProfile tableProfileObjects =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_OBJECTS,
+			    COLUMN_DEF_OBJECTS,
+			    NUM_IDX_OBJECTS);
 
 // ---------------------------------------------------------------------------
 // Private context
