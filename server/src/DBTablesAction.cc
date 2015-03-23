@@ -905,10 +905,11 @@ static void getHostgroupIdStringList(string &stringHostgroupId,
 		return;
 
 	SeparatorInjector commaInjector(",");
+	DBTermCodec dbCodec;
 	for (size_t i = 0; i < hostgrpMembers.size(); i++) {
 		const HostgroupMember &hostgrpMember = hostgrpMembers[i];
 		commaInjector(stringHostgroupId);
-		stringHostgroupId += hostgrpMember.hostgroupIdInServer;
+		stringHostgroupId += dbCodec.enc(hostgrpMember.hostgroupIdInServer);
 	}
 }
 
@@ -1285,18 +1286,18 @@ string ActionsQueryOption::getCondition(void) const
 	string hostgroupIdList;
 	getHostgroupIdStringList(
 	  hostgroupIdList, eventInfo->serverId, eventInfo->hostIdInServer);
+	DBTermCStringProvider rhs(*getDBTermCodec());
 	if (hostgroupIdList.empty())
-		hostgroupIdList = DB::getAlwaysFalseCondition();
+		hostgroupIdList = rhs(DB::getAlwaysFalseCondition());
 
 	if (!cond.empty())
 		cond += " AND ";
 	// TODO: We can just pass triggerInfo.globalHostId instead of
 	//       a pair of server ID and the hostIdInServer.
-	DBTermCStringProvider rhs(*getDBTermCodec());
 	cond += sprintf(m_impl->conditionTemplate.c_str(),
 	                eventInfo->serverId,
 	                rhs(eventInfo->hostIdInServer),
-	                rhs(hostgroupIdList),
+	                hostgroupIdList.c_str(),
 	                rhs(eventInfo->triggerId),
 	                eventInfo->status,
 	                eventInfo->severity, eventInfo->severity);
