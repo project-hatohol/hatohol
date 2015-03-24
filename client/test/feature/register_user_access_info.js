@@ -38,6 +38,7 @@ casper.test.begin('Register/Unregister access info list test', function(test) {
       test.assertUrlMatch(/.*ajax_users/, "Move into users page.");
     });
   });
+  // start to register access info list server
   casper.waitForSelector("form input[type=button][value='表示 / 編集']",
     function success() {
       test.assertExists("form input[type=button][value='表示 / 編集']");
@@ -98,6 +99,7 @@ casper.test.begin('Register/Unregister access info list test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
+  // start to unregister access info list server
   casper.waitForSelector("form input[type=button][value='表示 / 編集']",
     function success() {
       test.assertExists("form input[type=button][value='表示 / 編集']");
