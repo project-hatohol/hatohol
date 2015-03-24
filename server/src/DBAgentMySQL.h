@@ -66,6 +66,13 @@ public:
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
 	virtual bool lastUpsertDidUpdate(void) override;
+	/**
+	 * Dispose DBAgentMySQL object and stop retrying connection to MySQL.
+	 *
+	 * This function can be used for other thread which is running DBAgentMySQL.
+	 * Note that this function throws a exception if called.
+	 * And after this function calling, don't use DBAgentMySQL object.
+	 */
 	void dispose(void);
 
 protected:
