@@ -69,9 +69,12 @@ public:
 	/**
 	 * Dispose DBAgentMySQL object and stop retrying connection to MySQL.
 	 *
-	 * This function can be used for other thread which is running DBAgentMySQL.
-	 * Note that this function throws a exception if called.
-	 * And after this function calling, don't use DBAgentMySQL object.
+	 * If the owner thread is calling a method that communicates with
+	 * the DB server such as select(), insert(), and update(), a retry
+	 * in the method is aborted. In this case, a HatoholException with
+	 * an error code HTERR_VALID_DBAGENT_NO_LONGER_EXISTS
+	 * is thrown on the DBAgentMySQL instance running thread.
+	 * Note that the instance must not be used after this method is called.
 	 */
 	void dispose(void);
 
