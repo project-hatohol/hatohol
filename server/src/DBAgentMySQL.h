@@ -73,7 +73,7 @@ public:
 	 * the DB server such as select(), insert(), and update(), a retry
 	 * in the method is aborted. In this case, a HatoholException with
 	 * an error code HTERR_VALID_DBAGENT_NO_LONGER_EXISTS
-	 * is thrown on the DBAgentMySQL instance running thread.
+	 * is thrown on the thread calling any of their methods.
 	 * Note that the instance must not be used after this method is called.
 	 */
 	void dispose(void);
