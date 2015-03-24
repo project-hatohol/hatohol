@@ -98,7 +98,66 @@ casper.test.begin('Register/Unregister access info list test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
+  casper.waitForSelector("form input[type=button][value='表示 / 編集']",
+    function success() {
+      test.assertExists("form input[type=button][value='表示 / 編集']");
+      this.click("form input[type=button][value='表示 / 編集']");
+    },
+    function fail() {
+      test.assertExists("form input[type=button][value='表示 / 編集']");
+    });
+  // unregister access info list server
+  casper.waitForSelector("#privilegeEditDialogMainTable tr .serverSelectCheckbox",
+    function success() {
+      test.assertExists("#privilegeEditDialogMainTable tr .serverSelectCheckbox");
+      this.evaluate(function() {
+        $("#privilegeEditDialogMainTable tr:last").find(".serverSelectCheckbox")
+          .click();
+        return true;
+      });
+    },
+    function fail() {
+      this.evaluate(function() {
+        $("#privilegeEditDialogMainTable tr:last").find(".serverSelectCheckbox");
+        return true;
+      });
+    });
+  // assert access info list server (Unregistered)
+  casper.waitFor(function() {
+    return this.evaluate(function () {
+      return $("#privilegeEditDialogMainTable tr:last")
+        .find(".serverSelectCheckbox:checked").val() === undefined;
+    });
+  }, function then() {
+     this.test.assert(this.evaluate(function () {
+       return $("#privilegeEditDialogMainTable tr:last")
+         .find(".serverSelectCheckbox:checked").val() === undefined;
+     }), "#privilegeEditDialogMainTable tr:last .serverSelectCheckbox is unchecked.");
+  }, function timeout() {
+    this.echo("Oops, #privilegeEditDialogMainTable .serverSelectCheckbox dose not to be unchecked.");
+  });
+  casper.waitForSelector("div.ui-dialog-buttonset button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset button",
+                        "Confirmation dialog appeared.");
+      this.evaluate(function() {
+        $("div.ui-dialog-buttonset button").click();
+      });
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset button");
+    });
 
+  // close comfirm dialog
+  casper.waitForSelector("div.ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared after registering.");
+      this.click("div.ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset > button");
+    });
   casper.then(function() {
     util.moveToServersPage(test);
     util.unregisterMonitoringServer();
