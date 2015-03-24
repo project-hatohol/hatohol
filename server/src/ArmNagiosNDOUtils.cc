@@ -803,6 +803,7 @@ void ArmNagiosNDOUtils::getItem(void)
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 
+		int hostId;
 		ItemInfo itemInfo;
 		itemInfo.serverId = svInfo.id;
 		itemInfo.lastValueTime.tv_nsec = 0;
@@ -810,7 +811,9 @@ void ArmNagiosNDOUtils::getItem(void)
 		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_STRING;
 
 		itemInfo.id = itemGroupStream.read<int, string>(); // service_id
-		itemInfo.hostIdInServer = itemGroupStream.read<int, string>(); // host_id
+		itemGroupStream >> hostId;
+		if (m_impl->hostMap.find(hostId) != m_impl->hostMap.end())
+			itemInfo.hostIdInServer = m_impl->hostMap[hostId];
 		itemInfo.globalHostId =
 		  m_impl->getGlobalHostId(itemInfo.hostIdInServer);
 		itemGroupStream >> itemInfo.brief;     // check_command
