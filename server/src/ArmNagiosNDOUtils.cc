@@ -432,7 +432,7 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 {
 	if (m_impl->dbAgent)
-		m_impl->dbAgent->requestCancel();
+		m_impl->dbAgent->dispose();
 	requestExitAndWait();
 }
 

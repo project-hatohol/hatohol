@@ -66,13 +66,13 @@ public:
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
 	virtual bool lastUpsertDidUpdate(void) override;
-	void requestCancel(void);
+	void dispose(void);
 
 protected:
 	static const char *getCStringOrNullIfEmpty(const std::string &str);
 	void connect(void);
 	void sleepAndReconnect(unsigned int sleepTimeSec);
-	bool throwExceptionIfCancelRequested(void) const;
+	bool throwExceptionIfDisposed(void) const;
 	void queryWithRetry(const std::string &statement);
 
 	// virtual methods

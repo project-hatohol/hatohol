@@ -45,14 +45,14 @@ struct DBAgentMySQL::Impl {
 	string host;
 	unsigned int port;
 	bool inTransaction;
-	AtomicValue<bool> cancelRequested;
+	AtomicValue<bool> disposed;
 	SimpleSemaphore waitSem;
 
 	Impl(void)
 	: connected(false),
 	  port(0),
 	  inTransaction(false),
-	  cancelRequested(false),
+	  disposed(false),
 	  waitSem(0)
 	{
 	}
@@ -539,9 +539,9 @@ void DBAgentMySQL::renameTable(const string &srcName, const string &destName)
 	execSql(query);
 }
 
-void DBAgentMySQL::requestCancel(void)
+void DBAgentMySQL::dispose(void)
 {
-	m_impl->cancelRequested = true;
+	m_impl->disposed = true;
 
 	m_impl->waitSem.post();
 }
@@ -585,15 +585,15 @@ void DBAgentMySQL::sleepAndReconnect(unsigned int sleepTimeSec)
 	connect();
 }
 
-bool DBAgentMySQL::throwExceptionIfCancelRequested(void) const
+bool DBAgentMySQL::throwExceptionIfDisposed(void) const
 {
-	if (m_impl->cancelRequested) {
+	if (m_impl->disposed) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 			HTERR_VALID_DBAGENT_NO_LONGER_EXISTS,
 			"Valid DBAgentMySQL no longer exists.\n");
 	}
 
-	return m_impl->cancelRequested;
+	return m_impl->disposed;
 }
 
 void DBAgentMySQL::queryWithRetry(const string &statement)
@@ -601,7 +601,7 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 	unsigned int errorNumber = 0;
 	size_t numRetry = DEFAULT_NUM_RETRY;
 	for (size_t i = 0; i < numRetry; i++) {
-		if (throwExceptionIfCancelRequested())
+		if (throwExceptionIfDisposed())
 			break;
 		if (mysql_query(&m_impl->mysql, statement.c_str()) == 0) {
 			if (i >= 1) {
@@ -624,7 +624,7 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 		// retry repeatedly until the connection is established or
 		// the maximum retry count.
 		for (; i < numRetry; i++) {
-			if (throwExceptionIfCancelRequested())
+			if (throwExceptionIfDisposed())
 				break;
 			size_t sleepTimeSec = RETRY_INTERVAL[i];
 			MLPL_INFO("Try to connect after %zd sec. (%zd/%zd)\n",
