@@ -85,7 +85,7 @@ casper.test.begin('Register/Unregister access info list test', function(test) {
       });
     },
     function fail() {
-      test.assertExists("form button#delete-user-button");
+      test.assertExists("div.ui-dialog-buttonset button");
     });
 
   // close comfirm dialog
