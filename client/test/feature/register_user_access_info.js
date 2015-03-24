@@ -62,7 +62,7 @@ casper.test.begin('Register/Unregister access info list test', function(test) {
         return true;
       });
     });
-  // assert access info list server
+  // assert access info list server (Registered)
   casper.waitFor(function() {
      return this.evaluate(function () {
        return $("#privilegeEditDialogMainTable tr:last")
