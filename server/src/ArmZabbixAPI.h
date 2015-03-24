@@ -43,6 +43,8 @@ public:
 
 	virtual void onGotNewEvents(const ItemTablePtr &itemPtr);
 
+	virtual void waitExit(void) override;
+
 protected:
 	ItemTablePtr updateTriggers(void);
 	ItemTablePtr updateTriggerExpandedDescriptions(void);

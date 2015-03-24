@@ -76,6 +76,12 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 	// This function is used on a test class.
 }
 
+void ArmZabbixAPI::waitExit(void)
+{
+	abortSession();
+	ArmBase::waitExit();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

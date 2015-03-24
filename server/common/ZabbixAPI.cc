@@ -92,6 +92,15 @@ ZabbixAPI::~ZabbixAPI()
 {
 }
 
+void ZabbixAPI::abortSession(void)
+{
+	if (m_impl->session) {
+		MLPL_DBG("invoke soup_session_abort().\n");
+		soup_session_abort(m_impl->session);
+	}
+}
+
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
