@@ -66,11 +66,23 @@ public:
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
 	virtual bool lastUpsertDidUpdate(void) override;
+	/**
+	 * Dispose DBAgentMySQL object and stop retrying connection to MySQL.
+	 *
+	 * If the owner thread is calling a method that communicates with
+	 * the DB server such as select(), insert(), and update(), a retry
+	 * in the method is aborted. In this case, a HatoholException with
+	 * an error code HTERR_VALID_DBAGENT_NO_LONGER_EXISTS
+	 * is thrown on the thread calling any of their methods.
+	 * Note that the instance must not be used after this method is called.
+	 */
+	void dispose(void);
 
 protected:
 	static const char *getCStringOrNullIfEmpty(const std::string &str);
 	void connect(void);
 	void sleepAndReconnect(unsigned int sleepTimeSec);
+	bool throwExceptionIfDisposed(void) const;
 	void queryWithRetry(const std::string &statement);
 
 	// virtual methods
@@ -95,5 +107,3 @@ private:
 };
 
 #endif // DBAgentMySQL_h
-
-

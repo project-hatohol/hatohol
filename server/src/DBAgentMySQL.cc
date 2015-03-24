@@ -19,6 +19,10 @@
 
 #include <mysql/errmsg.h>
 #include <unistd.h>
+#include <semaphore.h>
+#include <errno.h>
+#include <AtomicValue.h>
+#include <SimpleSemaphore.h>
 #include "DBAgentMySQL.h"
 #include "SQLUtils.h"
 #include "SeparatorInjector.h"
@@ -41,11 +45,15 @@ struct DBAgentMySQL::Impl {
 	string host;
 	unsigned int port;
 	bool inTransaction;
+	AtomicValue<bool> disposed;
+	SimpleSemaphore waitSem;
 
 	Impl(void)
 	: connected(false),
 	  port(0),
-	  inTransaction(false)
+	  inTransaction(false),
+	  disposed(false),
+	  waitSem(0)
 	{
 	}
 
@@ -55,7 +63,7 @@ struct DBAgentMySQL::Impl {
 			mysql_close(&mysql);
 		}
 	}
-	
+
 	bool shouldRetry(unsigned int errorNumber)
 	{
 		return retryErrorSet.find(errorNumber) != retryErrorSet.end();
@@ -75,7 +83,6 @@ void DBAgentMySQL::init(void)
 		MLPL_INFO("Use memory engine\n");
 		Impl::engineStr = " ENGINE=MEMORY";
 	}
-
 	Impl::retryErrorSet.insert(CR_SERVER_GONE_ERROR);
 }
 
@@ -92,7 +99,7 @@ DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
 	if (!m_impl->connected) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 		  HTERR_FAILED_CONNECT_MYSQL,
-		  "Failed to connect to MySQL: %s: %s\n", 
+		  "Failed to connect to MySQL: %s: %s\n",
 		  db, mysql_error(&m_impl->mysql));
 	}
 }
@@ -284,7 +291,7 @@ void DBAgentMySQL::createTable(const TableProfile &tableProfile)
 	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 	string query = StringUtils::sprintf("CREATE TABLE %s (",
 	                                    tableProfile.name);
-	
+
 	for (size_t i = 0; i < tableProfile.numColumns; i++) {
 		const ColumnDef &columnDef = tableProfile.columnDefs[i];
 		query += getColumnDefinitionQuery(columnDef);
@@ -532,6 +539,13 @@ void DBAgentMySQL::renameTable(const string &srcName, const string &destName)
 	execSql(query);
 }
 
+void DBAgentMySQL::dispose(void)
+{
+	m_impl->disposed = true;
+
+	m_impl->waitSem.post();
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -564,19 +578,22 @@ void DBAgentMySQL::connect(void)
 
 void DBAgentMySQL::sleepAndReconnect(unsigned int sleepTimeSec)
 {
-	// TODO:
-	// add mechanism to wake up immediately if the program is
-	// going to exit. We should make an interrputible sleep object
-	// which is similar to ArmBase::sleepInterruptible().
-	while (sleepTimeSec) {
-		// If a signal happens during the sleep(), it returns
-		// the remaining time.
-		sleepTimeSec = sleep(sleepTimeSec);
-	}
+	m_impl->waitSem.timedWait(sleepTimeSec * 1000);
 
 	mysql_close(&m_impl->mysql);
 	m_impl->connected = false;
 	connect();
+}
+
+bool DBAgentMySQL::throwExceptionIfDisposed(void) const
+{
+	if (m_impl->disposed) {
+		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+			HTERR_VALID_DBAGENT_NO_LONGER_EXISTS,
+			"Valid DBAgentMySQL no longer exists.\n");
+	}
+
+	return m_impl->disposed;
 }
 
 void DBAgentMySQL::queryWithRetry(const string &statement)
@@ -584,6 +601,8 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 	unsigned int errorNumber = 0;
 	size_t numRetry = DEFAULT_NUM_RETRY;
 	for (size_t i = 0; i < numRetry; i++) {
+		if (throwExceptionIfDisposed())
+			break;
 		if (mysql_query(&m_impl->mysql, statement.c_str()) == 0) {
 			if (i >= 1) {
 				MLPL_INFO("Recoverd: %s (retry #%zd).\n",
@@ -605,6 +624,8 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 		// retry repeatedly until the connection is established or
 		// the maximum retry count.
 		for (; i < numRetry; i++) {
+			if (throwExceptionIfDisposed())
+				break;
 			size_t sleepTimeSec = RETRY_INTERVAL[i];
 			MLPL_INFO("Try to connect after %zd sec. (%zd/%zd)\n",
 			          sleepTimeSec, i+1, numRetry);
@@ -703,7 +724,7 @@ void DBAgentMySQL::getIndexInfoVect(vector<IndexInfo> &indexInfoVect,
 		ColumnIndexDict(const TableProfile &tableProfile)
 		{
 			for (size_t i = 0; i < tableProfile.numColumns; i++) {
-				const ColumnDef &columnDef = 
+				const ColumnDef &columnDef =
 				  tableProfile.columnDefs[i];
 				dict[columnDef.columnName] = i;
 			}
@@ -725,7 +746,7 @@ void DBAgentMySQL::getIndexInfoVect(vector<IndexInfo> &indexInfoVect,
 
 	vector<IndexStruct> indexStructVect;
 	getIndexes(indexStructVect, tableProfile.name);
-	
+
 	// Group the same index
 	IndexStructMap indexStructMap;
 	for (size_t i = 0; i < indexStructVect.size(); i++) {
@@ -762,4 +783,3 @@ void DBAgentMySQL::getIndexInfoVect(vector<IndexInfo> &indexInfoVect,
 		indexInfoVect.push_back(idxInfo);
 	}
 }
-
