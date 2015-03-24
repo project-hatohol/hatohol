@@ -710,8 +710,9 @@ void ArmNagiosNDOUtils::getTriggerInfoTable(TriggerInfoList &triggerInfoList)
 		                                      //status_update_time
 		itemGroupStream >> trigInfo.brief;    // output
 		itemGroupStream >> hostId;
-		if (m_impl->hostMap.find(hostId) != m_impl->hostMap.end())
-			trigInfo.hostIdInServer = m_impl->hostMap[hostId];
+		map<int, string>::iterator it = m_impl->hostMap.find(hostId);
+		if (it != m_impl->hostMap.end())
+			trigInfo.hostIdInServer = it->second;
 		trigInfo.globalHostId =
 		  m_impl->getGlobalHostId(trigInfo.hostIdInServer);
 		itemGroupStream >> trigInfo.hostName; // hosts.display_name
@@ -780,8 +781,9 @@ void ArmNagiosNDOUtils::getEvent(void)
 		itemGroupStream >> eventInfo.brief;       // output
 		eventInfo.triggerId = itemGroupStream.read<int, string>(); // service_id
 		itemGroupStream >> hostId;
-		if (m_impl->hostMap.find(hostId) != m_impl->hostMap.end())
-			eventInfo.hostIdInServer = m_impl->hostMap[hostId];
+		map<int, string>::iterator it = m_impl->hostMap.find(hostId);
+		if (it != m_impl->hostMap.end())
+			eventInfo.hostIdInServer = it->second;
 		eventInfo.globalHostId =
 		  m_impl->getGlobalHostId(eventInfo.hostIdInServer);
 		itemGroupStream >> eventInfo.hostName;    // hosts.display_name
@@ -814,8 +816,9 @@ void ArmNagiosNDOUtils::getItem(void)
 
 		itemInfo.id = itemGroupStream.read<int, string>(); // service_id
 		itemGroupStream >> hostId;
-		if (m_impl->hostMap.find(hostId) != m_impl->hostMap.end())
-			itemInfo.hostIdInServer = m_impl->hostMap[hostId];
+		map<int, string>::iterator it = m_impl->hostMap.find(hostId);
+		if (it != m_impl->hostMap.end())
+			itemInfo.hostIdInServer = it->second;
 		itemInfo.globalHostId =
 		  m_impl->getGlobalHostId(itemInfo.hostIdInServer);
 		itemGroupStream >> itemInfo.brief;     // check_command
