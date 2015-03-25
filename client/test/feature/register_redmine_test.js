@@ -192,7 +192,7 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
       $(document).off("DOMNodeRemoved", "table#incidentTrackersEditorMainTable tr");
     });
   }, function timeout() {
-    this.echo("Oops, confirmation dialog dose not closed.");
+    this.echo("Oops, newly created table element does not to be deleted.");
   });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});

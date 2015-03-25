@@ -178,7 +178,7 @@ casper.test.begin('Register/Unregister server test', function(test) {
       $(document).off("DOMNodeRemoved", "table tr");
     });
   }, function timeout() {
-    this.echo("Oops, confirmation dialog dose not to be closed.");
+    this.echo("Oops, newly created table element does not to be deleted.");
   });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});

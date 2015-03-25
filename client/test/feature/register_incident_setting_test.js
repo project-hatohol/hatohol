@@ -155,7 +155,7 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
       $(document).off("DOMNodeRemoved", "table#incidentTrackersEditorMainTable tr");
     });
   }, function timeout() {
-    this.echo("Oops, confirmation dialog dose not to be closed.");
+    this.echo("Oops, newly created table element does not to be deleted.");
   });
   casper.then(function() {util.unregisterIncidentTrackerRedmine(test);});
   casper.then(function() {
