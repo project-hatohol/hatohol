@@ -45,8 +45,8 @@
 	- [WebUI] Prevent user from deleting hisown profile. (#767)
 	- [Server] Add a update process of hostname. (#815)
 	- [Server] Add disable Zabbix hosts to monitoring host. (#933)
-	- [Server] Avoid registering duplicate hosts and hostgroups of Nagios
-	  (#1151)
+	- [Server] Avoid registering duplicate items, triggers hosts and
+	  hostgroups of Nagios (#1151)
 
 2014-12-26 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12
 
