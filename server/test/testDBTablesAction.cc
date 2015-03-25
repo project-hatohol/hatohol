@@ -27,6 +27,7 @@
 #include "DBTablesTest.h"
 #include "Helpers.h"
 #include "ThreadLocalDBCache.h"
+#include <algorithm>
 using namespace std;
 using namespace mlpl;
 
@@ -1115,6 +1116,48 @@ void test_withEventInfoWithHostgroups(void)
 	string expectedHostgroupIdStringListRegex = "('1','2'|'2','1')";
 	assertRegexActionsQueryCondition(id, event, option,
 					 expectedHostgroupIdStringListRegex);
+}
+
+class TestActionsQueryOption : public ActionsQueryOption {
+public:
+	TestActionsQueryOption(const UserIdType &userId)
+	: ActionsQueryOption(userId)
+	{
+	}
+
+	void getHostgroupIdStringList(string &stringHostgroupId,
+	                              const ServerIdType &serverId,
+	                              const LocalHostIdType &hostId)
+	{
+		ActionsQueryOption::getHostgroupIdStringList(stringHostgroupId,
+		                                             serverId, hostId);
+	}
+};
+
+void test_getHostgroupIdStringList(void)
+{
+	loadTestDBTablesUser();
+	loadTestDBHostgroupMember();
+
+	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
+	const EventInfo &event = testEventInfo[2]; // use host_id_in_server='235012'
+	TestActionsQueryOption option(id);
+	option.setTargetEventInfo(&event);
+	std::vector<string> expectedHostgroupIdVect;
+	expectedHostgroupIdVect.push_back("'1'");
+	expectedHostgroupIdVect.push_back("'2'");
+	string obtainedHostgroupIdStringList;
+	option.getHostgroupIdStringList(obtainedHostgroupIdStringList,
+					event.serverId,
+					event.hostIdInServer.c_str());
+	std::vector<string> actualHostgroupIdVect;
+	StringUtils::split(actualHostgroupIdVect, obtainedHostgroupIdStringList, ',');
+	std::sort(actualHostgroupIdVect.begin(), actualHostgroupIdVect.end());
+
+	size_t hostgroupIdVectSize = actualHostgroupIdVect.size();
+	for (size_t i = 0; i < hostgroupIdVectSize; ++i)
+		cppcut_assert_equal(actualHostgroupIdVect.at(i),
+				    expectedHostgroupIdVect.at(i));
 }
 
 void data_actionType(void)
