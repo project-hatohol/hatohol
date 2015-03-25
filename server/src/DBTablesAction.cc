@@ -891,28 +891,6 @@ ItemDataNullFlagType DBTablesAction::getNullFlag
 		return ITEM_DATA_NULL;
 }
 
-static void getHostgroupIdStringList(string &stringHostgroupId,
-  const ServerIdType &serverId, const LocalHostIdType &hostId)
-{
-	HostgroupMemberVect hostgrpMembers;
-	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
-	option.setTargetServerId(serverId);
-	option.setTargetHostId(hostId);
-	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-	uds->getHostgroupMembers(hostgrpMembers, option);
-
-	if (hostgrpMembers.empty())
-		return;
-
-	SeparatorInjector commaInjector(",");
-	DBTermCodec dbCodec;
-	for (size_t i = 0; i < hostgrpMembers.size(); i++) {
-		const HostgroupMember &hostgrpMember = hostgrpMembers[i];
-		commaInjector(stringHostgroupId);
-		stringHostgroupId += dbCodec.enc(hostgrpMember.hostgroupIdInServer);
-	}
-}
-
 bool DBTablesAction::getLog(ActionLog &actionLog, const string &condition)
 {
 	DBAgent::SelectExArg arg(tableProfileActionLogs);
@@ -1302,6 +1280,28 @@ string ActionsQueryOption::getCondition(void) const
 	                eventInfo->status,
 	                eventInfo->severity, eventInfo->severity);
 	return cond;
+}
+
+void ActionsQueryOption::getHostgroupIdStringList(string &stringHostgroupId,
+  const ServerIdType &serverId, const LocalHostIdType &hostId)
+{
+	HostgroupMemberVect hostgrpMembers;
+	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	option.setTargetHostId(hostId);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	uds->getHostgroupMembers(hostgrpMembers, option);
+
+	if (hostgrpMembers.empty())
+		return;
+
+	SeparatorInjector commaInjector(",");
+	DBTermCodec dbCodec;
+	for (size_t i = 0; i < hostgrpMembers.size(); i++) {
+		const HostgroupMember &hostgrpMember = hostgrpMembers[i];
+		commaInjector(stringHostgroupId);
+		stringHostgroupId += dbCodec.enc(hostgrpMember.hostgroupIdInServer);
+	}
 }
 
 bool ActionDef::parseIncidentSenderCommand(IncidentTrackerIdType &trackerId) const

@@ -254,6 +254,10 @@ public:
 
 	virtual std::string getCondition(void) const override;
 
+protected:
+	static void getHostgroupIdStringList(std::string &stringHostgroupId,
+	                                     const ServerIdType &serverId,
+	                                     const LocalHostIdType &hostId);
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
