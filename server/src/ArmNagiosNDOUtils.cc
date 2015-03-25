@@ -564,7 +564,7 @@ void ArmNagiosNDOUtils::makeSelectEventBuilder(void)
 	builder.addTable(
 	  tableProfileServices, DBClientJoinBuilder::INNER_JOIN,
 	  IDX_STATEHISTORY_OBJECT_ID, IDX_SERVICES_SERVICE_OBJECT_ID);
-	builder.add(IDX_SERVICES_SERVICE_ID);
+	builder.add(IDX_SERVICES_SERVICE_OBJECT_ID);
 
 	builder.addTable(
 	  tableProfileHosts, DBClientJoinBuilder::INNER_JOIN,
