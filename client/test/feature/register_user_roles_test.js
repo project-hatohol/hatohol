@@ -113,7 +113,7 @@ casper.test.begin('Register/Unregister user role test', function(test) {
   // assert for added user role name
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return $(document).on("DOMNodeInserted",  "table#userRoleEditorMainTable tr",
+      return $(document).on("DOMNodeInserted", "table#userRoleEditorMainTable tr",
                             function() {return true;});
     });
   }, function then() {
@@ -121,7 +121,7 @@ casper.test.begin('Register/Unregister user role test', function(test) {
                           "Registered user role's name \"" +roleName+
                           "\" exists in the user role table.");
     this.evaluate(function() {
-      $(document).off("DOMNodeInserted",  "table#userRoleEditorMainTable tr");
+      $(document).off("DOMNodeInserted", "table#userRoleEditorMainTable tr");
     });
   }, function timeout() {
     this.echo("Oops, table element does not to be newly created.");
