@@ -1125,7 +1125,7 @@ public:
 	{
 	}
 
-	void getHostgroupIdStringList(string &stringHostgroupId,
+	void callGetHostgroupIdStringList(string &stringHostgroupId,
 	                              const ServerIdType &serverId,
 	                              const LocalHostIdType &hostId)
 	{
@@ -1147,9 +1147,9 @@ void test_getHostgroupIdStringList(void)
 	expectedHostgroupIdVect.push_back("'1'");
 	expectedHostgroupIdVect.push_back("'2'");
 	string obtainedHostgroupIdStringList;
-	option.getHostgroupIdStringList(obtainedHostgroupIdStringList,
-					event.serverId,
-					event.hostIdInServer.c_str());
+	option.callGetHostgroupIdStringList(obtainedHostgroupIdStringList,
+					    event.serverId,
+					    event.hostIdInServer.c_str());
 	std::vector<string> actualHostgroupIdVect;
 	StringUtils::split(actualHostgroupIdVect, obtainedHostgroupIdStringList, ',');
 	std::sort(actualHostgroupIdVect.begin(), actualHostgroupIdVect.end());
