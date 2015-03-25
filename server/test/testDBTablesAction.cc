@@ -1134,7 +1134,7 @@ public:
 	}
 };
 
-void test_getHostgroupIdStringList(void)
+void test_getHostgroupIdList(void)
 {
 	loadTestDBTablesUser();
 	loadTestDBHostgroupMember();
