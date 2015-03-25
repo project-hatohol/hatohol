@@ -110,7 +110,7 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
       return true;
     });
   });
-  // check delete-selector checkbox in incident setting
+  // check DOMNodeInserted event
   casper.waitForSelector("form button#delete-incident-setting-button",
     function success() {
       test.assertExists("form button#delete-incident-setting-button",

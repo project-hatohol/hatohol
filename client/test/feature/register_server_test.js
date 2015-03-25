@@ -111,7 +111,7 @@ casper.test.begin('Register/Unregister server test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
-  // check delete-selector checkbox in minitoring server
+  // check DOMNodeInserted event
   casper.waitFor(function() {
     return this.evaluate(function() {
       return $(document).on("DOMNodeInserted",
