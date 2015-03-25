@@ -530,7 +530,7 @@ void ArmNagiosNDOUtils::makeSelectTriggerBuilder(void)
 {
 	// TODO: Confirm what may be use using host_object_id.
 	DBClientJoinBuilder &builder = m_impl->selectTriggerBuilder;
-	builder.add(IDX_SERVICES_SERVICE_ID);
+	builder.add(IDX_SERVICES_SERVICE_OBJECT_ID);
 
 	builder.addTable(
 	  tableProfileServiceStatus, DBClientJoinBuilder::INNER_JOIN,
@@ -583,7 +583,7 @@ void ArmNagiosNDOUtils::makeSelectEventBuilder(void)
 void ArmNagiosNDOUtils::makeSelectItemBuilder(void)
 {
 	DBClientJoinBuilder &builder = m_impl->selectItemBuilder;
-	builder.add(IDX_SERVICES_SERVICE_ID);
+	builder.add(IDX_SERVICES_SERVICE_OBJECT_ID);
 	builder.add(IDX_SERVICES_HOST_OBJECT_ID);
 
 	builder.addTable(
