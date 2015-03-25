@@ -1125,12 +1125,12 @@ public:
 	{
 	}
 
-	void callGetHostgroupIdStringList(string &stringHostgroupId,
-	                              const ServerIdType &serverId,
-	                              const LocalHostIdType &hostId)
+	void callGetHostgroupIdList(string &stringHostgroupId,
+	                            const ServerIdType &serverId,
+	                            const LocalHostIdType &hostId)
 	{
-		ActionsQueryOption::getHostgroupIdStringList(stringHostgroupId,
-		                                             serverId, hostId);
+		ActionsQueryOption::getHostgroupIdList(stringHostgroupId,
+		                                       serverId, hostId);
 	}
 };
 
@@ -1147,9 +1147,9 @@ void test_getHostgroupIdStringList(void)
 	expectedHostgroupIdVect.push_back("'1'");
 	expectedHostgroupIdVect.push_back("'2'");
 	string obtainedHostgroupIdStringList;
-	option.callGetHostgroupIdStringList(obtainedHostgroupIdStringList,
-					    event.serverId,
-					    event.hostIdInServer.c_str());
+	option.callGetHostgroupIdList(obtainedHostgroupIdStringList,
+				      event.serverId,
+				      event.hostIdInServer.c_str());
 	std::vector<string> actualHostgroupIdVect;
 	StringUtils::split(actualHostgroupIdVect, obtainedHostgroupIdStringList, ',');
 	std::sort(actualHostgroupIdVect.begin(), actualHostgroupIdVect.end());

@@ -1262,7 +1262,7 @@ string ActionsQueryOption::getCondition(void) const
 	HATOHOL_ASSERT(!m_impl->conditionTemplate.empty(),
 	               "ActionDef condition template is empty.");
 	string hostgroupIdList;
-	getHostgroupIdStringList(
+	getHostgroupIdList(
 	  hostgroupIdList, eventInfo->serverId, eventInfo->hostIdInServer);
 	DBTermCStringProvider rhs(*getDBTermCodec());
 	if (hostgroupIdList.empty())
@@ -1282,7 +1282,7 @@ string ActionsQueryOption::getCondition(void) const
 	return cond;
 }
 
-void ActionsQueryOption::getHostgroupIdStringList(string &stringHostgroupId,
+void ActionsQueryOption::getHostgroupIdList(string &stringHostgroupId,
   const ServerIdType &serverId, const LocalHostIdType &hostId)
 {
 	HostgroupMemberVect hostgrpMembers;
