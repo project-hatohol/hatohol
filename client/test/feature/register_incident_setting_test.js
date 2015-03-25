@@ -91,6 +91,11 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
     return this.evaluate(function() {
       return document.querySelectorAll("table tr").length > 1;
     });
+    return this.evaluate(function() {
+      return $(document).on("DOMNodeInserted",
+                            "table#incidentTrackersEditorMainTable tr",
+                            function() {return true;});
+    });
   }, function then() {
     // TODO: This test is often broken and too difficult reproducing it.
     test.skip(1, "Registered incident setting assertion test is too fragile. Skipped.");
@@ -98,6 +103,9 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
     //                       "Registered incident setting's server name \""
     //                       +incidentSetting.serverName+
     //                       "\" exists in the incident settings table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeInserted", "table#incidentTrackersEditorMainTable tr");
+    });
   }, function timeout() {
     this.echo("Oops, table element does not to be newly created.");
   });
@@ -139,13 +147,18 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
     });
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 1;
+      return $(document).on("DOMNodeRemoved",
+                            "table#incidentTrackersEditorMainTable tr",
+                            function() {return true;});
     });
   }, function then() {
     test.assertTextDoesntExist(incidentSetting.serverName,
                                "Registered incident setting's server name \""
                                +incidentSetting.serverName+
                                "\" dose not exist in the incisent settings table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeRemoved", "table#incidentTrackersEditorMainTable tr");
+    });
   }, function timeout() {
     this.echo("Oops, confirmation dialog dose not to be closed.");
   });
