@@ -1052,6 +1052,31 @@ static void assertActionsQueryCondition(const UserIdType id, const EventInfo &ev
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
+static void assertRegexActionsQueryCondition(
+  const UserIdType id, const EventInfo &event,
+  const ActionsQueryOption option,
+  const string expectedHostgroupIdStringListRegex)
+{
+	string expectedRegex
+	  = StringUtils::sprintf(
+	    "\\(owner_user_id=%" FMT_USER_ID " AND "
+	    "action_type>=0 AND action_type<2\\) AND "
+	    "\\(\\(server_id IS NULL\\) OR \\(server_id=%" FMT_SERVER_ID "\\)\\) AND "
+	    "\\(\\(host_id_in_server IS NULL\\) OR "
+	    "\\(host_id_in_server='%" FMT_LOCAL_HOST_ID "'\\)\\) AND "
+	    "\\(\\(host_group_id IS NULL\\) OR host_group_id IN \\(%" FMT_HOST_GROUP_ID "\\)\\) AND "
+	    "\\(\\(trigger_id IS NULL\\) OR \\(trigger_id='%" FMT_TRIGGER_ID "'\\)\\) AND "
+	    "\\(\\(trigger_status IS NULL\\) OR \\(trigger_status=%d\\)\\) AND "
+	    "\\(\\(trigger_severity IS NULL\\) OR "
+	    "\\(trigger_severity_comp_type=1 AND trigger_severity=%d\\) OR "
+	    "\\(trigger_severity_comp_type=2 AND trigger_severity<=%d\\)\\)",
+	    id, event.serverId, event.hostIdInServer.c_str(),
+	    expectedHostgroupIdStringListRegex.c_str(),
+	    event.triggerId.c_str(),
+	    event.status, event.severity, event.severity);
+	cut_assert_match(expectedRegex.c_str(), option.getCondition().c_str());
+}
+
 void test_withEventInfo(void)
 {
 	loadTestDBTablesUser();
@@ -1087,8 +1112,9 @@ void test_withEventInfoWithHostgroups(void)
 	const EventInfo &event = testEventInfo[2]; // use host_id_in_server='235012'
 	ActionsQueryOption option(id);
 	option.setTargetEventInfo(&event);
-	string expectedHostgroupIdStringList = "'2','1'";
-	assertActionsQueryCondition(id, event, option, expectedHostgroupIdStringList);
+	string expectedHostgroupIdStringListRegex = "('1','2'|'2','1')";
+	assertRegexActionsQueryCondition(id, event, option,
+					 expectedHostgroupIdStringListRegex);
 }
 
 void data_actionType(void)
