@@ -69,7 +69,7 @@ casper.test.begin('Login/Logout test', function(test) {
       });
     });
   }, function timeout() {
-    this.echo("Oops, it seems not to be logged in.");
+    this.echo("Oops, it seems not to be logged out.");
   });
 
   casper.run(function() {test.done();});
