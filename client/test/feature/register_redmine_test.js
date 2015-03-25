@@ -121,13 +121,18 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
   // check delete-selector check box in incident trackers server
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("table#incidentTrackersEditorMainTable tr").length > 1;
+      return $(document).on("DOMNodeInserted",
+                            "table#incidentTrackersEditorMainTable tr",
+                            function() {return true;});
     });
   }, function then() {
     test.assertTextExists(incidentTracker.nickName,
                           "Registered incident tracker's nickName \""
                           +incidentTracker.nickName+
                           "\" exists in the incdent servers table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeInserted", "table#incidentTrackersEditorMainTable tr");
+    });
   }, function timeout() {
     this.echo("Oops, table element does not to be newly created.");
   });
@@ -174,13 +179,18 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
     });
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 2;
+      return $(document).on("DOMNodeRemoved",
+                            "table#incidentTrackersEditorMainTable tr",
+                            function() {return true;});
     });
   }, function then() {
     test.assertTextDoesntExist(incidentTracker.nickName,
                                "Registered incident tracker's nickName \""
                                +incidentTracker.nickName+
                                "\" dose not exist in the user table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeRemoved", "table#incidentTrackersEditorMainTable tr");
+    });
   }, function timeout() {
     this.echo("Oops, confirmation dialog dose not closed.");
   });
