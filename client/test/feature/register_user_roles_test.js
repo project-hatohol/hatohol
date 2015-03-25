@@ -113,12 +113,16 @@ casper.test.begin('Register/Unregister user role test', function(test) {
   // assert for added user role name
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("table#userRoleEditorMainTable tr").length > 1;
+      return $(document).on("DOMNodeInserted",  "table#userRoleEditorMainTable tr",
+                            function() {return true;});
     });
   }, function then() {
     test.assertTextExists(roleName,
                           "Registered user role's name \"" +roleName+
                           "\" exists in the user role table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeInserted",  "table#userRoleEditorMainTable tr");
+    });
   }, function timeout() {
     this.echo("Oops, table element does not to be newly created.");
   });
@@ -162,12 +166,16 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     });
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 2;
+      return $(document).on("DOMNodeRemoved", "table#userRoleEditorMainTable tr",
+                            function() {return true;});
     });
   }, function then() {
     test.assertTextDoesntExist(roleName,
                                "Registered user role's name \"" +roleName+
                                "\" does not exist in the user table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeRemoved", "table#userRoleEditorMainTable tr");
+    });
   }, function timeout() {
     this.echo("Oops, confirmation dialog dose not to be closed.");
   });
