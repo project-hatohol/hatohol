@@ -89,9 +89,6 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
     });
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("table tr").length > 1;
-    });
-    return this.evaluate(function() {
       return $(document).on("DOMNodeInserted",
                             "table#incidentTrackersEditorMainTable tr",
                             function() {return true;});
