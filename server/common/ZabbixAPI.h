@@ -54,6 +54,8 @@ public:
 	static ZabbixAPI::ValueType fromItemValueType(
 	  const ItemInfoValueType &valueType);
 
+	void freeze(void);
+
 protected:
 	typedef std::map<const TriggerIdType, const ItemGroupPtr> TriggerIdItemGrpMap;
 	typedef TriggerIdItemGrpMap::const_iterator TriggerIdItemGrpMapConstIterator;

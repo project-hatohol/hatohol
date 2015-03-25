@@ -78,6 +78,7 @@ void ArmZabbixAPI::onGotNewEvents(const ItemTablePtr &itemPtr)
 
 void ArmZabbixAPI::waitExit(void)
 {
+	freeze();
 	abortSession();
 	ArmBase::waitExit();
 }
