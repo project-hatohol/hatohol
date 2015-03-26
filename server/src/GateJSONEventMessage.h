@@ -39,11 +39,14 @@ public:
 	bool validate(mlpl::StringList &errors);
 
 	int64_t getID();
+	std::string getIDString();
 	timespec getTimestamp();
 	const char *getHostName();
 	const char *getContent();
 	TriggerSeverityType getSeverity();
 	EventType getType();
+
+	static const size_t EVENT_ID_DIGIT_NUM;
 
 private:
 	struct Impl;

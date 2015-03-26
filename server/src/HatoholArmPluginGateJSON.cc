@@ -113,7 +113,7 @@ private:
 		EventInfo eventInfo;
 		initEventInfo(eventInfo);
 		eventInfo.serverId = m_serverInfo.id;
-		eventInfo.id = message.getID();
+		eventInfo.id = message.getIDString();
 		eventInfo.time = message.getTimestamp();
 		eventInfo.type = message.getType();
 		eventInfo.severity = message.getSeverity();

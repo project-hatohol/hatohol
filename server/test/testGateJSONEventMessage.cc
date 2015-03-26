@@ -280,7 +280,7 @@ namespace getters {
 				   "{\n"
 				   "  \"type\": \"event\",\n"
 				   "  \"body\": {\n"
-				   "    \"id\":        1,\n"
+				   "    \"id\":        1234,\n"
 				   "    \"timestamp\": 1407824772.939664125,\n"
 				   "    \"hostName\":  \"www.example.com\",\n"
 				   "    \"content\":   \"Error!\"\n"
@@ -296,8 +296,14 @@ namespace getters {
 
 	void test_getID()
 	{
-		cppcut_assert_equal(static_cast<int64_t>(1),
+		cppcut_assert_equal(static_cast<int64_t>(1234),
 				    message->getID());
+	}
+
+	void test_getIDString()
+	{
+		cppcut_assert_equal(string("00000000000000001234"),
+				    message->getIDString());
 	}
 
 	void test_getHostName()
