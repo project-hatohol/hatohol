@@ -45,6 +45,18 @@
 	- [Server] Avoid registering duplicate items, triggers hosts and
 	  hostgroups of Nagios (#1151)
 
+    * Contributer
+    - Hiroshi Hatake
+    - Kazuhiro Yamato
+    - Kouhei Sutou
+    - Masayuki Nakagawa
+    - Mnakagawa
+    - Noriki Nakamura
+    - Takuro Ashie
+    - Toshihiko Miyazawa
+    - YOSHIFUJI Hideaki
+    - o-wakabayashi
+
 2014-12-26 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12
 
 	* New Features
