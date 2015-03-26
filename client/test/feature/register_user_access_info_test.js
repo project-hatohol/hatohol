@@ -21,7 +21,6 @@ casper.test.begin('Register/Unregister access info list test', function(test) {
   casper.then(function() {
     util.moveToServersPage(test);
     casper.then(function() {
-      // register Monitoring Server (Zabbix)
       util.registerMonitoringServer(test, monitoringServer);
     });
   });
