@@ -217,9 +217,9 @@ casper.test.begin('Register/Unregister action test', function(test) {
                             function() {return true;});
     });
   }, function then() {
-    test.assertTextDoesntExist(actionCommand,
-                          "Registered actionCommand: \"" +actionCommand+
-                          "\" does not exist in the user role table.");
+    test.assertTextDoesntExist(editActionCommand,
+                               "Registered editActionCommand: \"" +editActionCommand+
+                               "\" does not exist in the user role table.");
     this.evaluate(function() {
       $(document).off("DOMNodeRemoved", "table tr");
     });
