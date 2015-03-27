@@ -110,7 +110,7 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
-  // assert for added user role name
+  // check DOMNodeInserted event
   casper.waitFor(function() {
     return this.evaluate(function() {
       return $(document).on("DOMNodeInserted", "table#userRoleEditorMainTable tr",
@@ -126,7 +126,7 @@ casper.test.begin('Register/Unregister user role test', function(test) {
   }, function timeout() {
     this.echo("Oops, table element does not to be newly created.");
   });
-  // check DOMNodeInserted event
+
   casper.then(function() {
     this.evaluate(function() {
       $("input.userRoleSelectCheckbox:last").click();
