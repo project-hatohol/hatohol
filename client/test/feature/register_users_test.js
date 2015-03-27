@@ -204,8 +204,8 @@ casper.test.begin('Register/Unregister user test', function(test) {
                             function() {return true;});
     });
   }, function then() {
-    test.assertTextDoesntExist(user.name,
-                               "Registered user's name \"" +user.name+
+    test.assertTextDoesntExist(editedUser.name,
+                               "Registered user's name \"" +editedUser.name+
                                "\" does not exist in the user table.");
     this.evaluate(function() {
       $(document).off("DOMNodeRemoved", "table tr");
