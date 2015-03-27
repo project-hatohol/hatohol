@@ -253,9 +253,9 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
                             function() {return true;});
     });
   }, function then() {
-    test.assertTextDoesntExist(incidentTracker.nickName,
+    test.assertTextDoesntExist(editedIncidentTracker.nickName,
                                "Registered incident tracker's nickName \""
-                               +incidentTracker.nickName+
+                               +editedIncidentTracker.nickName+
                                "\" dose not exist in the user table.");
     this.evaluate(function() {
       $(document).off("DOMNodeRemoved", "table#incidentTrackersEditorMainTable tr");
