@@ -234,8 +234,9 @@ casper.test.begin('Register/Unregister server test', function(test) {
                             function() {return true;});
     });
   }, function then() {
-    test.assertTextDoesntExist(server.nickName,
-                               "Registered server's nickName \"" +server.nickName+
+    test.assertTextDoesntExist(editedServer.nickName,
+                               "Registered server's nickName \"" +
+                               editedServer.nickName +
                                "\" does not exists in the monitoring servers table.");
     this.evaluate(function() {
       $(document).off("DOMNodeRemoved", "table tr");
