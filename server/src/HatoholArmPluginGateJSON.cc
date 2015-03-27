@@ -126,6 +126,9 @@ private:
 
 	HostIdType findOrCreateHostID(const string &hostName)
 	{
+		if (hostName.empty())
+			return INVALID_HOST_ID;
+
 		map<string, HostIdType>::iterator it;
 		it = m_hosts.find(hostName);
 		if (it != m_hosts.end()) {
