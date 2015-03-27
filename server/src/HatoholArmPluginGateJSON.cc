@@ -136,7 +136,7 @@ private:
 		svHostDef.id = AUTO_INCREMENT_VALUE;
 		svHostDef.serverId = m_serverInfo.id;
 		svHostDef.hostId = AUTO_ASSIGNED_ID;
-		svHostDef.hostIdInServer = "";
+		svHostDef.hostIdInServer = hostName;
 		svHostDef.name = hostName;
 		svHostDef.status = HOST_STAT_INAPPLICABLE;
 		UnifiedDataStore *uds = UnifiedDataStore::getInstance();
