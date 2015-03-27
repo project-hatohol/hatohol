@@ -158,6 +158,23 @@ casper.test.begin('Register/Unregister log search system test', function(test) {
     function fail() {
       test.assertExists("form button#delete-server-button");
     });
+  // assert logsearch system base url (delete)
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return $(document).on("DOMNodeRemoved", "table tr",
+                            function() {return true;});
+    });
+  }, function then() {
+    test.assertTextDoesntExist(editLogSearchSystemURL,
+                               "Edited logSearhcSystemBaseURL \"" +
+                               editLogSearchSystemURL +
+                               "\" text does not exist.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeRemoved", "table tr");
+    });
+  }, function timeout() {
+    this.echo("Oops, logSearchSystemBaseURL seems not to be deleted .");
+  });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});
 });
