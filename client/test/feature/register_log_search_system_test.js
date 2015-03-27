@@ -81,7 +81,8 @@ casper.test.begin('Register/Unregister log search system test', function(test) {
   });
   casper.waitForSelector("input#editLogSearchSystemBaseURL",
     function success() {
-      this.sendKeys("input#editLogSearchSystemBaseURL", editLogSearchSystemURL);
+      this.sendKeys("input#editLogSearchSystemBaseURL",
+                    editLogSearchSystemURL, {reset: true});
     },
     function fail() {
       test.assertExists("input#editLogSearchSystemBaseURL");

@@ -132,7 +132,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
   });
   casper.waitForSelector("input#inputActionCommand",
     function success() {
-      this.sendKeys("input#inputActionCommand", editActionCommand);
+      this.sendKeys("input#inputActionCommand", editActionCommand, {reset: true});
     },
     function fail() {
       test.assertExists("input#inputActionCommand");

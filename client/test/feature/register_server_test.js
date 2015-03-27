@@ -149,7 +149,8 @@ casper.test.begin('Register/Unregister server test', function(test) {
   });
   casper.waitForSelector("input#server-edit-dialog-param-form-0",
     function success() {
-      this.sendKeys("input#server-edit-dialog-param-form-0", editedServer.nickName);
+      this.sendKeys("input#server-edit-dialog-param-form-0",
+                    editedServer.nickName, {reset: true});
     },
     function fail() {
       test.assertExists("input#server-edit-dialog-param-form-0");
