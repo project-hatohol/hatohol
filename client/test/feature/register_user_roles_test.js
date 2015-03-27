@@ -231,8 +231,8 @@ casper.test.begin('Register/Unregister user role test', function(test) {
                             function() {return true;});
     });
   }, function then() {
-    test.assertTextDoesntExist(roleName,
-                               "Registered user role's name \"" +roleName+
+    test.assertTextDoesntExist(editedRoleName,
+                               "Registered user role's name \"" +editedRoleName+
                                "\" does not exist in the user table.");
     this.evaluate(function() {
       $(document).off("DOMNodeRemoved", "table#userRoleEditorMainTable tr");
