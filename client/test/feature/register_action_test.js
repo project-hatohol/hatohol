@@ -165,7 +165,9 @@ casper.test.begin('Register/Unregister action test', function(test) {
     });
   }, function then() {
     casper.then(function() {
-      test.assertTextExists(editActionCommand, "Edited action command text exists.");
+      test.assertTextExists(editActionCommand,
+                            "Edited action command \"" +editActionCommand+
+                            "\"text exists.");
       this.evaluate(function() {
         $(document).off("DOMSubtreeModified", "table tr");
       });
