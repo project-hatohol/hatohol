@@ -11,6 +11,7 @@ casper.on("page.error", function(msg, trace) {
 
 casper.test.begin('Register/Unregister action test', function(test) {
   var actionCommand = "getlog";
+  var editActionCommand = "editlog";
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.then(function() {
@@ -116,6 +117,61 @@ casper.test.begin('Register/Unregister action test', function(test) {
     });
   }, function timeout() {
     this.echo("Oops, table element does not to be newly created.");
+  });
+  // edit action
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return $("input.btn").last().click();
+    });
+  }, function then() {
+    test.assertFieldCSS("input#inputActionCommand", actionCommand,
+                        "Registered actionCommand: \"" +actionCommand+
+                        "\" exists in the edit action dialog input#inputActionCommand.");
+  }, function timeout() {
+    this.echo("Oops, edit action dialog is not opened.");
+  });
+  casper.waitForSelector("input#inputActionCommand",
+    function success() {
+      this.sendKeys("input#inputActionCommand", editActionCommand);
+    },
+    function fail() {
+      test.assertExists("input#inputActionCommand");
+    });
+  casper.waitForSelector(".ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists(".ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared when " +
+                        "registering action.");
+      this.click(".ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists(".ui-dialog-buttonset > button");
+    });
+  // close comfirm dialog
+  casper.waitForSelector("div.ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared after registering.");
+      this.click("div.ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset > button");
+    });
+  // assert edit action command
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return $(document).on("DOMSubtreeModified", "table tr",
+                            function() {return true;});
+    });
+  }, function then() {
+    casper.then(function() {
+      test.assertTextExists(editActionCommand, "Edited action command text exists.");
+      this.evaluate(function() {
+        $(document).off("DOMSubtreeModified", "table tr");
+      });
+    });
+  }, function timeout() {
+    this.echo("Oops, it seems not to be logged in.");
   });
   casper.then(function() {
     this.evaluate(function() {
