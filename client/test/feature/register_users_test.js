@@ -12,6 +12,8 @@ casper.on("page.error", function(msg, trace) {
 casper.test.begin('Register/Unregister user test', function(test) {
   var user = {name: "testuser1",
               password: "testuser"};
+  var editedUser = {name: "edituser1",
+                    password: "edituser"};
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.waitForSelector(x("//a[normalize-space(text())='ユーザー']"),
@@ -93,6 +95,71 @@ casper.test.begin('Register/Unregister user test', function(test) {
     });
   }, function timeout() {
     this.echo("Oops, table element does not to be newly created.");
+  });
+
+  casper.then(function() {
+    this.evaluate(function() {
+      return $("table tr:last").find("a").click();
+    });
+  });
+  // edit user
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return $(document).on("DOMSubtreeModified",  "input#editUserName",
+                            function() {return true;});
+    });
+  }, function then() {
+    test.assertFieldCSS("input#editUserName", user.name,
+                        "Registered user's name: \"" +user.name+
+                        "\" exists in the last registered user's name in " +
+                        "dialog input#editUserName.");
+    this.evaluate(function() {
+      $(document).off("DOMSubtreeModified",  "input#editUserName");
+    });
+  }, function timeout() {
+    this.echo("Oops, edit user dialog is not opened.");
+  });
+  casper.waitForSelector("input#editUserName",
+    function success() {
+      this.sendKeys("input#editUserName", editedUser.name, {reset: true});
+    },
+    function fail() {
+      test.assertExists("input#editUserName");
+    });
+  casper.waitForSelector(".ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists(".ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared when registering.");
+      this.click(".ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists(".ui-dialog-buttonset > button");
+    });
+  // close comfirm dialog
+  casper.waitForSelector("div.ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared after registering.");
+      this.click("div.ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset > button");
+    });
+  // assert edit user's name
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return $(document).on("DOMSubtreeModified", "table tr",
+                            function() {return true;});
+    });
+  }, function then() {
+    test.assertTextExists(editedUser.name,
+                          "Edited user's name \"" +editedUser.name+
+                          "\" text exists.");
+    this.evaluate(function() {
+      $(document).off("DOMSubtreeModified", "table tr");
+    });
+  }, function timeout() {
+    this.echo("Oops, it seems not to be logged in.");
   });
 
   casper.then(function() {
