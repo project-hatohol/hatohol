@@ -164,12 +164,12 @@ casper.test.begin('Register/Unregister action test', function(test) {
                             function() {return true;});
     });
   }, function then() {
-      test.assertTextExists(editActionCommand,
-                            "Edited action command \"" +editActionCommand+
-                            "\"text exists.");
-      this.evaluate(function() {
-        $(document).off("DOMSubtreeModified", "table tr");
-      });
+    test.assertTextExists(editActionCommand,
+                          "Edited action command \"" +editActionCommand+
+                          "\"text exists.");
+    this.evaluate(function() {
+      $(document).off("DOMSubtreeModified", "table tr");
+    });
   }, function timeout() {
     this.echo("Oops, it seems not to be logged in.");
   });

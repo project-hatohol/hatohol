@@ -114,12 +114,12 @@ casper.test.begin('Register/Unregister log search system test', function(test) {
                             function() {return true;});
     });
   }, function then() {
-      test.assertTextExists(editLogSearchSystemURL,
-                            "Edited logSearhcSystemBaseURL \"" +editLogSearchSystemURL+
-                            "\" text exists.");
-      this.evaluate(function() {
-        $(document).off("DOMSubtreeModified", "table tr");
-      });
+    test.assertTextExists(editLogSearchSystemURL,
+                          "Edited logSearhcSystemBaseURL \"" +editLogSearchSystemURL+
+                          "\" text exists.");
+    this.evaluate(function() {
+      $(document).off("DOMSubtreeModified", "table tr");
+    });
   }, function timeout() {
     this.echo("Oops, it seems not to be logged in.");
   });
