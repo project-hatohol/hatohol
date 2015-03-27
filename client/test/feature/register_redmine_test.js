@@ -14,6 +14,10 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
                         baseURL: "http://127.0.0.1",
                         projectId: "test-tracker-project",
                         key: "test-tracker-key1"};
+  var editedIncidentTracker = {nickName: "editedRedmine",
+                               baseURL: "http://127.0.1.1",
+                               projectId: "edit-tracker-project",
+                               key: "edit-tracker-key1"};
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   // move to incident setting page
@@ -136,6 +140,71 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
   }, function timeout() {
     this.echo("Oops, table element does not to be newly created.");
   });
+
+  // edit incident server setting
+  casper.waitForSelector("form input[type=button][value='編集']",
+     function success() {
+       return this.evaluate(function() {
+         $("input.editIncidentTracker").last().click();
+       });
+     },
+     function fail() {
+       test.assertExists("form input[type=button][value='編集']");
+     });
+  casper.waitForSelector("input#editIncidentTrackerNickname",
+    function success() {
+      test.assertFieldCSS("input#editIncidentTrackerNickname",
+                          incidentTracker.nickName,
+                          "Registered incident tracker server's nickName: \"" +
+                          incidentTracker.nickName +
+                          "\" exists in the edit monitoring server dialog" +
+                          " input#editIncidentTrackerNickname.");
+    },
+    function fail() {
+      test.assertExists("input#editIncidentTrackerNickname");
+    });
+  casper.waitForSelector("input#editIncidentTrackerNickname",
+    function success() {
+      this.sendKeys("input#editIncidentTrackerNickname",
+                    editedIncidentTracker.nickName, {reset: true});
+    },
+    function fail() {
+      test.assertExists("input#editIncidentTrackerNickname");
+    });
+  casper.waitForSelector("div.ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared after registering.");
+      this.click("div.ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset > button");
+    });
+  // close adding status dialog
+  casper.waitForSelector("div.ui-dialog-buttonset button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset button",
+                        "Confirmation dialog appeared.");
+      this.evaluate(function() {
+        $("div.ui-dialog-buttonset button").last().click();
+      });
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset button");
+    });
+  // assert edit incident tracker server settings
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return document.querySelectorAll("div.ui-dialog").length < 2;
+    });
+  }, function then() {
+    test.assertTextExists(editedIncidentTracker.nickName,
+                          "Edited incident tracker server's nickName \""
+                          + editedIncidentTracker.nickName + "\" is found.");
+  }, function timeout() {
+    this.echo("Oops, incident tracker server settings seems not to be edited.");
+  });
+  // start to delete incident tracker server settings
   casper.then(function() {
     this.evaluate(function() {
       $("tr:last").find(".incidentTrackerSelectCheckbox").click();
