@@ -33,11 +33,20 @@ casper.test.begin('Login/Logout test', function(test) {
     test.assertHttpStatus(200, 'It can logged in.');
   });
 
-  casper.then(function() {
-    casper.wait(200, function() {
-      casper.log('should appear after 200ms', 'info');
-      test.assertTextDoesntExist('None', 'None does not exist within the body when logged in.');
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return $(document).on("DOMSubtreeModified", "div#update-time",
+                            function() {return true;});
     });
+  }, function then() {
+    casper.then(function() {
+      test.assertTextDoesntExist('None', 'None does not exist within the body when logged in.');
+      this.evaluate(function() {
+        $(document).off("DOMSubtreeModified", "div#update-time");
+      });
+    });
+  }, function timeout() {
+    this.echo("Oops, it seems not to be logged in.");
   });
 
   casper.then(function() {
@@ -45,9 +54,22 @@ casper.test.begin('Login/Logout test', function(test) {
     this.waitForSelector('#logoutMenuItem', function() {
       this.click('#logoutMenuItem');
     });
-    casper.wait(200, function() {
-      test.assertTextExists('None', 'None exists within the body when logged out.');
+  });
+
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return $(document).on("DOMSubtreeModified", "div#update-time",
+                            function() {return true;});
     });
+  }, function then() {
+    casper.then(function() {
+      test.assertTextExists('None', 'None exists within the body when logged out.');
+      this.evaluate(function() {
+        $(document).off("DOMSubtreeModified", "div#update-time");
+      });
+    });
+  }, function timeout() {
+    this.echo("Oops, it seems not to be logged out.");
   });
 
   casper.run(function() {test.done();});

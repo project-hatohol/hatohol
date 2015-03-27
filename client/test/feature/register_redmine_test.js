@@ -118,16 +118,21 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
       test.assertExists("div.ui-dialog-buttonset button");
     });
 
-  // check delete-selector check box in incident trackers server
+  // check DOMNodeInserted event
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("table#incidentTrackersEditorMainTable tr").length > 1;
+      return $(document).on("DOMNodeInserted",
+                            "table#incidentTrackersEditorMainTable tr",
+                            function() {return true;});
     });
   }, function then() {
     test.assertTextExists(incidentTracker.nickName,
                           "Registered incident tracker's nickName \""
                           +incidentTracker.nickName+
                           "\" exists in the incdent servers table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeInserted", "table#incidentTrackersEditorMainTable tr");
+    });
   }, function timeout() {
     this.echo("Oops, table element does not to be newly created.");
   });
@@ -174,15 +179,20 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
     });
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 2;
+      return $(document).on("DOMNodeRemoved",
+                            "table#incidentTrackersEditorMainTable tr",
+                            function() {return true;});
     });
   }, function then() {
     test.assertTextDoesntExist(incidentTracker.nickName,
                                "Registered incident tracker's nickName \""
                                +incidentTracker.nickName+
                                "\" dose not exist in the user table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeRemoved", "table#incidentTrackersEditorMainTable tr");
+    });
   }, function timeout() {
-    this.echo("Oops, confirmation dialog dose not closed.");
+    this.echo("Oops, newly created table element does not to be deleted.");
   });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});

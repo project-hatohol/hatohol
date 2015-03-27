@@ -101,15 +101,19 @@ casper.test.begin('Register/Unregister action test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
-  // check delete-selector checkbox in action
+  // check DOMNodeInserted event
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("table tr").length > 1;
+      return $(document).on("DOMNodeInserted",  "table tr",
+                            function() {return true;});
     });
   }, function then() {
     test.assertTextExists(actionCommand,
                           "Registered actionCommand: \"" +actionCommand+
                           "\" exists in the user role table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeInserted",  "table tr");
+    });
   }, function timeout() {
     this.echo("Oops, table element does not to be newly created.");
   });
@@ -151,14 +155,18 @@ casper.test.begin('Register/Unregister action test', function(test) {
     });
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 1;
+      return $(document).on("DOMNodeRemoved", "table tr",
+                            function() {return true;});
     });
   }, function then() {
     test.assertTextDoesntExist(actionCommand,
                           "Registered actionCommand: \"" +actionCommand+
                           "\" does not exist in the user role table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeRemoved", "table tr");
+    });
   }, function timeout() {
-    this.echo("Oops, confirmation dialog dose not to be closed.");
+    this.echo("Oops, newly created table element does not to be deleted.");
   });
   casper.then(function() {
     util.moveToServersPage(test);

@@ -89,7 +89,9 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
     });
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("table tr").length > 1;
+      return $(document).on("DOMNodeInserted",
+                            "table#incidentTrackersEditorMainTable tr",
+                            function() {return true;});
     });
   }, function then() {
     // TODO: This test is often broken and too difficult reproducing it.
@@ -98,6 +100,9 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
     //                       "Registered incident setting's server name \""
     //                       +incidentSetting.serverName+
     //                       "\" exists in the incident settings table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeInserted", "table#incidentTrackersEditorMainTable tr");
+    });
   }, function timeout() {
     this.echo("Oops, table element does not to be newly created.");
   });
@@ -107,7 +112,7 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
       return true;
     });
   });
-  // check delete-selector checkbox in incident setting
+  // check DOMNodeInserted event
   casper.waitForSelector("form button#delete-incident-setting-button",
     function success() {
       test.assertExists("form button#delete-incident-setting-button",
@@ -139,15 +144,20 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
     });
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 1;
+      return $(document).on("DOMNodeRemoved",
+                            "table#incidentTrackersEditorMainTable tr",
+                            function() {return true;});
     });
   }, function then() {
     test.assertTextDoesntExist(incidentSetting.serverName,
                                "Registered incident setting's server name \""
                                +incidentSetting.serverName+
                                "\" dose not exist in the incisent settings table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeRemoved", "table#incidentTrackersEditorMainTable tr");
+    });
   }, function timeout() {
-    this.echo("Oops, confirmation dialog dose not to be closed.");
+    this.echo("Oops, newly created table element does not to be deleted.");
   });
   casper.then(function() {util.unregisterIncidentTrackerRedmine(test);});
   casper.then(function() {

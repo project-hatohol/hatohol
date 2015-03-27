@@ -111,15 +111,20 @@ casper.test.begin('Register/Unregister server test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
-  // check delete-selector checkbox in minitoring server
+  // check DOMNodeInserted event
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 1;
+      return $(document).on("DOMNodeInserted",
+                            "table tr",
+                            function() {return true;});
     });
   }, function then() {
     test.assertTextExists(server.nickName,
                           "Registered server's nickName \"" +server.nickName+
                           "\" exists in the monitoring servers table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeInserted", "table tr");
+    });
   }, function timeout() {
     this.echo("Oops, confirmation dialog dose not to be closed.");
   });
@@ -161,14 +166,19 @@ casper.test.begin('Register/Unregister server test', function(test) {
     });
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 1;
+      return $(document).on("DOMNodeRemoved",
+                            "table tr",
+                            function() {return true;});
     });
   }, function then() {
     test.assertTextDoesntExist(server.nickName,
                                "Registered server's nickName \"" +server.nickName+
                                "\" does not exists in the monitoring servers table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeRemoved", "table tr");
+    });
   }, function timeout() {
-    this.echo("Oops, confirmation dialog dose not to be closed.");
+    this.echo("Oops, newly created table element does not to be deleted.");
   });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});

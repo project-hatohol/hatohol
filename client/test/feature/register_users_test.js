@@ -80,12 +80,16 @@ casper.test.begin('Register/Unregister user test', function(test) {
     });
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("table tr").length > 1;
+      return $(document).on("DOMNodeInserted",  "table tr",
+                            function() {return true;});
     });
   }, function then() {
     test.assertTextExists(userName,
                           "Registered user's name \"" +userName+
                           "\" exists in the user table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeInserted",  "table tr");
+    });
   }, function timeout() {
     this.echo("Oops, table element does not to be newly created.");
   });
@@ -128,14 +132,18 @@ casper.test.begin('Register/Unregister user test', function(test) {
     });
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return document.querySelectorAll("div.ui-dialog").length < 1;
+      return $(document).on("DOMNodeRemoved", "table tr",
+                            function() {return true;});
     });
   }, function then() {
     test.assertTextDoesntExist(userName,
                                "Registered user's name \"" +userName+
                                "\" does not exist in the user table.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeRemoved", "table tr");
+    });
   }, function timeout() {
-    this.echo("Oops, confirmation dialog dose not closed.");
+    this.echo("Oops, newly created table element does not to be deleted.");
   });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});

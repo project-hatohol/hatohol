@@ -12,9 +12,13 @@ casper.on("page.error", function(msg, trace) {
 casper.test.begin('Dashboard test', function(test) {
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
-  casper.then(function() {
-    casper.wait(200, function() {
-      casper.log('should appear after 200ms', 'info');
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return $(document).on("DOMSubtreeModified", "div#update-time",
+                            function() {return true;});
+    });
+  }, function then() {
+    casper.then(function() {
       test.assertTitle('ダッシュボード - Hatohol', 'It should match dashboard title.');
       test.assertTextExist('ダッシュボード', 'It should appear dashboard text.');
       test.assertTextExist('グローバルステータス',
@@ -23,7 +27,12 @@ casper.test.begin('Dashboard test', function(test) {
                            'It should appear dashboard system status text.');
       test.assertTextExist('ホストステータス',
                            'It should appear dashboard host status text.');
+      this.evaluate(function() {
+        $(document).off("DOMSubtreeModified", "div#update-time");
+      });
     });
+  }, function timeout() {
+    this.echo("Oops, it seems not to be logged in.");
   });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});
