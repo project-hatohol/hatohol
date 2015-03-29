@@ -119,6 +119,7 @@ private:
 		eventInfo.severity = message.getSeverity();
 		eventInfo.hostName = message.getHostName();
 		eventInfo.globalHostId = findOrCreateHostID(eventInfo.hostName);
+		eventInfo.hostIdInServer = eventInfo.hostName;
 		eventInfo.brief = message.getContent();
 		eventInfoList.push_back(eventInfo);
 		UnifiedDataStore::getInstance()->addEventList(eventInfoList);
