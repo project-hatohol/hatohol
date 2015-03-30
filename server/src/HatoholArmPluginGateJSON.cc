@@ -119,6 +119,7 @@ private:
 		eventInfo.severity = message.getSeverity();
 		eventInfo.hostName = message.getHostName();
 		eventInfo.globalHostId = findOrCreateHostID(eventInfo.hostName);
+		eventInfo.hostIdInServer = eventInfo.hostName;
 		eventInfo.brief = message.getContent();
 		eventInfoList.push_back(eventInfo);
 		UnifiedDataStore::getInstance()->addEventList(eventInfoList);
@@ -126,6 +127,9 @@ private:
 
 	HostIdType findOrCreateHostID(const string &hostName)
 	{
+		if (hostName.empty())
+			return INVALID_HOST_ID;
+
 		map<string, HostIdType>::iterator it;
 		it = m_hosts.find(hostName);
 		if (it != m_hosts.end()) {
@@ -136,7 +140,7 @@ private:
 		svHostDef.id = AUTO_INCREMENT_VALUE;
 		svHostDef.serverId = m_serverInfo.id;
 		svHostDef.hostId = AUTO_ASSIGNED_ID;
-		svHostDef.hostIdInServer = "";
+		svHostDef.hostIdInServer = hostName;
 		svHostDef.name = hostName;
 		svHostDef.status = HOST_STAT_INAPPLICABLE;
 		UnifiedDataStore *uds = UnifiedDataStore::getInstance();
