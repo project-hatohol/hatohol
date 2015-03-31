@@ -119,7 +119,8 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     });
   }, function then() {
     test.assertTextExists(roleName,
-                          "Registered user role's name \"" +roleName+
+                          "Registered user role's name \""
+                          + roleName +
                           "\" exists in the user role table.");
     this.evaluate(function() {
       $(document).off("DOMNodeInserted", "table#userRoleEditorMainTable tr");
@@ -180,7 +181,7 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     });
   }, function then() {
     test.assertTextExists(editedRoleName,
-                          "Edited role's name \"" +editedRoleName+
+                          "Edited role's name \"" + editedRoleName +
                           "\" text exists.");
     this.evaluate(function() {
       $(document).off("DOMSubtreeModified", "table#userRoleEditorMainTable tr");
@@ -232,7 +233,8 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     });
   }, function then() {
     test.assertTextDoesntExist(editedRoleName,
-                               "Registered user role's name \"" +editedRoleName+
+                               "Registered user role's name \""
+                               + editedRoleName +
                                "\" does not exist in the user table.");
     this.evaluate(function() {
       $(document).off("DOMNodeRemoved", "table#userRoleEditorMainTable tr");

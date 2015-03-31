@@ -132,7 +132,7 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
   }, function then() {
     test.assertTextExists(incidentTracker.nickName,
                           "Registered incident tracker's nickName \""
-                          +incidentTracker.nickName+
+                          + incidentTracker.nickName +
                           "\" exists in the incdent servers table.");
     this.evaluate(function() {
       $(document).off("DOMNodeInserted", "table#incidentTrackersEditorMainTable tr");

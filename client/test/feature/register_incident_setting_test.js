@@ -151,7 +151,7 @@ casper.test.begin('Register/Unregister incident settings test', function(test) {
   }, function then() {
     test.assertTextDoesntExist(incidentSetting.serverName,
                                "Registered incident setting's server name \""
-                               +incidentSetting.serverName+
+                               + incidentSetting.serverName +
                                "\" dose not exist in the incisent settings table.");
     this.evaluate(function() {
       $(document).off("DOMNodeRemoved", "table#incidentTrackersEditorMainTable tr");

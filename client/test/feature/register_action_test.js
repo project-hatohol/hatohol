@@ -125,7 +125,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
     });
   }, function then() {
     test.assertFieldCSS("input#inputActionCommand", actionCommand,
-                        "Registered actionCommand: \"" +actionCommand+
+                        "Registered actionCommand: \"" + actionCommand +
                         "\" exists in the edit action dialog input#inputActionCommand.");
   }, function timeout() {
     this.echo("Oops, edit action dialog is not opened.");
@@ -165,7 +165,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
     });
   }, function then() {
     test.assertTextExists(editActionCommand,
-                          "Edited action command \"" +editActionCommand+
+                          "Edited action command \"" + editActionCommand +
                           "\" text exists.");
     this.evaluate(function() {
       $(document).off("DOMSubtreeModified", "table tr");
@@ -216,7 +216,8 @@ casper.test.begin('Register/Unregister action test', function(test) {
     });
   }, function then() {
     test.assertTextDoesntExist(editActionCommand,
-                               "Registered editActionCommand: \"" +editActionCommand+
+                               "Registered editActionCommand: \""
+                               + editActionCommand +
                                "\" does not exist in the user role table.");
     this.evaluate(function() {
       $(document).off("DOMNodeRemoved", "table tr");

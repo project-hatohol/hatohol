@@ -74,7 +74,7 @@ casper.test.begin('Register/Unregister log search system test', function(test) {
     });
   }, function then() {
     test.assertFieldCSS("input#editLogSearchSystemBaseURL", logSearchSystemURL,
-                        "Registered logSearchSystemURL: \"" +logSearchSystemURL+
+                        "Registered logSearchSystemURL: \"" + logSearchSystemURL +
                         "\" exists in the edit log search system dialog input#editLogSearchSystemBaseURL.");
   }, function timeout() {
     this.echo("Oops, edit action dialog is not opened.");
@@ -116,7 +116,8 @@ casper.test.begin('Register/Unregister log search system test', function(test) {
     });
   }, function then() {
     test.assertTextExists(editLogSearchSystemURL,
-                          "Edited logSearhcSystemBaseURL \"" +editLogSearchSystemURL+
+                          "Edited logSearhcSystemBaseURL \""
+                          + editLogSearchSystemURL +
                           "\" text exists.");
     this.evaluate(function() {
       $(document).off("DOMSubtreeModified", "table tr");
@@ -167,8 +168,8 @@ casper.test.begin('Register/Unregister log search system test', function(test) {
     });
   }, function then() {
     test.assertTextDoesntExist(editLogSearchSystemURL,
-                               "Edited logSearhcSystemBaseURL \"" +
-                               editLogSearchSystemURL +
+                               "Edited logSearhcSystemBaseURL \""
+                               + editLogSearchSystemURL +
                                "\" text does not exist.");
     this.evaluate(function() {
       $(document).off("DOMNodeRemoved", "table tr");

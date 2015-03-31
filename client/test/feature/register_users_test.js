@@ -88,7 +88,7 @@ casper.test.begin('Register/Unregister user test', function(test) {
     });
   }, function then() {
     test.assertTextExists(user.name,
-                          "Registered user's name \"" +user.name+
+                          "Registered user's name \"" + user.name +
                           "\" exists in the user table.");
     this.evaluate(function() {
       $(document).off("DOMNodeInserted",  "table tr");
@@ -110,7 +110,7 @@ casper.test.begin('Register/Unregister user test', function(test) {
     });
   }, function then() {
     test.assertFieldCSS("input#editUserName", user.name,
-                        "Registered user's name: \"" +user.name+
+                        "Registered user's name: \"" + user.name +
                         "\" exists in the last registered user's name in " +
                         "dialog input#editUserName.");
     this.evaluate(function() {
@@ -153,7 +153,7 @@ casper.test.begin('Register/Unregister user test', function(test) {
     });
   }, function then() {
     test.assertTextExists(editedUser.name,
-                          "Edited user's name \"" +editedUser.name+
+                          "Edited user's name \"" + editedUser.name +
                           "\" text exists.");
     this.evaluate(function() {
       $(document).off("DOMSubtreeModified", "table tr");
@@ -205,7 +205,8 @@ casper.test.begin('Register/Unregister user test', function(test) {
     });
   }, function then() {
     test.assertTextDoesntExist(editedUser.name,
-                               "Registered user's name \"" +editedUser.name+
+                               "Registered user's name \""
+                               + editedUser.name +
                                "\" does not exist in the user table.");
     this.evaluate(function() {
       $(document).off("DOMNodeRemoved", "table tr");

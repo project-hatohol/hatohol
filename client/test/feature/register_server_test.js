@@ -126,7 +126,8 @@ casper.test.begin('Register/Unregister server test', function(test) {
     });
   }, function then() {
     test.assertTextExists(server.nickName,
-                          "Registered server's nickName \"" +server.nickName+
+                          "Registered server's nickName \""
+                          + server.nickName +
                           "\" exists in the monitoring servers table.");
     this.evaluate(function() {
       $(document).off("DOMNodeInserted", "table tr");
@@ -141,7 +142,8 @@ casper.test.begin('Register/Unregister server test', function(test) {
     });
   }, function then() {
     test.assertFieldCSS("input#server-edit-dialog-param-form-0", server.nickName,
-                        "Registered server's nickName: \"" +server.nickName+
+                        "Registered server's nickName: \""
+                        + server.nickName +
                         "\" exists in the edit monitoring server dialog"+
                         " input#server-edit-dialog-param-form-0.");
   }, function timeout() {
@@ -236,8 +238,8 @@ casper.test.begin('Register/Unregister server test', function(test) {
     });
   }, function then() {
     test.assertTextDoesntExist(editedServer.nickName,
-                               "Registered server's nickName \"" +
-                               editedServer.nickName +
+                               "Registered server's nickName \""
+                               + editedServer.nickName +
                                "\" does not exists in the monitoring servers table.");
     this.evaluate(function() {
       $(document).off("DOMNodeRemoved", "table tr");
