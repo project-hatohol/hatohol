@@ -11,7 +11,8 @@ casper.on("page.error", function(msg, trace) {
 
 casper.test.begin('Register/Unregister log search system test', function(test) {
   var logSearchSystemURL = "http://search.example.com:10041/#/tables/Logs/search";
-  var editLogSearchSystemURL = "http://editsearch.example.com:10041/#/tables/Logs/search";
+  var editLogSearchSystemURL =
+    "http://editsearch.example.com:10041/#/tables/Logs/search";
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.waitForSelector(x("//a[normalize-space(text())='ログ検索システム']"),
