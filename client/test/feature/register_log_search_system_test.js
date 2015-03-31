@@ -11,6 +11,8 @@ casper.on("page.error", function(msg, trace) {
 
 casper.test.begin('Register/Unregister log search system test', function(test) {
   var logSearchSystemURL = "http://search.example.com:10041/#/tables/Logs/search";
+  var editLogSearchSystemURL =
+    "http://editsearch.example.com:10041/#/tables/Logs/search";
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.waitForSelector(x("//a[normalize-space(text())='ログ検索システム']"),
@@ -66,6 +68,64 @@ casper.test.begin('Register/Unregister log search system test', function(test) {
                           "#tblLogSearch contains " + logSearchSystemURL);
   });
   casper.then(function() {util.moveToLogSearchSystemPage(test);});
+  // edit logsearch system
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return $("input.btn").last().click();
+    });
+  }, function then() {
+    test.assertFieldCSS("input#editLogSearchSystemBaseURL", logSearchSystemURL,
+                        "Registered logSearchSystemURL: \"" + logSearchSystemURL +
+                        "\" exists in the edit log search system dialog input#editLogSearchSystemBaseURL.");
+  }, function timeout() {
+    this.echo("Oops, edit action dialog is not opened.");
+  });
+  casper.waitForSelector("input#editLogSearchSystemBaseURL",
+    function success() {
+      this.sendKeys("input#editLogSearchSystemBaseURL",
+                    editLogSearchSystemURL, {reset: true});
+    },
+    function fail() {
+      test.assertExists("input#editLogSearchSystemBaseURL");
+    });
+  casper.waitForSelector(".ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists(".ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared when " +
+                        "registering action.");
+      this.click(".ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists(".ui-dialog-buttonset > button");
+    });
+  // close comfirm dialog (edit)
+  casper.waitForSelector("div.ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared after registering.");
+      this.click("div.ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset > button");
+    });
+
+  // assert logsearch system base url
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return $(document).on("DOMSubtreeModified", "table tr",
+                            function() {return true;});
+    });
+  }, function then() {
+    test.assertTextExists(editLogSearchSystemURL,
+                          "Edited logSearhcSystemBaseURL \""
+                          + editLogSearchSystemURL +
+                          "\" text exists.");
+    this.evaluate(function() {
+      $(document).off("DOMSubtreeModified", "table tr");
+    });
+  }, function timeout() {
+    this.echo("Oops, it seems not to be logged in.");
+  });
 
   // check delete-selector check box in log search system
   casper.waitFor(function() {
@@ -101,6 +161,23 @@ casper.test.begin('Register/Unregister log search system test', function(test) {
     function fail() {
       test.assertExists("form button#delete-server-button");
     });
+  // assert logsearch system base url (delete)
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return $(document).on("DOMNodeRemoved", "table tr",
+                            function() {return true;});
+    });
+  }, function then() {
+    test.assertTextDoesntExist(editLogSearchSystemURL,
+                               "Edited logSearhcSystemBaseURL \""
+                               + editLogSearchSystemURL +
+                               "\" text does not exist.");
+    this.evaluate(function() {
+      $(document).off("DOMNodeRemoved", "table tr");
+    });
+  }, function timeout() {
+    this.echo("Oops, logSearchSystemBaseURL seems not to be deleted .");
+  });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});
 });

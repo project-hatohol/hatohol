@@ -16,6 +16,12 @@ casper.test.begin('Register/Unregister server test', function(test) {
                 ipAddress: "127.0.0.1",
                 userName: "admin",
                 userPassword: "zabbix-admin"};
+  var editedServer = {serverType: 0, // Zabbix
+                      nickName: "edited-test",
+                      serverName: "editedhost",
+                      ipAddress: "127.0.1.1",
+                      userName: "edited-admin",
+                      userPassword: "edited-zabbix-admin"};
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   // move to servers page
@@ -120,7 +126,8 @@ casper.test.begin('Register/Unregister server test', function(test) {
     });
   }, function then() {
     test.assertTextExists(server.nickName,
-                          "Registered server's nickName \"" +server.nickName+
+                          "Registered server's nickName \""
+                          + server.nickName +
                           "\" exists in the monitoring servers table.");
     this.evaluate(function() {
       $(document).off("DOMNodeInserted", "table tr");
@@ -128,6 +135,65 @@ casper.test.begin('Register/Unregister server test', function(test) {
   }, function timeout() {
     this.echo("Oops, confirmation dialog dose not to be closed.");
   });
+  // edit monitoring server
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return $("input.btn").last().click();
+    });
+  }, function then() {
+    test.assertFieldCSS("input#server-edit-dialog-param-form-0", server.nickName,
+                        "Registered server's nickName: \""
+                        + server.nickName +
+                        "\" exists in the edit monitoring server dialog"+
+                        " input#server-edit-dialog-param-form-0.");
+  }, function timeout() {
+    this.echo("Oops, edit monitoring server dialog is not opened.");
+  });
+  casper.waitForSelector("input#server-edit-dialog-param-form-0",
+    function success() {
+      this.sendKeys("input#server-edit-dialog-param-form-0",
+                    editedServer.nickName, {reset: true});
+    },
+    function fail() {
+      test.assertExists("input#server-edit-dialog-param-form-0");
+    });
+  casper.waitForSelector(".ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists(".ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared when " +
+                        "registering action.");
+      this.click(".ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists(".ui-dialog-buttonset > button");
+    });
+  // close comfirm dialog
+  casper.waitForSelector("div.ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared after registering.");
+      this.click("div.ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset > button");
+    });
+  // assert edit action command
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return $(document).on("DOMSubtreeModified", "table tr",
+                            function() {return true;});
+    });
+  }, function then() {
+    test.assertTextExists(editedServer.nickName,
+                          "Edited monitoring server's nickName \"" +
+                          editedServer.nickName + "\" text exists.");
+    this.evaluate(function() {
+      $(document).off("DOMSubtreeModified", "table tr");
+    });
+  }, function timeout() {
+    this.echo("Oops, it seems not to be logged in.");
+  });
+  // start to delete monitoring server
   casper.then(function() {
     this.evaluate(function() {
       $("tr:last").find(".selectcheckbox").click();
@@ -171,8 +237,9 @@ casper.test.begin('Register/Unregister server test', function(test) {
                             function() {return true;});
     });
   }, function then() {
-    test.assertTextDoesntExist(server.nickName,
-                               "Registered server's nickName \"" +server.nickName+
+    test.assertTextDoesntExist(editedServer.nickName,
+                               "Registered server's nickName \""
+                               + editedServer.nickName +
                                "\" does not exists in the monitoring servers table.");
     this.evaluate(function() {
       $(document).off("DOMNodeRemoved", "table tr");

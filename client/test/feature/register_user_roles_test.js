@@ -11,6 +11,7 @@ casper.on("page.error", function(msg, trace) {
 
 casper.test.begin('Register/Unregister user role test', function(test) {
   var roleName = "watcher";
+  var editedRoleName = "modifiedWatcher";
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.waitForSelector(x("//a[normalize-space(text())='ユーザー']"),
@@ -110,7 +111,7 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
-  // assert for added user role name
+  // check DOMNodeInserted event
   casper.waitFor(function() {
     return this.evaluate(function() {
       return $(document).on("DOMNodeInserted", "table#userRoleEditorMainTable tr",
@@ -118,7 +119,8 @@ casper.test.begin('Register/Unregister user role test', function(test) {
     });
   }, function then() {
     test.assertTextExists(roleName,
-                          "Registered user role's name \"" +roleName+
+                          "Registered user role's name \""
+                          + roleName +
                           "\" exists in the user role table.");
     this.evaluate(function() {
       $(document).off("DOMNodeInserted", "table#userRoleEditorMainTable tr");
@@ -126,7 +128,67 @@ casper.test.begin('Register/Unregister user role test', function(test) {
   }, function timeout() {
     this.echo("Oops, table element does not to be newly created.");
   });
-  // check DOMNodeInserted event
+
+  // edit user role
+  casper.waitForSelector("form button#edit-user-roles-button",
+    function success() {
+      test.assertExists("form button#edit-user-roles-button");
+      this.click("form button#edit-user-roles-button");
+
+    },
+    function fail() {
+      test.assertExists("form button#edit-user-roles-button");
+    });
+  casper.waitForSelector("form input[type=button][value='表示 / 編集'].editUserRole",
+    function success() {
+      test.assertExists("form input[type=button][value='表示 / 編集'].editUserRole");
+      this.click("form input[type=button][value='表示 / 編集'].editUserRole");
+    },
+    function fail() {
+      test.assertExists("form input[type=button][value='表示 / 編集']");
+    });
+  casper.waitForSelector("input#editUserRoleName",
+    function success() {
+      this.sendKeys("input#editUserRoleName", editedRoleName);
+    },
+    function fail() {
+      test.assertExists("input#editUserRoleName");
+    });
+  casper.waitForSelector(".ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists(".ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared when registering.");
+      this.click(".ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists(".ui-dialog-buttonset > button");
+    });
+  // close comfirm dialog
+  casper.waitForSelector("div.ui-dialog-buttonset > button",
+    function success() {
+      test.assertExists("div.ui-dialog-buttonset > button",
+                        "Confirmation dialog button appeared after registering.");
+      this.click("div.ui-dialog-buttonset > button");
+    },
+    function fail() {
+      test.assertExists("div.ui-dialog-buttonset > button");
+    });
+  // assert edit user's name
+  casper.waitFor(function() {
+    return this.evaluate(function() {
+      return $(document).on("DOMSubtreeModified", "table#userRoleEditorMainTable tr",
+                            function() {return true;});
+    });
+  }, function then() {
+    test.assertTextExists(editedRoleName,
+                          "Edited role's name \"" + editedRoleName +
+                          "\" text exists.");
+    this.evaluate(function() {
+      $(document).off("DOMSubtreeModified", "table#userRoleEditorMainTable tr");
+    });
+  }, function timeout() {
+    this.echo("Oops, it seems not to be logged in.");
+  });
   casper.then(function() {
     this.evaluate(function() {
       $("input.userRoleSelectCheckbox:last").click();
@@ -170,8 +232,9 @@ casper.test.begin('Register/Unregister user role test', function(test) {
                             function() {return true;});
     });
   }, function then() {
-    test.assertTextDoesntExist(roleName,
-                               "Registered user role's name \"" +roleName+
+    test.assertTextDoesntExist(editedRoleName,
+                               "Registered user role's name \""
+                               + editedRoleName +
                                "\" does not exist in the user table.");
     this.evaluate(function() {
       $(document).off("DOMNodeRemoved", "table#userRoleEditorMainTable tr");
