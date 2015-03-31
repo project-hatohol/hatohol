@@ -255,7 +255,7 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
   }, function then() {
     test.assertTextDoesntExist(editedIncidentTracker.nickName,
                                "Registered incident tracker's nickName \""
-                               +editedIncidentTracker.nickName+
+                               + editedIncidentTracker.nickName +
                                "\" dose not exist in the user table.");
     this.evaluate(function() {
       $(document).off("DOMNodeRemoved", "table#incidentTrackersEditorMainTable tr");
