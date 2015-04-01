@@ -174,7 +174,7 @@ Example:
 
 Note: Since 15.03, hatohol-db-initiator doesn't require command line argument after hatohol database is created.
 `db_name`, `db_user` and `db_password` are read from `hatohol.conf` by default.
-For example, `hatohol.conf` is placed in `${sysconfdir}/hatohol/hatohol.conf`.
+For example, `hatohol.conf` is placed in `/etc/hatohol/hatohol.conf`.
 
 Tips:
 - If the root password of the MySQL server is not set, just pass '' for `--db_password`.
