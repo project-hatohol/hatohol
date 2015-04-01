@@ -1,3 +1,62 @@
+2015-03-31 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 15.03
+
+	* New Features
+	- [LICENSE] Change the license to LGPLv3.
+	- [WebUI] Graph: Support multiple items.
+	- [Server] Graphs for Ceilometer items.
+	- [Server] Supress loading old events at first by default.
+        NOTE: You can restore old behavior by --load-old-events option.
+	- [WebUI] Colorize fired triggers and events only.
+	- [Server] Save some information such as Event IDs, Host IDs, and
+	  Trigger IDs as strings without irreversible integer transform.
+        NOTE: This breaks compatibility of DB schema with the previous
+	    versions of Hatohol. If you would like to migrate them, contact
+	    us via mailing lists or GitHub's issue.
+	- [WebUI][Server] Support editing actions and incident Settings. (#828)
+	- [WebUI][Server] Support Zabbix macro expansion in triggers and events
+	  page. (#958, #959, #967, #970, #974, #983)
+	- [Server] Support updating server_types individually. (#1000, 1002)
+	- [WebUI] Add event detail links for Zabbix web interface. (#1079)
+	- [Package] Experimental support for CentOS 7. (#757)
+	- [WebUI] Improve pagination. (#818)
+	- [Server] hatohol-db-initiator uses hatohol.conf. (#1004)
+	- [Server] Synchronize trigger of the monitoring server at user request.
+	  (#20)
+	- [Server] Hide the trigger and items of invalid host.
+
+	* Bug Fixes
+	- [Server] Fix a crash problem when an invalid URL is registered for an
+	  incident tracking server. (#955)
+	- [Server] "New values per second" shows appropriate value for HAPI
+	  Zabbix. (#1083)
+	- [WebUI] Resume deleting actions after session timeout and reconnect.
+	  (#938)
+	- [WebUI] Prevent clients (browsers/proxy servers) from caching web
+	  requests/responses.
+	- [WebUI][Server] Fix a bug which displays unknown user type after
+	  updating user privileges. (#890)
+	- [WebUI][Server] Fix a bug which is not reflecting change about
+	  incident monitoring server settings. (#839)
+	- [WebUI][Server] Support generating Nagios WebUI link by user specified
+	  URL. (#839)
+	- [WebUI] Prevent user from deleting hisown profile. (#767)
+	- [Server] Add a update process of hostname. (#815)
+	- [Server] Add disable Zabbix hosts to monitoring host. (#933)
+	- [Server] Avoid registering duplicate items, triggers hosts and
+	  hostgroups of Nagios (#1151)
+
+    * Contributer
+    - Hiroshi Hatake
+    - Kazuhiro Yamato
+    - Kouhei Sutou
+    - Masayuki Nakagawa
+    - Mnakagawa
+    - Noriki Nakamura
+    - Takuro Ashie
+    - Toshihiko Miyazawa
+    - YOSHIFUJI Hideaki
+    - o-wakabayashi
+
 2014-12-26 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12
 
 	* New Features
