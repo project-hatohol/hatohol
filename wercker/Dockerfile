@@ -25,9 +25,10 @@ RUN yum install -y cutter tar
 RUN git clone https://github.com/project-hatohol/hatohol.git ~/hatohol
 # build
 RUN cd ~/hatohol && libtoolize && autoreconf -i
-RUN cd ~/hatohol && ./configure
-RUN cd ~/hatohol && make -j `cat /proc/cpuinfo | grep processor | wc -l`
+RUN cd ~/hatohol && scl enable devtoolset-2 "./configure"
+RUN cd ~/hatohol && scl enable devtoolset-2 "make -j `cat /proc/cpuinfo | grep processor | wc -l`"
 RUN cd ~/hatohol && make dist -j `cat /proc/cpuinfo | grep processor | wc -l`
 # rpm build
 RUN yum install -y rpm-build
-RUN cd ~/hatohol && MAKEFLAGS="-j `cat /proc/cpuinfo | grep processor | wc -l`" rpmbuild -tb hatohol-*.tar.bz2
+RUN cd ~/hatohol && scl enable devtoolset-2 "MAKEFLAGS=\"-j `cat /proc/cpuinfo | grep processor | wc -l`\" rpmbuild -tb hatohol-*.tar.bz2"
+RUN scl enable devtoolset-2 "gcc --version"
