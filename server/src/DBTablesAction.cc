@@ -891,27 +891,6 @@ ItemDataNullFlagType DBTablesAction::getNullFlag
 		return ITEM_DATA_NULL;
 }
 
-static void getHostgroupIdStringList(string &stringHostgroupId,
-  const ServerIdType &serverId, const LocalHostIdType &hostId)
-{
-	HostgroupMemberVect hostgrpMembers;
-	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
-	option.setTargetServerId(serverId);
-	option.setTargetHostId(hostId);
-	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-	uds->getHostgroupMembers(hostgrpMembers, option);
-
-	if (hostgrpMembers.empty())
-		return;
-
-	SeparatorInjector commaInjector(",");
-	for (size_t i = 0; i < hostgrpMembers.size(); i++) {
-		const HostgroupMember &hostgrpMember = hostgrpMembers[i];
-		commaInjector(stringHostgroupId);
-		stringHostgroupId += hostgrpMember.hostgroupIdInServer;
-	}
-}
-
 bool DBTablesAction::getLog(ActionLog &actionLog, const string &condition)
 {
 	DBAgent::SelectExArg arg(tableProfileActionLogs);
@@ -1283,24 +1262,46 @@ string ActionsQueryOption::getCondition(void) const
 	HATOHOL_ASSERT(!m_impl->conditionTemplate.empty(),
 	               "ActionDef condition template is empty.");
 	string hostgroupIdList;
-	getHostgroupIdStringList(
+	getHostgroupIdList(
 	  hostgroupIdList, eventInfo->serverId, eventInfo->hostIdInServer);
+	DBTermCStringProvider rhs(*getDBTermCodec());
 	if (hostgroupIdList.empty())
-		hostgroupIdList = DB::getAlwaysFalseCondition();
+		hostgroupIdList = rhs(DB::getAlwaysFalseCondition());
 
 	if (!cond.empty())
 		cond += " AND ";
 	// TODO: We can just pass triggerInfo.globalHostId instead of
 	//       a pair of server ID and the hostIdInServer.
-	DBTermCStringProvider rhs(*getDBTermCodec());
 	cond += sprintf(m_impl->conditionTemplate.c_str(),
 	                eventInfo->serverId,
 	                rhs(eventInfo->hostIdInServer),
-	                rhs(hostgroupIdList),
+	                hostgroupIdList.c_str(),
 	                rhs(eventInfo->triggerId),
 	                eventInfo->status,
 	                eventInfo->severity, eventInfo->severity);
 	return cond;
+}
+
+void ActionsQueryOption::getHostgroupIdList(string &stringHostgroupId,
+  const ServerIdType &serverId, const LocalHostIdType &hostId)
+{
+	HostgroupMemberVect hostgrpMembers;
+	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	option.setTargetHostId(hostId);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	uds->getHostgroupMembers(hostgrpMembers, option);
+
+	if (hostgrpMembers.empty())
+		return;
+
+	SeparatorInjector commaInjector(",");
+	DBTermCodec dbCodec;
+	for (size_t i = 0; i < hostgrpMembers.size(); i++) {
+		const HostgroupMember &hostgrpMember = hostgrpMembers[i];
+		commaInjector(stringHostgroupId);
+		stringHostgroupId += dbCodec.enc(hostgrpMember.hostgroupIdInServer);
+	}
 }
 
 bool ActionDef::parseIncidentSenderCommand(IncidentTrackerIdType &trackerId) const

@@ -27,6 +27,7 @@
 #include "DBTablesTest.h"
 #include "Helpers.h"
 #include "ThreadLocalDBCache.h"
+#include <algorithm>
 using namespace std;
 using namespace mlpl;
 
@@ -1028,6 +1029,55 @@ void test_withoutPrivilege(void)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
+static void assertActionsQueryCondition(const UserIdType id, const EventInfo &event,
+					const ActionsQueryOption option,
+					const string expectedHostgroupIdStringList)
+{
+	string expected
+	  = StringUtils::sprintf(
+	    "(owner_user_id=%" FMT_USER_ID " AND "
+	    "action_type>=0 AND action_type<2) AND "
+	    "((server_id IS NULL) OR (server_id=%" FMT_SERVER_ID ")) AND "
+	    "((host_id_in_server IS NULL) OR "
+	    "(host_id_in_server='%" FMT_LOCAL_HOST_ID "')) AND "
+	    "((host_group_id IS NULL) OR host_group_id IN (%" FMT_HOST_GROUP_ID ")) AND "
+	    "((trigger_id IS NULL) OR (trigger_id='%" FMT_TRIGGER_ID "')) AND "
+	    "((trigger_status IS NULL) OR (trigger_status=%d)) AND "
+	    "((trigger_severity IS NULL) OR "
+	    "(trigger_severity_comp_type=1 AND trigger_severity=%d) OR "
+	    "(trigger_severity_comp_type=2 AND trigger_severity<=%d))",
+	    id, event.serverId, event.hostIdInServer.c_str(),
+	    expectedHostgroupIdStringList.c_str(),
+	    event.triggerId.c_str(),
+	    event.status, event.severity, event.severity);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+static void assertRegexActionsQueryCondition(
+  const UserIdType id, const EventInfo &event,
+  const ActionsQueryOption option,
+  const string expectedHostgroupIdStringListRegex)
+{
+	string expectedRegex
+	  = StringUtils::sprintf(
+	    "\\(owner_user_id=%" FMT_USER_ID " AND "
+	    "action_type>=0 AND action_type<2\\) AND "
+	    "\\(\\(server_id IS NULL\\) OR \\(server_id=%" FMT_SERVER_ID "\\)\\) AND "
+	    "\\(\\(host_id_in_server IS NULL\\) OR "
+	    "\\(host_id_in_server='%" FMT_LOCAL_HOST_ID "'\\)\\) AND "
+	    "\\(\\(host_group_id IS NULL\\) OR host_group_id IN \\(%" FMT_HOST_GROUP_ID "\\)\\) AND "
+	    "\\(\\(trigger_id IS NULL\\) OR \\(trigger_id='%" FMT_TRIGGER_ID "'\\)\\) AND "
+	    "\\(\\(trigger_status IS NULL\\) OR \\(trigger_status=%d\\)\\) AND "
+	    "\\(\\(trigger_severity IS NULL\\) OR "
+	    "\\(trigger_severity_comp_type=1 AND trigger_severity=%d\\) OR "
+	    "\\(trigger_severity_comp_type=2 AND trigger_severity<=%d\\)\\)",
+	    id, event.serverId, event.hostIdInServer.c_str(),
+	    expectedHostgroupIdStringListRegex.c_str(),
+	    event.triggerId.c_str(),
+	    event.status, event.severity, event.severity);
+	cut_assert_match(expectedRegex.c_str(), option.getCondition().c_str());
+}
+
 void test_withEventInfo(void)
 {
 	loadTestDBTablesUser();
@@ -1036,24 +1086,78 @@ void test_withEventInfo(void)
 	const EventInfo &event = testEventInfo[0];
 	ActionsQueryOption option(id);
 	option.setTargetEventInfo(&event);
-	string expected
-	  = StringUtils::sprintf(
-	    "(owner_user_id=%" FMT_USER_ID " AND "
-	    "action_type>=0 AND action_type<2) AND "
-	    "((server_id IS NULL) OR (server_id=%" FMT_SERVER_ID ")) AND "
-	    "((host_id_in_server IS NULL) OR "
-	    "(host_id_in_server='%" FMT_LOCAL_HOST_ID "')) AND "
-	    // test with empty hostgroups
-	    "((host_group_id IS NULL) OR host_group_id IN ('0')) AND "
-	    "((trigger_id IS NULL) OR (trigger_id='%" FMT_TRIGGER_ID "')) AND "
-	    "((trigger_status IS NULL) OR (trigger_status=%d)) AND "
-	    "((trigger_severity IS NULL) OR "
-	    "(trigger_severity_comp_type=1 AND trigger_severity=%d) OR "
-	    "(trigger_severity_comp_type=2 AND trigger_severity<=%d))",
-	    id, event.serverId, event.hostIdInServer.c_str(),
-	    event.triggerId.c_str(),
-	    event.status, event.severity, event.severity);
-	cppcut_assert_equal(expected, option.getCondition());
+	// test with empty hostgroups
+	string expectedHostgroupIdStringList = "'0'";
+	assertActionsQueryCondition(id, event, option, expectedHostgroupIdStringList);
+}
+
+void test_withEventInfoWithOneHostgroup(void)
+{
+	loadTestDBTablesUser();
+	loadTestDBHostgroupMember();
+
+	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
+	const EventInfo &event = testEventInfo[1]; // use host_id_in_server='10002'
+	ActionsQueryOption option(id);
+	option.setTargetEventInfo(&event);
+	string expectedHostgroupIdStringList = "'1'";
+	assertActionsQueryCondition(id, event, option, expectedHostgroupIdStringList);
+}
+
+void test_withEventInfoWithHostgroups(void)
+{
+	loadTestDBTablesUser();
+	loadTestDBHostgroupMember();
+
+	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
+	const EventInfo &event = testEventInfo[2]; // use host_id_in_server='235012'
+	ActionsQueryOption option(id);
+	option.setTargetEventInfo(&event);
+	string expectedHostgroupIdStringListRegex = "('1','2'|'2','1')";
+	assertRegexActionsQueryCondition(id, event, option,
+					 expectedHostgroupIdStringListRegex);
+}
+
+class TestActionsQueryOption : public ActionsQueryOption {
+public:
+	TestActionsQueryOption(const UserIdType &userId)
+	: ActionsQueryOption(userId)
+	{
+	}
+
+	void callGetHostgroupIdList(string &stringHostgroupId,
+	                            const ServerIdType &serverId,
+	                            const LocalHostIdType &hostId)
+	{
+		ActionsQueryOption::getHostgroupIdList(stringHostgroupId,
+		                                       serverId, hostId);
+	}
+};
+
+void test_getHostgroupIdList(void)
+{
+	loadTestDBTablesUser();
+	loadTestDBHostgroupMember();
+
+	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
+	const EventInfo &event = testEventInfo[2]; // use host_id_in_server='235012'
+	TestActionsQueryOption option(id);
+	option.setTargetEventInfo(&event);
+	std::vector<string> expectedHostgroupIdVect;
+	expectedHostgroupIdVect.push_back("'1'");
+	expectedHostgroupIdVect.push_back("'2'");
+	string obtainedHostgroupIdStringList;
+	option.callGetHostgroupIdList(obtainedHostgroupIdStringList,
+				      event.serverId,
+				      event.hostIdInServer.c_str());
+	std::vector<string> actualHostgroupIdVect;
+	StringUtils::split(actualHostgroupIdVect, obtainedHostgroupIdStringList, ',');
+	std::sort(actualHostgroupIdVect.begin(), actualHostgroupIdVect.end());
+
+	size_t hostgroupIdVectSize = actualHostgroupIdVect.size();
+	for (size_t i = 0; i < hostgroupIdVectSize; ++i)
+		cppcut_assert_equal(actualHostgroupIdVect.at(i),
+				    expectedHostgroupIdVect.at(i));
 }
 
 void data_actionType(void)

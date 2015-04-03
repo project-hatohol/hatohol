@@ -817,8 +817,8 @@ void initEventInfo(EventInfo &eventInfo)
 static const HostResourceQueryOption::Synapse synapseEventsQueryOption(
   tableProfileEvents,
   IDX_EVENTS_UNIFIED_ID, IDX_EVENTS_SERVER_ID,
-  tableProfileTriggers,
-  IDX_TRIGGERS_HOST_ID_IN_SERVER, true,
+  tableProfileEvents,
+  IDX_EVENTS_HOST_ID_IN_SERVER, true,
   tableProfileHostgroupMember,
   IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
   IDX_HOSTGROUP_MEMBER_GROUP_ID,

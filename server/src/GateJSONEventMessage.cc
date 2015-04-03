@@ -24,6 +24,8 @@
 using namespace std;
 using namespace mlpl;
 
+const size_t GateJSONEventMessage::EVENT_ID_DIGIT_NUM = 20;
+
 struct GateJSONEventMessage::Impl
 {
 	JsonNode *m_root;
@@ -425,6 +427,19 @@ bool GateJSONEventMessage::validate(StringList &errors)
 int64_t GateJSONEventMessage::getID()
 {
 	return m_impl->getID();
+}
+
+string GateJSONEventMessage::getIDString()
+{
+	const uint64_t id = static_cast<uint64_t>(m_impl->getID());
+	string idString = StringUtils::toString(id);
+	string fixedIdString;
+	const int digitNum = EVENT_ID_DIGIT_NUM;
+	const int numPads = digitNum - idString.size();
+	if (numPads > 0)
+		fixedIdString = string(numPads, '0');
+	fixedIdString += idString;
+	return fixedIdString;
 }
 
 timespec GateJSONEventMessage::getTimestamp()

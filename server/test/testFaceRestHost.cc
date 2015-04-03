@@ -235,7 +235,9 @@ static void _assertTriggers(
 }
 #define assertTriggers(P,...) cut_trace(_assertTriggers(P,##__VA_ARGS__))
 
-static void _assertEvents(const string &path, const string &callbackName = "")
+static void _assertEvents(const string &path, const string &callbackName = "",
+                          const ServerIdType &serverId = ALL_SERVERS,
+                          const LocalHostIdType &hostIdInServer = ALL_LOCAL_HOSTS)
 {
 	loadTestDBTriggers();
 	loadTestDBEvents();
@@ -255,6 +257,18 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	JSONParser *parser = getResponseAsJSONParser(arg);
 	unique_ptr<JSONParser> parserPtr(parser);
+
+	// request
+	StringMap queryMap;
+	if (serverId != ALL_SERVERS) {
+		queryMap["serverId"] =
+		  StringUtils::sprintf("%" PRIu32, serverId);
+	}
+	if (hostIdInServer != ALL_LOCAL_HOSTS)
+		queryMap["hostId"] = hostIdInServer;
+	arg.parameters = queryMap;
+
+	// check the reply
 	assertErrorCode(parser);
 	assertValueInParser(parser, "numberOfEvents",
 	                    eventsArg.expectedRecords.size());
@@ -575,6 +589,13 @@ void test_eventsWithIncidents(void)
 void test_eventsJSONP(void)
 {
 	assertEvents("/event", "foo");
+}
+
+void test_eventsForOneServerOneHost(void)
+{
+	assertEvents("/event", "foo",
+		     testEventInfo[1].serverId,
+		     testEventInfo[1].hostIdInServer);
 }
 
 void test_items(void)
