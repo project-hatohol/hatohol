@@ -14,6 +14,9 @@ RUN wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol.repo
 RUN yum install -y json-glib-devel qpid-cpp-server-devel
 # setup build environment
 RUN yum groupinstall -y 'Development tools'
+# setup newer gcc toolchain
+RUN cd /etc/yum.repos.d && wget http://people.centos.org/tru/devtools-2/devtools-2.repo
+RUN yum install -y devtoolset-2-gcc devtoolset-2-binutils devtoolset-2-gcc-c++
 RUN yum install -y Django
 RUN rpm -Uvh http://sourceforge.net/projects/cutter/files/centos/cutter-release-1.1.0-0.noarch.rpm
 RUN yum install -y cutter tar
@@ -21,9 +24,10 @@ RUN yum install -y cutter tar
 RUN git clone https://github.com/project-hatohol/hatohol.git ~/hatohol
 # build
 RUN cd ~/hatohol && libtoolize && autoreconf -i
-RUN cd ~/hatohol && ./configure
-RUN cd ~/hatohol && make -j `cat /proc/cpuinfo | grep processor | wc -l`
+RUN cd ~/hatohol && scl enable devtoolset-2 "./configure"
+RUN cd ~/hatohol && scl enable devtoolset-2 "make -j `cat /proc/cpuinfo | grep processor | wc -l`"
 RUN cd ~/hatohol && make dist -j `cat /proc/cpuinfo | grep processor | wc -l`
 # rpm build
 RUN yum install -y rpm-build
-RUN cd ~/hatohol && MAKEFLAGS="-j `cat /proc/cpuinfo | grep processor | wc -l`" rpmbuild -tb hatohol-*.tar.bz2
+RUN cd ~/hatohol && scl enable devtoolset-2 "MAKEFLAGS=\"-j `cat /proc/cpuinfo | grep processor | wc -l`\" rpmbuild -tb hatohol-*.tar.bz2"
+RUN scl enable devtoolset-2 "gcc --version"
