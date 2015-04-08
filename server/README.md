@@ -73,7 +73,7 @@ packages
 You need to register a yum repository for installing qpid-cpp-client-devel packages
 by the following command
 
-    # wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol.repo
+    # wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol-el6.repo
 
 You can add a new repository the following command.
 
