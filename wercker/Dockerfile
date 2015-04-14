@@ -9,7 +9,7 @@ RUN yum install -y glib2-devel libsoup-devel sqlite-devel mysql-devel mysql-serv
 RUN echo "NETWORKING=yes" > /etc/sysconfig/network
 RUN rpm -ivh --force http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 RUN yum install -y librabbitmq-devel wget
-RUN wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol.repo
+RUN wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol-el6.repo
 # setup qpid
 RUN yum install -y json-glib-devel qpid-cpp-server-devel
 # setup build environment
