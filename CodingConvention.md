@@ -27,10 +27,8 @@ An input parameter shall be 'const TYPE &'.
 
 #### Not using
 - Boost
-- C++11
-However, we'll begin to use features of C++11 in near future. Probably it is
-when we support CentOS7 (g++4.7) instead of CentOS6 (g++4.4) series.
-Of course, we can now use features supported by g++4.4.
+- C++14 (except for supported by g++-4.8 series)
+We can now use C++14 features (but very restricted...) supported by g++-4.8.
 
 ### Others
 - Don't use 'using namespace' in a header file.
