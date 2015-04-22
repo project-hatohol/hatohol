@@ -83,7 +83,8 @@ libhatohol_la_SOURCES += \
 	AMQPPublisher.cc AMQPPublisher.h \
 	AMQPMessageHandler.cc AMQPMessageHandler.h \
 	GateJSONEventMessage.cc GateJSONEventMessage.h \
-	HatoholArmPluginGateJSON.cc HatoholArmPluginGateJSON.h
+	HatoholArmPluginGateJSON.cc HatoholArmPluginGateJSON.h \
+	HatoholArmPluginGateHAPI2.cc HatoholArmPluginGateHAPI2.h
 endif
 
 AM_CXXFLAGS = \
