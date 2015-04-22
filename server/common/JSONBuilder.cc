@@ -117,3 +117,13 @@ void JSONBuilder::addFalse(const string &member)
 	json_builder_set_member_name(m_builder, member.c_str());
 	json_builder_add_boolean_value(m_builder, FALSE);
 }
+
+void JSONBuilder::add(const string &member, const JSONBoolean value)
+{
+	json_builder_set_member_name(m_builder, member.c_str());
+	if (value == JSONTrue) {
+		json_builder_add_boolean_value(m_builder, TRUE);
+	} else if (value == JSONFalse) {
+		json_builder_add_boolean_value(m_builder, FALSE);
+	}
+}
