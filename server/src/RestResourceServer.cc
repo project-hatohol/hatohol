@@ -157,9 +157,9 @@ static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 			const bool passiveMode =
 			  (pluginIt->path == HatoholArmPluginGate::PassivePluginQuasiPath);
 			if (passiveMode)
-				agent.addTrue("passiveMode");
+				agent.add("passiveMode", JSONTrue);
 			else
-				agent.addFalse("passiveMode");
+				agent.add("passiveMode", JSONFalse);
 			agent.add("brokerUrl", pluginIt->brokerUrl);
 			agent.add("staticQueueAddress",
 			          pluginIt->staticQueueAddress);
@@ -170,9 +170,9 @@ static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 			agent.add("tlsCACertificatePath",
 			          pluginIt->tlsCACertificatePath);
 			if (pluginIt->tlsEnableVerify)
-				agent.addTrue("tlsEnableVerify");
+				agent.add("tlsEnableVerify", JSONTrue);
 			else
-				agent.addFalse("tlsEnableVerify");
+				agent.add("tlsEnableVerify", JSONFalse);
 		}
 		agent.endObject();
 	}

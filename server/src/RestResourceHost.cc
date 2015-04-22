@@ -646,9 +646,9 @@ void RestResourceHost::handlerGetEvent(void)
 	// TODO: should use transaction to avoid conflicting with event list
 	agent.add("lastUnifiedEventId", getLastUnifiedEventId(this));
 	if (addIncidents)
-		agent.addTrue("haveIncident");
+		agent.add("haveIncident", JSONTrue);
 	else
-		agent.addFalse("haveIncident");
+		agent.add("haveIncident", JSONFalse);
 	agent.startArray("events");
 	EventInfoListIterator it = eventList.begin();
 	for (size_t i = 0; it != eventList.end(); ++i, ++it) {

@@ -509,9 +509,9 @@ void FaceRest::handlerTest(ResourceHandler *job)
 	  agent, HatoholError(HTERR_OK));
 	const bool testMode = ConfigManager::getInstance()->isTestMode();
 	if (testMode)
-		agent.addTrue("testMode");
+		agent.add("testMode", JSONTrue);
 	else
-		agent.addFalse("testMode");
+		agent.add("testMode", JSONFalse);
 
 	if (string(job->m_path) == "/test" &&
 	    string(job->m_message->method) == "POST")
