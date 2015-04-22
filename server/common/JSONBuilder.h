@@ -23,6 +23,11 @@
 #include <string>
 #include <json-glib/json-glib.h>
 
+enum JSONBoolean {
+  JSONTrue,
+  JSONFalse
+};
+
 class JSONBuilder
 {
 public:
