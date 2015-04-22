@@ -109,9 +109,12 @@ void JSONBuilder::add(const string &value)
 void JSONBuilder::add(const string &member, const JSONBoolean value)
 {
 	json_builder_set_member_name(m_builder, member.c_str());
-	if (value == JSONTrue) {
+	switch(value) {
+	case JSONTrue:
 		json_builder_add_boolean_value(m_builder, TRUE);
-	} else if (value == JSONFalse) {
+		break;
+	case JSONFalse:
 		json_builder_add_boolean_value(m_builder, FALSE);
+		break;
 	}
 }
