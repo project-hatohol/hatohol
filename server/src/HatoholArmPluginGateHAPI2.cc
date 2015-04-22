@@ -164,8 +164,7 @@ private:
 // ---------------------------------------------------------------------------
 HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
   const MonitoringServerInfo &serverInfo)
-: HatoholArmPluginInterface(true),
-  m_impl(new Impl(serverInfo))
+: m_impl(new Impl(serverInfo))
 {
 	// implement me!
 }

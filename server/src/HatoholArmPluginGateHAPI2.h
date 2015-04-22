@@ -23,7 +23,7 @@
 #include "DataStore.h"
 #include <HatoholArmPluginInterface.h>
 
-class HatoholArmPluginGateHAPI2 : public DataStore, public HatoholArmPluginInterface {
+class HatoholArmPluginGateHAPI2 : public DataStore {
 public:
   HatoholArmPluginGateHAPI2(const MonitoringServerInfo &serverInfo);
 
