@@ -731,7 +731,7 @@ SoupMessage *ZabbixAPI::queryTrigger(HatoholError &queryRet, int requestSince)
 	if (requestSince > 0)
 		agent.add("lastChangeSince", requestSince);
 	agent.add("selectHosts", "refer");
-	agent.addTrue("active");
+	agent.add("active", JSONTrue);
 	agent.endObject();
 
 	agent.add("auth", m_impl->authToken);
@@ -758,7 +758,7 @@ SoupMessage *ZabbixAPI::queryTriggerExpandedDescription(HatoholError &queryRet,
 		agent.add("lastChangeSince", requestSince);
 	agent.add("expandDescription", 1);
 	agent.add("selectHosts", "refer");
-	agent.addTrue("active");
+	agent.add("active", JSONTrue);
 	agent.endObject(); //params
 
 	agent.add("auth", m_impl->authToken);
@@ -778,7 +778,7 @@ SoupMessage *ZabbixAPI::queryItem(HatoholError &queryRet)
 	agent.startObject("params");
 	agent.add("output", "extend");
 	agent.add("selectApplications", "refer");
-	agent.addTrue("monitored");
+	agent.add("monitored", JSONTrue);
 	agent.endObject(); // params
 
 	agent.add("auth", m_impl->authToken);
@@ -827,7 +827,7 @@ SoupMessage *ZabbixAPI::queryHost(HatoholError &queryRet)
 	agent.startObject("params");
 	agent.add("output", "extend");
 	agent.add("selectGroups", "refer");
-	agent.addTrue("monitored_hosts");
+	agent.add("monitored_hosts", JSONTrue);
 	agent.endObject(); // params
 
 	agent.add("auth", m_impl->authToken);
@@ -845,7 +845,7 @@ SoupMessage *ZabbixAPI::queryGroup(HatoholError &queryRet)
 	agent.add("method", "hostgroup.get");
 
 	agent.startObject("params");
-	agent.addTrue("real_hosts");
+	agent.add("real_hosts", JSONTrue);
 	agent.add("output", "extend");
 	agent.add("selectHosts", "refer");
 	agent.endObject(); //params
