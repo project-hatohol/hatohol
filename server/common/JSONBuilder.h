@@ -23,6 +23,11 @@
 #include <string>
 #include <json-glib/json-glib.h>
 
+enum JSONBoolean {
+  JSONTrue,
+  JSONFalse
+};
+
 class JSONBuilder
 {
 public:
@@ -38,8 +43,7 @@ public:
 	void add(const std::string &member, gint64 value);
 	void add(const gint64 value);
 	void add(const std::string &value);
-	void addTrue(const std::string &member);
-	void addFalse(const std::string &member);
+	void add(const std::string &member, const JSONBoolean value);
 	void addNull(const std::string &member);
 
 private:
