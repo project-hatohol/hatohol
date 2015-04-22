@@ -106,18 +106,6 @@ void JSONBuilder::add(const string &value)
 	json_builder_add_string_value(m_builder, value.c_str());
 }
 
-void JSONBuilder::addTrue(const string &member)
-{
-	json_builder_set_member_name(m_builder, member.c_str());
-	json_builder_add_boolean_value(m_builder, TRUE);
-}
-
-void JSONBuilder::addFalse(const string &member)
-{
-	json_builder_set_member_name(m_builder, member.c_str());
-	json_builder_add_boolean_value(m_builder, FALSE);
-}
-
 void JSONBuilder::add(const string &member, const JSONBoolean value)
 {
 	json_builder_set_member_name(m_builder, member.c_str());

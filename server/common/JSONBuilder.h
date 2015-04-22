@@ -44,10 +44,6 @@ public:
 	void add(const gint64 value);
 	void add(const std::string &value);
 	void add(const std::string &member, JSONBoolean value);
-	__attribute__ ((deprecated))
-	void addTrue(const std::string &member);
-	__attribute__ ((deprecated))
-	void addFalse(const std::string &member);
 	void addNull(const std::string &member);
 
 private:
