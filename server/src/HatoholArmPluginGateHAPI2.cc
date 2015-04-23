@@ -40,7 +40,7 @@ public:
 	: m_serverInfo(serverInfo),
 	  m_hosts()
 	{
-		initialize();
+		initializeHosts();
 	}
 
 	bool handle(const amqp_envelope_t *envelope)
@@ -74,9 +74,21 @@ private:
 	MonitoringServerInfo m_serverInfo;
 	map<string, HostIdType> m_hosts;
 
-	void initialize()
+	void initializeHosts()
 	{
-		// TODO: implement me!
+		UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+		HostsQueryOption option;
+		option.setTargetServerId(m_serverInfo.id);
+
+		ServerHostDefVect svHostDefVect;
+		THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+		  uds->getServerHostDefs(svHostDefVect, option));
+
+		ServerHostDefVectConstIterator it = svHostDefVect.begin();
+		for (; it != svHostDefVect.end(); ++it) {
+			const ServerHostDef &svHostDef = *it;
+			m_hosts[svHostDef.name] = svHostDef.hostId;
+		}
 	}
 
 	void process(JsonNode *root)
