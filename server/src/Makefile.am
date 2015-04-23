@@ -83,6 +83,7 @@ libhatohol_la_SOURCES += \
 	AMQPPublisher.cc AMQPPublisher.h \
 	AMQPMessageHandler.cc AMQPMessageHandler.h \
 	GateJSONEventMessage.cc GateJSONEventMessage.h \
+	GateJSONProcedureHAPI2.cc GateJSONProcedureHAPI2.h \
 	HatoholArmPluginGateJSON.cc HatoholArmPluginGateJSON.h \
 	HatoholArmPluginGateHAPI2.cc HatoholArmPluginGateHAPI2.h
 endif
