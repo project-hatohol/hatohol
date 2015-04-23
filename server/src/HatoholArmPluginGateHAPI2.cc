@@ -167,10 +167,12 @@ private:
 // Public methods
 // ---------------------------------------------------------------------------
 HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
-  const MonitoringServerInfo &serverInfo)
+  const MonitoringServerInfo &serverInfo, const bool &autoStart)
 : m_impl(new Impl(serverInfo, this))
 {
-	// implement me!
+	if (autoStart) {
+		m_impl->start();
+	}
 }
 
 // ---------------------------------------------------------------------------
