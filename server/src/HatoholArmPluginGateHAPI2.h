@@ -22,8 +22,9 @@
 
 #include "DataStore.h"
 #include "GateJSONProcedureHAPI2.h"
+#include "HatoholArmPluginInterfaceHAPI2.h"
 
-class HatoholArmPluginGateHAPI2 : public DataStore {
+class HatoholArmPluginGateHAPI2 : public DataStore, public HatoholArmPluginInterfaceHAPI2 {
 public:
 	HatoholArmPluginGateHAPI2(const MonitoringServerInfo &serverInfo);
 

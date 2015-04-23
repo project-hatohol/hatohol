@@ -17,34 +17,28 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GateJSONProcedureHAPI2_h
-#define GateJSONProcedureHAPI2_h
-
-#include <json-glib/json-glib.h>
-
-#include <string>
-#include <list>
-#include <memory>
-
-#include <StringUtils.h>
-
-#include <Params.h>
-#include <Monitoring.h>
 #include "HatoholArmPluginInterfaceHAPI2.h"
 
-class GateJSONProcedureHAPI2 {
-public:
-	GateJSONProcedureHAPI2(JsonNode *node);
-	virtual ~GateJSONProcedureHAPI2();
+using namespace std;
+using namespace mlpl;
 
-	bool validate(mlpl::StringList &errors);
+struct HatoholArmPluginInterfaceHAPI2::Impl
+{
 
-	HAPI2ProcedureType getProcedureType();
+	Impl()
+	{
+	}
 
-private:
-	struct Impl;
-	std::unique_ptr<Impl> m_impl;
+	~Impl()
+	{
+	}
 };
 
+HatoholArmPluginInterfaceHAPI2::HatoholArmPluginInterfaceHAPI2()
+: m_impl(new Impl())
+{
+}
 
-#endif // GateJSONProcedureHAPI2_h
+HatoholArmPluginInterfaceHAPI2::~HatoholArmPluginInterfaceHAPI2()
+{
+}
