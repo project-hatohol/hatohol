@@ -93,7 +93,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
 
-	Impl(const MonitoringServerInfo &serverInfo)
+	Impl(const MonitoringServerInfo &serverInfo,
+	     HatoholArmPluginGateHAPI2 *hapghapi)
 	: m_connectionInfo(),
 	  m_consumer(NULL),
 	  m_handler(NULL),
@@ -164,7 +165,7 @@ private:
 // ---------------------------------------------------------------------------
 HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
   const MonitoringServerInfo &serverInfo)
-: m_impl(new Impl(serverInfo))
+: m_impl(new Impl(serverInfo, this))
 {
 	// implement me!
 }
