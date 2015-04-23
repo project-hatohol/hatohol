@@ -87,15 +87,18 @@ private:
 
 struct HatoholArmPluginGateHAPI2::Impl
 {
+	// We have a copy. The access to the object is MT-safe.
+	const MonitoringServerInfo serverInfo;
 	AMQPConnectionInfo m_connectionInfo;
 	AMQPConsumer *m_consumer;
 	AMQPJSONMessageHandler *m_handler;
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
 
-	Impl(const MonitoringServerInfo &serverInfo,
+	Impl(const MonitoringServerInfo &_serverInfo,
 	     HatoholArmPluginGateHAPI2 *hapghapi)
-	: m_connectionInfo(),
+	: serverInfo(_serverInfo),
+	  m_connectionInfo(),
 	  m_consumer(NULL),
 	  m_handler(NULL),
 	  m_armFake(serverInfo),
