@@ -25,8 +25,7 @@
 
 class HatoholArmPluginGateHAPI2 : public DataStore {
 public:
-  HatoholArmPluginGateHAPI2(const MonitoringServerInfo &serverInfo,
-                            const bool &autoStart = true);
+	HatoholArmPluginGateHAPI2(const MonitoringServerInfo &serverInfo);
 
 protected:
 	virtual ~HatoholArmPluginGateHAPI2();
