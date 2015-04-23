@@ -21,7 +21,7 @@
 #define HatoholArmPluginGateHAPI2_h
 
 #include "DataStore.h"
-#include <HatoholArmPluginInterface.h>
+#include "GateJSONProcedureHAPI2.h"
 
 class HatoholArmPluginGateHAPI2 : public DataStore {
 public:
