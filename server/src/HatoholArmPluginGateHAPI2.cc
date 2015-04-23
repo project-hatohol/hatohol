@@ -81,7 +81,18 @@ private:
 
 	void process(JsonNode *root)
 	{
-		// TODO: implement me!
+		GateJSONProcedureHAPI2 hapi2(root);
+		StringList errors;
+		if (!hapi2.validate(errors)) {
+			StringListIterator it = errors.begin();
+			for (; it != errors.end(); ++it) {
+				string &errorMessage = *it;
+				MLPL_ERR("%s\n", errorMessage.c_str());
+			}
+			return;
+		}
+		HAPI2ProcedureType hapi2Type = hapi2.getProcedureType();
+		// TODO: implement hanlders!
 	}
 };
 
