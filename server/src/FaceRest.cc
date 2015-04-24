@@ -558,14 +558,14 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 	gchar *user = (gchar *)g_hash_table_lookup(job->m_query, "user");
 	if (!user) {
 		MLPL_INFO("Not found: user\n");
-		job->replyError(HTERR_AUTH_FAILED, SOUP_STATUS_UNAUTHORIZED);
+		job->replyError(HTERR_AUTH_FAILED, SOUP_STATUS_BAD_REQUEST);
 		return;
 	}
 	gchar *password
 	  = (gchar *)g_hash_table_lookup(job->m_query, "password");
 	if (!password) {
 		MLPL_INFO("Not found: password\n");
-		job->replyError(HTERR_AUTH_FAILED, SOUP_STATUS_UNAUTHORIZED);
+		job->replyError(HTERR_AUTH_FAILED, SOUP_STATUS_BAD_REQUEST);
 		return;
 	}
 
@@ -574,7 +574,7 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 	if (userId == INVALID_USER_ID) {
 		MLPL_INFO("Failed to authenticate: Client: %s, User: %s.\n",
 			  soup_client_context_get_host(job->m_client), user);
-		job->replyError(HTERR_AUTH_FAILED, SOUP_STATUS_UNAUTHORIZED);
+		job->replyError(HTERR_AUTH_FAILED, SOUP_STATUS_BAD_REQUEST);
 		return;
 	}
 
