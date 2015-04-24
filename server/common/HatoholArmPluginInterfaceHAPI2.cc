@@ -24,8 +24,11 @@ using namespace mlpl;
 
 struct HatoholArmPluginInterfaceHAPI2::Impl
 {
+	HatoholArmPluginInterfaceHAPI2 *hapi2;
+	ProcedureHandlerMap procedureHandler;
 
-	Impl()
+	Impl(HatoholArmPluginInterfaceHAPI2 *_hapi2)
+	: hapi2(_hapi2)
 	{
 	}
 
@@ -35,7 +38,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 };
 
 HatoholArmPluginInterfaceHAPI2::HatoholArmPluginInterfaceHAPI2()
-: m_impl(new Impl())
+: m_impl(new Impl(this))
 {
 }
 
