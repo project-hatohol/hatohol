@@ -25,7 +25,7 @@ using namespace mlpl;
 struct HatoholArmPluginInterfaceHAPI2::Impl
 {
 	HatoholArmPluginInterfaceHAPI2 *hapi2;
-	ProcedureHandlerMap procedureHandler;
+	ProcedureHandlerMap procedureHandlerMap;
 
 	Impl(HatoholArmPluginInterfaceHAPI2 *_hapi2)
 	: hapi2(_hapi2)
@@ -43,5 +43,29 @@ HatoholArmPluginInterfaceHAPI2::HatoholArmPluginInterfaceHAPI2()
 }
 
 HatoholArmPluginInterfaceHAPI2::~HatoholArmPluginInterfaceHAPI2()
+{
+}
+
+void HatoholArmPluginInterfaceHAPI2::registerProcedureHandler(
+  const HAPI2ProcedureType &type, ProcedureHandler handler)
+{
+	m_impl->procedureHandlerMap[type] = handler;
+}
+
+void HatoholArmPluginInterfaceHAPI2::interpretHandler(
+  const HAPI2ProcedureType &type, JsonObject &message)
+{
+	ProcedureHandlerMapConstIterator it =
+	  m_impl->procedureHandlerMap.find(type);
+	if (it == m_impl->procedureHandlerMap.end()) {
+		// TODO: reply error
+		return;
+	}
+	ProcedureHandler handler = it->second;
+	(this->*handler)(&type);
+	onHandledCommand(type);
+}
+
+void HatoholArmPluginInterfaceHAPI2::onHandledCommand(const HAPI2ProcedureType &type)
 {
 }

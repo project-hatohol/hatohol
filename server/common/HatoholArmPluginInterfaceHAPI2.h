@@ -20,6 +20,8 @@
 #ifndef HatoholArmPluginInterfaceHAPI2_h
 #define HatoholArmPluginInterfaceHAPI2_h
 
+#include <json-glib/json-glib.h>
+
 #include <string>
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
@@ -57,13 +59,27 @@ class HatoholArmPluginInterfaceHAPI2 {
 
 public:
 	HatoholArmPluginInterfaceHAPI2();
-	typedef void (HatoholArmPluginInterfaceHAPI2::*ProceduredHandler)
+	typedef void (HatoholArmPluginInterfaceHAPI2::*ProcedureHandler)
 	  (const HAPI2ProcedureType *type);
+	/**
+	 * Register a procedure receive callback method.
+	 * If the same code is specified more than twice, the handler is
+	 * updated.
+	 *
+	 * @param type HAPI2ProcedureType
+	 * @param handler A receive handler.
+	 */
+	void registerProcedureHandler(const HAPI2ProcedureType &type,
+                                      ProcedureHandler handler);
+	void interpretHandler(const HAPI2ProcedureType &type, JsonObject &message);
 
 protected:
-	typedef std::map<uint16_t, ProceduredHandler> ProcedureHandlerMap;
-	typedef ProcedureHandlerMap::iterator	      ProcedureHandlerMapIterator;
-	typedef ProcedureHandlerMap::const_iterator   ProcedureHandlerMapConstIterator;
+	typedef std::map<uint16_t, ProcedureHandler> ProcedureHandlerMap;
+	typedef ProcedureHandlerMap::iterator	     ProcedureHandlerMapIterator;
+	typedef ProcedureHandlerMap::const_iterator  ProcedureHandlerMapConstIterator;
+
+	virtual void onHandledCommand(const HAPI2ProcedureType &type);
+
         virtual ~HatoholArmPluginInterfaceHAPI2();
 
 private:
