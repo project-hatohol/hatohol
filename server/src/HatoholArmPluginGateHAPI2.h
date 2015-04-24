@@ -31,6 +31,8 @@ public:
 protected:
 	virtual ~HatoholArmPluginGateHAPI2();
 
+        void procedureHandlerExchangeProfile(const HAPI2ProcedureType *type);
+
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;

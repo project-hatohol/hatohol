@@ -193,6 +193,10 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
   const MonitoringServerInfo &serverInfo)
 : m_impl(new Impl(serverInfo, this))
 {
+	registerProcedureHandler(
+	  HAPI2_EXCHANGE_PROFILE,
+	  (ProcedureHandler)
+	    &HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile);
 }
 
 // ---------------------------------------------------------------------------
@@ -200,4 +204,10 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 // ---------------------------------------------------------------------------
 HatoholArmPluginGateHAPI2::~HatoholArmPluginGateHAPI2()
 {
+}
+
+void HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
+  const HAPI2ProcedureType *type)
+{
+	// TODO: implement exchange profile procedure
 }
