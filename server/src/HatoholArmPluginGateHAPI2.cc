@@ -181,7 +181,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 private:
 	string generateQueueName(const MonitoringServerInfo &serverInfo)
 	{
-		return StringUtils::sprintf("gate.%" FMT_SERVER_ID,
+		return StringUtils::sprintf("hapi2.%" FMT_SERVER_ID,
 					    serverInfo.id);
 	}
 };
