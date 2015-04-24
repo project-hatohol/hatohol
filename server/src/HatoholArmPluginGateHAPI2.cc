@@ -33,6 +33,25 @@
 using namespace std;
 using namespace mlpl;
 
+const string defaultValidProcedureList[] = {
+	"exchangeProfile",
+	"getMonitoringServerInfo",
+	"getLastInfo",
+	"putItems",
+	"putHistory",
+	"updateHosts",
+	"updateHostGroups",
+	"updateHostGroupMembership",
+	"updateTriggers",
+	"updateEvents",
+	"updateHostParent",
+	"updateArmInfo",
+	"fetchItems",
+	"fetchHistory",
+	"fetchTriggers",
+	"fetchEvents",
+};
+
 class AMQPJSONMessageHandler : public AMQPMessageHandler
 {
 public:
