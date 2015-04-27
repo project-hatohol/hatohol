@@ -28,6 +28,10 @@ class HatoholArmPluginGateHAPI2 : public DataStore, public HatoholArmPluginInter
 public:
 	HatoholArmPluginGateHAPI2(const MonitoringServerInfo &serverInfo);
 
+	virtual const MonitoringServerInfo
+	  &getMonitoringServerInfo(void) const override;
+	virtual const ArmStatus &getArmStatus(void) const override;
+
 protected:
 	virtual ~HatoholArmPluginGateHAPI2();
 

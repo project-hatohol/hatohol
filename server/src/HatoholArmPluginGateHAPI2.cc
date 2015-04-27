@@ -130,7 +130,7 @@ private:
 struct HatoholArmPluginGateHAPI2::Impl
 {
 	// We have a copy. The access to the object is MT-safe.
-	const MonitoringServerInfo serverInfo;
+	const MonitoringServerInfo m_serverInfo;
 	AMQPConnectionInfo m_connectionInfo;
 	AMQPConsumer *m_consumer;
 	AMQPJSONMessageHandler *m_handler;
@@ -139,16 +139,16 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 	Impl(const MonitoringServerInfo &_serverInfo,
 	     HatoholArmPluginGateHAPI2 *hapghapi)
-	: serverInfo(_serverInfo),
+	: m_serverInfo(_serverInfo),
 	  m_connectionInfo(),
 	  m_consumer(NULL),
 	  m_handler(NULL),
-	  m_armFake(serverInfo),
+	  m_armFake(m_serverInfo),
 	  m_armStatus()
 	{
 		ThreadLocalDBCache cache;
 		DBTablesConfig &dbConfig = cache.getConfig();
-		const ServerIdType &serverId = serverInfo.id;
+		const ServerIdType &serverId = m_serverInfo.id;
 		ArmPluginInfo armPluginInfo;
 		if (!dbConfig.getArmPluginInfo(armPluginInfo, serverId)) {
 			MLPL_ERR("Failed to get ArmPluginInfo: serverId: %d\n",
@@ -161,7 +161,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		string queueName;
 		if (armPluginInfo.staticQueueAddress.empty())
-			queueName = generateQueueName(serverInfo);
+			queueName = generateQueueName(m_serverInfo);
 		else
 			queueName = armPluginInfo.staticQueueAddress;
 		m_connectionInfo.setQueueName(queueName);
@@ -175,7 +175,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		m_connectionInfo.setTLSVerifyEnabled(
 			armPluginInfo.isTLSVerifyEnabled());
 
-		m_handler = new AMQPJSONMessageHandler(serverInfo);
+		m_handler = new AMQPJSONMessageHandler(m_serverInfo);
 		m_consumer = new AMQPConsumer(m_connectionInfo, m_handler);
 	}
 
@@ -223,6 +223,17 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 // ---------------------------------------------------------------------------
 HatoholArmPluginGateHAPI2::~HatoholArmPluginGateHAPI2()
 {
+}
+
+const MonitoringServerInfo &
+HatoholArmPluginGateHAPI2::getMonitoringServerInfo(void) const
+{
+	return m_impl->m_armFake.getServerInfo();
+}
+
+const ArmStatus &HatoholArmPluginGateHAPI2::getArmStatus(void) const
+{
+	return m_impl->m_armStatus;
 }
 
 void HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(

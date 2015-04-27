@@ -90,7 +90,8 @@ if HAVE_LIBRABBITMQ
 testHatohol_la_SOURCES += \
 	testAMQPConnectionInfo.cc \
 	testAMQPConnection.cc \
-	testGateJSONEventMessage.cc
+	testGateJSONEventMessage.cc \
+	testHatoholArmPluginGateHAPI2.cc
 endif
 
 testHatohol_la_LDFLAGS = \
