@@ -127,6 +127,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"goo",                    // password
 	"dbX",                    // db_name
 	"",                       // base_url
+	"",                       // exteneded_info
 },{
 	2,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -140,6 +141,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"Albert",                 // password
 	"gravity",                // db_name
 	"",                       // base_url
+	"",                       // exteneded_info
 },{
 	3,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -153,6 +155,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"fermion",                // password
 	"",                       // db_name
 	"",                       // base_url
+	"",                       // exteneded_info
 },{
 	4,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -166,6 +169,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"OTSU",                   // password
 	"zzz",                    // db_name
 	"",                       // base_url
+	"",                       // exteneded_info
 },{
 	211,                      // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -179,6 +183,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"siranami",               // password
 	"zabbix",                 // db_name
 	"",                       // base_url
+	"",                       // exteneded_info
 },{
 	222,                      // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -192,6 +197,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"doradora",               // password
 	"z@bb1x",                 // db_name
 	"",                       // base_url
+	"",                       // exteneded_info
 },{
 	301,                      // id
 	MONITORING_SYSTEM_NAGIOS, // type
@@ -205,6 +211,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"5t64k-f3-ui.l76n",       // password
 	"nAgiOs_ndoutils",        // db_name
 	"http://10.0.0.32/nagios3", // base_url
+	"test extended info",     // exteneded_info
 }};
 const size_t NumTestServerInfo = ARRAY_SIZE(testServerInfo);
 

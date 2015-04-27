@@ -66,6 +66,7 @@ struct MonitoringServerInfo {
 	std::string          password;
 	std::string          dbName; // for naigos ndutils
 	std::string          baseURL; // for User specified monitoring server URL
+	std::string          extendedInfo;
 
 	// methods
 
