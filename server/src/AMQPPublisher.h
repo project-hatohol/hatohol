@@ -28,7 +28,7 @@ class AMQPMessageHandler;
 class AMQPPublisher : public HatoholThreadBase {
 public:
 	AMQPPublisher(const AMQPConnectionInfo &connectionInfo,
-                      std::string body);
+	              std::string body);
 	virtual ~AMQPPublisher();
 
 protected:
@@ -36,7 +36,7 @@ protected:
 
 private:
 	const AMQPConnectionInfo &m_connectionInfo;
-        std::string m_body;
+	std::string m_body;
 };
 
 #endif // AMQPPublisher_h
