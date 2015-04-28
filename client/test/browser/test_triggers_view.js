@@ -39,7 +39,7 @@ describe('TriggersView', function() {
       "serverId": 1,
       "hostId": "10106",
       "brief": "Host name of zabbix_agentd was changed on {HOST.NAME}",
-      "expandedDescription": "Host name of zabbix_agentd was changed on TestHost0"
+      "extendedInfo":"{\"expandedDescription\": \"Host name of zabbix_agentd was changed on TestHost0\"}",
     }
   ];
   var defaultServers = {

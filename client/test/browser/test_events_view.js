@@ -25,7 +25,7 @@ describe('EventsView', function() {
       "severity":1,
       "hostId":"10106",
       "brief":"Test discription 2.",
-      "expandedDescription":"Expanded test description 2.",
+      "extendedInfo":"{\"expandedDescription\": \"Expanded test description 2.\"}",
     },
   ];
 

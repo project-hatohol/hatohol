@@ -153,6 +153,17 @@ var TriggersView = function(userProfile) {
     }
   }
 
+  function getTriggerName(trigger) {
+    var extendedInfo, name;
+
+    try {
+      extendedInfo = JSON.parse(trigger["extendedInfo"]);
+      name = extendedInfo["expandedDescription"];
+    } catch(e) {
+    }
+    return name ? name : trigger["brief"];
+  }
+
   function drawTableBody(replyData) {
     var serverName, hostName, clock, status, severity, triggerName;
     var html, server, trigger, severityClass;
@@ -172,11 +183,7 @@ var TriggersView = function(userProfile) {
       severityClass = "severity";
       if (status == hatohol.TRIGGER_STATUS_PROBLEM)
 	severityClass += escapeHTML(severity);
-      if (trigger["expandedDescription"]) {
-        triggerName  = trigger["expandedDescription"];
-      } else {
-        triggerName  = trigger["brief"];
-      }
+      triggerName = getTriggerName(trigger);
 
       html += "<tr><td>" + escapeHTML(nickName) + "</td>";
       html += "<td class='" + severityClass +
