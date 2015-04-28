@@ -160,7 +160,7 @@ static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 }, {
 	"plugin_enabled",                  // columnName
 	SQL_COLUMN_TYPE_INT,               // type
-	1,                                // columnLength
+	1,                                 // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
@@ -287,7 +287,7 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 }, {
 	"base_url",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
-	32767,                              // columnLength
+	32767,                             // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
 	SQL_KEY_NONE,                      // keyType
@@ -296,7 +296,7 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 }, {
 	"extended_info",                   // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
-	32767,                              // columnLength
+	32767,                             // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
 	SQL_KEY_NONE,                      // keyType
