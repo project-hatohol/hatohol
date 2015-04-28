@@ -32,8 +32,8 @@ class AMQPConnection {
 public:
 	AMQPConnection(const AMQPConnectionInfo &info);
 	~AMQPConnection();
-        virtual bool connect() override;
-        virtual bool initializeConnection() override;
+        virtual bool connect();
+        virtual bool initializeConnection();
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
