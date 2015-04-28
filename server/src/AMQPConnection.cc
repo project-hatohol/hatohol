@@ -55,11 +55,6 @@ public:
 		return m_connection;
 	}
 
-	void newConnection()
-	{
-		m_connection = amqp_new_connection();
-	}
-
 	bool openSocket()
 	{
 		if (m_info.useTLS()) {
