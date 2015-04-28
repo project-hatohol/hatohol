@@ -28,7 +28,7 @@
 #include "AMQPConsumer.h"
 #include "AMQPConnectionInfo.h"
 #include "AMQPMessageHandler.h"
-#include "GateJSONEventMessage.h"
+#include "GateJSONProcedureHAPI2.h"
 
 using namespace std;
 using namespace mlpl;
