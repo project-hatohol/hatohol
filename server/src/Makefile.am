@@ -77,6 +77,7 @@ libhatohol_la_SOURCES = \
 if HAVE_LIBRABBITMQ
 libhatohol_la_SOURCES += \
 	AMQPConnectionInfo.cc AMQPConnectionInfo.h \
+	AMQPConnection.cc AMQPConnection.h \
 	AMQPConsumer.cc AMQPConsumer.h \
 	AMQPPublisher.cc AMQPPublisher.h \
 	AMQPMessageHandler.cc AMQPMessageHandler.h \
