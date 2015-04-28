@@ -24,6 +24,17 @@
 #include "GateJSONProcedureHAPI2.h"
 #include "HatoholArmPluginInterfaceHAPI2.h"
 
+enum ProcedureImplementType {
+	PROCEDURE_SERVER,
+	PROCEDURE_HAP,
+	PROCEDURE_BOTH
+};
+
+struct HAPI2ProcedureInfoList {
+	ProcedureImplementType type;
+	std::string name;
+};
+
 class HatoholArmPluginGateHAPI2 : public DataStore, public HatoholArmPluginInterfaceHAPI2 {
 public:
 	HatoholArmPluginGateHAPI2(const MonitoringServerInfo &serverInfo);

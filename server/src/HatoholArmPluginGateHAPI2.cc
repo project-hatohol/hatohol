@@ -33,23 +33,22 @@
 using namespace std;
 using namespace mlpl;
 
-const string defaultValidProcedureList[] = {
-	"exchangeProfile",
-	"getMonitoringServerInfo",
-	"getLastInfo",
-	"putItems",
-	"putHistory",
-	"updateHosts",
-	"updateHostGroups",
-	"updateHostGroupMembership",
-	"updateTriggers",
-	"updateEvents",
-	"updateHostParent",
-	"updateArmInfo",
-	"fetchItems",
-	"fetchHistory",
-	"fetchTriggers",
-	"fetchEvents",
+HAPI2ProcedureInfoList defaultValidProcedureList[] = {
+	{PROCEDURE_BOTH,   "exchangeProfile"},
+	{PROCEDURE_SERVER, "getMonitoringServerInfo"},
+	{PROCEDURE_SERVER, "getLastInfo"},
+	{PROCEDURE_SERVER, "putItems"},
+	{PROCEDURE_SERVER, "putHistory"},
+	{PROCEDURE_SERVER, "updateHosts"},
+	{PROCEDURE_SERVER, "updateHostGroups"},
+	{PROCEDURE_SERVER, "updateHostGroupMembership"},
+	{PROCEDURE_SERVER, "updateTriggers"},
+	{PROCEDURE_SERVER, "updateEvents"},
+	{PROCEDURE_SERVER, "updateHostParent"},
+	{PROCEDURE_HAP,    "fetchItems"},
+	{PROCEDURE_HAP,    "fetchHistory"},
+	{PROCEDURE_HAP,    "fetchTriggers"},
+	{PROCEDURE_HAP,    "fetchEvents"},
 };
 
 class AMQPJSONMessageHandler : public AMQPMessageHandler
