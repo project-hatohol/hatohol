@@ -163,6 +163,39 @@ public:
 		m_connection = NULL;
 	}
 
+	time_t getTimeout(void)
+	{
+		return m_info.getTimeout();
+	}
+
+	const string &getQueueName()
+	{
+		return m_info.getQueueName();
+	}
+
+	void logErrorResponse(const char *context,
+			      const amqp_rpc_reply_t &reply)
+	{
+		switch (reply.reply_type) {
+		case AMQP_RESPONSE_NORMAL:
+			break;
+		case AMQP_RESPONSE_NONE:
+			MLPL_ERR("%s: RPC reply type is missing\n", context);
+			break;
+		case AMQP_RESPONSE_LIBRARY_EXCEPTION:
+			MLPL_ERR("failed to %s: %s\n",
+				 context,
+				 amqp_error_string2(reply.library_error));
+			break;
+		case AMQP_RESPONSE_SERVER_EXCEPTION:
+			// TODO: show more messages
+			MLPL_ERR("%s: server exception\n",
+				 context);
+			break;
+		}
+		return;
+	}
+
 protected:
 	const AMQPConnectionInfo &m_info;
 	amqp_socket_t *m_socket;
@@ -203,16 +236,6 @@ protected:
 		return m_info.getVirtualHost();
 	}
 
-	const string &getQueueName()
-	{
-		return m_info.getQueueName();
-	}
-
-	time_t getTimeout(void)
-	{
-		return m_info.getTimeout();
-	}
-
 	const string &getTLSCertificatePath(void)
 	{
 		return m_info.getTLSCertificatePath();
@@ -246,29 +269,6 @@ protected:
 			 context,
 			 status,
 			 amqp_error_string2(status));
-	}
-
-	void logErrorResponse(const char *context,
-			      const amqp_rpc_reply_t &reply)
-	{
-		switch (reply.reply_type) {
-		case AMQP_RESPONSE_NORMAL:
-			break;
-		case AMQP_RESPONSE_NONE:
-			MLPL_ERR("%s: RPC reply type is missing\n", context);
-			break;
-		case AMQP_RESPONSE_LIBRARY_EXCEPTION:
-			MLPL_ERR("failed to %s: %s\n",
-				 context,
-				 amqp_error_string2(reply.library_error));
-			break;
-		case AMQP_RESPONSE_SERVER_EXCEPTION:
-			// TODO: show more messages
-			MLPL_ERR("%s: server exception\n",
-				 context);
-			break;
-		}
-		return;
 	}
 
 	bool createTLSSocket(void)
@@ -399,4 +399,50 @@ bool AMQPConnection::initializeConnection()
 	if (!m_impl->declareQueue())
 		return false;
 	return true;
+}
+
+time_t AMQPConnection::getTimeout(void)
+{
+	return m_impl->getTimeout();
+}
+
+bool AMQPConnection::isConnected()
+{
+	return m_impl->m_connection;
+}
+
+bool AMQPConnection::openSocket()
+{
+	return m_impl->openSocket();
+}
+
+bool AMQPConnection::login()
+{
+	return m_impl->login();
+}
+
+bool AMQPConnection::openChannel()
+{
+	return m_impl->openChannel();
+}
+
+bool AMQPConnection::declareQueue()
+{
+	return m_impl->declareQueue();
+}
+
+string AMQPConnection::getQueueName()
+{
+	return m_impl->getQueueName();
+}
+
+void AMQPConnection::disposeConnection()
+{
+	return m_impl->disposeConnection();
+}
+
+void AMQPConnection::logErrorResponse(const char *context,
+	                              const amqp_rpc_reply_t &reply)
+{
+	return m_impl->logErrorResponse(context, reply);
 }

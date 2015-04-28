@@ -32,8 +32,19 @@ class AMQPConnection {
 public:
 	AMQPConnection(const AMQPConnectionInfo &info);
 	~AMQPConnection();
-        virtual bool connect();
-        virtual bool initializeConnection();
+	virtual bool connect();
+	virtual bool initializeConnection();
+	virtual time_t getTimeout(void);
+	virtual bool isConnected();
+	virtual bool openSocket();
+	virtual bool login();
+	virtual bool openChannel();
+	virtual bool declareQueue();
+	virtual std::string getQueueName();
+	virtual void disposeConnection();
+	virtual void logErrorResponse(const char *context,
+	                              const amqp_rpc_reply_t &reply);
+
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
