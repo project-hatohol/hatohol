@@ -33,8 +33,7 @@ using namespace mlpl;
 class AMQPPublisherConnection : public AMQPConnection {
 public:
 	AMQPPublisherConnection(const AMQPConnectionInfo &info)
-	: AMQPConnection(info),
-	  m_connection(NULL)
+	: AMQPConnection(info)
 	{
 	}
 
@@ -58,7 +57,7 @@ public:
 		amqp_bytes_t body_bytes;
 		body_bytes.bytes = const_cast<char *>(body.data());
 		body_bytes.len = body.length();
-		response = amqp_basic_publish(m_connection,
+		response = amqp_basic_publish(getConnection(),
 					      getChannel(),
 					      queue,
 					      consumer_tag,
@@ -68,7 +67,7 @@ public:
 					      amqp_bytes_malloc_dup(body_bytes));
 		if (response != AMQP_STATUS_OK) {
 			const amqp_rpc_reply_t reply =
-				amqp_get_rpc_reply(m_connection);
+				amqp_get_rpc_reply(getConnection());
 			if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
 				logErrorResponse("start publishing", reply);
 				return false;
@@ -76,9 +75,6 @@ public:
 		}
 		return true;
 	}
-
-private:
-	amqp_connection_state_t m_connection;
 };
 
 AMQPPublisher::AMQPPublisher(const AMQPConnectionInfo &connectionInfo,

@@ -34,7 +34,6 @@ class AMQPConsumerConnection : public AMQPConnection {
 public:
 	AMQPConsumerConnection(const AMQPConnectionInfo &info)
 	: AMQPConnection(info),
-	  m_connection(NULL),
 	  m_envelope()
 	{
 	}
@@ -46,7 +45,7 @@ public:
 
 	bool consume(amqp_envelope_t *&envelope)
 	{
-		amqp_maybe_release_buffers(m_connection);
+		amqp_maybe_release_buffers(getConnection());
 		amqp_destroy_envelope(&m_envelope);
 
 		struct timeval timeout = {
@@ -54,7 +53,7 @@ public:
 			0
 		};
 		const int flags = 0;
-		amqp_rpc_reply_t reply = amqp_consume_message(m_connection,
+		amqp_rpc_reply_t reply = amqp_consume_message(getConnection(),
 							      &m_envelope,
 							      &timeout,
 							      flags);
@@ -78,7 +77,6 @@ public:
 	}
 
 private:
-	amqp_connection_state_t m_connection;
 	amqp_envelope_t m_envelope;
 
 	bool initializeConnection() override
@@ -106,7 +104,7 @@ private:
 		const amqp_boolean_t exclusive = false;
 		const amqp_table_t arguments = amqp_empty_table;
 		const amqp_basic_consume_ok_t *response;
-		response = amqp_basic_consume(m_connection,
+		response = amqp_basic_consume(getConnection(),
 					      getChannel(),
 					      queue,
 					      consumer_tag,
@@ -116,7 +114,7 @@ private:
 					      arguments);
 		if (!response) {
 			const amqp_rpc_reply_t reply =
-				amqp_get_rpc_reply(m_connection);
+				amqp_get_rpc_reply(getConnection());
 			if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
 				logErrorResponse("start consuming", reply);
 				return false;
