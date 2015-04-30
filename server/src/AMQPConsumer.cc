@@ -34,7 +34,6 @@ class AMQPConsumerConnection : public AMQPConnection {
 public:
 	AMQPConsumerConnection(const AMQPConnectionInfo &info)
 	: AMQPConnection(info),
-	  m_info(info),
 	  m_connection(NULL),
 	  m_channel(0),
 	  m_envelope()
@@ -80,7 +79,6 @@ public:
 	}
 
 private:
-	const AMQPConnectionInfo &m_info;
 	amqp_connection_state_t m_connection;
 	amqp_channel_t m_channel;
 	amqp_envelope_t m_envelope;
