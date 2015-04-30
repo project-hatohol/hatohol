@@ -34,8 +34,7 @@ class AMQPPublisherConnection : public AMQPConnection {
 public:
 	AMQPPublisherConnection(const AMQPConnectionInfo &info)
 	: AMQPConnection(info),
-	  m_connection(NULL),
-	  m_channel(0)
+	  m_connection(NULL)
 	{
 	}
 
@@ -60,7 +59,7 @@ public:
 		body_bytes.bytes = const_cast<char *>(body.data());
 		body_bytes.len = body.length();
 		response = amqp_basic_publish(m_connection,
-					      m_channel,
+					      getChannel(),
 					      queue,
 					      consumer_tag,
 					      no_mandatory,
@@ -80,7 +79,6 @@ public:
 
 private:
 	amqp_connection_state_t m_connection;
-	amqp_channel_t m_channel;
 };
 
 AMQPPublisher::AMQPPublisher(const AMQPConnectionInfo &connectionInfo,

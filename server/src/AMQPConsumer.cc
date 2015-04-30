@@ -35,7 +35,6 @@ public:
 	AMQPConsumerConnection(const AMQPConnectionInfo &info)
 	: AMQPConnection(info),
 	  m_connection(NULL),
-	  m_channel(0),
 	  m_envelope()
 	{
 	}
@@ -80,7 +79,6 @@ public:
 
 private:
 	amqp_connection_state_t m_connection;
-	amqp_channel_t m_channel;
 	amqp_envelope_t m_envelope;
 
 	bool initializeConnection() override
@@ -109,7 +107,7 @@ private:
 		const amqp_table_t arguments = amqp_empty_table;
 		const amqp_basic_consume_ok_t *response;
 		response = amqp_basic_consume(m_connection,
-					      m_channel,
+					      getChannel(),
 					      queue,
 					      consumer_tag,
 					      no_local,
