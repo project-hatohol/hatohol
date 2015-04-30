@@ -32,19 +32,19 @@ class AMQPConnection {
 public:
 	AMQPConnection(const AMQPConnectionInfo &info);
 	~AMQPConnection();
-	virtual bool connect();
-	virtual bool initializeConnection();
+	virtual bool connect(void);
+	virtual bool initializeConnection(void);
 	virtual time_t getTimeout(void);
-	virtual bool isConnected();
-	virtual bool openSocket();
-	virtual bool login();
-	virtual bool openChannel();
-	virtual bool declareQueue();
-	virtual std::string getQueueName();
-	virtual void disposeConnection();
+	virtual bool isConnected(void);
+	virtual bool openSocket(void);
+	virtual bool login(void);
+	virtual bool openChannel(void);
+	virtual bool declareQueue(void);
+	virtual std::string getQueueName(void);
+	virtual void disposeConnection(void);
 	virtual void logErrorResponse(const char *context,
 	                              const amqp_rpc_reply_t &reply);
-	amqp_channel_t getChannel();
+	amqp_channel_t getChannel(void);
 
 private:
 	struct Impl;

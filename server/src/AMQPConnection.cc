@@ -382,7 +382,7 @@ AMQPConnection::~AMQPConnection()
 {
 }
 
-bool AMQPConnection::connect()
+bool AMQPConnection::connect(void)
 {
 	m_impl->m_connection = amqp_new_connection();
 	if (initializeConnection()) {
@@ -393,7 +393,7 @@ bool AMQPConnection::connect()
 	}
 }
 
-bool AMQPConnection::initializeConnection()
+bool AMQPConnection::initializeConnection(void)
 {
 	if (!m_impl->openSocket())
 		return false;
@@ -411,37 +411,37 @@ time_t AMQPConnection::getTimeout(void)
 	return m_impl->getTimeout();
 }
 
-bool AMQPConnection::isConnected()
+bool AMQPConnection::isConnected(void)
 {
 	return m_impl->m_connection;
 }
 
-bool AMQPConnection::openSocket()
+bool AMQPConnection::openSocket(void)
 {
 	return m_impl->openSocket();
 }
 
-bool AMQPConnection::login()
+bool AMQPConnection::login(void)
 {
 	return m_impl->login();
 }
 
-bool AMQPConnection::openChannel()
+bool AMQPConnection::openChannel(void)
 {
 	return m_impl->openChannel();
 }
 
-bool AMQPConnection::declareQueue()
+bool AMQPConnection::declareQueue(void)
 {
 	return m_impl->declareQueue();
 }
 
-string AMQPConnection::getQueueName()
+string AMQPConnection::getQueueName(void)
 {
 	return m_impl->getQueueName();
 }
 
-void AMQPConnection::disposeConnection()
+void AMQPConnection::disposeConnection(void)
 {
 	return m_impl->disposeConnection();
 }
@@ -452,7 +452,7 @@ void AMQPConnection::logErrorResponse(const char *context,
 	return m_impl->logErrorResponse(context, reply);
 }
 
-amqp_channel_t AMQPConnection::getChannel()
+amqp_channel_t AMQPConnection::getChannel(void)
 {
 	return m_impl->getChannel();
 }
