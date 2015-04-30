@@ -45,6 +45,7 @@ public:
 	virtual void logErrorResponse(const char *context,
 	                              const amqp_rpc_reply_t &reply);
 	amqp_channel_t getChannel(void);
+	amqp_connection_state_t getConnection(void);
 
 private:
 	struct Impl;

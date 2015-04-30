@@ -201,6 +201,11 @@ public:
 		return m_channel;
 	}
 
+	amqp_connection_state_t getConnection()
+	{
+		return m_connection;
+	}
+
 protected:
 	const AMQPConnectionInfo &m_info;
 	amqp_socket_t *m_socket;
@@ -455,4 +460,9 @@ void AMQPConnection::logErrorResponse(const char *context,
 amqp_channel_t AMQPConnection::getChannel(void)
 {
 	return m_impl->getChannel();
+}
+
+amqp_connection_state_t AMQPConnection::getConnection(void)
+{
+	return m_impl->getConnection();
 }
