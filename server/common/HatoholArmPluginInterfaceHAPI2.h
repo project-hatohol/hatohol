@@ -52,6 +52,8 @@ enum HAPI2ProcedureType {
 	HAPI2_FETCH_TRIGGERS,
 	HAPI2_FETCH_EVENTS,
 
+	// Client procedure type
+	HAPI2_PROCEDURE_TYPE_HAP,
 	// Invalid Type
 	HAPI2_PROCEDURE_TYPE_BAD,
 	// Sv -> Cl

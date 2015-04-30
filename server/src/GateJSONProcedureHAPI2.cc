@@ -93,13 +93,13 @@ private:
 		} else if (method == "updateArmInfo") {
 			return HAPI2_UPDATE_ARM_INFO;
 		} else if (method == "fetchItems") {
-			return HAPI2_FETCH_ITEMS;
+			return HAPI2_PROCEDURE_TYPE_HAP;
 		} else if (method == "fetchHistory") {
-			return HAPI2_FETCH_HISTORY;
+			return HAPI2_PROCEDURE_TYPE_HAP;
 		} else if (method == "fetchTriggers") {
-			return HAPI2_FETCH_TRIGGERS;
+			return HAPI2_PROCEDURE_TYPE_HAP;
 		} else if (method == "fetchEvents") {
-			return HAPI2_FETCH_EVENTS;
+			return HAPI2_PROCEDURE_TYPE_HAP;
 		} else {
 			return HAPI2_PROCEDURE_TYPE_BAD;
 		}
@@ -228,10 +228,11 @@ private:
 		}
 
 		const string method(json_node_get_string(memberNode));
-		if (parseProcedureType(method) == HAPI2_PROCEDURE_TYPE_BAD) {
+		if (parseProcedureType(method) ==
+		    HAPI2_PROCEDURE_TYPE_BAD || HAPI2_PROCEDURE_TYPE_HAP) {
 			addError(errors,
 				 "$.method.%s must be valid procedure type: <%s> "
-				 "available procedure types: "
+				 "available server procedure types: "
 				 "exchangeProfile, "
 				 "getMonitoringServerInfo, "
 				 "getLastInfo, putItems"
@@ -240,9 +241,7 @@ private:
 				 "updateHostGroupMembership, "
 				 "updateTriggers, updateEvents"
 				 "updateHostParent"
-				 "updateArmInfo, fetchItems"
-				 "fetchHistory, fetchTriggers"
-				 "fetchEvents",
+				 "updateArmInfo",
 				 name,
 				 method.c_str());
 			return false;
