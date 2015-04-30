@@ -52,10 +52,10 @@ HAPI2ProcedureInfoList defaultValidProcedureList[] = {
 	{PROCEDURE_HAP,    "fetchEvents",               HAP_OPTIONAL},
 };
 
-class AMQPJSONMessageHandler : public AMQPMessageHandler
+class AMQPHAPI2MessageHandler : public AMQPMessageHandler
 {
 public:
-	AMQPJSONMessageHandler(const MonitoringServerInfo &serverInfo)
+	AMQPHAPI2MessageHandler(const MonitoringServerInfo &serverInfo)
 	: m_serverInfo(serverInfo),
 	  m_hosts()
 	{
@@ -133,7 +133,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	const MonitoringServerInfo m_serverInfo;
 	AMQPConnectionInfo m_connectionInfo;
 	AMQPConsumer *m_consumer;
-	AMQPJSONMessageHandler *m_handler;
+	AMQPHAPI2MessageHandler *m_handler;
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
 
@@ -175,7 +175,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		m_connectionInfo.setTLSVerifyEnabled(
 			armPluginInfo.isTLSVerifyEnabled());
 
-		m_handler = new AMQPJSONMessageHandler(m_serverInfo);
+		m_handler = new AMQPHAPI2MessageHandler(m_serverInfo);
 		m_consumer = new AMQPConsumer(m_connectionInfo, m_handler);
 	}
 
