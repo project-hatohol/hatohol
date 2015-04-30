@@ -53,7 +53,7 @@ void HatoholArmPluginInterfaceHAPI2::registerProcedureHandler(
 }
 
 void HatoholArmPluginInterfaceHAPI2::interpretHandler(
-  const HAPI2ProcedureType &type, JsonObject &message)
+  const HAPI2ProcedureType &type, JsonNode *root)
 {
 	ProcedureHandlerMapConstIterator it =
 	  m_impl->procedureHandlerMap.find(type);

@@ -76,7 +76,7 @@ public:
 	 */
 	void registerProcedureHandler(const HAPI2ProcedureType &type,
                                       ProcedureHandler handler);
-	void interpretHandler(const HAPI2ProcedureType &type, JsonObject &message);
+	void interpretHandler(const HAPI2ProcedureType &type, JsonNode *root);
 
 protected:
 	typedef std::map<uint16_t, ProcedureHandler> ProcedureHandlerMap;
