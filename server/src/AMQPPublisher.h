@@ -20,12 +20,13 @@
 #ifndef AMQPPublisher_h
 #define AMQPPublisher_h
 
-#include "HatoholThreadBase.h"
+#include <glib.h>
+#include "Params.h"
 
 class AMQPConnectionInfo;
 class AMQPMessageHandler;
 
-class AMQPPublisher : public HatoholThreadBase {
+class AMQPPublisher {
 public:
 	AMQPPublisher(const AMQPConnectionInfo &connectionInfo,
 	              std::string body);
