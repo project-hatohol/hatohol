@@ -21,6 +21,7 @@
 
 #include <StringUtils.h>
 
+#include "HatoholArmPluginInterfaceHAPI2.h"
 #include "HatoholArmPluginGateHAPI2.h"
 #include "ThreadLocalDBCache.h"
 #include "UnifiedDataStore.h"
@@ -52,7 +53,8 @@ HAPI2ProcedureInfoList defaultValidProcedureList[] = {
 	{PROCEDURE_HAP,    "fetchEvents",               HAP_OPTIONAL},
 };
 
-class AMQPHAPI2MessageHandler : public AMQPMessageHandler
+class AMQPHAPI2MessageHandler
+: public AMQPMessageHandler, public HatoholArmPluginInterfaceHAPI2
 {
 public:
 	AMQPHAPI2MessageHandler(const MonitoringServerInfo &serverInfo)
@@ -123,7 +125,25 @@ private:
 			return;
 		}
 		HAPI2ProcedureType hapi2Type = hapi2.getProcedureType();
-		// TODO: implement hanlders!
+		switch(hapi2Type) {
+		case HAPI2_EXCHANGE_PROFILE:
+		case HAPI2_MONITORING_SERVER_INFO:
+		case HAPI2_LAST_INFO:
+		case HAPI2_PUT_ITEMS:
+		case HAPI2_PUT_HISTORY:
+		case HAPI2_UPDATE_HOSTS:
+		case HAPI2_UPDATE_HOST_GROUPS:
+		case HAPI2_UPDATE_HOST_GROUP_MEMEBRSHIP:
+		case HAPI2_UPDATE_TRIGGERS:
+		case HAPI2_UPDATE_EVENTS:
+		case HAPI2_UPDATE_HOST_PARENT:
+		case HAPI2_UPDATE_ARM_INFO:
+			interpretHandler(hapi2Type, root);
+			break;
+		default:
+			// TODO: reply error
+			break;
+		}
 	}
 };
 
