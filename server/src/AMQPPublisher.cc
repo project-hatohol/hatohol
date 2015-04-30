@@ -88,7 +88,7 @@ AMQPPublisher::~AMQPPublisher()
 {
 }
 
-bool AMQPPublisher::publish()
+bool AMQPPublisher::publish(void)
 {
 	AMQPPublisherConnection connection(m_connectionInfo);
 	if (!connection.isConnected()) {

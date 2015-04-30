@@ -33,7 +33,7 @@ public:
 	virtual ~AMQPPublisher();
 
 protected:
-	virtual bool publish() override;
+	virtual bool publish(void) override;
 
 private:
 	const AMQPConnectionInfo &m_connectionInfo;
