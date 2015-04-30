@@ -34,21 +34,22 @@ using namespace std;
 using namespace mlpl;
 
 HAPI2ProcedureInfoList defaultValidProcedureList[] = {
-	{PROCEDURE_BOTH,   "exchangeProfile"},
-	{PROCEDURE_SERVER, "getMonitoringServerInfo"},
-	{PROCEDURE_SERVER, "getLastInfo"},
-	{PROCEDURE_SERVER, "putItems"},
-	{PROCEDURE_SERVER, "putHistory"},
-	{PROCEDURE_SERVER, "updateHosts"},
-	{PROCEDURE_SERVER, "updateHostGroups"},
-	{PROCEDURE_SERVER, "updateHostGroupMembership"},
-	{PROCEDURE_SERVER, "updateTriggers"},
-	{PROCEDURE_SERVER, "updateEvents"},
-	{PROCEDURE_SERVER, "updateHostParent"},
-	{PROCEDURE_HAP,    "fetchItems"},
-	{PROCEDURE_HAP,    "fetchHistory"},
-	{PROCEDURE_HAP,    "fetchTriggers"},
-	{PROCEDURE_HAP,    "fetchEvents"},
+	{PROCEDURE_BOTH,   "exchangeProfile",           BOTH_MANDATORY},
+	{PROCEDURE_SERVER, "getMonitoringServerInfo",   SERVER_MANDATORY},
+	{PROCEDURE_SERVER, "getLastInfo",               SERVER_MANDATORY},
+	{PROCEDURE_SERVER, "putItems",                  SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "putHistory",                SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "updateHosts",               SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "updateHostGroups",          SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "updateHostGroupMembership", SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "updateTriggers",            SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "updateEvents",              SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "updateHostParent",          SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "updateArmInfo",             SERVER_MANDATORY},
+	{PROCEDURE_HAP,    "fetchItems",                HAP_OPTIONAL},
+	{PROCEDURE_HAP,    "fetchHistory",              HAP_OPTIONAL},
+	{PROCEDURE_HAP,    "fetchTriggers",             HAP_OPTIONAL},
+	{PROCEDURE_HAP,    "fetchEvents",               HAP_OPTIONAL},
 };
 
 class AMQPJSONMessageHandler : public AMQPMessageHandler

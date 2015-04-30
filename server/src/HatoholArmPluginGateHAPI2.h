@@ -30,9 +30,18 @@ enum ProcedureImplementType {
 	PROCEDURE_BOTH
 };
 
+enum ProcedureRequirementLevel {
+	BOTH_MANDATORY,
+	SERVER_MANDATORY,
+	SERVER_OPTIONAL,
+	HAP_MANDATORY,
+	HAP_OPTIONAL
+};
+
 struct HAPI2ProcedureInfoList {
 	ProcedureImplementType type;
 	std::string name;
+	ProcedureRequirementLevel level;
 };
 
 class HatoholArmPluginGateHAPI2 : public DataStore, public HatoholArmPluginInterfaceHAPI2 {
