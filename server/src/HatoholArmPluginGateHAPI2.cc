@@ -259,5 +259,22 @@ const ArmStatus &HatoholArmPluginGateHAPI2::getArmStatus(void) const
 void HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
   const HAPI2ProcedureType *type)
 {
-	// TODO: implement exchange profile procedure
+	JSONBuilder agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.startObject("result");
+	agent.startArray("procedures");
+	int defaultProcedures =
+	  sizeof(defaultValidProcedureDef) / sizeof(defaultValidProcedureDef[0]);
+	for (int i = 0; i < defaultProcedures; ++i) {
+		if (defaultValidProcedureDef->type == (PROCEDURE_BOTH || PROCEDURE_HAP))
+			continue;
+		agent.add(defaultValidProcedureDef->name);
+	}
+	agent.endArray(); // procedures
+	agent.endObject(); // result
+	agent.add("name", "exampleName"); // TODO: add process name mechanism
+	agent.add("id", 1);
+	agent.endObject();
+	// TODO: implement replying exchange profile procedure
 }

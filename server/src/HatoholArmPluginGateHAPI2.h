@@ -23,6 +23,7 @@
 #include "DataStore.h"
 #include "GateJSONProcedureHAPI2.h"
 #include "HatoholArmPluginInterfaceHAPI2.h"
+#include "JSONBuilder.h"
 
 enum ProcedureImplementType {
 	PROCEDURE_SERVER,
