@@ -444,22 +444,8 @@ AMQPPublisher::~AMQPPublisher()
 {
 }
 
-gpointer AMQPPublisher::mainThread(HatoholThreadArg *arg)
+bool AMQPPublisher::publish()
 {
 	AMQPConnection connection(m_connectionInfo);
-	while (!isExitRequested()) {
-		if (!connection.isConnected()) {
-			connection.connect();
-		}
-
-		if (!connection.isConnected()) {
-			sleep(1); // TODO: Make retry interval customizable
-			continue;
-		}
-
-		const bool published = connection.publish(m_body);
-		if (!published)
-			continue;
-	}
-	return NULL;
+	return connection.publish(m_body);
 }

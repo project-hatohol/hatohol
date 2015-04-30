@@ -32,7 +32,7 @@ public:
 	virtual ~AMQPPublisher();
 
 protected:
-	virtual gpointer mainThread(HatoholThreadArg *arg) override;
+	virtual bool publish() override;
 
 private:
 	const AMQPConnectionInfo &m_connectionInfo;
