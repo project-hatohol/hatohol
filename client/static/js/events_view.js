@@ -341,6 +341,17 @@ var EventsView = function(userProfile, baseElem) {
     return html;
   }
 
+  function getEventDescription(event) {
+    var extendedInfo, name;
+
+    try {
+      extendedInfo = JSON.parse(event["extendedInfo"]);
+      name = extendedInfo["expandedDescription"];
+    } catch(e) {
+    }
+    return name ? name : event["brief"];
+  }
+
   function drawTableBody() {
     var serverName, nickName, hostName, clock, status, severity, incident, duration, description;
     var server, event, eventId, serverId, serverURL, hostId, triggerId, html = "";
@@ -364,11 +375,7 @@ var EventsView = function(userProfile, baseElem) {
       severityClass = "severity";
       if (status == hatohol.EVENT_TYPE_BAD)
 	severityClass += escapeHTML(severity);
-      if (event["expandedDescription"]) {
-        description = event["expandedDescription"];
-      }  else {
-        description = event["brief"];
-      }
+      description = getEventDescription(event);
 
       if (serverURL) {
         html += "<tr><td><a href='" + serverURL + "' target='_blank'>" + escapeHTML(nickName)

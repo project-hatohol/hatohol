@@ -467,19 +467,6 @@ void RestResourceHost::handlerGetOverview(void)
 	replyJSONData(agent);
 }
 
-bool RestResourceHost::parseExtendedInfo(const std::string &extendedInfo,
-                                         std::string &extendedInfoValue)
-{
-	if (extendedInfo.empty())
-		return false;
-
-	JSONParser parser(extendedInfo);
-	if (parser.hasError())
-		return false;
-
-	return parser.read("expandedDescription", extendedInfoValue);
-}
-
 static void addHosts(FaceRest::ResourceHandler *job, JSONBuilder &agent,
                      const ServerIdType &targetServerId,
                      const HostgroupIdType &targetHostgroupId,
@@ -551,11 +538,6 @@ void RestResourceHost::handlerGetTrigger(void)
 	TriggerInfoListIterator it = triggerList.begin();
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
-		string extendedInfoValue = "";
-		bool foundExtendedInfo = false;
-		foundExtendedInfo = parseExtendedInfo(triggerInfo.extendedInfo,
-		                                      extendedInfoValue);
-
 		agent.startObject();
 		agent.add("id",       triggerInfo.id);
 		agent.add("status",   triggerInfo.status);
@@ -565,8 +547,7 @@ void RestResourceHost::handlerGetTrigger(void)
 		agent.add("serverId", triggerInfo.serverId);
 		agent.add("hostId",   triggerInfo.hostIdInServer);
 		agent.add("brief",    triggerInfo.brief);
-		if (foundExtendedInfo)
-			agent.add("expandedDescription", extendedInfoValue);
+		agent.add("extendedInfo", triggerInfo.extendedInfo);
 		agent.endObject();
 	}
 	agent.endArray();
@@ -653,11 +634,6 @@ void RestResourceHost::handlerGetEvent(void)
 	EventInfoListIterator it = eventList.begin();
 	for (size_t i = 0; it != eventList.end(); ++i, ++it) {
 		EventInfo &eventInfo = *it;
-		string extendedInfoValue = "";
-		bool foundExtendedInfo = false;
-		foundExtendedInfo = parseExtendedInfo(eventInfo.extendedInfo,
-		                                      extendedInfoValue);
-
 		agent.startObject();
 		agent.add("unifiedId", eventInfo.unifiedId);
 		agent.add("serverId",  eventInfo.serverId);
@@ -669,8 +645,7 @@ void RestResourceHost::handlerGetEvent(void)
 		agent.add("severity",  eventInfo.severity);
 		agent.add("hostId",    eventInfo.hostIdInServer);
 		agent.add("brief",     eventInfo.brief);
-		if (foundExtendedInfo)
-			agent.add("expandedDescription", extendedInfoValue);
+		agent.add("extendedInfo", eventInfo.extendedInfo);
 		if (addIncidents)
 			addIncident(this, agent, incidentVect[i]);
 		agent.endObject();

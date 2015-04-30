@@ -42,13 +42,7 @@ static void _assertTestTriggerInfo(
 	assertValueInParser(parser, "serverId", triggerInfo.serverId);
 	assertValueInParser(parser, "hostId", triggerInfo.hostIdInServer);
 	assertValueInParser(parser, "brief", triggerInfo.brief);
-	if (!triggerInfo.extendedInfo.empty()) {
-		string parsedExtendedInfo = "";
-		RestResourceHost::parseExtendedInfo(triggerInfo.extendedInfo,
-		                                    parsedExtendedInfo);
-		assertValueInParser(parser, "expandedDescription",
-		                    parsedExtendedInfo);
-	}
+	assertValueInParser(parser, "extendedInfo", triggerInfo.extendedInfo);
 }
 #define assertTestTriggerInfo(P, T) cut_trace(_assertTestTriggerInfo(P, T))
 
@@ -295,13 +289,7 @@ static void _assertEvents(const string &path, const string &callbackName = "",
 		assertValueInParser(parser, "severity",  eventInfo.severity);
 		assertValueInParser(parser, "hostId",    eventInfo.hostIdInServer);
 		assertValueInParser(parser, "brief",     eventInfo.brief);
-		if (!eventInfo.extendedInfo.empty()) {
-			string parsedExtendedInfo = "";
-			RestResourceHost::parseExtendedInfo(eventInfo.extendedInfo,
-							    parsedExtendedInfo);
-			assertValueInParser(parser, "expandedDescription",
-			                    parsedExtendedInfo);
-		}
+		assertValueInParser(parser, "extendedInfo", eventInfo.extendedInfo);
 		if (shouldHaveIncident) {
 			assertStartObject(parser, "incident");
 			const IncidentInfo incident
