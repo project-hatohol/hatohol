@@ -78,7 +78,6 @@ public:
 		return true;
 	}
 
-
 private:
 	amqp_connection_state_t m_connection;
 	amqp_channel_t m_channel;
