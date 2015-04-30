@@ -34,7 +34,7 @@
 using namespace std;
 using namespace mlpl;
 
-HAPI2ProcedureInfoList defaultValidProcedureList[] = {
+HAPI2ProcedureDef defaultValidProcedureDef[] = {
 	{PROCEDURE_BOTH,   "exchangeProfile",           BOTH_MANDATORY},
 	{PROCEDURE_SERVER, "getMonitoringServerInfo",   SERVER_MANDATORY},
 	{PROCEDURE_SERVER, "getLastInfo",               SERVER_MANDATORY},

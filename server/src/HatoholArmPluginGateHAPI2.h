@@ -38,7 +38,7 @@ enum ProcedureRequirementLevel {
 	HAP_OPTIONAL
 };
 
-struct HAPI2ProcedureInfoList {
+struct HAPI2ProcedureDef {
 	ProcedureImplementType type;
 	std::string name;
 	ProcedureRequirementLevel level;
