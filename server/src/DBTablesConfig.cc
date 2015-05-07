@@ -287,7 +287,7 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 }, {
 	"base_url",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
-	32767,                             // columnLength
+	255,                               // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
 	SQL_KEY_NONE,                      // keyType
