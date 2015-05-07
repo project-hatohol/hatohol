@@ -60,6 +60,9 @@ public:
 	virtual void select(const SelectExArg &selectExArg) override;
 	virtual void deleteRows(const DeleteArg &deleteArg) override;
 	virtual void addColumns(const AddColumnsArg &addColumnsArg) override;
+	virtual void changeColumnDef(const TableProfile &tableProfile,
+				     const std::string &oldColumnName,
+				     const size_t &columnIndex) override;
 	virtual void renameTable(const std::string &srcName,
 				 const std::string &destName);
 	virtual const

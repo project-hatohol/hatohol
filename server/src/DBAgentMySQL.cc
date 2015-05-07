@@ -533,6 +533,19 @@ void DBAgentMySQL::addColumns(const AddColumnsArg &addColumnsArg)
 	execSql(query);
 }
 
+void DBAgentMySQL::changeColumnDef(const TableProfile &tableProfile,
+				   const string &oldColumnName,
+				   const size_t &columnIndex)
+{
+	string query = "ALTER TABLE ";
+	query += tableProfile.name;
+	query += " CHANGE ";
+	query += oldColumnName;
+	query += " ";
+	query += getColumnDefinitionQuery(tableProfile.columnDefs[columnIndex]);
+	execSql(query);
+}
+
 void DBAgentMySQL::renameTable(const string &srcName, const string &destName)
 {
 	string query = makeRenameTableStatement(srcName, destName);

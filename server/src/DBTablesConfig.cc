@@ -287,7 +287,7 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 }, {
 	"base_url",                        // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
-	32767,                             // columnLength
+	2047,                              // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
 	SQL_KEY_NONE,                      // keyType
@@ -607,6 +607,11 @@ static bool updateDB(
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileServers);
 		addColumnsArg.columnIndexes.push_back(IDX_SERVERS_EXTENDED_INFO);
 		dbAgent.addColumns(addColumnsArg);
+
+		// fixup max length of servers.base_url
+		dbAgent.changeColumnDef(tableProfileServers,
+					"base_url",
+					IDX_SERVERS_BASE_URL);
 	}
 	return true;
 }
