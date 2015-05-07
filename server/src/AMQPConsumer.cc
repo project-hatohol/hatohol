@@ -81,13 +81,7 @@ private:
 
 	bool initializeConnection() override
 	{
-		if (!openSocket())
-			return false;
-		if (!login())
-			return false;
-		if (!openChannel())
-			return false;
-		if (!declareQueue())
+		if (!AMQPConnection::initializeConnection())
 			return false;
 		if (!startConsuming())
 			return false;
