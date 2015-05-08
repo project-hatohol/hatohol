@@ -272,7 +272,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	int defaultProcedures =
 	  sizeof(defaultValidProcedureDef) / sizeof(defaultValidProcedureDef[0]);
 	for (int i = 0; i < defaultProcedures; ++i) {
-		if (defaultValidProcedureDef[i].type == (PROCEDURE_BOTH || PROCEDURE_HAP))
+		if (defaultValidProcedureDef[i].type == PROCEDURE_BOTH ||
+		    defaultValidProcedureDef[i].type == PROCEDURE_HAP)
 			continue;
 		agent.add(defaultValidProcedureDef[i].name);
 	}
