@@ -40,5 +40,23 @@ void test_new(void)
 	  new HatoholArmPluginGateHAPI2(serverInfo), false);
 	cut_assert_not_null(gate);
 }
-	
+
+void test_procedureHandlerMonitoringServerInfo(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	std::string params = "";
+	std::string result =
+		gate->procedureHandlerExchangeProfile(HAPI2_EXCHANGE_PROFILE, params);
+	std::string expected =
+		"{\"jsonrpc\":\"2.0\",\"result\":{\"procedures\":"
+		  "[\"getMonitoringServerInfo\",\"getLastInfo\",\"putItems\","
+		  "\"putHistory\",\"updateHosts\",\"updateHostGroups\","
+		  "\"updateHostGroupMembership\",\"updateTriggers\","
+		  "\"updateEvents\",\"updateHostParent\",\"updateArmInfo\""
+		"]},\"name\":\"exampleName\",\"id\":1}";
+	cppcut_assert_equal(result, expected);
+}
 }
