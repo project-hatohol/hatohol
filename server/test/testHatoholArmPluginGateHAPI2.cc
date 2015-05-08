@@ -41,7 +41,7 @@ void test_new(void)
 	cut_assert_not_null(gate);
 }
 
-void test_procedureHandlerMonitoringServerInfo(void)
+void test_procedureHandlerExchangeProfile(void)
 {
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
