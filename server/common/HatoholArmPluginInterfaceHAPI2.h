@@ -65,7 +65,7 @@ class HatoholArmPluginInterfaceHAPI2 {
 public:
 	HatoholArmPluginInterfaceHAPI2();
 	typedef void (HatoholArmPluginInterfaceHAPI2::*ProcedureHandler)
-	  (const HAPI2ProcedureType *type);
+	  (const HAPI2ProcedureType *type, const std::string params);
 	/**
 	 * Register a procedure receive callback method.
 	 * If the same code is specified more than twice, the handler is
@@ -76,7 +76,8 @@ public:
 	 */
 	void registerProcedureHandler(const HAPI2ProcedureType &type,
                                       ProcedureHandler handler);
-	void interpretHandler(const HAPI2ProcedureType &type, JsonNode *root);
+	void interpretHandler(const HAPI2ProcedureType &type, const std::string,
+	                      JsonNode *root);
 
 protected:
 	typedef std::map<uint16_t, ProcedureHandler> ProcedureHandlerMap;

@@ -125,6 +125,7 @@ private:
 			return;
 		}
 		HAPI2ProcedureType hapi2Type = hapi2.getProcedureType();
+		string params = ""; // TODO: add getting params mechanism
 		switch(hapi2Type) {
 		case HAPI2_EXCHANGE_PROFILE:
 		case HAPI2_MONITORING_SERVER_INFO:
@@ -138,7 +139,7 @@ private:
 		case HAPI2_UPDATE_EVENTS:
 		case HAPI2_UPDATE_HOST_PARENT:
 		case HAPI2_UPDATE_ARM_INFO:
-			interpretHandler(hapi2Type, root);
+			interpretHandler(hapi2Type, params, root);
 			break;
 		default:
 			// TODO: reply error
@@ -261,7 +262,7 @@ const ArmStatus &HatoholArmPluginGateHAPI2::getArmStatus(void) const
 }
 
 void HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
-  const HAPI2ProcedureType *type)
+  const HAPI2ProcedureType *type, const string params)
 {
 	JSONBuilder agent;
 	agent.startObject();
@@ -284,7 +285,7 @@ void HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 }
 
 void HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
-  const HAPI2ProcedureType *type)
+  const HAPI2ProcedureType *type, const string params)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList serversList;

@@ -53,7 +53,7 @@ void HatoholArmPluginInterfaceHAPI2::registerProcedureHandler(
 }
 
 void HatoholArmPluginInterfaceHAPI2::interpretHandler(
-  const HAPI2ProcedureType &type, JsonNode *root)
+  const HAPI2ProcedureType &type, const string params, JsonNode *root)
 {
 	ProcedureHandlerMapConstIterator it =
 	  m_impl->procedureHandlerMap.find(type);
@@ -62,7 +62,7 @@ void HatoholArmPluginInterfaceHAPI2::interpretHandler(
 		return;
 	}
 	ProcedureHandler handler = it->second;
-	(this->*handler)(&type);
+	(this->*handler)(&type, params);
 	onHandledCommand(type);
 }
 
