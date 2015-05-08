@@ -59,4 +59,27 @@ void test_procedureHandlerExchangeProfile(void)
 		"]},\"name\":\"exampleName\",\"id\":1}";
 	cppcut_assert_equal(expected, actual);
 }
+
+void test_procedureHandlerMonitoringServerInfo(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	std::string params = "";
+	std::string actual = gate->procedureHandlerMonitoringServerInfo(
+	  HAPI2_MONITORING_SERVER_INFO, params);
+	std::string expected =
+		"{\"jsonrpc\":\"2.0\",\"result\":{\"servers\":"
+		 "[{\"serverId\":1,\"url\":\"\",\"type\":0,"
+		   "\"nickName\":\"zabbix-vm\",\"userName\":\"Admin\","
+		   "\"password\":\"zabbix\",\"pollingIntervalSec\":60,"
+		   "\"retryIntervalSec\":10,\"extendedInfo\":\"exampleExtraInfo\"},"
+		  "{\"serverId\":2,\"url\":\"\",\"type\":2,"
+		   "\"nickName\":\"zabbix-hapi\",\"userName\":\"Admin\","
+		   "\"password\":\"zabbix\",\"pollingIntervalSec\":30,"
+		   "\"retryIntervalSec\":10,"
+		   "\"extendedInfo\":\"exampleExtraInfo\"}]},\"id\":1}";
+	cppcut_assert_equal(expected, actual);
+}
 }
