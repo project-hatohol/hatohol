@@ -65,6 +65,17 @@ struct GateJSONProcedureHAPI2::Impl
 		return parseProcedureType(type);
 	}
 
+	string getHAPI2Params()
+	{
+		JsonObject *rootObject = json_node_get_object(m_root);
+		JsonNode *node = json_object_get_member(rootObject, "params");
+		if (!node) {
+			return "__INVALID_PARAMS";
+		}
+
+		const string params(json_node_get_string(node));
+		return params;
+	}
 private:
 	HAPI2ProcedureType parseProcedureType(const string &method)
 	{
@@ -275,4 +286,9 @@ bool GateJSONProcedureHAPI2::validate(StringList &errors)
 HAPI2ProcedureType GateJSONProcedureHAPI2::getProcedureType()
 {
 	return m_impl->getHAPI2ProcedureType();
+}
+
+string GateJSONProcedureHAPI2::getParams()
+{
+	return m_impl->getHAPI2Params();
 }

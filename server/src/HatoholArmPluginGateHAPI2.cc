@@ -125,7 +125,7 @@ private:
 			return;
 		}
 		HAPI2ProcedureType hapi2Type = hapi2.getProcedureType();
-		string params = ""; // TODO: add getting params mechanism
+		string params = hapi2.getParams();
 		switch(hapi2Type) {
 		case HAPI2_EXCHANGE_PROFILE:
 		case HAPI2_MONITORING_SERVER_INFO:
