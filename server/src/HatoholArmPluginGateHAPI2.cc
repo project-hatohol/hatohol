@@ -236,6 +236,10 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 	  HAPI2_EXCHANGE_PROFILE,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile);
+	registerProcedureHandler(
+	  HAPI2_MONITORING_SERVER_INFO,
+	  (ProcedureHandler)
+	    &HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo);
 }
 
 // ---------------------------------------------------------------------------
@@ -274,6 +278,40 @@ void HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	agent.endArray(); // procedures
 	agent.endObject(); // result
 	agent.add("name", "exampleName"); // TODO: add process name mechanism
+	agent.add("id", 1);
+	agent.endObject();
+	// TODO: implement replying exchange profile procedure
+}
+
+void HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
+  const HAPI2ProcedureType *type)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	MonitoringServerInfoList serversList;
+	ServerQueryOption option(USER_ID_SYSTEM);
+	dataStore->getTargetServers(serversList, option);
+
+	JSONBuilder agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.startObject("result");
+	MonitoringServerInfoListIterator it = serversList.begin();
+	for (; it != serversList.end(); ++it) {
+		MonitoringServerInfo &serverInfo = *it;
+		agent.startObject();
+		agent.add("serverId", serverInfo.id);
+		agent.add("url", serverInfo.baseURL);
+		agent.add("type", serverInfo.type);
+		agent.add("nickName", serverInfo.nickname);
+		agent.add("userName", serverInfo.userName);
+		agent.add("password", serverInfo.password);
+		agent.add("pollingIntervalSec", serverInfo.pollingIntervalSec);
+		agent.add("retryIntervalSec", serverInfo.retryIntervalSec);
+		// TODO: Use serverInfo.extendedInfo
+		agent.add("extendedInfo", "exampleExtraInfo");
+		agent.endObject();
+	}
+	agent.endObject(); // result
 	agent.add("id", 1);
 	agent.endObject();
 	// TODO: implement replying exchange profile procedure
