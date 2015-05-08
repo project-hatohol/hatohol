@@ -607,6 +607,11 @@ static bool updateDB(
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileServers);
 		addColumnsArg.columnIndexes.push_back(IDX_SERVERS_EXTENDED_INFO);
 		dbAgent.addColumns(addColumnsArg);
+
+		// fixup max length of servers.base_url
+		dbAgent.changeColumnDef(tableProfileServers,
+					"base_url",
+					IDX_SERVERS_BASE_URL);
 	}
 	return true;
 }
