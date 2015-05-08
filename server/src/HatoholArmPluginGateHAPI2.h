@@ -57,10 +57,11 @@ public:
 protected:
 	virtual ~HatoholArmPluginGateHAPI2();
 
-	void procedureHandlerExchangeProfile(const HAPI2ProcedureType *type,
-	                                     const std::string params);
-	void procedureHandlerMonitoringServerInfo(const HAPI2ProcedureType *type,
-	                                          const std::string params);
+public:
+	std::string procedureHandlerExchangeProfile(const HAPI2ProcedureType type,
+	                                            const std::string &params);
+	std::string procedureHandlerMonitoringServerInfo(const HAPI2ProcedureType type,
+	                                                 const std::string &params);
 
 private:
 	struct Impl;

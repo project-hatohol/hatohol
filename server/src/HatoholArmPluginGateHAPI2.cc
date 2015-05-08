@@ -261,8 +261,8 @@ const ArmStatus &HatoholArmPluginGateHAPI2::getArmStatus(void) const
 	return m_impl->m_armStatus;
 }
 
-void HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
-  const HAPI2ProcedureType *type, const string params)
+string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
+  const HAPI2ProcedureType type, const string &params)
 {
 	JSONBuilder agent;
 	agent.startObject();
@@ -281,11 +281,12 @@ void HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	agent.add("name", "exampleName"); // TODO: add process name mechanism
 	agent.add("id", 1);
 	agent.endObject();
-	// TODO: implement replying exchange profile procedure
+	// TODO: implement replying exchange profile procedure with AMQP
+	return agent.generate();
 }
 
-void HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
-  const HAPI2ProcedureType *type, const string params)
+string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
+  const HAPI2ProcedureType type, const string &params)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList serversList;
@@ -315,5 +316,6 @@ void HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 	agent.endObject(); // result
 	agent.add("id", 1);
 	agent.endObject();
-	// TODO: implement replying exchange profile procedure
+	// TODO: implement replying exchange profile procedure with AMQP
+	return agent.generate();
 }
