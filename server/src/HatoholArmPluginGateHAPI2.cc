@@ -298,6 +298,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.startObject("result");
+	agent.startArray("servers");
 	MonitoringServerInfoListIterator it = serversList.begin();
 	for (; it != serversList.end(); ++it) {
 		MonitoringServerInfo &serverInfo = *it;
@@ -314,6 +315,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 		agent.add("extendedInfo", "exampleExtraInfo");
 		agent.endObject();
 	}
+	agent.endArray();
 	agent.endObject(); // result
 	agent.add("id", 1);
 	agent.endObject();
