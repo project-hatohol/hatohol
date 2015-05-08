@@ -82,4 +82,18 @@ void test_procedureHandlerMonitoringServerInfo(void)
 		   "\"extendedInfo\":\"exampleExtraInfo\"}]},\"id\":1}";
 	cppcut_assert_equal(expected, actual);
 }
+
+void test_procedureHandlerLastInfoWithTrigger(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	std::string params = "trigger";
+	std::string actual = gate->procedureHandlerLastInfo(
+	  HAPI2_LAST_INFO, params);
+	std::string expected =
+		"{\"jsonrpc\":\"2.0\",\"result\":1425025540,\"id\":1}";
+	cppcut_assert_equal(expected, actual);
+}
 }

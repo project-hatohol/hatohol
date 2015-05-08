@@ -241,6 +241,10 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 	  HAPI2_MONITORING_SERVER_INFO,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo);
+	registerProcedureHandler(
+	  HAPI2_LAST_INFO,
+	  (ProcedureHandler)
+	    &HatoholArmPluginGateHAPI2::procedureHandlerLastInfo);
 }
 
 // ---------------------------------------------------------------------------
@@ -320,5 +324,24 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 	agent.add("id", 1);
 	agent.endObject();
 	// TODO: implement replying exchange profile procedure with AMQP
+	return agent.generate();
+}
+
+string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(
+  const HAPI2ProcedureType type, const string &params)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	TriggerInfoList triggerInfoList;
+	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
+	dataStore->getTriggerList(triggerInfoList, triggersQueryOption);
+	TriggerInfoListIterator it = triggerInfoList.begin();
+	TriggerInfo &firstTriggerInfo = *it;
+
+	JSONBuilder agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("result", firstTriggerInfo.lastChangeTime.tv_sec);
+	agent.add("id", 1);
+	agent.endObject();
 	return agent.generate();
 }
