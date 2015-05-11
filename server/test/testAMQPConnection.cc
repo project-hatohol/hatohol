@@ -21,11 +21,21 @@
 #include <cppcutter.h>
 
 #include <AMQPConnection.h>
+#include <AMQPConsumer.h>
+#include <AMQPPublisher.h>
+#include <AMQPMessageHandler.h>
 
 using namespace std;
 
 namespace testAMQPConnection {
 	AMQPConnectionInfo *info;
+
+	class TestHandler : public AMQPMessageHandler {
+		virtual bool handle(const amqp_envelope_t *envelope) override
+		{
+			return true;
+		}
+	};
 
 	void cut_setup(void)
 	{
@@ -47,5 +57,18 @@ namespace testAMQPConnection {
 	void test_connect(void) {
 		AMQPConnection connection(*info);
 		cppcut_assert_equal(true, connection.connect());
+	}
+
+	void test_consumer(void) {
+		TestHandler handler;
+		AMQPConsumer consumer(*info, &handler);
+		consumer.start();
+		// TODO: add assertion
+		consumer.exitSync();
+	}
+
+	void test_publisher(void) {
+		AMQPPublisher publisher(*info, "{\"body\":\"example\"}");
+		cppcut_assert_equal(true, publisher.publish());
 	}
 } // namespace testAMQPConnection

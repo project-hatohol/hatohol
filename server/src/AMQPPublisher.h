@@ -32,7 +32,7 @@ public:
 	              std::string body);
 	virtual ~AMQPPublisher();
 
-protected:
+	//protected:
 	virtual bool publish(void) override;
 
 private:

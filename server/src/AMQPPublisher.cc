@@ -43,9 +43,9 @@ public:
 
 	bool publish(string &body)
 	{
+		const amqp_bytes_t exchange = amqp_empty_bytes;
 		const amqp_bytes_t queue =
 			amqp_cstring_bytes(getQueueName().c_str());
-		const amqp_bytes_t consumer_tag = amqp_empty_bytes;
 		const amqp_boolean_t no_mandatory = false;
 		const amqp_boolean_t no_immediate = false;
 		int response;
@@ -59,8 +59,8 @@ public:
 		body_bytes.len = body.length();
 		response = amqp_basic_publish(getConnection(),
 					      getChannel(),
+					      exchange,
 					      queue,
-					      consumer_tag,
 					      no_mandatory,
 					      no_immediate,
 					      &props,
