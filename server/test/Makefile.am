@@ -88,6 +88,7 @@ testHatohol_la_SOURCES = \
 if HAVE_LIBRABBITMQ
 testHatohol_la_SOURCES += \
 	testAMQPConnectionInfo.cc \
+	testAMQPConnection.cc \
 	testGateJSONEventMessage.cc
 endif
 
