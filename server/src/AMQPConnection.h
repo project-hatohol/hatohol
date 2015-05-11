@@ -33,9 +33,11 @@ public:
 	AMQPConnection(const AMQPConnectionInfo &info);
 	~AMQPConnection();
 	virtual bool connect(void);
+	virtual bool isConnected(void);
+
+protected:
 	virtual bool initializeConnection(void);
 	virtual time_t getTimeout(void);
-	virtual bool isConnected(void);
 	virtual bool openSocket(void);
 	virtual bool login(void);
 	virtual bool openChannel(void);
