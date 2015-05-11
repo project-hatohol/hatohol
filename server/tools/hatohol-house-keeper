@@ -56,6 +56,18 @@ def delete_unnecessary_records_by_date(table_name, date, db, cursor):
     run_sql_query(db, cursor, query)
 
 
+def delete_unncessary_records_by_number(table_name, number, db, cursor):
+    if 'events' in table_name:
+        query = 'DELETE FROM events ORDER BY time_sec ASC LIMIT %d' % number
+    elif 'action_logs' in table_name:
+        query = 'DELETE FROM action_logs ORDER BY queuing_time ASC LIMIT %d' % number
+    else:
+        print 'Table name is wrong!'
+        return
+
+    run_sql_query(db, cursor, query)
+
+
 def start(args):
     try:
         db = MySQLdb.connect(host=args.db_host, db=args.db_name,
