@@ -34,6 +34,9 @@ public:
 	~AMQPConnection();
 	virtual bool connect(void);
 	virtual bool isConnected(void);
+	virtual bool startConsuming(void);
+	virtual bool consume(amqp_envelope_t &envelope);
+	virtual bool publish(std::string &body);
 
 protected:
 	virtual bool initializeConnection(void);

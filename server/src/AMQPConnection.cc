@@ -466,3 +466,98 @@ amqp_connection_state_t AMQPConnection::getConnection(void)
 {
 	return m_impl->getConnection();
 }
+
+bool AMQPConnection::startConsuming(void)
+{
+	const amqp_bytes_t queue =
+		amqp_cstring_bytes(getQueueName().c_str());
+	const amqp_bytes_t consumer_tag = amqp_empty_bytes;
+	const amqp_boolean_t no_local = false;
+	const amqp_boolean_t no_ack = true;
+	const amqp_boolean_t exclusive = false;
+	const amqp_table_t arguments = amqp_empty_table;
+	const amqp_basic_consume_ok_t *response;
+	response = amqp_basic_consume(getConnection(),
+				      getChannel(),
+				      queue,
+				      consumer_tag,
+				      no_local,
+				      no_ack,
+				      exclusive,
+				      arguments);
+	if (!response) {
+		const amqp_rpc_reply_t reply =
+			amqp_get_rpc_reply(getConnection());
+		if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
+			logErrorResponse("start consuming", reply);
+			return false;
+		}
+	}
+	return true;
+}
+
+bool AMQPConnection::consume(amqp_envelope_t &envelope)
+{
+	amqp_maybe_release_buffers(getConnection());
+
+	struct timeval timeout = {
+		getTimeout(),
+		0
+	};
+	const int flags = 0;
+	amqp_rpc_reply_t reply = amqp_consume_message(getConnection(),
+						      &envelope,
+						      &timeout,
+						      flags);
+	switch (reply.reply_type) {
+	case AMQP_RESPONSE_NORMAL:
+		break;
+	case AMQP_RESPONSE_LIBRARY_EXCEPTION:
+		if (reply.library_error != AMQP_STATUS_TIMEOUT) {
+			logErrorResponse("consume message", reply);
+			disposeConnection();
+		}
+		return false;
+	default:
+		logErrorResponse("consume message", reply);
+		disposeConnection();
+		return false;
+	}
+
+	return true;
+}
+
+bool AMQPConnection::publish(string &body)
+{
+	const amqp_bytes_t exchange = amqp_empty_bytes;
+	const amqp_bytes_t queue =
+		amqp_cstring_bytes(getQueueName().c_str());
+	const amqp_boolean_t no_mandatory = false;
+	const amqp_boolean_t no_immediate = false;
+	int response;
+	amqp_basic_properties_t props;
+	props._flags =
+		AMQP_BASIC_CONTENT_TYPE_FLAG | AMQP_BASIC_DELIVERY_MODE_FLAG;
+	props.content_type = amqp_cstring_bytes("application/json");
+	props.delivery_mode = 2;
+	amqp_bytes_t body_bytes;
+	body_bytes.bytes = const_cast<char *>(body.data());
+	body_bytes.len = body.length();
+	response = amqp_basic_publish(getConnection(),
+				      getChannel(),
+				      exchange,
+				      queue,
+				      no_mandatory,
+				      no_immediate,
+				      &props,
+				      amqp_bytes_malloc_dup(body_bytes));
+	if (response != AMQP_STATUS_OK) {
+		const amqp_rpc_reply_t reply =
+			amqp_get_rpc_reply(getConnection());
+		if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
+			logErrorResponse("start publishing", reply);
+			return false;
+		}
+	}
+	return true;
+}

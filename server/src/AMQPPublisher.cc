@@ -30,53 +30,6 @@
 using namespace std;
 using namespace mlpl;
 
-class AMQPPublisherConnection : public AMQPConnection {
-public:
-	AMQPPublisherConnection(const AMQPConnectionInfo &info)
-	: AMQPConnection(info)
-	{
-	}
-
-	~AMQPPublisherConnection()
-	{
-	}
-
-	bool publish(string &body)
-	{
-		const amqp_bytes_t exchange = amqp_empty_bytes;
-		const amqp_bytes_t queue =
-			amqp_cstring_bytes(getQueueName().c_str());
-		const amqp_boolean_t no_mandatory = false;
-		const amqp_boolean_t no_immediate = false;
-		int response;
-		amqp_basic_properties_t props;
-		props._flags =
-			AMQP_BASIC_CONTENT_TYPE_FLAG | AMQP_BASIC_DELIVERY_MODE_FLAG;
-		props.content_type = amqp_cstring_bytes("application/json");
-		props.delivery_mode = 2;
-		amqp_bytes_t body_bytes;
-		body_bytes.bytes = const_cast<char *>(body.data());
-		body_bytes.len = body.length();
-		response = amqp_basic_publish(getConnection(),
-					      getChannel(),
-					      exchange,
-					      queue,
-					      no_mandatory,
-					      no_immediate,
-					      &props,
-					      amqp_bytes_malloc_dup(body_bytes));
-		if (response != AMQP_STATUS_OK) {
-			const amqp_rpc_reply_t reply =
-				amqp_get_rpc_reply(getConnection());
-			if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
-				logErrorResponse("start publishing", reply);
-				return false;
-			}
-		}
-		return true;
-	}
-};
-
 AMQPPublisher::AMQPPublisher(const AMQPConnectionInfo &connectionInfo,
 			     string body)
 : m_connectionInfo(connectionInfo),
@@ -90,7 +43,7 @@ AMQPPublisher::~AMQPPublisher()
 
 bool AMQPPublisher::publish(void)
 {
-	AMQPPublisherConnection connection(m_connectionInfo);
+	AMQPConnection connection(m_connectionInfo);
 	if (!connection.isConnected()) {
 		connection.connect();
 	}
