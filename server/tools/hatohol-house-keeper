@@ -35,6 +35,14 @@ def return_unix_time(date):
     return int(time.mktime(time.strptime(date, format)))
 
 
+def run_sql_query(db, cursor, query):
+    try:
+        cursor.execute(query)
+        db.commit()
+    except:
+        db.rollback()
+
+
 def start(args):
     try:
         db = MySQLdb.connect(host=args.db_host, db=args.db_name,
