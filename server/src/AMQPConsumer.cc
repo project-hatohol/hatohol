@@ -23,6 +23,7 @@
 #include "AMQPMessageHandler.h"
 #include <unistd.h>
 #include <Logger.h>
+#include <Reaper.h>
 #include <StringUtils.h>
 #include <amqp_tcp_socket.h>
 #include <amqp_ssl_socket.h>
@@ -33,20 +34,17 @@ using namespace mlpl;
 class AMQPConsumerConnection : public AMQPConnection {
 public:
 	AMQPConsumerConnection(const AMQPConnectionInfo &info)
-	: AMQPConnection(info),
-	  m_envelope()
+	: AMQPConnection(info)
 	{
 	}
 
 	~AMQPConsumerConnection()
 	{
-		amqp_destroy_envelope(&m_envelope);
 	}
 
-	bool consume(amqp_envelope_t *&envelope)
+	bool consume(amqp_envelope_t &envelope)
 	{
 		amqp_maybe_release_buffers(getConnection());
-		amqp_destroy_envelope(&m_envelope);
 
 		struct timeval timeout = {
 			getTimeout(),
@@ -54,7 +52,7 @@ public:
 		};
 		const int flags = 0;
 		amqp_rpc_reply_t reply = amqp_consume_message(getConnection(),
-							      &m_envelope,
+							      &envelope,
 							      &timeout,
 							      flags);
 		switch (reply.reply_type) {
@@ -72,13 +70,10 @@ public:
 			return false;
 		}
 
-		envelope = &m_envelope;
 		return true;
 	}
 
 private:
-	amqp_envelope_t m_envelope;
-
 	bool initializeConnection() override
 	{
 		if (!AMQPConnection::initializeConnection())
@@ -142,12 +137,14 @@ gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 			continue;
 		}
 
-		amqp_envelope_t *envelope;
+		amqp_envelope_t envelope;
+		Reaper<amqp_envelope_t> envelopeReaper(&envelope,
+						       amqp_destroy_envelope);
 		const bool consumed = connection.consume(envelope);
 		if (!consumed)
 			continue;
 
-		m_handler->handle(envelope);
+		m_handler->handle(&envelope);
 	}
 	return NULL;
 }
