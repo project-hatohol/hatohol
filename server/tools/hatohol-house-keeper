@@ -43,6 +43,19 @@ def run_sql_query(db, cursor, query):
         db.rollback()
 
 
+def delete_unnecessary_records_by_date(table_name, date, db, cursor):
+    if 'events' in table_name:
+        time_sec = return_unix_time(date)
+        query = 'DELETE FROM events WHERE time_sec < %d' % time_sec
+    elif 'action_logs' in table_name:
+        query = 'DELETE FROM action_logs WHERE queuing_time < %s' % date
+    else:
+        print 'Table name is wrong!'
+        return
+
+    run_sql_query(db, cursor, query)
+
+
 def start(args):
     try:
         db = MySQLdb.connect(host=args.db_host, db=args.db_name,
