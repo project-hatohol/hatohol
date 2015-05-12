@@ -475,6 +475,9 @@ amqp_connection_state_t AMQPConnection::getConnection(void)
 
 bool AMQPConnection::startConsuming(void)
 {
+	if (!isConnected())
+		return false;
+
 	const amqp_bytes_t queue =
 		amqp_cstring_bytes(getQueueName().c_str());
 	const amqp_bytes_t consumer_tag = amqp_empty_bytes;
@@ -504,6 +507,9 @@ bool AMQPConnection::startConsuming(void)
 
 bool AMQPConnection::consume(AMQPMessage &message)
 {
+	if (!isConnected())
+		return false;
+
 	amqp_maybe_release_buffers(getConnection());
 
 	struct timeval timeout = {
@@ -548,6 +554,9 @@ bool AMQPConnection::consume(AMQPMessage &message)
 
 bool AMQPConnection::publish(string &body)
 {
+	if (!isConnected())
+		return false;
+
 	const amqp_bytes_t exchange = amqp_empty_bytes;
 	const amqp_bytes_t queue =
 		amqp_cstring_bytes(getQueueName().c_str());
@@ -583,6 +592,9 @@ bool AMQPConnection::publish(string &body)
 
 bool AMQPConnection::purge(void)
 {
+	if (!isConnected())
+		return false;
+
 	const amqp_bytes_t queue = amqp_cstring_bytes(getQueueName().c_str());
 	amqp_queue_purge_ok_t *response;
 	response = amqp_queue_purge(getConnection(),

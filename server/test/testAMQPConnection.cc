@@ -86,6 +86,18 @@ namespace testAMQPConnection {
 		cppcut_assert_equal(true, connection->connect());
 	}
 
+	void test_consumeWithoutConnection(void)
+	{
+		AMQPMessage message;
+		cppcut_assert_equal(false, connection->consume(message));
+	}
+
+	void test_publishWithoutConnection(void)
+	{
+		string body = "hoge";
+		cppcut_assert_equal(false, connection->publish(body));
+	}
+
 	void test_consumer(void)
 	{
 		string body = "{\"body\":\"example\"}";
