@@ -250,6 +250,10 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 	  HAPI2_PUT_ITEMS,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerPutItems);
+	registerProcedureHandler(
+	  HAPI2_PUT_HISTORY,
+	  (ProcedureHandler)
+	    &HatoholArmPluginGateHAPI2::procedureHandlerPutHistory);
 }
 
 // ---------------------------------------------------------------------------
@@ -388,6 +392,53 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(
 	JSONParser parser(params);
 	bool succeeded = parseItemParams(parser, itemList);
 	dataStore->addItemList(itemList);
+
+	JSONBuilder agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("result", "");
+	agent.add("id", 1);
+	agent.endObject();
+	// TODO: implement replying exchange profile procedure with AMQP
+	return agent.generate();
+}
+
+static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoVect)
+{
+	parser.startObject("params");
+	ItemIdType itemId = "";
+	parser.read("itemId", itemId);
+	parser.startObject("histories");
+	size_t num = parser.countElements();
+
+	for (size_t j = 0; j < num; j++) {
+		if (!parser.startElement(j)) {
+			MLPL_ERR("Failed to parse histories contents.\n");
+			return false;
+		}
+
+		HistoryInfo historyInfo;
+		historyInfo.itemId = itemId;
+		parser.read("value", historyInfo.value);
+		std::string time;
+		parser.read("time", time);
+		historyInfo.clock.tv_sec = StringUtils::toUint64(time.c_str());
+		parser.endElement();
+
+		historyInfoVect.push_back(historyInfo);
+	}
+	parser.endObject(); // params
+	return true;
+};
+
+string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
+  const HAPI2ProcedureType type, const string &params)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HistoryInfoVect historyInfoVect;
+	JSONParser parser(params);
+	bool succeeded = parseHistoryParams(parser, historyInfoVect);
+	// TODO: Store or transport historyInfoVect
 
 	JSONBuilder agent;
 	agent.startObject();
