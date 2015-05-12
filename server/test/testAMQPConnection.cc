@@ -41,22 +41,15 @@ namespace testAMQPConnection {
 		{
 		}
 
-		virtual bool handle(const amqp_envelope_t *envelope) override
+		virtual bool handle(const AMQPMessage &message) override
 		{
-			const amqp_bytes_t *contentType =
-			  &(envelope->message.properties.content_type);
-			const amqp_bytes_t *body = &(envelope->message.body);
-			m_contentType.assign(static_cast<char*>(contentType->bytes),
-					     static_cast<int>(contentType->len));
-			m_body.assign(static_cast<char*>(body->bytes),
-				      static_cast<int>(body->len));
 			m_gotMessage = true;
+			m_message = message;
 			return true;
 		}
 
 		AtomicValue<bool> m_gotMessage;
-		string m_contentType;
-		string m_body;
+		AMQPMessage m_message;
 	};
 
 	void cut_setup(void)
@@ -112,8 +105,8 @@ namespace testAMQPConnection {
 
 		cut_assert_true(elapsed < timeout);
 		cppcut_assert_equal(string("application/json"),
-				    handler.m_contentType);
-		cppcut_assert_equal(body, handler.m_body);
+				    handler.m_message.contentType);
+		cppcut_assert_equal(body, handler.m_message.body);
 	}
 
 	void test_publisher(void)

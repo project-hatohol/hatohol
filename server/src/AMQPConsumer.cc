@@ -59,14 +59,12 @@ gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 			continue;
 		}
 
-		amqp_envelope_t envelope;
-		Reaper<amqp_envelope_t> envelopeReaper(&envelope,
-						       amqp_destroy_envelope);
-		const bool consumed = m_connection->consume(envelope);
+		AMQPMessage message;
+		const bool consumed = m_connection->consume(message);
 		if (!consumed)
 			continue;
 
-		m_handler->handle(&envelope);
+		m_handler->handle(message);
 	}
 	return NULL;
 }

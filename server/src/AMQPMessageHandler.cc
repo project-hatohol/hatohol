@@ -27,7 +27,7 @@ AMQPMessageHandler::~AMQPMessageHandler()
 {
 }
 
-bool AMQPMessageHandler::handle(const amqp_envelope_t *envelope)
+bool AMQPMessageHandler::handle(const AMQPMessage &message)
 {
 	return true;
 }

@@ -24,12 +24,17 @@
 
 #include "Params.h"
 
+struct AMQPMessage {
+	std::string contentType;
+	std::string body;
+};
+
 class AMQPMessageHandler {
 public:
 	AMQPMessageHandler();
 	virtual ~AMQPMessageHandler();
 
-	virtual bool handle(const amqp_envelope_t *envelope);
+	virtual bool handle(const AMQPMessage &message);
 };
 
 #endif // AMQPMessageHandler_h

@@ -43,7 +43,7 @@ public:
 	virtual bool connect(void);
 	virtual bool isConnected(void);
 	virtual bool startConsuming(void);
-	virtual bool consume(amqp_envelope_t &envelope);
+	virtual bool consume(AMQPMessage &message);
 	virtual bool publish(std::string &body);
 	virtual bool purge(void);
 

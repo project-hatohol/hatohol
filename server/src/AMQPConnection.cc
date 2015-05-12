@@ -502,7 +502,7 @@ bool AMQPConnection::startConsuming(void)
 	return true;
 }
 
-bool AMQPConnection::consume(amqp_envelope_t &envelope)
+bool AMQPConnection::consume(AMQPMessage &message)
 {
 	amqp_maybe_release_buffers(getConnection());
 
@@ -511,10 +511,23 @@ bool AMQPConnection::consume(amqp_envelope_t &envelope)
 		0
 	};
 	const int flags = 0;
+	amqp_envelope_t envelope;
 	amqp_rpc_reply_t reply = amqp_consume_message(getConnection(),
 						      &envelope,
 						      &timeout,
 						      flags);
+	if (reply.reply_type == AMQP_RESPONSE_NORMAL) {
+		const amqp_bytes_t *contentType =
+		  &(envelope.message.properties.content_type);
+		const amqp_bytes_t *body = &(envelope.message.body);
+		message.contentType.assign(
+		  static_cast<char*>(contentType->bytes),
+		  static_cast<int>(contentType->len));
+		message.body.assign(static_cast<char*>(body->bytes),
+				    static_cast<int>(body->len));
+		amqp_destroy_envelope(&envelope);
+	}
+
 	switch (reply.reply_type) {
 	case AMQP_RESPONSE_NORMAL:
 		break;
