@@ -353,12 +353,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(
 
 static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList)
 {
-	if (!parser.isMember("items")) {
-		MLPL_ERR("Failed to parse items.\n");
-		return false;
-	}
+	parser.startObject("params");
 	parser.startObject("items");
 	size_t num = parser.countElements();
+
 	for (size_t i = 0; i < num; i++) {
 		if (!parser.startElement(i)) {
 			MLPL_ERR("Failed to parse item contents.\n");
@@ -377,7 +375,8 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList)
 
 		itemInfoList.push_back(itemInfo);
 	}
-	parser.endObject();
+	parser.endObject(); // params
+	parser.endObject(); // items
 	return true;
 };
 
