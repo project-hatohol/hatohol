@@ -88,11 +88,13 @@ namespace testAMQPConnection {
 		return timer;
 	}
 
-	void test_connect(void) {
+	void test_connect(void)
+	{
 		cppcut_assert_equal(true, connection->connect());
 	}
 
-	void test_consumer(void) {
+	void test_consumer(void)
+	{
 		string body = "{\"body\":\"example\"}";
 		connection->connect();
 		connection->publish(body);
@@ -114,7 +116,8 @@ namespace testAMQPConnection {
 		cppcut_assert_equal(body, handler.m_body);
 	}
 
-	void test_publisher(void) {
+	void test_publisher(void)
+	{
 		AMQPPublisher publisher(connection, "{\"body\":\"example\"}");
 		cppcut_assert_equal(true, publisher.publish());
 	}
