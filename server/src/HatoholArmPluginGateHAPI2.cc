@@ -384,7 +384,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(
   const HAPI2ProcedureType type, const string &params)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
 	ItemInfoList itemList;
 	JSONParser parser(params);
 	bool succeeded = parseItemParams(parser, itemList);
