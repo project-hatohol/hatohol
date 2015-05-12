@@ -29,6 +29,7 @@ using namespace std;
 
 namespace testAMQPConnection {
 	AMQPConnectionInfo *info;
+	AMQPConnectionPtr connection;
 
 	class TestHandler : public AMQPMessageHandler {
 		virtual bool handle(const amqp_envelope_t *envelope) override
@@ -47,24 +48,23 @@ namespace testAMQPConnection {
 		info = new AMQPConnectionInfo();
 		info->setURL(url);
 		info->setQueueName("test.1");
+
+		connection = AMQPConnection::create(*info);
 	}
 	
 	void cut_teardown(void)
 	{
-		AMQPConnection connection(*info);
-		connection.connect();
-		connection.purge();
+		connection->purge();
+		connection = NULL;
 		delete info;
 	}
 
 	void test_connect(void) {
-		AMQPConnection connection(*info);
-		cppcut_assert_equal(true, connection.connect());
+		cppcut_assert_equal(true, connection->connect());
 	}
 
 	void test_consumer(void) {
 		TestHandler handler;
-		AMQPConnectionPtr connection = new AMQPConnection(*info);
 		AMQPConsumer consumer(connection, &handler);
 		consumer.start();
 		// TODO: add assertion
@@ -72,7 +72,6 @@ namespace testAMQPConnection {
 	}
 
 	void test_publisher(void) {
-		AMQPConnectionPtr connection = new AMQPConnection(*info);
 		AMQPPublisher publisher(connection, "{\"body\":\"example\"}");
 		cppcut_assert_equal(true, publisher.publish());
 	}

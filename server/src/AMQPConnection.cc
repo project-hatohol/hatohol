@@ -378,6 +378,12 @@ protected:
 	}
 };
 
+AMQPConnectionPtr AMQPConnection::create(const AMQPConnectionInfo &info)
+{
+	AMQPConnectionPtr connection(new AMQPConnection(info), false);
+	return connection;
+}
+
 AMQPConnection::AMQPConnection(const AMQPConnectionInfo &info)
 : m_impl(new Impl(info))
 {

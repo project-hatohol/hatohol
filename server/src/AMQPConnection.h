@@ -30,9 +30,14 @@
 #include <amqp_tcp_socket.h>
 #include <amqp_ssl_socket.h>
 
+class AMQPConnection;
+typedef UsedCountablePtr<AMQPConnection> AMQPConnectionPtr;
+
 class AMQPConnection : public UsedCountable
 {
 public:
+	static AMQPConnectionPtr create(const AMQPConnectionInfo &info);
+
 	AMQPConnection(const AMQPConnectionInfo &info);
 	~AMQPConnection();
 	virtual bool connect(void);
@@ -60,7 +65,5 @@ private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
 };
-
-typedef UsedCountablePtr<AMQPConnection> AMQPConnectionPtr;
 
 #endif // AMQPConnection_h
