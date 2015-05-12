@@ -34,9 +34,9 @@ namespace testAMQPConnection {
 	AMQPConnectionInfo *info;
 	AMQPConnectionPtr connection;
 
-	class TestHandler : public AMQPMessageHandler {
+	class TestMessageHandler : public AMQPMessageHandler {
 	public:
-		TestHandler()
+		TestMessageHandler()
 		: m_gotMessage(false)
 		{
 		}
@@ -104,7 +104,7 @@ namespace testAMQPConnection {
 		connection->connect();
 		connection->publish(body);
 
-		TestHandler handler;
+		TestMessageHandler handler;
 		AMQPConsumer consumer(connection, &handler);
 		consumer.start();
 		gdouble timeout = 2 * G_USEC_PER_SEC, elapsed = 0.0;
