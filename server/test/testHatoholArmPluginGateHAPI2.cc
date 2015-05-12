@@ -130,9 +130,11 @@ void test_procedureHandlerPutHistory(void)
 	  new HatoholArmPluginGateHAPI2(serverInfo), false);
 	std::string params =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
-		" \"params\":{\"itemId\":\"1\", \"histories\":[{\"value\":\"exampleValue\","
-		" \"time\":\"201503231130\"},{\"value\":\"exampleValue2\",\"time\""
-		":\"201503231130\"}], \"fetchId\":\"1\"}, \"id\":1}";
+		" \"params\":{\"itemId\":\"1\","
+		" \"histories\":[{\"value\":\"exampleValue\","
+		" \"time\":\"201503231130\"},"
+		"{\"value\":\"exampleValue2\",\"time\":\"201503231130\"}],"
+		" \"fetchId\":\"1\"}, \"id\":1}";
 	std::string actual = gate->procedureHandlerPutHistory(
 	  HAPI2_PUT_HISTORY, params);
 	std::string expected =
