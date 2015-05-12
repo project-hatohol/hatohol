@@ -588,7 +588,13 @@ bool AMQPConnection::purge(void)
 	response = amqp_queue_purge(getConnection(),
 				    getChannel(),
 				    queue);
-	if (!response)
-		return false;
+	if (!response) {
+		const amqp_rpc_reply_t reply =
+			amqp_get_rpc_reply(getConnection());
+		if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
+			logErrorResponse("purge", reply);
+			return false;
+		}
+	}
 	return true;
 }
