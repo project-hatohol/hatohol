@@ -434,7 +434,6 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
   const HAPI2ProcedureType type, const string &params)
 {
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HistoryInfoVect historyInfoVect;
 	JSONParser parser(params);
 	bool succeeded = parseHistoryParams(parser, historyInfoVect);
