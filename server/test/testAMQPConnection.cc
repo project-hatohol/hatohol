@@ -80,6 +80,14 @@ namespace testAMQPConnection {
 		delete info;
 	}
 
+	GTimer *startTimer(void)
+	{
+		GTimer *timer = g_timer_new();
+		cut_take(timer, (CutDestroyFunction)g_timer_destroy);
+		g_timer_start(timer);
+		return timer;
+	}
+
 	void test_connect(void) {
 		cppcut_assert_equal(true, connection->connect());
 	}
@@ -91,12 +99,16 @@ namespace testAMQPConnection {
 
 		TestHandler handler;
 		AMQPConsumer consumer(connection, &handler);
-
 		consumer.start();
-		while (!handler.m_gotMessage)
+		gdouble timeout = 2 * G_USEC_PER_SEC, elapsed = 0.0;
+		GTimer *timer = startTimer();
+		while (!handler.m_gotMessage && elapsed < timeout) {
 			g_usleep(0.1 * G_USEC_PER_SEC);
+			elapsed = g_timer_elapsed(timer, NULL);
+		}
 		consumer.exitSync();
 
+		cut_assert_true(elapsed < timeout);
 		cppcut_assert_equal(string("application/json"),
 				    handler.m_contentType);
 		cppcut_assert_equal(body, handler.m_body);
