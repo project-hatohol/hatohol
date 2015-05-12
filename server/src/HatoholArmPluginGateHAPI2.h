@@ -64,6 +64,8 @@ public:
 	                                                 const std::string &params);
 	std::string procedureHandlerLastInfo(const HAPI2ProcedureType type,
 	                                     const std::string &params);
+	std::string procedureHandlerPutItems(const HAPI2ProcedureType type,
+	                                     const std::string &params);
 
 private:
 	struct Impl;

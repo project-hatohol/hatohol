@@ -30,6 +30,7 @@
 #include "AMQPConnectionInfo.h"
 #include "AMQPMessageHandler.h"
 #include "GateJSONProcedureHAPI2.h"
+#include <JSONParser.h>
 
 using namespace std;
 using namespace mlpl;
@@ -245,6 +246,10 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 	  HAPI2_LAST_INFO,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerLastInfo);
+	registerProcedureHandler(
+	  HAPI2_PUT_ITEMS,
+	  (ProcedureHandler)
+	    &HatoholArmPluginGateHAPI2::procedureHandlerPutItems);
 }
 
 // ---------------------------------------------------------------------------
@@ -341,6 +346,55 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("result", firstTriggerInfo.lastChangeTime.tv_sec);
+	agent.add("id", 1);
+	agent.endObject();
+	return agent.generate();
+}
+
+static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList)
+{
+	if (!parser.isMember("items")) {
+		MLPL_ERR("Failed to parse items.\n");
+		return false;
+	}
+	parser.startObject("items");
+	size_t num = parser.countElements();
+	for (size_t i = 0; i < num; i++) {
+		if (!parser.startElement(i)) {
+			MLPL_ERR("Failed to parse item contents.\n");
+			return false;
+		}
+
+		ItemInfo itemInfo;
+		parser.read("itemId", itemInfo.id);
+		parser.read("hostId", itemInfo.hostIdInServer);
+		parser.read("brief", itemInfo.brief);
+		parser.read("lastValueTime", itemInfo.lastValueTime.tv_sec);
+		parser.read("lastValue", itemInfo.lastValue);
+		parser.read("itemGroupName", itemInfo.itemGroupName);
+		parser.read("unit", itemInfo.unit);
+		parser.endElement();
+
+		itemInfoList.push_back(itemInfo);
+	}
+	parser.endObject();
+	return true;
+};
+
+string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(
+  const HAPI2ProcedureType type, const string &params)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
+	ItemInfoList itemList;
+	JSONParser parser(params);
+	bool succeeded = parseItemParams(parser, itemList);
+	dataStore->addItemList(itemList);
+
+	JSONBuilder agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("result", "");
 	agent.add("id", 1);
 	agent.endObject();
 	return agent.generate();
