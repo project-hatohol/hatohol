@@ -20,22 +20,43 @@
 #include <gcutter.h>
 #include <cppcutter.h>
 
+#include <Reaper.h>
+#include <AtomicValue.h>
 #include <AMQPConnection.h>
 #include <AMQPConsumer.h>
 #include <AMQPPublisher.h>
 #include <AMQPMessageHandler.h>
 
 using namespace std;
+using namespace mlpl;
 
 namespace testAMQPConnection {
 	AMQPConnectionInfo *info;
 	AMQPConnectionPtr connection;
 
 	class TestHandler : public AMQPMessageHandler {
+	public:
+		TestHandler()
+		: m_gotMessage(false)
+		{
+		}
+
 		virtual bool handle(const amqp_envelope_t *envelope) override
 		{
+			const amqp_bytes_t *contentType =
+			  &(envelope->message.properties.content_type);
+			const amqp_bytes_t *body = &(envelope->message.body);
+			m_contentType.assign(static_cast<char*>(contentType->bytes),
+					     static_cast<int>(contentType->len));
+			m_body.assign(static_cast<char*>(body->bytes),
+				      static_cast<int>(body->len));
+			m_gotMessage = true;
 			return true;
 		}
+
+		AtomicValue<bool> m_gotMessage;
+		string m_contentType;
+		string m_body;
 	};
 
 	void cut_setup(void)
@@ -64,11 +85,21 @@ namespace testAMQPConnection {
 	}
 
 	void test_consumer(void) {
+		string body = "{\"body\":\"example\"}";
+		connection->connect();
+		connection->publish(body);
+
 		TestHandler handler;
 		AMQPConsumer consumer(connection, &handler);
+
 		consumer.start();
-		// TODO: add assertion
+		while (!handler.m_gotMessage)
+			g_usleep(0.1 * G_USEC_PER_SEC);
 		consumer.exitSync();
+
+		cppcut_assert_equal(string("application/json"),
+				    handler.m_contentType);
+		cppcut_assert_equal(body, handler.m_body);
 	}
 
 	void test_publisher(void) {
