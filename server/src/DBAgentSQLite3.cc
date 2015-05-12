@@ -781,6 +781,13 @@ void DBAgentSQLite3::addColumns(const AddColumnsArg &addColumnsArg)
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
+void DBAgentSQLite3::changeColumnDef(const TableProfile &tableProfile,
+				     const string &oldColumnName,
+				     const size_t &columnIndex)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 void DBAgentSQLite3::renameTable(const string &srcName, const string &destName)
 {
 	string query = makeRenameTableStatement(srcName, destName);

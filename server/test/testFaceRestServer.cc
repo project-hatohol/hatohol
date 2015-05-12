@@ -82,6 +82,10 @@ static void assertServersInParser(
 				    svInfo.pollingIntervalSec);
 		assertValueInParser(parser, "retryInterval",
 				    svInfo.retryIntervalSec);
+		assertValueInParser(parser, "baseURL",
+				    svInfo.baseURL);
+		assertValueInParser(parser, "extendedInfo",
+				    svInfo.extendedInfo);
 		if (shouldHaveAccountInfo) {
 			assertValueInParser(parser, "userName",
 					    svInfo.userName);
@@ -196,6 +200,8 @@ static void serverInfo2StringMap(
 	  = StringUtils::toString(src.pollingIntervalSec);
 	dest["retryInterval"]
 	  = StringUtils::toString(src.retryIntervalSec);
+	dest["baseURL"] = src.baseURL;
+	dest["extendedInfo"] = src.extendedInfo;
 }
 
 void test_addServer(void)
