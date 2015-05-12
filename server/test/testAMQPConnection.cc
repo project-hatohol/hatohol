@@ -94,15 +94,18 @@ namespace testAMQPConnection {
 
 	void test_publishWithoutConnection(void)
 	{
-		string body = "hoge";
-		cppcut_assert_equal(false, connection->publish(body));
+		AMQPMessage message;
+		message.body = "hoge";
+		cppcut_assert_equal(false, connection->publish(message));
 	}
 
 	void test_consumer(void)
 	{
-		string body = "{\"body\":\"example\"}";
+		AMQPMessage message;
+		message.contentType = "application/json";
+		message.body = "{\"body\":\"example\"}";
 		connection->connect();
-		connection->publish(body);
+		connection->publish(message);
 
 		TestMessageHandler handler;
 		AMQPConsumer consumer(connection, &handler);
@@ -116,14 +119,17 @@ namespace testAMQPConnection {
 		consumer.exitSync();
 
 		cut_assert_true(elapsed < timeout);
-		cppcut_assert_equal(string("application/json"),
+		cppcut_assert_equal(message.contentType,
 				    handler.m_message.contentType);
-		cppcut_assert_equal(body, handler.m_message.body);
+		cppcut_assert_equal(message.body,
+				    handler.m_message.body);
 	}
 
 	void test_publisher(void)
 	{
-		AMQPPublisher publisher(connection, "{\"body\":\"example\"}");
+		AMQPPublisher publisher(connection,
+					"application/json",
+					"{\"body\":\"example\"}");
 		cppcut_assert_equal(true, publisher.publish());
 	}
 } // namespace testAMQPConnection

@@ -31,8 +31,10 @@ using namespace std;
 using namespace mlpl;
 
 AMQPPublisher::AMQPPublisher(const AMQPConnectionPtr &connection,
+			     string contentType,
 			     string body)
 : m_connection(connection),
+  m_contentType(contentType),
   m_body(body)
 {
 }
@@ -46,5 +48,8 @@ bool AMQPPublisher::publish(void)
 	if (!m_connection->isConnected()) {
 		m_connection->connect();
 	}
-	return m_connection->publish(m_body);
+	AMQPMessage message;
+	message.contentType = m_contentType;
+	message.body = m_body;
+	return m_connection->publish(message);
 }

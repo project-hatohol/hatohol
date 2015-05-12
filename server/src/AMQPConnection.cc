@@ -552,7 +552,7 @@ bool AMQPConnection::consume(AMQPMessage &message)
 	return true;
 }
 
-bool AMQPConnection::publish(string &body)
+bool AMQPConnection::publish(const AMQPMessage &message)
 {
 	if (!isConnected())
 		return false;
@@ -566,11 +566,13 @@ bool AMQPConnection::publish(string &body)
 	amqp_basic_properties_t props;
 	props._flags =
 		AMQP_BASIC_CONTENT_TYPE_FLAG | AMQP_BASIC_DELIVERY_MODE_FLAG;
-	props.content_type = amqp_cstring_bytes("application/json");
+	props.content_type = message.contentType.empty() ?
+		amqp_cstring_bytes("application/octet-stream") :
+		amqp_cstring_bytes(message.contentType.c_str());
 	props.delivery_mode = 2;
 	amqp_bytes_t body_bytes;
-	body_bytes.bytes = const_cast<char *>(body.data());
-	body_bytes.len = body.length();
+	body_bytes.bytes = const_cast<char *>(message.body.data());
+	body_bytes.len = message.body.length();
 	response = amqp_basic_publish(getConnection(),
 				      getChannel(),
 				      exchange,

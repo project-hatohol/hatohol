@@ -44,7 +44,7 @@ public:
 	virtual bool isConnected(void);
 	virtual bool startConsuming(void);
 	virtual bool consume(AMQPMessage &message);
-	virtual bool publish(std::string &body);
+	virtual bool publish(const AMQPMessage &message);
 	virtual bool purge(void);
 
 protected:
