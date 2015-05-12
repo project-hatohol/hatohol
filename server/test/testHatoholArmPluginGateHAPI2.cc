@@ -96,4 +96,29 @@ void test_procedureHandlerLastInfoWithTrigger(void)
 		"{\"jsonrpc\":\"2.0\",\"result\":1425025540,\"id\":1}";
 	cppcut_assert_equal(expected, actual);
 }
+
+void test_procedureHandlerPutItems(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	std::string params =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
+		" \"params\":{\"items\":[{\"itemId\":\"1\", \"hostId\":\"1\","
+		" \"brief\":\"example brief\", \"lastValueTime\":\"201504101755\","
+		" \"lastValue\":\"example value\","
+		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"},"
+		" {\"itemId\":\"2\", \"hostId\":\"1\","
+		" \"brief\":\"example brief\", \"lastValueTime\":\"201504101755\","
+		" \"lastValue\":\"example value\","
+		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"}],"
+		" \"fetchId\":\"1\"}, \"id\":1}";
+	std::string actual = gate->procedureHandlerPutItems(
+	  HAPI2_PUT_ITEMS, params);
+	std::string expected =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"\",\"id\":1}";
+	cppcut_assert_equal(expected, actual);
+	// TODO: add DB assertion
+}
 }
