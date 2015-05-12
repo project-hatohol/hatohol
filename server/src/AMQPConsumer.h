@@ -21,13 +21,13 @@
 #define AMQPConsumer_h
 
 #include "HatoholThreadBase.h"
+#include "AMQPConnection.h"
 
-class AMQPConnectionInfo;
 class AMQPMessageHandler;
 
 class AMQPConsumer : public HatoholThreadBase {
 public:
-	AMQPConsumer(const AMQPConnectionInfo &connectionInfo,
+	AMQPConsumer(const AMQPConnectionPtr &connection,
 		     AMQPMessageHandler *handler);
 	virtual ~AMQPConsumer();
 
@@ -35,7 +35,7 @@ protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg) override;
 
 private:
-	const AMQPConnectionInfo &m_connectionInfo;
+	const AMQPConnectionPtr &m_connection;
 	AMQPMessageHandler *m_handler;
 };
 

@@ -22,13 +22,13 @@
 
 #include <glib.h>
 #include "Params.h"
+#include "AMQPConnection.h"
 
-class AMQPConnectionInfo;
 class AMQPMessageHandler;
 
 class AMQPPublisher {
 public:
-	AMQPPublisher(const AMQPConnectionInfo &connectionInfo,
+	AMQPPublisher(const AMQPConnectionPtr &connection,
 	              std::string body);
 	virtual ~AMQPPublisher();
 
@@ -36,7 +36,7 @@ public:
 	virtual bool publish(void) override;
 
 private:
-	const AMQPConnectionInfo &m_connectionInfo;
+	const AMQPConnectionPtr &m_connection;
 	std::string m_body;
 };
 

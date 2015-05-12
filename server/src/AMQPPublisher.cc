@@ -30,9 +30,9 @@
 using namespace std;
 using namespace mlpl;
 
-AMQPPublisher::AMQPPublisher(const AMQPConnectionInfo &connectionInfo,
+AMQPPublisher::AMQPPublisher(const AMQPConnectionPtr &connection,
 			     string body)
-: m_connectionInfo(connectionInfo),
+: m_connection(connection),
   m_body(body)
 {
 }
@@ -43,9 +43,8 @@ AMQPPublisher::~AMQPPublisher()
 
 bool AMQPPublisher::publish(void)
 {
-	AMQPConnection connection(m_connectionInfo);
-	if (!connection.isConnected()) {
-		connection.connect();
+	if (!m_connection->isConnected()) {
+		m_connection->connect();
 	}
-	return connection.publish(m_body);
+	return m_connection->publish(m_body);
 }

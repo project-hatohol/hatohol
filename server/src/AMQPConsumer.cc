@@ -31,9 +31,9 @@
 using namespace std;
 using namespace mlpl;
 
-AMQPConsumer::AMQPConsumer(const AMQPConnectionInfo &connectionInfo,
+AMQPConsumer::AMQPConsumer(const AMQPConnectionPtr &connection,
 			   AMQPMessageHandler *handler)
-: m_connectionInfo(connectionInfo),
+: m_connection(connection),
   m_handler(handler)
 {
 }
@@ -44,18 +44,17 @@ AMQPConsumer::~AMQPConsumer()
 
 gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 {
-	AMQPConnection connection(m_connectionInfo);
 	while (!isExitRequested()) {
-		if (!connection.isConnected()) {
-			connection.connect();
+		if (!m_connection->isConnected()) {
+			m_connection->connect();
 		}
 
-		if (!connection.isConnected()) {
+		if (!m_connection->isConnected()) {
 			sleep(1); // TODO: Make retry interval customizable
 			continue;
 		}
 
-		if (!connection.startConsuming()) {
+		if (!m_connection->startConsuming()) {
 			sleep(1); // TODO: Same with above
 			continue;
 		}
@@ -63,7 +62,7 @@ gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 		amqp_envelope_t envelope;
 		Reaper<amqp_envelope_t> envelopeReaper(&envelope,
 						       amqp_destroy_envelope);
-		const bool consumed = connection.consume(envelope);
+		const bool consumed = m_connection->consume(envelope);
 		if (!consumed)
 			continue;
 

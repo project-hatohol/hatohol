@@ -197,7 +197,8 @@ struct HatoholArmPluginGateJSON::Impl
 			armPluginInfo.isTLSVerifyEnabled());
 
 		m_handler = new AMQPJSONMessageHandler(serverInfo);
-		m_consumer = new AMQPConsumer(m_connectionInfo, m_handler);
+		AMQPConnectionPtr connection = new AMQPConnection(m_connectionInfo);
+		m_consumer = new AMQPConsumer(connection, m_handler);
 	}
 
 	~Impl()

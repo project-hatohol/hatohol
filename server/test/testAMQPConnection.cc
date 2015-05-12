@@ -64,14 +64,16 @@ namespace testAMQPConnection {
 
 	void test_consumer(void) {
 		TestHandler handler;
-		AMQPConsumer consumer(*info, &handler);
+		AMQPConnectionPtr connection = new AMQPConnection(*info);
+		AMQPConsumer consumer(connection, &handler);
 		consumer.start();
 		// TODO: add assertion
 		consumer.exitSync();
 	}
 
 	void test_publisher(void) {
-		AMQPPublisher publisher(*info, "{\"body\":\"example\"}");
+		AMQPConnectionPtr connection = new AMQPConnection(*info);
+		AMQPPublisher publisher(connection, "{\"body\":\"example\"}");
 		cppcut_assert_equal(true, publisher.publish());
 	}
 } // namespace testAMQPConnection

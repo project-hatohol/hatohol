@@ -25,10 +25,13 @@
 #include <unistd.h>
 #include <Logger.h>
 #include <StringUtils.h>
+#include <UsedCountable.h>
+#include <UsedCountablePtr.h>
 #include <amqp_tcp_socket.h>
 #include <amqp_ssl_socket.h>
 
-class AMQPConnection {
+class AMQPConnection : public UsedCountable
+{
 public:
 	AMQPConnection(const AMQPConnectionInfo &info);
 	~AMQPConnection();
@@ -57,5 +60,7 @@ private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
 };
+
+typedef UsedCountablePtr<AMQPConnection> AMQPConnectionPtr;
 
 #endif // AMQPConnection_h
