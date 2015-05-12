@@ -375,8 +375,8 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList)
 
 		itemInfoList.push_back(itemInfo);
 	}
-	parser.endObject(); // params
 	parser.endObject(); // items
+	parser.endObject(); // params
 	return true;
 };
 
