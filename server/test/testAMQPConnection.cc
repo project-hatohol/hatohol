@@ -51,6 +51,9 @@ namespace testAMQPConnection {
 	
 	void cut_teardown(void)
 	{
+		AMQPConnection connection(*info);
+		connection.connect();
+		connection.purge();
 		delete info;
 	}
 

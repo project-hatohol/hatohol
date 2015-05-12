@@ -561,3 +561,15 @@ bool AMQPConnection::publish(string &body)
 	}
 	return true;
 }
+
+bool AMQPConnection::purge(void)
+{
+	const amqp_bytes_t queue = amqp_cstring_bytes(getQueueName().c_str());
+	amqp_queue_purge_ok_t *response;
+	response = amqp_queue_purge(getConnection(),
+				    getChannel(),
+				    queue);
+	if (!response)
+		return false;
+	return true;
+}
