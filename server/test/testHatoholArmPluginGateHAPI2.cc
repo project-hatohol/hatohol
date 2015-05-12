@@ -121,4 +121,22 @@ void test_procedureHandlerPutItems(void)
 	cppcut_assert_equal(expected, actual);
 	// TODO: add DB assertion
 }
+
+void test_procedureHandlerPutHistory(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	std::string params =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
+		" \"params\":{\"itemId\":\"1\", \"histories\":[{\"value\":\"exampleValue\","
+		" \"time\":\"201503231130\"},{\"value\":\"exampleValue2\",\"time\""
+		":\"201503231130\"}], \"fetchId\":\"1\"}, \"id\":1}";
+	std::string actual = gate->procedureHandlerPutHistory(
+	  HAPI2_PUT_HISTORY, params);
+	std::string expected =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"\",\"id\":1}";
+	cppcut_assert_equal(expected, actual);
+}
 }
