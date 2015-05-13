@@ -415,16 +415,13 @@ static void _assertExecAction(ExecCommandContext *ctx, ExecActionArg &arg)
 	if (!arg.command.empty())
 		ctx->actDef.command = arg.command;
 	else if (arg.type == ACTION_COMMAND) {
-		const char *path = cut_build_path(getBaseDir().c_str(),
-						  ".libs", "ActionTp",
-						  NULL);
+		const char *path =
+		  cut_build_path(".libs", "ActionTp", NULL);
 		ctx->actDef.command = StringUtils::sprintf(
 		  "%s %s", path, ctx->pipeName.c_str());
 	} else if (arg.type == ACTION_RESIDENT) {
 		ctx->actDef.command =
-		  cut_build_path(getBaseDir().c_str(),
-				 ".libs", "residentTest.so",
-				 NULL);
+		  cut_build_path(".libs", "residentTest.so", NULL);
 	} else {
 		cut_fail("Unknown type: %d\n", arg.type);
 	}
