@@ -37,6 +37,7 @@ protected:
 private:
 	const AMQPConnectionPtr &m_connection;
 	AMQPMessageHandler *m_handler;
+	bool m_started;
 };
 
 #endif // AMQPConsumer_h

@@ -34,7 +34,8 @@ using namespace mlpl;
 AMQPConsumer::AMQPConsumer(const AMQPConnectionPtr &connection,
 			   AMQPMessageHandler *handler)
 : m_connection(connection),
-  m_handler(handler)
+  m_handler(handler),
+  m_started(false)
 {
 }
 
@@ -46,16 +47,15 @@ gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 {
 	while (!isExitRequested()) {
 		if (!m_connection->isConnected()) {
+			m_started = false;
 			m_connection->connect();
 		}
 
-		if (!m_connection->isConnected()) {
-			sleep(1); // TODO: Make retry interval customizable
-			continue;
-		}
+		if (!m_started && m_connection->isConnected())
+			m_started = m_connection->startConsuming();
 
-		if (!m_connection->startConsuming()) {
-			sleep(1); // TODO: Same with above
+		if (!m_started) {
+			sleep(1); // TODO: Make retry interval customizable
 			continue;
 		}
 
