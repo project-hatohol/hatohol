@@ -186,8 +186,8 @@ HatoholError DBTablesLastInfo::getLastInfoList(LastInfoDefList &lastInfoDefList,
 
 	DBAgent::SelectExArg arg(tableProfileLastInfo);
 	arg.add(IDX_LAST_INFO_ID);
-	arg.add(IDX_LAST_INFO_VALUE);
 	arg.add(IDX_LAST_INFO_DATA_TYPE);
+	arg.add(IDX_LAST_INFO_VALUE);
 	arg.add(IDX_LAST_INFO_SERVER_ID);
 
 	// condition
