@@ -2234,3 +2234,12 @@ void loadTestDBHostgroupMember(void)
 	for (size_t i = 0; i < NumTestHostgroupMember; i++)
 		dbHost.upsertHostgroupMember(testHostgroupMember[i]);
 }
+
+void loadTestDBLastInfo(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestLastInfoDef; i++)
+		dbLastInfo.addLastInfo(testLastInfoDef[i], privilege);
+}
