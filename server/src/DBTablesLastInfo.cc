@@ -121,6 +121,11 @@ const char *DBTablesLastInfo::getTableNameLastInfo(void)
 	return TABLE_NAME_LAST_INFO;
 }
 
+void DBTablesLastInfo::reset(void)
+{
+	getSetupInfo().initialized = false;
+}
+
 const DBTables::SetupInfo &DBTablesLastInfo::getConstSetupInfo(void)
 {
 	return getSetupInfo();
