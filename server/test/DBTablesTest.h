@@ -28,6 +28,7 @@
 #include "DBTablesUser.h"
 #include "DBTablesAction.h"
 #include "DBTablesHost.h"
+#include "DBTablesLastInfo.h"
 #include "HostInfoCache.h"
 
 typedef std::set<uint64_t>  HostIdSet;
