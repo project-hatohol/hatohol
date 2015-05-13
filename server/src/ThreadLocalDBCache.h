@@ -47,6 +47,7 @@ public:
 	DBTablesUser    &getUser(void);
 	DBTablesAction  &getAction(void);
 	DBTablesMonitoring &getMonitoring(void);
+	DBTablesLastInfo &getLastInfo(void);
 
 private:
 	/**
