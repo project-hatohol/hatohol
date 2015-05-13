@@ -136,21 +136,22 @@ DBTablesLastInfo::~DBTablesLastInfo()
 {
 }
 
-HatoholError DBTablesLastInfo::addLastInfo(LastInfoDef &lastInfoDef,
-                                           const OperationPrivilege &privilege)
+LastInfoIdType DBTablesLastInfo::addLastInfo(LastInfoDef &lastInfoDef,
+                                             const OperationPrivilege &privilege)
 {
 	HatoholError err = checkPrivilegeForAdd(privilege, lastInfoDef);
 	if (err != HTERR_OK)
-		return err;
+		return INVALID_LAST_INFO_ID;
 
+	LastInfoIdType lastInfoId;
 	DBAgent::InsertArg arg(tableProfileLastInfo);
 	arg.add(AUTO_INCREMENT_VALUE);
 	arg.add(lastInfoDef.dataType);
 	arg.add(lastInfoDef.value);
 	arg.add(lastInfoDef.serverId);
 
-	getDBAgent().runTransaction(arg, &lastInfoDef.id);
-	return HTERR_OK;
+	getDBAgent().runTransaction(arg, &lastInfoId);
+	return lastInfoId;
 }
 
 HatoholError DBTablesLastInfo::updateLastInfo(LastInfoDef &lastInfoDef,
