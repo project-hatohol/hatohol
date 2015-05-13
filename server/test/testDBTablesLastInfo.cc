@@ -134,4 +134,37 @@ void test_getLastInfoListWithOption(void)
 	lastInfoFirst.id = 0; // ignore id assertion. Because id is auto increment.
 	assertLastInfo(testLastInfoDef[4], lastInfoFirst);
 }
+
+void test_deleteLastInfoList(void)
+{
+	loadTestDBLastInfo();
+
+	DECLARE_DBTABLES_LAST_INFO(dbLastInfo);
+
+	LastInfoIdType targetId = 5;
+	LastInfoIdType actualId = targetId + 1;
+	// check existence
+	const string statement =
+	  "SELECT * FROM last_info WHERE last_info_id = " +
+	  StringUtils::toString(actualId);
+	const string expect =
+	  StringUtils::sprintf("%" FMT_LAST_INFO_ID "|%d|%s|%s",
+	                       actualId,
+	                       testLastInfoDef[targetId].dataType,
+	                       testLastInfoDef[targetId].value.c_str(),
+	                       testLastInfoDef[targetId].serverId.c_str());
+	assertDBContent(&dbLastInfo.getDBAgent(), statement, expect);
+
+	LastInfoIdList idList;
+	LastInfoQueryOption option(USER_ID_SYSTEM);
+	idList.push_back(actualId);
+	dbLastInfo.deleteLastInfoList(idList, option);
+
+	const string afterDeleteStatement =
+	  "SELECT * FROM last_info WHERE last_info_id = " +
+	  StringUtils::toString(actualId);
+	const string afterDeleteExpect = "";
+	assertDBContent(&dbLastInfo.getDBAgent(),
+	                afterDeleteStatement, afterDeleteExpect);
+}
 } // namespace testDBTablesLastInfo
