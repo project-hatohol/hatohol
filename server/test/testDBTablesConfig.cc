@@ -850,7 +850,7 @@ void test_getTargetServersWithArmPlugin(void)
 			                    pluginIt->id);
 			continue;
 		}
-		const ArmPluginInfo &expect = testArmPluginInfo[index];
+		const ArmPluginInfo &expect = getTestArmPluginInfo()[index];
 		const int expectId = index + 1;
 		assertArmPluginInfo(expect, *pluginIt, &expectId);
 		numValidPluginInfo++;
@@ -1017,7 +1017,7 @@ void test_getArmPluginInfo(void)
 	cppcut_assert_equal((size_t)NumTestArmPluginInfo,
 	                    armPluginInfoVect.size());
 	for (size_t i = 0; i < armPluginInfoVect.size(); i++) {
-		const ArmPluginInfo &expect = testArmPluginInfo[i];
+		const ArmPluginInfo &expect = getTestArmPluginInfo()[i];
 		const ArmPluginInfo &actual = armPluginInfoVect[i];
 		const int expectId = i + 1;
 		assertArmPluginInfo(expect, actual, &expectId);
@@ -1031,7 +1031,7 @@ void test_getArmPluginInfoWithType(void)
 
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	const int targetIdx = 0;
-	const ArmPluginInfo &expect = testArmPluginInfo[targetIdx];
+	const ArmPluginInfo &expect = getTestArmPluginInfo()[targetIdx];
 	ArmPluginInfo armPluginInfo;
 	cppcut_assert_equal(true, dbConfig.getArmPluginInfo(armPluginInfo,
 	                                                    expect.serverId));
@@ -1059,7 +1059,7 @@ void test_saveArmPluginInfo(void)
 void test_saveArmPluginInfoWithInvalidType(void)
 {
 	DECLARE_DBTABLES_CONFIG(dbConfig);
-	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
+	ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[0];
 	armPluginInfo.type = MONITORING_SYSTEM_NAGIOS;
 	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_TYPE,
 	                   dbConfig.saveArmPluginInfo(armPluginInfo));
@@ -1068,7 +1068,7 @@ void test_saveArmPluginInfoWithInvalidType(void)
 void test_saveArmPluginInfoWithNoPath(void)
 {
 	DECLARE_DBTABLES_CONFIG(dbConfig);
-	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
+	ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[0];
 	armPluginInfo.path = "";
 	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_PATH,
 	                   dbConfig.saveArmPluginInfo(armPluginInfo));
@@ -1079,7 +1079,7 @@ void test_saveArmPluginInfoInvalidId(void)
 	loadTestDBArmPlugin();
 
 	DECLARE_DBTABLES_CONFIG(dbConfig);
-	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
+	ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[0];
 	armPluginInfo.id = NumTestArmPluginInfo + 100;
 	HatoholError err = dbConfig.saveArmPluginInfo(armPluginInfo);
 	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_ID, err);
@@ -1091,7 +1091,7 @@ void test_saveArmPluginInfoUpdate(void)
 
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	const size_t targetIdx = 1;
-	ArmPluginInfo armPluginInfo = testArmPluginInfo[targetIdx];
+	ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[targetIdx];
 	armPluginInfo.id = targetIdx + 1;
 	armPluginInfo.path = "/usr/lib/dog";
 	armPluginInfo.brokerUrl = "abc.example.com:28765";
@@ -1107,7 +1107,7 @@ void test_saveArmPluginInfoUpdate(void)
 		if (i == targetIdx)
 			expect += makeExpectedDBOutLine(i, armPluginInfo);
 		else
-			expect += makeExpectedDBOutLine(i, testArmPluginInfo[i]);
+			expect += makeExpectedDBOutLine(i, getTestArmPluginInfo()[i]);
 		if (i < NumTestArmPluginInfo - 1)
 			expect += "\n";
 	}

@@ -685,7 +685,7 @@ void _assertArmPluginsInDB(const set<int> &excludeIdSet)
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
 		const int id = i + 1;
 		// We must make a copy because the member will be changed.
-		ArmPluginInfo armPluginInfo = testArmPluginInfo[i];
+		ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[i];
 		armPluginInfo.id = id;
 		set<int>::const_iterator it = excludeIdSet.find(id);
 		if (it != excludeIdSet.end())
