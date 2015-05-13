@@ -19,10 +19,9 @@
 
 #include "AMQPPublisher.h"
 #include "AMQPConnection.h"
-#include "AMQPConnectionInfo.h"
 #include "AMQPMessageHandler.h"
 
-AMQPPublisher::AMQPPublisher(const AMQPConnectionPtr &connection,
+AMQPPublisher::AMQPPublisher(AMQPConnectionPtr &connection,
 			     const AMQPMessage &message)
 : m_connection(connection),
   m_message(message)

@@ -27,7 +27,7 @@ class AMQPMessageHandler;
 
 class AMQPConsumer : public HatoholThreadBase {
 public:
-	AMQPConsumer(const AMQPConnectionPtr &connection,
+	AMQPConsumer(AMQPConnectionPtr &connection,
 		     AMQPMessageHandler *handler);
 	virtual ~AMQPConsumer();
 
@@ -35,7 +35,7 @@ protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg) override;
 
 private:
-	const AMQPConnectionPtr &m_connection;
+	AMQPConnectionPtr m_connection;
 	AMQPMessageHandler *m_handler;
 	bool m_started;
 };

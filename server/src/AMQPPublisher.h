@@ -27,7 +27,7 @@ class AMQPMessageHandler;
 
 class AMQPPublisher {
 public:
-	AMQPPublisher(const AMQPConnectionPtr &connection,
+	AMQPPublisher(AMQPConnectionPtr &connection,
 		      const AMQPMessage &message);
 	virtual ~AMQPPublisher();
 
@@ -35,7 +35,7 @@ public:
 	virtual bool publish(void) override;
 
 private:
-	const AMQPConnectionPtr &m_connection;
+	AMQPConnectionPtr m_connection;
 	AMQPMessage m_message;
 };
 

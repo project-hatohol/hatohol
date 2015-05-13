@@ -31,7 +31,7 @@
 using namespace std;
 using namespace mlpl;
 
-AMQPConsumer::AMQPConsumer(const AMQPConnectionPtr &connection,
+AMQPConsumer::AMQPConsumer(AMQPConnectionPtr &connection,
 			   AMQPMessageHandler *handler)
 : m_connection(connection),
   m_handler(handler),
