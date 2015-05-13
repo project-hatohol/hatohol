@@ -70,4 +70,25 @@ void test_addLastInfo(void)
 			       lastInfo.value.c_str(), lastInfo.serverId.c_str());
 	assertDBContent(&dbLastInfo.getDBAgent(), statement, expect);
 }
+
+void test_updateLastInfo(void)
+{
+	loadTestDBLastInfo();
+
+	DECLARE_DBTABLES_LAST_INFO(dbLastInfo);
+
+	LastInfoDef lastInfo;
+	lastInfo.id = 3;
+	lastInfo.dataType = LAST_INFO_TRIGGER;
+	lastInfo.value = "20150531";
+	lastInfo.serverId = "12001";
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	dbLastInfo.updateLastInfo(lastInfo, privilege);
+	const string statement = "SELECT * FROM last_info WHERE last_info_id = 3";
+	const string expect =
+	  StringUtils::sprintf("%" FMT_LAST_INFO_ID "|%d|%s|%s",
+			       lastInfo.id, lastInfo.dataType,
+			       lastInfo.value.c_str(), lastInfo.serverId.c_str());
+	assertDBContent(&dbLastInfo.getDBAgent(), statement, expect);
+}
 } // namespace testDBTablesLastInfo
