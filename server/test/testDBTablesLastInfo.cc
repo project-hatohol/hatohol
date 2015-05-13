@@ -57,9 +57,6 @@ void test_tablesVersion(void)
 void test_addLastInfo(void)
 {
 	DECLARE_DBTABLES_LAST_INFO(dbLastInfo);
-	assertDBTablesVersion(
-	  dbLastInfo.getDBAgent(),
-	  DB_TABLES_ID_LAST_INFO, DBTablesLastInfo::LAST_INFO_DB_VERSION);
 	LastInfoDef lastInfo;
 	lastInfo.dataType = LAST_INFO_HOST;
 	lastInfo.value = "20150515";
