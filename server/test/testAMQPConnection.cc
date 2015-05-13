@@ -31,6 +31,8 @@ using namespace std;
 using namespace mlpl;
 
 namespace testAMQPConnection {
+	AMQPConnectionPtr connection;
+
 	class TestMessageHandler : public AMQPMessageHandler {
 	public:
 		TestMessageHandler()
@@ -49,14 +51,6 @@ namespace testAMQPConnection {
 		AMQPMessage m_message;
 	};
 
-	void cut_setup(void)
-	{
-	}
-	
-	void cut_teardown(void)
-	{
-	}
-
 	AMQPConnectionPtr getConnection(const char *url = NULL)
 	{
 		// e.g.) url = "amqp://hatohol:hatohol@localhost:5672/hatohol";
@@ -72,6 +66,17 @@ namespace testAMQPConnection {
 		return AMQPConnection::create(info);
 	}
 
+	void cut_setup(void)
+	{
+	}
+
+	void cut_teardown(void)
+	{
+		if (connection.hasData())
+			connection->purge();
+		connection = NULL;
+	}
+
 	GTimer *startTimer(void)
 	{
 		GTimer *timer = g_timer_new();
@@ -82,31 +87,31 @@ namespace testAMQPConnection {
 
 	void test_connect(void)
 	{
-		AMQPConnectionPtr connection = getConnection();
+		connection = getConnection();
 		cppcut_assert_equal(true, connection->connect());
 	}
 
 	void test_consumeWithoutConnection(void)
 	{
-		AMQPConnectionPtr connection = getConnection();
 		AMQPMessage message;
+		connection = getConnection();
 		cppcut_assert_equal(false, connection->consume(message));
 	}
 
 	void test_publishWithoutConnection(void)
 	{
-		AMQPConnectionPtr connection = getConnection();
 		AMQPMessage message;
 		message.body = "hoge";
+		connection = getConnection();
 		cppcut_assert_equal(false, connection->publish(message));
 	}
 
 	void test_consumer(void)
 	{
-		AMQPConnectionPtr connection = getConnection();
 		AMQPMessage message;
 		message.contentType = "application/json";
 		message.body = "{\"body\":\"example\"}";
+		connection = getConnection();
 		connection->connect();
 		connection->publish(message);
 
@@ -130,10 +135,10 @@ namespace testAMQPConnection {
 
 	void test_publisher(void)
 	{
-		AMQPConnectionPtr connection = getConnection();
 		AMQPMessage message;
 		message.contentType = "application/json";
 		message.body = "{\"body\":\"example\"}";
+		connection = getConnection();
 		AMQPPublisher publisher(connection, message);
 		cppcut_assert_equal(true, publisher.publish());
 	}
