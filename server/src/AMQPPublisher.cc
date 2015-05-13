@@ -24,18 +24,13 @@
 #include <unistd.h>
 #include <Logger.h>
 #include <StringUtils.h>
-#include <amqp_tcp_socket.h>
-#include <amqp_ssl_socket.h>
 
 using namespace std;
-using namespace mlpl;
 
 AMQPPublisher::AMQPPublisher(const AMQPConnectionPtr &connection,
-			     string contentType,
-			     string body)
+			     const AMQPMessage &message)
 : m_connection(connection),
-  m_contentType(contentType),
-  m_body(body)
+  m_message(message)
 {
 }
 
@@ -48,8 +43,5 @@ bool AMQPPublisher::publish(void)
 	if (!m_connection->isConnected()) {
 		m_connection->connect();
 	}
-	AMQPMessage message;
-	message.contentType = m_contentType;
-	message.body = m_body;
-	return m_connection->publish(message);
+	return m_connection->publish(m_message);
 }

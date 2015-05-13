@@ -29,8 +29,7 @@ class AMQPMessageHandler;
 class AMQPPublisher {
 public:
 	AMQPPublisher(const AMQPConnectionPtr &connection,
-		      std::string contentType,
-	              std::string body);
+		      const AMQPMessage &message);
 	virtual ~AMQPPublisher();
 
 	//protected:
@@ -38,8 +37,7 @@ public:
 
 private:
 	const AMQPConnectionPtr &m_connection;
-	std::string m_contentType;
-	std::string m_body;
+	AMQPMessage m_message;
 };
 
 #endif // AMQPPublisher_h

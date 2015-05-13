@@ -127,9 +127,10 @@ namespace testAMQPConnection {
 
 	void test_publisher(void)
 	{
-		AMQPPublisher publisher(connection,
-					"application/json",
-					"{\"body\":\"example\"}");
+		AMQPMessage message;
+		message.contentType = "application/json";
+		message.body = "{\"body\":\"example\"}";
+		AMQPPublisher publisher(connection, message);
 		cppcut_assert_equal(true, publisher.publish());
 	}
 } // namespace testAMQPConnection
