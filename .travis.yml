@@ -18,9 +18,9 @@ matrix:
     - compiler: gcc
       env: RUN_TEST="./test/dist-check.sh"
     - compiler: gcc
-      env: RUN_TEST="cd server/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh"
+      env: RUN_TEST="env MLPL_LOGGER_LEVEL=WARN ./server/test/run-test.sh"
     - compiler: clang
-      env: RUN_TEST="cd server/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh"
+      env: RUN_TEST="env MLPL_LOGGER_LEVEL=WARN ./server/test/run-test.sh"
     - compiler: gcc
       env: RUN_TEST="test/launch-hatohol-for-test.sh && mocha-phantomjs http://localhost:8000/test/index.html"
     - compiler: gcc
