@@ -21,11 +21,6 @@
 #include "AMQPConnection.h"
 #include "AMQPConnectionInfo.h"
 #include "AMQPMessageHandler.h"
-#include <unistd.h>
-#include <Logger.h>
-#include <StringUtils.h>
-
-using namespace std;
 
 AMQPPublisher::AMQPPublisher(const AMQPConnectionPtr &connection,
 			     const AMQPMessage &message)

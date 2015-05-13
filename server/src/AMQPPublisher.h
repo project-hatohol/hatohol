@@ -20,7 +20,6 @@
 #ifndef AMQPPublisher_h
 #define AMQPPublisher_h
 
-#include <glib.h>
 #include "Params.h"
 #include "AMQPConnection.h"
 
