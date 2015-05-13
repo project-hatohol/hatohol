@@ -20,7 +20,6 @@
 #define AMQPConnection_h
 
 #include "AMQPConnectionInfo.h"
-#include "AMQPMessageHandler.h"
 #include <glib.h>
 #include <unistd.h>
 #include <Logger.h>
@@ -32,6 +31,11 @@
 
 class AMQPConnection;
 typedef UsedCountablePtr<AMQPConnection> AMQPConnectionPtr;
+
+struct AMQPMessage {
+	std::string contentType;
+	std::string body;
+};
 
 class AMQPConnection : public UsedCountable
 {

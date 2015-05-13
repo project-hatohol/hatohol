@@ -40,7 +40,8 @@ namespace testAMQPConnection {
 		{
 		}
 
-		virtual bool handle(const AMQPMessage &message) override
+		virtual bool handle(AMQPConnection &connection,
+				    const AMQPMessage &message) override
 		{
 			m_gotMessage = true;
 			m_message = message;

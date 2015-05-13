@@ -27,7 +27,8 @@ AMQPMessageHandler::~AMQPMessageHandler()
 {
 }
 
-bool AMQPMessageHandler::handle(const AMQPMessage &message)
+bool AMQPMessageHandler::handle(AMQPConnection &connection,
+				const AMQPMessage &message)
 {
 	return true;
 }

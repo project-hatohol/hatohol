@@ -64,7 +64,7 @@ gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 		if (!consumed)
 			continue;
 
-		m_handler->handle(message);
+		m_handler->handle(*m_connection, message);
 	}
 	return NULL;
 }

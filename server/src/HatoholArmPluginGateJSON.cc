@@ -43,7 +43,7 @@ public:
 		initializeHosts();
 	}
 
-	bool handle(const AMQPMessage &message)
+	bool handle(AMQPConnection &connection, const AMQPMessage &message)
 	{
 		// TODO: check content-type
 		MLPL_DBG("message: <%s>/<%s>\n",
