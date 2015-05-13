@@ -107,8 +107,8 @@ public:
 
 	DBTablesLastInfo(DBAgent &dbAgent);
 	virtual ~DBTablesLastInfo();
-	HatoholError addLastInfo(LastInfoDef &lastInfoDef,
-	                         const OperationPrivilege &privilege);
+	LastInfoIdType addLastInfo(LastInfoDef &lastInfoDef,
+	                           const OperationPrivilege &privilege);
 	HatoholError getLastInfoList(LastInfoDefList &lastInfoDefList,
 	                             const LastInfoQueryOption &option);
 	HatoholError deleteLastInfoList(const LastInfoIdList &idList,
