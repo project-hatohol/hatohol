@@ -54,4 +54,23 @@ void test_tablesVersion(void)
 	  DB_TABLES_ID_LAST_INFO, DBTablesLastInfo::LAST_INFO_DB_VERSION);
 }
 
+void test_addLastInfo(void)
+{
+	DECLARE_DBTABLES_LAST_INFO(dbLastInfo);
+	assertDBTablesVersion(
+	  dbLastInfo.getDBAgent(),
+	  DB_TABLES_ID_LAST_INFO, DBTablesLastInfo::LAST_INFO_DB_VERSION);
+	LastInfoDef lastInfo;
+	lastInfo.dataType = LAST_INFO_HOST;
+	lastInfo.value = "20150515";
+	lastInfo.serverId = "10001";
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	LastInfoIdType lastInfoId = dbLastInfo.addLastInfo(lastInfo, privilege);
+	const string statement = "SELECT * FROM last_info";
+	const string expect =
+	  StringUtils::sprintf("%" FMT_LAST_INFO_ID "|%d|%s|%s",
+			       lastInfoId, lastInfo.dataType,
+			       lastInfo.value.c_str(), lastInfo.serverId.c_str());
+	assertDBContent(&dbLastInfo.getDBAgent(), statement, expect);
+}
 } // namespace testDBTablesLastInfo
