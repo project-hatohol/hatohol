@@ -170,7 +170,7 @@ HatoholError DBTablesLastInfo::updateLastInfo(LastInfoDef &lastInfoDef,
 
 	const char *lastInfoIdColumnName =
 	  COLUMN_DEF_LAST_INFO[IDX_LAST_INFO_ID].columnName;
-	arg.condition = StringUtils::sprintf("%s=%d",
+	arg.condition = StringUtils::sprintf("%s=%" FMT_LAST_INFO_ID,
 	                                     lastInfoIdColumnName, lastInfoDef.id);
 	arg.add(IDX_LAST_INFO_DATA_TYPE, lastInfoDef.dataType);
 	arg.add(IDX_LAST_INFO_VALUE, lastInfoDef.value);
