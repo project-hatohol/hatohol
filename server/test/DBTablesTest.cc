@@ -2239,7 +2239,7 @@ void loadTestDBLastInfo(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestLastInfoDef; i++)
 		dbLastInfo.addLastInfo(testLastInfoDef[i], privilege);
 }
