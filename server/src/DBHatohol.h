@@ -27,6 +27,7 @@ class DBTablesHost;
 class DBTablesUser;
 class DBTablesAction;
 class DBTablesMonitoring;
+class DBTablesLastInfo;
 
 class DBHatohol : public DB {
 public:
@@ -53,6 +54,7 @@ public:
 	DBTablesUser    &getDBTablesUser(void);
 	DBTablesAction  &getDBTablesAction(void);
 	DBTablesMonitoring &getDBTablesMonitoring(void);
+	DBTablesLastInfo &getDBTablesLastInfo(void);
 
 private:
 	struct Impl;
