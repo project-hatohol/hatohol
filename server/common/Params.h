@@ -93,6 +93,9 @@ typedef uint64_t ActionLogIdType;
 typedef uint64_t LastInfoIdType;
 #define FMT_LAST_INFO_ID PRIu64
 
+typedef std::string LastInfoServerIdType;
+#define FMT_LAST_INFO_SERVER_ID "s"
+
 // Special Server IDs =========================================================
 static const ServerIdType ALL_SERVERS       = -1;
 static const ServerIdType INVALID_SERVER_ID = -2;
