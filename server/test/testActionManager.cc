@@ -861,7 +861,7 @@ void cut_setup(void)
 	hatoholInit();
 	setupTestDB();
 	acquireDefaultContext();
-	ConfigManager::getInstance()->setActionCommandDirectory(get_current_dir_name());
+	ConfigManager::getInstance()->setActionCommandDirectory(getBaseDir());
 
 	string residentYardDir = getBaseDir();
 	residentYardDir += "/../src/.libs";
