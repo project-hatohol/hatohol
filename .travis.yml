@@ -30,7 +30,7 @@ matrix:
     - compiler: clang
       env: RUN_TEST="env MLPL_LOGGER_LEVEL=WARN ./server/mlpl/test/run-test.sh"
     - compiler: gcc
-      env: RUN_TEST="cd server/tools/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh"
+      env: RUN_TEST="env MLPL_LOGGER_LEVEL=WARN ./server/tools/test/run-test.sh"
     - compiler: gcc
       env: RUN_TEST="client/test/python/run-test.sh"
 
