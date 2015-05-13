@@ -301,11 +301,16 @@ err:
 	return "";
 }
 
+string getBaseDir(void)
+{
+	const gchar *dir;
+	dir = g_getenv("BASE_DIR");
+	return dir ? dir : ".";
+}
+
 string getFixturesDir(void)
 {
-	char *cwd = get_current_dir_name();
-	string dir = cwd;
-	free(cwd);
+	string dir = getBaseDir();
 	dir += G_DIR_SEPARATOR;
 	dir += "fixtures";
 	dir += G_DIR_SEPARATOR;
