@@ -31,9 +31,6 @@ using namespace std;
 using namespace mlpl;
 
 namespace testAMQPConnection {
-	AMQPConnectionInfo *info;
-	AMQPConnectionPtr connection;
-
 	class TestMessageHandler : public AMQPMessageHandler {
 	public:
 		TestMessageHandler()
@@ -54,23 +51,25 @@ namespace testAMQPConnection {
 
 	void cut_setup(void)
 	{
-		const char *url = getenv("TEST_AMQP_URL");
-		//url = "amqp://hatohol:hatohol@localhost:5672/hatohol";
-		if (!url)
-			cut_omit("TEST_AMQP_URL isn't set");
-
-		info = new AMQPConnectionInfo();
-		info->setURL(url);
-		info->setQueueName("test.1");
-
-		connection = AMQPConnection::create(*info);
 	}
 	
 	void cut_teardown(void)
 	{
-		connection->purge();
-		connection = NULL;
-		delete info;
+	}
+
+	AMQPConnectionPtr getConnection(const char *url = NULL)
+	{
+		// e.g.) url = "amqp://hatohol:hatohol@localhost:5672/hatohol";
+		if (!url)
+			url = getenv("TEST_AMQP_URL");
+		if (!url)
+			cut_omit("TEST_AMQP_URL isn't set");
+
+		AMQPConnectionInfo info;
+		info.setURL(url);
+		info.setQueueName("test.1");
+
+		return AMQPConnection::create(info);
 	}
 
 	GTimer *startTimer(void)
@@ -83,17 +82,20 @@ namespace testAMQPConnection {
 
 	void test_connect(void)
 	{
+		AMQPConnectionPtr connection = getConnection();
 		cppcut_assert_equal(true, connection->connect());
 	}
 
 	void test_consumeWithoutConnection(void)
 	{
+		AMQPConnectionPtr connection = getConnection();
 		AMQPMessage message;
 		cppcut_assert_equal(false, connection->consume(message));
 	}
 
 	void test_publishWithoutConnection(void)
 	{
+		AMQPConnectionPtr connection = getConnection();
 		AMQPMessage message;
 		message.body = "hoge";
 		cppcut_assert_equal(false, connection->publish(message));
@@ -101,6 +103,7 @@ namespace testAMQPConnection {
 
 	void test_consumer(void)
 	{
+		AMQPConnectionPtr connection = getConnection();
 		AMQPMessage message;
 		message.contentType = "application/json";
 		message.body = "{\"body\":\"example\"}";
@@ -127,6 +130,7 @@ namespace testAMQPConnection {
 
 	void test_publisher(void)
 	{
+		AMQPConnectionPtr connection = getConnection();
 		AMQPMessage message;
 		message.contentType = "application/json";
 		message.body = "{\"body\":\"example\"}";
