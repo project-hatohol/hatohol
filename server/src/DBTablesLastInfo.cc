@@ -72,7 +72,7 @@ static const ColumnDef COLUMN_DEF_LAST_INFO[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"server_id",                   // columnName
+	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
 	0,                                 // decFracLength
