@@ -59,7 +59,7 @@ struct LastInfoCondition {
 };
 
 struct LastInfoDef {
-	int                  id;
+	LastInfoIdType       id;
 	LastInfoType         dataType;
 	std::string          value;
 	LastInfoServerIdType serverId;
