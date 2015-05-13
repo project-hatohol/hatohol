@@ -265,4 +265,6 @@ void loadTestDBVMInfo(void);
 void loadTestDBHostgroup(void);
 void loadTestDBHostgroupMember(void);
 
+void loadTestDBLastInfo(void);
+
 #endif // DBClientTest_h
