@@ -31,7 +31,6 @@ public:
 		      const AMQPMessage &message);
 	virtual ~AMQPPublisher();
 
-	//protected:
 	virtual bool publish(void) override;
 
 private:
