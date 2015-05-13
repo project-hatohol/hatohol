@@ -35,6 +35,15 @@ namespace testDBTablesLastInfo {
 	DBHatohol _dbHatohol; \
 	DBTablesLastInfo &VAR_NAME = _dbHatohol.getDBTablesLastInfo();
 
+static void _assertLastInfo(const LastInfoDef &expect, const LastInfoDef &actual)
+{
+	cppcut_assert_equal(expect.id, actual.id);
+	cppcut_assert_equal(expect.dataType, actual.dataType);
+	cppcut_assert_equal(expect.value, actual.value);
+	cppcut_assert_equal(expect.serverId, actual.serverId);
+}
+#define assertLastInfo(E,A) cut_trace(_assertLastInfo(E,A))
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -90,5 +99,39 @@ void test_updateLastInfo(void)
 			       lastInfo.id, lastInfo.dataType,
 			       lastInfo.value.c_str(), lastInfo.serverId.c_str());
 	assertDBContent(&dbLastInfo.getDBAgent(), statement, expect);
+}
+
+void test_getLastInfoListWithoutOption(void)
+{
+	loadTestDBLastInfo();
+
+	DECLARE_DBTABLES_LAST_INFO(dbLastInfo);
+
+	LastInfoDefList lastInfoList;
+	LastInfoQueryOption option(USER_ID_SYSTEM);
+	dbLastInfo.getLastInfoList(lastInfoList, option);
+	LastInfoDefListIterator it = lastInfoList.begin();
+	for (size_t i = 0; i < NumTestLastInfoDef; i++, ++it) {
+		LastInfoDef &lastInfo = *it;
+		lastInfo.id = 0; // ignore id assertion. Because id is auto increment.
+		assertLastInfo(testLastInfoDef[i], lastInfo);
+	}
+}
+
+void test_getLastInfoListWithOption(void)
+{
+	loadTestDBLastInfo();
+
+	DECLARE_DBTABLES_LAST_INFO(dbLastInfo);
+
+	LastInfoDefList lastInfoList;
+	LastInfoQueryOption option(USER_ID_SYSTEM);
+	option.setLastInfoType(LAST_INFO_TRIGGER);
+	dbLastInfo.getLastInfoList(lastInfoList, option);
+	LastInfoDefListIterator it = lastInfoList.begin();
+	cppcut_assert_equal((size_t)1, lastInfoList.size());
+	LastInfoDef &lastInfoFirst = *it;
+	lastInfoFirst.id = 0; // ignore id assertion. Because id is auto increment.
+	assertLastInfo(testLastInfoDef[4], lastInfoFirst);
 }
 } // namespace testDBTablesLastInfo
