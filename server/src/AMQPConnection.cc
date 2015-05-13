@@ -592,7 +592,7 @@ bool AMQPConnection::publish(const AMQPMessage &message)
 	return true;
 }
 
-bool AMQPConnection::purge(void)
+bool AMQPConnection::purgeQueue(void)
 {
 	if (!isConnected())
 		return false;

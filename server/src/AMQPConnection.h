@@ -49,7 +49,7 @@ public:
 	virtual bool startConsuming(void);
 	virtual bool consume(AMQPMessage &message);
 	virtual bool publish(const AMQPMessage &message);
-	virtual bool purge(void);
+	virtual bool purgeQueue(void);
 	virtual bool deleteQueue(void);
 
 protected:
