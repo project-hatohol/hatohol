@@ -68,7 +68,7 @@ static const ColumnDef COLUMN_DEF_LAST_INFO[] = {
 	32767,                             // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
-	SQL_KEY_IDX,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
