@@ -46,6 +46,7 @@ public:
 	virtual bool consume(AMQPMessage &message);
 	virtual bool publish(const AMQPMessage &message);
 	virtual bool purge(void);
+	virtual bool deleteQueue(void);
 
 protected:
 	virtual bool initializeConnection(void);

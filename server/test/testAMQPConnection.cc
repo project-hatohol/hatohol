@@ -73,7 +73,7 @@ namespace testAMQPConnection {
 	void cut_teardown(void)
 	{
 		if (connection.hasData())
-			connection->purge();
+			connection->deleteQueue();
 		connection = NULL;
 	}
 

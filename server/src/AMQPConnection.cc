@@ -612,3 +612,26 @@ bool AMQPConnection::purge(void)
 	}
 	return true;
 }
+
+bool AMQPConnection::deleteQueue(void)
+{
+	if (!isConnected())
+		return false;
+
+	const amqp_bytes_t queue = amqp_cstring_bytes(getQueueName().c_str());
+	amqp_queue_delete_ok_t *response;
+	response = amqp_queue_delete(getConnection(),
+				     getChannel(),
+				     queue,
+				     false,  // delete using queue
+				     false); // delete non empty queue
+	if (!response) {
+		const amqp_rpc_reply_t reply =
+			amqp_get_rpc_reply(getConnection());
+		if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
+			logErrorResponse("purge", reply);
+			return false;
+		}
+	}
+	return true;
+}
