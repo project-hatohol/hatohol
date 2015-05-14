@@ -9,6 +9,7 @@ compiler:
 env:
   global:
     - MLPL_LOGGER_LEVEL=WARN
+    - MAKE_ARGS="-j1"
   matrix:
     - RUN_TEST=""
 matrix:
