@@ -14,4 +14,4 @@ if test x"$NO_MAKE" != x"yes"; then
 fi
 
 export PYTHONPATH=..
-python -m unittest discover -p 'Test*.py'
+cd "${BASE_DIR}" && python -m unittest discover -p "Test*.py"

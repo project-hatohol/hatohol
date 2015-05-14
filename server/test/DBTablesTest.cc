@@ -22,7 +22,8 @@
 #include <unistd.h>
 #include "Helpers.h"
 #include "DBTablesTest.h"
-#include "ThreadLocalDBCache.h"
+#include <ThreadLocalDBCache.h>
+#include <HatoholArmPluginGate.h>
 using namespace std;
 using namespace mlpl;
 
@@ -1900,10 +1901,33 @@ const HostgroupIdSet &getTestHostgroupIdSet(void)
 	return testHostgroupIdSet;
 }
 
+ArmPluginInfo *getTestArmPluginInfo(void)
+{
+	static ArmPluginInfo *data = NULL;
+
+	if (data)
+		return data;
+	data = new ArmPluginInfo[NumTestArmPluginInfo];
+
+	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
+		data[i] = testArmPluginInfo[i];
+		if (data[i].path.empty())
+			continue;
+		if (data[i].path[0] == '/')
+			continue;
+		if (data[i].path == HatoholArmPluginGate::PassivePluginQuasiPath)
+			continue;
+		data[i].path = cut_build_path(getBaseDir().c_str(),
+					      data[i].path.c_str(),
+					      NULL);
+	}
+	return data;
+}
+
 int findIndexOfTestArmPluginInfo(const MonitoringSystemType &type)
 {
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
-		if (testArmPluginInfo[i].type == type)
+		if (getTestArmPluginInfo()[i].type == type)
 			return i;
 	}
 	return -1;
@@ -1912,7 +1936,7 @@ int findIndexOfTestArmPluginInfo(const MonitoringSystemType &type)
 int findIndexOfTestArmPluginInfo(const ServerIdType &serverId)
 {
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
-		if (testArmPluginInfo[i].serverId == serverId)
+		if (getTestArmPluginInfo()[i].serverId == serverId)
 			return i;
 	}
 	return -1;
@@ -1922,7 +1946,7 @@ const ArmPluginInfo &getTestArmPluginInfo(const MonitoringSystemType &type)
 {
 	const int testArmPluginIndex = findIndexOfTestArmPluginInfo(type);
 	cppcut_assert_not_equal(-1, testArmPluginIndex);
-	return testArmPluginInfo[testArmPluginIndex];
+	return getTestArmPluginInfo()[testArmPluginIndex];
 }
 
 string makeEventIncidentMapKey(const EventInfo &eventInfo)
@@ -2063,7 +2087,7 @@ void loadTestDBArmPlugin(void)
 	DBTablesConfig &dbConfig = cache.getConfig();
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
 		// Make a copy since armPluginInfo.id will be set.
-		ArmPluginInfo armPluginInfo = testArmPluginInfo[i];
+		ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[i];
 		HatoholError err = dbConfig.saveArmPluginInfo(armPluginInfo);
 		assertHatoholError(HTERR_OK, err);
 	}

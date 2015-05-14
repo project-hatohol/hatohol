@@ -93,6 +93,7 @@ extern void _assertEqual(const TriggerInfo &expect, const TriggerInfo &actual);
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
 std::string executeCommand(const std::string &commandLine);
+std::string getBaseDir(void);
 std::string getFixturesDir(void);
 bool isVerboseMode(void);
 

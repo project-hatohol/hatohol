@@ -301,11 +301,16 @@ err:
 	return "";
 }
 
+string getBaseDir(void)
+{
+	const gchar *dir;
+	dir = g_getenv("BASE_DIR");
+	return dir ? dir : ".";
+}
+
 string getFixturesDir(void)
 {
-	char *cwd = get_current_dir_name();
-	string dir = cwd;
-	free(cwd);
+	string dir = getBaseDir();
 	dir += G_DIR_SEPARATOR;
 	dir += "fixtures";
 	dir += G_DIR_SEPARATOR;
@@ -680,7 +685,7 @@ void _assertArmPluginsInDB(const set<int> &excludeIdSet)
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
 		const int id = i + 1;
 		// We must make a copy because the member will be changed.
-		ArmPluginInfo armPluginInfo = testArmPluginInfo[i];
+		ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[i];
 		armPluginInfo.id = id;
 		set<int>::const_iterator it = excludeIdSet.find(id);
 		if (it != excludeIdSet.end())

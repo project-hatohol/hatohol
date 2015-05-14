@@ -22,6 +22,7 @@
 #include "Synchronizer.h"
 #include "ZabbixAPIEmulator.h"
 #include "ZabbixAPITestUtils.h"
+#include "Helpers.h"
 
 using namespace std;
 
@@ -177,7 +178,11 @@ string ZabbixAPITestee::callPushString(
 
 void ZabbixAPITestee::makeTriggersItemTable(ItemTablePtr &triggersTablePtr)
 {
-	ifstream ifs("fixtures/zabbix-api-res-triggers-003-hosts.json");
+	const char *fixturePath =
+	  cut_build_path(getFixturesDir().c_str(),
+			 "zabbix-api-res-triggers-003-hosts.json",
+			 NULL);
+	ifstream ifs(fixturePath);
 	cppcut_assert_equal(false, ifs.fail());
 
 	string fixtureData;
@@ -198,7 +203,11 @@ void ZabbixAPITestee::makeTriggersItemTable(ItemTablePtr &triggersTablePtr)
 void ZabbixAPITestee::makeTriggerExpandedDescriptionItemTable(
   ItemTablePtr &triggerExpandedDescriptionsTablePtr)
 {
-	ifstream ifs("fixtures/zabbix-api-res-triggers-extend-info.json");
+	const char *fixturePath =
+	  cut_build_path(getFixturesDir().c_str(),
+			 "zabbix-api-res-triggers-extend-info.json",
+			 NULL);
+	ifstream ifs(fixturePath);
 	cppcut_assert_equal(false, ifs.fail());
 
 	string fixtureData;
@@ -220,7 +229,11 @@ void ZabbixAPITestee::makeTriggerExpandedDescriptionItemTable(
 
 void ZabbixAPITestee::makeGroupsItemTable(ItemTablePtr &groupsTablePtr)
 {
-	ifstream ifs("fixtures/zabbix-api-res-hostgroup-002-refer.json");
+	const char *fixturePath =
+	  cut_build_path(getFixturesDir().c_str(),
+			 "zabbix-api-res-hostgroup-002-refer.json",
+			 NULL);
+	ifstream ifs(fixturePath);
 	cppcut_assert_equal(false, ifs.fail());
 
 	string fixtureData;
@@ -241,7 +254,11 @@ void ZabbixAPITestee::makeGroupsItemTable(ItemTablePtr &groupsTablePtr)
 void ZabbixAPITestee::makeMapHostsHostgroupsItemTable(
   ItemTablePtr &hostsGroupsTablePtr)
 {
-	ifstream ifs("fixtures/zabbix-api-res-hosts-002.json");
+	const char *fixturePath =
+	  cut_build_path(getFixturesDir().c_str(),
+			 "zabbix-api-res-hosts-002.json",
+			 NULL);
+	ifstream ifs(fixturePath);
 	cppcut_assert_equal(false, ifs.fail());
 
 	string fixtureData;

@@ -7,7 +7,10 @@ compiler:
   - gcc
   - clang
 env:
-  - RUN_TEST=""
+  global:
+    - MLPL_LOGGER_LEVEL=WARN
+  matrix:
+    - RUN_TEST=""
 matrix:
   exclude:
     - compiler: gcc
@@ -16,21 +19,21 @@ matrix:
       env: RUN_TEST=""
   include:
     - compiler: gcc
-      env: RUN_TEST="./test/dist-check.sh"
+      env: RUN_TEST="test/dist-check.sh"
     - compiler: gcc
-      env: RUN_TEST="cd server/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh"
+      env: RUN_TEST="server/test/run-test.sh"
     - compiler: clang
-      env: RUN_TEST="cd server/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh"
+      env: RUN_TEST="server/test/run-test.sh"
     - compiler: gcc
       env: RUN_TEST="test/launch-hatohol-for-test.sh && mocha-phantomjs http://localhost:8000/test/index.html"
     - compiler: gcc
-      env: RUN_TEST="./test/feature-test.sh"
+      env: RUN_TEST="test/feature-test.sh"
     - compiler: gcc
-      env: RUN_TEST="env MLPL_LOGGER_LEVEL=WARN ./server/mlpl/test/run-test.sh"
+      env: RUN_TEST="server/mlpl/test/run-test.sh"
     - compiler: clang
-      env: RUN_TEST="env MLPL_LOGGER_LEVEL=WARN ./server/mlpl/test/run-test.sh"
+      env: RUN_TEST="server/mlpl/test/run-test.sh"
     - compiler: gcc
-      env: RUN_TEST="cd server/tools/test && MLPL_LOGGER_LEVEL=WARN ./run-test.sh"
+      env: RUN_TEST="server/tools/test/run-test.sh"
     - compiler: gcc
       env: RUN_TEST="client/test/python/run-test.sh"
 

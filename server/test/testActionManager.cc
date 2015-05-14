@@ -415,9 +415,10 @@ static void _assertExecAction(ExecCommandContext *ctx, ExecActionArg &arg)
 	if (!arg.command.empty())
 		ctx->actDef.command = arg.command;
 	else if (arg.type == ACTION_COMMAND) {
+		const char *path =
+		  cut_build_path(".libs", "ActionTp", NULL);
 		ctx->actDef.command = StringUtils::sprintf(
-		  "%s %s", cut_build_path(".libs", "ActionTp", NULL),
-		  ctx->pipeName.c_str());
+		  "%s %s", path, ctx->pipeName.c_str());
 	} else if (arg.type == ACTION_RESIDENT) {
 		ctx->actDef.command =
 		  cut_build_path(".libs", "residentTest.so", NULL);
@@ -857,10 +858,10 @@ void cut_setup(void)
 	hatoholInit();
 	setupTestDB();
 	acquireDefaultContext();
-	ConfigManager::getInstance()->setActionCommandDirectory(get_current_dir_name());
+	ConfigManager::getInstance()->setActionCommandDirectory(getBaseDir());
 
-	string residentYardDir = get_current_dir_name();
-	residentYardDir += "/../src/.libs";
+	const char *residentYardDir =
+	  cut_build_path(getBaseDir().c_str(), "..", "src", ".libs", NULL);
 	ConfigManager::getInstance()->setResidentYardDirectory(residentYardDir);
 }
 

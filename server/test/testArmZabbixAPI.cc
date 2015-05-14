@@ -230,7 +230,9 @@ public:
 
 	ItemTablePtr makeExpectedEventsItemTable(const bool &lastOnly = false)
 	{
-		ifstream ifs("fixtures/zabbix-api-res-events-002.json");
+		string fixturePath = getFixturesDir();
+		fixturePath += "zabbix-api-res-events-002.json";
+		ifstream ifs(fixturePath.c_str());
 		cppcut_assert_equal(false, ifs.fail());
 
 		string fixtureData;

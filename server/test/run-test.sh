@@ -2,14 +2,14 @@
 
 unset LANG
 
-export PATH=../src/.libs:../mlpl/src/.libs:$PATH
-export LD_LIBRARY_PATH=../src/.libs:../common/.libs:../mlpl/src/.libs:$LD_LIBRARY_PATH
-
-export HATOHOL_ACTION_LD_LIBRARY_PATH=../src/.libs:../common/.libs:../mlpl/src/.libs
-
 export BASE_DIR="`dirname $0`"
 top_dir="$BASE_DIR/../.."
 top_dir="`cd $top_dir; pwd`"
+
+export PATH=${BASE_DIR}/../src/.libs:${BASE_DIR}/../mlpl/src/.libs:$PATH
+export LD_LIBRARY_PATH=${BASE_DIR}/../src/.libs:../common/.libs:${BASE_DIR}/../mlpl/src/.libs:$LD_LIBRARY_PATH
+
+export HATOHOL_ACTION_LD_LIBRARY_PATH=${BASE_DIR}/../src/.libs:${BASE_DIR}/../common/.libs:${BASE_DIR}/../mlpl/src/.libs
 
 if test x"$NO_MAKE" != x"yes"; then
     if which gmake > /dev/null; then

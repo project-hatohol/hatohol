@@ -318,13 +318,19 @@ bool makeRandomNumber(string &magicNumber)
 
 bool spawnChildProcess(string magicNumber, GPid &childPid, const string &pidFilePath)
 {
+	const char *hatoholPath =
+	  cut_build_path(getBaseDir().c_str(), "..", "src", "hatohol", NULL);
+	const char *libPath =
+	  cut_build_path(getBaseDir().c_str(), "..", "src", ".libs", NULL);
+	const string libPathEnv =
+	  StringUtils::sprintf("LD_LIBRARY_PATH=%s", libPath);
 	const gchar *argv[] = {
-	  "../src/hatohol", "--db-server", "localhost",
+	  hatoholPath, "--db-server", "localhost",
 	  "--db-name", TEST_DB_NAME,
 	  "--db-user", TEST_DB_USER,
 	  "--db-password", TEST_DB_PASSWORD,
 	  "--pid-file", pidFilePath.c_str(), NULL};
-	const gchar *envp[] = {"LD_LIBRARY_PATH=../src/.libs/", magicNumber.c_str(), NULL};
+	const gchar *envp[] = {libPathEnv.c_str(), magicNumber.c_str(), NULL};
 	GError *error;
 	gboolean succeeded;
 
