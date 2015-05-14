@@ -32,7 +32,7 @@
 using namespace std;
 using namespace mlpl;
 
-const char *TABLE_NAME_LAST_INFO     = "last_info";
+const char *TABLE_NAME_LAST_INFO = "last_info";
 
 const int DBTablesLastInfo::LAST_INFO_DB_VERSION =
   DBTables::Version::getPackedVer(0, 1, 0);
