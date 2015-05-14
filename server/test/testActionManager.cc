@@ -860,8 +860,8 @@ void cut_setup(void)
 	acquireDefaultContext();
 	ConfigManager::getInstance()->setActionCommandDirectory(getBaseDir());
 
-	string residentYardDir = getBaseDir();
-	residentYardDir += "/../src/.libs";
+	const char *residentYardDir =
+	  cut_build_path(getBaseDir().c_str(), "..", "src", ".libs", NULL);
 	ConfigManager::getInstance()->setResidentYardDirectory(residentYardDir);
 }
 

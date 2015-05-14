@@ -1917,8 +1917,9 @@ ArmPluginInfo *getTestArmPluginInfo(void)
 			continue;
 		if (data[i].path == HatoholArmPluginGate::PassivePluginQuasiPath)
 			continue;
-		data[i].path =
-		  getBaseDir() + string(G_DIR_SEPARATOR_S) + data[i].path;
+		data[i].path = cut_build_path(getBaseDir().c_str(),
+					      data[i].path.c_str(),
+					      NULL);
 	}
 	return data;
 }

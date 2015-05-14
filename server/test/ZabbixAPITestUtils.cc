@@ -178,9 +178,11 @@ string ZabbixAPITestee::callPushString(
 
 void ZabbixAPITestee::makeTriggersItemTable(ItemTablePtr &triggersTablePtr)
 {
-	string fixturePath = getFixturesDir();
-	fixturePath += "zabbix-api-res-triggers-003-hosts.json";
-	ifstream ifs(fixturePath.c_str());
+	const char *fixturePath =
+	  cut_build_path(getFixturesDir().c_str(),
+			 "zabbix-api-res-triggers-003-hosts.json",
+			 NULL);
+	ifstream ifs(fixturePath);
 	cppcut_assert_equal(false, ifs.fail());
 
 	string fixtureData;
@@ -201,9 +203,11 @@ void ZabbixAPITestee::makeTriggersItemTable(ItemTablePtr &triggersTablePtr)
 void ZabbixAPITestee::makeTriggerExpandedDescriptionItemTable(
   ItemTablePtr &triggerExpandedDescriptionsTablePtr)
 {
-	string fixturePath = getFixturesDir();
-	fixturePath += "zabbix-api-res-triggers-extend-info.json";
-	ifstream ifs(fixturePath.c_str());
+	const char *fixturePath =
+	  cut_build_path(getFixturesDir().c_str(),
+			 "zabbix-api-res-triggers-extend-info.json",
+			 NULL);
+	ifstream ifs(fixturePath);
 	cppcut_assert_equal(false, ifs.fail());
 
 	string fixtureData;
@@ -225,9 +229,11 @@ void ZabbixAPITestee::makeTriggerExpandedDescriptionItemTable(
 
 void ZabbixAPITestee::makeGroupsItemTable(ItemTablePtr &groupsTablePtr)
 {
-	string fixturePath = getFixturesDir();
-	fixturePath += "zabbix-api-res-hostgroup-002-refer.json";
-	ifstream ifs(fixturePath.c_str());
+	const char *fixturePath =
+	  cut_build_path(getFixturesDir().c_str(),
+			 "zabbix-api-res-hostgroup-002-refer.json",
+			 NULL);
+	ifstream ifs(fixturePath);
 	cppcut_assert_equal(false, ifs.fail());
 
 	string fixtureData;
@@ -248,9 +254,11 @@ void ZabbixAPITestee::makeGroupsItemTable(ItemTablePtr &groupsTablePtr)
 void ZabbixAPITestee::makeMapHostsHostgroupsItemTable(
   ItemTablePtr &hostsGroupsTablePtr)
 {
-	string fixturePath = getFixturesDir();
-	fixturePath += "zabbix-api-res-hosts-002.json";
-	ifstream ifs(fixturePath.c_str());
+	const char *fixturePath =
+	  cut_build_path(getFixturesDir().c_str(),
+			 "zabbix-api-res-hosts-002.json",
+			 NULL);
+	ifstream ifs(fixturePath);
 	cppcut_assert_equal(false, ifs.fail());
 
 	string fixtureData;
