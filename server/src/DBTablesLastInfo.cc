@@ -310,7 +310,7 @@ DBTables::SetupInfo &DBTablesLastInfo::getSetupInfo(void)
 HatoholError DBTablesLastInfo::checkPrivilegeForAdd(
   const OperationPrivilege &privilege, const LastInfoDef &actionDef)
 {
-	UserIdType userId = privilege.getUserId();
+	const UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
 
@@ -320,7 +320,7 @@ HatoholError DBTablesLastInfo::checkPrivilegeForAdd(
 HatoholError DBTablesLastInfo::checkPrivilegeForDelete(
   const OperationPrivilege &privilege, const LastInfoIdList &idList)
 {
-	UserIdType userId = privilege.getUserId();
+	const UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
 
@@ -330,7 +330,7 @@ HatoholError DBTablesLastInfo::checkPrivilegeForDelete(
 HatoholError DBTablesLastInfo::checkPrivilegeForUpdate(
   const OperationPrivilege &privilege, const LastInfoDef &lastInfoDef)
 {
-	UserIdType userId = privilege.getUserId();
+	const UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
 
