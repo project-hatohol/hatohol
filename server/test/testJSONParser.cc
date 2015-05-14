@@ -20,6 +20,7 @@
 #include <fstream>
 #include <cppcutter.h>
 #include "JSONParser.h"
+#include "Helpers.h"
 using namespace std;
 
 namespace testJSONParser {
@@ -59,20 +60,27 @@ assertReadFile(JSON_MATERIAL, _json); \
 JSONParser parser(_json); \
 cppcut_assert_equal(false, PARSER.hasError());
 
+void cut_setup(void)
+{
+	cut_set_fixture_data_dir(getFixturesDir().c_str(), NULL);
+}
+
 
 // -------------------------------------------------------------------------
 // test cases
 // -------------------------------------------------------------------------
 void test_parseString(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON01.json");
+	const char *path = cut_build_fixture_path("testJSON01.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 	assertReadWord(string, parser, "name0", "string value");
 	assertReadWord(string, parser, "name1", "123");
 }
 
 void test_parseDouble(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON01.json");
+	const char *path = cut_build_fixture_path("testJSON01.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 	assertReadWord(double, parser, "double0", 0.0);
 	assertReadWord(double, parser, "double1", 123456789.0123);
 	assertReadWord(double, parser, "double2", -777333.555111);
@@ -80,7 +88,8 @@ void test_parseDouble(void)
 
 void test_parseStringInObject(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON02.json");
+	const char *path = cut_build_fixture_path("testJSON02.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 
 	cppcut_assert_equal(true, parser.startObject("object0"));
 	assertReadWord(string, parser, "food", "donuts");
@@ -93,7 +102,8 @@ void test_parseStringInObject(void)
 
 void test_parseStringInArray(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON03.json");
+	const char *path = cut_build_fixture_path("testJSON03.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 
 	cppcut_assert_equal(true, parser.startObject("array0"));
 	cppcut_assert_equal(3u, parser.countElements());
@@ -105,7 +115,8 @@ void test_parseStringInArray(void)
 
 void test_parseStringInObjectInArray(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON04.json");
+	const char *path = cut_build_fixture_path("testJSON04.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 
 	cppcut_assert_equal(true, parser.startObject("array0"));
 	cppcut_assert_equal(2u, parser.countElements());
@@ -125,7 +136,8 @@ void test_parseStringInObjectInArray(void)
 
 void test_checkParseSuccess(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON05.json");
+	const char *path = cut_build_fixture_path("testJSON05.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 
 	assertReadWord(bool, parser, "valid", true);
 	assertReadWord(int64_t, parser, "id", 1);
@@ -140,7 +152,8 @@ void test_checkParseSuccess(void)
 
 void test_checkResultWhenTrueFalseTrue(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON05.json");
+	const char *path = cut_build_fixture_path("testJSON05.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 	int64_t value;
 
 	assertReadWord(bool, parser, "valid", true);
@@ -156,7 +169,8 @@ void test_checkResultWhenTrueFalseTrue(void)
 
 void test_checkResultWhenFalseTrueFalse(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON05.json");
+	const char *path = cut_build_fixture_path("testJSON05.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 	string value1;
 	bool value2;
 
@@ -173,7 +187,8 @@ void test_checkResultWhenFalseTrueFalse(void)
 
 void test_checkResultWhenFalseFalseTrue(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON05.json");
+	const char *path = cut_build_fixture_path("testJSON05.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 	int64_t value1;
 	bool value2;
 
@@ -190,7 +205,8 @@ void test_checkResultWhenFalseFalseTrue(void)
 
 void test_checkIsMember(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON06.json");
+	const char *path = cut_build_fixture_path("testJSON06.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 
 	cppcut_assert_equal(true, parser.isMember("name"));
 	cppcut_assert_equal(true, parser.isMember("prefecture"));
