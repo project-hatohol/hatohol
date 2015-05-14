@@ -1365,43 +1365,43 @@ LastInfoDef testLastInfoDef[] = {
 	AUTO_INCREMENT_VALUE,            // id
 	LAST_INFO_HOST,                  // dataType
 	"20150515",                      // value
-	"10",                            // serverId
+	10,                              // serverId
 },
 {
 	AUTO_INCREMENT_VALUE,            // id
 	LAST_INFO_HOST,                  // dataType
 	"20150515",                      // value
-	"11",                            // serverId
+	11,                              // serverId
 },
 {
 	AUTO_INCREMENT_VALUE,            // id
 	LAST_INFO_HOST_GROUP,            // dataType
 	"20150515",                      // value
-	"1001",                          // serverId
+	1001,                            // serverId
 },
 {
 	AUTO_INCREMENT_VALUE,            // id
 	LAST_INFO_HOST_GROUP_MEMBERSHIP, // dataType
 	"20150514",                      // value
-	"1002",                          // serverId
+	1002,                            // serverId
 },
 {
 	AUTO_INCREMENT_VALUE,            // id
 	LAST_INFO_TRIGGER,               // dataType
 	"20150515",                      // value
-	"1003",                          // serverId
+	1003,                            // serverId
 },
 {
 	AUTO_INCREMENT_VALUE,            // id
 	LAST_INFO_EVENT,                 // dataType
 	"20150514",                      // value
-	"10001",                            // serverId
+	10001,                           // serverId
 },
 {
 	AUTO_INCREMENT_VALUE,            // id
 	LAST_INFO_HOST_PARENT,           // dataType
 	"20150518",                      // value
-	"10002",                         // serverId
+	10002,                           // serverId
 },
 };
 const size_t NumTestLastInfoDef = ARRAY_SIZE(testLastInfoDef);

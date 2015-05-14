@@ -69,14 +69,14 @@ void test_addLastInfo(void)
 	LastInfoDef lastInfo;
 	lastInfo.dataType = LAST_INFO_HOST;
 	lastInfo.value = "20150515";
-	lastInfo.serverId = "10001";
+	lastInfo.serverId = 10001;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	LastInfoIdType lastInfoId = dbLastInfo.addLastInfo(lastInfo, privilege);
 	const string statement = "SELECT * FROM last_info";
 	const string expect =
-	  StringUtils::sprintf("%" FMT_LAST_INFO_ID "|%d|%s|%s",
+	  StringUtils::sprintf("%" FMT_LAST_INFO_ID "|%d|%s|%d",
 			       lastInfoId, lastInfo.dataType,
-			       lastInfo.value.c_str(), lastInfo.serverId.c_str());
+			       lastInfo.value.c_str(), lastInfo.serverId);
 	assertDBContent(&dbLastInfo.getDBAgent(), statement, expect);
 }
 
@@ -90,14 +90,14 @@ void test_updateLastInfo(void)
 	lastInfo.id = 3;
 	lastInfo.dataType = LAST_INFO_TRIGGER;
 	lastInfo.value = "20150531";
-	lastInfo.serverId = "12001";
+	lastInfo.serverId = 12001;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	dbLastInfo.updateLastInfo(lastInfo, privilege);
 	const string statement = "SELECT * FROM last_info WHERE last_info_id = 3";
 	const string expect =
-	  StringUtils::sprintf("%" FMT_LAST_INFO_ID "|%d|%s|%s",
+	  StringUtils::sprintf("%" FMT_LAST_INFO_ID "|%d|%s|%d",
 			       lastInfo.id, lastInfo.dataType,
-			       lastInfo.value.c_str(), lastInfo.serverId.c_str());
+			       lastInfo.value.c_str(), lastInfo.serverId);
 	assertDBContent(&dbLastInfo.getDBAgent(), statement, expect);
 }
 
@@ -148,11 +148,11 @@ void test_deleteLastInfoList(void)
 	  "SELECT * FROM last_info WHERE last_info_id = " +
 	  StringUtils::toString(actualId);
 	const string expect =
-	  StringUtils::sprintf("%" FMT_LAST_INFO_ID "|%d|%s|%s",
+	  StringUtils::sprintf("%" FMT_LAST_INFO_ID "|%d|%s|%d",
 	                       actualId,
 	                       testLastInfoDef[targetId].dataType,
 	                       testLastInfoDef[targetId].value.c_str(),
-	                       testLastInfoDef[targetId].serverId.c_str());
+	                       testLastInfoDef[targetId].serverId);
 	assertDBContent(&dbLastInfo.getDBAgent(), statement, expect);
 
 	LastInfoIdList idList;
