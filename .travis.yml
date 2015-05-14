@@ -19,23 +19,23 @@ matrix:
       env: RUN_TEST=""
   include:
     - compiler: gcc
-      env: RUN_TEST="./test/dist-check.sh"
+      env: RUN_TEST="test/dist-check.sh"
     - compiler: gcc
-      env: RUN_TEST="./server/test/run-test.sh"
+      env: RUN_TEST="server/test/run-test.sh"
     - compiler: clang
-      env: RUN_TEST="./server/test/run-test.sh"
+      env: RUN_TEST="server/test/run-test.sh"
     - compiler: gcc
-      env: RUN_TEST="./test/launch-hatohol-for-test.sh && mocha-phantomjs http://localhost:8000/test/index.html"
+      env: RUN_TEST="test/launch-hatohol-for-test.sh && mocha-phantomjs http://localhost:8000/test/index.html"
     - compiler: gcc
-      env: RUN_TEST="./test/feature-test.sh"
+      env: RUN_TEST="test/feature-test.sh"
     - compiler: gcc
-      env: RUN_TEST="./server/mlpl/test/run-test.sh"
+      env: RUN_TEST="server/mlpl/test/run-test.sh"
     - compiler: clang
-      env: RUN_TEST="./server/mlpl/test/run-test.sh"
+      env: RUN_TEST="server/mlpl/test/run-test.sh"
     - compiler: gcc
-      env: RUN_TEST="./server/tools/test/run-test.sh"
+      env: RUN_TEST="server/tools/test/run-test.sh"
     - compiler: gcc
-      env: RUN_TEST="./client/test/python/run-test.sh"
+      env: RUN_TEST="client/test/python/run-test.sh"
 
 before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
