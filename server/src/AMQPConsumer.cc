@@ -31,21 +31,35 @@
 using namespace std;
 using namespace mlpl;
 
+struct AMQPConsumer::Impl {
+	Impl()
+	: m_connection(NULL),
+	  m_handler(NULL)
+	{
+	}
+
+	~Impl()
+	{
+	}
+
+	AMQPConnectionPtr m_connection;
+	AMQPMessageHandler *m_handler;
+};
+
 AMQPConsumer::AMQPConsumer(const AMQPConnectionInfo &connectionInfo,
 			   AMQPMessageHandler *handler)
-: m_connection(NULL),
-  m_handler(handler),
-  m_started(false)
+: m_impl(new Impl())
 {
-	m_connection = AMQPConnection::create(connectionInfo);
+	m_impl->m_connection = AMQPConnection::create(connectionInfo);
+	m_impl->m_handler = handler;
 }
 
 AMQPConsumer::AMQPConsumer(AMQPConnectionPtr &connection,
 			   AMQPMessageHandler *handler)
-: m_connection(connection),
-  m_handler(handler),
-  m_started(false)
+: m_impl(new Impl())
 {
+	m_impl->m_connection = connection;
+	m_impl->m_handler = handler;
 }
 
 AMQPConsumer::~AMQPConsumer()
@@ -54,31 +68,33 @@ AMQPConsumer::~AMQPConsumer()
 
 AMQPConnectionPtr AMQPConsumer::getConnection(void)
 {
-	return m_connection;
+	return m_impl->m_connection;
 }
 
 gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 {
+	bool started = false;
+
 	while (!isExitRequested()) {
-		if (!m_connection->isConnected()) {
-			m_started = false;
-			m_connection->connect();
+		if (!m_impl->m_connection->isConnected()) {
+			started = false;
+			m_impl->m_connection->connect();
 		}
 
-		if (!m_started && m_connection->isConnected())
-			m_started = m_connection->startConsuming();
+		if (!started && m_impl->m_connection->isConnected())
+			started = m_impl->m_connection->startConsuming();
 
-		if (!m_started) {
+		if (!started) {
 			sleep(1); // TODO: Make retry interval customizable
 			continue;
 		}
 
 		AMQPMessage message;
-		const bool consumed = m_connection->consume(message);
+		const bool consumed = m_impl->m_connection->consume(message);
 		if (!consumed)
 			continue;
 
-		m_handler->handle(*m_connection, message);
+		m_impl->m_handler->handle(*m_impl->m_connection, message);
 	}
 	return NULL;
 }

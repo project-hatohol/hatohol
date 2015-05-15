@@ -39,9 +39,8 @@ protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg) override;
 
 private:
-	AMQPConnectionPtr m_connection;
-	AMQPMessageHandler *m_handler;
-	bool m_started;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 #endif // AMQPConsumer_h
