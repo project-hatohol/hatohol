@@ -68,6 +68,8 @@ public:
 	                                     const std::string &params);
 	std::string procedureHandlerPutHistory(const HAPI2ProcedureType type,
 	                                       const std::string &params);
+	std::string procedureHandlerUpdateHosts(const HAPI2ProcedureType type,
+	                                        const std::string &params);
 
 private:
 	struct Impl;

@@ -254,6 +254,10 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 	  HAPI2_PUT_HISTORY,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerPutHistory);
+	registerProcedureHandler(
+	  HAPI2_UPDATE_HOSTS,
+	  (ProcedureHandler)
+	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts);
 }
 
 // ---------------------------------------------------------------------------
@@ -443,6 +447,19 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("result", "");
+	agent.add("id", 1);
+	agent.endObject();
+	// TODO: implement replying exchange profile procedure with AMQP
+	return agent.generate();
+}
+
+string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
+  const HAPI2ProcedureType type, const string &params)
+{
+	JSONBuilder agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("result", "SUCCESS");
 	agent.add("id", 1);
 	agent.endObject();
 	// TODO: implement replying exchange profile procedure with AMQP
