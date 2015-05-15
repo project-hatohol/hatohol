@@ -431,6 +431,7 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 
 		historyInfoVect.push_back(historyInfo);
 	}
+	parser.endObject(); // histories
 	parser.endObject(); // params
 	return true;
 };
