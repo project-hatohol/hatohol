@@ -32,7 +32,7 @@
 using namespace std;
 using namespace mlpl;
 
-const char *TABLE_NAME_LAST_INFO = "last_info";
+constexpr const char *TABLE_NAME_LAST_INFO = "last_info";
 
 const int DBTablesLastInfo::LAST_INFO_DB_VERSION =
   DBTables::Version::getPackedVer(0, 1, 0);
@@ -43,7 +43,7 @@ static void operator>>(
 	lastInfoType = itemGroupStream.read<int, LastInfoType>();
 }
 
-static const ColumnDef COLUMN_DEF_LAST_INFO[] = {
+constexpr static const ColumnDef COLUMN_DEF_LAST_INFO[] = {
 {
 	"last_info_id",                    // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
