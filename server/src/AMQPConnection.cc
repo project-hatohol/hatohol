@@ -206,6 +206,11 @@ public:
 		return m_connection;
 	}
 
+	const AMQPConnectionInfo &getConnectionInfo()
+	{
+		return m_info;
+	}
+
 protected:
 	const AMQPConnectionInfo m_info;
 	amqp_socket_t *m_socket;
@@ -391,6 +396,11 @@ AMQPConnection::AMQPConnection(const AMQPConnectionInfo &info)
 
 AMQPConnection::~AMQPConnection()
 {
+}
+
+const AMQPConnectionInfo &AMQPConnection::getConnectionInfo(void)
+{
+	return m_impl->getConnectionInfo();
 }
 
 bool AMQPConnection::connect(void)

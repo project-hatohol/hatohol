@@ -44,6 +44,7 @@ public:
 
 	AMQPConnection(const AMQPConnectionInfo &info);
 	~AMQPConnection();
+	virtual const AMQPConnectionInfo &getConnectionInfo(void);
 	virtual bool connect(void);
 	virtual bool isConnected(void);
 	virtual bool startConsuming(void);
