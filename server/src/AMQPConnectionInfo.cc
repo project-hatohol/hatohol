@@ -51,6 +51,8 @@ struct AMQPConnectionInfo::Impl {
 	void setURL(const string &URL)
 	{
 		m_URL = normalizeURL(URL);
+		// Because amqp_parse_url() modifies the content of the first
+		// argument, allocate another buffer to keep the original URL.
 		free(m_URLBuf);
 		m_URLBuf = strdup(m_URL.c_str());
 		int status = amqp_parse_url(m_URLBuf, &m_parsedURL);
