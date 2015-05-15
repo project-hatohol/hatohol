@@ -31,7 +31,7 @@ public:
 		      const AMQPMessage &message);
 	virtual ~AMQPPublisher();
 
-	virtual bool publish(void) override;
+	virtual bool publish(void);
 
 private:
 	AMQPConnectionPtr m_connection;
