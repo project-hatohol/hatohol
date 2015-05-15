@@ -27,6 +27,8 @@
 class AMQPConnectionInfo {
 public:
 	AMQPConnectionInfo(void);
+	AMQPConnectionInfo(const AMQPConnectionInfo &info);
+	AMQPConnectionInfo &operator=(const AMQPConnectionInfo &info);
 	virtual ~AMQPConnectionInfo();
 
 	const std::string &getURL(void) const;

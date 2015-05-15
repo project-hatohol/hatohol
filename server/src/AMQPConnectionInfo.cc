@@ -89,6 +89,20 @@ AMQPConnectionInfo::AMQPConnectionInfo()
 {
 }
 
+AMQPConnectionInfo::AMQPConnectionInfo(const AMQPConnectionInfo &info)
+: m_impl(new Impl())
+{
+	m_impl->setURL(info.m_impl->m_URL);
+	m_impl->m_queueName = info.m_impl->m_queueName;
+}
+
+AMQPConnectionInfo &AMQPConnectionInfo::operator=(const AMQPConnectionInfo &info)
+{
+	m_impl->setURL(info.m_impl->m_URL);
+	m_impl->m_queueName = info.m_impl->m_queueName;
+	return *this;
+}
+
 AMQPConnectionInfo::~AMQPConnectionInfo()
 {
 }
