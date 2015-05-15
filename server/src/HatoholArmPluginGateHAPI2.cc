@@ -454,9 +454,46 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	return agent.generate();
 }
 
+static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect)
+{
+	parser.startObject("params");
+	parser.startObject("hosts");
+	size_t num = parser.countElements();
+	for (size_t j = 0; j < num; j++) {
+		if (!parser.startElement(j)) {
+			MLPL_ERR("Failed to parse histories contents.\n");
+			return false;
+		}
+
+		ServerHostDef hostInfo;
+		int64_t hostId;
+		parser.read("hostId", hostId);
+		hostInfo.hostId = hostId;
+		parser.read("hostName", hostInfo.name);
+		parser.endElement();
+
+		hostInfoVect.push_back(hostInfo);
+	}
+	parser.endObject(); // hosts
+	parser.endObject(); // params
+	return true;
+};
+
+static bool parseHostsUpdateType(JSONParser &parser, string &updateType)
+{
+	parser.read("updateType", updateType);
+	return true;
+};
+
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
   const HAPI2ProcedureType type, const string &params)
 {
+	ServerHostDefVect hostInfoVect;
+	JSONParser parser(params);
+	bool succeeded = parseHostsParams(parser, hostInfoVect);
+	string updateType;
+	parseHostsUpdateType(parser, updateType);
+
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
