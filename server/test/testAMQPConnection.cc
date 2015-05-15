@@ -112,14 +112,14 @@ namespace testAMQPConnection {
 		cppcut_assert_equal(false, connection->publish(message));
 	}
 
-	void test_consumer(void)
+	void test_transferMessage(void)
 	{
 		AMQPMessage message;
 		message.contentType = "application/json";
 		message.body = "{\"body\":\"example\"}";
-		connection = getConnection();
-		connection->connect();
-		connection->publish(message);
+		AMQPPublisher publisher(*connectionInfo);
+		publisher.setMessage(message);
+		cppcut_assert_equal(true, publisher.publish());
 
 		TestMessageHandler handler;
 		AMQPConsumer consumer(*connectionInfo, &handler);
@@ -137,15 +137,5 @@ namespace testAMQPConnection {
 				    handler.m_message.contentType);
 		cppcut_assert_equal(message.body,
 				    handler.m_message.body);
-	}
-
-	void test_publisher(void)
-	{
-		AMQPMessage message;
-		message.contentType = "application/json";
-		message.body = "{\"body\":\"example\"}";
-		AMQPPublisher publisher(*connectionInfo);
-		publisher.setMessage(message);
-		cppcut_assert_equal(true, publisher.publish());
 	}
 } // namespace testAMQPConnection
