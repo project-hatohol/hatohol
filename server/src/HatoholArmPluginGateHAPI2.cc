@@ -461,7 +461,7 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 	size_t num = parser.countElements();
 	for (size_t j = 0; j < num; j++) {
 		if (!parser.startElement(j)) {
-			MLPL_ERR("Failed to parse histories contents.\n");
+			MLPL_ERR("Failed to parse hosts contents.\n");
 			return false;
 		}
 
