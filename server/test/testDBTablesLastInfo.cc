@@ -112,7 +112,7 @@ void test_getLastInfoListWithoutOption(void)
 	dbLastInfo.getLastInfoList(lastInfoList, option);
 	{
 		size_t i = 0;
-		for (auto lastInfo : lastInfoList ) {
+		for (auto lastInfo : lastInfoList) {
 			// ignore id assertion. Because id is auto increment.
 			lastInfo.id = 0;
 			assertLastInfo(testLastInfoDef[i], lastInfo);
