@@ -468,7 +468,7 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 		ServerHostDef hostInfo;
 		int64_t hostId;
 		parser.read("hostId", hostId);
-		hostInfo.hostId = hostId;
+		hostInfo.hostIdInServer = hostId;
 		parser.read("hostName", hostInfo.name);
 		parser.endElement();
 
