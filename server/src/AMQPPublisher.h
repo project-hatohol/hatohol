@@ -27,6 +27,7 @@ class AMQPMessageHandler;
 
 class AMQPPublisher {
 public:
+	AMQPPublisher(const AMQPConnectionInfo &connectionInfo);
 	AMQPPublisher(AMQPConnectionPtr &connection);
 	virtual ~AMQPPublisher();
 

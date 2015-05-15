@@ -21,6 +21,12 @@
 #include "AMQPConnection.h"
 #include "AMQPMessageHandler.h"
 
+AMQPPublisher::AMQPPublisher(const AMQPConnectionInfo &connectionInfo)
+: m_connection(NULL)
+{
+	m_connection = AMQPConnection::create(connectionInfo);
+}
+
 AMQPPublisher::AMQPPublisher(AMQPConnectionPtr &connection)
 : m_connection(connection)
 {
@@ -28,6 +34,11 @@ AMQPPublisher::AMQPPublisher(AMQPConnectionPtr &connection)
 
 AMQPPublisher::~AMQPPublisher()
 {
+}
+
+AMQPConnectionPtr AMQPPublisher::getConnection(void)
+{
+	return m_connection;
 }
 
 void AMQPPublisher::setMessage(const AMQPMessage &message)
