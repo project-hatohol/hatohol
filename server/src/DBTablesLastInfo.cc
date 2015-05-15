@@ -230,12 +230,12 @@ static string makeIdListCondition(const LastInfoIdList &idList)
 	return condition;
 }
 
-static string makeServerIdCondition(string serverId)
+static string makeServerIdCondition(LastInfoServerIdType serverId)
 {
 	return StringUtils::sprintf(
 		 "%s=%" FMT_LAST_INFO_SERVER_ID,
 		 COLUMN_DEF_LAST_INFO[IDX_LAST_INFO_SERVER_ID].columnName,
-		 serverId.c_str());
+		 serverId);
 }
 static string makeConditionForDelete(const LastInfoIdList &idList,
 				     const OperationPrivilege &privilege)
@@ -346,10 +346,10 @@ struct LastInfoQueryOption::Impl {
 	LastInfoQueryOption *option;
 	LastInfoType         type;
 	LastInfoIdList       idList;
-	string               serverId;
+	LastInfoServerIdType serverId;
 
 	Impl(LastInfoQueryOption *_option)
-	: option(_option), type(LAST_INFO_ALL)
+	: option(_option), type(LAST_INFO_ALL), serverId(INVALID_LAST_INFO_SERVER_ID)
 	{
 	}
 
@@ -410,12 +410,12 @@ LastInfoQueryOption::~LastInfoQueryOption()
 {
 }
 
-void LastInfoQueryOption::setTargetServerId(const string serverId)
+void LastInfoQueryOption::setTargetServerId(const LastInfoServerIdType serverId)
 {
 	m_impl->serverId = serverId;
 }
 
-const string LastInfoQueryOption::getTargetServerId(void)
+const LastInfoServerIdType LastInfoQueryOption::getTargetServerId(void)
 {
 	return m_impl->serverId;
 }
@@ -475,7 +475,7 @@ string LastInfoQueryOption::getCondition(void) const
 	HATOHOL_ASSERT(!m_impl->conditionTemplate.empty(),
 	               "LastInfoDef condition template is empty.");
 
-	if (!m_impl->serverId.empty()) {
+	if (m_impl->serverId != INVALID_LAST_INFO_SERVER_ID) {
 		cond += makeServerIdCondition(m_impl->serverId);
 	}
 
