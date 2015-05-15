@@ -1368,6 +1368,52 @@ const HostgroupMember testHostgroupMember[] = {
 };
 const size_t NumTestHostgroupMember = ARRAY_SIZE(testHostgroupMember);
 
+LastInfoDef testLastInfoDef[] = {
+{
+	AUTO_INCREMENT_VALUE,            // id
+	LAST_INFO_HOST,                  // dataType
+	"20150515",                      // value
+	10,                              // serverId
+},
+{
+	AUTO_INCREMENT_VALUE,            // id
+	LAST_INFO_HOST,                  // dataType
+	"20150515",                      // value
+	11,                              // serverId
+},
+{
+	AUTO_INCREMENT_VALUE,            // id
+	LAST_INFO_HOST_GROUP,            // dataType
+	"20150515",                      // value
+	1001,                            // serverId
+},
+{
+	AUTO_INCREMENT_VALUE,            // id
+	LAST_INFO_HOST_GROUP_MEMBERSHIP, // dataType
+	"20150514",                      // value
+	1002,                            // serverId
+},
+{
+	AUTO_INCREMENT_VALUE,            // id
+	LAST_INFO_TRIGGER,               // dataType
+	"20150515",                      // value
+	1003,                            // serverId
+},
+{
+	AUTO_INCREMENT_VALUE,            // id
+	LAST_INFO_EVENT,                 // dataType
+	"20150514",                      // value
+	10001,                           // serverId
+},
+{
+	AUTO_INCREMENT_VALUE,            // id
+	LAST_INFO_HOST_PARENT,           // dataType
+	"20150518",                      // value
+	10002,                           // serverId
+},
+};
+const size_t NumTestLastInfoDef = ARRAY_SIZE(testLastInfoDef);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
@@ -2218,4 +2264,13 @@ void loadTestDBHostgroupMember(void)
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestHostgroupMember; i++)
 		dbHost.upsertHostgroupMember(testHostgroupMember[i]);
+}
+
+void loadTestDBLastInfo(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	for (size_t i = 0; i < NumTestLastInfoDef; i++)
+		dbLastInfo.addLastInfo(testLastInfoDef[i], privilege);
 }

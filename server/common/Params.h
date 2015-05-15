@@ -40,6 +40,7 @@ static const DBTablesId DB_TABLES_ID_ACTION     = 0x0018;
 static const DBTablesId DB_TABLES_ID_MONITORING = 0x0020;
 static const DBTablesId DB_TABLES_ID_USER       = 0x0030;
 static const DBTablesId DB_TABLES_ID_HOST       = 0x0040;
+static const DBTablesId DB_TABLES_ID_LAST_INFO  = 0x0050;
 
 typedef uint64_t GenericIdType;
 #define FMT_GEN_ID PRIu64
@@ -88,6 +89,12 @@ typedef int IncidentTrackerIdType;
 
 typedef uint64_t ActionLogIdType;
 #define FMT_ACTION_LOG_ID PRIu64
+
+typedef uint64_t LastInfoIdType;
+#define FMT_LAST_INFO_ID PRIu64
+
+typedef int LastInfoServerIdType;
+#define FMT_LAST_INFO_SERVER_ID "d"
 
 // Special Server IDs =========================================================
 static const ServerIdType ALL_SERVERS       = -1;
