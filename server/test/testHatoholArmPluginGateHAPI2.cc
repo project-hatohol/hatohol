@@ -150,7 +150,7 @@ void test_procedureHandlerUpdateHosts(void)
 	  new HatoholArmPluginGateHAPI2(serverInfo), false);
 	std::string params =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"updateHosts\", \"params\":"
-		"{\"hosts\":[{\"hostId\":\"1\", \"hostName\"\"exampleHostName1\"}],"
+		"{\"hosts\":[{\"hostId\":\"1\", \"hostName\":\"exampleHostName1\"}],"
 		" \"updateType\":\"UPDATE\",\"lastInfo\":\"201504091052\"}, \"id\":1}";
 	std::string actual = gate->procedureHandlerUpdateHosts(
 	  HAPI2_UPDATE_HOSTS, params);
