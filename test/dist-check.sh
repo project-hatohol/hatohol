@@ -6,5 +6,4 @@ if which gmake > /dev/null; then
 else
     MAKE=${MAKE:-"make"}
 fi
-MAKE_ARGS=
 $MAKE $MAKE_ARGS -C $top_dir/ hatoholdistcheck || exit 1

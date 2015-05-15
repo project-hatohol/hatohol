@@ -9,33 +9,17 @@ compiler:
 env:
   global:
     - MLPL_LOGGER_LEVEL=WARN
+    - NO_MAKE=yes
   matrix:
-    - RUN_TEST=""
+    - RUN_TEST="test/run-server-test.sh"
 matrix:
-  exclude:
-    - compiler: gcc
-      env: RUN_TEST=""
-    - compiler: clang
-      env: RUN_TEST=""
   include:
     - compiler: gcc
       env: RUN_TEST="test/dist-check.sh"
     - compiler: gcc
-      env: RUN_TEST="server/test/run-test.sh"
-    - compiler: clang
-      env: RUN_TEST="server/test/run-test.sh"
-    - compiler: gcc
-      env: RUN_TEST="test/launch-hatohol-for-test.sh && mocha-phantomjs http://localhost:8000/test/index.html"
+      env: RUN_TEST="test/run-client-test.sh"
     - compiler: gcc
       env: RUN_TEST="test/feature-test.sh"
-    - compiler: gcc
-      env: RUN_TEST="server/mlpl/test/run-test.sh"
-    - compiler: clang
-      env: RUN_TEST="server/mlpl/test/run-test.sh"
-    - compiler: gcc
-      env: RUN_TEST="server/tools/test/run-test.sh"
-    - compiler: gcc
-      env: RUN_TEST="client/test/python/run-test.sh"
 
 before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
@@ -62,6 +46,7 @@ install:
 before_script:
   - ./autogen.sh
   - ./configure
+  - make
   - sudo chmod +r /var/log/syslog
   - sudo chmod 777 /var/run
 script:

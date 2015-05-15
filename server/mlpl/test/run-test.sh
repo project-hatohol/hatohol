@@ -13,13 +13,12 @@ if test x"$NO_MAKE" != x"yes"; then
     else
         MAKE=${MAKE:-"make"}
     fi
-    MAKE_ARGS=
     case `uname` in
         Linux)
-            MAKE_ARGS="-j$(grep '^processor' /proc/cpuinfo | wc -l)"
+            MAKE_ARGS=${MAKE_ARGS:-"-j$(grep '^processor' /proc/cpuinfo | wc -l)"}
             ;;
         Darwin)
-            MAKE_ARGS="-j$(/usr/sbin/sysctl -n hw.ncpu)"
+            MAKE_ARGS=${MAKE_ARGS:-"-j$(/usr/sbin/sysctl -n hw.ncpu)"}
             ;;
         *)
             :
