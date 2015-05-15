@@ -17,6 +17,8 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include <string.h>
+#include <stdlib.h>
 #include <string>
 #include <amqp.h>
 #include <Logger.h>
@@ -32,6 +34,7 @@ using namespace mlpl;
 struct AMQPConnectionInfo::Impl {
 	Impl()
 	: m_URL(),
+	  m_URLBuf(NULL),
 	  m_parsedURL(),
 	  m_queueName(),
 	  m_timeout(DEFAULT_TIMEOUT)
@@ -42,13 +45,15 @@ struct AMQPConnectionInfo::Impl {
 
 	~Impl()
 	{
+		free(m_URLBuf);
 	}
 
 	void setURL(const string &URL)
 	{
 		m_URL = normalizeURL(URL);
-		int status = amqp_parse_url(const_cast<char *>(m_URL.c_str()),
-					    &m_parsedURL);
+		free(m_URLBuf);
+		m_URLBuf = strdup(m_URL.c_str());
+		int status = amqp_parse_url(m_URLBuf, &m_parsedURL);
 		if (status != AMQP_STATUS_OK) {
 			MLPL_ERR("Bad broker URL: %s: <%s>\n",
 				 amqp_error_string2(status),
@@ -57,6 +62,7 @@ struct AMQPConnectionInfo::Impl {
 	}
 
 	string m_URL;
+	char *m_URLBuf;
 	amqp_connection_info m_parsedURL;
 	string m_queueName;
 	time_t m_timeout;
