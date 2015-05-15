@@ -37,9 +37,7 @@ AMQPConsumer::AMQPConsumer(const AMQPConnectionInfo &connectionInfo,
   m_handler(handler),
   m_started(false)
 {
-	AMQPConnectionPtr connection =
-		AMQPConnection::create(connectionInfo);
-	AMQPConsumer(connection, m_handler);
+	m_connection = AMQPConnection::create(connectionInfo);
 }
 
 AMQPConsumer::AMQPConsumer(AMQPConnectionPtr &connection,
