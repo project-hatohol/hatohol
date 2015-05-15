@@ -28,7 +28,7 @@ public:
 
 	Impl(const AMQPConnectionInfo &info)
 	: m_connection(NULL),
-	  m_info(const_cast<AMQPConnectionInfo &>(info)),
+	  m_info(info),
 	  m_socket(NULL),
 	  m_socketOpened(false),
 	  m_channel(0)
@@ -207,7 +207,7 @@ public:
 	}
 
 protected:
-	AMQPConnectionInfo m_info;
+	const AMQPConnectionInfo m_info;
 	amqp_socket_t *m_socket;
 	bool m_socketOpened;
 	amqp_channel_t m_channel;
