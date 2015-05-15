@@ -155,9 +155,8 @@ void test_deleteLastInfoList(void)
 	                       testLastInfoDef[targetId].serverId);
 	assertDBContent(&dbLastInfo.getDBAgent(), statement, expect);
 
-	LastInfoIdList idList;
+	LastInfoIdList idList = {actualId};
 	LastInfoQueryOption option(USER_ID_SYSTEM);
-	idList.push_back(actualId);
 	dbLastInfo.deleteLastInfoList(idList, option);
 
 	const string afterDeleteStatement =
