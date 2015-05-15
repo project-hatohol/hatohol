@@ -123,7 +123,7 @@ namespace testAMQPConnection {
 		TestMessageHandler handler;
 		AMQPConsumer consumer(*connectionInfo, &handler);
 		consumer.start();
-		gdouble timeout = 2 * G_USEC_PER_SEC, elapsed = 0.0;
+		gdouble timeout = 2.0, elapsed = 0.0;
 		GTimer *timer = startTimer();
 		while (!handler.m_gotMessage && elapsed < timeout) {
 			g_usleep(0.1 * G_USEC_PER_SEC);
