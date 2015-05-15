@@ -31,9 +31,10 @@ public:
 	AMQPPublisher(AMQPConnectionPtr &connection);
 	virtual ~AMQPPublisher();
 
-	virtual void setMessage(const AMQPMessage &message);
-	virtual void clear(void);
-	virtual bool publish(void);
+	AMQPConnectionPtr getConnection(void);
+	void setMessage(const AMQPMessage &message);
+	void clear(void);
+	bool publish(void);
 
 private:
 	AMQPConnectionPtr m_connection;
