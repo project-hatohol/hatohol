@@ -25,8 +25,8 @@
 #include "DBTables.h"
 #include "Params.h"
 
-const static LastInfoIdType INVALID_LAST_INFO_ID = -1;
-const static LastInfoServerIdType INVALID_LAST_INFO_SERVER_ID = -1;
+constexpr const static LastInfoIdType INVALID_LAST_INFO_ID = -1;
+constexpr const static LastInfoServerIdType INVALID_LAST_INFO_SERVER_ID = -1;
 
 enum LastInfoType {
 	LAST_INFO_ALL = -1,
