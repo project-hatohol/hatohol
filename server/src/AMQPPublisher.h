@@ -39,10 +39,6 @@ public:
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
-
-private:
-	AMQPConnectionPtr m_connection;
-	AMQPMessage m_message;
 };
 
 #endif // AMQPPublisher_h

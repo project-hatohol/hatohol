@@ -71,5 +71,5 @@ bool AMQPPublisher::publish(void)
 {
 	if (!m_impl->m_connection->isConnected())
 		m_impl->m_connection->connect();
-	return m_impl->m_connection->publish(m_message);
+	return m_impl->m_connection->publish(m_impl->m_message);
 }
