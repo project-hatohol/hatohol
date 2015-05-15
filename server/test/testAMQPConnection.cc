@@ -140,7 +140,8 @@ namespace testAMQPConnection {
 		message.contentType = "application/json";
 		message.body = "{\"body\":\"example\"}";
 		connection = getConnection();
-		AMQPPublisher publisher(connection, message);
+		AMQPPublisher publisher(connection);
+		publisher.setMessage(message);
 		cppcut_assert_equal(true, publisher.publish());
 	}
 } // namespace testAMQPConnection

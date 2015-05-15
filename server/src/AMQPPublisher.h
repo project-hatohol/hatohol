@@ -27,10 +27,11 @@ class AMQPMessageHandler;
 
 class AMQPPublisher {
 public:
-	AMQPPublisher(AMQPConnectionPtr &connection,
-		      const AMQPMessage &message);
+	AMQPPublisher(AMQPConnectionPtr &connection);
 	virtual ~AMQPPublisher();
 
+	virtual void setMessage(const AMQPMessage &message);
+	virtual void clear(void);
 	virtual bool publish(void);
 
 private:

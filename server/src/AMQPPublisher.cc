@@ -21,15 +21,24 @@
 #include "AMQPConnection.h"
 #include "AMQPMessageHandler.h"
 
-AMQPPublisher::AMQPPublisher(AMQPConnectionPtr &connection,
-			     const AMQPMessage &message)
-: m_connection(connection),
-  m_message(message)
+AMQPPublisher::AMQPPublisher(AMQPConnectionPtr &connection)
+: m_connection(connection)
 {
 }
 
 AMQPPublisher::~AMQPPublisher()
 {
+}
+
+void AMQPPublisher::setMessage(const AMQPMessage &message)
+{
+	m_message = message;
+}
+
+void AMQPPublisher::clear(void)
+{
+	AMQPMessage message;
+	m_message = message;
 }
 
 bool AMQPPublisher::publish(void)
