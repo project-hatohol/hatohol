@@ -21,15 +21,30 @@
 #include "AMQPConnection.h"
 #include "AMQPMessageHandler.h"
 
+struct AMQPPublisher::Impl {
+	Impl()
+	: m_connection(NULL)
+	{
+	}
+
+	~Impl()
+	{
+	}
+
+	AMQPConnectionPtr m_connection;
+	AMQPMessage m_message;
+};
+
 AMQPPublisher::AMQPPublisher(const AMQPConnectionInfo &connectionInfo)
-: m_connection(NULL)
+: m_impl(new Impl())
 {
-	m_connection = AMQPConnection::create(connectionInfo);
+	m_impl->m_connection = AMQPConnection::create(connectionInfo);
 }
 
 AMQPPublisher::AMQPPublisher(AMQPConnectionPtr &connection)
-: m_connection(connection)
+: m_impl(new Impl())
 {
+	m_impl->m_connection = connection;
 }
 
 AMQPPublisher::~AMQPPublisher()
@@ -38,23 +53,23 @@ AMQPPublisher::~AMQPPublisher()
 
 AMQPConnectionPtr AMQPPublisher::getConnection(void)
 {
-	return m_connection;
+	return m_impl->m_connection;
 }
 
 void AMQPPublisher::setMessage(const AMQPMessage &message)
 {
-	m_message = message;
+	m_impl->m_message = message;
 }
 
 void AMQPPublisher::clear(void)
 {
 	AMQPMessage message;
-	m_message = message;
+	m_impl->m_message = message;
 }
 
 bool AMQPPublisher::publish(void)
 {
-	if (!m_connection->isConnected())
-		m_connection->connect();
-	return m_connection->publish(m_message);
+	if (!m_impl->m_connection->isConnected())
+		m_impl->m_connection->connect();
+	return m_impl->m_connection->publish(m_message);
 }
