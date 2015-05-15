@@ -110,11 +110,14 @@ void test_getLastInfoListWithoutOption(void)
 	LastInfoDefList lastInfoList;
 	LastInfoQueryOption option(USER_ID_SYSTEM);
 	dbLastInfo.getLastInfoList(lastInfoList, option);
-	LastInfoDefListIterator it = lastInfoList.begin();
-	for (size_t i = 0; i < NumTestLastInfoDef; i++, ++it) {
-		LastInfoDef &lastInfo = *it;
-		lastInfo.id = 0; // ignore id assertion. Because id is auto increment.
-		assertLastInfo(testLastInfoDef[i], lastInfo);
+	{
+		size_t i = 0;
+		for (auto lastInfo : lastInfoList ) {
+			// ignore id assertion. Because id is auto increment.
+			lastInfo.id = 0;
+			assertLastInfo(testLastInfoDef[i], lastInfo);
+			i++;
+		}
 	}
 }
 
