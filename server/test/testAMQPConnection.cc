@@ -31,6 +31,7 @@ using namespace std;
 using namespace mlpl;
 
 namespace testAMQPConnection {
+	AMQPConnectionInfo *connectionInfo;
 	AMQPConnectionPtr connection;
 
 	class TestMessageHandler : public AMQPMessageHandler {
@@ -52,23 +53,25 @@ namespace testAMQPConnection {
 		AMQPMessage m_message;
 	};
 
-	AMQPConnectionPtr getConnection(const char *url = NULL)
+	AMQPConnectionPtr getConnection(void)
 	{
-		// e.g.) url = "amqp://hatohol:hatohol@localhost:5672/hatohol";
-		if (!url)
-			url = getenv("TEST_AMQP_URL");
-		if (!url)
+		if (!connectionInfo)
 			cut_omit("TEST_AMQP_URL isn't set");
 
-		AMQPConnectionInfo info;
-		info.setURL(url);
-		info.setQueueName("test.1");
-
-		return AMQPConnection::create(info);
+		return AMQPConnection::create(*connectionInfo);
 	}
 
 	void cut_setup(void)
 	{
+		// e.g.) url = "amqp://hatohol:hatohol@localhost:5672/hatohol";
+		const char *url = getenv("TEST_AMQP_URL");
+		if (url) {
+			connectionInfo = new AMQPConnectionInfo();
+			connectionInfo->setURL(url);
+			connectionInfo->setQueueName("test.1");
+		} else {
+			connectionInfo = NULL;
+		}
 	}
 
 	void cut_teardown(void)
@@ -76,6 +79,8 @@ namespace testAMQPConnection {
 		if (connection.hasData())
 			connection->deleteQueue();
 		connection = NULL;
+		delete connectionInfo;
+		connectionInfo = NULL;
 	}
 
 	GTimer *startTimer(void)
@@ -117,7 +122,7 @@ namespace testAMQPConnection {
 		connection->publish(message);
 
 		TestMessageHandler handler;
-		AMQPConsumer consumer(connection, &handler);
+		AMQPConsumer consumer(*connectionInfo, &handler);
 		consumer.start();
 		gdouble timeout = 2 * G_USEC_PER_SEC, elapsed = 0.0;
 		GTimer *timer = startTimer();
@@ -139,8 +144,7 @@ namespace testAMQPConnection {
 		AMQPMessage message;
 		message.contentType = "application/json";
 		message.body = "{\"body\":\"example\"}";
-		connection = getConnection();
-		AMQPPublisher publisher(connection);
+		AMQPPublisher publisher(*connectionInfo);
 		publisher.setMessage(message);
 		cppcut_assert_equal(true, publisher.publish());
 	}
