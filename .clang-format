@@ -1,0 +1,16 @@
+Language: Cpp
+BasedOnStyle: Google
+IndentWidth: 8
+UseTab: ForIndentation
+BreakBeforeBraces: Allman
+IndentCaseLabels: false
+AllowShortFunctionsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+ColumnLimit: 0
+AlignTrailingComments: true
+AccessModifierOffset: -2
+ConstructorInitializerIndentWidth: 0
+AlignEscapedNewlinesLeft: false
+AlwaysBreakBeforeMultilineStrings: false
+NamespaceIndentation: None
+# AlignConsecutiveAssignments: true
