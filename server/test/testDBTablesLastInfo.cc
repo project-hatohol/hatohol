@@ -135,7 +135,8 @@ void test_getLastInfoListWithOption(void)
 	cppcut_assert_equal((size_t)1, lastInfoList.size());
 	LastInfoDef &lastInfoFirst = *it;
 	lastInfoFirst.id = 0; // ignore id assertion. Because id is auto increment.
-	assertLastInfo(testLastInfoDef[4], lastInfoFirst);
+	int targetId = 4;
+	assertLastInfo(testLastInfoDef[targetId], lastInfoFirst);
 }
 
 void test_deleteLastInfoList(void)
