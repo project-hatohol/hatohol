@@ -114,8 +114,7 @@ namespace testAMQPConnection {
 
 	void test_transferMessage(void)
 	{
-		AMQPMessage message;
-		message.contentType = "application/json";
+		AMQPJSONMessage message;
 		message.body = "{\"body\":\"example\"}";
 		AMQPPublisher publisher(*connectionInfo);
 		publisher.setMessage(message);

@@ -37,6 +37,13 @@ struct AMQPMessage {
 	std::string body;
 };
 
+struct AMQPJSONMessage : public AMQPMessage {
+	AMQPJSONMessage()
+	{
+		contentType = "application/json";
+	}
+};
+
 class AMQPConnection : public UsedCountable
 {
 public:
