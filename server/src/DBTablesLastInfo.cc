@@ -216,6 +216,7 @@ static string makeIdListCondition(const LastInfoIdList &idList)
 {
 	string condition;
 	const ColumnDef &colId = COLUMN_DEF_LAST_INFO[IDX_LAST_INFO_ID];
+	SeparatorInjector commaInjector(",");
 	condition = StringUtils::sprintf("%s in (", colId.columnName);
 	LastInfoIdListConstIterator it = idList.begin();
 	while (true) {
@@ -224,7 +225,7 @@ static string makeIdListCondition(const LastInfoIdList &idList)
 		++it;
 		if (it == idList.end())
 			break;
-		condition += ",";
+		commaInjector(condition);
 	}
 	condition += ")";
 	return condition;
