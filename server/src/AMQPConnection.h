@@ -44,25 +44,25 @@ public:
 
 	AMQPConnection(const AMQPConnectionInfo &info);
 	~AMQPConnection();
-	virtual const AMQPConnectionInfo &getConnectionInfo(void);
-	virtual bool connect(void);
-	virtual bool isConnected(void);
-	virtual bool startConsuming(void);
-	virtual bool consume(AMQPMessage &message);
-	virtual bool publish(const AMQPMessage &message);
-	virtual bool purgeQueue(void);
-	virtual bool deleteQueue(void);
+	const AMQPConnectionInfo &getConnectionInfo(void);
+	bool connect(void);
+	bool isConnected(void);
+	bool startConsuming(void);
+	bool consume(AMQPMessage &message);
+	bool publish(const AMQPMessage &message);
+	bool purgeQueue(void);
+	bool deleteQueue(void);
 
 protected:
-	virtual bool initializeConnection(void);
-	virtual time_t getTimeout(void);
-	virtual bool openSocket(void);
-	virtual bool login(void);
-	virtual bool openChannel(void);
-	virtual bool declareQueue(void);
-	virtual std::string getQueueName(void);
-	virtual void disposeConnection(void);
-	virtual void logErrorResponse(const char *context,
+	bool initializeConnection(void);
+	time_t getTimeout(void);
+	bool openSocket(void);
+	bool login(void);
+	bool openChannel(void);
+	bool declareQueue(void);
+	std::string getQueueName(void);
+	void disposeConnection(void);
+	void logErrorResponse(const char *context,
 	                              const amqp_rpc_reply_t &reply);
 	amqp_channel_t getChannel(void);
 	amqp_connection_state_t getConnection(void);
