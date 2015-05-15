@@ -26,6 +26,7 @@
 #include "Params.h"
 
 const static LastInfoIdType INVALID_LAST_INFO_ID = -1;
+const static LastInfoServerIdType INVALID_LAST_INFO_SERVER_ID = -1;
 
 enum LastInfoType {
 	LAST_INFO_ALL = -1,
@@ -80,8 +81,8 @@ public:
 	LastInfoQueryOption(const LastInfoQueryOption &src);
 	~LastInfoQueryOption();
 
-	void setTargetServerId(const std::string serverId);
-	const std::string getTargetServerId(void);
+	void setTargetServerId(const LastInfoServerIdType serverId);
+	const LastInfoServerIdType getTargetServerId(void);
 	void setLastInfoType(const LastInfoType &type);
 	const LastInfoType &getLastInfoType(void);
 	void setLastInfoIdList(const LastInfoIdList &idList);
