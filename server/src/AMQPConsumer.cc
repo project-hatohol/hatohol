@@ -31,6 +31,17 @@
 using namespace std;
 using namespace mlpl;
 
+AMQPConsumer::AMQPConsumer(const AMQPConnectionInfo &connectionInfo,
+			   AMQPMessageHandler *handler)
+: m_connection(NULL),
+  m_handler(handler),
+  m_started(false)
+{
+	AMQPConnectionPtr connection =
+		AMQPConnection::create(connectionInfo);
+	AMQPConsumer(connection, m_handler);
+}
+
 AMQPConsumer::AMQPConsumer(AMQPConnectionPtr &connection,
 			   AMQPMessageHandler *handler)
 : m_connection(connection),
@@ -41,6 +52,11 @@ AMQPConsumer::AMQPConsumer(AMQPConnectionPtr &connection,
 
 AMQPConsumer::~AMQPConsumer()
 {
+}
+
+AMQPConnectionPtr AMQPConsumer::getConnection(void)
+{
+	return m_connection;
 }
 
 gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
