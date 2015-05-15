@@ -488,16 +488,22 @@ static bool parseHostsUpdateType(JSONParser &parser, string &updateType)
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
   const HAPI2ProcedureType type, const string &params)
 {
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerHostDefVect hostInfoVect;
 	JSONParser parser(params);
 	bool succeeded = parseHostsParams(parser, hostInfoVect);
 	string updateType;
-	parseHostsUpdateType(parser, updateType);
+	bool checkInvalidHosts = parseHostsUpdateType(parser, updateType);
+	// TODO: implement validation for Hosts
+	// TODO: implement storing LastInfo data
+
+	dataStore->upsertHosts(hostInfoVect);
+	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
-	agent.add("result", "SUCCESS");
+	agent.add("result", result);
 	agent.add("id", 1);
 	agent.endObject();
 	// TODO: implement replying exchange profile procedure with AMQP
