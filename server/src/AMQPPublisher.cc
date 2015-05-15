@@ -43,8 +43,7 @@ void AMQPPublisher::clear(void)
 
 bool AMQPPublisher::publish(void)
 {
-	if (!m_connection->isConnected()) {
+	if (!m_connection->isConnected())
 		m_connection->connect();
-	}
 	return m_connection->publish(m_message);
 }
