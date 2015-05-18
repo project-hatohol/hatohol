@@ -36,9 +36,9 @@ void test_fullFormat(void) {
 	  HatoholArmPluginGateHAPI2::parseTimeStamp("20150517160000.123456789",
 						    timeStamp);
 	cppcut_assert_equal(true, succeeded);
-	cppcut_assert_equal((time_t) 1431878400,
+	cppcut_assert_equal(static_cast<time_t>(1431878400),
 			    timeStamp.tv_sec);
-	cppcut_assert_equal((long) 123456789,
+	cppcut_assert_equal(static_cast<long>(123456789),
 			    timeStamp.tv_nsec);
 }
 
@@ -48,9 +48,9 @@ void test_noNanoSecondField(void) {
 	  HatoholArmPluginGateHAPI2::parseTimeStamp("20150517160000",
 						    timeStamp);
 	cppcut_assert_equal(true, succeeded);
-	cppcut_assert_equal((time_t) 1431878400,
+	cppcut_assert_equal(static_cast<time_t>(1431878400),
 			    timeStamp.tv_sec);
-	cppcut_assert_equal((long) 0,
+	cppcut_assert_equal(static_cast<long>(0),
 			    timeStamp.tv_nsec);
 }
 
@@ -60,9 +60,9 @@ void test_shortNanoSecondField(void) {
 	  HatoholArmPluginGateHAPI2::parseTimeStamp("20150517160000.12",
 						    timeStamp);
 	cppcut_assert_equal(true, succeeded);
-	cppcut_assert_equal((time_t) 1431878400,
+	cppcut_assert_equal(static_cast<time_t>(1431878400),
 			    timeStamp.tv_sec);
-	cppcut_assert_equal((long) 120000000,
+	cppcut_assert_equal(static_cast<long>(120000000),
 			    timeStamp.tv_nsec);
 }
 
@@ -72,9 +72,9 @@ void test_nanoSecondFieldWithLeadingZero(void) {
 	  HatoholArmPluginGateHAPI2::parseTimeStamp("20150517160000.012",
 						    timeStamp);
 	cppcut_assert_equal(true, succeeded);
-	cppcut_assert_equal((time_t) 1431878400,
+	cppcut_assert_equal(static_cast<time_t>(1431878400),
 			    timeStamp.tv_sec);
-	cppcut_assert_equal((long) 12000000,
+	cppcut_assert_equal(static_cast<long>(12000000),
 			    timeStamp.tv_nsec);
 }
 
@@ -83,9 +83,9 @@ void test_emptyTimeStamp(void) {
 	bool succeeded =
 	  HatoholArmPluginGateHAPI2::parseTimeStamp(string(), timeStamp);
 	cppcut_assert_equal(false, succeeded);
-	cppcut_assert_equal((time_t) 0,
+	cppcut_assert_equal(static_cast<time_t>(0),
 			    timeStamp.tv_sec);
-	cppcut_assert_equal((long) 0,
+	cppcut_assert_equal(static_cast<long>(0),
 			    timeStamp.tv_nsec);
 }
 
