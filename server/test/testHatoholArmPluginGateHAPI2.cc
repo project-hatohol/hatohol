@@ -20,6 +20,7 @@
 #include <Hatohol.h>
 #include <HatoholArmPluginGateHAPI2.h>
 #include "Helpers.h"
+#include "DBTablesTest.h"
 
 #include <StringUtils.h>
 
@@ -132,6 +133,8 @@ namespace testHatoholArmPluginGateHAPI2 {
 void cut_setup(void)
 {
 	hatoholInit();
+	setupTestDB();
+	loadTestDBServer();
 }
 
 void cut_teardown(void)
@@ -170,22 +173,20 @@ void test_procedureHandlerMonitoringServerInfo(void)
 {
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
+	serverInfo = testServerInfo[6];
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(serverInfo), false);
 	std::string params = "";
 	std::string actual = gate->procedureHandlerMonitoringServerInfo(
 	  HAPI2_MONITORING_SERVER_INFO, params);
 	std::string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":{\"servers\":"
-		 "[{\"serverId\":1,\"url\":\"\",\"type\":0,"
-		   "\"nickName\":\"zabbix-vm\",\"userName\":\"Admin\","
-		   "\"password\":\"zabbix\",\"pollingIntervalSec\":60,"
-		   "\"retryIntervalSec\":10,\"extendedInfo\":\"exampleExtraInfo\"},"
-		  "{\"serverId\":2,\"url\":\"\",\"type\":2,"
-		   "\"nickName\":\"zabbix-hapi\",\"userName\":\"Admin\","
-		   "\"password\":\"zabbix\",\"pollingIntervalSec\":30,"
-		   "\"retryIntervalSec\":10,"
-		   "\"extendedInfo\":\"exampleExtraInfo\"}]},\"id\":1}";
+		"{\"jsonrpc\":\"2.0\",\"result\":{"
+		 "\"serverId\":301,\"url\":\"http://10.0.0.32/nagios3\","
+		 "\"type\":\"902d955c-d1f7-11e4-80f9-d43d7e3146fb\","
+		 "\"nickName\":\"Akira\",\"userName\":\"nagios-operator\","
+		 "\"password\":\"5t64k-f3-ui.l76n\",\"pollingIntervalSec\":300,"
+		 "\"retryIntervalSec\":60,\"extendedInfo\":\"exampleExtraInfo\""
+		"},\"id\":1}";
 	cppcut_assert_equal(expected, actual);
 }
 
