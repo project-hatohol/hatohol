@@ -71,6 +71,10 @@ public:
 	std::string procedureHandlerUpdateHosts(const HAPI2ProcedureType type,
 	                                        const std::string &params);
 
+public:
+	static bool parseTimeStamp(const std::string &timeStampString,
+				   timespec &timeStamp);
+
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;

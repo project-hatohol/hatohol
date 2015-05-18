@@ -21,6 +21,112 @@
 #include <HatoholArmPluginGateHAPI2.h>
 #include "Helpers.h"
 
+#include <StringUtils.h>
+
+using namespace std;
+using namespace mlpl;
+
+namespace testHAPI2ParseTimeStamp {
+
+void test_fullFormat(void) {
+	timespec timeStamp;
+	// UTC: 2015-05017 16:00:00
+	// JST: 2015-05018 01:00:00
+	bool succeeded =
+	  HatoholArmPluginGateHAPI2::parseTimeStamp("20150517160000.123456789",
+						    timeStamp);
+	cppcut_assert_equal(true, succeeded);
+	cppcut_assert_equal((time_t) 1431878400,
+			    timeStamp.tv_sec);
+	cppcut_assert_equal((long) 123456789,
+			    timeStamp.tv_nsec);
+}
+
+void test_noNanoSecondField(void) {
+	timespec timeStamp;
+	bool succeeded =
+	  HatoholArmPluginGateHAPI2::parseTimeStamp("20150517160000",
+						    timeStamp);
+	cppcut_assert_equal(true, succeeded);
+	cppcut_assert_equal((time_t) 1431878400,
+			    timeStamp.tv_sec);
+	cppcut_assert_equal((long) 0,
+			    timeStamp.tv_nsec);
+}
+
+void test_shortNanoSecondField(void) {
+	timespec timeStamp;
+	bool succeeded =
+	  HatoholArmPluginGateHAPI2::parseTimeStamp("20150517160000.12",
+						    timeStamp);
+	cppcut_assert_equal(true, succeeded);
+	cppcut_assert_equal((time_t) 1431878400,
+			    timeStamp.tv_sec);
+	cppcut_assert_equal((long) 120000000,
+			    timeStamp.tv_nsec);
+}
+
+void test_nanoSecondFieldWithLeadingZero(void) {
+	timespec timeStamp;
+	bool succeeded =
+	  HatoholArmPluginGateHAPI2::parseTimeStamp("20150517160000.012",
+						    timeStamp);
+	cppcut_assert_equal(true, succeeded);
+	cppcut_assert_equal((time_t) 1431878400,
+			    timeStamp.tv_sec);
+	cppcut_assert_equal((long) 12000000,
+			    timeStamp.tv_nsec);
+}
+
+void test_emptyTimeStamp(void) {
+	timespec timeStamp;
+	bool succeeded =
+	  HatoholArmPluginGateHAPI2::parseTimeStamp(string(), timeStamp);
+	cppcut_assert_equal(false, succeeded);
+	cppcut_assert_equal((time_t) 0,
+			    timeStamp.tv_sec);
+	cppcut_assert_equal((long) 0,
+			    timeStamp.tv_nsec);
+}
+
+void test_invalidDateTime(void) {
+	timespec timeStamp;
+	bool succeeded =
+	  HatoholArmPluginGateHAPI2::parseTimeStamp(
+	    "2015-05-17 16:00:00.123456789", timeStamp);
+	cppcut_assert_equal(false, succeeded);
+	cppcut_assert_equal((time_t) 0,
+			    timeStamp.tv_sec);
+	cppcut_assert_equal((long) 0,
+			    timeStamp.tv_nsec);
+}
+
+void test_invalidNanoSecond(void) {
+	timespec timeStamp;
+	bool succeeded =
+	  HatoholArmPluginGateHAPI2::parseTimeStamp(
+	    "20150517160000.1234a6789", timeStamp);
+	cppcut_assert_equal(false, succeeded);
+	cppcut_assert_equal((time_t) 1431878400,
+			    timeStamp.tv_sec);
+	cppcut_assert_equal((long) 0,
+			    timeStamp.tv_nsec);
+}
+
+void test_tooLongNanoSecond(void) {
+	timespec timeStamp;
+	bool succeeded =
+	  HatoholArmPluginGateHAPI2::parseTimeStamp(
+	    "20150517160000.1234567890", timeStamp);
+	cppcut_assert_equal(false, succeeded);
+	cppcut_assert_equal((time_t) 1431878400,
+			    timeStamp.tv_sec);
+	cppcut_assert_equal((long) 0,
+			    timeStamp.tv_nsec);
+}
+
+}
+
 namespace testHatoholArmPluginGateHAPI2 {
 
 void cut_setup(void)

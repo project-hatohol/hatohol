@@ -260,6 +260,53 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts);
 }
 
+bool HatoholArmPluginGateHAPI2::parseTimeStamp(
+  const string &timeStampString, timespec &timeStamp)
+{
+	timeStamp.tv_sec = 0;
+	timeStamp.tv_nsec = 0;
+
+	StringVector list;
+	StringUtils::split(list, timeStampString, '.', false);
+
+	if (list.empty() || list.size() > 2)
+		goto ERR;
+	struct tm tm;
+	if (!strptime(list[0].c_str(), "%4Y%2m%2d%2H%2M%2S", &tm))
+		goto ERR;
+	timeStamp.tv_sec = timegm(&tm); // as UTC
+
+	if (list.size() == 1)
+		return true;
+
+	if (list[1].size() > 9)
+		goto ERR;
+	for (size_t i = 0; i < list[1].size(); i++) {
+		unsigned int ch = list[1][i];
+		if (ch < '0' || ch > '9')
+			goto ERR;
+	}
+	for (size_t i = list[1].size(); i < 9; i++)
+		list[1] += '0';
+	timeStamp.tv_nsec = atol(list[1].c_str());
+
+	return true;
+
+ ERR:
+	MLPL_ERR("Invalid timestamp format: %s\n",
+		 timeStampString.c_str());
+	return false;
+}
+
+static bool parseTimeStamp(
+  JSONParser &parser, const string &member, timespec &timeStamp)
+{
+	string timeStampString;
+	parser.read(member, timeStampString);
+	return HatoholArmPluginGateHAPI2::parseTimeStamp(timeStampString,
+							 timeStamp);
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -375,7 +422,7 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList)
 		parser.read("itemId", itemInfo.id);
 		parser.read("hostId", itemInfo.hostIdInServer);
 		parser.read("brief", itemInfo.brief);
-		parser.read("lastValueTime", itemInfo.lastValueTime.tv_sec);
+		parseTimeStamp(parser, "lastValueTime", itemInfo.lastValueTime);
 		parser.read("lastValue", itemInfo.lastValue);
 		parser.read("itemGroupName", itemInfo.itemGroupName);
 		parser.read("unit", itemInfo.unit);
@@ -424,9 +471,7 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 		HistoryInfo historyInfo;
 		historyInfo.itemId = itemId;
 		parser.read("value", historyInfo.value);
-		std::string time;
-		parser.read("time", time);
-		historyInfo.clock.tv_sec = StringUtils::toUint64(time.c_str());
+		parseTimeStamp(parser, "time", historyInfo.clock);
 		parser.endElement();
 
 		historyInfoVect.push_back(historyInfo);
