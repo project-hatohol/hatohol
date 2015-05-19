@@ -24,6 +24,7 @@
 #include "DBTablesUser.h"
 #include "DBTablesAction.h"
 #include "DBTablesMonitoring.h"
+#include "DBTablesLastInfo.h"
 
 using namespace std;
 
@@ -39,6 +40,7 @@ struct DBTablesMajorVersionChecker {
 		DBTables::checkMajorVersion<DBTablesUser>(dbAgent);
 		DBTables::checkMajorVersion<DBTablesAction>(dbAgent);
 		DBTables::checkMajorVersion<DBTablesMonitoring>(dbAgent);
+		DBTables::checkMajorVersion<DBTablesLastInfo>(dbAgent);
 	}
 };
 
@@ -51,6 +53,7 @@ struct DBHatohol::Impl {
 	DBTablesUser    dbTablesUser;
 	DBTablesAction  dbTablesAction;
 	DBTablesMonitoring dbTablesMonitoring;
+	DBTablesLastInfo dbTablesLastInfo;
 
 	Impl(DBAgent &dbAgent)
 	: verChecker(dbAgent),
@@ -58,7 +61,8 @@ struct DBHatohol::Impl {
 	  dbTablesHost(dbAgent),
 	  dbTablesUser(dbAgent),
 	  dbTablesAction(dbAgent),
-	  dbTablesMonitoring(dbAgent)
+	  dbTablesMonitoring(dbAgent),
+	  dbTablesLastInfo(dbAgent)
 	{
 	}
 };
@@ -143,4 +147,9 @@ DBTablesAction &DBHatohol::getDBTablesAction(void)
 DBTablesMonitoring &DBHatohol::getDBTablesMonitoring(void)
 {
 	return m_impl->dbTablesMonitoring;
+}
+
+DBTablesLastInfo &DBHatohol::getDBTablesLastInfo(void)
+{
+	return m_impl->dbTablesLastInfo;
 }

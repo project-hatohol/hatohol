@@ -208,3 +208,8 @@ DBTablesMonitoring &ThreadLocalDBCache::getMonitoring(void)
 {
 	return getDBHatohol().getDBTablesMonitoring();
 }
+
+DBTablesLastInfo &ThreadLocalDBCache::getLastInfo(void)
+{
+	return getDBHatohol().getDBTablesLastInfo();
+}

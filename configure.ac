@@ -201,7 +201,7 @@ dnl **************************************************************
 AC_ARG_ENABLE([cpp11],
   [AS_HELP_STRING([--enable-cpp11], [Enable C++11 features (default is yes)])],
   [],
-  [enable_cpp=yes])
+  [enable_cpp11=yes])
 
 if test "$enable_cpp11" == "yes"; then
   AC_DEFINE(USE_CPP11, 1, [Define to 1 if you use C++11])

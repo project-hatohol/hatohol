@@ -40,6 +40,7 @@ using namespace mlpl;
 #include "UnifiedDataStore.h"
 #include "ChildProcessManager.h"
 #include "DBTablesHost.h"
+#include "DBTablesLastInfo.h"
 
 static Mutex mutex;
 static bool initDone = false; 
@@ -75,6 +76,7 @@ static void reset(const CommandLineOptions *cmdLineOpts,
 	DBTablesAction::reset();
 	DBTablesHost::reset();
 	DBTablesMonitoring::reset();
+	DBTablesLastInfo::reset();
 
 	ActionManager::reset();
 	ThreadLocalDBCache::reset();
