@@ -213,11 +213,11 @@ void test_procedureHandlerPutItems(void)
 	std::string params =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
 		" \"params\":{\"items\":[{\"itemId\":\"1\", \"hostId\":\"1\","
-		" \"brief\":\"example brief\", \"lastValueTime\":\"201504101755\","
+		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175523\","
 		" \"lastValue\":\"example value\","
 		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"},"
 		" {\"itemId\":\"2\", \"hostId\":\"1\","
-		" \"brief\":\"example brief\", \"lastValueTime\":\"201504101755\","
+		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175531\","
 		" \"lastValue\":\"example value\","
 		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"}],"
 		" \"fetchId\":\"1\"}, \"id\":1}";
@@ -239,8 +239,8 @@ void test_procedureHandlerPutHistory(void)
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
 		" \"params\":{\"itemId\":\"1\","
 		" \"histories\":[{\"value\":\"exampleValue\","
-		" \"time\":\"201503231130\"},"
-		"{\"value\":\"exampleValue2\",\"time\":\"201503231130\"}],"
+		" \"time\":\"20150323113032.000000000\"},"
+		"{\"value\":\"exampleValue2\",\"time\":\"20150323113033.000000000\"}],"
 		" \"fetchId\":\"1\"}, \"id\":1}";
 	std::string actual = gate->procedureHandlerPutHistory(
 	  HAPI2_PUT_HISTORY, params);
