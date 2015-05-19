@@ -68,7 +68,7 @@ void test_addLastInfo(void)
 	DECLARE_DBTABLES_LAST_INFO(dbLastInfo);
 	LastInfoDef lastInfo;
 	lastInfo.dataType = LAST_INFO_HOST;
-	lastInfo.value = "20150515";
+	lastInfo.value = "1432103640";
 	lastInfo.serverId = 10001;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	LastInfoIdType lastInfoId = dbLastInfo.addLastInfo(lastInfo, privilege);
@@ -89,7 +89,7 @@ void test_updateLastInfo(void)
 	LastInfoDef lastInfo;
 	lastInfo.id = 3;
 	lastInfo.dataType = LAST_INFO_TRIGGER;
-	lastInfo.value = "20150531";
+	lastInfo.value = "1433054040";
 	lastInfo.serverId = 12001;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	dbLastInfo.updateLastInfo(lastInfo, privilege);
