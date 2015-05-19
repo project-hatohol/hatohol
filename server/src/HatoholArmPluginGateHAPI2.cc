@@ -65,24 +65,17 @@ public:
 		initializeHosts();
 	}
 
-	bool handle(const amqp_envelope_t *envelope)
+	bool handle(AMQPConnection &connection, const AMQPMessage &message)
 	{
-		const amqp_bytes_t *content_type =
-			&(envelope->message.properties.content_type);
-		// TODO: check content-type
-		const amqp_bytes_t *body = &(envelope->message.body);
-
-		MLPL_DBG("message: <%.*s>/<%.*s>\n",
-			 static_cast<int>(content_type->len),
-			 static_cast<char *>(content_type->bytes),
-			 static_cast<int>(body->len),
-			 static_cast<char *>(body->bytes));
+		MLPL_DBG("message: <%s>/<%s>\n",
+			 message.contentType.c_str(),
+			 message.body.c_str());
 
 		JsonParser *parser = json_parser_new();
 		GError *error = NULL;
 		if (json_parser_load_from_data(parser,
-					       static_cast<char *>(body->bytes),
-					       static_cast<int>(body->len),
+					       message.body.c_str(),
+					       message.body.size(),
 					       &error)) {
 			process(json_parser_get_root(parser));
 		} else {
