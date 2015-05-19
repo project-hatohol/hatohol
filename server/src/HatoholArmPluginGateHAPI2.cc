@@ -565,7 +565,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
 	dataStore->addEventList(eventInfoList);
 	string lastInfoValue;
 	if (!parser.read("lastInfo", lastInfoValue) ) {
-		recordLastInfo(lastInfoValue, LAST_INFO_EVENT);
+		upsertLastInfo(lastInfoValue, LAST_INFO_EVENT);
 	}
 
 	JSONBuilder agent;
@@ -582,7 +582,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
 // Protected methods
 // ---------------------------------------------------------------------------
 
-void HatoholArmPluginGateHAPI2::recordLastInfo(string lastInfoValue, LastInfoType type)
+void HatoholArmPluginGateHAPI2::upsertLastInfo(string lastInfoValue, LastInfoType type)
 {
 	ThreadLocalDBCache cache;
 	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
@@ -592,5 +592,13 @@ void HatoholArmPluginGateHAPI2::recordLastInfo(string lastInfoValue, LastInfoTyp
 	lastInfo.dataType = type;
 	lastInfo.value = lastInfoValue;
 	lastInfo.serverId = serverInfo.id;
-	dbLastInfo.addLastInfo(lastInfo, privilege);
+
+	LastInfoQueryOption option(USER_ID_SYSTEM);
+	option.setLastInfoType(type);
+	LastInfoDefList lastInfoList;
+	dbLastInfo.getLastInfoList(lastInfoList, option);
+	if (lastInfoList.empty())
+		dbLastInfo.addLastInfo(lastInfo, privilege);
+	else
+		dbLastInfo.updateLastInfo(lastInfo, privilege);
 }
