@@ -502,7 +502,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
 	// TODO: implement validation for Hosts
 	string lastInfo;
 	if (!parser.read("lastInfo", lastInfo) ) {
-		// TODO: implement storing LastInfo data
+		upsertLastInfo(lastInfo, LAST_INFO_HOST);
 	}
 
 	dataStore->upsertHosts(hostInfoVect);
