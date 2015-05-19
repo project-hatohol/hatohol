@@ -62,7 +62,8 @@ void HatoholArmPluginInterfaceHAPI2::interpretHandler(
 		return;
 	}
 	ProcedureHandler handler = it->second;
-	(this->*handler)(&type, params);
+	string replyJSON = (this->*handler)(&type, params);
+	// TODO: send replyJSON
 	onHandledCommand(type);
 }
 

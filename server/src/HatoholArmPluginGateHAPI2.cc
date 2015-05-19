@@ -322,7 +322,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	agent.add("name", "exampleName"); // TODO: add process name mechanism
 	agent.add("id", 1);
 	agent.endObject();
-	// TODO: implement replying exchange profile procedure with AMQP
 	return agent.generate();
 }
 
@@ -347,7 +346,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 	agent.endObject(); // result
 	agent.add("id", 1);
 	agent.endObject();
-	// TODO: implement replying exchange profile procedure with AMQP
 	return agent.generate();
 }
 
@@ -414,7 +412,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(
 	agent.add("result", "");
 	agent.add("id", 1);
 	agent.endObject();
-	// TODO: implement replying exchange profile procedure with AMQP
 	return agent.generate();
 }
 
@@ -459,7 +456,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	agent.add("result", "");
 	agent.add("id", 1);
 	agent.endObject();
-	// TODO: implement replying exchange profile procedure with AMQP
 	return agent.generate();
 }
 
@@ -518,7 +514,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
 	agent.add("result", result);
 	agent.add("id", 1);
 	agent.endObject();
-	// TODO: implement replying exchange profile procedure with AMQP
 	return agent.generate();
 }
 
