@@ -577,17 +577,17 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
   const HAPI2ProcedureType type, const string &params)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	ThreadLocalDBCache cache;
-	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
 	EventInfoList eventInfoList;
-	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	JSONParser parser(params);
 	bool succeeded = parseEventsParams(parser, eventInfoList);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 	dataStore->addEventList(eventInfoList);
 	string lastInfoValue;
 	if (!parser.read("lastInfo", lastInfoValue) ) {
+		ThreadLocalDBCache cache;
+		DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
 		OperationPrivilege privilege(USER_ID_SYSTEM);
+		const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 		LastInfoDef lastInfo;
 		lastInfo.dataType = LAST_INFO_EVENT;
 		lastInfo.value = lastInfoValue;
