@@ -31,6 +31,15 @@ libhatohol_common_la_SOURCES = \
 	UsedCountablePtr.cc UsedCountablePtr.h \
 	ZabbixAPI.cc ZabbixAPI.h
 
+if HAVE_LIBRABBITMQ
+libhatohol_common_la_SOURCES += \
+	AMQPConnectionInfo.cc AMQPConnectionInfo.h \
+	AMQPConnection.cc AMQPConnection.h \
+	AMQPConsumer.cc AMQPConsumer.h \
+	AMQPPublisher.cc AMQPPublisher.h \
+	AMQPMessageHandler.cc AMQPMessageHandler.h
+endif
+
 AM_CXXFLAGS = \
 	$(OPT_CXXFLAGS) \
 	$(MLPL_CFLAGS) $(GLIB_CFLAGS) $(GTHREAD_CFLAGS) $(GIO_CFLAGS) \
