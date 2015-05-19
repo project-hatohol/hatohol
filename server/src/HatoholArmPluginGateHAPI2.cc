@@ -584,15 +584,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
 	dataStore->addEventList(eventInfoList);
 	string lastInfoValue;
 	if (!parser.read("lastInfo", lastInfoValue) ) {
-		ThreadLocalDBCache cache;
-		DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
-		OperationPrivilege privilege(USER_ID_SYSTEM);
-		const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-		LastInfoDef lastInfo;
-		lastInfo.dataType = LAST_INFO_EVENT;
-		lastInfo.value = lastInfoValue;
-		lastInfo.serverId = serverInfo.id;
-		dbLastInfo.addLastInfo(lastInfo, privilege);
+		recordLastInfo(lastInfoValue, LAST_INFO_EVENT);
 	}
 
 	JSONBuilder agent;
@@ -603,4 +595,21 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
 	agent.endObject();
 	// TODO: implement replying exchange profile procedure with AMQP
 	return agent.generate();
+}
+
+// ---------------------------------------------------------------------------
+// Protected methods
+// ---------------------------------------------------------------------------
+
+void HatoholArmPluginGateHAPI2::recordLastInfo(string lastInfoValue, LastInfoType type)
+{
+	ThreadLocalDBCache cache;
+	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
+	LastInfoDef lastInfo;
+	lastInfo.dataType = type;
+	lastInfo.value = lastInfoValue;
+	lastInfo.serverId = serverInfo.id;
+	dbLastInfo.addLastInfo(lastInfo, privilege);
 }

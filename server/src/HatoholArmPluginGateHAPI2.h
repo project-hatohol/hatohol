@@ -57,6 +57,7 @@ public:
 
 protected:
 	virtual ~HatoholArmPluginGateHAPI2();
+	void recordLastInfo(std::string lastInfoValue, LastInfoType type);
 
 public:
 	std::string procedureHandlerExchangeProfile(const HAPI2ProcedureType type,
