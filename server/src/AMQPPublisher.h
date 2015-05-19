@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -17,12 +17,28 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "AMQPMessageHandler.h"
+#ifndef AMQPPublisher_h
+#define AMQPPublisher_h
 
-AMQPMessageHandler::AMQPMessageHandler()
-{
-}
+#include "Params.h"
+#include "AMQPConnection.h"
 
-AMQPMessageHandler::~AMQPMessageHandler()
-{
-}
+class AMQPMessageHandler;
+
+class AMQPPublisher {
+public:
+	AMQPPublisher(const AMQPConnectionInfo &connectionInfo);
+	AMQPPublisher(AMQPConnectionPtr &connection);
+	virtual ~AMQPPublisher();
+
+	AMQPConnectionPtr getConnection(void);
+	void setMessage(const AMQPMessage &message);
+	void clear(void);
+	bool publish(void);
+
+private:
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
+};
+
+#endif // AMQPPublisher_h

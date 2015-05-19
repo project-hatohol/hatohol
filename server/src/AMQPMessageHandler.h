@@ -20,16 +20,18 @@
 #ifndef AMQPMessageHandler_h
 #define AMQPMessageHandler_h
 
-#include <amqp.h>
-
 #include "Params.h"
+#include "AMQPConnection.h"
+
+struct AMQPMessage;
 
 class AMQPMessageHandler {
 public:
 	AMQPMessageHandler();
 	virtual ~AMQPMessageHandler();
 
-	virtual bool handle(const amqp_envelope_t *envelope);
+	virtual bool handle(AMQPConnection &connection,
+			    const AMQPMessage &message) = 0;
 };
 
 #endif // AMQPMessageHandler_h
