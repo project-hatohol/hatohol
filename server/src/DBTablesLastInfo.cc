@@ -218,10 +218,9 @@ static string makeIdListCondition(const LastInfoIdList &idList)
 	const ColumnDef &colId = COLUMN_DEF_LAST_INFO[IDX_LAST_INFO_ID];
 	SeparatorInjector commaInjector(",");
 	condition = StringUtils::sprintf("%s in (", colId.columnName);
-	LastInfoIdListConstIterator it = idList.begin();
-	for (; it != idList.end(); ++it) {
+	for (auto id : idList) {
 		commaInjector(condition);
-		condition += StringUtils::sprintf("%ld", *it);
+		condition += StringUtils::sprintf("%ld", id);
 	}
 
 	condition += ")";
