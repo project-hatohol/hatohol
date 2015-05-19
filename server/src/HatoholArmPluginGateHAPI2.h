@@ -74,6 +74,8 @@ public:
 	                                        const std::string &params);
 	std::string procedureHandlerUpdateEvents(const HAPI2ProcedureType type,
 	                                         const std::string &params);
+	std::string procedureHandlerUpdateArmInfo(const HAPI2ProcedureType type,
+	                                          const std::string &params);
 
 public:
 	static bool parseTimeStamp(const std::string &timeStampString,

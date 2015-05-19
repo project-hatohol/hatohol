@@ -287,4 +287,24 @@ void test_procedureHandlerUpdateEvents(void)
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":1}";
 	cppcut_assert_equal(expected, actual);
 }
+
+void test_procedureHandlerUpdateArmInfo(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	std::string params =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"updateArmInfo\","
+		" \"params\":{\"lastStatus\":\"INIT\","
+		" \"failureReason\":\"Example reason\","
+		" \"lastSuccessTime\":\"201503131611\","
+		" \"lastFailureTime\":\"201503131615\","
+		" \"numSuccess\":165, \"numFailure\":10}, \"id\":1}";
+	std::string actual = gate->procedureHandlerUpdateArmInfo(
+	  HAPI2_UPDATE_ARM_INFO, params);
+	std::string expected =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":1}";
+	cppcut_assert_equal(expected, actual);
+}
 }
