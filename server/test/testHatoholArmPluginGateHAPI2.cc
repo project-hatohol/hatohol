@@ -276,7 +276,7 @@ void test_procedureHandlerUpdateEvents(void)
 		"{\"jsonrpc\":\"2.0\", \"method\":\"updateEvents\","
 		" \"params\":{\"events\":[{\"eventId\":\"1\","
 		" \"time\":\"201503231513\", \"type\":\"GOOD\","
-		" \"triggerId\":2, \"status\": \"OK\",\"severity\":\"INFO\":,"
+		" \"triggerId\":2, \"status\": \"OK\",\"severity\":\"INFO\","
 		" \"hostId\":3, \"hostName\":\"exampleName\","
 		" \"brief\":\"example brief\","
 		" \"extendedInfo\": \"sampel extended info\"}],"
