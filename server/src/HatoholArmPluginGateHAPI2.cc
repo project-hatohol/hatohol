@@ -581,6 +581,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
 	JSONParser parser(params);
 	bool succeeded = parseEventsParams(parser, eventInfoList);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
+	dataStore->addEventList(eventInfoList);
 
 	JSONBuilder agent;
 	agent.startObject();
