@@ -577,10 +577,45 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
 	return agent.generate();
 }
 
+static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo)
+{
+	parser.startObject("params");
+	string status;
+	parser.read("lastStatus", status);
+	if (status == "INIT")
+		armInfo.stat = ARM_WORK_STAT_INIT;
+	else if (status == "OK")
+		armInfo.stat = ARM_WORK_STAT_OK;
+	else
+		armInfo.stat = ARM_WORK_STAT_FAILURE;
+	parser.read("failureReason", armInfo.failureComment);
+	timespec successTime, failureTime;
+	parseTimeStamp(parser, "lastSuccessTime", successTime);
+	parseTimeStamp(parser, "lastFailureTime", failureTime);
+	SmartTime lastSuccessTime(successTime);
+	SmartTime lastFailureTime(failureTime);
+	armInfo.statUpdateTime = lastSuccessTime;
+	armInfo.lastFailureTime = lastFailureTime;
+
+	int64_t numSuccess, numFailure;
+	parser.read("numSuccess", numSuccess);
+	parser.read("numFailure", numFailure);
+	armInfo.numUpdate = (size_t)numSuccess;
+	armInfo.numFailure = (size_t)numFailure;
+
+	return true;
+};
+
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateArmInfo(
   const HAPI2ProcedureType type, const string &params)
 {
-	string result = "SUCCESS";
+	ArmStatus status;
+	ArmInfo armInfo;
+	JSONParser parser(params);
+	bool succeeded = parseArmInfoParams(parser, armInfo);
+	status.setArmInfo(armInfo);
+	string result = succeeded ? "SUCCESS" : "FAILURE";
+
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
