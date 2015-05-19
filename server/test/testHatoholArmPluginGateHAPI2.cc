@@ -275,12 +275,12 @@ void test_procedureHandlerUpdateEvents(void)
 	std::string params =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"updateEvents\","
 		" \"params\":{\"events\":[{\"eventId\":\"1\","
-		" \"time\":\"201503231513\", \"type\":\"GOOD\","
+		" \"time\":\"20150323151300\", \"type\":\"GOOD\","
 		" \"triggerId\":2, \"status\": \"OK\",\"severity\":\"INFO\","
 		" \"hostId\":3, \"hostName\":\"exampleName\","
 		" \"brief\":\"example brief\","
 		" \"extendedInfo\": \"sampel extended info\"}],"
-		" \"lastInfo\":\"201504011759\", \"fetchId\":\"1\"},\"id\":1}";
+		" \"lastInfo\":\"20150401175900\", \"fetchId\":\"1\"},\"id\":1}";
 	std::string actual = gate->procedureHandlerUpdateEvents(
 	  HAPI2_UPDATE_EVENTS, params);
 	std::string expected =
