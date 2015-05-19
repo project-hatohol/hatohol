@@ -53,12 +53,16 @@ namespace testAMQPConnection {
 		AMQPMessage m_message;
 	};
 
-	AMQPConnectionPtr getConnection(void)
+	AMQPConnectionInfo &getConnectionInfo(void)
 	{
 		if (!connectionInfo)
 			cut_omit("TEST_AMQP_URL isn't set");
+		return *connectionInfo;
+	}
 
-		return AMQPConnection::create(*connectionInfo);
+	AMQPConnectionPtr getConnection(void)
+	{
+		return AMQPConnection::create(getConnectionInfo());
 	}
 
 	void cut_setup(void)
@@ -116,7 +120,7 @@ namespace testAMQPConnection {
 	{
 		AMQPJSONMessage message;
 		message.body = "{\"body\":\"example\"}";
-		AMQPPublisher publisher(*connectionInfo);
+		AMQPPublisher publisher(getConnectionInfo());
 		publisher.setMessage(message);
 		cppcut_assert_equal(true, publisher.publish());
 
