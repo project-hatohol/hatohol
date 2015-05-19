@@ -537,10 +537,51 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
 	return agent.generate();
 }
 
+static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList)
+{
+	parser.startObject("params");
+	parser.startObject("events");
+	size_t num = parser.countElements();
+
+	for (size_t i = 0; i < num; i++) {
+		if (!parser.startElement(i)) {
+			MLPL_ERR("Failed to parse event contents.\n");
+			return false;
+		}
+
+		EventInfo eventInfo;
+		parser.read("eventId",      eventInfo.id);
+		parseTimeStamp(parser, "time", eventInfo.time);
+		int64_t type, status, severity;
+		parser.read("type",         type);
+		eventInfo.type = (EventType)type;
+		parser.read("triggerId",    eventInfo.triggerId);
+		parser.read("status",       status);
+		eventInfo.status = (TriggerStatusType)status;
+		parser.read("severity",     severity);
+		eventInfo.severity = (TriggerSeverityType)severity;
+		parser.read("hostId",       eventInfo.hostIdInServer);
+		parser.read("hostName",     eventInfo.hostName);
+		parser.read("brief",        eventInfo.brief);
+		parser.read("extendedInfo", eventInfo.extendedInfo);
+		parser.endElement();
+
+		eventInfoList.push_back(eventInfo);
+	}
+	parser.endObject(); // events
+	parser.endObject(); // params
+	return true;
+};
+
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
   const HAPI2ProcedureType type, const string &params)
 {
-	string result = "SUCCESS";
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	EventInfoList eventInfoList;
+	JSONParser parser(params);
+	bool succeeded = parseEventsParams(parser, eventInfoList);
+	string result = succeeded ? "SUCCESS" : "FAILURE";
+
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
