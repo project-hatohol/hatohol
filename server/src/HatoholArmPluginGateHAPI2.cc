@@ -99,9 +99,7 @@ private:
 		THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
 		  uds->getServerHostDefs(svHostDefVect, option));
 
-		ServerHostDefVectConstIterator it = svHostDefVect.begin();
-		for (; it != svHostDefVect.end(); ++it) {
-			const ServerHostDef &svHostDef = *it;
+		for (auto svHostDef : svHostDefVect) {
 			m_hosts[svHostDef.name] = svHostDef.hostId;
 		}
 	}
@@ -111,9 +109,7 @@ private:
 		GateJSONProcedureHAPI2 hapi2(root);
 		StringList errors;
 		if (!hapi2.validate(errors)) {
-			StringListIterator it = errors.begin();
-			for (; it != errors.end(); ++it) {
-				string &errorMessage = *it;
+			for (auto errorMessage : errors) {
 				MLPL_ERR("%s\n", errorMessage.c_str());
 			}
 			return;
