@@ -35,7 +35,7 @@
 using namespace std;
 using namespace mlpl;
 
-HAPI2ProcedureDef defaultValidProcedureDef[] = {
+std::list<HAPI2ProcedureDef> defaultValidProcedureList = {
 	{PROCEDURE_BOTH,   "exchangeProfile",           SERVER_MANDATORY_HAP_OPTIONAL},
 	{PROCEDURE_SERVER, "getMonitoringServerInfo",   SERVER_MANDATORY},
 	{PROCEDURE_SERVER, "getLastInfo",               SERVER_MANDATORY},
@@ -322,13 +322,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	agent.add("jsonrpc", "2.0");
 	agent.startObject("result");
 	agent.startArray("procedures");
-	int defaultProcedures =
-	  sizeof(defaultValidProcedureDef) / sizeof(defaultValidProcedureDef[0]);
-	for (int i = 0; i < defaultProcedures; ++i) {
-		if (defaultValidProcedureDef[i].type == PROCEDURE_BOTH ||
-		    defaultValidProcedureDef[i].type == PROCEDURE_HAP)
+	for (auto defaultValidProcedureDef : defaultValidProcedureList) {
+		if (defaultValidProcedureDef.type == PROCEDURE_BOTH ||
+		    defaultValidProcedureDef.type == PROCEDURE_HAP)
 			continue;
-		agent.add(defaultValidProcedureDef[i].name);
+		agent.add(defaultValidProcedureDef.name);
 	}
 	agent.endArray(); // procedures
 	agent.endObject(); // result
