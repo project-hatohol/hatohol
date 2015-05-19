@@ -219,14 +219,11 @@ static string makeIdListCondition(const LastInfoIdList &idList)
 	SeparatorInjector commaInjector(",");
 	condition = StringUtils::sprintf("%s in (", colId.columnName);
 	LastInfoIdListConstIterator it = idList.begin();
-	while (true) {
-		const int id = *it;
-		condition += StringUtils::sprintf("%d", id);
-		++it;
-		if (it == idList.end())
-			break;
+	for (; it != idList.end(); ++it) {
 		commaInjector(condition);
+		condition += StringUtils::sprintf("%ld", *it);
 	}
+
 	condition += ")";
 	return condition;
 }
