@@ -106,16 +106,16 @@ private:
 
 	void process(JsonNode *root)
 	{
-		GateJSONProcedureHAPI2 hapi2(root);
+		GateJSONProcedureHAPI2 procedure(root);
 		StringList errors;
-		if (!hapi2.validate(errors)) {
+		if (!procedure.validate(errors)) {
 			for (auto errorMessage : errors) {
 				MLPL_ERR("%s\n", errorMessage.c_str());
 			}
 			return;
 		}
-		string params = hapi2.getParams();
-		interpretHandler(hapi2.getProcedureType(), params, root);
+		string params = procedure.getParams();
+		interpretHandler(procedure.getProcedureType(), params, root);
 	}
 };
 
