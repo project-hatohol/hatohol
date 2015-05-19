@@ -298,8 +298,8 @@ void test_procedureHandlerUpdateArmInfo(void)
 		"{\"jsonrpc\":\"2.0\", \"method\":\"updateArmInfo\","
 		" \"params\":{\"lastStatus\":\"INIT\","
 		" \"failureReason\":\"Example reason\","
-		" \"lastSuccessTime\":\"201503131611\","
-		" \"lastFailureTime\":\"201503131615\","
+		" \"lastSuccessTime\":\"20150313161100\","
+		" \"lastFailureTime\":\"20150313161530\","
 		" \"numSuccess\":165, \"numFailure\":10}, \"id\":1}";
 	std::string actual = gate->procedureHandlerUpdateArmInfo(
 	  HAPI2_UPDATE_ARM_INFO, params);
