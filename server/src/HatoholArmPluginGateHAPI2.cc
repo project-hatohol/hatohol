@@ -721,10 +721,18 @@ static bool parseHostParentsParams(
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostParents(
   const HAPI2ProcedureType type, const string &params)
 {
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
 	VMInfoVect vmInfoVect;
 	JSONParser parser(params);
 	bool succeeded = parseHostParentsParams(parser, vmInfoVect);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
+	for (auto vmInfo : vmInfoVect)
+		dbHost.upsertVMInfo(vmInfo);
+	string lastInfoValue;
+	if (!parser.read("lastInfo", lastInfoValue) ) {
+		upsertLastInfo(lastInfoValue, LAST_INFO_HOST_PARENT);
+	}
 
 	JSONBuilder agent;
 	agent.startObject();
