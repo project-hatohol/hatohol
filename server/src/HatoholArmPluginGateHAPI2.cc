@@ -628,7 +628,7 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList)
 
 	if (num > numLimit) {
 		MLPL_ERR("Event Object is too large. "
-			 "Excess object size limit(%zd).\n", numLimit);
+			 "Object size limit(%zd) exceeded.\n", numLimit);
 		return false;
 	}
 
