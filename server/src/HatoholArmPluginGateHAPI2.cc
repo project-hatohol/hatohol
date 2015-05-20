@@ -521,9 +521,38 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
 	return agent.generate();
 }
 
+static bool parseHostGroupsParams(JSONParser &parser,
+				  HostgroupVect &hostgroupVect)
+{
+	parser.startObject("params");
+	parser.startObject("hostGroups");
+	size_t num = parser.countElements();
+	for (size_t j = 0; j < num; j++) {
+		if (!parser.startElement(j)) {
+			MLPL_ERR("Failed to parse hosts contents.\n");
+			return false;
+		}
+
+		Hostgroup hostgroup;
+		int64_t hostIdInServer;
+		parser.read("groupId", hostIdInServer);
+		hostgroup.idInServer = hostIdInServer;
+		parser.read("groupName", hostgroup.name);
+		parser.endElement();
+
+		hostgroupVect.push_back(hostgroup);
+	}
+	parser.endObject(); // hosts
+	parser.endObject(); // params
+	return true;
+};
+
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroups(
   const HAPI2ProcedureType type, const string &params)
 {
+	HostgroupVect hostgroupVect;
+	JSONParser parser(params);
+	bool succeeded = parseHostGroupsParams(parser, hostgroupVect);
 	string result = "SUCCESS";
 
 	JSONBuilder agent;
