@@ -100,7 +100,7 @@ private:
 		} else if (method == "updateEvents") {
 			return HAPI2_UPDATE_EVENTS;
 		} else if (method == "updateHostParent") {
-			return HAPI2_UPDATE_HOST_PARENT;
+			return HAPI2_UPDATE_HOST_PARENTS;
 		} else if (method == "updateArmInfo") {
 			return HAPI2_UPDATE_ARM_INFO;
 		} else if (method == "fetchItems") {
