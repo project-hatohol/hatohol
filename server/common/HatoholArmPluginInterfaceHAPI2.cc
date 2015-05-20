@@ -26,11 +26,11 @@
 using namespace std;
 using namespace mlpl;
 
-class AMQPHAPI2MessageHandler
-: public AMQPMessageHandler, public HatoholArmPluginInterfaceHAPI2
+class AMQPHAPI2MessageHandler : public AMQPMessageHandler
 {
 public:
-	AMQPHAPI2MessageHandler()
+	AMQPHAPI2MessageHandler(HatoholArmPluginInterfaceHAPI2 &hapi2)
+	: m_hapi2(hapi2)
 	{
 	}
 
@@ -66,20 +66,23 @@ private:
 			return;
 		}
 		string params = procedure.getParams();
-		interpretHandler(procedure.getProcedureType(), params, root);
+		m_hapi2.interpretHandler(procedure.getProcedureType(), params, root);
 	}
+
+private:
+	HatoholArmPluginInterfaceHAPI2 &m_hapi2;
 };
 
 struct HatoholArmPluginInterfaceHAPI2::Impl
 {
 	ArmPluginInfo m_pluginInfo;
-	HatoholArmPluginInterfaceHAPI2 *hapi2;
+	HatoholArmPluginInterfaceHAPI2 &hapi2;
 	ProcedureHandlerMap procedureHandlerMap;
 	AMQPConnectionInfo m_connectionInfo;
 	AMQPConsumer *m_consumer;
 	AMQPHAPI2MessageHandler *m_handler;
 
-	Impl(HatoholArmPluginInterfaceHAPI2 *_hapi2)
+	Impl(HatoholArmPluginInterfaceHAPI2 &_hapi2)
 	: hapi2(_hapi2),
 	  m_consumer(NULL),
 	  m_handler(NULL)
@@ -126,7 +129,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	{
 		setupAMQPConnectionInfo();
 
-		m_handler = new AMQPHAPI2MessageHandler();
+		m_handler = new AMQPHAPI2MessageHandler(hapi2);
 		m_consumer = new AMQPConsumer(m_connectionInfo, m_handler);
 	}
 
@@ -145,7 +148,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 };
 
 HatoholArmPluginInterfaceHAPI2::HatoholArmPluginInterfaceHAPI2()
-: m_impl(new Impl(this))
+: m_impl(new Impl(*this))
 {
 }
 
