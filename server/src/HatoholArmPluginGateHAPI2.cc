@@ -79,6 +79,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 	void start(void)
 	{
+		m_armStatus.setRunningStatus(true);
 	}
 };
 
@@ -137,7 +138,7 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 void HatoholArmPluginGateHAPI2::start(void)
 {
 	HatoholArmPluginInterfaceHAPI2::start();
-	m_impl->m_armStatus.setRunningStatus(true);
+	m_impl->start();
 }
 
 bool HatoholArmPluginGateHAPI2::parseTimeStamp(
