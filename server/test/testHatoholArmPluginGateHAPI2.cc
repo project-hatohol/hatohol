@@ -284,6 +284,25 @@ void test_procedureHandlerUpdateHostGroups(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerUpdateHostGroupMembership(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	std::string params =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"updateHostGroupMembership\","
+		" \"params\":{\"hostGroupsMembership\":[{\"hostId\":\"1\","
+		" \"groupIds\":[\"1\", \"2\", \"5\"]}],"
+		" \"lastInfo\":\"20150409105600\", \"updateType\":\"ALL\"},"
+		" \"id\":1}";
+	std::string actual = gate->procedureHandlerUpdateHostGroupMembership(
+	  HAPI2_UPDATE_HOST_GROUP_MEMEBRSHIP, params);
+	std::string expected =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":1}";
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_procedureHandlerUpdateEvents(void)
 {
 	MonitoringServerInfo serverInfo;
