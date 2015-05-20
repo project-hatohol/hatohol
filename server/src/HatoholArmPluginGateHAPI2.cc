@@ -284,17 +284,25 @@ static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType)
 string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(
   const HAPI2ProcedureType type, const string &params)
 {
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	TriggerInfoList triggerInfoList;
-	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
-	dataStore->getTriggerList(triggerInfoList, triggersQueryOption);
-	TriggerInfoListIterator it = triggerInfoList.begin();
-	TriggerInfo &firstTriggerInfo = *it;
+	ThreadLocalDBCache cache;
+	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
+	LastInfoQueryOption option(USER_ID_SYSTEM);
+	LastInfoType lastInfoType;
+	JSONParser parser(params);
+	bool succeeded = parseLastInfoParams(parser, lastInfoType);
+	option.setLastInfoType(lastInfoType);
+	LastInfoDefList lastInfoList;
+	dbLastInfo.getLastInfoList(lastInfoList, option);
+	string lastInfoValue = "";
+	for (auto lastInfo : lastInfoList) {
+		lastInfoValue = lastInfo.value;
+		break;
+	}
 
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
-	agent.add("result", firstTriggerInfo.lastChangeTime.tv_sec);
+	agent.add("result", lastInfoValue);
 	agent.add("id", 1);
 	agent.endObject();
 	return agent.generate();
