@@ -194,13 +194,16 @@ void test_procedureHandlerLastInfoWithTrigger(void)
 {
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
+	loadTestDBLastInfo();
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(serverInfo), false);
-	std::string params = "trigger";
+	std::string params =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"getLastInfo\","
+		" \"params\":\"trigger\", \"id\":1}";
 	std::string actual = gate->procedureHandlerLastInfo(
 	  HAPI2_LAST_INFO, params);
 	std::string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":1425025540,\"id\":1}";
+		"{\"jsonrpc\":\"2.0\",\"result\":\"1431671640\",\"id\":1}";
 	cppcut_assert_equal(expected, actual);
 }
 
