@@ -17,11 +17,58 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include "AMQPMessageHandler.h"
 #include "AMQPConnectionInfo.h"
+#include "AMQPConsumer.h"
+#include "GateJSONProcedureHAPI2.h"
 #include "HatoholArmPluginInterfaceHAPI2.h"
 
 using namespace std;
 using namespace mlpl;
+
+class AMQPHAPI2MessageHandler
+: public AMQPMessageHandler, public HatoholArmPluginInterfaceHAPI2
+{
+public:
+	AMQPHAPI2MessageHandler()
+	{
+	}
+
+	bool handle(AMQPConnection &connection, const AMQPMessage &message)
+	{
+		MLPL_DBG("message: <%s>/<%s>\n",
+			 message.contentType.c_str(),
+			 message.body.c_str());
+
+		JsonParser *parser = json_parser_new();
+		GError *error = NULL;
+		if (json_parser_load_from_data(parser,
+					       message.body.c_str(),
+					       message.body.size(),
+					       &error)) {
+			process(json_parser_get_root(parser));
+		} else {
+			g_error_free(error);
+		}
+		g_object_unref(parser);
+		return true;
+	}
+
+private:
+	void process(JsonNode *root)
+	{
+		GateJSONProcedureHAPI2 procedure(root);
+		StringList errors;
+		if (!procedure.validate(errors)) {
+			for (auto errorMessage : errors) {
+				MLPL_ERR("%s\n", errorMessage.c_str());
+			}
+			return;
+		}
+		string params = procedure.getParams();
+		interpretHandler(procedure.getProcedureType(), params, root);
+	}
+};
 
 struct HatoholArmPluginInterfaceHAPI2::Impl
 {
@@ -29,14 +76,23 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	HatoholArmPluginInterfaceHAPI2 *hapi2;
 	ProcedureHandlerMap procedureHandlerMap;
 	AMQPConnectionInfo m_connectionInfo;
+	AMQPConsumer *m_consumer;
+	AMQPHAPI2MessageHandler *m_handler;
 
 	Impl(HatoholArmPluginInterfaceHAPI2 *_hapi2)
-	: hapi2(_hapi2)
+	: hapi2(_hapi2),
+	  m_consumer(NULL),
+	  m_handler(NULL)
 	{
 	}
 
 	~Impl()
 	{
+		if (m_consumer) {
+			m_consumer->exitSync();
+			delete m_consumer;
+		}
+		delete m_handler;
 	}
 
 	void setArmPluginInfo(const ArmPluginInfo &armPluginInfo)
@@ -69,12 +125,22 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	void setupAMQPConnection(void)
 	{
 		setupAMQPConnectionInfo();
+
+		m_handler = new AMQPHAPI2MessageHandler();
+		m_consumer = new AMQPConsumer(m_connectionInfo, m_handler);
 	}
 
 	string generateQueueName(const ArmPluginInfo &pluginInfo)
 	{
 		return StringUtils::sprintf("hapi2.%" FMT_SERVER_ID,
 					    pluginInfo.serverId);
+	}
+
+	void start(void)
+	{
+		if (!m_consumer)
+			return;
+		m_consumer->start();
 	}
 };
 
@@ -91,12 +157,6 @@ void HatoholArmPluginInterfaceHAPI2::setArmPluginInfo(
   const ArmPluginInfo &pluginInfo)
 {
 	m_impl->setArmPluginInfo(pluginInfo);
-}
-
-const AMQPConnectionInfo &
-HatoholArmPluginInterfaceHAPI2::getAMQPConnectionInfo(void)
-{
-	return m_impl->m_connectionInfo;
 }
 
 void HatoholArmPluginInterfaceHAPI2::registerProcedureHandler(
@@ -122,4 +182,9 @@ void HatoholArmPluginInterfaceHAPI2::interpretHandler(
 
 void HatoholArmPluginInterfaceHAPI2::onHandledCommand(const HAPI2ProcedureType &type)
 {
+}
+
+void HatoholArmPluginInterfaceHAPI2::start(void)
+{
+	m_impl->start();
 }

@@ -49,11 +49,13 @@ struct HAPI2ProcedureDef {
 
 class HatoholArmPluginGateHAPI2 : public DataStore, public HatoholArmPluginInterfaceHAPI2 {
 public:
-	HatoholArmPluginGateHAPI2(const MonitoringServerInfo &serverInfo);
+	HatoholArmPluginGateHAPI2(const MonitoringServerInfo &serverInfo,
+				  const bool &autoStart = true);
 
 	virtual const MonitoringServerInfo
 	  &getMonitoringServerInfo(void) const override;
 	virtual const ArmStatus &getArmStatus(void) const override;
+	virtual void start(void) override;
 
 protected:
 	virtual ~HatoholArmPluginGateHAPI2();

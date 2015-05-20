@@ -31,7 +31,6 @@
 #include "Utils.h"
 #include "MonitoringServerInfo.h"
 #include "ArmPluginInfo.h"
-#include "AMQPConnectionInfo.h"
 
 enum HAPI2ProcedureType {
 	// Sv, Cl
@@ -81,6 +80,7 @@ public:
                                       ProcedureHandler handler);
 	void interpretHandler(const HAPI2ProcedureType &type, const std::string,
 	                      JsonNode *root);
+	virtual void start(void);
 
 protected:
 	typedef std::map<uint16_t, ProcedureHandler> ProcedureHandlerMap;
@@ -88,7 +88,6 @@ protected:
 	typedef ProcedureHandlerMap::const_iterator  ProcedureHandlerMapConstIterator;
 
 	void setArmPluginInfo(const ArmPluginInfo &pluginInfo);
-	const AMQPConnectionInfo &getAMQPConnectionInfo(void);
 
 	virtual void onHandledCommand(const HAPI2ProcedureType &type);
 

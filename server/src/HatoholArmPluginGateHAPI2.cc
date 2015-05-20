@@ -17,20 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include <json-glib/json-glib.h>
-
 #include <StringUtils.h>
-
-#include "HatoholArmPluginInterfaceHAPI2.h"
+#include <JSONParser.h>
+#include <HatoholArmPluginInterfaceHAPI2.h>
 #include "HatoholArmPluginGateHAPI2.h"
 #include "ThreadLocalDBCache.h"
 #include "UnifiedDataStore.h"
 #include "ArmFake.h"
-#include "AMQPConsumer.h"
-#include "AMQPConnectionInfo.h"
-#include "AMQPMessageHandler.h"
-#include "GateJSONProcedureHAPI2.h"
-#include <JSONParser.h>
 
 using namespace std;
 using namespace mlpl;
@@ -54,64 +47,16 @@ std::list<HAPI2ProcedureDef> defaultValidProcedureList = {
 	{PROCEDURE_HAP,    "fetchEvents",               HAP_OPTIONAL},
 };
 
-class AMQPHAPI2MessageHandler
-: public AMQPMessageHandler, public HatoholArmPluginInterfaceHAPI2
-{
-public:
-	AMQPHAPI2MessageHandler()
-	{
-	}
-
-	bool handle(AMQPConnection &connection, const AMQPMessage &message)
-	{
-		MLPL_DBG("message: <%s>/<%s>\n",
-			 message.contentType.c_str(),
-			 message.body.c_str());
-
-		JsonParser *parser = json_parser_new();
-		GError *error = NULL;
-		if (json_parser_load_from_data(parser,
-					       message.body.c_str(),
-					       message.body.size(),
-					       &error)) {
-			process(json_parser_get_root(parser));
-		} else {
-			g_error_free(error);
-		}
-		g_object_unref(parser);
-		return true;
-	}
-
-private:
-	void process(JsonNode *root)
-	{
-		GateJSONProcedureHAPI2 procedure(root);
-		StringList errors;
-		if (!procedure.validate(errors)) {
-			for (auto errorMessage : errors) {
-				MLPL_ERR("%s\n", errorMessage.c_str());
-			}
-			return;
-		}
-		string params = procedure.getParams();
-		interpretHandler(procedure.getProcedureType(), params, root);
-	}
-};
-
 struct HatoholArmPluginGateHAPI2::Impl
 {
 	// We have a copy. The access to the object is MT-safe.
 	const MonitoringServerInfo m_serverInfo;
-	AMQPConsumer *m_consumer;
-	AMQPHAPI2MessageHandler *m_handler;
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
 
 	Impl(const MonitoringServerInfo &_serverInfo,
 	     HatoholArmPluginGateHAPI2 *hapghapi)
 	: m_serverInfo(_serverInfo),
-	  m_consumer(NULL),
-	  m_handler(NULL),
 	  m_armFake(m_serverInfo),
 	  m_armStatus()
 	{
@@ -125,28 +70,15 @@ struct HatoholArmPluginGateHAPI2::Impl
 			return;
 		}
 		hapghapi->setArmPluginInfo(armPluginInfo);
-
-		m_handler = new AMQPHAPI2MessageHandler();
-		m_consumer = new AMQPConsumer(hapghapi->getAMQPConnectionInfo(),
-					      m_handler);
 	}
 
 	~Impl()
 	{
-		if (m_consumer) {
-			m_consumer->exitSync();
-			m_armStatus.setRunningStatus(false);
-			delete m_consumer;
-		}
-		delete m_handler;
+		m_armStatus.setRunningStatus(false);
 	}
 
 	void start(void)
 	{
-		if (!m_consumer)
-			return;
-		m_consumer->start();
-		m_armStatus.setRunningStatus(true);
 	}
 };
 
@@ -154,7 +86,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 // Public methods
 // ---------------------------------------------------------------------------
 HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
-  const MonitoringServerInfo &serverInfo)
+  const MonitoringServerInfo &serverInfo, const bool &autoStart)
 : m_impl(new Impl(serverInfo, this))
 {
 	registerProcedureHandler(
@@ -197,6 +129,9 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 	  HAPI2_UPDATE_ARM_INFO,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateArmInfo);
+
+	if (autoStart)
+		m_impl->start();
 }
 
 bool HatoholArmPluginGateHAPI2::parseTimeStamp(
@@ -730,4 +665,10 @@ void HatoholArmPluginGateHAPI2::upsertLastInfo(string lastInfoValue, LastInfoTyp
 		dbLastInfo.addLastInfo(lastInfo, privilege);
 	else
 		dbLastInfo.updateLastInfo(lastInfo, privilege);
+}
+
+void HatoholArmPluginGateHAPI2::start(void)
+{
+	HatoholArmPluginInterfaceHAPI2::start();
+	m_impl->m_armStatus.setRunningStatus(true);
 }
