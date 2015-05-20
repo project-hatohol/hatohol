@@ -78,7 +78,6 @@ libhatohol_la_SOURCES = \
 if HAVE_LIBRABBITMQ
 libhatohol_la_SOURCES += \
 	GateJSONEventMessage.cc GateJSONEventMessage.h \
-	GateJSONProcedureHAPI2.cc GateJSONProcedureHAPI2.h \
 	HatoholArmPluginGateJSON.cc HatoholArmPluginGateJSON.h \
 	HatoholArmPluginGateHAPI2.cc HatoholArmPluginGateHAPI2.h
 endif

@@ -38,7 +38,8 @@ libhatohol_common_la_SOURCES += \
 	AMQPConnection.cc AMQPConnection.h \
 	AMQPConsumer.cc AMQPConsumer.h \
 	AMQPPublisher.cc AMQPPublisher.h \
-	AMQPMessageHandler.cc AMQPMessageHandler.h
+	AMQPMessageHandler.cc AMQPMessageHandler.h \
+	GateJSONProcedureHAPI2.cc GateJSONProcedureHAPI2.h
 endif
 
 AM_CXXFLAGS = \
