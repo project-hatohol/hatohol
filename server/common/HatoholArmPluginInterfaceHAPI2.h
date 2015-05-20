@@ -78,8 +78,8 @@ public:
 	 */
 	void registerProcedureHandler(const HAPI2ProcedureType &type,
                                       ProcedureHandler handler);
-	void interpretHandler(const HAPI2ProcedureType &type, const std::string,
-	                      JsonNode *root);
+	std::string interpretHandler(const HAPI2ProcedureType &type, const std::string,
+				     JsonNode *root);
 	virtual void start(void);
 
 protected:
@@ -94,6 +94,7 @@ protected:
         virtual ~HatoholArmPluginInterfaceHAPI2();
 
 private:
+	class AMQPHAPI2MessageHandler;
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
 };

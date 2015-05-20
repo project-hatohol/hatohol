@@ -26,7 +26,8 @@
 using namespace std;
 using namespace mlpl;
 
-class AMQPHAPI2MessageHandler : public AMQPMessageHandler
+class HatoholArmPluginInterfaceHAPI2::AMQPHAPI2MessageHandler
+  : public AMQPMessageHandler
 {
 public:
 	AMQPHAPI2MessageHandler(HatoholArmPluginInterfaceHAPI2 &hapi2)
@@ -66,7 +67,10 @@ private:
 			return;
 		}
 		string params = procedure.getParams();
-		m_hapi2.interpretHandler(procedure.getProcedureType(), params, root);
+		string reply = m_hapi2.interpretHandler(
+				  procedure.getProcedureType(), params, root);
+		// TODO: send replyJSON
+		m_hapi2.onHandledCommand(procedure.getProcedureType());
 	}
 
 private:
@@ -168,19 +172,17 @@ void HatoholArmPluginInterfaceHAPI2::registerProcedureHandler(
 	m_impl->procedureHandlerMap[type] = handler;
 }
 
-void HatoholArmPluginInterfaceHAPI2::interpretHandler(
+string HatoholArmPluginInterfaceHAPI2::interpretHandler(
   const HAPI2ProcedureType &type, const string params, JsonNode *root)
 {
 	ProcedureHandlerMapConstIterator it =
 	  m_impl->procedureHandlerMap.find(type);
 	if (it == m_impl->procedureHandlerMap.end()) {
-		// TODO: reply error
-		return;
+		// TODO: build error reply
+		return string();
 	}
 	ProcedureHandler handler = it->second;
-	string replyJSON = (this->*handler)(&type, params);
-	// TODO: send replyJSON
-	onHandledCommand(type);
+	return (this->*handler)(&type, params);
 }
 
 void HatoholArmPluginInterfaceHAPI2::onHandledCommand(const HAPI2ProcedureType &type)
