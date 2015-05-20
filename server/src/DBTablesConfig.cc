@@ -660,22 +660,6 @@ static bool updateDB(
 }
 
 // ---------------------------------------------------------------------------
-// ArmPluginInfo
-// ---------------------------------------------------------------------------
-void ArmPluginInfo::initialize(ArmPluginInfo &armPluginInfo)
-{
-	armPluginInfo.id = INVALID_ARM_PLUGIN_INFO_ID;
-	armPluginInfo.type = MONITORING_SYSTEM_UNKNOWN;
-	armPluginInfo.serverId = INVALID_SERVER_ID;
-	armPluginInfo.tlsEnableVerify = 1;
-}
-
-bool ArmPluginInfo::isTLSVerifyEnabled(void)
-{
-	return tlsEnableVerify != 0;
-}
-
-// ---------------------------------------------------------------------------
 // ServerQueryOption
 // ---------------------------------------------------------------------------
 struct ServerQueryOption::Impl {

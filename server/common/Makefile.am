@@ -1,6 +1,7 @@
 lib_LTLIBRARIES = libhatohol-common.la
 
 libhatohol_common_la_SOURCES = \
+	ArmPluginInfo.cc ArmPluginInfo.h \
 	ArmStatus.cc ArmStatus.h \
 	DataStoreException.cc DataStoreException.h \
 	EndianConverter.h \
