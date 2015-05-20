@@ -7,7 +7,6 @@ libhatohol_common_la_SOURCES = \
 	EndianConverter.h \
 	HatoholThreadBase.cc HatoholThreadBase.h \
 	HatoholArmPluginInterface.cc HatoholArmPluginInterface.h \
-	HatoholArmPluginInterfaceHAPI2.cc HatoholArmPluginInterfaceHAPI2.h \
 	HatoholException.cc HatoholException.h \
 	HatoholError.cc HatoholError.h \
 	ItemData.cc ItemData.h \
@@ -39,7 +38,8 @@ libhatohol_common_la_SOURCES += \
 	AMQPConsumer.cc AMQPConsumer.h \
 	AMQPPublisher.cc AMQPPublisher.h \
 	AMQPMessageHandler.cc AMQPMessageHandler.h \
-	GateJSONProcedureHAPI2.cc GateJSONProcedureHAPI2.h
+	GateJSONProcedureHAPI2.cc GateJSONProcedureHAPI2.h \
+	HatoholArmPluginInterfaceHAPI2.cc HatoholArmPluginInterfaceHAPI2.h
 endif
 
 AM_CXXFLAGS = \
