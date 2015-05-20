@@ -150,7 +150,6 @@ struct HatoholArmPluginGateHAPI2::Impl
 		m_handler = new AMQPHAPI2MessageHandler(m_serverInfo);
 		m_consumer = new AMQPConsumer(hapghapi->getAMQPConnectionInfo(),
 					      m_handler);
-
 	}
 
 	~Impl()
@@ -169,13 +168,6 @@ struct HatoholArmPluginGateHAPI2::Impl
 			return;
 		m_consumer->start();
 		m_armStatus.setRunningStatus(true);
-	}
-
-private:
-	string generateQueueName(const MonitoringServerInfo &serverInfo)
-	{
-		return StringUtils::sprintf("hapi2.%" FMT_SERVER_ID,
-					    serverInfo.id);
 	}
 };
 
