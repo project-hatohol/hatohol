@@ -39,7 +39,7 @@ public:
 
 	bool validate(mlpl::StringList &errors);
 
-	HAPI2ProcedureType getProcedureType();
+	HAPI2ProcedureType getType();
 	std::string getParams();
 
 private:

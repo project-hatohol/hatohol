@@ -67,7 +67,7 @@ private:
 			return;
 		}
 		string params = procedure.getParams();
-		HAPI2ProcedureType type = procedure.getProcedureType();
+		HAPI2ProcedureType type = procedure.getType();
 		AMQPJSONMessage message;
 		message.body = m_hapi2.interpretHandler(type, params, root);
 		bool succeeded = connection.publish(message);

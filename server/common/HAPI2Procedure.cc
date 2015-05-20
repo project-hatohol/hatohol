@@ -283,7 +283,7 @@ bool HAPI2Procedure::validate(StringList &errors)
 	return m_impl->validate(errors);
 }
 
-HAPI2ProcedureType HAPI2Procedure::getProcedureType()
+HAPI2ProcedureType HAPI2Procedure::getType()
 {
 	return m_impl->getHAPI2ProcedureType();
 }
