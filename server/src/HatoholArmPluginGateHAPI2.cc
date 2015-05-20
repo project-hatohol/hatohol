@@ -690,10 +690,41 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
 	return agent.generate();
 }
 
+static bool parseHostParentsParams(
+  JSONParser &parser,
+  VMInfoVect &vmInfoVect)
+{
+	parser.startObject("params");
+	parser.startObject("hostParents");
+	size_t num = parser.countElements();
+	for (size_t i = 0; i < num; i++) {
+		if (!parser.startElement(i)) {
+			MLPL_ERR("Failed to parse vm_info contents.\n");
+			return false;
+		}
+
+		VMInfo vmInfo;
+		string childHostId, parentHostId;
+		parser.read("childHostId", childHostId);
+		vmInfo.hostId = StringUtils::toUint64(childHostId);
+		parser.read("parentHostId", parentHostId);
+		vmInfo.hypervisorHostId = StringUtils::toUint64(parentHostId);
+		parser.endElement();
+
+		vmInfoVect.push_back(vmInfo);
+	}
+	parser.endObject(); // hosts
+	parser.endObject(); // params
+	return true;
+};
+
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostParents(
   const HAPI2ProcedureType type, const string &params)
 {
-	string result = "SUCCESS";
+	VMInfoVect vmInfoVect;
+	JSONParser parser(params);
+	bool succeeded = parseHostParentsParams(parser, vmInfoVect);
+	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	JSONBuilder agent;
 	agent.startObject();
