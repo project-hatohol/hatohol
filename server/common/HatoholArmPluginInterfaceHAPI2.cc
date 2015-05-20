@@ -20,6 +20,7 @@
 #include "AMQPMessageHandler.h"
 #include "AMQPConnectionInfo.h"
 #include "AMQPConsumer.h"
+#include "AMQPPublisher.h"
 #include "HAPI2Procedure.h"
 #include "HatoholArmPluginInterfaceHAPI2.h"
 
@@ -196,4 +197,14 @@ void HatoholArmPluginInterfaceHAPI2::onHandledCommand(const HAPI2ProcedureType &
 void HatoholArmPluginInterfaceHAPI2::start(void)
 {
 	m_impl->start();
+}
+
+void HatoholArmPluginInterfaceHAPI2::send(const std::string &message)
+{
+	// TODO: Should use only one conection per one thread
+	AMQPPublisher publisher(m_impl->m_connectionInfo);
+	AMQPJSONMessage amqpMessage;
+	amqpMessage.body = message;
+	publisher.setMessage(amqpMessage);
+	publisher.publish();
 }

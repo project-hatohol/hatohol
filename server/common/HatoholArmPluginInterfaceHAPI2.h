@@ -81,6 +81,7 @@ public:
 	std::string interpretHandler(const HAPI2ProcedureType &type, const std::string,
 				     JsonNode *root);
 	virtual void start(void);
+	virtual void send(const std::string &procedure);
 
 protected:
 	typedef std::map<uint16_t, ProcedureHandler> ProcedureHandlerMap;
