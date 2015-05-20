@@ -131,6 +131,10 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents);
 	registerProcedureHandler(
+	  HAPI2_UPDATE_HOST_PARENTS,
+	  (ProcedureHandler)
+	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostParents);
+	registerProcedureHandler(
 	  HAPI2_UPDATE_ARM_INFO,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateArmInfo);
@@ -675,6 +679,21 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
 	if (!parser.read("lastInfo", lastInfoValue) ) {
 		upsertLastInfo(lastInfoValue, LAST_INFO_EVENT);
 	}
+
+	JSONBuilder agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("result", result);
+	agent.add("id", 1);
+	agent.endObject();
+	// TODO: implement replying exchange profile procedure with AMQP
+	return agent.generate();
+}
+
+string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostParents(
+  const HAPI2ProcedureType type, const string &params)
+{
+	string result = "SUCCESS";
 
 	JSONBuilder agent;
 	agent.startObject();

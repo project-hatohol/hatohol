@@ -81,6 +81,8 @@ public:
 	                                           const std::string &params);
 	std::string procedureHandlerUpdateEvents(const HAPI2ProcedureType type,
 	                                         const std::string &params);
+	std::string procedureHandlerUpdateHostParents(const HAPI2ProcedureType type,
+	                                              const std::string &params);
 	std::string procedureHandlerUpdateArmInfo(const HAPI2ProcedureType type,
 	                                          const std::string &params);
 

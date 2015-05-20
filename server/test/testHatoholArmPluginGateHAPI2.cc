@@ -347,6 +347,23 @@ void test_procedureHandlerUpdateEvents(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerUpdateHostParents(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	std::string params =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"updateHostParent\","
+		" \"params\":{[{\"childHostId\":\"12\",\"parentHostId\":\"10\"}],"
+		" \"updateType\":\"ALL\", \"lastInfo\":\"201504152246\"} \"id\":1}";
+	std::string actual = gate->procedureHandlerUpdateHostParents(
+	  HAPI2_UPDATE_HOST_PARENTS, params);
+	std::string expected =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":1}";
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_procedureHandlerUpdateArmInfo(void)
 {
 	MonitoringServerInfo serverInfo;
