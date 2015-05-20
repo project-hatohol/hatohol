@@ -601,10 +601,13 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers(
   const HAPI2ProcedureType type, const string &params)
 {
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	TriggerInfoList triggerInfoList;
 	JSONParser parser(params);
 	bool succeeded = parseTriggersParams(parser, triggerInfoList);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
+	dbMonitoring.addTriggerInfoList(triggerInfoList);
 
 	JSONBuilder agent;
 	agent.startObject();
