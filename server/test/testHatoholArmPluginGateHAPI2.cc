@@ -355,8 +355,9 @@ void test_procedureHandlerUpdateHostParents(void)
 	  new HatoholArmPluginGateHAPI2(serverInfo), false);
 	std::string params =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"updateHostParent\","
-		" \"params\":{\"hostParent\":"
-		" [{\"childHostId\":\"12\",\"parentHostId\":\"10\"}],"
+		" \"params\":{\"hostParents\":"
+		" [{\"childHostId\":\"12\",\"parentHostId\":\"10\"},"
+		" {\"childHostId\":\"11\",\"parentHostId\":\"20\"}],"
 		" \"updateType\":\"ALL\", \"lastInfo\":\"201504152246\"}, \"id\":1}";
 	std::string actual = gate->procedureHandlerUpdateHostParents(
 	  HAPI2_UPDATE_HOST_PARENTS, params);
