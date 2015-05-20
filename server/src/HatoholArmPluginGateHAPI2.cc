@@ -259,6 +259,27 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 	agent.endObject();
 	return agent.generate();
 }
+static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType)
+{
+	string type;
+	parser.read("params", type);
+	if (type == "host")
+		lastInfoType = LAST_INFO_HOST;
+	else if (type == "hostGroup")
+		lastInfoType = LAST_INFO_HOST_GROUP;
+	else if (type == "hostGroupMembership")
+		lastInfoType = LAST_INFO_HOST_GROUP_MEMBERSHIP;
+	else if (type == "trigger")
+		lastInfoType = LAST_INFO_TRIGGER;
+	else if (type == "event")
+		lastInfoType = LAST_INFO_EVENT;
+	else if (type == "hostParent")
+		lastInfoType = LAST_INFO_HOST_PARENT;
+	else
+		lastInfoType = LAST_INFO_ALL;
+
+	return true;
+}
 
 string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(
   const HAPI2ProcedureType type, const string &params)
