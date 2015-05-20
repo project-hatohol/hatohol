@@ -20,7 +20,7 @@
 #include "AMQPMessageHandler.h"
 #include "AMQPConnectionInfo.h"
 #include "AMQPConsumer.h"
-#include "GateJSONProcedureHAPI2.h"
+#include "HAPI2Procedure.h"
 #include "HatoholArmPluginInterfaceHAPI2.h"
 
 using namespace std;
@@ -58,7 +58,7 @@ public:
 private:
 	void process(AMQPConnection &connection, JsonNode *root)
 	{
-		GateJSONProcedureHAPI2 procedure(root);
+		HAPI2Procedure procedure(root);
 		StringList errors;
 		if (!procedure.validate(errors)) {
 			for (auto errorMessage : errors) {

@@ -19,12 +19,12 @@
 
 #include <cmath>
 
-#include "GateJSONProcedureHAPI2.h"
+#include "HAPI2Procedure.h"
 
 using namespace std;
 using namespace mlpl;
 
-struct GateJSONProcedureHAPI2::Impl
+struct HAPI2Procedure::Impl
 {
 	JsonNode *m_root;
 	JsonObject *m_body;
@@ -269,26 +269,26 @@ private:
 	}
 };
 
-GateJSONProcedureHAPI2::GateJSONProcedureHAPI2(JsonNode *root)
+HAPI2Procedure::HAPI2Procedure(JsonNode *root)
 : m_impl(new Impl(root))
 {
 }
 
-GateJSONProcedureHAPI2::~GateJSONProcedureHAPI2()
+HAPI2Procedure::~HAPI2Procedure()
 {
 }
 
-bool GateJSONProcedureHAPI2::validate(StringList &errors)
+bool HAPI2Procedure::validate(StringList &errors)
 {
 	return m_impl->validate(errors);
 }
 
-HAPI2ProcedureType GateJSONProcedureHAPI2::getProcedureType()
+HAPI2ProcedureType HAPI2Procedure::getProcedureType()
 {
 	return m_impl->getHAPI2ProcedureType();
 }
 
-string GateJSONProcedureHAPI2::getParams()
+string HAPI2Procedure::getParams()
 {
 	return m_impl->getHAPI2Params();
 }

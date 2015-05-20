@@ -38,7 +38,7 @@ libhatohol_common_la_SOURCES += \
 	AMQPConsumer.cc AMQPConsumer.h \
 	AMQPPublisher.cc AMQPPublisher.h \
 	AMQPMessageHandler.cc AMQPMessageHandler.h \
-	GateJSONProcedureHAPI2.cc GateJSONProcedureHAPI2.h \
+	HAPI2Procedure.cc HAPI2Procedure.h \
 	HatoholArmPluginInterfaceHAPI2.cc HatoholArmPluginInterfaceHAPI2.h
 endif
 

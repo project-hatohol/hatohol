@@ -21,7 +21,6 @@
 #define HatoholArmPluginGateHAPI2_h
 
 #include "DataStore.h"
-#include "GateJSONProcedureHAPI2.h"
 #include "HatoholArmPluginInterfaceHAPI2.h"
 #include "JSONBuilder.h"
 #include "DBTablesLastInfo.h"

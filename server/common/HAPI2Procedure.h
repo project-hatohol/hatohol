@@ -17,8 +17,8 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GateJSONProcedureHAPI2_h
-#define GateJSONProcedureHAPI2_h
+#ifndef HAPI2Procedure_h
+#define HAPI2Procedure_h
 
 #include <json-glib/json-glib.h>
 
@@ -32,10 +32,10 @@
 #include <Monitoring.h>
 #include "HatoholArmPluginInterfaceHAPI2.h"
 
-class GateJSONProcedureHAPI2 {
+class HAPI2Procedure {
 public:
-	GateJSONProcedureHAPI2(JsonNode *node);
-	virtual ~GateJSONProcedureHAPI2();
+	HAPI2Procedure(JsonNode *node);
+	virtual ~HAPI2Procedure();
 
 	bool validate(mlpl::StringList &errors);
 
@@ -48,4 +48,4 @@ private:
 };
 
 
-#endif // GateJSONProcedureHAPI2_h
+#endif // HAPI2Procedure_h
