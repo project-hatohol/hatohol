@@ -567,10 +567,54 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroups(
 	return agent.generate();
 }
 
+
+static bool parseHostGroupMembershipParams(
+  JSONParser &parser,
+  HostgroupMemberVect &hostgroupMemberVect)
+{
+	parser.startObject("params");
+	parser.startObject("hostGroupsMembership");
+	size_t num = parser.countElements();
+	for (size_t i = 0; i < num; i++) {
+		if (!parser.startElement(i)) {
+			MLPL_ERR("Failed to parse hosts contents.\n");
+			return false;
+		}
+
+		HostgroupMember hostgroupMember;
+		string hostId;
+		parser.read("hostId", hostId);
+		hostgroupMember.hostId = StringUtils::toUint64(hostId);
+		parser.startObject("groupIds");
+		size_t groupIdNum = parser.countElements();
+		for (size_t j = 0; j < groupIdNum; j++) {
+			parser.read(j, hostgroupMember.hostgroupIdInServer);
+			hostgroupMemberVect.push_back(hostgroupMember);
+		}
+		parser.endElement();
+	}
+	parser.endObject(); // hosts
+	parser.endObject(); // params
+	return true;
+};
+
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroupMembership(
   const HAPI2ProcedureType type, const string &params)
 {
-	string result = "SUCCESS";
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HostgroupMemberVect hostgroupMembershipVect;
+	JSONParser parser(params);
+	bool succeeded = parseHostGroupMembershipParams(parser, hostgroupMembershipVect);
+	string result = succeeded ? "SUCCESS" : "FAILURE";
+
+	string updateType;
+	bool checkInvalidHostGroupMembership =
+	  parseHostGroupsUpdateType(parser, updateType);
+	// TODO: implement validation for HostGroupMembership
+	string lastInfo;
+	if (!parser.read("lastInfo", lastInfo) ) {
+		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP_MEMBERSHIP);
+	}
 
 	JSONBuilder agent;
 	agent.startObject();
