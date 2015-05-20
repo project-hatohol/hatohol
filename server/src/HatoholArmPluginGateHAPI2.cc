@@ -59,10 +59,8 @@ class AMQPHAPI2MessageHandler
 {
 public:
 	AMQPHAPI2MessageHandler(const MonitoringServerInfo &serverInfo)
-	: m_serverInfo(serverInfo),
-	  m_hosts()
+	: m_serverInfo(serverInfo)
 	{
-		initializeHosts();
 	}
 
 	bool handle(AMQPConnection &connection, const AMQPMessage &message)
@@ -87,22 +85,6 @@ public:
 
 private:
 	MonitoringServerInfo m_serverInfo;
-	map<string, HostIdType> m_hosts;
-
-	void initializeHosts()
-	{
-		UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-		HostsQueryOption option;
-		option.setTargetServerId(m_serverInfo.id);
-
-		ServerHostDefVect svHostDefVect;
-		THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
-		  uds->getServerHostDefs(svHostDefVect, option));
-
-		for (auto svHostDef : svHostDefVect) {
-			m_hosts[svHostDef.name] = svHostDef.hostId;
-		}
-	}
 
 	void process(JsonNode *root)
 	{
