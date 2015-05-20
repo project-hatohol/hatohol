@@ -547,13 +547,29 @@ static bool parseHostGroupsParams(JSONParser &parser,
 	return true;
 };
 
+static bool parseHostGroupsUpdateType(JSONParser &parser, string &updateType)
+{
+	parser.read("updateType", updateType);
+	return true;
+};
+
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroups(
   const HAPI2ProcedureType type, const string &params)
 {
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostgroupVect hostgroupVect;
 	JSONParser parser(params);
 	bool succeeded = parseHostGroupsParams(parser, hostgroupVect);
-	string result = "SUCCESS";
+	string result = succeeded ? "SUCCESS" : "FAILURE";
+
+	string updateType;
+	bool checkInvalidHosts = parseHostGroupsUpdateType(parser, updateType);
+	// TODO: implement validation for HostGroups
+	string lastInfo;
+	if (!parser.read("lastInfo", lastInfo) ) {
+		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP);
+	}
+	dataStore->upsertHostgroups(hostgroupVect);
 
 	JSONBuilder agent;
 	agent.startObject();
