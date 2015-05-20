@@ -30,6 +30,8 @@
 #include "ItemTablePtr.h"
 #include "Utils.h"
 #include "MonitoringServerInfo.h"
+#include "ArmPluginInfo.h"
+#include "AMQPConnectionInfo.h"
 
 enum HAPI2ProcedureType {
 	// Sv, Cl
@@ -66,6 +68,7 @@ public:
 	HatoholArmPluginInterfaceHAPI2();
 	typedef std::string (HatoholArmPluginInterfaceHAPI2::*ProcedureHandler)
 	  (const HAPI2ProcedureType *type, const std::string params);
+
 	/**
 	 * Register a procedure receive callback method.
 	 * If the same code is specified more than twice, the handler is
@@ -83,6 +86,9 @@ protected:
 	typedef std::map<uint16_t, ProcedureHandler> ProcedureHandlerMap;
 	typedef ProcedureHandlerMap::iterator	     ProcedureHandlerMapIterator;
 	typedef ProcedureHandlerMap::const_iterator  ProcedureHandlerMapConstIterator;
+
+	void setArmPluginInfo(const ArmPluginInfo &pluginInfo);
+	const AMQPConnectionInfo &getAMQPConnectionInfo(void);
 
 	virtual void onHandledCommand(const HAPI2ProcedureType &type);
 

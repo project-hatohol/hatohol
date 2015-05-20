@@ -123,7 +123,6 @@ struct HatoholArmPluginGateHAPI2::Impl
 {
 	// We have a copy. The access to the object is MT-safe.
 	const MonitoringServerInfo m_serverInfo;
-	AMQPConnectionInfo m_connectionInfo;
 	AMQPConsumer *m_consumer;
 	AMQPHAPI2MessageHandler *m_handler;
 	ArmFake m_armFake;
@@ -132,7 +131,6 @@ struct HatoholArmPluginGateHAPI2::Impl
 	Impl(const MonitoringServerInfo &_serverInfo,
 	     HatoholArmPluginGateHAPI2 *hapghapi)
 	: m_serverInfo(_serverInfo),
-	  m_connectionInfo(),
 	  m_consumer(NULL),
 	  m_handler(NULL),
 	  m_armFake(m_serverInfo),
@@ -147,28 +145,12 @@ struct HatoholArmPluginGateHAPI2::Impl
 				 serverId);
 			return;
 		}
-
-		if (!armPluginInfo.brokerUrl.empty())
-			m_connectionInfo.setURL(armPluginInfo.brokerUrl);
-
-		string queueName;
-		if (armPluginInfo.staticQueueAddress.empty())
-			queueName = generateQueueName(m_serverInfo);
-		else
-			queueName = armPluginInfo.staticQueueAddress;
-		m_connectionInfo.setQueueName(queueName);
-
-		m_connectionInfo.setTLSCertificatePath(
-			armPluginInfo.tlsCertificatePath);
-		m_connectionInfo.setTLSKeyPath(
-			armPluginInfo.tlsKeyPath);
-		m_connectionInfo.setTLSCACertificatePath(
-			armPluginInfo.tlsCACertificatePath);
-		m_connectionInfo.setTLSVerifyEnabled(
-			armPluginInfo.isTLSVerifyEnabled());
+		hapghapi->setArmPluginInfo(armPluginInfo);
 
 		m_handler = new AMQPHAPI2MessageHandler(m_serverInfo);
-		m_consumer = new AMQPConsumer(m_connectionInfo, m_handler);
+		m_consumer = new AMQPConsumer(hapghapi->getAMQPConnectionInfo(),
+					      m_handler);
+
 	}
 
 	~Impl()
