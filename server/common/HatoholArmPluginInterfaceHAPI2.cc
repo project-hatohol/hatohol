@@ -47,7 +47,7 @@ public:
 					       message.body.c_str(),
 					       message.body.size(),
 					       &error)) {
-			process(json_parser_get_root(parser));
+			process(connection, json_parser_get_root(parser));
 		} else {
 			g_error_free(error);
 		}
@@ -56,7 +56,7 @@ public:
 	}
 
 private:
-	void process(JsonNode *root)
+	void process(AMQPConnection &connection, JsonNode *root)
 	{
 		GateJSONProcedureHAPI2 procedure(root);
 		StringList errors;
@@ -67,10 +67,14 @@ private:
 			return;
 		}
 		string params = procedure.getParams();
-		string reply = m_hapi2.interpretHandler(
-				  procedure.getProcedureType(), params, root);
-		// TODO: send replyJSON
-		m_hapi2.onHandledCommand(procedure.getProcedureType());
+		HAPI2ProcedureType type = procedure.getProcedureType();
+		AMQPJSONMessage message;
+		message.body = m_hapi2.interpretHandler(type, params, root);
+		bool succeeded = connection.publish(message);
+		if (!succeeded) {
+			// TODO: retry?
+		}
+		m_hapi2.onHandledCommand(type);
 	}
 
 private:
