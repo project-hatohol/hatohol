@@ -314,7 +314,7 @@ void test_procedureHandlerUpdateTriggers(void)
 		" \"params\":{\"updateType\":\"UPDATED\","
 		" \"lastInfo\":\"201504061606\", \"fetchId\":\"1\","
 		" \"triggers\":[{\"triggerId\":\"1\", \"status\":\"OK\","
-		" \"severity\":\"INFO\",\"lastChangeTime\":\"201503231758\","
+		" \"severity\":\"INFO\",\"lastChangeTime\":\"20150323175800\","
 		" \"hostId\":\"1\", \"hostName\":\"exampleName\","
 		" \"brief\":\"example brief\","
 		" \"extendedInfo\": \"sample extended info\"}]},\"id\":1}";
