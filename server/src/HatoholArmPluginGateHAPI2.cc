@@ -544,10 +544,67 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroupMembership(
 	return agent.generate();
 }
 
+static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfoList)
+{
+	parser.startObject("params");
+	parser.startObject("triggers");
+	size_t num = parser.countElements();
+
+	for (size_t i = 0; i < num; i++) {
+		if (!parser.startElement(i)) {
+			MLPL_ERR("Failed to parse event contents.\n");
+			return false;
+		}
+
+		TriggerInfo triggerInfo;
+		parser.read("triggerId", triggerInfo.id);
+		string status;
+		parser.read("status",    status);
+		if (status == "OK")
+			triggerInfo.status = TRIGGER_STATUS_OK;
+		else if (status == "NG")
+			triggerInfo.status = TRIGGER_STATUS_PROBLEM;
+		else
+			triggerInfo.status = TRIGGER_STATUS_UNKNOWN;
+
+		string severity;
+		parser.read("severity", severity);
+		if (severity == "ALL")
+			triggerInfo.severity = TRIGGER_SEVERITY_ALL;
+		else if (severity == "UNKNOWN")
+			triggerInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
+		else if (severity == "INFO")
+			triggerInfo.severity = TRIGGER_SEVERITY_INFO;
+		else if (severity == "WARNING")
+			triggerInfo.severity = TRIGGER_SEVERITY_WARNING;
+		else if (severity == "ERROR")
+			triggerInfo.severity = TRIGGER_SEVERITY_ERROR;
+		else if (severity == "CRITICAL")
+			triggerInfo.severity = TRIGGER_SEVERITY_CRITICAL;
+		else if (severity == "EMERGENCY")
+			triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
+		string lastChangeTime;
+		parseTimeStamp(parser, "lastChangeTime", triggerInfo.lastChangeTime);
+		parser.read("hostId",       triggerInfo.hostIdInServer);
+		parser.read("hostName",     triggerInfo.hostName);
+		parser.read("brief",        triggerInfo.brief);
+		parser.read("extendedInfo", triggerInfo.extendedInfo);
+		parser.endElement();
+
+		triggerInfoList.push_back(triggerInfo);
+	}
+	parser.endObject(); // events
+	parser.endObject(); // params
+	return true;
+};
+
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers(
   const HAPI2ProcedureType type, const string &params)
 {
-	string result = "SUCCESS";
+	TriggerInfoList triggerInfoList;
+	JSONParser parser(params);
+	bool succeeded = parseTriggersParams(parser, triggerInfoList);
+	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	JSONBuilder agent;
 	agent.startObject();
