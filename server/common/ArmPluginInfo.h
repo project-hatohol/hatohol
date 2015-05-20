@@ -20,6 +20,10 @@
 #ifndef ArmPluginInfo_h
 #define ArmPluginInfo_h
 
+#include <string>
+#include <vector>
+#include <map>
+#include "Params.h"
 #include "MonitoringServerInfo.h"
 
 struct ArmPluginInfo {
