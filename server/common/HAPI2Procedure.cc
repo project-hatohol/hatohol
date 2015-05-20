@@ -24,6 +24,25 @@
 using namespace std;
 using namespace mlpl;
 
+static const map<string, HAPI2ProcedureType> procedureTypeMap = {
+	{ "exchangeProfile",  HAPI2_EXCHANGE_PROFILE },
+	{ "getMonitoringServerInfo", HAPI2_MONITORING_SERVER_INFO },
+	{ "getLastInfo", HAPI2_LAST_INFO},
+	{ "putItems", HAPI2_PUT_ITEMS },
+	{ "putHistory", HAPI2_PUT_HISTORY },
+	{ "updateHosts", HAPI2_UPDATE_HOSTS },
+	{ "updateHostGroups", HAPI2_UPDATE_HOST_GROUPS },
+	{ "updateHostGroupMembership", HAPI2_UPDATE_HOST_GROUP_MEMEBRSHIP },
+	{ "updateTriggers", HAPI2_UPDATE_TRIGGERS },
+	{ "updateEvents", HAPI2_UPDATE_EVENTS },
+	{ "updateHostParent", HAPI2_UPDATE_HOST_PARENTS },
+	{ "updateArmInfo", HAPI2_UPDATE_ARM_INFO },
+	{ "fetchItems", HAPI2_PROCEDURE_TYPE_HAP },
+	{ "fetchHistory", HAPI2_PROCEDURE_TYPE_HAP },
+	{ "fetchTriggers", HAPI2_PROCEDURE_TYPE_HAP },
+	{ "fetchEvents", HAPI2_PROCEDURE_TYPE_HAP},
+};
+
 struct HAPI2Procedure::Impl
 {
 	JsonNode *m_root;
@@ -79,41 +98,10 @@ struct HAPI2Procedure::Impl
 private:
 	HAPI2ProcedureType parseProcedureType(const string &method)
 	{
-		if (method == "exchangeProfile") {
-			return HAPI2_EXCHANGE_PROFILE;
-		} else if (method == "getMonitoringServerInfo") {
-			return HAPI2_MONITORING_SERVER_INFO;
-		} else if (method == "getLastInfo") {
-			return HAPI2_LAST_INFO;
-		} else if (method == "putItems") {
-			return HAPI2_PUT_ITEMS;
-		} else if (method == "putHistory") {
-			return HAPI2_PUT_HISTORY;
-		} else if (method == "updateHosts") {
-			return HAPI2_UPDATE_HOSTS;
-		} else if (method == "updateHostGroups") {
-			return HAPI2_UPDATE_HOST_GROUPS;
-		} else if (method == "updateHostGroupMembership") {
-			return HAPI2_UPDATE_HOST_GROUP_MEMEBRSHIP;
-		} else if (method == "updateTriggers") {
-			return HAPI2_UPDATE_TRIGGERS;
-		} else if (method == "updateEvents") {
-			return HAPI2_UPDATE_EVENTS;
-		} else if (method == "updateHostParent") {
-			return HAPI2_UPDATE_HOST_PARENTS;
-		} else if (method == "updateArmInfo") {
-			return HAPI2_UPDATE_ARM_INFO;
-		} else if (method == "fetchItems") {
-			return HAPI2_PROCEDURE_TYPE_HAP;
-		} else if (method == "fetchHistory") {
-			return HAPI2_PROCEDURE_TYPE_HAP;
-		} else if (method == "fetchTriggers") {
-			return HAPI2_PROCEDURE_TYPE_HAP;
-		} else if (method == "fetchEvents") {
-			return HAPI2_PROCEDURE_TYPE_HAP;
-		} else {
+		auto it = procedureTypeMap.find(method);
+		if (it == procedureTypeMap.end())
 			return HAPI2_PROCEDURE_TYPE_BAD;
-		}
+		return it->second;
 	}
 
 	void addError(StringList &errors,
