@@ -27,7 +27,7 @@ void ArmPluginInfo::initialize(ArmPluginInfo &armPluginInfo)
 	armPluginInfo.tlsEnableVerify = 1;
 }
 
-bool ArmPluginInfo::isTLSVerifyEnabled(void)
+bool ArmPluginInfo::isTLSVerifyEnabled(void) const
 {
 	return tlsEnableVerify != 0;
 }

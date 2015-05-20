@@ -62,7 +62,7 @@ struct ArmPluginInfo {
 
 	static void initialize(ArmPluginInfo &armPluginInfo);
 
-	bool isTLSVerifyEnabled(void);
+	bool isTLSVerifyEnabled(void) const;
 };
 
 typedef std::vector<ArmPluginInfo>        ArmPluginInfoVect;
