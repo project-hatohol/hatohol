@@ -134,6 +134,12 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 		m_impl->start();
 }
 
+void HatoholArmPluginGateHAPI2::start(void)
+{
+	HatoholArmPluginInterfaceHAPI2::start();
+	m_impl->m_armStatus.setRunningStatus(true);
+}
+
 bool HatoholArmPluginGateHAPI2::parseTimeStamp(
   const string &timeStampString, timespec &timeStamp)
 {
@@ -665,10 +671,4 @@ void HatoholArmPluginGateHAPI2::upsertLastInfo(string lastInfoValue, LastInfoTyp
 		dbLastInfo.addLastInfo(lastInfo, privilege);
 	else
 		dbLastInfo.updateLastInfo(lastInfo, privilege);
-}
-
-void HatoholArmPluginGateHAPI2::start(void)
-{
-	HatoholArmPluginInterfaceHAPI2::start();
-	m_impl->m_armStatus.setRunningStatus(true);
 }
