@@ -567,7 +567,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroups(
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	string updateType;
-	bool checkInvalidHosts = parseHostGroupsUpdateType(parser, updateType);
+	bool checkInvalidHostGroups = parseHostGroupsUpdateType(parser, updateType);
 	// TODO: implement validation for HostGroups
 	string lastInfo;
 	if (!parser.read("lastInfo", lastInfo) ) {
