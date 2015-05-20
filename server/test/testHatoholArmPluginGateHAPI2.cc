@@ -17,6 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include <gcutter.h>
 #include <Hatohol.h>
 #include <HatoholArmPluginGateHAPI2.h>
 #include "Helpers.h"
@@ -190,7 +191,29 @@ void test_procedureHandlerMonitoringServerInfo(void)
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_procedureHandlerLastInfoWithTrigger(void)
+void data_procedureHandlerLastInfo(void)
+{
+	gcut_add_datum("host",
+	               "params", G_TYPE_STRING, "host",
+	               "value", G_TYPE_STRING, "1431232440", NULL);
+	gcut_add_datum("hostGroup",
+	               "params", G_TYPE_STRING, "hostGroup",
+	               "value", G_TYPE_STRING, "1431221640", NULL);
+	gcut_add_datum("hostGroupMembership",
+	               "params", G_TYPE_STRING, "hostGroupMembership",
+	               "value", G_TYPE_STRING, "1431567240", NULL);
+	gcut_add_datum("trigger",
+	               "params", G_TYPE_STRING, "trigger",
+	               "value", G_TYPE_STRING, "1431671640", NULL);
+	gcut_add_datum("event",
+	               "params", G_TYPE_STRING, "event",
+	               "value", G_TYPE_STRING, "1431585240", NULL);
+	gcut_add_datum("hostParent",
+	               "params", G_TYPE_STRING, "hostParent",
+	               "value", G_TYPE_STRING, "1431930840", NULL);
+}
+
+void test_procedureHandlerLastInfo(gconstpointer data)
 {
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
@@ -198,12 +221,14 @@ void test_procedureHandlerLastInfoWithTrigger(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(serverInfo), false);
 	std::string params =
-		"{\"jsonrpc\":\"2.0\", \"method\":\"getLastInfo\","
-		" \"params\":\"trigger\", \"id\":1}";
+	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\", \"method\":\"getLastInfo\","
+			       " \"params\":\"%s\", \"id\":1}",
+			       gcut_data_get_string(data, "params"));
 	std::string actual = gate->procedureHandlerLastInfo(
 	  HAPI2_LAST_INFO, params);
 	std::string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":\"1431671640\",\"id\":1}";
+	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":1}",
+			       gcut_data_get_string(data, "value"));
 	cppcut_assert_equal(expected, actual);
 }
 
