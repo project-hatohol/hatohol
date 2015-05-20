@@ -58,8 +58,7 @@ class AMQPHAPI2MessageHandler
 : public AMQPMessageHandler, public HatoholArmPluginInterfaceHAPI2
 {
 public:
-	AMQPHAPI2MessageHandler(const MonitoringServerInfo &serverInfo)
-	: m_serverInfo(serverInfo)
+	AMQPHAPI2MessageHandler()
 	{
 	}
 
@@ -84,8 +83,6 @@ public:
 	}
 
 private:
-	MonitoringServerInfo m_serverInfo;
-
 	void process(JsonNode *root)
 	{
 		GateJSONProcedureHAPI2 procedure(root);
@@ -129,7 +126,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		}
 		hapghapi->setArmPluginInfo(armPluginInfo);
 
-		m_handler = new AMQPHAPI2MessageHandler(m_serverInfo);
+		m_handler = new AMQPHAPI2MessageHandler();
 		m_consumer = new AMQPConsumer(hapghapi->getAMQPConnectionInfo(),
 					      m_handler);
 	}
