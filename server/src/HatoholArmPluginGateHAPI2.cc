@@ -615,6 +615,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroupMembership(
 	if (!parser.read("lastInfo", lastInfo) ) {
 		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP_MEMBERSHIP);
 	}
+	dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
 
 	JSONBuilder agent;
 	agent.startObject();
