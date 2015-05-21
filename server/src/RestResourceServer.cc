@@ -708,6 +708,7 @@ void RestResourceServer::handlerServerType(void)
 		builder.startObject();
 		builder.add("type",       svTypeInfo.type);
 		builder.add("name",       svTypeInfo.name);
+		builder.add("uuid",       svTypeInfo.uuid);
 		builder.add("parameters", svTypeInfo.parameters);
 		builder.endObject();
 	}

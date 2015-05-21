@@ -469,6 +469,7 @@ void test_getServerType(void)
 		assertValueInParser(g_parser, "name", svTypeInfo.name);
 		assertValueInParser(g_parser, "parameters",
 		                    svTypeInfo.parameters);
+		assertValueInParser(g_parser, "uuid", svTypeInfo.uuid);
 		g_parser->endElement();
 	}
 	g_parser->endObject(); // serverType
