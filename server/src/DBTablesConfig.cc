@@ -115,7 +115,7 @@ static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_PRI,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -189,10 +189,20 @@ enum {
 	NUM_IDX_SERVER_TYPES,
 };
 
+static const int columnIndexesServerTypeUniqId[] = {
+  IDX_SERVER_TYPES_TYPE, IDX_SERVER_TYPES_UUID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsServerTypes[] = {
+  {"ServerTypeUniqId", (const int *)columnIndexesServerTypeUniqId, true},
+  {NULL}
+};
+
 static const DBAgent::TableProfile tableProfileServerTypes =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SERVER_TYPES,
 			    COLUMN_DEF_SERVER_TYPES,
-			    NUM_IDX_SERVER_TYPES);
+			    NUM_IDX_SERVER_TYPES,
+			    indexDefsServerTypes);
 
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
@@ -634,6 +644,9 @@ static bool updateDB(
 					IDX_SERVERS_BASE_URL);
 	}
 	if (oldVer < 16) {
+		// drop the primary key, use unique index instead
+		dbAgent.dropPrimaryKey(tableProfileServerTypes.name);
+
 		DBAgent::AddColumnsArg addArgForServerTypes(tableProfileServerTypes);
 		addArgForServerTypes.columnIndexes.push_back(
 			IDX_SERVER_TYPES_UUID);

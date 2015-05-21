@@ -344,6 +344,7 @@ private:
 	virtual void changeColumnDef(const TableProfile &tableProfile,
 				     const std::string &oldColumnName,
 				     const size_t &columnIndex) {}
+	virtual void dropPrimaryKey(const string &name) {}
 	virtual void renameTable(const string &srcName, const string &destName) {}
 
 	virtual uint64_t getLastInsertId(void)
