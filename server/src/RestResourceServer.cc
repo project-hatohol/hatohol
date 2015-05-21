@@ -512,14 +512,14 @@ static HatoholError parseServerParameter(
 		armPluginInfo.tlsEnableVerify = (string(value) == "true");
 
 	// uuid
-	value = (char *)g_hash_table_lookup(query, "uuid");
 	if (svInfo.type == MONITORING_SYSTEM_HAPI2) {
+		value = (char *)g_hash_table_lookup(query, "uuid");
 		if (!value && !allowEmpty)
 			return HatoholError(HTERR_NOT_FOUND_PARAMETER, "uuid");
 		// TODO: check existence of the plugin
+		if (value)
+			armPluginInfo.uuid = value;
 	}
-	if (value)
-		armPluginInfo.uuid = value;
 
 	return HTERR_OK;
 }
