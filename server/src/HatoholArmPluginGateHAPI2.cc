@@ -51,6 +51,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 {
 	// We have a copy. The access to the object is MT-safe.
 	const MonitoringServerInfo m_serverInfo;
+	ArmPluginInfo m_pluginInfo;
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
 
@@ -60,16 +61,16 @@ struct HatoholArmPluginGateHAPI2::Impl
 	  m_armFake(m_serverInfo),
 	  m_armStatus()
 	{
+		ArmPluginInfo::initialize(m_pluginInfo);
 		ThreadLocalDBCache cache;
 		DBTablesConfig &dbConfig = cache.getConfig();
 		const ServerIdType &serverId = m_serverInfo.id;
-		ArmPluginInfo armPluginInfo;
-		if (!dbConfig.getArmPluginInfo(armPluginInfo, serverId)) {
+		if (!dbConfig.getArmPluginInfo(m_pluginInfo, serverId)) {
 			MLPL_ERR("Failed to get ArmPluginInfo: serverId: %d\n",
 				 serverId);
 			return;
 		}
-		hapghapi->setArmPluginInfo(armPluginInfo);
+		hapghapi->setArmPluginInfo(m_pluginInfo);
 	}
 
 	~Impl()
