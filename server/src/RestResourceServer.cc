@@ -170,6 +170,8 @@ static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 			          pluginIt->tlsKeyPath);
 			agent.add("tlsCACertificatePath",
 			          pluginIt->tlsCACertificatePath);
+			agent.add("uuid",
+			          pluginIt->uuid);
 			if (pluginIt->tlsEnableVerify)
 				agent.addTrue("tlsEnableVerify");
 			else
@@ -508,6 +510,16 @@ static HatoholError parseServerParameter(
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		armPluginInfo.tlsEnableVerify = (string(value) == "true");
+
+	// uuid
+	value = (char *)g_hash_table_lookup(query, "uuid");
+	if (svInfo.type == MONITORING_SYSTEM_HAPI2) {
+		if (!value && !allowEmpty)
+			return HatoholError(HTERR_NOT_FOUND_PARAMETER, "uuid");
+		// TODO: check existence of the plugin
+	}
+	if (value)
+		armPluginInfo.uuid = value;
 
 	return HTERR_OK;
 }

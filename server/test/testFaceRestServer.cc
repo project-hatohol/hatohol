@@ -276,6 +276,7 @@ void test_addServerHapiJSON(void)
 	params["tlsCACertificatePath"] = armPluginInfo.tlsCACertificatePath;
 	if (armPluginInfo.tlsEnableVerify)
 		params["tlsEnableVerify"] = "true";
+	params["uuid"] = armPluginInfo.uuid;
 
 #ifdef HAVE_LIBRABBITMQ
 	assertAddServerWithSetup(params, HTERR_OK);
