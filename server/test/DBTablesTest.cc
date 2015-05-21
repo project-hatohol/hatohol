@@ -44,6 +44,7 @@ ServerTypeInfo testServerTypeInfo[] =
 	"fake-plugin",           // pluginPath
 	1,                       // plugin_sql_version
 	1,                       // plugin_enabled
+	"",                      // uuid
 },{
 	MONITORING_SYSTEM_ZABBIX, // type
 	"Zabbix",                 // name
@@ -63,6 +64,7 @@ ServerTypeInfo testServerTypeInfo[] =
 	"/usr/sbin/hatohol-arm-plugin-ver2",  // pluginPath
 	1,                       // plugin_sql_version
 	1,                       // plugin_enabled
+	"",                      // uuid
 }, {
 	MONITORING_SYSTEM_HAPI_ZABBIX,
 	"Zabbix (HAPI)",          // name
@@ -89,6 +91,7 @@ ServerTypeInfo testServerTypeInfo[] =
 	"/opt/bin/hatohol-arm-plugin-ver2000",  // pluginPath
 	1,                       // plugin_sql_version
 	1,                       // plugin_enabled
+	"",                      // uuid
 },{
 	MONITORING_SYSTEM_HAPI_JSON, // type
 	"JSON",                      // name
@@ -111,6 +114,34 @@ ServerTypeInfo testServerTypeInfo[] =
 	"",  // pluginPath
 	1,                       // plugin_sql_version
 	1,                       // plugin_enabled
+	"",                      // uuid
+},{
+	MONITORING_SYSTEM_HAPI2, // type
+	"Zabbix",                // name
+	"["
+	"{\"id\": \"nickname\", \"label\": \"Nickname\"}, "
+	"{\"id\": \"hostName\", \"label\": \"Host name\"}, "
+	"{\"id\": \"ipAddress\", \"label\": \"IP address\"}, "
+	"{\"default\": \"80\", \"id\": \"port\", \"label\": \"Port\"}, "
+	"{\"id\": \"userName\", \"label\": \"User name\"}, "
+	"{\"inputStyle\": \"password\", \"id\": \"password\","
+	" \"label\": \"Password\"}, "
+	"{\"default\": \"30\", \"id\": \"pollingInterval\","
+	" \"label\": \"Polling interval (sec)\"}, "
+	"{\"default\": \"10\", \"id\": \"retryInterval\","
+	" \"label\": \"Retry interval (sec)\"}, "
+	"{\"inputStyle\": \"checkBox\", \"id\": \"passiveMode\","
+	" \"label\": \"Passive mode\"}, "
+	"{\"hint\": \"(empty: Default)\", \"allowEmpty\": true,"
+	" \"id\": \"brokerUrl\", \"label\": \"Broker URL\"}, "
+	"{\"hint\": \"(empty: Default)\", \"allowEmpty\": true,"
+	" \"id\": \"staticQueueAddress\","
+	" \"label\": \"Static queue address\"}"
+	"]",                     // paramters
+	"hap2-zabbix",           // pluginPath
+	1,                       // plugin_sql_version
+	1,                       // plugin_enabled
+	"8e632c14-d1f7-11e4-8350-d43d7e3146fb", // uuid
 }};
 size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
 
@@ -922,6 +953,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	1,                               // serverId
+	"",                              // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_NAGIOS,   // type
@@ -929,6 +961,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	100, // (Not exists)             // serverId
+	"",                              // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST,     // type
@@ -936,6 +969,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	101, // (Not exists)             // serverId
+	"",                              // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST, // type
@@ -943,6 +977,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	102, // (Not exists)             // serverId
+	"",                              // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST_PASSIVE,   // type
@@ -950,6 +985,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	3,                               // serverId
+	"",                              // uuid
 }
 };
 const size_t NumTestArmPluginInfo = ARRAY_SIZE(testArmPluginInfo);

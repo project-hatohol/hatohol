@@ -55,6 +55,7 @@ struct ServerTypeInfo {
 	std::string          pluginPath;
 	int                  pluginSQLVersion;
 	bool                 pluginEnabled;
+	std::string          uuid;
 };
 
 typedef std::vector<ServerTypeInfo>        ServerTypeInfoVect;
@@ -89,6 +90,11 @@ struct ArmPluginInfo {
 	std::string tlsKeyPath;
 	std::string tlsCACertificatePath;
 	int tlsEnableVerify;
+
+	/*
+	 * UUID for HAPI2 plugins
+	 */
+	std::string uuid;
 
 	static void initialize(ArmPluginInfo &armPluginInfo);
 

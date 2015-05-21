@@ -93,7 +93,7 @@ static string makeExpectedDBOutLine(
   const size_t &idx, const ArmPluginInfo &armPluginInfo)
 {
 	string s = StringUtils::sprintf(
-	  "%zd|%d|%s|%s|%s|%" FMT_SERVER_ID "|%s|%s|%s|%d",
+	  "%zd|%d|%s|%s|%s|%" FMT_SERVER_ID "|%s|%s|%s|%d|%s",
 	  (idx + 1), // armPluginInfo.id
 	  armPluginInfo.type,
 	  armPluginInfo.path.c_str(),
@@ -103,7 +103,8 @@ static string makeExpectedDBOutLine(
 	  armPluginInfo.tlsCertificatePath.c_str(),
 	  armPluginInfo.tlsKeyPath.c_str(),
 	  armPluginInfo.tlsCACertificatePath.c_str(),
-	  armPluginInfo.tlsEnableVerify);
+	  armPluginInfo.tlsEnableVerify,
+	  armPluginInfo.uuid.c_str());
 	return s;
 }
 
@@ -217,12 +218,13 @@ void test_registerServerType(void)
 	// check content
 	const string statement = "SELECT * FROM server_types";
 	const string expectedOut =
-	  StringUtils::sprintf("%d|%s|%s|%s|%d|%d\n",
+	  StringUtils::sprintf("%d|%s|%s|%s|%d|%d|%s\n",
 	                       svTypeInfo.type, svTypeInfo.name.c_str(),
 	                       svTypeInfo.parameters.c_str(),
 	                       svTypeInfo.pluginPath.c_str(),
 	                       svTypeInfo.pluginSQLVersion,
-	                       svTypeInfo.pluginEnabled);
+	                       svTypeInfo.pluginEnabled,
+			       svTypeInfo.uuid.c_str());
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
@@ -243,12 +245,13 @@ void test_registerServerTypeUpdate(void)
 	// check content
 	const string statement = "SELECT * FROM server_types";
 	const string expectedOut =
-	  StringUtils::sprintf("%d|%s|%s|%s|%d|%d\n",
+	  StringUtils::sprintf("%d|%s|%s|%s|%d|%d|%s\n",
 	                       svTypeInfo.type, svTypeInfo.name.c_str(),
 	                       svTypeInfo.parameters.c_str(),
 	                       svTypeInfo.pluginPath.c_str(),
 	                       svTypeInfo.pluginSQLVersion,
-	                       svTypeInfo.pluginEnabled);
+	                       svTypeInfo.pluginEnabled,
+			       svTypeInfo.uuid.c_str());
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
