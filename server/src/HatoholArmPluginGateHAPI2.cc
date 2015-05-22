@@ -441,10 +441,17 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 	return true;
 };
 
-static bool parseHostsUpdateType(JSONParser &parser, string &updateType)
+static bool parseUpdateType(JSONParser &parser, string &updateType)
 {
 	parser.read("updateType", updateType);
-	return true;
+	if (updateType == "ALL") {
+		return true;
+	} else if (updateType == "UPDATED") {
+		return false;
+	} else {
+		MLPL_WARN("Invalid update type: %s\n", updateType.c_str());
+		return false;
+	}
 };
 
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
@@ -456,7 +463,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseHostsParams(parser, hostInfoVect, serverInfo);
 	string updateType;
-	bool checkInvalidHosts = parseHostsUpdateType(parser, updateType);
+	bool checkInvalidHosts = parseUpdateType(parser, updateType);
 	// TODO: implement validation for Hosts
 	string lastInfo;
 	if (!parser.read("lastInfo", lastInfo) ) {
@@ -499,19 +506,6 @@ static bool parseHostGroupsParams(JSONParser &parser,
 	parser.endObject(); // hosts
 	parser.endObject(); // params
 	return true;
-};
-
-static bool parseUpdateType(JSONParser &parser, string &updateType)
-{
-	parser.read("updateType", updateType);
-	if (updateType == "ALL") {
-		return true;
-	} else if (updateType == "UPDATED") {
-		return false;
-	} else {
-		MLPL_WARN("Invalid update type: %s\n", updateType.c_str());
-		return false;
-	}
 };
 
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroups(
