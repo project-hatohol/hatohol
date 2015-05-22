@@ -350,6 +350,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(
 	bool succeeded = parseItemParams(parser, itemList, serverInfo);
 	dataStore->addItemList(itemList);
 
+	string fetchId;
+	parser.read("fetchId", fetchId);
+	// TODO: callback
+
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
@@ -396,6 +400,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseHistoryParams(parser, historyInfoVect, serverInfo);
 	// TODO: Store or transport historyInfoVect
+
+	string fetchId;
+	parser.read("fetchId", fetchId);
+	// TODO: callback
 
 	JSONBuilder agent;
 	agent.startObject();
@@ -665,6 +673,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers(
 		upsertLastInfo(lastInfoValue, LAST_INFO_TRIGGER);
 	}
 
+	if (parser.isMember("fetchId")) {
+		string fetchId;
+		parser.read("fetchId", fetchId);
+		// TODO: callback
+	}
+
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
@@ -737,6 +751,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
 	string lastInfoValue;
 	if (!parser.read("lastInfo", lastInfoValue) ) {
 		upsertLastInfo(lastInfoValue, LAST_INFO_EVENT);
+	}
+
+	if (parser.isMember("fetchId")) {
+		string fetchId;
+		parser.read("fetchId", fetchId);
+		// TODO: callback
 	}
 
 	JSONBuilder agent;
