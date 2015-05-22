@@ -160,7 +160,7 @@ LastInfoIdType DBTablesLastInfo::upsertLastInfo(LastInfoDef &lastInfoDef,
 
 	LastInfoIdType lastInfoId;
 	DBAgent::InsertArg arg(tableProfileLastInfo);
-	arg.add(AUTO_INCREMENT_VALUE);
+	arg.add(lastInfoDef.id);
 	arg.add(lastInfoDef.dataType);
 	arg.add(lastInfoDef.value);
 	arg.add(lastInfoDef.serverId);
