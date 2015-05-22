@@ -596,7 +596,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroupMembership(
 	agent.add("result", result);
 	agent.add("id", 1);
 	agent.endObject();
-	// TODO: implement replying exchange profile procedure with AMQP
 	return agent.generate();
 }
 
