@@ -91,11 +91,11 @@ enum {
 	NUM_IDX_LAST_INFO,
 };
 
-static const int columnIndexesLastUniqId[] = {
+constexpr static const int columnIndexesLastUniqId[] = {
   IDX_LAST_INFO_DATA_TYPE, IDX_LAST_INFO_SERVER_ID, DBAgent::IndexDef::END,
 };
 
-static const DBAgent::IndexDef indexDefsLastInfo[] = {
+constexpr static const DBAgent::IndexDef indexDefsLastInfo[] = {
   {"LastUniqId", (const int *)columnIndexesLastUniqId, true},
   {NULL}
 };
