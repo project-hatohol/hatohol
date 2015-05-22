@@ -164,6 +164,7 @@ LastInfoIdType DBTablesLastInfo::addLastInfo(LastInfoDef &lastInfoDef,
 	arg.add(lastInfoDef.dataType);
 	arg.add(lastInfoDef.value);
 	arg.add(lastInfoDef.serverId);
+	arg.upsertOnDuplicate = true;
 
 	getDBAgent().runTransaction(arg, &lastInfoId);
 	return lastInfoId;
