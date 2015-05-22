@@ -501,10 +501,17 @@ static bool parseHostGroupsParams(JSONParser &parser,
 	return true;
 };
 
-static bool parseHostGroupsUpdateType(JSONParser &parser, string &updateType)
+static bool parseUpdateType(JSONParser &parser, string &updateType)
 {
 	parser.read("updateType", updateType);
-	return true;
+	if (updateType == "ALL") {
+		return true;
+	} else if (updateType == "UPDATED") {
+		return false;
+	} else {
+		MLPL_WARN("Invalid update type: %s\n", updateType.c_str());
+		return false;
+	}
 };
 
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroups(
@@ -518,7 +525,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroups(
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	string updateType;
-	bool checkInvalidHostGroups = parseHostGroupsUpdateType(parser, updateType);
+	bool checkInvalidHostGroups = parseUpdateType(parser, updateType);
 	// TODO: implement validation for HostGroups
 	string lastInfo;
 	if (!parser.read("lastInfo", lastInfo) ) {
@@ -581,7 +588,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroupMembership(
 
 	string updateType;
 	bool checkInvalidHostGroupMembership =
-	  parseHostGroupsUpdateType(parser, updateType);
+	  parseUpdateType(parser, updateType);
 	// TODO: implement validation for HostGroupMembership
 	string lastInfo;
 	if (!parser.read("lastInfo", lastInfo) ) {
