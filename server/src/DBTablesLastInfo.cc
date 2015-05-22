@@ -484,6 +484,8 @@ string LastInfoQueryOption::getCondition(void) const
 	               "LastInfoDef condition template is empty.");
 
 	if (m_impl->serverId != INVALID_LAST_INFO_SERVER_ID) {
+		if (!cond.empty())
+			cond += " AND ";
 		cond += makeServerIdCondition(m_impl->serverId);
 	}
 
