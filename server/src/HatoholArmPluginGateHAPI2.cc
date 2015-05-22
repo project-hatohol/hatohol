@@ -490,9 +490,7 @@ static bool parseHostGroupsParams(JSONParser &parser,
 
 		Hostgroup hostgroup;
 		hostgroup.serverId = serverInfo.id;
-		int64_t hostIdInServer;
-		parser.read("groupId", hostIdInServer);
-		hostgroup.idInServer = hostIdInServer;
+		parser.read("groupId", hostgroup.idInServer);
 		parser.read("groupName", hostgroup.name);
 		parser.endElement();
 
