@@ -259,6 +259,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 	agent.endObject();
 	return agent.generate();
 }
+
 static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType)
 {
 	string type;
