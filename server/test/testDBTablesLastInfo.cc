@@ -85,6 +85,31 @@ void test_upsertLastInfo(void)
 	cppcut_assert_not_equal((LastInfoIdType)AUTO_INCREMENT_VALUE, lastInfoId);
 }
 
+void test_upsertLastInfoUpdate(void)
+{
+	loadTestDBLastInfo();
+
+	DECLARE_DBTABLES_LAST_INFO(dbLastInfo);
+	LastInfoDef lastInfo;
+	lastInfo.id = AUTO_INCREMENT_VALUE;
+	lastInfo.dataType = LAST_INFO_HOST;
+	lastInfo.value = "1432103640";
+	lastInfo.serverId = 10001;
+
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	LastInfoIdType id0 = dbLastInfo.upsertLastInfo(lastInfo, privilege);
+	lastInfo.id = id0;
+	LastInfoIdType id1 = dbLastInfo.upsertLastInfo(lastInfo, privilege);
+	const string statement = "SELECT * FROM last_info WHERE last_info_id = " +
+		StringUtils::toString(id1);
+	const string expect =
+	  StringUtils::sprintf("%" FMT_LAST_INFO_ID "|%d|%s|%d",
+			       id1, lastInfo.dataType,
+			       lastInfo.value.c_str(), lastInfo.serverId);
+	assertDBContent(&dbLastInfo.getDBAgent(), statement, expect);
+	cppcut_assert_not_equal((GenericIdType)AUTO_INCREMENT_VALUE, id1);
+}
+
 void test_updateLastInfo(void)
 {
 	loadTestDBLastInfo();
