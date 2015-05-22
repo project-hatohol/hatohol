@@ -91,10 +91,20 @@ enum {
 	NUM_IDX_LAST_INFO,
 };
 
+static const int columnIndexesLastUniqId[] = {
+  IDX_LAST_INFO_DATA_TYPE, IDX_LAST_INFO_SERVER_ID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsLastInfo[] = {
+  {"LastUniqId", (const int *)columnIndexesLastUniqId, true},
+  {NULL}
+};
+
 static const DBAgent::TableProfile tableProfileLastInfo =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_LAST_INFO,
 			    COLUMN_DEF_LAST_INFO,
-			    NUM_IDX_LAST_INFO);
+			    NUM_IDX_LAST_INFO,
+			    indexDefsLastInfo);
 
 static bool updateDB(
   DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
