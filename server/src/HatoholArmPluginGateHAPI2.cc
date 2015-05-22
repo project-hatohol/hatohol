@@ -665,6 +665,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers(
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseTriggersParams(parser, triggerInfoList, serverInfo);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
+
+	string updateType;
+	bool checkInvalidTriggers = parseUpdateType(parser, updateType);
+	// TODO: implement validation for triggers
 	dbMonitoring.addTriggerInfoList(triggerInfoList);
 	string lastInfoValue;
 	if (!parser.read("lastInfo", lastInfoValue) ) {
@@ -803,6 +807,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostParents(
 	JSONParser parser(params);
 	bool succeeded = parseHostParentsParams(parser, vmInfoVect);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
+
+	string updateType;
+	bool checkInvalidTriggers = parseUpdateType(parser, updateType);
+	// TODO: implement validation for triggers
 	for (auto vmInfo : vmInfoVect)
 		dbHost.upsertVMInfo(vmInfo);
 	string lastInfoValue;
