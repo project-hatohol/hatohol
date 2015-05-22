@@ -374,7 +374,7 @@ void test_procedureHandlerUpdateEvents(gconstpointer data)
 			       " %s \"status\": \"OK\", \"severity\":\"INFO\","
 			       " \"hostId\":3, \"hostName\":\"exampleName\","
 			       " \"brief\":\"example brief\","
-			       " \"extendedInfo\": \"sampel extended info\"}],"
+			       " \"extendedInfo\": \"sample extended info\"}],"
 			       " \"lastInfo\":\"20150401175900\","
 			       " \"fetchId\":\"1\"},\"id\":1}",
 			       gcut_data_get_string(data, "triggerIdContents"));
