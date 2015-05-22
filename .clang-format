@@ -13,4 +13,8 @@ ConstructorInitializerIndentWidth: 0
 AlignEscapedNewlinesLeft: false
 AlwaysBreakBeforeMultilineStrings: false
 NamespaceIndentation: None
+Standard: Cpp11
+AccessModifierOffset: -8
+AlignOperands: true
+BinPackParameters: false
 # AlignConsecutiveAssignments: true
