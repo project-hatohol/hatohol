@@ -277,7 +277,7 @@ static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType)
 	else if (type == "hostParent")
 		lastInfoType = LAST_INFO_HOST_PARENT;
 	else
-		lastInfoType = LAST_INFO_ALL;
+		lastInfoType = LAST_INFO_ALL; // TODO: should return an error
 
 	return true;
 }
