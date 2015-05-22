@@ -91,10 +91,20 @@ enum {
 	NUM_IDX_LAST_INFO,
 };
 
+constexpr static const int columnIndexesLastUniqId[] = {
+  IDX_LAST_INFO_DATA_TYPE, IDX_LAST_INFO_SERVER_ID, DBAgent::IndexDef::END,
+};
+
+constexpr static const DBAgent::IndexDef indexDefsLastInfo[] = {
+  {"LastUniqId", (const int *)columnIndexesLastUniqId, true},
+  {NULL}
+};
+
 static const DBAgent::TableProfile tableProfileLastInfo =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_LAST_INFO,
 			    COLUMN_DEF_LAST_INFO,
-			    NUM_IDX_LAST_INFO);
+			    NUM_IDX_LAST_INFO,
+			    indexDefsLastInfo);
 
 static bool updateDB(
   DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
@@ -141,8 +151,8 @@ DBTablesLastInfo::~DBTablesLastInfo()
 {
 }
 
-LastInfoIdType DBTablesLastInfo::addLastInfo(LastInfoDef &lastInfoDef,
-                                             const OperationPrivilege &privilege)
+LastInfoIdType DBTablesLastInfo::upsertLastInfo(LastInfoDef &lastInfoDef,
+                                                const OperationPrivilege &privilege)
 {
 	HatoholError err = checkPrivilegeForAdd(privilege, lastInfoDef);
 	if (err != HTERR_OK)
@@ -150,10 +160,11 @@ LastInfoIdType DBTablesLastInfo::addLastInfo(LastInfoDef &lastInfoDef,
 
 	LastInfoIdType lastInfoId;
 	DBAgent::InsertArg arg(tableProfileLastInfo);
-	arg.add(AUTO_INCREMENT_VALUE);
+	arg.add(lastInfoDef.id);
 	arg.add(lastInfoDef.dataType);
 	arg.add(lastInfoDef.value);
 	arg.add(lastInfoDef.serverId);
+	arg.upsertOnDuplicate = true;
 
 	getDBAgent().runTransaction(arg, &lastInfoId);
 	return lastInfoId;
@@ -473,6 +484,8 @@ string LastInfoQueryOption::getCondition(void) const
 	               "LastInfoDef condition template is empty.");
 
 	if (m_impl->serverId != INVALID_LAST_INFO_SERVER_ID) {
+		if (!cond.empty())
+			cond += " AND ";
 		cond += makeServerIdCondition(m_impl->serverId);
 	}
 

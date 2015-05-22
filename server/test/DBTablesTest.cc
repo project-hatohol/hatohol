@@ -2272,5 +2272,5 @@ void loadTestDBLastInfo(void)
 	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestLastInfoDef; i++)
-		dbLastInfo.addLastInfo(testLastInfoDef[i], privilege);
+		dbLastInfo.upsertLastInfo(testLastInfoDef[i], privilege);
 }
