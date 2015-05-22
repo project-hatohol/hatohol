@@ -278,6 +278,7 @@ static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType)
 		lastInfoType = LAST_INFO_HOST_PARENT;
 	else
 		lastInfoType = LAST_INFO_ALL; // TODO: should return an error
+	parser.endObject(); // params
 
 	return true;
 }
@@ -312,7 +313,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(
 static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 			    const MonitoringServerInfo &serverInfo)
 {
-	parser.startObject("params");
 	parser.startObject("items");
 	size_t num = parser.countElements();
 
@@ -336,7 +336,6 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 		itemInfoList.push_back(itemInfo);
 	}
 	parser.endObject(); // items
-	parser.endObject(); // params
 	return true;
 };
 
@@ -346,6 +345,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ItemInfoList itemList;
 	JSONParser parser(params);
+	parser.startObject("params");
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseItemParams(parser, itemList, serverInfo);
 	dataStore->addItemList(itemList);
@@ -353,6 +354,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(
 	string fetchId;
 	parser.read("fetchId", fetchId);
 	// TODO: callback
+
+	parser.endObject(); // params
 
 	JSONBuilder agent;
 	agent.startObject();
@@ -366,7 +369,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(
 static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoVect,
 			       const MonitoringServerInfo &serverInfo)
 {
-	parser.startObject("params");
 	ItemIdType itemId = "";
 	parser.read("itemId", itemId);
 	parser.startObject("histories");
@@ -388,7 +390,6 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 		historyInfoVect.push_back(historyInfo);
 	}
 	parser.endObject(); // histories
-	parser.endObject(); // params
 	return true;
 };
 
@@ -397,6 +398,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 {
 	HistoryInfoVect historyInfoVect;
 	JSONParser parser(params);
+	parser.startObject("params");
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseHistoryParams(parser, historyInfoVect, serverInfo);
 	// TODO: Store or transport historyInfoVect
@@ -404,6 +407,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	string fetchId;
 	parser.read("fetchId", fetchId);
 	// TODO: callback
+
+	parser.endObject(); // params
 
 	JSONBuilder agent;
 	agent.startObject();
@@ -417,7 +422,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect,
 			     const MonitoringServerInfo &serverInfo)
 {
-	parser.startObject("params");
 	parser.startObject("hosts");
 	size_t num = parser.countElements();
 	for (size_t j = 0; j < num; j++) {
@@ -437,7 +441,6 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 		hostInfoVect.push_back(hostInfo);
 	}
 	parser.endObject(); // hosts
-	parser.endObject(); // params
 	return true;
 };
 
@@ -460,6 +463,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerHostDefVect hostInfoVect;
 	JSONParser parser(params);
+	parser.startObject("params");
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseHostsParams(parser, hostInfoVect, serverInfo);
 	string updateType;
@@ -472,6 +477,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
 
 	dataStore->upsertHosts(hostInfoVect);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
+
+	parser.endObject(); // params
 
 	JSONBuilder agent;
 	agent.startObject();
@@ -486,7 +493,6 @@ static bool parseHostGroupsParams(JSONParser &parser,
 				  HostgroupVect &hostgroupVect,
 				  const MonitoringServerInfo &serverInfo)
 {
-	parser.startObject("params");
 	parser.startObject("hostGroups");
 	size_t num = parser.countElements();
 	for (size_t j = 0; j < num; j++) {
@@ -503,8 +509,7 @@ static bool parseHostGroupsParams(JSONParser &parser,
 
 		hostgroupVect.push_back(hostgroup);
 	}
-	parser.endObject(); // hosts
-	parser.endObject(); // params
+	parser.endObject(); // hostsGroups
 	return true;
 };
 
@@ -514,6 +519,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroups(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostgroupVect hostgroupVect;
 	JSONParser parser(params);
+	parser.startObject("params");
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseHostGroupsParams(parser, hostgroupVect, serverInfo);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
@@ -526,6 +533,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroups(
 		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP);
 	}
 	dataStore->upsertHostgroups(hostgroupVect);
+
+	parser.endObject(); // params
 
 	JSONBuilder agent;
 	agent.startObject();
@@ -542,7 +551,6 @@ static bool parseHostGroupMembershipParams(
   HostgroupMemberVect &hostgroupMemberVect,
   const MonitoringServerInfo &serverInfo)
 {
-	parser.startObject("params");
 	parser.startObject("hostGroupsMembership");
 	size_t num = parser.countElements();
 	for (size_t i = 0; i < num; i++) {
@@ -562,10 +570,10 @@ static bool parseHostGroupMembershipParams(
 			parser.read(j, hostgroupMember.hostgroupIdInServer);
 			hostgroupMemberVect.push_back(hostgroupMember);
 		}
+		parser.endObject(); // groupIds
 		parser.endElement();
 	}
-	parser.endObject(); // hosts
-	parser.endObject(); // params
+	parser.endObject(); // hostGroupsMembership
 	return true;
 };
 
@@ -575,6 +583,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroupMembership(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostgroupMemberVect hostgroupMembershipVect;
 	JSONParser parser(params);
+	parser.startObject("params");
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseHostGroupMembershipParams(parser, hostgroupMembershipVect,
 							serverInfo);
@@ -590,6 +600,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroupMembership(
 	}
 	dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
 
+	parser.endObject(); // params
+
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
@@ -602,7 +614,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroupMembership(
 static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfoList,
 				const MonitoringServerInfo &serverInfo)
 {
-	parser.startObject("params");
 	parser.startObject("triggers");
 	size_t num = parser.countElements();
 
@@ -650,8 +661,7 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 
 		triggerInfoList.push_back(triggerInfo);
 	}
-	parser.endObject(); // events
-	parser.endObject(); // params
+	parser.endObject(); // triggers
 	return true;
 };
 
@@ -662,6 +672,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers(
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	TriggerInfoList triggerInfoList;
 	JSONParser parser(params);
+	parser.startObject("params");
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseTriggersParams(parser, triggerInfoList, serverInfo);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
@@ -681,6 +693,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers(
 		// TODO: callback
 	}
 
+	parser.endObject(); // params
+
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
@@ -693,7 +707,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers(
 static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 			      const MonitoringServerInfo &serverInfo)
 {
-	parser.startObject("params");
 	parser.startObject("events");
 	size_t num = parser.countElements();
 	constexpr const size_t numLimit = 1000;
@@ -736,7 +749,6 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 		eventInfoList.push_back(eventInfo);
 	}
 	parser.endObject(); // events
-	parser.endObject(); // params
 	return true;
 };
 
@@ -746,6 +758,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList eventInfoList;
 	JSONParser parser(params);
+	parser.startObject("params");
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseEventsParams(parser, eventInfoList, serverInfo);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
@@ -761,6 +775,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
 		// TODO: callback
 	}
 
+	parser.endObject(); // params
+
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
@@ -774,7 +790,6 @@ static bool parseHostParentsParams(
   JSONParser &parser,
   VMInfoVect &vmInfoVect)
 {
-	parser.startObject("params");
 	parser.startObject("hostParents");
 	size_t num = parser.countElements();
 	for (size_t i = 0; i < num; i++) {
@@ -793,8 +808,7 @@ static bool parseHostParentsParams(
 
 		vmInfoVect.push_back(vmInfo);
 	}
-	parser.endObject(); // hosts
-	parser.endObject(); // params
+	parser.endObject(); // hostsParents
 	return true;
 };
 
@@ -805,6 +819,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostParents(
 	DBTablesHost &dbHost = cache.getHost();
 	VMInfoVect vmInfoVect;
 	JSONParser parser(params);
+	parser.startObject("params");
+
 	bool succeeded = parseHostParentsParams(parser, vmInfoVect);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
@@ -818,6 +834,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostParents(
 		upsertLastInfo(lastInfoValue, LAST_INFO_HOST_PARENT);
 	}
 
+	parser.endObject(); // params
+
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
@@ -829,7 +847,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostParents(
 
 static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo)
 {
-	parser.startObject("params");
 	string status;
 	parser.read("lastStatus", status);
 	if (status == "INIT")
@@ -862,9 +879,13 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateArmInfo(
 	ArmStatus status;
 	ArmInfo armInfo;
 	JSONParser parser(params);
+	parser.startObject("params");
+
 	bool succeeded = parseArmInfoParams(parser, armInfo);
 	status.setArmInfo(armInfo);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
+
+	parser.endObject(); // params
 
 	JSONBuilder agent;
 	agent.startObject();
