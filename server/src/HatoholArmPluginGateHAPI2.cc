@@ -866,6 +866,7 @@ void HatoholArmPluginGateHAPI2::upsertLastInfo(string lastInfoValue, LastInfoTyp
 
 	LastInfoQueryOption option(USER_ID_SYSTEM);
 	option.setLastInfoType(type);
+	option.setTargetId(serverInfo.id);
 	LastInfoDefList lastInfoList;
 	dbLastInfo.getLastInfoList(lastInfoList, option);
 	if (lastInfoList.empty())
