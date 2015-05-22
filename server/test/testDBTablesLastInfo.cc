@@ -63,7 +63,7 @@ void test_tablesVersion(void)
 	  DB_TABLES_ID_LAST_INFO, DBTablesLastInfo::LAST_INFO_DB_VERSION);
 }
 
-void test_addLastInfo(void)
+void test_upsertLastInfo(void)
 {
 	DECLARE_DBTABLES_LAST_INFO(dbLastInfo);
 	LastInfoDef lastInfo;
@@ -71,7 +71,7 @@ void test_addLastInfo(void)
 	lastInfo.value = "1432103640";
 	lastInfo.serverId = 10001;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	LastInfoIdType lastInfoId = dbLastInfo.addLastInfo(lastInfo, privilege);
+	LastInfoIdType lastInfoId = dbLastInfo.upsertLastInfo(lastInfo, privilege);
 	const string statement = "SELECT * FROM last_info";
 	const string expect =
 	  StringUtils::sprintf("%" FMT_LAST_INFO_ID "|%d|%s|%d",

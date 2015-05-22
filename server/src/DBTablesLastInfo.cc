@@ -151,8 +151,8 @@ DBTablesLastInfo::~DBTablesLastInfo()
 {
 }
 
-LastInfoIdType DBTablesLastInfo::addLastInfo(LastInfoDef &lastInfoDef,
-                                             const OperationPrivilege &privilege)
+LastInfoIdType DBTablesLastInfo::upsertLastInfo(LastInfoDef &lastInfoDef,
+                                                const OperationPrivilege &privilege)
 {
 	HatoholError err = checkPrivilegeForAdd(privilege, lastInfoDef);
 	if (err != HTERR_OK)
