@@ -87,8 +87,6 @@ void test_upsertLastInfo(void)
 
 void test_upsertLastInfoUpdate(void)
 {
-	loadTestDBLastInfo();
-
 	DECLARE_DBTABLES_LAST_INFO(dbLastInfo);
 	LastInfoDef lastInfo;
 	lastInfo.id = AUTO_INCREMENT_VALUE;
@@ -100,8 +98,7 @@ void test_upsertLastInfoUpdate(void)
 	LastInfoIdType id0 = dbLastInfo.upsertLastInfo(lastInfo, privilege);
 	lastInfo.id = id0;
 	LastInfoIdType id1 = dbLastInfo.upsertLastInfo(lastInfo, privilege);
-	const string statement = "SELECT * FROM last_info WHERE last_info_id = " +
-		StringUtils::toString(id1);
+	const string statement = "SELECT * FROM last_info";
 	const string expect =
 	  StringUtils::sprintf("%" FMT_LAST_INFO_ID "|%d|%s|%d",
 			       id1, lastInfo.dataType,
