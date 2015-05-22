@@ -640,6 +640,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers(
 	bool succeeded = parseTriggersParams(parser, triggerInfoList);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 	dbMonitoring.addTriggerInfoList(triggerInfoList);
+	string lastInfoValue;
+	if (!parser.read("lastInfo", lastInfoValue) ) {
+		upsertLastInfo(lastInfoValue, LAST_INFO_TRIGGER);
+	}
 
 	JSONBuilder agent;
 	agent.startObject();
