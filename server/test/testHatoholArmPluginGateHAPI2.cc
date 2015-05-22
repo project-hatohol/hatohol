@@ -186,7 +186,7 @@ void test_procedureHandlerMonitoringServerInfo(void)
 		 "\"type\":\"902d955c-d1f7-11e4-80f9-d43d7e3146fb\","
 		 "\"nickName\":\"Akira\",\"userName\":\"nagios-operator\","
 		 "\"password\":\"5t64k-f3-ui.l76n\",\"pollingIntervalSec\":300,"
-		 "\"retryIntervalSec\":60,\"extendedInfo\":\"exampleExtraInfo\""
+		 "\"retryIntervalSec\":60,\"extendedInfo\":\"test exteneded info\""
 		"},\"id\":1}";
 	cppcut_assert_equal(expected, actual);
 }

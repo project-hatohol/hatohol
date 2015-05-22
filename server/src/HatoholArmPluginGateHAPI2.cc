@@ -253,8 +253,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 	agent.add("password", serverInfo.password);
 	agent.add("pollingIntervalSec", serverInfo.pollingIntervalSec);
 	agent.add("retryIntervalSec", serverInfo.retryIntervalSec);
-	// TODO: Use serverInfo.extendedInfo
-	agent.add("extendedInfo", "exampleExtraInfo");
+	agent.add("extendedInfo", serverInfo.extendedInfo);
 	agent.endObject(); // result
 	agent.add("id", 1);
 	agent.endObject();
