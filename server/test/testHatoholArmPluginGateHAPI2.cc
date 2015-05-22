@@ -286,7 +286,7 @@ void test_procedureHandlerUpdateHosts(void)
 	std::string params =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"updateHosts\", \"params\":"
 		"{\"hosts\":[{\"hostId\":\"1\", \"hostName\":\"exampleHostName1\"}],"
-		" \"updateType\":\"UPDATE\",\"lastInfo\":\"201504091052\"}, \"id\":1}";
+		" \"updateType\":\"UPDATED\",\"lastInfo\":\"201504091052\"}, \"id\":1}";
 	std::string actual = gate->procedureHandlerUpdateHosts(
 	  HAPI2_UPDATE_HOSTS, params);
 	std::string expected =
