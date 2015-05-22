@@ -353,21 +353,31 @@ void test_procedureHandlerUpdateTriggers(void)
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_procedureHandlerUpdateEvents(void)
+void data_procedureHandlerUpdateEvents(void)
+{
+	gcut_add_datum("WithTriggerId",
+	               "triggerIdContents", G_TYPE_STRING, " \"triggerId\":2,", NULL);
+	gcut_add_datum("WithoutTriggerId",
+	               "triggerIdContents", G_TYPE_STRING, "", NULL);
+}
+
+void test_procedureHandlerUpdateEvents(gconstpointer data)
 {
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(serverInfo), false);
 	std::string params =
-		"{\"jsonrpc\":\"2.0\", \"method\":\"updateEvents\","
-		" \"params\":{\"events\":[{\"eventId\":\"1\","
-		" \"time\":\"20150323151300\", \"type\":\"GOOD\","
-		" \"triggerId\":2, \"status\": \"OK\",\"severity\":\"INFO\","
-		" \"hostId\":3, \"hostName\":\"exampleName\","
-		" \"brief\":\"example brief\","
-		" \"extendedInfo\": \"sampel extended info\"}],"
-		" \"lastInfo\":\"20150401175900\", \"fetchId\":\"1\"},\"id\":1}";
+	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\", \"method\":\"updateEvents\","
+			       " \"params\":{\"events\":[{\"eventId\":\"1\","
+			       " \"time\":\"20150323151300\", \"type\":\"GOOD\","
+			       " %s \"status\": \"OK\", \"severity\":\"INFO\","
+			       " \"hostId\":3, \"hostName\":\"exampleName\","
+			       " \"brief\":\"example brief\","
+			       " \"extendedInfo\": \"sampel extended info\"}],"
+			       " \"lastInfo\":\"20150401175900\","
+			       " \"fetchId\":\"1\"},\"id\":1}",
+			       gcut_data_get_string(data, "triggerIdContents"));
 	std::string actual = gate->procedureHandlerUpdateEvents(
 	  HAPI2_UPDATE_EVENTS, params);
 	std::string expected =
