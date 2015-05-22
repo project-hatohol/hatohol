@@ -660,6 +660,8 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList)
 	parser.startObject("events");
 	size_t num = parser.countElements();
 	constexpr const size_t numLimit = 1000;
+	static const TriggerIdType DO_NOT_ASSOCIATE_TRIGGER_ID =
+		SPECIAL_TRIGGER_ID_PREFIX "DO_NOT_ASSOCIATE_TRIGGER";
 
 	if (num > numLimit) {
 		MLPL_ERR("Event Object is too large. "
@@ -679,7 +681,10 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList)
 		int64_t type, status, severity;
 		parser.read("type",         type);
 		eventInfo.type = (EventType)type;
-		parser.read("triggerId",    eventInfo.triggerId);
+		TriggerIdType triggerId = DO_NOT_ASSOCIATE_TRIGGER_ID;
+		if (!parser.read("triggerId", triggerId)) {
+			eventInfo.triggerId = triggerId;
+		}
 		parser.read("status",       status);
 		eventInfo.status = (TriggerStatusType)status;
 		parser.read("severity",     severity);
