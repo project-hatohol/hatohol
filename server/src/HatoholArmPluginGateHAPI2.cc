@@ -704,6 +704,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers(
 		upsertLastInfo(lastInfoValue, LAST_INFO_TRIGGER);
 	}
 
+	if (parser.isMember("mayMoreFlag")) {
+		bool mayMoreFlag;
+		parser.read("mayMoreFlag", mayMoreFlag);
+		// TODO: What should we do?
+	}
 	if (parser.isMember("fetchId")) {
 		string fetchId;
 		parser.read("fetchId", fetchId);
