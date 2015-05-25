@@ -400,13 +400,13 @@ void HatoholArmPluginGate::startOnDemandFetchHistory(
 	send(cmdBuf, callback);
 }
 
-bool HatoholArmPluginGate::startOnDemandFetchTrigger(Closure2 *closure)
+bool HatoholArmPluginGate::startOnDemandFetchTrigger(Closure0 *closure)
 {
 	if (!isConnetced())
 		return false;
 
 	struct Callback : public CommandCallbacks {
-		Signal2 triggerUpdatedSignal;
+		Signal0 triggerUpdatedSignal;
 		ServerIdType serverId;
 		HostInfoCache *hostInfoCache;
 		virtual void onGotReply(mlpl::SmartBuffer &replyBuf,

@@ -430,7 +430,7 @@ bool UnifiedDataStore::fetchItemsAsync(Closure0 *closure,
 	return m_impl->itemFetchWorker.start(targetServerId, closure);
 }
 
-bool UnifiedDataStore::fetchTriggerAsync(Closure2 *closure,
+bool UnifiedDataStore::fetchTriggerAsync(Closure0 *closure,
 					 const ServerIdType &targetServerId)
 {
 	if (!m_impl->triggerFetchWorker.updateIsNeeded())

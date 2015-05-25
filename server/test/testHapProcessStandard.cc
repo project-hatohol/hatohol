@@ -439,8 +439,8 @@ struct FetchStarter : public HatoholThreadBase {
 	}
 
 	void startFetchTrigger(void) {
-		ClosureTemplate2<FetchStarter> *closure =
-		  new ClosureTemplate2<FetchStarter>(this,
+		ClosureTemplate0<FetchStarter> *closure =
+		  new ClosureTemplate0<FetchStarter>(this,
 		    &FetchStarter::fetchTriggerCb);
 		pair->gate->startOnDemandFetchTrigger(closure);
 	}
@@ -492,7 +492,7 @@ struct FetchStarter : public HatoholThreadBase {
 		g_main_loop_quit(m_localLoop.getLoop());
 	}
 
-	void fetchTriggerCb(Closure2 *closure)
+	void fetchTriggerCb(Closure0 *closure)
 	{
 		fetched = TRIGGER;
 		g_main_loop_quit(m_localLoop.getLoop());

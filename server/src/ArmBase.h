@@ -52,7 +52,7 @@ public:
 
 	virtual bool isFetchItemsSupported(void) const;
 	virtual void fetchItems(Closure0 *closure = NULL);
-	virtual void fetchTriggers(Closure2 *closure = NULL);
+	virtual void fetchTriggers(Closure0 *closure = NULL);
 	virtual void fetchHistory(const ItemInfo &itemInfo,
 				  const time_t &beginTime,
 				  const time_t &endTime,

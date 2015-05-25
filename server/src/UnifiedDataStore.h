@@ -99,7 +99,7 @@ public:
 	                        const ItemsQueryOption &option);
 	bool fetchItemsAsync(Closure0 *closure,
 	                     const ServerIdType &targetServerId = ALL_SERVERS);
-	bool fetchTriggerAsync(Closure2 *closure,
+	bool fetchTriggerAsync(Closure0 *closure,
 			       const ServerIdType &targetServerId = ALL_SERVERS);
 
 	/*

@@ -38,7 +38,7 @@ struct TriggerFetchWorker::Impl
 	size_t          remainingFetchersCount;
 	SmartTime       nextAllowedUpdateTime;
 	sem_t           updatedSemaphore;
-	Signal2         triggerFetchedSignal;
+	Signal0         triggerFetchedSignal;
 
 	Impl(void)
 	: remainingFetchersCount(0)
@@ -67,7 +67,7 @@ TriggerFetchWorker::~TriggerFetchWorker()
 }
 
 bool TriggerFetchWorker::start(
-  const ServerIdType &targetServerId, Closure2 *closure)
+  const ServerIdType &targetServerId, Closure0 *closure)
 {
 	DataStoreVector allDataStores =
 	  UnifiedDataStore::getInstance()->getDataStoreVector();
@@ -128,7 +128,7 @@ void TriggerFetchWorker::waitCompletion(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void TriggerFetchWorker::updatedCallback(Closure2 *closure)
+void TriggerFetchWorker::updatedCallback(Closure0 *closure)
 {
 	m_impl->rwlock.writeLock();
 	Reaper<ReadWriteLock> lockReaper(&m_impl->rwlock, ReadWriteLock::unlock);
@@ -157,12 +157,12 @@ void TriggerFetchWorker::updatedCallback(Closure2 *closure)
 
 bool TriggerFetchWorker::runFetcher(DataStore *dataStore)
 {
-	struct ClosureWithDataStore : public ClosureTemplate2<TriggerFetchWorker>
+	struct ClosureWithDataStore : public ClosureTemplate0<TriggerFetchWorker>
 	{
 		DataStore *dataStore;
 
 		ClosureWithDataStore(TriggerFetchWorker *impl, DataStore *ds)
-		: ClosureTemplate2<TriggerFetchWorker>(
+		: ClosureTemplate0<TriggerFetchWorker>(
 		    impl, &TriggerFetchWorker::updatedCallback),
 		  dataStore(ds)
 		{
