@@ -76,7 +76,7 @@ void test_upsertLastInfo(void)
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	LastInfoIdType lastInfoId = dbLastInfo.upsertLastInfo(lastInfo, privilege);
 	const string statement = "SELECT * FROM last_info WHERE last_info_id = "+
-		StringUtils::toString(NumTestLastInfoDef + 1);
+		StringUtils::toString(static_cast<int>(NumTestLastInfoDef + 1));
 	const string expect =
 	  StringUtils::sprintf("%" FMT_LAST_INFO_ID "|%d|%s|%d",
 			       lastInfoId, lastInfo.dataType,

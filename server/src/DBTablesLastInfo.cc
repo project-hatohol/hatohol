@@ -231,7 +231,7 @@ static string makeIdListCondition(const LastInfoIdList &idList)
 	condition = StringUtils::sprintf("%s in (", colId.columnName);
 	for (auto id : idList) {
 		commaInjector(condition);
-		condition += StringUtils::sprintf("%ld", id);
+		condition += StringUtils::sprintf("%" FMT_LAST_INFO_ID, id);
 	}
 
 	condition += ")";
