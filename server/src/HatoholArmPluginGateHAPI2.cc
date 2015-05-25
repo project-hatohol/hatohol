@@ -611,6 +611,48 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroupMembership(
 	return agent.generate();
 }
 
+static void parseTriggerStatus(JSONParser &parser, TriggerStatusType &status)
+{
+	string statusString;
+	parser.read("status", statusString);
+	if (statusString == "OK") {
+		status = TRIGGER_STATUS_OK;
+	} else if (statusString == "NG") {
+		status = TRIGGER_STATUS_PROBLEM;
+	} else if (statusString == "UNKNOWN") {
+		status = TRIGGER_STATUS_UNKNOWN;
+	} else {
+		MLPL_WARN("Unknown trigger status: %s\n", statusString.c_str());
+		status = TRIGGER_STATUS_UNKNOWN;
+	}
+}
+
+static void parseTriggerSeverity(JSONParser &parser,
+				 TriggerSeverityType &severity)
+{
+	string severityString;
+	parser.read("severity", severityString);
+	if (severityString == "ALL") {
+		severity = TRIGGER_SEVERITY_ALL;
+	} else if (severityString == "UNKNOWN") {
+		severity = TRIGGER_SEVERITY_UNKNOWN;
+	} else if (severityString == "INFO") {
+		severity = TRIGGER_SEVERITY_INFO;
+	} else if (severityString == "WARNING") {
+		severity = TRIGGER_SEVERITY_WARNING;
+	} else if (severityString == "ERROR") {
+		severity = TRIGGER_SEVERITY_ERROR;
+	} else if (severityString == "CRITICAL") {
+		severity = TRIGGER_SEVERITY_CRITICAL;
+	} else if (severityString == "EMERGENCY") {
+		severity = TRIGGER_SEVERITY_EMERGENCY;
+	} else {
+		MLPL_WARN("Unknown trigger severity: %s\n",
+			  severityString.c_str());
+		severity = TRIGGER_SEVERITY_UNKNOWN;
+	}
+}
+
 static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfoList,
 				const MonitoringServerInfo &serverInfo)
 {
@@ -625,41 +667,8 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 
 		TriggerInfo triggerInfo;
 		triggerInfo.serverId = serverInfo.id;
-		parser.read("triggerId", triggerInfo.id);
-		string status;
-		parser.read("status",    status);
-		if (status == "OK") {
-			triggerInfo.status = TRIGGER_STATUS_OK;
-		} else if (status == "NG") {
-			triggerInfo.status = TRIGGER_STATUS_PROBLEM;
-		} else if (status == "UNKNOWN") {
-			triggerInfo.status = TRIGGER_STATUS_UNKNOWN;
-		} else {
-			MLPL_WARN("Unknown trigger status: %s\n", status.c_str());
-			triggerInfo.status = TRIGGER_STATUS_UNKNOWN;
-		}
-
-		string severity;
-		parser.read("severity", severity);
-		if (severity == "ALL") {
-			triggerInfo.severity = TRIGGER_SEVERITY_ALL;
-		} else if (severity == "UNKNOWN") {
-			triggerInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
-		} else if (severity == "INFO") {
-			triggerInfo.severity = TRIGGER_SEVERITY_INFO;
-		} else if (severity == "WARNING") {
-			triggerInfo.severity = TRIGGER_SEVERITY_WARNING;
-		} else if (severity == "ERROR") {
-			triggerInfo.severity = TRIGGER_SEVERITY_ERROR;
-		} else if (severity == "CRITICAL") {
-			triggerInfo.severity = TRIGGER_SEVERITY_CRITICAL;
-		} else if (severity == "EMERGENCY") {
-			triggerInfo.severity = TRIGGER_SEVERITY_EMERGENCY;
-		} else {
-			MLPL_WARN("Unknown trigger severity: %s\n", severity.c_str());
-			triggerInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
-		}
-		string lastChangeTime;
+		parseTriggerStatus(parser, triggerInfo.status);
+		parseTriggerSeverity(parser, triggerInfo.severity);
 		parseTimeStamp(parser, "lastChangeTime", triggerInfo.lastChangeTime);
 		parser.read("hostId",       triggerInfo.hostIdInServer);
 		parser.read("hostName",     triggerInfo.hostName);
@@ -712,6 +721,26 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers(
 	return agent.generate();
 }
 
+static void parseEventType(JSONParser &parser, EventInfo &eventInfo)
+{
+	string eventType;
+	parser.read("type", eventType);
+
+	if (eventType == "GOOD") {
+		eventInfo.type = EVENT_TYPE_GOOD;
+	} else if (eventType == "BAD") {
+		eventInfo.type = EVENT_TYPE_BAD;
+	} else if (eventType == "UNKNOWN") {
+		eventInfo.type = EVENT_TYPE_UNKNOWN;
+	} else if (eventType == "NOTIFICATION") {
+		// TODO: Add EVENT_TYPE_NOTIFICATION
+		//eventInfo.type = EVENT_TYPE_NOTIFICATION;
+	} else {
+		MLPL_WARN("Invalid event type: %s\n", eventType.c_str());
+		eventInfo.type = EVENT_TYPE_UNKNOWN;
+	}
+};
+
 static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 			      const MonitoringServerInfo &serverInfo)
 {
@@ -737,17 +766,13 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 		eventInfo.serverId = serverInfo.id;
 		parser.read("eventId",      eventInfo.id);
 		parseTimeStamp(parser, "time", eventInfo.time);
-		int64_t type, status, severity;
-		parser.read("type",         type);
-		eventInfo.type = (EventType)type;
+		parseEventType(parser, eventInfo);
 		TriggerIdType triggerId = DO_NOT_ASSOCIATE_TRIGGER_ID;
 		if (!parser.read("triggerId", triggerId)) {
 			eventInfo.triggerId = triggerId;
 		}
-		parser.read("status",       status);
-		eventInfo.status = (TriggerStatusType)status;
-		parser.read("severity",     severity);
-		eventInfo.severity = (TriggerSeverityType)severity;
+		parseTriggerStatus(parser, eventInfo.status);
+		parseTriggerSeverity(parser, eventInfo.severity);
 		parser.read("hostId",       eventInfo.hostIdInServer);
 		parser.read("hostName",     eventInfo.hostName);
 		parser.read("brief",        eventInfo.brief);
