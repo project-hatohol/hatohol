@@ -834,7 +834,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostParents(
 
 	string updateType;
 	bool checkInvalidTriggers = parseUpdateType(parser, updateType);
-	// TODO: implement validation for triggers
+	// TODO: implement validation for hostParents
 	for (auto vmInfo : vmInfoVect)
 		dbHost.upsertVMInfo(vmInfo);
 	string lastInfoValue;
