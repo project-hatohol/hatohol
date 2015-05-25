@@ -857,12 +857,16 @@ static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo)
 {
 	string status;
 	parser.read("lastStatus", status);
-	if (status == "INIT")
+	if (status == "INIT") {
 		armInfo.stat = ARM_WORK_STAT_INIT;
-	else if (status == "OK")
+	} else if (status == "OK") {
 		armInfo.stat = ARM_WORK_STAT_OK;
-	else
+	} else if (status == "NG") {
 		armInfo.stat = ARM_WORK_STAT_FAILURE;
+	} else {
+		MLPL_WARN("Invalid status: %s\n", status.c_str());
+		armInfo.stat = ARM_WORK_STAT_FAILURE;
+	}
 	parser.read("failureReason", armInfo.failureComment);
 	timespec successTime, failureTime;
 	parseTimeStamp(parser, "lastSuccessTime", successTime);
