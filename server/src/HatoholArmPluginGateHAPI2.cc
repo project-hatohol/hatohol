@@ -197,6 +197,31 @@ static bool parseTimeStamp(
 							 timeStamp);
 }
 
+bool HatoholArmPluginGateHAPI2::isFetchItemsSupported(void)
+{
+	// TODO: implement
+	return false;
+}
+
+bool HatoholArmPluginGateHAPI2::startOnDemandFetchItem(Closure0 *closure)
+{
+	// TODO: implement
+	return false;
+}
+
+void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
+  const ItemInfo &itemInfo, const time_t &beginTime, const time_t &endTime,
+  Closure1<HistoryInfoVect> *closure)
+{
+	// TODO: implement
+}
+
+bool HatoholArmPluginGateHAPI2::startOnDemandFetchTrigger(Closure2 *closure)
+{
+	// TODO: implement
+	return false;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

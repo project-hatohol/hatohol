@@ -56,6 +56,15 @@ public:
 	virtual const ArmStatus &getArmStatus(void) const override;
 	virtual void start(void) override;
 
+	virtual bool isFetchItemsSupported(void);
+	virtual bool startOnDemandFetchItem(Closure0 *closure) override;
+	virtual void startOnDemandFetchHistory(
+	  const ItemInfo &itemInfo,
+	  const time_t &beginTime,
+	  const time_t &endTime,
+	  Closure1<HistoryInfoVect> *closure) override;
+	virtual bool startOnDemandFetchTrigger(Closure2 *closure) override;
+
 protected:
 	virtual ~HatoholArmPluginGateHAPI2();
 	void upsertLastInfo(std::string lastInfoValue, LastInfoType type);
