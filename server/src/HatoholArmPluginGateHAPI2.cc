@@ -326,7 +326,6 @@ static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType)
 		lastInfoType = LAST_INFO_HOST_PARENT;
 	else
 		lastInfoType = LAST_INFO_ALL; // TODO: should return an error
-	parser.endObject(); // params
 
 	return true;
 }
@@ -340,6 +339,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(
 	LastInfoType lastInfoType;
 	JSONParser parser(params);
 	bool succeeded = parseLastInfoParams(parser, lastInfoType);
+	int64_t rpcId;
+	parser.read("id", rpcId);
+
 	option.setLastInfoType(lastInfoType);
 	option.setTargetServerId(m_impl->m_serverInfo.id);
 	LastInfoDefList lastInfoList;
@@ -354,7 +356,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("result", lastInfoValue);
-	agent.add("id", 1);
+	agent.add("id", rpcId);
 	agent.endObject();
 	return agent.generate();
 }
