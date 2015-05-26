@@ -162,13 +162,13 @@ void test_procedureHandlerExchangeProfile(void)
 	std::string actual =
 		gate->procedureHandlerExchangeProfile(HAPI2_EXCHANGE_PROFILE, params);
 	std::string expected =
-		"^{\"jsonrpc\":\"2.0\",\"result\":{\"procedures\":"
-		  "\\[\"getMonitoringServerInfo\",\"getLastInfo\",\"putItems\","
+		"{\"jsonrpc\":\"2.0\",\"result\":{\"procedures\":"
+		  "[\"getMonitoringServerInfo\",\"getLastInfo\",\"putItems\","
 		  "\"putHistory\",\"updateHosts\",\"updateHostGroups\","
 		  "\"updateHostGroupMembership\",\"updateTriggers\","
 		  "\"updateEvents\",\"updateHostParent\",\"updateArmInfo\""
-		"\\]},\"name\":\"exampleName\",\"id\":.*}$";
-	cut_assert_match(expected.c_str(), actual.c_str());
+		"]},\"name\":\"exampleName\",\"id\":1}";
+	cppcut_assert_equal(expected, actual);
 }
 
 void test_procedureHandlerMonitoringServerInfo(void)

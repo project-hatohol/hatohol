@@ -258,7 +258,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
   const HAPI2ProcedureType type, const string &params)
 {
 	JSONBuilder agent;
-	mt19937 engine = getRandomEngine();
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.startObject("result");
@@ -272,7 +271,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	agent.endArray(); // procedures
 	agent.endObject(); // result
 	agent.add("name", "exampleName"); // TODO: add process name mechanism
-	agent.add("id", engine());
+	agent.add("id", 1);
 	agent.endObject();
 	return agent.generate();
 }
