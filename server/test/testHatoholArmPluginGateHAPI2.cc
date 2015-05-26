@@ -136,6 +136,7 @@ void cut_setup(void)
 	hatoholInit();
 	setupTestDB();
 	loadTestDBServer();
+	loadTestDBArmPlugin();
 }
 
 void cut_teardown(void)
@@ -174,7 +175,7 @@ void test_procedureHandlerMonitoringServerInfo(void)
 {
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
-	serverInfo = testServerInfo[6];
+	serverInfo = testServerInfo[7];
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(serverInfo), false);
 	std::string params = "";
@@ -182,11 +183,11 @@ void test_procedureHandlerMonitoringServerInfo(void)
 	  HAPI2_MONITORING_SERVER_INFO, params);
 	std::string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":{"
-		 "\"serverId\":301,\"url\":\"http://10.0.0.32/nagios3\","
-		 "\"type\":\"902d955c-d1f7-11e4-80f9-d43d7e3146fb\","
-		 "\"nickName\":\"Akira\",\"userName\":\"nagios-operator\","
-		 "\"password\":\"5t64k-f3-ui.l76n\",\"pollingIntervalSec\":300,"
-		 "\"retryIntervalSec\":60,\"extendedInfo\":\"test exteneded info\""
+		 "\"serverId\":302,\"url\":\"http://10.0.0.33/zabbix/\","
+		 "\"type\":\"8e632c14-d1f7-11e4-8350-d43d7e3146fb\","
+		 "\"nickName\":\"HAPI2 Zabbix\",\"userName\":\"Admin\","
+		 "\"password\":\"zabbix\",\"pollingIntervalSec\":300,"
+		 "\"retryIntervalSec\":60,\"extendedInfo\":\"test extended info\""
 		"},\"id\":1}";
 	cppcut_assert_equal(expected, actual);
 }

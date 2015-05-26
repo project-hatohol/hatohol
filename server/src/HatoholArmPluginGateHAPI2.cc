@@ -272,7 +272,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	agent.add("serverId", serverInfo.id);
 	agent.add("url", serverInfo.baseURL);
-	agent.add("type", serverInfo.type);
+	agent.add("type", m_impl->m_pluginInfo.uuid);
 	agent.add("nickName", serverInfo.nickname);
 	agent.add("userName", serverInfo.userName);
 	agent.add("password", serverInfo.password);
