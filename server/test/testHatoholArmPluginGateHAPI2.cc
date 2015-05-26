@@ -217,6 +217,10 @@ void data_procedureHandlerLastInfo(void)
 		       "serverId", G_TYPE_INT, 10002,
 	               "params", G_TYPE_STRING, "hostParent",
 	               "value", G_TYPE_STRING, "1431930840", NULL);
+	gcut_add_datum("empty",
+		       "serverId", G_TYPE_INT, 11,
+	               "params", G_TYPE_STRING, "event",
+	               "value", G_TYPE_STRING, "", NULL);
 }
 
 void test_procedureHandlerLastInfo(gconstpointer data)
