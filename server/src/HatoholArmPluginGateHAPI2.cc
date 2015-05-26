@@ -462,12 +462,14 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	// TODO: callback
 
 	parser.endObject(); // params
+	int64_t rpcId;
+	parser.read("id", rpcId);
 
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("result", "");
-	agent.add("id", 1);
+	agent.add("id", rpcId);
 	agent.endObject();
 	return agent.generate();
 }
