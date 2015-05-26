@@ -46,12 +46,6 @@ struct Closure1 : public ClosureBase
 	virtual void operator()(const A &arg) = 0;
 };
 
-struct Closure2 : public ClosureBase
-{
-	virtual ~Closure2(void) {};
-	virtual void operator()(void) = 0;
-};
-
 template<class T>
 struct ClosureTemplate0 : public Closure0
 {
@@ -99,33 +93,6 @@ struct ClosureTemplate1 : public Closure1<A>
 	{
 		const ClosureTemplate1 *closure
 		  = dynamic_cast<const ClosureTemplate1 *>(&closureBase);
-		return (m_receiver == closure->m_receiver) &&
-		       (m_func == closure->m_func);
-	}
-
-	T *m_receiver;
-	callback m_func;
-};
-
-template<class T>
-struct ClosureTemplate2 : public Closure2
-{
-	typedef void (T::*callback)(Closure2 *closure);
-
-	ClosureTemplate2(T *receiver, callback func)
-	:m_receiver(receiver), m_func(func)
-	{
-	}
-
-	virtual void operator()(void)
-	{
-		(m_receiver->*m_func)(this);
-	}
-
-	virtual bool operator==(const ClosureBase &closureBase)
-	{
-		const ClosureTemplate2 *closure
-		  = dynamic_cast<const ClosureTemplate2 *>(&closureBase);
 		return (m_receiver == closure->m_receiver) &&
 		       (m_func == closure->m_func);
 	}
@@ -214,29 +181,6 @@ struct Signal1 : public SignalBase
 			Closure1<A> *closure
 				= dynamic_cast<Closure1<A> *>(*it);
 			(*closure)(arg);
-		}
-		m_rwlock.unlock();
-	}
-};
-
-struct Signal2 : public SignalBase
-{
-	void connect(Closure2 *closure)
-	{
-		SignalBase::connect(closure);
-	}
-	void disconnect(Closure2 *closure)
-	{
-		SignalBase::disconnect(closure);
-	}
-	virtual void operator()(void)
-	{
-		m_rwlock.readLock();
-		std::list<ClosureBase *>::iterator it;
-		for (it = m_closures.begin(); it != m_closures.end(); ++it) {
-			Closure2 *closure
-				= dynamic_cast<Closure2 *>(*it);
-			(*closure)();
 		}
 		m_rwlock.unlock();
 	}

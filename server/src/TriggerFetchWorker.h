@@ -31,12 +31,12 @@ public:
 	virtual ~TriggerFetchWorker();
 
 	bool start(const ServerIdType &targetServerId = ALL_SERVERS,
-	           Closure2 *closure = NULL);
+	           Closure0 *closure = NULL);
 	bool updateIsNeeded(void);
 	void waitCompletion(void);
 
 protected:
-	void updatedCallback(Closure2 *closure);
+	void updatedCallback(Closure0 *closure);
 	bool runFetcher(DataStore *dataStore);
 
 private:

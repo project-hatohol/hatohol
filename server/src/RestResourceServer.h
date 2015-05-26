@@ -46,7 +46,7 @@ struct RestResourceServer : public FaceRest::ResourceHandler
 	static const char *pathForServerType;
 	static const char *pathForServerConnStat;
 
-	void triggerFetchedCallback(Closure2 *closure);
+	void triggerFetchedCallback(Closure0 *closure);
 
 	HandlerFunc m_handlerFunc;
 };

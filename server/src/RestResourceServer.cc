@@ -616,11 +616,11 @@ void RestResourceServer::handlerPutServer(void)
 	replyJSONData(agent);
 }
 
-struct GetTriggerClosure : ClosureTemplate2<RestResourceServer>
+struct GetTriggerClosure : ClosureTemplate0<RestResourceServer>
 {
 	GetTriggerClosure(RestResourceServer *receiver,
 			  callback func)
-	: ClosureTemplate2<RestResourceServer>(receiver, func)
+	: ClosureTemplate0<RestResourceServer>(receiver, func)
 	{
 		m_receiver->ref();
 	}
@@ -631,7 +631,7 @@ struct GetTriggerClosure : ClosureTemplate2<RestResourceServer>
 	}
 };
 
-void RestResourceServer::triggerFetchedCallback(Closure2 *closure)
+void RestResourceServer::triggerFetchedCallback(Closure0 *closure)
 {
 	unpauseResponse();
 }

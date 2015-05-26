@@ -73,7 +73,7 @@ bool DataStoreNagios::startOnDemandFetchItem(Closure0 *closure)
 	return true;
 }
 
-bool DataStoreNagios::startOnDemandFetchTrigger(Closure2 *closure)
+bool DataStoreNagios::startOnDemandFetchTrigger(Closure0 *closure)
 {
 	m_impl->armNDO.fetchTriggers(closure);
 	return true;

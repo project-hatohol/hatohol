@@ -344,10 +344,10 @@ struct TestFetchCtx {
 			m_receiver->fetchHistoryClosureDeleted.set(true);
 		}
 	} *fetchHistoryClosure;
-	struct FetchTriggerClosure : ClosureTemplate2<TestFetchCtx>
+	struct FetchTriggerClosure : ClosureTemplate0<TestFetchCtx>
 	{
 		FetchTriggerClosure(TestFetchCtx *receiver, callback func)
-		: ClosureTemplate2<TestFetchCtx>(receiver, func)
+		: ClosureTemplate0<TestFetchCtx>(receiver, func)
 		{
 		}
 		virtual ~FetchTriggerClosure()
@@ -448,7 +448,7 @@ struct TestFetchCtx {
 		fetchHistoryClosure = NULL;
 	}
 
-	void triggerFetchedCallback(Closure2 *_closure)
+	void triggerFetchedCallback(Closure0 *_closure)
 	{
 		fetchTriggerClosureCalled.set(true);
 		// will be deleted by ArmBae

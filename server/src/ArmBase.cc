@@ -56,8 +56,8 @@ struct FetcherJob
 		}
 	} *historyQuery;
 
-	FetcherJob(Closure0 *_closure)
-	: updateType(UPDATE_ITEM_REQUEST), closure(_closure),
+	FetcherJob(Closure0 *_closure, const UpdateType &type)
+	: updateType(type), closure(_closure),
 	  historyQuery(NULL)
 	{
 	}
@@ -67,12 +67,6 @@ struct FetcherJob
 		   const time_t &_beginTime, const time_t &_endTime)
 	: updateType(UPDATE_HISTORY_REQUEST), closure(_closure),
 	  historyQuery(new HistoryQuery(_itemInfo, _beginTime, _endTime))
-	{
-	}
-
-	FetcherJob(Closure2 *_closure)
-	: updateType(UPDATE_TRIGGER_REQUEST), closure(_closure),
-	  historyQuery(NULL)
 	{
 	}
 
@@ -116,8 +110,8 @@ struct FetcherJob
 		if (!closure)
 			return;
 		if (updateType == UPDATE_TRIGGER_REQUEST) {
-			Closure2 *fetchItemClosure =
-				dynamic_cast<Closure2*>(closure);
+			Closure0 *fetchItemClosure =
+				dynamic_cast<Closure0*>(closure);
 			HATOHOL_ASSERT(fetchItemClosure, "Invalid closure\n");
 			
 			(*fetchItemClosure)();
@@ -273,14 +267,14 @@ bool ArmBase::isFetchItemsSupported(void) const
 
 void ArmBase::fetchItems(Closure0 *closure)
 {
-	m_impl->pushJob(new FetcherJob(closure));
+	m_impl->pushJob(new FetcherJob(closure, UPDATE_ITEM_REQUEST));
 	if (sem_post(&m_impl->sleepSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 }
 
-void ArmBase::fetchTriggers(Closure2 *closure)
+void ArmBase::fetchTriggers(Closure0 *closure)
 {
-	m_impl->pushJob(new FetcherJob(closure));
+	m_impl->pushJob(new FetcherJob(closure, UPDATE_TRIGGER_REQUEST));
 	if (sem_post(&m_impl->sleepSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 }
