@@ -435,4 +435,15 @@ void test_procedureHandlerUpdateArmInfo(void)
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":1}";
 	cppcut_assert_equal(expected, actual);
 }
+
+void test_fetchItem(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	serverInfo = testServerInfo[7];
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	cppcut_assert_equal(true, gate->startOnDemandFetchItem(NULL));
+	// TODO: check reply
+}
 }

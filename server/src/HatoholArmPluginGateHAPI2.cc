@@ -205,8 +205,22 @@ bool HatoholArmPluginGateHAPI2::isFetchItemsSupported(void)
 
 bool HatoholArmPluginGateHAPI2::startOnDemandFetchItem(Closure0 *closure)
 {
-	// TODO: implement
-	return false;
+	JSONBuilder agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "fetchItems");
+	agent.startObject("params");
+	if (false) { // TODO: Pass requested hostIds
+		agent.startArray("hostIds");
+		agent.endArray();
+	}
+	// TODO: Use random number and keep it until receiving a response
+	agent.add("fetchId", "1");
+	agent.endObject();
+	agent.add("id", 1); // TODO: Use random number
+	agent.endObject();
+	send(agent.generate());
+	return true;
 }
 
 void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
