@@ -974,17 +974,9 @@ void HatoholArmPluginGateHAPI2::upsertLastInfo(string lastInfoValue, LastInfoTyp
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	LastInfoDef lastInfo;
+	lastInfo.id = AUTO_INCREMENT_VALUE;
 	lastInfo.dataType = type;
 	lastInfo.value = lastInfoValue;
 	lastInfo.serverId = serverInfo.id;
-
-	LastInfoQueryOption option(USER_ID_SYSTEM);
-	option.setLastInfoType(type);
-	option.setTargetServerId(serverInfo.id);
-	LastInfoDefList lastInfoList;
-	dbLastInfo.getLastInfoList(lastInfoList, option);
-	if (lastInfoList.empty())
-		dbLastInfo.addLastInfo(lastInfo, privilege);
-	else
-		dbLastInfo.updateLastInfo(lastInfo, privilege);
+	dbLastInfo.upsertLastInfo(lastInfo, privilege);
 }
