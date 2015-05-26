@@ -284,6 +284,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
   const HAPI2ProcedureType type, const string &params)
 {
+	JSONParser parser(params);
+	int64_t rpcId;
+	parser.read("id", rpcId);
+
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
@@ -299,7 +303,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 	agent.add("retryIntervalSec", serverInfo.retryIntervalSec);
 	agent.add("extendedInfo", serverInfo.extendedInfo);
 	agent.endObject(); // result
-	agent.add("id", 1);
+	agent.add("id", rpcId);
 	agent.endObject();
 	return agent.generate();
 }

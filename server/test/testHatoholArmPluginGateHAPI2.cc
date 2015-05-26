@@ -182,7 +182,9 @@ void test_procedureHandlerMonitoringServerInfo(void)
 	serverInfo = testServerInfo[7];
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(serverInfo), false);
-	std::string params = "";
+	std::string params =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"getMonitoringServerInfo\","
+		" \"params\":\"\", \"id\":1}";
 	std::string actual = gate->procedureHandlerMonitoringServerInfo(
 	  HAPI2_MONITORING_SERVER_INFO, params);
 	std::string expected =
