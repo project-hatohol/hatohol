@@ -194,21 +194,27 @@ void test_procedureHandlerMonitoringServerInfo(void)
 void data_procedureHandlerLastInfo(void)
 {
 	gcut_add_datum("host",
+		       "serverId", G_TYPE_INT, 11,
 	               "params", G_TYPE_STRING, "host",
 	               "value", G_TYPE_STRING, "1431232440", NULL);
 	gcut_add_datum("hostGroup",
+		       "serverId", G_TYPE_INT, 1001,
 	               "params", G_TYPE_STRING, "hostGroup",
 	               "value", G_TYPE_STRING, "1431221640", NULL);
 	gcut_add_datum("hostGroupMembership",
+		       "serverId", G_TYPE_INT, 1002,
 	               "params", G_TYPE_STRING, "hostGroupMembership",
 	               "value", G_TYPE_STRING, "1431567240", NULL);
 	gcut_add_datum("trigger",
+		       "serverId", G_TYPE_INT, 1003,
 	               "params", G_TYPE_STRING, "trigger",
 	               "value", G_TYPE_STRING, "1431671640", NULL);
 	gcut_add_datum("event",
+		       "serverId", G_TYPE_INT, 10001,
 	               "params", G_TYPE_STRING, "event",
 	               "value", G_TYPE_STRING, "1431585240", NULL);
 	gcut_add_datum("hostParent",
+		       "serverId", G_TYPE_INT, 10002,
 	               "params", G_TYPE_STRING, "hostParent",
 	               "value", G_TYPE_STRING, "1431930840", NULL);
 }
@@ -217,6 +223,7 @@ void test_procedureHandlerLastInfo(gconstpointer data)
 {
 	MonitoringServerInfo serverInfo;
 	initServerInfo(serverInfo);
+	serverInfo.id = gcut_data_get_int(data, "serverId");
 	loadTestDBLastInfo();
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(serverInfo), false);

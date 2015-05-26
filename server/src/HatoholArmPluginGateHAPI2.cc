@@ -318,6 +318,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(
 	JSONParser parser(params);
 	bool succeeded = parseLastInfoParams(parser, lastInfoType);
 	option.setLastInfoType(lastInfoType);
+	option.setTargetServerId(m_impl->m_serverInfo.id);
 	LastInfoDefList lastInfoList;
 	dbLastInfo.getLastInfoList(lastInfoList, option);
 	string lastInfoValue = "";
