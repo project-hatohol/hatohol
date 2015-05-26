@@ -546,6 +546,14 @@ void DBAgentMySQL::changeColumnDef(const TableProfile &tableProfile,
 	execSql(query);
 }
 
+void DBAgentMySQL::dropPrimaryKey(const std::string &tableName)
+{
+	string query = "ALTER TABLE ";
+	query += tableName;
+	query += " DROP PRIMARY KEY";
+	execSql(query);
+}
+
 void DBAgentMySQL::renameTable(const string &srcName, const string &destName)
 {
 	string query = makeRenameTableStatement(srcName, destName);

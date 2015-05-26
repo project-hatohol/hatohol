@@ -63,6 +63,7 @@ public:
 	virtual void changeColumnDef(const TableProfile &tableProfile,
 				     const std::string &oldColumnName,
 				     const size_t &columnIndex) override;
+	virtual void dropPrimaryKey(const std::string &tableName) override;
 	virtual void renameTable(const std::string &srcName,
 				 const std::string &destName);
 	virtual const

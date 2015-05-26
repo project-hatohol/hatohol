@@ -62,7 +62,7 @@ var HatoholServerEditDialogParameterized = function(params) {
   function makeQueryData() {
     var paramObj = self.currParamObj;
     var type = $("#selectServerType").val();
-    var queryData = {'type':type, '_extra':{}};
+    var queryData = {'type':type, 'uuid':self.uuidArray[type], '_extra':{}};
     for (var i = 0; i < paramObj.length; i++) {
       var param = paramObj[i];
 
@@ -126,6 +126,7 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
       return;
     }
     self.paramArray = [];
+    self.uuidArray = [];
     for (var i = 0; i < reply.serverType.length; i ++) {
       var serverTypeInfo = reply.serverType[i];
       var name = serverTypeInfo.name;
@@ -147,6 +148,7 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
 
       $('#selectServerType').append($('<option>').html(name).val(type));
       self.paramArray[type] = parameters;
+      self.uuidArray[type] = serverTypeInfo.uuid;
     }
     self.fixupApplyButtonState();
 

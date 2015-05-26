@@ -276,6 +276,7 @@ void test_addServerHapiJSON(void)
 	params["tlsCACertificatePath"] = armPluginInfo.tlsCACertificatePath;
 	if (armPluginInfo.tlsEnableVerify)
 		params["tlsEnableVerify"] = "true";
+	params["uuid"] = armPluginInfo.uuid;
 
 #ifdef HAVE_LIBRABBITMQ
 	assertAddServerWithSetup(params, HTERR_OK);
@@ -468,6 +469,7 @@ void test_getServerType(void)
 		assertValueInParser(g_parser, "name", svTypeInfo.name);
 		assertValueInParser(g_parser, "parameters",
 		                    svTypeInfo.parameters);
+		assertValueInParser(g_parser, "uuid", svTypeInfo.uuid);
 		g_parser->endElement();
 	}
 	g_parser->endObject(); // serverType

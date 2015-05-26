@@ -38,7 +38,7 @@ static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 
-int DBTablesConfig::CONFIG_DB_VERSION = 15;
+int DBTablesConfig::CONFIG_DB_VERSION = 16;
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
 const ServerIdSet EMPTY_INCIDENT_TRACKER_ID_SET;
@@ -115,7 +115,7 @@ static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_PRI,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -166,6 +166,15 @@ static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	0,                                 // defaultValue
+}, {
+	"uuid",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	36,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 
@@ -176,13 +185,24 @@ enum {
 	IDX_SERVER_TYPES_PLUGIN_PATH,
 	IDX_SERVER_TYPES_PLUGIN_SQL_VERSION,
 	IDX_SERVER_TYPES_PLUGIN_ENABLED,
+	IDX_SERVER_TYPES_UUID,
 	NUM_IDX_SERVER_TYPES,
+};
+
+static const int columnIndexesServerTypeUniqId[] = {
+  IDX_SERVER_TYPES_TYPE, IDX_SERVER_TYPES_UUID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsServerTypes[] = {
+  {"ServerTypeUniqId", (const int *)columnIndexesServerTypeUniqId, true},
+  {NULL}
 };
 
 static const DBAgent::TableProfile tableProfileServerTypes =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SERVER_TYPES,
 			    COLUMN_DEF_SERVER_TYPES,
-			    NUM_IDX_SERVER_TYPES);
+			    NUM_IDX_SERVER_TYPES,
+			    indexDefsServerTypes);
 
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
@@ -421,6 +441,15 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"1",                               // defaultValue
+}, {
+	"uuid",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	36,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -435,6 +464,7 @@ enum {
 	IDX_ARM_PLUGINS_TLS_KEY_PATH,
 	IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH,
 	IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY,
+	IDX_ARM_PLUGINS_UUID,
 	NUM_IDX_ARM_PLUGINS,
 };
 
@@ -612,6 +642,19 @@ static bool updateDB(
 		dbAgent.changeColumnDef(tableProfileServers,
 					"base_url",
 					IDX_SERVERS_BASE_URL);
+	}
+	if (oldVer < 16) {
+		// drop the primary key, use unique index instead
+		dbAgent.dropPrimaryKey(tableProfileServerTypes.name);
+
+		DBAgent::AddColumnsArg addArgForServerTypes(tableProfileServerTypes);
+		addArgForServerTypes.columnIndexes.push_back(
+			IDX_SERVER_TYPES_UUID);
+		dbAgent.addColumns(addArgForServerTypes);
+		DBAgent::AddColumnsArg addArgForArmPlugins(tableProfileArmPlugins);
+		addArgForArmPlugins.columnIndexes.push_back(
+			IDX_ARM_PLUGINS_UUID);
+		dbAgent.addColumns(addArgForArmPlugins);
 	}
 	return true;
 }
@@ -898,6 +941,7 @@ void DBTablesConfig::registerServerType(const ServerTypeInfo &serverType)
 	arg.add(serverType.pluginPath);
 	arg.add(serverType.pluginSQLVersion);
 	arg.add(serverType.pluginEnabled);
+	arg.add(serverType.uuid);
 	arg.upsertOnDuplicate = true;
 	int id;
 	getDBAgent().runTransaction(arg, &id);
@@ -931,6 +975,7 @@ void DBTablesConfig::getServerTypes(ServerTypeInfoVect &serverTypes)
 	arg.add(IDX_SERVER_TYPES_NAME);
 	arg.add(IDX_SERVER_TYPES_PARAMETERS);
 	arg.add(IDX_SERVER_TYPES_PLUGIN_PATH);
+	arg.add(IDX_SERVER_TYPES_UUID);
 	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -945,6 +990,7 @@ void DBTablesConfig::getServerTypes(ServerTypeInfoVect &serverTypes)
 		itemGroupStream >> svTypeInfo.name;
 		itemGroupStream >> svTypeInfo.parameters;
 		itemGroupStream >> svTypeInfo.pluginPath;
+		itemGroupStream >> svTypeInfo.uuid;
 	}
 }
 
@@ -958,6 +1004,7 @@ bool DBTablesConfig::getServerType(ServerTypeInfo &serverType,
 	arg.add(IDX_SERVER_TYPES_NAME);
 	arg.add(IDX_SERVER_TYPES_PARAMETERS);
 	arg.add(IDX_SERVER_TYPES_PLUGIN_PATH);
+	arg.add(IDX_SERVER_TYPES_UUID);
 	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -968,6 +1015,7 @@ bool DBTablesConfig::getServerType(ServerTypeInfo &serverType,
 	itemGroupStream >> serverType.name;
 	itemGroupStream >> serverType.parameters;
 	itemGroupStream >> serverType.pluginPath;
+	itemGroupStream >> serverType.uuid;
 	return true;
 }
 
@@ -1229,6 +1277,7 @@ void DBTablesConfig::getTargetServers(
 	builder.add(IDX_ARM_PLUGINS_TLS_KEY_PATH);
 	builder.add(IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH);
 	builder.add(IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY);
+	builder.add(IDX_ARM_PLUGINS_UUID);
 
 	getDBAgent().runTransaction(builder.getSelectExArg());
 
@@ -1609,6 +1658,7 @@ void DBTablesConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 	arg.add(IDX_ARM_PLUGINS_TLS_KEY_PATH);
 	arg.add(IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH);
 	arg.add(IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY);
+	arg.add(IDX_ARM_PLUGINS_UUID);
 
 	getDBAgent().runTransaction(arg);
 }
@@ -1626,6 +1676,7 @@ void DBTablesConfig::readArmPluginStream(
 	itemGroupStream >> armPluginInfo.tlsKeyPath;
 	itemGroupStream >> armPluginInfo.tlsCACertificatePath;
 	itemGroupStream >> armPluginInfo.tlsEnableVerify;
+	itemGroupStream >> armPluginInfo.uuid;
 }
 
 HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
@@ -1681,6 +1732,8 @@ HatoholError DBTablesConfig::saveArmPluginInfoWithoutTransaction(
 		        armPluginInfo.tlsCACertificatePath);
 		arg.add(IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY,
 		        armPluginInfo.tlsEnableVerify);
+		arg.add(IDX_ARM_PLUGINS_UUID,
+		        armPluginInfo.uuid);
 		arg.condition = condition;
 		update(arg);
 	} else {
@@ -1695,6 +1748,7 @@ HatoholError DBTablesConfig::saveArmPluginInfoWithoutTransaction(
 		arg.add(armPluginInfo.tlsKeyPath);
 		arg.add(armPluginInfo.tlsCACertificatePath);
 		arg.add(armPluginInfo.tlsEnableVerify);
+		arg.add(armPluginInfo.uuid);
 		insert(arg);
 		armPluginInfo.id = getLastInsertId();
 	}

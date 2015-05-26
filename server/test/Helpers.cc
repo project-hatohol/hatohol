@@ -435,7 +435,7 @@ std::string makeArmPluginInfoOutput(const ArmPluginInfo &armPluginInfo)
 {
 	string expectedOut = StringUtils::sprintf
 	                       ("%u|%d|%s|%s|%s|%" FMT_SERVER_ID "|"
-				"%s|%s|%s|%d\n",
+				"%s|%s|%s|%d|%s\n",
 	                        armPluginInfo.id, armPluginInfo.type,
 	                        armPluginInfo.path.c_str(),
 	                        armPluginInfo.brokerUrl.c_str(),
@@ -444,7 +444,8 @@ std::string makeArmPluginInfoOutput(const ArmPluginInfo &armPluginInfo)
 				armPluginInfo.tlsCertificatePath.c_str(),
 				armPluginInfo.tlsKeyPath.c_str(),
 				armPluginInfo.tlsCACertificatePath.c_str(),
-				armPluginInfo.tlsEnableVerify);
+				armPluginInfo.tlsEnableVerify,
+				armPluginInfo.uuid.c_str());
 	return expectedOut;
 }
 

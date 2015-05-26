@@ -72,6 +72,9 @@ class ParamGenerator:
     def get_sql_version_number(self):
         return 1
 
+    def get_uuid(self):
+        return ""
+
 
 class ZabbixParamGenerator(ParamGenerator):
     def get_server_type(self):
@@ -245,19 +248,21 @@ class HapiCeilometerGenerator(ParamGenerator):
         return self.get_sql_version_number()
 
 
-def generate_one_type(table_name, server_type, server_label,
-                      parameters, plugin_path, sql_version , file_identifier):
+def generate_one_type(table_name, server_type, server_label, parameters,
+                      plugin_path, sql_version, file_identifier, uuid):
     PLUGIN_ENABLED = 1
-    line = 'INSERT INTO ' + table_name;
+    line = 'INSERT INTO ' + table_name
     line += ' (type, name, parameters, plugin_path, plugin_sql_version,' \
-            ' plugin_enabled) VALUES ('
-    line += '%d, \'%s\', \'%s\', \'%s\', %d, %d) ' % \
+            ' plugin_enabled, uuid) VALUES ('
+    line += '%d, \'%s\', \'%s\', \'%s\', %d, %d, \'%s\') ' % \
         (server_type, server_label, parameters, plugin_path, sql_version,
-         PLUGIN_ENABLED)
+         PLUGIN_ENABLED, uuid)
     line += 'ON DUPLICATE KEY UPDATE'
     line += ' name=\'%s\', parameters=\'%s\', plugin_path=\'%s\',' \
-            ' plugin_sql_version=\'%d\', plugin_enabled=\'%d\';' % \
-        (server_label, parameters, plugin_path, sql_version, PLUGIN_ENABLED)
+            ' plugin_sql_version=\'%d\', plugin_enabled=\'%d\',' \
+            ' uuid=\'%s\';' % \
+        (server_label, parameters, plugin_path, sql_version, PLUGIN_ENABLED,
+         uuid)
     sql = open('server-type-' + file_identifier + '.sql', 'w')
     sql.write(line)
     sql.close()
@@ -271,7 +276,8 @@ def generate_mysql(generators):
                           json.dumps(gen.get_parameters()),
                           gen.get_plugin_path(),
                           gen.get_sql_version(),
-                          gen.get_sql_file_type_name())
+                          gen.get_sql_file_type_name(),
+                          gen.get_uuid())
 
 
 def generate_label_gettext(generators):
