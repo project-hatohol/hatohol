@@ -953,6 +953,10 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	1,                               // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
 	"",                              // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
@@ -961,6 +965,10 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	100, // (Not exists)             // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
 	"",                              // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
@@ -969,6 +977,10 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	101, // (Not exists)             // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
 	"",                              // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
@@ -977,6 +989,10 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	102, // (Not exists)             // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
 	"",                              // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
@@ -985,6 +1001,10 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	3,                               // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
 	"",                              // uuid
 }
 };
