@@ -986,6 +986,18 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
+	MONITORING_SYSTEM_HAPI2,         // type
+	"hapi-test-hap2-zabbix-plugin",  // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	302,                             // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
+	"8e632c14-d1f7-11e4-8350-d43d7e3146fb", // uuid
+}, {
+	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST,     // type
 	"./hapi-test-plugin",            // path
 	"",                              // brokerUrl
@@ -1020,18 +1032,6 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // tlsCACertificatePath
 	0,                               // tlsEnableVerify
 	"",                              // uuid
-}, {
-	AUTO_INCREMENT_VALUE,            // id
-	MONITORING_SYSTEM_HAPI2,         // type
-	"hapi-test-hap2-zabbix-plugin",  // path
-	"",                              // brokerUrl
-	"",                              // staticQueueAddress
-	302,                             // serverId
-	"",                              // tlsCertificatePath
-	"",                              // tlsKeyPath
-	"",                              // tlsCACertificatePath
-	0,                               // tlsEnableVerify
-	"8e632c14-d1f7-11e4-8350-d43d7e3146fb", // uuid
 }
 };
 const size_t NumTestArmPluginInfo = ARRAY_SIZE(testArmPluginInfo);
