@@ -24,6 +24,7 @@
 #include "HatoholArmPluginInterfaceHAPI2.h"
 #include "JSONBuilder.h"
 #include "DBTablesLastInfo.h"
+#include <random>
 
 enum ProcedureImplementType {
 	PROCEDURE_SERVER,
@@ -68,6 +69,7 @@ public:
 protected:
 	virtual ~HatoholArmPluginGateHAPI2();
 	void upsertLastInfo(std::string lastInfoValue, LastInfoType type);
+	std::mt19937 getRandomEngine(void);
 
 public:
 	std::string procedureHandlerExchangeProfile(const HAPI2ProcedureType type,
