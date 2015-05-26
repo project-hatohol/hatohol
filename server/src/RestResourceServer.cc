@@ -616,26 +616,6 @@ void RestResourceServer::handlerPutServer(void)
 	replyJSONData(agent);
 }
 
-struct GetTriggerClosure : ClosureTemplate0<RestResourceServer>
-{
-	GetTriggerClosure(RestResourceServer *receiver,
-			  callback func)
-	: ClosureTemplate0<RestResourceServer>(receiver, func)
-	{
-		m_receiver->ref();
-	}
-
-	virtual ~GetTriggerClosure()
-	{
-		m_receiver->unref();
-	}
-};
-
-void RestResourceServer::triggerFetchedCallback(Closure0 *closure)
-{
-	unpauseResponse();
-}
-
 void RestResourceServer::handlerTriggerUpdateServer(void)
 {
 	uint64_t serverId = getResourceId();
@@ -647,18 +627,11 @@ void RestResourceServer::handlerTriggerUpdateServer(void)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = HTERR_OK;
-	GetTriggerClosure *closure =
-	  new GetTriggerClosure(
-	    this, &RestResourceServer::triggerFetchedCallback);
-
-	bool handled = dataStore->fetchTriggerAsync(closure, serverId);
-	if (!handled) {
-		delete closure;
-	}
+	dataStore->fetchTriggerAsync(NULL, serverId);
 
 	JSONBuilder agent;
 	agent.startObject();
-	addHatoholError(agent, err);
+	addHatoholError(agent, HTERR_OK);
 	agent.add("id", serverId);
 	agent.endObject();
 
