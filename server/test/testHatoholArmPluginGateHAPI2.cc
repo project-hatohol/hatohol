@@ -158,7 +158,11 @@ void test_procedureHandlerExchangeProfile(void)
 	initServerInfo(serverInfo);
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(serverInfo), false);
-	std::string params = "";
+	std::string params =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
+		" \"params\":{\"procedures\":[\"getMonitoringServerInfo\","
+		" \"getLastInfo\", \"putItems\", \"updateArmInfo\", \"fetchItems\"],"
+		" \"name\":\"exampleName\"}, \"id\":1}";
 	std::string actual =
 		gate->procedureHandlerExchangeProfile(HAPI2_EXCHANGE_PROFILE, params);
 	std::string expected =

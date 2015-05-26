@@ -257,6 +257,11 @@ const ArmStatus &HatoholArmPluginGateHAPI2::getArmStatus(void) const
 string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
   const HAPI2ProcedureType type, const string &params)
 {
+	JSONParser parser(params);
+	int64_t rpcId;
+	// TODO: parse valid hap procedures
+	parser.read("id", rpcId);
+
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
@@ -271,7 +276,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	agent.endArray(); // procedures
 	agent.endObject(); // result
 	agent.add("name", "exampleName"); // TODO: add process name mechanism
-	agent.add("id", 1);
+	agent.add("id", rpcId);
 	agent.endObject();
 	return agent.generate();
 }
