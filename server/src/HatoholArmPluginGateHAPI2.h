@@ -63,7 +63,7 @@ public:
 	  const time_t &beginTime,
 	  const time_t &endTime,
 	  Closure1<HistoryInfoVect> *closure) override;
-	virtual bool startOnDemandFetchTrigger(Closure2 *closure) override;
+	virtual bool startOnDemandFetchTrigger(Closure0 *closure) override;
 
 protected:
 	virtual ~HatoholArmPluginGateHAPI2();

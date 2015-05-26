@@ -216,7 +216,7 @@ void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
 	// TODO: implement
 }
 
-bool HatoholArmPluginGateHAPI2::startOnDemandFetchTrigger(Closure2 *closure)
+bool HatoholArmPluginGateHAPI2::startOnDemandFetchTrigger(Closure0 *closure)
 {
 	// TODO: implement
 	return false;
