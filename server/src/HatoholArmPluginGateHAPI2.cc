@@ -269,6 +269,14 @@ static bool parseExchangeProfileParams(JSONParser &parser,
 	return true;
 }
 
+static bool hapProcessLogger(JSONParser &parser)
+{
+	string hapProcessName;
+	parser.read("name", hapProcessName);
+	MLPL_INFO("HAP Process connecting done. Connected HAP process name: \"%s\"\n",
+		  hapProcessName.c_str());
+}
+
 string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
   const HAPI2ProcedureType type, const string &params)
 {
@@ -277,6 +285,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	int64_t rpcId;
 	parser.startObject("params");
 	bool succeeded = parseExchangeProfileParams(parser, validProcedureNameVect);
+	hapProcessLogger(parser);
 	parser.endObject(); // params
 	parser.read("id", rpcId);
 
