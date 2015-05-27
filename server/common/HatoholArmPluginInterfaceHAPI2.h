@@ -61,6 +61,10 @@ enum HAPI2ProcedureType {
 	NUM_HAPI2_PROCEDURE
 };
 
+typedef std::vector<std::string>               ValidProcedureNameVect;
+typedef ValidProcedureNameVect::iterator       ValidProcedureNameVectIterator;
+typedef ValidProcedureNameVect::const_iterator ValidProcedureNameVectConstIterator;
+
 class HatoholArmPluginInterfaceHAPI2 {
 
 public:
