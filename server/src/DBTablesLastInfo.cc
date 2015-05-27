@@ -207,9 +207,8 @@ HatoholError DBTablesLastInfo::getLastInfoList(LastInfoDefList &lastInfoDefList,
 	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator itemGrpItr = grpList.begin();
-	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		ItemGroupStream itemGroupStream(*itemGrpItr);
+	for (auto item : grpList) {
+		ItemGroupStream itemGroupStream(item);
 		LastInfoDef lastInfoDef;
 
 		itemGroupStream >> lastInfoDef.id;
