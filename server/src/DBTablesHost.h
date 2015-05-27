@@ -380,6 +380,8 @@ public:
 	HatoholError syncHosts(
 	  const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
 	  HostHostIdMap *hostHostIdMapPtr = NULL);
+	HatoholError syncHostgroups(HostgroupVect &hostgroups,
+	                            const ServerIdType &serverId);
 
 protected:
 	static SetupInfo &getSetupInfo(void);

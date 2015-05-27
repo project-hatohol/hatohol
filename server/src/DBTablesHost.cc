@@ -960,6 +960,44 @@ HatoholError DBTablesHost::deleteHostgroupList(const HostgroupIdList &idList)
 	return HTERR_OK;
 }
 
+HatoholError DBTablesHost::syncHostgroups(
+  HostgroupVect &svHostgroups,
+  const ServerIdType &serverId)
+{
+	HostgroupsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	HostgroupVect _currHostgroups;
+	HatoholError err = getHostgroups(_currHostgroups, option);
+	if (err != HTERR_OK)
+		return err;
+	const HostgroupVect &currHostgroups(_currHostgroups);
+
+	map<string, const Hostgroup *> currValidHostgroupMap;
+	for (auto hostgroup : currHostgroups) {
+		const Hostgroup &svHostgroup = hostgroup;
+		currValidHostgroupMap[svHostgroup.idInServer] = &svHostgroup;
+	}
+
+	// Pick up hostgroups to be added.
+	HostgroupVect serverHostgroups;
+	for (auto newSvHostgroup : svHostgroups) {
+		if (currValidHostgroupMap.erase(newSvHostgroup.idInServer) >= 1) {
+			// If the hostgroup already exists, we have nothing to do.
+			continue;
+		}
+		// TODO: avoid the copy
+		serverHostgroups.push_back(newSvHostgroup);
+	}
+
+	HostgroupIdList invalidHostgroupIdList;
+	for (auto invalidHostgroupPair : currValidHostgroupMap) {
+		Hostgroup invalidHostgroup = *invalidHostgroupPair.second;
+		invalidHostgroupIdList.push_back(invalidHostgroup.id);
+	}
+	err = deleteHostgroupList(invalidHostgroupIdList);
+	return err;
+}
+
 GenericIdType DBTablesHost::upsertHostgroupMember(
   const HostgroupMember &hostgroupMember, const bool &useTransaction)
 {
