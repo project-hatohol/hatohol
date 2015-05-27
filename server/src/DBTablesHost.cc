@@ -1341,4 +1341,3 @@ DBTables::SetupInfo &DBTablesHost::getSetupInfo(void)
 	};
 	return SETUP_INFO;
 }
-
