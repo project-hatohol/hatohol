@@ -554,7 +554,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
 	bool succeeded = parseHostsParams(parser, hostInfoVect, serverInfo);
 	string updateType;
 	bool checkInvalidHosts = parseUpdateType(parser, updateType);
-	// TODO: implement validation for Hosts
+	// TODO: reflect error in response
+	if (checkInvalidHosts) {
+		dataStore->syncHosts(hostInfoVect, serverInfo.id,
+				     m_impl->hostInfoCache);
+	}
 	string lastInfo;
 	if (!parser.read("lastInfo", lastInfo) ) {
 		upsertLastInfo(lastInfo, LAST_INFO_HOST);
