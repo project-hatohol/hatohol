@@ -54,12 +54,14 @@ struct HatoholArmPluginGateHAPI2::Impl
 	ArmPluginInfo m_pluginInfo;
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
+	HostInfoCache hostInfoCache;
 
 	Impl(const MonitoringServerInfo &_serverInfo,
 	     HatoholArmPluginGateHAPI2 *hapghapi)
 	: m_serverInfo(_serverInfo),
 	  m_armFake(m_serverInfo),
-	  m_armStatus()
+	  m_armStatus(),
+	  hostInfoCache(&_serverInfo.id)
 	{
 		ArmPluginInfo::initialize(m_pluginInfo);
 		ThreadLocalDBCache cache;
