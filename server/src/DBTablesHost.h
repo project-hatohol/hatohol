@@ -73,6 +73,10 @@ typedef std::vector<Hostgroup>        HostgroupVect;
 typedef HostgroupVect::iterator       HostgroupVectIterator;
 typedef HostgroupVect::const_iterator HostgroupVectConstIterator;
 
+typedef std::list<GenericIdType>         HostgroupIdList;
+typedef HostgroupIdList::iterator        HostgroupIdListIterator;
+typedef HostgroupIdList::const_iterator  HostgroupIdListConstIterator;
+
 struct HostgroupMember {
 	GenericIdType   id;
 	ServerIdType    serverId;
@@ -289,6 +293,7 @@ public:
 	 */
 	HatoholError getHostgroups(HostgroupVect &hostgroups,
 	                           const HostgroupsQueryOption &option);
+	HatoholError deleteHostgroupList(const HostgroupIdList &idList);
 
 	/**
 	 * Insert or update a record to/in the hostgroup_member table

@@ -18,6 +18,7 @@
  */
 
 #include <cstdio>
+#include <SeparatorInjector.h>
 #include "DBTablesHost.h"
 #include "ItemGroupStream.h"
 #include "ThreadLocalDBCache.h"
@@ -896,6 +897,64 @@ HatoholError DBTablesHost::getHostgroups(HostgroupVect &hostgroups,
 		itemGroupStream >> hostgrp.idInServer;
 		itemGroupStream >> hostgrp.name;
 		hostgroups.push_back(hostgrp);
+	}
+
+	return HTERR_OK;
+}
+
+static string makeHostgroupIdListCondition(const HostgroupIdList &idList)
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_HOSTGROUP_LIST[IDX_HOSTGROUP_LIST_ID];
+	SeparatorInjector commaInjector(",");
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	for (auto id : idList) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%ld", id);
+	}
+
+	condition += ")";
+	return condition;
+}
+
+static string makeConditionForDeleteHostgroup(const HostgroupIdList &idList)
+{
+	string condition = makeHostgroupIdListCondition(idList);
+
+	return condition;
+}
+
+HatoholError DBTablesHost::deleteHostgroupList(const HostgroupIdList &idList)
+{
+	if (idList.empty()) {
+		MLPL_WARN("idList is empty.\n");
+		return HTERR_INVALID_PARAMETER;
+	}
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg arg;
+		uint64_t numAffectedRows;
+
+		TrxProc (void)
+		: arg(tableProfileHostgroupList),
+		  numAffectedRows(0)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(arg);
+			numAffectedRows = dbAgent.getNumberOfAffectedRows();
+		}
+	} trx;
+	trx.arg.condition = makeConditionForDeleteHostgroup(idList);
+	getDBAgent().runTransaction(trx);
+
+	// Check the result
+	if (trx.numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
+		         trx.numAffectedRows, idList.size());
+		return HTERR_DELETE_INCOMPLETE;
 	}
 
 	return HTERR_OK;
