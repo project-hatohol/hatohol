@@ -293,6 +293,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.startObject("result");
+	agent.add("name", "exampleName"); // TODO: add process name mechanism
 	agent.startArray("procedures");
 	for (auto defaultValidProcedureDef : defaultValidProcedureList) {
 		if (defaultValidProcedureDef.type == PROCEDURE_BOTH ||
@@ -302,7 +303,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	}
 	agent.endArray(); // procedures
 	agent.endObject(); // result
-	agent.add("name", "exampleName"); // TODO: add process name mechanism
 	agent.add("id", rpcId);
 	agent.endObject();
 	return agent.generate();

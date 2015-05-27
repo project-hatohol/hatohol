@@ -166,12 +166,13 @@ void test_procedureHandlerExchangeProfile(void)
 	std::string actual =
 		gate->procedureHandlerExchangeProfile(HAPI2_EXCHANGE_PROFILE, params);
 	std::string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":{\"procedures\":"
+		"{\"jsonrpc\":\"2.0\",\"result\":{\"name\":\"exampleName\","
+		  "\"procedures\":"
 		  "[\"getMonitoringServerInfo\",\"getLastInfo\",\"putItems\","
 		  "\"putHistory\",\"updateHosts\",\"updateHostGroups\","
 		  "\"updateHostGroupMembership\",\"updateTriggers\","
 		  "\"updateEvents\",\"updateHostParent\",\"updateArmInfo\""
-		"]},\"name\":\"exampleName\",\"id\":1}";
+		"]},\"id\":1}";
 	cppcut_assert_equal(expected, actual);
 }
 
