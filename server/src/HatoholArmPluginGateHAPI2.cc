@@ -254,12 +254,30 @@ const ArmStatus &HatoholArmPluginGateHAPI2::getArmStatus(void) const
 	return m_impl->m_armStatus;
 }
 
+static bool parseExchangeProfileParams(JSONParser &parser,
+				       ValidProcedureNameVect &validProcedureNameVect)
+{
+	parser.startObject("procedures");
+	size_t num = parser.countElements();
+	for (size_t i = 0; i < num; i++) {
+		string validProcedureName;
+		parser.read(i, validProcedureName);
+
+		validProcedureNameVect.push_back(validProcedureName);
+	}
+	parser.endObject(); // procedures
+	return true;
+}
+
 string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
   const HAPI2ProcedureType type, const string &params)
 {
+	ValidProcedureNameVect validProcedureNameVect;
 	JSONParser parser(params);
 	int64_t rpcId;
-	// TODO: parse valid hap procedures
+	parser.startObject("params");
+	bool succeeded = parseExchangeProfileParams(parser, validProcedureNameVect);
+	parser.endObject(); // params
 	parser.read("id", rpcId);
 
 	JSONBuilder agent;
