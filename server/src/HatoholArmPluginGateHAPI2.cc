@@ -275,6 +275,7 @@ static bool hapProcessLogger(JSONParser &parser)
 	parser.read("name", hapProcessName);
 	MLPL_INFO("HAP Process connecting done. Connected HAP process name: \"%s\"\n",
 		  hapProcessName.c_str());
+	return true;
 }
 
 string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
