@@ -558,15 +558,13 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
 	if (checkInvalidHosts) {
 		dataStore->syncHosts(hostInfoVect, serverInfo.id,
 				     m_impl->hostInfoCache);
-	} else {
-		dataStore->upsertHosts(hostInfoVect);
 	}
-
 	string lastInfo;
 	if (!parser.read("lastInfo", lastInfo) ) {
 		upsertLastInfo(lastInfo, LAST_INFO_HOST);
 	}
 
+	dataStore->upsertHosts(hostInfoVect);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	parser.endObject(); // params
