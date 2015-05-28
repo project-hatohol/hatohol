@@ -429,6 +429,35 @@ void test_addHostgroupList(void)
 	assertDBContent(&dbAgent, statement, expect);
 }
 
+void test_deleteHostgroupList(void)
+{
+	DECLARE_DBTABLES_HOST(dbHost);
+	HostgroupVect hostgroups;
+	DBAgent &dbAgent = dbHost.getDBAgent();
+	string statement = "SELECT * FROM ";
+	statement += tableProfileHostgroupList.name;
+	string expect;
+
+	for (size_t i = 0; i < NumTestHostgroup; i++) {
+		const Hostgroup &hostgrp = testHostgroup[i];
+		hostgroups.push_back(hostgrp);
+		expect += makeHostgroupsOutput(hostgrp, i);
+	}
+	dbHost.upsertHostgroups(hostgroups);
+	assertDBContent(&dbAgent, statement, expect);
+
+	HostgroupIdList idList = { 2, 3 };
+	dbHost.deleteHostgroupList(idList);
+	for (auto id : idList) {
+		string statementAfterDelete = "SELECT * FROM ";
+		statementAfterDelete += tableProfileHostgroupList.name;
+		statementAfterDelete +=
+			StringUtils::sprintf("WHERE id = %" FMT_GEN_ID, id);
+		const string expectAfterDelete = "";
+		assertDBContent(&dbAgent, statementAfterDelete, expectAfterDelete);
+	}
+}
+
 void test_upsertHostgroupListUpdate(void)
 {
 	Hostgroup hostgroup;
