@@ -972,7 +972,7 @@ HatoholError DBTablesHost::syncHostgroups(
 		return err;
 	const HostgroupVect &currHostgroups(_currHostgroups);
 
-	map<string, const Hostgroup *> currValidHostgroupMap;
+	map<HostgroupIdType, const Hostgroup *> currValidHostgroupMap;
 	for (auto hostgroup : currHostgroups) {
 		const Hostgroup &svHostgroup = hostgroup;
 		currValidHostgroupMap[svHostgroup.idInServer] = &svHostgroup;
