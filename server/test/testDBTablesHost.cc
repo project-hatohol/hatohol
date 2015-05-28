@@ -734,6 +734,74 @@ void test_deleteHostgroupMemberList(void)
 	}
 }
 
+void test_syncHostgroupMembers(void)
+{
+	loadTestDBServer();
+	loadTestDBHostgroup();
+	loadTestDBHostgroupMember();
+	DECLARE_DBTABLES_HOST(dbHost);
+
+	constexpr const ServerIdType targetServerId = 1;
+	const LocalHostIdType targetHostIdInServer = "1129";
+	map<LocalHostIdType, const HostgroupMember *> hostgroupMemberMap;
+	for (size_t i = 0; i < NumTestHostgroupMember; i++) {
+		const HostgroupMember &svHostgroupMember = testHostgroupMember[i];
+		if (svHostgroupMember.serverId != targetServerId)
+			continue;
+		if (svHostgroupMember.hostIdInServer == targetHostIdInServer)
+			continue;
+		hostgroupMemberMap[svHostgroupMember.hostIdInServer] = &svHostgroupMember;
+	}
+
+	HostgroupMemberVect svHostgroupMembers =
+	{
+		{
+			2,                               // id
+			1,                               // serverId
+			"235012",                        // hostIdInServer
+			"2",                             // hostgroupIdInServer
+			10,                              // hostId
+		},
+		{
+			3,                               // id
+			1,                               // serverId
+			"235013",                        // hostIdInServer
+			"2",                             // hostgroupIdInServer
+			11,                              // hostId
+		},
+	};
+
+	// sanity check if we use the proper data
+	cppcut_assert_equal(false, svHostgroupMembers.empty());
+
+	printf("hostgroupMemberMap.size(): %zd\n", hostgroupMemberMap.size());
+	// Prepare for the expected result.
+	string expect;
+	for (auto hostgroupMemberPair : hostgroupMemberMap) {
+		const HostgroupMember svHostgroupMember = *hostgroupMemberPair.second;
+		expect += StringUtils::sprintf(
+		  "%" FMT_LOCAL_HOST_ID "|%" FMT_HOST_GROUP_ID "|%" FMT_HOST_ID "\n",
+		  svHostgroupMember.hostIdInServer.c_str(),
+		  svHostgroupMember.hostgroupIdInServer.c_str(),
+		svHostgroupMember.hostId);
+	}
+	// Call the method to be tested and check the result
+	dbHost.syncHostgroupMembers(svHostgroupMembers, targetServerId);
+	DBAgent &dbAgent = dbHost.getDBAgent();
+	const ColumnDef *coldef = tableProfileHostgroupMember.columnDefs;
+	string statement = StringUtils::sprintf(
+	  "select %s,%s,%s from %s where %s=%" FMT_SERVER_ID " order by %s desc;",
+	  coldef[IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER].columnName,
+	  coldef[IDX_HOSTGROUP_MEMBER_GROUP_ID].columnName,
+	  coldef[IDX_HOSTGROUP_MEMBER_HOST_ID].columnName,
+	  tableProfileHostgroupMember.name,
+	  coldef[IDX_HOSTGROUP_MEMBER_SERVER_ID].columnName,
+	  targetServerId,
+	  coldef[IDX_HOSTGROUP_MEMBER_SERVER_ID].columnName);
+	printf("statement: %s\n", statement.c_str());
+	assertDBContent(&dbAgent, statement, expect);
+}
+
 void test_getHypervisor(void)
 {
 	loadTestDBVMInfo();
