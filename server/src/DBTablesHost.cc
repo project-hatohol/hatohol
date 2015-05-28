@@ -994,7 +994,8 @@ HatoholError DBTablesHost::syncHostgroups(
 		Hostgroup invalidHostgroup = *invalidHostgroupPair.second;
 		invalidHostgroupIdList.push_back(invalidHostgroup.id);
 	}
-	err = deleteHostgroupList(invalidHostgroupIdList);
+	if (invalidHostgroupIdList.size() > 0)
+		err = deleteHostgroupList(invalidHostgroupIdList);
 	return err;
 }
 
