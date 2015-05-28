@@ -902,7 +902,7 @@ HatoholError DBTablesHost::getHostgroups(HostgroupVect &hostgroups,
 	return HTERR_OK;
 }
 
-static string makeHostgroupIdListCondition(const HostgroupIdList &idList)
+static string makeIdListCondition(const GenericIdList &idList)
 {
 	string condition;
 	const ColumnDef &colId = COLUMN_DEF_HOSTGROUP_LIST[IDX_HOSTGROUP_LIST_ID];
@@ -917,14 +917,14 @@ static string makeHostgroupIdListCondition(const HostgroupIdList &idList)
 	return condition;
 }
 
-static string makeConditionForDeleteHostgroup(const HostgroupIdList &idList)
+static string makeConditionForDelete(const GenericIdList &idList)
 {
-	string condition = makeHostgroupIdListCondition(idList);
+	string condition = makeIdListCondition(idList);
 
 	return condition;
 }
 
-HatoholError DBTablesHost::deleteHostgroupList(const HostgroupIdList &idList)
+HatoholError DBTablesHost::deleteHostgroupList(const GenericIdList &idList)
 {
 	if (idList.empty()) {
 		MLPL_WARN("idList is empty.\n");
@@ -947,7 +947,7 @@ HatoholError DBTablesHost::deleteHostgroupList(const HostgroupIdList &idList)
 			numAffectedRows = dbAgent.getNumberOfAffectedRows();
 		}
 	} trx;
-	trx.arg.condition = makeConditionForDeleteHostgroup(idList);
+	trx.arg.condition = makeConditionForDelete(idList);
 	getDBAgent().runTransaction(trx);
 
 	// Check the result
@@ -989,7 +989,7 @@ HatoholError DBTablesHost::syncHostgroups(
 		serverHostgroups.push_back(newSvHostgroup);
 	}
 
-	HostgroupIdList invalidHostgroupIdList;
+	GenericIdList invalidHostgroupIdList;
 	for (auto invalidHostgroupPair : currValidHostgroupMap) {
 		Hostgroup invalidHostgroup = *invalidHostgroupPair.second;
 		invalidHostgroupIdList.push_back(invalidHostgroup.id);

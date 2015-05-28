@@ -478,7 +478,7 @@ void test_deleteHostgroupList(void)
 	dbHost.upsertHostgroups(hostgroups);
 	assertDBContent(&dbAgent, statement, expect);
 
-	HostgroupIdList idList = { 2, 3 };
+	GenericIdList idList = { 2, 3 };
 	dbHost.deleteHostgroupList(idList);
 	for (auto id : idList) {
 		string statementAfterDelete = "SELECT * FROM ";

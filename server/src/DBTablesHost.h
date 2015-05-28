@@ -293,7 +293,7 @@ public:
 	 */
 	HatoholError getHostgroups(HostgroupVect &hostgroups,
 	                           const HostgroupsQueryOption &option);
-	HatoholError deleteHostgroupList(const HostgroupIdList &idList);
+	HatoholError deleteHostgroupList(const GenericIdList &idList);
 
 	/**
 	 * Insert or update a record to/in the hostgroup_member table
