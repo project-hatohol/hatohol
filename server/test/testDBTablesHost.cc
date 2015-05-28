@@ -490,6 +490,61 @@ void test_deleteHostgroupList(void)
 	}
 }
 
+void test_syncHostgroups(void)
+{
+	loadTestDBServer();
+	loadTestDBHostgroup();
+	DECLARE_DBTABLES_HOST(dbHost);
+	constexpr const ServerIdType targetServerId = 1;
+	constexpr const GenericIdType targetHostgroupId = 2;
+
+	map<HostgroupIdType, const Hostgroup *> hostgroupMap;
+	for (size_t i = 0; i < NumTestHostgroup; i++) {
+		const Hostgroup &svHostgroup = testHostgroup[i];
+		if (svHostgroup.serverId != targetServerId)
+			continue;
+		if (svHostgroup.idInServer == StringUtils::toString(targetHostgroupId))
+			continue;
+		hostgroupMap[svHostgroup.idInServer] = &svHostgroup;
+	}
+
+	HostgroupVect svHostgroups =
+	{
+		{
+			// Set id manually. Because id is auto increment.
+			targetHostgroupId,
+			testHostgroup[targetHostgroupId - 1].serverId,
+			testHostgroup[targetHostgroupId - 1].idInServer,
+			testHostgroup[targetHostgroupId - 1].name
+		}
+	};
+
+	// sanity check if we use the proper data
+	cppcut_assert_equal(false, svHostgroups.empty());
+
+	// Prepare for the expected result.
+	string expect;
+	for (auto hostgroupPair : hostgroupMap) {
+		const Hostgroup svHostgroup = *hostgroupPair.second;
+		expect += StringUtils::sprintf(
+		  "%" FMT_HOST_GROUP_ID "|%s\n",
+		  svHostgroup.idInServer.c_str(), svHostgroup.name.c_str());
+	}
+	// Call the method to be tested and check the result
+	dbHost.syncHostgroups(svHostgroups, targetServerId);
+	DBAgent &dbAgent = dbHost.getDBAgent();
+	const ColumnDef *coldef = tableProfileHostgroupList.columnDefs;
+	string statement = StringUtils::sprintf(
+	  "select %s,%s from %s where %s=%" FMT_SERVER_ID " order by %s asc;",
+	  coldef[IDX_HOSTGROUP_LIST_ID_IN_SERVER].columnName,
+	  coldef[IDX_HOSTGROUP_LIST_NAME].columnName,
+	  tableProfileHostgroupList.name,
+	  coldef[IDX_HOSTGROUP_LIST_SERVER_ID].columnName,
+	  targetServerId,
+	  coldef[IDX_HOSTGROUP_LIST_ID_IN_SERVER].columnName);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
 void test_upsertHostgroupListUpdate(void)
 {
 	Hostgroup hostgroup;
