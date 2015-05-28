@@ -319,6 +319,8 @@ public:
 
 	HatoholError deleteHostgroupMemberList(const GenericIdList &idList);
 
+	HatoholError syncHostgroupMembers(HostgroupMemberVect &hostgroupMembers,
+	                                  const ServerIdType &serverId);
 	/**
 	 * Get the virtual mechines
 	 *

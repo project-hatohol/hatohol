@@ -1116,6 +1116,46 @@ HatoholError DBTablesHost::deleteHostgroupMemberList(
 	return HTERR_OK;
 }
 
+HatoholError DBTablesHost::syncHostgroupMembers(
+  HostgroupMemberVect &svHostgroupMembers,
+  const ServerIdType &serverId)
+{
+	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	HostgroupMemberVect _currHostgroupMembers;
+	HatoholError err = getHostgroupMembers(_currHostgroupMembers, option);
+	if (err != HTERR_OK)
+		return err;
+	const HostgroupMemberVect &currHostgroupMembers(_currHostgroupMembers);
+	// TODO: more strict valid hostgroup sampling
+	map<LocalHostIdType, const HostgroupMember *> currValidHostgroupMemberMap;
+	for (auto hostgroupMember : currHostgroupMembers) {
+		const HostgroupMember &svHostgroupMember = hostgroupMember;
+		currValidHostgroupMemberMap[svHostgroupMember.hostIdInServer] =
+			&svHostgroupMember;
+	}
+
+	//Pick up hostgroupMember to be added.
+	HostgroupMemberVect serverHostgroupMembers;
+	for (auto newSvHostgroupMember : svHostgroupMembers) {
+		if(currValidHostgroupMemberMap.erase(newSvHostgroupMember.hostIdInServer) >= 1) {
+			continue;
+		}
+
+		// TODO: avoid the copy
+		serverHostgroupMembers.push_back(newSvHostgroupMember);
+	}
+
+	GenericIdList invalidHostgroupMemberIdList;
+	for (auto invalidHostgroupMemberPair : currValidHostgroupMemberMap) {
+		HostgroupMember invalidHostgroupMember = *invalidHostgroupMemberPair.second;
+		invalidHostgroupMemberIdList.push_back(invalidHostgroupMember.id);
+	}
+	if (invalidHostgroupMemberIdList.size() > 0)
+		err = deleteHostgroupMemberList(invalidHostgroupMemberIdList);
+	return HTERR_OK;
+}
+
 HatoholError DBTablesHost::getVirtualMachines(
   HostIdVector &virtualMachines, const HostIdType &hypervisorHostId,
   const HostsQueryOption &option)
