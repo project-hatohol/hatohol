@@ -497,13 +497,14 @@ void test_syncHostgroups(void)
 	DECLARE_DBTABLES_HOST(dbHost);
 	constexpr const ServerIdType targetServerId = 1;
 	constexpr const GenericIdType targetHostgroupId = 2;
+	constexpr const GenericIdType remainingHostgroupId = 1;
 
 	map<HostgroupIdType, const Hostgroup *> hostgroupMap;
 	for (size_t i = 0; i < NumTestHostgroup; i++) {
 		const Hostgroup &svHostgroup = testHostgroup[i];
 		if (svHostgroup.serverId != targetServerId)
 			continue;
-		if (svHostgroup.idInServer == StringUtils::toString(targetHostgroupId))
+		if (svHostgroup.idInServer != StringUtils::toString(targetHostgroupId))
 			continue;
 		hostgroupMap[svHostgroup.idInServer] = &svHostgroup;
 	}
@@ -512,10 +513,10 @@ void test_syncHostgroups(void)
 	{
 		{
 			// Set id manually. Because id is auto increment.
-			targetHostgroupId,
-			testHostgroup[targetHostgroupId - 1].serverId,
-			testHostgroup[targetHostgroupId - 1].idInServer,
-			testHostgroup[targetHostgroupId - 1].name
+			remainingHostgroupId,
+			testHostgroup[remainingHostgroupId - 1].serverId,
+			testHostgroup[remainingHostgroupId - 1].idInServer,
+			testHostgroup[remainingHostgroupId - 1].name
 		}
 	};
 
