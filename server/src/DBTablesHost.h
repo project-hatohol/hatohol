@@ -317,6 +317,8 @@ public:
 	  HostgroupMemberVect &hostgrpMembers,
 	  const HostgroupMembersQueryOption &option);
 
+	HatoholError deleteHostgroupMemberList(const GenericIdList &idList);
+
 	/**
 	 * Get the virtual mechines
 	 *
