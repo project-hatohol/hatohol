@@ -429,6 +429,38 @@ void test_addHostgroupList(void)
 	assertDBContent(&dbAgent, statement, expect);
 }
 
+void test_getHostgroups(void)
+{
+	loadTestDBServer();
+	loadTestDBHostgroup();
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	HostgroupVect hostgroups;
+	DBAgent &dbAgent = dbHost.getDBAgent();
+	constexpr const ServerIdType targetServerId = 1;
+	HostgroupsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(targetServerId);
+	const ColumnDef *colDef = tableProfileHostgroupList.columnDefs;
+	string statement = StringUtils::sprintf(
+	  "select * from %s where %s=%" FMT_SERVER_ID,
+	  tableProfileHostgroupList.name,
+	  colDef[IDX_HOSTGROUP_LIST_SERVER_ID].columnName,
+	  targetServerId);
+	dbHost.getHostgroups(hostgroups, option);
+	cppcut_assert_equal(false, hostgroups.empty());
+
+	string expect;
+	for (size_t i = 0; i < NumTestHostgroup; i++) {
+		const Hostgroup &hostgrp = testHostgroup[i];
+		if (testHostgroup[i].serverId != targetServerId)
+			continue;
+
+		hostgroups.push_back(hostgrp);
+		expect += makeHostgroupsOutput(hostgrp, i);
+	}
+	assertDBContent(&dbAgent, statement, expect);
+}
+
 void test_deleteHostgroupList(void)
 {
 	DECLARE_DBTABLES_HOST(dbHost);
