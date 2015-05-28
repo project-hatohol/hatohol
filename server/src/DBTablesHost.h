@@ -73,10 +73,6 @@ typedef std::vector<Hostgroup>        HostgroupVect;
 typedef HostgroupVect::iterator       HostgroupVectIterator;
 typedef HostgroupVect::const_iterator HostgroupVectConstIterator;
 
-typedef std::list<GenericIdType>         HostgroupIdList;
-typedef HostgroupIdList::iterator        HostgroupIdListIterator;
-typedef HostgroupIdList::const_iterator  HostgroupIdListConstIterator;
-
 struct HostgroupMember {
 	GenericIdType   id;
 	ServerIdType    serverId;
@@ -88,6 +84,10 @@ struct HostgroupMember {
 typedef std::vector<HostgroupMember>        HostgroupMemberVect;
 typedef HostgroupMemberVect::iterator       HostgroupMemberVectIterator;
 typedef HostgroupMemberVect::const_iterator HostgroupMemberVectConstIterator;
+
+typedef std::list<GenericIdType>         GenericIdList;
+typedef GenericIdList::iterator          GenericIdListIterator;
+typedef GenericIdList::const_iterator    GenericIdListConstIterator;
 
 enum {
 	IDX_HOST_LIST_ID,
