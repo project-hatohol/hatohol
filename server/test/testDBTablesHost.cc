@@ -704,6 +704,35 @@ void test_getHostgroupMembers(void)
 	  makeMapHostsHostgroupsOutput(actualMembers[1], id1));
 }
 
+void test_deleteHostgroupMemberList(void)
+{
+	DECLARE_DBTABLES_HOST(dbHost);
+	HostgroupMemberVect hostgroupMembers;
+	DBAgent &dbAgent = dbHost.getDBAgent();
+	string statement = "SELECT * FROM ";
+	statement += tableProfileHostgroupMember.name;
+	string expect;
+
+	for (size_t i = 0; i < NumTestHostgroupMember; i++) {
+		const HostgroupMember &hostgrpMember = testHostgroupMember[i];
+		hostgroupMembers.push_back(hostgrpMember);
+		expect += makeMapHostsHostgroupsOutput(hostgrpMember, i);
+	}
+	dbHost.upsertHostgroupMembers(hostgroupMembers);
+	assertDBContent(&dbAgent, statement, expect);
+
+	GenericIdList idList = { 3, 5 };
+	dbHost.deleteHostgroupMemberList(idList);
+	for (auto id : idList) {
+		string statementAfterDelete = "SELECT * FROM ";
+		statementAfterDelete += tableProfileHostgroupMember.name;
+		statementAfterDelete +=
+			StringUtils::sprintf("WHERE id = %" FMT_GEN_ID, id);
+		const string expectAfterDelete = "";
+		assertDBContent(&dbAgent, statementAfterDelete, expectAfterDelete);
+	}
+}
+
 void test_getHypervisor(void)
 {
 	loadTestDBVMInfo();
