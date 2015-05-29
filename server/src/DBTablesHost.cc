@@ -1128,17 +1128,16 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 		return err;
 	const HostgroupMemberVect &currHostgroupMembers(_currHostgroupMembers);
 	// TODO: more strict valid hostgroup sampling
-	map<LocalHostIdType, const HostgroupMember *> currValidHostgroupMemberMap;
+	map<GenericIdType, const HostgroupMember *> currValidHostgroupMemberMap;
 	for (auto hostgroupMember : currHostgroupMembers) {
 		const HostgroupMember &svHostgroupMember = hostgroupMember;
-		currValidHostgroupMemberMap[svHostgroupMember.hostIdInServer] =
-			&svHostgroupMember;
+		currValidHostgroupMemberMap[svHostgroupMember.id] = &svHostgroupMember;
 	}
 
 	//Pick up hostgroupMember to be added.
 	HostgroupMemberVect serverHostgroupMembers;
 	for (auto newSvHostgroupMember : svHostgroupMembers) {
-		if(currValidHostgroupMemberMap.erase(newSvHostgroupMember.hostIdInServer) >= 1) {
+		if(currValidHostgroupMemberMap.erase(newSvHostgroupMember.id) >= 1) {
 			continue;
 		}
 
