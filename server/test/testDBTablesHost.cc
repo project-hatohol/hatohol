@@ -742,15 +742,15 @@ void test_syncHostgroupMembers(void)
 	DECLARE_DBTABLES_HOST(dbHost);
 
 	constexpr const ServerIdType targetServerId = 1;
-	const LocalHostIdType targetHostIdInServer = "1129";
-	map<LocalHostIdType, const HostgroupMember *> hostgroupMemberMap;
+	const LocalHostIdType dropTargetHostIdInServer = "1129";
+	map<GenericIdType, const HostgroupMember *> hostgroupMemberMap;
 	for (size_t i = 0; i < NumTestHostgroupMember; i++) {
 		const HostgroupMember &svHostgroupMember = testHostgroupMember[i];
 		if (svHostgroupMember.serverId != targetServerId)
 			continue;
-		if (svHostgroupMember.hostIdInServer == targetHostIdInServer)
+		if (svHostgroupMember.hostIdInServer == dropTargetHostIdInServer)
 			continue;
-		hostgroupMemberMap[svHostgroupMember.hostIdInServer] = &svHostgroupMember;
+		hostgroupMemberMap[i] = &svHostgroupMember;
 	}
 
 	HostgroupMemberVect svHostgroupMembers =
@@ -759,11 +759,18 @@ void test_syncHostgroupMembers(void)
 			2,                               // id
 			1,                               // serverId
 			"235012",                        // hostIdInServer
-			"2",                             // hostgroupIdInServer
+			"1",                             // hostgroupIdInServer
 			10,                              // hostId
 		},
 		{
 			3,                               // id
+			1,                               // serverId
+			"235012",                        // hostIdInServer
+			"2",                             // hostgroupIdInServer
+			10,                              // hostId
+		},
+		{
+			4,                               // id
 			1,                               // serverId
 			"235013",                        // hostIdInServer
 			"2",                             // hostgroupIdInServer
