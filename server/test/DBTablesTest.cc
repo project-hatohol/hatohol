@@ -984,6 +984,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // tlsCACertificatePath
 	0,                               // tlsEnableVerify
 	"",                              // uuid
+#ifdef HAVE_LIBRABBITMQ
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI2,         // type
@@ -996,6 +997,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // tlsCACertificatePath
 	0,                               // tlsEnableVerify
 	"8e632c14-d1f7-11e4-8350-d43d7e3146fb", // uuid
+#endif // HAVE_LIBRABBITMQ
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST,     // type
