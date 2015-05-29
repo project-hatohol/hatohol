@@ -774,7 +774,6 @@ void test_syncHostgroupMembers(void)
 	// sanity check if we use the proper data
 	cppcut_assert_equal(false, svHostgroupMembers.empty());
 
-	printf("hostgroupMemberMap.size(): %zd\n", hostgroupMemberMap.size());
 	// Prepare for the expected result.
 	string expect;
 	for (auto hostgroupMemberPair : hostgroupMemberMap) {
@@ -798,7 +797,6 @@ void test_syncHostgroupMembers(void)
 	  coldef[IDX_HOSTGROUP_MEMBER_SERVER_ID].columnName,
 	  targetServerId,
 	  coldef[IDX_HOSTGROUP_MEMBER_SERVER_ID].columnName);
-	printf("statement: %s\n", statement.c_str());
 	assertDBContent(&dbAgent, statement, expect);
 }
 
