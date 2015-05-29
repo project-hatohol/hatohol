@@ -1111,6 +1111,43 @@ HatoholError DBTablesHost::getVirtualMachines(
 	return HTERR_OK;
 }
 
+HatoholError DBTablesHost::deleteVMInfoList(
+  const GenericIdList &idList)
+{
+	if (idList.empty()) {
+		MLPL_WARN("idList is empty.\n");
+		return HTERR_INVALID_PARAMETER;
+	}
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg arg;
+		uint64_t numAffectedRows;
+
+		TrxProc (void)
+		: arg(tableProfileVMList),
+		  numAffectedRows(0)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(arg);
+			numAffectedRows = dbAgent.getNumberOfAffectedRows();
+		}
+	} trx;
+	trx.arg.condition = makeConditionForDelete(idList);
+	getDBAgent().runTransaction(trx);
+
+	// Check the result
+	if (trx.numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
+		         trx.numAffectedRows, idList.size());
+		return HTERR_DELETE_INCOMPLETE;
+	}
+
+	return HTERR_OK;
+}
+
 HatoholError DBTablesHost::getHypervisor(HostIdType &hypervisorHostId,
                                          const HostIdType &hostId,
                                          const HostsQueryOption &option)

@@ -338,6 +338,8 @@ public:
 	HatoholError getVirtualMachines(HostIdVector &virtualMachines,
 	                                const HostIdType &hypervisorHostId,
 	                                const HostsQueryOption &option);
+	HatoholError deleteVMInfoList(const GenericIdList &idList);
+
 	/**
 	 * Get the hyperviosr.
 	 *
