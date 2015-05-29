@@ -490,62 +490,6 @@ void test_deleteHostgroupList(void)
 	}
 }
 
-void test_syncHostgroups(void)
-{
-	loadTestDBServer();
-	loadTestDBHostgroup();
-	DECLARE_DBTABLES_HOST(dbHost);
-	constexpr const ServerIdType targetServerId = 1;
-	constexpr const GenericIdType targetHostgroupId = 2;
-	constexpr const GenericIdType remainingHostgroupId = 1;
-
-	map<HostgroupIdType, const Hostgroup *> hostgroupMap;
-	for (size_t i = 0; i < NumTestHostgroup; i++) {
-		const Hostgroup &svHostgroup = testHostgroup[i];
-		if (svHostgroup.serverId != targetServerId)
-			continue;
-		if (svHostgroup.idInServer != StringUtils::toString(targetHostgroupId))
-			continue;
-		hostgroupMap[svHostgroup.idInServer] = &svHostgroup;
-	}
-
-	HostgroupVect svHostgroups =
-	{
-		{
-			// Set id manually. Because id is auto increment.
-			remainingHostgroupId,
-			testHostgroup[remainingHostgroupId - 1].serverId,
-			testHostgroup[remainingHostgroupId - 1].idInServer,
-			testHostgroup[remainingHostgroupId - 1].name
-		}
-	};
-
-	// sanity check if we use the proper data
-	cppcut_assert_equal(false, svHostgroups.empty());
-
-	// Prepare for the expected result.
-	string expect;
-	for (auto hostgroupPair : hostgroupMap) {
-		const Hostgroup svHostgroup = *hostgroupPair.second;
-		expect += StringUtils::sprintf(
-		  "%" FMT_HOST_GROUP_ID "|%s\n",
-		  svHostgroup.idInServer.c_str(), svHostgroup.name.c_str());
-	}
-	// Call the method to be tested and check the result
-	dbHost.syncHostgroups(svHostgroups, targetServerId);
-	DBAgent &dbAgent = dbHost.getDBAgent();
-	const ColumnDef *coldef = tableProfileHostgroupList.columnDefs;
-	string statement = StringUtils::sprintf(
-	  "select %s,%s from %s where %s=%" FMT_SERVER_ID " order by %s asc;",
-	  coldef[IDX_HOSTGROUP_LIST_ID_IN_SERVER].columnName,
-	  coldef[IDX_HOSTGROUP_LIST_NAME].columnName,
-	  tableProfileHostgroupList.name,
-	  coldef[IDX_HOSTGROUP_LIST_SERVER_ID].columnName,
-	  targetServerId,
-	  coldef[IDX_HOSTGROUP_LIST_ID_IN_SERVER].columnName);
-	assertDBContent(&dbAgent, statement, expect);
-}
-
 void test_upsertHostgroupListUpdate(void)
 {
 	Hostgroup hostgroup;
@@ -732,79 +676,6 @@ void test_deleteHostgroupMemberList(void)
 		const string expectAfterDelete = "";
 		assertDBContent(&dbAgent, statementAfterDelete, expectAfterDelete);
 	}
-}
-
-void test_syncHostgroupMembers(void)
-{
-	loadTestDBServer();
-	loadTestDBHostgroup();
-	loadTestDBHostgroupMember();
-	DECLARE_DBTABLES_HOST(dbHost);
-
-	constexpr const ServerIdType targetServerId = 1;
-	const LocalHostIdType dropTargetHostIdInServer = "1129";
-	map<GenericIdType, const HostgroupMember *> hostgroupMemberMap;
-	for (size_t i = 0; i < NumTestHostgroupMember; i++) {
-		const HostgroupMember &svHostgroupMember = testHostgroupMember[i];
-		if (svHostgroupMember.serverId != targetServerId)
-			continue;
-		if (svHostgroupMember.hostIdInServer == dropTargetHostIdInServer)
-			continue;
-		hostgroupMemberMap[i] = &svHostgroupMember;
-	}
-
-	HostgroupMemberVect svHostgroupMembers =
-	{
-		{
-			2,                               // id
-			1,                               // serverId
-			"235012",                        // hostIdInServer
-			"1",                             // hostgroupIdInServer
-			10,                              // hostId
-		},
-		{
-			3,                               // id
-			1,                               // serverId
-			"235012",                        // hostIdInServer
-			"2",                             // hostgroupIdInServer
-			10,                              // hostId
-		},
-		{
-			4,                               // id
-			1,                               // serverId
-			"235013",                        // hostIdInServer
-			"2",                             // hostgroupIdInServer
-			11,                              // hostId
-		},
-	};
-
-	// sanity check if we use the proper data
-	cppcut_assert_equal(false, svHostgroupMembers.empty());
-
-	// Prepare for the expected result.
-	string expect;
-	for (auto hostgroupMemberPair : hostgroupMemberMap) {
-		const HostgroupMember svHostgroupMember = *hostgroupMemberPair.second;
-		expect += StringUtils::sprintf(
-		  "%" FMT_LOCAL_HOST_ID "|%" FMT_HOST_GROUP_ID "|%" FMT_HOST_ID "\n",
-		  svHostgroupMember.hostIdInServer.c_str(),
-		  svHostgroupMember.hostgroupIdInServer.c_str(),
-		svHostgroupMember.hostId);
-	}
-	// Call the method to be tested and check the result
-	dbHost.syncHostgroupMembers(svHostgroupMembers, targetServerId);
-	DBAgent &dbAgent = dbHost.getDBAgent();
-	const ColumnDef *coldef = tableProfileHostgroupMember.columnDefs;
-	string statement = StringUtils::sprintf(
-	  "select %s,%s,%s from %s where %s=%" FMT_SERVER_ID " order by %s desc;",
-	  coldef[IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER].columnName,
-	  coldef[IDX_HOSTGROUP_MEMBER_GROUP_ID].columnName,
-	  coldef[IDX_HOSTGROUP_MEMBER_HOST_ID].columnName,
-	  tableProfileHostgroupMember.name,
-	  coldef[IDX_HOSTGROUP_MEMBER_SERVER_ID].columnName,
-	  targetServerId,
-	  coldef[IDX_HOSTGROUP_MEMBER_SERVER_ID].columnName);
-	assertDBContent(&dbAgent, statement, expect);
 }
 
 void test_getHypervisor(void)
@@ -1317,4 +1188,132 @@ void test_syncHostsAddNewHost(void)
 	assertDBContent(&dbAgent, statement, expect);
 }
 
+void test_syncHostgroups(void)
+{
+	loadTestDBServer();
+	loadTestDBHostgroup();
+	DECLARE_DBTABLES_HOST(dbHost);
+	constexpr const ServerIdType targetServerId = 1;
+	constexpr const GenericIdType targetHostgroupId = 2;
+	constexpr const GenericIdType remainingHostgroupId = 1;
+
+	map<HostgroupIdType, const Hostgroup *> hostgroupMap;
+	for (size_t i = 0; i < NumTestHostgroup; i++) {
+		const Hostgroup &svHostgroup = testHostgroup[i];
+		if (svHostgroup.serverId != targetServerId)
+			continue;
+		if (svHostgroup.idInServer != StringUtils::toString(targetHostgroupId))
+			continue;
+		hostgroupMap[svHostgroup.idInServer] = &svHostgroup;
+	}
+
+	HostgroupVect svHostgroups =
+	{
+		{
+			// Set id manually. Because id is auto increment.
+			remainingHostgroupId,
+			testHostgroup[remainingHostgroupId - 1].serverId,
+			testHostgroup[remainingHostgroupId - 1].idInServer,
+			testHostgroup[remainingHostgroupId - 1].name
+		}
+	};
+
+	// sanity check if we use the proper data
+	cppcut_assert_equal(false, svHostgroups.empty());
+
+	// Prepare for the expected result.
+	string expect;
+	for (auto hostgroupPair : hostgroupMap) {
+		const Hostgroup svHostgroup = *hostgroupPair.second;
+		expect += StringUtils::sprintf(
+		  "%" FMT_HOST_GROUP_ID "|%s\n",
+		  svHostgroup.idInServer.c_str(), svHostgroup.name.c_str());
+	}
+	// Call the method to be tested and check the result
+	dbHost.syncHostgroups(svHostgroups, targetServerId);
+	DBAgent &dbAgent = dbHost.getDBAgent();
+	const ColumnDef *coldef = tableProfileHostgroupList.columnDefs;
+	string statement = StringUtils::sprintf(
+	  "select %s,%s from %s where %s=%" FMT_SERVER_ID " order by %s asc;",
+	  coldef[IDX_HOSTGROUP_LIST_ID_IN_SERVER].columnName,
+	  coldef[IDX_HOSTGROUP_LIST_NAME].columnName,
+	  tableProfileHostgroupList.name,
+	  coldef[IDX_HOSTGROUP_LIST_SERVER_ID].columnName,
+	  targetServerId,
+	  coldef[IDX_HOSTGROUP_LIST_ID_IN_SERVER].columnName);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
+void test_syncHostgroupMembers(void)
+{
+	loadTestDBServer();
+	loadTestDBHostgroup();
+	loadTestDBHostgroupMember();
+	DECLARE_DBTABLES_HOST(dbHost);
+
+	constexpr const ServerIdType targetServerId = 1;
+	const LocalHostIdType dropTargetHostIdInServer = "1129";
+	map<GenericIdType, const HostgroupMember *> hostgroupMemberMap;
+	for (size_t i = 0; i < NumTestHostgroupMember; i++) {
+		const HostgroupMember &svHostgroupMember = testHostgroupMember[i];
+		if (svHostgroupMember.serverId != targetServerId)
+			continue;
+		if (svHostgroupMember.hostIdInServer == dropTargetHostIdInServer)
+			continue;
+		hostgroupMemberMap[i] = &svHostgroupMember;
+	}
+
+	HostgroupMemberVect svHostgroupMembers =
+	{
+		{
+			2,                               // id
+			1,                               // serverId
+			"235012",                        // hostIdInServer
+			"1",                             // hostgroupIdInServer
+			10,                              // hostId
+		},
+		{
+			3,                               // id
+			1,                               // serverId
+			"235012",                        // hostIdInServer
+			"2",                             // hostgroupIdInServer
+			10,                              // hostId
+		},
+		{
+			4,                               // id
+			1,                               // serverId
+			"235013",                        // hostIdInServer
+			"2",                             // hostgroupIdInServer
+			11,                              // hostId
+		},
+	};
+
+	// sanity check if we use the proper data
+	cppcut_assert_equal(false, svHostgroupMembers.empty());
+
+	// Prepare for the expected result.
+	string expect;
+	for (auto hostgroupMemberPair : hostgroupMemberMap) {
+		const HostgroupMember svHostgroupMember = *hostgroupMemberPair.second;
+		expect += StringUtils::sprintf(
+		  "%" FMT_LOCAL_HOST_ID "|%" FMT_HOST_GROUP_ID "|%" FMT_HOST_ID "\n",
+		  svHostgroupMember.hostIdInServer.c_str(),
+		  svHostgroupMember.hostgroupIdInServer.c_str(),
+		svHostgroupMember.hostId);
+	}
+	// Call the method to be tested and check the result
+	dbHost.syncHostgroupMembers(svHostgroupMembers, targetServerId);
+	DBAgent &dbAgent = dbHost.getDBAgent();
+	const ColumnDef *coldef = tableProfileHostgroupMember.columnDefs;
+	string statement = StringUtils::sprintf(
+	  "select %s,%s,%s from %s where %s=%" FMT_SERVER_ID " order by %s desc;",
+	  coldef[IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER].columnName,
+	  coldef[IDX_HOSTGROUP_MEMBER_GROUP_ID].columnName,
+	  coldef[IDX_HOSTGROUP_MEMBER_HOST_ID].columnName,
+	  tableProfileHostgroupMember.name,
+	  coldef[IDX_HOSTGROUP_MEMBER_SERVER_ID].columnName,
+	  targetServerId,
+	  coldef[IDX_HOSTGROUP_MEMBER_SERVER_ID].columnName);
+	assertDBContent(&dbAgent, statement, expect);
+}
 } // namespace testDBTablesHost

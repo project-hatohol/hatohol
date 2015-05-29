@@ -960,45 +960,6 @@ HatoholError DBTablesHost::deleteHostgroupList(const GenericIdList &idList)
 	return HTERR_OK;
 }
 
-HatoholError DBTablesHost::syncHostgroups(
-  HostgroupVect &svHostgroups,
-  const ServerIdType &serverId)
-{
-	HostgroupsQueryOption option(USER_ID_SYSTEM);
-	option.setTargetServerId(serverId);
-	HostgroupVect _currHostgroups;
-	HatoholError err = getHostgroups(_currHostgroups, option);
-	if (err != HTERR_OK)
-		return err;
-	const HostgroupVect &currHostgroups(_currHostgroups);
-
-	map<HostgroupIdType, const Hostgroup *> currValidHostgroupMap;
-	for (auto hostgroup : currHostgroups) {
-		const Hostgroup &svHostgroup = hostgroup;
-		currValidHostgroupMap[svHostgroup.idInServer] = &svHostgroup;
-	}
-
-	// Pick up hostgroups to be added.
-	HostgroupVect serverHostgroups;
-	for (auto newSvHostgroup : svHostgroups) {
-		if (currValidHostgroupMap.erase(newSvHostgroup.idInServer) >= 1) {
-			// If the hostgroup already exists, we have nothing to do.
-			continue;
-		}
-		// TODO: avoid the copy
-		serverHostgroups.push_back(newSvHostgroup);
-	}
-
-	GenericIdList invalidHostgroupIdList;
-	for (auto invalidHostgroupPair : currValidHostgroupMap) {
-		Hostgroup invalidHostgroup = *invalidHostgroupPair.second;
-		invalidHostgroupIdList.push_back(invalidHostgroup.id);
-	}
-	if (invalidHostgroupIdList.size() > 0)
-		err = deleteHostgroupList(invalidHostgroupIdList);
-	return err;
-}
-
 GenericIdType DBTablesHost::upsertHostgroupMember(
   const HostgroupMember &hostgroupMember, const bool &useTransaction)
 {
@@ -1113,45 +1074,6 @@ HatoholError DBTablesHost::deleteHostgroupMemberList(
 		return HTERR_DELETE_INCOMPLETE;
 	}
 
-	return HTERR_OK;
-}
-
-HatoholError DBTablesHost::syncHostgroupMembers(
-  HostgroupMemberVect &svHostgroupMembers,
-  const ServerIdType &serverId)
-{
-	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
-	option.setTargetServerId(serverId);
-	HostgroupMemberVect _currHostgroupMembers;
-	HatoholError err = getHostgroupMembers(_currHostgroupMembers, option);
-	if (err != HTERR_OK)
-		return err;
-	const HostgroupMemberVect &currHostgroupMembers(_currHostgroupMembers);
-	// TODO: more strict valid hostgroup sampling
-	map<GenericIdType, const HostgroupMember *> currValidHostgroupMemberMap;
-	for (auto hostgroupMember : currHostgroupMembers) {
-		const HostgroupMember &svHostgroupMember = hostgroupMember;
-		currValidHostgroupMemberMap[svHostgroupMember.id] = &svHostgroupMember;
-	}
-
-	//Pick up hostgroupMember to be added.
-	HostgroupMemberVect serverHostgroupMembers;
-	for (auto newSvHostgroupMember : svHostgroupMembers) {
-		if(currValidHostgroupMemberMap.erase(newSvHostgroupMember.id) >= 1) {
-			continue;
-		}
-
-		// TODO: avoid the copy
-		serverHostgroupMembers.push_back(newSvHostgroupMember);
-	}
-
-	GenericIdList invalidHostgroupMemberIdList;
-	for (auto invalidHostgroupMemberPair : currValidHostgroupMemberMap) {
-		HostgroupMember invalidHostgroupMember = *invalidHostgroupMemberPair.second;
-		invalidHostgroupMemberIdList.push_back(invalidHostgroupMember.id);
-	}
-	if (invalidHostgroupMemberIdList.size() > 0)
-		err = deleteHostgroupMemberList(invalidHostgroupMemberIdList);
 	return HTERR_OK;
 }
 
@@ -1380,6 +1302,84 @@ HatoholError DBTablesHost::syncHosts(
 	}
 	upsertHosts(serverHostDefs, hostHostIdMapPtr);
 	m_impl->storedHostsChanged = false;
+	return HTERR_OK;
+}
+
+HatoholError DBTablesHost::syncHostgroups(
+  HostgroupVect &svHostgroups,
+  const ServerIdType &serverId)
+{
+	HostgroupsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	HostgroupVect _currHostgroups;
+	HatoholError err = getHostgroups(_currHostgroups, option);
+	if (err != HTERR_OK)
+		return err;
+	const HostgroupVect &currHostgroups(_currHostgroups);
+
+	map<HostgroupIdType, const Hostgroup *> currValidHostgroupMap;
+	for (auto hostgroup : currHostgroups) {
+		const Hostgroup &svHostgroup = hostgroup;
+		currValidHostgroupMap[svHostgroup.idInServer] = &svHostgroup;
+	}
+
+	// Pick up hostgroups to be added.
+	HostgroupVect serverHostgroups;
+	for (auto newSvHostgroup : svHostgroups) {
+		if (currValidHostgroupMap.erase(newSvHostgroup.idInServer) >= 1) {
+			// If the hostgroup already exists, we have nothing to do.
+			continue;
+		}
+		// TODO: avoid the copy
+		serverHostgroups.push_back(newSvHostgroup);
+	}
+
+	GenericIdList invalidHostgroupIdList;
+	for (auto invalidHostgroupPair : currValidHostgroupMap) {
+		Hostgroup invalidHostgroup = *invalidHostgroupPair.second;
+		invalidHostgroupIdList.push_back(invalidHostgroup.id);
+	}
+	if (invalidHostgroupIdList.size() > 0)
+		err = deleteHostgroupList(invalidHostgroupIdList);
+	return err;
+}
+
+HatoholError DBTablesHost::syncHostgroupMembers(
+  HostgroupMemberVect &svHostgroupMembers,
+  const ServerIdType &serverId)
+{
+	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	HostgroupMemberVect _currHostgroupMembers;
+	HatoholError err = getHostgroupMembers(_currHostgroupMembers, option);
+	if (err != HTERR_OK)
+		return err;
+	const HostgroupMemberVect &currHostgroupMembers(_currHostgroupMembers);
+	// TODO: more strict valid hostgroup sampling
+	map<GenericIdType, const HostgroupMember *> currValidHostgroupMemberMap;
+	for (auto hostgroupMember : currHostgroupMembers) {
+		const HostgroupMember &svHostgroupMember = hostgroupMember;
+		currValidHostgroupMemberMap[svHostgroupMember.id] = &svHostgroupMember;
+	}
+
+	//Pick up hostgroupMember to be added.
+	HostgroupMemberVect serverHostgroupMembers;
+	for (auto newSvHostgroupMember : svHostgroupMembers) {
+		if(currValidHostgroupMemberMap.erase(newSvHostgroupMember.id) >= 1) {
+			continue;
+		}
+
+		// TODO: avoid the copy
+		serverHostgroupMembers.push_back(newSvHostgroupMember);
+	}
+
+	GenericIdList invalidHostgroupMemberIdList;
+	for (auto invalidHostgroupMemberPair : currValidHostgroupMemberMap) {
+		HostgroupMember invalidHostgroupMember = *invalidHostgroupMemberPair.second;
+		invalidHostgroupMemberIdList.push_back(invalidHostgroupMember.id);
+	}
+	if (invalidHostgroupMemberIdList.size() > 0)
+		err = deleteHostgroupMemberList(invalidHostgroupMemberIdList);
 	return HTERR_OK;
 }
 
