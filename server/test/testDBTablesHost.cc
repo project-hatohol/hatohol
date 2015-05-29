@@ -154,6 +154,15 @@ static string makeHostsOutput(const ServerHostDef &svHostDef, const size_t &id)
 	return expectedOut;
 }
 
+static string makeVMInfoOutput(const VMInfo &vmInfo, const size_t &id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%" FMT_GEN_ID "|%" FMT_HOST_ID "|%" FMT_HOST_ID "\n",
+	  id + 1, vmInfo.hostId, vmInfo.hypervisorHostId);
+
+	return expectedOut;
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -851,6 +860,38 @@ void test_getVirtualMachines(gconstpointer data)
 		actualHypervisorVMMap.erase(actMapItr);
 	}
 	cppcut_assert_equal(true, actualHypervisorVMMap.empty());
+}
+
+void test_deleteVMInfoList(void)
+{
+	loadTestDBVMInfo();
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	const ColumnDef *coldef = tableProfileVMList.columnDefs;
+
+	// check existence VMInfo
+	for (size_t i = 0; i < NumTestVMInfo; i++) {
+		const string statement = StringUtils::sprintf(
+			"SELECT * FROM %s WHERE %s = %" FMT_GEN_ID,
+			tableProfileVMList.name,
+			coldef[IDX_HOST_VM_LIST_ID].columnName,
+			i + 1);
+		string expect = makeVMInfoOutput(testVMInfo[i], i);
+		assertDBContent(&dbHost.getDBAgent(), statement, expect);
+	}
+	std::list<GenericIdType> vmInfoIdList = { 1, 3 };
+	HatoholError err = dbHost.deleteVMInfoList(vmInfoIdList);
+
+	// check non-existence for deleted VMInfo
+	for (auto id : vmInfoIdList) {
+		const string statement = StringUtils::sprintf(
+			"SELECT * FROM %s WHERE %s = %" FMT_GEN_ID,
+			tableProfileVMList.name,
+			coldef[IDX_HOST_VM_LIST_ID].columnName,
+			id);
+		string expect = "";
+		assertDBContent(&dbHost.getDBAgent(), statement, expect);
+	}
 }
 
 void data_upsertHost(void)
