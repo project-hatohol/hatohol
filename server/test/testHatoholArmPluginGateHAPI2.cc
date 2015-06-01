@@ -20,6 +20,9 @@
 #include <gcutter.h>
 #include <Hatohol.h>
 #include <HatoholArmPluginGateHAPI2.h>
+#include <AMQPConnection.h>
+#include <AMQPPublisher.h>
+#include <ThreadLocalDBCache.h>
 #include "Helpers.h"
 #include "DBTablesTest.h"
 
@@ -473,5 +476,94 @@ void test_fetchItem(void)
 }
 
 } // testFetch
+
+namespace testCallServerProcedure {
+
+AMQPConnectionInfo *connectionInfo;
+AMQPConnectionPtr connection;
+const MonitoringServerInfo &monitoringServerInfo = testServerInfo[7];
+
+void prepareDB(const char *amqpURL)
+{
+	hatoholInit();
+	setupTestDB();
+	loadTestDBServer();
+	loadTestDBArmPlugin();
+
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	ArmPluginInfo armPluginInfo;
+	dbConfig.getArmPluginInfo(armPluginInfo, monitoringServerInfo.id);
+	armPluginInfo.brokerUrl = amqpURL;
+	armPluginInfo.staticQueueAddress = "test.1";
+	dbConfig.saveArmPluginInfo(armPluginInfo);
+}
+
+void cut_setup(void)
+{
+	// e.g.) url = "amqp://hatohol:hatohol@localhost:5672/hatohol";
+	const char *url = getenv("TEST_AMQP_URL");
+	if (url) {
+		connectionInfo = new AMQPConnectionInfo();
+		connectionInfo->setURL(url);
+		connectionInfo->setQueueName("test.1");
+	} else {
+		connectionInfo = NULL;
+	}
+
+	prepareDB(url);
+}
+
+void cut_teardown(void)
+{
+	if (connection.hasData())
+		connection->deleteQueue();
+	connection = NULL;
+	delete connectionInfo;
+	connectionInfo = NULL;
+}
+
+AMQPConnectionInfo &getConnectionInfo(void)
+{
+	if (!connectionInfo)
+		cut_omit("TEST_AMQP_URL isn't set");
+	return *connectionInfo;
+}
+
+void sendMessage(const string body)
+{
+	AMQPPublisher publisher(getConnectionInfo());
+	AMQPJSONMessage message;
+	message.body = body;
+	publisher.setMessage(message);
+	publisher.publish();
+}
+
+void test_exchangeProfile(void)
+{
+	getConnectionInfo();
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), true);
+
+	string message =
+		"{"
+		"  \"id\": 1,"
+		"  \"params\": {"
+		"    \"name\": \"exampleName\","
+		"    \"procedures\": ["
+		"      \"exchangeProfile\""
+		"    ]"
+		"  },"
+		"  \"method\": \"exchangeProfile\","
+		"  \"jsonrpc\": \"2.0\""
+		"}";
+	sendMessage(message);
+	sleep(1);
+	// TODO: Add an assertion
+	cut_fail("Fix self eating");
+}
+
+} // testCommunication
 
 } // testHatoholArmPluginGateHAPI2
