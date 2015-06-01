@@ -143,7 +143,7 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateArmInfo);
 
 	if (autoStart)
-		m_impl->start();
+		start();
 }
 
 void HatoholArmPluginGateHAPI2::start(void)
