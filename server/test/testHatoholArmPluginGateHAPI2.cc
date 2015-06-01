@@ -131,6 +131,8 @@ void test_tooLongNanoSecond(void) {
 
 namespace testHatoholArmPluginGateHAPI2 {
 
+namespace testProcedureHandlers {
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -443,6 +445,22 @@ void test_procedureHandlerUpdateArmInfo(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+} // testProcedureHandlers
+
+namespace testFetch {
+
+void cut_setup(void)
+{
+	hatoholInit();
+	setupTestDB();
+	loadTestDBServer();
+	loadTestDBArmPlugin();
+}
+
+void cut_teardown(void)
+{
+}
+
 void test_fetchItem(void)
 {
 	MonitoringServerInfo serverInfo;
@@ -453,4 +471,7 @@ void test_fetchItem(void)
 	cppcut_assert_equal(true, gate->startOnDemandFetchItem(NULL));
 	// TODO: check reply
 }
-}
+
+} // testFetch
+
+} // testHatoholArmPluginGateHAPI2
