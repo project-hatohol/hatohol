@@ -119,9 +119,8 @@ public:
 		return true;
 	}
 
-	bool declareQueue()
+	bool declareQueue(const string queueName)
 	{
-		const string &queueName = getQueueName();
 		const amqp_bytes_t queue = amqp_cstring_bytes(queueName.c_str());
 		MLPL_INFO("Queue: <%s>\n", queueName.c_str());
 		const amqp_boolean_t passive = false;
@@ -422,7 +421,7 @@ bool AMQPConnection::initializeConnection(void)
 		return false;
 	if (!m_impl->openChannel())
 		return false;
-	if (!m_impl->declareQueue())
+	if (!m_impl->declareQueue(getQueueName()))
 		return false;
 	return true;
 }
@@ -452,9 +451,9 @@ bool AMQPConnection::openChannel(void)
 	return m_impl->openChannel();
 }
 
-bool AMQPConnection::declareQueue(void)
+bool AMQPConnection::declareQueue(const string queueName)
 {
-	return m_impl->declareQueue();
+	return m_impl->declareQueue(queueName);
 }
 
 string AMQPConnection::getQueueName(void)
