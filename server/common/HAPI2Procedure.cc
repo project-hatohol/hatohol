@@ -82,17 +82,6 @@ struct HAPI2Procedure::Impl
 		return parseProcedureType(type);
 	}
 
-	string getHAPI2Params()
-	{
-		JsonObject *rootObject = json_node_get_object(m_root);
-		JsonNode *node = json_object_get_member(rootObject, "params");
-		if (!node) {
-			return "__INVALID_PARAMS";
-		}
-
-		const string params(json_node_get_string(node));
-		return params;
-	}
 private:
 	HAPI2ProcedureType parseProcedureType(const string &method)
 	{
@@ -273,9 +262,4 @@ bool HAPI2Procedure::validate(StringList &errors)
 HAPI2ProcedureType HAPI2Procedure::getType()
 {
 	return m_impl->getHAPI2ProcedureType();
-}
-
-string HAPI2Procedure::getParams()
-{
-	return m_impl->getHAPI2Params();
 }

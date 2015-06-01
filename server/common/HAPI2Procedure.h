@@ -40,7 +40,6 @@ public:
 	bool validate(mlpl::StringList &errors);
 
 	HAPI2ProcedureType getType();
-	std::string getParams();
 
 private:
 	struct Impl;
