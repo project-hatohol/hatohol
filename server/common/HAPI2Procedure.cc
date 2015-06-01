@@ -64,9 +64,7 @@ struct HAPI2Procedure::Impl
 			return false;
 
 		JsonObject *rootObject = json_node_get_object(m_root);
-		JsonObject *body =
-			json_object_get_object_member(rootObject, "method");
-		if (!validateProcedure(errors, body))
+		if (!validateProcedure(errors, rootObject))
 			return false;
 
 		return true;
@@ -226,9 +224,10 @@ private:
 			return false;
 		}
 
-		const string method(json_node_get_string(memberNode));
-		if (parseProcedureType(method) ==
-		    HAPI2_PROCEDURE_TYPE_BAD || HAPI2_PROCEDURE_TYPE_HAP) {
+		const gchar *methodName = json_node_get_string(memberNode);
+		const string method(methodName ? methodName : "");
+		if (parseProcedureType(method) == HAPI2_PROCEDURE_TYPE_BAD ||
+		    parseProcedureType(method) == HAPI2_PROCEDURE_TYPE_HAP) {
 			addError(errors,
 				 "$.method.%s must be valid procedure type: <%s> "
 				 "available server procedure types: "
@@ -242,7 +241,7 @@ private:
 				 "updateHostParent"
 				 "updateArmInfo",
 				 name,
-				 method.c_str());
+				 methodName);
 			return false;
 		}
 

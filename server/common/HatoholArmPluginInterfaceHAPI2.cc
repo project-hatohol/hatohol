@@ -48,7 +48,7 @@ public:
 					       message.body.c_str(),
 					       message.body.size(),
 					       &error)) {
-			process(connection, json_parser_get_root(parser));
+			process(connection, json_parser_get_root(parser), message.body);
 		} else {
 			g_error_free(error);
 		}
@@ -57,7 +57,7 @@ public:
 	}
 
 private:
-	void process(AMQPConnection &connection, JsonNode *root)
+	void process(AMQPConnection &connection, JsonNode *root, const string &body)
 	{
 		HAPI2Procedure procedure(root);
 		StringList errors;
@@ -67,10 +67,9 @@ private:
 			}
 			return;
 		}
-		string params = procedure.getParams();
 		HAPI2ProcedureType type = procedure.getType();
 		AMQPJSONMessage message;
-		message.body = m_hapi2.interpretHandler(type, params, root);
+		message.body = m_hapi2.interpretHandler(type, body, root);
 		bool succeeded = connection.publish(message);
 		if (!succeeded) {
 			// TODO: retry?
