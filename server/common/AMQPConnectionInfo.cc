@@ -33,10 +33,8 @@ using namespace mlpl;
 
 struct AMQPConnectionInfo::Impl {
 	Impl()
-	: m_URL(),
-	  m_URLBuf(NULL),
+	: m_URLBuf(NULL),
 	  m_parsedURL(),
-	  m_queueName(),
 	  m_timeout(DEFAULT_TIMEOUT)
 	{
 		amqp_default_connection_info(&m_parsedURL);
@@ -46,6 +44,35 @@ struct AMQPConnectionInfo::Impl {
 	~Impl()
 	{
 		free(m_URLBuf);
+	}
+
+	Impl(Impl &rhs)
+	{
+		m_URL = rhs.m_URL;
+		m_URLBuf = NULL;
+		amqp_default_connection_info(&m_parsedURL);
+		m_queueName = rhs.m_queueName;
+		m_timeout = rhs.m_timeout;
+		m_tlsCertificatePath = rhs.m_tlsCertificatePath;
+		m_tlsKeyPath = rhs.m_tlsKeyPath;
+		m_tlsCACertificatePath = rhs.m_tlsCACertificatePath;
+		m_isTLSVerifyEnabled = rhs.m_isTLSVerifyEnabled;
+		setURL(m_URL);
+	}
+
+	Impl &operator=(const Impl &rhs)
+	{
+		m_URL = rhs.m_URL;
+		m_URLBuf = NULL;
+		amqp_default_connection_info(&m_parsedURL);
+		m_queueName = rhs.m_queueName;
+		m_timeout = rhs.m_timeout;
+		m_tlsCertificatePath = rhs.m_tlsCertificatePath;
+		m_tlsKeyPath = rhs.m_tlsKeyPath;
+		m_tlsCACertificatePath = rhs.m_tlsCACertificatePath;
+		m_isTLSVerifyEnabled = rhs.m_isTLSVerifyEnabled;
+		setURL(m_URL);
+		return *this;
 	}
 
 	void setURL(const string &URL)
@@ -92,16 +119,13 @@ AMQPConnectionInfo::AMQPConnectionInfo()
 }
 
 AMQPConnectionInfo::AMQPConnectionInfo(const AMQPConnectionInfo &info)
-: m_impl(new Impl())
+: m_impl(new Impl(*info.m_impl))
 {
-	m_impl->setURL(info.m_impl->m_URL);
-	m_impl->m_queueName = info.m_impl->m_queueName;
 }
 
 AMQPConnectionInfo &AMQPConnectionInfo::operator=(const AMQPConnectionInfo &info)
 {
-	m_impl->setURL(info.m_impl->m_URL);
-	m_impl->m_queueName = info.m_impl->m_queueName;
+	*m_impl = *info.m_impl;
 	return *this;
 }
 
