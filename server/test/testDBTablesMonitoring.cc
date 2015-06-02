@@ -356,6 +356,31 @@ void test_addTriggerInfo(void)
 	assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
 }
 
+void test_deleteTriggerInfo(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	loadTestDBTriggers();
+
+	// check triggerInfo existence
+	string sql = StringUtils::sprintf("SELECT * FROM triggers");
+	string expectedOut;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++)
+		expectedOut += makeTriggerOutput(testTriggerInfo[i]);
+	assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
+
+	TriggerIdList triggerIdList = { "2", "3" };
+	constexpr ServerIdType targetServerId = 1;
+	dbMonitoring.deleteTriggerInfo(triggerIdList, targetServerId);
+	for (auto triggerId : triggerIdList) {
+		string statement = StringUtils::sprintf("SELECT * FROM triggers");
+		statement += StringUtils::sprintf(
+		  " WHERE trigger_id = %s AND server_id = %" FMT_SERVER_ID,
+		  triggerId.c_str(), targetServerId);
+		string expected = "";
+		assertDBContent(&dbMonitoring.getDBAgent(), statement, expected);
+	}
+}
+
 void test_getTriggerInfo(void)
 {
 	loadTestDBTriggers();
