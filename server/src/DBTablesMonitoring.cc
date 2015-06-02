@@ -1639,6 +1639,43 @@ HatoholError DBTablesMonitoring::deleteTriggerInfo(const TriggerIdList &idList,
 	return HTERR_OK;
 }
 
+HatoholError DBTablesMonitoring::syncTriggers(TriggerInfoList &svTriggerInfoList,
+                                              const ServerIdType &serverId)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	TriggerInfoList _currTriggers;
+	getTriggerInfoList(_currTriggers, option);
+
+	const TriggerInfoList &currTriggers(_currTriggers);
+
+	map<TriggerIdType, const TriggerInfo *> currValidTriggerMap;
+	for (auto trigger : currTriggers) {
+		const TriggerInfo &svTriggerInfo = trigger;
+		currValidTriggerMap[svTriggerInfo.id] = &svTriggerInfo;
+	}
+
+	// Pick up triggers to be added
+	TriggerInfoList serverTriggers;
+	for (auto newSvTrigger : svTriggerInfoList) {
+		if (currValidTriggerMap.erase(newSvTrigger.id) >= 1) {
+			// If the hostgroup already exists, we have nothing to do.
+			continue;
+		}
+		// TODO: avoid the copy
+		serverTriggers.push_back(newSvTrigger);
+	}
+
+	TriggerIdList invalidTriggerIdList;
+	for (auto invalidTriggerPair : currValidTriggerMap) {
+		TriggerInfo invalidTrigger = *invalidTriggerPair.second;
+		invalidTriggerIdList.push_back(invalidTrigger.id);
+	}
+	if (invalidTriggerIdList.size() > 0)
+		return deleteTriggerInfo(invalidTriggerIdList, serverId);
+	return HTERR_OK;
+}
+
 void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
