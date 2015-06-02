@@ -1058,10 +1058,3 @@ void HatoholArmPluginGateHAPI2::upsertLastInfo(string lastInfoValue, LastInfoTyp
 	lastInfo.serverId = serverInfo.id;
 	dbLastInfo.upsertLastInfo(lastInfo, privilege);
 }
-
-mt19937 HatoholArmPluginGateHAPI2::getRandomEngine(void)
-{
-	std::random_device rd;
-	std::mt19937 engine(rd());
-	return engine;
-}

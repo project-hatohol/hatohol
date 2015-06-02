@@ -23,6 +23,7 @@
 #include <json-glib/json-glib.h>
 
 #include <string>
+#include <random>
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
 #include "ItemDataPtr.h"
@@ -95,6 +96,8 @@ protected:
 	void setArmPluginInfo(const ArmPluginInfo &pluginInfo);
 
 	virtual void onHandledCommand(const HAPI2ProcedureType &type);
+
+	std::mt19937 getRandomEngine(void);
 
         virtual ~HatoholArmPluginInterfaceHAPI2();
 

@@ -244,3 +244,10 @@ void HatoholArmPluginInterfaceHAPI2::send(const std::string &message)
 	publisher.setMessage(amqpMessage);
 	publisher.publish();
 }
+
+mt19937 HatoholArmPluginInterfaceHAPI2::getRandomEngine(void)
+{
+	std::random_device rd;
+	std::mt19937 engine(rd());
+	return engine;
+}
