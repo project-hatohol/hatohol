@@ -1574,7 +1574,7 @@ void DBTablesMonitoring::updateTrigger(const TriggerInfoList &triggerInfoList,
 	addTriggerInfoList(updateTriggerList);
 }
 
-static string makeIdListCondition(const TriggerIdList &idList)
+static string makeTriggerIdListCondition(const TriggerIdList &idList)
 {
 	string condition;
 	const ColumnDef &colId = COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID];
@@ -1591,7 +1591,7 @@ static string makeIdListCondition(const TriggerIdList &idList)
 
 static string makeConditionForDelete(const TriggerIdList &idList)
 {
-	string condition = makeIdListCondition(idList);
+	string condition = makeTriggerIdListCondition(idList);
 
 	return condition;
 }
