@@ -90,7 +90,7 @@ private:
 		}
 		HAPI2ProcedureType type = procedure.getType();
 		AMQPJSONMessage message;
-		message.body = m_hapi2.interpretHandler(type, body, root);
+		message.body = m_hapi2.interpretHandler(type, body);
 		bool succeeded = connection.publish(message);
 		if (!succeeded) {
 			// TODO: retry?
@@ -212,7 +212,7 @@ void HatoholArmPluginInterfaceHAPI2::registerProcedureHandler(
 }
 
 string HatoholArmPluginInterfaceHAPI2::interpretHandler(
-  const HAPI2ProcedureType &type, const string params, JsonNode *root)
+  const HAPI2ProcedureType &type, const string json)
 {
 	ProcedureHandlerMapConstIterator it =
 	  m_impl->procedureHandlerMap.find(type);
@@ -223,7 +223,7 @@ string HatoholArmPluginInterfaceHAPI2::interpretHandler(
 					       message);
 	}
 	ProcedureHandler handler = it->second;
-	return (this->*handler)(&type, params);
+	return (this->*handler)(&type, json);
 }
 
 void HatoholArmPluginInterfaceHAPI2::onHandledCommand(const HAPI2ProcedureType &type)

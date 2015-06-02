@@ -83,8 +83,8 @@ public:
 	 */
 	void registerProcedureHandler(const HAPI2ProcedureType &type,
                                       ProcedureHandler handler);
-	std::string interpretHandler(const HAPI2ProcedureType &type, const std::string,
-				     JsonNode *root);
+	std::string interpretHandler(const HAPI2ProcedureType &type,
+				     const std::string json);
 	virtual void start(void);
 	virtual void send(const std::string &procedure);
 
