@@ -374,7 +374,7 @@ void test_deleteTriggerInfo(void)
 	for (auto triggerId : triggerIdList) {
 		string statement = StringUtils::sprintf("SELECT * FROM triggers");
 		statement += StringUtils::sprintf(
-		  " WHERE trigger_id = %s AND server_id = %" FMT_SERVER_ID,
+		  " WHERE trigger_id = %" FMT_TRIGGER_ID " AND server_id = %" FMT_SERVER_ID,
 		  triggerId.c_str(), targetServerId);
 		string expected = "";
 		assertDBContent(&dbMonitoring.getDBAgent(), statement, expected);
