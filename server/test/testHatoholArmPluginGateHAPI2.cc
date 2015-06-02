@@ -136,6 +136,8 @@ namespace testHatoholArmPluginGateHAPI2 {
 
 namespace testProcedureHandlers {
 
+const MonitoringServerInfo &monitoringServerInfo = testServerInfo[7];
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -150,19 +152,15 @@ void cut_teardown(void)
 
 void test_new(void)
 {
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
 	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	cut_assert_not_null(gate);
 }
 
 void test_procedureHandlerExchangeProfile(void)
 {
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
 	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	std::string params =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
 		" \"params\":{\"procedures\":[\"getMonitoringServerInfo\","
@@ -183,11 +181,8 @@ void test_procedureHandlerExchangeProfile(void)
 
 void test_procedureHandlerMonitoringServerInfo(void)
 {
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
-	serverInfo = testServerInfo[7];
 	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	std::string params =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"getMonitoringServerInfo\","
 		" \"params\":\"\", \"id\":1}";
@@ -238,8 +233,7 @@ void data_procedureHandlerLastInfo(void)
 
 void test_procedureHandlerLastInfo(gconstpointer data)
 {
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
+	MonitoringServerInfo serverInfo = monitoringServerInfo;
 	serverInfo.id = gcut_data_get_int(data, "serverId");
 	loadTestDBLastInfo();
 	HatoholArmPluginGateHAPI2Ptr gate(
@@ -257,10 +251,8 @@ void test_procedureHandlerLastInfo(gconstpointer data)
 
 void test_procedureHandlerPutItems(void)
 {
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
 	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	std::string params =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
 		" \"params\":{\"items\":[{\"itemId\":\"1\", \"hostId\":\"1\","
@@ -281,10 +273,8 @@ void test_procedureHandlerPutItems(void)
 
 void test_procedureHandlerPutHistory(void)
 {
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
 	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	std::string params =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
 		" \"params\":{\"itemId\":\"1\","
@@ -300,10 +290,8 @@ void test_procedureHandlerPutHistory(void)
 
 void test_procedureHandlerUpdateHosts(void)
 {
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
 	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	std::string params =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"updateHosts\", \"params\":"
 		"{\"hosts\":[{\"hostId\":\"1\", \"hostName\":\"exampleHostName1\"}],"
@@ -316,10 +304,8 @@ void test_procedureHandlerUpdateHosts(void)
 
 void test_procedureHandlerUpdateHostGroups(void)
 {
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
 	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	std::string params =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"updateHostGroups\","
 		" \"params\":{\"hostGroups\":[{\"groupId\":\"1\","
@@ -334,10 +320,8 @@ void test_procedureHandlerUpdateHostGroups(void)
 
 void test_procedureHandlerUpdateHostGroupMembership(void)
 {
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
 	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	std::string params =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"updateHostGroupMembership\","
 		" \"params\":{\"hostGroupsMembership\":[{\"hostId\":\"1\","
@@ -353,10 +337,8 @@ void test_procedureHandlerUpdateHostGroupMembership(void)
 
 void test_procedureHandlerUpdateTriggers(void)
 {
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
 	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	std::string params =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"updateTriggers\","
 		" \"params\":{\"updateType\":\"UPDATED\","
@@ -383,10 +365,8 @@ void data_procedureHandlerUpdateEvents(void)
 
 void test_procedureHandlerUpdateEvents(gconstpointer data)
 {
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
 	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	std::string params =
 	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\", \"method\":\"updateEvents\","
 			       " \"params\":{\"events\":[{\"eventId\":\"1\","
@@ -407,10 +387,8 @@ void test_procedureHandlerUpdateEvents(gconstpointer data)
 
 void test_procedureHandlerUpdateHostParents(void)
 {
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
 	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	std::string params =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"updateHostParent\","
 		" \"params\":{\"hostParents\":"
@@ -426,10 +404,8 @@ void test_procedureHandlerUpdateHostParents(void)
 
 void test_procedureHandlerUpdateArmInfo(void)
 {
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
 	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	std::string params =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"updateArmInfo\","
 		" \"params\":{\"lastStatus\":\"INIT\","
