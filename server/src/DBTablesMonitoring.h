@@ -135,6 +135,7 @@ public:
 
 	void updateTrigger(const TriggerInfoList &triggerInfoList,
 			   const ServerIdType &serverId);
+	HatoholError deleteTriggerInfo(const TriggerIdList &idList);
 
 	/**
 	 * Get the trigger information with the specified server ID and

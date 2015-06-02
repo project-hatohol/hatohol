@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <Mutex.h>
+#include <SeparatorInjector.h>
 #include "UnifiedDataStore.h"
 #include "DBAgentFactory.h"
 #include "DBTablesMonitoring.h"
@@ -1571,6 +1572,64 @@ void DBTablesMonitoring::updateTrigger(const TriggerInfoList &triggerInfoList,
 	}
 
 	addTriggerInfoList(updateTriggerList);
+}
+
+static string makeIdListCondition(const TriggerIdList &idList)
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID];
+	SeparatorInjector commaInjector(",");
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	for (auto id : idList) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%" FMT_TRIGGER_ID, id.c_str());
+	}
+
+	condition += ")";
+	return condition;
+}
+
+static string makeConditionForDelete(const TriggerIdList &idList)
+{
+	string condition = makeIdListCondition(idList);
+
+	return condition;
+}
+
+HatoholError DBTablesMonitoring::deleteTriggerInfo(const TriggerIdList &idList)
+{
+	if (idList.empty()) {
+		MLPL_WARN("idList is empty.\n");
+		return HTERR_INVALID_PARAMETER;
+	}
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg arg;
+		uint64_t numAffectedRows;
+
+		TrxProc (void)
+		: arg(tableProfileTriggers),
+		  numAffectedRows(0)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(arg);
+			numAffectedRows = dbAgent.getNumberOfAffectedRows();
+		}
+	} trx;
+	trx.arg.condition = makeConditionForDelete(idList);
+	getDBAgent().runTransaction(trx);
+
+	// Check the result
+	if (trx.numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
+		         trx.numAffectedRows, idList.size());
+		return HTERR_DELETE_INCOMPLETE;
+	}
+
+	return HTERR_OK;
 }
 
 void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)
