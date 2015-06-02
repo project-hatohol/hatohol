@@ -383,6 +383,58 @@ void test_deleteTriggerInfo(void)
 	}
 }
 
+void test_syncTriggers(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	loadTestDBTriggers();
+	constexpr const ServerIdType targetServerId = 1;
+	const TriggerIdType targetTriggerId = "2";
+	constexpr const int testTriggerDataId = 2;
+
+	// check triggerInfo existence
+	string sql = StringUtils::sprintf("SELECT * FROM triggers");
+	string expectedOut;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++)
+		expectedOut += makeTriggerOutput(testTriggerInfo[i]);
+	assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
+
+	map<TriggerIdType, const TriggerInfo *> triggerMap;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		const TriggerInfo &svTriggerInfo = testTriggerInfo[i];
+		if (svTriggerInfo.serverId != targetServerId)
+			continue;
+		if (svTriggerInfo.id != targetTriggerId)
+			continue;
+		triggerMap[svTriggerInfo.id] = &svTriggerInfo;
+	}
+
+	TriggerInfoList svTriggers =
+	{
+		{
+			testTriggerInfo[testTriggerDataId - 1]
+		}
+	};
+
+	// sanity check if we use the proper data
+	cppcut_assert_equal(false, svTriggers.empty());
+	// Prepare for the expected result.
+	string expect;
+	for (auto triggerPair : triggerMap) {
+		const TriggerInfo svTrigger = *triggerPair.second;
+		expect += StringUtils::sprintf(
+		  "%" FMT_LOCAL_HOST_ID "|%s\n",
+		  svTrigger.hostIdInServer.c_str(), svTrigger.hostName.c_str());
+	}
+	HatoholError err = dbMonitoring.syncTriggers(svTriggers, targetServerId);
+	assertHatoholError(HTERR_OK, err);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+	string statement = StringUtils::sprintf(
+	  "select host_id_in_server,hostname from triggers"
+	  " where server_id=%" FMT_SERVER_ID " order by id asc;",
+	  targetServerId);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
 void test_getTriggerInfo(void)
 {
 	loadTestDBTriggers();
