@@ -1650,9 +1650,8 @@ HatoholError DBTablesMonitoring::syncTriggers(TriggerInfoList &svTriggerInfoList
 	const TriggerInfoList &currTriggers(_currTriggers);
 
 	map<TriggerIdType, const TriggerInfo *> currValidTriggerMap;
-	for (auto trigger : currTriggers) {
-		const TriggerInfo &svTriggerInfo = trigger;
-		currValidTriggerMap[svTriggerInfo.id] = &svTriggerInfo;
+	for (auto& trigger : currTriggers) {
+		currValidTriggerMap[trigger.id] = &trigger;
 	}
 
 	// Pick up triggers to be added
