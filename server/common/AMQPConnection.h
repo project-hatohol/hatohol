@@ -67,6 +67,8 @@ protected:
 	bool login(void);
 	bool openChannel(void);
 	bool declareQueue(const std::string queueName);
+	bool purgeQueue(const std::string queueName);
+	bool deleteQueue(const std::string queueName);
 	std::string getQueueName(void);
 	void disposeConnection(void);
 	void logErrorResponse(const char *context,

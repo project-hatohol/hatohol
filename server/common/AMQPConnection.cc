@@ -603,10 +603,15 @@ bool AMQPConnection::publish(const AMQPMessage &message)
 
 bool AMQPConnection::purgeQueue(void)
 {
+	return purgeQueue(getQueueName());
+}
+
+bool AMQPConnection::purgeQueue(const string queueName)
+{
 	if (!isConnected())
 		return false;
 
-	const amqp_bytes_t queue = amqp_cstring_bytes(getQueueName().c_str());
+	const amqp_bytes_t queue = amqp_cstring_bytes(queueName.c_str());
 	amqp_queue_purge_ok_t *response;
 	response = amqp_queue_purge(getConnection(),
 				    getChannel(),
@@ -624,10 +629,15 @@ bool AMQPConnection::purgeQueue(void)
 
 bool AMQPConnection::deleteQueue(void)
 {
+	return deleteQueue(getQueueName());
+}
+
+bool AMQPConnection::deleteQueue(const string queueName)
+{
 	if (!isConnected())
 		return false;
 
-	const amqp_bytes_t queue = amqp_cstring_bytes(getQueueName().c_str());
+	const amqp_bytes_t queue = amqp_cstring_bytes(queueName.c_str());
 	amqp_queue_delete_ok_t *response;
 	response = amqp_queue_delete(getConnection(),
 				     getChannel(),
