@@ -168,19 +168,10 @@ private:
 		return true;
 	}
 
-	bool validateBodyMember(StringList &errors,
-				JsonObject *body,
-				const gchar *name,
-				GType expectedValueType)
-	{
-		return validateObjectMember(errors, "$.body", body, name,
-					    expectedValueType);
-	}
-
-	bool validateStringBodyMember(StringList &errors,
-				      JsonObject *body,
-				      const gchar *name,
-				      JsonNode *memberNode)
+	bool validateStringMember(StringList &errors,
+				  JsonObject *body,
+				  const gchar *name,
+				  JsonNode *memberNode)
 	{
 		GType valueType = json_node_get_value_type(memberNode);
 		if (valueType != G_TYPE_STRING) {
@@ -189,7 +180,7 @@ private:
 			gchar *memberJSON =
 				json_generator_to_data(generator, NULL);
 			addError(errors,
-				 "$.body.%s must be string: <%s>",
+				 "$.%s must be string: <%s>",
 				 name,
 				 memberJSON);
 			g_free(memberJSON);
@@ -200,16 +191,14 @@ private:
 		return true;
 	}
 
-	bool validateBodyMemberProcedure(StringList &errors,
-					 JsonObject *body,
-					 const gchar *name)
+	bool validateProcedure(StringList &errors, JsonObject *body)
 	{
-		JsonNode *memberNode = json_object_get_member(body, name);
+		JsonNode *memberNode = json_object_get_member(body, "method");
 		if (!memberNode) {
-			return true;
+			return false;
 		}
 
-		if (!validateStringBodyMember(errors, body, name, memberNode)) {
+		if (!validateStringMember(errors, body, "method", memberNode)) {
 			return false;
 		}
 
@@ -218,7 +207,7 @@ private:
 		if (parseProcedureType(method) == HAPI2_PROCEDURE_TYPE_BAD ||
 		    parseProcedureType(method) == HAPI2_PROCEDURE_TYPE_HAP) {
 			addError(errors,
-				 "$.method.%s must be valid procedure type: <%s> "
+				 "$.method must be valid procedure type: <%s> "
 				 "available server procedure types: "
 				 "exchangeProfile, "
 				 "getMonitoringServerInfo, "
@@ -229,18 +218,9 @@ private:
 				 "updateTriggers, updateEvents"
 				 "updateHostParent"
 				 "updateArmInfo",
-				 name,
 				 methodName);
 			return false;
 		}
-
-		return true;
-	}
-
-	bool validateProcedure(StringList &errors, JsonObject *body)
-	{
-		if (!validateBodyMemberProcedure(errors, body, "method"))
-			return false;
 		return true;
 	}
 };
