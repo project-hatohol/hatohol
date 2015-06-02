@@ -1589,14 +1589,21 @@ static string makeTriggerIdListCondition(const TriggerIdList &idList)
 	return condition;
 }
 
-static string makeConditionForDelete(const TriggerIdList &idList)
+static string makeConditionForDelete(const TriggerIdList &idList,
+				     const ServerIdType &serverId)
 {
 	string condition = makeTriggerIdListCondition(idList);
+	condition += " AND ";
+	string columnName =
+		tableProfileTriggers.columnDefs[IDX_TRIGGERS_SERVER_ID].columnName;
+	condition += StringUtils::sprintf("%s=%" FMT_SERVER_ID,
+	                                  columnName.c_str(), serverId);
 
 	return condition;
 }
 
-HatoholError DBTablesMonitoring::deleteTriggerInfo(const TriggerIdList &idList)
+HatoholError DBTablesMonitoring::deleteTriggerInfo(const TriggerIdList &idList,
+                                                   const ServerIdType &serverId)
 {
 	if (idList.empty()) {
 		MLPL_WARN("idList is empty.\n");
@@ -1619,7 +1626,7 @@ HatoholError DBTablesMonitoring::deleteTriggerInfo(const TriggerIdList &idList)
 			numAffectedRows = dbAgent.getNumberOfAffectedRows();
 		}
 	} trx;
-	trx.arg.condition = makeConditionForDelete(idList);
+	trx.arg.condition = makeConditionForDelete(idList, serverId);
 	getDBAgent().runTransaction(trx);
 
 	// Check the result
