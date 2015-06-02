@@ -370,7 +370,9 @@ void test_deleteTriggerInfo(void)
 
 	TriggerIdList triggerIdList = { "2", "3" };
 	constexpr ServerIdType targetServerId = 1;
-	dbMonitoring.deleteTriggerInfo(triggerIdList, targetServerId);
+	HatoholError err =
+		dbMonitoring.deleteTriggerInfo(triggerIdList, targetServerId);
+	assertHatoholError(HTERR_OK, err);
 	for (auto triggerId : triggerIdList) {
 		string statement = StringUtils::sprintf("SELECT * FROM triggers");
 		statement += StringUtils::sprintf(
