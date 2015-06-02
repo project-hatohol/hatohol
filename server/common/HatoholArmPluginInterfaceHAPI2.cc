@@ -23,9 +23,30 @@
 #include "AMQPPublisher.h"
 #include "HAPI2Procedure.h"
 #include "HatoholArmPluginInterfaceHAPI2.h"
+#include "JSONBuilder.h"
 
 using namespace std;
 using namespace mlpl;
+
+// Invalid JSON was received by the server.
+// An error occurred on the server while parsing the JSON text.
+const int JSON_RPC_PARSE_ERROR = -32700;
+
+// The JSON sent is not a valid Request object.
+const int JSON_RPC_INVALID_REQUEST  = -32600;
+
+// The method does not exist / is not available.
+const int JSON_RPC_METHOD_NOT_FOUND = -32601;
+
+//  Invalid method parameter(s).
+const int JSON_RPC_INVALID_PARAMS = -32602;
+
+// Internal JSON-RPC error.
+const int JSON_RPC_INTERNAL_ERROR = -32603;
+
+// Reserved for implementation-defined server-errors.
+const int JSON_RPC_SERVER_ERROR_BEGIN = -32000;
+const int JSON_RPC_SERVER_ERROR_END = -32099;
 
 class HatoholArmPluginInterfaceHAPI2::AMQPHAPI2MessageHandler
   : public AMQPMessageHandler
@@ -153,6 +174,20 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 			return;
 		m_consumer->start();
 	}
+
+	string buildErrorReply(const int errorCode,
+			       const string errorMessage)
+	{
+		JSONBuilder agent;
+		agent.startObject();
+		agent.add("jsonrpc", "2.0");
+		agent.add("id", 1); // TODO: Use random number
+		agent.startObject("error");
+		agent.add("code", errorCode);
+		agent.add("message", errorMessage);
+		agent.endObject(); // error
+		return agent.generate();
+	}
 };
 
 HatoholArmPluginInterfaceHAPI2::HatoholArmPluginInterfaceHAPI2()
@@ -182,8 +217,10 @@ string HatoholArmPluginInterfaceHAPI2::interpretHandler(
 	ProcedureHandlerMapConstIterator it =
 	  m_impl->procedureHandlerMap.find(type);
 	if (it == m_impl->procedureHandlerMap.end()) {
-		// TODO: build error reply
-		return string();
+		// TODO: Add a supplied method name
+		string message = StringUtils::sprintf("Method not found");
+		return m_impl->buildErrorReply(JSON_RPC_METHOD_NOT_FOUND,
+					       message);
 	}
 	ProcedureHandler handler = it->second;
 	return (this->*handler)(&type, params);
