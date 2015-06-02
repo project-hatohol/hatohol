@@ -170,8 +170,11 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	void start(void)
 	{
 		if (!m_consumer)
+			setupAMQPConnection();
+		if (!m_consumer) {
+			MLPL_ERR("Failed to create AMQPConsumer!\n");
 			return;
-		setupAMQPConnection();
+		}
 		m_consumer->start();
 	}
 
