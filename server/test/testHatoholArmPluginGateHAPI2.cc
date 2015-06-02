@@ -479,11 +479,10 @@ void cut_setup(void)
 		connectionInfo = new AMQPConnectionInfo();
 		connectionInfo->setURL(url);
 		connectionInfo->setQueueName("test.1");
+		prepareDB(url);
 	} else {
 		connectionInfo = NULL;
 	}
-
-	prepareDB(url);
 }
 
 void cut_teardown(void)
