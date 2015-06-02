@@ -69,7 +69,7 @@ protected:
 	virtual ~HatoholArmPluginGateHAPI2();
 	void upsertLastInfo(std::string lastInfoValue, LastInfoType type);
 
-public:
+private:
 	std::string procedureHandlerExchangeProfile(const HAPI2ProcedureType type,
 	                                            const std::string &params);
 	std::string procedureHandlerMonitoringServerInfo(const HAPI2ProcedureType type,
