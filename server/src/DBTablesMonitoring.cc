@@ -1662,8 +1662,7 @@ HatoholError DBTablesMonitoring::syncTriggers(TriggerInfoList &svTriggerInfoList
 			// If the hostgroup already exists, we have nothing to do.
 			continue;
 		}
-		// TODO: avoid the copy
-		serverTriggers.push_back(newSvTrigger);
+		serverTriggers.push_back(move(newSvTrigger));
 	}
 
 	TriggerIdList invalidTriggerIdList;

@@ -1320,8 +1320,7 @@ HatoholError DBTablesHost::syncHosts(
 			// The host already exits. We have nothing to do.
 			continue;
 		}
-		// TODO: avoid the copy
-		serverHostDefs.push_back(newSvHostDef);
+		serverHostDefs.push_back(move(newSvHostDef));
 	}
 
 	// Add hosts to be marked as invalid
@@ -1367,8 +1366,7 @@ HatoholError DBTablesHost::syncHostgroups(
 			// If the hostgroup already exists, we have nothing to do.
 			continue;
 		}
-		// TODO: avoid the copy
-		serverHostgroups.push_back(newSvHostgroup);
+		serverHostgroups.push_back(move(newSvHostgroup));
 	}
 
 	GenericIdList invalidHostgroupIdList;
@@ -1406,8 +1404,7 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 			continue;
 		}
 
-		// TODO: avoid the copy
-		serverHostgroupMembers.push_back(newSvHostgroupMember);
+		serverHostgroupMembers.push_back(move(newSvHostgroupMember));
 	}
 
 	GenericIdList invalidHostgroupMemberIdList;
