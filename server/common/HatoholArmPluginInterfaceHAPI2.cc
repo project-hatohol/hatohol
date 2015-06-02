@@ -130,7 +130,6 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	void setArmPluginInfo(const ArmPluginInfo &armPluginInfo)
 	{
 		m_pluginInfo = armPluginInfo;
-		setupAMQPConnection();
 	}
 
 	void setupAMQPConnectionInfo(void)
@@ -172,6 +171,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	{
 		if (!m_consumer)
 			return;
+		setupAMQPConnection();
 		m_consumer->start();
 	}
 
