@@ -281,7 +281,7 @@ static bool hapProcessLogger(JSONParser &parser)
 }
 
 string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
-  const HAPI2ProcedureType type, const string &params)
+  const string &params)
 {
 	ValidProcedureNameVect validProcedureNameVect;
 	JSONParser parser(params);
@@ -312,7 +312,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 }
 
 string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
-  const HAPI2ProcedureType type, const string &params)
+  const string &params)
 {
 	JSONParser parser(params);
 	int64_t rpcId;
@@ -360,8 +360,7 @@ static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType)
 	return true;
 }
 
-string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(
-  const HAPI2ProcedureType type, const string &params)
+string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(const string &params)
 {
 	ThreadLocalDBCache cache;
 	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
@@ -420,8 +419,7 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 	return true;
 };
 
-string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(
-  const HAPI2ProcedureType type, const string &params)
+string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(const string &params)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ItemInfoList itemList;
@@ -477,7 +475,7 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 };
 
 string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
-  const HAPI2ProcedureType type, const string &params)
+  const string &params)
 {
 	HistoryInfoVect historyInfoVect;
 	JSONParser parser(params);
@@ -543,7 +541,7 @@ static bool parseUpdateType(JSONParser &parser, string &updateType)
 };
 
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
-  const HAPI2ProcedureType type, const string &params)
+  const string &params)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerHostDefVect hostInfoVect;
@@ -605,7 +603,7 @@ static bool parseHostGroupsParams(JSONParser &parser,
 };
 
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroups(
-  const HAPI2ProcedureType type, const string &params)
+  const string &params)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostgroupVect hostgroupVect;
@@ -671,7 +669,7 @@ static bool parseHostGroupMembershipParams(
 };
 
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroupMembership(
-  const HAPI2ProcedureType type, const string &params)
+  const string &params)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostgroupMemberVect hostgroupMembershipVect;
@@ -778,7 +776,7 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 };
 
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers(
-  const HAPI2ProcedureType type, const string &params)
+  const string &params)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
@@ -888,7 +886,7 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 };
 
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
-  const HAPI2ProcedureType type, const string &params)
+  const string &params)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList eventInfoList;
@@ -950,7 +948,7 @@ static bool parseHostParentsParams(
 };
 
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostParents(
-  const HAPI2ProcedureType type, const string &params)
+  const string &params)
 {
 	ThreadLocalDBCache cache;
 	DBTablesHost &dbHost = cache.getHost();
@@ -1017,7 +1015,7 @@ static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo)
 };
 
 string HatoholArmPluginGateHAPI2::procedureHandlerUpdateArmInfo(
-  const HAPI2ProcedureType type, const string &params)
+  const string &params)
 {
 	ArmStatus status;
 	ArmInfo armInfo;

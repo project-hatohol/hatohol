@@ -71,7 +71,7 @@ class HatoholArmPluginInterfaceHAPI2 {
 public:
 	HatoholArmPluginInterfaceHAPI2();
 	typedef std::string (HatoholArmPluginInterfaceHAPI2::*ProcedureHandler)
-	  (const HAPI2ProcedureType type, const std::string &params);
+	  (const std::string &params);
 
 	/**
 	 * Register a procedure receive callback method.

@@ -223,7 +223,7 @@ string HatoholArmPluginInterfaceHAPI2::interpretHandler(
 					       message);
 	}
 	ProcedureHandler handler = it->second;
-	return (this->*handler)(type, json);
+	return (this->*handler)(json);
 }
 
 void HatoholArmPluginInterfaceHAPI2::onHandledCommand(const HAPI2ProcedureType &type)

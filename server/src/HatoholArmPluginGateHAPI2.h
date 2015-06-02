@@ -70,30 +70,18 @@ protected:
 	void upsertLastInfo(std::string lastInfoValue, LastInfoType type);
 
 private:
-	std::string procedureHandlerExchangeProfile(const HAPI2ProcedureType type,
-	                                            const std::string &params);
-	std::string procedureHandlerMonitoringServerInfo(const HAPI2ProcedureType type,
-	                                                 const std::string &params);
-	std::string procedureHandlerLastInfo(const HAPI2ProcedureType type,
-	                                     const std::string &params);
-	std::string procedureHandlerPutItems(const HAPI2ProcedureType type,
-	                                     const std::string &params);
-	std::string procedureHandlerPutHistory(const HAPI2ProcedureType type,
-	                                       const std::string &params);
-	std::string procedureHandlerUpdateHosts(const HAPI2ProcedureType type,
-	                                        const std::string &params);
-	std::string procedureHandlerUpdateHostGroups(const HAPI2ProcedureType type,
-	                                             const std::string &params);
-	std::string procedureHandlerUpdateHostGroupMembership(const HAPI2ProcedureType type,
-	                                                      const std::string &params);
-	std::string procedureHandlerUpdateTriggers(const HAPI2ProcedureType type,
-	                                           const std::string &params);
-	std::string procedureHandlerUpdateEvents(const HAPI2ProcedureType type,
-	                                         const std::string &params);
-	std::string procedureHandlerUpdateHostParents(const HAPI2ProcedureType type,
-	                                              const std::string &params);
-	std::string procedureHandlerUpdateArmInfo(const HAPI2ProcedureType type,
-	                                          const std::string &params);
+	std::string procedureHandlerExchangeProfile(const std::string &params);
+	std::string procedureHandlerMonitoringServerInfo(const std::string &params);
+	std::string procedureHandlerLastInfo(const std::string &params);
+	std::string procedureHandlerPutItems(const std::string &params);
+	std::string procedureHandlerPutHistory(const std::string &params);
+	std::string procedureHandlerUpdateHosts(const std::string &params);
+	std::string procedureHandlerUpdateHostGroups(const std::string &params);
+	std::string procedureHandlerUpdateHostGroupMembership(const std::string &params);
+	std::string procedureHandlerUpdateTriggers(const std::string &params);
+	std::string procedureHandlerUpdateEvents(const std::string &params);
+	std::string procedureHandlerUpdateHostParents(const std::string &params);
+	std::string procedureHandlerUpdateArmInfo(const std::string &params);
 
 public:
 	static bool parseTimeStamp(const std::string &timeStampString,
