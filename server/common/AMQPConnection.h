@@ -57,8 +57,8 @@ public:
 	bool startConsuming(void);
 	bool consume(AMQPMessage &message);
 	bool publish(const AMQPMessage &message);
-	bool purgeQueue(void);
-	bool deleteQueue(void);
+	bool purgeAllQueues(void);
+	bool deleteAllQueues(void);
 
 protected:
 	bool initializeConnection(void);

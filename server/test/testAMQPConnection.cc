@@ -73,6 +73,7 @@ namespace testAMQPConnection {
 			connectionInfo = new AMQPConnectionInfo();
 			connectionInfo->setURL(url);
 			connectionInfo->setConsumerQueueName("test.1");
+			connectionInfo->setPublisherQueueName("test.1");
 		} else {
 			connectionInfo = NULL;
 		}
@@ -81,7 +82,7 @@ namespace testAMQPConnection {
 	void cut_teardown(void)
 	{
 		if (connection.hasData())
-			connection->deleteQueue();
+			connection->deleteAllQueues();
 		connection = NULL;
 		delete connectionInfo;
 		connectionInfo = NULL;

@@ -488,7 +488,7 @@ void cut_setup(void)
 void cut_teardown(void)
 {
 	if (connection.hasData())
-		connection->deleteQueue();
+		connection->deleteAllQueues();
 	connection = NULL;
 	delete connectionInfo;
 	connectionInfo = NULL;

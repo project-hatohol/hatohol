@@ -25,9 +25,13 @@ using namespace mlpl;
 struct AMQPConnection::Impl {
 public:
 	amqp_connection_state_t m_connection;
+	bool m_isConsumerQueueDeclared;
+	bool m_isPublisherQueueDeclared;
 
 	Impl(const AMQPConnectionInfo &info)
 	: m_connection(NULL),
+	  m_isConsumerQueueDeclared(false),
+	  m_isPublisherQueueDeclared(false),
 	  m_info(info),
 	  m_socket(NULL),
 	  m_socketOpened(false),
@@ -148,6 +152,24 @@ public:
 		return true;
 	}
 
+	bool declareConsumerQueue(void)
+	{
+		if (m_isConsumerQueueDeclared)
+			return true;
+		m_isConsumerQueueDeclared =
+		  declareQueue(getConsumerQueueName());
+		return m_isConsumerQueueDeclared;
+	}
+
+	bool declarePublisherQueue(void)
+	{
+		if (m_isPublisherQueueDeclared)
+			return true;
+		m_isPublisherQueueDeclared =
+		  declareQueue(getPublisherQueueName());
+		return m_isPublisherQueueDeclared;
+	}
+
 	void disposeConnection()
 	{
 		if (!m_connection)
@@ -169,9 +191,18 @@ public:
 
 	const string &getConsumerQueueName()
 	{
-		if (m_info.getConsumerQueueName().empty())
+		const string &queueName = m_info.getConsumerQueueName();
+		if (queueName.empty())
 			MLPL_WARN("The consumerQueueName isn't set!");
-		return m_info.getConsumerQueueName();
+		return queueName;
+	}
+
+	const string &getPublisherQueueName()
+	{
+		const string &queueName = m_info.getPublisherQueueName();
+		if (queueName.empty())
+			MLPL_WARN("The publisherQueueName isn't set!");
+		return queueName;
 	}
 
 	void logErrorResponse(const char *context,
@@ -423,8 +454,10 @@ bool AMQPConnection::initializeConnection(void)
 		return false;
 	if (!m_impl->openChannel())
 		return false;
+#if 0
 	if (!m_impl->declareQueue(getConsumerQueueName()))
 		return false;
+#endif
 	return true;
 }
 
@@ -488,6 +521,8 @@ bool AMQPConnection::startConsuming(void)
 {
 	if (!isConnected())
 		return false;
+	if (!m_impl->declareConsumerQueue())
+		return false;
 
 	const amqp_bytes_t queue =
 		amqp_cstring_bytes(getConsumerQueueName().c_str());
@@ -519,6 +554,8 @@ bool AMQPConnection::startConsuming(void)
 bool AMQPConnection::consume(AMQPMessage &message)
 {
 	if (!isConnected())
+		return false;
+	if (!m_impl->declareConsumerQueue())
 		return false;
 
 	amqp_maybe_release_buffers(getConnection());
@@ -567,6 +604,8 @@ bool AMQPConnection::publish(const AMQPMessage &message)
 {
 	if (!isConnected())
 		return false;
+	if (!m_impl->declarePublisherQueue())
+		return false;
 
 	const amqp_bytes_t exchange = amqp_empty_bytes;
 	const amqp_bytes_t queue =
@@ -603,9 +642,12 @@ bool AMQPConnection::publish(const AMQPMessage &message)
 	return true;
 }
 
-bool AMQPConnection::purgeQueue(void)
+bool AMQPConnection::purgeAllQueues(void)
 {
-	return purgeQueue(getConsumerQueueName());
+	bool succeeded;
+	succeeded = purgeQueue(m_impl->getConsumerQueueName());
+	succeeded = purgeQueue(m_impl->getPublisherQueueName()) && succeeded;
+	return succeeded;
 }
 
 bool AMQPConnection::purgeQueue(const string queueName)
@@ -629,9 +671,14 @@ bool AMQPConnection::purgeQueue(const string queueName)
 	return true;
 }
 
-bool AMQPConnection::deleteQueue(void)
+bool AMQPConnection::deleteAllQueues(void)
 {
-	return deleteQueue(getConsumerQueueName());
+	bool succeeded;
+	succeeded = deleteQueue(m_impl->getConsumerQueueName());
+	succeeded = deleteQueue(m_impl->getPublisherQueueName()) && succeeded;
+	m_impl->m_isConsumerQueueDeclared = false;
+	m_impl->m_isPublisherQueueDeclared = false;
+	return succeeded;
 }
 
 bool AMQPConnection::deleteQueue(const string queueName)
