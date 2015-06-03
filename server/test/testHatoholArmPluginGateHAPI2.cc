@@ -167,7 +167,7 @@ void test_procedureHandlerExchangeProfile(void)
 		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
 		" \"params\":{\"procedures\":[\"getMonitoringServerInfo\","
 		" \"getLastInfo\", \"putItems\", \"updateArmInfo\", \"fetchItems\"],"
-		" \"name\":\"exampleName\"}, \"id\":1}";
+		" \"name\":\"exampleName\"}, \"id\":123}";
 	string actual =
 		gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, params);
 	string expected =
@@ -177,7 +177,7 @@ void test_procedureHandlerExchangeProfile(void)
 		  "\"putHistory\",\"updateHosts\",\"updateHostGroups\","
 		  "\"updateHostGroupMembership\",\"updateTriggers\","
 		  "\"updateEvents\",\"updateHostParent\",\"updateArmInfo\""
-		"]},\"id\":1}";
+		"]},\"id\":123}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -187,7 +187,7 @@ void test_procedureHandlerMonitoringServerInfo(void)
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
 	string params =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"getMonitoringServerInfo\","
-		" \"params\":\"\", \"id\":1}";
+		" \"params\":\"\", \"id\":456}";
 	string actual = gate->interpretHandler(
 	  HAPI2_MONITORING_SERVER_INFO, params);
 	string expected =
@@ -197,7 +197,7 @@ void test_procedureHandlerMonitoringServerInfo(void)
 		 "\"nickName\":\"HAPI2 Zabbix\",\"userName\":\"Admin\","
 		 "\"password\":\"zabbix\",\"pollingIntervalSec\":300,"
 		 "\"retryIntervalSec\":60,\"extendedInfo\":\"test extended info\""
-		"},\"id\":1}";
+		"},\"id\":456}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -242,11 +242,11 @@ void test_procedureHandlerLastInfo(gconstpointer data)
 	  new HatoholArmPluginGateHAPI2(serverInfo, false), false);
 	string params =
 	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\", \"method\":\"getLastInfo\","
-			       " \"params\":\"%s\", \"id\":1}",
+			       " \"params\":\"%s\", \"id\":789}",
 			       gcut_data_get_string(data, "params"));
 	string actual = gate->interpretHandler(HAPI2_LAST_INFO, params);
 	string expected =
-	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":1}",
+	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":789}",
 			       gcut_data_get_string(data, "value"));
 	cppcut_assert_equal(expected, actual);
 }
@@ -265,10 +265,10 @@ void test_procedureHandlerPutItems(void)
 		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175531\","
 		" \"lastValue\":\"example value\","
 		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"}],"
-		" \"fetchId\":\"1\"}, \"id\":1}";
+		" \"fetchId\":\"1\"}, \"id\":83241245}";
 	string actual = gate->interpretHandler(HAPI2_PUT_ITEMS, params);
 	string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":\"\",\"id\":1}";
+		"{\"jsonrpc\":\"2.0\",\"result\":\"\",\"id\":83241245}";
 	cppcut_assert_equal(expected, actual);
 	// TODO: add DB assertion
 }
@@ -283,10 +283,10 @@ void test_procedureHandlerPutHistory(void)
 		" \"histories\":[{\"value\":\"exampleValue\","
 		" \"time\":\"20150323113032.000000000\"},"
 		"{\"value\":\"exampleValue2\",\"time\":\"20150323113033.000000000\"}],"
-		" \"fetchId\":\"1\"}, \"id\":1}";
+		" \"fetchId\":\"1\"}, \"id\":-83241245}";
 	string actual = gate->interpretHandler(HAPI2_PUT_HISTORY, params);
 	string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":\"\",\"id\":1}";
+		"{\"jsonrpc\":\"2.0\",\"result\":\"\",\"id\":-83241245}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -297,10 +297,11 @@ void test_procedureHandlerUpdateHosts(void)
 	string params =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"updateHosts\", \"params\":"
 		"{\"hosts\":[{\"hostId\":\"1\", \"hostName\":\"exampleHostName1\"}],"
-		" \"updateType\":\"UPDATED\",\"lastInfo\":\"201504091052\"}, \"id\":1}";
+		" \"updateType\":\"UPDATED\",\"lastInfo\":\"201504091052\"},"
+		" \"id\":\"deadbeaf\"}";
 	string actual = gate->interpretHandler(HAPI2_UPDATE_HOSTS, params);
 	string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":1}";
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"deadbeaf\"}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -312,11 +313,11 @@ void test_procedureHandlerUpdateHostGroups(void)
 		"{\"jsonrpc\":\"2.0\",\"method\":\"updateHostGroups\","
 		" \"params\":{\"hostGroups\":[{\"groupId\":\"1\","
 		" \"groupName\":\"Group2\"}],\"updateType\":\"ALL\","
-		" \"lastInfo\":\"20150409104900\"}, \"id\":1}";
+		" \"lastInfo\":\"20150409104900\"}, \"id\":\"123abc\"}";
 	string actual = gate->interpretHandler(HAPI2_UPDATE_HOST_GROUPS,
 						    params);
 	string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":1}";
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"123abc\"}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -329,11 +330,11 @@ void test_procedureHandlerUpdateHostGroupMembership(void)
 		" \"params\":{\"hostGroupsMembership\":[{\"hostId\":\"1\","
 		" \"groupIds\":[\"1\", \"2\", \"5\"]}],"
 		" \"lastInfo\":\"20150409105600\", \"updateType\":\"ALL\"},"
-		" \"id\":1}";
+		" \"id\":9342}";
 	string actual = gate->interpretHandler(
 	  HAPI2_UPDATE_HOST_GROUP_MEMEBRSHIP, params);
 	string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":1}";
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":9342}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -349,11 +350,11 @@ void test_procedureHandlerUpdateTriggers(void)
 		" \"severity\":\"INFO\",\"lastChangeTime\":\"20150323175800\","
 		" \"hostId\":\"1\", \"hostName\":\"exampleName\","
 		" \"brief\":\"example brief\","
-		" \"extendedInfo\": \"sample extended info\"}]},\"id\":1}";
+		" \"extendedInfo\": \"sample extended info\"}]},\"id\":34031}";
 	string actual = gate->interpretHandler(HAPI2_UPDATE_TRIGGERS,
 						    params);
 	string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":1}";
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":34031}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -378,12 +379,12 @@ void test_procedureHandlerUpdateEvents(gconstpointer data)
 			       " \"brief\":\"example brief\","
 			       " \"extendedInfo\": \"sample extended info\"}],"
 			       " \"lastInfo\":\"20150401175900\","
-			       " \"fetchId\":\"1\"},\"id\":1}",
+			       " \"fetchId\":\"1\"},\"id\":2374234}",
 			       gcut_data_get_string(data, "triggerIdContents"));
 	string actual = gate->interpretHandler(HAPI2_UPDATE_EVENTS,
 						    params);
 	string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":1}";
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":2374234}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -396,11 +397,12 @@ void test_procedureHandlerUpdateHostParents(void)
 		" \"params\":{\"hostParents\":"
 		" [{\"childHostId\":\"12\",\"parentHostId\":\"10\"},"
 		" {\"childHostId\":\"11\",\"parentHostId\":\"20\"}],"
-		" \"updateType\":\"ALL\", \"lastInfo\":\"201504152246\"}, \"id\":1}";
+		" \"updateType\":\"ALL\", \"lastInfo\":\"201504152246\"},"
+		" \"id\":6234093}";
 	string actual = gate->interpretHandler(HAPI2_UPDATE_HOST_PARENTS,
 						    params);
 	string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":1}";
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":6234093}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -414,11 +416,11 @@ void test_procedureHandlerUpdateArmInfo(void)
 		" \"failureReason\":\"Example reason\","
 		" \"lastSuccessTime\":\"20150313161100\","
 		" \"lastFailureTime\":\"20150313161530\","
-		" \"numSuccess\":165, \"numFailure\":10}, \"id\":1}";
+		" \"numSuccess\":165, \"numFailure\":10}, \"id\":234}";
 	string actual = gate->interpretHandler(HAPI2_UPDATE_ARM_INFO,
 						    params);
 	string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":1}";
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":234}";
 	cppcut_assert_equal(expected, actual);
 }
 
