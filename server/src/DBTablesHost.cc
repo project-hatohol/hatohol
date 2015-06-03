@@ -1351,7 +1351,7 @@ HatoholError DBTablesHost::syncHostgroups(
 	HatoholError err = getHostgroups(_currHostgroups, option);
 	if (err != HTERR_OK)
 		return err;
-	const HostgroupVect &currHostgroups = move(_currHostgroups);
+	const HostgroupVect currHostgroups = move(_currHostgroups);
 
 	map<HostgroupIdType, const Hostgroup *> currValidHostgroupMap;
 	for (auto& hostgroup : currHostgroups) {
@@ -1388,7 +1388,7 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 	HatoholError err = getHostgroupMembers(_currHostgroupMembers, option);
 	if (err != HTERR_OK)
 		return err;
-	const HostgroupMemberVect &currHostgroupMembers = move(_currHostgroupMembers);
+	const HostgroupMemberVect currHostgroupMembers = move(_currHostgroupMembers);
 	map<GenericIdType, const HostgroupMember *> currValidHostgroupMemberMap;
 	for (auto& hostgroupMember : currHostgroupMembers) {
 		currValidHostgroupMemberMap[hostgroupMember.id] = &hostgroupMember;

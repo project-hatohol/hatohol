@@ -1647,7 +1647,7 @@ HatoholError DBTablesMonitoring::syncTriggers(TriggerInfoList &svTriggerInfoList
 	TriggerInfoList _currTriggers;
 	getTriggerInfoList(_currTriggers, option);
 
-	const TriggerInfoList &currTriggers = move(_currTriggers);
+	const TriggerInfoList currTriggers = move(_currTriggers);
 
 	map<TriggerIdType, const TriggerInfo *> currValidTriggerMap;
 	for (auto& trigger : currTriggers) {
