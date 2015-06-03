@@ -94,6 +94,7 @@ struct AMQPConnectionInfo::Impl {
 	char *m_URLBuf;
 	amqp_connection_info m_parsedURL;
 	string m_consumerQueueName;
+	string m_publisherQueueName;
 	time_t m_timeout;
 	string m_tlsCertificatePath;
 	string m_tlsKeyPath;
@@ -181,6 +182,16 @@ const string &AMQPConnectionInfo::getConsumerQueueName(void) const
 void AMQPConnectionInfo::setConsumerQueueName(const string &queueName)
 {
 	m_impl->m_consumerQueueName = queueName;
+}
+
+const string &AMQPConnectionInfo::getPublisherQueueName(void) const
+{
+	return m_impl->m_publisherQueueName;
+}
+
+void AMQPConnectionInfo::setPublisherQueueName(const string &queueName)
+{
+	m_impl->m_publisherQueueName = queueName;
 }
 
 time_t AMQPConnectionInfo::getTimeout(void) const
