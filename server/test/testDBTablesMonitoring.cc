@@ -361,22 +361,30 @@ void test_deleteTriggerInfo(void)
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	loadTestDBTriggers();
 
-	// check triggerInfo existence
-	string sql = StringUtils::sprintf("SELECT * FROM triggers");
-	string expectedOut;
-	for (size_t i = 0; i < NumTestTriggerInfo; i++)
-		expectedOut += makeTriggerOutput(testTriggerInfo[i]);
-	assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
-
 	TriggerIdList triggerIdList = { "2", "3" };
 	constexpr ServerIdType targetServerId = 1;
+
+	for (auto triggerId : triggerIdList) {
+		// check triggerInfo existence
+		string sql = StringUtils::sprintf("SELECT * FROM triggers");
+		sql += StringUtils::sprintf(
+		  " WHERE id = %" FMT_TRIGGER_ID
+		  " AND server_id = %" FMT_SERVER_ID,
+		  triggerId.c_str(), targetServerId);
+		uint64_t targetTestDataId = StringUtils::toUint64(triggerId) - 1;
+		string expectedOut;
+		expectedOut +=
+			makeTriggerOutput(testTriggerInfo[targetTestDataId]);
+		assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
+	}
+
 	HatoholError err =
 		dbMonitoring.deleteTriggerInfo(triggerIdList, targetServerId);
 	assertHatoholError(HTERR_OK, err);
 	for (auto triggerId : triggerIdList) {
 		string statement = StringUtils::sprintf("SELECT * FROM triggers");
 		statement += StringUtils::sprintf(
-		  " WHERE trigger_id = %" FMT_TRIGGER_ID " AND server_id = %" FMT_SERVER_ID,
+		  " WHERE id = %" FMT_TRIGGER_ID " AND server_id = %" FMT_SERVER_ID,
 		  triggerId.c_str(), targetServerId);
 		string expected = "";
 		assertDBContent(&dbMonitoring.getDBAgent(), statement, expected);
