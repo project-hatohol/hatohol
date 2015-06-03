@@ -532,9 +532,9 @@ void test_exchangeProfile(void)
 	sendMessage(message);
 	sleep(1);
 	// TODO: Add an assertion
-	cut_fail("Fix self eating");
+	cut_fail("Check the result");
 }
 
-} // testCommunication
+} // testCallServerProcedure
 
 } // testHatoholArmPluginGateHAPI2
