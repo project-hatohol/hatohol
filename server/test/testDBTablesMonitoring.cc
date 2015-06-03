@@ -398,12 +398,19 @@ void test_syncTriggers(void)
 	constexpr const ServerIdType targetServerId = 1;
 	const TriggerIdType targetTriggerId = "2";
 	constexpr const int testTriggerDataId = 2;
+	const TriggerIdList targetServerTriggerIds = {"1", "2", "3", "4", "5"};
 
-	// check triggerInfo existence
 	string sql = StringUtils::sprintf("SELECT * FROM triggers");
+	sql += StringUtils::sprintf(
+	  " WHERE server_id = %" FMT_SERVER_ID " ORDER BY server_id ASC",
+	  targetServerId);
+
 	string expectedOut;
-	for (size_t i = 0; i < NumTestTriggerInfo; i++)
-		expectedOut += makeTriggerOutput(testTriggerInfo[i]);
+	// check triggerInfo existence
+	for (auto triggerId : targetServerTriggerIds) {
+		int64_t targetId = StringUtils::toUint64(triggerId) - 1;
+		expectedOut += makeTriggerOutput(testTriggerInfo[targetId]);
+	}
 	assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
 
 	map<TriggerIdType, const TriggerInfo *> triggerMap;
