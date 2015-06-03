@@ -1290,7 +1290,6 @@ void test_syncHostgroupsAddNewHostgroup(void)
 	loadTestDBHostgroup();
 	DECLARE_DBTABLES_HOST(dbHost);
 	constexpr const ServerIdType targetServerId = 1;
-	constexpr const GenericIdType targetHostgroupId = 2;
 	Hostgroup newHostgroup = {
 		AUTO_INCREMENT_VALUE, // id
 		1,                    // serverId
@@ -1301,8 +1300,6 @@ void test_syncHostgroupsAddNewHostgroup(void)
 	for (size_t i = 0; i < NumTestHostgroup; i++) {
 		const Hostgroup &svHostgroup = testHostgroup[i];
 		if (svHostgroup.serverId != targetServerId)
-			continue;
-		if (svHostgroup.idInServer != StringUtils::toString(targetHostgroupId))
 			continue;
 		if (svHostgroup.idInServer == newHostgroup.idInServer)
 			cut_fail("We use the wrong test data");
