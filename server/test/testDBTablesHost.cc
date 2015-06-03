@@ -1284,6 +1284,63 @@ void test_syncHostgroups(void)
 	assertDBContent(&dbAgent, statement, expect);
 }
 
+void test_syncHostgroupsAddNewHostgroup(void)
+{
+	loadTestDBServer();
+	loadTestDBHostgroup();
+	DECLARE_DBTABLES_HOST(dbHost);
+	constexpr const ServerIdType targetServerId = 1;
+	constexpr const GenericIdType targetHostgroupId = 2;
+	Hostgroup newHostgroup = {
+		AUTO_INCREMENT_VALUE, // id
+		1,                    // serverId
+		"5",                  // idInServer
+		"New Hostgroup"       // Name
+	};
+
+	for (size_t i = 0; i < NumTestHostgroup; i++) {
+		const Hostgroup &svHostgroup = testHostgroup[i];
+		if (svHostgroup.serverId != targetServerId)
+			continue;
+		if (svHostgroup.idInServer != StringUtils::toString(targetHostgroupId))
+			continue;
+		if (svHostgroup.idInServer == newHostgroup.idInServer)
+			cut_fail("We use the wrong test data");
+	}
+
+	string expect;
+	HostgroupVect svHostgroups;
+	{
+		size_t i = 0;
+		for (; i < NumTestHostgroup; i++) {
+			const Hostgroup &svHostgroup = testHostgroup[i];
+			if (svHostgroup.serverId != targetServerId)
+				continue;
+			svHostgroups.push_back(svHostgroup);
+			expect += makeHostgroupsOutput(svHostgroup, i);
+		}
+
+		// sanity check if we use the proper data
+		cppcut_assert_equal(false, svHostgroups.empty());
+
+		// Add newHostgroup to the expected result
+		svHostgroups.push_back(newHostgroup);
+		expect += makeHostgroupsOutput(newHostgroup, i);
+	}
+
+	// Call the method to be tested and check the result
+	dbHost.syncHostgroups(svHostgroups, targetServerId);
+	DBAgent &dbAgent = dbHost.getDBAgent();
+	const ColumnDef *coldef = tableProfileHostgroupList.columnDefs;
+	string statement = StringUtils::sprintf(
+	  "select * from %s where %s=%" FMT_SERVER_ID " order by %s asc;",
+	  tableProfileHostgroupList.name,
+	  coldef[IDX_HOSTGROUP_LIST_SERVER_ID].columnName,
+	  targetServerId,
+	  coldef[IDX_HOSTGROUP_LIST_ID_IN_SERVER].columnName);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
 void test_syncHostgroupMembers(void)
 {
 	loadTestDBServer();
