@@ -179,7 +179,7 @@ struct HatoholArmPluginGateJSON::Impl
 			queueName = generateQueueName(serverInfo);
 		else
 			queueName = armPluginInfo.staticQueueAddress;
-		m_connectionInfo.setQueueName(queueName);
+		m_connectionInfo.setConsumerQueueName(queueName);
 
 		m_connectionInfo.setTLSCertificatePath(
 			armPluginInfo.tlsCertificatePath);

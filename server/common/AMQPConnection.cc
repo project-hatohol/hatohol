@@ -167,9 +167,11 @@ public:
 		return m_info.getTimeout();
 	}
 
-	const string &getQueueName()
+	const string &getConsumerQueueName()
 	{
-		return m_info.getQueueName();
+		if (m_info.getConsumerQueueName().empty())
+			MLPL_WARN("The consumerQueueName isn't set!");
+		return m_info.getConsumerQueueName();
 	}
 
 	void logErrorResponse(const char *context,
@@ -421,7 +423,7 @@ bool AMQPConnection::initializeConnection(void)
 		return false;
 	if (!m_impl->openChannel())
 		return false;
-	if (!m_impl->declareQueue(getQueueName()))
+	if (!m_impl->declareQueue(getConsumerQueueName()))
 		return false;
 	return true;
 }
@@ -456,9 +458,9 @@ bool AMQPConnection::declareQueue(const string queueName)
 	return m_impl->declareQueue(queueName);
 }
 
-string AMQPConnection::getQueueName(void)
+string AMQPConnection::getConsumerQueueName(void)
 {
-	return m_impl->getQueueName();
+	return m_impl->getConsumerQueueName();
 }
 
 void AMQPConnection::disposeConnection(void)
@@ -488,7 +490,7 @@ bool AMQPConnection::startConsuming(void)
 		return false;
 
 	const amqp_bytes_t queue =
-		amqp_cstring_bytes(getQueueName().c_str());
+		amqp_cstring_bytes(getConsumerQueueName().c_str());
 	const amqp_bytes_t consumer_tag = amqp_empty_bytes;
 	const amqp_boolean_t no_local = false;
 	const amqp_boolean_t no_ack = true;
@@ -568,7 +570,7 @@ bool AMQPConnection::publish(const AMQPMessage &message)
 
 	const amqp_bytes_t exchange = amqp_empty_bytes;
 	const amqp_bytes_t queue =
-		amqp_cstring_bytes(getQueueName().c_str());
+		amqp_cstring_bytes(getConsumerQueueName().c_str());
 	const amqp_boolean_t no_mandatory = false;
 	const amqp_boolean_t no_immediate = false;
 	int response;
@@ -603,7 +605,7 @@ bool AMQPConnection::publish(const AMQPMessage &message)
 
 bool AMQPConnection::purgeQueue(void)
 {
-	return purgeQueue(getQueueName());
+	return purgeQueue(getConsumerQueueName());
 }
 
 bool AMQPConnection::purgeQueue(const string queueName)
@@ -629,7 +631,7 @@ bool AMQPConnection::purgeQueue(const string queueName)
 
 bool AMQPConnection::deleteQueue(void)
 {
-	return deleteQueue(getQueueName());
+	return deleteQueue(getConsumerQueueName());
 }
 
 bool AMQPConnection::deleteQueue(const string queueName)

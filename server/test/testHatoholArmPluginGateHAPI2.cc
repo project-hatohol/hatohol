@@ -478,7 +478,7 @@ void cut_setup(void)
 	if (url) {
 		connectionInfo = new AMQPConnectionInfo();
 		connectionInfo->setURL(url);
-		connectionInfo->setQueueName("test.1");
+		connectionInfo->setConsumerQueueName("test.1");
 		prepareDB(url);
 	} else {
 		connectionInfo = NULL;

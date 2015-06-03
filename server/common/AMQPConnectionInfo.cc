@@ -51,7 +51,7 @@ struct AMQPConnectionInfo::Impl {
 		m_URL = rhs.m_URL;
 		m_URLBuf = NULL;
 		amqp_default_connection_info(&m_parsedURL);
-		m_queueName = rhs.m_queueName;
+		m_consumerQueueName = rhs.m_consumerQueueName;
 		m_timeout = rhs.m_timeout;
 		m_tlsCertificatePath = rhs.m_tlsCertificatePath;
 		m_tlsKeyPath = rhs.m_tlsKeyPath;
@@ -65,7 +65,7 @@ struct AMQPConnectionInfo::Impl {
 		m_URL = rhs.m_URL;
 		m_URLBuf = NULL;
 		amqp_default_connection_info(&m_parsedURL);
-		m_queueName = rhs.m_queueName;
+		m_consumerQueueName = rhs.m_consumerQueueName;
 		m_timeout = rhs.m_timeout;
 		m_tlsCertificatePath = rhs.m_tlsCertificatePath;
 		m_tlsKeyPath = rhs.m_tlsKeyPath;
@@ -93,7 +93,7 @@ struct AMQPConnectionInfo::Impl {
 	string m_URL;
 	char *m_URLBuf;
 	amqp_connection_info m_parsedURL;
-	string m_queueName;
+	string m_consumerQueueName;
 	time_t m_timeout;
 	string m_tlsCertificatePath;
 	string m_tlsKeyPath;
@@ -173,14 +173,14 @@ bool AMQPConnectionInfo::useTLS(void) const
 	return m_impl->m_parsedURL.ssl;
 }
 
-const string &AMQPConnectionInfo::getQueueName(void) const
+const string &AMQPConnectionInfo::getConsumerQueueName(void) const
 {
-	return m_impl->m_queueName;
+	return m_impl->m_consumerQueueName;
 }
 
-void AMQPConnectionInfo::setQueueName(const string &queueName)
+void AMQPConnectionInfo::setConsumerQueueName(const string &queueName)
 {
-	m_impl->m_queueName = queueName;
+	m_impl->m_consumerQueueName = queueName;
 }
 
 time_t AMQPConnectionInfo::getTimeout(void) const

@@ -141,7 +141,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 			queueName = generateQueueName(m_pluginInfo);
 		else
 			queueName = m_pluginInfo.staticQueueAddress;
-		m_connectionInfo.setQueueName(queueName);
+		m_connectionInfo.setConsumerQueueName(queueName);
 
 		m_connectionInfo.setTLSCertificatePath(
 			m_pluginInfo.tlsCertificatePath);
