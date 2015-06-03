@@ -221,43 +221,43 @@ void test_checkIsMember(void)
 void data_valueType(void)
 {
 	gcut_add_datum("null",
-		       "expected", G_TYPE_INT, JSONParser::JSON_VALUE_NULL,
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_NULL,
 		       "json", G_TYPE_STRING, "{\"value\":null}",
 		       NULL);
 	gcut_add_datum("int64",
-		       "expected", G_TYPE_INT, JSONParser::JSON_VALUE_INT64,
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_INT64,
 		       "json", G_TYPE_STRING, "{\"value\":123}",
 		       NULL);
 	gcut_add_datum("double",
-		       "expected", G_TYPE_INT, JSONParser::JSON_VALUE_DOUBLE,
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_DOUBLE,
 		       "json", G_TYPE_STRING, "{\"value\":123.45}",
 		       NULL);
 	gcut_add_datum("string",
-		       "expected", G_TYPE_INT, JSONParser::JSON_VALUE_STRING,
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_STRING,
 		       "json", G_TYPE_STRING, "{\"value\":\"abc\"}",
 		       NULL);
 	gcut_add_datum("true",
-		       "expected", G_TYPE_INT, JSONParser::JSON_VALUE_BOOLEAN,
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_BOOLEAN,
 		       "json", G_TYPE_STRING, "{\"value\":true}",
 		       NULL);
 	gcut_add_datum("false",
-		       "expected", G_TYPE_INT, JSONParser::JSON_VALUE_BOOLEAN,
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_BOOLEAN,
 		       "json", G_TYPE_STRING, "{\"value\":false}",
 		       NULL);
 	gcut_add_datum("array",
-		       "expected", G_TYPE_INT, JSONParser::JSON_VALUE_ARRAY,
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_ARRAY,
 		       "json", G_TYPE_STRING, "{\"value\":[]}",
 		       NULL);
 	gcut_add_datum("object",
-		       "expected", G_TYPE_INT, JSONParser::JSON_VALUE_OBJECT,
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_OBJECT,
 		       "json", G_TYPE_STRING, "{\"value\":{}}",
 		       NULL);
 	gcut_add_datum("no member",
-		       "expected", G_TYPE_INT, JSONParser::JSON_VALUE_UNKNOWN,
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_UNKNOWN,
 		       "json", G_TYPE_STRING, "{\"hoge\":123}",
 		       NULL);
 	gcut_add_datum("invalie json",
-		       "expected", G_TYPE_INT, JSONParser::JSON_VALUE_UNKNOWN,
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_UNKNOWN,
 		       "json", G_TYPE_STRING, "{hoge:123}",
 		       NULL);
 }
