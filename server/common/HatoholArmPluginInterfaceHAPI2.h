@@ -104,6 +104,9 @@ protected:
 
 	std::mt19937 getRandomEngine(void);
 
+	std::string buildErrorReply(const int errorCode,
+				    const std::string errorMessage);
+
         virtual ~HatoholArmPluginInterfaceHAPI2();
 
 private:

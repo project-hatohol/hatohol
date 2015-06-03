@@ -490,20 +490,23 @@ void cut_setup(void)
 	}
 }
 
-void cut_teardown(void)
-{
-	if (connection.hasData())
-		connection->deleteAllQueues();
-	connection = NULL;
-	delete connectionInfo;
-	connectionInfo = NULL;
-}
-
 AMQPConnectionInfo &getConnectionInfo(void)
 {
 	if (!connectionInfo)
 		cut_omit("TEST_AMQP_URL isn't set");
 	return *connectionInfo;
+}
+
+void cut_teardown(void)
+{
+	if (connectionInfo) {
+		connection = AMQPConnection::create(*connectionInfo);
+		connection->connect();
+		connection->deleteAllQueues();
+		connection = NULL;
+	}
+	delete connectionInfo;
+	connectionInfo = NULL;
 }
 
 void omitIfNoURL(void)
@@ -590,6 +593,52 @@ void test_exchangeProfile(void)
 		  "\"updateHostGroupMembership\",\"updateTriggers\","
 		  "\"updateEvents\",\"updateHostParent\",\"updateArmInfo\""
 		"]},\"id\":1}";
+	string actual = recieveReply();
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_unknownProcedure(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+
+	sendMessage(
+		"{\"jsonrpc\":\"2.0\", \"method\":\"conquerTheWorld\","
+		" \"params\":{\"Austoralia\":\"mine\","
+		" \"North America\":\"mine\","
+		" \"South America\":\"mine\","
+		" \"Eurasia\":\"mine\","
+		" \"Africa\":\"mine\","
+		" \"Antarctica\":\"mine\"}, \"id\":3}");
+	string expected =
+		"{\"jsonrpc\":\"2.0\",\"id\":3,"
+		"\"error\":{\"code\":-32601,\"message\":\"Method not found\"}"
+		"}";
+	string actual = recieveReply();
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_noMethod(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+
+	sendMessage(
+		"{\"jsonrpc\":\"2.0\","
+		" \"params\":{\"Austoralia\":\"mine\","
+		" \"North America\":\"mine\","
+		" \"South America\":\"mine\","
+		" \"Eurasia\":\"mine\","
+		" \"Africa\":\"mine\","
+		" \"Antarctica\":\"mine\"}, \"id\":5}");
+	string expected =
+		"{\"jsonrpc\":\"2.0\",\"id\":5,"
+		"\"error\":{\"code\":-32600,\"message\":\"Invalid request\"}"
+		"}";
 	string actual = recieveReply();
 	cppcut_assert_equal(expected, actual);
 }
