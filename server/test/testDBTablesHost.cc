@@ -1065,7 +1065,7 @@ void test_syncHostsAddNewHost(void)
 		if (svHostDef.serverId != targetServerId)
 			continue;
 		if (svHostDef.hostIdInServer == newHost.hostIdInServer)
-			cut_fail("We use the worng test data");
+			cut_fail("We use the wrong test data");
 	}
 
 	// Prepare for the test data and the expected result.
