@@ -1375,6 +1375,8 @@ HatoholError DBTablesHost::syncHostgroups(
 	}
 	if (invalidHostgroupIdList.size() > 0)
 		err = deleteHostgroupList(invalidHostgroupIdList);
+	if (serverHostgroups.size() > 0)
+		upsertHostgroups(serverHostgroups);
 	return err;
 }
 
@@ -1410,6 +1412,8 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 	}
 	if (invalidHostgroupMemberIdList.size() > 0)
 		err = deleteHostgroupMemberList(invalidHostgroupMemberIdList);
+	if (serverHostgroupMembers.size() > 0)
+		upsertHostgroupMembers(serverHostgroupMembers);
 	return HTERR_OK;
 }
 
