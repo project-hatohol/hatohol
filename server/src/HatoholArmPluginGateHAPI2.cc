@@ -91,7 +91,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 // ---------------------------------------------------------------------------
 HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
   const MonitoringServerInfo &serverInfo, const bool &autoStart)
-: m_impl(new Impl(serverInfo, this))
+: HatoholArmPluginInterfaceHAPI2(MODE_SERVER),
+  m_impl(new Impl(serverInfo, this))
 {
 	registerProcedureHandler(
 	  HAPI2_EXCHANGE_PROFILE,

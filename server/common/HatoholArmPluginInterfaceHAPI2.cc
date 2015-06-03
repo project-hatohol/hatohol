@@ -104,6 +104,7 @@ private:
 
 struct HatoholArmPluginInterfaceHAPI2::Impl
 {
+	CommunicationMode m_communicationMode;
 	ArmPluginInfo m_pluginInfo;
 	HatoholArmPluginInterfaceHAPI2 &hapi2;
 	ProcedureHandlerMap procedureHandlerMap;
@@ -111,8 +112,9 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	AMQPConsumer *m_consumer;
 	AMQPHAPI2MessageHandler *m_handler;
 
-	Impl(HatoholArmPluginInterfaceHAPI2 &_hapi2)
-	: hapi2(_hapi2),
+	Impl(HatoholArmPluginInterfaceHAPI2 &_hapi2, const CommunicationMode mode)
+	: m_communicationMode(mode),
+	  hapi2(_hapi2),
 	  m_consumer(NULL),
 	  m_handler(NULL)
 	{
@@ -134,6 +136,8 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 	void setupAMQPConnectionInfo(void)
 	{
+		AMQPConnectionInfo &info = m_connectionInfo;
+
 		if (!m_pluginInfo.brokerUrl.empty())
 			m_connectionInfo.setURL(m_pluginInfo.brokerUrl);
 		string queueName;
@@ -141,16 +145,20 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 			queueName = generateQueueName(m_pluginInfo);
 		else
 			queueName = m_pluginInfo.staticQueueAddress;
-		m_connectionInfo.setConsumerQueueName(queueName);
+		string queueNamePluginToServer = queueName + "-S";
+		string queueNameServerToPlugin = queueName + "-T";
 
-		m_connectionInfo.setTLSCertificatePath(
-			m_pluginInfo.tlsCertificatePath);
-		m_connectionInfo.setTLSKeyPath(
-			m_pluginInfo.tlsKeyPath);
-		m_connectionInfo.setTLSCACertificatePath(
-			m_pluginInfo.tlsCACertificatePath);
-		m_connectionInfo.setTLSVerifyEnabled(
-			m_pluginInfo.isTLSVerifyEnabled());
+		if (m_communicationMode == MODE_SERVER) {
+			info.setConsumerQueueName(queueNamePluginToServer);
+			info.setPublisherQueueName(queueNameServerToPlugin);
+		} else {
+			info.setConsumerQueueName(queueNameServerToPlugin);
+			info.setPublisherQueueName(queueNamePluginToServer);
+		}
+		info.setTLSCertificatePath(m_pluginInfo.tlsCertificatePath);
+		info.setTLSKeyPath(m_pluginInfo.tlsKeyPath);
+		info.setTLSCACertificatePath(m_pluginInfo.tlsCACertificatePath);
+		info.setTLSVerifyEnabled(m_pluginInfo.isTLSVerifyEnabled());
 	}
 
 	void setupAMQPConnection(void)
@@ -193,8 +201,9 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	}
 };
 
-HatoholArmPluginInterfaceHAPI2::HatoholArmPluginInterfaceHAPI2()
-: m_impl(new Impl(*this))
+HatoholArmPluginInterfaceHAPI2::HatoholArmPluginInterfaceHAPI2(
+  const CommunicationMode mode)
+: m_impl(new Impl(*this, mode))
 {
 }
 

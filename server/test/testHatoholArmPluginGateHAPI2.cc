@@ -22,6 +22,8 @@
 #include <HatoholArmPluginGateHAPI2.h>
 #include <AMQPConnection.h>
 #include <AMQPPublisher.h>
+#include <AMQPConsumer.h>
+#include <AMQPMessageHandler.h>
 #include <ThreadLocalDBCache.h>
 #include "Helpers.h"
 #include "DBTablesTest.h"
@@ -478,7 +480,8 @@ void cut_setup(void)
 	if (url) {
 		connectionInfo = new AMQPConnectionInfo();
 		connectionInfo->setURL(url);
-		connectionInfo->setPublisherQueueName("test.1");
+		connectionInfo->setPublisherQueueName("test.1-S");
+		connectionInfo->setConsumerQueueName("test.1-T");
 		prepareDB(url);
 	} else {
 		connectionInfo = NULL;
@@ -510,6 +513,49 @@ void sendMessage(const string body)
 	publisher.publish();
 }
 
+GTimer *startTimer(void)
+{
+	GTimer *timer = g_timer_new();
+	cut_take(timer, (CutDestroyFunction)g_timer_destroy);
+	g_timer_start(timer);
+	return timer;
+}
+
+void recieveReply(string &messageBody)
+{
+	class TestMessageHandler : public AMQPMessageHandler {
+	public:
+		TestMessageHandler()
+		: m_gotMessage(false)
+		{
+		}
+
+		virtual bool handle(AMQPConnection &connection,
+				    const AMQPMessage &message) override
+		{
+			m_gotMessage = true;
+			m_message = message;
+			return true;
+		}
+
+		AtomicValue<bool> m_gotMessage;
+		AMQPMessage m_message;
+	};
+
+	TestMessageHandler handler;
+	AMQPConsumer consumer(getConnectionInfo(), &handler);
+	consumer.start();
+	gdouble timeout = 2.0, elapsed = 0.0;
+	GTimer *timer = startTimer();
+	while (!handler.m_gotMessage && elapsed < timeout) {
+		g_usleep(0.1 * G_USEC_PER_SEC);
+		elapsed = g_timer_elapsed(timer, NULL);
+	}
+	consumer.exitSync();
+
+	messageBody = handler.m_message.body;
+}
+
 void test_exchangeProfile(void)
 {
 	getConnectionInfo();
@@ -530,9 +576,18 @@ void test_exchangeProfile(void)
 		"  \"jsonrpc\": \"2.0\""
 		"}";
 	sendMessage(message);
-	sleep(1);
-	// TODO: Add an assertion
-	cut_fail("Check the result");
+
+	std::string expected =
+		"{\"jsonrpc\":\"2.0\",\"result\":{\"name\":\"exampleName\","
+		  "\"procedures\":"
+		  "[\"getMonitoringServerInfo\",\"getLastInfo\",\"putItems\","
+		  "\"putHistory\",\"updateHosts\",\"updateHostGroups\","
+		  "\"updateHostGroupMembership\",\"updateTriggers\","
+		  "\"updateEvents\",\"updateHostParent\",\"updateArmInfo\""
+		"]},\"id\":1}";
+	string actual;
+	recieveReply(actual);
+	cppcut_assert_equal(expected, actual);
 }
 
 } // testCallServerProcedure

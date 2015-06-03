@@ -69,7 +69,12 @@ typedef ValidProcedureNameVect::const_iterator ValidProcedureNameVectConstIterat
 class HatoholArmPluginInterfaceHAPI2 {
 
 public:
-	HatoholArmPluginInterfaceHAPI2();
+	typedef enum {
+		MODE_PLUGIN,
+		MODE_SERVER
+	} CommunicationMode;
+
+	HatoholArmPluginInterfaceHAPI2(const CommunicationMode mode = MODE_PLUGIN);
 	typedef std::string (HatoholArmPluginInterfaceHAPI2::*ProcedureHandler)
 	  (const std::string &params);
 
