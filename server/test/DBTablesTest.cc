@@ -244,6 +244,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"nAgiOs_ndoutils",        // db_name
 	"http://10.0.0.32/nagios3", // base_url
 	"test extended info",     // exteneded_info
+#ifdef HAVE_LIBRABBITMQ
 },{
 	302,                      // id
 	MONITORING_SYSTEM_HAPI2,  // type
@@ -258,6 +259,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"",                       // db_name
 	"http://10.0.0.33/zabbix/", // base_url
 	"test extended info",     // exteneded_info
+#endif // HAVE_LIBRABBITMQ
 }};
 const size_t NumTestServerInfo = ARRAY_SIZE(testServerInfo);
 
