@@ -1021,14 +1021,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateArmInfo(
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	parser.endObject(); // params
-	int64_t rpcId;
-	parser.read("id", rpcId);
 
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
 	builder.add("result", result);
-	builder.add("id", rpcId);
+	setResponseId(parser, builder);
 	builder.endObject();
 	return builder.generate();
 }
