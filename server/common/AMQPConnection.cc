@@ -640,9 +640,12 @@ bool AMQPConnection::publish(const AMQPMessage &message)
 
 bool AMQPConnection::purgeAllQueues(void)
 {
-	bool succeeded;
-	succeeded = purgeQueue(m_impl->getConsumerQueueName());
-	succeeded = purgeQueue(m_impl->getPublisherQueueName()) && succeeded;
+	bool succeeded = true;
+	if (!m_impl->getConsumerQueueName().empty())
+		succeeded = purgeQueue(m_impl->getConsumerQueueName());
+	if (!m_impl->getPublisherQueueName().empty())
+		succeeded = purgeQueue(m_impl->getPublisherQueueName())
+		  && succeeded;
 	return succeeded;
 }
 
@@ -669,9 +672,12 @@ bool AMQPConnection::purgeQueue(const string queueName)
 
 bool AMQPConnection::deleteAllQueues(void)
 {
-	bool succeeded;
-	succeeded = deleteQueue(m_impl->getConsumerQueueName());
-	succeeded = deleteQueue(m_impl->getPublisherQueueName()) && succeeded;
+	bool succeeded = true;
+	if (!m_impl->getConsumerQueueName().empty())
+		succeeded = deleteQueue(m_impl->getConsumerQueueName());
+	if (!m_impl->getPublisherQueueName().empty())
+		succeeded = deleteQueue(m_impl->getPublisherQueueName())
+		  && succeeded;
 	m_impl->m_isConsumerQueueDeclared = false;
 	m_impl->m_isPublisherQueueDeclared = false;
 	return succeeded;
