@@ -1354,9 +1354,8 @@ HatoholError DBTablesHost::syncHostgroups(
 	const HostgroupVect &currHostgroups(_currHostgroups);
 
 	map<HostgroupIdType, const Hostgroup *> currValidHostgroupMap;
-	for (auto hostgroup : currHostgroups) {
-		const Hostgroup &svHostgroup = hostgroup;
-		currValidHostgroupMap[svHostgroup.idInServer] = &svHostgroup;
+	for (auto& hostgroup : currHostgroups) {
+		currValidHostgroupMap[hostgroup.idInServer] = &hostgroup;
 	}
 
 	// Pick up hostgroups to be added.
