@@ -281,17 +281,30 @@ static bool hapProcessLogger(JSONParser &parser)
 	return true;
 }
 
+bool setResponseId(JSONParser &parser, JSONBuilder &builder)
+{
+	bool succeeded;
+
+	// TODO: Detect the value type
+	int64_t numId;
+	succeeded = parser.read("id", numId);
+	if (succeeded) {
+		builder.add("id", numId);
+		return succeeded;
+	}
+
+	return succeeded;
+}
+
 string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
   const string &params)
 {
 	ValidProcedureNameVect validProcedureNameVect;
 	JSONParser parser(params);
-	int64_t rpcId;
 	parser.startObject("params");
 	bool succeeded = parseExchangeProfileParams(parser, validProcedureNameVect);
 	hapProcessLogger(parser);
 	parser.endObject(); // params
-	parser.read("id", rpcId);
 
 	JSONBuilder agent;
 	agent.startObject();
@@ -307,7 +320,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	}
 	agent.endArray(); // procedures
 	agent.endObject(); // result
-	agent.add("id", rpcId);
+	setResponseId(parser, agent);
 	agent.endObject();
 	return agent.generate();
 }
@@ -316,8 +329,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
   const string &params)
 {
 	JSONParser parser(params);
-	int64_t rpcId;
-	parser.read("id", rpcId);
 
 	JSONBuilder agent;
 	agent.startObject();
@@ -334,7 +345,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 	agent.add("retryIntervalSec", serverInfo.retryIntervalSec);
 	agent.add("extendedInfo", serverInfo.extendedInfo);
 	agent.endObject(); // result
-	agent.add("id", rpcId);
+	setResponseId(parser, agent);
 	agent.endObject();
 	return agent.generate();
 }
@@ -369,8 +380,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(const string &params)
 	LastInfoType lastInfoType;
 	JSONParser parser(params);
 	bool succeeded = parseLastInfoParams(parser, lastInfoType);
-	int64_t rpcId;
-	parser.read("id", rpcId);
 
 	option.setLastInfoType(lastInfoType);
 	option.setTargetServerId(m_impl->m_serverInfo.id);
@@ -386,7 +395,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(const string &params)
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("result", lastInfoValue);
-	agent.add("id", rpcId);
+	setResponseId(parser, agent);
 	agent.endObject();
 	return agent.generate();
 }
@@ -436,14 +445,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(const string &params)
 	// TODO: callback
 
 	parser.endObject(); // params
-	int64_t rpcId;
-	parser.read("id", rpcId);
 
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("result", "");
-	agent.add("id", rpcId);
+	setResponseId(parser, agent);
 	agent.endObject();
 	return agent.generate();
 }
@@ -491,14 +498,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	// TODO: callback
 
 	parser.endObject(); // params
-	int64_t rpcId;
-	parser.read("id", rpcId);
 
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("result", "");
-	agent.add("id", rpcId);
+	setResponseId(parser, agent);
 	agent.endObject();
 	return agent.generate();
 }
@@ -567,14 +572,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	parser.endObject(); // params
-	int64_t rpcId;
-	parser.read("id", rpcId);
 
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("result", result);
-	agent.add("id", rpcId);
+	setResponseId(parser, agent);
 	agent.endObject();
 	return agent.generate();
 }
@@ -625,14 +628,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroups(
 	dataStore->upsertHostgroups(hostgroupVect);
 
 	parser.endObject(); // params
-	int64_t rpcId;
-	parser.read("id", rpcId);
 
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("result", result);
-	agent.add("id", rpcId);
+	setResponseId(parser, agent);
 	agent.endObject();
 	return agent.generate();
 }
@@ -693,14 +694,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroupMembership(
 	dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
 
 	parser.endObject(); // params
-	int64_t rpcId;
-	parser.read("id", rpcId);
 
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("result", result);
-	agent.add("id", rpcId);
+	setResponseId(parser, agent);
 	agent.endObject();
 	return agent.generate();
 }
@@ -810,14 +809,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers(
 	}
 
 	parser.endObject(); // params
-	int64_t rpcId;
-	parser.read("id", rpcId);
 
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("result", result);
-	agent.add("id", rpcId);
+	setResponseId(parser, agent);
 	agent.endObject();
 	return agent.generate();
 }
@@ -910,14 +907,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
 	}
 
 	parser.endObject(); // params
-	int64_t rpcId;
-	parser.read("id", rpcId);
 
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("result", result);
-	agent.add("id", rpcId);
+	setResponseId(parser, agent);
 	agent.endObject();
 	return agent.generate();
 }
@@ -971,14 +966,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostParents(
 	}
 
 	parser.endObject(); // params
-	int64_t rpcId;
-	parser.read("id", rpcId);
 
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
 	agent.add("result", result);
-	agent.add("id", rpcId);
+	setResponseId(parser, agent);
 	agent.endObject();
 	return agent.generate();
 }
