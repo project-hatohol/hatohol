@@ -454,10 +454,6 @@ bool AMQPConnection::initializeConnection(void)
 		return false;
 	if (!m_impl->openChannel())
 		return false;
-#if 0
-	if (!m_impl->declareQueue(getConsumerQueueName()))
-		return false;
-#endif
 	return true;
 }
 
