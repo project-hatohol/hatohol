@@ -52,6 +52,7 @@ struct AMQPConnectionInfo::Impl {
 		m_URLBuf = NULL;
 		amqp_default_connection_info(&m_parsedURL);
 		m_consumerQueueName = rhs.m_consumerQueueName;
+		m_publisherQueueName = rhs.m_publisherQueueName;
 		m_timeout = rhs.m_timeout;
 		m_tlsCertificatePath = rhs.m_tlsCertificatePath;
 		m_tlsKeyPath = rhs.m_tlsKeyPath;
@@ -66,6 +67,7 @@ struct AMQPConnectionInfo::Impl {
 		m_URLBuf = NULL;
 		amqp_default_connection_info(&m_parsedURL);
 		m_consumerQueueName = rhs.m_consumerQueueName;
+		m_publisherQueueName = rhs.m_publisherQueueName;
 		m_timeout = rhs.m_timeout;
 		m_tlsCertificatePath = rhs.m_tlsCertificatePath;
 		m_tlsKeyPath = rhs.m_tlsKeyPath;
