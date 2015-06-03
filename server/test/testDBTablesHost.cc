@@ -1346,7 +1346,7 @@ void test_syncHostgroupMembers(void)
 	  tableProfileHostgroupMember.name,
 	  coldef[IDX_HOSTGROUP_MEMBER_SERVER_ID].columnName,
 	  targetServerId,
-	  coldef[IDX_HOSTGROUP_MEMBER_SERVER_ID].columnName);
+	  coldef[IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER].columnName);
 	assertDBContent(&dbAgent, statement, expect);
 }
 } // namespace testDBTablesHost
