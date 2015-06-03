@@ -504,13 +504,9 @@ AMQPConnectionInfo &getConnectionInfo(void)
 	return *connectionInfo;
 }
 
-void sendMessage(const string body)
+void omitIfNoURL(void)
 {
-	AMQPPublisher publisher(getConnectionInfo());
-	AMQPJSONMessage message;
-	message.body = body;
-	publisher.setMessage(message);
-	publisher.publish();
+	getConnectionInfo();
 }
 
 GTimer *startTimer(void)
@@ -521,7 +517,16 @@ GTimer *startTimer(void)
 	return timer;
 }
 
-void recieveReply(string &messageBody)
+void sendMessage(const string body)
+{
+	AMQPPublisher publisher(getConnectionInfo());
+	AMQPJSONMessage message;
+	message.body = body;
+	publisher.setMessage(message);
+	publisher.publish();
+}
+
+string recieveReply(void)
 {
 	class TestMessageHandler : public AMQPMessageHandler {
 	public:
@@ -540,10 +545,9 @@ void recieveReply(string &messageBody)
 
 		AtomicValue<bool> m_gotMessage;
 		AMQPMessage m_message;
-	};
-
-	TestMessageHandler handler;
+	} handler;
 	AMQPConsumer consumer(getConnectionInfo(), &handler);
+
 	consumer.start();
 	gdouble timeout = 2.0, elapsed = 0.0;
 	GTimer *timer = startTimer();
@@ -553,17 +557,17 @@ void recieveReply(string &messageBody)
 	}
 	consumer.exitSync();
 
-	messageBody = handler.m_message.body;
+	return handler.m_message.body;
 }
 
 void test_exchangeProfile(void)
 {
-	getConnectionInfo();
+	omitIfNoURL();
 
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), true);
 
-	string message =
+	sendMessage(
 		"{"
 		"  \"id\": 1,"
 		"  \"params\": {"
@@ -574,8 +578,7 @@ void test_exchangeProfile(void)
 		"  },"
 		"  \"method\": \"exchangeProfile\","
 		"  \"jsonrpc\": \"2.0\""
-		"}";
-	sendMessage(message);
+		"}");
 
 	std::string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":{\"name\":\"exampleName\","
@@ -585,8 +588,7 @@ void test_exchangeProfile(void)
 		  "\"updateHostGroupMembership\",\"updateTriggers\","
 		  "\"updateEvents\",\"updateHostParent\",\"updateArmInfo\""
 		"]},\"id\":1}";
-	string actual;
-	recieveReply(actual);
+	string actual = recieveReply();
 	cppcut_assert_equal(expected, actual);
 }
 
