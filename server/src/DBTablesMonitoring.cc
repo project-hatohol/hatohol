@@ -1669,9 +1669,12 @@ HatoholError DBTablesMonitoring::syncTriggers(TriggerInfoList &svTriggerInfoList
 		TriggerInfo invalidTrigger = *invalidTriggerPair.second;
 		invalidTriggerIdList.push_back(invalidTrigger.id);
 	}
+	HatoholError err = HTERR_OK;
 	if (invalidTriggerIdList.size() > 0)
-		return deleteTriggerInfo(invalidTriggerIdList, serverId);
-	return HTERR_OK;
+		err = deleteTriggerInfo(invalidTriggerIdList, serverId);
+	if (serverTriggers.size() > 0)
+		addTriggerInfoList(serverTriggers);
+	return err;
 }
 
 void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)
