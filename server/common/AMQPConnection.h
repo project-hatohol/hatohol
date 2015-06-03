@@ -70,6 +70,7 @@ protected:
 	bool purgeQueue(const std::string queueName);
 	bool deleteQueue(const std::string queueName);
 	std::string getConsumerQueueName(void);
+	std::string getPublisherQueueName(void);
 	void disposeConnection(void);
 	void logErrorResponse(const char *context,
 			      const amqp_rpc_reply_t &reply);

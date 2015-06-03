@@ -189,11 +189,21 @@ public:
 		return m_info.getTimeout();
 	}
 
+	bool hasConsumerQueueName()
+	{
+		return !m_info.getConsumerQueueName().empty();
+	}
+
+	bool hasPublisherQueueName()
+	{
+		return !m_info.getPublisherQueueName().empty();
+	}
+
 	const string &getConsumerQueueName()
 	{
 		const string &queueName = m_info.getConsumerQueueName();
 		if (queueName.empty())
-			MLPL_WARN("The consumerQueueName isn't set!");
+			MLPL_WARN("The consumerQueueName isn't set!\n");
 		return queueName;
 	}
 
@@ -201,7 +211,7 @@ public:
 	{
 		const string &queueName = m_info.getPublisherQueueName();
 		if (queueName.empty())
-			MLPL_WARN("The publisherQueueName isn't set!");
+			MLPL_WARN("The publisherQueueName isn't set!\n");
 		return queueName;
 	}
 
@@ -492,6 +502,11 @@ string AMQPConnection::getConsumerQueueName(void)
 	return m_impl->getConsumerQueueName();
 }
 
+string AMQPConnection::getPublisherQueueName(void)
+{
+	return m_impl->getPublisherQueueName();
+}
+
 void AMQPConnection::disposeConnection(void)
 {
 	return m_impl->disposeConnection();
@@ -605,7 +620,7 @@ bool AMQPConnection::publish(const AMQPMessage &message)
 
 	const amqp_bytes_t exchange = amqp_empty_bytes;
 	const amqp_bytes_t queue =
-		amqp_cstring_bytes(getConsumerQueueName().c_str());
+		amqp_cstring_bytes(getPublisherQueueName().c_str());
 	const amqp_boolean_t no_mandatory = false;
 	const amqp_boolean_t no_immediate = false;
 	int response;
@@ -641,9 +656,9 @@ bool AMQPConnection::publish(const AMQPMessage &message)
 bool AMQPConnection::purgeAllQueues(void)
 {
 	bool succeeded = true;
-	if (!m_impl->getConsumerQueueName().empty())
+	if (!m_impl->hasConsumerQueueName())
 		succeeded = purgeQueue(m_impl->getConsumerQueueName());
-	if (!m_impl->getPublisherQueueName().empty())
+	if (!m_impl->hasPublisherQueueName())
 		succeeded = purgeQueue(m_impl->getPublisherQueueName())
 		  && succeeded;
 	return succeeded;
@@ -673,9 +688,9 @@ bool AMQPConnection::purgeQueue(const string queueName)
 bool AMQPConnection::deleteAllQueues(void)
 {
 	bool succeeded = true;
-	if (!m_impl->getConsumerQueueName().empty())
+	if (!m_impl->hasConsumerQueueName())
 		succeeded = deleteQueue(m_impl->getConsumerQueueName());
-	if (!m_impl->getPublisherQueueName().empty())
+	if (!m_impl->hasPublisherQueueName())
 		succeeded = deleteQueue(m_impl->getPublisherQueueName())
 		  && succeeded;
 	m_impl->m_isConsumerQueueDeclared = false;
