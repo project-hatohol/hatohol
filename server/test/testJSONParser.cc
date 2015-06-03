@@ -256,7 +256,7 @@ void data_valueType(void)
 		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_UNKNOWN,
 		       "json", G_TYPE_STRING, "{\"hoge\":123}",
 		       NULL);
-	gcut_add_datum("invalie json",
+	gcut_add_datum("invalid json",
 		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_UNKNOWN,
 		       "json", G_TYPE_STRING, "{hoge:123}",
 		       NULL);
