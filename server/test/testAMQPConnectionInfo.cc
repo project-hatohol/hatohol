@@ -95,7 +95,7 @@ namespace setter {
 	{
 		const string queueName("hatohol-test-consumer");
 		AMQPConnectionInfo info;
-		info.setConsumerQueueName("hatohol-test-consumer");
+		info.setConsumerQueueName(queueName);
 		cppcut_assert_equal(queueName, info.getConsumerQueueName());
 	}
 
@@ -103,7 +103,7 @@ namespace setter {
 	{
 		const string queueName("hatohol-test-publisher");
 		AMQPConnectionInfo info;
-		info.setPublisherQueueName("hatohol-test-publisher");
+		info.setPublisherQueueName(queueName);
 		cppcut_assert_equal(queueName, info.getPublisherQueueName());
 	}
 }
