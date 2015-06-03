@@ -1389,11 +1389,9 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 	if (err != HTERR_OK)
 		return err;
 	const HostgroupMemberVect &currHostgroupMembers(_currHostgroupMembers);
-	// TODO: more strict valid hostgroup sampling
 	map<GenericIdType, const HostgroupMember *> currValidHostgroupMemberMap;
-	for (auto hostgroupMember : currHostgroupMembers) {
-		const HostgroupMember &svHostgroupMember = hostgroupMember;
-		currValidHostgroupMemberMap[svHostgroupMember.id] = &svHostgroupMember;
+	for (auto& hostgroupMember : currHostgroupMembers) {
+		currValidHostgroupMemberMap[hostgroupMember.id] = &hostgroupMember;
 	}
 
 	//Pick up hostgroupMember to be added.
@@ -1402,7 +1400,6 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 		if(currValidHostgroupMemberMap.erase(newSvHostgroupMember.id) >= 1) {
 			continue;
 		}
-
 		serverHostgroupMembers.push_back(move(newSvHostgroupMember));
 	}
 
