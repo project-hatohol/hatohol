@@ -53,34 +53,48 @@ const int JSON_RPC_INTERNAL_ERROR = -32603;
 const int JSON_RPC_SERVER_ERROR_BEGIN = -32000;
 const int JSON_RPC_SERVER_ERROR_END = -32099;
 
-enum HAPI2ProcedureType {
-	// Sv, Cl
-	HAPI2_EXCHANGE_PROFILE,
-	// Sv
-	HAPI2_MONITORING_SERVER_INFO,
-	HAPI2_LAST_INFO,
-	HAPI2_PUT_ITEMS,
-	HAPI2_PUT_HISTORY,
-	HAPI2_UPDATE_HOSTS,
-	HAPI2_UPDATE_HOST_GROUPS,
-	HAPI2_UPDATE_HOST_GROUP_MEMEBRSHIP,
-	HAPI2_UPDATE_TRIGGERS,
-	HAPI2_UPDATE_EVENTS,
-	HAPI2_UPDATE_HOST_PARENTS,
-	HAPI2_UPDATE_ARM_INFO,
-	// Cl
-	HAPI2_FETCH_ITEMS,
-	HAPI2_FETCH_HISTORY,
-	HAPI2_FETCH_TRIGGERS,
-	HAPI2_FETCH_EVENTS,
+typedef std::string HAPI2ProcedureType;
 
-	// Client procedure type
-	HAPI2_PROCEDURE_TYPE_HAP,
-	// Invalid Type
-	HAPI2_PROCEDURE_TYPE_BAD,
-	// Sv -> Cl
-	NUM_HAPI2_PROCEDURE
-};
+// Sv, Cl
+const HAPI2ProcedureType HAPI2_EXCHANGE_PROFILE
+  = "exchangeProfile";
+// Sv
+const HAPI2ProcedureType HAPI2_MONITORING_SERVER_INFO
+  = "getMonitoringServerInfo";
+const HAPI2ProcedureType HAPI2_LAST_INFO
+  = "getLastInfo";
+const HAPI2ProcedureType HAPI2_PUT_ITEMS
+  = "putItems";
+const HAPI2ProcedureType HAPI2_PUT_HISTORY
+  = "putHistory";
+const HAPI2ProcedureType HAPI2_UPDATE_HOSTS
+  = "updateHosts";
+const HAPI2ProcedureType HAPI2_UPDATE_HOST_GROUPS
+  = "updateHostGroups";
+const HAPI2ProcedureType HAPI2_UPDATE_HOST_GROUP_MEMEBRSHIP
+  = "updateHostGroupMembership";
+const HAPI2ProcedureType HAPI2_UPDATE_TRIGGERS
+  = "updateTriggers";
+const HAPI2ProcedureType HAPI2_UPDATE_EVENTS
+  = "updateEvents";
+const HAPI2ProcedureType HAPI2_UPDATE_HOST_PARENTS
+  = "updateHostParent";
+const HAPI2ProcedureType HAPI2_UPDATE_ARM_INFO
+  = "updateArmInfo";
+// Cl
+const HAPI2ProcedureType HAPI2_FETCH_ITEMS
+  = "fetchItems";
+const HAPI2ProcedureType HAPI2_FETCH_HISTORY
+  = "fetchHistory";
+const HAPI2ProcedureType HAPI2_FETCH_TRIGGERS
+  = "fetchTriggers";
+const HAPI2ProcedureType HAPI2_FETCH_EVENTS
+  = "fetchEvents";
+
+// Client procedure type
+const HAPI2ProcedureType HAPI2_PROCEDURE_TYPE_HAP  = "";
+// Invalid Type
+const HAPI2ProcedureType HAPI2_PROCEDURE_TYPE_BAD = "";
 
 typedef std::vector<std::string>               ValidProcedureNameVect;
 typedef ValidProcedureNameVect::iterator       ValidProcedureNameVectIterator;
@@ -114,7 +128,7 @@ public:
 	virtual void send(const std::string &procedure);
 
 protected:
-	typedef std::map<uint16_t, ProcedureHandler> ProcedureHandlerMap;
+	typedef std::map<HAPI2ProcedureType, ProcedureHandler> ProcedureHandlerMap;
 	typedef ProcedureHandlerMap::iterator	     ProcedureHandlerMapIterator;
 	typedef ProcedureHandlerMap::const_iterator  ProcedureHandlerMapConstIterator;
 
