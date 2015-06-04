@@ -283,14 +283,35 @@ static bool hapProcessLogger(JSONParser &parser)
 
 bool setResponseId(JSONParser &parser, JSONBuilder &builder)
 {
-	bool succeeded;
+	bool succeeded = false;
 
 	// TODO: Detect the value type
-	int64_t numId;
-	succeeded = parser.read("id", numId);
-	if (succeeded) {
-		builder.add("id", numId);
-		return succeeded;
+	switch (parser.getValueType("id")) {
+	case JSONParser::VALUE_TYPE_INT64:
+	{
+		int64_t numId;
+		succeeded = parser.read("id", numId);
+		if (succeeded)
+			builder.add("id", numId);
+		break;
+	}
+	case JSONParser::VALUE_TYPE_STRING:
+	{
+		string stringId;
+		succeeded = parser.read("id", stringId);
+		if (succeeded)
+			builder.add("id", stringId);
+		break;
+	}
+	default:
+	{
+		break;
+	}
+	}
+
+	if (!succeeded) {
+		MLPL_WARN("Cannot find valid id in the request!");
+		builder.addNull("id");
 	}
 
 	return succeeded;
