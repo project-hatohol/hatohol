@@ -217,10 +217,12 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchItem(Closure0 *closure)
 		builder.startArray("hostIds");
 		builder.endArray();
 	}
-	// TODO: Use random number and keep it until receiving a response
-	builder.add("fetchId", "1");
+	std::mt19937 random = getRandomEngine();
+	// TODO: keep fetchId & id until receiving response
+	uint64_t fetchId = random(), id = random();
+	builder.add("fetchId", fetchId);
 	builder.endObject();
-	builder.add("id", 1); // TODO: Use random number
+	builder.add("id", id);
 	builder.endObject();
 	send(builder.generate());
 	return true;
