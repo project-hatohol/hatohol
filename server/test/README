@@ -32,8 +32,8 @@ To suppress Hatohol's verbose log, adding MLPL_LOGGER_LEVEL=WARN is recommended:
 
     $ MLPL_LOGGER_LEVEL=WARN ./run-test.sh
 
-If you want enable tests concerned with RabbitMQ (HAPI JSON and HAPI2.0), please
-specify the URL of it by TEST_AMQP_URL:
+If you want to enable tests concerned with RabbitMQ (HAPI JSON and HAPI2.0),
+please specify the URL of it by TEST_AMQP_URL:
 
     $ TEST_AMQP_URL="amqp://hatohol:hatohol@localhost:5672/hatohol" ./run-test.sh
 
