@@ -70,18 +70,18 @@ protected:
 	void upsertLastInfo(std::string lastInfoValue, LastInfoType type);
 
 private:
-	std::string procedureHandlerExchangeProfile(const std::string &params);
-	std::string procedureHandlerMonitoringServerInfo(const std::string &params);
-	std::string procedureHandlerLastInfo(const std::string &params);
-	std::string procedureHandlerPutItems(const std::string &params);
-	std::string procedureHandlerPutHistory(const std::string &params);
-	std::string procedureHandlerUpdateHosts(const std::string &params);
-	std::string procedureHandlerUpdateHostGroups(const std::string &params);
-	std::string procedureHandlerUpdateHostGroupMembership(const std::string &params);
-	std::string procedureHandlerUpdateTriggers(const std::string &params);
-	std::string procedureHandlerUpdateEvents(const std::string &params);
-	std::string procedureHandlerUpdateHostParents(const std::string &params);
-	std::string procedureHandlerUpdateArmInfo(const std::string &params);
+	std::string procedureHandlerExchangeProfile(JSONParser &parser);
+	std::string procedureHandlerMonitoringServerInfo(JSONParser &parser);
+	std::string procedureHandlerLastInfo(JSONParser &parser);
+	std::string procedureHandlerPutItems(JSONParser &parser);
+	std::string procedureHandlerPutHistory(JSONParser &parser);
+	std::string procedureHandlerUpdateHosts(JSONParser &parser);
+	std::string procedureHandlerUpdateHostGroups(JSONParser &parser);
+	std::string procedureHandlerUpdateHostGroupMembership(JSONParser &parser);
+	std::string procedureHandlerUpdateTriggers(JSONParser &parser);
+	std::string procedureHandlerUpdateEvents(JSONParser &parser);
+	std::string procedureHandlerUpdateHostParents(JSONParser &parser);
+	std::string procedureHandlerUpdateArmInfo(JSONParser &parser);
 
 public:
 	static bool parseTimeStamp(const std::string &timeStampString,

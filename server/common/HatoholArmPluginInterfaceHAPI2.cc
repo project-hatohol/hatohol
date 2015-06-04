@@ -70,7 +70,6 @@ public:
 
 		parser.read("method", methodName);
 		response.body = m_hapi2.interpretHandler(methodName,
-							 message.body,
 							 parser);
 		sendResponse(connection, response);
 
@@ -218,7 +217,7 @@ void HatoholArmPluginInterfaceHAPI2::registerProcedureHandler(
 }
 
 string HatoholArmPluginInterfaceHAPI2::interpretHandler(
-  const HAPI2ProcedureType &type, const string json, JSONParser &parser)
+  const HAPI2ProcedureType &type, JSONParser &parser)
 {
 	ProcedureHandlerMapConstIterator it =
 	  m_impl->procedureHandlerMap.find(type);
@@ -230,7 +229,7 @@ string HatoholArmPluginInterfaceHAPI2::interpretHandler(
 					  message, &parser);
 	}
 	ProcedureHandler handler = it->second;
-	return (this->*handler)(json);
+	return (this->*handler)(parser);
 }
 
 void HatoholArmPluginInterfaceHAPI2::start(void)

@@ -110,7 +110,7 @@ public:
 
 	HatoholArmPluginInterfaceHAPI2(const CommunicationMode mode = MODE_PLUGIN);
 	typedef std::string (HatoholArmPluginInterfaceHAPI2::*ProcedureHandler)
-	  (const std::string &params);
+	  (JSONParser &parser);
 
 	/**
 	 * Register a procedure receive callback method.
@@ -121,9 +121,8 @@ public:
 	 * @param handler A receive handler.
 	 */
 	void registerProcedureHandler(const HAPI2ProcedureType &type,
-                                      ProcedureHandler handler);
+				      ProcedureHandler handler);
 	std::string interpretHandler(const HAPI2ProcedureType &type,
-				     const std::string json,
 				     JSONParser &parser);
 	virtual void start(void);
 	virtual void send(const std::string &procedure);
