@@ -310,6 +310,7 @@ bool setResponseId(JSONParser &parser, JSONBuilder &builder)
 	}
 
 	if (!succeeded) {
+		// TODO: Should return an error response
 		MLPL_WARN("Cannot find valid id in the request!");
 		builder.addNull("id");
 	}
