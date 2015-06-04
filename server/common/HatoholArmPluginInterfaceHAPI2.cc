@@ -68,9 +68,7 @@ public:
 			return true;
 		}
 
-		parser.read("method", methodName);
-		response.body = m_hapi2.interpretHandler(methodName,
-							 parser);
+		response.body = m_hapi2.interpretHandler(methodName, parser);
 		sendResponse(connection, response);
 
 		return true;
