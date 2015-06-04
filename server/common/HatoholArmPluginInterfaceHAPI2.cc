@@ -240,7 +240,6 @@ bool HatoholArmPluginInterfaceHAPI2::setResponseId(
 {
 	bool succeeded = false;
 
-	// TODO: Detect the value type
 	switch (requestParser.getValueType("id")) {
 	case JSONParser::VALUE_TYPE_INT64:
 	{
