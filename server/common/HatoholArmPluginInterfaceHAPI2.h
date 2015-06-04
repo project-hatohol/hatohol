@@ -20,12 +20,13 @@
 #ifndef HatoholArmPluginInterfaceHAPI2_h
 #define HatoholArmPluginInterfaceHAPI2_h
 
-#include <json-glib/json-glib.h>
 
 #include <string>
 #include <random>
 #include "HatoholThreadBase.h"
 #include "HatoholException.h"
+#include "JSONParser.h"
+#include "JSONBuilder.h"
 #include "ItemDataPtr.h"
 #include "ItemGroupPtr.h"
 #include "ItemTablePtr.h"
@@ -104,10 +105,13 @@ protected:
 
 	std::mt19937 getRandomEngine(void);
 
+	static bool setResponseId(JSONParser &requestParser,
+				  JSONBuilder &responseBuilder);
 	std::string buildErrorResponse(const int errorCode,
-				       const std::string errorMessage);
+				       const std::string errorMessage,
+				       JSONParser *requestParser = NULL);
 
-        virtual ~HatoholArmPluginInterfaceHAPI2();
+	virtual ~HatoholArmPluginInterfaceHAPI2();
 
 private:
 	class AMQPHAPI2MessageHandler;

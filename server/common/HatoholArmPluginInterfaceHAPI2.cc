@@ -91,9 +91,10 @@ private:
 			for (auto errorMessage : errors)
 				MLPL_ERR("%s\n", errorMessage.c_str());
 			string error = StringUtils::sprintf("Method not found");
+			JSONParser parser(body);
 			message.body =
 			  m_hapi2.buildErrorResponse(JSON_RPC_METHOD_NOT_FOUND,
-						     error);
+						     error, &parser);
 		}
 		bool succeeded = connection.publish(message);
 		if (!succeeded) {
@@ -189,21 +190,6 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		}
 		m_consumer->start();
 	}
-
-	string buildErrorResponse(const int errorCode,
-				  const string errorMessage)
-	{
-		JSONBuilder agent;
-		agent.startObject();
-		agent.add("jsonrpc", "2.0");
-		agent.add("id", 1); // TODO: Use random number
-		agent.startObject("error");
-		agent.add("code", errorCode);
-		agent.add("message", errorMessage);
-		agent.endObject(); // error
-		agent.endObject();
-		return agent.generate();
-	}
 };
 
 HatoholArmPluginInterfaceHAPI2::HatoholArmPluginInterfaceHAPI2(
@@ -269,8 +255,58 @@ mt19937 HatoholArmPluginInterfaceHAPI2::getRandomEngine(void)
 	return engine;
 }
 
-string HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-  const int errorCode, const string errorMessage)
+bool HatoholArmPluginInterfaceHAPI2::setResponseId(
+  JSONParser &parser, JSONBuilder &builder)
 {
-	return m_impl->buildErrorResponse(errorCode, errorMessage);
+	bool succeeded = false;
+
+	// TODO: Detect the value type
+	switch (parser.getValueType("id")) {
+	case JSONParser::VALUE_TYPE_INT64:
+	{
+		int64_t numId;
+		succeeded = parser.read("id", numId);
+		if (succeeded)
+			builder.add("id", numId);
+		break;
+	}
+	case JSONParser::VALUE_TYPE_STRING:
+	{
+		string stringId;
+		succeeded = parser.read("id", stringId);
+		if (succeeded)
+			builder.add("id", stringId);
+		break;
+	}
+	default:
+	{
+		break;
+	}
+	}
+
+	if (!succeeded) {
+		// TODO: Should return an error response
+		MLPL_WARN("Cannot find valid id in the request!");
+		builder.addNull("id");
+	}
+
+	return succeeded;
+}
+
+string HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+  const int errorCode, const string errorMessage, JSONParser *requestParser)
+{
+	JSONBuilder agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	if (requestParser)
+		setResponseId(*requestParser, agent);
+	else
+		agent.addNull("id");
+	agent.startObject("error");
+	agent.add("code", errorCode);
+	agent.add("message", errorMessage);
+	agent.endObject(); // error
+	agent.endObject();
+	return agent.generate();
 }

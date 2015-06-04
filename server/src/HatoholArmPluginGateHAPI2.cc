@@ -283,43 +283,6 @@ static bool hapProcessLogger(JSONParser &parser)
 	return true;
 }
 
-bool setResponseId(JSONParser &parser, JSONBuilder &builder)
-{
-	bool succeeded = false;
-
-	// TODO: Detect the value type
-	switch (parser.getValueType("id")) {
-	case JSONParser::VALUE_TYPE_INT64:
-	{
-		int64_t numId;
-		succeeded = parser.read("id", numId);
-		if (succeeded)
-			builder.add("id", numId);
-		break;
-	}
-	case JSONParser::VALUE_TYPE_STRING:
-	{
-		string stringId;
-		succeeded = parser.read("id", stringId);
-		if (succeeded)
-			builder.add("id", stringId);
-		break;
-	}
-	default:
-	{
-		break;
-	}
-	}
-
-	if (!succeeded) {
-		// TODO: Should return an error response
-		MLPL_WARN("Cannot find valid id in the request!");
-		builder.addNull("id");
-	}
-
-	return succeeded;
-}
-
 string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
   const string &params)
 {
