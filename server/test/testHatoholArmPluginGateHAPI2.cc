@@ -163,12 +163,12 @@ void test_procedureHandlerExchangeProfile(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
-	string params =
+	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
 		" \"params\":{\"procedures\":[\"getMonitoringServerInfo\","
 		" \"getLastInfo\", \"putItems\", \"updateArmInfo\", \"fetchItems\"],"
 		" \"name\":\"exampleName\"}, \"id\":123}";
-	JSONParser parser(params);
+	JSONParser parser(json);
 	string actual = gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":{\"name\":\"exampleName\","
@@ -185,10 +185,10 @@ void test_procedureHandlerMonitoringServerInfo(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
-	string params =
+	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"getMonitoringServerInfo\","
 		" \"params\":\"\", \"id\":456}";
-	JSONParser parser(params);
+	JSONParser parser(json);
 	string actual = gate->interpretHandler(HAPI2_MONITORING_SERVER_INFO,
 					       parser);
 	string expected =
@@ -241,11 +241,11 @@ void test_procedureHandlerLastInfo(gconstpointer data)
 	loadTestDBLastInfo();
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(serverInfo, false), false);
-	string params =
+	string json =
 	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\", \"method\":\"getLastInfo\","
 			       " \"params\":\"%s\", \"id\":789}",
 			       gcut_data_get_string(data, "params"));
-	JSONParser parser(params);
+	JSONParser parser(json);
 	string actual = gate->interpretHandler(HAPI2_LAST_INFO, parser);
 	string expected =
 	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":789}",
@@ -257,7 +257,7 @@ void test_procedureHandlerPutItems(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
-	string params =
+	string json =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
 		" \"params\":{\"items\":[{\"itemId\":\"1\", \"hostId\":\"1\","
 		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175523\","
@@ -268,7 +268,7 @@ void test_procedureHandlerPutItems(void)
 		" \"lastValue\":\"example value\","
 		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"}],"
 		" \"fetchId\":\"1\"}, \"id\":83241245}";
-	JSONParser parser(params);
+	JSONParser parser(json);
 	string actual = gate->interpretHandler(HAPI2_PUT_ITEMS, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"\",\"id\":83241245}";
@@ -280,14 +280,14 @@ void test_procedureHandlerPutHistory(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
-	string params =
+	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
 		" \"params\":{\"itemId\":\"1\","
 		" \"histories\":[{\"value\":\"exampleValue\","
 		" \"time\":\"20150323113032.000000000\"},"
 		"{\"value\":\"exampleValue2\",\"time\":\"20150323113033.000000000\"}],"
 		" \"fetchId\":\"1\"}, \"id\":-83241245}";
-	JSONParser parser(params);
+	JSONParser parser(json);
 	string actual = gate->interpretHandler(HAPI2_PUT_HISTORY, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"\",\"id\":-83241245}";
@@ -298,12 +298,12 @@ void test_procedureHandlerUpdateHosts(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
-	string params =
+	string json =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"updateHosts\", \"params\":"
 		"{\"hosts\":[{\"hostId\":\"1\", \"hostName\":\"exampleHostName1\"}],"
 		" \"updateType\":\"UPDATED\",\"lastInfo\":\"201504091052\"},"
 		" \"id\":\"deadbeaf\"}";
-	JSONParser parser(params);
+	JSONParser parser(json);
 	string actual = gate->interpretHandler(HAPI2_UPDATE_HOSTS, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"deadbeaf\"}";
@@ -314,12 +314,12 @@ void test_procedureHandlerUpdateHostGroups(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
-	string params =
+	string json =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"updateHostGroups\","
 		" \"params\":{\"hostGroups\":[{\"groupId\":\"1\","
 		" \"groupName\":\"Group2\"}],\"updateType\":\"ALL\","
 		" \"lastInfo\":\"20150409104900\"}, \"id\":\"123abc\"}";
-	JSONParser parser(params);
+	JSONParser parser(json);
 	string actual = gate->interpretHandler(HAPI2_UPDATE_HOST_GROUPS,
 					       parser);
 	string expected =
@@ -331,13 +331,13 @@ void test_procedureHandlerUpdateHostGroupMembership(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
-	string params =
+	string json =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"updateHostGroupMembership\","
 		" \"params\":{\"hostGroupsMembership\":[{\"hostId\":\"1\","
 		" \"groupIds\":[\"1\", \"2\", \"5\"]}],"
 		" \"lastInfo\":\"20150409105600\", \"updateType\":\"ALL\"},"
 		" \"id\":9342}";
-	JSONParser parser(params);
+	JSONParser parser(json);
 	string actual = gate->interpretHandler(
 	  HAPI2_UPDATE_HOST_GROUP_MEMEBRSHIP, parser);
 	string expected =
@@ -349,7 +349,7 @@ void test_procedureHandlerUpdateTriggers(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
-	string params =
+	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"updateTriggers\","
 		" \"params\":{\"updateType\":\"UPDATED\","
 		" \"lastInfo\":\"201504061606\", \"fetchId\":\"1\","
@@ -358,7 +358,7 @@ void test_procedureHandlerUpdateTriggers(void)
 		" \"hostId\":\"1\", \"hostName\":\"exampleName\","
 		" \"brief\":\"example brief\","
 		" \"extendedInfo\": \"sample extended info\"}]},\"id\":34031}";
-	JSONParser parser(params);
+	JSONParser parser(json);
 	string actual = gate->interpretHandler(HAPI2_UPDATE_TRIGGERS, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":34031}";
@@ -377,7 +377,7 @@ void test_procedureHandlerUpdateEvents(gconstpointer data)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
-	string params =
+	string json =
 	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\", \"method\":\"updateEvents\","
 			       " \"params\":{\"events\":[{\"eventId\":\"1\","
 			       " \"time\":\"20150323151300\", \"type\":\"GOOD\","
@@ -388,7 +388,7 @@ void test_procedureHandlerUpdateEvents(gconstpointer data)
 			       " \"lastInfo\":\"20150401175900\","
 			       " \"fetchId\":\"1\"},\"id\":2374234}",
 			       gcut_data_get_string(data, "triggerIdContents"));
-	JSONParser parser(params);
+	JSONParser parser(json);
 	string actual = gate->interpretHandler(HAPI2_UPDATE_EVENTS, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":2374234}";
@@ -399,14 +399,14 @@ void test_procedureHandlerUpdateHostParents(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
-	string params =
+	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"updateHostParent\","
 		" \"params\":{\"hostParents\":"
 		" [{\"childHostId\":\"12\",\"parentHostId\":\"10\"},"
 		" {\"childHostId\":\"11\",\"parentHostId\":\"20\"}],"
 		" \"updateType\":\"ALL\", \"lastInfo\":\"201504152246\"},"
 		" \"id\":6234093}";
-	JSONParser parser(params);
+	JSONParser parser(json);
 	string actual = gate->interpretHandler(HAPI2_UPDATE_HOST_PARENTS,
 					       parser);
 	string expected =
@@ -418,14 +418,14 @@ void test_procedureHandlerUpdateArmInfo(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
-	string params =
+	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"updateArmInfo\","
 		" \"params\":{\"lastStatus\":\"INIT\","
 		" \"failureReason\":\"Example reason\","
 		" \"lastSuccessTime\":\"20150313161100\","
 		" \"lastFailureTime\":\"20150313161530\","
 		" \"numSuccess\":165, \"numFailure\":10}, \"id\":234}";
-	JSONParser parser(params);
+	JSONParser parser(json);
 	string actual = gate->interpretHandler(HAPI2_UPDATE_ARM_INFO, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":234}";
