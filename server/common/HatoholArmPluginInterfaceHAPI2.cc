@@ -92,8 +92,8 @@ private:
 				MLPL_ERR("%s\n", errorMessage.c_str());
 			string error = StringUtils::sprintf("Method not found");
 			message.body =
-			  m_hapi2.buildErrorReply(JSON_RPC_METHOD_NOT_FOUND,
-						  error);
+			  m_hapi2.buildErrorResponse(JSON_RPC_METHOD_NOT_FOUND,
+						     error);
 		}
 		bool succeeded = connection.publish(message);
 		if (!succeeded) {
@@ -190,8 +190,8 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		m_consumer->start();
 	}
 
-	string buildErrorReply(const int errorCode,
-			       const string errorMessage)
+	string buildErrorResponse(const int errorCode,
+				  const string errorMessage)
 	{
 		JSONBuilder agent;
 		agent.startObject();
@@ -236,8 +236,8 @@ string HatoholArmPluginInterfaceHAPI2::interpretHandler(
 	if (it == m_impl->procedureHandlerMap.end()) {
 		// TODO: Add a supplied method name
 		string message = StringUtils::sprintf("Method not found");
-		return buildErrorReply(JSON_RPC_METHOD_NOT_FOUND,
-				       message);
+		return buildErrorResponse(JSON_RPC_METHOD_NOT_FOUND,
+					  message);
 	}
 	ProcedureHandler handler = it->second;
 	return (this->*handler)(json);
@@ -269,8 +269,8 @@ mt19937 HatoholArmPluginInterfaceHAPI2::getRandomEngine(void)
 	return engine;
 }
 
-string HatoholArmPluginInterfaceHAPI2::buildErrorReply(
+string HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
   const int errorCode, const string errorMessage)
 {
-        return m_impl->buildErrorReply(errorCode, errorMessage);
+	return m_impl->buildErrorResponse(errorCode, errorMessage);
 }
