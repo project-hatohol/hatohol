@@ -628,7 +628,10 @@ void test_unknownProcedure(void)
 		" \"Antarctica\":\"mine\"}, \"id\":3}");
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"id\":3,"
-		"\"error\":{\"code\":-32601,\"message\":\"Method not found\"}"
+		"\"error\":{"
+		"\"code\":-32601,"
+		"\"message\":\"Method not found: conquerTheWorld\""
+		"}"
 		"}";
 	string actual = recieveReply();
 	cppcut_assert_equal(expected, actual);

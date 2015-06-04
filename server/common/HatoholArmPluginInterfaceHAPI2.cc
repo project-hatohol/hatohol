@@ -83,6 +83,7 @@ public:
 		bool succeeded = connection.publish(response);
 		if (!succeeded) {
 			// TODO: retry?
+			// TODO: output error log
 		}
 	}
 
@@ -222,8 +223,9 @@ string HatoholArmPluginInterfaceHAPI2::interpretHandler(
 	ProcedureHandlerMapConstIterator it =
 	  m_impl->procedureHandlerMap.find(type);
 	if (it == m_impl->procedureHandlerMap.end()) {
-		// TODO: Add a supplied method name
-		string message = StringUtils::sprintf("Method not found");
+		string message = StringUtils::sprintf("Method not found: %s",
+						      type.c_str());
+		// TODO: output error log
 		return buildErrorResponse(JSON_RPC_METHOD_NOT_FOUND,
 					  message, &parser);
 	}
