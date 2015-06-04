@@ -236,26 +236,26 @@ mt19937 HatoholArmPluginInterfaceHAPI2::getRandomEngine(void)
 }
 
 bool HatoholArmPluginInterfaceHAPI2::setResponseId(
-  JSONParser &parser, JSONBuilder &builder)
+  JSONParser &requestParser, JSONBuilder &responseBuilder)
 {
 	bool succeeded = false;
 
 	// TODO: Detect the value type
-	switch (parser.getValueType("id")) {
+	switch (requestParser.getValueType("id")) {
 	case JSONParser::VALUE_TYPE_INT64:
 	{
 		int64_t numId;
-		succeeded = parser.read("id", numId);
+		succeeded = requestParser.read("id", numId);
 		if (succeeded)
-			builder.add("id", numId);
+			responseBuilder.add("id", numId);
 		break;
 	}
 	case JSONParser::VALUE_TYPE_STRING:
 	{
 		string stringId;
-		succeeded = parser.read("id", stringId);
+		succeeded = requestParser.read("id", stringId);
 		if (succeeded)
-			builder.add("id", stringId);
+			responseBuilder.add("id", stringId);
 		break;
 	}
 	default:
@@ -267,7 +267,7 @@ bool HatoholArmPluginInterfaceHAPI2::setResponseId(
 	if (!succeeded) {
 		// TODO: Should return an error response
 		MLPL_WARN("Cannot find valid id in the request!");
-		builder.addNull("id");
+		responseBuilder.addNull("id");
 	}
 
 	return succeeded;
@@ -276,17 +276,17 @@ bool HatoholArmPluginInterfaceHAPI2::setResponseId(
 string HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
   const int errorCode, const string errorMessage, JSONParser *requestParser)
 {
-	JSONBuilder agent;
-	agent.startObject();
-	agent.add("jsonrpc", "2.0");
+	JSONBuilder responseBuilder;
+	responseBuilder.startObject();
+	responseBuilder.add("jsonrpc", "2.0");
 	if (requestParser)
-		setResponseId(*requestParser, agent);
+		setResponseId(*requestParser, responseBuilder);
 	else
-		agent.addNull("id");
-	agent.startObject("error");
-	agent.add("code", errorCode);
-	agent.add("message", errorMessage);
-	agent.endObject(); // error
-	agent.endObject();
-	return agent.generate();
+		responseBuilder.addNull("id");
+	responseBuilder.startObject("error");
+	responseBuilder.add("code", errorCode);
+	responseBuilder.add("message", errorMessage);
+	responseBuilder.endObject(); // error
+	responseBuilder.endObject();
+	return responseBuilder.generate();
 }
