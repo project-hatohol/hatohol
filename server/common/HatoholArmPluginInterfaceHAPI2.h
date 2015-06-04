@@ -123,7 +123,8 @@ public:
 	void registerProcedureHandler(const HAPI2ProcedureType &type,
                                       ProcedureHandler handler);
 	std::string interpretHandler(const HAPI2ProcedureType &type,
-				     const std::string json);
+				     const std::string json,
+				     JSONParser &parser);
 	virtual void start(void);
 	virtual void send(const std::string &procedure);
 
@@ -133,8 +134,6 @@ protected:
 	typedef ProcedureHandlerMap::const_iterator  ProcedureHandlerMapConstIterator;
 
 	void setArmPluginInfo(const ArmPluginInfo &pluginInfo);
-
-	virtual void onHandledCommand(const HAPI2ProcedureType &type);
 
 	std::mt19937 getRandomEngine(void);
 

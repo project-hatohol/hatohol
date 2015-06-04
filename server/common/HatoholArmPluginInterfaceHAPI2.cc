@@ -21,7 +21,6 @@
 #include "AMQPConnectionInfo.h"
 #include "AMQPConsumer.h"
 #include "AMQPPublisher.h"
-#include "HAPI2Procedure.h"
 #include "HatoholArmPluginInterfaceHAPI2.h"
 #include "JSONBuilder.h"
 
@@ -43,44 +42,67 @@ public:
 			 message.contentType.c_str(),
 			 message.body.c_str());
 
-		JsonParser *parser = json_parser_new();
-		GError *error = NULL;
-		if (json_parser_load_from_data(parser,
-					       message.body.c_str(),
-					       message.body.size(),
-					       &error)) {
-			process(connection, json_parser_get_root(parser), message.body);
-		} else {
-			g_error_free(error);
+		JSONParser parser(message.body);
+		AMQPJSONMessage response;
+		string errorMessage;
+
+		if (parser.hasError()) {
+			const gchar *error = parser.getErrorMessage();
+			errorMessage = error ? error : "Failed to parse JSON";
+			response.body =
+			  m_hapi2.buildErrorResponse(JSON_RPC_PARSE_ERROR,
+						     errorMessage, &parser);
+			// TODO: output error log
+			sendResponse(connection, response);
+			return true;
 		}
-		g_object_unref(parser);
+
+		string methodName;
+		bool valid = validateJsonRpc(parser, methodName, errorMessage);
+		if (!valid) {
+			response.body =
+			  m_hapi2.buildErrorResponse(JSON_RPC_INVALID_REQUEST,
+						     errorMessage, &parser);
+			// TODO: output error log
+			sendResponse(connection, response);
+			return true;
+		}
+
+		parser.read("method", methodName);
+		response.body = m_hapi2.interpretHandler(methodName,
+							 message.body,
+							 parser);
+		sendResponse(connection, response);
+
 		return true;
 	}
 
-private:
-	void process(AMQPConnection &connection, JsonNode *root, const string &body)
+	void sendResponse(AMQPConnection &connection,
+			  const AMQPJSONMessage &response)
 	{
-		HAPI2Procedure procedure(root);
-		StringList errors;
-		HAPI2ProcedureType type = HAPI2_PROCEDURE_TYPE_BAD;
-		AMQPJSONMessage message;
-		if (procedure.validate(errors)) {
-			type = procedure.getType();
-			message.body = m_hapi2.interpretHandler(type, body);
-		} else {
-			for (auto errorMessage : errors)
-				MLPL_ERR("%s\n", errorMessage.c_str());
-			string error = StringUtils::sprintf("Method not found");
-			JSONParser parser(body);
-			message.body =
-			  m_hapi2.buildErrorResponse(JSON_RPC_METHOD_NOT_FOUND,
-						     error, &parser);
-		}
-		bool succeeded = connection.publish(message);
+		bool succeeded = connection.publish(response);
 		if (!succeeded) {
 			// TODO: retry?
 		}
-		m_hapi2.onHandledCommand(type);
+	}
+
+	bool validateJsonRpc(JSONParser &parser, string &methodName,
+			     string &errorMessage)
+	{
+		bool valid = parser.read("method", methodName);
+
+		JSONParser::ValueType idType = parser.getValueType("id");
+		if (idType != JSONParser::VALUE_TYPE_INT64 &&
+		    idType != JSONParser::VALUE_TYPE_STRING) {
+			valid = false;
+		}
+
+		if (!valid) {
+			// TODO: Set detailed error message
+			errorMessage = "Invalid request";
+		}
+
+		return valid;
 	}
 
 private:
@@ -195,7 +217,7 @@ void HatoholArmPluginInterfaceHAPI2::registerProcedureHandler(
 }
 
 string HatoholArmPluginInterfaceHAPI2::interpretHandler(
-  const HAPI2ProcedureType &type, const string json)
+  const HAPI2ProcedureType &type, const string json, JSONParser &parser)
 {
 	ProcedureHandlerMapConstIterator it =
 	  m_impl->procedureHandlerMap.find(type);
@@ -203,14 +225,10 @@ string HatoholArmPluginInterfaceHAPI2::interpretHandler(
 		// TODO: Add a supplied method name
 		string message = StringUtils::sprintf("Method not found");
 		return buildErrorResponse(JSON_RPC_METHOD_NOT_FOUND,
-					  message);
+					  message, &parser);
 	}
 	ProcedureHandler handler = it->second;
 	return (this->*handler)(json);
-}
-
-void HatoholArmPluginInterfaceHAPI2::onHandledCommand(const HAPI2ProcedureType &type)
-{
 }
 
 void HatoholArmPluginInterfaceHAPI2::start(void)
