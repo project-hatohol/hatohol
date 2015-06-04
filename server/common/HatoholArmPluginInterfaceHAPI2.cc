@@ -283,7 +283,7 @@ bool HatoholArmPluginInterfaceHAPI2::setResponseId(
 	}
 
 	if (!succeeded) {
-		// TODO: Should return an error response
+		// Should be checked before calling this function.
 		MLPL_WARN("Cannot find valid id in the request!");
 		responseBuilder.addNull("id");
 	}
