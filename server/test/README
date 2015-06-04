@@ -20,6 +20,8 @@ In addition, you need to add an user and a virtual host of RabbitMQ:
 
 (4) Remove or disable 'apport' if it's installed.
 
+The details are written in the later part of this document.
+
 (5) Run tests
 
 You can run tests by the following command:
@@ -34,8 +36,6 @@ If you want enable tests concerned with RabbitMQ (HAPI JSON and HAPI2.0), please
 specify the URL of it by TEST_AMQP_URL:
 
     $ TEST_AMQP_URL="amqp://hatohol:hatohol@localhost:5672/hatohol" ./run-test.sh
-
-The details are written in the later part of this document.
 
 ## Hint
 See also .travis.yml in the top directory, which contains proceudure
