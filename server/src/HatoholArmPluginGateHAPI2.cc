@@ -758,8 +758,13 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers(
 
 	string updateType;
 	bool checkInvalidTriggers = parseUpdateType(parser, updateType);
-	// TODO: implement validation for triggers
-	dbMonitoring.addTriggerInfoList(triggerInfoList);
+	// TODO: reflect error in response
+	if (checkInvalidTriggers) {
+		dbMonitoring.syncTriggers(triggerInfoList, serverInfo.id);
+	} else {
+		dbMonitoring.addTriggerInfoList(triggerInfoList);
+	}
+
 	string lastInfoValue;
 	if (!parser.read("lastInfo", lastInfoValue) ) {
 		upsertLastInfo(lastInfoValue, LAST_INFO_TRIGGER);
