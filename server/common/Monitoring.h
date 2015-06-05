@@ -101,6 +101,8 @@ typedef std::map<TriggerIdType, TriggerInfo *> TriggerIdInfoMap;
 typedef TriggerIdInfoMap::iterator             TriggerIdInfoMapIterator;
 typedef TriggerIdInfoMap::const_iterator       TriggerIdInfoMapConstIterator;
 
+typedef std::list<TriggerIdType> TriggerIdList;
+
 enum EventType {
 	EVENT_TYPE_GOOD,
 	EVENT_TYPE_BAD,

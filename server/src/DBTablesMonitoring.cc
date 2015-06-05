@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <Mutex.h>
+#include <SeparatorInjector.h>
 #include "UnifiedDataStore.h"
 #include "DBAgentFactory.h"
 #include "DBTablesMonitoring.h"
@@ -1571,6 +1572,111 @@ void DBTablesMonitoring::updateTrigger(const TriggerInfoList &triggerInfoList,
 	}
 
 	addTriggerInfoList(updateTriggerList);
+}
+
+static string makeTriggerIdListCondition(const TriggerIdList &idList)
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID];
+	SeparatorInjector commaInjector(",");
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	for (auto id : idList) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%" FMT_TRIGGER_ID, id.c_str());
+	}
+
+	condition += ")";
+	return condition;
+}
+
+static string makeConditionForDelete(const TriggerIdList &idList,
+				     const ServerIdType &serverId)
+{
+	string condition = makeTriggerIdListCondition(idList);
+	condition += " AND ";
+	string columnName =
+		tableProfileTriggers.columnDefs[IDX_TRIGGERS_SERVER_ID].columnName;
+	condition += StringUtils::sprintf("%s=%" FMT_SERVER_ID,
+	                                  columnName.c_str(), serverId);
+
+	return condition;
+}
+
+HatoholError DBTablesMonitoring::deleteTriggerInfo(const TriggerIdList &idList,
+                                                   const ServerIdType &serverId)
+{
+	if (idList.empty()) {
+		MLPL_WARN("idList is empty.\n");
+		return HTERR_INVALID_PARAMETER;
+	}
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg arg;
+		uint64_t numAffectedRows;
+
+		TrxProc (void)
+		: arg(tableProfileTriggers),
+		  numAffectedRows(0)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(arg);
+			numAffectedRows = dbAgent.getNumberOfAffectedRows();
+		}
+	} trx;
+	trx.arg.condition = makeConditionForDelete(idList, serverId);
+	getDBAgent().runTransaction(trx);
+
+	// Check the result
+	if (trx.numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
+		         trx.numAffectedRows, idList.size());
+		return HTERR_DELETE_INCOMPLETE;
+	}
+
+	return HTERR_OK;
+}
+
+HatoholError DBTablesMonitoring::syncTriggers(TriggerInfoList &incomingTriggerInfoList,
+                                              const ServerIdType &serverId)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	TriggerInfoList _currTriggers;
+	getTriggerInfoList(_currTriggers, option);
+
+	const TriggerInfoList currTriggers = move(_currTriggers);
+
+	map<TriggerIdType, const TriggerInfo *> currentTriggerMap;
+	for (auto& trigger : currTriggers) {
+		currentTriggerMap[trigger.id] = &trigger;
+	}
+
+	// Pick up triggers to be added
+	TriggerInfoList serverTriggers;
+	for (auto trigger : incomingTriggerInfoList) {
+		if (currentTriggerMap.erase(trigger.id) >= 1) {
+			// If the hostgroup already exists, we have nothing to do.
+			continue;
+		}
+		serverTriggers.push_back(move(trigger));
+	}
+
+	TriggerIdList invalidTriggerIdList;
+	map<TriggerIdType, const TriggerInfo *> invalidTriggerMap =
+		move(currentTriggerMap);
+	for (auto invalidTriggerPair : invalidTriggerMap) {
+		TriggerInfo invalidTrigger = *invalidTriggerPair.second;
+		invalidTriggerIdList.push_back(invalidTrigger.id);
+	}
+	HatoholError err = HTERR_OK;
+	if (invalidTriggerIdList.size() > 0)
+		err = deleteTriggerInfo(invalidTriggerIdList, serverId);
+	if (serverTriggers.size() > 0)
+		addTriggerInfoList(serverTriggers);
+	return err;
 }
 
 void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)

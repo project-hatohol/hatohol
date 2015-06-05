@@ -18,6 +18,7 @@
  */
 
 #include <cstdio>
+#include <SeparatorInjector.h>
 #include "DBTablesHost.h"
 #include "ItemGroupStream.h"
 #include "ThreadLocalDBCache.h"
@@ -901,6 +902,64 @@ HatoholError DBTablesHost::getHostgroups(HostgroupVect &hostgroups,
 	return HTERR_OK;
 }
 
+static string makeIdListCondition(const GenericIdList &idList)
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_HOSTGROUP_LIST[IDX_HOSTGROUP_LIST_ID];
+	SeparatorInjector commaInjector(",");
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	for (auto id : idList) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%ld", id);
+	}
+
+	condition += ")";
+	return condition;
+}
+
+static string makeConditionForDelete(const GenericIdList &idList)
+{
+	string condition = makeIdListCondition(idList);
+
+	return condition;
+}
+
+HatoholError DBTablesHost::deleteHostgroupList(const GenericIdList &idList)
+{
+	if (idList.empty()) {
+		MLPL_WARN("idList is empty.\n");
+		return HTERR_INVALID_PARAMETER;
+	}
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg arg;
+		uint64_t numAffectedRows;
+
+		TrxProc (void)
+		: arg(tableProfileHostgroupList),
+		  numAffectedRows(0)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(arg);
+			numAffectedRows = dbAgent.getNumberOfAffectedRows();
+		}
+	} trx;
+	trx.arg.condition = makeConditionForDelete(idList);
+	getDBAgent().runTransaction(trx);
+
+	// Check the result
+	if (trx.numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
+		         trx.numAffectedRows, idList.size());
+		return HTERR_DELETE_INCOMPLETE;
+	}
+
+	return HTERR_OK;
+}
+
 GenericIdType DBTablesHost::upsertHostgroupMember(
   const HostgroupMember &hostgroupMember, const bool &useTransaction)
 {
@@ -981,6 +1040,43 @@ HatoholError DBTablesHost::getHostgroupMembers(
 	return HTERR_OK;
 }
 
+HatoholError DBTablesHost::deleteHostgroupMemberList(
+  const GenericIdList &idList)
+{
+	if (idList.empty()) {
+		MLPL_WARN("idList is empty.\n");
+		return HTERR_INVALID_PARAMETER;
+	}
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg arg;
+		uint64_t numAffectedRows;
+
+		TrxProc (void)
+		: arg(tableProfileHostgroupMember),
+		  numAffectedRows(0)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(arg);
+			numAffectedRows = dbAgent.getNumberOfAffectedRows();
+		}
+	} trx;
+	trx.arg.condition = makeConditionForDelete(idList);
+	getDBAgent().runTransaction(trx);
+
+	// Check the result
+	if (trx.numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
+		         trx.numAffectedRows, idList.size());
+		return HTERR_DELETE_INCOMPLETE;
+	}
+
+	return HTERR_OK;
+}
+
 HatoholError DBTablesHost::getVirtualMachines(
   HostIdVector &virtualMachines, const HostIdType &hypervisorHostId,
   const HostsQueryOption &option)
@@ -1010,6 +1106,43 @@ HatoholError DBTablesHost::getVirtualMachines(
 				continue;
 		}
 		virtualMachines.push_back(hostId);
+	}
+
+	return HTERR_OK;
+}
+
+HatoholError DBTablesHost::deleteVMInfoList(
+  const GenericIdList &idList)
+{
+	if (idList.empty()) {
+		MLPL_WARN("idList is empty.\n");
+		return HTERR_INVALID_PARAMETER;
+	}
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg arg;
+		uint64_t numAffectedRows;
+
+		TrxProc (void)
+		: arg(tableProfileVMList),
+		  numAffectedRows(0)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(arg);
+			numAffectedRows = dbAgent.getNumberOfAffectedRows();
+		}
+	} trx;
+	trx.arg.condition = makeConditionForDelete(idList);
+	getDBAgent().runTransaction(trx);
+
+	// Check the result
+	if (trx.numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
+		         trx.numAffectedRows, idList.size());
+		return HTERR_DELETE_INCOMPLETE;
 	}
 
 	return HTERR_OK;
@@ -1187,8 +1320,7 @@ HatoholError DBTablesHost::syncHosts(
 			// The host already exits. We have nothing to do.
 			continue;
 		}
-		// TODO: avoid the copy
-		serverHostDefs.push_back(newSvHostDef);
+		serverHostDefs.push_back(move(newSvHostDef));
 	}
 
 	// Add hosts to be marked as invalid
@@ -1206,6 +1338,86 @@ HatoholError DBTablesHost::syncHosts(
 	}
 	upsertHosts(serverHostDefs, hostHostIdMapPtr);
 	m_impl->storedHostsChanged = false;
+	return HTERR_OK;
+}
+
+HatoholError DBTablesHost::syncHostgroups(
+  HostgroupVect &incomingHostgroups,
+  const ServerIdType &serverId)
+{
+	HostgroupsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	HostgroupVect _currHostgroups;
+	HatoholError err = getHostgroups(_currHostgroups, option);
+	if (err != HTERR_OK)
+		return err;
+	const HostgroupVect currHostgroups = move(_currHostgroups);
+
+	map<HostgroupIdType, const Hostgroup *> currentHostgroupMap;
+	for (auto& hostgroup : currHostgroups) {
+		currentHostgroupMap[hostgroup.idInServer] = &hostgroup;
+	}
+
+	// Pick up hostgroups to be added.
+	HostgroupVect serverHostgroups;
+	for (auto hostgroup : incomingHostgroups) {
+		if (currentHostgroupMap.erase(hostgroup.idInServer) >= 1) {
+			// If the hostgroup already exists, we have nothing to do.
+			continue;
+		}
+		serverHostgroups.push_back(move(hostgroup));
+	}
+
+	GenericIdList invalidHostgroupIdList;
+	map<HostgroupIdType, const Hostgroup *> invalidHostgroupMap =
+		move(currentHostgroupMap);
+	for (auto invalidHostgroupPair : invalidHostgroupMap) {
+		Hostgroup invalidHostgroup = *invalidHostgroupPair.second;
+		invalidHostgroupIdList.push_back(invalidHostgroup.id);
+	}
+	if (invalidHostgroupIdList.size() > 0)
+		err = deleteHostgroupList(invalidHostgroupIdList);
+	if (serverHostgroups.size() > 0)
+		upsertHostgroups(serverHostgroups);
+	return err;
+}
+
+HatoholError DBTablesHost::syncHostgroupMembers(
+  HostgroupMemberVect &incomingHostgroupMembers,
+  const ServerIdType &serverId)
+{
+	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	HostgroupMemberVect _currHostgroupMembers;
+	HatoholError err = getHostgroupMembers(_currHostgroupMembers, option);
+	if (err != HTERR_OK)
+		return err;
+	const HostgroupMemberVect currHostgroupMembers = move(_currHostgroupMembers);
+	map<GenericIdType, const HostgroupMember *> currentHostgroupMemberMap;
+	for (auto& hostgroupMember : currHostgroupMembers) {
+		currentHostgroupMemberMap[hostgroupMember.id] = &hostgroupMember;
+	}
+
+	//Pick up hostgroupMember to be added.
+	HostgroupMemberVect serverHostgroupMembers;
+	for (auto hostgroupMember : incomingHostgroupMembers) {
+		if(currentHostgroupMemberMap.erase(hostgroupMember.id) >= 1) {
+			continue;
+		}
+		serverHostgroupMembers.push_back(move(hostgroupMember));
+	}
+
+	GenericIdList invalidHostgroupMemberIdList;
+	map<GenericIdType, const HostgroupMember *> invalidHostgroupMemberMap =
+		move(currentHostgroupMemberMap);
+	for (auto invalidHostgroupMemberPair : invalidHostgroupMemberMap) {
+		HostgroupMember invalidHostgroupMember = *invalidHostgroupMemberPair.second;
+		invalidHostgroupMemberIdList.push_back(invalidHostgroupMember.id);
+	}
+	if (invalidHostgroupMemberIdList.size() > 0)
+		err = deleteHostgroupMemberList(invalidHostgroupMemberIdList);
+	if (serverHostgroupMembers.size() > 0)
+		upsertHostgroupMembers(serverHostgroupMembers);
 	return HTERR_OK;
 }
 
@@ -1244,4 +1456,3 @@ DBTables::SetupInfo &DBTablesHost::getSetupInfo(void)
 	};
 	return SETUP_INFO;
 }
-

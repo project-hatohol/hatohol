@@ -85,6 +85,10 @@ typedef std::vector<HostgroupMember>        HostgroupMemberVect;
 typedef HostgroupMemberVect::iterator       HostgroupMemberVectIterator;
 typedef HostgroupMemberVect::const_iterator HostgroupMemberVectConstIterator;
 
+typedef std::list<GenericIdType>         GenericIdList;
+typedef GenericIdList::iterator          GenericIdListIterator;
+typedef GenericIdList::const_iterator    GenericIdListConstIterator;
+
 enum {
 	IDX_HOST_LIST_ID,
 	IDX_HOST_LIST_NAME,
@@ -289,6 +293,7 @@ public:
 	 */
 	HatoholError getHostgroups(HostgroupVect &hostgroups,
 	                           const HostgroupsQueryOption &option);
+	HatoholError deleteHostgroupList(const GenericIdList &idList);
 
 	/**
 	 * Insert or update a record to/in the hostgroup_member table
@@ -312,6 +317,8 @@ public:
 	  HostgroupMemberVect &hostgrpMembers,
 	  const HostgroupMembersQueryOption &option);
 
+	HatoholError deleteHostgroupMemberList(const GenericIdList &idList);
+
 	/**
 	 * Get the virtual mechines
 	 *
@@ -331,6 +338,8 @@ public:
 	HatoholError getVirtualMachines(HostIdVector &virtualMachines,
 	                                const HostIdType &hypervisorHostId,
 	                                const HostsQueryOption &option);
+	HatoholError deleteVMInfoList(const GenericIdList &idList);
+
 	/**
 	 * Get the hyperviosr.
 	 *
@@ -375,6 +384,10 @@ public:
 	HatoholError syncHosts(
 	  const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
 	  HostHostIdMap *hostHostIdMapPtr = NULL);
+	HatoholError syncHostgroups(HostgroupVect &hostgroups,
+	                            const ServerIdType &serverId);
+	HatoholError syncHostgroupMembers(HostgroupMemberVect &hostgroupMembers,
+	                                  const ServerIdType &serverId);
 
 protected:
 	static SetupInfo &getSetupInfo(void);

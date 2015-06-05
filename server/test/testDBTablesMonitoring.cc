@@ -356,6 +356,156 @@ void test_addTriggerInfo(void)
 	assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
 }
 
+void test_deleteTriggerInfo(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	loadTestDBTriggers();
+
+	TriggerIdList triggerIdList = { "2", "3" };
+	constexpr ServerIdType targetServerId = 1;
+
+	for (auto triggerId : triggerIdList) {
+		// check triggerInfo existence
+		string sql = StringUtils::sprintf("SELECT * FROM triggers");
+		sql += StringUtils::sprintf(
+		  " WHERE id = %" FMT_TRIGGER_ID
+		  " AND server_id = %" FMT_SERVER_ID,
+		  triggerId.c_str(), targetServerId);
+		uint64_t targetTestDataId = StringUtils::toUint64(triggerId) - 1;
+		string expectedOut;
+		expectedOut +=
+			makeTriggerOutput(testTriggerInfo[targetTestDataId]);
+		assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
+	}
+
+	HatoholError err =
+		dbMonitoring.deleteTriggerInfo(triggerIdList, targetServerId);
+	assertHatoholError(HTERR_OK, err);
+	for (auto triggerId : triggerIdList) {
+		string statement = StringUtils::sprintf("SELECT * FROM triggers");
+		statement += StringUtils::sprintf(
+		  " WHERE id = %" FMT_TRIGGER_ID " AND server_id = %" FMT_SERVER_ID,
+		  triggerId.c_str(), targetServerId);
+		string expected = "";
+		assertDBContent(&dbMonitoring.getDBAgent(), statement, expected);
+	}
+}
+
+void test_syncTriggers(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	loadTestDBTriggers();
+	constexpr const ServerIdType targetServerId = 1;
+	const TriggerIdType targetTriggerId = "2";
+	constexpr const int testTriggerDataId = 2;
+	const TriggerIdList targetServerTriggerIds = {"1", "2", "3", "4", "5"};
+
+	string sql = StringUtils::sprintf("SELECT * FROM triggers");
+	sql += StringUtils::sprintf(
+	  " WHERE server_id = %" FMT_SERVER_ID " ORDER BY server_id ASC",
+	  targetServerId);
+
+	string expectedOut;
+	// check triggerInfo existence
+	for (auto triggerId : targetServerTriggerIds) {
+		int64_t targetId = StringUtils::toUint64(triggerId) - 1;
+		expectedOut += makeTriggerOutput(testTriggerInfo[targetId]);
+	}
+	assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
+
+	map<TriggerIdType, const TriggerInfo *> triggerMap;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		const TriggerInfo &svTriggerInfo = testTriggerInfo[i];
+		if (svTriggerInfo.serverId != targetServerId)
+			continue;
+		if (svTriggerInfo.id != targetTriggerId)
+			continue;
+		triggerMap[svTriggerInfo.id] = &svTriggerInfo;
+	}
+
+	TriggerInfoList svTriggers =
+	{
+		{
+			testTriggerInfo[testTriggerDataId - 1]
+		}
+	};
+
+	// sanity check if we use the proper data
+	cppcut_assert_equal(false, svTriggers.empty());
+	// Prepare for the expected result.
+	string expect;
+	for (auto triggerPair : triggerMap) {
+		const TriggerInfo svTrigger = *triggerPair.second;
+		expect += StringUtils::sprintf(
+		  "%" FMT_LOCAL_HOST_ID "|%s\n",
+		  svTrigger.hostIdInServer.c_str(), svTrigger.hostName.c_str());
+	}
+	HatoholError err = dbMonitoring.syncTriggers(svTriggers, targetServerId);
+	assertHatoholError(HTERR_OK, err);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+	string statement = StringUtils::sprintf(
+	  "select host_id_in_server,hostname from triggers"
+	  " where server_id=%" FMT_SERVER_ID " order by id asc;",
+	  targetServerId);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
+void test_syncTriggersAddNewTrigger(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	loadTestDBTriggers();
+	constexpr const ServerIdType targetServerId = 1;
+
+	TriggerInfo newTriggerInfo = {
+		1,                        // serverId
+		"7",                      // id
+		TRIGGER_STATUS_OK,        // status
+		TRIGGER_SEVERITY_INFO,    // severity
+		{1362958197,0},           // lastChangeTime
+		10,                       // globalHostId,
+		"235013",                 // hostIdInServer,
+		"hostX2",                 // hostName,
+		"TEST New Trigger 1",     // brief,
+		"",                       // extendedInfo
+		TRIGGER_VALID,            // validity
+	};
+
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		const TriggerInfo &svTriggerInfo = testTriggerInfo[i];
+		if (svTriggerInfo.serverId != targetServerId)
+			continue;
+		if (svTriggerInfo.id == newTriggerInfo.id)
+			cut_fail("We use the wrong test data");
+	}
+
+	string expect;
+	TriggerInfoList svTriggers;
+	{
+		size_t i = 0;
+		for (; i < NumTestTriggerInfo; i++) {
+			const TriggerInfo &svTriggerInfo = testTriggerInfo[i];
+			if (svTriggerInfo.serverId != targetServerId)
+				continue;
+			svTriggers.push_back(svTriggerInfo);
+			expect += makeTriggerOutput(svTriggerInfo);
+		}
+		// sanity check if we use the proper data
+		cppcut_assert_equal(false, svTriggers.empty());
+
+		// Add newTriggerInfo to the expected result
+		svTriggers.push_back(newTriggerInfo);
+		expect += makeTriggerOutput(newTriggerInfo);
+	}
+	HatoholError err = dbMonitoring.syncTriggers(svTriggers, targetServerId);
+	assertHatoholError(HTERR_OK, err);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+	string statement = StringUtils::sprintf(
+	  "select * from triggers"
+	  " where server_id=%" FMT_SERVER_ID " order by id asc;",
+	  targetServerId);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
 void test_getTriggerInfo(void)
 {
 	loadTestDBTriggers();
