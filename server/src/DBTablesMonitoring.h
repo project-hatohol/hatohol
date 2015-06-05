@@ -137,7 +137,7 @@ public:
 			   const ServerIdType &serverId);
 	HatoholError deleteTriggerInfo(const TriggerIdList &idList,
 	                               const ServerIdType &serverId);
-	HatoholError syncTriggers(TriggerInfoList &triggerInfoList,
+	HatoholError syncTriggers(const TriggerInfoList &triggerInfoList,
 	                          const ServerIdType &serverId);
 
 	/**
