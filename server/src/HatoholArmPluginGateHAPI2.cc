@@ -307,7 +307,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
 	builder.startObject("result");
-	builder.add("name", "exampleName"); // TODO: add process name mechanism
+	builder.add("name", PACKAGE_NAME);
 	builder.startArray("procedures");
 	for (auto defaultValidProcedureDef : getDefaultValidProcedureList()) {
 		if (defaultValidProcedureDef.type == PROCEDURE_BOTH ||

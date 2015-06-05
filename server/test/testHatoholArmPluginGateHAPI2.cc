@@ -171,7 +171,7 @@ void test_procedureHandlerExchangeProfile(void)
 	JSONParser parser(json);
 	string actual = gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
 	string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":{\"name\":\"exampleName\","
+		"{\"jsonrpc\":\"2.0\",\"result\":{\"name\":\"" PACKAGE_NAME "\","
 		  "\"procedures\":"
 		  "[\"getMonitoringServerInfo\",\"getLastInfo\",\"putItems\","
 		  "\"putHistory\",\"updateHosts\",\"updateHostGroups\","
