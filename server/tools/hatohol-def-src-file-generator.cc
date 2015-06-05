@@ -127,6 +127,7 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 
 	ADD_LINE(s, langType, EVENT_TYPE_GOOD);
 	ADD_LINE(s, langType, EVENT_TYPE_BAD);
+	ADD_LINE(s, langType, EVENT_TYPE_NOTIFICATION);
 	APPEND(s, "\n");
 
 	ADD_LINE(s, langType, TRIGGER_SEVERITY_UNKNOWN);
@@ -321,6 +322,7 @@ static string makeJsDefSource(char *arg[])
 
 	APPEND(s, "var EVENT_TYPE_GOOD = %d\n", EVENT_TYPE_GOOD);
 	APPEND(s, "var EVENT_TYPE_BAD  = %d\n", EVENT_TYPE_BAD);
+	APPEND(s, "var EVENT_TYPE_NOTIFICATION = %d\n", EVENT_TYPE_NOTIFICATION);
 	APPEND(s, "\n");
 
 	APPEND(s,
