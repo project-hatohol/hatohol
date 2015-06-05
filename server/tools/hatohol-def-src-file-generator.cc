@@ -51,7 +51,7 @@ do { \
 
 static const char *LGPL_V3_HEADER_C_STYLE =
 "/*\n"
-" * Copyright (C) 2013-2014 Project Hatohol\n"
+" * Copyright (C) 2013-2015 Project Hatohol\n"
 " *\n"
 " * This file is part of Hatohol.\n"
 " *\n"
@@ -70,7 +70,7 @@ static const char *LGPL_V3_HEADER_C_STYLE =
 " */\n";
 
 static const char *LGPL_V3_HEADER_PLAIN =
-"  Copyright (C) 2013-2014 Project Hatohol\n"
+"  Copyright (C) 2013-2015 Project Hatohol\n"
 "\n"
 "  This file is part of Hatohol.\n"
 "\n"
