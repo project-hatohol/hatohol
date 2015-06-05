@@ -1408,7 +1408,9 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 	}
 
 	GenericIdList invalidHostgroupMemberIdList;
-	for (auto invalidHostgroupMemberPair : currValidHostgroupMemberMap) {
+	map<GenericIdType, const HostgroupMember *> invalidHostgroupMemberMap =
+		move(currValidHostgroupMemberMap);
+	for (auto invalidHostgroupMemberPair : invalidHostgroupMemberMap) {
 		HostgroupMember invalidHostgroupMember = *invalidHostgroupMemberPair.second;
 		invalidHostgroupMemberIdList.push_back(invalidHostgroupMember.id);
 	}
