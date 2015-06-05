@@ -1665,7 +1665,9 @@ HatoholError DBTablesMonitoring::syncTriggers(TriggerInfoList &incomingTriggerIn
 	}
 
 	TriggerIdList invalidTriggerIdList;
-	for (auto invalidTriggerPair : currValidTriggerMap) {
+	map<TriggerIdType, const TriggerInfo *> invalidTriggerMap =
+		move(currValidTriggerMap);
+	for (auto invalidTriggerPair : invalidTriggerMap) {
 		TriggerInfo invalidTrigger = *invalidTriggerPair.second;
 		invalidTriggerIdList.push_back(invalidTrigger.id);
 	}
