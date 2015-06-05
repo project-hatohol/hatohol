@@ -91,11 +91,6 @@ const HAPI2ProcedureType HAPI2_FETCH_TRIGGERS
 const HAPI2ProcedureType HAPI2_FETCH_EVENTS
   = "fetchEvents";
 
-// Client procedure type
-const HAPI2ProcedureType HAPI2_PROCEDURE_TYPE_HAP  = "";
-// Invalid Type
-const HAPI2ProcedureType HAPI2_PROCEDURE_TYPE_BAD = "";
-
 typedef std::vector<std::string>               ValidProcedureNameVect;
 typedef ValidProcedureNameVect::iterator       ValidProcedureNameVectIterator;
 typedef ValidProcedureNameVect::const_iterator ValidProcedureNameVectConstIterator;
