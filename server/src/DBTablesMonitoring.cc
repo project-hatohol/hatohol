@@ -1639,8 +1639,9 @@ HatoholError DBTablesMonitoring::deleteTriggerInfo(const TriggerIdList &idList,
 	return HTERR_OK;
 }
 
-HatoholError DBTablesMonitoring::syncTriggers(TriggerInfoList &incomingTriggerInfoList,
-                                              const ServerIdType &serverId)
+HatoholError DBTablesMonitoring::syncTriggers(
+  const TriggerInfoList &incomingTriggerInfoList,
+  const ServerIdType &serverId)
 {
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(serverId);

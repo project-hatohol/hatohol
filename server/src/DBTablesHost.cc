@@ -1342,7 +1342,7 @@ HatoholError DBTablesHost::syncHosts(
 }
 
 HatoholError DBTablesHost::syncHostgroups(
-  HostgroupVect &incomingHostgroups,
+  const HostgroupVect &incomingHostgroups,
   const ServerIdType &serverId)
 {
 	HostgroupsQueryOption option(USER_ID_SYSTEM);
@@ -1383,7 +1383,7 @@ HatoholError DBTablesHost::syncHostgroups(
 }
 
 HatoholError DBTablesHost::syncHostgroupMembers(
-  HostgroupMemberVect &incomingHostgroupMembers,
+  const HostgroupMemberVect &incomingHostgroupMembers,
   const ServerIdType &serverId)
 {
 	HostgroupMembersQueryOption option(USER_ID_SYSTEM);

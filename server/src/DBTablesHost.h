@@ -384,9 +384,9 @@ public:
 	HatoholError syncHosts(
 	  const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
 	  HostHostIdMap *hostHostIdMapPtr = NULL);
-	HatoholError syncHostgroups(HostgroupVect &hostgroups,
+	HatoholError syncHostgroups(const HostgroupVect &hostgroups,
 	                            const ServerIdType &serverId);
-	HatoholError syncHostgroupMembers(HostgroupMemberVect &hostgroupMembers,
+	HatoholError syncHostgroupMembers(const HostgroupMemberVect &hostgroupMembers,
 	                                  const ServerIdType &serverId);
 
 protected:
