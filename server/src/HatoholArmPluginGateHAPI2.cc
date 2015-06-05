@@ -650,7 +650,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroupMembership(
 	string updateType;
 	bool checkInvalidHostGroupMembership =
 	  parseUpdateType(parser, updateType);
-	// TODO: implement validation for HostGroupMembership
+	// TODO: reflect error in response
+	if (checkInvalidHostGroupMembership) {
+		dataStore->syncHostgroupMembers(hostgroupMembershipVect, serverInfo.id);
+	} else {
+		dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
+	}
 	string lastInfo;
 	if (!parser.read("lastInfo", lastInfo) ) {
 		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP_MEMBERSHIP);
