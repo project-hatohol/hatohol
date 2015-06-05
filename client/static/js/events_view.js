@@ -37,7 +37,8 @@ var EventsView = function(userProfile, baseElem) {
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
-  var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'), gettext('Notification')];
+  var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
+                        gettext('Notification')];
   var severity_choices = [
     gettext('Not classified'), gettext('Information'), gettext('Warning'),
     gettext('Average'), gettext('High'), gettext('Disaster')];
