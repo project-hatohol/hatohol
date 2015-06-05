@@ -1639,7 +1639,7 @@ HatoholError DBTablesMonitoring::deleteTriggerInfo(const TriggerIdList &idList,
 	return HTERR_OK;
 }
 
-HatoholError DBTablesMonitoring::syncTriggers(TriggerInfoList &svTriggerInfoList,
+HatoholError DBTablesMonitoring::syncTriggers(TriggerInfoList &incomingTriggerInfoList,
                                               const ServerIdType &serverId)
 {
 	TriggersQueryOption option(USER_ID_SYSTEM);
@@ -1656,12 +1656,12 @@ HatoholError DBTablesMonitoring::syncTriggers(TriggerInfoList &svTriggerInfoList
 
 	// Pick up triggers to be added
 	TriggerInfoList serverTriggers;
-	for (auto newSvTrigger : svTriggerInfoList) {
-		if (currValidTriggerMap.erase(newSvTrigger.id) >= 1) {
+	for (auto trigger : incomingTriggerInfoList) {
+		if (currValidTriggerMap.erase(trigger.id) >= 1) {
 			// If the hostgroup already exists, we have nothing to do.
 			continue;
 		}
-		serverTriggers.push_back(move(newSvTrigger));
+		serverTriggers.push_back(move(trigger));
 	}
 
 	TriggerIdList invalidTriggerIdList;
