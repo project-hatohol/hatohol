@@ -167,6 +167,8 @@ private:
 			return EVENT_TYPE_BAD;
 		} else if (type == "unknown") {
 			return EVENT_TYPE_UNKNOWN;
+		} else if (type == "notification") {
+			return EVENT_TYPE_NOTIFICATION;
 		} else {
 			return EVENT_TYPE_INVALID;
 		}
