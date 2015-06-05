@@ -162,8 +162,13 @@ public:
 	bool wasStoredHostsChanged(void);
 
 	HatoholError upsertHostgroups(const HostgroupVect &hostgroups);
+	HatoholError syncHostgroups(const HostgroupVect &hostgroups,
+	                            const ServerIdType &serverId);
+
 	HatoholError upsertHostgroupMembers(
 	  const HostgroupMemberVect &hostgroupMembers);
+	HatoholError syncHostgroupMembers(const HostgroupMemberVect &hostgroups,
+	                                  const ServerIdType &serverId);
 
 	HatoholError getHostgroupMembers(
 	  HostgroupMemberVect &hostgroupMembers,
@@ -184,6 +189,8 @@ public:
 	size_t getNumberOfBadTriggers(const TriggersQueryOption &option,
 				      TriggerSeverityType severity);
 	size_t getNumberOfTriggers(const TriggersQueryOption &option);
+	HatoholError syncTriggers(const TriggerInfoList &triggerInfoList,
+	                          const ServerIdType &serverId);
 	size_t getNumberOfGoodHosts(const TriggersQueryOption &option);
 	size_t getNumberOfBadHosts(const TriggersQueryOption &option);
 	size_t getNumberOfItems(const ItemsQueryOption &option,

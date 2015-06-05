@@ -525,11 +525,35 @@ HatoholError UnifiedDataStore::upsertHostgroups(const HostgroupVect &hostgroups)
 	return HTERR_OK;
 }
 
+HatoholError UnifiedDataStore::syncHostgroups(const HostgroupVect &hostgroups,
+					      const ServerIdType &serverId)
+{
+	ThreadLocalDBCache cache;
+	HatoholError err = cache.getHost().syncHostgroups(hostgroups, serverId);
+
+	if (err != HTERR_OK)
+		return err;
+	return HTERR_OK;
+}
+
 HatoholError UnifiedDataStore::upsertHostgroupMembers(
   const HostgroupMemberVect &hostgroupMembers)
 {
 	ThreadLocalDBCache cache;
 	cache.getHost().upsertHostgroupMembers(hostgroupMembers);
+	return HTERR_OK;
+}
+
+HatoholError UnifiedDataStore::syncHostgroupMembers(
+  const HostgroupMemberVect &hostgroupMembers,
+  const ServerIdType &serverId)
+{
+	ThreadLocalDBCache cache;
+	HatoholError err =
+		cache.getHost().syncHostgroupMembers(hostgroupMembers, serverId);
+
+	if (err != HTERR_OK)
+		return err;
 	return HTERR_OK;
 }
 
@@ -554,6 +578,19 @@ size_t UnifiedDataStore::getNumberOfTriggers(const TriggersQueryOption &option)
 {
 	ThreadLocalDBCache cache;
 	return cache.getMonitoring().getNumberOfTriggers(option);
+}
+
+HatoholError UnifiedDataStore::syncTriggers(
+  const TriggerInfoList &triggerInfoList,
+  const ServerIdType &serverId)
+{
+	ThreadLocalDBCache cache;
+	HatoholError err =
+		cache.getMonitoring().syncTriggers(triggerInfoList, serverId);
+
+	if (err != HTERR_OK)
+		return err;
+	return HTERR_OK;
 }
 
 size_t UnifiedDataStore::getNumberOfGoodHosts(const TriggersQueryOption &option)
