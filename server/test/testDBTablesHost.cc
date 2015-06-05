@@ -1360,18 +1360,18 @@ void test_syncHostgroupMembers(void)
 	HostgroupMemberVect svHostgroupMembers =
 	{
 		{
-			3,                               // id
-			1,                               // serverId
-			"235013",                        // hostIdInServer
-			"2",                             // hostgroupIdInServer
-			11,                              // hostId
+			3,                                          // id
+			testHostgroupMember[2].serverId,            // serverId
+			testHostgroupMember[2].hostIdInServer,      // hostIdInServer
+			testHostgroupMember[2].hostgroupIdInServer, // hostgroupIdInServer
+			testHostgroupMember[2].hostId               // hostId
 		},
 		{
-			4,                               // id
-			1,                               // serverId
-			"1129",                          // hostIdInServer
-			"1",                             // hostgroupIdInServer
-			30,                              // hostId
+			4,                                          // id
+			testHostgroupMember[3].serverId,            // serverId
+			testHostgroupMember[3].hostIdInServer,      // hostIdInServer
+			testHostgroupMember[3].hostgroupIdInServer, // hostgroupIdInServer
+			testHostgroupMember[3].hostId               // hostId
 		},
 	};
 
