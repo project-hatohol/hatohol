@@ -157,7 +157,7 @@ static string makeHostsOutput(const ServerHostDef &svHostDef, const size_t &id)
 static string makeVMInfoOutput(const VMInfo &vmInfo, const size_t &id)
 {
 	string expectedOut = StringUtils::sprintf(
-	  "%" FMT_GEN_ID "|%" FMT_HOST_ID "|%" FMT_HOST_ID "\n",
+	  "%zd|%" FMT_HOST_ID "|%" FMT_HOST_ID "\n",
 	  id + 1, vmInfo.hostId, vmInfo.hypervisorHostId);
 
 	return expectedOut;
@@ -872,7 +872,7 @@ void test_deleteVMInfoList(void)
 	// check existence VMInfo
 	for (size_t i = 0; i < NumTestVMInfo; i++) {
 		const string statement = StringUtils::sprintf(
-			"SELECT * FROM %s WHERE %s = %" FMT_GEN_ID,
+			"SELECT * FROM %s WHERE %s = %zd",
 			tableProfileVMList.name,
 			coldef[IDX_HOST_VM_LIST_ID].columnName,
 			i + 1);
