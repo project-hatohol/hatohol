@@ -1383,7 +1383,7 @@ HatoholError DBTablesHost::syncHostgroups(
 }
 
 HatoholError DBTablesHost::syncHostgroupMembers(
-  HostgroupMemberVect &svHostgroupMembers,
+  HostgroupMemberVect &incomingHostgroupMembers,
   const ServerIdType &serverId)
 {
 	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
@@ -1400,11 +1400,11 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 
 	//Pick up hostgroupMember to be added.
 	HostgroupMemberVect serverHostgroupMembers;
-	for (auto newSvHostgroupMember : svHostgroupMembers) {
-		if(currValidHostgroupMemberMap.erase(newSvHostgroupMember.id) >= 1) {
+	for (auto hostgroupMember : incomingHostgroupMembers) {
+		if(currValidHostgroupMemberMap.erase(hostgroupMember.id) >= 1) {
 			continue;
 		}
-		serverHostgroupMembers.push_back(move(newSvHostgroupMember));
+		serverHostgroupMembers.push_back(move(hostgroupMember));
 	}
 
 	GenericIdList invalidHostgroupMemberIdList;
