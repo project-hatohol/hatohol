@@ -171,7 +171,7 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	APPEND(s, "\n");
 
 	//
-	// HaotholError
+	// HatoholError
 	//
 	map<HatoholErrorCode, string> errorNames;
 	map<HatoholErrorCode, string>::iterator it;
