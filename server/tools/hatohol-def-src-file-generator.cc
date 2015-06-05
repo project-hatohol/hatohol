@@ -320,8 +320,8 @@ static string makeJsDefSource(char *arg[])
 	APPEND(s, "var TRIGGER_STATUS_PROBLEM = %d\n",  TRIGGER_STATUS_PROBLEM);
 	APPEND(s, "\n");
 
-	APPEND(s, "var EVENT_TYPE_GOOD = %d\n", EVENT_TYPE_GOOD);
-	APPEND(s, "var EVENT_TYPE_BAD  = %d\n", EVENT_TYPE_BAD);
+	APPEND(s, "var EVENT_TYPE_GOOD         = %d\n", EVENT_TYPE_GOOD);
+	APPEND(s, "var EVENT_TYPE_BAD          = %d\n", EVENT_TYPE_BAD);
 	APPEND(s, "var EVENT_TYPE_NOTIFICATION = %d\n", EVENT_TYPE_NOTIFICATION);
 	APPEND(s, "\n");
 
