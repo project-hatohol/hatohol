@@ -272,7 +272,7 @@ static void makeJsDefSourceErrorMessages(string &s)
 		const string &message = error.getMessage();
 		if (message.empty())
 			continue;
-		string escapedMessage = 
+		string escapedMessage =
 		  StringUtils::replace(message, "'", "\\'");
 		string sourceCode = StringUtils::sprintf(
 		  "gettext('%s')", escapedMessage.c_str());
