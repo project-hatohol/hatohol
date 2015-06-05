@@ -55,12 +55,12 @@ public:
 	{
 	}
 
-	typedef enum {
-		JSON_RPC_OBJECT_INVALID,
-		JSON_RPC_OBJECT_PROCEDURE,
-		JSON_RPC_OBJECT_NOTIFICATION,
-		JSON_RPC_OBJECT_RESPONSE
-	} JsonRpcObjectType;
+	enum class JsonRpcObjectType {
+		INVALID,
+		PROCEDURE,
+		NOTIFICATION,
+		RESPONSE
+	};
 
 	bool handle(AMQPConnection &connection, const AMQPMessage &message)
 	{
@@ -88,18 +88,18 @@ public:
 								 methodName,
 								 errorMessage);
 		switch(type) {
-		case JSON_RPC_OBJECT_PROCEDURE:
+		case JsonRpcObjectType::PROCEDURE:
 			response.body = m_hapi2.interpretHandler(methodName,
 								 parser);
 			sendResponse(connection, response);
 			break;
-		case JSON_RPC_OBJECT_NOTIFICATION:
+		case JsonRpcObjectType::NOTIFICATION:
 			m_hapi2.interpretHandler(methodName, parser);
 			break;
-		case JSON_RPC_OBJECT_RESPONSE:
+		case JsonRpcObjectType::RESPONSE:
 			// TODO
 			break;
-		case JSON_RPC_OBJECT_INVALID:
+		case JsonRpcObjectType::INVALID:
 		default:
 			response.body =
 			  m_hapi2.buildErrorResponse(JSON_RPC_INVALID_REQUEST,
@@ -131,17 +131,17 @@ public:
 			parser.read("method", methodName);
 
 			if (!parser.isMember("id"))
-				return JSON_RPC_OBJECT_NOTIFICATION;
+				return JsonRpcObjectType::NOTIFICATION;
 
 			JSONParser::ValueType type = parser.getValueType("id");
 			if (type != JSONParser::VALUE_TYPE_INT64 &&
 			    type != JSONParser::VALUE_TYPE_STRING) {
 				errorMessage =
 				  "Invalid request: Invalid id type!";
-			        return JSON_RPC_OBJECT_INVALID;
+			        return JsonRpcObjectType::INVALID;
 			}
 
-			return JSON_RPC_OBJECT_PROCEDURE;
+			return JsonRpcObjectType::PROCEDURE;
 		}
 
 		bool hasResult = parser.isMember("result");
@@ -149,14 +149,14 @@ public:
 
 		if (!hasResult && !hasError) {
 			errorMessage = "Invalid request";
-			return JSON_RPC_OBJECT_INVALID;
+			return JsonRpcObjectType::INVALID;
 		}
 
 		if (hasResult && hasError) {
 			errorMessage =
 			  "Invalid request: "
 			  "Must not exist both result and error!";
-			return JSON_RPC_OBJECT_INVALID;
+			return JsonRpcObjectType::INVALID;
 		}
 
 		if (hasResult) {
@@ -168,7 +168,7 @@ public:
 			// TODO: Check the error object
 		}
 
-		return JSON_RPC_OBJECT_RESPONSE;
+		return JsonRpcObjectType::RESPONSE;
 	}
 
 private:
