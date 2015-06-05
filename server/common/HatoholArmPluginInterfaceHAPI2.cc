@@ -55,6 +55,13 @@ public:
 	{
 	}
 
+	typedef enum {
+		JSON_RPC_OBJECT_INVALID,
+		JSON_RPC_OBJECT_PROCEDURE,
+		JSON_RPC_OBJECT_NOTIFICATION,
+		JSON_RPC_OBJECT_RESPONSE
+	} JsonRpcObjectType;
+
 	bool handle(AMQPConnection &connection, const AMQPMessage &message)
 	{
 		MLPL_DBG("message: <%s>/<%s>\n",
@@ -77,18 +84,30 @@ public:
 		}
 
 		string methodName;
-		bool valid = validateJsonRpc(parser, methodName, errorMessage);
-		if (!valid) {
+		JsonRpcObjectType type = detectJsonRpcObjectType(parser,
+								 methodName,
+								 errorMessage);
+		switch(type) {
+		case JSON_RPC_OBJECT_PROCEDURE:
+			response.body = m_hapi2.interpretHandler(methodName,
+								 parser);
+			sendResponse(connection, response);
+			break;
+		case JSON_RPC_OBJECT_NOTIFICATION:
+			m_hapi2.interpretHandler(methodName, parser);
+			break;
+		case JSON_RPC_OBJECT_RESPONSE:
+			// TODO
+			break;
+		case JSON_RPC_OBJECT_INVALID:
+		default:
 			response.body =
 			  m_hapi2.buildErrorResponse(JSON_RPC_INVALID_REQUEST,
 						     errorMessage, &parser);
 			// TODO: output error log
 			sendResponse(connection, response);
-			return true;
+			break;
 		}
-
-		response.body = m_hapi2.interpretHandler(methodName, parser);
-		sendResponse(connection, response);
 
 		return true;
 	}
@@ -103,23 +122,53 @@ public:
 		}
 	}
 
-	bool validateJsonRpc(JSONParser &parser, string &methodName,
-			     string &errorMessage)
+	JsonRpcObjectType detectJsonRpcObjectType(JSONParser &parser,
+						  string &methodName,
+						  string &errorMessage)
 	{
-		bool valid = parser.read("method", methodName);
+		if (parser.isMember("method")) {
+			// TODO check the type
+			parser.read("method", methodName);
 
-		JSONParser::ValueType idType = parser.getValueType("id");
-		if (idType != JSONParser::VALUE_TYPE_INT64 &&
-		    idType != JSONParser::VALUE_TYPE_STRING) {
-			valid = false;
+			if (!parser.isMember("id"))
+				return JSON_RPC_OBJECT_NOTIFICATION;
+
+			JSONParser::ValueType type = parser.getValueType("id");
+			if (type != JSONParser::VALUE_TYPE_INT64 &&
+			    type != JSONParser::VALUE_TYPE_STRING) {
+				errorMessage =
+				  "Invalid request: Invalid id type!";
+			        return JSON_RPC_OBJECT_INVALID;
+			}
+
+			return JSON_RPC_OBJECT_PROCEDURE;
 		}
 
-		if (!valid) {
-			// TODO: Set detailed error message
+		bool hasResult = parser.isMember("result");
+		bool hasError = parser.isMember("error");
+
+		if (!hasResult && !hasError) {
 			errorMessage = "Invalid request";
+			return JSON_RPC_OBJECT_INVALID;
 		}
 
-		return valid;
+		if (hasResult && hasError) {
+			errorMessage =
+			  "Invalid request: "
+			  "Must not exist both result and error!";
+			return JSON_RPC_OBJECT_INVALID;
+		}
+
+		if (hasResult) {
+			// The type of the result object will be determined by
+			// the method.
+		}
+
+		if (hasError) {
+			// TODO: Check the error object
+		}
+
+		return JSON_RPC_OBJECT_RESPONSE;
 	}
 
 private:
