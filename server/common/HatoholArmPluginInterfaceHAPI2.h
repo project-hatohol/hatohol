@@ -144,17 +144,15 @@ public:
 protected:
 	typedef std::map<HAPI2ProcedureType, ProcedureHandler> ProcedureHandlerMap;
 
+	virtual ~HatoholArmPluginInterfaceHAPI2();
+
 	void setArmPluginInfo(const ArmPluginInfo &pluginInfo);
-
 	std::mt19937 getRandomEngine(void);
-
 	static bool setResponseId(JSONParser &requestParser,
 				  JSONBuilder &responseBuilder);
 	std::string buildErrorResponse(const int errorCode,
 				       const std::string errorMessage,
 				       JSONParser *requestParser = NULL);
-
-	virtual ~HatoholArmPluginInterfaceHAPI2();
 
 private:
 	class AMQPHAPI2MessageHandler;
