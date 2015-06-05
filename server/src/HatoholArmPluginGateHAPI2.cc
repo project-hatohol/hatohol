@@ -240,8 +240,8 @@ const ArmStatus &HatoholArmPluginGateHAPI2::getArmStatus(void) const
 	return m_impl->m_armStatus;
 }
 
-static bool parseExchangeProfileParams(JSONParser &parser,
-				       ValidProcedureNameVect &validProcedureNameVect)
+static bool parseExchangeProfileParams(
+  JSONParser &parser, vector<string> &validProcedureNameVect)
 {
 	parser.startObject("procedures");
 	size_t num = parser.countElements();
@@ -267,7 +267,7 @@ static bool hapProcessLogger(JSONParser &parser)
 string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
   JSONParser &parser)
 {
-	ValidProcedureNameVect validProcedureNameVect;
+	vector<string> validProcedureNameVect;
 	parser.startObject("params");
 	bool succeeded = parseExchangeProfileParams(parser, validProcedureNameVect);
 	hapProcessLogger(parser);

@@ -112,10 +112,6 @@ struct HAPI2ProcedureDef {
 	ProcedureRequirementLevel level;
 };
 
-typedef std::vector<std::string>               ValidProcedureNameVect;
-typedef ValidProcedureNameVect::iterator       ValidProcedureNameVectIterator;
-typedef ValidProcedureNameVect::const_iterator ValidProcedureNameVectConstIterator;
-
 class HatoholArmPluginInterfaceHAPI2 {
 
 public:
