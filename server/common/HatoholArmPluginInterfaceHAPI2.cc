@@ -236,8 +236,7 @@ void HatoholArmPluginInterfaceHAPI2::registerProcedureHandler(
 string HatoholArmPluginInterfaceHAPI2::interpretHandler(
   const HAPI2ProcedureType &type, JSONParser &parser)
 {
-	ProcedureHandlerMapConstIterator it =
-	  m_impl->procedureHandlerMap.find(type);
+	auto it = m_impl->procedureHandlerMap.find(type);
 	if (it == m_impl->procedureHandlerMap.end()) {
 		string message = StringUtils::sprintf("Method not found: %s",
 						      type.c_str());

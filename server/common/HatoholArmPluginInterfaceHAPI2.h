@@ -143,8 +143,6 @@ public:
 
 protected:
 	typedef std::map<HAPI2ProcedureType, ProcedureHandler> ProcedureHandlerMap;
-	typedef ProcedureHandlerMap::iterator	     ProcedureHandlerMapIterator;
-	typedef ProcedureHandlerMap::const_iterator  ProcedureHandlerMapConstIterator;
 
 	void setArmPluginInfo(const ArmPluginInfo &pluginInfo);
 
