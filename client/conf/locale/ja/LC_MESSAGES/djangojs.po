@@ -184,7 +184,7 @@ msgstr "不明"
 
 #: static/js/events_view.js:41
 msgid "Notification"
-msgstr ""
+msgstr "通知"
 
 #: static/js/events_view.js:43 static/js/triggers_view.js:97
 #: static/js/utils.js:70
