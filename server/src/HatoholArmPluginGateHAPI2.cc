@@ -582,13 +582,16 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroups(
 
 	string updateType;
 	bool checkInvalidHostGroups = parseUpdateType(parser, updateType);
-	// TODO: implement validation for HostGroups
+	// TODO: reflect error in response
+	if (checkInvalidHostGroups) {
+		dataStore->syncHostgroups(hostgroupVect, serverInfo.id);
+	} else {
+		dataStore->upsertHostgroups(hostgroupVect);
+	}
 	string lastInfo;
 	if (!parser.read("lastInfo", lastInfo) ) {
 		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP);
 	}
-	dataStore->upsertHostgroups(hostgroupVect);
-
 	parser.endObject(); // params
 
 	JSONBuilder builder;
