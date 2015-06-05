@@ -91,6 +91,27 @@ const HAPI2ProcedureType HAPI2_FETCH_TRIGGERS
 const HAPI2ProcedureType HAPI2_FETCH_EVENTS
   = "fetchEvents";
 
+enum ProcedureImplementType {
+	PROCEDURE_SERVER,
+	PROCEDURE_HAP,
+	PROCEDURE_BOTH
+};
+
+enum ProcedureRequirementLevel {
+	BOTH_MANDATORY,
+	SERVER_MANDATORY,
+	SERVER_OPTIONAL,
+	SERVER_MANDATORY_HAP_OPTIONAL,
+	HAP_MANDATORY,
+	HAP_OPTIONAL
+};
+
+struct HAPI2ProcedureDef {
+	ProcedureImplementType type;
+	std::string name;
+	ProcedureRequirementLevel level;
+};
+
 typedef std::vector<std::string>               ValidProcedureNameVect;
 typedef ValidProcedureNameVect::iterator       ValidProcedureNameVectIterator;
 typedef ValidProcedureNameVect::const_iterator ValidProcedureNameVectConstIterator;
@@ -121,6 +142,8 @@ public:
 				     JSONParser &parser);
 	virtual void start(void);
 	virtual void send(const std::string &procedure);
+
+	const std::list<HAPI2ProcedureDef> &getDefaultValidProcedureList(void) const;
 
 protected:
 	typedef std::map<HAPI2ProcedureType, ProcedureHandler> ProcedureHandlerMap;

@@ -28,25 +28,6 @@
 using namespace std;
 using namespace mlpl;
 
-std::list<HAPI2ProcedureDef> defaultValidProcedureList = {
-	{PROCEDURE_BOTH,   "exchangeProfile",           SERVER_MANDATORY_HAP_OPTIONAL},
-	{PROCEDURE_SERVER, "getMonitoringServerInfo",   SERVER_MANDATORY},
-	{PROCEDURE_SERVER, "getLastInfo",               SERVER_MANDATORY},
-	{PROCEDURE_SERVER, "putItems",                  SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "putHistory",                SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "updateHosts",               SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "updateHostGroups",          SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "updateHostGroupMembership", SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "updateTriggers",            SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "updateEvents",              SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "updateHostParent",          SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "updateArmInfo",             SERVER_MANDATORY},
-	{PROCEDURE_HAP,    "fetchItems",                HAP_OPTIONAL},
-	{PROCEDURE_HAP,    "fetchHistory",              HAP_OPTIONAL},
-	{PROCEDURE_HAP,    "fetchTriggers",             HAP_OPTIONAL},
-	{PROCEDURE_HAP,    "fetchEvents",               HAP_OPTIONAL},
-};
-
 struct HatoholArmPluginGateHAPI2::Impl
 {
 	// We have a copy. The access to the object is MT-safe.
@@ -298,7 +279,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	builder.startObject("result");
 	builder.add("name", "exampleName"); // TODO: add process name mechanism
 	builder.startArray("procedures");
-	for (auto defaultValidProcedureDef : defaultValidProcedureList) {
+	for (auto defaultValidProcedureDef : getDefaultValidProcedureList()) {
 		if (defaultValidProcedureDef.type == PROCEDURE_BOTH ||
 		    defaultValidProcedureDef.type == PROCEDURE_HAP)
 			continue;

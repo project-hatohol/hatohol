@@ -27,6 +27,25 @@
 using namespace std;
 using namespace mlpl;
 
+std::list<HAPI2ProcedureDef> defaultValidProcedureList = {
+	{PROCEDURE_BOTH,   "exchangeProfile",           SERVER_MANDATORY_HAP_OPTIONAL},
+	{PROCEDURE_SERVER, "getMonitoringServerInfo",   SERVER_MANDATORY},
+	{PROCEDURE_SERVER, "getLastInfo",               SERVER_MANDATORY},
+	{PROCEDURE_SERVER, "putItems",                  SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "putHistory",                SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "updateHosts",               SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "updateHostGroups",          SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "updateHostGroupMembership", SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "updateTriggers",            SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "updateEvents",              SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "updateHostParent",          SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "updateArmInfo",             SERVER_MANDATORY},
+	{PROCEDURE_HAP,    "fetchItems",                HAP_OPTIONAL},
+	{PROCEDURE_HAP,    "fetchHistory",              HAP_OPTIONAL},
+	{PROCEDURE_HAP,    "fetchTriggers",             HAP_OPTIONAL},
+	{PROCEDURE_HAP,    "fetchEvents",               HAP_OPTIONAL},
+};
+
 class HatoholArmPluginInterfaceHAPI2::AMQPHAPI2MessageHandler
   : public AMQPMessageHandler
 {
@@ -305,4 +324,10 @@ string HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 	responseBuilder.endObject(); // error
 	responseBuilder.endObject();
 	return responseBuilder.generate();
+}
+
+const std::list<HAPI2ProcedureDef> &
+  HatoholArmPluginInterfaceHAPI2::getDefaultValidProcedureList(void) const
+{
+	return defaultValidProcedureList;
 }

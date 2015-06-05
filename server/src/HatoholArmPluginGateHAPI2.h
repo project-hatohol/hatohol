@@ -25,27 +25,6 @@
 #include "JSONBuilder.h"
 #include "DBTablesLastInfo.h"
 
-enum ProcedureImplementType {
-	PROCEDURE_SERVER,
-	PROCEDURE_HAP,
-	PROCEDURE_BOTH
-};
-
-enum ProcedureRequirementLevel {
-	BOTH_MANDATORY,
-	SERVER_MANDATORY,
-	SERVER_OPTIONAL,
-	SERVER_MANDATORY_HAP_OPTIONAL,
-	HAP_MANDATORY,
-	HAP_OPTIONAL
-};
-
-struct HAPI2ProcedureDef {
-	ProcedureImplementType type;
-	std::string name;
-	ProcedureRequirementLevel level;
-};
-
 class HatoholArmPluginGateHAPI2 : public DataStore, public HatoholArmPluginInterfaceHAPI2 {
 public:
 	HatoholArmPluginGateHAPI2(const MonitoringServerInfo &serverInfo,
