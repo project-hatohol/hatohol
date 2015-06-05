@@ -36,6 +36,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
 	HostInfoCache hostInfoCache;
+	map<string, Closure0 *> m_fetchClosureMap;
 
 	Impl(const MonitoringServerInfo &_serverInfo,
 	     HatoholArmPluginGateHAPI2 *hapghapi)
@@ -58,6 +59,11 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 	~Impl()
 	{
+		for (auto pair: m_fetchClosureMap) {
+			Closure0 *closure = pair.second;
+			(*closure)();
+			delete closure;
+		}
 		m_armStatus.setRunningStatus(false);
 	}
 
@@ -65,6 +71,28 @@ struct HatoholArmPluginGateHAPI2::Impl
 	{
 		m_armStatus.setRunningStatus(true);
 	}
+
+	void queueFetchCallback(const string &fetchId, Closure0 *closure)
+	{
+		if (!fetchId.empty())
+			return;
+		m_fetchClosureMap[fetchId] = closure;
+	}
+
+	void runFetchCallback(const string &fetchId)
+	{
+		if (!fetchId.empty())
+			return;
+
+		auto it = m_fetchClosureMap.find(fetchId);
+		if (it != m_fetchClosureMap.end()) {
+			Closure0 *closure = it->second;
+			(*closure)();
+			m_fetchClosureMap.erase(it);
+			delete closure;
+		}
+	}
+
 };
 
 // ---------------------------------------------------------------------------
@@ -199,9 +227,11 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchItem(Closure0 *closure)
 		builder.endArray();
 	}
 	std::mt19937 random = getRandomEngine();
-	// TODO: keep fetchId & id until receiving response
+	// TODO: keep id until receiving response
 	uint64_t fetchId = random(), id = random();
-	builder.add("fetchId", fetchId);
+	string fetchIdString = StringUtils::toString(fetchId);
+	m_impl->queueFetchCallback(fetchIdString, closure);
+	builder.add("fetchId", fetchIdString);
 	builder.endObject();
 	builder.add("id", id);
 	builder.endObject();
@@ -402,11 +432,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseItemParams(parser, itemList, serverInfo);
 	dataStore->addItemList(itemList);
-
 	string fetchId;
-	parser.read("fetchId", fetchId);
-	// TODO: callback
-
+	if (parser.isMember("fetchId")) {
+		parser.read("fetchId", fetchId);
+		m_impl->runFetchCallback(fetchId);
+	}
 	parser.endObject(); // params
 
 	JSONBuilder builder;
@@ -415,6 +445,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	builder.add("result", "");
 	setResponseId(parser, builder);
 	builder.endObject();
+
 	return builder.generate();
 }
 
