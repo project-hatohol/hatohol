@@ -105,6 +105,7 @@ enum EventType {
 	EVENT_TYPE_GOOD,
 	EVENT_TYPE_BAD,
 	EVENT_TYPE_UNKNOWN,
+	EVENT_TYPE_NOTIFICATION,
 };
 
 struct EventInfo {
