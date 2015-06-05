@@ -1649,15 +1649,15 @@ HatoholError DBTablesMonitoring::syncTriggers(TriggerInfoList &incomingTriggerIn
 
 	const TriggerInfoList currTriggers = move(_currTriggers);
 
-	map<TriggerIdType, const TriggerInfo *> currValidTriggerMap;
+	map<TriggerIdType, const TriggerInfo *> currentTriggerMap;
 	for (auto& trigger : currTriggers) {
-		currValidTriggerMap[trigger.id] = &trigger;
+		currentTriggerMap[trigger.id] = &trigger;
 	}
 
 	// Pick up triggers to be added
 	TriggerInfoList serverTriggers;
 	for (auto trigger : incomingTriggerInfoList) {
-		if (currValidTriggerMap.erase(trigger.id) >= 1) {
+		if (currentTriggerMap.erase(trigger.id) >= 1) {
 			// If the hostgroup already exists, we have nothing to do.
 			continue;
 		}
@@ -1666,7 +1666,7 @@ HatoholError DBTablesMonitoring::syncTriggers(TriggerInfoList &incomingTriggerIn
 
 	TriggerIdList invalidTriggerIdList;
 	map<TriggerIdType, const TriggerInfo *> invalidTriggerMap =
-		move(currValidTriggerMap);
+		move(currentTriggerMap);
 	for (auto invalidTriggerPair : invalidTriggerMap) {
 		TriggerInfo invalidTrigger = *invalidTriggerPair.second;
 		invalidTriggerIdList.push_back(invalidTrigger.id);

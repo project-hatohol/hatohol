@@ -1353,15 +1353,15 @@ HatoholError DBTablesHost::syncHostgroups(
 		return err;
 	const HostgroupVect currHostgroups = move(_currHostgroups);
 
-	map<HostgroupIdType, const Hostgroup *> currValidHostgroupMap;
+	map<HostgroupIdType, const Hostgroup *> currentHostgroupMap;
 	for (auto& hostgroup : currHostgroups) {
-		currValidHostgroupMap[hostgroup.idInServer] = &hostgroup;
+		currentHostgroupMap[hostgroup.idInServer] = &hostgroup;
 	}
 
 	// Pick up hostgroups to be added.
 	HostgroupVect serverHostgroups;
 	for (auto hostgroup : incomingHostgroups) {
-		if (currValidHostgroupMap.erase(hostgroup.idInServer) >= 1) {
+		if (currentHostgroupMap.erase(hostgroup.idInServer) >= 1) {
 			// If the hostgroup already exists, we have nothing to do.
 			continue;
 		}
@@ -1370,7 +1370,7 @@ HatoholError DBTablesHost::syncHostgroups(
 
 	GenericIdList invalidHostgroupIdList;
 	map<HostgroupIdType, const Hostgroup *> invalidHostgroupMap =
-		move(currValidHostgroupMap);
+		move(currentHostgroupMap);
 	for (auto invalidHostgroupPair : invalidHostgroupMap) {
 		Hostgroup invalidHostgroup = *invalidHostgroupPair.second;
 		invalidHostgroupIdList.push_back(invalidHostgroup.id);
@@ -1393,15 +1393,15 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 	if (err != HTERR_OK)
 		return err;
 	const HostgroupMemberVect currHostgroupMembers = move(_currHostgroupMembers);
-	map<GenericIdType, const HostgroupMember *> currValidHostgroupMemberMap;
+	map<GenericIdType, const HostgroupMember *> currentHostgroupMemberMap;
 	for (auto& hostgroupMember : currHostgroupMembers) {
-		currValidHostgroupMemberMap[hostgroupMember.id] = &hostgroupMember;
+		currentHostgroupMemberMap[hostgroupMember.id] = &hostgroupMember;
 	}
 
 	//Pick up hostgroupMember to be added.
 	HostgroupMemberVect serverHostgroupMembers;
 	for (auto hostgroupMember : incomingHostgroupMembers) {
-		if(currValidHostgroupMemberMap.erase(hostgroupMember.id) >= 1) {
+		if(currentHostgroupMemberMap.erase(hostgroupMember.id) >= 1) {
 			continue;
 		}
 		serverHostgroupMembers.push_back(move(hostgroupMember));
@@ -1409,7 +1409,7 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 
 	GenericIdList invalidHostgroupMemberIdList;
 	map<GenericIdType, const HostgroupMember *> invalidHostgroupMemberMap =
-		move(currValidHostgroupMemberMap);
+		move(currentHostgroupMemberMap);
 	for (auto invalidHostgroupMemberPair : invalidHostgroupMemberMap) {
 		HostgroupMember invalidHostgroupMember = *invalidHostgroupMemberPair.second;
 		invalidHostgroupMemberIdList.push_back(invalidHostgroupMember.id);
