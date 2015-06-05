@@ -529,11 +529,7 @@ HatoholError UnifiedDataStore::syncHostgroups(const HostgroupVect &hostgroups,
 					      const ServerIdType &serverId)
 {
 	ThreadLocalDBCache cache;
-	HatoholError err = cache.getHost().syncHostgroups(hostgroups, serverId);
-
-	if (err != HTERR_OK)
-		return err;
-	return HTERR_OK;
+	return cache.getHost().syncHostgroups(hostgroups, serverId);
 }
 
 HatoholError UnifiedDataStore::upsertHostgroupMembers(
@@ -549,12 +545,7 @@ HatoholError UnifiedDataStore::syncHostgroupMembers(
   const ServerIdType &serverId)
 {
 	ThreadLocalDBCache cache;
-	HatoholError err =
-		cache.getHost().syncHostgroupMembers(hostgroupMembers, serverId);
-
-	if (err != HTERR_OK)
-		return err;
-	return HTERR_OK;
+	return cache.getHost().syncHostgroupMembers(hostgroupMembers, serverId);
 }
 
 HatoholError UnifiedDataStore::getHostgroupMembers(
@@ -585,12 +576,7 @@ HatoholError UnifiedDataStore::syncTriggers(
   const ServerIdType &serverId)
 {
 	ThreadLocalDBCache cache;
-	HatoholError err =
-		cache.getMonitoring().syncTriggers(triggerInfoList, serverId);
-
-	if (err != HTERR_OK)
-		return err;
-	return HTERR_OK;
+	return cache.getMonitoring().syncTriggers(triggerInfoList, serverId);
 }
 
 size_t UnifiedDataStore::getNumberOfGoodHosts(const TriggersQueryOption &option)
