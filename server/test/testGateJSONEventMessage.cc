@@ -523,6 +523,12 @@ namespace typeGetter {
 		cppcut_assert_equal(EVENT_TYPE_UNKNOWN,
 				    message->getType());
 	}
-}
 
+	void test_notification()
+	{
+		message = parse("notification");
+		cppcut_assert_equal(EVENT_TYPE_NOTIFICATION,
+				    message->getType());
+	}
+}
 } // namespace testGateJSONEventMessage

@@ -377,6 +377,9 @@ bool HatoholDBUtils::transformEventItemGroupToEventInfo(
 	case EVENT_TYPE_UNKNOWN:
 		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
 		break;
+	case EVENT_TYPE_NOTIFICATION:
+		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
+		break;
 	default:
 		MLPL_ERR("Unknown type: %d\n", eventInfo.type);
 		eventInfo.status = TRIGGER_STATUS_UNKNOWN;

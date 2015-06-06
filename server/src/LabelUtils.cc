@@ -34,6 +34,8 @@ string LabelUtils::getEventTypeLabel(EventType eventType)
 		return "BAD";
 	case EVENT_TYPE_UNKNOWN:
 		return "Unknown";
+	case EVENT_TYPE_NOTIFICATION:
+		return "Notification";
 	default:
 		return StringUtils::sprintf("Invalid: %d", eventType);
 	}

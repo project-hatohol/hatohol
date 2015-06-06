@@ -179,6 +179,8 @@ Event type
      - EVENT_TYPE_BAD
    * - 2
      - EVENT_TYPE_UNKNOWN
+   * - 3
+     - EVENT_TYPE_NOTIFICATION
 
 Server type
 -------------
