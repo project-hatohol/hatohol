@@ -38,6 +38,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	set<string> m_validProcedureNameSet;
 	HostInfoCache hostInfoCache;
 	map<string, Closure0 *> m_fetchClosureMap;
+	map<string, Closure1<HistoryInfoVect> *> m_fetchHistoryClosureMap;
 
 	Impl(const MonitoringServerInfo &_serverInfo,
 	     HatoholArmPluginGateHAPI2 *hapghapi)
@@ -62,7 +63,15 @@ struct HatoholArmPluginGateHAPI2::Impl
 	{
 		for (auto pair: m_fetchClosureMap) {
 			Closure0 *closure = pair.second;
-			(*closure)();
+			if (closure)
+				(*closure)();
+			delete closure;
+		}
+		for (auto pair: m_fetchHistoryClosureMap) {
+			Closure1<HistoryInfoVect> *closure = pair.second;
+			HistoryInfoVect historyInfoVect;
+			if (closure)
+				(*closure)(historyInfoVect);
 			delete closure;
 		}
 		m_armStatus.setRunningStatus(false);
@@ -88,8 +97,32 @@ struct HatoholArmPluginGateHAPI2::Impl
 		auto it = m_fetchClosureMap.find(fetchId);
 		if (it != m_fetchClosureMap.end()) {
 			Closure0 *closure = it->second;
-			(*closure)();
+			if (closure)
+				(*closure)();
 			m_fetchClosureMap.erase(it);
+			delete closure;
+		}
+	}
+
+	void queueFetchHistoryCallback(const string &fetchId,
+				       Closure1<HistoryInfoVect> *closure)
+	{
+		if (!fetchId.empty())
+			return;
+		m_fetchHistoryClosureMap[fetchId] = closure;
+	}
+
+	void runFetchHistoryCallback(const string &fetchId,
+				     const HistoryInfoVect &historyInfoVect)
+	{
+		if (!fetchId.empty())
+			return;
+
+		auto it = m_fetchHistoryClosureMap.find(fetchId);
+		if (it != m_fetchHistoryClosureMap.end()) {
+			Closure1<HistoryInfoVect> *closure = it->second;
+			(*closure)(historyInfoVect);
+			m_fetchHistoryClosureMap.erase(it);
 			delete closure;
 		}
 	}
@@ -248,11 +281,48 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchItem(Closure0 *closure)
 	return true;
 }
 
+string buildTimeStamp(const time_t &timeValue)
+{
+	struct tm tm;;
+	gmtime_r(&timeValue, &tm);
+	char buf[32];
+	strftime(buf, sizeof(buf), "%Y%m%d", &tm);
+	string timeString;
+	timeString = buf;
+	return timeString;
+}
+
 void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
   const ItemInfo &itemInfo, const time_t &beginTime, const time_t &endTime,
   Closure1<HistoryInfoVect> *closure)
 {
-	// TODO: implement
+	if (!m_impl->hasProcedure("fetchHistory")) {
+		HistoryInfoVect historyInfoVect;
+		if (closure)
+			(*closure)(historyInfoVect);
+		delete closure;
+		return;
+	}
+
+	JSONBuilder builder;
+	builder.startObject();
+	builder.add("jsonrpc", "2.0");
+	builder.add("method", "fetchHistory");
+	builder.startObject("params");
+	builder.add("hostId", itemInfo.hostIdInServer);
+	builder.add("itemId", itemInfo.id);
+	builder.add("beginTime", buildTimeStamp(beginTime));
+	builder.add("endTime", buildTimeStamp(endTime));
+	std::mt19937 random = getRandomEngine();
+	// TODO: keep the id until receiving response
+	uint64_t fetchId = random(), id = random();
+	string fetchIdString = StringUtils::toString(fetchId);
+	m_impl->queueFetchHistoryCallback(fetchIdString, closure);
+	builder.add("fetchId", fetchIdString);
+	builder.endObject();
+	builder.add("id", id);
+	builder.endObject();
+	send(builder.generate());
 }
 
 bool HatoholArmPluginGateHAPI2::startOnDemandFetchTrigger(Closure0 *closure)
@@ -514,12 +584,13 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	bool succeeded = parseHistoryParams(parser, historyInfoVect, serverInfo);
-	// TODO: Store or transport historyInfoVect
-
-	string fetchId;
-	parser.read("fetchId", fetchId);
-	// TODO: callback
+	bool succeeded = parseHistoryParams(parser, historyInfoVect,
+					    serverInfo);
+	if (parser.isMember("fetchId")) {
+		string fetchId;
+		parser.read("fetchId", fetchId);
+		m_impl->runFetchHistoryCallback(fetchId, historyInfoVect);
+	}
 
 	parser.endObject(); // params
 
