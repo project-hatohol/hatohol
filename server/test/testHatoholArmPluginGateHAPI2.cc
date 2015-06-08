@@ -658,6 +658,36 @@ void test_notSupportfetchItems(void)
 	cppcut_assert_equal(false, gate->startOnDemandFetchItem(NULL));
 }
 
+void test_fetchTriggers(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
+		" \"params\":{\"procedures\":[\"fetchTriggers\"],"
+		" \"name\":\"examplePlugin\"}, \"id\":123}";
+	JSONParser parser(json);
+	gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
+	cppcut_assert_equal(true, gate->startOnDemandFetchTrigger(NULL));
+
+	string expected =
+		"^\\{"
+		"\"jsonrpc\":\"2\\.0\","
+		"\"method\":\"fetchTriggers\","
+		"\"params\":\\{\"fetchId\":\"\\d+\"\\},"
+		"\"id\":\\d+"
+		"\\}$";
+	string actual = popServerMessage();
+	cut_assert_match(expected.c_str(), actual.c_str());
+}
+
+void test_notSupportFetchTriggers(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	cppcut_assert_equal(false, gate->startOnDemandFetchTrigger(NULL));
+}
+
 } // testCommunication
 
 } // testHatoholArmPluginGateHAPI2
