@@ -167,7 +167,7 @@ void test_procedureHandlerExchangeProfile(void)
 		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
 		" \"params\":{\"procedures\":[\"getMonitoringServerInfo\","
 		" \"getLastInfo\", \"putItems\", \"updateArmInfo\", \"fetchItems\"],"
-		" \"name\":\"exampleName\"}, \"id\":123}";
+		" \"name\":\"examplePlugin\"}, \"id\":123}";
 	JSONParser parser(json);
 	string actual = gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
 	string expected =
@@ -355,7 +355,7 @@ void test_procedureHandlerUpdateTriggers(void)
 		" \"lastInfo\":\"201504061606\", \"fetchId\":\"1\","
 		" \"triggers\":[{\"triggerId\":\"1\", \"status\":\"OK\","
 		" \"severity\":\"INFO\",\"lastChangeTime\":\"20150323175800\","
-		" \"hostId\":\"1\", \"hostName\":\"exampleName\","
+		" \"hostId\":\"1\", \"hostName\":\"exampleHostName\","
 		" \"brief\":\"example brief\","
 		" \"extendedInfo\": \"sample extended info\"}]},\"id\":34031}";
 	JSONParser parser(json);
@@ -382,7 +382,7 @@ void test_procedureHandlerUpdateEvents(gconstpointer data)
 			       " \"params\":{\"events\":[{\"eventId\":\"1\","
 			       " \"time\":\"20150323151300\", \"type\":\"GOOD\","
 			       " %s \"status\": \"OK\", \"severity\":\"INFO\","
-			       " \"hostId\":3, \"hostName\":\"exampleName\","
+			       " \"hostId\":3, \"hostName\":\"exampleHostName\","
 			       " \"brief\":\"example brief\","
 			       " \"extendedInfo\": \"sample extended info\"}],"
 			       " \"lastInfo\":\"20150401175900\","
@@ -557,7 +557,7 @@ void test_exchangeProfile(void)
 		"{"
 		"  \"id\": 1,"
 		"  \"params\": {"
-		"    \"name\": \"exampleName\","
+		"    \"name\": \"examplePlugin\","
 		"    \"procedures\": ["
 		"      \"exchangeProfile\""
 		"    ]"
@@ -635,7 +635,7 @@ void test_fetchItems(void)
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
 		" \"params\":{\"procedures\":[\"fetchItems\"],"
-		" \"name\":\"exampleName\"}, \"id\":123}";
+		" \"name\":\"examplePlugin\"}, \"id\":123}";
 	JSONParser parser(json);
 	gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
 	cppcut_assert_equal(true, gate->startOnDemandFetchItem(NULL));
