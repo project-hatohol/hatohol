@@ -665,6 +665,60 @@ void test_notSupportfetchItems(void)
 	cppcut_assert_equal(false, gate->startOnDemandFetchItem(NULL));
 }
 
+void test_fetchItemsCallback(void)
+{
+	struct TestContext {
+		AtomicValue<bool> m_called;
+		TestContext()
+		:m_called(false)
+		{
+		}
+		void onFetchItems(Closure0 *closure)
+		{
+			m_called = true;
+		}
+	} context;
+	struct FetchClosure : ClosureTemplate0<TestContext>
+	{
+		FetchClosure(TestContext *receiver, callback func)
+		: ClosureTemplate0<TestContext>(receiver, func)
+		{
+		}
+	};
+	Closure0 *closure = new FetchClosure(&context, &TestContext::onFetchItems);
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "fetchItems");
+	cppcut_assert_equal(true, gate->startOnDemandFetchItem(closure));
+
+	string request = popServerMessage();
+	string fetchId;
+	int64_t id;
+	JSONParser parser(request);
+	parser.startObject("params");
+	parser.read("fetchId", fetchId);
+	parser.endObject();
+	parser.read("id", id);
+
+	string putItemsJSON = StringUtils::sprintf(
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
+		" \"params\":{\"items\":[{\"itemId\":\"1\", \"hostId\":\"1\","
+		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175523\","
+		" \"lastValue\":\"example value\","
+		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"},"
+		" {\"itemId\":\"2\", \"hostId\":\"1\","
+		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175531\","
+		" \"lastValue\":\"example value\","
+		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"}],"
+		" \"fetchId\":\"%s\"}, \"id\":%" PRId64 "}",
+		fetchId.c_str(), id);
+	sendMessage(putItemsJSON);
+
+	string reply = popServerMessage(); // for waiting the callback
+	cppcut_assert_equal(true, context.m_called.get());
+}
+
 void test_fetchHistory(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(

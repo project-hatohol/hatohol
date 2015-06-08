@@ -84,14 +84,14 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 	void queueFetchCallback(const string &fetchId, Closure0 *closure)
 	{
-		if (!fetchId.empty())
+		if (fetchId.empty())
 			return;
 		m_fetchClosureMap[fetchId] = closure;
 	}
 
 	void runFetchCallback(const string &fetchId)
 	{
-		if (!fetchId.empty())
+		if (fetchId.empty())
 			return;
 
 		auto it = m_fetchClosureMap.find(fetchId);
@@ -107,7 +107,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	void queueFetchHistoryCallback(const string &fetchId,
 				       Closure1<HistoryInfoVect> *closure)
 	{
-		if (!fetchId.empty())
+		if (fetchId.empty())
 			return;
 		m_fetchHistoryClosureMap[fetchId] = closure;
 	}
@@ -115,7 +115,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	void runFetchHistoryCallback(const string &fetchId,
 				     const HistoryInfoVect &historyInfoVect)
 	{
-		if (!fetchId.empty())
+		if (fetchId.empty())
 			return;
 
 		auto it = m_fetchHistoryClosureMap.find(fetchId);
