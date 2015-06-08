@@ -286,7 +286,7 @@ string buildTimeStamp(const time_t &timeValue)
 	struct tm tm;;
 	gmtime_r(&timeValue, &tm);
 	char buf[32];
-	strftime(buf, sizeof(buf), "%Y%m%d", &tm);
+	strftime(buf, sizeof(buf), "%Y%m%d%H%M%S", &tm);
 	string timeString;
 	timeString = buf;
 	return timeString;

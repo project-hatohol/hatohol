@@ -658,6 +658,38 @@ void test_notSupportfetchItems(void)
 	cppcut_assert_equal(false, gate->startOnDemandFetchItem(NULL));
 }
 
+void test_fetchHistory(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
+		" \"params\":{\"procedures\":[\"fetchHistory\"],"
+		" \"name\":\"examplePlugin\"}, \"id\":123}";
+	JSONParser parser(json);
+	gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
+
+	ItemInfo itemInfo = testItemInfo[0];
+	gate->startOnDemandFetchHistory(itemInfo, 1433748751, 1433752340, NULL);
+
+	string expected = StringUtils::sprintf(
+		"^\\{"
+		"\"jsonrpc\":\"2\\.0\","
+		"\"method\":\"fetchHistory\","
+		"\"params\":\\{"
+		"\"hostId\":\"%" FMT_LOCAL_HOST_ID "\","
+		"\"itemId\":\"%" FMT_ITEM_ID "\","
+		"\"beginTime\":\"20150608073231\","
+		"\"endTime\":\"20150608083220\","
+		"\"fetchId\":\"\\d+\""
+		"\\},"
+		"\"id\":\\d+"
+		"\\}$",
+		itemInfo.hostIdInServer.c_str(), itemInfo.id.c_str());
+	string actual = popServerMessage();
+	cut_assert_match(expected.c_str(), actual.c_str());
+}
+
 void test_fetchTriggers(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
