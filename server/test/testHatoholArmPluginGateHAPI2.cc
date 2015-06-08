@@ -457,8 +457,7 @@ void test_fetchItem(void)
 	  new HatoholArmPluginGateHAPI2(serverInfo), false);
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
-		" \"params\":{\"procedures\":[\"getMonitoringServerInfo\","
-		" \"getLastInfo\", \"putItems\", \"updateArmInfo\", \"fetchItems\"],"
+		" \"params\":{\"procedures\":[\"fetchItems\"],"
 		" \"name\":\"exampleName\"}, \"id\":123}";
 	JSONParser parser(json);
 	gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
