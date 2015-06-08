@@ -610,7 +610,8 @@ void test_exchangeProfile(void)
 		"}");
 
 	string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":{\"name\":\"exampleName\","
+		"{\"jsonrpc\":\"2.0\","
+		  "\"result\":{\"name\":\"" PACKAGE_NAME "\","
 		  "\"procedures\":"
 		  "[\"getMonitoringServerInfo\",\"getLastInfo\",\"putItems\","
 		  "\"putHistory\",\"updateHosts\",\"updateHostGroups\","
