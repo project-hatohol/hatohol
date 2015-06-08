@@ -519,6 +519,18 @@ string popServerMessage(void)
 	return handler.m_message.body;
 }
 
+void acceptProcedure(HatoholArmPluginGateHAPI2Ptr &gate,
+		     const string procedureName)
+{
+	string json = StringUtils::sprintf(
+		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
+		" \"params\":{\"procedures\":[\"%s\"],"
+		" \"name\":\"examplePlugin\"}, \"id\":123}",
+		procedureName.c_str());
+	JSONParser parser(json);
+	gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
+}
+
 void cut_setup(void)
 {
 	// e.g.) url = "amqp://hatohol:hatohol@localhost:5672/hatohol";
@@ -632,12 +644,7 @@ void test_fetchItems(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
-	string json =
-		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
-		" \"params\":{\"procedures\":[\"fetchItems\"],"
-		" \"name\":\"examplePlugin\"}, \"id\":123}";
-	JSONParser parser(json);
-	gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
+	acceptProcedure(gate, "fetchItems");
 	cppcut_assert_equal(true, gate->startOnDemandFetchItem(NULL));
 
 	string expected =
@@ -662,13 +669,7 @@ void test_fetchHistory(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
-	string json =
-		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
-		" \"params\":{\"procedures\":[\"fetchHistory\"],"
-		" \"name\":\"examplePlugin\"}, \"id\":123}";
-	JSONParser parser(json);
-	gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
-
+	acceptProcedure(gate, "fetchHistory");
 	ItemInfo itemInfo = testItemInfo[0];
 	gate->startOnDemandFetchHistory(itemInfo, 1433748751, 1433752340, NULL);
 
@@ -694,12 +695,7 @@ void test_fetchTriggers(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
-	string json =
-		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
-		" \"params\":{\"procedures\":[\"fetchTriggers\"],"
-		" \"name\":\"examplePlugin\"}, \"id\":123}";
-	JSONParser parser(json);
-	gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
+	acceptProcedure(gate, "fetchTriggers");
 	cppcut_assert_equal(true, gate->startOnDemandFetchTrigger(NULL));
 
 	string expected =
