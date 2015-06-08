@@ -473,7 +473,6 @@ void test_notSupportfetchItem(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(serverInfo), false);
 	cppcut_assert_equal(false, gate->startOnDemandFetchItem(NULL));
-	// TODO: check reply
 }
 
 } // testFetch
