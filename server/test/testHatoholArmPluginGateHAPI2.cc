@@ -455,7 +455,25 @@ void test_fetchItem(void)
 	serverInfo = testServerInfo[7];
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
+		" \"params\":{\"procedures\":[\"getMonitoringServerInfo\","
+		" \"getLastInfo\", \"putItems\", \"updateArmInfo\", \"fetchItems\"],"
+		" \"name\":\"exampleName\"}, \"id\":123}";
+	JSONParser parser(json);
+	gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
 	cppcut_assert_equal(true, gate->startOnDemandFetchItem(NULL));
+	// TODO: check reply
+}
+
+void test_notSupportfetchItem(void)
+{
+	MonitoringServerInfo serverInfo;
+	initServerInfo(serverInfo);
+	serverInfo = testServerInfo[7];
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(serverInfo), false);
+	cppcut_assert_equal(false, gate->startOnDemandFetchItem(NULL));
 	// TODO: check reply
 }
 

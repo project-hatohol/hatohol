@@ -94,6 +94,12 @@ struct HatoholArmPluginGateHAPI2::Impl
 		}
 	}
 
+	bool hasProcedure(const string procedureName)
+	{
+		return m_validProcedureNameSet.find(procedureName) !=
+			m_validProcedureNameSet.end();
+	}
+
 };
 
 // ---------------------------------------------------------------------------
@@ -212,12 +218,14 @@ static bool parseTimeStamp(
 
 bool HatoholArmPluginGateHAPI2::isFetchItemsSupported(void)
 {
-	// TODO: implement
-	return false;
+	return m_impl->hasProcedure("fetchItems");
 }
 
 bool HatoholArmPluginGateHAPI2::startOnDemandFetchItem(Closure0 *closure)
 {
+	if (!m_impl->hasProcedure("fetchItems"))
+		return false;
+
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
@@ -249,6 +257,9 @@ void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
 
 bool HatoholArmPluginGateHAPI2::startOnDemandFetchTrigger(Closure0 *closure)
 {
+	if (!m_impl->hasProcedure("fetchTriggers"))
+		return false;
+
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
