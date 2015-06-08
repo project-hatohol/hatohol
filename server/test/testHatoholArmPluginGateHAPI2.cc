@@ -434,50 +434,7 @@ void test_procedureHandlerUpdateArmInfo(void)
 
 } // testProcedureHandlers
 
-namespace testFetch {
-
-void cut_setup(void)
-{
-	hatoholInit();
-	setupTestDB();
-	loadTestDBServer();
-	loadTestDBArmPlugin();
-}
-
-void cut_teardown(void)
-{
-}
-
-void test_fetchItem(void)
-{
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
-	serverInfo = testServerInfo[7];
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo), false);
-	string json =
-		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
-		" \"params\":{\"procedures\":[\"fetchItems\"],"
-		" \"name\":\"exampleName\"}, \"id\":123}";
-	JSONParser parser(json);
-	gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
-	cppcut_assert_equal(true, gate->startOnDemandFetchItem(NULL));
-	// TODO: check reply
-}
-
-void test_notSupportfetchItem(void)
-{
-	MonitoringServerInfo serverInfo;
-	initServerInfo(serverInfo);
-	serverInfo = testServerInfo[7];
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo), false);
-	cppcut_assert_equal(false, gate->startOnDemandFetchItem(NULL));
-}
-
-} // testFetch
-
-namespace testCallServerProcedure {
+namespace testCommunication {
 
 AMQPConnectionInfo *connectionInfo;
 AMQPConnectionPtr connection;
@@ -499,38 +456,11 @@ void prepareDB(const char *amqpURL)
 	dbConfig.saveArmPluginInfo(armPluginInfo);
 }
 
-void cut_setup(void)
-{
-	// e.g.) url = "amqp://hatohol:hatohol@localhost:5672/hatohol";
-	const char *url = getenv("TEST_AMQP_URL");
-	if (url) {
-		connectionInfo = new AMQPConnectionInfo();
-		connectionInfo->setURL(url);
-		connectionInfo->setPublisherQueueName("test.1-S");
-		connectionInfo->setConsumerQueueName("test.1-T");
-		prepareDB(url);
-	} else {
-		connectionInfo = NULL;
-	}
-}
-
 AMQPConnectionInfo &getConnectionInfo(void)
 {
 	if (!connectionInfo)
 		cut_omit("TEST_AMQP_URL isn't set");
 	return *connectionInfo;
-}
-
-void cut_teardown(void)
-{
-	if (connectionInfo) {
-		connection = AMQPConnection::create(*connectionInfo);
-		connection->connect();
-		connection->deleteAllQueues();
-		connection = NULL;
-	}
-	delete connectionInfo;
-	connectionInfo = NULL;
 }
 
 void omitIfNoURL(void)
@@ -555,7 +485,7 @@ void sendMessage(const string body)
 	publisher.publish();
 }
 
-string recieveReply(void)
+string popServerMessage(void)
 {
 	class TestMessageHandler : public AMQPMessageHandler {
 	public:
@@ -589,6 +519,33 @@ string recieveReply(void)
 	return handler.m_message.body;
 }
 
+void cut_setup(void)
+{
+	// e.g.) url = "amqp://hatohol:hatohol@localhost:5672/hatohol";
+	const char *url = getenv("TEST_AMQP_URL");
+	if (url) {
+		connectionInfo = new AMQPConnectionInfo();
+		connectionInfo->setURL(url);
+		connectionInfo->setPublisherQueueName("test.1-S");
+		connectionInfo->setConsumerQueueName("test.1-T");
+		prepareDB(url);
+	} else {
+		connectionInfo = NULL;
+	}
+}
+
+void cut_teardown(void)
+{
+	if (connectionInfo) {
+		connection = AMQPConnection::create(*connectionInfo);
+		connection->connect();
+		connection->deleteAllQueues();
+		connection = NULL;
+	}
+	delete connectionInfo;
+	connectionInfo = NULL;
+}
+
 void test_exchangeProfile(void)
 {
 	omitIfNoURL();
@@ -618,7 +575,7 @@ void test_exchangeProfile(void)
 		  "\"updateHostGroupMembership\",\"updateTriggers\","
 		  "\"updateEvents\",\"updateHostParent\",\"updateArmInfo\""
 		"]},\"id\":1}";
-	string actual = recieveReply();
+	string actual = popServerMessage();
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -644,7 +601,7 @@ void test_unknownProcedure(void)
 		"\"message\":\"Method not found: conquerTheWorld\""
 		"}"
 		"}";
-	string actual = recieveReply();
+	string actual = popServerMessage();
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -667,10 +624,40 @@ void test_noMethod(void)
 		"{\"jsonrpc\":\"2.0\",\"id\":5,"
 		"\"error\":{\"code\":-32600,\"message\":\"Invalid request\"}"
 		"}";
-	string actual = recieveReply();
+	string actual = popServerMessage();
 	cppcut_assert_equal(expected, actual);
 }
 
-} // testCallServerProcedure
+void test_fetchItem(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
+		" \"params\":{\"procedures\":[\"fetchItems\"],"
+		" \"name\":\"exampleName\"}, \"id\":123}";
+	JSONParser parser(json);
+	gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
+	cppcut_assert_equal(true, gate->startOnDemandFetchItem(NULL));
+
+	string expected =
+		"^\\{"
+		"\"jsonrpc\":\"2\\.0\","
+		"\"method\":\"fetchItems\","
+		"\"params\":\\{\"fetchId\":\"\\d+\"\\},"
+		"\"id\":\\d+"
+		"\\}$";
+	string actual = popServerMessage();
+	cut_assert_match(expected.c_str(), actual.c_str());
+}
+
+void test_notSupportfetchItem(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	cppcut_assert_equal(false, gate->startOnDemandFetchItem(NULL));
+}
+
+} // testCommunication
 
 } // testHatoholArmPluginGateHAPI2
