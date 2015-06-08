@@ -628,7 +628,7 @@ void test_noMethod(void)
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_fetchItem(void)
+void test_fetchItems(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
@@ -651,7 +651,7 @@ void test_fetchItem(void)
 	cut_assert_match(expected.c_str(), actual.c_str());
 }
 
-void test_notSupportfetchItem(void)
+void test_notSupportfetchItems(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
