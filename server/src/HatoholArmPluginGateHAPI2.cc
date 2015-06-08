@@ -227,7 +227,7 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchItem(Closure0 *closure)
 		builder.endArray();
 	}
 	std::mt19937 random = getRandomEngine();
-	// TODO: keep id until receiving response
+	// TODO: keep the id until receiving response
 	uint64_t fetchId = random(), id = random();
 	string fetchIdString = StringUtils::toString(fetchId);
 	m_impl->queueFetchCallback(fetchIdString, closure);
@@ -248,8 +248,26 @@ void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
 
 bool HatoholArmPluginGateHAPI2::startOnDemandFetchTrigger(Closure0 *closure)
 {
-	// TODO: implement
-	return false;
+	JSONBuilder builder;
+	builder.startObject();
+	builder.add("jsonrpc", "2.0");
+	builder.add("method", "fetchTriggers");
+	builder.startObject("params");
+	if (false) { // TODO: Pass requested hostIds
+		builder.startArray("hostIds");
+		builder.endArray();
+	}
+	std::mt19937 random = getRandomEngine();
+	// TODO: keep the id until receiving response
+	uint64_t fetchId = random(), id = random();
+	string fetchIdString = StringUtils::toString(fetchId);
+	m_impl->queueFetchCallback(fetchIdString, closure);
+	builder.add("fetchId", fetchIdString);
+	builder.endObject();
+	builder.add("id", id);
+	builder.endObject();
+	send(builder.generate());
+	return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -432,8 +450,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseItemParams(parser, itemList, serverInfo);
 	dataStore->addItemList(itemList);
-	string fetchId;
 	if (parser.isMember("fetchId")) {
+		string fetchId;
 		parser.read("fetchId", fetchId);
 		m_impl->runFetchCallback(fetchId);
 	}
@@ -809,7 +827,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers(
 	if (parser.isMember("fetchId")) {
 		string fetchId;
 		parser.read("fetchId", fetchId);
-		// TODO: callback
+		m_impl->runFetchCallback(fetchId);
 	}
 
 	parser.endObject(); // params
