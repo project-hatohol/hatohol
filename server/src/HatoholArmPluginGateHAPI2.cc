@@ -35,6 +35,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	ArmPluginInfo m_pluginInfo;
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
+	set<string> m_validProcedureNameSet;
 	HostInfoCache hostInfoCache;
 	map<string, Closure0 *> m_fetchClosureMap;
 
@@ -289,7 +290,7 @@ const ArmStatus &HatoholArmPluginGateHAPI2::getArmStatus(void) const
 }
 
 static bool parseExchangeProfileParams(
-  JSONParser &parser, vector<string> &validProcedureNameVect)
+  JSONParser &parser, set<string> &validProcedureNameSet)
 {
 	parser.startObject("procedures");
 	size_t num = parser.countElements();
@@ -297,7 +298,7 @@ static bool parseExchangeProfileParams(
 		string validProcedureName;
 		parser.read(i, validProcedureName);
 
-		validProcedureNameVect.push_back(validProcedureName);
+		validProcedureNameSet.insert(validProcedureName);
 	}
 	parser.endObject(); // procedures
 	return true;
@@ -315,9 +316,10 @@ static bool hapProcessLogger(JSONParser &parser)
 string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
   JSONParser &parser)
 {
-	vector<string> validProcedureNameVect;
+	m_impl->m_validProcedureNameSet.clear();
 	parser.startObject("params");
-	bool succeeded = parseExchangeProfileParams(parser, validProcedureNameVect);
+	bool succeeded =
+	  parseExchangeProfileParams(parser, m_impl->m_validProcedureNameSet);
 	hapProcessLogger(parser);
 	parser.endObject(); // params
 
