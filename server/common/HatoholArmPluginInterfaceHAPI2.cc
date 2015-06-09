@@ -328,13 +328,13 @@ void HatoholArmPluginInterfaceHAPI2::setArmPluginInfo(
 }
 
 void HatoholArmPluginInterfaceHAPI2::registerProcedureHandler(
-  const HAPI2ProcedureType &type, ProcedureHandler handler)
+  const HAPI2ProcedureName &type, ProcedureHandler handler)
 {
 	m_impl->procedureHandlerMap[type] = handler;
 }
 
 string HatoholArmPluginInterfaceHAPI2::interpretHandler(
-  const HAPI2ProcedureType &type, JSONParser &parser)
+  const HAPI2ProcedureName &type, JSONParser &parser)
 {
 	auto it = m_impl->procedureHandlerMap.find(type);
 	if (it == m_impl->procedureHandlerMap.end()) {

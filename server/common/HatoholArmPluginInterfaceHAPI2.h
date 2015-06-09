@@ -53,42 +53,42 @@ const int JSON_RPC_INTERNAL_ERROR = -32603;
 const int JSON_RPC_SERVER_ERROR_BEGIN = -32000;
 const int JSON_RPC_SERVER_ERROR_END = -32099;
 
-typedef std::string HAPI2ProcedureType;
+typedef std::string HAPI2ProcedureName;
 
 // Sv, Cl
-const HAPI2ProcedureType HAPI2_EXCHANGE_PROFILE
+const HAPI2ProcedureName HAPI2_EXCHANGE_PROFILE
   = "exchangeProfile";
 // Sv
-const HAPI2ProcedureType HAPI2_MONITORING_SERVER_INFO
+const HAPI2ProcedureName HAPI2_MONITORING_SERVER_INFO
   = "getMonitoringServerInfo";
-const HAPI2ProcedureType HAPI2_LAST_INFO
+const HAPI2ProcedureName HAPI2_LAST_INFO
   = "getLastInfo";
-const HAPI2ProcedureType HAPI2_PUT_ITEMS
+const HAPI2ProcedureName HAPI2_PUT_ITEMS
   = "putItems";
-const HAPI2ProcedureType HAPI2_PUT_HISTORY
+const HAPI2ProcedureName HAPI2_PUT_HISTORY
   = "putHistory";
-const HAPI2ProcedureType HAPI2_UPDATE_HOSTS
+const HAPI2ProcedureName HAPI2_UPDATE_HOSTS
   = "updateHosts";
-const HAPI2ProcedureType HAPI2_UPDATE_HOST_GROUPS
+const HAPI2ProcedureName HAPI2_UPDATE_HOST_GROUPS
   = "updateHostGroups";
-const HAPI2ProcedureType HAPI2_UPDATE_HOST_GROUP_MEMEBRSHIP
+const HAPI2ProcedureName HAPI2_UPDATE_HOST_GROUP_MEMEBRSHIP
   = "updateHostGroupMembership";
-const HAPI2ProcedureType HAPI2_UPDATE_TRIGGERS
+const HAPI2ProcedureName HAPI2_UPDATE_TRIGGERS
   = "updateTriggers";
-const HAPI2ProcedureType HAPI2_UPDATE_EVENTS
+const HAPI2ProcedureName HAPI2_UPDATE_EVENTS
   = "updateEvents";
-const HAPI2ProcedureType HAPI2_UPDATE_HOST_PARENTS
+const HAPI2ProcedureName HAPI2_UPDATE_HOST_PARENTS
   = "updateHostParent";
-const HAPI2ProcedureType HAPI2_UPDATE_ARM_INFO
+const HAPI2ProcedureName HAPI2_UPDATE_ARM_INFO
   = "updateArmInfo";
 // Cl
-const HAPI2ProcedureType HAPI2_FETCH_ITEMS
+const HAPI2ProcedureName HAPI2_FETCH_ITEMS
   = "fetchItems";
-const HAPI2ProcedureType HAPI2_FETCH_HISTORY
+const HAPI2ProcedureName HAPI2_FETCH_HISTORY
   = "fetchHistory";
-const HAPI2ProcedureType HAPI2_FETCH_TRIGGERS
+const HAPI2ProcedureName HAPI2_FETCH_TRIGGERS
   = "fetchTriggers";
-const HAPI2ProcedureType HAPI2_FETCH_EVENTS
+const HAPI2ProcedureName HAPI2_FETCH_EVENTS
   = "fetchEvents";
 
 enum ProcedureImplementType {
@@ -137,12 +137,12 @@ public:
 	 * If the same code is specified more than twice, the handler is
 	 * updated.
 	 *
-	 * @param type HAPI2ProcedureType
+	 * @param type HAPI2ProcedureName
 	 * @param handler A receive handler.
 	 */
-	void registerProcedureHandler(const HAPI2ProcedureType &type,
+	void registerProcedureHandler(const HAPI2ProcedureName &type,
 				      ProcedureHandler handler);
-	std::string interpretHandler(const HAPI2ProcedureType &type,
+	std::string interpretHandler(const HAPI2ProcedureName &type,
 				     JSONParser &parser);
 	void handleResponse(const std::string id, JSONParser &parser);
 
@@ -155,7 +155,7 @@ public:
 	const std::list<HAPI2ProcedureDef> &getDefaultValidProcedureList(void) const;
 
 protected:
-	typedef std::map<HAPI2ProcedureType, ProcedureHandler> ProcedureHandlerMap;
+	typedef std::map<HAPI2ProcedureName, ProcedureHandler> ProcedureHandlerMap;
 
 	virtual ~HatoholArmPluginInterfaceHAPI2();
 
