@@ -910,7 +910,7 @@ static string makeIdListCondition(const GenericIdList &idList)
 	condition = StringUtils::sprintf("%s in (", colId.columnName);
 	for (auto id : idList) {
 		commaInjector(condition);
-		condition += StringUtils::sprintf("%ld", id);
+		condition += StringUtils::sprintf("%" FMT_GEN_ID, id);
 	}
 
 	condition += ")";
