@@ -448,7 +448,7 @@ string HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 }
 
 const std::list<HAPI2ProcedureDef> &
-  HatoholArmPluginInterfaceHAPI2::getDefaultValidProcedureList(void) const
+  HatoholArmPluginInterfaceHAPI2::getProcedureDefList(void) const
 {
 	return defaultValidProcedureList;
 }

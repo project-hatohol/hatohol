@@ -150,7 +150,7 @@ public:
 			  const int64_t id,
 			  ProcedureCallbackPtr callback);
 
-	const std::list<HAPI2ProcedureDef> &getDefaultValidProcedureList(void) const;
+	const std::list<HAPI2ProcedureDef> &getProcedureDefList(void) const;
 
 protected:
 	typedef std::map<HAPI2ProcedureName, ProcedureHandler> ProcedureHandlerMap;
