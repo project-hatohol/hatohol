@@ -313,7 +313,6 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchItem(Closure0 *closure)
 		builder.endArray();
 	}
 	std::mt19937 random = getRandomEngine();
-	// TODO: keep the id until receiving response
 	int64_t fetchId = random(), id = random();
 	string fetchIdString = StringUtils::sprintf("%" PRId64, fetchId);
 	m_impl->queueFetchCallback(fetchIdString, closure);
@@ -362,7 +361,6 @@ void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
 	builder.add("beginTime", buildTimeStamp(beginTime));
 	builder.add("endTime", buildTimeStamp(endTime));
 	std::mt19937 random = getRandomEngine();
-	// TODO: keep the id until receiving response
 	int64_t fetchId = random(), id = random();
 	string fetchIdString = StringUtils::sprintf("%" PRId64, fetchId);
 	m_impl->queueFetchHistoryCallback(fetchIdString, closure);
@@ -392,7 +390,6 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchTrigger(Closure0 *closure)
 		builder.endArray();
 	}
 	std::mt19937 random = getRandomEngine();
-	// TODO: keep the id until receiving response
 	int64_t fetchId = random(), id = random();
 	string fetchIdString = StringUtils::sprintf("%" PRId64, fetchId);
 	m_impl->queueFetchCallback(fetchIdString, closure);
