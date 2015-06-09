@@ -751,6 +751,73 @@ void test_fetchHistory(void)
 	cut_assert_match(expected.c_str(), actual.c_str());
 }
 
+void test_fetchHistoryCallback(void)
+{
+	struct TestContext {
+		HistoryInfoVect m_historyInfoVect;
+		TestContext()
+		{
+		}
+		void onFetchHistory(Closure1<HistoryInfoVect> *closure,
+				    const HistoryInfoVect &historyInfoVect)
+		{
+			m_historyInfoVect = historyInfoVect;
+		}
+	} context;
+	struct FetchClosure : ClosureTemplate1<TestContext, HistoryInfoVect>
+	{
+		FetchClosure(TestContext *receiver, callback func)
+		: ClosureTemplate1<TestContext, HistoryInfoVect>(receiver, func)
+		{
+		}
+	};
+	FetchClosure *closure =
+	  new FetchClosure(&context, &TestContext::onFetchHistory);
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "fetchHistory");
+	ItemInfo itemInfo = testItemInfo[0];
+	gate->startOnDemandFetchHistory(itemInfo, 1433748751, 1433752340,
+					closure);
+
+	string fetchId;
+	int64_t id = 0;
+	receiveFetchRequest(fetchId, id);
+
+	string putHistoryJSON = StringUtils::sprintf(
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
+		" \"params\":{\"itemId\":\"%" FMT_ITEM_ID "\","
+		" \"histories\":[{\"value\":\"exampleValue\","
+		" \"time\":\"20150323113032.000000000\"},"
+		"{\"value\":\"exampleValue2\",\"time\":\"20150323113033.000000000\"}],"
+		" \"fetchId\":\"%s\"}, \"id\":%" PRId64 "}",
+		itemInfo.id.c_str(), fetchId.c_str(), id);
+	sendMessage(putHistoryJSON);
+
+	string reply = popServerMessage(); // for waiting the callback
+	HistoryInfoVect expectedHistoryInfoVect = {
+		{
+			monitoringServerInfo.id,
+			itemInfo.id,
+			"exampleValue",
+			{ 1427110232, 0 }
+		},
+		{
+			monitoringServerInfo.id,
+			itemInfo.id,
+			"exampleValue2",
+			{ 1427110233, 0 }
+		},
+	};
+	string expected, actual;
+	for (auto &historyInfo: expectedHistoryInfoVect)
+		expected += makeHistoryOutput(historyInfo);
+	for (auto &historyInfo: context.m_historyInfoVect)
+		actual += makeHistoryOutput(historyInfo);
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_fetchTriggers(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
