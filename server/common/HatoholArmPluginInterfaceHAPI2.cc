@@ -297,13 +297,13 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		m_procedureCallbackMap[id] = callback;
 	}
 
-	bool runProcedureCallback(string id)
+	bool runProcedureCallback(const string id, JSONParser &parser)
 	{
 		auto it = m_procedureCallbackMap.find(id);
 		if (it != m_procedureCallbackMap.end()) {
 			ProcedureCallbackPtr callback = it->second;
 			if (callback.hasData())
-				callback->onGotResponse();
+				callback->onGotResponse(parser);
 			m_procedureCallbackMap.erase(it);
 			return true;
 		}
@@ -355,7 +355,7 @@ void HatoholArmPluginInterfaceHAPI2::handleResponse(
 		// TODO: handle error response
 	}
 
-	bool found = m_impl->runProcedureCallback(id);
+	bool found = m_impl->runProcedureCallback(id, parser);
 	if (!found) {
 		MLPL_WARN("Received an unknown response with id: %s",
 			  id.c_str());
