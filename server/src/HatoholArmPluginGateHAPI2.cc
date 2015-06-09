@@ -89,6 +89,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		JSONBuilder builder;
 		builder.startObject();
 		builder.add("jsonrpc", "2.0");
+		builder.add("name", PACKAGE_NAME);
 		builder.add("method", HAPI2_EXCHANGE_PROFILE);
 		builder.startObject("params");
 		builder.startArray("procedures");
