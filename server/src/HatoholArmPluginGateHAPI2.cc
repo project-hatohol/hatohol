@@ -32,6 +32,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 {
 	// We have a copy. The access to the object is MT-safe.
 	const MonitoringServerInfo m_serverInfo;
+	HatoholArmPluginGateHAPI2 &m_hapi2;
 	ArmPluginInfo m_pluginInfo;
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
@@ -41,8 +42,9 @@ struct HatoholArmPluginGateHAPI2::Impl
 	map<string, Closure1<HistoryInfoVect> *> m_fetchHistoryClosureMap;
 
 	Impl(const MonitoringServerInfo &_serverInfo,
-	     HatoholArmPluginGateHAPI2 *hapghapi)
+	     HatoholArmPluginGateHAPI2 &hapi2)
 	: m_serverInfo(_serverInfo),
+	  m_hapi2(hapi2),
 	  m_armFake(m_serverInfo),
 	  m_armStatus(),
 	  hostInfoCache(&_serverInfo.id)
@@ -56,7 +58,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 				 serverId);
 			return;
 		}
-		hapghapi->setArmPluginInfo(m_pluginInfo);
+		m_hapi2.setArmPluginInfo(m_pluginInfo);
 	}
 
 	~Impl()
@@ -80,6 +82,30 @@ struct HatoholArmPluginGateHAPI2::Impl
 	void start(void)
 	{
 		m_armStatus.setRunningStatus(true);
+		callExchangeProfile();
+	}
+
+	void callExchangeProfile(void) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("method", HAPI2_EXCHANGE_PROFILE);
+		builder.startObject("params");
+		builder.startArray("procedures");
+		for (auto procedureDef : m_hapi2.getDefaultValidProcedureList()) {
+			if (procedureDef.type == PROCEDURE_BOTH ||
+			    procedureDef.type == PROCEDURE_HAP)
+				continue;
+			builder.add(procedureDef.name);
+		}
+		builder.endArray(); // procedures
+		builder.endObject(); // params
+		std::mt19937 random = m_hapi2.getRandomEngine();
+		int64_t id = random();
+		builder.add("id", id);
+		builder.endObject();
+		// TODO: add callback
+		m_hapi2.send(builder.generate(), id, NULL);
 	}
 
 	void queueFetchCallback(const string &fetchId, Closure0 *closure)
@@ -185,7 +211,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
   const MonitoringServerInfo &serverInfo, const bool &autoStart)
 : HatoholArmPluginInterfaceHAPI2(MODE_SERVER),
-  m_impl(new Impl(serverInfo, this))
+  m_impl(new Impl(serverInfo, *this))
 {
 	registerProcedureHandler(
 	  HAPI2_EXCHANGE_PROFILE,
