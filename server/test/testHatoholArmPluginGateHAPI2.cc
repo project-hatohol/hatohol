@@ -694,12 +694,13 @@ void test_fetchItemsCallback(void)
 
 	string request = popServerMessage();
 	string fetchId;
-	int64_t id;
+	int64_t id = 0;
 	JSONParser parser(request);
 	parser.startObject("params");
 	parser.read("fetchId", fetchId);
 	parser.endObject();
 	parser.read("id", id);
+	cppcut_assert_equal(true, !fetchId.empty() && id);
 
 	string putItemsJSON = StringUtils::sprintf(
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
