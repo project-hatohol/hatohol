@@ -519,14 +519,18 @@ string popServerMessage(void)
 	return handler.m_message.body;
 }
 
-void receiveFetchRequest(string &fetchId, int64_t &id)
+void receiveFetchRequest(const string &expectedMethod,
+			 string &fetchId, int64_t &id)
 {
 	string request = popServerMessage();
 	JSONParser parser(request);
+	string actualMethod;
+	parser.read("method", actualMethod);
 	parser.startObject("params");
 	parser.read("fetchId", fetchId);
 	parser.endObject();
 	parser.read("id", id);
+	cppcut_assert_equal(expectedMethod, actualMethod);
 	cppcut_assert_equal(true, !fetchId.empty() && id);
 }
 
@@ -705,7 +709,7 @@ void test_fetchItemsCallback(void)
 
 	string fetchId;
 	int64_t id = 0;
-	receiveFetchRequest(fetchId, id);
+	receiveFetchRequest("fetchItems", fetchId, id);
 
 	string putItemsJSON = StringUtils::sprintf(
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
@@ -783,7 +787,7 @@ void test_fetchHistoryCallback(void)
 
 	string fetchId;
 	int64_t id = 0;
-	receiveFetchRequest(fetchId, id);
+	receiveFetchRequest("fetchHistory", fetchId, id);
 
 	string putHistoryJSON = StringUtils::sprintf(
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
@@ -866,7 +870,7 @@ void test_fetchTriggersCallback(void)
 
 	string fetchId;
 	int64_t id = 0;
-	receiveFetchRequest(fetchId, id);
+	receiveFetchRequest("fetchTriggers", fetchId, id);
 
 	string putTriggersJSON = StringUtils::sprintf(
 		"{\"jsonrpc\":\"2.0\", \"method\":\"updateTriggers\","
