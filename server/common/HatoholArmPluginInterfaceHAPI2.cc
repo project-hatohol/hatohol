@@ -84,8 +84,10 @@ public:
 		}
 
 		string methodName;
+		string id;
 		JsonRpcObjectType type = detectJsonRpcObjectType(parser,
 								 methodName,
+								 id,
 								 errorMessage);
 		switch(type) {
 		case JsonRpcObjectType::PROCEDURE:
@@ -97,7 +99,7 @@ public:
 			m_hapi2.interpretHandler(methodName, parser);
 			break;
 		case JsonRpcObjectType::RESPONSE:
-			// TODO
+			m_hapi2.handleResponse(id, parser);
 			break;
 		case JsonRpcObjectType::INVALID:
 		default:
@@ -122,8 +124,31 @@ public:
 		}
 	}
 
+	bool parseId(JSONParser &parser, string &id)
+	{
+		JSONParser::ValueType type = parser.getValueType("id");
+		switch(type) {
+		case JSONParser::VALUE_TYPE_INT64:
+		{
+			int64_t value = 0;
+			bool succeeded = parser.read("id", value);
+			if (!succeeded)
+				return false;
+			id = StringUtils::sprintf("%" PRId64, value);
+			return true;
+		}
+		case JSONParser::VALUE_TYPE_STRING:
+			return parser.read("id", id);
+		case JSONParser::VALUE_TYPE_NULL:
+			return true;
+		default:
+			return false;
+		}
+	}
+
 	JsonRpcObjectType detectJsonRpcObjectType(JSONParser &parser,
 						  string &methodName,
+						  string &id,
 						  string &errorMessage)
 	{
 		if (parser.isMember("method")) {
@@ -139,9 +164,7 @@ public:
 			if (!parser.isMember("id"))
 				return JsonRpcObjectType::NOTIFICATION;
 
-			type = parser.getValueType("id");
-			if (type != JSONParser::VALUE_TYPE_INT64 &&
-			    type != JSONParser::VALUE_TYPE_STRING) {
+			if (!parseId(parser, id)) {
 				errorMessage =
 				  "Invalid request: Invalid id type!";
 			        return JsonRpcObjectType::INVALID;
@@ -165,6 +188,8 @@ public:
 			return JsonRpcObjectType::INVALID;
 		}
 
+		parseId(parser, id);
+
 		if (hasResult) {
 			// The type of the result object will be determined by
 			// the method.
@@ -187,6 +212,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	ArmPluginInfo m_pluginInfo;
 	HatoholArmPluginInterfaceHAPI2 &hapi2;
 	ProcedureHandlerMap procedureHandlerMap;
+	map<string, ProcedureCallbackPtr> m_procedureCallbackMap;
 	AMQPConnectionInfo m_connectionInfo;
 	AMQPConsumer *m_consumer;
 	AMQPHAPI2MessageHandler *m_handler;
@@ -264,6 +290,24 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		}
 		m_consumer->start();
 	}
+
+	void queueProcedureCallback(const string id,
+				    ProcedureCallbackPtr callback)
+	{
+		m_procedureCallbackMap[id] = callback;
+	}
+
+	bool runProcedureCallback(string id)
+	{
+		auto it = m_procedureCallbackMap.find(id);
+		if (it != m_procedureCallbackMap.end()) {
+			ProcedureCallbackPtr callback = it->second;
+			callback->onGotResponse();
+			m_procedureCallbackMap.erase(it);
+			return true;
+		}
+		return false;
+	}
 };
 
 HatoholArmPluginInterfaceHAPI2::HatoholArmPluginInterfaceHAPI2(
@@ -303,6 +347,20 @@ string HatoholArmPluginInterfaceHAPI2::interpretHandler(
 	return (this->*handler)(parser);
 }
 
+void HatoholArmPluginInterfaceHAPI2::handleResponse(
+  const string id, JSONParser &parser)
+{
+	if (id.empty()) {
+		// TODO: handle error response
+	}
+
+	bool found = m_impl->runProcedureCallback(id);
+	if (!found) {
+		MLPL_WARN("Received an unknown response with id: %s",
+			  id.c_str());
+	}
+}
+
 void HatoholArmPluginInterfaceHAPI2::start(void)
 {
 	m_impl->start();
@@ -316,6 +374,14 @@ void HatoholArmPluginInterfaceHAPI2::send(const std::string &message)
 	amqpMessage.body = message;
 	publisher.setMessage(amqpMessage);
 	publisher.publish();
+}
+
+void HatoholArmPluginInterfaceHAPI2::send(
+  const std::string &message, const int64_t id, ProcedureCallbackPtr callback)
+{
+	string idString = StringUtils::sprintf("%" PRId64, id);
+	m_impl->queueProcedureCallback(idString, callback);
+	send(message);
 }
 
 mt19937 HatoholArmPluginInterfaceHAPI2::getRandomEngine(void)

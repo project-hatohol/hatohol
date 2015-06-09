@@ -124,6 +124,14 @@ public:
 	typedef std::string (HatoholArmPluginInterfaceHAPI2::*ProcedureHandler)
 	  (JSONParser &parser);
 
+	class ProcedureCallback : public UsedCountable {
+	public:
+		virtual void onGotResponse();
+	protected:
+		virtual ~ProcedureCallback();
+	};
+	typedef UsedCountablePtr<ProcedureCallback> ProcedureCallbackPtr;
+
 	/**
 	 * Register a procedure receive callback method.
 	 * If the same code is specified more than twice, the handler is
@@ -136,8 +144,13 @@ public:
 				      ProcedureHandler handler);
 	std::string interpretHandler(const HAPI2ProcedureType &type,
 				     JSONParser &parser);
+	void handleResponse(const std::string id, JSONParser &parser);
+
 	virtual void start(void);
-	virtual void send(const std::string &procedure);
+	virtual void send(const std::string &message);
+	virtual void send(const std::string &message,
+			  const int64_t id,
+			  ProcedureCallbackPtr callback);
 
 	const std::list<HAPI2ProcedureDef> &getDefaultValidProcedureList(void) const;
 
