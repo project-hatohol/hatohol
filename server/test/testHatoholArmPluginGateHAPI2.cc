@@ -519,6 +519,17 @@ string popServerMessage(void)
 	return handler.m_message.body;
 }
 
+void receiveFetchRequest(string &fetchId, int64_t &id)
+{
+	string request = popServerMessage();
+	JSONParser parser(request);
+	parser.startObject("params");
+	parser.read("fetchId", fetchId);
+	parser.endObject();
+	parser.read("id", id);
+	cppcut_assert_equal(true, !fetchId.empty() && id);
+}
+
 void acceptProcedure(HatoholArmPluginGateHAPI2Ptr &gate,
 		     const string procedureName)
 {
@@ -692,15 +703,9 @@ void test_fetchItemsCallback(void)
 	acceptProcedure(gate, "fetchItems");
 	cppcut_assert_equal(true, gate->startOnDemandFetchItem(closure));
 
-	string request = popServerMessage();
 	string fetchId;
 	int64_t id = 0;
-	JSONParser parser(request);
-	parser.startObject("params");
-	parser.read("fetchId", fetchId);
-	parser.endObject();
-	parser.read("id", id);
-	cppcut_assert_equal(true, !fetchId.empty() && id);
+	receiveFetchRequest(fetchId, id);
 
 	string putItemsJSON = StringUtils::sprintf(
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
@@ -762,6 +767,55 @@ void test_fetchTriggers(void)
 		"\\}$";
 	string actual = popServerMessage();
 	cut_assert_match(expected.c_str(), actual.c_str());
+}
+
+void test_fetchTriggersCallback(void)
+{
+	struct TestContext {
+		AtomicValue<bool> m_called;
+		TestContext()
+		:m_called(false)
+		{
+		}
+		void onFetchTriggers(Closure0 *closure)
+		{
+			m_called = true;
+		}
+	} context;
+	struct FetchClosure : ClosureTemplate0<TestContext>
+	{
+		FetchClosure(TestContext *receiver, callback func)
+		: ClosureTemplate0<TestContext>(receiver, func)
+		{
+		}
+	};
+	Closure0 *closure =
+	  new FetchClosure(&context, &TestContext::onFetchTriggers);
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "fetchTriggers");
+	cppcut_assert_equal(true, gate->startOnDemandFetchTrigger(closure));
+
+	string fetchId;
+	int64_t id = 0;
+	receiveFetchRequest(fetchId, id);
+
+	string putTriggersJSON = StringUtils::sprintf(
+		"{\"jsonrpc\":\"2.0\", \"method\":\"updateTriggers\","
+		" \"params\":{\"updateType\":\"UPDATED\","
+		" \"lastInfo\":\"201504061606\", \"fetchId\":\"%s\","
+		" \"triggers\":[{\"triggerId\":\"1\", \"status\":\"OK\","
+		" \"severity\":\"INFO\",\"lastChangeTime\":\"20150323175800\","
+		" \"hostId\":\"1\", \"hostName\":\"exampleHostName\","
+		" \"brief\":\"example brief\","
+		" \"extendedInfo\": \"sample extended info\"}]},"
+		"\"id\":%" PRId64 "}",
+		fetchId.c_str(), id);
+	sendMessage(putTriggersJSON);
+
+	string reply = popServerMessage(); // for waiting the callback
+	cppcut_assert_equal(true, context.m_called.get());
 }
 
 void test_notSupportFetchTriggers(void)
