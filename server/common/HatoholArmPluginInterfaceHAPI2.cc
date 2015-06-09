@@ -127,13 +127,19 @@ public:
 						  string &errorMessage)
 	{
 		if (parser.isMember("method")) {
-			// TODO check the type
+			JSONParser::ValueType type = parser.getValueType("method");
+			if (type != JSONParser::VALUE_TYPE_STRING) {
+				errorMessage =
+				  "Invalid request: "
+				  "Invalid type for \"method\"!";
+			        return JsonRpcObjectType::INVALID;
+			}
 			parser.read("method", methodName);
 
 			if (!parser.isMember("id"))
 				return JsonRpcObjectType::NOTIFICATION;
 
-			JSONParser::ValueType type = parser.getValueType("id");
+			type = parser.getValueType("id");
 			if (type != JSONParser::VALUE_TYPE_INT64 &&
 			    type != JSONParser::VALUE_TYPE_STRING) {
 				errorMessage =

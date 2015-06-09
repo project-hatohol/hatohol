@@ -655,6 +655,30 @@ void test_noMethod(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_invalidTypeForMethodName(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+
+	sendMessage(
+		"{\"jsonrpc\":\"2.0\","
+		" \"method\":{ \"name\": \"exchangeProfile\" },"
+		" \"params\":{},"
+		" \"id\":5}");
+	string expected =
+		"{\"jsonrpc\":\"2.0\","
+		"\"id\":5,"
+		"\"error\":{"
+		"\"code\":-32600,"
+		"\"message\":\"Invalid request: Invalid type for \\\"method\\\"!\""
+		"}"
+		"}";
+	string actual = popServerMessage();
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_fetchItems(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
