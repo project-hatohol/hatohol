@@ -302,7 +302,8 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		auto it = m_procedureCallbackMap.find(id);
 		if (it != m_procedureCallbackMap.end()) {
 			ProcedureCallbackPtr callback = it->second;
-			callback->onGotResponse();
+			if (callback.hasData())
+				callback->onGotResponse();
 			m_procedureCallbackMap.erase(it);
 			return true;
 		}
