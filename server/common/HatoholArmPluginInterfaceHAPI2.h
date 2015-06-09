@@ -126,9 +126,7 @@ public:
 
 	class ProcedureCallback : public UsedCountable {
 	public:
-		virtual void onGotResponse(JSONParser &parser);
-	protected:
-		virtual ~ProcedureCallback();
+		virtual void onGotResponse(JSONParser &parser) = 0;
 	};
 	typedef UsedCountablePtr<ProcedureCallback> ProcedureCallbackPtr;
 
