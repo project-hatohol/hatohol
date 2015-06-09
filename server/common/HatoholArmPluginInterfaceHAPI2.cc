@@ -210,16 +210,16 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 {
 	CommunicationMode m_communicationMode;
 	ArmPluginInfo m_pluginInfo;
-	HatoholArmPluginInterfaceHAPI2 &hapi2;
-	ProcedureHandlerMap procedureHandlerMap;
+	HatoholArmPluginInterfaceHAPI2 &m_hapi2;
+	ProcedureHandlerMap m_procedureHandlerMap;
 	map<string, ProcedureCallbackPtr> m_procedureCallbackMap;
 	AMQPConnectionInfo m_connectionInfo;
 	AMQPConsumer *m_consumer;
 	AMQPHAPI2MessageHandler *m_handler;
 
-	Impl(HatoholArmPluginInterfaceHAPI2 &_hapi2, const CommunicationMode mode)
+	Impl(HatoholArmPluginInterfaceHAPI2 &hapi2, const CommunicationMode mode)
 	: m_communicationMode(mode),
-	  hapi2(_hapi2),
+	  m_hapi2(hapi2),
 	  m_consumer(NULL),
 	  m_handler(NULL)
 	{
@@ -270,7 +270,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	{
 		setupAMQPConnectionInfo();
 
-		m_handler = new AMQPHAPI2MessageHandler(hapi2);
+		m_handler = new AMQPHAPI2MessageHandler(m_hapi2);
 		m_consumer = new AMQPConsumer(m_connectionInfo, m_handler);
 	}
 
@@ -330,14 +330,14 @@ void HatoholArmPluginInterfaceHAPI2::setArmPluginInfo(
 void HatoholArmPluginInterfaceHAPI2::registerProcedureHandler(
   const HAPI2ProcedureName &type, ProcedureHandler handler)
 {
-	m_impl->procedureHandlerMap[type] = handler;
+	m_impl->m_procedureHandlerMap[type] = handler;
 }
 
 string HatoholArmPluginInterfaceHAPI2::interpretHandler(
   const HAPI2ProcedureName &type, JSONParser &parser)
 {
-	auto it = m_impl->procedureHandlerMap.find(type);
-	if (it == m_impl->procedureHandlerMap.end()) {
+	auto it = m_impl->m_procedureHandlerMap.find(type);
+	if (it == m_impl->m_procedureHandlerMap.end()) {
 		string message = StringUtils::sprintf("Method not found: %s",
 						      type.c_str());
 		// TODO: output error log
