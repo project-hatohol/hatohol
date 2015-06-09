@@ -94,8 +94,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		builder.startObject("params");
 		builder.startArray("procedures");
 		for (auto procedureDef : m_hapi2.getProcedureDefList()) {
-			if (procedureDef.type == PROCEDURE_BOTH ||
-			    procedureDef.type == PROCEDURE_HAP)
+			if (procedureDef.type == PROCEDURE_HAP)
 				continue;
 			builder.add(procedureDef.name);
 		}
@@ -490,11 +489,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	builder.startObject("result");
 	builder.add("name", PACKAGE_NAME);
 	builder.startArray("procedures");
-	for (auto defaultValidProcedureDef : getProcedureDefList()) {
-		if (defaultValidProcedureDef.type == PROCEDURE_BOTH ||
-		    defaultValidProcedureDef.type == PROCEDURE_HAP)
+	for (auto procedureDef : getProcedureDefList()) {
+		if (procedureDef.type == PROCEDURE_HAP)
 			continue;
-		builder.add(defaultValidProcedureDef.name);
+		builder.add(procedureDef.name);
 	}
 	builder.endArray(); // procedures
 	builder.endObject(); // result
