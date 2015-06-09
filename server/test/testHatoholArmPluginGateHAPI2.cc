@@ -735,6 +735,15 @@ void test_fetchItemsCallback(void)
 	int64_t id = 0;
 	receiveFetchRequest("fetchItems", fetchId, id);
 
+	string fetchItemsResponse = StringUtils::sprintf(
+		"{\"jsonrpc\":\"2.0\","
+		" \"result\": \"SUCCESS\","
+		" \"id\":%" PRId64 "}",
+		id);
+	sendMessage(fetchItemsResponse);
+	string response = popServerMessage();
+	cppcut_assert_equal(false, context.m_called.get());
+
 	string putItemsJSON = StringUtils::sprintf(
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
 		" \"params\":{\"items\":[{\"itemId\":\"1\", \"hostId\":\"1\","
@@ -749,7 +758,49 @@ void test_fetchItemsCallback(void)
 		fetchId.c_str(), id);
 	sendMessage(putItemsJSON);
 
-	string reply = popServerMessage(); // for waiting the callback
+	response = popServerMessage(); // for waiting the callback
+	cppcut_assert_equal(true, context.m_called.get());
+}
+
+void test_fetchItemsCallbackOnError(void)
+{
+	struct TestContext {
+		AtomicValue<bool> m_called;
+		TestContext()
+		:m_called(false)
+		{
+		}
+		void onFetchItems(Closure0 *closure)
+		{
+			m_called = true;
+		}
+	} context;
+	struct FetchClosure : ClosureTemplate0<TestContext>
+	{
+		FetchClosure(TestContext *receiver, callback func)
+		: ClosureTemplate0<TestContext>(receiver, func)
+		{
+		}
+	};
+	Closure0 *closure = new FetchClosure(&context, &TestContext::onFetchItems);
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "fetchItems");
+	cppcut_assert_equal(true, gate->startOnDemandFetchItem(closure));
+
+	string fetchId;
+	int64_t id = 0;
+	receiveFetchRequest("fetchItems", fetchId, id);
+
+	string fetchItemsErrorResponse = StringUtils::sprintf(
+		"{\"jsonrpc\":\"2.0\","
+		" \"result\": \"FAILURE\","
+		" \"id\":%" PRId64 "}",
+		id);
+	sendMessage(fetchItemsErrorResponse);
+
+	string response = popServerMessage(); // for waiting the callback
 	cppcut_assert_equal(true, context.m_called.get());
 }
 

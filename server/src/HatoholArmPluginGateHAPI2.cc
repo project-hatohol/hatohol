@@ -133,6 +133,50 @@ struct HatoholArmPluginGateHAPI2::Impl
 			m_validProcedureNameSet.end();
 	}
 
+	struct FetchProcedureCallback : public ProcedureCallback {
+		HatoholArmPluginGateHAPI2::Impl &m_impl;
+		const string m_fetchId;
+		const string m_methodName;
+		FetchProcedureCallback(HatoholArmPluginGateHAPI2::Impl &impl,
+				       const string &fetchId,
+				       const string &methodName)
+		: m_impl(impl), m_fetchId(fetchId), m_methodName(methodName)
+		{
+		}
+
+		bool isSucceeded(JSONParser &parser)
+		{
+			if (parser.isMember("error"))
+				return false;
+
+			string result;
+			parser.read("result", result);
+			return result == "SUCCESS";
+		}
+
+		virtual void onGotResponse(JSONParser &parser) override
+		{
+			if (isSucceeded(parser)) {
+				// The callback function will be executed on
+				// put* or update* procedures.
+				return;
+			}
+
+			// The fetch* procedure isn't accepted by the plugin.
+			// The closure for it should be expired immediately.
+			if (m_methodName == HAPI2_FETCH_HISTORY) {
+				HistoryInfoVect historyInfoVect;
+				m_impl.runFetchHistoryCallback(m_fetchId,
+							       historyInfoVect);
+			} else {
+				m_impl.runFetchCallback(m_fetchId);
+			}
+
+			// TODO: output error log
+		}
+	};
+
+
 };
 
 // ---------------------------------------------------------------------------
@@ -262,7 +306,7 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchItem(Closure0 *closure)
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
-	builder.add("method", "fetchItems");
+	builder.add("method", HAPI2_FETCH_ITEMS);
 	builder.startObject("params");
 	if (false) { // TODO: Pass requested hostIds
 		builder.startArray("hostIds");
@@ -277,7 +321,11 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchItem(Closure0 *closure)
 	builder.endObject();
 	builder.add("id", id);
 	builder.endObject();
-	send(builder.generate());
+	ProcedureCallback *callback =
+	  new Impl::FetchProcedureCallback(*m_impl, fetchIdString,
+					   HAPI2_FETCH_ITEMS);
+	ProcedureCallbackPtr callbackPtr(callback, false);
+	send(builder.generate(), id, callbackPtr);
 	return true;
 }
 
@@ -307,7 +355,7 @@ void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
-	builder.add("method", "fetchHistory");
+	builder.add("method", HAPI2_FETCH_HISTORY);
 	builder.startObject("params");
 	builder.add("hostId", itemInfo.hostIdInServer);
 	builder.add("itemId", itemInfo.id);
@@ -322,7 +370,11 @@ void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
 	builder.endObject();
 	builder.add("id", id);
 	builder.endObject();
-	send(builder.generate());
+	ProcedureCallback *callback =
+	  new Impl::FetchProcedureCallback(*m_impl, fetchIdString,
+					   HAPI2_FETCH_HISTORY);
+	ProcedureCallbackPtr callbackPtr(callback, false);
+	send(builder.generate(), id, callbackPtr);
 }
 
 bool HatoholArmPluginGateHAPI2::startOnDemandFetchTrigger(Closure0 *closure)
@@ -333,7 +385,7 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchTrigger(Closure0 *closure)
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
-	builder.add("method", "fetchTriggers");
+	builder.add("method", HAPI2_FETCH_TRIGGERS);
 	builder.startObject("params");
 	if (false) { // TODO: Pass requested hostIds
 		builder.startArray("hostIds");
@@ -348,7 +400,11 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchTrigger(Closure0 *closure)
 	builder.endObject();
 	builder.add("id", id);
 	builder.endObject();
-	send(builder.generate());
+	ProcedureCallback *callback =
+	  new Impl::FetchProcedureCallback(*m_impl, fetchIdString,
+					   HAPI2_FETCH_TRIGGERS);
+	ProcedureCallbackPtr callbackPtr(callback, false);
+	send(builder.generate(), id, callbackPtr);
 	return true;
 }
 
