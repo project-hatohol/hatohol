@@ -993,8 +993,7 @@ static void parseEventType(JSONParser &parser, EventInfo &eventInfo)
 	} else if (eventType == "UNKNOWN") {
 		eventInfo.type = EVENT_TYPE_UNKNOWN;
 	} else if (eventType == "NOTIFICATION") {
-		// TODO: Add EVENT_TYPE_NOTIFICATION
-		//eventInfo.type = EVENT_TYPE_NOTIFICATION;
+		eventInfo.type = EVENT_TYPE_NOTIFICATION;
 	} else {
 		MLPL_WARN("Invalid event type: %s\n", eventType.c_str());
 		eventInfo.type = EVENT_TYPE_UNKNOWN;
