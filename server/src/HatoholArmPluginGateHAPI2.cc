@@ -295,12 +295,12 @@ static bool parseTimeStamp(
 
 bool HatoholArmPluginGateHAPI2::isFetchItemsSupported(void)
 {
-	return m_impl->hasProcedure("fetchItems");
+	return m_impl->hasProcedure(HAPI2_FETCH_ITEMS);
 }
 
 bool HatoholArmPluginGateHAPI2::startOnDemandFetchItem(Closure0 *closure)
 {
-	if (!m_impl->hasProcedure("fetchItems"))
+	if (!m_impl->hasProcedure(HAPI2_FETCH_ITEMS))
 		return false;
 
 	JSONBuilder builder;
@@ -344,7 +344,7 @@ void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
   const ItemInfo &itemInfo, const time_t &beginTime, const time_t &endTime,
   Closure1<HistoryInfoVect> *closure)
 {
-	if (!m_impl->hasProcedure("fetchHistory")) {
+	if (!m_impl->hasProcedure(HAPI2_FETCH_HISTORY)) {
 		HistoryInfoVect historyInfoVect;
 		if (closure)
 			(*closure)(historyInfoVect);
@@ -379,7 +379,7 @@ void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
 
 bool HatoholArmPluginGateHAPI2::startOnDemandFetchTrigger(Closure0 *closure)
 {
-	if (!m_impl->hasProcedure("fetchTriggers"))
+	if (!m_impl->hasProcedure(HAPI2_FETCH_TRIGGERS))
 		return false;
 
 	JSONBuilder builder;
