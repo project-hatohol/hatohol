@@ -34,6 +34,13 @@ if (!parser.read(MEMBER, VALUE)) {					\
 	return false;							\
 }
 
+#define CHECK_MANDATORY_MEMBER_EXISTENCE(MEMBER)			\
+	if (!parser.isMember(MEMBER)) {					\
+		MLPL_ERR("The member \"" MEMBER "\" is not defined in " \
+			 "the current node.\n");			\
+	return false;							\
+}
+
 struct HatoholArmPluginGateHAPI2::Impl
 {
 	// We have a copy. The access to the object is MT-safe.
@@ -611,6 +618,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 			    const MonitoringServerInfo &serverInfo)
 {
+	CHECK_MANDATORY_MEMBER_EXISTENCE("items");
 	parser.startObject("items");
 	size_t num = parser.countElements();
 
@@ -672,6 +680,7 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 {
 	ItemIdType itemId = "";
 	PARSE_AS_MANDATORY("itemId", itemId);
+	CHECK_MANDATORY_MEMBER_EXISTENCE("histories");
 	parser.startObject("histories");
 	size_t num = parser.countElements();
 
@@ -727,6 +736,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect,
 			     const MonitoringServerInfo &serverInfo)
 {
+	CHECK_MANDATORY_MEMBER_EXISTENCE("hosts");
 	parser.startObject("hosts");
 	size_t num = parser.countElements();
 	for (size_t j = 0; j < num; j++) {
@@ -807,6 +817,7 @@ static bool parseHostGroupsParams(JSONParser &parser,
 				  HostgroupVect &hostgroupVect,
 				  const MonitoringServerInfo &serverInfo)
 {
+	CHECK_MANDATORY_MEMBER_EXISTENCE("hostGroups");
 	parser.startObject("hostGroups");
 	size_t num = parser.countElements();
 	for (size_t j = 0; j < num; j++) {
@@ -871,6 +882,7 @@ static bool parseHostGroupMembershipParams(
   HostgroupMemberVect &hostgroupMemberVect,
   const MonitoringServerInfo &serverInfo)
 {
+	CHECK_MANDATORY_MEMBER_EXISTENCE("hostGroupMembership");
 	parser.startObject("hostGroupsMembership");
 	size_t num = parser.countElements();
 	for (size_t i = 0; i < num; i++) {
@@ -986,6 +998,7 @@ static bool parseTriggerSeverity(JSONParser &parser,
 static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfoList,
 				const MonitoringServerInfo &serverInfo)
 {
+	CHECK_MANDATORY_MEMBER_EXISTENCE("triggers");
 	parser.startObject("triggers");
 	size_t num = parser.countElements();
 
@@ -1087,6 +1100,7 @@ static bool parseEventType(JSONParser &parser, EventInfo &eventInfo)
 static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 			      const MonitoringServerInfo &serverInfo)
 {
+	CHECK_MANDATORY_MEMBER_EXISTENCE("events");
 	parser.startObject("events");
 	size_t num = parser.countElements();
 	constexpr const size_t numLimit = 1000;
@@ -1169,6 +1183,7 @@ static bool parseHostParentsParams(
   JSONParser &parser,
   VMInfoVect &vmInfoVect)
 {
+	CHECK_MANDATORY_MEMBER_EXISTENCE("hostParents");
 	parser.startObject("hostParents");
 	size_t num = parser.countElements();
 	for (size_t i = 0; i < num; i++) {
