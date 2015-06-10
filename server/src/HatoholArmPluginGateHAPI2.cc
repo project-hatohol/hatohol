@@ -32,7 +32,7 @@ struct JSONRPCErrorObject {
 	StringList errors;
 	void addError(StringList &errors,
 		      const char *format,
-		      ...)
+		      ...) __attribute__((__format__ (__printf__, 3, 4)))
 	{
 	       va_list ap;
 	       va_start(ap, format);
