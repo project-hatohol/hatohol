@@ -28,6 +28,11 @@
 using namespace std;
 using namespace mlpl;
 
+#define PARSE_AS_MANDATORY(MEMBER, VALUE)		\
+if (!parser.read(MEMBER, VALUE)) {			\
+	return false;					\
+}
+
 struct HatoholArmPluginGateHAPI2::Impl
 {
 	// We have a copy. The access to the object is MT-safe.
@@ -98,7 +103,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		}
 		parser.endObject(); // procedures
 
-		parser.read("name", m_pluginProcessName);
+		PARSE_AS_MANDATORY("name", m_pluginProcessName);
 		MLPL_INFO("HAP Process connecting done. "
 			  "Connected HAP process name: \"%s\"\n",
 			  m_pluginProcessName.c_str());
@@ -581,7 +586,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType)
 {
 	string type;
-	parser.read("params", type);
+	PARSE_AS_MANDATORY("params", type);
 	if (type == "host")
 		lastInfoType = LAST_INFO_HOST;
 	else if (type == "hostGroup")
@@ -647,13 +652,13 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 
 		ItemInfo itemInfo;
 		itemInfo.serverId = serverInfo.id;
-		parser.read("itemId", itemInfo.id);
-		parser.read("hostId", itemInfo.hostIdInServer);
-		parser.read("brief", itemInfo.brief);
+		PARSE_AS_MANDATORY("itemId", itemInfo.id);
+		PARSE_AS_MANDATORY("hostId", itemInfo.hostIdInServer);
+		PARSE_AS_MANDATORY("brief", itemInfo.brief);
 		parseTimeStamp(parser, "lastValueTime", itemInfo.lastValueTime);
-		parser.read("lastValue", itemInfo.lastValue);
-		parser.read("itemGroupName", itemInfo.itemGroupName);
-		parser.read("unit", itemInfo.unit);
+		PARSE_AS_MANDATORY("lastValue", itemInfo.lastValue);
+		PARSE_AS_MANDATORY("itemGroupName", itemInfo.itemGroupName);
+		PARSE_AS_MANDATORY("unit", itemInfo.unit);
 		parser.endElement();
 
 		itemInfoList.push_back(itemInfo);
@@ -692,7 +697,7 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 			       const MonitoringServerInfo &serverInfo)
 {
 	ItemIdType itemId = "";
-	parser.read("itemId", itemId);
+	PARSE_AS_MANDATORY("itemId", itemId);
 	parser.startObject("histories");
 	size_t num = parser.countElements();
 
@@ -705,7 +710,7 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 		HistoryInfo historyInfo;
 		historyInfo.itemId = itemId;
 		historyInfo.serverId = serverInfo.id;
-		parser.read("value", historyInfo.value);
+		PARSE_AS_MANDATORY("value", historyInfo.value);
 		parseTimeStamp(parser, "time", historyInfo.clock);
 		parser.endElement();
 
@@ -755,9 +760,9 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 		ServerHostDef hostInfo;
 		hostInfo.serverId = serverInfo.id;
 		int64_t hostId;
-		parser.read("hostId", hostId);
+		PARSE_AS_MANDATORY("hostId", hostId);
 		hostInfo.hostIdInServer = hostId;
-		parser.read("hostName", hostInfo.name);
+		PARSE_AS_MANDATORY("hostName", hostInfo.name);
 		parser.endElement();
 
 		hostInfoVect.push_back(hostInfo);
@@ -768,7 +773,7 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 
 static bool parseUpdateType(JSONParser &parser, string &updateType)
 {
-	parser.read("updateType", updateType);
+	PARSE_AS_MANDATORY("updateType", updateType);
 	if (updateType == "ALL") {
 		return true;
 	} else if (updateType == "UPDATED") {
@@ -830,8 +835,8 @@ static bool parseHostGroupsParams(JSONParser &parser,
 
 		Hostgroup hostgroup;
 		hostgroup.serverId = serverInfo.id;
-		parser.read("groupId", hostgroup.idInServer);
-		parser.read("groupName", hostgroup.name);
+		PARSE_AS_MANDATORY("groupId", hostgroup.idInServer);
+		PARSE_AS_MANDATORY("groupName", hostgroup.name);
 		parser.endElement();
 
 		hostgroupVect.push_back(hostgroup);
@@ -891,7 +896,7 @@ static bool parseHostGroupMembershipParams(
 		HostgroupMember hostgroupMember;
 		hostgroupMember.serverId = serverInfo.id;
 		string hostId;
-		parser.read("hostId", hostId);
+		PARSE_AS_MANDATORY("hostId", hostId);
 		hostgroupMember.hostId = StringUtils::toUint64(hostId);
 		parser.startObject("groupIds");
 		size_t groupIdNum = parser.countElements();
@@ -944,10 +949,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	return builder.generate();
 }
 
-static void parseTriggerStatus(JSONParser &parser, TriggerStatusType &status)
+static bool parseTriggerStatus(JSONParser &parser, TriggerStatusType &status)
 {
 	string statusString;
-	parser.read("status", statusString);
+	PARSE_AS_MANDATORY("status", statusString);
 	if (statusString == "OK") {
 		status = TRIGGER_STATUS_OK;
 	} else if (statusString == "NG") {
@@ -958,13 +963,14 @@ static void parseTriggerStatus(JSONParser &parser, TriggerStatusType &status)
 		MLPL_WARN("Unknown trigger status: %s\n", statusString.c_str());
 		status = TRIGGER_STATUS_UNKNOWN;
 	}
+	return true;
 }
 
-static void parseTriggerSeverity(JSONParser &parser,
+static bool parseTriggerSeverity(JSONParser &parser,
 				 TriggerSeverityType &severity)
 {
 	string severityString;
-	parser.read("severity", severityString);
+	PARSE_AS_MANDATORY("severity", severityString);
 	if (severityString == "ALL") {
 		severity = TRIGGER_SEVERITY_ALL;
 	} else if (severityString == "UNKNOWN") {
@@ -984,6 +990,7 @@ static void parseTriggerSeverity(JSONParser &parser,
 			  severityString.c_str());
 		severity = TRIGGER_SEVERITY_UNKNOWN;
 	}
+	return true;
 }
 
 static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfoList,
@@ -1003,10 +1010,10 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 		parseTriggerStatus(parser, triggerInfo.status);
 		parseTriggerSeverity(parser, triggerInfo.severity);
 		parseTimeStamp(parser, "lastChangeTime", triggerInfo.lastChangeTime);
-		parser.read("hostId",       triggerInfo.hostIdInServer);
-		parser.read("hostName",     triggerInfo.hostName);
-		parser.read("brief",        triggerInfo.brief);
-		parser.read("extendedInfo", triggerInfo.extendedInfo);
+		PARSE_AS_MANDATORY("hostId",       triggerInfo.hostIdInServer);
+		PARSE_AS_MANDATORY("hostName",     triggerInfo.hostName);
+		PARSE_AS_MANDATORY("brief",        triggerInfo.brief);
+		PARSE_AS_MANDATORY("extendedInfo", triggerInfo.extendedInfo);
 		parser.endElement();
 
 		triggerInfoList.push_back(triggerInfo);
@@ -1058,10 +1065,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	return builder.generate();
 }
 
-static void parseEventType(JSONParser &parser, EventInfo &eventInfo)
+static bool parseEventType(JSONParser &parser, EventInfo &eventInfo)
 {
 	string eventType;
-	parser.read("type", eventType);
+	PARSE_AS_MANDATORY("type", eventType);
 
 	if (eventType == "GOOD") {
 		eventInfo.type = EVENT_TYPE_GOOD;
@@ -1075,6 +1082,7 @@ static void parseEventType(JSONParser &parser, EventInfo &eventInfo)
 		MLPL_WARN("Invalid event type: %s\n", eventType.c_str());
 		eventInfo.type = EVENT_TYPE_UNKNOWN;
 	}
+	return true;
 };
 
 static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
@@ -1100,19 +1108,19 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 
 		EventInfo eventInfo;
 		eventInfo.serverId = serverInfo.id;
-		parser.read("eventId",      eventInfo.id);
+		PARSE_AS_MANDATORY("eventId",  eventInfo.id);
 		parseTimeStamp(parser, "time", eventInfo.time);
 		parseEventType(parser, eventInfo);
 		TriggerIdType triggerId = DO_NOT_ASSOCIATE_TRIGGER_ID;
 		if (!parser.read("triggerId", triggerId)) {
 			eventInfo.triggerId = triggerId;
 		}
-		parseTriggerStatus(parser, eventInfo.status);
-		parseTriggerSeverity(parser, eventInfo.severity);
-		parser.read("hostId",       eventInfo.hostIdInServer);
-		parser.read("hostName",     eventInfo.hostName);
-		parser.read("brief",        eventInfo.brief);
-		parser.read("extendedInfo", eventInfo.extendedInfo);
+		parseTriggerStatus(parser,         eventInfo.status);
+		parseTriggerSeverity(parser,       eventInfo.severity);
+		PARSE_AS_MANDATORY("hostId",       eventInfo.hostIdInServer);
+		PARSE_AS_MANDATORY("hostName",     eventInfo.hostName);
+		PARSE_AS_MANDATORY("brief",        eventInfo.brief);
+		PARSE_AS_MANDATORY("extendedInfo", eventInfo.extendedInfo);
 		parser.endElement();
 
 		eventInfoList.push_back(eventInfo);
@@ -1175,9 +1183,9 @@ static bool parseHostParentsParams(
 
 		VMInfo vmInfo;
 		string childHostId, parentHostId;
-		parser.read("childHostId", childHostId);
+		PARSE_AS_MANDATORY("childHostId", childHostId);
 		vmInfo.hostId = StringUtils::toUint64(childHostId);
-		parser.read("parentHostId", parentHostId);
+		PARSE_AS_MANDATORY("parentHostId", parentHostId);
 		vmInfo.hypervisorHostId = StringUtils::toUint64(parentHostId);
 		parser.endElement();
 
@@ -1222,7 +1230,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo)
 {
 	string status;
-	parser.read("lastStatus", status);
+	PARSE_AS_MANDATORY("lastStatus", status);
 	if (status == "INIT") {
 		armInfo.stat = ARM_WORK_STAT_INIT;
 	} else if (status == "OK") {
@@ -1233,7 +1241,7 @@ static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo)
 		MLPL_WARN("Invalid status: %s\n", status.c_str());
 		armInfo.stat = ARM_WORK_STAT_FAILURE;
 	}
-	parser.read("failureReason", armInfo.failureComment);
+	PARSE_AS_MANDATORY("failureReason", armInfo.failureComment);
 	timespec successTime, failureTime;
 	parseTimeStamp(parser, "lastSuccessTime", successTime);
 	parseTimeStamp(parser, "lastFailureTime", failureTime);
@@ -1243,8 +1251,8 @@ static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo)
 	armInfo.lastFailureTime = lastFailureTime;
 
 	int64_t numSuccess, numFailure;
-	parser.read("numSuccess", numSuccess);
-	parser.read("numFailure", numFailure);
+	PARSE_AS_MANDATORY("numSuccess", numSuccess);
+	PARSE_AS_MANDATORY("numFailure", numFailure);
 	armInfo.numUpdate = (size_t)numSuccess;
 	armInfo.numFailure = (size_t)numFailure;
 
