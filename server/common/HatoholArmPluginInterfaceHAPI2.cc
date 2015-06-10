@@ -211,6 +211,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	CommunicationMode m_communicationMode;
 	ArmPluginInfo m_pluginInfo;
 	HatoholArmPluginInterfaceHAPI2 &m_hapi2;
+	bool m_established;
 	ProcedureHandlerMap m_procedureHandlerMap;
 	map<string, ProcedureCallbackPtr> m_procedureCallbackMap;
 	AMQPConnectionInfo m_connectionInfo;
@@ -220,6 +221,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	Impl(HatoholArmPluginInterfaceHAPI2 &hapi2, const CommunicationMode mode)
 	: m_communicationMode(mode),
 	  m_hapi2(hapi2),
+	  m_established(false),
 	  m_consumer(NULL),
 	  m_handler(NULL)
 	{
@@ -336,6 +338,15 @@ void HatoholArmPluginInterfaceHAPI2::registerProcedureHandler(
 string HatoholArmPluginInterfaceHAPI2::interpretHandler(
   const HAPI2ProcedureName &type, JSONParser &parser)
 {
+	if (!getEstablished() && type != HAPI2_EXCHANGE_PROFILE) {
+		string message =
+			"Received a method while exchangeProfile isn't "
+			"completed yet!";
+		// TODO: Determine the error code for it.
+		return buildErrorResponse(JSON_RPC_SERVER_ERROR_BEGIN,
+					  message, &parser);
+	}
+
 	auto it = m_impl->m_procedureHandlerMap.find(type);
 	if (it == m_impl->m_procedureHandlerMap.end()) {
 		string message = StringUtils::sprintf("Method not found: %s",
@@ -383,6 +394,16 @@ void HatoholArmPluginInterfaceHAPI2::send(
 	string idString = StringUtils::sprintf("%" PRId64, id);
 	m_impl->queueProcedureCallback(idString, callback);
 	send(message);
+}
+
+bool HatoholArmPluginInterfaceHAPI2::getEstablished(void)
+{
+	return m_impl->m_established;
+}
+
+void HatoholArmPluginInterfaceHAPI2::setEstablished(bool established)
+{
+	m_impl->m_established = established;
 }
 
 mt19937 HatoholArmPluginInterfaceHAPI2::getRandomEngine(void)

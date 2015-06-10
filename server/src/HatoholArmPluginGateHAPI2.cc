@@ -122,6 +122,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 			parser.startObject("result");
 			m_impl.parseExchangeProfileParams(parser);
 			parser.endObject();
+			m_impl.m_hapi2.setEstablished(true);
 		}
 	};
 
@@ -497,6 +498,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	parser.startObject("params");
 	m_impl->parseExchangeProfileParams(parser);
 	parser.endObject(); // params
+	setEstablished(true);
 
 	JSONBuilder builder;
 	builder.startObject();

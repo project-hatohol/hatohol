@@ -150,6 +150,9 @@ public:
 			  const int64_t id,
 			  ProcedureCallbackPtr callback);
 
+	virtual bool getEstablished(void);
+	virtual void setEstablished(bool established);
+
 	const std::list<HAPI2ProcedureDef> &getProcedureDefList(void) const;
 
 protected:

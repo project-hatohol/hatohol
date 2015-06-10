@@ -169,6 +169,7 @@ void test_procedureHandlerExchangeProfile(void)
 		" \"getLastInfo\", \"putItems\", \"updateArmInfo\", \"fetchItems\"],"
 		" \"name\":\"examplePlugin\"}, \"id\":123}";
 	JSONParser parser(json);
+	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":{\"name\":\"" PACKAGE_NAME "\","
@@ -189,6 +190,7 @@ void test_procedureHandlerMonitoringServerInfo(void)
 		"{\"jsonrpc\":\"2.0\", \"method\":\"getMonitoringServerInfo\","
 		" \"params\":\"\", \"id\":456}";
 	JSONParser parser(json);
+	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_MONITORING_SERVER_INFO,
 					       parser);
 	string expected =
@@ -246,6 +248,7 @@ void test_procedureHandlerLastInfo(gconstpointer data)
 			       " \"params\":\"%s\", \"id\":789}",
 			       gcut_data_get_string(data, "params"));
 	JSONParser parser(json);
+	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_LAST_INFO, parser);
 	string expected =
 	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":789}",
@@ -263,6 +266,7 @@ void test_procedureHandlerLastInfoInvalidRequestObject(void)
 		"{\"jsonrpc\":\"2.0\", \"method\":\"getLastInfo\","
 		"\"id\":789}"; // omit params
 	JSONParser parser(json);
+	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_LAST_INFO, parser);
 	string expected = StringUtils::sprintf(
 		"{\"jsonrpc\":\"2.0\",\"id\":789,"
@@ -288,6 +292,7 @@ void test_procedureHandlerPutItems(void)
 		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"}],"
 		" \"fetchId\":\"1\"}, \"id\":83241245}";
 	JSONParser parser(json);
+	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_PUT_ITEMS, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"\",\"id\":83241245}";
@@ -307,6 +312,7 @@ void test_procedureHandlerPutHistory(void)
 		"{\"value\":\"exampleValue2\",\"time\":\"20150323113033.000000000\"}],"
 		" \"fetchId\":\"1\"}, \"id\":-83241245}";
 	JSONParser parser(json);
+	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_PUT_HISTORY, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"\",\"id\":-83241245}";
@@ -323,6 +329,7 @@ void test_procedureHandlerUpdateHosts(void)
 		" \"updateType\":\"UPDATED\",\"lastInfo\":\"201504091052\"},"
 		" \"id\":\"deadbeaf\"}";
 	JSONParser parser(json);
+	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_UPDATE_HOSTS, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"deadbeaf\"}";
@@ -339,6 +346,7 @@ void test_procedureHandlerUpdateHostGroups(void)
 		" \"groupName\":\"Group2\"}],\"updateType\":\"ALL\","
 		" \"lastInfo\":\"20150409104900\"}, \"id\":\"123abc\"}";
 	JSONParser parser(json);
+	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_UPDATE_HOST_GROUPS,
 					       parser);
 	string expected =
@@ -357,6 +365,7 @@ void test_procedureHandlerUpdateHostGroupMembership(void)
 		" \"lastInfo\":\"20150409105600\", \"updateType\":\"ALL\"},"
 		" \"id\":9342}";
 	JSONParser parser(json);
+	gate->setEstablished(true);
 	string actual = gate->interpretHandler(
 	  HAPI2_UPDATE_HOST_GROUP_MEMEBRSHIP, parser);
 	string expected =
@@ -378,6 +387,7 @@ void test_procedureHandlerUpdateTriggers(void)
 		" \"brief\":\"example brief\","
 		" \"extendedInfo\": \"sample extended info\"}]},\"id\":34031}";
 	JSONParser parser(json);
+	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_UPDATE_TRIGGERS, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":34031}";
@@ -408,6 +418,7 @@ void test_procedureHandlerUpdateEvents(gconstpointer data)
 			       " \"fetchId\":\"1\"},\"id\":2374234}",
 			       gcut_data_get_string(data, "triggerIdContents"));
 	JSONParser parser(json);
+	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_UPDATE_EVENTS, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":2374234}";
@@ -426,6 +437,7 @@ void test_procedureHandlerUpdateHostParents(void)
 		" \"updateType\":\"ALL\", \"lastInfo\":\"201504152246\"},"
 		" \"id\":6234093}";
 	JSONParser parser(json);
+	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_UPDATE_HOST_PARENTS,
 					       parser);
 	string expected =
@@ -445,6 +457,7 @@ void test_procedureHandlerUpdateArmInfo(void)
 		" \"lastFailureTime\":\"20150313161530\","
 		" \"numSuccess\":165, \"numFailure\":10}, \"id\":234}";
 	JSONParser parser(json);
+	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_UPDATE_ARM_INFO, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":234}";
