@@ -54,7 +54,7 @@ struct JSONRPCErrorObject {
 if (!parser.read(MEMBER, VALUE)) {					\
 	StringList errorMessage;					\
 	errorMessage.push_back(StringUtils::sprintf(			\
-		"Failed to parse mandatory member: ")); \
+		"Failed to parse mandatory member: "));		\
 	RPCERR.addError(errorMessage, "'%s' does not exist.", MEMBER);	\
 	return false;							\
 }
