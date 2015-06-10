@@ -59,11 +59,13 @@ if (!parser.read(MEMBER, VALUE)) {					\
 	return false;							\
 }
 
-#define CHECK_MANDATORY_MEMBER_EXISTENCE(MEMBER)			\
+#define CHECK_MANDATORY_MEMBER_EXISTENCE(MEMBER, RPCERR)			\
 	if (!parser.isMember(MEMBER)) {					\
-		MLPL_ERR("The member \"" MEMBER "\" is not defined in " \
-			 "the current node.\n");			\
-	return false;							\
+		StringList errorMessage;					\
+		errorMessage.push_back(StringUtils::sprintf(			\
+		  "Failed to parse mandatory array type member: "));		\
+		RPCERR.addError(errorMessage, "'%s' does not exist.", MEMBER);	\
+	return false;								\
 }
 
 struct HatoholArmPluginGateHAPI2::Impl
@@ -647,7 +649,7 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 			    const MonitoringServerInfo &serverInfo,
 			    JSONRPCErrorObject &errObj)
 {
-	CHECK_MANDATORY_MEMBER_EXISTENCE("items");
+	CHECK_MANDATORY_MEMBER_EXISTENCE("items", errObj);
 	parser.startObject("items");
 	size_t num = parser.countElements();
 
@@ -712,7 +714,7 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 {
 	ItemIdType itemId = "";
 	PARSE_AS_MANDATORY("itemId", itemId, errObj);
-	CHECK_MANDATORY_MEMBER_EXISTENCE("histories");
+	CHECK_MANDATORY_MEMBER_EXISTENCE("histories", errObj);
 	parser.startObject("histories");
 	size_t num = parser.countElements();
 
@@ -771,7 +773,7 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 			     JSONRPCErrorObject &errObj)
 {
 	StringList errors;
-	CHECK_MANDATORY_MEMBER_EXISTENCE("hosts");
+	CHECK_MANDATORY_MEMBER_EXISTENCE("hosts", errObj);
 	parser.startObject("hosts");
 	size_t num = parser.countElements();
 	for (size_t j = 0; j < num; j++) {
@@ -855,7 +857,7 @@ static bool parseHostGroupsParams(JSONParser &parser,
 				  const MonitoringServerInfo &serverInfo,
 				  JSONRPCErrorObject &errObj)
 {
-	CHECK_MANDATORY_MEMBER_EXISTENCE("hostGroups");
+	CHECK_MANDATORY_MEMBER_EXISTENCE("hostGroups", errObj);
 	parser.startObject("hostGroups");
 	size_t num = parser.countElements();
 	for (size_t j = 0; j < num; j++) {
@@ -924,7 +926,7 @@ static bool parseHostGroupMembershipParams(
   JSONRPCErrorObject &errObj
 )
 {
-	CHECK_MANDATORY_MEMBER_EXISTENCE("hostGroupMembership");
+	CHECK_MANDATORY_MEMBER_EXISTENCE("hostGroupMembership", errObj);
 	parser.startObject("hostGroupsMembership");
 	size_t num = parser.countElements();
 	for (size_t i = 0; i < num; i++) {
@@ -1045,7 +1047,7 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 				const MonitoringServerInfo &serverInfo,
 				JSONRPCErrorObject &errObj)
 {
-	CHECK_MANDATORY_MEMBER_EXISTENCE("triggers");
+	CHECK_MANDATORY_MEMBER_EXISTENCE("triggers", errObj);
 	parser.startObject("triggers");
 	size_t num = parser.countElements();
 
@@ -1151,7 +1153,7 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 			      const MonitoringServerInfo &serverInfo,
 			      JSONRPCErrorObject &errObj)
 {
-	CHECK_MANDATORY_MEMBER_EXISTENCE("events");
+	CHECK_MANDATORY_MEMBER_EXISTENCE("events", errObj);
 	parser.startObject("events");
 	size_t num = parser.countElements();
 	constexpr const size_t numLimit = 1000;
@@ -1238,7 +1240,7 @@ static bool parseHostParentsParams(
 )
 {
 	StringList errors;
-	CHECK_MANDATORY_MEMBER_EXISTENCE("hostParents");
+	CHECK_MANDATORY_MEMBER_EXISTENCE("hostParents", errObj);
 	parser.startObject("hostParents");
 	size_t num = parser.countElements();
 	for (size_t i = 0; i < num; i++) {
