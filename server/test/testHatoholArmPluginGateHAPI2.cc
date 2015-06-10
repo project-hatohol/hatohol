@@ -253,6 +253,24 @@ void test_procedureHandlerLastInfo(gconstpointer data)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerLastInfoInvalidRequestObject(void)
+{
+	MonitoringServerInfo serverInfo = monitoringServerInfo;
+	loadTestDBLastInfo();
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(serverInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"getLastInfo\","
+		"\"id\":789}"; // omit params
+	JSONParser parser(json);
+	string actual = gate->interpretHandler(HAPI2_LAST_INFO, parser);
+	string expected =
+		"{\"jsonrpc\":\"2.0\",\"id\":789,"
+		"\"error\":{\"code\":-32600,"
+		"\"message\":\"Invalid request object given.\"}}";
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_procedureHandlerPutItems(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
