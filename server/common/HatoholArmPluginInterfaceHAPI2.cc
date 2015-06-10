@@ -130,6 +130,25 @@ struct JsonRpcObject {
 		m_type = Type::PROCEDURE;
 	}
 
+	bool validateErrorObject(JSONParser &parser)
+	{
+		JSONParser::ValueType type = parser.getValueType("code");
+		if (type != JSONParser::VALUE_TYPE_INT64) {
+			m_errorMessage =
+				"Invalid an error object: "
+				"\"code\" must be an integer!";
+			return false;
+		}
+		type = parser.getValueType("message");
+		if (type != JSONParser::VALUE_TYPE_STRING) {
+			m_errorMessage =
+				"Invalid an error object: "
+				"\"message\" must be a string!";
+			return false;
+		}
+		return true;
+	}
+
 	void parseResponse(JSONParser &parser)
 	{
 		m_type = Type::INVALID;
@@ -158,9 +177,8 @@ struct JsonRpcObject {
 			// the method.
 		}
 
-		if (hasError) {
-			// TODO: Check the error object
-		}
+		if (hasError && !validateErrorObject(parser))
+			return;
 
 		m_type = Type::RESPONSE;
 	}
