@@ -74,7 +74,7 @@ struct JsonRpcObject {
 		}
 
 		if (parser.isMember("method")) {
-			parseMethod(parser);
+			parseRequest(parser);
 		} else {
 			parseResponse(parser);
 		}
@@ -102,7 +102,7 @@ struct JsonRpcObject {
 		}
 	}
 
-	void parseMethod(JSONParser &parser)
+	void parseRequest(JSONParser &parser)
 	{
 		m_type = Type::INVALID;
 
