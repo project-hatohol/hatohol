@@ -28,9 +28,10 @@
 using namespace std;
 using namespace mlpl;
 
-#define PARSE_AS_MANDATORY(MEMBER, VALUE)		\
-if (!parser.read(MEMBER, VALUE)) {			\
-	return false;					\
+#define PARSE_AS_MANDATORY(MEMBER, VALUE)				\
+if (!parser.read(MEMBER, VALUE)) {					\
+	MLPL_ERR("Failed to parse required \"" MEMBER "\" member.\n");	\
+	return false;							\
 }
 
 struct HatoholArmPluginGateHAPI2::Impl
