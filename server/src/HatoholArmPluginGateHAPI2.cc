@@ -86,6 +86,45 @@ struct HatoholArmPluginGateHAPI2::Impl
 		callExchangeProfile();
 	}
 
+	bool parseExchangeProfileParams(JSONParser &parser)
+	{
+		m_supportedProcedureNameSet.clear();
+		parser.startObject("procedures");
+		size_t num = parser.countElements();
+		for (size_t i = 0; i < num; i++) {
+			string supportedProcedureName;
+			parser.read(i, supportedProcedureName);
+			m_supportedProcedureNameSet.insert(supportedProcedureName);
+		}
+		parser.endObject(); // procedures
+
+		parser.read("name", m_pluginProcessName);
+		MLPL_INFO("HAP Process connecting done. "
+			  "Connected HAP process name: \"%s\"\n",
+			  m_pluginProcessName.c_str());
+		return true;
+	}
+
+	struct ExchangeProfileCallback : public ProcedureCallback {
+		Impl &m_impl;
+		ExchangeProfileCallback(Impl &impl)
+		: m_impl(impl)
+		{
+		}
+
+		virtual void onGotResponse(JSONParser &parser) override
+		{
+			if (parser.isMember("error")) {
+				// TODO: handle errors
+				return;
+			}
+
+			parser.startObject("result");
+			m_impl.parseExchangeProfileParams(parser);
+			parser.endObject();
+		}
+	};
+
 	void callExchangeProfile(void) {
 		JSONBuilder builder;
 		builder.startObject();
@@ -105,7 +144,9 @@ struct HatoholArmPluginGateHAPI2::Impl
 		int64_t id = random();
 		builder.add("id", id);
 		builder.endObject();
-		// TODO: add callback
+		ProcedureCallback *callback =
+		  new Impl::ExchangeProfileCallback(*this);
+		ProcedureCallbackPtr callbackPtr(callback, false);
 		m_hapi2.send(builder.generate(), id, NULL);
 	}
 
@@ -449,37 +490,12 @@ const ArmStatus &HatoholArmPluginGateHAPI2::getArmStatus(void) const
 	return m_impl->m_armStatus;
 }
 
-static bool parseExchangeProfileParams(
-  JSONParser &parser, set<string> &supportedProcedureNameSet)
-{
-	parser.startObject("procedures");
-	size_t num = parser.countElements();
-	for (size_t i = 0; i < num; i++) {
-		string supportedProcedureName;
-		parser.read(i, supportedProcedureName);
-
-		supportedProcedureNameSet.insert(supportedProcedureName);
-	}
-	parser.endObject(); // procedures
-	return true;
-}
-
-static bool parsePluginProcessName(JSONParser &parser, string &pluginProcessName)
-{
-	parser.read("name", pluginProcessName);
-	MLPL_INFO("HAP Process connecting done. Connected HAP process name: \"%s\"\n",
-		  pluginProcessName.c_str());
-	return true;
-}
-
 string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
   JSONParser &parser)
 {
 	m_impl->m_supportedProcedureNameSet.clear();
 	parser.startObject("params");
-	bool succeeded = parseExchangeProfileParams(
-			   parser, m_impl->m_supportedProcedureNameSet);
-	parsePluginProcessName(parser, m_impl->m_pluginProcessName);
+	m_impl->parseExchangeProfileParams(parser);
 	parser.endObject(); // params
 
 	JSONBuilder builder;
