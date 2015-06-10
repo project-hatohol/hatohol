@@ -558,11 +558,13 @@ void receiveFetchRequest(const string &expectedMethod,
 {
 	string request = popServerMessage();
 	JSONParser parser(request);
+	cppcut_assert_equal(false, parser.hasError());
 	string actualMethod;
 	parser.read("method", actualMethod);
-	parser.startObject("params");
-	parser.read("fetchId", fetchId);
-	parser.endObject();
+	if (parser.startObject("params")) {
+		parser.read("fetchId", fetchId);
+		parser.endObject();
+	}
 	parser.read("id", id);
 	cppcut_assert_equal(expectedMethod, actualMethod);
 	cppcut_assert_equal(true, !fetchId.empty() && id);
@@ -573,6 +575,7 @@ void acceptProcedure(HatoholArmPluginGateHAPI2Ptr &gate,
 {
 	string exchangeProfileMethod = popServerMessage();
 	JSONParser parser(exchangeProfileMethod);
+	cppcut_assert_equal(false, parser.hasError());
 	int64_t id = 0;
 	parser.read("id", id);
 	string response = StringUtils::sprintf(
