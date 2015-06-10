@@ -188,8 +188,9 @@ struct HatoholArmPluginGateHAPI2::Impl
 				return;
 			}
 
-			// The fetch* procedure isn't accepted by the plugin.
-			// The closure for it should be expired immediately.
+			// The fetch* procedure has not been accepted by the
+			// plugin. The closure for it should be expired
+			// immediately.
 			if (m_methodName == HAPI2_FETCH_HISTORY) {
 				HistoryInfoVect historyInfoVect;
 				m_impl.runFetchHistoryCallback(m_fetchId,
