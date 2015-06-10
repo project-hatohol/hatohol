@@ -77,13 +77,9 @@ libhatohol_la_SOURCES = \
 
 if HAVE_LIBRABBITMQ
 libhatohol_la_SOURCES += \
-	AMQPConnectionInfo.cc AMQPConnectionInfo.h \
-	AMQPConnection.cc AMQPConnection.h \
-	AMQPConsumer.cc AMQPConsumer.h \
-	AMQPPublisher.cc AMQPPublisher.h \
-	AMQPMessageHandler.cc AMQPMessageHandler.h \
 	GateJSONEventMessage.cc GateJSONEventMessage.h \
-	HatoholArmPluginGateJSON.cc HatoholArmPluginGateJSON.h
+	HatoholArmPluginGateJSON.cc HatoholArmPluginGateJSON.h \
+	HatoholArmPluginGateHAPI2.cc HatoholArmPluginGateHAPI2.h
 endif
 
 AM_CXXFLAGS = \

@@ -41,8 +41,10 @@ public:
 	const char *getVirtualHost(void) const;
 	bool useTLS(void) const;
 
-	const std::string &getQueueName(void) const;
-	void setQueueName(const std::string &queueName);
+	const std::string &getConsumerQueueName(void) const;
+	void setConsumerQueueName(const std::string &queueName);
+	const std::string &getPublisherQueueName(void) const;
+	void setPublisherQueueName(const std::string &queueName);
 
 	time_t getTimeout(void) const;
 	void setTimeout(const time_t &timeout);

@@ -78,5 +78,34 @@ namespace defaultValue {
 		time_t defaultTimeout = 1;
 		cppcut_assert_equal(defaultTimeout, info->getTimeout());
 	}
+
+	void test_consumerQueueName(void)
+	{
+		cppcut_assert_equal(string(""), info->getConsumerQueueName());
+	}
+
+	void test_publisherQueueName(void)
+	{
+		cppcut_assert_equal(string(""), info->getPublisherQueueName());
+	}
 }
+
+namespace setter {
+	void test_consumerQueueName(void)
+	{
+		const string queueName("hatohol-test-consumer");
+		AMQPConnectionInfo info;
+		info.setConsumerQueueName(queueName);
+		cppcut_assert_equal(queueName, info.getConsumerQueueName());
+	}
+
+	void test_publisherQueueName(void)
+	{
+		const string queueName("hatohol-test-publisher");
+		AMQPConnectionInfo info;
+		info.setPublisherQueueName(queueName);
+		cppcut_assert_equal(queueName, info.getPublisherQueueName());
+	}
+}
+
 } // namespace testAMQPConnectionInfo

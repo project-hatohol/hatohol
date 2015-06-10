@@ -19,6 +19,7 @@
 
 #include <fstream>
 #include <cppcutter.h>
+#include <gcutter.h>
 #include "JSONParser.h"
 #include "Helpers.h"
 using namespace std;
@@ -215,5 +216,58 @@ void test_checkIsMember(void)
 	cppcut_assert_equal(true, parser.isMember("ticketgate"));
 	cppcut_assert_equal(true, parser.isMember("greenwindows"));
 	parser.endObject();
+}
+
+void data_valueType(void)
+{
+	gcut_add_datum("null",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_NULL,
+		       "json", G_TYPE_STRING, "{\"value\":null}",
+		       NULL);
+	gcut_add_datum("int64",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_INT64,
+		       "json", G_TYPE_STRING, "{\"value\":123}",
+		       NULL);
+	gcut_add_datum("double",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_DOUBLE,
+		       "json", G_TYPE_STRING, "{\"value\":123.45}",
+		       NULL);
+	gcut_add_datum("string",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_STRING,
+		       "json", G_TYPE_STRING, "{\"value\":\"abc\"}",
+		       NULL);
+	gcut_add_datum("true",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_BOOLEAN,
+		       "json", G_TYPE_STRING, "{\"value\":true}",
+		       NULL);
+	gcut_add_datum("false",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_BOOLEAN,
+		       "json", G_TYPE_STRING, "{\"value\":false}",
+		       NULL);
+	gcut_add_datum("array",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_ARRAY,
+		       "json", G_TYPE_STRING, "{\"value\":[]}",
+		       NULL);
+	gcut_add_datum("object",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_OBJECT,
+		       "json", G_TYPE_STRING, "{\"value\":{}}",
+		       NULL);
+	gcut_add_datum("no member",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_UNKNOWN,
+		       "json", G_TYPE_STRING, "{\"hoge\":123}",
+		       NULL);
+	gcut_add_datum("invalid json",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_UNKNOWN,
+		       "json", G_TYPE_STRING, "{hoge:123}",
+		       NULL);
+}
+
+void test_valueType(gconstpointer data)
+{
+	JSONParser parser(gcut_data_get_string(data, "json"));
+	JSONParser::ValueType expected =
+	  static_cast<JSONParser::ValueType>(
+	    gcut_data_get_int(data, "expected"));
+	cppcut_assert_equal(expected, parser.getValueType("value"));
 }
 } //namespace testJSONParser

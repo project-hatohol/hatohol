@@ -28,6 +28,7 @@
 #include "HatoholArmPluginGate.h"
 #ifdef HAVE_LIBRABBITMQ
 #include "HatoholArmPluginGateJSON.h"
+#include "HatoholArmPluginGateHAPI2.h"
 #endif
 
 DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
@@ -52,6 +53,10 @@ DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
 	case MONITORING_SYSTEM_HAPI_JSON:
 	{
 		return new HatoholArmPluginGateJSON(svInfo, autoStart);
+	}
+	case MONITORING_SYSTEM_HAPI2:
+	{
+		return new HatoholArmPluginGateHAPI2(svInfo, autoStart);
 	}
 #endif
 	default:

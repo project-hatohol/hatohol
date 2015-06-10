@@ -62,6 +62,10 @@ struct VMInfo {
 	HostIdType    hypervisorHostId;
 };
 
+typedef std::vector<VMInfo>        VMInfoVect;
+typedef VMInfoVect::iterator       VMInfoVectIterator;
+typedef VMInfoVect::const_iterator VMInfoVectConstIterator;
+
 struct Hostgroup {
 	GenericIdType   id;
 	ServerIdType    serverId;

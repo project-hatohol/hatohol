@@ -155,6 +155,63 @@ bool JSONParser::isMember(const string &member)
 	return true;
 }
 
+JSONParser::ValueType JSONParser::getValueType(const std::string &member)
+{
+	ValueType type = VALUE_TYPE_UNKNOWN;
+
+	if (hasError())
+		return type;
+
+	internalCheck();
+
+	if (!isMember(member))
+		return type;
+	if (!startObject(member))
+		return type;
+
+	JsonNodeType nodeType = json_node_get_node_type(m_impl->currentNode);
+	switch (nodeType) {
+	case JSON_NODE_OBJECT:
+		type = VALUE_TYPE_OBJECT;
+		break;
+	case JSON_NODE_ARRAY:
+		type = VALUE_TYPE_ARRAY;
+		break;
+	case JSON_NODE_VALUE:
+	{
+		GType gtype = json_node_get_value_type(m_impl->currentNode);
+		switch(gtype) {
+		case G_TYPE_INVALID:
+			type = VALUE_TYPE_NULL;
+			break;
+		case G_TYPE_BOOLEAN:
+			type = VALUE_TYPE_BOOLEAN;
+			break;
+		case G_TYPE_INT64:
+			type = VALUE_TYPE_INT64;
+			break;
+		case G_TYPE_DOUBLE:
+			type = VALUE_TYPE_DOUBLE;
+			break;
+		case G_TYPE_STRING:
+			type = VALUE_TYPE_STRING;
+			break;
+		default:
+			break;
+		}
+		break;
+	}
+	case JSON_NODE_NULL:
+		type = VALUE_TYPE_NULL;
+		break;
+	default:
+		break;
+	};
+
+	endObject();
+	return type;
+}
+
 bool JSONParser::startObject(const string &member)
 {
 	JsonObject *object;

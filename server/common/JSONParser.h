@@ -32,6 +32,18 @@
 class JSONParser
 {
 public:
+
+	enum ValueType {
+		VALUE_TYPE_UNKNOWN,
+		VALUE_TYPE_NULL,
+		VALUE_TYPE_BOOLEAN,
+		VALUE_TYPE_INT64,
+		VALUE_TYPE_DOUBLE,
+		VALUE_TYPE_STRING,
+		VALUE_TYPE_OBJECT,
+		VALUE_TYPE_ARRAY
+	};
+
 	class PositionStack {
 	public:
 		PositionStack(JSONParser &parser);
@@ -55,6 +67,7 @@ public:
 	bool read(const std::string &member, double &dest);
 	bool read(int index, std::string &dest);
 	bool isMember(const std::string &member);
+	ValueType getValueType(const std::string &member);
 
 	/**
 	 * checks whether the element is Null.

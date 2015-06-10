@@ -57,8 +57,8 @@ public:
 	bool startConsuming(void);
 	bool consume(AMQPMessage &message);
 	bool publish(const AMQPMessage &message);
-	bool purgeQueue(void);
-	bool deleteQueue(void);
+	bool purgeAllQueues(void);
+	bool deleteAllQueues(void);
 
 protected:
 	bool initializeConnection(void);
@@ -66,11 +66,14 @@ protected:
 	bool openSocket(void);
 	bool login(void);
 	bool openChannel(void);
-	bool declareQueue(void);
-	std::string getQueueName(void);
+	bool declareQueue(const std::string queueName);
+	bool purgeQueue(const std::string queueName);
+	bool deleteQueue(const std::string queueName);
+	std::string getConsumerQueueName(void);
+	std::string getPublisherQueueName(void);
 	void disposeConnection(void);
 	void logErrorResponse(const char *context,
-	                              const amqp_rpc_reply_t &reply);
+			      const amqp_rpc_reply_t &reply);
 	amqp_channel_t getChannel(void);
 	amqp_connection_state_t getConnection(void);
 
