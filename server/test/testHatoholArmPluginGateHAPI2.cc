@@ -690,7 +690,11 @@ void test_noMethod(void)
 		" \"Antarctica\":\"mine\"}, \"id\":5}");
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"id\":5,"
-		"\"error\":{\"code\":-32600,\"message\":\"Invalid request\"}"
+		"\"error\":{"
+		"\"code\":-32600,"
+		"\"message\":\"Invalid JSON-RPC object: "
+		"None of method, result, error exist!\""
+		"}"
 		"}";
 	string actual = popServerMessage();
 	cppcut_assert_equal(expected, actual);

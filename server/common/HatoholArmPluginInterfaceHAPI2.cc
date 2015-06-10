@@ -138,7 +138,9 @@ struct JsonRpcObject {
 		bool hasError = parser.isMember("error");
 
 		if (!hasResult && !hasError) {
-			m_errorMessage = "Invalid JSON-RPC object";
+			m_errorMessage =
+				"Invalid JSON-RPC object: "
+				"None of method, result, error exist!";
 			return;
 		}
 
