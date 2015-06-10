@@ -46,81 +46,37 @@ std::list<HAPI2ProcedureDef> defaultValidProcedureList = {
 	{PROCEDURE_HAP,    "fetchEvents",               HAP_OPTIONAL},
 };
 
-class HatoholArmPluginInterfaceHAPI2::AMQPHAPI2MessageHandler
-  : public AMQPMessageHandler
-{
-public:
-	AMQPHAPI2MessageHandler(HatoholArmPluginInterfaceHAPI2 &hapi2)
-	: m_hapi2(hapi2)
-	{
-	}
-
-	enum class JsonRpcObjectType {
+struct JsonRpcObject {
+	enum class Type {
 		INVALID,
 		PROCEDURE,
 		NOTIFICATION,
 		RESPONSE
 	};
 
-	bool handle(AMQPConnection &connection, const AMQPMessage &message)
+	Type m_type;
+	string m_methodName;
+	string m_id;
+	string m_errorMessage;
+	JSONParser m_parser;
+
+	JsonRpcObject(const string &json)
+	: m_parser(json)
 	{
-		MLPL_DBG("message: <%s>/<%s>\n",
-			 message.contentType.c_str(),
-			 message.body.c_str());
-
-		JSONParser parser(message.body);
-		AMQPJSONMessage response;
-		string errorMessage;
-
-		if (parser.hasError()) {
-			const gchar *error = parser.getErrorMessage();
-			errorMessage = error ? error : "Failed to parse JSON";
-			response.body =
-			  m_hapi2.buildErrorResponse(JSON_RPC_PARSE_ERROR,
-						     errorMessage, &parser);
-			// TODO: output error log
-			sendResponse(connection, response);
-			return true;
-		}
-
-		string methodName;
-		string id;
-		JsonRpcObjectType type = detectJsonRpcObjectType(parser,
-								 methodName,
-								 id,
-								 errorMessage);
-		switch(type) {
-		case JsonRpcObjectType::PROCEDURE:
-			response.body = m_hapi2.interpretHandler(methodName,
-								 parser);
-			sendResponse(connection, response);
-			break;
-		case JsonRpcObjectType::NOTIFICATION:
-			m_hapi2.interpretHandler(methodName, parser);
-			break;
-		case JsonRpcObjectType::RESPONSE:
-			m_hapi2.handleResponse(id, parser);
-			break;
-		case JsonRpcObjectType::INVALID:
-		default:
-			response.body =
-			  m_hapi2.buildErrorResponse(JSON_RPC_INVALID_REQUEST,
-						     errorMessage, &parser);
-			// TODO: output error log
-			sendResponse(connection, response);
-			break;
-		}
-
-		return true;
 	}
 
-	void sendResponse(AMQPConnection &connection,
-			  const AMQPJSONMessage &response)
+	void parse(JSONParser &parser)
 	{
-		bool succeeded = connection.publish(response);
-		if (!succeeded) {
-			// TODO: retry?
-			// TODO: output error log
+		if (parser.hasError()) {
+			const gchar *error = parser.getErrorMessage();
+			m_errorMessage = error ? error : "Failed to parse JSON";
+			return;
+		}
+
+		if (parser.isMember("method")) {
+			parseMethod(parser);
+		} else {
+			parseResponse(parser);
 		}
 	}
 
@@ -146,49 +102,53 @@ public:
 		}
 	}
 
-	JsonRpcObjectType detectJsonRpcObjectType(JSONParser &parser,
-						  string &methodName,
-						  string &id,
-						  string &errorMessage)
+	void parseMethod(JSONParser &parser)
 	{
-		if (parser.isMember("method")) {
-			JSONParser::ValueType type = parser.getValueType("method");
-			if (type != JSONParser::VALUE_TYPE_STRING) {
-				errorMessage =
-				  "Invalid request: "
-				  "Invalid type for \"method\"!";
-			        return JsonRpcObjectType::INVALID;
-			}
-			parser.read("method", methodName);
+		m_type = Type::INVALID;
 
-			if (!parser.isMember("id"))
-				return JsonRpcObjectType::NOTIFICATION;
-
-			if (!parseId(parser, id)) {
-				errorMessage =
-				  "Invalid request: Invalid id type!";
-			        return JsonRpcObjectType::INVALID;
-			}
-
-			return JsonRpcObjectType::PROCEDURE;
+		JSONParser::ValueType type = parser.getValueType("method");
+		if (type != JSONParser::VALUE_TYPE_STRING) {
+			m_errorMessage =
+				"Invalid request: "
+				"Invalid type for \"method\"!";
+			return;
 		}
+		parser.read("method", m_methodName);
+
+		if (!parser.isMember("id")) {
+			m_type = Type::NOTIFICATION;
+			return;
+		}
+
+		if (!parseId(parser, m_id)) {
+			m_errorMessage =
+				"Invalid request: Invalid id type!";
+			return;
+		}
+
+		m_type = Type::PROCEDURE;
+	}
+
+	void parseResponse(JSONParser &parser)
+	{
+		m_type = Type::INVALID;
 
 		bool hasResult = parser.isMember("result");
 		bool hasError = parser.isMember("error");
 
 		if (!hasResult && !hasError) {
-			errorMessage = "Invalid request";
-			return JsonRpcObjectType::INVALID;
+			m_errorMessage = "Invalid JSON-RPC object";
+			return;
 		}
 
 		if (hasResult && hasError) {
-			errorMessage =
+			m_errorMessage =
 			  "Invalid request: "
 			  "Must not exist both result and error!";
-			return JsonRpcObjectType::INVALID;
+			return;
 		}
 
-		parseId(parser, id);
+		parseId(parser, m_id);
 
 		if (hasResult) {
 			// The type of the result object will be determined by
@@ -199,7 +159,78 @@ public:
 			// TODO: Check the error object
 		}
 
-		return JsonRpcObjectType::RESPONSE;
+		m_type = Type::RESPONSE;
+	}
+};
+
+class HatoholArmPluginInterfaceHAPI2::AMQPHAPI2MessageHandler
+  : public AMQPMessageHandler
+{
+public:
+	AMQPHAPI2MessageHandler(HatoholArmPluginInterfaceHAPI2 &hapi2)
+	: m_hapi2(hapi2)
+	{
+	}
+
+	enum class JsonRpcObjectType {
+		INVALID,
+		PROCEDURE,
+		NOTIFICATION,
+		RESPONSE
+	};
+
+	bool handle(AMQPConnection &connection, const AMQPMessage &message)
+	{
+		MLPL_DBG("message: <%s>/<%s>\n",
+			 message.contentType.c_str(),
+			 message.body.c_str());
+
+		JsonRpcObject object(message.body);
+		AMQPJSONMessage response;
+
+		if (object.m_parser.hasError()) {
+			response.body = object.m_errorMessage;
+			// TODO: output error log
+			sendResponse(connection, response);
+			return true;
+		}
+
+		switch(object.m_type) {
+		case JsonRpcObject::Type::PROCEDURE:
+			response.body = m_hapi2.interpretHandler(
+					  object.m_methodName,
+					  object.m_parser);
+			sendResponse(connection, response);
+			break;
+		case JsonRpcObject::Type::NOTIFICATION:
+			m_hapi2.interpretHandler(object.m_methodName,
+						 object.m_parser);
+			break;
+		case JsonRpcObject::Type::RESPONSE:
+			m_hapi2.handleResponse(object.m_id, object.m_parser);
+			break;
+		case JsonRpcObject::Type::INVALID:
+		default:
+			response.body =
+			  m_hapi2.buildErrorResponse(JSON_RPC_INVALID_REQUEST,
+						     object.m_errorMessage,
+						     &object.m_parser);
+			// TODO: output error log
+			sendResponse(connection, response);
+			break;
+		}
+
+		return true;
+	}
+
+	void sendResponse(AMQPConnection &connection,
+			  const AMQPJSONMessage &response)
+	{
+		bool succeeded = connection.publish(response);
+		if (!succeeded) {
+			// TODO: retry?
+			// TODO: output error log
+		}
 	}
 
 private:
