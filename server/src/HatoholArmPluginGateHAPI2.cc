@@ -573,7 +573,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 
 	if (!succeeded) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_REQUEST, "Invalid request object given.", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
 	}
 	option.setLastInfoType(lastInfoType);
 	option.setTargetServerId(m_impl->m_serverInfo.id);

@@ -268,7 +268,7 @@ void test_procedureHandlerLastInfoInvalidRequestObject(void)
 		"{\"jsonrpc\":\"2.0\",\"id\":789,"
 		"\"error\":{\"code\":%d,"
 		"\"message\":\"Invalid request object given.\"}}",
-		JSON_RPC_INVALID_REQUEST);
+		JSON_RPC_INVALID_PARAMS);
 	cppcut_assert_equal(expected, actual);
 }
 
