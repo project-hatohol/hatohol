@@ -160,10 +160,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 	}
 
 	struct FetchProcedureCallback : public ProcedureCallback {
-		HatoholArmPluginGateHAPI2::Impl &m_impl;
+		Impl &m_impl;
 		const string m_fetchId;
 		const string m_methodName;
-		FetchProcedureCallback(HatoholArmPluginGateHAPI2::Impl &impl,
+		FetchProcedureCallback(Impl &impl,
 				       const string &fetchId,
 				       const string &methodName)
 		: m_impl(impl), m_fetchId(fetchId), m_methodName(methodName)
