@@ -264,10 +264,11 @@ void test_procedureHandlerLastInfoInvalidRequestObject(void)
 		"\"id\":789}"; // omit params
 	JSONParser parser(json);
 	string actual = gate->interpretHandler(HAPI2_LAST_INFO, parser);
-	string expected =
+	string expected = StringUtils::sprintf(
 		"{\"jsonrpc\":\"2.0\",\"id\":789,"
-		"\"error\":{\"code\":-32600,"
-		"\"message\":\"Invalid request object given.\"}}";
+		"\"error\":{\"code\":%d,"
+		"\"message\":\"Invalid request object given.\"}}",
+		JSON_RPC_INVALID_REQUEST);
 	cppcut_assert_equal(expected, actual);
 }
 
