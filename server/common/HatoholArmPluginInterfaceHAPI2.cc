@@ -110,8 +110,8 @@ struct JsonRpcObject {
 		JSONParser::ValueType type = parser.getValueType("method");
 		if (type != JSONParser::VALUE_TYPE_STRING) {
 			m_errorMessage =
-				"Invalid request: "
-				"Invalid type for \"method\"!";
+			  "Invalid request: "
+			  "Invalid type for \"method\"!";
 			return;
 		}
 		parser.read("method", m_methodName);
@@ -134,15 +134,15 @@ struct JsonRpcObject {
 		JSONParser::ValueType type = parser.getValueType("code");
 		if (type != JSONParser::VALUE_TYPE_INT64) {
 			m_errorMessage =
-				"Invalid an error object: "
-				"\"code\" must be an integer!";
+			  "Invalid an error object: "
+			  "\"code\" must be an integer!";
 			return false;
 		}
 		type = parser.getValueType("message");
 		if (type != JSONParser::VALUE_TYPE_STRING) {
 			m_errorMessage =
-				"Invalid an error object: "
-				"\"message\" must be a string!";
+			  "Invalid an error object: "
+			  "\"message\" must be a string!";
 			return false;
 		}
 		return true;
@@ -157,8 +157,8 @@ struct JsonRpcObject {
 
 		if (!hasResult && !hasError) {
 			m_errorMessage =
-				"Invalid JSON-RPC object: "
-				"None of method, result, error exist!";
+			  "Invalid JSON-RPC object: "
+			  "None of method, result, error exist!";
 			return;
 		}
 
@@ -171,7 +171,7 @@ struct JsonRpcObject {
 
 		if (!parser.isMember("id")) {
 			m_errorMessage =
-				"Invalid response: No id in the response!";
+			  "Invalid response: No id in the response!";
 			return;
 		}
 		if (!parseId(parser, m_id)) {
@@ -399,8 +399,8 @@ string HatoholArmPluginInterfaceHAPI2::interpretHandler(
 {
 	if (!getEstablished() && type != HAPI2_EXCHANGE_PROFILE) {
 		string message =
-			"Received a method while exchangeProfile isn't "
-			"completed yet!";
+		  "Received a method while exchangeProfile isn't "
+		  "completed yet!";
 		// TODO: Determine the error code for it.
 		return buildErrorResponse(JSON_RPC_SERVER_ERROR_BEGIN,
 					  message, &parser);
