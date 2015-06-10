@@ -147,7 +147,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		ProcedureCallback *callback =
 		  new Impl::ExchangeProfileCallback(*this);
 		ProcedureCallbackPtr callbackPtr(callback, false);
-		m_hapi2.send(builder.generate(), id, NULL);
+		m_hapi2.send(builder.generate(), id, callback);
 	}
 
 	void queueFetchCallback(const string &fetchId, Closure0 *closure)
