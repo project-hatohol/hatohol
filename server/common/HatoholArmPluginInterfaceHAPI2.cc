@@ -54,15 +54,16 @@ struct JsonRpcObject {
 		RESPONSE
 	};
 
+	JSONParser m_parser;
 	Type m_type;
 	string m_methodName;
 	string m_id;
 	string m_errorMessage;
-	JSONParser m_parser;
 
 	JsonRpcObject(const string &json)
-	: m_parser(json)
+	: m_parser(json), m_type(Type::INVALID)
 	{
+		parse(m_parser);
 	}
 
 	void parse(JSONParser &parser)
