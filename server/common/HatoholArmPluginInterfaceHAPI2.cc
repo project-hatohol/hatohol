@@ -121,9 +121,8 @@ struct JsonRpcObject {
 			return;
 		}
 
-		if (!parseId(parser, m_id)) {
-			m_errorMessage =
-				"Invalid request: Invalid id type!";
+		if (parser.isMember("id") && !parseId(parser, m_id)) {
+			m_errorMessage = "Invalid request: Invalid id type!";
 			return;
 		}
 
@@ -170,7 +169,15 @@ struct JsonRpcObject {
 			return;
 		}
 
-		parseId(parser, m_id);
+		if (!parser.isMember("id")) {
+			m_errorMessage =
+				"Invalid response: No id in the response!";
+			return;
+		}
+		if (!parseId(parser, m_id)) {
+			m_errorMessage = "Invalid response: Invalid id type!";
+			return;
+		}
 
 		if (hasResult) {
 			// The type of the result object will be determined by
