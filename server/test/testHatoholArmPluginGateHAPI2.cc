@@ -578,7 +578,7 @@ void test_exchangeProfile(void)
 	omitIfNoURL();
 
 	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), true);
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 
 	sendMessage(
 		"{"
@@ -597,8 +597,9 @@ void test_exchangeProfile(void)
 		"{\"jsonrpc\":\"2.0\","
 		  "\"result\":{\"name\":\"" PACKAGE_NAME "\","
 		  "\"procedures\":"
-		  "[\"getMonitoringServerInfo\",\"getLastInfo\",\"putItems\","
-		  "\"putHistory\",\"updateHosts\",\"updateHostGroups\","
+		  "[\"exchangeProfile\",\"getMonitoringServerInfo\","
+		  "\"getLastInfo\",\"putItems\"," "\"putHistory\","
+		  "\"updateHosts\",\"updateHostGroups\","
 		  "\"updateHostGroupMembership\",\"updateTriggers\","
 		  "\"updateEvents\",\"updateHostParent\",\"updateArmInfo\""
 		"]},\"id\":1}";
