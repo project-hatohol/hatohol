@@ -676,6 +676,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseItemParams(parser, itemList, serverInfo);
+	if (!succeeded) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
 	dataStore->addItemList(itemList);
 	if (parser.isMember("fetchId")) {
 		string fetchId;
@@ -730,6 +734,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseHistoryParams(parser, historyInfoVect,
 					    serverInfo);
+	if (!succeeded) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
 	if (parser.isMember("fetchId")) {
 		string fetchId;
 		parser.read("fetchId", fetchId);
@@ -794,6 +802,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseHostsParams(parser, hostInfoVect, serverInfo);
+	if (!succeeded) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
 	string updateType;
 	bool checkInvalidHosts = parseUpdateType(parser, updateType);
 	// TODO: reflect error in response
@@ -855,6 +867,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseHostGroupsParams(parser, hostgroupVect, serverInfo);
+	if (!succeeded) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	string updateType;
@@ -922,6 +938,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseHostGroupMembershipParams(parser, hostgroupMembershipVect,
 							serverInfo);
+	if (!succeeded) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	string updateType;
@@ -1033,6 +1053,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseTriggersParams(parser, triggerInfoList, serverInfo);
+	if (!succeeded) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	string updateType;
@@ -1139,6 +1163,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseEventsParams(parser, eventInfoList, serverInfo);
+	if (!succeeded) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 	dataStore->addEventList(eventInfoList);
 	string lastInfoValue;
@@ -1205,6 +1233,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	parser.startObject("params");
 
 	bool succeeded = parseHostParentsParams(parser, vmInfoVect);
+	if (!succeeded) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	string updateType;
@@ -1268,6 +1300,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 	parser.startObject("params");
 
 	bool succeeded = parseArmInfoParams(parser, armInfo);
+	if (!succeeded) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
 	status.setArmInfo(armInfo);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
