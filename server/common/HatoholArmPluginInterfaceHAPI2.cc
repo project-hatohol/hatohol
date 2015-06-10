@@ -357,7 +357,7 @@ void HatoholArmPluginInterfaceHAPI2::handleResponse(
 
 	bool found = m_impl->runProcedureCallback(id, parser);
 	if (!found) {
-		MLPL_WARN("Received an unknown response with id: %s",
+		MLPL_WARN("Received an unknown response with id: %s\n",
 			  id.c_str());
 	}
 }
@@ -422,7 +422,7 @@ bool HatoholArmPluginInterfaceHAPI2::setResponseId(
 
 	if (!succeeded) {
 		// Should be checked before calling this function.
-		MLPL_WARN("Cannot find valid id in the request!");
+		MLPL_WARN("Cannot find valid id in the request!\n");
 		responseBuilder.addNull("id");
 	}
 
