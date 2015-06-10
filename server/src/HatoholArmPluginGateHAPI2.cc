@@ -28,9 +28,34 @@
 using namespace std;
 using namespace mlpl;
 
-#define PARSE_AS_MANDATORY(MEMBER, VALUE)				\
+struct JSONRPCErrorObject {
+	StringList errors;
+	void addError(StringList &errors,
+		      const char *format,
+		      ...)
+	{
+	       va_list ap;
+	       va_start(ap, format);
+	       using namespace mlpl::StringUtils;
+	       errors.push_back(vsprintf(format, ap));
+	       va_end(ap);
+	}
+
+	bool hasErrors() {
+		return !errors.empty();
+	}
+
+	StringList getErrors() {
+		return errors;
+	}
+};
+
+#define PARSE_AS_MANDATORY(MEMBER, VALUE, RPCERR)			\
 if (!parser.read(MEMBER, VALUE)) {					\
-	MLPL_ERR("Failed to parse required \"" MEMBER "\" member.\n");	\
+	StringList errorMessage;					\
+	errorMessage.push_back(StringUtils::sprintf(			\
+		"Failed to parse mandatory member: ")); \
+	RPCERR.addError(errorMessage, "'%s' does not exist.", MEMBER);	\
 	return false;							\
 }
 
@@ -101,6 +126,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 	bool parseExchangeProfileParams(JSONParser &parser)
 	{
+		JSONRPCErrorObject errObj;
 		m_supportedProcedureNameSet.clear();
 		parser.startObject("procedures");
 		size_t num = parser.countElements();
@@ -111,7 +137,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		}
 		parser.endObject(); // procedures
 
-		PARSE_AS_MANDATORY("name", m_pluginProcessName);
+		PARSE_AS_MANDATORY("name", m_pluginProcessName, errObj);
 		MLPL_INFO("HAP Process connecting done. "
 			  "Connected HAP process name: \"%s\"\n",
 			  m_pluginProcessName.c_str());
@@ -560,10 +586,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 	return builder.generate();
 }
 
-static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType)
+static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType,
+				JSONRPCErrorObject &errObj)
 {
 	string type;
-	PARSE_AS_MANDATORY("params", type);
+	PARSE_AS_MANDATORY("params", type, errObj);
 	if (type == "host")
 		lastInfoType = LAST_INFO_HOST;
 	else if (type == "hostGroup")
@@ -590,7 +617,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
 	LastInfoQueryOption option(USER_ID_SYSTEM);
 	LastInfoType lastInfoType;
-	bool succeeded = parseLastInfoParams(parser, lastInfoType);
+	JSONRPCErrorObject errObj;
+	bool succeeded = parseLastInfoParams(parser, lastInfoType, errObj);
 
 	if (!succeeded) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -616,7 +644,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 }
 
 static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
-			    const MonitoringServerInfo &serverInfo)
+			    const MonitoringServerInfo &serverInfo,
+			    JSONRPCErrorObject &errObj)
 {
 	CHECK_MANDATORY_MEMBER_EXISTENCE("items");
 	parser.startObject("items");
@@ -630,13 +659,13 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 
 		ItemInfo itemInfo;
 		itemInfo.serverId = serverInfo.id;
-		PARSE_AS_MANDATORY("itemId", itemInfo.id);
-		PARSE_AS_MANDATORY("hostId", itemInfo.hostIdInServer);
-		PARSE_AS_MANDATORY("brief", itemInfo.brief);
+		PARSE_AS_MANDATORY("itemId", itemInfo.id, errObj);
+		PARSE_AS_MANDATORY("hostId", itemInfo.hostIdInServer, errObj);
+		PARSE_AS_MANDATORY("brief", itemInfo.brief, errObj);
 		parseTimeStamp(parser, "lastValueTime", itemInfo.lastValueTime);
-		PARSE_AS_MANDATORY("lastValue", itemInfo.lastValue);
-		PARSE_AS_MANDATORY("itemGroupName", itemInfo.itemGroupName);
-		PARSE_AS_MANDATORY("unit", itemInfo.unit);
+		PARSE_AS_MANDATORY("lastValue", itemInfo.lastValue, errObj);
+		PARSE_AS_MANDATORY("itemGroupName", itemInfo.itemGroupName, errObj);
+		PARSE_AS_MANDATORY("unit", itemInfo.unit, errObj);
 		parser.endElement();
 
 		itemInfoList.push_back(itemInfo);
@@ -652,7 +681,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	bool succeeded = parseItemParams(parser, itemList, serverInfo);
+	JSONRPCErrorObject errObj;
+	bool succeeded = parseItemParams(parser, itemList, serverInfo, errObj);
 	if (!succeeded) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
@@ -676,10 +706,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 }
 
 static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoVect,
-			       const MonitoringServerInfo &serverInfo)
+			       const MonitoringServerInfo &serverInfo,
+			       JSONRPCErrorObject &errObj
+)
 {
 	ItemIdType itemId = "";
-	PARSE_AS_MANDATORY("itemId", itemId);
+	PARSE_AS_MANDATORY("itemId", itemId, errObj);
 	CHECK_MANDATORY_MEMBER_EXISTENCE("histories");
 	parser.startObject("histories");
 	size_t num = parser.countElements();
@@ -693,7 +725,7 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 		HistoryInfo historyInfo;
 		historyInfo.itemId = itemId;
 		historyInfo.serverId = serverInfo.id;
-		PARSE_AS_MANDATORY("value", historyInfo.value);
+		PARSE_AS_MANDATORY("value", historyInfo.value, errObj);
 		parseTimeStamp(parser, "time", historyInfo.clock);
 		parser.endElement();
 
@@ -710,8 +742,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
+	JSONRPCErrorObject errObj;
 	bool succeeded = parseHistoryParams(parser, historyInfoVect,
-					    serverInfo);
+					    serverInfo, errObj);
 	if (!succeeded) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
@@ -734,8 +767,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 }
 
 static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect,
-			     const MonitoringServerInfo &serverInfo)
+			     const MonitoringServerInfo &serverInfo,
+			     JSONRPCErrorObject &errObj)
 {
+	StringList errors;
 	CHECK_MANDATORY_MEMBER_EXISTENCE("hosts");
 	parser.startObject("hosts");
 	size_t num = parser.countElements();
@@ -748,9 +783,9 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 		ServerHostDef hostInfo;
 		hostInfo.serverId = serverInfo.id;
 		int64_t hostId;
-		PARSE_AS_MANDATORY("hostId", hostId);
+		PARSE_AS_MANDATORY("hostId", hostId, errObj);
 		hostInfo.hostIdInServer = hostId;
-		PARSE_AS_MANDATORY("hostName", hostInfo.name);
+		PARSE_AS_MANDATORY("hostName", hostInfo.name, errObj);
 		parser.endElement();
 
 		hostInfoVect.push_back(hostInfo);
@@ -759,9 +794,10 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 	return true;
 };
 
-static bool parseUpdateType(JSONParser &parser, string &updateType)
+static bool parseUpdateType(JSONParser &parser, string &updateType,
+			    JSONRPCErrorObject &errObj)
 {
-	PARSE_AS_MANDATORY("updateType", updateType);
+	PARSE_AS_MANDATORY("updateType", updateType, errObj);
 	if (updateType == "ALL") {
 		return true;
 	} else if (updateType == "UPDATED") {
@@ -780,13 +816,14 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	bool succeeded = parseHostsParams(parser, hostInfoVect, serverInfo);
+	JSONRPCErrorObject errObj;
+	bool succeeded = parseHostsParams(parser, hostInfoVect, serverInfo, errObj);
 	if (!succeeded) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
 	}
 	string updateType;
-	bool checkInvalidHosts = parseUpdateType(parser, updateType);
+	bool checkInvalidHosts = parseUpdateType(parser, updateType, errObj);
 	// TODO: reflect error in response
 	if (checkInvalidHosts) {
 		dataStore->syncHosts(hostInfoVect, serverInfo.id,
@@ -815,7 +852,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 
 static bool parseHostGroupsParams(JSONParser &parser,
 				  HostgroupVect &hostgroupVect,
-				  const MonitoringServerInfo &serverInfo)
+				  const MonitoringServerInfo &serverInfo,
+				  JSONRPCErrorObject &errObj)
 {
 	CHECK_MANDATORY_MEMBER_EXISTENCE("hostGroups");
 	parser.startObject("hostGroups");
@@ -828,8 +866,8 @@ static bool parseHostGroupsParams(JSONParser &parser,
 
 		Hostgroup hostgroup;
 		hostgroup.serverId = serverInfo.id;
-		PARSE_AS_MANDATORY("groupId", hostgroup.idInServer);
-		PARSE_AS_MANDATORY("groupName", hostgroup.name);
+		PARSE_AS_MANDATORY("groupId", hostgroup.idInServer, errObj);
+		PARSE_AS_MANDATORY("groupName", hostgroup.name, errObj);
 		parser.endElement();
 
 		hostgroupVect.push_back(hostgroup);
@@ -846,7 +884,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	bool succeeded = parseHostGroupsParams(parser, hostgroupVect, serverInfo);
+	JSONRPCErrorObject errObj;
+	bool succeeded = parseHostGroupsParams(parser, hostgroupVect,
+					       serverInfo, errObj);
 	if (!succeeded) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
@@ -854,7 +894,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	string updateType;
-	bool checkInvalidHostGroups = parseUpdateType(parser, updateType);
+	bool checkInvalidHostGroups = parseUpdateType(parser, updateType, errObj);
 	// TODO: reflect error in response
 	if (checkInvalidHostGroups) {
 		dataStore->syncHostgroups(hostgroupVect, serverInfo.id);
@@ -880,7 +920,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 static bool parseHostGroupMembershipParams(
   JSONParser &parser,
   HostgroupMemberVect &hostgroupMemberVect,
-  const MonitoringServerInfo &serverInfo)
+  const MonitoringServerInfo &serverInfo,
+  JSONRPCErrorObject &errObj
+)
 {
 	CHECK_MANDATORY_MEMBER_EXISTENCE("hostGroupMembership");
 	parser.startObject("hostGroupsMembership");
@@ -894,7 +936,7 @@ static bool parseHostGroupMembershipParams(
 		HostgroupMember hostgroupMember;
 		hostgroupMember.serverId = serverInfo.id;
 		string hostId;
-		PARSE_AS_MANDATORY("hostId", hostId);
+		PARSE_AS_MANDATORY("hostId", hostId, errObj);
 		hostgroupMember.hostId = StringUtils::toUint64(hostId);
 		parser.startObject("groupIds");
 		size_t groupIdNum = parser.countElements();
@@ -917,8 +959,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	bool succeeded = parseHostGroupMembershipParams(parser, hostgroupMembershipVect,
-							serverInfo);
+	JSONRPCErrorObject errObj;
+	bool succeeded = parseHostGroupMembershipParams(parser,
+							hostgroupMembershipVect,
+							serverInfo, errObj);
 	if (!succeeded) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
@@ -927,7 +971,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 
 	string updateType;
 	bool checkInvalidHostGroupMembership =
-	  parseUpdateType(parser, updateType);
+		parseUpdateType(parser, updateType, errObj);
 	// TODO: reflect error in response
 	if (checkInvalidHostGroupMembership) {
 		dataStore->syncHostgroupMembers(hostgroupMembershipVect, serverInfo.id);
@@ -951,10 +995,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	return builder.generate();
 }
 
-static bool parseTriggerStatus(JSONParser &parser, TriggerStatusType &status)
+static bool parseTriggerStatus(JSONParser &parser, TriggerStatusType &status,
+			       JSONRPCErrorObject &errObj)
 {
 	string statusString;
-	PARSE_AS_MANDATORY("status", statusString);
+	PARSE_AS_MANDATORY("status", statusString, errObj);
 	if (statusString == "OK") {
 		status = TRIGGER_STATUS_OK;
 	} else if (statusString == "NG") {
@@ -969,10 +1014,11 @@ static bool parseTriggerStatus(JSONParser &parser, TriggerStatusType &status)
 }
 
 static bool parseTriggerSeverity(JSONParser &parser,
-				 TriggerSeverityType &severity)
+				 TriggerSeverityType &severity,
+				 JSONRPCErrorObject &errObj)
 {
 	string severityString;
-	PARSE_AS_MANDATORY("severity", severityString);
+	PARSE_AS_MANDATORY("severity", severityString, errObj);
 	if (severityString == "ALL") {
 		severity = TRIGGER_SEVERITY_ALL;
 	} else if (severityString == "UNKNOWN") {
@@ -996,7 +1042,8 @@ static bool parseTriggerSeverity(JSONParser &parser,
 }
 
 static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfoList,
-				const MonitoringServerInfo &serverInfo)
+				const MonitoringServerInfo &serverInfo,
+				JSONRPCErrorObject &errObj)
 {
 	CHECK_MANDATORY_MEMBER_EXISTENCE("triggers");
 	parser.startObject("triggers");
@@ -1010,13 +1057,13 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 
 		TriggerInfo triggerInfo;
 		triggerInfo.serverId = serverInfo.id;
-		parseTriggerStatus(parser, triggerInfo.status);
-		parseTriggerSeverity(parser, triggerInfo.severity);
+		parseTriggerStatus(parser, triggerInfo.status, errObj);
+		parseTriggerSeverity(parser, triggerInfo.severity, errObj);
 		parseTimeStamp(parser, "lastChangeTime", triggerInfo.lastChangeTime);
-		PARSE_AS_MANDATORY("hostId",       triggerInfo.hostIdInServer);
-		PARSE_AS_MANDATORY("hostName",     triggerInfo.hostName);
-		PARSE_AS_MANDATORY("brief",        triggerInfo.brief);
-		PARSE_AS_MANDATORY("extendedInfo", triggerInfo.extendedInfo);
+		PARSE_AS_MANDATORY("hostId",       triggerInfo.hostIdInServer, errObj);
+		PARSE_AS_MANDATORY("hostName",     triggerInfo.hostName, errObj);
+		PARSE_AS_MANDATORY("brief",        triggerInfo.brief, errObj);
+		PARSE_AS_MANDATORY("extendedInfo", triggerInfo.extendedInfo, errObj);
 		parser.endElement();
 
 		triggerInfoList.push_back(triggerInfo);
@@ -1034,7 +1081,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	bool succeeded = parseTriggersParams(parser, triggerInfoList, serverInfo);
+	JSONRPCErrorObject errObj;
+	bool succeeded = parseTriggersParams(parser, triggerInfoList,
+					     serverInfo, errObj);
 	if (!succeeded) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
@@ -1042,7 +1091,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	string updateType;
-	bool checkInvalidTriggers = parseUpdateType(parser, updateType);
+	bool checkInvalidTriggers = parseUpdateType(parser, updateType, errObj);
 	// TODO: reflect error in response
 	if (checkInvalidTriggers) {
 		dbMonitoring.syncTriggers(triggerInfoList, serverInfo.id);
@@ -1077,10 +1126,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	return builder.generate();
 }
 
-static bool parseEventType(JSONParser &parser, EventInfo &eventInfo)
+static bool parseEventType(JSONParser &parser, EventInfo &eventInfo,
+			   JSONRPCErrorObject &errObj)
 {
 	string eventType;
-	PARSE_AS_MANDATORY("type", eventType);
+	PARSE_AS_MANDATORY("type", eventType, errObj);
 
 	if (eventType == "GOOD") {
 		eventInfo.type = EVENT_TYPE_GOOD;
@@ -1098,7 +1148,8 @@ static bool parseEventType(JSONParser &parser, EventInfo &eventInfo)
 };
 
 static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
-			      const MonitoringServerInfo &serverInfo)
+			      const MonitoringServerInfo &serverInfo,
+			      JSONRPCErrorObject &errObj)
 {
 	CHECK_MANDATORY_MEMBER_EXISTENCE("events");
 	parser.startObject("events");
@@ -1121,19 +1172,19 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 
 		EventInfo eventInfo;
 		eventInfo.serverId = serverInfo.id;
-		PARSE_AS_MANDATORY("eventId",  eventInfo.id);
+		PARSE_AS_MANDATORY("eventId",  eventInfo.id, errObj);
 		parseTimeStamp(parser, "time", eventInfo.time);
-		parseEventType(parser, eventInfo);
+		parseEventType(parser, eventInfo, errObj);
 		TriggerIdType triggerId = DO_NOT_ASSOCIATE_TRIGGER_ID;
 		if (!parser.read("triggerId", triggerId)) {
 			eventInfo.triggerId = triggerId;
 		}
-		parseTriggerStatus(parser,         eventInfo.status);
-		parseTriggerSeverity(parser,       eventInfo.severity);
-		PARSE_AS_MANDATORY("hostId",       eventInfo.hostIdInServer);
-		PARSE_AS_MANDATORY("hostName",     eventInfo.hostName);
-		PARSE_AS_MANDATORY("brief",        eventInfo.brief);
-		PARSE_AS_MANDATORY("extendedInfo", eventInfo.extendedInfo);
+		parseTriggerStatus(parser,         eventInfo.status, errObj);
+		parseTriggerSeverity(parser,       eventInfo.severity, errObj);
+		PARSE_AS_MANDATORY("hostId",       eventInfo.hostIdInServer, errObj);
+		PARSE_AS_MANDATORY("hostName",     eventInfo.hostName, errObj);
+		PARSE_AS_MANDATORY("brief",        eventInfo.brief, errObj);
+		PARSE_AS_MANDATORY("extendedInfo", eventInfo.extendedInfo, errObj);
 		parser.endElement();
 
 		eventInfoList.push_back(eventInfo);
@@ -1150,7 +1201,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	bool succeeded = parseEventsParams(parser, eventInfoList, serverInfo);
+	JSONRPCErrorObject errObj;
+	bool succeeded = parseEventsParams(parser, eventInfoList, serverInfo, errObj);
 	if (!succeeded) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
@@ -1181,8 +1233,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 
 static bool parseHostParentsParams(
   JSONParser &parser,
-  VMInfoVect &vmInfoVect)
+  VMInfoVect &vmInfoVect,
+  JSONRPCErrorObject &errObj
+)
 {
+	StringList errors;
 	CHECK_MANDATORY_MEMBER_EXISTENCE("hostParents");
 	parser.startObject("hostParents");
 	size_t num = parser.countElements();
@@ -1194,9 +1249,9 @@ static bool parseHostParentsParams(
 
 		VMInfo vmInfo;
 		string childHostId, parentHostId;
-		PARSE_AS_MANDATORY("childHostId", childHostId);
+		PARSE_AS_MANDATORY("childHostId", childHostId, errObj);
 		vmInfo.hostId = StringUtils::toUint64(childHostId);
-		PARSE_AS_MANDATORY("parentHostId", parentHostId);
+		PARSE_AS_MANDATORY("parentHostId", parentHostId, errObj);
 		vmInfo.hypervisorHostId = StringUtils::toUint64(parentHostId);
 		parser.endElement();
 
@@ -1214,7 +1269,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	VMInfoVect vmInfoVect;
 	parser.startObject("params");
 
-	bool succeeded = parseHostParentsParams(parser, vmInfoVect);
+	JSONRPCErrorObject errObj;
+	bool succeeded = parseHostParentsParams(parser, vmInfoVect, errObj);
 	if (!succeeded) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
@@ -1222,7 +1278,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	string updateType;
-	bool checkInvalidHostParents = parseUpdateType(parser, updateType);
+	bool checkInvalidHostParents = parseUpdateType(parser, updateType, errObj);
 	// TODO: implement validation for hostParents
 	for (auto vmInfo : vmInfoVect)
 		dbHost.upsertVMInfo(vmInfo);
@@ -1242,10 +1298,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	return builder.generate();
 }
 
-static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo)
+static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo,
+			       JSONRPCErrorObject &errObj)
 {
 	string status;
-	PARSE_AS_MANDATORY("lastStatus", status);
+	PARSE_AS_MANDATORY("lastStatus", status, errObj);
 	if (status == "INIT") {
 		armInfo.stat = ARM_WORK_STAT_INIT;
 	} else if (status == "OK") {
@@ -1256,7 +1313,7 @@ static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo)
 		MLPL_WARN("Invalid status: %s\n", status.c_str());
 		armInfo.stat = ARM_WORK_STAT_FAILURE;
 	}
-	PARSE_AS_MANDATORY("failureReason", armInfo.failureComment);
+	PARSE_AS_MANDATORY("failureReason", armInfo.failureComment, errObj);
 	timespec successTime, failureTime;
 	parseTimeStamp(parser, "lastSuccessTime", successTime);
 	parseTimeStamp(parser, "lastFailureTime", failureTime);
@@ -1266,8 +1323,8 @@ static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo)
 	armInfo.lastFailureTime = lastFailureTime;
 
 	int64_t numSuccess, numFailure;
-	PARSE_AS_MANDATORY("numSuccess", numSuccess);
-	PARSE_AS_MANDATORY("numFailure", numFailure);
+	PARSE_AS_MANDATORY("numSuccess", numSuccess, errObj);
+	PARSE_AS_MANDATORY("numFailure", numFailure, errObj);
 	armInfo.numUpdate = (size_t)numSuccess;
 	armInfo.numFailure = (size_t)numFailure;
 
@@ -1281,7 +1338,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 	ArmInfo armInfo;
 	parser.startObject("params");
 
-	bool succeeded = parseArmInfoParams(parser, armInfo);
+	JSONRPCErrorObject errObj;
+	bool succeeded = parseArmInfoParams(parser, armInfo, errObj);
 	if (!succeeded) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
