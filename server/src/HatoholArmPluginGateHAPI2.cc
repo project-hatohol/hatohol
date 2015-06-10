@@ -555,8 +555,10 @@ static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType)
 		lastInfoType = LAST_INFO_EVENT;
 	else if (type == "hostParent")
 		lastInfoType = LAST_INFO_HOST_PARENT;
-	else
+	else {
 		lastInfoType = LAST_INFO_ALL; // TODO: should return an error
+		return false;
+	}
 
 	return true;
 }
@@ -569,6 +571,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 	LastInfoType lastInfoType;
 	bool succeeded = parseLastInfoParams(parser, lastInfoType);
 
+	if (!succeeded) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_REQUEST, "Invalid request object given.", &parser);
+	}
 	option.setLastInfoType(lastInfoType);
 	option.setTargetServerId(m_impl->m_serverInfo.id);
 	LastInfoDefList lastInfoList;
