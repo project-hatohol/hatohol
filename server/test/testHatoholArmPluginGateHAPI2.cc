@@ -497,6 +497,8 @@ string popServerMessage(void)
 		virtual bool handle(AMQPConnection &connection,
 				    const AMQPMessage &message) override
 		{
+			if (m_gotMessage)
+				return true;
 			m_gotMessage = true;
 			m_message = message;
 			return true;
@@ -511,7 +513,7 @@ string popServerMessage(void)
 	gdouble timeout = 2.0, elapsed = 0.0;
 	GTimer *timer = startTimer();
 	while (!handler.m_gotMessage && elapsed < timeout) {
-		g_usleep(0.1 * G_USEC_PER_SEC);
+		g_usleep(0.01 * G_USEC_PER_SEC);
 		elapsed = g_timer_elapsed(timer, NULL);
 	}
 	consumer.exitSync();
@@ -537,13 +539,16 @@ void receiveFetchRequest(const string &expectedMethod,
 void acceptProcedure(HatoholArmPluginGateHAPI2Ptr &gate,
 		     const string procedureName)
 {
-	string json = StringUtils::sprintf(
-		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
-		" \"params\":{\"procedures\":[\"%s\"],"
-		" \"name\":\"examplePlugin\"}, \"id\":123}",
-		procedureName.c_str());
-	JSONParser parser(json);
-	gate->interpretHandler(HAPI2_EXCHANGE_PROFILE, parser);
+	string exchangeProfileMethod = popServerMessage();
+	JSONParser parser(exchangeProfileMethod);
+	int64_t id = 0;
+	parser.read("id", id);
+	string response = StringUtils::sprintf(
+		"{\"jsonrpc\":\"2.0\","
+		" \"result\":{\"procedures\":[\"%s\"],"
+		" \"name\":\"examplePlugin\"}, \"id\":%" PRId64 "}",
+		procedureName.c_str(), id);
+	sendMessage(response);
 }
 
 void cut_setup(void)
@@ -579,6 +584,7 @@ void test_exchangeProfile(void)
 
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "exchangeProfile");
 
 	sendMessage(
 		"{"
@@ -613,6 +619,7 @@ void test_unknownProcedure(void)
 
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "exchangeProfile");
 
 	sendMessage(
 		"{\"jsonrpc\":\"2.0\", \"method\":\"conquerTheWorld\","
@@ -639,6 +646,7 @@ void test_noMethod(void)
 
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "exchangeProfile");
 
 	sendMessage(
 		"{\"jsonrpc\":\"2.0\","
@@ -662,6 +670,7 @@ void test_invalidTypeForMethodName(void)
 
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "exchangeProfile");
 
 	sendMessage(
 		"{\"jsonrpc\":\"2.0\","
@@ -702,6 +711,7 @@ void test_notSupportfetchItems(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "exchangeProfile");
 	cppcut_assert_equal(false, gate->startOnDemandFetchItem(NULL));
 }
 
@@ -969,6 +979,7 @@ void test_notSupportFetchTriggers(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "exchangeProfile");
 	cppcut_assert_equal(false, gate->startOnDemandFetchTrigger(NULL));
 }
 
