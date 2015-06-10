@@ -36,6 +36,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	ArmPluginInfo m_pluginInfo;
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
+	string m_pluginProcessName;
 	set<string> m_supportedProcedureNameSet;
 	HostInfoCache hostInfoCache;
 	map<string, Closure0 *> m_fetchClosureMap;
@@ -463,12 +464,11 @@ static bool parseExchangeProfileParams(
 	return true;
 }
 
-static bool hapProcessLogger(JSONParser &parser)
+static bool parsePluginProcessName(JSONParser &parser, string &pluginProcessName)
 {
-	string hapProcessName;
-	parser.read("name", hapProcessName);
+	parser.read("name", pluginProcessName);
 	MLPL_INFO("HAP Process connecting done. Connected HAP process name: \"%s\"\n",
-		  hapProcessName.c_str());
+		  pluginProcessName.c_str());
 	return true;
 }
 
@@ -479,7 +479,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	parser.startObject("params");
 	bool succeeded = parseExchangeProfileParams(
 			   parser, m_impl->m_supportedProcedureNameSet);
-	hapProcessLogger(parser);
+	parsePluginProcessName(parser, m_impl->m_pluginProcessName);
 	parser.endObject(); // params
 
 	JSONBuilder builder;
