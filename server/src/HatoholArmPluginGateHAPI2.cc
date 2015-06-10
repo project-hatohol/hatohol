@@ -202,8 +202,6 @@ struct HatoholArmPluginGateHAPI2::Impl
 			// TODO: output error log
 		}
 	};
-
-
 };
 
 // ---------------------------------------------------------------------------
