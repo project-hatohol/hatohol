@@ -415,12 +415,13 @@ string HatoholArmPluginInterfaceHAPI2::interpretHandler(
   const HAPI2ProcedureName &type, JSONParser &parser)
 {
 	if (!getEstablished() && type != HAPI2_EXCHANGE_PROFILE) {
-		string message =
-		  "Received a method while exchangeProfile isn't "
-		  "completed yet!";
-		// TODO: Determine the error code for it.
-		return buildErrorResponse(JSON_RPC_SERVER_ERROR_BEGIN,
-					  message, &parser);
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", "FAILURE");
+		setResponseId(parser, builder);
+		builder.endObject();
+		return builder.generate();
 	}
 
 	auto it = m_impl->m_procedureHandlerMap.find(type);

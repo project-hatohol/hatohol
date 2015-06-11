@@ -749,6 +749,26 @@ void test_invalidTypeForMethodName(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_callMethodWithoutExchangeProfile(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	popServerMessage(); // eat exchangeProfile
+
+	sendMessage(
+		"{\"jsonrpc\":\"2.0\", \"method\":\"getMonitoringServerInfo\","
+		" \"params\":\"\", \"id\":456}");
+	string expected =
+		"{\"jsonrpc\":\"2.0\","
+		"\"result\":\"FAILURE\","
+		"\"id\":456"
+		"}";
+	string actual = popServerMessage();
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_fetchItems(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
