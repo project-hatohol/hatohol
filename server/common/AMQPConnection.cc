@@ -646,7 +646,7 @@ bool AMQPConnection::publish(const AMQPMessage &message)
 		const amqp_rpc_reply_t reply =
 			amqp_get_rpc_reply(getConnection());
 		if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
-			logErrorResponse("start publishing", reply);
+			logErrorResponse("publish a message", reply);
 			return false;
 		}
 	}
