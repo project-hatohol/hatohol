@@ -143,7 +143,7 @@ struct JsonRpcObject {
 		type = parser.getValueType("code");
 		if (type != JSONParser::VALUE_TYPE_INT64) {
 			m_errorMessage =
-			  "Invalid an error object: "
+			  "Invalid error object: "
 			  "\"code\" must be an integer!";
 			parser.endObject();
 			return false;
@@ -151,7 +151,7 @@ struct JsonRpcObject {
 		type = parser.getValueType("message");
 		if (type != JSONParser::VALUE_TYPE_STRING) {
 			m_errorMessage =
-			  "Invalid an error object: "
+			  "Invalid error object: "
 			  "\"message\" must be a string!";
 			parser.endObject();
 			return false;
