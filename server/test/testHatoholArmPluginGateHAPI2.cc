@@ -769,6 +769,30 @@ void test_callMethodWithoutExchangeProfile(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+#if 0
+// TODO: Need to add a method to hook the response
+void test_errorResponse(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	string exchangeProfile = popServerMessage();
+	JSONParser parser(exchangeProfile);
+	int64_t id;
+	parser.read("id", id);
+	string errorResponse = StringUtils::sprintf(
+		"{\"jsonrpc\": \"2.0\","
+		"\"error\":{"
+		"\"code\": -32603,"
+		"\"message\": \"Internal Error\""
+		"},"
+		"\"id\": %" PRId64 "}", id);
+	sendMessage(errorResponse.c_str());
+	cppcut_assert_equal(true, true);
+}
+#endif
+
 void test_fetchItems(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
