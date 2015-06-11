@@ -70,7 +70,8 @@ struct JsonRpcObject {
 	{
 		if (parser.hasError()) {
 			const gchar *error = parser.getErrorMessage();
-			m_errorMessage = error ? error : "Failed to parse JSON";
+			m_errorMessage =
+			  error ? error : "Failed to parse JSON";
 			return;
 		}
 
@@ -217,7 +218,10 @@ public:
 		AMQPJSONMessage response;
 
 		if (object.m_parser.hasError()) {
-			response.body = object.m_errorMessage;
+			response.body =
+			  m_hapi2.buildErrorResponse(JSON_RPC_PARSE_ERROR,
+						     "Invalid JSON",
+						     NULL);
 			// TODO: output error log
 			sendResponse(connection, response);
 			return true;
@@ -277,7 +281,8 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	AMQPConsumer *m_consumer;
 	AMQPHAPI2MessageHandler *m_handler;
 
-	Impl(HatoholArmPluginInterfaceHAPI2 &hapi2, const CommunicationMode mode)
+	Impl(HatoholArmPluginInterfaceHAPI2 &hapi2,
+	     const CommunicationMode mode)
 	: m_communicationMode(mode),
 	  m_hapi2(hapi2),
 	  m_established(false),

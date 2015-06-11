@@ -648,6 +648,27 @@ void test_exchangeProfile(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_brokenJSON(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "exchangeProfile");
+
+	sendMessage("Broken JSON");
+
+	string expected =
+		"{\"jsonrpc\":\"2.0\",\"id\":null,"
+		"\"error\":{"
+		"\"code\":-32700,"
+		"\"message\":\"Invalid JSON\""
+		"}"
+		"}";
+	string actual = popServerMessage();
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_unknownProcedure(void)
 {
 	omitIfNoURL();
