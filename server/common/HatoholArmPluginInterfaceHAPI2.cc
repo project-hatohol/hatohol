@@ -421,7 +421,7 @@ string HatoholArmPluginInterfaceHAPI2::interpretHandler(
 		builder.add("result", "FAILURE");
 		setResponseId(parser, builder);
 		builder.endObject();
-		EMPL_WARN("Received a method while exchangeProfile isn't "
+		MLPL_WARN("Received a method while exchangeProfile isn't "
 			  "completed yet!");
 		return builder.generate();
 	}
