@@ -222,7 +222,8 @@ public:
 			  m_hapi2.buildErrorResponse(JSON_RPC_PARSE_ERROR,
 						     "Invalid JSON",
 						     NULL);
-			// TODO: output error log
+			MLPL_WARN("Invalid JSON: %s\n",
+				  object.m_errorMessage.c_str());
 			sendResponse(connection, response);
 			return true;
 		}
@@ -247,7 +248,8 @@ public:
 			  m_hapi2.buildErrorResponse(JSON_RPC_INVALID_REQUEST,
 						     object.m_errorMessage,
 						     &object.m_parser);
-			// TODO: output error log
+			MLPL_WARN("Invalid JSON-RPC object: %s\n",
+				  object.m_errorMessage.c_str());
 			sendResponse(connection, response);
 			break;
 		}
@@ -261,7 +263,6 @@ public:
 		bool succeeded = connection.publish(response);
 		if (!succeeded) {
 			// TODO: retry?
-			// TODO: output error log
 		}
 	}
 
