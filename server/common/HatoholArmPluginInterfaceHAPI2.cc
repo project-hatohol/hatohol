@@ -132,11 +132,20 @@ struct JsonRpcObject {
 
 	bool validateErrorObject(JSONParser &parser)
 	{
-		JSONParser::ValueType type = parser.getValueType("code");
+		JSONParser::ValueType type = parser.getValueType("error");
+		if (type != JSONParser::VALUE_TYPE_OBJECT) {
+			m_errorMessage =
+			  "Invalid type: \"error\" must be a object!";
+			return false;
+		}
+
+		parser.startObject("error");
+		type = parser.getValueType("code");
 		if (type != JSONParser::VALUE_TYPE_INT64) {
 			m_errorMessage =
 			  "Invalid an error object: "
 			  "\"code\" must be an integer!";
+			parser.endObject();
 			return false;
 		}
 		type = parser.getValueType("message");
@@ -144,8 +153,10 @@ struct JsonRpcObject {
 			m_errorMessage =
 			  "Invalid an error object: "
 			  "\"message\" must be a string!";
+			parser.endObject();
 			return false;
 		}
+		parser.endObject();
 		return true;
 	}
 
@@ -428,7 +439,16 @@ void HatoholArmPluginInterfaceHAPI2::handleResponse(
   const string id, JSONParser &parser)
 {
 	if (id.empty()) {
-		// TODO: handle error response
+		string message;
+		if (!parser.isMember("error")) {
+			MLPL_WARN("Received an invalid message!");
+			return;
+		}
+		parser.startObject("error");
+		parser.read("message", message);
+		MLPL_WARN("Received an error response: %s\n", message.c_str());
+		parser.endObject();
+		return;
 	}
 
 	bool found = m_impl->runProcedureCallback(id, parser);
