@@ -416,7 +416,7 @@ string HatoholArmPluginInterfaceHAPI2::interpretHandler(
 	if (it == m_impl->m_procedureHandlerMap.end()) {
 		string message = StringUtils::sprintf("Method not found: %s",
 						      type.c_str());
-		// TODO: output error log
+		MLPL_WARN("An unknown method is called: %s\n", type.c_str());
 		return buildErrorResponse(JSON_RPC_METHOD_NOT_FOUND,
 					  message, &parser);
 	}
