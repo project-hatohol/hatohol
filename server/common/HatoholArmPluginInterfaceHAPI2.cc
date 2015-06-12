@@ -46,7 +46,7 @@ std::list<HAPI2ProcedureDef> defaultValidProcedureList = {
 	{PROCEDURE_HAP,    "fetchEvents",               HAP_OPTIONAL},
 };
 
-struct JsonRpcObject {
+struct JSONRPCObject {
 	enum class Type {
 		INVALID,
 		PROCEDURE,
@@ -60,7 +60,7 @@ struct JsonRpcObject {
 	string m_id;
 	string m_errorMessage;
 
-	JsonRpcObject(const string &json)
+	JSONRPCObject(const string &json)
 	: m_parser(json), m_type(Type::INVALID)
 	{
 		parse(m_parser);
@@ -212,7 +212,7 @@ public:
 	{
 	}
 
-	enum class JsonRpcObjectType {
+	enum class JSONRPCObjectType {
 		INVALID,
 		PROCEDURE,
 		NOTIFICATION,
@@ -225,7 +225,7 @@ public:
 			 message.contentType.c_str(),
 			 message.body.c_str());
 
-		JsonRpcObject object(message.body);
+		JSONRPCObject object(message.body);
 		AMQPJSONMessage response;
 
 		if (object.m_parser.hasError()) {
@@ -240,20 +240,20 @@ public:
 		}
 
 		switch(object.m_type) {
-		case JsonRpcObject::Type::PROCEDURE:
+		case JSONRPCObject::Type::PROCEDURE:
 			response.body = m_hapi2.interpretHandler(
 					  object.m_methodName,
 					  object.m_parser);
 			sendResponse(connection, response);
 			break;
-		case JsonRpcObject::Type::NOTIFICATION:
+		case JSONRPCObject::Type::NOTIFICATION:
 			m_hapi2.interpretHandler(object.m_methodName,
 						 object.m_parser);
 			break;
-		case JsonRpcObject::Type::RESPONSE:
+		case JSONRPCObject::Type::RESPONSE:
 			m_hapi2.handleResponse(object.m_id, object.m_parser);
 			break;
-		case JsonRpcObject::Type::INVALID:
+		case JSONRPCObject::Type::INVALID:
 		default:
 			response.body =
 			  m_hapi2.buildErrorResponse(JSON_RPC_INVALID_REQUEST,
