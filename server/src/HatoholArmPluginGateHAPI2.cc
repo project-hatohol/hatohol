@@ -60,7 +60,7 @@ if (!parser.read(MEMBER, VALUE)) {					\
 }
 
 #define CHECK_MANDATORY_MEMBER_EXISTENCE(MEMBER, RPCERR)			\
-if (!parser.isMember(MEMBER)) {					\
+if (!parser.isMember(MEMBER)) {						\
 		StringList errorMessage;					\
 		errorMessage.push_back(StringUtils::sprintf(			\
 		  "Failed to parse mandatory array type member: "));		\
