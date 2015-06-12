@@ -1269,10 +1269,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseEventsParams(parser, eventInfoList, serverInfo, errObj);
-	if (!succeeded) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
-	}
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 	dataStore->addEventList(eventInfoList);
 	string lastInfoValue;
@@ -1294,6 +1290,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	}
 
 	parser.endObject(); // params
+
+	if (errObj.hasErrors()) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
 
 	JSONBuilder builder;
 	builder.startObject();

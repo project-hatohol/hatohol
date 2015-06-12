@@ -578,6 +578,31 @@ void test_procedureHandlerPutEvents(gconstpointer data)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerPutEventsInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putEvents\","
+		" \"params\":{\"events\":[{\"eventId\":\"1\","
+		" \"time\":\"20150323151300\", \"type\":\"GOOD\","
+		" \"status\": \"OK\", \"severity\":\"INFO\","
+		" \"hostName\":\"exampleHostName\","
+		" \"brief\":\"example brief\","
+		" \"extendedInfo\": \"sample extended info\"}],"
+		" \"lastInfo\":\"20150401175900\","
+		" \"fetchId\":\"1\"},\"id\":2374234}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_EVENTS, parser);
+	string expected =
+		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":2374234,"
+		"\"error\":{\"code\":%d,"
+		"\"message\":\"Invalid request object given.\"}}",
+		JSON_RPC_INVALID_PARAMS);
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_procedureHandlerPutHostParents(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
