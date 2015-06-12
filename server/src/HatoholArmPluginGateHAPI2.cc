@@ -1313,10 +1313,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	parser.startObject("params");
 
 	bool succeeded = parseHostParentsParams(parser, vmInfoVect, errObj);
-	if (!succeeded) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
-	}
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	string updateType;
@@ -1330,6 +1326,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	}
 
 	parser.endObject(); // params
+
+	if (errObj.hasErrors()) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
 
 	JSONBuilder builder;
 	builder.startObject();

@@ -623,6 +623,29 @@ void test_procedureHandlerPutHostParents(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerPutHostParentsInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putHostParent\","
+		" \"params\":{\"hostParents\":"
+		" [{\"childHostId\":\"12\"},"
+		" {\"parentHostId\":\"20\"}],"
+		" \"updateType\":\"ALL\", \"lastInfo\":\"201504152246\"},"
+		" \"id\":6234093}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_HOST_PARENTS,
+					       parser);
+	string expected =
+		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":6234093,"
+		"\"error\":{\"code\":%d,"
+		"\"message\":\"Invalid request object given.\"}}",
+		JSON_RPC_INVALID_PARAMS);
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_procedureHandlerPutArmInfo(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
