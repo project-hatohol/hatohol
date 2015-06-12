@@ -28,22 +28,22 @@ using namespace std;
 using namespace mlpl;
 
 std::list<HAPI2ProcedureDef> defaultValidProcedureList = {
-	{PROCEDURE_BOTH,   "exchangeProfile",           SERVER_MANDATORY_HAP_OPTIONAL},
-	{PROCEDURE_SERVER, "getMonitoringServerInfo",   SERVER_MANDATORY},
-	{PROCEDURE_SERVER, "getLastInfo",               SERVER_MANDATORY},
-	{PROCEDURE_SERVER, "putItems",                  SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "putHistory",                SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "putHosts",               SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "putHostGroups",          SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "putHostGroupMembership", SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "putTriggers",            SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "putEvents",              SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "putHostParent",          SERVER_OPTIONAL},
-	{PROCEDURE_SERVER, "putArmInfo",             SERVER_MANDATORY},
-	{PROCEDURE_HAP,    "fetchItems",                HAP_OPTIONAL},
-	{PROCEDURE_HAP,    "fetchHistory",              HAP_OPTIONAL},
-	{PROCEDURE_HAP,    "fetchTriggers",             HAP_OPTIONAL},
-	{PROCEDURE_HAP,    "fetchEvents",               HAP_OPTIONAL},
+	{PROCEDURE_BOTH,   "exchangeProfile",         SERVER_MANDATORY_HAP_OPTIONAL},
+	{PROCEDURE_SERVER, "getMonitoringServerInfo", SERVER_MANDATORY},
+	{PROCEDURE_SERVER, "getLastInfo",             SERVER_MANDATORY},
+	{PROCEDURE_SERVER, "putItems",                SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "putHistory",              SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "putHosts",                SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "putHostGroups",           SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "putHostGroupMembership",  SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "putTriggers",             SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "putEvents",               SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "putHostParent",           SERVER_OPTIONAL},
+	{PROCEDURE_SERVER, "putArmInfo",              SERVER_MANDATORY},
+	{PROCEDURE_HAP,    "fetchItems",              HAP_OPTIONAL},
+	{PROCEDURE_HAP,    "fetchHistory",            HAP_OPTIONAL},
+	{PROCEDURE_HAP,    "fetchTriggers",           HAP_OPTIONAL},
+	{PROCEDURE_HAP,    "fetchEvents",             HAP_OPTIONAL},
 };
 
 class HatoholArmPluginInterfaceHAPI2::AMQPHAPI2MessageHandler
