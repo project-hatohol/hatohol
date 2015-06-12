@@ -76,6 +76,17 @@ if (!parser.isMember(MEMBER)) {						\
 	return false;								\
 }
 
+#define CHECK_MANDATORY_OBJECT_EXISTENCE_INNER_LOOP(MEMBER, RPCERR)		\
+if (!parser.isMember(MEMBER)) {						\
+	MLPL_ERR("Failed to parse mandatory object '%s'.\n", MEMBER);		\
+	string errorMessage =							\
+		"Failed to parse mandatory object: ";				\
+	RPCERR.addError("%s '%s' does not exist.",				\
+			errorMessage.c_str(), MEMBER);				\
+	parser.endElement();							\
+	break;									\
+}
+
 struct HatoholArmPluginGateHAPI2::Impl
 {
 	// We have a copy. The access to the object is MT-safe.
@@ -953,6 +964,7 @@ static bool parseHostGroupMembershipParams(
 		string hostId;
 		PARSE_AS_MANDATORY("hostId", hostId, errObj);
 		hostgroupMember.hostId = StringUtils::toUint64(hostId);
+		CHECK_MANDATORY_OBJECT_EXISTENCE_INNER_LOOP("groupIds", errObj);
 		parser.startObject("groupIds");
 		size_t groupIdNum = parser.countElements();
 		for (size_t j = 0; j < groupIdNum; j++) {
@@ -978,21 +990,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	bool succeeded = parseHostGroupMembershipParams(parser,
 							hostgroupMembershipVect,
 							serverInfo, errObj);
-	if (!succeeded) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
-	}
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	string updateType;
 	bool checkInvalidHostGroupMembership =
 		parseUpdateType(parser, updateType, errObj);
-	// TODO: reflect error in response
-	if (checkInvalidHostGroupMembership) {
-		dataStore->syncHostgroupMembers(hostgroupMembershipVect, serverInfo.id);
-	} else {
-		dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
-	}
 	string lastInfo;
 	if (!parser.read("lastInfo", lastInfo) ) {
 		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP_MEMBERSHIP);
@@ -1000,6 +1002,18 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
 
 	parser.endObject(); // params
+
+	if (errObj.hasErrors()) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
+
+	// TODO: reflect error in response
+	if (checkInvalidHostGroupMembership) {
+		dataStore->syncHostgroupMembers(hostgroupMembershipVect, serverInfo.id);
+	} else {
+		dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
+	}
 
 	JSONBuilder builder;
 	builder.startObject();
