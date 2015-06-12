@@ -40,6 +40,10 @@ class RabbitMQConnector(Transporter):
         - amqp_password   A password.
         """
 
+        def set_if_not_none(kwargs, key, val):
+            if val is not None:
+                kwargs[key] = val
+
         broker = transporter_args["amqp_broker"]
         port = transporter_args["amqp_port"]
         vhost = transporter_args["amqp_vhost"]
@@ -50,9 +54,13 @@ class RabbitMQConnector(Transporter):
         logging.debug("Called stub method: call().");
         self._queue_name = queue_name
         credentials = pika.credentials.PlainCredentials(user_name, password)
-        param = pika.connection.ConnectionParameters(host=broker, port=port,
-                                                     virtual_host=vhost,
-                                                     credentials=credentials)
+
+        conn_args = {}
+        set_if_not_none(conn_args, "host", broker)
+        set_if_not_none(conn_args, "port", port)
+        set_if_not_none(conn_args, "virtual_host", vhost)
+        set_if_not_none(conn_args, "credentials", credentials)
+        param = pika.connection.ConnectionParameters(**conn_args)
         connection = pika.adapters.blocking_connection.BlockingConnection(param)
         self._channel = connection.channel()
         self._channel.queue_declare(queue=queue_name)

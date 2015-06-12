@@ -28,12 +28,12 @@ class TestRabbitMQConnector(unittest.TestCase):
     """
     @classmethod
     def setUpClass(cls):
-        cls._broker = "localhost"
-        cls._port = None
-        cls._vhost = "test"
-        cls._queue_name = "test_queue"
-        cls._user_name  = "test_user"
-        cls._password   = "test_password"
+        cls.__broker = "localhost"
+        cls.__port = None
+        cls.__vhost = "test"
+        cls.__queue_name = "test_queue"
+        cls.__user_name  = "test_user"
+        cls.__password   = "test_password"
 
     def test_setup(self):
         conn = RabbitMQConnector()
@@ -74,9 +74,9 @@ class TestRabbitMQConnector(unittest.TestCase):
         self.assertEquals(receiver.msg, TEST_BODY)
 
     def __get_default_transporter_args(self):
-        args = {"amqp_broker": self._broker, "amqp_port": self._port,
-                "amqp_vhost":  self._vhost, "amqp_queue": self._queue_name,
-                "amqp_user": self._user_name, "amqp_password": self._password}
+        args = {"amqp_broker": self.__broker, "amqp_port": self.__port,
+                "amqp_vhost":  self.__vhost, "amqp_queue": self.__queue_name,
+                "amqp_user": self.__user_name, "amqp_password": self.__password}
         return args
 
     def __create_connected_connector(self):
@@ -90,21 +90,34 @@ class TestRabbitMQConnector(unittest.TestCase):
         self.assertEquals(subproc.returncode, 0)
         return output
 
-    def __build_broker_url(self):
-        return "amqp://%s:%s@%s/%s" % (self._user_name, self._password,
-                                       self._broker, self._vhost)
+    def __build_broker_options(self):
+        def append_if_not_none(li, key, val):
+            if val is not None:
+                li.append(key)
+                li.append(val)
+
+        opt = []
+        append_if_not_none(opt, "-s", self.__broker)
+        append_if_not_none(opt, "--port", self.__port)
+        append_if_not_none(opt, "--vhost", self.__vhost)
+        append_if_not_none(opt, "--username", self.__user_name)
+        append_if_not_none(opt, "--password", self.__password)
+        return opt
 
     def __publish(self, body):
-        args = ["amqp-publish", "-u", self.__build_broker_url(),
-                "-r", self._queue_name, "-b", body]
+        args = ["amqp-publish"]
+        args.extend(self.__build_broker_options())
+        args.extend(["-r", self.__queue_name, "-b", body])
         subprocess.Popen(args).communicate()
 
     def __get_from_test_queue(self):
-        args = ["amqp-get", "-u", self.__build_broker_url(),
-                "-q", self._queue_name]
+        args = ["amqp-get"]
+        args.extend(self.__build_broker_options())
+        args.extend(["-q", self.__queue_name])
         return self.__execute(args)
 
     def __delete_test_queue(self):
-        args = ["amqp-delete-queue", "-u", self.__build_broker_url(),
-                "-q", self._queue_name]
+        args = ["amqp-delete-queue"]
+        args.extend(self.__build_broker_options())
+        args.extend(["-q", self.__queue_name])
         subprocess.Popen(args).communicate()
