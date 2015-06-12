@@ -661,7 +661,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 	JSONRPCErrorObject errObj;
 	bool succeeded = parseLastInfoParams(parser, lastInfoType, errObj);
 
-	if (!succeeded) {
+	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
 	}
