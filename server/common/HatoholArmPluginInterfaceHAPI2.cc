@@ -28,7 +28,7 @@ using namespace std;
 using namespace mlpl;
 
 std::list<HAPI2ProcedureDef> defaultValidProcedureList = {
-	{PROCEDURE_BOTH,   "exchangeProfile",         SERVER_MANDATORY_HAP_OPTIONAL},
+	{PROCEDURE_BOTH,   "exchangeProfile",         BOTH_MANDATORY},
 	{PROCEDURE_SERVER, "getMonitoringServerInfo", SERVER_MANDATORY},
 	{PROCEDURE_SERVER, "getLastInfo",             SERVER_MANDATORY},
 	{PROCEDURE_SERVER, "putItems",                SERVER_OPTIONAL},
