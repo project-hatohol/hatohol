@@ -524,6 +524,29 @@ void test_procedureHandlerPutTriggers(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerPutTriggersInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putTriggers\","
+		" \"params\":{\"updateType\":\"UPDATED\","
+		" \"lastInfo\":\"201504061606\", \"fetchId\":\"1\","
+		" \"triggers\":[{\"triggerId\":\"1\", \"status\":\"OK\","
+		" \"severity\":\"INFO\",\"lastChangeTime\":\"20150323175800\","
+		" \"hostName\":\"exampleHostName\","
+		" \"extendedInfo\": \"sample extended info\"}]},\"id\":34031}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_TRIGGERS, parser);
+	string expected =
+		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":34031,"
+		"\"error\":{\"code\":%d,"
+		"\"message\":\"Invalid request object given.\"}}",
+		JSON_RPC_INVALID_PARAMS);
+	cppcut_assert_equal(expected, actual);
+}
+
 void data_procedureHandlerPutEvents(void)
 {
 	gcut_add_datum("WithTriggerId",
