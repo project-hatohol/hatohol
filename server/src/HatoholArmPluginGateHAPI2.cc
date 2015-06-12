@@ -52,6 +52,7 @@ struct JSONRPCErrorObject {
 
 #define PARSE_AS_MANDATORY(MEMBER, VALUE, RPCERR)			\
 if (!parser.read(MEMBER, VALUE)) {					\
+	MLPL_ERR("Failed to parse params.\n");				\
 	StringList errorMessage;					\
 	errorMessage.push_back(StringUtils::sprintf(			\
 		"Failed to parse mandatory member: "));		\
