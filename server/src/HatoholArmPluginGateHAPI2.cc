@@ -40,11 +40,11 @@ struct JSONRPCErrorObject {
 	       va_end(ap);
 	}
 
-	bool hasErrors() {
+	bool hasErrors(void) {
 		return !errors.empty();
 	}
 
-	StringList getErrors() {
+	StringList getErrors(void) {
 		return errors;
 	}
 };
