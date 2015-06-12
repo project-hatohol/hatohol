@@ -58,13 +58,13 @@ if (!parser.read(MEMBER, VALUE)) {					\
 	RPCERR.addError(errorMessage, "'%s' does not exist.", MEMBER);	\
 }
 
-#define CHECK_MANDATORY_MEMBER_EXISTENCE(MEMBER, RPCERR)			\
-if (!parser.isMember(MEMBER)) {						\
-		StringList errorMessage;					\
-		errorMessage.push_back(StringUtils::sprintf(			\
-		  "Failed to parse mandatory array type member: "));		\
-		RPCERR.addError(errorMessage, "'%s' does not exist.", MEMBER);	\
-	return false;								\
+#define CHECK_MANDATORY_MEMBER_EXISTENCE(MEMBER, RPCERR)		\
+if (!parser.isMember(MEMBER)) {					\
+	StringList errorMessage;					\
+	errorMessage.push_back(StringUtils::sprintf(			\
+		"Failed to parse mandatory array type member: "));	\
+	RPCERR.addError(errorMessage, "'%s' does not exist.", MEMBER);	\
+	return false;							\
 }
 
 struct HatoholArmPluginGateHAPI2::Impl
