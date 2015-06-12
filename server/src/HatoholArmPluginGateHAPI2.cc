@@ -276,33 +276,33 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerPutHistory);
 	registerProcedureHandler(
-	  HAPI2_UPDATE_HOSTS,
+	  HAPI2_PUT_HOSTS,
 	  (ProcedureHandler)
-	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts);
+	    &HatoholArmPluginGateHAPI2::procedureHandlerPutHosts);
 	registerProcedureHandler(
-	  HAPI2_UPDATE_HOST_GROUPS,
+	  HAPI2_PUT_HOST_GROUPS,
 	  (ProcedureHandler)
-	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroups);
+	    &HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups);
 	registerProcedureHandler(
-	  HAPI2_UPDATE_HOST_GROUP_MEMEBRSHIP,
+	  HAPI2_PUT_HOST_GROUP_MEMEBRSHIP,
 	  (ProcedureHandler)
-	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroupMembership);
+	    &HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership);
 	registerProcedureHandler(
-	  HAPI2_UPDATE_TRIGGERS,
+	  HAPI2_PUT_TRIGGERS,
 	  (ProcedureHandler)
-	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers);
+	    &HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers);
 	registerProcedureHandler(
-	  HAPI2_UPDATE_EVENTS,
+	  HAPI2_PUT_EVENTS,
 	  (ProcedureHandler)
-	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents);
+	    &HatoholArmPluginGateHAPI2::procedureHandlerPutEvents);
 	registerProcedureHandler(
-	  HAPI2_UPDATE_HOST_PARENTS,
+	  HAPI2_PUT_HOST_PARENTS,
 	  (ProcedureHandler)
-	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostParents);
+	    &HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents);
 	registerProcedureHandler(
-	  HAPI2_UPDATE_ARM_INFO,
+	  HAPI2_PUT_ARM_INFO,
 	  (ProcedureHandler)
-	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateArmInfo);
+	    &HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo);
 
 	if (autoStart)
 		start();
@@ -742,7 +742,7 @@ static bool parseUpdateType(JSONParser &parser, string &updateType)
 	}
 };
 
-string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts(
+string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
   JSONParser &parser)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -803,7 +803,7 @@ static bool parseHostGroupsParams(JSONParser &parser,
 	return true;
 };
 
-string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroups(
+string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
   JSONParser &parser)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -869,7 +869,7 @@ static bool parseHostGroupMembershipParams(
 	return true;
 };
 
-string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroupMembership(
+string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
   JSONParser &parser)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -978,7 +978,7 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 	return true;
 };
 
-string HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers(
+string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
   JSONParser &parser)
 {
 	ThreadLocalDBCache cache;
@@ -1089,7 +1089,7 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 	return true;
 };
 
-string HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents(
+string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
   JSONParser &parser)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -1148,7 +1148,7 @@ static bool parseHostParentsParams(
 	return true;
 };
 
-string HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostParents(
+string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
   JSONParser &parser)
 {
 	ThreadLocalDBCache cache;
@@ -1212,7 +1212,7 @@ static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo)
 	return true;
 };
 
-string HatoholArmPluginGateHAPI2::procedureHandlerUpdateArmInfo(
+string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
   JSONParser &parser)
 {
 	ArmStatus status;
