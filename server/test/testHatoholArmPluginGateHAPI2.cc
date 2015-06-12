@@ -175,9 +175,9 @@ void test_procedureHandlerExchangeProfile(void)
 		"{\"jsonrpc\":\"2.0\",\"result\":{\"name\":\"" PACKAGE_NAME "\","
 		  "\"procedures\":"
 		  "[\"exchangeProfile\",\"getMonitoringServerInfo\",\"getLastInfo\","
-		  "\"putItems\",\"putHistory\",\"updateHosts\",\"updateHostGroups\","
-		  "\"updateHostGroupMembership\",\"updateTriggers\","
-		  "\"updateEvents\",\"updateHostParent\",\"updateArmInfo\""
+		  "\"putItems\",\"putHistory\",\"putHosts\",\"putHostGroups\","
+		  "\"putHostGroupMembership\",\"putTriggers\","
+		  "\"putEvents\",\"putHostParent\",\"putArmInfo\""
 		"]},\"id\":123}";
 	cppcut_assert_equal(expected, actual);
 }
@@ -637,9 +637,9 @@ void test_exchangeProfile(void)
 		  "\"procedures\":"
 		  "[\"exchangeProfile\",\"getMonitoringServerInfo\","
 		  "\"getLastInfo\",\"putItems\"," "\"putHistory\","
-		  "\"updateHosts\",\"updateHostGroups\","
-		  "\"updateHostGroupMembership\",\"updateTriggers\","
-		  "\"updateEvents\",\"updateHostParent\",\"updateArmInfo\""
+		  "\"putHosts\",\"putHostGroups\","
+		  "\"putHostGroupMembership\",\"putTriggers\","
+		  "\"putEvents\",\"putHostParent\",\"putArmInfo\""
 		"]},\"id\":1}";
 	string actual = popServerMessage();
 	cppcut_assert_equal(expected, actual);
