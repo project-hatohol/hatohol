@@ -699,10 +699,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ItemInfoList itemList;
+	JSONRPCErrorObject errObj;
+	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	JSONRPCErrorObject errObj;
 	bool succeeded = parseItemParams(parser, itemList, serverInfo, errObj);
 
 	dataStore->addItemList(itemList);
@@ -762,10 +763,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
   JSONParser &parser)
 {
 	HistoryInfoVect historyInfoVect;
+	JSONRPCErrorObject errObj;
+	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	JSONRPCErrorObject errObj;
 	bool succeeded = parseHistoryParams(parser, historyInfoVect,
 					    serverInfo, errObj);
 
@@ -909,10 +911,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostgroupVect hostgroupVect;
+	JSONRPCErrorObject errObj;
+	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	JSONRPCErrorObject errObj;
 	bool succeeded = parseHostGroupsParams(parser, hostgroupVect,
 					       serverInfo, errObj);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
@@ -987,10 +990,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostgroupMemberVect hostgroupMembershipVect;
+	JSONRPCErrorObject errObj;
+	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	JSONRPCErrorObject errObj;
 	bool succeeded = parseHostGroupMembershipParams(parser,
 							hostgroupMembershipVect,
 							serverInfo, errObj);
@@ -1111,10 +1115,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	TriggerInfoList triggerInfoList;
+	JSONRPCErrorObject errObj;
+	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	JSONRPCErrorObject errObj;
 	bool succeeded = parseTriggersParams(parser, triggerInfoList,
 					     serverInfo, errObj);
 	if (!succeeded) {
@@ -1231,10 +1236,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList eventInfoList;
+	JSONRPCErrorObject errObj;
+	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	JSONRPCErrorObject errObj;
 	bool succeeded = parseEventsParams(parser, eventInfoList, serverInfo, errObj);
 	if (!succeeded) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -1300,9 +1306,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	ThreadLocalDBCache cache;
 	DBTablesHost &dbHost = cache.getHost();
 	VMInfoVect vmInfoVect;
+	JSONRPCErrorObject errObj;
+	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
-	JSONRPCErrorObject errObj;
 	bool succeeded = parseHostParentsParams(parser, vmInfoVect, errObj);
 	if (!succeeded) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -1369,9 +1376,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 {
 	ArmStatus status;
 	ArmInfo armInfo;
+	JSONRPCErrorObject errObj;
+	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
-	JSONRPCErrorObject errObj;
 	bool succeeded = parseArmInfoParams(parser, armInfo, errObj);
 	if (!succeeded) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
