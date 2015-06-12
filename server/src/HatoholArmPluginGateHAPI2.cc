@@ -939,7 +939,7 @@ static bool parseHostGroupMembershipParams(
   JSONRPCErrorObject &errObj
 )
 {
-	CHECK_MANDATORY_OBJECT_EXISTENCE("hostGroupMembership", errObj);
+	CHECK_MANDATORY_OBJECT_EXISTENCE("hostGroupsMembership", errObj);
 	parser.startObject("hostGroupsMembership");
 	size_t num = parser.countElements();
 	for (size_t i = 0; i < num; i++) {
