@@ -51,7 +51,7 @@ struct JSONRPCErrorObject {
 
 #define PARSE_AS_MANDATORY(MEMBER, VALUE, RPCERR)				\
 if (!parser.read(MEMBER, VALUE)) {						\
-	MLPL_ERR("Failed to parse params.\n");					\
+	MLPL_ERR("Failed to parse '%s' member.\n", MEMBER);			\
 	string errorMessage =							\
 		"Failed to parse mandatory member:";				\
 	RPCERR.addError("%s '%s' does not exist.",				\
@@ -60,6 +60,7 @@ if (!parser.read(MEMBER, VALUE)) {						\
 
 #define CHECK_MANDATORY_PARAMS_EXISTENCE(PARAMS, RPCERR)			\
 if (!parser.isMember(PARAMS)) {						\
+	MLPL_ERR("Failed to parse '%s'.\n", PARAMS);			\
 	string errorMessage = "Failed to parse:";				\
 	RPCERR.addError("%s '%s' does not exist.",				\
 			errorMessage.c_str(), PARAMS);				\
@@ -67,6 +68,7 @@ if (!parser.isMember(PARAMS)) {						\
 
 #define CHECK_MANDATORY_MEMBER_EXISTENCE(MEMBER, RPCERR)			\
 if (!parser.isMember(MEMBER)) {						\
+	MLPL_ERR("Failed to parse mandatory member '%s'.\n", MEMBER);		\
 	string errorMessage =							\
 		"Failed to parse mandatory member: ";				\
 	RPCERR.addError("%s '%s' does not exist.",				\
