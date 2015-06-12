@@ -58,6 +58,13 @@ if (!parser.read(MEMBER, VALUE)) {						\
 			errorMessage.c_str(), MEMBER);				\
 }
 
+#define CHECK_MANDATORY_PARAMS_EXISTENCE(PARAMS, RPCERR)			\
+if (!parser.isMember(PARAMS)) {						\
+	string errorMessage = "Failed to parse:";				\
+	RPCERR.addError("%s '%s' does not exist.",				\
+			errorMessage.c_str(), PARAMS);				\
+}
+
 #define CHECK_MANDATORY_MEMBER_EXISTENCE(MEMBER, RPCERR)			\
 if (!parser.isMember(MEMBER)) {						\
 	string errorMessage =							\
