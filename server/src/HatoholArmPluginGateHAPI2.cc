@@ -931,25 +931,27 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	JSONRPCErrorObject errObj;
 	bool succeeded = parseHostGroupsParams(parser, hostgroupVect,
 					       serverInfo, errObj);
-	if (!succeeded) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
-	}
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	string updateType;
 	bool checkInvalidHostGroups = parseUpdateType(parser, updateType, errObj);
+	string lastInfo;
+	if (!parser.read("lastInfo", lastInfo) ) {
+		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP);
+	}
+	parser.endObject(); // params
+
+	if (errObj.hasErrors()) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
+
 	// TODO: reflect error in response
 	if (checkInvalidHostGroups) {
 		dataStore->syncHostgroups(hostgroupVect, serverInfo.id);
 	} else {
 		dataStore->upsertHostgroups(hostgroupVect);
 	}
-	string lastInfo;
-	if (!parser.read("lastInfo", lastInfo) ) {
-		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP);
-	}
-	parser.endObject(); // params
 
 	JSONBuilder builder;
 	builder.startObject();

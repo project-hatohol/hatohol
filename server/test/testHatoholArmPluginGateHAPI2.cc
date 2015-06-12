@@ -394,6 +394,27 @@ void test_procedureHandlerPutHostGroups(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerPutHostGroupsInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroups\","
+		" \"params\":{\"hostGroups\":[{\"groupId\":\"1\"}],"
+		" \"updateType\":\"ALL\","
+		" \"lastInfo\":\"20150409104900\"}, \"id\":\"123abc\"}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_HOST_GROUPS,
+					       parser);
+	string expected =
+		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":\"123abc\","
+		"\"error\":{\"code\":%d,"
+		"\"message\":\"Invalid request object given.\"}}",
+		JSON_RPC_INVALID_PARAMS);
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_procedureHandlerPutHostGroupMembership(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
