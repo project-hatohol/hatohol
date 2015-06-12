@@ -30,9 +30,8 @@ using namespace mlpl;
 
 struct JSONRPCErrorObject {
 	StringList errors;
-	void addError(StringList &errors,
-		      const char *format,
-		      ...) __attribute__((__format__ (__printf__, 3, 4)))
+	void addError(const char *format,
+		      ...) __attribute__((__format__ (__printf__, 2, 3)))
 	{
 	       va_list ap;
 	       va_start(ap, format);
