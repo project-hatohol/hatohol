@@ -49,22 +49,22 @@ struct JSONRPCErrorObject {
 	}
 };
 
-#define PARSE_AS_MANDATORY(MEMBER, VALUE, RPCERR)			\
-if (!parser.read(MEMBER, VALUE)) {					\
-	MLPL_ERR("Failed to parse params.\n");				\
-	StringList errorMessage;					\
-	errorMessage.push_back(StringUtils::sprintf(			\
-		"Failed to parse mandatory member: "));		\
-	RPCERR.addError(errorMessage, "'%s' does not exist.", MEMBER);	\
+#define PARSE_AS_MANDATORY(MEMBER, VALUE, RPCERR)				\
+if (!parser.read(MEMBER, VALUE)) {						\
+	MLPL_ERR("Failed to parse params.\n");					\
+	string errorMessage =							\
+		"Failed to parse mandatory member:";				\
+	RPCERR.addError("%s '%s' does not exist.",				\
+			errorMessage.c_str(), MEMBER);				\
 }
 
-#define CHECK_MANDATORY_MEMBER_EXISTENCE(MEMBER, RPCERR)		\
-if (!parser.isMember(MEMBER)) {					\
-	StringList errorMessage;					\
-	errorMessage.push_back(StringUtils::sprintf(			\
-		"Failed to parse mandatory member: "));		\
-	RPCERR.addError(errorMessage, "'%s' does not exist.", MEMBER);	\
-	return false;							\
+#define CHECK_MANDATORY_MEMBER_EXISTENCE(MEMBER, RPCERR)			\
+if (!parser.isMember(MEMBER)) {						\
+	string errorMessage =							\
+		"Failed to parse mandatory member: ";				\
+	RPCERR.addError("%s '%s' does not exist.",				\
+			errorMessage.c_str(), MEMBER);				\
+	return false;								\
 }
 
 struct HatoholArmPluginGateHAPI2::Impl
