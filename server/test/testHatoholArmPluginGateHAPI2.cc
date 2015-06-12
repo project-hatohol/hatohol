@@ -665,6 +665,27 @@ void test_procedureHandlerPutArmInfo(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerPutArmInfoInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putArmInfo\","
+		" \"params\":{\"lastStatus\":\"INIT\","
+		" \"failureReason\":\"Example reason\","
+		" \"lastSuccessTime\":\"20150313161100\","
+		" \"lastFailureTime\":\"20150313161530\"}, \"id\":234}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_ARM_INFO, parser);
+	string expected =
+		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":234,"
+		"\"error\":{\"code\":%d,"
+		"\"message\":\"Invalid request object given.\"}}",
+		JSON_RPC_INVALID_PARAMS);
+	cppcut_assert_equal(expected, actual);
+}
+
 } // testProcedureHandlers
 
 namespace testCommunication {

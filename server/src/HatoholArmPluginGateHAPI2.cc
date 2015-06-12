@@ -1417,15 +1417,15 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 	parser.startObject("params");
 
 	bool succeeded = parseArmInfoParams(parser, armInfo, errObj);
-	if (!succeeded) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
-	}
 	status.setArmInfo(armInfo);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	parser.endObject(); // params
 
+	if (errObj.hasErrors()) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
