@@ -56,7 +56,6 @@ if (!parser.read(MEMBER, VALUE)) {					\
 	errorMessage.push_back(StringUtils::sprintf(			\
 		"Failed to parse mandatory member: "));		\
 	RPCERR.addError(errorMessage, "'%s' does not exist.", MEMBER);	\
-	return false;							\
 }
 
 #define CHECK_MANDATORY_MEMBER_EXISTENCE(MEMBER, RPCERR)			\
