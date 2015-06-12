@@ -365,6 +365,28 @@ void test_procedureHandlerPutHistory(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerPutHistoryInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
+		" \"params\":{\"itemId\":\"1\","
+		" \"histories\":[{"
+		" \"time\":\"20150323113032.000000000\"},"
+		"{\"value\":\"exampleValue2\",\"time\":\"20150323113033.000000000\"}],"
+		" \"fetchId\":\"1\"}, \"id\":-83241245}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_HISTORY, parser);
+	string expected =
+		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":-83241245,"
+		"\"error\":{\"code\":%d,"
+		"\"message\":\"Invalid request object given.\"}}",
+		JSON_RPC_INVALID_PARAMS);
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_procedureHandlerPutHosts(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(

@@ -799,10 +799,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	JSONRPCErrorObject errObj;
 	bool succeeded = parseHistoryParams(parser, historyInfoVect,
 					    serverInfo, errObj);
-	if (!succeeded) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
-	}
+
 	if (parser.isMember("fetchId")) {
 		string fetchId;
 		parser.read("fetchId", fetchId);
@@ -810,6 +807,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	}
 
 	parser.endObject(); // params
+
+	if (errObj.hasErrors()) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
 
 	JSONBuilder builder;
 	builder.startObject();
