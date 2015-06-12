@@ -336,6 +336,26 @@ void test_procedureHandlerPutHosts(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerPutHostsLackOfHostNameParams(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"updateHosts\","
+		" \"params\":{\"hosts\":[{\"hostId\":\"1\"}],"
+		" \"updateType\":\"UPDATED\",\"lastInfo\":\"201504091052\"},"
+		" \"id\":\"deadbeaf\"}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_HOSTS, parser);
+	string expected =
+		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":\"deadbeaf\","
+		"\"error\":{\"code\":%d,"
+		"\"message\":\"Invalid request object given.\"}}",
+		JSON_RPC_INVALID_PARAMS);
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_procedureHandlerPutHostGroups(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(

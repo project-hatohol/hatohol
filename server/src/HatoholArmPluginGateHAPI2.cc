@@ -859,19 +859,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseHostsParams(parser, hostInfoVect, serverInfo, errObj);
-	if (!succeeded) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
-	}
+
 	string updateType;
 	bool checkInvalidHosts = parseUpdateType(parser, updateType, errObj);
-	// TODO: reflect error in response
-	if (checkInvalidHosts) {
-		dataStore->syncHosts(hostInfoVect, serverInfo.id,
-				     m_impl->hostInfoCache);
-	} else {
-		dataStore->upsertHosts(hostInfoVect);
-	}
 
 	string lastInfo;
 	if (!parser.read("lastInfo", lastInfo) ) {
@@ -881,6 +871,19 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	parser.endObject(); // params
+
+	if (errObj.hasErrors()) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
+
+	// TODO: reflect error in response
+	if (checkInvalidHosts) {
+		dataStore->syncHosts(hostInfoVect, serverInfo.id,
+				     m_impl->hostInfoCache);
+	} else {
+		dataStore->upsertHosts(hostInfoVect);
+	}
 
 	JSONBuilder builder;
 	builder.startObject();
