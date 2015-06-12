@@ -704,10 +704,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	JSONRPCErrorObject errObj;
 	bool succeeded = parseItemParams(parser, itemList, serverInfo, errObj);
-	if (!succeeded) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
-	}
+
 	dataStore->addItemList(itemList);
 	if (parser.isMember("fetchId")) {
 		string fetchId;
@@ -715,6 +712,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		m_impl->runFetchCallback(fetchId);
 	}
 	parser.endObject(); // params
+
+	if (errObj.hasErrors()) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+	}
 
 	JSONBuilder builder;
 	builder.startObject();
