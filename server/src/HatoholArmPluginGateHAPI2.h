@@ -54,13 +54,13 @@ private:
 	std::string procedureHandlerLastInfo(JSONParser &parser);
 	std::string procedureHandlerPutItems(JSONParser &parser);
 	std::string procedureHandlerPutHistory(JSONParser &parser);
-	std::string procedureHandlerUpdateHosts(JSONParser &parser);
-	std::string procedureHandlerUpdateHostGroups(JSONParser &parser);
-	std::string procedureHandlerUpdateHostGroupMembership(JSONParser &parser);
-	std::string procedureHandlerUpdateTriggers(JSONParser &parser);
-	std::string procedureHandlerUpdateEvents(JSONParser &parser);
-	std::string procedureHandlerUpdateHostParents(JSONParser &parser);
-	std::string procedureHandlerUpdateArmInfo(JSONParser &parser);
+	std::string procedureHandlerPutHosts(JSONParser &parser);
+	std::string procedureHandlerPutHostGroups(JSONParser &parser);
+	std::string procedureHandlerPutHostGroupMembership(JSONParser &parser);
+	std::string procedureHandlerPutTriggers(JSONParser &parser);
+	std::string procedureHandlerPutEvents(JSONParser &parser);
+	std::string procedureHandlerPutHostParents(JSONParser &parser);
+	std::string procedureHandlerPutArmInfo(JSONParser &parser);
 
 public:
 	static bool parseTimeStamp(const std::string &timeStampString,

@@ -319,7 +319,7 @@ void test_procedureHandlerPutHistory(void)
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_procedureHandlerUpdateHosts(void)
+void test_procedureHandlerPutHosts(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
@@ -336,7 +336,7 @@ void test_procedureHandlerUpdateHosts(void)
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_procedureHandlerUpdateHostGroups(void)
+void test_procedureHandlerPutHostGroups(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
@@ -354,7 +354,7 @@ void test_procedureHandlerUpdateHostGroups(void)
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_procedureHandlerUpdateHostGroupMembership(void)
+void test_procedureHandlerPutHostGroupMembership(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
@@ -373,7 +373,7 @@ void test_procedureHandlerUpdateHostGroupMembership(void)
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_procedureHandlerUpdateTriggers(void)
+void test_procedureHandlerPutTriggers(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
@@ -394,7 +394,7 @@ void test_procedureHandlerUpdateTriggers(void)
 	cppcut_assert_equal(expected, actual);
 }
 
-void data_procedureHandlerUpdateEvents(void)
+void data_procedureHandlerPutEvents(void)
 {
 	gcut_add_datum("WithTriggerId",
 	               "triggerIdContents", G_TYPE_STRING, " \"triggerId\":2,", NULL);
@@ -402,7 +402,7 @@ void data_procedureHandlerUpdateEvents(void)
 	               "triggerIdContents", G_TYPE_STRING, "", NULL);
 }
 
-void test_procedureHandlerUpdateEvents(gconstpointer data)
+void test_procedureHandlerPutEvents(gconstpointer data)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
@@ -425,7 +425,7 @@ void test_procedureHandlerUpdateEvents(gconstpointer data)
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_procedureHandlerUpdateHostParents(void)
+void test_procedureHandlerPutHostParents(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
@@ -445,7 +445,7 @@ void test_procedureHandlerUpdateHostParents(void)
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_procedureHandlerUpdateArmInfo(void)
+void test_procedureHandlerPutArmInfo(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
