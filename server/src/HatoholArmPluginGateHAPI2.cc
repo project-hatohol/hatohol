@@ -479,6 +479,37 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchTrigger(Closure0 *closure)
 	return true;
 }
 
+bool HatoholArmPluginGateHAPI2::startOnDemandFetchEvents(
+  Closure0 *closure, const std::string &lastInfo, const size_t count,
+  const bool ascending)
+{
+	if (!m_impl->hasProcedure(HAPI2_FETCH_EVENTS))
+		return false;
+
+	JSONBuilder builder;
+	builder.startObject();
+	builder.add("jsonrpc", "2.0");
+	builder.add("method", HAPI2_FETCH_EVENTS);
+	builder.startObject("params");
+	builder.add("lastInfo", lastInfo);
+	builder.add("count", count);
+	builder.add("direction", ascending ? "ASC" : "DESC");
+	std::mt19937 random = getRandomEngine();
+	int64_t fetchId = random(), id = random();
+	string fetchIdString = StringUtils::sprintf("%" PRId64, fetchId);
+	m_impl->queueFetchCallback(fetchIdString, closure);
+	builder.add("fetchId", fetchIdString);
+	builder.endObject();
+	builder.add("id", id);
+	builder.endObject();
+	ProcedureCallback *callback =
+	  new Impl::FetchProcedureCallback(*m_impl, fetchIdString,
+					   HAPI2_FETCH_EVENTS);
+	ProcedureCallbackPtr callbackPtr(callback, false);
+	send(builder.generate(), id, callbackPtr);
+	return true;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -1109,13 +1140,14 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	if (parser.isMember("fetchId")) {
 		string fetchId;
 		parser.read("fetchId", fetchId);
-
+		bool mayMoreFlag = false;
 		if (parser.isMember("mayMoreFlag")) {
-			bool mayMoreFlag;
 			parser.read("mayMoreFlag", mayMoreFlag);
-			// TODO: fire the callback when mayMoreFlag becomes
-			// false.
+		} else {
+			MLPL_WARN("No mayMoreFlag while a fetchId is provided!");
 		}
+		if (!mayMoreFlag)
+			m_impl->runFetchCallback(fetchId);
 	}
 
 	parser.endObject(); // params

@@ -43,6 +43,11 @@ public:
 	  const time_t &endTime,
 	  Closure1<HistoryInfoVect> *closure) override;
 	virtual bool startOnDemandFetchTrigger(Closure0 *closure) override;
+	virtual bool startOnDemandFetchEvents(
+	  Closure0 *closure,
+	  const std::string &lastInfo,
+	  const size_t count,
+	  const bool ascending = true) override;
 
 protected:
 	virtual ~HatoholArmPluginGateHAPI2();
