@@ -419,10 +419,10 @@ bool HatoholArmPluginGateHAPI2::parseTimeStamp(
 }
 
 static bool parseTimeStamp(
-  JSONParser &parser, const string &member, timespec &timeStamp)
+  JSONParser &parser, const string &member, timespec &timeStamp, JSONRPCErrorObject &errObj)
 {
 	string timeStampString;
-	parser.read(member, timeStampString);
+	PARSE_AS_MANDATORY(member.c_str(), timeStampString, errObj);
 	return HatoholArmPluginGateHAPI2::parseTimeStamp(timeStampString,
 							 timeStamp);
 }
@@ -714,7 +714,7 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 		PARSE_AS_MANDATORY("itemId", itemInfo.id, errObj);
 		PARSE_AS_MANDATORY("hostId", itemInfo.hostIdInServer, errObj);
 		PARSE_AS_MANDATORY("brief", itemInfo.brief, errObj);
-		parseTimeStamp(parser, "lastValueTime", itemInfo.lastValueTime);
+		parseTimeStamp(parser, "lastValueTime", itemInfo.lastValueTime, errObj);
 		PARSE_AS_MANDATORY("lastValue", itemInfo.lastValue, errObj);
 		PARSE_AS_MANDATORY("itemGroupName", itemInfo.itemGroupName, errObj);
 		PARSE_AS_MANDATORY("unit", itemInfo.unit, errObj);
@@ -781,7 +781,7 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 		historyInfo.itemId = itemId;
 		historyInfo.serverId = serverInfo.id;
 		PARSE_AS_MANDATORY("value", historyInfo.value, errObj);
-		parseTimeStamp(parser, "time", historyInfo.clock);
+		parseTimeStamp(parser, "time", historyInfo.clock, errObj);
 		parser.endElement();
 
 		historyInfoVect.push_back(historyInfo);
@@ -1127,7 +1127,7 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 		triggerInfo.serverId = serverInfo.id;
 		parseTriggerStatus(parser, triggerInfo.status, errObj);
 		parseTriggerSeverity(parser, triggerInfo.severity, errObj);
-		parseTimeStamp(parser, "lastChangeTime", triggerInfo.lastChangeTime);
+		parseTimeStamp(parser, "lastChangeTime", triggerInfo.lastChangeTime, errObj);
 		PARSE_AS_MANDATORY("hostId",       triggerInfo.hostIdInServer, errObj);
 		PARSE_AS_MANDATORY("hostName",     triggerInfo.hostName, errObj);
 		PARSE_AS_MANDATORY("brief",        triggerInfo.brief, errObj);
@@ -1238,7 +1238,7 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 		EventInfo eventInfo;
 		eventInfo.serverId = serverInfo.id;
 		PARSE_AS_MANDATORY("eventId",  eventInfo.id, errObj);
-		parseTimeStamp(parser, "time", eventInfo.time);
+		parseTimeStamp(parser, "time", eventInfo.time, errObj);
 		parseEventType(parser, eventInfo, errObj);
 		TriggerIdType triggerId = DO_NOT_ASSOCIATE_TRIGGER_ID;
 		if (!parser.read("triggerId", triggerId)) {
@@ -1391,8 +1391,8 @@ static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo,
 	}
 	PARSE_AS_MANDATORY("failureReason", armInfo.failureComment, errObj);
 	timespec successTime, failureTime;
-	parseTimeStamp(parser, "lastSuccessTime", successTime);
-	parseTimeStamp(parser, "lastFailureTime", failureTime);
+	parseTimeStamp(parser, "lastSuccessTime", successTime, errObj);
+	parseTimeStamp(parser, "lastFailureTime", failureTime, errObj);
 	SmartTime lastSuccessTime(successTime);
 	SmartTime lastFailureTime(failureTime);
 	armInfo.statUpdateTime = lastSuccessTime;
