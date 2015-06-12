@@ -853,10 +853,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerHostDefVect hostInfoVect;
+	JSONRPCErrorObject errObj;
+	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	JSONRPCErrorObject errObj;
 	bool succeeded = parseHostsParams(parser, hostInfoVect, serverInfo, errObj);
 	if (!succeeded) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
