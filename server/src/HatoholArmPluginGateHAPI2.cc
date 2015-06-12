@@ -115,7 +115,13 @@ struct HatoholArmPluginGateHAPI2::Impl
 		virtual void onGotResponse(JSONParser &parser) override
 		{
 			if (parser.isMember("error")) {
-				// TODO: handle errors
+				string errorMessage;
+				parser.startObject("error");
+				parser.read("message", errorMessage);
+				parser.endObject();
+				MLPL_WARN("Received an error on calling "
+					  "exchangeProfile: %s\n",
+					  errorMessage.c_str());
 				return;
 			}
 

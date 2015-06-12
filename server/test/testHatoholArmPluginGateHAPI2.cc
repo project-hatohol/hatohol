@@ -558,11 +558,13 @@ void receiveFetchRequest(const string &expectedMethod,
 {
 	string request = popServerMessage();
 	JSONParser parser(request);
+	cppcut_assert_equal(false, parser.hasError());
 	string actualMethod;
 	parser.read("method", actualMethod);
-	parser.startObject("params");
-	parser.read("fetchId", fetchId);
-	parser.endObject();
+	if (parser.startObject("params")) {
+		parser.read("fetchId", fetchId);
+		parser.endObject();
+	}
 	parser.read("id", id);
 	cppcut_assert_equal(expectedMethod, actualMethod);
 	cppcut_assert_equal(true, !fetchId.empty() && id);
@@ -573,6 +575,7 @@ void acceptProcedure(HatoholArmPluginGateHAPI2Ptr &gate,
 {
 	string exchangeProfileMethod = popServerMessage();
 	JSONParser parser(exchangeProfileMethod);
+	cppcut_assert_equal(false, parser.hasError());
 	int64_t id = 0;
 	parser.read("id", id);
 	string response = StringUtils::sprintf(
@@ -645,6 +648,27 @@ void test_exchangeProfile(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_brokenJSON(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "exchangeProfile");
+
+	sendMessage("Broken JSON");
+
+	string expected =
+		"{\"jsonrpc\":\"2.0\",\"id\":null,"
+		"\"error\":{"
+		"\"code\":-32700,"
+		"\"message\":\"Invalid JSON\""
+		"}"
+		"}";
+	string actual = popServerMessage();
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_unknownProcedure(void)
 {
 	omitIfNoURL();
@@ -690,7 +714,11 @@ void test_noMethod(void)
 		" \"Antarctica\":\"mine\"}, \"id\":5}");
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"id\":5,"
-		"\"error\":{\"code\":-32600,\"message\":\"Invalid request\"}"
+		"\"error\":{"
+		"\"code\":-32600,"
+		"\"message\":\"Invalid JSON-RPC object: "
+		"None of method, result, error exist!\""
+		"}"
 		"}";
 	string actual = popServerMessage();
 	cppcut_assert_equal(expected, actual);
@@ -720,6 +748,50 @@ void test_invalidTypeForMethodName(void)
 	string actual = popServerMessage();
 	cppcut_assert_equal(expected, actual);
 }
+
+void test_callMethodWithoutExchangeProfile(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	popServerMessage(); // eat exchangeProfile
+
+	sendMessage(
+		"{\"jsonrpc\":\"2.0\", \"method\":\"getMonitoringServerInfo\","
+		" \"params\":\"\", \"id\":456}");
+	string expected =
+		"{\"jsonrpc\":\"2.0\","
+		"\"result\":\"FAILURE\","
+		"\"id\":456"
+		"}";
+	string actual = popServerMessage();
+	cppcut_assert_equal(expected, actual);
+}
+
+#if 0
+// TODO: Need to add a method to hook the response
+void test_errorResponse(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	string exchangeProfile = popServerMessage();
+	JSONParser parser(exchangeProfile);
+	int64_t id;
+	parser.read("id", id);
+	string errorResponse = StringUtils::sprintf(
+		"{\"jsonrpc\": \"2.0\","
+		"\"error\":{"
+		"\"code\": -32603,"
+		"\"message\": \"Internal Error\""
+		"},"
+		"\"id\": %" PRId64 "}", id);
+	sendMessage(errorResponse.c_str());
+	cppcut_assert_equal(true, true);
+}
+#endif
 
 void test_fetchItems(void)
 {
