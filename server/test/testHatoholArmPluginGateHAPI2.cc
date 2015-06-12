@@ -320,6 +320,32 @@ void test_procedureHandlerPutItems(void)
 	// TODO: add DB assertion
 }
 
+void test_procedureHandlerPutItemsInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
+		" \"params\":{\"items\":[{\"itemId\":\"1\", "
+		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175523\","
+		" \"lastValue\":\"example value\","
+		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"},"
+		" {\"itemId\":\"2\", \"hostId\":\"1\","
+		" \"lastValueTime\":\"20150410175531\","
+		" \"lastValue\":\"example value\","
+		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"}],"
+		" \"fetchId\":\"1\"}, \"id\":83241245}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_ITEMS, parser);
+	string expected =
+		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":83241245,"
+		"\"error\":{\"code\":%d,"
+		"\"message\":\"Invalid request object given.\"}}",
+		JSON_RPC_INVALID_PARAMS);
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_procedureHandlerPutHistory(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
