@@ -62,7 +62,7 @@ if (!parser.read(MEMBER, VALUE)) {					\
 if (!parser.isMember(MEMBER)) {					\
 	StringList errorMessage;					\
 	errorMessage.push_back(StringUtils::sprintf(			\
-		"Failed to parse mandatory array type member: "));	\
+		"Failed to parse mandatory member: "));		\
 	RPCERR.addError(errorMessage, "'%s' does not exist.", MEMBER);	\
 	return false;							\
 }
