@@ -256,7 +256,7 @@ void test_procedureHandlerLastInfo(gconstpointer data)
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_procedureHandlerLastInfoLackOfParams(void)
+void test_procedureHandlerLastInfoInvalidJSON(void)
 {
 	MonitoringServerInfo serverInfo = monitoringServerInfo;
 	loadTestDBLastInfo();
@@ -404,7 +404,7 @@ void test_procedureHandlerPutHosts(void)
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_procedureHandlerPutHostsLackOfHostNameParams(void)
+void test_procedureHandlerPutHostsInvalidJSON(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
