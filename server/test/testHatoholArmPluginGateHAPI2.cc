@@ -330,7 +330,7 @@ void test_procedureHandlerUpdateHosts(void)
 		" \"id\":\"deadbeaf\"}";
 	JSONParser parser(json);
 	gate->setEstablished(true);
-	string actual = gate->interpretHandler(HAPI2_UPDATE_HOSTS, parser);
+	string actual = gate->interpretHandler(HAPI2_PUT_HOSTS, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"deadbeaf\"}";
 	cppcut_assert_equal(expected, actual);
@@ -347,7 +347,7 @@ void test_procedureHandlerUpdateHostGroups(void)
 		" \"lastInfo\":\"20150409104900\"}, \"id\":\"123abc\"}";
 	JSONParser parser(json);
 	gate->setEstablished(true);
-	string actual = gate->interpretHandler(HAPI2_UPDATE_HOST_GROUPS,
+	string actual = gate->interpretHandler(HAPI2_PUT_HOST_GROUPS,
 					       parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"123abc\"}";
@@ -367,7 +367,7 @@ void test_procedureHandlerUpdateHostGroupMembership(void)
 	JSONParser parser(json);
 	gate->setEstablished(true);
 	string actual = gate->interpretHandler(
-	  HAPI2_UPDATE_HOST_GROUP_MEMEBRSHIP, parser);
+	  HAPI2_PUT_HOST_GROUP_MEMEBRSHIP, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":9342}";
 	cppcut_assert_equal(expected, actual);
@@ -388,7 +388,7 @@ void test_procedureHandlerUpdateTriggers(void)
 		" \"extendedInfo\": \"sample extended info\"}]},\"id\":34031}";
 	JSONParser parser(json);
 	gate->setEstablished(true);
-	string actual = gate->interpretHandler(HAPI2_UPDATE_TRIGGERS, parser);
+	string actual = gate->interpretHandler(HAPI2_PUT_TRIGGERS, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":34031}";
 	cppcut_assert_equal(expected, actual);
@@ -419,7 +419,7 @@ void test_procedureHandlerUpdateEvents(gconstpointer data)
 			       gcut_data_get_string(data, "triggerIdContents"));
 	JSONParser parser(json);
 	gate->setEstablished(true);
-	string actual = gate->interpretHandler(HAPI2_UPDATE_EVENTS, parser);
+	string actual = gate->interpretHandler(HAPI2_PUT_EVENTS, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":2374234}";
 	cppcut_assert_equal(expected, actual);
@@ -438,7 +438,7 @@ void test_procedureHandlerUpdateHostParents(void)
 		" \"id\":6234093}";
 	JSONParser parser(json);
 	gate->setEstablished(true);
-	string actual = gate->interpretHandler(HAPI2_UPDATE_HOST_PARENTS,
+	string actual = gate->interpretHandler(HAPI2_PUT_HOST_PARENTS,
 					       parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":6234093}";
@@ -458,7 +458,7 @@ void test_procedureHandlerUpdateArmInfo(void)
 		" \"numSuccess\":165, \"numFailure\":10}, \"id\":234}";
 	JSONParser parser(json);
 	gate->setEstablished(true);
-	string actual = gate->interpretHandler(HAPI2_UPDATE_ARM_INFO, parser);
+	string actual = gate->interpretHandler(HAPI2_PUT_ARM_INFO, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":234}";
 	cppcut_assert_equal(expected, actual);

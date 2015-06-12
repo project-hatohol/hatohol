@@ -276,31 +276,31 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerPutHistory);
 	registerProcedureHandler(
-	  HAPI2_UPDATE_HOSTS,
+	  HAPI2_PUT_HOSTS,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateHosts);
 	registerProcedureHandler(
-	  HAPI2_UPDATE_HOST_GROUPS,
+	  HAPI2_PUT_HOST_GROUPS,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroups);
 	registerProcedureHandler(
-	  HAPI2_UPDATE_HOST_GROUP_MEMEBRSHIP,
+	  HAPI2_PUT_HOST_GROUP_MEMEBRSHIP,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostGroupMembership);
 	registerProcedureHandler(
-	  HAPI2_UPDATE_TRIGGERS,
+	  HAPI2_PUT_TRIGGERS,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateTriggers);
 	registerProcedureHandler(
-	  HAPI2_UPDATE_EVENTS,
+	  HAPI2_PUT_EVENTS,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateEvents);
 	registerProcedureHandler(
-	  HAPI2_UPDATE_HOST_PARENTS,
+	  HAPI2_PUT_HOST_PARENTS,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateHostParents);
 	registerProcedureHandler(
-	  HAPI2_UPDATE_ARM_INFO,
+	  HAPI2_PUT_ARM_INFO,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateArmInfo);
 

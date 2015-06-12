@@ -67,20 +67,20 @@ const HAPI2ProcedureName HAPI2_PUT_ITEMS
   = "putItems";
 const HAPI2ProcedureName HAPI2_PUT_HISTORY
   = "putHistory";
-const HAPI2ProcedureName HAPI2_UPDATE_HOSTS
-  = "updateHosts";
-const HAPI2ProcedureName HAPI2_UPDATE_HOST_GROUPS
-  = "updateHostGroups";
-const HAPI2ProcedureName HAPI2_UPDATE_HOST_GROUP_MEMEBRSHIP
-  = "updateHostGroupMembership";
-const HAPI2ProcedureName HAPI2_UPDATE_TRIGGERS
-  = "updateTriggers";
-const HAPI2ProcedureName HAPI2_UPDATE_EVENTS
-  = "updateEvents";
-const HAPI2ProcedureName HAPI2_UPDATE_HOST_PARENTS
-  = "updateHostParent";
-const HAPI2ProcedureName HAPI2_UPDATE_ARM_INFO
-  = "updateArmInfo";
+const HAPI2ProcedureName HAPI2_PUT_HOSTS
+  = "putHosts";
+const HAPI2ProcedureName HAPI2_PUT_HOST_GROUPS
+  = "putHostGroups";
+const HAPI2ProcedureName HAPI2_PUT_HOST_GROUP_MEMEBRSHIP
+  = "putHostGroupMembership";
+const HAPI2ProcedureName HAPI2_PUT_TRIGGERS
+  = "putTriggers";
+const HAPI2ProcedureName HAPI2_PUT_EVENTS
+  = "putEvents";
+const HAPI2ProcedureName HAPI2_PUT_HOST_PARENTS
+  = "putHostParent";
+const HAPI2ProcedureName HAPI2_PUT_ARM_INFO
+  = "putArmInfo";
 // Cl
 const HAPI2ProcedureName HAPI2_FETCH_ITEMS
   = "fetchItems";
