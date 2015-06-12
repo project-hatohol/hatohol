@@ -18,6 +18,7 @@
   <http://www.gnu.org/licenses/>.
 """
 import unittest
+import os
 import subprocess
 from rabbitmqconnector import RabbitMQConnector
 
@@ -90,14 +91,22 @@ class TestRabbitMQConnector(unittest.TestCase):
         self.assertEquals(subproc.returncode, 0)
         return output
 
+
+    def __build_broker_url(self):
+        return "amqp://%s:%s@%s/%s" % (self.__user_name, self.__password,
+                                       self.__broker, self.__vhost)
+
     def __build_broker_options(self):
+        if os.getenv("RABBITMQ_CONNECTOR_TEST_WORKAROUND") is not None:
+            return ["-u", self.__build_broker_url()]
+
         def append_if_not_none(li, key, val):
             if val is not None:
                 li.append(key)
                 li.append(val)
 
         opt = []
-        append_if_not_none(opt, "-s", self.__broker)
+        append_if_not_none(opt, "--server", self.__broker)
         append_if_not_none(opt, "--port", self.__port)
         append_if_not_none(opt, "--vhost", self.__vhost)
         append_if_not_none(opt, "--username", self.__user_name)
