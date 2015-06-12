@@ -269,10 +269,9 @@ void test_procedureHandlerLastInfoInvalidJSON(void)
 	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_LAST_INFO, parser);
 	string expected =
-		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":789,"
-		"\"error\":{\"code\":%d,"
-		"\"message\":\"Invalid request object given.\"}}",
-		JSON_RPC_INVALID_PARAMS);
+		"{\"jsonrpc\":\"2.0\",\"id\":789,"
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid request object given.\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -319,10 +318,9 @@ void test_procedureHandlerPutItemsInvalidJSON(void)
 	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_PUT_ITEMS, parser);
 	string expected =
-		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":83241245,"
-		"\"error\":{\"code\":%d,"
-		"\"message\":\"Invalid request object given.\"}}",
-		JSON_RPC_INVALID_PARAMS);
+		"{\"jsonrpc\":\"2.0\",\"id\":83241245,"
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid request object given.\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -360,10 +358,9 @@ void test_procedureHandlerPutHistoryInvalidJSON(void)
 	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_PUT_HISTORY, parser);
 	string expected =
-		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":-83241245,"
-		"\"error\":{\"code\":%d,"
-		"\"message\":\"Invalid request object given.\"}}",
-		JSON_RPC_INVALID_PARAMS);
+		"{\"jsonrpc\":\"2.0\",\"id\":-83241245,"
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid request object given.\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -397,10 +394,9 @@ void test_procedureHandlerPutHostsInvalidJSON(void)
 	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_PUT_HOSTS, parser);
 	string expected =
-		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":\"deadbeaf\","
-		"\"error\":{\"code\":%d,"
-		"\"message\":\"Invalid request object given.\"}}",
-		JSON_RPC_INVALID_PARAMS);
+		"{\"jsonrpc\":\"2.0\",\"id\":\"deadbeaf\","
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid request object given.\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -436,10 +432,9 @@ void test_procedureHandlerPutHostGroupsInvalidJSON(void)
 	string actual = gate->interpretHandler(HAPI2_PUT_HOST_GROUPS,
 					       parser);
 	string expected =
-		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":\"123abc\","
-		"\"error\":{\"code\":%d,"
-		"\"message\":\"Invalid request object given.\"}}",
-		JSON_RPC_INVALID_PARAMS);
+		"{\"jsonrpc\":\"2.0\",\"id\":\"123abc\","
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid request object given.\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -476,10 +471,9 @@ void test_procedureHandlerPutHostGroupMembershipInvalidJSON(void)
 	string actual = gate->interpretHandler(
 	  HAPI2_PUT_HOST_GROUP_MEMEBRSHIP, parser);
 	string expected =
-		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":9342,"
-		"\"error\":{\"code\":%d,"
-		"\"message\":\"Invalid request object given.\"}}",
-		JSON_RPC_INVALID_PARAMS);
+		"{\"jsonrpc\":\"2.0\",\"id\":9342,"
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid request object given.\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -520,10 +514,9 @@ void test_procedureHandlerPutTriggersInvalidJSON(void)
 	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_PUT_TRIGGERS, parser);
 	string expected =
-		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":34031,"
-		"\"error\":{\"code\":%d,"
-		"\"message\":\"Invalid request object given.\"}}",
-		JSON_RPC_INVALID_PARAMS);
+		"{\"jsonrpc\":\"2.0\",\"id\":34031,"
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid request object given.\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -576,10 +569,9 @@ void test_procedureHandlerPutEventsInvalidJSON(void)
 	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_PUT_EVENTS, parser);
 	string expected =
-		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":2374234,"
-		"\"error\":{\"code\":%d,"
-		"\"message\":\"Invalid request object given.\"}}",
-		JSON_RPC_INVALID_PARAMS);
+		"{\"jsonrpc\":\"2.0\",\"id\":2374234,"
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid request object given.\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -619,10 +611,9 @@ void test_procedureHandlerPutHostParentsInvalidJSON(void)
 	string actual = gate->interpretHandler(HAPI2_PUT_HOST_PARENTS,
 					       parser);
 	string expected =
-		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":6234093,"
-		"\"error\":{\"code\":%d,"
-		"\"message\":\"Invalid request object given.\"}}",
-		JSON_RPC_INVALID_PARAMS);
+		"{\"jsonrpc\":\"2.0\",\"id\":6234093,"
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid request object given.\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -659,10 +650,9 @@ void test_procedureHandlerPutArmInfoInvalidJSON(void)
 	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_PUT_ARM_INFO, parser);
 	string expected =
-		StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"id\":234,"
-		"\"error\":{\"code\":%d,"
-		"\"message\":\"Invalid request object given.\"}}",
-		JSON_RPC_INVALID_PARAMS);
+		"{\"jsonrpc\":\"2.0\",\"id\":234,"
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid request object given.\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
