@@ -809,7 +809,6 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 			     const MonitoringServerInfo &serverInfo,
 			     JSONRPCErrorObject &errObj)
 {
-	StringList errors;
 	CHECK_MANDATORY_MEMBER_EXISTENCE("hosts", errObj);
 	parser.startObject("hosts");
 	size_t num = parser.countElements();
