@@ -55,6 +55,14 @@ void DataStore::startOnDemandFetchHistory(const ItemInfo &itemInfo,
 	delete closure;
 }
 
+bool DataStore::startOnDemandFetchEvents(Closure0 *closure,
+					 const std::string &lastInfo,
+					 const size_t count,
+					 const bool ascending)
+{
+	return false;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
