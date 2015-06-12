@@ -1087,6 +1087,49 @@ void test_notSupportFetchTriggers(void)
 	cppcut_assert_equal(false, gate->startOnDemandFetchTrigger(NULL));
 }
 
+void test_fetchEvents(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "fetchEvents");
+
+	string lastInfo = "2015061218152100";
+	size_t count = 1000;
+	bool ascending = true;
+	bool succeeded =
+	  gate->startOnDemandFetchEvents(NULL, lastInfo, count, ascending);
+	cppcut_assert_equal(true, succeeded);
+
+	string expected =
+		"^\\{"
+		"\"jsonrpc\":\"2\\.0\","
+		"\"method\":\"fetchEvents\","
+		"\"params\":\\{"
+		"\"lastInfo\":\"2015061218152100\","
+		"\"count\":1000,"
+		"\"direction\":\"ASC\","
+		"\"fetchId\":\"\\d+\"\\"
+		"},"
+		"\"id\":\\d+"
+		"\\}$";
+	string actual = popServerMessage();
+	cut_assert_match(expected.c_str(), actual.c_str());
+}
+
+void test_notSupportFetchEvents(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "exchangeProfile");
+
+	string lastInfo = "2015061218152100";
+	size_t count = 1000;
+	bool ascending = true;
+	bool succeeded =
+	  gate->startOnDemandFetchEvents(NULL, lastInfo, count, ascending);
+	cppcut_assert_equal(false, succeeded);
+}
+
 } // testCommunication
 
 } // testHatoholArmPluginGateHAPI2
