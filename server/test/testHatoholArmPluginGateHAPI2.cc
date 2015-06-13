@@ -795,6 +795,8 @@ void test_errorResponse(void)
 
 void test_fetchItems(void)
 {
+	omitIfNoURL();
+
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchItems");
@@ -813,6 +815,8 @@ void test_fetchItems(void)
 
 void test_notSupportfetchItems(void)
 {
+	omitIfNoURL();
+
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "exchangeProfile");
@@ -821,6 +825,8 @@ void test_notSupportfetchItems(void)
 
 void test_fetchItemsCallback(void)
 {
+	omitIfNoURL();
+
 	struct TestContext {
 		AtomicValue<bool> m_called;
 		TestContext()
@@ -879,6 +885,8 @@ void test_fetchItemsCallback(void)
 
 void test_fetchItemsCallbackOnError(void)
 {
+	omitIfNoURL();
+
 	struct TestContext {
 		AtomicValue<bool> m_called;
 		TestContext()
@@ -921,6 +929,8 @@ void test_fetchItemsCallbackOnError(void)
 
 void test_fetchHistory(void)
 {
+	omitIfNoURL();
+
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchHistory");
@@ -947,6 +957,8 @@ void test_fetchHistory(void)
 
 void test_fetchHistoryCallback(void)
 {
+	omitIfNoURL();
+
 	struct TestContext {
 		HistoryInfoVect m_historyInfoVect;
 		TestContext()
@@ -1014,6 +1026,8 @@ void test_fetchHistoryCallback(void)
 
 void test_fetchTriggers(void)
 {
+	omitIfNoURL();
+
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchTriggers");
@@ -1032,6 +1046,8 @@ void test_fetchTriggers(void)
 
 void test_fetchTriggersCallback(void)
 {
+	omitIfNoURL();
+
 	struct TestContext {
 		AtomicValue<bool> m_called;
 		TestContext()
@@ -1081,6 +1097,8 @@ void test_fetchTriggersCallback(void)
 
 void test_notSupportFetchTriggers(void)
 {
+	omitIfNoURL();
+
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "exchangeProfile");
