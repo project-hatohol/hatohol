@@ -862,7 +862,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	bool checkInvalidHosts = parseUpdateType(parser, updateType, errObj);
 
 	string lastInfo;
-	if (!parser.read("lastInfo", lastInfo) ) {
+	if (parser.read("lastInfo", lastInfo) ) {
 		upsertLastInfo(lastInfo, LAST_INFO_HOST);
 	}
 
@@ -936,7 +936,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	string updateType;
 	bool checkInvalidHostGroups = parseUpdateType(parser, updateType, errObj);
 	string lastInfo;
-	if (!parser.read("lastInfo", lastInfo) ) {
+	if (parser.read("lastInfo", lastInfo) ) {
 		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP);
 	}
 	parser.endObject(); // params
@@ -1018,7 +1018,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	bool checkInvalidHostGroupMembership =
 		parseUpdateType(parser, updateType, errObj);
 	string lastInfo;
-	if (!parser.read("lastInfo", lastInfo) ) {
+	if (parser.read("lastInfo", lastInfo) ) {
 		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP_MEMBERSHIP);
 	}
 	dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
@@ -1149,7 +1149,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	}
 
 	string lastInfoValue;
-	if (!parser.read("lastInfo", lastInfoValue) ) {
+	if (parser.read("lastInfo", lastInfoValue) ) {
 		upsertLastInfo(lastInfoValue, LAST_INFO_TRIGGER);
 	}
 
@@ -1262,7 +1262,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 	dataStore->addEventList(eventInfoList);
 	string lastInfoValue;
-	if (!parser.read("lastInfo", lastInfoValue) ) {
+	if (parser.read("lastInfo", lastInfoValue) ) {
 		upsertLastInfo(lastInfoValue, LAST_INFO_EVENT);
 	}
 
@@ -1338,7 +1338,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	for (auto vmInfo : vmInfoVect)
 		dbHost.upsertVMInfo(vmInfo);
 	string lastInfoValue;
-	if (!parser.read("lastInfo", lastInfoValue) ) {
+	if (parser.read("lastInfo", lastInfoValue) ) {
 		upsertLastInfo(lastInfoValue, LAST_INFO_HOST_PARENT);
 	}
 
