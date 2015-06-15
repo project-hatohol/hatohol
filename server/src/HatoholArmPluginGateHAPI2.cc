@@ -66,8 +66,8 @@ if (!parser.isMember(PARAMS)) {						\
 			errorMessage.c_str(), PARAMS);				\
 }
 
-#define CHECK_MANDATORY_OBJECT_EXISTENCE(MEMBER, RPCERR)			\
-if (!parser.isMember(MEMBER)) {						\
+#define CHECK_MANDATORY_ARRAY_EXISTENCE(MEMBER, RPCERR)			\
+if (JSONParser::VALUE_TYPE_ARRAY != parser.getValueType(MEMBER)) {		\
 	MLPL_ERR("Failed to parse mandatory object '%s'.\n", MEMBER);		\
 	string errorMessage =							\
 		"Failed to parse mandatory object: ";				\
@@ -76,8 +76,8 @@ if (!parser.isMember(MEMBER)) {						\
 	return false;								\
 }
 
-#define CHECK_MANDATORY_OBJECT_EXISTENCE_INNER_LOOP(MEMBER, RPCERR)		\
-if (!parser.isMember(MEMBER)) {						\
+#define CHECK_MANDATORY_ARRAY_EXISTENCE_INNER_LOOP(MEMBER, RPCERR)		\
+if (JSONParser::VALUE_TYPE_ARRAY != parser.getValueType(MEMBER)) {		\
 	MLPL_ERR("Failed to parse mandatory object '%s'.\n", MEMBER);		\
 	string errorMessage =							\
 		"Failed to parse mandatory object: ";				\
@@ -709,7 +709,7 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 			    const MonitoringServerInfo &serverInfo,
 			    JSONRPCErrorObject &errObj)
 {
-	CHECK_MANDATORY_OBJECT_EXISTENCE("items", errObj);
+	CHECK_MANDATORY_ARRAY_EXISTENCE("items", errObj);
 	parser.startObject("items");
 	size_t num = parser.countElements();
 
@@ -777,7 +777,7 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 {
 	ItemIdType itemId = "";
 	PARSE_AS_MANDATORY("itemId", itemId, errObj);
-	CHECK_MANDATORY_OBJECT_EXISTENCE("histories", errObj);
+	CHECK_MANDATORY_ARRAY_EXISTENCE("histories", errObj);
 	parser.startObject("histories");
 	size_t num = parser.countElements();
 
@@ -839,7 +839,7 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 			     const MonitoringServerInfo &serverInfo,
 			     JSONRPCErrorObject &errObj)
 {
-	CHECK_MANDATORY_OBJECT_EXISTENCE("hosts", errObj);
+	CHECK_MANDATORY_ARRAY_EXISTENCE("hosts", errObj);
 	parser.startObject("hosts");
 	size_t num = parser.countElements();
 	for (size_t j = 0; j < num; j++) {
@@ -928,7 +928,7 @@ static bool parseHostGroupsParams(JSONParser &parser,
 				  const MonitoringServerInfo &serverInfo,
 				  JSONRPCErrorObject &errObj)
 {
-	CHECK_MANDATORY_OBJECT_EXISTENCE("hostGroups", errObj);
+	CHECK_MANDATORY_ARRAY_EXISTENCE("hostGroups", errObj);
 	parser.startObject("hostGroups");
 	size_t num = parser.countElements();
 	for (size_t j = 0; j < num; j++) {
@@ -1001,7 +1001,7 @@ static bool parseHostGroupMembershipParams(
   JSONRPCErrorObject &errObj
 )
 {
-	CHECK_MANDATORY_OBJECT_EXISTENCE("hostGroupsMembership", errObj);
+	CHECK_MANDATORY_ARRAY_EXISTENCE("hostGroupsMembership", errObj);
 	parser.startObject("hostGroupsMembership");
 	size_t num = parser.countElements();
 	for (size_t i = 0; i < num; i++) {
@@ -1016,7 +1016,7 @@ static bool parseHostGroupMembershipParams(
 		string hostId;
 		PARSE_AS_MANDATORY("hostId", hostId, errObj);
 		hostgroupMember.hostId = StringUtils::toUint64(hostId);
-		CHECK_MANDATORY_OBJECT_EXISTENCE_INNER_LOOP("groupIds", errObj);
+		CHECK_MANDATORY_ARRAY_EXISTENCE_INNER_LOOP("groupIds", errObj);
 		parser.startObject("groupIds");
 		size_t groupIdNum = parser.countElements();
 		for (size_t j = 0; j < groupIdNum; j++) {
@@ -1127,7 +1127,7 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 				const MonitoringServerInfo &serverInfo,
 				JSONRPCErrorObject &errObj)
 {
-	CHECK_MANDATORY_OBJECT_EXISTENCE("triggers", errObj);
+	CHECK_MANDATORY_ARRAY_EXISTENCE("triggers", errObj);
 	parser.startObject("triggers");
 	size_t num = parser.countElements();
 
@@ -1231,7 +1231,7 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 			      const MonitoringServerInfo &serverInfo,
 			      JSONRPCErrorObject &errObj)
 {
-	CHECK_MANDATORY_OBJECT_EXISTENCE("events", errObj);
+	CHECK_MANDATORY_ARRAY_EXISTENCE("events", errObj);
 	parser.startObject("events");
 	size_t num = parser.countElements();
 	constexpr const size_t numLimit = 1000;
@@ -1328,7 +1328,7 @@ static bool parseHostParentsParams(
 )
 {
 	StringList errors;
-	CHECK_MANDATORY_OBJECT_EXISTENCE("hostParents", errObj);
+	CHECK_MANDATORY_ARRAY_EXISTENCE("hostParents", errObj);
 	parser.startObject("hostParents");
 	size_t num = parser.countElements();
 	for (size_t i = 0; i < num; i++) {
