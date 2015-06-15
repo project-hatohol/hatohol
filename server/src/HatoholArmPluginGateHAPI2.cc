@@ -649,7 +649,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 	LastInfoQueryOption option(USER_ID_SYSTEM);
 	LastInfoType lastInfoType;
 	JSONRPCErrorObject errObj;
-	bool succeeded = parseLastInfoParams(parser, lastInfoType, errObj);
+	parseLastInfoParams(parser, lastInfoType, errObj);
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -779,7 +779,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	bool succeeded = parseHistoryParams(parser, historyInfoVect,
+	parseHistoryParams(parser, historyInfoVect,
 					    serverInfo, errObj);
 
 	if (parser.isMember("fetchId")) {
@@ -1336,8 +1336,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
-	bool succeeded = parseHostParentsParams(parser, vmInfoVect, errObj);
-	string result = succeeded ? "SUCCESS" : "FAILURE";
+	parseHostParentsParams(parser, vmInfoVect, errObj);
 
 	string updateType;
 	bool checkInvalidHostParents = parseUpdateType(parser, updateType, errObj);
@@ -1355,6 +1354,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
+
+	// TODO: make failure clause
+	string result = "SUCCESS";
 
 	JSONBuilder builder;
 	builder.startObject();
