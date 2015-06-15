@@ -60,7 +60,7 @@ if (!parser.read(MEMBER, VALUE)) {						\
 
 #define CHECK_MANDATORY_PARAMS_EXISTENCE(PARAMS, RPCERR)			\
 if (!parser.isMember(PARAMS)) {						\
-	MLPL_ERR("Failed to parse '%s'.\n", PARAMS);			\
+	MLPL_ERR("Failed to parse '%s'.\n", PARAMS);				\
 	string errorMessage = "Failed to parse:";				\
 	RPCERR.addError("%s '%s' does not exist.",				\
 			errorMessage.c_str(), PARAMS);				\
