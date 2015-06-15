@@ -1116,6 +1116,82 @@ void test_fetchEvents(void)
 	cut_assert_match(expected.c_str(), actual.c_str());
 }
 
+void test_fetchEventsCallback(void)
+{
+	struct TestContext {
+		AtomicValue<bool> m_called;
+		TestContext()
+		:m_called(false)
+		{
+		}
+		void onFetchEvents(Closure0 *closure)
+		{
+			m_called = true;
+		}
+	} context;
+	struct FetchClosure : ClosureTemplate0<TestContext>
+	{
+		FetchClosure(TestContext *receiver, callback func)
+		: ClosureTemplate0<TestContext>(receiver, func)
+		{
+		}
+	};
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "fetchEvents");
+
+	Closure0 *closure =
+	  new FetchClosure(&context, &TestContext::onFetchEvents);
+	string lastInfo = "20150616214400";
+	size_t maxEvents = 1000;
+	bool succeeded =
+	  gate->startOnDemandFetchEvents(closure, lastInfo, maxEvents);
+	cppcut_assert_equal(true, succeeded);
+
+	string fetchId;
+	int64_t id = 0;
+	receiveFetchRequest("fetchEvents", fetchId, id);
+
+	// mayMoreFlag: true
+	string putEventsJSON =
+	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\", \"method\":\"putEvents\","
+			       " \"params\":{\"events\":[{\"eventId\":\"1\","
+			       " \"time\":\"20150323151300\", \"type\":\"GOOD\","
+			       " \"triggerId\":2, \"status\": \"OK\","
+			       " \"severity\":\"INFO\","
+			       " \"hostId\":3, \"hostName\":\"exampleHostName\","
+			       " \"brief\":\"example brief\","
+			       " \"extendedInfo\": \"sample extended info\"}],"
+			       " \"lastInfo\":\"20150323151299\","
+			       " \"mayMoreFlag\": true,"
+			       " \"fetchId\":\"%s\"},\"id\":%" PRId64 "}",
+			       fetchId.c_str(), id);
+	sendMessage(putEventsJSON);
+
+	string reply = popServerMessage(); // for waiting the reply
+	cppcut_assert_equal(false, context.m_called.get());
+
+	// mayMoreFlag: false
+	putEventsJSON =
+	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\", \"method\":\"putEvents\","
+			       " \"params\":{\"events\":[{\"eventId\":\"2\","
+			       " \"time\":\"20150323151301\", \"type\":\"GOOD\","
+			       " \"triggerId\":2, \"status\": \"OK\","
+			       " \"severity\":\"INFO\","
+			       " \"hostId\":3, \"hostName\":\"exampleHostName\","
+			       " \"brief\":\"example brief\","
+			       " \"extendedInfo\": \"sample extended info\"}],"
+			       " \"lastInfo\":\"20150323151300\","
+			       " \"mayMoreFlag\": false,"
+			       " \"fetchId\":\"%s\"},\"id\":%" PRId64 "}",
+			       fetchId.c_str(), id);
+	sendMessage(putEventsJSON);
+
+	reply = popServerMessage(); // for waiting the callback
+	cppcut_assert_equal(true, context.m_called.get());
+}
+
 void test_notSupportFetchEvents(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
