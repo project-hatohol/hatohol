@@ -742,8 +742,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 
 static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoVect,
 			       const MonitoringServerInfo &serverInfo,
-			       JSONRPCErrorObject &errObj
-)
+			       JSONRPCErrorObject &errObj)
 {
 	ItemIdType itemId = "";
 	PARSE_AS_MANDATORY("itemId", itemId, errObj);
