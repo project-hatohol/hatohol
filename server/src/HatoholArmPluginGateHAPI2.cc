@@ -643,7 +643,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 	option.setLastInfoType(lastInfoType);
 	option.setTargetServerId(m_impl->m_serverInfo.id);
@@ -716,7 +716,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 
 	JSONBuilder builder;
@@ -781,7 +781,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 
 	JSONBuilder builder;
@@ -860,7 +860,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 
 	// TODO: reflect error in response
@@ -930,7 +930,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 
 	// TODO: reflect error in response
@@ -1013,7 +1013,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 
 	// TODO: reflect error in response
@@ -1153,7 +1153,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 
 	JSONBuilder builder;
@@ -1260,7 +1260,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 
 	JSONBuilder builder;
@@ -1329,7 +1329,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 
 	JSONBuilder builder;
@@ -1391,7 +1391,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid request object given.", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 	JSONBuilder builder;
 	builder.startObject();

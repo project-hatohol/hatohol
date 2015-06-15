@@ -271,7 +271,7 @@ void test_procedureHandlerLastInfoInvalidJSON(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"id\":789,"
 		"\"error\":{\"code\":-32602,"
-		"\"message\":\"Invalid request object given.\"}}";
+		"\"message\":\"Invalid method parameter(s).\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -320,7 +320,7 @@ void test_procedureHandlerPutItemsInvalidJSON(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"id\":83241245,"
 		"\"error\":{\"code\":-32602,"
-		"\"message\":\"Invalid request object given.\"}}";
+		"\"message\":\"Invalid method parameter(s).\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -360,7 +360,7 @@ void test_procedureHandlerPutHistoryInvalidJSON(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"id\":-83241245,"
 		"\"error\":{\"code\":-32602,"
-		"\"message\":\"Invalid request object given.\"}}";
+		"\"message\":\"Invalid method parameter(s).\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -396,7 +396,7 @@ void test_procedureHandlerPutHostsInvalidJSON(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"id\":\"deadbeaf\","
 		"\"error\":{\"code\":-32602,"
-		"\"message\":\"Invalid request object given.\"}}";
+		"\"message\":\"Invalid method parameter(s).\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -434,7 +434,7 @@ void test_procedureHandlerPutHostGroupsInvalidJSON(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"id\":\"123abc\","
 		"\"error\":{\"code\":-32602,"
-		"\"message\":\"Invalid request object given.\"}}";
+		"\"message\":\"Invalid method parameter(s).\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -473,7 +473,7 @@ void test_procedureHandlerPutHostGroupMembershipInvalidJSON(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"id\":9342,"
 		"\"error\":{\"code\":-32602,"
-		"\"message\":\"Invalid request object given.\"}}";
+		"\"message\":\"Invalid method parameter(s).\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -516,7 +516,7 @@ void test_procedureHandlerPutTriggersInvalidJSON(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"id\":34031,"
 		"\"error\":{\"code\":-32602,"
-		"\"message\":\"Invalid request object given.\"}}";
+		"\"message\":\"Invalid method parameter(s).\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -571,7 +571,7 @@ void test_procedureHandlerPutEventsInvalidJSON(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"id\":2374234,"
 		"\"error\":{\"code\":-32602,"
-		"\"message\":\"Invalid request object given.\"}}";
+		"\"message\":\"Invalid method parameter(s).\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -613,7 +613,7 @@ void test_procedureHandlerPutHostParentsInvalidJSON(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"id\":6234093,"
 		"\"error\":{\"code\":-32602,"
-		"\"message\":\"Invalid request object given.\"}}";
+		"\"message\":\"Invalid method parameter(s).\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -652,7 +652,7 @@ void test_procedureHandlerPutArmInfoInvalidJSON(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"id\":234,"
 		"\"error\":{\"code\":-32602,"
-		"\"message\":\"Invalid request object given.\"}}";
+		"\"message\":\"Invalid method parameter(s).\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
