@@ -30,7 +30,10 @@ class TestRabbitMQConnector(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.__broker = "localhost"
+        port  = os.getenv("RABBITMQ_NODE_PORT")
         cls.__port = None
+        if port is not None:
+            cls.__port = int(port)
         cls.__vhost = "test"
         cls.__queue_name = "test_queue"
         cls.__user_name  = "test_user"
@@ -93,8 +96,11 @@ class TestRabbitMQConnector(unittest.TestCase):
 
 
     def __build_broker_url(self):
-        return "amqp://%s:%s@%s/%s" % (self.__user_name, self.__password,
-                                       self.__broker, self.__vhost)
+        port = ""
+        if self.__port is not None:
+            port = ":%d" % self.__port
+        return "amqp://%s:%s@%s%s/%s" % (self.__user_name, self.__password,
+                                       self.__broker, port, self.__vhost)
 
     def __build_broker_options(self):
         if os.getenv("RABBITMQ_CONNECTOR_TEST_WORKAROUND") is not None:
@@ -106,8 +112,10 @@ class TestRabbitMQConnector(unittest.TestCase):
                 li.append(val)
 
         opt = []
-        append_if_not_none(opt, "--server", self.__broker)
-        append_if_not_none(opt, "--port", self.__port)
+        server = self.__broker
+        if server is not None and self.__port is not None:
+            server += ":%d" % self.__port
+        append_if_not_none(opt, "--server", server)
         append_if_not_none(opt, "--vhost", self.__vhost)
         append_if_not_none(opt, "--username", self.__user_name)
         append_if_not_none(opt, "--password", self.__password)
