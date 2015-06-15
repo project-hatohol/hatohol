@@ -746,7 +746,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	bool succeeded = parseItemParams(parser, itemList, serverInfo, errObj);
+	parseItemParams(parser, itemList, serverInfo, errObj);
 
 	dataStore->addItemList(itemList);
 	if (parser.isMember("fetchId")) {
