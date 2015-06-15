@@ -145,10 +145,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 		callExchangeProfile();
 	}
 
-	bool parseExchangeProfileParams(JSONParser &parser)
+	bool parseExchangeProfileParams(JSONParser &parser, JSONRPCErrorObject &errObj)
 	{
-		JSONRPCErrorObject errObj;
 		m_supportedProcedureNameSet.clear();
+		CHECK_MANDATORY_PARAMS_EXISTENCE("procedures", errObj);
 		parser.startObject("procedures");
 		size_t num = parser.countElements();
 		for (size_t i = 0; i < num; i++) {
@@ -185,9 +185,11 @@ struct HatoholArmPluginGateHAPI2::Impl
 				return;
 			}
 
+			JSONRPCErrorObject errObj;
 			parser.startObject("result");
-			m_impl.parseExchangeProfileParams(parser);
+			m_impl.parseExchangeProfileParams(parser, errObj);
 			parser.endObject();
+
 			m_impl.m_hapi2.setEstablished(true);
 		}
 	};
@@ -592,9 +594,17 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
   JSONParser &parser)
 {
 	m_impl->m_supportedProcedureNameSet.clear();
+	JSONRPCErrorObject errObj;
+	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
-	m_impl->parseExchangeProfileParams(parser);
+	m_impl->parseExchangeProfileParams(parser, errObj);
 	parser.endObject(); // params
+
+	if (errObj.hasErrors()) {
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+	}
+
 	setEstablished(true);
 
 	JSONBuilder builder;
