@@ -1046,10 +1046,14 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 }
 
 static bool parseTriggerStatus(JSONParser &parser, TriggerStatusType &status,
-			       JSONRPCErrorObject &errObj)
+			       JSONRPCErrorObject &errObj, bool skipValidate)
 {
 	string statusString;
-	PARSE_AS_MANDATORY("status", statusString, errObj);
+	if (skipValidate) {
+		parser.read("status", statusString);
+	} else {
+		PARSE_AS_MANDATORY("status", statusString, errObj);
+	}
 	if (statusString == "OK") {
 		status = TRIGGER_STATUS_OK;
 	} else if (statusString == "NG") {
@@ -1065,10 +1069,14 @@ static bool parseTriggerStatus(JSONParser &parser, TriggerStatusType &status,
 
 static bool parseTriggerSeverity(JSONParser &parser,
 				 TriggerSeverityType &severity,
-				 JSONRPCErrorObject &errObj)
+				 JSONRPCErrorObject &errObj, bool skipValidate)
 {
 	string severityString;
-	PARSE_AS_MANDATORY("severity", severityString, errObj);
+	if (skipValidate) {
+		parser.read("severity", severityString);
+	} else {
+		PARSE_AS_MANDATORY("severity", severityString, errObj);
+	}
 	if (severityString == "ALL") {
 		severity = TRIGGER_SEVERITY_ALL;
 	} else if (severityString == "UNKNOWN") {
@@ -1108,8 +1116,8 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 
 		TriggerInfo triggerInfo;
 		triggerInfo.serverId = serverInfo.id;
-		parseTriggerStatus(parser, triggerInfo.status, errObj);
-		parseTriggerSeverity(parser, triggerInfo.severity, errObj);
+		parseTriggerStatus(parser, triggerInfo.status, errObj, false);
+		parseTriggerSeverity(parser, triggerInfo.severity, errObj, false);
 		parseTimeStamp(parser, "lastChangeTime", triggerInfo.lastChangeTime, errObj);
 		PARSE_AS_MANDATORY("hostId",       triggerInfo.hostIdInServer, errObj);
 		PARSE_AS_MANDATORY("hostName",     triggerInfo.hostName, errObj);
@@ -1233,8 +1241,8 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 		if (!parser.read("triggerId", triggerId)) {
 			eventInfo.triggerId = triggerId;
 		}
-		parseTriggerStatus(parser,         eventInfo.status, errObj);
-		parseTriggerSeverity(parser,       eventInfo.severity, errObj);
+		parseTriggerStatus(parser,         eventInfo.status, errObj, true);
+		parseTriggerSeverity(parser,       eventInfo.severity, errObj, true);
 		PARSE_AS_MANDATORY("hostId",       eventInfo.hostIdInServer, errObj);
 		PARSE_AS_MANDATORY("hostName",     eventInfo.hostName, errObj);
 		PARSE_AS_MANDATORY("brief",        eventInfo.brief, errObj);
