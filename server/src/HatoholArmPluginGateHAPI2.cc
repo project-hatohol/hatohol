@@ -785,6 +785,7 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 	for (size_t j = 0; j < num; j++) {
 		if (!parser.startElement(j)) {
 			MLPL_ERR("Failed to parse histories contents.\n");
+			errObj.addError("Failed to parse histories array object.");
 			return false;
 		}
 
@@ -845,6 +846,7 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 	for (size_t j = 0; j < num; j++) {
 		if (!parser.startElement(j)) {
 			MLPL_ERR("Failed to parse hosts contents.\n");
+			errObj.addError("Failed to parse hosts array object.");
 			return false;
 		}
 
@@ -933,6 +935,7 @@ static bool parseHostGroupsParams(JSONParser &parser,
 	for (size_t j = 0; j < num; j++) {
 		if (!parser.startElement(j)) {
 			MLPL_ERR("Failed to parse hosts contents.\n");
+			errObj.addError("Failed to parse hostGroups array object.");
 			return false;
 		}
 
@@ -1005,6 +1008,7 @@ static bool parseHostGroupMembershipParams(
 	for (size_t i = 0; i < num; i++) {
 		if (!parser.startElement(i)) {
 			MLPL_ERR("Failed to parse hosts contents.\n");
+			errObj.addError("Failed to parse hostGroupMembership array object.");
 			return false;
 		}
 
@@ -1130,7 +1134,8 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 
 	for (size_t i = 0; i < num; i++) {
 		if (!parser.startElement(i)) {
-			MLPL_ERR("Failed to parse event contents.\n");
+			MLPL_ERR("Failed to parse triggers contents.\n");
+			errObj.addError("Failed to parse triggers array object.");
 			return false;
 		}
 
@@ -1242,7 +1247,8 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 
 	for (size_t i = 0; i < num; i++) {
 		if (!parser.startElement(i)) {
-			MLPL_ERR("Failed to parse event contents.\n");
+			MLPL_ERR("Failed to parse events contents.\n");
+			errObj.addError("Failed to parse events array object.");
 			return false;
 		}
 
@@ -1328,7 +1334,8 @@ static bool parseHostParentsParams(
 	size_t num = parser.countElements();
 	for (size_t i = 0; i < num; i++) {
 		if (!parser.startElement(i)) {
-			MLPL_ERR("Failed to parse vm_info contents.\n");
+			MLPL_ERR("Failed to parse hostParents contents.\n");
+			errObj.addError("Failed to parse hostParents array object.");
 			return false;
 		}
 
