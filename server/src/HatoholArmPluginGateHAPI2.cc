@@ -685,6 +685,7 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 	for (size_t i = 0; i < num; i++) {
 		if (!parser.startElement(i)) {
 			MLPL_ERR("Failed to parse item contents.\n");
+			errObj.addError("Failed to parse item array object.");
 			return false;
 		}
 
