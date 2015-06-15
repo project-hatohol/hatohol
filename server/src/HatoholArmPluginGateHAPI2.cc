@@ -929,10 +929,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	bool succeeded = parseHostGroupsParams(parser, hostgroupVect,
-					       serverInfo, errObj);
-	string result = succeeded ? "SUCCESS" : "FAILURE";
-
+	parseHostGroupsParams(parser, hostgroupVect, serverInfo, errObj);
 	string updateType;
 	bool checkInvalidHostGroups = parseUpdateType(parser, updateType, errObj);
 	string lastInfo;
@@ -952,6 +949,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	} else {
 		dataStore->upsertHostgroups(hostgroupVect);
 	}
+
+	// TODO: Add failure clause
+	string result = "SUCCESS";
 
 	JSONBuilder builder;
 	builder.startObject();
