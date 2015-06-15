@@ -967,8 +967,7 @@ static bool parseHostGroupMembershipParams(
   JSONParser &parser,
   HostgroupMemberVect &hostgroupMemberVect,
   const MonitoringServerInfo &serverInfo,
-  JSONRPCErrorObject &errObj
-)
+  JSONRPCErrorObject &errObj)
 {
 	CHECK_MANDATORY_ARRAY_EXISTENCE("hostGroupsMembership", errObj);
 	parser.startObject("hostGroupsMembership");
