@@ -30,7 +30,8 @@ before_install:
 
 install:
   - server/misc/setup-cutter.sh
-  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm python-pip expect python-dev libqpidmessaging2-dev libqpidtypes1-dev libqpidcommon2-dev qpidd librabbitmq-dev
+  - server/misc/setup-rabbitmq-server-port.sh
+  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm python-pip expect python-dev libqpidmessaging2-dev libqpidtypes1-dev libqpidcommon2-dev qpidd librabbitmq-dev rabbitmq-server python-pika amqp-tools
   - sudo sh -c "printf '[%s]\n%s=%s\n' mysqld character-set-server utf8  > /etc/mysql/conf.d/utf8.cnf"
   - sudo sh -c "printf '[%s]\n%s=%s\n' client default-character-set utf8  >> /etc/mysql/conf.d/utf8.cnf"
   - mysql -u root < data/test/setup.sql
