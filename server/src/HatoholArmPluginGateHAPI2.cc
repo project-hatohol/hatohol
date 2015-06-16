@@ -712,17 +712,16 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ItemInfoList itemList;
 	JSONRPCErrorObject errObj;
+	string fetchId;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseItemParams(parser, itemList, serverInfo, errObj);
-
 	if (parser.isMember("fetchId")) {
-		string fetchId;
 		parser.read("fetchId", fetchId);
-		m_impl->runFetchCallback(fetchId);
 	}
+
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
@@ -731,6 +730,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	}
 
 	dataStore->addItemList(itemList);
+
+	if (!fetchId.empty())) {
+		m_impl->runFetchCallback(fetchId);
+	}
 
 	JSONBuilder builder;
 	builder.startObject();
@@ -778,24 +781,25 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 {
 	HistoryInfoVect historyInfoVect;
 	JSONRPCErrorObject errObj;
+	string fetchId;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseHistoryParams(parser, historyInfoVect,
 			   serverInfo, errObj);
-
 	if (parser.isMember("fetchId")) {
-		string fetchId;
 		parser.read("fetchId", fetchId);
-		m_impl->runFetchHistoryCallback(fetchId, historyInfoVect);
 	}
-
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+	}
+
+	if (!fetchId.empty())) {
+		m_impl->runFetchHistoryCallback(fetchId, historyInfoVect);
 	}
 
 	JSONBuilder builder;
@@ -1157,16 +1161,14 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 
 	string updateType;
 	bool checkInvalidTriggers = parseUpdateType(parser, updateType, errObj);
-
+	bool mayMoreFlag;
+	string fetchId;
 	if (parser.isMember("mayMoreFlag")) {
-		bool mayMoreFlag;
 		parser.read("mayMoreFlag", mayMoreFlag);
 		// TODO: What should we do?
 	}
 	if (parser.isMember("fetchId")) {
-		string fetchId;
 		parser.read("fetchId", fetchId);
-		m_impl->runFetchCallback(fetchId);
 	}
 
 	parser.endObject(); // params
@@ -1186,6 +1188,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		dbMonitoring.syncTriggers(triggerInfoList, serverInfo.id);
 	} else {
 		dbMonitoring.addTriggerInfoList(triggerInfoList);
+	}
+
+	if (!fetchId.empty())) {
+		m_impl->runFetchCallback(fetchId);
 	}
 
 	// add failure
@@ -1274,6 +1280,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList eventInfoList;
 	JSONRPCErrorObject errObj;
+	string fetchId;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1281,7 +1288,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	parseEventsParams(parser, eventInfoList, serverInfo, errObj);
 
 	if (parser.isMember("fetchId")) {
-		string fetchId;
 		parser.read("fetchId", fetchId);
 		// TODO: callback
 	}
