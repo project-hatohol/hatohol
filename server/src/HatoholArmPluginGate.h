@@ -35,7 +35,7 @@ class HatoholArmPluginGate : public DataStore, public HatoholArmPluginInterface 
 public:
 	static const std::string PassivePluginQuasiPath;
 	static const int   NO_RETRY;
-	
+
 	struct HAPIWtchPointInfo {
 		TriggerStatusType statusType;
 		TriggerIdType triggerId;
@@ -175,4 +175,3 @@ private:
 typedef UsedCountablePtr<HatoholArmPluginGate> HatoholArmPluginGatePtr;
 
 #endif // HatoholArmPluginGate_h
-

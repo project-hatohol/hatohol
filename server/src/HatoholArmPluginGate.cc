@@ -571,7 +571,7 @@ void HatoholArmPluginGate::setPluginConnectStatus(const HatoholArmPluginWatchTyp
 void HatoholArmPluginGate::onConnected(qpid::messaging::Connection &conn)
 {
 	setPluginConnectStatus(COLLECT_NG_AMQP_CONNECT_ERROR,
-			       HAPERR_OK);	
+			       HAPERR_OK);
 	if (m_impl->pid)
 		return;
 
@@ -767,7 +767,7 @@ void HatoholArmPluginGate::cmdHandlerGetMonitoringServerInfo(
 	const size_t addSize =
 	  (lenHostName + 1) + (lenIpAddress + 1) + (lenNickname + 1) +
 	  (lenUserName + 1) + (lenPassword + 1) + (lenDbName + 1);
-	
+
 	HapiResMonitoringServerInfo *body =
 	  setupResponseBuffer<HapiResMonitoringServerInfo>(resBuf, addSize);
 	body->serverId = NtoL(svInfo.id);
@@ -831,7 +831,7 @@ void HatoholArmPluginGate::cmdHandlerGetTimeOfLastEvent(
 	HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
 	HapiParamTimeOfLastEvent *param =
 	  getCommandBody<HapiParamTimeOfLastEvent>(*cmdBuf);
-	
+
 	const TriggerIdType triggerId =
 	   getString(*cmdBuf, param,
 	             param->triggerIdOffset, param->triggerIdLength);
@@ -1012,7 +1012,7 @@ void HatoholArmPluginGate::cmdHandlerSendArmInfo(
 	                                   body->failureCommentOffset,
 	                                   body->failureCommentLength);
 
-	HatoholArmPluginWatchType type = 
+	HatoholArmPluginWatchType type =
 		(HatoholArmPluginWatchType)LtoN(body->failureReason);
 	if (armInfo.stat == ARM_WORK_STAT_OK ) {
 		setPluginConnectStatus(COLLECT_OK, HAPERR_OK);
