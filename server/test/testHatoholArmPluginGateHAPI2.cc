@@ -256,7 +256,7 @@ void test_procedureHandlerLastInfo(gconstpointer data)
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_procedureHandlerLastInfoInvalidRequestObject(void)
+void test_procedureHandlerLastInfoInvalidJSON(void)
 {
 	MonitoringServerInfo serverInfo = monitoringServerInfo;
 	loadTestDBLastInfo();
@@ -264,15 +264,14 @@ void test_procedureHandlerLastInfoInvalidRequestObject(void)
 	  new HatoholArmPluginGateHAPI2(serverInfo, false), false);
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"getLastInfo\","
-		"\"id\":789}"; // omit params
+		"\"id\":789}";
 	JSONParser parser(json);
 	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_LAST_INFO, parser);
-	string expected = StringUtils::sprintf(
+	string expected =
 		"{\"jsonrpc\":\"2.0\",\"id\":789,"
-		"\"error\":{\"code\":%d,"
-		"\"message\":\"Invalid request object given.\"}}",
-		JSON_RPC_INVALID_PARAMS);
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid method parameter(s).\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -300,6 +299,31 @@ void test_procedureHandlerPutItems(void)
 	// TODO: add DB assertion
 }
 
+void test_procedureHandlerPutItemsInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
+		" \"params\":{\"items\":[{\"itemId\":\"1\", "
+		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175523\","
+		" \"lastValue\":\"example value\","
+		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"},"
+		" {\"itemId\":\"2\", \"hostId\":\"1\","
+		" \"lastValueTime\":\"20150410175531\","
+		" \"lastValue\":\"example value\","
+		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"}],"
+		" \"fetchId\":\"1\"}, \"id\":83241245}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_ITEMS, parser);
+	string expected =
+		"{\"jsonrpc\":\"2.0\",\"id\":83241245,"
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid method parameter(s).\"}}";
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_procedureHandlerPutHistory(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
@@ -316,6 +340,27 @@ void test_procedureHandlerPutHistory(void)
 	string actual = gate->interpretHandler(HAPI2_PUT_HISTORY, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"\",\"id\":-83241245}";
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_procedureHandlerPutHistoryInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
+		" \"params\":{\"itemId\":\"1\","
+		" \"histories\":[{"
+		" \"time\":\"20150323113032.000000000\"},"
+		"{\"value\":\"exampleValue2\",\"time\":\"20150323113033.000000000\"}],"
+		" \"fetchId\":\"1\"}, \"id\":-83241245}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_HISTORY, parser);
+	string expected =
+		"{\"jsonrpc\":\"2.0\",\"id\":-83241245,"
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid method parameter(s).\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -336,6 +381,25 @@ void test_procedureHandlerPutHosts(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerPutHostsInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"updateHosts\","
+		" \"params\":{\"hosts\":[{\"hostId\":\"1\"}],"
+		" \"updateType\":\"UPDATED\",\"lastInfo\":\"201504091052\"},"
+		" \"id\":\"deadbeaf\"}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_HOSTS, parser);
+	string expected =
+		"{\"jsonrpc\":\"2.0\",\"id\":\"deadbeaf\","
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid method parameter(s).\"}}";
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_procedureHandlerPutHostGroups(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
@@ -351,6 +415,26 @@ void test_procedureHandlerPutHostGroups(void)
 					       parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"123abc\"}";
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_procedureHandlerPutHostGroupsInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroups\","
+		" \"params\":{\"hostGroups\":[{\"groupId\":\"1\"}],"
+		" \"updateType\":\"ALL\","
+		" \"lastInfo\":\"20150409104900\"}, \"id\":\"123abc\"}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_HOST_GROUPS,
+					       parser);
+	string expected =
+		"{\"jsonrpc\":\"2.0\",\"id\":\"123abc\","
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid method parameter(s).\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -373,6 +457,26 @@ void test_procedureHandlerPutHostGroupMembership(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerPutHostGroupMembershipInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroupMembership\","
+		" \"params\":{\"hostGroupsMembership\":[{\"hostId\":\"1\"}],"
+		" \"lastInfo\":\"20150409105600\", \"updateType\":\"ALL\"},"
+		" \"id\":9342}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(
+	  HAPI2_PUT_HOST_GROUP_MEMEBRSHIP, parser);
+	string expected =
+		"{\"jsonrpc\":\"2.0\",\"id\":9342,"
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid method parameter(s).\"}}";
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_procedureHandlerPutTriggers(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
@@ -391,6 +495,28 @@ void test_procedureHandlerPutTriggers(void)
 	string actual = gate->interpretHandler(HAPI2_PUT_TRIGGERS, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":34031}";
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_procedureHandlerPutTriggersInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putTriggers\","
+		" \"params\":{\"updateType\":\"UPDATED\","
+		" \"lastInfo\":\"201504061606\", \"fetchId\":\"1\","
+		" \"triggers\":[{\"triggerId\":\"1\", \"status\":\"OK\","
+		" \"severity\":\"INFO\",\"lastChangeTime\":\"20150323175800\","
+		" \"hostName\":\"exampleHostName\","
+		" \"extendedInfo\": \"sample extended info\"}]},\"id\":34031}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_TRIGGERS, parser);
+	string expected =
+		"{\"jsonrpc\":\"2.0\",\"id\":34031,"
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid method parameter(s).\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -425,6 +551,30 @@ void test_procedureHandlerPutEvents(gconstpointer data)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerPutEventsInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putEvents\","
+		" \"params\":{\"events\":[{\"eventId\":\"1\","
+		" \"time\":\"20150323151300\", \"type\":\"GOOD\","
+		" \"status\": \"OK\", \"severity\":\"INFO\","
+		" \"hostName\":\"exampleHostName\","
+		" \"brief\":\"example brief\","
+		" \"extendedInfo\": \"sample extended info\"}],"
+		" \"lastInfo\":\"20150401175900\","
+		" \"fetchId\":\"1\"},\"id\":2374234}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_EVENTS, parser);
+	string expected =
+		"{\"jsonrpc\":\"2.0\",\"id\":2374234,"
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid method parameter(s).\"}}";
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_procedureHandlerPutHostParents(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
@@ -445,6 +595,28 @@ void test_procedureHandlerPutHostParents(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerPutHostParentsInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putHostParent\","
+		" \"params\":{\"hostParents\":"
+		" [{\"childHostId\":\"12\"},"
+		" {\"parentHostId\":\"20\"}],"
+		" \"updateType\":\"ALL\", \"lastInfo\":\"201504152246\"},"
+		" \"id\":6234093}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_HOST_PARENTS,
+					       parser);
+	string expected =
+		"{\"jsonrpc\":\"2.0\",\"id\":6234093,"
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid method parameter(s).\"}}";
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_procedureHandlerPutArmInfo(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
@@ -461,6 +633,26 @@ void test_procedureHandlerPutArmInfo(void)
 	string actual = gate->interpretHandler(HAPI2_PUT_ARM_INFO, parser);
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":234}";
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_procedureHandlerPutArmInfoInvalidJSON(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putArmInfo\","
+		" \"params\":{\"lastStatus\":\"INIT\","
+		" \"failureReason\":\"Example reason\","
+		" \"lastSuccessTime\":\"20150313161100\","
+		" \"lastFailureTime\":\"20150313161530\"}, \"id\":234}";
+	JSONParser parser(json);
+	gate->setEstablished(true);
+	string actual = gate->interpretHandler(HAPI2_PUT_ARM_INFO, parser);
+	string expected =
+		"{\"jsonrpc\":\"2.0\",\"id\":234,"
+		"\"error\":{\"code\":-32602,"
+		"\"message\":\"Invalid method parameter(s).\"}}";
 	cppcut_assert_equal(expected, actual);
 }
 
