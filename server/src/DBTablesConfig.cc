@@ -848,6 +848,8 @@ bool DBTablesConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 		return true;
 	else if (type == MONITORING_SYSTEM_HAPI_CEILOMETER)
 		return true;
+	else if (type == MONITORING_SYSTEM_HAPI2)
+		return true;
 	return false;
 }
 
@@ -1679,6 +1681,7 @@ HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
   const ArmPluginInfo &armPluginInfo, string &condition)
 {
 	if (armPluginInfo.type != MONITORING_SYSTEM_HAPI_JSON &&
+	    armPluginInfo.type != MONITORING_SYSTEM_HAPI2 &&
 	    armPluginInfo.path.empty())
 		return HTERR_INVALID_ARM_PLUGIN_PATH;
 	if (armPluginInfo.type < MONITORING_SYSTEM_HAPI_ZABBIX) {
