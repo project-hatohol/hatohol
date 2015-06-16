@@ -686,6 +686,7 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 		if (!parser.startElement(i)) {
 			MLPL_ERR("Failed to parse item contents.\n");
 			errObj.addError("Failed to parse item array object.");
+			parser.endObject(); // items
 			return false;
 		}
 
@@ -754,6 +755,7 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 		if (!parser.startElement(j)) {
 			MLPL_ERR("Failed to parse histories contents.\n");
 			errObj.addError("Failed to parse histories array object.");
+			parser.endObject(); // histories
 			return false;
 		}
 
@@ -815,6 +817,7 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 		if (!parser.startElement(j)) {
 			MLPL_ERR("Failed to parse hosts contents.\n");
 			errObj.addError("Failed to parse hosts array object.");
+			parser.endObject(); // hosts
 			return false;
 		}
 
@@ -904,6 +907,7 @@ static bool parseHostGroupsParams(JSONParser &parser,
 		if (!parser.startElement(j)) {
 			MLPL_ERR("Failed to parse hosts contents.\n");
 			errObj.addError("Failed to parse hostGroups array object.");
+			parser.endObject(); // hostGroups
 			return false;
 		}
 
@@ -976,6 +980,7 @@ static bool parseHostGroupMembershipParams(
 		if (!parser.startElement(i)) {
 			MLPL_ERR("Failed to parse hosts contents.\n");
 			errObj.addError("Failed to parse hostGroupMembership array object.");
+			parser.endObject(); // hostGroupsMembership
 			return false;
 		}
 
@@ -1111,6 +1116,7 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 		if (!parser.startElement(i)) {
 			MLPL_ERR("Failed to parse triggers contents.\n");
 			errObj.addError("Failed to parse triggers array object.");
+			parser.endObject(); // triggers
 			return false;
 		}
 
@@ -1229,6 +1235,7 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 		if (!parser.startElement(i)) {
 			MLPL_ERR("Failed to parse events contents.\n");
 			errObj.addError("Failed to parse events array object.");
+			parser.endObject(); // events
 			return false;
 		}
 
@@ -1309,6 +1316,7 @@ static bool parseHostParentsParams(
 		if (!parser.startElement(i)) {
 			MLPL_ERR("Failed to parse hostParents contents.\n");
 			errObj.addError("Failed to parse hostParents array object.");
+			parser.endObject(); // hostParents
 			return false;
 		}
 
