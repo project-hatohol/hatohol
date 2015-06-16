@@ -310,7 +310,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 				m_impl.runFetchCallback(m_fetchId);
 			}
 
-			// TODO: output error log
+			MLPL_WARN("Failed to call %s\n", m_methodName.c_str());
 		}
 	};
 };
