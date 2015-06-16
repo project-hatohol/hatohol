@@ -45,6 +45,10 @@ public:
 	  const time_t &beginTime,
 	  const time_t &endTime,
 	  Closure1<HistoryInfoVect> *closure);
+	virtual bool startOnDemandFetchEvents(Closure0 *closure,
+					      const std::string &lastInfo,
+					      const size_t count,
+					      const bool ascending = true);
 protected:
 	virtual ~DataStore();
 };
