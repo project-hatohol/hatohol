@@ -814,7 +814,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseHistoryParams(parser, historyInfoVect,
-					    serverInfo, errObj);
+			   serverInfo, errObj);
 
 	if (parser.isMember("fetchId")) {
 		string fetchId;
