@@ -860,7 +860,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	bool succeeded = parseHostsParams(parser, hostInfoVect, serverInfo, errObj);
+	parseHostsParams(parser, hostInfoVect, serverInfo, errObj);
 
 	string updateType;
 	bool checkInvalidHosts = parseUpdateType(parser, updateType, errObj);
