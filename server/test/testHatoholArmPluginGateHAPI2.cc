@@ -294,7 +294,7 @@ void test_procedureHandlerPutItems(void)
 	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_PUT_ITEMS, parser);
 	string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":\"\",\"id\":83241245}";
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":83241245}";
 	cppcut_assert_equal(expected, actual);
 	// TODO: add DB assertion
 }
@@ -339,7 +339,7 @@ void test_procedureHandlerPutHistory(void)
 	gate->setEstablished(true);
 	string actual = gate->interpretHandler(HAPI2_PUT_HISTORY, parser);
 	string expected =
-		"{\"jsonrpc\":\"2.0\",\"result\":\"\",\"id\":-83241245}";
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":-83241245}";
 	cppcut_assert_equal(expected, actual);
 }
 
