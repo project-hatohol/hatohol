@@ -70,7 +70,8 @@ void DataStoreZabbix::startOnDemandFetchHistory(
 	m_armApi.fetchHistory(itemInfo, beginTime, endTime, closure);
 }
 
-bool DataStoreZabbix::startOnDemandFetchTriggers(Closure0 *closure)
+bool DataStoreZabbix::startOnDemandFetchTriggers(
+  HostIdVector hostIds, Closure0 *closure)
 {
 	m_armApi.fetchTriggers(closure);
 	return true;

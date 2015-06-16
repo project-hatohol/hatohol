@@ -73,7 +73,8 @@ bool DataStoreNagios::startOnDemandFetchItems(HostIdVector hostIds, Closure0 *cl
 	return true;
 }
 
-bool DataStoreNagios::startOnDemandFetchTriggers(Closure0 *closure)
+bool DataStoreNagios::startOnDemandFetchTriggers(
+  HostIdVector hostIds, Closure0 *closure)
 {
 	m_impl->armNDO.fetchTriggers(closure);
 	return true;

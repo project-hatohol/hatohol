@@ -36,7 +36,8 @@ public:
 	virtual bool isFetchItemsSupported(void) override;
 	virtual bool startOnDemandFetchItems(HostIdVector hostIds,
 	                                     Closure0 *closure) override;
-	virtual bool startOnDemandFetchTriggers(Closure0 *closure) override;
+	virtual bool startOnDemandFetchTriggers(HostIdVector hostIds,
+	                                        Closure0 *closure) override;
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;

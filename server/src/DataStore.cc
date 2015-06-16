@@ -35,7 +35,8 @@ bool DataStore::startOnDemandFetchItems(HostIdVector hostIds, Closure0 *closure)
 	return false;
 }
 
-bool DataStore::startOnDemandFetchTriggers(Closure0 *closure)
+bool DataStore::startOnDemandFetchTriggers(
+  HostIdVector hostIds, Closure0 *closure)
 {
        return false;
 }

@@ -401,7 +401,8 @@ void HatoholArmPluginGate::startOnDemandFetchHistory(
 	send(cmdBuf, callback);
 }
 
-bool HatoholArmPluginGate::startOnDemandFetchTriggers(Closure0 *closure)
+bool HatoholArmPluginGate::startOnDemandFetchTriggers(
+  HostIdVector hostIds, Closure0 *closure)
 {
 	if (!isConnetced())
 		return false;

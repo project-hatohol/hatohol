@@ -43,6 +43,7 @@ public:
 	   HostIdVector hostIds,
 	   Closure0 *closure);
 	virtual bool startOnDemandFetchTriggers(
+	  HostIdVector hostIds,
 	  Closure0 *closure);
 	virtual void startOnDemandFetchHistory(
 	  const ItemInfo &itemInfo,

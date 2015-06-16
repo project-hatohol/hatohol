@@ -88,6 +88,7 @@ public:
 	  const time_t &endTime,
 	  Closure1<HistoryInfoVect> *closure) override;
 	virtual bool startOnDemandFetchTriggers(
+	  HostIdVector hostIds,
 	  Closure0 *closure) override;
 
 protected:
