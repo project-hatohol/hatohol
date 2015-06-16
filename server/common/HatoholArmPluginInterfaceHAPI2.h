@@ -164,9 +164,11 @@ protected:
 	std::mt19937 getRandomEngine(void);
 	static bool setResponseId(JSONParser &requestParser,
 				  JSONBuilder &responseBuilder);
-	std::string buildErrorResponse(const int errorCode,
-				       const std::string errorMessage,
-				       JSONParser *requestParser = NULL);
+	std::string buildErrorResponse(
+	  const int errorCode,
+	  const std::string errorMessage,
+	  const mlpl::StringList *detailedMessages = NULL,
+	  JSONParser *requestParser = NULL);
 
 private:
 	class AMQPHAPI2MessageHandler;

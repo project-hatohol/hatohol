@@ -44,7 +44,7 @@ struct JSONRPCErrorObject {
 		return !errors.empty();
 	}
 
-	StringList getErrors(void) {
+	const StringList &getErrors(void) {
 		return errors;
 	}
 };
@@ -602,7 +602,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	}
 
 	setEstablished(true);
@@ -684,7 +685,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	}
 	option.setLastInfoType(lastInfoType);
 	option.setTargetServerId(m_impl->m_serverInfo.id);
@@ -757,7 +759,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	}
 
 	dataStore->addItemList(itemList);
@@ -828,7 +831,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	}
 
 	if (!fetchId.empty()) {
@@ -911,7 +915,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	}
 
 	if (!lastInfo.empty()) {
@@ -986,7 +991,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	}
 
 	if (!lastInfo.empty()) {
@@ -1073,7 +1079,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	}
 
 	// TODO: reflect error in response
@@ -1214,7 +1221,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	}
 
 	if (!lastInfo.empty()) {
@@ -1341,7 +1349,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	}
 
 	if (!lastInfo.empty()) {
@@ -1418,7 +1427,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	}
 
 	// TODO: implement validation for hostParents
@@ -1487,7 +1497,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	}
 
 	status.setArmInfo(armInfo);
