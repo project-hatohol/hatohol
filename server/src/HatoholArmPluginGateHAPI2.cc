@@ -1321,6 +1321,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	EventInfoList eventInfoList;
 	JSONRPCErrorObject errObj;
 	string fetchId, lastInfo;
+	bool mayMoreFlag = false;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1329,14 +1330,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 
 	if (parser.isMember("fetchId")) {
 		parser.read("fetchId", fetchId);
-		bool mayMoreFlag = false;
 		if (parser.isMember("mayMoreFlag")) {
 			parser.read("mayMoreFlag", mayMoreFlag);
 		} else {
 			MLPL_WARN("No mayMoreFlag while a fetchId is provided!");
 		}
-		if (!mayMoreFlag)
-			m_impl->runFetchCallback(fetchId);
 	}
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfo);
@@ -1351,7 +1349,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	if (!lastInfo.empty()) {
 		upsertLastInfo(lastInfo, LAST_INFO_EVENT);
 	}
+
 	dataStore->addEventList(eventInfoList);
+
+	if (!mayMoreFlag)
+		m_impl->runFetchCallback(fetchId);
 
 	// TODO: add error clause
 	string result = "SUCCESS";
