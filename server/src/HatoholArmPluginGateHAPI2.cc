@@ -762,7 +762,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 
 	dataStore->addItemList(itemList);
 
-	if (!fetchId.empty())) {
+	if (!fetchId.empty()) {
 		m_impl->runFetchCallback(fetchId);
 	}
 
@@ -829,7 +829,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 
-	if (!fetchId.empty())) {
+	if (!fetchId.empty()) {
 		m_impl->runFetchHistoryCallback(fetchId, historyInfoVect);
 	}
 
@@ -1230,7 +1230,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		dbMonitoring.addTriggerInfoList(triggerInfoList);
 	}
 
-	if (!fetchId.empty())) {
+	if (!fetchId.empty()) {
 		m_impl->runFetchCallback(fetchId);
 	}
 
@@ -1348,7 +1348,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 
-	if (!lastInfo.empty()) ) {
+	if (!lastInfo.empty()) {
 		upsertLastInfo(lastInfo, LAST_INFO_EVENT);
 	}
 	dataStore->addEventList(eventInfoList);
