@@ -749,7 +749,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseItemParams(parser, itemList, serverInfo, errObj);
 
-	dataStore->addItemList(itemList);
 	if (parser.isMember("fetchId")) {
 		string fetchId;
 		parser.read("fetchId", fetchId);
@@ -761,6 +760,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
+
+	dataStore->addItemList(itemList);
 
 	JSONBuilder builder;
 	builder.startObject();
@@ -895,18 +896,16 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	string updateType;
 	bool checkInvalidHosts = parseUpdateType(parser, updateType, errObj);
 
-	string lastInfo;
-	if (parser.read("lastInfo", lastInfo) ) {
-		upsertLastInfo(lastInfo, LAST_INFO_HOST);
-	}
-
-	string result = succeeded ? "SUCCESS" : "FAILURE";
-
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+	}
+
+	string lastInfo;
+	if (parser.read("lastInfo", lastInfo) ) {
+		upsertLastInfo(lastInfo, LAST_INFO_HOST);
 	}
 
 	// TODO: reflect error in response
@@ -916,6 +915,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	} else {
 		dataStore->upsertHosts(hostInfoVect);
 	}
+	// TODO: add error clause
+	string result = "SUCCESS";
 
 	JSONBuilder builder;
 	builder.startObject();
@@ -967,15 +968,16 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	parseHostGroupsParams(parser, hostgroupVect, serverInfo, errObj);
 	string updateType;
 	bool checkInvalidHostGroups = parseUpdateType(parser, updateType, errObj);
-	string lastInfo;
-	if (parser.read("lastInfo", lastInfo) ) {
-		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP);
-	}
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+	}
+
+	string lastInfo;
+	if (parser.read("lastInfo", lastInfo) ) {
+		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP);
 	}
 
 	// TODO: reflect error in response
@@ -1052,11 +1054,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	string updateType;
 	bool checkInvalidHostGroupMembership =
 		parseUpdateType(parser, updateType, errObj);
-	string lastInfo;
-	if (parser.read("lastInfo", lastInfo) ) {
-		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP_MEMBERSHIP);
-	}
-	dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
 
 	parser.endObject(); // params
 
@@ -1071,6 +1068,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	} else {
 		dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
 	}
+
+	string lastInfo;
+	if (parser.read("lastInfo", lastInfo) ) {
+		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP_MEMBERSHIP);
+	}
+	dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
 
 	JSONBuilder builder;
 	builder.startObject();
@@ -1185,17 +1188,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 
 	string updateType;
 	bool checkInvalidTriggers = parseUpdateType(parser, updateType, errObj);
-	// TODO: reflect error in response
-	if (checkInvalidTriggers) {
-		dbMonitoring.syncTriggers(triggerInfoList, serverInfo.id);
-	} else {
-		dbMonitoring.addTriggerInfoList(triggerInfoList);
-	}
-
-	string lastInfoValue;
-	if (parser.read("lastInfo", lastInfoValue) ) {
-		upsertLastInfo(lastInfoValue, LAST_INFO_TRIGGER);
-	}
 
 	if (parser.isMember("fetchId")) {
 		string fetchId;
@@ -1208,6 +1200,18 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+	}
+
+	string lastInfoValue;
+	if (parser.read("lastInfo", lastInfoValue) ) {
+		upsertLastInfo(lastInfoValue, LAST_INFO_TRIGGER);
+	}
+
+	// TODO: reflect error in response
+	if (checkInvalidTriggers) {
+		dbMonitoring.syncTriggers(triggerInfoList, serverInfo.id);
+	} else {
+		dbMonitoring.addTriggerInfoList(triggerInfoList);
 	}
 
 	JSONBuilder builder;
@@ -1300,11 +1304,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	bool succeeded = parseEventsParams(parser, eventInfoList, serverInfo, errObj);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
-	dataStore->addEventList(eventInfoList);
-	string lastInfoValue;
-	if (parser.read("lastInfo", lastInfoValue) ) {
-		upsertLastInfo(lastInfoValue, LAST_INFO_EVENT);
-	}
 
 	if (parser.isMember("fetchId")) {
 		string fetchId;
@@ -1325,6 +1324,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
+
+	string lastInfoValue;
+	if (parser.read("lastInfo", lastInfoValue) ) {
+		upsertLastInfo(lastInfoValue, LAST_INFO_EVENT);
+	}
+	dataStore->addEventList(eventInfoList);
 
 	JSONBuilder builder;
 	builder.startObject();
@@ -1381,19 +1386,20 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 
 	string updateType;
 	bool checkInvalidHostParents = parseUpdateType(parser, updateType, errObj);
-	// TODO: implement validation for hostParents
-	for (auto vmInfo : vmInfoVect)
-		dbHost.upsertVMInfo(vmInfo);
-	string lastInfoValue;
-	if (parser.read("lastInfo", lastInfoValue) ) {
-		upsertLastInfo(lastInfoValue, LAST_INFO_HOST_PARENT);
-	}
 
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
+	}
+
+	// TODO: implement validation for hostParents
+	for (auto vmInfo : vmInfoVect)
+		dbHost.upsertVMInfo(vmInfo);
+	string lastInfoValue;
+	if (parser.read("lastInfo", lastInfoValue) ) {
+		upsertLastInfo(lastInfoValue, LAST_INFO_HOST_PARENT);
 	}
 
 	// TODO: make failure clause
