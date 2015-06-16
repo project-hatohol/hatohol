@@ -1202,10 +1202,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	bool checkInvalidTriggers = parseUpdateType(parser, updateType, errObj);
 	bool mayMoreFlag;
 	string fetchId;
-	if (parser.isMember("mayMoreFlag")) {
-		parser.read("mayMoreFlag", mayMoreFlag);
-		// TODO: What should we do?
-	}
 	if (parser.isMember("fetchId")) {
 		parser.read("fetchId", fetchId);
 	}
