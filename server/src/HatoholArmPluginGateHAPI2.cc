@@ -1015,10 +1015,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	bool succeeded = parseHostGroupMembershipParams(parser,
-							hostgroupMembershipVect,
-							serverInfo, errObj);
-	string result = succeeded ? "SUCCESS" : "FAILURE";
+	parseHostGroupMembershipParams(parser,
+				       hostgroupMembershipVect,
+				       serverInfo, errObj);
 
 	string updateType;
 	bool checkInvalidHostGroupMembership =
@@ -1044,6 +1043,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	}
 	dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
 
+	// add error clause
+	string result = "SUCCESS";
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
@@ -1151,9 +1152,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	bool succeeded = parseTriggersParams(parser, triggerInfoList,
-					     serverInfo, errObj);
-	string result = succeeded ? "SUCCESS" : "FAILURE";
+	parseTriggersParams(parser, triggerInfoList,
+			    serverInfo, errObj);
 
 	string updateType;
 	bool checkInvalidTriggers = parseUpdateType(parser, updateType, errObj);
@@ -1188,6 +1188,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		dbMonitoring.addTriggerInfoList(triggerInfoList);
 	}
 
+	// add failure
+	string result = "SUCCESS";
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
@@ -1276,8 +1278,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	bool succeeded = parseEventsParams(parser, eventInfoList, serverInfo, errObj);
-	string result = succeeded ? "SUCCESS" : "FAILURE";
+	parseEventsParams(parser, eventInfoList, serverInfo, errObj);
 
 	if (parser.isMember("fetchId")) {
 		string fetchId;
@@ -1298,6 +1299,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	}
 	dataStore->addEventList(eventInfoList);
 
+	// TODO: add error clause
+	string result = "SUCCESS";
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
@@ -1423,8 +1426,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
-	bool succeeded = parseArmInfoParams(parser, armInfo, errObj);
-	string result = succeeded ? "SUCCESS" : "FAILURE";
+	parseArmInfoParams(parser, armInfo, errObj);
 
 	parser.endObject(); // params
 
@@ -1435,6 +1437,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 
 	status.setArmInfo(armInfo);
 
+	// TODO: add failure clause
+	string result = "SUCCESS";
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
