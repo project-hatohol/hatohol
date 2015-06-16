@@ -38,17 +38,20 @@ public:
 	virtual const ArmStatus &getArmStatus(void) const = 0;
 	virtual void setCopyOnDemandEnable(bool enable);
 	virtual bool isFetchItemsSupported(void);
-	virtual bool startOnDemandFetchItem(Closure0 *closure);
-	virtual bool startOnDemandFetchTrigger(Closure0 *closure);
+	virtual bool startOnDemandFetchItems(
+	   Closure0 *closure);
+	virtual bool startOnDemandFetchTriggers(
+	  Closure0 *closure);
 	virtual void startOnDemandFetchHistory(
 	  const ItemInfo &itemInfo,
 	  const time_t &beginTime,
 	  const time_t &endTime,
 	  Closure1<HistoryInfoVect> *closure);
-	virtual bool startOnDemandFetchEvents(Closure0 *closure,
-					      const std::string &lastInfo,
-					      const size_t count,
-					      const bool ascending = true);
+	virtual bool startOnDemandFetchEvents(
+	  const std::string &lastInfo,
+	  const size_t count,
+	  const bool ascending,
+	  Closure0 *closure);
 protected:
 	virtual ~DataStore();
 };

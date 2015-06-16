@@ -800,7 +800,7 @@ void test_fetchItems(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchItems");
-	cppcut_assert_equal(true, gate->startOnDemandFetchItem(NULL));
+	cppcut_assert_equal(true, gate->startOnDemandFetchItems(NULL));
 
 	string expected =
 		"^\\{"
@@ -820,7 +820,7 @@ void test_notSupportfetchItems(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "exchangeProfile");
-	cppcut_assert_equal(false, gate->startOnDemandFetchItem(NULL));
+	cppcut_assert_equal(false, gate->startOnDemandFetchItems(NULL));
 }
 
 void test_fetchItemsCallback(void)
@@ -850,7 +850,7 @@ void test_fetchItemsCallback(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchItems");
-	cppcut_assert_equal(true, gate->startOnDemandFetchItem(closure));
+	cppcut_assert_equal(true, gate->startOnDemandFetchItems(closure));
 
 	string fetchId;
 	int64_t id = 0;
@@ -910,7 +910,7 @@ void test_fetchItemsCallbackOnError(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchItems");
-	cppcut_assert_equal(true, gate->startOnDemandFetchItem(closure));
+	cppcut_assert_equal(true, gate->startOnDemandFetchItems(closure));
 
 	string fetchId;
 	int64_t id = 0;
@@ -1031,7 +1031,7 @@ void test_fetchTriggers(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchTriggers");
-	cppcut_assert_equal(true, gate->startOnDemandFetchTrigger(NULL));
+	cppcut_assert_equal(true, gate->startOnDemandFetchTriggers(NULL));
 
 	string expected =
 		"^\\{"
@@ -1072,7 +1072,7 @@ void test_fetchTriggersCallback(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchTriggers");
-	cppcut_assert_equal(true, gate->startOnDemandFetchTrigger(closure));
+	cppcut_assert_equal(true, gate->startOnDemandFetchTriggers(closure));
 
 	string fetchId;
 	int64_t id = 0;
@@ -1102,7 +1102,7 @@ void test_notSupportFetchTriggers(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "exchangeProfile");
-	cppcut_assert_equal(false, gate->startOnDemandFetchTrigger(NULL));
+	cppcut_assert_equal(false, gate->startOnDemandFetchTriggers(NULL));
 }
 
 void test_fetchEvents(void)
@@ -1115,7 +1115,7 @@ void test_fetchEvents(void)
 	size_t count = 1000;
 	bool ascending = true;
 	bool succeeded =
-	  gate->startOnDemandFetchEvents(NULL, lastInfo, count, ascending);
+	  gate->startOnDemandFetchEvents(lastInfo, count, ascending, NULL);
 	cppcut_assert_equal(true, succeeded);
 
 	string expected =
@@ -1163,8 +1163,10 @@ void test_fetchEventsCallback(void)
 	  new FetchClosure(&context, &TestContext::onFetchEvents);
 	string lastInfo = "20150616214400";
 	size_t maxEvents = 1000;
+	bool ascending = true;
 	bool succeeded =
-	  gate->startOnDemandFetchEvents(closure, lastInfo, maxEvents);
+	  gate->startOnDemandFetchEvents(lastInfo, maxEvents, ascending,
+					 closure);
 	cppcut_assert_equal(true, succeeded);
 
 	string fetchId;
@@ -1220,7 +1222,7 @@ void test_notSupportFetchEvents(void)
 	size_t count = 1000;
 	bool ascending = true;
 	bool succeeded =
-	  gate->startOnDemandFetchEvents(NULL, lastInfo, count, ascending);
+	  gate->startOnDemandFetchEvents(lastInfo, count, ascending, NULL);
 	cppcut_assert_equal(false, succeeded);
 }
 

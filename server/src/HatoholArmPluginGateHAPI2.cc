@@ -372,7 +372,7 @@ bool HatoholArmPluginGateHAPI2::isFetchItemsSupported(void)
 	return m_impl->hasProcedure(HAPI2_FETCH_ITEMS);
 }
 
-bool HatoholArmPluginGateHAPI2::startOnDemandFetchItem(Closure0 *closure)
+bool HatoholArmPluginGateHAPI2::startOnDemandFetchItems(Closure0 *closure)
 {
 	if (!m_impl->hasProcedure(HAPI2_FETCH_ITEMS))
 		return false;
@@ -449,7 +449,7 @@ void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
 	send(builder.generate(), id, callbackPtr);
 }
 
-bool HatoholArmPluginGateHAPI2::startOnDemandFetchTrigger(Closure0 *closure)
+bool HatoholArmPluginGateHAPI2::startOnDemandFetchTriggers(Closure0 *closure)
 {
 	if (!m_impl->hasProcedure(HAPI2_FETCH_TRIGGERS))
 		return false;
@@ -480,8 +480,8 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchTrigger(Closure0 *closure)
 }
 
 bool HatoholArmPluginGateHAPI2::startOnDemandFetchEvents(
-  Closure0 *closure, const std::string &lastInfo, const size_t count,
-  const bool ascending)
+  const std::string &lastInfo, const size_t count, const bool ascending,
+  Closure0 *closure)
 {
 	if (!m_impl->hasProcedure(HAPI2_FETCH_EVENTS))
 		return false;

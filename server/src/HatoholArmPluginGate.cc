@@ -276,7 +276,7 @@ bool HatoholArmPluginGate::isFetchItemsSupported(void)
 	return true;
 }
 
-bool HatoholArmPluginGate::startOnDemandFetchItem(Closure0 *closure)
+bool HatoholArmPluginGate::startOnDemandFetchItems(Closure0 *closure)
 {
 	if (!isConnetced())
 		return false;
@@ -400,7 +400,7 @@ void HatoholArmPluginGate::startOnDemandFetchHistory(
 	send(cmdBuf, callback);
 }
 
-bool HatoholArmPluginGate::startOnDemandFetchTrigger(Closure0 *closure)
+bool HatoholArmPluginGate::startOnDemandFetchTriggers(Closure0 *closure)
 {
 	if (!isConnetced())
 		return false;

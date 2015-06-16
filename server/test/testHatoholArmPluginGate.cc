@@ -441,7 +441,7 @@ void test_fetchItem(void)
 	pair.gate->loadTestHostInfoCache();
 
 	TestReceiver receiver;
-	pair.gate->startOnDemandFetchItem(
+	pair.gate->startOnDemandFetchItems(
 	  new ClosureTemplate0<TestReceiver>(
 	    &receiver, &TestReceiver::callback));
 	cppcut_assert_equal(
@@ -541,7 +541,7 @@ void test_fetchTrigger(void)
 	pair.plugin->serverIdOfHapGate = arg.serverId;
 
 	TestReceiver receiver;
-	pair.gate->startOnDemandFetchTrigger(
+	pair.gate->startOnDemandFetchTriggers(
 	  new ClosureTemplate0<TestReceiver>(
 	    &receiver, &TestReceiver::callbackTrigger));
 	cppcut_assert_equal(

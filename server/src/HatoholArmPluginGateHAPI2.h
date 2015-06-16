@@ -36,18 +36,20 @@ public:
 	virtual void start(void) override;
 
 	virtual bool isFetchItemsSupported(void);
-	virtual bool startOnDemandFetchItem(Closure0 *closure) override;
+	virtual bool startOnDemandFetchItems(
+	  Closure0 *closure = NULL) override;
 	virtual void startOnDemandFetchHistory(
 	  const ItemInfo &itemInfo,
 	  const time_t &beginTime,
 	  const time_t &endTime,
-	  Closure1<HistoryInfoVect> *closure) override;
-	virtual bool startOnDemandFetchTrigger(Closure0 *closure) override;
+	  Closure1<HistoryInfoVect> *closure = NULL) override;
+	virtual bool startOnDemandFetchTriggers(
+	  Closure0 *closure = NULL) override;
 	virtual bool startOnDemandFetchEvents(
-	  Closure0 *closure,
 	  const std::string &lastInfo,
 	  const size_t count,
-	  const bool ascending = true) override;
+	  const bool ascending = true,
+	  Closure0 *closure = NULL) override;
 
 protected:
 	virtual ~HatoholArmPluginGateHAPI2();

@@ -30,12 +30,12 @@ void DataStore::setCopyOnDemandEnable(bool enable)
 {
 }
 
-bool DataStore::startOnDemandFetchItem(Closure0 *closure)
+bool DataStore::startOnDemandFetchItems(Closure0 *closure)
 {
 	return false;
 }
 
-bool DataStore::startOnDemandFetchTrigger(Closure0 *closure)
+bool DataStore::startOnDemandFetchTriggers(Closure0 *closure)
 {
        return false;
 }
@@ -55,10 +55,10 @@ void DataStore::startOnDemandFetchHistory(const ItemInfo &itemInfo,
 	delete closure;
 }
 
-bool DataStore::startOnDemandFetchEvents(Closure0 *closure,
-					 const std::string &lastInfo,
+bool DataStore::startOnDemandFetchEvents(const std::string &lastInfo,
 					 const size_t count,
-					 const bool ascending)
+					 const bool ascending,
+					 Closure0 *closure)
 {
 	return false;
 }

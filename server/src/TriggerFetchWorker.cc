@@ -174,7 +174,7 @@ bool TriggerFetchWorker::runFetcher(DataStore *dataStore)
 		}
 	};
 
-	return dataStore->startOnDemandFetchTrigger(
+	return dataStore->startOnDemandFetchTriggers(
 	  new ClosureWithDataStore(this, dataStore));
 }
 
