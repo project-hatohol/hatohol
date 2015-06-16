@@ -67,13 +67,13 @@ bool DataStoreNagios::isFetchItemsSupported(void)
 	return m_impl->armNDO.isFetchItemsSupported();
 }
 
-bool DataStoreNagios::startOnDemandFetchItem(Closure0 *closure)
+bool DataStoreNagios::startOnDemandFetchItems(Closure0 *closure)
 {
 	m_impl->armNDO.fetchItems(closure);
 	return true;
 }
 
-bool DataStoreNagios::startOnDemandFetchTrigger(Closure0 *closure)
+bool DataStoreNagios::startOnDemandFetchTriggers(Closure0 *closure)
 {
 	m_impl->armNDO.fetchTriggers(closure);
 	return true;

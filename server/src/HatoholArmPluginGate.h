@@ -79,13 +79,15 @@ public:
 	pid_t getPid(void);
 
 	virtual bool isFetchItemsSupported(void);
-	virtual bool startOnDemandFetchItem(Closure0 *closure) override;
+	virtual bool startOnDemandFetchItems(
+	  Closure0 *closure) override;
 	virtual void startOnDemandFetchHistory(
 	  const ItemInfo &itemInfo,
 	  const time_t &beginTime,
 	  const time_t &endTime,
 	  Closure1<HistoryInfoVect> *closure) override;
-	virtual bool startOnDemandFetchTrigger(Closure0 *closure) override;
+	virtual bool startOnDemandFetchTriggers(
+	  Closure0 *closure) override;
 
 protected:
 	// To avoid an instance from being created on a stack.
