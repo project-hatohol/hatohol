@@ -177,6 +177,5 @@ bool ItemFetchWorker::runFetcher(DataStore *dataStore)
 	};
 
 	return dataStore->startOnDemandFetchItems(
-	  new ClosureWithDataStore(this, dataStore));
+	  {}, new ClosureWithDataStore(this, dataStore));
 }
-

@@ -37,6 +37,7 @@ public:
 
 	virtual bool isFetchItemsSupported(void);
 	virtual bool startOnDemandFetchItems(
+	  HostIdVector hostIdVector = {},
 	  Closure0 *closure = NULL) override;
 	virtual void startOnDemandFetchHistory(
 	  const ItemInfo &itemInfo,

@@ -30,7 +30,7 @@ void DataStore::setCopyOnDemandEnable(bool enable)
 {
 }
 
-bool DataStore::startOnDemandFetchItems(Closure0 *closure)
+bool DataStore::startOnDemandFetchItems(HostIdVector hostIds, Closure0 *closure)
 {
 	return false;
 }

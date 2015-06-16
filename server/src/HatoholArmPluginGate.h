@@ -80,6 +80,7 @@ public:
 
 	virtual bool isFetchItemsSupported(void);
 	virtual bool startOnDemandFetchItems(
+	  HostIdVector hostIds,
 	  Closure0 *closure) override;
 	virtual void startOnDemandFetchHistory(
 	  const ItemInfo &itemInfo,

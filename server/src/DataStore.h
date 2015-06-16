@@ -28,6 +28,7 @@
 #include "UsedCountable.h"
 #include "UsedCountablePtr.h"
 #include "Closure.h"
+#include "Params.h"
 
 class DataStore : public UsedCountable {
 public:
@@ -39,6 +40,7 @@ public:
 	virtual void setCopyOnDemandEnable(bool enable);
 	virtual bool isFetchItemsSupported(void);
 	virtual bool startOnDemandFetchItems(
+	   HostIdVector hostIds,
 	   Closure0 *closure);
 	virtual bool startOnDemandFetchTriggers(
 	  Closure0 *closure);

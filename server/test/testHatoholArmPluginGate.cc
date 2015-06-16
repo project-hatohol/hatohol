@@ -442,6 +442,7 @@ void test_fetchItem(void)
 
 	TestReceiver receiver;
 	pair.gate->startOnDemandFetchItems(
+	  {},
 	  new ClosureTemplate0<TestReceiver>(
 	    &receiver, &TestReceiver::callback));
 	cppcut_assert_equal(

@@ -992,7 +992,7 @@ void test_fetchItems(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchItems");
-	cppcut_assert_equal(true, gate->startOnDemandFetchItems(NULL));
+	cppcut_assert_equal(true, gate->startOnDemandFetchItems({}, NULL));
 
 	string expected =
 		"^\\{"
@@ -1012,7 +1012,7 @@ void test_notSupportfetchItems(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "exchangeProfile");
-	cppcut_assert_equal(false, gate->startOnDemandFetchItems(NULL));
+	cppcut_assert_equal(false, gate->startOnDemandFetchItems({}, NULL));
 }
 
 void test_fetchItemsCallback(void)
@@ -1042,7 +1042,7 @@ void test_fetchItemsCallback(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchItems");
-	cppcut_assert_equal(true, gate->startOnDemandFetchItems(closure));
+	cppcut_assert_equal(true, gate->startOnDemandFetchItems({}, closure));
 
 	string fetchId;
 	int64_t id = 0;
@@ -1102,7 +1102,7 @@ void test_fetchItemsCallbackOnError(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchItems");
-	cppcut_assert_equal(true, gate->startOnDemandFetchItems(closure));
+	cppcut_assert_equal(true, gate->startOnDemandFetchItems({}, closure));
 
 	string fetchId;
 	int64_t id = 0;

@@ -276,7 +276,8 @@ bool HatoholArmPluginGate::isFetchItemsSupported(void)
 	return true;
 }
 
-bool HatoholArmPluginGate::startOnDemandFetchItems(Closure0 *closure)
+bool HatoholArmPluginGate::startOnDemandFetchItems(
+  HostIdVector hostIds, Closure0 *closure)
 {
 	if (!isConnetced())
 		return false;

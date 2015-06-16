@@ -34,7 +34,8 @@ public:
 	virtual const ArmStatus &getArmStatus(void) const override;
 	virtual void setCopyOnDemandEnable(bool enable);
 	virtual bool isFetchItemsSupported(void) override;
-	virtual bool startOnDemandFetchItems(Closure0 *closure) override;
+	virtual bool startOnDemandFetchItems(HostIdVector hostIds,
+	                                     Closure0 *closure) override;
 	virtual bool startOnDemandFetchTriggers(Closure0 *closure) override;
 private:
 	struct Impl;
