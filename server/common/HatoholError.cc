@@ -66,16 +66,20 @@ void HatoholError::init(void)
 		   "Invalid IP address.");
 	DEFINE_ERR(INVALID_HOST_NAME,
 		   "Invalid host name.");
+	DEFINE_ERR(INVALID_ARM_PLUGIN_TYPE,
+		   "Invalid arm plugin type.");
+	DEFINE_ERR(INVALID_ARM_PLUGIN_ID,
+		   "Invalid arm plugin ID.");
+	DEFINE_ERR(INVALID_ARM_PLUGIN_PATH,
+		   "Invalid arm plugin path.");
+	DEFINE_ERR(DIFFER_TYPE_SERVER_AND_ARM_PLUGIN,
+		   "Differ type server and arm plugin.");
 	DEFINE_ERR(NO_IP_ADDRESS_AND_HOST_NAME,
 		   "No IP address and host name.");
 	DEFINE_ERR(INVALID_INCIDENT_TRACKER_TYPE,
 		   "Invalid incident tracker type.");
 	DEFINE_ERR(NO_INCIDENT_TRACKER_LOCATION,
 		   "NO incident tracker location.");
-	DEFINE_ERR(INVALID_POLLING_INTERVAL,
-		   "Invalid polling interval.");
-	DEFINE_ERR(INVALID_RETRY_INTERVAL,
-		   "Invalid retry interval.");
 
 	// DBTablesUser
 	DEFINE_ERR(EMPTY_USER_NAME,
@@ -101,8 +105,6 @@ void HatoholError::init(void)
 	DEFINE_ERR(USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST,
 		   "The same user role name or a user role with the same "
 		   "privilege already exists.");
-	DEFINE_ERR(DELETE_MYSELF,
-		   "A user cannot delete itself.");
 
 	// DBClientHatohol
 	DEFINE_ERR(OFFSET_WITHOUT_LIMIT,
@@ -114,6 +116,12 @@ void HatoholError::init(void)
 	// DBClientAction
 	DEFINE_ERR(DELETE_INCOMPLETE,
 		   "The delete operation was incomplete.");
+
+	// ChildProcessManager
+	DEFINE_ERR(INVALID_ARGS,
+		   "Invalid args.");
+	DEFINE_ERR(FAILED_TO_SPAWN,
+		   "Failed to spawn.");
 
 	// FaceRest
 	DEFINE_ERR(UNSUPPORTED_FORMAT,
@@ -130,10 +138,6 @@ void HatoholError::init(void)
 		   "Authentication failed.");
 	DEFINE_ERR(NOT_TEST_MODE,
 		   "Not test mode.");
-	DEFINE_ERR(NOT_FOUND_SERVER_TYPE,
-		   "The server type doesn't exist.");
-	DEFINE_ERR(INVALID_SERVER_TYPE,
-		   "The server type is invalid.");
 
 	// VirtualDataStore
 	DEFINE_ERR(FAILED_TO_CREATE_DATA_STORE,
@@ -166,8 +170,25 @@ void HatoholError::init(void)
 	DEFINE_ERR(ERROR_TEST_WITHOUT_MESSAGE,
 		   "");
 
+	// 14.12
+	DEFINE_ERR(NOT_FOUND_SERVER_TYPE,
+		   "The server type doesn't exist.");
+	DEFINE_ERR(INVALID_SERVER_TYPE,
+		   "The server type is invalid.");
 	DEFINE_ERR(NOT_FOUND_HYPERVISOR,
 		   "Not found hypervisor.");
+
+	// 15.03
+	DEFINE_ERR(DELETE_MYSELF,
+		   "A user cannot delete itself.");
+	DEFINE_ERR(INVALID_POLLING_INTERVAL,
+		   "Invalid polling interval.");
+	DEFINE_ERR(INVALID_RETRY_INTERVAL,
+		   "Invalid retry interval.");
+
+        // 15.06
+	DEFINE_ERR(VALID_DBAGENT_NO_LONGER_EXISTS, // DBAgentMySQL
+		   "Valid DBAgent no longer exists.");
 }
 
 void HatoholError::defineError(const HatoholErrorCode errorCode,
