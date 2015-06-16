@@ -891,6 +891,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerHostDefVect hostInfoVect;
 	JSONRPCErrorObject errObj;
+	string lastInfo;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -899,7 +900,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 
 	string updateType;
 	bool checkInvalidHosts = parseUpdateType(parser, updateType, errObj);
-
+	if (parser.isMember("lastInfo")) {
+		parser.read("lastInfo", lastInfo);
+	}
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
@@ -907,8 +910,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 
-	string lastInfo;
-	if (parser.read("lastInfo", lastInfo) ) {
+	if (!lastInfo.empty()) {
 		upsertLastInfo(lastInfo, LAST_INFO_HOST);
 	}
 
@@ -965,6 +967,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostgroupVect hostgroupVect;
 	JSONRPCErrorObject errObj;
+	string lastInfo;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -972,6 +975,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	parseHostGroupsParams(parser, hostgroupVect, serverInfo, errObj);
 	string updateType;
 	bool checkInvalidHostGroups = parseUpdateType(parser, updateType, errObj);
+	if (parser.isMember("lastInfo")) {
+		parser.read("lastInfo", lastInfo);
+	}
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
@@ -979,8 +985,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 
-	string lastInfo;
-	if (parser.read("lastInfo", lastInfo) ) {
+	if (!lastInfo.empty()) {
 		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP);
 	}
 
@@ -1046,6 +1051,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostgroupMemberVect hostgroupMembershipVect;
 	JSONRPCErrorObject errObj;
+	string lastInfo;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1057,7 +1063,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	string updateType;
 	bool checkInvalidHostGroupMembership =
 		parseUpdateType(parser, updateType, errObj);
-
+	if (parser.isMember("lastInfo")) {
+		parser.read("lastInfo", lastInfo);
+	}
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
@@ -1072,8 +1080,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 		dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
 	}
 
-	string lastInfo;
-	if (parser.read("lastInfo", lastInfo) ) {
+	if (!lastInfo.empty()) {
 		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP_MEMBERSHIP);
 	}
 	dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
@@ -1183,6 +1190,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	TriggerInfoList triggerInfoList;
 	JSONRPCErrorObject errObj;
+	string lastInfo;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1201,7 +1209,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	if (parser.isMember("fetchId")) {
 		parser.read("fetchId", fetchId);
 	}
-
+	if (parser.isMember("lastInfo")) {
+		parser.read("lastInfo", lastInfo);
+	}
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
@@ -1209,9 +1219,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 
-	string lastInfoValue;
-	if (parser.read("lastInfo", lastInfoValue) ) {
-		upsertLastInfo(lastInfoValue, LAST_INFO_TRIGGER);
+	if (!lastInfo.empty()) {
+		upsertLastInfo(lastInfo, LAST_INFO_TRIGGER);
 	}
 
 	// TODO: reflect error in response
@@ -1311,7 +1320,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList eventInfoList;
 	JSONRPCErrorObject errObj;
-	string fetchId;
+	string fetchId, lastInfo;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1329,7 +1338,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		if (!mayMoreFlag)
 			m_impl->runFetchCallback(fetchId);
 	}
-
+	if (parser.isMember("lastInfo")) {
+		parser.read("lastInfo", lastInfo);
+	}
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
@@ -1337,9 +1348,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
 
-	string lastInfoValue;
-	if (parser.read("lastInfo", lastInfoValue) ) {
-		upsertLastInfo(lastInfoValue, LAST_INFO_EVENT);
+	if (!lastInfo.empty()) ) {
+		upsertLastInfo(lastInfo, LAST_INFO_EVENT);
 	}
 	dataStore->addEventList(eventInfoList);
 
@@ -1393,6 +1403,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	DBTablesHost &dbHost = cache.getHost();
 	VMInfoVect vmInfoVect;
 	JSONRPCErrorObject errObj;
+	string lastInfo;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1400,7 +1411,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 
 	string updateType;
 	bool checkInvalidHostParents = parseUpdateType(parser, updateType, errObj);
-
+	if (parser.isMember("lastInfo")) {
+		parser.read("lastInfo", lastInfo);
+	}
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
@@ -1411,9 +1424,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	// TODO: implement validation for hostParents
 	for (auto vmInfo : vmInfoVect)
 		dbHost.upsertVMInfo(vmInfo);
-	string lastInfoValue;
-	if (parser.read("lastInfo", lastInfoValue) ) {
-		upsertLastInfo(lastInfoValue, LAST_INFO_HOST_PARENT);
+	if (!lastInfo.empty()) {
+		upsertLastInfo(lastInfo, LAST_INFO_HOST_PARENT);
 	}
 
 	// TODO: make failure clause
