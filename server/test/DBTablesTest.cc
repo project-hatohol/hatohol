@@ -244,22 +244,6 @@ const MonitoringServerInfo testServerInfo[] =
 	"nAgiOs_ndoutils",        // db_name
 	"http://10.0.0.32/nagios3", // base_url
 	"test extended info",     // exteneded_info
-#ifdef HAVE_LIBRABBITMQ
-},{
-	302,                      // id
-	MONITORING_SYSTEM_HAPI2,  // type
-	"HAPI2 Zabbix",           // hostname
-	"10.0.0.33",              // ip_address
-	"HAPI2 Zabbix",           // nickname
-	80,                       // port
-	300,                      // polling_interval_sec
-	60,                       // retry_interval_sec
-	"Admin",                  // user_name
-	"zabbix",                 // password
-	"",                       // db_name
-	"http://10.0.0.33/zabbix/", // base_url
-	"test extended info",     // exteneded_info
-#endif // HAVE_LIBRABBITMQ
 }};
 const size_t NumTestServerInfo = ARRAY_SIZE(testServerInfo);
 

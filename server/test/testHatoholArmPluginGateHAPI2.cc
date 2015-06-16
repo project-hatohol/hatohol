@@ -33,6 +33,36 @@
 using namespace std;
 using namespace mlpl;
 
+const static MonitoringServerInfo monitoringServerInfo = {
+	302,                      // id
+	MONITORING_SYSTEM_HAPI2,  // type
+	"HAPI2 Zabbix",           // hostname
+	"10.0.0.33",              // ip_address
+	"HAPI2 Zabbix",           // nickname
+	80,                       // port
+	300,                      // polling_interval_sec
+	60,                       // retry_interval_sec
+	"Admin",                  // user_name
+	"zabbix",                 // password
+	"",                       // db_name
+	"http://10.0.0.33/zabbix/", // base_url
+	"test extended info",     // exteneded_info
+};
+
+const static ArmPluginInfo armPluginInfo = {
+	AUTO_INCREMENT_VALUE,            // id
+	MONITORING_SYSTEM_HAPI2,         // type
+	"hapi-test-hap2-zabbix-plugin",  // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	302,                             // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
+	"8e632c14-d1f7-11e4-8350-d43d7e3146fb", // uuid
+};
+
 namespace testHAPI2ParseTimeStamp {
 
 void test_fullFormat(void) {
@@ -138,14 +168,17 @@ namespace testHatoholArmPluginGateHAPI2 {
 
 namespace testProcedureHandlers {
 
-const MonitoringServerInfo &monitoringServerInfo = testServerInfo[7];
-
 void cut_setup(void)
 {
 	hatoholInit();
 	setupTestDB();
-	loadTestDBServer();
-	loadTestDBArmPlugin();
+
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	MonitoringServerInfo serverInfo = monitoringServerInfo;
+	ArmPluginInfo pluginInfo = armPluginInfo;
+	dbConfig.addTargetServer(&serverInfo, privilege, &pluginInfo);
 }
 
 void cut_teardown(void)
@@ -662,22 +695,20 @@ namespace testCommunication {
 
 AMQPConnectionInfo *connectionInfo;
 AMQPConnectionPtr connection;
-const MonitoringServerInfo &monitoringServerInfo = testServerInfo[7];
 
 void prepareDB(const char *amqpURL)
 {
 	hatoholInit();
 	setupTestDB();
-	loadTestDBServer();
-	loadTestDBArmPlugin();
 
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
-	ArmPluginInfo armPluginInfo;
-	dbConfig.getArmPluginInfo(armPluginInfo, monitoringServerInfo.id);
-	armPluginInfo.brokerUrl = amqpURL;
-	armPluginInfo.staticQueueAddress = "test.1";
-	dbConfig.saveArmPluginInfo(armPluginInfo);
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	MonitoringServerInfo serverInfo = monitoringServerInfo;
+	ArmPluginInfo pluginInfo = armPluginInfo;
+	pluginInfo.brokerUrl = amqpURL;
+	pluginInfo.staticQueueAddress = "test.1";
+	dbConfig.addTargetServer(&serverInfo, privilege, &pluginInfo);
 }
 
 AMQPConnectionInfo &getConnectionInfo(void)
