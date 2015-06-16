@@ -766,10 +766,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		m_impl->runFetchCallback(fetchId);
 	}
 
+	// TODO: add error clause
+	string result = "SUCCESS";
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
-	builder.add("result", "");
+	builder.add("result", result);
 	setResponseId(parser, builder);
 	builder.endObject();
 
@@ -833,10 +835,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 		m_impl->runFetchHistoryCallback(fetchId, historyInfoVect);
 	}
 
+	// TODO: add error clause
+	string result = "SUCCESS";
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
-	builder.add("result", "");
+	builder.add("result", result);
 	setResponseId(parser, builder);
 	builder.endObject();
 	return builder.generate();
@@ -921,9 +925,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	} else {
 		dataStore->upsertHosts(hostInfoVect);
 	}
+
 	// TODO: add error clause
 	string result = "SUCCESS";
-
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
@@ -998,7 +1002,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 
 	// TODO: Add failure clause
 	string result = "SUCCESS";
-
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
@@ -1428,7 +1431,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 
 	// TODO: make failure clause
 	string result = "SUCCESS";
-
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
