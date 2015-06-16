@@ -30,13 +30,13 @@ void DataStore::setCopyOnDemandEnable(bool enable)
 {
 }
 
-bool DataStore::startOnDemandFetchItems(HostIdVector hostIds, Closure0 *closure)
+bool DataStore::startOnDemandFetchItems(const HostIdVector &hostIds, Closure0 *closure)
 {
 	return false;
 }
 
 bool DataStore::startOnDemandFetchTriggers(
-  HostIdVector hostIds, Closure0 *closure)
+  const HostIdVector &hostIds, Closure0 *closure)
 {
        return false;
 }

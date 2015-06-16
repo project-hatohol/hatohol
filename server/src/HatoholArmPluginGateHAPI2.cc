@@ -435,7 +435,7 @@ bool HatoholArmPluginGateHAPI2::isFetchItemsSupported(void)
 }
 
 bool HatoholArmPluginGateHAPI2::startOnDemandFetchItems(
-  HostIdVector hostIds, Closure0 *closure)
+  const HostIdVector &hostIds, Closure0 *closure)
 {
 	if (!m_impl->hasProcedure(HAPI2_FETCH_ITEMS))
 		return false;
@@ -515,7 +515,7 @@ void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
 }
 
 bool HatoholArmPluginGateHAPI2::startOnDemandFetchTriggers(
-  HostIdVector hostIds, Closure0 *closure)
+  const HostIdVector &hostIds, Closure0 *closure)
 {
 	if (!m_impl->hasProcedure(HAPI2_FETCH_TRIGGERS))
 		return false;

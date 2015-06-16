@@ -35,7 +35,7 @@ public:
 	void setCopyOnDemandEnable(bool enable) override;
 	virtual bool isFetchItemsSupported(void) override;
 	virtual bool startOnDemandFetchItems(
-	  HostIdVector hostIds,
+	  const HostIdVector &hostIds,
 	  Closure0 *closure) override;
 	virtual void startOnDemandFetchHistory(
 	  const ItemInfo &itemInfo,
@@ -43,7 +43,7 @@ public:
 	  const time_t &endTime,
 	  Closure1<HistoryInfoVect> *closure) override;
 	virtual bool startOnDemandFetchTriggers(
-	  HostIdVector hostIds,
+	  const HostIdVector &hostIds,
 	  Closure0 *closure) override;
 private:
 	ArmZabbixAPI	m_armApi;

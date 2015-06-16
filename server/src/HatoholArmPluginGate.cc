@@ -277,7 +277,7 @@ bool HatoholArmPluginGate::isFetchItemsSupported(void)
 }
 
 bool HatoholArmPluginGate::startOnDemandFetchItems(
-  HostIdVector hostIds, Closure0 *closure)
+  const HostIdVector &hostIds, Closure0 *closure)
 {
 	if (!isConnetced())
 		return false;
@@ -402,7 +402,7 @@ void HatoholArmPluginGate::startOnDemandFetchHistory(
 }
 
 bool HatoholArmPluginGate::startOnDemandFetchTriggers(
-  HostIdVector hostIds, Closure0 *closure)
+  const HostIdVector &hostIds, Closure0 *closure)
 {
 	if (!isConnetced())
 		return false;

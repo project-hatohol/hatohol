@@ -67,14 +67,14 @@ bool DataStoreNagios::isFetchItemsSupported(void)
 	return m_impl->armNDO.isFetchItemsSupported();
 }
 
-bool DataStoreNagios::startOnDemandFetchItems(HostIdVector hostIds, Closure0 *closure)
+bool DataStoreNagios::startOnDemandFetchItems(const HostIdVector &hostIds, Closure0 *closure)
 {
 	m_impl->armNDO.fetchItems(closure);
 	return true;
 }
 
 bool DataStoreNagios::startOnDemandFetchTriggers(
-  HostIdVector hostIds, Closure0 *closure)
+  const HostIdVector &hostIds, Closure0 *closure)
 {
 	m_impl->armNDO.fetchTriggers(closure);
 	return true;

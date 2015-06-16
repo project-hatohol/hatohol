@@ -80,7 +80,7 @@ public:
 
 	virtual bool isFetchItemsSupported(void);
 	virtual bool startOnDemandFetchItems(
-	  HostIdVector hostIds,
+	  const HostIdVector &hostIds,
 	  Closure0 *closure) override;
 	virtual void startOnDemandFetchHistory(
 	  const ItemInfo &itemInfo,
@@ -88,7 +88,7 @@ public:
 	  const time_t &endTime,
 	  Closure1<HistoryInfoVect> *closure) override;
 	virtual bool startOnDemandFetchTriggers(
-	  HostIdVector hostIds,
+	  const HostIdVector &hostIds,
 	  Closure0 *closure) override;
 
 protected:
