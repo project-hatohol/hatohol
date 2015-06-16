@@ -244,22 +244,6 @@ const MonitoringServerInfo testServerInfo[] =
 	"nAgiOs_ndoutils",        // db_name
 	"http://10.0.0.32/nagios3", // base_url
 	"test extended info",     // exteneded_info
-#ifdef HAVE_LIBRABBITMQ
-},{
-	302,                      // id
-	MONITORING_SYSTEM_HAPI2,  // type
-	"HAPI2 Zabbix",           // hostname
-	"10.0.0.33",              // ip_address
-	"HAPI2 Zabbix",           // nickname
-	80,                       // port
-	300,                      // polling_interval_sec
-	60,                       // retry_interval_sec
-	"Admin",                  // user_name
-	"zabbix",                 // password
-	"",                       // db_name
-	"http://10.0.0.33/zabbix/", // base_url
-	"test extended info",     // exteneded_info
-#endif // HAVE_LIBRABBITMQ
 }};
 const size_t NumTestServerInfo = ARRAY_SIZE(testServerInfo);
 
@@ -986,20 +970,6 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // tlsCACertificatePath
 	0,                               // tlsEnableVerify
 	"",                              // uuid
-#ifdef HAVE_LIBRABBITMQ
-}, {
-	AUTO_INCREMENT_VALUE,            // id
-	MONITORING_SYSTEM_HAPI2,         // type
-	"hapi-test-hap2-zabbix-plugin",  // path
-	"",                              // brokerUrl
-	"",                              // staticQueueAddress
-	302,                             // serverId
-	"",                              // tlsCertificatePath
-	"",                              // tlsKeyPath
-	"",                              // tlsCACertificatePath
-	0,                               // tlsEnableVerify
-	"8e632c14-d1f7-11e4-8350-d43d7e3146fb", // uuid
-#endif // HAVE_LIBRABBITMQ
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST,     // type
