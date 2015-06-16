@@ -1457,7 +1457,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 	parser.startObject("params");
 
 	bool succeeded = parseArmInfoParams(parser, armInfo, errObj);
-	status.setArmInfo(armInfo);
 	string result = succeeded ? "SUCCESS" : "FAILURE";
 
 	parser.endObject(); // params
@@ -1466,6 +1465,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).", &parser);
 	}
+
+	status.setArmInfo(armInfo);
+
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
