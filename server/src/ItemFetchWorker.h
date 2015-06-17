@@ -20,6 +20,7 @@
 #ifndef ItemFetchWorker_h
 #define ItemFetchWorker_h
 
+#include <deque>
 #include "Params.h"
 #include "Closure.h"
 #include "DataStore.h"
