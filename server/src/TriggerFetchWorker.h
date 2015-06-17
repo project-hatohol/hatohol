@@ -23,6 +23,7 @@
 #include "Params.h"
 #include "Closure.h"
 #include "DataStore.h"
+#include "DBTablesMonitoring.h"
 
 class TriggerFetchWorker
 {
@@ -30,7 +31,7 @@ public:
 	TriggerFetchWorker(void);
 	virtual ~TriggerFetchWorker();
 
-	bool start(const ServerIdType &targetServerId = ALL_SERVERS,
+	bool start(const TriggersQueryOption option,
 	           Closure0 *closure = NULL);
 	bool updateIsNeeded(void);
 	void waitCompletion(void);

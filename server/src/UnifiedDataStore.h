@@ -100,7 +100,7 @@ public:
 	bool fetchItemsAsync(Closure0 *closure,
 	                     const ItemsQueryOption &option);
 	bool fetchTriggerAsync(Closure0 *closure,
-			       const ServerIdType &targetServerId = ALL_SERVERS);
+			       const TriggersQueryOption &option);
 
 	/*
 	 *  We don't provide a function to get history.

@@ -67,8 +67,9 @@ TriggerFetchWorker::~TriggerFetchWorker()
 }
 
 bool TriggerFetchWorker::start(
-  const ServerIdType &targetServerId, Closure0 *closure)
+  const TriggersQueryOption option, Closure0 *closure)
 {
+	const ServerIdType targetServerId = option.getTargetServerId();
 	DataStoreVector allDataStores =
 	  UnifiedDataStore::getInstance()->getDataStoreVector();
 
