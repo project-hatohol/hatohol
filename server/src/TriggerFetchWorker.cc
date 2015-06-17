@@ -28,13 +28,18 @@
 using namespace std;
 using namespace mlpl;
 
+struct FetcherJob {
+	LocalHostIdType hostId;
+	DataStore *dataStore;
+};
+
 struct TriggerFetchWorker::Impl
 {
 	const static size_t      maxRunningFetchers = 8;
 	const static timespec    minUpdateInterval;
 
 	ReadWriteLock   rwlock;
-	DataStoreVector fetchersQueue;
+	std::deque<FetcherJob> fetcherJobQueue;
 	size_t          remainingFetchersCount;
 	SmartTime       nextAllowedUpdateTime;
 	sem_t           updatedSemaphore;
@@ -70,6 +75,12 @@ bool TriggerFetchWorker::start(
   const TriggersQueryOption option, Closure0 *closure)
 {
 	const ServerIdType targetServerId = option.getTargetServerId();
+	const LocalHostIdType targetHostId = option.getTargetHostId();
+	LocalHostIdVector targetHostIds;
+	if (targetHostId != ALL_LOCAL_HOSTS) {
+		targetHostIds.push_back(targetHostId);
+	}
+
 	DataStoreVector allDataStores =
 	  UnifiedDataStore::getInstance()->getDataStoreVector();
 
@@ -95,10 +106,10 @@ bool TriggerFetchWorker::start(
 		}
 
 		if (i < Impl::maxRunningFetchers){
-			if (!runFetcher(dataStore))
+			if (!runFetcher(targetHostIds, dataStore))
 				m_impl->remainingFetchersCount--;
 		} else {
-			m_impl->fetchersQueue.push_back(dataStore);
+			m_impl->fetcherJobQueue.push_back({targetHostId, dataStore});
 		}
 	}
 
@@ -134,10 +145,10 @@ void TriggerFetchWorker::updatedCallback(Closure0 *closure)
 	m_impl->rwlock.writeLock();
 	Reaper<ReadWriteLock> lockReaper(&m_impl->rwlock, ReadWriteLock::unlock);
 
-	DataStoreVector &fetchersQueue = m_impl->fetchersQueue;
-	if (!fetchersQueue.empty()) {
-		runFetcher(fetchersQueue.front());
-		fetchersQueue.erase(fetchersQueue.begin());
+	auto &fetcherJob = m_impl->fetcherJobQueue;
+	if (!fetcherJob.empty()) {
+		runFetcher({fetcherJob.front().hostId}, fetcherJob.front().dataStore);
+		fetcherJob.pop_front();
 	}
 
 	if (m_impl->remainingFetchersCount <= 0)
@@ -156,7 +167,8 @@ void TriggerFetchWorker::updatedCallback(Closure0 *closure)
 	m_impl->triggerFetchedSignal.clear();
 }
 
-bool TriggerFetchWorker::runFetcher(DataStore *dataStore)
+bool TriggerFetchWorker::runFetcher(const LocalHostIdVector targetHostIds,
+				    DataStore *dataStore)
 {
 	struct ClosureWithDataStore : public ClosureTemplate0<TriggerFetchWorker>
 	{
@@ -176,5 +188,5 @@ bool TriggerFetchWorker::runFetcher(DataStore *dataStore)
 	};
 
 	return dataStore->startOnDemandFetchTriggers(
-	  {}, new ClosureWithDataStore(this, dataStore));
+	  targetHostIds, new ClosureWithDataStore(this, dataStore));
 }

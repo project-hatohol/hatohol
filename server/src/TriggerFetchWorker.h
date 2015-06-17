@@ -20,6 +20,7 @@
 #ifndef TriggerFetchWorker_h
 #define TriggerFetchWorker_h
 
+#include <deque>
 #include "Params.h"
 #include "Closure.h"
 #include "DataStore.h"
@@ -38,7 +39,7 @@ public:
 
 protected:
 	void updatedCallback(Closure0 *closure);
-	bool runFetcher(DataStore *dataStore);
+	bool runFetcher(const LocalHostIdVector targetHostIds, DataStore *dataStore);
 
 private:
 	struct Impl;
