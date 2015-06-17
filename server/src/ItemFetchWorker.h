@@ -23,6 +23,7 @@
 #include "Params.h"
 #include "Closure.h"
 #include "DataStore.h"
+#include "DBTablesMonitoring.h"
 
 class ItemFetchWorker
 {
@@ -30,7 +31,7 @@ public:
 	ItemFetchWorker(void);
 	virtual ~ItemFetchWorker();
 
-	bool start(const ServerIdType &targetServerId = ALL_SERVERS,
+	bool start(const ItemsQueryOption &option,
 	           Closure0 *closure = NULL);
 	bool updateIsNeeded(void);
 	void waitCompletion(void);

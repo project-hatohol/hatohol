@@ -420,14 +420,14 @@ void UnifiedDataStore::getApplicationVect(ApplicationInfoVect &ApplicationInfoVe
 }
 
 bool UnifiedDataStore::fetchItemsAsync(Closure0 *closure,
-                                       const ServerIdType &targetServerId)
+                                       const ItemsQueryOption &option)
 {
 	if (!getCopyOnDemandEnabled())
 		return false;
 	if (!m_impl->itemFetchWorker.updateIsNeeded())
 		return false;
 
-	return m_impl->itemFetchWorker.start(targetServerId, closure);
+	return m_impl->itemFetchWorker.start(option, closure);
 }
 
 bool UnifiedDataStore::fetchTriggerAsync(Closure0 *closure,

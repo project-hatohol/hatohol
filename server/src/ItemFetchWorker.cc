@@ -67,10 +67,12 @@ ItemFetchWorker::~ItemFetchWorker()
 }
 
 bool ItemFetchWorker::start(
-  const ServerIdType &targetServerId, Closure0 *closure)
+  const ItemsQueryOption &option, Closure0 *closure)
 {
 	DataStoreVector allDataStores =
 	  UnifiedDataStore::getInstance()->getDataStoreVector();
+
+	const ServerIdType targetServerId = option.getTargetServerId();
 
 	if (allDataStores.empty())
 		return false;

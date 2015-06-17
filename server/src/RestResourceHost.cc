@@ -747,12 +747,11 @@ void RestResourceHost::handlerGetItem(void)
 	}
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	ServerIdType serverId = option.getTargetServerId();
 	GetItemClosure *closure =
 	  new GetItemClosure(
 	    this, &RestResourceHost::itemFetchedCallback);
 
-	bool handled = dataStore->fetchItemsAsync(closure, serverId);
+	bool handled = dataStore->fetchItemsAsync(closure, option);
 	if (!handled) {
 		replyGetItem();
 		delete closure;
