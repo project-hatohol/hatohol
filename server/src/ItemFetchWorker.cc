@@ -28,17 +28,22 @@
 using namespace std;
 using namespace mlpl;
 
+struct FetcherJob {
+	LocalHostIdType hostId;
+	DataStore *dataStore;
+};
+
 struct ItemFetchWorker::Impl
 {
 	const static size_t      maxRunningFetchers = 8;
 	const static timespec    minUpdateInterval;
 
-	ReadWriteLock   rwlock;
-	DataStoreVector fetchersQueue;
-	size_t          remainingFetchersCount;
-	SmartTime       nextAllowedUpdateTime;
-	sem_t           updatedSemaphore;
-	Signal0         itemFetchedSignal;
+	ReadWriteLock           rwlock;
+	std::deque<FetcherJob>  fetcherJobQueue;
+	size_t                  remainingFetchersCount;
+	SmartTime               nextAllowedUpdateTime;
+	sem_t                   updatedSemaphore;
+	Signal0                 itemFetchedSignal;
 
 	Impl(void)
 	: remainingFetchersCount(0)
@@ -67,10 +72,17 @@ ItemFetchWorker::~ItemFetchWorker()
 }
 
 bool ItemFetchWorker::start(
-  const ServerIdType &targetServerId, Closure0 *closure)
+  const ItemsQueryOption &option, Closure0 *closure)
 {
 	DataStoreVector allDataStores =
 	  UnifiedDataStore::getInstance()->getDataStoreVector();
+
+	const ServerIdType targetServerId = option.getTargetServerId();
+	const LocalHostIdType targetHostId = option.getTargetHostId();
+	LocalHostIdVector targetHostIds;
+	if (targetHostId != ALL_LOCAL_HOSTS) {
+		targetHostIds.push_back(targetHostId);
+	}
 
 	if (allDataStores.empty())
 		return false;
@@ -96,10 +108,10 @@ bool ItemFetchWorker::start(
 		}
 
 		if (i < Impl::maxRunningFetchers){
-			if (!runFetcher(dataStore))
+			if (!runFetcher(targetHostIds, dataStore))
 				m_impl->remainingFetchersCount--;
 		} else {
-			m_impl->fetchersQueue.push_back(dataStore);
+			m_impl->fetcherJobQueue.push_back({targetHostId, dataStore});
 		}
 	}
 
@@ -135,10 +147,10 @@ void ItemFetchWorker::updatedCallback(Closure0 *closure)
 	m_impl->rwlock.writeLock();
 	Reaper<ReadWriteLock> lockReaper(&m_impl->rwlock, ReadWriteLock::unlock);
 
-	DataStoreVector &fetchersQueue = m_impl->fetchersQueue;
-	if (!fetchersQueue.empty()) {
-		runFetcher(fetchersQueue.front());
-		fetchersQueue.erase(fetchersQueue.begin());
+	auto &fetcherJob = m_impl->fetcherJobQueue;
+	if (!fetcherJob.empty()) {
+		runFetcher({fetcherJob.front().hostId}, fetcherJob.front().dataStore);
+		fetcherJob.pop_front();
 	}
 
 	if (m_impl->remainingFetchersCount <= 0)
@@ -157,7 +169,8 @@ void ItemFetchWorker::updatedCallback(Closure0 *closure)
 	m_impl->itemFetchedSignal.clear();
 }
 
-bool ItemFetchWorker::runFetcher(DataStore *dataStore)
+bool ItemFetchWorker::runFetcher(const LocalHostIdVector targetHostIds,
+				 DataStore *dataStore)
 {
 	struct ClosureWithDataStore : public ClosureTemplate0<ItemFetchWorker>
 	{
@@ -177,5 +190,5 @@ bool ItemFetchWorker::runFetcher(DataStore *dataStore)
 	};
 
 	return dataStore->startOnDemandFetchItems(
-	  {}, new ClosureWithDataStore(this, dataStore));
+	  targetHostIds, new ClosureWithDataStore(this, dataStore));
 }

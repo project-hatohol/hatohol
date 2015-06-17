@@ -20,9 +20,11 @@
 #ifndef ItemFetchWorker_h
 #define ItemFetchWorker_h
 
+#include <deque>
 #include "Params.h"
 #include "Closure.h"
 #include "DataStore.h"
+#include "DBTablesMonitoring.h"
 
 class ItemFetchWorker
 {
@@ -30,14 +32,15 @@ public:
 	ItemFetchWorker(void);
 	virtual ~ItemFetchWorker();
 
-	bool start(const ServerIdType &targetServerId = ALL_SERVERS,
+	bool start(const ItemsQueryOption &option,
 	           Closure0 *closure = NULL);
 	bool updateIsNeeded(void);
 	void waitCompletion(void);
 
 protected:
 	void updatedCallback(Closure0 *closure);
-	bool runFetcher(DataStore *dataStore);
+	bool runFetcher(const LocalHostIdVector hostIds,
+	                DataStore *dataStore);
 
 private:
 	struct Impl;

@@ -98,7 +98,7 @@ public:
 	void getApplicationVect(ApplicationInfoVect &applicationInfoVect,
 	                        const ItemsQueryOption &option);
 	bool fetchItemsAsync(Closure0 *closure,
-	                     const ServerIdType &targetServerId = ALL_SERVERS);
+	                     const ItemsQueryOption &option);
 	bool fetchTriggerAsync(Closure0 *closure,
 			       const ServerIdType &targetServerId = ALL_SERVERS);
 
