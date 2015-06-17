@@ -74,6 +74,10 @@ bool ItemFetchWorker::start(
 
 	const ServerIdType targetServerId = option.getTargetServerId();
 	const LocalHostIdType targetHostId = option.getTargetHostId();
+	LocalHostIdVector targetHostIds;
+	if (targetHostId != ALL_LOCAL_HOSTS) {
+		targetHostIds.push_back(targetHostId);
+	}
 
 	if (allDataStores.empty())
 		return false;
@@ -99,7 +103,7 @@ bool ItemFetchWorker::start(
 		}
 
 		if (i < Impl::maxRunningFetchers){
-			if (!runFetcher({targetHostId}, dataStore))
+			if (!runFetcher(targetHostIds, dataStore))
 				m_impl->remainingFetchersCount--;
 		} else {
 			m_impl->fetchersQueue.push_back(dataStore);
