@@ -38,12 +38,12 @@ struct ItemFetchWorker::Impl
 	const static size_t      maxRunningFetchers = 8;
 	const static timespec    minUpdateInterval;
 
-	ReadWriteLock   rwlock;
+	ReadWriteLock           rwlock;
 	std::vector<FetcherJob> fetcherJobVect;
-	size_t          remainingFetchersCount;
-	SmartTime       nextAllowedUpdateTime;
-	sem_t           updatedSemaphore;
-	Signal0         itemFetchedSignal;
+	size_t                  remainingFetchersCount;
+	SmartTime               nextAllowedUpdateTime;
+	sem_t                   updatedSemaphore;
+	Signal0                 itemFetchedSignal;
 
 	Impl(void)
 	: remainingFetchersCount(0)
