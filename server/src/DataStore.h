@@ -40,10 +40,10 @@ public:
 	virtual void setCopyOnDemandEnable(bool enable);
 	virtual bool isFetchItemsSupported(void);
 	virtual bool startOnDemandFetchItems(
-	  const HostIdVector &hostIds,
+	  const LocalHostIdVector &hostIds,
 	  Closure0 *closure);
 	virtual bool startOnDemandFetchTriggers(
-	  const HostIdVector &hostIds,
+	  const LocalHostIdVector &hostIds,
 	  Closure0 *closure);
 	virtual void startOnDemandFetchHistory(
 	  const ItemInfo &itemInfo,

@@ -37,7 +37,7 @@ public:
 
 	virtual bool isFetchItemsSupported(void);
 	virtual bool startOnDemandFetchItems(
-	  const HostIdVector &hostIds = {},
+	  const LocalHostIdVector &hostIds = {},
 	  Closure0 *closure = NULL) override;
 	virtual void startOnDemandFetchHistory(
 	  const ItemInfo &itemInfo,
@@ -45,7 +45,7 @@ public:
 	  const time_t &endTime,
 	  Closure1<HistoryInfoVect> *closure = NULL) override;
 	virtual bool startOnDemandFetchTriggers(
-	  const HostIdVector &hostIds = {},
+	  const LocalHostIdVector &hostIds = {},
 	  Closure0 *closure = NULL) override;
 	virtual bool startOnDemandFetchEvents(
 	  const std::string &lastInfo,

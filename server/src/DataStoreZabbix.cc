@@ -57,7 +57,8 @@ bool DataStoreZabbix::isFetchItemsSupported(void)
 	return m_armApi.isFetchItemsSupported();
 }
 
-bool DataStoreZabbix::startOnDemandFetchItems(const HostIdVector &hostIds, Closure0 *closure)
+bool DataStoreZabbix::startOnDemandFetchItems(
+  const LocalHostIdVector &hostIds, Closure0 *closure)
 {
 	m_armApi.fetchItems(closure);
 	return true;
@@ -71,7 +72,7 @@ void DataStoreZabbix::startOnDemandFetchHistory(
 }
 
 bool DataStoreZabbix::startOnDemandFetchTriggers(
-  const HostIdVector &hostIds, Closure0 *closure)
+  const LocalHostIdVector &hostIds, Closure0 *closure)
 {
 	m_armApi.fetchTriggers(closure);
 	return true;

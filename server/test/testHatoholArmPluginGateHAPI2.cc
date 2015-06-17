@@ -1012,7 +1012,8 @@ void test_fetchItemsWithHostIds(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchItems");
-	cppcut_assert_equal(true, gate->startOnDemandFetchItems({3, 5, 8}, NULL));
+	cppcut_assert_equal(true,
+			    gate->startOnDemandFetchItems({"3", "5", "8"}, NULL));
 
 	string expected =
 		"^\\{"
@@ -1264,7 +1265,8 @@ void test_fetchTriggersWithHostIds(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchTriggers");
-	cppcut_assert_equal(true, gate->startOnDemandFetchTriggers({2, 3, 5}, NULL));
+	cppcut_assert_equal(true,
+			    gate->startOnDemandFetchTriggers({"2", "3", "5"}, NULL));
 
 	string expected =
 		"^\\{"

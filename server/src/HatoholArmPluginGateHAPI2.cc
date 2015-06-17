@@ -435,7 +435,7 @@ bool HatoholArmPluginGateHAPI2::isFetchItemsSupported(void)
 }
 
 bool HatoholArmPluginGateHAPI2::startOnDemandFetchItems(
-  const HostIdVector &hostIds, Closure0 *closure)
+  const LocalHostIdVector &hostIds, Closure0 *closure)
 {
 	if (!m_impl->hasProcedure(HAPI2_FETCH_ITEMS))
 		return false;
@@ -448,7 +448,7 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchItems(
 	if (!hostIds.empty()) {
 		builder.startArray("hostIds");
 		for (auto hostId : hostIds)
-			builder.add(StringUtils::toString(hostId));
+			builder.add(hostId);
 		builder.endArray();
 	}
 	std::mt19937 random = getRandomEngine();
@@ -515,7 +515,7 @@ void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
 }
 
 bool HatoholArmPluginGateHAPI2::startOnDemandFetchTriggers(
-  const HostIdVector &hostIds, Closure0 *closure)
+  const LocalHostIdVector &hostIds, Closure0 *closure)
 {
 	if (!m_impl->hasProcedure(HAPI2_FETCH_TRIGGERS))
 		return false;
@@ -528,7 +528,7 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchTriggers(
 	if (!hostIds.empty()) {
 		builder.startArray("hostIds");
 		for (auto hostId : hostIds)
-			builder.add(StringUtils::toString(hostId));
+			builder.add(hostId);
 		builder.endArray();
 	}
 	std::mt19937 random = getRandomEngine();
