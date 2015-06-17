@@ -219,6 +219,8 @@ typedef std::map<ItemCategoryIdType, std::string> ItemCategoryNameMap;
 typedef ItemCategoryNameMap::iterator       ItemCategoryNameMapIterator;
 typedef ItemCategoryNameMap::const_iterator ItemCategoryNameMapConstIterator;
 
+typedef std::vector<LocalHostIdType> LocalHostIdVector;
+
 enum SyncType {
 	SYNC,
 	ASYNC,

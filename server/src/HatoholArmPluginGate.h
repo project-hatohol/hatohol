@@ -35,7 +35,7 @@ class HatoholArmPluginGate : public DataStore, public HatoholArmPluginInterface 
 public:
 	static const std::string PassivePluginQuasiPath;
 	static const int   NO_RETRY;
-	
+
 	struct HAPIWtchPointInfo {
 		TriggerStatusType statusType;
 		TriggerIdType triggerId;
@@ -80,6 +80,7 @@ public:
 
 	virtual bool isFetchItemsSupported(void);
 	virtual bool startOnDemandFetchItems(
+	  const LocalHostIdVector &hostIds,
 	  Closure0 *closure) override;
 	virtual void startOnDemandFetchHistory(
 	  const ItemInfo &itemInfo,
@@ -87,6 +88,7 @@ public:
 	  const time_t &endTime,
 	  Closure1<HistoryInfoVect> *closure) override;
 	virtual bool startOnDemandFetchTriggers(
+	  const LocalHostIdVector &hostIds,
 	  Closure0 *closure) override;
 
 protected:
@@ -174,4 +176,3 @@ private:
 typedef UsedCountablePtr<HatoholArmPluginGate> HatoholArmPluginGatePtr;
 
 #endif // HatoholArmPluginGate_h
-

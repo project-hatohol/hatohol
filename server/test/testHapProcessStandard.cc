@@ -418,7 +418,7 @@ struct FetchStarter : public HatoholThreadBase {
 		ClosureTemplate0<FetchStarter> *closure =
 		  new ClosureTemplate0<FetchStarter>(this,
 		    &FetchStarter::fetchItemCb);
-		pair->gate->startOnDemandFetchItems(closure);
+		pair->gate->startOnDemandFetchItems({}, closure);
 	}
 
 	void startFetchHistory(void) {
@@ -442,7 +442,7 @@ struct FetchStarter : public HatoholThreadBase {
 		ClosureTemplate0<FetchStarter> *closure =
 		  new ClosureTemplate0<FetchStarter>(this,
 		    &FetchStarter::fetchTriggerCb);
-		pair->gate->startOnDemandFetchTriggers(closure);
+		pair->gate->startOnDemandFetchTriggers({}, closure);
 	}
 
 	virtual gpointer mainThread(HatoholThreadArg *arg) override

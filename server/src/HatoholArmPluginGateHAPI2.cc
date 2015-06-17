@@ -434,7 +434,8 @@ bool HatoholArmPluginGateHAPI2::isFetchItemsSupported(void)
 	return m_impl->hasProcedure(HAPI2_FETCH_ITEMS);
 }
 
-bool HatoholArmPluginGateHAPI2::startOnDemandFetchItems(Closure0 *closure)
+bool HatoholArmPluginGateHAPI2::startOnDemandFetchItems(
+  const LocalHostIdVector &hostIds, Closure0 *closure)
 {
 	if (!m_impl->hasProcedure(HAPI2_FETCH_ITEMS))
 		return false;
@@ -444,8 +445,10 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchItems(Closure0 *closure)
 	builder.add("jsonrpc", "2.0");
 	builder.add("method", HAPI2_FETCH_ITEMS);
 	builder.startObject("params");
-	if (false) { // TODO: Pass requested hostIds
+	if (!hostIds.empty()) {
 		builder.startArray("hostIds");
+		for (auto hostId : hostIds)
+			builder.add(hostId);
 		builder.endArray();
 	}
 	std::mt19937 random = getRandomEngine();
@@ -511,7 +514,8 @@ void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
 	send(builder.generate(), id, callbackPtr);
 }
 
-bool HatoholArmPluginGateHAPI2::startOnDemandFetchTriggers(Closure0 *closure)
+bool HatoholArmPluginGateHAPI2::startOnDemandFetchTriggers(
+  const LocalHostIdVector &hostIds, Closure0 *closure)
 {
 	if (!m_impl->hasProcedure(HAPI2_FETCH_TRIGGERS))
 		return false;
@@ -521,8 +525,10 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchTriggers(Closure0 *closure)
 	builder.add("jsonrpc", "2.0");
 	builder.add("method", HAPI2_FETCH_TRIGGERS);
 	builder.startObject("params");
-	if (false) { // TODO: Pass requested hostIds
+	if (!hostIds.empty()) {
 		builder.startArray("hostIds");
+		for (auto hostId : hostIds)
+			builder.add(hostId);
 		builder.endArray();
 	}
 	std::mt19937 random = getRandomEngine();

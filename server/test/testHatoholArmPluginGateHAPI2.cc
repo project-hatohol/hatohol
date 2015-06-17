@@ -1023,13 +1023,35 @@ void test_fetchItems(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchItems");
-	cppcut_assert_equal(true, gate->startOnDemandFetchItems(NULL));
+	cppcut_assert_equal(true, gate->startOnDemandFetchItems({}, NULL));
 
 	string expected =
 		"^\\{"
 		"\"jsonrpc\":\"2\\.0\","
 		"\"method\":\"fetchItems\","
 		"\"params\":\\{\"fetchId\":\"\\d+\"\\},"
+		"\"id\":\\d+"
+		"\\}$";
+	string actual = popServerMessage();
+	cut_assert_match(expected.c_str(), actual.c_str());
+}
+
+void test_fetchItemsWithHostIds(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "fetchItems");
+	cppcut_assert_equal(true,
+			    gate->startOnDemandFetchItems({"3", "5", "8"}, NULL));
+
+	string expected =
+		"^\\{"
+		"\"jsonrpc\":\"2\\.0\","
+		"\"method\":\"fetchItems\","
+		"\"params\":\\{\"hostIds\":\\[\"3\",\"5\",\"8\"\\],"
+		"\"fetchId\":\"\\d+\"\\},"
 		"\"id\":\\d+"
 		"\\}$";
 	string actual = popServerMessage();
@@ -1043,7 +1065,7 @@ void test_notSupportfetchItems(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "exchangeProfile");
-	cppcut_assert_equal(false, gate->startOnDemandFetchItems(NULL));
+	cppcut_assert_equal(false, gate->startOnDemandFetchItems({}, NULL));
 }
 
 void test_fetchItemsCallback(void)
@@ -1073,7 +1095,7 @@ void test_fetchItemsCallback(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchItems");
-	cppcut_assert_equal(true, gate->startOnDemandFetchItems(closure));
+	cppcut_assert_equal(true, gate->startOnDemandFetchItems({}, closure));
 
 	string fetchId;
 	int64_t id = 0;
@@ -1133,7 +1155,7 @@ void test_fetchItemsCallbackOnError(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchItems");
-	cppcut_assert_equal(true, gate->startOnDemandFetchItems(closure));
+	cppcut_assert_equal(true, gate->startOnDemandFetchItems({}, closure));
 
 	string fetchId;
 	int64_t id = 0;
@@ -1254,13 +1276,35 @@ void test_fetchTriggers(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchTriggers");
-	cppcut_assert_equal(true, gate->startOnDemandFetchTriggers(NULL));
+	cppcut_assert_equal(true, gate->startOnDemandFetchTriggers({}, NULL));
 
 	string expected =
 		"^\\{"
 		"\"jsonrpc\":\"2\\.0\","
 		"\"method\":\"fetchTriggers\","
 		"\"params\":\\{\"fetchId\":\"\\d+\"\\},"
+		"\"id\":\\d+"
+		"\\}$";
+	string actual = popServerMessage();
+	cut_assert_match(expected.c_str(), actual.c_str());
+}
+
+void test_fetchTriggersWithHostIds(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "fetchTriggers");
+	cppcut_assert_equal(true,
+			    gate->startOnDemandFetchTriggers({"2", "3", "5"}, NULL));
+
+	string expected =
+		"^\\{"
+		"\"jsonrpc\":\"2\\.0\","
+		"\"method\":\"fetchTriggers\","
+		"\"params\":\\{\"hostIds\":\\[\"2\",\"3\",\"5\"\\],"
+		"\"fetchId\":\"\\d+\"\\},"
 		"\"id\":\\d+"
 		"\\}$";
 	string actual = popServerMessage();
@@ -1295,7 +1339,7 @@ void test_fetchTriggersCallback(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchTriggers");
-	cppcut_assert_equal(true, gate->startOnDemandFetchTriggers(closure));
+	cppcut_assert_equal(true, gate->startOnDemandFetchTriggers({}, closure));
 
 	string fetchId;
 	int64_t id = 0;
@@ -1325,7 +1369,7 @@ void test_notSupportFetchTriggers(void)
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "exchangeProfile");
-	cppcut_assert_equal(false, gate->startOnDemandFetchTriggers(NULL));
+	cppcut_assert_equal(false, gate->startOnDemandFetchTriggers({}, NULL));
 }
 
 void test_fetchEvents(void)
