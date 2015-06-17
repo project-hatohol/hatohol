@@ -1005,6 +1005,27 @@ void test_fetchItems(void)
 	cut_assert_match(expected.c_str(), actual.c_str());
 }
 
+void test_fetchItemsWithHostIds(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "fetchItems");
+	cppcut_assert_equal(true, gate->startOnDemandFetchItems({3, 5, 8}, NULL));
+
+	string expected =
+		"^\\{"
+		"\"jsonrpc\":\"2\\.0\","
+		"\"method\":\"fetchItems\","
+		"\"params\":\\{\"hostIds\":\\[\"3\",\"5\",\"8\"\\],"
+		"\"fetchId\":\"\\d+\"\\},"
+		"\"id\":\\d+"
+		"\\}$";
+	string actual = popServerMessage();
+	cut_assert_match(expected.c_str(), actual.c_str());
+}
+
 void test_notSupportfetchItems(void)
 {
 	omitIfNoURL();
@@ -1230,6 +1251,27 @@ void test_fetchTriggers(void)
 		"\"jsonrpc\":\"2\\.0\","
 		"\"method\":\"fetchTriggers\","
 		"\"params\":\\{\"fetchId\":\"\\d+\"\\},"
+		"\"id\":\\d+"
+		"\\}$";
+	string actual = popServerMessage();
+	cut_assert_match(expected.c_str(), actual.c_str());
+}
+
+void test_fetchTriggersWithHostIds(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	acceptProcedure(gate, "fetchTriggers");
+	cppcut_assert_equal(true, gate->startOnDemandFetchTriggers({2, 3, 5}, NULL));
+
+	string expected =
+		"^\\{"
+		"\"jsonrpc\":\"2\\.0\","
+		"\"method\":\"fetchTriggers\","
+		"\"params\":\\{\"hostIds\":\\[\"2\",\"3\",\"5\"\\],"
+		"\"fetchId\":\"\\d+\"\\},"
 		"\"id\":\\d+"
 		"\\}$";
 	string actual = popServerMessage();
