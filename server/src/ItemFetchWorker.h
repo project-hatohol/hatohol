@@ -38,7 +38,8 @@ public:
 
 protected:
 	void updatedCallback(Closure0 *closure);
-	bool runFetcher(DataStore *dataStore);
+	bool runFetcher(const LocalHostIdVector hostIds,
+	                DataStore *dataStore);
 
 private:
 	struct Impl;

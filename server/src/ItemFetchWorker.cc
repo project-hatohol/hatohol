@@ -73,6 +73,7 @@ bool ItemFetchWorker::start(
 	  UnifiedDataStore::getInstance()->getDataStoreVector();
 
 	const ServerIdType targetServerId = option.getTargetServerId();
+	const LocalHostIdType targetHostId = option.getTargetHostId();
 
 	if (allDataStores.empty())
 		return false;
@@ -98,7 +99,7 @@ bool ItemFetchWorker::start(
 		}
 
 		if (i < Impl::maxRunningFetchers){
-			if (!runFetcher(dataStore))
+			if (!runFetcher({targetHostId}, dataStore))
 				m_impl->remainingFetchersCount--;
 		} else {
 			m_impl->fetchersQueue.push_back(dataStore);
@@ -139,7 +140,7 @@ void ItemFetchWorker::updatedCallback(Closure0 *closure)
 
 	DataStoreVector &fetchersQueue = m_impl->fetchersQueue;
 	if (!fetchersQueue.empty()) {
-		runFetcher(fetchersQueue.front());
+		runFetcher({}, fetchersQueue.front());
 		fetchersQueue.erase(fetchersQueue.begin());
 	}
 
@@ -159,7 +160,8 @@ void ItemFetchWorker::updatedCallback(Closure0 *closure)
 	m_impl->itemFetchedSignal.clear();
 }
 
-bool ItemFetchWorker::runFetcher(DataStore *dataStore)
+bool ItemFetchWorker::runFetcher(const LocalHostIdVector targetHostIds,
+				 DataStore *dataStore)
 {
 	struct ClosureWithDataStore : public ClosureTemplate0<ItemFetchWorker>
 	{
@@ -179,5 +181,5 @@ bool ItemFetchWorker::runFetcher(DataStore *dataStore)
 	};
 
 	return dataStore->startOnDemandFetchItems(
-	  {}, new ClosureWithDataStore(this, dataStore));
+	  targetHostIds, new ClosureWithDataStore(this, dataStore));
 }
