@@ -448,7 +448,7 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchItems(
 	if (!hostIds.empty()) {
 		builder.startArray("hostIds");
 		for (auto hostId : hostIds)
-			builder.add(hostId);
+			builder.add(StringUtils::toString(hostId));
 		builder.endArray();
 	}
 	std::mt19937 random = getRandomEngine();
@@ -528,7 +528,7 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchTriggers(
 	if (!hostIds.empty()) {
 		builder.startArray("hostIds");
 		for (auto hostId : hostIds)
-			builder.add(hostId);
+			builder.add(StringUtils::toString(hostId));
 		builder.endArray();
 	}
 	std::mt19937 random = getRandomEngine();
