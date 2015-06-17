@@ -39,7 +39,7 @@ struct ItemFetchWorker::Impl
 	const static timespec    minUpdateInterval;
 
 	ReadWriteLock           rwlock;
-	std::deque<FetcherJob>  fetcherJobVect;
+	std::deque<FetcherJob>  fetcherJobQueue;
 	size_t                  remainingFetchersCount;
 	SmartTime               nextAllowedUpdateTime;
 	sem_t                   updatedSemaphore;
@@ -111,7 +111,7 @@ bool ItemFetchWorker::start(
 			if (!runFetcher(targetHostIds, dataStore))
 				m_impl->remainingFetchersCount--;
 		} else {
-			m_impl->fetcherJobVect.push_back({targetHostId, dataStore});
+			m_impl->fetcherJobQueue.push_back({targetHostId, dataStore});
 		}
 	}
 
@@ -147,7 +147,7 @@ void ItemFetchWorker::updatedCallback(Closure0 *closure)
 	m_impl->rwlock.writeLock();
 	Reaper<ReadWriteLock> lockReaper(&m_impl->rwlock, ReadWriteLock::unlock);
 
-	auto &fetcherJob = m_impl->fetcherJobVect;
+	auto &fetcherJob = m_impl->fetcherJobQueue;
 	if (!fetcherJob.empty()) {
 		runFetcher({fetcherJob.front().hostId}, fetcherJob.front().dataStore);
 		fetcherJob.pop_front();
