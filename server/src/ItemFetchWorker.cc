@@ -28,13 +28,18 @@
 using namespace std;
 using namespace mlpl;
 
+struct FetcherJob {
+	LocalHostIdType hostId;
+	DataStore *dataStore;
+};
+
 struct ItemFetchWorker::Impl
 {
 	const static size_t      maxRunningFetchers = 8;
 	const static timespec    minUpdateInterval;
 
 	ReadWriteLock   rwlock;
-	DataStoreVector fetchersQueue;
+	std::vector<FetcherJob> fetcherJobVect;
 	size_t          remainingFetchersCount;
 	SmartTime       nextAllowedUpdateTime;
 	sem_t           updatedSemaphore;
@@ -106,7 +111,7 @@ bool ItemFetchWorker::start(
 			if (!runFetcher(targetHostIds, dataStore))
 				m_impl->remainingFetchersCount--;
 		} else {
-			m_impl->fetchersQueue.push_back(dataStore);
+			m_impl->fetcherJobVect.push_back({targetHostId, dataStore});
 		}
 	}
 
@@ -142,10 +147,10 @@ void ItemFetchWorker::updatedCallback(Closure0 *closure)
 	m_impl->rwlock.writeLock();
 	Reaper<ReadWriteLock> lockReaper(&m_impl->rwlock, ReadWriteLock::unlock);
 
-	DataStoreVector &fetchersQueue = m_impl->fetchersQueue;
-	if (!fetchersQueue.empty()) {
-		runFetcher({}, fetchersQueue.front());
-		fetchersQueue.erase(fetchersQueue.begin());
+	auto &fetcherJob = m_impl->fetcherJobVect;
+	if (!fetcherJob.empty()) {
+		runFetcher({fetcherJob.front().hostId}, fetcherJob.front().dataStore);
+		fetcherJob.erase(fetcherJob.begin());
 	}
 
 	if (m_impl->remainingFetchersCount <= 0)
