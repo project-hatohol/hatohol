@@ -258,6 +258,7 @@ public:
 			response.body =
 			  m_hapi2.buildErrorResponse(JSON_RPC_INVALID_REQUEST,
 						     object.m_errorMessage,
+						     NULL,
 						     &object.m_parser);
 			MLPL_WARN("Invalid JSON-RPC object: %s\n",
 				  object.m_errorMessage.c_str());
@@ -432,7 +433,7 @@ string HatoholArmPluginInterfaceHAPI2::interpretHandler(
 						      type.c_str());
 		MLPL_WARN("An unknown method is called: %s\n", type.c_str());
 		return buildErrorResponse(JSON_RPC_METHOD_NOT_FOUND,
-					  message, &parser);
+					  message, NULL, &parser);
 	}
 	ProcedureHandler handler = it->second;
 	return (this->*handler)(parser);
@@ -539,7 +540,9 @@ bool HatoholArmPluginInterfaceHAPI2::setResponseId(
 }
 
 string HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-  const int errorCode, const string errorMessage, JSONParser *requestParser)
+  const int errorCode, const string errorMessage,
+  const mlpl::StringList *detailedMessages, JSONParser *requestParser
+)
 {
 	JSONBuilder responseBuilder;
 	responseBuilder.startObject();
@@ -551,6 +554,12 @@ string HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 	responseBuilder.startObject("error");
 	responseBuilder.add("code", errorCode);
 	responseBuilder.add("message", errorMessage);
+	if (detailedMessages) {
+		responseBuilder.startArray("data");
+		for (auto message: *detailedMessages)
+			responseBuilder.add(message);
+		responseBuilder.endArray(); // data
+	}
 	responseBuilder.endObject(); // error
 	responseBuilder.endObject();
 	return responseBuilder.generate();
