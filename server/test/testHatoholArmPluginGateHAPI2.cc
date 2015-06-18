@@ -719,6 +719,40 @@ void test_procedureHandlerPutTriggers(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":34031}";
 	cppcut_assert_equal(expected, actual);
+	timespec timeStamp;
+	HatoholArmPluginGateHAPI2::parseTimeStamp("20150323175800", timeStamp);
+	TriggerInfoList expectedTriggerInfoList =
+	{
+		{
+			monitoringServerInfo.id, // serverId
+			"1",                     // id
+			TRIGGER_STATUS_OK,       // status
+			TRIGGER_SEVERITY_INFO,   // severity
+			timeStamp,               // lastChangeTime
+			INVALID_HOST_ID,         // globalHostId /* FIXME? */
+			"1",                     // hostIdInServer
+			"exampleHostName",       // hostName
+			"example brief",         // brief
+			"sample extended info",  // extendedInfo
+			TRIGGER_VALID,           // validity
+		}
+	};
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	TriggerInfoList triggerInfoList;
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getTriggerInfoList(triggerInfoList, option);
+	string actualOutput;
+	for (auto trigger : triggerInfoList) {
+		actualOutput += makeTriggerOutput(trigger);
+	}
+	string expectedOutput;
+	for (auto trigger : expectedTriggerInfoList) {
+		expectedOutput += makeTriggerOutput(trigger);
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
 void test_procedureHandlerPutTriggersInvalidJSON(void)
