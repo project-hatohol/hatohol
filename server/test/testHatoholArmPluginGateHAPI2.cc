@@ -512,7 +512,8 @@ void test_procedureHandlerPutHosts(void)
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"deadbeaf\"}";
 	cppcut_assert_equal(expected, actual);
 
-	ServerHostDefVect expectedHostVect = {
+	ServerHostDefVect expectedHostVect =
+	{
 		{
 			1,                       // id
 			1,                       // hostId
@@ -593,7 +594,8 @@ void test_procedureHandlerPutHostGroups(void)
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"123abc\"}";
 	cppcut_assert_equal(expected, actual);
 
-	HostgroupVect expectedHostgroupVect = {
+	HostgroupVect expectedHostgroupVect =
+	{
 		{
 			1,                       // id
 			monitoringServerInfo.id, // serverId
