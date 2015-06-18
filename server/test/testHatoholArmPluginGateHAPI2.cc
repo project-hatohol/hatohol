@@ -63,6 +63,24 @@ const static ArmPluginInfo armPluginInfo = {
 	"8e632c14-d1f7-11e4-8350-d43d7e3146fb", // uuid
 };
 
+static string makeItemOutputForHAPI2(const ItemInfo &itemInfo)
+{
+	string expectedOut =
+	  StringUtils::sprintf(
+	    "|%" FMT_ITEM_ID
+	    "|%" FMT_LOCAL_HOST_ID "|%s|%ld|%lu|%s|%s|%s|%s\n",
+	    itemInfo.id.c_str(),
+	    itemInfo.hostIdInServer.c_str(),
+	    itemInfo.brief.c_str(),
+	    itemInfo.lastValueTime.tv_sec,
+	    itemInfo.lastValueTime.tv_nsec,
+	    itemInfo.lastValue.c_str(),
+	    itemInfo.prevValue.c_str(),
+	    itemInfo.itemGroupName.c_str(),
+	    itemInfo.unit.c_str());
+	return expectedOut;
+}
+
 namespace testHAPI2ParseTimeStamp {
 
 void test_fullFormat(void) {
@@ -353,7 +371,49 @@ void test_procedureHandlerPutItems(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":83241245}";
 	cppcut_assert_equal(expected, actual);
-	// TODO: add DB assertion
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	ItemInfoList itemInfoList;
+	ItemsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getItemInfoList(itemInfoList, option);
+	ItemInfoList expectedItemInfoList;
+	ItemInfo item1, item2;
+	timespec timeStamp;
+	string lastValueTime;
+
+	lastValueTime = "20150410175523";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item1.id             = "1";
+	item1.hostIdInServer = "1";
+	item1.brief          = "example brief";
+	item1.lastValueTime  = timeStamp;
+	item1.lastValue      = "example value";
+	item1.itemGroupName  = "example name";
+	item1.unit           = "example unit";
+	expectedItemInfoList.push_back(item1);
+
+	lastValueTime = "20150410175531";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item2.id             = "2";
+	item2.hostIdInServer = "1";
+	item2.brief          = "example brief";
+	item2.lastValueTime  = timeStamp;
+	item2.lastValue      = "example value";
+	item2.itemGroupName  = "example name";
+	item2.unit           = "example unit";
+	expectedItemInfoList.push_back(item2);
+
+	string actualOutput;
+	for (auto itemInfo : itemInfoList) {
+		actualOutput += makeItemOutputForHAPI2(itemInfo);
+	}
+	string expectedOutput;
+	for (auto itemInfo : expectedItemInfoList) {
+		expectedOutput += makeItemOutputForHAPI2(itemInfo);
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
 void test_procedureHandlerPutItemsInvalidJSON(void)
