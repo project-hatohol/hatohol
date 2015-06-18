@@ -111,16 +111,11 @@ function getServerTypeId(server) {
 
 function getPlugin(server) {
   var type = getServerTypeId(server);
-  var pluginName, plugin;
 
   if (type == null || type == undefined)
     return undefined;
 
-  pluginName = "hap_" + type;
-  if (!hatohol[pluginName])
-    return undefined;
-
-  return hatohol[pluginName];
+  return hatohol["hap_" + type];
 }
 
 function getServerLocation(server) {
