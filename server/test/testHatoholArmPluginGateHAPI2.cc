@@ -566,6 +566,14 @@ void test_procedureHandlerPutHostsInvalidJSON(void)
 		" 'hostName' does not exist.\""
 		"]}}";
 	cppcut_assert_equal(expected, actual);
+
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	ServerHostDefVect hostDefVect;
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getServerHostDefs(hostDefVect, option);
+	cppcut_assert_equal(hostDefVect.size(), static_cast<size_t>(0));
 }
 
 void test_procedureHandlerPutHostGroups(void)
