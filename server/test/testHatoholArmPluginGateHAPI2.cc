@@ -592,6 +592,36 @@ void test_procedureHandlerPutHostGroups(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"123abc\"}";
 	cppcut_assert_equal(expected, actual);
+
+	HostgroupVect expectedHostgroupVect = {
+		{
+			1,                       // id
+			monitoringServerInfo.id, // serverId
+			"1",                     // idInServer
+			"Group2",                // name
+		},
+	};
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	HostgroupVect hostgroupVect;
+	HostgroupsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getHostgroups(hostgroupVect, option);
+	string actualOutput;
+	{
+		size_t i = 0;
+		for (auto hostgroup : hostgroupVect) {
+			actualOutput += makeHostgroupsOutput(hostgroup, i);
+		}
+	}
+	string expectedOutput;
+	{
+		size_t i = 0;
+		for (auto hostgroup : expectedHostgroupVect) {
+			expectedOutput += makeHostgroupsOutput(hostgroup, i);
+		}
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
 void test_procedureHandlerPutHostGroupsInvalidJSON(void)
