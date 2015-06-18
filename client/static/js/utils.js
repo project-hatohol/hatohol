@@ -104,7 +104,7 @@ function isIPv4(ipAddress) {
 function getServerTypeId(server) {
   if (!server)
     return null;
-  if (server.type == 7 /* hatohol.MONITORING_SYSTEM_HAPI2 */)
+  if (server.type == hatohol.MONITORING_SYSTEM_HAPI2)
       return server.uuid;
   return server.type;
 }
