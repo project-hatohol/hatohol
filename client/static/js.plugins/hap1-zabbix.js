@@ -1,8 +1,8 @@
 (function(hatohol) {
-  var self = hatohol.addNamespace("hatohol.hap_2");
-  // 2 == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX
+  var type = hatohol.MONITORING_SYSTEM_HAPI_ZABBIX;
+  var self = hatohol.addNamespace("hatohol.hap_" + type);
 
-  self.type = hatohol.MONITORING_SYSTEM_HAPI_ZABBIX;
+  self.type = type;
   self.label = "Zabbix (HAPI)";
 
   self.getTopURL = function(server) {

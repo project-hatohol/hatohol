@@ -1,7 +1,7 @@
 (function(hatohol) {
-  var self = hatohol.addNamespace("hatohol.hap_4");
-  // 4 == hatohol.MONITORING_SYSTEM_NAGIOS
+  var type = hatohol.MONITORING_SYSTEM_HAPI_JSON;
+  var self = hatohol.addNamespace("hatohol.hap_" + type);
 
-  self.type = hatohol.MONITORING_SYSTEM_HAPI_JSON;
+  self.type = type;
   self.label = "General Plugin";
 }(hatohol));

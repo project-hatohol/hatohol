@@ -1,7 +1,7 @@
 (function(hatohol) {
-  var self = hatohol.addNamespace("hatohol.hap_6");
-  // 6 == hatohol.MONITORING_SYSTEM_CEILOMETER
+  var type = hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER;
+  var self = hatohol.addNamespace("hatohol.hap_" + type);
 
-  self.type = hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER;
+  self.type = type;
   self.label = "Ceilometer";
 }(hatohol));

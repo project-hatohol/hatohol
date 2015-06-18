@@ -1,8 +1,8 @@
 (function(hatohol) {
-  var self = hatohol.addNamespace("hatohol.hap_1");
-  // 1 == hatohol.MONITORING_SYSTEM_NAGIOS
+  var type = hatohol.MONITORING_SYSTEM_NAGIOS;
+  var self = hatohol.addNamespace("hatohol.hap_" + type);
 
-  self.type = hatohol.MONITRING_SYSETEM_NAGIOS;
+  self.type = type;
   self.label = "Nagios";
 
   self.getTopURL = function(server) {
