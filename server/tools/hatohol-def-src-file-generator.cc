@@ -162,6 +162,7 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, MONITORING_SYSTEM_HAPI_NAGIOS);
 	ADD_LINE(s, langType, MONITORING_SYSTEM_HAPI_JSON);
 	ADD_LINE(s, langType, MONITORING_SYSTEM_HAPI_CEILOMETER);
+	ADD_LINE(s, langType, MONITORING_SYSTEM_HAPI2);
 	ADD_LINE(s, langType, MONITORING_SYSTEM_UNKNOWN);
 	APPEND(s, "\n");
 

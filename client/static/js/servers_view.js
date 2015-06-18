@@ -170,26 +170,6 @@ var ServersView = function(userProfile) {
     hatoholInfoMsgBox("Reloading...");
   }
 
-  function getServerTypeLabel(type) {
-    switch(type) {
-    case hatohol.MONITORING_SYSTEM_ZABBIX:
-      return gettext("Zabbix");
-    case hatohol.MONITORING_SYSTEM_NAGIOS:
-      return gettext("Nagios");
-    case hatohol.MONITORING_SYSTEM_HAPI_ZABBIX:
-      return gettext("Zabbix (HAPI)");
-    case hatohol.MONITORING_SYSTEM_HAPI_NAGIOS:
-      return gettext("Nagios (HAPI)");
-    case hatohol.MONITORING_SYSTEM_HAPI_JSON:
-      return gettext("General Plugin");
-    case hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER:
-      return gettext("Ceilometer");
-    default:
-      break;
-    }
-    return gettext("Unknown");
-  }
-
   function drawTableBody(rd) {
     var x;
     var s;
@@ -216,7 +196,7 @@ var ServersView = function(userProfile) {
              "data-trigger='hover' " +
              "data-container='body' " +
            ">" + escapeHTML(gettext("Checking")) + "</td>";
-      s += "<td>" + getServerTypeLabel(o["type"]) + "</td>";
+      s += "<td>" + makeMonitoringSystemTypeLabel(o["type"]) + "</td>";
       if (serverURL) {
         s += "<td class='server-url-link'><a href='" + serverURL + "' target='_blank'>"
              + escapeHTML(o["hostName"])  + "</a></td>";
