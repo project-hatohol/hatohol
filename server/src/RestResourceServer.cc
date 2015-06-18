@@ -619,6 +619,9 @@ void RestResourceServer::handlerPutServer(void)
 void RestResourceServer::handlerTriggerUpdateServer(void)
 {
 	uint64_t serverId = getResourceId();
+	TriggersQueryOption option(m_dataQueryContextPtr);
+	option.setTargetServerId(serverId);
+	option.setTargetHostId(ALL_LOCAL_HOSTS);
 	if (serverId == INVALID_ID) {
 		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
 			    "id: %s", getResourceIdString().c_str());
@@ -627,7 +630,7 @@ void RestResourceServer::handlerTriggerUpdateServer(void)
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HatoholError err = HTERR_OK;
-	dataStore->fetchTriggerAsync(NULL, serverId);
+	dataStore->fetchTriggerAsync(NULL, option);
 
 	JSONBuilder agent;
 	agent.startObject();

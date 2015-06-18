@@ -431,8 +431,9 @@ bool UnifiedDataStore::fetchItemsAsync(Closure0 *closure,
 }
 
 bool UnifiedDataStore::fetchTriggerAsync(Closure0 *closure,
-					 const ServerIdType &targetServerId)
+					 const TriggersQueryOption &option)
 {
+	const ServerIdType targetServerId = option.getTargetServerId();
 	if (!m_impl->triggerFetchWorker.updateIsNeeded())
 		return false;
 
