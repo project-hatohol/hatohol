@@ -724,6 +724,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 
 static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 			    const MonitoringServerInfo &serverInfo,
+			    const HostInfoCache &hostInfoCache,
 			    JSONRPCError &errObj)
 {
 	CHECK_MANDATORY_ARRAY_EXISTENCE("items", errObj);
@@ -748,7 +749,16 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 		PARSE_AS_MANDATORY("itemGroupName", itemInfo.itemGroupName, errObj);
 		PARSE_AS_MANDATORY("unit", itemInfo.unit, errObj);
 		parser.endElement();
-
+		HostInfoCache::Element cacheElem;
+		const bool found =
+			hostInfoCache.getName(itemInfo.hostIdInServer, cacheElem);
+		if (!found) {
+			MLPL_WARN(
+			  "Host cache: not found. server: %" FMT_SERVER_ID ", "
+			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
+			  serverInfo.id, itemInfo.hostIdInServer.c_str());
+		}
+		itemInfo.globalHostId = cacheElem.hostId;
 		itemInfoList.push_back(itemInfo);
 	}
 	parser.endObject(); // items
@@ -765,7 +775,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	parseItemParams(parser, itemList, serverInfo, errObj);
+	const HostInfoCache &hostInfoCache = m_impl->hostInfoCache;
+	parseItemParams(parser, itemList, serverInfo, hostInfoCache, errObj);
 	if (parser.isMember("fetchId")) {
 		parser.read("fetchId", fetchId);
 	}
