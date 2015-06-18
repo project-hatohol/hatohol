@@ -331,7 +331,6 @@ void test_procedureHandlerLastInfo(gconstpointer data)
 void test_procedureHandlerLastInfoInvalidJSON(void)
 {
 	MonitoringServerInfo serverInfo = monitoringServerInfo;
-	loadTestDBLastInfo();
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(serverInfo, false), false);
 	string json =
@@ -348,6 +347,15 @@ void test_procedureHandlerLastInfoInvalidJSON(void)
 		"\"Failed to parse mandatory member: 'params' does not exist.\""
 		"]}}";
 	cppcut_assert_equal(expected, actual);
+	ThreadLocalDBCache cache;
+	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
+
+	LastInfoDefList lastInfoList;
+	LastInfoQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverInfo.id);
+	auto err = dbLastInfo.getLastInfoList(lastInfoList, option);
+	assertHatoholError(HTERR_OK, err);
+	cppcut_assert_equal(lastInfoList.size(), static_cast<size_t>(0));
 }
 
 void test_procedureHandlerPutItems(void)
