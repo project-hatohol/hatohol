@@ -110,6 +110,7 @@ std::string makeTriggerOutput(const TriggerInfo &triggerInfo);
 std::string makeEventOutput(const EventInfo &eventInfo);
 std::string makeIncidentOutput(const IncidentInfo &incidentInfo);
 std::string makeHistoryOutput(const HistoryInfo &historyInfo);
+std::string makeItemOutput(const ItemInfo &itemInfo);
 
 void _assertDatetime(int expectedClock, int actualClock);
 #define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))
