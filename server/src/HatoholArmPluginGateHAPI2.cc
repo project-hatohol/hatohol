@@ -190,6 +190,13 @@ struct HatoholArmPluginGateHAPI2::Impl
 			m_impl.parseExchangeProfileParams(parser, errObj);
 			parser.endObject();
 
+			if (errObj.hasErrors()) {
+				MLPL_WARN("Received an error on parsing "
+					  "exchangeProfile: %s\n",
+					  errorMessage.c_str());
+				return;
+			}
+
 			m_impl.m_hapi2.setEstablished(true);
 		}
 	};
