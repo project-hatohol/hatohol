@@ -1,5 +1,6 @@
-(function(global, namespace) {
-  var self = hatohol.addNamespace(namespace);
+(function(hatohol) {
+  var self = hatohol.addNamespace("hatohol.hap_1");
+  // 1 == hatohol.MONITORING_SYSTEM_NAGIOS
 
   self.type = hatohol.MONITRING_SYSETEM_NAGIOS;
   self.label = "Nagios";
@@ -18,4 +19,4 @@
     }
     return url ? hatohol.escapeHTML(url) : url;
   };
-}(this, "hatohol.hap_1")); // 1 == hatohol.MONITORING_SYSTEM_NAGIOS
+}(hatohol));

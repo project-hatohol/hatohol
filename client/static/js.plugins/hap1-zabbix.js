@@ -1,5 +1,6 @@
-(function(global, namespace) {
-    var self = hatohol.addNamespace(namespace);
+(function(hatohol) {
+    var self = hatohol.addNamespace("hatohol.hap_2");
+    // 2 == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX
 
     self.type = hatohol.MONITORING_SYSTEM_HAPI_ZABBIX;
     self.label = "Zabbix (HAPI)";
@@ -40,4 +41,4 @@
 	location += "maps.php";
 	return location;
     };
-}(this, "hatohol.hap_2")); // 2 == hatohol.MONITORING_SYSTEM_HAPI_ZABBIX
+}(hatohol));
