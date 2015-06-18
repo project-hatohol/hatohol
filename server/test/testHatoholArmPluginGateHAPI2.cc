@@ -63,24 +63,6 @@ const static ArmPluginInfo armPluginInfo = {
 	"8e632c14-d1f7-11e4-8350-d43d7e3146fb", // uuid
 };
 
-static string makeItemOutputForHAPI2(const ItemInfo &itemInfo)
-{
-	string expectedOut =
-	  StringUtils::sprintf(
-	    "|%" FMT_ITEM_ID
-	    "|%" FMT_LOCAL_HOST_ID "|%s|%ld|%lu|%s|%s|%s|%s\n",
-	    itemInfo.id.c_str(),
-	    itemInfo.hostIdInServer.c_str(),
-	    itemInfo.brief.c_str(),
-	    itemInfo.lastValueTime.tv_sec,
-	    itemInfo.lastValueTime.tv_nsec,
-	    itemInfo.lastValue.c_str(),
-	    itemInfo.prevValue.c_str(),
-	    itemInfo.itemGroupName.c_str(),
-	    itemInfo.unit.c_str());
-	return expectedOut;
-}
-
 namespace testHAPI2ParseTimeStamp {
 
 void test_fullFormat(void) {
@@ -393,33 +375,41 @@ void test_procedureHandlerPutItems(void)
 
 	lastValueTime = "20150410175523";
 	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item1.serverId       = 302;
 	item1.id             = "1";
+	item1.globalHostId   = INVALID_HOST_ID; // FIXME
 	item1.hostIdInServer = "1";
 	item1.brief          = "example brief";
 	item1.lastValueTime  = timeStamp;
 	item1.lastValue      = "example value";
 	item1.itemGroupName  = "example name";
+	item1.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN; // FIXME
+	item1.delay          = 0;
 	item1.unit           = "example unit";
 	expectedItemInfoList.push_back(item1);
 
 	lastValueTime = "20150410175531";
 	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item2.serverId       = 302;
 	item2.id             = "2";
+	item2.globalHostId   = INVALID_HOST_ID; // FIXME
 	item2.hostIdInServer = "1";
 	item2.brief          = "example brief";
 	item2.lastValueTime  = timeStamp;
 	item2.lastValue      = "example value";
 	item2.itemGroupName  = "example name";
+	item1.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN; // FIXME
+	item2.delay          = 0;
 	item2.unit           = "example unit";
 	expectedItemInfoList.push_back(item2);
 
 	string actualOutput;
 	for (auto itemInfo : itemInfoList) {
-		actualOutput += makeItemOutputForHAPI2(itemInfo);
+		actualOutput += makeItemOutput(itemInfo);
 	}
 	string expectedOutput;
 	for (auto itemInfo : expectedItemInfoList) {
-		expectedOutput += makeItemOutputForHAPI2(itemInfo);
+		expectedOutput += makeItemOutput(itemInfo);
 	}
 	cppcut_assert_equal(expectedOutput, actualOutput);
 }

@@ -757,8 +757,10 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 			  "Host cache: not found. server: %" FMT_SERVER_ID ", "
 			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
 			  serverInfo.id, itemInfo.hostIdInServer.c_str());
+			cacheElem.hostId = INVALID_HOST_ID;
 		}
 		itemInfo.globalHostId = cacheElem.hostId;
+		itemInfo.delay = 0;
 		itemInfoList.push_back(itemInfo);
 	}
 	parser.endObject(); // items
