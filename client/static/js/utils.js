@@ -350,8 +350,8 @@ function formatItemPrevValue(item) {
     var i, here = global;
     for (i = 0; i < spaces.length; i++) {
       if (typeof(here[spaces[i]]) == 'undefined')
-	  here[spaces[i]] = {};
-        here = here[spaces[i]];
+        here[spaces[i]] = {};
+      here = here[spaces[i]];
     }
     return here;
   }
