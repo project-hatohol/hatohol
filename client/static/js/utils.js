@@ -348,8 +348,9 @@ function formatItemPrevValue(item) {
   function Namespace(str) {
     var spaces = str.split('.');
     var i, here = global;
-    for (i = 0; i < spaces.length; i++){
-      if (typeof(here[spaces[i]]) == 'undefined') here[spaces[i]] = {};
+    for (i = 0; i < spaces.length; i++) {
+      if (typeof(here[spaces[i]]) == 'undefined')
+	  here[spaces[i]] = {};
         here = here[spaces[i]];
     }
     return here;
