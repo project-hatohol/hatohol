@@ -116,37 +116,6 @@ describe('getServerLocation', function() {
     expect(getServerLocation(server)).to.be(expected);
   });
 
-  it('with valid HAPI nagios server', function() {
-    var server = {
-      "type": hatohol.MONITORING_SYSTEM_HAPI_NAGIOS,
-      "ipAddress": "127.0.0.1",
-      "name": "localhost"
-    };
-    var expected = "http://127.0.0.1/nagios/";
-    expect(getServerLocation(server)).to.be(expected);
-  });
-
-  it('HAPI nagios server with port', function() {
-    var server = {
-      "type": hatohol.MONITORING_SYSTEM_HAPI_NAGIOS,
-      "ipAddress": "127.0.0.1",
-      "name": "localhost",
-      "port": 8080
-    };
-    var expected = "http://127.0.0.1:8080/nagios/";
-    expect(getServerLocation(server)).to.be(expected);
-  });
-
-  it('ipv6 HAPI nagios server', function() {
-    var server = {
-      "type": hatohol.MONITORING_SYSTEM_HAPI_NAGIOS,
-      "ipAddress": "::1",
-      "name": "localhost"
-    };
-    var expected = "http://[::1]/nagios/";
-    expect(getServerLocation(server)).to.be(expected);
-  });
-
   it('with HAPI JSON type(unknown)', function() {
     var server = {
       "type": hatohol.MONITORING_SYSTEM_HAPI_JSON,
@@ -210,16 +179,6 @@ describe('getItemGraphLocation', function() {
     expect(getItemGraphLocation(server, itemId)).to.be(expected);
   });
 
-  it('with valid HAPI nagios server', function() {
-    var server = {
-      "type": hatohol.MONITORING_SYSTEM_HAPI_NAGIOS,
-      "ipAddress": "127.0.0.1",
-      "name": "localhost"
-    };
-    var itemId = 1129;
-    expect(getItemGraphLocation(server, itemId)).to.be(undefined);
-  });
-
   it('with valid HAPI JSON', function() {
     var server = {
       "type": hatohol.MONITORING_SYSTEM_HAPI_JSON,
@@ -281,15 +240,6 @@ describe('getMapsLocation', function() {
     expect(getMapsLocation(server)).to.be(expected);
   });
 
-  it('with valid HAPI nagios server', function() {
-    var server = {
-      "type": hatohol.MONITORING_SYSTEM_HAPI_NAGIOS,
-      "ipAddress": "192.168.22.118",
-      "name": "localhost"
-    };
-    expect(getMapsLocation(server)).to.be(undefined);
-  });
-
   it('with valid HAPI JSON(unknown)', function() {
     var server = {
       "type": hatohol.MONITORING_SYSTEM_HAPI_NAGIOS,
@@ -321,43 +271,37 @@ describe('getMapsLocation', function() {
 describe('makeMonitoringSystemTypeLabel', function() {
   it('with valid zabbix server', function() {
     var type = hatohol.MONITORING_SYSTEM_ZABBIX;
-    var expected = "ZABBIX";
+    var expected = "Zabbix";
     expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
   });
 
   it('with valid nagios server', function() {
     var type = hatohol.MONITORING_SYSTEM_NAGIOS;
-    var expected = "NAGIOS";
+    var expected = "Nagios";
     expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
   });
 
   it('with valid HAPI zabbix server', function() {
     var type = hatohol.MONITORING_SYSTEM_HAPI_ZABBIX;
-    var expected = "ZABBIX(HAPI)";
-    expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
-  });
-
-  it('with valid HAPI nagios server', function() {
-    var type = hatohol.MONITORING_SYSTEM_HAPI_NAGIOS;
-    var expected = "NAGIOS(HAPI)";
+    var expected = "Zabbix (HAPI)";
     expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
   });
 
   it('with valid HAPI JSON', function() {
     var type = hatohol.MONITORING_SYSTEM_HAPI_JSON;
-    var expected = "GENERAL PLUGIN";
+    var expected = "General Plugin";
     expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
   });
 
   it('with valid HAPI CEILOMETER', function() {
     var type = hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER;
-    var expected = "CEILOMETER";
+    var expected = "Ceilometer";
     expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
   });
 
   it('with unknown server type', function() {
     var type = hatohol.MONITORING_SYSTEM_UNKNOWN;
-    var expected = "INVALID: " + type;
+    var expected = "Invalid: " + type;
     expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
   });
 });
