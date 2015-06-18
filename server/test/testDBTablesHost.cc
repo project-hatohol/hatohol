@@ -120,15 +120,6 @@ static void _assertGetHosts(AssertGetHostsArg &arg)
 }
 #define assertGetHosts(A) cut_trace(_assertGetHosts(A))
 
-static string makeHostgroupsOutput(const Hostgroup &hostgrp, const size_t &id)
-{
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|%" FMT_SERVER_ID "|%s|%s\n",
-	  id + 1, hostgrp.serverId,
-	  hostgrp.idInServer.c_str(), hostgrp.name.c_str());
-	return expectedOut;
-}
-
 static string makeMapHostsHostgroupsOutput(
   const HostgroupMember &hostgrpMember, const size_t &id)
 {

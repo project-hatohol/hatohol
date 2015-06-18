@@ -582,6 +582,15 @@ string makeHostsOutput(const ServerHostDef &svHostDef, const size_t &id)
 	return expectedOut;
 }
 
+string makeHostgroupsOutput(const Hostgroup &hostgrp, const size_t &id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%zd|%" FMT_SERVER_ID "|%s|%s\n",
+	  id + 1, hostgrp.serverId,
+	  hostgrp.idInServer.c_str(), hostgrp.name.c_str());
+	return expectedOut;
+}
+
 static void assertDBContentForComponets(const string &expect,
                                         const string &actual,
                                         DBAgent *dbAgent)
