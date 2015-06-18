@@ -658,11 +658,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 	return builder.generate();
 }
 
-static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType,
-				JSONRPCError &errObj)
+bool HatoholArmPluginGateHAPI2::convertLastInfoStrToType(
+  const string &type, LastInfoType &lastInfoType)
 {
-	string type;
-	PARSE_AS_MANDATORY("params", type, errObj);
 	if (type == "host")
 		lastInfoType = LAST_INFO_HOST;
 	else if (type == "hostGroup")
@@ -679,8 +677,16 @@ static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType,
 		lastInfoType = LAST_INFO_ALL;
 		return false;
 	}
-
 	return true;
+}
+
+static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType,
+				JSONRPCError &errObj)
+{
+	string type;
+	PARSE_AS_MANDATORY("params", type, errObj);
+
+	return HatoholArmPluginGateHAPI2::convertLastInfoStrToType(type, lastInfoType);
 }
 
 string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)

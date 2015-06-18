@@ -52,6 +52,8 @@ public:
 	  const size_t count,
 	  const bool ascending = true,
 	  Closure0 *closure = NULL) override;
+	static bool convertLastInfoStrToType(const std::string &type,
+	                                     LastInfoType &lastInfoType);
 
 protected:
 	virtual ~HatoholArmPluginGateHAPI2();
