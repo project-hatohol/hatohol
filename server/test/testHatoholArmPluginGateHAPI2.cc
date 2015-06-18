@@ -511,6 +511,38 @@ void test_procedureHandlerPutHosts(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"deadbeaf\"}";
 	cppcut_assert_equal(expected, actual);
+
+	ServerHostDefVect expectedHostVect = {
+		{
+			1,                       // id
+			1,                       // hostId
+			monitoringServerInfo.id, // serverId
+			"",                      // hostIdInServer
+			"exampleHostName1",      // name
+		},
+	};
+
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	ServerHostDefVect hostDefVect;
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getServerHostDefs(hostDefVect, option);
+	string actualOutput;
+	{
+		size_t i = 0;
+		for (auto host : hostDefVect) {
+			actualOutput += makeHostsOutput(host, i);
+		}
+	}
+	string expectedOutput;
+	{
+		size_t i = 0;
+		for (auto host : expectedHostVect) {
+			expectedOutput += makeHostsOutput(host, i);
+		}
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
 void test_procedureHandlerPutHostsInvalidJSON(void)
