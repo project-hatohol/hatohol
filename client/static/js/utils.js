@@ -344,7 +344,7 @@ function formatItemPrevValue(item) {
   return formatItemValue(item["prevValue"], item["unit"]);
 }
 
-(function(global, namespace) {
+(function(global) {
   function Namespace(str) {
     var spaces = str.split('.');
     var i, here = global;
@@ -356,8 +356,8 @@ function formatItemPrevValue(item) {
     return here;
   }
 
-  var hatohol = Namespace(namespace);
+  var hatohol = Namespace("hatohol");
   hatohol.addNamespace = Namespace;
   hatohol.isIPv4 = isIPv4;
   hatohol.escapeHTML = escapeHTML;
-}(this, "hatohol"));
+}(this));
