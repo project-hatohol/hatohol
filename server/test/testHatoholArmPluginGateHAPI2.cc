@@ -287,6 +287,27 @@ void test_procedureHandlerLastInfo(gconstpointer data)
 	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":789}",
 			       gcut_data_get_string(data, "value"));
 	cppcut_assert_equal(expected, actual);
+
+	// DB assertions
+	LastInfoType type;
+	HatoholArmPluginGateHAPI2::convertLastInfoStrToType(
+	  gcut_data_get_string(data, "params"), type);
+	ThreadLocalDBCache cache;
+	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
+
+	LastInfoDefList lastInfoList;
+	LastInfoQueryOption option(USER_ID_SYSTEM);
+	option.setLastInfoType(type);
+	option.setTargetServerId(serverInfo.id);
+	auto err = dbLastInfo.getLastInfoList(lastInfoList, option);
+	assertHatoholError(HTERR_OK, err);
+
+	for (auto lastInfo : lastInfoList) {
+		cppcut_assert_equal(lastInfo.dataType, type);
+		string value = gcut_data_get_string(data, "value");
+		cppcut_assert_equal(lastInfo.value, value);
+		cppcut_assert_equal(lastInfo.serverId, serverInfo.id);
+	}
 }
 
 void test_procedureHandlerLastInfoInvalidJSON(void)
