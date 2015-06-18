@@ -143,17 +143,6 @@ static string makeMapHostsHostgroupsOutput(
 	return expectedOut;
 }
 
-static string makeHostsOutput(const ServerHostDef &svHostDef, const size_t &id)
-{
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|" DBCONTENT_MAGIC_ANY "|%" FMT_SERVER_ID "|%s|%s|%d\n",
-	  id + 1, svHostDef.serverId,
-	  svHostDef.hostIdInServer.c_str(), svHostDef.name.c_str(),
-	  HOST_STAT_NORMAL);
-
-	return expectedOut;
-}
-
 static string makeVMInfoOutput(const VMInfo &vmInfo, const size_t &id)
 {
 	string expectedOut = StringUtils::sprintf(
