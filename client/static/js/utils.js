@@ -84,22 +84,16 @@ function makeSeverityLabel(severity) {
 }
 
 function makeMonitoringSystemTypeLabel(type) {
-  switch (type) {
-  case hatohol.MONITORING_SYSTEM_ZABBIX:
-    return "ZABBIX";
-  case hatohol.MONITORING_SYSTEM_NAGIOS:
-    return "NAGIOS";
-  case hatohol.MONITORING_SYSTEM_HAPI_ZABBIX:
-    return "ZABBIX(HAPI)";
-  case hatohol.MONITORING_SYSTEM_HAPI_NAGIOS:
-    return "NAGIOS(HAPI)";
-  case hatohol.MONITORING_SYSTEM_HAPI_JSON:
-    return "GENERAL PLUGIN";
-  case hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER:
-    return "CEILOMETER";
-  default:
-    return "INVALID: " + type;
-  }
+  var pluginName;
+
+  if (type == null || type == undefined)
+    return "Invalid";
+
+  pluginName = "hap_" + type;
+  if (!hatohol[pluginName])
+    return "Invalid: " + type;
+
+  return hatohol[pluginName].label;
 }
 
 function isIPv4(ipAddress) {
@@ -107,79 +101,47 @@ function isIPv4(ipAddress) {
   return ipAddress.match(ipv4Regexp);
 }
 
-function getServerLocation(server) {
-  var ipAddress, port, url;
-
+function getServerTypeId(server) {
   if (!server)
-    return undefined;
-
-  ipAddress = server["ipAddress"];
-  port = server["port"];
-  if (isIPv4(ipAddress))
-    url = "http://" + ipAddress;
-  else // maybe IPv6
-    url = "http://[" + ipAddress + "]";
-  if (!isNaN(port) && port != "80")
-    url += ":" + port;
-
-  switch (server["type"]) {
-  case hatohol.MONITORING_SYSTEM_ZABBIX:
-    url += "/zabbix/";
-    break;
-  case hatohol.MONITORING_SYSTEM_NAGIOS:
-    if (server["baseURL"]) {
-      url = server["baseURL"];
-    } else {
-      url = undefined;    // issue-839
-    }
-    break;
-  case hatohol.MONITORING_SYSTEM_HAPI_ZABBIX:
-    url += "/zabbix/";
-    break;
-  case hatohol.MONITORING_SYSTEM_HAPI_NAGIOS:
-    url += "/nagios/";
-    break;
-  default:
-    url = undefined;
-    break;
-  }
-  return url ? escapeHTML(url) : url;
+    return null;
+  if (server.type == 7 /* hatohol.MONITORING_SYSTEM_HAPI2 */)
+      return server.uuid;
+  return server.type;
 }
 
-function getItemGraphLocation(server, itemId) {
-  var location = getServerLocation(server);
-  if (!location)
+function getPlugin(server) {
+  var type = getServerTypeId(server);
+  var pluginName, plugin;
+
+  if (type == null || type == undefined)
     return undefined;
 
-  switch (server["type"]) {
-  case hatohol.MONITORING_SYSTEM_ZABBIX:
-    location += "history.php?action=showgraph&amp;itemid=" + itemId;
-    break;
-  case hatohol.MONITORING_SYSTEM_HAPI_ZABBIX:
-    location += "history.php?action=showgraph&amp;itemid=" + itemId;
-    break;
-  default:
+  pluginName = "hap_" + type;
+  if (!hatohol[pluginName])
     return undefined;
-  }
-  return location;
+
+  return hatohol[pluginName];
+}
+
+function getServerLocation(server) {
+  var plugin = getPlugin(server);
+  if (!plugin || !plugin.getTopURL)
+    return undefined;
+  return plugin.getTopURL(server);
 }
 
 function getMapsLocation(server) {
-  var location = getServerLocation(server);
-  if (!location)
+  var plugin = getPlugin(server);
+  if (!plugin || !plugin.getMapsURL)
     return undefined;
+  return plugin.getMapsURL(server);
+}
 
-  switch (server["type"]) {
-  case hatohol.MONITORING_SYSTEM_ZABBIX:
-    location += "maps.php";
-    break;
-  case hatohol.MONITORING_SYSTEM_HAPI_ZABBIX:
-    location += "maps.php";
-    break;
-  default:
+function getItemGraphLocation(server, itemId) {
+  var plugin = getPlugin(server);
+  if (!plugin || !plugin.getItemGraphURL)
     return undefined;
-  }
-  return location;
+  return plugin.getItemGraphURL(server, itemId);
 }
 
 function getServerName(server, serverId) {
@@ -381,3 +343,20 @@ function formatItemPrevValue(item) {
   }
   return formatItemValue(item["prevValue"], item["unit"]);
 }
+
+(function(global, namespace) {
+  function Namespace(str) {
+    var spaces = str.split('.');
+    var i, here = global;
+    for (i = 0; i < spaces.length; i++){
+      if (typeof(here[spaces[i]]) == 'undefined') here[spaces[i]] = {};
+        here = here[spaces[i]];
+    }
+    return here;
+  }
+
+  var hatohol = Namespace(namespace);
+  hatohol.addNamespace = Namespace;
+  hatohol.isIPv4 = isIPv4;
+  hatohol.escapeHTML = escapeHTML;
+}(this, "hatohol"));
