@@ -453,6 +453,14 @@ void test_procedureHandlerPutItemsInvalidJSON(void)
 		" 'brief' does not exist.\""
 		"]}}";
 	cppcut_assert_equal(expected, actual);
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	ItemInfoList itemInfoList;
+	ItemsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getItemInfoList(itemInfoList, option);
+	cppcut_assert_equal(itemInfoList.size(), static_cast<size_t>(0));
 }
 
 void test_procedureHandlerPutHistory(void)
