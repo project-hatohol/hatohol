@@ -781,6 +781,14 @@ void test_procedureHandlerPutTriggersInvalidJSON(void)
 		" 'brief' does not exist.\""
 		"]}}";
 	cppcut_assert_equal(expected, actual);
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	TriggerInfoList triggerInfoList;
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getTriggerInfoList(triggerInfoList, option);
+	cppcut_assert_equal(triggerInfoList.size(), static_cast<size_t>(0));
 }
 
 void data_procedureHandlerPutEvents(void)
