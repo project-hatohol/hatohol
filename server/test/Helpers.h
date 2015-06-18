@@ -113,6 +113,7 @@ std::string makeHistoryOutput(const HistoryInfo &historyInfo);
 std::string makeItemOutput(const ItemInfo &itemInfo);
 std::string makeHostsOutput(const ServerHostDef &svHostDef, const size_t &id);
 std::string makeHostgroupsOutput(const Hostgroup &hostgrp, const size_t &id);
+std::string makeMapHostsHostgroupsOutput(const HostgroupMember &hostgrpMember, const size_t &id);
 
 void _assertDatetime(int expectedClock, int actualClock);
 #define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))

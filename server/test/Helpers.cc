@@ -591,6 +591,20 @@ string makeHostgroupsOutput(const Hostgroup &hostgrp, const size_t &id)
 	return expectedOut;
 }
 
+string makeMapHostsHostgroupsOutput(
+  const HostgroupMember &hostgrpMember, const size_t &id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%zd|%" FMT_SERVER_ID "|%s|%s|%" FMT_HOST_ID "\n",
+	  id + 1,
+	  hostgrpMember.serverId,
+	  hostgrpMember.hostIdInServer.c_str(),
+	  hostgrpMember.hostgroupIdInServer.c_str(),
+	  hostgrpMember.hostId);
+
+	return expectedOut;
+}
+
 static void assertDBContentForComponets(const string &expect,
                                         const string &actual,
                                         DBAgent *dbAgent)
