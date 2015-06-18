@@ -114,6 +114,9 @@
     <script src="{{ STATIC_URL }}js/hatohol_pager.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_version.js"></script>
     <script src="{{ STATIC_URL }}js/utils.js"></script>
+    {% for file in plugin_js_files %}
+    <script src="{{ STATIC_URL }}js.plugins/{{ file }}"></script>
+    {% endfor %}
     <script type="text/javascript">
       var userProfile;
       var params = deparam();
