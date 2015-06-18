@@ -648,6 +648,14 @@ void test_procedureHandlerPutHostGroupsInvalidJSON(void)
 		" 'groupName' does not exist.\""
 		"]}}";
 	cppcut_assert_equal(expected, actual);
+
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	HostgroupVect hostgroupVect;
+	HostgroupsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getHostgroups(hostgroupVect, option);
+	cppcut_assert_equal(hostgroupVect.size(), static_cast<size_t>(0));
 }
 
 void test_procedureHandlerPutHostGroupMembership(void)
