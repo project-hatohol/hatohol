@@ -740,6 +740,7 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 		}
 
 		ItemInfo itemInfo;
+		itemInfo.id = AUTO_INCREMENT_VALUE;
 		itemInfo.serverId = serverInfo.id;
 		PARSE_AS_MANDATORY("itemId", itemInfo.id, errObj);
 		PARSE_AS_MANDATORY("hostId", itemInfo.hostIdInServer, errObj);
@@ -895,6 +896,7 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 		}
 
 		ServerHostDef hostInfo;
+		hostInfo.id = AUTO_INCREMENT_VALUE;
 		hostInfo.serverId = serverInfo.id;
 		int64_t hostId;
 		PARSE_AS_MANDATORY("hostId", hostId, errObj);
@@ -990,6 +992,7 @@ static bool parseHostGroupsParams(JSONParser &parser,
 		}
 
 		Hostgroup hostgroup;
+		hostgroup.id = AUTO_INCREMENT_VALUE;
 		hostgroup.serverId = serverInfo.id;
 		PARSE_AS_MANDATORY("groupId", hostgroup.idInServer, errObj);
 		PARSE_AS_MANDATORY("groupName", hostgroup.name, errObj);
@@ -1067,26 +1070,28 @@ static bool parseHostGroupMembershipParams(
 			return false;
 		}
 
-		HostgroupMember hostgroupMember;
-		hostgroupMember.serverId = serverInfo.id;
 		string hostIdInServer;
 		PARSE_AS_MANDATORY("hostId", hostIdInServer, errObj);
-		hostgroupMember.hostIdInServer = hostIdInServer;
-		CHECK_MANDATORY_ARRAY_EXISTENCE_INNER_LOOP("groupIds", errObj);
 		HostInfoCache::Element cacheElem;
-		const bool found = hostInfoCache.getName(hostgroupMember.hostIdInServer,
+		const bool found = hostInfoCache.getName(hostIdInServer,
 							 cacheElem);
 		if (!found) {
 			MLPL_WARN(
-			  "Host cache: not found. server: %" FMT_GEN_ID ", "
+			  "Host cache: not found. server: %" FMT_SERVER_ID ", "
 			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
-			  hostgroupMember.id, hostgroupMember.hostIdInServer.c_str());
+			  serverInfo.id, hostIdInServer.c_str());
 			cacheElem.hostId = INVALID_HOST_ID;
 		}
-		hostgroupMember.hostId = cacheElem.hostId;
+		CHECK_MANDATORY_ARRAY_EXISTENCE_INNER_LOOP("groupIds", errObj);
 		parser.startObject("groupIds");
 		size_t groupIdNum = parser.countElements();
 		for (size_t j = 0; j < groupIdNum; j++) {
+			HostgroupMember hostgroupMember;
+			hostgroupMember.id = AUTO_INCREMENT_VALUE;
+			hostgroupMember.serverId = serverInfo.id;
+			hostgroupMember.hostIdInServer = hostIdInServer;
+			hostgroupMember.hostId = cacheElem.hostId;
+
 			parser.read(j, hostgroupMember.hostgroupIdInServer);
 			hostgroupMemberVect.push_back(hostgroupMember);
 		}
@@ -1137,7 +1142,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	if (!lastInfo.empty()) {
 		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP_MEMBERSHIP);
 	}
-	dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
 
 	// add error clause
 	string result = "SUCCESS";
@@ -1222,6 +1226,7 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 		}
 
 		TriggerInfo triggerInfo;
+		triggerInfo.id = AUTO_INCREMENT_VALUE;
 		PARSE_AS_MANDATORY("triggerId",   triggerInfo.id, errObj);
 		triggerInfo.serverId = serverInfo.id;
 		parseTriggerStatus(parser, triggerInfo.status, errObj, false);
@@ -1357,6 +1362,7 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 		}
 
 		EventInfo eventInfo;
+		eventInfo.id = AUTO_INCREMENT_VALUE;
 		eventInfo.serverId = serverInfo.id;
 		PARSE_AS_MANDATORY("eventId",  eventInfo.id, errObj);
 		parseTimeStamp(parser, "time", eventInfo.time, errObj);
@@ -1465,6 +1471,7 @@ static bool parseHostParentsParams(
 		}
 
 		VMInfo vmInfo;
+		vmInfo.id = AUTO_INCREMENT_VALUE;
 		string childHostId, parentHostId;
 		PARSE_AS_MANDATORY("childHostId", childHostId, errObj);
 		vmInfo.hostId = StringUtils::toUint64(childHostId);
