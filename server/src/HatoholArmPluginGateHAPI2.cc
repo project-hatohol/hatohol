@@ -24,6 +24,7 @@
 #include "ThreadLocalDBCache.h"
 #include "UnifiedDataStore.h"
 #include "ArmFake.h"
+#include "ChildProcessManager.h"
 
 using namespace std;
 using namespace mlpl;
@@ -1629,4 +1630,67 @@ void HatoholArmPluginGateHAPI2::upsertLastInfo(string lastInfoValue, LastInfoTyp
 	lastInfo.value = lastInfoValue;
 	lastInfo.serverId = serverInfo.id;
 	dbLastInfo.upsertLastInfo(lastInfo, privilege);
+}
+
+bool HatoholArmPluginGateHAPI2::launchPluginProcess(
+  const ArmPluginInfo &armPluginInfo)
+{
+	const char *ENV_NAME_QUEUE_ADDR = "HAPI_QUEUE_ADDR";
+	struct EventCb : public ChildProcessManager::EventCallback {
+
+		HatoholArmPluginGateHAPI2 *hapg;
+		bool succeededInCreation;
+
+		EventCb(HatoholArmPluginGateHAPI2 *_hapg)
+		: hapg(_hapg),
+		  succeededInCreation(false)
+		{
+		}
+
+		virtual void onExecuted(const bool &succeeded,
+		                        GError *gerror) override
+		{
+			succeededInCreation = succeeded;
+		}
+
+		virtual void onCollected(const siginfo_t *siginfo) override
+		{
+		}
+	} *eventCb = new EventCb(this);
+
+	ChildProcessManager::CreateArg arg;
+	arg.args.push_back(armPluginInfo.path);
+	arg.addFlag(G_SPAWN_SEARCH_PATH);
+
+	// Envrionment variables passsed to the plugin process
+	const char *ldlibpath = getenv("LD_LIBRARY_PATH");
+	if (ldlibpath) {
+		string env = "LD_LIBRARY_PATH=";
+		env += ldlibpath;
+		arg.envs.push_back(env);
+	}
+
+	const char *mlplLoggerLevel = getenv(Logger::LEVEL_ENV_VAR_NAME);
+	if (mlplLoggerLevel) {
+		string env = StringUtils::sprintf("%s=%s",
+		  Logger::LEVEL_ENV_VAR_NAME, mlplLoggerLevel);
+		arg.envs.push_back(env);
+	}
+
+	arg.eventCb = eventCb;
+	arg.envs.push_back(StringUtils::sprintf(
+	  "%s=%s",
+	  ENV_NAME_QUEUE_ADDR,
+	  armPluginInfo.brokerUrl.c_str()));
+	ChildProcessManager::getInstance()->create(arg);
+	if (!eventCb->succeededInCreation) {
+		MLPL_ERR("Failed to execute: (%d) %s\n",
+		         armPluginInfo.type, armPluginInfo.path.c_str());
+		return false;
+	}
+
+	MLPL_INFO("Started: plugin (%d) %s\n",
+	          armPluginInfo.type, armPluginInfo.path.c_str());
+
+	return true;
 }
