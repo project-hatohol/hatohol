@@ -94,18 +94,18 @@ HatoholGraph.prototype.draw = function(beginSec, endSec) {
   }
 
   function getYAxesOptions() {
-    var i, item, label, axis, axes = [], table = {}, isInt;
+    var i, item, label, axis, axes = [], table = {}, isInteger;
     for (i = 0; i < self.loaders.length; i++) {
       item = self.loaders[i].getItem();
       label = item ? item.unit : "";
       axis = item ? table[item.unit] : undefined;
-      isInt = item && (item.valueType == hatohol.ITEM_INFO_VALUE_TYPE_INTEGER);
+      isInteger = item && (isInt(item.lastValue));
       if (axis) {
-        if (!isInt)
+        if (!isInteger)
           delete axis.minTickSize;
       } else {
         axis = getYAxisOptions(label);
-        if (isInt)
+        if (isInteger)
           axis.minTickSize = 1;
         if (axes.length % 2 == 1)
           axis.position = "right";

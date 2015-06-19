@@ -1,5 +1,45 @@
 describe('Utils', function() {
 
+describe('isFloat', function() {
+  it('0 (number)', function() {
+    expect(isFloat(0)).to.be(false);
+  });
+
+  it('0.0 (number)', function() {
+    // It's treated as "0".
+    // It's a limitation of JavaScript.
+    expect(isFloat(0.0)).to.be(false);
+  });
+
+  it('0.0 (string)', function() {
+    expect(isFloat("0.0")).to.be(true);
+  });
+
+  it('1 (number)', function() {
+    // It's treated as "1".
+    // It's a limitation of JavaScript.
+    expect(isFloat(1)).to.be(false);
+  });
+
+  it('1.0 (number)', function() {
+    expect(isFloat(1.0)).to.be(false);
+  });
+
+  it('1.0 (string)', function() {
+    expect(isFloat("1.0")).to.be(true);
+  });
+});
+
+describe('isInt', function() {
+  it('1', function() {
+    expect(isInt(1)).to.be(true);
+  });
+
+  it('1.1', function() {
+    expect(isInt(1.1)).to.be(false);
+  });
+});
+
 describe('getServerLocation', function() {
   it('with valid zabbix server', function() {
     var server = {

@@ -323,19 +323,25 @@ function formatItemValue(value, unit) {
     return formatMetricPrefix(value, unit);
 };
 
+function isInt(value) {
+  // Caution: It doesn't work correctly against a number like 1.0.
+  return !isNaN(value) && !isFloat(value);
+}
+
+function isFloat(value) {
+  // Caution: It doesn't work correctly against a number like 1.0.
+  return !isNaN(value) && value.toString().indexOf('.') != -1;
+}
+
 function formatItemLastValue(item) {
-  if (item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_FLOAT &&
-      item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_INTEGER) {
+  if (isNaN(item["lastValue"]))
     return escapeHTML(item["lastValue"]);
-  }
   return formatItemValue(item["lastValue"], item["unit"]);
 }
 
 function formatItemPrevValue(item) {
-  if (item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_FLOAT &&
-      item["valueType"] != hatohol.ITEM_INFO_VALUE_TYPE_INTEGER) {
-    return escapeHTML(item["lastValue"]);
-  }
+  if (isNaN(item["prevValue"]))
+    return escapeHTML(item["prevValue"]);
   return formatItemValue(item["prevValue"], item["unit"]);
 }
 
