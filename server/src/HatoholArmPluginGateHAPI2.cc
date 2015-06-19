@@ -1138,7 +1138,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	if (!lastInfo.empty()) {
 		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP_MEMBERSHIP);
 	}
-	dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
 
 	// add error clause
 	string result = "SUCCESS";
