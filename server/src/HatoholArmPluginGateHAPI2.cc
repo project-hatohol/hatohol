@@ -1329,7 +1329,6 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 	size_t num = parser.countElements();
 	constexpr const size_t numLimit = 1000;
 
-
 	if (num > numLimit) {
 		MLPL_ERR("Event Object is too large. "
 			 "Object size limit(%zd) exceeded.\n", numLimit);
