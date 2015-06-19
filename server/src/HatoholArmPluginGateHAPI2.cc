@@ -937,7 +937,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 		dataStore->syncHosts(hostInfoVect, serverInfo.id,
 				     m_impl->hostInfoCache);
 	} else {
-		dataStore->upsertHosts(hostInfoVect);
+		HostHostIdMap hostsMap;
+		dataStore->upsertHosts(hostInfoVect, &hostsMap);
+		m_impl->hostInfoCache.update(hostInfoVect, &hostsMap);
 	}
 
 	// TODO: add error clause
