@@ -25,6 +25,9 @@
 #include "JSONBuilder.h"
 #include "DBTablesLastInfo.h"
 
+constexpr const char *DO_NOT_ASSOCIATE_TRIGGER_ID =
+  SPECIAL_TRIGGER_ID_PREFIX "DO_NOT_ASSOCIATE_TRIGGER";
+
 class HatoholArmPluginGateHAPI2 : public DataStore, public HatoholArmPluginInterfaceHAPI2 {
 public:
 	HatoholArmPluginGateHAPI2(const MonitoringServerInfo &serverInfo,

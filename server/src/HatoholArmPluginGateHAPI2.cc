@@ -1327,8 +1327,7 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 	parser.startObject("events");
 	size_t num = parser.countElements();
 	constexpr const size_t numLimit = 1000;
-	static const TriggerIdType DO_NOT_ASSOCIATE_TRIGGER_ID =
-		SPECIAL_TRIGGER_ID_PREFIX "DO_NOT_ASSOCIATE_TRIGGER";
+
 
 	if (num > numLimit) {
 		MLPL_ERR("Event Object is too large. "
