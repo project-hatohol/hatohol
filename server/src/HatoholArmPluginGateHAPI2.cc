@@ -740,6 +740,7 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 		}
 
 		ItemInfo itemInfo;
+		itemInfo.id = AUTO_INCREMENT_VALUE;
 		itemInfo.serverId = serverInfo.id;
 		PARSE_AS_MANDATORY("itemId", itemInfo.id, errObj);
 		PARSE_AS_MANDATORY("hostId", itemInfo.hostIdInServer, errObj);
@@ -895,6 +896,7 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 		}
 
 		ServerHostDef hostInfo;
+		hostInfo.id = AUTO_INCREMENT_VALUE;
 		hostInfo.serverId = serverInfo.id;
 		int64_t hostId;
 		PARSE_AS_MANDATORY("hostId", hostId, errObj);
@@ -990,6 +992,7 @@ static bool parseHostGroupsParams(JSONParser &parser,
 		}
 
 		Hostgroup hostgroup;
+		hostgroup.id = AUTO_INCREMENT_VALUE;
 		hostgroup.serverId = serverInfo.id;
 		PARSE_AS_MANDATORY("groupId", hostgroup.idInServer, errObj);
 		PARSE_AS_MANDATORY("groupName", hostgroup.name, errObj);
@@ -1223,6 +1226,7 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 		}
 
 		TriggerInfo triggerInfo;
+		triggerInfo.id = AUTO_INCREMENT_VALUE;
 		PARSE_AS_MANDATORY("triggerId",   triggerInfo.id, errObj);
 		triggerInfo.serverId = serverInfo.id;
 		parseTriggerStatus(parser, triggerInfo.status, errObj, false);
@@ -1358,6 +1362,7 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 		}
 
 		EventInfo eventInfo;
+		eventInfo.id = AUTO_INCREMENT_VALUE;
 		eventInfo.serverId = serverInfo.id;
 		PARSE_AS_MANDATORY("eventId",  eventInfo.id, errObj);
 		parseTimeStamp(parser, "time", eventInfo.time, errObj);
@@ -1466,6 +1471,7 @@ static bool parseHostParentsParams(
 		}
 
 		VMInfo vmInfo;
+		vmInfo.id = AUTO_INCREMENT_VALUE;
 		string childHostId, parentHostId;
 		PARSE_AS_MANDATORY("childHostId", childHostId, errObj);
 		vmInfo.hostId = StringUtils::toUint64(childHostId);
