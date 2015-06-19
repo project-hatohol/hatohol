@@ -1530,7 +1530,8 @@ static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo,
 	parseTimeStamp(parser, "lastFailureTime", failureTime, errObj);
 	SmartTime lastSuccessTime(successTime);
 	SmartTime lastFailureTime(failureTime);
-	armInfo.statUpdateTime = lastSuccessTime;
+	armInfo.statUpdateTime = SmartTime(SmartTime::INIT_CURR_TIME);
+	armInfo.lastSuccessTime = lastSuccessTime;
 	armInfo.lastFailureTime = lastFailureTime;
 
 	int64_t numSuccess, numFailure;
