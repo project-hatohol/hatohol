@@ -19,6 +19,10 @@
   <http://www.gnu.org/licenses/>.
 """
 
+import sys
+import logging
+import traceback
+
 SERVER_PROCEDURES = {"exchangeProfile": True,
                      "getMonitoringServerInfo": True,
                      "getLastInfo": True,
@@ -124,3 +128,33 @@ ERROR_DICT = {
 
 MAX_EVENT_CHUNK_SIZE = 1000
 
+def handle_exception(raises=()):
+    """
+    Logging exception information including back trace and return
+    some information. This method is supposed to be used in 'except:' block.
+    Note that if the exception class is Signal, this method doesn't log it.
+
+    @raises
+    A sequence of exceptionclass names. If the handling exception is one of
+    it, this method just raises it again.
+
+    @return
+    A sequence of exception class and the instance of the handling exception.
+    """
+    (exctype, value, tb) = sys.exc_info()
+    if exctype in raises:
+        raise
+    if exctype is not Signal:
+        logging.error("Unexpected error: %s, %s, %s" % \
+                      (exctype, value, traceback.format_tb(tb)))
+    return exctype, value
+
+
+class Signal:
+    """
+    This class is supposed to raise as an exception in order to
+    propagate some events and jump over stack frames.
+    """
+
+    def __init__(self, restart=False):
+        self.restart = restart
