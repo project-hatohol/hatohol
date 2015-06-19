@@ -1053,6 +1053,7 @@ static bool parseHostGroupMembershipParams(
   JSONParser &parser,
   HostgroupMemberVect &hostgroupMemberVect,
   const MonitoringServerInfo &serverInfo,
+  const HostInfoCache &hostInfoCache,
   JSONRPCError &errObj)
 {
 	CHECK_MANDATORY_ARRAY_EXISTENCE("hostGroupsMembership", errObj);
@@ -1068,10 +1069,21 @@ static bool parseHostGroupMembershipParams(
 
 		HostgroupMember hostgroupMember;
 		hostgroupMember.serverId = serverInfo.id;
-		string hostId;
-		PARSE_AS_MANDATORY("hostId", hostId, errObj);
-		hostgroupMember.hostId = StringUtils::toUint64(hostId);
+		string hostIdInServer;
+		PARSE_AS_MANDATORY("hostId", hostIdInServer, errObj);
+		hostgroupMember.hostIdInServer = hostIdInServer;
 		CHECK_MANDATORY_ARRAY_EXISTENCE_INNER_LOOP("groupIds", errObj);
+		HostInfoCache::Element cacheElem;
+		const bool found = hostInfoCache.getName(hostgroupMember.hostIdInServer,
+							 cacheElem);
+		if (!found) {
+			MLPL_WARN(
+			  "Host cache: not found. server: %" FMT_GEN_ID ", "
+			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
+			  hostgroupMember.id, hostgroupMember.hostIdInServer.c_str());
+			cacheElem.hostId = INVALID_HOST_ID;
+		}
+		hostgroupMember.hostId = cacheElem.hostId;
 		parser.startObject("groupIds");
 		size_t groupIdNum = parser.countElements();
 		for (size_t j = 0; j < groupIdNum; j++) {
@@ -1096,9 +1108,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
+	const HostInfoCache &hostInfoCache = m_impl->hostInfoCache;
 	parseHostGroupMembershipParams(parser,
 				       hostgroupMembershipVect,
-				       serverInfo, errObj);
+				       serverInfo, hostInfoCache, errObj);
 
 	string updateType;
 	bool checkInvalidHostGroupMembership =
