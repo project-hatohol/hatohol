@@ -366,6 +366,16 @@ function formatItemValue(value, unit) {
     return formatMetricPrefix(value, unit);
 };
 
+function isInt(value) {
+  // Caution: It doesn't work correctly against a number like 1.0.
+  return !isNaN(value) && !isFloat(value);
+}
+
+function isFloat(value) {
+  // Caution: It doesn't work correctly against a number like 1.0.
+  return !isNaN(value) && value.toString().indexOf('.') != -1;
+}
+
 function formatItemLastValue(item) {
   if (isNaN(item["lastValue"]))
     return escapeHTML(item["lastValue"]);
