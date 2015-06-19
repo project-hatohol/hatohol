@@ -120,40 +120,6 @@ static void _assertGetHosts(AssertGetHostsArg &arg)
 }
 #define assertGetHosts(A) cut_trace(_assertGetHosts(A))
 
-static string makeHostgroupsOutput(const Hostgroup &hostgrp, const size_t &id)
-{
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|%" FMT_SERVER_ID "|%s|%s\n",
-	  id + 1, hostgrp.serverId,
-	  hostgrp.idInServer.c_str(), hostgrp.name.c_str());
-	return expectedOut;
-}
-
-static string makeMapHostsHostgroupsOutput(
-  const HostgroupMember &hostgrpMember, const size_t &id)
-{
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|%" FMT_SERVER_ID "|%s|%s|%" FMT_HOST_ID "\n",
-	  id + 1,
-	  hostgrpMember.serverId,
-	  hostgrpMember.hostIdInServer.c_str(),
-	  hostgrpMember.hostgroupIdInServer.c_str(),
-	  hostgrpMember.hostId);
-
-	return expectedOut;
-}
-
-static string makeHostsOutput(const ServerHostDef &svHostDef, const size_t &id)
-{
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|" DBCONTENT_MAGIC_ANY "|%" FMT_SERVER_ID "|%s|%s|%d\n",
-	  id + 1, svHostDef.serverId,
-	  svHostDef.hostIdInServer.c_str(), svHostDef.name.c_str(),
-	  HOST_STAT_NORMAL);
-
-	return expectedOut;
-}
-
 static string makeVMInfoOutput(const VMInfo &vmInfo, const size_t &id)
 {
 	string expectedOut = StringUtils::sprintf(

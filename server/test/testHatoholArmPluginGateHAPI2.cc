@@ -287,12 +287,32 @@ void test_procedureHandlerLastInfo(gconstpointer data)
 	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":789}",
 			       gcut_data_get_string(data, "value"));
 	cppcut_assert_equal(expected, actual);
+
+	// DB assertions
+	LastInfoType type;
+	HatoholArmPluginGateHAPI2::convertLastInfoStrToType(
+	  gcut_data_get_string(data, "params"), type);
+	ThreadLocalDBCache cache;
+	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
+
+	LastInfoDefList lastInfoList;
+	LastInfoQueryOption option(USER_ID_SYSTEM);
+	option.setLastInfoType(type);
+	option.setTargetServerId(serverInfo.id);
+	auto err = dbLastInfo.getLastInfoList(lastInfoList, option);
+	assertHatoholError(HTERR_OK, err);
+
+	for (auto lastInfo : lastInfoList) {
+		cppcut_assert_equal(lastInfo.dataType, type);
+		string value = gcut_data_get_string(data, "value");
+		cppcut_assert_equal(lastInfo.value, value);
+		cppcut_assert_equal(lastInfo.serverId, serverInfo.id);
+	}
 }
 
 void test_procedureHandlerLastInfoInvalidJSON(void)
 {
 	MonitoringServerInfo serverInfo = monitoringServerInfo;
-	loadTestDBLastInfo();
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(serverInfo, false), false);
 	string json =
@@ -309,6 +329,15 @@ void test_procedureHandlerLastInfoInvalidJSON(void)
 		"\"Failed to parse mandatory member: 'params' does not exist.\""
 		"]}}";
 	cppcut_assert_equal(expected, actual);
+	ThreadLocalDBCache cache;
+	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
+
+	LastInfoDefList lastInfoList;
+	LastInfoQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverInfo.id);
+	auto err = dbLastInfo.getLastInfoList(lastInfoList, option);
+	assertHatoholError(HTERR_OK, err);
+	cppcut_assert_equal(lastInfoList.size(), static_cast<size_t>(0));
 }
 
 void test_procedureHandlerPutItems(void)
@@ -332,7 +361,57 @@ void test_procedureHandlerPutItems(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":83241245}";
 	cppcut_assert_equal(expected, actual);
-	// TODO: add DB assertion
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	ItemInfoList itemInfoList;
+	ItemsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getItemInfoList(itemInfoList, option);
+	ItemInfoList expectedItemInfoList;
+	ItemInfo item1, item2;
+	timespec timeStamp;
+	string lastValueTime;
+
+	lastValueTime = "20150410175523";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item1.serverId       = 302;
+	item1.id             = "1";
+	item1.globalHostId   = INVALID_HOST_ID; // FIXME
+	item1.hostIdInServer = "1";
+	item1.brief          = "example brief";
+	item1.lastValueTime  = timeStamp;
+	item1.lastValue      = "example value";
+	item1.itemGroupName  = "example name";
+	item1.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN;
+	item1.delay          = 0;
+	item1.unit           = "example unit";
+	expectedItemInfoList.push_back(item1);
+
+	lastValueTime = "20150410175531";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item2.serverId       = 302;
+	item2.id             = "2";
+	item2.globalHostId   = INVALID_HOST_ID; // FIXME
+	item2.hostIdInServer = "1";
+	item2.brief          = "example brief";
+	item2.lastValueTime  = timeStamp;
+	item2.lastValue      = "example value";
+	item2.itemGroupName  = "example name";
+	item1.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN;
+	item2.delay          = 0;
+	item2.unit           = "example unit";
+	expectedItemInfoList.push_back(item2);
+
+	string actualOutput;
+	for (auto itemInfo : itemInfoList) {
+		actualOutput += makeItemOutput(itemInfo);
+	}
+	string expectedOutput;
+	for (auto itemInfo : expectedItemInfoList) {
+		expectedOutput += makeItemOutput(itemInfo);
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
 void test_procedureHandlerPutItemsInvalidJSON(void)
@@ -364,6 +443,14 @@ void test_procedureHandlerPutItemsInvalidJSON(void)
 		" 'brief' does not exist.\""
 		"]}}";
 	cppcut_assert_equal(expected, actual);
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	ItemInfoList itemInfoList;
+	ItemsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getItemInfoList(itemInfoList, option);
+	cppcut_assert_equal(itemInfoList.size(), static_cast<size_t>(0));
 }
 
 void test_procedureHandlerPutHistory(void)
@@ -424,6 +511,39 @@ void test_procedureHandlerPutHosts(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"deadbeaf\"}";
 	cppcut_assert_equal(expected, actual);
+
+	ServerHostDefVect expectedHostVect =
+	{
+		{
+			1,                       // id
+			1,                       // hostId
+			monitoringServerInfo.id, // serverId
+			"",                      // hostIdInServer
+			"exampleHostName1",      // name
+		},
+	};
+
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	ServerHostDefVect hostDefVect;
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getServerHostDefs(hostDefVect, option);
+	string actualOutput;
+	{
+		size_t i = 0;
+		for (auto host : hostDefVect) {
+			actualOutput += makeHostsOutput(host, i);
+		}
+	}
+	string expectedOutput;
+	{
+		size_t i = 0;
+		for (auto host : expectedHostVect) {
+			expectedOutput += makeHostsOutput(host, i);
+		}
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
 void test_procedureHandlerPutHostsInvalidJSON(void)
@@ -447,6 +567,14 @@ void test_procedureHandlerPutHostsInvalidJSON(void)
 		" 'hostName' does not exist.\""
 		"]}}";
 	cppcut_assert_equal(expected, actual);
+
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	ServerHostDefVect hostDefVect;
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getServerHostDefs(hostDefVect, option);
+	cppcut_assert_equal(hostDefVect.size(), static_cast<size_t>(0));
 }
 
 void test_procedureHandlerPutHostGroups(void)
@@ -465,6 +593,37 @@ void test_procedureHandlerPutHostGroups(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"123abc\"}";
 	cppcut_assert_equal(expected, actual);
+
+	HostgroupVect expectedHostgroupVect =
+	{
+		{
+			1,                       // id
+			monitoringServerInfo.id, // serverId
+			"1",                     // idInServer
+			"Group2",                // name
+		},
+	};
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	HostgroupVect hostgroupVect;
+	HostgroupsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getHostgroups(hostgroupVect, option);
+	string actualOutput;
+	{
+		size_t i = 0;
+		for (auto hostgroup : hostgroupVect) {
+			actualOutput += makeHostgroupsOutput(hostgroup, i);
+		}
+	}
+	string expectedOutput;
+	{
+		size_t i = 0;
+		for (auto hostgroup : expectedHostgroupVect) {
+			expectedOutput += makeHostgroupsOutput(hostgroup, i);
+		}
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
 void test_procedureHandlerPutHostGroupsInvalidJSON(void)
@@ -489,6 +648,14 @@ void test_procedureHandlerPutHostGroupsInvalidJSON(void)
 		" 'groupName' does not exist.\""
 		"]}}";
 	cppcut_assert_equal(expected, actual);
+
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	HostgroupVect hostgroupVect;
+	HostgroupsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getHostgroups(hostgroupVect, option);
+	cppcut_assert_equal(hostgroupVect.size(), static_cast<size_t>(0));
 }
 
 void test_procedureHandlerPutHostGroupMembership(void)
@@ -552,6 +719,40 @@ void test_procedureHandlerPutTriggers(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":34031}";
 	cppcut_assert_equal(expected, actual);
+	timespec timeStamp;
+	HatoholArmPluginGateHAPI2::parseTimeStamp("20150323175800", timeStamp);
+	TriggerInfoList expectedTriggerInfoList =
+	{
+		{
+			monitoringServerInfo.id, // serverId
+			"1",                     // id
+			TRIGGER_STATUS_OK,       // status
+			TRIGGER_SEVERITY_INFO,   // severity
+			timeStamp,               // lastChangeTime
+			INVALID_HOST_ID,         // globalHostId /* FIXME? */
+			"1",                     // hostIdInServer
+			"exampleHostName",       // hostName
+			"example brief",         // brief
+			"sample extended info",  // extendedInfo
+			TRIGGER_VALID,           // validity
+		}
+	};
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	TriggerInfoList triggerInfoList;
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getTriggerInfoList(triggerInfoList, option);
+	string actualOutput;
+	for (auto trigger : triggerInfoList) {
+		actualOutput += makeTriggerOutput(trigger);
+	}
+	string expectedOutput;
+	for (auto trigger : expectedTriggerInfoList) {
+		expectedOutput += makeTriggerOutput(trigger);
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
 void test_procedureHandlerPutTriggersInvalidJSON(void)
@@ -580,14 +781,24 @@ void test_procedureHandlerPutTriggersInvalidJSON(void)
 		" 'brief' does not exist.\""
 		"]}}";
 	cppcut_assert_equal(expected, actual);
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	TriggerInfoList triggerInfoList;
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getTriggerInfoList(triggerInfoList, option);
+	cppcut_assert_equal(triggerInfoList.size(), static_cast<size_t>(0));
 }
 
 void data_procedureHandlerPutEvents(void)
 {
 	gcut_add_datum("WithTriggerId",
-	               "triggerIdContents", G_TYPE_STRING, " \"triggerId\":2,", NULL);
+	               "triggerIdContents", G_TYPE_STRING, " \"triggerId\":\"2\",",
+		       "triggerId", G_TYPE_STRING, "2", NULL);
 	gcut_add_datum("WithoutTriggerId",
-	               "triggerIdContents", G_TYPE_STRING, "", NULL);
+	               "triggerIdContents", G_TYPE_STRING, "",
+		       "triggerId", G_TYPE_STRING, DO_NOT_ASSOCIATE_TRIGGER_ID, NULL);
 }
 
 void test_procedureHandlerPutEvents(gconstpointer data)
@@ -599,7 +810,7 @@ void test_procedureHandlerPutEvents(gconstpointer data)
 			       " \"params\":{\"events\":[{\"eventId\":\"1\","
 			       " \"time\":\"20150323151300\", \"type\":\"GOOD\","
 			       " %s \"status\": \"OK\", \"severity\":\"INFO\","
-			       " \"hostId\":3, \"hostName\":\"exampleHostName\","
+			       " \"hostId\":\"3\", \"hostName\":\"exampleHostName\","
 			       " \"brief\":\"example brief\","
 			       " \"extendedInfo\": \"sample extended info\"}],"
 			       " \"lastInfo\":\"20150401175900\","
@@ -611,6 +822,44 @@ void test_procedureHandlerPutEvents(gconstpointer data)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":2374234}";
 	cppcut_assert_equal(expected, actual);
+
+	timespec timeStamp;
+	string lastValueTime = "20150323151300";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	EventInfoList expectedEventInfoList =
+	{
+		{
+			1,                                               // unifiedId
+			monitoringServerInfo.id,                         // serverId
+			"1",                                             // id
+			timeStamp,                                       // time
+			EVENT_TYPE_GOOD,                                 // type
+			gcut_data_get_string(data, "triggerId"),         // triggerId
+			TRIGGER_STATUS_OK,                               // status
+			TRIGGER_SEVERITY_INFO,                           // severity
+			INVALID_HOST_ID,                                 // globalHostId
+			"3",                                             // hostIdInServer
+			"exampleHostName",                               // hostName
+			"example brief",                                 // brief
+			"sample extended info",                         // extendedInfo
+		},
+	};
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	EventInfoList eventInfoList;
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getEventInfoList(eventInfoList, option);
+	string actualOutput;
+	for (auto eventInfo : eventInfoList) {
+		actualOutput += makeEventOutput(eventInfo);
+	}
+	string expectedOutput;
+	for (auto eventInfo : expectedEventInfoList) {
+		expectedOutput += makeEventOutput(eventInfo);
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
 void test_procedureHandlerPutEventsInvalidJSON(void)
@@ -638,6 +887,14 @@ void test_procedureHandlerPutEventsInvalidJSON(void)
 		"\"Failed to parse mandatory member: 'hostId' does not exist.\""
 		"]}}";
 	cppcut_assert_equal(expected, actual);
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	EventInfoList eventInfoList;
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getEventInfoList(eventInfoList, option);
+	cppcut_assert_equal(eventInfoList.size(), static_cast<size_t>(0));
 }
 
 void test_procedureHandlerPutHostParents(void)
@@ -705,6 +962,34 @@ void test_procedureHandlerPutArmInfo(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":234}";
 	cppcut_assert_equal(expected, actual);
+
+	timespec successTimeStamp, failureTimeStamp;
+	HatoholArmPluginGateHAPI2::parseTimeStamp("20150313161100", successTimeStamp);
+	HatoholArmPluginGateHAPI2::parseTimeStamp("20150313161530", failureTimeStamp);
+	ArmInfo expectedArmInfo;
+	expectedArmInfo.running         = true;
+	expectedArmInfo.stat            = ARM_WORK_STAT_INIT;
+	expectedArmInfo.statUpdateTime  = SmartTime(SmartTime::INIT_CURR_TIME);
+	expectedArmInfo.failureComment  = "Example reason";
+	expectedArmInfo.lastSuccessTime = successTimeStamp;
+	expectedArmInfo.lastFailureTime = failureTimeStamp;
+	expectedArmInfo.numUpdate       = 165;
+	expectedArmInfo.numFailure      = 10;
+
+	const ArmStatus &armStatus = gate->getArmStatus();
+
+	cppcut_assert_equal(false, armStatus.getArmInfo().running);
+	gate->start();
+	cppcut_assert_equal(true, armStatus.getArmInfo().running);
+	cppcut_assert_equal(expectedArmInfo.stat, armStatus.getArmInfo().stat);
+	cppcut_assert_equal(expectedArmInfo.failureComment,
+			    armStatus.getArmInfo().failureComment);
+	cppcut_assert_equal(expectedArmInfo.lastSuccessTime,
+			    armStatus.getArmInfo().lastSuccessTime);
+	cppcut_assert_equal(expectedArmInfo.lastFailureTime,
+			    armStatus.getArmInfo().lastFailureTime);
+	cppcut_assert_equal(expectedArmInfo.numUpdate, armStatus.getArmInfo().numUpdate);
+	cppcut_assert_equal(expectedArmInfo.numFailure, armStatus.getArmInfo().numFailure);
 }
 
 void test_procedureHandlerPutArmInfoInvalidJSON(void)

@@ -658,11 +658,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 	return builder.generate();
 }
 
-static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType,
-				JSONRPCError &errObj)
+bool HatoholArmPluginGateHAPI2::convertLastInfoStrToType(
+  const string &type, LastInfoType &lastInfoType)
 {
-	string type;
-	PARSE_AS_MANDATORY("params", type, errObj);
 	if (type == "host")
 		lastInfoType = LAST_INFO_HOST;
 	else if (type == "hostGroup")
@@ -679,8 +677,16 @@ static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType,
 		lastInfoType = LAST_INFO_ALL;
 		return false;
 	}
-
 	return true;
+}
+
+static bool parseLastInfoParams(JSONParser &parser, LastInfoType &lastInfoType,
+				JSONRPCError &errObj)
+{
+	string type;
+	PARSE_AS_MANDATORY("params", type, errObj);
+
+	return HatoholArmPluginGateHAPI2::convertLastInfoStrToType(type, lastInfoType);
 }
 
 string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
@@ -718,6 +724,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 
 static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 			    const MonitoringServerInfo &serverInfo,
+			    const HostInfoCache &hostInfoCache,
 			    JSONRPCError &errObj)
 {
 	CHECK_MANDATORY_ARRAY_EXISTENCE("items", errObj);
@@ -742,7 +749,19 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 		PARSE_AS_MANDATORY("itemGroupName", itemInfo.itemGroupName, errObj);
 		PARSE_AS_MANDATORY("unit", itemInfo.unit, errObj);
 		parser.endElement();
-
+		HostInfoCache::Element cacheElem;
+		const bool found =
+			hostInfoCache.getName(itemInfo.hostIdInServer, cacheElem);
+		if (!found) {
+			MLPL_WARN(
+			  "Host cache: not found. server: %" FMT_SERVER_ID ", "
+			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
+			  serverInfo.id, itemInfo.hostIdInServer.c_str());
+			cacheElem.hostId = INVALID_HOST_ID;
+		}
+		itemInfo.globalHostId = cacheElem.hostId;
+		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_UNKNOWN;
+		itemInfo.delay = 0;
 		itemInfoList.push_back(itemInfo);
 	}
 	parser.endObject(); // items
@@ -759,7 +778,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	parseItemParams(parser, itemList, serverInfo, errObj);
+	const HostInfoCache &hostInfoCache = m_impl->hostInfoCache;
+	parseItemParams(parser, itemList, serverInfo, hostInfoCache, errObj);
 	if (parser.isMember("fetchId")) {
 		parser.read("fetchId", fetchId);
 	}
@@ -1033,6 +1053,7 @@ static bool parseHostGroupMembershipParams(
   JSONParser &parser,
   HostgroupMemberVect &hostgroupMemberVect,
   const MonitoringServerInfo &serverInfo,
+  const HostInfoCache &hostInfoCache,
   JSONRPCError &errObj)
 {
 	CHECK_MANDATORY_ARRAY_EXISTENCE("hostGroupsMembership", errObj);
@@ -1048,10 +1069,21 @@ static bool parseHostGroupMembershipParams(
 
 		HostgroupMember hostgroupMember;
 		hostgroupMember.serverId = serverInfo.id;
-		string hostId;
-		PARSE_AS_MANDATORY("hostId", hostId, errObj);
-		hostgroupMember.hostId = StringUtils::toUint64(hostId);
+		string hostIdInServer;
+		PARSE_AS_MANDATORY("hostId", hostIdInServer, errObj);
+		hostgroupMember.hostIdInServer = hostIdInServer;
 		CHECK_MANDATORY_ARRAY_EXISTENCE_INNER_LOOP("groupIds", errObj);
+		HostInfoCache::Element cacheElem;
+		const bool found = hostInfoCache.getName(hostgroupMember.hostIdInServer,
+							 cacheElem);
+		if (!found) {
+			MLPL_WARN(
+			  "Host cache: not found. server: %" FMT_GEN_ID ", "
+			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
+			  hostgroupMember.id, hostgroupMember.hostIdInServer.c_str());
+			cacheElem.hostId = INVALID_HOST_ID;
+		}
+		hostgroupMember.hostId = cacheElem.hostId;
 		parser.startObject("groupIds");
 		size_t groupIdNum = parser.countElements();
 		for (size_t j = 0; j < groupIdNum; j++) {
@@ -1076,9 +1108,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
+	const HostInfoCache &hostInfoCache = m_impl->hostInfoCache;
 	parseHostGroupMembershipParams(parser,
 				       hostgroupMembershipVect,
-				       serverInfo, errObj);
+				       serverInfo, hostInfoCache, errObj);
 
 	string updateType;
 	bool checkInvalidHostGroupMembership =
@@ -1173,6 +1206,7 @@ static bool parseTriggerSeverity(JSONParser &parser,
 
 static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfoList,
 				const MonitoringServerInfo &serverInfo,
+				const HostInfoCache &hostInfoCache,
 				JSONRPCError &errObj)
 {
 	CHECK_MANDATORY_ARRAY_EXISTENCE("triggers", errObj);
@@ -1188,6 +1222,7 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 		}
 
 		TriggerInfo triggerInfo;
+		PARSE_AS_MANDATORY("triggerId",   triggerInfo.id, errObj);
 		triggerInfo.serverId = serverInfo.id;
 		parseTriggerStatus(parser, triggerInfo.status, errObj, false);
 		parseTriggerSeverity(parser, triggerInfo.severity, errObj, false);
@@ -1198,6 +1233,19 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 		PARSE_AS_MANDATORY("extendedInfo", triggerInfo.extendedInfo, errObj);
 		parser.endElement();
 
+		triggerInfo.validity = TRIGGER_VALID;
+
+		HostInfoCache::Element cacheElem;
+		const bool found =
+			hostInfoCache.getName(triggerInfo.hostIdInServer, cacheElem);
+		if (!found) {
+			MLPL_WARN(
+			  "Host cache: not found. server: %" FMT_TRIGGER_ID ", "
+			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
+			  triggerInfo.id.c_str(), triggerInfo.hostIdInServer.c_str());
+			cacheElem.hostId = INVALID_HOST_ID;
+		}
+		triggerInfo.globalHostId = cacheElem.hostId;
 		triggerInfoList.push_back(triggerInfo);
 	}
 	parser.endObject(); // triggers
@@ -1216,8 +1264,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
+	const HostInfoCache &hostInfoCache = m_impl->hostInfoCache;
 	parseTriggersParams(parser, triggerInfoList,
-			    serverInfo, errObj);
+			    serverInfo, hostInfoCache, errObj);
 
 	string updateType;
 	bool checkInvalidTriggers = parseUpdateType(parser, updateType, errObj);
@@ -1285,14 +1334,13 @@ static bool parseEventType(JSONParser &parser, EventInfo &eventInfo,
 
 static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 			      const MonitoringServerInfo &serverInfo,
+			      const HostInfoCache &hostInfoCache,
 			      JSONRPCError &errObj)
 {
 	CHECK_MANDATORY_ARRAY_EXISTENCE("events", errObj);
 	parser.startObject("events");
 	size_t num = parser.countElements();
 	constexpr const size_t numLimit = 1000;
-	static const TriggerIdType DO_NOT_ASSOCIATE_TRIGGER_ID =
-		SPECIAL_TRIGGER_ID_PREFIX "DO_NOT_ASSOCIATE_TRIGGER";
 
 	if (num > numLimit) {
 		MLPL_ERR("Event Object is too large. "
@@ -1313,9 +1361,11 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 		PARSE_AS_MANDATORY("eventId",  eventInfo.id, errObj);
 		parseTimeStamp(parser, "time", eventInfo.time, errObj);
 		parseEventType(parser, eventInfo, errObj);
-		TriggerIdType triggerId = DO_NOT_ASSOCIATE_TRIGGER_ID;
-		if (!parser.read("triggerId", triggerId)) {
+		TriggerIdType triggerId;
+		if (parser.read("triggerId", triggerId)) {
 			eventInfo.triggerId = triggerId;
+		} else {
+			eventInfo.triggerId = DO_NOT_ASSOCIATE_TRIGGER_ID;
 		}
 		parseTriggerStatus(parser,         eventInfo.status, errObj, true);
 		parseTriggerSeverity(parser,       eventInfo.severity, errObj, true);
@@ -1325,6 +1375,17 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 		PARSE_AS_MANDATORY("extendedInfo", eventInfo.extendedInfo, errObj);
 		parser.endElement();
 
+		HostInfoCache::Element cacheElem;
+		const bool found =
+			hostInfoCache.getName(eventInfo.hostIdInServer, cacheElem);
+		if (!found) {
+			MLPL_WARN(
+			  "Host cache: not found. server: %" FMT_TRIGGER_ID ", "
+			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
+			  eventInfo.id.c_str(), eventInfo.hostIdInServer.c_str());
+			cacheElem.hostId = INVALID_HOST_ID;
+		}
+		eventInfo.globalHostId = cacheElem.hostId;
 		eventInfoList.push_back(eventInfo);
 	}
 	parser.endObject(); // events
@@ -1343,7 +1404,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	parseEventsParams(parser, eventInfoList, serverInfo, errObj);
+	const HostInfoCache &hostInfoCache = m_impl->hostInfoCache;
+	parseEventsParams(parser, eventInfoList, serverInfo, hostInfoCache, errObj);
 
 	if (parser.isMember("fetchId")) {
 		parser.read("fetchId", fetchId);
@@ -1481,7 +1543,8 @@ static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo,
 	parseTimeStamp(parser, "lastFailureTime", failureTime, errObj);
 	SmartTime lastSuccessTime(successTime);
 	SmartTime lastFailureTime(failureTime);
-	armInfo.statUpdateTime = lastSuccessTime;
+	armInfo.statUpdateTime = SmartTime(SmartTime::INIT_CURR_TIME);
+	armInfo.lastSuccessTime = lastSuccessTime;
 	armInfo.lastFailureTime = lastFailureTime;
 
 	int64_t numSuccess, numFailure;
@@ -1496,7 +1559,7 @@ static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo,
 string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
   JSONParser &parser)
 {
-	ArmStatus status;
+	ArmStatus &status = m_impl->m_armStatus;
 	ArmInfo armInfo;
 	JSONRPCError errObj;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);

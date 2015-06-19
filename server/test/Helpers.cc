@@ -551,6 +551,60 @@ string makeHistoryOutput(const HistoryInfo &historyInfo)
 	return output;
 }
 
+string makeItemOutput(const ItemInfo &itemInfo)
+{
+	string expectedOut =
+	  StringUtils::sprintf(
+	    "%" FMT_SERVER_ID "|%" FMT_ITEM_ID "|%" FMT_HOST_ID
+	    "|%" FMT_LOCAL_HOST_ID "|%s|%ld|%lu|%s|%s|%s|%d|%s\n",
+	    itemInfo.serverId, itemInfo.id.c_str(),
+	    itemInfo.globalHostId,
+	    itemInfo.hostIdInServer.c_str(),
+	    itemInfo.brief.c_str(),
+	    itemInfo.lastValueTime.tv_sec,
+	    itemInfo.lastValueTime.tv_nsec,
+	    itemInfo.lastValue.c_str(),
+	    itemInfo.prevValue.c_str(),
+	    itemInfo.itemGroupName.c_str(),
+	    static_cast<int>(itemInfo.valueType),
+	    itemInfo.unit.c_str());
+	return expectedOut;
+}
+
+string makeHostsOutput(const ServerHostDef &svHostDef, const size_t &id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%zd|" DBCONTENT_MAGIC_ANY "|%" FMT_SERVER_ID "|%s|%s|%d\n",
+	  id + 1, svHostDef.serverId,
+	  svHostDef.hostIdInServer.c_str(), svHostDef.name.c_str(),
+	  HOST_STAT_NORMAL);
+
+	return expectedOut;
+}
+
+string makeHostgroupsOutput(const Hostgroup &hostgrp, const size_t &id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%zd|%" FMT_SERVER_ID "|%s|%s\n",
+	  id + 1, hostgrp.serverId,
+	  hostgrp.idInServer.c_str(), hostgrp.name.c_str());
+	return expectedOut;
+}
+
+string makeMapHostsHostgroupsOutput(
+  const HostgroupMember &hostgrpMember, const size_t &id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%zd|%" FMT_SERVER_ID "|%s|%s|%" FMT_HOST_ID "\n",
+	  id + 1,
+	  hostgrpMember.serverId,
+	  hostgrpMember.hostIdInServer.c_str(),
+	  hostgrpMember.hostgroupIdInServer.c_str(),
+	  hostgrpMember.hostId);
+
+	return expectedOut;
+}
+
 static void assertDBContentForComponets(const string &expect,
                                         const string &actual,
                                         DBAgent *dbAgent)

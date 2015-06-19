@@ -25,6 +25,9 @@
 #include "JSONBuilder.h"
 #include "DBTablesLastInfo.h"
 
+constexpr const char *DO_NOT_ASSOCIATE_TRIGGER_ID =
+  SPECIAL_TRIGGER_ID_PREFIX "DO_NOT_ASSOCIATE_TRIGGER";
+
 class HatoholArmPluginGateHAPI2 : public DataStore, public HatoholArmPluginInterfaceHAPI2 {
 public:
 	HatoholArmPluginGateHAPI2(const MonitoringServerInfo &serverInfo,
@@ -52,6 +55,8 @@ public:
 	  const size_t count,
 	  const bool ascending = true,
 	  Closure0 *closure = NULL) override;
+	static bool convertLastInfoStrToType(const std::string &type,
+	                                     LastInfoType &lastInfoType);
 
 protected:
 	virtual ~HatoholArmPluginGateHAPI2();

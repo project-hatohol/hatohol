@@ -137,26 +137,6 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 #define assertGetEventsWithFilter(ARG) \
 cut_trace(_assertGetEventsWithFilter(ARG))
 
-static string makeItemOutput(const ItemInfo &itemInfo)
-{
-	string expectedOut =
-	  StringUtils::sprintf(
-	    "%" FMT_SERVER_ID "|%" FMT_ITEM_ID "|%" FMT_HOST_ID
-	    "|%" FMT_LOCAL_HOST_ID "|%s|%ld|%lu|%s|%s|%s|%d|%s\n",
-	    itemInfo.serverId, itemInfo.id.c_str(),
-	    itemInfo.globalHostId,
-	    itemInfo.hostIdInServer.c_str(),
-	    itemInfo.brief.c_str(),
-	    itemInfo.lastValueTime.tv_sec,
-	    itemInfo.lastValueTime.tv_nsec,
-	    itemInfo.lastValue.c_str(),
-	    itemInfo.prevValue.c_str(),
-	    itemInfo.itemGroupName.c_str(),
-	    static_cast<int>(itemInfo.valueType),
-	    itemInfo.unit.c_str());
-	return expectedOut;
-}
-
 struct AssertGetItemsArg
   : public AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
 {
