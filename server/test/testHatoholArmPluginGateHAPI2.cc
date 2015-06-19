@@ -747,6 +747,14 @@ void test_procedureHandlerPutHostGroupMembershipInvalidJSON(void)
 		"  'groupIds' does not exist.\""
 		"]}}";
 	cppcut_assert_equal(expected, actual);
+
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	HostgroupMemberVect hostgroupMemberVect;
+	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getHostgroupMembers(hostgroupMemberVect, option);
+	cppcut_assert_equal(hostgroupMemberVect.size(), static_cast<size_t>(0));
 }
 
 void test_procedureHandlerPutTriggers(void)
