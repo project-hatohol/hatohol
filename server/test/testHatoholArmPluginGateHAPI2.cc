@@ -977,14 +977,19 @@ void test_procedureHandlerPutArmInfo(void)
 	expectedArmInfo.numFailure      = 10;
 
 	const ArmStatus &armStatus = gate->getArmStatus();
-	const ArmInfo &armInfo = armStatus.getArmInfo();
-	// TODO: implement exitSync() and its assertion
-	cppcut_assert_equal(expectedArmInfo.stat, armInfo.stat);
-	cppcut_assert_equal(expectedArmInfo.failureComment, armInfo.failureComment);
-	cppcut_assert_equal(expectedArmInfo.lastSuccessTime, armInfo.lastSuccessTime);
-	cppcut_assert_equal(expectedArmInfo.lastFailureTime, armInfo.lastFailureTime);
-	cppcut_assert_equal(expectedArmInfo.numUpdate, armInfo.numUpdate);
-	cppcut_assert_equal(expectedArmInfo.numFailure, armInfo.numFailure);
+
+	cppcut_assert_equal(false, armStatus.getArmInfo().running);
+	gate->start();
+	cppcut_assert_equal(true, armStatus.getArmInfo().running);
+	cppcut_assert_equal(expectedArmInfo.stat, armStatus.getArmInfo().stat);
+	cppcut_assert_equal(expectedArmInfo.failureComment,
+			    armStatus.getArmInfo().failureComment);
+	cppcut_assert_equal(expectedArmInfo.lastSuccessTime,
+			    armStatus.getArmInfo().lastSuccessTime);
+	cppcut_assert_equal(expectedArmInfo.lastFailureTime,
+			    armStatus.getArmInfo().lastFailureTime);
+	cppcut_assert_equal(expectedArmInfo.numUpdate, armStatus.getArmInfo().numUpdate);
+	cppcut_assert_equal(expectedArmInfo.numFailure, armStatus.getArmInfo().numFailure);
 }
 
 void test_procedureHandlerPutArmInfoInvalidJSON(void)
