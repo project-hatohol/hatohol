@@ -887,6 +887,14 @@ void test_procedureHandlerPutEventsInvalidJSON(void)
 		"\"Failed to parse mandatory member: 'hostId' does not exist.\""
 		"]}}";
 	cppcut_assert_equal(expected, actual);
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	EventInfoList eventInfoList;
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getEventInfoList(eventInfoList, option);
+	cppcut_assert_equal(eventInfoList.size(), static_cast<size_t>(0));
 }
 
 void test_procedureHandlerPutHostParents(void)
