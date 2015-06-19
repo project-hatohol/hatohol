@@ -962,6 +962,29 @@ void test_procedureHandlerPutArmInfo(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":234}";
 	cppcut_assert_equal(expected, actual);
+
+	timespec successTimeStamp, failureTimeStamp;
+	HatoholArmPluginGateHAPI2::parseTimeStamp("20150313161100", successTimeStamp);
+	HatoholArmPluginGateHAPI2::parseTimeStamp("20150313161530", failureTimeStamp);
+	ArmInfo expectedArmInfo;
+	expectedArmInfo.running         = true;
+	expectedArmInfo.stat            = ARM_WORK_STAT_INIT;
+	expectedArmInfo.statUpdateTime  = SmartTime(SmartTime::INIT_CURR_TIME);
+	expectedArmInfo.failureComment  = "Example reason";
+	expectedArmInfo.lastSuccessTime = successTimeStamp;
+	expectedArmInfo.lastFailureTime = failureTimeStamp;
+	expectedArmInfo.numUpdate       = 165;
+	expectedArmInfo.numFailure      = 10;
+
+	const ArmStatus &armStatus = gate->getArmStatus();
+	const ArmInfo &armInfo = armStatus.getArmInfo();
+	// TODO: implement exitSync() and its assertion
+	cppcut_assert_equal(expectedArmInfo.stat, armInfo.stat);
+	cppcut_assert_equal(expectedArmInfo.failureComment, armInfo.failureComment);
+	cppcut_assert_equal(expectedArmInfo.lastSuccessTime, armInfo.lastSuccessTime);
+	cppcut_assert_equal(expectedArmInfo.lastFailureTime, armInfo.lastFailureTime);
+	cppcut_assert_equal(expectedArmInfo.numUpdate, armInfo.numUpdate);
+	cppcut_assert_equal(expectedArmInfo.numFailure, armInfo.numFailure);
 }
 
 void test_procedureHandlerPutArmInfoInvalidJSON(void)
