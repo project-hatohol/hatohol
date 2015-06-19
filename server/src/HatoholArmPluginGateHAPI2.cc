@@ -1545,7 +1545,7 @@ static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo,
 string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
   JSONParser &parser)
 {
-	ArmStatus status;
+	ArmStatus &status = m_impl->m_armStatus;
 	ArmInfo armInfo;
 	JSONRPCError errObj;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
