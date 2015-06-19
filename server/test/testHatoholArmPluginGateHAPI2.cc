@@ -675,6 +675,55 @@ void test_procedureHandlerPutHostGroupMembership(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":9342}";
 	cppcut_assert_equal(expected, actual);
+
+	HostgroupMemberVect expectedHostgroupMemberVect =
+	{
+		{
+			1,                       // id
+			monitoringServerInfo.id, // serverId
+			"1",                     // hostIdInServer
+			"1",                     // hostGroupIdInServer
+			INVALID_HOST_ID,         // hostId
+		},
+		{
+			2,                       // id
+			monitoringServerInfo.id, // serverId
+			"1",                     // hostIdInServer
+			"2",                     // hostGroupIdInServer
+			INVALID_HOST_ID,         // hostId
+		},
+		{
+			3,                       // id
+			monitoringServerInfo.id, // serverId
+			"1",                     // hostIdInServer
+			"5",                     // hostGroupIdInServer
+			INVALID_HOST_ID,         // hostId
+		},
+	};
+
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	HostgroupMemberVect hostgroupMemberVect;
+	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getHostgroupMembers(hostgroupMemberVect, option);
+	string actualOutput;
+	{
+		size_t i = 0;
+		for (auto hostgroupMember : hostgroupMemberVect) {
+			actualOutput += makeMapHostsHostgroupsOutput(hostgroupMember, i);
+			i++;
+		}
+	}
+	string expectedOutput;
+	{
+		size_t i = 0;
+		for (auto hostgroupMember : expectedHostgroupMemberVect) {
+			expectedOutput += makeMapHostsHostgroupsOutput(hostgroupMember, i);
+			i++;
+		}
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
 void test_procedureHandlerPutHostGroupMembershipInvalidJSON(void)
