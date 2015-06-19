@@ -822,6 +822,44 @@ void test_procedureHandlerPutEvents(gconstpointer data)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":2374234}";
 	cppcut_assert_equal(expected, actual);
+
+	timespec timeStamp;
+	string lastValueTime = "20150323151300";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	EventInfoList expectedEventInfoList =
+	{
+		{
+			1,                                               // unifiedId
+			monitoringServerInfo.id,                         // serverId
+			"1",                                             // id
+			timeStamp,                                       // time
+			EVENT_TYPE_GOOD,                                 // type
+			gcut_data_get_string(data, "triggerId"),         // triggerId
+			TRIGGER_STATUS_OK,                               // status
+			TRIGGER_SEVERITY_INFO,                           // severity
+			INVALID_HOST_ID,                                 // globalHostId
+			"3",                                             // hostIdInServer
+			"exampleHostName",                               // hostName
+			"example brief",                                 // brief
+			"sample extended info",                         // extendedInfo
+		},
+	};
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	EventInfoList eventInfoList;
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getEventInfoList(eventInfoList, option);
+	string actualOutput;
+	for (auto eventInfo : eventInfoList) {
+		actualOutput += makeEventOutput(eventInfo);
+	}
+	string expectedOutput;
+	for (auto eventInfo : expectedEventInfoList) {
+		expectedOutput += makeEventOutput(eventInfo);
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
 void test_procedureHandlerPutEventsInvalidJSON(void)
