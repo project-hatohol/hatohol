@@ -1321,6 +1321,7 @@ static bool parseEventType(JSONParser &parser, EventInfo &eventInfo,
 
 static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 			      const MonitoringServerInfo &serverInfo,
+			      const HostInfoCache &hostInfoCache,
 			      JSONRPCError &errObj)
 {
 	CHECK_MANDATORY_ARRAY_EXISTENCE("events", errObj);
@@ -1360,6 +1361,17 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 		PARSE_AS_MANDATORY("extendedInfo", eventInfo.extendedInfo, errObj);
 		parser.endElement();
 
+		HostInfoCache::Element cacheElem;
+		const bool found =
+			hostInfoCache.getName(eventInfo.hostIdInServer, cacheElem);
+		if (!found) {
+			MLPL_WARN(
+			  "Host cache: not found. server: %" FMT_TRIGGER_ID ", "
+			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
+			  eventInfo.id.c_str(), eventInfo.hostIdInServer.c_str());
+			cacheElem.hostId = INVALID_HOST_ID;
+		}
+		eventInfo.globalHostId = cacheElem.hostId;
 		eventInfoList.push_back(eventInfo);
 	}
 	parser.endObject(); // events
@@ -1378,7 +1390,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	parseEventsParams(parser, eventInfoList, serverInfo, errObj);
+	const HostInfoCache &hostInfoCache = m_impl->hostInfoCache;
+	parseEventsParams(parser, eventInfoList, serverInfo, hostInfoCache, errObj);
 
 	if (parser.isMember("fetchId")) {
 		parser.read("fetchId", fetchId);
