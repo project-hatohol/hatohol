@@ -1349,9 +1349,11 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 		PARSE_AS_MANDATORY("eventId",  eventInfo.id, errObj);
 		parseTimeStamp(parser, "time", eventInfo.time, errObj);
 		parseEventType(parser, eventInfo, errObj);
-		TriggerIdType triggerId = DO_NOT_ASSOCIATE_TRIGGER_ID;
-		if (!parser.read("triggerId", triggerId)) {
+		TriggerIdType triggerId;
+		if (parser.read("triggerId", triggerId)) {
 			eventInfo.triggerId = triggerId;
+		} else {
+			eventInfo.triggerId = DO_NOT_ASSOCIATE_TRIGGER_ID;
 		}
 		parseTriggerStatus(parser,         eventInfo.status, errObj, true);
 		parseTriggerSeverity(parser,       eventInfo.severity, errObj, true);
