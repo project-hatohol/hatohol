@@ -566,7 +566,7 @@ ItemTablePtr ZabbixAPI::getApplications(const ItemCategoryIdVector &appIdVector)
 
 	VariableItemTablePtr tablePtr;
 	int numData = parser.countElements();
-	MLPL_DBG("The number of aplications: %d\n", numData);
+	MLPL_DBG("The number of applications: %d\n", numData);
 	if (numData < 1)
 		return ItemTablePtr(tablePtr);
 
