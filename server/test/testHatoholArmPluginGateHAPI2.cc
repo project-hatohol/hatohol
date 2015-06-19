@@ -794,9 +794,11 @@ void test_procedureHandlerPutTriggersInvalidJSON(void)
 void data_procedureHandlerPutEvents(void)
 {
 	gcut_add_datum("WithTriggerId",
-	               "triggerIdContents", G_TYPE_STRING, " \"triggerId\":2,", NULL);
+	               "triggerIdContents", G_TYPE_STRING, " \"triggerId\":\"2\",",
+		       "triggerId", G_TYPE_STRING, "2", NULL);
 	gcut_add_datum("WithoutTriggerId",
-	               "triggerIdContents", G_TYPE_STRING, "", NULL);
+	               "triggerIdContents", G_TYPE_STRING, "",
+		       "triggerId", G_TYPE_STRING, DO_NOT_ASSOCIATE_TRIGGER_ID, NULL);
 }
 
 void test_procedureHandlerPutEvents(gconstpointer data)
@@ -808,7 +810,7 @@ void test_procedureHandlerPutEvents(gconstpointer data)
 			       " \"params\":{\"events\":[{\"eventId\":\"1\","
 			       " \"time\":\"20150323151300\", \"type\":\"GOOD\","
 			       " %s \"status\": \"OK\", \"severity\":\"INFO\","
-			       " \"hostId\":3, \"hostName\":\"exampleHostName\","
+			       " \"hostId\":\"3\", \"hostName\":\"exampleHostName\","
 			       " \"brief\":\"example brief\","
 			       " \"extendedInfo\": \"sample extended info\"}],"
 			       " \"lastInfo\":\"20150401175900\","
