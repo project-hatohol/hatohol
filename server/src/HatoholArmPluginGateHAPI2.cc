@@ -760,6 +760,7 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 			cacheElem.hostId = INVALID_HOST_ID;
 		}
 		itemInfo.globalHostId = cacheElem.hostId;
+		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_UNKNOWN;
 		itemInfo.delay = 0;
 		itemInfoList.push_back(itemInfo);
 	}
