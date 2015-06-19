@@ -1067,26 +1067,27 @@ static bool parseHostGroupMembershipParams(
 			return false;
 		}
 
-		HostgroupMember hostgroupMember;
-		hostgroupMember.serverId = serverInfo.id;
 		string hostIdInServer;
 		PARSE_AS_MANDATORY("hostId", hostIdInServer, errObj);
-		hostgroupMember.hostIdInServer = hostIdInServer;
-		CHECK_MANDATORY_ARRAY_EXISTENCE_INNER_LOOP("groupIds", errObj);
 		HostInfoCache::Element cacheElem;
-		const bool found = hostInfoCache.getName(hostgroupMember.hostIdInServer,
+		const bool found = hostInfoCache.getName(hostIdInServer,
 							 cacheElem);
 		if (!found) {
 			MLPL_WARN(
-			  "Host cache: not found. server: %" FMT_GEN_ID ", "
+			  "Host cache: not found. server: %" FMT_SERVER_ID ", "
 			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
-			  hostgroupMember.id, hostgroupMember.hostIdInServer.c_str());
+			  serverInfo.id, hostIdInServer.c_str());
 			cacheElem.hostId = INVALID_HOST_ID;
 		}
-		hostgroupMember.hostId = cacheElem.hostId;
+		CHECK_MANDATORY_ARRAY_EXISTENCE_INNER_LOOP("groupIds", errObj);
 		parser.startObject("groupIds");
 		size_t groupIdNum = parser.countElements();
 		for (size_t j = 0; j < groupIdNum; j++) {
+			HostgroupMember hostgroupMember;
+			hostgroupMember.serverId = serverInfo.id;
+			hostgroupMember.hostIdInServer = hostIdInServer;
+			hostgroupMember.hostId = cacheElem.hostId;
+
 			parser.read(j, hostgroupMember.hostgroupIdInServer);
 			hostgroupMemberVect.push_back(hostgroupMember);
 		}
