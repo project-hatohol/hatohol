@@ -383,7 +383,7 @@ void test_procedureHandlerPutItems(void)
 	item1.lastValueTime  = timeStamp;
 	item1.lastValue      = "example value";
 	item1.itemGroupName  = "example name";
-	item1.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN; // FIXME
+	item1.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN;
 	item1.delay          = 0;
 	item1.unit           = "example unit";
 	expectedItemInfoList.push_back(item1);
@@ -398,7 +398,7 @@ void test_procedureHandlerPutItems(void)
 	item2.lastValueTime  = timeStamp;
 	item2.lastValue      = "example value";
 	item2.itemGroupName  = "example name";
-	item1.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN; // FIXME
+	item1.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN;
 	item2.delay          = 0;
 	item2.unit           = "example unit";
 	expectedItemInfoList.push_back(item2);
