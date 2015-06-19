@@ -1084,6 +1084,7 @@ static bool parseHostGroupMembershipParams(
 		size_t groupIdNum = parser.countElements();
 		for (size_t j = 0; j < groupIdNum; j++) {
 			HostgroupMember hostgroupMember;
+			hostgroupMember.id = AUTO_INCREMENT_VALUE;
 			hostgroupMember.serverId = serverInfo.id;
 			hostgroupMember.hostIdInServer = hostIdInServer;
 			hostgroupMember.hostId = cacheElem.hostId;
