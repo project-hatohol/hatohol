@@ -1323,23 +1323,34 @@ void test_syncHostgroupMembers(void)
 		hostgroupMemberMap[i] = &svHostgroupMember;
 	}
 
+	HostgroupMember additionalHostGroupMember =
+	{
+		AUTO_INCREMENT_VALUE,                       // id
+		1,                                          // serverId
+		"235011",                                   // hostIdInServer
+		"1",                                        // hostgroupIdInServer
+		50                                          // hostId
+	};
+	hostgroupMemberMap[NumTestHostgroupMember + 1] = &additionalHostGroupMember;
+
 	HostgroupMemberVect svHostgroupMembers =
 	{
 		{
-			3,                                          // id
+			AUTO_INCREMENT_VALUE,                       // id
 			testHostgroupMember[2].serverId,            // serverId
 			testHostgroupMember[2].hostIdInServer,      // hostIdInServer
 			testHostgroupMember[2].hostgroupIdInServer, // hostgroupIdInServer
 			testHostgroupMember[2].hostId               // hostId
 		},
 		{
-			4,                                          // id
+			AUTO_INCREMENT_VALUE,                       // id
 			testHostgroupMember[3].serverId,            // serverId
 			testHostgroupMember[3].hostIdInServer,      // hostIdInServer
 			testHostgroupMember[3].hostgroupIdInServer, // hostgroupIdInServer
 			testHostgroupMember[3].hostId               // hostId
 		},
 	};
+	svHostgroupMembers.push_back(additionalHostGroupMember);
 
 	// sanity check if we use the proper data
 	cppcut_assert_equal(false, svHostgroupMembers.empty());
@@ -1359,14 +1370,14 @@ void test_syncHostgroupMembers(void)
 	DBAgent &dbAgent = dbHost.getDBAgent();
 	const ColumnDef *coldef = tableProfileHostgroupMember.columnDefs;
 	string statement = StringUtils::sprintf(
-	  "select %s,%s,%s from %s where %s=%" FMT_SERVER_ID " order by %s desc;",
+	  "select %s,%s,%s from %s where %s=%" FMT_SERVER_ID " order by %s asc;",
 	  coldef[IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER].columnName,
 	  coldef[IDX_HOSTGROUP_MEMBER_GROUP_ID].columnName,
 	  coldef[IDX_HOSTGROUP_MEMBER_HOST_ID].columnName,
 	  tableProfileHostgroupMember.name,
 	  coldef[IDX_HOSTGROUP_MEMBER_SERVER_ID].columnName,
 	  targetServerId,
-	  coldef[IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER].columnName);
+	  coldef[IDX_HOSTGROUP_MEMBER_HOST_ID].columnName);
 	assertDBContent(&dbAgent, statement, expect);
 }
 
