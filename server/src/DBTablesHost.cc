@@ -1312,8 +1312,11 @@ HatoholError DBTablesHost::syncHosts(
 	// Pick up hosts to be added.
 	ServerHostDefVect serverHostDefs;
 	for (auto& newSvHostDef : svHostDefs) {
-		if (currValidHosts.erase(newSvHostDef.hostIdInServer) >= 1) {
-			// The host already exits. We have nothing to do.
+		auto hostDefItr = currValidHosts.find(newSvHostDef.hostIdInServer);
+		if (hostDefItr != currValidHosts.end() &&
+		    hostDefItr->second->name != newSvHostDef.name &&
+		    currValidHosts.erase(newSvHostDef.hostIdInServer) >= 1) {
+			// The host already exists or modified. We have nothing to do.
 			continue;
 		}
 		serverHostDefs.push_back(move(newSvHostDef));

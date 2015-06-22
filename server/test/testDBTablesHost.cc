@@ -1195,6 +1195,59 @@ void test_syncHostsAddNewHost(void)
 	assertDBContent(&dbAgent, statement, expect);
 }
 
+void test_syncHostsModifiedHostName(void)
+{
+	loadTestDBServerHostDef();
+	DECLARE_DBTABLES_HOST(dbHost);
+	const ServerIdType targetServerId = 1;
+	// replace first ServerHostDef fixture element
+	ServerHostDef modifiedHostName = {
+		1,                // id
+		10,               // hostId
+		1,                // serverId
+		"235012",         // hostIdInServer
+		"hostX1Modified", // name
+	};
+
+	// Sanity check the ID of the new host is not duplicated.
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		const ServerHostDef &svHostDef = testServerHostDef[i];
+		if (svHostDef.serverId != targetServerId)
+			continue;
+		if (svHostDef.name == modifiedHostName.name)
+			cut_fail("We use the wrong test data");
+	}
+
+	// Prepare for the test data and the expected result.
+	ServerHostDefVect svHostDefs;
+	string expect;
+	size_t i = 0;
+	svHostDefs.push_back(modifiedHostName);
+	expect += makeHostsOutput(modifiedHostName, 0);
+
+	for (i = 1; i < NumTestServerHostDef; i++) {
+		const ServerHostDef &svHostDef = testServerHostDef[i];
+		if (svHostDef.serverId != targetServerId)
+			continue;
+		svHostDefs.push_back(svHostDef);
+		expect += makeHostsOutput(svHostDef, i);
+	}
+	// sanity check if we use the proper data
+	cppcut_assert_equal(false, svHostDefs.empty());
+
+	// Call the method to be tested and check the result
+	dbHost.syncHosts(svHostDefs, targetServerId);
+	DBAgent &dbAgent = dbHost.getDBAgent();
+	const ColumnDef *coldef = tableProfileServerHostDef.columnDefs;
+	string statement = StringUtils::sprintf(
+	  "select * from %s where %s=%" FMT_SERVER_ID " order by %s asc;",
+	  tableProfileServerHostDef.name,
+	  coldef[IDX_HOST_SERVER_HOST_DEF_SERVER_ID].columnName,
+	  targetServerId,
+	  coldef[IDX_HOST_SERVER_HOST_DEF_ID].columnName);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
 void test_syncHostgroups(void)
 {
 	loadTestDBServer();
