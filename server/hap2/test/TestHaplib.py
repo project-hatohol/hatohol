@@ -174,3 +174,39 @@ class RabbitMQHapiConnector(unittest.TestCase):
                             "amqp_password": "test_password"}
         rabbitmq_connector = haplib.RabbitMQHapiConnector()
         common.assertNotRaises(rabbitmq_connector.setup, transporter_args)
+
+class Sender(unittest.TestCase):
+
+    def test_get_connector(self):
+        transporter_args = {"class": transporter.Transporter}
+        test_sender = haplib.Sender(transporter_args)
+        result_connector = test_sender.get_connector()
+        self.assertEquals(test_sender._Sender__connector, result_connector)
+
+    def test_set_connector(self):
+        transporter_args = {"class": transporter.Transporter}
+        test_sender = haplib.Sender(transporter_args)
+        test_sender.set_connector("test")
+        self.assertEquals("test", test_sender._Sender__connector)
+
+    def test_request(self):
+        transporter_args = {"class": transporter.Transporter}
+        test_sender = haplib.Sender(transporter_args)
+        common.assertNotRaises(test_sender.request,
+                              "test_procedure_name", "test_param", 1)
+
+    def test_response(self):
+        transporter_args = {"class": transporter.Transporter}
+        test_sender = haplib.Sender(transporter_args)
+        common.assertNotRaises(test_sender.response,
+                              "test_result", 1)
+
+    def test_error(self):
+        transporter_args = {"class": transporter.Transporter}
+        test_sender = haplib.Sender(transporter_args)
+        common.assertNotRaises(test_sender.error, -32700, 1)
+
+    def test_notifiy(self):
+        transporter_args = {"class": transporter.Transporter}
+        test_sender = haplib.Sender(transporter_args)
+        common.assertNotRaises(test_sender.notify, "test_notify", 1)
