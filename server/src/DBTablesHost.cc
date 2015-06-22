@@ -1316,7 +1316,7 @@ HatoholError DBTablesHost::syncHosts(
 		if (hostDefItr != currValidHosts.end() &&
 		    hostDefItr->second->name == newSvHostDef.name &&
 		    currValidHosts.erase(newSvHostDef.hostIdInServer) >= 1) {
-			// The host already exists or modified. We have nothing to do.
+			// The host already exists or unmodified. We have nothing to do.
 			continue;
 		}
 		serverHostDefs.push_back(move(newSvHostDef));
