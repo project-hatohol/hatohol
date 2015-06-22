@@ -20,6 +20,7 @@
 import unittest
 import haplib
 import time
+import re
 
 class Gadget:
     def __init__(self):
@@ -55,7 +56,6 @@ class TestHaplib_Signal(unittest.TestCase):
     def test_restart_is_true(self):
         obj = haplib.Signal(restart=True)
         self.assertEquals(True, obj.restart)
-
 
 class TestHaplib_Callback(unittest.TestCase):
 
@@ -105,3 +105,54 @@ class CommandQueue(unittest.TestCase):
             time.sleep(0.01)
         cq.pop_all()
         self.assertEquals(num_push, gadz.num_called)
+
+class MonitoringServerInfo(unittest.TestCase):
+
+    def test_create(self):
+        info_dict = {
+            "serverId": 10,
+            "url": "http://who@where:foo/hoge",
+            "type": "8e632c14-d1f7-11e4-8350-d43d7e3146fb",
+            "nickName": "carrot",
+            "userName": "ninjin",
+            "password": "radish",
+            "pollingIntervalSec": 30,
+            "retryIntervalSec": 15,
+            "extendedInfo": "Time goes by."
+        }
+
+        key_map = {}
+        for key in info_dict.keys():
+            snake = re.sub("([A-Z])", lambda x: "_" + x.group(1).lower(), key)
+            key_map[key] = snake
+
+        print key_map
+        ms_info = haplib.MonitoringServerInfo(info_dict)
+        for key, val in info_dict.items():
+            actual = eval("ms_info.%s" % key_map[key])
+            self.assertEquals(actual, val)
+
+class ParsedMessage(unittest.TestCase):
+
+    def test_create(self):
+        pm = haplib.ParsedMessage()
+        self.assertIsNone(pm.error_code)
+        self.assertIsNone(pm.message_id)
+        self.assertIsNone(pm.message_dict)
+        self.assertEquals("", pm.error_message)
+
+    def test_get_error_message(self):
+        pm = haplib.ParsedMessage()
+        actual =  "error code: None, message ID: None, error message: "
+        self.assertEquals(actual, pm.get_error_message())
+
+class ArmInfo(unittest.TestCase):
+
+    def test_create(self):
+        arm_info = haplib.ArmInfo()
+        self.assertEquals("", arm_info.last_status)
+        self.assertEquals("", arm_info.failure_reason)
+        self.assertEquals("", arm_info.last_success_time)
+        self.assertEquals("", arm_info.last_failure_time)
+        self.assertEquals(0, arm_info.num_success)
+        self.assertEquals(0, arm_info.num_failure)
