@@ -1393,18 +1393,18 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 	if (err != HTERR_OK)
 		return err;
 	const HostgroupMemberVect currHostgroupMembers = move(_currHostgroupMembers);
-	map<HostgroupIdType, map<LocalHostIdType, const HostgroupMember *> > currentHostgroupMemberMapMap;
+	map<HostgroupIdType, map<LocalHostIdType, const HostgroupMember *> > currentHostgroupMapHostsMap;
 	for (auto& hostgroupMember : currHostgroupMembers) {
-		currentHostgroupMemberMapMap[hostgroupMember.hostgroupIdInServer][hostgroupMember.hostIdInServer] = &hostgroupMember;
+		currentHostgroupMapHostsMap[hostgroupMember.hostgroupIdInServer][hostgroupMember.hostIdInServer] = &hostgroupMember;
 	}
 
 	//Pick up hostgroupMember to be added.
 	HostgroupMemberVect serverHostgroupMembers;
 	for (auto hostgroupMember : incomingHostgroupMembers) {
-		auto groupIdItr = currentHostgroupMemberMapMap.find(hostgroupMember.hostgroupIdInServer);
-		if (groupIdItr != currentHostgroupMemberMapMap.end()) {
-			auto hostIdItr = currentHostgroupMemberMapMap.find(hostgroupMember.hostIdInServer);
-			if (hostIdItr != currentHostgroupMemberMapMap.end()) {
+		auto groupIdItr = currentHostgroupMapHostsMap.find(hostgroupMember.hostgroupIdInServer);
+		if (groupIdItr != currentHostgroupMapHostsMap.end()) {
+			auto hostIdItr = currentHostgroupMapHostsMap.find(hostgroupMember.hostIdInServer);
+			if (hostIdItr != currentHostgroupMapHostsMap.end()) {
 				continue;
 			}
 		}
@@ -1412,10 +1412,10 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 	}
 
 	GenericIdList invalidHostgroupMemberIdList;
-	auto invalidHostgroupMemberMapMap = move(currentHostgroupMemberMapMap);
-	for (auto invalidHostgroupMemberMap : invalidHostgroupMemberMapMap) {
-		for (auto invalidHostgroupMemberPair : invalidHostgroupMemberMap.second) {
-			auto invalidHostgroupMember = *invalidHostgroupMemberPair.second;
+	auto invalidHostgroupMapHostsMap = move(currentHostgroupMapHostsMap);
+	for (auto invalidHostgroupMap :  invalidHostgroupMapHostsMap) {
+		for (auto invalidHostgroupPair : invalidHostgroupMap.second) {
+			auto invalidHostgroupMember = *invalidHostgroupPair.second;
 			invalidHostgroupMemberIdList.push_back(invalidHostgroupMember.id);
 		}
 	}
