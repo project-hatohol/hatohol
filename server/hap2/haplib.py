@@ -217,3 +217,38 @@ class CommandQueue(Callback):
     def pop_all(self):
         while not self.__q.empty():
             self.__wait(0)
+
+
+class MonitoringServerInfo:
+    def __init__(self, ms_info_dict):
+        self.server_id = ms_info_dict["serverId"]
+        self.url = ms_info_dict["url"]
+        self.type = ms_info_dict["type"]
+        self.nick_name = ms_info_dict["nickName"]
+        self.user_name = ms_info_dict["userName"]
+        self.password = ms_info_dict["password"]
+        self.polling_interval_sec = ms_info_dict["pollingIntervalSec"]
+        self.retry_interval_sec = ms_info_dict["retryIntervalSec"]
+        self.extended_info = ms_info_dict["extendedInfo"]
+
+
+class ParsedMessage:
+    def __init__(self):
+        self.error_code = None
+        self.message_id = None
+        self.message_dict = None
+        self.error_message = ""
+
+    def get_error_message(self):
+        return "error code: %s, message ID: %s, error message: %s" % \
+               (self.error_code, self.message_id, self.error_message)
+
+
+class ArmInfo:
+    def __init__(self):
+        self.last_status = str()
+        self.failure_reason = str()
+        self.last_success_time = str()
+        self.last_failure_time = str()
+        self.num_success = int()
+        self.num_failure = int()
