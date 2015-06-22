@@ -19,10 +19,15 @@
 """
 import unittest
 import haplib
+import time
 
 class Gadget:
-    def __call__(self, arg1, arg2, arg3, arg4):
+    def __init__(self):
+        self.num_called = 0
+
+    def __call__(self, arg1, arg2=None, arg3=None, arg4=None):
         self.args = (arg1, arg2, arg3, arg4)
+        self.num_called += 1
 
 class TestHaplib_handle_exception(unittest.TestCase):
 
@@ -70,3 +75,33 @@ class TestHaplib_Callback(unittest.TestCase):
         cb = haplib.Callback()
         command_code = 1
         cb(command_code)
+
+class CommandQueue(unittest.TestCase):
+
+    def test_push_and_wait(self):
+        code = 2
+        args = ('a', 2, -1.5)
+        cq = haplib.CommandQueue()
+        gadz = Gadget()
+        cq.register(code, gadz)
+        cq.push(code, args)
+        # This is not smart. The processing won't be completed within 'duration'
+        duration = 0.1
+        cq.wait(duration)
+        self.assertEquals((args, None, None, None), gadz.args)
+
+    def test_pop_all(self):
+        code = 3
+        num_push = 5
+        args = ('a', 2, -1.5)
+        cq = haplib.CommandQueue()
+        gadz = Gadget()
+        cq.register(code, gadz)
+        self.assertEquals(0, gadz.num_called)
+        [cq.push(code, args) for i in range(0, num_push)]
+        # Too ugly. But we don't have other way to wait for completion of
+        # processing in the background thread.
+        while cq.__q.empty():
+            time.sleep(0.01)
+        cq.pop_all()
+        self.assertEquals(num_push, gadz.num_called)

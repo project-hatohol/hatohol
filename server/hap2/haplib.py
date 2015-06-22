@@ -20,8 +20,11 @@
 """
 
 import sys
+import time
 import logging
 import traceback
+import multiprocessing
+import Queue
 
 SERVER_PROCEDURES = {"exchangeProfile": True,
                      "getMonitoringServerInfo": True,
@@ -177,3 +180,40 @@ class Callback:
             return
         for handler in handler_list:
             handler(*args, **kwargs)
+
+
+class CommandQueue(Callback):
+    def __init__(self):
+        Callback.__init__(self)
+        self.__q = multiprocessing.Queue()
+
+    def wait(self, duration):
+        """
+        Wait for commands and run the command when it receives in the
+        given duration.
+        @parameter duration
+        This method returns after the time of this parameter goes by.
+        """
+        wakeup_time = time.time() + duration
+        while  True:
+            sleep_time = wakeup_time - time.time()
+            if sleep_time <= 0:
+                return
+            self.__wait(sleep_time)
+
+    def __wait(self, sleep_time):
+        try:
+            code, args = \
+                self.__q.get(block=True, timeout=sleep_time)
+            self(code, args)
+        except Queue.Empty:
+            # If no command is forthcomming within timeout,
+            # this path is executed.
+            pass
+
+    def push(self, code, args):
+        self.__q.put((code, args), block=False)
+
+    def pop_all(self):
+        while not self.__q.empty():
+            self.__wait(0)
