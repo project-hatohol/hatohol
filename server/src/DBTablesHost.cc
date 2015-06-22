@@ -1393,26 +1393,31 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 	if (err != HTERR_OK)
 		return err;
 	const HostgroupMemberVect currHostgroupMembers = move(_currHostgroupMembers);
-	map<GenericIdType, const HostgroupMember *> currentHostgroupMemberMap;
+	map<HostgroupIdType, map<LocalHostIdType, const HostgroupMember *> > currentHostgroupMapHostsMap;
 	for (auto& hostgroupMember : currHostgroupMembers) {
-		currentHostgroupMemberMap[hostgroupMember.id] = &hostgroupMember;
+		currentHostgroupMapHostsMap[hostgroupMember.hostgroupIdInServer][hostgroupMember.hostIdInServer] = &hostgroupMember;
 	}
 
 	//Pick up hostgroupMember to be added.
 	HostgroupMemberVect serverHostgroupMembers;
 	for (auto hostgroupMember : incomingHostgroupMembers) {
-		if(currentHostgroupMemberMap.erase(hostgroupMember.id) >= 1) {
-			continue;
+		auto groupIdItr = currentHostgroupMapHostsMap.find(hostgroupMember.hostgroupIdInServer);
+		if (groupIdItr != currentHostgroupMapHostsMap.end()) {
+			auto& currentHostgroupMap = groupIdItr->second;
+			if (currentHostgroupMap.erase(hostgroupMember.hostIdInServer) >= 1) {
+				continue;
+			}
 		}
 		serverHostgroupMembers.push_back(move(hostgroupMember));
 	}
 
 	GenericIdList invalidHostgroupMemberIdList;
-	map<GenericIdType, const HostgroupMember *> invalidHostgroupMemberMap =
-		move(currentHostgroupMemberMap);
-	for (auto invalidHostgroupMemberPair : invalidHostgroupMemberMap) {
-		HostgroupMember invalidHostgroupMember = *invalidHostgroupMemberPair.second;
-		invalidHostgroupMemberIdList.push_back(invalidHostgroupMember.id);
+	auto invalidHostgroupMapHostsMap = move(currentHostgroupMapHostsMap);
+	for (auto invalidHostgroupMap :  invalidHostgroupMapHostsMap) {
+		for (auto invalidHostgroupPair : invalidHostgroupMap.second) {
+			auto invalidHostgroupMember = *invalidHostgroupPair.second;
+			invalidHostgroupMemberIdList.push_back(invalidHostgroupMember.id);
+		}
 	}
 	if (invalidHostgroupMemberIdList.size() > 0)
 		err = deleteHostgroupMemberList(invalidHostgroupMemberIdList);
