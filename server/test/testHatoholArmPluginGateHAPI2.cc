@@ -665,7 +665,9 @@ void test_procedureHandlerPutHostGroupMembership(void)
 	string json =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroupMembership\","
 		" \"params\":{\"hostGroupsMembership\":[{\"hostId\":\"1\","
-		" \"groupIds\":[\"1\", \"2\", \"5\"]}],"
+		" \"groupIds\":[\"1\", \"2\"]}, {\"hostId\":\"2\","
+		" \"groupIds\":[\"2\", \"5\"]}, {\"hostId\":\"4\","
+		" \"groupIds\":[\"5\"]}],"
 		" \"lastInfo\":\"20150409105600\", \"updateType\":\"ALL\"},"
 		" \"id\":9342}";
 	JSONParser parser(json);
@@ -695,7 +697,21 @@ void test_procedureHandlerPutHostGroupMembership(void)
 		{
 			3,                       // id
 			monitoringServerInfo.id, // serverId
-			"1",                     // hostIdInServer
+			"2",                     // hostIdInServer
+			"2",                     // hostGroupIdInServer
+			INVALID_HOST_ID,         // hostId
+		},
+		{
+			4,                       // id
+			monitoringServerInfo.id, // serverId
+			"2",                     // hostIdInServer
+			"5",                     // hostGroupIdInServer
+			INVALID_HOST_ID,         // hostId
+		},
+		{
+			5,                       // id
+			monitoringServerInfo.id, // serverId
+			"4",                     // hostIdInServer
 			"5",                     // hostGroupIdInServer
 			INVALID_HOST_ID,         // hostId
 		},
