@@ -24,6 +24,9 @@ import re
 import common
 import transporter
 import os
+import json
+from collections import namedtuple
+import argparse
 
 class Gadget:
     def __init__(self):
@@ -88,7 +91,8 @@ class CommandQueue(unittest.TestCase):
         gadz = Gadget()
         cq.register(code, gadz)
         cq.push(code, args)
-        # This is not smart. The processing won't be completed within 'duration'
+        # This is not smart.
+        #The processing won't be completed within 'duration'
         duration = 0.1
         cq.wait(duration)
         self.assertEquals((args, None, None, None), gadz.args)
@@ -129,7 +133,6 @@ class MonitoringServerInfo(unittest.TestCase):
             snake = re.sub("([A-Z])", lambda x: "_" + x.group(1).lower(), key)
             key_map[key] = snake
 
-        print key_map
         ms_info = haplib.MonitoringServerInfo(info_dict)
         for key, val in info_dict.items():
             actual = eval("ms_info.%s" % key_map[key])
@@ -210,3 +213,130 @@ class Sender(unittest.TestCase):
         transporter_args = {"class": transporter.Transporter}
         test_sender = haplib.Sender(transporter_args)
         common.assertNotRaises(test_sender.notify, "test_notify", 1)
+
+
+class Utils(unittest.TestCase):
+    def test_define_transporter_arguments(self):
+        test_parser = argparse.ArgumentParser()
+        common.assertNotRaises(haplib.Utils.define_transporter_arguments,
+                               test_parser)
+
+    def test_load_transporter(self):
+        test_transport_arguments = namedtuple("transport_argument",
+                                              "transporter_module transporter")
+        test_transport_arguments.transporter_module = "haplib"
+        test_transport_arguments.transporter = "RabbitMQHapiConnector"
+
+        common.assertNotRaises(haplib.Utils.load_transporter,
+                               test_transport_arguments)
+
+    def test_parse_received_message_invalid_json(self):
+        test_message = "invalid_message"
+        result = haplib.Utils.parse_received_message(test_message, None)
+
+        self.assertEquals(haplib.ERR_CODE_PARSER_ERROR, result.error_code)
+
+    def test_parse_received_message_not_implement(self):
+        test_message = '{"method": "test_procedure", "params": "test_params", "id": 1, "jsonrpc": "2.0"}'
+        result = haplib.Utils.parse_received_message(test_message,
+                                                     ["exchangeProfile"])
+
+        self.assertEquals(haplib.ERR_CODE_METHOD_NOT_FOUND, result.error_code)
+
+    def test_parse_received_message_invalid_argument(self):
+        test_message = '{"method": "exchangeProfile", "params": {"name":1, "procedures":"test"}, "id": 1, "jsonrpc": "2.0"}'
+        result = haplib.Utils.parse_received_message(test_message,
+                                                     ["exchangeProfile"])
+
+        self.assertEquals(haplib.ERR_CODE_INVALID_PARAMS, result.error_code)
+
+    def test_parse_received_message_valid_json(self):
+        test_message = '{"method": "exchangeProfile", "params": {"name":"test_name", "procedures":["exchangeProfile"]}, "id": 1, "jsonrpc": "2.0"}'
+        result = haplib.Utils.parse_received_message(test_message,
+                                                     ["exchangeProfile"])
+
+        exact_dict = json.loads(test_message)
+        self.assertEquals(exact_dict, result.message_dict)
+
+    def test_parse_received_message_response(self):
+        test_message = '{"result":"test_result","id":1,"jsonrpc": "2.0"}'
+        result = haplib.Utils.parse_received_message(test_message,
+                                                     ["exchangeProfile"])
+
+        exact_dict = json.loads(test_message)
+        self.assertEquals(exact_dict, result.message_dict)
+
+    def test_convert_string_to_dict_success(self):
+        test_json_string = '{"test_key":"test_value"}'
+
+        exact_result = json.loads(test_json_string)
+        unnesessary_result, result = \
+                haplib.Utils._convert_string_to_dict(test_json_string)
+        self.assertEquals(result, exact_result)
+
+    def test_convert_string_to_dict_failure(self):
+        test_json_string = '{"test_key": test_value}'
+
+        exact_result = (-32700, None)
+        result = haplib.Utils._convert_string_to_dict(test_json_string)
+        self.assertEquals(exact_result, result)
+
+    def test_is_allowed_procedure_success(self):
+        result = haplib.Utils.is_allowed_procedure("exchangeProfile",
+                                                   ["exchangeProfile"])
+        self.assertIsNone(result)
+
+    def test_is_allowed_procedure_failure(self):
+        result = haplib.Utils.is_allowed_procedure("test_procedure_name",
+                                                   ["exchangeProfile"])
+        self.assertEquals(result, -32601)
+
+    def test_validate_arguments_success(self):
+        test_json_string = '{"method": "exchangeProfile", "params": {"name":"test_name", "procedures":["exchangeProfile"]}}'
+        test_json_dict = json.loads(test_json_string)
+        result = haplib.Utils.validate_arguments(test_json_dict)
+        self.assertTrue((None, None), result)
+
+    def test_validate_arguments_fail(self):
+        test_json_string = '{"method": "exchangeProfile", "params": {"name":"test_name", "procedures":"exchangeProfile"}}'
+        test_json_dict = json.loads(test_json_string)
+        result = haplib.Utils.validate_arguments(test_json_dict)
+        self.assertEquals(result[0], -32602)
+
+    def test_generate_request_id(self):
+        result = haplib.Utils.generate_request_id(0x01)
+
+        self.assertTrue(0 <= result <= 1111111111111)
+
+    def test_translate_unit_time_to_hatohol_time(self):
+        result = haplib.Utils.translate_unix_time_to_hatohol_time(0)
+        self.assertEquals(result, "19700101090000.000000")
+
+    def test_translate_hatohol_time_time_to_unix_time(self):
+        result = haplib.Utils.translate_hatohol_time_to_unix_time("19700101090000.000000")
+        self.assertEquals(result, 0)
+
+    def test_optimize_server_procedures(self):
+        test_procedures_dict = {"exchangeProfile": True,
+                                "updateTriggers": True}
+        test_procedures = ["exchangeProfile"]
+
+        haplib.Utils.optimize_server_procedures(test_procedures_dict,
+                                                test_procedures)
+        self.assertTrue(test_procedures_dict["exchangeProfile"])
+        self.assertFalse(test_procedures_dict["updateTriggers"])
+
+    def test_get_biggest_num_of_dict_array(self):
+        test_target_array = [{"test_value": 3},
+                             {"test_value": 7},
+                             {"test_value": 9}]
+        result = haplib.Utils.get_biggest_num_of_dict_array(test_target_array,
+                                                            "test_value")
+        self.assertEquals(result, 9)
+
+    def test_get_current_hatohol_time(self):
+        result = haplib.Utils.get_current_hatohol_time()
+
+        self.assertTrue(14 < len(result) < 22)
+        ns = int(result[15: 21])
+        self.assertTrue(0 <= ns < 1000000)
