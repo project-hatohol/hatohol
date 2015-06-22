@@ -21,7 +21,8 @@ import unittest
 import haplib
 
 class Gadget:
-    pass
+    def __call__(self, arg1, arg2, arg3, arg4):
+        self.args = (arg1, arg2, arg3, arg4)
 
 class TestHaplib_handle_exception(unittest.TestCase):
 
@@ -49,3 +50,23 @@ class TestHaplib_Signal(unittest.TestCase):
     def test_restart_is_true(self):
         obj = haplib.Signal(restart=True)
         self.assertEquals(True, obj.restart)
+
+
+class TestHaplib_Callback(unittest.TestCase):
+
+    def test_register_and_call(self):
+        cb = haplib.Callback()
+        handler = Gadget()
+        cb.register(1, handler)
+        arg1 = "a"
+        arg2 = None
+        arg3 = 1.3
+        arg4 = True
+        command_code = 1
+        cb(command_code, arg1, arg2, arg3=arg3, arg4=arg4)
+        self.assertEquals((arg1, arg2, arg3, arg4), handler.args)
+
+    def test_call_with_no_handlers(self):
+        cb = haplib.Callback()
+        command_code = 1
+        cb(command_code)

@@ -158,3 +158,22 @@ class Signal:
 
     def __init__(self, restart=False):
         self.restart = restart
+
+
+class Callback:
+    def __init__(self):
+        self.__handlers = {}
+
+    def register(self, code, handler):
+        handler_list = self.__handlers.get(code)
+        if handler_list is None:
+            handler_list = []
+            self.__handlers[code] = handler_list
+        handler_list.append(handler)
+
+    def __call__(self, code, *args, **kwargs):
+        handler_list = self.__handlers.get(code)
+        if handler_list is None:
+            return
+        for handler in handler_list:
+            handler(*args, **kwargs)
