@@ -23,7 +23,6 @@ import pika
 from transporter import Transporter
 
 class RabbitMQConnector(Transporter):
-
     def __init__(self):
         Transporter.__init__(self)
         self._channel = None
@@ -51,7 +50,7 @@ class RabbitMQConnector(Transporter):
         user_name = transporter_args["amqp_user"]
         password = transporter_args["amqp_password"]
 
-        logging.debug("Called stub method: call().");
+        logging.debug("Called stub method: call().")
         self._queue_name = queue_name
         credentials = pika.credentials.PlainCredentials(user_name, password)
 

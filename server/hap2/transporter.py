@@ -28,7 +28,6 @@ class Transporter:
     """
     An abstract class for transportation of RPC messages for HAPI-2.0.
     """
-
     def __init__(self):
         self.__receiver = None
 
@@ -69,14 +68,14 @@ class Transporter:
         Call a RPC.
         @param mas A message to be sent.
         """
-        logging.debug("Called stub method: call().");
+        logging.debug("Called stub method: call().")
 
     def reply(self, msg):
         """
         Replay a message to a caller.
         @param msg A reply message.
         """
-        logging.debug("Called stub method: reply().");
+        logging.debug("Called stub method: reply().")
 
     def set_receiver(self, receiver):
         """
@@ -99,6 +98,7 @@ class Transporter:
         add_receiver() are called. This method doesn't return.
         """
         pass
+
 
 class Factory:
     @classmethod

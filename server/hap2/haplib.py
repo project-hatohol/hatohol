@@ -25,6 +25,7 @@ import logging
 import traceback
 import multiprocessing
 import Queue
+import json
 import transporter
 from rabbitmqconnector import RabbitMQConnector
 
@@ -46,7 +47,7 @@ PROCEDURES_DEFS = {
         "args": {
             "procedures": {"type": list(), "mandatory": True},
             "name": {"type": unicode(), "mandatory": True},
-         }
+        }
     },
     "fetchItems": {
         "args": {
@@ -56,11 +57,11 @@ PROCEDURES_DEFS = {
     },
     "fetchHistory": {
         "args": {
-          "hostId":{"type": unicode(), "mandatory": True},
-          "itemId": {"type": unicode, "mandatory": True},
-          "beginTime": {"type": unicode(), "mandatory": True},
-          "endTime": {"type": unicode(), "mandatory": True},
-          "fetchId": {"type": unicode(), "mandatory": True},
+            "hostId": {"type": unicode(), "mandatory": True},
+            "itemId": {"type": unicode, "mandatory": True},
+            "beginTime": {"type": unicode(), "mandatory": True},
+            "endTime": {"type": unicode(), "mandatory": True},
+            "fetchId": {"type": unicode(), "mandatory": True},
         }
     },
     "fetchTriggers": {
@@ -71,8 +72,8 @@ PROCEDURES_DEFS = {
     },
     "fetchEvents": {
         "args": {
-            "lastInfo":{"type": unicode(), "mandatory": True},
-            "count":{"type": int(), "mandatory": True},
+            "lastInfo": {"type": unicode(), "mandatory": True},
+            "count": {"type": int(), "mandatory": True},
             # TODO: validate: direction
             "direction": {"type": unicode(), "mandatory": True},
             "fetchId": {"type": unicode(), "mandatory": True}
@@ -80,7 +81,7 @@ PROCEDURES_DEFS = {
     },
     "notifyMonitoringServerInfo": {
         "notification": True,
-        "args": {} # TODO: fill content
+        "args": {}  # TODO: fill content
     },
     "getMonitoringServerInfo": {
         "args": {}
@@ -132,6 +133,7 @@ ERROR_DICT = {
 }
 
 MAX_EVENT_CHUNK_SIZE = 1000
+
 
 def handle_exception(raises=()):
     """
@@ -197,7 +199,7 @@ class CommandQueue(Callback):
         This method returns after the time of this parameter goes by.
         """
         wakeup_time = time.time() + duration
-        while  True:
+        while True:
             sleep_time = wakeup_time - time.time()
             if sleep_time <= 0:
                 return
@@ -267,5 +269,38 @@ class RabbitMQHapiConnector(RabbitMQConnector):
         if "amqp_hapi_queue" not in transporter_args:
             transporter_args["amqp_hapi_queue"] = transporter_args["amqp_queue"]
         transporter_args["amqp_queue"] = \
-          transporter_args["amqp_hapi_queue"] + suffix
+            transporter_args["amqp_hapi_queue"] + suffix
         RabbitMQConnector.setup(self, transporter_args)
+
+
+class Sender:
+    def __init__(self, transporter_args):
+        transporter_args["direction"] = transporter.DIR_SEND
+        self.__connector = transporter.Factory.create(transporter_args)
+
+    def get_connector(self):
+        return self.__connector
+
+    def set_connector(self, connector):
+        self.__connector = connector
+
+    def request(self, procedure_name, params, request_id):
+        body = {"jsonrpc": "2.0", "method": procedure_name, "params": params}
+        if request_id is not None:
+            body["id"] = request_id
+        self.__connector.call(json.dumps(body))
+
+    def response(self, result, response_id):
+        response = json.dumps({"jsonrpc": "2.0", "result": result,
+                               "id": response_id})
+        self.__connector.reply(response)
+
+    def error(self, error_code, response_id):
+        response = json.dumps({"jsonrpc": "2.0",
+                               "error": {"code": error_code,
+                                         "message": ERROR_DICT[error_code]},
+                               "id": response_id})
+        self.__connector.reply(response)
+
+    def notify(self, procedure_name, params):
+        self.request(procedure_name, params, request_id=None)

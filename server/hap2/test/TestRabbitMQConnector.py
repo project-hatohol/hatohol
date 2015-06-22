@@ -30,14 +30,14 @@ class TestRabbitMQConnector(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.__broker = "localhost"
-        port  = os.getenv("RABBITMQ_NODE_PORT")
+        port = os.getenv("RABBITMQ_NODE_PORT")
         cls.__port = None
         if port is not None:
             cls.__port = int(port)
         cls.__vhost = "test"
         cls.__queue_name = "test_queue"
-        cls.__user_name  = "test_user"
-        cls.__password   = "test_password"
+        cls.__user_name = "test_user"
+        cls.__password = "test_password"
 
     def test_setup(self):
         conn = RabbitMQConnector()
@@ -94,13 +94,12 @@ class TestRabbitMQConnector(unittest.TestCase):
         self.assertEquals(subproc.returncode, 0)
         return output
 
-
     def __build_broker_url(self):
         port = ""
         if self.__port is not None:
             port = ":%d" % self.__port
         return "amqp://%s:%s@%s%s/%s" % (self.__user_name, self.__password,
-                                       self.__broker, port, self.__vhost)
+                                         self.__broker, port, self.__vhost)
 
     def __build_broker_options(self):
         if os.getenv("RABBITMQ_CONNECTOR_TEST_WORKAROUND") is not None:
