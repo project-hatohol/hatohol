@@ -1357,6 +1357,60 @@ void test_syncHostgroupsAddNewHostgroup(void)
 	assertDBContent(&dbAgent, statement, expect);
 }
 
+void test_syncHostgroupsModifiedHostgroupName(void)
+{
+	loadTestDBServer();
+	loadTestDBHostgroup();
+	DECLARE_DBTABLES_HOST(dbHost);
+	constexpr const ServerIdType targetServerId = 1;
+	Hostgroup modifiedHostgroup = {
+		1,                    // id
+		1,                    // serverId
+		"1",                  // idInServer
+		"Revised Monitor Servers",   // Name
+	};
+
+	for (size_t i = 0; i < NumTestHostgroup; i++) {
+		const Hostgroup &svHostgroup = testHostgroup[i];
+		if (svHostgroup.serverId != targetServerId)
+			continue;
+		if (svHostgroup.name == modifiedHostgroup.name)
+			cut_fail("We use the wrong test data");
+	}
+
+	string expect;
+	HostgroupVect svHostgroups;
+	{
+		size_t i = 0;
+		// Add modifiedHostgroup to the expected result
+		svHostgroups.push_back(modifiedHostgroup);
+		expect += makeHostgroupsOutput(modifiedHostgroup, 0);
+
+		for (i = 1; i < NumTestHostgroup; i++) {
+			const Hostgroup &svHostgroup = testHostgroup[i];
+			if (svHostgroup.serverId != targetServerId)
+				continue;
+			svHostgroups.push_back(svHostgroup);
+			expect += makeHostgroupsOutput(svHostgroup, i);
+		}
+
+		// sanity check if we use the proper data
+		cppcut_assert_equal(false, svHostgroups.empty());
+	}
+
+	// Call the method to be tested and check the result
+	dbHost.syncHostgroups(svHostgroups, targetServerId);
+	DBAgent &dbAgent = dbHost.getDBAgent();
+	const ColumnDef *coldef = tableProfileHostgroupList.columnDefs;
+	string statement = StringUtils::sprintf(
+	  "select * from %s where %s=%" FMT_SERVER_ID " order by %s asc;",
+	  tableProfileHostgroupList.name,
+	  coldef[IDX_HOSTGROUP_LIST_SERVER_ID].columnName,
+	  targetServerId,
+	  coldef[IDX_HOSTGROUP_LIST_ID_IN_SERVER].columnName);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
 void test_syncHostgroupMembers(void)
 {
 	loadTestDBServer();

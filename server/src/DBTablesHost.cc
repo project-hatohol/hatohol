@@ -1359,8 +1359,12 @@ HatoholError DBTablesHost::syncHostgroups(
 	// Pick up hostgroups to be added.
 	HostgroupVect serverHostgroups;
 	for (auto hostgroup : incomingHostgroups) {
-		if (currentHostgroupMap.erase(hostgroup.idInServer) >= 1) {
-			// If the hostgroup already exists, we have nothing to do.
+		auto hostgroupItr = currentHostgroupMap.find(hostgroup.idInServer);
+		if (hostgroupItr != currentHostgroupMap.end() &&
+		    hostgroupItr->second->name == hostgroup.name &&
+		    currentHostgroupMap.erase(hostgroup.idInServer) >= 1) {
+			// If the hostgroup already exists or unmodified,
+			// we have nothing to do.
 			continue;
 		}
 		serverHostgroups.push_back(move(hostgroup));
