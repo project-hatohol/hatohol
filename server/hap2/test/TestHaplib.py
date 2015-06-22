@@ -21,6 +21,9 @@ import unittest
 import haplib
 import time
 import re
+import common
+import transporter
+import os
 
 class Gadget:
     def __init__(self):
@@ -156,3 +159,19 @@ class ArmInfo(unittest.TestCase):
         self.assertEquals("", arm_info.last_failure_time)
         self.assertEquals(0, arm_info.num_success)
         self.assertEquals(0, arm_info.num_failure)
+
+class RabbitMQHapiConnector(unittest.TestCase):
+
+    def test_setup(self):
+        port = os.getenv("RABBITMQ_NODE_PORT")
+        amqp_address = os.getenv("RABBITMQ_NODE_ADDRESS")
+        transporter_args = {"direction": transporter.DIR_SEND,
+                            "amqp_broker": amqp_address,
+                            "amqp_port": port,
+                            "amqp_queue": "test_queue",
+                            "amqp_vhost": "test",
+                            "amqp_queue_name": "test_queue",
+                            "amqp_user": "test_user",
+                            "amqp_password": "test_password"}
+        rabbitmq_connector = haplib.RabbitMQHapiConnector()
+        common.assertNotRaises(rabbitmq_connector.setup, transporter_args)

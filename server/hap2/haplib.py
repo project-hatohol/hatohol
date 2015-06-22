@@ -25,6 +25,8 @@ import logging
 import traceback
 import multiprocessing
 import Queue
+import transporter
+from rabbitmqconnector import RabbitMQConnector
 
 SERVER_PROCEDURES = {"exchangeProfile": True,
                      "getMonitoringServerInfo": True,
@@ -252,3 +254,18 @@ class ArmInfo:
         self.last_failure_time = str()
         self.num_success = int()
         self.num_failure = int()
+
+
+class RabbitMQHapiConnector(RabbitMQConnector):
+    def setup(self, transporter_args):
+        send_queue_suffix = transporter_args.get("amqp_send_queue_suffix", "-S")
+        recv_queue_suffix = transporter_args.get("amqp_recv_queue_suffix", "-T")
+        suffix_map = {transporter.DIR_SEND: send_queue_suffix,
+                      transporter.DIR_RECV: recv_queue_suffix}
+        suffix = suffix_map.get(transporter_args["direction"], "")
+
+        if "amqp_hapi_queue" not in transporter_args:
+            transporter_args["amqp_hapi_queue"] = transporter_args["amqp_queue"]
+        transporter_args["amqp_queue"] = \
+          transporter_args["amqp_hapi_queue"] + suffix
+        RabbitMQConnector.setup(self, transporter_args)
