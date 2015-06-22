@@ -1636,6 +1636,7 @@ bool HatoholArmPluginGateHAPI2::launchPluginProcess(
   const ArmPluginInfo &armPluginInfo)
 {
 	const char *ENV_NAME_AMQP_BROKER_URL = "HAPI_AMQP_BROKER_URL";
+	const char *ENV_NAME_AMQP_QUEUE_NAME = "HAPI_AMQP_QUEUE_NAME";
 	struct EventCb : public ChildProcessManager::EventCallback {
 
 		HatoholArmPluginGateHAPI2 *hapg;
@@ -1659,6 +1660,7 @@ bool HatoholArmPluginGateHAPI2::launchPluginProcess(
 	} *eventCb = new EventCb(this);
 
 	ChildProcessManager::CreateArg arg;
+	arg.eventCb = eventCb;
 	arg.args.push_back(armPluginInfo.path);
 	arg.addFlag(G_SPAWN_SEARCH_PATH);
 
@@ -1677,11 +1679,14 @@ bool HatoholArmPluginGateHAPI2::launchPluginProcess(
 		arg.envs.push_back(env);
 	}
 
-	arg.eventCb = eventCb;
 	arg.envs.push_back(StringUtils::sprintf(
 	  "%s=%s",
 	  ENV_NAME_AMQP_BROKER_URL,
 	  armPluginInfo.brokerUrl.c_str()));
+	arg.envs.push_back(StringUtils::sprintf(
+	  "%s=%s",
+	  ENV_NAME_AMQP_QUEUE_NAME,
+	  armPluginInfo.staticQueueAddress.c_str()));
 	ChildProcessManager::getInstance()->create(arg);
 	if (!eventCb->succeededInCreation) {
 		MLPL_ERR("Failed to execute: (%d) %s\n",
