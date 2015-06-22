@@ -1403,8 +1403,8 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 	for (auto hostgroupMember : incomingHostgroupMembers) {
 		auto groupIdItr = currentHostgroupMapHostsMap.find(hostgroupMember.hostgroupIdInServer);
 		if (groupIdItr != currentHostgroupMapHostsMap.end()) {
-			auto hostIdItr = currentHostgroupMapHostsMap.find(hostgroupMember.hostIdInServer);
-			if (hostIdItr != currentHostgroupMapHostsMap.end()) {
+			auto& currentHostgroupMap = groupIdItr->second;
+			if (currentHostgroupMap.erase(hostgroupMember.hostIdInServer) >= 1) {
 				continue;
 			}
 		}
