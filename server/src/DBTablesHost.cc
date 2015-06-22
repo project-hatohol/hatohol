@@ -1393,26 +1393,31 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 	if (err != HTERR_OK)
 		return err;
 	const HostgroupMemberVect currHostgroupMembers = move(_currHostgroupMembers);
-	map<GenericIdType, const HostgroupMember *> currentHostgroupMemberMap;
+	map<HostgroupIdType, map<LocalHostIdType, const HostgroupMember *> > currentHostgroupMemberMapMap;
 	for (auto& hostgroupMember : currHostgroupMembers) {
-		currentHostgroupMemberMap[hostgroupMember.id] = &hostgroupMember;
+		currentHostgroupMemberMapMap[hostgroupMember.hostgroupIdInServer][hostgroupMember.hostIdInServer] = &hostgroupMember;
 	}
 
 	//Pick up hostgroupMember to be added.
 	HostgroupMemberVect serverHostgroupMembers;
 	for (auto hostgroupMember : incomingHostgroupMembers) {
-		if(currentHostgroupMemberMap.erase(hostgroupMember.id) >= 1) {
-			continue;
+		auto groupIdItr = currentHostgroupMemberMapMap.find(hostgroupMember.hostgroupIdInServer);
+		if (groupIdItr != currentHostgroupMemberMapMap.end()) {
+			auto hostIdItr = currentHostgroupMemberMapMap.find(hostgroupMember.hostIdInServer);
+			if (hostIdItr != currentHostgroupMemberMapMap.end()) {
+				continue;
+			}
 		}
 		serverHostgroupMembers.push_back(move(hostgroupMember));
 	}
 
 	GenericIdList invalidHostgroupMemberIdList;
-	map<GenericIdType, const HostgroupMember *> invalidHostgroupMemberMap =
-		move(currentHostgroupMemberMap);
-	for (auto invalidHostgroupMemberPair : invalidHostgroupMemberMap) {
-		HostgroupMember invalidHostgroupMember = *invalidHostgroupMemberPair.second;
-		invalidHostgroupMemberIdList.push_back(invalidHostgroupMember.id);
+	auto invalidHostgroupMemberMapMap = move(currentHostgroupMemberMapMap);
+	for (auto invalidHostgroupMemberMap : invalidHostgroupMemberMapMap) {
+		for (auto invalidHostgroupMemberPair : invalidHostgroupMemberMap.second) {
+			auto invalidHostgroupMember = *invalidHostgroupMemberPair.second;
+			invalidHostgroupMemberIdList.push_back(invalidHostgroupMember.id);
+		}
 	}
 	if (invalidHostgroupMemberIdList.size() > 0)
 		err = deleteHostgroupMemberList(invalidHostgroupMemberIdList);
