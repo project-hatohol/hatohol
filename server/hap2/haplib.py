@@ -25,6 +25,7 @@ import logging
 import traceback
 import multiprocessing
 import Queue
+import json
 import transporter
 from rabbitmqconnector import RabbitMQConnector
 
@@ -269,3 +270,36 @@ class RabbitMQHapiConnector(RabbitMQConnector):
         transporter_args["amqp_queue"] = \
           transporter_args["amqp_hapi_queue"] + suffix
         RabbitMQConnector.setup(self, transporter_args)
+
+
+class Sender:
+    def __init__(self, transporter_args):
+        transporter_args["direction"] = transporter.DIR_SEND
+        self.__connector = transporter.Factory.create(transporter_args)
+
+    def get_connector(self):
+        return self.__connector
+
+    def set_connector(self, connector):
+        self.__connector = connector
+
+    def request(self, procedure_name, params, request_id):
+        body = {"jsonrpc": "2.0", "method": procedure_name, "params": params}
+        if request_id is not None:
+            body["id"] = request_id
+        self.__connector.call(json.dumps(body))
+
+    def response(self, result, response_id):
+        response = json.dumps({"jsonrpc": "2.0", "result": result,
+                               "id": response_id})
+        self.__connector.reply(response)
+
+    def error(self, error_code, response_id):
+        response = json.dumps({"jsonrpc": "2.0",
+                               "error": {"code": error_code,
+                                         "message": ERROR_DICT[error_code]},
+                               "id": response_id})
+        self.__connector.reply(response)
+
+    def notify(self, procedure_name, params):
+        self.request(procedure_name, params, request_id=None)
