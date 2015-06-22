@@ -33,8 +33,8 @@ class Gadget:
         self.args = (arg1, arg2, arg3, arg4)
         self.num_called += 1
 
-class TestHaplib_handle_exception(unittest.TestCase):
 
+class TestHaplib_handle_exception(unittest.TestCase):
     def test_handle_exception(self):
         obj = Gadget()
         try:
@@ -50,8 +50,8 @@ class TestHaplib_handle_exception(unittest.TestCase):
         except:
             self.assertRaises(TypeError, haplib.handle_exception, (TypeError,))
 
-class TestHaplib_Signal(unittest.TestCase):
 
+class TestHaplib_Signal(unittest.TestCase):
     def test_default(self):
         obj = haplib.Signal()
         self.assertEquals(False, obj.restart)
@@ -60,8 +60,8 @@ class TestHaplib_Signal(unittest.TestCase):
         obj = haplib.Signal(restart=True)
         self.assertEquals(True, obj.restart)
 
-class TestHaplib_Callback(unittest.TestCase):
 
+class TestHaplib_Callback(unittest.TestCase):
     def test_register_and_call(self):
         cb = haplib.Callback()
         handler = Gadget()
@@ -79,8 +79,8 @@ class TestHaplib_Callback(unittest.TestCase):
         command_code = 1
         cb(command_code)
 
-class CommandQueue(unittest.TestCase):
 
+class CommandQueue(unittest.TestCase):
     def test_push_and_wait(self):
         code = 2
         args = ('a', 2, -1.5)
@@ -109,8 +109,8 @@ class CommandQueue(unittest.TestCase):
         cq.pop_all()
         self.assertEquals(num_push, gadz.num_called)
 
-class MonitoringServerInfo(unittest.TestCase):
 
+class MonitoringServerInfo(unittest.TestCase):
     def test_create(self):
         info_dict = {
             "serverId": 10,
@@ -135,8 +135,8 @@ class MonitoringServerInfo(unittest.TestCase):
             actual = eval("ms_info.%s" % key_map[key])
             self.assertEquals(actual, val)
 
-class ParsedMessage(unittest.TestCase):
 
+class ParsedMessage(unittest.TestCase):
     def test_create(self):
         pm = haplib.ParsedMessage()
         self.assertIsNone(pm.error_code)
@@ -146,11 +146,11 @@ class ParsedMessage(unittest.TestCase):
 
     def test_get_error_message(self):
         pm = haplib.ParsedMessage()
-        actual =  "error code: None, message ID: None, error message: "
+        actual = "error code: None, message ID: None, error message: "
         self.assertEquals(actual, pm.get_error_message())
 
-class ArmInfo(unittest.TestCase):
 
+class ArmInfo(unittest.TestCase):
     def test_create(self):
         arm_info = haplib.ArmInfo()
         self.assertEquals("", arm_info.last_status)
@@ -160,8 +160,8 @@ class ArmInfo(unittest.TestCase):
         self.assertEquals(0, arm_info.num_success)
         self.assertEquals(0, arm_info.num_failure)
 
-class RabbitMQHapiConnector(unittest.TestCase):
 
+class RabbitMQHapiConnector(unittest.TestCase):
     def test_setup(self):
         port = os.getenv("RABBITMQ_NODE_PORT")
         amqp_address = os.getenv("RABBITMQ_NODE_ADDRESS")
@@ -175,8 +175,8 @@ class RabbitMQHapiConnector(unittest.TestCase):
         rabbitmq_connector = haplib.RabbitMQHapiConnector()
         common.assertNotRaises(rabbitmq_connector.setup, transporter_args)
 
-class Sender(unittest.TestCase):
 
+class Sender(unittest.TestCase):
     def test_get_connector(self):
         transporter_args = {"class": transporter.Transporter}
         test_sender = haplib.Sender(transporter_args)
@@ -193,13 +193,13 @@ class Sender(unittest.TestCase):
         transporter_args = {"class": transporter.Transporter}
         test_sender = haplib.Sender(transporter_args)
         common.assertNotRaises(test_sender.request,
-                              "test_procedure_name", "test_param", 1)
+                               "test_procedure_name", "test_param", 1)
 
     def test_response(self):
         transporter_args = {"class": transporter.Transporter}
         test_sender = haplib.Sender(transporter_args)
         common.assertNotRaises(test_sender.response,
-                              "test_result", 1)
+                               "test_result", 1)
 
     def test_error(self):
         transporter_args = {"class": transporter.Transporter}

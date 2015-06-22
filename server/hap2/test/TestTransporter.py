@@ -22,7 +22,6 @@ from transporter import Transporter
 import transporter
 
 class TestTransporter(unittest.TestCase):
-
     def test_factory(self):
         obj = transporter.Factory.create(self.__default_transporter_args())
         self.assertEquals(obj.__class__.__name__, "Transporter")
