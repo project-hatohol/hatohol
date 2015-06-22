@@ -1635,7 +1635,7 @@ void HatoholArmPluginGateHAPI2::upsertLastInfo(string lastInfoValue, LastInfoTyp
 bool HatoholArmPluginGateHAPI2::launchPluginProcess(
   const ArmPluginInfo &armPluginInfo)
 {
-	const char *ENV_NAME_QUEUE_ADDR = "HAPI_QUEUE_ADDR";
+	const char *ENV_NAME_AMQP_BROKER_URL = "HAPI_AMQP_BROKER_URL";
 	struct EventCb : public ChildProcessManager::EventCallback {
 
 		HatoholArmPluginGateHAPI2 *hapg;
@@ -1680,7 +1680,7 @@ bool HatoholArmPluginGateHAPI2::launchPluginProcess(
 	arg.eventCb = eventCb;
 	arg.envs.push_back(StringUtils::sprintf(
 	  "%s=%s",
-	  ENV_NAME_QUEUE_ADDR,
+	  ENV_NAME_AMQP_BROKER_URL,
 	  armPluginInfo.brokerUrl.c_str()));
 	ChildProcessManager::getInstance()->create(arg);
 	if (!eventCb->succeededInCreation) {
