@@ -1302,20 +1302,16 @@ HatoholError DBTablesHost::syncHosts(
 	HatoholError err = getServerHostDefs(_currHosts, option);
 	if (err != HTERR_OK)
 		return err;
-	const ServerHostDefVect &currHosts(_currHosts); // To avoid changing
+	const ServerHostDefVect currHosts = move(_currHosts);
 
 	map<string, const ServerHostDef *> currValidHosts;
-	ServerHostDefVectConstIterator currHostsItr = currHosts.begin();
-	for (; currHostsItr != currHosts.end(); ++currHostsItr) {
-		const ServerHostDef &svHostDef = *currHostsItr;
+	for (auto& svHostDef : currHosts) {
 		currValidHosts[svHostDef.hostIdInServer] = &svHostDef;
 	}
 
 	// Pick up hosts to be added.
 	ServerHostDefVect serverHostDefs;
-	ServerHostDefVectConstIterator newHostsItr = svHostDefs.begin();
-	for (; newHostsItr != svHostDefs.end(); ++newHostsItr) {
-		const ServerHostDef &newSvHostDef = *newHostsItr;
+	for (auto& newSvHostDef : svHostDefs) {
 		if (currValidHosts.erase(newSvHostDef.hostIdInServer) >= 1) {
 			// The host already exits. We have nothing to do.
 			continue;
@@ -1324,10 +1320,9 @@ HatoholError DBTablesHost::syncHosts(
 	}
 
 	// Add hosts to be marked as invalid
-	map<string, const ServerHostDef *>::const_iterator
-	  hostMapItr = currValidHosts.begin();
-	for (; hostMapItr != currValidHosts.end(); ++hostMapItr) {
-		ServerHostDef invalidHost = *hostMapItr->second; // make a copy
+	auto invalidHostMap = move(currValidHosts);
+	for (auto invalidHostPair : invalidHostMap) {
+		ServerHostDef invalidHost = *invalidHostPair.second; // make a copy
 		invalidHost.status = HOST_STAT_REMOVED;
 		serverHostDefs.push_back(invalidHost);
 	}
