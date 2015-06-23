@@ -533,6 +533,32 @@ class HapiProcessor:
             raise Queue.Empty("Timeout")
 
 
+class Receiver:
+    def __init__(self, transporter_args, dispatch_queue, procedures):
+        transporter_args["direction"] = transporter.DIR_RECV
+        self.__connector = transporter.Factory.create(transporter_args)
+        self.__dispatch_queue = dispatch_queue
+        self.__connector.set_receiver(self.__messenger)
+        self.__allowed_procedures = procedures
+
+    def __messenger(self, ch, message):
+        parsed = Utils.parse_received_message(message,
+                                              self.__allowed_procedures)
+        if parsed.message_id is None and parsed.error_message is not None:
+            logging.error(parsed.error_message)
+            return
+        self.__dispatch_queue.put(("Receiver", parsed))
+
+    def __call__(self):
+        # TODO: handle exceptions
+        self.__connector.run_receive_loop()
+
+    def daemonize(self):
+        receiver_process = multiprocessing.Process(target=self)
+        receiver_process.daemon = True
+        receiver_process.start()
+
+
 class Utils:
     # TODO: We need to specify custom validators
     # TODO: Check the maximum length

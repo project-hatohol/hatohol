@@ -525,6 +525,28 @@ class HapiProcessor(unittest.TestCase):
             self.assertEquals(str(exception), "Timeout")
 
 
+class Receiver(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        transporter_args = {"class": transporter.Transporter}
+        cls.__test_queue = DummyQueue()
+        cls.receiver = haplib.Receiver(transporter_args, cls.__test_queue, None)
+
+    def test_messenger(self):
+        messenger = common.returnPrivObj(self.receiver, "__messenger")
+        common.assertNotRaises(messenger, None, "test_message")
+
+    def test_messenger_get_broken_error(self):
+        messenger = common.returnPrivObj(self.receiver, "__messenger")
+        common.assertNotRaises(messenger, None, '{"error": "test"}')
+
+    def test_call(self):
+        common.assertNotRaises(self.receiver.__call__)
+
+    def test_daemonize(self):
+        common.assertNotRaises(self.receiver.daemonize)
+
+
 class ConnectorForTest(transporter.Transporter):
     def __init__(self, test_queue):
         self.__test_queue = test_queue
