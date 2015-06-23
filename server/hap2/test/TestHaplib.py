@@ -266,19 +266,19 @@ class Utils(unittest.TestCase):
         exact_dict = json.loads(test_message)
         self.assertEquals(exact_dict, result.message_dict)
 
-    def test_convert_string_to_dict_success(self):
+    def test_convert_json_to_dict_success(self):
         test_json_string = '{"test_key":"test_value"}'
 
         exact_result = json.loads(test_json_string)
         unnesessary_result, result = \
-                haplib.Utils._convert_string_to_dict(test_json_string)
+                haplib.Utils._convert_json_to_dict(test_json_string)
         self.assertEquals(result, exact_result)
 
-    def test_convert_string_to_dict_failure(self):
+    def test_convert_json_to_dict_failure(self):
         test_json_string = '{"test_key": test_value}'
 
         exact_result = (-32700, None)
-        result = haplib.Utils._convert_string_to_dict(test_json_string)
+        result = haplib.Utils._convert_json_to_dict(test_json_string)
         self.assertEquals(exact_result, result)
 
     def test_is_allowed_procedure_success(self):
