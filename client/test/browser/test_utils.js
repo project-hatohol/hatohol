@@ -310,39 +310,51 @@ describe('getMapsLocation', function() {
 
 describe('makeMonitoringSystemTypeLabel', function() {
   it('with valid zabbix server', function() {
-    var type = hatohol.MONITORING_SYSTEM_ZABBIX;
+    var server = {
+	"type": hatohol.MONITORING_SYSTEM_ZABBIX
+    };
     var expected = "Zabbix";
-    expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
+    expect(makeMonitoringSystemTypeLabel(server)).to.be(expected);
   });
 
   it('with valid nagios server', function() {
-    var type = hatohol.MONITORING_SYSTEM_NAGIOS;
+    var server = {
+	"type": hatohol.MONITORING_SYSTEM_NAGIOS
+    };
     var expected = "Nagios";
-    expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
+    expect(makeMonitoringSystemTypeLabel(server)).to.be(expected);
   });
 
   it('with valid HAPI zabbix server', function() {
-    var type = hatohol.MONITORING_SYSTEM_HAPI_ZABBIX;
+    var server = {
+	"type": hatohol.MONITORING_SYSTEM_HAPI_ZABBIX
+    };
     var expected = "Zabbix (HAPI)";
-    expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
+    expect(makeMonitoringSystemTypeLabel(server)).to.be(expected);
   });
 
   it('with valid HAPI JSON', function() {
-    var type = hatohol.MONITORING_SYSTEM_HAPI_JSON;
+    var server = {
+	"type": hatohol.MONITORING_SYSTEM_HAPI_JSON
+    };
     var expected = "General Plugin";
-    expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
+    expect(makeMonitoringSystemTypeLabel(server)).to.be(expected);
   });
 
   it('with valid HAPI CEILOMETER', function() {
-    var type = hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER;
+    var server = {
+	"type": hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER
+    };
     var expected = "Ceilometer";
-    expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
+    expect(makeMonitoringSystemTypeLabel(server)).to.be(expected);
   });
 
   it('with unknown server type', function() {
-    var type = hatohol.MONITORING_SYSTEM_UNKNOWN;
-    var expected = "Invalid: " + type;
-    expect(makeMonitoringSystemTypeLabel(type)).to.be(expected);
+    var server = {
+	"type": hatohol.MONITORING_SYSTEM_UNKNOWN
+    };
+    var expected = "Invalid: " + server.type;
+    expect(makeMonitoringSystemTypeLabel(server)).to.be(expected);
   });
 });
 
