@@ -451,10 +451,10 @@ class Utils:
     def get_biggest_num_of_dict_array(array, key):
         last_info = None
 
+        digit = int()
         for target_dict in array:
             if isinstance(target_dict[key], int):
                 break
-            digit = int()
             if digit < len(target_dict[key]):
                 digit = len(target_dict[key])
 
