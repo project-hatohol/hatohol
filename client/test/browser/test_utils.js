@@ -628,4 +628,72 @@ describe('formatItemValue', function() {
   });
 });
 
+describe('plugin', function() {
+  var uuid = "6820b219-fe13-4b54-b9ac-1ab8e851c017";
+  var server = {
+    "type": hatohol.MONITORING_SYSTEM_HAPI2,
+    "uuid": uuid
+  };
+
+  beforeEach(function() {
+    hatohol["hap_" + uuid] = {
+      type: uuid,
+      label: "TestPlugin"
+    };
+  });
+
+  afterEach(function() {
+    delete hatohol["hap_" + uuid];
+  });
+
+  it('getServerLocation', function() {
+    var expected = "http://127.0.0.1/test-plugin/";
+    hatohol["hap_" + uuid] = {
+      getTopURL: function(server) {
+	return expected;
+      }
+    };
+    expect(getServerLocation(server)).to.be(expected);
+  });
+
+  it('getServerLocation without plugin function', function() {
+    expect(getServerLocation(server)).to.be(undefined);
+  });
+
+  it('getMapsLocation', function() {
+    var expected = "http://127.0.0.1/test-plugin/maps/";
+    hatohol["hap_" + uuid] = {
+      getMapsURL: function(server) {
+	return expected;
+      }
+    };
+    expect(getMapsLocation(server)).to.be(expected);
+  });
+
+  it('getMapsLocation without plugin function', function() {
+    expect(getMapsLocation(server)).to.be(undefined);
+  });
+
+  it('getItemGraphLocation', function() {
+    var expected = "http://127.0.0.1/test-plugin/item/graph/";
+    var itemId = 1;
+    hatohol["hap_" + uuid] = {
+      getItemGraphURL: function(server, itemId) {
+        return expected;
+      }
+    };
+    expect(getItemGraphLocation(server)).to.be(expected);
+  });
+
+  it('getItemGraphLocation without plugin function', function() {
+    var itemId = 1;
+    expect(getItemGraphLocation(server, itemId)).to.be(undefined);
+  });
+
+  it('makeMonitoringSystemTypeLabel', function() {
+    var expected = "TestPlugin";
+    expect(makeMonitoringSystemTypeLabel(server)).to.be(expected);
+  });
+});
+
 });
