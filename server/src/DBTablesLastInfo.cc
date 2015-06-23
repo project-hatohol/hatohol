@@ -295,6 +295,7 @@ HatoholError DBTablesLastInfo::deleteLastInfoList(const LastInfoIdList &idList,
 
 // ---------------------------------------------------------------------------
 // Protected methods
+// ---------------------------------------------------------------------------
 DBTables::SetupInfo &DBTablesLastInfo::getSetupInfo(void)
 {
 	static const TableSetupInfo DB_TABLE_INFO[] = {
@@ -313,7 +314,6 @@ DBTables::SetupInfo &DBTablesLastInfo::getSetupInfo(void)
 	return setupInfo;
 };
 
-// ---------------------------------------------------------------------------
 HatoholError DBTablesLastInfo::checkPrivilegeForAdd(
   const OperationPrivilege &privilege, const LastInfoDef &actionDef)
 {
