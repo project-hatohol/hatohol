@@ -357,6 +357,15 @@ class Utils:
 
         pm.message_id = pm.message_dict.get("id")
 
+        if pm.message_dict.has_key("error"):
+            try:
+                Utils._check_error_obj(pm.message_dict)
+                pm.error_message = pm.messsage_dict["error"]["message"]
+            except KeyError:
+                pm.error_message = "Invalid error message: " + message
+
+            return pm
+
         # The case the message is a reply
         need_id = True
         should_reply = pm.message_dict.has_key("result")
@@ -395,6 +404,13 @@ class Utils:
             return (ERR_CODE_PARSER_ERROR, None)
         else:
             return (None, json_dict)
+
+    @staticmethod
+    def _check_error_obj(error_dict):
+        error_dict.has_key["id"]
+        error_dict["error"]["code"]
+        error_dict["error"]["message"]
+        error_dict["error"]["code"]
 
     @staticmethod
     def is_allowed_procedure(procedure_name, allowed_procedures):
