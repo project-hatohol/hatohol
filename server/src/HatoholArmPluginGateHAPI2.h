@@ -62,7 +62,6 @@ public:
 protected:
 	virtual ~HatoholArmPluginGateHAPI2();
 	void upsertLastInfo(std::string lastInfoValue, LastInfoType type);
-	bool launchPluginProcess(const ArmPluginInfo &armPluginInfo);
 
 private:
 	std::string procedureHandlerExchangeProfile(JSONParser &parser);

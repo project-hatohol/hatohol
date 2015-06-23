@@ -322,6 +322,75 @@ struct HatoholArmPluginGateHAPI2::Impl
 			MLPL_WARN("Failed to call %s\n", m_methodName.c_str());
 		}
 	};
+
+	bool launchPluginProcess(void)
+	{
+		const char *ENV_NAME_AMQP_BROKER_URL = "HAPI_AMQP_BROKER_URL";
+		const char *ENV_NAME_AMQP_QUEUE_NAME = "HAPI_AMQP_QUEUE_NAME";
+		struct EventCb : public ChildProcessManager::EventCallback {
+
+			HatoholArmPluginGateHAPI2 *gate;
+			bool succeededInCreation;
+
+			EventCb(HatoholArmPluginGateHAPI2 *_gate)
+				: gate(_gate),
+				  succeededInCreation(false)
+			{
+			}
+
+			virtual void onExecuted(const bool &succeeded,
+						GError *gerror) override
+			{
+				succeededInCreation = succeeded;
+			}
+
+			virtual void onCollected(const siginfo_t *siginfo)
+			  override
+			{
+			}
+		} *eventCb = new EventCb(&m_hapi2);
+
+		ChildProcessManager::CreateArg arg;
+		arg.eventCb = eventCb;
+		arg.args.push_back(m_pluginInfo.path);
+		arg.addFlag(G_SPAWN_SEARCH_PATH);
+
+		// Envrionment variables passsed to the plugin process
+		const char *ldlibpath = getenv("LD_LIBRARY_PATH");
+		if (ldlibpath) {
+			string env = "LD_LIBRARY_PATH=";
+			env += ldlibpath;
+			arg.envs.push_back(env);
+		}
+
+		const char *loggerLevel = getenv(Logger::LEVEL_ENV_VAR_NAME);
+		if (loggerLevel) {
+			string env = StringUtils::sprintf(
+			  "%s=%s",
+			  Logger::LEVEL_ENV_VAR_NAME, loggerLevel);
+			arg.envs.push_back(env);
+		}
+
+		arg.envs.push_back(StringUtils::sprintf(
+		  "%s=%s",
+		  ENV_NAME_AMQP_BROKER_URL,
+		  m_pluginInfo.brokerUrl.c_str()));
+		arg.envs.push_back(StringUtils::sprintf(
+		  "%s=%s",
+		  ENV_NAME_AMQP_QUEUE_NAME,
+		  m_pluginInfo.staticQueueAddress.c_str()));
+		ChildProcessManager::getInstance()->create(arg);
+		if (!eventCb->succeededInCreation) {
+			MLPL_ERR("Failed to execute: (%d) %s\n",
+				 m_pluginInfo.type, m_pluginInfo.path.c_str());
+			return false;
+		}
+
+		MLPL_INFO("Started: plugin (%d) %s\n",
+			  m_pluginInfo.type, m_pluginInfo.path.c_str());
+
+		return true;
+}
 };
 
 // ---------------------------------------------------------------------------
@@ -1630,72 +1699,4 @@ void HatoholArmPluginGateHAPI2::upsertLastInfo(string lastInfoValue, LastInfoTyp
 	lastInfo.value = lastInfoValue;
 	lastInfo.serverId = serverInfo.id;
 	dbLastInfo.upsertLastInfo(lastInfo, privilege);
-}
-
-bool HatoholArmPluginGateHAPI2::launchPluginProcess(
-  const ArmPluginInfo &armPluginInfo)
-{
-	const char *ENV_NAME_AMQP_BROKER_URL = "HAPI_AMQP_BROKER_URL";
-	const char *ENV_NAME_AMQP_QUEUE_NAME = "HAPI_AMQP_QUEUE_NAME";
-	struct EventCb : public ChildProcessManager::EventCallback {
-
-		HatoholArmPluginGateHAPI2 *gate;
-		bool succeededInCreation;
-
-		EventCb(HatoholArmPluginGateHAPI2 *_gate)
-		: gate(_gate),
-		  succeededInCreation(false)
-		{
-		}
-
-		virtual void onExecuted(const bool &succeeded,
-		                        GError *gerror) override
-		{
-			succeededInCreation = succeeded;
-		}
-
-		virtual void onCollected(const siginfo_t *siginfo) override
-		{
-		}
-	} *eventCb = new EventCb(this);
-
-	ChildProcessManager::CreateArg arg;
-	arg.eventCb = eventCb;
-	arg.args.push_back(armPluginInfo.path);
-	arg.addFlag(G_SPAWN_SEARCH_PATH);
-
-	// Envrionment variables passsed to the plugin process
-	const char *ldlibpath = getenv("LD_LIBRARY_PATH");
-	if (ldlibpath) {
-		string env = "LD_LIBRARY_PATH=";
-		env += ldlibpath;
-		arg.envs.push_back(env);
-	}
-
-	const char *mlplLoggerLevel = getenv(Logger::LEVEL_ENV_VAR_NAME);
-	if (mlplLoggerLevel) {
-		string env = StringUtils::sprintf("%s=%s",
-		  Logger::LEVEL_ENV_VAR_NAME, mlplLoggerLevel);
-		arg.envs.push_back(env);
-	}
-
-	arg.envs.push_back(StringUtils::sprintf(
-	  "%s=%s",
-	  ENV_NAME_AMQP_BROKER_URL,
-	  armPluginInfo.brokerUrl.c_str()));
-	arg.envs.push_back(StringUtils::sprintf(
-	  "%s=%s",
-	  ENV_NAME_AMQP_QUEUE_NAME,
-	  armPluginInfo.staticQueueAddress.c_str()));
-	ChildProcessManager::getInstance()->create(arg);
-	if (!eventCb->succeededInCreation) {
-		MLPL_ERR("Failed to execute: (%d) %s\n",
-		         armPluginInfo.type, armPluginInfo.path.c_str());
-		return false;
-	}
-
-	MLPL_INFO("Started: plugin (%d) %s\n",
-	          armPluginInfo.type, armPluginInfo.path.c_str());
-
-	return true;
 }
