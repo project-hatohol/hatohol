@@ -323,14 +323,32 @@ struct HatoholArmPluginGateHAPI2::Impl
 		}
 	};
 
+	bool isPluginControlScriptAvailable(void)
+	{
+		if (m_pluginInfo.path.empty())
+			return false;
+		bool executable = g_file_test(m_pluginInfo.path.c_str(),
+					      G_FILE_TEST_IS_EXECUTABLE);
+		if (!executable)
+			MLPL_DBG("The plugin control script isn't executable:"
+				 " %s\n", m_pluginInfo.path.c_str());
+		return executable;
+	}
+
 	bool startPlugin(void)
 	{
-		return runPluginControlScript("start");
+		if (isPluginControlScriptAvailable())
+			return runPluginControlScript("start");
+		else
+			return false;
 	}
 
 	bool stopPlugin(void)
 	{
-		return runPluginControlScript("stop");
+		if (isPluginControlScriptAvailable())
+			return runPluginControlScript("stop");
+		else
+			return false;
 	}
 
 	bool runPluginControlScript(const string command)
@@ -392,13 +410,13 @@ struct HatoholArmPluginGateHAPI2::Impl
 		  m_pluginInfo.staticQueueAddress.c_str()));
 		ChildProcessManager::getInstance()->create(arg);
 		if (!eventCb->succeededInCreation) {
-			MLPL_ERR("Failed to execute: (%d) %s\n",
-				 m_pluginInfo.type, m_pluginInfo.path.c_str());
+			MLPL_ERR("Failed to %s: %s\n",
+				 command.c_str(), m_pluginInfo.path.c_str());
 			return false;
 		}
 
-		MLPL_INFO("Started: plugin (%d) %s\n",
-			  m_pluginInfo.type, m_pluginInfo.path.c_str());
+		MLPL_INFO("Succeeded to %s: %s\n",
+			  command.c_str(), m_pluginInfo.path.c_str());
 
 		return true;
 }
