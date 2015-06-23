@@ -416,7 +416,7 @@ class Utils:
                     return (ERR_CODE_INVALID_PARAMS, msg)
             except KeyError:
                 if arg_value["mandatory"]:
-                    msg = "Missing a andatory paramter: %s" % arg_name
+                    msg = "Missing a mandatory paramter: %s" % arg_name
                     return (ERR_CODE_INVALID_PARAMS, msg)
         return (None, None)
 

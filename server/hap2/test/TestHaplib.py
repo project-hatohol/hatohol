@@ -308,11 +308,11 @@ class Utils(unittest.TestCase):
 
         self.assertTrue(0 <= result <= 1111111111111)
 
-    def test_translate_unit_time_to_hatohol_time(self):
+    def test_translate_unix_time_to_hatohol_time(self):
         result = haplib.Utils.translate_unix_time_to_hatohol_time(0)
         self.assertEquals(result, "19700101090000.000000")
 
-    def test_translate_hatohol_time_time_to_unix_time(self):
+    def test_translate_hatohol_time_to_unix_time(self):
         result = haplib.Utils.translate_hatohol_time_to_unix_time("19700101090000.000000")
         self.assertEquals(result, 0)
 
