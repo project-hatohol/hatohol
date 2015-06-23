@@ -266,6 +266,19 @@ class Utils(unittest.TestCase):
         exact_dict = json.loads(test_message)
         self.assertEquals(exact_dict, result.message_dict)
 
+    def test_parse_received_message_valid_error_reply(self):
+        test_message = '{"error": {"code": 1, "message": "test_message", "data": "test_data"},"id": 1}'
+        result = haplib.Utils.parse_received_message(test_message, None)
+        self.assertEquals("test_message", str(result.error_message))
+        self.assertEquals(1, result.message_id)
+
+    def test_parse_received_message_invalid_error_reply(self):
+        test_message = '{"error": {"code": 1, "message": "test_message"},"id": 1}'
+        result = haplib.Utils.parse_received_message(test_message, None)
+        self.assertEquals("Invalid error message: " + test_message,
+                          str(result.error_message))
+        self.assertEquals(1, result.message_id)
+
     def test_convert_json_to_dict_success(self):
         test_json_string = '{"test_key":"test_value"}'
 
@@ -280,6 +293,18 @@ class Utils(unittest.TestCase):
         exact_result = (-32700, None)
         result = haplib.Utils._convert_json_to_dict(test_json_string)
         self.assertEquals(exact_result, result)
+
+    def test_check_error_dict_success(self):
+        error_dict = {"error": {"code": 1, "message": "test_message", "data": "test_data"},"id": 1}
+        common.assertNotRaises(haplib.Utils._check_error_dict, error_dict)
+
+    def test_check_error_dict_failure(self):
+        error_dict = {"error": {"code": 1, "message": "test_message"},"id": 1}
+        try:
+            haplib.Utils._check_error_dict(error_dict)
+            raise
+        except:
+            pass
 
     def test_is_allowed_procedure_success(self):
         result = haplib.Utils.is_allowed_procedure("exchangeProfile",
@@ -313,8 +338,9 @@ class Utils(unittest.TestCase):
         self.assertEquals(result, "19700101090000.000000")
 
     def test_translate_hatohol_time_to_unix_time(self):
-        result = haplib.Utils.translate_hatohol_time_to_unix_time("19700101090000.000000")
-        self.assertEquals(result, 0)
+        result = haplib.Utils.translate_hatohol_time_to_unix_time("19700101090000.123456789")
+        # This result is utc time
+        self.assertAlmostEquals(result, 32400.123456789, delta=0.000000001)
 
     def test_optimize_server_procedures(self):
         test_procedures_dict = {"exchangeProfile": True,

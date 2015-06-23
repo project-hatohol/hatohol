@@ -360,8 +360,8 @@ class Utils:
 
         if pm.message_dict.has_key("error"):
             try:
-                Utils._check_error_obj(pm.message_dict)
-                pm.error_message = pm.messsage_dict["error"]["message"]
+                Utils._check_error_dict(pm.message_dict)
+                pm.error_message = pm.message_dict["error"]["message"]
             except KeyError:
                 pm.error_message = "Invalid error message: " + message
 
@@ -407,11 +407,11 @@ class Utils:
             return (None, json_dict)
 
     @staticmethod
-    def _check_error_obj(error_dict):
-        error_dict.has_key["id"]
+    def _check_error_dict(error_dict):
+        error_dict["id"]
         error_dict["error"]["code"]
         error_dict["error"]["message"]
-        error_dict["error"]["code"]
+        error_dict["error"]["data"]
 
     @staticmethod
     def is_allowed_procedure(procedure_name, allowed_procedures):
@@ -451,9 +451,10 @@ class Utils:
 
     @staticmethod
     def translate_hatohol_time_to_unix_time(hatohol_time):
-        date_time = datetime.strptime(hatohol_time, "%Y%m%d%H%M%S.%f")
+        sec, ns = hatohol_time.split(".")
+        date_time = datetime.strptime(sec, "%Y%m%d%H%M%S")
         unix_time =  calendar.timegm(date_time.timetuple())
-        return unix_time + date_time.microsecond / float(10 ** 6)
+        return unix_time + int(ns) / float(10 ** 9)
 
     @staticmethod
     def optimize_server_procedures(valid_procedures_dict, procedures):
