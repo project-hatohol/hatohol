@@ -434,8 +434,9 @@ class Utils:
 
     @staticmethod
     def translate_hatohol_time_to_unix_time(hatohol_time):
-        date_time = time.strptime(hatohol_time, "%Y%m%d%H%M%S.%f")
-        return int(time.mktime(date_time))
+        date_time = datetime.strptime(hatohol_time, "%Y%m%d%H%M%S.%f")
+        unix_time =  time.mktime(date_time.timetuple())
+        return unix_time + date_time.microsecond / float(10 ** 6)
 
     @staticmethod
     def optimize_server_procedures(valid_procedures_dict, procedures):
