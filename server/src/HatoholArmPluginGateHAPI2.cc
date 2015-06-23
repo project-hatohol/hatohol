@@ -1639,11 +1639,11 @@ bool HatoholArmPluginGateHAPI2::launchPluginProcess(
 	const char *ENV_NAME_AMQP_QUEUE_NAME = "HAPI_AMQP_QUEUE_NAME";
 	struct EventCb : public ChildProcessManager::EventCallback {
 
-		HatoholArmPluginGateHAPI2 *hapg;
+		HatoholArmPluginGateHAPI2 *gate;
 		bool succeededInCreation;
 
-		EventCb(HatoholArmPluginGateHAPI2 *_hapg)
-		: hapg(_hapg),
+		EventCb(HatoholArmPluginGateHAPI2 *_gate)
+		: gate(_gate),
 		  succeededInCreation(false)
 		{
 		}
