@@ -311,6 +311,228 @@ class Sender:
         self.request(procedure_name, params, request_id=None)
 
 
+"""
+Issue HAPI requests and responses.
+Some APIs blocks until the response is arrived.
+"""
+class HapiProcessor:
+    def __init__(self, sender, process_id, component_code):
+        self.__sender = sender
+        self.__reply_queue = multiprocessing.Queue()
+        self.__dispatch_queue = None
+        self.__process_id = process_id
+        self.__component_code = component_code
+        self.__ms_info = None
+        self.reset()
+        self.__timeout_sec = 30
+
+    def reset(self):
+        self.__previous_hosts = None
+        self.__previous_host_groups = None
+        self.__previous_host_group_membership = None
+        self.__event_last_info = None
+
+    def set_ms_info(self, ms_info):
+        self.__ms_info = ms_info
+
+    def get_ms_info(self):
+        return self.__ms_info
+
+    def set_dispatch_queue(self, dispatch_queue):
+        self.__dispatch_queue = dispatch_queue
+
+    def get_reply_queue(self):
+        return self.__reply_queue
+
+    def get_component_code(self):
+        return self.__component_code
+
+    def get_sender(self):
+        return self.__sender
+
+    def set_timeout_sec(self, timeout_sec):
+        if isinstance(timeout_sec, int) and 0 < timeout_sec:
+            self.__timeout_sec = timeout_sec
+        else:
+            logging.error("Inputed value is invalid.")
+
+    def get_monitoring_server_info(self):
+        """
+        Get a MonitoringServerInfo from Hatohol server.
+        This method blocks until the response is obtained.
+        @return A MonitoringServerInfo object.
+        """
+        params = ""
+        request_id = Utils.generate_request_id(self.__component_code)
+        self.__wait_acknowledge(request_id)
+        self.__sender.request("getMonitoringServerInfo", params, request_id)
+        return MonitoringServerInfo(self.__wait_response(request_id))
+
+    def get_last_info(self, element):
+        params = element
+        request_id = Utils.generate_request_id(self.__component_code)
+        self.__wait_acknowledge(request_id)
+        self.__sender.request("getLastInfo", params, request_id)
+
+        return self.__wait_response(request_id)
+
+    def exchange_profile(self, procedures, name="haplib", response_id=None):
+        content = {"name": name, "procedures": procedures}
+        if response_id is None:
+            request_id = Utils.generate_request_id(self.__component_code)
+            self.__wait_acknowledge(request_id)
+            self.__sender.request("exchangeProfile", content, request_id)
+            self.__wait_response(request_id)
+        else:
+            self.__sender.response(content, response_id)
+
+    def put_arm_info(self, arm_info):
+        params = {"lastStatus": arm_info.last_status,
+                  "failureReason": arm_info.failure_reason,
+                  "lastSuccessTime": arm_info.last_success_time,
+                  "lastFailureTime": arm_info.last_failure_time,
+                  "numSuccess": arm_info.num_success,
+                  "numFailure": arm_info.num_failure}
+
+        request_id = Utils.generate_request_id(self.__component_code)
+        self.__wait_acknowledge(request_id)
+        self.__sender.request("putArmInfo", params, request_id)
+        self.__wait_response(request_id)
+
+    def put_hosts(self, hosts):
+        hosts.sort()
+        if self.__previous_hosts == hosts:
+            logging.debug("hosts are not changed.")
+            return
+        hosts_params = {"updateType": "ALL", "hosts": hosts}
+        request_id = Utils.generate_request_id(self.__component_code)
+        self.__wait_acknowledge(request_id)
+        self.__sender.request("putHosts", hosts_params, request_id)
+        self.__wait_response(request_id)
+        self.__previous_hosts = hosts
+
+    def put_host_groups(self, host_groups):
+        host_groups.sort()
+        if self.__previous_host_groups == host_groups:
+            logging.debug("Host groups are not changed.")
+            return
+        params = {"updateType": "ALL", "hostGroups": host_groups}
+        request_id = Utils.generate_request_id(self.__component_code)
+        self.__wait_acknowledge(request_id)
+        self.__sender.request("putHostGroups", params, request_id)
+        self.__wait_response(request_id)
+        self.__previous_host_groups = host_groups
+
+
+    def put_host_group_membership(self, hg_membership):
+        hg_membership.sort()
+        if self.__previous_host_group_membership == hg_membership:
+            logging.debug("Host group membership is not changed.")
+            return
+
+        hg_membership_params = {"updateType": "ALL",
+                                "hostGroupMembership": hg_membership}
+        request_id = Utils.generate_request_id(self.__component_code)
+        self.__wait_acknowledge(request_id)
+        self.__sender.request("putHostGroupMembership",
+                              hg_membership_params, request_id)
+        self.__wait_response(request_id)
+        self.__previous_host_group_membership = hg_membership
+
+    def put_triggers(self, triggers, update_type,
+                     last_info=None, fetch_id=None):
+
+        params = {"triggers": triggers, "updateType": update_type}
+        if last_info is not None:
+            params["lastInfo"] = last_info
+        if fetch_id is not None:
+            params["fetchId"] = fetch_id
+
+        request_id = Utils.generate_request_id(self.__component_code)
+        self.__wait_acknowledge(request_id)
+        self.__sender.request("putTriggers", params, request_id)
+        self.__wait_response(request_id)
+
+    def get_cached_event_last_info(self):
+        if self.__event_last_info is None:
+            self.__event_last_info = self.get_last_info("event")
+        return self.__event_last_info
+
+    def put_events(self, events, fetch_id=None):
+        """
+        This method calls putEvents() and wait for a reply.
+        It divide events if the size is beyond the limitation.
+        It also calculates lastInfo from the eventId in events. The calculated
+        lastInfo is remebered in this object and can be obtained via
+        get_cached_event_last_info().
+
+        @param events A list of event (dictionary).
+        @param fetch_id A fetch ID.
+        """
+
+        CHUNK_SIZE = MAX_EVENT_CHUNK_SIZE
+        num_events = len(events)
+        count = num_events / CHUNK_SIZE
+        if num_events % CHUNK_SIZE != 0:
+            count += 1
+        if count == 0:
+            if fetch_id is None:
+                return
+            count = 1
+
+        for num in range(0, count):
+            start = num * CHUNK_SIZE
+            event_chunk = events[start:start + CHUNK_SIZE]
+
+            # TODO: Use more efficient way to calculate last_info .
+            # TODO: Should be able to select the way to calculate lastInfo.
+            last_info = \
+                Utils.get_biggest_num_of_dict_array(event_chunk, "eventId")
+            params = {"events": event_chunk, "lastInfo": last_info,
+                      "updateType": "UPDATE"}
+
+            if fetch_id is not None:
+                params["fetchId"] = fetch_id
+
+            if num < count - 1:
+                params["mayMoreFlag"] = True
+
+            request_id = Utils.generate_request_id(self.__component_code)
+            self.__wait_acknowledge(request_id)
+            self.__sender.request("putEvents", params, request_id)
+            self.__wait_response(request_id)
+
+        self.__event_last_info = last_info
+
+    def __wait_acknowledge(self, request_id):
+        self.__dispatch_queue.put((self.__process_id, request_id))
+        self.__dispatch_queue.join()
+        try:
+            if self.__reply_queue.get(True, self.__timeout_sec) == True:
+                pass
+            else:
+                raise
+        except Queue.Empty:
+            logging.error("Request(ID: %d) is not accepted." % request_id)
+            raise Queue.Empty("Timeout")
+
+    def __wait_response(self, request_id):
+        try:
+            pm = self.__reply_queue.get(True, self.__timeout_sec)
+            if pm.message_id != request_id:
+                msg = "Got unexpected repsponse. req: " + str(request_id)
+                logging.error(msg)
+                raise Exception(msg)
+            return pm.message_dict["result"]
+
+        except ValueError as exception:
+            logging.error("Got invalid response.")
+            raise
+        except Queue.Empty:
+            logging.error("Request failed.")
+            raise Queue.Empty("Timeout")
+
+
 class Utils:
     # TODO: We need to specify custom validators
     # TODO: Check the maximum length
@@ -440,7 +662,7 @@ class Utils:
     @staticmethod
     def generate_request_id(component_code):
         assert component_code <= 0x7f, \
-               "Invalid component code: " + str(component_code)
+                "Invalid component code: " + str(component_code)
         req_id = random.randint(1, 0xffffff)
         req_id |= component_code << 24
         return req_id

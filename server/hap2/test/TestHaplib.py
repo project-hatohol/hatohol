@@ -27,6 +27,9 @@ import os
 import json
 from collections import namedtuple
 import argparse
+import multiprocessing
+import Queue
+import logging
 
 class Gadget:
     def __init__(self):
@@ -368,3 +371,192 @@ class Utils(unittest.TestCase):
         self.assertTrue(14 < len(result) < 22)
         ns = int(result[15: 21])
         self.assertTrue(0 <= ns < 1000000)
+
+
+class HapiProcessor(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.__test_queue = DummyQueue()
+        transporter_args = {"class": transporter.Transporter}
+        cls.sender = haplib.Sender(transporter_args)
+        cls.processor = haplib.HapiProcessor(cls.sender, "test", 0x01)
+        cls.processor.set_dispatch_queue(cls.__test_queue)
+        cls.reply_queue = cls.processor.get_reply_queue()
+        cls.connector = ConnectorForTest(cls.reply_queue)
+        cls.sender.set_connector(cls.connector)
+        cls.processor.reset()
+
+    def test_reset(self):
+        self.processor.reset()
+        prev_hosts = common.returnPrivObj(self.processor, "__previous_hosts")
+        prev_host_groups = common.returnPrivObj(self.processor,
+                                                "__previous_host_groups")
+        prev_host_group_membership = \
+                common.returnPrivObj(self.processor,
+                                     "__previous_host_group_membership")
+        event_last_info = common.returnPrivObj(self.processor,
+                                               "__event_last_info")
+        self.assertIsNone(prev_hosts)
+        self.assertIsNone(prev_host_groups)
+        self.assertIsNone(prev_host_group_membership)
+        self.assertIsNone(event_last_info)
+
+    def test_set_ms_info(self):
+        exact_ms = "test_ms"
+        self.processor.set_ms_info(exact_ms)
+        result_ms = common.returnPrivObj(self.processor, "__ms_info")
+        self.assertEquals(exact_ms, result_ms)
+
+    def test_get_ms_Info(self):
+        result_ms = self.processor.get_ms_info()
+        exact_ms = common.returnPrivObj(self.processor, "__ms_info")
+        self.assertEquals(exact_ms, result_ms)
+
+    def test_set_dispatch_queue(self):
+        exact_dispatch_queue = DummyQueue()
+        self.processor.set_dispatch_queue(exact_dispatch_queue)
+        result_dispatch_queue = common.returnPrivObj(self.processor,
+                                                     "__dispatch_queue")
+        self.assertEquals(exact_dispatch_queue, result_dispatch_queue)
+
+    def test_get_component_code(self):
+        result_component_code = self.processor.get_component_code()
+        exact_component_code = common.returnPrivObj(self.processor,
+                                                    "__component_code")
+        self.assertEquals(exact_component_code, result_component_code)
+
+    def test_get_reply_queue(self):
+        result_queue = self.processor.get_reply_queue()
+        exact_queue = common.returnPrivObj(self.processor, "__reply_queue")
+        self.assertEquals(result_queue, exact_queue)
+
+    def test_get_sender(self):
+        result_sender = self.processor.get_sender()
+        exact_sender = common.returnPrivObj(self.processor, "__sender")
+        self.assertEquals(result_sender, exact_sender)
+
+    def test_get_monitoring_server_info(self):
+        self.reply_queue.put(True)
+        self.connector.enable_ms_flag()
+        common.assertNotRaises(self.processor.get_monitoring_server_info)
+
+    def test_get_last_info(self):
+        self.reply_queue.put(True)
+        common.assertNotRaises(self.processor.get_last_info, "test_element")
+
+    def test_exchange_profile_request(self):
+        self.reply_queue.put(True)
+        common.assertNotRaises(self.processor.exchange_profile, "test_params")
+
+    def test_exchange_profile_response(self):
+        common.assertNotRaises(self.processor.exchange_profile, "test_params",
+                               response_id=1)
+
+    def test_put_arm_info(self):
+        self.reply_queue.put(True)
+        test_arm_info = haplib.ArmInfo()
+        common.assertNotRaises(self.processor.put_arm_info, test_arm_info)
+
+    def test_put_hosts(self):
+        self.reply_queue.put(True)
+        hosts = ["test_host"]
+        common.assertNotRaises(self.processor.put_hosts, hosts)
+
+    def test_put_host_groups(self):
+        self.reply_queue.put(True)
+        host_groups = ["test_host_group"]
+        common.assertNotRaises(self.processor.put_host_groups, host_groups)
+
+    def test_put_host_group_membership(self):
+        self.reply_queue.put(True)
+        host_group_membership = ["test_host_group_membership"]
+        common.assertNotRaises(self.processor.put_host_group_membership,
+                               host_group_membership)
+
+    def test_put_triggers(self):
+        self.reply_queue.put(True)
+        triggers = ["test_triggers"]
+        common.assertNotRaises(self.processor.put_triggers, triggers, "ALL")
+
+    def test_get_cached_event_last_info(self):
+        self.reply_queue.put(True)
+        common.assertNotRaises(self.processor.get_cached_event_last_info)
+
+    def test_put_events(self):
+        self.reply_queue.put(True)
+        events = [{"eventId": 123, "test_events":"test"}]
+        common.assertNotRaises(self.processor.put_events, events)
+
+    def test_wait_acknowledge(self):
+        self.reply_queue.put(True)
+        wait_acknowledge = common.returnPrivObj(self.processor,
+                                                "__wait_acknowledge")
+        common.assertNotRaises(wait_acknowledge, 1)
+
+    def test_wait_acknowledge_timeout(self):
+        self.processor.set_timeout_sec(1)
+        wait_acknowledge = common.returnPrivObj(self.processor,
+                                                "__wait_acknowledge")
+        try:
+            wait_acknowledge(1)
+        except Exception as exception:
+            self.assertEquals(str(exception), "Timeout")
+
+    def test_wait_response(self):
+        exact_result = "test_result"
+        exact_id = 1
+        reply_queue = self.reply_queue
+        pm = haplib.ParsedMessage()
+        pm.message_dict = {"id": exact_id, "result": exact_result}
+        pm.message_id = exact_id
+        reply_queue.put(pm)
+        wait_response = common.returnPrivObj(self.processor, "__wait_response")
+        output = wait_response(exact_id)
+
+        self.assertEquals(output, exact_result)
+
+    def test_wait_response_timeout(self):
+        self.processor.set_timeout_sec(1)
+        test_id = 1
+        wait_response = common.returnPrivObj(self.processor, "__wait_response")
+        try:
+            wait_response(test_id)
+        except Exception as exception:
+            self.assertEquals(str(exception), "Timeout")
+
+
+class ConnectorForTest(transporter.Transporter):
+    def __init__(self, test_queue):
+        self.__test_queue = test_queue
+        self.__ms_flag = False
+
+    def enable_ms_flag(self):
+        self.__ms_flag = True
+
+    def call(self, msg):
+        response_id = json.loads(msg)["id"]
+        if self.__ms_flag:
+            result = {"extendedInfo": "exampleExtraInfo",
+                      "serverId": 0,
+                      "url": "http://example.com:80",
+                      "type": 0,
+                      "nickName": "exampleName",
+                      "userName": "Admin",
+                      "password": "examplePass",
+                      "pollingIntervalSec": 30,
+                      "retryIntervalSec": 10}
+        else:
+            result = "SUCCESS"
+
+        pm = haplib.ParsedMessage()
+        pm.message_dict = {"result": result, "id": response_id}
+        pm.message_id = response_id
+        self.__test_queue.put(pm)
+
+
+class DummyQueue:
+    def put(self, test_tuple):
+        pass
+
+    def join(self):
+        pass
