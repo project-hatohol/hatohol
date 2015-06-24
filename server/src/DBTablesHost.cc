@@ -1289,6 +1289,18 @@ bool DBTablesHost::wasStoredHostsChanged(void)
 	return m_impl->storedHostsChanged;
 }
 
+static bool isHostNameChanged(
+  ServerHostDef newSvHostDef, map<string, const ServerHostDef *> currValidHosts)
+{
+	auto hostDefItr = currValidHosts.find(newSvHostDef.hostIdInServer);
+	if (hostDefItr != currValidHosts.end()) {
+		if (hostDefItr->second->name != newSvHostDef.name) {
+			return true;
+		}
+	}
+	return false;
+}
+
 HatoholError DBTablesHost::syncHosts(
   const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
   HostHostIdMap *hostHostIdMapPtr)
@@ -1302,32 +1314,28 @@ HatoholError DBTablesHost::syncHosts(
 	HatoholError err = getServerHostDefs(_currHosts, option);
 	if (err != HTERR_OK)
 		return err;
-	const ServerHostDefVect &currHosts(_currHosts); // To avoid changing
+	const ServerHostDefVect currHosts = move(_currHosts);
 
 	map<string, const ServerHostDef *> currValidHosts;
-	ServerHostDefVectConstIterator currHostsItr = currHosts.begin();
-	for (; currHostsItr != currHosts.end(); ++currHostsItr) {
-		const ServerHostDef &svHostDef = *currHostsItr;
+	for (auto& svHostDef : currHosts) {
 		currValidHosts[svHostDef.hostIdInServer] = &svHostDef;
 	}
 
 	// Pick up hosts to be added.
 	ServerHostDefVect serverHostDefs;
-	ServerHostDefVectConstIterator newHostsItr = svHostDefs.begin();
-	for (; newHostsItr != svHostDefs.end(); ++newHostsItr) {
-		const ServerHostDef &newSvHostDef = *newHostsItr;
-		if (currValidHosts.erase(newSvHostDef.hostIdInServer) >= 1) {
-			// The host already exits. We have nothing to do.
+	for (auto& newSvHostDef : svHostDefs) {
+		if (!isHostNameChanged(newSvHostDef, currValidHosts) &&
+		    currValidHosts.erase(newSvHostDef.hostIdInServer) >= 1) {
+			// The host already exists or unmodified. We have nothing to do.
 			continue;
 		}
 		serverHostDefs.push_back(move(newSvHostDef));
 	}
 
 	// Add hosts to be marked as invalid
-	map<string, const ServerHostDef *>::const_iterator
-	  hostMapItr = currValidHosts.begin();
-	for (; hostMapItr != currValidHosts.end(); ++hostMapItr) {
-		ServerHostDef invalidHost = *hostMapItr->second; // make a copy
+	auto invalidHostMap = move(currValidHosts);
+	for (auto invalidHostPair : invalidHostMap) {
+		ServerHostDef invalidHost = *invalidHostPair.second; // make a copy
 		invalidHost.status = HOST_STAT_REMOVED;
 		serverHostDefs.push_back(invalidHost);
 	}
@@ -1339,6 +1347,18 @@ HatoholError DBTablesHost::syncHosts(
 	upsertHosts(serverHostDefs, hostHostIdMapPtr);
 	m_impl->storedHostsChanged = false;
 	return HTERR_OK;
+}
+
+static bool isHostgroupNameChanged(
+  Hostgroup hostgroup, map<HostgroupIdType, const Hostgroup *> currentHostgroupMap)
+{
+	auto hostgroupItr = currentHostgroupMap.find(hostgroup.idInServer);
+	if (hostgroupItr != currentHostgroupMap.end()) {
+		if (hostgroupItr->second->name != hostgroup.name) {
+			return true;
+		}
+	}
+	return false;
 }
 
 HatoholError DBTablesHost::syncHostgroups(
@@ -1361,8 +1381,10 @@ HatoholError DBTablesHost::syncHostgroups(
 	// Pick up hostgroups to be added.
 	HostgroupVect serverHostgroups;
 	for (auto hostgroup : incomingHostgroups) {
-		if (currentHostgroupMap.erase(hostgroup.idInServer) >= 1) {
-			// If the hostgroup already exists, we have nothing to do.
+		if (!isHostgroupNameChanged(hostgroup, currentHostgroupMap) &&
+		    currentHostgroupMap.erase(hostgroup.idInServer) >= 1) {
+			// If the hostgroup already exists or unmodified,
+			// we have nothing to do.
 			continue;
 		}
 		serverHostgroups.push_back(move(hostgroup));

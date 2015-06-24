@@ -486,6 +486,63 @@ void test_syncTriggersAddNewTrigger(void)
 	assertDBContent(&dbAgent, statement, expect);
 }
 
+void test_syncTriggersModifiedTrigger(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	loadTestDBTriggers();
+	constexpr const ServerIdType targetServerId = 1;
+
+	TriggerInfo modifiedTriggerInfo = {
+		1,                        // serverId
+		"1",                      // id
+		TRIGGER_STATUS_OK,        // status
+		TRIGGER_SEVERITY_INFO,    // severity
+		{1362957197,0},           // lastChangeTime
+		10,                       // globalHostId,
+		"235012",                 // hostIdInServer,
+		"hostX1 revised",         // hostName,
+		"TEST Trigger 1 Revised", // brief,
+		"{\"expandedDescription\":\"Test Trigger on hostX1 revised\"}", // extendedInfo
+		TRIGGER_VALID,            // validity
+	};
+
+	// sanity check for test data
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		const TriggerInfo &svTriggerInfo = testTriggerInfo[i];
+		if (svTriggerInfo.serverId != targetServerId)
+			continue;
+		if (svTriggerInfo.brief == modifiedTriggerInfo.brief)
+			cut_fail("We use the wrong test data");
+	}
+
+	string expect;
+	TriggerInfoList svTriggers;
+	{
+		size_t i = 0;
+		// Add modifiedTriggerInfo to the expected result
+		svTriggers.push_back(modifiedTriggerInfo);
+		expect += makeTriggerOutput(modifiedTriggerInfo);
+
+		for (i = 1; i < NumTestTriggerInfo; i++) {
+			const TriggerInfo &svTriggerInfo = testTriggerInfo[i];
+			if (svTriggerInfo.serverId != targetServerId)
+				continue;
+			svTriggers.push_back(svTriggerInfo);
+			expect += makeTriggerOutput(svTriggerInfo);
+		}
+		// sanity check if we use the proper data
+		cppcut_assert_equal(false, svTriggers.empty());
+	}
+	HatoholError err = dbMonitoring.syncTriggers(svTriggers, targetServerId);
+	assertHatoholError(HTERR_OK, err);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+	string statement = StringUtils::sprintf(
+	  "select * from triggers"
+	  " where server_id=%" FMT_SERVER_ID " order by id asc;",
+	  targetServerId);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
 void test_getTriggerInfo(void)
 {
 	loadTestDBTriggers();

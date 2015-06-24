@@ -1635,6 +1635,45 @@ HatoholError DBTablesMonitoring::deleteTriggerInfo(const TriggerIdList &idList,
 	return HTERR_OK;
 }
 
+static bool isTriggerDescriptionChanged(
+  TriggerInfo trigger, map<TriggerIdType, const TriggerInfo *> currentTriggerMap)
+{
+	auto triggerItr = currentTriggerMap.find(trigger.id);
+	if (triggerItr != currentTriggerMap.end()) {
+		if (triggerItr->second->status != trigger.status) {
+			return true;
+		}
+		if (triggerItr->second->severity != trigger.severity) {
+			return true;
+		}
+		if (triggerItr->second->lastChangeTime.tv_sec !=
+		    trigger.lastChangeTime.tv_sec ||
+		    triggerItr->second->lastChangeTime.tv_nsec !=
+		    trigger.lastChangeTime.tv_nsec) {
+			return true;
+		}
+		if (triggerItr->second->globalHostId != trigger.globalHostId) {
+			return true;
+		}
+		if (triggerItr->second->hostIdInServer != trigger.hostIdInServer) {
+			return true;
+		}
+		if (triggerItr->second->hostName != trigger.hostName) {
+			return true;
+		}
+		if (triggerItr->second->brief != trigger.brief) {
+			return true;
+		}
+		if (triggerItr->second->extendedInfo != trigger.extendedInfo) {
+			return true;
+		}
+		if (triggerItr->second->validity != trigger.validity) {
+			return true;
+		}
+	}
+	return false;
+}
+
 HatoholError DBTablesMonitoring::syncTriggers(
   const TriggerInfoList &incomingTriggerInfoList,
   const ServerIdType &serverId)
@@ -1654,8 +1693,10 @@ HatoholError DBTablesMonitoring::syncTriggers(
 	// Pick up triggers to be added
 	TriggerInfoList serverTriggers;
 	for (auto trigger : incomingTriggerInfoList) {
-		if (currentTriggerMap.erase(trigger.id) >= 1) {
-			// If the hostgroup already exists, we have nothing to do.
+		if (!isTriggerDescriptionChanged(trigger, currentTriggerMap) &&
+		    currentTriggerMap.erase(trigger.id) >= 1) {
+			// If the hostgroup already exists of unmodified,
+			// we have nothing to do.
 			continue;
 		}
 		serverTriggers.push_back(move(trigger));
