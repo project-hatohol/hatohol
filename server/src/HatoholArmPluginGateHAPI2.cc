@@ -1834,3 +1834,20 @@ void HatoholArmPluginGateHAPI2::onSetPluginInitialInfo(void)
 
 	m_impl->createdSelfTriggers = true;
 }
+
+void HatoholArmPluginGateHAPI2::setPluginAvailableTrigger(
+  const HAPI2PluginCollectType &type,
+  const TriggerIdType &triggerId,
+  const HatoholError &hatoholError)
+{
+	TriggerInfoList triggerInfoList;
+	m_impl->armTrigger[static_cast<int>(type)].status = TRIGGER_STATUS_UNKNOWN;
+	m_impl->armTrigger[static_cast<int>(type)].triggerId = triggerId;
+	m_impl->armTrigger[static_cast<int>(type)].msg = hatoholError.getMessage().c_str();
+
+	ArmUtils::ArmTrigger &armTrigger = m_impl->armTrigger[static_cast<int>(type)];
+	m_impl->utils.createTrigger(armTrigger, triggerInfoList);
+
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
+}
