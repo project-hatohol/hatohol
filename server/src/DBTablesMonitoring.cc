@@ -1664,7 +1664,7 @@ static bool isTriggerDescriptionChanged(
 		if (triggerItr->second->brief != trigger.brief) {
 			return true;
 		}
-		if (triggerItr->second->brief != trigger.extendedInfo) {
+		if (triggerItr->second->extendedInfo != trigger.extendedInfo) {
 			return true;
 		}
 		if (triggerItr->second->validity != trigger.validity) {
