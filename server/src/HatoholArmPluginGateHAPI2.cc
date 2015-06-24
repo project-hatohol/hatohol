@@ -1658,7 +1658,7 @@ void HatoholArmPluginGateHAPI2::onSetPluginInitialInfo(void)
 	setPluginAvailableTrigger(HAPI2PluginCollectType::NG_HATOHOL_INTERNAL_ERROR,
 				  FAILED_INTERNAL_ERROR_TRIGGER_ID,
 				  HTERR_INTERNAL_ERROR);
-	setPluginAvailableTrigger(HAPI2PluginCollectType::NG_PLGIN_CONNECT_ERROR,
+	setPluginAvailableTrigger(HAPI2PluginCollectType::NG_PLUGIN_CONNECT_ERROR,
 				  FAILED_CONNECT_HAP2_TRIGGER_ID,
 				  HTERR_FAILED_CONNECT_HAP2);
 
