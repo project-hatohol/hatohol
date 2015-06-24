@@ -123,6 +123,13 @@ enum class HAPI2PluginCollectType {
 	OK,
 };
 
+enum class HAPI2PluginErrorCode {
+	OK,
+	NOT_FOUND_QUEUE_ADDR,
+	UNAVAILABLE_HAP2,
+	UNKNOWN,
+};
+
 class HatoholArmPluginInterfaceHAPI2 {
 
 public:
