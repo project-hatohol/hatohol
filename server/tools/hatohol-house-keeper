@@ -79,6 +79,10 @@ def start(args):
 
     if args.stat:
         show_status(cursor)
+    if args.date:
+        delete_unnecessary_records_by_date(args.table, args.date, db, cursor)
+    if args.number:
+        delete_unncessary_records_by_number(args.table, args.number, db, cursor)
 
 
 if __name__ == '__main__':
