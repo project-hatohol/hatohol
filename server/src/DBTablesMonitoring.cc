@@ -1640,6 +1640,24 @@ static bool isTriggerDescriptionChanged(
 {
 	auto triggerItr = currentTriggerMap.find(trigger.id);
 	if (triggerItr != currentTriggerMap.end()) {
+		if (triggerItr->second->status != trigger.status) {
+			return true;
+		}
+		if (triggerItr->second->severity != trigger.severity) {
+			return true;
+		}
+		if (triggerItr->second->lastChangeTime.tv_sec !=
+		    trigger.lastChangeTime.tv_sec ||
+		    triggerItr->second->lastChangeTime.tv_nsec !=
+		    trigger.lastChangeTime.tv_nsec) {
+			return true;
+		}
+		if (triggerItr->second->globalHostId != trigger.globalHostId) {
+			return true;
+		}
+		if (triggerItr->second->hostIdInServer != trigger.hostIdInServer) {
+			return true;
+		}
 		if (triggerItr->second->hostName != trigger.hostName) {
 			return true;
 		}
@@ -1647,6 +1665,9 @@ static bool isTriggerDescriptionChanged(
 			return true;
 		}
 		if (triggerItr->second->brief != trigger.extendedInfo) {
+			return true;
+		}
+		if (triggerItr->second->validity != trigger.validity) {
 			return true;
 		}
 	}
