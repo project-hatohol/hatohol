@@ -1674,7 +1674,8 @@ HatoholError DBTablesMonitoring::syncTriggers(
 	for (auto trigger : incomingTriggerInfoList) {
 		if (!isTriggerDescriptionChanged(trigger, currentTriggerMap) &&
 		    currentTriggerMap.erase(trigger.id) >= 1) {
-			// If the hostgroup already exists, we have nothing to do.
+			// If the hostgroup already exists of unmodified,
+			// we have nothing to do.
 			continue;
 		}
 		serverTriggers.push_back(move(trigger));
