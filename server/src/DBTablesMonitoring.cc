@@ -1635,7 +1635,7 @@ HatoholError DBTablesMonitoring::deleteTriggerInfo(const TriggerIdList &idList,
 	return HTERR_OK;
 }
 
-static bool triggerDescriptionChanged(
+static bool isTriggerDescriptionChanged(
   TriggerInfo trigger, map<TriggerIdType, const TriggerInfo *> currentTriggerMap)
 {
 	auto triggerItr = currentTriggerMap.find(trigger.id);
@@ -1672,7 +1672,7 @@ HatoholError DBTablesMonitoring::syncTriggers(
 	// Pick up triggers to be added
 	TriggerInfoList serverTriggers;
 	for (auto trigger : incomingTriggerInfoList) {
-		if (!triggerDescriptionChanged(trigger, currentTriggerMap) &&
+		if (!isTriggerDescriptionChanged(trigger, currentTriggerMap) &&
 		    currentTriggerMap.erase(trigger.id) >= 1) {
 			// If the hostgroup already exists, we have nothing to do.
 			continue;
