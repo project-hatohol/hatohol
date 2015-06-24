@@ -86,6 +86,8 @@ public:
 	void setPluginAvailableTrigger(const HAPI2PluginCollectType &type,
 				       const TriggerIdType &trrigerId,
 				       const HatoholError &hatoholError);
+	void setPluginConnectStatus(const HAPI2PluginCollectType &type,
+				    const HAPI2PluginErrorCode &errorCode);
 
 private:
 	struct Impl;

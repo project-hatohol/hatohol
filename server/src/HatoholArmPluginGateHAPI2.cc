@@ -1861,3 +1861,18 @@ void HatoholArmPluginGateHAPI2::setPluginAvailableTrigger(
 	ThreadLocalDBCache cache;
 	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
 }
+
+void HatoholArmPluginGateHAPI2::setPluginConnectStatus(
+  const HAPI2PluginCollectType &type,
+  const HAPI2PluginErrorCode &errorCode)
+{
+	TriggerStatusType status;
+	if (errorCode == HAPI2PluginErrorCode::UNAVAILABLE_HAP2) {
+		status = TRIGGER_STATUS_PROBLEM;
+	} else if (errorCode == HAPI2PluginErrorCode::OK) {
+		status = TRIGGER_STATUS_OK;
+	} else {
+		status = TRIGGER_STATUS_UNKNOWN;
+	}
+	m_impl->utils.updateTriggerStatus(static_cast<size_t>(type), status);
+}
