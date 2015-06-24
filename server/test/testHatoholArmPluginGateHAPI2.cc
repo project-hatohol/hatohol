@@ -518,7 +518,7 @@ void test_procedureHandlerPutHosts(void)
 			1,                       // id
 			1,                       // hostId
 			monitoringServerInfo.id, // serverId
-			"",                      // hostIdInServer
+			"1",                     // hostIdInServer
 			"exampleHostName1",      // name
 		},
 	};

@@ -897,11 +897,11 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 
 		ServerHostDef hostInfo;
 		hostInfo.id = AUTO_INCREMENT_VALUE;
+		hostInfo.hostId = AUTO_ASSIGNED_ID;
 		hostInfo.serverId = serverInfo.id;
-		int64_t hostId;
-		PARSE_AS_MANDATORY("hostId", hostId, errObj);
-		hostInfo.hostIdInServer = hostId;
+		PARSE_AS_MANDATORY("hostId", hostInfo.hostIdInServer, errObj);
 		PARSE_AS_MANDATORY("hostName", hostInfo.name, errObj);
+		hostInfo.status = HOST_STAT_NORMAL;
 		parser.endElement();
 
 		hostInfoVect.push_back(hostInfo);
@@ -1362,7 +1362,7 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 		}
 
 		EventInfo eventInfo;
-		eventInfo.id = AUTO_INCREMENT_VALUE;
+		eventInfo.unifiedId = AUTO_INCREMENT_VALUE;
 		eventInfo.serverId = serverInfo.id;
 		PARSE_AS_MANDATORY("eventId",  eventInfo.id, errObj);
 		parseTimeStamp(parser, "time", eventInfo.time, errObj);
@@ -1572,6 +1572,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
+	armInfo.running = status.getArmInfo().running;
 	parseArmInfoParams(parser, armInfo, errObj);
 
 	parser.endObject(); // params
