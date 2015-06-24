@@ -212,13 +212,6 @@ public:
 	{
 	}
 
-	enum class JSONRPCObjectType {
-		INVALID,
-		PROCEDURE,
-		NOTIFICATION,
-		RESPONSE
-	};
-
 	bool handle(AMQPConnection &connection, const AMQPMessage &message)
 	{
 		MLPL_DBG("message: <%s>/<%s>\n",
