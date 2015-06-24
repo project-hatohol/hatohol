@@ -87,9 +87,8 @@ def start(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Hatohol House Keeper')
-    # TODO: Fix description of options.
     parser.add_argument('-d', '--date', type=str,
-                        help='A term of removed records.')
+                        help='A term of removed records. Format: YY-mm-dd')
     parser.add_argument('-n', '--number', type=int,
                         help='A number of removed records.')
     parser.add_argument('--db_host', default='localhost', type=str,
