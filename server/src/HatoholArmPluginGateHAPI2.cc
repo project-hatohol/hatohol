@@ -227,6 +227,9 @@ struct HatoholArmPluginGateHAPI2::Impl
 			if (errObj.hasErrors())
 				return;
 
+			m_impl.setPluginConnectStatus(
+			  HAPI2PluginCollectType::NG_AMQP_CONNECT_ERROR,
+			  HAPI2PluginErrorCode::OK);
 			m_impl.m_hapi2.setEstablished(true);
 		}
 	};
