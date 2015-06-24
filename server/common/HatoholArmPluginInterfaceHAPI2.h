@@ -112,6 +112,17 @@ struct HAPI2ProcedureDef {
 	ProcedureRequirementLevel level;
 };
 
+enum class HAPI2PluginCollectType {
+	NG_PARSER_ERROR = 0,
+	NG_DISCONNECT,
+	NG_PLGIN_INTERNAL_ERROR,
+	NG_HATOHOL_INTERNAL_ERROR,
+	NG_PLGIN_CONNECT_ERROR,
+	NG_AMQP_CONNECT_ERROR,
+	NUM_COLLECT_NG_KIND,
+	OK,
+};
+
 class HatoholArmPluginInterfaceHAPI2 {
 
 public:
