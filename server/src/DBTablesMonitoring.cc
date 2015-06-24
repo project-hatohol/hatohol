@@ -1635,6 +1635,24 @@ HatoholError DBTablesMonitoring::deleteTriggerInfo(const TriggerIdList &idList,
 	return HTERR_OK;
 }
 
+static bool triggerDescriptionChanged(
+  TriggerInfo trigger, map<TriggerIdType, const TriggerInfo *> currentTriggerMap)
+{
+	auto triggerItr = currentTriggerMap.find(trigger.id);
+	if (triggerItr != currentTriggerMap.end()) {
+		if (triggerItr->second->hostName != trigger.hostName) {
+			return true;
+		}
+		if (triggerItr->second->brief != trigger.brief) {
+			return true;
+		}
+		if (triggerItr->second->brief != trigger.extendedInfo) {
+			return true;
+		}
+	}
+	return false;
+}
+
 HatoholError DBTablesMonitoring::syncTriggers(
   const TriggerInfoList &incomingTriggerInfoList,
   const ServerIdType &serverId)
@@ -1654,7 +1672,8 @@ HatoholError DBTablesMonitoring::syncTriggers(
 	// Pick up triggers to be added
 	TriggerInfoList serverTriggers;
 	for (auto trigger : incomingTriggerInfoList) {
-		if (currentTriggerMap.erase(trigger.id) >= 1) {
+		if (!triggerDescriptionChanged(trigger, currentTriggerMap) &&
+		    currentTriggerMap.erase(trigger.id) >= 1) {
 			// If the hostgroup already exists, we have nothing to do.
 			continue;
 		}
