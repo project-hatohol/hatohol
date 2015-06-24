@@ -214,6 +214,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 				MLPL_WARN("Received an error on calling "
 					  "exchangeProfile: %s\n",
 					  errorMessage.c_str());
+
+				m_impl.setPluginConnectStatus(
+				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+				  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
 				return;
 			}
 
@@ -224,11 +228,16 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 			setArmInfoStatus(errObj);
 
-			if (errObj.hasErrors())
+			if (errObj.hasErrors()) {
+				m_impl.setPluginConnectStatus(
+				  HAPI2PluginCollectType::NG_HATOHOL_INTERNAL_ERROR,
+				  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+
 				return;
+			}
 
 			m_impl.setPluginConnectStatus(
-			  HAPI2PluginCollectType::NG_AMQP_CONNECT_ERROR,
+			  HAPI2PluginCollectType::NG_PLUGIN_CONNECT_ERROR,
 			  HAPI2PluginErrorCode::OK);
 			m_impl.m_hapi2.setEstablished(true);
 		}
@@ -1850,7 +1859,7 @@ void HatoholArmPluginGateHAPI2::onSetPluginInitialInfo(void)
 	m_impl->utils.registerSelfMonitoringHost();
 	m_impl->utils.initializeArmTriggers();
 
-	setPluginAvailableTrigger(HAPI2PluginCollectType::NG_AMQP_CONNECT_ERROR,
+	setPluginAvailableTrigger(HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 				  FAILED_CONNECT_BROKER_TRIGGER_ID,
 				  HTERR_FAILED_CONNECT_BROKER);
 	setPluginAvailableTrigger(HAPI2PluginCollectType::NG_HATOHOL_INTERNAL_ERROR,
