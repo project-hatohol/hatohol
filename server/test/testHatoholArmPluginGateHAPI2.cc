@@ -210,7 +210,7 @@ void test_procedureHandlerExchangeProfile(void)
 		  "[\"exchangeProfile\",\"getMonitoringServerInfo\",\"getLastInfo\","
 		  "\"putItems\",\"putHistory\",\"putHosts\",\"putHostGroups\","
 		  "\"putHostGroupMembership\",\"putTriggers\","
-		  "\"putEvents\",\"putHostParent\",\"putArmInfo\""
+		  "\"putEvents\",\"putHostParents\",\"putArmInfo\""
 		"]},\"id\":123}";
 	cppcut_assert_equal(expected, actual);
 }
@@ -1238,6 +1238,38 @@ void cut_teardown(void)
 	connectionInfo = NULL;
 }
 
+void test_callExchangeProfile(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	string expected =
+		"^\\{"
+		"\"jsonrpc\":\"2\\.0\","
+		"\"method\":\"exchangeProfile\","
+		"\"params\":\\{"
+		"\"name\":\"hatohol\","
+		"\"procedures\":\\["
+		"\"exchangeProfile\","
+		"\"getMonitoringServerInfo\","
+		"\"getLastInfo\","
+		"\"putItems\","
+		"\"putHistory\","
+		"\"putHosts\","
+		"\"putHostGroups\","
+		"\"putHostGroupMembership\","
+		"\"putTriggers\","
+		"\"putEvents\","
+		"\"putHostParents\","
+		"\"putArmInfo\""
+		"\\]\\},"
+		"\"id\":\\d+"
+		"\\}$";
+	string actual = popServerMessage();
+	cut_assert_match(expected.c_str(), actual.c_str());
+}
+
 void test_exchangeProfile(void)
 {
 	omitIfNoURL();
@@ -1267,7 +1299,7 @@ void test_exchangeProfile(void)
 		  "\"getLastInfo\",\"putItems\"," "\"putHistory\","
 		  "\"putHosts\",\"putHostGroups\","
 		  "\"putHostGroupMembership\",\"putTriggers\","
-		  "\"putEvents\",\"putHostParent\",\"putArmInfo\""
+		  "\"putEvents\",\"putHostParents\",\"putArmInfo\""
 		"]},\"id\":1}";
 	string actual = popServerMessage();
 	cppcut_assert_equal(expected, actual);
