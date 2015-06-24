@@ -83,7 +83,8 @@ function makeSeverityLabel(severity) {
   }
 }
 
-function makeMonitoringSystemTypeLabel(type) {
+function makeMonitoringSystemTypeLabel(server) {
+  var type = getServerTypeId(server);
   var pluginName;
 
   if (type == null || type == undefined)

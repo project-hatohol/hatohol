@@ -221,7 +221,7 @@ HatoholPrivilegeEditDialog.prototype.generateTableRows = function() {
     s +=        'serverId="' + escapeHTML(sv.id) + '"';
     s +=        'value="' + gettext("Show / Edit") + '" /></td>';
     s += '<td>' + escapeHTML(sv.id) + '</td>';
-    s += '<td>' + makeMonitoringSystemTypeLabel(sv.type) + '</td>';
+    s += '<td>' + makeMonitoringSystemTypeLabel(sv) + '</td>';
     s += '<td>' + escapeHTML(sv.hostName) + '</td>';
     s += '<td>' + escapeHTML(sv.ipAddress) + '</td>';
     s += '<td>' + escapeHTML(sv.nickname)  + '</td>';

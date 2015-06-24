@@ -196,7 +196,7 @@ var ServersView = function(userProfile) {
              "data-trigger='hover' " +
              "data-container='body' " +
            ">" + escapeHTML(gettext("Checking")) + "</td>";
-      s += "<td>" + makeMonitoringSystemTypeLabel(o["type"]) + "</td>";
+      s += "<td>" + makeMonitoringSystemTypeLabel(o) + "</td>";
       if (serverURL) {
         s += "<td class='server-url-link'><a href='" + serverURL + "' target='_blank'>"
              + escapeHTML(o["hostName"])  + "</a></td>";
