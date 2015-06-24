@@ -457,6 +457,7 @@ void HatoholArmPluginInterfaceHAPI2::handleResponse(
 
 void HatoholArmPluginInterfaceHAPI2::start(void)
 {
+	onSetPluginInitialInfo();
 	m_impl->start();
 }
 
@@ -556,6 +557,10 @@ string HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 	responseBuilder.endObject(); // error
 	responseBuilder.endObject();
 	return responseBuilder.generate();
+}
+
+void HatoholArmPluginInterfaceHAPI2::onSetPluginInitialInfo(void)
+{
 }
 
 const std::list<HAPI2ProcedureDef> &
