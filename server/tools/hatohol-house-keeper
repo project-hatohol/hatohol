@@ -13,6 +13,8 @@ def finish_if_require_option_is_fault(args):
     if not args.date and not args.number and not args.stat:
         print 'You need to set -d (--date) or -n (--number) or --stat option.'
         sys.exit(os.EX_USAGE)
+    if (args.date or args.number) and not args.table:
+        print 'You need to set table name using --table option.'
 
 
 def show_number_of(table_name, cursor):
