@@ -1349,6 +1349,18 @@ HatoholError DBTablesHost::syncHosts(
 	return HTERR_OK;
 }
 
+static bool isHostgroupNameChanged(
+  Hostgroup hostgroup, map<HostgroupIdType, const Hostgroup *> currentHostgroupMap)
+{
+	auto hostgroupItr = currentHostgroupMap.find(hostgroup.idInServer);
+	if (hostgroupItr != currentHostgroupMap.end()) {
+		if (hostgroupItr->second->name != hostgroup.name) {
+			return true;
+		}
+	}
+	return false;
+}
+
 HatoholError DBTablesHost::syncHostgroups(
   const HostgroupVect &incomingHostgroups,
   const ServerIdType &serverId)
@@ -1369,9 +1381,7 @@ HatoholError DBTablesHost::syncHostgroups(
 	// Pick up hostgroups to be added.
 	HostgroupVect serverHostgroups;
 	for (auto hostgroup : incomingHostgroups) {
-		auto hostgroupItr = currentHostgroupMap.find(hostgroup.idInServer);
-		if (hostgroupItr != currentHostgroupMap.end() &&
-		    hostgroupItr->second->name == hostgroup.name &&
+		if (!isHostgroupNameChanged(hostgroup, currentHostgroupMap) &&
 		    currentHostgroupMap.erase(hostgroup.idInServer) >= 1) {
 			// If the hostgroup already exists or unmodified,
 			// we have nothing to do.
