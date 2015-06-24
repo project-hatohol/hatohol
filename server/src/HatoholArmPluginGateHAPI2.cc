@@ -899,9 +899,7 @@ static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect
 		hostInfo.id = AUTO_INCREMENT_VALUE;
 		hostInfo.hostId = AUTO_ASSIGNED_ID;
 		hostInfo.serverId = serverInfo.id;
-		int64_t hostId;
-		PARSE_AS_MANDATORY("hostId", hostId, errObj);
-		hostInfo.hostIdInServer = hostId;
+		PARSE_AS_MANDATORY("hostId", hostInfo.hostIdInServer, errObj);
 		PARSE_AS_MANDATORY("hostName", hostInfo.name, errObj);
 		hostInfo.status = HOST_STAT_NORMAL;
 		parser.endElement();
