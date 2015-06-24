@@ -78,7 +78,7 @@ const HAPI2ProcedureName HAPI2_PUT_TRIGGERS
 const HAPI2ProcedureName HAPI2_PUT_EVENTS
   = "putEvents";
 const HAPI2ProcedureName HAPI2_PUT_HOST_PARENTS
-  = "putHostParent";
+  = "putHostParents";
 const HAPI2ProcedureName HAPI2_PUT_ARM_INFO
   = "putArmInfo";
 // Cl

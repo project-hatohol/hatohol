@@ -201,9 +201,9 @@ struct HatoholArmPluginGateHAPI2::Impl
 		JSONBuilder builder;
 		builder.startObject();
 		builder.add("jsonrpc", "2.0");
-		builder.add("name", PACKAGE_NAME);
 		builder.add("method", HAPI2_EXCHANGE_PROFILE);
 		builder.startObject("params");
+		builder.add("name", PACKAGE_NAME);
 		builder.startArray("procedures");
 		for (auto procedureDef : m_hapi2.getProcedureDefList()) {
 			if (procedureDef.type == PROCEDURE_HAP)
