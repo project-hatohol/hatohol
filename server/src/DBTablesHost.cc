@@ -1289,6 +1289,18 @@ bool DBTablesHost::wasStoredHostsChanged(void)
 	return m_impl->storedHostsChanged;
 }
 
+static bool isHostNameChanged(
+  ServerHostDef newSvHostDef, map<string, const ServerHostDef *> currValidHosts)
+{
+	auto hostDefItr = currValidHosts.find(newSvHostDef.hostIdInServer);
+	if (hostDefItr != currValidHosts.end()) {
+		if (hostDefItr->second->name != newSvHostDef.name) {
+			return true;
+		}
+	}
+	return false;
+}
+
 HatoholError DBTablesHost::syncHosts(
   const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
   HostHostIdMap *hostHostIdMapPtr)
@@ -1312,9 +1324,7 @@ HatoholError DBTablesHost::syncHosts(
 	// Pick up hosts to be added.
 	ServerHostDefVect serverHostDefs;
 	for (auto& newSvHostDef : svHostDefs) {
-		auto hostDefItr = currValidHosts.find(newSvHostDef.hostIdInServer);
-		if (hostDefItr != currValidHosts.end() &&
-		    hostDefItr->second->name == newSvHostDef.name &&
+		if (!isHostNameChanged(newSvHostDef, currValidHosts) &&
 		    currValidHosts.erase(newSvHostDef.hostIdInServer) >= 1) {
 			// The host already exists or unmodified. We have nothing to do.
 			continue;
