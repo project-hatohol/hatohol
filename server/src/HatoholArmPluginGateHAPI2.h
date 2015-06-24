@@ -81,6 +81,9 @@ public:
 				   timespec &timeStamp,
 				   const bool allowEmpty = false);
 	void onSetPluginInitialInfo(void);
+	void setPluginAvailableTrigger(const HAPI2PluginCollectType &type,
+				       const TriggerIdType &trrigerId,
+				       const HatoholError &hatoholError);
 
 private:
 	struct Impl;
