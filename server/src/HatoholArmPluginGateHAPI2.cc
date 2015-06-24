@@ -1059,14 +1059,14 @@ static bool parseHostGroupMembershipParams(
   const HostInfoCache &hostInfoCache,
   JSONRPCError &errObj)
 {
-	CHECK_MANDATORY_ARRAY_EXISTENCE("hostGroupsMembership", errObj);
-	parser.startObject("hostGroupsMembership");
+	CHECK_MANDATORY_ARRAY_EXISTENCE("hostGroupMembership", errObj);
+	parser.startObject("hostGroupMembership");
 	size_t num = parser.countElements();
 	for (size_t i = 0; i < num; i++) {
 		if (!parser.startElement(i)) {
 			MLPL_ERR("Failed to parse hosts contents.\n");
 			errObj.addError("Failed to parse hostGroupMembership array object.");
-			parser.endObject(); // hostGroupsMembership
+			parser.endObject(); // hostGroupMembership
 			return false;
 		}
 
