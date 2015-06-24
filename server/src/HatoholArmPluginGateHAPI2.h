@@ -82,6 +82,7 @@ public:
 	static bool parseTimeStamp(const std::string &timeStampString,
 				   timespec &timeStamp,
 				   const bool allowEmpty = false);
+	void onSetPluginInitialInfo(void);
 
 private:
 	struct Impl;

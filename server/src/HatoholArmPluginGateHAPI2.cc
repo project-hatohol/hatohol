@@ -27,6 +27,7 @@
 #include "ChildProcessManager.h"
 #include <libsoup/soup.h>
 #include <Reaper.h>
+#include "ArmUtils.h"
 
 using namespace std;
 using namespace mlpl;
@@ -94,10 +95,14 @@ struct HatoholArmPluginGateHAPI2::Impl
 {
 	// We have a copy. The access to the object is MT-safe.
 	const MonitoringServerInfo m_serverInfo;
+
+	ArmUtils utils;
+	ArmUtils::ArmTrigger armTrigger[static_cast<int>(HAPI2PluginCollectType::NUM_COLLECT_NG_KIND)];
 	HatoholArmPluginGateHAPI2 &m_hapi2;
 	ArmPluginInfo m_pluginInfo;
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
+	bool createdSelfTriggers;
 	string m_pluginProcessName;
 	string m_pluginControlScriptPath;
 	set<string> m_supportedProcedureNameSet;
@@ -108,9 +113,11 @@ struct HatoholArmPluginGateHAPI2::Impl
 	Impl(const MonitoringServerInfo &_serverInfo,
 	     HatoholArmPluginGateHAPI2 &hapi2)
 	: m_serverInfo(_serverInfo),
+	  utils(_serverInfo, armTrigger, static_cast<int>(HAPI2PluginCollectType::NUM_COLLECT_NG_KIND)),
 	  m_hapi2(hapi2),
 	  m_armFake(m_serverInfo),
 	  m_armStatus(),
+	  createdSelfTriggers(false),
 	  hostInfoCache(&_serverInfo.id)
 	{
 		ArmPluginInfo::initialize(m_pluginInfo);
@@ -1815,4 +1822,15 @@ void HatoholArmPluginGateHAPI2::upsertLastInfo(string lastInfoValue, LastInfoTyp
 	lastInfo.value = lastInfoValue;
 	lastInfo.serverId = serverInfo.id;
 	dbLastInfo.upsertLastInfo(lastInfo, privilege);
+}
+
+void HatoholArmPluginGateHAPI2::onSetPluginInitialInfo(void)
+{
+	if (m_impl->createdSelfTriggers)
+		return;
+
+	m_impl->utils.registerSelfMonitoringHost();
+	m_impl->utils.initializeArmTriggers();
+
+	m_impl->createdSelfTriggers = true;
 }
