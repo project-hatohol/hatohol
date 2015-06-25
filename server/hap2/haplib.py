@@ -446,8 +446,17 @@ class Utils:
         return req_id
 
     @staticmethod
-    def translate_unix_time_to_hatohol_time(float_unix_time):
-        return datetime.strftime(datetime.fromtimestamp(float_unix_time), "%Y%m%d%H%M%S.%f")
+    def translate_unix_time_to_hatohol_time(unix_time):
+        decimal = None
+        if isinstance(unix_time, float):
+            unix_time, decimal = str(unix_time).split(".")
+            unix_time = int(unix_time)
+        utc_time = time.gmtime(unix_time)
+        hatohol_time = time.strftime("%Y%m%d%H%M%S", utc_time)
+        if decimal is not None:
+            hatohol_time = hatohol_time + "." + decimal
+
+        return hatohol_time
 
     @staticmethod
     def translate_hatohol_time_to_unix_time(hatohol_time):
