@@ -155,7 +155,6 @@ struct ItemInfo {
 	std::string         brief;
 	timespec            lastValueTime;
 	std::string         lastValue;
-	std::string         prevValue;
 	std::string         itemGroupName;
 	int                 delay;
 	ItemInfoValueType   valueType;

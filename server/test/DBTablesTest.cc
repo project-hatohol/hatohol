@@ -573,7 +573,6 @@ ItemInfo testItemInfo[] = {
 	"Rome wasn't built in a day",// brief
 	{1362951129,0},           // lastValueTime
 	"Fukuoka",                // lastValue
-	"Sapporo",                // prevValue
 	"City",                   // itemGroupName,
 	0,                        // delay
 	ITEM_INFO_VALUE_TYPE_STRING, // valueType
@@ -586,7 +585,6 @@ ItemInfo testItemInfo[] = {
 	"The age of the cat.",    // brief
 	{1362957200,0},           // lastValueTime
 	"1",                      // lastValue
-	"5",                      // prevValue
 	"number",                 // itemGroupName,
 	0,                        // delay
 	ITEM_INFO_VALUE_TYPE_INTEGER, // valueType
@@ -599,7 +597,6 @@ ItemInfo testItemInfo[] = {
 	"All roads lead to Rome.",// brief
 	{1362951000,0},           // lastValueTime
 	"Osaka",                  // lastValue
-	"Ichikawa",               // prevValue
 	"City",                   // itemGroupName,
 	0,                        // delay
 	ITEM_INFO_VALUE_TYPE_STRING, // valueType
@@ -612,7 +609,6 @@ ItemInfo testItemInfo[] = {
 	"All roads lead to Rome.",// brief
 	{1362951000,0},           // lastValueTime
 	"Osaka",                  // lastValue
-	"Ichikawa",               // prevValue
 	"City",                   // itemGroupName,
 	0,                        // delay
 	ITEM_INFO_VALUE_TYPE_STRING, // valueType

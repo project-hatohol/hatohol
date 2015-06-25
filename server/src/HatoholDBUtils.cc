@@ -461,9 +461,6 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_LASTVALUE);
 	itemGroupStream >> itemInfo.lastValue;
 
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_PREVVALUE);
-	itemGroupStream >> itemInfo.prevValue;
-
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_DELAY);
 	itemGroupStream >> itemInfo.delay;
 

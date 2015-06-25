@@ -811,7 +811,6 @@ void ArmNagiosNDOUtils::getItem(void)
 		ItemInfo itemInfo;
 		itemInfo.serverId = svInfo.id;
 		itemInfo.lastValueTime.tv_nsec = 0;
-		itemInfo.prevValue = "N/A";
 		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_STRING;
 
 		itemInfo.id = itemGroupStream.read<int, string>(); // service_id
