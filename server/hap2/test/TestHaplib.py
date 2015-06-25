@@ -164,21 +164,6 @@ class ArmInfo(unittest.TestCase):
         self.assertEquals(0, arm_info.num_failure)
 
 
-class RabbitMQHapiConnector(unittest.TestCase):
-    def test_setup(self):
-        port = os.getenv("RABBITMQ_NODE_PORT")
-        amqp_address = os.getenv("RABBITMQ_NODE_ADDRESS")
-        transporter_args = {"direction": transporter.DIR_SEND,
-                            "amqp_broker": amqp_address,
-                            "amqp_port": port,
-                            "amqp_vhost": "test",
-                            "amqp_queue": "test_queue",
-                            "amqp_user": "test_user",
-                            "amqp_password": "test_password"}
-        rabbitmq_connector = haplib.RabbitMQHapiConnector()
-        common.assertNotRaises(rabbitmq_connector.setup, transporter_args)
-
-
 class Sender(unittest.TestCase):
     def test_get_connector(self):
         transporter_args = {"class": transporter.Transporter}
