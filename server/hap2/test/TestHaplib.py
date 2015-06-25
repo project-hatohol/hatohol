@@ -335,12 +335,14 @@ class Utils(unittest.TestCase):
 
     def test_translate_unix_time_to_hatohol_time(self):
         result = haplib.Utils.translate_unix_time_to_hatohol_time(0)
-        self.assertEquals(result, "19700101090000.000000")
+        self.assertEquals(result, "19700101000000")
+        result = haplib.Utils.translate_unix_time_to_hatohol_time(0.123456)
+        self.assertEquals(result, "19700101000000.123456")
 
     def test_translate_hatohol_time_to_unix_time(self):
-        result = haplib.Utils.translate_hatohol_time_to_unix_time("19700101090000.123456789")
+        result = haplib.Utils.translate_hatohol_time_to_unix_time("19700101000000.123456789")
         # This result is utc time
-        self.assertAlmostEquals(result, 32400.123456789, delta=0.000000001)
+        self.assertAlmostEquals(result, 0.123456789, delta=0.000000001)
 
     def test_optimize_server_procedures(self):
         test_procedures_dict = {"exchangeProfile": True,
