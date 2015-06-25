@@ -334,10 +334,6 @@ class HapiProcessor(object):
 
     @property
     def monitoring_server_info(self):
-        pass
-
-    @monitoring_server_info.getter
-    def monitoring_server_info(self):
         return self.__ms_info
 
     @monitoring_server_info.setter

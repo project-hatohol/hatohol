@@ -403,13 +403,13 @@ class HapiProcessor(unittest.TestCase):
 
     def test_monitoring_server_info_set(self):
         exact_ms = "test_ms"
-        self.processor.monitoring_sever_info = exact_ms
+        self.processor.monitoring_server_info = exact_ms
         result_ms = common.returnPrivObj(self.processor, "__ms_info")
         self.assertEquals(exact_ms, result_ms)
 
     def test_monitoring_server_info_get(self):
-        exact_ms = common.returnPrivObj(self.processor, "__ms_info")
         exact_ms = "test_ms"
+        self.processor.__ms_info = exact_ms
         result_ms = self.processor.monitoring_server_info
         self.assertEquals(exact_ms, result_ms)
 
