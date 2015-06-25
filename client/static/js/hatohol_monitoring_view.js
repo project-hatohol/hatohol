@@ -164,6 +164,8 @@ HatoholMonitoringView.prototype.setHostFilterCandidates =
   server = servers[serverId];
   hosts = server.hosts;
   for (id in hosts) {
+    if (id == "__SELF_MONITOR")
+      continue;
     hostLabels.push({
       label: getHostName(server, id),
       value: id
