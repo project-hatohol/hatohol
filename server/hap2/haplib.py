@@ -332,11 +332,17 @@ class HapiProcessor:
         self.__previous_host_group_membership = None
         self.__event_last_info = None
 
-    def set_ms_info(self, ms_info):
-        self.__ms_info = ms_info
+    @property
+    def monitoring_server_info(self):
+        pass
 
-    def get_ms_info(self):
+    @monitoring_server_info.getter
+    def monitoring_server_info(self):
         return self.__ms_info
+
+    @monitoring_server_info.setter
+    def monitoring_server_info(self, monitoring_server_info):
+        self.__ms_info = monitoring_server_info
 
     def set_dispatch_queue(self, dispatch_queue):
         self.__dispatch_queue = dispatch_queue
