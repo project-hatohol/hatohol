@@ -141,7 +141,6 @@ void _assertEqual(const ItemInfo &expect, const ItemInfo &actual)
 	cppcut_assert_equal(expect.lastValueTime.tv_nsec,
 	                    actual.lastValueTime.tv_nsec);
 	cppcut_assert_equal(expect.lastValue, actual.lastValue);
-	cppcut_assert_equal(expect.prevValue, actual.prevValue);
 	cppcut_assert_equal(expect.itemGroupName, actual.itemGroupName);
 	cppcut_assert_equal(expect.delay,     actual.delay);
 	cppcut_assert_equal(expect.valueType, actual.valueType);
@@ -556,7 +555,7 @@ string makeItemOutput(const ItemInfo &itemInfo)
 	string expectedOut =
 	  StringUtils::sprintf(
 	    "%" FMT_SERVER_ID "|%" FMT_ITEM_ID "|%" FMT_HOST_ID
-	    "|%" FMT_LOCAL_HOST_ID "|%s|%ld|%lu|%s|%s|%s|%d|%s\n",
+	    "|%" FMT_LOCAL_HOST_ID "|%s|%ld|%lu|%s|%s|%d|%s\n",
 	    itemInfo.serverId, itemInfo.id.c_str(),
 	    itemInfo.globalHostId,
 	    itemInfo.hostIdInServer.c_str(),
@@ -564,7 +563,6 @@ string makeItemOutput(const ItemInfo &itemInfo)
 	    itemInfo.lastValueTime.tv_sec,
 	    itemInfo.lastValueTime.tv_nsec,
 	    itemInfo.lastValue.c_str(),
-	    itemInfo.prevValue.c_str(),
 	    itemInfo.itemGroupName.c_str(),
 	    static_cast<int>(itemInfo.valueType),
 	    itemInfo.unit.c_str());
@@ -1227,7 +1225,6 @@ VariableItemGroupPtr convert(const ItemInfo &itemInfo,
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTCLOCK,
 	                (int)itemInfo.lastValueTime.tv_sec);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTVALUE, itemInfo.lastValue);
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_PREVVALUE, itemInfo.prevValue);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_DELAY,     itemInfo.delay);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID, itemCategoryId);
 	// TODO: remove Zabbix dependency!

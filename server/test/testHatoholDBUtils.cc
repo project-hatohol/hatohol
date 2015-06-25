@@ -83,7 +83,6 @@ public:
 		cppcut_assert_equal(expect.lastValueTime.tv_nsec,
 		                    actual.lastValueTime.tv_nsec);
 		cppcut_assert_equal(expect.lastValue, actual.lastValue);
-		cppcut_assert_equal(expect.prevValue, actual.prevValue);
 		cppcut_assert_equal(expect.itemGroupName, actual.itemGroupName);
 		cppcut_assert_equal(expect.delay, actual.delay);
 	}

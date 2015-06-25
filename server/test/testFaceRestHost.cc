@@ -369,7 +369,6 @@ static void _assertItems(const string &path, const string &callbackName = "",
 		assertValueInParser(parser, "lastValueTime",
 		                    itemInfo.lastValueTime);
 		assertValueInParser(parser, "lastValue", itemInfo.lastValue);
-		assertValueInParser(parser, "prevValue", itemInfo.prevValue);
 		assertValueInParser(parser, "unit", itemInfo.unit);
 		assertValueInParser(parser, "valueType",
 				    static_cast<int>(itemInfo.valueType));

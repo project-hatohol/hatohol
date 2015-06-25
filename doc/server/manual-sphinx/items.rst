@@ -100,9 +100,6 @@ Item object
    * - lastValue
      - String
      - The last value.
-   * - prevValue
-     - String
-     - The previous value.
    * - itemGroupName
      - String
      - The item group name.

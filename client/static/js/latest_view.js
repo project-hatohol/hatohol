@@ -192,7 +192,6 @@ var LatestView = function(userProfile) {
         html += "<td>" + escapeHTML(item["brief"])  + "</td>";
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
       html += "<td>" + formatItemLastValue(item) + "</td>";
-      html += "<td>" + formatItemPrevValue(item) + "</td>";
       html += "<td>" + getGraphLink(item) + "</td>";
       html += "</tr>";
     }

@@ -479,15 +479,6 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"prev_value",                      // columnName
-	SQL_COLUMN_TYPE_VARCHAR,           // type
-	255,                               // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
 	"item_group_name",                 // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
 	255,                               // columnLength
@@ -526,7 +517,6 @@ enum {
 	IDX_ITEMS_LAST_VALUE_TIME_SEC,
 	IDX_ITEMS_LAST_VALUE_TIME_NS,
 	IDX_ITEMS_LAST_VALUE,
-	IDX_ITEMS_PREV_VALUE,
 	IDX_ITEMS_ITEM_GROUP_NAME,
 	IDX_ITEMS_VALUE_TYPE,
 	IDX_ITEMS_UNIT,
@@ -2015,7 +2005,6 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	builder.add(IDX_ITEMS_LAST_VALUE_TIME_SEC);
 	builder.add(IDX_ITEMS_LAST_VALUE_TIME_NS);
 	builder.add(IDX_ITEMS_LAST_VALUE);
-	builder.add(IDX_ITEMS_PREV_VALUE);
 	builder.add(IDX_ITEMS_ITEM_GROUP_NAME);
 	builder.add(IDX_ITEMS_VALUE_TYPE);
 	builder.add(IDX_ITEMS_UNIT);
@@ -2063,7 +2052,6 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 		itemGroupStream >> itemInfo.lastValueTime.tv_sec;
 		itemGroupStream >> itemInfo.lastValueTime.tv_nsec;
 		itemGroupStream >> itemInfo.lastValue;
-		itemGroupStream >> itemInfo.prevValue;
 		itemGroupStream >> itemInfo.itemGroupName;
 		int valueType;
 		itemGroupStream >> valueType;
@@ -2543,7 +2531,6 @@ void DBTablesMonitoring::addItemInfoWithoutTransaction(
 	arg.add(itemInfo.lastValueTime.tv_sec);
 	arg.add(itemInfo.lastValueTime.tv_nsec);
 	arg.add(itemInfo.lastValue);
-	arg.add(itemInfo.prevValue);
 	arg.add(itemInfo.itemGroupName);
 	arg.add(itemInfo.valueType);
 	arg.add(itemInfo.unit);
