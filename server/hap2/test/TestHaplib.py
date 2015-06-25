@@ -531,6 +531,70 @@ class Receiver(unittest.TestCase):
     def test_daemonize(self):
         common.assertNotRaises(self.receiver.daemonize)
 
+# Dispatcher __call__ and daemonize is infinite loop function.
+# So, I skip these function test.
+class Dispatcher(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        rpc_queue = DummyQueue()
+        cls.__dispatcher = haplib.Dispatcher(rpc_queue)
+
+    def test_attach_destination(self):
+        self.__dispatcher.attach_destination("test_queue", "test")
+        destination_q_map = common.returnPrivObj(self.__dispatcher,
+                                                 "__destination_q_map")
+        self.assertEquals("test_queue", destination_q_map["test"])
+
+    def test_get_dispatch_queue(self):
+        dispatch_queue = common.returnPrivObj(self.__dispatcher, "__dispatch_queue")
+        self.assertEquals(self.__dispatcher.get_dispatch_queue(), dispatch_queue)
+
+    def test_acknowledge(self):
+        destination_queue = DummyQueue()
+        test_id = "test"
+        self.__dispatcher.attach_destination(destination_queue, test_id)
+        acknowledge = common.returnPrivObj(self.__dispatcher, "__acknowledge")
+        test_message = (test_id, 1)
+        common.assertNotRaises(acknowledge, test_message)
+
+    def is_expented_id_notification(self):
+        is_expected_id_notification = common.returnPrivObj(self.__dispatcher,
+                                            "__is_expenced_id_notification")
+        test_contents = 1
+        self.assertTrue(is_expected_id_notification(test_contents))
+
+    def test_dispatch_receive_id_notification(self):
+        destination_queue = DummyQueue()
+        test_id = "test"
+        test_contents = 1
+        test_message = (test_id, test_contents)
+        dispatch_queue = common.returnPrivObj(self.__dispatcher,
+                                              "__dispatch_queue")
+        dispatch_queue.put(test_message)
+        self.__dispatcher.attach_destination(destination_queue, test_id)
+        dispatch = common.returnPrivObj(self.__dispatcher, "__dispatch")
+        common.assertNotRaises(dispatch)
+
+    def test_dispatch_receive_response(self):
+        destination_queue = DummyQueue()
+        test_id = "test"
+        test_contents = haplib.ParsedMessage()
+        test_contents.message_id = 1
+
+        self.__dispatcher.attach_destination(destination_queue, test_id)
+        acknowledge = common.returnPrivObj(self.__dispatcher, "__acknowledge")
+        test_message = (test_id, test_contents.message_id)
+        acknowledge(test_message)
+
+        test_message = (test_id, test_contents)
+        dispatch_queue = common.returnPrivObj(self.__dispatcher,
+                                              "__dispatch_queue")
+        dispatch_queue.put(test_message)
+
+        common.assertNotRaises(acknowledge, test_message)
+        dispatch = common.returnPrivObj(self.__dispatcher, "__dispatch")
+        common.assertNotRaises(dispatch)
+
 
 class ConnectorForTest(transporter.Transporter):
     def __init__(self, test_queue):
