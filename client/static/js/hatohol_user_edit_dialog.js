@@ -153,12 +153,15 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
   };
 
   function makeMainDivHTML() {
+    var hint = self.user ? "********" : "";
     var html = "" +
     '<div>' +
     '<label for="editUserName">' + gettext("User name") + '</label><br>' +
     '<input id="editUserName" type="text" value="" class="input-xlarge"><br>' +
     '<label for="editPassword">' + gettext("Password") + '</label><br>' +
-    '<input id="editPassword" type="password" value="" class="input-xlarge"><br>' +
+    '<input id="editPassword" type="password" ' +
+    '       placeholder="' + escapeHTML(hint) + '" ' +
+    '       class="input-xlarge"><br>' +
     '<label>' + gettext("User role") + '</label><br>' +
     '<select id="selectUserRole" style="width: 12em;">' +
     '  <option value="' + hatohol.NONE_PRIVILEGE + '">' +
