@@ -559,6 +559,68 @@ class Receiver:
         receiver_process.start()
 
 
+class Dispatcher:
+    def __init__(self, rpc_queue):
+        self.__id_res_q_map = {}
+        self.__destination_q_map = {}
+        self.__dispatch_queue = multiprocessing.JoinableQueue()
+        self.__rpc_queue = rpc_queue
+
+    def attach_destination(self, queue, identifier):
+        self.__destination_q_map[identifier] = queue
+
+    def get_dispatch_queue(self):
+        return self.__dispatch_queue
+
+    def __acknowledge(self, message):
+        wait_id = message[1]
+        if wait_id in self.__id_res_q_map:
+            logging.error("Ignored duplicated ID: " + str(wait_id))
+            return
+
+        try:
+            target_queue = self.__destination_q_map[message[0]]
+        except KeyError:
+            msg = message[0] + " is not registered."
+            logging_error(msg)
+            return
+        self.__id_res_q_map[wait_id] = target_queue
+        target_queue.put(True)
+
+    def __is_expected_id_notification(self, contents):
+        return isinstance(contents, int)
+
+    def __dispatch(self):
+        message = self.__dispatch_queue.get()
+        source_process_id, contents = message
+        self.__dispatch_queue.task_done()
+
+        if self.__is_expected_id_notification(contents):
+            self.__acknowledge(message)
+            return
+
+        # Here 'message' must be a payload from the Receiver
+        if contents.error_code is not None:
+            self.__rpc_queue.put(contents)
+            return
+
+        # dispatch the received message to the caller.
+        response_id = contents.message_id
+        target_queue = self.__id_res_q_map.get(response_id, self.__rpc_queue)
+        target_queue.put(contents)
+        if target_queue != self.__rpc_queue:
+            del self.__id_res_q_map[response_id]
+
+    def __call__(self):
+        while True:
+            self.__dispatch()
+
+    def daemonize(self):
+        dispatch_process = multiprocessing.Process(target=self)
+        dispatch_process.daemon = True
+        dispatch_process.start()
+
+
 class Utils:
     # TODO: We need to specify custom validators
     # TODO: Check the maximum length
