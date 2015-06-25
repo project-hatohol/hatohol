@@ -401,15 +401,16 @@ class HapiProcessor(unittest.TestCase):
         self.assertIsNone(prev_host_group_membership)
         self.assertIsNone(event_last_info)
 
-    def test_set_ms_info(self):
+    def test_monitoring_server_info_set(self):
         exact_ms = "test_ms"
-        self.processor.set_ms_info(exact_ms)
+        self.processor.monitoring_sever_info = exact_ms
         result_ms = common.returnPrivObj(self.processor, "__ms_info")
         self.assertEquals(exact_ms, result_ms)
 
-    def test_get_ms_Info(self):
-        result_ms = self.processor.get_ms_info()
+    def test_monitoring_server_info_get(self):
         exact_ms = common.returnPrivObj(self.processor, "__ms_info")
+        exact_ms = "test_ms"
+        result_ms = self.processor.monitoring_server_info
         self.assertEquals(exact_ms, result_ms)
 
     def test_set_dispatch_queue(self):
