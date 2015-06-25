@@ -315,7 +315,7 @@ class Sender:
 Issue HAPI requests and responses.
 Some APIs blocks until the response is arrived.
 """
-class HapiProcessor:
+class HapiProcessor(object):
     def __init__(self, sender, process_id, component_code):
         self.__sender = sender
         self.__reply_queue = multiprocessing.Queue()
@@ -332,11 +332,13 @@ class HapiProcessor:
         self.__previous_host_group_membership = None
         self.__event_last_info = None
 
-    def set_ms_info(self, ms_info):
-        self.__ms_info = ms_info
-
-    def get_ms_info(self):
+    @property
+    def monitoring_server_info(self):
         return self.__ms_info
+
+    @monitoring_server_info.setter
+    def monitoring_server_info(self, value):
+        self.__ms_info = value
 
     def set_dispatch_queue(self, dispatch_queue):
         self.__dispatch_queue = dispatch_queue
