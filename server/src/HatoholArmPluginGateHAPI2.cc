@@ -386,10 +386,13 @@ void HatoholArmPluginGateHAPI2::start(void)
 }
 
 bool HatoholArmPluginGateHAPI2::parseTimeStamp(
-  const string &timeStampString, timespec &timeStamp)
+  const string &timeStampString, timespec &timeStamp, const bool allowEmpty)
 {
 	timeStamp.tv_sec = 0;
 	timeStamp.tv_nsec = 0;
+
+	if (timeStampString.empty())
+		return allowEmpty;
 
 	StringVector list;
 	StringUtils::split(list, timeStampString, '.', false);
@@ -424,12 +427,14 @@ bool HatoholArmPluginGateHAPI2::parseTimeStamp(
 }
 
 static bool parseTimeStamp(
-  JSONParser &parser, const string &member, timespec &timeStamp, JSONRPCError &errObj)
+  JSONParser &parser, const string &member, timespec &timeStamp, JSONRPCError &errObj,
+  const bool allowEmpty = false)
 {
 	string timeStampString;
 	PARSE_AS_MANDATORY(member.c_str(), timeStampString, errObj);
 	return HatoholArmPluginGateHAPI2::parseTimeStamp(timeStampString,
-							 timeStamp);
+							 timeStamp,
+							 allowEmpty);
 }
 
 bool HatoholArmPluginGateHAPI2::isFetchItemsSupported(void)
@@ -1546,8 +1551,9 @@ static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo,
 	}
 	PARSE_AS_MANDATORY("failureReason", armInfo.failureComment, errObj);
 	timespec successTime, failureTime;
-	parseTimeStamp(parser, "lastSuccessTime", successTime, errObj);
-	parseTimeStamp(parser, "lastFailureTime", failureTime, errObj);
+	const bool allowEmpty = true;
+	parseTimeStamp(parser, "lastSuccessTime", successTime, errObj, allowEmpty);
+	parseTimeStamp(parser, "lastFailureTime", failureTime, errObj, allowEmpty);
 	SmartTime lastSuccessTime(successTime);
 	SmartTime lastFailureTime(failureTime);
 	armInfo.statUpdateTime = SmartTime(SmartTime::INIT_CURR_TIME);

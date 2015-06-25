@@ -78,7 +78,8 @@ private:
 
 public:
 	static bool parseTimeStamp(const std::string &timeStampString,
-				   timespec &timeStamp);
+				   timespec &timeStamp,
+				   const bool allowEmpty = false);
 
 private:
 	struct Impl;

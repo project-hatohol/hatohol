@@ -126,6 +126,19 @@ void test_emptyTimeStamp(void) {
 			    timeStamp.tv_nsec);
 }
 
+void test_allowEmptyTimeStamp(void) {
+	const bool allowEmpty = true;
+	timespec timeStamp;
+	bool succeeded =
+	  HatoholArmPluginGateHAPI2::parseTimeStamp(string(), timeStamp,
+						    allowEmpty);
+	cppcut_assert_equal(true, succeeded);
+	cppcut_assert_equal(static_cast<time_t>(0),
+			    timeStamp.tv_sec);
+	cppcut_assert_equal(static_cast<long>(0),
+			    timeStamp.tv_nsec);
+}
+
 void test_invalidDateTime(void) {
 	timespec timeStamp;
 	bool succeeded =
