@@ -623,7 +623,7 @@ class Dispatcher:
 
 class BaseMainPlugin(HapiProcessor):
     __COMPONENT_CODE = 0x10
-    CB_NOTIFY_MONITORING_SERVER_INFO = 1
+    CB_UPDATE_MONITORING_SERVER_INFO = 1
 
     def __init__(self, transporter_args):
         self.__detect_implemented_procedures()
@@ -685,7 +685,7 @@ class BaseMainPlugin(HapiProcessor):
 
     def hap_update_monitoring_server_info(self, params):
         ms_info = MonitoringServerInfo(params)
-        self.__callback(self.CB_NOTIFY_MONITORING_SERVER_INFO, ms_info)
+        self.__callback(self.CB_UPDATE_MONITORING_SERVER_INFO, ms_info)
 
     def hap_return_error(self, error_code, response_id):
         self.__sender.error(error_code, response_id)
