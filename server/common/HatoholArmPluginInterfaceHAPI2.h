@@ -188,6 +188,8 @@ protected:
 	  const mlpl::StringList *detailedMessages = NULL,
 	  JSONParser *requestParser = NULL);
 	virtual void onSetPluginInitialInfo(void);
+	virtual void onConnect(void);
+	virtual void onConnectFailure(void);
 
 private:
 	class AMQPHAPI2MessageHandler;
