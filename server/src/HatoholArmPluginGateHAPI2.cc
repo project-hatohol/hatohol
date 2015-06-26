@@ -194,6 +194,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 				  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
 				return;
+			} else {
+				m_impl.setPluginConnectStatus(
+				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+				  HAPI2PluginErrorCode::OK);
 			}
 
 			JSONRPCError errObj;
@@ -207,6 +211,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 				  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
 
 				return;
+			} else {
+				m_impl.setPluginConnectStatus(
+				  HAPI2PluginCollectType::NG_HATOHOL_INTERNAL_ERROR,
+				  HAPI2PluginErrorCode::OK);
 			}
 
 			m_impl.setPluginConnectStatus(
