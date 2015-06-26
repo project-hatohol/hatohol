@@ -1233,6 +1233,10 @@ void cut_setup(void)
 		connectionInfo->setURL(url);
 		connectionInfo->setPublisherQueueName("test.1-S");
 		connectionInfo->setConsumerQueueName("test.1-T");
+		connection = AMQPConnection::create(*connectionInfo);
+		connection->connect();
+		connection->deleteAllQueues();
+		connection = NULL;
 		prepareDB(url);
 	} else {
 		connectionInfo = NULL;
