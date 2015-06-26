@@ -244,9 +244,6 @@ struct HatoholArmPluginGateHAPI2::Impl
 				  HAPI2PluginErrorCode::OK);
 			}
 
-			m_impl.setPluginConnectStatus(
-			  HAPI2PluginCollectType::NG_PLUGIN_CONNECT_ERROR,
-			  HAPI2PluginErrorCode::OK);
 			m_impl.m_hapi2.setEstablished(true);
 		}
 	};
@@ -1949,6 +1946,20 @@ void HatoholArmPluginGateHAPI2::onSetPluginInitialInfo(void)
 				  HTERR_FAILED_CONNECT_HAP2);
 
 	m_impl->createdSelfTriggers = true;
+}
+
+void HatoholArmPluginGateHAPI2::onConnect(void)
+{
+	m_impl->setPluginConnectStatus(
+	  HAPI2PluginCollectType::NG_PLUGIN_CONNECT_ERROR,
+	  HAPI2PluginErrorCode::OK);
+}
+
+void HatoholArmPluginGateHAPI2::onConnectFailure(void)
+{
+	m_impl->setPluginConnectStatus(
+	  HAPI2PluginCollectType::NG_PLUGIN_CONNECT_ERROR,
+	  HAPI2PluginErrorCode::NOT_FOUND_QUEUE_ADDR);
 }
 
 void HatoholArmPluginGateHAPI2::setPluginAvailableTrigger(
