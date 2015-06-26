@@ -1743,7 +1743,7 @@ void HatoholArmPluginGateHAPI2::onSetPluginInitialInfo(void)
 
 	setPluginAvailableTrigger(HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 				  FAILED_CONNECT_BROKER_TRIGGER_ID,
-				  HTERR_FAILED_CONNECT_BROKER);
+				  HTERR_INVALID_PBJECT_PASSED_BY_HAP2);
 	setPluginAvailableTrigger(HAPI2PluginCollectType::NG_HATOHOL_INTERNAL_ERROR,
 				  FAILED_INTERNAL_ERROR_TRIGGER_ID,
 				  HTERR_INTERNAL_ERROR);
