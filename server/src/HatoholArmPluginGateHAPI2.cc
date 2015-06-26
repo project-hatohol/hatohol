@@ -1731,6 +1731,18 @@ void HatoholArmPluginGateHAPI2::upsertLastInfo(string lastInfoValue, LastInfoTyp
 	dbLastInfo.upsertLastInfo(lastInfo, privilege);
 }
 
+void HatoholArmPluginGateHAPI2::updateSelfMonitoringTrigger(
+  bool hasError,
+  const HAPI2PluginCollectType &type,
+  const HAPI2PluginErrorCode &errorCode)
+{
+	if (hasError) {
+		m_impl->setPluginConnectStatus(type, errorCode);
+	} else {
+		m_impl->setPluginConnectStatus(type, HAPI2PluginErrorCode::OK);
+	}
+}
+
 void HatoholArmPluginGateHAPI2::onSetPluginInitialInfo(void)
 {
 	if (m_impl->createdSelfTriggers)

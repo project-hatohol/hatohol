@@ -61,6 +61,9 @@ public:
 protected:
 	virtual ~HatoholArmPluginGateHAPI2();
 	void upsertLastInfo(std::string lastInfoValue, LastInfoType type);
+	void updateSelfMonitoringTrigger(bool hasError,
+	                                 const HAPI2PluginCollectType &type,
+	                                 const HAPI2PluginErrorCode &errorCode);
 
 private:
 	std::string procedureHandlerExchangeProfile(JSONParser &parser);
