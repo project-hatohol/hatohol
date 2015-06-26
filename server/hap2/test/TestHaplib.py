@@ -596,6 +596,92 @@ class Dispatcher(unittest.TestCase):
         common.assertNotRaises(dispatch)
 
 
+class BaseMainPlugin(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        transporter_args = {"class": transporter.Transporter}
+        cls.__main_plugin = haplib.BaseMainPlugin(transporter_args)
+
+    def test_hap_update_monitoring_server_info(self):
+        test_params = {"serverId": None, "url": None, "nickName": None,
+                       "userName": None, "password": None,
+                       "pollingIntervalSec": None, "retryIntervalSec": None,
+                       "extendedInfo": None, "type": None}
+        common.assertNotRaises(self.__main_plugin.hap_update_monitoring_server_info,
+                               test_params)
+
+    def test_return_error(self):
+        common.assertNotRaises(self.__main_plugin.hap_return_error, -32700, 1)
+
+    def test_register_callback(self):
+        common.assertNotRaises(self.__main_plugin.register_callback,
+                               "test_code", "test_handler")
+
+    def test_detect_implemented_procedures(self):
+        detect_implemented_procedures = common.returnPrivObj(self.__main_plugin,
+                                            "__detect_implemented_procedures")
+        detect_implemented_procedures()
+        implemented_procedures = common.returnPrivObj(self.__main_plugin,
+                                                      "__implemented_procedures")
+        self.assertEquals({"exchangeProfile": self.__main_plugin.hap_exchange_profile,
+                           "updateMonitoringServerInfo": self.__main_plugin.hap_update_monitoring_server_info},
+                           implemented_procedures)
+
+    def test_get_sender(self):
+        sender = common.returnPrivObj(self.__main_plugin, "__sender")
+        self.assertEquals(sender, self.__main_plugin.get_sender())
+
+    def test_set_sender(self):
+        test_sender = "test_sender"
+        self.__main_plugin.set_sender(test_sender)
+        sender = common.returnPrivObj(self.__main_plugin, "__sender")
+        self.assertEquals(test_sender, sender)
+
+    def test_get_dispatcher(self):
+        dispatcher = common.returnPrivObj(self.__main_plugin, "__dispatcher")
+        self.assertEquals(dispatcher, self.__main_plugin.get_dispatcher())
+
+    def test_exchange_profile(self):
+        self.__main_plugin._HapiProcessor__reply_queue = DummyQueue()
+        self.__main_plugin.set_dispatch_queue(DummyQueue())
+        self.__main_plugin._HapiProcessor__dispatcher = DispatcherForTest()
+        try:
+            self.__main_plugin.exchange_profile()
+        except Exception as exception:
+            self.assertEquals("Got", str(exception)[0:3])
+
+    def test_hap_exchange_profile(self):
+        self.__main_plugin._HapiProcessor__reply_queue = DummyQueue()
+        self.__main_plugin.set_dispatch_queue(DummyQueue())
+        self.__main_plugin._HapiProcessor__dispatcher = DispatcherForTest()
+        try:
+            self.__main_plugin.exchange_profile()
+        except Exception as exception:
+            self.assertEquals("Got", str(exception)[0:3])
+
+    def test_request_exit(self):
+        common.assertNotRaises(self.__main_plugin.request_exit)
+
+    def test_is_exit_request(self):
+        self.assertTrue(self.__main_plugin.is_exit_request(None))
+
+    def test_start_receiver(self):
+        common.assertNotRaises(self.__main_plugin.start_receiver)
+
+    def test_start_dispatcher(self):
+        self.__main_plugin._HapiProcessor__dispatcher = DispatcherForTest()
+        common.assertNotRaises(self.__main_plugin.start_dispatcher)
+
+    def test_call(self):
+        self.__main_plugin._HapiProcessor__reply_queue = DummyQueue()
+        self.__main_plugin.set_dispatch_queue(DummyQueue())
+        self.__main_plugin._HapiProcessor__dispatcher = DispatcherForTest()
+        try:
+            self.__main_plugin.exchange_profile()
+        except Exception as exception:
+            self.assertEquals("Got", str(exception)[0:3])
+
+
 class ConnectorForTest(transporter.Transporter):
     def __init__(self, test_queue):
         self.__test_queue = test_queue
