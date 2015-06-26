@@ -632,7 +632,7 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchEvents(
 // ---------------------------------------------------------------------------
 HatoholArmPluginGateHAPI2::~HatoholArmPluginGateHAPI2()
 {
-	stopInterface();
+	stop();
 }
 
 const MonitoringServerInfo &
