@@ -722,7 +722,7 @@ class DummyQueue:
     def __init__(self):
         self.counter = int()
 
-    def put(self, test_tuple):
+    def put(self, test_tuple, block=True):
         pass
 
     def join(self):
@@ -734,6 +734,14 @@ class DummyQueue:
             return True
         elif self.counter == 1:
             return haplib.ParsedMessage()
+
+
+class DummyCommandQueue:
+    def get(self):
+        pass
+
+    def put(block=True):
+        pass
 
 
 class DispatcherForTest(haplib.Dispatcher):
