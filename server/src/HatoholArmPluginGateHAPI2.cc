@@ -822,15 +822,15 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 {
 	ItemIdType itemId = "";
 	PARSE_AS_MANDATORY("itemId", itemId, errObj);
-	CHECK_MANDATORY_ARRAY_EXISTENCE("histories", errObj);
-	parser.startObject("histories");
+	CHECK_MANDATORY_ARRAY_EXISTENCE("samples", errObj);
+	parser.startObject("samples");
 	size_t num = parser.countElements();
 
 	for (size_t j = 0; j < num; j++) {
 		if (!parser.startElement(j)) {
-			MLPL_ERR("Failed to parse histories contents.\n");
-			errObj.addError("Failed to parse histories array object.");
-			parser.endObject(); // histories
+			MLPL_ERR("Failed to parse samples contents.\n");
+			errObj.addError("Failed to parse samples array object.");
+			parser.endObject(); // samples
 			return false;
 		}
 
@@ -843,7 +843,7 @@ static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoV
 
 		historyInfoVect.push_back(historyInfo);
 	}
-	parser.endObject(); // histories
+	parser.endObject(); // samples
 	return true;
 };
 

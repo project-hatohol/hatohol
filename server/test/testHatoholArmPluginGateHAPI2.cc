@@ -473,7 +473,7 @@ void test_procedureHandlerPutHistory(void)
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
 		" \"params\":{\"itemId\":\"1\","
-		" \"histories\":[{\"value\":\"exampleValue\","
+		" \"samples\":[{\"value\":\"exampleValue\","
 		" \"time\":\"20150323113032.000000000\"},"
 		"{\"value\":\"exampleValue2\",\"time\":\"20150323113033.000000000\"}],"
 		" \"fetchId\":\"1\"}, \"id\":-83241245}";
@@ -492,7 +492,7 @@ void test_procedureHandlerPutHistoryInvalidJSON(void)
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
 		" \"params\":{\"itemId\":\"1\","
-		" \"histories\":[{"
+		" \"samples\":[{"
 		" \"time\":\"20150323113032.000000000\"},"
 		"{\"value\":\"exampleValue2\",\"time\":\"20150323113033.000000000\"}],"
 		" \"fetchId\":\"1\"}, \"id\":-83241245}";
@@ -1686,7 +1686,7 @@ void test_fetchHistoryCallback(void)
 	string putHistoryJSON = StringUtils::sprintf(
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
 		" \"params\":{\"itemId\":\"%" FMT_ITEM_ID "\","
-		" \"histories\":[{\"value\":\"exampleValue\","
+		" \"samples\":[{\"value\":\"exampleValue\","
 		" \"time\":\"20150323113032.000000000\"},"
 		"{\"value\":\"exampleValue2\",\"time\":\"20150323113033.000000000\"}],"
 		" \"fetchId\":\"%s\"}, \"id\":%" PRId64 "}",
