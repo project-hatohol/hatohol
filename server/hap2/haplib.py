@@ -730,6 +730,111 @@ class BaseMainPlugin(HapiProcessor):
                 args.append(request_id)
             procedure(*args)
 
+
+class BasePoller(HapiProcessor):
+    __COMPONENT_CODE = 0x20
+    __CMD_MONITORING_SERVER_INFO = 1
+
+    def __init__(self, *args, **kwargs):
+        HapiProcessor.__init__(self, kwargs["sender"], kwargs["process_id"],
+                               self.__COMPONENT_CODE)
+
+        self.__pollingInterval = 30
+        self.__retryInterval = 10
+        self.__command_queue = CommandQueue()
+        self.__command_queue.register(self.__CMD_MONITORING_SERVER_INFO,
+                                      self.__set_ms_info)
+
+    def poll(self):
+       ctx = self.poll_setup()
+       self.poll_hosts()
+       self.poll_host_groups()
+       self.poll_host_group_membership()
+       self.poll_triggers()
+       self.poll_events()
+
+    def get_command_queue(self):
+        return self.__command_queue
+
+    def poll_setup(self):
+        return None
+
+    def poll_hosts(self):
+        pass
+
+    def poll_host_groups(self):
+        pass
+
+    def poll_host_group_membership(self):
+        pass
+
+    def poll_triggers(self):
+        pass
+
+    def poll_events(self):
+        pass
+
+    def on_aborted_poll(self):
+        pass
+
+    def set_ms_info(self, ms_info):
+        self.__command_queue.push(self.__CMD_MONITORING_SERVER_INFO, ms_info)
+
+    def __set_ms_info(self, ms_info):
+        HapiProcessor.set_ms_info(self, ms_info)
+        self.__pollingInterval = ms_info.polling_interval_sec
+        self.__retryInterval = ms_info.retry_interval_sec
+        logging.info("Polling inverval: %d/%d",
+                     self.__pollingInterval, self.__retryInterval)
+        raise Signal(restart=True)
+
+    def __call__(self):
+        arm_info = ArmInfo()
+        while (True):
+            self.__poll_in_try_block(arm_info)
+
+    def __poll_in_try_block(self, arm_info):
+        succeeded = False
+        failure_reason = ""
+        try:
+            self.__command_queue.pop_all()
+            self.poll()
+            succeeded = True
+        except:
+            exctype, value = handle_exception()
+            if exctype is Signal:
+                if value.restart:
+                    return
+            else:
+                failure_reason = "%s, %s" % (exctype, value)
+
+        if succeeded:
+            sleep_time = self.__pollingInterval
+
+            arm_info.last_status = "OK"
+            arm_info.last_success_time = Utils.get_current_hatohol_time()
+            arm_info.num_success += 1
+        else:
+            sleep_time = self.__retryInterval
+            self.on_aborted_poll()
+
+            arm_info.last_status = "NG"
+            arm_info.last_failure_time = Utils.get_current_hatohol_time()
+            arm_info.num_failure += 1
+
+        # Send ArmInfo
+        try:
+            arm_info.failure_reason = failure_reason
+            self.put_arm_info(arm_info)
+        except:
+            handle_exception()
+
+        try:
+            self.__command_queue.wait(sleep_time)
+        except:
+            handle_exception()
+
+
 class Utils:
     # TODO: We need to specify custom validators
     # TODO: Check the maximum length
