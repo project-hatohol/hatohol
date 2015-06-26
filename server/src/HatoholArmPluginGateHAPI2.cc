@@ -354,7 +354,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 		} else {
 			status = TRIGGER_STATUS_UNKNOWN;
 		}
-		m_utils.updateTriggerStatus(static_cast<size_t>(type), status);
+		size_t typeIdx = static_cast<size_t>(type);
+		m_utils.updateTriggerStatus(typeIdx, status);
 	}
 };
 
@@ -1764,11 +1765,12 @@ void HatoholArmPluginGateHAPI2::setPluginAvailableTrigger(
   const HatoholError &hatoholError)
 {
 	TriggerInfoList triggerInfoList;
-	m_impl->m_armTrigger[static_cast<int>(type)].status = TRIGGER_STATUS_UNKNOWN;
-	m_impl->m_armTrigger[static_cast<int>(type)].triggerId = triggerId;
-	m_impl->m_armTrigger[static_cast<int>(type)].msg = hatoholError.getMessage().c_str();
+	int typeIdx = static_cast<int>(type);
+	m_impl->m_armTrigger[typeIdx].status = TRIGGER_STATUS_UNKNOWN;
+	m_impl->m_armTrigger[typeIdx].triggerId = triggerId;
+	m_impl->m_armTrigger[typeIdx].msg = hatoholError.getMessage().c_str();
 
-	ArmUtils::ArmTrigger &armTrigger = m_impl->m_armTrigger[static_cast<int>(type)];
+	ArmUtils::ArmTrigger &armTrigger = m_impl->m_armTrigger[typeIdx];
 	m_impl->m_utils.createTrigger(armTrigger, triggerInfoList);
 
 	ThreadLocalDBCache cache;
