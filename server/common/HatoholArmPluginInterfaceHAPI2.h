@@ -125,7 +125,7 @@ enum class HAPI2PluginCollectType {
 
 enum class HAPI2PluginErrorCode {
 	OK,
-	NOT_FOUND_QUEUE_ADDR,
+	HAP2_CONNECTION_UNAVAILABLE,
 	UNAVAILABLE_HAP2,
 	UNKNOWN,
 };

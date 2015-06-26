@@ -1762,7 +1762,7 @@ void HatoholArmPluginGateHAPI2::onConnectFailure(void)
 {
 	m_impl->setPluginConnectStatus(
 	  HAPI2PluginCollectType::NG_PLUGIN_CONNECT_ERROR,
-	  HAPI2PluginErrorCode::NOT_FOUND_QUEUE_ADDR);
+	  HAPI2PluginErrorCode::HAP2_CONNECTION_UNAVAILABLE);
 }
 
 void HatoholArmPluginGateHAPI2::setPluginAvailableTrigger(
