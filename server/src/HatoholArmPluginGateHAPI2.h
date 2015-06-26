@@ -66,6 +66,14 @@ protected:
 	void updateSelfMonitoringTrigger(bool hasError,
 	                                 const HAPI2PluginCollectType &type,
 	                                 const HAPI2PluginErrorCode &errorCode);
+	virtual void onSetPluginInitialInfo(void) override;
+	virtual void onConnect(void) override;
+	virtual void onConnectFailure(void) override;
+	void setPluginAvailableTrigger(const HAPI2PluginCollectType &type,
+				       const TriggerIdType &trrigerId,
+				       const HatoholError &hatoholError);
+	void setPluginConnectStatus(const HAPI2PluginCollectType &type,
+				    const HAPI2PluginErrorCode &errorCode);
 
 private:
 	std::string procedureHandlerExchangeProfile(JSONParser &parser);
@@ -85,14 +93,6 @@ public:
 	static bool parseTimeStamp(const std::string &timeStampString,
 				   timespec &timeStamp,
 				   const bool allowEmpty = false);
-	virtual void onSetPluginInitialInfo(void) override;
-	virtual void onConnect(void) override;
-	virtual void onConnectFailure(void) override;
-	void setPluginAvailableTrigger(const HAPI2PluginCollectType &type,
-				       const TriggerIdType &trrigerId,
-				       const HatoholError &hatoholError);
-	void setPluginConnectStatus(const HAPI2PluginCollectType &type,
-				    const HAPI2PluginErrorCode &errorCode);
 
 private:
 	struct Impl;
