@@ -384,6 +384,17 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		return false;
 	}
 
+	void stopInterface(void)
+	{
+		if (m_consumer) {
+			m_consumer->exitSync();
+			delete m_consumer;
+			m_consumer = nullptr;
+		}
+		delete m_handler;
+		m_handler = nullptr;
+	}
+
 	void onConnect(void)
 	{
 	}
@@ -401,6 +412,11 @@ HatoholArmPluginInterfaceHAPI2::HatoholArmPluginInterfaceHAPI2(
 
 HatoholArmPluginInterfaceHAPI2::~HatoholArmPluginInterfaceHAPI2()
 {
+}
+
+void HatoholArmPluginInterfaceHAPI2::stopInterface(void)
+{
+	m_impl->stopInterface();
 }
 
 void HatoholArmPluginInterfaceHAPI2::setArmPluginInfo(
