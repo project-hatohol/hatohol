@@ -84,7 +84,7 @@ PROCEDURES_DEFS = {
             "fetchId": {"type": unicode(), "mandatory": True}
         }
     },
-    "notifyMonitoringServerInfo": {
+    "updateMonitoringServerInfo": {
         "notification": True,
         "args": {}  # TODO: fill content
     },
@@ -620,6 +620,115 @@ class Dispatcher:
         dispatch_process.daemon = True
         dispatch_process.start()
 
+
+class BaseMainPlugin(HapiProcessor):
+    __COMPONENT_CODE = 0x10
+    CB_UPDATE_MONITORING_SERVER_INFO = 1
+
+    def __init__(self, transporter_args):
+        self.__detect_implemented_procedures()
+        self.__sender = Sender(transporter_args)
+        self.__rpc_queue = multiprocessing.Queue()
+        HapiProcessor.__init__(self, self.__sender, "Main",
+                               self.__COMPONENT_CODE)
+        self.__callback = Callback()
+
+        # launch dispatcher process
+        self.__dispatcher = Dispatcher(self.__rpc_queue)
+        self.__dispatcher.attach_destination(self.get_reply_queue(), "Main")
+        dispatch_queue = self.__dispatcher.get_dispatch_queue()
+        self.set_dispatch_queue(dispatch_queue)
+
+        # launch receiver process
+        self.__receiver = Receiver(transporter_args,
+                                   dispatch_queue,
+                                   self.__implemented_procedures)
+
+    def register_callback(self, code, arg):
+        self.__callback.register(code, arg)
+
+    def __detect_implemented_procedures(self):
+        PROCEDURES_MAP = {
+            "hap_exchange_profile": "exchangeProfile",
+            "hap_fetch_items":      "fetchItems",
+            "hap_fetch_history":    "fetchHistory",
+            "hap_fetch_triggers":   "fetchTriggers",
+            "hap_fetch_events":     "fetchEvents",
+            "hap_update_monitoring_server_info": "updateMonitoringServerInfo",
+        }
+        implement = {}
+        for func_name in dir(self):
+            procedure_name = PROCEDURES_MAP.get(func_name)
+            if procedure_name is None:
+                continue
+            implement[procedure_name] = eval("self.%s" % func_name)
+            logging.info("Detected procedure: %s" % func_name)
+        self.__implemented_procedures = implement
+
+    def get_sender(self):
+        return self.__sender
+
+    def set_sender(self, sender):
+        self.__sender = sender
+
+    def get_dispatcher(self):
+        return self.__dispatcher
+
+    def exchange_profile(self, response_id=None):
+        HapiProcessor.exchange_profile(
+            self, self.__implemented_procedures.keys(), response_id=response_id)
+
+    def hap_exchange_profile(self, params, request_id):
+        Utils.optimize_server_procedures(SERVER_PROCEDURES,
+                                         params["procedures"])
+        self.exchange_profile(response_id=request_id)
+
+    def hap_update_monitoring_server_info(self, params):
+        ms_info = MonitoringServerInfo(params)
+        self.__callback(self.CB_UPDATE_MONITORING_SERVER_INFO, ms_info)
+
+    def hap_return_error(self, error_code, response_id):
+        self.__sender.error(error_code, response_id)
+
+    def request_exit(self):
+        """
+        Request to exit main loop that is started by __call__().
+        """
+        self.__rpc_queue.put(None)
+
+    def is_exit_request(self, request):
+        return request is None
+
+    def start_receiver(self):
+        """
+        Launch the process for receiving data from the transporter.
+        This method shall be called once before calling __call__().
+        """
+        self.__receiver.daemonize()
+
+    def start_dispatcher(self):
+        self.__dispatcher.daemonize()
+
+    def __call__(self):
+        while True:
+            msg = self.__rpc_queue.get()
+            if self.is_exit_request(msg):
+                return
+
+            if msg.error_code is not None:
+                self.hap_return_error(msg.error_code, msg.message_id)
+                logging.error(msg.get_error_message())
+                continue
+
+            # TODO check if there are necessary parameters.
+            # Or should return error
+            request = msg.message_dict
+            procedure = self.__implemented_procedures[request["method"]]
+            args = [request.get("params")]
+            request_id = msg.message_id
+            if request_id is not None:
+                args.append(request_id)
+            procedure(*args)
 
 class Utils:
     # TODO: We need to specify custom validators
