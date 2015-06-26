@@ -689,6 +689,91 @@ class BaseMainPlugin(unittest.TestCase):
             self.assertEquals("Got", str(exception)[0:3])
 
 
+class BasePoller(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        transporter_args = {"class": transporter.Transporter}
+        cls.sender = haplib.Sender(transporter_args)
+        cls.poller = haplib.BasePoller(sender=cls.sender, process_id="test")
+
+    def test_poll(self):
+        common.assertNotRaises(self.poller.poll)
+
+    def test_get_command_queue(self):
+        command_queue = common.returnPrivObj(self.poller, "__command_queue")
+        self.assertEquals(command_queue, self.poller.get_command_queue())
+
+    def test_poll_setup(self):
+        common.assertNotRaises(self.poller.poll_setup)
+
+    def test_poll_hosts(self):
+        common.assertNotRaises(self.poller.poll_hosts)
+
+    def test_poll_host_groups(self):
+        common.assertNotRaises(self.poller.poll_host_groups)
+
+    def test_poll_host_group_membership(self):
+        common.assertNotRaises(self.poller.poll_host_group_membership)
+
+    def test_poll_triggers(self):
+        common.assertNotRaises(self.poller.poll_triggers)
+
+    def test_poll_events(self):
+        common.assertNotRaises(self.poller.poll_events)
+
+    def test_on_aboted_poll(self):
+        common.assertNotRaises(self.poller.on_aborted_poll)
+
+    def test_set_ms_info(self):
+        ms_info = ("test_ms_info")
+        self.poller.set_ms_info(ms_info)
+        command_queue = common.returnPrivObj(self.poller, "__command_queue")
+        q = common.returnPrivObj(command_queue, "__q")
+        self.assertEquals((1, ms_info), q.get())
+
+    def test_private_set_ms_info(self):
+        set_ms_info = common.returnPrivObj(self.poller, "__set_ms_info")
+        test_params = {"serverId": None, "url": None, "nickName": None,
+                       "userName": None, "password": None,
+                       "pollingIntervalSec": None, "retryIntervalSec": None,
+                       "extendedInfo": None, "type": None}
+        ms_info = haplib.MonitoringServerInfo(test_params)
+        try:
+            set_ms_info(ms_info)
+            raise
+        except haplib.Signal:
+            pass
+
+    def test_call(self):
+        class TestError:
+            pass
+
+        def __poll_in_try_block(self):
+            raise TestError
+
+        org_func = self.poller._BasePoller__poll_in_try_block
+        self.poller._BasePoller__poll_in_try_block = __poll_in_try_block
+
+        try:
+            self.poller.__call__()
+        except TestError:
+            self.poller._BasePoller__poll_in_try_block = org_func
+        except Exception:
+            raise
+
+    def test_poll_in_block(self):
+        poll_in_try_block = common.returnPrivObj(self.poller,
+                                                 "__poll_in_try_block")
+        arm_info = haplib.ArmInfo()
+        self.poller.set_dispatch_queue(DummyQueue())
+        self.poller._HapiProcessor__reply_queue = DummyQueue()
+        org_q = self.poller._BasePoller__command_queue._CommandQueue__q
+        self.poller._BasePoller__command_queue._CommandQueue__q =\
+                                                        DummyCommandQueue()
+        common.assertNotRaises(poll_in_try_block, arm_info)
+        self.poller._BasePoller__command_queue._CommandQueue__q = org_q
+
+
 class ConnectorForTest(transporter.Transporter):
     def __init__(self, test_queue):
         self.__test_queue = test_queue
