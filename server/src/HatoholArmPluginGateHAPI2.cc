@@ -234,13 +234,13 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 			if (errObj.hasErrors()) {
 				m_impl.setPluginConnectStatus(
-				  HAPI2PluginCollectType::NG_HATOHOL_INTERNAL_ERROR,
+				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 				  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
 
 				return;
 			} else {
 				m_impl.setPluginConnectStatus(
-				  HAPI2PluginCollectType::NG_HATOHOL_INTERNAL_ERROR,
+				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 				  HAPI2PluginErrorCode::OK);
 			}
 
