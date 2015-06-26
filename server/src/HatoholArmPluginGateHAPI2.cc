@@ -93,13 +93,13 @@ struct HatoholArmPluginGateHAPI2::Impl
 	// We have a copy. The access to the object is MT-safe.
 	const MonitoringServerInfo m_serverInfo;
 
-	ArmUtils utils;
+	ArmUtils m_utils;
 	ArmUtils::ArmTrigger armTrigger[static_cast<int>(HAPI2PluginCollectType::NUM_COLLECT_NG_KIND)];
 	HatoholArmPluginGateHAPI2 &m_hapi2;
 	ArmPluginInfo m_pluginInfo;
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
-	bool createdSelfTriggers;
+	bool m_createdSelfTriggers;
 	string m_pluginProcessName;
 	set<string> m_supportedProcedureNameSet;
 	HostInfoCache hostInfoCache;
@@ -109,11 +109,11 @@ struct HatoholArmPluginGateHAPI2::Impl
 	Impl(const MonitoringServerInfo &_serverInfo,
 	     HatoholArmPluginGateHAPI2 &hapi2)
 	: m_serverInfo(_serverInfo),
-	  utils(_serverInfo, armTrigger, static_cast<int>(HAPI2PluginCollectType::NUM_COLLECT_NG_KIND)),
+	  m_utils(_serverInfo, armTrigger, static_cast<int>(HAPI2PluginCollectType::NUM_COLLECT_NG_KIND)),
 	  m_hapi2(hapi2),
 	  m_armFake(m_serverInfo),
 	  m_armStatus(),
-	  createdSelfTriggers(false),
+	  m_createdSelfTriggers(false),
 	  hostInfoCache(&_serverInfo.id)
 	{
 		ArmPluginInfo::initialize(m_pluginInfo);
@@ -354,7 +354,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		} else {
 			status = TRIGGER_STATUS_UNKNOWN;
 		}
-		utils.updateTriggerStatus(static_cast<size_t>(type), status);
+		m_utils.updateTriggerStatus(static_cast<size_t>(type), status);
 	}
 };
 
@@ -1725,11 +1725,11 @@ void HatoholArmPluginGateHAPI2::updateSelfMonitoringTrigger(
 
 void HatoholArmPluginGateHAPI2::onSetPluginInitialInfo(void)
 {
-	if (m_impl->createdSelfTriggers)
+	if (m_impl->m_createdSelfTriggers)
 		return;
 
-	m_impl->utils.registerSelfMonitoringHost();
-	m_impl->utils.initializeArmTriggers();
+	m_impl->m_utils.registerSelfMonitoringHost();
+	m_impl->m_utils.initializeArmTriggers();
 
 	setPluginAvailableTrigger(HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 				  FAILED_CONNECT_BROKER_TRIGGER_ID,
@@ -1741,7 +1741,7 @@ void HatoholArmPluginGateHAPI2::onSetPluginInitialInfo(void)
 				  FAILED_CONNECT_HAP2_TRIGGER_ID,
 				  HTERR_FAILED_CONNECT_HAP2);
 
-	m_impl->createdSelfTriggers = true;
+	m_impl->m_createdSelfTriggers = true;
 }
 
 void HatoholArmPluginGateHAPI2::onConnect(void)
@@ -1769,7 +1769,7 @@ void HatoholArmPluginGateHAPI2::setPluginAvailableTrigger(
 	m_impl->armTrigger[static_cast<int>(type)].msg = hatoholError.getMessage().c_str();
 
 	ArmUtils::ArmTrigger &armTrigger = m_impl->armTrigger[static_cast<int>(type)];
-	m_impl->utils.createTrigger(armTrigger, triggerInfoList);
+	m_impl->m_utils.createTrigger(armTrigger, triggerInfoList);
 
 	ThreadLocalDBCache cache;
 	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
