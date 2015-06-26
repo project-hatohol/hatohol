@@ -81,6 +81,8 @@ public:
 				   timespec &timeStamp,
 				   const bool allowEmpty = false);
 	virtual void onSetPluginInitialInfo(void) override;
+	virtual void onConnect(void) override;
+	virtual void onConnectFailure(void) override;
 	void setPluginAvailableTrigger(const HAPI2PluginCollectType &type,
 				       const TriggerIdType &trrigerId,
 				       const HatoholError &hatoholError);
