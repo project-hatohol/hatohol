@@ -531,8 +531,7 @@ class Receiver(unittest.TestCase):
     def test_daemonize(self):
         common.assertNotRaises(self.receiver.daemonize)
 
-# Dispatcher __call__ and daemonize is infinite loop function.
-# So, I skip these function test.
+
 class Dispatcher(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -594,6 +593,14 @@ class Dispatcher(unittest.TestCase):
         common.assertNotRaises(acknowledge, test_message)
         dispatch = common.returnPrivObj(self.__dispatcher, "__dispatch")
         common.assertNotRaises(dispatch)
+
+    def test_daemonize(self):
+        dispatcher = DispatcherForTest()
+        common.assertNotRaises(dispatcher.daemonize)
+
+    def test_call(self):
+        dispatcher = DispatcherForTest()
+        common.assertNotRaises(dispatcher)
 
 
 class BaseMainPlugin(unittest.TestCase):
