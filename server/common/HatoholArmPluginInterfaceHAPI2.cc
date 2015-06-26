@@ -384,7 +384,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		return false;
 	}
 
-	void stopInterface(void)
+	void stop(void)
 	{
 		if (m_consumer) {
 			m_consumer->exitSync();
@@ -414,9 +414,9 @@ HatoholArmPluginInterfaceHAPI2::~HatoholArmPluginInterfaceHAPI2()
 {
 }
 
-void HatoholArmPluginInterfaceHAPI2::stopInterface(void)
+void HatoholArmPluginInterfaceHAPI2::stop(void)
 {
-	m_impl->stopInterface();
+	m_impl->stop();
 }
 
 void HatoholArmPluginInterfaceHAPI2::setArmPluginInfo(

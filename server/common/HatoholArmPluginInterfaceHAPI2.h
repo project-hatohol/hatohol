@@ -159,7 +159,7 @@ protected:
 	typedef std::map<HAPI2ProcedureName, ProcedureHandler> ProcedureHandlerMap;
 
 	virtual ~HatoholArmPluginInterfaceHAPI2();
-	void stopInterface(void);
+	void stop(void);
 
 	void setArmPluginInfo(const ArmPluginInfo &pluginInfo);
 	std::mt19937 getRandomEngine(void);
