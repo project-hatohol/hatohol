@@ -719,8 +719,26 @@ class ConnectorForTest(transporter.Transporter):
 
 
 class DummyQueue:
+    def __init__(self):
+        self.counter = int()
+
     def put(self, test_tuple):
         pass
 
     def join(self):
+        pass
+
+    def get(self, boolean, timeout_sec):
+        if self.counter == 0:
+            self.counter += 1
+            return True
+        elif self.counter == 1:
+            return haplib.ParsedMessage()
+
+
+class DispatcherForTest(haplib.Dispatcher):
+    def __init__(self):
+        pass
+
+    def __call__(self):
         pass
