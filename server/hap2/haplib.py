@@ -248,6 +248,9 @@ class CommandQueue(Callback):
 
 
 class MonitoringServerInfo:
+    EXTENDED_INFO_RAW  = 0
+    EXTENDED_INFO_JSON = 1
+
     def __init__(self, ms_info_dict):
         self.server_id = ms_info_dict["serverId"]
         self.url = ms_info_dict["url"]
@@ -258,6 +261,13 @@ class MonitoringServerInfo:
         self.polling_interval_sec = ms_info_dict["pollingIntervalSec"]
         self.retry_interval_sec = ms_info_dict["retryIntervalSec"]
         self.extended_info = ms_info_dict["extendedInfo"]
+
+    def get_extended_info(self, type=EXTENDED_INFO_RAW):
+        handlers = {
+            self.EXTENDED_INFO_RAW: lambda ext: ext,
+            self.EXTENDED_INFO_JSON: lambda ext: json.loads(ext),
+        }
+        return handlers[type](self.extended_info)
 
 
 class ParsedMessage:

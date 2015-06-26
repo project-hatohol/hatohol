@@ -118,28 +118,43 @@ class CommandQueue(unittest.TestCase):
 
 
 class MonitoringServerInfo(unittest.TestCase):
-    def test_create(self):
-        info_dict = {
-            "serverId": 10,
-            "url": "http://who@where:foo/hoge",
-            "type": "8e632c14-d1f7-11e4-8350-d43d7e3146fb",
-            "nickName": "carrot",
-            "userName": "ninjin",
-            "password": "radish",
-            "pollingIntervalSec": 30,
-            "retryIntervalSec": 15,
-            "extendedInfo": "Time goes by."
-        }
+    INFO_DICT = {
+        "serverId": 10,
+        "url": "http://who@where:foo/hoge",
+        "type": "8e632c14-d1f7-11e4-8350-d43d7e3146fb",
+        "nickName": "carrot",
+        "userName": "ninjin",
+        "password": "radish",
+        "pollingIntervalSec": 30,
+        "retryIntervalSec": 15,
+        "extendedInfo": '{"title": "Time goes by.", "number": 101}'
+    }
 
+    def test_create(self):
         key_map = {}
-        for key in info_dict.keys():
+        for key in self.INFO_DICT.keys():
             snake = re.sub("([A-Z])", lambda x: "_" + x.group(1).lower(), key)
             key_map[key] = snake
 
-        ms_info = haplib.MonitoringServerInfo(info_dict)
-        for key, val in info_dict.items():
+        ms_info = haplib.MonitoringServerInfo(self.INFO_DICT)
+        for key, val in self.INFO_DICT.items():
             actual = eval("ms_info.%s" % key_map[key])
             self.assertEquals(actual, val)
+
+    def test_get_extended_info_raw(self):
+        type = haplib.MonitoringServerInfo.EXTENDED_INFO_RAW
+        expect = self.INFO_DICT["extendedInfo"]
+        self.__assert_get_extended_info(type, expect)
+
+    def test_get_extended_info_json(self):
+        type = haplib.MonitoringServerInfo.EXTENDED_INFO_JSON
+        expect = {"title": "Time goes by.", "number": 101}
+        self.__assert_get_extended_info(type, expect)
+
+    def __assert_get_extended_info(self, type, expect):
+        ms_info = haplib.MonitoringServerInfo(self.INFO_DICT)
+        ext = ms_info.get_extended_info(type)
+        self.assertEquals(ext, expect)
 
 
 class ParsedMessage(unittest.TestCase):
