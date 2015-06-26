@@ -130,7 +130,6 @@ describe('LatestView', function() {
       formatDate(1415232279) +
       '</td>' +
       '<td>54.28 %</td>' +
-      '<td>24.59 %</td>'+
       '<td><a href="' + historyURL + '">Graph</a></td>';
     respond('{}', itemsJson(defaultItems, defaultServers));
     expect($('#table')).to.have.length(1);
@@ -150,7 +149,6 @@ describe('LatestView', function() {
       formatDate(1415232279) +
       '</td>' +
       '<td>host1</td>' +
-      '<td>host1</td>'+
       '<td></td>';
     respond('{}', itemsJson(defaultItems, defaultServers));
     expect($('#table')).to.have.length(1);
