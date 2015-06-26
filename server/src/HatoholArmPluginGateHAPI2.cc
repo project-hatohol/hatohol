@@ -743,12 +743,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 	parseLastInfoParams(parser, lastInfoType, errObj);
 
 	if (errObj.hasErrors()) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
-		  &errObj.getErrors(), &parser);
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 		  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	} else {
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
@@ -840,12 +840,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
-		  &errObj.getErrors(), &parser);
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 		  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	} else {
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
@@ -919,12 +919,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
-		  &errObj.getErrors(), &parser);
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 		  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	} else {
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
@@ -1011,12 +1011,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
-		  &errObj.getErrors(), &parser);
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 		  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	} else {
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
@@ -1097,12 +1097,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
-		  &errObj.getErrors(), &parser);
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 		  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	} else {
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
@@ -1207,12 +1207,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
-		  &errObj.getErrors(), &parser);
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 		  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	} else {
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
@@ -1372,12 +1372,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
-		  &errObj.getErrors(), &parser);
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 		  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	} else {
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
@@ -1521,12 +1521,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
-		  &errObj.getErrors(), &parser);
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 		  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	} else {
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
@@ -1607,12 +1607,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
-		  &errObj.getErrors(), &parser);
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 		  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	} else {
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
@@ -1687,12 +1687,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
-		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
-		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
-		  &errObj.getErrors(), &parser);
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 		  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+		  &errObj.getErrors(), &parser);
 	} else {
 		m_impl->setPluginConnectStatus(
 		  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
