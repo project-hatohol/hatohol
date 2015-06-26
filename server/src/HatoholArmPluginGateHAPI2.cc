@@ -530,7 +530,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 	  const HAPI2PluginErrorCode &errorCode)
 	{
 		TriggerStatusType status;
-		if (errorCode == HAPI2PluginErrorCode::UNAVAILABLE_HAP2) {
+		if (errorCode == HAPI2PluginErrorCode::UNAVAILABLE_HAP2 &&
+		    errorCode == HAPI2PluginErrorCode::HAP2_CONNECTION_UNAVAILABLE) {
 			status = TRIGGER_STATUS_PROBLEM;
 		} else if (errorCode == HAPI2PluginErrorCode::OK) {
 			status = TRIGGER_STATUS_OK;
