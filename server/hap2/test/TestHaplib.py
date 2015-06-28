@@ -299,12 +299,12 @@ class Utils(unittest.TestCase):
 
     def test_check_error_dict_success(self):
         error_dict = {"error": {"code": 1, "message": "test_message", "data": "test_data"},"id": 1}
-        common.assertNotRaises(haplib.Utils._check_error_dict, error_dict)
+        common.assertNotRaises(haplib.Utils.__check_error_dict, error_dict)
 
     def test_check_error_dict_failure(self):
         error_dict = {"error": {"code": 1, "message": "test_message"},"id": 1}
         try:
-            haplib.Utils._check_error_dict(error_dict)
+            haplib.Utils.__check_error_dict(error_dict)
             raise
         except:
             pass

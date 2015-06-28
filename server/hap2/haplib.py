@@ -932,7 +932,7 @@ class Utils:
 
         if pm.message_dict.has_key("error"):
             try:
-                Utils._check_error_dict(pm.message_dict)
+                Utils.__check_error_dict(pm.message_dict)
                 pm.error_message = pm.message_dict["error"]["message"]
             except KeyError:
                 pm.error_message = "Invalid error message: " + message
@@ -979,7 +979,7 @@ class Utils:
             return (None, json_dict)
 
     @staticmethod
-    def _check_error_dict(error_dict):
+    def __check_error_dict(error_dict):
         error_dict["id"]
         error_dict["error"]["code"]
         error_dict["error"]["message"]
