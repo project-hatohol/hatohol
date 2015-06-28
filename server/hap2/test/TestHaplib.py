@@ -30,6 +30,7 @@ import argparse
 import multiprocessing
 import Queue
 import logging
+import datetime
 
 class Gadget:
     def __init__(self):
@@ -371,6 +372,11 @@ class Utils(unittest.TestCase):
         self.assertTrue(14 < len(result) < 22)
         ns = int(result[15: 21])
         self.assertTrue(0 <= ns < 1000000)
+
+    def test_conv_to_hapi_time(self):
+        dt = datetime.datetime(2015, 6, 28, 9, 35, 11, 123456)
+        self.assertEquals(haplib.Utils.conv_to_hapi_time(dt),
+                          "20150628093511.123456")
 
 
 class HapiProcessor(unittest.TestCase):
