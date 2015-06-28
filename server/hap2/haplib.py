@@ -997,8 +997,8 @@ class Utils:
         args_dict = PROCEDURES_DEFS[json_dict["method"]]["args"]
         for arg_name, arg_value in args_dict.iteritems():
             try:
-                type_expect = type(json_dict["params"][arg_name])
-                type_actual = type(arg_value["type"])
+                type_actual = type(json_dict["params"][arg_name])
+                type_expect = type(arg_value["type"])
                 if type_expect != type_actual:
                     msg = "Argument '%s': unexpected type: exp: %s, act: %s" \
                           % (arg_name, type_expect, type_actual)
