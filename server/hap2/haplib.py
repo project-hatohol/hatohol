@@ -538,6 +538,20 @@ class HapiProcessor:
 
         self.__event_last_info = last_info
 
+    def put_items(self, items, fetch_id):
+        params = {"fetchId": fetch_id, "items": items}
+        request_id = Utils.generate_request_id(self.__component_code)
+        self.__wait_acknowledge(request_id)
+        self.__sender.request("putItems", params, request_id)
+        self.__wait_response(request_id)
+
+    def put_history(self, samples, item_id, fetch_id):
+        params = {"fetchId": fetch_id, "itemId": item_id, "samples": samples}
+        request_id = Utils.generate_request_id(self.__component_code)
+        self.__wait_acknowledge(request_id)
+        self.__sender.request("putHistory", params, request_id)
+        self.__wait_response(request_id)
+
     def __wait_acknowledge(self, request_id):
         self.__dispatch_queue.put((self.__process_id, request_id))
         self.__dispatch_queue.join()

@@ -487,6 +487,22 @@ class HapiProcessor(unittest.TestCase):
         events = [{"eventId": 123, "test_events":"test"}]
         common.assertNotRaises(self.processor.put_events, events)
 
+    def test_put_items(self):
+        self.reply_queue.put(True)
+        fetch_id = 543
+        items = [{"itemId": "123", "host_id": "FOOOOOO"}]
+        common.assertNotRaises(self.processor.put_items, items, fetch_id)
+        # TODO: Check if fetch_id and items shall be passed to the lower layer
+
+    def test_put_history(self):
+        self.reply_queue.put(True)
+        fetch_id = 543
+        item_id = 111
+        samples = [{"value": "123", "time": "20150321151321"}]
+        common.assertNotRaises(self.processor.put_history,
+                               samples, item_id, fetch_id)
+        # TODO: Check if fetch_id and items shall be passed to the lower layer
+
     def test_wait_acknowledge(self):
         self.reply_queue.put(True)
         wait_acknowledge = common.returnPrivObj(self.processor,
