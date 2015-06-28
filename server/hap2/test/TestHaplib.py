@@ -513,10 +513,7 @@ class HapiProcessor(unittest.TestCase):
         self.processor.set_timeout_sec(1)
         wait_acknowledge = common.returnPrivObj(self.processor,
                                                 "__wait_acknowledge")
-        try:
-            wait_acknowledge(1)
-        except Exception as exception:
-            self.assertEquals(str(exception), "Timeout")
+        self.assertRaises(Queue.Empty, wait_acknowledge, 1)
 
     def test_wait_response(self):
         exact_result = "test_result"
@@ -535,10 +532,7 @@ class HapiProcessor(unittest.TestCase):
         self.processor.set_timeout_sec(1)
         test_id = 1
         wait_response = common.returnPrivObj(self.processor, "__wait_response")
-        try:
-            wait_response(test_id)
-        except Exception as exception:
-            self.assertEquals(str(exception), "Timeout")
+        self.assertRaises(Queue.Empty, wait_response, test_id)
 
 
 class Receiver(unittest.TestCase):

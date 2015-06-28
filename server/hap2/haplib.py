@@ -562,7 +562,7 @@ class HapiProcessor:
                 raise
         except Queue.Empty:
             logging.error("Request(ID: %d) is not accepted." % request_id)
-            raise Queue.Empty("Timeout")
+            raise
 
     def __wait_response(self, request_id):
         try:
@@ -578,7 +578,7 @@ class HapiProcessor:
             raise
         except Queue.Empty:
             logging.error("Request failed.")
-            raise Queue.Empty("Timeout")
+            raise
 
 
 class Receiver:
