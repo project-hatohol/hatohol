@@ -33,6 +33,7 @@ import imp
 import transporter
 from rabbitmqconnector import RabbitMQConnector
 import calendar
+import sets
 
 SERVER_PROCEDURES = {"exchangeProfile": True,
                      "getMonitoringServerInfo": True,
@@ -63,7 +64,7 @@ PROCEDURES_DEFS = {
     "fetchHistory": {
         "args": {
             "hostId": {"type": unicode(), "mandatory": True},
-            "itemId": {"type": unicode, "mandatory": True},
+            "itemId": {"type": unicode(), "mandatory": True},
             "beginTime": {"type": unicode(), "mandatory": True},
             "endTime": {"type": unicode(), "mandatory": True},
             "fetchId": {"type": unicode(), "mandatory": True},
@@ -117,6 +118,17 @@ PROCEDURES_DEFS = {
             "events": {"type": list(), "mandatory": True}
         }
     },
+    "putItems": {
+        "args": {
+            "items": {"type": list(), "mandatory": True}
+        }
+    },
+    "putHistory": {
+        "args": {
+            "samples": {"type": list(), "mandatory": True},
+            "itemId": {"type": unicode(), "mandatory": True}
+        }
+    },
     "getLastInfo": {
         "args": {}
     },
@@ -137,8 +149,15 @@ ERROR_DICT = {
     ERR_CODE_PARSER_ERROR: "Parse error",
 }
 
-MAX_EVENT_CHUNK_SIZE = 1000
+EVENT_TYPES = sets.ImmutableSet(
+    ["GOOD", "BAD", "UNKNOWN", "NOTIFICATION"])
+TRIGGER_STATUS = sets.ImmutableSet(
+    ["OK", "NG", "UNKNOWN"])
+TRIGGER_SEVERITY = sets.ImmutableSet(
+    ["UNKNOWN", "INFO", "WARNING", "ERROR", "CRITICAL", "EMERGENCY"])
 
+MAX_EVENT_CHUNK_SIZE = 1000
+MAX_LAST_INFO_SIZE = 32767
 
 def handle_exception(raises=()):
     """
@@ -229,6 +248,9 @@ class CommandQueue(Callback):
 
 
 class MonitoringServerInfo:
+    EXTENDED_INFO_RAW  = 0
+    EXTENDED_INFO_JSON = 1
+
     def __init__(self, ms_info_dict):
         self.server_id = ms_info_dict["serverId"]
         self.url = ms_info_dict["url"]
@@ -239,6 +261,13 @@ class MonitoringServerInfo:
         self.polling_interval_sec = ms_info_dict["pollingIntervalSec"]
         self.retry_interval_sec = ms_info_dict["retryIntervalSec"]
         self.extended_info = ms_info_dict["extendedInfo"]
+
+    def get_extended_info(self, type=EXTENDED_INFO_RAW):
+        handlers = {
+            self.EXTENDED_INFO_RAW: lambda ext: ext,
+            self.EXTENDED_INFO_JSON: lambda ext: json.loads(ext),
+        }
+        return handlers[type](self.extended_info)
 
 
 class ParsedMessage:
@@ -458,16 +487,22 @@ class HapiProcessor:
             self.__event_last_info = self.get_last_info("event")
         return self.__event_last_info
 
-    def put_events(self, events, fetch_id=None):
+    def generate_event_last_info(self, events):
+        return Utils.get_maximum_eventid(events)
+
+    def put_events(self, events, fetch_id=None, last_info_generator=None):
         """
         This method calls putEvents() and wait for a reply.
         It divide events if the size is beyond the limitation.
-        It also calculates lastInfo from the eventId in events. The calculated
-        lastInfo is remebered in this object and can be obtained via
+        It also calculates lastInfo for the divided events,
+        remebers it in this object and provide lastInfo via
         get_cached_event_last_info().
 
         @param events A list of event (dictionary).
         @param fetch_id A fetch ID.
+        @param last_info_generator
+        A callable object whose argument is the list of the devided events.
+        It this parameter is None, generate_event_last_info() is called.
         """
 
         CHUNK_SIZE = MAX_EVENT_CHUNK_SIZE
@@ -484,10 +519,9 @@ class HapiProcessor:
             start = num * CHUNK_SIZE
             event_chunk = events[start:start + CHUNK_SIZE]
 
-            # TODO: Use more efficient way to calculate last_info .
-            # TODO: Should be able to select the way to calculate lastInfo.
-            last_info = \
-                Utils.get_biggest_num_of_dict_array(event_chunk, "eventId")
+            if last_info_generator is None:
+                last_info_generator = self.generate_event_last_info
+            last_info = last_info_generator(event_chunk)
             params = {"events": event_chunk, "lastInfo": last_info,
                       "updateType": "UPDATE"}
 
@@ -504,6 +538,20 @@ class HapiProcessor:
 
         self.__event_last_info = last_info
 
+    def put_items(self, items, fetch_id):
+        params = {"fetchId": fetch_id, "items": items}
+        request_id = Utils.generate_request_id(self.__component_code)
+        self.__wait_acknowledge(request_id)
+        self.__sender.request("putItems", params, request_id)
+        self.__wait_response(request_id)
+
+    def put_history(self, samples, item_id, fetch_id):
+        params = {"fetchId": fetch_id, "itemId": item_id, "samples": samples}
+        request_id = Utils.generate_request_id(self.__component_code)
+        self.__wait_acknowledge(request_id)
+        self.__sender.request("putHistory", params, request_id)
+        self.__wait_response(request_id)
+
     def __wait_acknowledge(self, request_id):
         self.__dispatch_queue.put((self.__process_id, request_id))
         self.__dispatch_queue.join()
@@ -514,7 +562,7 @@ class HapiProcessor:
                 raise
         except Queue.Empty:
             logging.error("Request(ID: %d) is not accepted." % request_id)
-            raise Queue.Empty("Timeout")
+            raise
 
     def __wait_response(self, request_id):
         try:
@@ -530,7 +578,7 @@ class HapiProcessor:
             raise
         except Queue.Empty:
             logging.error("Request failed.")
-            raise Queue.Empty("Timeout")
+            raise
 
 
 class Receiver:
@@ -874,7 +922,7 @@ class Utils:
 
         pm = ParsedMessage()
         pm.error_code, pm.message_dict = \
-          Utils._convert_json_to_dict(message)
+          Utils.__convert_json_to_dict(message)
 
         # Failed to convert the message to a dictionary
         if pm.error_code is not None:
@@ -884,7 +932,7 @@ class Utils:
 
         if pm.message_dict.has_key("error"):
             try:
-                Utils._check_error_dict(pm.message_dict)
+                Utils.__check_error_dict(pm.message_dict)
                 pm.error_message = pm.message_dict["error"]["message"]
             except KeyError:
                 pm.error_message = "Invalid error message: " + message
@@ -922,7 +970,7 @@ class Utils:
         return pm
 
     @staticmethod
-    def _convert_json_to_dict(json_string):
+    def __convert_json_to_dict(json_string):
         try:
             json_dict = json.loads(json_string)
         except ValueError:
@@ -931,7 +979,7 @@ class Utils:
             return (None, json_dict)
 
     @staticmethod
-    def _check_error_dict(error_dict):
+    def __check_error_dict(error_dict):
         error_dict["id"]
         error_dict["error"]["code"]
         error_dict["error"]["message"]
@@ -949,8 +997,8 @@ class Utils:
         args_dict = PROCEDURES_DEFS[json_dict["method"]]["args"]
         for arg_name, arg_value in args_dict.iteritems():
             try:
-                type_expect = type(json_dict["params"][arg_name])
-                type_actual = type(arg_value["type"])
+                type_actual = type(json_dict["params"][arg_name])
+                type_expect = type(arg_value["type"])
                 if type_expect != type_actual:
                     msg = "Argument '%s': unexpected type: exp: %s, act: %s" \
                           % (arg_name, type_expect, type_actual)
@@ -998,6 +1046,11 @@ class Utils:
             valid_procedures_dict[procedure] = True
 
     #This method is created on the basis of getting same number of digits under the decimal.
+
+    @staticmethod
+    def get_maximum_eventid(events):
+        return Utils.get_biggest_num_of_dict_array(events, "eventId")
+
     @staticmethod
     def get_biggest_num_of_dict_array(array, key):
         last_info = None
@@ -1023,3 +1076,12 @@ class Utils:
     def get_current_hatohol_time():
         utc_now = datetime.utcnow()
         return utc_now.strftime("%Y%m%d%H%M%S.") + str(utc_now.microsecond)
+
+    @staticmethod
+    def conv_to_hapi_time(date_time):
+        """
+        Convert a datetime object to a string formated for HAPI
+        @param date_time A datatime object
+        @return A string of the date and time in HAPI2.0
+        """
+        return date_time.strftime("%Y%m%d%H%M%S.") + "%06d" % date_time.microsecond

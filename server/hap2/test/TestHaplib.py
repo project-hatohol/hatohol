@@ -30,6 +30,7 @@ import argparse
 import multiprocessing
 import Queue
 import logging
+import datetime
 
 class Gadget:
     def __init__(self):
@@ -118,28 +119,43 @@ class CommandQueue(unittest.TestCase):
 
 
 class MonitoringServerInfo(unittest.TestCase):
-    def test_create(self):
-        info_dict = {
-            "serverId": 10,
-            "url": "http://who@where:foo/hoge",
-            "type": "8e632c14-d1f7-11e4-8350-d43d7e3146fb",
-            "nickName": "carrot",
-            "userName": "ninjin",
-            "password": "radish",
-            "pollingIntervalSec": 30,
-            "retryIntervalSec": 15,
-            "extendedInfo": "Time goes by."
-        }
+    INFO_DICT = {
+        "serverId": 10,
+        "url": "http://who@where:foo/hoge",
+        "type": "8e632c14-d1f7-11e4-8350-d43d7e3146fb",
+        "nickName": "carrot",
+        "userName": "ninjin",
+        "password": "radish",
+        "pollingIntervalSec": 30,
+        "retryIntervalSec": 15,
+        "extendedInfo": '{"title": "Time goes by.", "number": 101}'
+    }
 
+    def test_create(self):
         key_map = {}
-        for key in info_dict.keys():
+        for key in self.INFO_DICT.keys():
             snake = re.sub("([A-Z])", lambda x: "_" + x.group(1).lower(), key)
             key_map[key] = snake
 
-        ms_info = haplib.MonitoringServerInfo(info_dict)
-        for key, val in info_dict.items():
+        ms_info = haplib.MonitoringServerInfo(self.INFO_DICT)
+        for key, val in self.INFO_DICT.items():
             actual = eval("ms_info.%s" % key_map[key])
             self.assertEquals(actual, val)
+
+    def test_get_extended_info_raw(self):
+        type = haplib.MonitoringServerInfo.EXTENDED_INFO_RAW
+        expect = self.INFO_DICT["extendedInfo"]
+        self.__assert_get_extended_info(type, expect)
+
+    def test_get_extended_info_json(self):
+        type = haplib.MonitoringServerInfo.EXTENDED_INFO_JSON
+        expect = {"title": "Time goes by.", "number": 101}
+        self.__assert_get_extended_info(type, expect)
+
+    def __assert_get_extended_info(self, type, expect):
+        ms_info = haplib.MonitoringServerInfo(self.INFO_DICT)
+        ext = ms_info.get_extended_info(type)
+        self.assertEquals(ext, expect)
 
 
 class ParsedMessage(unittest.TestCase):
@@ -272,24 +288,24 @@ class Utils(unittest.TestCase):
 
         exact_result = json.loads(test_json_string)
         unnesessary_result, result = \
-                haplib.Utils._convert_json_to_dict(test_json_string)
+                haplib.Utils.__convert_json_to_dict(test_json_string)
         self.assertEquals(result, exact_result)
 
     def test_convert_json_to_dict_failure(self):
         test_json_string = '{"test_key": test_value}'
 
         exact_result = (-32700, None)
-        result = haplib.Utils._convert_json_to_dict(test_json_string)
+        result = haplib.Utils.__convert_json_to_dict(test_json_string)
         self.assertEquals(exact_result, result)
 
     def test_check_error_dict_success(self):
         error_dict = {"error": {"code": 1, "message": "test_message", "data": "test_data"},"id": 1}
-        common.assertNotRaises(haplib.Utils._check_error_dict, error_dict)
+        common.assertNotRaises(haplib.Utils.__check_error_dict, error_dict)
 
     def test_check_error_dict_failure(self):
         error_dict = {"error": {"code": 1, "message": "test_message"},"id": 1}
         try:
-            haplib.Utils._check_error_dict(error_dict)
+            haplib.Utils.__check_error_dict(error_dict)
             raise
         except:
             pass
@@ -356,6 +372,11 @@ class Utils(unittest.TestCase):
         self.assertTrue(14 < len(result) < 22)
         ns = int(result[15: 21])
         self.assertTrue(0 <= ns < 1000000)
+
+    def test_conv_to_hapi_time(self):
+        dt = datetime.datetime(2015, 6, 28, 9, 35, 11, 123456)
+        self.assertEquals(haplib.Utils.conv_to_hapi_time(dt),
+                          "20150628093511.123456")
 
 
 class HapiProcessor(unittest.TestCase):
@@ -472,6 +493,22 @@ class HapiProcessor(unittest.TestCase):
         events = [{"eventId": 123, "test_events":"test"}]
         common.assertNotRaises(self.processor.put_events, events)
 
+    def test_put_items(self):
+        self.reply_queue.put(True)
+        fetch_id = 543
+        items = [{"itemId": "123", "host_id": "FOOOOOO"}]
+        common.assertNotRaises(self.processor.put_items, items, fetch_id)
+        # TODO: Check if fetch_id and items shall be passed to the lower layer
+
+    def test_put_history(self):
+        self.reply_queue.put(True)
+        fetch_id = 543
+        item_id = 111
+        samples = [{"value": "123", "time": "20150321151321"}]
+        common.assertNotRaises(self.processor.put_history,
+                               samples, item_id, fetch_id)
+        # TODO: Check if fetch_id and items shall be passed to the lower layer
+
     def test_wait_acknowledge(self):
         self.reply_queue.put(True)
         wait_acknowledge = common.returnPrivObj(self.processor,
@@ -482,10 +519,7 @@ class HapiProcessor(unittest.TestCase):
         self.processor.set_timeout_sec(1)
         wait_acknowledge = common.returnPrivObj(self.processor,
                                                 "__wait_acknowledge")
-        try:
-            wait_acknowledge(1)
-        except Exception as exception:
-            self.assertEquals(str(exception), "Timeout")
+        self.assertRaises(Queue.Empty, wait_acknowledge, 1)
 
     def test_wait_response(self):
         exact_result = "test_result"
@@ -504,10 +538,7 @@ class HapiProcessor(unittest.TestCase):
         self.processor.set_timeout_sec(1)
         test_id = 1
         wait_response = common.returnPrivObj(self.processor, "__wait_response")
-        try:
-            wait_response(test_id)
-        except Exception as exception:
-            self.assertEquals(str(exception), "Timeout")
+        self.assertRaises(Queue.Empty, wait_response, test_id)
 
 
 class Receiver(unittest.TestCase):
