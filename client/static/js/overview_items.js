@@ -89,14 +89,14 @@ var OverviewItems = function(userProfile) {
     return parsedData;
   }
 
-  function setupFilterValues(servers, query) {
+  function setupFilterValues(servers, query, owSelfMonitor) {
     if (!servers && rawData && rawData.servers)
       servers = rawData.servers;
 
     if (!query)
       query = self.lastQuery ? self.lastQuery : self.baseQuery;
 
-    self.setupHostFilters(servers, query);
+    self.setupHostFilters(servers, query, owSelfMonitor);
   }
 
   function setLoading(loading) {
@@ -171,7 +171,9 @@ var OverviewItems = function(userProfile) {
     self.setHostgroupFilterCandidates(rawData["servers"]);
     self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(parsedData);
-    setupFilterValues();
+    setupFilterValues(rawData.servers,
+                      self.lastQuery ? self.lastQuery : self.baseQuery,
+                      true);
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }

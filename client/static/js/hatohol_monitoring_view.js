@@ -147,7 +147,7 @@ HatoholMonitoringView.prototype.setHostgroupFilterCandidates =
 };
 
 HatoholMonitoringView.prototype.setHostFilterCandidates =
-  function(servers, serverId)
+  function(servers, serverId, withoutSelfMonitor)
 {
   var id, server, hosts, hostLabels = [], current;
   var hostSelector = $('#select-host');
@@ -164,7 +164,7 @@ HatoholMonitoringView.prototype.setHostFilterCandidates =
   server = servers[serverId];
   hosts = server.hosts;
   for (id in hosts) {
-    if (id == "__SELF_MONITOR")
+    if (withoutSelfMonitor && (withoutSelfMonitor == true) && (id == "__SELF_MONITOR"))
       continue;
     hostLabels.push({
       label: getHostName(server, id),
@@ -358,7 +358,7 @@ HatoholMonitoringView.prototype.setupCheckboxForDelete =
   });
 };
 
-HatoholMonitoringView.prototype.setupHostFilters = function(servers, query) {
+HatoholMonitoringView.prototype.setupHostFilters = function(servers, query, withoutSelfMonitor) {
   this.setServerFilterCandidates(servers);
   if (query && ("serverId" in query))
     $("#select-server").val(query.serverId);
@@ -367,7 +367,8 @@ HatoholMonitoringView.prototype.setupHostFilters = function(servers, query) {
   if (query && ("hostgroupId" in query))
     $("#select-host-group").val(query.hostgroupId);
 
-  this.setHostFilterCandidates(servers);
+  this.setHostFilterCandidates(servers, this.getTargetServerId(), withoutSelfMonitor);
+
   if (query && ("hostId" in query))
     $("#select-host").val(query.hostId);
 };

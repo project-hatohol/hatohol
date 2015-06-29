@@ -89,14 +89,14 @@ var LatestView = function(userProfile) {
     });
   }
 
-  function setupFilterValues(servers, query) {
+  function setupFilterValues(servers, query, withoutSelfMonitor) {
     if (!servers && rawData && rawData.servers)
       servers = rawData.servers;
 
     if (!query)
       query = self.lastQuery ? self.lastQuery : self.baseQuery;
 
-    self.setupHostFilters(servers, query);
+    self.setupHostFilters(servers, query, withoutSelfMonitor);
 
     if ('limit' in query)
       $('#num-items-per-page').val(query.limit);
@@ -216,7 +216,9 @@ var LatestView = function(userProfile) {
 
     drawTableContents(rawData);
     self.pager.update({ numTotalRecords: rawData["totalNumberOfItems"] });
-    setupFilterValues();
+    setupFilterValues(rawData.servers,
+                      self.lastQuery ? self.lastQuery : self.baseQuery,
+                      true);
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
