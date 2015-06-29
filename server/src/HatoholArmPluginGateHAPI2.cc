@@ -17,6 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include <future>
 #include <StringUtils.h>
 #include <JSONParser.h>
 #include <HatoholArmPluginInterfaceHAPI2.h>
@@ -186,6 +187,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		virtual void onGotResponse(JSONParser &parser) override
 		{
+			future<void> taskOK = m_impl.nopTask(),
+				     taskNG = m_impl.nopTask();
 			if (parser.isMember("error")) {
 				string errorMessage;
 				parser.startObject("error");
@@ -195,12 +198,12 @@ struct HatoholArmPluginGateHAPI2::Impl
 					  "exchangeProfile: %s\n",
 					  errorMessage.c_str());
 
-				m_impl.setPluginConnectStatus(
+				taskOK = m_impl.setPluginConnectStatusAsync(
 				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 				  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
 				return;
 			} else {
-				m_impl.setPluginConnectStatus(
+				taskNG = m_impl.setPluginConnectStatusAsync(
 				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 				  HAPI2PluginErrorCode::OK);
 			}
@@ -211,18 +214,22 @@ struct HatoholArmPluginGateHAPI2::Impl
 			parser.endObject();
 
 			if (errObj.hasErrors()) {
-				m_impl.setPluginConnectStatus(
+				MLPL_WARN("Received an error on parsing "
+					  "exchangeProfile.\n");
+				taskOK = m_impl.setPluginConnectStatusAsync(
 				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 				  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
 
 				return;
 			} else {
-				m_impl.setPluginConnectStatus(
+				taskNG = m_impl.setPluginConnectStatusAsync(
 				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
 				  HAPI2PluginErrorCode::OK);
 			}
 
 			m_impl.m_hapi2.setEstablished(true);
+			taskOK.get();
+			taskNG.get();
 		}
 	};
 
@@ -361,6 +368,25 @@ struct HatoholArmPluginGateHAPI2::Impl
 		}
 		size_t typeIdx = static_cast<size_t>(type);
 		m_utils.updateTriggerStatus(typeIdx, status);
+	}
+
+	void nop(void)
+	{
+	}
+
+	future<void> nopTask(void)
+	{
+		auto handle = async(launch::deferred, &Impl::nop, this);
+		return handle;
+	}
+
+	future<void> setPluginConnectStatusAsync(
+	  const HAPI2PluginCollectType &type,
+	  const HAPI2PluginErrorCode &errorCode)
+	{
+		auto handle = async(launch::deferred, &Impl::setPluginConnectStatus,
+				    this, type, errorCode);
+		return handle;
 	}
 };
 
