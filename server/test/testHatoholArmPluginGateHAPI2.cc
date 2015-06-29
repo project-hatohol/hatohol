@@ -1826,6 +1826,8 @@ void test_notSupportFetchTriggers(void)
 
 void test_fetchEvents(void)
 {
+	omitIfNoURL();
+
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "fetchEvents");
@@ -1855,6 +1857,8 @@ void test_fetchEvents(void)
 
 void test_fetchEventsCallback(void)
 {
+	omitIfNoURL();
+
 	struct TestContext {
 		atomic<bool> m_called;
 		TestContext()
@@ -1933,6 +1937,8 @@ void test_fetchEventsCallback(void)
 
 void test_notSupportFetchEvents(void)
 {
+	omitIfNoURL();
+
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
 	acceptProcedure(gate, "exchangeProfile");
