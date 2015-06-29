@@ -1,0 +1,11 @@
+{
+    "serverId": 1,
+    "url": "http://keystone.example.com:35357/v2.0",
+    "type": "aa25a332-d1f7-11e4-80b4-d43d7e3146fb",
+    "nickName": "Fish",
+    "userName": "admin",
+    "password": "admin",
+    "pollingIntervalSec": 30,
+    "retryIntervalSec": 10,
+    "extendedInfo": "{\"tenantName\": \"admin\"}"
+}
