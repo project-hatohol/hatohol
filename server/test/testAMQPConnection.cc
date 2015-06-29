@@ -19,9 +19,9 @@
 
 #include <gcutter.h>
 #include <cppcutter.h>
+#include <atomic>
 
 #include <Reaper.h>
-#include <AtomicValue.h>
 #include <AMQPConnection.h>
 #include <AMQPConsumer.h>
 #include <AMQPPublisher.h>
@@ -49,7 +49,7 @@ namespace testAMQPConnection {
 			return true;
 		}
 
-		AtomicValue<bool> m_gotMessage;
+		atomic<bool> m_gotMessage;
 		AMQPMessage m_message;
 	};
 
