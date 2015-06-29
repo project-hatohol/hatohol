@@ -19,6 +19,8 @@
 
 #include <gcutter.h>
 #include <atomic>
+#include <chrono>
+#include <thread>
 #include <Hatohol.h>
 #include <HatoholArmPluginGateHAPI2.h>
 #include <AMQPConnection.h>
@@ -1209,6 +1211,19 @@ void receiveFetchRequest(const string &expectedMethod,
 	cppcut_assert_equal(true, !fetchId.empty() && id);
 }
 
+void waitConnection(HatoholArmPluginGateHAPI2Ptr &gate) {
+	constexpr const size_t maxSleepCount = 10;
+	for (size_t sleepCount = 0; ;sleepCount++) {
+		if (gate->isEstablished()) {
+			break;
+		}
+		this_thread::sleep_for(chrono::milliseconds(200));
+		if (sleepCount >= maxSleepCount)
+			cut_fail("HatoholArmPluginGateHAPI2 "
+				 "does not aquire connection\n");
+	}
+}
+
 void acceptProcedure(HatoholArmPluginGateHAPI2Ptr &gate,
 		     const string procedureName)
 {
@@ -1223,6 +1238,7 @@ void acceptProcedure(HatoholArmPluginGateHAPI2Ptr &gate,
 		" \"name\":\"examplePlugin\"}, \"id\":%" PRId64 "}",
 		procedureName.c_str(), id);
 	sendMessage(response);
+	waitConnection(gate);
 }
 
 void cut_setup(void)
