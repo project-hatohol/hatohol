@@ -181,21 +181,15 @@ var EventsView = function(userProfile, baseElem) {
     $("#table").bind('aftertablesort', function(event, data) {
       var icon;
       if (data.column == 1) { // "Time" column
-        if (data.direction === "asc") {
-          icon = "up";
-          if (self.baseQuery.sortOrder != hatohol.DATA_QUERY_OPTION_SORT_ASCENDING) {
-            self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_ASCENDING;
-            saveConfig({'event-sort-order': self.baseQuery.sortOrder});
-            self.startConnection(getQuery(self.currentPage), updateCore);
-          }
-        } else {
+        if (self.baseQuery.sortOrder == hatohol.DATA_QUERY_OPTION_SORT_ASCENDING) {
+          self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
           icon = "down";
-          if (self.baseQuery.sortOrder != hatohol.DATA_QUERY_OPTION_SORT_DESCENDING) {
-            self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
-            saveConfig({'event-sort-order': self.baseQuery.sortOrder});
-            self.startConnection(getQuery(self.currentPage), updateCore);
-          }
+        } else {
+          self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_ASCENDING;
+          icon = "up";
         }
+        saveConfig({'event-sort-order': self.baseQuery.sortOrder});
+        self.startConnection(getQuery(self.currentPage), updateCore);
       }
       var th = $(this).find("th");
       th.find("i.sort").remove();
