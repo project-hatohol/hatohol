@@ -121,6 +121,8 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
   }
 
   function replyCallback(reply, parser) {
+    var type;
+
     if (!(reply.serverType instanceof Array)) {
       hatoholErrorMsgBox("[Malformed reply] Not found array: serverType");
       return;
@@ -134,7 +136,10 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
         hatoholErrorMsgBox("[Malformed reply] Not found element: name");
         return;
       }
-      var type = serverTypeInfo.type;
+
+      type = serverTypeInfo.type;
+      if (type == hatohol.MONITORING_SYSTEM_HAPI2)
+	type = serverTypeInfo.uuid;
       if (type == undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: type");
         return;
@@ -154,7 +159,10 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
 
     if (self.server) {
       var selectElem = $("#selectServerType");
-      selectElem.val(self.server.type);
+      type = self.server.type;
+      if (type == hatohol.MONITORING_SYSTEM_HAPI2)
+	type = self.server.uuid;
+      selectElem.val(type);
       selectElem.change();
     }
   }
