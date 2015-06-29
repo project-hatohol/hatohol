@@ -152,6 +152,11 @@ struct HatoholArmPluginGateHAPI2::Impl
 		callExchangeProfile();
 	}
 
+	bool isEstablished(void)
+	{
+		return m_hapi2.getEstablished();
+	}
+
 	bool parseExchangeProfileParams(JSONParser &parser, JSONRPCError &errObj)
 	{
 		m_supportedProcedureNameSet.clear();
@@ -424,6 +429,11 @@ void HatoholArmPluginGateHAPI2::start(void)
 {
 	HatoholArmPluginInterfaceHAPI2::start();
 	m_impl->start();
+}
+
+bool HatoholArmPluginGateHAPI2::isEstablished(void)
+{
+	return m_impl->isEstablished();
 }
 
 bool HatoholArmPluginGateHAPI2::parseTimeStamp(
