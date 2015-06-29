@@ -18,6 +18,7 @@
  */
 
 #include <gcutter.h>
+#include <atomic>
 #include <Hatohol.h>
 #include <HatoholArmPluginGateHAPI2.h>
 #include <AMQPConnection.h>
@@ -1174,7 +1175,7 @@ string popServerMessage(void)
 			return true;
 		}
 
-		AtomicValue<bool> m_gotMessage;
+		atomic<bool> m_gotMessage;
 		AMQPMessage m_message;
 	} handler;
 	AMQPConsumer consumer(getConnectionInfo(), &handler);
@@ -1520,7 +1521,7 @@ void test_fetchItemsCallback(void)
 	omitIfNoURL();
 
 	struct TestContext {
-		AtomicValue<bool> m_called;
+		atomic<bool> m_called;
 		TestContext()
 		:m_called(false)
 		{
@@ -1555,7 +1556,7 @@ void test_fetchItemsCallback(void)
 		id);
 	sendMessage(fetchItemsResponse);
 	string response = popServerMessage();
-	cppcut_assert_equal(false, context.m_called.get());
+	cppcut_assert_equal(false, context.m_called.load());
 
 	string putItemsJSON = StringUtils::sprintf(
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
@@ -1572,7 +1573,7 @@ void test_fetchItemsCallback(void)
 	sendMessage(putItemsJSON);
 
 	response = popServerMessage(); // for waiting the callback
-	cppcut_assert_equal(true, context.m_called.get());
+	cppcut_assert_equal(true, context.m_called.load());
 }
 
 void test_fetchItemsCallbackOnError(void)
@@ -1580,7 +1581,7 @@ void test_fetchItemsCallbackOnError(void)
 	omitIfNoURL();
 
 	struct TestContext {
-		AtomicValue<bool> m_called;
+		atomic<bool> m_called;
 		TestContext()
 		:m_called(false)
 		{
@@ -1616,7 +1617,7 @@ void test_fetchItemsCallbackOnError(void)
 	sendMessage(fetchItemsErrorResponse);
 
 	string response = popServerMessage(); // for waiting the callback
-	cppcut_assert_equal(true, context.m_called.get());
+	cppcut_assert_equal(true, context.m_called.load());
 }
 
 void test_fetchHistory(void)
@@ -1763,7 +1764,7 @@ void test_fetchTriggersCallback(void)
 	omitIfNoURL();
 
 	struct TestContext {
-		AtomicValue<bool> m_called;
+		atomic<bool> m_called;
 		TestContext()
 		:m_called(false)
 		{
@@ -1806,7 +1807,7 @@ void test_fetchTriggersCallback(void)
 	sendMessage(putTriggersJSON);
 
 	string reply = popServerMessage(); // for waiting the callback
-	cppcut_assert_equal(true, context.m_called.get());
+	cppcut_assert_equal(true, context.m_called.load());
 }
 
 void test_notSupportFetchTriggers(void)
@@ -1851,7 +1852,7 @@ void test_fetchEvents(void)
 void test_fetchEventsCallback(void)
 {
 	struct TestContext {
-		AtomicValue<bool> m_called;
+		atomic<bool> m_called;
 		TestContext()
 		:m_called(false)
 		{
@@ -1904,7 +1905,7 @@ void test_fetchEventsCallback(void)
 	sendMessage(putEventsJSON);
 
 	string reply = popServerMessage(); // for waiting the reply
-	cppcut_assert_equal(false, context.m_called.get());
+	cppcut_assert_equal(false, context.m_called.load());
 
 	// mayMoreFlag: false
 	putEventsJSON =
@@ -1923,7 +1924,7 @@ void test_fetchEventsCallback(void)
 	sendMessage(putEventsJSON);
 
 	reply = popServerMessage(); // for waiting the callback
-	cppcut_assert_equal(true, context.m_called.get());
+	cppcut_assert_equal(true, context.m_called.load());
 }
 
 void test_notSupportFetchEvents(void)
