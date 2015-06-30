@@ -1037,8 +1037,10 @@ class Utils:
 
     @staticmethod
     def translate_hatohol_time_to_unix_time(hatohol_time):
-        sec, ns = hatohol_time.split(".")
-        date_time = datetime.strptime(sec, "%Y%m%d%H%M%S")
+        ns = int()
+        if "." in hatohol_time:
+            hatohol_time, ns = hatohol_time.split(".")
+        date_time = datetime.strptime(hatohol_time, "%Y%m%d%H%M%S")
         unix_time =  calendar.timegm(date_time.timetuple())
         return unix_time + int(ns) / float(10 ** 9)
 
