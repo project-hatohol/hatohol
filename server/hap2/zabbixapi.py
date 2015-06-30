@@ -22,9 +22,10 @@
 import urllib2
 import json
 from haplib import Utils
+import logging
 
-TRIGGER_SEVERITY = {-1: "ALL", 0: "UNKNOWN", 1: "INFO", 2: "WARNING",
-                    3: "ERROR", 4: "CRITICAL", 5: "EMERGENCY"}
+TRIGGER_SEVERITY = {"-1": "ALL", "0": "UNKNOWN", "1": "INFO", "2": "WARNING",
+                    "3": "ERROR", "4": "CRITICAL", "5": "EMERGENCY"}
 TRIGGER_STATUS = {"0": "OK", "1": "NG", "2": "UNKNOWN"}
 EVENT_TYPE = {"0": "GOOD", "1": "BAD", "2": "UNKNOWN", "3": "NOTIFICATION"}
 

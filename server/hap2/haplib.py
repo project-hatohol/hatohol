@@ -724,8 +724,12 @@ class BaseMainPlugin(HapiProcessor):
         return self.__dispatcher
 
     def exchange_profile(self, response_id=None):
+        name = sys.argv[0]
+        if ".py" == name[-3:len(name)]:
+            name = name[0:-3]
         HapiProcessor.exchange_profile(
-            self, self.__implemented_procedures.keys(), response_id=response_id)
+            self, self.__implemented_procedures.keys(),
+            response_id=response_id, name=name)
 
     def hap_exchange_profile(self, params, request_id):
         Utils.optimize_server_procedures(SERVER_PROCEDURES,
@@ -1033,8 +1037,10 @@ class Utils:
 
     @staticmethod
     def translate_hatohol_time_to_unix_time(hatohol_time):
-        sec, ns = hatohol_time.split(".")
-        date_time = datetime.strptime(sec, "%Y%m%d%H%M%S")
+        ns = int()
+        if "." in hatohol_time:
+            hatohol_time, ns = hatohol_time.split(".")
+        date_time = datetime.strptime(hatohol_time, "%Y%m%d%H%M%S")
         unix_time =  calendar.timegm(date_time.timetuple())
         return unix_time + int(ns) / float(10 ** 9)
 
