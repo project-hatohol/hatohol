@@ -112,6 +112,24 @@ struct HAPI2ProcedureDef {
 	ProcedureRequirementLevel level;
 };
 
+enum class HAPI2PluginCollectType {
+	NG_PARSER_ERROR = 0,
+	NG_DISCONNECT,
+	NG_PLUGIN_INTERNAL_ERROR,
+	NG_HATOHOL_INTERNAL_ERROR,
+	NG_PLUGIN_CONNECT_ERROR,
+	NG_AMQP_CONNECT_ERROR,
+	NUM_COLLECT_NG_KIND,
+	OK,
+};
+
+enum class HAPI2PluginErrorCode {
+	OK,
+	HAP2_CONNECTION_UNAVAILABLE,
+	UNAVAILABLE_HAP2,
+	UNKNOWN,
+};
+
 class HatoholArmPluginInterfaceHAPI2 {
 
 public:
@@ -159,6 +177,7 @@ protected:
 	typedef std::map<HAPI2ProcedureName, ProcedureHandler> ProcedureHandlerMap;
 
 	virtual ~HatoholArmPluginInterfaceHAPI2();
+	void stop(void);
 
 	void setArmPluginInfo(const ArmPluginInfo &pluginInfo);
 	std::mt19937 getRandomEngine(void);
@@ -169,6 +188,9 @@ protected:
 	  const std::string errorMessage,
 	  const mlpl::StringList *detailedMessages = NULL,
 	  JSONParser *requestParser = NULL);
+	virtual void onSetPluginInitialInfo(void);
+	virtual void onConnect(void);
+	virtual void onConnectFailure(void);
 
 private:
 	class AMQPHAPI2MessageHandler;
