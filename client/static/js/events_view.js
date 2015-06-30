@@ -69,6 +69,12 @@ var EventsView = function(userProfile, baseElem) {
         updatePager();
         setupFilterValues();
         setupCallbacks();
+
+        var direction =
+          (self.baseQuery.sortOrder == hatohol.DATA_QUERY_OPTION_SORT_ASCENDING) ? "asc" : "desc";
+        var thTime = $("#table").find("thead th").eq(1);
+        thTime.stupidsort(direction);
+
         load();
       },
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -179,10 +185,28 @@ var EventsView = function(userProfile, baseElem) {
   function setupCallbacks() {
     $("#table").stupidtable();
     $("#table").bind('aftertablesort', function(event, data) {
+      var icon;
+      if (data.column == 1) { // "Time" column
+        if (data.direction === "asc") {
+          icon = "up";
+          if (self.baseQuery.sortOrder != hatohol.DATA_QUERY_OPTION_SORT_ASCENDING) {
+            self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_ASCENDING;
+            saveConfig({'event-sort-order': self.baseQuery.sortOrder});
+            self.startConnection(getQuery(self.currentPage), updateCore);
+          }
+        } else {
+          icon = "down";
+          if (self.baseQuery.sortOrder != hatohol.DATA_QUERY_OPTION_SORT_DESCENDING) {
+            self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
+            saveConfig({'event-sort-order': self.baseQuery.sortOrder});
+            self.startConnection(getQuery(self.currentPage), updateCore);
+          }
+        }
+      }
       var th = $(this).find("th");
       th.find("i.sort").remove();
-      var icon = data.direction === "asc" ? "up" : "down";
-      th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
+      if (icon)
+        th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
     });
 
     $("#select-severity, #select-status").change(function() {
@@ -377,7 +401,6 @@ var EventsView = function(userProfile, baseElem) {
       if (status == hatohol.EVENT_TYPE_BAD)
 	severityClass += escapeHTML(severity);
       description = getEventDescription(event);
-
       if (serverURL) {
         html += "<tr><td><a href='" + serverURL + "' target='_blank'>" + escapeHTML(nickName)
                 + "</a></td>";
