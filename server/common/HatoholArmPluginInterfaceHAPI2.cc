@@ -358,9 +358,11 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 			setupAMQPConnection();
 		if (!m_consumer) {
 			MLPL_ERR("Failed to create AMQPConsumer!\n");
+			onConnectFailure();
 			return;
 		}
 		m_consumer->start();
+		onConnect();
 	}
 
 	void queueProcedureCallback(const string id,
@@ -380,6 +382,14 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 			return true;
 		}
 		return false;
+	}
+
+	void onConnect(void)
+	{
+	}
+
+	void onConnectFailure(void)
+	{
 	}
 };
 
@@ -457,6 +467,7 @@ void HatoholArmPluginInterfaceHAPI2::handleResponse(
 
 void HatoholArmPluginInterfaceHAPI2::start(void)
 {
+	onSetPluginInitialInfo();
 	m_impl->start();
 }
 
@@ -556,6 +567,20 @@ string HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 	responseBuilder.endObject(); // error
 	responseBuilder.endObject();
 	return responseBuilder.generate();
+}
+
+void HatoholArmPluginInterfaceHAPI2::onSetPluginInitialInfo(void)
+{
+}
+
+void HatoholArmPluginInterfaceHAPI2::onConnect(void)
+{
+	m_impl->onConnect();
+}
+
+void HatoholArmPluginInterfaceHAPI2::onConnectFailure(void)
+{
+	m_impl->onConnectFailure();
 }
 
 const std::list<HAPI2ProcedureDef> &
