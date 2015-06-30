@@ -145,6 +145,7 @@ public:
 	void handleResponse(const std::string id, JSONParser &parser);
 
 	virtual void start(void);
+	virtual void stop(void);
 	virtual void send(const std::string &message);
 	virtual void send(const std::string &message,
 			  const int64_t id,
@@ -159,7 +160,6 @@ protected:
 	typedef std::map<HAPI2ProcedureName, ProcedureHandler> ProcedureHandlerMap;
 
 	virtual ~HatoholArmPluginInterfaceHAPI2();
-	void stop(void);
 
 	void setArmPluginInfo(const ArmPluginInfo &pluginInfo);
 	std::mt19937 getRandomEngine(void);

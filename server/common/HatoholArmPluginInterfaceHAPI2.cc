@@ -410,11 +410,6 @@ HatoholArmPluginInterfaceHAPI2::~HatoholArmPluginInterfaceHAPI2()
 {
 }
 
-void HatoholArmPluginInterfaceHAPI2::stop(void)
-{
-	m_impl->stop();
-}
-
 void HatoholArmPluginInterfaceHAPI2::setArmPluginInfo(
   const ArmPluginInfo &pluginInfo)
 {
@@ -481,6 +476,11 @@ void HatoholArmPluginInterfaceHAPI2::start(void)
 {
 	onSetPluginInitialInfo();
 	m_impl->start();
+}
+
+void HatoholArmPluginInterfaceHAPI2::stop(void)
+{
+	m_impl->stop();
 }
 
 void HatoholArmPluginInterfaceHAPI2::send(const std::string &message)
