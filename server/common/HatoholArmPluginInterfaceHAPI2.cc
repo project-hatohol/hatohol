@@ -299,11 +299,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 	~Impl()
 	{
-		if (m_consumer) {
-			m_consumer->exitSync();
-			delete m_consumer;
-		}
-		delete m_handler;
+		stop();
 	}
 
 	void setArmPluginInfo(const ArmPluginInfo &armPluginInfo)
