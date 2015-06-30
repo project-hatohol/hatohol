@@ -34,6 +34,7 @@ import transporter
 from rabbitmqconnector import RabbitMQConnector
 import calendar
 import sets
+import math
 
 SERVER_PROCEDURES = {"exchangeProfile": True,
                      "getMonitoringServerInfo": True,
@@ -1085,3 +1086,7 @@ class Utils:
         @return A string of the date and time in HAPI2.0
         """
         return date_time.strftime("%Y%m%d%H%M%S.") + "%06d" % date_time.microsecond
+
+    @staticmethod
+    def translate_int_to_decimal(nano_sec):
+        return float(nano_sec) / 10 ** (int(math.log10(nano_sec)) + 1)
