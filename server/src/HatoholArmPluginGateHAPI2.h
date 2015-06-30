@@ -37,6 +37,7 @@ public:
 	  &getMonitoringServerInfo(void) const override;
 	virtual const ArmStatus &getArmStatus(void) const override;
 	virtual void start(void) override;
+	virtual void stop(void) override;
 	bool isEstablished(void);
 
 	virtual bool isFetchItemsSupported(void);

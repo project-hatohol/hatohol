@@ -487,6 +487,13 @@ void HatoholArmPluginGateHAPI2::start(void)
 {
 	HatoholArmPluginInterfaceHAPI2::start();
 	m_impl->start();
+	m_impl->startPlugin();
+}
+
+void HatoholArmPluginGateHAPI2::stop(void)
+{
+	m_impl->stopPlugin();
+	HatoholArmPluginInterfaceHAPI2::stop();
 }
 
 bool HatoholArmPluginGateHAPI2::isEstablished(void)
