@@ -45,6 +45,7 @@ public:
 
 	ZabbixAPI(void);
 	virtual ~ZabbixAPI();
+	virtual void abortSession(void);
 
 	static const uint64_t EVENT_ID_NOT_FOUND;
 
@@ -52,6 +53,8 @@ public:
 	  const ZabbixAPI::ValueType &valueType);
 	static ZabbixAPI::ValueType fromItemValueType(
 	  const ItemInfoValueType &valueType);
+
+	void freeze(void);
 
 protected:
 	typedef std::map<const TriggerIdType, const ItemGroupPtr> TriggerIdItemGrpMap;

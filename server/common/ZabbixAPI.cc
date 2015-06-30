@@ -51,13 +51,16 @@ struct ZabbixAPI::Impl {
 	bool                 gotTriggers;
 	VariableItemTablePtr functionsTablePtr;
 
+	bool		freeze;
+
 	// constructors and destructor
 	Impl(void)
 	: apiVersionMajor(0),
 	  apiVersionMinor(0),
 	  apiVersionMicro(0),
 	  session(NULL),
-	  gotTriggers(false)
+	  gotTriggers(false),
+	  freeze(false)
 	{
 	}
 
@@ -90,6 +93,19 @@ ZabbixAPI::ZabbixAPI(void)
 
 ZabbixAPI::~ZabbixAPI()
 {
+}
+
+void ZabbixAPI::abortSession(void)
+{
+	if (m_impl->session) {
+		MLPL_DBG("invoke soup_session_abort().\n");
+		soup_session_abort(m_impl->session);
+	}
+}
+
+void ZabbixAPI::freeze(void)
+{
+	m_impl->freeze = true;
 }
 
 // ---------------------------------------------------------------------------
@@ -213,6 +229,8 @@ SoupSession *ZabbixAPI::getSession(void)
 	// NOTE: current implementaion is not MT-safe.
 	//       If we have to use this function from multiple threads,
 	//       it is only necessary to prepare sessions by thread.
+	if (m_impl->freeze)
+		return NULL;
 	if (!m_impl->session)
 		m_impl->session = soup_session_sync_new_with_options(
 			SOUP_SESSION_TIMEOUT,      DEFAULT_TIMEOUT,
