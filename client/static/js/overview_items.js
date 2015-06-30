@@ -89,14 +89,14 @@ var OverviewItems = function(userProfile) {
     return parsedData;
   }
 
-  function setupFilterValues(servers, query, owSelfMonitor) {
+  function setupFilterValues(servers, query, withoutSelfMonitor) {
     if (!servers && rawData && rawData.servers)
       servers = rawData.servers;
 
     if (!query)
       query = self.lastQuery ? self.lastQuery : self.baseQuery;
 
-    self.setupHostFilters(servers, query, owSelfMonitor);
+    self.setupHostFilters(servers, query, withoutSelfMonitor);
   }
 
   function setLoading(loading) {
