@@ -157,7 +157,11 @@ TRIGGER_STATUS = sets.ImmutableSet(
 TRIGGER_SEVERITY = sets.ImmutableSet(
     ["UNKNOWN", "INFO", "WARNING", "ERROR", "CRITICAL", "EMERGENCY"])
 
-MAX_EVENT_CHUNK_SIZE = 1000
+# You should not change MAX_EVENT_CHUNK_SIZE.
+# Because, pika module capacity is 131072 byte.
+# If you change MAX_EVENT_CHUNK_SIZE to over 500.
+# Event data may too 131072 byte.
+MAX_EVENT_CHUNK_SIZE = 500
 MAX_LAST_INFO_SIZE = 32767
 
 def handle_exception(raises=()):
