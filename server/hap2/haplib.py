@@ -724,8 +724,12 @@ class BaseMainPlugin(HapiProcessor):
         return self.__dispatcher
 
     def exchange_profile(self, response_id=None):
+        name = sys.argv[0]
+        if ".py" == name[-3:len(name)]:
+            name = name[0:-3]
         HapiProcessor.exchange_profile(
-            self, self.__implemented_procedures.keys(), response_id=response_id)
+            self, self.__implemented_procedures.keys(),
+            response_id=response_id, name=name)
 
     def hap_exchange_profile(self, params, request_id):
         Utils.optimize_server_procedures(SERVER_PROCEDURES,
