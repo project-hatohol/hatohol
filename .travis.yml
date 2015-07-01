@@ -41,6 +41,7 @@ install:
   - npm install -g casperjs
   - sudo pip install django==1.5.4
   - sudo pip install mysql-python
+  - sudo pip install daemon
   - sudo sh -c "echo acl allow all all > /etc/qpid/qpidd.acl"
   - sudo /etc/init.d/qpidd restart
   - sudo server/misc/setup-rabbitmq-server-port.sh
