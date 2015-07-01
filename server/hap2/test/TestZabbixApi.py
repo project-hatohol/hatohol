@@ -94,13 +94,13 @@ class TestZabbixApi(unittest.TestCase):
         result = self.api.get_trigger_expand_description()
         exact = {u"result": [{u"triggerid": u"1",
                  u"description": u"test_expand_description",
-                 u"state": u"0", u"priority": 3}]}
+                 u"state": u"0", u"priority": u"3"}]}
 
         self.assertEquals(exact, result)
 
     def test_get_select_trigger(self):
         result = self.api.get_select_trigger("test_id")
-        exact = {u"triggerid": u"1", u"priority": 3, u"state": u"0",
+        exact = {u"triggerid": u"1", u"priority": u"3", u"state": u"0",
                  u"description": u"test_expand_description"}
 
         self.assertEquals(exact, result)
