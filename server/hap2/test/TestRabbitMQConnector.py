@@ -38,6 +38,9 @@ class TestRabbitMQConnector(unittest.TestCase):
         cls.__queue_name = "test_queue"
         cls.__user_name = "test_user"
         cls.__password = "test_password"
+        cls.__ssl_key = None
+        cls.__ssl_cert = None
+        cls.__ssl_ca = None
 
     def test_setup(self):
         conn = RabbitMQConnector()
@@ -80,7 +83,9 @@ class TestRabbitMQConnector(unittest.TestCase):
     def __get_default_transporter_args(self):
         args = {"amqp_broker": self.__broker, "amqp_port": self.__port,
                 "amqp_vhost":  self.__vhost, "amqp_queue": self.__queue_name,
-                "amqp_user": self.__user_name, "amqp_password": self.__password}
+                "amqp_user": self.__user_name, "amqp_password": self.__password,
+                "amqp_ssl_key": self.__ssl_key, "amqp_ssl_cert": self.__ssl_cert,
+                "amqp_ssl_ca": self.__ssl_ca}
         return args
 
     def __create_connected_connector(self):
