@@ -330,8 +330,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 		bool executable = g_file_test(m_pluginInfo.path.c_str(),
 					      G_FILE_TEST_IS_EXECUTABLE);
 		if (!executable)
-			MLPL_DBG("The plugin control script isn't executable:"
-				 " %s\n", m_pluginInfo.path.c_str());
+			MLPL_WARN("The plugin control script isn't executable:"
+				  " %s\n", m_pluginInfo.path.c_str());
 		return executable;
 	}
 
