@@ -52,9 +52,6 @@ class RabbitMQConnector(Transporter):
         queue_name = transporter_args["amqp_queue"]
         user_name = transporter_args["amqp_user"]
         password = transporter_args["amqp_password"]
-        ssl_key = transporter_args["amqp_ssl_key"]
-        ssl_cert = transporter_args["amqp_ssl_cert"]
-        ssl_ca = transporter_args["amqp_ssl_ca"]
 
         logging.debug("Called stub method: call().")
         self._queue_name = queue_name
@@ -65,18 +62,26 @@ class RabbitMQConnector(Transporter):
         set_if_not_none(conn_args, "port", port)
         set_if_not_none(conn_args, "virtual_host", vhost)
         set_if_not_none(conn_args, "credentials", credentials)
+        self.__setup_ssl(conn_args, transporter_args)
 
-        if ssl_key is not None:
-            conn_args["ssl"] = True
-            conn_args["ssl_options"] = {
-                "keyfile": ssl_key,
-                "certfile": ssl_cert,
-                "ca_certs": ssl_ca,
-            }
         param = pika.connection.ConnectionParameters(**conn_args)
         connection = pika.adapters.blocking_connection.BlockingConnection(param)
         self._channel = connection.channel()
         self._channel.queue_declare(queue=queue_name)
+
+    def __setup_ssl(self, conn_args, transporter_args):
+        ssl_key = transporter_args["amqp_ssl_key"]
+        ssl_cert = transporter_args["amqp_ssl_cert"]
+        ssl_ca = transporter_args["amqp_ssl_ca"]
+
+        if ssl_key is None:
+            return
+        conn_args["ssl"] = True
+        conn_args["ssl_options"] = {
+            "keyfile": ssl_key,
+            "certfile": ssl_cert,
+            "ca_certs": ssl_ca,
+        }
 
     def call(self, msg):
         self.__publish(msg)

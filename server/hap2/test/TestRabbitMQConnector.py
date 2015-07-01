@@ -19,6 +19,7 @@
 """
 import unittest
 import os
+import common as testutils
 import subprocess
 from rabbitmqconnector import RabbitMQConnector
 
@@ -45,6 +46,26 @@ class TestRabbitMQConnector(unittest.TestCase):
     def test_setup(self):
         conn = RabbitMQConnector()
         conn.setup(self.__get_default_transporter_args())
+
+    def test__setup_ssl(self):
+        conn = RabbitMQConnector()
+        target_func = testutils.returnPrivObj(conn, "__setup_ssl", "RabbitMQConnector")
+        conn_args = {}
+        transporter_args = self.__get_default_transporter_args()
+        target_func(conn_args, transporter_args)
+        self.assertNotIn("ssl", conn_args)
+        self.assertNotIn("ssl_options", conn_args)
+
+        transporter_args["amqp_ssl_key"] = "/foo/key"
+        transporter_args["amqp_ssl_cert"] = "/foo/cert"
+        transporter_args["amqp_ssl_ca"] = "/kamo/ca"
+        conn_args = {}
+        target_func(conn_args, transporter_args)
+        self.assertTrue(conn_args["ssl"])
+        ssl_options = conn_args["ssl_options"]
+        self.assertEquals(ssl_options["keyfile"], "/foo/key")
+        self.assertEquals(ssl_options["certfile"], "/foo/cert")
+        self.assertEquals(ssl_options["ca_certs"], "/kamo/ca")
 
     def test_call(self):
         TEST_BODY = "CALL TEST"
