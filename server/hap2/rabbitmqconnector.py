@@ -37,6 +37,9 @@ class RabbitMQConnector(Transporter):
         - amqp_queue      A queue name.
         - amqp_user       A user name.
         - amqp_password   A password.
+        - amqp_ssl_key    A file path to the key file (pem).
+        - amqp_ssl_cert   A file path to client certificate (pem).
+        - amqp_ssl_ca     A file path to CA certificate (pem).
         """
 
         def set_if_not_none(kwargs, key, val):
@@ -49,6 +52,9 @@ class RabbitMQConnector(Transporter):
         queue_name = transporter_args["amqp_queue"]
         user_name = transporter_args["amqp_user"]
         password = transporter_args["amqp_password"]
+        ssl_key = transporter_args["amqp_ssl_key"]
+        ssl_cert = transporter_args["amqp_ssl_cert"]
+        ssl_ca = transporter_args["amqp_ssl_ca"]
 
         logging.debug("Called stub method: call().")
         self._queue_name = queue_name
@@ -59,6 +65,14 @@ class RabbitMQConnector(Transporter):
         set_if_not_none(conn_args, "port", port)
         set_if_not_none(conn_args, "virtual_host", vhost)
         set_if_not_none(conn_args, "credentials", credentials)
+
+        if ssl_key is not None:
+            conn_args["ssl"] = True
+            conn_args["ssl_options"] = {
+                "keyfile": ssl_key,
+                "certfile": ssl_cert,
+                "ca_certs": ssl_ca,
+            }
         param = pika.connection.ConnectionParameters(**conn_args)
         connection = pika.adapters.blocking_connection.BlockingConnection(param)
         self._channel = connection.channel()
@@ -96,6 +110,9 @@ class RabbitMQConnector(Transporter):
         parser.add_argument("--amqp-queue", type=str, default="hap2-queue")
         parser.add_argument("--amqp-user", type=str, default="hatohol")
         parser.add_argument("--amqp-password", type=str, default="hatohol")
+        parser.add_argument("--amqp-ssl-key", type=str)
+        parser.add_argument("--amqp-ssl-cert", type=str)
+        parser.add_argument("--amqp-ssl-ca", type=str)
 
     @classmethod
     def parse_arguments(cls, args):
@@ -104,4 +121,7 @@ class RabbitMQConnector(Transporter):
                 "amqp_vhost": args.amqp_vhost,
                 "amqp_queue": args.amqp_queue,
                 "amqp_user": args.amqp_user,
-                "amqp_password": args.amqp_password}
+                "amqp_password": args.amqp_password,
+                "amqp_ssl_key": args.amqp_ssl_key,
+                "amqp_ssl_cert": args.amqp_ssl_cert,
+                "amqp_ssl_ca": args.amqp_ssl_ca}
