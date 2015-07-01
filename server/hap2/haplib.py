@@ -678,13 +678,17 @@ class BaseMainPlugin(HapiProcessor):
     __COMPONENT_CODE = 0x10
     CB_UPDATE_MONITORING_SERVER_INFO = 1
 
-    def __init__(self, transporter_args):
+    def __init__(self, transporter_args, name=None):
         self.__detect_implemented_procedures()
         self.__sender = Sender(transporter_args)
         self.__rpc_queue = multiprocessing.Queue()
         HapiProcessor.__init__(self, self.__sender, "Main",
                                self.__COMPONENT_CODE)
         self.__callback = Callback()
+        if name is not None:
+            self.__plugin_name = name
+        else:
+            self.__plugin_name = self.__class__.__name__
 
         # launch dispatcher process
         self.__dispatcher = Dispatcher(self.__rpc_queue)
@@ -727,13 +731,13 @@ class BaseMainPlugin(HapiProcessor):
     def get_dispatcher(self):
         return self.__dispatcher
 
+    def get_plugin_name(self):
+        return self.__plugin_name
+
     def exchange_profile(self, response_id=None):
-        name = sys.argv[0]
-        if ".py" == name[-3:len(name)]:
-            name = name[0:-3]
         HapiProcessor.exchange_profile(
             self, self.__implemented_procedures.keys(),
-            response_id=response_id, name=name)
+            response_id=response_id, name=self.__plugin_name)
 
     def hap_exchange_profile(self, params, request_id):
         Utils.optimize_server_procedures(SERVER_PROCEDURES,
