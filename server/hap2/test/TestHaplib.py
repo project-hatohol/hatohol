@@ -634,7 +634,18 @@ class Dispatcher(unittest.TestCase):
         common.assertNotRaises(dispatcher)
 
 
+class BaseMainPluginTestee(haplib.BaseMainPlugin):
+    def __init__(self, **kwargs):
+        transporter_args = {"class": transporter.Transporter}
+        haplib.BaseMainPlugin.__init__(self, transporter_args, **kwargs)
+
+    @staticmethod
+    def create(**kwargs):
+        return BaseMainPluginTestee(**kwargs)
+
+
 class BaseMainPlugin(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         transporter_args = {"class": transporter.Transporter}
@@ -678,6 +689,14 @@ class BaseMainPlugin(unittest.TestCase):
     def test_get_dispatcher(self):
         dispatcher = common.returnPrivObj(self.__main_plugin, "__dispatcher")
         self.assertEquals(dispatcher, self.__main_plugin.get_dispatcher())
+
+    def test_plugin_name(self):
+        main = BaseMainPluginTestee.create(name="Love Sweets")
+        self.assertEquals(main.get_plugin_name(), "Love Sweets")
+
+    def test_plugin_name_default(self):
+        main = BaseMainPluginTestee.create()
+        self.assertEquals(main.get_plugin_name(), "BaseMainPluginTestee")
 
     def test_exchange_profile(self):
         self.__main_plugin._HapiProcessor__reply_queue = DummyQueue()
