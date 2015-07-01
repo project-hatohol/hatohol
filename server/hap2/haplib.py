@@ -52,43 +52,63 @@ SERVER_PROCEDURES = {"exchangeProfile": True,
 PROCEDURES_DEFS = {
     "exchangeProfile": {
         "args": {
-            "procedures": {"type": list(), "mandatory": True},
-            "name": {"type": unicode(), "mandatory": True},
+            "procedures": {"type": list(), "mandatory": True, "max_size": 255},
+            "name": {"type": unicode(), "mandatory": True, "max_size": 255},
         }
     },
     "fetchItems": {
         "args": {
+            # TODO by 15.09: Validate that size of each hostId is within 255.
             "hostIds": {"type": list(), "mandatory": False},
-            "fetchId": {"type": unicode(), "mandatory": True},
+            "fetchId": {"type": unicode(), "mandatory": True, "max_size": 255},
         }
     },
     "fetchHistory": {
         "args": {
-            "hostId": {"type": unicode(), "mandatory": True},
-            "itemId": {"type": unicode(), "mandatory": True},
+            "hostId": {"type": unicode(), "mandatory": True, "max_size": 255},
+            "itemId": {"type": unicode(), "mandatory": True, "max_size": 255},
+            # TODO by 15.09: Validate Timestamp.
             "beginTime": {"type": unicode(), "mandatory": True},
             "endTime": {"type": unicode(), "mandatory": True},
-            "fetchId": {"type": unicode(), "mandatory": True},
+            "fetchId": {"type": unicode(), "mandatory": True, "max_size": 255},
         }
     },
     "fetchTriggers": {
         "args": {
+            # TODO by 15.09: Validate that size of each hostId is within 255.
             "hostIds": {"type": list(), "mandatory": False},
-            "fetchId": {"type": unicode(), "mandatory": True}
+            "fetchId": {"type": unicode(), "mandatory": True, "max_size": 255}
         }
     },
     "fetchEvents": {
         "args": {
-            "lastInfo": {"type": unicode(), "mandatory": True},
+            "lastInfo": {
+                "type": unicode(), "mandatory": True, "max_size": 32767
+            },
+            # TODO by 15.09: Validate the range of the int (max 1000)
             "count": {"type": int(), "mandatory": True},
-            # TODO: validate: direction
-            "direction": {"type": unicode(), "mandatory": True},
-            "fetchId": {"type": unicode(), "mandatory": True}
+            "direction": {
+                "type": unicode(), "mandatory": True,
+                "choices": sets.ImmutableSet(["ASC", "DESC"])
+            },
+            "fetchId": {"type": unicode(), "mandatory": True, "max_size": 255}
         }
     },
     "updateMonitoringServerInfo": {
         "notification": True,
-        "args": {}  # TODO: fill content
+        "args": {
+            "serverId": {"type": int(), "mandatory": True},
+            "url": {"type": unicode(), "max_size": 2047, "mandatory": True},
+            "type": {"type": unicode(), "max_size": 2047, "mandatory": True},
+            "nickName": {"type": unicode(), "max_size": 255, "mandatory": True},
+             "userName": {
+                "type": unicode(), "max_size": 255, "mandatory": True},
+            "password": {"type": unicode(), "max_size": 255, "mandatory": True},
+            "pollingIntervalSec": {"type": int(), "mandatory": True},
+            "retryIntervalSec": {"type": int(), "mandatory": True},
+            "extendedInfo": {
+                "type": unicode(), "mandatory": True, "max_size": 32767},
+        }
     },
     "getMonitoringServerInfo": {
         "args": {}
@@ -121,16 +141,19 @@ PROCEDURES_DEFS = {
     },
     "putItems": {
         "args": {
-            "items": {"type": list(), "mandatory": True}
+            # TODO by 15.09: Add a mechanism to validate paramters in
+            #                nested dictionaries
+            "items": {"type": list(), "mandatory": True},
+            "fetchId": {"type": unicode(), "max_size": 255},
         }
     },
     "putHistory": {
         "args": {
-            "samples": {"type": list(), "mandatory": True},
-            "itemId": {"type": unicode(), "mandatory": True}
+            "samples": {"type": list(), "mandatory": True}
         }
     },
     "getLastInfo": {
+        # TODO by 15.09: Add a mechanism to validate a direct paramter
         "args": {}
     },
     "putArmInfo": {
@@ -781,8 +804,6 @@ class BaseMainPlugin(HapiProcessor):
                 logging.error(msg.get_error_message())
                 continue
 
-            # TODO check if there are necessary parameters.
-            # Or should return error
             request = msg.message_dict
             procedure = self.__implemented_procedures[request["method"]]
             args = [request.get("params")]
@@ -897,10 +918,6 @@ class BasePoller(HapiProcessor):
 
 
 class Utils:
-    # TODO: We need to specify custom validators
-    # TODO: Check the maximum length
-    # ToDo Currently, this method does not have notification filter.
-    # If we implement notification procedures, should insert notification filter.
     @staticmethod
     def define_transporter_arguments(parser):
         parser.add_argument("--transporter", type=str,
@@ -975,8 +992,9 @@ class Utils:
         if should_reply:
             return pm
 
+        params = pm.message_dict["params"]
         pm.error_code, pm.error_message = \
-          Utils.validate_arguments(pm.message_dict)
+          Utils.validate_arguments(method, params)
         if pm.error_code is not None:
             return pm
 
@@ -1006,16 +1024,45 @@ class Utils:
             return ERR_CODE_METHOD_NOT_FOUND
 
     @staticmethod
-    def validate_arguments(json_dict):
-        args_dict = PROCEDURES_DEFS[json_dict["method"]]["args"]
+    def validate_arguments(method_name, params):
+        """
+        Validate arguemnts of the received RPC.
+        @method_name     A method name to be validated.
+        @paramter params A dictionary of the parameters to be validated.
+        @return
+        A tuple (errorcode, error_message) is returned. if no problem,
+        (None, None) is returned.
+        """
+        args_dict = PROCEDURES_DEFS[method_name]["args"]
         for arg_name, arg_value in args_dict.iteritems():
             try:
-                type_actual = type(json_dict["params"][arg_name])
+                param = params[arg_name]
+
+                # check the paramter type
+                type_actual = type(param)
                 type_expect = type(arg_value["type"])
                 if type_expect != type_actual:
                     msg = "Argument '%s': unexpected type: exp: %s, act: %s" \
                           % (arg_name, type_expect, type_actual)
                     return (ERR_CODE_INVALID_PARAMS, msg)
+
+                # check the paramter's length
+                max_len = arg_value.get("max_size")
+                if max_len is not None:
+                    length = len(param)
+                    if length > max_len:
+                        msg = "parameter: %s. Over the maixum length %d/%d" \
+                              % (arg_name, length, max_len)
+                        return (ERR_CODE_INVALID_PARAMS, msg)
+
+                # when the paramter should be one of the choices.
+                choices = arg_value.get("choices")
+                if choices is not None:
+                    if param not in choices:
+                        msg = "parameter: %s, value: %s: Not in choices." \
+                              % (arg_name, param)
+                        return (ERR_CODE_INVALID_PARAMS, msg)
+
             except KeyError:
                 if arg_value["mandatory"]:
                     msg = "Missing a mandatory paramter: %s" % arg_name

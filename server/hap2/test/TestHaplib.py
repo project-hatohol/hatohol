@@ -321,16 +321,45 @@ class Utils(unittest.TestCase):
         self.assertEquals(result, -32601)
 
     def test_validate_arguments_success(self):
-        test_json_string = '{"method": "exchangeProfile", "params": {"name":"test_name", "procedures":["exchangeProfile"]}}'
-        test_json_dict = json.loads(test_json_string)
-        result = haplib.Utils.validate_arguments(test_json_dict)
+        test_params_str = '{"params": {"name":"test_name", "procedures":["exchangeProfile"]}}'
+        result = haplib.Utils.validate_arguments("exchangeProfile",
+                                                 json.loads(test_params_str))
         self.assertTrue((None, None), result)
 
     def test_validate_arguments_fail(self):
-        test_json_string = '{"method": "exchangeProfile", "params": {"name":"test_name", "procedures":"exchangeProfile"}}'
-        test_json_dict = json.loads(test_json_string)
-        result = haplib.Utils.validate_arguments(test_json_dict)
+        test_params_str = '{"name":"test_name", "procedures":"exchangeProfile"}'
+        result = haplib.Utils.validate_arguments("exchangeProfile",
+                                                 json.loads(test_params_str))
         self.assertEquals(result[0], -32602)
+
+    def __assert_validate_arguments_for_max_len(self, length, expect_code):
+        params = {"procedures": []}
+        params["name"] = reduce(lambda x,y: x+y, [u"A" for i in range(length)])
+        self.assertEquals(len(params["name"]), length)
+        result = haplib.Utils.validate_arguments("exchangeProfile", params)
+        self.assertEquals(result[0], expect_code)
+
+    def test_validate_arguments_with_max_len(self):
+        self.__assert_validate_arguments_for_max_len(255, None)
+
+    def test_validate_arguments_with_max_len_plus_1(self):
+        # We expect INVALID PARAMS
+        self.__assert_validate_arguments_for_max_len(256, -32602)
+
+    def __assert_validate_arguments_with_choices(self, direction, expect_code):
+        test_params_str = \
+            '{"lastInfo":"12345", "count": 100, ' + \
+            '"direction": "%s", "fetchId": "6789"}' % direction
+        result = haplib.Utils.validate_arguments("fetchEvents",
+                                                 json.loads(test_params_str))
+        self.assertEquals(result[0], expect_code)
+
+    def test_validate_arguments_with_choices(self):
+        self.__assert_validate_arguments_with_choices("ASC", None)
+        self.__assert_validate_arguments_with_choices("DESC", None)
+
+    def test_validate_arguments_with_out_of_choices(self):
+        self.__assert_validate_arguments_with_choices("Fire", -32602)
 
     def test_generate_request_id(self):
         result = haplib.Utils.generate_request_id(0x01)
