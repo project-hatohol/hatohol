@@ -331,7 +331,8 @@ class Common:
             doUpdate = True
             latest_time = self.__alarm_last_time_map.get(alarm_id)
             if latest_time is not None:
-                # TODO: FIX: This is too easy and imprecise
+                # TODO by 15.09: FIX: This is too easy and imprecise
+                # Memo: The precision is about three places of decimals.
                 doUpdate = float(alarm_time) > float(latest_time)
             if doUpdate:
                 self.__alarm_last_time_map[alarm_id] = alarm_time
@@ -384,7 +385,10 @@ class Common:
         return json.loads(raw_response)
 
     def __parse_alarm_host(self, threshold_rule):
-        # TODO: we should handle the case many hosts are involved in the alarm.
+        # TODO [long term]
+        # we should handle the case many hosts are involved in the alarm.
+        # HAPI2.0 handles only one host for every trigger.
+        # To do solve this problem, we have to extend the HAPI specifiation.
         query_array = threshold_rule.get("query")
         if query_array is None:
             return "N/A", "N/A"
