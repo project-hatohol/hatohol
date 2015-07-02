@@ -193,9 +193,15 @@ describe('EventsView', function() {
     }
   });
 
-  afterEach(function() {
-    restoreAjax();
-    $("#" + TEST_FIXTURE_ID).remove();
+  afterEach(function(done) {
+    setTimeout(function() {
+      // Wait completing stupidsort() in EventsView
+      // TODO: Don't use stupidtable then remove this setTimeout()
+      // (EventsView doesn't use its sort function anymore).
+      restoreAjax();
+      $("#" + TEST_FIXTURE_ID).remove();
+      done();
+    }, 20);
   });
 
   it('new with empty data', function() {
