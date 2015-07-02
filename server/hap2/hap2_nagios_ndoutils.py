@@ -151,7 +151,9 @@ class Common:
 
         if host_ids is not None and not self.__validate_object_ids(host_ids):
             logging.error("Invalid: host_ids: %s" % host_ids)
-            # TODO: send error
+            # TODO by 15.09 (*1): send error
+            # There's no definition to send error in HAPI 2.0.
+            # We have to extend the specification to enable this.
             return
 
         t0 = "nagios_services"
@@ -173,10 +175,12 @@ class Common:
             in_cond = "','".join(host_ids)
             sql += " WHERE %s.host_object_id in ('%s')" % (t2, in_cond)
 
-        # NOTE: The update time update in the output is updated every status
+        # NOTE: The update time in the output is renewed every status
         #       check in Nagios even if the value is not changed.
-        # TODO: So we should has the previous result and compare it here
-        #       in order to improve performance.
+        # TODO by 15.09:
+        #   We should has the previous result and compare it here in order to
+        #   improve performance. Or other columns such as last_state_change in
+        #   nagios_servicestatus might be used.
         self.__cursor.execute(sql)
         result = self.__cursor.fetchall()
 
@@ -198,8 +202,7 @@ class Common:
                 "brief": msg,
                 "extendedInfo": ""
             })
-        # TODO: see issue #42 https://github.com/project-hatohol/HAPI-2.0-Specification/issues/42
-        # TODO: update_type should UPDATED.
+        # TODO by 15.09: Implement UPDATED mode.
         update_type = "ALL"
         self.put_triggers(triggers, update_type=update_type, fetch_id=fetch_id)
 
@@ -238,7 +241,8 @@ class Common:
                 logging.error("Malformed last_info: '%s'",
                               str(raw_last_info))
                 logging.error("Getting events was aborted.")
-                # TODO: notify error to the caller
+                # TODO by 15.09: notify error to the caller
+                # See  also TODO (*1)
                 return
             # TODO: Fix when direction is 'DESC'
             sql += " WHERE %s.statehistory_id>%s" % (t0, last_cond)
