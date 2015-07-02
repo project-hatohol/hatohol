@@ -249,7 +249,7 @@ class CommandQueue(Callback):
 
     def pop_all(self):
         while not self.__q.empty():
-            self.__wait(0)
+            self.__wait(None)
 
 
 class MonitoringServerInfo:
