@@ -52,7 +52,7 @@ class SimpleCaller:
             "fetchEvents":   self.__rpc_fetch_events,
             "fetchItems":    self.__rpc_fetch_items,
             "fetchHistory":  self.__rpc_fetch_history,
-            "notifyMonitoringServerInfo":
+            "updateMonitoringServerInfo":
             self.__rpc_notify_monitoring_server_info,
         }
 
@@ -117,8 +117,8 @@ class SimpleCaller:
                                       default="ASC")
         parser_fetch_evt.add_argument('--fetch-id', default="1")
 
-        parser_notify_msi = subparsers.add_parser('notifyMonitoringServerInfo')
-        parser_notify_msi.add_argument('ms_info')
+        parser_update_msi = subparsers.add_parser('updateMonitoringServerInfo')
+        parser_update_msi.add_argument('ms_info')
 
         parser_fetch_item = subparsers.add_parser('fetchItems')
         parser_fetch_item.add_argument('--host-ids', nargs="+", required=True)
