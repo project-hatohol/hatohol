@@ -25,6 +25,8 @@ import time
 import haplib
 import standardhap
 import logging
+import datetime
+import time
 
 class Common:
 
@@ -52,6 +54,7 @@ class Common:
         self.__db_name = self.DEFAULT_DATABASE
         self.__db_user = self.DEFAULT_USER
         self.__db_passwd = ""
+        self.__time_offset = datetime.timedelta(seconds=time.timezone)
 
     def close_connection(self):
         if self.__cursor is not None:
@@ -191,12 +194,13 @@ class Common:
             hapi_status, hapi_severity = \
               self.__parse_status_and_severity(state)
 
+            hapi_time = haplib.Utils.conv_to_hapi_time(update_time,
+                                                       self.__time_offset)
             triggers.append({
                 "triggerId": str(trigger_id),
                 "status": hapi_status,
                 "severity": hapi_severity,
-                # TODO: take into acount the timezone
-                "lastChangeTime": update_time.strftime("%Y%m%d%H%M%S"),
+                "lastChangeTime": hapi_time,
                 "hostId": str(host_id),
                 "hostName": host_name,
                 "brief": msg,
@@ -271,9 +275,11 @@ class Common:
             hapi_status, hapi_severity = \
               self.__parse_status_and_severity(state)
 
+            hapi_time = haplib.Utils.conv_to_hapi_time(event_time,
+                                                       self.__time_offset)
             events.append({
                 "eventId": str(event_id),
-                "time": event_time.strftime("%Y%m%d%H%M%S"),
+                "time": hapi_time,
                 "type": hapi_event_type,
                 "triggerId": trigger_id,
                 "status": hapi_status,
