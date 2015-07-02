@@ -122,7 +122,8 @@ public:
 	void registerServerType(const ServerTypeInfo &serverType);
 
 	static std::string getDefaultPluginPath(
-	  const MonitoringSystemType &type);
+	  const MonitoringSystemType &type,
+	  const std::string &uuid);
 
 	/**
 	 * Get the registered ServerTypeInfo.
@@ -137,11 +138,13 @@ public:
 	 *
 	 * @param serverTypes The obtained information is stored to this.
 	 * @param type        The monitoring system type.
+	 * @param type        The UUID of the monitoring system type.
 	 * @return
 	 * true if the server type is found. Otherwise false.
 	 */
 	bool getServerType(ServerTypeInfo &serverType,
-	                   const MonitoringSystemType &type);
+			   const MonitoringSystemType &type,
+			   const std::string &uuid);
 
 	HatoholError addTargetServer(
 	  MonitoringServerInfo *monitoringServerInfo,
