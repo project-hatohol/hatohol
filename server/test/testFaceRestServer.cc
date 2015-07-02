@@ -57,7 +57,8 @@ static void setupArmPluginInfo(
 	armPluginInfo.id = AUTO_INCREMENT_VALUE;
 	armPluginInfo.type = serverInfo.type;
 	armPluginInfo.path =
-	  DBTablesConfig::getDefaultPluginPath(armPluginInfo.type);
+	  DBTablesConfig::getDefaultPluginPath(armPluginInfo.type,
+					       armPluginInfo.uuid);
 	armPluginInfo.brokerUrl = "abc.example.com:22222";
 	armPluginInfo.staticQueueAddress = "";
 	armPluginInfo.serverId = serverInfo.id;

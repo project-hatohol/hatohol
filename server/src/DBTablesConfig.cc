@@ -29,6 +29,7 @@
 #include "ItemGroupStream.h"
 #include "SQLUtils.h"
 #include "DBClientJoinBuilder.h"
+#include "DBTermCStringProvider.h"
 using namespace std;
 using namespace mlpl;
 
@@ -933,7 +934,8 @@ void DBTablesConfig::registerServerType(const ServerTypeInfo &serverType)
 	getDBAgent().runTransaction(arg, &id);
 }
 
-string DBTablesConfig::getDefaultPluginPath(const MonitoringSystemType &type)
+string DBTablesConfig::getDefaultPluginPath(const MonitoringSystemType &type,
+					    const string &uuid)
 {
 	// TODO: these should be defined in server_types tables.
 	switch (type) {
@@ -948,7 +950,7 @@ string DBTablesConfig::getDefaultPluginPath(const MonitoringSystemType &type)
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	ServerTypeInfo serverType;
-	if (dbConfig.getServerType(serverType, type))
+	if (dbConfig.getServerType(serverType, type, uuid))
 		return serverType.pluginPath;
 
 	return "";
@@ -981,11 +983,16 @@ void DBTablesConfig::getServerTypes(ServerTypeInfoVect &serverTypes)
 }
 
 bool DBTablesConfig::getServerType(ServerTypeInfo &serverType,
-                                   const MonitoringSystemType &type)
+				   const MonitoringSystemType &type,
+				   const string &uuid)
 {
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	DBAgent::SelectExArg arg(tableProfileServerTypes);
-	arg.condition = StringUtils::sprintf("%s=%d",
-	  COLUMN_DEF_SERVER_TYPES[IDX_SERVER_TYPES_TYPE].columnName, type);
+	arg.condition = StringUtils::sprintf("%s=%d AND %s=%s",
+	  COLUMN_DEF_SERVER_TYPES[IDX_SERVER_TYPES_TYPE].columnName,
+	  type,
+	  COLUMN_DEF_SERVER_TYPES[IDX_SERVER_TYPES_UUID].columnName,
+	  rhs(uuid));
 	arg.add(IDX_SERVER_TYPES_TYPE);
 	arg.add(IDX_SERVER_TYPES_NAME);
 	arg.add(IDX_SERVER_TYPES_PARAMETERS);

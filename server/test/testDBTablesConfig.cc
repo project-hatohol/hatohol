@@ -277,7 +277,7 @@ void test_getDefaultPluginPath(gconstpointer data)
 {
 	const string expect = gcut_data_get_string(data, "expect") ? : "";
 	const string actual = DBTablesConfig::getDefaultPluginPath(
-	    (MonitoringSystemType)gcut_data_get_int(data, "type"));
+	    (MonitoringSystemType)gcut_data_get_int(data, "type"), "");
 	cppcut_assert_equal(expect, actual);
 }
 
@@ -300,9 +300,11 @@ void test_getServerType(void)
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	for (size_t i = 0; i < NumTestServerTypeInfo; i++) {
 		const ServerTypeInfo &expect = testServerTypeInfo[i];
+		if (expect.type == MONITORING_SYSTEM_HAPI2)
+			continue;
 		ServerTypeInfo actual;
 		cppcut_assert_equal(true,
-		   dbConfig.getServerType(actual, expect.type));
+		  dbConfig.getServerType(actual, expect.type, expect.uuid));
 		cppcut_assert_equal(expect.type, actual.type);
 		cppcut_assert_equal(expect.name, actual.name);
 		cppcut_assert_equal(expect.parameters, actual.parameters);
@@ -317,7 +319,7 @@ void test_getServerTypeExpectFalse(void)
 	const MonitoringSystemType type = NUM_MONITORING_SYSTEMS;
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	ServerTypeInfo actual;
-	cppcut_assert_equal(false, dbConfig.getServerType(actual, type));
+	cppcut_assert_equal(false, dbConfig.getServerType(actual, type, ""));
 }
 
 void test_createTableServers(void)

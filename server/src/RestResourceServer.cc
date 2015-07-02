@@ -261,13 +261,16 @@ void RestResourceServer::handlerGetServer(void)
 }
 
 static HatoholError getRequiredParameterKeys(
-  const MonitoringServerInfo &svInfo, set<string> &requiredKeys)
+  const MonitoringServerInfo &svInfo,
+  const ArmPluginInfo &armPluginInfo,
+  set<string> &requiredKeys)
 {
 
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	ServerTypeInfo serverTypeInfo;
-	if (!dbConfig.getServerType(serverTypeInfo, svInfo.type))
+	if (!dbConfig.getServerType(serverTypeInfo, svInfo.type,
+				    armPluginInfo.uuid))
 		return HTERR_NOT_FOUND_SERVER_TYPE;
 
 	JSONParser parser(serverTypeInfo.parameters);
@@ -318,8 +321,18 @@ static HatoholError parseServerParameter(
 			return err;
 	}
 
+	// uuid
+	if (svInfo.type == MONITORING_SYSTEM_HAPI2) {
+		value = (char *)g_hash_table_lookup(query, "uuid");
+		if (!value && !allowEmpty)
+			return HatoholError(HTERR_NOT_FOUND_PARAMETER, "uuid");
+		// TODO: check existence of the plugin
+		if (value)
+			armPluginInfo.uuid = value;
+	}
+
 	set<string> requiredKeys;
-	err = getRequiredParameterKeys(svInfo, requiredKeys);
+	err = getRequiredParameterKeys(svInfo, armPluginInfo, requiredKeys);
 	if (err != HTERR_OK)
 		return err;
 
@@ -445,7 +458,8 @@ static HatoholError parseServerParameter(
 		armPluginInfo.serverId = INVALID_SERVER_ID;
 	}
 	armPluginInfo.type = svInfo.type;
-	armPluginInfo.path = DBTablesConfig::getDefaultPluginPath(svInfo.type);
+	armPluginInfo.path = DBTablesConfig::getDefaultPluginPath(
+			       svInfo.type, armPluginInfo.uuid);
 
 	// passiveMode
 	// Note: We don't accept a plugin path from outside for security.
@@ -510,16 +524,6 @@ static HatoholError parseServerParameter(
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
 	if (value)
 		armPluginInfo.tlsEnableVerify = (string(value) == "true");
-
-	// uuid
-	if (svInfo.type == MONITORING_SYSTEM_HAPI2) {
-		value = (char *)g_hash_table_lookup(query, "uuid");
-		if (!value && !allowEmpty)
-			return HatoholError(HTERR_NOT_FOUND_PARAMETER, "uuid");
-		// TODO: check existence of the plugin
-		if (value)
-			armPluginInfo.uuid = value;
-	}
 
 	return HTERR_OK;
 }
