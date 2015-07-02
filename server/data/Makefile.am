@@ -5,6 +5,10 @@ sql_DATA = \
 	server-type-hapi-zabbix.sql \
 	server-type-hapi-json.sql \
 	server-type-ceilometer.sql \
+	server-type-hap2-zabbix.sql \
+	server-type-hap2-nagios.sql \
+	server-type-hap2-ceilometer.sql \
+	server-type-hap2-fluentd.sql \
 	init-user.sql
 
 sqldir = $(pkgdatadir)/sql
