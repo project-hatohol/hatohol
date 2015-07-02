@@ -48,7 +48,7 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
         self.__accept_tag_pattern = re.compile(self.__accept_tag_reg)
 
     def set_arguments(self, args):
-        # TODO: Support escape of space characters
+        # TODO by 15.09: Support escape of space characters
         self.__launch_args = args.fluentd_launch.split(" ")
 
     def set_ms_info(self, ms_info):
@@ -63,14 +63,15 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
         try:
             self.__fluentd_manager_main_in_try_block()
         except:
-            # TODO: Implement
+            # TODO ASAP: Implement
             pass
 
     def __fluentd_manager_main_in_try_block(self):
-        # TODO: add action when the sub proccess is unexpectedly terminated.
+        # TODO ASAP: add action when the sub proccess is
+        #            unexpectedly terminated.
         logging.info("Started fluentd manger process.")
 
-        # TODO: handle when the launch failed.
+        # TODO ASAP: handle when the launch failed.
         fluentd = subprocess.Popen(self.__launch_args, stdout=subprocess.PIPE)
 
         while True:
@@ -126,7 +127,7 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
         return datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S%f")
 
     def __parse_line(self, line):
-        # TODO: handle exception due to the unexpected form of input
+        # TODO ASAP: handle exception due to the unexpected form of input
         header, msg = line.split(": ", 1)
         timestamp, tag = self.__parse_header(header)
         return timestamp, tag, msg
