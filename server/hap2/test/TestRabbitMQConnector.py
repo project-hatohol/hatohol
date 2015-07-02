@@ -19,6 +19,7 @@
 """
 import unittest
 import os
+import common as testutils
 import subprocess
 from rabbitmqconnector import RabbitMQConnector
 
@@ -38,10 +39,33 @@ class TestRabbitMQConnector(unittest.TestCase):
         cls.__queue_name = "test_queue"
         cls.__user_name = "test_user"
         cls.__password = "test_password"
+        cls.__ssl_key = None
+        cls.__ssl_cert = None
+        cls.__ssl_ca = None
 
     def test_setup(self):
         conn = RabbitMQConnector()
         conn.setup(self.__get_default_transporter_args())
+
+    def test__setup_ssl(self):
+        conn = RabbitMQConnector()
+        target_func = testutils.returnPrivObj(conn, "__setup_ssl", "RabbitMQConnector")
+        conn_args = {}
+        transporter_args = self.__get_default_transporter_args()
+        target_func(conn_args, transporter_args)
+        self.assertNotIn("ssl", conn_args)
+        self.assertNotIn("ssl_options", conn_args)
+
+        transporter_args["amqp_ssl_key"] = "/foo/key"
+        transporter_args["amqp_ssl_cert"] = "/foo/cert"
+        transporter_args["amqp_ssl_ca"] = "/kamo/ca"
+        conn_args = {}
+        target_func(conn_args, transporter_args)
+        self.assertTrue(conn_args["ssl"])
+        ssl_options = conn_args["ssl_options"]
+        self.assertEquals(ssl_options["keyfile"], "/foo/key")
+        self.assertEquals(ssl_options["certfile"], "/foo/cert")
+        self.assertEquals(ssl_options["ca_certs"], "/kamo/ca")
 
     def test_call(self):
         TEST_BODY = "CALL TEST"
@@ -80,7 +104,9 @@ class TestRabbitMQConnector(unittest.TestCase):
     def __get_default_transporter_args(self):
         args = {"amqp_broker": self.__broker, "amqp_port": self.__port,
                 "amqp_vhost":  self.__vhost, "amqp_queue": self.__queue_name,
-                "amqp_user": self.__user_name, "amqp_password": self.__password}
+                "amqp_user": self.__user_name, "amqp_password": self.__password,
+                "amqp_ssl_key": self.__ssl_key, "amqp_ssl_cert": self.__ssl_cert,
+                "amqp_ssl_ca": self.__ssl_ca}
         return args
 
     def __create_connected_connector(self):
