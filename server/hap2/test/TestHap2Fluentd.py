@@ -131,9 +131,31 @@ class Hap2FluentdMain(unittest.TestCase):
         arg = 1 # The value can be arbitrary since it's not used actually.
         self.assertEquals(main.stores["last_info_generator"](arg), None)
 
-    # TODO: make tests for __generate_event_id, __parse_line, and
-    #       __parse_header.
+    # TODO: make tests for __generate_event_id, __parse_header.
     #       Note that they are indirectly used in the above test.
+
+
+class Hap2FluentdMain__parse_line(unittest.TestCase):
+    def __assert(self, line, expects):
+        main = Hap2FluentdMainTestee()
+        target_func = main.get_priv_attr("__parse_line")
+        self.assertEquals(target_func(line), expects)
+
+    def test_normal(self):
+        expect_ts = datetime.datetime(2015, 7, 2, 9, 20, 20)
+        self.__assert(
+            "2015-07-02 18:20:20 +0900 [warn]: process died",
+            (expect_ts, "[warn]", "process died"))
+
+    def test_unexpected_date_format(self):
+        expect_ts = datetime.datetime(2015, 7, 2, 9, 20, 20)
+        self.__assert(
+            "20150702182020 +0900 [warn]: process died", (None, None, None))
+
+    def test_without_colon(self):
+        expect_ts = datetime.datetime(2015, 7, 2, 9, 20, 20)
+        self.__assert("just message", (None, None, None))
+
 
 class Hap2FluentdMain__get_paramter(unittest.TestCase):
     def __assert(self, msg, key, default_value, candidates, expect):

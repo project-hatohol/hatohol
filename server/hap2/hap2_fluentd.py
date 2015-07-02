@@ -77,6 +77,8 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
         while True:
             line = fluentd.stdout.readline()
             timestamp, tag, raw_msg = self.__parse_line(line)
+            if timestamp is None:
+                continue
             if not self.__accept_tag_pattern.match(tag):
                 continue
             self.__put_event(timestamp, tag, raw_msg)
@@ -127,9 +129,12 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
         return datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S%f")
 
     def __parse_line(self, line):
-        # TODO ASAP: handle exception due to the unexpected form of input
-        header, msg = line.split(": ", 1)
-        timestamp, tag = self.__parse_header(header)
+        try:
+            header, msg = line.split(": ", 1)
+            timestamp, tag = self.__parse_header(header)
+        except:
+            timestamp, tag, msg = None, None, None
+            haplib.handle_exception()
         return timestamp, tag, msg
 
     def __parse_header(self, header):
