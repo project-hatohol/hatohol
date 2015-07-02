@@ -27,6 +27,7 @@ import multiprocessing
 import Queue
 import json
 from datetime import datetime
+from datetime import timedelta
 import random
 import argparse
 import imp
@@ -1140,13 +1141,16 @@ class Utils:
         return utc_now.strftime("%Y%m%d%H%M%S.") + str(utc_now.microsecond)
 
     @staticmethod
-    def conv_to_hapi_time(date_time):
+    def conv_to_hapi_time(date_time, offset=timedelta()):
         """
         Convert a datetime object to a string formated for HAPI
         @param date_time A datatime object
+        @param offset    An offset to the time
         @return A string of the date and time in HAPI2.0
         """
-        return date_time.strftime("%Y%m%d%H%M%S.") + "%06d" % date_time.microsecond
+        adjust_time = date_time + offset
+        return adjust_time.strftime("%Y%m%d%H%M%S.") \
+                    + "%06d" % adjust_time.microsecond
 
     @staticmethod
     def translate_int_to_decimal(nano_sec):
