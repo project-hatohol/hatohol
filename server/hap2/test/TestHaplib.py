@@ -407,6 +407,12 @@ class Utils(unittest.TestCase):
         self.assertEquals(haplib.Utils.conv_to_hapi_time(dt),
                           "20150628093511.123456")
 
+    def test_conv_to_hapi_time_with_offset(self):
+        dt = datetime.datetime(2015, 6, 28, 9, 35, 11, 123456)
+        ofs = -datetime.timedelta(hours=1, minutes=35, seconds=1)
+        self.assertEquals(haplib.Utils.conv_to_hapi_time(dt, ofs),
+                          "20150628080010.123456")
+
 
 class HapiProcessor(unittest.TestCase):
     @classmethod
