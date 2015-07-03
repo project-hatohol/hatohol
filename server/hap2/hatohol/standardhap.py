@@ -24,7 +24,7 @@ import logging
 import time
 import sys
 import traceback
-import haplib
+from hatohol import haplib
 
 class StandardHap:
     DEFAULT_ERROR_SLEEP_TIME = 10

@@ -31,11 +31,11 @@ from datetime import timedelta
 import random
 import argparse
 import imp
-import transporter
-from rabbitmqconnector import RabbitMQConnector
 import calendar
 import sets
 import math
+from hatohol import transporter
+from hatohol.rabbitmqconnector import RabbitMQConnector
 
 SERVER_PROCEDURES = {"exchangeProfile": True,
                      "getMonitoringServerInfo": True,

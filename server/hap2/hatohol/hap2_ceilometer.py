@@ -21,14 +21,14 @@
 
 import sys
 import time
-import haplib
-import standardhap
 import logging
 import urllib2
 import json
 import datetime
 import cPickle
 import base64
+from hatohol import haplib
+from hatohol import standardhap
 
 class Common:
 
