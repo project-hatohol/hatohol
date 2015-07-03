@@ -1,6 +1,8 @@
 2015-07-10 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 15.06
 
 	* New Features
+	- [Server] Initial support of Hatohol Arm Plugin Interface 2.0
+	  (https://github.com/project-hatohol/HAPI-2.0-Specification) over AMQP.
 
 	* Bug Fixes
 
