@@ -21,7 +21,7 @@
 
 import unittest
 import common as testutil
-import haplib
+from hatohol import haplib
 from hap2_nagios_ndoutils import Common
 import hap2_nagios_ndoutils
 import transporter

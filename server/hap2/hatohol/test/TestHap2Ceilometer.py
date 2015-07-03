@@ -22,7 +22,7 @@ import common as testutils
 from hap2_ceilometer import Common
 import hap2_ceilometer
 from datetime import datetime
-import haplib
+from hatohol import haplib
 import re
 import transporter
 
