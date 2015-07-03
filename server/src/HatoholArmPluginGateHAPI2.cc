@@ -364,10 +364,37 @@ struct HatoholArmPluginGateHAPI2::Impl
 			return false;
 	}
 
+	void setChildProcessEnv(ChildProcessManager::CreateArg &arg)
+	{
+		const char *ldlibpath = getenv("LD_LIBRARY_PATH");
+		if (ldlibpath) {
+			arg.envs.push_back(StringUtils::sprintf(
+			  "LD_LIBRARY_PATH=%s",
+			  ldlibpath));
+		}
+
+		const char *loggerLevel = getenv(Logger::LEVEL_ENV_VAR_NAME);
+		if (loggerLevel) {
+			arg.envs.push_back(StringUtils::sprintf(
+			  "%s=%s",
+			  Logger::LEVEL_ENV_VAR_NAME, loggerLevel));
+		}
+
+		arg.envs.push_back(StringUtils::sprintf(
+		  "HAPI_MONITROING_SERVER_ID=%s",
+		  StringUtils::toString(m_pluginInfo.serverId).c_str()));
+
+		arg.envs.push_back(StringUtils::sprintf(
+		  "HAPI_AMQP_BROKER_URL=%s",
+		  m_pluginInfo.brokerUrl.c_str()));
+
+		arg.envs.push_back(StringUtils::sprintf(
+		  "HAPI_AMQP_QUEUE_NAME=%s",
+		  m_pluginInfo.staticQueueAddress.c_str()));
+	}
+
 	bool runPluginControlScript(const string command)
 	{
-		const char *ENV_NAME_AMQP_BROKER_URL = "HAPI_AMQP_BROKER_URL";
-		const char *ENV_NAME_AMQP_QUEUE_NAME = "HAPI_AMQP_QUEUE_NAME";
 		struct EventCb : public ChildProcessManager::EventCallback {
 
 			HatoholArmPluginGateHAPI2 *gate;
@@ -396,31 +423,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 		arg.args.push_back(m_pluginInfo.path);
 		arg.args.push_back(command);
 		arg.addFlag(G_SPAWN_SEARCH_PATH);
+		setChildProcessEnv(arg);
 
-		// Envrionment variables passsed to the plugin process
-		const char *ldlibpath = getenv("LD_LIBRARY_PATH");
-		if (ldlibpath) {
-			string env = "LD_LIBRARY_PATH=";
-			env += ldlibpath;
-			arg.envs.push_back(env);
-		}
-
-		const char *loggerLevel = getenv(Logger::LEVEL_ENV_VAR_NAME);
-		if (loggerLevel) {
-			string env = StringUtils::sprintf(
-			  "%s=%s",
-			  Logger::LEVEL_ENV_VAR_NAME, loggerLevel);
-			arg.envs.push_back(env);
-		}
-
-		arg.envs.push_back(StringUtils::sprintf(
-		  "%s=%s",
-		  ENV_NAME_AMQP_BROKER_URL,
-		  m_pluginInfo.brokerUrl.c_str()));
-		arg.envs.push_back(StringUtils::sprintf(
-		  "%s=%s",
-		  ENV_NAME_AMQP_QUEUE_NAME,
-		  m_pluginInfo.staticQueueAddress.c_str()));
 		ChildProcessManager::getInstance()->create(arg);
 		if (!eventCb->succeededInCreation) {
 			MLPL_ERR("Failed to %s: %s\n",
