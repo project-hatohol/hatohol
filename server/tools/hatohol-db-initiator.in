@@ -42,7 +42,20 @@ sql_file_list = [
      'target': 'hapi-json'},
     {'table_name': 'server_types',
      'file_name': 'server-type-ceilometer.sql',
-     'target': 'ceilometer'}]
+     'target': 'ceilometer'},
+    {'table_name': 'server_types',
+     'file_name': 'server-type-hap2-ceilometer.sql',
+     'target': 'hapi2-ceilometer'},
+    {'table_name': 'server_types',
+     'file_name': 'server-type-hap2-fluentd.sql',
+     'target': 'hapi2-fluentd'},
+    {'table_name': 'server_types',
+     'file_name': 'server-type-hap2-nagios.sql',
+     'target': 'hapi2-nagios'},
+    {'table_name': 'server_types',
+     'file_name': 'server-type-hap2-zabbix.sql',
+     'target': 'hapi2-zabbix'},
+]
 
 not_found_config_file = False
 fallback_default_params = {'user': 'hatohol', 'password': 'hatohol'}
@@ -101,8 +114,14 @@ def should_skip_updating_table(cursor, args, table_name, file_path):
 
 def execute_sql_statements_from_file(cursor, path):
     with open(path, 'r') as sql_file:
-        for statement in sql_file:
+	statement = ""
+        for line in sql_file:
+            statement += line
+            completed = (line[-1] == ";")
+            if not completed:
+		continue
             cursor.execute(statement)
+	    statement = ""
     print 'Succeessfully loaded: %s' % path
 
 
