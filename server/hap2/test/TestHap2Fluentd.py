@@ -76,9 +76,11 @@ class Hap2FluentdMain(unittest.TestCase):
         memory = {}
         def alternate():
             memory["called"] = True
+            raise SystemExit
         main = Hap2FluentdMainTestee()
         main._Hap2FluentdMain__fluentd_manager_main_in_try_block = alternate
-        main._Hap2FluentdMain__fluentd_manager_main()
+        self.assertRaises(SystemExit,
+                          main._Hap2FluentdMain__fluentd_manager_main)
         self.assertTrue(memory["called"])
 
     def test__fluentd_manager_main_in_try_block(self):
