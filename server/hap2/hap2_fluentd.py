@@ -26,6 +26,7 @@ import multiprocessing
 import datetime
 import json
 import re
+import time
 
 class Hap2FluentdMain(haplib.BaseMainPlugin):
 
@@ -52,6 +53,7 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
         self.__launch_args = args.fluentd_launch.split(" ")
 
     def set_ms_info(self, ms_info):
+        self.__ms_info = ms_info
         if self.__manager is not None:
             return
         manager = multiprocessing.Process(target=self.__fluentd_manager_main)
@@ -60,22 +62,22 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
         manager.start()
 
     def __fluentd_manager_main(self):
-        try:
-            self.__fluentd_manager_main_in_try_block()
-        except:
-            # TODO ASAP: Implement
-            pass
+        while True:
+            try:
+                self.__fluentd_manager_main_in_try_block()
+            except:
+                haplib.handle_exception((SystemExit,))
+                time.sleep(self.__ms_info.retry_interval_sec)
 
     def __fluentd_manager_main_in_try_block(self):
-        # TODO ASAP: add action when the sub proccess is
-        #            unexpectedly terminated.
         logging.info("Started fluentd manger process.")
-
-        # TODO ASAP: handle when the launch failed.
         fluentd = subprocess.Popen(self.__launch_args, stdout=subprocess.PIPE)
-
         while True:
             line = fluentd.stdout.readline()
+            if len(line) == 0:
+                logging.warning("The child process seems to have gone away.")
+                fluentd.kill() # To make sure that the child terminates
+                raise haplib.Signal()
             timestamp, tag, raw_msg = self.__parse_line(line)
             if timestamp is None:
                 continue
