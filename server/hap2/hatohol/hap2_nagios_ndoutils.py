@@ -22,11 +22,10 @@
 import sys
 import MySQLdb
 import time
-import haplib
-import standardhap
 import logging
 import datetime
-import time
+from hatohol import haplib
+from hatohol import standardhap
 
 class Common:
 

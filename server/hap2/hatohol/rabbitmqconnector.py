@@ -20,7 +20,7 @@
 
 import logging
 import pika
-from transporter import Transporter
+from hatohol.transporter import Transporter
 
 class RabbitMQConnector(Transporter):
     def __init__(self):

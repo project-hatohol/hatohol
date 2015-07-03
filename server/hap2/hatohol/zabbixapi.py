@@ -21,8 +21,8 @@
 
 import urllib2
 import json
-from haplib import Utils
 import logging
+from hatohol.haplib import Utils
 
 TRIGGER_SEVERITY = {"-1": "ALL", "0": "UNKNOWN", "1": "INFO", "2": "WARNING",
                     "3": "ERROR", "4": "CRITICAL", "5": "EMERGENCY"}

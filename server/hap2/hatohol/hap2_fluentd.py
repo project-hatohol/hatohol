@@ -18,8 +18,6 @@
   License along with Hatohol. If not, see
   <http://www.gnu.org/licenses/>.
 """
-import haplib
-import standardhap
 import subprocess
 import logging
 import multiprocessing
@@ -27,6 +25,8 @@ import datetime
 import json
 import re
 import time
+from hatohol import haplib
+from hatohol import standardhap
 
 class Hap2FluentdMain(haplib.BaseMainPlugin):
 

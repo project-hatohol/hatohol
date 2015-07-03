@@ -25,10 +25,10 @@ import multiprocessing
 import Queue
 import argparse
 import time
-from haplib import Utils
-import haplib
-import zabbixapi
-import standardhap
+from hatohol.haplib import Utils
+from hatohol import haplib
+from hatohol import zabbixapi
+from hatohol import standardhap
 
 
 class PreviousHostsInfo:
