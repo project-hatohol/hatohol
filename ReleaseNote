@@ -1,6 +1,8 @@
 2015-07-10 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 15.06
 
 	* New Features
+	- [Hap2] Arm Plugins making use of Hatohol Arm Plugin Interface 2.0,
+	  for Zabbix, Nagios, Ceilometer and Fluetnd.
 
 	* Bug Fixes
 
