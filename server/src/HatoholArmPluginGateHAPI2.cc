@@ -50,42 +50,42 @@ struct JSONRPCError {
 	}
 };
 
-#define PARSE_AS_MANDATORY(MEMBER, VALUE, RPCERR)				\
-if (!parser.read(MEMBER, VALUE)) {						\
-	MLPL_ERR("Failed to parse '%s' member.\n", MEMBER);			\
-	string errorMessage =							\
-		"Failed to parse mandatory member:";				\
-	RPCERR.addError("%s '%s' does not exist.",				\
-			errorMessage.c_str(), MEMBER);				\
+#define PARSE_AS_MANDATORY(MEMBER, VALUE, RPCERR)			\
+if (!parser.read(MEMBER, VALUE)) {					\
+	MLPL_ERR("Failed to parse '%s' member.\n", MEMBER);		\
+	string errorMessage =						\
+		"Failed to parse mandatory member:";			\
+	RPCERR.addError("%s '%s' does not exist.",			\
+			errorMessage.c_str(), MEMBER);			\
 }
 
-#define CHECK_MANDATORY_PARAMS_EXISTENCE(PARAMS, RPCERR)			\
+#define CHECK_MANDATORY_PARAMS_EXISTENCE(PARAMS, RPCERR)		\
 if (!parser.isMember(PARAMS)) {						\
-	MLPL_ERR("Failed to parse '%s'.\n", PARAMS);				\
-	string errorMessage = "Failed to parse:";				\
-	RPCERR.addError("%s '%s' does not exist.",				\
-			errorMessage.c_str(), PARAMS);				\
+	MLPL_ERR("Failed to parse '%s'.\n", PARAMS);			\
+	string errorMessage = "Failed to parse:";			\
+	RPCERR.addError("%s '%s' does not exist.",			\
+			errorMessage.c_str(), PARAMS);			\
 }
 
 #define CHECK_MANDATORY_ARRAY_EXISTENCE(MEMBER, RPCERR)			\
-if (JSONParser::VALUE_TYPE_ARRAY != parser.getValueType(MEMBER)) {		\
-	MLPL_ERR("Failed to parse mandatory object '%s'.\n", MEMBER);		\
-	string errorMessage =							\
-		"Failed to parse mandatory object: ";				\
-	RPCERR.addError("%s '%s' does not exist.",				\
-			errorMessage.c_str(), MEMBER);				\
-	return false;								\
+if (JSONParser::VALUE_TYPE_ARRAY != parser.getValueType(MEMBER)) {	\
+	MLPL_ERR("Failed to parse mandatory object '%s'.\n", MEMBER);	\
+	string errorMessage =						\
+		"Failed to parse mandatory object: ";			\
+	RPCERR.addError("%s '%s' does not exist.",			\
+			errorMessage.c_str(), MEMBER);			\
+	return false;							\
 }
 
-#define CHECK_MANDATORY_ARRAY_EXISTENCE_INNER_LOOP(MEMBER, RPCERR)		\
-if (JSONParser::VALUE_TYPE_ARRAY != parser.getValueType(MEMBER)) {		\
-	MLPL_ERR("Failed to parse mandatory object '%s'.\n", MEMBER);		\
-	string errorMessage =							\
-		"Failed to parse mandatory object: ";				\
-	RPCERR.addError("%s '%s' does not exist.",				\
-			errorMessage.c_str(), MEMBER);				\
-	parser.endElement();							\
-	break;									\
+#define CHECK_MANDATORY_ARRAY_EXISTENCE_INNER_LOOP(MEMBER, RPCERR)	\
+if (JSONParser::VALUE_TYPE_ARRAY != parser.getValueType(MEMBER)) {	\
+	MLPL_ERR("Failed to parse mandatory object '%s'.\n", MEMBER);	\
+	string errorMessage =						\
+		"Failed to parse mandatory object: ";			\
+	RPCERR.addError("%s '%s' does not exist.",			\
+			errorMessage.c_str(), MEMBER);			\
+	parser.endElement();						\
+	break;								\
 }
 
 struct HatoholArmPluginGateHAPI2::Impl
