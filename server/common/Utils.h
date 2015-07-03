@@ -36,8 +36,12 @@
 #endif
 
 #ifndef SOUP_VERSION_2_32
+#define soup_uri_get_scheme(uri) (uri->scheme)
 #define soup_uri_get_host(uri) (uri->host)
 #define soup_uri_get_port(uri) (uri->port)
+#define soup_uri_get_user(uri) (uri->user)
+#define soup_uri_get_password(uri) (uri->password)
+#define soup_uri_get_path(uri) (uri->path)
 #endif
 
 #ifndef SOUP_URI_IS_VALID

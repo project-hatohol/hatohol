@@ -25,6 +25,7 @@
 #include "UnifiedDataStore.h"
 #include "ArmFake.h"
 #include "ChildProcessManager.h"
+#include <libsoup/soup.h>
 
 using namespace std;
 using namespace mlpl;
@@ -385,12 +386,46 @@ struct HatoholArmPluginGateHAPI2::Impl
 		  StringUtils::toString(m_pluginInfo.serverId).c_str()));
 
 		arg.envs.push_back(StringUtils::sprintf(
-		  "HAPI_AMQP_BROKER_URL=%s",
+		  "HAPI_AMQP_URL=%s",
 		  m_pluginInfo.brokerUrl.c_str()));
 
 		arg.envs.push_back(StringUtils::sprintf(
-		  "HAPI_AMQP_QUEUE_NAME=%s",
+		  "HAPI_AMQP_QUEUE=%s",
 		  m_pluginInfo.staticQueueAddress.c_str()));
+
+		SoupURI *uri = soup_uri_new(m_pluginInfo.brokerUrl.c_str());
+		if (!SOUP_URI_IS_VALID(uri))
+			return;
+		const char *scheme = soup_uri_get_scheme(uri);
+		if (!scheme || string(scheme) != "amqp")
+			return;
+
+		const char *host = soup_uri_get_host(uri);
+		arg.envs.push_back(StringUtils::sprintf(
+		  "HAPI_AMQP_HOST=%s",
+		  host ? host : ""));
+
+		const int port = soup_uri_get_port(uri);
+		arg.envs.push_back(StringUtils::sprintf(
+		  "HAPI_AMQP_PORT=%s",
+		  port ? StringUtils::toString(port).c_str() : ""));
+
+		const char *user = soup_uri_get_user(uri);
+		arg.envs.push_back(StringUtils::sprintf(
+		  "HAPI_AMQP_USER=%s",
+		  user ? user : ""));
+
+		const char *password = soup_uri_get_password(uri);
+		arg.envs.push_back(StringUtils::sprintf(
+		  "HAPI_AMQP_PASSWORD=%s",
+		  password ? password : ""));
+
+		const char *vhost = soup_uri_get_path(uri);
+		while (vhost && *vhost == '/')
+			vhost++;
+		arg.envs.push_back(StringUtils::sprintf(
+		  "HAPI_AMQP_VHOST=%s",
+		  vhost ? vhost : ""));
 	}
 
 	bool runPluginControlScript(const string command)
