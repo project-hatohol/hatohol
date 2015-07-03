@@ -45,12 +45,11 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
         self.__severity_key = "severity"
         self.__status_key = "status"
 
-        self.__accept_tag_reg = "^hatohol\..*"
-        self.__accept_tag_pattern = re.compile(self.__accept_tag_reg)
-
     def set_arguments(self, args):
         # TODO by 15.09: Support escape of space characters
         self.__launch_args = args.fluentd_launch.split(" ")
+        self.__accept_tag_reg = args.tag
+        self.__accept_tag_pattern = re.compile(self.__accept_tag_reg)
 
     def set_ms_info(self, ms_info):
         self.__ms_info = ms_info
@@ -167,6 +166,8 @@ class Hap2Fluentd(standardhap.StandardHap):
         parser.add_argument("--fluentd-launch",
                             default="td-agent --suppress-config-dump",
                             help="A command line to launch fluentd.")
+        parser.add_argument("--tag", default="^hatohol\..*",
+                            help="A regular expression of the target tag.")
 
     def on_parsed_argument(self, args):
         self.__args = args

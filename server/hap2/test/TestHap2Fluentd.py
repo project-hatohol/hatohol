@@ -54,6 +54,7 @@ class Hap2FluentdMain(unittest.TestCase):
         main = Hap2FluentdMainTestee()
         arg = type('', (), {})()
         arg.fluentd_launch = "ABC -123 435"
+        arg.tag = ".*"
         main.set_arguments(arg)
         self.assertEquals(main.get_launch_args(), ["ABC", "-123", "435"])
 
@@ -94,6 +95,7 @@ class Hap2FluentdMain(unittest.TestCase):
         arg = type('', (), {})()
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         arg.fluentd_launch = curr_dir + "/hap2-fluentd-tester.sh"
+        arg.tag = "^hatohol.*"
         main.set_arguments(arg)
         target_func = main.get_priv_attr("__fluentd_manager_main_in_try_block")
         self.assertRaises(Exception, target_func)
@@ -178,6 +180,7 @@ class Hap2Fluentd(unittest.TestCase):
         hap = hap2_fluentd.Hap2Fluentd()
         arg = type('', (), {})()
         arg.fluentd_launch = ""
+        arg.tag = "^hatohol.*"
         hap.on_parsed_argument(arg)
         kwargs = {"transporter_args": {"class": transporter.Transporter}}
         main_plugin = hap.create_main_plugin(**kwargs)
