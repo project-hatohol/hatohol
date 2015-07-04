@@ -114,14 +114,14 @@ def should_skip_updating_table(cursor, args, table_name, file_path):
 
 def execute_sql_statements_from_file(cursor, path):
     with open(path, 'r') as sql_file:
-	statement = ""
+        statement = ""
         for line in sql_file:
             statement += line
             completed = (line[-1] == ";")
             if not completed:
-		continue
+                continue
             cursor.execute(statement)
-	    statement = ""
+            statement = ""
     print 'Succeessfully loaded: %s' % path
 
 
