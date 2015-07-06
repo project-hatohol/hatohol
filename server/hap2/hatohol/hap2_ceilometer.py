@@ -34,6 +34,7 @@ class Common:
 
     STATUS_MAP = {"ok": "OK", "insufficient data": "UNKNOWN", "alarm": "NG"}
     STATUS_EVENT_MAP = {"OK": "GOOD", "NG": "BAD", "UNKNOWN": "UNKNOWN"}
+    INITIAL_LAST_INFO = ""
 
     def __init__(self):
         self.close_connection()
@@ -183,9 +184,7 @@ class Common:
 
     def collect_events_and_put(self, fetch_id=None, last_info=None,
                                count=None, direction="ASC"):
-        if last_info is None:
-            last_info = self.get_cached_event_last_info()
-
+        last_info = self.__fixup_event_last_info(last_info)
         last_alarm_timestamp_map = \
             self.__decode_last_alarm_timestamp_map(last_info)
         for alarm_id in self.__alarm_cache.keys():
@@ -417,6 +416,15 @@ class Common:
             logging.info("Unknown eperator: %s" % op)
             return None
         return value
+
+    def __fixup_event_last_info(self, last_info):
+        if last_info is None:
+            fixed = self.get_cached_event_last_info()
+        else:
+            fixed = last_info
+        if fixed == self.INITIAL_LAST_INFO:
+            fixed = None
+        return fixed
 
     @classmethod
     def alarm_to_hapi_status(cls, alarm_type, detail_json):
