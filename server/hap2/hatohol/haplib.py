@@ -923,7 +923,8 @@ class Utils:
     def define_transporter_arguments(parser):
         parser.add_argument("--transporter", type=str,
                             default="RabbitMQHapiConnector")
-        parser.add_argument("--transporter-module", type=str, default="haplib")
+        parser.add_argument("--transporter-module", type=str,
+                            default="hatohol.haplib")
 
         # TODO: Don't specifiy a sub class of transporter directly.
         #       We'd like to implement the mechanism that automatically
@@ -933,8 +934,11 @@ class Utils:
 
     @staticmethod
     def load_transporter(args):
-        (file, pathname, descr) = imp.find_module(args.transporter_module)
-        mod = imp.load_module("", file, pathname, descr)
+        path = None
+        for mod_name in args.transporter_module.split("."):
+            (file, pathname, descr) = imp.find_module(mod_name, path)
+            mod = imp.load_module("", file, pathname, descr)
+            path = mod.__path__
         transporter_class = eval("mod.%s" % args.transporter)
         return transporter_class
 

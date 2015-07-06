@@ -228,7 +228,7 @@ class Utils(unittest.TestCase):
     def test_load_transporter(self):
         test_transport_arguments = namedtuple("transport_argument",
                                               "transporter_module transporter")
-        test_transport_arguments.transporter_module = "haplib"
+        test_transport_arguments.transporter_module = "hatohol.haplib"
         test_transport_arguments.transporter = "RabbitMQHapiConnector"
 
         common.assertNotRaises(haplib.Utils.load_transporter,
