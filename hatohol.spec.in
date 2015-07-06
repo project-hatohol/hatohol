@@ -228,7 +228,7 @@ rm -rf %{buildroot}
 %changelog
 * Fri Dec 26 2014 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12-1
 - Updated to 14.12 release.
-* Tue Dec 24 2014 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12-0.1
+* Wed Dec 24 2014 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12-0.1
 - Update to 14.12-RC2
   - New Features
     - [Spec] Change package names to user friendly ones
