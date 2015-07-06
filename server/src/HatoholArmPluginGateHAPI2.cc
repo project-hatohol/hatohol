@@ -516,7 +516,7 @@ bool HatoholArmPluginGateHAPI2::parseTimeStamp(
 	if (list.empty() || list.size() > 2)
 		goto ERR;
 	struct tm tm;
-	if (!strptime(list[0].c_str(), "%4Y%2m%2d%2H%2M%2S", &tm))
+	if (!strptime(list[0].c_str(), "%Y%m%d%H%M%S", &tm))
 		goto ERR;
 	timeStamp.tv_sec = timegm(&tm); // as UTC
 
