@@ -3,6 +3,8 @@
 	* New Features
 	- [Server] Initial support of Hatohol Arm Plugin Interface 2.0
 	  (https://github.com/project-hatohol/HAPI-2.0-Specification) over AMQP.
+	- [Hap2] Arm Plugins making use of Hatohol Arm Plugin Interface 2.0,
+	  for Zabbix, Nagios, Ceilometer and Fluetnd.
 
 	* Bug Fixes
 
