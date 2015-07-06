@@ -44,7 +44,7 @@ class ZabbixAPIConductor:
         self.__previous_hosts_info = PreviousHostsInfo()
         self.__trigger_last_info = None
         self.__component_code = self.get_component_code()
-        self.__sender = self.get_sender()
+
 
     def reset(self):
         self.__api = None
@@ -130,7 +130,6 @@ class Hap2ZabbixAPIPoller(haplib.BasePoller, ZabbixAPIConductor):
     def __init__(self, *args, **kwargs):
         haplib.BasePoller.__init__(self, *args, **kwargs)
         ZabbixAPIConductor.__init__(self)
-        self.__sender = kwargs["sender"]
 
     # @override
     def poll(self):
@@ -142,7 +141,7 @@ class Hap2ZabbixAPIPoller(haplib.BasePoller, ZabbixAPIConductor):
 
 class Hap2ZabbixAPIMain(haplib.BaseMainPlugin, ZabbixAPIConductor):
     def __init__(self, *args, **kwargs):
-        haplib.BaseMainPlugin.__init__(self, kwargs["transporter_args"])
+        haplib.BaseMainPlugin.__init__(self)
         ZabbixAPIConductor.__init__(self)
 
     def hap_fetch_items(self, params, request_id):

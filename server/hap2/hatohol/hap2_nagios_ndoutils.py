@@ -362,7 +362,7 @@ class Hap2NagiosNDOUtilsPoller(haplib.BasePoller, Common):
 
 class Hap2NagiosNDOUtilsMain(haplib.BaseMainPlugin, Common):
     def __init__(self, *args, **kwargs):
-        haplib.BaseMainPlugin.__init__(self, kwargs["transporter_args"])
+        haplib.BaseMainPlugin.__init__(self)
         Common.__init__(self)
 
     def hap_fetch_triggers(self, params, request_id):

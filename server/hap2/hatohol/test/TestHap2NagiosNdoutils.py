@@ -309,15 +309,14 @@ class Hap2NagiosNDOUtilsPoller(unittest.TestCase):
 class MainPluginForTest(TraceableTestCommon,
                         hap2_nagios_ndoutils.Hap2NagiosNDOUtilsMain):
     def __init__(self):
-        kwargs = {"transporter_args": {"class": transporter.Transporter}}
-        hap2_nagios_ndoutils.Hap2NagiosNDOUtilsMain.__init__(self, **kwargs)
+        hap2_nagios_ndoutils.Hap2NagiosNDOUtilsMain.__init__(self)
+        self.setup({"class": transporter.Transporter})
         TraceableTestCommon.__init__(self)
 
 
 class Hap2NagiosNDOUtilsMain(unittest.TestCase):
     def test_constructor(self):
-        kwargs = {"transporter_args":{"class": transporter.Transporter}}
-        main = hap2_nagios_ndoutils.Hap2NagiosNDOUtilsMain(**kwargs)
+        main = hap2_nagios_ndoutils.Hap2NagiosNDOUtilsMain()
 
     def test_hap_fetch_triggers(self):
         main = MainPluginForTest()
@@ -345,8 +344,7 @@ class Hap2NagiosNDOUtilsMain(unittest.TestCase):
 class Hap2NagiosNDOUtils(unittest.TestCase):
     def test_create_main_plugin(self):
         hap = hap2_nagios_ndoutils.Hap2NagiosNDOUtils()
-        kwargs = {"transporter_args": {"class": transporter.Transporter}}
-        main_plugin = hap.create_main_plugin(**kwargs)
+        main_plugin = hap.create_main_plugin()
         expect_class = hap2_nagios_ndoutils.Hap2NagiosNDOUtilsMain
         self.assertTrue(isinstance(main_plugin, expect_class))
 

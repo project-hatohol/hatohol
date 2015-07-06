@@ -751,14 +751,13 @@ class MainPluginForTest(TraceableTestCommon,
                         hap2_ceilometer.Hap2CeilometerMain):
     def __init__(self):
         TraceableTestCommon.__init__(self)
-        kwargs = {"transporter_args": {"class": transporter.Transporter}}
-        hap2_ceilometer.Hap2CeilometerMain.__init__(self, **kwargs)
+        hap2_ceilometer.Hap2CeilometerMain.__init__(self)
+        self.setup({"class": transporter.Transporter})
 
 
 class Hap2CeilometerMain(unittest.TestCase):
     def test_constructor(self):
-        kwargs = {"transporter_args": {"class": transporter.Transporter}}
-        main = hap2_ceilometer.Hap2CeilometerMain(**kwargs)
+        main = hap2_ceilometer.Hap2CeilometerMain()
 
     def test_hap_fetch_triggers(self):
         main = MainPluginForTest()

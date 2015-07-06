@@ -27,8 +27,7 @@ import datetime
 
 class Hap2FluentdMainTestee(hap2_fluentd.Hap2FluentdMain):
     def __init__(self):
-        kwargs = {"transporter_args": {"class": transporter.Transporter}}
-        hap2_fluentd.Hap2FluentdMain.__init__(self, **kwargs)
+        hap2_fluentd.Hap2FluentdMain.__init__(self)
         self.stores = {}
 
     def get_launch_args(self):
@@ -47,8 +46,7 @@ class Hap2FluentdMainTestee(hap2_fluentd.Hap2FluentdMain):
 
 class Hap2FluentdMain(unittest.TestCase):
     def test_constructor(self):
-        kwargs = {"transporter_args": {"class": transporter.Transporter}}
-        main = hap2_fluentd.Hap2FluentdMain(**kwargs)
+        main = hap2_fluentd.Hap2FluentdMain()
 
     def test_set_arguments(self):
         main = Hap2FluentdMainTestee()
@@ -182,7 +180,6 @@ class Hap2Fluentd(unittest.TestCase):
         arg.fluentd_launch = ""
         arg.tag = "^hatohol.*"
         hap.on_parsed_argument(arg)
-        kwargs = {"transporter_args": {"class": transporter.Transporter}}
-        main_plugin = hap.create_main_plugin(**kwargs)
+        main_plugin = hap.create_main_plugin()
         expect_class = hap2_fluentd.Hap2FluentdMain
         self.assertTrue(isinstance(main_plugin, expect_class))
