@@ -111,7 +111,7 @@ creates a response page when a user accesses.
 %package hap2-common
 Summary: Library files of HAPI2.0
 Group: Applications/System
-Requires: hap2-rabbitmq-connector = %{version}
+Requires: hatohol-hap2-rabbitmq-connector = %{version}
 
 %description hap2-common
 Common libraries for hatohol arm plugins version 2.0.
@@ -119,7 +119,7 @@ Common libraries for hatohol arm plugins version 2.0.
 %package hap2-rabbitmq-connector
 Summary: RabbitMQ connector library of HAPI2.0
 Group: Applications/System
-Requires: hap2-common = %{version}
+Requires: hatohol-hap2-common = %{version}
 
 %description hap2-rabbitmq-connector
 RabbitMQ connector libraries for hatohol arm plugins version 2.0.
@@ -127,7 +127,7 @@ RabbitMQ connector libraries for hatohol arm plugins version 2.0.
 %package hap2-zabbix
 Summary: Zabbix plugin and library of HAPI2.0
 Group: Applications/System
-Requires: hap2-common = %{version}
+Requires: hatohol-hap2-common = %{version}
 
 %description hap2-zabbix
 Zabbix plugin and libraries for hatohol arm plugins version 2.0.
@@ -135,7 +135,7 @@ Zabbix plugin and libraries for hatohol arm plugins version 2.0.
 %package hap2-nagios-ndoutils
 Summary: Nagios ndoutil plugins of HAPI2.0
 Group: Applications/System
-Requires: hap2-common = %{version}
+Requires: hatohol-hap2-common = %{version}
 
 %description hap2-nagios-ndoutils
 Nagios ndoutils plugin for hatohol arm plugins version 2.0.
@@ -143,7 +143,7 @@ Nagios ndoutils plugin for hatohol arm plugins version 2.0.
 %package hap2-fluentd
 Summary: Fluentd plugin of HAPI2.0
 Group: Applications/System
-Requires: hap2-common = %{version}
+Requires: hatohol-hap2-common = %{version}
 
 %description hap2-fluentd
 Fluentd plugin for hatohol arm plugins version 2.0.
@@ -151,7 +151,7 @@ Fluentd plugin for hatohol arm plugins version 2.0.
 %package hap2-ceilometer
 Summary: Ceilometer plugin of HAPI2.0
 Group: Applications/System
-Requires: hap2-common = %{version}
+Requires: hatohol-hap2-common = %{version}
 
 %description hap2-ceilometer
 Ceilometer plugin for hatohol arm plugins version 2.0.
