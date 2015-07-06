@@ -261,6 +261,8 @@ server/mlpl/mlpl.pc
 server/common/Makefile
 server/src/Makefile
 server/hap/Makefile
+server/hap2/Makefile
+server/hap2/hatohol/Makefile
 server/data/Makefile
 server/tools/Makefile
 server/tools/hatohol-db-initiator
