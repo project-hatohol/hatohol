@@ -17,7 +17,7 @@
   License along with Hatohol. If not, see
   <http://www.gnu.org/licenses/>.
 """
-import hatohol
+from hatohol import hatohol_def
 import json
 import argparse
 from sets import Set
@@ -78,7 +78,7 @@ class ParamGenerator:
 
 class ZabbixParamGenerator(ParamGenerator):
     def get_server_type(self):
-        return hatohol.MONITORING_SYSTEM_ZABBIX
+        return hatohol_def.MONITORING_SYSTEM_ZABBIX
 
     def get_server_type_name(self):
         return 'Zabbix'
@@ -95,7 +95,7 @@ class ZabbixParamGenerator(ParamGenerator):
 
 class NagiosParamGenerator(ParamGenerator):
     def get_server_type(self):
-        return hatohol.MONITORING_SYSTEM_NAGIOS
+        return hatohol_def.MONITORING_SYSTEM_NAGIOS
 
     def get_server_type_name(self):
         return 'Nagios'
@@ -139,7 +139,7 @@ class NagiosParamGenerator(ParamGenerator):
 
 class HapiZabbixParamGenerator(ParamGenerator):
     def get_server_type(self):
-        return hatohol.MONITORING_SYSTEM_HAPI_ZABBIX
+        return hatohol_def.MONITORING_SYSTEM_HAPI_ZABBIX
 
     def get_server_type_name(self):
         return 'Zabbix (HAPI) [experimental]'
@@ -161,7 +161,7 @@ class HapiZabbixParamGenerator(ParamGenerator):
 
 class HapiJSONParamGenerator(ParamGenerator):
     def get_server_type(self):
-        return hatohol.MONITORING_SYSTEM_HAPI_JSON
+        return hatohol_def.MONITORING_SYSTEM_HAPI_JSON
 
     def get_server_type_name(self):
         return 'JSON (HAPI) [experimental]'
@@ -202,7 +202,7 @@ class HapiJSONParamGenerator(ParamGenerator):
 
 class HapiCeilometerGenerator(ParamGenerator):
     def get_server_type(self):
-        return hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER
+        return hatohol_def.MONITORING_SYSTEM_HAPI_CEILOMETER
 
     def get_server_type_name(self):
         return 'Ceilometer'
