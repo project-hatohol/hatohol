@@ -44,6 +44,8 @@ class Common:
     DEFAULT_DATABASE = "ndoutils"
     DEFAULT_USER = "root"
 
+    INITIAL_LAST_INFO = ""
+
     def __init__(self):
         self.__db = None
         self.__cursor = None
@@ -234,7 +236,8 @@ class Common:
         else:
             raw_last_info = self.get_cached_event_last_info()
 
-        if raw_last_info is not None:
+        if raw_last_info is not None \
+            and raw_last_info != self.INITIAL_LAST_INFO:
             # The form of 'last_info' depends on a plugin. So the validation
             # of it cannot be completed in haplib.Utils.validate_arguments().
             # Since it is inserted into the SQL statement, we have to strictly
