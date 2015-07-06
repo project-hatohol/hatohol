@@ -11,7 +11,7 @@ install-data-hook:
 	python setup_zabbixapi.py install --root=$(DESTDIR)
 	python setup_rabbitmqconnector.py install --root=$(DESTDIR)
 
-nobase_dist_hatohol_hap2_DATA = \
+nobase_hatohol_hap2_SCRIPTS = \
 	hatohol/hap2_zabbix_api.py \
 	hatohol/hap2_fluentd.py \
 	hatohol/hap2_ceilometer.py \
