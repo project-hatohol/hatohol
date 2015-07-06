@@ -604,6 +604,27 @@ class Common__parse_alarm_host_each(unittest.TestCase):
         self.__assert({"field":"hoge", "value": "foo", "op":"eq"}, "foo")
 
 
+class Common__fixup_event_last_info(unittest.TestCase):
+    def __assert(self, last_info, expect, cached_last_info=""):
+        comm = CommonForTest()
+        target = testutils.returnPrivObj(comm, "__fixup_event_last_info",
+                                         "Common")
+        comm.get_cached_event_last_info = lambda: cached_last_info
+        self.assertEquals(target(last_info), expect)
+
+    def test_none(self):
+        self.__assert(None, None)
+
+    def test_none_with_cached(self):
+        self.__assert(None, "cached", "cached")
+
+    def test_empty_string(self):
+        self.__assert("", None)
+
+    def test_non_empty_string(self):
+        self.__assert("abc", "abc")
+
+
 class Common_alarm_to_hapi_status(unittest.TestCase):
     def test_alarm_to_hapi_status_ok(self):
         alarm_type = "state transition"
