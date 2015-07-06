@@ -1,6 +1,6 @@
 AC_PREREQ(2.63)
 
-AC_INIT(hatohol, 15.06_dev)
+AC_INIT(hatohol, 15.06_pre1)
 AM_INIT_AUTOMAKE([1.9 foreign no-dist-gzip dist-bzip2 tar-pax])
 
 AC_CONFIG_HEADER(config.h)
@@ -261,6 +261,8 @@ server/mlpl/mlpl.pc
 server/common/Makefile
 server/src/Makefile
 server/hap/Makefile
+server/hap2/Makefile
+server/hap2/hatohol/Makefile
 server/data/Makefile
 server/tools/Makefile
 server/tools/hatohol-db-initiator
