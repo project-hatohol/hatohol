@@ -318,15 +318,23 @@ class Hap2NagiosNDOUtilsMain(unittest.TestCase):
     def test_constructor(self):
         main = hap2_nagios_ndoutils.Hap2NagiosNDOUtilsMain()
 
-    def test_hap_fetch_triggers(self):
+    def __assert_hap_fetch_triggers(self, hostIds):
         main = MainPluginForTest()
-        params = {"fetchId": "252525", "hostIds": ["12", "345", "678"]}
+        params = {"fetchId": "252525"}
+        if hostIds is not None:
+            params["hostIds"] = hostIds
         request_id = "1234"
         main.hap_fetch_triggers(params, request_id)
         self.assertEquals(main.stores["trace"],
                           ["ensure_connection", "collect_triggers_and_put"])
         self.assertEquals(main.stores["fetch_id"], params["fetchId"])
-        self.assertEquals(main.stores["host_ids"], params["hostIds"])
+        self.assertEquals(main.stores["host_ids"], params.get("hostIds"))
+
+    def test_hap_fetch_triggers(self):
+        self.__assert_hap_fetch_triggers(["12", "345", "678"])
+
+    def test_hap_fetch_triggers_with_none_hostIds(self):
+        self.__assert_hap_fetch_triggers(None)
 
     def test_hap_fetch_events(self):
         main = MainPluginForTest()
