@@ -124,7 +124,7 @@ class Common:
     def __set_ceilometer_ep(self, ep):
         self.__ceilometer_ep = ep
 
-    def collect_hosts_and_put(self):
+    def __collect_hosts(self):
         url = self.__nova_ep + "/servers/detail?all_tenants=1"
         response = self.__request(url)
 
@@ -134,7 +134,10 @@ class Common:
             host_name = server["name"]
             hosts.append({"hostId": host_id, "hostName": host_name})
             self.__host_cache[host_id] = host_name
-        self.put_hosts(hosts)
+        return hosts
+
+    def collect_hosts_and_put(self):
+        self.put_hosts(self.__collect_hosts())
 
     def collect_host_groups_and_put(self):
         pass
@@ -193,6 +196,8 @@ class Common:
 
     def collect_items_and_put(self, fetch_id, host_ids):
         items = []
+        if host_ids is None:
+            host_ids = [obj["hostId"] for obj in self.__collect_hosts()]
         for host_id in host_ids:
             items.extend(self.__collect_items_and_put(host_id))
         self.put_items(items, fetch_id)
@@ -497,7 +502,7 @@ class Hap2CeilometerMain(haplib.BaseMainPlugin, Common):
         self.ensure_connection()
         self.get_sender().response("SUCCESS", request_id)
         fetch_id = params["fetchId"]
-        host_ids = params["hostIds"]
+        host_ids = params.get("hostIds")
         self.collect_triggers_and_put(fetch_id, host_ids)
 
     def hap_fetch_events(self, params, request_id):
@@ -509,7 +514,7 @@ class Hap2CeilometerMain(haplib.BaseMainPlugin, Common):
     def hap_fetch_items(self, params, request_id):
         self.ensure_connection()
         self.get_sender().response("SUCCESS", request_id)
-        self.collect_items_and_put(params["fetchId"], params["hostIds"])
+        self.collect_items_and_put(params["fetchId"], params.get("hostIds"))
 
     def hap_fetch_history(self, params, request_id):
         self.ensure_connection()

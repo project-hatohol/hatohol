@@ -776,19 +776,28 @@ class MainPluginForTest(TraceableTestCommon,
         self.setup({"class": transporter.Transporter})
 
 
+# TODO: code-sharing between tests for NagiosNdoUtils and ZabbixApi
 class Hap2CeilometerMain(unittest.TestCase):
     def test_constructor(self):
         main = hap2_ceilometer.Hap2CeilometerMain()
 
-    def test_hap_fetch_triggers(self):
+    def __assert_hap_fetch_triggers(self, host_ids):
         main = MainPluginForTest()
-        params = {"fetchId": "252525", "hostIds": ["12", "345", "678"]}
+        params = {"fetchId": "252525"}
+        if host_ids is not None:
+            params["hostIds"] = host_ids
         request_id = "1234"
         main.hap_fetch_triggers(params, request_id)
         self.assertEquals(main.stores["trace"],
                           ["ensure_connection", "collect_triggers_and_put"])
         self.assertEquals(main.stores["fetch_id"], params["fetchId"])
-        self.assertEquals(main.stores["host_ids"], params["hostIds"])
+        self.assertEquals(main.stores["host_ids"], params.get("hostIds"))
+
+    def test_hap_fetch_triggers(self):
+        self.__assert_hap_fetch_triggers(["12", "345", "678"])
+
+    def test_hap_fetch_triggers_with_none_hostIds(self):
+        self.__assert_hap_fetch_triggers(None)
 
     def test_hap_fetch_events(self):
         main = MainPluginForTest()
@@ -803,16 +812,23 @@ class Hap2CeilometerMain(unittest.TestCase):
         self.assertEquals(main.stores["count"], params["count"])
         self.assertEquals(main.stores["direction"], params["direction"])
 
-
-    def test_hap_fetch_items(self):
+    def __assert_hap_fetch_items(self, host_ids):
         main = MainPluginForTest()
-        params = {"fetchId": "252525", "hostIds": ["12", "345", "678"]}
+        params = {"fetchId": "252525"}
+        if host_ids is not None:
+            params["hostIds"] = host_ids
         request_id = "1234"
         main.hap_fetch_items(params, request_id)
         self.assertEquals(main.stores["trace"],
                           ["ensure_connection", "collect_items_and_put"])
         self.assertEquals(main.stores["fetch_id"], params["fetchId"])
-        self.assertEquals(main.stores["host_ids"], params["hostIds"])
+        self.assertEquals(main.stores["host_ids"], params.get("hostIds"))
+
+    def test_hap_fetch_items(self):
+        self.__assert_hap_fetch_items(["12", "345", "678"])
+
+    def test_hap_fetch_items_with_none_hostIds(self):
+        self.__assert_hap_fetch_items(None)
 
     def test_hap_fetch_history(self):
         main = MainPluginForTest()
