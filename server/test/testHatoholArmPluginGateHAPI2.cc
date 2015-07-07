@@ -1337,6 +1337,8 @@ void test_exchangeProfile(void)
 		"]},\"id\":1}";
 	string actual = popServerMessage();
 	cppcut_assert_equal(expected, actual);
+	const ArmStatus &armStatus = gate->getArmStatus();
+	cppcut_assert_equal(ARM_WORK_STAT_OK, armStatus.getArmInfo().stat);
 }
 
 void test_brokenJSON(void)
