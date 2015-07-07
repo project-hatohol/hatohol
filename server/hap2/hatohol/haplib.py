@@ -636,6 +636,7 @@ class ChildProcess:
         if self.__process is None:
             return
         self.__process.terminate()
+        self.__process.join()
         self.__process = None
         logging.info("terminated: %s", self.__class__.__name__)
 
