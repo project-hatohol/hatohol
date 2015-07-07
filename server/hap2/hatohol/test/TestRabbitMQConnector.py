@@ -43,9 +43,17 @@ class TestRabbitMQConnector(unittest.TestCase):
         cls.__ssl_cert = None
         cls.__ssl_ca = None
 
-    def test_setup(self):
+    def __connect(self):
         conn = RabbitMQConnector()
         conn.setup(self.__get_default_transporter_args())
+        return conn
+
+    def test_setup(self):
+        self.__connect()
+
+    def test_close(self):
+        conn = self.__connect()
+        conn.close()
 
     def test__setup_ssl(self):
         conn = RabbitMQConnector()

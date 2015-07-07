@@ -24,6 +24,7 @@ import logging
 import time
 import sys
 import traceback
+import signal
 from hatohol import haplib
 
 class StandardHap:
@@ -108,6 +109,7 @@ class StandardHap:
             else:
                 break
 
+            self.enable_handling_sigchld(False)
             if self.__main_plugin is not None:
                 self.__main_plugin.destroy()
                 self.__main_plugin = None
@@ -128,7 +130,18 @@ class StandardHap:
         poller.set_dispatch_queue(dispatcher.get_dispatch_queue())
         return poller
 
+    def enable_handling_sigchld(self, enable=True):
+        def handler(signum, frame):
+            logging.warning("Got SIGCHLD")
+            raise haplib.Signal()
+        if enable:
+            _handler = handler
+        else:
+            _handler = signal.SIG_DFL
+        signal.signal(signal.SIGCHLD, _handler)
+
     def __run(self):
+        self.enable_handling_sigchld()
         args = self.__parse_argument()
         logging.info("Transporter: %s" % args.transporter)
         transporter_class = haplib.Utils.load_transporter(args)
