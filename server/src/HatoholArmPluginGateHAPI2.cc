@@ -181,22 +181,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 		void setArmInfoStatus(JSONRPCError errObj) {
 			ArmStatus &status = m_impl.m_armStatus;
 			ArmInfo armInfo;
-			armInfo.statUpdateTime = SmartTime(SmartTime::INIT_CURR_TIME);
-			armInfo.numUpdate = 1;
 			if (errObj.hasErrors()) {
 				armInfo.stat = ARM_WORK_STAT_FAILURE;
-				armInfo.lastSuccessTime =
-					SmartTime(SmartTime::INIT_NONE);
-				armInfo.lastFailureTime =
-					SmartTime(SmartTime::INIT_CURR_TIME);
-				armInfo.numFailure = 1;
 			} else {
 				armInfo.stat = ARM_WORK_STAT_OK;
-				armInfo.lastSuccessTime =
-					SmartTime(SmartTime::INIT_CURR_TIME);
-				armInfo.lastFailureTime =
-					SmartTime(SmartTime::INIT_NONE);
-				armInfo.numFailure = 0;
 			}
 			status.setArmInfo(armInfo);
 		}
