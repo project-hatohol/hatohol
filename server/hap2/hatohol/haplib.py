@@ -188,7 +188,7 @@ TRIGGER_SEVERITY = sets.ImmutableSet(
 MAX_EVENT_CHUNK_SIZE = 500
 MAX_LAST_INFO_SIZE = 32767
 
-def handle_exception(raises=()):
+def handle_exception(raises=(SystemExit,)):
     """
     Logging exception information including back trace and return
     some information. This method is supposed to be used in 'except:' block.
