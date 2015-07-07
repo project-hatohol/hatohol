@@ -244,6 +244,9 @@ class CommandQueue(Callback):
         Callback.__init__(self)
         self.__q = multiprocessing.Queue()
 
+    def __del__(self):
+        self.__q.close()
+
     def wait(self, duration):
         """
         Wait for commands and run the command when it receives in the
@@ -374,8 +377,7 @@ Issue HAPI requests and responses.
 Some APIs blocks until the response is arrived.
 """
 class HapiProcessor:
-    def __init__(self, sender, process_id, component_code):
-        self.__sender = sender
+    def __init__(self, process_id, component_code, sender=None):
         self.__reply_queue = multiprocessing.Queue()
         self.__dispatch_queue = None
         self.__process_id = process_id
@@ -383,6 +385,13 @@ class HapiProcessor:
         self.__ms_info = None
         self.reset()
         self.__timeout_sec = 30
+        self.__sender = sender
+
+    def __del__(self):
+        self.__reply_queue.close()
+
+    def set_sender(self, sender):
+        self.__sender = sender
 
     def reset(self):
         self.__previous_hosts = None
@@ -609,9 +618,31 @@ class HapiProcessor:
             logging.error("Request failed.")
             raise
 
+class ChildProcess:
+    def __init__(self):
+        self.__process = None
 
-class Receiver:
+    def get_process(self):
+        return self.__process
+
+    def daemonize(self):
+        self.__process = multiprocessing.Process(target=self)
+        self.__process.daemon = True
+        self.__process.start()
+        logging.info("deamonized: %s (%s)" % \
+                     (self.__process.pid, self.__class__.__name__))
+
+    def terminate(self):
+        if self.__process is None:
+            return
+        self.__process.terminate()
+        self.__process = None
+        logging.info("terminated: %s", self.__class__.__name__)
+
+
+class Receiver(ChildProcess):
     def __init__(self, transporter_args, dispatch_queue, procedures):
+        ChildProcess.__init__(self)
         transporter_args["direction"] = transporter.DIR_RECV
         self.__connector = transporter.Factory.create(transporter_args)
         self.__dispatch_queue = dispatch_queue
@@ -630,18 +661,17 @@ class Receiver:
         # TODO: handle exceptions
         self.__connector.run_receive_loop()
 
-    def daemonize(self):
-        receiver_process = multiprocessing.Process(target=self)
-        receiver_process.daemon = True
-        receiver_process.start()
 
-
-class Dispatcher:
+class Dispatcher(ChildProcess):
     def __init__(self, rpc_queue):
+        ChildProcess.__init__(self)
         self.__id_res_q_map = {}
         self.__destination_q_map = {}
         self.__dispatch_queue = multiprocessing.JoinableQueue()
         self.__rpc_queue = rpc_queue
+
+    def __del__( self ):
+        self.__dispatch_queue.close()
 
     def attach_destination(self, queue, identifier):
         self.__destination_q_map[identifier] = queue
@@ -692,27 +722,41 @@ class Dispatcher:
         while True:
             self.__dispatch()
 
-    def daemonize(self):
-        dispatch_process = multiprocessing.Process(target=self)
-        dispatch_process.daemon = True
-        dispatch_process.start()
-
 
 class BaseMainPlugin(HapiProcessor):
     __COMPONENT_CODE = 0x10
     CB_UPDATE_MONITORING_SERVER_INFO = 1
 
-    def __init__(self, transporter_args, name=None):
+    def __init__(self, name=None):
+        """
+        Don't add code that may raise exceptions in __init__.
+        They should be in setup().
+        """
+        HapiProcessor.__init__(self, "Main", self.__COMPONENT_CODE)
+        self.__dispatcher = None
+        self.__receiver = None
         self.__detect_implemented_procedures()
-        self.__sender = Sender(transporter_args)
-        self.__rpc_queue = multiprocessing.Queue()
-        HapiProcessor.__init__(self, self.__sender, "Main",
-                               self.__COMPONENT_CODE)
         self.__callback = Callback()
         if name is not None:
             self.__plugin_name = name
         else:
             self.__plugin_name = self.__class__.__name__
+        self.__rpc_queue = None
+
+    def __del__(self):
+        HapiProcessor.__del__(self)
+        if self.__rpc_queue is not None:
+            self.__rpc_queue.close()
+
+    def setup(self, transporter_args):
+        """
+        This method is bottom half of the constructor and should be called once
+        after the instance is created. Raising exceptions is allowed in this
+        method.
+        """
+        self.__sender = Sender(transporter_args)
+        HapiProcessor.set_sender(self, self.__sender)
+        self.__rpc_queue = multiprocessing.Queue()
 
         # launch dispatcher process
         self.__dispatcher = Dispatcher(self.__rpc_queue)
@@ -724,6 +768,13 @@ class BaseMainPlugin(HapiProcessor):
         self.__receiver = Receiver(transporter_args,
                                    dispatch_queue,
                                    self.__implemented_procedures)
+
+    def destroy(self):
+        self.__receiver.terminate()
+        self.__receiver = None
+
+        self.__dispatcher.terminate()
+        self.__dispatcher = None
 
     def register_callback(self, code, arg):
         self.__callback.register(code, arg)
@@ -814,13 +865,14 @@ class BaseMainPlugin(HapiProcessor):
             procedure(*args)
 
 
-class BasePoller(HapiProcessor):
+class BasePoller(HapiProcessor, ChildProcess):
     __COMPONENT_CODE = 0x20
     __CMD_MONITORING_SERVER_INFO = 1
 
     def __init__(self, *args, **kwargs):
-        HapiProcessor.__init__(self, kwargs["sender"], kwargs["process_id"],
-                               self.__COMPONENT_CODE)
+        HapiProcessor.__init__(self, kwargs["process_id"],
+                               self.__COMPONENT_CODE, kwargs["sender"])
+        ChildProcess.__init__(self)
 
         self.__pollingInterval = 30
         self.__retryInterval = 10

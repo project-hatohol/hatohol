@@ -490,7 +490,7 @@ class Hap2CeilometerPoller(haplib.BasePoller, Common):
 
 class Hap2CeilometerMain(haplib.BaseMainPlugin, Common):
     def __init__(self, *args, **kwargs):
-        haplib.BaseMainPlugin.__init__(self, kwargs["transporter_args"])
+        haplib.BaseMainPlugin.__init__(self)
         Common.__init__(self)
 
     def hap_fetch_triggers(self, params, request_id):
