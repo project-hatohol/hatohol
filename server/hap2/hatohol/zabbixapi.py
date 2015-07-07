@@ -70,6 +70,8 @@ class ZabbixAPI:
 
         items = list()
         for item in res_dict["result"]:
+            self.expand_item_brief(item)
+
             if int(item["lastns"]) == 0:
                 ns = 0
             else:
@@ -84,6 +86,16 @@ class ZabbixAPI:
                           "unit": item["units"]})
 
         return items
+
+    def expand_item_brief(self, item):
+        while "$" in item["name"]:
+            dollar_index = item["name"].find("$")
+            key_index = int(item["name"][dollar_index+1: dollar_index+2])
+            key_list_str = item["key_"][item["key_"].find("[")+1: -1]
+            key_list = key_list_str.split(",")
+            item["name"] = \
+                item["name"].replace(item["name"][dollar_index: dollar_index+2],
+                                     key_list[key_index-1])
 
     def get_history(self, item_id, begin_time, end_time):
         begin_time = Utils.translate_hatohol_time_to_unix_time(begin_time)
