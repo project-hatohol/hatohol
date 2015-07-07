@@ -178,6 +178,17 @@ struct HatoholArmPluginGateHAPI2::Impl
 		{
 		}
 
+		void setArmInfoStatus(JSONRPCError errObj) {
+			ArmStatus &status = m_impl.m_armStatus;
+			ArmInfo armInfo;
+			if (errObj.hasErrors()) {
+				armInfo.stat = ARM_WORK_STAT_FAILURE;
+			} else {
+				armInfo.stat = ARM_WORK_STAT_OK;
+			}
+			status.setArmInfo(armInfo);
+		}
+
 		virtual void onGotResponse(JSONParser &parser) override
 		{
 			if (parser.isMember("error")) {
@@ -195,6 +206,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 			parser.startObject("result");
 			m_impl.parseExchangeProfileParams(parser, errObj);
 			parser.endObject();
+
+			setArmInfoStatus(errObj);
 
 			if (errObj.hasErrors())
 				return;
