@@ -239,9 +239,36 @@ public:
 				 amqp_error_string2(reply.library_error));
 			break;
 		case AMQP_RESPONSE_SERVER_EXCEPTION:
-			// TODO: show more messages
 			MLPL_ERR("%s: server exception\n",
 				 context);
+			switch (reply.reply.id) {
+			case AMQP_CHANNEL_CLOSE_METHOD:
+			{
+				amqp_channel_close_t *result =
+				  static_cast<amqp_channel_close_t *>(
+				    reply.reply.decoded);
+				string message(
+				  static_cast<char *>(result->reply_text.bytes),
+				  result->reply_text.len);
+				MLPL_ERR("Channel close: %s\n",
+					 message.c_str());
+				break;
+			}
+			case AMQP_CONNECTION_CLOSE_RESULT:
+			{
+				amqp_connection_close_t *result =
+				  static_cast<amqp_connection_close_t *>(
+				    reply.reply.decoded);
+				string message(
+				  static_cast<char *>(result->reply_text.bytes),
+				  result->reply_text.len);
+				MLPL_ERR("Connection close: %s\n", message.c_str());
+				break;
+			}
+			default:
+				// Other methods won't arrive in this case.
+				break;
+			}
 			break;
 		}
 		return;
