@@ -649,6 +649,10 @@ class Receiver(ChildProcess):
         self.__connector.set_receiver(self.__messenger)
         self.__allowed_procedures = procedures
 
+    def terminate(self):
+        ChildProcess.terminate(self)
+        self.__connector.close()
+
     def __messenger(self, ch, message):
         parsed = Utils.parse_received_message(message,
                                               self.__allowed_procedures)

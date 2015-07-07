@@ -26,6 +26,7 @@ class RabbitMQConnector(Transporter):
     def __init__(self):
         Transporter.__init__(self)
         self._channel = None
+        self.__connection = None
 
     def setup(self, transporter_args):
         """
@@ -65,8 +66,9 @@ class RabbitMQConnector(Transporter):
         self.__setup_ssl(conn_args, transporter_args)
 
         param = pika.connection.ConnectionParameters(**conn_args)
-        connection = pika.adapters.blocking_connection.BlockingConnection(param)
-        self._channel = connection.channel()
+        self.__connection = \
+            pika.adapters.blocking_connection.BlockingConnection(param)
+        self._channel = self.__connection.channel()
         self._channel.queue_declare(queue=queue_name)
 
     def __setup_ssl(self, conn_args, transporter_args):
@@ -82,6 +84,11 @@ class RabbitMQConnector(Transporter):
             "certfile": ssl_cert,
             "ca_certs": ssl_ca,
         }
+
+    def close(self):
+        if self.__connection is not None:
+            self.__connection.close()
+            self.__connection = None
 
     def call(self, msg):
         self.__publish(msg)
