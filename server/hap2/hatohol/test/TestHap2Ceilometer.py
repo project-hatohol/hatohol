@@ -604,6 +604,27 @@ class Common__parse_alarm_host_each(unittest.TestCase):
         self.__assert({"field":"hoge", "value": "foo", "op":"eq"}, "foo")
 
 
+class Common__fixup_event_last_info(unittest.TestCase):
+    def __assert(self, last_info, expect, cached_last_info=""):
+        comm = CommonForTest()
+        target = testutils.returnPrivObj(comm, "__fixup_event_last_info",
+                                         "Common")
+        comm.get_cached_event_last_info = lambda: cached_last_info
+        self.assertEquals(target(last_info), expect)
+
+    def test_none(self):
+        self.__assert(None, None)
+
+    def test_none_with_cached(self):
+        self.__assert(None, "cached", "cached")
+
+    def test_empty_string(self):
+        self.__assert("", None)
+
+    def test_non_empty_string(self):
+        self.__assert("abc", "abc")
+
+
 class Common_alarm_to_hapi_status(unittest.TestCase):
     def test_alarm_to_hapi_status_ok(self):
         alarm_type = "state transition"
@@ -751,14 +772,13 @@ class MainPluginForTest(TraceableTestCommon,
                         hap2_ceilometer.Hap2CeilometerMain):
     def __init__(self):
         TraceableTestCommon.__init__(self)
-        kwargs = {"transporter_args": {"class": transporter.Transporter}}
-        hap2_ceilometer.Hap2CeilometerMain.__init__(self, **kwargs)
+        hap2_ceilometer.Hap2CeilometerMain.__init__(self)
+        self.setup({"class": transporter.Transporter})
 
 
 class Hap2CeilometerMain(unittest.TestCase):
     def test_constructor(self):
-        kwargs = {"transporter_args": {"class": transporter.Transporter}}
-        main = hap2_ceilometer.Hap2CeilometerMain(**kwargs)
+        main = hap2_ceilometer.Hap2CeilometerMain()
 
     def test_hap_fetch_triggers(self):
         main = MainPluginForTest()

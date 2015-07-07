@@ -228,7 +228,7 @@ class Utils(unittest.TestCase):
     def test_load_transporter(self):
         test_transport_arguments = namedtuple("transport_argument",
                                               "transporter_module transporter")
-        test_transport_arguments.transporter_module = "haplib"
+        test_transport_arguments.transporter_module = "hatohol.haplib"
         test_transport_arguments.transporter = "RabbitMQHapiConnector"
 
         common.assertNotRaises(haplib.Utils.load_transporter,
@@ -420,7 +420,7 @@ class HapiProcessor(unittest.TestCase):
         cls.__test_queue = DummyQueue()
         transporter_args = {"class": transporter.Transporter}
         cls.sender = haplib.Sender(transporter_args)
-        cls.processor = haplib.HapiProcessor(cls.sender, "test", 0x01)
+        cls.processor = haplib.HapiProcessor("test", 0x01, cls.sender)
         cls.processor.set_dispatch_queue(cls.__test_queue)
         cls.reply_queue = cls.processor.get_reply_queue()
         cls.connector = ConnectorForTest(cls.reply_queue)
@@ -576,6 +576,34 @@ class HapiProcessor(unittest.TestCase):
         self.assertRaises(Queue.Empty, wait_response, test_id)
 
 
+class ChildProcess(unittest.TestCase):
+
+    class TestChild(haplib.ChildProcess):
+        def __call__(self):
+            pass
+
+    def test_constructor(self):
+        common.assertNotRaises(haplib.ChildProcess)
+
+    def test_get_process_before_deamonize(self):
+        cp = haplib.ChildProcess()
+        self.assertEquals(cp.get_process(), None)
+
+    def test_daemonize(self):
+        cp = ChildProcess.TestChild()
+        cp.daemonize()
+        self.assertNotEquals(cp.get_process(), None)
+
+    def test_terminate_before_daemonize(self):
+        cp = ChildProcess.TestChild()
+        cp.terminate()
+
+    def test_terminate(self):
+        cp = ChildProcess.TestChild()
+        cp.daemonize()
+        cp.terminate()
+
+
 class Receiver(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -671,12 +699,14 @@ class Dispatcher(unittest.TestCase):
 
 class BaseMainPluginTestee(haplib.BaseMainPlugin):
     def __init__(self, **kwargs):
-        transporter_args = {"class": transporter.Transporter}
-        haplib.BaseMainPlugin.__init__(self, transporter_args, **kwargs)
+        haplib.BaseMainPlugin.__init__(self, **kwargs)
 
     @staticmethod
     def create(**kwargs):
-        return BaseMainPluginTestee(**kwargs)
+        transporter_args = {"class": transporter.Transporter}
+        plugin = BaseMainPluginTestee(**kwargs)
+        plugin.setup(transporter_args)
+        return plugin
 
 
 class BaseMainPlugin(unittest.TestCase):
@@ -684,7 +714,8 @@ class BaseMainPlugin(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         transporter_args = {"class": transporter.Transporter}
-        cls.__main_plugin = haplib.BaseMainPlugin(transporter_args)
+        cls.__main_plugin = haplib.BaseMainPlugin()
+        cls.__main_plugin.setup(transporter_args)
 
     def test_hap_update_monitoring_server_info(self):
         test_params = {"serverId": None, "url": None, "nickName": None,
