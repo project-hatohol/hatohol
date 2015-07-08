@@ -70,6 +70,8 @@ class ZabbixAPI:
 
         items = list()
         for item in res_dict["result"]:
+            if item["lastclock"] == "0":
+                continue
             self.expand_item_brief(item)
 
             if int(item["lastns"]) == 0:
