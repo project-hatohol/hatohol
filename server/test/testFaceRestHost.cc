@@ -161,6 +161,7 @@ static void _assertTriggers(
   const ServerIdType &serverId = ALL_SERVERS,
   const LocalHostIdType &hostIdInServer = ALL_LOCAL_HOSTS)
 {
+	loadTestDBArmPlugin();
 	loadTestDBTriggers();
 	loadTestDBServerHostDef();
 	startFaceRest();
@@ -233,6 +234,7 @@ static void _assertEvents(const string &path, const string &callbackName = "",
                           const ServerIdType &serverId = ALL_SERVERS,
                           const LocalHostIdType &hostIdInServer = ALL_LOCAL_HOSTS)
 {
+	loadTestDBArmPlugin();
 	loadTestDBTriggers();
 	loadTestDBEvents();
 	loadTestDBServerHostDef();
@@ -311,6 +313,7 @@ static void _assertEvents(const string &path, const string &callbackName = "",
 static void _assertItems(const string &path, const string &callbackName = "",
 			 ssize_t numExpectedItems = -1)
 {
+	loadTestDBArmPlugin();
 	loadTestDBItems();
 	loadTestDBServerHostDef();
 	startFaceRest();

@@ -1051,12 +1051,18 @@ void FaceRest::ResourceHandler::addServersMap(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
 	ServerQueryOption option(m_dataQueryContextPtr);
-	dataStore->getTargetServers(monitoringServers, option);
+	ArmPluginInfoVect armPluginInfoVect;
+	dataStore->getTargetServers(monitoringServers, option,
+	                            &armPluginInfoVect);
 
 	HatoholError err;
 	agent.startObject("servers");
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
-	for (; it != monitoringServers.end(); ++it) {
+	ArmPluginInfoVectConstIterator pluginIt = armPluginInfoVect.begin();
+	HATOHOL_ASSERT(monitoringServers.size() == armPluginInfoVect.size(),
+	               "The number of elements differs: %zd, %zd",
+	               monitoringServers.size(), armPluginInfoVect.size());
+	for (; it != monitoringServers.end(); ++it, ++pluginIt) {
 		const MonitoringServerInfo &serverInfo = *it;
 		agent.startObject(StringUtils::toString(serverInfo.id));
 		agent.add("name", serverInfo.hostName);
@@ -1064,6 +1070,9 @@ void FaceRest::ResourceHandler::addServersMap(
 		agent.add("type", serverInfo.type);
 		agent.add("ipAddress", serverInfo.ipAddress);
 		agent.add("baseURL", serverInfo.baseURL);
+		if (pluginIt->id != INVALID_ARM_PLUGIN_INFO_ID) {
+			agent.add("uuid", pluginIt->uuid);
+		}
 		addHostsMap(this, agent, serverInfo);
 		if (triggerMaps) {
 			addTriggersIdBriefHash(this, agent, serverInfo,

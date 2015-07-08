@@ -957,7 +957,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // tlsKeyPath
 	"",                              // tlsCACertificatePath
 	0,                               // tlsEnableVerify
-	"",                              // uuid
+	"144b2a3f-0cc9-4392-be91-137c75142772", // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_NAGIOS,   // type
@@ -969,7 +969,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // tlsKeyPath
 	"",                              // tlsCACertificatePath
 	0,                               // tlsEnableVerify
-	"",                              // uuid
+	"778b1786-6b89-481c-bdd4-288050370284", // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST,     // type
@@ -2024,6 +2024,16 @@ ArmPluginInfo *getTestArmPluginInfo(void)
 					      NULL);
 	}
 	return data;
+}
+
+const ArmPluginInfo *findTestArmPluginInfo(const ServerIdType &serverId)
+{
+	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
+		const ArmPluginInfo *pluginInfo = &testArmPluginInfo[i];
+		if (pluginInfo->serverId == serverId)
+			return pluginInfo;
+	}
+	return NULL;
 }
 
 int findIndexOfTestArmPluginInfo(const MonitoringSystemType &type)

@@ -311,7 +311,7 @@ describe('getMapsLocation', function() {
 describe('makeMonitoringSystemTypeLabel', function() {
   it('with valid zabbix server', function() {
     var server = {
-	"type": hatohol.MONITORING_SYSTEM_ZABBIX
+        "type": hatohol.MONITORING_SYSTEM_ZABBIX
     };
     var expected = "Zabbix";
     expect(makeMonitoringSystemTypeLabel(server)).to.be(expected);
@@ -319,7 +319,7 @@ describe('makeMonitoringSystemTypeLabel', function() {
 
   it('with valid nagios server', function() {
     var server = {
-	"type": hatohol.MONITORING_SYSTEM_NAGIOS
+        "type": hatohol.MONITORING_SYSTEM_NAGIOS
     };
     var expected = "Nagios";
     expect(makeMonitoringSystemTypeLabel(server)).to.be(expected);
@@ -327,7 +327,7 @@ describe('makeMonitoringSystemTypeLabel', function() {
 
   it('with valid HAPI zabbix server', function() {
     var server = {
-	"type": hatohol.MONITORING_SYSTEM_HAPI_ZABBIX
+        "type": hatohol.MONITORING_SYSTEM_HAPI_ZABBIX
     };
     var expected = "Zabbix (HAPI)";
     expect(makeMonitoringSystemTypeLabel(server)).to.be(expected);
@@ -335,7 +335,7 @@ describe('makeMonitoringSystemTypeLabel', function() {
 
   it('with valid HAPI JSON', function() {
     var server = {
-	"type": hatohol.MONITORING_SYSTEM_HAPI_JSON
+        "type": hatohol.MONITORING_SYSTEM_HAPI_JSON
     };
     var expected = "General Plugin";
     expect(makeMonitoringSystemTypeLabel(server)).to.be(expected);
@@ -343,7 +343,7 @@ describe('makeMonitoringSystemTypeLabel', function() {
 
   it('with valid HAPI CEILOMETER', function() {
     var server = {
-	"type": hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER
+        "type": hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER
     };
     var expected = "Ceilometer";
     expect(makeMonitoringSystemTypeLabel(server)).to.be(expected);
@@ -351,7 +351,7 @@ describe('makeMonitoringSystemTypeLabel', function() {
 
   it('with unknown server type', function() {
     var server = {
-	"type": hatohol.MONITORING_SYSTEM_UNKNOWN
+        "type": hatohol.MONITORING_SYSTEM_UNKNOWN
     };
     var expected = "Invalid: " + server.type;
     expect(makeMonitoringSystemTypeLabel(server)).to.be(expected);
@@ -383,9 +383,9 @@ describe('getHostName', function() {
     var server = {
       "name": "server",
       "hosts": {
-	"2": {
-	  "name": "host"
-	}
+        "2": {
+          "name": "host"
+        }
       }
     };
     var id = 2;
@@ -403,6 +403,19 @@ describe('getHostName', function() {
     var expected = gettext("Unknown") + " (ID: " + id + ")";
     var server = { "name": "server" };
     expect(getHostName(server, id)).to.be(expected);
+  });
+
+  it('plugin dependent', function() {
+    var server = {
+      "name": "server",
+      "uuid": "f0166fb0-26ea-4566-abf4-077d1584e4f4",
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
+    }
+    hatohol["hap_f0166fb0-26ea-4566-abf4-077d1584e4f4"] = {
+      "getHostName": function(server, hostId) { return hostId.toLowerCase() },
+    }
+    var id = "My ID"
+    expect(getHostName(server, id)).to.be("my id");
   });
 });
 
@@ -440,9 +453,9 @@ describe('getHostgroupName', function() {
     var server = {
       "name": "server",
       "groups": {
-	"2": {
-	  "name": "hostgroup"
-	}
+        "2": {
+          "name": "hostgroup"
+        }
       }
     };
     var id = 2;
@@ -468,9 +481,9 @@ describe('getTriggerBrief', function() {
     var server = {
       "name": "server",
       "triggers": {
-	"2": {
-	  "brief": "trigger"
-	}
+        "2": {
+          "brief": "trigger"
+        }
       }
     };
     var id = 2;
@@ -650,7 +663,7 @@ describe('plugin', function() {
     var expected = "http://127.0.0.1/test-plugin/";
     hatohol["hap_" + uuid] = {
       getTopURL: function(server) {
-	return expected;
+        return expected;
       }
     };
     expect(getServerLocation(server)).to.be(expected);
@@ -664,7 +677,7 @@ describe('plugin', function() {
     var expected = "http://127.0.0.1/test-plugin/maps/";
     hatohol["hap_" + uuid] = {
       getMapsURL: function(server) {
-	return expected;
+        return expected;
       }
     };
     expect(getMapsLocation(server)).to.be(expected);
