@@ -82,10 +82,6 @@ gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 	bool started = false;
 	size_t i = 0, numRetry = retryInterval.size();
 	while (!isExitRequested()) {
-		if (i >= numRetry) {
-			MLPL_ERR("Failed to connect to HAP2\n");
-			continue;
-		}
 		if (!m_impl->m_connection->isConnected()) {
 			started = false;
 			m_impl->m_connection->connect();
@@ -95,6 +91,11 @@ gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 			started = m_impl->m_connection->startConsuming();
 
 		if (!started) {
+			if (i >= numRetry) {
+				MLPL_ERR("Try to connect after every 30 sec.\n");
+				m_impl->m_waitSem.timedWait(30 * 1000);
+				continue;
+			}
 			size_t sleepTimeSec = retryInterval.at(i);
 			m_impl->m_waitSem.timedWait(sleepTimeSec * 1000);
 			MLPL_INFO("Try to connect after %zd sec. (%zd/%zd)\n",
@@ -103,6 +104,7 @@ gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 			continue;
 		}
 
+		i = 0; // reset wait counter
 		AMQPMessage message;
 		const bool consumed = m_impl->m_connection->consume(message);
 		if (!consumed)
