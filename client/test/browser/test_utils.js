@@ -404,6 +404,19 @@ describe('getHostName', function() {
     var server = { "name": "server" };
     expect(getHostName(server, id)).to.be(expected);
   });
+
+  it('plugin dependent', function() {
+    var server = {
+      "name": "server",
+      "uuid": "f0166fb0-26ea-4566-abf4-077d1584e4f4",
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
+    }
+    hatohol["hap_f0166fb0-26ea-4566-abf4-077d1584e4f4"] = {
+      "getHostName": function(server, hostId) { return hostId.toLowerCase() },
+    }
+    var id = "My ID"
+    expect(getHostName(server, id)).to.be("my id");
+  });
 });
 
 describe('getNickName', function() {
