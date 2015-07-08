@@ -73,7 +73,14 @@ public:
 
 		const int status =
 			amqp_socket_open(m_socket, getHost(), getPort());
-		if (status != AMQP_STATUS_OK) {
+		if (status == AMQP_STATUS_SOCKET_ERROR) {
+			const string context =
+				StringUtils::sprintf("connect socket: %s:%u",
+						     getHost(),
+						     getPort());
+			logErrorResponse(context.c_str(), status);
+			return false;
+		} else if (status != AMQP_STATUS_OK) {
 			const string context =
 				StringUtils::sprintf("open socket: %s:%u",
 						     getHost(),
@@ -180,6 +187,8 @@ public:
 		logErrorResponse("destroy connection",
 				 amqp_destroy_connection(m_connection));
 
+		m_isConsumerQueueDeclared = false;
+		m_isPublisherQueueDeclared = false;
 		m_socket = NULL;
 		m_connection = NULL;
 	}
@@ -230,9 +239,36 @@ public:
 				 amqp_error_string2(reply.library_error));
 			break;
 		case AMQP_RESPONSE_SERVER_EXCEPTION:
-			// TODO: show more messages
 			MLPL_ERR("%s: server exception\n",
 				 context);
+			switch (reply.reply.id) {
+			case AMQP_CHANNEL_CLOSE_METHOD:
+			{
+				amqp_channel_close_t *result =
+				  static_cast<amqp_channel_close_t *>(
+				    reply.reply.decoded);
+				string message(
+				  static_cast<char *>(result->reply_text.bytes),
+				  result->reply_text.len);
+				MLPL_ERR("Channel close: %s\n",
+					 message.c_str());
+				break;
+			}
+			case AMQP_CONNECTION_CLOSE_METHOD:
+			{
+				amqp_connection_close_t *result =
+				  static_cast<amqp_connection_close_t *>(
+				    reply.reply.decoded);
+				string message(
+				  static_cast<char *>(result->reply_text.bytes),
+				  result->reply_text.len);
+				MLPL_ERR("Connection close: %s\n", message.c_str());
+				break;
+			}
+			default:
+				// Other methods won't arrive in this case.
+				break;
+			}
 			break;
 		}
 		return;
