@@ -73,7 +73,14 @@ public:
 
 		const int status =
 			amqp_socket_open(m_socket, getHost(), getPort());
-		if (status != AMQP_STATUS_OK) {
+		if (status == AMQP_STATUS_SOCKET_ERROR) {
+			const string context =
+				StringUtils::sprintf("socket error: %s:%u",
+						     getHost(),
+						     getPort());
+			logErrorResponse(context.c_str(), status);
+			return false;
+		} else if (status != AMQP_STATUS_OK) {
 			const string context =
 				StringUtils::sprintf("open socket: %s:%u",
 						     getHost(),
