@@ -783,11 +783,13 @@ class BaseMainPlugin(HapiProcessor):
                                    self.__implemented_procedures)
 
     def destroy(self):
-        self.__receiver.terminate()
-        self.__receiver = None
+        if self.__receiver is not None:
+            self.__receiver.terminate()
+            self.__receiver = None
 
-        self.__dispatcher.terminate()
-        self.__dispatcher = None
+        if self.__dispatcher is not None:
+            self.__dispatcher.terminate()
+            self.__dispatcher = None
 
     def register_callback(self, code, arg):
         self.__callback.register(code, arg)
