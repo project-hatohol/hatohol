@@ -65,7 +65,7 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
             try:
                 self.__fluentd_manager_main_in_try_block()
             except:
-                haplib.handle_exception((SystemExit,))
+                haplib.handle_exception()
                 time.sleep(self.__ms_info.retry_interval_sec)
 
     def __fluentd_manager_main_in_try_block(self):
