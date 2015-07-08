@@ -63,6 +63,12 @@ class Transporter:
         """
         pass
 
+    def close(self):
+        """
+        Close connection.
+        """
+        pass
+
     def call(self, msg):
         """
         Call a RPC.

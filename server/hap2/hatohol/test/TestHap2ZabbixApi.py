@@ -115,12 +115,13 @@ class ZabbixAPIConductor(unittest.TestCase):
         common.assertNotRaises(self.conductor.update_hosts_and_host_group_membership)
 
 
-class Hap2ZabbixAPIMain(unittest.TestCase, hap2_zabbix_api.Hap2ZabbixAPIMain):
+class Hap2ZabbixAPIMain(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         transporter_args = {"class": transporter.Transporter}
         sender = haplib.Sender(transporter_args)
-        cls.main = hap2_zabbix_api.Hap2ZabbixAPIMain(transporter_args=transporter_args)
+        cls.main = hap2_zabbix_api.Hap2ZabbixAPIMain()
+        cls.main.setup(transporter_args)
 
         cls.main._ZabbixAPIConductor__api =  APIForTest()
         def null_func(self, *args, **kwargs):

@@ -34,6 +34,7 @@ class Common:
 
     STATUS_MAP = {"ok": "OK", "insufficient data": "UNKNOWN", "alarm": "NG"}
     STATUS_EVENT_MAP = {"OK": "GOOD", "NG": "BAD", "UNKNOWN": "UNKNOWN"}
+    INITIAL_LAST_INFO = ""
 
     def __init__(self):
         self.close_connection()
@@ -123,7 +124,7 @@ class Common:
     def __set_ceilometer_ep(self, ep):
         self.__ceilometer_ep = ep
 
-    def collect_hosts_and_put(self):
+    def __collect_hosts(self):
         url = self.__nova_ep + "/servers/detail?all_tenants=1"
         response = self.__request(url)
 
@@ -133,7 +134,10 @@ class Common:
             host_name = server["name"]
             hosts.append({"hostId": host_id, "hostName": host_name})
             self.__host_cache[host_id] = host_name
-        self.put_hosts(hosts)
+        return hosts
+
+    def collect_hosts_and_put(self):
+        self.put_hosts(self.__collect_hosts())
 
     def collect_host_groups_and_put(self):
         pass
@@ -183,9 +187,7 @@ class Common:
 
     def collect_events_and_put(self, fetch_id=None, last_info=None,
                                count=None, direction="ASC"):
-        if last_info is None:
-            last_info = self.get_cached_event_last_info()
-
+        last_info = self.__fixup_event_last_info(last_info)
         last_alarm_timestamp_map = \
             self.__decode_last_alarm_timestamp_map(last_info)
         for alarm_id in self.__alarm_cache.keys():
@@ -194,6 +196,8 @@ class Common:
 
     def collect_items_and_put(self, fetch_id, host_ids):
         items = []
+        if host_ids is None:
+            host_ids = [obj["hostId"] for obj in self.__collect_hosts()]
         for host_id in host_ids:
             items.extend(self.__collect_items_and_put(host_id))
         self.put_items(items, fetch_id)
@@ -418,6 +422,15 @@ class Common:
             return None
         return value
 
+    def __fixup_event_last_info(self, last_info):
+        if last_info is None:
+            fixed = self.get_cached_event_last_info()
+        else:
+            fixed = last_info
+        if fixed == self.INITIAL_LAST_INFO:
+            fixed = None
+        return fixed
+
     @classmethod
     def alarm_to_hapi_status(cls, alarm_type, detail_json):
         assert alarm_type == "creation" or alarm_type == "state transition"
@@ -482,14 +495,14 @@ class Hap2CeilometerPoller(haplib.BasePoller, Common):
 
 class Hap2CeilometerMain(haplib.BaseMainPlugin, Common):
     def __init__(self, *args, **kwargs):
-        haplib.BaseMainPlugin.__init__(self, kwargs["transporter_args"])
+        haplib.BaseMainPlugin.__init__(self)
         Common.__init__(self)
 
     def hap_fetch_triggers(self, params, request_id):
         self.ensure_connection()
         self.get_sender().response("SUCCESS", request_id)
         fetch_id = params["fetchId"]
-        host_ids = params["hostIds"]
+        host_ids = params.get("hostIds")
         self.collect_triggers_and_put(fetch_id, host_ids)
 
     def hap_fetch_events(self, params, request_id):
@@ -501,7 +514,7 @@ class Hap2CeilometerMain(haplib.BaseMainPlugin, Common):
     def hap_fetch_items(self, params, request_id):
         self.ensure_connection()
         self.get_sender().response("SUCCESS", request_id)
-        self.collect_items_and_put(params["fetchId"], params["hostIds"])
+        self.collect_items_and_put(params["fetchId"], params.get("hostIds"))
 
     def hap_fetch_history(self, params, request_id):
         self.ensure_connection()

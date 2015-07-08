@@ -31,7 +31,7 @@ from hatohol import standardhap
 class Hap2FluentdMain(haplib.BaseMainPlugin):
 
     def __init__(self, *args, **kwargs):
-        haplib.BaseMainPlugin.__init__(self, kwargs["transporter_args"])
+        haplib.BaseMainPlugin.__init__(self)
 
         self.__manager = None
         self.__default_host = "UNKNOWN"

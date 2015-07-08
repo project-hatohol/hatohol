@@ -24,6 +24,7 @@ import logging
 import time
 import sys
 import traceback
+import signal
 from hatohol import haplib
 
 class StandardHap:
@@ -107,7 +108,15 @@ class StandardHap:
                 exctype, value = haplib.handle_exception(raises=raises)
             else:
                 break
-            #TODO: make sure poller and receiver has been killed.
+
+            self.enable_handling_sigchld(False)
+            if self.__main_plugin is not None:
+                self.__main_plugin.destroy()
+                self.__main_plugin = None
+            if self.__poller is not None:
+                self.__poller.terminate()
+                self.__poller = None
+
             logging.info("Rerun after %d sec" % self.__error_sleep_time)
             time.sleep(self.__error_sleep_time)
 
@@ -121,21 +130,26 @@ class StandardHap:
         poller.set_dispatch_queue(dispatcher.get_dispatch_queue())
         return poller
 
-    def __start_poller(self, poller):
-        if poller is None:
-            return
-        poll_process = multiprocessing.Process(target=poller)
-        poll_process.daemon = True
-        poll_process.start()
+    def enable_handling_sigchld(self, enable=True):
+        def handler(signum, frame):
+            logging.warning("Got SIGCHLD")
+            raise haplib.Signal()
+        if enable:
+            _handler = handler
+        else:
+            _handler = signal.SIG_DFL
+        signal.signal(signal.SIGCHLD, _handler)
 
     def __run(self):
+        self.enable_handling_sigchld()
         args = self.__parse_argument()
         logging.info("Transporter: %s" % args.transporter)
         transporter_class = haplib.Utils.load_transporter(args)
         transporter_args = {"class": transporter_class}
         transporter_args.update(transporter_class.parse_arguments(args))
 
-        self.__main_plugin = self.create_main_plugin(transporter_args=transporter_args)
+        self.__main_plugin = self.create_main_plugin()
+        self.__main_plugin.setup(transporter_args)
         self.__main_plugin.register_callback(
             haplib.BaseMainPlugin.CB_UPDATE_MONITORING_SERVER_INFO,
             self.on_got_monitoring_server_info)
@@ -160,8 +174,8 @@ class StandardHap:
         logging.info("got monitoring server info.")
         self.on_got_monitoring_server_info(ms_info)
 
-        if not args.disable_poller:
-            self.__start_poller(self.__poller)
+        if self.__poller is not None:
+            self.__poller.daemonize()
             logging.info("started poller plugin.")
 
         self.__main_plugin()
