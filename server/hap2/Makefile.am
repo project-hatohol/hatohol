@@ -24,7 +24,7 @@ install-data-hook:
 	python setup_zabbixapi.py install $$PYTHON_SETUP_OPTIONS && \
 	python setup_rabbitmqconnector.py install $$PYTHON_SETUP_OPTIONS
 
-nobase_dist_hatohol_hap2_DATA = \
+nobase_hatohol_hap2_SCRIPTS = \
 	hatohol/hap2_zabbix_api.py \
 	hatohol/hap2_fluentd.py \
 	hatohol/hap2_ceilometer.py \
@@ -35,4 +35,4 @@ EXTRA_DIST = \
 	$(hatohol_hap2_SCRIPTS) \
 	$(hatohol_hap2_DATA) \
 	$(noinst_SCRIPTS) \
-	$(nobase_dist_hatohol_hap2_DATA)
+	$(nobase_hatohol_hap2_SCRIPTS)
