@@ -122,6 +122,11 @@ struct HatoholArmPluginGateHAPI2::Impl
 				 serverId);
 			return;
 		}
+		if (m_pluginInfo.staticQueueAddress.empty()) {
+			m_pluginInfo.staticQueueAddress =
+			  StringUtils::sprintf("hap2.%" FMT_SERVER_ID,
+					       m_serverInfo.id);
+		}
 		m_hapi2.setArmPluginInfo(m_pluginInfo);
 	}
 
