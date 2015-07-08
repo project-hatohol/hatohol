@@ -32,7 +32,6 @@ import random
 import argparse
 import imp
 import calendar
-import sets
 import math
 from hatohol import transporter
 from hatohol.rabbitmqconnector import RabbitMQConnector
@@ -90,7 +89,7 @@ PROCEDURES_DEFS = {
             "count": {"type": int(), "mandatory": True},
             "direction": {
                 "type": unicode(), "mandatory": True,
-                "choices": sets.ImmutableSet(["ASC", "DESC"])
+                "choices": frozenset(("ASC", "DESC"))
             },
             "fetchId": {"type": unicode(), "mandatory": True, "max_size": 255}
         }
@@ -174,12 +173,10 @@ ERROR_DICT = {
     ERR_CODE_PARSER_ERROR: "Parse error",
 }
 
-EVENT_TYPES = sets.ImmutableSet(
-    ["GOOD", "BAD", "UNKNOWN", "NOTIFICATION"])
-TRIGGER_STATUS = sets.ImmutableSet(
-    ["OK", "NG", "UNKNOWN"])
-TRIGGER_SEVERITY = sets.ImmutableSet(
-    ["UNKNOWN", "INFO", "WARNING", "ERROR", "CRITICAL", "EMERGENCY"])
+EVENT_TYPES = frozenset(("GOOD", "BAD", "UNKNOWN", "NOTIFICATION"))
+TRIGGER_STATUS = frozenset(("OK", "NG", "UNKNOWN"))
+TRIGGER_SEVERITY = frozenset(
+    ("UNKNOWN", "INFO", "WARNING", "ERROR", "CRITICAL", "EMERGENCY"))
 
 # You should not change MAX_EVENT_CHUNK_SIZE.
 # Because, pika module capacity is 131072 byte.
