@@ -254,7 +254,7 @@ public:
 					 message.c_str());
 				break;
 			}
-			case AMQP_CONNECTION_CLOSE_RESULT:
+			case AMQP_CONNECTION_CLOSE_METHOD:
 			{
 				amqp_connection_close_t *result =
 				  static_cast<amqp_connection_close_t *>(
