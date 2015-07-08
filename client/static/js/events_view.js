@@ -399,7 +399,7 @@ var EventsView = function(userProfile, baseElem) {
       incident   = event["incident"];
       severityClass = "severity";
       if (status == hatohol.EVENT_TYPE_BAD)
-	severityClass += escapeHTML(severity);
+        severityClass += escapeHTML(severity);
       description = getEventDescription(event);
       if (serverURL) {
         html += "<tr><td><a href='" + serverURL + "' target='_blank'>" + escapeHTML(nickName)
