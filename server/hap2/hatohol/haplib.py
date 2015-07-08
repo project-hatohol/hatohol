@@ -719,6 +719,14 @@ class Dispatcher(ChildProcess):
         # dispatch the received message to the caller.
         response_id = contents.message_id
         target_queue = self.__id_res_q_map.get(response_id, self.__rpc_queue)
+
+        # RPC shall has 'method'
+        if target_queue == self.__rpc_queue:
+            if "method" not in contents.message_dict:
+                logging.warning("Drop a received message w/o 'method'")
+                logging.warning(contents.message_dict)
+                return
+
         target_queue.put(contents)
         if target_queue != self.__rpc_queue:
             del self.__id_res_q_map[response_id]
