@@ -187,6 +187,8 @@ public:
 		logErrorResponse("destroy connection",
 				 amqp_destroy_connection(m_connection));
 
+		m_isConsumerQueueDeclared = false;
+		m_isPublisherQueueDeclared = false;
 		m_socket = NULL;
 		m_connection = NULL;
 	}
