@@ -109,6 +109,15 @@ static void addNumberOfAllowedHostgroups(UnifiedDataStore *dataStore,
 	outputJSON.add("numberOfAllowedHostgroups", numberOfAllowedHostgroups);
 }
 
+static bool isPassiveMode(const ArmPluginInfo &info)
+{
+	const string &path = info.path;
+	if (info.type == MONITORING_SYSTEM_HAPI2)
+		return path.empty();
+	else
+		return path == HatoholArmPluginGate::PassivePluginQuasiPath;
+}
+
 static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
                        const ServerIdType &targetServerId,
                        const bool &showHostgroupInfo,
@@ -155,8 +164,7 @@ static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 			                             agent);
 		}
 		if (pluginIt->id != INVALID_ARM_PLUGIN_INFO_ID) {
-			const bool passiveMode =
-			  (pluginIt->path == HatoholArmPluginGate::PassivePluginQuasiPath);
+			const bool passiveMode = isPassiveMode(*pluginIt);
 			if (passiveMode)
 				agent.addTrue("passiveMode");
 			else
@@ -472,7 +480,7 @@ static HatoholError parseServerParameter(
 	bool passiveMode = false;
 	if (value) {
 		passiveMode = (string(value) == "true");
-		if (passiveMode) {
+		if (passiveMode && svInfo.type != MONITORING_SYSTEM_HAPI2) {
 			armPluginInfo.path =
 			  HatoholArmPluginGate::PassivePluginQuasiPath;
 		}
