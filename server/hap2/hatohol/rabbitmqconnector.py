@@ -112,7 +112,9 @@ class RabbitMQConnector(Transporter):
 
     def __publish(self, msg):
         self._channel.basic_publish(exchange="", routing_key=self._queue_name,
-                                    body=msg)
+                                    body=msg,
+                                    properties=pika.BasicProperties(
+                                        content_type="application/json"))
 
     @classmethod
     def define_arguments(cls, parser):
