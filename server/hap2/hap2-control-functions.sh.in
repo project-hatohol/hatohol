@@ -47,7 +47,7 @@ check_pid_file() {
             echo "Failed to start $PLUGIN_PATH"
             exit 1
         else
-            rm ${PID_FILE}
+            rm -f ${PID_FILE}
         fi
     fi
 }
@@ -89,7 +89,7 @@ stop_plugin() {
         if test -n $PID; then
             kill $PID
         fi
-        rm ${PID_FILE}
+        rm -f ${PID_FILE}
         echo "Succeeded to stop $PLUGIN_PATH"
     else
         echo "The PID file doesn't exists: $PID_FILE"
