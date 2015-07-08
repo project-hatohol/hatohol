@@ -180,7 +180,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		void setArmInfoStatus(JSONRPCError errObj) {
 			ArmStatus &status = m_impl.m_armStatus;
-			ArmInfo armInfo;
+			ArmInfo armInfo = status.getArmInfo();
 			if (errObj.hasErrors()) {
 				armInfo.stat = ARM_WORK_STAT_FAILURE;
 			} else {
