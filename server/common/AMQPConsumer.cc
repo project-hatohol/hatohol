@@ -32,9 +32,7 @@
 using namespace std;
 using namespace mlpl;
 
-static const size_t DEFAULT_NUM_RETRY = 5;
-static const size_t RETRY_INTERVAL[DEFAULT_NUM_RETRY] = {
-  1, 2, 5, 10, 30 };
+const vector<size_t> retryInterval = { 1, 2, 5, 10, 30 };
 
 struct AMQPConsumer::Impl {
 	Impl()
@@ -82,7 +80,7 @@ AMQPConnectionPtr AMQPConsumer::getConnection(void)
 gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 {
 	bool started = false;
-	size_t i = 0, numRetry = DEFAULT_NUM_RETRY;
+	size_t i = 0, numRetry = retryInterval.size();
 	while (!isExitRequested()) {
 		if (i >= numRetry) {
 			MLPL_ERR("Failed to connect to HAP2\n");
@@ -97,7 +95,7 @@ gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 			started = m_impl->m_connection->startConsuming();
 
 		if (!started) {
-			size_t sleepTimeSec = RETRY_INTERVAL[i];
+			size_t sleepTimeSec = retryInterval.at(i);
 			m_impl->m_waitSem.timedWait(sleepTimeSec * 1000);
 			MLPL_INFO("Try to connect after %zd sec. (%zd/%zd)\n",
 			          sleepTimeSec, i+1, numRetry);
