@@ -75,7 +75,7 @@ public:
 			amqp_socket_open(m_socket, getHost(), getPort());
 		if (status == AMQP_STATUS_SOCKET_ERROR) {
 			const string context =
-				StringUtils::sprintf("socket error: %s:%u",
+				StringUtils::sprintf("connect socket: %s:%u",
 						     getHost(),
 						     getPort());
 			logErrorResponse(context.c_str(), status);
