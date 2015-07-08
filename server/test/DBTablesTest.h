@@ -218,6 +218,7 @@ const HostgroupIdSet &getTestHostgroupIdSet(void);
 int findIndexOfTestArmPluginInfo(const MonitoringSystemType &type);
 int findIndexOfTestArmPluginInfo(const ServerIdType &serverId);
 const ArmPluginInfo &getTestArmPluginInfo(const MonitoringSystemType &type);
+const ArmPluginInfo *findTestArmPluginInfo(const ServerIdType &serverId);
 
 extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST;
 extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST;

@@ -388,12 +388,24 @@ void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
 
 void assertServersIdNameHashInParser(JSONParser *parser)
 {
+	int numPluginInfo = 0;
 	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		const MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertStartObject(parser, StringUtils::toString(svInfo.id));
 		assertValueInParser(parser, "name", svInfo.hostName);
+
+		const ArmPluginInfo *pluginInfo =
+		  findTestArmPluginInfo(svInfo.id);
+		if (pluginInfo) {
+			assertValueInParser(parser, "uuid", pluginInfo->uuid);
+			numPluginInfo++;
+		}
 		parser->endObject();
 	}
 	parser->endObject();
+
+	// We have to choose test data with the condition that
+	// there is at least one ArmPluginInfo is involved.
+	cppcut_assert_not_equal(numPluginInfo, 0);
 }
