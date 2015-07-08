@@ -7,9 +7,13 @@ noinst_SCRIPTS = \
 	setup_rabbitmqconnector.py
 
 install-data-hook:
-	python setup_common.py install --root=$(DESTDIR)
-	python setup_zabbixapi.py install --root=$(DESTDIR)
-	python setup_rabbitmqconnector.py install --root=$(DESTDIR)
+	PYTHON_SETUP_OPTIONS=""; \
+	if test -n "$(DESTDIR)"; then \
+		PYTHON_SETUP_OPTIONS="--root=$(DESTDIR)"; \
+	fi; \
+	python setup_common.py install $$PYTHON_SETUP_OPTIONS && \
+	python setup_zabbixapi.py install $$PYTHON_SETUP_OPTIONS && \
+	python setup_rabbitmqconnector.py install $$PYTHON_SETUP_OPTIONS
 
 nobase_dist_hatohol_hap2_DATA = \
 	hatohol/hap2_zabbix_api.py \
