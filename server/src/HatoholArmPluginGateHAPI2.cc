@@ -98,6 +98,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
 	string m_pluginProcessName;
+	string m_pluginControlScriptPath;
 	set<string> m_supportedProcedureNameSet;
 	HostInfoCache hostInfoCache;
 	map<string, Closure0 *> m_fetchClosureMap;
@@ -337,15 +338,35 @@ struct HatoholArmPluginGateHAPI2::Impl
 		}
 	};
 
+	const string &getPluginControlScriptPath()
+	{
+		if (!m_pluginControlScriptPath.empty())
+			return m_pluginControlScriptPath;
+
+		if (m_pluginInfo.path.empty())
+			return m_pluginControlScriptPath;
+
+		if (g_path_is_absolute(m_pluginInfo.path.c_str())) {
+			m_pluginControlScriptPath = m_pluginInfo.path;
+			return m_pluginInfo.path;
+		}
+
+		m_pluginControlScriptPath = LIBEXECDIR G_DIR_SEPARATOR_S PACKAGE;
+		m_pluginControlScriptPath += G_DIR_SEPARATOR;
+		m_pluginControlScriptPath += m_pluginInfo.path;
+		return m_pluginControlScriptPath;
+	}
+
 	bool isPluginControlScriptAvailable(void)
 	{
-		if (m_pluginInfo.path.empty())
+		const string scriptPath = getPluginControlScriptPath();
+		if (scriptPath.empty())
 			return false;
-		bool executable = g_file_test(m_pluginInfo.path.c_str(),
+		bool executable = g_file_test(scriptPath.c_str(),
 					      G_FILE_TEST_IS_EXECUTABLE);
 		if (!executable)
 			MLPL_WARN("The plugin control script isn't executable:"
-				  " %s\n", m_pluginInfo.path.c_str());
+				  " %s\n", scriptPath.c_str());
 		return executable;
 	}
 
@@ -452,10 +473,11 @@ struct HatoholArmPluginGateHAPI2::Impl
 			{
 			}
 		} *eventCb = new EventCb(&m_hapi2);
+		const string scriptPath = getPluginControlScriptPath();
 
 		ChildProcessManager::CreateArg arg;
 		arg.eventCb = eventCb;
-		arg.args.push_back(m_pluginInfo.path);
+		arg.args.push_back(scriptPath);
 		arg.args.push_back(command);
 		arg.addFlag(G_SPAWN_SEARCH_PATH);
 		setChildProcessEnv(arg);
@@ -463,12 +485,12 @@ struct HatoholArmPluginGateHAPI2::Impl
 		ChildProcessManager::getInstance()->create(arg);
 		if (!eventCb->succeededInCreation) {
 			MLPL_ERR("Failed to %s: %s\n",
-				 command.c_str(), m_pluginInfo.path.c_str());
+				 command.c_str(), scriptPath.c_str());
 			return false;
 		}
 
 		MLPL_INFO("Succeeded to %s: %s\n",
-			  command.c_str(), m_pluginInfo.path.c_str());
+			  command.c_str(), scriptPath.c_str());
 
 		return true;
 }
