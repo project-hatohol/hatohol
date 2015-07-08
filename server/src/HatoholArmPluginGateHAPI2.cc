@@ -26,6 +26,7 @@
 #include "ArmFake.h"
 #include "ChildProcessManager.h"
 #include <libsoup/soup.h>
+#include <Reaper.h>
 
 using namespace std;
 using namespace mlpl;
@@ -416,8 +417,13 @@ struct HatoholArmPluginGateHAPI2::Impl
 		  m_pluginInfo.staticQueueAddress.c_str()));
 
 		SoupURI *uri = soup_uri_new(m_pluginInfo.brokerUrl.c_str());
+		if (!uri)
+			return;
+		Reaper<SoupURI> uriReaper(uri, soup_uri_free);
+
 		if (!SOUP_URI_IS_VALID(uri))
 			return;
+
 		const char *scheme = soup_uri_get_scheme(uri);
 		if (!scheme || string(scheme) != "amqp")
 			return;
