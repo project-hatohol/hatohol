@@ -20,6 +20,7 @@
 
 import logging
 import pika
+import haplib
 from hatohol.transporter import Transporter
 
 class RabbitMQConnector(Transporter):
@@ -87,7 +88,12 @@ class RabbitMQConnector(Transporter):
 
     def close(self):
         if self.__connection is not None:
-            self.__connection.close()
+            try:
+                self.__connection.close()
+            except:
+                # On some condition such as Ubuntu 14.04, the above close()
+                # raises an exception when the rabbitmq-server is stopped.
+                haplib.handle_exception()
             self.__connection = None
 
     def call(self, msg):
