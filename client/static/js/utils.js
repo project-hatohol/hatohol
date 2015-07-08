@@ -175,7 +175,9 @@ function getHostName(server, hostId) {
   if (server) {
     plugin = getPlugin(server)
     if (plugin && plugin.getHostName)
-        return plugin.getHostName(server, hostId)
+        hostName = plugin.getHostName(server, hostId)
+        if (hostName != null)
+            return hostName
   }
 
   if (!server || !server["hosts"] || !(hostId in server["hosts"]))
