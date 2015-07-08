@@ -20,6 +20,8 @@
 var ServersView = function(userProfile) {
   var self = this;
   var serverIds = new Array();
+  var paramArray = new Array();
+  var currServersMap = {};
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -216,6 +218,17 @@ var ServersView = function(userProfile) {
       } else {
         s += "<td></td>";
       }
+      s += "<td id='server-info-" + serverId + "'" +
+           "  data-title='" + gettext("Server ID") + ": " + escapeHTML(serverId) + "'" +
+           "  data-html=true" +
+           "  data-trigger='hover'" +
+           "  data-container='body'" +
+           "  data-placement='left'" +
+           "  serverType='" + getServerTypeId(o) + "'" +
+           "  serverId='" + escapeHTML(serverId) + "'" +
+           ">";
+      s += "<i class='glyphicon glyphicon-info-sign'></i>";
+      s += "</td>";
       s += "<td class='edit-server-column' style='display:none;'>";
       s += "<input id='edit-server" + escapeHTML(o["id"]) + "'";
       s += "  type='button' class='btn btn-default'";
@@ -235,6 +248,7 @@ var ServersView = function(userProfile) {
     self.setupCheckboxForDelete($("#update-tirgger-server-button"));
     $(".delete-selector").show();
     setupEditButtons(reply);
+    setupServerInfo(reply);
     self.displayUpdateTime();
     self.startConnection("server-conn-stat", updateServerConnStat);
   }
@@ -275,6 +289,93 @@ var ServersView = function(userProfile) {
       $("#" + idConnStat).html(html);
       options = {content: connStatParser.getInfoHTML()};
       $("#" + idConnStat).popover(options);
+    }
+  }
+
+  function setupServerInfo(reply) {
+    var servers = reply["servers"];
+    for (var i = 0; i < servers.length; ++i) {
+      currServersMap[servers[i]["id"]] = servers[i];
+    }
+    getServerTypesAsync();
+  }
+
+  function getServerTypesAsync() {
+    new HatoholConnector({
+      url: "/server-type",
+      replyCallback: replyCallback,
+    });
+  }
+
+  function replyCallback(reply, parser) {
+    if (!(reply.serverType instanceof Array)) {
+      return;
+    }
+    paramArray = [];
+    for (var i = 0; i < reply.serverType.length; i++) {
+      var serverTypeInfo = reply.serverType[i];
+      var name = serverTypeInfo.name;
+      if (!name) {
+        continue;
+      }
+      var type = serverTypeInfo.type;
+      if (type == hatohol.MONITORING_SYSTEM_HAPI2)
+        type = serverTypeInfo.uuid;
+      if (type == undefined) {
+        continue;
+      }
+      var parameters = serverTypeInfo.parameters;
+      if (parameters == undefined) {
+        continue;
+      }
+      paramArray[type] = parameters;
+    }
+    makeServerInfo();
+  }
+
+  function makeServerInfo() {
+    for (var i = 0; i < serverIds.length; i++) {
+      var id = "#server-info-" + serverIds[i];
+      $(id).popover({
+        content: function() {
+          var serverId = this.getAttribute("serverId");
+          var server = currServersMap[serverId];
+          var serverType = this.getAttribute("serverType");
+          var params = paramArray[serverType];
+          var paramObj = JSON.parse(params);
+          var s = "";
+          s += gettext('Monitoring server type') + ": " +
+               makeMonitoringSystemTypeLabel(server) + "</br>";
+          for (var j = 0; j < paramObj.length; j++) {
+            var param = paramObj[j];
+            var value;
+            if (!param.label || !param.id || param.hidden)
+              continue;
+            s += gettext(param.label) + ": ";
+            if (param.inputStyle == "password") {
+              s += "******";
+            } else if (param.inputStyle == "checkBox") {
+              value = server[param.id];
+              if (value == true) {
+                s += gettext("True");
+              } else {
+                s += gettext("False");
+              }
+            } else {
+              value = server[param.id];
+              if (value) {
+                s += value;
+              } else {
+                if (param.hint) {
+                  s += param.hint;
+                }
+              }
+            }
+            s += "<br>";
+          }
+          return s;
+        }
+      });
     }
   }
 };
