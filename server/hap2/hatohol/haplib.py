@@ -34,8 +34,10 @@ import imp
 import calendar
 import sets
 import math
+import copy
 from hatohol import transporter
 from hatohol.rabbitmqconnector import RabbitMQConnector
+from hatohol.rabbitmqconnector import OverCapacity
 
 SERVER_PROCEDURES = {"exchangeProfile": True,
                      "getMonitoringServerInfo": True,
@@ -181,11 +183,7 @@ TRIGGER_STATUS = sets.ImmutableSet(
 TRIGGER_SEVERITY = sets.ImmutableSet(
     ["UNKNOWN", "INFO", "WARNING", "ERROR", "CRITICAL", "EMERGENCY"])
 
-# You should not change MAX_EVENT_CHUNK_SIZE.
-# Because, pika module capacity is 131072 byte.
-# If you change MAX_EVENT_CHUNK_SIZE to over 500.
-# Event data may too 131072 byte.
-MAX_EVENT_CHUNK_SIZE = 500
+DEFAULT_MAX_EVENT_CHUNK_SIZE = 500
 MAX_LAST_INFO_SIZE = 32767
 
 def handle_exception(raises=(SystemExit,)):
@@ -386,6 +384,7 @@ class HapiProcessor:
         self.reset()
         self.__timeout_sec = 30
         self.__sender = sender
+        self.__chunk_size = DEFAULT_MAX_EVENT_CHUNK_SIZE
 
     def __del__(self):
         self.__reply_queue.close()
@@ -528,7 +527,7 @@ class HapiProcessor:
     def generate_event_last_info(self, events):
         return Utils.get_maximum_eventid(events)
 
-    def put_events(self, events, fetch_id=None, last_info_generator=None):
+    def __put_events(self, events, fetch_id=None, last_info_generator=None):
         """
         This method calls putEvents() and wait for a reply.
         It divide events if the size is beyond the limitation.
@@ -543,10 +542,9 @@ class HapiProcessor:
         It this parameter is None, generate_event_last_info() is called.
         """
 
-        CHUNK_SIZE = MAX_EVENT_CHUNK_SIZE
         num_events = len(events)
-        count = num_events / CHUNK_SIZE
-        if num_events % CHUNK_SIZE != 0:
+        count = num_events / self.__chunk_size
+        if num_events % self.__chunk_size != 0:
             count += 1
         if count == 0:
             if fetch_id is None:
@@ -554,8 +552,7 @@ class HapiProcessor:
             count = 1
 
         for num in range(0, count):
-            start = num * CHUNK_SIZE
-            event_chunk = events[start:start + CHUNK_SIZE]
+            event_chunk = events[0: self.__chunk_size]
 
             if last_info_generator is None:
                 last_info_generator = self.generate_event_last_info
@@ -572,9 +569,22 @@ class HapiProcessor:
             request_id = Utils.generate_request_id(self.__component_code)
             self.__wait_acknowledge(request_id)
             self.__sender.request("putEvents", params, request_id)
+            del events[0: self.__chunk_size]
             self.__wait_response(request_id)
 
         self.__event_last_info = last_info
+
+    def put_events(self, events, fetch_id=None, last_info_generator=None):
+        copy_events = copy.copy(events)
+        while True:
+            try:
+                self.__put_events(copy_events, fetch_id, last_info_generator)
+                # Default size
+                self.__chunk_size = DEFAULT_MAX_EVENT_CHUNK_SIZE
+                break
+            except OverCapacity:
+                self.__chunk_size = self.__chunk_size * 3 / 4
+                continue
 
     def put_items(self, items, fetch_id):
         params = {"fetchId": fetch_id, "items": items}
