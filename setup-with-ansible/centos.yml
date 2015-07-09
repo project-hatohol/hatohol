@@ -1,9 +1,22 @@
 ---
+  - name: upgrade all packages
+    yum: name=* state=latest
+
   - name: install git
     yum: name=git
 
   - name: install g++
     yum: name=gcc-c++
+
+  - name: register devtoolset-2 repo
+    get_url: url=http://people.centos.org/tru/devtools-2/devtools-2.repo dest=/etc/yum.repos.d/
+
+  - name: install devtoolset toolchain
+    yum: name={{ item }}
+    with_items:
+      - devtoolset-2-gcc
+      - devtoolset-2-binutils
+      - devtoolset-2-gcc-c++
 
   - name: install autoconf and automake
     yum: name={{ item }}
@@ -24,7 +37,7 @@
     yum: name=libsoup-devel
 
   - name: register hatohol repo
-    get_url: url=http://project-hatohol.github.io/repo/hatohol.repo dest=/etc/yum.repos.d/
+    get_url: url=http://project-hatohol.github.io/repo/hatohol-el6.repo dest=/etc/yum.repos.d/
 
   - name: install json-glib-devel
     yum: name=json-glib-devel
@@ -41,6 +54,9 @@
 #  - name: install ndoutils-nagios3-mysql
 #    yum: name=ndoutils-nagios3-mysql
 
+  - name: register the repository for librabbitmq
+    yum: name=http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+
   - name: install librabbitmq-devel
     yum: name=librabbitmq-devel
 
@@ -55,7 +71,7 @@
   - name: install curl
     yum: name=curl
 
-  - name: register the repositoy for cutter
+  - name: register the repository for cutter
     yum: name=http://sourceforge.net/projects/cutter/files/centos/cutter-release-1.1.0-0.noarch.rpm
 
   - name: install cutter
@@ -66,6 +82,12 @@
 
   - name: install python-devel
     yum: name=python-devel
+
+  - name: install python-argparse
+    yum: name=python-argparse
+
+  - name: install mysql-python
+    yum: name=MySQL-python
 
 #  - name: install npm
 #    yum: name=npm
@@ -91,11 +113,17 @@
   - name: install django 1.5.4
     yum: name=Django
 
-  - name: install mysql-python
-    pip: name=mysql-python
+  - name: install python-daemon
+    pip: name=daemon
+
+  - name: install python-pika
+    pip: name=pika
 
   - name: install httpd
     yum: name=httpd
 
   - name: install mod_wsgi
     yum: name=mod_wsgi
+
+  - name: install rpm-build
+    yum: name=rpm-build
