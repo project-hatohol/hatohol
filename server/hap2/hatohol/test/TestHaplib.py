@@ -205,6 +205,20 @@ class ArmInfo(unittest.TestCase):
         self.assertGreaterEqual(arm_info_time, time0)
         self.assertGreaterEqual(time1, arm_info_time)
 
+    def test_get_summary(self):
+        arm_info = haplib.ArmInfo()
+        arm_info.last_status = "OK"
+        arm_info.failure_reason = "ABC DEF"
+        arm_info.last_success_time = "20150709141523.123"
+        arm_info.last_failure_time = "20150701235500.789"
+        arm_info.num_success = 512
+        arm_info.num_failure = 1024
+
+        expect =  "LastStat: OK, NumSuccess: 512 (20150709141523.123), " \
+                  "NumFailure: 1024 (20150701235500.789): " \
+                  "FailureReason: ABC DEF"
+        self.assertEquals(arm_info.get_summary(), expect)
+
 
 class Sender(unittest.TestCase):
     def test_get_connector(self):
@@ -862,6 +876,17 @@ class BasePoller(unittest.TestCase):
 
     def test_on_aboted_poll(self):
         common.assertNotRaises(self.poller.on_aborted_poll)
+
+    def test_log_status(self):
+        poller = haplib.BasePoller(sender=self.sender, process_id="test")
+        log_time = common.returnPrivObj(poller, "__next_log_status_time")
+        poller.log_status(haplib.ArmInfo())
+        # check if the next time is update
+        new_time = common.returnPrivObj(poller, "__next_log_status_time")
+        self.assertGreater(new_time, log_time)
+        # call again soon. __new_log_status_time should not be updated.
+        new_time2 = common.returnPrivObj(poller, "__next_log_status_time")
+        self.assertEquals(new_time2, new_time)
 
     def test_set_ms_info(self):
         ms_info = ("test_ms_info")
