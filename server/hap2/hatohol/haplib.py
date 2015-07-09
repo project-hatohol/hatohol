@@ -323,6 +323,15 @@ class ArmInfo:
         self.num_success = int()
         self.num_failure = int()
 
+    def get_summary(self):
+        msg = "LastStat: %s, NumSuccess: %d (%s), NumFailure: %d (%s): " \
+              "FailureReason: %s" % \
+                (self.last_status,
+                 self.num_success, self.last_success_time,
+                 self.num_failure, self.last_failure_time,
+                 self.failure_reason)
+        return msg
+
 
 class RabbitMQHapiConnector(RabbitMQConnector):
     def setup(self, transporter_args):
@@ -883,6 +892,7 @@ class BaseMainPlugin(HapiProcessor):
 class BasePoller(HapiProcessor, ChildProcess):
     __COMPONENT_CODE = 0x20
     __CMD_MONITORING_SERVER_INFO = 1
+    __DEFAULT_STATUS_LOG_INTERVAL = 600
 
     def __init__(self, *args, **kwargs):
         HapiProcessor.__init__(self, kwargs["process_id"],
@@ -894,6 +904,13 @@ class BasePoller(HapiProcessor, ChildProcess):
         self.__command_queue = CommandQueue()
         self.__command_queue.register(self.__CMD_MONITORING_SERVER_INFO,
                                       self.__set_ms_info)
+
+        # The first polling result should be logged
+        self.__next_log_status_time = datetime.now()
+        interval = kwargs.get("status_log_interval",
+                              self.__DEFAULT_STATUS_LOG_INTERVAL)
+        logging.info("Minimum status logging interval: %d" % interval)
+        self.__log_status_interval = timedelta(seconds=interval)
 
     def poll(self):
        ctx = self.poll_setup()
@@ -926,6 +943,16 @@ class BasePoller(HapiProcessor, ChildProcess):
 
     def on_aborted_poll(self):
         pass
+
+    def log_status(self, arm_info):
+        """
+        Log the status periodically to see if the plugin is woring well.
+        @param arm_info ArmInfo object that has the latest status.
+        """
+        now = datetime.now()
+        if now >= self.__next_log_status_time:
+            logging.info(arm_info.get_summary())
+            self.__next_log_status_time = now + self.__log_status_interval
 
     def set_ms_info(self, ms_info):
         self.__command_queue.push(self.__CMD_MONITORING_SERVER_INFO, ms_info)
@@ -976,6 +1003,7 @@ class BasePoller(HapiProcessor, ChildProcess):
         try:
             arm_info.failure_reason = failure_reason
             self.put_arm_info(arm_info)
+            self.log_status(arm_info)
         except:
             handle_exception()
 
