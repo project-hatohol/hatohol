@@ -1,4 +1,7 @@
 ---
+  - name: update apt line
+    apt: update_cache=yes
+
   - name: install git
     apt: name=git
 
@@ -56,6 +59,9 @@
 
   - name: install software-properties-common
     apt: name=software-properties-common
+
+  - name: install python-curl
+    apt: name=python-pycurl
 
   - name: regsiter ppa repository for cutter
     apt_repository: repo='ppa:cutter-testing-framework/ppa'
