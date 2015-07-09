@@ -24,6 +24,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       node.vm.box_url = vm[:box_url]
       node.vm.provider("virtualbox") do |vb|
         use_n_cpu = ENV["CPU_NUM"]
+        memory = ENV["MEMORY"]
+        if memory
+          vb.memory = Integer(memory)
+        end
         if use_n_cpu
           vb.cpus = use_n_cpu.to_i
         else
