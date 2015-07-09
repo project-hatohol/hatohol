@@ -1167,7 +1167,7 @@ string popServerMessage(void)
 		{
 		}
 
-		virtual bool handle(AMQPConnection &connection,
+		virtual bool handle(AMQPConsumer &consumer,
 				    const AMQPMessage &message) override
 		{
 			if (m_gotMessage)
