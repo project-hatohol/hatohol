@@ -48,7 +48,7 @@ class TestZabbixApi(unittest.TestCase):
         result = self.api.get_items()
         exact = [{"itemId": u"1","hostId": u"1", "brief": u"test_name",
                   "unit": u"B", "itemGroupName": [u"test_name"],
-                  "lastValueTime": "19700101000000.111111111", "lastValue": u"100"}]
+                  "lastValueTime": "19700101000003.111111111", "lastValue": u"100"}]
 
         self.assertEquals(exact, result)
 
