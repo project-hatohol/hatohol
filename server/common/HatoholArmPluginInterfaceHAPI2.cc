@@ -433,7 +433,7 @@ string HatoholArmPluginInterfaceHAPI2::interpretHandler(
 		setResponseId(parser, builder);
 		builder.endObject();
 		MLPL_WARN("Received a method while exchangeProfile isn't "
-			  "completed yet!");
+			  "completed yet!\n");
 		return builder.generate();
 	}
 
