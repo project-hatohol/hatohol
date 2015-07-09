@@ -1,5 +1,12 @@
 %define is_el6 %(if [ x"%rhel" = x"6" ]; then echo 1; else echo 0; fi)
 %define is_el7 %(if [ x"%rhel" = x"7" ]; then echo 1; else echo 0; fi)
+%define __os_install_post    \
+    %{_rpmconfigdir}/brp-compress \
+    %{!?__debug_package:%{_rpmconfigdir}/brp-strip %{__strip}} \
+    %{_rpmconfigdir}/brp-strip-static-archive %{__strip} \
+    %{_rpmconfigdir}/brp-strip-comment-note %{__strip} %{__objdump} \
+    %{_rpmconfigdir}/brp-python-bytecompile \
+%{nil}
 
 Summary: Hatohol
 Name: hatohol
