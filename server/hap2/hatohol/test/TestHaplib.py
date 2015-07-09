@@ -854,6 +854,17 @@ class BasePoller(unittest.TestCase):
     def test_on_aboted_poll(self):
         common.assertNotRaises(self.poller.on_aborted_poll)
 
+    def test_log_status(self):
+        poller = haplib.BasePoller(sender=self.sender, process_id="test")
+        log_time = common.returnPrivObj(poller, "__next_log_status_time")
+        poller.log_status(haplib.ArmInfo())
+        # check if the next time is update
+        new_time = common.returnPrivObj(poller, "__next_log_status_time")
+        self.assertGreater(new_time, log_time)
+        # call again soon. __new_log_status_time should not be updated.
+        new_time2 = common.returnPrivObj(poller, "__next_log_status_time")
+        self.assertEquals(new_time2, new_time)
+
     def test_set_ms_info(self):
         ms_info = ("test_ms_info")
         self.poller.set_ms_info(ms_info)
