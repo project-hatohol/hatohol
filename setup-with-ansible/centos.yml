@@ -83,6 +83,9 @@
   - name: install python-devel
     yum: name=python-devel
 
+  - name: install python-argparse
+    yum: name=python-argparse
+
 #  - name: install npm
 #    yum: name=npm
 
@@ -109,9 +112,6 @@
 
   - name: install mysql-python
     pip: name=mysql-python
-
-  - name: install python-argparse
-    pip: name=argparse
 
   - name: install python-daemon
     pip: name=daemon

@@ -63,6 +63,9 @@
   - name: install python-curl
     apt: name=python-pycurl
 
+  - name: install python-argparse
+    apt: name=python-argparse
+
   - name: regsiter ppa repository for cutter
     apt_repository: repo='ppa:cutter-testing-framework/ppa'
 
@@ -101,9 +104,6 @@
 
   - name: install mysql-python
     pip: name=mysql-python
-
-  - name: install python-argparse
-    pip: name=argparse
 
   - name: install python-daemon
     pip: name=daemon
