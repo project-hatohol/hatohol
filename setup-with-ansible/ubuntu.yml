@@ -20,8 +20,8 @@
   - name: install libglib2.0-dev
     apt: name=libglib2.0-dev
 
-  - name: install libsoup2.4-dev 
-    apt: name=libsoup2.4-dev 
+  - name: install libsoup2.4-dev
+    apt: name=libsoup2.4-dev
 
   - name: install libjson-glib-dev
     apt: name=libjson-glib-dev
@@ -35,8 +35,8 @@
   - name: install uuid-dev
     apt: name=uuid-dev
 
-  - name: install libmysqlclient-dev 
-    apt: name=libmysqlclient-dev 
+  - name: install libmysqlclient-dev
+    apt: name=libmysqlclient-dev
 
   - name: install ndoutils-nagios3-mysql
     apt: name=ndoutils-nagios3-mysql
@@ -101,4 +101,3 @@
 
   - name: install mysql-python
     pip: name=mysql-python
-
