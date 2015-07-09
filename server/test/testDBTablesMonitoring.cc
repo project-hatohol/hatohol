@@ -348,7 +348,7 @@ void test_deleteTriggerInfo(void)
 		// check triggerInfo existence
 		string sql = StringUtils::sprintf("SELECT * FROM triggers");
 		sql += StringUtils::sprintf(
-		  " WHERE id = %" FMT_TRIGGER_ID
+		  " WHERE id = '%" FMT_TRIGGER_ID "'"
 		  " AND server_id = %" FMT_SERVER_ID,
 		  triggerId.c_str(), targetServerId);
 		uint64_t targetTestDataId = StringUtils::toUint64(triggerId) - 1;
