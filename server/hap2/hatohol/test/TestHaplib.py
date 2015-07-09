@@ -182,6 +182,29 @@ class ArmInfo(unittest.TestCase):
         self.assertEquals(0, arm_info.num_success)
         self.assertEquals(0, arm_info.num_failure)
 
+    def test_success(self):
+        arm_info = haplib.ArmInfo()
+        time0 = float(haplib.Utils.get_current_hatohol_time())
+        arm_info.success()
+        time1 = float(haplib.Utils.get_current_hatohol_time())
+        self.assertEquals(arm_info.last_status, "OK")
+        self.assertEquals(arm_info.num_success, 1)
+        arm_info_time = float(arm_info.last_success_time)
+        self.assertGreaterEqual(arm_info_time, time0)
+        self.assertGreaterEqual(time1, arm_info_time)
+
+    def test_fail(self):
+        arm_info = haplib.ArmInfo()
+        time0 = float(haplib.Utils.get_current_hatohol_time())
+        arm_info.fail("Reason")
+        time1 = float(haplib.Utils.get_current_hatohol_time())
+        self.assertEquals(arm_info.last_status, "NG")
+        self.assertEquals(arm_info.failure_reason, "Reason")
+        self.assertEquals(arm_info.num_failure, 1)
+        arm_info_time = float(arm_info.last_failure_time)
+        self.assertGreaterEqual(arm_info_time, time0)
+        self.assertGreaterEqual(time1, arm_info_time)
+
 
 class Sender(unittest.TestCase):
     def test_get_connector(self):
