@@ -968,17 +968,11 @@ class BasePoller(HapiProcessor, ChildProcess):
 
         if succeeded:
             sleep_time = self.__pollingInterval
-
-            arm_info.last_status = "OK"
-            arm_info.last_success_time = Utils.get_current_hatohol_time()
-            arm_info.num_success += 1
+            arm_info.success()
         else:
             sleep_time = self.__retryInterval
             self.on_aborted_poll()
-
-            arm_info.last_status = "NG"
-            arm_info.last_failure_time = Utils.get_current_hatohol_time()
-            arm_info.num_failure += 1
+            arm_info.fail()
 
         # Send ArmInfo
         try:
