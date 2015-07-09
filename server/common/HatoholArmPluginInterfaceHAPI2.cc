@@ -265,7 +265,10 @@ public:
 	void sendResponse(AMQPConnection &connection,
 			  const AMQPJSONMessage &response)
 	{
-		bool succeeded = connection.publish(response);
+		AMQPConnectionPtr connectionPtr(&connection);
+		AMQPPublisher publisher(connectionPtr);
+		publisher.setMessage(response);
+		bool succeeded = publisher.publish();
 		if (!succeeded) {
 			// TODO: retry?
 		}
