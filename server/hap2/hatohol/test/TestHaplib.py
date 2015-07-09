@@ -182,6 +182,20 @@ class ArmInfo(unittest.TestCase):
         self.assertEquals(0, arm_info.num_success)
         self.assertEquals(0, arm_info.num_failure)
 
+    def test_get_summary(self):
+        arm_info = haplib.ArmInfo()
+        arm_info.last_status = "OK"
+        arm_info.failure_reason = "ABC DEF"
+        arm_info.last_success_time = "20150709141523.123"
+        arm_info.last_failure_time = "20150701235500.789"
+        arm_info.num_success = 512
+        arm_info.num_failure = 1024
+
+        expect =  "LastStat: OK, NumSuccess: 512 (20150709141523.123), " \
+                  "NumFailure: 1024 (20150701235500.789): " \
+                  "FailureReason: ABC DEF"
+        self.assertEquals(arm_info.get_summary(), expect)
+
 
 class Sender(unittest.TestCase):
     def test_get_connector(self):

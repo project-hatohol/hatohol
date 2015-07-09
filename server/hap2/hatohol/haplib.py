@@ -909,7 +909,7 @@ class BasePoller(HapiProcessor, ChildProcess):
         self.__next_log_status_time = datetime.now()
         interval = kwargs.get("status_log_interval",
                               self.__DEFAULT_STATUS_LOG_INTERVAL)
-        logging.info("Status logging interval: %d" % interval)
+        logging.info("Minimum status logging interval: %d" % interval)
         self.__log_status_interval = timedelta(seconds=interval)
 
     def poll(self):
