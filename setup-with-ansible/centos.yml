@@ -86,6 +86,9 @@
   - name: install python-argparse
     yum: name=python-argparse
 
+  - name: install mysql-python
+    yum: name=MySQL-python
+
 #  - name: install npm
 #    yum: name=npm
 
@@ -109,9 +112,6 @@
 
   - name: install django 1.5.4
     yum: name=Django
-
-  - name: install mysql-python
-    pip: name=mysql-python
 
   - name: install python-daemon
     pip: name=daemon
