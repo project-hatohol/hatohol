@@ -102,6 +102,9 @@
   - name: install mysql-python
     pip: name=mysql-python
 
+  - name: install python-argparse
+    pip: name=argparse
+
   - name: install python-daemon
     pip: name=daemon
 
