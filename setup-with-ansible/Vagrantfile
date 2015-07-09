@@ -22,6 +22,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.define(id) do |node|
       node.vm.box = id
       node.vm.box_url = vm[:box_url]
+      node.vm.network "private_network", type: "dhcp"
       node.vm.provider("virtualbox") do |vb|
         use_n_cpu = ENV["CPU_NUM"]
         memory = ENV["MEMORY"]
