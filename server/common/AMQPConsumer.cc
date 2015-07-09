@@ -70,6 +70,7 @@ AMQPConsumer::AMQPConsumer(AMQPConnectionPtr &connection,
 AMQPConsumer::~AMQPConsumer()
 {
 	m_impl->m_waitSem.post();
+	exitSync();
 }
 
 AMQPConnectionPtr AMQPConsumer::getConnection(void)
