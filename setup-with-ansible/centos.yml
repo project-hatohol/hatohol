@@ -124,3 +124,6 @@
 
   - name: install mod_wsgi
     yum: name=mod_wsgi
+
+  - name: install rpm-build
+    yum: name=rpm-build
