@@ -1576,9 +1576,11 @@ static string makeTriggerIdListCondition(const TriggerIdList &idList)
 	const ColumnDef &colId = COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID];
 	SeparatorInjector commaInjector(",");
 	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	DBTermCodec codec;
 	for (auto id : idList) {
 		commaInjector(condition);
-		condition += StringUtils::sprintf("%" FMT_TRIGGER_ID, id.c_str());
+		condition += StringUtils::sprintf("%" FMT_TRIGGER_ID,
+						  codec.enc(id).c_str());
 	}
 
 	condition += ")";
