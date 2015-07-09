@@ -4,7 +4,7 @@
 	- [Server] Initial support of Hatohol Arm Plugin Interface 2.0("HAPI2.0")
 	  (https://github.com/project-hatohol/HAPI-2.0-Specification) over AMQP.
 	- [Hap2] Initial implementation of HAPI2.0 plugin for Zabbix, Nagios,
-	  Ceilometer and Fluetnd.
+	  Ceilometer and Fluentd.
 	- [Client] Remove "Previous value" column on LatestData page. (#945)
 	- [Client] Eliminate "self monitoring" from filtering list on "LatestData"
 	  and "Overview: Items" pages. (#922)
