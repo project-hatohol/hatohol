@@ -109,8 +109,10 @@ class ZabbixAPIConductor:
         if last_info is None:
             last_info = self.get_cached_event_last_info()
 
+        event_id_from = None
         if direction == "ASC":
-            event_id_from = last_info
+            if last_info == None:
+                event_id_from = str(int(last_info)+1)
             event_id_till = None
             if count is not None:
                 event_id_till = event_id_from + count
