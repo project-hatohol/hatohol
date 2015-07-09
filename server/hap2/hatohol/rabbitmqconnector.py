@@ -23,6 +23,8 @@ import pika
 import haplib
 from hatohol.transporter import Transporter
 
+MAX_BODY_SIZE = 131064
+
 class RabbitMQConnector(Transporter):
     def __init__(self):
         Transporter.__init__(self)
@@ -97,6 +99,8 @@ class RabbitMQConnector(Transporter):
             self.__connection = None
 
     def call(self, msg):
+        if msg > MAX_BODY_SIZE:
+            raise OverCapacity("The message size over the max capacity of pika module.")
         self.__publish(msg)
 
     def reply(self, msg):
@@ -145,3 +149,11 @@ class RabbitMQConnector(Transporter):
                 "amqp_ssl_key": args.amqp_ssl_key,
                 "amqp_ssl_cert": args.amqp_ssl_cert,
                 "amqp_ssl_ca": args.amqp_ssl_ca}
+
+
+class OverCapacity(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
