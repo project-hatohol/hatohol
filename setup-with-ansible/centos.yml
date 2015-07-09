@@ -54,7 +54,7 @@
 #  - name: install ndoutils-nagios3-mysql
 #    yum: name=ndoutils-nagios3-mysql
 
-  - name: register the repositoy for librabbitmq
+  - name: register the repository for librabbitmq
     yum: name=http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 
   - name: install librabbitmq-devel
@@ -71,7 +71,7 @@
   - name: install curl
     yum: name=curl
 
-  - name: register the repositoy for cutter
+  - name: register the repository for cutter
     yum: name=http://sourceforge.net/projects/cutter/files/centos/cutter-release-1.1.0-0.noarch.rpm
 
   - name: install cutter
