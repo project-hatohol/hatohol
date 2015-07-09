@@ -35,6 +35,7 @@ import calendar
 import math
 from hatohol import transporter
 from hatohol.rabbitmqconnector import RabbitMQConnector
+from hatohol.rabbitmqconnector import OverCapacity
 
 SERVER_PROCEDURES = {"exchangeProfile": True,
                      "getMonitoringServerInfo": True,
@@ -536,7 +537,7 @@ class HapiProcessor:
     def generate_event_last_info(self, events):
         return Utils.get_maximum_eventid(events)
 
-    def put_events(self, events, fetch_id=None, last_info_generator=None):
+    def __put_events(self, events, fetch_id=None, last_info_generator=None):
         """
         This method calls putEvents() and wait for a reply.
         It divide events if the size is beyond the limitation.
@@ -583,6 +584,17 @@ class HapiProcessor:
             self.__wait_response(request_id)
 
         self.__event_last_info = last_info
+
+    def put_events(self, events, fetch_id=None, last_info_generator=None):
+        while True:
+            try:
+                self.__put_events(events, fetch_id, last_info_generator)
+                MAX_EVENT_CHUNK_SIZE = 500
+                break
+            except OverCapacity:
+                # Default size
+                MAX_EVENT_CHUNK_SIZE *= (3/4)
+                continue
 
     def put_items(self, items, fetch_id):
         params = {"fetchId": fetch_id, "items": items}
