@@ -101,3 +101,9 @@
 
   - name: install mysql-python
     pip: name=mysql-python
+
+  - name: install python-daemon
+    pip: name=daemon
+
+  - name: install python-pika
+    pip: name=pika
