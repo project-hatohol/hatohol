@@ -38,7 +38,7 @@ class Common:
 
     def __init__(self):
         self.close_connection()
-        self.__target_items = {
+        self.__target_items = frozenset((
             "cpu",
             "cpu_util",
             "disk.read.requests",
@@ -49,7 +49,7 @@ class Common:
             "disk.write.requests.rate",
             "disk.write.bytes",
             "disk.write.bytes.rate",
-        }
+        ))
 
     def close_connection(self):
         self.__token = None
