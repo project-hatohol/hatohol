@@ -262,6 +262,7 @@ server/common/Makefile
 server/src/Makefile
 server/hap/Makefile
 server/hap2/Makefile
+server/hap2/hap2-control-functions.sh
 server/hap2/hatohol/Makefile
 server/data/Makefile
 server/tools/Makefile

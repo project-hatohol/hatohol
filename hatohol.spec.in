@@ -299,6 +299,7 @@ rm -rf %{buildroot}
 %{python_sitelib}/hatohol/transporter.py
 %{python_sitelib}/hatohol/transporter.pyc
 %{python_sitelib}/hatohol/transporter.pyo
+%{_libexecdir}/hatohol/hap2/hap2-control-functions.sh
 
 %files hap2-rabbitmq-connector
 %{python_sitelib}/hatohol/rabbitmqconnector.py
@@ -309,21 +310,25 @@ rm -rf %{buildroot}
 %{python_sitelib}/hatohol/zabbixapi.py
 %{python_sitelib}/hatohol/zabbixapi.pyc
 %{python_sitelib}/hatohol/zabbixapi.pyo
+%{_libexecdir}/hatohol/hap2/start-stop-hap2-zabbix-api.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_zabbix_api.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_zabbix_api.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_zabbix_api.pyo
 
 %files hap2-nagios-ndoutils
+%{_libexecdir}/hatohol/hap2/start-stop-hap2-nagios-ndoutils.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.pyo
 
 %files hap2-fluentd
+%{_libexecdir}/hatohol/hap2/start-stop-hap2-fluentd.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_fluentd.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_fluentd.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_fluentd.pyo
 
 %files hap2-ceilometer
+%{_libexecdir}/hatohol/hap2/start-stop-hap2-ceilometer.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_ceilometer.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_ceilometer.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_ceilometer.pyo
