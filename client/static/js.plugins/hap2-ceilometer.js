@@ -6,7 +6,7 @@
   self.label = "Ceilometer (HAPI2)";
   self.getHostName = function(server, hostId) {
     if (hostId == "N/A")
-        return "N/A"
-    return null
+      return "N/A";
+    return null;
   }
 }(hatohol));
