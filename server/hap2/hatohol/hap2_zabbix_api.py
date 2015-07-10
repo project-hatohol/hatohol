@@ -111,7 +111,7 @@ class ZabbixAPIConductor:
 
         event_id_from = None
         if direction == "ASC":
-            if last_info == None:
+            if isinstance(last_info, int):
                 event_id_from = last_info + 1
             event_id_till = None
             if count is not None:
