@@ -33,8 +33,10 @@ import argparse
 import imp
 import calendar
 import math
+import copy
 from hatohol import transporter
 from hatohol.rabbitmqconnector import RabbitMQConnector
+from hatohol.rabbitmqconnector import OverCapacity
 
 SERVER_PROCEDURES = {"exchangeProfile": True,
                      "getMonitoringServerInfo": True,
@@ -178,11 +180,7 @@ TRIGGER_STATUS = frozenset(("OK", "NG", "UNKNOWN"))
 TRIGGER_SEVERITY = frozenset(
     ("UNKNOWN", "INFO", "WARNING", "ERROR", "CRITICAL", "EMERGENCY"))
 
-# You should not change MAX_EVENT_CHUNK_SIZE.
-# Because, pika module capacity is 131072 byte.
-# If you change MAX_EVENT_CHUNK_SIZE to over 500.
-# Event data may too 131072 byte.
-MAX_EVENT_CHUNK_SIZE = 500
+DEFAULT_MAX_EVENT_CHUNK_SIZE = 500
 MAX_LAST_INFO_SIZE = 32767
 
 def handle_exception(raises=(SystemExit,)):
@@ -545,13 +543,15 @@ class HapiProcessor:
     def generate_event_last_info(self, events):
         return Utils.get_maximum_eventid(events)
 
-    def put_events(self, events, fetch_id=None, last_info_generator=None):
+    def __put_events(self, events, chunk_size, fetch_id=None, last_info_generator=None):
         """
         This method calls putEvents() and wait for a reply.
         It divide events if the size is beyond the limitation.
         It also calculates lastInfo for the divided events,
         remebers it in this object and provide lastInfo via
         get_cached_event_last_info().
+        This method overwrites events object. When you call
+        this method, you be careful this point.
 
         @param events A list of event (dictionary).
         @param fetch_id A fetch ID.
@@ -560,10 +560,9 @@ class HapiProcessor:
         It this parameter is None, generate_event_last_info() is called.
         """
 
-        CHUNK_SIZE = MAX_EVENT_CHUNK_SIZE
         num_events = len(events)
-        count = num_events / CHUNK_SIZE
-        if num_events % CHUNK_SIZE != 0:
+        count = num_events / chunk_size
+        if num_events % chunk_size != 0:
             count += 1
         if count == 0:
             if fetch_id is None:
@@ -571,8 +570,7 @@ class HapiProcessor:
             count = 1
 
         for num in range(0, count):
-            start = num * CHUNK_SIZE
-            event_chunk = events[start:start + CHUNK_SIZE]
+            event_chunk = events[0: chunk_size]
 
             if last_info_generator is None:
                 last_info_generator = self.generate_event_last_info
@@ -589,9 +587,30 @@ class HapiProcessor:
             request_id = Utils.generate_request_id(self.__component_code)
             self.__wait_acknowledge(request_id)
             self.__sender.request("putEvents", params, request_id)
+            del events[0: chunk_size]
             self.__wait_response(request_id)
 
         self.__event_last_info = last_info
+
+    def put_events(self, events, fetch_id=None, last_info_generator=None):
+        chunk_size = DEFAULT_MAX_EVENT_CHUNK_SIZE
+        """
+        __put_events method overwrites given events object from argument.
+        If you want to get some info from events object, it is not rightness.
+        Currently, this method does not get some info from events object,
+        but we might get info in the future. So, I copy and use it the
+        following sentence.
+        """
+        copy_events = copy.copy(events)
+        while True:
+            try:
+                self.__put_events(copy_events, chunk_size, fetch_id, last_info_generator)
+                # Default size
+                chunk_size = DEFAULT_MAX_EVENT_CHUNK_SIZE
+                break
+            except OverCapacity:
+                chunk_size = chunk_size * 3 / 4
+                continue
 
     def put_items(self, items, fetch_id):
         params = {"fetchId": fetch_id, "items": items}

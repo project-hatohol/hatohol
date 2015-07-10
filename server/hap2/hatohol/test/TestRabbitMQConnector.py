@@ -22,6 +22,8 @@ import os
 import common as testutils
 import subprocess
 from rabbitmqconnector import RabbitMQConnector
+from rabbitmqconnector import OverCapacity
+import rabbitmqconnector
 
 class TestRabbitMQConnector(unittest.TestCase):
     """
@@ -81,6 +83,20 @@ class TestRabbitMQConnector(unittest.TestCase):
         conn = self.__create_connected_connector()
         conn.call(TEST_BODY)
         self.assertEqual(self.__get_from_test_queue(), TEST_BODY)
+
+    def test_call_failed(self):
+        TEST_BODY = "12345"
+        rabbitmqconnector.MAX_BODY_SIZE = 4
+        self.__delete_test_queue()
+        conn = self.__create_connected_connector()
+        try:
+            conn.call(TEST_BODY)
+            raise
+        except OverCapacity:
+            rabbitmqconnector.MAX_BODY_SIZE = 50000
+        except Exception:
+            rabbitmqconnector.MAX_BODY_SIZE = 50000
+            raise
 
     def test_reply(self):
         TEST_BODY = "REPLY TEST"
