@@ -24,6 +24,7 @@ import haplib
 from hatohol.transporter import Transporter
 
 MAX_BODY_SIZE = 50000
+MAX_FRAME_SIZE = 131072
 
 class RabbitMQConnector(Transporter):
     def __init__(self):
@@ -66,7 +67,7 @@ class RabbitMQConnector(Transporter):
         set_if_not_none(conn_args, "port", port)
         set_if_not_none(conn_args, "virtual_host", vhost)
         set_if_not_none(conn_args, "credentials", credentials)
-        set_if_not_none(conn_args, "frame_max", 131072)
+        set_if_not_none(conn_args, "frame_max", MAX_FRAME_SIZE)
         self.__setup_ssl(conn_args, transporter_args)
 
         param = pika.connection.ConnectionParameters(**conn_args)
