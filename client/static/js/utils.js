@@ -370,4 +370,10 @@ function formatItemPrevValue(item) {
   hatohol.addNamespace = Namespace;
   hatohol.isIPv4 = isIPv4;
   hatohol.escapeHTML = escapeHTML;
+  hatohol.registerPlugin = function(type, label) {
+    var self = hatohol.addNamespace("hatohol.hap_" + type);
+    self.type = type;
+    self.label = label;
+    return self;
+  };
 }(this));
