@@ -384,7 +384,6 @@ class HapiProcessor:
         self.reset()
         self.__timeout_sec = 30
         self.__sender = sender
-        self.__chunk_size = DEFAULT_MAX_EVENT_CHUNK_SIZE
 
     def __del__(self):
         self.__reply_queue.close()
@@ -527,7 +526,7 @@ class HapiProcessor:
     def generate_event_last_info(self, events):
         return Utils.get_maximum_eventid(events)
 
-    def __put_events(self, events, fetch_id=None, last_info_generator=None):
+    def __put_events(self, events, chunk_size, fetch_id=None, last_info_generator=None):
         """
         This method calls putEvents() and wait for a reply.
         It divide events if the size is beyond the limitation.
@@ -543,8 +542,8 @@ class HapiProcessor:
         """
 
         num_events = len(events)
-        count = num_events / self.__chunk_size
-        if num_events % self.__chunk_size != 0:
+        count = num_events / chunk_size
+        if num_events % chunk_size != 0:
             count += 1
         if count == 0:
             if fetch_id is None:
@@ -552,7 +551,7 @@ class HapiProcessor:
             count = 1
 
         for num in range(0, count):
-            event_chunk = events[0: self.__chunk_size]
+            event_chunk = events[0: chunk_size]
 
             if last_info_generator is None:
                 last_info_generator = self.generate_event_last_info
@@ -569,21 +568,20 @@ class HapiProcessor:
             request_id = Utils.generate_request_id(self.__component_code)
             self.__wait_acknowledge(request_id)
             self.__sender.request("putEvents", params, request_id)
-            del events[0: self.__chunk_size]
+            del events[0: chunk_size]
             self.__wait_response(request_id)
 
         self.__event_last_info = last_info
 
     def put_events(self, events, fetch_id=None, last_info_generator=None):
+        chunk_size = DEFAULT_MAX_EVENT_CHUNK_SIZE
         copy_events = copy.copy(events)
         while True:
             try:
-                self.__put_events(copy_events, fetch_id, last_info_generator)
-                # Default size
-                self.__chunk_size = DEFAULT_MAX_EVENT_CHUNK_SIZE
+                self.__put_events(copy_events, chunk_size, fetch_id, last_info_generator)
                 break
             except OverCapacity:
-                self.__chunk_size = self.__chunk_size * 3 / 4
+                chunk_size = chunk_size * 3 / 4
                 continue
 
     def put_items(self, items, fetch_id):
