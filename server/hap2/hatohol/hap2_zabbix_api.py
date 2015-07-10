@@ -109,8 +109,10 @@ class ZabbixAPIConductor:
         if last_info is None:
             last_info = self.get_cached_event_last_info()
 
+        event_id_from = None
         if direction == "ASC":
-            event_id_from = last_info
+            if isinstance(last_info, int):
+                event_id_from = last_info + 1
             event_id_till = None
             if count is not None:
                 event_id_till = event_id_from + count
@@ -163,7 +165,7 @@ class Hap2ZabbixAPIMain(haplib.BaseMainPlugin, ZabbixAPIConductor):
     def hap_fetch_events(self, params, request_id):
         self.make_sure_token()
         self.get_sender().response("SUCCESS", request_id)
-        self.update_events(params["lastInfo"], params["count"],
+        self.update_events(int(params["lastInfo"]), params["count"],
                            params["direction"], params["fetchId"])
 
 
