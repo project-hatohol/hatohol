@@ -94,6 +94,9 @@ class TestRabbitMQConnector(unittest.TestCase):
             raise
         except OverCapacity:
             rabbitmqconnector.MAX_BODY_SIZE = 50000
+        except Exception:
+            rabbitmqconnector.MAX_BODY_SIZE = 50000
+            raise
 
     def test_reply(self):
         TEST_BODY = "REPLY TEST"
