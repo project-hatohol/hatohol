@@ -119,6 +119,7 @@ creates a response page when a user accesses.
 Summary: Library files of HAPI2.0
 Group: Applications/System
 Requires: python-pip
+Requires: python-daemon
 Requires: hatohol-hap2-rabbitmq-connector = %{version}
 
 %description hap2-common
