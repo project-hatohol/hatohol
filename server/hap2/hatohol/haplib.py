@@ -533,6 +533,8 @@ class HapiProcessor:
         It also calculates lastInfo for the divided events,
         remebers it in this object and provide lastInfo via
         get_cached_event_last_info().
+        This method overwrites events object. When you call
+        this method, you be careful this point.
 
         @param events A list of event (dictionary).
         @param fetch_id A fetch ID.
@@ -575,6 +577,13 @@ class HapiProcessor:
 
     def put_events(self, events, fetch_id=None, last_info_generator=None):
         chunk_size = DEFAULT_MAX_EVENT_CHUNK_SIZE
+        """
+        __put_events method overwrites given events object from argument.
+        If you want to get some info from events object, it is not rightness.
+        Currently, this method does not get some info from events object,
+        but we might get info in the future. So, I copy and use it the
+        following sentence.
+        """
         copy_events = copy.copy(events)
         while True:
             try:
