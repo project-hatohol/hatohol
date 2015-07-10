@@ -85,15 +85,17 @@ class TestRabbitMQConnector(unittest.TestCase):
         self.assertEqual(self.__get_from_test_queue(), TEST_BODY)
 
     def test_call_failed(self):
-        TEST_BODY = "12345"
-        rabbitmqconnector.MAX_BODY_SIZE = 4
+        TEST_BODY = str()
+        for num in range(0: rabbitmqconnector.MAX_BODY_SIZE+1):
+            TEST_BODY += "a"
+
         self.__delete_test_queue()
         conn = self.__create_connected_connector()
         try:
             conn.call(TEST_BODY)
             raise
         except OverCapacity:
-            rabbitmqconnector.MAX_BODY_SIZE = 50000
+            pass
 
     def test_reply(self):
         TEST_BODY = "REPLY TEST"
