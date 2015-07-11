@@ -4,4 +4,6 @@
     - include: ubuntu.yml
       when: ansible_distribution == "Ubuntu"
     - include: centos.yml
-      when: ansible_distribution == "CentOS"
+      when: ansible_distribution == "CentOS" and ansible_distribution_version.split('.')[0]|int == 6
+    - include: centos7.yml
+      when: ansible_distribution == "CentOS" and ansible_distribution_version.split('.')[0]|int == 7
