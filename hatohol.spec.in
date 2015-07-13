@@ -115,6 +115,56 @@ A web frontend of Hatohol provides a web UI.
 It internally communicates with the server and
 creates a response page when a user accesses.
 
+%package hap2-common
+Summary: Library files of HAPI2.0
+Group: Applications/System
+Requires: python-pip
+Requires: python-daemon
+Requires: hatohol-hap2-rabbitmq-connector = %{version}
+
+%description hap2-common
+Common libraries for hatohol arm plugins version 2.0.
+
+%package hap2-rabbitmq-connector
+Summary: RabbitMQ connector library of HAPI2.0
+Group: Applications/System
+Requires: hatohol-hap2-common = %{version}
+
+%description hap2-rabbitmq-connector
+RabbitMQ connector libraries for hatohol arm plugins version 2.0.
+
+%package hap2-zabbix
+Summary: Zabbix plugin and library of HAPI2.0
+Group: Applications/System
+Requires: hatohol-hap2-common = %{version}
+
+%description hap2-zabbix
+Zabbix plugin and libraries for hatohol arm plugins version 2.0.
+
+%package hap2-nagios-ndoutils
+Summary: Nagios ndoutil plugins of HAPI2.0
+Group: Applications/System
+Requires: hatohol-hap2-common = %{version}
+
+%description hap2-nagios-ndoutils
+Nagios ndoutils plugin for hatohol arm plugins version 2.0.
+
+%package hap2-fluentd
+Summary: Fluentd plugin of HAPI2.0
+Group: Applications/System
+Requires: hatohol-hap2-common = %{version}
+
+%description hap2-fluentd
+Fluentd plugin for hatohol arm plugins version 2.0.
+
+%package hap2-ceilometer
+Summary: Ceilometer plugin of HAPI2.0
+Group: Applications/System
+Requires: hatohol-hap2-common = %{version}
+
+%description hap2-ceilometer
+Ceilometer plugin for hatohol arm plugins version 2.0.
+
 %package devel
 Summary: Header files for Hatohol library.
 Group: Development/Libraries
@@ -147,6 +197,8 @@ install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hatohol.conf %{buildroot}/%{_
 
 rm -f %{buildroot}/%{_libdir}/*.la
 rm -f %{buildroot}/%{_libdir}/*.a
+rm -f %{buildroot}%{python_sitelib}/hatohol-0.0.0-py2.*.egg-info
+rm -f %{buildroot}%{python_sitelib}/hatohol-0.1-py2.*.egg-info
 
 %pre server
 getent group hatohol > /dev/null || groupadd -r hatohol
@@ -176,6 +228,9 @@ mkdir -p %{_sysconfdir}/hatohol
 /usr/bin/systemctl daemon-reload
 %endif
 
+%post hap2-common
+pip install pika
+
 %clean
 rm -rf %{buildroot}
 
@@ -189,7 +244,18 @@ rm -rf %{buildroot}
 %{_sbindir}/hatohol-ca-sign-server-certificate
 %{_sbindir}/hatohol-resident-yard
 %{_libdir}/libhatohol.so.*
-%{_prefix}/lib/python*
+%{python_sitelib}/hatohol/__init__.py
+%{python_sitelib}/hatohol/__init__.pyc
+%{python_sitelib}/hatohol/__init__.pyo
+%{python_sitelib}/hatohol/ActionCreator.py
+%{python_sitelib}/hatohol/ActionCreator.pyc
+%{python_sitelib}/hatohol/ActionCreator.pyo
+%{python_sitelib}/hatohol/hatohol_def.py
+%{python_sitelib}/hatohol/hatohol_def.pyc
+%{python_sitelib}/hatohol/hatohol_def.pyo
+%{python_sitelib}/hatohol/voyager.py
+%{python_sitelib}/hatohol/voyager.pyc
+%{python_sitelib}/hatohol/voyager.pyo
 %{_libexecdir}/hatohol/action/*
 %{_datadir}/hatohol/hatohol.centos
 %{_datadir}/hatohol/hatohol.debian
@@ -232,10 +298,57 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*.pc
 
+%files hap2-common
+%{python_sitelib}/hatohol/__init__.py
+%{python_sitelib}/hatohol/__init__.pyc
+%{python_sitelib}/hatohol/__init__.pyo
+%{python_sitelib}/hatohol/haplib.py
+%{python_sitelib}/hatohol/haplib.pyc
+%{python_sitelib}/hatohol/haplib.pyo
+%{python_sitelib}/hatohol/standardhap.py
+%{python_sitelib}/hatohol/standardhap.pyc
+%{python_sitelib}/hatohol/standardhap.pyo
+%{python_sitelib}/hatohol/transporter.py
+%{python_sitelib}/hatohol/transporter.pyc
+%{python_sitelib}/hatohol/transporter.pyo
+%{_libexecdir}/hatohol/hap2/hap2-control-functions.sh
+
+%files hap2-rabbitmq-connector
+%{python_sitelib}/hatohol/rabbitmqconnector.py
+%{python_sitelib}/hatohol/rabbitmqconnector.pyc
+%{python_sitelib}/hatohol/rabbitmqconnector.pyo
+
+%files hap2-zabbix
+%{python_sitelib}/hatohol/zabbixapi.py
+%{python_sitelib}/hatohol/zabbixapi.pyc
+%{python_sitelib}/hatohol/zabbixapi.pyo
+%{_libexecdir}/hatohol/hap2/start-stop-hap2-zabbix-api.sh
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_zabbix_api.py
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_zabbix_api.pyc
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_zabbix_api.pyo
+
+%files hap2-nagios-ndoutils
+%{_libexecdir}/hatohol/hap2/start-stop-hap2-nagios-ndoutils.sh
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.py
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.pyc
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.pyo
+
+%files hap2-fluentd
+%{_libexecdir}/hatohol/hap2/start-stop-hap2-fluentd.sh
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_fluentd.py
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_fluentd.pyc
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_fluentd.pyo
+
+%files hap2-ceilometer
+%{_libexecdir}/hatohol/hap2/start-stop-hap2-ceilometer.sh
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_ceilometer.py
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_ceilometer.pyc
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_ceilometer.pyo
+
 %changelog
 * Fri Dec 26 2014 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12-1
 - Updated to 14.12 release.
-* Tue Dec 24 2014 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12-0.1
+* Wed Dec 24 2014 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12-0.1
 - Update to 14.12-RC2
   - New Features
     - [Spec] Change package names to user friendly ones

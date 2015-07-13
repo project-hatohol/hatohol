@@ -24,7 +24,7 @@ import urllib2
 import time
 import json
 import argparse
-import hatohol
+from hatohol import hatohol_def
 from email.MIMEText import MIMEText
 from email.Utils import formatdate
 
@@ -33,22 +33,22 @@ DEFAULT_FROM_ADDR = "hatohol@localhost"
 DEFAULT_TLS_PORT = 587
 
 EVENT_TYPE_NAMES = {
-    hatohol.EVENT_TYPE_GOOD: "GOOD",
-    hatohol.EVENT_TYPE_BAD: "BAD",
-    hatohol.EVENT_TYPE_NOTIFICATION: "NOTIFICATION"
+    hatohol_def.EVENT_TYPE_GOOD: "GOOD",
+    hatohol_def.EVENT_TYPE_BAD: "BAD",
+    hatohol_def.EVENT_TYPE_NOTIFICATION: "NOTIFICATION"
 }
 
 TRIGGER_STATUS_NAMES = {
-    hatohol.TRIGGER_STATUS_OK: "OK",
-    hatohol.TRIGGER_STATUS_PROBLEM: "PROBLEM"
+    hatohol_def.TRIGGER_STATUS_OK: "OK",
+    hatohol_def.TRIGGER_STATUS_PROBLEM: "PROBLEM"
 }
 
 TRIGGER_SEVERITY_NAMES = {
-    hatohol.TRIGGER_SEVERITY_INFO: "INFO",
-    hatohol.TRIGGER_SEVERITY_WARNING: "WARNING",
-    hatohol.TRIGGER_SEVERITY_ERROR: "ERROR",
-    hatohol.TRIGGER_SEVERITY_CRITICAL: "CRITICAL",
-    hatohol.TRIGGER_SEVERITY_EMERGENCY: "EMERGENCY"
+    hatohol_def.TRIGGER_SEVERITY_INFO: "INFO",
+    hatohol_def.TRIGGER_SEVERITY_WARNING: "WARNING",
+    hatohol_def.TRIGGER_SEVERITY_ERROR: "ERROR",
+    hatohol_def.TRIGGER_SEVERITY_CRITICAL: "CRITICAL",
+    hatohol_def.TRIGGER_SEVERITY_EMERGENCY: "EMERGENCY"
 }
 
 

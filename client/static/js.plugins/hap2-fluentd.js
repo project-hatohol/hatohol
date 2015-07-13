@@ -4,4 +4,7 @@
 
   self.type = uuid;
   self.label = "Fluentd (HAPI2)";
+  self.getHostName = function(server, hostId) {
+    return hostId
+  }
 }(hatohol));

@@ -25,6 +25,8 @@
 #include "UnifiedDataStore.h"
 #include "ArmFake.h"
 #include "ChildProcessManager.h"
+#include <libsoup/soup.h>
+#include <Reaper.h>
 
 using namespace std;
 using namespace mlpl;
@@ -97,6 +99,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
 	string m_pluginProcessName;
+	string m_pluginControlScriptPath;
 	set<string> m_supportedProcedureNameSet;
 	HostInfoCache hostInfoCache;
 	map<string, Closure0 *> m_fetchClosureMap;
@@ -118,6 +121,11 @@ struct HatoholArmPluginGateHAPI2::Impl
 			MLPL_ERR("Failed to get ArmPluginInfo: serverId: %d\n",
 				 serverId);
 			return;
+		}
+		if (m_pluginInfo.staticQueueAddress.empty()) {
+			m_pluginInfo.staticQueueAddress =
+			  StringUtils::sprintf("hap2.%" FMT_SERVER_ID,
+					       m_serverInfo.id);
 		}
 		m_hapi2.setArmPluginInfo(m_pluginInfo);
 	}
@@ -180,7 +188,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		void setArmInfoStatus(JSONRPCError errObj) {
 			ArmStatus &status = m_impl.m_armStatus;
-			ArmInfo armInfo;
+			ArmInfo armInfo = status.getArmInfo();
 			if (errObj.hasErrors()) {
 				armInfo.stat = ARM_WORK_STAT_FAILURE;
 			} else {
@@ -336,15 +344,36 @@ struct HatoholArmPluginGateHAPI2::Impl
 		}
 	};
 
+	const string &getPluginControlScriptPath()
+	{
+		if (!m_pluginControlScriptPath.empty())
+			return m_pluginControlScriptPath;
+
+		if (m_pluginInfo.path.empty())
+			return m_pluginControlScriptPath;
+
+		if (g_path_is_absolute(m_pluginInfo.path.c_str())) {
+			m_pluginControlScriptPath = m_pluginInfo.path;
+			return m_pluginInfo.path;
+		}
+
+		m_pluginControlScriptPath =
+		  LIBEXECDIR G_DIR_SEPARATOR_S PACKAGE G_DIR_SEPARATOR_S "hap2";
+		m_pluginControlScriptPath += G_DIR_SEPARATOR;
+		m_pluginControlScriptPath += m_pluginInfo.path;
+		return m_pluginControlScriptPath;
+	}
+
 	bool isPluginControlScriptAvailable(void)
 	{
-		if (m_pluginInfo.path.empty())
+		const string scriptPath = getPluginControlScriptPath();
+		if (scriptPath.empty())
 			return false;
-		bool executable = g_file_test(m_pluginInfo.path.c_str(),
+		bool executable = g_file_test(scriptPath.c_str(),
 					      G_FILE_TEST_IS_EXECUTABLE);
 		if (!executable)
 			MLPL_WARN("The plugin control script isn't executable:"
-				  " %s\n", m_pluginInfo.path.c_str());
+				  " %s\n", scriptPath.c_str());
 		return executable;
 	}
 
@@ -364,72 +393,110 @@ struct HatoholArmPluginGateHAPI2::Impl
 			return false;
 	}
 
-	bool runPluginControlScript(const string command)
+	void setChildProcessEnv(StringVector &envs)
 	{
-		const char *ENV_NAME_AMQP_BROKER_URL = "HAPI_AMQP_BROKER_URL";
-		const char *ENV_NAME_AMQP_QUEUE_NAME = "HAPI_AMQP_QUEUE_NAME";
-		struct EventCb : public ChildProcessManager::EventCallback {
-
-			HatoholArmPluginGateHAPI2 *gate;
-			bool succeededInCreation;
-
-			EventCb(HatoholArmPluginGateHAPI2 *_gate)
-				: gate(_gate),
-				  succeededInCreation(false)
-			{
-			}
-
-			virtual void onExecuted(const bool &succeeded,
-						GError *gerror) override
-			{
-				succeededInCreation = succeeded;
-			}
-
-			virtual void onCollected(const siginfo_t *siginfo)
-			  override
-			{
-			}
-		} *eventCb = new EventCb(&m_hapi2);
-
-		ChildProcessManager::CreateArg arg;
-		arg.eventCb = eventCb;
-		arg.args.push_back(m_pluginInfo.path);
-		arg.args.push_back(command);
-		arg.addFlag(G_SPAWN_SEARCH_PATH);
-
-		// Envrionment variables passsed to the plugin process
 		const char *ldlibpath = getenv("LD_LIBRARY_PATH");
 		if (ldlibpath) {
-			string env = "LD_LIBRARY_PATH=";
-			env += ldlibpath;
-			arg.envs.push_back(env);
+			envs.push_back(StringUtils::sprintf(
+			  "LD_LIBRARY_PATH=%s",
+			  ldlibpath));
 		}
 
 		const char *loggerLevel = getenv(Logger::LEVEL_ENV_VAR_NAME);
 		if (loggerLevel) {
-			string env = StringUtils::sprintf(
+			envs.push_back(StringUtils::sprintf(
 			  "%s=%s",
-			  Logger::LEVEL_ENV_VAR_NAME, loggerLevel);
-			arg.envs.push_back(env);
+			  Logger::LEVEL_ENV_VAR_NAME, loggerLevel));
 		}
 
-		arg.envs.push_back(StringUtils::sprintf(
-		  "%s=%s",
-		  ENV_NAME_AMQP_BROKER_URL,
+		envs.push_back(StringUtils::sprintf(
+		  "HAPI_MONITORING_SERVER_ID=%s",
+		  StringUtils::toString(m_pluginInfo.serverId).c_str()));
+
+		envs.push_back(StringUtils::sprintf(
+		  "HAPI_AMQP_URL=%s",
 		  m_pluginInfo.brokerUrl.c_str()));
-		arg.envs.push_back(StringUtils::sprintf(
-		  "%s=%s",
-		  ENV_NAME_AMQP_QUEUE_NAME,
+
+		envs.push_back(StringUtils::sprintf(
+		  "HAPI_AMQP_QUEUE=%s",
 		  m_pluginInfo.staticQueueAddress.c_str()));
-		ChildProcessManager::getInstance()->create(arg);
-		if (!eventCb->succeededInCreation) {
+
+		SoupURI *uri = soup_uri_new(m_pluginInfo.brokerUrl.c_str());
+		if (!uri)
+			return;
+		Reaper<SoupURI> uriReaper(uri, soup_uri_free);
+
+		if (!SOUP_URI_IS_VALID(uri))
+			return;
+
+		const char *scheme = soup_uri_get_scheme(uri);
+		if (!scheme || string(scheme) != "amqp")
+			return;
+
+		const char *host = soup_uri_get_host(uri);
+		envs.push_back(StringUtils::sprintf(
+		  "HAPI_AMQP_HOST=%s",
+		  host ? host : ""));
+
+		const int port = soup_uri_get_port(uri);
+		envs.push_back(StringUtils::sprintf(
+		  "HAPI_AMQP_PORT=%s",
+		  port ? StringUtils::toString(port).c_str() : ""));
+
+		const char *user = soup_uri_get_user(uri);
+		envs.push_back(StringUtils::sprintf(
+		  "HAPI_AMQP_USER=%s",
+		  user ? user : ""));
+
+		const char *password = soup_uri_get_password(uri);
+		envs.push_back(StringUtils::sprintf(
+		  "HAPI_AMQP_PASSWORD=%s",
+		  password ? password : ""));
+
+		const char *vhost = soup_uri_get_path(uri);
+		while (vhost && *vhost == '/')
+			vhost++;
+		envs.push_back(StringUtils::sprintf(
+		  "HAPI_AMQP_VHOST=%s",
+		  vhost ? vhost : ""));
+	}
+
+	bool runPluginControlScript(const string command)
+	{
+		const string scriptPath = getPluginControlScriptPath();
+
+		// argv
+		const gchar *argv[3];
+		argv[0] = scriptPath.c_str();
+		argv[1] = command.c_str();
+		argv[2] = NULL;
+
+		// envp
+		StringVector envs;
+		setChildProcessEnv(envs);
+		const gchar *envp[envs.size() + 1];
+		for (size_t i = 0; i < envs.size(); i++)
+			envp[i] = envs[i].c_str();
+		envp[envs.size()] = NULL;
+
+		GSpawnFlags flags = static_cast<GSpawnFlags>(0);
+		gint exitStatus = 0;
+		GError *error = NULL;
+		gboolean succeeded =
+		  g_spawn_sync(NULL, (gchar **)argv, (gchar **)envp,
+			       flags, NULL, NULL, NULL, NULL,
+			       &exitStatus, &error);
+		if (!succeeded) {
 			MLPL_ERR("Failed to %s: %s\n",
-				 command.c_str(), m_pluginInfo.path.c_str());
+				 command.c_str(), scriptPath.c_str());
+			// The error always exists in this case.
+			MLPL_ERR("Reason: %s\n", error->message);
+			g_error_free(error);
 			return false;
 		}
 
 		MLPL_INFO("Succeeded to %s: %s\n",
-			  command.c_str(), m_pluginInfo.path.c_str());
+			  command.c_str(), scriptPath.c_str());
 
 		return true;
 }

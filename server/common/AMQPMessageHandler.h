@@ -22,6 +22,7 @@
 
 #include "Params.h"
 #include "AMQPConnection.h"
+#include "AMQPConsumer.h"
 
 struct AMQPMessage;
 
@@ -30,7 +31,7 @@ public:
 	AMQPMessageHandler();
 	virtual ~AMQPMessageHandler();
 
-	virtual bool handle(AMQPConnection &connection,
+	virtual bool handle(AMQPConsumer &consumer,
 			    const AMQPMessage &message) = 0;
 };
 

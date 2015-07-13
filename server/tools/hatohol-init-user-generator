@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import hatohol
+from hatohol import hatohol_def
 import hashlib
 
 def generate_one_user(name, password, flags):
@@ -12,7 +12,7 @@ def generate_one_user(name, password, flags):
 
 
 def start():
-    generate_one_user('admin', hashlib.sha256('hatohol').hexdigest(), hatohol.ALL_PRIVILEGES)
+    generate_one_user('admin', hashlib.sha256('hatohol').hexdigest(), hatohol_def.ALL_PRIVILEGES)
     generate_one_user('guest', hashlib.sha256('guest').hexdigest(), 0)
 
 

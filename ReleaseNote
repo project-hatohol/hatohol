@@ -1,3 +1,25 @@
+2015-07-10 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 15.06
+
+	* New Features
+	- [Server] Initial support of Hatohol Arm Plugin Interface 2.0("HAPI2.0")
+	  (https://github.com/project-hatohol/HAPI-2.0-Specification) over AMQP.
+	- [Hap2] Initial implementation of HAPI2.0 plugin for Zabbix, Nagios,
+	  Ceilometer and Fluentd.
+	- [Client] Remove "Previous value" column on LatestData page. (#945)
+	- [Client] Eliminate "self monitoring" from filtering list on "LatestData"
+	  and "Overview: Items" pages. (#922)
+
+	* Bug Fixes
+	- [Client] Solve a problem that reset sort order when page is updated.
+	  (#912, #953)
+
+	* Contributer
+	- Kazuhiro Yamato
+	- Takuro Ashie
+	- Hiroshi Hatake
+	- Masayuki Nakagawa
+	- Toshihiko Miyazawa
+
 2015-03-31 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 15.03
 
 	* New Features

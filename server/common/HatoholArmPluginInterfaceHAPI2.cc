@@ -212,7 +212,7 @@ public:
 	{
 	}
 
-	bool handle(AMQPConnection &connection, const AMQPMessage &message)
+	bool handle(AMQPConsumer &consumer, const AMQPMessage &message)
 	{
 		MLPL_DBG("message: <%s>/<%s>\n",
 			 message.contentType.c_str(),
@@ -228,7 +228,7 @@ public:
 						     NULL);
 			MLPL_WARN("Invalid JSON: %s\n",
 				  object.m_errorMessage.c_str());
-			sendResponse(connection, response);
+			sendResponse(consumer, response);
 			return true;
 		}
 
@@ -237,7 +237,7 @@ public:
 			response.body = m_hapi2.interpretHandler(
 					  object.m_methodName,
 					  object.m_parser);
-			sendResponse(connection, response);
+			sendResponse(consumer, response);
 			break;
 		case JSONRPCObject::Type::NOTIFICATION:
 			m_hapi2.interpretHandler(object.m_methodName,
@@ -255,20 +255,25 @@ public:
 						     &object.m_parser);
 			MLPL_WARN("Invalid JSON-RPC object: %s\n",
 				  object.m_errorMessage.c_str());
-			sendResponse(connection, response);
+			sendResponse(consumer, response);
 			break;
 		}
 
 		return true;
 	}
 
-	void sendResponse(AMQPConnection &connection,
+	void sendResponse(AMQPConsumer &consumer,
 			  const AMQPJSONMessage &response)
 	{
-		bool succeeded = connection.publish(response);
-		if (!succeeded) {
-			// TODO: retry?
-		}
+		AMQPConnectionPtr connectionPtr = consumer.getConnection();
+		AMQPPublisher publisher(connectionPtr);
+		publisher.setMessage(response);
+		bool succeeded = false;
+		do {
+			succeeded = publisher.publish();
+			if (!succeeded)
+				sleep(1);
+		} while (!succeeded && !consumer.isExitRequested());
 	}
 
 private:
@@ -433,7 +438,7 @@ string HatoholArmPluginInterfaceHAPI2::interpretHandler(
 		setResponseId(parser, builder);
 		builder.endObject();
 		MLPL_WARN("Received a method while exchangeProfile isn't "
-			  "completed yet!");
+			  "completed yet!\n");
 		return builder.generate();
 	}
 

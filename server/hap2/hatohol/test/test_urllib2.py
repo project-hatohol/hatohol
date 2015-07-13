@@ -27,7 +27,7 @@ RESULTS = {
     "item.get": [{"itemid": "1", "hostid": "1",
         "name": "test_name","units": "B","value_type":"3",
         "applications": [{"applicationid": "test_id", "name": "test_name"}],
-        "lastclock": "0", "lastns":"111111111", "lastvalue": "100"}],
+        "lastclock": "3", "lastns":"111111111", "lastvalue": "100"}],
     "history.get": [{"itemid": "1", "clock": "0", "value": "1", "ns": "111111111"},
                     {"itemid": "1", "clock": "1", "value": "2", "ns": "222222222"}],
     "host.get": [{"hostid": "1", "name":"test_host", "groups":[{"groupid":"1"}]}],

@@ -20,7 +20,11 @@
 
 import logging
 import pika
+import haplib
 from hatohol.transporter import Transporter
+
+MAX_BODY_SIZE = 50000
+MAX_FRAME_SIZE = 131072
 
 class RabbitMQConnector(Transporter):
     def __init__(self):
@@ -63,6 +67,7 @@ class RabbitMQConnector(Transporter):
         set_if_not_none(conn_args, "port", port)
         set_if_not_none(conn_args, "virtual_host", vhost)
         set_if_not_none(conn_args, "credentials", credentials)
+        set_if_not_none(conn_args, "frame_max", MAX_FRAME_SIZE)
         self.__setup_ssl(conn_args, transporter_args)
 
         param = pika.connection.ConnectionParameters(**conn_args)
@@ -87,10 +92,17 @@ class RabbitMQConnector(Transporter):
 
     def close(self):
         if self.__connection is not None:
-            self.__connection.close()
+            try:
+                self.__connection.close()
+            except:
+                # On some condition such as Ubuntu 14.04, the above close()
+                # raises an exception when the rabbitmq-server is stopped.
+                haplib.handle_exception()
             self.__connection = None
 
     def call(self, msg):
+        if len(msg) > MAX_BODY_SIZE:
+            raise OverCapacity("The message size over the max capacity of pika module.")
         self.__publish(msg)
 
     def reply(self, msg):
@@ -112,7 +124,9 @@ class RabbitMQConnector(Transporter):
 
     def __publish(self, msg):
         self._channel.basic_publish(exchange="", routing_key=self._queue_name,
-                                    body=msg)
+                                    body=msg,
+                                    properties=pika.BasicProperties(
+                                        content_type="application/json"))
 
     @classmethod
     def define_arguments(cls, parser):
@@ -137,3 +151,11 @@ class RabbitMQConnector(Transporter):
                 "amqp_ssl_key": args.amqp_ssl_key,
                 "amqp_ssl_cert": args.amqp_ssl_cert,
                 "amqp_ssl_ca": args.amqp_ssl_ca}
+
+
+class OverCapacity(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)

@@ -172,6 +172,14 @@ function getHostName(server, hostId) {
     return gettext("Unknown") + " (ID: " + hostId + ")";
   };
 
+  if (server) {
+    plugin = getPlugin(server)
+    if (plugin && plugin.getHostName)
+        hostName = plugin.getHostName(server, hostId)
+        if (hostName != null)
+            return hostName
+  }
+
   if (!server || !server["hosts"] || !(hostId in server["hosts"]))
     return getNamelessHostName(hostId);
 

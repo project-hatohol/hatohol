@@ -1,0 +1,128 @@
+#!/bin/sh
+
+set -e
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+PID_FILE_DIR="@localstatedir@/run"
+PLUGIN_DIR="@libexecdir@/hatohol/hap2"
+PLUGIN_PATH=""
+PID_FILE="${PID_FILE_DIR}/hatohol-arm-plugin-${HAPI_MONITORING_SERVER_ID}"
+PLUGIN_OPTIONS=""
+
+prepare_plugin_options() {
+    if test -n "$HAPI_AMQP_HOST"; then
+        PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --amqp-broker=$HAPI_AMQP_HOST"
+    fi
+
+    if test -n "$HAPI_AMQP_PORT"; then
+        PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --amqp-port=$HAPI_AMQP_PORT"
+    fi
+
+    if test -n "$HAPI_AMQP_USER"; then
+        PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --amqp-user=$HAPI_AMQP_USER"
+    fi
+
+    # TODO: Shouldn't use command line options to pass it
+    if test -n "$HAPI_AMQP_PASSWORD"; then
+        PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --amqp-password=$HAPI_AMQP_PASSWORD"
+    fi
+
+    if test -n "$HAPI_AMQP_QUEUE"; then
+        PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --amqp-queue=$HAPI_AMQP_QUEUE"
+    fi
+
+    if test -n "$HAPI_AMQP_PASSWORD"; then
+        PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --amqp-vhost=$HAPI_AMQP_VHOST"
+    fi
+}
+
+check_pid_file() {
+    if test -f "$PID_FILE"; then
+        PID=`cat ${PID_FILE}`
+        ALIVE=`ps $PID | grep $PLUGIN_PATH | grep -v grep | wc -l`
+        if test $ALIVE -ne 0; then
+            echo "The plugin process already exists!"
+            echo "Failed to start $PLUGIN_PATH"
+            exit 1
+        else
+            rm -f ${PID_FILE}
+        fi
+    fi
+}
+
+start_plugin() {
+    echo "Start $PLUGIN_PATH ..."
+    echo "Server ID: $HAPI_MONITORING_SERVER_ID"
+
+    check_pid_file
+    prepare_plugin_options
+
+    $PLUGIN_PATH $PLUGIN_OPTIONS &
+    PID=$!
+
+    sleep 1
+
+    ALIVE=`ps $PID | grep $PLUGIN_PATH | grep -v grep | wc -l`
+
+    if test $ALIVE -ne 0; then
+        if test ! -e "$PID_FILE_DIR"; then
+            mkdir -p ${PID_FILE_DIR}
+        fi
+        echo -n $PID > $PID_FILE
+        echo
+        echo "Succeeded to start $PLUGIN_PATH"
+        echo "PID: $PID"
+    else
+        echo "Failed to start $PLUGIN_PATH"
+    fi
+}
+
+stop_plugin() {
+    echo "Stop $PLUGIN_PATH ..."
+    echo "Server ID: $HAPI_MONITORING_SERVER_ID"
+
+    if test -f "$PID_FILE"; then
+        PID=`cat ${PID_FILE}`
+        echo "PID: $PID"
+        if test -n $PID; then
+            kill $PID
+        fi
+        rm -f ${PID_FILE}
+        echo "Succeeded to stop $PLUGIN_PATH"
+    else
+        echo "The PID file doesn't exists: $PID_FILE"
+    fi
+}
+
+check_variables() {
+    if test -z "$PLUGIN_PATH"; then
+        echo "PLUGIN_PATH isn't set!"
+        exit 1
+    fi
+
+    if test -z "$HAPI_MONITORING_SERVER_ID"; then
+        echo "HAPI_MONITORING_SERVER_ID isn't set!"
+        exit 1
+    fi
+}
+
+run() {
+    check_variables
+
+    case "$1" in
+        start)
+            start_plugin
+            ;;
+        stop)
+            stop_plugin
+            ;;
+        *)
+            echo "Usage: $0 {start|stop}"
+            exit 1
+            ;;
+    esac
+
+    exit 0
+}

@@ -111,6 +111,9 @@ class ZabbixAPIConductor(unittest.TestCase):
     def test_update_events(self):
         common.assertNotRaises(self.conductor.update_events)
 
+    def test_update_events_request(self):
+        common.assertNotRaises(self.conductor.update_events, last_info=1)
+
     def test_update_hosts_and_host_group_membership(self):
         common.assertNotRaises(self.conductor.update_hosts_and_host_group_membership)
 
