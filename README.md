@@ -12,9 +12,9 @@ http://www.hatohol.org/
 - [Basic architecture](#user-content-basic-architecture)
 - [Screenshots](#user-content-screenshots)
 - [Installation](#user-content-installation)
-	- [Installation by RPM files (only for CentOS 6.5)](#user-content-installation-by-rpm-files-only-for-centos-65)
+	- [Installation by RPM files (only for CentOS 7)](#user-content-installation-by-rpm-files-only-for-centos-7)
 	- [Installation by building needed applications](#user-content-installation-by-building-needed-applications)
-	- [About Upgrade on CentOS 6.5 (x86_64) from version 14.12 to version 15.03](#user-content-about-upgrade-on-centos-65-x86_64-from-version-1412-to-version-1503)
+	- [About Upgrade on CentOS 7 (x86_64) from version 15.03 to version 15.06](#user-content-about-upgrade-on-centos-7-x86_64-from-version-1503-to-version-1506)
 - [Plans](#user-content-plans)
 - [Mailing Lists](#user-content-mailing-lists)
 
@@ -57,7 +57,7 @@ We welcome participation in all stages of our development (bug fixes, bug report
 - Redmine
 
 ## Supported platforms
-- CentOS 6.5 (x86\_64)
+- CentOS 7 (x86\_64)
 - Ubuntu Server 12.04.5 LTS (64-bit)
 - Ubuntu 14.04 LTS (64-bit)
 
@@ -87,15 +87,15 @@ The architecture used, makes it easy to develop alternative clients. There is no
 Other pages are being constructed.
 
 ## Installation
-### Installation by RPM files (only for CentOS 6.5)
-The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/install/15.03/en/index.md)
+### Installation by RPM files (only for CentOS 7)
+The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/install/15.06/en/index.md)
 
 ### Installation by building needed applications
 - [Server installation](server/README.md)
 - [Client (Web UI server) installation](client/README.md)
 
-### About Upgrade on CentOS 6.5 (x86_64) from version 14.12 to version 15.03
-The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/upgrade/15.03/en/index.md)
+### About Upgrade on CentOS 7 (x86_64) from version 15.03 to version 15.06
+We are currently under investigation.
 
 ## Plans
 See [Milestone](https://github.com/project-hatohol/hatohol/milestones)
