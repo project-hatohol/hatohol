@@ -86,7 +86,7 @@ class TestRabbitMQConnector(unittest.TestCase):
 
     def test_call_failed(self):
         TEST_BODY = str()
-        for num in range(0: rabbitmqconnector.MAX_BODY_SIZE+1):
+        for num in range(0, rabbitmqconnector.MAX_BODY_SIZE+1):
             TEST_BODY += "a"
 
         self.__delete_test_queue()
