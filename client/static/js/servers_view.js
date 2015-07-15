@@ -348,12 +348,10 @@ var ServersView = function(userProfile) {
           for (var j = 0; j < paramObj.length; j++) {
             var param = paramObj[j];
             var value;
-            if (!param.label || !param.id || param.hidden)
+            if (!param.label || !param.id || param.hidden || param.inputStyle == "password")
               continue;
             s += gettext(param.label) + ": ";
-            if (param.inputStyle == "password") {
-              s += "******";
-            } else if (param.inputStyle == "checkBox") {
+            if (param.inputStyle == "checkBox") {
               value = server[param.id];
               if (value == true) {
                 s += gettext("True");
