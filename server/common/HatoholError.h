@@ -119,8 +119,11 @@ enum HatoholErrorCode
 
         // 15.06
         HTERR_VALID_DBAGENT_NO_LONGER_EXISTS, // DBAgentMySQL
+
+        // 15.11
 	HTERR_FAILED_CONNECT_HAP2, // for HAPI 2.0
-        HTERR_INVALID_PBJECT_PASSED_BY_HAP2, // for HAPI 2.0
+        HTERR_INVALID_OBJECT_PASSED_BY_HAP2, // for HAPI 2.0
+
 	// End of code
 	NUM_HATOHOL_ERROR_CODE
 };
