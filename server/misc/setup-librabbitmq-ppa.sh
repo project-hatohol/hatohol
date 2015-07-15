@@ -5,7 +5,7 @@ n=0
 exit_code=0
 
 sudo add-apt-repository ppa:cosmo0920-oucc/rabbitmq-c -y
-sudo apt-get udpate -qq
+sudo apt-get update -qq
 
 while [ $n -lt $NUM_RETRY ]
 do
