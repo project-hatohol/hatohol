@@ -9,7 +9,7 @@ sudo apt-get update -qq
 
 while [ $n -lt $NUM_RETRY ]
 do
-  sudo apt-get install -qq -y librabbitmq-dev
+  sudo apt-get install -qq -y librabbitmq-dev amqp-tools
   if [ $exit_code -eq 0 ]; then
     break
   fi
