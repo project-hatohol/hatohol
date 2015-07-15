@@ -32,7 +32,7 @@ before_install:
 install:
   - server/misc/setup-cutter.sh
   - server/misc/setup-librabbitmq-ppa.sh
-  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm python-pip expect python-dev libqpidmessaging2-dev libqpidtypes1-dev libqpidcommon2-dev qpidd rabbitmq-server
+  - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm python-pip expect python-dev libqpidmessaging2-dev libqpidtypes1-dev libqpidcommon2-dev qpidd rabbitmq-server python-pika
   - sudo sh -c "printf '[%s]\n%s=%s\n' mysqld character-set-server utf8  > /etc/mysql/conf.d/utf8.cnf"
   - sudo sh -c "printf '[%s]\n%s=%s\n' client default-character-set utf8  >> /etc/mysql/conf.d/utf8.cnf"
   - mysql -u root < data/test/setup.sql
@@ -44,7 +44,6 @@ install:
   - sudo pip install django==1.5.4
   - sudo pip install mysql-python
   - sudo pip install daemon
-  - sudo pip install pika
   - sudo sh -c "echo acl allow all all > /etc/qpid/qpidd.acl"
   - sudo /etc/init.d/qpidd restart
   - sudo server/misc/setup-rabbitmq-server-port.sh
