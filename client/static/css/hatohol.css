@@ -146,3 +146,8 @@ h2.hatohol-graph {
 .legend table td {
   padding: 2px;
 }
+
+/* Override bootstrap's default value */
+.popover {
+    max-width: 550px;
+}
