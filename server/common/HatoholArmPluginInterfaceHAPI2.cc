@@ -398,10 +398,12 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 	void onConnect(void)
 	{
+		m_hapi2.onConnect();
 	}
 
 	void onConnectFailure(void)
 	{
+		m_hapi2.onConnectFailure();
 	}
 };
 
@@ -592,12 +594,10 @@ void HatoholArmPluginInterfaceHAPI2::onSetPluginInitialInfo(void)
 
 void HatoholArmPluginInterfaceHAPI2::onConnect(void)
 {
-	m_impl->onConnect();
 }
 
 void HatoholArmPluginInterfaceHAPI2::onConnectFailure(void)
 {
-	m_impl->onConnectFailure();
 }
 
 const std::list<HAPI2ProcedureDef> &
