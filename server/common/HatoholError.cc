@@ -189,6 +189,12 @@ void HatoholError::init(void)
         // 15.06
 	DEFINE_ERR(VALID_DBAGENT_NO_LONGER_EXISTS, // DBAgentMySQL
 		   "Valid DBAgent no longer exists.");
+
+	// 15.11
+	DEFINE_ERR(FAILED_CONNECT_HAP2,
+		   "HAP2 connection unavailable.");
+	DEFINE_ERR(INVALID_OBJECT_PASSED_BY_HAP2,
+		   "Invalid object passed by HAP2.");
 }
 
 void HatoholError::defineError(const HatoholErrorCode errorCode,

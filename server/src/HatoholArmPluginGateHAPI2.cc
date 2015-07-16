@@ -27,6 +27,7 @@
 #include "ChildProcessManager.h"
 #include <libsoup/soup.h>
 #include <Reaper.h>
+#include "ArmUtils.h"
 
 using namespace std;
 using namespace mlpl;
@@ -94,10 +95,14 @@ struct HatoholArmPluginGateHAPI2::Impl
 {
 	// We have a copy. The access to the object is MT-safe.
 	const MonitoringServerInfo m_serverInfo;
+
+	ArmUtils m_utils;
+	ArmUtils::ArmTrigger m_armTrigger[static_cast<size_t>(HAPI2PluginCollectType::NUM_COLLECT_NG_KIND)];
 	HatoholArmPluginGateHAPI2 &m_hapi2;
 	ArmPluginInfo m_pluginInfo;
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
+	bool m_createdSelfTriggers;
 	string m_pluginProcessName;
 	string m_pluginControlScriptPath;
 	set<string> m_supportedProcedureNameSet;
@@ -108,9 +113,11 @@ struct HatoholArmPluginGateHAPI2::Impl
 	Impl(const MonitoringServerInfo &_serverInfo,
 	     HatoholArmPluginGateHAPI2 &hapi2)
 	: m_serverInfo(_serverInfo),
+	  m_utils(_serverInfo, m_armTrigger, static_cast<size_t>(HAPI2PluginCollectType::NUM_COLLECT_NG_KIND)),
 	  m_hapi2(hapi2),
 	  m_armFake(m_serverInfo),
 	  m_armStatus(),
+	  m_createdSelfTriggers(false),
 	  hostInfoCache(&_serverInfo.id)
 	{
 		ArmPluginInfo::initialize(m_pluginInfo);
@@ -207,7 +214,15 @@ struct HatoholArmPluginGateHAPI2::Impl
 				MLPL_WARN("Received an error on calling "
 					  "exchangeProfile: %s\n",
 					  errorMessage.c_str());
+
+				m_impl.setPluginConnectStatus(
+				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+				  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
 				return;
+			} else {
+				m_impl.setPluginConnectStatus(
+				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+				  HAPI2PluginErrorCode::OK);
 			}
 
 			JSONRPCError errObj;
@@ -217,8 +232,17 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 			setArmInfoStatus(errObj);
 
-			if (errObj.hasErrors())
+			if (errObj.hasErrors()) {
+				m_impl.setPluginConnectStatus(
+				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+				  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+
 				return;
+			} else {
+				m_impl.setPluginConnectStatus(
+				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+				  HAPI2PluginErrorCode::OK);
+			}
 
 			m_impl.m_hapi2.setEstablished(true);
 		}
@@ -499,7 +523,24 @@ struct HatoholArmPluginGateHAPI2::Impl
 			  command.c_str(), scriptPath.c_str());
 
 		return true;
-}
+	}
+
+	void setPluginConnectStatus(
+	  const HAPI2PluginCollectType &type,
+	  const HAPI2PluginErrorCode &errorCode)
+	{
+		TriggerStatusType status;
+		if (errorCode == HAPI2PluginErrorCode::UNAVAILABLE_HAP2 ||
+		    errorCode == HAPI2PluginErrorCode::HAP2_CONNECTION_UNAVAILABLE) {
+			status = TRIGGER_STATUS_PROBLEM;
+		} else if (errorCode == HAPI2PluginErrorCode::OK) {
+			status = TRIGGER_STATUS_OK;
+		} else {
+			status = TRIGGER_STATUS_UNKNOWN;
+		}
+		size_t typeIdx = static_cast<size_t>(type);
+		m_utils.updateTriggerStatus(typeIdx, status);
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -900,11 +941,17 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 	JSONRPCError errObj;
 	parseLastInfoParams(parser, lastInfoType, errObj);
 
+	updateSelfMonitoringTrigger(
+	  errObj.hasErrors(),
+	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 		  &errObj.getErrors(), &parser);
 	}
+
 	option.setLastInfoType(lastInfoType);
 	option.setTargetServerId(m_impl->m_serverInfo.id);
 	LastInfoDefList lastInfoList;
@@ -989,6 +1036,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 
 	parser.endObject(); // params
 
+	updateSelfMonitoringTrigger(
+	  errObj.hasErrors(),
+	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
@@ -1060,6 +1112,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 		parser.read("fetchId", fetchId);
 	}
 	parser.endObject(); // params
+
+	updateSelfMonitoringTrigger(
+	  errObj.hasErrors(),
+	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -1146,6 +1203,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	}
 	parser.endObject(); // params
 
+	updateSelfMonitoringTrigger(
+	  errObj.hasErrors(),
+	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
@@ -1224,6 +1286,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 		parser.read("lastInfo", lastInfo);
 	}
 	parser.endObject(); // params
+
+	updateSelfMonitoringTrigger(
+	  errObj.hasErrors(),
+	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -1327,6 +1394,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 		parser.read("lastInfo", lastInfo);
 	}
 	parser.endObject(); // params
+
+	updateSelfMonitoringTrigger(
+	  errObj.hasErrors(),
+	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -1486,6 +1558,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	}
 	parser.endObject(); // params
 
+	updateSelfMonitoringTrigger(
+	  errObj.hasErrors(),
+	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
@@ -1628,6 +1705,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	}
 	parser.endObject(); // params
 
+	updateSelfMonitoringTrigger(
+	  errObj.hasErrors(),
+	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
@@ -1707,6 +1789,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	}
 	parser.endObject(); // params
 
+	updateSelfMonitoringTrigger(
+	  errObj.hasErrors(),
+	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
@@ -1780,6 +1867,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 
 	parser.endObject(); // params
 
+	updateSelfMonitoringTrigger(
+	  errObj.hasErrors(),
+	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
@@ -1815,4 +1907,76 @@ void HatoholArmPluginGateHAPI2::upsertLastInfo(string lastInfoValue, LastInfoTyp
 	lastInfo.value = lastInfoValue;
 	lastInfo.serverId = serverInfo.id;
 	dbLastInfo.upsertLastInfo(lastInfo, privilege);
+}
+
+void HatoholArmPluginGateHAPI2::updateSelfMonitoringTrigger(
+  bool hasError,
+  const HAPI2PluginCollectType &type,
+  const HAPI2PluginErrorCode &errorCode)
+{
+	if (hasError) {
+		m_impl->setPluginConnectStatus(type, errorCode);
+	} else {
+		m_impl->setPluginConnectStatus(type, HAPI2PluginErrorCode::OK);
+	}
+}
+
+void HatoholArmPluginGateHAPI2::onSetPluginInitialInfo(void)
+{
+	if (m_impl->m_createdSelfTriggers)
+		return;
+
+	m_impl->m_utils.registerSelfMonitoringHost();
+	m_impl->m_utils.initializeArmTriggers();
+
+	setPluginAvailableTrigger(HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
+				  FAILED_CONNECT_BROKER_TRIGGER_ID,
+				  HTERR_INVALID_OBJECT_PASSED_BY_HAP2);
+	setPluginAvailableTrigger(HAPI2PluginCollectType::NG_HATOHOL_INTERNAL_ERROR,
+				  FAILED_INTERNAL_ERROR_TRIGGER_ID,
+				  HTERR_INTERNAL_ERROR);
+	setPluginAvailableTrigger(HAPI2PluginCollectType::NG_PLUGIN_CONNECT_ERROR,
+				  FAILED_CONNECT_HAP2_TRIGGER_ID,
+				  HTERR_FAILED_CONNECT_HAP2);
+
+	m_impl->m_createdSelfTriggers = true;
+}
+
+void HatoholArmPluginGateHAPI2::onConnect(void)
+{
+	m_impl->setPluginConnectStatus(
+	  HAPI2PluginCollectType::NG_PLUGIN_CONNECT_ERROR,
+	  HAPI2PluginErrorCode::OK);
+}
+
+void HatoholArmPluginGateHAPI2::onConnectFailure(void)
+{
+	m_impl->setPluginConnectStatus(
+	  HAPI2PluginCollectType::NG_PLUGIN_CONNECT_ERROR,
+	  HAPI2PluginErrorCode::HAP2_CONNECTION_UNAVAILABLE);
+}
+
+void HatoholArmPluginGateHAPI2::setPluginAvailableTrigger(
+  const HAPI2PluginCollectType &type,
+  const TriggerIdType &triggerId,
+  const HatoholError &hatoholError)
+{
+	TriggerInfoList triggerInfoList;
+	int typeIdx = static_cast<int>(type);
+	m_impl->m_armTrigger[typeIdx].status = TRIGGER_STATUS_UNKNOWN;
+	m_impl->m_armTrigger[typeIdx].triggerId = triggerId;
+	m_impl->m_armTrigger[typeIdx].msg = hatoholError.getMessage().c_str();
+
+	ArmUtils::ArmTrigger &armTrigger = m_impl->m_armTrigger[typeIdx];
+	m_impl->m_utils.createTrigger(armTrigger, triggerInfoList);
+
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
+}
+
+void HatoholArmPluginGateHAPI2::setPluginConnectStatus(
+  const HAPI2PluginCollectType &type,
+  const HAPI2PluginErrorCode &errorCode)
+{
+	m_impl->setPluginConnectStatus(type, errorCode);
 }
