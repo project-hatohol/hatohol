@@ -1,3 +1,6 @@
+- name: install python-curl
+  apt: name=python-pycurl
+
 - name: regsiter ppa repository for cutter
   apt_repository: repo='ppa:cutter-testing-framework/ppa'
 
