@@ -29,8 +29,9 @@
     - libqpidtypes1-dev
     - libqpidcommon2-dev
 
-- name: install qpidd
-  apt: name=qpidd
+# TODO: installation scripts causes failure.
+# - name: install qpidd
+#   apt: name=qpidd
 
 - name: librabbitmq-dev
   apt: name=librabbitmq-dev
