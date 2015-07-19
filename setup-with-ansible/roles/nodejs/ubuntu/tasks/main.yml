@@ -1,0 +1,20 @@
+- name: install npm
+  apt: name=npm
+
+- name: install nodejs-legacy
+  apt: name=nodejs-legacy
+
+- name: install mocha
+  npm: name=mocha global=yes
+
+- name: install expect.js
+  npm: name=expect.js global=yes
+
+- name: install sinon
+  npm: name=sinon global=yes
+
+- name: install mocha-phantomjs
+  npm: name=mocha-phantomjs global=yes
+
+- name: install phantomjs
+  npm: name=phantomjs global=yes

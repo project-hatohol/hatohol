@@ -1,0 +1,20 @@
+- name: install python-pip
+  yum: name=python-pip
+
+- name: install python-devel
+  yum: name=python-devel
+
+- name: install python-argparse
+  yum: name=python-argparse
+
+- name: install mysql-python
+  yum: name=MySQL-python
+
+- name: install django
+  yum: name=Django
+
+- name: install python-daemon
+  yum: name=python-daemon
+
+- name: install python-pika
+  pip: name=pika

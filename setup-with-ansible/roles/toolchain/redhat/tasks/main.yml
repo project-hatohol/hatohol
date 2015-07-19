@@ -1,0 +1,27 @@
+- name: install git
+  yum: name=git
+
+- name: install g++
+  yum: name=gcc-c++
+
+- name: register devtoolset-2 repo
+  get_url: url=http://people.centos.org/tru/devtools-2/devtools-2.repo dest=/etc/yum.repos.d/
+
+- name: install devtoolset toolchain
+  yum: name={{ item }}
+  with_items:
+    - devtoolset-2-gcc
+    - devtoolset-2-binutils
+    - devtoolset-2-gcc-c++
+
+- name: install autoconf and automake
+  yum: name={{ item }}
+  with_items:
+    - autoconf
+    - automake
+
+- name: install libtool
+  yum: name=libtool
+
+- name: install rpm-build
+  yum: name=rpm-build

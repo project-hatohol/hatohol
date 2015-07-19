@@ -1,0 +1,4 @@
+---
+dependencies:
+  - { role: upgrade-server/redhat, when: ansible_os_family == 'RedHat' }
+  - { role: upgrade-server/ubuntu, when: ansible_os_family == 'Debian' }

@@ -1,0 +1,43 @@
+- name: install libtool
+  yum: name=libtool
+
+- name: install gettext-devel
+  yum: name=gettext-devel
+
+- name: install glib2-devel
+  yum: name=glib2-devel
+
+- name: install libsoup-devel
+  yum: name=libsoup-devel
+
+- name: register hatohol repo
+  get_url: url=http://project-hatohol.github.io/repo/hatohol-el7.repo dest=/etc/yum.repos.d/
+
+- name: install json-glib-devel
+  yum: name=json-glib-devel
+
+- name: install sqlite-devel
+  yum: name=sqlite-devel
+
+- name: install libuuid-devel
+  yum: name=libuuid-devel
+
+- name: install mariadb-devel
+  yum: name=mariadb-devel
+
+# - name: install ndoutils-nagios3-mysql
+#   yum: name=ndoutils-nagios3-mysql
+
+- name: register the repository for librabbitmq
+  yum: name=http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
+
+- name: install librabbitmq-devel
+  yum: name=librabbitmq-devel
+
+- name: install QPid dev packages
+  yum: name={{ item }}
+  with_items:
+    - qpid-cpp-client-devel
+
+- name: install curl
+  yum: name=curl

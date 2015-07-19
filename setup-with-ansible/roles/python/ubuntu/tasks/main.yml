@@ -1,0 +1,23 @@
+- name: install python-curl
+  apt: name=python-pycurl
+
+- name: install python-argparse
+  apt: name=python-argparse
+
+- name: install python-pip
+  apt: name=python-pip
+
+- name: install python-dev
+  apt: name=python-dev
+
+- name: install DJango 1.5.4
+  pip: name=django version=1.5.4
+
+- name: install mysql-python
+  pip: name=mysql-python
+
+- name: install python-daemon
+  pip: name=daemon
+
+- name: install python-pika
+  pip: name=pika

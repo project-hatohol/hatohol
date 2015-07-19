@@ -1,0 +1,14 @@
+- name: install git
+  apt: name=git
+
+- name: install g++
+  apt: name=g++
+
+- name: install autotools-dev
+  apt: name=autotools-dev
+
+- name: install autoconf
+  apt: name=autoconf
+
+- name: install libtool
+  apt: name=libtool

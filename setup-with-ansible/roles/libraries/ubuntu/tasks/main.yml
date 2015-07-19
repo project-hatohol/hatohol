@@ -1,0 +1,39 @@
+- name: install libglib2.0-dev
+  apt: name=libglib2.0-dev
+
+- name: install libsoup2.4-dev
+  apt: name=libsoup2.4-dev
+
+- name: install libjson-glib-dev
+  apt: name=libjson-glib-dev
+
+- name: install libsqlite3-dev
+  apt: name=libsqlite3-dev
+
+- name: install sqlite3 (command line)
+  apt: name=sqlite3
+
+- name: install uuid-dev
+  apt: name=uuid-dev
+
+- name: install libmysqlclient-dev
+  apt: name=libmysqlclient-dev
+
+- name: install ndoutils-nagios3-mysql
+  apt: name=ndoutils-nagios3-mysql
+
+- name: install QPid dev packages
+  apt: name={{ item }}
+  with_items:
+    - libqpidmessaging2-dev
+    - libqpidtypes1-dev
+    - libqpidcommon2-dev
+
+- name: install qpidd
+  apt: name=qpidd
+
+- name: librabbitmq-dev
+  apt: name=librabbitmq-dev
+
+- name: install curl
+  apt: name=curl

@@ -1,0 +1,5 @@
+---
+dependencies:
+  - { role: cutter/redhat, when: "ansible_distribution == 'CentOS' and ansible_distribution_version.split('.')[0]|int == 6" }
+  - { role: cutter/redhat7, when: "ansible_distribution == 'CentOS' and ansible_distribution_version.split('.')[0]|int == 7" }
+  - { role: cutter/ubuntu, when: "ansible_os_family == 'Debian'" }
