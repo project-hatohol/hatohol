@@ -18,3 +18,6 @@
 
 - name: install phantomjs
   npm: name=phantomjs global=yes
+
+- name: install casperjs
+  npm: name=casperjs global=yes
