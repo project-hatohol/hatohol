@@ -3,7 +3,7 @@
 
   roles:
     - upgrade-server
-    - common
+    - software-properties-common
     - toolchain
     - libraries
     - cutter
