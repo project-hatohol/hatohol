@@ -1,0 +1,6 @@
+# no cutter repository for CentOS7
+# - name: register the repository for cutter
+#   yum: name=http://sourceforge.net/projects/cutter/files/centos/cutter-release-1.1.0-0.noarch.rpm
+
+# - name: install cutter
+#   yum: name=cutter

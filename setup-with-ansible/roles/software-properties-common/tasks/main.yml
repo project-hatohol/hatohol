@@ -1,0 +1,3 @@
+- name: install software-properties-common
+  apt: name=software-properties-common update_cache=yes
+  when: ansible_os_family == 'Debian'

@@ -1,0 +1,4 @@
+---
+dependencies:
+  - { role: nodejs/redhat, when: ansible_os_family == 'RedHat' }
+  - { role: nodejs/ubuntu, when: ansible_os_family == 'Debian' }
