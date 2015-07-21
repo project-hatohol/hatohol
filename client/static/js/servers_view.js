@@ -20,7 +20,7 @@
 var ServersView = function(userProfile) {
   var self = this;
   var serverIds = new Array();
-  var paramArray = new Array();
+  var paramsArrayMap = {};
   var currServersMap = {};
  
   // call the constructor of the super class
@@ -311,7 +311,7 @@ var ServersView = function(userProfile) {
     if (!(reply.serverType instanceof Array)) {
       return;
     }
-    paramArray = [];
+    paramsArrayMap = {};
     for (var i = 0; i < reply.serverType.length; i++) {
       var serverTypeInfo = reply.serverType[i];
       var name = serverTypeInfo.name;
@@ -328,7 +328,7 @@ var ServersView = function(userProfile) {
       if (parameters == undefined) {
         continue;
       }
-      paramArray[type] = parameters;
+      paramsArrayMap[type] = JSON.parse(parameters);
     }
     makeServerInfo();
   }
@@ -341,12 +341,11 @@ var ServersView = function(userProfile) {
           var serverId = this.getAttribute("serverId");
           var server = currServersMap[serverId];
           var serverType = this.getAttribute("serverType");
-          var params = paramArray[serverType];
-          var paramObj = JSON.parse(params);
+          var paramsArray = paramsArrayMap[serverType];
           var s = "";
           s += gettext('Monitoring server type') + ": " + makeMonitoringSystemTypeLabel(server) + "</br>";
-          for (var j = 0; j < paramObj.length; j++) {
-            var param = paramObj[j];
+          for (var j = 0; j < paramsArray.length; j++) {
+            var param = paramsArray[j];
             var value;
             if (!param.label || !param.id || param.hidden || param.inputStyle == "password")
               continue;
