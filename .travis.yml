@@ -39,7 +39,7 @@ install:
   - npm install -g mocha
   - npm install -g expect.js
   - npm install -g sinon
-  - npm install -g mocha-phantomjs phantomjs
+  - npm install -g mocha-phantomjs phantomjs@1.9.7-15
   - npm install -g casperjs
   - sudo pip install django==1.5.4
   - sudo pip install mysql-python
