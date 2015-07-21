@@ -21,24 +21,24 @@
       url += ":" + port;
     url += "/zabbix/";
 
-    return url ? hatohol.escapeHTML(url) : url;
+    return url;
   };
 
   self.getItemGraphURL = function(server, itemId) {
-    var location = self.getTopURL(server);
-    if (!location)
+    var url = self.getTopURL(server);
+    if (!url)
       return undefined;
 
-    location += "history.php?action=showgraph&amp;itemid=" + itemId;
-    return location;
+    url += "history.php?action=showgraph&itemid=" + itemId;
+    return url;
   };
 
   self.getMapsURL = function(server) {
-    var location = self.getTopURL(server);
-    if (!location)
+    var url = self.getTopURL(server);
+    if (!url)
       return undefined;
 
-    location += "maps.php";
-    return location;
+    url += "maps.php";
+    return url;
   };
 }(hatohol));
