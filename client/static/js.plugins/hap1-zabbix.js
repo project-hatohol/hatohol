@@ -21,7 +21,7 @@
       url += ":" + port;
     url += "/zabbix/";
 
-    return url ? hatohol.escapeHTML(url) : url;
+    return url;
   };
 
   self.getItemGraphURL = function(server, itemId) {
@@ -29,7 +29,7 @@
     if (!location)
       return undefined;
 
-    location += "history.php?action=showgraph&amp;itemid=" + itemId;
+    location += "history.php?action=showgraph&itemid=" + itemId;
     return location;
   };
 

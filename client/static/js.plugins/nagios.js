@@ -17,6 +17,6 @@
       url = undefined; // issue-839
 
     }
-    return url ? hatohol.escapeHTML(url) : url;
+    return url;
   };
 }(hatohol));

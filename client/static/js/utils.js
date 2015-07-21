@@ -123,21 +123,21 @@ function getServerLocation(server) {
   var plugin = getPlugin(server);
   if (!plugin || !plugin.getTopURL)
     return undefined;
-  return plugin.getTopURL(server);
+  return escapeHTML(plugin.getTopURL(server));
 }
 
 function getMapsLocation(server) {
   var plugin = getPlugin(server);
   if (!plugin || !plugin.getMapsURL)
     return undefined;
-  return plugin.getMapsURL(server);
+  return escapeHTML(plugin.getMapsURL(server));
 }
 
 function getItemGraphLocation(server, itemId) {
   var plugin = getPlugin(server);
   if (!plugin || !plugin.getItemGraphURL)
     return undefined;
-  return plugin.getItemGraphURL(server, itemId);
+  return escapeHTML(plugin.getItemGraphURL(server, itemId));
 }
 
 function getServerName(server, serverId) {
