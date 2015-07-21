@@ -218,7 +218,7 @@ var ServersView = function(userProfile) {
       } else {
         s += "<td></td>";
       }
-      s += "<td id='server-info-" + serverId + "'" +
+      s += "<td id='server-info-" + escapeHTML(serverId) + "'" +
            "  data-title='" + gettext("Server ID") + ": " + escapeHTML(serverId) + "'" +
            "  data-html=true" +
            "  data-trigger='hover'" +
