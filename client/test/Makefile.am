@@ -33,6 +33,9 @@ EXTRA_DIST = \
 	browser/test_log_search_systems_view.js \
 	browser/test_graphs_view.js \
 	browser/test_triggers_view.js \
+	browser/test_hap2_ceilometer.js \
+	browser/test_hap2_fluentd.js \
+	browser/test_hap2_zabbix.js \
 	feature/dashboard_test.js \
 	feature/feature_test_utils.js \
 	feature/login_logout_test.js \

@@ -4,4 +4,36 @@
 
   self.type = uuid;
   self.label = "Zabbix (HAPI2)";
+
+  self.getTopURL = function(server) {
+    var url, suffix = "api_jsonrpc.php";
+    var suffixPos;
+
+    if (!server)
+      return undefined;
+      
+    url = server["baseURL"];
+    suffixPos = url.indexOf(suffix);
+    if (suffixPos == url.length - suffix.length)
+      return url.substr(0, suffixPos)
+    return undefined;
+  };
+
+  self.getItemGraphURL = function(server, itemId) {
+    var url = self.getTopURL(server);
+    if (!url)
+      return undefined;
+
+    url += "history.php?action=showgraph&itemid=" + itemId;
+    return url;
+  };
+
+  self.getMapsURL = function(server) {
+    var url = self.getTopURL(server);
+    if (!url)
+      return undefined;
+
+    url += "maps.php";
+    return url;
+  };
 }(hatohol));
