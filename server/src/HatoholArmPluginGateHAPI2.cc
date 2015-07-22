@@ -1519,9 +1519,9 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 			hostInfoCache.getName(triggerInfo.hostIdInServer, cacheElem);
 		if (!found) {
 			MLPL_WARN(
-			  "Host cache: not found. server: %" FMT_TRIGGER_ID ", "
+			  "Host cache: not found. server: %" FMT_SERVER_ID ", "
 			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
-			  triggerInfo.id.c_str(), triggerInfo.hostIdInServer.c_str());
+			  serverInfo.id, triggerInfo.hostIdInServer.c_str());
 			cacheElem.hostId = INVALID_HOST_ID;
 		}
 		triggerInfo.globalHostId = cacheElem.hostId;
@@ -1665,9 +1665,9 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 			hostInfoCache.getName(eventInfo.hostIdInServer, cacheElem);
 		if (!found) {
 			MLPL_WARN(
-			  "Host cache: not found. server: %" FMT_TRIGGER_ID ", "
+			  "Host cache: not found. server: %" FMT_SERVER_ID ", "
 			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
-			  eventInfo.id.c_str(), eventInfo.hostIdInServer.c_str());
+			  serverInfo.id, eventInfo.hostIdInServer.c_str());
 			cacheElem.hostId = INVALID_HOST_ID;
 		}
 		eventInfo.globalHostId = cacheElem.hostId;
