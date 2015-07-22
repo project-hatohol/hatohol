@@ -55,7 +55,7 @@ const static MonitoringServerInfo monitoringServerInfo = {
 const static ArmPluginInfo armPluginInfo = {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI2,         // type
-	"hapi-test-hap2-zabbix-plugin",  // path
+	"",                              // path
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	302,                             // serverId
