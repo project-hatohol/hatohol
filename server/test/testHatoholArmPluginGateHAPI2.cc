@@ -55,7 +55,7 @@ const static MonitoringServerInfo monitoringServerInfo = {
 const static ArmPluginInfo armPluginInfo = {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI2,         // type
-	"hapi-test-hap2-zabbix-plugin",  // path
+	"",                              // path
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	302,                             // serverId
@@ -65,6 +65,31 @@ const static ArmPluginInfo armPluginInfo = {
 	0,                               // tlsEnableVerify
 	"8e632c14-d1f7-11e4-8350-d43d7e3146fb", // uuid
 };
+
+const static ServerHostDef dummyHosts[] = {
+{
+	AUTO_INCREMENT_VALUE, // 1       // id
+	10,                              // hostId
+	302,                             // serverId
+	"1",                             // hostIdInServer
+	"exampleHostName1",              // name
+}, {
+	AUTO_INCREMENT_VALUE, // 2       // id
+	13,                              // hostId
+	302,                             // serverId
+	"3",                             // hostIdInServer
+	"exampleHostName",               // name
+}
+};
+
+static void loadDummyHosts(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < ARRAY_SIZE(dummyHosts); i++)
+		dbHost.upsertServerHostDef(dummyHosts[i]);
+}
 
 namespace testHAPI2ParseTimeStamp {
 
@@ -358,6 +383,7 @@ void test_procedureHandlerLastInfoInvalidJSON(void)
 
 void test_procedureHandlerPutItems(void)
 {
+	loadDummyHosts();
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
 	string json =
@@ -393,7 +419,7 @@ void test_procedureHandlerPutItems(void)
 	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
 	item1.serverId       = 302;
 	item1.id             = "1";
-	item1.globalHostId   = INVALID_HOST_ID; // FIXME
+	item1.globalHostId   = 10;
 	item1.hostIdInServer = "1";
 	item1.brief          = "example brief";
 	item1.lastValueTime  = timeStamp;
@@ -408,7 +434,7 @@ void test_procedureHandlerPutItems(void)
 	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
 	item2.serverId       = 302;
 	item2.id             = "2";
-	item2.globalHostId   = INVALID_HOST_ID; // FIXME
+	item2.globalHostId   = 10;
 	item2.hostIdInServer = "1";
 	item2.brief          = "example brief";
 	item2.lastValueTime  = timeStamp;
@@ -432,6 +458,7 @@ void test_procedureHandlerPutItems(void)
 
 void test_procedureHandlerPutItemsInvalidJSON(void)
 {
+	loadDummyHosts();
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
 	string json =
@@ -532,7 +559,7 @@ void test_procedureHandlerPutHosts(void)
 	{
 		{
 			1,                       // id
-			1,                       // hostId
+			10,                      // hostId
 			monitoringServerInfo.id, // serverId
 			"1",                     // hostIdInServer
 			"exampleHostName1",      // name
@@ -676,6 +703,7 @@ void test_procedureHandlerPutHostGroupsInvalidJSON(void)
 
 void test_procedureHandlerPutHostGroupMembership(void)
 {
+	loadDummyHosts();
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
 	string json =
@@ -701,14 +729,14 @@ void test_procedureHandlerPutHostGroupMembership(void)
 			monitoringServerInfo.id, // serverId
 			"1",                     // hostIdInServer
 			"1",                     // hostGroupIdInServer
-			INVALID_HOST_ID,         // hostId
+			10,                      // hostId
 		},
 		{
 			2,                       // id
 			monitoringServerInfo.id, // serverId
 			"1",                     // hostIdInServer
 			"2",                     // hostGroupIdInServer
-			INVALID_HOST_ID,         // hostId
+			10,                      // hostId
 		},
 		{
 			3,                       // id
@@ -760,6 +788,7 @@ void test_procedureHandlerPutHostGroupMembership(void)
 
 void test_procedureHandlerPutHostGroupMembershipInvalidJSON(void)
 {
+	loadDummyHosts();
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
 	string json =
@@ -791,6 +820,7 @@ void test_procedureHandlerPutHostGroupMembershipInvalidJSON(void)
 
 void test_procedureHandlerPutTriggers(void)
 {
+	loadDummyHosts();
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
 	string json =
@@ -818,7 +848,7 @@ void test_procedureHandlerPutTriggers(void)
 			TRIGGER_STATUS_OK,       // status
 			TRIGGER_SEVERITY_INFO,   // severity
 			timeStamp,               // lastChangeTime
-			INVALID_HOST_ID,         // globalHostId /* FIXME? */
+			10,                      // globalHostId
 			"1",                     // hostIdInServer
 			"exampleHostName",       // hostName
 			"example brief",         // brief
@@ -892,6 +922,7 @@ void data_procedureHandlerPutEvents(void)
 
 void test_procedureHandlerPutEvents(gconstpointer data)
 {
+	loadDummyHosts();
 	HatoholArmPluginGateHAPI2Ptr gate(
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
 	string json =
@@ -926,7 +957,7 @@ void test_procedureHandlerPutEvents(gconstpointer data)
 			gcut_data_get_string(data, "triggerId"),         // triggerId
 			TRIGGER_STATUS_OK,                               // status
 			TRIGGER_SEVERITY_INFO,                           // severity
-			INVALID_HOST_ID,                                 // globalHostId
+			13,                                              // globalHostId
 			"3",                                             // hostIdInServer
 			"exampleHostName",                               // hostName
 			"example brief",                                 // brief
@@ -1118,6 +1149,7 @@ void prepareDB(const char *amqpURL)
 {
 	hatoholInit();
 	setupTestDB();
+	loadDummyHosts();
 
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
@@ -1921,7 +1953,7 @@ void test_fetchEventsCallback(void)
 			       " \"time\":\"20150323151300\", \"type\":\"GOOD\","
 			       " \"triggerId\":2, \"status\": \"OK\","
 			       " \"severity\":\"INFO\","
-			       " \"hostId\":3, \"hostName\":\"exampleHostName\","
+			       " \"hostId\":\"3\", \"hostName\":\"exampleHostName\","
 			       " \"brief\":\"example brief\","
 			       " \"extendedInfo\": \"sample extended info\"}],"
 			       " \"lastInfo\":\"20150323151299\","
@@ -1940,7 +1972,7 @@ void test_fetchEventsCallback(void)
 			       " \"time\":\"20150323151301\", \"type\":\"GOOD\","
 			       " \"triggerId\":2, \"status\": \"OK\","
 			       " \"severity\":\"INFO\","
-			       " \"hostId\":3, \"hostName\":\"exampleHostName\","
+			       " \"hostId\":\"3\", \"hostName\":\"exampleHostName\","
 			       " \"brief\":\"example brief\","
 			       " \"extendedInfo\": \"sample extended info\"}],"
 			       " \"lastInfo\":\"20150323151300\","
