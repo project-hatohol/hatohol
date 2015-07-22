@@ -1,9 +1,6 @@
 (function(hatohol) {
-  var type = hatohol.MONITORING_SYSTEM_HAPI_ZABBIX;
-  var self = hatohol.addNamespace("hatohol.hap_" + type);
-
-  self.type = type;
-  self.label = "Zabbix (HAPI)";
+  var self = hatohol.registerPlugin(hatohol.MONITORING_SYSTEM_HAPI_ZABBIX,
+                                    "Zabbix (HAPI)");
 
   self.getTopURL = function(server) {
     var ipAddress, port, url;

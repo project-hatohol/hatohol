@@ -1,9 +1,6 @@
 (function(hatohol) {
-  var type = hatohol.MONITORING_SYSTEM_NAGIOS;
-  var self = hatohol.addNamespace("hatohol.hap_" + type);
-
-  self.type = type;
-  self.label = "Nagios";
+  var self = hatohol.registerPlugin(hatohol.MONITORING_SYSTEM_NAGIOS,
+                                    "Nagios");
 
   self.getTopURL = function(server) {
     var url;
@@ -15,7 +12,6 @@
       url = server["baseURL"];
     } else {
       url = undefined; // issue-839
-
     }
     return url;
   };

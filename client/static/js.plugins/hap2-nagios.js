@@ -1,7 +1,4 @@
 (function(hatohol) {
-  var uuid = "902d955c-d1f7-11e4-80f9-d43d7e3146fb";
-  var self = hatohol.addNamespace("hatohol.hap_" + uuid);
-
-  self.type = uuid;
-  self.label = "Nagios (HAPI2)";
+  var self = hatohol.registerPlugin("902d955c-d1f7-11e4-80f9-d43d7e3146fb",
+                                    "Nagios (HAPI2)");
 }(hatohol));
