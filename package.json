@@ -9,5 +9,8 @@
     "phantomjs": "1.9.7-15",
     "mocha-phantomjs": "~3.6.0",
     "casperjs": "~1.1.0-beta3"
+  },
+  "dependencies": {
+    "npm-check-updates": "~1.5.1"
   }
 }
