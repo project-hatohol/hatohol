@@ -4,4 +4,10 @@
 
   self.type = uuid;
   self.label = "Nagios (HAPI2)";
+
+  self.getTopURL = function(server) {
+    if (!server)
+      return undefined;
+    return server["baseURL"];
+  };
 }(hatohol));

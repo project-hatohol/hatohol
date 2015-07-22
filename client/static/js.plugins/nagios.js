@@ -6,17 +6,8 @@
   self.label = "Nagios";
 
   self.getTopURL = function(server) {
-    var url;
-
     if (!server)
       return undefined;
-
-    if (server["baseURL"]) {
-      url = server["baseURL"];
-    } else {
-      url = undefined; // issue-839
-
-    }
-    return url;
+    return server["baseURL"];
   };
 }(hatohol));
