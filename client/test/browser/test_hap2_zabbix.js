@@ -21,7 +21,7 @@ describe('hap2_zabbix', function() {
     expect(plugin.getTopURL(brokenServer)).to.be(undefined);
   });
 
-  it('getMasURL', function() {
+  it('getMapsURL', function() {
     var plugin = getPlugin();
     var expected = "http://www.example.com/zabbix/maps.php";
     expect(plugin.getMapsURL(server)).to.be(expected);
