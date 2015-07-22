@@ -58,7 +58,7 @@ EXTRA_DIST = \
 	python/hatohol_server_emulator.py
 
 node_modules:
-	ln -sf `npm root -g`
+	ln -sf `npm root`
 
 browser/mocha.js:
 	ln -sf ../node_modules/mocha/mocha.js $@
