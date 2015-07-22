@@ -1697,7 +1697,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		if (parser.isMember("mayMoreFlag")) {
 			parser.read("mayMoreFlag", mayMoreFlag);
 		} else {
-			MLPL_WARN("No mayMoreFlag while a fetchId is provided!");
+			MLPL_WARN("No mayMoreFlag while a fetchId is provided!\n");
 		}
 	}
 	if (parser.isMember("lastInfo")) {
