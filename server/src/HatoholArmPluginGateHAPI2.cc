@@ -1629,8 +1629,14 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 	constexpr const size_t numLimit = 1000;
 
 	if (num > numLimit) {
-		MLPL_ERR("Event Object is too large. "
-			 "Object size limit(%zd) exceeded.\n", numLimit);
+		string errorMessage =
+		  StringUtils::sprintf(
+		    "Event Object is too large. "
+		    "Object size limit(%zd) exceeded.\n",
+		    numLimit);
+		MLPL_ERR("%s", errorMessage.c_str());
+		errObj.addError("%s", errorMessage.c_str());
+		parser.endObject(); // events
 		return false;
 	}
 
