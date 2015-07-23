@@ -361,9 +361,10 @@ public:
 			 context,
 			 status,
 			 amqp_error_string2(status));
-		if (status == AMQP_STATUS_TCP_ERROR)
-			MLPL_ERR("AMQP_STATUS_TCP_ERROR: %s\n",
-				 strerror(errno));
+		if (status == AMQP_STATUS_SOCKET_ERROR ||
+		    status == AMQP_STATUS_TCP_ERROR) {
+			MLPL_ERR("errno: %d: %s\n", errno, strerror(errno));
+		}
 	}
 
 	bool createTLSSocket(void)
@@ -683,8 +684,7 @@ bool AMQPConnection::publish(const AMQPMessage &message)
 
 	if (response != AMQP_STATUS_OK) {
 		m_impl->logErrorResponse("publish a message", response);
-		if (response == AMQP_STATUS_CONNECTION_CLOSED)
-			m_impl->disposeConnection();
+		m_impl->disposeConnection();
 		return false;
 	}
 
