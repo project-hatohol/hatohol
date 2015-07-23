@@ -113,7 +113,9 @@ struct HatoholArmPluginGateHAPI2::Impl
 	Impl(const MonitoringServerInfo &_serverInfo,
 	     HatoholArmPluginGateHAPI2 &hapi2)
 	: m_serverInfo(_serverInfo),
-	  m_utils(_serverInfo, m_armTrigger, static_cast<size_t>(HAPI2PluginCollectType::NUM_COLLECT_NG_KIND)),
+	  m_utils(
+	    m_serverInfo, m_armTrigger,
+	    static_cast<size_t>(HAPI2PluginCollectType::NUM_COLLECT_NG_KIND)),
 	  m_hapi2(hapi2),
 	  m_armFake(m_serverInfo),
 	  m_armStatus(),
