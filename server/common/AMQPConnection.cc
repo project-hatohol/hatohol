@@ -22,6 +22,8 @@
 using namespace std;
 using namespace mlpl;
 
+int AMQPConnection::DEFAULT_HEARTBEAT_SECONDS = 60;
+
 struct AMQPConnection::Impl {
 public:
 	amqp_connection_state_t m_connection;
@@ -95,13 +97,12 @@ public:
 
 	bool login()
 	{
-		const int heartbeat = 1;
 		const amqp_rpc_reply_t reply =
 			amqp_login(m_connection,
 				   getVirtualHost(),
 				   AMQP_DEFAULT_MAX_CHANNELS,
 				   AMQP_DEFAULT_FRAME_SIZE,
-				   heartbeat,
+				   DEFAULT_HEARTBEAT_SECONDS,
 				   AMQP_SASL_METHOD_PLAIN,
 				   getUser(),
 				   getPassword());

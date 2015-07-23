@@ -47,6 +47,8 @@ struct AMQPJSONMessage : public AMQPMessage {
 class AMQPConnection : public UsedCountable
 {
 public:
+	static int DEFAULT_HEARTBEAT_SECONDS;
+
 	static AMQPConnectionPtr create(const AMQPConnectionInfo &info);
 
 	AMQPConnection(const AMQPConnectionInfo &info);
