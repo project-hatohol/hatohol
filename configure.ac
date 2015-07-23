@@ -217,11 +217,11 @@ AC_CHECK_PROG([have_mocha], [mocha], [yes], [no])
 AC_CHECK_PROG([have_npm], [npm], [yes], [no])
 have_expect_js=no
 if test "$have_npm" = "yes"; then
-  expect_js_ver=`npm ls -g | grep expect.js | awk '{ print $2 }' FS=@`
+  expect_js_ver=`npm ls | grep expect.js | awk '{ print $2 }' FS=@`
   if test x"$expect_js_ver" != x; then
     have_expect_js=yes
   fi
-  mocha_ver=`npm ls -g | grep mocha | awk '{ print $2 }' FS=@`
+  mocha_ver=`npm ls | grep mocha | awk '{ print $2 }' FS=@`
 fi
 
 if test "$have_mocha" = "no"; then
