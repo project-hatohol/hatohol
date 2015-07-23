@@ -620,7 +620,9 @@ bool AMQPConnection::consume(AMQPMessage &message)
 						      &envelope,
 						      &timeout,
 						      flags);
-	if (reply.reply_type == AMQP_RESPONSE_NORMAL) {
+	switch (reply.reply_type) {
+	case AMQP_RESPONSE_NORMAL:
+	{
 		const amqp_bytes_t *contentType =
 		  &(envelope.message.properties.content_type);
 		const amqp_bytes_t *body = &(envelope.message.body);
@@ -630,11 +632,8 @@ bool AMQPConnection::consume(AMQPMessage &message)
 		message.body.assign(static_cast<char*>(body->bytes),
 				    static_cast<int>(body->len));
 		amqp_destroy_envelope(&envelope);
-	}
-
-	switch (reply.reply_type) {
-	case AMQP_RESPONSE_NORMAL:
 		break;
+	}
 	case AMQP_RESPONSE_LIBRARY_EXCEPTION:
 		if (reply.library_error != AMQP_STATUS_TIMEOUT) {
 			logErrorResponse("consume message", reply);
