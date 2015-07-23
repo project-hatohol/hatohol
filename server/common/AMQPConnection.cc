@@ -18,6 +18,7 @@
  */
 
 #include "AMQPConnection.h"
+#include <string.h>
 
 using namespace std;
 using namespace mlpl;
@@ -27,6 +28,10 @@ public:
 	amqp_connection_state_t m_connection;
 	bool m_isConsumerQueueDeclared;
 	bool m_isPublisherQueueDeclared;
+	const AMQPConnectionInfo m_info;
+	amqp_socket_t *m_socket;
+	bool m_socketOpened;
+	amqp_channel_t m_channel;
 
 	Impl(const AMQPConnectionInfo &info)
 	: m_connection(NULL),
@@ -289,12 +294,6 @@ public:
 		return m_info;
 	}
 
-protected:
-	const AMQPConnectionInfo m_info;
-	amqp_socket_t *m_socket;
-	bool m_socketOpened;
-	amqp_channel_t m_channel;
-
 	const char *getScheme(void)
 	{
 		if (m_info.useTLS()) {
@@ -362,6 +361,9 @@ protected:
 			 context,
 			 status,
 			 amqp_error_string2(status));
+		if (status == AMQP_STATUS_TCP_ERROR)
+			MLPL_ERR("AMQP_STATUS_TCP_ERROR: %s\n",
+				 strerror(errno));
 	}
 
 	bool createTLSSocket(void)
@@ -678,14 +680,14 @@ bool AMQPConnection::publish(const AMQPMessage &message)
 				      no_immediate,
 				      &props,
 				      amqp_bytes_malloc_dup(body_bytes));
+
 	if (response != AMQP_STATUS_OK) {
-		const amqp_rpc_reply_t reply =
-			amqp_get_rpc_reply(getConnection());
-		if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
-			logErrorResponse("publish a message", reply);
-			return false;
-		}
+		m_impl->logErrorResponse("publish a message", response);
+		if (response == AMQP_STATUS_CONNECTION_CLOSED)
+			m_impl->disposeConnection();
+		return false;
 	}
+
 	return true;
 }
 
