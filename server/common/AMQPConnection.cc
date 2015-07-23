@@ -158,6 +158,7 @@ public:
 				amqp_get_rpc_reply(m_connection);
 			if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
 				logErrorResponse("declare queue", reply);
+				disposeConnection();
 				return false;
 			}
 		}
@@ -595,6 +596,7 @@ bool AMQPConnection::startConsuming(void)
 			amqp_get_rpc_reply(getConnection());
 		if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
 			logErrorResponse("start consuming", reply);
+			disposeConnection();
 			return false;
 		}
 	}
@@ -716,6 +718,7 @@ bool AMQPConnection::purgeQueue(const string queueName)
 			amqp_get_rpc_reply(getConnection());
 		if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
 			logErrorResponse("purge", reply);
+			disposeConnection();
 			return false;
 		}
 	}
@@ -752,6 +755,7 @@ bool AMQPConnection::deleteQueue(const string queueName)
 			amqp_get_rpc_reply(getConnection());
 		if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
 			logErrorResponse("purge", reply);
+			disposeConnection();
 			return false;
 		}
 	}
