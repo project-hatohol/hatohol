@@ -149,10 +149,10 @@ dnl enable/disable for Qpid
 dnl **************************************************************
 AC_ARG_WITH(qpid,
   [AS_HELP_STRING([--with-qpid],
-    [enable qpid. [default=no]])],
-  [enable_qpid="$enableval"],
-  [enable_qpid="no"])
-AC_MSG_CHECKING([whether enable qpid])
+    [with qpid. [default=no]])],
+  [with_qpid="$enableval"],
+  [with_qpid="no"])
+AC_MSG_CHECKING([whether with qpid])
 if test "x$with_qpid" != "xyes"; then
   with_qpid="no"
 fi
