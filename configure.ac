@@ -145,20 +145,20 @@ AC_SUBST(MLPL_CFLAGS)
 AC_SUBST(MLPL_LIBS)
 
 dnl **************************************************************
-dnl enable/disable for HAP1
+dnl enable/disable for Qpid
 dnl **************************************************************
-AC_ARG_ENABLE(hap1,
-  [AS_HELP_STRING([--enable-hap1],
-    [enable hap1. [default=no]])],
-  [enable_hap1="$enableval"],
-  [enable_hap1="no"])
-AC_MSG_CHECKING([whether enable hap1])
-if test "x$enable_hap1" != "xyes"; then
-  enable_hap1="no"
+AC_ARG_ENABLE(qpid,
+  [AS_HELP_STRING([--enable-qpid],
+    [enable qpid. [default=no]])],
+  [enable_qpid="$enableval"],
+  [enable_qpid="no"])
+AC_MSG_CHECKING([whether enable qpid])
+if test "x$enable_qpid" != "xyes"; then
+  enable_qpid="no"
 fi
-AC_MSG_RESULT($enable_hap1)
+AC_MSG_RESULT($enable_qpid)
 
-if test "$enable_hap1" = "yes"; then
+if test "$enable_qpid" = "yes"; then
   dnl **************************************************************
   dnl Check for Apache Qpid
   dnl **************************************************************
@@ -172,9 +172,9 @@ if test "$enable_hap1" = "yes"; then
   AC_CHECK_HEADERS(qpid/types/Exception.h,
     [], [AC_MSG_ERROR([qpid/types/Exception.h was not found. The file is contained in libqpidtypes1-dev on Ubuntu.])])
 
-  AC_DEFINE(USE_HAP1, [1], [Define to 1 if hap1 is enabled.])
+  AC_DEFINE(WITH_QPID, [1], [Define to 1 if qpid is enabled.])
 fi
-AM_CONDITIONAL(USE_HAP1, test "$enable_hap1" = "yes")
+AM_CONDITIONAL(WITH_QPID, test "$enable_qpid" = "yes")
 
 AC_LANG_POP([C++])
 
