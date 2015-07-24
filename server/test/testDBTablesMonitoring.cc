@@ -1296,6 +1296,18 @@ void test_getEventWithInvalidUserId(gconstpointer data)
 	assertGetEventsWithFilter(arg);
 }
 
+void data_getEventWithEventType(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithEventType(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
+	arg.type = EVENT_TYPE_BAD;
+	assertGetEventsWithFilter(arg);
+}
+
 void data_getEventWithMinSeverity(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();

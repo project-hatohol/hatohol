@@ -187,6 +187,7 @@ struct AssertGetEventsArg
 {
 	uint64_t limitOfUnifiedId;
 	EventsQueryOption::SortType sortType;
+	EventType type;
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
 	TriggerIdType triggerId;
@@ -199,6 +200,7 @@ struct AssertGetEventsArg
 		    const EventInfo *eventInfo = testEventInfo,
 		    size_t numEventInfo = NumTestEventInfo)
 	: limitOfUnifiedId(0), sortType(EventsQueryOption::SORT_UNIFIED_ID),
+	  type(EVENT_TYPE_ALL),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
 	  triggerStatus(TRIGGER_STATUS_ALL),
 	  triggerId(ALL_TRIGGERS),
@@ -230,6 +232,7 @@ struct AssertGetEventsArg
 		if (limitOfUnifiedId)
 			option.setLimitOfUnifiedId(limitOfUnifiedId);
 		option.setSortType(sortType, sortDirection);
+		option.setType(type);
 		option.setMinimumSeverity(minSeverity);
 		option.setTriggerStatus(triggerStatus);
 		option.setTriggerId(triggerId);
@@ -242,6 +245,9 @@ struct AssertGetEventsArg
 			return true;
 		}
 		if (limitOfUnifiedId && idMap[info] > limitOfUnifiedId)
+			return true;
+
+		if (type != EVENT_TYPE_ALL && info->type != type)
 			return true;
 
 		// TODO: Use TriggerInfo instead of EventInfo because actual
