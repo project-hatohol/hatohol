@@ -28,6 +28,9 @@
 #ifdef WITH_QPID
 #include "HatoholArmPluginGate.h"
 #endif
+#ifdef HAVE_LIBRABBITMQ
+#include "HatoholArmPluginGateHAPI2.h"
+#endif
 #include "Helpers.h"
 #include "Reaper.h"
 #include "DBTablesTest.h"
@@ -89,6 +92,12 @@ void data_create(void)
 	               "type", G_TYPE_INT, MONITORING_SYSTEM_HAPI_ZABBIX,
 	               "type-name", G_TYPE_STRING,
 	                 typeid(HatoholArmPluginGate).name(), NULL);
+#endif
+#ifdef HAVE_LIBRABBITMQ
+	gcut_add_datum("MONITORING_SYSTEM_HAPI2",
+	               "type", G_TYPE_INT, MONITORING_SYSTEM_HAPI2,
+	               "type-name", G_TYPE_STRING,
+	                 typeid(HatoholArmPluginGateHAPI2).name(), NULL);
 #endif
 }
 
