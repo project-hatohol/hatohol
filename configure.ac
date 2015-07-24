@@ -147,18 +147,18 @@ AC_SUBST(MLPL_LIBS)
 dnl **************************************************************
 dnl enable/disable for Qpid
 dnl **************************************************************
-AC_ARG_ENABLE(qpid,
-  [AS_HELP_STRING([--enable-qpid],
+AC_ARG_WITH(qpid,
+  [AS_HELP_STRING([--with-qpid],
     [enable qpid. [default=no]])],
   [enable_qpid="$enableval"],
   [enable_qpid="no"])
 AC_MSG_CHECKING([whether enable qpid])
-if test "x$enable_qpid" != "xyes"; then
-  enable_qpid="no"
+if test "x$with_qpid" != "xyes"; then
+  with_qpid="no"
 fi
-AC_MSG_RESULT($enable_qpid)
+AC_MSG_RESULT($with_qpid)
 
-if test "$enable_qpid" = "yes"; then
+if test "$with_qpid" = "yes"; then
   dnl **************************************************************
   dnl Check for Apache Qpid
   dnl **************************************************************
@@ -174,7 +174,7 @@ if test "$enable_qpid" = "yes"; then
 
   AC_DEFINE(WITH_QPID, [1], [Define to 1 if qpid is enabled.])
 fi
-AM_CONDITIONAL(WITH_QPID, test "$enable_qpid" = "yes")
+AM_CONDITIONAL(WITH_QPID, test "$with_qpid" = "yes")
 
 AC_LANG_POP([C++])
 
