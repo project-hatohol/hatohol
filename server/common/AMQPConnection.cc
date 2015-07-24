@@ -18,6 +18,7 @@
  */
 
 #include "AMQPConnection.h"
+#include <string.h>
 
 using namespace std;
 using namespace mlpl;
@@ -29,6 +30,10 @@ public:
 	amqp_connection_state_t m_connection;
 	bool m_isConsumerQueueDeclared;
 	bool m_isPublisherQueueDeclared;
+	const AMQPConnectionInfo m_info;
+	amqp_socket_t *m_socket;
+	bool m_socketOpened;
+	amqp_channel_t m_channel;
 
 	Impl(const AMQPConnectionInfo &info)
 	: m_connection(NULL),
@@ -154,6 +159,7 @@ public:
 				amqp_get_rpc_reply(m_connection);
 			if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
 				logErrorResponse("declare queue", reply);
+				disposeConnection();
 				return false;
 			}
 		}
@@ -290,12 +296,6 @@ public:
 		return m_info;
 	}
 
-protected:
-	const AMQPConnectionInfo m_info;
-	amqp_socket_t *m_socket;
-	bool m_socketOpened;
-	amqp_channel_t m_channel;
-
 	const char *getScheme(void)
 	{
 		if (m_info.useTLS()) {
@@ -363,6 +363,10 @@ protected:
 			 context,
 			 status,
 			 amqp_error_string2(status));
+		if (status == AMQP_STATUS_SOCKET_ERROR ||
+		    status == AMQP_STATUS_TCP_ERROR) {
+			MLPL_ERR("errno: %d: %s\n", errno, strerror(errno));
+		}
 	}
 
 	bool createTLSSocket(void)
@@ -593,6 +597,7 @@ bool AMQPConnection::startConsuming(void)
 			amqp_get_rpc_reply(getConnection());
 		if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
 			logErrorResponse("start consuming", reply);
+			disposeConnection();
 			return false;
 		}
 	}
@@ -618,7 +623,9 @@ bool AMQPConnection::consume(AMQPMessage &message)
 						      &envelope,
 						      &timeout,
 						      flags);
-	if (reply.reply_type == AMQP_RESPONSE_NORMAL) {
+	switch (reply.reply_type) {
+	case AMQP_RESPONSE_NORMAL:
+	{
 		const amqp_bytes_t *contentType =
 		  &(envelope.message.properties.content_type);
 		const amqp_bytes_t *body = &(envelope.message.body);
@@ -628,11 +635,8 @@ bool AMQPConnection::consume(AMQPMessage &message)
 		message.body.assign(static_cast<char*>(body->bytes),
 				    static_cast<int>(body->len));
 		amqp_destroy_envelope(&envelope);
-	}
-
-	switch (reply.reply_type) {
-	case AMQP_RESPONSE_NORMAL:
 		break;
+	}
 	case AMQP_RESPONSE_LIBRARY_EXCEPTION:
 		if (reply.library_error != AMQP_STATUS_TIMEOUT) {
 			logErrorResponse("consume message", reply);
@@ -679,14 +683,13 @@ bool AMQPConnection::publish(const AMQPMessage &message)
 				      no_immediate,
 				      &props,
 				      amqp_bytes_malloc_dup(body_bytes));
+
 	if (response != AMQP_STATUS_OK) {
-		const amqp_rpc_reply_t reply =
-			amqp_get_rpc_reply(getConnection());
-		if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
-			logErrorResponse("publish a message", reply);
-			return false;
-		}
+		m_impl->logErrorResponse("publish a message", response);
+		m_impl->disposeConnection();
+		return false;
 	}
+
 	return true;
 }
 
@@ -716,6 +719,7 @@ bool AMQPConnection::purgeQueue(const string queueName)
 			amqp_get_rpc_reply(getConnection());
 		if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
 			logErrorResponse("purge", reply);
+			disposeConnection();
 			return false;
 		}
 	}
@@ -752,6 +756,7 @@ bool AMQPConnection::deleteQueue(const string queueName)
 			amqp_get_rpc_reply(getConnection());
 		if (reply.reply_type != AMQP_RESPONSE_NORMAL) {
 			logErrorResponse("purge", reply);
+			disposeConnection();
 			return false;
 		}
 	}
