@@ -82,12 +82,12 @@ testHatohol_la_SOURCES = \
 	testArmStatus.cc \
 	testUsedCountable.cc \
 	testUnifiedDataStore.cc testMain.cc \
-	testZabbixAPI.cc \
-	testHatoholArmPluginZabbix.cc
+	testZabbixAPI.cc
 
 if USE_HAP1
 testHatohol_la_SOURCES += \
 	testHatoholArmPluginInterface.cc testHatoholArmPluginGate.cc \
+	testHatoholArmPluginZabbix.cc \
 	testHatoholArmPluginBase.cc \
 	testHapProcess.cc testHapProcessStandard.cc testHapProcessZabbixAPI.cc \
 	testHapProcessCeilometer.cc
