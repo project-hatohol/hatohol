@@ -121,7 +121,7 @@ var EventsView = function(userProfile, baseElem) {
       "serverId", "hostgroupId", "hostId",
       "limit", "offset", "limitOfUnifiedId",
       "sortType", "sortOrder",
-      "minimumSeverity", "status", "triggerId",
+      "type", "minimumSeverity", "status", "triggerId",
     ];
     var i, allParams = deparam(), query = {};
     for (i = 0; i < knownKeys.length; i++) {
@@ -141,7 +141,7 @@ var EventsView = function(userProfile, baseElem) {
 
     var query = $.extend({}, self.baseQuery, {
       minimumSeverity:  $("#select-severity").val(),
-      status:           $("#select-status").val(),
+      type:             $("#select-status").val(),
       offset:           self.baseQuery.limit * self.currentPage,
       limitOfUnifiedId: self.limitOfUnifiedId,
     });
