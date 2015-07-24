@@ -39,8 +39,10 @@
 #include "DBTablesConfig.h"
 #include "SessionManager.h"
 #include "ThreadLocalDBCache.h"
+#ifdef USE_HAP1
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
+#endif
 #include "RestResourceAction.h"
 #include "RestResourceHost.h"
 #include "RestResourceIncidentTracker.h"

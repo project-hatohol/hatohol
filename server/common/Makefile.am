@@ -6,7 +6,6 @@ libhatohol_common_la_SOURCES = \
 	DataStoreException.cc DataStoreException.h \
 	EndianConverter.h \
 	HatoholThreadBase.cc HatoholThreadBase.h \
-	HatoholArmPluginInterface.cc HatoholArmPluginInterface.h \
 	HatoholException.cc HatoholException.h \
 	HatoholError.cc HatoholError.h \
 	ItemData.cc ItemData.h \
@@ -30,6 +29,11 @@ libhatohol_common_la_SOURCES = \
 	Utils.cc Utils.h \
 	UsedCountablePtr.cc UsedCountablePtr.h \
 	ZabbixAPI.cc ZabbixAPI.h
+
+if USE_HAP1
+libhatohol_common_la_SOURCES += \
+	HatoholArmPluginInterface.cc HatoholArmPluginInterface.h
+endif
 
 if HAVE_LIBRABBITMQ
 libhatohol_common_la_SOURCES += \

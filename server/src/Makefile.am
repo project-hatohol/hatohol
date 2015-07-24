@@ -48,7 +48,6 @@ libhatohol_la_SOURCES = \
 	FaceRestPrivate.h \
 	Hatohol.cc Hatohol.h \
 	HostResourceQueryOption.cc HostResourceQueryOption.h \
-	HatoholArmPluginGate.cc HatoholArmPluginGate.h \
 	HatoholServer.cc \
 	HatoholDBUtils.cc HatoholDBUtils.h \
 	HostInfoCache.cc HostInfoCache.h \
@@ -74,6 +73,11 @@ libhatohol_la_SOURCES = \
 	SQLUtils.cc SQLUtils.h \
 	TriggerFetchWorker.cc TriggerFetchWorker.h \
 	UnifiedDataStore.cc UnifiedDataStore.h
+
+if USE_HAP1
+libhatohol_la_SOURCES += \
+	HatoholArmPluginGate.cc HatoholArmPluginGate.h
+endif
 
 if HAVE_LIBRABBITMQ
 libhatohol_la_SOURCES += \
