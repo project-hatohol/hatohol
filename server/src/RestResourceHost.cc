@@ -214,6 +214,14 @@ HatoholError RestResourceHost::parseEventParameter(EventsQueryOption &option,
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 
+	// event type
+	EventType type = EVENT_TYPE_ALL;
+	err = getParam<EventType>(query, "type",
+				  "%d", type);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setType(type);
+
 	// minimum severity
 	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
 	err = getParam<TriggerSeverityType>(query, "minimumSeverity",
