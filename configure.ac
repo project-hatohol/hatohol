@@ -150,7 +150,7 @@ dnl **************************************************************
 AC_ARG_WITH(qpid,
   [AS_HELP_STRING([--with-qpid],
     [with qpid. [default=no]])],
-  [with_qpid="$enableval"],
+  [with_qpid="$withval"],
   [with_qpid="no"])
 AC_MSG_CHECKING([whether with qpid])
 if test "x$with_qpid" != "xyes"; then
