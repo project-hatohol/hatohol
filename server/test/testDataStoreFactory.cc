@@ -25,7 +25,9 @@
 #include "DataStoreFake.h"
 #include "DataStoreZabbix.h"
 #include "DataStoreNagios.h"
+#ifdef USE_HAP1
 #include "HatoholArmPluginGate.h"
+#endif
 #include "Helpers.h"
 #include "Reaper.h"
 #include "DBTablesTest.h"
@@ -82,10 +84,12 @@ void data_create(void)
 	               "type", G_TYPE_INT, MONITORING_SYSTEM_NAGIOS,
 	               "type-name", G_TYPE_STRING,
 	                 typeid(DataStoreNagios).name(), NULL);
+#ifdef USE_HAP1
 	gcut_add_datum("MONITORING_SYSTEM_HAPI_ZABBIX",
 	               "type", G_TYPE_INT, MONITORING_SYSTEM_HAPI_ZABBIX,
 	               "type-name", G_TYPE_STRING,
 	                 typeid(HatoholArmPluginGate).name(), NULL);
+#endif
 }
 
 void test_create(gconstpointer data)
