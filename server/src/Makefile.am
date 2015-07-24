@@ -74,7 +74,7 @@ libhatohol_la_SOURCES = \
 	TriggerFetchWorker.cc TriggerFetchWorker.h \
 	UnifiedDataStore.cc UnifiedDataStore.h
 
-if USE_HAP1
+if WITH_QPID
 libhatohol_la_SOURCES += \
 	HatoholArmPluginGate.cc HatoholArmPluginGate.h
 endif

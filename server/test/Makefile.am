@@ -8,7 +8,7 @@ TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = libTest.la testHatohol.la residentTest.la
 noinst_PROGRAMS = ActionTp zabbix-api-response-collector
-if USE_HAP1
+if WITH_QPID
 noinst_PROGRAMS += hapi-test-plugin
 endif
 endif
@@ -84,7 +84,7 @@ testHatohol_la_SOURCES = \
 	testUnifiedDataStore.cc testMain.cc \
 	testZabbixAPI.cc
 
-if USE_HAP1
+if WITH_QPID
 testHatohol_la_SOURCES += \
 	testHatoholArmPluginInterface.cc testHatoholArmPluginGate.cc \
 	testHatoholArmPluginZabbix.cc \
@@ -103,7 +103,7 @@ endif
 
 testHatohol_la_LDFLAGS = \
 	$(AM_LDFLAGS) $(LIBS)
-if USE_HAP1
+if WITH_QPID
 testHatohol_la_LDFLAGS += $(top_builddir)/server/hap/libhapprocess.la
 endif
 testHatohol_la_LIBADD = libTest.la
@@ -128,7 +128,7 @@ libTest_la_SOURCES = \
 
 libTest_la_LDFLAGS =
 
-if USE_HAP1
+if WITH_QPID
 libTest_la_SOURCES += \
 	HatoholArmPluginInterfaceTest.cc HatoholArmPluginInterfaceTest.h \
 	HatoholArmPluginGateTest.cc HatoholArmPluginGateTest.h \
@@ -143,7 +143,7 @@ zabbix_api_response_collector_SOURCES = zabbix-api-response-collector.cc
 zabbix_api_response_collector_LDFLAGS = -lstdc++
 zabbix_api_response_collector_LDADD = $(LIBS)
 
-if USE_HAP1
+if WITH_QPID
 hapi_test_plugin_SOURCES = hapi-test-plugin.cc hapi-test-plugin.h
 hapi_test_plugin_LDFLAGS = $(LIBS) -lqpidmessaging
 endif

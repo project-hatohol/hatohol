@@ -30,7 +30,7 @@ libhatohol_common_la_SOURCES = \
 	UsedCountablePtr.cc UsedCountablePtr.h \
 	ZabbixAPI.cc ZabbixAPI.h
 
-if USE_HAP1
+if WITH_QPID
 libhatohol_common_la_SOURCES += \
 	HatoholArmPluginInterface.cc HatoholArmPluginInterface.h
 endif
