@@ -1,1 +1,4 @@
-SUBDIRS = mlpl common src hap hap2 tools test data benchmark
+SUBDIRS = mlpl common src hap2 tools test data benchmark
+if USE_HAP1
+SUBDIRS += hap
+endif
