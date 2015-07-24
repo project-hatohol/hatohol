@@ -52,6 +52,8 @@ public:
 	SortType getSortType(void) const;
 	SortDirection getSortDirection(void) const;
 
+	void setType(const EventType &type);
+	EventType getType(void) const;
 	void setMinimumSeverity(const TriggerSeverityType &severity);
 	TriggerSeverityType getMinimumSeverity(void) const;
 	void setTriggerStatus(const TriggerStatusType &status);
