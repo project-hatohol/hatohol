@@ -39,7 +39,7 @@
 #include "DBTablesConfig.h"
 #include "SessionManager.h"
 #include "ThreadLocalDBCache.h"
-#ifdef USE_HAP1
+#ifdef WITH_QPID
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
 #endif

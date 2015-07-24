@@ -23,7 +23,7 @@
 #include "Helpers.h"
 #include "DBTablesTest.h"
 #include <ThreadLocalDBCache.h>
-#ifdef USE_HAP1
+#ifdef WITH_QPID
 #include <HatoholArmPluginGate.h>
 #endif
 using namespace std;
@@ -2019,7 +2019,7 @@ ArmPluginInfo *getTestArmPluginInfo(void)
 			continue;
 		if (data[i].path[0] == '/')
 			continue;
-#ifdef USE_HAP1
+#ifdef WITH_QPID
 		if (data[i].path == HatoholArmPluginGate::PassivePluginQuasiPath)
 			continue;
 #endif

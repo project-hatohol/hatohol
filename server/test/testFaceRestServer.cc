@@ -25,7 +25,7 @@
 #include "ThreadLocalDBCache.h"
 #include "DBTablesTest.h"
 #include "UnifiedDataStore.h"
-#ifdef USE_HAP1
+#ifdef WITH_QPID
 #include "HatoholArmPluginInterface.h"
 #endif
 #include "FaceRestTestUtils.h"
@@ -227,7 +227,7 @@ void test_addServer(void)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
-#ifdef USE_HAP1
+#ifdef WITH_QPID
 void test_addServerWithHapiParams(void)
 {
 	MonitoringServerInfo expected;
@@ -369,7 +369,7 @@ void test_updateServer(gconstpointer data)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
-#ifdef USE_HAP1
+#ifdef WITH_QPID
 void test_updateServerWithArmPlugin(void)
 {
 	startFaceRest();
