@@ -160,6 +160,25 @@ AC_CHECK_HEADERS(qpid/types/Exception.h,
 AC_LANG_POP([C++])
 
 dnl **************************************************************
+dnl enable/disable for HAP1
+dnl **************************************************************
+AC_ARG_ENABLE(hap1,
+  [AS_HELP_STRING([--enable-hap1],
+    [enable hap1. [default=no]])],
+  [enable_hap1="$enableval"],
+  [enable_hap1="no"])
+AC_MSG_CHECKING([whether enable hap1])
+if test "x$enable_hap1" != "xyes"; then
+  enable_hap1="no"
+fi
+AC_MSG_RESULT($enable_hap1)
+
+if test "$enable_hap1" = "yes"; then
+  AC_DEFINE(USE_HAP1, [1], [Define to 1 if hap1 is enabled.])
+fi
+AM_CONDITIONAL(USE_HAP1, test "$enable_hap1" = "yes")
+
+dnl **************************************************************
 dnl Checks for Cutter
 dnl **************************************************************
 CUTTER_REQUIRED=1.2.3
