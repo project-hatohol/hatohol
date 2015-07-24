@@ -23,7 +23,9 @@
 #include "Helpers.h"
 #include "DBTablesTest.h"
 #include <ThreadLocalDBCache.h>
+#ifdef USE_HAP1
 #include <HatoholArmPluginGate.h>
+#endif
 using namespace std;
 using namespace mlpl;
 
@@ -2017,8 +2019,10 @@ ArmPluginInfo *getTestArmPluginInfo(void)
 			continue;
 		if (data[i].path[0] == '/')
 			continue;
+#ifdef USE_HAP1
 		if (data[i].path == HatoholArmPluginGate::PassivePluginQuasiPath)
 			continue;
+#endif
 		data[i].path = cut_build_path(getBaseDir().c_str(),
 					      data[i].path.c_str(),
 					      NULL);
