@@ -145,21 +145,6 @@ AC_SUBST(MLPL_CFLAGS)
 AC_SUBST(MLPL_LIBS)
 
 dnl **************************************************************
-dnl Check for Apache Qpid
-dnl **************************************************************
-dnl The Qpid's functions are C++ mangled (such as
-dnl _ZN4qpid9messaging10Connection4openEv) in the library. So enumeration of
-dnl them degrades portability. We just pass '_init' in the following macro.
-AC_CHECK_LIB(qpidmessaging, _init, [],
-             [AC_MSG_ERROR(libqpidmessage was not found.)])
-AC_CHECK_HEADERS(qpid/ImportExport.h,
-  [], [AC_MSG_ERROR([qpid/ImportExport.h was not found. The file is contained in libqpidcommon2-dev on Ubuntu.])])
-AC_CHECK_HEADERS(qpid/types/Exception.h,
-  [], [AC_MSG_ERROR([qpid/types/Exception.h was not found. The file is contained in libqpidtypes1-dev on Ubuntu.])])
-
-AC_LANG_POP([C++])
-
-dnl **************************************************************
 dnl enable/disable for HAP1
 dnl **************************************************************
 AC_ARG_ENABLE(hap1,
@@ -174,9 +159,24 @@ fi
 AC_MSG_RESULT($enable_hap1)
 
 if test "$enable_hap1" = "yes"; then
+  dnl **************************************************************
+  dnl Check for Apache Qpid
+  dnl **************************************************************
+  dnl The Qpid's functions are C++ mangled (such as
+  dnl _ZN4qpid9messaging10Connection4openEv) in the library. So enumeration of
+  dnl them degrades portability. We just pass '_init' in the following macro.
+  AC_CHECK_LIB(qpidmessaging, _init, [],
+              [AC_MSG_ERROR(libqpidmessage was not found.)])
+  AC_CHECK_HEADERS(qpid/ImportExport.h,
+    [], [AC_MSG_ERROR([qpid/ImportExport.h was not found. The file is contained in libqpidcommon2-dev on Ubuntu.])])
+  AC_CHECK_HEADERS(qpid/types/Exception.h,
+    [], [AC_MSG_ERROR([qpid/types/Exception.h was not found. The file is contained in libqpidtypes1-dev on Ubuntu.])])
+
   AC_DEFINE(USE_HAP1, [1], [Define to 1 if hap1 is enabled.])
 fi
 AM_CONDITIONAL(USE_HAP1, test "$enable_hap1" = "yes")
+
+AC_LANG_POP([C++])
 
 dnl **************************************************************
 dnl Checks for Cutter
