@@ -20,8 +20,10 @@
 #include "RestResourceServer.h"
 #include "ThreadLocalDBCache.h"
 #include "UnifiedDataStore.h"
+#ifdef WITH_QPID
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
+#endif
 #include <JSONParser.h>
 
 using namespace std;
@@ -115,7 +117,11 @@ static bool isPassiveMode(const ArmPluginInfo &info)
 	if (info.type == MONITORING_SYSTEM_HAPI2)
 		return path.empty();
 	else
+#ifdef WITH_QPID
 		return path == HatoholArmPluginGate::PassivePluginQuasiPath;
+#else
+		return path.empty();
+#endif
 }
 
 static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
@@ -481,8 +487,10 @@ static HatoholError parseServerParameter(
 	if (value) {
 		passiveMode = (string(value) == "true");
 		if (passiveMode && svInfo.type != MONITORING_SYSTEM_HAPI2) {
+#ifdef WITH_QPID
 			armPluginInfo.path =
 			  HatoholArmPluginGate::PassivePluginQuasiPath;
+#endif
 		}
 	}
 

@@ -25,7 +25,9 @@
 #include "ThreadLocalDBCache.h"
 #include "DBTablesTest.h"
 #include "UnifiedDataStore.h"
+#ifdef WITH_QPID
 #include "HatoholArmPluginInterface.h"
+#endif
 #include "FaceRestTestUtils.h"
 using namespace std;
 using namespace mlpl;
@@ -225,6 +227,7 @@ void test_addServer(void)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
+#ifdef WITH_QPID
 void test_addServerWithHapiParams(void)
 {
 	MonitoringServerInfo expected;
@@ -250,6 +253,7 @@ void test_addServerWithHapiParams(void)
 	string expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
+#endif
 
 void test_addServerHapiJSON(void)
 {
@@ -365,6 +369,7 @@ void test_updateServer(gconstpointer data)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
+#ifdef WITH_QPID
 void test_updateServerWithArmPlugin(void)
 {
 	startFaceRest();
@@ -417,6 +422,7 @@ void test_updateServerWithArmPlugin(void)
 	expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
+#endif
 
 void test_deleteServer(void)
 {

@@ -145,17 +145,36 @@ AC_SUBST(MLPL_CFLAGS)
 AC_SUBST(MLPL_LIBS)
 
 dnl **************************************************************
-dnl Check for Apache Qpid
+dnl enable/disable for Qpid
 dnl **************************************************************
-dnl The Qpid's functions are C++ mangled (such as
-dnl _ZN4qpid9messaging10Connection4openEv) in the library. So enumeration of
-dnl them degrades portability. We just pass '_init' in the following macro.
-AC_CHECK_LIB(qpidmessaging, _init, [],
-             [AC_MSG_ERROR(libqpidmessage was not found.)])
-AC_CHECK_HEADERS(qpid/ImportExport.h,
-  [], [AC_MSG_ERROR([qpid/ImportExport.h was not found. The file is contained in libqpidcommon2-dev on Ubuntu.])])
-AC_CHECK_HEADERS(qpid/types/Exception.h,
-  [], [AC_MSG_ERROR([qpid/types/Exception.h was not found. The file is contained in libqpidtypes1-dev on Ubuntu.])])
+AC_ARG_WITH(qpid,
+  [AS_HELP_STRING([--with-qpid],
+    [with qpid. [default=no]])],
+  [with_qpid="$withval"],
+  [with_qpid="no"])
+AC_MSG_CHECKING([whether with qpid])
+if test "x$with_qpid" != "xyes"; then
+  with_qpid="no"
+fi
+AC_MSG_RESULT($with_qpid)
+
+if test "$with_qpid" = "yes"; then
+  dnl **************************************************************
+  dnl Check for Apache Qpid
+  dnl **************************************************************
+  dnl The Qpid's functions are C++ mangled (such as
+  dnl _ZN4qpid9messaging10Connection4openEv) in the library. So enumeration of
+  dnl them degrades portability. We just pass '_init' in the following macro.
+  AC_CHECK_LIB(qpidmessaging, _init, [],
+              [AC_MSG_ERROR(libqpidmessage was not found.)])
+  AC_CHECK_HEADERS(qpid/ImportExport.h,
+    [], [AC_MSG_ERROR([qpid/ImportExport.h was not found. The file is contained in libqpidcommon2-dev on Ubuntu.])])
+  AC_CHECK_HEADERS(qpid/types/Exception.h,
+    [], [AC_MSG_ERROR([qpid/types/Exception.h was not found. The file is contained in libqpidtypes1-dev on Ubuntu.])])
+
+  AC_DEFINE(WITH_QPID, [1], [Define to 1 if qpid is enabled.])
+fi
+AM_CONDITIONAL(WITH_QPID, test "$with_qpid" = "yes")
 
 AC_LANG_POP([C++])
 
