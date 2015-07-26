@@ -826,6 +826,7 @@ struct EventsQueryOption::Impl {
 	uint64_t limitOfUnifiedId;
 	SortType sortType;
 	SortDirection sortDirection;
+	EventType type;
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
 	TriggerIdType triggerId;
@@ -834,6 +835,7 @@ struct EventsQueryOption::Impl {
 	: limitOfUnifiedId(NO_LIMIT),
 	  sortType(SORT_UNIFIED_ID),
 	  sortDirection(SORT_DONT_CARE),
+	  type(EVENT_TYPE_ALL),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
 	  triggerStatus(TRIGGER_STATUS_ALL),
 	  triggerId(ALL_TRIGGERS)
@@ -878,6 +880,15 @@ string EventsQueryOption::getCondition(void) const
 			"%s<=%" PRIu64,
 			getColumnName(IDX_EVENTS_UNIFIED_ID).c_str(),
 			m_impl->limitOfUnifiedId);
+	}
+
+	if (m_impl->type != EVENT_TYPE_ALL) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s=%d",
+			getColumnName(IDX_EVENTS_EVENT_TYPE).c_str(),
+			m_impl->type);
 	}
 
 	if (m_impl->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
@@ -981,6 +992,16 @@ void EventsQueryOption::setMinimumSeverity(const TriggerSeverityType &severity)
 TriggerSeverityType EventsQueryOption::getMinimumSeverity(void) const
 {
 	return m_impl->minSeverity;
+}
+
+void EventsQueryOption::setType(const EventType &type)
+{
+	m_impl->type = type;
+}
+
+EventType EventsQueryOption::getType(void) const
+{
+	return m_impl->type;
 }
 
 void EventsQueryOption::setTriggerStatus(const TriggerStatusType &status)

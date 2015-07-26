@@ -358,6 +358,37 @@ void test_eventQueryOptionWithSortTypeTime(void)
 	cppcut_assert_equal(expected, option.getOrderBy());
 }
 
+void data_eventQueryOptionDefaultEventType(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionDefaultEentType(gconstpointer data)
+{
+	EventsQueryOption option(USER_ID_SYSTEM);
+	string expected =  "";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(EVENT_TYPE_ALL,
+			    option.getType());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void data_eventQueryOptionWithEventType(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionWithEventType(gconstpointer data)
+{
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setType(EVENT_TYPE_BAD);
+	string expected = "event_value=1";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(EVENT_TYPE_BAD,
+			    option.getType());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
 void test_eventQueryOptionDefaultMinimumSeverity(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
