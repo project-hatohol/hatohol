@@ -601,10 +601,6 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 	  HAPI2_PUT_ARM_INFO,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo);
-	registerProcedureHandler(
-	  HAPI2_UPDATE_MONITORING_SERVER_INFO,
-	  (ProcedureHandler)
-	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateMonitoringServerInfo);
 
 	if (autoStart)
 		start();
