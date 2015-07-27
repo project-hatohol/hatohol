@@ -616,7 +616,7 @@ void HatoholArmPluginGateHAPI2::start(void)
 void HatoholArmPluginGateHAPI2::stop(void)
 {
 	if (isMonitoringServerInfoChanged()) {
-		string message = procedureHandlerUpdateMonitoringServerInfo();
+		string message = updateMonitoringServerInfoNotification();
 		send(message);
 	}
 	m_impl->stopPlugin();
@@ -1903,7 +1903,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 	return builder.generate();
 }
 
-string HatoholArmPluginGateHAPI2::procedureHandlerUpdateMonitoringServerInfo()
+string HatoholArmPluginGateHAPI2::updateMonitoringServerInfoNotification()
 {
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	JSONBuilder builder;
