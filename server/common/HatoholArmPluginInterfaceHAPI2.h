@@ -90,6 +90,8 @@ const HAPI2ProcedureName HAPI2_FETCH_TRIGGERS
   = "fetchTriggers";
 const HAPI2ProcedureName HAPI2_FETCH_EVENTS
   = "fetchEvents";
+const HAPI2ProcedureName HAPI2_UPDATE_MONITORING_SERVER_INFO
+  = "updateMonitoringServerInfo";
 
 enum ProcedureImplementType {
 	PROCEDURE_SERVER,
