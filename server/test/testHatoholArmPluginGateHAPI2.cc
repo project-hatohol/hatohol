@@ -1328,7 +1328,8 @@ void test_callExchangeProfile(void)
 		"\"putTriggers\","
 		"\"putEvents\","
 		"\"putHostParents\","
-		"\"putArmInfo\""
+		"\"putArmInfo\","
+		"\"updateMonitoringServerInfo\""
 		"\\]\\},"
 		"\"id\":\\d+"
 		"\\}$";
@@ -1365,7 +1366,8 @@ void test_exchangeProfile(void)
 		  "\"getLastInfo\",\"putItems\"," "\"putHistory\","
 		  "\"putHosts\",\"putHostGroups\","
 		  "\"putHostGroupMembership\",\"putTriggers\","
-		  "\"putEvents\",\"putHostParents\",\"putArmInfo\""
+		  "\"putEvents\",\"putHostParents\",\"putArmInfo\","
+		  "\"updateMonitoringServerInfo\""
 		"]},\"id\":1}";
 	string actual = popServerMessage();
 	cppcut_assert_equal(expected, actual);
