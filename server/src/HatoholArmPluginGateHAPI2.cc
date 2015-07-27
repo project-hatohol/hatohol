@@ -601,6 +601,10 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 	  HAPI2_PUT_ARM_INFO,
 	  (ProcedureHandler)
 	    &HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo);
+	registerProcedureHandler(
+	  HAPI2_UPDATE_MONITORING_SERVER_INFO,
+	  (ProcedureHandler)
+	    &HatoholArmPluginGateHAPI2::procedureHandlerUpdateMonitoringServerInfo);
 
 	if (autoStart)
 		start();
@@ -615,6 +619,7 @@ void HatoholArmPluginGateHAPI2::start(void)
 
 void HatoholArmPluginGateHAPI2::stop(void)
 {
+	HatoholArmPluginGateHAPI2::procedureHandlerUpdateMonitoringServerInfo();
 	m_impl->stopPlugin();
 	HatoholArmPluginInterfaceHAPI2::stop();
 }
@@ -1895,6 +1900,28 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 	builder.add("jsonrpc", "2.0");
 	builder.add("result", result);
 	setResponseId(parser, builder);
+	builder.endObject();
+	return builder.generate();
+}
+
+string HatoholArmPluginGateHAPI2::procedureHandlerUpdateMonitoringServerInfo()
+{
+	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
+	JSONBuilder builder;
+	builder.startObject();
+	builder.add("jsonrpc", "2.0");
+	builder.add("method", HAPI2_UPDATE_MONITORING_SERVER_INFO);
+	builder.startObject("params");
+	builder.add("serverId", serverInfo.id);
+	builder.add("url", serverInfo.baseURL);
+	builder.add("type", m_impl->m_pluginInfo.uuid);
+	builder.add("nickName", serverInfo.nickname);
+	builder.add("userName", serverInfo.userName);
+	builder.add("password", serverInfo.password);
+	builder.add("pollingIntervalSec", serverInfo.pollingIntervalSec);
+	builder.add("retryIntervalSec", serverInfo.retryIntervalSec);
+	builder.add("extendedInfo", serverInfo.extendedInfo);
+	builder.endObject(); // params
 	builder.endObject();
 	return builder.generate();
 }
