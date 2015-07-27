@@ -251,7 +251,8 @@ void test_procedureHandlerExchangeProfile(void)
 		  "[\"exchangeProfile\",\"getMonitoringServerInfo\",\"getLastInfo\","
 		  "\"putItems\",\"putHistory\",\"putHosts\",\"putHostGroups\","
 		  "\"putHostGroupMembership\",\"putTriggers\","
-		  "\"putEvents\",\"putHostParents\",\"putArmInfo\""
+		  "\"putEvents\",\"putHostParents\",\"putArmInfo\","
+		  "\"updateMonitoringServerInfo\""
 		"]},\"id\":123}";
 	cppcut_assert_equal(expected, actual);
 }
