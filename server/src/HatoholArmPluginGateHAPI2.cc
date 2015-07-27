@@ -620,8 +620,7 @@ void HatoholArmPluginGateHAPI2::start(void)
 void HatoholArmPluginGateHAPI2::stop(void)
 {
 	if (isMonitoringServerInfoChanged()) {
-		string message =
-		  HatoholArmPluginGateHAPI2::procedureHandlerUpdateMonitoringServerInfo();
+		string message = procedureHandlerUpdateMonitoringServerInfo();
 		send(message);
 	}
 	m_impl->stopPlugin();
