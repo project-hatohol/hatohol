@@ -246,6 +246,11 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 			m_impl.m_hapi2.setEstablished(true);
 		}
+
+		virtual void onTimeout(void) override
+		{
+			MLPL_WARN("exchangeProfile has been timed out.\n");
+		}
 	};
 
 	void callExchangeProfile(void) {
@@ -345,6 +350,16 @@ struct HatoholArmPluginGateHAPI2::Impl
 			return result == "SUCCESS";
 		}
 
+		void flush(void) {
+			if (m_methodName == HAPI2_FETCH_HISTORY) {
+				HistoryInfoVect historyInfoVect;
+				m_impl.runFetchHistoryCallback(m_fetchId,
+							       historyInfoVect);
+			} else {
+				m_impl.runFetchCallback(m_fetchId);
+			}
+		}
+
 		virtual void onGotResponse(JSONParser &parser) override
 		{
 			if (isSucceeded(parser)) {
@@ -356,15 +371,14 @@ struct HatoholArmPluginGateHAPI2::Impl
 			// The fetch* procedure has not been accepted by the
 			// plugin. The closure for it should be expired
 			// immediately.
-			if (m_methodName == HAPI2_FETCH_HISTORY) {
-				HistoryInfoVect historyInfoVect;
-				m_impl.runFetchHistoryCallback(m_fetchId,
-							       historyInfoVect);
-			} else {
-				m_impl.runFetchCallback(m_fetchId);
-			}
-
+			flush();
 			MLPL_WARN("Failed to call %s\n", m_methodName.c_str());
+		}
+
+		virtual void onTimeout(void) override
+		{
+			flush();
+			MLPL_WARN("%s has been timed out.\n", m_methodName.c_str());
 		}
 	};
 
