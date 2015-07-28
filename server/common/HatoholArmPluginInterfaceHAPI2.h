@@ -149,6 +149,7 @@ public:
 	class ProcedureCallback : public UsedCountable {
 	public:
 		virtual void onGotResponse(JSONParser &parser) = 0;
+		virtual void onTimeout(void) {};
 	};
 	typedef UsedCountablePtr<ProcedureCallback> ProcedureCallbackPtr;
 
