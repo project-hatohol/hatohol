@@ -149,12 +149,6 @@ function getServerName(server, serverId) {
   return server["name"];
 }
 
-function getNickName(server, serverId) {
-  if (!server || !server["nickname"])
-    return gettext("Unknown") + " (ID: " + serverId + ")";
-  return server["nickname"];
-}
-
 function getHostgroupName(server, hostgroupId) {
   var getNamelessHostgroupName = function(hostgroupId) {
     return gettext("Unknown") + " (ID: " + hostgroupId + ")";
