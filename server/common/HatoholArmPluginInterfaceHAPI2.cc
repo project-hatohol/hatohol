@@ -409,13 +409,13 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 		AutoMutex lock(&m_procedureMapMutex);
 
-		auto timeoutIt = m_procedureCallContextMap.find(id);
-		if (timeoutIt != m_procedureCallContextMap.end()) {
-			ProcedureCallContext *context = timeoutIt->second;
+		auto it = m_procedureCallContextMap.find(id);
+		if (it != m_procedureCallContextMap.end()) {
+			ProcedureCallContext *context = it->second;
 			if (context->m_callback.hasData())
 				context->m_callback->onGotResponse(parser);
 			g_source_remove(context->m_timeoutId);
-			m_procedureCallContextMap.erase(timeoutIt);
+			m_procedureCallContextMap.erase(it);
 			delete context;
 			found = true;
 		}
