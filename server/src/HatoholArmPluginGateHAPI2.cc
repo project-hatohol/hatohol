@@ -259,7 +259,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		builder.add("name", PACKAGE_NAME);
 		builder.startArray("procedures");
 		for (auto procedureDef : m_hapi2.getProcedureDefList()) {
-			if (procedureDef.type == PROCEDURE_HAP)
+			if (procedureDef.owner == HAP)
 				continue;
 			builder.add(procedureDef.name);
 		}
@@ -273,6 +273,38 @@ struct HatoholArmPluginGateHAPI2::Impl
 		  new Impl::ExchangeProfileCallback(*this);
 		ProcedureCallbackPtr callbackPtr(callback, false);
 		m_hapi2.send(builder.generate(), id, callback);
+	}
+
+	void callUpdateMonitoringServerInfoNotification(
+	  const MonitoringServerInfo monitoringServerInfo)
+	{
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("method", HAPI2_UPDATE_MONITORING_SERVER_INFO);
+		builder.startObject("params");
+		builder.add("serverId", monitoringServerInfo.id);
+		builder.add("url", monitoringServerInfo.baseURL);
+		builder.add("type", m_pluginInfo.uuid);
+		builder.add("nickName", monitoringServerInfo.nickname);
+		builder.add("userName", monitoringServerInfo.userName);
+		builder.add("password", monitoringServerInfo.password);
+		builder.add("pollingIntervalSec", monitoringServerInfo.pollingIntervalSec);
+		builder.add("retryIntervalSec", monitoringServerInfo.retryIntervalSec);
+		builder.add("extendedInfo", monitoringServerInfo.extendedInfo);
+		builder.endObject(); // params
+		builder.endObject();
+		m_hapi2.send(builder.generate());
+	}
+
+	void callUpdateMonitoringServerInfoNotificationIfNeeded(void)
+	{
+		MonitoringServerInfo monitoringServer;
+		HatoholError err = getMonitoringServerInfo(monitoringServer);
+		if (err == HTERR_OK &&
+		    isMonitoringServerInfoChanged(monitoringServer)) {
+			callUpdateMonitoringServerInfoNotification(monitoringServer);
+		}
 	}
 
 	void queueFetchCallback(const string &fetchId, Closure0 *closure)
@@ -543,6 +575,63 @@ struct HatoholArmPluginGateHAPI2::Impl
 		size_t typeIdx = static_cast<size_t>(type);
 		m_utils.updateTriggerStatus(typeIdx, status);
 	}
+
+	HatoholError getMonitoringServerInfo(
+	  MonitoringServerInfo &monitoringServerInfo)
+	{
+		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+		ServerQueryOption option(USER_ID_SYSTEM);
+		option.setTargetServerId(m_serverInfo.id);
+		MonitoringServerInfoList monitoringServers;
+		dataStore->getTargetServers(monitoringServers, option);
+
+		if (monitoringServers.size() == 0) {
+			MLPL_ERR("Target monitoring server is not found.\n");
+			return HTERR_UNKNOWN_REASON;
+		} else if (monitoringServers.size() > 1) {
+			MLPL_ERR("Multiple monitoring servers is tied up.\n");
+			return HTERR_UNKNOWN_REASON;
+		}
+		monitoringServerInfo = *monitoringServers.begin();
+		return HTERR_OK;
+	}
+
+	bool isMonitoringServerInfoChanged(
+	  const MonitoringServerInfo monitoringServer)
+	{
+		const MonitoringServerInfo &serverInfo = m_serverInfo;
+
+		if (serverInfo.id != monitoringServer.id)
+			return true;
+		if (serverInfo.type != monitoringServer.type)
+			return true;
+		if (serverInfo.hostName != monitoringServer.hostName)
+			return true;
+		if (serverInfo.ipAddress != monitoringServer.ipAddress)
+			return true;
+		if (serverInfo.nickname != monitoringServer.nickname)
+			return true;
+		if (serverInfo.port != monitoringServer.port)
+			return true;
+		if (serverInfo.pollingIntervalSec !=
+		    monitoringServer.pollingIntervalSec)
+			return true;
+		if (serverInfo.retryIntervalSec !=
+		    monitoringServer.retryIntervalSec)
+			return true;
+		if (serverInfo.userName != monitoringServer.userName)
+			return true;
+		if (serverInfo.password != monitoringServer.password)
+			return true;
+		if (serverInfo.dbName != monitoringServer.dbName)
+			return true;
+		if (serverInfo.baseURL != monitoringServer.baseURL)
+			return true;
+		if (serverInfo.extendedInfo != monitoringServer.extendedInfo)
+			return true;
+
+		return false;
+	}
 };
 
 // ---------------------------------------------------------------------------
@@ -615,6 +704,7 @@ void HatoholArmPluginGateHAPI2::start(void)
 
 void HatoholArmPluginGateHAPI2::stop(void)
 {
+	m_impl->callUpdateMonitoringServerInfoNotificationIfNeeded();
 	m_impl->stopPlugin();
 	HatoholArmPluginInterfaceHAPI2::stop();
 }
@@ -869,7 +959,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	builder.add("name", PACKAGE_NAME);
 	builder.startArray("procedures");
 	for (auto procedureDef : getProcedureDefList()) {
-		if (procedureDef.type == PROCEDURE_HAP)
+		if (procedureDef.owner == HAP)
 			continue;
 		builder.add(procedureDef.name);
 	}

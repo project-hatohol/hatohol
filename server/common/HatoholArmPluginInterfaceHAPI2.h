@@ -90,26 +90,30 @@ const HAPI2ProcedureName HAPI2_FETCH_TRIGGERS
   = "fetchTriggers";
 const HAPI2ProcedureName HAPI2_FETCH_EVENTS
   = "fetchEvents";
+const HAPI2ProcedureName HAPI2_UPDATE_MONITORING_SERVER_INFO
+  = "updateMonitoringServerInfo";
 
-enum ProcedureImplementType {
-	PROCEDURE_SERVER,
-	PROCEDURE_HAP,
-	PROCEDURE_BOTH
+enum MethodOwner {
+	SERVER,
+	HAP,
+	BOTH
 };
 
-enum ProcedureRequirementLevel {
-	BOTH_MANDATORY,
-	SERVER_MANDATORY,
-	SERVER_OPTIONAL,
-	SERVER_MANDATORY_HAP_OPTIONAL,
-	HAP_MANDATORY,
-	HAP_OPTIONAL
+enum MethodType {
+	PROCEDURE,
+	NOTIFICATION
+};
+
+enum MethodRequirementLevel {
+	MANDATORY,
+	OPTIONAL
 };
 
 struct HAPI2ProcedureDef {
-	ProcedureImplementType type;
+	MethodOwner owner;
+	MethodType type;
 	std::string name;
-	ProcedureRequirementLevel level;
+	MethodRequirementLevel level;
 };
 
 enum class HAPI2PluginCollectType {

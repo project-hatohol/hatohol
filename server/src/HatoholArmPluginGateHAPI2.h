@@ -74,6 +74,8 @@ protected:
 				       const HatoholError &hatoholError);
 	void setPluginConnectStatus(const HAPI2PluginCollectType &type,
 				    const HAPI2PluginErrorCode &errorCode);
+	bool isMonitoringServerInfoChanged(const MonitoringServerInfo monitoringServer);
+	HatoholError getMonitoringServerInfo(MonitoringServerInfo &monitoringServerInfo);
 
 private:
 	std::string procedureHandlerExchangeProfile(JSONParser &parser);
