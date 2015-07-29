@@ -618,10 +618,7 @@ void HatoholArmPluginGateHAPI2::stop(void)
 	MonitoringServerInfo monitoringServer;
 	HatoholError err = getMonitoringServerInfo(monitoringServer);
 	if (err == HTERR_OK && isMonitoringServerInfoChanged(monitoringServer)) {
-		string message =
-		  updateMonitoringServerInfoNotification(monitoringServer);
-		if (!message.empty())
-			send(message);
+		updateMonitoringServerInfoNotification(monitoringServer);
 	}
 	m_impl->stopPlugin();
 	HatoholArmPluginInterfaceHAPI2::stop();
@@ -1907,7 +1904,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 	return builder.generate();
 }
 
-string HatoholArmPluginGateHAPI2::updateMonitoringServerInfoNotification(const MonitoringServerInfo monitoringServerInfo)
+void HatoholArmPluginGateHAPI2::updateMonitoringServerInfoNotification(const MonitoringServerInfo monitoringServerInfo)
 {
 	JSONBuilder builder;
 	builder.startObject();
@@ -1925,7 +1922,7 @@ string HatoholArmPluginGateHAPI2::updateMonitoringServerInfoNotification(const M
 	builder.add("extendedInfo", monitoringServerInfo.extendedInfo);
 	builder.endObject(); // params
 	builder.endObject();
-	return builder.generate();
+	send(builder.generate());
 }
 
 // ---------------------------------------------------------------------------
