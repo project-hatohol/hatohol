@@ -284,7 +284,7 @@ private:
 
 struct HatoholArmPluginInterfaceHAPI2::Impl
 {
-	struct ProcedureTimeout
+	struct ProcedureCallContext
 	{
 		ProcedureCallbackPtr m_callback;
 		Impl *m_impl;
@@ -298,7 +298,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	bool m_established;
 	ProcedureHandlerMap m_procedureHandlerMap;
 	Mutex m_procedureMapMutex;
-	map<string, ProcedureTimeout *> m_procedureTimeoutMap;
+	map<string, ProcedureCallContext *> m_procedureCallContextMap;
 	AMQPConnectionInfo m_connectionInfo;
 	AMQPConsumer *m_consumer;
 	AMQPHAPI2MessageHandler *m_handler;
@@ -318,12 +318,12 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		stop();
 
 		AutoMutex lock(&m_procedureMapMutex);
-		for (auto &pair: m_procedureTimeoutMap) {
-			ProcedureTimeout *timeout = pair.second;
+		for (auto &pair: m_procedureCallContextMap) {
+			ProcedureCallContext *timeout = pair.second;
 			Utils::removeEventSourceIfNeeded(timeout->m_timeoutId);
 			delete timeout;
 		}
-		m_procedureTimeoutMap.clear();
+		m_procedureCallContextMap.clear();
 	}
 
 	void setArmPluginInfo(const ArmPluginInfo &armPluginInfo)
@@ -393,15 +393,15 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		AutoMutex lock(&m_procedureMapMutex);
 
 		// queue timeout
-		ProcedureTimeout *timeout = new ProcedureTimeout();
+		ProcedureCallContext *timeout = new ProcedureCallContext();
 		timeout->m_callback = callback;
 		timeout->m_impl = this;
 		timeout->m_procedureId = id;
 		timeout->m_timeoutId =
 		  Utils::setGLibTimer(PROCEDURE_TIMEOUT_MSEC,
-				      _onProcedureTimeout,
+				      _onProcedureCallContext,
 				      timeout);
-		m_procedureTimeoutMap[id] = timeout;
+		m_procedureCallContextMap[id] = timeout;
 	}
 
 	bool runProcedureCallback(const string id, JSONParser &parser)
@@ -410,13 +410,13 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 		AutoMutex lock(&m_procedureMapMutex);
 
-		auto timeoutIt = m_procedureTimeoutMap.find(id);
-		if (timeoutIt != m_procedureTimeoutMap.end()) {
-			ProcedureTimeout *timeout = timeoutIt->second;
+		auto timeoutIt = m_procedureCallContextMap.find(id);
+		if (timeoutIt != m_procedureCallContextMap.end()) {
+			ProcedureCallContext *timeout = timeoutIt->second;
 			if (timeout->m_callback.hasData())
 				timeout->m_callback->onGotResponse(parser);
 			g_source_remove(timeout->m_timeoutId);
-			m_procedureTimeoutMap.erase(timeoutIt);
+			m_procedureCallContextMap.erase(timeoutIt);
 			delete timeout;
 			found = true;
 		}
@@ -424,18 +424,18 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		return found;
 	}
 
-	static gboolean _onProcedureTimeout(gpointer data)
+	static gboolean _onProcedureCallContext(gpointer data)
 	{
-		ProcedureTimeout *timeout =
-		  static_cast<ProcedureTimeout *>(data);
+		ProcedureCallContext *timeout =
+		  static_cast<ProcedureCallContext *>(data);
 
 		AutoMutex lock(&timeout->m_impl->m_procedureMapMutex);
 
 		if (timeout->m_callback.hasData())
 			timeout->m_callback->onTimeout();
 
-		map<string, ProcedureTimeout *> &timeoutMap
-		  = timeout->m_impl->m_procedureTimeoutMap;
+		map<string, ProcedureCallContext *> &timeoutMap
+		  = timeout->m_impl->m_procedureCallContextMap;
 
 		auto it = timeoutMap.find(timeout->m_procedureId);
 		if (it != timeoutMap.end())
