@@ -2001,6 +2001,58 @@ void test_notSupportFetchEvents(void)
 	cppcut_assert_equal(false, succeeded);
 }
 
+void test_updateMonitoringServerInfo(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2 *gate =
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo);
+	HatoholArmPluginGateHAPI2Ptr gatePtr(gate, false);
+	acceptProcedure(gatePtr, "exchangeProfile");
+
+	// Update MonitoringServerInfo
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	MonitoringServerInfo serverInfo = monitoringServerInfo;
+	ArmPluginInfo pluginInfo = armPluginInfo;
+	dbConfig.getArmPluginInfo(pluginInfo, serverInfo.id);
+	serverInfo.baseURL = "http://www.example.net/zabbix/";
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	dbConfig.updateTargetServer(&serverInfo, privilege, &pluginInfo);
+
+	// delete the gate to emit updateMonitoringServerInfo notification
+	gatePtr = NULL;
+
+	string expected(
+		"{\"jsonrpc\":\"2.0\","
+		"\"method\":\"updateMonitoringServerInfo\","
+		"\"params\":{"
+		 "\"serverId\":302,\"url\":\"http://www.example.net/zabbix/\","
+		 "\"type\":\"8e632c14-d1f7-11e4-8350-d43d7e3146fb\","
+		 "\"nickName\":\"HAPI2 Zabbix\",\"userName\":\"Admin\","
+		 "\"password\":\"zabbix\",\"pollingIntervalSec\":300,"
+		 "\"retryIntervalSec\":60,\"extendedInfo\":\"test extended info\""
+		"}}");
+	string actual(popServerMessage());
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_noUpdateMonitoringServerInfo(void)
+{
+	omitIfNoURL();
+
+	HatoholArmPluginGateHAPI2 *gate =
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo);
+	HatoholArmPluginGateHAPI2Ptr gatePtr(gate, false);
+	acceptProcedure(gatePtr, "exchangeProfile");
+
+	gatePtr = NULL;
+
+	string expected("");
+	string actual(popServerMessage());
+	cppcut_assert_equal(expected, actual);
+}
+
 } // testCommunication
 
 } // testHatoholArmPluginGateHAPI2
