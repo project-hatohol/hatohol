@@ -1905,7 +1905,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 
 string HatoholArmPluginGateHAPI2::updateMonitoringServerInfoNotification()
 {
-	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	ServerQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(m_impl->m_serverInfo.id);
+	MonitoringServerInfoList monitoringServers;
+	dataStore->getTargetServers(monitoringServers, option);
+	const MonitoringServerInfo &serverInfo = *monitoringServers.begin();
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
