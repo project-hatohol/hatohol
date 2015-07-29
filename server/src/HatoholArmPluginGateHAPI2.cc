@@ -2045,8 +2045,6 @@ bool HatoholArmPluginGateHAPI2::isMonitoringServerInfoChanged(
 
 	if (serverInfo.id != monitoringServer.id)
 		return true;
-	if (serverInfo.id != monitoringServer.id)
-		return true;
 	if (serverInfo.type != monitoringServer.type)
 		return true;
 	if (serverInfo.hostName != monitoringServer.hostName)
