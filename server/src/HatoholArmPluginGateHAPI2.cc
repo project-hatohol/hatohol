@@ -617,7 +617,8 @@ void HatoholArmPluginGateHAPI2::stop(void)
 {
 	if (isMonitoringServerInfoChanged()) {
 		string message = updateMonitoringServerInfoNotification();
-		send(message);
+		if (!message.empty())
+			send(message);
 	}
 	m_impl->stopPlugin();
 	HatoholArmPluginInterfaceHAPI2::stop();
