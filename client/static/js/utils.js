@@ -143,12 +143,6 @@ function getItemGraphLocation(server, itemId) {
   return url ? escapeHTML(url) : undefined;
 }
 
-function getServerName(server, serverId) {
-  if (!server || !server["name"])
-    return gettext("Unknown") + " (ID: " + serverId + ")";
-  return server["name"];
-}
-
 function getNickName(server, serverId) {
   if (!server || !server["nickname"])
     return gettext("Unknown") + " (ID: " + serverId + ")";
