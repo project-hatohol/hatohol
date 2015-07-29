@@ -319,9 +319,9 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 		AutoMutex lock(&m_procedureMapMutex);
 		for (auto &pair: m_procedureCallContextMap) {
-			ProcedureCallContext *timeout = pair.second;
-			Utils::removeEventSourceIfNeeded(timeout->m_timeoutId);
-			delete timeout;
+			ProcedureCallContext *context = pair.second;
+			Utils::removeEventSourceIfNeeded(context->m_timeoutId);
+			delete context;
 		}
 		m_procedureCallContextMap.clear();
 	}
@@ -392,16 +392,15 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 		AutoMutex lock(&m_procedureMapMutex);
 
-		// queue timeout
-		ProcedureCallContext *timeout = new ProcedureCallContext();
-		timeout->m_callback = callback;
-		timeout->m_impl = this;
-		timeout->m_procedureId = id;
-		timeout->m_timeoutId =
+		ProcedureCallContext *context = new ProcedureCallContext();
+		context->m_callback = callback;
+		context->m_impl = this;
+		context->m_procedureId = id;
+		context->m_timeoutId =
 		  Utils::setGLibTimer(PROCEDURE_TIMEOUT_MSEC,
 				      _onProcedureCallContext,
-				      timeout);
-		m_procedureCallContextMap[id] = timeout;
+				      context);
+		m_procedureCallContextMap[id] = context;
 	}
 
 	bool runProcedureCallback(const string id, JSONParser &parser)
@@ -412,12 +411,12 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 		auto timeoutIt = m_procedureCallContextMap.find(id);
 		if (timeoutIt != m_procedureCallContextMap.end()) {
-			ProcedureCallContext *timeout = timeoutIt->second;
-			if (timeout->m_callback.hasData())
-				timeout->m_callback->onGotResponse(parser);
-			g_source_remove(timeout->m_timeoutId);
+			ProcedureCallContext *context = timeoutIt->second;
+			if (context->m_callback.hasData())
+				context->m_callback->onGotResponse(parser);
+			g_source_remove(context->m_timeoutId);
 			m_procedureCallContextMap.erase(timeoutIt);
-			delete timeout;
+			delete context;
 			found = true;
 		}
 
@@ -426,21 +425,21 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 	static gboolean _onProcedureCallContext(gpointer data)
 	{
-		ProcedureCallContext *timeout =
+		ProcedureCallContext *context =
 		  static_cast<ProcedureCallContext *>(data);
 
-		AutoMutex lock(&timeout->m_impl->m_procedureMapMutex);
+		AutoMutex lock(&context->m_impl->m_procedureMapMutex);
 
-		if (timeout->m_callback.hasData())
-			timeout->m_callback->onTimeout();
+		if (context->m_callback.hasData())
+			context->m_callback->onTimeout();
 
-		map<string, ProcedureCallContext *> &timeoutMap
-		  = timeout->m_impl->m_procedureCallContextMap;
+		map<string, ProcedureCallContext *> &contextMap
+		  = context->m_impl->m_procedureCallContextMap;
 
-		auto it = timeoutMap.find(timeout->m_procedureId);
-		if (it != timeoutMap.end())
-			timeoutMap.erase(it);
-		delete timeout;
+		auto it = contextMap.find(context->m_procedureId);
+		if (it != contextMap.end())
+			contextMap.erase(it);
+		delete context;
 
 		return FALSE;
 	}
