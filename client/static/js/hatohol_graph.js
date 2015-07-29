@@ -243,7 +243,7 @@ HatoholGraph.prototype._updateTitleAndLegendLabels = function() {
     if (!item || !servers)
       return gettext("Unknown host");
     var server = servers[item.serverId];
-    var serverName = getServerName(server, item["serverId"]);
+    var serverName = getNickName(server, item["serverId"]);
     var hostName   = getHostName(server, item["hostId"]);
     return serverName + ": " + hostName;
   }
