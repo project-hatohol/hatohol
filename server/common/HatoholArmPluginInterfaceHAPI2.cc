@@ -286,6 +286,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 {
 	struct ProcedureTimeout
 	{
+		ProcedureCallbackPtr m_callback;
 		Impl *m_impl;
 		string m_procedureId;
 		int m_timeoutId;
@@ -297,7 +298,6 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	bool m_established;
 	ProcedureHandlerMap m_procedureHandlerMap;
 	Mutex m_procedureMapMutex;
-	map<string, ProcedureCallbackPtr> m_procedureCallbackMap;
 	map<string, ProcedureTimeout *> m_procedureTimeoutMap;
 	AMQPConnectionInfo m_connectionInfo;
 	AMQPConsumer *m_consumer;
@@ -392,10 +392,9 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 		AutoMutex lock(&m_procedureMapMutex);
 
-		m_procedureCallbackMap[id] = callback;
-
 		// queue timeout
 		ProcedureTimeout *timeout = new ProcedureTimeout();
+		timeout->m_callback = callback;
 		timeout->m_impl = this;
 		timeout->m_procedureId = id;
 		timeout->m_timeoutId =
@@ -411,21 +410,15 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 		AutoMutex lock(&m_procedureMapMutex);
 
-		auto it = m_procedureCallbackMap.find(id);
-		if (it != m_procedureCallbackMap.end()) {
-			ProcedureCallbackPtr callback = it->second;
-			if (callback.hasData())
-				callback->onGotResponse(parser);
-			m_procedureCallbackMap.erase(it);
-			found = true;
-		}
-
 		auto timeoutIt = m_procedureTimeoutMap.find(id);
 		if (timeoutIt != m_procedureTimeoutMap.end()) {
 			ProcedureTimeout *timeout = timeoutIt->second;
+			if (timeout->m_callback.hasData())
+				timeout->m_callback->onGotResponse(parser);
 			g_source_remove(timeout->m_timeoutId);
 			m_procedureTimeoutMap.erase(timeoutIt);
 			delete timeout;
+			found = true;
 		}
 
 		return found;
@@ -438,22 +431,15 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 		AutoMutex lock(&timeout->m_impl->m_procedureMapMutex);
 
-		map<string, ProcedureCallbackPtr> &callbackMap
-		  = timeout->m_impl->m_procedureCallbackMap;
+		if (timeout->m_callback.hasData())
+			timeout->m_callback->onTimeout();
+
 		map<string, ProcedureTimeout *> &timeoutMap
 		  = timeout->m_impl->m_procedureTimeoutMap;
 
-		auto it = callbackMap.find(timeout->m_procedureId);
-		if (it != callbackMap.end()) {
-			ProcedureCallbackPtr callback = it->second;
-			if (callback.hasData())
-				callback->onTimeout();
-			callbackMap.erase(it);
-		}
-
-		auto timeoutIt = timeoutMap.find(timeout->m_procedureId);
-		if (timeoutIt != timeoutMap.end())
-			timeoutMap.erase(timeoutIt);
+		auto it = timeoutMap.find(timeout->m_procedureId);
+		if (it != timeoutMap.end())
+			timeoutMap.erase(it);
 		delete timeout;
 
 		return FALSE;
