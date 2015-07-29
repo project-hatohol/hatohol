@@ -406,6 +406,8 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 	bool runProcedureCallback(const string id, JSONParser &parser)
 	{
+		bool found = false;
+
 		AutoMutex lock(&m_procedureMapMutex);
 
 		auto it = m_procedureCallbackMap.find(id);
@@ -414,18 +416,18 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 			if (callback.hasData())
 				callback->onGotResponse(parser);
 			m_procedureCallbackMap.erase(it);
-			return true;
+			found = true;
 		}
 
 		auto timeoutIt = m_procedureTimeoutMap.find(id);
 		if (timeoutIt != m_procedureTimeoutMap.end()) {
 			ProcedureTimeout *timeout = timeoutIt->second;
-			Utils::removeEventSourceIfNeeded(timeout->m_timeoutId);
+			g_source_remove(timeout->m_timeoutId);
 			m_procedureTimeoutMap.erase(timeoutIt);
 			delete timeout;
 		}
 
-		return false;
+		return found;
 	}
 
 	static gboolean _onProcedureTimeout(gpointer data)
