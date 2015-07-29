@@ -2034,37 +2034,37 @@ bool HatoholArmPluginGateHAPI2::isMonitoringServerInfoChanged(void)
 		return false;
 	}
 
-	for (auto &monitoringServer : monitoringServers) {
-		if (serverInfo.id != monitoringServer.id)
-			return true;
-		if (serverInfo.id != monitoringServer.id)
-			return true;
-		if (serverInfo.type != monitoringServer.type)
-			return true;
-		if (serverInfo.hostName != monitoringServer.hostName)
-			return true;
-		if (serverInfo.ipAddress != monitoringServer.ipAddress)
-			return true;
-		if (serverInfo.nickname != monitoringServer.nickname)
-			return true;
-		if (serverInfo.port != monitoringServer.port)
-			return true;
-		if (serverInfo.pollingIntervalSec !=
-		    monitoringServer.pollingIntervalSec)
-			return true;
-		if (serverInfo.retryIntervalSec !=
-		    monitoringServer.retryIntervalSec)
-			return true;
-		if (serverInfo.userName != monitoringServer.userName)
-			return true;
-		if (serverInfo.password != monitoringServer.password)
-			return true;
-		if (serverInfo.dbName != monitoringServer.dbName)
-			return true;
-		if (serverInfo.baseURL != monitoringServer.baseURL)
-			return true;
-		if (serverInfo.extendedInfo != monitoringServer.extendedInfo)
-			return true;
-	}
+	MonitoringServerInfo &monitoringServer = *monitoringServers.begin();
+	if (serverInfo.id != monitoringServer.id)
+		return true;
+	if (serverInfo.id != monitoringServer.id)
+		return true;
+	if (serverInfo.type != monitoringServer.type)
+		return true;
+	if (serverInfo.hostName != monitoringServer.hostName)
+		return true;
+	if (serverInfo.ipAddress != monitoringServer.ipAddress)
+		return true;
+	if (serverInfo.nickname != monitoringServer.nickname)
+		return true;
+	if (serverInfo.port != monitoringServer.port)
+		return true;
+	if (serverInfo.pollingIntervalSec !=
+	    monitoringServer.pollingIntervalSec)
+		return true;
+	if (serverInfo.retryIntervalSec !=
+	    monitoringServer.retryIntervalSec)
+		return true;
+	if (serverInfo.userName != monitoringServer.userName)
+		return true;
+	if (serverInfo.password != monitoringServer.password)
+		return true;
+	if (serverInfo.dbName != monitoringServer.dbName)
+		return true;
+	if (serverInfo.baseURL != monitoringServer.baseURL)
+		return true;
+	if (serverInfo.extendedInfo != monitoringServer.extendedInfo)
+		return true;
+
 	return false;
 }
