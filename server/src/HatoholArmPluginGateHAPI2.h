@@ -90,7 +90,6 @@ private:
 	std::string procedureHandlerPutEvents(JSONParser &parser);
 	std::string procedureHandlerPutHostParents(JSONParser &parser);
 	std::string procedureHandlerPutArmInfo(JSONParser &parser);
-	void updateMonitoringServerInfoNotification(const MonitoringServerInfo monitoringServer);
 
 public:
 	static bool parseTimeStamp(const std::string &timeStampString,
