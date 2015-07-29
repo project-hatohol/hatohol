@@ -2021,7 +2021,7 @@ void test_updateMonitoringServerInfo(void)
 	dbConfig.updateTargetServer(&serverInfo, privilege, &pluginInfo);
 
 	// delete the gate to emit updateMonitoringServerInfo notification
-	gatePtr = NULL;
+	gatePtr = nullptr;
 
 	string expected(
 		"{\"jsonrpc\":\"2.0\","
@@ -2046,7 +2046,7 @@ void test_noUpdateMonitoringServerInfo(void)
 	HatoholArmPluginGateHAPI2Ptr gatePtr(gate, false);
 	acceptProcedure(gatePtr, "exchangeProfile");
 
-	gatePtr = NULL;
+	gatePtr = nullptr;
 
 	string expected("");
 	string actual(popServerMessage());
