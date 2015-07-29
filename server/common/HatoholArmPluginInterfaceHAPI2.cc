@@ -398,9 +398,10 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		ProcedureTimeout *timeout = new ProcedureTimeout();
 		timeout->m_impl = this;
 		timeout->m_procedureId = id;
-		timeout->m_timeoutId = Utils::setGLibTimer(PROCEDURE_TIMEOUT_MSEC,
-							   _onProcedureTimeout,
-							   timeout);
+		timeout->m_timeoutId =
+		  Utils::setGLibTimer(PROCEDURE_TIMEOUT_MSEC,
+				      _onProcedureTimeout,
+				      timeout);
 		m_procedureTimeoutMap[id] = timeout;
 	}
 
