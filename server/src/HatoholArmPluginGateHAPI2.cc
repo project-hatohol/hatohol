@@ -615,8 +615,11 @@ void HatoholArmPluginGateHAPI2::start(void)
 
 void HatoholArmPluginGateHAPI2::stop(void)
 {
-	if (isMonitoringServerInfoChanged()) {
-		string message = updateMonitoringServerInfoNotification();
+	MonitoringServerInfo monitoringServer;
+	getMonitoringServerInfo(monitoringServer);
+	if (isMonitoringServerInfoChanged(monitoringServer)) {
+		string message =
+		  updateMonitoringServerInfoNotification(monitoringServer);
 		if (!message.empty())
 			send(message);
 	}
@@ -1904,34 +1907,22 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 	return builder.generate();
 }
 
-string HatoholArmPluginGateHAPI2::updateMonitoringServerInfoNotification()
+string HatoholArmPluginGateHAPI2::updateMonitoringServerInfoNotification(const MonitoringServerInfo monitoringServerInfo)
 {
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	ServerQueryOption option(USER_ID_SYSTEM);
-	option.setTargetServerId(m_impl->m_serverInfo.id);
-	MonitoringServerInfoList monitoringServers;
-	dataStore->getTargetServers(monitoringServers, option);
-
-	if (monitoringServers.size() > 1) {
-		MLPL_ERR("Multiple monitoring servers is tied up.\n");
-		return "";
-	}
-
-	const MonitoringServerInfo &serverInfo = *monitoringServers.begin();
 	JSONBuilder builder;
 	builder.startObject();
 	builder.add("jsonrpc", "2.0");
 	builder.add("method", HAPI2_UPDATE_MONITORING_SERVER_INFO);
 	builder.startObject("params");
-	builder.add("serverId", serverInfo.id);
-	builder.add("url", serverInfo.baseURL);
+	builder.add("serverId", monitoringServerInfo.id);
+	builder.add("url", monitoringServerInfo.baseURL);
 	builder.add("type", m_impl->m_pluginInfo.uuid);
-	builder.add("nickName", serverInfo.nickname);
-	builder.add("userName", serverInfo.userName);
-	builder.add("password", serverInfo.password);
-	builder.add("pollingIntervalSec", serverInfo.pollingIntervalSec);
-	builder.add("retryIntervalSec", serverInfo.retryIntervalSec);
-	builder.add("extendedInfo", serverInfo.extendedInfo);
+	builder.add("nickName", monitoringServerInfo.nickname);
+	builder.add("userName", monitoringServerInfo.userName);
+	builder.add("password", monitoringServerInfo.password);
+	builder.add("pollingIntervalSec", monitoringServerInfo.pollingIntervalSec);
+	builder.add("retryIntervalSec", monitoringServerInfo.retryIntervalSec);
+	builder.add("extendedInfo", monitoringServerInfo.extendedInfo);
 	builder.endObject(); // params
 	builder.endObject();
 	return builder.generate();
@@ -2043,21 +2034,11 @@ void HatoholArmPluginGateHAPI2::getMonitoringServerInfo(
 	monitoringServerInfo = *monitoringServers.begin();
 }
 
-bool HatoholArmPluginGateHAPI2::isMonitoringServerInfoChanged(void)
+bool HatoholArmPluginGateHAPI2::isMonitoringServerInfoChanged(
+  const MonitoringServerInfo monitoringServer)
 {
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	ServerQueryOption option(USER_ID_SYSTEM);
-	option.setTargetServerId(m_impl->m_serverInfo.id);
-	MonitoringServerInfoList monitoringServers;
-	dataStore->getTargetServers(monitoringServers, option);
 
-	if (monitoringServers.size() > 1) {
-		MLPL_ERR("Multiple monitoring servers is tied up.\n");
-		return false;
-	}
-
-	MonitoringServerInfo &monitoringServer = *monitoringServers.begin();
 	if (serverInfo.id != monitoringServer.id)
 		return true;
 	if (serverInfo.id != monitoringServer.id)

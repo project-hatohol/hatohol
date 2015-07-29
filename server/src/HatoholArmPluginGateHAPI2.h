@@ -74,7 +74,7 @@ protected:
 				       const HatoholError &hatoholError);
 	void setPluginConnectStatus(const HAPI2PluginCollectType &type,
 				    const HAPI2PluginErrorCode &errorCode);
-	bool isMonitoringServerInfoChanged(void);
+	bool isMonitoringServerInfoChanged(const MonitoringServerInfo monitoringServer);
 	void getMonitoringServerInfo(MonitoringServerInfo &monitoringServerInfo);
 
 private:
@@ -90,7 +90,7 @@ private:
 	std::string procedureHandlerPutEvents(JSONParser &parser);
 	std::string procedureHandlerPutHostParents(JSONParser &parser);
 	std::string procedureHandlerPutArmInfo(JSONParser &parser);
-	std::string updateMonitoringServerInfoNotification();
+	std::string updateMonitoringServerInfoNotification(const MonitoringServerInfo monitoringServer);
 
 public:
 	static bool parseTimeStamp(const std::string &timeStampString,
