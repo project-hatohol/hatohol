@@ -2027,7 +2027,10 @@ HatoholError HatoholArmPluginGateHAPI2::getMonitoringServerInfo(
 	MonitoringServerInfoList monitoringServers;
 	dataStore->getTargetServers(monitoringServers, option);
 
-	if (monitoringServers.size() > 1) {
+	if (monitoringServers.size() == 0) {
+		MLPL_ERR("Target monitoring server is not found.\n");
+		return HTERR_UNKNOWN_REASON;
+	} else if (monitoringServers.size() > 1) {
 		MLPL_ERR("Multiple monitoring servers is tied up.\n");
 		return HTERR_UNKNOWN_REASON;
 	}
