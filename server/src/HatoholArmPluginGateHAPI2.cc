@@ -616,8 +616,8 @@ void HatoholArmPluginGateHAPI2::start(void)
 void HatoholArmPluginGateHAPI2::stop(void)
 {
 	MonitoringServerInfo monitoringServer;
-	getMonitoringServerInfo(monitoringServer);
-	if (isMonitoringServerInfoChanged(monitoringServer)) {
+	HatoholError err = getMonitoringServerInfo(monitoringServer);
+	if (err == HTERR_OK && isMonitoringServerInfoChanged(monitoringServer)) {
 		string message =
 		  updateMonitoringServerInfoNotification(monitoringServer);
 		if (!message.empty())
@@ -2018,7 +2018,7 @@ void HatoholArmPluginGateHAPI2::setPluginConnectStatus(
 	m_impl->setPluginConnectStatus(type, errorCode);
 }
 
-void HatoholArmPluginGateHAPI2::getMonitoringServerInfo(
+HatoholError HatoholArmPluginGateHAPI2::getMonitoringServerInfo(
   MonitoringServerInfo &monitoringServerInfo)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -2029,9 +2029,10 @@ void HatoholArmPluginGateHAPI2::getMonitoringServerInfo(
 
 	if (monitoringServers.size() > 1) {
 		MLPL_ERR("Multiple monitoring servers is tied up.\n");
-		return;
+		return HTERR_UNKNOWN_REASON;
 	}
 	monitoringServerInfo = *monitoringServers.begin();
+	return HTERR_OK;
 }
 
 bool HatoholArmPluginGateHAPI2::isMonitoringServerInfoChanged(
