@@ -1910,6 +1910,12 @@ string HatoholArmPluginGateHAPI2::updateMonitoringServerInfoNotification()
 	option.setTargetServerId(m_impl->m_serverInfo.id);
 	MonitoringServerInfoList monitoringServers;
 	dataStore->getTargetServers(monitoringServers, option);
+
+	if (monitoringServers.size() > 1) {
+		MLPL_ERR("Multiple monitoring servers is tied up.\n");
+		return "";
+	}
+
 	const MonitoringServerInfo &serverInfo = *monitoringServers.begin();
 	JSONBuilder builder;
 	builder.startObject();
