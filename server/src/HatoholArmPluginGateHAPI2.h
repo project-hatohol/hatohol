@@ -75,6 +75,7 @@ protected:
 	void setPluginConnectStatus(const HAPI2PluginCollectType &type,
 				    const HAPI2PluginErrorCode &errorCode);
 	bool isMonitoringServerInfoChanged(void);
+	void getMonitoringServerInfo(MonitoringServerInfo &monitoringServerInfo);
 
 private:
 	std::string procedureHandlerExchangeProfile(JSONParser &parser);
