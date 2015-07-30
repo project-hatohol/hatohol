@@ -286,10 +286,10 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 {
 	struct ProcedureCallContext
 	{
-		ProcedureCallbackPtr m_callback;
 		Impl *m_impl;
+		ProcedureCallbackPtr m_callback;
 		string m_procedureId;
-		int m_timeoutId;
+		guint m_timeoutId;
 	};
 	typedef unique_ptr<ProcedureCallContext> ProcedureCallContextPtr;
 
@@ -392,8 +392,9 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		lock_guard<mutex> lock(m_procedureMapMutex);
 
 		ProcedureCallContext *context = new ProcedureCallContext();
-		context->m_callback = callback;
 		context->m_impl = this;
+		context->m_callback = callback;
+		Impl *m_impl;
 		context->m_procedureId = id;
 		context->m_timeoutId =
 		  Utils::setGLibTimer(PROCEDURE_TIMEOUT_MSEC,
