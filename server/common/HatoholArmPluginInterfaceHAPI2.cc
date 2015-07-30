@@ -302,7 +302,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	map<string, ProcedureCallContextPtr> m_procedureCallContextMap;
 	AMQPConnectionInfo m_connectionInfo;
 	AMQPConsumer *m_consumer;
-	AMQPHAPI2MessageHandler *m_handler;
+	AMQPHAPI2MessageHandler m_handler;
 
 	Impl(HatoholArmPluginInterfaceHAPI2 &hapi2,
 	     const CommunicationMode mode)
@@ -310,7 +310,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	  m_hapi2(hapi2),
 	  m_established(false),
 	  m_consumer(NULL),
-	  m_handler(NULL)
+	  m_handler(m_hapi2)
 	{
 	}
 
@@ -362,8 +362,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	{
 		setupAMQPConnectionInfo();
 
-		m_handler = new AMQPHAPI2MessageHandler(m_hapi2);
-		m_consumer = new AMQPConsumer(m_connectionInfo, m_handler);
+		m_consumer = new AMQPConsumer(m_connectionInfo, &m_handler);
 	}
 
 	string generateQueueName(const ArmPluginInfo &pluginInfo)
@@ -448,8 +447,6 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 			delete m_consumer;
 			m_consumer = nullptr;
 		}
-		delete m_handler;
-		m_handler = nullptr;
 	}
 
 	void onConnect(void)
