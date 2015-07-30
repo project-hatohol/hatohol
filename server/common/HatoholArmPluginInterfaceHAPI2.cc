@@ -405,8 +405,6 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 	bool runProcedureCallback(const string id, JSONParser &parser)
 	{
-		bool found = false;
-
 		lock_guard<mutex> lock(m_procedureMapMutex);
 
 		auto it = m_procedureCallContextMap.find(id);
@@ -417,10 +415,10 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 			g_source_remove(context->m_timeoutId);
 			m_procedureCallContextMap.erase(it);
 			delete context;
-			found = true;
+			return true;
 		}
 
-		return found;
+		return false;
 	}
 
 	static gboolean _onProcedureCallContext(gpointer data)
