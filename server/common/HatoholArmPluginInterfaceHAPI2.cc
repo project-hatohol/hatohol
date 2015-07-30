@@ -23,7 +23,7 @@
 #include "AMQPPublisher.h"
 #include "HatoholArmPluginInterfaceHAPI2.h"
 #include "JSONBuilder.h"
-#include <Mutex.h>
+#include <mutex>
 
 using namespace std;
 using namespace mlpl;
@@ -297,7 +297,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	HatoholArmPluginInterfaceHAPI2 &m_hapi2;
 	bool m_established;
 	ProcedureHandlerMap m_procedureHandlerMap;
-	Mutex m_procedureMapMutex;
+	mutex m_procedureMapMutex;
 	map<string, ProcedureCallContext *> m_procedureCallContextMap;
 	AMQPConnectionInfo m_connectionInfo;
 	AMQPConsumer *m_consumer;
@@ -317,7 +317,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	{
 		stop();
 
-		AutoMutex lock(&m_procedureMapMutex);
+		lock_guard<mutex> lock(m_procedureMapMutex);
 		for (auto &pair: m_procedureCallContextMap) {
 			ProcedureCallContext *context = pair.second;
 			Utils::removeEventSourceIfNeeded(context->m_timeoutId);
@@ -390,7 +390,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	{
 		const int PROCEDURE_TIMEOUT_MSEC = 60 * 1000;
 
-		AutoMutex lock(&m_procedureMapMutex);
+		lock_guard<mutex> lock(m_procedureMapMutex);
 
 		ProcedureCallContext *context = new ProcedureCallContext();
 		context->m_callback = callback;
@@ -407,7 +407,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	{
 		bool found = false;
 
-		AutoMutex lock(&m_procedureMapMutex);
+		lock_guard<mutex> lock(m_procedureMapMutex);
 
 		auto it = m_procedureCallContextMap.find(id);
 		if (it != m_procedureCallContextMap.end()) {
@@ -428,7 +428,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		ProcedureCallContext *context =
 		  static_cast<ProcedureCallContext *>(data);
 
-		AutoMutex lock(&context->m_impl->m_procedureMapMutex);
+		lock_guard<mutex> lock(context->m_impl->m_procedureMapMutex);
 
 		if (context->m_callback.hasData())
 			context->m_callback->onTimeout();
