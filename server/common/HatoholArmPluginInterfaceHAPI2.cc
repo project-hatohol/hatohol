@@ -398,7 +398,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		context->m_procedureId = id;
 		context->m_timeoutId =
 		  Utils::setGLibTimer(PROCEDURE_TIMEOUT_MSEC,
-				      _onProcedureCallContext,
+				      onProcedureCallContext,
 				      context);
 		m_procedureCallContextMap[id] = context;
 	}
@@ -421,7 +421,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		return false;
 	}
 
-	static gboolean _onProcedureCallContext(gpointer data)
+	static gboolean onProcedureCallContext(gpointer data)
 	{
 		ProcedureCallContext *context =
 		  static_cast<ProcedureCallContext *>(data);
