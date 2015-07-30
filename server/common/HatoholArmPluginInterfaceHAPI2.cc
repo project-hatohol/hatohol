@@ -291,6 +291,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		string m_procedureId;
 		int m_timeoutId;
 	};
+	typedef unique_ptr<ProcedureCallContext> ProcedureCallContextPtr;
 
 	CommunicationMode m_communicationMode;
 	ArmPluginInfo m_pluginInfo;
@@ -298,7 +299,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	bool m_established;
 	ProcedureHandlerMap m_procedureHandlerMap;
 	mutex m_procedureMapMutex;
-	map<string, ProcedureCallContext *> m_procedureCallContextMap;
+	map<string, ProcedureCallContextPtr> m_procedureCallContextMap;
 	AMQPConnectionInfo m_connectionInfo;
 	AMQPConsumer *m_consumer;
 	AMQPHAPI2MessageHandler *m_handler;
@@ -319,9 +320,8 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 		lock_guard<mutex> lock(m_procedureMapMutex);
 		for (auto &pair: m_procedureCallContextMap) {
-			ProcedureCallContext *context = pair.second;
+			ProcedureCallContextPtr &context = pair.second;
 			Utils::removeEventSourceIfNeeded(context->m_timeoutId);
-			delete context;
 		}
 		m_procedureCallContextMap.clear();
 	}
@@ -400,7 +400,8 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		  Utils::setGLibTimer(PROCEDURE_TIMEOUT_MSEC,
 				      onProcedureCallContext,
 				      context);
-		m_procedureCallContextMap[id] = context;
+		m_procedureCallContextMap[id]
+		  = ProcedureCallContextPtr(context);
 	}
 
 	bool runProcedureCallback(const string id, JSONParser &parser)
@@ -409,12 +410,11 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 		auto it = m_procedureCallContextMap.find(id);
 		if (it != m_procedureCallContextMap.end()) {
-			ProcedureCallContext *context = it->second;
+			ProcedureCallContextPtr &context = it->second;
 			if (context->m_callback.hasData())
 				context->m_callback->onGotResponse(parser);
 			g_source_remove(context->m_timeoutId);
 			m_procedureCallContextMap.erase(it);
-			delete context;
 			return true;
 		}
 
@@ -431,13 +431,12 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		if (context->m_callback.hasData())
 			context->m_callback->onTimeout();
 
-		map<string, ProcedureCallContext *> &contextMap
+		map<string, ProcedureCallContextPtr> &contextMap
 		  = context->m_impl->m_procedureCallContextMap;
 
 		auto it = contextMap.find(context->m_procedureId);
 		if (it != contextMap.end())
 			contextMap.erase(it);
-		delete context;
 
 		return FALSE;
 	}
