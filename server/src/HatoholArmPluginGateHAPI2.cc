@@ -384,7 +384,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 			return result == "SUCCESS";
 		}
 
-		void flush(void) {
+		void flush(void)
+		{
 			if (m_methodName == HAPI2_FETCH_HISTORY) {
 				HistoryInfoVect historyInfoVect;
 				m_impl.runFetchHistoryCallback(m_fetchId,
