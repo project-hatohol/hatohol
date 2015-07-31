@@ -25,6 +25,7 @@ import datetime
 import json
 import re
 import time
+import signal
 from hatohol import haplib
 from hatohol import standardhap
 
@@ -50,6 +51,7 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
         self.__launch_args = args.fluentd_launch.split(" ")
         self.__accept_tag_reg = args.tag
         self.__accept_tag_pattern = re.compile(self.__accept_tag_reg)
+        self.__log_status_interverl = args.log_status_interval
 
     def set_ms_info(self, ms_info):
         self.__ms_info = ms_info
@@ -60,12 +62,23 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
         manager.daemon = True
         manager.start()
 
+    def __setup_log_status_timer(self):
+        def __timer_handler(signum, frame):
+            self.log_status(self.__arm_info)
+
+        self.__arm_info = haplib.ArmInfo()
+        signal.signal(signal.SIGALRM, __timer_handler)
+        interval = self.__log_status_interval
+        signal.setitimer(signal.ITIMER_REAL, interval, interval)
+
     def __fluentd_manager_main(self):
+        self.__setup_log_status_timer()
         while True:
             try:
                 self.__fluentd_manager_main_in_try_block()
             except:
                 haplib.handle_exception()
+                self.__arm_info.fail()
                 time.sleep(self.__ms_info.retry_interval_sec)
 
     def __fluentd_manager_main_in_try_block(self):
@@ -83,6 +96,7 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
             if not self.__accept_tag_pattern.match(tag):
                 continue
             self.__put_event(timestamp, tag, raw_msg)
+            self.__arm_info.success()
 
     def __put_event(self, timestamp, tag, raw_msg):
         event_id = self.__generate_event_id()
@@ -135,7 +149,8 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
             timestamp, tag = self.__parse_header(header)
         except:
             timestamp, tag, msg = None, None, None
-            haplib.handle_exception()
+            exctype, value = haplib.handle_exception()
+            self.__arm_info.fail()
         return timestamp, tag, msg
 
     def __parse_header(self, header):
