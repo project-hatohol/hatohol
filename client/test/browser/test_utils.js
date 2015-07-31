@@ -358,26 +358,6 @@ describe('makeMonitoringSystemTypeLabel', function() {
   });
 });
 
-describe('getServerName', function() {
-  it('with valid name', function() {
-    var server = { "name": "server" };
-    var serverId = 2;
-    expect(getServerName(server, serverId)).to.be("server");
-  });
-
-  it('with no server', function() {
-    var serverId = 2;
-    var expected = gettext("Unknown") + " (ID: " + serverId + ")";
-    expect(getServerName(undefined, serverId)).to.be(expected);
-  });
-
-  it('with no name', function() {
-    var serverId = 2;
-    var expected = gettext("Unknown") + " (ID: " + serverId + ")";
-    expect(getServerName({}, serverId)).to.be(expected);
-  });
-});
-
 describe('getHostName', function() {
   it('with valid name', function() {
     var server = {
