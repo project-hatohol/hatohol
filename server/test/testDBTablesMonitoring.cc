@@ -1332,6 +1332,19 @@ void test_getEventWithTriggerStatus(gconstpointer data)
 	assertGetEventsWithFilter(arg);
 }
 
+void data_getEventWithTimeRange(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithTimeRange(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
+	arg.beginTime = {1363000000, 0};
+	arg.endTime = {1389123457, 0};
+	assertGetEventsWithFilter(arg);
+}
+
 void data_getEventsWithIncidentInfo(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
