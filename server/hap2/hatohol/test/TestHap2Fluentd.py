@@ -25,10 +25,19 @@ import haplib
 import os
 import datetime
 
+def generate_stub_args():
+    args = type('', (), {})()
+    args.fluentd_launch = ""
+    args.tag = ""
+    args.status_log_interval = 1
+    return args
+
+
 class Hap2FluentdMainTestee(hap2_fluentd.Hap2FluentdMain):
     def __init__(self):
         hap2_fluentd.Hap2FluentdMain.__init__(self)
         self.stores = {}
+        self.set_arguments(generate_stub_args())
 
     def get_launch_args(self):
         return self.get_priv_attr("__launch_args")
@@ -50,9 +59,8 @@ class Hap2FluentdMain(unittest.TestCase):
 
     def test_set_arguments(self):
         main = Hap2FluentdMainTestee()
-        arg = type('', (), {})()
+        arg = generate_stub_args()
         arg.fluentd_launch = "ABC -123 435"
-        arg.tag = ".*"
         main.set_arguments(arg)
         self.assertEquals(main.get_launch_args(), ["ABC", "-123", "435"])
 
@@ -90,7 +98,7 @@ class Hap2FluentdMain(unittest.TestCase):
 
         main = Hap2FluentdMainTestee()
         main._Hap2FluentdMain__put_event = alt_put_event
-        arg = type('', (), {})()
+        arg = generate_stub_args()
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         arg.fluentd_launch = curr_dir + "/hap2-fluentd-tester.sh"
         arg.tag = "^hatohol.*"
@@ -176,8 +184,7 @@ class Hap2FluentdMain__get_paramter(unittest.TestCase):
 class Hap2Fluentd(unittest.TestCase):
     def test_create_main_plugin(self):
         hap = hap2_fluentd.Hap2Fluentd()
-        arg = type('', (), {})()
-        arg.fluentd_launch = ""
+        arg = generate_stub_args()
         arg.tag = "^hatohol.*"
         hap.on_parsed_argument(arg)
         main_plugin = hap.create_main_plugin()
