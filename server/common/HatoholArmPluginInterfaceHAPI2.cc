@@ -394,7 +394,6 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		ProcedureCallContext *context = new ProcedureCallContext();
 		context->m_impl = this;
 		context->m_callback = callback;
-		Impl *m_impl;
 		context->m_procedureId = id;
 		context->m_timeoutId =
 		  Utils::setGLibTimer(PROCEDURE_TIMEOUT_MSEC,
