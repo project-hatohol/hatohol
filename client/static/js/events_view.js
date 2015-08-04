@@ -37,6 +37,44 @@ var EventsView = function(userProfile, baseElem) {
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
+  function formatDateTimeWithZeroSecond(d) {
+    var t = "" + d.getFullYear() + "/";
+    t += padDigit((d.getMonth() + 1), 2);
+    t += "/";
+    t += padDigit(d.getDate(), 2);
+    t += " ";
+    t += padDigit(d.getHours(), 2);
+    t += ":";
+    t += padDigit(d.getMinutes(), 2);
+    t += ":00";
+    return t;
+  }
+
+  $('#begin-time').datetimepicker({
+    format: 'Y/m/d H:i:s',
+    onSelectDate: function(currentTime, $input) {
+      $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
+    },
+    onSelectTime: function(currentTime, $input) {
+      $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
+    },
+    onChangeDateTime: function(currentTime, $input) {
+      load();
+    }
+  });
+  $('#end-time').datetimepicker({
+    format: 'Y/m/d H:i:s',
+    onDateTime: function(currentTime, $input) {
+      $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
+    },
+    onSelectTime: function(currentTime, $input) {
+      $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
+    },
+    onChangeDateTime: function(currentTime, $input) {
+      load();
+    }
+  });
+
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
                         gettext('Notification')];
   var severity_choices = [
@@ -145,6 +183,17 @@ var EventsView = function(userProfile, baseElem) {
       offset:           self.baseQuery.limit * self.currentPage,
       limitOfUnifiedId: self.limitOfUnifiedId,
     });
+
+    var beginTime, endTime;
+    if ($('#begin-time').val()) {
+      beginTime = new Date($('#begin-time').val());
+      query.beginTime = parseInt(beginTime.getTime() / 1000);
+    }
+    if ($('#end-time').val()) {
+      endTime = new Date($('#end-time').val());
+      query.endTime = parseInt(endTime.getTime() / 1000);
+    }
+
     if (self.lastQuery)
       $.extend(query, self.getHostFilterQuery());
     self.lastQuery = query;

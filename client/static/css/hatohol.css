@@ -68,6 +68,11 @@ div.dialog {
   text-align: right;
 }
 
+.time-range-filter
+{
+  margin-top: 8px;
+}
+
 /* no scirpt */
 div#noscript-background
 {
