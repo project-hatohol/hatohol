@@ -17,9 +17,8 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-var EventsView = function(userProfile, baseElem) {
+var EventsView = function(userProfile) {
   var self = this;
-  self.baseElem = baseElem;
   self.reloadIntervalSeconds = 60;
   self.currentPage = 0;
   self.limitOfUnifiedId = 0;
