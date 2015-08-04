@@ -17,8 +17,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-var EventsView = function(userProfile) {
+var EventsView = function(userProfile, options) {
   var self = this;
+  self.options = options || {};
   self.reloadIntervalSeconds = 60;
   self.currentPage = 0;
   self.limitOfUnifiedId = 0;
@@ -36,43 +37,11 @@ var EventsView = function(userProfile) {
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
-  function formatDateTimeWithZeroSecond(d) {
-    var t = "" + d.getFullYear() + "/";
-    t += padDigit((d.getMonth() + 1), 2);
-    t += "/";
-    t += padDigit(d.getDate(), 2);
-    t += " ";
-    t += padDigit(d.getHours(), 2);
-    t += ":";
-    t += padDigit(d.getMinutes(), 2);
-    t += ":00";
-    return t;
+  if (self.options.disableTimeRangeFilter) {
+   // Don't enable datetimepicker for tests.
+  } else {
+    setupTimeRangeFilter();
   }
-
-  $('#begin-time').datetimepicker({
-    format: 'Y/m/d H:i:s',
-    onSelectDate: function(currentTime, $input) {
-      $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
-    },
-    onSelectTime: function(currentTime, $input) {
-      $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
-    },
-    onChangeDateTime: function(currentTime, $input) {
-      load();
-    }
-  });
-  $('#end-time').datetimepicker({
-    format: 'Y/m/d H:i:s',
-    onDateTime: function(currentTime, $input) {
-      $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
-    },
-    onSelectTime: function(currentTime, $input) {
-      $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
-    },
-    onChangeDateTime: function(currentTime, $input) {
-      load();
-    }
-  });
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
                         gettext('Notification')];
@@ -283,6 +252,46 @@ var EventsView = function(userProfile) {
 
     $('button.latest-button').click(function() {
       load();
+    });
+  }
+
+  function formatDateTimeWithZeroSecond(d) {
+    var t = "" + d.getFullYear() + "/";
+    t += padDigit((d.getMonth() + 1), 2);
+    t += "/";
+    t += padDigit(d.getDate(), 2);
+    t += " ";
+    t += padDigit(d.getHours(), 2);
+    t += ":";
+    t += padDigit(d.getMinutes(), 2);
+    t += ":00";
+    return t;
+  }
+
+  function setupTimeRangeFilter() {
+    $('#begin-time').datetimepicker({
+      format: 'Y/m/d H:i:s',
+      onSelectDate: function(currentTime, $input) {
+        $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
+      },
+      onSelectTime: function(currentTime, $input) {
+        $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
+      },
+      onChangeDateTime: function(currentTime, $input) {
+        load();
+      }
+    });
+    $('#end-time').datetimepicker({
+      format: 'Y/m/d H:i:s',
+      onDateTime: function(currentTime, $input) {
+        $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
+      },
+      onSelectTime: function(currentTime, $input) {
+        $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
+      },
+      onChangeDateTime: function(currentTime, $input) {
+        load();
+      }
     });
   }
 
