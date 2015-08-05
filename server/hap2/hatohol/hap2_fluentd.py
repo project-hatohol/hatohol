@@ -26,6 +26,7 @@ import json
 import re
 import time
 import signal
+from hatohol import hap
 from hatohol import haplib
 from hatohol import standardhap
 
@@ -90,7 +91,7 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
             if len(line) == 0:
                 logging.warning("The child process seems to have gone away.")
                 fluentd.kill() # To make sure that the child terminates
-                raise haplib.Signal()
+                raise hap.Signal()
             timestamp, tag, raw_msg = self.__parse_line(line)
             if timestamp is None:
                 continue

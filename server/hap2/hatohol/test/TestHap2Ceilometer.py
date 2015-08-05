@@ -22,6 +22,7 @@ import common as testutils
 from hap2_ceilometer import Common
 import hap2_ceilometer
 from datetime import datetime
+from hatohol import hap
 from hatohol import haplib
 import re
 import transporter
@@ -230,7 +231,7 @@ class TestCommon(unittest.TestCase):
     def test_ensure_connection_without_monitoring_server_info(self):
         options = {"none_monitoring_server_info": True}
         comm = CommonForTest(options)
-        self.assertRaises(haplib.Signal, comm.ensure_connection)
+        self.assertRaises(hap.Signal, comm.ensure_connection)
 
     def test_ensure_connection(self):
         options = {}

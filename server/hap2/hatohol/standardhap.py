@@ -25,6 +25,7 @@ import time
 import sys
 import traceback
 import signal
+from hatohol import hap
 from hatohol import haplib
 
 class StandardHap:
@@ -142,7 +143,7 @@ class StandardHap:
     def enable_handling_sigchld(self, enable=True):
         def handler(signum, frame):
             logging.warning("Got SIGCHLD")
-            raise haplib.Signal()
+            raise hap.Signal()
         if enable:
             _handler = handler
         else:

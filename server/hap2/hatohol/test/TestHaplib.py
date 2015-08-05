@@ -31,6 +31,7 @@ import multiprocessing
 import Queue
 import logging
 import datetime
+from hatohol import hap
 
 class Gadget:
     def __init__(self):
@@ -56,16 +57,6 @@ class TestHaplib_handle_exception(unittest.TestCase):
             raise TypeError
         except:
             self.assertRaises(TypeError, haplib.handle_exception, (TypeError,))
-
-
-class TestHaplib_Signal(unittest.TestCase):
-    def test_default(self):
-        obj = haplib.Signal()
-        self.assertEquals(False, obj.restart)
-
-    def test_restart_is_true(self):
-        obj = haplib.Signal(restart=True)
-        self.assertEquals(True, obj.restart)
 
 
 class TestHaplib_Callback(unittest.TestCase):
@@ -905,7 +896,7 @@ class BasePoller(unittest.TestCase):
         try:
             set_ms_info(ms_info)
             raise
-        except haplib.Signal:
+        except hap.Signal:
             pass
 
     def test_call(self):

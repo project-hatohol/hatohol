@@ -24,6 +24,7 @@ import MySQLdb
 import time
 import logging
 import datetime
+from hatohol import hap
 from hatohol import haplib
 from hatohol import standardhap
 
@@ -91,7 +92,7 @@ class Common:
             self.__cursor = self.__db.cursor()
         except MySQLdb.Error as (errno, msg):
             logging.error('MySQL Error [%d]: %s' % (errno, msg))
-            raise haplib.Signal
+            raise hap.Signal
 
     def __parse_url(self, url):
         # [URL] SERVER_IP:PORT/DATABASE

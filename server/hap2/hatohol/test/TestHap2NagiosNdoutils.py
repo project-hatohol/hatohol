@@ -21,6 +21,7 @@
 
 import unittest
 import common as testutil
+from hatohol import hap
 from hatohol import haplib
 from hap2_nagios_ndoutils import Common
 import hap2_nagios_ndoutils
@@ -86,7 +87,7 @@ class TestCommon(unittest.TestCase):
     def test_ensure_connection_with_failure_of_opening_db(self):
         options = {"db_invalid_param": True}
         comm = CommonForTest(options)
-        self.assertRaises(haplib.Signal, comm.ensure_connection)
+        self.assertRaises(hap.Signal, comm.ensure_connection)
 
     def test_close_connection_without_connection(self):
         comm = Common()
