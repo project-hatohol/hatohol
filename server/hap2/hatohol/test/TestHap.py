@@ -41,6 +41,12 @@ class handle_exception(unittest.TestCase):
         except:
             self.assertRaises(TypeError, hap.handle_exception, (TypeError,))
 
+    def test_handle_exception_critical_signal(self):
+        try:
+            raise hap.Signal(critical=True)
+        except:
+            self.assertRaises(hap.Signal, hap.handle_exception)
+
 
 class Signal(unittest.TestCase):
     def test_default(self):
