@@ -387,7 +387,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	void queueProcedureCallback(const string id,
 				    ProcedureCallbackPtr callback)
 	{
-		const int PROCEDURE_TIMEOUT_MSEC = 60 * 1000;
+		constexpr int PROCEDURE_TIMEOUT_MSEC = 60 * 1000;
 
 		lock_guard<mutex> lock(m_procedureMapMutex);
 
