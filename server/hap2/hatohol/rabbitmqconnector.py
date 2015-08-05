@@ -96,11 +96,7 @@ class RabbitMQConnector(Transporter):
             except:
                 # On some condition such as Ubuntu 14.04, the above close()
                 # raises an exception when the rabbitmq-server is stopped.
-                (exctype, value, tb) = sys.exc_info()
-                if exctype is SystemExit:
-                    raise
-                logging.error("Unexpected error: %s, %s, %s" % \
-                              (exctype, value, traceback.format_tb(tb)))
+                hap.handle_exception()
 
             self.__connection = None
 
