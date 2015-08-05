@@ -380,7 +380,7 @@ struct AssertGetEventsArg
 	{
 		UnifiedEventIdType lastId = -1;
 		for (size_t i = 0; i < numberOfFixtures; i++) {
-			if (filterOutExpectedRecord(&fixtures[i]))
+			if (!isAuthorized(fixtures[i]))
 				continue;
 			if (!option.isValidServer(fixtures[i].serverId))
 				continue;
