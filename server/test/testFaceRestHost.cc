@@ -243,6 +243,8 @@ static void _assertEvents(const string &path, const string &callbackName = "",
 	// build expected data
 	AssertGetEventsArg eventsArg(NULL);
 	eventsArg.filterForDataOfDefunctSv = true;
+	eventsArg.targetServerId = serverId;
+	eventsArg.targetHostId = hostIdInServer;
 	eventsArg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	eventsArg.sortType = EventsQueryOption::SORT_TIME;
 	eventsArg.sortDirection = EventsQueryOption::SORT_DESCENDING;
@@ -254,22 +256,12 @@ static void _assertEvents(const string &path, const string &callbackName = "",
 	JSONParser *parser = getResponseAsJSONParser(arg);
 	unique_ptr<JSONParser> parserPtr(parser);
 
-	// request
-	StringMap queryMap;
-	if (serverId != ALL_SERVERS) {
-		queryMap["serverId"] =
-		  StringUtils::sprintf("%" PRIu32, serverId);
-	}
-	if (hostIdInServer != ALL_LOCAL_HOSTS)
-		queryMap["hostId"] = hostIdInServer;
-	arg.parameters = queryMap;
-
 	// check the reply
 	assertErrorCode(parser);
 	assertValueInParser(parser, "numberOfEvents",
 	                    eventsArg.expectedRecords.size());
 	assertValueInParser(parser, "lastUnifiedEventId",
-	                    eventsArg.expectedRecords.size());
+	                    eventsArg.findLastUnifiedId());
 	ThreadLocalDBCache cache;
 	bool shouldHaveIncident = cache.getAction().isIncidentSenderEnabled();
 	assertValueInParser(parser, "haveIncident", shouldHaveIncident);
@@ -583,7 +575,12 @@ void test_eventsJSONP(void)
 
 void test_eventsForOneServerOneHost(void)
 {
-	assertEvents("/event", "foo",
+	string query =
+	  StringUtils::sprintf(
+	    "/event?serverId=%" FMT_SERVER_ID "&hostId=%" FMT_LOCAL_HOST_ID,
+	    testEventInfo[1].serverId,
+	    testEventInfo[1].hostIdInServer.c_str());
+	assertEvents(query, "",
 		     testEventInfo[1].serverId,
 		     testEventInfo[1].hostIdInServer);
 }

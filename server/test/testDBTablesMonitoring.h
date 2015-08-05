@@ -375,4 +375,17 @@ struct AssertGetEventsArg
 		}
 		cppcut_assert_equal(expected, actual);
 	}
+
+	UnifiedEventIdType findLastUnifiedId(void)
+	{
+		UnifiedEventIdType lastId = -1;
+		for (size_t i = 0; i < numberOfFixtures; i++) {
+			if (filterOutExpectedRecord(&fixtures[i]))
+				continue;
+			if (!option.isValidServer(fixtures[i].serverId))
+				continue;
+			lastId = i + 1;
+		}
+		return lastId;
+	}
 };
