@@ -22,6 +22,26 @@
 import unittest
 import hap
 
+class Gadget:
+    pass
+
+class handle_exception(unittest.TestCase):
+    def test_handle_exception(self):
+        obj = Gadget()
+        try:
+            raise obj
+        except:
+            exctype, value = hap.handle_exception()
+        self.assertEquals(Gadget, exctype)
+        self.assertEquals(obj, value)
+
+    def test_handle_exception_on_raises(self):
+        try:
+            raise TypeError
+        except:
+            self.assertRaises(TypeError, hap.handle_exception, (TypeError,))
+
+
 class Signal(unittest.TestCase):
     def test_default(self):
         obj = hap.Signal()
