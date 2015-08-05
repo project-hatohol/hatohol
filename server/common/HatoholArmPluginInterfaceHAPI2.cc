@@ -23,6 +23,7 @@
 #include "AMQPPublisher.h"
 #include "HatoholArmPluginInterfaceHAPI2.h"
 #include "JSONBuilder.h"
+#include <mutex>
 
 using namespace std;
 using namespace mlpl;
@@ -283,15 +284,25 @@ private:
 
 struct HatoholArmPluginInterfaceHAPI2::Impl
 {
+	struct ProcedureCallContext
+	{
+		Impl *m_impl;
+		ProcedureCallbackPtr m_callback;
+		string m_procedureId;
+		guint m_timeoutId;
+	};
+	typedef unique_ptr<ProcedureCallContext> ProcedureCallContextPtr;
+
 	CommunicationMode m_communicationMode;
 	ArmPluginInfo m_pluginInfo;
 	HatoholArmPluginInterfaceHAPI2 &m_hapi2;
 	bool m_established;
 	ProcedureHandlerMap m_procedureHandlerMap;
-	map<string, ProcedureCallbackPtr> m_procedureCallbackMap;
+	mutex m_procedureMapMutex;
+	map<string, ProcedureCallContextPtr> m_procedureCallContextMap;
 	AMQPConnectionInfo m_connectionInfo;
 	AMQPConsumer *m_consumer;
-	AMQPHAPI2MessageHandler *m_handler;
+	AMQPHAPI2MessageHandler m_handler;
 
 	Impl(HatoholArmPluginInterfaceHAPI2 &hapi2,
 	     const CommunicationMode mode)
@@ -299,13 +310,20 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	  m_hapi2(hapi2),
 	  m_established(false),
 	  m_consumer(NULL),
-	  m_handler(NULL)
+	  m_handler(m_hapi2)
 	{
 	}
 
 	~Impl()
 	{
 		stop();
+
+		lock_guard<mutex> lock(m_procedureMapMutex);
+		for (auto &pair: m_procedureCallContextMap) {
+			ProcedureCallContextPtr &context = pair.second;
+			Utils::removeEventSourceIfNeeded(context->m_timeoutId);
+		}
+		m_procedureCallContextMap.clear();
 	}
 
 	void setArmPluginInfo(const ArmPluginInfo &armPluginInfo)
@@ -344,8 +362,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	{
 		setupAMQPConnectionInfo();
 
-		m_handler = new AMQPHAPI2MessageHandler(m_hapi2);
-		m_consumer = new AMQPConsumer(m_connectionInfo, m_handler);
+		m_consumer = new AMQPConsumer(m_connectionInfo, &m_handler);
 	}
 
 	string generateQueueName(const ArmPluginInfo &pluginInfo)
@@ -370,20 +387,57 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	void queueProcedureCallback(const string id,
 				    ProcedureCallbackPtr callback)
 	{
-		m_procedureCallbackMap[id] = callback;
+		constexpr int PROCEDURE_TIMEOUT_MSEC = 60 * 1000;
+
+		lock_guard<mutex> lock(m_procedureMapMutex);
+
+		ProcedureCallContext *context = new ProcedureCallContext();
+		context->m_impl = this;
+		context->m_callback = callback;
+		context->m_procedureId = id;
+		context->m_timeoutId =
+		  Utils::setGLibTimer(PROCEDURE_TIMEOUT_MSEC,
+				      onProcedureCallContext,
+				      context);
+		m_procedureCallContextMap[id]
+		  = ProcedureCallContextPtr(context);
 	}
 
 	bool runProcedureCallback(const string id, JSONParser &parser)
 	{
-		auto it = m_procedureCallbackMap.find(id);
-		if (it != m_procedureCallbackMap.end()) {
-			ProcedureCallbackPtr callback = it->second;
-			if (callback.hasData())
-				callback->onGotResponse(parser);
-			m_procedureCallbackMap.erase(it);
+		lock_guard<mutex> lock(m_procedureMapMutex);
+
+		auto it = m_procedureCallContextMap.find(id);
+		if (it != m_procedureCallContextMap.end()) {
+			ProcedureCallContextPtr &context = it->second;
+			if (context->m_callback.hasData())
+				context->m_callback->onGotResponse(parser);
+			g_source_remove(context->m_timeoutId);
+			m_procedureCallContextMap.erase(it);
 			return true;
 		}
+
 		return false;
+	}
+
+	static gboolean onProcedureCallContext(gpointer data)
+	{
+		ProcedureCallContext *context =
+		  static_cast<ProcedureCallContext *>(data);
+
+		lock_guard<mutex> lock(context->m_impl->m_procedureMapMutex);
+
+		if (context->m_callback.hasData())
+			context->m_callback->onTimeout();
+
+		map<string, ProcedureCallContextPtr> &contextMap
+		  = context->m_impl->m_procedureCallContextMap;
+
+		auto it = contextMap.find(context->m_procedureId);
+		if (it != contextMap.end())
+			contextMap.erase(it);
+
+		return FALSE;
 	}
 
 	void stop(void)
@@ -393,8 +447,6 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 			delete m_consumer;
 			m_consumer = nullptr;
 		}
-		delete m_handler;
-		m_handler = nullptr;
 	}
 
 	void onConnect(void)
