@@ -382,8 +382,10 @@ struct AssertGetEventsArg
 		for (size_t i = 0; i < numberOfFixtures; i++) {
 			if (!isAuthorized(fixtures[i]))
 				continue;
-			if (!option.isValidServer(fixtures[i].serverId))
+			if (filterForDataOfDefunctSv &&
+			    !option.isValidServer(fixtures[i].serverId)) {
 				continue;
+			}
 			lastId = i + 1;
 		}
 		return lastId;
