@@ -57,5 +57,6 @@ class Signal:
     propagate some events and jump over stack frames.
     """
 
-    def __init__(self, restart=False):
+    def __init__(self, restart=False, critical=False):
         self.restart = restart
+        self.critical = critical

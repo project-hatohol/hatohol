@@ -46,9 +46,14 @@ class Signal(unittest.TestCase):
     def test_default(self):
         obj = hap.Signal()
         self.assertEquals(False, obj.restart)
+        self.assertEquals(False, obj.critical)
 
     def test_restart_is_true(self):
         obj = hap.Signal(restart=True)
         self.assertEquals(True, obj.restart)
+
+    def test_critical_is_true(self):
+        obj = hap.Signal(critical=True)
+        self.assertEquals(True, obj.critical)
 
 
