@@ -291,15 +291,11 @@ static void _assertEvents(const string &path,
 	assertServersIdNameHashInParser(parser);
 }
 
-static void _assertEvents(const string &path, const string &callbackName = "",
-                          const ServerIdType &serverId = ALL_SERVERS,
-                          const LocalHostIdType &hostIdInServer = ALL_LOCAL_HOSTS)
+static void _assertEvents(const string &path, const string &callbackName = "")
 {
 	// build expected data
 	AssertGetEventsArg eventsArg(NULL);
 	eventsArg.filterForDataOfDefunctSv = true;
-	eventsArg.targetServerId = serverId;
-	eventsArg.targetHostId = hostIdInServer;
 	eventsArg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	eventsArg.sortType = EventsQueryOption::SORT_TIME;
 	eventsArg.sortDirection = EventsQueryOption::SORT_DESCENDING;
@@ -582,14 +578,23 @@ void test_eventsJSONP(void)
 
 void test_eventsForOneServerOneHost(void)
 {
+	// build expected data
+	AssertGetEventsArg eventsArg(NULL);
+	eventsArg.filterForDataOfDefunctSv = true;
+	eventsArg.targetServerId = testEventInfo[1].serverId;
+	eventsArg.targetHostId = testEventInfo[1].hostIdInServer;
+	eventsArg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	eventsArg.sortType = EventsQueryOption::SORT_TIME;
+	eventsArg.sortDirection = EventsQueryOption::SORT_DESCENDING;
+	eventsArg.fixup();
+
 	string query =
 	  StringUtils::sprintf(
 	    "/event?serverId=%" FMT_SERVER_ID "&hostId=%" FMT_LOCAL_HOST_ID,
 	    testEventInfo[1].serverId,
 	    testEventInfo[1].hostIdInServer.c_str());
-	assertEvents(query, "",
-		     testEventInfo[1].serverId,
-		     testEventInfo[1].hostIdInServer);
+
+	assertEvents(query, eventsArg);
 }
 
 void test_eventsWithTimeRange(void)
