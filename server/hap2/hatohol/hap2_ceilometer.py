@@ -27,6 +27,7 @@ import json
 import datetime
 import cPickle
 import base64
+from hatohol import hap
 from hatohol import haplib
 from hatohol import standardhap
 
@@ -73,7 +74,7 @@ class Common:
         ms_info = self.__ms_info
         if ms_info is None:
             logging.error("Not found: MonitoringServerInfo.")
-            raise haplib.Signal()
+            raise hap.Signal()
 
         auth_url = ms_info.url + "/tokens"
         ext_info_type = haplib.MonitoringServerInfo.EXTENDED_INFO_JSON
@@ -113,7 +114,7 @@ class Common:
         if len(target_eps) > 0:
             logging.error("Not found Endpoints: Nova: %s, Ceiloemeter: %s" % \
                           (self.__nova_ep, self.__ceilometer_ep))
-            raise haplib.Signal()
+            raise hap.Signal()
 
         logging.info("EP: Nova: %s", self.__nova_ep)
         logging.info("EP: Ceiloemeter: %s", self.__ceilometer_ep)

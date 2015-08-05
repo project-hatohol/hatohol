@@ -1,22 +1,27 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # coding: UTF-8
+#
+#  Copyright (C) 2015 Project Hatohol
+#
+#  This file is part of Hatohol.
+#
+#  Hatohol is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Lesser General Public License, version 3
+#  as published by the Free Software Foundation.
+#
+#  Hatohol is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#  GNU Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with Hatohol. If not, see
+#  <http://www.gnu.org/licenses/>.
+
 """
-  Copyright (C) 2015 Project Hatohol
-
-  This file is part of Hatohol.
-
-  Hatohol is free software: you can redistribute it and/or modify
-  it under the terms of the GNU Lesser General Public License, version 3
-  as published by the Free Software Foundation.
-
-  Hatohol is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with Hatohol. If not, see
-  <http://www.gnu.org/licenses/>.
+This module contains functions and class for creating HAP (Hatohol Arm Plugins)
+and provides framework-like components compared to hap.py that includes more
+basic ones.
 """
 
 import sys
@@ -34,6 +39,7 @@ import imp
 import calendar
 import math
 import copy
+from hatohol import hap
 from hatohol import transporter
 from hatohol.rabbitmqconnector import RabbitMQConnector
 from hatohol.rabbitmqconnector import OverCapacity
@@ -199,20 +205,10 @@ def handle_exception(raises=(SystemExit,)):
     (exctype, value, tb) = sys.exc_info()
     if exctype in raises:
         raise
-    if exctype is not Signal:
+    if exctype is not hap.Signal:
         logging.error("Unexpected error: %s, %s, %s" % \
                       (exctype, value, traceback.format_tb(tb)))
     return exctype, value
-
-
-class Signal:
-    """
-    This class is supposed to raise as an exception in order to
-    propagate some events and jump over stack frames.
-    """
-
-    def __init__(self, restart=False):
-        self.restart = restart
 
 
 class Callback:
@@ -984,7 +980,7 @@ class BasePoller(HapiProcessor, ChildProcess):
         self.__retryInterval = ms_info.retry_interval_sec
         logging.info("Polling inverval: %d/%d",
                      self.__pollingInterval, self.__retryInterval)
-        raise Signal(restart=True)
+        raise hap.Signal(restart=True)
 
     def __call__(self):
         arm_info = ArmInfo()
@@ -1000,7 +996,7 @@ class BasePoller(HapiProcessor, ChildProcess):
             succeeded = True
         except:
             exctype, value = handle_exception()
-            if exctype is Signal:
+            if exctype is hap.Signal:
                 if value.restart:
                     return
             else:

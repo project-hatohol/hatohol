@@ -302,6 +302,9 @@ rm -rf %{buildroot}
 %{python_sitelib}/hatohol/__init__.py
 %{python_sitelib}/hatohol/__init__.pyc
 %{python_sitelib}/hatohol/__init__.pyo
+%{python_sitelib}/hatohol/hap.py
+%{python_sitelib}/hatohol/hap.pyc
+%{python_sitelib}/hatohol/hap.pyo
 %{python_sitelib}/hatohol/haplib.py
 %{python_sitelib}/hatohol/haplib.pyc
 %{python_sitelib}/hatohol/haplib.pyo
