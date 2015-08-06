@@ -47,8 +47,8 @@ extern const size_t NumTestServerTypeInfo;
 extern const MonitoringServerInfo testServerInfo[];
 extern const size_t NumTestServerInfo;
 
-extern MonitoringServerStatus testServerStatus[];
-extern size_t NumTestServerStatus;
+extern const MonitoringServerStatus testServerStatus[];
+extern const size_t NumTestServerStatus;
 
 extern TriggerInfo testTriggerInfo[];
 extern size_t NumTestTriggerInfo;

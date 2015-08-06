@@ -486,7 +486,7 @@ static void _assertOverviewInParser(JSONParser *parser, RequestArg &arg)
 		assertValueInParser(parser, "numberOfOnlineUsers", 0);
 		string nvps = "0.00";
 		if (i < NumTestServerStatus) {
-			MonitoringServerStatus &serverStatus
+			const MonitoringServerStatus &serverStatus
 			  = testServerStatus[i];
 			nvps = StringUtils::sprintf("%.2f", serverStatus.nvps);
 		}

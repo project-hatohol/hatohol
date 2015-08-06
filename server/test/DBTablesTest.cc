@@ -249,7 +249,7 @@ const MonitoringServerInfo testServerInfo[] =
 }};
 const size_t NumTestServerInfo = ARRAY_SIZE(testServerInfo);
 
-MonitoringServerStatus testServerStatus[] =
+const MonitoringServerStatus testServerStatus[] =
 {{
 	1,                        // id
 	1.1,                      // nvps
@@ -269,7 +269,7 @@ MonitoringServerStatus testServerStatus[] =
 	222,                      // id
 	0.00051234,               // nvps
 }};
-size_t NumTestServerStatus = ARRAY_SIZE(testServerStatus);
+size_t const NumTestServerStatus = ARRAY_SIZE(testServerStatus);
 
 TriggerInfo testTriggerInfo[] =
 {{
@@ -2252,10 +2252,8 @@ void loadTestDBServerStatus(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestServerStatus; i++) {
-		MonitoringServerStatus *serverStatus = &testServerStatus[i];
-		dbMonitoring.addMonitoringServerStatus(*serverStatus);
-	}
+	for (size_t i = 0; i < NumTestServerStatus; i++)
+		dbMonitoring.addMonitoringServerStatus(testServerStatus[i]);
 }
 
 void loadTestDBIncidents(void)
