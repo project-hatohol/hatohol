@@ -20,7 +20,7 @@
 """
 
 import unittest
-import common as testutil
+import testutils
 from hatohol import hap
 from hatohol import haplib
 from hap2_nagios_ndoutils import Common
@@ -78,11 +78,11 @@ class CommonForTest(Common):
 
 class TestCommon(unittest.TestCase):
     def test_constructor(self):
-        testutil.assertNotRaises(Common)
+        testutils.assertNotRaises(Common)
 
     def test_ensure_connection(self):
         comm = CommonForTest()
-        testutil.assertNotRaises(comm.ensure_connection)
+        testutils.assertNotRaises(comm.ensure_connection)
 
     def test_ensure_connection_with_failure_of_opening_db(self):
         options = {"db_invalid_param": True}
@@ -91,7 +91,7 @@ class TestCommon(unittest.TestCase):
 
     def test_close_connection_without_connection(self):
         comm = Common()
-        testutil.assertNotRaises(comm.close_connection)
+        testutils.assertNotRaises(comm.close_connection)
 
     def test_close_connection(self):
         self.test_ensure_connection()
@@ -224,29 +224,29 @@ class TestCommon(unittest.TestCase):
     #
     def __assert_parse_url(self, url, expect):
         comm = Common()
-        target_func = testutil.returnPrivObj(comm, "__parse_url")
+        target_func = testutils.get_priv_attr(comm, "__parse_url")
         self.assertEquals(target_func(url), expect)
 
     def __assert_validate_object_ids(self, host_ids, expect=True):
         comm = Common()
-        target_func = testutil.returnPrivObj(comm, "__validate_object_ids")
+        target_func = testutils.get_priv_attr(comm, "__validate_object_ids")
         self.assertEquals(target_func(host_ids), expect)
 
     def __assert_validate_object_id(self, host_id, expect=True):
         comm = Common()
-        target_func = testutil.returnPrivObj(comm, "__validate_object_id")
+        target_func = testutils.get_priv_attr(comm, "__validate_object_id")
         self.assertEquals(target_func(host_id), expect)
 
     def __assert_extract_validated_event_last_info(self, last_info, expect):
         comm = Common()
         target_func = \
-            testutil.returnPrivObj(comm, "__extract_validated_event_last_info")
+            testutils.get_priv_attr(comm, "__extract_validated_event_last_info")
         self.assertEquals(target_func(last_info), expect)
 
     def __assert_parse_status_and_severity(self, status, expect):
         comm = Common()
         target_func = \
-            testutil.returnPrivObj(comm, "__parse_status_and_severity")
+            testutils.get_priv_attr(comm, "__parse_status_and_severity")
         self.assertEquals(target_func(status), expect)
 
 

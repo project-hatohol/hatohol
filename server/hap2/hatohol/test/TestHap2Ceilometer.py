@@ -18,7 +18,7 @@
   <http://www.gnu.org/licenses/>.
 """
 import unittest
-import common as testutils
+import testutils
 from hap2_ceilometer import Common
 import hap2_ceilometer
 from datetime import datetime
@@ -237,10 +237,10 @@ class TestCommon(unittest.TestCase):
         options = {}
         comm = CommonForTest(options)
         comm.ensure_connection()
-        nova_ep = testutils.returnPrivObj(comm, "__nova_ep", "Common")
+        nova_ep = testutils.get_priv_attr(comm, "__nova_ep", "Common")
         self.assertEqual(nova_ep, comm.NOVA_EP)
         ceilometer_ep = \
-            testutils.returnPrivObj(comm, "__ceilometer_ep", "Common")
+            testutils.get_priv_attr(comm, "__ceilometer_ep", "Common")
         self.assertEqual(ceilometer_ep, comm.CEILOMETER_EP)
 
     # skip tests for __set_nova_ep and __set_ceilometer_ep, because theya are
@@ -350,7 +350,7 @@ class TestCommon(unittest.TestCase):
         comm.ensure_connection()
         host_id = "host_id2"
         target_func = \
-            testutils.returnPrivObj(comm, "__collect_items_and_put", "Common")
+            testutils.get_priv_attr(comm, "__collect_items_and_put", "Common")
         expect_item = comm.EXPECT_ITEM_HOST_ID1_CNAME
         expect_item["itemId"] = "host_id2.CNAME"
         expect_item["hostId"] = host_id
@@ -359,7 +359,7 @@ class TestCommon(unittest.TestCase):
     def __assert_get_resource(self, num_items, expect):
         comm = CommonForTest({"href1_num_items": num_items})
         get_resource = \
-            testutils.returnPrivObj(comm, "__get_resource", "Common")
+            testutils.get_priv_attr(comm, "__get_resource", "Common")
         rel = None
         href = "http://HREF/href1"
         self.assertEquals(get_resource(rel, href), expect)
@@ -385,13 +385,13 @@ class TestCommon(unittest.TestCase):
 
     def __assert_decode_last_alarm_timestamp_map(self, last_info, source):
         comm = CommonForTest()
-        dec_func = testutils.returnPrivObj(
+        dec_func = testutils.get_priv_attr(
                         comm, "__decode_last_alarm_timestamp_map", "Common")
         self.assertEquals(dec_func(last_info), source)
 
     def test_encode_decode_last_alarm_timestamp_map(self):
         comm = CommonForTest()
-        enc_func = testutils.returnPrivObj(
+        enc_func = testutils.get_priv_attr(
                         comm, "__encode_last_alarm_timestamp_map", "Common")
         source = {"ABCDEFG": 1, "2345": "foo"}
         encoded = enc_func(source)
@@ -407,7 +407,7 @@ class TestCommon(unittest.TestCase):
     def test__collect_events_and_put(self):
         comm = CommonForTest()
         comm.ensure_connection()
-        target_func = testutils.returnPrivObj(comm, "__collect_events_and_put",
+        target_func = testutils.get_priv_attr(comm, "__collect_events_and_put",
                                               "Common")
         # TODO: test the path when alarm_cache is hit
         #       In that case, hostId, hostName, and brief should not be "N/A"
@@ -417,7 +417,7 @@ class TestCommon(unittest.TestCase):
         target_func(alarm_id, last_alarm_time, fetch_id)
         self.assertEquals(comm.store["fetch_id"], fetch_id)
         self.assertEquals(comm.store["last_info_generator"],
-            testutils.returnPrivObj(comm, "__last_info_generator", "Common"))
+            testutils.get_priv_attr(comm, "__last_info_generator", "Common"))
         self.assertEquals(comm.store["events"], [
             {
                 "eventId": "event_id_0",
@@ -456,7 +456,7 @@ class TestCommon(unittest.TestCase):
 
     def test_last_info_generator(self):
         comm = CommonForTest()
-        target_func = testutils.returnPrivObj(comm, "__last_info_generator",
+        target_func = testutils.get_priv_attr(comm, "__last_info_generator",
                                               "Common")
         # TODO: test the path when __alarm_last_time_map.get(alarm_id) is hit
         events = [{
@@ -475,7 +475,7 @@ class TestCommon(unittest.TestCase):
 
     def test_remove_missing_alarm_before_get_all_alarms(self):
         comm = CommonForTest()
-        target_func = testutils.returnPrivObj(comm, "__remove_missing_alarm",
+        target_func = testutils.get_priv_attr(comm, "__remove_missing_alarm",
                                               "Common")
         alarm_time_map = {"alarm1": "20120222101011.123456",
                           "alarm2": "20120322121311.123456",
@@ -487,7 +487,7 @@ class TestCommon(unittest.TestCase):
         comm = CommonForTest()
         comm.ensure_connection()
         comm.collect_triggers_and_put()
-        target_func = testutils.returnPrivObj(comm, "__remove_missing_alarm",
+        target_func = testutils.get_priv_attr(comm, "__remove_missing_alarm",
                                               "Common")
         alarm_time_map = {"alarm1": "20120222101011.123456",
                           "112233": "20120322121311.123456",
@@ -499,7 +499,7 @@ class TestCommon(unittest.TestCase):
 class Common__get_history_query_option(unittest.TestCase):
     def __assert_get_history_query_option(self, last_alarm_time, expect):
         comm = CommonForTest()
-        target_func = testutils.returnPrivObj(
+        target_func = testutils.get_priv_attr(
                             comm, "__get_history_query_option", "Common")
         self.assertEquals(target_func(last_alarm_time), expect)
 
@@ -553,7 +553,7 @@ class Common__parse_alarm_host(unittest.TestCase):
         comm = CommonForTest()
         if host_cache is not None:
             comm.set_host_cache(host_cache)
-        target_func = testutils.returnPrivObj(
+        target_func = testutils.get_priv_attr(
                             comm, "__parse_alarm_host", "Common")
         self.assertEquals(target_func(threshold_rule), expect)
 
@@ -585,7 +585,7 @@ class Common__parse_alarm_host(unittest.TestCase):
 class Common__parse_alarm_host_each(unittest.TestCase):
     def __assert(self, query, expect):
         comm = CommonForTest()
-        target_func = testutils.returnPrivObj(
+        target_func = testutils.get_priv_attr(
                             comm, "__parse_alarm_host_each", "Common")
         self.assertEquals(target_func(query), expect)
 
@@ -608,7 +608,7 @@ class Common__parse_alarm_host_each(unittest.TestCase):
 class Common__fixup_event_last_info(unittest.TestCase):
     def __assert(self, last_info, expect, cached_last_info=""):
         comm = CommonForTest()
-        target = testutils.returnPrivObj(comm, "__fixup_event_last_info",
+        target = testutils.get_priv_attr(comm, "__fixup_event_last_info",
                                          "Common")
         comm.get_cached_event_last_info = lambda: cached_last_info
         self.assertEquals(target(last_info), expect)

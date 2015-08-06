@@ -18,7 +18,7 @@
   <http://www.gnu.org/licenses/>.
 """
 import unittest
-import common as testutils
+import testutils
 import hap2_fluentd
 import transporter
 import haplib
@@ -46,7 +46,7 @@ class Hap2FluentdMainTestee(hap2_fluentd.Hap2FluentdMain):
         self._Hap2FluentdMain__fluentd_manager_main = lambda : None
 
     def get_priv_attr(self, name):
-        return testutils.returnPrivObj(self, name, "Hap2FluentdMain")
+        return testutils.get_priv_attr(self, name, "Hap2FluentdMain")
 
     def put_events(self, events, fetch_id=None, last_info_generator=None):
         self.stores["events"] = events

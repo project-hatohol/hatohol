@@ -21,7 +21,7 @@ import unittest
 import haplib
 import time
 import re
-import common
+import testutils
 import transporter
 import os
 import json
@@ -210,30 +210,30 @@ class Sender(unittest.TestCase):
     def test_request(self):
         transporter_args = {"class": transporter.Transporter}
         test_sender = haplib.Sender(transporter_args)
-        common.assertNotRaises(test_sender.request,
+        testutils.assertNotRaises(test_sender.request,
                                "test_procedure_name", "test_param", 1)
 
     def test_response(self):
         transporter_args = {"class": transporter.Transporter}
         test_sender = haplib.Sender(transporter_args)
-        common.assertNotRaises(test_sender.response,
+        testutils.assertNotRaises(test_sender.response,
                                "test_result", 1)
 
     def test_error(self):
         transporter_args = {"class": transporter.Transporter}
         test_sender = haplib.Sender(transporter_args)
-        common.assertNotRaises(test_sender.error, -32700, 1)
+        testutils.assertNotRaises(test_sender.error, -32700, 1)
 
     def test_notifiy(self):
         transporter_args = {"class": transporter.Transporter}
         test_sender = haplib.Sender(transporter_args)
-        common.assertNotRaises(test_sender.notify, "test_notify", 1)
+        testutils.assertNotRaises(test_sender.notify, "test_notify", 1)
 
 
 class Utils(unittest.TestCase):
     def test_define_transporter_arguments(self):
         test_parser = argparse.ArgumentParser()
-        common.assertNotRaises(haplib.Utils.define_transporter_arguments,
+        testutils.assertNotRaises(haplib.Utils.define_transporter_arguments,
                                test_parser)
 
     def test_load_transporter(self):
@@ -242,7 +242,7 @@ class Utils(unittest.TestCase):
         test_transport_arguments.transporter_module = "hatohol.haplib"
         test_transport_arguments.transporter = "RabbitMQHapiConnector"
 
-        common.assertNotRaises(haplib.Utils.load_transporter,
+        testutils.assertNotRaises(haplib.Utils.load_transporter,
                                test_transport_arguments)
 
     def test_parse_received_message_invalid_json(self):
@@ -311,7 +311,7 @@ class Utils(unittest.TestCase):
 
     def test_check_error_dict_success(self):
         error_dict = {"error": {"code": 1, "message": "test_message", "data": "test_data"},"id": 1}
-        common.assertNotRaises(haplib.Utils.__check_error_dict, error_dict)
+        testutils.assertNotRaises(haplib.Utils.__check_error_dict, error_dict)
 
     def test_check_error_dict_failure(self):
         error_dict = {"error": {"code": 1, "message": "test_message"},"id": 1}
@@ -440,14 +440,14 @@ class HapiProcessor(unittest.TestCase):
 
     def test_reset(self):
         self.processor.reset()
-        prev_hosts = common.returnPrivObj(self.processor, "__previous_hosts")
-        prev_host_groups = common.returnPrivObj(self.processor,
-                                                "__previous_host_groups")
+        prev_hosts = testutils.get_priv_attr(self.processor, "__previous_hosts")
+        prev_host_groups = testutils.get_priv_attr(self.processor,
+                                                   "__previous_host_groups")
         prev_host_group_membership = \
-                common.returnPrivObj(self.processor,
-                                     "__previous_host_group_membership")
-        event_last_info = common.returnPrivObj(self.processor,
-                                               "__event_last_info")
+                testutils.get_priv_attr(self.processor,
+                                        "__previous_host_group_membership")
+        event_last_info = testutils.get_priv_attr(self.processor,
+                                                  "__event_last_info")
         self.assertIsNone(prev_hosts)
         self.assertIsNone(prev_host_groups)
         self.assertIsNone(prev_host_group_membership)
@@ -456,94 +456,95 @@ class HapiProcessor(unittest.TestCase):
     def test_set_ms_info(self):
         exact_ms = "test_ms"
         self.processor.set_ms_info(exact_ms)
-        result_ms = common.returnPrivObj(self.processor, "__ms_info")
+        result_ms = testutils.get_priv_attr(self.processor, "__ms_info")
         self.assertEquals(exact_ms, result_ms)
 
     def test_get_ms_Info(self):
         result_ms = self.processor.get_ms_info()
-        exact_ms = common.returnPrivObj(self.processor, "__ms_info")
+        exact_ms = testutils.get_priv_attr(self.processor, "__ms_info")
         self.assertEquals(exact_ms, result_ms)
 
     def test_set_dispatch_queue(self):
         exact_dispatch_queue = DummyQueue()
         self.processor.set_dispatch_queue(exact_dispatch_queue)
-        result_dispatch_queue = common.returnPrivObj(self.processor,
-                                                     "__dispatch_queue")
+        result_dispatch_queue = testutils.get_priv_attr(self.processor,
+                                                        "__dispatch_queue")
         self.assertEquals(exact_dispatch_queue, result_dispatch_queue)
 
     def test_get_component_code(self):
         result_component_code = self.processor.get_component_code()
-        exact_component_code = common.returnPrivObj(self.processor,
-                                                    "__component_code")
+        exact_component_code = testutils.get_priv_attr(self.processor,
+                                                       "__component_code")
         self.assertEquals(exact_component_code, result_component_code)
 
     def test_get_reply_queue(self):
         result_queue = self.processor.get_reply_queue()
-        exact_queue = common.returnPrivObj(self.processor, "__reply_queue")
+        exact_queue = testutils.get_priv_attr(self.processor, "__reply_queue")
         self.assertEquals(result_queue, exact_queue)
 
     def test_get_sender(self):
         result_sender = self.processor.get_sender()
-        exact_sender = common.returnPrivObj(self.processor, "__sender")
+        exact_sender = testutils.get_priv_attr(self.processor, "__sender")
         self.assertEquals(result_sender, exact_sender)
 
     def test_get_monitoring_server_info(self):
         self.reply_queue.put(True)
         self.connector.enable_ms_flag()
-        common.assertNotRaises(self.processor.get_monitoring_server_info)
+        testutils.assertNotRaises(self.processor.get_monitoring_server_info)
 
     def test_get_last_info(self):
         self.reply_queue.put(True)
-        common.assertNotRaises(self.processor.get_last_info, "test_element")
+        testutils.assertNotRaises(self.processor.get_last_info, "test_element")
 
     def test_exchange_profile_request(self):
         self.reply_queue.put(True)
-        common.assertNotRaises(self.processor.exchange_profile, "test_params")
+        testutils.assertNotRaises(self.processor.exchange_profile,
+                                  "test_params")
 
     def test_exchange_profile_response(self):
-        common.assertNotRaises(self.processor.exchange_profile, "test_params",
-                               response_id=1)
+        testutils.assertNotRaises(self.processor.exchange_profile,
+                                  "test_params", response_id=1)
 
     def test_put_arm_info(self):
         self.reply_queue.put(True)
         test_arm_info = haplib.ArmInfo()
-        common.assertNotRaises(self.processor.put_arm_info, test_arm_info)
+        testutils.assertNotRaises(self.processor.put_arm_info, test_arm_info)
 
     def test_put_hosts(self):
         self.reply_queue.put(True)
         hosts = ["test_host"]
-        common.assertNotRaises(self.processor.put_hosts, hosts)
+        testutils.assertNotRaises(self.processor.put_hosts, hosts)
 
     def test_put_host_groups(self):
         self.reply_queue.put(True)
         host_groups = ["test_host_group"]
-        common.assertNotRaises(self.processor.put_host_groups, host_groups)
+        testutils.assertNotRaises(self.processor.put_host_groups, host_groups)
 
     def test_put_host_group_membership(self):
         self.reply_queue.put(True)
         host_group_membership = ["test_host_group_membership"]
-        common.assertNotRaises(self.processor.put_host_group_membership,
+        testutils.assertNotRaises(self.processor.put_host_group_membership,
                                host_group_membership)
 
     def test_put_triggers(self):
         self.reply_queue.put(True)
         triggers = ["test_triggers"]
-        common.assertNotRaises(self.processor.put_triggers, triggers, "ALL")
+        testutils.assertNotRaises(self.processor.put_triggers, triggers, "ALL")
 
     def test_get_cached_event_last_info(self):
         self.reply_queue.put(True)
-        common.assertNotRaises(self.processor.get_cached_event_last_info)
+        testutils.assertNotRaises(self.processor.get_cached_event_last_info)
 
     def test_put_events(self):
         self.reply_queue.put(True)
         events = [{"eventId": 123, "test_events":"test"}]
-        common.assertNotRaises(self.processor.put_events, events)
+        testutils.assertNotRaises(self.processor.put_events, events)
 
     def test_put_items(self):
         self.reply_queue.put(True)
         fetch_id = 543
         items = [{"itemId": "123", "host_id": "FOOOOOO"}]
-        common.assertNotRaises(self.processor.put_items, items, fetch_id)
+        testutils.assertNotRaises(self.processor.put_items, items, fetch_id)
         # TODO: Check if fetch_id and items shall be passed to the lower layer
 
     def test_put_history(self):
@@ -551,20 +552,20 @@ class HapiProcessor(unittest.TestCase):
         fetch_id = 543
         item_id = 111
         samples = [{"value": "123", "time": "20150321151321"}]
-        common.assertNotRaises(self.processor.put_history,
+        testutils.assertNotRaises(self.processor.put_history,
                                samples, item_id, fetch_id)
         # TODO: Check if fetch_id and items shall be passed to the lower layer
 
     def test_wait_acknowledge(self):
         self.reply_queue.put(True)
-        wait_acknowledge = common.returnPrivObj(self.processor,
-                                                "__wait_acknowledge")
-        common.assertNotRaises(wait_acknowledge, 1)
+        wait_acknowledge = testutils.get_priv_attr(self.processor,
+                                                   "__wait_acknowledge")
+        testutils.assertNotRaises(wait_acknowledge, 1)
 
     def test_wait_acknowledge_timeout(self):
         self.processor.set_timeout_sec(1)
-        wait_acknowledge = common.returnPrivObj(self.processor,
-                                                "__wait_acknowledge")
+        wait_acknowledge = testutils.get_priv_attr(self.processor,
+                                                   "__wait_acknowledge")
         self.assertRaises(Queue.Empty, wait_acknowledge, 1)
 
     def test_wait_response(self):
@@ -575,7 +576,8 @@ class HapiProcessor(unittest.TestCase):
         pm.message_dict = {"id": exact_id, "result": exact_result}
         pm.message_id = exact_id
         reply_queue.put(pm)
-        wait_response = common.returnPrivObj(self.processor, "__wait_response")
+        wait_response = testutils.get_priv_attr(self.processor,
+                                                "__wait_response")
         output = wait_response(exact_id)
 
         self.assertEquals(output, exact_result)
@@ -583,7 +585,8 @@ class HapiProcessor(unittest.TestCase):
     def test_wait_response_timeout(self):
         self.processor.set_timeout_sec(1)
         test_id = 1
-        wait_response = common.returnPrivObj(self.processor, "__wait_response")
+        wait_response = testutils.get_priv_attr(self.processor,
+                                                "__wait_response")
         self.assertRaises(Queue.Empty, wait_response, test_id)
 
 
@@ -594,7 +597,7 @@ class ChildProcess(unittest.TestCase):
             pass
 
     def test_constructor(self):
-        common.assertNotRaises(haplib.ChildProcess)
+        testutils.assertNotRaises(haplib.ChildProcess)
 
     def test_get_process_before_deamonize(self):
         cp = haplib.ChildProcess()
@@ -623,18 +626,18 @@ class Receiver(unittest.TestCase):
         cls.receiver = haplib.Receiver(transporter_args, cls.__test_queue, None)
 
     def test_messenger(self):
-        messenger = common.returnPrivObj(self.receiver, "__messenger")
-        common.assertNotRaises(messenger, None, "test_message")
+        messenger = testutils.get_priv_attr(self.receiver, "__messenger")
+        testutils.assertNotRaises(messenger, None, "test_message")
 
     def test_messenger_get_broken_error(self):
-        messenger = common.returnPrivObj(self.receiver, "__messenger")
-        common.assertNotRaises(messenger, None, '{"error": "test"}')
+        messenger = testutils.get_priv_attr(self.receiver, "__messenger")
+        testutils.assertNotRaises(messenger, None, '{"error": "test"}')
 
     def test_call(self):
-        common.assertNotRaises(self.receiver.__call__)
+        testutils.assertNotRaises(self.receiver.__call__)
 
     def test_daemonize(self):
-        common.assertNotRaises(self.receiver.daemonize)
+        testutils.assertNotRaises(self.receiver.daemonize)
 
 
 class Dispatcher(unittest.TestCase):
@@ -645,25 +648,28 @@ class Dispatcher(unittest.TestCase):
 
     def test_attach_destination(self):
         self.__dispatcher.attach_destination("test_queue", "test")
-        destination_q_map = common.returnPrivObj(self.__dispatcher,
-                                                 "__destination_q_map")
+        destination_q_map = testutils.get_priv_attr(self.__dispatcher,
+                                                    "__destination_q_map")
         self.assertEquals("test_queue", destination_q_map["test"])
 
     def test_get_dispatch_queue(self):
-        dispatch_queue = common.returnPrivObj(self.__dispatcher, "__dispatch_queue")
+        dispatch_queue = testutils.get_priv_attr(self.__dispatcher,
+                                                 "__dispatch_queue")
         self.assertEquals(self.__dispatcher.get_dispatch_queue(), dispatch_queue)
 
     def test_acknowledge(self):
         destination_queue = DummyQueue()
         test_id = "test"
         self.__dispatcher.attach_destination(destination_queue, test_id)
-        acknowledge = common.returnPrivObj(self.__dispatcher, "__acknowledge")
+        acknowledge = testutils.get_priv_attr(self.__dispatcher,
+                                              "__acknowledge")
         test_message = (test_id, 1)
-        common.assertNotRaises(acknowledge, test_message)
+        testutils.assertNotRaises(acknowledge, test_message)
 
     def is_expented_id_notification(self):
-        is_expected_id_notification = common.returnPrivObj(self.__dispatcher,
-                                            "__is_expenced_id_notification")
+        is_expected_id_notification = \
+            testutils.get_priv_attr(self.__dispatcher,
+                                    "__is_expenced_id_notification")
         test_contents = 1
         self.assertTrue(is_expected_id_notification(test_contents))
 
@@ -672,12 +678,12 @@ class Dispatcher(unittest.TestCase):
         test_id = "test"
         test_contents = 1
         test_message = (test_id, test_contents)
-        dispatch_queue = common.returnPrivObj(self.__dispatcher,
-                                              "__dispatch_queue")
+        dispatch_queue = testutils.get_priv_attr(self.__dispatcher,
+                                                 "__dispatch_queue")
         dispatch_queue.put(test_message)
         self.__dispatcher.attach_destination(destination_queue, test_id)
-        dispatch = common.returnPrivObj(self.__dispatcher, "__dispatch")
-        common.assertNotRaises(dispatch)
+        dispatch = testutils.get_priv_attr(self.__dispatcher, "__dispatch")
+        testutils.assertNotRaises(dispatch)
 
     def test_dispatch_receive_response(self):
         destination_queue = DummyQueue()
@@ -686,26 +692,27 @@ class Dispatcher(unittest.TestCase):
         test_contents.message_id = 1
 
         self.__dispatcher.attach_destination(destination_queue, test_id)
-        acknowledge = common.returnPrivObj(self.__dispatcher, "__acknowledge")
+        acknowledge = testutils.get_priv_attr(self.__dispatcher,
+                                              "__acknowledge")
         test_message = (test_id, test_contents.message_id)
         acknowledge(test_message)
 
         test_message = (test_id, test_contents)
-        dispatch_queue = common.returnPrivObj(self.__dispatcher,
-                                              "__dispatch_queue")
+        dispatch_queue = testutils.get_priv_attr(self.__dispatcher,
+                                                 "__dispatch_queue")
         dispatch_queue.put(test_message)
 
-        common.assertNotRaises(acknowledge, test_message)
-        dispatch = common.returnPrivObj(self.__dispatcher, "__dispatch")
-        common.assertNotRaises(dispatch)
+        testutils.assertNotRaises(acknowledge, test_message)
+        dispatch = testutils.get_priv_attr(self.__dispatcher, "__dispatch")
+        testutils.assertNotRaises(dispatch)
 
     def test_daemonize(self):
         dispatcher = DispatcherForTest()
-        common.assertNotRaises(dispatcher.daemonize)
+        testutils.assertNotRaises(dispatcher.daemonize)
 
     def test_call(self):
         dispatcher = DispatcherForTest()
-        common.assertNotRaises(dispatcher)
+        testutils.assertNotRaises(dispatcher)
 
 
 class BaseMainPluginTestee(haplib.BaseMainPlugin):
@@ -733,38 +740,40 @@ class BaseMainPlugin(unittest.TestCase):
                        "userName": None, "password": None,
                        "pollingIntervalSec": None, "retryIntervalSec": None,
                        "extendedInfo": None, "type": None}
-        common.assertNotRaises(self.__main_plugin.hap_update_monitoring_server_info,
+        testutils.assertNotRaises(self.__main_plugin.hap_update_monitoring_server_info,
                                test_params)
 
     def test_return_error(self):
-        common.assertNotRaises(self.__main_plugin.hap_return_error, -32700, 1)
+        testutils.assertNotRaises(self.__main_plugin.hap_return_error, -32700, 1)
 
     def test_register_callback(self):
-        common.assertNotRaises(self.__main_plugin.register_callback,
+        testutils.assertNotRaises(self.__main_plugin.register_callback,
                                "test_code", "test_handler")
 
     def test_detect_implemented_procedures(self):
-        detect_implemented_procedures = common.returnPrivObj(self.__main_plugin,
-                                            "__detect_implemented_procedures")
+        detect_implemented_procedures = \
+            testutils.get_priv_attr(self.__main_plugin,
+                                    "__detect_implemented_procedures")
         detect_implemented_procedures()
-        implemented_procedures = common.returnPrivObj(self.__main_plugin,
-                                                      "__implemented_procedures")
+        implemented_procedures = \
+            testutils.get_priv_attr(self.__main_plugin,
+                                    "__implemented_procedures")
         self.assertEquals({"exchangeProfile": self.__main_plugin.hap_exchange_profile,
                            "updateMonitoringServerInfo": self.__main_plugin.hap_update_monitoring_server_info},
                            implemented_procedures)
 
     def test_get_sender(self):
-        sender = common.returnPrivObj(self.__main_plugin, "__sender")
+        sender = testutils.get_priv_attr(self.__main_plugin, "__sender")
         self.assertEquals(sender, self.__main_plugin.get_sender())
 
     def test_set_sender(self):
         test_sender = "test_sender"
         self.__main_plugin.set_sender(test_sender)
-        sender = common.returnPrivObj(self.__main_plugin, "__sender")
+        sender = testutils.get_priv_attr(self.__main_plugin, "__sender")
         self.assertEquals(test_sender, sender)
 
     def test_get_dispatcher(self):
-        dispatcher = common.returnPrivObj(self.__main_plugin, "__dispatcher")
+        dispatcher = testutils.get_priv_attr(self.__main_plugin, "__dispatcher")
         self.assertEquals(dispatcher, self.__main_plugin.get_dispatcher())
 
     def test_plugin_name(self):
@@ -794,17 +803,17 @@ class BaseMainPlugin(unittest.TestCase):
             self.assertEquals("Got", str(exception)[0:3])
 
     def test_request_exit(self):
-        common.assertNotRaises(self.__main_plugin.request_exit)
+        testutils.assertNotRaises(self.__main_plugin.request_exit)
 
     def test_is_exit_request(self):
         self.assertTrue(self.__main_plugin.is_exit_request(None))
 
     def test_start_receiver(self):
-        common.assertNotRaises(self.__main_plugin.start_receiver)
+        testutils.assertNotRaises(self.__main_plugin.start_receiver)
 
     def test_start_dispatcher(self):
         self.__main_plugin._HapiProcessor__dispatcher = DispatcherForTest()
-        common.assertNotRaises(self.__main_plugin.start_dispatcher)
+        testutils.assertNotRaises(self.__main_plugin.start_dispatcher)
 
     def test_call(self):
         self.__main_plugin._HapiProcessor__reply_queue = DummyQueue()
@@ -824,53 +833,53 @@ class BasePoller(unittest.TestCase):
         cls.poller = haplib.BasePoller(sender=cls.sender, process_id="test")
 
     def test_poll(self):
-        common.assertNotRaises(self.poller.poll)
+        testutils.assertNotRaises(self.poller.poll)
 
     def test_get_command_queue(self):
-        command_queue = common.returnPrivObj(self.poller, "__command_queue")
+        command_queue = testutils.get_priv_attr(self.poller, "__command_queue")
         self.assertEquals(command_queue, self.poller.get_command_queue())
 
     def test_poll_setup(self):
-        common.assertNotRaises(self.poller.poll_setup)
+        testutils.assertNotRaises(self.poller.poll_setup)
 
     def test_poll_hosts(self):
-        common.assertNotRaises(self.poller.poll_hosts)
+        testutils.assertNotRaises(self.poller.poll_hosts)
 
     def test_poll_host_groups(self):
-        common.assertNotRaises(self.poller.poll_host_groups)
+        testutils.assertNotRaises(self.poller.poll_host_groups)
 
     def test_poll_host_group_membership(self):
-        common.assertNotRaises(self.poller.poll_host_group_membership)
+        testutils.assertNotRaises(self.poller.poll_host_group_membership)
 
     def test_poll_triggers(self):
-        common.assertNotRaises(self.poller.poll_triggers)
+        testutils.assertNotRaises(self.poller.poll_triggers)
 
     def test_poll_events(self):
-        common.assertNotRaises(self.poller.poll_events)
+        testutils.assertNotRaises(self.poller.poll_events)
 
     def test_on_aboted_poll(self):
-        common.assertNotRaises(self.poller.on_aborted_poll)
+        testutils.assertNotRaises(self.poller.on_aborted_poll)
 
     def test_log_status(self):
         poller = haplib.BasePoller(sender=self.sender, process_id="test")
-        log_time = common.returnPrivObj(poller, "__next_log_status_time")
+        log_time = testutils.get_priv_attr(poller, "__next_log_status_time")
         poller.log_status(haplib.ArmInfo())
         # check if the next time is update
-        new_time = common.returnPrivObj(poller, "__next_log_status_time")
+        new_time = testutils.get_priv_attr(poller, "__next_log_status_time")
         self.assertGreater(new_time, log_time)
         # call again soon. __new_log_status_time should not be updated.
-        new_time2 = common.returnPrivObj(poller, "__next_log_status_time")
+        new_time2 = testutils.get_priv_attr(poller, "__next_log_status_time")
         self.assertEquals(new_time2, new_time)
 
     def test_set_ms_info(self):
         ms_info = ("test_ms_info")
         self.poller.set_ms_info(ms_info)
-        command_queue = common.returnPrivObj(self.poller, "__command_queue")
-        q = common.returnPrivObj(command_queue, "__q")
+        command_queue = testutils.get_priv_attr(self.poller, "__command_queue")
+        q = testutils.get_priv_attr(command_queue, "__q")
         self.assertEquals((1, ms_info), q.get())
 
     def test_private_set_ms_info(self):
-        set_ms_info = common.returnPrivObj(self.poller, "__set_ms_info")
+        set_ms_info = testutils.get_priv_attr(self.poller, "__set_ms_info")
         test_params = {"serverId": None, "url": None, "nickName": None,
                        "userName": None, "password": None,
                        "pollingIntervalSec": None, "retryIntervalSec": None,
@@ -900,15 +909,15 @@ class BasePoller(unittest.TestCase):
             raise
 
     def test_poll_in_block(self):
-        poll_in_try_block = common.returnPrivObj(self.poller,
-                                                 "__poll_in_try_block")
+        poll_in_try_block = testutils.get_priv_attr(self.poller,
+                                                    "__poll_in_try_block")
         arm_info = haplib.ArmInfo()
         self.poller.set_dispatch_queue(DummyQueue())
         self.poller._HapiProcessor__reply_queue = DummyQueue()
         org_q = self.poller._BasePoller__command_queue._CommandQueue__q
         self.poller._BasePoller__command_queue._CommandQueue__q =\
                                                         DummyCommandQueue()
-        common.assertNotRaises(poll_in_try_block, arm_info)
+        testutils.assertNotRaises(poll_in_try_block, arm_info)
         self.poller._BasePoller__command_queue._CommandQueue__q = org_q
 
 
