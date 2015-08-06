@@ -440,14 +440,14 @@ class HapiProcessor(unittest.TestCase):
 
     def test_reset(self):
         self.processor.reset()
-        prev_hosts = testutils.returnPrivObj(self.processor, "__previous_hosts")
-        prev_host_groups = testutils.returnPrivObj(self.processor,
-                                                "__previous_host_groups")
+        prev_hosts = testutils.get_priv_attr(self.processor, "__previous_hosts")
+        prev_host_groups = testutils.get_priv_attr(self.processor,
+                                                   "__previous_host_groups")
         prev_host_group_membership = \
-                testutils.returnPrivObj(self.processor,
-                                     "__previous_host_group_membership")
-        event_last_info = testutils.returnPrivObj(self.processor,
-                                               "__event_last_info")
+                testutils.get_priv_attr(self.processor,
+                                        "__previous_host_group_membership")
+        event_last_info = testutils.get_priv_attr(self.processor,
+                                                  "__event_last_info")
         self.assertIsNone(prev_hosts)
         self.assertIsNone(prev_host_groups)
         self.assertIsNone(prev_host_group_membership)
@@ -456,35 +456,35 @@ class HapiProcessor(unittest.TestCase):
     def test_set_ms_info(self):
         exact_ms = "test_ms"
         self.processor.set_ms_info(exact_ms)
-        result_ms = testutils.returnPrivObj(self.processor, "__ms_info")
+        result_ms = testutils.get_priv_attr(self.processor, "__ms_info")
         self.assertEquals(exact_ms, result_ms)
 
     def test_get_ms_Info(self):
         result_ms = self.processor.get_ms_info()
-        exact_ms = testutils.returnPrivObj(self.processor, "__ms_info")
+        exact_ms = testutils.get_priv_attr(self.processor, "__ms_info")
         self.assertEquals(exact_ms, result_ms)
 
     def test_set_dispatch_queue(self):
         exact_dispatch_queue = DummyQueue()
         self.processor.set_dispatch_queue(exact_dispatch_queue)
-        result_dispatch_queue = testutils.returnPrivObj(self.processor,
-                                                     "__dispatch_queue")
+        result_dispatch_queue = testutils.get_priv_attr(self.processor,
+                                                        "__dispatch_queue")
         self.assertEquals(exact_dispatch_queue, result_dispatch_queue)
 
     def test_get_component_code(self):
         result_component_code = self.processor.get_component_code()
-        exact_component_code = testutils.returnPrivObj(self.processor,
-                                                    "__component_code")
+        exact_component_code = testutils.get_priv_attr(self.processor,
+                                                       "__component_code")
         self.assertEquals(exact_component_code, result_component_code)
 
     def test_get_reply_queue(self):
         result_queue = self.processor.get_reply_queue()
-        exact_queue = testutils.returnPrivObj(self.processor, "__reply_queue")
+        exact_queue = testutils.get_priv_attr(self.processor, "__reply_queue")
         self.assertEquals(result_queue, exact_queue)
 
     def test_get_sender(self):
         result_sender = self.processor.get_sender()
-        exact_sender = testutils.returnPrivObj(self.processor, "__sender")
+        exact_sender = testutils.get_priv_attr(self.processor, "__sender")
         self.assertEquals(result_sender, exact_sender)
 
     def test_get_monitoring_server_info(self):
@@ -498,11 +498,12 @@ class HapiProcessor(unittest.TestCase):
 
     def test_exchange_profile_request(self):
         self.reply_queue.put(True)
-        testutils.assertNotRaises(self.processor.exchange_profile, "test_params")
+        testutils.assertNotRaises(self.processor.exchange_profile,
+                                  "test_params")
 
     def test_exchange_profile_response(self):
-        testutils.assertNotRaises(self.processor.exchange_profile, "test_params",
-                               response_id=1)
+        testutils.assertNotRaises(self.processor.exchange_profile,
+                                  "test_params", response_id=1)
 
     def test_put_arm_info(self):
         self.reply_queue.put(True)
@@ -557,14 +558,14 @@ class HapiProcessor(unittest.TestCase):
 
     def test_wait_acknowledge(self):
         self.reply_queue.put(True)
-        wait_acknowledge = testutils.returnPrivObj(self.processor,
-                                                "__wait_acknowledge")
+        wait_acknowledge = testutils.get_priv_attr(self.processor,
+                                                   "__wait_acknowledge")
         testutils.assertNotRaises(wait_acknowledge, 1)
 
     def test_wait_acknowledge_timeout(self):
         self.processor.set_timeout_sec(1)
-        wait_acknowledge = testutils.returnPrivObj(self.processor,
-                                                "__wait_acknowledge")
+        wait_acknowledge = testutils.get_priv_attr(self.processor,
+                                                   "__wait_acknowledge")
         self.assertRaises(Queue.Empty, wait_acknowledge, 1)
 
     def test_wait_response(self):
@@ -575,7 +576,8 @@ class HapiProcessor(unittest.TestCase):
         pm.message_dict = {"id": exact_id, "result": exact_result}
         pm.message_id = exact_id
         reply_queue.put(pm)
-        wait_response = testutils.returnPrivObj(self.processor, "__wait_response")
+        wait_response = testutils.get_priv_attr(self.processor,
+                                                "__wait_response")
         output = wait_response(exact_id)
 
         self.assertEquals(output, exact_result)
@@ -583,7 +585,8 @@ class HapiProcessor(unittest.TestCase):
     def test_wait_response_timeout(self):
         self.processor.set_timeout_sec(1)
         test_id = 1
-        wait_response = testutils.returnPrivObj(self.processor, "__wait_response")
+        wait_response = testutils.get_priv_attr(self.processor,
+                                                "__wait_response")
         self.assertRaises(Queue.Empty, wait_response, test_id)
 
 
@@ -623,11 +626,11 @@ class Receiver(unittest.TestCase):
         cls.receiver = haplib.Receiver(transporter_args, cls.__test_queue, None)
 
     def test_messenger(self):
-        messenger = testutils.returnPrivObj(self.receiver, "__messenger")
+        messenger = testutils.get_priv_attr(self.receiver, "__messenger")
         testutils.assertNotRaises(messenger, None, "test_message")
 
     def test_messenger_get_broken_error(self):
-        messenger = testutils.returnPrivObj(self.receiver, "__messenger")
+        messenger = testutils.get_priv_attr(self.receiver, "__messenger")
         testutils.assertNotRaises(messenger, None, '{"error": "test"}')
 
     def test_call(self):
@@ -645,25 +648,28 @@ class Dispatcher(unittest.TestCase):
 
     def test_attach_destination(self):
         self.__dispatcher.attach_destination("test_queue", "test")
-        destination_q_map = testutils.returnPrivObj(self.__dispatcher,
-                                                 "__destination_q_map")
+        destination_q_map = testutils.get_priv_attr(self.__dispatcher,
+                                                    "__destination_q_map")
         self.assertEquals("test_queue", destination_q_map["test"])
 
     def test_get_dispatch_queue(self):
-        dispatch_queue = testutils.returnPrivObj(self.__dispatcher, "__dispatch_queue")
+        dispatch_queue = testutils.get_priv_attr(self.__dispatcher,
+                                                 "__dispatch_queue")
         self.assertEquals(self.__dispatcher.get_dispatch_queue(), dispatch_queue)
 
     def test_acknowledge(self):
         destination_queue = DummyQueue()
         test_id = "test"
         self.__dispatcher.attach_destination(destination_queue, test_id)
-        acknowledge = testutils.returnPrivObj(self.__dispatcher, "__acknowledge")
+        acknowledge = testutils.get_priv_attr(self.__dispatcher,
+                                              "__acknowledge")
         test_message = (test_id, 1)
         testutils.assertNotRaises(acknowledge, test_message)
 
     def is_expented_id_notification(self):
-        is_expected_id_notification = testutils.returnPrivObj(self.__dispatcher,
-                                            "__is_expenced_id_notification")
+        is_expected_id_notification = \
+            testutils.get_priv_attr(self.__dispatcher,
+                                    "__is_expenced_id_notification")
         test_contents = 1
         self.assertTrue(is_expected_id_notification(test_contents))
 
@@ -672,11 +678,11 @@ class Dispatcher(unittest.TestCase):
         test_id = "test"
         test_contents = 1
         test_message = (test_id, test_contents)
-        dispatch_queue = testutils.returnPrivObj(self.__dispatcher,
-                                              "__dispatch_queue")
+        dispatch_queue = testutils.get_priv_attr(self.__dispatcher,
+                                                 "__dispatch_queue")
         dispatch_queue.put(test_message)
         self.__dispatcher.attach_destination(destination_queue, test_id)
-        dispatch = testutils.returnPrivObj(self.__dispatcher, "__dispatch")
+        dispatch = testutils.get_priv_attr(self.__dispatcher, "__dispatch")
         testutils.assertNotRaises(dispatch)
 
     def test_dispatch_receive_response(self):
@@ -686,17 +692,18 @@ class Dispatcher(unittest.TestCase):
         test_contents.message_id = 1
 
         self.__dispatcher.attach_destination(destination_queue, test_id)
-        acknowledge = testutils.returnPrivObj(self.__dispatcher, "__acknowledge")
+        acknowledge = testutils.get_priv_attr(self.__dispatcher,
+                                              "__acknowledge")
         test_message = (test_id, test_contents.message_id)
         acknowledge(test_message)
 
         test_message = (test_id, test_contents)
-        dispatch_queue = testutils.returnPrivObj(self.__dispatcher,
-                                              "__dispatch_queue")
+        dispatch_queue = testutils.get_priv_attr(self.__dispatcher,
+                                                 "__dispatch_queue")
         dispatch_queue.put(test_message)
 
         testutils.assertNotRaises(acknowledge, test_message)
-        dispatch = testutils.returnPrivObj(self.__dispatcher, "__dispatch")
+        dispatch = testutils.get_priv_attr(self.__dispatcher, "__dispatch")
         testutils.assertNotRaises(dispatch)
 
     def test_daemonize(self):
@@ -744,27 +751,29 @@ class BaseMainPlugin(unittest.TestCase):
                                "test_code", "test_handler")
 
     def test_detect_implemented_procedures(self):
-        detect_implemented_procedures = testutils.returnPrivObj(self.__main_plugin,
-                                            "__detect_implemented_procedures")
+        detect_implemented_procedures = \
+            testutils.get_priv_attr(self.__main_plugin,
+                                    "__detect_implemented_procedures")
         detect_implemented_procedures()
-        implemented_procedures = testutils.returnPrivObj(self.__main_plugin,
-                                                      "__implemented_procedures")
+        implemented_procedures = \
+            testutils.get_priv_attr(self.__main_plugin,
+                                    "__implemented_procedures")
         self.assertEquals({"exchangeProfile": self.__main_plugin.hap_exchange_profile,
                            "updateMonitoringServerInfo": self.__main_plugin.hap_update_monitoring_server_info},
                            implemented_procedures)
 
     def test_get_sender(self):
-        sender = testutils.returnPrivObj(self.__main_plugin, "__sender")
+        sender = testutils.get_priv_attr(self.__main_plugin, "__sender")
         self.assertEquals(sender, self.__main_plugin.get_sender())
 
     def test_set_sender(self):
         test_sender = "test_sender"
         self.__main_plugin.set_sender(test_sender)
-        sender = testutils.returnPrivObj(self.__main_plugin, "__sender")
+        sender = testutils.get_priv_attr(self.__main_plugin, "__sender")
         self.assertEquals(test_sender, sender)
 
     def test_get_dispatcher(self):
-        dispatcher = testutils.returnPrivObj(self.__main_plugin, "__dispatcher")
+        dispatcher = testutils.get_priv_attr(self.__main_plugin, "__dispatcher")
         self.assertEquals(dispatcher, self.__main_plugin.get_dispatcher())
 
     def test_plugin_name(self):
@@ -827,7 +836,7 @@ class BasePoller(unittest.TestCase):
         testutils.assertNotRaises(self.poller.poll)
 
     def test_get_command_queue(self):
-        command_queue = testutils.returnPrivObj(self.poller, "__command_queue")
+        command_queue = testutils.get_priv_attr(self.poller, "__command_queue")
         self.assertEquals(command_queue, self.poller.get_command_queue())
 
     def test_poll_setup(self):
@@ -853,24 +862,24 @@ class BasePoller(unittest.TestCase):
 
     def test_log_status(self):
         poller = haplib.BasePoller(sender=self.sender, process_id="test")
-        log_time = testutils.returnPrivObj(poller, "__next_log_status_time")
+        log_time = testutils.get_priv_attr(poller, "__next_log_status_time")
         poller.log_status(haplib.ArmInfo())
         # check if the next time is update
-        new_time = testutils.returnPrivObj(poller, "__next_log_status_time")
+        new_time = testutils.get_priv_attr(poller, "__next_log_status_time")
         self.assertGreater(new_time, log_time)
         # call again soon. __new_log_status_time should not be updated.
-        new_time2 = testutils.returnPrivObj(poller, "__next_log_status_time")
+        new_time2 = testutils.get_priv_attr(poller, "__next_log_status_time")
         self.assertEquals(new_time2, new_time)
 
     def test_set_ms_info(self):
         ms_info = ("test_ms_info")
         self.poller.set_ms_info(ms_info)
-        command_queue = testutils.returnPrivObj(self.poller, "__command_queue")
-        q = testutils.returnPrivObj(command_queue, "__q")
+        command_queue = testutils.get_priv_attr(self.poller, "__command_queue")
+        q = testutils.get_priv_attr(command_queue, "__q")
         self.assertEquals((1, ms_info), q.get())
 
     def test_private_set_ms_info(self):
-        set_ms_info = testutils.returnPrivObj(self.poller, "__set_ms_info")
+        set_ms_info = testutils.get_priv_attr(self.poller, "__set_ms_info")
         test_params = {"serverId": None, "url": None, "nickName": None,
                        "userName": None, "password": None,
                        "pollingIntervalSec": None, "retryIntervalSec": None,
@@ -900,8 +909,8 @@ class BasePoller(unittest.TestCase):
             raise
 
     def test_poll_in_block(self):
-        poll_in_try_block = testutils.returnPrivObj(self.poller,
-                                                 "__poll_in_try_block")
+        poll_in_try_block = testutils.get_priv_attr(self.poller,
+                                                    "__poll_in_try_block")
         arm_info = haplib.ArmInfo()
         self.poller.set_dispatch_queue(DummyQueue())
         self.poller._HapiProcessor__reply_queue = DummyQueue()

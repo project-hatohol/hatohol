@@ -53,7 +53,7 @@ class ZabbixAPIConductor(unittest.TestCase):
 
     def test_reset(self):
         self.conductor.reset()
-        api = testutils.returnPrivObj(self.conductor, "__api")
+        api = testutils.get_priv_attr(self.conductor, "__api")
         self.assertIsNone(api)
         self.conductor._ZabbixAPIConductor__api =  APIForTest()
 

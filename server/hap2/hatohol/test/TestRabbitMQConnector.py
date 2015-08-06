@@ -60,7 +60,7 @@ class TestRabbitMQConnector(unittest.TestCase):
 
     def test__setup_ssl(self):
         conn = RabbitMQConnector()
-        target_func = testutils.returnPrivObj(conn, "__setup_ssl", "RabbitMQConnector")
+        target_func = testutils.get_priv_attr(conn, "__setup_ssl")
         conn_args = {}
         transporter_args = self.__get_default_transporter_args()
         target_func(conn_args, transporter_args)
@@ -128,7 +128,7 @@ class TestRabbitMQConnector(unittest.TestCase):
     def test__publish_with_exception(self):
         conn = RabbitMQConnector()
         testutils.set_priv_attr(conn, "__publish_raw", None)
-        target_func = testutils.returnPrivObj(conn, "__publish")
+        target_func = testutils.get_priv_attr(conn, "__publish")
         with self.assertRaises(hap.Signal) as cm:
             target_func("msg")
         self.assertTrue(cm.exception.critical)
