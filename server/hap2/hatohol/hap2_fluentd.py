@@ -79,7 +79,7 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
             try:
                 self.__fluentd_manager_main_in_try_block()
             except:
-                haplib.handle_exception()
+                hap.handle_exception()
                 self.__arm_info.fail()
                 time.sleep(self.__ms_info.retry_interval_sec)
 
@@ -151,7 +151,7 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
             timestamp, tag = self.__parse_header(header)
         except:
             timestamp, tag, msg = None, None, None
-            haplib.handle_exception()
+            hap.handle_exception()
             self.__arm_info.fail()
         return timestamp, tag, msg
 

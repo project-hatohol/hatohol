@@ -24,10 +24,8 @@ and provides framework-like components compared to hap.py that includes more
 basic ones.
 """
 
-import sys
 import time
 import logging
-import traceback
 import multiprocessing
 import Queue
 import json
@@ -188,28 +186,6 @@ TRIGGER_SEVERITY = frozenset(
 
 DEFAULT_MAX_EVENT_CHUNK_SIZE = 100
 MAX_LAST_INFO_SIZE = 32767
-
-def handle_exception(raises=(SystemExit,)):
-    """
-    Logging exception information including back trace and return
-    some information. This method is supposed to be used in 'except:' block.
-    Note that if the exception class is Signal, this method doesn't log it.
-
-    @raises
-    A sequence of exceptionclass names. If the handling exception is one of
-    it, this method just raises it again.
-
-    @return
-    A sequence of exception class and the instance of the handling exception.
-    """
-    (exctype, value, tb) = sys.exc_info()
-    if exctype in raises:
-        raise
-    if exctype is not hap.Signal:
-        logging.error("Unexpected error: %s, %s, %s" % \
-                      (exctype, value, traceback.format_tb(tb)))
-    return exctype, value
-
 
 class Callback:
     def __init__(self):
@@ -995,7 +971,7 @@ class BasePoller(HapiProcessor, ChildProcess):
             self.poll()
             succeeded = True
         except:
-            exctype, value = handle_exception()
+            exctype, value = hap.handle_exception()
             if exctype is hap.Signal:
                 if value.restart:
                     return
@@ -1016,12 +992,12 @@ class BasePoller(HapiProcessor, ChildProcess):
             self.put_arm_info(arm_info)
             self.log_status(arm_info)
         except:
-            handle_exception()
+            hap.handle_exception()
 
         try:
             self.__command_queue.wait(sleep_time)
         except:
-            handle_exception()
+            hap.handle_exception()
 
 
 class Utils:

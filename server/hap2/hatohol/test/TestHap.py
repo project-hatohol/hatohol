@@ -22,13 +22,44 @@
 import unittest
 import hap
 
+class Gadget:
+    pass
+
+class handle_exception(unittest.TestCase):
+    def test_handle_exception(self):
+        obj = Gadget()
+        try:
+            raise obj
+        except:
+            exctype, value = hap.handle_exception()
+        self.assertEquals(Gadget, exctype)
+        self.assertEquals(obj, value)
+
+    def test_handle_exception_on_raises(self):
+        try:
+            raise TypeError
+        except:
+            self.assertRaises(TypeError, hap.handle_exception, (TypeError,))
+
+    def test_handle_exception_critical_signal(self):
+        try:
+            raise hap.Signal(critical=True)
+        except:
+            self.assertRaises(hap.Signal, hap.handle_exception)
+
+
 class Signal(unittest.TestCase):
     def test_default(self):
         obj = hap.Signal()
         self.assertEquals(False, obj.restart)
+        self.assertEquals(False, obj.critical)
 
     def test_restart_is_true(self):
         obj = hap.Signal(restart=True)
         self.assertEquals(True, obj.restart)
+
+    def test_critical_is_true(self):
+        obj = hap.Signal(critical=True)
+        self.assertEquals(True, obj.critical)
 
 

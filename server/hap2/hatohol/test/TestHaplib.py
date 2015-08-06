@@ -42,23 +42,6 @@ class Gadget:
         self.num_called += 1
 
 
-class TestHaplib_handle_exception(unittest.TestCase):
-    def test_handle_exception(self):
-        obj = Gadget()
-        try:
-            raise obj
-        except:
-            exctype, value = haplib.handle_exception()
-        self.assertEquals(Gadget, exctype)
-        self.assertEquals(obj, value)
-
-    def test_handle_exception_on_raises(self):
-        try:
-            raise TypeError
-        except:
-            self.assertRaises(TypeError, haplib.handle_exception, (TypeError,))
-
-
 class TestHaplib_Callback(unittest.TestCase):
     def test_register_and_call(self):
         cb = haplib.Callback()

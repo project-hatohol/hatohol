@@ -21,6 +21,7 @@ import unittest
 import os
 import common as testutils
 import subprocess
+import hap
 from rabbitmqconnector import RabbitMQConnector
 from rabbitmqconnector import OverCapacity
 import rabbitmqconnector
@@ -123,6 +124,14 @@ class TestRabbitMQConnector(unittest.TestCase):
         self.__publish(TEST_BODY)
         conn.run_receive_loop()
         self.assertEquals(receiver.msg, TEST_BODY)
+
+    def test__publish_with_exception(self):
+        conn = RabbitMQConnector()
+        testutils.set_priv_attr(conn, "__publish_raw", None)
+        target_func = testutils.returnPrivObj(conn, "__publish")
+        with self.assertRaises(hap.Signal) as cm:
+            target_func("msg")
+        self.assertTrue(cm.exception.critical)
 
     def __get_default_transporter_args(self):
         args = {"amqp_broker": self.__broker, "amqp_port": self.__port,

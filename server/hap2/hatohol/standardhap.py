@@ -114,7 +114,7 @@ class StandardHap:
                 self.__run()
             except:
                 raises = (KeyboardInterrupt, AssertionError, SystemExit)
-                exctype, value = haplib.handle_exception(raises=raises)
+                exctype, value = hap.handle_exception(raises=raises)
             else:
                 break
 
