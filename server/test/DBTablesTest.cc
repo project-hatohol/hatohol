@@ -38,7 +38,7 @@ extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_PASSIVE =
   static_cast<MonitoringSystemType>(NUM_MONITORING_SYSTEMS + 102);
 
 
-ServerTypeInfo testServerTypeInfo[] =
+const ServerTypeInfo testServerTypeInfo[] =
 {{
 	MONITORING_SYSTEM_FAKE,  // type
 	"Fake Monitorin",        // name
@@ -145,7 +145,7 @@ ServerTypeInfo testServerTypeInfo[] =
 	1,                       // plugin_enabled
 	"8e632c14-d1f7-11e4-8350-d43d7e3146fb", // uuid
 }};
-size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
+const size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
 
 const MonitoringServerInfo testServerInfo[] =
 {{

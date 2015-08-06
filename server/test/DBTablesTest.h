@@ -41,8 +41,8 @@ typedef HostgroupHostIdMap::iterator  HostgroupHostIdMapIterator;
 typedef std::map<uint32_t, HostgroupHostIdMap> ServerIdHostgroupHostIdMap;
 typedef ServerIdHostgroupHostIdMap::iterator ServerIdHostgroupHostIdMapIterator;
 
-extern ServerTypeInfo testServerTypeInfo[];
-extern size_t NumTestServerTypeInfo;
+extern const ServerTypeInfo testServerTypeInfo[];
+extern const size_t NumTestServerTypeInfo;
 
 extern const MonitoringServerInfo testServerInfo[];
 extern const size_t NumTestServerInfo;
