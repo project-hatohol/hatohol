@@ -20,6 +20,7 @@
 
 import logging
 import pika
+import hap
 from hatohol.transporter import Transporter
 
 MAX_BODY_SIZE = 50000
@@ -123,6 +124,14 @@ class RabbitMQConnector(Transporter):
         receiver(self._channel, body)
 
     def __publish(self, msg):
+        try:
+            self.__publish_raw(msg)
+        except:
+            # TODO: consider the way to save the message and try to
+            # send it again.
+            raise hap.Signal(critical=True)
+
+    def __publish_raw(self, msg):
         self._channel.basic_publish(exchange="", routing_key=self._queue_name,
                                     body=msg,
                                     properties=pika.BasicProperties(
