@@ -18,7 +18,7 @@
   <http://www.gnu.org/licenses/>.
 """
 import unittest
-import common as testutils
+import testutils
 import hap2_fluentd
 import transporter
 import haplib

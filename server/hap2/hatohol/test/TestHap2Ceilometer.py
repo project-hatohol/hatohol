@@ -18,7 +18,7 @@
   <http://www.gnu.org/licenses/>.
 """
 import unittest
-import common as testutils
+import testutils
 from hap2_ceilometer import Common
 import hap2_ceilometer
 from datetime import datetime

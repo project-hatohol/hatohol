@@ -21,7 +21,7 @@ import unittest
 import hap2_zabbix_api
 import transporter
 import haplib
-import common
+import testutils
 
 class PreviousHostsInfo(unittest.TestCase):
     def test_create(self):
@@ -53,7 +53,7 @@ class ZabbixAPIConductor(unittest.TestCase):
 
     def test_reset(self):
         self.conductor.reset()
-        api = common.returnPrivObj(self.conductor, "__api")
+        api = testutils.returnPrivObj(self.conductor, "__api")
         self.assertIsNone(api)
         self.conductor._ZabbixAPIConductor__api =  APIForTest()
 
@@ -91,31 +91,31 @@ class ZabbixAPIConductor(unittest.TestCase):
             self.assertEquals("", str(exc))
 
     def test_collect_and_put_items(self):
-        common.assertNotRaises(self.conductor.collect_and_put_items,
+        testutils.assertNotRaises(self.conductor.collect_and_put_items,
                                "test_ids", "test_id")
 
     def test_collect_and_put_history(self):
-        common.assertNotRaises(self.conductor.collect_and_put_history,
+        testutils.assertNotRaises(self.conductor.collect_and_put_history,
                                "test_id", "test_time", "test_time", "test_id")
 
     def test_update_hosts_and_host_group_membership(self):
-        common.assertNotRaises(self.conductor.update_hosts_and_host_group_membership)
+        testutils.assertNotRaises(self.conductor.update_hosts_and_host_group_membership)
 
     def test_update_host_groups(self):
-        common.assertNotRaises(self.conductor.update_host_groups)
+        testutils.assertNotRaises(self.conductor.update_host_groups)
 
     def test_update_triggers(self):
-        common.assertNotRaises(self.conductor.update_triggers,
+        testutils.assertNotRaises(self.conductor.update_triggers,
                                "test_ids", "test_id")
 
     def test_update_events(self):
-        common.assertNotRaises(self.conductor.update_events)
+        testutils.assertNotRaises(self.conductor.update_events)
 
     def test_update_events_request(self):
-        common.assertNotRaises(self.conductor.update_events, last_info=1)
+        testutils.assertNotRaises(self.conductor.update_events, last_info=1)
 
     def test_update_hosts_and_host_group_membership(self):
-        common.assertNotRaises(self.conductor.update_hosts_and_host_group_membership)
+        testutils.assertNotRaises(self.conductor.update_hosts_and_host_group_membership)
 
 
 class Hap2ZabbixAPIMain(unittest.TestCase):
@@ -140,20 +140,20 @@ class Hap2ZabbixAPIMain(unittest.TestCase):
 
     def test_hap_fetch_items(self):
         params = {"hostId": "1", "fetchId": 1}
-        common.assertNotRaises(self.main.hap_fetch_items, params, 1)
+        testutils.assertNotRaises(self.main.hap_fetch_items, params, 1)
 
     def test_hap_fetch_history(self):
         params = {"itemId": "1", "beginTime": None, "endTime": None, "fetchId": 1}
-        common.assertNotRaises(self.main.hap_fetch_history, params, 1)
+        testutils.assertNotRaises(self.main.hap_fetch_history, params, 1)
 
     def test_hap_fetch_triggers(self):
         params = {"hostId": ["1"], "fetchId": 1}
-        common.assertNotRaises(self.main.hap_fetch_triggers, params, 1)
+        testutils.assertNotRaises(self.main.hap_fetch_triggers, params, 1)
 
     def test_hap_fetch_events(self):
         params = {"lastInfo": 1, "count": 10, "direction": "ASC",
                        "fetchId": 1}
-        common.assertNotRaises(self.main.hap_fetch_events, params, 1)
+        testutils.assertNotRaises(self.main.hap_fetch_events, params, 1)
 
 
 class Hap2ZabbixAPIPoller(unittest.TestCase):
@@ -175,18 +175,18 @@ class Hap2ZabbixAPIPoller(unittest.TestCase):
         cls.poller.get_last_info = null_func
 
     def test_poll(self):
-        common.assertNotRaises(self.poller.poll)
+        testutils.assertNotRaises(self.poller.poll)
 
 
 class Hap2ZabbixAPI(unittest.TestCase, hap2_zabbix_api.Hap2ZabbixAPI):
     def test_create_main_plugin(self):
         transporter_args = {"class": transporter.Transporter}
-        common.assertNotRaises(self.create_main_plugin, transporter_args=transporter_args)
+        testutils.assertNotRaises(self.create_main_plugin, transporter_args=transporter_args)
 
     def test_create_poller(self):
         transporter_args = {"class": transporter.Transporter}
         sender = haplib.Sender(transporter_args)
-        common.assertNotRaises(self.create_poller, sender=sender,
+        testutils.assertNotRaises(self.create_poller, sender=sender,
                                process_id="test")
 
 
