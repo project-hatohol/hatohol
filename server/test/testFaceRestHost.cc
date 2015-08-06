@@ -220,7 +220,7 @@ static void _assertTriggers(
 		size_t idx = trigIdIdxIt->second;
 		indexMap[actSvId].erase(trigIdIdxIt);
 
-		TriggerInfo &triggerInfo = testTriggerInfo[idx];
+		const TriggerInfo &triggerInfo = testTriggerInfo[idx];
 		assertTestTriggerInfo(parser, triggerInfo);
 		parser->endElement();
 	}

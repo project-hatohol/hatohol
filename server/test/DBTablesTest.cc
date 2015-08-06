@@ -271,7 +271,7 @@ const MonitoringServerStatus testServerStatus[] =
 }};
 size_t const NumTestServerStatus = ARRAY_SIZE(testServerStatus);
 
-TriggerInfo testTriggerInfo[] =
+const TriggerInfo testTriggerInfo[] =
 {{
 	1,                        // serverId
 	"1",                      // id
@@ -408,7 +408,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_VALID,          // validity
 },
 };
-size_t NumTestTriggerInfo = ARRAY_SIZE(testTriggerInfo);
+const size_t NumTestTriggerInfo = ARRAY_SIZE(testTriggerInfo);
 
 static const TriggerInfo &trigInfoDefunctSv1 =
   testTriggerInfo[NumTestTriggerInfo-1];
@@ -1475,7 +1475,7 @@ const size_t NumTestLastInfoDef = ARRAY_SIZE(testLastInfoDef);
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-		TriggerInfo &trigInfo = testTriggerInfo[i];
+		const TriggerInfo &trigInfo = testTriggerInfo[i];
 		if (trigInfo.serverId != eventInfo.serverId)
 			continue;
 		if (trigInfo.id != eventInfo.triggerId)
@@ -1489,10 +1489,10 @@ const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 
 SmartTime getTimestampOfLastTestTrigger(const ServerIdType &serverId)
 {
-	TriggerInfo *lastTimeTrigInfo = NULL;
+	const TriggerInfo *lastTimeTrigInfo = NULL;
 	SmartTime lastTimestamp;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-		TriggerInfo &trigInfo = testTriggerInfo[i];
+		const TriggerInfo &trigInfo = testTriggerInfo[i];
 		if (trigInfo.serverId != serverId)
 			continue;
 		SmartTime timestamp = SmartTime(trigInfo.lastChangeTime);

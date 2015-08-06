@@ -43,13 +43,13 @@ static const string serverIdColumnName = "server_id";
 static const string hostgroupIdColumnName = "host_group_id";
 static const string hostIdColumnName = "host_id";
 
-static void addTriggerInfo(TriggerInfo *triggerInfo)
+static void addTriggerInfo(const TriggerInfo *triggerInfo)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	dbMonitoring.addTriggerInfo(triggerInfo);
 }
 #define assertAddTriggerToDB(X) \
-cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
+cut_trace(_assertAddToDB<const TriggerInfo>(X, addTriggerInfo))
 
 struct AssertGetTriggersArg
   : public AssertGetHostResourceArg<TriggerInfo, TriggersQueryOption>
@@ -327,7 +327,7 @@ void test_addTriggerInfo(void)
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 
 	// added a record
-	TriggerInfo *testInfo = testTriggerInfo;
+	const TriggerInfo *testInfo = testTriggerInfo;
 	assertAddTriggerToDB(testInfo);
 
 	// confirm with the command line tool
@@ -550,7 +550,7 @@ void test_getTriggerInfo(void)
 	loadTestDBHostgroupMember();
 
 	int targetIdx = 2;
-	TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
+	const TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
 	TriggerInfo triggerInfo;
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	TriggersQueryOption option(USER_ID_SYSTEM);
