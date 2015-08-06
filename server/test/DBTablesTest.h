@@ -62,8 +62,8 @@ extern mlpl::SmartTime findTimeOfLastEvent(
 extern const EventInfo testDupEventInfo[];
 extern const size_t NumTestDupEventInfo;
 
-extern ItemInfo testItemInfo[];
-extern size_t NumTestItemInfo;
+extern const ItemInfo testItemInfo[];
+extern const size_t NumTestItemInfo;
 
 extern ActionDef testActionDef[];
 extern const size_t NumTestActionDef;
@@ -147,7 +147,7 @@ typedef ServerIdItemInfoIdIndexMapMap::const_iterator
   ServerIdItemInfoIdIndexMapMapConstIterator;
 
 void getTestItemsIndexes(ServerIdItemInfoIdIndexMapMap &indexMap);
-ItemInfo *findTestItem(
+const ItemInfo *findTestItem(
   const ServerIdItemInfoIdIndexMapMap &indexMap,
   const ServerIdType &serverId, const ItemIdType &itemId);
 size_t getNumberOfTestItems(const ServerIdType &serverId);

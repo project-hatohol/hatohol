@@ -566,7 +566,7 @@ const EventInfo testDupEventInfo[] = {
 };
 const size_t NumTestDupEventInfo = ARRAY_SIZE(testDupEventInfo);
 
-ItemInfo testItemInfo[] = {
+const ItemInfo testItemInfo[] = {
 {
 	1,                        // serverId
 	"2",                      // id
@@ -621,7 +621,7 @@ ItemInfo testItemInfo[] = {
 	"",                       // unit
 },
 };
-size_t NumTestItemInfo = ARRAY_SIZE(testItemInfo);
+const size_t NumTestItemInfo = ARRAY_SIZE(testItemInfo);
 
 ActionDef testActionDef[] = {
 {
@@ -1581,7 +1581,7 @@ void getTestItemsIndexes(ServerIdItemInfoIdIndexMapMap &indexMap)
 	}
 }
 
-ItemInfo *findTestItem(
+const ItemInfo *findTestItem(
   const ServerIdItemInfoIdIndexMapMap &indexMap,
   const ServerIdType &serverId, const ItemIdType &itemId)
 {

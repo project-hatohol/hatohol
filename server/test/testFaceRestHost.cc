@@ -348,7 +348,7 @@ static void _assertItems(const string &path, const string &callbackName = "",
 	ServerIdItemInfoIdIndexMapMap indexMap;
 	getTestItemsIndexes(indexMap);
 	assertStartObject(parser, "items");
-	set<ItemInfo *> itemInfoPtrSet;
+	set<const ItemInfo *> itemInfoPtrSet;
 	for (ssize_t i = 0; i < numItems; i++) {
 		int64_t serverId = 0;
 		ItemIdType itemInfoId;
@@ -356,7 +356,7 @@ static void _assertItems(const string &path, const string &callbackName = "",
 		parser->startElement(i);
 		cppcut_assert_equal(true, parser->read("serverId", serverId));
 		cppcut_assert_equal(true, parser->read("id", itemInfoId));
-		ItemInfo *itemInfoPtr =
+		const ItemInfo *itemInfoPtr =
 		  findTestItem(indexMap, serverId, itemInfoId);
 		cppcut_assert_not_null(itemInfoPtr);
 		const ItemInfo &itemInfo = *itemInfoPtr;
@@ -373,7 +373,7 @@ static void _assertItems(const string &path, const string &callbackName = "",
 		parser->endElement();
 
 		// Check duplication
-		pair<set<ItemInfo *>::iterator, bool> result =
+		pair<set<const ItemInfo *>::iterator, bool> result =
 		  itemInfoPtrSet.insert(itemInfoPtr);
 		cppcut_assert_equal(true, result.second);
 	}
