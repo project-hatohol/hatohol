@@ -519,7 +519,7 @@ const EventInfo testEventInfo[] = {
 };
 const size_t NumTestEventInfo = ARRAY_SIZE(testEventInfo);
 
-EventInfo testDupEventInfo[] = {
+const EventInfo testDupEventInfo[] = {
 {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
@@ -564,7 +564,7 @@ EventInfo testDupEventInfo[] = {
 	"",
 },
 };
-size_t NumTestDupEventInfo = ARRAY_SIZE(testDupEventInfo);
+const size_t NumTestDupEventInfo = ARRAY_SIZE(testDupEventInfo);
 
 ItemInfo testItemInfo[] = {
 {
