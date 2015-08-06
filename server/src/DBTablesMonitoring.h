@@ -137,7 +137,7 @@ public:
 	DBTablesMonitoring(DBAgent &dbAgent);
 	virtual ~DBTablesMonitoring();
 
-	void addTriggerInfo(TriggerInfo *triggerInfo);
+	void addTriggerInfo(const TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
 
 	void updateTrigger(const TriggerInfoList &triggerInfoList,

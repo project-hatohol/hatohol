@@ -1409,12 +1409,12 @@ DBTablesMonitoring::~DBTablesMonitoring()
 {
 }
 
-void DBTablesMonitoring::addTriggerInfo(TriggerInfo *triggerInfo)
+void DBTablesMonitoring::addTriggerInfo(const TriggerInfo *triggerInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
-		TriggerInfo *triggerInfo;
+		const TriggerInfo *triggerInfo;
 
-		TrxProc(TriggerInfo *_triggerInfo)
+		TrxProc(const TriggerInfo *_triggerInfo)
 		: triggerInfo(_triggerInfo)
 		{
 		}
