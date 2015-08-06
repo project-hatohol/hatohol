@@ -830,6 +830,8 @@ struct EventsQueryOption::Impl {
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
 	TriggerIdType triggerId;
+	timespec beginTime;
+	timespec endTime;
 
 	Impl()
 	: limitOfUnifiedId(NO_LIMIT),
@@ -838,7 +840,9 @@ struct EventsQueryOption::Impl {
 	  type(EVENT_TYPE_ALL),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
 	  triggerStatus(TRIGGER_STATUS_ALL),
-	  triggerId(ALL_TRIGGERS)
+	  triggerId(ALL_TRIGGERS),
+	  beginTime({0, 0}),
+	  endTime({0, 0})
 	{
 	}
 };
@@ -920,6 +924,32 @@ string EventsQueryOption::getCondition(void) const
 			"%s=%s",
 			getColumnName(IDX_EVENTS_TRIGGER_ID).c_str(),
 			rhs(m_impl->triggerId));
+	}
+
+	if (m_impl->beginTime.tv_sec != 0 || m_impl->beginTime.tv_nsec != 0) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"(%s>%ld OR (%s=%ld AND %s>=%ld))",
+			getColumnName(IDX_EVENTS_TIME_SEC).c_str(),
+			m_impl->beginTime.tv_sec,
+			getColumnName(IDX_EVENTS_TIME_SEC).c_str(),
+			m_impl->beginTime.tv_sec,
+			getColumnName(IDX_EVENTS_TIME_NS).c_str(),
+			m_impl->beginTime.tv_nsec);
+	}
+
+	if (m_impl->endTime.tv_sec != 0 || m_impl->endTime.tv_nsec != 0) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"(%s<%ld OR (%s=%ld AND %s<=%ld))",
+			getColumnName(IDX_EVENTS_TIME_SEC).c_str(),
+			m_impl->endTime.tv_sec,
+			getColumnName(IDX_EVENTS_TIME_SEC).c_str(),
+			m_impl->endTime.tv_sec,
+			getColumnName(IDX_EVENTS_TIME_NS).c_str(),
+			m_impl->endTime.tv_nsec);
 	}
 
 	return condition;
@@ -1022,6 +1052,26 @@ void EventsQueryOption::setTriggerId(const TriggerIdType &triggerId)
 TriggerIdType EventsQueryOption::getTriggerId(void) const
 {
 	return m_impl->triggerId;
+}
+
+void EventsQueryOption::setBeginTime(const timespec &_beginTime)
+{
+	m_impl->beginTime = _beginTime;
+}
+
+const timespec &EventsQueryOption::getBeginTime(void)
+{
+	return m_impl->beginTime;
+}
+
+void EventsQueryOption::setEndTime(const timespec &_endTime)
+{
+	m_impl->endTime = _endTime;
+}
+
+const timespec &EventsQueryOption::getEndTime(void)
+{
+	return m_impl->endTime;
 }
 
 //

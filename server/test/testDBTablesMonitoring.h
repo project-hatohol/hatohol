@@ -35,6 +35,8 @@ struct AssertGetHostResourceArg {
 	DataQueryOption::SortDirection sortDirection;
 	size_t maxNumber;
 	size_t offset;
+	timespec beginTime;
+	timespec endTime;
 	HatoholErrorCode expectedErrorCode;
 	std::vector<const TResourceType*> authorizedRecords;
 	std::vector<const TResourceType*> expectedRecords;
@@ -52,6 +54,8 @@ struct AssertGetHostResourceArg {
 	  sortDirection(DataQueryOption::SORT_DONT_CARE),
 	  maxNumber(0),
 	  offset(0),
+	  beginTime({0, 0}),
+	  endTime({0, 0}),
 	  expectedErrorCode(HTERR_OK),
 	  fixtures(NULL),
 	  numberOfFixtures(0),
@@ -231,6 +235,10 @@ struct AssertGetEventsArg
 			option.setOffset(offset);
 		if (limitOfUnifiedId)
 			option.setLimitOfUnifiedId(limitOfUnifiedId);
+		if (beginTime.tv_sec != 0 || beginTime.tv_nsec)
+			option.setBeginTime(beginTime);
+		if (endTime.tv_sec != 0 || endTime.tv_nsec)
+			option.setEndTime(endTime);
 		option.setSortType(sortType, sortDirection);
 		option.setType(type);
 		option.setMinimumSeverity(minSeverity);
@@ -262,6 +270,22 @@ struct AssertGetEventsArg
 
 		if (triggerId != ALL_TRIGGERS && info->triggerId != triggerId)
 			return true;
+
+		if (beginTime.tv_sec != 0 || beginTime.tv_nsec != 0) {
+			if (info->time.tv_sec < beginTime.tv_sec ||
+			    (info->time.tv_sec == beginTime.tv_sec &&
+			     info->time.tv_nsec < beginTime.tv_nsec)) {
+				return true;
+			}
+		}
+
+		if (endTime.tv_sec != 0 || endTime.tv_nsec != 0) {
+			if (info->time.tv_sec > endTime.tv_sec ||
+			    (info->time.tv_sec == endTime.tv_sec &&
+			     info->time.tv_nsec > endTime.tv_nsec)) {
+				return true;
+			}
+		}
 
 		return false;
 	}
@@ -350,5 +374,20 @@ struct AssertGetEventsArg
 			actual += makeIncidentOutput(*incidentIt);
 		}
 		cppcut_assert_equal(expected, actual);
+	}
+
+	UnifiedEventIdType findLastUnifiedId(void)
+	{
+		UnifiedEventIdType lastId = -1;
+		for (size_t i = 0; i < numberOfFixtures; i++) {
+			if (!isAuthorized(fixtures[i]))
+				continue;
+			if (filterForDataOfDefunctSv &&
+			    !option.isValidServer(fixtures[i].serverId)) {
+				continue;
+			}
+			lastId = i + 1;
+		}
+		return lastId;
 	}
 };

@@ -230,9 +230,9 @@ static void _assertTriggers(
 }
 #define assertTriggers(P,...) cut_trace(_assertTriggers(P,##__VA_ARGS__))
 
-static void _assertEvents(const string &path, const string &callbackName = "",
-                          const ServerIdType &serverId = ALL_SERVERS,
-                          const LocalHostIdType &hostIdInServer = ALL_LOCAL_HOSTS)
+static void _assertEvents(const string &path,
+			  AssertGetEventsArg &expectedEventsArg,
+			  const string &callbackName = "")
 {
 	loadTestDBArmPlugin();
 	loadTestDBTriggers();
@@ -240,46 +240,28 @@ static void _assertEvents(const string &path, const string &callbackName = "",
 	loadTestDBServerHostDef();
 	startFaceRest();
 
-	// build expected data
-	AssertGetEventsArg eventsArg(NULL);
-	eventsArg.filterForDataOfDefunctSv = true;
-	eventsArg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
-	eventsArg.sortType = EventsQueryOption::SORT_TIME;
-	eventsArg.sortDirection = EventsQueryOption::SORT_DESCENDING;
-	eventsArg.fixup();
-
 	// check json data
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	JSONParser *parser = getResponseAsJSONParser(arg);
 	unique_ptr<JSONParser> parserPtr(parser);
 
-	// request
-	StringMap queryMap;
-	if (serverId != ALL_SERVERS) {
-		queryMap["serverId"] =
-		  StringUtils::sprintf("%" PRIu32, serverId);
-	}
-	if (hostIdInServer != ALL_LOCAL_HOSTS)
-		queryMap["hostId"] = hostIdInServer;
-	arg.parameters = queryMap;
-
 	// check the reply
 	assertErrorCode(parser);
 	assertValueInParser(parser, "numberOfEvents",
-	                    eventsArg.expectedRecords.size());
+	                    expectedEventsArg.expectedRecords.size());
 	assertValueInParser(parser, "lastUnifiedEventId",
-	                    eventsArg.expectedRecords.size());
+	                    expectedEventsArg.findLastUnifiedId());
 	ThreadLocalDBCache cache;
 	bool shouldHaveIncident = cache.getAction().isIncidentSenderEnabled();
 	assertValueInParser(parser, "haveIncident", shouldHaveIncident);
 
 	assertStartObject(parser, "events");
 	vector<const EventInfo*>::reverse_iterator it
-	  = eventsArg.expectedRecords.rbegin();
-	for (size_t i = 0; it != eventsArg.expectedRecords.rend(); i++, ++it) {
+	  = expectedEventsArg.expectedRecords.rbegin();
+	for (size_t i = 0; it != expectedEventsArg.expectedRecords.rend(); i++, ++it) {
 		const EventInfo &eventInfo = *(*it);
-		uint64_t unifiedId = eventsArg.idMap[*it];
+		uint64_t unifiedId = expectedEventsArg.idMap[*it];
 		parser->startElement(i);
 		assertValueInParser(parser, "unifiedId", unifiedId);
 		assertValueInParser(parser, "serverId", eventInfo.serverId);
@@ -295,7 +277,7 @@ static void _assertEvents(const string &path, const string &callbackName = "",
 		if (shouldHaveIncident) {
 			assertStartObject(parser, "incident");
 			const IncidentInfo incident
-			  = eventsArg.getExpectedIncidentInfo(eventInfo);
+			  = expectedEventsArg.getExpectedIncidentInfo(eventInfo);
 			assertValueInParser(parser, "location",
 					    incident.location);
 			parser->endElement();
@@ -305,8 +287,21 @@ static void _assertEvents(const string &path, const string &callbackName = "",
 		parser->endElement();
 	}
 	parser->endObject();
-	assertHostsIdNameHashInParser(eventsArg.expectedRecords, parser);
+	assertHostsIdNameHashInParser(expectedEventsArg.expectedRecords, parser);
 	assertServersIdNameHashInParser(parser);
+}
+
+static void _assertEvents(const string &path, const string &callbackName = "")
+{
+	// build expected data
+	AssertGetEventsArg eventsArg(NULL);
+	eventsArg.filterForDataOfDefunctSv = true;
+	eventsArg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	eventsArg.sortType = EventsQueryOption::SORT_TIME;
+	eventsArg.sortDirection = EventsQueryOption::SORT_DESCENDING;
+	eventsArg.fixup();
+
+	_assertEvents(path, eventsArg, callbackName);
 }
 #define assertEvents(P,...) cut_trace(_assertEvents(P,##__VA_ARGS__))
 
@@ -583,9 +578,38 @@ void test_eventsJSONP(void)
 
 void test_eventsForOneServerOneHost(void)
 {
-	assertEvents("/event", "foo",
-		     testEventInfo[1].serverId,
-		     testEventInfo[1].hostIdInServer);
+	// build expected data
+	AssertGetEventsArg eventsArg(NULL);
+	eventsArg.filterForDataOfDefunctSv = true;
+	eventsArg.targetServerId = testEventInfo[1].serverId;
+	eventsArg.targetHostId = testEventInfo[1].hostIdInServer;
+	eventsArg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	eventsArg.sortType = EventsQueryOption::SORT_TIME;
+	eventsArg.sortDirection = EventsQueryOption::SORT_DESCENDING;
+	eventsArg.fixup();
+
+	string query =
+	  StringUtils::sprintf(
+	    "/event?serverId=%" FMT_SERVER_ID "&hostId=%" FMT_LOCAL_HOST_ID,
+	    testEventInfo[1].serverId,
+	    testEventInfo[1].hostIdInServer.c_str());
+
+	assertEvents(query, eventsArg);
+}
+
+void test_eventsWithTimeRange(void)
+{
+	AssertGetEventsArg eventsArg(NULL);
+	eventsArg.filterForDataOfDefunctSv = true;
+	eventsArg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	eventsArg.sortType = EventsQueryOption::SORT_TIME;
+	eventsArg.sortDirection = EventsQueryOption::SORT_DESCENDING;
+	eventsArg.beginTime = {1363000000, 0};
+	eventsArg.endTime = {1389123457, 0};
+	eventsArg.fixup();
+
+	assertEvents("/event?beginTime=1363000000&endTime=1389123457",
+		     eventsArg);
 }
 
 void test_items(void)

@@ -28,6 +28,9 @@ describe('EventsView', function() {
       "extendedInfo":"{\"expandedDescription\": \"Expanded test description 2.\"}",
     },
   ];
+  var testOptions = {
+    disableTimeRangeFilter: true,
+  };
 
   function getOperator() {
     var operator = {
@@ -101,7 +104,7 @@ describe('EventsView', function() {
   }
 
   function testTableContents(serverURL, hostURL, dummyServerInfo, params){
-    var view = new EventsView(getOperator());
+    var view = new EventsView(getOperator(), testOptions);
     var expected;
 
     if (serverURL) {
@@ -142,7 +145,7 @@ describe('EventsView', function() {
   function testTableContentsWithExpandedDescription(serverURL, hostURL,
                                                     dummyServerInfo, params)
   {
-    var view = new EventsView(getOperator());
+    var view = new EventsView(getOperator(), testOptions);
     var expected =
       '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>';
     if (params) {
@@ -205,7 +208,7 @@ describe('EventsView', function() {
   });
 
   it('new with empty data', function() {
-    var view = new EventsView(getOperator());
+    var view = new EventsView(getOperator(), testOptions);
     respond(eventsJson());
     var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
     expect(heads).to.have.length(1);
@@ -251,7 +254,7 @@ describe('EventsView', function() {
   });
 
   it('With a good event', function() {
-    var view = new EventsView(getOperator());
+    var view = new EventsView(getOperator(), testOptions);
     var serverURL = "http://192.168.1.100/zabbix/";
     var hostURL =
       "http://192.168.1.100/zabbix/latest.php?&hostid=10105";

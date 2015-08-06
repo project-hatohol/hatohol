@@ -469,6 +469,76 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 	cppcut_assert_equal(expect, option.getCondition());
 }
 
+void data_eventQueryOptionWithBeginTime(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionWithBeginTime(gconstpointer data)
+{
+	timespec beginTime = { 123, 456 };
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setBeginTime(beginTime);
+	string expected = "(time_sec>123 OR (time_sec=123 AND time_ns>=456))";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void data_eventQueryOptionWithEndTime(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionWithEndTime(gconstpointer data)
+{
+	timespec endTime = { 987, 654 };
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setEndTime(endTime);
+	string expected = "(time_sec<987 OR (time_sec=987 AND time_ns<=654))";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void data_eventQueryOptionWithBeginTimeAndEndTime(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionWithBeginTimeAndEndTime(gconstpointer data)
+{
+	timespec beginTime = { 123, 456 };
+	timespec endTime = { 987, 654 };
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setBeginTime(beginTime);
+	option.setEndTime(endTime);
+	string expected =
+	  "(time_sec>123 OR (time_sec=123 AND time_ns>=456))"
+	  " AND "
+	  "(time_sec<987 OR (time_sec=987 AND time_ns<=654))";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_eventQueryOptionGetBeginTime(void)
+{
+	timespec expected = { 123, 456 };
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setBeginTime(expected);
+	const timespec &actual = option.getBeginTime();
+	cppcut_assert_equal(expected.tv_sec, actual.tv_sec);
+	cppcut_assert_equal(expected.tv_nsec, actual.tv_nsec);
+}
+
+void test_eventQueryOptionGetEndTime(void)
+{
+	timespec expected = { 987, 654 };
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setEndTime(expected);
+	const timespec &actual = option.getEndTime();
+	cppcut_assert_equal(expected.tv_sec, actual.tv_sec);
+	cppcut_assert_equal(expected.tv_nsec, actual.tv_nsec);
+}
+
 //
 // ItemsQueryOption
 //
