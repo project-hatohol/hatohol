@@ -2038,12 +2038,12 @@ SmartTime DBTablesMonitoring::getTimeOfLastEvent(
 	return SmartTime(ts);
 }
 
-void DBTablesMonitoring::addItemInfo(ItemInfo *itemInfo)
+void DBTablesMonitoring::addItemInfo(const ItemInfo *itemInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
-		ItemInfo *itemInfo;
+		const ItemInfo *itemInfo;
 
-		TrxProc(ItemInfo *_itemInfo)
+		TrxProc(const ItemInfo *_itemInfo)
 		: itemInfo(_itemInfo)
 		{
 		}

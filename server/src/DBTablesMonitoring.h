@@ -206,7 +206,7 @@ public:
 	  const ServerIdType &serverId,
 	  const TriggerIdType &triggerId = ALL_TRIGGERS);
 
-	void addItemInfo(ItemInfo *itemInfo);
+	void addItemInfo(const ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
 	void getItemInfoList(ItemInfoList &itemInfoList,
 			     const ItemsQueryOption &option);
