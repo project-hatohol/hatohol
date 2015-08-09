@@ -1,3 +1,4 @@
+sudo: required
 notifications:
   email:
     recipients:
