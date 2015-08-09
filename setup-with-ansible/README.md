@@ -19,6 +19,10 @@ Run:
 
     $ ansible-playbook -i hosts setup-hatohol-dev.yaml
 
+or you can run it w/o ssh
+
+    $ sudo ansible-playbook -c local -i hosts setup-hatohol-dev.yaml
+
 ### With Vagrant
 
 Run:
@@ -55,3 +59,16 @@ This problem happens when the target OS is Ubuntu for cloud.
 It may be solved by doing the following command on the target machine.
 
     $ sudo apt-get update
+
+### A step `TASK: [upgrade-server/ubuntu | upgrade a server]` never ends
+
+On a machine with Ubuntu 14.04.3 LTS on Openstack, installation of
+the kernel image failed due to SEGV of modprobe btrfs. As a result,
+upgrade-server process stopped and ansible-playbook stalled.
+This can be worked around by adding the following line to
+/etc/modprobe.d/blacklist.conf
+(you may need to reboot the machine after adding it and before retrying
+ansible-playbook)
+
+    blacklist btrfs
+
