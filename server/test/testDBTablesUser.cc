@@ -250,7 +250,7 @@ void _assertIsAccessible(const bool useAllServers = false)
 	ServerIdType serverId = 0;
 	UserIdType userId = INVALID_USER_ID;
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		AccessInfo &accessInfo = testAccessInfo[i];
+		const AccessInfo &accessInfo = testAccessInfo[i];
 		if (accessInfo.hostgroupId != ALL_HOST_GROUPS)
 			continue;
 
@@ -625,7 +625,8 @@ void test_addAccessListWithoutUpdateUserPrivilege(void)
 	DECLARE_DBTABLES_USER(dbUser);
 	HatoholError err;
 	OperationPrivilege privilege;
-	err = dbUser.addAccessInfo(testAccessInfo[0], privilege);
+	AccessInfo accessInfo = testAccessInfo[0];
+	err = dbUser.addAccessInfo(accessInfo, privilege);
 	assertHatoholError(HTERR_NO_PRIVILEGE, err);
 
 	AccessInfoIdSet accessInfoIdSet;
@@ -957,7 +958,7 @@ void test_isAccessibleFalse(void)
 	ServerIdType serverId = 0;
 	UserIdType userId = INVALID_USER_ID;
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		AccessInfo &accessInfo = testAccessInfo[i];
+		const AccessInfo &accessInfo = testAccessInfo[i];
 		userId = accessInfo.userId;
 		if ((ServerIdType)accessInfo.serverId >= serverId)
 			serverId = accessInfo.serverId + 1;
@@ -999,7 +1000,7 @@ void data_isAccessibleWithHostgroup(void)
 
 	// Tests with listed paramters
 	for (size_t i = 0; i < NumTestAccessInfo; ++i) {
-		AccessInfo *accessInfo = &testAccessInfo[i];
+		const AccessInfo *accessInfo = &testAccessInfo[i];
 		dataAdder.add(accessInfo->userId, accessInfo->serverId,
 		              accessInfo->hostgroupId, true);
 		userIdSet.insert(accessInfo->userId);

@@ -700,9 +700,9 @@ void test_getHypervisorWithUserWhoCanAccessAllHostgroup(gconstpointer data)
 	HostIdType hypervisorId = INVALID_HOST_ID;
 
 	// Select the suitable test data
-	AccessInfo *targetAccessInfo = NULL;
+	const AccessInfo *targetAccessInfo = NULL;
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		AccessInfo *ai = &testAccessInfo[i];
+		const AccessInfo *ai = &testAccessInfo[i];
 		if (ai->hostgroupId == ALL_HOST_GROUPS &&
 		    ai->serverId == targetServerHostDef.serverId) {
 			targetAccessInfo = ai;

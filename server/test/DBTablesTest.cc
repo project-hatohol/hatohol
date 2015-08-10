@@ -844,7 +844,7 @@ const UserInfo *testUserInfo = bareTestUserInfo;
 const size_t NumTestUserInfo = ARRAY_SIZE(bareTestUserInfo);
 const UserIdType userIdWithMultipleAuthorizedHostgroups = 7;
 
-AccessInfo testAccessInfo[] = {
+static AccessInfo bareTestAccessInfo[] = {
 {
 	0,                 // id
 	1,                 // userId
@@ -917,7 +917,8 @@ AccessInfo testAccessInfo[] = {
 	ALL_HOST_GROUPS,   // hostgroupId
 }
 };
-const size_t NumTestAccessInfo = ARRAY_SIZE(testAccessInfo);
+const AccessInfo *testAccessInfo = bareTestAccessInfo;
+const size_t NumTestAccessInfo = ARRAY_SIZE(bareTestAccessInfo);
 
 static const string _HOST_VALID_STRING = StringUtils::sprintf("%d", HOST_VALID);
 static const char *HOST_VALID_STRING = _HOST_VALID_STRING.c_str();
@@ -1837,7 +1838,9 @@ void makeTestUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
 {
 
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		AccessInfo &accessInfo = testAccessInfo[i];
+		// ****
+		//AccessInfo &accessInfo = testAccessInfo[i];
+		const AccessInfo accessInfo = testAccessInfo[i];
 		userIdIndexMap[accessInfo.userId].insert(i);
 	}
 }
@@ -1846,7 +1849,7 @@ void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 			     UserIdType userId)
 {
 	for (size_t i = 0; i < NumTestAccessInfo; ++i) {
-		AccessInfo *accessInfo = &testAccessInfo[i];
+		const AccessInfo *accessInfo = &testAccessInfo[i];
 		if (testAccessInfo[i].userId != userId)
 			continue;
 
@@ -2193,8 +2196,8 @@ void loadTestDBAccessList(void)
 	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		err = dbUser.addAccessInfo(testAccessInfo[i], privilege);
+	for (auto &accessInfo: bareTestAccessInfo) {
+		err = dbUser.addAccessInfo(accessInfo, privilege);
 		assertHatoholError(HTERR_OK, err);
 	}
 }

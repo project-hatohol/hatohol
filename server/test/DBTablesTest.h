@@ -74,7 +74,7 @@ extern const UserInfo *testUserInfo;
 extern const size_t NumTestUserInfo;
 extern const UserIdType userIdWithMultipleAuthorizedHostgroups;
 
-extern AccessInfo testAccessInfo[];
+extern const AccessInfo *testAccessInfo;
 extern const size_t NumTestAccessInfo;
 
 extern UserRoleInfo testUserRoleInfo[];
