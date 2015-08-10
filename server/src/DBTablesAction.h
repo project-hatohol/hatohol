@@ -98,7 +98,7 @@ struct ActionCondition {
 };
 
 struct ActionDef {
-	int         id;
+	ActionIdType id;
 	ActionCondition condition;
 	ActionType  type;
 	std::string workingDir;
@@ -164,7 +164,7 @@ enum {
 };
 
 struct ActionLog {
-	uint64_t id;
+	GenericIdType id;
 	ActionIdType actionId;
 	int      status;
 	int      starterId;
