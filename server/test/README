@@ -49,6 +49,16 @@ It has effect only for DBAgentMySQL and the related classes.
 This way is a little slower than the way (2). However, this is easier,
 because no other settings are needed.
 
+When this environment variable is set, the test case:
+testArmZabbixAPI::test_getEventsBySplitWay needs about several hundred MB
+of heap memory, although the MySQL's default maximum heap size is 16MB.
+So the parameters should be changed by editing my.conf.
+
+[mysqld]
+
+max_heap_table_size = 512M
+
+
 (2) Put the DB of MySQL on tmpfs
 This way is faster than that of (1). However, it affects all
 applications using MySQL. So you should use a virtual machine or
