@@ -329,7 +329,7 @@ void test_addUserDuplicate(void)
 {
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
-	UserInfo &userInfo = testUserInfo[1];
+	UserInfo userInfo = testUserInfo[1];
 	assertHatoholError(HTERR_USER_NAME_EXIST,
 	                   dbUser.addUserInfo(userInfo, privilege));
 	assertUsersInDB();

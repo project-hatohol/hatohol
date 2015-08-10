@@ -779,7 +779,7 @@ const ActionDef testUpdateActionDef = {
 	2,                       // ownerUserId
 };
 
-UserInfo testUserInfo[] = {
+static UserInfo bareTestUserInfo[] = {
 {
 	0,                 // id
 	"cheesecake",      // name
@@ -840,7 +840,8 @@ UserInfo testUserInfo[] = {
 	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER),
 }
 };
-const size_t NumTestUserInfo = ARRAY_SIZE(testUserInfo);
+const UserInfo *testUserInfo = bareTestUserInfo;
+const size_t NumTestUserInfo = ARRAY_SIZE(bareTestUserInfo);
 const UserIdType userIdWithMultipleAuthorizedHostgroups = 7;
 
 AccessInfo testAccessInfo[] = {
@@ -2168,8 +2169,8 @@ void loadTestDBUser(void)
 	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege opePrivilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestUserInfo; i++) {
-		err = dbUser.addUserInfo(testUserInfo[i], opePrivilege);
+	for (auto &userInfo: bareTestUserInfo) {
+		err = dbUser.addUserInfo(userInfo, opePrivilege);
 		assertHatoholError(HTERR_OK, err);
 	}
 }

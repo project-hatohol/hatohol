@@ -70,7 +70,7 @@ extern const size_t NumTestActionDef;
 
 extern const ActionDef testUpdateActionDef;
 
-extern UserInfo testUserInfo[];
+extern const UserInfo *testUserInfo;
 extern const size_t NumTestUserInfo;
 extern const UserIdType userIdWithMultipleAuthorizedHostgroups;
 
