@@ -315,7 +315,8 @@ void test_addAction(void)
 	string expect;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestActionDef; i++) {
-		ActionDef &actDef = testActionDef[i];
+		// We make a copy to make a mutable object.
+		ActionDef actDef = testActionDef[i];
 		assertHatoholError(HTERR_OK,
 		                   dbAction.addAction(actDef, privilege));
 
@@ -335,7 +336,8 @@ void test_updateAction(void)
 	string expect;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestActionDef; i++) {
-		ActionDef &actDef = testActionDef[i];
+		// We make a copy to make a mutable object.
+		ActionDef actDef = testActionDef[i];
 		assertHatoholError(HTERR_OK,
 		                   dbAction.addAction(actDef, privilege));
 	}
@@ -358,7 +360,8 @@ void test_addActionByInvalidUser(void)
 {
 	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(INVALID_USER_ID);
-	ActionDef &actDef = testActionDef[0];
+	// We make a copy to make a mutable object.
+	ActionDef actDef = testActionDef[0];
 	assertHatoholError(HTERR_INVALID_USER,
 	                   dbAction.addAction(actDef, privilege));
 }
@@ -368,7 +371,8 @@ void test_addActionAndCheckOwner(void)
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ACTION);
 	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(userId);
-	ActionDef &actDef = testActionDef[0];
+	// We make a copy to make a mutable object.
+	ActionDef actDef = testActionDef[0];
 	assertHatoholError(HTERR_OK, dbAction.addAction(actDef, privilege));
 	ActionIdType actionId = dbAction.getDBAgent().getLastInsertId();
 
@@ -385,7 +389,8 @@ void test_addActionWithoutPrivilege(void)
 	const UserIdType userId = findUserWithout(OPPRVLG_CREATE_ACTION);
 	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(userId);
-	ActionDef &actDef = testActionDef[0];
+	// We make a copy to make a mutable object.
+	ActionDef actDef = testActionDef[0];
 	assertHatoholError(HTERR_NO_PRIVILEGE,
 	                   dbAction.addAction(actDef, privilege));
 }
@@ -409,6 +414,7 @@ void test_addIncidentSenderActionByIncidentSettingsAdmin(void)
 	OperationPrivilege privilege(userId);
 	int idx = findTestActionIdxByType(ACTION_INCIDENT_SENDER);
 	ActionIdType expectedId = 1;
+	// We make a copy to make a mutable object.
 	ActionDef actionDef = testActionDef[idx];
 	actionDef.ownerUserId = userId;
 	assertHatoholError(HTERR_OK,
@@ -432,8 +438,10 @@ void test_addIncidentSenderActionWithoutPrivilege(void)
 	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(userId);
 	int idx = findTestActionIdxByType(ACTION_INCIDENT_SENDER);
+	// We make a copy to make a mutable object.
+	ActionDef actDef = testActionDef[idx];
 	assertHatoholError(HTERR_NO_PRIVILEGE,
-	                   dbAction.addAction(testActionDef[idx], privilege));
+	                   dbAction.addAction(actDef, privilege));
 }
 
 void test_deleteAction(void)
@@ -809,7 +817,7 @@ cut_trace(_assertGetActionWithSeverity(S,E,##__VA_ARGS__))
 void test_getActionWithLessSeverityAgainstCmpEqGt(void)
 {
 	int targetActionIdx = 1;
-	ActionDef &targetAction = testActionDef[targetActionIdx];
+	const ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)(targetAction.condition.triggerSeverity - 1),
 	  targetActionIdx, false);
@@ -818,7 +826,7 @@ void test_getActionWithLessSeverityAgainstCmpEqGt(void)
 void test_getActionWithEqualSeverityAgainstCmpEqGt(void)
 {
 	int targetActionIdx = 1;
-	ActionDef &targetAction = testActionDef[targetActionIdx];
+	const ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)targetAction.condition.triggerSeverity,
 	  targetActionIdx);
@@ -827,7 +835,7 @@ void test_getActionWithEqualSeverityAgainstCmpEqGt(void)
 void test_getActionWithGreaterSeverityAgainstCmpEqGt(void)
 {
 	int targetActionIdx = 1;
-	ActionDef &targetAction = testActionDef[targetActionIdx];
+	const ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)(targetAction.condition.triggerSeverity + 1),
 	  targetActionIdx);
@@ -836,7 +844,7 @@ void test_getActionWithGreaterSeverityAgainstCmpEqGt(void)
 void test_getActionWithLessSeverityAgainstCmpEq(void)
 {
 	int targetActionIdx = 4;
-	ActionDef &targetAction = testActionDef[targetActionIdx];
+	const ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)(targetAction.condition.triggerSeverity - 1),
 	  targetActionIdx, false);
@@ -845,7 +853,7 @@ void test_getActionWithLessSeverityAgainstCmpEq(void)
 void test_getActionWithEqualSeverityAgainstCmpEq(void)
 {
 	int targetActionIdx = 4;
-	ActionDef &targetAction = testActionDef[targetActionIdx];
+	const ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)targetAction.condition.triggerSeverity,
 	  targetActionIdx);
@@ -854,7 +862,7 @@ void test_getActionWithEqualSeverityAgainstCmpEq(void)
 void test_getActionWithGreaterSeverityAgainstCmpEq(void)
 {
 	int targetActionIdx = 4;
-	ActionDef &targetAction = testActionDef[targetActionIdx];
+	const ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)(targetAction.condition.triggerSeverity + 1),
 	  targetActionIdx, false);

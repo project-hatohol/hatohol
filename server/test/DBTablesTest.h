@@ -65,7 +65,7 @@ extern const size_t NumTestDupEventInfo;
 extern const ItemInfo testItemInfo[];
 extern const size_t NumTestItemInfo;
 
-extern ActionDef testActionDef[];
+extern const ActionDef *testActionDef;
 extern const size_t NumTestActionDef;
 
 extern ActionDef testUpdateActionDef;

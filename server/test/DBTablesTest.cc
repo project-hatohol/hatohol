@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -623,7 +623,7 @@ const ItemInfo testItemInfo[] = {
 };
 const size_t NumTestItemInfo = ARRAY_SIZE(testItemInfo);
 
-ActionDef testActionDef[] = {
+static ActionDef bareTestActionDef[] = {
 {
 	0,                 // id (this field is ignored)
 	ActionCondition(
@@ -755,7 +755,8 @@ ActionDef testActionDef[] = {
 },
 };
 
-const size_t NumTestActionDef = ARRAY_SIZE(testActionDef);
+const ActionDef *testActionDef = bareTestActionDef;
+const size_t NumTestActionDef = ARRAY_SIZE(bareTestActionDef);
 
 ActionDef testUpdateActionDef = {
 	2,                 // id (this field is needed when updating)
@@ -2245,7 +2246,7 @@ void loadTestDBAction(void)
 	DBTablesAction &dbAction = cache.getAction();
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestActionDef; i++)
-		dbAction.addAction(testActionDef[i], privilege);
+		dbAction.addAction(bareTestActionDef[i], privilege);
 }
 
 void loadTestDBServerStatus(void)
