@@ -68,7 +68,7 @@ extern const size_t NumTestItemInfo;
 extern const ActionDef *testActionDef;
 extern const size_t NumTestActionDef;
 
-extern ActionDef testUpdateActionDef;
+extern const ActionDef testUpdateActionDef;
 
 extern UserInfo testUserInfo[];
 extern const size_t NumTestUserInfo;

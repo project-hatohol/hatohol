@@ -343,16 +343,18 @@ void test_updateAction(void)
 	}
 
 	// Call the method to be tested and check the result
+	ActionDef updateActDef = testUpdateActionDef;
 	assertHatoholError(HTERR_OK,
-	                   dbAction.updateAction(testUpdateActionDef, privilege));
+	                   dbAction.updateAction(updateActDef, privilege));
 
 	// validation
 	const int expectedId = 2;
-	cppcut_assert_equal(expectedId, testUpdateActionDef.id);
+	cppcut_assert_equal(expectedId, updateActDef.id);
 	string statement = "select * from ";
 	statement += DBTablesAction::getTableNameActions();
-	statement += StringUtils::sprintf(" where action_id=%d", testUpdateActionDef.id);
-	expect += makeExpectedString(testUpdateActionDef, expectedId);
+	statement += StringUtils::sprintf(" where action_id=%d",
+	                                  updateActDef.id);
+	expect += makeExpectedString(updateActDef, expectedId);
 	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
 
