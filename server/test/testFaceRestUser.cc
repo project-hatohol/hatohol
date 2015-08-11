@@ -513,7 +513,7 @@ static void assertUserRolesMapInParser(JSONParser *parser)
 	parser->endObject();
 
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
-		UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
+		const UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
 		flagsStr = StringUtils::toString(userRoleInfo.flags);
 		assertStartObject(parser, flagsStr);
 		assertValueInParser(parser, "name", userRoleInfo.name);

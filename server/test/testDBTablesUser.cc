@@ -1131,7 +1131,7 @@ static void _assertGetUserRoleInfo(
 	dbUser.getUserRoleInfoList(userRoleInfoList, option);
 	string expected, actual;
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
-		UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
+		UserRoleInfo userRoleInfo = testUserRoleInfo[i];
 		userRoleInfo.id = i + 1;
 		if (targetUserRoleId == INVALID_USER_ROLE_ID ||
 		    userRoleInfo.id == targetUserRoleId)
@@ -1261,7 +1261,7 @@ void test_addUserRoleWithoutPrivilege(void)
 	flags &= ~(1 << OPPRVLG_CREATE_USER_ROLE);
 	OperationPrivilege privilege(flags);
 	DECLARE_DBTABLES_USER(dbUser);
-	UserRoleInfo &userRoleInfo = testUserRoleInfo[1];
+	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
 	assertHatoholError(HTERR_NO_PRIVILEGE,
 	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
 	assertUserRolesInDB();

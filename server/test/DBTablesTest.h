@@ -77,7 +77,7 @@ extern const UserIdType userIdWithMultipleAuthorizedHostgroups;
 extern const AccessInfo *testAccessInfo;
 extern const size_t NumTestAccessInfo;
 
-extern UserRoleInfo testUserRoleInfo[];
+extern const UserRoleInfo testUserRoleInfo[];
 extern const size_t NumTestUserRoleInfo;
 
 ArmPluginInfo *getTestArmPluginInfo(void);
