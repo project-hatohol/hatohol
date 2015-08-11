@@ -1160,7 +1160,7 @@ cut_trace(_assertAddIncidentTracker(I,E,##__VA_ARGS__))
 
 void test_addIncidentTracker(void)
 {
-	IncidentTrackerInfo *testInfo = testIncidentTrackerInfo;
+	const IncidentTrackerInfo *testInfo = testIncidentTrackerInfo;
 	assertAddIncidentTracker(*testInfo, HTERR_OK);
 }
 
@@ -1169,7 +1169,7 @@ void test_addIncidentTrackerWithoutPrivilege(void)
 	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
 	OperationPrivilege::removeFlag(
 	  privilege, OPPRVLG_CREATE_INCIDENT_SETTING);
-	IncidentTrackerInfo *testInfo = testIncidentTrackerInfo;
+	const IncidentTrackerInfo *testInfo = testIncidentTrackerInfo;
 	assertAddIncidentTracker(*testInfo, HTERR_NO_PRIVILEGE, privilege);
 }
 
@@ -1265,7 +1265,7 @@ void _assertGetIncidentTrackers(
 	size_t expectedSize = 0;
 	OperationPrivilege privilege(userId);
 	for (size_t i = 0; i < NumTestIncidentTrackerInfo; i++) {
-		IncidentTrackerInfo &info = testIncidentTrackerInfo[i];
+		IncidentTrackerInfo info = testIncidentTrackerInfo[i];
 		assertAddIncidentTrackerToDB(&info);
 		if (!privilege.has(OPPRVLG_GET_ALL_INCIDENT_SETTINGS))
 			continue;

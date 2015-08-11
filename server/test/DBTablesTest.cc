@@ -1015,7 +1015,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 };
 const size_t NumTestArmPluginInfo = ARRAY_SIZE(testArmPluginInfo);
 
-IncidentTrackerInfo testIncidentTrackerInfo[] = {
+const IncidentTrackerInfo testIncidentTrackerInfo[] = {
 {
 	1,                        // id
 	INCIDENT_TRACKER_REDMINE, // type
@@ -2274,9 +2274,8 @@ void loadTestDBIncidentTracker(void)
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestIncidentTrackerInfo; i++)
-		dbConfig.addIncidentTracker(testIncidentTrackerInfo[i],
-					    privilege);
+	for (auto incidentTrackerInfo: testIncidentTrackerInfo)
+		dbConfig.addIncidentTracker(incidentTrackerInfo, privilege);
 }
 
 void getTestHistory(HistoryInfoVect &historyInfoVect,

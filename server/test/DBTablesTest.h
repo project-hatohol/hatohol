@@ -83,7 +83,7 @@ extern const size_t NumTestUserRoleInfo;
 ArmPluginInfo *getTestArmPluginInfo(void);
 extern const size_t NumTestArmPluginInfo;
 
-extern IncidentTrackerInfo testIncidentTrackerInfo[];
+extern const IncidentTrackerInfo testIncidentTrackerInfo[];
 extern size_t NumTestIncidentTrackerInfo;
 
 extern IncidentInfo testIncidentInfo[];

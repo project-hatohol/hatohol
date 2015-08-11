@@ -72,7 +72,7 @@ void cut_teardown(void)
 
 void test_getURL(void)
 {
-	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
 	ArmRedmineTestee arm(tracker);
 	cppcut_assert_equal(string("http://localhost/issues.json"),
 			    arm.callGetURL());
@@ -102,7 +102,7 @@ static void _assertQuery(const string &expected, const string &actual)
 
 void test_baseQueryString(void)
 {
-	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
 	ArmRedmineTestee arm(tracker);
 	string expected =
 		"f%5B%5D=status_id&"
@@ -124,7 +124,7 @@ void test_baseQueryString(void)
 void test_oneProcWihNoUpdatedIssues(void)
 {
 	loadTestDBIncidents();
-	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[2];
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[2];
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 	ArmRedmineTestee arm(tracker);
 	cppcut_assert_equal(true, arm.callOneProc());
