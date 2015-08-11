@@ -84,7 +84,7 @@ ArmPluginInfo *getTestArmPluginInfo(void);
 extern const size_t NumTestArmPluginInfo;
 
 extern const IncidentTrackerInfo testIncidentTrackerInfo[];
-extern size_t NumTestIncidentTrackerInfo;
+extern const size_t NumTestIncidentTrackerInfo;
 
 extern IncidentInfo testIncidentInfo[];
 extern size_t NumTestIncidentInfo;

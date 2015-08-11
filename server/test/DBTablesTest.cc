@@ -1054,7 +1054,7 @@ const IncidentTrackerInfo testIncidentTrackerInfo[] = {
 	"o.o662L6q1V7E",          // password
 }
 };
-size_t NumTestIncidentTrackerInfo = ARRAY_SIZE(testIncidentTrackerInfo);
+const size_t NumTestIncidentTrackerInfo = ARRAY_SIZE(testIncidentTrackerInfo);
 
 IncidentInfo testIncidentInfo[] = {
 {
