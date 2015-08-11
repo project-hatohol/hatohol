@@ -1108,7 +1108,7 @@ const IncidentInfo testIncidentInfo[] = {
 };
 const size_t NumTestIncidentInfo = ARRAY_SIZE(testIncidentInfo);
 
-HistoryInfo testHistoryInfo[] = {
+const HistoryInfo testHistoryInfo[] = {
 {
 	3,              // serverId
 	"1",            // itemId
@@ -1146,7 +1146,7 @@ HistoryInfo testHistoryInfo[] = {
 	{1362957200,0}, // clock
 },
 };
-size_t NumTestHistoryInfo = ARRAY_SIZE(testHistoryInfo);
+const size_t NumTestHistoryInfo = ARRAY_SIZE(testHistoryInfo);
 
 const ServerHostDef testServerHostDef[] = {
 {

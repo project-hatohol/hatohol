@@ -89,8 +89,8 @@ extern const size_t NumTestIncidentTrackerInfo;
 extern const IncidentInfo testIncidentInfo[];
 extern const size_t NumTestIncidentInfo;
 
-extern HistoryInfo testHistoryInfo[];
-extern size_t NumTestHistoryInfo;
+extern const HistoryInfo testHistoryInfo[];
+extern const size_t NumTestHistoryInfo;
 
 extern const ServerHostDef testServerHostDef[];
 extern const size_t NumTestServerHostDef;
