@@ -2172,7 +2172,7 @@ void loadTestDBUser(void)
 	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege opePrivilege(ALL_PRIVILEGES);
-	for (auto &userInfo: bareTestUserInfo) {
+	for (auto &userInfo : bareTestUserInfo) {
 		err = dbUser.addUserInfo(userInfo, opePrivilege);
 		assertHatoholError(HTERR_OK, err);
 	}
@@ -2184,7 +2184,7 @@ void loadTestDBUserRole(void)
 	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (auto userRoleInfo: testUserRoleInfo) {
+	for (auto userRoleInfo : testUserRoleInfo) {
 		err = dbUser.addUserRoleInfo(userRoleInfo, privilege);
 		assertHatoholError(HTERR_OK, err);
 	}
@@ -2196,7 +2196,7 @@ void loadTestDBAccessList(void)
 	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (auto &accessInfo: bareTestAccessInfo) {
+	for (auto &accessInfo : bareTestAccessInfo) {
 		err = dbUser.addAccessInfo(accessInfo, privilege);
 		assertHatoholError(HTERR_OK, err);
 	}
@@ -2276,7 +2276,7 @@ void loadTestDBIncidentTracker(void)
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (auto incidentTrackerInfo: testIncidentTrackerInfo)
+	for (auto incidentTrackerInfo : testIncidentTrackerInfo)
 		dbConfig.addIncidentTracker(incidentTrackerInfo, privilege);
 }
 
@@ -2345,6 +2345,6 @@ void loadTestDBLastInfo(void)
 	ThreadLocalDBCache cache;
 	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	for (auto lastInfoDef: testLastInfoDef)
+	for (auto lastInfoDef : testLastInfoDef)
 		dbLastInfo.upsertLastInfo(lastInfoDef, privilege);
 }
