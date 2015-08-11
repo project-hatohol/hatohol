@@ -198,7 +198,7 @@ struct AssertGetEventsArg
 	std::map<const EventInfo *, uint64_t> idMap;
 	IncidentInfoVect actualIncidentInfoVect;
 	bool withIncidentInfo;
-	std::map<std::string, IncidentInfo*> eventIncidentMap;
+	std::map<std::string, const IncidentInfo *> eventIncidentMap;
 
  AssertGetEventsArg(gconstpointer ddtParam,
 		    const EventInfo *eventInfo = testEventInfo,

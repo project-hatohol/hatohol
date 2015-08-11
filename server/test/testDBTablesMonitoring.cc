@@ -1392,7 +1392,8 @@ void test_addIncidentInfo(void)
 	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
 		IncidentInfo expectedIncidentInfo = testIncidentInfo[i];
 		expect += makeIncidentOutput(expectedIncidentInfo);
-		dbMonitoring.addIncidentInfo(&testIncidentInfo[i]);
+		IncidentInfo incidentInfo = testIncidentInfo[i];
+		dbMonitoring.addIncidentInfo(&incidentInfo);
 	}
 	assertDBContent(&dbAgent, statement, expect);
 }

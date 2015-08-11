@@ -86,8 +86,8 @@ extern const size_t NumTestArmPluginInfo;
 extern const IncidentTrackerInfo testIncidentTrackerInfo[];
 extern const size_t NumTestIncidentTrackerInfo;
 
-extern IncidentInfo testIncidentInfo[];
-extern size_t NumTestIncidentInfo;
+extern const IncidentInfo testIncidentInfo[];
+extern const size_t NumTestIncidentInfo;
 
 extern HistoryInfo testHistoryInfo[];
 extern size_t NumTestHistoryInfo;
@@ -174,7 +174,8 @@ void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 void makeServerHostGrpSetMap(ServerHostGrpSetMap &map,
                              const UserIdType &userId);
 std::string makeEventIncidentMapKey(const EventInfo &eventInfo);
-void makeEventIncidentMap(std::map<std::string, IncidentInfo*> &eventIncidentMap);
+void makeEventIncidentMap(
+  std::map<std::string, const IncidentInfo*> &eventIncidentMap);
 bool isAuthorized(ServerHostGrpSetMap &authMap,
                   const UserIdType &userId,
                   const ServerIdType &serverId,

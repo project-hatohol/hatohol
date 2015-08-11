@@ -1056,7 +1056,7 @@ const IncidentTrackerInfo testIncidentTrackerInfo[] = {
 };
 const size_t NumTestIncidentTrackerInfo = ARRAY_SIZE(testIncidentTrackerInfo);
 
-IncidentInfo testIncidentInfo[] = {
+const IncidentInfo testIncidentInfo[] = {
 {
 	3,                        // trackerId
 	1,                        // serverId
@@ -1106,7 +1106,7 @@ IncidentInfo testIncidentInfo[] = {
 	0,                        // unifiedId
 },
 };
-size_t NumTestIncidentInfo = ARRAY_SIZE(testIncidentInfo);
+const size_t NumTestIncidentInfo = ARRAY_SIZE(testIncidentInfo);
 
 HistoryInfo testHistoryInfo[] = {
 {
@@ -2076,7 +2076,7 @@ string makeEventIncidentMapKey(const EventInfo &eventInfo)
 				    eventInfo.serverId, eventInfo.id.c_str());
 }
 
-void makeEventIncidentMap(map<string, IncidentInfo*> &eventIncidentMap)
+void makeEventIncidentMap(map<string, const IncidentInfo*> &eventIncidentMap)
 {
 	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
 		string key = StringUtils::sprintf(
@@ -2265,8 +2265,10 @@ void loadTestDBIncidents(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestIncidentInfo; i++)
-		dbMonitoring.addIncidentInfo(&testIncidentInfo[i]);
+	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
+		IncidentInfo incidentInfo = testIncidentInfo[i];
+		dbMonitoring.addIncidentInfo(&incidentInfo);
+	}
 }
 
 void loadTestDBIncidentTracker(void)
