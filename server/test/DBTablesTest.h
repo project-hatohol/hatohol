@@ -104,7 +104,7 @@ extern const size_t NumTestHostgroup;
 extern const HostgroupMember testHostgroupMember[];
 extern const size_t NumTestHostgroupMember;
 
-extern LastInfoDef testLastInfoDef[];
+extern const LastInfoDef testLastInfoDef[];
 extern const size_t NumTestLastInfoDef;
 /**
  * get the test trigger data indexes whose serverId and hostId are

@@ -1429,7 +1429,7 @@ const HostgroupMember testHostgroupMember[] = {
 };
 const size_t NumTestHostgroupMember = ARRAY_SIZE(testHostgroupMember);
 
-LastInfoDef testLastInfoDef[] = {
+const LastInfoDef testLastInfoDef[] = {
 {
 	AUTO_INCREMENT_VALUE,            // id
 	LAST_INFO_HOST,                  // dataType
@@ -2345,6 +2345,6 @@ void loadTestDBLastInfo(void)
 	ThreadLocalDBCache cache;
 	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	for (size_t i = 0; i < NumTestLastInfoDef; i++)
-		dbLastInfo.upsertLastInfo(testLastInfoDef[i], privilege);
+	for (auto lastInfoDef: testLastInfoDef)
+		dbLastInfo.upsertLastInfo(lastInfoDef, privilege);
 }
