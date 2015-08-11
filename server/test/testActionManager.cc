@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -1431,7 +1431,7 @@ void test_checkEventsWithMultipleIncidentSender(void)
 	// TODO: we shoud prepare stub of IncidentSenderManager
 	if (!g_redmineEmulator.isRunning())
 		g_redmineEmulator.start(EMULATOR_PORT);
-	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[2];
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[2];
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 
 	TestActionManager actionManager;

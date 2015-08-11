@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -41,17 +41,17 @@ typedef HostgroupHostIdMap::iterator  HostgroupHostIdMapIterator;
 typedef std::map<uint32_t, HostgroupHostIdMap> ServerIdHostgroupHostIdMap;
 typedef ServerIdHostgroupHostIdMap::iterator ServerIdHostgroupHostIdMapIterator;
 
-extern ServerTypeInfo testServerTypeInfo[];
-extern size_t NumTestServerTypeInfo;
+extern const ServerTypeInfo testServerTypeInfo[];
+extern const size_t NumTestServerTypeInfo;
 
 extern const MonitoringServerInfo testServerInfo[];
 extern const size_t NumTestServerInfo;
 
-extern MonitoringServerStatus testServerStatus[];
-extern size_t NumTestServerStatus;
+extern const MonitoringServerStatus testServerStatus[];
+extern const size_t NumTestServerStatus;
 
-extern TriggerInfo testTriggerInfo[];
-extern size_t NumTestTriggerInfo;
+extern const TriggerInfo testTriggerInfo[];
+extern const size_t NumTestTriggerInfo;
 
 extern const EventInfo testEventInfo[];
 extern const size_t NumTestEventInfo;
@@ -59,38 +59,38 @@ extern EventIdType findLastEventId(const ServerIdType &serverId);
 extern mlpl::SmartTime findTimeOfLastEvent(
   const ServerIdType &serverId, const TriggerIdType &triggerId = ALL_TRIGGERS);
 
-extern EventInfo testDupEventInfo[];
-extern size_t NumTestDupEventInfo;
+extern const EventInfo testDupEventInfo[];
+extern const size_t NumTestDupEventInfo;
 
-extern ItemInfo testItemInfo[];
-extern size_t NumTestItemInfo;
+extern const ItemInfo testItemInfo[];
+extern const size_t NumTestItemInfo;
 
-extern ActionDef testActionDef[];
+extern const ActionDef *testActionDef;
 extern const size_t NumTestActionDef;
 
-extern ActionDef testUpdateActionDef;
+extern const ActionDef testUpdateActionDef;
 
-extern UserInfo testUserInfo[];
+extern const UserInfo *testUserInfo;
 extern const size_t NumTestUserInfo;
 extern const UserIdType userIdWithMultipleAuthorizedHostgroups;
 
-extern AccessInfo testAccessInfo[];
+extern const AccessInfo *testAccessInfo;
 extern const size_t NumTestAccessInfo;
 
-extern UserRoleInfo testUserRoleInfo[];
+extern const UserRoleInfo testUserRoleInfo[];
 extern const size_t NumTestUserRoleInfo;
 
 ArmPluginInfo *getTestArmPluginInfo(void);
 extern const size_t NumTestArmPluginInfo;
 
-extern IncidentTrackerInfo testIncidentTrackerInfo[];
-extern size_t NumTestIncidentTrackerInfo;
+extern const IncidentTrackerInfo testIncidentTrackerInfo[];
+extern const size_t NumTestIncidentTrackerInfo;
 
-extern IncidentInfo testIncidentInfo[];
-extern size_t NumTestIncidentInfo;
+extern const IncidentInfo testIncidentInfo[];
+extern const size_t NumTestIncidentInfo;
 
-extern HistoryInfo testHistoryInfo[];
-extern size_t NumTestHistoryInfo;
+extern const HistoryInfo testHistoryInfo[];
+extern const size_t NumTestHistoryInfo;
 
 extern const ServerHostDef testServerHostDef[];
 extern const size_t NumTestServerHostDef;
@@ -104,7 +104,7 @@ extern const size_t NumTestHostgroup;
 extern const HostgroupMember testHostgroupMember[];
 extern const size_t NumTestHostgroupMember;
 
-extern LastInfoDef testLastInfoDef[];
+extern const LastInfoDef testLastInfoDef[];
 extern const size_t NumTestLastInfoDef;
 /**
  * get the test trigger data indexes whose serverId and hostId are
@@ -147,7 +147,7 @@ typedef ServerIdItemInfoIdIndexMapMap::const_iterator
   ServerIdItemInfoIdIndexMapMapConstIterator;
 
 void getTestItemsIndexes(ServerIdItemInfoIdIndexMapMap &indexMap);
-ItemInfo *findTestItem(
+const ItemInfo *findTestItem(
   const ServerIdItemInfoIdIndexMapMap &indexMap,
   const ServerIdType &serverId, const ItemIdType &itemId);
 size_t getNumberOfTestItems(const ServerIdType &serverId);
@@ -174,7 +174,8 @@ void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 void makeServerHostGrpSetMap(ServerHostGrpSetMap &map,
                              const UserIdType &userId);
 std::string makeEventIncidentMapKey(const EventInfo &eventInfo);
-void makeEventIncidentMap(std::map<std::string, IncidentInfo*> &eventIncidentMap);
+void makeEventIncidentMap(
+  std::map<std::string, const IncidentInfo*> &eventIncidentMap);
 bool isAuthorized(ServerHostGrpSetMap &authMap,
                   const UserIdType &userId,
                   const ServerIdType &serverId,

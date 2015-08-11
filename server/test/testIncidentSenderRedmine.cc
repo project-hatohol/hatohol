@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -214,7 +214,7 @@ void test_buildJSONForUpdate(void)
 
 void test_getIssuesJSONURL(void)
 {
-	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
 	TestRedmineSender sender(tracker);
 	cppcut_assert_equal(
 	  string("http://localhost/issues.json"),
@@ -306,7 +306,8 @@ void _assertSendForUpdate(const HatoholErrorCode &expected,
 {
 	loadTestDBTablesConfig();
 	int trackerIndex = incident.trackerId - 1;
-	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[trackerIndex];
+	const IncidentTrackerInfo &tracker =
+	  testIncidentTrackerInfo[trackerIndex];
 	TestRedmineSender sender(tracker);
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 

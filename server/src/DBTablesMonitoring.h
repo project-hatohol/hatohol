@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -137,7 +137,7 @@ public:
 	DBTablesMonitoring(DBAgent &dbAgent);
 	virtual ~DBTablesMonitoring();
 
-	void addTriggerInfo(TriggerInfo *triggerInfo);
+	void addTriggerInfo(const TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
 
 	void updateTrigger(const TriggerInfoList &triggerInfoList,
@@ -206,7 +206,7 @@ public:
 	  const ServerIdType &serverId,
 	  const TriggerIdType &triggerId = ALL_TRIGGERS);
 
-	void addItemInfo(ItemInfo *itemInfo);
+	void addItemInfo(const ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
 	void getItemInfoList(ItemInfoList &itemInfoList,
 			     const ItemsQueryOption &option);

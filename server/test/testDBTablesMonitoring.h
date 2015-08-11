@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -198,7 +198,7 @@ struct AssertGetEventsArg
 	std::map<const EventInfo *, uint64_t> idMap;
 	IncidentInfoVect actualIncidentInfoVect;
 	bool withIncidentInfo;
-	std::map<std::string, IncidentInfo*> eventIncidentMap;
+	std::map<std::string, const IncidentInfo *> eventIncidentMap;
 
  AssertGetEventsArg(gconstpointer ddtParam,
 		    const EventInfo *eventInfo = testEventInfo,

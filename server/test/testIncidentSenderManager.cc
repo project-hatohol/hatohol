@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -82,7 +82,8 @@ static void statusCallback(const EventInfo &info,
 void test_sendRedmineIncident(void)
 {
 	IncidentTrackerIdType trackerId = 3;
-	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[trackerId - 1];
+	const IncidentTrackerInfo &tracker =
+	  testIncidentTrackerInfo[trackerId - 1];
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 	TestIncidentSenderManager manager;
 	bool succeeded = false;
@@ -99,8 +100,8 @@ void test_createMultiThreads(void)
 {
 	IncidentTrackerIdType trackerId1 = 3;
 	IncidentTrackerIdType trackerId2 = 4;
-	IncidentTrackerInfo &tracker1 = testIncidentTrackerInfo[trackerId1 - 1];
-	IncidentTrackerInfo &tracker2 = testIncidentTrackerInfo[trackerId2 - 1];
+	IncidentTrackerInfo tracker1 = testIncidentTrackerInfo[trackerId1 - 1];
+	IncidentTrackerInfo tracker2 = testIncidentTrackerInfo[trackerId2 - 1];
 	g_redmineEmulator.addUser(tracker1.userName, tracker1.password);
 	g_redmineEmulator.addUser(tracker2.userName, tracker2.password);
 	TestIncidentSenderManager manager;

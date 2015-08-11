@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -38,7 +38,7 @@ extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_PASSIVE =
   static_cast<MonitoringSystemType>(NUM_MONITORING_SYSTEMS + 102);
 
 
-ServerTypeInfo testServerTypeInfo[] =
+const ServerTypeInfo testServerTypeInfo[] =
 {{
 	MONITORING_SYSTEM_FAKE,  // type
 	"Fake Monitorin",        // name
@@ -145,7 +145,7 @@ ServerTypeInfo testServerTypeInfo[] =
 	1,                       // plugin_enabled
 	"8e632c14-d1f7-11e4-8350-d43d7e3146fb", // uuid
 }};
-size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
+const size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
 
 const MonitoringServerInfo testServerInfo[] =
 {{
@@ -249,7 +249,7 @@ const MonitoringServerInfo testServerInfo[] =
 }};
 const size_t NumTestServerInfo = ARRAY_SIZE(testServerInfo);
 
-MonitoringServerStatus testServerStatus[] =
+const MonitoringServerStatus testServerStatus[] =
 {{
 	1,                        // id
 	1.1,                      // nvps
@@ -269,9 +269,9 @@ MonitoringServerStatus testServerStatus[] =
 	222,                      // id
 	0.00051234,               // nvps
 }};
-size_t NumTestServerStatus = ARRAY_SIZE(testServerStatus);
+size_t const NumTestServerStatus = ARRAY_SIZE(testServerStatus);
 
-TriggerInfo testTriggerInfo[] =
+const TriggerInfo testTriggerInfo[] =
 {{
 	1,                        // serverId
 	"1",                      // id
@@ -408,7 +408,7 @@ TriggerInfo testTriggerInfo[] =
 	TRIGGER_VALID,          // validity
 },
 };
-size_t NumTestTriggerInfo = ARRAY_SIZE(testTriggerInfo);
+const size_t NumTestTriggerInfo = ARRAY_SIZE(testTriggerInfo);
 
 static const TriggerInfo &trigInfoDefunctSv1 =
   testTriggerInfo[NumTestTriggerInfo-1];
@@ -519,7 +519,7 @@ const EventInfo testEventInfo[] = {
 };
 const size_t NumTestEventInfo = ARRAY_SIZE(testEventInfo);
 
-EventInfo testDupEventInfo[] = {
+const EventInfo testDupEventInfo[] = {
 {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
@@ -564,9 +564,9 @@ EventInfo testDupEventInfo[] = {
 	"",
 },
 };
-size_t NumTestDupEventInfo = ARRAY_SIZE(testDupEventInfo);
+const size_t NumTestDupEventInfo = ARRAY_SIZE(testDupEventInfo);
 
-ItemInfo testItemInfo[] = {
+const ItemInfo testItemInfo[] = {
 {
 	1,                        // serverId
 	"2",                      // id
@@ -621,9 +621,9 @@ ItemInfo testItemInfo[] = {
 	"",                       // unit
 },
 };
-size_t NumTestItemInfo = ARRAY_SIZE(testItemInfo);
+const size_t NumTestItemInfo = ARRAY_SIZE(testItemInfo);
 
-ActionDef testActionDef[] = {
+static ActionDef bareTestActionDef[] = {
 {
 	0,                 // id (this field is ignored)
 	ActionCondition(
@@ -755,9 +755,10 @@ ActionDef testActionDef[] = {
 },
 };
 
-const size_t NumTestActionDef = ARRAY_SIZE(testActionDef);
+const ActionDef *testActionDef = bareTestActionDef;
+const size_t NumTestActionDef = ARRAY_SIZE(bareTestActionDef);
 
-ActionDef testUpdateActionDef = {
+const ActionDef testUpdateActionDef = {
 	2,                 // id (this field is needed when updating)
 	ActionCondition(
 		ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
@@ -778,7 +779,7 @@ ActionDef testUpdateActionDef = {
 	2,                       // ownerUserId
 };
 
-UserInfo testUserInfo[] = {
+static UserInfo bareTestUserInfo[] = {
 {
 	0,                 // id
 	"cheesecake",      // name
@@ -839,10 +840,11 @@ UserInfo testUserInfo[] = {
 	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER),
 }
 };
-const size_t NumTestUserInfo = ARRAY_SIZE(testUserInfo);
+const UserInfo *testUserInfo = bareTestUserInfo;
+const size_t NumTestUserInfo = ARRAY_SIZE(bareTestUserInfo);
 const UserIdType userIdWithMultipleAuthorizedHostgroups = 7;
 
-AccessInfo testAccessInfo[] = {
+static AccessInfo bareTestAccessInfo[] = {
 {
 	0,                 // id
 	1,                 // userId
@@ -915,12 +917,13 @@ AccessInfo testAccessInfo[] = {
 	ALL_HOST_GROUPS,   // hostgroupId
 }
 };
-const size_t NumTestAccessInfo = ARRAY_SIZE(testAccessInfo);
+const AccessInfo *testAccessInfo = bareTestAccessInfo;
+const size_t NumTestAccessInfo = ARRAY_SIZE(bareTestAccessInfo);
 
 static const string _HOST_VALID_STRING = StringUtils::sprintf("%d", HOST_VALID);
 static const char *HOST_VALID_STRING = _HOST_VALID_STRING.c_str();
 
-UserRoleInfo testUserRoleInfo[] = {
+const UserRoleInfo testUserRoleInfo[] = {
 {
 	0,                            // id
 	"Specific Server maintainer", // name
@@ -1012,7 +1015,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 };
 const size_t NumTestArmPluginInfo = ARRAY_SIZE(testArmPluginInfo);
 
-IncidentTrackerInfo testIncidentTrackerInfo[] = {
+const IncidentTrackerInfo testIncidentTrackerInfo[] = {
 {
 	1,                        // id
 	INCIDENT_TRACKER_REDMINE, // type
@@ -1051,9 +1054,9 @@ IncidentTrackerInfo testIncidentTrackerInfo[] = {
 	"o.o662L6q1V7E",          // password
 }
 };
-size_t NumTestIncidentTrackerInfo = ARRAY_SIZE(testIncidentTrackerInfo);
+const size_t NumTestIncidentTrackerInfo = ARRAY_SIZE(testIncidentTrackerInfo);
 
-IncidentInfo testIncidentInfo[] = {
+const IncidentInfo testIncidentInfo[] = {
 {
 	3,                        // trackerId
 	1,                        // serverId
@@ -1103,9 +1106,9 @@ IncidentInfo testIncidentInfo[] = {
 	0,                        // unifiedId
 },
 };
-size_t NumTestIncidentInfo = ARRAY_SIZE(testIncidentInfo);
+const size_t NumTestIncidentInfo = ARRAY_SIZE(testIncidentInfo);
 
-HistoryInfo testHistoryInfo[] = {
+const HistoryInfo testHistoryInfo[] = {
 {
 	3,              // serverId
 	"1",            // itemId
@@ -1143,7 +1146,7 @@ HistoryInfo testHistoryInfo[] = {
 	{1362957200,0}, // clock
 },
 };
-size_t NumTestHistoryInfo = ARRAY_SIZE(testHistoryInfo);
+const size_t NumTestHistoryInfo = ARRAY_SIZE(testHistoryInfo);
 
 const ServerHostDef testServerHostDef[] = {
 {
@@ -1426,7 +1429,7 @@ const HostgroupMember testHostgroupMember[] = {
 };
 const size_t NumTestHostgroupMember = ARRAY_SIZE(testHostgroupMember);
 
-LastInfoDef testLastInfoDef[] = {
+const LastInfoDef testLastInfoDef[] = {
 {
 	AUTO_INCREMENT_VALUE,            // id
 	LAST_INFO_HOST,                  // dataType
@@ -1475,7 +1478,7 @@ const size_t NumTestLastInfoDef = ARRAY_SIZE(testLastInfoDef);
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-		TriggerInfo &trigInfo = testTriggerInfo[i];
+		const TriggerInfo &trigInfo = testTriggerInfo[i];
 		if (trigInfo.serverId != eventInfo.serverId)
 			continue;
 		if (trigInfo.id != eventInfo.triggerId)
@@ -1489,10 +1492,10 @@ const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 
 SmartTime getTimestampOfLastTestTrigger(const ServerIdType &serverId)
 {
-	TriggerInfo *lastTimeTrigInfo = NULL;
+	const TriggerInfo *lastTimeTrigInfo = NULL;
 	SmartTime lastTimestamp;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-		TriggerInfo &trigInfo = testTriggerInfo[i];
+		const TriggerInfo &trigInfo = testTriggerInfo[i];
 		if (trigInfo.serverId != serverId)
 			continue;
 		SmartTime timestamp = SmartTime(trigInfo.lastChangeTime);
@@ -1581,7 +1584,7 @@ void getTestItemsIndexes(ServerIdItemInfoIdIndexMapMap &indexMap)
 	}
 }
 
-ItemInfo *findTestItem(
+const ItemInfo *findTestItem(
   const ServerIdItemInfoIdIndexMapMap &indexMap,
   const ServerIdType &serverId, const ItemIdType &itemId)
 {
@@ -1835,7 +1838,9 @@ void makeTestUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
 {
 
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		AccessInfo &accessInfo = testAccessInfo[i];
+		// ****
+		//AccessInfo &accessInfo = testAccessInfo[i];
+		const AccessInfo accessInfo = testAccessInfo[i];
 		userIdIndexMap[accessInfo.userId].insert(i);
 	}
 }
@@ -1844,7 +1849,7 @@ void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 			     UserIdType userId)
 {
 	for (size_t i = 0; i < NumTestAccessInfo; ++i) {
-		AccessInfo *accessInfo = &testAccessInfo[i];
+		const AccessInfo *accessInfo = &testAccessInfo[i];
 		if (testAccessInfo[i].userId != userId)
 			continue;
 
@@ -2071,7 +2076,7 @@ string makeEventIncidentMapKey(const EventInfo &eventInfo)
 				    eventInfo.serverId, eventInfo.id.c_str());
 }
 
-void makeEventIncidentMap(map<string, IncidentInfo*> &eventIncidentMap)
+void makeEventIncidentMap(map<string, const IncidentInfo*> &eventIncidentMap)
 {
 	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
 		string key = StringUtils::sprintf(
@@ -2167,8 +2172,8 @@ void loadTestDBUser(void)
 	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege opePrivilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestUserInfo; i++) {
-		err = dbUser.addUserInfo(testUserInfo[i], opePrivilege);
+	for (auto &userInfo : bareTestUserInfo) {
+		err = dbUser.addUserInfo(userInfo, opePrivilege);
 		assertHatoholError(HTERR_OK, err);
 	}
 }
@@ -2179,8 +2184,8 @@ void loadTestDBUserRole(void)
 	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
-		err = dbUser.addUserRoleInfo(testUserRoleInfo[i], privilege);
+	for (auto userRoleInfo : testUserRoleInfo) {
+		err = dbUser.addUserRoleInfo(userRoleInfo, privilege);
 		assertHatoholError(HTERR_OK, err);
 	}
 }
@@ -2191,8 +2196,8 @@ void loadTestDBAccessList(void)
 	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		err = dbUser.addAccessInfo(testAccessInfo[i], privilege);
+	for (auto &accessInfo : bareTestAccessInfo) {
+		err = dbUser.addAccessInfo(accessInfo, privilege);
 		assertHatoholError(HTERR_OK, err);
 	}
 }
@@ -2245,25 +2250,25 @@ void loadTestDBAction(void)
 	DBTablesAction &dbAction = cache.getAction();
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestActionDef; i++)
-		dbAction.addAction(testActionDef[i], privilege);
+		dbAction.addAction(bareTestActionDef[i], privilege);
 }
 
 void loadTestDBServerStatus(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestServerStatus; i++) {
-		MonitoringServerStatus *serverStatus = &testServerStatus[i];
-		dbMonitoring.addMonitoringServerStatus(*serverStatus);
-	}
+	for (size_t i = 0; i < NumTestServerStatus; i++)
+		dbMonitoring.addMonitoringServerStatus(testServerStatus[i]);
 }
 
 void loadTestDBIncidents(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestIncidentInfo; i++)
-		dbMonitoring.addIncidentInfo(&testIncidentInfo[i]);
+	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
+		IncidentInfo incidentInfo = testIncidentInfo[i];
+		dbMonitoring.addIncidentInfo(&incidentInfo);
+	}
 }
 
 void loadTestDBIncidentTracker(void)
@@ -2271,9 +2276,8 @@ void loadTestDBIncidentTracker(void)
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestIncidentTrackerInfo; i++)
-		dbConfig.addIncidentTracker(testIncidentTrackerInfo[i],
-					    privilege);
+	for (auto incidentTrackerInfo : testIncidentTrackerInfo)
+		dbConfig.addIncidentTracker(incidentTrackerInfo, privilege);
 }
 
 void getTestHistory(HistoryInfoVect &historyInfoVect,
@@ -2341,6 +2345,6 @@ void loadTestDBLastInfo(void)
 	ThreadLocalDBCache cache;
 	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	for (size_t i = 0; i < NumTestLastInfoDef; i++)
-		dbLastInfo.upsertLastInfo(testLastInfoDef[i], privilege);
+	for (auto lastInfoDef : testLastInfoDef)
+		dbLastInfo.upsertLastInfo(lastInfoDef, privilege);
 }

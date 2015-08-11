@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -513,7 +513,7 @@ static void assertUserRolesMapInParser(JSONParser *parser)
 	parser->endObject();
 
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
-		UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
+		const UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
 		flagsStr = StringUtils::toString(userRoleInfo.flags);
 		assertStartObject(parser, flagsStr);
 		assertValueInParser(parser, "name", userRoleInfo.name);
