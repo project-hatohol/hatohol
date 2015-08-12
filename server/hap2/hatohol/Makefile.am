@@ -5,6 +5,8 @@ noinst_SCRIPTS = \
 	transporter.py \
 	standardhap.py \
 	rabbitmqconnector.py \
-	zabbixapi.py
+	zabbixapi.py \
+	transporters/__init__.py \
+	transporters/rabbitmqhapiconnector.py
 
 EXTRA_DIST = $(noinst_SCRIPTS)

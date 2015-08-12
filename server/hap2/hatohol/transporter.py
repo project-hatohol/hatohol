@@ -19,6 +19,9 @@
 """
 
 import logging
+import sys
+import os
+import imp
 
 DIR_BOTH = 0
 DIR_SEND = 1
@@ -120,3 +123,62 @@ class Factory:
         obj = transporter_args["class"]()
         obj.setup(transporter_args)
         return obj
+
+
+class Manager(object):
+
+    __transporters = {}
+
+    def __init__(self, default_transporter):
+        self.__default_transporter = default_transporter
+        self.__import_modules()
+
+    def define_arguments(self, parser):
+        parser.add_argument("--transporter", type=str,
+                            default=self.__default_transporter)
+
+        for transporter_class in self.__transporters.values():
+            transporter_class.define_arguments(parser)
+
+    def find(self, name):
+        """
+        Find transporter from the registered list.
+        @param name a name of the transporter
+        @return A class of the found transporter or None if not.
+        """
+        return self.__transporters.get(name)
+
+    def __import_modules(self):
+        for path in sys.path:
+            self.__import_from(path)
+
+    def __import_from(self, path):
+        for mod_name in ("hatohol", "transporters"):
+            mod = self.import_module(mod_name, path)
+            if mod is None:
+                return None
+            path = mod.__path__
+        logging.info("Loaded transporter module: %s", path[0])
+
+    @classmethod
+    def register(cls, transporter_cls):
+        # NOTE: Currently a unique name is required.
+        name = transporter_cls.__name__
+        cls.__transporters[name] = transporter_cls
+        logging.info("Registered: %s" % name)
+
+    @classmethod
+    def import_module(cls, name, path):
+        """
+        Import a module that is in the same directory.
+        @param name A module name
+        @param path A module path or a list of them
+        @return A module object is returned if successful, or None.
+        """
+        if not isinstance(path, list):
+            path = [path]
+        try:
+             (file, pathname, descr) = imp.find_module(name, path)
+        except ImportError:
+            return None
+        return imp.load_module("", file, pathname, descr)

@@ -6,5 +6,5 @@ setup(name='hatohol',
       author='Procect Hatohol',
       author_email='hatohol-users@list.sourceforge.net',
       url='https://github.com/project-hatohol/hatohol',
-      py_modules=['hatohol.rabbitmqconnector']
+      py_modules=['hatohol.rabbitmqconnector', 'hatohol.transporters.rabbitmqhapiconnector']
      )
