@@ -70,7 +70,7 @@ start_plugin() {
         if test ! -e "$PID_FILE_DIR"; then
             mkdir -p ${PID_FILE_DIR}
         fi
-        echo -n $PID > $PID_FILE
+        echo -n $PID > $PID_FILE || kill $PID; exit 1
         echo
         echo "Succeeded to start $PLUGIN_PATH"
         echo "PID: $PID"
