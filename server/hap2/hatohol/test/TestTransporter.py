@@ -17,9 +17,13 @@
   License along with Hatohol. If not, see
   <http://www.gnu.org/licenses/>.
 """
+import os
+import argparse
 import unittest
-from transporter import Transporter
-import transporter
+import testutils
+from collections import namedtuple
+from hatohol import transporter
+from hatohol.transporter import Transporter
 
 class TestTransporter(unittest.TestCase):
     def test_factory(self):
@@ -57,3 +61,29 @@ class TestTransporter(unittest.TestCase):
 
     def __default_transporter_args(self):
         return {"class": Transporter}
+
+class Manager(unittest.TestCase):
+    def test_define_arguments(self):
+        test_parser = argparse.ArgumentParser()
+        manager = transporter.Manager(None)
+        testutils.assertNotRaises(manager.define_arguments, test_parser)
+
+    def test_register_and_find(self):
+        class testTrans:
+            @classmethod
+            def define_arguments(cls, parser):
+                pass
+
+        manager = transporter.Manager(None)
+        self.assertIsNone(manager.find("testTrans"))
+        transporter.Manager.register(testTrans)
+        self.assertEquals(manager.find("testTrans"), testTrans)
+
+    def test_import_module_for_nonexisting_module(self):
+        path = os.path.dirname(__file__)
+        self.assertIsNone(transporter.Manager.import_module("notfound", path))
+
+    def test_import_module(self):
+        path = os.path.dirname(__file__)
+        mod = transporter.Manager.import_module("stub", path)
+        self.assertEquals(mod.a, 1)

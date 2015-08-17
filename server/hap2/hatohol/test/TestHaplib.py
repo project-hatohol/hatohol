@@ -25,8 +25,6 @@ import testutils
 import transporter
 import os
 import json
-from collections import namedtuple
-import argparse
 import multiprocessing
 import Queue
 import logging
@@ -231,20 +229,6 @@ class Sender(unittest.TestCase):
 
 
 class Utils(unittest.TestCase):
-    def test_define_transporter_arguments(self):
-        test_parser = argparse.ArgumentParser()
-        testutils.assertNotRaises(haplib.Utils.define_transporter_arguments,
-                               test_parser)
-
-    def test_load_transporter(self):
-        test_transport_arguments = namedtuple("transport_argument",
-                                              "transporter_module transporter")
-        test_transport_arguments.transporter_module = "hatohol.haplib"
-        test_transport_arguments.transporter = "RabbitMQHapiConnector"
-
-        testutils.assertNotRaises(haplib.Utils.load_transporter,
-                               test_transport_arguments)
-
     def test_parse_received_message_invalid_json(self):
         test_message = "invalid_message"
         result = haplib.Utils.parse_received_message(test_message, None)

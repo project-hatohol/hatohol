@@ -21,7 +21,7 @@ import unittest
 import sys
 from standardhap import StandardHap
 import haplib
-import transporter
+from hatohol import transporter
 import multiprocessing
 import json
 
@@ -71,6 +71,9 @@ class EzTransporter(transporter.Transporter):
         self.__queue.put(reply)
 
 
+transporter.Manager.register(EzTransporter)
+
+
 class TestStandardHap(unittest.TestCase):
     class StandardHapTestee(StandardHap):
         def __init__(self):
@@ -91,9 +94,7 @@ class TestStandardHap(unittest.TestCase):
 
     def test_normal_run(self):
         hap = self.StandardHapTestee()
-        sys.argv = [sys.argv[0],
-                    "--transporter", "EzTransporter",
-                    "--transporter-module", "test.TestStandardHap"]
+        sys.argv = [sys.argv[0], "--transporter", "EzTransporter"]
         hap()
         hap.enable_handling_sigchld(False)
         exact_ms = haplib.MonitoringServerInfo(json.loads(EzTransporter.TEST_MONITORING_SERVER_RESULT))

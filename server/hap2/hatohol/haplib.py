@@ -33,13 +33,11 @@ from datetime import datetime
 from datetime import timedelta
 import random
 import argparse
-import imp
 import calendar
 import math
 import copy
 from hatohol import hap
 from hatohol import transporter
-from hatohol.rabbitmqconnector import RabbitMQConnector
 from hatohol.rabbitmqconnector import OverCapacity
 
 SERVER_PROCEDURES = {"exchangeProfile": True,
@@ -309,21 +307,6 @@ class ArmInfo:
                  self.num_failure, self.last_failure_time,
                  self.failure_reason)
         return msg
-
-
-class RabbitMQHapiConnector(RabbitMQConnector):
-    def setup(self, transporter_args):
-        send_queue_suffix = transporter_args.get("amqp_send_queue_suffix", "-S")
-        recv_queue_suffix = transporter_args.get("amqp_recv_queue_suffix", "-T")
-        suffix_map = {transporter.DIR_SEND: send_queue_suffix,
-                      transporter.DIR_RECV: recv_queue_suffix}
-        suffix = suffix_map.get(transporter_args["direction"], "")
-
-        if "amqp_hapi_queue" not in transporter_args:
-            transporter_args["amqp_hapi_queue"] = transporter_args["amqp_queue"]
-        transporter_args["amqp_queue"] = \
-            transporter_args["amqp_hapi_queue"] + suffix
-        RabbitMQConnector.setup(self, transporter_args)
 
 
 class Sender:
@@ -1001,29 +984,6 @@ class BasePoller(HapiProcessor, ChildProcess):
 
 
 class Utils:
-    @staticmethod
-    def define_transporter_arguments(parser):
-        parser.add_argument("--transporter", type=str,
-                            default="RabbitMQHapiConnector")
-        parser.add_argument("--transporter-module", type=str,
-                            default="hatohol.haplib")
-
-        # TODO: Don't specifiy a sub class of transporter directly.
-        #       We'd like to implement the mechanism that automatically
-        #       collects transporter's sub classes, loads them,
-        #       and calls their define_arguments().
-        RabbitMQHapiConnector.define_arguments(parser)
-
-    @staticmethod
-    def load_transporter(args):
-        path = None
-        for mod_name in args.transporter_module.split("."):
-            (file, pathname, descr) = imp.find_module(mod_name, path)
-            mod = imp.load_module("", file, pathname, descr)
-            path = mod.__path__
-        transporter_class = eval("mod.%s" % args.transporter)
-        return transporter_class
-
     @staticmethod
     def parse_received_message(message, allowed_procedures):
         """

@@ -27,11 +27,16 @@ import traceback
 import signal
 from hatohol import hap
 from hatohol import haplib
+from hatohol import transporter
 
 class StandardHap:
     DEFAULT_ERROR_SLEEP_TIME = 10
 
-    def __init__(self):
+    def __init__(self, default_transporter="RabbitMQHapiConnector"):
+        # This level is used until __parse_argument() is called. 
+        # TODO: Shoud be configurable. For example, by environment variable
+        logging.basicConfig(level="INFO")
+
         self.__error_sleep_time = self.DEFAULT_ERROR_SLEEP_TIME
 
         parser = argparse.ArgumentParser()
@@ -48,7 +53,8 @@ class StandardHap:
             """
         parser.add_argument("--status-log-interval", type=int, default=600,
                             help=help_msg)
-        haplib.Utils.define_transporter_arguments(parser)
+        self.__transporter_manager = transporter.Manager(default_transporter)
+        self.__transporter_manager.define_arguments(parser)
 
         self.__parser = parser
         self.__main_plugin = None
@@ -161,7 +167,10 @@ class StandardHap:
         self.enable_handling_terminate_signal()
         args = self.__parse_argument()
         logging.info("Transporter: %s" % args.transporter)
-        transporter_class = haplib.Utils.load_transporter(args)
+        transporter_class = self.__transporter_manager.find(args.transporter)
+        if transporter_class is None:
+            logging.critical("Not found transporter: %s" % args.transporter)
+            raise SystemExit()
         transporter_args = {"class": transporter_class}
         transporter_args.update(transporter_class.parse_arguments(args))
 
