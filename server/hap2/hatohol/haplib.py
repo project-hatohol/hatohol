@@ -209,7 +209,7 @@ class Callback:
 class CommandQueue(Callback):
     def __init__(self):
         Callback.__init__(self)
-        self.__q = multiprocessing.Queue()
+        self.__q = hap.MultiprocessingQueue()
 
     def __del__(self):
         self.__q.close()
@@ -365,7 +365,7 @@ Some APIs blocks until the response is arrived.
 """
 class HapiProcessor:
     def __init__(self, process_id, component_code, sender=None):
-        self.__reply_queue = multiprocessing.Queue()
+        self.__reply_queue = hap.MultiprocessingQueue()
         self.__dispatch_queue = None
         self.__process_id = process_id
         self.__component_code = component_code
@@ -674,7 +674,7 @@ class Dispatcher(ChildProcess):
         ChildProcess.__init__(self)
         self.__id_res_q_map = {}
         self.__destination_q_map = {}
-        self.__dispatch_queue = multiprocessing.JoinableQueue()
+        self.__dispatch_queue = hap.MultiprocessingJoinableQueue()
         self.__rpc_queue = rpc_queue
 
     def __del__( self ):
@@ -771,7 +771,7 @@ class BaseMainPlugin(HapiProcessor):
         """
         self.__sender = Sender(transporter_args)
         HapiProcessor.set_sender(self, self.__sender)
-        self.__rpc_queue = multiprocessing.Queue()
+        self.__rpc_queue = hap.MultiprocessingQueue()
 
         # launch dispatcher process
         self.__dispatcher = Dispatcher(self.__rpc_queue)

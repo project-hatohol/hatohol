@@ -21,6 +21,10 @@
 
 import unittest
 import hap
+import Queue
+import signal
+import errno
+import time
 
 class Gadget:
     pass
@@ -63,3 +67,46 @@ class Signal(unittest.TestCase):
         self.assertEquals(True, obj.critical)
 
 
+class MultiprocessingQueue(unittest.TestCase):
+    def test_get_empty_in_nonblocking(self):
+        q = hap.MultiprocessingQueue()
+        self.assertRaises(Queue.Empty, q.get, block=False)
+
+    def test_get_empty_in_blocking(self):
+        q = hap.MultiprocessingQueue()
+        self.assertRaises(Queue.Empty, q.get, timeout=0.1)
+
+    def test_get_item(self):
+        q = hap.MultiprocessingQueue()
+        q.put(4)
+        self.assertEquals(q.get(timeout=1), 4)
+
+    def test_handle_ioerr_not_eintr(self):
+        try:
+            raise IOError(errno.ENOENT, "")
+        except IOError as e:
+            self.assertRaises(IOError, hap._handle_ioerr, e, None, None)
+
+    def test_handle_ioerr_errrno_is_not_EINTR(self):
+        try:
+            raise IOError(errno.ENOENT, "")
+        except IOError as e:
+            self.assertRaises(IOError, hap._handle_ioerr, e, None, None)
+
+    def test_handle_ioerr_timeout_is_None(self):
+        e = IOError(errno.EINTR, "")
+        self.assertIsNone(hap._handle_ioerr(e, None, None))
+
+    def test_handle_ioerr_curr_time_over_expired_time(self):
+        e = IOError(errno.EINTR, "")
+        timeout = 5 # any positive integer is OK
+        expired_time = time.time() - 1
+        self.assertEquals(hap._handle_ioerr(e, timeout, expired_time), 0)
+
+    def test_handle_ioerr_curr_not_expired(self):
+        e = IOError(errno.EINTR, "")
+        timeout = 5 # any positive integer is OK
+        expired_time = time.time() + 10
+        returned_timeout = hap._handle_ioerr(e, timeout, expired_time)
+        self.assertGreater(returned_timeout, 0)
+        self.assertLess(hap._handle_ioerr(e, timeout, expired_time), 10)
