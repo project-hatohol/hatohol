@@ -93,3 +93,6 @@ def MultiprocessingQueue(queue_class=multiprocessing.Queue):
     original_get = q.get
     q.get = __get
     return q
+
+def MultiprocessingJoinableQueue():
+    return MultiprocessingQueue(multiprocessing.JoinableQueue)
