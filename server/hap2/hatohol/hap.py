@@ -66,7 +66,7 @@ class Signal:
         self.restart = restart
         self.critical = critical
 
-def MultiprocessingQueue():
+def MultiprocessingQueue(queue_class=multiprocessing.Queue):
     """
     The purpose of this function is to provide get() method with a retry
     when EINTR happens.
@@ -89,7 +89,7 @@ def MultiprocessingQueue():
                 else:
                     timeout = 0
 
-    q = multiprocessing.Queue()
+    q = queue_class()
     original_get = q.get
     q.get = __get
     return q
