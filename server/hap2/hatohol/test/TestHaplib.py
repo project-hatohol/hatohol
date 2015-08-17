@@ -422,6 +422,12 @@ class HapiProcessor(unittest.TestCase):
         cls.sender.set_connector(cls.connector)
         cls.processor.reset()
 
+    def __create_test_instance(self):
+        sender = haplib.Sender({"class": transporter.Transporter})
+        obj = haplib.HapiProcessor("test", 0x01, sender)
+        obj.set_dispatch_queue(DummyQueue())
+        return obj
+
     def test_reset(self):
         self.processor.reset()
         prev_hosts = testutils.get_priv_attr(self.processor, "__previous_hosts")
@@ -547,8 +553,9 @@ class HapiProcessor(unittest.TestCase):
         testutils.assertNotRaises(wait_acknowledge, 1)
 
     def test_wait_acknowledge_timeout(self):
-        self.processor.set_timeout_sec(1)
-        wait_acknowledge = testutils.get_priv_attr(self.processor,
+        hapiproc = self.__create_test_instance()
+        hapiproc.set_timeout_sec(1)
+        wait_acknowledge = testutils.get_priv_attr(hapiproc,
                                                    "__wait_acknowledge")
         self.assertRaises(Queue.Empty, wait_acknowledge, 1)
 
