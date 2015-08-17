@@ -27,7 +27,9 @@ classes used in them have to be in this module.
 
 import logging
 import sys
+import time
 import traceback
+import multiprocessing
 
 def handle_exception(raises=(SystemExit,)):
     """
@@ -63,3 +65,34 @@ class Signal:
     def __init__(self, restart=False, critical=False):
         self.restart = restart
         self.critical = critical
+
+def MultiprocessingQueue(queue_class=multiprocessing.Queue):
+    """
+    The purpose of this function is to provide get() method with a retry
+    when EINTR happens.
+    """
+    def __get(block=True, timeout=None):
+        start_time = time.time()
+        if timeout is not None:
+            expired_time = start_time + timeout
+        while True:
+            try:
+                return original_get(block, timeout)
+            except IOError as (errno, strerror):
+                if errno != errno.EINTR:
+                    raise
+                if timeout is None:
+                    continue
+                curr_time = time.time()
+                if expired_time > curr_time:
+                    timeout = expired_time - curr_time
+                else:
+                    timeout = 0
+
+    q = queue_class()
+    original_get = q.get
+    q.get = __get
+    return q
+
+def MultiprocessingJoinableQueue():
+    return MultiprocessingQueue(multiprocessing.JoinableQueue)

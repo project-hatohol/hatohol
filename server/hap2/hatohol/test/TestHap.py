@@ -21,6 +21,8 @@
 
 import unittest
 import hap
+import Queue
+import signal
 
 class Gadget:
     pass
@@ -63,3 +65,20 @@ class Signal(unittest.TestCase):
         self.assertEquals(True, obj.critical)
 
 
+class MultiprocessingQueue(unittest.TestCase):
+    def test_get_empty_in_nonblocking(self):
+        q = hap.MultiprocessingQueue()
+        self.assertRaises(Queue.Empty, q.get, block=False)
+
+    def test_get_empty_in_blocking(self):
+        q = hap.MultiprocessingQueue()
+        self.assertRaises(Queue.Empty, q.get, timeout=0.1)
+
+    def test_get_item(self):
+        q = hap.MultiprocessingQueue()
+        q.put(4)
+        self.assertEquals(q.get(timeout=1), 4)
+
+    # TODO: we want to add a test of a behavior when IOError due to EINTR
+    #       is raised. However, I don't have an idea of implementation to
+    #       test it.
