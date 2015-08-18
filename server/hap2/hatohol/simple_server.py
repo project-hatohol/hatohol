@@ -43,7 +43,7 @@ class SimpleServer:
     def __init__(self, args, transporter_args):
         self.__args = args
         self.__sender = haplib.Sender(transporter_args)
-        self.__rpc_queue = multiprocessing.JoinableQueue()
+        self.__rpc_queue = hap.MultiprocessingJoinableQueue()
         self.__dispatcher = haplib.Dispatcher(self.__rpc_queue)
         self.__dispatcher.daemonize()
         self.__last_info = {"event": None}
