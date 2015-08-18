@@ -1039,7 +1039,7 @@ void test_getServerHostDefs(gconstpointer data)
 
 void data_getHostInfoList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getHostInfoList(gconstpointer data)
@@ -1050,7 +1050,7 @@ void test_getHostInfoList(gconstpointer data)
 
 void data_getHostInfoListForOneServer(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getHostInfoListForOneServer(gconstpointer data)
@@ -1062,7 +1062,7 @@ void test_getHostInfoListForOneServer(gconstpointer data)
 
 void data_getHostInfoListWithNoAuthorizedServer(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getHostInfoListWithNoAuthorizedServer(gconstpointer data)
@@ -1074,7 +1074,7 @@ void test_getHostInfoListWithNoAuthorizedServer(gconstpointer data)
 
 void data_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
@@ -1086,7 +1086,7 @@ void test_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
 
 void data_getHostInfoListWithUserWhoCanAccessSomeHostgroups(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getHostInfoListWithUserWhoCanAccessSomeHostgroups(gpointer data)

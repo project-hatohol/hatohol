@@ -44,7 +44,7 @@ struct AssertGetHostResourceArg {
 	const TResourceType *fixtures;
 	size_t numberOfFixtures;
 	gconstpointer ddtParam;
-	bool filterForDataOfDefunctSv;
+	bool excludeDefunctServers;
 	bool assertContent;
 
 	AssertGetHostResourceArg(void)
@@ -60,7 +60,7 @@ struct AssertGetHostResourceArg {
 	  fixtures(NULL),
 	  numberOfFixtures(0),
 	  ddtParam(NULL),
-	  filterForDataOfDefunctSv(false),
+	  excludeDefunctServers(false),
 	  assertContent(true)
 	{
 	}
@@ -101,7 +101,7 @@ struct AssertGetHostResourceArg {
 
 	virtual bool filterOutExpectedRecord(const TResourceType *info)
 	{
-		if (filterForDataOfDefunctSv) {
+		if (excludeDefunctServers) {
 			if (!option.isValidServer(info->serverId))
 				return true;
 		}
@@ -179,10 +179,10 @@ struct AssertGetHostResourceArg {
 	void setDataDrivenTestParam(gconstpointer _ddtParam)
 	{
 		ddtParam = _ddtParam;
-		filterForDataOfDefunctSv =
+		excludeDefunctServers =
 		  gcut_data_get_boolean(ddtParam,
-		                        "filterDataOfDefunctServers");
-		option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
+		                        "excludeDefunctServers");
+		option.setExcludeDefunctServers(excludeDefunctServers);
 	}
 };
 
@@ -382,7 +382,7 @@ struct AssertGetEventsArg
 		for (size_t i = 0; i < numberOfFixtures; i++) {
 			if (!isAuthorized(fixtures[i]))
 				continue;
-			if (filterForDataOfDefunctSv &&
+			if (excludeDefunctServers &&
 			    !option.isValidServer(fixtures[i].serverId)) {
 				continue;
 			}

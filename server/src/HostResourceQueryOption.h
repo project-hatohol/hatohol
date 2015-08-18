@@ -121,24 +121,24 @@ public:
 	virtual void setTargetHostgroupId(HostgroupIdType targetHostgroupId);
 
 	/**
-	 * Enable or disable the filter for the data of defunct servers.
+	 * Enable or disable the filter to exclude defunct servers.
 	 *
 	 * @param enable
 	 * If the parameter is true, the filter is enabled. Otherwise,
 	 * it is disabled.
 	 *
 	 */
-	void setFilterForDataOfDefunctServers(const bool &enable = true);
+	void setExcludeDefunctServers(const bool &enable = true);
 
 	/**
-	 * Get the filter status for the data of defunct servers.
+	 * Get the status of the filter to exclude defunct servers.
 	 *
 	 * @return
 	 * If the filter is enabled, true is returned, Otherwise,
 	 * false is returned.
 	 *
 	 */
-	const bool &getFilterForDataOfDefunctServers(void) const;
+	const bool &getExcludeDefunctServers(void) const;
 
 	std::string getJoinClause(void) const;
 

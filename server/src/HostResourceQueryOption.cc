@@ -65,23 +65,23 @@ struct HostResourceQueryOption::Impl {
 	ServerIdType    targetServerId;
 	LocalHostIdType targetHostId;
 	HostgroupIdType targetHostgroupId;
-	bool            filterDataOfDefunctServers;
+	bool            excludeDefunctServers;
 
 	Impl(const Synapse &_synapse)
 	: synapse(_synapse),
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_LOCAL_HOSTS),
 	  targetHostgroupId(ALL_HOST_GROUPS),
-	  filterDataOfDefunctServers(true)
+	  excludeDefunctServers(true)
 	{
 	}
 
 	Impl &operator=(const Impl &rhs)
 	{
-		targetServerId             = rhs.targetServerId;
-		targetHostId               = rhs.targetHostId;
-		targetHostgroupId          = rhs.targetHostgroupId;
-		filterDataOfDefunctServers = rhs.filterDataOfDefunctServers;
+		targetServerId        = rhs.targetServerId;
+		targetHostId          = rhs.targetHostId;
+		targetHostgroupId     = rhs.targetHostgroupId;
+		excludeDefunctServers = rhs.excludeDefunctServers;
 		return *this;
 	}
 };
@@ -124,7 +124,7 @@ string HostResourceQueryOption::getCondition(void) const
 {
 	DBTermCStringProvider rhs(*getDBTermCodec());
 	string condition;
-	if (getFilterForDataOfDefunctServers()) {
+	if (getExcludeDefunctServers()) {
 		addCondition(
 		  condition,
 		  makeConditionServer(
@@ -284,15 +284,15 @@ void HostResourceQueryOption::setTargetHostgroupId(
 	m_impl->targetHostgroupId = targetHostgroupId;
 }
 
-void HostResourceQueryOption::setFilterForDataOfDefunctServers(
+void HostResourceQueryOption::setExcludeDefunctServers(
   const bool &enable)
 {
-	m_impl->filterDataOfDefunctServers = enable;
+	m_impl->excludeDefunctServers = enable;
 }
 
-const bool &HostResourceQueryOption::getFilterForDataOfDefunctServers(void) const
+const bool &HostResourceQueryOption::getExcludeDefunctServers(void) const
 {
-	return m_impl->filterDataOfDefunctServers;
+	return m_impl->excludeDefunctServers;
 }
 
 // ---------------------------------------------------------------------------

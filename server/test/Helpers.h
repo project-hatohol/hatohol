@@ -191,7 +191,7 @@ std::string joinStringVector(const mlpl::StringVector &strVect,
                              bool isPaddingTail = true);
 
 void crash(void);
-void prepareTestDataForFilterForDataOfDefunctServers(void);
+void prepareTestDataExcludeDefunctServers(void);
 void fixupForFilteringDefunctServer(
   gconstpointer data, std::string &expected, HostResourceQueryOption &option,
   const std::string &tableName = "");

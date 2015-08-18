@@ -295,7 +295,7 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 {
 	// build expected data
 	AssertGetEventsArg eventsArg(NULL);
-	eventsArg.filterForDataOfDefunctSv = true;
+	eventsArg.excludeDefunctServers = true;
 	eventsArg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	eventsArg.sortType = EventsQueryOption::SORT_TIME;
 	eventsArg.sortDirection = EventsQueryOption::SORT_DESCENDING;
@@ -580,7 +580,7 @@ void test_eventsForOneServerOneHost(void)
 {
 	// build expected data
 	AssertGetEventsArg eventsArg(NULL);
-	eventsArg.filterForDataOfDefunctSv = true;
+	eventsArg.excludeDefunctServers = true;
 	eventsArg.targetServerId = testEventInfo[1].serverId;
 	eventsArg.targetHostId = testEventInfo[1].hostIdInServer;
 	eventsArg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
@@ -600,7 +600,7 @@ void test_eventsForOneServerOneHost(void)
 void test_eventsWithTimeRange(void)
 {
 	AssertGetEventsArg eventsArg(NULL);
-	eventsArg.filterForDataOfDefunctSv = true;
+	eventsArg.excludeDefunctServers = true;
 	eventsArg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	eventsArg.sortType = EventsQueryOption::SORT_TIME;
 	eventsArg.sortDirection = EventsQueryOption::SORT_DESCENDING;
