@@ -22,11 +22,13 @@
 import sys
 import MySQLdb
 import time
-import logging
+from logging import getLogger
 import datetime
 from hatohol import hap
 from hatohol import haplib
 from hatohol import standardhap
+
+logger = getLogger(__name__)
 
 class Common:
 
@@ -73,14 +75,14 @@ class Common:
         # load MonitoringServerInfo
         ms_info = self.get_ms_info()
         if ms_info is None:
-            logging.info("Use default connection parameters.")
+            logger.info("Use default connection parameters.")
         else:
             self.__db_server, self.__db_port, self.__db_name = \
                 self.__parse_url(ms_info.url)
             self.__db_user = ms_info.user_name
             self.__db_passwd = ms_info.password
 
-        logging.info("Try to connection: Sv: %s, DB: %s, User: %s" %
+        logger.info("Try to connection: Sv: %s, DB: %s, User: %s" %
                      (self.__db_server, self.__db_name, self.__db_user))
 
         try:
@@ -91,7 +93,7 @@ class Common:
                                         passwd=self.__db_passwd)
             self.__cursor = self.__db.cursor()
         except MySQLdb.Error as (errno, msg):
-            logging.error('MySQL Error [%d]: %s' % (errno, msg))
+            logger.error('MySQL Error [%d]: %s' % (errno, msg))
             raise hap.Signal
 
     def __parse_url(self, url):
@@ -155,7 +157,7 @@ class Common:
     def collect_triggers_and_put(self, fetch_id=None, host_ids=None):
 
         if host_ids is not None and not self.__validate_object_ids(host_ids):
-            logging.error("Invalid: host_ids: %s" % host_ids)
+            logger.error("Invalid: host_ids: %s" % host_ids)
             # TODO by 15.09 (*1): send error
             # There's no definition to send error in HAPI 2.0.
             # We have to extend the specification to enable this.
@@ -245,9 +247,9 @@ class Common:
             # validate it here.
             last_cond = self.__extract_validated_event_last_info(raw_last_info)
             if last_cond is None:
-                logging.error("Malformed last_info: '%s'",
+                logger.error("Malformed last_info: '%s'",
                               str(raw_last_info))
-                logging.error("Getting events was aborted.")
+                logger.error("Getting events was aborted.")
                 # TODO by 15.09: notify error to the caller
                 # See  also TODO (*1)
                 return
@@ -262,7 +264,7 @@ class Common:
         if count is not None:
             sql += " LIMIT %d" % count
 
-        logging.debug(sql)
+        logger.debug(sql)
         self.__cursor.execute(sql)
         result = self.__cursor.fetchall()
 
@@ -321,12 +323,12 @@ class Common:
     def __parse_status_and_severity(self, status):
         hapi_status = self.STATUS_MAP.get(status)
         if hapi_status is None:
-            logging.warning("Unknown status: " + str(status))
+            logger.warning("Unknown status: " + str(status))
             hapi_status = "UNKNOWN"
 
         hapi_severity = self.SEVERITY_MAP.get(status)
         if hapi_severity is None:
-            logging.warning("Unknown status: " + str(status))
+            logger.warning("Unknown status: " + str(status))
             hapi_severity = "UNKNOWN"
 
         return (hapi_status, hapi_severity)
