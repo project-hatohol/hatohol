@@ -136,7 +136,7 @@ string HostResourceQueryOption::getCondition(void) const
 	UserIdType userId = getUserId();
 
 	// TODO: consider if we cau use isHostgroupEnumerationInCondition()
-	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
+	if (has(OPPRVLG_GET_ALL_SERVER)) {
 		if (m_impl->targetServerId != ALL_SERVERS) {
 			addCondition(condition,
 			  StringUtils::sprintf(
@@ -477,8 +477,7 @@ string HostResourceQueryOption::getColumnNameCommon(
 
 bool HostResourceQueryOption::isHostgroupEnumerationInCondition(void) const
 {
-	const UserIdType &userId = getUserId();
-	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER))
+	if (has(OPPRVLG_GET_ALL_SERVER))
 		return false;
 	const ServerHostGrpSetMap &srvHostGrpSetMap =
 	  getDataQueryContext().getServerHostGrpSetMap();

@@ -711,4 +711,11 @@ void test_makeConditionComplicated(void)
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
+void test_systemUserHasPrivilegeGettingAllServers(void)
+{
+	ServerHostGrpSetMap allowedServersAndHostgroupsMap;
+	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
+	cppcut_assert_equal(true, option.has(OPPRVLG_GET_ALL_SERVER));
+}
+
 } // namespace testHostResourceQueryOptionWithoutDBSetup
