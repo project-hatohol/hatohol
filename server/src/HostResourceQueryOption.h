@@ -120,6 +120,10 @@ public:
 	virtual HostgroupIdType getTargetHostgroupId(void) const;
 	virtual void setTargetHostgroupId(HostgroupIdType targetHostgroupId);
 
+	virtual void setExcludeServerIdList(
+	  const std::list<ServerIdType> &serverIdList);
+	virtual const std::list<ServerIdType> &getExcludeServerIdList(void);
+
 	/**
 	 * Enable or disable the filter to exclude defunct servers.
 	 *

@@ -417,6 +417,31 @@ void test_getDBTermCodec(void)
 	                    typeid(*option.getDBTermCodec()));
 }
 
+void test_excludeServers(void)
+{
+	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
+	list<ServerIdType> serverIdList;
+	serverIdList.push_back(3);
+	serverIdList.push_back(4);
+	serverIdList.push_back(211);
+	option.setExcludeServerIdList(serverIdList);
+	string expect("server_id IN (1,2,3,4,211,222,301)"
+		      " AND serverId<>3 AND serverId<>4 AND serverId<>211");
+	cppcut_assert_equal(expect, option.getCondition());
+}
+
+void test_excludeServersWithoutPriviledge(void)
+{
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	list<ServerIdType> serverIdList;
+	serverIdList.push_back(3);
+	serverIdList.push_back(4);
+	serverIdList.push_back(211);
+	option.setExcludeServerIdList(serverIdList);
+	string expect("0");
+	cppcut_assert_equal(expect, option.getCondition());
+}
+
 } // namespace testHostResourceQueryOption
 
 namespace testHostResourceQueryOptionWithoutDBSetup {

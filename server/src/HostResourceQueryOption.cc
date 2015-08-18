@@ -66,6 +66,7 @@ struct HostResourceQueryOption::Impl {
 	LocalHostIdType targetHostId;
 	HostgroupIdType targetHostgroupId;
 	bool            excludeDefunctServers;
+	list<ServerIdType> excludeServerIdList;
 
 	Impl(const Synapse &_synapse)
 	: synapse(_synapse),
@@ -281,6 +282,18 @@ void HostResourceQueryOption::setExcludeDefunctServers(
 const bool &HostResourceQueryOption::getExcludeDefunctServers(void) const
 {
 	return m_impl->excludeDefunctServers;
+}
+
+void HostResourceQueryOption::setExcludeServerIdList(
+  const std::list<ServerIdType> &serverIdList)
+{
+	m_impl->excludeServerIdList = serverIdList;
+}
+
+const std::list<ServerIdType> &
+HostResourceQueryOption::getExcludeServerIdList(void)
+{
+	return m_impl->excludeServerIdList;
 }
 
 // ---------------------------------------------------------------------------
