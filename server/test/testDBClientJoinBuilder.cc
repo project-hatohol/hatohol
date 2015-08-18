@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <gcutter.h>
@@ -77,7 +77,6 @@ enum {
 	NUM_IDX_TEST_TABLE0,
 };
 
-const size_t NUM_COLUMNS_TEST0 = ARRAY_SIZE(COLUMN_DEF_TEST0);
 const DBAgent::TableProfile tableProfileTest0(
   TEST_TABLE_NAME0, COLUMN_DEF_TEST0,
   NUM_IDX_TEST_TABLE0
@@ -121,7 +120,6 @@ enum {
 	NUM_IDX_TEST_TABLE1,
 };
 
-const size_t NUM_COLUMNS_TEST1 = ARRAY_SIZE(COLUMN_DEF_TEST1);
 const DBAgent::TableProfile tableProfileTest1(
   TEST_TABLE_NAME1, COLUMN_DEF_TEST1,
   NUM_IDX_TEST_TABLE1

@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cstring>
@@ -34,6 +34,7 @@ using namespace mlpl;
 
 const static int TRANSACTION_TIME_OUT_MSEC = 30 * 1000;
 const char *DBAgentSQLite3::DEFAULT_DB_NAME = "DBAgentSQLite3-default";
+static __thread bool tls_lastUpsertDidUpdate = false;
 
 class DBTermCodecSQLite3 : public DBTermCodec {
 	virtual string enc(const uint64_t &val) const override
@@ -478,6 +479,57 @@ static bool isPrimaryOrUniqueKeyDuplicated(sqlite3 *db)
 #endif
 }
 
+// TODO:
+// Should be unified with DBAgent::getColumnValueString() and override only
+// SQL_COLUMN_TYPE_BIGUINT.
+string DBAgentSQLite3::getColumnValueStringStatic(const ColumnDef *columnDef,
+						  const ItemData *itemData)
+{
+	if (itemData->isNull())
+		return "NULL";
+
+	string valueStr;
+	switch (columnDef->type) {
+	case SQL_COLUMN_TYPE_INT:
+	{
+		valueStr = StringUtils::sprintf("%d", (int)*itemData);
+		break;
+	}
+	case SQL_COLUMN_TYPE_BIGUINT:
+	{
+		valueStr = StringUtils::sprintf("%" PRId64,
+		                                (uint64_t)*itemData);
+		break;
+	}
+	case SQL_COLUMN_TYPE_VARCHAR:
+	case SQL_COLUMN_TYPE_CHAR:
+	case SQL_COLUMN_TYPE_TEXT:
+	{
+		string escaped =
+		  StringUtils::replace((string)*itemData, "'", "''");
+		valueStr =
+		  StringUtils::sprintf("'%s'", escaped.c_str());
+		break;
+	}
+	case SQL_COLUMN_TYPE_DOUBLE:
+	{
+		string fmt
+		  = StringUtils::sprintf("%%.%zdlf", columnDef->decFracLength);
+		valueStr = StringUtils::sprintf(fmt.c_str(), (double)*itemData);
+		break;
+	}
+	case SQL_COLUMN_TYPE_DATETIME:
+	{
+		valueStr = makeDatetimeString(*itemData);
+		break;
+	}
+	default:
+		HATOHOL_ASSERT(true, "Unknown column type: %d (%s)",
+		             columnDef->type, columnDef->columnName);
+	}
+	return valueStr;
+}
+
 void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 {
 	size_t numColumns = insertArg.row->getNumberOfItems();
@@ -500,7 +552,7 @@ void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 		if (itemData->isNull()) {
 			valueStr = "NULL";
 		} else {
-			valueStr = getColumnValueString(&columnDef, itemData);
+			valueStr = getColumnValueStringStatic(&columnDef, itemData);
 			if (columnDef.flags & SQL_COLUMN_FLAG_AUTO_INC) {
 				// Converting 0 to NULL makes the behavior
 				// compatible with DBAgentMySQL.
@@ -523,6 +575,7 @@ void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 		// primary or unique key constraint.
 		if (isPrimaryOrUniqueKeyDuplicated(db)) {
 			update(db, insertArg);
+			tls_lastUpsertDidUpdate = true;
 			return;
 		}
 	}
@@ -532,11 +585,41 @@ void DBAgentSQLite3::insert(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 		THROW_HATOHOL_EXCEPTION("Failed to exec: %d, %s, %s",
 		                      result, err.c_str(), sql.c_str());
 	}
+	tls_lastUpsertDidUpdate = false;
+}
+
+// TODO: Should be unified with DBAgent::makeUpdateStatement()
+string DBAgentSQLite3::makeUpdateStatementStatic(const UpdateArg &updateArg)
+{
+	// make a SQL statement
+	string statement = StringUtils::sprintf("UPDATE %s SET ",
+	                                        updateArg.tableProfile.name);
+	const size_t numColumns = updateArg.rows.size();
+	for (size_t i = 0; i < numColumns; i++) {
+		const RowElement *elem = updateArg.rows[i];
+		const ColumnDef &columnDef =
+		  updateArg.tableProfile.columnDefs[elem->columnIndex];
+		const string valueStr =
+		  getColumnValueStringStatic(&columnDef, elem->dataPtr);
+
+		statement += StringUtils::sprintf("%s=%s",
+		                                  columnDef.columnName,
+		                                  valueStr.c_str());
+		if (i < numColumns - 1)
+			statement += ",";
+	}
+
+	// condition
+	if (!updateArg.condition.empty()) {
+		statement += StringUtils::sprintf(" WHERE %s",
+		                                  updateArg.condition.c_str());
+	}
+	return statement;
 }
 
 void DBAgentSQLite3::update(sqlite3 *db, const UpdateArg &updateArg)
 {
-	string sql = makeUpdateStatement(updateArg);
+	string sql = makeUpdateStatementStatic(updateArg);
 
 	// exectute the SQL statement
 	char *errmsg;
@@ -563,7 +646,7 @@ void DBAgentSQLite3::update(sqlite3 *db, const DBAgent::InsertArg &insertArg)
 
 			columnDef = &tableProfile.columnDefs[idx];
 			itemData = itemGroupPtr->getItemAt(idx);
-			valStr = getColumnValueString(columnDef, itemData);
+			valStr = getColumnValueStringStatic(columnDef, itemData);
 			return sprintf("%s=%s", columnDef->columnName,
 			                        valStr.c_str());
 		}
@@ -698,6 +781,18 @@ void DBAgentSQLite3::addColumns(const AddColumnsArg &addColumnsArg)
 	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
 }
 
+void DBAgentSQLite3::changeColumnDef(const TableProfile &tableProfile,
+				     const string &oldColumnName,
+				     const size_t &columnIndex)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
+void DBAgentSQLite3::dropPrimaryKey(const std::string &tableName)
+{
+	MLPL_BUG("Not implemented: %s\n", __PRETTY_FUNCTION__);
+}
+
 void DBAgentSQLite3::renameTable(const string &srcName, const string &destName)
 {
 	string query = makeRenameTableStatement(srcName, destName);
@@ -731,6 +826,11 @@ uint64_t DBAgentSQLite3::getLastInsertId(sqlite3 *db)
 uint64_t DBAgentSQLite3::getNumberOfAffectedRows(sqlite3 *db)
 {
 	return sqlite3_changes(db);
+}
+
+bool DBAgentSQLite3::lastUpsertDidUpdate(void)
+{
+	return tls_lastUpsertDidUpdate;
 }
 
 ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
@@ -812,13 +912,19 @@ void DBAgentSQLite3::createIndexIfNotExistsEach(
 	}
 }
 
+string DBAgentSQLite3::getColumnValueString(const ColumnDef *columnDef,
+					    const ItemData *itemData)
+{
+	return getColumnValueStringStatic(columnDef, itemData);
+}
+
 string DBAgentSQLite3::makeCreateIndexStatement(
   const TableProfile &tableProfile, const IndexDef &indexDef)
 {
 	string sql = StringUtils::sprintf(
-	  "CREATE %sINDEX i_%s_%s ON %s(",
+	  "CREATE %sINDEX %s ON %s(",
 	  indexDef.isUnique ? "UNIQUE " : "",
-	  tableProfile.name, indexDef.name, tableProfile.name);
+	  makeIndexName(tableProfile, indexDef).c_str(), tableProfile.name);
 
 	const int *columnIdxPtr = indexDef.columnIndexes;
 	while (true) {
@@ -859,6 +965,13 @@ void DBAgentSQLite3::getIndexInfoVect(
 		idxInfo.sql       = idxStruct.sql;
 		indexInfoVect.push_back(idxInfo);
 	}
+}
+
+string DBAgentSQLite3::makeIndexName(
+  const TableProfile &tableProfile, const IndexDef &indexDef)
+{
+	return StringUtils::sprintf("i_%s_%s",
+	                            tableProfile.name, indexDef.name);
 }
 
 string DBAgentSQLite3::getDBPath(void) const

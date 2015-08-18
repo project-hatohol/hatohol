@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <fstream>
@@ -88,7 +88,6 @@ void cut_setup(void)
 	hatoholInit();
 	setupTestDB();
 	loadTestDBTablesConfig();
-	loadTestDBServer();
 	loadTestDBArmPlugin();
 }
 
@@ -315,7 +314,8 @@ struct HatoholArmPluginBaseTest :
 			const ItemInfo &itemInfo = testItemInfo[i];
 			if (itemInfo.serverId != serverIdOfHapGate)
 				continue;
-			const ItemCategoryIdType itemCategoryId = i + 100;
+			const ItemCategoryIdType itemCategoryId =
+			  StringUtils::sprintf("%zd", i + 100);
 			itemTablePtr->add(convert(itemInfo, itemCategoryId));
 			itemCategoryNameMap[itemCategoryId] =
 			  itemInfo.itemGroupName;
@@ -334,6 +334,59 @@ struct HatoholArmPluginBaseTest :
 		reply(resBuf);
 	}
 
+	virtual void onReceivedReqFetchHistory(void) override
+	{
+		SmartBuffer *cmdBuf = getCurrBuffer();
+		HapiParamReqFetchHistory *params =
+		  getCommandBody<HapiParamReqFetchHistory>(*cmdBuf);
+		ItemIdType itemId = getString(*cmdBuf, params,
+		                      params->itemIdOffset,
+		                      params->itemIdLength);
+		time_t beginTime = static_cast<time_t>(LtoN(params->beginTime));
+		time_t endTime = static_cast<time_t>(LtoN(params->endTime));
+
+		VariableItemTablePtr itemTablePtr;
+		HistoryInfoVect historyInfoVect;
+		getTestHistory(historyInfoVect,
+			       // Ignore serverId for this test.
+			       // Use all history as this server's one.
+			       ALL_SERVERS,
+			       itemId, beginTime, endTime);
+		HistoryInfoVectIterator it = historyInfoVect.begin();
+		for (; it != historyInfoVect.end(); it++) {
+			const HistoryInfo &historyInfo = *it;
+			itemTablePtr->add(convert(historyInfo));
+		}
+
+		SmartBuffer resBuf;
+		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY);
+		appendItemTable(resBuf,
+		                static_cast<ItemTablePtr>(itemTablePtr));
+
+		reply(resBuf);
+	}
+
+	virtual void onReceivedReqFetchTrigger(void) override
+	{
+		SmartBuffer resBuf;
+		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_TRIGGERS);
+
+		VariableItemTablePtr itemTablePtr;
+		for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+			const TriggerInfo &triggerInfo = testTriggerInfo[i];
+			if (triggerInfo.serverId != serverIdOfHapGate)
+				continue;
+			itemTablePtr->add(convert(triggerInfo));
+		}
+		HATOHOL_ASSERT(itemTablePtr->getNumberOfRows() >= 1,
+		               "There's no test items. Inappropriate server "
+		               "ID for HatoholArmPluginGate may be used.");
+		appendItemTable(resBuf,
+		                static_cast<ItemTablePtr>(itemTablePtr));
+
+		reply(resBuf);
+	}
+
 	ServerIdType serverIdOfHapGate;
 	SimpleSemaphore terminateSem;
 };
@@ -342,16 +395,30 @@ typedef HatoholArmPluginTestPair<HatoholArmPluginBaseTest> TestPair;
 
 struct TestReceiver {
 	SimpleSemaphore sem;
+	HistoryInfoVect historyInfoVect;
 
 	TestReceiver(void)
 	: sem(0)
 	{
 	}
 
-	void callback(ClosureBase *closure)
+	void callback(Closure0 *closure)
 	{
 		sem.post();
 	}
+
+	void callbackHistory(Closure1<HistoryInfoVect> *closure,
+			     const HistoryInfoVect &_historyInfoVect)
+	{
+		historyInfoVect = _historyInfoVect;
+		sem.post();
+	}
+
+	void callbackTrigger(Closure0 *closure)
+	{
+		sem.post();
+	}
+
 };
 
 void test_sendTerminateCommand(void)
@@ -371,10 +438,13 @@ void test_fetchItem(void)
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	TestPair pair(arg);
 	pair.plugin->serverIdOfHapGate = arg.serverId;
+	pair.gate->loadTestHostInfoCache();
 
 	TestReceiver receiver;
-	pair.gate->startOnDemandFetchItem(
-	  new Closure<TestReceiver>(&receiver, &TestReceiver::callback));
+	pair.gate->startOnDemandFetchItems(
+	  {},
+	  new ClosureTemplate0<TestReceiver>(
+	    &receiver, &TestReceiver::callback));
 	cppcut_assert_equal(
 	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
 
@@ -395,6 +465,110 @@ void test_fetchItem(void)
 	ItemInfoListConstIterator actual = itemList.begin();
 	for (int idx = 0; actual != itemList.end(); ++actual, idx++) {
 		const ItemInfo &expect = testItemInfo[expectItemIdxVec[idx]];
+		assertEqual(expect, *actual);
+	}
+}
+
+void test_fetchEmptyHistory(void)
+{
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
+	pair.plugin->serverIdOfHapGate = arg.serverId;
+
+	TestReceiver receiver;
+	ItemInfo itemInfo;
+	itemInfo.serverId = arg.serverId;
+	itemInfo.globalHostId = ALL_HOSTS; // dummy
+	itemInfo.hostIdInServer = ALL_LOCAL_HOSTS; // dummy
+	itemInfo.id = 1;
+	itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
+	pair.gate->startOnDemandFetchHistory(
+	  itemInfo, 0, 0,
+	  new ClosureTemplate1<TestReceiver, HistoryInfoVect>(
+	    &receiver, &TestReceiver::callbackHistory));
+	cppcut_assert_equal(
+	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
+	cppcut_assert_equal(0, (int)receiver.historyInfoVect.size());
+}
+
+void test_fetchHistory(void)
+{
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
+	pair.plugin->serverIdOfHapGate = arg.serverId;
+
+	ItemInfo itemInfo;
+	itemInfo.serverId = testHistoryInfo[0].serverId;
+	itemInfo.globalHostId = ALL_HOSTS;
+	itemInfo.hostIdInServer = ALL_LOCAL_HOSTS;
+	itemInfo.id = testHistoryInfo[0].itemId;
+	itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
+	time_t beginTime = testHistoryInfo[0].clock.tv_sec + 1;
+	time_t endTime = testHistoryInfo[NumTestHistoryInfo - 1].clock.tv_sec - 1;
+
+	TestReceiver receiver;
+	pair.gate->startOnDemandFetchHistory(
+	  itemInfo, beginTime, endTime,
+	  new ClosureTemplate1<TestReceiver, HistoryInfoVect>(
+	    &receiver, &TestReceiver::callbackHistory));
+	cppcut_assert_equal(
+	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
+
+	HistoryInfoVect expectedHistoryVect;
+	getTestHistory(expectedHistoryVect,
+		       ALL_SERVERS, // Ignore serverId for this test
+		       itemInfo.id, beginTime, endTime);
+	string expected, actual;
+	for (size_t i = 0; i < expectedHistoryVect.size(); i++) {
+		expectedHistoryVect[i].serverId = itemInfo.serverId;
+		expected += makeHistoryOutput(expectedHistoryVect[i]);
+	}
+	for (size_t i = 0; i < receiver.historyInfoVect.size(); i++)
+		actual += makeHistoryOutput(receiver.historyInfoVect[i]);
+	cppcut_assert_equal(expected, actual);
+	cppcut_assert_not_equal((size_t)0, receiver.historyInfoVect.size());
+}
+
+void test_fetchTrigger(void)
+{
+	loadTestDBServer();
+	loadTestDBServerHostDef();
+	loadTestDBVMInfo();
+	loadTestDBHostgroup();
+	loadTestDBHostgroupMember();
+
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestPair pair(arg);
+	pair.plugin->serverIdOfHapGate = arg.serverId;
+
+	TestReceiver receiver;
+	pair.gate->startOnDemandFetchTriggers(
+	  {},
+	  new ClosureTemplate0<TestReceiver>(
+	    &receiver, &TestReceiver::callbackTrigger));
+	cppcut_assert_equal(
+	  SimpleSemaphore::STAT_OK, receiver.sem.timedWait(TIMEOUT));
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+
+	TriggerInfoList triggerInfoList;
+	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
+	triggersQueryOption.setTargetServerId(arg.serverId);
+	triggersQueryOption.setExcludeFlags(EXCLUDE_INVALID_HOST|EXCLUDE_SELF_MONITORING);
+	dbMonitoring.getTriggerInfoList(triggerInfoList,
+					triggersQueryOption);
+	vector<int> expectTriggerIdxVec;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		const TriggerInfo &triggerInfo = testTriggerInfo[i];
+		if (triggerInfo.serverId != arg.serverId)
+			continue;
+		expectTriggerIdxVec.push_back(i);
+	}
+	cppcut_assert_equal(expectTriggerIdxVec.size(), triggerInfoList.size());
+	TriggerInfoListConstIterator actual = triggerInfoList.begin();
+	for (int idx = 0; actual != triggerInfoList.end(); ++actual, idx++) {
+		const TriggerInfo &expect = testTriggerInfo[expectTriggerIdxVec[idx]];
 		assertEqual(expect, *actual);
 	}
 }

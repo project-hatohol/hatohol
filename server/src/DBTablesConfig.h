@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef DBTablesConfig_h
@@ -23,6 +23,7 @@
 #include "DBTables.h"
 #include "DBTablesMonitoring.h"
 #include "MonitoringServerInfo.h"
+#include "ArmPluginInfo.h"
 
 enum IncidentTrackerType {
 	INCIDENT_TRACKER_UNKNOWN = -2,
@@ -53,53 +54,14 @@ struct ServerTypeInfo {
 	std::string          name;
 	std::string          parameters;
 	std::string          pluginPath;
+	int                  pluginSQLVersion;
+	bool                 pluginEnabled;
+	std::string          uuid;
 };
 
 typedef std::vector<ServerTypeInfo>        ServerTypeInfoVect;
 typedef ServerTypeInfoVect::iterator       ServerTypeInfoVectIterator;
 typedef ServerTypeInfoVect::const_iterator ServerTypeInfoVectConstIterator;
-
-struct ArmPluginInfo {
-	int id;
-	MonitoringSystemType type;
-	std::string path;
-
-	/**
-	 * The broker URL such as "localhost:5672".
-	 * If this value is empty, the default URL is used.
-	 */
-	std::string brokerUrl;
-
-	/**
-	 * If this parameter is empty, dynamically generated queue addresss
-	 * is passed to the created plugin proess as an environment variable.
-	 * If the plugin process is a passive type (not created by the
-	 * Hatohol), the parameter should be set.
-	 */
-	std::string staticQueueAddress;
-
-	/**
-	 * Monitoring server ID of the server this ArmPlugin communicates with.
-	 */
-	ServerIdType serverId;
-
-	std::string tlsCertificatePath;
-	std::string tlsKeyPath;
-	std::string tlsCACertificatePath;
-	int tlsEnableVerify;
-
-	static void initialize(ArmPluginInfo &armPluginInfo);
-
-	bool isTLSVerifyEnabled(void);
-};
-
-typedef std::vector<ArmPluginInfo>        ArmPluginInfoVect;
-typedef ArmPluginInfoVect::iterator       ArmPluginInfoVectIterator;
-typedef ArmPluginInfoVect::const_iterator ArmPluginInfoVectConstIterator;
-
-typedef std::map<MonitoringSystemType, ArmPluginInfo *> ArmPluginInfoMap;
-typedef ArmPluginInfoMap::iterator          ArmPluginInfoMapIterator;
-typedef ArmPluginInfoMap::const_iterator    ArmPluginInfoMapConstIterator;
 
 class ServerQueryOption : public DataQueryOption {
 public:
@@ -139,6 +101,7 @@ public:
 	static int CONFIG_DB_VERSION;
 	static void reset(void);
 	static bool isHatoholArmPlugin(const MonitoringSystemType &type);
+	static const SetupInfo &getConstSetupInfo(void);
 
 	DBTablesConfig(DBAgent &dbAgent);
 	virtual ~DBTablesConfig();
@@ -159,7 +122,8 @@ public:
 	void registerServerType(const ServerTypeInfo &serverType);
 
 	static std::string getDefaultPluginPath(
-	  const MonitoringSystemType &type);
+	  const MonitoringSystemType &type,
+	  const std::string &uuid);
 
 	/**
 	 * Get the registered ServerTypeInfo.
@@ -174,11 +138,13 @@ public:
 	 *
 	 * @param serverTypes The obtained information is stored to this.
 	 * @param type        The monitoring system type.
+	 * @param type        The UUID of the monitoring system type.
 	 * @return
 	 * true if the server type is found. Otherwise false.
 	 */
 	bool getServerType(ServerTypeInfo &serverType,
-	                   const MonitoringSystemType &type);
+			   const MonitoringSystemType &type,
+			   const std::string &uuid);
 
 	HatoholError addTargetServer(
 	  MonitoringServerInfo *monitoringServerInfo,

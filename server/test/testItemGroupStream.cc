@@ -4,20 +4,22 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
+#include <gcutter.h>
 #include <cppcutter.h>
+#include "Helpers.h"
 #include "ItemGroupPtr.h"
 #include "ItemGroupStream.h"
 using namespace std;
@@ -156,6 +158,125 @@ void test_setNotFound(void)
 	}
 	cppcut_assert_equal(ITEM_DATA_EXCEPTION_ITEM_NOT_FOUND, exceptionType);
 	cppcut_assert_equal(val, -1);
+}
+
+void data_readUint64ViaString(void)
+{
+	gcut_add_datum("zero",
+	               "string", G_TYPE_STRING, "0",
+	               "number", G_TYPE_UINT64, 0,
+	               "valid",  G_TYPE_BOOLEAN, TRUE,  NULL);
+	gcut_add_datum("signed 32bit max",
+	               "string", G_TYPE_STRING, "2147483647",
+	               "number", G_TYPE_UINT64, 2147483647,
+	               "valid",  G_TYPE_BOOLEAN, TRUE,  NULL);
+	gcut_add_datum("signed 32bit max + 1",
+	               "string", G_TYPE_STRING, "2147483648",
+	               "number", G_TYPE_UINT64, 2147483648,
+	               "valid",  G_TYPE_BOOLEAN, TRUE,  NULL);
+	gcut_add_datum("signed 64bit",
+	               "string", G_TYPE_STRING, "9223372036854775807",
+	               "number", G_TYPE_UINT64, 9223372036854775807UL,
+	               "valid",  G_TYPE_BOOLEAN, TRUE,  NULL);
+	gcut_add_datum("signed 64bit + 1",
+	               "string", G_TYPE_STRING, "9223372036854775808",
+	               "number", G_TYPE_UINT64, 9223372036854775808UL,
+	               "valid",  G_TYPE_BOOLEAN, TRUE,  NULL);
+	gcut_add_datum("unsigned 64bit max",
+	               "string", G_TYPE_STRING, "18446744073709551615",
+	               "number", G_TYPE_UINT64, 18446744073709551615UL,
+	               "valid",  G_TYPE_BOOLEAN, TRUE,  NULL);
+	gcut_add_datum("Non-number",
+	               "string", G_TYPE_STRING, "abc",
+	               "number", G_TYPE_UINT64, 0,
+	               "valid",  G_TYPE_BOOLEAN, FALSE,  NULL);
+}
+
+void test_readUint64ViaString(gconstpointer data)
+{
+	const char *srcString = gcut_data_get_string(data, "string");
+	const uint64_t expect = gcut_data_get_uint64(data, "number");
+	const bool valid = gcut_data_get_boolean(data, "valid");
+
+	VariableItemGroupPtr itemGroup(new ItemGroup(), false);
+	itemGroup->add(new ItemString(srcString), false);
+	ItemGroupStream itemGroupStream(itemGroup);
+	uint64_t actual = 0;
+	HatoholError err(HTERR_OK);
+	try {
+		actual = itemGroupStream.read<string, uint64_t>();
+	} catch (const HatoholException &e) {
+		err = e.getErrCode();
+	}
+
+	if (valid) {
+		assertHatoholError(HTERR_OK, err);
+		cppcut_assert_equal(expect, actual);
+	} else {
+		assertHatoholError(HTERR_INTERNAL_ERROR, err);
+	}
+}
+
+void data_readStringViaInt(void)
+{
+	gcut_add_datum("zero",
+	               "native", G_TYPE_INT, 0,
+	               "expect", G_TYPE_STRING, "0", NULL);
+	gcut_add_datum("positive",
+	               "native", G_TYPE_INT, 15,
+	               "expect", G_TYPE_STRING, "15", NULL);
+	gcut_add_datum("signed 32bit max",
+	               "native", G_TYPE_INT, 2147483647,
+	               "expect", G_TYPE_STRING, "2147483647", NULL);
+	gcut_add_datum("nagative",
+	               "native", G_TYPE_INT, -5,
+	               "expect", G_TYPE_STRING, "-5", NULL);
+	gcut_add_datum("signed 32bit min",
+	               "native", G_TYPE_INT, -2147483648,
+	               "expect", G_TYPE_STRING, "-2147483648", NULL);
+}
+
+void test_readStringViaInt(gconstpointer data)
+{
+	const int nativeValue = gcut_data_get_int(data, "native");
+	const string expect = string(gcut_data_get_string(data, "expect"));
+
+	VariableItemGroupPtr itemGroup(new ItemGroup(), false);
+	itemGroup->add(new ItemInt(nativeValue), false);
+	ItemGroupStream itemGroupStream(itemGroup);
+	const string actual = itemGroupStream.read<int, string>();
+	cppcut_assert_equal(expect, actual);
+}
+
+void data_readStringViaUint64(void)
+{
+	gcut_add_datum("zero",
+	               "native", G_TYPE_UINT64, 0UL,
+	               "expect", G_TYPE_STRING, "0", NULL);
+	gcut_add_datum("under 32bit max",
+	               "native", G_TYPE_UINT64, 15UL,
+	               "expect", G_TYPE_STRING, "15", NULL);
+	gcut_add_datum("unsinged 32bit max",
+	               "native", G_TYPE_UINT64, 4294967295UL,
+	               "expect", G_TYPE_STRING, "4294967295", NULL);
+	gcut_add_datum("unsigned 32bit max + 1",
+	               "native", G_TYPE_UINT64, 4294967296UL,
+	               "expect", G_TYPE_STRING, "4294967296", NULL);
+	gcut_add_datum("unsigned 64bit max",
+	               "native", G_TYPE_UINT64, 18446744073709551615UL,
+	               "expect", G_TYPE_STRING, "18446744073709551615", NULL);
+}
+
+void test_readStringViaUint64(gconstpointer data)
+{
+	const uint64_t nativeValue = gcut_data_get_uint64(data, "native");
+	const string expect = string(gcut_data_get_string(data, "expect"));
+
+	VariableItemGroupPtr itemGroup(new ItemGroup(), false);
+	itemGroup->add(new ItemUint64(nativeValue), false);
+	ItemGroupStream itemGroupStream(itemGroup);
+	const string actual = itemGroupStream.read<uint64_t, string>();
+	cppcut_assert_equal(expect, actual);
 }
 
 } // namespace testItemGroupStream

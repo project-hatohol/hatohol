@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <memory>
@@ -29,6 +29,7 @@
 #include "ItemGroupStream.h"
 #include "SQLUtils.h"
 #include "DBClientJoinBuilder.h"
+#include "DBTermCStringProvider.h"
 using namespace std;
 using namespace mlpl;
 
@@ -38,7 +39,7 @@ static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 
-int DBTablesConfig::CONFIG_DB_VERSION = 12;
+int DBTablesConfig::CONFIG_DB_VERSION = 16;
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
 const ServerIdSet EMPTY_INCIDENT_TRACKER_ID_SET;
@@ -115,7 +116,7 @@ static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_PRI,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
@@ -147,6 +148,34 @@ static const ColumnDef COLUMN_DEF_SERVER_TYPES[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	// This column represent to plugin sql version
+	"plugin_sql_version",              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	0,                                 // defaultValue
+}, {
+	"plugin_enabled",                  // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	1,                                 // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	0,                                 // defaultValue
+}, {
+	"uuid",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	36,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 
@@ -155,13 +184,26 @@ enum {
 	IDX_SERVER_TYPES_NAME,
 	IDX_SERVER_TYPES_PARAMETERS,
 	IDX_SERVER_TYPES_PLUGIN_PATH,
+	IDX_SERVER_TYPES_PLUGIN_SQL_VERSION,
+	IDX_SERVER_TYPES_PLUGIN_ENABLED,
+	IDX_SERVER_TYPES_UUID,
 	NUM_IDX_SERVER_TYPES,
+};
+
+static const int columnIndexesServerTypeUniqId[] = {
+  IDX_SERVER_TYPES_TYPE, IDX_SERVER_TYPES_UUID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsServerTypes[] = {
+  {"ServerTypeUniqId", (const int *)columnIndexesServerTypeUniqId, true},
+  {NULL}
 };
 
 static const DBAgent::TableProfile tableProfileServerTypes =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SERVER_TYPES,
 			    COLUMN_DEF_SERVER_TYPES,
-			    NUM_IDX_SERVER_TYPES);
+			    NUM_IDX_SERVER_TYPES,
+			    indexDefsServerTypes);
 
 static const ColumnDef COLUMN_DEF_SERVERS[] = {
 {
@@ -263,6 +305,24 @@ static const ColumnDef COLUMN_DEF_SERVERS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"base_url",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	2047,                              // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"extended_info",                   // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	32767,                             // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 }
 };
 
@@ -278,6 +338,8 @@ enum {
 	IDX_SERVERS_USER_NAME,
 	IDX_SERVERS_PASSWORD,
 	IDX_SERVERS_DB_NAME,
+	IDX_SERVERS_BASE_URL,
+	IDX_SERVERS_EXTENDED_INFO,
 	NUM_IDX_SERVERS,
 };
 
@@ -380,6 +442,15 @@ static const ColumnDef COLUMN_DEF_ARM_PLUGINS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	"1",                               // defaultValue
+}, {
+	"uuid",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	36,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -394,6 +465,7 @@ enum {
 	IDX_ARM_PLUGINS_TLS_KEY_PATH,
 	IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH,
 	IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY,
+	IDX_ARM_PLUGINS_UUID,
 	NUM_IDX_ARM_PLUGINS,
 };
 
@@ -506,8 +578,10 @@ struct DBTablesConfig::Impl
 	}
 };
 
-static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
+static bool updateDB(
+  DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
 {
+	const int &oldVer = oldPackedVer.minorVer;
 	if (oldVer <= 5) {
 		DBAgent::AddColumnsArg addColumnsArg(tableProfileSystem);
 		addColumnsArg.columnIndexes.push_back(
@@ -542,23 +616,48 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 			IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY);
 		dbAgent.addColumns(addColumnsArg);
 	}
+	if (oldVer < 13) {
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileServerTypes);
+		addColumnsArg.columnIndexes.push_back(
+			IDX_SERVER_TYPES_PLUGIN_SQL_VERSION);
+		addColumnsArg.columnIndexes.push_back(
+			IDX_SERVER_TYPES_PLUGIN_ENABLED);
+		dbAgent.addColumns(addColumnsArg);
+		// enable plugin_sql_version & plugin_enabled by default
+		DBAgent::UpdateArg arg(tableProfileServerTypes);
+		arg.add(IDX_SERVER_TYPES_PLUGIN_SQL_VERSION, 1);
+		arg.add(IDX_SERVER_TYPES_PLUGIN_ENABLED, 1);
+		dbAgent.update(arg);
+	}
+	if (oldVer < 14) {
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileServers);
+		addColumnsArg.columnIndexes.push_back(IDX_SERVERS_BASE_URL);
+		dbAgent.addColumns(addColumnsArg);
+	}
+	if (oldVer < 15) {
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileServers);
+		addColumnsArg.columnIndexes.push_back(IDX_SERVERS_EXTENDED_INFO);
+		dbAgent.addColumns(addColumnsArg);
+
+		// fixup max length of servers.base_url
+		dbAgent.changeColumnDef(tableProfileServers,
+					"base_url",
+					IDX_SERVERS_BASE_URL);
+	}
+	if (oldVer < 16) {
+		// drop the primary key, use unique index instead
+		dbAgent.dropPrimaryKey(tableProfileServerTypes.name);
+
+		DBAgent::AddColumnsArg addArgForServerTypes(tableProfileServerTypes);
+		addArgForServerTypes.columnIndexes.push_back(
+			IDX_SERVER_TYPES_UUID);
+		dbAgent.addColumns(addArgForServerTypes);
+		DBAgent::AddColumnsArg addArgForArmPlugins(tableProfileArmPlugins);
+		addArgForArmPlugins.columnIndexes.push_back(
+			IDX_ARM_PLUGINS_UUID);
+		dbAgent.addColumns(addArgForArmPlugins);
+	}
 	return true;
-}
-
-// ---------------------------------------------------------------------------
-// ArmPluginInfo
-// ---------------------------------------------------------------------------
-void ArmPluginInfo::initialize(ArmPluginInfo &armPluginInfo)
-{
-	armPluginInfo.id = INVALID_ARM_PLUGIN_INFO_ID;
-	armPluginInfo.type = MONITORING_SYSTEM_UNKNOWN;
-	armPluginInfo.serverId = INVALID_SERVER_ID;
-	armPluginInfo.tlsEnableVerify = 1;
-}
-
-bool ArmPluginInfo::isTLSVerifyEnabled(void)
-{
-	return tlsEnableVerify != 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -750,7 +849,14 @@ bool DBTablesConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 		return true;
 	else if (type == MONITORING_SYSTEM_HAPI_CEILOMETER)
 		return true;
+	else if (type == MONITORING_SYSTEM_HAPI2)
+		return true;
 	return false;
+}
+
+const DBTables::SetupInfo &DBTablesConfig::getConstSetupInfo(void)
+{
+	return getSetupInfo();
 }
 
 DBTablesConfig::DBTablesConfig(DBAgent &dbAgent)
@@ -820,12 +926,16 @@ void DBTablesConfig::registerServerType(const ServerTypeInfo &serverType)
 	arg.add(serverType.name);
 	arg.add(serverType.parameters);
 	arg.add(serverType.pluginPath);
+	arg.add(serverType.pluginSQLVersion);
+	arg.add(serverType.pluginEnabled);
+	arg.add(serverType.uuid);
 	arg.upsertOnDuplicate = true;
 	int id;
 	getDBAgent().runTransaction(arg, &id);
 }
 
-string DBTablesConfig::getDefaultPluginPath(const MonitoringSystemType &type)
+string DBTablesConfig::getDefaultPluginPath(const MonitoringSystemType &type,
+					    const string &uuid)
 {
 	// TODO: these should be defined in server_types tables.
 	switch (type) {
@@ -840,7 +950,7 @@ string DBTablesConfig::getDefaultPluginPath(const MonitoringSystemType &type)
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	ServerTypeInfo serverType;
-	if (dbConfig.getServerType(serverType, type))
+	if (dbConfig.getServerType(serverType, type, uuid))
 		return serverType.pluginPath;
 
 	return "";
@@ -853,6 +963,7 @@ void DBTablesConfig::getServerTypes(ServerTypeInfoVect &serverTypes)
 	arg.add(IDX_SERVER_TYPES_NAME);
 	arg.add(IDX_SERVER_TYPES_PARAMETERS);
 	arg.add(IDX_SERVER_TYPES_PLUGIN_PATH);
+	arg.add(IDX_SERVER_TYPES_UUID);
 	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -867,19 +978,26 @@ void DBTablesConfig::getServerTypes(ServerTypeInfoVect &serverTypes)
 		itemGroupStream >> svTypeInfo.name;
 		itemGroupStream >> svTypeInfo.parameters;
 		itemGroupStream >> svTypeInfo.pluginPath;
+		itemGroupStream >> svTypeInfo.uuid;
 	}
 }
 
 bool DBTablesConfig::getServerType(ServerTypeInfo &serverType,
-                                   const MonitoringSystemType &type)
+				   const MonitoringSystemType &type,
+				   const string &uuid)
 {
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	DBAgent::SelectExArg arg(tableProfileServerTypes);
-	arg.condition = StringUtils::sprintf("%s=%d",
-	  COLUMN_DEF_SERVER_TYPES[IDX_SERVER_TYPES_TYPE].columnName, type);
+	arg.condition = StringUtils::sprintf("%s=%d AND %s=%s",
+	  COLUMN_DEF_SERVER_TYPES[IDX_SERVER_TYPES_TYPE].columnName,
+	  type,
+	  COLUMN_DEF_SERVER_TYPES[IDX_SERVER_TYPES_UUID].columnName,
+	  rhs(uuid));
 	arg.add(IDX_SERVER_TYPES_TYPE);
 	arg.add(IDX_SERVER_TYPES_NAME);
 	arg.add(IDX_SERVER_TYPES_PARAMETERS);
 	arg.add(IDX_SERVER_TYPES_PLUGIN_PATH);
+	arg.add(IDX_SERVER_TYPES_UUID);
 	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -890,6 +1008,7 @@ bool DBTablesConfig::getServerType(ServerTypeInfo &serverType,
 	itemGroupStream >> serverType.name;
 	itemGroupStream >> serverType.parameters;
 	itemGroupStream >> serverType.pluginPath;
+	itemGroupStream >> serverType.uuid;
 	return true;
 }
 
@@ -916,6 +1035,14 @@ HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 	if (!serverInfo.ipAddress.empty() &&
 	    !Utils::isValidIPAddress(serverInfo.ipAddress)) {
 		return HTERR_INVALID_IP_ADDRESS;
+	}
+	if (serverInfo.pollingIntervalSec < MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC ||
+	    serverInfo.pollingIntervalSec > MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC) {
+		return HTERR_INVALID_POLLING_INTERVAL;
+	}
+	if (serverInfo.retryIntervalSec < MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC ||
+	    serverInfo.retryIntervalSec > MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC) {
+		return HTERR_INVALID_RETRY_INTERVAL;
 	}
 	return HTERR_OK;
 }
@@ -948,7 +1075,7 @@ HatoholError DBTablesConfig::addTargetServer(
 		  monitoringServerInfo(_monitoringServerInfo),
 		  armPluginInfo(_armPluginInfo)
 		{
-			arg.add(AUTO_INCREMENT_VALUE);
+			arg.add(monitoringServerInfo.id);
 			arg.add(monitoringServerInfo.type);
 			arg.add(monitoringServerInfo.hostName);
 			arg.add(monitoringServerInfo.ipAddress);
@@ -959,6 +1086,8 @@ HatoholError DBTablesConfig::addTargetServer(
 			arg.add(monitoringServerInfo.userName);
 			arg.add(monitoringServerInfo.password);
 			arg.add(monitoringServerInfo.dbName);
+			arg.add(monitoringServerInfo.baseURL);
+			arg.add(monitoringServerInfo.extendedInfo);
 		}
 
 		bool preproc(DBAgent &dbAgent) override
@@ -968,11 +1097,14 @@ HatoholError DBTablesConfig::addTargetServer(
 			        armPluginInfo, condForHap);
 			return (err == HTERR_OK);
 		}
-		
+
 		void operator ()(DBAgent &dbAgent) override
 		{
 			dbAgent.insert(arg);
-			monitoringServerInfo.id = dbAgent.getLastInsertId();
+			if (monitoringServerInfo.id == AUTO_INCREMENT_VALUE) {
+				monitoringServerInfo.id =
+				  dbAgent.getLastInsertId();
+			}
 			// TODO: Add AccessInfo for the server to enable
 			// the operator to access to it
 			if (!condForHap.empty()) {
@@ -1058,6 +1190,8 @@ HatoholError DBTablesConfig::updateTargetServer(
 	trx.arg.add(IDX_SERVERS_USER_NAME,  monitoringServerInfo->userName);
 	trx.arg.add(IDX_SERVERS_PASSWORD,   monitoringServerInfo->password);
 	trx.arg.add(IDX_SERVERS_DB_NAME,    monitoringServerInfo->dbName);
+	trx.arg.add(IDX_SERVERS_BASE_URL,   monitoringServerInfo->baseURL);
+	trx.arg.add(IDX_SERVERS_EXTENDED_INFO, monitoringServerInfo->extendedInfo);
 	trx.arg.condition =
 	   StringUtils::sprintf("id=%u", monitoringServerInfo->id);
 
@@ -1105,7 +1239,7 @@ void DBTablesConfig::getTargetServers(
 	//
 	// select servers.id,servers.type,... from servers inner join
 	// access_list on servers.id=access_list.server_id where user_id=5
-	// 
+	//
 	// The current query statement uses a little complicated where clause,
 	// for which the indexing mechanism may not be effective.
 
@@ -1121,6 +1255,8 @@ void DBTablesConfig::getTargetServers(
 	builder.add(IDX_SERVERS_USER_NAME);
 	builder.add(IDX_SERVERS_PASSWORD);
 	builder.add(IDX_SERVERS_DB_NAME);
+	builder.add(IDX_SERVERS_BASE_URL);
+	builder.add(IDX_SERVERS_EXTENDED_INFO);
 
 	builder.addTable(tableProfileArmPlugins, DBClientJoinBuilder::LEFT_JOIN,
 	                 IDX_SERVERS_ID, IDX_ARM_PLUGINS_SERVER_ID);
@@ -1134,6 +1270,7 @@ void DBTablesConfig::getTargetServers(
 	builder.add(IDX_ARM_PLUGINS_TLS_KEY_PATH);
 	builder.add(IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH);
 	builder.add(IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY);
+	builder.add(IDX_ARM_PLUGINS_UUID);
 
 	getDBAgent().runTransaction(builder.getSelectExArg());
 
@@ -1163,6 +1300,8 @@ void DBTablesConfig::getTargetServers(
 		itemGroupStream >> svInfo.userName;
 		itemGroupStream >> svInfo.password;
 		itemGroupStream >> svInfo.dbName;
+		itemGroupStream >> svInfo.baseURL;
+		itemGroupStream >> svInfo.extendedInfo;
 
 		// ArmPluginInfo
 		if (!armPluginInfoVect)
@@ -1276,7 +1415,7 @@ HatoholError validIncidentTrackerInfo(
 	if (incidentTrackerInfo.baseURL.empty())
 		return HTERR_NO_INCIDENT_TRACKER_LOCATION;
 	if (!Utils::isValidURI(incidentTrackerInfo.baseURL))
-		return HTERR_INVALID_URI;
+		return HTERR_INVALID_URL;
 	return HTERR_OK;
 }
 
@@ -1512,6 +1651,7 @@ void DBTablesConfig::selectArmPluginInfo(DBAgent::SelectExArg &arg)
 	arg.add(IDX_ARM_PLUGINS_TLS_KEY_PATH);
 	arg.add(IDX_ARM_PLUGINS_TLS_CA_CERTIFICATE_PATH);
 	arg.add(IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY);
+	arg.add(IDX_ARM_PLUGINS_UUID);
 
 	getDBAgent().runTransaction(arg);
 }
@@ -1529,6 +1669,7 @@ void DBTablesConfig::readArmPluginStream(
 	itemGroupStream >> armPluginInfo.tlsKeyPath;
 	itemGroupStream >> armPluginInfo.tlsCACertificatePath;
 	itemGroupStream >> armPluginInfo.tlsEnableVerify;
+	itemGroupStream >> armPluginInfo.uuid;
 }
 
 HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
@@ -1547,6 +1688,7 @@ HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
   const ArmPluginInfo &armPluginInfo, string &condition)
 {
 	if (armPluginInfo.type != MONITORING_SYSTEM_HAPI_JSON &&
+	    armPluginInfo.type != MONITORING_SYSTEM_HAPI2 &&
 	    armPluginInfo.path.empty())
 		return HTERR_INVALID_ARM_PLUGIN_PATH;
 	if (armPluginInfo.type < MONITORING_SYSTEM_HAPI_ZABBIX) {
@@ -1584,6 +1726,8 @@ HatoholError DBTablesConfig::saveArmPluginInfoWithoutTransaction(
 		        armPluginInfo.tlsCACertificatePath);
 		arg.add(IDX_ARM_PLUGINS_TLS_ENABLE_VERIFY,
 		        armPluginInfo.tlsEnableVerify);
+		arg.add(IDX_ARM_PLUGINS_UUID,
+		        armPluginInfo.uuid);
 		arg.condition = condition;
 		update(arg);
 	} else {
@@ -1598,6 +1742,7 @@ HatoholError DBTablesConfig::saveArmPluginInfoWithoutTransaction(
 		arg.add(armPluginInfo.tlsKeyPath);
 		arg.add(armPluginInfo.tlsCACertificatePath);
 		arg.add(armPluginInfo.tlsEnableVerify);
+		arg.add(armPluginInfo.uuid);
 		insert(arg);
 		armPluginInfo.id = getLastInsertId();
 	}

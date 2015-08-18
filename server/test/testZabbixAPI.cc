@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <string>
@@ -23,6 +23,7 @@
 #include "ZabbixAPITestUtils.h"
 
 using namespace std;
+using namespace mlpl;
 
 namespace testZabbixAPI {
 
@@ -108,6 +109,57 @@ void test_getAuthToken(void)
 	cppcut_assert_equal(firstToken, secondToken);
 }
 
+void test_verifyTriggers(void)
+{
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+	zbxApiTestee.testOpenSession();
+
+	ItemTablePtr actualTriggersTablePtr;
+	ItemTablePtr expectTriggersTablePtr;
+
+	zbxApiTestee.makeTriggersItemTable(expectTriggersTablePtr);
+	actualTriggersTablePtr = zbxApiTestee.callGetTrigger();
+
+	assertItemTable(expectTriggersTablePtr, actualTriggersTablePtr);
+}
+
+void test_verifyTriggerExpandedDescriptions(void)
+{
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+	zbxApiTestee.testOpenSession();
+
+	ItemTablePtr actualExpandedDescTablePtr;
+	ItemTablePtr expectedExpandedDescTablePtr;
+
+	zbxApiTestee.makeTriggerExpandedDescriptionItemTable(expectedExpandedDescTablePtr);
+	actualExpandedDescTablePtr = zbxApiTestee.callGetTriggerExpandedDescription();
+
+	assertItemTable(expectedExpandedDescTablePtr, actualExpandedDescTablePtr);
+}
+
+void test_verifyMergeTriggerExpandedDescriptions(void)
+{
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+	zbxApiTestee.testOpenSession();
+
+	ItemTablePtr plainTriggersTablePtr;
+	ItemTablePtr expandedDescriptionTablePtr;
+	ItemTablePtr mergedTablePtr;
+
+	plainTriggersTablePtr = zbxApiTestee.callGetTrigger();
+	expandedDescriptionTablePtr = zbxApiTestee.callGetTriggerExpandedDescription();
+	mergedTablePtr = zbxApiTestee.callMergePlainTriggersAndExpandedDescriptions(
+	  plainTriggersTablePtr, expandedDescriptionTablePtr);
+
+	// TODO: check the ItemTablePtr content
+}
+
 void test_verifyGroupsAndHostsGroups(void)
 {
 	MonitoringServerInfo serverInfo;
@@ -138,6 +190,97 @@ void test_getLastEventId(void)
 	ZabbixAPITestee zbxApiTestee(serverInfo);
 	zbxApiTestee.testOpenSession();
 	cppcut_assert_equal((uint64_t)8697, zbxApiTestee.callGetLastEventId());
+}
+
+void test_getHistory(void)
+{
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+	zbxApiTestee.testOpenSession();
+	ZabbixAPI::ValueType valueTypeFloat = ZabbixAPI::VALUE_TYPE_FLOAT;
+	ItemTablePtr history =
+	  zbxApiTestee.callGetHistory("25490", valueTypeFloat,
+				      1413265550, 1413268970);
+	const ItemGroupList &list = history->getItemGroupList();
+	ItemGroupListConstIterator it = list.begin();
+	string json;
+	for (; it != list.end(); ++it) {
+		ItemIdType itemid;
+		uint64_t clock, ns;
+		string value;
+		ItemGroupStream historyGroupStream(*it);
+		historyGroupStream.seek(ITEM_ID_ZBX_HISTORY_ITEMID);
+		historyGroupStream >> itemid;
+		historyGroupStream.seek(ITEM_ID_ZBX_HISTORY_CLOCK);
+		historyGroupStream >> clock;
+		historyGroupStream.seek(ITEM_ID_ZBX_HISTORY_NS);
+		historyGroupStream >> ns;
+		historyGroupStream.seek(ITEM_ID_ZBX_HISTORY_VALUE);
+		historyGroupStream >> value;
+		if (!json.empty())
+			json += ",";
+		json += mlpl::StringUtils::sprintf(
+			"{"
+			"\"itemid\":\"%" FMT_ITEM_ID "\","
+			"\"clock\":\"%" PRIu64 "\","
+			"\"value\":\"%s\","
+			"\"ns\":\"%" PRIu64 "\""
+			"}",
+			itemid.c_str(), clock, value.c_str(), ns);
+	}
+	string path = getFixturesDir() + "zabbix-api-res-history.json";
+	gchar *contents = NULL;
+	g_file_get_contents(path.c_str(), &contents, NULL, NULL);
+	string expected = contents ? contents : "";
+	json = string("{\"jsonrpc\":\"2.0\",\"result\":[")
+		+ json + string("],\"id\":1}");
+	cppcut_assert_equal(expected, json);
+}
+
+void data_pushStringWithPadding(void)
+{
+	gcut_add_datum("Fill",
+	               "digitNum", G_TYPE_INT,    8,
+	               "body",     G_TYPE_STRING, "ABC",
+	               "padChar",  G_TYPE_CHAR,   '#',
+	               "expect",   G_TYPE_STRING, "#####ABC", NULL);
+	gcut_add_datum("Same size",
+	               "digitNum", G_TYPE_INT,    3,
+	               "body",     G_TYPE_STRING, "ABC",
+	               "padChar",  G_TYPE_CHAR,   '#',
+	               "expect",   G_TYPE_STRING, "ABC", NULL);
+	gcut_add_datum("Long string",
+	               "digitNum", G_TYPE_INT,    3,
+	               "body",     G_TYPE_STRING, "ABCDEF",
+	               "padChar",  G_TYPE_CHAR,   '#',
+	               "expect",   G_TYPE_STRING, "ABCDEF", NULL);
+}
+
+void test_pushStringWithPadding(gconstpointer data)
+{
+	using StringUtils::sprintf;
+	MonitoringServerInfo serverInfo;
+	ZabbixAPITestee::initServerInfoWithDefaultParam(serverInfo);
+	ZabbixAPITestee zbxApiTestee(serverInfo);
+
+	const ItemId  itemId   = 100;
+	const char   *name     = "foo";
+	const size_t  digitNum = gcut_data_get_int(data, "digitNum");
+	const char   *body     = gcut_data_get_string(data, "body");
+	const char    padChar  = gcut_data_get_char(data, "padChar");
+	const string  expected = gcut_data_get_string(data, "expect");
+	JSONParser parser(sprintf("{\"%s\":\"%s\"}", name, body));
+	VariableItemGroupPtr itemGrpPtr;
+	
+	const string createdString =
+	  zbxApiTestee.callPushString(parser, itemGrpPtr, name, itemId,
+	                              digitNum, padChar);
+	cppcut_assert_equal(expected, createdString);
+	cppcut_assert_equal((size_t)1, itemGrpPtr->getNumberOfItems());
+	const ItemData *itemData = itemGrpPtr->getItem(itemId);
+	cppcut_assert_not_null(itemData);
+	cppcut_assert_equal(expected, itemData->getString());
 }
 
 } // namespace testZabbixAPI

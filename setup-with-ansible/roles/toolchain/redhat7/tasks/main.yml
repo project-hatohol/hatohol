@@ -1,0 +1,17 @@
+- name: install git
+  yum: name=git
+
+- name: install g++
+  yum: name=gcc-c++
+
+- name: install autoconf and automake
+  yum: name={{ item }}
+  with_items:
+    - autoconf
+    - automake
+
+- name: install libtool
+  yum: name=libtool
+
+- name: install rpm-build
+  yum: name=rpm-build

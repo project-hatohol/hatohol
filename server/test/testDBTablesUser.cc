@@ -1,25 +1,26 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <stdint.h>
 #include <cppcutter.h>
 #include <cutter.h>
+#include <gcutter.h>
 #include "Helpers.h"
 #include "DBTablesUser.h"
 #include "DBTablesTest.h"
@@ -77,7 +78,7 @@ static void _assertUserInfo(const UserInfo &expect, const UserInfo &actual)
 }
 #define assertUserInfo(E,A) cut_trace(_assertUserInfo(E,A))
 
-void _assertUserInfoInDB(UserInfo &userInfo) 
+void _assertUserInfoInDB(UserInfo &userInfo)
 {
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
@@ -138,7 +139,7 @@ static void _assertServerAccessInfoMap(
 	set<int>::const_iterator it = expectIdxSet.begin();
 	for (; it != expectIdxSet.end(); ++it) {
 		const AccessInfo &expectAccessInfo = testAccessInfo[*it];
-		ServerAccessInfoMapConstIterator jt = 
+		ServerAccessInfoMapConstIterator jt =
 		  srvAccessInfoMap.find(expectAccessInfo.serverId);
 		cppcut_assert_equal(true, jt != srvAccessInfoMap.end(),
 		                    cut_message("Failed to lookup: %" PRIu32,
@@ -146,9 +147,10 @@ static void _assertServerAccessInfoMap(
 		const HostGrpAccessInfoMap *hostGrpAccessInfoMap = jt->second;
 		HostGrpAccessInfoMapConstIterator kt =
 		   hostGrpAccessInfoMap->find(expectAccessInfo.hostgroupId);
-		cppcut_assert_equal(true, kt != hostGrpAccessInfoMap->end(),
-		                    cut_message("Failed to lookup: %" PRIu64,
-		                                expectAccessInfo.hostgroupId));
+		cppcut_assert_equal(
+		  true, kt != hostGrpAccessInfoMap->end(),
+		  cut_message("Failed to lookup: %" FMT_HOST_GROUP_ID,
+		              expectAccessInfo.hostgroupId.c_str()));
 		const AccessInfo *actualAccessInfo = kt->second;
 		assertAccessInfo(expectAccessInfo, *actualAccessInfo);
 	}
@@ -166,7 +168,7 @@ static void _assertServerHostGrpSetMap(
 	set<int>::const_iterator it = expectIdxSet.begin();
 	for (; it != expectIdxSet.end(); ++it) {
 		const AccessInfo &expectAccessInfo = testAccessInfo[*it];
-		ServerHostGrpSetMapConstIterator jt = 
+		ServerHostGrpSetMapConstIterator jt =
 		  srvHostGrpSetMap.find(expectAccessInfo.serverId);
 		cppcut_assert_equal(true, jt != srvHostGrpSetMap.end(),
 		                    cut_message("Failed to lookup: %" PRIu32,
@@ -174,9 +176,10 @@ static void _assertServerHostGrpSetMap(
 		const HostgroupIdSet &hostgroupIdSet = jt->second;
 		HostgroupIdSetConstIterator kt =
 		   hostgroupIdSet.find(expectAccessInfo.hostgroupId);
-		cppcut_assert_equal(true, kt != hostgroupIdSet.end(),
-		                    cut_message("Failed to lookup: %" PRIu64,
-		                                expectAccessInfo.hostgroupId));
+		cppcut_assert_equal(
+		  true, kt != hostgroupIdSet.end(),
+		  cut_message("Failed to lookup: %" FMT_HOST_GROUP_ID,
+		              expectAccessInfo.hostgroupId.c_str()));
 	}
 }
 #define assertServerHostGrpSetMap(E,A) \
@@ -247,7 +250,7 @@ void _assertIsAccessible(const bool useAllServers = false)
 	ServerIdType serverId = 0;
 	UserIdType userId = INVALID_USER_ID;
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		AccessInfo &accessInfo = testAccessInfo[i];
+		const AccessInfo &accessInfo = testAccessInfo[i];
 		if (accessInfo.hostgroupId != ALL_HOST_GROUPS)
 			continue;
 
@@ -326,7 +329,7 @@ void test_addUserDuplicate(void)
 {
 	OperationPrivilege privilege(ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
-	UserInfo &userInfo = testUserInfo[1];
+	UserInfo userInfo = testUserInfo[1];
 	assertHatoholError(HTERR_USER_NAME_EXIST,
 	                   dbUser.addUserInfo(userInfo, privilege));
 	assertUsersInDB();
@@ -483,6 +486,55 @@ void test_updateNonExistUser(void)
 	assertHatoholError(HTERR_NOT_FOUND_TARGET_RECORD, err);
 }
 
+void test_updateUserInfoFlags(void)
+{
+	DECLARE_DBTABLES_USER(dbUser);
+	const size_t targetIndex1 = 5;
+	const size_t targetUserId1 = targetIndex1 + 1;
+	UserInfo expectedUserInfo1 = testUserInfo[targetIndex1];
+	expectedUserInfo1.id = targetUserId1;
+	const size_t targetIndex2 = 9;
+	const size_t targetUserId2 = targetIndex2 + 1;
+	UserInfo expectedUserInfo2 = testUserInfo[targetIndex2];
+	expectedUserInfo2.id = targetUserId2;
+	OperationPrivilegeFlag oldUserInfoFlag =
+	  OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER);
+	OperationPrivilegeFlag updateUserInfoFlag =
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_SERVER);
+	expectedUserInfo1.flags = updateUserInfoFlag;
+	expectedUserInfo2.flags = updateUserInfoFlag;
+	OperationPrivilege privilege(
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE) |
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_USER));
+
+	HatoholError err =
+	  dbUser.updateUserInfoFlags(oldUserInfoFlag, updateUserInfoFlag, privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	// check the users info
+	assertUserInfoInDB(expectedUserInfo1);
+	assertUserInfoInDB(expectedUserInfo2);
+}
+
+void test_updateUserInfoFlagsWithInsufficientPrivileges(void)
+{
+	OperationPrivilegeFlag oldUserInfoFlag =
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_SERVER);
+	OperationPrivilegeFlag updateUserInfoFlag =
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_SERVER);
+	DECLARE_DBTABLES_USER(dbUser);
+	OperationPrivilege privilege(
+	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
+
+	// updateUserInfoFlags requests OPPRVLG_UPDATE_ALL_USER_ROLE and
+	// OPPRVLG_UPDATE_USER privileges.
+	// Users have only OPPRVLG_UPDATE_ALL_USER_ROLE privilege is
+	// insufficient to update UserInfoRole flag and UserInfo flag together!
+	HatoholError err =
+	  dbUser.updateUserInfoFlags(oldUserInfoFlag, updateUserInfoFlag, privilege);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
+}
+
 void test_deleteUser(void)
 {
 	DECLARE_DBTABLES_USER(dbUser);
@@ -495,6 +547,15 @@ void test_deleteUser(void)
 	UserIdSet userIdSet;
 	userIdSet.insert(targetId);
 	assertUsersInDB(userIdSet);
+}
+
+void test_deleteMyself(void)
+{
+	DECLARE_DBTABLES_USER(dbUser);
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	const UserIdType targetId = privilege.getUserId();
+	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
+	assertHatoholError(HTERR_DELETE_MYSELF, err);
 }
 
 void test_deleteUserWithoutPrivilege(void)
@@ -564,7 +625,8 @@ void test_addAccessListWithoutUpdateUserPrivilege(void)
 	DECLARE_DBTABLES_USER(dbUser);
 	HatoholError err;
 	OperationPrivilege privilege;
-	err = dbUser.addAccessInfo(testAccessInfo[0], privilege);
+	AccessInfo accessInfo = testAccessInfo[0];
+	err = dbUser.addAccessInfo(accessInfo, privilege);
 	assertHatoholError(HTERR_NO_PRIVILEGE, err);
 
 	AccessInfoIdSet accessInfoIdSet;
@@ -896,7 +958,7 @@ void test_isAccessibleFalse(void)
 	ServerIdType serverId = 0;
 	UserIdType userId = INVALID_USER_ID;
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		AccessInfo &accessInfo = testAccessInfo[i];
+		const AccessInfo &accessInfo = testAccessInfo[i];
 		userId = accessInfo.userId;
 		if ((ServerIdType)accessInfo.serverId >= serverId)
 			serverId = accessInfo.serverId + 1;
@@ -906,6 +968,110 @@ void test_isAccessibleFalse(void)
 	OperationPrivilege privilege;
 	privilege.setUserId(userId);
 	cppcut_assert_equal(false, dbUser.isAccessible(serverId, privilege));
+}
+
+void data_isAccessibleWithHostgroup(void)
+{
+	set<UserIdType> userIdSet;
+
+	struct {
+		static void add(const UserIdType &userId,
+		                const ServerIdType &serverId,
+		                const HostgroupIdType &hostgroupId,
+		                const bool &expect)
+		{
+			string serverIdStr =
+			  serverId == ALL_SERVERS ?  "ALL" :
+			    StringUtils::sprintf("%" FMT_SERVER_ID, serverId);
+
+			string testName = StringUtils::sprintf(
+			  "%s-U%" FMT_USER_ID "-S%s-H%s",
+			  expect ? "T" : "F", userId,
+			  serverIdStr.c_str(), hostgroupId.c_str());
+
+			gcut_add_datum(testName.c_str(),
+			  "userId",   G_TYPE_INT, userId,
+			  "serverId", G_TYPE_INT, serverId,
+			  "hostgroupId",   G_TYPE_STRING, hostgroupId.c_str(),
+			  "expect",   G_TYPE_BOOLEAN, expect,
+			  NULL);
+		}
+	} dataAdder;
+
+	// Tests with listed paramters
+	for (size_t i = 0; i < NumTestAccessInfo; ++i) {
+		const AccessInfo *accessInfo = &testAccessInfo[i];
+		dataAdder.add(accessInfo->userId, accessInfo->serverId,
+		              accessInfo->hostgroupId, true);
+		userIdSet.insert(accessInfo->userId);
+	}
+
+	// Tests with parameters that is not listed in the test data.
+	UserIdSetConstIterator it = userIdSet.begin();
+	for (; it != userIdSet.end(); ++it) {
+		const UserIdType &userId = *it;
+		ServerAccessInfoMap srvAccessInfoMap;
+		makeServerAccessInfoMap(srvAccessInfoMap, userId);
+		ServerAccessInfoMapConstIterator svaccIt =
+		  srvAccessInfoMap.begin();
+
+		bool hasAllServers = false;
+		ServerIdType maxServerId = 0;
+		for (; svaccIt != srvAccessInfoMap.end(); ++svaccIt) {
+			const ServerIdType &serverId = svaccIt->first;
+			if (serverId == ALL_SERVERS)
+				hasAllServers = true;
+			else if (serverId > maxServerId)
+				maxServerId = serverId;
+		}
+		if (hasAllServers) {
+			// We pass bogus non-existent server and hostgroup ID.
+			dataAdder.add(userId, 12345, "67890", true);
+			continue;
+		}
+
+		svaccIt = srvAccessInfoMap.begin();
+		for (; svaccIt != srvAccessInfoMap.end(); ++svaccIt) {
+			const ServerIdType &serverId = svaccIt->first;
+			const HostGrpAccessInfoMap *grpMap = svaccIt->second;
+			HostGrpAccessInfoMapConstIterator hgrpIt =
+			  grpMap->begin();
+			bool hasAllHostgroups = false;
+			HostgroupIdType maxHostgroupId;
+			for (; hgrpIt != grpMap->end(); ++hgrpIt) {
+				const HostgroupIdType &hostgroupId = hgrpIt->first;
+				if (hostgroupId == ALL_HOST_GROUPS)
+					hasAllHostgroups = true;
+				else if (hostgroupId > maxHostgroupId)
+					maxHostgroupId = hostgroupId;
+			}
+			// We pass bogus non-existent hostgroup ID.
+			if (hasAllHostgroups) {
+				dataAdder.add(userId, serverId, "67890", true);
+			} else {
+				dataAdder.add(userId, serverId,
+				              maxHostgroupId + "1", false);
+			}
+		}
+	}
+}
+
+void test_isAccessibleWithHostgroup(gconstpointer data)
+{
+	loadTestDBAccessList();
+
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+
+	const ServerIdType serverId = gcut_data_get_int(data, "serverId");
+	const HostgroupIdType hostgroupId =
+	  gcut_data_get_string(data, "hostgroupId");
+	const UserIdType userId = gcut_data_get_int(data, "userId");
+	const bool expect       = gcut_data_get_boolean(data, "expect");
+	OperationPrivilege privilege;
+	privilege.setUserId(userId);
+	cppcut_assert_equal(
+	  expect, dbUser.isAccessible(serverId, hostgroupId, privilege));
 }
 
 void test_constructorOfUserQueryOptionFromDataQueryContext(void)
@@ -965,7 +1131,7 @@ static void _assertGetUserRoleInfo(
 	dbUser.getUserRoleInfoList(userRoleInfoList, option);
 	string expected, actual;
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
-		UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
+		UserRoleInfo userRoleInfo = testUserRoleInfo[i];
 		userRoleInfo.id = i + 1;
 		if (targetUserRoleId == INVALID_USER_ROLE_ID ||
 		    userRoleInfo.id == targetUserRoleId)
@@ -1095,7 +1261,7 @@ void test_addUserRoleWithoutPrivilege(void)
 	flags &= ~(1 << OPPRVLG_CREATE_USER_ROLE);
 	OperationPrivilege privilege(flags);
 	DECLARE_DBTABLES_USER(dbUser);
-	UserRoleInfo &userRoleInfo = testUserRoleInfo[1];
+	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
 	assertHatoholError(HTERR_NO_PRIVILEGE,
 	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
 	assertUserRolesInDB();

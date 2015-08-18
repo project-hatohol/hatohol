@@ -13,8 +13,37 @@ describe('ServerView', function() {
       "retryInterval": 10,
       "userName": "TestZabbixUser",
       "passowrd": "zabbix",
-      "dbName": ""
-    }
+      "dbName": "",
+      "baseURL": ""
+    },
+    {
+      "id": 2,
+      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
+      "hostName": "Test Nagios",
+      "ipAddress": "127.0.1.1",
+      "nickname": "Test Nagios",
+      "port": 3306,
+      "pollinInterval": 60,
+      "retryInterval": 10,
+      "userName": "TestNagiosUser",
+      "passowrd": "nagiosadministrator",
+      "dbName": "nagiosndoutils",
+      "baseURL": "http://127.0.1.1/nagios3"
+    },
+    {
+      "id": 3,
+      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
+      "hostName": "Test Nagios2",
+      "ipAddress": "10.0.0.10",
+      "nickname": "Test Nagios2",
+      "port": 3306,
+      "pollinInterval": 60,
+      "retryInterval": 10,
+      "userName": "TestNagiosUser2",
+      "passowrd": "nagiosadministrator",
+      "dbName": "nagios-ndoutils",
+      "baseURL": ""
+    },
   ];
 
   function getServersJson(servers) {
@@ -50,9 +79,9 @@ describe('ServerView', function() {
       load: function() {
         var html = $("#main", this.contentDocument).html();
         onLoad(html);
-        $('#loaderFrame').remove()
+        $('#loaderFrame').remove();
       }
-    })
+    });
     $('body').append(iframe);
   }
 
@@ -85,15 +114,39 @@ describe('ServerView', function() {
     var deleteButton = $('#delete-server-button');
     var checkboxes = $('.delete-selector .selectcheckbox');
     expect(deleteButton).to.have.length(1);
-    expect(checkboxes).to.have.length(1);
+    expect(checkboxes).to.have.length(3);
     expect(deleteButton.is(":visible")).to.be(expectedVisibility);
     expect(checkboxes.is(":visible")).to.be(expectedVisibility);
+  }
+
+  function expectEditButtonVisibility(operator, expectedVisibility) {
+    var userProfile = new HatoholUserProfile(operator);
+    var view = new ServersView(userProfile);
+    respond();
+
+    var editButton = $('#edit-server1');
+    var editColumn = $('td.edit-server-column');
+    expect(editButton).to.have.length(1);
+    expect(editColumn).to.have.length(3);
+    expect(editButton.is(":visible")).to.be(expectedVisibility);
+    expect(editColumn.is(":visible")).to.be(expectedVisibility);
+  }
+
+  function expectLinkVisibility(operator, expectedVisibleLinkNums) {
+    var userProfile = new HatoholUserProfile(operator);
+    var view = new ServersView(userProfile);
+    respond();
+
+    var hostnameColumn = $('td.server-url-link');
+    var ipAddressColumn = $('td.server-ip-link');
+    expect(hostnameColumn).to.have.length(expectedVisibleLinkNums);
+    expect(ipAddressColumn).to.have.length(expectedVisibleLinkNums);
   }
 
   function checkGetStatusLabel(stat, expectMsg, expectMsgClass) {
     var pkt = {serverConnStat:{'5':{status:stat}}};
     var parser = new ServerConnStatParser(pkt);
-    expect(parser.setServerId(5)).to.be(true); 
+    expect(parser.setServerId(5)).to.be(true);
     var label = parser.getStatusLabel();
     expect(label.msg).to.be(expectMsg);
     expect(label.msgClass).to.be(expectMsgClass);
@@ -104,25 +157,25 @@ describe('ServerView', function() {
   // -------------------------------------------------------------------------
   it('pass an undefined packet', function() {
     var parser = new ServerConnStatParser();
-    expect(parser.isBadPacket()).to.be(true); 
+    expect(parser.isBadPacket()).to.be(true);
   });
 
   it('pass an undefined serverConnStat', function() {
     var pkt = {};
     var parser = new ServerConnStatParser(pkt);
-    expect(parser.isBadPacket()).to.be(true); 
+    expect(parser.isBadPacket()).to.be(true);
   });
 
   it('set nonexisting server id', function() {
     var pkt = {serverConnStat:{}};
     var parser = new ServerConnStatParser(pkt);
-    expect(parser.setServerId(5)).to.be(false); 
+    expect(parser.setServerId(5)).to.be(false);
   });
 
   it('set existing server id', function() {
     var pkt = {serverConnStat:{'5':{}}};
     var parser = new ServerConnStatParser(pkt);
-    expect(parser.setServerId(5)).to.be(true); 
+    expect(parser.setServerId(5)).to.be(true);
   });
 
   it('get status label before calling setServerId()', function() {
@@ -142,7 +195,7 @@ describe('ServerView', function() {
   it('get status label with no status member', function() {
     var pkt = {serverConnStat:{'5':{}}};
     var parser = new ServerConnStatParser(pkt);
-    expect(parser.setServerId(5)).to.be(true); 
+    expect(parser.setServerId(5)).to.be(true);
     expect(parser.getStatusLabel()).to.be("N/A");
   });
 
@@ -193,13 +246,13 @@ describe('ServerView', function() {
       }
     };
     var parser = new ServerConnStatParser(pkt);
-    expect(parser.setServerId(5)).to.be(true); 
+    expect(parser.setServerId(5)).to.be(true);
     var html = parser.getInfoHTML();
     var expectDate = parser.unixTimeToVisible("1394444393.469501123");
     var expectStr =
       gettext("Running") + ": " + gettext("Yes") + "<br>" +
       gettext("Status update time") + ": " + expectDate + "<br>" +
-      gettext("Last success time") + ": " + expectDate + "<br>" + 
+      gettext("Last success time") + ": " + expectDate + "<br>" +
       gettext("Last failure time") + ": " + gettext("-") + "<br>" +
       gettext("Number of communication") + ": 100" + "<br>" +
       gettext("Number of failure") + ": 5" + "<br>" +
@@ -235,8 +288,62 @@ describe('ServerView', function() {
       "name": "guest",
       "flags": 0
     };
-    var expected = false;
-    expectDeleteButtonVisibility(operator, expected);
+
+    // issue #1108 & #1122
+    // Always show them for "RELOAD ALL TRIGGERS FROM SERVER" button
+    //var expected = false;
+    //expectDeleteButtonVisibility(operator, expected);
+
+    var userProfile = new HatoholUserProfile(operator);
+    var view = new ServersView(userProfile);
+    respond();
+
+    var deleteButton = $('#delete-server-button');
+    var checkboxes = $('.delete-selector .selectcheckbox');
+    expect(deleteButton).to.have.length(1);
+    expect(checkboxes).to.have.length(3);
+    expect(deleteButton.is(":visible")).to.be(false);
+    expect(checkboxes.is(":visible")).to.be(true);
   });
 
+  it('with update privilege', function() {
+    var operator = {
+      "userId": 1,
+      "name": "admin",
+      "flags": (1 << hatohol.OPPRVLG_UPDATE_ALL_SERVER |
+                1 << hatohol.OPPRVLG_UPDATE_SERVER)
+    };
+    var expected = true;
+    expectEditButtonVisibility(operator, expected);
+  });
+
+  it('with all update privilege', function() {
+    var operator = {
+      "userId": 2,
+      "name": "guest",
+      "flags": (1 << hatohol.OPPRVLG_UPDATE_ALL_SERVER)
+    };
+    var expected = true;
+    expectEditButtonVisibility(operator, expected);
+  });
+
+  it('without update privilege', function() {
+    var operator = {
+      "userId": 2,
+      "name": "guest",
+      "flags": 0
+    };
+    var expected = false;
+    expectEditButtonVisibility(operator, expected);
+  });
+
+  it('without update privilege', function() {
+    var operator = {
+      "userId": 2,
+      "name": "guest",
+      "flags": 0
+    };
+    var expectedVisibleLinkNums = 2;
+    expectLinkVisibility(operator, expectedVisibleLinkNums);
+  });
 });

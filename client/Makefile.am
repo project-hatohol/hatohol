@@ -8,7 +8,8 @@ nobase_dist_hatohol_client_DATA = \
 	conf/locale/ja/LC_MESSAGES/djangojs.po \
 	conf/apache/django.wsgi \
 	conf/apache/hatohol.site \
-	conf/apache/hatohol.conf.package \
+	conf/apache/hatohol.conf.package6 \
+	conf/apache/hatohol.conf.package7 \
 	hatohol/forwardview.py \
 	hatohol/wsgi.py \
 	hatohol/urls.py \
@@ -18,6 +19,7 @@ nobase_dist_hatohol_client_DATA = \
 	hatohol/hatohol_def.py \
 	hatohol/hatoholserver.py \
 	hatohol/models.py \
+	hatohol/views.py \
 	hatohol/smartfield.py \
 	static/css/hatohol.css \
 	static/css/zabbix.css \
@@ -36,6 +38,8 @@ nobase_dist_hatohol_client_DATA = \
 	static/css.external/bootstrap-theme.css \
 	static/css.external/bootstrap-theme.css.map \
 	static/css.external/bootstrap-theme.min.css \
+	static/css.external/jquery-ui-slider-pips.css \
+	static/css.external/jquery.datetimepicker.css \
 	static/fonts/glyphicons-halflings-regular.eot \
 	static/fonts/glyphicons-halflings-regular.svg \
 	static/fonts/glyphicons-halflings-regular.ttf \
@@ -46,8 +50,25 @@ nobase_dist_hatohol_client_DATA = \
 	static/js.external/stupidtable.min.js \
 	static/js.external/stupidtable.js \
 	static/js.external/jquery-ui.min.js \
+	static/js.external/jquery-ui-slider-pips.js \
+	static/js.external/jquery-ui-slider-pips.min.js \
+	static/js.external/jquery.datetimepicker.js \
+	static/js.external/jquery.flot.js \
+	static/js.external/jquery.flot.time.js \
+	static/js.external/jquery.flot.selection.js \
+	static/js.external/jquery-deparam.js \
+	static/js.external/jquery-deparam.min.js \
 	static/js.external/bootstrap.js \
 	static/js.external/bootstrap.min.js \
+	static/js.plugins/hap1-ceilometer.js \
+	static/js.plugins/hap1-zabbix.js \
+	static/js.plugins/hapi-json.js \
+	static/js.plugins/nagios.js \
+	static/js.plugins/zabbix.js \
+	static/js.plugins/hap2-ceilometer.js \
+	static/js.plugins/hap2-fluentd.js \
+	static/js.plugins/hap2-nagios.js \
+	static/js.plugins/hap2-zabbix.js \
 	static/js/utils.js \
 	static/js/hatohol_monitoring_view.js \
 	static/js/dashboard_view.js \
@@ -56,13 +77,18 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/latest_view.js \
 	static/js/triggers_view.js \
 	static/js/events_view.js \
+	static/js/history_view.js \
 	static/js/servers_view.js \
 	static/js/actions_view.js \
 	static/js/incident_settings_view.js \
+	static/js/log_search_systems_view.js \
+	static/js/graphs_view.js \
 	static/js/users_view.js \
 	static/js/hatohol_def.js \
 	static/js/hatohol_connector.js \
+	static/js/hatohol_graph.js \
 	static/js/hatohol_session_manager.js \
+	static/js/hatohol_item_selector.js \
 	static/js/hatohol_login_dialog.js \
 	static/js/hatohol_message_box.js \
 	static/js/hatohol_navi.js \
@@ -73,19 +99,25 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/hatohol_add_action_dialog.js \
 	static/js/hatohol_user_edit_dialog.js \
 	static/js/hatohol_user_roles_editor.js \
+	static/js/hatohol_server_bulkupload_dialog.js \
 	static/js/hatohol_server_edit_dialog_parameterized.js \
 	static/js/hatohol_dialog.js \
 	static/js/hatohol_item_remover.js \
 	static/js/hatohol_reply_parser.js \
 	static/js/hatohol_server_selector.js \
+	static/js/hatohol_time_range_selector.js \
 	static/js/hatohol_hostgroup_privilege_edit_dialog.js \
 	static/js/hatohol_privilege_edit_dialog.js \
+	static/js/hatohol_history_loader.js \
 	static/js/hatohol_host_selector.js \
 	static/js/hatohol_selector_dialog.js \
 	static/js/hatohol_trigger_selector.js \
 	static/js/hatohol_actor_mail_dialog.js \
 	static/js/hatohol_hostgroup_selector.js \
 	static/js/hatohol_incident_trackers_editor.js \
+	static/js/hatohol_log_search_system_editor.js \
+	static/js/hatohol_version.js \
+	static/js/hatohol_item_update.js \
 	viewer/urls.py \
 	viewer/__init__.py \
 	viewer/models.py \
@@ -103,6 +135,9 @@ nobase_dist_hatohol_client_DATA = \
 	viewer/users_ajax.html \
 	viewer/userconfig.py \
 	viewer/hosts_ajax.html \
+	viewer/history_ajax.html \
+	viewer/log_search_systems_ajax.html \
+	viewer/graphs_ajax.html \
 	viewer/tests.py
 
 MO_FILES = \
@@ -122,6 +157,9 @@ HATOHOL_SERVER_TYPE_UTIL = \
 
 static/js/hatohol_def.js: $(HATOHOL_DEF_GENERATOR)
 	$(HATOHOL_DEF_GENERATOR) js > $@
+
+$(HATOHOL_DEF_GENERATOR):
+	$(MAKE) -C $(top_builddir)/server/tools/ hatohol-def-src-file-generator
 
 hatohol/hatohol_def.py: $(HATOHOL_DEF_GENERATOR)
 	$(HATOHOL_DEF_GENERATOR) py > $@

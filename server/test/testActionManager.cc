@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -131,6 +131,7 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 	{
 		initActionDef(actDef);
 		initEventInfo(eventInfo);
+		eventInfo.hostIdInServer = TEST_HOST_ID_STRING;
 		timerTag = g_timeout_add(timeout, timeoutHandler, this);
 	}
 
@@ -144,7 +145,7 @@ struct ExecCommandContext : public ResidentPullHelper<ExecCommandContext> {
 				cut_notify(
 				  "Failed to call kill: "
 				  "pid: %d, signo: %d, %s\n",
-				  actionTpPid, signo, strerror(errno));
+				  actionTpPid, signo, g_strerror(errno));
 			}
 		}
 
@@ -414,9 +415,10 @@ static void _assertExecAction(ExecCommandContext *ctx, ExecActionArg &arg)
 	if (!arg.command.empty())
 		ctx->actDef.command = arg.command;
 	else if (arg.type == ACTION_COMMAND) {
+		const char *path =
+		  cut_build_path(".libs", "ActionTp", NULL);
 		ctx->actDef.command = StringUtils::sprintf(
-		  "%s %s", cut_build_path(".libs", "ActionTp", NULL),
-		  ctx->pipeName.c_str());
+		  "%s %s", path, ctx->pipeName.c_str());
 	} else if (arg.type == ACTION_RESIDENT) {
 		ctx->actDef.command =
 		  cut_build_path(".libs", "residentTest.so", NULL);
@@ -488,13 +490,13 @@ void _assertActionLogJustAfterExec(
 	expectedArgs.push_back(StringUtils::sprintf("%d", ctx->actDef.id));
 	expectedArgs.push_back(StringUtils::sprintf("%" PRIu32,
 	                                            evInf.serverId));
-	expectedArgs.push_back(StringUtils::sprintf("%" PRIu64, evInf.hostId));
+	expectedArgs.push_back(StringUtils::sprintf(
+	  "%" FMT_LOCAL_HOST_ID, evInf.hostIdInServer.c_str()));
 	expectedArgs.push_back(StringUtils::sprintf("%ld.%ld",
 	  evInf.time.tv_sec, evInf.time.tv_nsec));
-	expectedArgs.push_back(StringUtils::sprintf("%" PRIu64, evInf.id));
+	expectedArgs.push_back(evInf.id);
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.type));
-	expectedArgs.push_back(
-	  StringUtils::sprintf("%" PRIu64, evInf.triggerId));
+	expectedArgs.push_back(evInf.triggerId);
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.status));
 	expectedArgs.push_back(StringUtils::sprintf("%d", evInf.severity));
 	getArguments(ctx, expectedArgs);
@@ -727,12 +729,15 @@ static void replyEventInfoCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	const EventInfo &expected = ctx->eventInfo;
 	cppcut_assert_equal(static_cast<uint32_t>(expected.serverId),
 	                    eventArg->serverId);
-	cppcut_assert_equal(expected.hostId, eventArg->hostId);
+	cppcut_assert_equal(TEST_HOST_ID_REPLY_MAGIC_CODE,
+	                    eventArg->hostIdInServer);
 	cppcut_assert_equal(expected.time.tv_sec, eventArg->time.tv_sec);
 	cppcut_assert_equal(expected.time.tv_nsec, eventArg->time.tv_nsec);
-	cppcut_assert_equal(expected.id, eventArg->eventId);
+	cppcut_assert_equal(TEST_EVENT_ID_REPLY_MAGIC_CODE,
+	                    eventArg->eventId);
 	cppcut_assert_equal(expected.type, (EventType)eventArg->eventType);
-	cppcut_assert_equal(expected.triggerId, eventArg->triggerId);
+	cppcut_assert_equal(TEST_TRIGGER_ID_REPLY_MAGIC_CODE,
+	                    eventArg->triggerId);
 	cppcut_assert_equal(expected.status,
 	                    (TriggerStatusType)eventArg->triggerStatus);
 	cppcut_assert_equal(expected.severity,
@@ -853,10 +858,10 @@ void cut_setup(void)
 	hatoholInit();
 	setupTestDB();
 	acquireDefaultContext();
-	ConfigManager::getInstance()->setActionCommandDirectory(get_current_dir_name());
+	ConfigManager::getInstance()->setActionCommandDirectory(getBaseDir());
 
-	string residentYardDir = get_current_dir_name();
-	residentYardDir += "/../src/.libs";
+	const char *residentYardDir =
+	  cut_build_path(getBaseDir().c_str(), "..", "src", ".libs", NULL);
 	ConfigManager::getInstance()->setResidentYardDirectory(residentYardDir);
 }
 
@@ -1381,9 +1386,9 @@ void test_checkEventsWithMultipleIncidentSender(void)
 	  ActionCondition(
 	    ACTCOND_TRIGGER_STATUS | ACTCOND_TRIGGER_SEVERITY, // enableBits
 	    0,                        // serverId
-	    0,                        // hostId
-	    0,                        // hostgroupId
-	    0,                        // triggerId
+	    "",                       // hostId
+	    "",                       // hostgroupId
+	    "",                       // triggerId
 	    TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	    TRIGGER_SEVERITY_INFO,    // triggerSeverity
 	    CMP_EQ_GT                 // triggerSeverityCompType;
@@ -1426,7 +1431,7 @@ void test_checkEventsWithMultipleIncidentSender(void)
 	// TODO: we shoud prepare stub of IncidentSenderManager
 	if (!g_redmineEmulator.isRunning())
 		g_redmineEmulator.start(EMULATOR_PORT);
-	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[2];
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[2];
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 
 	TestActionManager actionManager;

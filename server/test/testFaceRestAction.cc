@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -127,13 +127,13 @@ static void _assertActions(const string &path, const string &callbackName = "",
 		  ServerIdType, cond.serverId);
 		asssertActionCondition(
 		  g_parser, cond, "hostId", ACTCOND_HOST_ID,
-		  string, StringUtils::toString(cond.hostId));
+		  string, cond.hostIdInServer);
 		asssertActionCondition(
 		  g_parser, cond, "hostgroupId", ACTCOND_HOST_GROUP_ID,
-		  uint64_t, cond.hostgroupId);
+		  HostgroupIdType, cond.hostgroupId);
 		asssertActionCondition(
 		  g_parser, cond, "triggerId", ACTCOND_TRIGGER_ID,
-		  string, StringUtils::toString(cond.triggerId));
+		  string, cond.triggerId);
 		asssertActionCondition(
 		  g_parser, cond, "triggerStatus", ACTCOND_TRIGGER_STATUS,
 		  uint32_t, cond.triggerStatus);
@@ -163,6 +163,9 @@ static void _assertActions(const string &path, const string &callbackName = "",
 #define assertAddAction(P, ...) \
 cut_trace(_assertAddRecord(P, "/action", ##__VA_ARGS__))
 
+#define assertUpdateAction(P, ...) \
+cut_trace(_assertUpdateRecord(P, "/action", ##__VA_ARGS__))
+
 void data_actionsJSONP(void)
 {
 	gcut_add_datum("Normal actions",
@@ -178,6 +181,8 @@ void data_actionsJSONP(void)
 
 void test_actionsJSONP(gconstpointer data)
 {
+	loadTestDBArmPlugin();
+	loadTestDBTriggers();
 	loadTestDBAction();
 
 	const ActionType actionType
@@ -277,7 +282,8 @@ void test_addActionParameterOver32bit(void)
 	assertAddAction(params, userId);
 
 	// check the content in the DB
-	string statement = "select host_id, host_group_id, trigger_id from ";
+	string statement =
+	  "select host_id_in_server, host_group_id, trigger_id from ";
 	statement += DBTablesAction::getTableNameActions();
 	string expect;
 	expect += StringUtils::sprintf("%" PRIu64 "|%" PRIu64 "|%" PRIu64,
@@ -369,6 +375,37 @@ void test_deleteAction(void)
 	string statement = "select action_id from ";
 	statement += DBTablesAction::getTableNameActions();
 	statement += " order by action_id asc";
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getAction().getDBAgent(), statement, expect);
+}
+
+void test_updateAction(void)
+{
+	loadTestDBAction();
+
+	int targetId = 1;
+	int type = ACTION_COMMAND;
+	StringMap params;
+	string url = StringUtils::sprintf("/action/%d", targetId);
+	const string command = "mogmog-mikan";
+	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_ACTION);
+
+	params["type"] = StringUtils::sprintf("%d", type);
+	params["command"] = command;
+	assertUpdateAction(params, targetId, userId, HTERR_OK);
+
+	// check the content in the DB
+	string statement = "select * from ";
+	statement += DBTablesAction::getTableNameActions();
+	statement += StringUtils::sprintf(" where action_id=%d", targetId);
+	string expect;
+	int expectedId = 1;
+	expect += StringUtils::sprintf("%d|", expectedId);
+	expect += "NULL|NULL|NULL|NULL|NULL|NULL|NULL|";
+	expect += StringUtils::sprintf("%d|", type);
+	expect += command;
+	expect += "||0"; /* workingDirectory and timeout */
+	expect += StringUtils::sprintf("|%" FMT_USER_ID, userId);
 	ThreadLocalDBCache cache;
 	assertDBContent(&cache.getAction().getDBAgent(), statement, expect);
 }

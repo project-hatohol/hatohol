@@ -8,6 +8,7 @@ the specific monitoring software in various way.
 ## Table of Contents
 
 - [Supported monitoring software](#user-content-supported-monitoring-software)
+- [Supported incident tracking software](#user-content-supported-incident-tracking-software)
 - [Supported output method](#user-content-supported-output-method)
 - [Supported platforms](#user-content-supported-platforms)
 - [Required libraries](#user-content-required-libraries)
@@ -26,8 +27,16 @@ the specific monitoring software in various way.
 - [API Reference Manual for REST service](#user-content-api-reference-manual-for-rest-service)
 
 ## Supported monitoring software
-- ZABBIX 2.0
+- Zabbix 2.0
+- Zabbix 2.2
+- Zabbix 2.4
 - Nagios3 (with NDOUtils)
+- Nagios4 (with NDOUtils)
+- Ceilometer (OpenStack)
+- Fluentd
+
+## Supported incident tracking software
+- Redmine
 
 ## Supported output method
 - REST
@@ -61,14 +70,18 @@ packages
 
     # yum groupinstall "Development Tools"
 
-You need to register a yum repository for installing qpid-cpp-client-devel packages 
+You need to register a yum repository for installing qpid-cpp-client-devel packages
 by the following command
 
-    # wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol.repo
+    # wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol-el6.repo
+
+You can add a new repository the following command.
+
+    # yum install epel-release
 
 You can install sqlite3, MySQL and libsoup and others by the following command:
 
-    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel qpid-cpp-client-devel
+    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel qpid-cpp-client-devel librabbitmq-devel
 
 #### For json-glib, there are two ways to install.
 
@@ -91,7 +104,7 @@ Building & installing by following commands:
     $ su
     # make install
 
-### Example to install required libraries on ubuntu 14.04 
+### Example to install required libraries on ubuntu 14.04
 
 You should install these package to build Hatohol and required libraries.
 
@@ -113,8 +126,18 @@ installing by following commands:
 
     $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev qpidd libqpidmessaging2-dev libqpidtypes1-dev libqpidcommon2-dev
 
+In addition, you need to install following libraries if you want to enable HAPI
+(Hatohol Arm Plugin Interface) 2.0.
+
+- librabbitmq-dev
+- rabbitmq-server
+
+You can install them by the following command:
+
+    $ sudo apt-get install librabbitmq-dev rabbitmq-server
+
 ## How to build Hatohol
-First, you need to install required libraries.  
+First, you need to install required libraries.
 Then run the following commands to install Hatohol:
 
     $ ./autogen.sh
@@ -140,21 +163,37 @@ Example of /etc/qpid/qpidd.acl
 
 NOTE: You have to restart qpidd after you edit /etc/qpid/qpiid.acl.
 
-(0.3) Create a directory to save a PID file.
+(0.3) Set RabbitMQ's setting
+
+TBD
+
+(0.4) Create a directory to save a PID file.
 
     # mkdir -p /usr/local/var/run
 
 (1) Setup database of MySQL
 
-    $ hatohol-db-initiator database_name mysql_user mysql_password
+To setup database used by hatohol server, you need to execute helper command `hatohol-db-initiator`.
+
+Before you execute this helper command, you can edit mysql section in `${prefix}/etc/hatohol/hatohol.conf` which is used for database settings (username, database name and password).
+Then, run this helper command as follows:
+
+    $ hatohol-db-initiator --db_user DBUSER --db_password DBPASSWORD
+
+You must specify DBUSER and PASSWORD whose MySQL administrator user, respectively.
 
 Example:
 
-    $ hatohol-db-initiator hatohol root rootpass
+    $ hatohol-db-initiator --db_user root --db_password rootpass
+
+Note: Since 15.03, hatohol-db-initiator doesn't require command line argument after hatohol database is created.
+`db_name`, `db_user` and `db_password` are read from `hatohol.conf` by default.
+For example, `hatohol.conf` is placed at `/etc/hatohol/hatohol.conf`.
 
 Tips:
-- If the root password of the MySQL server is not set, just pass ''.
+- If the root password of the MySQL server is not set, just pass '' for `--db_password`.
 - You can change password of the created DB by --hatohol-db-user and --hatohol-db-password options.
+- You can change database, username and password by editing mysql section in `hatohol.conf`.
 - If Hatohol server and MySQL server are executed on different machines, you have to input GRANT statement manually with the mysql command line tool.
 
 For example, user/password are 'myuser'/'mypasswd' and the IP address of
@@ -285,4 +324,3 @@ Tips:
 
 * You have to install SPHINX package for making the html files.
 When you use Ubuntu 13.04, 'python3-sphinx' package is available.
-

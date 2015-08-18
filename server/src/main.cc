@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -27,6 +27,7 @@
 #include <glib.h>
 #include <errno.h>
 #include <unistd.h>
+#include <pwd.h>
 
 #include <string>
 #include <vector>
@@ -115,6 +116,7 @@ static void setupGizmoForExit(gpointer data)
 
 	GIOChannel *ioch = g_io_channel_unix_new(pipefd[0]);
 	g_io_add_watch(ioch, G_IO_HUP, exitFunc, data);
+	g_io_channel_unref(ioch);
 }
 
 static void removePidFile(void)
@@ -176,6 +178,26 @@ static bool checkDBConnection(void)
 	return true;
 }
 
+static bool changeUser(const string &user)
+{
+	if (!user.length())
+		return true;
+
+	struct passwd *pwd = getpwnam(user.c_str());
+	if (!pwd) {
+		MLPL_ERR("Failed to get user %s: %s\n",
+			 user.c_str(), g_strerror(errno));
+		return false;
+	}
+	if (setuid(pwd->pw_uid)) {
+		MLPL_ERR("Failed to switch user to %s (uid=%" PRIuMAX "); %s\n",
+			 user.c_str(), (uintmax_t)pwd->pw_uid,
+			 g_strerror(errno));
+		return false;
+	}
+	return true;
+}
+
 int mainRoutine(int argc, char *argv[])
 {
 #ifndef GLIB_VERSION_2_36
@@ -198,6 +220,10 @@ int mainRoutine(int argc, char *argv[])
 		return EXIT_FAILURE;
 
 	ConfigManager *confMgr = ConfigManager::getInstance();
+
+	if (!changeUser(confMgr->getUser()))
+		return EXIT_FAILURE;
+
 	if (!confMgr->isForegroundProcess()) {
 		if (!daemonize()) {
 			MLPL_ERR("Can't start daemon process\n");
@@ -207,6 +233,7 @@ int mainRoutine(int argc, char *argv[])
 	} else {
 		pidFilePath.clear();
 	}
+	hatoholInitChildProcessManager();
 
 	// setup signal handlers for exit
 	setupGizmoForExit(&ctx);
@@ -239,6 +266,8 @@ int mainRoutine(int argc, char *argv[])
 	ctx.loop = g_main_loop_new(NULL, FALSE);
 	g_main_loop_run(ctx.loop);
 
+	g_main_loop_unref(ctx.loop);
+	ctx.loop = NULL;
 	return EXIT_SUCCESS;
 }
 

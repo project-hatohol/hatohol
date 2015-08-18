@@ -32,11 +32,14 @@ Makefile.in
 /client/test/node_modules
 /data/init.d/centos/hatohol.centos
 /data/init.d/debian/hatohol.debian
+/data/systemd/generate_service_file.sh
+/data/systemd/hatohol.service
 /depcomp
 /hatohol.spec
 /install-sh
 /libtool
 /ltmain.sh
+/node_modules
 /m4/
 /missing
 /client/static/js/hatohol_version.js
@@ -51,6 +54,7 @@ Makefile.in
 /server/test/zabbix-api-response-collector
 /server/tools/build/
 /server/tools/hatohol-config-db-creator
+/server/tools/hatohol-db-initiator
 /server/tools/hatohol-def-src-file-generator
 /server/tools/hatohol/hatohol_def.py
 /server/tools/usr/

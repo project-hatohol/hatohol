@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -508,6 +508,12 @@ void test_fixupIndexes(void)
 	dbAgentTestFixupIndexes(dbAgent, dbAgentChecker);
 }
 
+void test_fixupSameNameIndexes(void)
+{
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestFixupSameNameIndexes(dbAgent, dbAgentChecker);
+}
+
 void test_insert(void)
 {
 	DBAgentMySQL dbAgent(TEST_DB_NAME);
@@ -554,6 +560,12 @@ void test_update(void)
 {
 	DBAgentMySQL dbAgent(TEST_DB_NAME);
 	dbAgentTestUpdate(dbAgent, dbAgentChecker);
+}
+
+void test_updateBigUint(void)
+{
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestUpdateBigUint(dbAgent, dbAgentChecker);
 }
 
 void test_updateCondition(void)
@@ -634,6 +646,12 @@ void test_renameTable(void)
 	dbAgentTestRenameTable(dbAgent, dbAgentChecker);
 }
 
+void test_dropTable(void)
+{
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentTestDropTable(dbAgent, dbAgentChecker);
+}
+
 void test_isTableExisting(void)
 {
 	DBAgentMySQL dbAgent(TEST_DB_NAME);
@@ -668,6 +686,12 @@ void test_getNumberOfAffectedRows(void)
 {
 	DBAgentMySQL dbAgent(TEST_DB_NAME);
 	dbAgentGetNumberOfAffectedRows(dbAgent, dbAgentChecker);
+}
+
+void test_upsertBySameData(void)
+{
+	DBAgentMySQL dbAgent(TEST_DB_NAME);
+	dbAgentUpsertBySameData(dbAgent, dbAgentChecker);
 }
 
 } // testDBAgentMySQL

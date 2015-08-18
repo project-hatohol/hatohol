@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef HostResourceQueryOption_h
@@ -34,13 +34,15 @@ public:
 
 		const DBAgent::TableProfile &hostTableProfile;
 		const size_t                 hostIdColumnIdx;
-
 		const bool                   needToJoinHostgroup;
 
 		const DBAgent::TableProfile &hostgroupMapTableProfile;
 		const size_t                 hostgroupMapServerIdColumnIdx;
 		const size_t                 hostgroupMapHostIdColumnIdx;
 		const size_t                 hostgroupMapGroupIdColumnIdx;
+
+		const size_t                 globalHostIdColumnIdx;
+		const size_t                 hostgroupMapGlobalHostIdColumnIdx;
 		
 		Synapse(const DBAgent::TableProfile &tableProfile,
 		     const size_t &selfIdColumnIdx,
@@ -51,7 +53,11 @@ public:
 		     const DBAgent::TableProfile &hostgroupMapTableProfile,
 		     const size_t &hostgroupMapServerIdColumnIdx,
 		     const size_t &hostgroupMapHostIdColumnIdx,
-		     const size_t &hostgroupMapGroupIdColumnIdx);
+		     const size_t &hostgroupMapGroupIdColumnIdx,
+		     const size_t &globalHostIdColumnIdx
+		       = INVALID_COLUMN_IDX,
+		     const size_t &hostgroupMapGlobalHostIdColumnIdx
+		       = INVALID_COLUMN_IDX);
 	};
 
 	HostResourceQueryOption(const Synapse &synapse,
@@ -109,8 +115,8 @@ public:
 
 	virtual ServerIdType getTargetServerId(void) const;
 	virtual void setTargetServerId(const ServerIdType &targetServerId);
-	virtual HostIdType getTargetHostId(void) const;
-	virtual void setTargetHostId(HostIdType targetHostId);
+	virtual LocalHostIdType getTargetHostId(void) const;
+	virtual void setTargetHostId(const LocalHostIdType &targetHostId);
 	virtual HostgroupIdType getTargetHostgroupId(void) const;
 	virtual void setTargetHostgroupId(HostgroupIdType targetHostgroupId);
 
@@ -134,8 +140,6 @@ public:
 	 */
 	const bool &getFilterForDataOfDefunctServers(void) const;
 
-	virtual const DBTermCodec *getDBTermCodec(void) const override;
-
 	std::string getJoinClause(void) const;
 
 protected:
@@ -143,26 +147,26 @@ protected:
 	std::string getHostgroupIdColumnName(void) const;
 	std::string getHostIdColumnName(void) const;
 
-	static std::string makeCondition(
+	std::string makeCondition(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostgroupIdColumnName,
 	  const std::string &hostIdColumnName,
-	  ServerIdType targetServerId = ALL_SERVERS,
-	  HostgroupIdType targetHostgroup = ALL_HOST_GROUPS,
-	  HostIdType targetHostId = ALL_HOSTS);
-	static std::string makeConditionServer(
+	  const ServerIdType &targetServerId = ALL_SERVERS,
+	  const HostgroupIdType &targetHostgroup = ALL_HOST_GROUPS,
+	  const LocalHostIdType &targetHostId = ALL_LOCAL_HOSTS) const;
+	std::string makeConditionServer(
 	  const ServerIdSet &serverIdSet,
-	  const std::string &serverIdColumnName);
-	static std::string makeConditionServer(
+	  const std::string &serverIdColumnName) const;
+	std::string makeConditionServer(
 	  const ServerIdType &serverId,
 	  const HostgroupIdSet &hostgroupIdSet,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostgroupIdColumnName,
-	  const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS);
-	static std::string makeConditionHostgroup(
+	  const HostgroupIdType &hostgroupId = ALL_HOST_GROUPS) const;
+	std::string makeConditionHostgroup(
 	  const HostgroupIdSet &hostgroupIdSet,
-	  const std::string &hostgroupIdColumnName);
+	  const std::string &hostgroupIdColumnName) const;
 
 	virtual std::string getFromClauseForOneTable(void) const;
 	virtual std::string getFromClauseWithHostgroup(void) const;
@@ -170,6 +174,7 @@ protected:
 	std::string getColumnNameCommon(
 	  const DBAgent::TableProfile &tableProfile, const size_t &idx) const;
 	bool isHostgroupEnumerationInCondition(void) const;
+	std::string getJoinClauseWithGlobalHostId(void) const;
 
 private:
 	struct Impl;

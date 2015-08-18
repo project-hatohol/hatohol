@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "HapProcessZabbixAPI.h"
@@ -70,13 +70,29 @@ void HapProcessZabbixAPI::setMonitoringServerInfo(void)
 
 void HapProcessZabbixAPI::workOnTriggers(void)
 {
-	SmartTime lastTriggerTime = getTimestampOfLastTrigger();
-	// TODO: getTrigger() should accept SmartTime directly.
-	// TODO: We should add a way to get newly added triggers.
-	//       Their timestamp are 0 in UNIX time. So the following way
-	//       cannot retrieve them.
-	const int requestSince = lastTriggerTime.getAsTimespec().tv_sec;
-	sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, getTrigger(requestSince));
+	int requestSince;
+	const bool hostsChanged = wasHostsInServerDBChanged();
+	if (hostsChanged) {
+		SmartTime lastTriggerTime = getTimestampOfLastTrigger();
+		// TODO: getTrigger() should accept SmartTime directly.
+		// TODO: We should add a way to get newly added triggers.
+		//       Their timestamp are 0 in UNIX time. So the following way
+		//       cannot retrieve them.
+		requestSince = lastTriggerTime.getAsTimespec().tv_sec;
+	} else {
+		requestSince = 0;
+	}
+	ItemTablePtr triggers = getTrigger(requestSince);
+	ItemTablePtr expandedDescriptions =
+		getTriggerExpandedDescription(requestSince);
+	ItemTablePtr mergedTriggers =
+		mergePlainTriggersAndExpandedDescriptions(triggers, expandedDescriptions);
+
+	if (hostsChanged) {
+		sendTable(HAPI_CMD_SEND_UPDATED_TRIGGERS, mergedTriggers);
+	} else {
+		sendTable(HAPI_CMD_SEND_ALL_TRIGGERS, mergedTriggers);
+	}
 }
 
 void HapProcessZabbixAPI::workOnHostsAndHostgroupElements(void)
@@ -102,12 +118,17 @@ void HapProcessZabbixAPI::workOnEvents(void)
 	// TOOD: we should exit immediately if the Zabbix server does not
 	// have any events at all.
 
-	uint64_t lastEventIdOfHatohol = HatoholArmPluginBase::getLastEventId();
+	const EventIdType lastEventIdOfHatohol =
+	  HatoholArmPluginBase::getLastEventId();
 	uint64_t eventIdOffset = 0;
-	if (lastEventIdOfHatohol != EVENT_NOT_FOUND)
-		eventIdOffset = lastEventIdOfHatohol + 1;
+	if (lastEventIdOfHatohol != EVENT_NOT_FOUND) {
+		eventIdOffset = Utils::sum(lastEventIdOfHatohol, 1);
+	} else {
+		if (!shouldLoadOldEvent())
+			eventIdOffset = lastEventIdOfZbxSv;
+	}
 
-	while (eventIdOffset < lastEventIdOfZbxSv) {
+	while (eventIdOffset <= lastEventIdOfZbxSv) {
 		const uint64_t eventIdTill =
 		  eventIdOffset + NUMBER_OF_GET_EVENT_PER_ONCE;
 		ItemTablePtr eventsTablePtr =
@@ -129,7 +150,8 @@ void HapProcessZabbixAPI::parseReplyGetMonitoringServerInfoOnInitiated(
 	  "Failed to parse the reply for monitoring server information.\n");
 }
 
-HatoholError HapProcessZabbixAPI::acquireData(const MessagingContext &msgCtx)
+HatoholError HapProcessZabbixAPI::acquireData(const MessagingContext &msgCtx,
+					      const SmartBuffer &cmdBuf)
 {
 	// TODO:
 	setMonitoringServerInfo();
@@ -142,7 +164,8 @@ HatoholError HapProcessZabbixAPI::acquireData(const MessagingContext &msgCtx)
 	return HTERR_OK;
 }
 
-HatoholError HapProcessZabbixAPI::fetchItem(const MessagingContext &msgCtx)
+HatoholError HapProcessZabbixAPI::fetchItem(const MessagingContext &msgCtx,
+					    const SmartBuffer &cmdBuf)
 {
 	ItemTablePtr items = getItems();
 	ItemTablePtr applications = getApplications(items);
@@ -151,6 +174,47 @@ HatoholError HapProcessZabbixAPI::fetchItem(const MessagingContext &msgCtx)
 	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS, &msgCtx);
 	appendItemTable(resBuf, items);
 	appendItemTable(resBuf, applications);
+	reply(msgCtx, resBuf);
+
+	return HTERR_OK;
+}
+
+HatoholError HapProcessZabbixAPI::fetchHistory(const MessagingContext &msgCtx,
+					       const SmartBuffer &cmdBuf)
+{
+	HapiParamReqFetchHistory *params =
+	  getCommandBody<HapiParamReqFetchHistory>(cmdBuf);
+
+	// TODO:
+	// ZabbixAPI::fromItemValueType() can't recognize "log" and "text".
+	ZabbixAPI::ValueType valueType =
+	  ZabbixAPI::fromItemValueType(
+	    static_cast<ItemInfoValueType>(LtoN(params->valueType)));
+	const char *itemId = HatoholArmPluginInterface::getString(
+	                       cmdBuf, params,
+	                       params->itemIdOffset, params->itemIdLength);
+	ItemTablePtr items = getHistory(itemId, valueType,
+	                       static_cast<time_t>(LtoN(params->beginTime)),
+	                       static_cast<time_t>(LtoN(params->endTime)));
+	SmartBuffer resBuf;
+	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY, &msgCtx);
+	appendItemTable(resBuf, items);
+	reply(msgCtx, resBuf);
+
+	return HTERR_OK;
+}
+
+HatoholError HapProcessZabbixAPI::fetchTrigger(const MessagingContext &msgCtx,
+					       const SmartBuffer &cmdBuf)
+{
+	ItemTablePtr triggers = getTrigger(0);
+	ItemTablePtr expandedDescriptions = getTriggerExpandedDescription(0);
+	ItemTablePtr mergedTriggers =
+	  mergePlainTriggersAndExpandedDescriptions(triggers, expandedDescriptions);
+
+	SmartBuffer resBuf;
+	setupResponseBuffer<void>(resBuf, 0, HAPI_RES_TRIGGERS, &msgCtx);
+	appendItemTable(resBuf, mergedTriggers);
 	reply(msgCtx, resBuf);
 
 	return HTERR_OK;

@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef DBTablesUser_h
@@ -49,7 +49,7 @@ struct AccessInfo {
 	AccessInfoIdType id;
 	UserIdType userId;
 	ServerIdType serverId;
-	uint64_t hostgroupId;
+	HostgroupIdType hostgroupId;
 };
 
 typedef std::list<AccessInfo>          AccessInfoList;
@@ -83,6 +83,9 @@ public:
 	virtual ~UserQueryOption();
 
 	HatoholError setTargetName(const std::string &name);
+	OperationPrivilegeFlag getPrivilegesFlag(void) const;
+	void                   setPrivilegesFlag(const OperationPrivilegeFlag flags);
+	void                   unsetPrivilegesFlag(void);
 	void         queryOnlyMyself(void);
 
 	// Overriding virtual methods
@@ -138,6 +141,7 @@ public:
 	static const size_t MAX_USER_ROLE_NAME_LENGTH;
 	static void init(void);
 	static void reset(void);
+	static const SetupInfo &getConstSetupInfo(void);
 
 	DBTablesUser(DBAgent &dbAgent);
 	virtual ~DBTablesUser();
@@ -159,6 +163,11 @@ public:
 	HatoholError updateUserInfo(UserInfo &userInfo,
 	                            const OperationPrivilege &privilege);
 
+	HatoholError updateUserInfoFlags(OperationPrivilegeFlag &oldUserFlag,
+	                                 OperationPrivilegeFlag &updateUserFlag,
+	                                 const OperationPrivilege &privilege);
+
+
 	HatoholError deleteUserInfo(const UserIdType userId,
 	                                const OperationPrivilege &privilege);
 
@@ -178,7 +187,7 @@ public:
 	/**
 	 * Add an access list element.
 	 *
-	 * @param accessInfo 
+	 * @param accessInfo
 	 * An AccessInfo instance that has parameters to be stored.
 	 */
 	HatoholError addAccessInfo(AccessInfo &accessInfo,
@@ -254,6 +263,11 @@ public:
 	                  const OperationPrivilege &privilege,
 	                  const bool &useTransaction = true);
 
+	bool isAccessible(const ServerIdType &serverId,
+	                  const HostgroupIdType &hostgroupId,
+	                  const OperationPrivilege &privilege,
+	                  const bool &useTransaction = true);
+
 	void getUserIdSet(UserIdSet &userIdSet);
 
 protected:
@@ -262,6 +276,10 @@ protected:
 	                     const std::string &condition);
 	HatoholError hasPrivilegeForUpdateUserInfo(
 	  UserInfo &userInfo, const OperationPrivilege &privilege);
+
+	bool isAccessible(
+	  const OperationPrivilege &privilege, const std::string &condition,
+	  const bool &useTransaction);
 
 private:
 	struct Impl;

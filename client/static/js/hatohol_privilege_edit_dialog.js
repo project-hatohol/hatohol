@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 
@@ -37,7 +37,7 @@ var HatoholPrivilegeEditDialog = function(userId, applyCallback) {
   // call the constructor of the super class
   var dialogAttrs = { width: "800" };
   HatoholDialog.apply(
-    this, ["privilege-edit-dialog", gettext("Edit privileges"),
+    this, ["privilege-edit-dialog", gettext("Edit accessible monitoring servers"),
            dialogButtons, dialogAttrs]);
   self.start();
 };
@@ -194,7 +194,7 @@ HatoholPrivilegeEditDialog.prototype.generateMainTable = function() {
   '  <thead>' +
   '    <tr>' +
   '      <th>' + gettext("All Allow") + '</th>' +
-  '      <th colspan="2">' + gettext("Allowed Hostgroups") + '</th>' +
+  '      <th colspan="2">' + gettext("Accessible Hostgroups") + '</th>' +
   '      <th>ID</th>' +
   '      <th>' + gettext("Type") + '</th>' +
   '      <th>' + gettext("Hostname") + '</th>' +
@@ -221,7 +221,7 @@ HatoholPrivilegeEditDialog.prototype.generateTableRows = function() {
     s +=        'serverId="' + escapeHTML(sv.id) + '"';
     s +=        'value="' + gettext("Show / Edit") + '" /></td>';
     s += '<td>' + escapeHTML(sv.id) + '</td>';
-    s += '<td>' + makeMonitoringSystemTypeLabel(sv.type) + '</td>';
+    s += '<td>' + makeMonitoringSystemTypeLabel(sv) + '</td>';
     s += '<td>' + escapeHTML(sv.hostName) + '</td>';
     s += '<td>' + escapeHTML(sv.ipAddress) + '</td>';
     s += '<td>' + escapeHTML(sv.nickname)  + '</td>';
@@ -237,7 +237,7 @@ HatoholPrivilegeEditDialog.prototype.updateAllowCheckboxes = function() {
 
   var i, serverId, checkboxes = $(".serverSelectCheckbox");
   var allHostgroupIsEnabled = function(server) {
-    var ALL_HOST_GROUPS = -1, hostgroup;
+    var ALL_HOST_GROUPS = "*", hostgroup;
     if (!server || !server["allowedHostgroups"])
       return false;
     hostgroup = server["allowedHostgroups"][ALL_HOST_GROUPS];
@@ -319,7 +319,7 @@ HatoholPrivilegeEditDialog.prototype.applyPrivileges = function() {
   var checkboxes = $(".serverSelectCheckbox");
   var getAccessInfoId = function(serverId) {
     var id, allowedHostgroups, allowedHostgroup;
-    var ALL_HOST_GROUPS = -1;
+    var ALL_HOST_GROUPS = "*";
     if (self.allowedServers && self.allowedServers[serverId])
       allowedHostgroups = self.allowedServers[serverId]["allowedHostgroups"];
     if (allowedHostgroups)
@@ -340,7 +340,7 @@ HatoholPrivilegeEditDialog.prototype.applyPrivileges = function() {
 
     if (checkboxes[i].checked) {
       if (!accessInfoId)
-        this.addAccessInfo({ serverId: serverId, hostgroupId: -1 });
+        this.addAccessInfo({ serverId: serverId, hostgroupId: "*" });
       else
         self.applyResult.numSucceeded += 1;
     } else {

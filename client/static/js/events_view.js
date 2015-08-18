@@ -4,22 +4,22 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
-var EventsView = function(userProfile, baseElem) {
+var EventsView = function(userProfile, options) {
   var self = this;
-  self.baseElem = baseElem;
+  self.options = options || {};
   self.reloadIntervalSeconds = 60;
   self.currentPage = 0;
   self.limitOfUnifiedId = 0;
@@ -34,8 +34,17 @@ var EventsView = function(userProfile, baseElem) {
   };
   $.extend(self.baseQuery, getEventsQueryInURI());
   self.lastQuery = undefined;
+  self.showToggleAutoRefreshButton();
+  self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
-  var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown')];
+  if (self.options.disableTimeRangeFilter) {
+   // Don't enable datetimepicker for tests.
+  } else {
+    setupTimeRangeFilter();
+  }
+
+  var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
+                        gettext('Notification')];
   var severity_choices = [
     gettext('Not classified'), gettext('Information'), gettext('Warning'),
     gettext('Average'), gettext('High'), gettext('Disaster')];
@@ -43,18 +52,19 @@ var EventsView = function(userProfile, baseElem) {
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
-  self.userConfig = new HatoholUserConfig(); 
+  self.pager = new HatoholEventPager();
+  self.userConfig = new HatoholUserConfig();
   start();
 
   //
-  // Private functions 
+  // Private functions
   //
   function start() {
     self.userConfig.get({
-      itemNames:['num-events-per-page', 'event-sort-order'],
+      itemNames:['num-records-per-page', 'event-sort-order'],
       successCallback: function(conf) {
         self.baseQuery.limit =
-          self.userConfig.findOrDefault(conf, 'num-events-per-page',
+          self.userConfig.findOrDefault(conf, 'num-records-per-page',
                                         self.baseQuery.limit);
         self.baseQuery.sortType =
           self.userConfig.findOrDefault(conf, 'event-sort-type',
@@ -62,13 +72,47 @@ var EventsView = function(userProfile, baseElem) {
         self.baseQuery.sortOrder =
           self.userConfig.findOrDefault(conf, 'event-sort-order',
                                         self.baseQuery.sortOrder);
+        updatePager();
         setupFilterValues();
         setupCallbacks();
+
+        var direction =
+          (self.baseQuery.sortOrder == hatohol.DATA_QUERY_OPTION_SORT_ASCENDING) ? "asc" : "desc";
+        var thTime = $("#table").find("thead th").eq(1);
+        thTime.stupidsort(direction);
+
         load();
       },
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
         showXHRError(XMLHttpRequest);
       },
+    });
+  }
+
+  function saveConfig(items) {
+    self.userConfig.store({
+      items: items,
+      successCallback: function() {
+        // we just ignore it
+      },
+      connectErrorCallback: function(XMLHttpRequest) {
+        showXHRError(XMLHttpRequest);
+      },
+    });
+  }
+
+  function updatePager() {
+    self.pager.update({
+      currentPage: self.currentPage,
+      numRecords: self.rawData ? self.rawData["numberOfEvents"] : -1,
+      numRecordsPerPage: self.baseQuery.limit,
+      selectPageCallback: function(page) {
+        load(page);
+        if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
+          self.baseQuery.limit = self.pager.numRecordsPerPage;
+          saveConfig({'num-records-per-page': self.baseQuery.limit});
+        }
+      }
     });
   }
 
@@ -83,7 +127,7 @@ var EventsView = function(userProfile, baseElem) {
       "serverId", "hostgroupId", "hostId",
       "limit", "offset", "limitOfUnifiedId",
       "sortType", "sortOrder",
-      "minimumSeverity", "status", "triggerId",
+      "type", "minimumSeverity", "status", "triggerId",
     ];
     var i, allParams = deparam(), query = {};
     for (i = 0; i < knownKeys.length; i++) {
@@ -93,22 +137,31 @@ var EventsView = function(userProfile, baseElem) {
     return query;
   }
 
-  function getQuery(loadNextPage) {
-    if (loadNextPage) {
-      self.currentPage += 1;
+  function getQuery(page) {
+    if (!page) {
+      self.limitOfUnifiedId = 0;
+    } else {
       if (!self.limitOfUnifiedId)
         self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
-    } else {
-      self.currentPage = 0;
-      self.limitOfUnifiedId = 0;
     }
 
     var query = $.extend({}, self.baseQuery, {
       minimumSeverity:  $("#select-severity").val(),
-      status:           $("#select-status").val(),
+      type:             $("#select-status").val(),
       offset:           self.baseQuery.limit * self.currentPage,
       limitOfUnifiedId: self.limitOfUnifiedId,
     });
+
+    var beginTime, endTime;
+    if ($('#begin-time').val()) {
+      beginTime = new Date($('#begin-time').val());
+      query.beginTime = parseInt(beginTime.getTime() / 1000);
+    }
+    if ($('#end-time').val()) {
+      endTime = new Date($('#end-time').val());
+      query.endTime = parseInt(endTime.getTime() / 1000);
+    }
+
     if (self.lastQuery)
       $.extend(query, self.getHostFilterQuery());
     self.lastQuery = query;
@@ -116,10 +169,17 @@ var EventsView = function(userProfile, baseElem) {
     return 'events?' + $.param(query);
   };
 
-  function load(loadNextPage) {
-    self.startConnection(getQuery(loadNextPage), updateCore);
-    $(document.body).scrollTop(0);
+  function load(page) {
+    self.displayUpdateTime();
     setLoading(true);
+    if (!isNaN(page)) {
+      self.currentPage = page;
+      self.disableAutoRefresh();
+    } else {
+      self.currentPage = 0;
+    }
+    self.startConnection(getQuery(self.currentPage), updateCore);
+    $(document.body).scrollTop(0);
   }
 
   function setupFilterValues(servers, query) {
@@ -132,7 +192,7 @@ var EventsView = function(userProfile, baseElem) {
     self.setupHostFilters(servers, query);
 
     if ('limit' in query)
-      $('#num-events-per-page').val(query.limit);
+      $('#num-records-per-page').val(query.limit);
     if ("minimumSeverity" in query)
       $("#select-severity").val(query.minimumSeverity);
     if ("status" in query)
@@ -142,10 +202,28 @@ var EventsView = function(userProfile, baseElem) {
   function setupCallbacks() {
     $("#table").stupidtable();
     $("#table").bind('aftertablesort', function(event, data) {
+      var icon;
+      if (data.column == 1) { // "Time" column
+        if (data.direction === "asc") {
+          icon = "up";
+          if (self.baseQuery.sortOrder != hatohol.DATA_QUERY_OPTION_SORT_ASCENDING) {
+            self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_ASCENDING;
+            saveConfig({'event-sort-order': self.baseQuery.sortOrder});
+            self.startConnection(getQuery(self.currentPage), updateCore);
+          }
+        } else {
+          icon = "down";
+          if (self.baseQuery.sortOrder != hatohol.DATA_QUERY_OPTION_SORT_DESCENDING) {
+            self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
+            saveConfig({'event-sort-order': self.baseQuery.sortOrder});
+            self.startConnection(getQuery(self.currentPage), updateCore);
+          }
+        }
+      }
       var th = $(this).find("th");
       th.find("i.sort").remove();
-      var icon = data.direction === "asc" ? "up" : "down";
-      th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
+      if (icon)
+        th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
     });
 
     $("#select-severity, #select-status").change(function() {
@@ -154,15 +232,15 @@ var EventsView = function(userProfile, baseElem) {
     self.setupHostQuerySelectorCallback(
       load, '#select-server', '#select-host-group', '#select-host');
 
-    $('#num-events-per-page').change(function() {
-      var val = parseInt($('#num-events-per-page').val());
+    $('#num-records-per-page').change(function() {
+      var val = parseInt($('#num-records-per-page').val());
       if (!isFinite(val))
         val = self.baseQuery.limit;
-      $('#num-events-per-page').val(val);
+      $('#num-records-per-page').val(val);
       self.baseQuery.limit = val;
 
       var params = {
-        items: {'num-events-per-page': val},
+        items: {'num-records-per-page': val},
         successCallback: function(){ /* we just ignore it */ },
         connectErrorCallback: function(XMLHttpRequest, textStatus,
                                        errorThrown) {
@@ -172,13 +250,48 @@ var EventsView = function(userProfile, baseElem) {
       self.userConfig.store(params);
     });
 
-    $('#next-events-button').click(function() {
-      var loadNextPage = true;
-      load(loadNextPage);
-    });
-
-    $('#latest-events-button').click(function() {
+    $('button.latest-button').click(function() {
       load();
+    });
+  }
+
+  function formatDateTimeWithZeroSecond(d) {
+    var t = "" + d.getFullYear() + "/";
+    t += padDigit((d.getMonth() + 1), 2);
+    t += "/";
+    t += padDigit(d.getDate(), 2);
+    t += " ";
+    t += padDigit(d.getHours(), 2);
+    t += ":";
+    t += padDigit(d.getMinutes(), 2);
+    t += ":00";
+    return t;
+  }
+
+  function setupTimeRangeFilter() {
+    $('#begin-time').datetimepicker({
+      format: 'Y/m/d H:i:s',
+      onSelectDate: function(currentTime, $input) {
+        $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
+      },
+      onSelectTime: function(currentTime, $input) {
+        $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
+      },
+      onChangeDateTime: function(currentTime, $input) {
+        load();
+      }
+    });
+    $('#end-time').datetimepicker({
+      format: 'Y/m/d H:i:s',
+      onDateTime: function(currentTime, $input) {
+        $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
+      },
+      onSelectTime: function(currentTime, $input) {
+        $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
+      },
+      onChangeDateTime: function(currentTime, $input) {
+        load();
+      }
     });
   }
 
@@ -188,21 +301,21 @@ var EventsView = function(userProfile, baseElem) {
       $("#select-status").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
-      $("#num-events-per-page").attr("disabled", "disabled");
-      $("#latest-events-button").attr("disabled", "disabled");
-      $("#next-events-button").attr("disabled", "disabled");
+      $("#num-records-per-page").attr("disabled", "disabled");
+      $("#latest-events-button1").attr("disabled", "disabled");
+      $("#latest-events-button2").attr("disabled", "disabled");
     } else {
       $("#select-severity").removeAttr("disabled");
       $("#select-status").removeAttr("disabled");
       $("#select-server").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
-      $("#num-events-per-page").removeAttr("disabled");
-      $("#latest-events-button").removeAttr("disabled");
-      $("#next-events-button").removeAttr("disabled");
+      $("#num-records-per-page").removeAttr("disabled");
+      $("#latest-events-button1").removeAttr("disabled");
+      $("#latest-events-button2").removeAttr("disabled");
     }
   }
-  
+
   function parseData(replyData) {
     // The structur of durations:
     // {
@@ -231,7 +344,7 @@ var EventsView = function(userProfile, baseElem) {
         durations[serverId] = {};
       if (!durations[serverId][triggerId])
         durations[serverId][triggerId] = [];
-      
+
       durations[serverId][triggerId].push(event["time"]);
     }
 
@@ -255,53 +368,117 @@ var EventsView = function(userProfile, baseElem) {
     return durations;
   }
 
+  function isSelfMonitoringHost(hostId) {
+    return  hostId == "__SELF_MONITOR";
+  }
+
+  function generateTimeColumn(serverURL, hostId, triggerId, eventId, clock) {
+    var html = "";
+    if (serverURL.indexOf("zabbix") >= 1 && !isSelfMonitoringHost(hostId)) {
+      html += "<td><a href='" + serverURL + "tr_events.php?&triggerid="
+              + triggerId + "&eventid=" + eventId
+              + "' target='_blank'>" + escapeHTML(formatDate(clock))
+              + "</a></td>";
+    } else {
+      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
+              formatDate(clock) + "</td>";
+    }
+    return html;
+  }
+
+  function generateHostColumn(serverURL, hostId, hostName) {
+    var html = "";
+    if (serverURL.indexOf("zabbix") >= 0 && !isSelfMonitoringHost(hostId)) {
+      html += "<td><a href='" + serverURL + "latest.php?&hostid="
+              + hostId + "' target='_blank'>" + escapeHTML(hostName)
+              + "</a></td>";
+    } else if (serverURL.indexOf("nagios") >= 0 && !isSelfMonitoringHost(hostId)) {
+      html += "<td><a href='" + serverURL + "cgi-bin/status.cgi?host="
+        + hostName + "' target='_blank'>" + escapeHTML(hostName) + "</a></td>";
+    } else {
+      html += "<td>" + escapeHTML(hostName) + "</td>";
+    }
+    return html;
+  }
+
+  function generateIncidentColumns(haveIncident, incident) {
+    var html = "";
+    if (haveIncident) {
+      html += "<td class='incident'>";
+      html += "<a href='" + escapeHTML(incident.location)
+              + "' target='_blank'>";
+      html += escapeHTML(incident.status) + "</a>";
+      html += "</td>";
+      html += "<td class='incident'>";
+      html += escapeHTML(incident.priority);
+      html += "</td>";
+      html += "<td class='incident'>";
+      html += escapeHTML(incident.assignee);
+      html += "</td>";
+      html += "<td class='incident'>";
+      if (incident.status)
+        html += escapeHTML(incident.doneRatio) + "%";
+      html += "</td>";
+    }
+    return html;
+  }
+
+  function getEventDescription(event) {
+    var extendedInfo, name;
+
+    try {
+      extendedInfo = JSON.parse(event["extendedInfo"]);
+      name = extendedInfo["expandedDescription"];
+    } catch(e) {
+    }
+    return name ? name : event["brief"];
+  }
+
   function drawTableBody() {
-    var serverName, hostName, clock, status, severity, duration;
-    var server, event, serverId, hostId, html = "";
-    var x;
+    var serverName, nickName, hostName, clock, status, severity, incident, duration, description;
+    var server, event, eventId, serverId, serverURL, hostId, triggerId, html = "";
+    var x, severityClass;
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
       event      = self.rawData["events"][x];
       serverId   = event["serverId"];
       hostId     = event["hostId"];
+      triggerId  = event["triggerId"];
+      eventId    = event["eventId"];
       server     = self.rawData["servers"][serverId];
-      serverName = getServerName(server, serverId);
+      nickName   = getNickName(server, serverId);
+      serverURL  = getServerLocation(server);
       hostName   = getHostName(server, hostId);
       clock      = event["time"];
       status     = event["type"];
       severity   = event["severity"];
       duration   = self.durations[serverId][event["triggerId"]][clock];
       incident   = event["incident"];
-
-      html += "<tr><td>" + escapeHTML(serverName) + "</td>";
-      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
-        formatDate(clock) + "</td>";
-      html += "<td>" + escapeHTML(hostName) + "</td>";
-      html += "<td>" + escapeHTML(event["brief"]) + "</td>";
+      severityClass = "severity";
+      if (status == hatohol.EVENT_TYPE_BAD)
+        severityClass += escapeHTML(severity);
+      description = getEventDescription(event);
+      if (serverURL) {
+        html += "<tr><td><a href='" + serverURL + "' target='_blank'>" + escapeHTML(nickName)
+                + "</a></td>";
+        html += generateTimeColumn(serverURL, hostId, triggerId, eventId, clock);
+        html += generateHostColumn(serverURL, hostId, hostName);
+      } else {
+        html += "<tr><td>" + escapeHTML(nickName)+ "</td>";
+        html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
+                formatDate(clock) + "</td>";
+        html += "<td>" + escapeHTML(hostName) + "</td>";
+      }
+      html += "<td>" + escapeHTML(description) + "</td>";
       html += "<td class='status" + escapeHTML(status) +
         "' data-sort-value='" + escapeHTML(status) + "'>" +
         status_choices[Number(status)] + "</td>";
-      html += "<td class='severity" + escapeHTML(severity) +
+      html += "<td class='" + severityClass +
         "' data-sort-value='" + escapeHTML(severity) + "'>" +
         severity_choices[Number(severity)] + "</td>";
       html += "<td data-sort-value='" + duration + "'>" +
         formatSecond(duration) + "</td>";
-      if (self.rawData["haveIncident"]) {
-        html += "<td class='incident'>";
-        html += "<a href='" + escapeHTML(incident.location) + "'>";
-        html += escapeHTML(incident.status) + "</a>";
-        html += "</td>";
-        html += "<td class='incident'>";
-        html += escapeHTML(incident.priority);
-        html += "</td>";
-        html += "<td class='incident'>";
-        html += escapeHTML(incident.assignee);
-        html += "</td>";
-        html += "<td class='incident'>";
-        if (incident.status)
-          html += escapeHTML(incident.doneRatio) + "%";
-        html += "</td>";
-      }
+      html += generateIncidentColumns(self.rawData["haveIncident"], incident);
       html += "</tr>";
     }
 
@@ -322,9 +499,10 @@ var EventsView = function(userProfile, baseElem) {
 
     setupFilterValues();
     drawTableContents();
+    updatePager();
     setLoading(false);
-    self.displayUpdateTime();
-    self.setAutoReload(load, self.reloadIntervalSeconds);
+    if (self.currentPage == 0)
+      self.enableAutoRefresh(load, self.reloadIntervalSeconds);
   }
 };
 

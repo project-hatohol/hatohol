@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef DBAgentSQLite3_h
@@ -60,6 +60,10 @@ public:
 	virtual void select(const SelectExArg &selectExArg) override;
 	virtual void deleteRows(const DeleteArg &deleteArg) override;
 	virtual void addColumns(const AddColumnsArg &addColumnsArg) override;
+	virtual void changeColumnDef(const TableProfile &tableProfile,
+				     const std::string &oldColumnName,
+				     const size_t &columnIndex) override;
+	virtual void dropPrimaryKey(const std::string &tableName) override;
 	virtual void renameTable(const std::string &srcName,
 				 const std::string &destName);
 	virtual const
@@ -67,6 +71,7 @@ public:
 
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
+	virtual bool lastUpsertDidUpdate(void) override;
 
 	std::string getDBPath(void) const;
 
@@ -81,6 +86,9 @@ protected:
 	static bool isTableExisting(sqlite3 *db,
 	                            const std::string &tableName);
 	static void createTable(sqlite3 *db, const TableProfile &tableProfile);
+	static std::string getColumnValueStringStatic(const ColumnDef *columnDef,
+						      const ItemData *itemData);
+	static std::string makeUpdateStatementStatic(const UpdateArg &updateArg);
 	static void insert(sqlite3 *db, const InsertArg &insertArg);
 	static void update(sqlite3 *db, const UpdateArg &updateArg);
 	static void update(sqlite3 *db, const InsertArg &updateArg);
@@ -103,6 +111,9 @@ protected:
 	void execSql(const char *fmt, ...);
 
 	// virtual methods
+	virtual std::string getColumnValueString(
+	  const ColumnDef *columnDef, const ItemData *itemData) override;
+
 	virtual std::string
 	  makeCreateIndexStatement(const TableProfile &tableProfile,
 	                           const IndexDef &indexDef) override;
@@ -114,6 +125,9 @@ protected:
 	virtual void getIndexInfoVect(
 	  std::vector<IndexInfo> &indexInfoVect,
 	  const TableProfile &tableProfile) override;
+
+	virtual std::string makeIndexName(const TableProfile &tableProfile,
+	                                  const IndexDef &indexDef) override;
 
 private:
 	struct Impl;

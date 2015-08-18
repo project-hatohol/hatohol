@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 var ActionsView = function(userProfile) {
@@ -53,7 +53,7 @@ var ActionsView = function(userProfile) {
   });
 
   $("#delete-action-button").click(function() {
-    var msg = gettext("Do you delete the selected items ?");
+    var msg = gettext("Delete the selected items ?");
     hatoholNoYesMsgBox(msg, deleteActions);
   });
 
@@ -135,14 +135,35 @@ var ActionsView = function(userProfile) {
     }
   }
 
+  function setupEditButtons(actionsPkt)
+  {
+    var i, id, actions = actionsPkt["actions"], actionsMap = {};
+
+    for (i = 0; i < actions.length; ++i)
+      actionsMap[actions[i].actionId] =  actions[i];
+
+    for (i = 0; i < actions.length; ++i) {
+      id = "#edit-action" + actions[i].actionId;
+      $(id).click(function() {
+        var actionId = this.getAttribute("actionId");
+        new HatoholAddActionDialog(load, null, actionsMap[actionId]);
+      });
+    }
+
+    if (userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_ACTION) ||
+        userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_ALL_ACTION))
+    {
+      $(".edit-action-column").show();
+    }
+  }
   //
   // parser of received json data
   //
-  function getServerNameFromAction(actionsPkt, actionDef) {
+  function getNickNameFromAction(actionsPkt, actionDef) {
     var serverId = actionDef["serverId"];
     if (!serverId)
       return "ANY";
-    return getServerName(actionsPkt["servers"][serverId], serverId);
+    return getNickName(actionsPkt["servers"][serverId], serverId);
   }
 
   function getHostgroupNameFromAction(actionsPkt, actionDef) {
@@ -185,8 +206,8 @@ var ActionsView = function(userProfile) {
         "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
       s += "<td>" + escapeHTML(actionDef.actionId) + "</td>";
 
-      var serverName = getServerNameFromAction(actionsPkt, actionDef);
-      s += "<td>" + escapeHTML(serverName) + "</td>";
+      var nickName = getNickNameFromAction(actionsPkt, actionDef);
+      s += "<td>" + escapeHTML(nickName) + "</td>";
 
       var hostName = getHostNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(hostName)   + "</td>";
@@ -234,6 +255,12 @@ var ActionsView = function(userProfile) {
         timeoutLabel = timeout / 1000;
       s += "<td>" + escapeHTML(timeoutLabel) + "</td>";
 
+      s += "<td class='edit-action-column' style='display:none;'>";
+      s += "<input id='edit-action" + escapeHTML(actionDef.actionId) + "'";
+      s += "  type='button' class='btn btn-default'";
+      s += "  actionId='" + escapeHTML(actionDef.actionId) + "'";
+      s += "  value='" + gettext("EDIT") + "' />";
+      s += "</td>";
       s += "</tr>";
     }
 
@@ -248,6 +275,7 @@ var ActionsView = function(userProfile) {
 	self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ALL_ACTION)) {
       $(".delete-selector").show();
     }
+    setupEditButtons(rawData);
     self.displayUpdateTime();
   }
 

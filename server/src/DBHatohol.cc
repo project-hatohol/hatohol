@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "DBHatohol.h"
@@ -24,6 +24,7 @@
 #include "DBTablesUser.h"
 #include "DBTablesAction.h"
 #include "DBTablesMonitoring.h"
+#include "DBTablesLastInfo.h"
 
 using namespace std;
 
@@ -31,21 +32,37 @@ static const char *DEFAULT_DB_NAME = "hatohol";
 static const char *DEFAULT_USER_NAME = "hatohol";
 static const char *DEFAULT_PASSWORD  = "hatohol";
 
+struct DBTablesMajorVersionChecker {
+	DBTablesMajorVersionChecker(DBAgent &dbAgent)
+	{
+		DBTables::checkMajorVersion<DBTablesConfig>(dbAgent);
+		DBTables::checkMajorVersion<DBTablesHost>(dbAgent);
+		DBTables::checkMajorVersion<DBTablesUser>(dbAgent);
+		DBTables::checkMajorVersion<DBTablesAction>(dbAgent);
+		DBTables::checkMajorVersion<DBTablesMonitoring>(dbAgent);
+		DBTables::checkMajorVersion<DBTablesLastInfo>(dbAgent);
+	}
+};
+
 struct DBHatohol::Impl {
 	static SetupContext setupCtx;
 
+	DBTablesMajorVersionChecker verChecker;
 	DBTablesConfig  dbTablesConfig;
 	DBTablesHost    dbTablesHost;
 	DBTablesUser    dbTablesUser;
 	DBTablesAction  dbTablesAction;
 	DBTablesMonitoring dbTablesMonitoring;
+	DBTablesLastInfo dbTablesLastInfo;
 
 	Impl(DBAgent &dbAgent)
-	: dbTablesConfig(dbAgent),
+	: verChecker(dbAgent),
+	  dbTablesConfig(dbAgent),
 	  dbTablesHost(dbAgent),
 	  dbTablesUser(dbAgent),
 	  dbTablesAction(dbAgent),
-	  dbTablesMonitoring(dbAgent)
+	  dbTablesMonitoring(dbAgent),
+	  dbTablesLastInfo(dbAgent)
 	{
 	}
 };
@@ -130,4 +147,9 @@ DBTablesAction &DBHatohol::getDBTablesAction(void)
 DBTablesMonitoring &DBHatohol::getDBTablesMonitoring(void)
 {
 	return m_impl->dbTablesMonitoring;
+}
+
+DBTablesLastInfo &DBHatohol::getDBTablesLastInfo(void)
+{
+	return m_impl->dbTablesLastInfo;
 }

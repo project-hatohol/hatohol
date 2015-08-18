@@ -1,24 +1,30 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013,2014 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /* Override jQuery's default values to overcome bootstrap's style */
 .ui-front { z-index: 2000 !important }
+
+div.copyright {
+    text-align: center;
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
 
 label {
   margin-top: 6px;
@@ -32,6 +38,16 @@ div#main {
 
 div.hatohol-pager {
   text-align: center;
+}
+
+li {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+ul {
+  display: inline-block;
+  vertical-align: middle;
 }
 
 div.dialog {
@@ -50,4 +66,93 @@ div.dialog {
   width: 7em;
   margin-right: 0.5em;
   text-align: right;
+}
+
+.time-range-filter
+{
+  margin-top: 8px;
+}
+
+/* no scirpt */
+div#noscript-background
+{
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255,255,255,0.7);
+  z-index: 9999;
+}
+
+div#noscript-background div#noscript-notice
+{
+  background-color: white;
+  opacity: 1;
+  position: relative;
+  top: 10%;
+  width: 80%;
+  margin: 0 auto;
+  border: solid black 2pt;
+  padding: 1em;
+  text-align: center;
+  font-weight: bold;
+}
+
+#main th
+{
+  white-space: nowrap;
+}
+
+/* graph */
+h2.hatohol-graph {
+    text-align: center;
+    font-size: large;
+}
+
+#hatohol-graph {
+    margin-bottom: 2em;
+}
+
+#hatohol-graph-slider-area {
+    margin-left: 2em;
+    margin-right: 1em;
+    margin-top: 3.5em;
+    margin-bottom: 1em;
+    white-space: nowrap;
+}
+
+#hatohol-graph-slider {
+    margin-right: 0.8em;
+    display: inline-block;
+    white-space: normal;
+}
+
+#hatohol-graph-slider-area button {
+    margin-left: 0.2em;
+    margin-right: 0.2em;
+    margin-bottom: 3.6em;
+}
+
+#hatohol-item-list label {
+    font-size: 18px;
+    margin-right: 0.5em;
+}
+
+.hatohol-config-section {
+     margin-bottom: 1em;
+}
+
+#edit-graph-title {
+    width: 90%;
+}
+
+.legend table td {
+  padding: 2px;
+}
+
+/* Override bootstrap's default value */
+.popover {
+    max-width: 550px;
 }

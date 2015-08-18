@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 var HatoholNavi = function(userProfile, currentPage) {
@@ -56,12 +56,20 @@ var HatoholNavi = function(userProfile, currentPage) {
           href:  "ajax_actions"
         },
         {
+          title: gettext("Graphs"),
+          href:  "ajax_graphs"
+        },
+        {
           title: gettext("Incident tracking"),
           href:  "ajax_incident_settings",
           flags: (1 << hatohol.OPPRVLG_CREATE_INCIDENT_SETTING) |
             (1 << hatohol.OPPRVLG_UPDATE_INCIDENT_SETTING) |
             (1 << hatohol.OPPRVLG_DELETE_INCIDENT_SETTING) |
             (1 << hatohol.OPPRVLG_GET_ALL_INCIDENT_SETTINGS)
+        },
+        {
+          title: gettext("Log search systems"),
+          href:  "ajax_log_search_systems"
         },
         {
           title: gettext("Users"),
@@ -124,8 +132,8 @@ var HatoholNavi = function(userProfile, currentPage) {
     return $("<li/>", {
       html: title,
       class: klass,
-    })
-  }
+    });
+  };
   var item, children, child, dropDown;
 
   for (i = 0; i < menuItems.length; ++i) {

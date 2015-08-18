@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 var OverviewItems = function(userProfile) {
@@ -28,6 +28,8 @@ var OverviewItems = function(userProfile) {
   };
   $.extend(self.baseQuery, getItemsQueryInURI());
   self.lastQuery = undefined;
+  self.showToggleAutoRefreshButton();
+  self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -45,56 +47,56 @@ var OverviewItems = function(userProfile) {
 
   function parseData(replyData) {
     var parsedData = {};
-    var serverName, hostName, itemName;
-    var serverNames, itemNames, hostNames;
+    var nickName, hostName, itemName;
+    var nickNames, itemNames, hostNames;
     var server, item;
     var x;
 
     parsedData.hosts  = {};
     parsedData.values = {};
 
-    serverNames = [];
+    nickNames = [];
     itemNames = [];
     hostNames = {};
 
     for (x = 0; x < replyData["items"].length; ++x) {
       item = replyData["items"][x];
-      server = replyData["servers"][item["serverId"]];
-      serverName = getServerName(server, item["serverId"]);
+      serverId = item["serverId"];
+      server = replyData["servers"][serverId];
+      nickName   = getNickName(server, serverId);
       hostName   = getHostName(server, item["hostId"]);
       itemName   = item["brief"];
 
-      serverNames.push(serverName);
+      nickNames.push(nickName);
       itemNames.push(itemName);
-      if (!hostNames[serverName])
-        hostNames[serverName] = [];
-      hostNames[serverName].push(hostName);
+      if (!hostNames[nickName])
+        hostNames[nickName] = [];
+      hostNames[nickName].push(hostName);
 
-      if (!parsedData.values[serverName])
-        parsedData.values[serverName] = {};
-      if (!parsedData.values[serverName][hostName])
-        parsedData.values[serverName][hostName] = {};
+      if (!parsedData.values[nickName])
+        parsedData.values[nickName] = {};
+      if (!parsedData.values[nickName][hostName])
+        parsedData.values[nickName][hostName] = {};
 
-      if (!parsedData.values[serverName][hostName][itemName])
-        parsedData.values[serverName][hostName][itemName] = item;
+      if (!parsedData.values[nickName][hostName][itemName])
+        parsedData.values[nickName][hostName][itemName] = item;
     }
 
-    parsedData.servers = serverNames.uniq().sort();
     parsedData.items   = itemNames.uniq().sort();
-    for (serverName in hostNames)
-      parsedData.hosts[serverName] = hostNames[serverName].uniq().sort();
+    for (nickName in hostNames)
+      parsedData.hosts[nickName] = hostNames[nickName].uniq().sort();
 
     return parsedData;
   }
 
-  function setupFilterValues(servers, query) {
+  function setupFilterValues(servers, query, withoutSelfMonitor) {
     if (!servers && rawData && rawData.servers)
       servers = rawData.servers;
 
     if (!query)
       query = self.lastQuery ? self.lastQuery : self.baseQuery;
 
-    self.setupHostFilters(servers, query);
+    self.setupHostFilters(servers, query, withoutSelfMonitor);
   }
 
   function setLoading(loading) {
@@ -143,7 +145,7 @@ var OverviewItems = function(userProfile) {
           hostName = hostNames[x];
           item = parsedData.values[serverName][hostName][itemName];
           if (item && item["lastValue"] != undefined) {
-            html += "<td>" + escapeHTML(item["lastValue"]) + "</td>";
+            html += "<td>" + formatItemLastValue(item) + "</td>";
           } else {
             html += "<td>&nbsp;</td>";
           }
@@ -169,7 +171,9 @@ var OverviewItems = function(userProfile) {
     self.setHostgroupFilterCandidates(rawData["servers"]);
     self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(parsedData);
-    setupFilterValues();
+    setupFilterValues(rawData.servers,
+                      self.lastQuery ? self.lastQuery : self.baseQuery,
+                      true);
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }

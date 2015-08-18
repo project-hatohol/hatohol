@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <SmartQueue.h>
@@ -111,17 +111,18 @@ gboolean HapProcessStandard::kickBasicAcquisition(void *data)
 {
 	HapProcessStandard *obj = static_cast<HapProcessStandard *>(data);
 	obj->m_impl->timerTag = INVALID_EVENT_ID;
-	// TODO: give a correct messaging context.
+	// TODO: give a correct messaging context and command buffer.
 	obj->startAcquisition(&HapProcessStandard::acquireData,
-	                      *((MessagingContext *)NULL));
+	                      *((MessagingContext *)NULL),
+			      *((SmartBuffer *)NULL));
 	return G_SOURCE_REMOVE;
 }
 
 void HapProcessStandard::startAcquisition(
   AcquireFunc acquireFunc, const MessagingContext &messagingContext,
-  const bool &setupTimer)
+  const SmartBuffer &cmdBuf, const bool &setupTimer)
 {
-	if (m_impl->timerTag != INVALID_EVENT_ID) {
+	if (setupTimer && m_impl->timerTag != INVALID_EVENT_ID) {
 		// This condition may happen when unexpected initiation
 		// happens and then onReady() is called. In the case,
 		// we cancel the previous timer.
@@ -149,7 +150,7 @@ void HapProcessStandard::startAcquisition(
 	HatoholError err(HTERR_UNINITIALIZED);
 	HatoholArmPluginWatchType watchType = COLLECT_NG_PLGIN_INTERNAL_ERROR;
 	try {
-		err = (this->*acquireFunc)(messagingContext);
+		err = (this->*acquireFunc)(messagingContext, cmdBuf);
 		if (err == HTERR_OK)
 			getArmStatus().logSuccess();
 		watchType = getHapWatchType(err);
@@ -222,12 +223,26 @@ HapProcessStandard::getMonitoringServerInfo(void) const
 	return m_impl->serverInfoQueue.front();
 }
 
-HatoholError HapProcessStandard::acquireData(const MessagingContext &msgCtx)
+HatoholError HapProcessStandard::acquireData(const MessagingContext &msgCtx,
+					     const SmartBuffer &cmdBuf)
 {
 	return HTERR_NOT_IMPLEMENTED;
 }
 
-HatoholError HapProcessStandard::fetchItem(const MessagingContext &msgCtx)
+HatoholError HapProcessStandard::fetchItem(const MessagingContext &msgCtx,
+					   const SmartBuffer &cmdBuf)
+{
+	return HTERR_NOT_IMPLEMENTED;
+}
+
+HatoholError HapProcessStandard::fetchHistory(const MessagingContext &msgCtx,
+					      const SmartBuffer &cmdBuf)
+{
+	return HTERR_NOT_IMPLEMENTED;
+}
+
+HatoholError HapProcessStandard::fetchTrigger(const MessagingContext &msgCtx,
+					      const SmartBuffer &cmdBuf)
 {
 	return HTERR_NOT_IMPLEMENTED;
 }
@@ -274,11 +289,12 @@ void HapProcessStandard::onReceivedReqFetchItem(void)
 {
 	struct ItemFetchTask : public AsyncCommandTask {
 		MessagingContext msgCtx;
+		SmartBuffer cmdBuf;
 		HapProcessStandard *hap;
 		virtual void run(void) override
 		{
 			hap->startAcquisition(&HapProcessStandard::fetchItem,
-			                      msgCtx, false);
+			                      msgCtx, cmdBuf, false);
 		}
 	};
 	ItemFetchTask *task = new ItemFetchTask();
@@ -288,6 +304,80 @@ void HapProcessStandard::onReceivedReqFetchItem(void)
 		delete task;
 		THROW_HATOHOL_EXCEPTION("Failed to call getMessaginContext().");
 	}
+
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	if (!cmdBuf) {
+		delete task;
+		HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+	}
+	task->cmdBuf = *cmdBuf;
+
+	// We keep the order of command handling with a queue.
+	m_impl->asyncCommandTaskQueue.push(task);
+	Utils::executeOnGLibEventLoop<HapProcessStandard>(
+	  HapProcessStandard::runQueuedAsyncCommandTask, this, ASYNC);
+}
+
+void HapProcessStandard::onReceivedReqFetchHistory(void)
+{
+	struct HistoryFetchTask : public AsyncCommandTask {
+		MessagingContext msgCtx;
+		SmartBuffer cmdBuf;
+		HapProcessStandard *hap;
+		virtual void run(void) override
+		{
+			hap->startAcquisition(
+			  &HapProcessStandard::fetchHistory,
+			  msgCtx, cmdBuf, false);
+		}
+	};
+	HistoryFetchTask *task = new HistoryFetchTask();
+	task->hap = this;
+
+	if (!getMessagingContext(task->msgCtx)) {
+		delete task;
+		THROW_HATOHOL_EXCEPTION("Failed to call getMessaginContext().");
+	}
+
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	if (!cmdBuf) {
+		delete task;
+		HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+	}
+	task->cmdBuf = *cmdBuf;
+
+	// We keep the order of command handling with a queue.
+	m_impl->asyncCommandTaskQueue.push(task);
+	Utils::executeOnGLibEventLoop<HapProcessStandard>(
+	  HapProcessStandard::runQueuedAsyncCommandTask, this, ASYNC);
+}
+
+void HapProcessStandard::onReceivedReqFetchTrigger(void)
+{
+	struct TriggerFetchTask : public AsyncCommandTask {
+		MessagingContext msgCtx;
+		SmartBuffer cmdBuf;
+		HapProcessStandard *hap;
+		virtual void run(void) override
+		{
+			hap->startAcquisition(&HapProcessStandard::fetchTrigger,
+			                      msgCtx, cmdBuf, false);
+		}
+	};
+	TriggerFetchTask *task = new TriggerFetchTask();
+	task->hap = this;
+
+	if (!getMessagingContext(task->msgCtx)) {
+		delete task;
+		THROW_HATOHOL_EXCEPTION("Failed to call getMessaginContext().");
+	}
+
+	SmartBuffer *cmdBuf = getCurrBuffer();
+	if (!cmdBuf) {
+		delete task;
+		HATOHOL_ASSERT(cmdBuf, "Current buffer: NULL");
+	}
+	task->cmdBuf = *cmdBuf;
 
 	// We keep the order of command handling with a queue.
 	m_impl->asyncCommandTaskQueue.push(task);

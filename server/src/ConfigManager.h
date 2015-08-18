@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef ConfigManager_h
@@ -26,6 +26,7 @@
 
 struct CommandLineOptions {
 	gchar    *pidFilePath;
+	gchar    *user;
 	gchar    *dbServer;
 	gchar    *dbName;
 	gchar    *dbUser;
@@ -34,7 +35,9 @@ struct CommandLineOptions {
 	gboolean  testMode;
 	gboolean  enableCopyOnDemand;
 	gboolean  disableCopyOnDemand;
+	gboolean  loadOldEvents;
 	gint      faceRestPort;
+	gint      faceRestNumWorkers;
 
 	CommandLineOptions(void);
 };
@@ -65,7 +68,8 @@ public:
 	static bool parseCommandLine(gint *argc, gchar ***argv,
 	                             CommandLineOptions *cmdLineOpt);
 
-	static void reset(const CommandLineOptions *cmdLineOpt = NULL);
+	static void reset(const CommandLineOptions *cmdLineOpt = NULL,
+			  bool loadConfigFile = true);
 
 	void getTargetServers(MonitoringServerInfoList &monitoringServers,
 	                      ServerQueryOption &option);
@@ -120,6 +124,14 @@ public:
 	void setFaceRestPort(const int &port);
 
 	std::string getPidFilePath(void) const;
+
+	std::string getUser(void) const;
+
+	bool getLoadOldEvents(void) const;
+
+	int getFaceRestNumWorkers(void) const;
+
+	void setFaceRestNumWorkers(const int &num);
 
 protected:
 	void loadConfFile(void);

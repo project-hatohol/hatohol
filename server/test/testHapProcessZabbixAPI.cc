@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -29,7 +29,6 @@ using namespace qpid::messaging;
 
 namespace testHapProcessZabbixAPI {
 
-static const ServerIdType DEFAULT_SERVER_ID = 5;
 static const guint EMULATOR_PORT = 33333;
 static ZabbixAPIEmulator *g_apiEmulator = NULL;
 
@@ -137,20 +136,14 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 void test_getHostsAndTriggers(void)
 {
+	loadTestDBServer();
+
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	arg.serverIpAddr = "127.0.0.1";
 	arg.serverPort   = EMULATOR_PORT;
 	HatoholArmPluginTestPair<HapProcessZabbixAPITest> pair(arg);
+	pair.gate->loadHostInfoCacheForEmulator();
 
-	// TODO: Suppress warning.
-	// We get host data before triggers since the host name is needed
-	// when the trigger is saved on the Hatohol DB.
-	// However, the following warnigs are shown.
-	//     [WARN] <HatoholArmPluginGate.cc:348> Ignored a trigger whose host name was not found: server: 5, host: 10010
-	// The reason why is the mismatch of host data and trigger data.
-	// ZabbixAPIEmulator generates trigger data with
-	// zabbix-api-res-triggers-003-hosts.json.  But the host data is
-	// beased on zabbix-api-res-hosts-002.json.
 	pair.plugin->assertWaitReady();
 	pair.plugin->callUpdateAuthTokenIfNeeded();
 	pair.plugin->callWorkOnHostsAndHostgroups();
@@ -158,7 +151,13 @@ void test_getHostsAndTriggers(void)
 	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_HOST_GROUP_ELEMENTS);
 
 	pair.plugin->callWorkOnTriggers();
+	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_ALL_TRIGGERS);
+
+	pair.plugin->callWorkOnHostsAndHostgroups();
+	pair.plugin->callWorkOnTriggers();
 	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_UPDATED_TRIGGERS);
+
+	// TODO: check the pattern of "HAPI_CMD_SEND_UPDATED_TRIGGERS".
 
 	// TODO: check the DB content
 }
@@ -180,6 +179,11 @@ void test_getHostgroups(void)
 
 void test_getEvents(void)
 {
+	CommandArgHelper commandArgs;
+	commandArgs << "--test-mode";
+	commandArgs << "--load-old-events";
+	commandArgs.activate();
+	
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
 	arg.serverIpAddr = "127.0.0.1";
 	arg.serverPort   = EMULATOR_PORT;
@@ -195,6 +199,23 @@ void test_getEvents(void)
 	                                    numGotEvents);
 
 	// TODO: check the DB content
+}
+
+void test_getOneEvents(void)
+{
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	arg.serverIpAddr = "127.0.0.1";
+	arg.serverPort   = EMULATOR_PORT;
+	HatoholArmPluginTestPair<HapProcessZabbixAPITest> pair(arg);
+
+	pair.plugin->assertWaitReady();
+	pair.plugin->callUpdateAuthTokenIfNeeded();
+	pair.plugin->callWorkOnEvents();
+	const size_t numGotEvents = pair.plugin->getNumGotEvents();
+	// We expect that the events are sent multitimes.
+	cppcut_assert_equal(true, numGotEvents >= 1);
+	pair.gate->assertWaitHandledCommand(HAPI_CMD_SEND_UPDATED_EVENTS,
+	                                    numGotEvents);
 }
 
 } // namespace testHapProcessZabbixAPI

@@ -5,24 +5,24 @@
     This file is part of Hatohol.
 
     Hatohol is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 2 of the License, or
-    (at your option) any later version.
+    it under the terms of the GNU Lesser General Public License, version 3
+    as published by the Free Software Foundation.
 
     Hatohol is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
+    GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU Lesser General Public
+    License along with Hatohol. If not, see
+    <http://www.gnu.org/licenses/>.
 """
 import sys
 import os
 import urllib
 import urllib2
 import argparse
-import hatohol
+from hatohol import hatohol_def
 from hatohol.ActionCreator import ActionCreator
 
 DEFAULT_SERVER = "localhost"
@@ -55,12 +55,12 @@ class UserCreator:
 
 
 def add_session_id(request):
-    env_name = hatohol.ENV_NAME_SESSION_ID
+    env_name = hatohol_def.ENV_NAME_SESSION_ID
     session_id = os.getenv(env_name)
     if session_id is None:
         print "Found an environment varible: %s" % env_name
         return
-    request.add_header(hatohol.FACE_REST_SESSION_ID_HEADER_NAME, session_id)
+    request.add_header(hatohol_def.FACE_REST_SESSION_ID_HEADER_NAME, session_id)
 
 
 def open_url_and_show_response(cmd_ctx):
@@ -132,8 +132,8 @@ def show_event(url, args):
     url += "/event"
     query = {}
     if args.sort is not None:
-        orderDict = {"asc": hatohol.DATA_QUERY_OPTION_SORT_ASCENDING,
-                     "desc": hatohol.DATA_QUERY_OPTION_SORT_DESCENDING}
+        orderDict = {"asc": hatohol_def.DATA_QUERY_OPTION_SORT_ASCENDING,
+                     "desc": hatohol_def.DATA_QUERY_OPTION_SORT_DESCENDING}
         query["sortOrder"] = orderDict[args.sort]
     if args.max_number is not None:
         query["maximumNumber"] = args.max_number

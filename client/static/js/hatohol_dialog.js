@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 var HatoholDialogObserver = (function() {
@@ -33,7 +33,7 @@ var HatoholDialogObserver = (function() {
       for (var i in createdCallbacks)
         createdCallbacks[i](id, obj);
     }
-  }
+  };
 })();
 
 var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
@@ -57,7 +57,7 @@ var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
   var position = undefined;
   if (dialogAttr) {
     if (dialogAttr.width)
-      width = dialogAttr.width
+      width = dialogAttr.width;
     if (dialogAttr.position)
       position  = dialogAttr.position;
   }
@@ -83,13 +83,13 @@ var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
 
   $(self.dialogId).dialog("open");
   HatoholDialogObserver.notifyCreated(id, this);
-}
+};
 
 /**
  * Called just after the main element is appended to the HTML body.
  */
 HatoholDialog.prototype.onAppendMainElement = function () {
-}
+};
 
 /**
  * Replace a main element of the dialog.
@@ -100,11 +100,11 @@ HatoholDialog.prototype.onAppendMainElement = function () {
 HatoholDialog.prototype.replaceMainElement = function(elem) {
   this.mainFrame.empty();
   this.mainFrame.append(elem);
-}
+};
 
 HatoholDialog.prototype.appendToMainElement = function(elem) {
   this.mainFrame.append(elem);
-}
+};
 
 /**
  * Close and delete the dialog.
@@ -112,7 +112,7 @@ HatoholDialog.prototype.appendToMainElement = function(elem) {
 HatoholDialog.prototype.closeDialog = function() {
   $(this.dialogId).dialog("close");
   $(this.dialogId).remove();
-}
+};
 
 HatoholDialog.prototype.setButtonState = function(buttonLabel, state) {
   var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
@@ -124,5 +124,4 @@ HatoholDialog.prototype.setButtonState = function(buttonLabel, state) {
      btn.attr("disabled", "disable");
      btn.addClass("ui-state-disabled");
   }
-}
-
+};

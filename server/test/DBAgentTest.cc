@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <gcutter.h>
@@ -397,6 +397,37 @@ void dbAgentTestFixupIndexes(DBAgent &dbAgent, DBAgentChecker &checker)
 	checker.assertFixupIndexes(dbAgent, tableProfile);
 }
 
+void dbAgentTestFixupSameNameIndexes(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	// We make a copy to update a pointer of the indexDefArray
+	DBAgent::TableProfile tableProfile = tableProfileTest;
+
+	const int columnIndexes0[] = {
+	  IDX_TEST_TABLE_AGE, IDX_TEST_TABLE_NAME, IDX_TEST_TABLE_HEIGHT,
+	  DBAgent::IndexDef::END
+	};
+
+	const int columnIndexes1[] = {
+	  IDX_TEST_TABLE_NAME, IDX_TEST_TABLE_TIME, DBAgent::IndexDef::END
+	};
+
+	DBAgent::IndexDef indexDefArray[] = {
+	  {"testIndex",    columnIndexes0, false},
+	  {NULL, NULL, false},
+	};
+
+	// create the 1st index
+	tableProfile.indexDefArray = indexDefArray;
+	dbAgent.createTable(tableProfile);
+	dbAgent.fixupIndexes(tableProfile);
+	checker.assertFixupIndexes(dbAgent, tableProfile);
+
+	// create the 2nd index with the same name
+	indexDefArray[0].columnIndexes = columnIndexes1;
+	dbAgent.fixupIndexes(tableProfile);
+	checker.assertFixupIndexes(dbAgent, tableProfile);
+}
+
 void dbAgentTestInsert(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	// create table
@@ -458,11 +489,13 @@ void dbAgentTestUpsert(DBAgent &dbAgent, DBAgentChecker &checker)
 	param.val.name   = "rei";
 	param.val.height = 158.2;
 	checkInsert(dbAgent, checker, param);
+	cppcut_assert_equal(false, dbAgent.lastUpsertDidUpdate());
 
 	param.val.age    = 33;
 	param.val.height = 172.5;
 	param.upsertOnDuplicate = true;
 	checkInsert(dbAgent, checker, param);
+	cppcut_assert_equal(true, dbAgent.lastUpsertDidUpdate());
 }
 
 void dbAgentTestUpsertWithPrimaryKeyAutoInc(
@@ -506,6 +539,20 @@ void dbAgentTestUpdate(DBAgent &dbAgent, DBAgentChecker &checker)
 	const int AGE = 20;
 	const char *NAME = "yui";
 	const double HEIGHT = 158.0;
+	checkUpdate(dbAgent, checker, ID, AGE, NAME, HEIGHT);
+}
+
+void dbAgentTestUpdateBigUint(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	// create table and insert a row
+	dbAgentTestInsert(dbAgent, checker);
+
+	// insert a row
+	const uint64_t ID = static_cast<uint64_t>(G_MAXINT64) + 1;
+	const int AGE = 20;
+	const char *NAME = "yui";
+	const double HEIGHT = 158.0;
+	const string condition = StringUtils::sprintf("id=1");
 	checkUpdate(dbAgent, checker, ID, AGE, NAME, HEIGHT);
 }
 
@@ -801,6 +848,18 @@ void dbAgentTestRenameTable(DBAgent &dbAgent, DBAgentChecker &checker)
 	checker.assertTable(dbAgent, tableProfileDest);
 }
 
+void dbAgentTestDropTable(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	// First we confirm that the table exists.
+	dbAgent.createTable(tableProfileTest);
+	cppcut_assert_equal(true,
+	                    dbAgent.isTableExisting(tableProfileTest.name));
+
+	dbAgent.dropTable(tableProfileTest.name);
+	cppcut_assert_equal(false,
+	                    dbAgent.isTableExisting(tableProfileTest.name));
+}
+
 void dbAgentTestIsTableExisting(DBAgent &dbAgent, DBAgentChecker &checker)
 {
 	cppcut_assert_equal(false, dbAgent.isTableExisting(TABLE_NAME_TEST));
@@ -954,6 +1013,39 @@ void dbAgentGetNumberOfAffectedRows(DBAgent &dbAgent, DBAgentChecker &checker)
 	dbAgent.deleteRows(arg);
 	cppcut_assert_equal(static_cast<uint64_t>(NUM_TEST_DATA),
 			    dbAgent.getNumberOfAffectedRows());
+}
+
+void dbAgentUpsertBySameData(DBAgent &dbAgent, DBAgentChecker &checker)
+{
+	dbAgentTestCreateTable(dbAgent, checker);
+	string fmt = "%" PRIu64 "|%d|%s|";
+	fmt += makeDoubleFloatFormat(COLUMN_DEF_TEST[IDX_TEST_TABLE_HEIGHT]);
+	fmt += "|%s\n";
+	string statement = StringUtils::sprintf(
+	     "select * from %s order by %s asc",
+	     TABLE_NAME_TEST, COLUMN_DEF_TEST[IDX_TEST_TABLE_ID].columnName);
+	StringVector firstExpectedLines;
+	string expectedLine;
+
+	// inserting
+	const size_t targetIndex = IDX_TEST_TABLE_ID;
+	bool updated =
+	  dbAgentUpdateIfExistEleseInsertOneRecord(
+	    dbAgent, 0, expectedLine, targetIndex, fmt,
+	    0, AGE[0], NAME[0], HEIGHT[0], TIME[0]);
+	cppcut_assert_equal(false, updated);
+	cppcut_assert_equal(false, dbAgent.lastUpsertDidUpdate());
+	firstExpectedLines.push_back(expectedLine);
+	assertDBContent(&dbAgent, statement, expectedLine);
+
+	// updating
+	updated =
+	  dbAgentUpdateIfExistEleseInsertOneRecord(
+	    dbAgent, 0, expectedLine, targetIndex, fmt,
+	    0, AGE[0], NAME[0], HEIGHT[0], TIME[0]);
+	cppcut_assert_equal(true, updated);
+	cppcut_assert_equal(false, dbAgent.lastUpsertDidUpdate());
+	assertDBContent(&dbAgent, statement, expectedLine);
 }
 
 // --------------------------------------------------------------------------

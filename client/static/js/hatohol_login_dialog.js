@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 var HatoholLoginDialog = function(readyCallback) {
@@ -30,7 +30,7 @@ var HatoholLoginDialog = function(readyCallback) {
   var title = gettext("Login");
   var dialogAttr = { width: "auto" };
   HatoholDialog.apply(this, [id, title, dialogButtons, dialogAttr]);
-}
+};
 
 //
 // Override methods
@@ -56,7 +56,7 @@ HatoholLoginDialog.prototype.createMainElement = function() {
     s += '</form>';
     return s;
   }
-}
+};
 
 HatoholLoginDialog.prototype.onAppendMainElement = function () {
 
@@ -91,11 +91,11 @@ HatoholLoginDialog.prototype.onAppendMainElement = function () {
     self.readyCallback(user, password);
     return false;
   });
-}
+};
 
 //
 // Methods defined in this object
 //
 HatoholLoginDialog.prototype.makeInput = function(user, password) {
   this.readyCallback(user, password);
-}
+};

@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -27,6 +27,7 @@
 #include "DBTablesTest.h"
 #include "Helpers.h"
 #include "ThreadLocalDBCache.h"
+#include <algorithm>
 using namespace std;
 using namespace mlpl;
 
@@ -44,13 +45,16 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 	            StringUtils::sprintf("%d|", cond.serverId) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_HOST_ID) ?
-	            StringUtils::sprintf("%" PRIu64 "|", cond.hostId) :
+	            StringUtils::sprintf("%" FMT_LOCAL_HOST_ID "|",
+	                                 cond.hostIdInServer.c_str()) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_HOST_GROUP_ID) ?
-	            StringUtils::sprintf("%" PRIu64 "|", cond.hostgroupId) :
+	            StringUtils::sprintf("%" FMT_HOST_GROUP_ID "|",
+	                                 cond.hostgroupId.c_str()) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_TRIGGER_ID) ?
-	             StringUtils::sprintf("%" PRIu64 "|", cond.triggerId) :
+	             StringUtils::sprintf("%" FMT_TRIGGER_ID "|",
+	                                  cond.triggerId.c_str()) :
 	            DBCONTENT_MAGIC_NULL "|";
 	expect += cond.isEnable(ACTCOND_TRIGGER_STATUS) ?
 	            StringUtils::sprintf("%d|", cond.triggerStatus) :
@@ -69,7 +73,8 @@ static string makeExpectedString(const ActionDef &actDef, int expectedId)
 }
 
 static string makeExpectedLogString(
-  const ActionDef &actDef, const EventInfo &eventInfo, uint64_t logId,
+  const ActionDef &actDef, const EventInfo &eventInfo,
+  const ActionLogIdType &logId,
   ActionLogStatus status = ACTLOG_STAT_STARTED,
   ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE)
 {
@@ -86,13 +91,14 @@ static string makeExpectedLogString(
 
 	string expect =
 	  StringUtils::sprintf(
-	    "%" PRIu64 "|%d|%d|%d|%s|%s|%s|%d|%s|%" PRIu32 "|%" PRIu64 "\n",
+	    "%" FMT_ACTION_LOG_ID "|%d|%d|%d|%s|%s|%s|%d|%s|"
+	    "%" FMT_SERVER_ID "|%" FMT_EVENT_ID "\n",
 	    logId, actDef.id, status, expectedStarterId,
 	    DBCONTENT_MAGIC_NULL,
 	    DBCONTENT_MAGIC_CURR_DATETIME,
 	    expectedExitTime, failureCode,
 	    DBCONTENT_MAGIC_NULL,
-	    eventInfo.serverId, eventInfo.id);
+	    eventInfo.serverId, eventInfo.id.c_str());
 	return expect;
 }
 
@@ -106,7 +112,7 @@ static string makeExpectedEndLogString(
 	words[IDX_ACTION_LOGS_STATUS] =
 	   StringUtils::sprintf("%d", ACTLOG_STAT_SUCCEEDED);
 	words[IDX_ACTION_LOGS_END_TIME] = DBCONTENT_MAGIC_CURR_DATETIME;
-	words[IDX_ACTION_LOGS_EXIT_CODE] = 
+	words[IDX_ACTION_LOGS_EXIT_CODE] =
 	   StringUtils::sprintf("%d", logArg.exitCode);
 
 	return joinStringVector(words, "|", false);
@@ -121,8 +127,8 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 		                    actual.condition.serverId);
 	}
 	if (expect.condition.enableBits & ACTCOND_HOST_ID) {
-		cppcut_assert_equal(expect.condition.hostId,
-		                    actual.condition.hostId);
+		cppcut_assert_equal(expect.condition.hostIdInServer,
+		                    actual.condition.hostIdInServer);
 	}
 	if (expect.condition.enableBits & ACTCOND_HOST_GROUP_ID) {
 		cppcut_assert_equal(expect.condition.hostgroupId,
@@ -144,7 +150,7 @@ void _assertEqual(const ActionDef &expect, const ActionDef &actual)
 	} else {
 		cppcut_assert_equal(CMP_INVALID,
 		                    actual.condition.triggerSeverityCompType);
-	} 
+	}
 
 	cppcut_assert_equal(expect.type, actual.type);
 	cppcut_assert_equal(expect.workingDir, actual.workingDir);
@@ -309,7 +315,8 @@ void test_addAction(void)
 	string expect;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestActionDef; i++) {
-		ActionDef &actDef = testActionDef[i];
+		// We make a copy to make a mutable object.
+		ActionDef actDef = testActionDef[i];
 		assertHatoholError(HTERR_OK,
 		                   dbAction.addAction(actDef, privilege));
 
@@ -323,11 +330,40 @@ void test_addAction(void)
 	}
 }
 
+void test_updateAction(void)
+{
+	DECLARE_DBTABLES_ACTION(dbAction);
+	string expect;
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	for (size_t i = 0; i < NumTestActionDef; i++) {
+		// We make a copy to make a mutable object.
+		ActionDef actDef = testActionDef[i];
+		assertHatoholError(HTERR_OK,
+		                   dbAction.addAction(actDef, privilege));
+	}
+
+	// Call the method to be tested and check the result
+	ActionDef updateActDef = testUpdateActionDef;
+	assertHatoholError(HTERR_OK,
+	                   dbAction.updateAction(updateActDef, privilege));
+
+	// validation
+	const int expectedId = 2;
+	cppcut_assert_equal(expectedId, updateActDef.id);
+	string statement = "select * from ";
+	statement += DBTablesAction::getTableNameActions();
+	statement += StringUtils::sprintf(" where action_id=%d",
+	                                  updateActDef.id);
+	expect += makeExpectedString(updateActDef, expectedId);
+	assertDBContent(&dbAction.getDBAgent(), statement, expect);
+}
+
 void test_addActionByInvalidUser(void)
 {
 	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(INVALID_USER_ID);
-	ActionDef &actDef = testActionDef[0];
+	// We make a copy to make a mutable object.
+	ActionDef actDef = testActionDef[0];
 	assertHatoholError(HTERR_INVALID_USER,
 	                   dbAction.addAction(actDef, privilege));
 }
@@ -337,7 +373,8 @@ void test_addActionAndCheckOwner(void)
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_ACTION);
 	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(userId);
-	ActionDef &actDef = testActionDef[0];
+	// We make a copy to make a mutable object.
+	ActionDef actDef = testActionDef[0];
 	assertHatoholError(HTERR_OK, dbAction.addAction(actDef, privilege));
 	ActionIdType actionId = dbAction.getDBAgent().getLastInsertId();
 
@@ -354,7 +391,8 @@ void test_addActionWithoutPrivilege(void)
 	const UserIdType userId = findUserWithout(OPPRVLG_CREATE_ACTION);
 	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(userId);
-	ActionDef &actDef = testActionDef[0];
+	// We make a copy to make a mutable object.
+	ActionDef actDef = testActionDef[0];
 	assertHatoholError(HTERR_NO_PRIVILEGE,
 	                   dbAction.addAction(actDef, privilege));
 }
@@ -378,6 +416,7 @@ void test_addIncidentSenderActionByIncidentSettingsAdmin(void)
 	OperationPrivilege privilege(userId);
 	int idx = findTestActionIdxByType(ACTION_INCIDENT_SENDER);
 	ActionIdType expectedId = 1;
+	// We make a copy to make a mutable object.
 	ActionDef actionDef = testActionDef[idx];
 	actionDef.ownerUserId = userId;
 	assertHatoholError(HTERR_OK,
@@ -401,8 +440,10 @@ void test_addIncidentSenderActionWithoutPrivilege(void)
 	DECLARE_DBTABLES_ACTION(dbAction);
 	OperationPrivilege privilege(userId);
 	int idx = findTestActionIdxByType(ACTION_INCIDENT_SENDER);
+	// We make a copy to make a mutable object.
+	ActionDef actDef = testActionDef[idx];
 	assertHatoholError(HTERR_NO_PRIVILEGE,
-	                   dbAction.addAction(testActionDef[idx], privilege));
+	                   dbAction.addAction(actDef, privilege));
 }
 
 void test_deleteAction(void)
@@ -573,7 +614,7 @@ void test_startExecAction(void)
 {
 	string expect;
 	DECLARE_DBTABLES_ACTION(dbAction);
-	EventInfo &eventInfo = testEventInfo[0];
+	const EventInfo &eventInfo = testEventInfo[0];
 	for (size_t i = 0; i < NumTestActionDef; i++) {
 		const ActionDef &actDef = testActionDef[i];
 		ActionLogStatus status;
@@ -589,7 +630,7 @@ void test_startExecAction(void)
 			status = ACTLOG_STAT_STARTED;
 			cut_fail("Unknown action type: %d\n", actDef.type);
 		}
-		uint64_t logId =
+		const ActionLogIdType logId =
 		  dbAction.createActionLog(actDef, eventInfo,
 		                           ACTLOG_EXECFAIL_NONE, status);
 		const uint64_t expectedId = i + 1;
@@ -606,7 +647,7 @@ void test_startExecActionWithExecFailure(void)
 {
 	string expect;
 	DECLARE_DBTABLES_ACTION(dbAction);
-	EventInfo &eventInfo = testEventInfo[0];
+	const EventInfo &eventInfo = testEventInfo[0];
 	size_t targetIdx = 1;
 	const ActionDef &actDef = testActionDef[targetIdx];
 	uint64_t logId = dbAction.createActionLog(actDef, eventInfo,
@@ -663,14 +704,15 @@ void test_getTriggerActionList(void)
 	const ActionCondition condTarget = testActionDef[idxTarget].condition;
 	EventInfo eventInfo;
 	eventInfo.serverId  = condTarget.serverId;
-	eventInfo.id        = 0;
+	eventInfo.id        = "0";
 	eventInfo.time.tv_sec  = 1378339653;
 	eventInfo.time.tv_nsec = 6889;
 	eventInfo.type      = EVENT_TYPE_GOOD;
 	eventInfo.triggerId = condDummy.triggerId;
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
 	eventInfo.severity  = (TriggerSeverityType) condTarget.triggerSeverity;
-	eventInfo.hostId    = condDummy2.hostId;
+	eventInfo.globalHostId = INVALID_HOST_ID;
+	eventInfo.hostIdInServer = condDummy2.hostIdInServer;
 	eventInfo.hostName  = "foo";
 	eventInfo.brief     = "foo foo foo";
 
@@ -692,21 +734,22 @@ void test_getTriggerActionList(void)
 void test_getTriggerActionListWithAllCondition(void)
 {
 	loadTestDBAction();
-	loadTestDBHostgroupElements();
+	loadTestDBHostgroupMember();
 
 	// make an EventInfo instance for the test
 	int idxTarget = 3;
 	const ActionCondition condTarget = testActionDef[idxTarget].condition;
 	EventInfo eventInfo;
 	eventInfo.serverId  = condTarget.serverId;
-	eventInfo.id        = 0;
+	eventInfo.id        = "0";
 	eventInfo.time.tv_sec  = 1378339653;
 	eventInfo.time.tv_nsec = 6889;
 	eventInfo.type      = EVENT_TYPE_GOOD;
 	eventInfo.triggerId = condTarget.triggerId;
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
 	eventInfo.severity  = (TriggerSeverityType) condTarget.triggerSeverity;
-	eventInfo.hostId    = condTarget.hostId;
+	eventInfo.globalHostId = INVALID_HOST_ID;
+	eventInfo.hostIdInServer = condTarget.hostIdInServer;
 	eventInfo.hostName  = "foo";
 	eventInfo.brief     = "foo foo foo";
 
@@ -725,24 +768,29 @@ void test_getTriggerActionListWithAllCondition(void)
 	assertEqual(testActionDef[idxTarget], actual);
 }
 
-static void _assertGetActionWithSeverity(const TriggerSeverityType &severity,
-					 const int expectedActionIdx)
+static void _assertGetActionWithSeverity(
+  const TriggerSeverityType &severity,
+  const int &targetActionIdx, const bool &expectFound = true)
 {
 	loadTestDBAction();
 
 	// make an EventInfo instance for the test
 	EventInfo eventInfo;
-	const ActionDef &actionDef = testActionDef[expectedActionIdx];
+	const ActionDef &actionDef = testActionDef[targetActionIdx];
 	const ActionCondition condTarget = actionDef.condition;
 	eventInfo.serverId  = condTarget.serverId ? : 1129;
-	eventInfo.id        = 1192;
+	eventInfo.id        = "1192";
 	eventInfo.time.tv_sec  = 1378339653;
 	eventInfo.time.tv_nsec = 6889;
 	eventInfo.type      = EVENT_TYPE_BAD;
-	eventInfo.triggerId = condTarget.triggerId ? : 1;
+	if (!condTarget.triggerId.empty())
+		eventInfo.triggerId = condTarget.triggerId;
+	else
+		eventInfo.triggerId = "1";
 	eventInfo.status    = (TriggerStatusType) condTarget.triggerStatus;
 	eventInfo.severity = severity;
-	eventInfo.hostId    = condTarget.hostId ? : 1;
+	eventInfo.globalHostId = INVALID_HOST_ID;
+	eventInfo.hostIdInServer = condTarget.hostIdInServer;
 	eventInfo.hostName  = "foo";
 	eventInfo.brief     = "foo foo foo";
 
@@ -756,32 +804,31 @@ static void _assertGetActionWithSeverity(const TriggerSeverityType &severity,
 	  HTERR_OK,
 	  dbAction.getActionList(actionDefList, option));
 
-	if (expectedActionIdx < 0) {
+	if (!expectFound) {
 		cppcut_assert_equal((size_t)0, actionDefList.size());
 	} else {
 		cppcut_assert_equal((size_t)1, actionDefList.size());
 		// check the content
 		const ActionDef &actual = *actionDefList.begin();
-		assertEqual(testActionDef[expectedActionIdx], actual);
+		assertEqual(testActionDef[targetActionIdx], actual);
 	}
 }
-#define assertGetActionWithSeverity(S,E) \
-cut_trace(_assertGetActionWithSeverity(S,E))
+#define assertGetActionWithSeverity(S,E,...) \
+cut_trace(_assertGetActionWithSeverity(S,E,##__VA_ARGS__))
 
 void test_getActionWithLessSeverityAgainstCmpEqGt(void)
 {
 	int targetActionIdx = 1;
-	int noActionIdx = -1;
-	ActionDef &targetAction = testActionDef[targetActionIdx];
+	const ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)(targetAction.condition.triggerSeverity - 1),
-	  noActionIdx);
+	  targetActionIdx, false);
 }
 
 void test_getActionWithEqualSeverityAgainstCmpEqGt(void)
 {
 	int targetActionIdx = 1;
-	ActionDef &targetAction = testActionDef[targetActionIdx];
+	const ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)targetAction.condition.triggerSeverity,
 	  targetActionIdx);
@@ -790,7 +837,7 @@ void test_getActionWithEqualSeverityAgainstCmpEqGt(void)
 void test_getActionWithGreaterSeverityAgainstCmpEqGt(void)
 {
 	int targetActionIdx = 1;
-	ActionDef &targetAction = testActionDef[targetActionIdx];
+	const ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)(targetAction.condition.triggerSeverity + 1),
 	  targetActionIdx);
@@ -799,17 +846,16 @@ void test_getActionWithGreaterSeverityAgainstCmpEqGt(void)
 void test_getActionWithLessSeverityAgainstCmpEq(void)
 {
 	int targetActionIdx = 4;
-	int noActionIdx = -1;
-	ActionDef &targetAction = testActionDef[targetActionIdx];
+	const ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)(targetAction.condition.triggerSeverity - 1),
-	  noActionIdx);
+	  targetActionIdx, false);
 }
 
 void test_getActionWithEqualSeverityAgainstCmpEq(void)
 {
 	int targetActionIdx = 4;
-	ActionDef &targetAction = testActionDef[targetActionIdx];
+	const ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)targetAction.condition.triggerSeverity,
 	  targetActionIdx);
@@ -818,11 +864,10 @@ void test_getActionWithEqualSeverityAgainstCmpEq(void)
 void test_getActionWithGreaterSeverityAgainstCmpEq(void)
 {
 	int targetActionIdx = 4;
-	int noActionIdx = -1;
-	ActionDef &targetAction = testActionDef[targetActionIdx];
+	const ActionDef &targetAction = testActionDef[targetActionIdx];
 	assertGetActionWithSeverity(
 	  (TriggerSeverityType)(targetAction.condition.triggerSeverity + 1),
-	  noActionIdx);
+	  targetActionIdx, false);
 }
 
 void test_getActionListWithNormalUser(void)
@@ -994,30 +1039,135 @@ void test_withoutPrivilege(void)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void test_withEventInfo(void)
+static void assertActionsQueryCondition(const UserIdType id, const EventInfo &event,
+					const ActionsQueryOption option,
+					const string expectedHostgroupIdStringList)
 {
-	loadTestDBTablesUser();
-
-	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
-	EventInfo &event = testEventInfo[0];
-	ActionsQueryOption option(id);
-	option.setTargetEventInfo(&event);
 	string expected
 	  = StringUtils::sprintf(
 	    "(owner_user_id=%" FMT_USER_ID " AND "
 	    "action_type>=0 AND action_type<2) AND "
 	    "((server_id IS NULL) OR (server_id=%" FMT_SERVER_ID ")) AND "
-	    "((host_id IS NULL) OR (host_id=%" FMT_HOST_ID ")) AND "
-	    // test with empty hostgroups
-	    "((host_group_id IS NULL) OR host_group_id IN (0)) AND "
-	    "((trigger_id IS NULL) OR (trigger_id=%" FMT_TRIGGER_ID ")) AND "
+	    "((host_id_in_server IS NULL) OR "
+	    "(host_id_in_server='%" FMT_LOCAL_HOST_ID "')) AND "
+	    "((host_group_id IS NULL) OR host_group_id IN (%" FMT_HOST_GROUP_ID ")) AND "
+	    "((trigger_id IS NULL) OR (trigger_id='%" FMT_TRIGGER_ID "')) AND "
 	    "((trigger_status IS NULL) OR (trigger_status=%d)) AND "
 	    "((trigger_severity IS NULL) OR "
 	    "(trigger_severity_comp_type=1 AND trigger_severity=%d) OR "
 	    "(trigger_severity_comp_type=2 AND trigger_severity<=%d))",
-	    id, event.serverId, event.hostId, event.triggerId,
+	    id, event.serverId, event.hostIdInServer.c_str(),
+	    expectedHostgroupIdStringList.c_str(),
+	    event.triggerId.c_str(),
 	    event.status, event.severity, event.severity);
 	cppcut_assert_equal(expected, option.getCondition());
+}
+
+static void assertRegexActionsQueryCondition(
+  const UserIdType id, const EventInfo &event,
+  const ActionsQueryOption option,
+  const string expectedHostgroupIdStringListRegex)
+{
+	string expectedRegex
+	  = StringUtils::sprintf(
+	    "\\(owner_user_id=%" FMT_USER_ID " AND "
+	    "action_type>=0 AND action_type<2\\) AND "
+	    "\\(\\(server_id IS NULL\\) OR \\(server_id=%" FMT_SERVER_ID "\\)\\) AND "
+	    "\\(\\(host_id_in_server IS NULL\\) OR "
+	    "\\(host_id_in_server='%" FMT_LOCAL_HOST_ID "'\\)\\) AND "
+	    "\\(\\(host_group_id IS NULL\\) OR host_group_id IN \\(%" FMT_HOST_GROUP_ID "\\)\\) AND "
+	    "\\(\\(trigger_id IS NULL\\) OR \\(trigger_id='%" FMT_TRIGGER_ID "'\\)\\) AND "
+	    "\\(\\(trigger_status IS NULL\\) OR \\(trigger_status=%d\\)\\) AND "
+	    "\\(\\(trigger_severity IS NULL\\) OR "
+	    "\\(trigger_severity_comp_type=1 AND trigger_severity=%d\\) OR "
+	    "\\(trigger_severity_comp_type=2 AND trigger_severity<=%d\\)\\)",
+	    id, event.serverId, event.hostIdInServer.c_str(),
+	    expectedHostgroupIdStringListRegex.c_str(),
+	    event.triggerId.c_str(),
+	    event.status, event.severity, event.severity);
+	cut_assert_match(expectedRegex.c_str(), option.getCondition().c_str());
+}
+
+void test_withEventInfo(void)
+{
+	loadTestDBTablesUser();
+
+	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
+	const EventInfo &event = testEventInfo[0];
+	ActionsQueryOption option(id);
+	option.setTargetEventInfo(&event);
+	// test with empty hostgroups
+	string expectedHostgroupIdStringList = "'0'";
+	assertActionsQueryCondition(id, event, option, expectedHostgroupIdStringList);
+}
+
+void test_withEventInfoWithOneHostgroup(void)
+{
+	loadTestDBTablesUser();
+	loadTestDBHostgroupMember();
+
+	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
+	const EventInfo &event = testEventInfo[1]; // use host_id_in_server='10002'
+	ActionsQueryOption option(id);
+	option.setTargetEventInfo(&event);
+	string expectedHostgroupIdStringList = "'1'";
+	assertActionsQueryCondition(id, event, option, expectedHostgroupIdStringList);
+}
+
+void test_withEventInfoWithHostgroups(void)
+{
+	loadTestDBTablesUser();
+	loadTestDBHostgroupMember();
+
+	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
+	const EventInfo &event = testEventInfo[2]; // use host_id_in_server='235012'
+	ActionsQueryOption option(id);
+	option.setTargetEventInfo(&event);
+	string expectedHostgroupIdStringListRegex = "('1','2'|'2','1')";
+	assertRegexActionsQueryCondition(id, event, option,
+					 expectedHostgroupIdStringListRegex);
+}
+
+class TestActionsQueryOption : public ActionsQueryOption {
+public:
+	TestActionsQueryOption(const UserIdType &userId)
+	: ActionsQueryOption(userId)
+	{
+	}
+
+	void callGetHostgroupIdList(string &stringHostgroupId,
+	                            const ServerIdType &serverId,
+	                            const LocalHostIdType &hostId)
+	{
+		ActionsQueryOption::getHostgroupIdList(stringHostgroupId,
+		                                       serverId, hostId);
+	}
+};
+
+void test_getHostgroupIdList(void)
+{
+	loadTestDBTablesUser();
+	loadTestDBHostgroupMember();
+
+	UserIdType id = findUserWithout(OPPRVLG_GET_ALL_ACTION);
+	const EventInfo &event = testEventInfo[2]; // use host_id_in_server='235012'
+	TestActionsQueryOption option(id);
+	option.setTargetEventInfo(&event);
+	std::vector<string> expectedHostgroupIdVect;
+	expectedHostgroupIdVect.push_back("'1'");
+	expectedHostgroupIdVect.push_back("'2'");
+	string obtainedHostgroupIdStringList;
+	option.callGetHostgroupIdList(obtainedHostgroupIdStringList,
+				      event.serverId,
+				      event.hostIdInServer.c_str());
+	std::vector<string> actualHostgroupIdVect;
+	StringUtils::split(actualHostgroupIdVect, obtainedHostgroupIdStringList, ',');
+	std::sort(actualHostgroupIdVect.begin(), actualHostgroupIdVect.end());
+
+	size_t hostgroupIdVectSize = actualHostgroupIdVect.size();
+	for (size_t i = 0; i < hostgroupIdVectSize; ++i)
+		cppcut_assert_equal(actualHostgroupIdVect.at(i),
+				    expectedHostgroupIdVect.at(i));
 }
 
 void data_actionType(void)

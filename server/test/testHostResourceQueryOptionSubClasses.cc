@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -36,20 +36,28 @@ namespace testHostResourceQueryOptionSubClasses {
 // NOTE: The same definitions are in testDBClientHatohol.cc
 static const string serverIdColumnName = "server_id";
 static const string hostgroupIdColumnName = "host_group_id";
-static const string hostIdColumnName = "host_id";
+static const string hostIdColumnName = "host_id_in_server";
 
 static void initParamChecker(
   gconstpointer data, HostResourceQueryOption &option)
 {
 	option.setTargetServerId(2);
 	string expected = "server_id=2";
-	if (typeid(option) != typeid(HostgroupsQueryOption)) {
-		option.setTargetHostId(4);
-		expected += " AND host_id=4";
+	const type_info &optionType = typeid(option);
+	if (optionType != typeid(HostgroupsQueryOption)) {
+		option.setTargetHostId("4");
+		const char *hostIdColumnName = "host_id_in_server";
+		expected += StringUtils::sprintf(" AND %s='4'",
+		                                 hostIdColumnName);
 	}
 	if (typeid(option) == typeid(HostsQueryOption)) {
-		expected += StringUtils::sprintf(" AND validity>=%d",
-		                                 HOST_VALID);
+		HostsQueryOption &hostsQueryOption =
+		  dynamic_cast<HostsQueryOption &>(option);
+		HostStatus status = hostsQueryOption.getStatus();
+		if (status != HOST_STAT_ALL) {
+			expected += StringUtils::sprintf(" AND status=%d",
+			                                 status);
+		}
 	}
 	// TODO: call setHostgroupId()
 	fixupForFilteringDefunctServer(data, expected, option);
@@ -67,11 +75,11 @@ void _assertPrimaryTableName(const HostResourceQueryOption &option)
 	else if (typeinfo == typeid(ItemsQueryOption))
 		expectedTableName = DBTablesMonitoring::TABLE_NAME_ITEMS;
 	else if (typeinfo == typeid(HostsQueryOption))
-		expectedTableName = DBTablesMonitoring::TABLE_NAME_HOSTS;
+		expectedTableName = "server_host_def";
 	else if (typeinfo == typeid(HostgroupsQueryOption))
-		expectedTableName = DBTablesMonitoring::TABLE_NAME_HOSTGROUPS;
-	else if (typeinfo == typeid(HostgroupElementQueryOption))
-		expectedTableName = DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
+		expectedTableName = "hostgroup_list";
+	else if (typeinfo == typeid(HostgroupMembersQueryOption))
+		expectedTableName = "hostgroup_member";
 	else
 		cut_fail("Unknown type name: %s\n", typeinfo.name());
 }
@@ -207,10 +215,10 @@ void data_triggersQueryOptionWithTargetId(void)
 void test_triggersQueryOptionWithTargetId(gconstpointer data)
 {
 	TriggersQueryOption option(USER_ID_SYSTEM);
-	TriggerIdType expectedId = 634;
+	TriggerIdType expectedId = "634";
 	option.setTargetId(expectedId);
 	string expected = StringUtils::sprintf(
-		"triggers.id=%" FMT_TRIGGER_ID, expectedId);
+		"triggers.id='%" FMT_TRIGGER_ID "'", expectedId.c_str());
 	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(expectedId, option.getTargetId());
 	cppcut_assert_equal(expected, option.getCondition());
@@ -350,6 +358,37 @@ void test_eventQueryOptionWithSortTypeTime(void)
 	cppcut_assert_equal(expected, option.getOrderBy());
 }
 
+void data_eventQueryOptionDefaultEventType(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionDefaultEentType(gconstpointer data)
+{
+	EventsQueryOption option(USER_ID_SYSTEM);
+	string expected =  "";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(EVENT_TYPE_ALL,
+			    option.getType());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void data_eventQueryOptionWithEventType(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionWithEventType(gconstpointer data)
+{
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setType(EVENT_TYPE_BAD);
+	string expected = "event_value=1";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(EVENT_TYPE_BAD,
+			    option.getType());
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
 void test_eventQueryOptionDefaultMinimumSeverity(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
@@ -369,7 +408,7 @@ void test_eventQueryOptionWithMinimumSeverity(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
 	option.setMinimumSeverity(TRIGGER_SEVERITY_CRITICAL);
-	string expected =  "triggers.severity>=4";
+	string expected =  "severity>=4";
 	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(TRIGGER_SEVERITY_CRITICAL,
 			    option.getMinimumSeverity());
@@ -415,20 +454,89 @@ void data_eventQueryOptionGetServerIdColumnName(void)
 void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 {
 	EventsQueryOption option(USER_ID_SYSTEM);
-	const string hostgroupTableAlias = "map_hosts_hostgroups";
 	option.setTargetServerId(26);
-	option.setTargetHostgroupId(48);
-	option.setTargetHostId(32);
+	option.setTargetHostgroupId("48");
+	option.setTargetHostId("32");
 	string expect = StringUtils::sprintf(
-	                  "%s.%s=26 AND %s.%s=32 AND %s.%s=48",
+	                  "%s.%s=26 AND %s.%s='32' AND %s.%s='48'",
 			  DBTablesMonitoring::TABLE_NAME_EVENTS,
 			  serverIdColumnName.c_str(),
-			  DBTablesMonitoring::TABLE_NAME_TRIGGERS,
+			  DBTablesMonitoring::TABLE_NAME_EVENTS,
 			  hostIdColumnName.c_str(),
-			  hostgroupTableAlias.c_str(),
+	                  tableProfileHostgroupMember.name,
 			  hostgroupIdColumnName.c_str());
 	fixupForFilteringDefunctServer(data, expect, option);
 	cppcut_assert_equal(expect, option.getCondition());
+}
+
+void data_eventQueryOptionWithBeginTime(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionWithBeginTime(gconstpointer data)
+{
+	timespec beginTime = { 123, 456 };
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setBeginTime(beginTime);
+	string expected = "(time_sec>123 OR (time_sec=123 AND time_ns>=456))";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void data_eventQueryOptionWithEndTime(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionWithEndTime(gconstpointer data)
+{
+	timespec endTime = { 987, 654 };
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setEndTime(endTime);
+	string expected = "(time_sec<987 OR (time_sec=987 AND time_ns<=654))";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void data_eventQueryOptionWithBeginTimeAndEndTime(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_eventQueryOptionWithBeginTimeAndEndTime(gconstpointer data)
+{
+	timespec beginTime = { 123, 456 };
+	timespec endTime = { 987, 654 };
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setBeginTime(beginTime);
+	option.setEndTime(endTime);
+	string expected =
+	  "(time_sec>123 OR (time_sec=123 AND time_ns>=456))"
+	  " AND "
+	  "(time_sec<987 OR (time_sec=987 AND time_ns<=654))";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void test_eventQueryOptionGetBeginTime(void)
+{
+	timespec expected = { 123, 456 };
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setBeginTime(expected);
+	const timespec &actual = option.getBeginTime();
+	cppcut_assert_equal(expected.tv_sec, actual.tv_sec);
+	cppcut_assert_equal(expected.tv_nsec, actual.tv_nsec);
+}
+
+void test_eventQueryOptionGetEndTime(void)
+{
+	timespec expected = { 987, 654 };
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setEndTime(expected);
+	const timespec &actual = option.getEndTime();
+	cppcut_assert_equal(expected.tv_sec, actual.tv_sec);
+	cppcut_assert_equal(expected.tv_nsec, actual.tv_nsec);
 }
 
 //
@@ -472,10 +580,10 @@ void data_itemsQueryOptionWithTargetId(void)
 void test_itemsQueryOptionWithTargetId(gconstpointer data)
 {
 	ItemsQueryOption option(USER_ID_SYSTEM);
-	ItemIdType expectedId = 436;
+	ItemIdType expectedId = "436";
 	option.setTargetId(expectedId);
 	string expected = StringUtils::sprintf(
-		"items.id=%" FMT_ITEM_ID, expectedId);
+		"items.id='%" FMT_ITEM_ID "'", expectedId.c_str());
 	fixupForFilteringDefunctServer(data, expected, option);
 	cppcut_assert_equal(expectedId, option.getTargetId());
 	cppcut_assert_equal(expected, option.getCondition());
@@ -523,14 +631,14 @@ void test_hostsQueryOptionFromDataQueryContext(gconstpointer data)
 void test_hostsQueryOptionGetValidtyDefault(void)
 {
 	HostsQueryOption option(USER_ID_SYSTEM);
-	cppcut_assert_equal(HOST_ALL_VALID, option.getValidity());
+	cppcut_assert_equal(HOST_STAT_ALL, option.getStatus());
 }
 
 void test_hostsQueryOptionSetGetValidty(void)
 {
 	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setValidity(HOST_VALID);
-	cppcut_assert_equal(HOST_VALID, option.getValidity());
+	option.setStatus(HOST_STAT_NORMAL);
+	cppcut_assert_equal(HOST_STAT_NORMAL, option.getStatus());
 }
 
 void data_hostsQueryOptionGetConditionForHostValid(void)
@@ -541,9 +649,9 @@ void data_hostsQueryOptionGetConditionForHostValid(void)
 void test_hostsQueryOptionGetConditionForHostValid(gconstpointer data)
 {
 	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setValidity(HOST_VALID);
-	cppcut_assert_equal(HOST_VALID, option.getValidity());
-	string expected = StringUtils::sprintf("validity=%d", HOST_VALID);
+	option.setStatus(HOST_STAT_NORMAL);
+	cppcut_assert_equal(HOST_STAT_NORMAL, option.getStatus());
+	string expected = StringUtils::sprintf("status=%d", HOST_STAT_NORMAL);
 	fixupForFilteringDefunctServer(data, expected, option);
 }
 
@@ -578,32 +686,32 @@ void test_hostgroupsQueryOptionCallGetConditionFromUserWithoutAllServers(void)
 	HostgroupsQueryOption option(userId);
 	option.setFilterForDataOfDefunctServers(false);
 	const string actual = option.getCondition();
-	const string expect = "(server_id=1 AND host_group_id IN (0,1))";
+	const string expect = "(server_id=1 AND id_in_server IN ('0','1'))";
 	cppcut_assert_equal(expect, actual);
 }
 
 //
-// HostgroupElementQueryOption
+// HostgroupMembersQueryOption
 //
-void data_hostgroupElementQueryOptionConstructorWithUserId(void)
+void data_hostgroupMembersQueryOptionConstructorWithUserId(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
-void test_hostgroupElementQueryOptionConstructorWithUserId(gconstpointer data)
+void test_hostgroupMembersQueryOptionConstructorWithUserId(gconstpointer data)
 {
-	assertQueryOptionConstructorWithUserId(HostgroupElementQueryOption,
+	assertQueryOptionConstructorWithUserId(HostgroupMembersQueryOption,
 	                                       data);
 }
 
-void data_hostgroupElementQueryOptionFromDataQueryContext(void)
+void data_hostgroupMembersQueryOptionFromDataQueryContext(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
-void test_hostgroupElementQueryOptionFromDataQueryContext(gconstpointer data)
+void test_hostgroupMembersQueryOptionFromDataQueryContext(gconstpointer data)
 {
-	assertQueryOptionFromDataQueryContext(HostgroupElementQueryOption,
+	assertQueryOptionFromDataQueryContext(HostgroupMembersQueryOption,
 	                                      data);
 }
 

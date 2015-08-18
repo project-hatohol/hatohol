@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <Mutex.h>
@@ -22,6 +22,7 @@
 #include "DBAgent.h"
 #include "HatoholException.h"
 #include "SeparatorInjector.h"
+#include "DBTermCStringProvider.h"
 using namespace std;
 using namespace mlpl;
 
@@ -182,29 +183,39 @@ DBAgent::UpdateArg::~UpdateArg()
 		delete rows[i];
 }
 
-void DBAgent::UpdateArg::add(const size_t &columnIndex, const int &val)
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const int &val,
+                             const ItemDataNullFlagType &nullFlag)
 {
-	rows.push_back(new RowElement(columnIndex, new ItemInt(val), false));
+	rows.push_back(new RowElement(columnIndex,
+	                              new ItemInt(val, nullFlag), false));
 }
 
-void DBAgent::UpdateArg::add(const size_t &columnIndex, const uint64_t &val)
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const uint64_t &val,
+                             const ItemDataNullFlagType &nullFlag)
 {
-	rows.push_back(new RowElement(columnIndex, new ItemUint64(val), false));
+	rows.push_back(new RowElement(columnIndex,
+	                              new ItemUint64(val, nullFlag), false));
 }
 
-void DBAgent::UpdateArg::add(const size_t &columnIndex, const double &val)
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const double &val,
+                             const ItemDataNullFlagType &nullFlag)
 {
-	rows.push_back(new RowElement(columnIndex, new ItemDouble(val), false));
+	rows.push_back(new RowElement(columnIndex,
+	                              new ItemDouble(val, nullFlag), false));
 }
 
-void DBAgent::UpdateArg::add(const size_t &columnIndex, const std::string &val)
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const std::string &val,
+                             const ItemDataNullFlagType &nullFlag)
 {
-	rows.push_back(new RowElement(columnIndex, new ItemString(val), false));
+	rows.push_back(new RowElement(columnIndex,
+	                              new ItemString(val, nullFlag), false));
 }
 
-void DBAgent::UpdateArg::add(const size_t &columnIndex, const time_t &val)
+void DBAgent::UpdateArg::add(const size_t &columnIndex, const time_t &val,
+                             const ItemDataNullFlagType &nullFlag)
 {
-	rows.push_back(new RowElement(columnIndex, new ItemInt(val), false));
+	rows.push_back(new RowElement(columnIndex,
+	                              new ItemInt(val, nullFlag), false));
 }
 
 void DBAgent::UpdateArg::add(const size_t &columnIndex, const ItemGroup *grp)
@@ -331,36 +342,58 @@ DBAgent::~DBAgent()
 {
 }
 
+void DBAgent::dropTable(const std::string &tableName)
+{
+	string sql = "DROP TABLE ";
+	sql += tableName;
+	execSql(sql);
+}
+
 void DBAgent::fixupIndexes(const TableProfile &tableProfile)
 {
-	typedef map<string, IndexInfo *>  IndexSqlInfoMap;
-	typedef IndexSqlInfoMap::iterator IndexSqlInfoMapIterator;
+	typedef map<string, IndexInfo *>   IndexNameInfoMap;
+	typedef IndexNameInfoMap::iterator IndexNameInfoMapIterator;
 
 	struct {
 		DBAgent        *obj;
-		IndexSqlInfoMap indexSqlInfoMap;
+		IndexNameInfoMap existingIndexMap;
 
 		void proc(const TableProfile &tableProfile,
 		          const IndexDef &indexDef)
 		{
-			const string sql =
-			  obj->makeCreateIndexStatement(tableProfile, indexDef);
-			IndexSqlInfoMapIterator it = indexSqlInfoMap.find(sql);
-			if (it != indexSqlInfoMap.end()) {
-				indexSqlInfoMap.erase(it);
+			// If there's no index with the same name,
+			// the new one should be created.
+			const string indexName =
+			  obj->makeIndexName(tableProfile, indexDef);
+			IndexNameInfoMapIterator it =
+			  existingIndexMap.find(indexName);
+			if (it == existingIndexMap.end()) {
+				obj->createIndex(tableProfile, indexDef);
 				return;
 			}
-			obj->createIndex(tableProfile, indexDef);
+
+			// We create the index only when the requested
+			// SQL is different from the existing one.
+			const IndexInfo &indexInfo = *it->second;
+			const string &existingSql = indexInfo.sql;
+			const string reqSql =
+			  obj->makeCreateIndexStatement(tableProfile, indexDef);
+			if (reqSql != existingSql) {
+				obj->dropIndex(indexName, tableProfile.name);
+				obj->createIndex(tableProfile, indexDef);
+			}
+			existingIndexMap.erase(it);
 		}
 	} ctx;
 	ctx.obj = this;
 
 	// Gather existing indexes
+	IndexNameInfoMap existingIndexNameInfoMap;
 	vector<IndexInfo> indexInfoVect;
 	getIndexInfoVect(indexInfoVect, tableProfile);
 	for (size_t i = 0; i < indexInfoVect.size(); i++) {
 		IndexInfo &idxInfo = indexInfoVect[i];
-		ctx.indexSqlInfoMap[idxInfo.sql] = &idxInfo;
+		ctx.existingIndexMap[idxInfo.name] = &idxInfo;
 	}
 
 	// Create needed indexes with ColumnDef
@@ -382,17 +415,17 @@ void DBAgent::fixupIndexes(const TableProfile &tableProfile)
 		ctx.proc(tableProfile, indexDef);
 	}
 
-	// Create needed indexes with IndexesDef
+	// Select really necessary indexes for the creation.
 	const IndexDef *indexDefPtr = tableProfile.indexDefArray;
 	for (; indexDefPtr && indexDefPtr->name; indexDefPtr++)
 		ctx.proc(tableProfile, *indexDefPtr);
 
 	// Drop remaining (unnecessary) indexes
-	while (!ctx.indexSqlInfoMap.empty()) {
-		IndexSqlInfoMapIterator it = ctx.indexSqlInfoMap.begin();
+	while (!ctx.existingIndexMap.empty()) {
+		IndexNameInfoMapIterator it = ctx.existingIndexMap.begin();
 		const IndexInfo &indexInfo = *it->second;
 		dropIndex(indexInfo.name, indexInfo.tableName);
-		ctx.indexSqlInfoMap.erase(it);
+		ctx.existingIndexMap.erase(it);
 	}
 }
 
@@ -516,6 +549,9 @@ string DBAgent::makeSelectStatement(const SelectExArg &selectExArg)
 string DBAgent::getColumnValueString(const ColumnDef *columnDef,
                                      const ItemData *itemData)
 {
+	if (itemData->isNull())
+		return "NULL";
+
 	string valueStr;
 	switch (columnDef->type) {
 	case SQL_COLUMN_TYPE_INT:
@@ -525,22 +561,16 @@ string DBAgent::getColumnValueString(const ColumnDef *columnDef,
 	}
 	case SQL_COLUMN_TYPE_BIGUINT:
 	{
-		valueStr = StringUtils::sprintf("%" PRId64,
-		                                (uint64_t)*itemData);
+		valueStr = StringUtils::sprintf("%" PRIu64,
+						(uint64_t)*itemData);
 		break;
 	}
 	case SQL_COLUMN_TYPE_VARCHAR:
 	case SQL_COLUMN_TYPE_CHAR:
 	case SQL_COLUMN_TYPE_TEXT:
 	{
-		if (itemData->isNull()) {
-			valueStr = "NULL";
-		} else {
-			string escaped =
-			   StringUtils::replace((string)*itemData, "'", "''");
-			valueStr =
-			   StringUtils::sprintf("'%s'", escaped.c_str());
-		}
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		valueStr = rhs(static_cast<string>(*itemData));
 		break;
 	}
 	case SQL_COLUMN_TYPE_DOUBLE:
@@ -578,7 +608,7 @@ string DBAgent::makeUpdateStatement(const UpdateArg &updateArg)
 		statement += StringUtils::sprintf("%s=%s",
 		                                  columnDef.columnName,
 		                                  valueStr.c_str());
-		if (i < numColumns-1)
+		if (i < numColumns - 1)
 			statement += ",";
 	}
 
@@ -684,3 +714,10 @@ void DBAgent::dropIndex(const std::string &name, const std::string &tableName)
 	MLPL_INFO("Deleted index: %s (table: %s)\n",
 	          name.c_str(), tableName.c_str());
 }
+
+string DBAgent::makeIndexName(const TableProfile &tableProfile,
+                              const IndexDef &indexDef)
+{
+	return indexDef.name;
+}
+

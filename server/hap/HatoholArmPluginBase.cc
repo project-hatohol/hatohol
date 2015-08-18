@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cstdio>
@@ -118,6 +118,16 @@ HatoholArmPluginBase::HatoholArmPluginBase(void)
 	    &HatoholArmPluginBase::cmdHandlerFetchItems);
 
 	registerCommandHandler(
+	  HAPI_CMD_REQ_FETCH_HISTORY,
+	  (CommandHandler)
+	    &HatoholArmPluginBase::cmdHandlerFetchHistory);
+
+	registerCommandHandler(
+	  HAPI_CMD_REQ_FETCH_TRIGGERS,
+	  (CommandHandler)
+	    &HatoholArmPluginBase::cmdHandlerFetchTriggers);
+
+	registerCommandHandler(
 	  HAPI_CMD_REQ_TERMINATE,
 	  (CommandHandler)
 	    &HatoholArmPluginBase::cmdHandlerTerminate);
@@ -208,8 +218,7 @@ EventIdType HatoholArmPluginBase::getLastEventId(void)
 		EventIdType eventId;
 
 		Callback(HatoholArmPluginBase *obj)
-		: SyncCommand(obj),
-		  eventId(INVALID_EVENT_ID)
+		: SyncCommand(obj)
 		{
 		}
 
@@ -221,7 +230,9 @@ EventIdType HatoholArmPluginBase::getLastEventId(void)
 			const HapiResLastEventId *body =
 			  getObject()->getResponseBody
 			    <HapiResLastEventId>(replyBuf);
-			eventId = body->lastEventId;
+			eventId = getString(replyBuf, body,
+			                    body->lastEventIdOffset,
+			                    body->lastEventIdLength);
 			setSucceeded();
 		}
 	} *cb = new Callback(this);
@@ -271,8 +282,10 @@ SmartTime HatoholArmPluginBase::getTimeOfLastEvent(
 	HapiParamTimeOfLastEvent *param = 
 	  setupCommandHeader<HapiParamTimeOfLastEvent>(
 	    cmdBuf, HAPI_CMD_GET_TIME_OF_LAST_EVENT,
-	    sizeof(HapiParamTimeOfLastEvent));
-	param->triggerId = triggerId;
+	    sizeof(HapiParamTimeOfLastEvent) + triggerId.size() + 1);
+	char *buf = reinterpret_cast<char *>(param + 1);
+	buf = putString(buf, param, triggerId,
+	                &param->triggerIdOffset, &param->triggerIdLength);
 	send(cmdBuf, cb);
 	cb->wait();
 	if (!cb->getSucceeded()) {
@@ -280,6 +293,80 @@ SmartTime HatoholArmPluginBase::getTimeOfLastEvent(
 		  "Failed to call HAPI_CMD_GET_TIME_OF_LAST_EVENT\n");
 	}
 	return cb->lastTime;
+}
+
+bool HatoholArmPluginBase::wasHostsInServerDBChanged(void)
+{
+	struct Callback : public SyncCommand {
+		bool status;
+
+		Callback(HatoholArmPluginBase *obj)
+		: SyncCommand(obj)
+		{
+		}
+
+		virtual void onGotReply(
+		  mlpl::SmartBuffer &replyBuf,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			SemaphorePoster poster(this);
+			const HapiTriggerCollect *body =
+			  getObject()->getResponseBody
+			    <HapiTriggerCollect>(replyBuf);
+			status = (bool)LtoN(body->type);
+			setSucceeded();
+		}
+
+	} *cb = new Callback(this);
+	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
+
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(
+	  cmdBuf, HAPI_CMD_GET_IF_HOSTS_CHANGED);
+	send(cmdBuf, cb);
+	cb->wait();
+	if (!cb->getSucceeded()) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call HAPI_CMD_GET_TRIGGERS_COLLECT_STAT\n");
+	}
+	return cb->status;
+}
+
+bool HatoholArmPluginBase::shouldLoadOldEvent(void)
+{
+	struct Callback : public SyncCommand {
+		bool status;
+
+		Callback(HatoholArmPluginBase *obj)
+		: SyncCommand(obj)
+		{
+		}
+
+		virtual void onGotReply(
+		  mlpl::SmartBuffer &replyBuf,
+		  const HapiCommandHeader &cmdHeader) override
+		{
+			SemaphorePoster poster(this);
+			const HapiResShouldLoadOldEvent *body =
+			  getObject()->getResponseBody
+			    <HapiResShouldLoadOldEvent>(replyBuf);
+			status = (bool)LtoN(body->type);
+			setSucceeded();
+		}
+
+	} *cb = new Callback(this);
+	Reaper<UsedCountable> reaper(cb, UsedCountable::unref);
+
+	SmartBuffer cmdBuf;
+	setupCommandHeader<void>(
+	  cmdBuf, HAPI_CMD_GET_SHOULD_LOAD_OLD_EVENT);
+	send(cmdBuf, cb);
+	cb->wait();
+	if (!cb->getSucceeded()) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Failed to call HAPI_CMD_GET_LOAD_OLD_EVENT\n");
+	}
+	return cb->status;
 }
 
 // ---------------------------------------------------------------------------
@@ -295,6 +382,18 @@ void HatoholArmPluginBase::onReceivedReqFetchItem(void)
 {
 	MLPL_WARN("Received fetch item request. "
 	          "onReceivedReqFetchItem() should be overridden\n");
+}
+
+void HatoholArmPluginBase::onReceivedReqFetchHistory(void)
+{
+	MLPL_WARN("Received fetch history request. "
+	          "onReceivedReqFetchHistory() should be overridden\n");
+}
+
+void HatoholArmPluginBase::onReceivedReqFetchTrigger(void)
+{
+	MLPL_WARN("Received fetch trigger request. "
+	          "onReceivedReqFetchTrigger() should be overridden\n");
 }
 
 void HatoholArmPluginBase::sendCmdGetMonitoringServerInfo(
@@ -435,6 +534,18 @@ void HatoholArmPluginBase::sendHapSelfTriggers(const int numTriggerList,
 void HatoholArmPluginBase::cmdHandlerFetchItems(const HapiCommandHeader *header)
 {
 	onReceivedReqFetchItem();
+}
+
+void HatoholArmPluginBase::cmdHandlerFetchHistory(
+  const HapiCommandHeader *header)
+{
+	onReceivedReqFetchHistory();
+}
+
+void HatoholArmPluginBase::cmdHandlerFetchTriggers(
+  const HapiCommandHeader *header)
+{
+	onReceivedReqFetchTrigger();
 }
 
 void HatoholArmPluginBase::cmdHandlerTerminate(const HapiCommandHeader *header)

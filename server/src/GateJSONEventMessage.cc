@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cmath>
@@ -23,6 +23,8 @@
 
 using namespace std;
 using namespace mlpl;
+
+const size_t GateJSONEventMessage::EVENT_ID_DIGIT_NUM = 20;
 
 struct GateJSONEventMessage::Impl
 {
@@ -103,6 +105,17 @@ struct GateJSONEventMessage::Impl
 		return parseSeverity(severity);
 	}
 
+	EventType getType()
+	{
+		JsonNode *node = json_object_get_member(getBody(), "type");
+		if (!node) {
+			return EVENT_TYPE_BAD;
+		}
+
+		const string type(json_node_get_string(node));
+		return parseType(type);
+	}
+
 private:
 	JsonObject *getBody()
 	{
@@ -142,6 +155,22 @@ private:
 			return TRIGGER_SEVERITY_EMERGENCY;
 		} else {
 			return NUM_TRIGGER_SEVERITY;
+		}
+	}
+
+	static const EventType EVENT_TYPE_INVALID = static_cast<EventType>(-1);
+	EventType parseType(const string &type)
+	{
+		if (type == "good") {
+			return EVENT_TYPE_GOOD;
+		} else if (type == "bad") {
+			return EVENT_TYPE_BAD;
+		} else if (type == "unknown") {
+			return EVENT_TYPE_UNKNOWN;
+		} else if (type == "notification") {
+			return EVENT_TYPE_NOTIFICATION;
+		} else {
+			return EVENT_TYPE_INVALID;
 		}
 	}
 
@@ -289,15 +318,11 @@ private:
 		return validateObjectMemberTime(errors, "$.body", body, name);
 	}
 
-	bool validateBodyMemberSeverity(StringList &errors,
-					JsonObject *body,
-					const gchar *name)
+	bool validateStringBodyMember(StringList &errors,
+				      JsonObject *body,
+				      const gchar *name,
+				      JsonNode *memberNode)
 	{
-		JsonNode *memberNode = json_object_get_member(body, name);
-		if (!memberNode) {
-			return true;
-		}
-
 		GType valueType = json_node_get_value_type(memberNode);
 		if (valueType != G_TYPE_STRING) {
 			JsonGenerator *generator = json_generator_new();
@@ -310,6 +335,22 @@ private:
 				 memberJSON);
 			g_free(memberJSON);
 			g_object_unref(generator);
+			return false;
+		}
+
+		return true;
+	}
+
+	bool validateBodyMemberSeverity(StringList &errors,
+					JsonObject *body,
+					const gchar *name)
+	{
+		JsonNode *memberNode = json_object_get_member(body, name);
+		if (!memberNode) {
+			return true;
+		}
+
+		if (!validateStringBodyMember(errors, body, name, memberNode)) {
 			return false;
 		}
 
@@ -327,6 +368,32 @@ private:
 		return true;
 	}
 
+	bool validateBodyMemberType(StringList &errors,
+				    JsonObject *body,
+				    const gchar *name)
+	{
+		JsonNode *memberNode = json_object_get_member(body, name);
+		if (!memberNode) {
+			return true;
+		}
+
+		if (!validateStringBodyMember(errors, body, name, memberNode)) {
+			return false;
+		}
+
+		const string type(json_node_get_string(memberNode));
+		if (parseType(type) == EVENT_TYPE_INVALID) {
+			addError(errors,
+				 "$.body.%s must be valid type: <%s>: "
+				 "available values: good, bad, unknown",
+				 name,
+				 type.c_str());
+			return false;
+		}
+
+		return true;
+	}
+
 	bool validateEventBody(StringList &errors, JsonObject *body)
 	{
 		if (!validateBodyMember(errors, body, "id", G_TYPE_INT64))
@@ -338,6 +405,8 @@ private:
 		if (!validateBodyMember(errors, body, "content", G_TYPE_STRING))
 			return false;
 		if (!validateBodyMemberSeverity(errors, body, "severity"))
+			return false;
+		if (!validateBodyMemberType(errors, body, "type"))
 			return false;
 		return true;
 	}
@@ -362,6 +431,19 @@ int64_t GateJSONEventMessage::getID()
 	return m_impl->getID();
 }
 
+string GateJSONEventMessage::getIDString()
+{
+	const uint64_t id = static_cast<uint64_t>(m_impl->getID());
+	string idString = StringUtils::toString(id);
+	string fixedIdString;
+	const int digitNum = EVENT_ID_DIGIT_NUM;
+	const int numPads = digitNum - idString.size();
+	if (numPads > 0)
+		fixedIdString = string(numPads, '0');
+	fixedIdString += idString;
+	return fixedIdString;
+}
+
 timespec GateJSONEventMessage::getTimestamp()
 {
 	return m_impl->getTimestamp();
@@ -380,4 +462,9 @@ const char *GateJSONEventMessage::getContent()
 TriggerSeverityType GateJSONEventMessage::getSeverity()
 {
 	return m_impl->getSeverity();
+}
+
+EventType GateJSONEventMessage::getType()
+{
+	return m_impl->getType();
 }

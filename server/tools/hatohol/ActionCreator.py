@@ -5,23 +5,23 @@
     This file is part of Hatohol.
 
     Hatohol is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 2 of the License, or
-    (at your option) any later version.
+    it under the terms of the GNU Lesser General Public License, version 3
+    as published by the Free Software Foundation.
 
     Hatohol is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU General Public License for more details.
+    GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU Lesser General Public
+    License along with Hatohol. If not, see
+    <http://www.gnu.org/licenses/>.
 """
 
 import sys
 import urllib
 import urllib2
-import hatohol
+from hatohol import hatohol_def
 import argparse
 
 
@@ -30,12 +30,12 @@ class SeverityParseAction(argparse.Action):
         if len(values) != 2:
             raise argparse.ArgumentTypeError("--severity expects 2 arguments.")
 
-        severity_cmp_dict = {"eq": hatohol.CMP_EQ, "ge": hatohol.CMP_EQ_GT}
-        severity_dict = {"info": hatohol.TRIGGER_SEVERITY_INFO,
-                         "warn": hatohol.TRIGGER_SEVERITY_WARNING,
-                         "error": hatohol.TRIGGER_SEVERITY_ERROR,
-                         "critical": hatohol.TRIGGER_SEVERITY_CRITICAL,
-                         "emergency": hatohol.TRIGGER_SEVERITY_EMERGENCY}
+        severity_cmp_dict = {"eq": hatohol_def.CMP_EQ, "ge": hatohol_def.CMP_EQ_GT}
+        severity_dict = {"info": hatohol_def.TRIGGER_SEVERITY_INFO,
+                         "warn": hatohol_def.TRIGGER_SEVERITY_WARNING,
+                         "error": hatohol_def.TRIGGER_SEVERITY_ERROR,
+                         "critical": hatohol_def.TRIGGER_SEVERITY_CRITICAL,
+                         "emergency": hatohol_def.TRIGGER_SEVERITY_EMERGENCY}
         comparator = values[0]
         if comparator not in severity_cmp_dict:
             raise argparse.ArgumentTypeError(
@@ -87,9 +87,9 @@ class ActionCreator:
     def add(self, args):
         type_code = None
         if args.type == "command":
-            type_code = hatohol.ACTION_COMMAND
+            type_code = hatohol_def.ACTION_COMMAND
         elif args.type == "resident":
-            type_code = hatohol.ACTION_RESIDENT
+            type_code = hatohol_def.ACTION_RESIDENT
         else:
             print "Type must be 'command' or 'resident'."
             sys.exit(-1)
@@ -100,9 +100,9 @@ class ActionCreator:
         status = args.status
         status_code = None
         if status == "ok":
-            status_code = hatohol.TRIGGER_STATUS_OK
+            status_code = hatohol_def.TRIGGER_STATUS_OK
         elif status == "problem":
-            status_code = hatohol.TRIGGER_STATUS_PROBLEM
+            status_code = hatohol_def.TRIGGER_STATUS_PROBLEM
 
         print "Type       : " + args.type
         print "Commad     : " + args.command

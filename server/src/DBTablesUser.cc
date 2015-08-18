@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <stdint.h>
@@ -22,6 +22,7 @@
 #include "DBTablesConfig.h"
 #include "ItemGroupStream.h"
 #include "DBHatohol.h"
+#include "DBTermCStringProvider.h"
 using namespace std;
 using namespace mlpl;
 
@@ -36,7 +37,11 @@ const UserRoleIdSet EMPTY_USER_ROLE_ID_SET;
 //   * Add user_roles table
 // 3 -> 4:
 //   * NUM_OPPRVLG:19 -> 23
-const int   DBTablesUser::USER_DB_VERSION = 4;
+
+// -> 1.0
+//   * access_list.host_group_id -> VARCHAR
+const int DBTablesUser::USER_DB_VERSION =
+  DBTables::Version::getPackedVer(0, 1, 0);
 
 const char *DBTablesUser::TABLE_NAME_USERS = "users";
 const char *DBTablesUser::TABLE_NAME_ACCESS_LIST = "access_list";
@@ -44,11 +49,6 @@ const char *DBTablesUser::TABLE_NAME_USER_ROLES = "user_roles";
 const size_t DBTablesUser::MAX_USER_NAME_LENGTH = 128;
 const size_t DBTablesUser::MAX_PASSWORD_LENGTH = 128;
 const size_t DBTablesUser::MAX_USER_ROLE_NAME_LENGTH = 128;
-static const char *TABLE_NAME_USERS = DBTablesUser::TABLE_NAME_USERS;
-static const char *TABLE_NAME_ACCESS_LIST =
-  DBTablesUser::TABLE_NAME_ACCESS_LIST;
-static const char *TABLE_NAME_USER_ROLES =
-  DBTablesUser::TABLE_NAME_USER_ROLES;
 
 static const ColumnDef COLUMN_DEF_USERS[] = {
 {
@@ -133,8 +133,8 @@ static const ColumnDef COLUMN_DEF_ACCESS_LIST[] = {
 	NULL,                              // defaultValue
 }, {
 	"host_group_id",                   // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -229,10 +229,12 @@ static void updateAdminPrivilege(DBAgent &dbAgent,
 	dbAgent.update(arg);
 }
 
-static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
+static bool updateDB(
+  DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
 {
 	static OperationPrivilegeType old_NUM_OPPRVLG;
 
+	const int &oldVer = oldPackedVer.minorVer;
 	if (oldVer <= 1) {
 		old_NUM_OPPRVLG = static_cast<OperationPrivilegeType>(10);
 		updateAdminPrivilege(dbAgent, old_NUM_OPPRVLG);
@@ -254,9 +256,13 @@ static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
 struct UserQueryOption::Impl {
 	bool   onlyMyself;
 	string targetName;
+	OperationPrivilegeFlag targetFlags;
+	bool   hasPrivilegesFlags;
 
 	Impl(void)
-	: onlyMyself(false)
+	: onlyMyself(false),
+	  targetFlags(0),
+	  hasPrivilegesFlags(false)
 	{
 	}
 };
@@ -285,6 +291,22 @@ HatoholError UserQueryOption::setTargetName(const string &name)
 	return HatoholError(HTERR_OK);
 }
 
+OperationPrivilegeFlag UserQueryOption::getPrivilegesFlag(void) const
+{
+	return m_impl->targetFlags;
+}
+
+void UserQueryOption::setPrivilegesFlag(const OperationPrivilegeFlag flags)
+{
+	m_impl->targetFlags = flags;
+	m_impl->hasPrivilegesFlags = true;
+}
+
+void UserQueryOption::unsetPrivilegesFlag(void)
+{
+	m_impl->hasPrivilegesFlags = false;
+}
+
 void UserQueryOption::queryOnlyMyself(void)
 {
 	m_impl->onlyMyself = true;
@@ -299,24 +321,30 @@ string UserQueryOption::getCondition(void) const
 	}
 
 	string condition;
+
+	if (m_impl->hasPrivilegesFlags) {
+		string nameCond =
+		  StringUtils::sprintf("%s=%" FMT_OPPRVLG,
+		                       COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName,
+		                       m_impl->targetFlags);
+		condition = nameCond;
+	}
+
 	if (!has(OPPRVLG_GET_ALL_USER) || m_impl->onlyMyself) {
-		condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
-		  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
+		DataQueryOption::addCondition(condition,
+		  StringUtils::sprintf("%s=%" FMT_USER_ID,
+		  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId));
 	}
 
 	if (!m_impl->targetName.empty()) {
 		// The validity of 'targetName' has been checked in
 		// setTargetName().
+		DBTermCStringProvider rhs(*getDBTermCodec());
 		string nameCond =
-		  StringUtils::sprintf("%s='%s'",
+		  StringUtils::sprintf("%s=%s",
 		    COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
-		   m_impl->targetName.c_str());
-		if (condition.empty()) {
-			condition = nameCond;
-		} else {
-			condition += " AND ";
-			condition += nameCond;
-		}
+		    rhs(m_impl->targetName));
+		DataQueryOption::addCondition(condition, nameCond);
 	}
 	return condition;
 }
@@ -437,15 +465,20 @@ void DBTablesUser::init(void)
 		Impl::validUsernameChars[c] = true;
 	for (uint8_t c = '0'; c <= '9'; c++)
 		Impl::validUsernameChars[c] = true;
-	Impl::validUsernameChars['.'] = true;
-	Impl::validUsernameChars['-'] = true;
-	Impl::validUsernameChars['_'] = true;
-	Impl::validUsernameChars['@'] = true;
+	Impl::validUsernameChars[static_cast<uint8_t>('.')] = true;
+	Impl::validUsernameChars[static_cast<uint8_t>('-')] = true;
+	Impl::validUsernameChars[static_cast<uint8_t>('_')] = true;
+	Impl::validUsernameChars[static_cast<uint8_t>('@')] = true;
 }
 
 void DBTablesUser::reset(void)
 {
 	getSetupInfo().initialized = false;
+}
+
+const DBTables::SetupInfo &DBTablesUser::getConstSetupInfo(void)
+{
+	return getSetupInfo();
 }
 
 DBTablesUser::DBTablesUser(DBAgent &dbAgent)
@@ -488,13 +521,14 @@ HatoholError DBTablesUser::addUserInfo(
 
 		bool preproc(DBAgent &dbAgent) override
 		{
+			DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
 			arg.add(AUTO_INCREMENT_VALUE);
 			arg.add(userInfo.name);
 			arg.add(Utils::sha256(userInfo.password));
 			arg.add(userInfo.flags);
-			dupCheckCond = StringUtils::sprintf("%s='%s'",
+			dupCheckCond = StringUtils::sprintf("%s=%s",
 			  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
-			  userInfo.name.c_str());
+			  rhs(userInfo.name));
 			return true;
 		}
 
@@ -576,13 +610,18 @@ HatoholError DBTablesUser::updateUserInfo(
 			arg.condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
 			  COLUMN_DEF_USERS[IDX_USERS_ID].columnName,
 			  userInfo.id);
+		}
 
+		bool preproc(DBAgent &dbAgent) override
+		{
+			DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
 			dupCheckCond = StringUtils::sprintf(
-			  "(%s='%s' and %s<>%" FMT_USER_ID ")",
+			  "(%s=%s and %s<>%" FMT_USER_ID ")",
 			  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName,
-			  userInfo.name.c_str(),
+			  rhs(userInfo.name),
 			  COLUMN_DEF_USERS[IDX_USERS_ID].columnName,
 			  userInfo.id);
+			return true;
 		}
 
 		bool hasRecord(DBAgent &dbAgent, const string &condition)
@@ -607,12 +646,55 @@ HatoholError DBTablesUser::updateUserInfo(
 	return trx.err;
 }
 
+HatoholError DBTablesUser::updateUserInfoFlags(
+  OperationPrivilegeFlag &oldUserFlag, OperationPrivilegeFlag &updateUserFlag,
+  const OperationPrivilege &privilege)
+{
+	if (!privilege.has(OPPRVLG_UPDATE_USER))
+		return HTERR_NO_PRIVILEGE;
+	HatoholError err;
+	err = isValidFlags(oldUserFlag);
+	if (err != HTERR_OK)
+		return err;
+	err = isValidFlags(updateUserFlag);
+	if (err != HTERR_OK)
+		return err;
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError err;
+		DBAgent::UpdateArg arg;
+		OperationPrivilegeFlag &oldUserFlag, &updateUserFlag;
+
+		TrxProc(OperationPrivilegeFlag &_oldUserFlag, OperationPrivilegeFlag &_updateUserFlag)
+		: arg(tableProfileUsers),
+		  oldUserFlag(_oldUserFlag),
+		  updateUserFlag(_updateUserFlag)
+		{
+			arg.add(IDX_USERS_FLAGS, updateUserFlag);
+
+			arg.condition = StringUtils::sprintf("%s=%" PRIu64,
+			  COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName,
+			  oldUserFlag);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.update(arg);
+			err = HTERR_OK;
+		}
+	} trx(oldUserFlag, updateUserFlag);
+	getDBAgent().runTransaction(trx);
+	return trx.err;
+}
+
 HatoholError DBTablesUser::deleteUserInfo(
   const UserIdType userId, const OperationPrivilege &privilege)
 {
 	using mlpl::StringUtils::sprintf;
 	if (!privilege.has(OPPRVLG_DELETE_USER))
 		return HTERR_NO_PRIVILEGE;
+	if (userId == privilege.getUserId())
+		return HTERR_DELETE_MYSELF;
 
 	struct TrxProc : public DBAgent::TransactionProc {
 		DBAgent::DeleteArg argForUsers;
@@ -646,11 +728,12 @@ UserIdType DBTablesUser::getUserId(const string &user, const string &password)
 	if (isValidPassword(password) != HTERR_OK)
 		return INVALID_USER_ID;
 
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	DBAgent::SelectExArg arg(tableProfileUsers);
 	arg.add(IDX_USERS_ID);
 	arg.add(IDX_USERS_PASSWORD);
-	arg.condition = StringUtils::sprintf("%s='%s'",
-	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, user.c_str());
+	arg.condition = StringUtils::sprintf("%s=%s",
+	  COLUMN_DEF_USERS[IDX_USERS_NAME].columnName, rhs(user));
 	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
@@ -677,19 +760,20 @@ HatoholError DBTablesUser::addAccessInfo(AccessInfo &accessInfo,
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	// check existing data
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	DBAgent::SelectExArg selarg(tableProfileAccessList);
 	selarg.add(IDX_ACCESS_LIST_ID);
 	selarg.add(IDX_ACCESS_LIST_USER_ID);
 	selarg.add(IDX_ACCESS_LIST_SERVER_ID);
 	selarg.add(IDX_ACCESS_LIST_HOST_GROUP_ID);
 	selarg.condition = StringUtils::sprintf(
-	  "%s=%" FMT_USER_ID " AND %s=%" PRIu32 " AND %s=%" PRIu64,
+	  "%s=%" FMT_USER_ID " AND %s=%" PRIu32 " AND %s=%s",
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
 	  accessInfo.userId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
 	  accessInfo.serverId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
-	  accessInfo.hostgroupId);
+	  rhs(accessInfo.hostgroupId));
 	getDBAgent().runTransaction(selarg);
 
 	const ItemGroupList &grpList = selarg.dataTable->getItemGroupList();
@@ -728,7 +812,7 @@ HatoholError DBTablesUser::deleteAccessInfo(const AccessInfoIdType id,
 bool DBTablesUser::getUserInfo(UserInfo &userInfo, const UserIdType userId)
 {
 	UserInfoList userInfoList;
-	string condition = StringUtils::sprintf("%s='%" FMT_USER_ID "'",
+	string condition = StringUtils::sprintf("%s=%" FMT_USER_ID,
 	  COLUMN_DEF_USERS[IDX_USERS_ID].columnName, userId);
 	getUserInfoList(userInfoList, condition);
 	if (userInfoList.empty())
@@ -796,14 +880,15 @@ HatoholError DBTablesUser::getAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMa
 		} else {
 			hostGrpAccessInfoMap = it->second;
 		}
-		
+
 		HostGrpAccessInfoMapIterator jt =
 		  hostGrpAccessInfoMap->find(accessInfo->hostgroupId);
 		if (jt != hostGrpAccessInfoMap->end()) {
-			MLPL_WARN("Found duplicated serverId and hostgroupId: "
-			          "%" FMT_SERVER_ID ", %" PRIu64 "\n",
-			          accessInfo->serverId,
-			          accessInfo->hostgroupId);
+			MLPL_WARN(
+			  "Found duplicated serverId and hostgroupId: "
+			  "%" FMT_SERVER_ID ", %" FMT_HOST_GROUP_ID "\n",
+			   accessInfo->serverId,
+			   accessInfo->hostgroupId.c_str());
 			delete accessInfo;
 			continue;
 		}
@@ -854,7 +939,7 @@ void DBTablesUser::getServerHostGrpSetMap(
 			MLPL_WARN("Found duplicated serverId and hostgroupId: "
 			          "%" FMT_SERVER_ID ", "
 			          "%" FMT_HOST_GROUP_ID "\n",
-			          serverId, hostgroupId);
+			          serverId, hostgroupId.c_str());
 			continue;
 		}
 	}
@@ -909,10 +994,12 @@ HatoholError DBTablesUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 			err = HTERR_OK;
 		}
 	} trx(userRoleInfo);
+
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	trx.dupChkCond = StringUtils::sprintf(
-	  "(%s='%s' or %s=%" FMT_OPPRVLG ")",
+	  "(%s=%s or %s=%" FMT_OPPRVLG ")",
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
-	  StringUtils::replace(userRoleInfo.name, "'", "''").c_str(),
+	  rhs(userRoleInfo.name),
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS].columnName,
 	  userRoleInfo.flags);
 	getDBAgent().runTransaction(trx);
@@ -973,10 +1060,11 @@ HatoholError DBTablesUser::updateUserRoleInfo(
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
 	  userRoleInfo.id);
 
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	trx.dupChkCond = StringUtils::sprintf(
-	  "((%s='%s' or %s=%" FMT_OPPRVLG ") and %s<>%" FMT_USER_ROLE_ID ")",
+	  "((%s=%s or %s=%" FMT_OPPRVLG ") and %s<>%" FMT_USER_ROLE_ID ")",
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_NAME].columnName,
-	  StringUtils::replace(userRoleInfo.name, "'", "''").c_str(),
+	  rhs(userRoleInfo.name),
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_FLAGS].columnName,
 	  userRoleInfo.flags,
 	  COLUMN_DEF_USER_ROLES[IDX_USER_ROLES_ID].columnName,
@@ -1072,10 +1160,10 @@ bool DBTablesUser::isAccessible(const ServerIdType &serverId,
 		return false;
 	}
 
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	string condition = StringUtils::sprintf(
 	  "%s=%" FMT_USER_ID " AND "
-	  "(%s=%" FMT_SERVER_ID " OR %s=%" FMT_SERVER_ID ") AND "
-	  "%s=%" FMT_HOST_GROUP_ID,
+	  "(%s=%" FMT_SERVER_ID " OR %s=%" FMT_SERVER_ID ") AND %s=%s",
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
 	  userId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
@@ -1083,7 +1171,7 @@ bool DBTablesUser::isAccessible(const ServerIdType &serverId,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
 	  ALL_SERVERS,
 	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
-	  ALL_HOST_GROUPS);
+	  rhs(ALL_HOST_GROUPS));
 
 	DBAgent::SelectExArg arg(tableProfileAccessList);
 	arg.add("count(*)", SQL_COLUMN_TYPE_INT);
@@ -1100,6 +1188,31 @@ bool DBTablesUser::isAccessible(const ServerIdType &serverId,
 	const ItemGroup *itemGroup = *grpList.begin();
 	int count = *itemGroup->getItemAt(0);
 	return count > 0;
+}
+
+bool DBTablesUser::isAccessible(
+  const ServerIdType &serverId, const HostgroupIdType &hostgroupId,
+  const OperationPrivilege &privilege, const bool &useTransaction)
+{
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
+	const UserIdType userId = privilege.getUserId();
+	string condition = StringUtils::sprintf(
+	  "%s=%" FMT_USER_ID " AND "
+	  "((%s=%" FMT_SERVER_ID ") OR "
+	  " (%s=%" FMT_SERVER_ID " AND "
+	  "  (%s=%s OR %s=%s)))",
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_USER_ID].columnName,
+	  userId,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
+	  ALL_SERVERS,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_SERVER_ID].columnName,
+	  serverId,
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
+	  rhs(ALL_HOST_GROUPS),
+	  COLUMN_DEF_ACCESS_LIST[IDX_ACCESS_LIST_HOST_GROUP_ID].columnName,
+	  rhs(hostgroupId));
+
+	return isAccessible(privilege, condition, useTransaction);
 }
 
 // ---------------------------------------------------------------------------
@@ -1153,4 +1266,31 @@ void DBTablesUser::getUserInfoList(UserInfoList &userInfoList,
 		itemGroupStream >> userInfo.flags;
 		userInfoList.push_back(userInfo);
 	}
+}
+
+bool DBTablesUser::isAccessible(
+  const OperationPrivilege &privilege, const string &condition,
+  const bool &useTransaction)
+{
+	UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID) {
+		MLPL_WARN("INVALID_USER_ID\n");
+		return false;
+	}
+
+	DBAgent::SelectExArg arg(tableProfileAccessList);
+	arg.add("count(*)", SQL_COLUMN_TYPE_INT);
+	arg.condition = condition;
+
+	if (useTransaction) {
+		getDBAgent().runTransaction(arg);
+	} else {
+		select(arg);
+	}
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	HATOHOL_ASSERT(!grpList.empty(), "No result");
+	const ItemGroup *itemGroup = *grpList.begin();
+	int count = *itemGroup->getItemAt(0);
+	return count > 0;
 }

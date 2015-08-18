@@ -5,22 +5,23 @@
   This file is part of Hatohol.
 
   Hatohol is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 2 of the License, or
-  (at your option) any later version.
+  it under the terms of the GNU Lesser General Public License, version 3
+  as published by the Free Software Foundation.
 
   Hatohol is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
+  GNU Lesser General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU Lesser General Public
+  License along with Hatohol. If not, see
+  <http://www.gnu.org/licenses/>.
 """
 import unittest
 
 from hatohol.models import UserConfig
 from django.db import connection
+
 
 class TestUserConfig(unittest.TestCase):
 
@@ -94,13 +95,13 @@ class TestUserConfig(unittest.TestCase):
 
     def test_store(self):
         user_conf = UserConfig(item_name='name', user_id=5, value=123)
-        user_conf.store();
+        user_conf.store()
         all_objs = UserConfig.objects.all()
         self.assertEquals(len(all_objs), 1)
         self.assertEquals(all_objs[0].value, 123)
 
         user_conf = UserConfig(item_name='name', user_id=5, value=55)
-        user_conf.store();
+        user_conf.store()
         all_objs = UserConfig.objects.all()
         self.assertEquals(len(all_objs), 1)
         self.assertEquals(all_objs[0].value, 55)

@@ -5,23 +5,23 @@
   This file is part of Hatohol.
 
   Hatohol is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 2 of the License, or
-  (at your option) any later version.
+  it under the terms of the GNU Lesser General Public License, version 3
+  as published by the Free Software Foundation.
 
   Hatohol is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
+  GNU Lesser General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU Lesser General Public
+  License along with Hatohol. If not, see
+  <http://www.gnu.org/licenses/>.
 """
 import unittest
 import urllib
 import urllib2
 
-import hatohol
+from hatohol import hatohol_def
 from hatohol import voyager
 
 class TestHatoholVoyager(unittest.TestCase):
@@ -45,23 +45,23 @@ class TestHatoholVoyager(unittest.TestCase):
     ex_cmd = "ex-cmd -x --for ABC"
     arg_list = ["add-action", "--type", "command", "--command", ex_cmd,
                 option, opt_value]
-    expect_query = {"type":hatohol.ACTION_COMMAND, "command":ex_cmd,
+    expect_query = {"type":hatohol_def.ACTION_COMMAND, "command":ex_cmd,
                     query_key:query_value}
     self._assert_url(arg_list, "http://localhost:33194/action", None,
                      expect_query)
 
   def _assert_severity(self, comparator, comparator_value):
-    severities = (("info", hatohol.TRIGGER_SEVERITY_INFO),
-                  ("warn", hatohol.TRIGGER_SEVERITY_WARNING),
-                  ("error", hatohol.TRIGGER_SEVERITY_ERROR),
-                  ("critical", hatohol.TRIGGER_SEVERITY_CRITICAL),
-                  ("emergency", hatohol.TRIGGER_SEVERITY_EMERGENCY))
+    severities = (("info", hatohol_def.TRIGGER_SEVERITY_INFO),
+                  ("warn", hatohol_def.TRIGGER_SEVERITY_WARNING),
+                  ("error", hatohol_def.TRIGGER_SEVERITY_ERROR),
+                  ("critical", hatohol_def.TRIGGER_SEVERITY_CRITICAL),
+                  ("emergency", hatohol_def.TRIGGER_SEVERITY_EMERGENCY))
     for (severity_label, severity_value) in severities:
       ex_cmd = "ex-cmd -x --for ABC"
       arg_list = ["add-action", "--type", "command", "--command", ex_cmd,
                   "--severity", comparator, severity_label]
       print arg_list
-      expect_query = {"type":hatohol.ACTION_COMMAND, "command":ex_cmd,
+      expect_query = {"type":hatohol_def.ACTION_COMMAND, "command":ex_cmd,
                       "triggerSeverityCompType":str(comparator_value),
                       "triggerSeverity":str(severity_value)}
       self._assert_url(arg_list, "http://localhost:33194/action", None,
@@ -127,13 +127,13 @@ class TestHatoholVoyager(unittest.TestCase):
     arg_list = ["show-event", "--sort", "asc"]
     self._assert_url(arg_list,
                      "http://localhost:33194/event?sortOrder=%d" %
-                       hatohol.DATA_QUERY_OPTION_SORT_ASCENDING)
+                       hatohol_def.DATA_QUERY_OPTION_SORT_ASCENDING)
 
   def test_show_event_sort_desc(self):
     arg_list = ["show-event", "--sort", "desc"]
     self._assert_url(arg_list,
                      "http://localhost:33194/event?sortOrder=%d" %
-                       hatohol.DATA_QUERY_OPTION_SORT_DESCENDING)
+                       hatohol_def.DATA_QUERY_OPTION_SORT_DESCENDING)
 
   def test_show_event_max_number(self):
     arg_list = ["show-event", "--max-number", "5"]
@@ -171,14 +171,14 @@ class TestHatoholVoyager(unittest.TestCase):
   def test_add_action(self):
     ex_cmd = "ex-cmd -x --for ABC"
     arg_list = ["add-action", "--type", "command", "--command", ex_cmd]
-    expect_query = {"type":hatohol.ACTION_COMMAND, "command":ex_cmd}
+    expect_query = {"type":hatohol_def.ACTION_COMMAND, "command":ex_cmd}
     self._assert_url(arg_list, "http://localhost:33194/action", None,
                     expect_query)
 
   def test_add_action_resident(self):
     ex_cmd = "foo.so -x --for ABC"
     arg_list = ["add-action", "--type", "resident", "--command", ex_cmd]
-    expect_query = {"type":hatohol.ACTION_RESIDENT, "command":ex_cmd}
+    expect_query = {"type":hatohol_def.ACTION_RESIDENT, "command":ex_cmd}
     self._assert_url(arg_list, "http://localhost:33194/action", None,
                     expect_query)
 
@@ -214,14 +214,14 @@ class TestHatoholVoyager(unittest.TestCase):
 
   def test_add_action_status_ok(self):
     self._assert_add_action_one_opt("--status", "ok", "triggerStatus",
-                                    str(hatohol.TRIGGER_STATUS_OK))
+                                    str(hatohol_def.TRIGGER_STATUS_OK))
 
   def test_add_action_status_problem(self):
     self._assert_add_action_one_opt("--status", "problem", "triggerStatus",
-                                    str(hatohol.TRIGGER_STATUS_PROBLEM))
+                                    str(hatohol_def.TRIGGER_STATUS_PROBLEM))
 
   def test_add_action_status_serverity(self):
-    severity_cmp = (("eq", hatohol.CMP_EQ), ("ge", hatohol.CMP_EQ_GT))
+    severity_cmp = (("eq", hatohol_def.CMP_EQ), ("ge", hatohol_def.CMP_EQ_GT))
     for (comparator, value) in severity_cmp:
       self._assert_severity(comparator, value)
 

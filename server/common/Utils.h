@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef Utils_h
@@ -36,8 +36,12 @@
 #endif
 
 #ifndef SOUP_VERSION_2_32
+#define soup_uri_get_scheme(uri) (uri->scheme)
 #define soup_uri_get_host(uri) (uri->host)
 #define soup_uri_get_port(uri) (uri->port)
+#define soup_uri_get_user(uri) (uri->user)
+#define soup_uri_get_password(uri) (uri->password)
+#define soup_uri_get_path(uri) (uri->path)
 #endif
 
 #ifndef SOUP_URI_IS_VALID
@@ -249,6 +253,24 @@ public:
 	 * @return true if the string is valid, otherwise false.
 	 */
 	static bool isValidURI(const std::string &uri);
+
+	/**
+	 * Convert a decimal number string into a number.
+	 *
+	 * @param dest A destination.
+	 * @param src  A srouce string.
+	 */
+	static void conv(uint64_t &dest, const std::string &src);
+
+	/**
+	 * Sum two variables of which one is a string.
+	 *
+	 * @param num0 A number represented by a string.
+	 * @param num1 An another number.
+	 *
+	 * @return A calculated result.
+	 */
+	static uint64_t sum(const std::string &num0, const uint64_t num1);
 
 protected:
 	static std::string makeDemangledStackTraceString(

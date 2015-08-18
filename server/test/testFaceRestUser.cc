@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -51,6 +51,30 @@ void _assertLogin(
 	}
 }
 #define assertLogin(U, P, ...) cut_trace(_assertLogin(U, P, ##__VA_ARGS__))
+
+void _assertLoginFailure(
+  const string &user, const string &password,
+  const HatoholErrorCode &expectCode = HTERR_OK,
+  string *sessionId = NULL)
+{
+	startFaceRest();
+
+	StringMap query;
+	if (!user.empty())
+		query["user"] = user;
+	if (!password.empty())
+		query["password"] = password;
+	RequestArg arg("/login", "cbname");
+	arg.parameters = query;
+	unique_ptr<JSONParser> parserPtr(getServerResponseAsJSONParserWithFailure(arg));
+	assertErrorCode(parserPtr.get(), expectCode);
+	if (sessionId) {
+		cppcut_assert_equal(true, parserPtr.get()->read("sessionId",
+		                                                *sessionId));
+	}
+}
+#define assertLoginFailure(U, P, ...) \
+  cut_trace(_assertLoginFailure(U, P, ##__VA_ARGS__))
 
 namespace testFaceRestUser {
 
@@ -176,23 +200,23 @@ void test_login(void)
 
 void test_loginFailure(void)
 {
-	assertLogin(testUserInfo[1].name, testUserInfo[0].password,
-	            HTERR_AUTH_FAILED);
+	assertLoginFailure(testUserInfo[1].name, testUserInfo[0].password,
+			   HTERR_AUTH_FAILED);
 }
 
 void test_loginNoUserName(void)
 {
-	assertLogin("", testUserInfo[0].password, HTERR_AUTH_FAILED);
+	assertLoginFailure("", testUserInfo[0].password, HTERR_AUTH_FAILED);
 }
 
 void test_loginNoPassword(void)
 {
-	assertLogin(testUserInfo[0].name, "", HTERR_AUTH_FAILED);
+	assertLoginFailure(testUserInfo[0].name, "", HTERR_AUTH_FAILED);
 }
 
 void test_loginNoUserNameAndPassword(void)
 {
-	assertLogin("", "", HTERR_AUTH_FAILED);
+	assertLoginFailure("", "", HTERR_AUTH_FAILED);
 }
 
 void test_logout(void)
@@ -363,17 +387,25 @@ void test_deleteUser(void)
 {
 	startFaceRest();
 
-	const UserIdType userId = findUserWith(OPPRVLG_DELETE_USER);
-	string url = StringUtils::sprintf("/user/%" FMT_USER_ID, userId);
+	const UserIdType deleterId = findUserWith(OPPRVLG_DELETE_USER);
+	const UserIdType targetId = 1;
+
+	// When deleterId is identical with targetId, this test case will fail.
+	// Because a user cannot delete itself. If you change test user data,
+	// you should take care so that the test doesn't fail.
+	// In case of fail the test, you need to fix Users data of DBTableTest.cc.
+	// The following assetion checks above problem.
+	cppcut_assert_not_equal(deleterId, targetId);
+	string url = StringUtils::sprintf("/user/%" FMT_USER_ID, targetId);
 	RequestArg arg(url, "cbname");
 	arg.request = "DELETE";
-	arg.userId = userId;
+	arg.userId = deleterId;
 	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 
 	// check the reply
 	assertErrorCode(parserPtr.get());
 	UserIdSet userIdSet;
-	userIdSet.insert(userId);
+	userIdSet.insert(targetId);
 	assertUsersInDB(userIdSet);
 }
 
@@ -429,17 +461,15 @@ void test_updateOrAddUserUpdate(void)
 void test_addAccessInfoWithAllHostgroups(void)
 {
 	const string serverId = "2";
-	const string hostgroupId =
-	  StringUtils::sprintf("%" PRIu64, ALL_HOST_GROUPS);
+	const string hostgroupId = ALL_HOST_GROUPS;
 	assertAddAccessInfoWithCond(serverId, hostgroupId);
 }
 
 void test_addAccessInfoWithAllHostgroupsNegativeValue(void)
 {
 	const string serverId = "2";
-	const string hostgroupId = "-1";
-	const string expectHostgroup =
-	  StringUtils::sprintf("%" PRIu64, ALL_HOST_GROUPS);
+	const string hostgroupId = ALL_HOST_GROUPS;
+	const string expectHostgroup = ALL_HOST_GROUPS;
 	assertAddAccessInfoWithCond(serverId, hostgroupId, expectHostgroup);
 }
 
@@ -483,7 +513,7 @@ static void assertUserRolesMapInParser(JSONParser *parser)
 	parser->endObject();
 
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
-		UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
+		const UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
 		flagsStr = StringUtils::toString(userRoleInfo.flags);
 		assertStartObject(parser, flagsStr);
 		assertValueInParser(parser, "name", userRoleInfo.name);
@@ -521,13 +551,8 @@ static void _assertServerAccessInfo(
 	assertStartObject(parser, "allowedHostgroups");
 	HostGrpAccessInfoMapIterator it = expected.begin();
 	for (size_t i = 0; i < expected.size(); i++) {
-		uint64_t hostgroupId = it->first;
-		string idStr;
-		if (hostgroupId == ALL_HOST_GROUPS)
-			idStr = "-1";
-		else
-			idStr = StringUtils::sprintf("%" PRIu64, hostgroupId);
-		assertStartObject(parser, idStr);
+		const HostgroupIdType &hostgroupId = it->first;
+		assertStartObject(parser, hostgroupId);
 		AccessInfo *info = it->second;
 		assertValueInParser(parser, "accessInfoId",
 				    static_cast<uint64_t>(info->id));
@@ -870,6 +895,78 @@ void test_updateUserRole(void)
 
 	// check the content in the DB
 	assertUserRoleInfoInDB(expectedUserRoleInfo);
+}
+
+static void prepareInitialUserRoleAndUser(void)
+{
+	//setup user role
+	UserRoleInfo oldUserRoleInfo;
+	oldUserRoleInfo.id = NumTestUserRoleInfo + 1;
+	oldUserRoleInfo.name = "specific action maintainer";
+	oldUserRoleInfo.flags =
+	                (1 << OPPRVLG_CREATE_ACTION)     |
+	                (1 << OPPRVLG_UPDATE_ACTION)     |
+	                (1 << OPPRVLG_DELETE_ACTION)     |
+	                (1 << OPPRVLG_GET_ALL_ACTION);
+
+	StringMap params;
+	params["name"] = oldUserRoleInfo.name;
+	params["flags"] = StringUtils::sprintf(
+	  "%" FMT_OPPRVLG, oldUserRoleInfo.flags);
+	assertAddUserRoleWithSetup(params, HTERR_OK);
+
+	// setup user
+	const UserIdType targetId = 1;
+	const string user = "SpecificActionMaintainer";
+	const string expectedPassword = testUserInfo[targetId - 1].password;
+
+	StringMap userParams;
+	userParams["name"] = user;
+	userParams["flags"] = StringUtils::sprintf("%" FMT_OPPRVLG, oldUserRoleInfo.flags);
+	stopFaceRest();
+	assertUpdateUser(userParams, targetId, HTERR_OK);
+}
+
+void test_updateUserRoleFlagAndUserFlagTogether(void)
+{
+	prepareInitialUserRoleAndUser();
+	// target user info
+	const UserIdType targetId = 1;
+	const string user = "SpecificActionMaintainer";
+	const string expectedPassword = testUserInfo[targetId - 1].password;
+
+	// update user role
+	UserRoleInfo updateUserRoleInfo;
+	updateUserRoleInfo.id = NumTestUserRoleInfo + 1;
+	updateUserRoleInfo.name = "specific action manager";
+	updateUserRoleInfo.flags =
+	                (1 << OPPRVLG_CREATE_ACTION)     |
+	                (1 << OPPRVLG_UPDATE_ACTION)     |
+	                (1 << OPPRVLG_UPDATE_ALL_ACTION) |
+	                (1 << OPPRVLG_DELETE_ACTION)     |
+	                (1 << OPPRVLG_GET_ALL_ACTION);
+
+	StringMap updateRoleParams;
+	updateRoleParams["name"] = updateUserRoleInfo.name;
+	updateRoleParams["flags"] = StringUtils::sprintf(
+	  "%" FMT_OPPRVLG, updateUserRoleInfo.flags);
+	stopFaceRest();
+	assertUpdateUserRole(updateRoleParams, updateUserRoleInfo.id, HTERR_OK);
+
+	// check the user role in the DB
+	assertUserRoleInfoInDB(updateUserRoleInfo);
+
+	// check the user in the DB
+	const int expectedId = 1;
+	string statement = "select * from ";
+	statement += DBTablesUser::TABLE_NAME_USERS;
+	statement += " where id = ";
+	statement += StringUtils::sprintf("%d", expectedId);
+	string expectUser = StringUtils::sprintf("%d|%s|%s|%" FMT_OPPRVLG,
+	  expectedId, user.c_str(), Utils::sha256(expectedPassword).c_str(),
+	  updateUserRoleInfo.flags);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getUser().getDBAgent(), statement, expectUser);
 }
 
 void test_updateUserRoleWithoutName(void)

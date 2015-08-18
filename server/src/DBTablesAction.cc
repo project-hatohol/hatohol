@@ -1,23 +1,24 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <exception>
+#include <SeparatorInjector.h>
 #include "Utils.h"
 #include "ConfigManager.h"
 #include "ThreadLocalDBCache.h"
@@ -26,6 +27,8 @@
 #include "DBTablesMonitoring.h"
 #include "Mutex.h"
 #include "ItemGroupStream.h"
+#include "UnifiedDataStore.h"
+#include "DBTermCStringProvider.h"
 using namespace std;
 using namespace mlpl;
 
@@ -35,7 +38,12 @@ const char *TABLE_NAME_ACTION_LOGS = "action_logs";
 const static guint DEFAULT_ACTION_DELETE_INTERVAL_MSEC = 3600 * 1000; // 1hour
 
 // 8 -> 9: Add actions.onwer_user_id
-int DBTablesAction::ACTION_DB_VERSION = 9;
+// -> 1.0
+//   * action_def.trigger_id    -> VARCHAR
+//   * action_def.host_group_id -> VARCHAR
+//   * action_logs.id           -> VARCHAR
+const int DBTablesAction::ACTION_DB_VERSION =
+  DBTables::Version::getPackedVer(0, 1, 0);
 
 static void operator>>(
   ItemGroupStream &itemGroupStream, ComparisonType &compType)
@@ -89,9 +97,9 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"host_id",                         // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	"host_id_in_server",               // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -99,8 +107,8 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	"host_group_id",                   // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -108,8 +116,8 @@ static const ColumnDef COLUMN_DEF_ACTIONS[] = {
 	NULL,                              // defaultValue
 }, {
 	"trigger_id",                      // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	true,                              // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -305,8 +313,8 @@ static const ColumnDef COLUMN_DEF_ACTION_LOGS[] = {
 	NULL,                              // defaultValue
 }, {
 	"event_id",                        // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -329,8 +337,10 @@ static bool addColumnOwnerUserId(DBAgent &dbAgent)
 	return true;
 }
 
-static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
+static bool updateDB(
+  DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
 {
+	const int oldVer = oldPackedVer.minorVer;
 	if (oldVer <= 8) {
 		if (!addColumnOwnerUserId(dbAgent))
 			return false;
@@ -384,6 +394,11 @@ void DBTablesAction::reset(void)
 	getSetupInfo().initialized = false;
 }
 
+const DBTables::SetupInfo &DBTablesAction::getConstSetupInfo(void)
+{
+	return getSetupInfo();
+}
+
 void DBTablesAction::stop(void)
 {
 	Utils::executeOnGLibEventLoop(stopIdleDeleteAction);
@@ -431,7 +446,7 @@ HatoholError DBTablesAction::addAction(ActionDef &actionDef,
 	arg.add(AUTO_INCREMENT_VALUE);
 	arg.add(actionDef.condition.serverId,
 	        getNullFlag(actionDef, ACTCOND_SERVER_ID));
-	arg.add(actionDef.condition.hostId,
+	arg.add(actionDef.condition.hostIdInServer,
 	        getNullFlag(actionDef, ACTCOND_HOST_ID));
 	arg.add(actionDef.condition.hostgroupId,
 	        getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
@@ -450,6 +465,55 @@ HatoholError DBTablesAction::addAction(ActionDef &actionDef,
 	arg.add(ownerUserId);
 
 	getDBAgent().runTransaction(arg, &actionDef.id);
+	return HTERR_OK;
+}
+
+HatoholError DBTablesAction::updateAction(ActionDef &actionDef,
+                                          const OperationPrivilege &privilege)
+{
+	HatoholError err = checkPrivilegeForUpdate(privilege, actionDef);
+	if (err != HTERR_OK)
+		return err;
+
+	DBAgent::UpdateArg arg(tableProfileActions);
+
+	// Basically an owner is the caller. However, USER_ID_SYSTEM can
+	// create an action with any user ID. This is a mechanism for
+	// internal system management or a test.
+	UserIdType ownerUserId = privilege.getUserId();
+	if (ownerUserId == USER_ID_SYSTEM)
+		ownerUserId = actionDef.ownerUserId;
+
+	// Owner of ACTION_INCIDENT_SENDER is always USER_ID_SYSTEM
+	if (actionDef.type == ACTION_INCIDENT_SENDER)
+		ownerUserId = USER_ID_SYSTEM;
+
+	const char *actionIdColumnName =
+	  COLUMN_DEF_ACTIONS[IDX_ACTIONS_ACTION_ID].columnName;
+	arg.condition = StringUtils::sprintf("%s=%d",
+	                                     actionIdColumnName, actionDef.id);
+	arg.add(IDX_ACTIONS_SERVER_ID, actionDef.condition.serverId,
+	        getNullFlag(actionDef, ACTCOND_SERVER_ID));
+	arg.add(IDX_ACTIONS_HOST_ID, actionDef.condition.hostIdInServer,
+	        getNullFlag(actionDef, ACTCOND_HOST_ID));
+	arg.add(IDX_ACTIONS_HOST_GROUP_ID, actionDef.condition.hostgroupId,
+	        getNullFlag(actionDef, ACTCOND_HOST_GROUP_ID));
+	arg.add(IDX_ACTIONS_TRIGGER_ID, actionDef.condition.triggerId,
+	        getNullFlag(actionDef, ACTCOND_TRIGGER_ID));
+	arg.add(IDX_ACTIONS_TRIGGER_STATUS, actionDef.condition.triggerStatus,
+	        getNullFlag(actionDef, ACTCOND_TRIGGER_STATUS));
+	arg.add(IDX_ACTIONS_TRIGGER_SEVERITY, actionDef.condition.triggerSeverity,
+	        getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
+	arg.add(IDX_ACTIONS_TRIGGER_SEVERITY_COMP_TYPE,
+	        actionDef.condition.triggerSeverityCompType,
+	        getNullFlag(actionDef, ACTCOND_TRIGGER_SEVERITY));
+	arg.add(IDX_ACTIONS_ACTION_TYPE, actionDef.type);
+	arg.add(IDX_ACTIONS_COMMAND, actionDef.command);
+	arg.add(IDX_ACTIONS_WORKING_DIR, actionDef.workingDir);
+	arg.add(IDX_ACTIONS_TIMEOUT, actionDef.timeout);
+	arg.add(IDX_ACTIONS_OWNER_USER_ID, ownerUserId);
+
+	getDBAgent().runTransaction(arg);
 	return HTERR_OK;
 }
 
@@ -503,7 +567,7 @@ HatoholError DBTablesAction::getActionList(ActionDefList &actionDefList,
 
 		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_HOST_ID);
-		itemGroupStream >> actionDef.condition.hostId;
+		itemGroupStream >> actionDef.condition.hostIdInServer;
 
 		if (!itemGroupStream.getItem()->isNull())
 			actionDef.condition.enable(ACTCOND_HOST_GROUP_ID);
@@ -645,6 +709,8 @@ void DBTablesAction::deleteInvalidActions()
 	DBAgent::SelectExArg arg(tableProfileActions);
 	arg.add(IDX_ACTIONS_ACTION_ID);
 	arg.add(IDX_ACTIONS_OWNER_USER_ID);
+	arg.add(IDX_ACTIONS_ACTION_TYPE);
+	arg.add(IDX_ACTIONS_COMMAND);
 
 	getDBAgent().runTransaction(arg);
 
@@ -658,6 +724,8 @@ void DBTablesAction::deleteInvalidActions()
 
 		itemGroupStream >> actionId;
 		itemGroupStream >> actionDef.ownerUserId;
+		itemGroupStream >> actionDef.type;
+		itemGroupStream >> actionDef.command;
 
 		if (!validator.isValid(actionDef))
 		        actionIdList.push_back(actionId);
@@ -712,7 +780,7 @@ uint64_t DBTablesAction::createActionLog(
 	arg.row->addNewItem(eventInfo.serverId);
 	arg.row->addNewItem(eventInfo.id);
 
-	uint64_t logId;
+	ActionLogIdType logId;
 	getDBAgent().runTransaction(arg, &logId);
 	return logId;
 }
@@ -721,9 +789,9 @@ void DBTablesAction::logEndExecAction(const LogEndExecActionArg &logArg)
 {
 	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
-	const char *actionLogIdColumnName = 
+	const char *actionLogIdColumnName =
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
-	arg.condition = StringUtils::sprintf("%s=%" PRIu64,
+	arg.condition = StringUtils::sprintf("%s=%" FMT_ACTION_LOG_ID,
 	                                     actionLogIdColumnName,
 	                                     logArg.logId);
 	// status
@@ -741,13 +809,13 @@ void DBTablesAction::logEndExecAction(const LogEndExecActionArg &logArg)
 	getDBAgent().runTransaction(arg);
 }
 
-void DBTablesAction::updateLogStatusToStart(uint64_t logId)
+void DBTablesAction::updateLogStatusToStart(const ActionLogIdType &logId)
 {
 	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
-	const char *actionLogIdColumnName = 
+	const char *actionLogIdColumnName =
 	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
-	arg.condition = StringUtils::sprintf("%s=%" PRIu64,
+	arg.condition = StringUtils::sprintf("%s=%" FMT_ACTION_LOG_ID,
 	                                     actionLogIdColumnName, logId);
 	arg.add(IDX_ACTION_LOGS_STATUS, ACTLOG_STAT_STARTED);
 	arg.add(IDX_ACTION_LOGS_START_TIME, CURR_DATETIME);
@@ -755,24 +823,26 @@ void DBTablesAction::updateLogStatusToStart(uint64_t logId)
 	getDBAgent().runTransaction(arg);
 }
 
-bool DBTablesAction::getLog(ActionLog &actionLog, uint64_t logId)
+bool DBTablesAction::getLog(ActionLog &actionLog, const ActionLogIdType &logId)
 {
 	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
 	const char *idColName = def[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
-	string condition = StringUtils::sprintf("%s=%" PRIu64,
+	string condition = StringUtils::sprintf("%s=%" FMT_ACTION_LOG_ID,
 	                                        idColName, logId);
 	return getLog(actionLog, condition);
 }
 
-bool DBTablesAction::getLog(ActionLog &actionLog,
-                            const ServerIdType &serverId, uint64_t eventId)
+bool DBTablesAction::getLog(
+  ActionLog &actionLog,
+  const ServerIdType &serverId, const EventIdType &eventId)
 {
 	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
 	const char *idColNameSvId = def[IDX_ACTION_LOGS_SERVER_ID].columnName;
 	const char *idColNameEvtId = def[IDX_ACTION_LOGS_EVENT_ID].columnName;
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	string condition = StringUtils::sprintf(
-	  "%s=%" FMT_SERVER_ID " AND %s=%" PRIu64,
-	  idColNameSvId, serverId, idColNameEvtId, eventId);
+	  "%s=%" FMT_SERVER_ID " AND %s=%s",
+	  idColNameSvId, serverId, idColNameEvtId, rhs(eventId));
 	return getLog(actionLog, condition);
 }
 
@@ -821,46 +891,13 @@ ItemDataNullFlagType DBTablesAction::getNullFlag
 		return ITEM_DATA_NULL;
 }
 
-static void takeTriggerInfo(TriggerInfo &triggerInfo,
-  const ServerIdType &serverId, const TriggerIdType &triggerId)
-{
-	ThreadLocalDBCache cache;
-	TriggersQueryOption option(USER_ID_SYSTEM);
-	option.setTargetServerId(serverId);
-	option.setTargetId(triggerId);
-	cache.getMonitoring().getTriggerInfo(triggerInfo, option);
-}
-
-static void getHostgroupIdStringList(string &stringHostgroupId,
-  const ServerIdType &serverId, const HostIdType &hostId)
-{
-	ThreadLocalDBCache cache;
-	HostgroupElementList hostgroupElementList;
-	HostgroupElementQueryOption option(USER_ID_SYSTEM);
-	option.setTargetServerId(serverId);
-	option.setTargetHostId(hostId);
-	cache.getMonitoring().getHostgroupElementList(hostgroupElementList,
-	                                              option);
-
-	HostgroupElementListIterator it = hostgroupElementList.begin();
-	for(; it != hostgroupElementList.end(); ++it) {
-		HostgroupElement hostgroupElement = *it;
-		stringHostgroupId += StringUtils::sprintf(
-		  "%" FMT_HOST_GROUP_ID ",", hostgroupElement.groupId);
-	}
-	if (!stringHostgroupId.empty())
-		stringHostgroupId.erase(--stringHostgroupId.end());
-	else
-		stringHostgroupId = "0";
-}
-
 bool DBTablesAction::getLog(ActionLog &actionLog, const string &condition)
 {
 	DBAgent::SelectExArg arg(tableProfileActionLogs);
 	arg.condition = condition;
 	arg.add(IDX_ACTION_LOGS_ACTION_LOG_ID);
 	arg.add(IDX_ACTION_LOGS_ACTION_ID);
-	arg.add(IDX_ACTION_LOGS_STATUS); 
+	arg.add(IDX_ACTION_LOGS_STATUS);
 	arg.add(IDX_ACTION_LOGS_STARTER_ID);
 	arg.add(IDX_ACTION_LOGS_QUEUING_TIME);
 	arg.add(IDX_ACTION_LOGS_START_TIME);
@@ -964,6 +1001,26 @@ HatoholError DBTablesAction::checkPrivilegeForDelete(
 	return HTERR_OK;
 }
 
+HatoholError DBTablesAction::checkPrivilegeForUpdate(
+  const OperationPrivilege &privilege, const ActionDef &actionDef)
+{
+	UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	if (actionDef.type == ACTION_INCIDENT_SENDER) {
+		if (privilege.has(OPPRVLG_UPDATE_INCIDENT_SETTING))
+			return HTERR_OK;
+		else
+			return HTERR_NO_PRIVILEGE;
+	}
+
+	if (!privilege.has(OPPRVLG_UPDATE_ACTION))
+		return HTERR_NO_PRIVILEGE;
+
+	return HTERR_OK;
+}
+
 gboolean DBTablesAction::deleteInvalidActionsExec(gpointer data)
 {
 	struct : public ExceptionCatchable {
@@ -977,7 +1034,7 @@ gboolean DBTablesAction::deleteInvalidActionsExec(gpointer data)
 
 	deleteInvalidActionsContext *deleteActionCtx = static_cast<deleteInvalidActionsContext *>(data);
 	deleteActionCtx->idleEventId = INVALID_EVENT_ID;
-	deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC, 
+	deleteActionCtx->timerId = g_timeout_add(DEFAULT_ACTION_DELETE_INTERVAL_MSEC,
 	                                         deleteInvalidActionsCycl,
 	                                         deleteActionCtx);
 	return G_SOURCE_REMOVE;
@@ -1038,7 +1095,7 @@ string ActionsQueryOption::Impl::makeConditionTemplate(void)
 	// host_id;
 	const ColumnDef &colDefHostId = COLUMN_DEF_ACTIONS[IDX_ACTIONS_HOST_ID];
 	cond += StringUtils::sprintf(
-	  "((%s IS NULL) OR (%s=%%" PRIu64 "))",
+	  "((%s IS NULL) OR (%s=%%s))",
 	  colDefHostId.columnName, colDefHostId.columnName);
 	cond += " AND ";
 
@@ -1054,7 +1111,7 @@ string ActionsQueryOption::Impl::makeConditionTemplate(void)
 	const ColumnDef &colDefTrigId =
 	   COLUMN_DEF_ACTIONS[IDX_ACTIONS_TRIGGER_ID];
 	cond += StringUtils::sprintf(
-	  "((%s IS NULL) OR (%s=%%" PRIu64 "))",
+	  "((%s IS NULL) OR (%s=%%s))",
 	  colDefTrigId.columnName, colDefTrigId.columnName);
 	cond += " AND ";
 
@@ -1179,6 +1236,7 @@ string ActionsQueryOption::Impl::getActionTypeAndOwnerCondition(void)
 
 string ActionsQueryOption::getCondition(void) const
 {
+	using StringUtils::sprintf;
 	string cond;
 
 	// filter by action type
@@ -1203,32 +1261,47 @@ string ActionsQueryOption::getCondition(void) const
 
 	HATOHOL_ASSERT(!m_impl->conditionTemplate.empty(),
 	               "ActionDef condition template is empty.");
-	TriggerInfo triggerInfo;
-	// TODO: eventInfo should always be filled before this function
-	//       is called. (The conditional branch here is not good)
-	if ((eventInfo->hostId == INVALID_HOST_ID) &&
-	    (eventInfo->severity == TRIGGER_SEVERITY_UNKNOWN)) {
-		takeTriggerInfo(
-		  triggerInfo, eventInfo->serverId, eventInfo->triggerId);
-	} else {
-		triggerInfo.serverId = eventInfo->serverId;
-		triggerInfo.hostId   = eventInfo->hostId;
-		triggerInfo.severity = eventInfo->severity;
-	}
 	string hostgroupIdList;
-	getHostgroupIdStringList(hostgroupIdList,
-	  triggerInfo.serverId, triggerInfo.hostId);
+	getHostgroupIdList(
+	  hostgroupIdList, eventInfo->serverId, eventInfo->hostIdInServer);
+	DBTermCStringProvider rhs(*getDBTermCodec());
+	if (hostgroupIdList.empty())
+		hostgroupIdList = rhs(DB::getAlwaysFalseCondition());
+
 	if (!cond.empty())
 		cond += " AND ";
-	cond += StringUtils::sprintf(m_impl->conditionTemplate.c_str(),
-	                       eventInfo->serverId,
-	                       triggerInfo.hostId,
-	                       hostgroupIdList.c_str(),
-	                       eventInfo->triggerId,
-	                       eventInfo->status,
-	                       triggerInfo.severity,
-	                       triggerInfo.severity);
+	// TODO: We can just pass triggerInfo.globalHostId instead of
+	//       a pair of server ID and the hostIdInServer.
+	cond += sprintf(m_impl->conditionTemplate.c_str(),
+	                eventInfo->serverId,
+	                rhs(eventInfo->hostIdInServer),
+	                hostgroupIdList.c_str(),
+	                rhs(eventInfo->triggerId),
+	                eventInfo->status,
+	                eventInfo->severity, eventInfo->severity);
 	return cond;
+}
+
+void ActionsQueryOption::getHostgroupIdList(string &stringHostgroupId,
+  const ServerIdType &serverId, const LocalHostIdType &hostId)
+{
+	HostgroupMemberVect hostgrpMembers;
+	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	option.setTargetHostId(hostId);
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	uds->getHostgroupMembers(hostgrpMembers, option);
+
+	if (hostgrpMembers.empty())
+		return;
+
+	SeparatorInjector commaInjector(",");
+	DBTermCodec dbCodec;
+	for (size_t i = 0; i < hostgrpMembers.size(); i++) {
+		const HostgroupMember &hostgrpMember = hostgrpMembers[i];
+		commaInjector(stringHostgroupId);
+		stringHostgroupId += dbCodec.enc(hostgrpMember.hostgroupIdInServer);
+	}
 }
 
 bool ActionDef::parseIncidentSenderCommand(IncidentTrackerIdType &trackerId) const

@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cstdio>
@@ -31,8 +31,10 @@ using namespace mlpl;
 
 static const char *MIME_JSON_RPC = "application/json-rpc";
 static const guint DEFAULT_TIMEOUT = 60;
+static const size_t HISTORY_LIMIT_PER_ONCE = 1000;
 
 const uint64_t ZabbixAPI::EVENT_ID_NOT_FOUND = -1;
+const size_t ZabbixAPI::EVENT_ID_DIGIT_NUM = 20;
 
 struct ZabbixAPI::Impl {
 
@@ -169,6 +171,11 @@ bool ZabbixAPI::openSession(SoupMessage **msgPtr)
 
 	SoupMessage *msg =
 	  soup_message_new(SOUP_METHOD_POST, m_impl->uri.c_str());
+	if (!msg) {
+		MLPL_ERR("Failed to call: soup_message_new: uri: %s\n",
+		         m_impl->uri.c_str());
+		return false;
+	}
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON_RPC, NULL);
 	string request_body = getInitialJSONRequest();
@@ -177,8 +184,9 @@ bool ZabbixAPI::openSession(SoupMessage **msgPtr)
 	guint ret = soup_session_send_message(getSession(), msg);
 	if (ret != SOUP_STATUS_OK) {
 		g_object_unref(msg);
-		MLPL_ERR("Failed to get: code: %d: %s\n",
-	                 ret, m_impl->uri.c_str());
+		MLPL_ERR("Failed to get from %s, Status: %d (%s)\n",
+	                 m_impl->uri.c_str(),
+			 ret, soup_status_get_phrase(ret));
 		return false;
 	}
 	MLPL_DBG("body: %" G_GOFFSET_FORMAT ", %s\n",
@@ -278,6 +286,106 @@ ItemTablePtr ZabbixAPI::getTrigger(int requestSince)
 	return ItemTablePtr(tablePtr);
 }
 
+ItemTablePtr ZabbixAPI::getTriggerExpandedDescription(int requestSince)
+{
+	HatoholError queryRet;
+	SoupMessage *msg =
+	  queryTriggerExpandedDescription(queryRet, requestSince);
+	if (!msg) {
+		if (queryRet == HTERR_INTERNAL_ERROR) {
+			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+			  HTERR_INTERNAL_ERROR,
+			  "Failed to query triggers.");
+		} else {
+			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+			  HTERR_FAILED_CONNECT_ZABBIX,
+			  "%s", queryRet.getMessage().c_str());
+		}
+	}
+	JSONParser parser(msg->response_body->data);
+	if (parser.hasError()) {
+		g_object_unref(msg);
+		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+		  HTERR_FAILED_TO_PARSE_JSON_DATA,
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+	g_object_unref(msg);
+	startObject(parser, "result");
+	VariableItemTablePtr tablePtr;
+	int numData = parser.countElements();
+	MLPL_DBG("The number of trigger expanded descriptions: %d\n", numData);
+	if (numData < 1)
+		return ItemTablePtr(tablePtr);
+	for (int i = 0; i < numData; i++) {
+		parseAndPushTriggerExpandedDescriptionData(parser, tablePtr, i);
+	}
+
+	return ItemTablePtr(tablePtr);
+}
+
+static void pushItemData(
+  const ItemId itemId, const ItemGroupPtr &itemGrpPtr,
+  VariableItemGroupPtr &grp)
+{
+	const ItemData *itemData = itemGrpPtr->getItem(itemId);
+	grp->add(itemData);
+}
+
+ItemTablePtr ZabbixAPI::mergePlainTriggersAndExpandedDescriptions(
+  const ItemTablePtr triggers, const ItemTablePtr expandedDescriptions)
+{
+	const ItemGroupList &trigGrpList = triggers->getItemGroupList();
+	const ItemGroupList &expandedDescriptionGrpList =
+	  expandedDescriptions->getItemGroupList();
+	ItemGroupListConstIterator trigGrpItr = trigGrpList.begin();
+
+	TriggerIdItemGrpMap expandedTrigIdGrpMap;
+	ItemGroupListConstIterator expandedDescGrpItr =
+	  expandedDescriptionGrpList.begin();
+	for (; expandedDescGrpItr != expandedDescriptionGrpList.end(); ++expandedDescGrpItr) {
+		const ItemGroup *itemGroup = *expandedDescGrpItr;
+		ItemGroupPtr expandedDescGrpPtr = *expandedDescGrpItr;
+		const TriggerIdType &expandedItemGrpId =
+		  *expandedDescGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+		expandedTrigIdGrpMap.insert(
+		  pair<TriggerIdType, ItemGroupPtr>(expandedItemGrpId, itemGroup));
+	}
+
+	VariableItemTablePtr mergedTablePtr;
+	for (; trigGrpItr != trigGrpList.end(); ++trigGrpItr) {
+		ItemGroupPtr trigItemGrpPtr = *trigGrpItr;
+		const TriggerIdType &trigItemGrpId =
+		  *trigItemGrpPtr->getItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+		TriggerIdItemGrpMapConstIterator it =
+		  expandedTrigIdGrpMap.find(trigItemGrpId);
+		VariableItemGroupPtr grp;
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_TRIGGERID,
+		             trigItemGrpPtr, grp);
+
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_VALUE,
+		             trigItemGrpPtr, grp);
+
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_PRIORITY,
+		             trigItemGrpPtr, grp);
+
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
+		             trigItemGrpPtr, grp);
+
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION,
+		             trigItemGrpPtr, grp);
+
+		pushItemData(ITEM_ID_ZBX_TRIGGERS_HOSTID,
+		             trigItemGrpPtr, grp);
+
+		if (it != expandedTrigIdGrpMap.end()) {
+			pushItemData(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION,
+			             it->second, grp);
+		}
+		mergedTablePtr->add(grp);
+	}
+	return static_cast<ItemTablePtr>(mergedTablePtr);
+}
+
 ItemTablePtr ZabbixAPI::getItems(void)
 {
 	HatoholError queryRet;
@@ -310,6 +418,51 @@ ItemTablePtr ZabbixAPI::getItems(void)
 
 	for (int i = 0; i < numData; i++)
 		parseAndPushItemsData(parser, tablePtr, i);
+	return ItemTablePtr(tablePtr);
+}
+
+ItemTablePtr ZabbixAPI::getHistory(const ItemIdType &itemId,
+				   const ZabbixAPI::ValueType &valueType,
+				   const time_t &beginTime,
+				   const time_t &endTime)
+{
+	HatoholError queryRet;
+	SoupMessage *msg = queryHistory(queryRet, itemId, valueType,
+					beginTime, endTime);
+	if (!msg) {
+		if (queryRet == HTERR_INTERNAL_ERROR) {
+			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+			  HTERR_INTERNAL_ERROR,
+			  "Failed to query history.");
+		} else {
+			THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+			  HTERR_FAILED_CONNECT_ZABBIX,
+			  "%s", queryRet.getMessage().c_str());
+		}
+	}
+	JSONParser parser(msg->response_body->data);
+	g_object_unref(msg);
+	if (parser.hasError()) {
+		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+		  HTERR_FAILED_TO_PARSE_JSON_DATA,
+		  "Failed to parser: %s", parser.getErrorMessage());
+	}
+
+	startObject(parser, "result");
+	VariableItemTablePtr tablePtr;
+	int numData = parser.countElements();
+	MLPL_DBG("The number of history: %d\n", numData);
+	for (int i = 0; i < numData; i++) {
+		startElement(parser, i);
+		VariableItemGroupPtr grp;
+		pushString(parser, grp, "itemid", ITEM_ID_ZBX_HISTORY_ITEMID);
+		pushUint64(parser, grp, "clock",  ITEM_ID_ZBX_HISTORY_CLOCK);
+		pushUint64(parser, grp, "ns",     ITEM_ID_ZBX_HISTORY_NS);
+		pushString(parser, grp, "value",  ITEM_ID_ZBX_HISTORY_VALUE);
+		tablePtr->add(grp);
+		parser.endElement();
+	}
+
 	return ItemTablePtr(tablePtr);
 }
 
@@ -387,7 +540,7 @@ void ZabbixAPI::getGroups(ItemTablePtr &groupsTablePtr)
 	groupsTablePtr = ItemTablePtr(variableGroupsTablePtr);
 }
 
-ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
+ItemTablePtr ZabbixAPI::getApplications(const ItemCategoryIdVector &appIdVector)
 {
 	HatoholError queryRet;
 	SoupMessage *msg = queryApplication(appIdVector, queryRet);
@@ -413,7 +566,7 @@ ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 
 	VariableItemTablePtr tablePtr;
 	int numData = parser.countElements();
-	MLPL_DBG("The number of aplications: %d\n", numData);
+	MLPL_DBG("The number of applications: %d\n", numData);
 	if (numData < 1)
 		return ItemTablePtr(tablePtr);
 
@@ -424,9 +577,10 @@ ItemTablePtr ZabbixAPI::getApplications(const vector<uint64_t> &appIdVector)
 
 ItemTablePtr ZabbixAPI::getApplications(ItemTablePtr items)
 {
-	vector<uint64_t> appIdVector;
+	ItemCategoryIdVector appIdVector;
 	const ItemGroupList &itemGroupList = items->getItemGroupList();
 	ItemGroupListConstIterator itemGrpIt = itemGroupList.begin();
+	appIdVector.reserve(itemGroupList.size());
 	for (; itemGrpIt != itemGroupList.end(); ++itemGrpIt) {
 		const ItemGroup *itemGrp = *itemGrpIt;
 		appIdVector.push_back(
@@ -515,6 +669,8 @@ uint64_t ZabbixAPI::getEndEventId(const bool &isFirst)
 SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdFrom, uint64_t eventIdTill,
 				   HatoholError &queryRet)
 {
+	using StringUtils::sprintf;
+
 	JSONBuilder agent;
 	agent.startObject();
 	agent.add("jsonrpc", "2.0");
@@ -522,13 +678,9 @@ SoupMessage *ZabbixAPI::queryEvent(uint64_t eventIdFrom, uint64_t eventIdTill,
 
 	agent.startObject("params");
 	agent.add("output", "extend");
-	string strEventIdFrom = StringUtils::sprintf("%" PRId64, eventIdFrom);
-	agent.add("eventid_from", strEventIdFrom.c_str());
-	if (eventIdTill != UNLIMITED) {
-		string strEventIdTill = StringUtils::sprintf("%" PRId64,
-		                                             eventIdTill);
-		agent.add("eventid_till", strEventIdTill.c_str());
-	}
+	agent.add("eventid_from", sprintf("%" PRIu64, eventIdFrom));
+	if (eventIdTill != UNLIMITED)
+		agent.add("eventid_till", sprintf("%" PRIu64, eventIdTill));
 	agent.endObject(); // params
 
 	agent.add("auth", m_impl->authToken);
@@ -589,6 +741,33 @@ SoupMessage *ZabbixAPI::queryTrigger(HatoholError &queryRet, int requestSince)
 	return queryCommon(agent, queryRet);
 }
 
+SoupMessage *ZabbixAPI::queryTriggerExpandedDescription(HatoholError &queryRet,
+                                                      int requestSince)
+{
+	JSONBuilder agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "trigger.get");
+
+	agent.startObject("params");
+	agent.startArray("output");
+	agent.add("extend");
+	agent.add("description");
+	agent.endArray();
+	if (requestSince > 0)
+		agent.add("lastChangeSince", requestSince);
+	agent.add("expandDescription", 1);
+	agent.add("selectHosts", "refer");
+	agent.addTrue("active");
+	agent.endObject(); //params
+
+	agent.add("auth", m_impl->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent, queryRet);
+}
+
 SoupMessage *ZabbixAPI::queryItem(HatoholError &queryRet)
 {
 	JSONBuilder agent;
@@ -609,6 +788,35 @@ SoupMessage *ZabbixAPI::queryItem(HatoholError &queryRet)
 	return queryCommon(agent, queryRet);
 }
 
+SoupMessage *ZabbixAPI::queryHistory(HatoholError &queryRet,
+				     const ItemIdType &itemId,
+				     const ZabbixAPI::ValueType &valueType,
+				     const time_t &beginTime,
+				     const time_t &endTime)
+{
+	JSONBuilder agent;
+	agent.startObject();
+	agent.add("jsonrpc", "2.0");
+	agent.add("method", "history.get");
+
+	agent.startObject("params");
+	agent.add("output", "extend");
+	agent.add("history", valueType);
+	agent.add("itemids", itemId);
+	agent.add("time_from", beginTime);
+	agent.add("time_till", endTime);
+	agent.add("sortfield", "clock");
+	agent.add("sortorder", "ASC");
+	agent.add("limit", HISTORY_LIMIT_PER_ONCE);
+	agent.endObject(); // params
+
+	agent.add("auth", m_impl->authToken);
+	agent.add("id", 1);
+	agent.endObject();
+
+	return queryCommon(agent, queryRet);
+}
+
 SoupMessage *ZabbixAPI::queryHost(HatoholError &queryRet)
 {
 	JSONBuilder agent;
@@ -619,6 +827,7 @@ SoupMessage *ZabbixAPI::queryHost(HatoholError &queryRet)
 	agent.startObject("params");
 	agent.add("output", "extend");
 	agent.add("selectGroups", "refer");
+	agent.addTrue("monitored_hosts");
 	agent.endObject(); // params
 
 	agent.add("auth", m_impl->authToken);
@@ -636,7 +845,7 @@ SoupMessage *ZabbixAPI::queryGroup(HatoholError &queryRet)
 	agent.add("method", "hostgroup.get");
 
 	agent.startObject("params");
-	agent.add("real_hosts", true);
+	agent.addTrue("real_hosts");
 	agent.add("output", "extend");
 	agent.add("selectHosts", "refer");
 	agent.endObject(); //params
@@ -648,8 +857,8 @@ SoupMessage *ZabbixAPI::queryGroup(HatoholError &queryRet)
 	return queryCommon(agent, queryRet);
 }
 
-SoupMessage *ZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector,
-					 HatoholError &queryRet)
+SoupMessage *ZabbixAPI::queryApplication(
+  const ItemCategoryIdVector &appIdVector, HatoholError &queryRet)
 {
 	JSONBuilder agent;
 	agent.startObject();
@@ -660,7 +869,7 @@ SoupMessage *ZabbixAPI::queryApplication(const vector<uint64_t> &appIdVector,
 	agent.add("output", "extend");
 	if (!appIdVector.empty()) {
 		agent.startArray("applicationids");
-		vector<uint64_t>::const_iterator it = appIdVector.begin();
+		ItemCategoryIdVecotrConstIterator it = appIdVector.begin();
 		for (; it != appIdVector.end(); ++it)
 			agent.add(*it);
 		agent.endArray();
@@ -703,8 +912,9 @@ SoupMessage *ZabbixAPI::queryCommon(JSONBuilder &agent, HatoholError &queryRet)
 	guint ret = soup_session_send_message(getSession(), msg);
 	if (ret != SOUP_STATUS_OK) {
 		g_object_unref(msg);
-		MLPL_ERR("Failed to get: code: %d: %s\n",
-	                 ret, m_impl->uri.c_str());
+		MLPL_ERR("Failed to get from %s, Status: %d (%s)\n",
+	                 m_impl->uri.c_str(),
+			 ret, soup_status_get_phrase(ret));
 		queryRet = HTERR_FAILED_CONNECT_ZABBIX;
 		return NULL;
 	}
@@ -844,12 +1054,28 @@ string ZabbixAPI::pushString(JSONParser &parser, ItemGroup *itemGroup,
 	return value;
 }
 
+string ZabbixAPI::pushString(
+  JSONParser &parser, ItemGroup *itemGroup,
+  const string &name, const ItemId &itemId,
+  const size_t &digitNum, const char &padChar)
+{
+	string value;
+	getString(parser, name, value);
+	int numPads = digitNum - value.size();
+	string fixedValue;
+	if (numPads > 0)
+		fixedValue = string(numPads, padChar);
+	fixedValue += value;
+	itemGroup->add(new ItemString(itemId, fixedValue), false);
+	return fixedValue;
+}
+
 void ZabbixAPI::parseAndPushTriggerData(
   JSONParser &parser, VariableItemTablePtr &tablePtr, const int &index)
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "triggerid",   ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+	pushString(parser, grp, "triggerid",   ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
 	pushString(parser, grp, "expression",  ITEM_ID_ZBX_TRIGGERS_EXPRESSION);
 	pushString(parser, grp, "description", ITEM_ID_ZBX_TRIGGERS_DESCRIPTION);
 	pushString(parser, grp, "url",         ITEM_ID_ZBX_TRIGGERS_URL);
@@ -873,7 +1099,7 @@ void ZabbixAPI::parseAndPushTriggerData(
 	pushInt   (parser, grp, "flags",       ITEM_ID_ZBX_TRIGGERS_FLAGS);
 
 	// get hostid
-	pushTriggersHostid(parser, grp);
+	pushTriggersHostId(parser, grp);
 
 	tablePtr->add(grp);
 
@@ -886,17 +1112,28 @@ void ZabbixAPI::parseAndPushTriggerData(
 	parser.endElement();
 }
 
+void ZabbixAPI::parseAndPushTriggerExpandedDescriptionData(
+  JSONParser &parser, VariableItemTablePtr &tablePtr, const int &index)
+{
+	startElement(parser, index);
+	VariableItemGroupPtr grp;
+	pushString(parser, grp, "triggerid",   ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
+	pushString(parser, grp, "description", ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION);
+	tablePtr->add(grp);
+	parser.endElement();
+}
+
 void ZabbixAPI::parseAndPushItemsData(
   JSONParser &parser, VariableItemTablePtr &tablePtr, const int &index)
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "itemid",       ITEM_ID_ZBX_ITEMS_ITEMID);
+	pushString(parser, grp, "itemid",       ITEM_ID_ZBX_ITEMS_ITEMID);
 	pushInt   (parser, grp, "type",         ITEM_ID_ZBX_ITEMS_TYPE);
 	pushString(parser, grp, "snmp_community",
 	           ITEM_ID_ZBX_ITEMS_SNMP_COMMUNITY);
 	pushString(parser, grp, "snmp_oid",     ITEM_ID_ZBX_ITEMS_SNMP_OID);
-	pushUint64(parser, grp, "hostid",       ITEM_ID_ZBX_ITEMS_HOSTID);
+	pushString(parser, grp, "hostid",       ITEM_ID_ZBX_ITEMS_HOSTID);
 	pushString(parser, grp, "name",         ITEM_ID_ZBX_ITEMS_NAME);
 	pushString(parser, grp, "key_",         ITEM_ID_ZBX_ITEMS_KEY_);
 	pushInt   (parser, grp, "delay",        ITEM_ID_ZBX_ITEMS_DELAY);
@@ -963,7 +1200,7 @@ void ZabbixAPI::parseAndPushItemsData(
 	pushString(parser, grp, "lifetime",    ITEM_ID_ZBX_ITEMS_LIFETIME);
 
 	// application
-	pushApplicationid(parser, grp);
+	pushApplicationId(parser, grp);
 
 	tablePtr->add(grp);
 
@@ -975,7 +1212,7 @@ void ZabbixAPI::parseAndPushHostsData(
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "hostid",       ITEM_ID_ZBX_HOSTS_HOSTID);
+	pushString(parser, grp, "hostid",       ITEM_ID_ZBX_HOSTS_HOSTID);
 	pushUint64(parser, grp, "proxy_hostid", ITEM_ID_ZBX_HOSTS_PROXY_HOSTID);
 	pushString(parser, grp, "host",         ITEM_ID_ZBX_HOSTS_HOST);
 	pushInt   (parser, grp, "status",       ITEM_ID_ZBX_HOSTS_STATUS);
@@ -1071,9 +1308,9 @@ void ZabbixAPI::parseAndPushApplicationsData(
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "applicationid",
+	pushString(parser, grp, "applicationid",
 	           ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID);
-	pushUint64(parser, grp, "hostid", ITEM_ID_ZBX_APPLICATIONS_HOSTID);
+	pushString(parser, grp, "hostid", ITEM_ID_ZBX_APPLICATIONS_HOSTID);
 	pushString(parser, grp, "name",   ITEM_ID_ZBX_APPLICATIONS_NAME);
 	if (checkAPIVersion(2, 2, 0)) {
 		// TODO: Zabbix 2.2 returns array of templateid, but Hatohol
@@ -1100,10 +1337,11 @@ void ZabbixAPI::parseAndPushEventsData(
 {
 	startElement(parser, index);
 	VariableItemGroupPtr grp;
-	pushUint64(parser, grp, "eventid",      ITEM_ID_ZBX_EVENTS_EVENTID);
+	pushString(parser, grp, "eventid",      ITEM_ID_ZBX_EVENTS_EVENTID,
+	           EVENT_ID_DIGIT_NUM, '0');
 	pushInt   (parser, grp, "source",       ITEM_ID_ZBX_EVENTS_SOURCE);
 	pushInt   (parser, grp, "object",       ITEM_ID_ZBX_EVENTS_OBJECT);
-	pushUint64(parser, grp, "objectid",     ITEM_ID_ZBX_EVENTS_OBJECTID);
+	pushString(parser, grp, "objectid",     ITEM_ID_ZBX_EVENTS_OBJECTID);
 	pushInt   (parser, grp, "clock",        ITEM_ID_ZBX_EVENTS_CLOCK);
 	pushInt   (parser, grp, "value",        ITEM_ID_ZBX_EVENTS_VALUE);
 	pushInt   (parser, grp, "acknowledged",
@@ -1121,20 +1359,20 @@ void ZabbixAPI::parseAndPushEventsData(
 	parser.endElement();
 }
 
-
-void ZabbixAPI::pushTriggersHostid(JSONParser &parser,
-                                   ItemGroup *itemGroup)
+template <typename T>
+void ZabbixAPI::pushSomethingId(
+  JSONParser &parser, ItemGroup *itemGroup, const ItemId &itemId,
+  const string &objectName, const string &elementName, const T &dummyValue)
 {
-	ItemId itemId = ITEM_ID_ZBX_TRIGGERS_HOSTID;
-	startObject(parser, "hosts");
+	startObject(parser, objectName);
 	int numElem = parser.countElements();
 	if (numElem == 0) {
-		const uint64_t dummyData = 0;
+		const T dummyData = dummyValue;
 		itemGroup->addNewItem(itemId, dummyData, ITEM_DATA_NULL);
 	} else  {
 		for (int i = 0; i < numElem; i++) {
 			startElement(parser, i);
-			pushUint64(parser, itemGroup, "hostid", itemId);
+			pushString(parser, itemGroup, elementName, itemId);
 			break; // we use the first applicationid
 		}
 		parser.endElement();
@@ -1142,21 +1380,50 @@ void ZabbixAPI::pushTriggersHostid(JSONParser &parser,
 	parser.endObject();
 }
 
-void ZabbixAPI::pushApplicationid(JSONParser &parser, ItemGroup *itemGroup)
+void ZabbixAPI::pushTriggersHostId(JSONParser &parser, ItemGroup *itemGroup)
 {
-	ItemId itemId = ITEM_ID_ZBX_ITEMS_APPLICATIONID;
-	startObject(parser, "applications");
-	int numElem = parser.countElements();
-	if (numElem == 0) {
-		const uint64_t dummyData = 0;
-		itemGroup->addNewItem(itemId, dummyData, ITEM_DATA_NULL);
-	} else  {
-		for (int i = 0; i < numElem; i++) {
-			startElement(parser, i);
-			pushUint64(parser, itemGroup, "applicationid", itemId);
-			break; // we use the first applicationid
-		}
-		parser.endElement();
+	static const LocalHostIdType dummyHostName = "";
+	pushSomethingId<LocalHostIdType>(
+	  parser, itemGroup, ITEM_ID_ZBX_TRIGGERS_HOSTID,
+	  "hosts", "hostid", dummyHostName);
+}
+
+void ZabbixAPI::pushApplicationId(JSONParser &parser, ItemGroup *itemGroup)
+{
+	pushSomethingId<ItemCategoryIdType>(
+	  parser, itemGroup, ITEM_ID_ZBX_ITEMS_APPLICATIONID,
+	  "applications", "applicationid", NO_ITEM_CATEGORY_ID);
+}
+
+ItemInfoValueType ZabbixAPI::toItemValueType(
+  const ZabbixAPI::ValueType &valueType)
+{
+	switch (valueType) {
+	case ZabbixAPI::VALUE_TYPE_FLOAT:
+		return ITEM_INFO_VALUE_TYPE_FLOAT;
+	case ZabbixAPI::VALUE_TYPE_INTEGER:
+		return ITEM_INFO_VALUE_TYPE_INTEGER;
+	case ZabbixAPI::VALUE_TYPE_STRING:
+		return ITEM_INFO_VALUE_TYPE_STRING;
+	case ZabbixAPI::VALUE_TYPE_LOG:
+	case ZabbixAPI::VALUE_TYPE_TEXT:
+	default:
+		return ITEM_INFO_VALUE_TYPE_UNKNOWN;
 	}
-	parser.endObject();
+}
+
+ZabbixAPI::ValueType ZabbixAPI::fromItemValueType(
+  const ItemInfoValueType &valueType)
+{
+	switch (valueType) {
+	case ITEM_INFO_VALUE_TYPE_FLOAT:
+		return ZabbixAPI::VALUE_TYPE_FLOAT;
+	case ITEM_INFO_VALUE_TYPE_INTEGER:
+		return ZabbixAPI::VALUE_TYPE_INTEGER;
+	case ITEM_INFO_VALUE_TYPE_STRING:
+		return ZabbixAPI::VALUE_TYPE_STRING;
+	default:
+		// should detect at caller side by fetching the item
+		return ZabbixAPI::VALUE_TYPE_UNKNOWN;
+	}
 }

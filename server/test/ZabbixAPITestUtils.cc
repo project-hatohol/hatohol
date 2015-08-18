@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <string>
@@ -22,6 +22,7 @@
 #include "Synchronizer.h"
 #include "ZabbixAPIEmulator.h"
 #include "ZabbixAPITestUtils.h"
+#include "Helpers.h"
 
 using namespace std;
 
@@ -137,14 +138,102 @@ void ZabbixAPITestee::callGetGroups(ItemTablePtr &groupsTablePtr)
 	getGroups(groupsTablePtr);
 }
 
+ItemTablePtr ZabbixAPITestee::callGetTrigger(int requestSince)
+{
+	return getTrigger(requestSince);
+}
+
+ItemTablePtr ZabbixAPITestee::callGetTriggerExpandedDescription(int requestSince)
+{
+	return getTriggerExpandedDescription(requestSince);
+}
+
+ItemTablePtr ZabbixAPITestee::callMergePlainTriggersAndExpandedDescriptions(
+  const ItemTablePtr triggers, const ItemTablePtr expandedDescriptions)
+{
+	return mergePlainTriggersAndExpandedDescriptions(triggers,
+	                                                 expandedDescriptions);
+}
+
 uint64_t ZabbixAPITestee::callGetLastEventId(void)
 {
 	return getEndEventId(false);
 }
 
+ItemTablePtr ZabbixAPITestee::callGetHistory(
+  const ItemIdType &itemId, const ZabbixAPI::ValueType &valueType,
+  const time_t &beginTime, const time_t &endTime)
+{
+	return getHistory(itemId, valueType, beginTime, endTime);
+}
+
+string ZabbixAPITestee::callPushString(
+  JSONParser &parser, ItemGroup *itemGroup,
+  const string &name, const ItemId &itemId,
+  const size_t &digitNum, const char &padChar)
+{
+	return pushString(parser, itemGroup, name, itemId, digitNum, padChar);
+}
+
+
+void ZabbixAPITestee::makeTriggersItemTable(ItemTablePtr &triggersTablePtr)
+{
+	const char *fixturePath =
+	  cut_build_path(getFixturesDir().c_str(),
+			 "zabbix-api-res-triggers-003-hosts.json",
+			 NULL);
+	ifstream ifs(fixturePath);
+	cppcut_assert_equal(false, ifs.fail());
+
+	string fixtureData;
+	getline(ifs, fixtureData);
+	JSONParser parser(fixtureData);
+	cppcut_assert_equal(false, parser.hasError());
+	startObject(parser, "result");
+
+	VariableItemTablePtr variableTriggersTablePtr;
+	int numData = parser.countElements();
+	if (numData < 1)
+		cut_fail("Value of the elements is empty.");
+	for (int i = 0; i < numData; i++)
+		parseAndPushTriggerData(parser, variableTriggersTablePtr, i);
+	triggersTablePtr = ItemTablePtr(variableTriggersTablePtr);
+}
+
+void ZabbixAPITestee::makeTriggerExpandedDescriptionItemTable(
+  ItemTablePtr &triggerExpandedDescriptionsTablePtr)
+{
+	const char *fixturePath =
+	  cut_build_path(getFixturesDir().c_str(),
+			 "zabbix-api-res-triggers-extend-info.json",
+			 NULL);
+	ifstream ifs(fixturePath);
+	cppcut_assert_equal(false, ifs.fail());
+
+	string fixtureData;
+	getline(ifs, fixtureData);
+	JSONParser parser(fixtureData);
+	cppcut_assert_equal(false, parser.hasError());
+	startObject(parser, "result");
+
+	VariableItemTablePtr variableTriggersTablePtr;
+	int numData = parser.countElements();
+	if (numData < 1)
+		cut_fail("Value of the elements is empty.");
+	for (int i = 0; i < numData; i++)
+		parseAndPushTriggerExpandedDescriptionData(parser,
+		                                           variableTriggersTablePtr, i);
+	triggerExpandedDescriptionsTablePtr =
+	  ItemTablePtr(variableTriggersTablePtr);
+}
+
 void ZabbixAPITestee::makeGroupsItemTable(ItemTablePtr &groupsTablePtr)
 {
-	ifstream ifs("fixtures/zabbix-api-res-hostgroup-002-refer.json");
+	const char *fixturePath =
+	  cut_build_path(getFixturesDir().c_str(),
+			 "zabbix-api-res-hostgroup-002-refer.json",
+			 NULL);
+	ifstream ifs(fixturePath);
 	cppcut_assert_equal(false, ifs.fail());
 
 	string fixtureData;
@@ -165,7 +254,11 @@ void ZabbixAPITestee::makeGroupsItemTable(ItemTablePtr &groupsTablePtr)
 void ZabbixAPITestee::makeMapHostsHostgroupsItemTable(
   ItemTablePtr &hostsGroupsTablePtr)
 {
-	ifstream ifs("fixtures/zabbix-api-res-hosts-002.json");
+	const char *fixturePath =
+	  cut_build_path(getFixturesDir().c_str(),
+			 "zabbix-api-res-hosts-002.json",
+			 NULL);
+	ifstream ifs(fixturePath);
 	cppcut_assert_equal(false, ifs.fail());
 
 	string fixtureData;

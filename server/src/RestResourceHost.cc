@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "RestResourceHost.h"
@@ -29,6 +29,7 @@ const char *RestResourceHost::pathForHost      = "/host";
 const char *RestResourceHost::pathForTrigger   = "/trigger";
 const char *RestResourceHost::pathForEvent     = "/event";
 const char *RestResourceHost::pathForItem      = "/item";
+const char *RestResourceHost::pathForHistory   = "/history";
 const char *RestResourceHost::pathForHostgroup = "/hostgroup";
 
 void RestResourceHost::registerFactories(FaceRest *faceRest)
@@ -57,6 +58,10 @@ void RestResourceHost::registerFactories(FaceRest *faceRest)
 	  pathForItem,
 	  new RestResourceHostFactory(
 	    faceRest, &RestResourceHost::handlerGetItem));
+	faceRest->addResourceHandlerFactory(
+	  pathForHistory,
+	  new RestResourceHostFactory(
+	    faceRest, &RestResourceHost::handlerGetHistory));
 }
 
 RestResourceHost::RestResourceHost(FaceRest *faceRest, HandlerFunc handler)
@@ -128,7 +133,7 @@ static HatoholError parseHostResourceQueryParameter(
 	option.setTargetServerId(targetServerId);
 
 	// target host group id
-	HostIdType targetHostgroupId = ALL_HOST_GROUPS;
+	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
 	err = getParam<HostgroupIdType>(query, "hostgroupId",
 					"%" FMT_HOST_GROUP_ID,
 					targetHostgroupId);
@@ -137,10 +142,9 @@ static HatoholError parseHostResourceQueryParameter(
 	option.setTargetHostgroupId(targetHostgroupId);
 
 	// target host id
-	HostIdType targetHostId = ALL_HOSTS;
-	err = getParam<HostIdType>(query, "hostId",
-				   "%" FMT_HOST_ID,
-				   targetHostId);
+	LocalHostIdType targetHostId = ALL_LOCAL_HOSTS;
+	err = getParam<LocalHostIdType>(query, "hostId", "%" FMT_LOCAL_HOST_ID,
+	                                targetHostId);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 	option.setTargetHostId(targetHostId);
@@ -210,6 +214,14 @@ HatoholError RestResourceHost::parseEventParameter(EventsQueryOption &option,
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 
+	// event type
+	EventType type = EVENT_TYPE_ALL;
+	err = getParam<EventType>(query, "type",
+				  "%d", type);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setType(type);
+
 	// minimum severity
 	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
 	err = getParam<TriggerSeverityType>(query, "minimumSeverity",
@@ -257,6 +269,20 @@ HatoholError RestResourceHost::parseEventParameter(EventsQueryOption &option,
 		return err;
 	option.setLimitOfUnifiedId(limitOfUnifiedId);
 
+	// begin time
+	timespec beginTime = { 0, 0 };
+	err = getParam<time_t>(query, "beginTime", "%ld", beginTime.tv_sec);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setBeginTime(beginTime);
+
+	// end time
+	timespec endTime = { 0, 0 };
+	err = getParam<time_t>(query, "endTime", "%ld", endTime.tv_sec);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setEndTime(endTime);
+
 	return HatoholError(HTERR_OK);
 }
 
@@ -273,11 +299,25 @@ static HatoholError parseItemParameter(ItemsQueryOption &option,
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 
+	// item ID
+	ItemIdType itemId = ALL_ITEMS;
+	err = getParam<ItemIdType>(query, "itemId",
+				   "%" FMT_ITEM_ID, itemId);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setTargetId(itemId);
+
 	// itemGroupName
 	const gchar *value = static_cast<const gchar*>(
 	  g_hash_table_lookup(query, "itemGroupName"));
 	if (value && *value)
 		option.setTargetItemGroupName(value);
+
+	// appName
+	const char *key = "appName";
+	char *application = (char *)g_hash_table_lookup(query, key);
+	if (application)
+		option.setAppName(application);
 
 	return HatoholError(HTERR_OK);
 }
@@ -296,11 +336,14 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 
 	// TODO: This implementeation is not effective.
 	//       We should add a function only to get the number of list.
-	HostInfoList hostInfoList;
+	ServerHostDefVect svHostDefs;
 	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(svInfo.id);
-	dataStore->getHostList(hostInfoList, option);
-	agent.add("numberOfHosts", hostInfoList.size());
+	option.setStatus(HOST_STAT_NORMAL);
+	err = dataStore->getServerHostDefs(svHostDefs, option);
+	if (err != HTERR_OK)
+		return err;
+	agent.add("numberOfHosts", svHostDefs.size());
 
 	ItemsQueryOption itemsQueryOption(job->m_dataQueryContextPtr);
 	itemsQueryOption.setTargetServerId(svInfo.id);
@@ -313,10 +356,13 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	TriggerInfoList triggerInfoList;
 	TriggersQueryOption triggersQueryOption(job->m_dataQueryContextPtr);
 	triggersQueryOption.setTargetServerId(svInfo.id);
+	triggersQueryOption.setExcludeFlags(EXCLUDE_INVALID_HOST|EXCLUDE_SELF_MONITORING);
 	agent.add("numberOfTriggers",
 		  dataStore->getNumberOfTriggers(triggersQueryOption));
-	agent.add("numberOfBadHosts",
-		  dataStore->getNumberOfBadHosts(triggersQueryOption));
+	const size_t numBadHosts =
+	  dataStore->getNumberOfBadHosts(triggersQueryOption);
+	agent.add("numberOfBadHosts", numBadHosts);
+	serverIsGoodStatus = (numBadHosts == 0);
 	size_t numBadTriggers = dataStore->getNumberOfBadTriggers(
 				  triggersQueryOption, TRIGGER_SEVERITY_ALL);
 	agent.add("numberOfBadTriggers", numBadTriggers);
@@ -340,26 +386,27 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	// TODO: We temtatively returns 'No group'. We should fix it
 	//       after host group is supported in Hatohol server.
 	agent.startObject("hostgroups");
-	HostgroupInfoList hostgroupInfoList;
-	err = job->addHostgroupsMap(agent, svInfo, hostgroupInfoList);
+	HostgroupVect hostgroups;
+	err = job->addHostgroupsMap(agent, svInfo, hostgroups);
 	if (err != HTERR_OK) {
-		HostgroupInfo hgrpInfo;
-		hgrpInfo.id = 0;
-		hgrpInfo.serverId = svInfo.id;
-		hgrpInfo.groupId = ALL_HOST_GROUPS;
-		hgrpInfo.groupName = "All host groups";
-		hostgroupInfoList.push_back(hgrpInfo);
+		Hostgroup hostgrp;
+		hostgrp.id         = 0;
+		hostgrp.serverId   = svInfo.id;
+		hostgrp.idInServer = ALL_HOST_GROUPS;
+		hostgrp.name       = "All host groups";
+		hostgroups.push_back(hostgrp);
 	}
 	agent.endObject();
 
 	// SystemStatus
 	agent.startArray("systemStatus");
-	HostgroupInfoListConstIterator hostgrpItr = hostgroupInfoList.begin();
-	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
-		const HostgroupIdType hostgroupId = hostgrpItr->groupId;
+	HostgroupVectConstIterator hostgrpItr = hostgroups.begin();
+	for (; hostgrpItr != hostgroups.end(); ++ hostgrpItr) {
+		const HostgroupIdType &hostgroupId = hostgrpItr->idInServer;
 		for (int severity = 0;
 		     severity < NUM_TRIGGER_SEVERITY; severity++) {
 			TriggersQueryOption option(job->m_dataQueryContextPtr);
+			option.setExcludeFlags(EXCLUDE_INVALID_HOST|EXCLUDE_SELF_MONITORING);
 			option.setTargetServerId(svInfo.id);
 			option.setTargetHostgroupId(hostgroupId);
 			agent.startObject();
@@ -375,12 +422,12 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	agent.endArray();
 
 	// HostStatus
-	serverIsGoodStatus = true;
 	agent.startArray("hostStatus");
-	hostgrpItr = hostgroupInfoList.begin();
-	for (; hostgrpItr != hostgroupInfoList.end(); ++ hostgrpItr) {
-		const HostgroupIdType hostgroupId = hostgrpItr->groupId;
+	hostgrpItr = hostgroups.begin();
+	for (; hostgrpItr != hostgroups.end(); ++ hostgrpItr) {
+		const HostgroupIdType &hostgroupId = hostgrpItr->idInServer;
 		TriggersQueryOption option(job->m_dataQueryContextPtr);
+		option.setExcludeFlags(EXCLUDE_INVALID_HOST|EXCLUDE_SELF_MONITORING);
 		option.setTargetServerId(svInfo.id);
 		option.setTargetHostgroupId(hostgroupId);
 		size_t numBadHosts = dataStore->getNumberOfBadHosts(option);
@@ -390,8 +437,6 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 		          dataStore->getNumberOfGoodHosts(option));
 		agent.add("numberOfBadHosts", numBadHosts);
 		agent.endObject();
-		if (numBadHosts > 0)
-			serverIsGoodStatus =false;
 	}
 	agent.endArray();
 
@@ -447,25 +492,26 @@ void RestResourceHost::handlerGetOverview(void)
 static void addHosts(FaceRest::ResourceHandler *job, JSONBuilder &agent,
                      const ServerIdType &targetServerId,
                      const HostgroupIdType &targetHostgroupId,
-                     const HostIdType &targetHostId)
+                     const LocalHostIdType &targetHostId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HostInfoList hostInfoList;
+	ServerHostDefVect svHostDefs;
 	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostgroupId(targetHostgroupId);
 	option.setTargetHostId(targetHostId);
-	dataStore->getHostList(hostInfoList, option);
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  dataStore->getServerHostDefs(svHostDefs, option));
 
-	agent.add("numberOfHosts", hostInfoList.size());
+	agent.add("numberOfHosts", svHostDefs.size());
 	agent.startArray("hosts");
-	HostInfoListIterator it = hostInfoList.begin();
-	for (; it != hostInfoList.end(); ++it) {
-		HostInfo &hostInfo = *it;
+	ServerHostDefVectConstIterator svHostIt = svHostDefs.begin();
+	for (; svHostIt != svHostDefs.end(); ++svHostIt) {
+		const ServerHostDef &svHostDef = *svHostIt;
 		agent.startObject();
-		agent.add("id", StringUtils::toString(hostInfo.id));
-		agent.add("serverId", hostInfo.serverId);
-		agent.add("hostName", hostInfo.hostName);
+		agent.add("id", svHostDef.hostIdInServer);
+		agent.add("serverId", svHostDef.serverId);
+		agent.add("hostName", svHostDef.name);
 		agent.endObject();
 	}
 	agent.endArray();
@@ -502,6 +548,7 @@ void RestResourceHost::handlerGetTrigger(void)
 		return;
 	}
 
+	option.setExcludeFlags(EXCLUDE_INVALID_HOST);
 	TriggerInfoList triggerList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getTriggerList(triggerList, option);
@@ -514,14 +561,15 @@ void RestResourceHost::handlerGetTrigger(void)
 	for (; it != triggerList.end(); ++it) {
 		TriggerInfo &triggerInfo = *it;
 		agent.startObject();
-		agent.add("id",       StringUtils::toString(triggerInfo.id));
+		agent.add("id",       triggerInfo.id);
 		agent.add("status",   triggerInfo.status);
 		agent.add("severity", triggerInfo.severity);
 		agent.add("lastChangeTime",
 		          triggerInfo.lastChangeTime.tv_sec);
 		agent.add("serverId", triggerInfo.serverId);
-		agent.add("hostId",   StringUtils::toString(triggerInfo.hostId));
+		agent.add("hostId",   triggerInfo.hostIdInServer);
 		agent.add("brief",    triggerInfo.brief);
+		agent.add("extendedInfo", triggerInfo.extendedInfo);
 		agent.endObject();
 	}
 	agent.endArray();
@@ -613,11 +661,13 @@ void RestResourceHost::handlerGetEvent(void)
 		agent.add("serverId",  eventInfo.serverId);
 		agent.add("time",      eventInfo.time.tv_sec);
 		agent.add("type",      eventInfo.type);
-		agent.add("triggerId", StringUtils::toString(eventInfo.triggerId));
+		agent.add("triggerId", eventInfo.triggerId);
+		agent.add("eventId",   eventInfo.id);
 		agent.add("status",    eventInfo.status);
 		agent.add("severity",  eventInfo.severity);
-		agent.add("hostId",    StringUtils::toString(eventInfo.hostId));
+		agent.add("hostId",    eventInfo.hostIdInServer);
 		agent.add("brief",     eventInfo.brief);
+		agent.add("extendedInfo", eventInfo.extendedInfo);
 		if (addIncidents)
 			addIncident(this, agent, incidentVect[i]);
 		agent.endObject();
@@ -630,11 +680,12 @@ void RestResourceHost::handlerGetEvent(void)
 	replyJSONData(agent);
 }
 
-struct GetItemClosure : Closure<RestResourceHost>
+// TODO: Add a macro or template to simplify the definition
+struct GetItemClosure : ClosureTemplate0<RestResourceHost>
 {
 	GetItemClosure(RestResourceHost *receiver,
 		       callback func)
-	: Closure<RestResourceHost>::Closure(receiver, func)
+	: ClosureTemplate0<RestResourceHost>(receiver, func)
 	{
 		m_receiver->ref();
 	}
@@ -648,6 +699,9 @@ struct GetItemClosure : Closure<RestResourceHost>
 void RestResourceHost::replyGetItem(void)
 {
 	ItemsQueryOption option(m_dataQueryContextPtr);
+	option.setExcludeFlags(EXCLUDE_INVALID_HOST);
+	ItemsQueryOption applicationOption(m_dataQueryContextPtr);
+	applicationOption.setExcludeFlags(EXCLUDE_INVALID_HOST);
 	HatoholError err = parseItemParameter(option, m_query);
 	if (err != HTERR_OK) {
 		replyError(err);
@@ -657,6 +711,8 @@ void RestResourceHost::replyGetItem(void)
 	ItemInfoList itemList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getItemList(itemList, option);
+	ApplicationInfoVect applicationInfoVect;
+	dataStore->getApplicationVect(applicationInfoVect, applicationOption);
 
 	JSONBuilder agent;
 	agent.startObject();
@@ -668,15 +724,23 @@ void RestResourceHost::replyGetItem(void)
 		agent.startObject();
 		agent.add("id",        itemInfo.id);
 		agent.add("serverId",  itemInfo.serverId);
-		agent.add("hostId",    StringUtils::toString(itemInfo.hostId));
+		agent.add("hostId",    itemInfo.hostIdInServer);
 		agent.add("brief",     itemInfo.brief.c_str());
 		agent.add("lastValueTime",
 		          itemInfo.lastValueTime.tv_sec);
 		agent.add("lastValue", itemInfo.lastValue);
-		agent.add("prevValue", itemInfo.prevValue);
 		agent.add("itemGroupName", itemInfo.itemGroupName);
 		agent.add("unit", itemInfo.unit);
 		agent.add("valueType", static_cast<int>(itemInfo.valueType));
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.startArray("applications");
+	ApplicationInfoVectIterator itApp = applicationInfoVect.begin();
+	for (; itApp != applicationInfoVect.end(); ++itApp) {
+		ApplicationInfo &applicationInfo = *itApp;
+		agent.startObject();
+		agent.add("name", applicationInfo.applicationName.c_str());
 		agent.endObject();
 	}
 	agent.endArray();
@@ -688,7 +752,7 @@ void RestResourceHost::replyGetItem(void)
 	replyJSONData(agent);
 }
 
-void RestResourceHost::itemFetchedCallback(ClosureBase *closure)
+void RestResourceHost::itemFetchedCallback(Closure0 *closure)
 {
 	replyGetItem();
 	unpauseResponse();
@@ -704,36 +768,179 @@ void RestResourceHost::handlerGetItem(void)
 	}
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	ServerIdType serverId = option.getTargetServerId();
 	GetItemClosure *closure =
 	  new GetItemClosure(
 	    this, &RestResourceHost::itemFetchedCallback);
 
-	bool handled = dataStore->fetchItemsAsync(closure, serverId);
+	bool handled = dataStore->fetchItemsAsync(closure, option);
 	if (!handled) {
 		replyGetItem();
 		delete closure;
 	}
 }
 
+struct GetHistoryClosure : ClosureTemplate1<RestResourceHost, HistoryInfoVect>
+{
+	DataStorePtr m_dataStorePtr;
+
+	GetHistoryClosure(RestResourceHost *receiver,
+			  callback func, DataStorePtr dataStorePtr)
+	: ClosureTemplate1<RestResourceHost, HistoryInfoVect>(receiver, func),
+	  m_dataStorePtr(dataStorePtr)
+	{
+		m_receiver->ref();
+	}
+
+	virtual ~GetHistoryClosure()
+	{
+		m_receiver->unref();
+	}
+};
+
+static HatoholError parseHistoryParameter(
+  GHashTable *query, ServerIdType &serverId, ItemIdType &itemId,
+  time_t &beginTime, time_t &endTime)
+{
+	if (!query)
+		return HatoholError(HTERR_INVALID_PARAMETER);
+
+	HatoholError err;
+
+	// serverId
+	err = getParam<ServerIdType>(query, "serverId",
+				     "%" FMT_SERVER_ID,
+				     serverId);
+	if (err != HTERR_OK)
+		return err;
+	if (serverId == ALL_SERVERS) {
+		return HatoholError(HTERR_INVALID_PARAMETER,
+				    "serverId: ALL_SERVERS");
+	}
+
+	// itemId
+	err = getParam<ItemIdType>(query, "itemId",
+				   "%" FMT_ITEM_ID,
+				   itemId);
+	if (err != HTERR_OK)
+		return err;
+	if (itemId == ALL_ITEMS) {
+		return HatoholError(HTERR_INVALID_PARAMETER,
+				    "itemId: ALL_ITEMS");
+	}
+
+	// beginTime
+	err = getParam<time_t>(query, "beginTime",
+			       "%ld", beginTime);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	// endTime
+	err = getParam<time_t>(query, "endTime",
+			       "%ld", endTime);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+
+	return HatoholError(HTERR_OK);
+}
+
+void RestResourceHost::handlerGetHistory(void)
+{
+	ServerIdType serverId = ALL_SERVERS;
+	ItemIdType itemId = ALL_ITEMS;
+	const time_t SECONDS_IN_A_DAY = 60 * 60 * 24;
+	time_t endTime = time(NULL);
+	time_t beginTime = endTime - SECONDS_IN_A_DAY;
+
+	HatoholError err = parseHistoryParameter(m_query, serverId, itemId,
+						 beginTime, endTime);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	UnifiedDataStore *unifiedDataStore = UnifiedDataStore::getInstance();
+
+	// Check the specified item
+	ItemsQueryOption option(m_dataQueryContextPtr);
+	option.setExcludeFlags(EXCLUDE_INVALID_HOST);
+	option.setTargetId(itemId);
+	ItemInfoList itemList;
+	unifiedDataStore->getItemList(itemList, option);
+	if (itemList.empty()) {
+		// We assume that items are alreay fetched.
+		// Because clients can't know the itemId wihout them.
+		string message = StringUtils::sprintf("itemId: %" FMT_ITEM_ID,
+						      itemId.c_str());
+		HatoholError err(HTERR_NOT_FOUND_TARGET_RECORD, message);
+		replyError(err);
+		return;
+	}
+
+	// Queue fetching history
+	ItemInfo &itemInfo = *itemList.begin();
+	GetHistoryClosure *closure =
+	  new GetHistoryClosure(
+	    this, &RestResourceHost::historyFetchedCallback,
+	    unifiedDataStore->getDataStore(serverId));
+	if (closure->m_dataStorePtr.hasData()) {
+		closure->m_dataStorePtr->startOnDemandFetchHistory(
+		  itemInfo, beginTime, endTime, closure);
+	} else {
+		HistoryInfoVect historyInfoVect;
+		(*closure)(historyInfoVect);
+		delete closure;
+	}
+}
+
+void RestResourceHost::historyFetchedCallback(
+  Closure1<HistoryInfoVect> *closure, const HistoryInfoVect &historyInfoVect)
+{
+	JSONBuilder agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.startArray("history");
+	HistoryInfoVectConstIterator it = historyInfoVect.begin();
+	for (; it != historyInfoVect.end(); ++it) {
+		const HistoryInfo &historyInfo = *it;
+		agent.startObject();
+		// Omit serverId & itemId to reduce data.
+		// They are obvious because they are provided by the client.
+		/*
+		// use string to treat 64bit value properly on certain browsers
+		string itemId = StringUtils::toString(historyInfo.itemId);
+		agent.add("serverId",  serverId);
+		agent.add("itemId",    itemId);
+		*/
+		agent.add("value",     historyInfo.value);
+		agent.add("clock",     historyInfo.clock.tv_sec);
+		agent.add("ns",        historyInfo.clock.tv_nsec);
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+
+	replyJSONData(agent);
+	unpauseResponse();
+}
+
 static void addHostsIsMemberOfGroup(
   FaceRest::ResourceHandler *job, JSONBuilder &agent,
-  uint64_t targetServerId, uint64_t targetGroupId)
+  uint64_t targetServerId, const string &targetGroupId)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
-	HostgroupElementList hostgroupElementList;
-	HostgroupElementQueryOption option(job->m_dataQueryContextPtr);
+	HostgroupMemberVect hostgrpMembers;
+	HostgroupMembersQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(targetServerId);
+
 	option.setTargetHostgroupId(targetGroupId);
-	dataStore->getHostgroupElementList(hostgroupElementList, option);
+	dataStore->getHostgroupMembers(hostgrpMembers, option);
 
 	agent.startArray("hosts");
-	HostgroupElementListIterator it = hostgroupElementList.begin();
-	for (; it != hostgroupElementList.end(); ++it) {
-		HostgroupElement hostgroupElement = *it;
-		agent.add(StringUtils::toString(hostgroupElement.hostId));
-	}
+	HostgroupMemberVectConstIterator hostgrpMemberIt =
+	  hostgrpMembers.begin();
+	for (; hostgrpMemberIt != hostgrpMembers.end(); ++hostgrpMemberIt)
+		agent.add(hostgrpMemberIt->hostIdInServer);
 	agent.endArray();
 }
 
@@ -748,25 +955,28 @@ void RestResourceHost::handlerGetHostgroup(void)
 	}
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HostgroupInfoList hostgroupInfoList;
-	err = dataStore->getHostgroupInfoList(hostgroupInfoList, option);
+	HostgroupVect hostgroups;
+	err = dataStore->getHostgroups(hostgroups, option);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
 
 	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
-	agent.add("numberOfHostgroups", hostgroupInfoList.size());
+	agent.add("numberOfHostgroups", hostgroups.size());
 	agent.startArray("hostgroups");
-	HostgroupInfoListIterator it = hostgroupInfoList.begin();
-	for (; it != hostgroupInfoList.end(); ++it) {
-		HostgroupInfo hostgroupInfo = *it;
+	HostgroupVectConstIterator it = hostgroups.begin();
+	for (; it != hostgroups.end(); ++it) {
+		const Hostgroup &hostgrp = *it;
 		agent.startObject();
-		agent.add("id", hostgroupInfo.id);
-		agent.add("serverId", hostgroupInfo.serverId);
-		agent.add("groupId", hostgroupInfo.groupId);
-		agent.add("groupName", hostgroupInfo.groupName.c_str());
+		agent.add("id",        hostgrp.id);
+		agent.add("serverId",  hostgrp.serverId);
+		agent.add("groupId",   hostgrp.idInServer);
+		agent.add("groupName", hostgrp.name);
 		addHostsIsMemberOfGroup(this, agent,
-		                        hostgroupInfo.serverId,
-		                        hostgroupInfo.groupId);
+		                        hostgrp.serverId, hostgrp.idInServer);
 		agent.endObject();
 	}
 	agent.endArray();

@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
  
 #include <cstring>
@@ -30,6 +30,13 @@ struct ResidentCommunicator::Impl {
 	SmartBuffer sbuf;
 };
 
+// This variable is only used for consistency check on the build.
+// It is not actually used in run time.
+// If the build fails at the following line, check ResidentStringHeader in
+// ResidentProtocol.h
+static size_t _check = HATOHOL_BUILD_EXPECT(
+  sizeof(mlpl::SmartBuffer::StringHeader), sizeof(ResidentStringHeader));
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -40,6 +47,14 @@ ResidentCommunicator::ResidentCommunicator(void)
 
 ResidentCommunicator::~ResidentCommunicator()
 {
+}
+
+size_t ResidentCommunicator::getBodySize(SmartBuffer &sbuf)
+{
+	HATOHOL_ASSERT(sbuf.size() >= RESIDENT_PROTO_HEADER_LEN,
+	               "Too small: sbuf.size(): %zd\n", sbuf.size());
+	sbuf.resetIndex();
+	return *sbuf.getPointer<uint32_t>();
 }
 
 int ResidentCommunicator::getPacketType(SmartBuffer &sbuf)
@@ -97,16 +112,24 @@ void ResidentCommunicator::setNotifyEventBody(
   const ActionIdType &actionId, const EventInfo &eventInfo,
   const string &sessionId)
 {
-	setHeader(RESIDENT_PROTO_EVENT_BODY_LEN,
+	const size_t lenNullTerm = 1;
+	const uint32_t bodySize =
+	  RESIDENT_PROTO_EVENT_BODY_BASE_LEN +
+	  eventInfo.hostIdInServer.size() + lenNullTerm +
+	  eventInfo.id.size()             + lenNullTerm +
+	  eventInfo.triggerId.size()      + lenNullTerm;
+	size_t bodyIdx =
+	  RESIDENT_PROTO_HEADER_LEN + RESIDENT_PROTO_EVENT_BODY_BASE_LEN;
+	setHeader(bodySize,
 	          RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT);
 	m_impl->sbuf.add32(actionId);
 	m_impl->sbuf.add32(eventInfo.serverId);
-	m_impl->sbuf.add64(eventInfo.hostId);
+	bodyIdx = m_impl->sbuf.insertString(eventInfo.hostIdInServer, bodyIdx);
 	m_impl->sbuf.add64(eventInfo.time.tv_sec);
 	m_impl->sbuf.add32(eventInfo.time.tv_nsec);
-	m_impl->sbuf.add64(eventInfo.id); // Event ID
+	bodyIdx = m_impl->sbuf.insertString(eventInfo.id, bodyIdx);
 	m_impl->sbuf.add16(eventInfo.type);
-	m_impl->sbuf.add64(eventInfo.triggerId);
+	bodyIdx = m_impl->sbuf.insertString(eventInfo.triggerId, bodyIdx);
 	m_impl->sbuf.add16(eventInfo.status);
 	m_impl->sbuf.add16(eventInfo.severity);
 	m_impl->sbuf.add(sessionId.c_str(), HATOHOL_SESSION_ID_LEN);

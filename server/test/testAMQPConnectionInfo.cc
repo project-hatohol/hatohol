@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <gcutter.h>
@@ -78,5 +78,34 @@ namespace defaultValue {
 		time_t defaultTimeout = 1;
 		cppcut_assert_equal(defaultTimeout, info->getTimeout());
 	}
+
+	void test_consumerQueueName(void)
+	{
+		cppcut_assert_equal(string(""), info->getConsumerQueueName());
+	}
+
+	void test_publisherQueueName(void)
+	{
+		cppcut_assert_equal(string(""), info->getPublisherQueueName());
+	}
 }
+
+namespace setter {
+	void test_consumerQueueName(void)
+	{
+		const string queueName("hatohol-test-consumer");
+		AMQPConnectionInfo info;
+		info.setConsumerQueueName(queueName);
+		cppcut_assert_equal(queueName, info.getConsumerQueueName());
+	}
+
+	void test_publisherQueueName(void)
+	{
+		const string queueName("hatohol-test-publisher");
+		AMQPConnectionInfo info;
+		info.setPublisherQueueName(queueName);
+		cppcut_assert_equal(queueName, info.getPublisherQueueName());
+	}
+}
+
 } // namespace testAMQPConnectionInfo

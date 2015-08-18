@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -318,13 +318,19 @@ bool makeRandomNumber(string &magicNumber)
 
 bool spawnChildProcess(string magicNumber, GPid &childPid, const string &pidFilePath)
 {
+	const char *hatoholPath =
+	  cut_build_path(getBaseDir().c_str(), "..", "src", "hatohol", NULL);
+	const char *libPath =
+	  cut_build_path(getBaseDir().c_str(), "..", "src", ".libs", NULL);
+	const string libPathEnv =
+	  StringUtils::sprintf("LD_LIBRARY_PATH=%s", libPath);
 	const gchar *argv[] = {
-	  "../src/hatohol", "--db-server", "localhost",
+	  hatoholPath, "--db-server", "localhost",
 	  "--db-name", TEST_DB_NAME,
 	  "--db-user", TEST_DB_USER,
 	  "--db-password", TEST_DB_PASSWORD,
 	  "--pid-file", pidFilePath.c_str(), NULL};
-	const gchar *envp[] = {"LD_LIBRARY_PATH=../src/.libs/", magicNumber.c_str(), NULL};
+	const gchar *envp[] = {libPathEnv.c_str(), magicNumber.c_str(), NULL};
 	GError *error;
 	gboolean succeeded;
 

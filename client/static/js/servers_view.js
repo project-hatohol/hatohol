@@ -4,33 +4,38 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 var ServersView = function(userProfile) {
   var self = this;
   var serverIds = new Array();
-
+  var paramsArrayMap = {};
+  var currServersMap = {};
+ 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
-  if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_SERVER))
+  if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_SERVER)) {
     $("#add-server-button").show();
+    $("#bulkupload-server-button").show();
+  }
   if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER) ||
       userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ALL_SERVER)) {
     $("#delete-server-button").show();
   }
   self.startConnection('server', updateCore);
+  $("#update-tirgger-server-button").show();
 
   $("#table").stupidtable();
   $("#table").bind('aftertablesort', function(event, data) {
@@ -47,9 +52,22 @@ var ServersView = function(userProfile) {
     });
   });
 
+  $("#bulkupload-server-button").click(function() {
+    new HatoholServerBulkUploadDialog({
+      operator: userProfile.user,
+      succeededCallback: addOrUpdateSucceededCb
+    });
+  });
+
+
   $("#delete-server-button").click(function() {
-    var msg = gettext("Do you delete the selected items ?");
+    var msg = gettext("Delete the selected items ?");
     hatoholNoYesMsgBox(msg, deleteServers);
+  });
+
+  $("#update-tirgger-server-button").click(function() {
+    var msg = gettext("Reload the triggers from the selected itmes ?");
+    hatoholNoYesMsgBox(msg, updateTriggerServers);
   });
 
   function addOrUpdateSucceededCb() {
@@ -134,24 +152,24 @@ var ServersView = function(userProfile) {
     hatoholInfoMsgBox("Deleting...");
   }
 
-  function getServerTypeLabel(type) {
-    switch(type) {
-    case hatohol.MONITORING_SYSTEM_ZABBIX:
-      return gettext("Zabbix");
-    case hatohol.MONITORING_SYSTEM_NAGIOS:
-      return gettext("Nagios");
-    case hatohol.MONITORING_SYSTEM_HAPI_ZABBIX:
-      return gettext("Zabbix (HAPI)");
-    case hatohol.MONITORING_SYSTEM_HAPI_NAGIOS:
-      return gettext("Nagios (HAPI)");
-    case hatohol.MONITORING_SYSTEM_HAPI_JSON:
-      return gettext("General Plugin");
-    case hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER:
-      return gettext("Ceilometer");
-    default:
-      break;
+  function updateTriggerServers() {
+    var updateIds = [], serverId;
+    var checkbox = $(".selectcheckbox");
+    $(this).dialog("close");
+    for (var i = 0; i < checkbox.length; i++) {
+      if (!checkbox[i].checked)
+        continue;
+      serverId = checkbox[i].getAttribute("serverId");
+      updateIds.push(serverId);
     }
-    return gettext("Unknown");
+    new HatoholItemUpdate({
+      id: updateIds,
+      type: "server-trigger",
+      completionCallback: function() {
+        self.startConnection("server", updateCore);
+      },
+    });
+    hatoholInfoMsgBox("Reloading...");
   }
 
   function drawTableBody(rd) {
@@ -180,20 +198,37 @@ var ServersView = function(userProfile) {
              "data-trigger='hover' " +
              "data-container='body' " +
            ">" + escapeHTML(gettext("Checking")) + "</td>";
-      s += "<td>" + getServerTypeLabel(o["type"]) + "</td>";
+      s += "<td>" + makeMonitoringSystemTypeLabel(o) + "</td>";
       if (serverURL) {
-        s += "<td><a href='" + serverURL + "'>" + escapeHTML(o["hostName"])  + "</a></td>";
-        s += "<td><a href='" + serverURL + "'>" + escapeHTML(ip) + "</a></td>";
+        s += "<td class='server-url-link'><a href='" + serverURL + "' target='_blank'>"
+             + escapeHTML(o["hostName"])  + "</a></td>";
+        s += "<td class='server-ip-link'><a href='" + serverURL + "' target='_blank'>"
+             + escapeHTML(ip) + "</a></td>";
+      } else if (o["type"] == hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER){
+        s += "<td>" + escapeHTML(o["hostName"])  + "</td>";
+        s += "<td>N/A</td>";
       } else {
         s += "<td>" + escapeHTML(o["hostName"])  + "</td>";
         s += "<td>" + escapeHTML(ip) + "</td>";
       }
       s += "<td>" + escapeHTML(o["nickname"])  + "</td>";
       if (mapsURL) {
-        s += "<td><a href='" + mapsURL + "'>" + gettext('Show Maps') + "</a></td>";
+        s += "<td><a href='" + mapsURL + "' target='_blank'>"
+             + gettext('Show Maps') + "</a></td>";
       } else {
         s += "<td></td>";
       }
+      s += "<td id='server-info-" + escapeHTML(serverId) + "'" +
+           "  data-title='" + gettext("Server ID") + ": " + escapeHTML(serverId) + "'" +
+           "  data-html=true" +
+           "  data-trigger='hover'" +
+           "  data-container='body'" +
+           "  data-placement='left'" +
+           "  serverType='" + getServerTypeId(o) + "'" +
+           "  serverId='" + escapeHTML(serverId) + "'" +
+           ">";
+      s += "<i class='glyphicon glyphicon-info-sign'></i>";
+      s += "</td>";
       s += "<td class='edit-server-column' style='display:none;'>";
       s += "<input id='edit-server" + escapeHTML(o["id"]) + "'";
       s += "  type='button' class='btn btn-default'";
@@ -210,11 +245,10 @@ var ServersView = function(userProfile) {
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody(reply));
     self.setupCheckboxForDelete($("#delete-server-button"));
-    if (self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER) ||
-	self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ALL_SERVER)) {
-      $(".delete-selector").show();
-    }
+    self.setupCheckboxForDelete($("#update-tirgger-server-button"));
+    $(".delete-selector").show();
     setupEditButtons(reply);
+    setupServerInfo(reply);
     self.displayUpdateTime();
     self.startConnection("server-conn-stat", updateServerConnStat);
   }
@@ -249,12 +283,95 @@ var ServersView = function(userProfile) {
       }
       var label = connStatParser.getStatusLabel();
       var msgClass = connStatParser.getStatusLabel();
-      var html = "<span class='" + label.msgClass + "'>" + label.msg + "</span>"
+      var html = "<span class='" + label.msgClass + "'>" + label.msg + "</span>";
 
       var idConnStat = getIdConnStat(serverId);
       $("#" + idConnStat).html(html);
       options = {content: connStatParser.getInfoHTML()};
       $("#" + idConnStat).popover(options);
+    }
+  }
+
+  function setupServerInfo(reply) {
+    var servers = reply["servers"];
+    for (var i = 0; i < servers.length; ++i) {
+      currServersMap[servers[i]["id"]] = servers[i];
+    }
+    getServerTypesAsync();
+  }
+
+  function getServerTypesAsync() {
+    new HatoholConnector({
+      url: "/server-type",
+      replyCallback: replyCallback,
+    });
+  }
+
+  function replyCallback(reply, parser) {
+    if (!(reply.serverType instanceof Array)) {
+      return;
+    }
+    paramsArrayMap = {};
+    for (var i = 0; i < reply.serverType.length; i++) {
+      var serverTypeInfo = reply.serverType[i];
+      var name = serverTypeInfo.name;
+      if (!name) {
+        continue;
+      }
+      var type = serverTypeInfo.type;
+      if (type == hatohol.MONITORING_SYSTEM_HAPI2)
+        type = serverTypeInfo.uuid;
+      if (type == undefined) {
+        continue;
+      }
+      var parameters = serverTypeInfo.parameters;
+      if (parameters == undefined) {
+        continue;
+      }
+      paramsArrayMap[type] = JSON.parse(parameters);
+    }
+    makeServerInfo();
+  }
+
+  function makeServerInfo() {
+    for (var i = 0; i < serverIds.length; i++) {
+      var id = "#server-info-" + serverIds[i];
+      $(id).popover({
+        content: function() {
+          var serverId = this.getAttribute("serverId");
+          var server = currServersMap[serverId];
+          var serverType = this.getAttribute("serverType");
+          var paramsArray = paramsArrayMap[serverType];
+          var s = "";
+          s += gettext('Monitoring server type') + ": " + makeMonitoringSystemTypeLabel(server) + "</br>";
+          for (var j = 0; j < paramsArray.length; j++) {
+            var param = paramsArray[j];
+            var value;
+            if (!param.label || !param.id || param.hidden || param.inputStyle == "password")
+              continue;
+            s += gettext(param.label) + ": ";
+            if (param.inputStyle == "checkBox") {
+              value = server[param.id];
+              if (value == true) {
+                s += gettext("True");
+              } else {
+                s += gettext("False");
+              }
+            } else {
+              value = server[param.id];
+              if (value) {
+                s += value;
+              } else {
+                if (param.hint) {
+                  s += param.hint;
+                }
+              }
+            }
+            s += "<br>";
+          }
+          return s;
+        }
+      });
     }
   }
 };
@@ -281,7 +398,7 @@ var ServerConnStatParser = function(reply) {
 
 ServerConnStatParser.prototype.isBadPacket = function() {
     return this.badPacket;
-}
+};
 
 ServerConnStatParser.prototype.setServerId = function(serverId) {
   var self = this;
@@ -291,8 +408,8 @@ ServerConnStatParser.prototype.setServerId = function(serverId) {
     return false;
   self.currServerId = serverId;
   self.currConnStat = connStat;
-  return true; 
-}
+  return true;
+};
 
 ServerConnStatParser.prototype.getStatusLabel = function() {
   var self = this;
@@ -323,7 +440,7 @@ ServerConnStatParser.prototype.getInfoHTML = function() {
 
   // running
   var running = self.currConnStat.running;
-  s += gettext("Running") + ": " 
+  s += gettext("Running") + ": ";
   switch (running) {
   case 0:
     s += gettext("No");
@@ -379,7 +496,7 @@ ServerConnStatParser.prototype.getInfoHTML = function() {
     s += failureComment;
 
   return s;
-}
+};
 
 ServerConnStatParser.prototype.unixTimeToVisible = function(unixTimeString) {
   if (unixTimeString == undefined)
@@ -410,5 +527,4 @@ ServerConnStatParser.prototype.unixTimeToVisible = function(unixTimeString) {
   var showString = year + "-" + month + "-" + day + " " +
                    hour + ":" + min + ":" + sec;
   return showString;
-}
-
+};

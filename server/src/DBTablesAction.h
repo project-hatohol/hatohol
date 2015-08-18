@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef DBTablesAction_h
@@ -25,7 +25,7 @@
 #include "DBTables.h"
 #include "Params.h"
 
-const static uint64_t INVALID_ACTION_LOG_ID = -1;
+const static ActionLogIdType INVALID_ACTION_LOG_ID = -1;
 
 enum ActionType {
 	ACTION_USER_DEFINED = -2, // COMMAND & RESIDENT
@@ -55,9 +55,9 @@ struct ActionCondition {
 	uint32_t enableBits;
 
 	ServerIdType serverId;
-	uint64_t hostId;
-	uint64_t hostgroupId;
-	uint64_t triggerId;
+	LocalHostIdType hostIdInServer;
+	HostgroupIdType hostgroupId;
+	TriggerIdType triggerId;
 	int      triggerStatus;
 	int      triggerSeverity;
 	ComparisonType triggerSeverityCompType;
@@ -70,13 +70,14 @@ struct ActionCondition {
 	}
 
 	ActionCondition(uint32_t _enableBits, const ServerIdType &_serverId,
-	                uint64_t _hostId,
-	                uint64_t _hostgroupId, uint64_t _triggerId,
-	                int _triggerStatus, int _triggerSeverity, 
+	                const LocalHostIdType &_hostIdInServer,
+	                const HostgroupIdType &_hostgroupId,
+	                const TriggerIdType & _triggerId,
+	                int _triggerStatus, int _triggerSeverity,
 	                ComparisonType _triggerSeverityCompType)
 	: enableBits(_enableBits),
 	  serverId(_serverId),
-	  hostId(_hostId),
+	  hostIdInServer(_hostIdInServer),
 	  hostgroupId(_hostgroupId),
 	  triggerId(_triggerId),
 	  triggerStatus(_triggerStatus),
@@ -97,7 +98,7 @@ struct ActionCondition {
 };
 
 struct ActionDef {
-	int         id;
+	ActionIdType id;
 	ActionCondition condition;
 	ActionType  type;
 	std::string workingDir;
@@ -133,7 +134,7 @@ struct ActionDef {
 	/**
 	 * Parse "command" string for IncidentSender type action.
 	 *
-	 * @param trackerId 
+	 * @param trackerId
 	 * An ID of IncidentTrackerInfo parsed from command string will be
 	 * stored.
 	 *
@@ -163,7 +164,7 @@ enum {
 };
 
 struct ActionLog {
-	uint64_t id;
+	GenericIdType id;
 	ActionIdType actionId;
 	int      status;
 	int      starterId;
@@ -184,7 +185,7 @@ struct ChildSigInfo {
 enum {
 	IDX_ACTION_LOGS_ACTION_LOG_ID,
 	IDX_ACTION_LOGS_ACTION_ID,
-	IDX_ACTION_LOGS_STATUS, 
+	IDX_ACTION_LOGS_STATUS,
 	IDX_ACTION_LOGS_STARTER_ID,
 	IDX_ACTION_LOGS_QUEUING_TIME,
 	IDX_ACTION_LOGS_START_TIME,
@@ -253,6 +254,10 @@ public:
 
 	virtual std::string getCondition(void) const override;
 
+protected:
+	static void getHostgroupIdList(std::string &stringHostgroupId,
+	                               const ServerIdType &serverId,
+	                               const LocalHostIdType &hostId);
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
@@ -262,7 +267,7 @@ class DBTablesAction : public DBTables {
 
 public:
 	struct LogEndExecActionArg {
-		uint64_t logId;
+		ActionLogIdType logId;
 		ActionLogStatus status;
 		int   exitCode;
 		ActionLogExecFailureCode failureCode;
@@ -272,10 +277,11 @@ public:
 		LogEndExecActionArg(void);
 	};
 
-	static int ACTION_DB_VERSION;
+	static const int ACTION_DB_VERSION;
 
 	static void init(void);
 	static void reset(void);
+	static const SetupInfo &getConstSetupInfo(void);
 	static void stop(void);
 	static const char *getTableNameActions(void);
 	static const char *getTableNameActionLogs(void);
@@ -288,6 +294,8 @@ public:
 	                           const ActionsQueryOption &option);
 	HatoholError deleteActions(const ActionIdList &idList,
 	                           const OperationPrivilege &privilege);
+	HatoholError updateAction(ActionDef &actionDef,
+	                          const OperationPrivilege &privilege);
 
 	/**
 	 * make an action log.
@@ -299,17 +307,17 @@ public:
 	 * A reference of ActionDef.
 	 *
 	 * @param failureCode
-	 * A failure code. This is typically set when the execution of 
+	 * A failure code. This is typically set when the execution of
 	 * action fails. In the normal case in which the action is still
 	 * running, ACTLOG_EXECFAIL_NONE should be set.
 	 *
 	 * @param initialStatus
-	 * A status logged as a initial status. This parameter is valid 
+	 * A status logged as a initial status. This parameter is valid
 	 * only when failureCOde is ACTLOG_EXECFAIL_NONE.
 	 *
 	 * @return a created action log ID.
 	 */
-	uint64_t createActionLog
+	ActionLogIdType createActionLog
 	  (const ActionDef &actionDef, const EventInfo &eventInfo,
 	   ActionLogExecFailureCode failureCode = ACTLOG_EXECFAIL_NONE,
 	   ActionLogStatus initialStatus = ACTLOG_STAT_STARTED);
@@ -332,7 +340,7 @@ public:
 	 *
 	 * @param logId A logID to be updated.
 	 */
-	void updateLogStatusToStart(uint64_t logId);
+	void updateLogStatusToStart(const ActionLogIdType &logId);
 
 	/**
 	 * Get the action log.
@@ -343,7 +351,7 @@ public:
 	 *
 	 * @return true if the log is found. Otherwise false.
 	 */
-	bool getLog(ActionLog &actionLog, uint64_t logId);
+	bool getLog(ActionLog &actionLog, const ActionLogIdType &logId);
 
 	/**
 	 * Get the event log.
@@ -355,7 +363,7 @@ public:
 	 * @return true if the log is found. Otherwise false.
 	 */
 	bool getLog(ActionLog &actionLog, const ServerIdType &serverId,
-	            uint64_t eventId);
+	            const EventIdType &eventId);
 
 	/**
 	 * Check whether IncidentSender type action exists or not
@@ -388,6 +396,8 @@ protected:
 	  const OperationPrivilege &privilege, const ActionDef &actionDef);
 	HatoholError checkPrivilegeForDelete(
 	  const OperationPrivilege &privilege, const ActionIdList &idList);
+	HatoholError checkPrivilegeForUpdate(
+	  const OperationPrivilege &privilege, const ActionDef &actionDef);
 
 	static gboolean deleteInvalidActionsCycl(gpointer data);
 
@@ -402,4 +412,3 @@ private:
 };
 
 #endif // DBTablesAction_h
-

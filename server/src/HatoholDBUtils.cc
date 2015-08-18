@@ -1,24 +1,26 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
+#include <ZabbixAPI.h>
 #include "HatoholDBUtils.h"
 #include "DBTablesMonitoring.h"
+#include "ThreadLocalDBCache.h"
 
 using namespace std;
 using namespace mlpl;
@@ -33,7 +35,29 @@ enum {
 struct BriefElem {
 	string word;
 	int    variableIndex;
+	BriefElem(const string &_word)
+	: word(_word), variableIndex(-1)
+	{
+	}
+	BriefElem(const int &index)
+	: variableIndex(index)
+	{
+	}
 };
+
+static bool findHostCache(
+  const ServerIdType &serverId, const LocalHostIdType &hostIdInServer,
+  const HostInfoCache &hostInfoCache, HostInfoCache::Element &elem)
+{
+	const bool found = hostInfoCache.getName(hostIdInServer, elem);
+	if (found)
+		return true;
+	MLPL_WARN(
+	  "Host cache: not found. server: %" FMT_SERVER_ID ", "
+	  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
+	  serverId, hostIdInServer.c_str());
+	return false;
+}
 
 // ----------------------------------------------------------------------------
 // Public methods
@@ -47,8 +71,11 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 	for (; trigGrpItr != trigGrpList.end(); ++trigGrpItr) {
 		ItemGroupStream trigGroupStream(*trigGrpItr);
 		TriggerInfo trigInfo;
+		std::string expandedDescription;
 
 		trigInfo.serverId = serverId;
+
+		trigInfo.validity = TRIGGER_VALID;
 
 		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_TRIGGERID);
 		trigGroupStream >> trigInfo.id;
@@ -67,19 +94,27 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 		trigGroupStream >> trigInfo.brief;
 
 		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_HOSTID);
-		trigGroupStream >> trigInfo.hostId;
+		trigGroupStream >> trigInfo.hostIdInServer;
 
-		if (trigInfo.hostId != INAPPLICABLE_HOST_ID &&
-		    !hostInfoCache.getName(trigInfo.hostId,
-		                           trigInfo.hostName)) {
-			MLPL_WARN(
-			  "Ignored a trigger whose host name was not found: "
-			  "server: %" FMT_SERVER_ID ", host: %" FMT_HOST_ID
-			  "\n",
-			  serverId, trigInfo.hostId);
-			continue;
+		trigGroupStream.seek(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION);
+		trigGroupStream >> expandedDescription;
+
+		if (!expandedDescription.empty()) {
+			JSONBuilder agent;
+			agent.startObject();
+			agent.add("expandedDescription", expandedDescription);
+			agent.endObject();
+			trigInfo.extendedInfo = agent.generate();
 		}
 
+		HostInfoCache::Element cacheElem;
+		const bool found =
+		  findHostCache(serverId, trigInfo.hostIdInServer,
+		                hostInfoCache,  cacheElem);
+		if (!found)
+			continue;
+		trigInfo.globalHostId = cacheElem.hostId;
+		trigInfo.hostName     = cacheElem.name;
 		trigInfoList.push_back(trigInfo);
 	}
 }
@@ -101,59 +136,72 @@ void HatoholDBUtils::transformEventsToHatoholFormat(
 }
 
 void HatoholDBUtils::transformGroupsToHatoholFormat(
-  HostgroupInfoList &groupInfoList, const ItemTablePtr groups,
+  HostgroupVect &hostgroups, const ItemTablePtr groups,
   const ServerIdType &serverId)
 {
 	const ItemGroupList &itemGroupList = groups->getItemGroupList();
+	hostgroups.reserve(itemGroupList.size());
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
-		HostgroupInfo groupInfo;
-		groupInfo.serverId = serverId;
-		transformGroupItemGroupToHostgroupInfo(groupInfo, *it);
-		groupInfoList.push_back(groupInfo);
+		Hostgroup hostgrp;
+		hostgrp.serverId = serverId;
+		transformGroupItemGroupToHostgroupInfo(hostgrp, *it);
+		hostgroups.push_back(hostgrp);
 	}
 }
 
 void HatoholDBUtils::transformHostsGroupsToHatoholFormat(
-  HostgroupElementList &hostgroupElementList,
-  const ItemTablePtr mapHostHostgroups, const ServerIdType &serverId)
+  HostgroupMemberVect &hostgroupMembers, const ItemTablePtr mapHostHostgroups,
+  const ServerIdType &serverId, const HostInfoCache &hostInfoCache)
 {
 	const ItemGroupList &itemGroupList = mapHostHostgroups->getItemGroupList();
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
-		HostgroupElement hostgroupElement;
-		hostgroupElement.serverId = serverId;
-		transformHostsGroupsItemGroupToHatoholFormat
-		  (hostgroupElement, *it);
-		hostgroupElementList.push_back(hostgroupElement);
+		HostgroupMember hostgrpMember;
+		hostgrpMember.serverId = serverId;
+		transformHostsGroupsItemGroupToHatoholFormat(
+		  hostgrpMember, *it, serverId, hostInfoCache);
+		hostgroupMembers.push_back(hostgrpMember);
 	}
 }
 
 void HatoholDBUtils::transformHostsToHatoholFormat(
-  HostInfoList &hostInfoList, const ItemTablePtr hosts,
+  ServerHostDefVect &svHostDefs, const ItemTablePtr hosts,
   const ServerIdType &serverId)
 {
 	const ItemGroupList &itemGroupList = hosts->getItemGroupList();
 	ItemGroupListConstIterator it = itemGroupList.begin();
 	for (; it != itemGroupList.end(); ++it) {
-		HostInfo hostInfo;
-		hostInfo.serverId = serverId;
-		hostInfo.validity = HOST_VALID;
-		transformHostsItemGroupToHatoholFormat(hostInfo, *it);
-		hostInfoList.push_back(hostInfo);
+		ServerHostDef svHostDef;
+		ItemGroupStream itemGroupStream(*it);
+
+		svHostDef.id = AUTO_INCREMENT_VALUE;
+		svHostDef.hostId = AUTO_ASSIGNED_ID;
+		svHostDef.serverId = serverId;
+
+		itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_HOSTID);
+		itemGroupStream >> svHostDef.hostIdInServer;
+
+		itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_NAME);
+		itemGroupStream >> svHostDef.name;
+
+		svHostDef.status = HOST_STAT_NORMAL;
+
+		svHostDefs.push_back(svHostDef);
 	}
 }
 
 void HatoholDBUtils::transformItemsToHatoholFormat(
   ItemInfoList &itemInfoList, MonitoringServerStatus &serverStatus,
-  const ItemTablePtr items, const ItemTablePtr applications)
+  const ItemTablePtr items, const ItemTablePtr applications,
+  const ServerIdType &serverId, const HostInfoCache &hostInfoCache)
 {
 	// Make application map
 	ItemCategoryNameMap itemCategoryNameMap;
 	const ItemGroupList &appGroupList = applications->getItemGroupList();
 	ItemGroupListConstIterator appGrpItr = appGroupList.begin();
 	for (; appGrpItr != appGroupList.end(); ++appGrpItr) {
-		uint64_t appId;
+		ItemCategoryIdType appId;
 		string   appName;
 		ItemGroupStream itemGroupStream(*appGrpItr);
 
@@ -172,8 +220,10 @@ void HatoholDBUtils::transformItemsToHatoholFormat(
 	for (; it != itemGroupList.end(); ++it) {
 		ItemInfo itemInfo;
 		itemInfo.serverId = serverStatus.serverId;
-		if (!transformItemItemGroupToItemInfo(itemInfo, *it,
-		                                      itemCategoryNameMap))
+		const bool succeeded = transformItemItemGroupToItemInfo(
+		                         itemInfo, *it, itemCategoryNameMap,
+		                         serverId, hostInfoCache);
+		if (!succeeded)
 			continue;
 		itemInfoList.push_back(itemInfo);
 	}
@@ -186,32 +236,24 @@ void HatoholDBUtils::transformItemsToHatoholFormat(
 	}
 }
 
+void HatoholDBUtils::transformHistoryToHatoholFormat(
+  HistoryInfoVect &historyInfoVect,  const ItemTablePtr items,
+  const ServerIdType &serverId)
+{
+	// Make HistoryInfoVect
+	const ItemGroupList &itemGroupList = items->getItemGroupList();
+	ItemGroupListConstIterator it = itemGroupList.begin();
+	for (; it != itemGroupList.end(); ++it) {
+		HistoryInfo historyInfo;
+		historyInfo.serverId = serverId;
+		transformHistoryItemGroupToHistoryInfo(historyInfo, *it);
+		historyInfoVect.push_back(historyInfo);
+	}
+}
+
 // ----------------------------------------------------------------------------
 // Protected methods
 // ----------------------------------------------------------------------------
-int HatoholDBUtils::getItemVariable(const string &word)
-{
-	if (word.empty())
-		return -1;
-
-	// check the first '$'
-	const char *wordPtr = word.c_str();
-	if (wordPtr[0] != '$')
-		return -1;
-
-	// check if the remaining characters are all numbers.
-	int val = 0;
-	for (size_t idx = 1; wordPtr[idx]; idx++) {
-		val *= 10;
-		if (wordPtr[idx] < '0')
-			return -1;
-		if (wordPtr[idx] > '9')
-			return -1;
-		val += wordPtr[idx] - '0';
-	}
-	return val;
-}
-
 void HatoholDBUtils::extractItemKeys(StringVector &params, const string &key)
 {
 	// find '['
@@ -243,17 +285,31 @@ string HatoholDBUtils::makeItemBrief(const ItemGroup *itemItemGroup)
 	string name;
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_NAME);
 	itemGroupStream >> name;
-	StringVector vect;
-	StringUtils::split(vect, name, ' ');
 
-	// summarize word and variables ($n : n = 1,2,3,..)
+	// summarize word and variables ($1 - $9)
 	vector<BriefElem> briefElemVect;
-	for (size_t i = 0; i < vect.size(); i++) {
-		briefElemVect.push_back(BriefElem());
-		BriefElem &briefElem = briefElemVect.back();
-		briefElem.variableIndex = getItemVariable(vect[i]);
-		if (briefElem.variableIndex <= 0)
-			briefElem.word = vect[i];
+	size_t i, tail = 0;
+	for (i = 0; i < name.size(); i++) {
+		if (name[i] != '$')
+			continue;
+		if (i >= name.size() - 1)
+			continue;
+		if (name[i + 1] < '1')
+			continue;
+		if (name[i + 1] > '9')
+			continue;
+		if (i > tail) {
+			string word = name.substr(tail, i - tail);
+			briefElemVect.push_back(BriefElem(word));
+		}
+		size_t index = name[i + 1] - '0';
+		briefElemVect.push_back(BriefElem(index));
+		i = i + 1;
+		tail = i + 1;
+	}
+	if (i > tail) {
+		string word = name.substr(tail, i - tail);
+		briefElemVect.push_back(BriefElem(word));
 	}
 
 	// extract words to be replace
@@ -280,8 +336,6 @@ string HatoholDBUtils::makeItemBrief(const ItemGroup *itemItemGroup)
 			          name.c_str(), itemKey.c_str());
 			brief += "<INTERNAL ERROR>";
 		}
-		if (i < briefElemVect.size()-1)
-			brief += " ";
 	}
 
 	return brief;
@@ -323,6 +377,9 @@ bool HatoholDBUtils::transformEventItemGroupToEventInfo(
 	case EVENT_TYPE_UNKNOWN:
 		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
 		break;
+	case EVENT_TYPE_NOTIFICATION:
+		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
+		break;
 	default:
 		MLPL_ERR("Unknown type: %d\n", eventInfo.type);
 		eventInfo.status = TRIGGER_STATUS_UNKNOWN;
@@ -332,79 +389,48 @@ bool HatoholDBUtils::transformEventItemGroupToEventInfo(
 }
 
 void HatoholDBUtils::transformGroupItemGroupToHostgroupInfo(
-  HostgroupInfo &groupInfo, const ItemGroup *groupItemGroup)
+  Hostgroup &hostgrp, const ItemGroup *groupItemGroup)
 {
-	groupInfo.id = AUTO_INCREMENT_VALUE;
+	hostgrp.id = AUTO_INCREMENT_VALUE;
 
 	ItemGroupStream itemGroupStream(groupItemGroup);
 
 	itemGroupStream.seek(ITEM_ID_ZBX_GROUPS_GROUPID);
-	itemGroupStream >> groupInfo.groupId;
+	hostgrp.idInServer = itemGroupStream.read<uint64_t, string>();
 
 	itemGroupStream.seek(ITEM_ID_ZBX_GROUPS_NAME);
-	itemGroupStream >> groupInfo.groupName;
+	itemGroupStream >> hostgrp.name;
 }
 
 void HatoholDBUtils::transformHostsGroupsItemGroupToHatoholFormat(
-  HostgroupElement &hostgroupElement, const ItemGroup *groupHostsGroups)
+  HostgroupMember &hostgrpMember, const ItemGroup *groupHostsGroups,
+  const ServerIdType &serverId, const HostInfoCache &hostInfoCache)
 {
-	hostgroupElement.id = AUTO_INCREMENT_VALUE;
+	hostgrpMember.id = AUTO_INCREMENT_VALUE;
 
 	ItemGroupStream itemGroupStream(groupHostsGroups);
 
 	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_GROUPS_HOSTID);
-	itemGroupStream >> hostgroupElement.hostId;
+	hostgrpMember.hostIdInServer =
+	  itemGroupStream.read<HostIdType, string>();
 
+	// TODO: Fix the protocol
 	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_GROUPS_GROUPID);
-	itemGroupStream >> hostgroupElement.groupId;
-}
+	hostgrpMember.hostgroupIdInServer =
+	  itemGroupStream.read<uint64_t, string>();
 
-void HatoholDBUtils::transformHostsItemGroupToHatoholFormat(
-  HostInfo &hostInfo, const ItemGroup *groupHosts)
-{
-	ItemGroupStream itemGroupStream(groupHosts);
-
-	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_HOSTID);
-	itemGroupStream >> hostInfo.id;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_HOSTS_NAME);
-	itemGroupStream >> hostInfo.hostName;
-}
-
-ItemInfoValueType HatoholDBUtils::transformItemValueTypeToHatoholFormat(
-  const int &valueType)
-{
-	switch (valueType) {
-	case 0: // numeric float
-		return ITEM_INFO_VALUE_TYPE_FLOAT;
-	case 3: // numeric unsigned
-		return ITEM_INFO_VALUE_TYPE_INTEGER;
-	case 1: // character
-	case 2: // log
-	case 4: // text
-		return ITEM_INFO_VALUE_TYPE_STRING;
-	default:
-		return ITEM_INFO_VALUE_TYPE_UNKNOWN;
-	}
-}
-
-int HatoholDBUtils::transformItemValueTypeToZabbixFormat(
-  const ItemInfoValueType &valueType)
-{
-	switch (valueType) {
-	case ITEM_INFO_VALUE_TYPE_FLOAT:
-		return 0; // numeric float
-	case ITEM_INFO_VALUE_TYPE_INTEGER:
-		return 3; // numeric unsigned
-	case ITEM_INFO_VALUE_TYPE_STRING:
-	default:
-		return 4; //test
-	}
+	HostInfoCache::Element cacheElem;
+	const bool found = findHostCache(serverId, hostgrpMember.hostIdInServer,
+	                                 hostInfoCache,  cacheElem);
+	if (!found)
+		return;
+	hostgrpMember.hostId = cacheElem.hostId;
 }
 
 bool HatoholDBUtils::transformItemItemGroupToItemInfo(
   ItemInfo &itemInfo, const ItemGroup *itemItemGroup,
-  const ItemCategoryNameMap &itemCategoryNameMap)
+  const ItemCategoryNameMap &itemCategoryNameMap,
+  const ServerIdType &serverId, const HostInfoCache &hostInfoCache)
 {
 	itemInfo.lastValueTime.tv_nsec = 0;
 	itemInfo.brief = makeItemBrief(itemItemGroup);
@@ -415,7 +441,14 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 	itemGroupStream >> itemInfo.id;
 
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_HOSTID);
-	itemGroupStream >> itemInfo.hostId;
+	itemGroupStream >> itemInfo.hostIdInServer;
+
+	HostInfoCache::Element cacheElem;
+	const bool found = findHostCache(serverId, itemInfo.hostIdInServer,
+	                                 hostInfoCache, cacheElem);
+	if (!found)
+		return false;
+	itemInfo.globalHostId = cacheElem.hostId;
 
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_LASTCLOCK),
 	itemGroupStream >> itemInfo.lastValueTime.tv_sec;
@@ -440,7 +473,9 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 	int valueType;
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_VALUE_TYPE);
 	itemGroupStream >> valueType;
-	itemInfo.valueType = transformItemValueTypeToHatoholFormat(valueType);
+	itemInfo.valueType
+	  = ZabbixAPI::toItemValueType(
+	      static_cast<ZabbixAPI::ValueType>(valueType));
 
 	ItemCategoryIdType itemCategoryId;
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_APPLICATIONID);
@@ -452,12 +487,34 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 		ItemCategoryNameMapConstIterator it =
 		  itemCategoryNameMap.find(itemCategoryId);
 		if (it == itemCategoryNameMap.end()) {
-			MLPL_ERR("Failed to get item category name: %"
-			         FMT_ITEM_CATEGORY_ID "\n", itemCategoryId);
+			MLPL_ERR("Failed to get item category name: "
+			         "%" FMT_ITEM_CATEGORY_ID "\n",
+			         itemCategoryId.c_str());
 			return false;
 		}
 		itemInfo.itemGroupName = it->second;
 	}
 
 	return true;
+}
+
+void HatoholDBUtils::transformHistoryItemGroupToHistoryInfo(
+  HistoryInfo &historyInfo, const ItemGroup *item)
+{
+	ItemGroupStream itemGroupStream(item);
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_ITEMID);
+	itemGroupStream >> historyInfo.itemId;
+
+	uint64_t clock, ns;
+	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_CLOCK);
+	itemGroupStream >> clock;
+	historyInfo.clock.tv_sec = static_cast<time_t>(clock);
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_NS);
+	itemGroupStream >> ns;
+	historyInfo.clock.tv_nsec = static_cast<long>(ns);
+
+	itemGroupStream.seek(ITEM_ID_ZBX_HISTORY_VALUE);
+	itemGroupStream >> historyInfo.value;
 }

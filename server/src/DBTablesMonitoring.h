@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef DBTablesMonitoring_h
@@ -28,6 +28,7 @@
 #include "HostResourceQueryOption.h"
 #include "SmartTime.h"
 #include "Monitoring.h"
+#include "DBTablesHost.h"
 
 class EventsQueryOption : public HostResourceQueryOption {
 public:
@@ -51,6 +52,8 @@ public:
 	SortType getSortType(void) const;
 	SortDirection getSortDirection(void) const;
 
+	void setType(const EventType &type);
+	EventType getType(void) const;
 	void setMinimumSeverity(const TriggerSeverityType &severity);
 	TriggerSeverityType getMinimumSeverity(void) const;
 	void setTriggerStatus(const TriggerStatusType &status);
@@ -58,6 +61,11 @@ public:
 
 	void setTriggerId(const TriggerIdType &triggerId);
 	TriggerIdType getTriggerId(void) const;
+
+	void setBeginTime(const timespec &beginTime);
+	const timespec &getBeginTime(void);
+	void setEndTime(const timespec &endTime);
+	const timespec &getEndTime(void);
 
 private:
 	struct Impl;
@@ -79,6 +87,7 @@ public:
 	TriggerSeverityType getMinimumSeverity(void) const;
 	void setTriggerStatus(const TriggerStatusType &status);
 	TriggerStatusType getTriggerStatus(void) const;
+	void setExcludeFlags(const ExcludeFlags &flg);
 
 private:
 	struct Impl;
@@ -98,38 +107,13 @@ public:
 	ItemIdType getTargetId(void) const;
 	void setTargetItemGroupName(const std::string &itemGroupName);
 	const std::string &getTargetItemGroupName(void);
+	void setAppName(const std::string &appName) const;
+	void setExcludeFlags(const ExcludeFlags &flg);
+	const std::string &getAppName(void) const;
 
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
-};
-
-class HostsQueryOption : public HostResourceQueryOption {
-public:
-	HostsQueryOption(const UserIdType &userId = INVALID_USER_ID);
-	HostsQueryOption(DataQueryContext *dataQueryContext);
-	virtual ~HostsQueryOption();
-
-	virtual std::string getCondition(void) const override;
-
-	void setValidity(const HostValidity &validity);
-	HostValidity getValidity(void) const;
-
-private:
-	struct Impl;
-	std::unique_ptr<Impl> m_impl;
-};
-
-class HostgroupsQueryOption : public HostResourceQueryOption {
-public:
-	HostgroupsQueryOption(const UserIdType &userId = INVALID_USER_ID);
-	HostgroupsQueryOption(DataQueryContext *dataQueryContext);
-};
-
-class HostgroupElementQueryOption: public HostResourceQueryOption {
-public:
-	HostgroupElementQueryOption(const UserIdType &userId = INVALID_USER_ID);
-	HostgroupElementQueryOption(DataQueryContext *dataQueryContext);
 };
 
 class IncidentsQueryOption : public DataQueryOption {
@@ -142,24 +126,26 @@ class DBTablesMonitoring : public DBTables {
 public:
 	static const int         MONITORING_DB_VERSION;
 	static void reset(void);
+	static const SetupInfo &getConstSetupInfo(void);
 
 	static const char *TABLE_NAME_TRIGGERS;
 	static const char *TABLE_NAME_EVENTS;
 	static const char *TABLE_NAME_ITEMS;
-	static const char *TABLE_NAME_HOSTS;
-	static const char *TABLE_NAME_HOSTGROUPS;
-	static const char *TABLE_NAME_MAP_HOSTS_HOSTGROUPS;
 	static const char *TABLE_NAME_SERVER_STATUS;
 	static const char *TABLE_NAME_INCIDENTS;
 
 	DBTablesMonitoring(DBAgent &dbAgent);
 	virtual ~DBTablesMonitoring();
 
-	void getHostInfoList(HostInfoList &hostInfoList,
-			     const HostsQueryOption &option);
-
-	void addTriggerInfo(TriggerInfo *triggerInfo);
+	void addTriggerInfo(const TriggerInfo *triggerInfo);
 	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
+
+	void updateTrigger(const TriggerInfoList &triggerInfoList,
+			   const ServerIdType &serverId);
+	HatoholError deleteTriggerInfo(const TriggerIdList &idList,
+	                               const ServerIdType &serverId);
+	HatoholError syncTriggers(const TriggerInfoList &triggerInfoList,
+	                          const ServerIdType &serverId);
 
 	/**
 	 * Get the trigger information with the specified server ID and
@@ -191,49 +177,20 @@ public:
 	int  getLastChangeTimeOfTrigger(const ServerIdType &serverId);
 
 	void addEventInfo(EventInfo *eventInfo);
-	void addEventInfoList(const EventInfoList &eventInfoList);
+	void addEventInfoList(EventInfoList &eventInfoList);
 	HatoholError getEventInfoList(EventInfoList &eventInfoList,
 	                              const EventsQueryOption &option,
 				      IncidentInfoVect *incidentInfoVect = NULL);
-	void setEventInfoList(const EventInfoList &eventInfoList,
-	                      const ServerIdType &serverId);
-
-	void addHostgroupInfo(HostgroupInfo *eventInfo);
-	void addHostgroupInfoList(const HostgroupInfoList &groupInfoList);
-	HatoholError getHostgroupInfoList(HostgroupInfoList &hostgroupInfoList,
-	                      const HostgroupsQueryOption &option);
-	HatoholError getHostgroupElementList
-	  (HostgroupElementList &hostgroupElementList,
-	   const HostgroupElementQueryOption &option);
-
-	void addHostgroupElement(HostgroupElement *mapHostHostgroupsInfo);
-	void addHostgroupElementList
-	  (const HostgroupElementList &mapHostHostgroupsInfoList);
-
-	void addHostInfo(HostInfo *hostInfo);
-	void addHostInfoList(const HostInfoList &hostInfoList);
 
 	/**
-	 * Update the host records.
+	 * get the maximum event ID that belongs to the specified server
 	 *
-	 * The records that are not included in the given hostInfoList
-	 * are marked as HOST_INVALID.
-	 *
-	 * @param hostInfoList  A list of hosts.
-	 * @param serverId      A monitoring server ID.
-	 */
-	void updateHosts(const HostInfoList &hostInfoList,
-	                 const ServerIdType &serverId);
-
-	/**
-	 * get the last (maximum) event ID of the event that belongs to
-	 * the specified server
 	 * @param serverId A target server ID.
 	 * @return
-	 * The last event ID. If there is no event data, EVENT_NOT_FOUND
+	 * The max event ID. If there is no event data, EVENT_NOT_FOUND
 	 * is returned.
 	 */
-	EventIdType getLastEventId(const ServerIdType &serverId);
+	EventIdType getMaxEventId(const ServerIdType &serverId);
 
 	/**
 	 * Get the time of the last event.
@@ -249,11 +206,14 @@ public:
 	  const ServerIdType &serverId,
 	  const TriggerIdType &triggerId = ALL_TRIGGERS);
 
-	void addItemInfo(ItemInfo *itemInfo);
+	void addItemInfo(const ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
 	void getItemInfoList(ItemInfoList &itemInfoList,
 			     const ItemsQueryOption &option);
-	void addMonitoringServerStatus(MonitoringServerStatus *serverStatus);
+	void getApplicationInfoVect(ApplicationInfoVect &applicationInfoVect,
+			     const ItemsQueryOption &option);
+	void addMonitoringServerStatus(
+	  const MonitoringServerStatus &serverStatus);
 
 	/**
 	 * get the number of triggers with the given server ID, host group ID,
@@ -282,9 +242,6 @@ public:
 	  const DataQueryOption &option,
 	  MonitoringServerStatus &serverStatus);
 
-	void pickupAbsentHostIds(std::vector<uint64_t> &absentHostIdVector,
-	                         const std::vector<uint64_t> &hostIdVector);
-
 	void addIncidentInfo(IncidentInfo *incidentInfo);
 	HatoholError getIncidentInfoVect(IncidentInfoVect &incidentInfoVect,
 					 const IncidentsQueryOption &option);
@@ -308,22 +265,34 @@ protected:
 	static void addTriggerInfoWithoutTransaction(
 	  DBAgent &dbAgent, const TriggerInfo &triggerInfo);
 	static void addEventInfoWithoutTransaction(
-	  DBAgent &dbAgent, const EventInfo &eventInfo);
+	  DBAgent &dbAgent, EventInfo &eventInfo);
 	static void addItemInfoWithoutTransaction(
 	  DBAgent &dbAgent, const ItemInfo &itemInfo);
-	static void addHostgroupInfoWithoutTransaction(
-	  DBAgent &dbAgent, const HostgroupInfo &groupInfo);
-	static void addHostgroupElementWithoutTransaction(
-	  DBAgent &dbAgent, const HostgroupElement &hostgroupElement);
-	static void addHostInfoWithoutTransaction(
-	  DBAgent &dbAgent, const HostInfo &hostInfo);
 	static void addMonitoringServerStatusWithoutTransaction(
 	  DBAgent &dbAgent, const MonitoringServerStatus &serverStatus);
 	static void addIncidentInfoWithoutTransaction(
 	  DBAgent &dbAgent, const IncidentInfo &incidentInfo);
+
+	/**
+	 * Fill the following members if they are not set, with the
+	 * corresponding trigger information.
+	 *   - severity
+	 *   - globalHostId
+	 *   - hostIdInServer
+	 *   - hostName
+	 *   - brief
+	 *   - extenededInfo
+	 *
+	 * @param eventInfo An EventInfo instance to be set.
+	 *
+	 * @return
+	 * true if the corresponding trigger is found and the values are set.
+	 * Otherwise false is returned.
+	 */
+	static bool mergeTriggerInfo(DBAgent &dbAgent, EventInfo &eventInfo);
+
 	size_t getNumberOfTriggers(const TriggersQueryOption &option,
 				   const std::string &additionalCondition);
-
 
 private:
 	struct Impl;

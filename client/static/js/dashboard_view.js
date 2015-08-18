@@ -4,23 +4,25 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 var DashboardView = function(userProfile) {
   var self = this;
 
   self.reloadIntervalSeconds = 60;
+  self.showToggleAutoRefreshButton();
+  self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -214,8 +216,74 @@ var DashboardView = function(userProfile) {
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
 
+  function drawLogSearchBody(logSearchSystems) {
+    var html = "";
+
+    logSearchSystems.forEach(function(logSearchSystem) {
+      html += "<tr>";
+      html += "<td>";
+      html += "<form class='form-inline logSearchForm'>";
+      html += "<div class='input-group'>";
+      html += "<input type='hidden' name='type' value='" +
+        escapeHTML(logSearchSystem.type) + "'>";
+      html += "<input type='hidden' name='baseURL' value='" +
+        escapeHTML(logSearchSystem.base_url) + "'>";
+      html += "<input type='text' name='query' class='form-control'>";
+      html += "<span class='input-group-btn'>";
+      html += "<button type='submit' class='btn btn-default'>";
+      html += "<span class='glyphicon glyphicon-search'></span>";
+      html += "</button>";
+      html += "</span>";
+      html += "</div>";
+      html += "</form>";
+      html += "</td>";
+      html += "<td>";
+      html += "<a href='" + escapeHTML(logSearchSystem.base_url) + "' target='_blank'>";
+      html += escapeHTML(logSearchSystem.base_url);
+      html += "</a>";
+      html += "</td>";
+      html += "</tr>";
+    });
+
+    return html;
+  }
+
+  function searchLog(type, baseURL, query) {
+    if (!query) {
+      return;
+    }
+
+    if (type == "groonga") {
+      window.open(baseURL + '?query=' + escape(query));
+    }
+  }
+
+  function updateLogSearch(reply) {
+    var logSearchSystems = reply;
+
+    if (logSearchSystems.length > 0) {
+      $("#logSearchPanel").show();
+      $("#tblLogSearch tbody").empty();
+      $("#tblLogSearch tbody").append(drawLogSearchBody(logSearchSystems));
+      $(".logSearchForm").submit(function(event) {
+        var $form = $(event.target);
+        var type =  $form.find("input[name='type']").val();
+        var baseURL = $form.find("input[name='baseURL']").val();
+        var query = $form.find("input[name='query']").val();
+        searchLog(type, baseURL, query);
+        return false;
+      });
+    } else {
+      $("#logSearchPanel").hide();
+    }
+  }
+
   function load() {
     self.startConnection('overview', updateCore);
+    self.startConnection('log-search-systems/', updateLogSearch, null,
+                         {
+                           pathPrefix: "",
+                         });
   }
 };
 

@@ -8,9 +8,34 @@ Basic set up for the test
 
 See also 'How to start' section in ../README.md (server/README.md)
 
-(3) Remove or disable 'apport' if it's installed.
+(3) Setup RabbitMQ
+
+See also 'How to start' section in ../README.md (server/README.md)
+
+In addition, you need to add an user and a virtual host of RabbitMQ:
+
+    $ sudo -u rabbitmq -H /usr/sbin/rabbitmqctl add_user hatohol hatohol
+    $ sudo -u rabbitmq -H /usr/sbin/rabbitmqctl add_vhost hatohol
+    $ sudo -u rabbitmq -H /usr/sbin/rabbitmqctl set_permissions -p hatohol hatohol '^test\..*' '.*' '.*'
+
+(4) Remove or disable 'apport' if it's installed.
 
 The details are written in the later part of this document.
+
+(5) Run tests
+
+You can run tests by the following command:
+
+    $ ./run-test.sh
+
+To suppress Hatohol's verbose log, adding MLPL_LOGGER_LEVEL=WARN is recommended:
+
+    $ MLPL_LOGGER_LEVEL=WARN ./run-test.sh
+
+If you want to enable tests concerned with RabbitMQ (HAPI JSON and HAPI2.0),
+please specify the URL of it by TEST_AMQP_URL:
+
+    $ TEST_AMQP_URL="amqp://hatohol:hatohol@localhost:5672/hatohol" ./run-test.sh
 
 ## Hint
 See also .travis.yml in the top directory, which contains proceudure
@@ -23,6 +48,16 @@ The above setting request MySQL to use a heap (memory) storage engine.
 It has effect only for DBAgentMySQL and the related classes.
 This way is a little slower than the way (2). However, this is easier,
 because no other settings are needed.
+
+When this environment variable is set, the test case:
+testArmZabbixAPI::test_getEventsBySplitWay needs about several hundred MB
+of heap memory, although the MySQL's default maximum heap size is 16MB.
+So the parameters should be changed by editing my.conf.
+
+[mysqld]
+
+max_heap_table_size = 512M
+
 
 (2) Put the DB of MySQL on tmpfs
 This way is faster than that of (1). However, it affects all

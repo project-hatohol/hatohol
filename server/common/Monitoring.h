@@ -1,26 +1,30 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef Monitoring_h
 #define Monitoring_h
 
 #include <SmartTime.h>
+#include <Params.h>
+#include <vector>
+#include <list>
+#include <map>
 
 enum TriggerStatusType {
 	TRIGGER_STATUS_ALL = -1,
@@ -38,6 +42,12 @@ enum TriggerSeverityType {
 	TRIGGER_SEVERITY_CRITICAL,  // High     in ZABBIX API
 	TRIGGER_SEVERITY_EMERGENCY, // Disaster in ZABBIX API
 	NUM_TRIGGER_SEVERITY,
+};
+
+enum TriggerValidity {
+	TRIGGER_INVALID = 0,
+	TRIGGER_VALID,
+	TRIGGER_VALID_SELF_MONITORING,
 };
 
 enum HostValidity {
@@ -62,24 +72,12 @@ enum HostValidity {
 	HOST_VALID_SELF_MONITORING,
 };
 
-struct HostInfo {
-	ServerIdType        serverId;
-	HostIdType          id;
-	std::string         hostName;
-	HostValidity        validity;
-
-	// The follwong members are currently not used.
-	std::string         ipAddr;
-	std::string         nickname;
+enum ExcludeFlag {
+	NO_EXCLUDE_HOST = 0,
+	EXCLUDE_SELF_MONITORING = (1 << 0),
+	EXCLUDE_INVALID_HOST = (1 << 1),
 };
-
-typedef std::list<HostInfo>          HostInfoList;
-typedef HostInfoList::iterator       HostInfoListIterator;
-typedef HostInfoList::const_iterator HostInfoListConstIterator;
-
-typedef std::map<HostIdType, const HostInfo *> HostIdHostInfoMap;
-typedef HostIdHostInfoMap::iterator            HostIdHostInfoMapIterator;
-typedef HostIdHostInfoMap::const_iterator      HostIdHostInfoMapConstIterator;
+typedef int ExcludeFlags;
 
 struct TriggerInfo {
 	ServerIdType        serverId;
@@ -87,26 +85,37 @@ struct TriggerInfo {
 	TriggerStatusType   status;
 	TriggerSeverityType severity;
 	timespec            lastChangeTime;
-	HostIdType          hostId;
+	HostIdType          globalHostId;
+	LocalHostIdType     hostIdInServer;
 	std::string         hostName;
 	std::string         brief;
+	std::string         extendedInfo;
+	TriggerValidity     validity;
 };
 
 typedef std::list<TriggerInfo>          TriggerInfoList;
 typedef TriggerInfoList::iterator       TriggerInfoListIterator;
 typedef TriggerInfoList::const_iterator TriggerInfoListConstIterator;
 
+typedef std::map<TriggerIdType, TriggerInfo *> TriggerIdInfoMap;
+typedef TriggerIdInfoMap::iterator             TriggerIdInfoMapIterator;
+typedef TriggerIdInfoMap::const_iterator       TriggerIdInfoMapConstIterator;
+
+typedef std::list<TriggerIdType> TriggerIdList;
+
 enum EventType {
+	EVENT_TYPE_ALL = -1,
 	EVENT_TYPE_GOOD,
 	EVENT_TYPE_BAD,
 	EVENT_TYPE_UNKNOWN,
+	EVENT_TYPE_NOTIFICATION,
 };
 
 struct EventInfo {
 	// 'unifiedId' is the unique ID in the event table of Hatohol cache DB.
 	// 'id' is the unique in a 'serverId'. It is typically the same as
 	// the event ID of a monitroing system such as ZABBIX and Nagios.
-	uint64_t            unifiedId;
+	UnifiedEventIdType  unifiedId;
 	ServerIdType        serverId;
 	EventIdType         id;
 	timespec            time;
@@ -117,9 +126,11 @@ struct EventInfo {
 	// so they should be unified.
 	TriggerStatusType   status;
 	TriggerSeverityType severity;
-	HostIdType          hostId;
+	HostIdType          globalHostId;
+	LocalHostIdType     hostIdInServer;
 	std::string         hostName;
 	std::string         brief;
+	std::string         extendedInfo;
 };
 void initEventInfo(EventInfo &eventInfo);
 
@@ -127,7 +138,7 @@ typedef std::list<EventInfo>          EventInfoList;
 typedef EventInfoList::iterator       EventInfoListIterator;
 typedef EventInfoList::const_iterator EventInfoListConstIterator;
 
-static const EventIdType DISCONNECT_SERVER_EVENT_ID = 0;
+static const EventIdType DISCONNECT_SERVER_EVENT_ID = "";
 
 enum ItemInfoValueType {
 	ITEM_INFO_VALUE_TYPE_UNKNOWN,
@@ -140,7 +151,8 @@ enum ItemInfoValueType {
 struct ItemInfo {
 	ServerIdType        serverId;
 	ItemIdType          id;
-	HostIdType          hostId;
+	HostIdType          globalHostId;
+	LocalHostIdType     hostIdInServer;
 	std::string         brief;
 	timespec            lastValueTime;
 	std::string         lastValue;
@@ -154,6 +166,25 @@ struct ItemInfo {
 typedef std::list<ItemInfo>          ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
+
+struct ApplicationInfo {
+	std::string           applicationName;
+};
+
+typedef std::vector<ApplicationInfo>        ApplicationInfoVect;
+typedef ApplicationInfoVect::iterator       ApplicationInfoVectIterator;
+typedef ApplicationInfoVect::const_iterator ApplicationInfoVectConstIterator;
+
+struct HistoryInfo {
+	ServerIdType serverId;
+	ItemIdType   itemId;
+	std::string  value;
+	timespec     clock;
+};
+
+typedef std::vector<HistoryInfo>        HistoryInfoVect;
+typedef HistoryInfoVect::iterator       HistoryInfoVectIterator;
+typedef HistoryInfoVect::const_iterator HistoryInfoVectConstIterator;
 
 struct HostgroupInfo {
 	int                 id;
@@ -214,6 +245,9 @@ struct IncidentInfo {
 	mlpl::Time         updatedAt;
 
 	Status             statusCode;
+
+	/* fetched from a monitoring system (since 14.12) */
+	uint64_t           unifiedEventId;
 };
 
 typedef std::vector<IncidentInfo>        IncidentInfoVect;

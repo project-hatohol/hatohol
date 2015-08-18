@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef HatoholError_h
@@ -46,7 +46,6 @@ enum HatoholErrorCode
 	HTERR_INVALID_PORT_NUMBER,
 	HTERR_INVALID_IP_ADDRESS,
 	HTERR_INVALID_HOST_NAME,
-	HTERR_INVALID_URI,
 	HTERR_INVALID_ARM_PLUGIN_TYPE,
 	HTERR_INVALID_ARM_PLUGIN_ID,
 	HTERR_INVALID_ARM_PLUGIN_PATH,
@@ -87,8 +86,6 @@ enum HatoholErrorCode
 	HTERR_INVALID_PARAMETER,
 	HTERR_AUTH_FAILED,
 	HTERR_NOT_TEST_MODE,
-	HTERR_NOT_FOUND_SERVER_TYPE,
-	HTERR_INVALID_SERVER_TYPE,
 
 	// VirtualDataStore
 	HTERR_FAILED_TO_CREATE_DATA_STORE,
@@ -110,7 +107,25 @@ enum HatoholErrorCode
 	HTERR_ERROR_TEST,
 	HTERR_ERROR_TEST_WITHOUT_MESSAGE,
 
-	NUM_HATOHOL_ERROR_CODE,
+	// 14.12
+	HTERR_NOT_FOUND_SERVER_TYPE,	// FaceRest
+	HTERR_INVALID_SERVER_TYPE,	// FaceRest
+	HTERR_NOT_FOUND_HYPERVISOR,	// DBTablesHost
+
+	// 15.03
+	HTERR_DELETE_MYSELF,
+	HTERR_INVALID_POLLING_INTERVAL,	// DBTablesConfig
+	HTERR_INVALID_RETRY_INTERVAL,	// DBTablesConfig
+
+        // 15.06
+        HTERR_VALID_DBAGENT_NO_LONGER_EXISTS, // DBAgentMySQL
+
+        // 15.11
+	HTERR_FAILED_CONNECT_HAP2, // for HAPI 2.0
+	HTERR_INVALID_OBJECT_PASSED_BY_HAP2, // for HAPI 2.0
+
+	// End of code
+	NUM_HATOHOL_ERROR_CODE
 };
 
 #define DEFINE_ERR(SUFFIX, MESSAGE) \

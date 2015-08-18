@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <typeinfo>
 #include <errno.h>
+#include <ZabbixAPI.h>
 #include "Helpers.h"
 #include "DBTablesConfig.h"
 #include "DBTablesAction.h"
@@ -44,7 +45,7 @@ void _assertStringVector(const StringVector &expected,
 		cppcut_assert_equal(expected[i], actual[i]);
 }
 
-void _assertStringVectorVA(const StringVector &actual, ...)
+void _assertStringVectorVA(const StringVector *actual, ...)
 {
 	StringVector expectedVect;
 	va_list valist;
@@ -56,7 +57,7 @@ void _assertStringVectorVA(const StringVector &actual, ...)
 		expectedVect.push_back(expected);
 	}
 	va_end(valist);
-	assertStringVector(expectedVect, actual);
+	assertStringVector(expectedVect, *actual);
 }
 
 void _assertExist(const string &target, const string &words)
@@ -132,7 +133,8 @@ void _assertEqual(const ItemInfo &expect, const ItemInfo &actual)
 {
 	cppcut_assert_equal(expect.serverId,  actual.serverId);
 	cppcut_assert_equal(expect.id,        actual.id);
-	cppcut_assert_equal(expect.hostId,    actual.hostId);
+	cppcut_assert_equal(expect.globalHostId,   actual.globalHostId);
+	cppcut_assert_equal(expect.hostIdInServer, actual.hostIdInServer);
 	cppcut_assert_equal(expect.brief,     actual.brief);
 	cppcut_assert_equal(expect.lastValueTime.tv_sec,
 	                    actual.lastValueTime.tv_sec);
@@ -144,6 +146,23 @@ void _assertEqual(const ItemInfo &expect, const ItemInfo &actual)
 	cppcut_assert_equal(expect.delay,     actual.delay);
 	cppcut_assert_equal(expect.valueType, actual.valueType);
 	cppcut_assert_equal(expect.unit,      actual.unit);
+}
+
+void _assertEqual(const TriggerInfo &expect, const TriggerInfo &actual)
+{
+	cppcut_assert_equal(expect.serverId,     actual.serverId);
+	cppcut_assert_equal(expect.id,           actual.id);
+	cppcut_assert_equal(expect.status,       actual.status);
+	cppcut_assert_equal(expect.severity,     actual.severity);
+	cppcut_assert_equal(expect.lastChangeTime.tv_sec,
+	                    actual.lastChangeTime.tv_sec);
+	cppcut_assert_equal(expect.lastChangeTime.tv_nsec,
+	                    actual.lastChangeTime.tv_nsec);
+	cppcut_assert_equal(expect.globalHostId,   actual.globalHostId);
+	cppcut_assert_equal(expect.hostIdInServer, actual.hostIdInServer);
+	cppcut_assert_equal(expect.hostName,     actual.hostName);
+	cppcut_assert_equal(expect.brief,        actual.brief);
+	cppcut_assert_equal(TRIGGER_VALID,       actual.validity);
 }
 
 struct SpawnSyncContext {
@@ -195,20 +214,24 @@ struct SpawnSyncContext {
 		gsize bytesRead;
 		gsize bufSize = 0x1000;
 		gchar buf[bufSize];
-		GIOStatus stat =
-		  g_io_channel_read_chars(source, buf, bufSize-1, &bytesRead,
-		                          &error);
-		if (stat != G_IO_STATUS_NORMAL) {
-			MLPL_ERR("Failed to call g_io_channel_read_chars: %s\n",
-			         error ? error->message : "unknown");
-			if (error)
-				g_error_free(error);
-			obj->running = false;
-			obj->dataCbId = INVALID_EVENT_ID;
-			return FALSE;
-		}
-		buf[bytesRead] = '\0';
-		obj->msg += buf;
+		do {
+			GIOStatus stat =
+			  g_io_channel_read_chars(source,
+						  buf, bufSize-1,
+						  &bytesRead,
+						  &error);
+			if (stat != G_IO_STATUS_NORMAL) {
+				MLPL_ERR("Failed to call g_io_channel_read_chars: %s\n",
+					 error ? error->message : "unknown");
+				if (error)
+					g_error_free(error);
+				obj->running = false;
+				obj->dataCbId = INVALID_EVENT_ID;
+				return FALSE;
+			}
+			buf[bytesRead] = '\0';
+			obj->msg += buf;
+		} while(bytesRead == bufSize - 1);
 		return TRUE;
 	}
 
@@ -282,11 +305,16 @@ err:
 	return "";
 }
 
+string getBaseDir(void)
+{
+	const gchar *dir;
+	dir = g_getenv("BASE_DIR");
+	return dir ? dir : ".";
+}
+
 string getFixturesDir(void)
 {
-	char *cwd = get_current_dir_name();
-	string dir = cwd;
-	free(cwd);
+	string dir = getBaseDir();
 	dir += G_DIR_SEPARATOR;
 	dir += "fixtures";
 	dir += G_DIR_SEPARATOR;
@@ -387,7 +415,7 @@ string getExpectedNullNotation(DBAgent &dbAgent)
 string makeServerInfoOutput(const MonitoringServerInfo &serverInfo)
 {
 	string expectedOut = StringUtils::sprintf
-	                       ("%u|%d|%s|%s|%s|%d|%d|%d|%s|%s|%s\n",
+	                       ("%u|%d|%s|%s|%s|%d|%d|%d|%s|%s|%s|%s|%s\n",
 	                        serverInfo.id, serverInfo.type,
 	                        serverInfo.hostName.c_str(),
 	                        serverInfo.ipAddress.c_str(),
@@ -397,7 +425,9 @@ string makeServerInfoOutput(const MonitoringServerInfo &serverInfo)
 	                        serverInfo.retryIntervalSec,
 	                        serverInfo.userName.c_str(),
 	                        serverInfo.password.c_str(),
-	                        serverInfo.dbName.c_str());
+	                        serverInfo.dbName.c_str(),
+	                        serverInfo.baseURL.c_str(),
+				serverInfo.extendedInfo.c_str());
 	return expectedOut;
 }
 
@@ -405,7 +435,7 @@ std::string makeArmPluginInfoOutput(const ArmPluginInfo &armPluginInfo)
 {
 	string expectedOut = StringUtils::sprintf
 	                       ("%u|%d|%s|%s|%s|%" FMT_SERVER_ID "|"
-				"%s|%s|%s|%d\n",
+				"%s|%s|%s|%d|%s\n",
 	                        armPluginInfo.id, armPluginInfo.type,
 	                        armPluginInfo.path.c_str(),
 	                        armPluginInfo.brokerUrl.c_str(),
@@ -414,7 +444,8 @@ std::string makeArmPluginInfoOutput(const ArmPluginInfo &armPluginInfo)
 				armPluginInfo.tlsCertificatePath.c_str(),
 				armPluginInfo.tlsKeyPath.c_str(),
 				armPluginInfo.tlsCACertificatePath.c_str(),
-				armPluginInfo.tlsEnableVerify);
+				armPluginInfo.tlsEnableVerify,
+				armPluginInfo.uuid.c_str());
 	return expectedOut;
 }
 
@@ -442,17 +473,41 @@ std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo)
 		 userRoleInfo.flags);
 }
 
+string makeTriggerOutput(const TriggerInfo &triggerInfo)
+{
+	string expectedOut =
+	  StringUtils::sprintf(
+	    "%" FMT_SERVER_ID "|%" FMT_TRIGGER_ID "|%d|%d|%ld|%lu|"
+	    "%" FMT_HOST_ID "|%" FMT_LOCAL_HOST_ID "|%s|%s|%s|%d\n",
+	    triggerInfo.serverId,
+	    triggerInfo.id.c_str(),
+	    triggerInfo.status, triggerInfo.severity,
+	    triggerInfo.lastChangeTime.tv_sec,
+	    triggerInfo.lastChangeTime.tv_nsec,
+	    triggerInfo.globalHostId,
+	    triggerInfo.hostIdInServer.c_str(),
+	    triggerInfo.hostName.c_str(),
+	    triggerInfo.brief.c_str(),
+	    triggerInfo.extendedInfo.c_str(),
+	    triggerInfo.validity);
+	return expectedOut;
+}
+
 string makeEventOutput(const EventInfo &eventInfo)
 {
 	string output =
 	  mlpl::StringUtils::sprintf(
-	    "%" PRIu32 "|%" PRIu64 "|%ld|%ld|%d|%u|%" PRIu64 "|%s|%s\n",
-	    eventInfo.serverId, eventInfo.id,
+	    "%" FMT_SERVER_ID "|%" FMT_EVENT_ID "|%ld|%ld|%d|%" FMT_TRIGGER_ID
+	    "|%d|%u|%" FMT_HOST_ID "|%" FMT_LOCAL_HOST_ID "|%s|%s|%s\n",
+	    eventInfo.serverId, eventInfo.id.c_str(),
 	    eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
+	    eventInfo.type, eventInfo.triggerId.c_str(),
 	    eventInfo.status, eventInfo.severity,
-	    eventInfo.hostId,
+	    eventInfo.globalHostId,
+	    eventInfo.hostIdInServer.c_str(),
 	    eventInfo.hostName.c_str(),
-	    eventInfo.brief.c_str());
+	    eventInfo.brief.c_str(),
+	    eventInfo.extendedInfo.c_str());
 	return output;
 }
 
@@ -463,11 +518,11 @@ string makeIncidentOutput(const IncidentInfo &incidentInfo)
 	    "%" FMT_INCIDENT_TRACKER_ID "|%" FMT_SERVER_ID "|%" FMT_EVENT_ID
 	    "|%" FMT_TRIGGER_ID "|%s|%s|%s|%s"
 	    "|%" PRIu64 "|%" PRIu64 "|%" PRIu64 "|%" PRIu64
-	    "|%s|%d\n",
+	    "|%s|%d|%" PRIu64 "\n",
 	    incidentInfo.trackerId,
 	    incidentInfo.serverId,
-	    incidentInfo.eventId,
-	    incidentInfo.triggerId,
+	    incidentInfo.eventId.c_str(),
+	    incidentInfo.triggerId.c_str(),
 	    incidentInfo.identifier.c_str(),
 	    incidentInfo.location.c_str(),
 	    incidentInfo.status.c_str(),
@@ -477,8 +532,77 @@ string makeIncidentOutput(const IncidentInfo &incidentInfo)
 	    incidentInfo.updatedAt.tv_sec,
 	    incidentInfo.updatedAt.tv_nsec,
 	    incidentInfo.priority.c_str(),
-	    incidentInfo.doneRatio);
+	    incidentInfo.doneRatio,
+	    incidentInfo.unifiedEventId);
 	return output;
+}
+
+string makeHistoryOutput(const HistoryInfo &historyInfo)
+{
+	string output =
+	  mlpl::StringUtils::sprintf(
+	    "%" FMT_SERVER_ID "|%" FMT_ITEM_ID
+	    "|%" PRIu64 "|%" PRIu64
+	    "|%s\n",
+	    historyInfo.serverId, historyInfo.itemId.c_str(),
+	    (uint64_t)historyInfo.clock.tv_sec,
+	    (uint64_t)historyInfo.clock.tv_nsec,
+	    historyInfo.value.c_str());
+	return output;
+}
+
+string makeItemOutput(const ItemInfo &itemInfo)
+{
+	string expectedOut =
+	  StringUtils::sprintf(
+	    "%" FMT_SERVER_ID "|%" FMT_ITEM_ID "|%" FMT_HOST_ID
+	    "|%" FMT_LOCAL_HOST_ID "|%s|%ld|%lu|%s|%s|%s|%d|%s\n",
+	    itemInfo.serverId, itemInfo.id.c_str(),
+	    itemInfo.globalHostId,
+	    itemInfo.hostIdInServer.c_str(),
+	    itemInfo.brief.c_str(),
+	    itemInfo.lastValueTime.tv_sec,
+	    itemInfo.lastValueTime.tv_nsec,
+	    itemInfo.lastValue.c_str(),
+	    itemInfo.prevValue.c_str(),
+	    itemInfo.itemGroupName.c_str(),
+	    static_cast<int>(itemInfo.valueType),
+	    itemInfo.unit.c_str());
+	return expectedOut;
+}
+
+string makeHostsOutput(const ServerHostDef &svHostDef, const size_t &id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%zd|" DBCONTENT_MAGIC_ANY "|%" FMT_SERVER_ID "|%s|%s|%d\n",
+	  id + 1, svHostDef.serverId,
+	  svHostDef.hostIdInServer.c_str(), svHostDef.name.c_str(),
+	  HOST_STAT_NORMAL);
+
+	return expectedOut;
+}
+
+string makeHostgroupsOutput(const Hostgroup &hostgrp, const size_t &id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%zd|%" FMT_SERVER_ID "|%s|%s\n",
+	  id + 1, hostgrp.serverId,
+	  hostgrp.idInServer.c_str(), hostgrp.name.c_str());
+	return expectedOut;
+}
+
+string makeMapHostsHostgroupsOutput(
+  const HostgroupMember &hostgrpMember, const size_t &id)
+{
+	string expectedOut = StringUtils::sprintf(
+	  "%zd|%" FMT_SERVER_ID "|%s|%s|%" FMT_HOST_ID "\n",
+	  id + 1,
+	  hostgrpMember.serverId,
+	  hostgrpMember.hostIdInServer.c_str(),
+	  hostgrpMember.hostgroupIdInServer.c_str(),
+	  hostgrpMember.hostId);
+
+	return expectedOut;
 }
 
 static void assertDBContentForComponets(const string &expect,
@@ -496,6 +620,8 @@ static void assertDBContentForComponets(const string &expect,
 	for (size_t i = 0; i < wordsExpect.size(); i++) {
 		if (wordsExpect[i] == DBCONTENT_MAGIC_CURR_DATETIME) {
 			assertCurrDatetime(wordsActual[i]);
+		} else if(wordsExpect[i] == DBCONTENT_MAGIC_ANY) {
+			// just pass
 		} else if(wordsExpect[i] == DBCONTENT_MAGIC_NULL) {
 			cppcut_assert_equal(getExpectedNullNotation(*dbAgent),
 			                    wordsActual[i]);
@@ -560,7 +686,7 @@ void _assertExistIndex(DBAgent &dbAgent, const std::string &tableName,
 		  tableName.c_str(), indexName.c_str());
 		output = execMySQL(dbName, statement);
 		StringVector lines;
-		StringUtils::split(lines, output, '\n'); 
+		StringUtils::split(lines, output, '\n');
 		cppcut_assert_equal(numColumns, lines.size());
 	} else {
 		cut_fail("Unkown type: %s", DEMANGLED_TYPE_NAME(dbAgent));
@@ -600,11 +726,9 @@ void _assertServersInDB(const ServerIdSet &excludeServerIdSet)
 	statement += " ORDER BY id ASC";
 	string expect;
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
-		ServerIdType serverId = i + 1;
 		// We must make a copy because the member will be changed.
 		MonitoringServerInfo serverInfo = testServerInfo[i];
-		serverInfo.id = serverId;
-		ServerIdSetIterator it = excludeServerIdSet.find(serverId);
+		ServerIdSetIterator it = excludeServerIdSet.find(serverInfo.id);
 		if (it != excludeServerIdSet.end())
 			continue;
 		expect += makeServerInfoOutput(serverInfo);
@@ -620,7 +744,7 @@ void _assertArmPluginsInDB(const set<int> &excludeIdSet)
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
 		const int id = i + 1;
 		// We must make a copy because the member will be changed.
-		ArmPluginInfo armPluginInfo = testArmPluginInfo[i];
+		ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[i];
 		armPluginInfo.id = id;
 		set<int>::const_iterator it = excludeIdSet.find(id);
 		if (it != excludeIdSet.end())
@@ -664,14 +788,16 @@ void _assertAccessInfoInDB(const AccessInfoIdSet &excludeAccessInfoIdSet)
 			continue;
 		const AccessInfo &accessInfo = testAccessInfo[i];
 		expect += StringUtils::sprintf(
-		  "%" FMT_ACCESS_INFO_ID "|%" FMT_USER_ID "|%d|%" PRIu64 "\n",
-		  id, accessInfo.userId, accessInfo.serverId, accessInfo.hostgroupId);
+		  "%" FMT_ACCESS_INFO_ID "|%" FMT_USER_ID "|%d|"
+		  "%" FMT_HOST_GROUP_ID "\n",
+		  id, accessInfo.userId, accessInfo.serverId,
+		  accessInfo.hostgroupId.c_str());
 	}
 	ThreadLocalDBCache cache;
 	assertDBContent(&cache.getUser().getDBAgent(), statement, expect);
 }
 
-void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo) 
+void _assertUserRoleInfoInDB(UserRoleInfo &userRoleInfo)
 {
 	string statement = StringUtils::sprintf(
 	                     "select * from %s where id=%d",
@@ -964,7 +1090,7 @@ void _acquireDefaultContext(void)
 void releaseDefaultContext(void)
 {
 	if (g_acquiredContext) {
-		g_main_context_release(g_acquiredContext); 
+		g_main_context_release(g_acquiredContext);
 		g_acquiredContext = NULL;
 	}
 }
@@ -1097,16 +1223,15 @@ VariableItemGroupPtr convert(const ItemInfo &itemInfo,
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_KEY_, "");
 
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_ITEMID, itemInfo.id);
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_HOSTID, itemInfo.hostId);
+	grp->addNewItem(ITEM_ID_ZBX_ITEMS_HOSTID, itemInfo.hostIdInServer);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTCLOCK,
 	                (int)itemInfo.lastValueTime.tv_sec);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTVALUE, itemInfo.lastValue);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_PREVVALUE, itemInfo.prevValue);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_DELAY,     itemInfo.delay);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID, itemCategoryId);
-	int valueType
-	  = HatoholDBUtils::transformItemValueTypeToZabbixFormat(
-	      itemInfo.valueType); // TODO: remove Zabbix dependency!
+	// TODO: remove Zabbix dependency!
+	int valueType = ZabbixAPI::fromItemValueType(itemInfo.valueType);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_VALUE_TYPE, valueType);
 	grp->addNewItem(ITEM_ID_ZBX_ITEMS_UNITS, itemInfo.unit);
 	return grp;
@@ -1127,13 +1252,43 @@ ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap)
 	return static_cast<ItemTablePtr>(tablePtr);
 }
 
+VariableItemGroupPtr convert(const HistoryInfo &historyInfo)
+{
+	// TODO: Don't use IDs concerned with Zabbix.
+	VariableItemGroupPtr grp;
+	grp->addNewItem(ITEM_ID_ZBX_HISTORY_ITEMID,
+			historyInfo.itemId);
+	grp->addNewItem(ITEM_ID_ZBX_HISTORY_CLOCK,
+			static_cast<uint64_t>(historyInfo.clock.tv_sec));
+	grp->addNewItem(ITEM_ID_ZBX_HISTORY_NS,
+			static_cast<uint64_t>(historyInfo.clock.tv_nsec));
+	grp->addNewItem(ITEM_ID_ZBX_HISTORY_VALUE,
+			historyInfo.value);
+	return grp;
+}
+
+VariableItemGroupPtr convert(const TriggerInfo &triggerInfo)
+{
+	// TODO: Don't use IDs concerned with Zabbix.
+	VariableItemGroupPtr grp;
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_TRIGGERID, triggerInfo.id);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_VALUE, triggerInfo.status);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_PRIORITY, triggerInfo.severity);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_LASTCHANGE,
+	(int)(triggerInfo.lastChangeTime.tv_sec));
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_DESCRIPTION, triggerInfo.brief);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_HOSTID, triggerInfo.hostIdInServer);
+	grp->addNewItem(ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION, triggerInfo.extendedInfo);
+	return grp;
+}
+
 // ---------------------------------------------------------------------------
 // Watcher
 // ---------------------------------------------------------------------------
 Watcher::Watcher(void)
 : expired(false),
   timerId(INVALID_EVENT_ID)
-{ 
+{
 }
 
 Watcher::~Watcher()
@@ -1355,7 +1510,8 @@ bool CommandArgHelper::activate(void)
 	const bool succeeded =
 	  ConfigManager::parseCommandLine(&argc, (gchar ***)&argv,
 	                                  &cmdLineOpts);
-	ConfigManager::reset(&cmdLineOpts);
+	bool loadConfigFile = true;
+	ConfigManager::reset(&cmdLineOpts, !loadConfigFile);
 	return succeeded;
 }
 
@@ -1405,4 +1561,3 @@ void TentativeEnvVariable::set(const std::string &newValue)
 	setenv(m_envVarName.c_str(), newValue.c_str(), 1);
 	cut_assert_errno();
 }
-

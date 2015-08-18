@@ -4,24 +4,26 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "RestResourceServer.h"
 #include "ThreadLocalDBCache.h"
 #include "UnifiedDataStore.h"
+#ifdef WITH_QPID
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
+#endif
 #include <JSONParser.h>
 
 using namespace std;
@@ -85,12 +87,12 @@ static void addNumberOfAllowedHostgroups(UnifiedDataStore *dataStore,
 	AccessInfoQueryOption allowedHostgroupOption(userId);
 	hostgroupOption.setTargetServerId(targetServer);
 	allowedHostgroupOption.setTargetUserId(targetUser);
-	HostgroupInfoList hostgroupInfoList;
+	HostgroupVect hostgroups;
 	ServerAccessInfoMap serversMap;
-	dataStore->getHostgroupInfoList(hostgroupInfoList, hostgroupOption);
+	dataStore->getHostgroups(hostgroups, hostgroupOption);
 	dataStore->getAccessInfoMap(serversMap, allowedHostgroupOption);
 
-	size_t numberOfHostgroups = hostgroupInfoList.size();
+	const size_t numberOfHostgroups = hostgroups.size();
 	size_t numberOfAllowedHostgroups = 0;
 	ServerAccessInfoMapIterator serverIt = serversMap.find(targetServer);
 	if (serverIt != serversMap.end()) {
@@ -107,6 +109,19 @@ static void addNumberOfAllowedHostgroups(UnifiedDataStore *dataStore,
 
 	outputJSON.add("numberOfHostgroups", numberOfHostgroups);
 	outputJSON.add("numberOfAllowedHostgroups", numberOfAllowedHostgroups);
+}
+
+static bool isPassiveMode(const ArmPluginInfo &info)
+{
+	const string &path = info.path;
+	if (info.type == MONITORING_SYSTEM_HAPI2)
+		return path.empty();
+	else
+#ifdef WITH_QPID
+		return path == HatoholArmPluginGate::PassivePluginQuasiPath;
+#else
+		return path.empty();
+#endif
 }
 
 static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
@@ -140,6 +155,8 @@ static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 		agent.add("port", serverInfo.port);
 		agent.add("pollingInterval", serverInfo.pollingIntervalSec);
 		agent.add("retryInterval", serverInfo.retryIntervalSec);
+		agent.add("baseURL", serverInfo.baseURL);
+		agent.add("extendedInfo", serverInfo.extendedInfo);
 		if (canUpdateServer(option, serverInfo)) {
 			// Shouldn't show account information of the server to
 			// a user who isn't allowed to update it.
@@ -153,8 +170,7 @@ static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 			                             agent);
 		}
 		if (pluginIt->id != INVALID_ARM_PLUGIN_INFO_ID) {
-			const bool passiveMode =
-			  (pluginIt->path == HatoholArmPluginGate::PassivePluginQuasiPath);
+			const bool passiveMode = isPassiveMode(*pluginIt);
 			if (passiveMode)
 				agent.addTrue("passiveMode");
 			else
@@ -168,6 +184,8 @@ static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 			          pluginIt->tlsKeyPath);
 			agent.add("tlsCACertificatePath",
 			          pluginIt->tlsCACertificatePath);
+			agent.add("uuid",
+			          pluginIt->uuid);
 			if (pluginIt->tlsEnableVerify)
 				agent.addTrue("tlsEnableVerify");
 			else
@@ -180,6 +198,14 @@ static void addServers(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 
 void RestResourceServer::handlerServer(void)
 {
+	string resourceName = getResourceName();
+	if (StringUtils::casecmp(resourceName, "server-trigger")){
+		if (httpMethodIs("PUT")) {
+			handlerTriggerUpdateServer();
+		}
+		return;
+	}
+
 	if (httpMethodIs("GET")) {
 		handlerGetServer();
 	} else if (httpMethodIs("POST")) {
@@ -249,13 +275,16 @@ void RestResourceServer::handlerGetServer(void)
 }
 
 static HatoholError getRequiredParameterKeys(
-  const MonitoringServerInfo &svInfo, set<string> &requiredKeys)
+  const MonitoringServerInfo &svInfo,
+  const ArmPluginInfo &armPluginInfo,
+  set<string> &requiredKeys)
 {
 
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	ServerTypeInfo serverTypeInfo;
-	if (!dbConfig.getServerType(serverTypeInfo, svInfo.type))
+	if (!dbConfig.getServerType(serverTypeInfo, svInfo.type,
+				    armPluginInfo.uuid))
 		return HTERR_NOT_FOUND_SERVER_TYPE;
 
 	JSONParser parser(serverTypeInfo.parameters);
@@ -306,8 +335,18 @@ static HatoholError parseServerParameter(
 			return err;
 	}
 
+	// uuid
+	if (svInfo.type == MONITORING_SYSTEM_HAPI2) {
+		value = (char *)g_hash_table_lookup(query, "uuid");
+		if (!value && !allowEmpty)
+			return HatoholError(HTERR_NOT_FOUND_PARAMETER, "uuid");
+		// TODO: check existence of the plugin
+		if (value)
+			armPluginInfo.uuid = value;
+	}
+
 	set<string> requiredKeys;
-	err = getRequiredParameterKeys(svInfo, requiredKeys);
+	err = getRequiredParameterKeys(svInfo, armPluginInfo, requiredKeys);
 	if (err != HTERR_OK)
 		return err;
 
@@ -403,6 +442,22 @@ static HatoholError parseServerParameter(
 	if (value)
 		svInfo.dbName = value;
 
+	// baseURL
+	key = "baseURL";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		svInfo.baseURL = value;
+
+	// baseURL
+	key = "extendedInfo";
+	value = (char *)g_hash_table_lookup(query, key.c_str());
+	if (!value && isRequired(requiredKeys, key, allowEmpty))
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		svInfo.extendedInfo = value;
+
 	//
 	// HAPI's parameters
 	//
@@ -417,7 +472,8 @@ static HatoholError parseServerParameter(
 		armPluginInfo.serverId = INVALID_SERVER_ID;
 	}
 	armPluginInfo.type = svInfo.type;
-	armPluginInfo.path = DBTablesConfig::getDefaultPluginPath(svInfo.type);
+	armPluginInfo.path = DBTablesConfig::getDefaultPluginPath(
+			       svInfo.type, armPluginInfo.uuid);
 
 	// passiveMode
 	// Note: We don't accept a plugin path from outside for security.
@@ -430,9 +486,11 @@ static HatoholError parseServerParameter(
 	bool passiveMode = false;
 	if (value) {
 		passiveMode = (string(value) == "true");
-		if (passiveMode) {
+		if (passiveMode && svInfo.type != MONITORING_SYSTEM_HAPI2) {
+#ifdef WITH_QPID
 			armPluginInfo.path =
 			  HatoholArmPluginGate::PassivePluginQuasiPath;
+#endif
 		}
 	}
 
@@ -578,6 +636,31 @@ void RestResourceServer::handlerPutServer(void)
 	replyJSONData(agent);
 }
 
+void RestResourceServer::handlerTriggerUpdateServer(void)
+{
+	uint64_t serverId = getResourceId();
+	TriggersQueryOption option(m_dataQueryContextPtr);
+	option.setTargetServerId(serverId);
+	option.setTargetHostId(ALL_LOCAL_HOSTS);
+	if (serverId == INVALID_ID) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+			    "id: %s", getResourceIdString().c_str());
+		return;
+	}
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = HTERR_OK;
+	dataStore->fetchTriggerAsync(NULL, option);
+
+	JSONBuilder agent;
+	agent.startObject();
+	addHatoholError(agent, HTERR_OK);
+	agent.add("id", serverId);
+	agent.endObject();
+
+	replyJSONData(agent);
+}
+
 void RestResourceServer::handlerDeleteServer(void)
 {
 	uint64_t serverId = getResourceId();
@@ -621,6 +704,7 @@ void RestResourceServer::handlerServerType(void)
 		builder.startObject();
 		builder.add("type",       svTypeInfo.type);
 		builder.add("name",       svTypeInfo.name);
+		builder.add("uuid",       svTypeInfo.uuid);
 		builder.add("parameters", svTypeInfo.parameters);
 		builder.endObject();
 	}

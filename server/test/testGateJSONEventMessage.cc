@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <gcutter.h>
@@ -245,6 +245,25 @@ namespace validate {
 			       "  }\n"
 			       "}\n");
 	}
+
+	void test_invalidBodyTypeValue(void)
+	{
+		assertValidate(gcut_take_new_list_string(
+				       "$.body.type must be valid type: "
+				       "<invalid>: "
+				       "available values: good, bad, unknown",
+				       NULL),
+			       "{\n"
+			       "  \"type\": \"event\"\n,"
+			       "  \"body\": {\n"
+			       "    \"id\":        1,\n"
+			       "    \"timestamp\": 1407824772.9396641,\n"
+			       "    \"hostName\":  \"www.example.com\",\n"
+			       "    \"content\":   \"Error!\",\n"
+			       "    \"type\":      \"invalid\"\n"
+			       "  }\n"
+			       "}\n");
+	}
 #undef assertValidate
 }
 
@@ -261,7 +280,7 @@ namespace getters {
 				   "{\n"
 				   "  \"type\": \"event\",\n"
 				   "  \"body\": {\n"
-				   "    \"id\":        1,\n"
+				   "    \"id\":        1234,\n"
 				   "    \"timestamp\": 1407824772.939664125,\n"
 				   "    \"hostName\":  \"www.example.com\",\n"
 				   "    \"content\":   \"Error!\"\n"
@@ -277,8 +296,14 @@ namespace getters {
 
 	void test_getID()
 	{
-		cppcut_assert_equal(static_cast<int64_t>(1),
+		cppcut_assert_equal(static_cast<int64_t>(1234),
 				    message->getID());
+	}
+
+	void test_getIDString()
+	{
+		cppcut_assert_equal(string("00000000000000001234"),
+				    message->getIDString());
 	}
 
 	void test_getHostName()
@@ -435,4 +460,75 @@ namespace severityGetter {
 	}
 }
 
+namespace typeGetter {
+	JsonParser *parser;
+	GateJSONEventMessage *message;
+
+	void cut_setup(void)
+	{
+		parser = json_parser_new();
+		message = NULL;
+	}
+
+	void cut_teardown(void)
+	{
+		delete message;
+		g_object_unref(parser);
+	}
+
+	GateJSONEventMessage *parse(const string &typeValue)
+	{
+		string json;
+
+		json += "{\n";
+		json += "  \"type\": \"event\",\n";
+		json += "  \"body\": {\n";
+		if (!typeValue.empty()) {
+			json += "\"type\": \"" + typeValue + "\",\n";
+		}
+		json += "    \"id\":        1,\n";
+		json += "    \"timestamp\": 1407824772.939664125,\n";
+		json += "    \"hostName\":  \"www.example.com\",\n";
+		json += "    \"content\":   \"Error!\"\n";
+		json += "  }\n";
+		json += "}\n";
+
+		return parseRaw(parser, json);
+	}
+
+	void test_default()
+	{
+		message = parse("");
+		cppcut_assert_equal(EVENT_TYPE_BAD,
+				    message->getType());
+	}
+
+	void test_good()
+	{
+		message = parse("good");
+		cppcut_assert_equal(EVENT_TYPE_GOOD,
+				    message->getType());
+	}
+
+	void test_bad()
+	{
+		message = parse("bad");
+		cppcut_assert_equal(EVENT_TYPE_BAD,
+				    message->getType());
+	}
+
+	void test_unknown()
+	{
+		message = parse("unknown");
+		cppcut_assert_equal(EVENT_TYPE_UNKNOWN,
+				    message->getType());
+	}
+
+	void test_notification()
+	{
+		message = parse("notification");
+		cppcut_assert_equal(EVENT_TYPE_NOTIFICATION,
+				    message->getType());
+	}
+}
 } // namespace testGateJSONEventMessage

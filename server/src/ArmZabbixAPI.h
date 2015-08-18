@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef ArmZabbixAPI_h
@@ -26,6 +26,7 @@
 #include "ItemTablePtr.h"
 #include "JSONBuilder.h"
 #include "DBTablesConfig.h"
+#include "HostInfoCache.h"
 
 class ArmZabbixAPI : public ZabbixAPI, public ArmBase
 {
@@ -44,6 +45,7 @@ public:
 
 protected:
 	ItemTablePtr updateTriggers(void);
+	ItemTablePtr updateTriggerExpandedDescriptions(void);
 	void updateItems(void);
 
 	/**
@@ -62,6 +64,7 @@ protected:
 	void updateGroups(void);
 
 	void makeHatoholTriggers(ItemTablePtr triggers);
+	void makeHatoholAllTriggers(void);
 	void makeHatoholEvents(ItemTablePtr events);
 	void makeHatoholItems(ItemTablePtr items, ItemTablePtr applications);
 	void makeHatoholHostgroups(ItemTablePtr groups);
@@ -69,10 +72,20 @@ protected:
 	void makeHatoholHosts(ItemTablePtr hosts);
 
 	uint64_t getMaximumNumberGetEventPerOnce(void);
+	HostInfoCache &getHostInfoCache(void);
+
+	ArmPollingResult handleHatoholException(const HatoholException &he);
 
 	// virtual methods
 	virtual gpointer mainThread(HatoholThreadArg *arg);
 	virtual ArmPollingResult mainThreadOneProc(void);
+	virtual ArmPollingResult mainThreadOneProcFetchItems(void);
+	virtual ArmPollingResult mainThreadOneProcFetchHistory(
+	  HistoryInfoVect &historyInfoVect,
+	  const ItemInfo &itemInfo,
+	  const time_t &beginTime,
+	  const time_t &endTime);
+	virtual ArmPollingResult mainThreadOneProcFetchTriggers(void);
 
 private:
 	struct Impl;

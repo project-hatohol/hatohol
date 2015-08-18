@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef HapProcessCeilometer_h
@@ -51,6 +51,7 @@ protected:
 	                                  VariableItemTablePtr &tablePtr,
                                           const unsigned int &index);
 
+	HatoholError getAlarmTable(VariableItemTablePtr &trigTablePtr);
 	HatoholError getAlarmList(void);
 	HatoholError parseReplyGetAlarmList(SoupMessage *msg,
 	                                    VariableItemTablePtr &tablePtr);
@@ -59,20 +60,23 @@ protected:
                                        const unsigned int &index);
 	TriggerStatusType parseAlarmState(const std::string &state);
 	mlpl::SmartTime parseStateTimestamp(const std::string &stateTimestamp);
-	uint64_t generateHashU64(const std::string &str);
 
 	HatoholError getAlarmHistories(void);
 	HatoholError getAlarmHistory(const unsigned int &index);
 	std::string  getHistoryQueryOption(const mlpl::SmartTime &lastTime);
 	HatoholError parseReplyGetAlarmHistory(SoupMessage *msg,
 	                                       AlarmTimeMap &alarmTimeMap);
+	HatoholError parseReplyGetAlarmLastHistory(SoupMessage *msg,
+						   AlarmTimeMap &alarmTimeMap);
 	HatoholError parseReplyGetAlarmHistoryElement(
 	  JSONParser &parser, AlarmTimeMap &alarmTimeMap,
 	  const unsigned int &index);
 	EventType parseAlarmHistoryDetail(const std::string &detail);
 
-	HatoholError parseAlarmHost(JSONParser &parser, HostIdType &hostId);
-	HatoholError parseAlarmHostEach(JSONParser &parser, HostIdType &hostId,
+	HatoholError parseAlarmHost(JSONParser &parser,
+	                            LocalHostIdType &hostId);
+	HatoholError parseAlarmHostEach(JSONParser &parser,
+	                                LocalHostIdType &hostId,
 	                                const unsigned int &index);
 
 	bool startObject(JSONParser &parser, const std::string &name);
@@ -83,17 +87,29 @@ protected:
 	bool parserEndpoints(JSONParser &parser, const unsigned int &index);
 
 	virtual HatoholError acquireData(
-	                       const MessagingContext &msgCtx) override;
+	                       const MessagingContext &msgCtx,
+			       const mlpl::SmartBuffer &cmdBuf) override;
 	virtual HatoholError fetchItem(
-	                       const MessagingContext &msgCtx) override;
+	                       const MessagingContext &msgCtx,
+			       const mlpl::SmartBuffer &cmdBuf) override;
+	virtual HatoholError fetchTrigger(
+	                       const MessagingContext &msgCtx,
+			       const mlpl::SmartBuffer &cmdBuf) override;
 	HatoholError fetchItemsOfInstance(
 	  VariableItemTablePtr &tablePtr, const std::string &instanceId);
+	virtual HatoholError fetchHistory(
+	  const MessagingContext &msgCtx,
+	  const mlpl::SmartBuffer &cmdBuf) override;
 	HatoholError parserResourceLink(
 	  JSONParser &parser, VariableItemTablePtr &tablePtr,
 	  const unsigned int &index, const std::string &instanceId);
 	HatoholError getResource(
 	  VariableItemTablePtr &tablePtr, const std::string &url,
 	  const std::string &instanceId);
+	std::string getHistoryTimeString(const timespec &timeSpec);
+	ItemTablePtr getHistory(
+	  const ItemIdType &itemId, const LocalHostIdType &hostId,
+	  const time_t &beginTime, const time_t &endTime);
 
 private:
 	struct Impl;

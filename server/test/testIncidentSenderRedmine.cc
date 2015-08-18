@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <Synchronizer.h>
@@ -101,7 +101,7 @@ void cut_teardown(void)
 
 string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 {
-	MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
+	const MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
 	string eventsURL =
 	  TestRedmineSender::callBuildURLMonitoringServerEvent(event, &server);
 
@@ -135,7 +135,7 @@ string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 	    "{{collapse(ID)\\n"
 	    "\\n"
 	    "|{background:#ddd}. Server ID|%" FMT_SERVER_ID "|\\n"
-	    "|{background:#ddd}. Host ID|%" FMT_HOST_ID "|\\n"
+	    "|{background:#ddd}. Host ID|'%" FMT_LOCAL_HOST_ID "'|\\n"
 	    "|{background:#ddd}. Trigger ID|%" FMT_TRIGGER_ID "|\\n"
 	    "|{background:#ddd}. Event ID|%" FMT_EVENT_ID "|\\n}}\\n"
 	    "\\n"
@@ -161,9 +161,9 @@ string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 	    LabelUtils::getTriggerStatusLabel(event.status).c_str(),
 	    LabelUtils::getTriggerSeverityLabel(event.severity).c_str(),
 	    server.id,
-	    event.hostId,
-	    event.triggerId,
-	    event.id,
+	    event.hostIdInServer.c_str(),
+	    event.triggerId.c_str(),
+	    event.id.c_str(),
 	    eventsURL.c_str());
 	return expected;
 }
@@ -214,7 +214,7 @@ void test_buildJSONForUpdate(void)
 
 void test_getIssuesJSONURL(void)
 {
-	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
 	TestRedmineSender sender(tracker);
 	cppcut_assert_equal(
 	  string("http://localhost/issues.json"),
@@ -240,6 +240,7 @@ static void makeExpectedIncidentInfo(IncidentInfo &incident,
 	incident.createdAt.tv_nsec = 0;
 	incident.updatedAt.tv_sec = postedIssue.updatedOn;
 	incident.updatedAt.tv_nsec = 0;
+	incident.unifiedEventId = event.unifiedId;
 }
 
 void _assertSend(const HatoholErrorCode &expected,
@@ -262,7 +263,7 @@ void _assertSend(const HatoholErrorCode &expected,
 		return;
 
 	// verify the reply
-	MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
+	const MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
 	JSONParser agent(g_redmineEmulator.getLastResponseBody());
 	cppcut_assert_equal(true, agent.startObject("issue"));
 	string expectedDescription
@@ -305,7 +306,8 @@ void _assertSendForUpdate(const HatoholErrorCode &expected,
 {
 	loadTestDBTablesConfig();
 	int trackerIndex = incident.trackerId - 1;
-	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[trackerIndex];
+	const IncidentTrackerInfo &tracker =
+	  testIncidentTrackerInfo[trackerIndex];
 	TestRedmineSender sender(tracker);
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 
@@ -356,6 +358,7 @@ void test_parseResponse(void)
 	actual.serverId = expected.serverId;
 	actual.eventId = expected.eventId;
 	actual.triggerId = expected.triggerId;
+	actual.unifiedEventId = expected.unifiedEventId;
 	HatoholError result = sender.parseResponse(actual, issue.toJSON());
 	cppcut_assert_equal(HTERR_OK, result.getCode());
 	cppcut_assert_equal(makeIncidentOutput(expected),

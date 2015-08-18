@@ -4,22 +4,23 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef HapProcessStandard_h
 #define HapProcessStandard_h
 
+#include <SmartBuffer.h>
 #include "NamedPipe.h"
 #include "HapProcess.h"
 #include "HatoholArmPluginStandard.h"
@@ -37,20 +38,28 @@ protected:
 	};
 
 	typedef HatoholError (HapProcessStandard::*AcquireFunc)
-	                      (const MessagingContext &messagingContext);
+	                      (const MessagingContext &messagingContext,
+			       const mlpl::SmartBuffer &cmdBuf);
 
 	static gboolean kickBasicAcquisition(void *data);
 	void startAcquisition(
 	  AcquireFunc acquireFunc,
 	  const MessagingContext &messagingContext,
+	  const mlpl::SmartBuffer &cmdBuf,
 	  const bool &setupTimer = true);
 	void setupNextTimer(
 	  const HatoholError &err, const bool &caughtException,
 	  const std::string &exceptionName, const std::string &exceptionMsg);
 	const MonitoringServerInfo &getMonitoringServerInfo(void) const;
 
-	virtual HatoholError acquireData(const MessagingContext &msgCtx);
-	virtual HatoholError fetchItem(const MessagingContext &msgCtx);
+	virtual HatoholError acquireData(const MessagingContext &msgCtx,
+					 const mlpl::SmartBuffer &cmdBuf);
+	virtual HatoholError fetchItem(const MessagingContext &msgCtx,
+				       const mlpl::SmartBuffer &cmdBuf);
+	virtual HatoholError fetchHistory(const MessagingContext &msgCtx,
+					  const mlpl::SmartBuffer &cmdBuf);
+	virtual HatoholError fetchTrigger(const MessagingContext &msgCtx,
+					  const mlpl::SmartBuffer &cmdBuf);
 	virtual void onCompletedAcquistion(
 	  const HatoholError &err, const HatoholArmPluginWatchType &watchType);
 	virtual HatoholArmPluginWatchType getHapWatchType(
@@ -60,6 +69,8 @@ protected:
 
 	virtual void onReady(const MonitoringServerInfo &serverInfo) override;
 	virtual void onReceivedReqFetchItem(void) override;
+	virtual void onReceivedReqFetchHistory(void) override;
+	virtual void onReceivedReqFetchTrigger(void) override;
 	virtual int onCaughtException(const std::exception &e) override;
 
 	bool initHapPipe(const std::string &hapPipeName);

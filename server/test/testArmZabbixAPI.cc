@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -36,6 +36,7 @@
 #include "DBTablesAction.h"
 #include "ThreadLocalDBCache.h"
 #include "DBTablesTest.h"
+#include "UnifiedDataStore.h"
 using namespace std;
 
 namespace testArmZabbixAPI {
@@ -65,6 +66,7 @@ typedef bool (ArmZabbixAPITestee::*ThreadOneProc)(void);
 public:
 	enum GetTestType {
 		GET_TEST_TYPE_TRIGGERS,
+		GET_TEST_TYPE_TRIGGER_EXPANDED_DESCRIPTION,
 		GET_TEST_TYPE_ITEMS,
 		GET_TEST_TYPE_HOSTS,
 		GET_TEST_TYPE_APPLICATIONS,
@@ -76,6 +78,7 @@ public:
 
 	ArmZabbixAPITestee(const MonitoringServerInfo &serverInfo)
 	: ArmZabbixAPI(serverInfo),
+	  m_serverId(serverInfo.id),
 	  m_result(false),
 	  m_threadOneProc(&ArmZabbixAPITestee::defaultThreadOneProc),
 	  m_countThreadOneProc(0),
@@ -121,6 +124,10 @@ public:
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcTriggers,
 			         exitCbDefault, this);
+		} else if (type == GET_TEST_TYPE_TRIGGER_EXPANDED_DESCRIPTION) {
+			succeeded =
+			  launch(&ArmZabbixAPITestee::threadOneProcTriggerExpandedDescriptions,
+			         exitCbDefault, this);
 		} else if (type == GET_TEST_TYPE_ITEMS) {
 			succeeded =
 			  launch(&ArmZabbixAPITestee::threadOneProcItems,
@@ -153,14 +160,25 @@ public:
 		return (oneProcEndType == COLLECT_OK);
 	}
 
-	UpdateType testGetUpdateType(void)
+	bool testMainThreadOneProcFetchItems(void)
 	{
-		return ArmZabbixAPI::getUpdateType();
+		const ArmPollingResult oneProcEndType
+		  = ArmZabbixAPI::mainThreadOneProcFetchItems();
+		return (oneProcEndType == COLLECT_OK);
 	}
 
-	void testSetUpdateType(UpdateType type)
+	bool testMainThreadOneProcFetchHistory(
+	  HistoryInfoVect &historyInfoVect)
 	{
-		ArmZabbixAPI::setUpdateType(type);
+		ItemInfo itemInfo;
+		itemInfo.serverId = 1;
+		itemInfo.id = "25490";
+		itemInfo.globalHostId = 0;
+		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
+		const ArmPollingResult oneProcEndType
+		  = ArmZabbixAPI::mainThreadOneProcFetchHistory(
+		      historyInfoVect, itemInfo, 1413265550, 1413268970);
+		return (oneProcEndType == COLLECT_OK);
 	}
 
 	bool testGetCopyOnDemandEnabled(void)
@@ -210,9 +228,11 @@ public:
 		}
 	}
 
-	ItemTablePtr testMakeEventsItemTable(void)
+	ItemTablePtr makeExpectedEventsItemTable(const bool &lastOnly = false)
 	{
-		ifstream ifs("fixtures/zabbix-api-res-events-002.json");
+		string fixturePath = getFixturesDir();
+		fixturePath += "zabbix-api-res-events-002.json";
+		ifstream ifs(fixturePath.c_str());
 		cppcut_assert_equal(false, ifs.fail());
 
 		string fixtureData;
@@ -225,9 +245,18 @@ public:
 		int numData = parser.countElements();
 		if (numData < 1)
 			cut_fail("Value of the elements is empty.");
-		for (int i = 0; i < numData; i++)
+		int i = 0;
+		if (lastOnly)
+			i = numData - 1;
+		for (; i < numData; i++)
 			ArmZabbixAPI::parseAndPushEventsData(parser, tablePtr, i);
 		return ItemTablePtr(tablePtr);
+	}
+
+	void loadHostInfoCacheForEmulator(void)
+	{
+		ZabbixAPIEmulator::loadHostInfoCache(getHostInfoCache(),
+		                                     m_serverId);
 	}
 
 protected:
@@ -236,7 +265,7 @@ protected:
 		g_sync.unlock();
 	}
 
-	bool launch(ThreadOneProc threadOneProc, 
+	bool launch(ThreadOneProc threadOneProc,
 	            void (*exitCb)(void *), void *exitCbData,
 	            size_t numRepeat = NUM_TEST_READ_TIMES)
 	{
@@ -287,6 +316,12 @@ protected:
 		return true;
 	}
 
+	bool threadOneProcTriggerExpandedDescriptions(void)
+	{
+		updateTriggerExpandedDescriptions();
+		return true;
+	}
+
 	bool threadOneProcItems(void)
 	{
 		updateItems();
@@ -331,6 +366,7 @@ protected:
 	}
 
 private:
+	const ServerIdType m_serverId;
 	bool m_result;
 	string m_errorMessage;
 	ThreadOneProc m_threadOneProc;
@@ -371,6 +407,7 @@ static void _assertReceiveData(ArmZabbixAPITestee::GetTestType testType,
 	serverInfo.port = getTestPort();
 
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	armZbxApiTestee.loadHostInfoCacheForEmulator();
 	g_apiEmulator.setAPIVersion(expectedVersion);
 	cppcut_assert_equal
 	  (true, armZbxApiTestee.testGet(testType, expectedVersion),
@@ -420,6 +457,11 @@ void cut_teardown(void)
 void test_getTriggers(void)
 {
 	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGERS);
+}
+
+void test_getTriggerWithExpandedDescriptions(void)
+{
+	assertTestGet(ArmZabbixAPITestee::GET_TEST_TYPE_TRIGGER_EXPANDED_DESCRIPTION);
 }
 
 void test_getTriggers_2_2_0(void)
@@ -507,29 +549,8 @@ void test_mainThreadOneProc()
 	serverInfo.id = svId;
 	serverInfo.port = getTestPort();
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
+	armZbxApiTestee.loadHostInfoCacheForEmulator();
 	cppcut_assert_equal(true, armZbxApiTestee.testMainThreadOneProc());
-}
-
-void test_updateTypeShouldBeChangedOnFetchItems()
-{
-	MonitoringServerInfo serverInfo = g_defaultServerInfo;
-	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
-	cppcut_assert_equal(ArmBase::UPDATE_POLLING,
-			    armZbxApiTestee.testGetUpdateType());
-	armZbxApiTestee.fetchItems();
-	cppcut_assert_equal(ArmBase::UPDATE_ITEM_REQUEST,
-			    armZbxApiTestee.testGetUpdateType());
-}
-
-void test_setUpdateType()
-{
-	MonitoringServerInfo serverInfo = g_defaultServerInfo;
-	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
-	cppcut_assert_equal(ArmBase::UPDATE_POLLING,
-			    armZbxApiTestee.testGetUpdateType());
-	armZbxApiTestee.testSetUpdateType(ArmBase::UPDATE_ITEM_REQUEST);
-	cppcut_assert_equal(ArmBase::UPDATE_ITEM_REQUEST,
-			    armZbxApiTestee.testGetUpdateType());
 }
 
 void test_setCopyOnDemandEnabled()
@@ -555,6 +576,7 @@ MonitoringServerInfo setupServer(void)
 void test_oneProcWithoutFetchItems()
 {
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.loadHostInfoCacheForEmulator();
 	armZbxApiTestee.testMainThreadOneProc();
 
 	ThreadLocalDBCache cache;
@@ -562,26 +584,29 @@ void test_oneProcWithoutFetchItems()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
-	HostgroupInfoList hostgroupInfoList;
-	HostgroupElementList hostgroupElementList;
+	HostgroupVect hostgrps;
+	HostgroupMemberVect hostgrpMembers;
 
 	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
 	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
-	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
+	HostgroupMembersQueryOption hostgroupMembersQueryOption(USER_ID_SYSTEM);
 
 	dbMonitoring.getEventInfoList(eventInfoList, eventsQueryOption);
 	dbMonitoring.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	dbMonitoring.getItemInfoList(itemInfoList, itemsQueryOption);
-	dbMonitoring.getHostgroupInfoList(hostgroupInfoList,
-	                                  hostgroupsQueryOption);
-	dbMonitoring.getHostgroupElementList(hostgroupElementList,
-	                                     hostgroupElementQueryOption);
+
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	assertHatoholError(
+	  HTERR_OK, uds->getHostgroups(hostgrps, hostgroupsQueryOption));
+	assertHatoholError(
+	  HTERR_OK,
+	  uds->getHostgroupMembers(hostgrpMembers, hostgroupMembersQueryOption));
 
 	// FIXME: should check contents
-	cppcut_assert_equal(false, hostgroupInfoList.empty());
-	cppcut_assert_equal(false, hostgroupElementList.empty());
+	cppcut_assert_equal(false, hostgrps.empty());
+	cppcut_assert_equal(false, hostgrpMembers.empty());
 
 	cppcut_assert_equal(false, eventInfoList.empty());
 	cppcut_assert_equal(false, triggerInfoList.empty());
@@ -591,6 +616,7 @@ void test_oneProcWithoutFetchItems()
 void test_oneProcWithCopyOnDemandEnabled()
 {
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.loadHostInfoCacheForEmulator();
 	armZbxApiTestee.testSetCopyOnDemandEnabled(true);
 	armZbxApiTestee.testMainThreadOneProc();
 
@@ -599,26 +625,29 @@ void test_oneProcWithCopyOnDemandEnabled()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
-	HostgroupInfoList hostgroupInfoList;
-	HostgroupElementList hostgroupElementList;
+	HostgroupVect hostgrps;
+	HostgroupMemberVect hostgrpMembers;
 
 	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
 	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
-	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
+	HostgroupMembersQueryOption hostgroupMembersQueryOption(USER_ID_SYSTEM);
 
 	dbMonitoring.getEventInfoList(eventInfoList, eventsQueryOption);
 	dbMonitoring.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	dbMonitoring.getItemInfoList(itemInfoList, itemsQueryOption);
-	dbMonitoring.getHostgroupInfoList(hostgroupInfoList,
-	                                  hostgroupsQueryOption);
-	dbMonitoring.getHostgroupElementList(hostgroupElementList,
-	                                     hostgroupElementQueryOption);
+
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	assertHatoholError(
+	  HTERR_OK, uds->getHostgroups(hostgrps, hostgroupsQueryOption));
+	assertHatoholError(
+	  HTERR_OK,
+	  uds->getHostgroupMembers(hostgrpMembers, hostgroupMembersQueryOption));
 
 	// FIXME: should check contents
-	cppcut_assert_equal(false, hostgroupInfoList.empty());
-	cppcut_assert_equal(false, hostgroupElementList.empty());
+	cppcut_assert_equal(false, hostgrps.empty());
+	cppcut_assert_equal(false, hostgrpMembers.empty());
 
 	cppcut_assert_equal(false, eventInfoList.empty());
 	cppcut_assert_equal(false, triggerInfoList.empty());
@@ -628,8 +657,8 @@ void test_oneProcWithCopyOnDemandEnabled()
 void test_oneProcWithFetchItems()
 {
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
-	armZbxApiTestee.fetchItems();
-	armZbxApiTestee.testMainThreadOneProc();
+	armZbxApiTestee.loadHostInfoCacheForEmulator();
+	armZbxApiTestee.testMainThreadOneProcFetchItems();
 
 	// DBClientHatoholl::getItemInfoList() function
 	// needs information about hostgroup.
@@ -640,30 +669,74 @@ void test_oneProcWithFetchItems()
 	EventInfoList eventInfoList;
 	TriggerInfoList triggerInfoList;
 	ItemInfoList itemInfoList;
-	HostgroupInfoList hostgroupInfoList;
-	HostgroupElementList hostgroupElementList;
+	HostgroupVect hostgrps;
+	HostgroupMemberVect hostgrpMembers;
 
 	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
 	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
 	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
 	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
-	HostgroupElementQueryOption hostgroupElementQueryOption(USER_ID_SYSTEM);
+	HostgroupMembersQueryOption hostgroupMembersQueryOption(USER_ID_SYSTEM);
 
 	dbMonitoring.getEventInfoList(eventInfoList, eventsQueryOption);
 	dbMonitoring.getTriggerInfoList(triggerInfoList, triggersQueryOption);
 	dbMonitoring.getItemInfoList(itemInfoList, itemsQueryOption);
-	dbMonitoring.getHostgroupInfoList(hostgroupInfoList,
-	                                  hostgroupsQueryOption);
-	dbMonitoring.getHostgroupElementList(hostgroupElementList,
-	                                     hostgroupElementQueryOption);
+
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	assertHatoholError(
+	  HTERR_OK, uds->getHostgroups(hostgrps, hostgroupsQueryOption));
+	assertHatoholError(
+	  HTERR_OK,
+	  uds->getHostgroupMembers(hostgrpMembers, hostgroupMembersQueryOption));
 
 	// FIXME: should check contents
-	cppcut_assert_equal(false, hostgroupInfoList.empty());
-	cppcut_assert_equal(false, hostgroupElementList.empty());
+	cppcut_assert_equal(false, hostgrps.empty());
+	cppcut_assert_equal(false, hostgrpMembers.empty());
 
 	cppcut_assert_equal(true, eventInfoList.empty());
 	cppcut_assert_equal(true, triggerInfoList.empty());
 	cppcut_assert_equal(false, itemInfoList.empty());
+}
+
+void test_oneProcFetchHistory()
+{
+	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	HistoryInfoVect historyInfoVect;
+	armZbxApiTestee.testMainThreadOneProcFetchHistory(historyInfoVect);
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	EventInfoList eventInfoList;
+	TriggerInfoList triggerInfoList;
+	ItemInfoList itemInfoList;
+	HostgroupVect hostgrps;
+	HostgroupMemberVect hostgrpMembers;
+
+	EventsQueryOption eventsQueryOption(USER_ID_SYSTEM);
+	TriggersQueryOption triggersQueryOption(USER_ID_SYSTEM);
+	ItemsQueryOption itemsQueryOption(USER_ID_SYSTEM);
+	HostgroupsQueryOption hostgroupsQueryOption(USER_ID_SYSTEM);
+	HostgroupMembersQueryOption hostgroupMembersQueryOption(USER_ID_SYSTEM);
+
+	dbMonitoring.getEventInfoList(eventInfoList, eventsQueryOption);
+	dbMonitoring.getTriggerInfoList(triggerInfoList, triggersQueryOption);
+	dbMonitoring.getItemInfoList(itemInfoList, itemsQueryOption);
+
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	assertHatoholError(
+	  HTERR_OK, uds->getHostgroups(hostgrps, hostgroupsQueryOption));
+	assertHatoholError(
+	  HTERR_OK,
+	  uds->getHostgroupMembers(hostgrpMembers, hostgroupMembersQueryOption));
+
+	cppcut_assert_equal(true, hostgrps.empty());
+	cppcut_assert_equal(true, hostgrpMembers.empty());
+	cppcut_assert_equal(true, eventInfoList.empty());
+	cppcut_assert_equal(true, triggerInfoList.empty());
+	cppcut_assert_equal(true, itemInfoList.empty());
+
+	// TODO: Should check the contents
+	cppcut_assert_equal(false, historyInfoVect.empty());
 }
 
 void test_checkUsernamePassword(void)
@@ -711,28 +784,73 @@ void test_sessionErrorAuthToken(void)
 	cppcut_assert_equal(false, token.empty());
 	g_apiEmulator.stop();
 	cppcut_assert_equal(false, g_apiEmulator.isRunning());
-	
+
 	armZbxApiTestee.testMainThreadOneProc();
 	token = armZbxApiTestee.testAuthToken();
 	cppcut_assert_equal(true, token.empty());
 
 }
 
-void test_verifyEventsObtanedBySplitWay(void)
+static void addDummyFirstEvent(void)
 {
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	EventInfo eventInfo = testEventInfo[0];
+	eventInfo.serverId = 1;
+	eventInfo.id = "0";
+	eventInfo.time.tv_sec = 0;
+	eventInfo.time.tv_nsec = 0;
+	dbMonitoring.addEventInfo(&eventInfo);
+}
+
+void test_getEventsBySplitWay(void)
+{
+	addDummyFirstEvent();
+
 	ArmZabbixAPITestee armZbxApiTestee(setupServer());
 	armZbxApiTestee.testOpenSession();
 
-	ItemTablePtr expectTable = armZbxApiTestee.testMakeEventsItemTable();
+	ItemTablePtr expectTable
+	  = armZbxApiTestee.makeExpectedEventsItemTable();
 	armZbxApiTestee.callUpdateEvents();
 	assertItemTable(expectTable,
 	                ItemTablePtr(armZbxApiTestee.m_actualEventTablePtr));
-	const uint64_t upperLimitOfEventsAtOneTime = 
+	const uint64_t upperLimitOfEventsAtOneTime =
 	  armZbxApiTestee.testGetMaximumNumberGetEventPerOnce();
 	list<uint64_t>::iterator itr =
 	   armZbxApiTestee.m_numbersOfGotEvents.begin();
 	for (; itr != armZbxApiTestee.m_numbersOfGotEvents.end(); ++itr)
 		cppcut_assert_equal(true, *itr <= upperLimitOfEventsAtOneTime);
+}
+
+void test_getInitialEvent(void)
+{
+	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.testOpenSession();
+
+	const bool lastOnly = true;
+	ItemTablePtr expectTable
+	  = armZbxApiTestee.makeExpectedEventsItemTable(lastOnly);
+	armZbxApiTestee.callUpdateEvents();
+	assertItemTable(expectTable,
+	                ItemTablePtr(armZbxApiTestee.m_actualEventTablePtr));
+}
+
+void test_getOldEvents(void)
+{
+	CommandArgHelper commandArgs;
+	commandArgs << "--test-mode";
+	commandArgs << "--load-old-events";
+	commandArgs.activate();
+
+	ArmZabbixAPITestee armZbxApiTestee(setupServer());
+	armZbxApiTestee.testOpenSession();
+
+	ItemTablePtr expectTable
+	  = armZbxApiTestee.makeExpectedEventsItemTable();
+	armZbxApiTestee.callUpdateEvents();
+	assertItemTable(expectTable,
+	                ItemTablePtr(armZbxApiTestee.m_actualEventTablePtr));
 }
 
 // for issue #447 (can't fetch one new event)
@@ -747,13 +865,14 @@ void test_oneNewEvent(void)
 	armZbxApiTestee.callUpdateEvents();
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-        uint64_t actualEventId = dbMonitoring.getLastEventId(serverInfo.id);
+	uint64_t actualEventId;
+	Utils::conv(actualEventId, dbMonitoring.getMaxEventId(serverInfo.id));
 	cppcut_assert_equal(expectedEventId, actualEventId);
 
 	++expectedEventId;
 	g_apiEmulator.setExpectedLastEventId(expectedEventId);
 	armZbxApiTestee.callUpdateEvents();
-        actualEventId = dbMonitoring.getLastEventId(serverInfo.id);
+	Utils::conv(actualEventId, dbMonitoring.getMaxEventId(serverInfo.id));
 	cppcut_assert_equal(expectedEventId, actualEventId);
 }
 
@@ -761,6 +880,8 @@ void test_oneNewEvent(void)
 // (can't get events when the first event ID is bigger than 1000)
 void test_getStubbedEventList(void)
 {
+	addDummyFirstEvent();
+
 	MonitoringServerInfo serverInfo = setupServer();
 	ArmZabbixAPITestee armZbxApiTestee(serverInfo);
 	armZbxApiTestee.testOpenSession();
@@ -775,8 +896,9 @@ void test_getStubbedEventList(void)
 	EventInfoList eventList;
 	EventsQueryOption option(USER_ID_SYSTEM);
 	dbMonitoring.getEventInfoList(eventList, option);
+	size_t actualSize = eventList.size() - 1; // subtract a dummy event
 	cppcut_assert_equal(expectedLastEventId - expectedFirstEventId + 1,
-			    static_cast<uint64_t>(eventList.size()));
+			    static_cast<uint64_t>(actualSize));
 }
 
 } // namespace testArmZabbixAPI

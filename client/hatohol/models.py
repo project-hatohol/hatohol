@@ -1,23 +1,26 @@
-# Copyright (C) 2013 Project Hatohol
+# Copyright (C) 2013-2015 Project Hatohol
 #
 # This file is part of Hatohol.
 #
 # Hatohol is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 2 of the License, or
-# (at your option) any later version.
+# it under the terms of the GNU Lesser General Public License, version 3
+# as published by the Free Software Foundation.
 #
 # Hatohol is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
+# GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Lesser General Public
+# License along with Hatohol. If not, see
+# <http://www.gnu.org/licenses/>.
 
 from django.db import models
 from django.db import transaction
+from django.core.exceptions import ValidationError
 import smartfield
+import json
+
 
 class UserConfig(models.Model):
     item_name = models.CharField(max_length=255, db_index=True)
@@ -26,7 +29,7 @@ class UserConfig(models.Model):
 
     def __init__(self, *args, **kwargs):
         if 'value' in kwargs:
-            value = kwargs['value'];
+            value = kwargs['value']
             kwargs['value'] = smartfield.SmartField.UserConfigValue(value)
         models.Model.__init__(self, *args, **kwargs)
 
@@ -45,7 +48,11 @@ class UserConfig(models.Model):
             If the matched item exists, it is returned. Otherwise, None is
             returned.
         """
-        objs = UserConfig.objects.filter(item_name=item_name).filter(user_id=user_id)
+        objs = UserConfig.objects.filter(
+            item_name=item_name
+        ).filter(
+            user_id=user_id
+        )
         if not objs:
             return None
         assert len(objs) == 1
@@ -80,7 +87,7 @@ class UserConfig(models.Model):
     def _store_without_transaction(self):
         obj = self.get_object(self.item_name, self.user_id)
         if obj is not None:
-            self.id = obj.id # to update on save()
+            self.id = obj.id  # to update on save()
         self.save()
 
     @transaction.commit_on_success
@@ -95,5 +102,23 @@ class UserConfig(models.Model):
     def store_items(cls, items, user_id):
         for name in items:
             value = items[name]
-            user_conf = UserConfig(item_name=name, user_id=user_id, value=value)
+            user_conf = UserConfig(item_name=name,
+                                   user_id=user_id,
+                                   value=value)
             user_conf._store_without_transaction()
+
+
+class LogSearchSystem(models.Model):
+    type = models.CharField(max_length=128)
+    base_url = models.CharField(max_length=512)
+
+
+class Graph(models.Model):
+    user_id = models.IntegerField(db_index=True)
+    settings_json = models.TextField()
+
+    def clean(self):
+        try:
+            json.loads(self.settings_json)
+        except ValueError as e:
+            raise ValidationError('Broken JSON')

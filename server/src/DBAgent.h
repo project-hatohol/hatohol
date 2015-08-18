@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef DBAgent_h
@@ -28,8 +28,6 @@
 #include "SQLProcessorTypes.h"
 #include "DBTermCodec.h"
 
-static const int      AUTO_INCREMENT_VALUE = 0;
-static const uint64_t AUTO_INCREMENT_VALUE_U64 = 0;
 static const int CURR_DATETIME = -1;
 
 struct DBConnectInfo {
@@ -135,12 +133,17 @@ public:
 
 		UpdateArg(const TableProfile &tableProfile);
 		virtual ~UpdateArg();
-		void add(const size_t &columnIndex, const int         &val);
-		void add(const size_t &columnIndex, const uint64_t    &val);
-		void add(const size_t &columnIndex, const double      &val);
-		void add(const size_t &columnIndex, const std::string &val);
-		void add(const size_t &columnIndex, const time_t      &val);
-		void add(const size_t &columnIndex, const ItemGroup   *grp);
+		void add(const size_t &columnIndex, const int         &val,
+		         const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+		void add(const size_t &columnIndex, const uint64_t    &val,
+		         const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+		void add(const size_t &columnIndex, const double      &val,
+		         const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+		void add(const size_t &columnIndex, const std::string &val,
+		         const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+		void add(const size_t &columnIndex, const time_t      &val,
+		         const ItemDataNullFlagType &nullFlag = ITEM_DATA_NOT_NULL);
+		void add(const size_t &columnIndex, const ItemGroup  *grp);
 	};
 
 	struct SelectArg {
@@ -161,6 +164,7 @@ public:
 		std::string                orderBy;
 		size_t                     limit;
 		size_t                     offset;
+		std::string                appName;
 		std::string                tableField;
 		bool                       useFullName;
 		bool                       useDistinct;
@@ -226,10 +230,24 @@ public:
 	virtual void select(const SelectExArg &selectExArg) = 0;
 	virtual void deleteRows(const DeleteArg &deleteArg) = 0;
 	virtual void addColumns(const AddColumnsArg &addColumnsArg) = 0;
+	virtual void changeColumnDef(const TableProfile &tableProfile,
+				     const std::string &oldColumnName,
+				     const size_t &columnIndex) = 0;
+	virtual void dropPrimaryKey(const std::string &tableName) = 0;
 	virtual void renameTable(const std::string &sourceName,
 				 const std::string &destName) = 0;
+	virtual void dropTable(const std::string &tableName);
 	virtual uint64_t getLastInsertId(void) = 0;
 	virtual uint64_t getNumberOfAffectedRows(void) = 0;
+
+	/**
+	 * Check wheter the last upsert did update or not.
+	 *
+	 * @return
+	 * true if the last insert() with upsertOnDuplicate = true
+	 * did update.
+	 */
+	virtual bool lastUpsertDidUpdate(void) = 0;
 
 	/**
 	 * Create and drop indexes if needed.
@@ -336,14 +354,15 @@ public:
 protected:
 	static std::string makeSelectStatement(const SelectArg &selectArg);
 	static std::string makeSelectStatement(const SelectExArg &selectExArg);
-	static std::string getColumnValueString(const ColumnDef *columnDef,
-	                                        const ItemData *itemData);
-	static std::string makeUpdateStatement(const UpdateArg &updateArg);
 	static std::string makeDeleteStatement(const DeleteArg &deleteArg);
 	static std::string makeRenameTableStatement(
 	  const std::string &srcName,
 	  const std::string &destName);
 	static std::string makeDatetimeString(int datetime);
+	std::string makeUpdateStatement(const UpdateArg &updateArg);
+
+	virtual std::string getColumnValueString(const ColumnDef *columnDef,
+						 const ItemData *itemData);
 
 	virtual std::string
 	  makeCreateIndexStatement(const TableProfile &tableProfile,
@@ -360,6 +379,9 @@ protected:
 	virtual void getIndexInfoVect(
 	  std::vector<IndexInfo> &indexInfoVect,
 	  const TableProfile &tableProfile) = 0;
+
+	virtual std::string makeIndexName(const TableProfile &tableProfile,
+	                                  const IndexDef &indexDef);
 
 private:
 	struct Impl;

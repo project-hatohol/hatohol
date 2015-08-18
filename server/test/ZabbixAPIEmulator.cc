@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <set>
@@ -104,7 +104,7 @@ struct ZabbixAPIEmulator::PrivateContext {
 	int64_t       lastEventId;
 	int64_t       expectedFirstEventId;
 	int64_t       expectedLastEventId;
-	
+
 	// methods
 	PrivateContext(void)
 	: operationMode(OPE_MODE_NORMAL),
@@ -125,20 +125,22 @@ struct ZabbixAPIEmulator::PrivateContext {
 	{
 		apiHandlerMap["apiinfo.version"] =
 		  &ZabbixAPIEmulator::APIHandlerAPIVersion;
-		apiHandlerMap["user.login"] = 
+		apiHandlerMap["user.login"] =
 		  &ZabbixAPIEmulator::APIHandlerUserLogin;
-		apiHandlerMap["trigger.get"] = 
+		apiHandlerMap["trigger.get"] =
 		  &ZabbixAPIEmulator::APIHandlerTriggerGet;
-		apiHandlerMap["item.get"] = 
+		apiHandlerMap["item.get"] =
 		  &ZabbixAPIEmulator::APIHandlerItemGet;
-		apiHandlerMap["host.get"] = 
+		apiHandlerMap["host.get"] =
 		  &ZabbixAPIEmulator::APIHandlerHostGet;
-		apiHandlerMap["event.get"] = 
+		apiHandlerMap["event.get"] =
 		  &ZabbixAPIEmulator::APIHandlerEventGet;
-		apiHandlerMap["application.get"] = 
+		apiHandlerMap["application.get"] =
 		  &ZabbixAPIEmulator::APIHandlerApplicationGet;
 		apiHandlerMap["hostgroup.get"] =
 		  &ZabbixAPIEmulator::APIHandlerHostgroupGet;
+		apiHandlerMap["history.get"] =
+		  &ZabbixAPIEmulator::APIHandlerHistoryGet;
 	}
 
 	void reset(void)
@@ -250,24 +252,36 @@ void ZabbixAPIEmulator::handlerAPI
 	}
 }
 
-bool ZabbixAPIEmulator::hasParameter
-  (APIHandlerArg &arg, const string &paramName, const string &expectedValue)
+template <typename T>
+static bool hasParameterTempl(
+  ZabbixAPIEmulator::APIHandlerArg &arg,
+  const string &paramName, const T &expectedValue)
 {
 	string request(arg.msg->request_body->data,
 	               arg.msg->request_body->length);
 	JSONParser parser(request);
 	if (parser.hasError())
 		THROW_HATOHOL_EXCEPTION("Failed to parse: %s", request.c_str());
-	
+
 	if (!parser.startObject("params"))
 		return false;
-	string value;
-	HATOHOL_ASSERT(parser.read(paramName, value), "Failed to read: %s: %s",
-	             paramName.c_str(), parser.getErrorMessage());
-	HATOHOL_ASSERT(value == expectedValue,
-	             "value: %s: not supported (expected: %s)",
-	             value.c_str(), expectedValue.c_str());
-	return true;
+
+	T value;
+	if (!parser.read(paramName, value))
+		return false;
+	return value == expectedValue;
+}
+
+bool ZabbixAPIEmulator::hasParameter(
+  APIHandlerArg &arg, const string &paramName, const string &expectedValue)
+{
+	return hasParameterTempl<string>(arg, paramName, expectedValue);
+}
+
+bool ZabbixAPIEmulator::hasParameter(
+  APIHandlerArg &arg, const string &paramName, const int64_t &expectedValue)
+{
+	return hasParameterTempl<int64_t>(arg, paramName, expectedValue);
 }
 
 string ZabbixAPIEmulator::generateAuthToken(void)
@@ -389,11 +403,35 @@ void ZabbixAPIEmulator::APIHandlerAPIVersion(APIHandlerArg &arg)
 	soup_message_set_status(arg.msg, SOUP_STATUS_OK);
 }
 
+void ZabbixAPIEmulator::loadHostInfoCache(
+  HostInfoCache &hostInfoCache, const ServerIdType &serverId)
+{
+	static const LocalHostIdType localIDs[] = {
+	  "10001", "10047", "10050", "10056", "10060", "10065", "10066",
+	  "10067", "10069", "10071", "10072", "10073", "10074", "10075",
+	  "10076", "10077", "10078", "10079", "10081", "10082", "10083",
+	  "10084", "10085", "10088", "10089", "10090", "10091", "10105",
+	  "10106", "10107", "10108", "10109", "10110", "10111", "10112",
+	  "10113", "10114",
+	};
+	static const size_t numLocalIDs = ARRAY_SIZE(localIDs);
+	ServerHostDef svHostDef;
+	for (size_t i = 0; i < numLocalIDs; i++) {
+		svHostDef.id = i + 1;
+		svHostDef.hostId = i + 1;
+		svHostDef.serverId = serverId;
+		svHostDef.hostIdInServer = localIDs[i];
+		svHostDef.name = "Jane Doe";
+		svHostDef.status = HOST_STAT_NORMAL;
+		hostInfoCache.update(svHostDef);
+	}
+}
+
 void ZabbixAPIEmulator::APIHandlerUserLogin(APIHandlerArg &arg)
 {
 	string authToken = generateAuthToken();
 	m_ctx->authTokens.insert(authToken);
-	const char *fmt = 
+	const char *fmt =
 	  "{\"jsonrpc\":\"2.0\",\"result\":\"%s\",\"id\":%" PRId64 "}";
 	string response = StringUtils::sprintf(fmt, authToken.c_str(), arg.id);
 	soup_message_body_append(arg.msg->response_body, SOUP_MEMORY_COPY,
@@ -410,7 +448,9 @@ void ZabbixAPIEmulator::APIHandlerTriggerGet(APIHandlerArg &arg)
 		   m_ctx->apiVersion < API_VERSION_2_2_2) {
 		dataFileName = "zabbix-api-2_2_0-res-triggers.json";
 	} else {
-		if (hasParameter(arg, "selectHosts", "refer")) {
+		if (hasParameter(arg, "expandDescription", 1)) {
+			dataFileName = "zabbix-api-res-triggers-extend-info.json";
+		} else if (hasParameter(arg, "selectHosts", "refer")) {
 			dataFileName = "zabbix-api-res-triggers-003-hosts.json";
 		} else {
 			// current implementation doesn't have this case
@@ -428,7 +468,7 @@ void ZabbixAPIEmulator::APIHandlerItemGet(APIHandlerArg &arg)
 	JSONParser parser(request);
 	if (parser.hasError())
 		THROW_HATOHOL_EXCEPTION("Failed to parse: %s", request.c_str());
-	
+
 	bool selectApplications = false;
 	if (parser.startObject("params")) {
 		string selectAppStr;
@@ -483,6 +523,13 @@ void ZabbixAPIEmulator::APIHandlerHostgroupGet(APIHandlerArg &arg)
 		dataFileName = "zabbix-api-res-hostgroup-002-refer.json";
 	else
 		dataFileName = "zabbix-api-res-hostgroup-001.json";
+	APIHandlerGetWithFile(arg, dataFileName);
+}
+
+void ZabbixAPIEmulator::APIHandlerHistoryGet(APIHandlerArg &arg)
+{
+	const char *dataFileName;
+	dataFileName = "zabbix-api-res-history.json";
 	APIHandlerGetWithFile(arg, dataFileName);
 }
 
@@ -591,17 +638,17 @@ void ZabbixAPIEmulator::makeEventJSONData(const string &path)
 string ZabbixAPIEmulator::addJSONResponse(const string &slice,
                                             APIHandlerArg &arg)
 {
-	const char *fmt = 
+	const char *fmt =
 	  "{\"jsonrpc\":\"2.0\",\"result\":[%s],\"id\":%" PRId64 "}";
 	return StringUtils::sprintf(fmt, slice.c_str(), arg.id);
 }
 
-void ZabbixAPIEmulator::setExpectedFirstEventId(const EventIdType &id)
+void ZabbixAPIEmulator::setExpectedFirstEventId(const uint64_t &id)
 {
 	m_ctx->expectedFirstEventId = id;
 }
 
-void ZabbixAPIEmulator::setExpectedLastEventId(const EventIdType &id)
+void ZabbixAPIEmulator::setExpectedLastEventId(const uint64_t &id)
 {
 	m_ctx->expectedLastEventId = id;
 }

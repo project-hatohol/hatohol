@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef HatoholArmPluginBase_h
@@ -64,6 +64,10 @@ public:
 	mlpl::SmartTime getTimeOfLastEvent(
 	  const TriggerIdType &triggerId = ALL_TRIGGERS);
 
+	bool wasHostsInServerDBChanged(void);
+
+	bool shouldLoadOldEvent(void);
+
 protected:
 	static const size_t WAIT_INFINITE;
 
@@ -73,6 +77,8 @@ protected:
 	 */
 	virtual void onReceivedTerminate(void);
 	virtual void onReceivedReqFetchItem(void);
+	virtual void onReceivedReqFetchHistory(void);
+	virtual void onReceivedReqFetchTrigger(void);
 	virtual void onFailureReceivedMessage(void) override;
 
 	void sendCmdGetMonitoringServerInfo(CommandCallbacks *callbacks);
@@ -87,6 +93,8 @@ protected:
 	void sendHapSelfTriggers(const int TriggerNum,
 				 const HatoholArmPluginWatchType *TriggerList);
 	void cmdHandlerFetchItems(const HapiCommandHeader *header);
+	void cmdHandlerFetchHistory(const HapiCommandHeader *header);
+	void cmdHandlerFetchTriggers(const HapiCommandHeader *header);
 	void cmdHandlerTerminate(const HapiCommandHeader *header);
 
 private:

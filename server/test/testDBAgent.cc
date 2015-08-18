@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -274,8 +274,12 @@ public:
 		TableProfile tblProf("name", m_testColumnDefs,
 		                     m_numTestColumns);
 		UpdateArg arg(tblProf);
-		for (size_t i = 0; i < numVals; i++)
-			arg.add(i, vals[i]);
+		for (size_t i = 0; i < numVals; i++) {
+			if (i % 2 == 0)
+				arg.add(i, vals[i]);
+			else
+				arg.add(i, vals[i], ITEM_DATA_NULL);
+		}
 
 		// check
 		cppcut_assert_equal(numVals, arg.rows.size());
@@ -284,6 +288,8 @@ public:
 			const T_READ actual = *elem->dataPtr;
 			cppcut_assert_equal(i, elem->columnIndex);
 			cppcut_assert_equal(vals[i], static_cast<T>(actual));
+			const bool expectedNull = (i % 2 == 1);
+			cppcut_assert_equal(expectedNull, elem->dataPtr->isNull());
 			cppcut_assert_equal(1, elem->dataPtr->getUsedCount());
 		}
 	}
@@ -335,6 +341,10 @@ private:
 	virtual void select(const SelectExArg &selectExArg) {}
 	virtual void deleteRows(const DeleteArg &deleteArg) {}
 	virtual void addColumns(const AddColumnsArg &addColumnsArg) {}
+	virtual void changeColumnDef(const TableProfile &tableProfile,
+				     const std::string &oldColumnName,
+				     const size_t &columnIndex) {}
+	virtual void dropPrimaryKey(const string &name) {}
 	virtual void renameTable(const string &srcName, const string &destName) {}
 
 	virtual uint64_t getLastInsertId(void)
@@ -345,6 +355,11 @@ private:
 	virtual uint64_t getNumberOfAffectedRows(void)
 	{
 		return 0;
+	}
+
+	bool lastUpsertDidUpdate(void) override
+	{
+		return false;
 	}
 
 	virtual string

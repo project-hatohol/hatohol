@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014 - 2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "ArmIncidentTracker.h"
@@ -30,10 +30,12 @@ static MonitoringServerInfo toMonitoringServerInfo(
 {
 	MonitoringServerInfo monitoringServer;
 	SoupURI *uri = soup_uri_new(trackerInfo.baseURL.c_str());
+	monitoringServer.id = SERVER_ID_INCIDENT_TRACKER;
 	monitoringServer.type = MONITORING_SYSTEM_INCIDENT_TRACKER;
 	monitoringServer.nickname = trackerInfo.nickname;
 	if (SOUP_URI_IS_VALID(uri)) {
-		monitoringServer.hostName = soup_uri_get_host(uri);
+		const char *host = soup_uri_get_host(uri);
+		monitoringServer.hostName = host ? host : "";
 		monitoringServer.port = soup_uri_get_port(uri);
 	}
 	if (uri)
@@ -69,7 +71,7 @@ ArmIncidentTracker::~ArmIncidentTracker()
 {
 }
 
-const IncidentTrackerInfo &ArmIncidentTracker::getIncidentTrackerInfo(void)
+const IncidentTrackerInfo ArmIncidentTracker::getIncidentTrackerInfo(void)
 {
 	return m_impl->m_incidentTrackerInfo;
 }

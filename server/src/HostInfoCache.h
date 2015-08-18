@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef HostInfoCache_h
@@ -29,19 +29,27 @@
  */
 class HostInfoCache {
 public:
-	HostInfoCache(void);
+	struct Element {
+		HostIdType  hostId;
+		std::string name;
+	};
+
+	HostInfoCache(const ServerIdType *serverId = NULL);
 	virtual ~HostInfoCache();
-	void update(const HostInfo &hostInfo);
+	void update(const ServerHostDef &svHostDef,
+	            const HostIdType &hostId = INVALID_HOST_ID);
+	void update(const ServerHostDefVect &svHostDefs,
+	            const HostHostIdMap *hostHostIdMapPtr = NULL);
 
 	/**
 	 * Get the name corresponding to the specified host ID.
 	 *
-	 * @param id A target host ID.
-	 * @param name The obtained name is store in this paramter.
+	 * @param idInServer A target host ID in the server.
+	 * @param elem The obtained element is stored in this paramter.
 	 *
 	 * @return true if the host is found, or false.
 	 */
-	bool getName(const HostIdType &id, std::string &name) const;
+	bool getName(const LocalHostIdType &idInServer, Element &elem) const;
 
 private:
 	struct Impl;

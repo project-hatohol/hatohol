@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "DBTables.h"
@@ -23,6 +23,59 @@
 
 using namespace std;
 using namespace mlpl;
+
+const int DBTables::Version::VENDOR_BITS = 8;
+const int DBTables::Version::MAJOR_BITS  = 8;
+const int DBTables::Version::MINOR_BITS  = 12;
+
+static const int VENDOR_MASK = 0x0ff00000;
+static const int MAJOR_MASK  = 0x000ff000;
+static const int MINOR_MASK  = 0x00000fff;
+
+int DBTables::Version::getPackedVer(
+  const int &vendor, const int &major, const int &minor)
+{
+	int shiftBits = 0;
+	int ver = MINOR_MASK & minor;
+
+	shiftBits += MINOR_BITS;
+	ver += MAJOR_MASK & (major << shiftBits);
+
+	shiftBits += MAJOR_BITS;
+	ver += VENDOR_MASK & (vendor << shiftBits);
+
+	return ver;
+}
+
+DBTables::Version::Version(void)
+: vendorVer(0),
+  majorVer(0),
+  minorVer(0)
+{
+}
+
+int DBTables::Version::getPackedVer(void) const
+{
+	return getPackedVer(vendorVer, majorVer, minorVer);
+}
+
+void DBTables::Version::setPackedVer(const int &packedVer)
+{
+	int shiftBits = 0;
+	minorVer = MINOR_MASK & packedVer;
+
+	shiftBits += MINOR_BITS;
+	majorVer = (MAJOR_MASK & packedVer) >> shiftBits;
+
+	shiftBits += MAJOR_BITS;
+	vendorVer = (VENDOR_MASK & packedVer) >> shiftBits;
+}
+
+string DBTables::Version::toString(void) const
+{
+	return StringUtils::sprintf("%02d.%02d [%02d]",
+	                            majorVer, minorVer, vendorVer);
+}
 
 struct DBTables::Impl {
 	DBAgent &dbAgent;
@@ -54,7 +107,8 @@ struct DBTables::Impl {
 		}
 	}
 
-	void setupTables(SetupInfo &setupInfo)
+	static bool getTablesVersion(
+	  Version &ver, const SetupInfo &setupInfo, DBAgent &dbAgent)
 	{
 		const DBAgent::TableProfile &tableProf =
 		  DB::getTableProfileTablesVersion();
@@ -63,9 +117,22 @@ struct DBTables::Impl {
 		  colDefs[DB::IDX_TABLES_VERSION_TABLES_ID].columnName,
 		  setupInfo.tablesId);
 		if (!dbAgent.isRecordExisting(tableProf.name, condition))
+			return false;
+		const int packedVer =
+		  getPackedTablesVersion(setupInfo, tableProf, dbAgent);
+		ver.setPackedVer(packedVer);
+		return true;
+	}
+
+	void setupTables(SetupInfo &setupInfo)
+	{
+		const DBAgent::TableProfile &tableProf =
+		  DB::getTableProfileTablesVersion();
+		Version ver;
+		if (!getTablesVersion(ver, setupInfo, dbAgent))
 			insertTablesVersion(setupInfo, tableProf);
 		else
-			updateTablesVersionIfNeeded(setupInfo, tableProf);
+			updateTablesVersionIfNeeded(setupInfo, tableProf, ver);
 
 		// Create tables
 		vector<const TableSetupInfo *> createdTableInfoVect;
@@ -108,34 +175,56 @@ struct DBTables::Impl {
 
 	void updateTablesVersionIfNeeded(
 	  const SetupInfo &setupInfo,
-	  const DBAgent::TableProfile &tableProfileTablesVersion)
+	  const DBAgent::TableProfile &tableProfileTablesVersion,
+	  const Version &versionInDB)
 	{
-		const int versionInDB =
-		  getTablesVersion(setupInfo, tableProfileTablesVersion);
-		if (versionInDB == setupInfo.version)
+		if (versionInDB.getPackedVer() == setupInfo.version)
 			return;
+		Version versionInProg;
+		versionInProg.setPackedVer(setupInfo.version);
+
+		HATOHOL_ASSERT(versionInDB.vendorVer == versionInProg.vendorVer,
+		  "Invalid Vendor version: DB/Prog: %s/%s (tablesId: %d)",
+		  versionInDB.toString().c_str(),
+		  versionInProg.toString().c_str(),
+		  setupInfo.tablesId);
+
+		HATOHOL_ASSERT(versionInDB.majorVer == versionInProg.majorVer,
+		  "Invalid Major version: DB/Prog: %s/%s (tablesId: %d)",
+		  versionInDB.toString().c_str(),
+		  versionInProg.toString().c_str(),
+		  setupInfo.tablesId);
 
 		MLPL_INFO("DBTables %d is outdated, try to update it ...\n"
-		          "\told-version: %" PRIu32 "\n"
-		          "\tnew-version: %" PRIu32 "\n",
-		          setupInfo.tablesId, versionInDB, setupInfo.version);
+		          "\told-version: %s\n"
+		          "\tnew-version: %s\n",
+		          setupInfo.tablesId,
+		          versionInDB.toString().c_str(),
+		          versionInProg.toString().c_str());
 		void *data = setupInfo.updaterData;
 		HATOHOL_ASSERT(setupInfo.updater,
-		             "Updater: NULL, new/old ver. %d/%d",
-		             setupInfo.version, versionInDB);
+		  "Updater: NULL, new/old ver. %s/%s (%d)",
+		  versionInDB.toString().c_str(),
+		  versionInProg.toString().c_str(),
+		  setupInfo.tablesId);
+
 		bool succeeded =
 		  (*setupInfo.updater)(dbAgent, versionInDB, data);
 		HATOHOL_ASSERT(succeeded,
-		               "Failed to update DB, new/old ver. %d/%d",
-		               setupInfo.version, versionInDB);
+		  "Failed to update DB, new/old ver. %s/%s (%d)",
+		  versionInDB.toString().c_str(),
+		  versionInProg.toString().c_str(),
+		  setupInfo.tablesId);
+
 		setTablesVersion(setupInfo, tableProfileTablesVersion);
-		MLPL_INFO("Succeeded in updating DBTables %" PRIu32 "\n",
+		MLPL_INFO("Succeeded in updating DBTables %d\n",
 		          setupInfo.tablesId);
 	}
 
-	int getTablesVersion(
+	static int getPackedTablesVersion(
 	  const SetupInfo &setupInfo,
-	  const DBAgent::TableProfile &tableProfileTablesVersion)
+	  const DBAgent::TableProfile &tableProfileTablesVersion,
+	  DBAgent &dbAgent)
 	{
 		DBAgent::SelectExArg arg(tableProfileTablesVersion);
 		arg.add(DB::IDX_TABLES_VERSION_VERSION);
@@ -187,6 +276,24 @@ DBAgent &DBTables::getDBAgent(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
+void DBTables::checkMajorVersionMain(
+  const SetupInfo &setupInfo, DBAgent &dbAgent)
+{
+	DBTables::Version versionInDB;
+	if (!Impl::getTablesVersion(versionInDB, setupInfo, dbAgent))
+		return;
+	DBTables::Version versionInProg;
+	versionInProg.setPackedVer(setupInfo.version);
+	if (versionInDB.majorVer != versionInProg.majorVer) {
+		THROW_HATOHOL_EXCEPTION(
+		  "Invalid Major version: DB/Prog: %s/%s "
+		  "(tablesId: %d)\n",
+		  versionInDB.toString().c_str(),
+		  versionInProg.toString().c_str(),
+		  setupInfo.tablesId);
+	}
+}
+
 void DBTables::begin(void)
 {
 	getDBAgent().begin();

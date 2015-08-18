@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "RestResourceUser.h"
@@ -338,16 +338,8 @@ void RestResourceUser::handlerGetAccessInfo(void)
 		HostGrpAccessInfoMapIterator it2 = hostgroupsMap->begin();
 		for (; it2 != hostgroupsMap->end(); it2++) {
 			AccessInfo *info = it2->second;
-			uint64_t hostgroupId = it2->first;
-			string hostgroupIdString;
-			if (hostgroupId == ALL_HOST_GROUPS) {
-				hostgroupIdString = StringUtils::toString(-1);
-			} else {
-				hostgroupIdString
-				  = StringUtils::sprintf("%" PRIu64,
-				                         hostgroupId);
-			}
-			agent.startObject(hostgroupIdString);
+			const HostgroupIdType &hostgroupId = it2->first;
+			agent.startObject(hostgroupId);
 			agent.add("accessInfoId", info->id);
 			agent.endObject();
 		}
@@ -385,15 +377,12 @@ void RestResourceUser::handlerPostAccessInfo(void)
 	}
 
 	// hostgroupId
-	succeeded = getParamWithErrorReply<uint64_t>(
-	              this, "hostgroupId", "%" PRIu64,
-	              accessInfo.hostgroupId, &exist);
-	if (!succeeded)
-		return;
-	if (!exist) {
+	char *value = (char *)g_hash_table_lookup(m_query, "hostgroupId");
+	if (!value) {
 		REPLY_ERROR(this, HTERR_NOT_FOUND_PARAMETER, "hostgroupId");
 		return;
 	}
+	accessInfo.hostgroupId = value;
 
 	// try to add
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -472,6 +461,7 @@ void RestResourceUser::handlerPutUserRole(void)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	UserRoleInfoList userRoleList;
 	UserRoleQueryOption option(m_dataQueryContextPtr);
+	OperationPrivilegeFlag oldUserInfoFlag, newUserInfoFlag;
 	option.setTargetUserRoleId(userRoleInfo.id);
 	dataStore->getUserRoleList(userRoleList, option);
 	if (userRoleList.empty()) {
@@ -480,6 +470,7 @@ void RestResourceUser::handlerPutUserRole(void)
 		return;
 	}
 	userRoleInfo = *(userRoleList.begin());
+	oldUserInfoFlag = userRoleInfo.flags;
 
 	bool allowEmpty = true;
 	HatoholError err = parseUserRoleParameter(userRoleInfo, m_query,
@@ -492,6 +483,14 @@ void RestResourceUser::handlerPutUserRole(void)
 	// try to update
 	err = dataStore->updateUserRole(
 	  userRoleInfo, m_dataQueryContextPtr->getOperationPrivilege());
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	newUserInfoFlag = userRoleInfo.flags;
+	err = dataStore->updateUserFlags(
+	  oldUserInfoFlag, newUserInfoFlag, m_dataQueryContextPtr->getOperationPrivilege());
 	if (err != HTERR_OK) {
 		replyError(err);
 		return;

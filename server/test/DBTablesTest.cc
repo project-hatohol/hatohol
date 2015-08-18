@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cutter.h>
@@ -22,7 +22,10 @@
 #include <unistd.h>
 #include "Helpers.h"
 #include "DBTablesTest.h"
-#include "ThreadLocalDBCache.h"
+#include <ThreadLocalDBCache.h>
+#ifdef WITH_QPID
+#include <HatoholArmPluginGate.h>
+#endif
 using namespace std;
 using namespace mlpl;
 
@@ -35,12 +38,15 @@ extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_PASSIVE =
   static_cast<MonitoringSystemType>(NUM_MONITORING_SYSTEMS + 102);
 
 
-ServerTypeInfo testServerTypeInfo[] =
+const ServerTypeInfo testServerTypeInfo[] =
 {{
 	MONITORING_SYSTEM_FAKE,  // type
 	"Fake Monitorin",        // name
 	"User name|password",    // paramters
 	"fake-plugin",           // pluginPath
+	1,                       // plugin_sql_version
+	1,                       // plugin_enabled
+	"",                      // uuid
 },{
 	MONITORING_SYSTEM_ZABBIX, // type
 	"Zabbix",                 // name
@@ -58,6 +64,9 @@ ServerTypeInfo testServerTypeInfo[] =
 	" \"label\": \"Retry interval (sec)\"}"
 	"]", // paramters
 	"/usr/sbin/hatohol-arm-plugin-ver2",  // pluginPath
+	1,                       // plugin_sql_version
+	1,                       // plugin_enabled
+	"",                      // uuid
 }, {
 	MONITORING_SYSTEM_HAPI_ZABBIX,
 	"Zabbix (HAPI)",          // name
@@ -82,6 +91,9 @@ ServerTypeInfo testServerTypeInfo[] =
 	" \"label\": \"Static queue address\"}"
 	"]", // paramters
 	"/opt/bin/hatohol-arm-plugin-ver2000",  // pluginPath
+	1,                       // plugin_sql_version
+	1,                       // plugin_enabled
+	"",                      // uuid
 },{
 	MONITORING_SYSTEM_HAPI_JSON, // type
 	"JSON",                      // name
@@ -102,10 +114,40 @@ ServerTypeInfo testServerTypeInfo[] =
 	" \"id\": \"tlsEnableVerify\", \"label\": \"TLS: Enable verify\"}"
 	"]", // paramters
 	"",  // pluginPath
+	1,                       // plugin_sql_version
+	1,                       // plugin_enabled
+	"",                      // uuid
+},{
+	MONITORING_SYSTEM_HAPI2, // type
+	"Zabbix",                // name
+	"["
+	"{\"id\": \"nickname\", \"label\": \"Nickname\"}, "
+	"{\"id\": \"hostName\", \"label\": \"Host name\"}, "
+	"{\"id\": \"ipAddress\", \"label\": \"IP address\"}, "
+	"{\"default\": \"80\", \"id\": \"port\", \"label\": \"Port\"}, "
+	"{\"id\": \"userName\", \"label\": \"User name\"}, "
+	"{\"inputStyle\": \"password\", \"id\": \"password\","
+	" \"label\": \"Password\"}, "
+	"{\"default\": \"30\", \"id\": \"pollingInterval\","
+	" \"label\": \"Polling interval (sec)\"}, "
+	"{\"default\": \"10\", \"id\": \"retryInterval\","
+	" \"label\": \"Retry interval (sec)\"}, "
+	"{\"inputStyle\": \"checkBox\", \"id\": \"passiveMode\","
+	" \"label\": \"Passive mode\"}, "
+	"{\"hint\": \"(empty: Default)\", \"allowEmpty\": true,"
+	" \"id\": \"brokerUrl\", \"label\": \"Broker URL\"}, "
+	"{\"hint\": \"(empty: Default)\", \"allowEmpty\": true,"
+	" \"id\": \"staticQueueAddress\","
+	" \"label\": \"Static queue address\"}"
+	"]",                     // paramters
+	"hap2-zabbix",           // pluginPath
+	1,                       // plugin_sql_version
+	1,                       // plugin_enabled
+	"8e632c14-d1f7-11e4-8350-d43d7e3146fb", // uuid
 }};
-size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
+const size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
 
-MonitoringServerInfo testServerInfo[] = 
+const MonitoringServerInfo testServerInfo[] =
 {{
 	1,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -118,6 +160,8 @@ MonitoringServerInfo testServerInfo[] =
 	"foo",                    // user_name
 	"goo",                    // password
 	"dbX",                    // db_name
+	"",                       // base_url
+	"",                       // exteneded_info
 },{
 	2,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -130,6 +174,8 @@ MonitoringServerInfo testServerInfo[] =
 	"Einstein",               // user_name
 	"Albert",                 // password
 	"gravity",                // db_name
+	"",                       // base_url
+	"",                       // exteneded_info
 },{
 	3,                        // id
 	MONITORING_SYSTEM_ZABBIX, // type
@@ -142,10 +188,68 @@ MonitoringServerInfo testServerInfo[] =
 	"Fermi",                  // user_name
 	"fermion",                // password
 	"",                       // db_name
+	"",                       // base_url
+	"",                       // exteneded_info
+},{
+	4,                        // id
+	MONITORING_SYSTEM_ZABBIX, // type
+	"mosquito.example.com",   // hostname
+	"10.100.10.52",           // ip_address
+	"KA",                     // nickname
+	30000,                    // port
+	3600,                     // polling_interval_sec
+	600,                      // retry_interval_sec
+	"Z",                      // user_name
+	"OTSU",                   // password
+	"zzz",                    // db_name
+	"",                       // base_url
+	"",                       // exteneded_info
+},{
+	211,                      // id
+	MONITORING_SYSTEM_ZABBIX, // type
+	"x-men.example.com",      // hostname
+	"172.16.32.51",           // ip_address
+	"(^_^)",                  // nickname
+	12345,                    // port
+	10,                       // polling_interval_sec
+	10,                       // retry_interval_sec
+	"sake",                   // user_name
+	"siranami",               // password
+	"zabbix",                 // db_name
+	"",                       // base_url
+	"",                       // exteneded_info
+},{
+	222,                      // id
+	MONITORING_SYSTEM_ZABBIX, // type
+	"zoo.example.com",        // hostname
+	"10.0.0.48",              // ip_address
+	"Akira",                  // nickname
+	80,                       // port
+	300,                      // polling_interval_sec
+	60,                       // retry_interval_sec
+	"ponta",                  // user_name
+	"doradora",               // password
+	"z@bb1x",                 // db_name
+	"",                       // base_url
+	"",                       // exteneded_info
+},{
+	301,                      // id
+	MONITORING_SYSTEM_NAGIOS, // type
+	"nagios.example.com",     // hostname
+	"10.0.0.32",              // ip_address
+	"Akira",                  // nickname
+	3306,                     // port
+	300,                      // polling_interval_sec
+	60,                       // retry_interval_sec
+	"nagios-operator",        // user_name
+	"5t64k-f3-ui.l76n",       // password
+	"nAgiOs_ndoutils",        // db_name
+	"http://10.0.0.32/nagios3", // base_url
+	"test extended info",     // exteneded_info
 }};
-size_t NumTestServerInfo = ARRAY_SIZE(testServerInfo);
+const size_t NumTestServerInfo = ARRAY_SIZE(testServerInfo);
 
-MonitoringServerStatus testServerStatus[] =
+const MonitoringServerStatus testServerStatus[] =
 {{
 	1,                        // id
 	1.1,                      // nvps
@@ -155,248 +259,319 @@ MonitoringServerStatus testServerStatus[] =
 },{
 	3,                        // id
 	1.3,                      // nvps
+},{
+	4,                        // id
+	10.4,                     // nvps
+},{
+	211,                      // id
+	10.5,                     // nvps
+},{
+	222,                      // id
+	0.00051234,               // nvps
 }};
-size_t NumTestServerStatus = ARRAY_SIZE(testServerStatus);
+size_t const NumTestServerStatus = ARRAY_SIZE(testServerStatus);
 
-TriggerInfo testTriggerInfo[] = 
+const TriggerInfo testTriggerInfo[] =
 {{
 	1,                        // serverId
-	1,                        // id
+	"1",                      // id
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957197,0},           // lastChangeTime
-	235012,                   // hostId,
+	10,                       // globalHostId,
+	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1",         // brief,
+	"",                       // extendedInfo
+	TRIGGER_VALID,          // validity
 },{
 	1,                        // serverId
-	2,                        // id
+	"2",                      // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957198,0},           // lastChangeTime
-	235012,                   // hostId,
+	10,                       // globalHostId,
+	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1a",        // brief,
+	"{\"expandedDescription\":\"Test Trigger on hostX1\"}", // extendedInfo
+	TRIGGER_VALID,          // validity
 },{
 	1,                        // serverId
-	3,                        // id
+	"3",                      // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957117,0},           // lastChangeTime
-	235013,                   // hostId,
+	11,                       // globalHostId,
+	"235013",                 // hostIdInServer,
 	"hostX2",                 // hostName,
 	"TEST Trigger 1b",        // brief,
+	"",                       // extendedInfo
+	TRIGGER_VALID,          // validity
 },{
 	1,                        // serverId
-	4,                        // id
+	"4",                      // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957197,0},           // lastChangeTime
-	235012,                   // hostId,
+	10,                       // globalHostId,
+	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1c",        // brief,
+	"",                       // extendedInfo
+	TRIGGER_VALID,          // validity
 },{
 	1,                        // serverId
-	5,                        // id
+	"5",                      // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957198,0},           // lastChangeTime
-	1129,                     // hostId,
+	30,                       // globalHostId,
+	"1129",                   // hostIdInServer,
 	"hostX3",                 // hostName,
 	"TEST Trigger 1d",        // brief,
+	"",                       // extendedInfo
+	TRIGGER_VALID,          // validity
 },{
 	3,                        // serverId
-	2,                        // id
+	"2",                      // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
 	{1362957200,0},           // lastChangeTime
-	10001,                    // hostId,
+	35,                       // globalHostId,
+	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
+	"{\"expandedDescription\":\"Test Trigger on hostZ1\"}", // extendedInfo
+	TRIGGER_VALID,          // validity
 },{
 	3,                        // serverId
-	3,                        // id
+	"3",                      // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362951000,0},           // lastChangeTime
-	10002,                    // hostId,
+	41,                       // globalHostId,
+	"10002",                  // hostIdInServer,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
+	"",                       // extendedInfo
+	TRIGGER_VALID,          // validity
 },{
 	2,                        // serverId
-	0xfedcba987654321,        // id
+	"1147797409030816545", // 0xfedcba987654321 // id
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_WARNING, // severity
 	{1362951000,0},           // lastChangeTime
-	0x89abcdeffffffff,       // hostId,
+	101,                      // globalHostId,
+	"9920249034889494527",    // hostIdInServer,
 	"hostQ1",                 // hostName,
 	"TEST Trigger Action",    // brief,
+	"",                       // extendedInfo
+	TRIGGER_VALID,          // validity
+},{
+	2,                        // serverId
+	"18364758544493064720", // 0xfedcba9876543210, // id
+	TRIGGER_STATUS_OK,        // status
+	TRIGGER_SEVERITY_WARNING, // severity
+	{1362951234,0},           // lastChangeTime
+	101,                      // globalHostId,
+	"9920249034889494527",    // hostIdInServer,
+	"hostQ1",                 // hostName,
+	"TEST Trigger Action 2",  // brief,
+	"",                       // extendedInfo
+	TRIGGER_VALID,          // validity
 },{
 	// This entry is used for testHatoholArmPluginGate.
 	12345,                    // serverId
-	2468,                     // id
+	"2468",                   // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957117,0},           // lastChangeTime
-	10002,                    // hostId,
+	12345,                    // globalHostId, (not in testServerHostDef)
+	"10002",                  // hostIdInServer,
 	"host12345",              // hostName,
 	"Brief for host12345",    // brief,
+	"",                       // extendedInfo
+	TRIGGER_VALID,          // validity
 },{
 	// This entry is for tests with a defunct server
 	defunctServerId1,         // serverId
-	3,                        // id
+	"3",                      // id
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
 	{1362957117,0},           // lastChangeTime
-	10002,                    // hostId,
+	0xffeeddcc,               // globalHostId,(not in testServerHostDef)
+	"10002",                  // hostIdInServer,
 	"defunctSv1Host1",        // hostName,
 	"defunctSv1Host1 material", // brief,
+	"",                       // extendedInfo
+	TRIGGER_VALID,          // validity
 },
 };
-size_t NumTestTriggerInfo = ARRAY_SIZE(testTriggerInfo);
+const size_t NumTestTriggerInfo = ARRAY_SIZE(testTriggerInfo);
 
 static const TriggerInfo &trigInfoDefunctSv1 =
   testTriggerInfo[NumTestTriggerInfo-1];
 
-EventInfo testEventInfo[] = {
+const EventInfo testEventInfo[] = {
 {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
-	1,                        // id
+	"1",                      // id
 	{1362957200,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	2,                        // triggerId
+	"2",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
-	10001,                    // hostId,
+	4,                        // globalHostId,
+	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
+	"{\"expandedDescription\":\"Test Trigger on hostZ1\"}", // extendedInfo
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
-	2,                        // id
+	"2",                      // id
 	{1362958000,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	3,                        // triggerId
+	"3",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	10002,                    // hostId,
+	6,                        // globalHostId,
+	"10002",                  // hostIdInServer,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
+	"",
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	1,                        // serverId
-	1,                        // id
+	"1",                      // id
 	{1363123456,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	2,                        // triggerId
+	"2",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	235012,                   // hostId,
+	1,                        // globalHostId,
+	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1a",        // brief,
+	"{\"expandedDescription\":\"Test Trigger on hostX1\"}", // extendedInfo
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	1,                        // serverId
-	2,                        // id
+	"2",                      // id
 	{1378900022,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	1,                        // triggerId
+	"1",                      // triggerId
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	235012,                   // hostId,
+	1,                        // globalHostId,
+	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1",         // brief,
+	"",
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	1,                        // serverId
-	3,                        // id
+	"3",                      // id
 	{1389123457,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	3,                        // triggerId
+	"3",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	235013,                   // hostId,
+	2,                        // globalHostId,
+	"235013",                 // hostIdInServer,
 	"hostX2",                 // hostName,
 	"TEST Trigger 1b",        // brief,
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
-	3,                        // id
+	"3",                      // id
 	{1390000000,123456789},   // time
 	EVENT_TYPE_BAD,           // type
-	2,                        // triggerId
+	"2",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
-	10001,                    // hostId,
+	4,                        // globalHostId,
+	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
+	"{\"expandedDescription\":\"Test Trigger on hostZ1\"}", // extendedInfo
 }, {
 	// This entry is for tests with a defunct server
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	trigInfoDefunctSv1.serverId, // serverId
-	1,                        // id
+	"1",                        // id
 	trigInfoDefunctSv1.lastChangeTime, // time
-	EVENT_TYPE_BAD,           // type
-	3,                        // triggerId
-	trigInfoDefunctSv1.status,   // status
-	trigInfoDefunctSv1.severity, // severity
-	trigInfoDefunctSv1.hostId,   // hostId,
-	trigInfoDefunctSv1.hostName, // hostName,
-	trigInfoDefunctSv1.brief,    // brief,
+	EVENT_TYPE_BAD,                    // type
+	"3",                               // triggerId
+	trigInfoDefunctSv1.status,         // status
+	trigInfoDefunctSv1.severity,       // severity
+	trigInfoDefunctSv1.globalHostId,   // globalHostId,
+	trigInfoDefunctSv1.hostIdInServer, // hostIdInServer,
+	trigInfoDefunctSv1.hostName,       // hostName,
+	trigInfoDefunctSv1.brief,          // brief,
+	"",
 },
 // We assumed the data of the default server's is at the tail in testEventInfo.
 // See also the definition of trigInfoDefunctSv1 above. Anyway,
 // ******* DON'T APPEND RECORDS AFTER HERE *******
 };
-size_t NumTestEventInfo = ARRAY_SIZE(testEventInfo);
+const size_t NumTestEventInfo = ARRAY_SIZE(testEventInfo);
 
-EventInfo testDupEventInfo[] = {
+const EventInfo testDupEventInfo[] = {
 {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
 	DISCONNECT_SERVER_EVENT_ID, // id
 	{1362957200,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	2,                        // triggerId
+	"2",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
-	10001,                    // hostId,
+	4,                        // globalHostId,
+	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
+	"{\"expandedDescription\":\"Test Trigger on hostZ1\"}", // extendedInfo
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
 	DISCONNECT_SERVER_EVENT_ID, // id
 	{1362951000,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	3,                        // triggerId
+	"3",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	10002,                    // hostId,
+	6,                        // globalHostId,
+	"10002",                  // hostIdInServer,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
+	"",
 }, {
 	AUTO_INCREMENT_VALUE,     // unifiedId
 	3,                        // serverId
 	DISCONNECT_SERVER_EVENT_ID, // id
 	{1362951000,0},           // time
 	EVENT_TYPE_GOOD,          // type
-	3,                        // triggerId
+	"3",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	10002,                    // hostId,
+	6,                        // globalHostId,
+	"10002",                  // hostIdInServer,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
+	"",
 },
 };
-size_t NumTestDupEventInfo = ARRAY_SIZE(testDupEventInfo);
+const size_t NumTestDupEventInfo = ARRAY_SIZE(testDupEventInfo);
 
-ItemInfo testItemInfo[] = {
+const ItemInfo testItemInfo[] = {
 {
 	1,                        // serverId
-	2,                        // id
-	1129,                     // hostId
+	"2",                      // id
+	30,                       // globalHostId
+	"1129",                   // hostIdInServer
 	"Rome wasn't built in a day",// brief
 	{1362951129,0},           // lastValueTime
 	"Fukuoka",                // lastValue
@@ -407,8 +582,9 @@ ItemInfo testItemInfo[] = {
 	"",                       // unit
 }, {
 	3,                        // serverId
-	1,                        // id
-	5,                        // hostId
+	"1",                      // id
+	42,                       // globalHostId
+	"5",                      // hostIdInServer
 	"The age of the cat.",    // brief
 	{1362957200,0},           // lastValueTime
 	"1",                      // lastValue
@@ -419,8 +595,9 @@ ItemInfo testItemInfo[] = {
 	"age",                    // unit
 }, {
 	3,                        // serverId
-	2,                        // id
-	100,                      // hostId
+	"2",                      // id
+	45,                       // globalHostId
+	"100",                    // hostIdInServer
 	"All roads lead to Rome.",// brief
 	{1362951000,0},           // lastValueTime
 	"Osaka",                  // lastValue
@@ -431,8 +608,9 @@ ItemInfo testItemInfo[] = {
 	"",                       // unit
 }, {
 	4,                        // serverId
-	1,                        // id
-	100,                      // hostId
+	"1",                      // id
+	100,                      // globalHostId
+	"100",                    // hostIdInServer
 	"All roads lead to Rome.",// brief
 	{1362951000,0},           // lastValueTime
 	"Osaka",                  // lastValue
@@ -443,18 +621,18 @@ ItemInfo testItemInfo[] = {
 	"",                       // unit
 },
 };
-size_t NumTestItemInfo = ARRAY_SIZE(testItemInfo);
+const size_t NumTestItemInfo = ARRAY_SIZE(testItemInfo);
 
-ActionDef testActionDef[] = {
+static ActionDef bareTestActionDef[] = {
 {
 	0,                 // id (this field is ignored)
 	ActionCondition(
 	  ACTCOND_SERVER_ID |
 	  ACTCOND_TRIGGER_STATUS,   // enableBits
 	  1,                        // serverId
-	  10,                       // hostId
-	  5,                        // hostgroupId
-	  3,                        // triggerId
+	  "10",                     // hostIdInServer
+	  "5",                      // hostgroupId
+	  "3",                      // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_INFO,    // triggerSeverity
 	  CMP_INVALID               // triggerSeverityCompType;
@@ -470,9 +648,9 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_STATUS |
 	  ACTCOND_TRIGGER_SEVERITY, // enableBits
 	  0,                        // serverId
-	  0,                        // hostId
-	  0,                        // hostgroupId
-	  0x12345,                  // triggerId
+	  "0",                      // hostIdInServer
+	  "0",                      // hostgroupId
+	  "74565", // 0x12345,      // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
 	  CMP_EQ_GT                 // triggerSeverityCompType;
@@ -487,10 +665,10 @@ ActionDef testActionDef[] = {
 	ActionCondition(
 	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
-	  100,                      // serverId
-	  0x7fffffffffffffff,       // hostId
-	  0x8000000000000000,       // hostgroupId
-	  0xfedcba9876543210,       // triggerId
+	  100,                      // serverIdInServer
+	  "9223372036854775807",    // hostIdInServer (0x7fffffffffffffff)
+	  "9223372036854775808",  // 0x8000000000000000, // hostgroupId
+	  "18364758544493064720", // 0xfedcba9876543210, // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
 	  CMP_EQ                    // triggerSeverityCompType;
@@ -507,9 +685,9 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS |
 	   ACTCOND_TRIGGER_SEVERITY,   // enableBits
 	  2,                        // serverId
-	  0x89abcdefffffffff,       // hostId
-	  0x8000000000000000,       // hostGroupId
-	  0xfedcba9876543210,       // triggerId
+	  "9920249034889494527",    // hostIdInServer
+	  "9223372036854775808",  // 0x8000000000000000, // hostgroupId
+	  "18364758544493064720", // 0xfedcba9876543210, // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
 	  CMP_EQ_GT                 // triggerSeverityCompType;
@@ -526,9 +704,9 @@ ActionDef testActionDef[] = {
 	  ACTCOND_TRIGGER_ID |
 	  ACTCOND_TRIGGER_STATUS | ACTCOND_TRIGGER_SEVERITY, // enableBits
 	  100001,                   // serverId
-	  100001,                   // hostId
-	  100001,                   // hostgroupId
-	  0x12345,                  // triggerId
+	  "100001",                 // hostIdInServer
+	  "100001",                 // hostgroupId
+	  "74565", // 0x12345,      // triggerId
 	  TRIGGER_STATUS_PROBLEM,   // triggerStatus
 	  TRIGGER_SEVERITY_WARNING, // triggerSeverity
 	  CMP_EQ                    // triggerSeverityCompType;
@@ -544,9 +722,9 @@ ActionDef testActionDef[] = {
 	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
 	  ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS,   // enableBits
 	  101,                      // serverId
-	  0x7fffffffffffffff,       // hostId
-	  0x8000000000000000,       // hostgroupId
-	  0xfedcba9876543210,       // triggerId
+	  "9223372036854775807",    // hostIdInServer (0x7fffffffffffffff)
+	  "9223372036854775808",  // 0x8000000000000000, // hostgroupId
+	  "18364758544493064720", // 0xfedcba9876543210, // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
 	  CMP_EQ                    // triggerSeverityCompType;
@@ -562,9 +740,9 @@ ActionDef testActionDef[] = {
 	  ACTCOND_SERVER_ID | ACTCOND_HOST_ID |
 	  ACTCOND_HOST_GROUP_ID,    // enableBits
 	  1,                        // serverId
-	  10,                       // hostId
-	  5,                        // hostgroupId
-	  0,                        // triggerId
+	  "10",                     // hostIdInServer
+	  "5",                      // hostgroupId
+	  "0",                      // triggerId
 	  TRIGGER_STATUS_OK,        // triggerStatus
 	  TRIGGER_SEVERITY_CRITICAL,// triggerSeverity
 	  CMP_INVALID               // triggerSeverityCompType;
@@ -577,9 +755,31 @@ ActionDef testActionDef[] = {
 },
 };
 
-const size_t NumTestActionDef = ARRAY_SIZE(testActionDef);
+const ActionDef *testActionDef = bareTestActionDef;
+const size_t NumTestActionDef = ARRAY_SIZE(bareTestActionDef);
 
-UserInfo testUserInfo[] = {
+const ActionDef testUpdateActionDef = {
+	2,                 // id (this field is needed when updating)
+	ActionCondition(
+		ACTCOND_SERVER_ID | ACTCOND_HOST_ID | ACTCOND_HOST_GROUP_ID |
+		ACTCOND_TRIGGER_ID | ACTCOND_TRIGGER_STATUS |
+		ACTCOND_TRIGGER_SEVERITY, // enableBits
+		2,                        // serverId
+		"1001",                   // hostIdInServer
+		"2001",                   // hostGroupId
+		"14000",                  // triggerId
+		TRIGGER_STATUS_OK,        // triggerStatus
+		TRIGGER_SEVERITY_WARNING, // triggerSeverity
+		CMP_EQ_GT                 // triggerSeverityCompType;
+	), // condition
+	ACTION_COMMAND,          // type
+	"/home/hatohol",         // working dir
+	"/usr/lib/libupdate.so", // command
+	0,                       // timeout
+	2,                       // ownerUserId
+};
+
+static UserInfo bareTestUserInfo[] = {
 {
 	0,                 // id
 	"cheesecake",      // name
@@ -598,7 +798,7 @@ UserInfo testUserInfo[] = {
 }, {
 	0,                 // id
 	"higgs",           // name
-	"gg -> h",        // password
+	"gg (-> h*) -> ZZ",// password
 	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_USER), // flags
 }, {
 	0,                 // id
@@ -633,22 +833,28 @@ UserInfo testUserInfo[] = {
 	(1 << OPPRVLG_UPDATE_ACTION) |
 	(1 << OPPRVLG_DELETE_ALL_ACTION) |
 	(1 << OPPRVLG_DELETE_ACTION), // flags
+}, {
+	0,                        // id
+	"onlyMonitoring",         // name
+	"onlyGetServerInfo",      // password
+	OperationPrivilege::makeFlag(OPPRVLG_GET_ALL_SERVER),
 }
 };
-const size_t NumTestUserInfo = ARRAY_SIZE(testUserInfo);
+const UserInfo *testUserInfo = bareTestUserInfo;
+const size_t NumTestUserInfo = ARRAY_SIZE(bareTestUserInfo);
 const UserIdType userIdWithMultipleAuthorizedHostgroups = 7;
 
-AccessInfo testAccessInfo[] = {
+static AccessInfo bareTestAccessInfo[] = {
 {
 	0,                 // id
 	1,                 // userId
 	1,                 // serverId
-	0,                 // hostgroupId
+	"0",               // hostgroupId
 }, {
 	0,                 // id
 	1,                 // userId
 	1,                 // serverId
-	1,                 // hostgroupId
+	"1",               // hostgroupId
 }, {
 	0,                 // id
 	2,                 // userId
@@ -663,17 +869,22 @@ AccessInfo testAccessInfo[] = {
 	0,                 // id
 	3,                 // userId
 	2,                 // serverId
-	1,                 // hostgroupId
+	"1",               // hostgroupId
 }, {
 	0,                 // id
 	3,                 // userId
 	2,                 // serverId
-	2,                 // hostgroupId
+	"2",               // hostgroupId
 }, {
 	0,                 // id
 	3,                 // userId
 	4,                 // serverId
-	1,                 // hostgroupId
+	"1",               // hostgroupId
+}, {
+	0,                 // id
+	3,                 // userId
+	211,               // serverId
+	"123",             // hostgroupId
 }, {
 	0,                 // id
 	5,                 // userId
@@ -681,194 +892,38 @@ AccessInfo testAccessInfo[] = {
 	ALL_HOST_GROUPS,   // hostgroupId
 }, {
 	0,                 // id
-	userIdWithMultipleAuthorizedHostgroups, // userId
-	1,                 // serverId
-	1,                 // hostgroupId
+	6,                 // userId
+	211,               // serverId
+	"124",             // hostgroupId
+}, {
+	0,                 // id
+	6,                 // userId
+	222,               // serverId
+	"124",             // hostgroupId
 }, {
 	0,                 // id
 	userIdWithMultipleAuthorizedHostgroups, // userId
 	1,                 // serverId
-	2,                 // hostgroupId
+	"1",               // hostgroupId
+}, {
+	0,                 // id
+	userIdWithMultipleAuthorizedHostgroups, // userId
+	1,                 // serverId
+	"2",               // hostgroupId
+}, {
+	0,                 // id
+	2,                 // userId
+	211,               // serverId
+	ALL_HOST_GROUPS,   // hostgroupId
 }
 };
-const size_t NumTestAccessInfo = ARRAY_SIZE(testAccessInfo);
-
-HostgroupInfo testHostgroupInfo[] = {
-{
-	AUTO_INCREMENT_VALUE,  // id
-	1,                     // serverId
-	1,                     // groupId
-	"Monitor Servers"      // groupName
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	1,                     // serverId
-	2,                     // groupId
-	"Monitored Servers"    // groupName
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	3,                     // serverId
-	1,                     // groupId
-	"Checking Servers"     // groupName
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	3,                     // serverId
-	2,                     // groupId
-	"Checked Servers"      // groupName
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	4,                     // serverId
-	1,                     // groupId
-	"Watching Servers"     // groupName
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	4,                     // serverId
-	2,                     // groupId
-	"Watched Servers"      // groupName
-}, {
-	// This entry is for tests with a defunct server
-	AUTO_INCREMENT_VALUE,  // id
-	trigInfoDefunctSv1.serverId, // serverId
-	1,                     // groupId
-	"Hostgroup on a defunct servers" // groupName
-}
-};
-const size_t NumTestHostgroupInfo = ARRAY_SIZE(testHostgroupInfo);
+const AccessInfo *testAccessInfo = bareTestAccessInfo;
+const size_t NumTestAccessInfo = ARRAY_SIZE(bareTestAccessInfo);
 
 static const string _HOST_VALID_STRING = StringUtils::sprintf("%d", HOST_VALID);
 static const char *HOST_VALID_STRING = _HOST_VALID_STRING.c_str();
-HostInfo testHostInfo[] = {
-{
-	1,                     // serverId
-	235012,                // id(hostId)
-	"hostX1",              // hostName
-	HOST_VALID,            // valid
-}, {
-	1,                     // serverId
-	235013,                // id(hostId)
-	"hostX2",              // hostName
-	HOST_VALID,            // valid
-}, {
-	1,                     // serverId
-	1129,                  // id(hostId)
-	"hostX3",              // hostName
-	HOST_VALID,            // valid
-} ,{
-	3,                     // serverId
-	10001,                 // id(hostId)
-	"hostZ1",              // hostName
-	HOST_VALID,            // valid
-} ,{
-	2,                     // serverId
-	512,                   // id(hostId)
-	"multi-host group",    // hostName
-	HOST_VALID,            // valid
-}, {
-	3,                     // serverId
-	10002,                 // id(hostId)
-	"hostZ2",              // hostName
-	HOST_VALID,            // valid
-}, {
-	3,                     // serverId
-	5,                     // id(hostId)
-	"frog",                // hostName
-	HOST_VALID,            // valid
-} ,{
-	3,                     // serverId
-	100,                   // id(hostId)
-	"dolphin",             // hostName
-	HOST_VALID,            // valid
-}, {
-	4,                     // serverId
-	100,                   // id(hostId)
-	"squirrel",            // hostName
-	HOST_VALID             // valid
-}, {
-	2,                     // serverId
-	0x89abcdeffffffff,     // id(hostId)
-	"hostQ1",              // hostName
-	HOST_VALID,            // valid
-}, {
-	// This entry is for tests with a defunct server
-	trigInfoDefunctSv1.serverId, // serverId
-	trigInfoDefunctSv1.hostId,   // hostId,
-	trigInfoDefunctSv1.hostName, // hostName,
-	HOST_VALID,            // valid
-}
-};
-const size_t NumTestHostInfo = ARRAY_SIZE(testHostInfo);
 
-HostgroupElement testHostgroupElement[] = {
-{
-	AUTO_INCREMENT_VALUE,  // id
-	1,                     // serverId
-	235012,                // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	1,                     // serverId
-	235012,                // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	1,                     // serverId
-	235013,                // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	1,                     // serverId
-	1129,                  // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	2,                     // serverId
-	512,                   // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	2,                     // serverId
-	512,                   // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	3,                     // serverId
-	10001,                 // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	3,                     // serverId
-	10002,                 // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	3,                     // serverId
-	5,                     // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	3,                     // serverId
-	100,                   // hostId
-	2,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	4,                     // serverId
-	100,                   // hostId
-	1,                     // groupId
-}, {
-	AUTO_INCREMENT_VALUE,  // id
-	2,                     // serverId
-	0x89abcdefffffffff,    // hostId
-	0x8000000000000000,    // hostGroupId
-}, {
-	// This entry is for tests with a defunct server
-	AUTO_INCREMENT_VALUE,        // id
-	trigInfoDefunctSv1.serverId, // serverId
-	trigInfoDefunctSv1.hostId,   // hostId,
-	1,                           // groupId
-}
-};
-const size_t NumTestHostgroupElement = ARRAY_SIZE(testHostgroupElement);
-
-UserRoleInfo testUserRoleInfo[] = {
+const UserRoleInfo testUserRoleInfo[] = {
 {
 	0,                            // id
 	"Specific Server maintainer", // name
@@ -903,6 +958,11 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	1,                               // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
+	"144b2a3f-0cc9-4392-be91-137c75142772", // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_NAGIOS,   // type
@@ -910,6 +970,11 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	100, // (Not exists)             // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
+	"778b1786-6b89-481c-bdd4-288050370284", // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST,     // type
@@ -917,6 +982,11 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	101, // (Not exists)             // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
+	"",                              // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST, // type
@@ -924,6 +994,11 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	102, // (Not exists)             // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
+	"",                              // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST_PASSIVE,   // type
@@ -931,11 +1006,16 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	3,                               // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
+	"",                              // uuid
 }
 };
 const size_t NumTestArmPluginInfo = ARRAY_SIZE(testArmPluginInfo);
 
-IncidentTrackerInfo testIncidentTrackerInfo[] = {
+const IncidentTrackerInfo testIncidentTrackerInfo[] = {
 {
 	1,                        // id
 	INCIDENT_TRACKER_REDMINE, // type
@@ -974,16 +1054,16 @@ IncidentTrackerInfo testIncidentTrackerInfo[] = {
 	"o.o662L6q1V7E",          // password
 }
 };
-size_t NumTestIncidentTrackerInfo = ARRAY_SIZE(testIncidentTrackerInfo);
+const size_t NumTestIncidentTrackerInfo = ARRAY_SIZE(testIncidentTrackerInfo);
 
-IncidentInfo testIncidentInfo[] = {
+const IncidentInfo testIncidentInfo[] = {
 {
 	3,                        // trackerId
 	1,                        // serverId
-	1,                        // eventId
-	2,                        // triggerId
-	"13",                     // identifier
-	"http://localhost:44444/issues/13", // location
+	"1",                      // eventId
+	"2",                      // triggerId
+	"100",                    // identifier
+	"http://localhost:44444/issues/100", // location
 	"New",                    // status
 	"Normal",                 // priority
 	"foobar",                 // assignee
@@ -991,14 +1071,15 @@ IncidentInfo testIncidentInfo[] = {
 	{1412957260, 0},          // createdAt
 	{1412957260, 0},          // updatedAt
 	IncidentInfo::STATUS_OPENED,// statusCode
+	3,                        // unifiedId
 },
 {
 	3,                        // trackerId
 	1,                        // serverId
-	2,                        // eventId
-	1,                        // triggerId
-	"11",                     // identifier
-	"http://localhost:44444/issues/11", // location
+	"2",                      // eventId
+	"1",                      // triggerId
+	"101",                    // identifier
+	"http://localhost:44444/issues/101", // location
 	"New",                    // status
 	"Normal",                 // priority
 	"foobar",                 // assignee
@@ -1006,12 +1087,13 @@ IncidentInfo testIncidentInfo[] = {
 	{1412957290, 0},          // createdAt
 	{1412957290, 0},          // updatedAt
 	IncidentInfo::STATUS_OPENED,// statusCode
+	4,                        // unifiedId
 },
 {
-	1,                        // trackerId
+	5,                        // trackerId
 	2,                        // serverId
-	2,                        // eventId
-	3,                        // triggerId
+	"2",                      // eventId
+	"3",                      // triggerId
 	"123",                    // identifier
 	"http://localhost/issues/123", // location
 	"New",                    // status
@@ -1021,31 +1103,399 @@ IncidentInfo testIncidentInfo[] = {
 	{1412957360, 0},          // createdAt
 	{1412957360, 0},          // updatedAt
 	IncidentInfo::STATUS_OPENED,// statusCode
+	0,                        // unifiedId
 },
 };
-size_t NumTestIncidentInfo = ARRAY_SIZE(testIncidentInfo);
+const size_t NumTestIncidentInfo = ARRAY_SIZE(testIncidentInfo);
+
+const HistoryInfo testHistoryInfo[] = {
+{
+	3,              // serverId
+	"1",            // itemId
+	"0.0",          // value
+	{1205277200,0}, // clock
+},
+{
+	3,              // serverId
+	"1",            // itemId
+	"1.0",          // value
+	{1236813200,0}, // clock
+},
+{
+	3,              // serverId
+	"1",            // itemId
+	"2.0",          // value
+	{1268349200,0}, // clock
+},
+{
+	3,              // serverId
+	"1",            // itemId
+	"3.0",          // value
+	{1299885200,0}, // clock
+},
+{
+	3,              // serverId
+	"1",            // itemId
+	"4.0",          // value
+	{1331421200,0}, // clock
+},
+{
+	3,              // serverId
+	"1",            // itemId
+	"5.0",          // value
+	{1362957200,0}, // clock
+},
+};
+const size_t NumTestHistoryInfo = ARRAY_SIZE(testHistoryInfo);
+
+const ServerHostDef testServerHostDef[] = {
+{
+	AUTO_INCREMENT_VALUE, // 1       // id
+	10,                              // hostId
+	1,                               // serverId
+	"235012",                        // hostIdInServer
+	"hostX1",                        // name
+}, {
+	AUTO_INCREMENT_VALUE, // 2       // id
+	11,                              // hostId
+	1,                               // serverId
+	"235013",                        // hostIdInServer
+	"hostX2",                        // name
+}, {
+	AUTO_INCREMENT_VALUE, // 3       // id
+	30,                              // hostId
+	1,                               // serverId
+	"1129",                          // hostIdInServer
+	"hostX3",                        // name
+} ,{
+	AUTO_INCREMENT_VALUE, // 4       // id
+	35,                              // hostId
+	3,                               // serverId
+	"10001",                         // hostIdInServer
+	"hostZ1",                        // name
+} ,{
+	AUTO_INCREMENT_VALUE, // 5       // id
+	40,                              // hostId
+	2,                               // serverId
+	"512",                           // hostIdInServer
+	"multi-host group",              // name
+}, {
+	AUTO_INCREMENT_VALUE, // 6       // id
+	41,                              // hostId
+	3,                               // serverId
+	"10002",                         // hostIdInServer
+	"hostZ2",                        // name
+}, {
+	AUTO_INCREMENT_VALUE, // 7       // id
+	42,                              // hostId
+	3,                               // serverId
+	"5",                             // hostIdInServer
+	"frog",                          // name
+} ,{
+	AUTO_INCREMENT_VALUE, // 8       // id
+	45,                              // hostId
+	3,                               // serverId
+	"100",                           // hostIdInServer
+	"dolphin",                       // name
+}, {
+	AUTO_INCREMENT_VALUE, // 9       // id
+	100,                             // hostId
+	4,                               // serverId
+	"100",                           // hostIdInServer
+	"squirrel",                      // name
+}, {
+	AUTO_INCREMENT_VALUE, // 10      // id
+	101,                             // hostId
+	2,                               // serverId
+	//"0x89abcdefffffffff",          // hostIdInServer
+	"9920249034889494527",           // getHostInfoList() handles HostID As decimal
+	"hostQ1",                        // name
+}, {
+	// This entry is for tests with a defunct server
+	AUTO_INCREMENT_VALUE, // 11      // id
+	494,                             // host_id
+	trigInfoDefunctSv1.serverId,     // serverId
+	//trigInfoDefunctSv1.hostId,       // hostIdInServer
+	"10002", // TODO: use the above after host ID in trigger becomes string
+	trigInfoDefunctSv1.hostName,     // name,
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	1050,                            // hostId
+	211,                             // serverId
+	"200",                           // hostIdInServer
+	"host 200",                      // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2111,                            // hostId
+	211,                             // serverId
+	"12111",                         // hostIdInServer
+	"host 12111",                    // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2112,                            // hostId
+	211,                             // serverId
+	"12112",                         // hostIdInServer
+	"host 12112",                    // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2113,                            // hostId
+	211,                             // serverId
+	"12113",                         // hostIdInServer
+	"host 12113",                    // name
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	10005,                           // hostId
+	222,                             // serverId
+	"110005",                        // hostIdInServer
+	"host 110005",                   // name
+}
+};
+const size_t NumTestServerHostDef = ARRAY_SIZE(testServerHostDef);
+
+const VMInfo testVMInfo[] = {
+{
+	AUTO_INCREMENT_VALUE,            // id
+	2111,                            // hostId
+	1050,                            // hypervisorHostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2112,                            // hostId
+	1050,                            // hypervisorHostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2113,                            // hostId
+	1050,                            // hypervisorHostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	10005,                           // hostId
+	1080,                            // hypervisorHostId
+}
+};
+const size_t NumTestVMInfo = ARRAY_SIZE(testVMInfo);
+
+const Hostgroup testHostgroup[] = {
+{
+	AUTO_INCREMENT_VALUE,  // id
+	1,                     // serverId
+	"1",                   // idInServer
+	"Monitor Servers"      // name
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	1,                     // serverId
+	"2",                   // idInServer
+	"Monitored Servers"    // name
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	3,                     // serverId
+	"1",                   // idInServer
+	"Checking Servers"     // name
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	3,                     // serverId
+	"2",                   // idInServer
+	"Checked Servers"      // name
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	4,                     // serverId
+	"1",                   // idInServer
+	"Watching Servers"     // name
+}, {
+	AUTO_INCREMENT_VALUE,  // id
+	4,                     // serverId
+	"2",                   // idInServer
+	"Watched Servers"      // name
+}, {
+	// This entry is for tests with a defunct server
+	AUTO_INCREMENT_VALUE,  // id
+	trigInfoDefunctSv1.serverId, // serverId
+	"1",                   // idInServer
+	"Hostgroup on a defunct servers" // name
+}
+};
+const size_t NumTestHostgroup = ARRAY_SIZE(testHostgroup);
+
+const HostgroupMember testHostgroupMember[] = {
+{
+	AUTO_INCREMENT_VALUE,            // id
+	1,                               // serverId
+	"235012",                        // hostIdInServer
+	"1",                             // hostgroupIdInServer
+	10,                              // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	1,                               // serverId
+	"235012",                        // hostIdInServer
+	"2",                             // hostgroupIdInServer
+	10,                              // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	1,                               // serverId
+	"235013",                        // hostIdInServer
+	"2",                             // hostgroupIdInServer
+	11,                              // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	1,                               // serverId
+	"1129",                          // hostIdInServer
+	"1",                             // hostgroupIdInServer
+	30,                              // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2,                               // serverId
+	"512",                           // hostIdInServer
+	"1",                             // hostgroupIdInServer
+	40,                              // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2,                               // serverId
+	"512",                           // hostIdInServer
+	"2",                             // hostgroupIdInServer
+	40,                              // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	3,                               // serverId
+	"10001",                         // hostIdInServer
+	"2",                             // hostgroupIdInServer
+	35,                              // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	3,                               // serverId
+	"10002",                         // hostIdInServer
+	"1",                             // hostgroupIdInServer
+	41,                              // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	3,                               // serverId
+	"5",                             // hostIdInServer
+	"1",                             // hostgroupIdInServer
+	42,                              // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	3,                               // serverId
+	"100",                           // hostIdInServer
+	"2",                             // hostgroupIdInServer
+	45,                              // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	4,                               // serverId
+	"100",                           // hostIdInServer
+	"1",                             // hostgroupIdInServer
+	100,                             // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	2,                               // serverId
+	"9920249034889494527", //"0x89abcdefffffffff",  // hostIdInServer
+	"9223372036854775808", // "0x8000000000000000", // hostgroupIdInServer
+	101,                             // hostId
+}, {
+	// This entry is for tests with a defunct server
+	AUTO_INCREMENT_VALUE,            // id
+	trigInfoDefunctSv1.serverId,     // serverId
+	// trigInfoDefunctSv1.hostIdInServer, // hostId,
+	"10002", // TODO: use the above after host ID in trigger becomes string
+	"1",                             // hostgroupIdInServer
+	494,                             // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	211,                             // serverId
+	"200",                           // hostIdInServer
+	"0",                             // hostgroupIdInServer
+	1050,                            // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	211,                             // serverId
+	"12111",                         // hostIdInServer
+	"123",                           // hostgroupIdInServer
+	2111,                            // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	211,                             // serverId
+	"12112",                         // hostIdInServer
+	"123",                           // hostgroupIdInServer
+	2112,                            // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	211,                             // serverId
+	"12113",                         // hostIdInServer
+	"124",                           // hostgroupIdInServer
+	2113,                            // hostId
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	222,                             // serverId
+	"110005",                        // hostIdInServer
+	"124",                           // hostgroupIdInServer
+	10005,                           // hostId
+}
+};
+const size_t NumTestHostgroupMember = ARRAY_SIZE(testHostgroupMember);
+
+const LastInfoDef testLastInfoDef[] = {
+{
+	AUTO_INCREMENT_VALUE,            // id
+	LAST_INFO_HOST,                  // dataType
+	"1431228840",                    // value
+	10,                              // serverId
+},
+{
+	AUTO_INCREMENT_VALUE,            // id
+	LAST_INFO_HOST,                  // dataType
+	"1431232440",                    // value
+	11,                              // serverId
+},
+{
+	AUTO_INCREMENT_VALUE,            // id
+	LAST_INFO_HOST_GROUP,            // dataType
+	"1431221640",                    // value
+	1001,                            // serverId
+},
+{
+	AUTO_INCREMENT_VALUE,            // id
+	LAST_INFO_HOST_GROUP_MEMBERSHIP, // dataType
+	"1431567240",                    // value
+	1002,                            // serverId
+},
+{
+	AUTO_INCREMENT_VALUE,            // id
+	LAST_INFO_TRIGGER,               // dataType
+	"1431671640",                    // value
+	1003,                            // serverId
+},
+{
+	AUTO_INCREMENT_VALUE,            // id
+	LAST_INFO_EVENT,                 // dataType
+	"1431585240",                    // value
+	10001,                           // serverId
+},
+{
+	AUTO_INCREMENT_VALUE,            // id
+	LAST_INFO_HOST_PARENT,           // dataType
+	"1431930840",                    // value
+	10002,                           // serverId
+},
+};
+const size_t NumTestLastInfoDef = ARRAY_SIZE(testLastInfoDef);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-		TriggerInfo &trigInfo = testTriggerInfo[i];
+		const TriggerInfo &trigInfo = testTriggerInfo[i];
 		if (trigInfo.serverId != eventInfo.serverId)
 			continue;
 		if (trigInfo.id != eventInfo.triggerId)
 			continue;
 		return trigInfo;
 	}
-	cut_fail("Not found: server ID: %u, trigger ID: %" PRIu64,
-	         eventInfo.serverId, eventInfo.triggerId);
+	cut_fail("Not found: server ID: %u, trigger ID: %" FMT_TRIGGER_ID,
+	         eventInfo.serverId, eventInfo.triggerId.c_str());
 	return *(new TriggerInfo()); // never exectuted, just to pass build
 }
 
 SmartTime getTimestampOfLastTestTrigger(const ServerIdType &serverId)
 {
-	TriggerInfo *lastTimeTrigInfo = NULL;
+	const TriggerInfo *lastTimeTrigInfo = NULL;
 	SmartTime lastTimestamp;
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
-		TriggerInfo &trigInfo = testTriggerInfo[i];
+		const TriggerInfo &trigInfo = testTriggerInfo[i];
 		if (trigInfo.serverId != serverId)
 			continue;
 		SmartTime timestamp = SmartTime(trigInfo.lastChangeTime);
@@ -1064,36 +1514,40 @@ SmartTime getTimestampOfLastTestTrigger(const ServerIdType &serverId)
 EventIdType findLastEventId(const ServerIdType &serverId)
 {
 	bool found = false;
-	EventIdType maxId = 0;
+	uint64_t maxId = 0;
 	for (size_t i = 0; i < NumTestEventInfo; i++) {
-		EventInfo &eventInfo = testEventInfo[i];
+		const EventInfo &eventInfo = testEventInfo[i];
 		if (eventInfo.serverId != serverId)
 			continue;
-		if (eventInfo.id >= maxId) {
-			maxId = eventInfo.id;
+		uint64_t eventId;
+		Utils::conv(eventId, eventInfo.id);
+		if (eventId >= maxId) {
+			maxId = eventId;
 			found = true;
 		}
 	}
 	if (!found)
 		return EVENT_NOT_FOUND;
-	return maxId;
+	return StringUtils::toString(maxId);
 }
 
 SmartTime findTimeOfLastEvent(
   const ServerIdType &serverId, const TriggerIdType &triggerId)
 {
-	EventIdType maxId = 0;
-	timespec   *lastTime = NULL;
+	uint64_t maxId = 0;
+	const timespec *lastTime = NULL;
 	for (size_t i = 0; i < NumTestEventInfo; i++) {
-		EventInfo &eventInfo = testEventInfo[i];
+		const EventInfo &eventInfo = testEventInfo[i];
 		if (eventInfo.serverId != serverId)
 			continue;
 		if (triggerId != ALL_TRIGGERS &&
 		    eventInfo.triggerId != triggerId)
 			continue;
-		if (eventInfo.id >= maxId) {
-			maxId = eventInfo.id;
-			lastTime =& eventInfo.time;
+		uint64_t eventId;
+		Utils::conv(eventId, eventInfo.id);
+		if (eventId >= maxId) {
+			maxId = eventId;
+			lastTime = &eventInfo.time;
 		}
 	}
 	if (!lastTime)
@@ -1102,8 +1556,8 @@ SmartTime findTimeOfLastEvent(
 }
 
 void getTestTriggersIndexes(
-  map<ServerIdType, map<uint64_t, size_t> > &indexMap,
-  const ServerIdType &serverId, uint64_t hostId)
+  ServerIdTriggerIdIdxMap &indexMap,
+  const ServerIdType &serverId, const LocalHostIdType &hostIdInServer)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
 		const TriggerInfo &trigInfo = testTriggerInfo[i];
@@ -1111,8 +1565,8 @@ void getTestTriggersIndexes(
 			if (trigInfo.serverId != serverId)
 				continue;
 		}
-		if (hostId != ALL_HOSTS) {
-			if (trigInfo.hostId != hostId)
+		if (hostIdInServer != ALL_LOCAL_HOSTS) {
+			if (trigInfo.hostIdInServer != hostIdInServer)
 				continue;
 		}
 		// If the following assertion fails, the test data is illegal.
@@ -1130,9 +1584,9 @@ void getTestItemsIndexes(ServerIdItemInfoIdIndexMapMap &indexMap)
 	}
 }
 
-ItemInfo *findTestItem(
+const ItemInfo *findTestItem(
   const ServerIdItemInfoIdIndexMapMap &indexMap,
-  const ServerIdType &serverId, const uint64_t itemId)
+  const ServerIdType &serverId, const ItemIdType &itemId)
 {
 	ServerIdItemInfoIdIndexMapMapConstIterator it = indexMap.find(serverId);
 	if (it == indexMap.end())
@@ -1158,12 +1612,14 @@ size_t getNumberOfTestItems(const ServerIdType &serverId)
 
 static string makeHostgroupElementPack(
   const ServerIdType &serverId,
-  const HostIdType &hostId, const HostgroupIdType &hostgroupId)
+  const string &hostId, const string &hostgroupId)
 {
 	string s;
-	s.append((char *)&serverId,    sizeof(serverId));
-	s.append((char *)&hostId,      sizeof(hostId));
-	s.append((char *)&hostgroupId, sizeof(hostgroupId));
+	s.append((char *)&serverId, sizeof(serverId));
+	s += ":";
+	s += hostId;
+	s += ":";
+	s += hostgroupId;
 	return s;
 }
 
@@ -1174,21 +1630,22 @@ static string makeHostgroupElementPack(
  *
  * @return a set of HostGroupElementPack.
  */
-static const set<string> &getHostgroupElementPackSet(void)
+static const set<string> &getHostgroupMemberPackSet(void)
 {
-	static set<string> hostgroupElementPackSet;
-	if (!hostgroupElementPackSet.empty())
-		return hostgroupElementPackSet;
-	for (size_t i = 0; i < NumTestHostgroupElement; i++) {
-		const HostgroupElement &hgrpElem = testHostgroupElement[i];
+	static set<string> hostHGrpPackSet;
+	if (!hostHGrpPackSet.empty())
+		return hostHGrpPackSet;
+	for (size_t i = 0; i < NumTestHostgroupMember; i++) {
+		const HostgroupMember &hhgr = testHostgroupMember[i];
 		const string mash =
 		  makeHostgroupElementPack(
-		    hgrpElem.serverId, hgrpElem.hostId, hgrpElem.groupId);
-		pair<set<string>::iterator, bool> result = 
-		  hostgroupElementPackSet.insert(mash);
+		    hhgr.serverId, hhgr.hostIdInServer,
+		    hhgr.hostgroupIdInServer);
+		pair<set<string>::iterator, bool> result =
+		  hostHGrpPackSet.insert(mash);
 		cppcut_assert_equal(true, result.second);
 	}
-	return hostgroupElementPackSet;
+	return hostHGrpPackSet;
 }
 
 static bool isInHostgroup(const TriggerInfo &trigInfo,
@@ -1197,18 +1654,18 @@ static bool isInHostgroup(const TriggerInfo &trigInfo,
 	if (hostgroupId == ALL_HOST_GROUPS)
 		return true;
 
-	const set<string> &hostgroupElementPackSet = 
-	  getHostgroupElementPackSet();
+	const set<string> &hostgroupElementPackSet =
+	  getHostgroupMemberPackSet();
 
-	const string pack =
-	  makeHostgroupElementPack(trigInfo.serverId,
-	                           trigInfo.hostId, hostgroupId);
+	const string pack = makeHostgroupElementPack(trigInfo.serverId,
+	                                             trigInfo.hostIdInServer,
+	                                             hostgroupId.c_str());
 	set<string>::const_iterator it = hostgroupElementPackSet.find(pack);
 	return it != hostgroupElementPackSet.end();
 }
 
 size_t getNumberOfTestTriggers(const ServerIdType &serverId,
-                               const HostgroupIdType &hostgroupId, 
+                               const HostgroupIdType &hostgroupId,
                                const TriggerSeverityType &severity)
 {
 	size_t count = 0;
@@ -1236,7 +1693,7 @@ static bool isGoodStatus(const TriggerInfo &triggerInfo)
 }
 
 static void removeHostIdIfNeeded(ServerIdHostgroupHostIdMap &svIdHostGrpIdMap,
-                                 uint64_t hostGrpIdForTrig,
+                                 const HostgroupIdType &hostGrpIdForTrig,
                                  const TriggerInfo &trigInfo)
 {
 	ServerIdHostgroupHostIdMapIterator svIt;
@@ -1250,18 +1707,23 @@ static void removeHostIdIfNeeded(ServerIdHostgroupHostIdMap &svIdHostGrpIdMap,
 	if (hostIt == hostGrpIdMap.end())
 		return;
 	HostIdSet &hostIdSet = hostIt->second;
-	hostIdSet.erase(trigInfo.hostId);
+	hostIdSet.erase(trigInfo.globalHostId);
 }
 
 size_t getNumberOfTestHosts(
   const ServerIdType &serverId, const HostgroupIdType &hostgroupId)
 {
+	HATOHOL_ASSERT(hostgroupId == ALL_HOST_GROUPS,
+	  "Not implemented the feature to take care host groups: "
+	  "hostgroupID: %" FMT_HOST_GROUP_ID ".", hostgroupId.c_str());
+
 	size_t numberOfTestHosts = 0;
-	for (size_t i = 0; i < NumTestHostInfo; i++) {
-		HostInfo hostInfo = testHostInfo[i];
-		ServerIdType hostInfoServerId = hostInfo.serverId;
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		const ServerHostDef &svHostDef = testServerHostDef[i];
+		const ServerIdType &hostInfoServerId = svHostDef.serverId;
 		if (hostInfoServerId == serverId)
 			numberOfTestHosts++;
+		// TODO: compare with hostgroup ID.
 	}
 	return numberOfTestHosts;
 }
@@ -1281,7 +1743,8 @@ size_t getNumberOfTestHostsWithStatus(
 		const TriggerInfo &trigInfo = testTriggerInfo[i];
 		if (serverId != ALL_SERVERS && trigInfo.serverId != serverId)
 			continue;
-		if (!isAuthorized(authMap, userId, serverId, trigInfo.hostId))
+		if (!isAuthorized(authMap, userId, serverId,
+		                  trigInfo.hostIdInServer))
 			continue;
 		if (!isInHostgroup(trigInfo, hostgroupId))
 			continue;
@@ -1301,7 +1764,7 @@ size_t getNumberOfTestHostsWithStatus(
 			// svIdHostGrpMap doesn't have value pair
 			// for this server
 			HostIdSet hostIdSet;
-			hostIdSet.insert(trigInfo.hostId);
+			hostIdSet.insert(trigInfo.globalHostId);
 			HostgroupHostIdMap hostMap;
 			hostMap[hostgroupId] = hostIdSet;
 			svIdHostGrpIdMap[trigInfo.serverId] = hostMap;
@@ -1314,7 +1777,7 @@ size_t getNumberOfTestHostsWithStatus(
 			// svIdHostGrpMap doesn't have value pair
 			// for this host group
 			HostIdSet hostIdSet;
-			hostIdSet.insert(trigInfo.hostId);
+			hostIdSet.insert(trigInfo.globalHostId);
 			hostGrpIdMap[hostgroupId] = hostIdSet;
 			continue;
 		}
@@ -1325,7 +1788,7 @@ size_t getNumberOfTestHostsWithStatus(
 		// cause other side effects.
 		// This behavior is no problem for this function and we
 		// can skip the check of the existence in the set.
-		hostIdSet.insert(trigInfo.hostId);
+		hostIdSet.insert(trigInfo.globalHostId);
 	}
 
 	// get the number of hosts that matches with the requested condition
@@ -1371,23 +1834,13 @@ size_t getNumberOfTestActions(const ActionType &actionType)
 	return num;
 }
 
-void getDBCTestHostInfo(HostInfoList &hostInfoList,
-                        const ServerIdType &targetServerId)
-{
-	for (size_t i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo hostInfo = testHostInfo[i];
-		const ServerIdType &serverId = hostInfo.serverId;
-		if (targetServerId != ALL_SERVERS && serverId != targetServerId)
-			continue;
-		hostInfoList.push_back(hostInfo);
-	}
-}
-
 void makeTestUserIdIndexMap(UserIdIndexMap &userIdIndexMap)
 {
 
 	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		AccessInfo &accessInfo = testAccessInfo[i];
+		// ****
+		//AccessInfo &accessInfo = testAccessInfo[i];
+		const AccessInfo accessInfo = testAccessInfo[i];
 		userIdIndexMap[accessInfo.userId].insert(i);
 	}
 }
@@ -1396,7 +1849,7 @@ void makeServerAccessInfoMap(ServerAccessInfoMap &srvAccessInfoMap,
 			     UserIdType userId)
 {
 	for (size_t i = 0; i < NumTestAccessInfo; ++i) {
-		AccessInfo *accessInfo = &testAccessInfo[i];
+		const AccessInfo *accessInfo = &testAccessInfo[i];
 		if (testAccessInfo[i].userId != userId)
 			continue;
 
@@ -1437,7 +1890,8 @@ void makeServerHostGrpSetMap(ServerHostGrpSetMap &map, const UserIdType &userId)
 
 bool isAuthorized(
   ServerHostGrpSetMap &authMap, const UserIdType &userId,
-  const ServerIdType &serverId, const HostIdType &hostId)
+  const ServerIdType &serverId, const LocalHostIdType &hostIdInServer,
+  const set<string> *hgrpElementPackSet)
 {
 	if (userId == USER_ID_SYSTEM)
 		return true;
@@ -1453,7 +1907,7 @@ bool isAuthorized(
 	if (serverIt == authMap.end())
 		return false;
 
-	if (hostId == ALL_HOSTS)
+	if (hostIdInServer == ALL_LOCAL_HOSTS)
 		return true;
 
 	const HostgroupIdSet &hostgroupIds = serverIt->second;
@@ -1461,16 +1915,56 @@ bool isAuthorized(
 		return true;
 
 	// check if the user is allowed to access to the host
-	const set<string> &hgrpElementPackSet = getHostgroupElementPackSet();
+	if (!hgrpElementPackSet)
+		hgrpElementPackSet = &getHostgroupMemberPackSet();
 	HostgroupIdSetConstIterator hostgroupIdItr = hostgroupIds.begin();
 	for (; hostgroupIdItr != hostgroupIds.end(); ++hostgroupIdItr) {
 		const string pack =
-		  makeHostgroupElementPack(serverId, hostId, *hostgroupIdItr);
-		if (hgrpElementPackSet.find(pack) != hgrpElementPackSet.end())
+		  makeHostgroupElementPack(serverId,
+		                           hostIdInServer, *hostgroupIdItr);
+		if (hgrpElementPackSet->find(pack) != hgrpElementPackSet->end())
 			return true;
 	}
 
 	return false;
+}
+
+bool isAuthorized(
+  const UserIdType &userId, const HostIdType &hostId)
+{
+	vector<ServerIdType> serverIds;
+	vector<LocalHostIdType> hostIds;
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		const ServerHostDef svHostDef = testServerHostDef[i];
+		if (svHostDef.hostId != hostId)
+			continue;
+		serverIds.push_back(svHostDef.serverId);
+		hostIds.push_back(svHostDef.hostIdInServer);
+	}
+	if (serverIds.empty())
+		return false;
+
+	ServerHostGrpSetMap authMap;
+	makeServerHostGrpSetMap(authMap, userId);
+	cppcut_assert_equal(serverIds.size(), hostIds.size());
+	const set<string> &hostHGrpPackSet = getHostgroupMemberPackSet();
+	for (size_t i = 0; i < serverIds.size(); i++) {
+		if (isAuthorized(authMap, userId, serverIds[i], hostIds[i],
+		                 &hostHGrpPackSet))
+			return true;
+	}
+
+	return false;
+}
+
+bool isDefunctTestServer(const ServerIdType &serverId)
+{
+	static ServerIdSet svIdSet;
+	if (svIdSet.empty()) {
+		for (size_t i = 0; i < NumTestServerInfo; i++)
+			svIdSet.insert(testServerInfo[i].id);
+	}
+	return svIdSet.find(serverId) == svIdSet.end();
 }
 
 size_t findIndexFromTestActionDef(const UserIdType &userId)
@@ -1506,18 +2000,55 @@ size_t findIndexFromTestActionDef(const ActionType &type)
 const HostgroupIdSet &getTestHostgroupIdSet(void)
 {
 	static HostgroupIdSet testHostgroupIdSet;
-	if (!testHostgroupIdSet.empty()) 
+	if (!testHostgroupIdSet.empty())
 		return testHostgroupIdSet;
 
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		testHostgroupIdSet.insert(testHostgroupElement[i].groupId);
+	for (size_t i = 0; i < NumTestHostgroupMember; i++) {
+		testHostgroupIdSet.insert(
+		  testHostgroupMember[i].hostgroupIdInServer);
+	}
 	return testHostgroupIdSet;
+}
+
+ArmPluginInfo *getTestArmPluginInfo(void)
+{
+	static ArmPluginInfo *data = NULL;
+
+	if (data)
+		return data;
+	data = new ArmPluginInfo[NumTestArmPluginInfo];
+
+	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
+		data[i] = testArmPluginInfo[i];
+		if (data[i].path.empty())
+			continue;
+		if (data[i].path[0] == '/')
+			continue;
+#ifdef WITH_QPID
+		if (data[i].path == HatoholArmPluginGate::PassivePluginQuasiPath)
+			continue;
+#endif
+		data[i].path = cut_build_path(getBaseDir().c_str(),
+					      data[i].path.c_str(),
+					      NULL);
+	}
+	return data;
+}
+
+const ArmPluginInfo *findTestArmPluginInfo(const ServerIdType &serverId)
+{
+	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
+		const ArmPluginInfo *pluginInfo = &testArmPluginInfo[i];
+		if (pluginInfo->serverId == serverId)
+			return pluginInfo;
+	}
+	return NULL;
 }
 
 int findIndexOfTestArmPluginInfo(const MonitoringSystemType &type)
 {
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
-		if (testArmPluginInfo[i].type == type)
+		if (getTestArmPluginInfo()[i].type == type)
 			return i;
 	}
 	return -1;
@@ -1526,7 +2057,7 @@ int findIndexOfTestArmPluginInfo(const MonitoringSystemType &type)
 int findIndexOfTestArmPluginInfo(const ServerIdType &serverId)
 {
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
-		if (testArmPluginInfo[i].serverId == serverId)
+		if (getTestArmPluginInfo()[i].serverId == serverId)
 			return i;
 	}
 	return -1;
@@ -1536,23 +2067,34 @@ const ArmPluginInfo &getTestArmPluginInfo(const MonitoringSystemType &type)
 {
 	const int testArmPluginIndex = findIndexOfTestArmPluginInfo(type);
 	cppcut_assert_not_equal(-1, testArmPluginIndex);
-	return testArmPluginInfo[testArmPluginIndex];
+	return getTestArmPluginInfo()[testArmPluginIndex];
 }
 
 string makeEventIncidentMapKey(const EventInfo &eventInfo)
 {
 	return StringUtils::sprintf("%" FMT_SERVER_ID ":%" FMT_EVENT_ID,
-				    eventInfo.serverId, eventInfo.id);
+				    eventInfo.serverId, eventInfo.id.c_str());
 }
 
-void makeEventIncidentMap(map<string, IncidentInfo*> &eventIncidentMap)
+void makeEventIncidentMap(map<string, const IncidentInfo*> &eventIncidentMap)
 {
 	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
 		string key = StringUtils::sprintf(
 			       "%" FMT_SERVER_ID ":%" FMT_EVENT_ID,
 			       testIncidentInfo[i].serverId,
-			       testIncidentInfo[i].eventId);
+			       testIncidentInfo[i].eventId.c_str());
 		eventIncidentMap[key] = &testIncidentInfo[i];
+	}
+}
+
+void loadHostInfoCache(
+  HostInfoCache &hostInfoCache, const ServerIdType &serverId)
+{
+	for (size_t i = 0; i < NumTestServerHostDef; i++) {
+		const ServerHostDef &svHostDef = testServerHostDef[i];
+		if (svHostDef.serverId != serverId)
+			continue;
+		hostInfoCache.update(svHostDef);
 	}
 }
 
@@ -1616,8 +2158,12 @@ void loadTestDBServer(void)
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestServerInfo; i++)
-		dbConfig.addTargetServer(&testServerInfo[i], privilege);
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		// We have to make a copy since addTargetServer() changes
+		// a member of MonitoringServerInfo.
+		MonitoringServerInfo svInfo = testServerInfo[i];
+		dbConfig.addTargetServer(&svInfo, privilege);
+	}
 }
 
 void loadTestDBUser(void)
@@ -1626,8 +2172,8 @@ void loadTestDBUser(void)
 	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege opePrivilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestUserInfo; i++) {
-		err = dbUser.addUserInfo(testUserInfo[i], opePrivilege);
+	for (auto &userInfo : bareTestUserInfo) {
+		err = dbUser.addUserInfo(userInfo, opePrivilege);
 		assertHatoholError(HTERR_OK, err);
 	}
 }
@@ -1638,8 +2184,8 @@ void loadTestDBUserRole(void)
 	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
-		err = dbUser.addUserRoleInfo(testUserRoleInfo[i], privilege);
+	for (auto userRoleInfo : testUserRoleInfo) {
+		err = dbUser.addUserRoleInfo(userRoleInfo, privilege);
 		assertHatoholError(HTERR_OK, err);
 	}
 }
@@ -1650,8 +2196,8 @@ void loadTestDBAccessList(void)
 	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestAccessInfo; i++) {
-		err = dbUser.addAccessInfo(testAccessInfo[i], privilege);
+	for (auto &accessInfo : bareTestAccessInfo) {
+		err = dbUser.addAccessInfo(accessInfo, privilege);
 		assertHatoholError(HTERR_OK, err);
 	}
 }
@@ -1662,7 +2208,7 @@ void loadTestDBArmPlugin(void)
 	DBTablesConfig &dbConfig = cache.getConfig();
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
 		// Make a copy since armPluginInfo.id will be set.
-		ArmPluginInfo armPluginInfo = testArmPluginInfo[i];
+		ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[i];
 		HatoholError err = dbConfig.saveArmPluginInfo(armPluginInfo);
 		assertHatoholError(HTERR_OK, err);
 	}
@@ -1682,8 +2228,11 @@ void loadTestDBEvents(void)
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestEventInfo; i++)
-		dbMonitoring.addEventInfo(&testEventInfo[i]);
+	for (size_t i = 0; i < NumTestEventInfo; i++) {
+		// Make a copy since EventInfo.id will be changed.
+		EventInfo evtInfo = testEventInfo[i];
+		dbMonitoring.addEventInfo(&evtInfo);
+	}
 }
 
 void loadTestDBItems(void)
@@ -1695,55 +2244,31 @@ void loadTestDBItems(void)
 		dbMonitoring.addItemInfo(&testItemInfo[i]);
 }
 
-void loadTestDBHosts(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestHostInfo; i++)
-		dbMonitoring.addHostInfo(&testHostInfo[i]);
-}
-
-void loadTestDBHostgroups(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
-		dbMonitoring.addHostgroupInfo(&testHostgroupInfo[i]);
-}
-
-void loadTestDBHostgroupElements(void)
-{
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		dbMonitoring.addHostgroupElement(&testHostgroupElement[i]);
-}
-
 void loadTestDBAction(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesAction &dbAction = cache.getAction();
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (size_t i = 0; i < NumTestActionDef; i++)
-		dbAction.addAction(testActionDef[i], privilege);
+		dbAction.addAction(bareTestActionDef[i], privilege);
 }
 
 void loadTestDBServerStatus(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestServerStatus; i++) {
-		MonitoringServerStatus *serverStatus = &testServerStatus[i];
-		dbMonitoring.addMonitoringServerStatus(serverStatus);
-	}
+	for (size_t i = 0; i < NumTestServerStatus; i++)
+		dbMonitoring.addMonitoringServerStatus(testServerStatus[i]);
 }
 
 void loadTestDBIncidents(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	for (size_t i = 0; i < NumTestIncidentInfo; i++)
-		dbMonitoring.addIncidentInfo(&testIncidentInfo[i]);
+	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
+		IncidentInfo incidentInfo = testIncidentInfo[i];
+		dbMonitoring.addIncidentInfo(&incidentInfo);
+	}
 }
 
 void loadTestDBIncidentTracker(void)
@@ -1751,8 +2276,75 @@ void loadTestDBIncidentTracker(void)
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	OperationPrivilege privilege(ALL_PRIVILEGES);
-	for (size_t i = 0; i < NumTestIncidentTrackerInfo; i++)
-		dbConfig.addIncidentTracker(testIncidentTrackerInfo[i],
-					    privilege);
+	for (auto incidentTrackerInfo : testIncidentTrackerInfo)
+		dbConfig.addIncidentTracker(incidentTrackerInfo, privilege);
 }
 
+void getTestHistory(HistoryInfoVect &historyInfoVect,
+		    const ServerIdType &serverId,
+		    const ItemIdType itemId,
+		    const time_t &beginTime, const time_t &endTime)
+{
+	for (size_t i = 0; i < NumTestHistoryInfo; i++) {
+		const HistoryInfo &historyInfo = testHistoryInfo[i];
+		if (serverId != ALL_SERVERS &&
+		    historyInfo.serverId != serverId) {
+			continue;
+		}
+		if (historyInfo.itemId != itemId)
+			continue;
+		if (historyInfo.clock.tv_sec < beginTime)
+			continue;
+		if (historyInfo.clock.tv_sec > endTime ||
+		    (historyInfo.clock.tv_sec == endTime &&
+		     historyInfo.clock.tv_nsec > 0)) {
+			continue;
+		}
+		historyInfoVect.push_back(historyInfo);
+	}
+}
+
+void loadTestDBServerHostDef(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestServerHostDef; i++)
+		dbHost.upsertServerHostDef(testServerHostDef[i]);
+}
+
+void loadTestDBVMInfo(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestVMInfo; i++)
+		dbHost.upsertVMInfo(testVMInfo[i]);
+}
+
+void loadTestDBHostgroup(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestHostgroup; i++)
+		dbHost.upsertHostgroup(testHostgroup[i]);
+}
+
+void loadTestDBHostgroupMember(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	OperationPrivilege privilege(ALL_PRIVILEGES);
+	for (size_t i = 0; i < NumTestHostgroupMember; i++)
+		dbHost.upsertHostgroupMember(testHostgroupMember[i]);
+}
+
+void loadTestDBLastInfo(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	for (auto lastInfoDef : testLastInfoDef)
+		dbLastInfo.upsertLastInfo(lastInfoDef, privilege);
+}

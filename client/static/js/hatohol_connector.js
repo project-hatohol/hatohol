@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 // ---------------------------------------------------------------------------
@@ -73,6 +73,8 @@ var HatoholConnector = function(connectParams) {
 };
 
 HatoholConnector.prototype.start = function(connectParams) {
+  var self = this;
+
   if (connectParams.request)
     self.request = connectParams.request;
   else
@@ -128,7 +130,9 @@ HatoholConnector.prototype.start = function(connectParams) {
       success: function(data) {
         parseLoginResult(data);
       },
-      error: connectError,
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        parseLoginResultWithError(XMLHttpRequest, textStatus, errorThrown);
+      },
     });
   }
 
@@ -143,6 +147,27 @@ HatoholConnector.prototype.start = function(connectParams) {
     HatoholSessionManager.set(sessionId);
     self.dialog.closeDialog();
     request();
+  }
+
+  function parseLoginResultWithError(XMLHttpRequest, textStatus, errorThrown) {
+    var response = XMLHttpRequest.responseText;
+    var data = $.parseJSON(response);
+    if (data) {
+      var parser = new HatoholLoginReplyParser(data);
+      if (parser.getStatus() != REPLY_STATUS.OK) {
+        var msg = gettext("Failed to login. ") + parser.getMessage();
+        hatoholErrorMsgBox(msg);
+        return;
+      }
+    } else {
+      var status = XMLHttpRequest.status;
+      if (!(status >= 200 && status < 300)) {
+        var errorMsg = "Error: " + textStatus + ": " + errorThrown;
+        var unknownErrorMsg = gettext("Failed to login. ") + errorMsg;
+        hatoholErrorMsgBox(unknownErrorMsg);
+        return;
+      }
+    }
   }
 
   function request() {

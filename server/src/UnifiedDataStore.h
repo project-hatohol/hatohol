@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef UnifiedDataStore_h
@@ -27,6 +27,7 @@
 #include "Utils.h"
 #include "Closure.h"
 #include "DataStore.h"
+#include "HostInfoCache.h"
 
 struct ServerConnStatus {
 	ServerIdType serverId;
@@ -48,8 +49,8 @@ public:
 
 	/**
 	 * Start all virtual data stores.
-	 * 
-	 * @param autoRun 
+	 *
+	 * @param autoRun
 	 * A flag to run an Arm instance soon after the store is started.
 	 */
 	void start(const bool &autoRun = true);
@@ -59,11 +60,16 @@ public:
 	void setCopyOnDemandEnabled(bool enable);
 
 	/**
-	 * Add events in the Hatohol DB and executes action if needed. 
-	 * 
+	 * Add events in the Hatohol DB and executes action if needed.
+	 *
 	 * @param eventList A list of EventInfo.
 	 */
-	void addEventList(const EventInfoList &eventList);
+	void addEventList(EventInfoList &eventList);
+
+	void addItemList(const ItemInfoList &itemList);
+
+	void addMonitoringServerStatus(
+	  const MonitoringServerStatus &serverStatus);
 
 
 	/*
@@ -72,8 +78,6 @@ public:
 
 	void getTriggerList(TriggerInfoList &triggerList,
 	                    const TriggersQueryOption &option);
-
-	void addItemList(const ItemInfoList &itemList);
 
 	/**
 	 * Get the last change time of the trigger that belongs to
@@ -91,19 +95,84 @@ public:
 	void getItemList(ItemInfoList &itemList,
 	                 const ItemsQueryOption &option,
 	                 bool fetchItemsSynchronously = false);
-	bool fetchItemsAsync(ClosureBase *closure,
-	                     const ServerIdType &targetServerId = ALL_SERVERS);
+	void getApplicationVect(ApplicationInfoVect &applicationInfoVect,
+	                        const ItemsQueryOption &option);
+	bool fetchItemsAsync(Closure0 *closure,
+	                     const ItemsQueryOption &option);
+	bool fetchTriggerAsync(Closure0 *closure,
+			       const TriggersQueryOption &option);
+
+	/*
+	 *  We don't provide a function to get history.
+	 *  Please get a DataStore by getDataStore() and use
+	 *  DataStore::startOnDemandFetchHistory() directly.
+	 */
+	/*
+	void fetchHistoryAsync(Closure1<HistoryInfoVect> *closure,
+			       const ServerIdType &targetServerId,
+			       const ItemIdType &itemId,
+			       const time_t &beginTime,
+			       const time_t &endTime);
+	*/
 
 	// Host and Hostgroup
-	void getHostList(HostInfoList &hostInfoList,
-	                 const HostsQueryOption &option);
-	HatoholError getHostgroupInfoList(
-	  HostgroupInfoList &hostgroupInfoList,
-	  const HostgroupsQueryOption &option);
-	HatoholError getHostgroupElementList(
-	  HostgroupElementList &hostgroupElementList,
-	  const HostgroupElementQueryOption &option);
+	HatoholError getServerHostDefs(ServerHostDefVect &svHostDefVect,
+	                               const HostsQueryOption &option);
 
+	HatoholError getHostgroups(HostgroupVect &hostgroups,
+	                           const HostgroupsQueryOption &option);
+
+	/**
+	 * Add hosts. If there's hosts already exist, they will be updated.
+	 *
+	 * See also DBTablesHost::upsert().
+	 *
+	 * @param serverHostDef A host to be added/updated.
+	 * @param hostId
+	 * If this parameter is not NULL, the added/updated host ID is written
+	 * to this area.
+	 *
+	 * @return The result of the call.
+	 */
+	HatoholError upsertHost(const ServerHostDef &serverHostDef,
+	                        HostIdType *hostId = NULL);
+
+	/**
+	 * Add hosts. If there's hosts already exist, they will be updated.
+	 *
+	 * See also DBTablesHost::upsert().
+	 *
+	 * @param serverHostDef Hosts to be added/updated.
+	 * @param hostHostIdMapPtr
+	 * If this parameter is not NULL, the address of the ServerHostDef
+	 * and the corresponding host IDs are stored in it.
+	 *
+	 * @return The result of the call.
+	 */
+	HatoholError
+	  upsertHosts(const ServerHostDefVect &serverHostDefs,
+	              HostHostIdMap *hostHostIdMapPtr = NULL);
+
+	/**
+	 * call upsertHosts for given hosts and update HostInfoCache.
+	 */
+	HatoholError syncHosts(
+	  const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
+	  HostInfoCache &hostInfoCache);
+	bool wasStoredHostsChanged(void);
+
+	HatoholError upsertHostgroups(const HostgroupVect &hostgroups);
+	HatoholError syncHostgroups(const HostgroupVect &hostgroups,
+	                            const ServerIdType &serverId);
+
+	HatoholError upsertHostgroupMembers(
+	  const HostgroupMemberVect &hostgroupMembers);
+	HatoholError syncHostgroupMembers(const HostgroupMemberVect &hostgroups,
+	                                  const ServerIdType &serverId);
+
+	HatoholError getHostgroupMembers(
+	  HostgroupMemberVect &hostgroupMembers,
+	  const HostgroupMembersQueryOption &option);
 
 	// Action
 	HatoholError getActionList(ActionDefList &actionList,
@@ -112,11 +181,16 @@ public:
 	                       const OperationPrivilege &privilege);
 	HatoholError deleteActionList(const ActionIdList &actionIdList,
 	                              const OperationPrivilege &privilege);
+	HatoholError updateAction(ActionDef &actionDef,
+	                          const OperationPrivilege &privilege);
+
 	bool isIncidentSenderActionEnabled(void);
 
 	size_t getNumberOfBadTriggers(const TriggersQueryOption &option,
 				      TriggerSeverityType severity);
 	size_t getNumberOfTriggers(const TriggersQueryOption &option);
+	HatoholError syncTriggers(const TriggerInfoList &triggerInfoList,
+	                          const ServerIdType &serverId);
 	size_t getNumberOfGoodHosts(const TriggersQueryOption &option);
 	size_t getNumberOfBadHosts(const TriggersQueryOption &option);
 	size_t getNumberOfItems(const ItemsQueryOption &option,
@@ -131,6 +205,9 @@ public:
 	                     const OperationPrivilege &privilege);
 	HatoholError updateUser(UserInfo &userInfo,
 	                        const OperationPrivilege &privilege);
+	HatoholError updateUserFlags(OperationPrivilegeFlag &oldUserFlag,
+	                             OperationPrivilegeFlag &updateUserFlag,
+	                             const OperationPrivilege &privilege);
 	HatoholError deleteUser(UserIdType userId,
 	                        const OperationPrivilege &privilege);
 
@@ -204,13 +281,15 @@ public:
 
 	/**
 	 * Get the data store with the specified Server ID.
-	 * 
+	 *
 	 * @param serverId A server ID.
 	 * @retrun
 	 * A CoutablePtr of the DataStore instance. If not found, hasData()
 	 * returns false.
 	 */
 	DataStorePtr getDataStore(const ServerIdType &serverId);
+	bool getIncidentTrackerInfo(const IncidentTrackerIdType &trackerId,
+                                    IncidentTrackerInfo &trackerInfo);
 
 protected:
 	void fetchItems(const ServerIdType &targetServerId = ALL_SERVERS);

@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef HatoholArmPluginGate_h
@@ -22,16 +22,20 @@
 
 #include <qpid/messaging/Message.h>
 #include <qpid/messaging/Session.h>
-#include "HatoholArmPluginInterface.h"
+#include <Monitoring.h>
+#include <HatoholArmPluginInterface.h>
+#include <UsedCountablePtr.h>
+#include <NamedPipe.h>
+#include "DBTablesConfig.h"
 #include "DataStore.h"
-#include "UsedCountablePtr.h"
-#include "NamedPipe.h"
+#include "Closure.h"
+#include "HostInfoCache.h"
 
 class HatoholArmPluginGate : public DataStore, public HatoholArmPluginInterface {
 public:
 	static const std::string PassivePluginQuasiPath;
 	static const int   NO_RETRY;
-	
+
 	struct HAPIWtchPointInfo {
 		TriggerStatusType statusType;
 		TriggerIdType triggerId;
@@ -45,6 +49,9 @@ public:
 	 */
 	void start(void);
 
+	virtual const MonitoringServerInfo
+	  &getMonitoringServerInfo(void) const override;
+
 	/**
 	 * Reutrn an ArmStatus instance.
 	 *
@@ -53,10 +60,7 @@ public:
 	 *
 	 * @return an ArmStatusInstance.
 	 */
-	const ArmStatus &getArmStatus(void) const;
-
-	// This is dummy and this virtual method should be removed
-	virtual ArmBase &getArmBase(void) override;
+	virtual const ArmStatus &getArmStatus(void) const override;
 
 	// virtual methods
 
@@ -74,7 +78,18 @@ public:
 	 */
 	pid_t getPid(void);
 
-	virtual void startOnDemandFetchItem(ClosureBase *closure) override;
+	virtual bool isFetchItemsSupported(void);
+	virtual bool startOnDemandFetchItems(
+	  const LocalHostIdVector &hostIds,
+	  Closure0 *closure) override;
+	virtual void startOnDemandFetchHistory(
+	  const ItemInfo &itemInfo,
+	  const time_t &beginTime,
+	  const time_t &endTime,
+	  Closure1<HistoryInfoVect> *closure) override;
+	virtual bool startOnDemandFetchTriggers(
+	  const LocalHostIdVector &hostIds,
+	  Closure0 *closure) override;
 
 protected:
 	// To avoid an instance from being created on a stack.
@@ -121,7 +136,10 @@ protected:
 	  const HapiCommandHeader *header);
 	void cmdHandlerGetLastEventId(const HapiCommandHeader *header);
 	void cmdHandlerGetTimeOfLastEvent(const HapiCommandHeader *header);
+	void cmdHandlerGetShouldLoadOldEvent(const HapiCommandHeader *header);
+	void cmdHandlerGetHostsChanged(const HapiCommandHeader *header);
 	void cmdHandlerSendUpdatedTriggers(const HapiCommandHeader *header);
+	void cmdHandlerSendAllTriggers(const HapiCommandHeader *header);
 	void cmdHandlerSendHosts(const HapiCommandHeader *header);
 	void cmdHandlerSendHostgroupElements(const HapiCommandHeader *header);
 	void cmdHandlerSendHostgroups(const HapiCommandHeader *header);
@@ -129,12 +147,10 @@ protected:
 	void cmdHandlerSendArmInfo(const HapiCommandHeader *header);
 	void cmdHandlerSendHapSelfTriggers(const HapiCommandHeader *header);
 
+	void parseCmdHandlerTriggerList(TriggerInfoList &trigInfoList);
+
 	void addInitialTrigger(HatoholArmPluginWatchType addtrigger);
 
-	void createPluginTriggerInfo(const HAPIWtchPointInfo &resTrigger,
-				     TriggerInfoList &triggerInfoList);
-	void createPluginEventInfo(const HAPIWtchPointInfo &resTrigger,
-				   EventInfoList &eventInfoList);
 	void setPluginConnectStatus(const HatoholArmPluginWatchType &type,
 				    const HatoholArmPluginErrorCode &errorCode);
 	void setPluginAvailabelTrigger(const HatoholArmPluginWatchType &type,
@@ -144,6 +160,7 @@ protected:
 	NamedPipe &getHapPipeForRead(void);
 	NamedPipe &getHapPipeForWrite(void);
 	void setGLibMainContext(GMainContext *context);
+	HostInfoCache &getHostInfoCache(void);
 
 	static gboolean detectedArmPluginTimeout(void *data);
 
@@ -159,4 +176,3 @@ private:
 typedef UsedCountablePtr<HatoholArmPluginGate> HatoholArmPluginGatePtr;
 
 #endif // HatoholArmPluginGate_h
-

@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <time.h>
@@ -36,6 +36,7 @@ static const char *TABLE_NAME_HOSTS         = "nagios_hosts";
 static const char *TABLE_NAME_STATEHISTORY  = "nagios_statehistory";
 static const char *TABLE_NAME_HOSTGROUPS    = "nagios_hostgroups";
 static const char *TABLE_NAME_HOSTGROUP_MEMBERS = "nagios_hostgroup_members";
+static const char *TABLE_NAME_OBJECTS       = "nagios_objects";
 
 enum
 {
@@ -222,6 +223,15 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 	0,                                      // flags
 	NULL,                                   // defaultValue
 }, {
+	"hostgroup_object_id",                  // columnName
+	SQL_COLUMN_TYPE_INT,                    // type
+	11,                                     // columnLength
+	0,                                      // decFracLength
+	false,                                  // canBeNull
+	SQL_KEY_NONE,                           // keyType
+	0,                                      // flags
+	NULL,                                   // defaultValue
+}, {
 	"alias",                                // columnName
 	SQL_COLUMN_TYPE_VARCHAR,                // type
 	255,                                    // columnLength
@@ -235,6 +245,7 @@ static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
 
 enum {
 	IDX_HOSTGROUPS_HOSTGROUP_ID,
+	IDX_HOSTGROUPS_HOSTGROUP_OBJECT_ID,
 	IDX_HOSTGROUPS_ALIAS,
 	NUM_IDX_HOSTGROUPS,
 };
@@ -352,6 +363,80 @@ static const DBAgent::TableProfile tableProfileStateHistory =
 			    COLUMN_DEF_STATEHISTORY,
 			    NUM_IDX_STATEHISTORY);
 
+// Definitions: nagios_objects
+static const ColumnDef COLUMN_DEF_OBJECTS[] = {
+{
+	"object_id",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"instance_id",                     // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	6,                                 // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	"objecttype_id",                   // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	6,                                 // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+}, {
+	"name1",                           // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	128,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                               // defaultValue
+}, {
+	"name2",                           // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	128,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"",                               // defaultValue
+}, {
+	"is_active",                       // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	6,                                 // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"0",                               // defaultValue
+},
+};
+
+enum {
+	IDX_OBJECTS_OBJECT_ID,
+	IDX_OBJECTS_INSTANCE_ID,
+	IDX_OBJECTS_OBJECTTYPE_ID,
+	IDX_OBJECTS_NAME1,
+	IDX_OBJECTS_NAME2,
+	IDX_OBJECTS_IS_ACTIVE,
+	NUM_IDX_OBJECTS,
+};
+
+static const DBAgent::TableProfile tableProfileObjects =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_OBJECTS,
+			    COLUMN_DEF_OBJECTS,
+			    NUM_IDX_OBJECTS);
+
 // ---------------------------------------------------------------------------
 // Private context
 // ---------------------------------------------------------------------------
@@ -361,13 +446,16 @@ struct ArmNagiosNDOUtils::Impl
 	DBClientJoinBuilder  selectTriggerBuilder;
 	DBClientJoinBuilder  selectEventBuilder;
 	DBClientJoinBuilder  selectItemBuilder;
-	DBAgent::SelectExArg selectHostArg;
-	DBAgent::SelectExArg selectHostgroupArg;
+	DBClientJoinBuilder  selectHostBuilder;
+	DBClientJoinBuilder  selectHostgroupBuilder;
 	DBAgent::SelectExArg selectHostgroupMembersArg;
 	string               selectTriggerBaseCondition;
 	string               selectEventBaseCondition;
 	UnifiedDataStore    *dataStore;
 	MonitoringServerInfo serverInfo;
+	HostInfoCache        hostInfoCache;
+	map<int, string>     hostMap;
+	map<int, string>     hostgroupMap;
 
 	// methods
 	Impl(const MonitoringServerInfo &_serverInfo)
@@ -375,11 +463,12 @@ struct ArmNagiosNDOUtils::Impl
 	  selectTriggerBuilder(tableProfileServices),
 	  selectEventBuilder(tableProfileStateHistory),
 	  selectItemBuilder(tableProfileServices),
-	  selectHostArg(tableProfileHosts),
-	  selectHostgroupArg(tableProfileHostgroups),
+	  selectHostBuilder(tableProfileHosts),
+	  selectHostgroupBuilder(tableProfileHostgroups),
 	  selectHostgroupMembersArg(tableProfileHostgroupMembers),
 	  dataStore(NULL),
-	  serverInfo(_serverInfo)
+	  serverInfo(_serverInfo),
+	  hostInfoCache(&_serverInfo.id)
 	{
 		dataStore = UnifiedDataStore::getInstance();
 	}
@@ -396,6 +485,19 @@ struct ArmNagiosNDOUtils::Impl
 		  serverInfo.dbName.c_str(), serverInfo.userName.c_str(),
 		  serverInfo.password.c_str(),
 		  serverInfo.getHostAddress().c_str(), serverInfo.port);
+	}
+
+	HostIdType getGlobalHostId(const LocalHostIdType &hostIdInServer)
+	{
+		HostInfoCache::Element elem;
+		const bool found = hostInfoCache.getName(hostIdInServer, elem);
+		if (found)
+			return elem.hostId;
+		MLPL_WARN(
+		  "Host cache: not found. server: %" FMT_SERVER_ID ", "
+		  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
+		  serverInfo.id, hostIdInServer.c_str());
+		return INVALID_HOST_ID;
 	}
 };
 
@@ -416,6 +518,8 @@ ArmNagiosNDOUtils::ArmNagiosNDOUtils(const MonitoringServerInfo &serverInfo)
 
 ArmNagiosNDOUtils::~ArmNagiosNDOUtils()
 {
+	if (m_impl->dbAgent)
+		m_impl->dbAgent->dispose();
 	requestExitAndWait();
 }
 
@@ -426,7 +530,7 @@ void ArmNagiosNDOUtils::makeSelectTriggerBuilder(void)
 {
 	// TODO: Confirm what may be use using host_object_id.
 	DBClientJoinBuilder &builder = m_impl->selectTriggerBuilder;
-	builder.add(IDX_SERVICES_SERVICE_ID);
+	builder.add(IDX_SERVICES_SERVICE_OBJECT_ID);
 
 	builder.addTable(
 	  tableProfileServiceStatus, DBClientJoinBuilder::INNER_JOIN,
@@ -460,7 +564,7 @@ void ArmNagiosNDOUtils::makeSelectEventBuilder(void)
 	builder.addTable(
 	  tableProfileServices, DBClientJoinBuilder::INNER_JOIN,
 	  IDX_STATEHISTORY_OBJECT_ID, IDX_SERVICES_SERVICE_OBJECT_ID);
-	builder.add(IDX_SERVICES_SERVICE_ID);
+	builder.add(IDX_SERVICES_SERVICE_OBJECT_ID);
 
 	builder.addTable(
 	  tableProfileHosts, DBClientJoinBuilder::INNER_JOIN,
@@ -479,7 +583,7 @@ void ArmNagiosNDOUtils::makeSelectEventBuilder(void)
 void ArmNagiosNDOUtils::makeSelectItemBuilder(void)
 {
 	DBClientJoinBuilder &builder = m_impl->selectItemBuilder;
-	builder.add(IDX_SERVICES_SERVICE_ID);
+	builder.add(IDX_SERVICES_SERVICE_OBJECT_ID);
 	builder.add(IDX_SERVICES_HOST_OBJECT_ID);
 
 	builder.addTable(
@@ -492,32 +596,47 @@ void ArmNagiosNDOUtils::makeSelectItemBuilder(void)
 
 void ArmNagiosNDOUtils::makeSelectHostArg(void)
 {
-	DBAgent::SelectExArg &arg = m_impl->selectHostArg;
-	arg.add(IDX_HOSTS_HOST_OBJECT_ID);
-	arg.add(IDX_HOSTS_DISPLAY_NAME);
+	DBClientJoinBuilder &builder = m_impl->selectHostBuilder;
+	builder.add(IDX_HOSTS_HOST_OBJECT_ID);
+	builder.add(IDX_HOSTS_DISPLAY_NAME);
+
+	builder.addTable(
+	  tableProfileObjects, DBClientJoinBuilder::INNER_JOIN,
+	  IDX_HOSTS_HOST_OBJECT_ID, IDX_OBJECTS_OBJECT_ID);
+	builder.add(IDX_OBJECTS_NAME1);
 }
 
 void ArmNagiosNDOUtils::makeSelectHostgroupArg(void)
 {
-	DBAgent::SelectExArg &arg = m_impl->selectHostgroupArg;
-	arg.add(IDX_HOSTGROUPS_HOSTGROUP_ID);
-	arg.add(IDX_HOSTGROUPS_ALIAS);
+	DBClientJoinBuilder &builder = m_impl->selectHostgroupBuilder;
+	builder.add(IDX_HOSTGROUPS_HOSTGROUP_ID);
+	builder.add(IDX_HOSTGROUPS_ALIAS);
+
+	builder.addTable(
+	  tableProfileObjects, DBClientJoinBuilder::INNER_JOIN,
+	  IDX_HOSTGROUPS_HOSTGROUP_OBJECT_ID, IDX_OBJECTS_OBJECT_ID);
+	builder.add(IDX_OBJECTS_NAME1);
 }
 
 void ArmNagiosNDOUtils::makeSelectHostgroupMembersArg(void)
 {
 	DBAgent::SelectExArg &arg = m_impl->selectHostgroupMembersArg;
-	arg.add(IDX_HOSTGROUP_MEMBERS_HOSTGROUP_ID);
 	arg.add(IDX_HOSTGROUP_MEMBERS_HOST_OBJECT_ID);
+	arg.add(IDX_HOSTGROUP_MEMBERS_HOSTGROUP_ID);
 }
 
-void ArmNagiosNDOUtils::addConditionForTriggerQuery(void)
+void ArmNagiosNDOUtils::addConditionForTriggerQuery(const bool &isUpdateTrigger)
 {
-	ThreadLocalDBCache cache;
-	const MonitoringServerInfo &svInfo = getServerInfo();
-	time_t lastUpdateTime =
-	   cache.getMonitoring().getLastChangeTimeOfTrigger(svInfo.id);
+	time_t lastUpdateTime;
 	struct tm tm;
+	if (isUpdateTrigger) {
+		ThreadLocalDBCache cache;
+		const MonitoringServerInfo &svInfo = getServerInfo();
+		lastUpdateTime =
+			cache.getMonitoring().getLastChangeTimeOfTrigger(svInfo.id);
+	} else {
+		lastUpdateTime = 0;
+	}
 	localtime_r(&lastUpdateTime, &tm);
 
 	DBAgent::SelectExArg &arg =
@@ -533,21 +652,26 @@ void ArmNagiosNDOUtils::addConditionForEventQuery(void)
 {
 	ThreadLocalDBCache cache;
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	uint64_t lastEventId = cache.getMonitoring().getLastEventId(svInfo.id);
+	const EventIdType lastEventId =
+	  cache.getMonitoring().getMaxEventId(svInfo.id);
 	string cond;
 	DBAgent::SelectExArg &arg = m_impl->selectEventBuilder.getSelectExArg();
 	arg.condition = m_impl->selectEventBaseCondition;
-	if (lastEventId == EVENT_NOT_FOUND)
+	if (lastEventId == EVENT_NOT_FOUND) {
 		cond = "0";
-	else
-		cond = StringUtils::sprintf("%" PRIu64, lastEventId+1);
+	} else {
+		if (!StringUtils::isNumber(lastEventId)) {
+			THROW_HATOHOL_EXCEPTION("Unexpected event ID: %s\n",
+			                        lastEventId.c_str());
+		}
+		const uint64_t eventId = Utils::sum(lastEventId, 1);
+		cond = StringUtils::toString(eventId);
+	}
 	arg.condition += cond;
 }
 
-void ArmNagiosNDOUtils::getTrigger(void)
+void ArmNagiosNDOUtils::getTriggerInfoTable(TriggerInfoList &triggerInfoList)
 {
-	addConditionForTriggerQuery();
-
 	// TODO: should use transaction
 	DBAgent::SelectExArg &arg =
 	  m_impl->selectTriggerBuilder.getSelectExArg();
@@ -556,17 +680,16 @@ void ArmNagiosNDOUtils::getTrigger(void)
 	MLPL_DBG("The number of triggers: %zd\n", numTriggers);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	TriggerInfoList triggerInfoList;
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		int currentStatus;
+		int currentStatus, hostId;
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		TriggerInfo trigInfo;
 		trigInfo.serverId = svInfo.id;
 		trigInfo.lastChangeTime.tv_nsec = 0;
 
-		itemGroupStream >> trigInfo.id;      // service_id
+		trigInfo.id = itemGroupStream.read<int, string>(); // service_id
 
 		// TODO: severity should not depend on the status.
 		// status and severity (current_status)
@@ -586,12 +709,32 @@ void ArmNagiosNDOUtils::getTrigger(void)
 		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
 		                                      //status_update_time
 		itemGroupStream >> trigInfo.brief;    // output
-		itemGroupStream >> trigInfo.hostId;   // host_id
+		itemGroupStream >> hostId;
+		map<int, string>::iterator it = m_impl->hostMap.find(hostId);
+		if (it != m_impl->hostMap.end())
+			trigInfo.hostIdInServer = it->second;
+		trigInfo.globalHostId =
+		  m_impl->getGlobalHostId(trigInfo.hostIdInServer);
 		itemGroupStream >> trigInfo.hostName; // hosts.display_name
+		trigInfo.validity = TRIGGER_VALID;
 		triggerInfoList.push_back(trigInfo);
 	}
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
+}
+
+void ArmNagiosNDOUtils::getTrigger(const bool &isUpdateTrigger)
+{
+	TriggerInfoList triggerInfoList;
+	addConditionForTriggerQuery(isUpdateTrigger);
+	getTriggerInfoTable(triggerInfoList);
+
+	if (isUpdateTrigger) {
+		ThreadLocalDBCache cache;
+		cache.getMonitoring().addTriggerInfoList(triggerInfoList);
+	} else {
+		const MonitoringServerInfo &svInfo = getServerInfo();
+		ThreadLocalDBCache cache;
+		cache.getMonitoring().updateTrigger(triggerInfoList, svInfo.id);
+	}
 }
 
 void ArmNagiosNDOUtils::getEvent(void)
@@ -610,13 +753,14 @@ void ArmNagiosNDOUtils::getEvent(void)
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		int state;
+		int state, eventId, hostId;
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 		EventInfo eventInfo;
 		eventInfo.serverId = svInfo.id;
 		eventInfo.time.tv_nsec = 0;
 
-		itemGroupStream >> eventInfo.id; // statehistory_id
+		itemGroupStream >> eventId;
+		eventInfo.id = StringUtils::sprintf("%020d", eventId);
 		// type, status, and severity (state)
 		itemGroupStream >> state;
 		if (state == STATE_OK) {
@@ -635,8 +779,13 @@ void ArmNagiosNDOUtils::getEvent(void)
 		}
 		itemGroupStream >> eventInfo.time.tv_sec; // state_time
 		itemGroupStream >> eventInfo.brief;       // output
-		itemGroupStream >> eventInfo.triggerId;   // service_id
-		itemGroupStream >> eventInfo.hostId;      // host_id
+		eventInfo.triggerId = itemGroupStream.read<int, string>(); // service_id
+		itemGroupStream >> hostId;
+		map<int, string>::iterator it = m_impl->hostMap.find(hostId);
+		if (it != m_impl->hostMap.end())
+			eventInfo.hostIdInServer = it->second;
+		eventInfo.globalHostId =
+		  m_impl->getGlobalHostId(eventInfo.hostIdInServer);
 		itemGroupStream >> eventInfo.hostName;    // hosts.display_name
 		eventInfoList.push_back(eventInfo);
 	}
@@ -658,14 +807,20 @@ void ArmNagiosNDOUtils::getItem(void)
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
 
+		int hostId;
 		ItemInfo itemInfo;
 		itemInfo.serverId = svInfo.id;
 		itemInfo.lastValueTime.tv_nsec = 0;
 		itemInfo.prevValue = "N/A";
 		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_STRING;
 
-		itemGroupStream >> itemInfo.id;        // service_id
-		itemGroupStream >> itemInfo.hostId;    // host_id
+		itemInfo.id = itemGroupStream.read<int, string>(); // service_id
+		itemGroupStream >> hostId;
+		map<int, string>::iterator it = m_impl->hostMap.find(hostId);
+		if (it != m_impl->hostMap.end())
+			itemInfo.hostIdInServer = it->second;
+		itemInfo.globalHostId =
+		  m_impl->getGlobalHostId(itemInfo.hostIdInServer);
 		itemGroupStream >> itemInfo.brief;     // check_command
 		itemGroupStream >> itemInfo.lastValueTime.tv_sec;
 		                                       // status_update_time
@@ -682,53 +837,71 @@ void ArmNagiosNDOUtils::getItem(void)
 
 void ArmNagiosNDOUtils::getHost(void)
 {
+	m_impl->hostMap.clear();
+
 	// TODO: should use transaction
-	m_impl->dbAgent->select(m_impl->selectHostArg);
+	DBAgent::SelectExArg &arg = m_impl->selectHostBuilder.getSelectExArg();
+	m_impl->dbAgent->select(arg);
 	size_t numHosts =
-	  m_impl->selectHostArg.dataTable->getNumberOfRows();
+	  arg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of hosts: %zd\n", numHosts);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	HostInfoList hostInfoList;
+	ServerHostDefVect svHostDefs;
 	const ItemGroupList &grpList =
-	  m_impl->selectHostArg.dataTable->getItemGroupList();
+	  arg.dataTable->getItemGroupList();
+	svHostDefs.reserve(grpList.size());
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
-		HostInfo hostInfo;
-		hostInfo.serverId = svInfo.id;
-		itemGroupStream >> hostInfo.id;
-		itemGroupStream >> hostInfo.hostName;
-		hostInfoList.push_back(hostInfo);
+		ServerHostDef svHostDef;
+		int hostId;
+		svHostDef.id = AUTO_INCREMENT_VALUE;
+		svHostDef.hostId = AUTO_ASSIGNED_ID;
+		svHostDef.serverId = svInfo.id;
+		svHostDef.status = HOST_STAT_NORMAL;
+		itemGroupStream >> hostId;
+		itemGroupStream >> svHostDef.name;
+		itemGroupStream >> svHostDef.hostIdInServer;
+		svHostDefs.push_back(svHostDef);
+		m_impl->hostMap[hostId] = svHostDef.hostIdInServer;
 	}
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().updateHosts(hostInfoList, svInfo.id);
+	UnifiedDataStore *uds =  UnifiedDataStore::getInstance();
+
+	uds->syncHosts(svHostDefs, svInfo.id, m_impl->hostInfoCache);
 }
 
 void ArmNagiosNDOUtils::getHostgroup(void)
 {
+	m_impl->hostgroupMap.clear();
+
 	// TODO: should use transaction
-	m_impl->dbAgent->select(m_impl->selectHostgroupArg);
+	DBAgent::SelectExArg &arg = m_impl->selectHostgroupBuilder.getSelectExArg();
+	m_impl->dbAgent->select(arg);
 	size_t numHostgroups =
-	  m_impl->selectHostgroupArg.dataTable->getNumberOfRows();
+	  arg.dataTable->getNumberOfRows();
 	MLPL_DBG("The number of hostgroups: %zd\n", numHostgroups);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
+	HostgroupVect hostgroups;
 	HostgroupInfoList hostgroupInfoList;
 	const ItemGroupList &grpList =
-	  m_impl->selectHostgroupArg.dataTable->getItemGroupList();
+	  arg.dataTable->getItemGroupList();
+	hostgroups.reserve(grpList.size());
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
-		HostgroupInfo hostgroupInfo;
-		hostgroupInfo.id = AUTO_INCREMENT_VALUE;
-		hostgroupInfo.serverId = svInfo.id;
-		itemGroupStream >> hostgroupInfo.groupId;
-		itemGroupStream >> hostgroupInfo.groupName;
-		hostgroupInfoList.push_back(hostgroupInfo);
+		Hostgroup hostgrp;
+		int hostgroupId;
+		hostgrp.id = AUTO_INCREMENT_VALUE;
+		hostgrp.serverId = svInfo.id;
+		itemGroupStream >> hostgroupId;
+		itemGroupStream >> hostgrp.name;
+		itemGroupStream >> hostgrp.idInServer;
+		hostgroups.push_back(hostgrp);
+		m_impl->hostgroupMap[hostgroupId] = hostgrp.idInServer;
 	}
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().addHostgroupInfoList(hostgroupInfoList);
+	UnifiedDataStore::getInstance()->upsertHostgroups(hostgroups);
 }
 
 void ArmNagiosNDOUtils::getHostgroupMembers(void)
@@ -740,26 +913,60 @@ void ArmNagiosNDOUtils::getHostgroupMembers(void)
 	MLPL_DBG("The number of hostgroupMembers: %zd\n", numHostgroupMembers);
 
 	const MonitoringServerInfo &svInfo = getServerInfo();
-	HostgroupElementList hostgroupElementList;
+	HostgroupMemberVect hostgroupMembers;
 	const ItemGroupList &grpList =
 	  m_impl->selectHostgroupMembersArg.dataTable->getItemGroupList();
+	hostgroupMembers.reserve(grpList.size());
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
 		ItemGroupStream itemGroupStream(*itemGrpItr);
-		HostgroupElement hostgroupElement;
-		hostgroupElement.id = AUTO_INCREMENT_VALUE;
-		hostgroupElement.serverId = svInfo.id;
-		itemGroupStream >> hostgroupElement.groupId;
-		itemGroupStream >> hostgroupElement.hostId;
-		hostgroupElementList.push_back(hostgroupElement);
+		HostgroupMember hostgrpMember;
+		int hostId, hostgroupId;
+		itemGroupStream >> hostId;
+		itemGroupStream >> hostgroupId;
+		if (m_impl->hostMap.find(hostId) ==
+		    m_impl->hostMap.end())
+			continue;
+		if (m_impl->hostgroupMap.find(hostgroupId) ==
+		    m_impl->hostgroupMap.end())
+			continue;
+		hostgrpMember.id = AUTO_INCREMENT_VALUE;
+		hostgrpMember.serverId = svInfo.id;
+		hostgrpMember.hostIdInServer =
+		  m_impl->hostMap[hostId];
+		hostgrpMember.hostgroupIdInServer =
+		  m_impl->hostgroupMap[hostgroupId];
+		hostgrpMember.hostId =
+		  m_impl->getGlobalHostId(hostgrpMember.hostIdInServer);
+		hostgroupMembers.push_back(hostgrpMember);
 	}
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().addHostgroupElementList(hostgroupElementList);
+	UnifiedDataStore::getInstance()->upsertHostgroupMembers(hostgroupMembers);
 }
 
 void ArmNagiosNDOUtils::connect(void)
 {
 	m_impl->connect();
+}
+
+ArmBase::ArmPollingResult ArmNagiosNDOUtils::handleHatoholException(
+  const HatoholException &he)
+{
+	if (he.getErrCode() == HTERR_FAILED_CONNECT_MYSQL) {
+		MLPL_ERR("Error Connection: %s %d\n",
+			 he.what(), he.getErrCode());
+		delete m_impl->dbAgent;
+		m_impl->dbAgent = NULL;
+		return COLLECT_NG_DISCONNECT_NAGIOS;
+	} else if (he.getErrCode() == HTERR_VALID_DBAGENT_NO_LONGER_EXISTS) {
+		MLPL_ERR("DBAgentMySQL object is gone: %s %d\n",
+			 he.what(), he.getErrCode());
+		delete m_impl->dbAgent;
+		m_impl->dbAgent = NULL;
+		return COLLECT_NG_OBJECT_GONE;
+	} else {
+		MLPL_ERR("Got exception: %s\n", he.what());
+		return COLLECT_NG_INTERNAL_ERROR;
+	}
 }
 
 gpointer ArmNagiosNDOUtils::mainThread(HatoholThreadArg *arg)
@@ -781,27 +988,15 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 	try {
 		if (!m_impl->dbAgent)
 			connect();
-		if (getUpdateType() == UPDATE_ITEM_REQUEST) {
+		getHost();
+		getHostgroup();
+		getHostgroupMembers();
+		getTrigger(UnifiedDataStore::getInstance()->wasStoredHostsChanged());
+		getEvent();
+		if (!getCopyOnDemandEnabled())
 			getItem();
-		} else {
-			getTrigger();
-			getEvent();
-			getHost();
-			getHostgroup();
-			getHostgroupMembers();
-			if (!getCopyOnDemandEnabled())
-				getItem();
-		}
 	} catch (const HatoholException &he) {
-		if (he.getErrCode() == HTERR_FAILED_CONNECT_MYSQL) {
-			MLPL_ERR("Error Connection: %s %d\n", he.what(), he.getErrCode());
-			delete m_impl->dbAgent;
-			m_impl->dbAgent = NULL;
-			return COLLECT_NG_DISCONNECT_NAGIOS;
-		} else {
-			MLPL_ERR("Got exception: %s\n", he.what());
-			return COLLECT_NG_INTERNAL_ERROR;
-		}
+		return handleHatoholException(he);
 	} catch (const exception &e) {
 		MLPL_ERR("Got exception: %s\n", e.what());
 		return COLLECT_NG_INTERNAL_ERROR;
@@ -809,3 +1004,32 @@ ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProc(void)
 	return COLLECT_OK;
 }
 
+ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProcFetchItems(void)
+{
+	try {
+		if (!m_impl->dbAgent)
+			connect();
+		getItem();
+	} catch (const HatoholException &he) {
+		return handleHatoholException(he);
+	} catch (const exception &e) {
+		MLPL_ERR("Got exception: %s\n", e.what());
+		return COLLECT_NG_INTERNAL_ERROR;
+	}
+	return COLLECT_OK;
+}
+
+ArmBase::ArmPollingResult ArmNagiosNDOUtils::mainThreadOneProcFetchTriggers(void)
+{
+	try {
+		if (!m_impl->dbAgent)
+			connect();
+		getTrigger(false);
+	} catch (const HatoholException &he) {
+		return handleHatoholException(he);
+	} catch (const exception &e) {
+		MLPL_ERR("Got exception: %s\n", e.what());
+		return COLLECT_NG_INTERNAL_ERROR;
+	}
+	return COLLECT_OK;
+}

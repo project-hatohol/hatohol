@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -39,8 +39,10 @@
 #include "DBTablesConfig.h"
 #include "SessionManager.h"
 #include "ThreadLocalDBCache.h"
+#ifdef WITH_QPID
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
+#endif
 #include "RestResourceAction.h"
 #include "RestResourceHost.h"
 #include "RestResourceIncidentTracker.h"
@@ -51,7 +53,7 @@
 using namespace std;
 using namespace mlpl;
 
-int FaceRest::API_VERSION = 3;
+int FaceRest::API_VERSION = 4;
 const char *FaceRest::SESSION_ID_HEADER_NAME = "X-Hatohol-Session";
 const int FaceRest::DEFAULT_NUM_WORKERS = 4;
 
@@ -81,6 +83,17 @@ typedef map<FormatType, const char *> MimeTypeMap;
 typedef MimeTypeMap::iterator   MimeTypeMapIterator;
 static MimeTypeMap g_mimeTypeMap;
 
+// FaceRestPrivate ===========================================================
+template<>
+int scanParam(const char *value, const char *scanFmt, std::string &dest)
+{
+	if (!value)
+		return 0;
+	dest = value;
+	return !dest.empty();
+}
+
+// FaceRest ==================================================================
 struct FaceRest::Impl {
 	struct MainThreadCleaner;
 	static Mutex        lock;
@@ -89,6 +102,7 @@ struct FaceRest::Impl {
 	GMainContext       *gMainCtx;
 	FaceRestParam      *param;
 	AtomicValue<bool>   quitRequest;
+	set<string>         handlerPathSet;
 
 	// for async mode
 	bool             asyncMode;
@@ -151,6 +165,18 @@ struct FaceRest::Impl {
 		soup_server_add_handler(soupServer, path,
 					queueRestJob, factory,
 					ResourceHandlerFactory::destroy);
+		handlerPathSet.insert(path);
+	}
+
+	void removeAllHandlers(void)
+	{
+		if (!soupServer)
+			return;
+
+		set<string>::iterator it = handlerPathSet.begin();
+		for (; it != handlerPathSet.end(); it++)
+			soup_server_remove_handler(soupServer, (*it).c_str());
+		handlerPathSet.clear();
 	}
 
 	static void queueRestJob
@@ -238,7 +264,13 @@ FaceRest::FaceRest(FaceRestParam *param)
 			m_impl->port = port;
 	}
 
-	MLPL_INFO("started face-rest, port: %d\n", m_impl->port);
+	int num = ConfigManager::getInstance()->getFaceRestNumWorkers();
+	if (num > 0) {
+		setNumberOfPreLoadWorkers(num);
+	}
+
+	MLPL_INFO("started face-rest, port: %d, workers: %zu\n",
+		  m_impl->port, m_impl->numPreLoadWorkers);
 }
 
 FaceRest::~FaceRest()
@@ -249,6 +281,7 @@ FaceRest::~FaceRest()
 	if (m_impl->soupServer) {
 		SoupSocket *sock = soup_server_get_listener(m_impl->soupServer);
 		soup_socket_disconnect(sock);
+		m_impl->removeAllHandlers();
 		g_object_unref(m_impl->soupServer);
 	}
 	MLPL_INFO("FaceRest: stop process: completed.\n");
@@ -349,8 +382,8 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	if (errno == EADDRINUSE)
 		MLPL_ERR("%s", Utils::getUsingPortInfo(m_impl->port).c_str());
 	HATOHOL_ASSERT(m_impl->soupServer,
-	               "failed: soup_server_new: %u, errno: %d\n",
-	               m_impl->port, errno);
+	               "failed: soup_server_new: %u, errno: %d (%s)\n",
+	               m_impl->port, errno, g_strerror(errno));
 	soup_server_add_handler(m_impl->soupServer, NULL,
 	                        handlerDefault, this, NULL);
 	m_impl->addHandler("/hello.html",
@@ -439,8 +472,10 @@ void FaceRest::Impl::queueRestJob
 	FaceRest *face = factory->m_faceRest;
 	ResourceHandler *job = factory->createHandler();
 	bool succeeded = job->setRequest(msg, path, query, client);
-	if (!succeeded)
+	if (!succeeded) {
+		job->unref();
 		return;
+	}
 
 	job->pauseResponse();
 
@@ -525,14 +560,14 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 	gchar *user = (gchar *)g_hash_table_lookup(job->m_query, "user");
 	if (!user) {
 		MLPL_INFO("Not found: user\n");
-		job->replyError(HTERR_AUTH_FAILED);
+		job->replyError(HTERR_AUTH_FAILED, SOUP_STATUS_BAD_REQUEST);
 		return;
 	}
 	gchar *password
 	  = (gchar *)g_hash_table_lookup(job->m_query, "password");
 	if (!password) {
 		MLPL_INFO("Not found: password\n");
-		job->replyError(HTERR_AUTH_FAILED);
+		job->replyError(HTERR_AUTH_FAILED, SOUP_STATUS_BAD_REQUEST);
 		return;
 	}
 
@@ -541,7 +576,7 @@ void FaceRest::handlerLogin(ResourceHandler *job)
 	if (userId == INVALID_USER_ID) {
 		MLPL_INFO("Failed to authenticate: Client: %s, User: %s.\n",
 			  soup_client_context_get_host(job->m_client), user);
-		job->replyError(HTERR_AUTH_FAILED);
+		job->replyError(HTERR_AUTH_FAILED, SOUP_STATUS_BAD_REQUEST);
 		return;
 	}
 
@@ -812,10 +847,11 @@ uint64_t FaceRest::ResourceHandler::getResourceId(int nest)
 }
 
 void FaceRest::ResourceHandler::replyError(const HatoholErrorCode &errorCode,
-					   const string &optionMessage)
+					   const string &optionMessage,
+					   const guint &statusCode)
 {
 	HatoholError hatoholError(errorCode, optionMessage);
-	replyError(hatoholError);
+	replyError(hatoholError, statusCode);
 }
 
 static string wrapForJSONP(const string &jsonBody,
@@ -828,7 +864,8 @@ static string wrapForJSONP(const string &jsonBody,
 	return jsonp;
 }
 
-void FaceRest::ResourceHandler::replyError(const HatoholError &hatoholError)
+void FaceRest::ResourceHandler::replyError(const HatoholError &hatoholError,
+					   const guint &statusCode)
 {
 	string error
 	  = StringUtils::sprintf("%d", hatoholError.getCode());
@@ -856,7 +893,7 @@ void FaceRest::ResourceHandler::replyError(const HatoholError &hatoholError)
 	                                      MIME_JSON, NULL);
 	soup_message_body_append(m_message->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
-	soup_message_set_status(m_message, SOUP_STATUS_OK);
+	soup_message_set_status(m_message, statusCode);
 
 	m_replyIsPrepared = true;
 }
@@ -867,7 +904,8 @@ void FaceRest::ResourceHandler::replyHttpStatus(const guint &statusCode)
 	m_replyIsPrepared = true;
 }
 
-void FaceRest::ResourceHandler::replyJSONData(JSONBuilder &agent)
+void FaceRest::ResourceHandler::replyJSONData(JSONBuilder &agent,
+					      const guint &statusCode)
 {
 	string response = agent.generate();
 	if (!m_jsonpCallbackName.empty())
@@ -876,7 +914,7 @@ void FaceRest::ResourceHandler::replyJSONData(JSONBuilder &agent)
 	                                      m_mimeType, NULL);
 	soup_message_body_append(m_message->response_body, SOUP_MEMORY_COPY,
 	                         response.c_str(), response.size());
-	soup_message_set_status(m_message, SOUP_STATUS_OK);
+	soup_message_set_status(m_message, statusCode);
 
 	m_replyIsPrepared = true;
 }
@@ -899,27 +937,34 @@ static void addHostsMap(
 	HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS;
 	char *value = (char *)g_hash_table_lookup(job->m_query, "hostgroupId");
 	if (value)
-		sscanf(value, "%" FMT_HOST_GROUP_ID, &targetHostgroupId);
+		targetHostgroupId = value;
 
-	HostInfoList hostList;
+	ServerHostDefVect svHostDefVect;
 	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(serverInfo.id);
 	option.setTargetHostgroupId(targetHostgroupId);
+	// TODO:
+	// This is a workaround to show host name that was deleted in the
+	// Event page. We should save host name in Event table.
+	option.setStatus(HOST_STAT_ALL);
+
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->getHostList(hostList, option);
-	HostInfoListIterator it = hostList.begin();
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  dataStore->getServerHostDefs(svHostDefVect, option));
+	ServerHostDefVectConstIterator svHostIt = svHostDefVect.begin();
 	agent.startObject("hosts");
-	for (; it != hostList.end(); ++it) {
-		HostInfo &host = *it;
-		agent.startObject(StringUtils::toString(host.id));
-		agent.add("name", host.hostName);
+	for (; svHostIt != svHostDefVect.end(); ++svHostIt) {
+		const ServerHostDef &svHostDef = *svHostIt;
+		agent.startObject(svHostDef.hostIdInServer);
+		agent.add("name", svHostDef.name);
 		agent.endObject();
 	}
 	agent.endObject();
 }
 
 static string getTriggerBrief(
-  FaceRest::ResourceHandler *job, const ServerIdType serverId, const TriggerIdType triggerId)
+  FaceRest::ResourceHandler *job, const ServerIdType &serverId,
+  const TriggerIdType &triggerId)
 {
 	string triggerBrief;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
@@ -928,6 +973,12 @@ static string getTriggerBrief(
 	triggersQueryOption.setTargetServerId(serverId);
 	triggersQueryOption.setTargetId(triggerId);
 	dataStore->getTriggerList(triggerInfoList, triggersQueryOption);
+	if (triggerInfoList.empty()) {
+		MLPL_WARN("Failed to getTriggerInfo (Not found trigger): "
+		          "%" FMT_SERVER_ID ", %" FMT_TRIGGER_ID "\n",
+		          serverId, triggerId.c_str());
+		return "";
+	}
 
 	TriggerInfoListIterator it = triggerInfoList.begin();
 	TriggerInfo &firstTriggerInfo = *it;
@@ -939,7 +990,7 @@ static string getTriggerBrief(
 		} else {
 			MLPL_WARN("Failed to getTriggerInfo: "
 			          "%" FMT_SERVER_ID ", %" FMT_TRIGGER_ID "\n",
-			          serverId, triggerId);
+			          serverId, triggerId.c_str());
 		}
 	}
 
@@ -963,7 +1014,7 @@ static void addTriggersIdBriefHash(
 			triggerBrief = getTriggerBrief(job,
 						       serverId,
 						       triggerId);
-		agent.startObject(StringUtils::toString(triggerId));
+		agent.startObject(triggerId);
 		agent.add("brief", triggerBrief);
 		agent.endObject();
 	}
@@ -972,13 +1023,12 @@ static void addTriggersIdBriefHash(
 
 HatoholError FaceRest::ResourceHandler::addHostgroupsMap(
   JSONBuilder &outputJSON, const MonitoringServerInfo &serverInfo,
-  HostgroupInfoList &hostgroupList)
+  HostgroupVect &hostgroups)
 {
 	HostgroupsQueryOption option(m_dataQueryContextPtr);
 	option.setTargetServerId(serverInfo.id);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->getHostgroupInfoList(hostgroupList,
-	                                                   option);
+	HatoholError err = dataStore->getHostgroups(hostgroups, option);
 	if (err != HTERR_OK) {
 		MLPL_ERR("Error: %d, user ID: %" FMT_USER_ID ", "
 		         "sv ID: %" FMT_SERVER_ID "\n",
@@ -986,12 +1036,11 @@ HatoholError FaceRest::ResourceHandler::addHostgroupsMap(
 		return err;
 	}
 
-	HostgroupInfoListIterator it = hostgroupList.begin();
-	for (; it != hostgroupList.end(); ++it) {
-		const HostgroupInfo &hostgroupInfo = *it;
-		outputJSON.startObject(
-		  StringUtils::toString(hostgroupInfo.groupId));
-		outputJSON.add("name", hostgroupInfo.groupName);
+	HostgroupVectConstIterator it = hostgroups.begin();
+	for (; it != hostgroups.end(); ++it) {
+		const Hostgroup &hostgrp = *it;
+		outputJSON.startObject(hostgrp.idInServer);
+		outputJSON.add("name", hostgrp.name);
 		outputJSON.endObject();
 	}
 	return HTERR_OK;
@@ -1004,17 +1053,28 @@ void FaceRest::ResourceHandler::addServersMap(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	MonitoringServerInfoList monitoringServers;
 	ServerQueryOption option(m_dataQueryContextPtr);
-	dataStore->getTargetServers(monitoringServers, option);
+	ArmPluginInfoVect armPluginInfoVect;
+	dataStore->getTargetServers(monitoringServers, option,
+	                            &armPluginInfoVect);
 
 	HatoholError err;
 	agent.startObject("servers");
 	MonitoringServerInfoListIterator it = monitoringServers.begin();
-	for (; it != monitoringServers.end(); ++it) {
+	ArmPluginInfoVectConstIterator pluginIt = armPluginInfoVect.begin();
+	HATOHOL_ASSERT(monitoringServers.size() == armPluginInfoVect.size(),
+	               "The number of elements differs: %zd, %zd",
+	               monitoringServers.size(), armPluginInfoVect.size());
+	for (; it != monitoringServers.end(); ++it, ++pluginIt) {
 		const MonitoringServerInfo &serverInfo = *it;
 		agent.startObject(StringUtils::toString(serverInfo.id));
 		agent.add("name", serverInfo.hostName);
+		agent.add("nickname", serverInfo.nickname);
 		agent.add("type", serverInfo.type);
 		agent.add("ipAddress", serverInfo.ipAddress);
+		agent.add("baseURL", serverInfo.baseURL);
+		if (pluginIt->id != INVALID_ARM_PLUGIN_INFO_ID) {
+			agent.add("uuid", pluginIt->uuid);
+		}
 		addHostsMap(this, agent, serverInfo);
 		if (triggerMaps) {
 			addTriggersIdBriefHash(this, agent, serverInfo,
@@ -1022,11 +1082,9 @@ void FaceRest::ResourceHandler::addServersMap(
 			                       lookupTriggerBrief);
 		}
 		agent.startObject("groups");
-		// Even if the following function retrun an error,
-		// We cannot do anything. The receiver (client) should handle
-		// the returned empty or unperfect group information.
-		HostgroupInfoList hostgroupList;
-		addHostgroupsMap(agent, serverInfo, hostgroupList);
+		HostgroupVect hostgroups;
+		THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+		  addHostgroupsMap(agent, serverInfo, hostgroups));
 		agent.endObject(); // "gropus"
 		agent.endObject(); // toString(serverInfo.id)
 	}

@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -93,7 +93,7 @@ static string makeExpectedDBOutLine(
   const size_t &idx, const ArmPluginInfo &armPluginInfo)
 {
 	string s = StringUtils::sprintf(
-	  "%zd|%d|%s|%s|%s|%" FMT_SERVER_ID "|%s|%s|%s|%d",
+	  "%zd|%d|%s|%s|%s|%" FMT_SERVER_ID "|%s|%s|%s|%d|%s",
 	  (idx + 1), // armPluginInfo.id
 	  armPluginInfo.type,
 	  armPluginInfo.path.c_str(),
@@ -103,7 +103,8 @@ static string makeExpectedDBOutLine(
 	  armPluginInfo.tlsCertificatePath.c_str(),
 	  armPluginInfo.tlsKeyPath.c_str(),
 	  armPluginInfo.tlsCACertificatePath.c_str(),
-	  armPluginInfo.tlsEnableVerify);
+	  armPluginInfo.tlsEnableVerify,
+	  armPluginInfo.uuid.c_str());
 	return s;
 }
 
@@ -175,7 +176,7 @@ void test_createTableSystem(void)
 	const string tableName = "system";
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	assertCreateTable(&dbConfig.getDBAgent(), tableName);
-	
+
 	// check content
 	string statement = "select * from " + tableName;
 	const char *expectedDatabasePath = "''";
@@ -210,15 +211,20 @@ void test_registerServerType(void)
 	svTypeInfo.name = "Fake Monitor";
 	svTypeInfo.parameters = "IP address|port|Username|Password";
 	svTypeInfo.pluginPath = "/usr/bin/hoge-ta-hoge-taro";
+	svTypeInfo.pluginSQLVersion = 2;
+	svTypeInfo.pluginEnabled = true;
 	dbConfig.registerServerType(svTypeInfo);
 
 	// check content
 	const string statement = "SELECT * FROM server_types";
 	const string expectedOut =
-	  StringUtils::sprintf("%d|%s|%s|%s\n",
+	  StringUtils::sprintf("%d|%s|%s|%s|%d|%d|%s\n",
 	                       svTypeInfo.type, svTypeInfo.name.c_str(),
 	                       svTypeInfo.parameters.c_str(),
-	                       svTypeInfo.pluginPath.c_str());
+	                       svTypeInfo.pluginPath.c_str(),
+	                       svTypeInfo.pluginSQLVersion,
+	                       svTypeInfo.pluginEnabled,
+			       svTypeInfo.uuid.c_str());
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
@@ -232,15 +238,20 @@ void test_registerServerTypeUpdate(void)
 	svTypeInfo.name = "Fake Monitor (updated version)";
 	svTypeInfo.parameters = "IP address|port|Username|Password|Group";
 	svTypeInfo.pluginPath = "/usr/bin/hoge-ta-hoge-taro";
+	svTypeInfo.pluginSQLVersion = 3;
+	svTypeInfo.pluginEnabled = false;
 	dbConfig.registerServerType(svTypeInfo);
 
 	// check content
 	const string statement = "SELECT * FROM server_types";
 	const string expectedOut =
-	  StringUtils::sprintf("%d|%s|%s|%s\n",
+	  StringUtils::sprintf("%d|%s|%s|%s|%d|%d|%s\n",
 	                       svTypeInfo.type, svTypeInfo.name.c_str(),
 	                       svTypeInfo.parameters.c_str(),
-	                       svTypeInfo.pluginPath.c_str());
+	                       svTypeInfo.pluginPath.c_str(),
+	                       svTypeInfo.pluginSQLVersion,
+	                       svTypeInfo.pluginEnabled,
+			       svTypeInfo.uuid.c_str());
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
@@ -266,7 +277,7 @@ void test_getDefaultPluginPath(gconstpointer data)
 {
 	const string expect = gcut_data_get_string(data, "expect") ? : "";
 	const string actual = DBTablesConfig::getDefaultPluginPath(
-	    (MonitoringSystemType)gcut_data_get_int(data, "type"));
+	    (MonitoringSystemType)gcut_data_get_int(data, "type"), "");
 	cppcut_assert_equal(expect, actual);
 }
 
@@ -289,9 +300,11 @@ void test_getServerType(void)
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	for (size_t i = 0; i < NumTestServerTypeInfo; i++) {
 		const ServerTypeInfo &expect = testServerTypeInfo[i];
+		if (expect.type == MONITORING_SYSTEM_HAPI2)
+			continue;
 		ServerTypeInfo actual;
 		cppcut_assert_equal(true,
-		   dbConfig.getServerType(actual, expect.type));
+		  dbConfig.getServerType(actual, expect.type, expect.uuid));
 		cppcut_assert_equal(expect.type, actual.type);
 		cppcut_assert_equal(expect.name, actual.name);
 		cppcut_assert_equal(expect.parameters, actual.parameters);
@@ -306,7 +319,7 @@ void test_getServerTypeExpectFalse(void)
 	const MonitoringSystemType type = NUM_MONITORING_SYSTEMS;
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	ServerTypeInfo actual;
-	cppcut_assert_equal(false, dbConfig.getServerType(actual, type));
+	cppcut_assert_equal(false, dbConfig.getServerType(actual, type, ""));
 }
 
 void test_createTableServers(void)
@@ -341,13 +354,13 @@ cut_trace(_assertAddTargetServer(I,E,##__VA_ARGS__))
 
 void test_addTargetServer(void)
 {
-	MonitoringServerInfo *testInfo = testServerInfo;
+	const MonitoringServerInfo *testInfo = testServerInfo;
 	assertAddTargetServer(*testInfo, HTERR_OK);
 }
 
 void test_addTargetServerWithoutPrivilege(void)
 {
-	MonitoringServerInfo *testInfo = testServerInfo;
+	const MonitoringServerInfo *testInfo = testServerInfo;
 	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
 	OperationPrivilege::removeFlag(privilege, OPPRVLG_CREATE_SERVER);
 	assertAddTargetServer(*testInfo, HTERR_NO_PRIVILEGE, privilege);
@@ -461,6 +474,86 @@ void test_addTargetServerWithEmptyIPAddressAndHostname(void)
 	assertAddTargetServer(testInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
 }
 
+void data_addTargetServerWithValidPollingInterval(void)
+{
+	int	n = MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC;
+	string	s = StringUtils::sprintf("MIN (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC;
+	s = StringUtils::sprintf("MAX (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC - 1;
+	s = StringUtils::sprintf("MIN-1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT,
+		       (int)HTERR_INVALID_POLLING_INTERVAL,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC + 1;
+	s = StringUtils::sprintf("MAX+1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_INVALID_POLLING_INTERVAL,
+		       NULL);
+}
+
+void test_addTargetServerWithValidPollingInterval(gconstpointer data)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.pollingIntervalSec = gcut_data_get_int(data, "data");
+	assertAddTargetServer(testInfo,
+		(HatoholErrorCode)gcut_data_get_int(data, "expect"));
+}
+
+void data_addTargetServerWithValidRetryInterval(void)
+{
+	int	n = MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC;
+	string	s = StringUtils::sprintf("MIN (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC;
+	s = StringUtils::sprintf("MAX (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC - 1;
+	s = StringUtils::sprintf("MIN-1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_INVALID_RETRY_INTERVAL,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC + 1;
+	s = StringUtils::sprintf("MAX+1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT,
+		       (int)HTERR_INVALID_RETRY_INTERVAL,
+		       NULL);
+}
+
+void test_addTargetServerWithValidRetryInterval(gconstpointer data)
+{
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.retryIntervalSec = gcut_data_get_int(data, "data");
+	assertAddTargetServer(testInfo,
+		(HatoholErrorCode)gcut_data_get_int(data, "expect"));
+}
+
 void _assertUpdateTargetServer(
   MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode,
   OperationPrivilege privilege = ALL_PRIVILEGES)
@@ -503,7 +596,7 @@ void test_updateTargetServerWithoutPrivilege(void)
 	MonitoringServerInfo serverInfo = testServerInfo[0];
 	serverInfo.id = targetId;
 	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
-	OperationPrivilegeFlag updateFlags = 
+	OperationPrivilegeFlag updateFlags =
 	 (1 << OPPRVLG_UPDATE_SERVER) | (1 << OPPRVLG_UPDATE_ALL_SERVER);
 	privilege &= ~updateFlags;
 	assertUpdateTargetServer(
@@ -519,6 +612,88 @@ void test_updateTargetServerWithNoHostNameAndIPAddress(void)
 	serverInfo.ipAddress = "";
 	assertUpdateTargetServer(
 	  serverInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
+}
+
+void data_updateTargetServerWithValidPollingInterval(void)
+{
+	int	n = MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC;
+	string	s = StringUtils::sprintf("MIN (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC;
+	s = StringUtils::sprintf("MAX (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MIN_POLLING_INTERVAL_SEC - 1;
+	s = StringUtils::sprintf("MIN-1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_INVALID_POLLING_INTERVAL,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_POLLING_INTERVAL_SEC + 1;
+	s = StringUtils::sprintf("MAX+1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_INVALID_POLLING_INTERVAL,
+		       NULL);
+}
+
+void test_updateTargetServerWithValidPollingInterval(gconstpointer data)
+{
+	int targetId = 2;
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.id = targetId;
+	testInfo.pollingIntervalSec = gcut_data_get_int(data, "data");
+	assertUpdateTargetServer(testInfo,
+		(HatoholErrorCode)gcut_data_get_int(data, "expect"));
+}
+
+void data_updateTargetServerWithValidRetryInterval(void)
+{
+	int	n = MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC;
+	string	s = StringUtils::sprintf("MIN (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC;
+	s = StringUtils::sprintf("MAX (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_OK,
+		       NULL);
+
+	n = MonitoringServerInfo::MIN_RETRY_INTERVAL_SEC - 1;
+	s = StringUtils::sprintf("MIN-1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_INVALID_RETRY_INTERVAL,
+		       NULL);
+
+	n = MonitoringServerInfo::MAX_RETRY_INTERVAL_SEC + 1;
+	s = StringUtils::sprintf("MAX+1 (%d)", n);
+	gcut_add_datum(s.c_str(),
+		       "data", G_TYPE_INT, n,
+		       "expect", G_TYPE_INT, (int)HTERR_INVALID_RETRY_INTERVAL,
+		       NULL);
+}
+
+void test_updateTargetServerWithValidRetryInterval(gconstpointer data)
+{
+	int targetId = 2;
+	MonitoringServerInfo testInfo = testServerInfo[0];
+	testInfo.id = targetId;
+	testInfo.retryIntervalSec = gcut_data_get_int(data, "data");
+	assertUpdateTargetServer(testInfo,
+		(HatoholErrorCode)gcut_data_get_int(data, "expect"));
 }
 
 void data_deleteTargetServer(void)
@@ -581,8 +756,10 @@ static void prepareGetServer(
 		if (isAuthorized(authMap, userId, testServerInfo[i].id))
 			expected.push_back(testServerInfo[i]);
 
-	for (size_t i = 0; i < NumTestServerInfo; i++)
-		assertAddServerToDB(&testServerInfo[i]);
+	for (size_t i = 0; i < NumTestServerInfo; i++) {
+		MonitoringServerInfo svInfo = testServerInfo[i];
+		assertAddServerToDB(&svInfo);
+	}
 }
 
 void _assertGetTargetServers(
@@ -666,7 +843,7 @@ void test_getTargetServersWithArmPlugin(void)
 	ArmPluginInfoVect armPluginInfoVect;
 	MonitoringServerInfoList serverInfoList;
 	assertGetTargetServers(userId, &armPluginInfoVect, &serverInfoList);
-	
+
 	cppcut_assert_equal(serverInfoList.size(), armPluginInfoVect.size());
 	MonitoringServerInfoListIterator svInfoIt = serverInfoList.begin();
 	ArmPluginInfoVectConstIterator pluginIt = armPluginInfoVect.begin();
@@ -678,7 +855,7 @@ void test_getTargetServersWithArmPlugin(void)
 			                    pluginIt->id);
 			continue;
 		}
-		const ArmPluginInfo &expect = testArmPluginInfo[index];
+		const ArmPluginInfo &expect = getTestArmPluginInfo()[index];
 		const int expectId = index + 1;
 		assertArmPluginInfo(expect, *pluginIt, &expectId);
 		numValidPluginInfo++;
@@ -845,7 +1022,7 @@ void test_getArmPluginInfo(void)
 	cppcut_assert_equal((size_t)NumTestArmPluginInfo,
 	                    armPluginInfoVect.size());
 	for (size_t i = 0; i < armPluginInfoVect.size(); i++) {
-		const ArmPluginInfo &expect = testArmPluginInfo[i];
+		const ArmPluginInfo &expect = getTestArmPluginInfo()[i];
 		const ArmPluginInfo &actual = armPluginInfoVect[i];
 		const int expectId = i + 1;
 		assertArmPluginInfo(expect, actual, &expectId);
@@ -859,7 +1036,7 @@ void test_getArmPluginInfoWithType(void)
 
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	const int targetIdx = 0;
-	const ArmPluginInfo &expect = testArmPluginInfo[targetIdx];
+	const ArmPluginInfo &expect = getTestArmPluginInfo()[targetIdx];
 	ArmPluginInfo armPluginInfo;
 	cppcut_assert_equal(true, dbConfig.getArmPluginInfo(armPluginInfo,
 	                                                    expect.serverId));
@@ -887,7 +1064,7 @@ void test_saveArmPluginInfo(void)
 void test_saveArmPluginInfoWithInvalidType(void)
 {
 	DECLARE_DBTABLES_CONFIG(dbConfig);
-	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
+	ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[0];
 	armPluginInfo.type = MONITORING_SYSTEM_NAGIOS;
 	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_TYPE,
 	                   dbConfig.saveArmPluginInfo(armPluginInfo));
@@ -896,7 +1073,7 @@ void test_saveArmPluginInfoWithInvalidType(void)
 void test_saveArmPluginInfoWithNoPath(void)
 {
 	DECLARE_DBTABLES_CONFIG(dbConfig);
-	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
+	ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[0];
 	armPluginInfo.path = "";
 	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_PATH,
 	                   dbConfig.saveArmPluginInfo(armPluginInfo));
@@ -907,7 +1084,7 @@ void test_saveArmPluginInfoInvalidId(void)
 	loadTestDBArmPlugin();
 
 	DECLARE_DBTABLES_CONFIG(dbConfig);
-	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
+	ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[0];
 	armPluginInfo.id = NumTestArmPluginInfo + 100;
 	HatoholError err = dbConfig.saveArmPluginInfo(armPluginInfo);
 	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_ID, err);
@@ -919,7 +1096,7 @@ void test_saveArmPluginInfoUpdate(void)
 
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	const size_t targetIdx = 1;
-	ArmPluginInfo armPluginInfo = testArmPluginInfo[targetIdx];
+	ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[targetIdx];
 	armPluginInfo.id = targetIdx + 1;
 	armPluginInfo.path = "/usr/lib/dog";
 	armPluginInfo.brokerUrl = "abc.example.com:28765";
@@ -935,7 +1112,7 @@ void test_saveArmPluginInfoUpdate(void)
 		if (i == targetIdx)
 			expect += makeExpectedDBOutLine(i, armPluginInfo);
 		else
-			expect += makeExpectedDBOutLine(i, testArmPluginInfo[i]);
+			expect += makeExpectedDBOutLine(i, getTestArmPluginInfo()[i]);
 		if (i < NumTestArmPluginInfo - 1)
 			expect += "\n";
 	}
@@ -983,7 +1160,7 @@ cut_trace(_assertAddIncidentTracker(I,E,##__VA_ARGS__))
 
 void test_addIncidentTracker(void)
 {
-	IncidentTrackerInfo *testInfo = testIncidentTrackerInfo;
+	const IncidentTrackerInfo *testInfo = testIncidentTrackerInfo;
 	assertAddIncidentTracker(*testInfo, HTERR_OK);
 }
 
@@ -992,7 +1169,7 @@ void test_addIncidentTrackerWithoutPrivilege(void)
 	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
 	OperationPrivilege::removeFlag(
 	  privilege, OPPRVLG_CREATE_INCIDENT_SETTING);
-	IncidentTrackerInfo *testInfo = testIncidentTrackerInfo;
+	const IncidentTrackerInfo *testInfo = testIncidentTrackerInfo;
 	assertAddIncidentTracker(*testInfo, HTERR_NO_PRIVILEGE, privilege);
 }
 
@@ -1088,7 +1265,7 @@ void _assertGetIncidentTrackers(
 	size_t expectedSize = 0;
 	OperationPrivilege privilege(userId);
 	for (size_t i = 0; i < NumTestIncidentTrackerInfo; i++) {
-		IncidentTrackerInfo &info = testIncidentTrackerInfo[i];
+		IncidentTrackerInfo info = testIncidentTrackerInfo[i];
 		assertAddIncidentTrackerToDB(&info);
 		if (!privilege.has(OPPRVLG_GET_ALL_INCIDENT_SETTINGS))
 			continue;

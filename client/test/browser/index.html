@@ -4,7 +4,12 @@
 <link rel="stylesheet" href="mocha.css" />
 <script src="../../static/js.external/jquery.js"></script>
 <script src="../../static/js.external/jquery-ui.min.js"></script>
+<script src="../../static/js.external/jquery-ui-slider-pips.min.js"></script>
+<script src="../../static/js.external/jquery-deparam.min.js"></script>
 <script src="../../static/js.external/stupidtable.js"></script>
+<script src="../../static/js.external/jquery.flot.js"></script>
+<script src="../../static/js.external/jquery.flot.time.js"></script>
+<script src="../../static/js.external/bootstrap.js"></script>
 <script src="mocha.js"></script>
 <script src="expect.js"></script>
 <script>mocha.setup('bdd');</script>
@@ -15,8 +20,8 @@
     return msg;
   }
 </script>
-<script src="../../static/js/utils.js"></script>
 <script src="../../static/js/hatohol_def.js"></script>
+<script src="../../static/js/utils.js"></script>
 <script src="../../static/js/hatohol_message_box.js"></script>
 <script src="../../static/js/hatohol_session_manager.js"></script>
 <script src="../../static/js/hatohol_dialog.js"></script>
@@ -31,12 +36,30 @@
 <script src="../../static/js/hatohol_password_changer.js"></script>
 <script src="../../static/js/hatohol_user_edit_dialog.js"></script>
 <script src="../../static/js/hatohol_monitoring_view.js"></script>
+<script src="../../static/js/hatohol_history_loader.js"></script>
+<script src="../../static/js/hatohol_graph.js"></script>
+<script src="../../static/js/hatohol_item_selector.js"></script>
+<script src="../../static/js/hatohol_time_range_selector.js"></script>
 <script src="../../static/js/hatohol_version.js"></script>
 <script src="../../static/js/servers_view.js"></script>
 <script src="../../static/js/events_view.js"></script>
 <script src="../../static/js/users_view.js"></script>
 <script src="../../static/js/actions_view.js"></script>
 <script src="../../static/js/incident_settings_view.js"></script>
+<script src="../../static/js/latest_view.js"></script>
+<script src="../../static/js/overview_items.js"></script>
+<script src="../../static/js/history_view.js"></script>
+<script src="../../static/js/log_search_systems_view.js"></script>
+<script src="../../static/js/graphs_view.js"></script>
+<script src="../../static/js/triggers_view.js"></script>
+<script src="../../static/js.plugins/zabbix.js"></script>
+<script src="../../static/js.plugins/nagios.js"></script>
+<script src="../../static/js.plugins/hap1-zabbix.js"></script>
+<script src="../../static/js.plugins/hap1-ceilometer.js"></script>
+<script src="../../static/js.plugins/hapi-json.js"></script>
+<script src="../../static/js.plugins/hap2-fluentd.js"></script>
+<script src="../../static/js.plugins/hap2-ceilometer.js"></script>
+<script src="../../static/js.plugins/hap2-zabbix.js"></script>
 <script src="test_hatohol_session_manager.js"></script>
 <script src="test_hatohol_connector.js"></script>
 <script src="test_hatohol_reply_parser.js"></script>
@@ -54,6 +77,15 @@
 <script src="test_users_view.js"></script>
 <script src="test_actions_view.js"></script>
 <script src="test_incident_settings_view.js"></script>
+<script src="test_latest_view.js"></script>
+<script src="test_overview_items.js"></script>
+<script src="test_history_view.js"></script>
+<script src="test_log_search_systems_view.js"></script>
+<script src="test_graphs_view.js"></script>
+<script src="test_triggers_view.js"></script>
+<script src="test_hap2_fluentd.js"></script>
+<script src="test_hap2_ceilometer.js"></script>
+<script src="test_hap2_zabbix.js"></script>
 <script>
   $(function(){
     if (window.mochaPhantomJS)

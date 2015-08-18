@@ -4,21 +4,25 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <mysql/errmsg.h>
 #include <unistd.h>
+#include <semaphore.h>
+#include <errno.h>
+#include <AtomicValue.h>
+#include <SimpleSemaphore.h>
 #include "DBAgentMySQL.h"
 #include "SQLUtils.h"
 #include "SeparatorInjector.h"
@@ -41,11 +45,15 @@ struct DBAgentMySQL::Impl {
 	string host;
 	unsigned int port;
 	bool inTransaction;
+	AtomicValue<bool> disposed;
+	SimpleSemaphore waitSem;
 
 	Impl(void)
 	: connected(false),
 	  port(0),
-	  inTransaction(false)
+	  inTransaction(false),
+	  disposed(false),
+	  waitSem(0)
 	{
 	}
 
@@ -55,7 +63,7 @@ struct DBAgentMySQL::Impl {
 			mysql_close(&mysql);
 		}
 	}
-	
+
 	bool shouldRetry(unsigned int errorNumber)
 	{
 		return retryErrorSet.find(errorNumber) != retryErrorSet.end();
@@ -75,7 +83,6 @@ void DBAgentMySQL::init(void)
 		MLPL_INFO("Use memory engine\n");
 		Impl::engineStr = " ENGINE=MEMORY";
 	}
-
 	Impl::retryErrorSet.insert(CR_SERVER_GONE_ERROR);
 }
 
@@ -92,7 +99,7 @@ DBAgentMySQL::DBAgentMySQL(const char *db, const char *user, const char *passwd,
 	if (!m_impl->connected) {
 		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
 		  HTERR_FAILED_CONNECT_MYSQL,
-		  "Failed to connect to MySQL: %s: %s\n", 
+		  "Failed to connect to MySQL: %s: %s\n",
 		  db, mysql_error(&m_impl->mysql));
 	}
 }
@@ -284,7 +291,7 @@ void DBAgentMySQL::createTable(const TableProfile &tableProfile)
 	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
 	string query = StringUtils::sprintf("CREATE TABLE %s (",
 	                                    tableProfile.name);
-	
+
 	for (size_t i = 0; i < tableProfile.numColumns; i++) {
 		const ColumnDef &columnDef = tableProfile.columnDefs[i];
 		query += getColumnDefinitionQuery(columnDef);
@@ -306,44 +313,6 @@ void DBAgentMySQL::createTable(const TableProfile &tableProfile)
 void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 {
 	using mlpl::StringUtils::sprintf;
-	struct {
-		string operator ()(const DBAgent::InsertArg &insertArg,
-		                   const size_t &idx, MYSQL *mysql)
-		{
-			const ColumnDef &columnDef =
-			  insertArg.tableProfile.columnDefs[idx];
-			const ItemData *itemData = insertArg.row->getItemAt(idx);
-			if (itemData->isNull())
-				return "NULL";
-
-			switch (columnDef.type) {
-			case SQL_COLUMN_TYPE_INT:
-			case SQL_COLUMN_TYPE_BIGUINT:
-			case SQL_COLUMN_TYPE_DOUBLE:
-				return itemData->getString();
-
-			case SQL_COLUMN_TYPE_VARCHAR:
-			case SQL_COLUMN_TYPE_CHAR:
-			case SQL_COLUMN_TYPE_TEXT:
-			{ // bracket is used to avoid an error:
-			  // jump to case label
-				string src = itemData->getString();
-				char *escaped = new char[src.size() * 2 + 1]; 
-				mysql_real_escape_string(
-				  mysql, escaped, src.c_str(), src.size());
-				string val = sprintf("'%s'", escaped);
-				delete [] escaped;
-				return val;
-			}
-			case SQL_COLUMN_TYPE_DATETIME:
-				return makeDatetimeString(*itemData);
-			default:
-				HATOHOL_ASSERT(false, "Unknown type: %d",
-				               columnDef.type);
-			return "";
-			}
-		}
-	} valueMaker;
 
 	const size_t numColumns = insertArg.tableProfile.numColumns;
 	HATOHOL_ASSERT(m_impl->connected, "Not connected.");
@@ -361,6 +330,9 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 	}
 
 	vector<string> values;
+#if MYSQL_VERSION_ID < 50112
+	string valueForLastId; // To save the string body.
+#endif
 	values.reserve(numColumns);
 	struct UpdateParam {
 		const char *column;
@@ -370,14 +342,30 @@ void DBAgentMySQL::insert(const DBAgent::InsertArg &insertArg)
 
 	for (size_t i = 0; i < numColumns; i++) {
 		const ColumnDef &columnDef = insertArg.tableProfile.columnDefs[i];
-		values.push_back(valueMaker(insertArg, i, &m_impl->mysql));
+		const ItemData *itemData = insertArg.row->getItemAt(i);
+		values.push_back(getColumnValueString(&columnDef, itemData));
 		if (!insertArg.upsertOnDuplicate)
 			continue;
 
+		const char *valuePtr = NULL;
+#if MYSQL_VERSION_ID < 50112
+		if (columnDef.keyType == SQL_KEY_PRI) {
+		// A technique to get the last insert ID when update is done.
+		// http://dev.mysql.com/doc/refman/5.1/en/insert-on-duplicate.html
+			valueForLastId =
+			   StringUtils::sprintf("LAST_INSERT_ID(%s)",
+			                        columnDef.columnName);
+			valuePtr = valueForLastId.c_str();
+		} else {
+			valuePtr = values.back().c_str();
+		}
+#else
 		if (columnDef.keyType == SQL_KEY_PRI)
 			continue;
+		valuePtr = values.back().c_str();
+#endif
 		updateParams[updateParamIdx].column = columnDef.columnName;
-		updateParams[updateParamIdx].value  = values.back().c_str();
+		updateParams[updateParamIdx].value  = valuePtr;
 		updateParamIdx++;
 	}
 	updateParams[updateParamIdx].column = NULL;
@@ -502,6 +490,7 @@ uint64_t DBAgentMySQL::getLastInsertId(void)
 	HATOHOL_ASSERT(row, "Failed to call mysql_fetch_row.");
 	uint64_t id;
 	int numScan = sscanf(row[0], "%" PRIu64, &id);
+	mysql_free_result(result);
 	HATOHOL_ASSERT(numScan == 1, "numScan: %d, %s", numScan, row[0]);
 	return id;
 }
@@ -514,6 +503,14 @@ uint64_t DBAgentMySQL::getNumberOfAffectedRows(void)
 	// doesn't return an error.
 	//   http://dev.mysql.com/doc/refman/5.1/en/mysql-affected-rows.html
 	return num;
+}
+
+bool DBAgentMySQL::lastUpsertDidUpdate(void)
+{
+	uint64_t numAffectedRows = getNumberOfAffectedRows();
+	HATOHOL_ASSERT(numAffectedRows >= 0 && numAffectedRows <= 2,
+	               "numAffectedRows: %" PRIu64, numAffectedRows);
+	return numAffectedRows == 2;
 }
 
 void DBAgentMySQL::addColumns(const AddColumnsArg &addColumnsArg)
@@ -536,10 +533,38 @@ void DBAgentMySQL::addColumns(const AddColumnsArg &addColumnsArg)
 	execSql(query);
 }
 
+void DBAgentMySQL::changeColumnDef(const TableProfile &tableProfile,
+				   const string &oldColumnName,
+				   const size_t &columnIndex)
+{
+	string query = "ALTER TABLE ";
+	query += tableProfile.name;
+	query += " CHANGE ";
+	query += oldColumnName;
+	query += " ";
+	query += getColumnDefinitionQuery(tableProfile.columnDefs[columnIndex]);
+	execSql(query);
+}
+
+void DBAgentMySQL::dropPrimaryKey(const std::string &tableName)
+{
+	string query = "ALTER TABLE ";
+	query += tableName;
+	query += " DROP PRIMARY KEY";
+	execSql(query);
+}
+
 void DBAgentMySQL::renameTable(const string &srcName, const string &destName)
 {
 	string query = makeRenameTableStatement(srcName, destName);
 	execSql(query);
+}
+
+void DBAgentMySQL::dispose(void)
+{
+	m_impl->disposed = true;
+
+	m_impl->waitSem.post();
 }
 
 // ---------------------------------------------------------------------------
@@ -559,6 +584,7 @@ void DBAgentMySQL::connect(void)
 	const char *passwd = getCStringOrNullIfEmpty(m_impl->password);
 	const char *db     = getCStringOrNullIfEmpty(m_impl->dbName);
 	mysql_init(&m_impl->mysql);
+	mysql_options(&m_impl->mysql, MYSQL_READ_DEFAULT_GROUP, "hatohol");
 	MYSQL *result = mysql_real_connect(&m_impl->mysql, host, user, passwd,
 	                                   db, m_impl->port,
 	                                   unixSocket, clientFlag);
@@ -573,19 +599,22 @@ void DBAgentMySQL::connect(void)
 
 void DBAgentMySQL::sleepAndReconnect(unsigned int sleepTimeSec)
 {
-	// TODO:
-	// add mechanism to wake up immediately if the program is
-	// going to exit. We should make an interrputible sleep object
-	// which is similar to ArmBase::sleepInterruptible().
-	while (sleepTimeSec) {
-		// If a signal happens during the sleep(), it returns
-		// the remaining time.
-		sleepTimeSec = sleep(sleepTimeSec);
-	}
+	m_impl->waitSem.timedWait(sleepTimeSec * 1000);
 
 	mysql_close(&m_impl->mysql);
 	m_impl->connected = false;
 	connect();
+}
+
+bool DBAgentMySQL::throwExceptionIfDisposed(void) const
+{
+	if (m_impl->disposed) {
+		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+			HTERR_VALID_DBAGENT_NO_LONGER_EXISTS,
+			"Valid DBAgentMySQL no longer exists.\n");
+	}
+
+	return m_impl->disposed;
 }
 
 void DBAgentMySQL::queryWithRetry(const string &statement)
@@ -593,6 +622,8 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 	unsigned int errorNumber = 0;
 	size_t numRetry = DEFAULT_NUM_RETRY;
 	for (size_t i = 0; i < numRetry; i++) {
+		if (throwExceptionIfDisposed())
+			break;
 		if (mysql_query(&m_impl->mysql, statement.c_str()) == 0) {
 			if (i >= 1) {
 				MLPL_INFO("Recoverd: %s (retry #%zd).\n",
@@ -614,6 +645,8 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 		// retry repeatedly until the connection is established or
 		// the maximum retry count.
 		for (; i < numRetry; i++) {
+			if (throwExceptionIfDisposed())
+				break;
 			size_t sleepTimeSec = RETRY_INTERVAL[i];
 			MLPL_INFO("Try to connect after %zd sec. (%zd/%zd)\n",
 			          sleepTimeSec, i+1, numRetry);
@@ -632,6 +665,41 @@ void DBAgentMySQL::queryWithRetry(const string &statement)
 		THROW_HATOHOL_EXCEPTION("Failed to query: %s: (%u) %s\n",
 					statement.c_str(), errorNumber,
 					mysql_error(&m_impl->mysql));
+	}
+}
+
+string DBAgentMySQL::getColumnValueString(const ColumnDef *columnDef,
+					  const ItemData *itemData)
+{
+	using mlpl::StringUtils::sprintf;
+
+	if (itemData->isNull())
+		return "NULL";
+
+	switch (columnDef->type) {
+	case SQL_COLUMN_TYPE_INT:
+	case SQL_COLUMN_TYPE_BIGUINT:
+	case SQL_COLUMN_TYPE_DOUBLE:
+		return itemData->getString();
+
+	case SQL_COLUMN_TYPE_VARCHAR:
+	case SQL_COLUMN_TYPE_CHAR:
+	case SQL_COLUMN_TYPE_TEXT:
+	{ // bracket is used to avoid an error:
+	  // jump to case label
+		string src = itemData->getString();
+		char *escaped = new char[src.size() * 2 + 1];
+		mysql_real_escape_string(&m_impl->mysql, escaped, src.c_str(), src.size());
+		string val = sprintf("'%s'", escaped);
+		delete [] escaped;
+		return val;
+	}
+	case SQL_COLUMN_TYPE_DATETIME:
+		return makeDatetimeString(*itemData);
+	default:
+		HATOHOL_ASSERT(false, "Unknown type: %d",
+			       columnDef->type);
+		return "";
 	}
 }
 
@@ -677,7 +745,7 @@ void DBAgentMySQL::getIndexInfoVect(vector<IndexInfo> &indexInfoVect,
 		ColumnIndexDict(const TableProfile &tableProfile)
 		{
 			for (size_t i = 0; i < tableProfile.numColumns; i++) {
-				const ColumnDef &columnDef = 
+				const ColumnDef &columnDef =
 				  tableProfile.columnDefs[i];
 				dict[columnDef.columnName] = i;
 			}
@@ -699,7 +767,7 @@ void DBAgentMySQL::getIndexInfoVect(vector<IndexInfo> &indexInfoVect,
 
 	vector<IndexStruct> indexStructVect;
 	getIndexes(indexStructVect, tableProfile.name);
-	
+
 	// Group the same index
 	IndexStructMap indexStructMap;
 	for (size_t i = 0; i < indexStructVect.size(); i++) {
@@ -736,4 +804,3 @@ void DBAgentMySQL::getIndexInfoVect(vector<IndexInfo> &indexInfoVect,
 		indexInfoVect.push_back(idxInfo);
 	}
 }
-

@@ -1,0 +1,125 @@
+{% extends "viewer/base_ajax.html" %}
+{% load i18n %}
+
+{% comment %}
+  Copyright (C) 2014 - 2015 Project Hatohol
+
+  This file is part of Hatohol.
+
+  Hatohol is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License, version 3
+  as published by the Free Software Foundation.
+
+  Hatohol is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with Hatohol. If not, see
+  <http://www.gnu.org/licenses/>.
+{% endcomment %}
+
+{% block title %}
+{% trans "History" %}
+{% endblock %}
+
+{% block main %}
+  <div id="main">
+    <h2 class="hatohol-graph"></h2>
+
+    <div class="hatohol-graph"></div>
+
+    <div id="hatohol-item-list" class="modal fade"
+         role="dialog" area-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h3>{% trans "Graph settings" %}</h3>
+          </div>
+          <div class="modal-body">
+            <div id="edit-graph-title-area" class="hatohol-config-section">
+              <label for="edit-graph-title">{% trans "Title" %}</label>
+              <input id="edit-graph-title" type="text"></input>
+            </div>
+            <label>{% trans "Items to plot" %}</label>
+            <form class="form-inline hatohol-filter-toolbar">
+              <table class="table table-stripped hatohol-item-list">
+                <tbody>
+                  <tr>
+                    <th><!-- color picker --></th>
+                    <th>{% trans "Monitoring Server" %}</th>
+                    <th>{% trans "Group" %}</th>
+                    <th>{% trans "Host" %}</th>
+                    <th>{% trans "Item" %}</th>
+                    <th></th>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td>
+                      <select id="select-server" class="form-control">
+                        <option>---------</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select id="select-host-group" class="form-control">
+                        <option>---------</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select id="select-host" class="form-control">
+                        <option>---------</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select id="select-item" class="form-control">
+                        <option>---------</option>
+                      </select>
+                    </td>
+                    <td>
+                      <button id="add-item-button" type="button" class="btn btn-default">
+                        {% trans "ADD" %}
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+              {% trans "CLOSE" %}
+            </button>
+            <button id="hatohol-graph-save" type="button"
+		    class="btn btn-primary">
+              {% trans "SAVE" %}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock %}
+
+{% block option %}
+  <script src="{{ STATIC_URL }}js.external/jquery.flot.js"></script>
+  <script src="{{ STATIC_URL }}js.external/jquery.flot.time.js"></script>
+  <script src="{{ STATIC_URL }}js.external/jquery.flot.selection.js"></script>
+  <script src="{{ STATIC_URL }}js.external/jquery-ui-slider-pips.min.js"></script>
+{% endblock %}
+
+{% block logic %}
+  <script src="{{ STATIC_URL }}js/hatohol_history_loader.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_graph.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_time_range_selector.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_item_selector.js"></script>
+  <script src="{{ STATIC_URL }}js/history_view.js"></script>
+  <script type="text/javascript">
+    userProfile.addOnLoadCb(function() {
+      var view = new HistoryView(userProfile);
+    });
+  </script>
+{% endblock %}

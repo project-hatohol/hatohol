@@ -1,6 +1,6 @@
 AC_PREREQ(2.63)
 
-AC_INIT(hatohol, 14.12_dev)
+AC_INIT(hatohol, 15.07_dev1)
 AM_INIT_AUTOMAKE([1.9 foreign no-dist-gzip dist-bzip2 tar-pax])
 
 AC_CONFIG_HEADER(config.h)
@@ -20,7 +20,9 @@ AC_DEFINE_UNQUOTED(PREFIX, "$prefix", "Prefix for install directory")
 if test x"$sysconfdir" = x"NONE"; then
     sysconfdir=$ac_default_sysconfdir
 fi
-AC_DEFINE_UNQUOTED(SYSCONFDIR, "`eval echo $sysconfdir`", "Data directory.")
+expanded_sysconfdir="`eval echo $sysconfdir`"
+AC_DEFINE_UNQUOTED(SYSCONFDIR, "$expanded_sysconfdir", "Data directory.")
+AC_SUBST(expanded_sysconfdir)
 
 if test x"$localstatedir" = x"NONE"; then
     runstatedir=$ac_default_localstatedir
@@ -143,17 +145,36 @@ AC_SUBST(MLPL_CFLAGS)
 AC_SUBST(MLPL_LIBS)
 
 dnl **************************************************************
-dnl Check for Apache Qpid
+dnl enable/disable for Qpid
 dnl **************************************************************
-dnl The Qpid's functions are C++ mangled (such as
-dnl _ZN4qpid9messaging10Connection4openEv) in the library. So enumeration of
-dnl them degrades portability. We just pass '_init' in the following macro.
-AC_CHECK_LIB(qpidmessaging, _init, [],
-             [AC_MSG_ERROR(libqpidmessage was not found.)])
-AC_CHECK_HEADERS(qpid/ImportExport.h,
-  [], [AC_MSG_ERROR([qpid/ImportExport.h was not found. The file is contained in libqpidcommon2-dev on Ubuntu.])])
-AC_CHECK_HEADERS(qpid/types/Exception.h,
-  [], [AC_MSG_ERROR([qpid/types/Exception.h was not found. The file is contained in libqpidtypes1-dev on Ubuntu.])])
+AC_ARG_WITH(qpid,
+  [AS_HELP_STRING([--with-qpid],
+    [with qpid. [default=no]])],
+  [with_qpid="$withval"],
+  [with_qpid="no"])
+AC_MSG_CHECKING([whether with qpid])
+if test "x$with_qpid" != "xyes"; then
+  with_qpid="no"
+fi
+AC_MSG_RESULT($with_qpid)
+
+if test "$with_qpid" = "yes"; then
+  dnl **************************************************************
+  dnl Check for Apache Qpid
+  dnl **************************************************************
+  dnl The Qpid's functions are C++ mangled (such as
+  dnl _ZN4qpid9messaging10Connection4openEv) in the library. So enumeration of
+  dnl them degrades portability. We just pass '_init' in the following macro.
+  AC_CHECK_LIB(qpidmessaging, _init, [],
+              [AC_MSG_ERROR(libqpidmessage was not found.)])
+  AC_CHECK_HEADERS(qpid/ImportExport.h,
+    [], [AC_MSG_ERROR([qpid/ImportExport.h was not found. The file is contained in libqpidcommon2-dev on Ubuntu.])])
+  AC_CHECK_HEADERS(qpid/types/Exception.h,
+    [], [AC_MSG_ERROR([qpid/types/Exception.h was not found. The file is contained in libqpidtypes1-dev on Ubuntu.])])
+
+  AC_DEFINE(WITH_QPID, [1], [Define to 1 if qpid is enabled.])
+fi
+AM_CONDITIONAL(WITH_QPID, test "$with_qpid" = "yes")
 
 AC_LANG_POP([C++])
 
@@ -197,9 +218,9 @@ dnl **************************************************************
 dnl enable C++11
 dnl **************************************************************
 AC_ARG_ENABLE([cpp11],
-  [AS_HELP_STRING([--enable-cpp11], [Enable C++11 features (default is no)])],
+  [AS_HELP_STRING([--enable-cpp11], [Enable C++11 features (default is yes)])],
   [],
-  [enable_cpp=no])
+  [enable_cpp11=yes])
 
 if test "$enable_cpp11" == "yes"; then
   AC_DEFINE(USE_CPP11, 1, [Define to 1 if you use C++11])
@@ -215,11 +236,11 @@ AC_CHECK_PROG([have_mocha], [mocha], [yes], [no])
 AC_CHECK_PROG([have_npm], [npm], [yes], [no])
 have_expect_js=no
 if test "$have_npm" = "yes"; then
-  expect_js_ver=`npm ls -g | grep expect.js | awk '{ print $2 }' FS=@`
+  expect_js_ver=`npm ls | grep expect.js | awk '{ print $2 }' FS=@`
   if test x"$expect_js_ver" != x; then
     have_expect_js=yes
   fi
-  mocha_ver=`npm ls -g | grep mocha | awk '{ print $2 }' FS=@`
+  mocha_ver=`npm ls | grep mocha | awk '{ print $2 }' FS=@`
 fi
 
 if test "$have_mocha" = "no"; then
@@ -248,6 +269,8 @@ data/init.d/debian/hatohol.debian
 data/init.d/debian/Makefile
 data/init.d/centos/hatohol.centos
 data/init.d/centos/Makefile
+data/systemd/Makefile
+data/systemd/generate_service_file.sh
 data/test/Makefile
 server/Makefile
 server/mlpl/Makefile
@@ -257,8 +280,12 @@ server/mlpl/mlpl.pc
 server/common/Makefile
 server/src/Makefile
 server/hap/Makefile
+server/hap2/Makefile
+server/hap2/hap2-control-functions.sh
+server/hap2/hatohol/Makefile
 server/data/Makefile
 server/tools/Makefile
+server/tools/hatohol-db-initiator
 server/tools/hatohol/Makefile
 server/tools/tls/Makefile
 server/tools/tls/hatohol-ca-initialize

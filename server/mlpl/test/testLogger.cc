@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cstdio>
@@ -32,16 +32,54 @@
 #include <glib.h>
 #include <cutter.h>
 #include <cppcutter.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
+#include <gcutter.h>
 
 #include "Logger.h"
 #include "StringUtils.h"
 #include "ParsableString.h"
 #include "loggerTester.h"
+#include "SmartTime.h"
 
 using namespace std;
 using namespace mlpl;
 
 namespace testLogger {
+
+class testLogger : public Logger {
+public:
+	static string callCreateHeader(LogLevel level, const char *fileName,
+	                               int lineNumber, string extraInfoString)
+	{
+		return createHeader(level, fileName, lineNumber, extraInfoString);
+	}
+
+	static string callCreateExtraInfoString(void)
+	{
+		return createExtraInfoString();
+	}
+
+	static void callAddProcessId(string &testString)
+	{
+		addProcessId(testString);
+	}
+
+	static void callAddThreadId(string &testString)
+	{
+		addThreadId(testString);
+	}
+
+	static void callAddCurrentTime(string &testString)
+	{
+		addCurrentTime(testString);
+	}
+
+	static void callSetExtraInfoFlag(const char *extraInfoArg)
+	{
+		setExtraInfoFlag(extraInfoArg);
+	}
+};
 
 static gchar *g_standardOutput = NULL;
 static gchar *g_standardError = NULL;
@@ -74,6 +112,26 @@ static void assertSpawnResult(void)
 	return;
 err:
 	failAndShowSpawnResult();
+}
+
+static vector<string> split(const string str, const char delim)
+{
+	istringstream iss(str);
+	string snippet;
+	vector<string> afterSplitStrings;
+	while(getline(iss, snippet, delim))
+		afterSplitStrings.push_back(snippet);
+
+	return afterSplitStrings;
+}
+
+static long stringToLong(string stringInteger)
+{
+	long longInteger;
+	istringstream iss(stringInteger);
+	iss >> longInteger;
+
+	return longInteger;
 }
 
 static void _assertLogOutput(const char *envLevel, const char *outLevel,
@@ -122,12 +180,12 @@ static void _assertWaitSyslogUpdate(int fd, int timeout, bool &timedOut)
 		timedOut = true;
 		return;
 	}
-	cppcut_assert_not_equal(-1, ret, cut_message("%s", strerror(errno)));
+	cppcut_assert_not_equal(-1, ret, cut_message("%s", g_strerror(errno)));
 
 	char buf[INOTIFY_EVT_BUF_SIZE];
 	ssize_t readRet = read(fd, buf, sizeof(buf));
 	cppcut_assert_not_equal((ssize_t)-1, readRet,
-	                        cut_message("%s", strerror(errno)));
+	                        cut_message("%s", g_strerror(errno)));
 }
 #define assertWaitSyslogUpdate(F,T,O) cut_trace(_assertWaitSyslogUpdate(F,T,O))
 
@@ -197,6 +255,82 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	cppcut_assert_equal(shouldLog, found);
 }
 #define assertSyslogOutput(EM,OM,EXP) cut_trace(_assertSyslogOutput(EM,OM,EXP))
+
+static void _assertCreateHeader(void)
+{
+	string processAndThreadIdStr = StringUtils::sprintf("%d T:%ld", getpid(),
+	                                                    syscall(SYS_gettid));
+
+	string actHeader = ":" + processAndThreadIdStr
+	                    + " [ERR] <test_file.py:18> ";
+	string testHeader = testLogger::callCreateHeader(MLPL_LOG_ERR,
+	                                                 "test_file.py", 18,
+	                                   testLogger::callCreateExtraInfoString());
+
+	vector<string> afterSplitStrings = split(testHeader, 'P');
+	cppcut_assert_equal(2, (int)afterSplitStrings.size());
+
+	testHeader = afterSplitStrings[1];
+	cppcut_assert_equal(actHeader, testHeader);
+}
+#define assertCreateHeader() cut_trace(_assertCreateHeader())
+
+static void _assertCreateExtraInfo(const char *extraInfoArg)
+{
+	string testString = testLogger::callCreateExtraInfoString();
+	if (strchr(extraInfoArg, 'C') != NULL)
+		cppcut_assert_not_null(strstr(testString.c_str(),"["));
+	if (strchr(extraInfoArg, 'P') != NULL)
+		cppcut_assert_not_null(strstr(testString.c_str(),"P:"));
+	if (strchr(extraInfoArg, 'T') != NULL)
+		cppcut_assert_not_null(strstr(testString.c_str(),"T:"));
+}
+#define assertCreateExtraInfo(EXIA) cut_trace(_assertCreateExtraInfo(EXIA))
+
+static void _assertAddProcessId(void)
+{
+	string testString;
+	string actString = StringUtils::sprintf("P:%d ", getpid());
+
+	testLogger::callAddProcessId(testString);
+
+	cppcut_assert_equal(actString, testString);
+}
+#define assertAddProcessId() cut_trace(_assertAddProcessId())
+
+static void _assertAddThreadId(void)
+{
+	string testString;
+	string actString = StringUtils::sprintf("T:%ld ", syscall(SYS_gettid));
+
+	testLogger::callAddThreadId(testString);
+
+	cppcut_assert_equal(actString, testString);
+}
+#define assertAddThreadId() cut_trace(_assertAddThreadId())
+
+static void _assertAddCurrentTime(void)
+{
+	SmartTime startTime = SmartTime::getCurrTime();
+
+	string testString;
+	testLogger::callAddCurrentTime(testString);
+	// 'addCurrentTime()' makes a string such as "[sec.nsec]".
+	// 'timespec' uses only the sec and nsec.
+	// The following statements delete "[", "]" and ".".
+	testString.erase(testString.begin());
+	testString.erase(--testString.end());
+	vector<string> SplitStrings = split(testString, '.');
+	timespec testTimespec = {stringToLong(SplitStrings[0]),
+	                         stringToLong(SplitStrings[1])};
+	SmartTime headerTime = SmartTime(testTimespec);
+
+	SmartTime stopTime = SmartTime::getCurrTime();
+
+	cppcut_assert_equal(true, startTime < headerTime);
+	cppcut_assert_equal(true, headerTime < stopTime);
+}
+#define assertAddCurrentTime() cut_trace(_assertAddCurrentTime())
 
 void cut_teardown(void)
 {
@@ -285,6 +419,61 @@ void test_syslogoutput(void)
 void test_syslogoutputDisable(void)
 {
 	assertSyslogOutput("Test message", "Message of test",  false);
+}
+
+void test_createHeader(void)
+{
+	assertCreateHeader();
+}
+
+void data_createExtraInfo(void)
+{
+	gcut_add_datum("Pattern PTC",
+	               "pattern", G_TYPE_STRING, "PTC",
+	               NULL);
+	gcut_add_datum("Pattern PT",
+	               "pattern", G_TYPE_STRING, "PT",
+	                NULL);
+	gcut_add_datum("Pattern TC",
+	               "pattern", G_TYPE_STRING, "TC",
+	                NULL);
+	gcut_add_datum("Pattern PC",
+	               "pattern", G_TYPE_STRING, "PC",
+	               NULL);
+	gcut_add_datum("Pattern P",
+	               "pattern", G_TYPE_STRING, "P",
+	               NULL);
+	gcut_add_datum("Pattern T",
+	               "pattern", G_TYPE_STRING, "T",
+	               NULL);
+	gcut_add_datum("Pattern C",
+	               "pattern", G_TYPE_STRING, "C",
+	               NULL);
+	gcut_add_datum("Pattern null",
+	               "pattern", G_TYPE_STRING, "",
+	               NULL);
+}
+
+void test_createExtraInfo(gconstpointer data)
+{
+	const char *pattern = gcut_data_get_string(data, "pattern");
+	testLogger::callSetExtraInfoFlag(pattern);
+	assertCreateExtraInfo(pattern);
+}
+
+void test_addProcessId(void)
+{
+	assertAddProcessId();
+}
+
+void test_addThreadId(void)
+{
+	assertAddThreadId();
+}
+
+void test_addCurrentTime(void)
+{
+	assertAddCurrentTime();
 }
 
 } // namespace testLogger

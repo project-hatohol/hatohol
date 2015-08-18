@@ -1,31 +1,30 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "Params.h"
 #include "HostResourceQueryOption.h"
 #include "DBTablesMonitoring.h"
-#include "DBAgentSQLite3.h" // TODO: Shouldn't use explicitly
+#include "DBTermCStringProvider.h"
 #include "DBHatohol.h"
+
 using namespace std;
 using namespace mlpl;
-
-// *** TODO: use OptionTermGenrator to make SQL's clauses ****
 
 // ---------------------------------------------------------------------------
 // Synapse
@@ -40,7 +39,9 @@ HostResourceQueryOption::Synapse::Synapse(
   const DBAgent::TableProfile &_hostgroupMapTableProfile,
   const size_t &_hostgroupMapServerIdColumnIdx,
   const size_t &_hostgroupMapHostIdColumnIdx,
-  const size_t &_hostgroupMapGroupIdColumnIdx)
+  const size_t &_hostgroupMapGroupIdColumnIdx,
+  const size_t &_globalHostIdColumnIdx,
+  const size_t &_hostgroupMapGlobalHostIdColumnIdx)
 : tableProfile(_tableProfile),
   selfIdColumnIdx(_selfIdColumnIdx),
   serverIdColumnIdx(_serverIdColumnIdx),
@@ -50,7 +51,9 @@ HostResourceQueryOption::Synapse::Synapse(
   hostgroupMapTableProfile(_hostgroupMapTableProfile),
   hostgroupMapServerIdColumnIdx(_hostgroupMapServerIdColumnIdx),
   hostgroupMapHostIdColumnIdx(_hostgroupMapHostIdColumnIdx),
-  hostgroupMapGroupIdColumnIdx(_hostgroupMapGroupIdColumnIdx)
+  hostgroupMapGroupIdColumnIdx(_hostgroupMapGroupIdColumnIdx),
+  globalHostIdColumnIdx(_globalHostIdColumnIdx),
+  hostgroupMapGlobalHostIdColumnIdx(_hostgroupMapGlobalHostIdColumnIdx)
 {
 }
 
@@ -58,17 +61,16 @@ HostResourceQueryOption::Synapse::Synapse(
 // Impl
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::Impl {
-	static const DBTermCodec *dbTermCodec;
 	const Synapse  &synapse;
 	ServerIdType    targetServerId;
-	HostIdType      targetHostId;
+	LocalHostIdType targetHostId;
 	HostgroupIdType targetHostgroupId;
 	bool            filterDataOfDefunctServers;
 
 	Impl(const Synapse &_synapse)
 	: synapse(_synapse),
 	  targetServerId(ALL_SERVERS),
-	  targetHostId(ALL_HOSTS),
+	  targetHostId(ALL_LOCAL_HOSTS),
 	  targetHostgroupId(ALL_HOST_GROUPS),
 	  filterDataOfDefunctServers(true)
 	{
@@ -83,13 +85,6 @@ struct HostResourceQueryOption::Impl {
 		return *this;
 	}
 };
-
-// TODO: Use a more smart way
-static DBTermCodec _dbTermCodec;
-const DBTermCodec *HostResourceQueryOption::Impl::dbTermCodec =
-  &_dbTermCodec;
-// Use this if the backend DB is SQLite3:
-//  DBAgentSQLite3::getDBTermCodecStatic();
 
 // ---------------------------------------------------------------------------
 // Public methods
@@ -127,7 +122,7 @@ const char *HostResourceQueryOption::getPrimaryTableName(void) const
 
 string HostResourceQueryOption::getCondition(void) const
 {
-	const DBTermCodec *dbTermCodec = Impl::dbTermCodec;
+	DBTermCStringProvider rhs(*getDBTermCodec());
 	string condition;
 	if (getFilterForDataOfDefunctServers()) {
 		addCondition(
@@ -147,15 +142,15 @@ string HostResourceQueryOption::getCondition(void) const
 			  StringUtils::sprintf(
 				"%s=%s",
 				getServerIdColumnName().c_str(),
-				dbTermCodec->enc(m_impl->targetServerId).c_str())
+				rhs(m_impl->targetServerId))
 			);
 		}
-		if (m_impl->targetHostId != ALL_HOSTS) {
+		if (m_impl->targetHostId != ALL_LOCAL_HOSTS) {
 			addCondition(condition,
 			  StringUtils::sprintf(
 				"%s=%s",
 				getHostIdColumnName().c_str(),
-				dbTermCodec->enc(m_impl->targetHostId).c_str())
+				rhs(m_impl->targetHostId))
 			);
 		}
 		if (m_impl->targetHostgroupId != ALL_HOST_GROUPS) {
@@ -163,7 +158,7 @@ string HostResourceQueryOption::getCondition(void) const
 			  StringUtils::sprintf(
 				"%s=%s",
 				getHostgroupIdColumnName().c_str(),
-				dbTermCodec->enc(m_impl->targetHostgroupId).c_str())
+				rhs(m_impl->targetHostgroupId))
 			);
 		}
 		return condition;
@@ -178,7 +173,8 @@ string HostResourceQueryOption::getCondition(void) const
 	// getHostIdColumnName() throws an exception. In that case,
 	// targetHostId shall be ALL_HOSTS.
 	const string hostIdColumnName =
-	  (m_impl->targetHostId != ALL_HOSTS) ?  getHostIdColumnName() : "";
+	  (m_impl->targetHostId != ALL_LOCAL_HOSTS) ?
+	    getHostIdColumnName() : "";
 
 	const ServerHostGrpSetMap &srvHostGrpSetMap =
 	  getDataQueryContext().getServerHostGrpSetMap();
@@ -203,10 +199,22 @@ string HostResourceQueryOption::getFromClause(void) const
 
 string HostResourceQueryOption::getJoinClause(void) const
 {
+	struct {
+		bool operator()(const size_t &index)
+		{
+			return index != INVALID_COLUMN_IDX;
+		}
+	} valid;
+
 	if (!isHostgroupUsed())
 		return string();
 
 	const Synapse &synapse = m_impl->synapse;
+	if (valid(synapse.globalHostIdColumnIdx) &&
+	    valid(synapse.hostgroupMapGlobalHostIdColumnIdx)) {
+		return getJoinClauseWithGlobalHostId();
+	}
+
 	const ColumnDef *hgrpColumnDefs =
 	  synapse.hostgroupMapTableProfile.columnDefs;
 
@@ -254,12 +262,13 @@ void HostResourceQueryOption::setTargetServerId(const ServerIdType &targetServer
 	m_impl->targetServerId = targetServerId;
 }
 
-HostIdType HostResourceQueryOption::getTargetHostId(void) const
+LocalHostIdType HostResourceQueryOption::getTargetHostId(void) const
 {
 	return m_impl->targetHostId;
 }
 
-void HostResourceQueryOption::setTargetHostId(HostIdType targetHostId)
+void HostResourceQueryOption::setTargetHostId(
+  const LocalHostIdType &targetHostId)
 {
 	m_impl->targetHostId = targetHostId;
 }
@@ -286,11 +295,6 @@ const bool &HostResourceQueryOption::getFilterForDataOfDefunctServers(void) cons
 	return m_impl->filterDataOfDefunctServers;
 }
 
-const DBTermCodec *HostResourceQueryOption::getDBTermCodec(void) const
-{
-	return m_impl->dbTermCodec;
-}
-
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -313,15 +317,17 @@ string HostResourceQueryOption::getHostIdColumnName(void) const
 
 string HostResourceQueryOption::makeConditionHostgroup(
   const HostgroupIdSet &hostgroupIdSet, const string &hostgroupIdColumnName)
+  const
 {
+	DBTermCStringProvider rhs(*getDBTermCodec());
 	string hostGrps;
 	HostgroupIdSetConstIterator it = hostgroupIdSet.begin();
 	size_t commaCnt = hostgroupIdSet.size() - 1;
 	for (; it != hostgroupIdSet.end(); ++it, commaCnt--) {
-		const uint64_t hostgroupId = *it;
+		const HostgroupIdType &hostgroupId = *it;
 		if (hostgroupId == ALL_HOST_GROUPS)
 			return "";
-		hostGrps += StringUtils::sprintf("%" PRIu64, hostgroupId);
+		hostGrps += rhs(hostgroupId);
 		if (commaCnt)
 			hostGrps += ",";
 	}
@@ -331,7 +337,7 @@ string HostResourceQueryOption::makeConditionHostgroup(
 }
 
 string HostResourceQueryOption::makeConditionServer(
-  const ServerIdSet &serverIdSet, const std::string &serverIdColumnName)
+  const ServerIdSet &serverIdSet, const std::string &serverIdColumnName) const
 {
 	if (serverIdSet.empty())
 		return DBHatohol::getAlwaysFalseCondition();
@@ -341,14 +347,13 @@ string HostResourceQueryOption::makeConditionServer(
 
 	ServerIdSetConstIterator serverId = serverIdSet.begin();
 	bool first = true;
-	const DBTermCodec *dbTermCodec = Impl::dbTermCodec;
+	DBTermCStringProvider rhs(*getDBTermCodec());
 	for (; serverId != serverIdSet.end(); ++serverId) {
 		if (first)
 			first = false;
 		else
 			condition += ",";
-		condition += StringUtils::sprintf(
-		  "%s", dbTermCodec->enc(*serverId).c_str());
+		condition += rhs(*serverId);
 	}
 	condition += ")";
 	return condition;
@@ -357,13 +362,12 @@ string HostResourceQueryOption::makeConditionServer(
 string HostResourceQueryOption::makeConditionServer(
   const ServerIdType &serverId, const HostgroupIdSet &hostgroupIdSet,
   const string &serverIdColumnName, const string &hostgroupIdColumnName,
-  const HostgroupIdType &hostgroupId)
+  const HostgroupIdType &hostgroupId) const
 {
-	const DBTermCodec *dbTermCodec = Impl::dbTermCodec;
+	DBTermCStringProvider rhs(*getDBTermCodec());
 	string condition;
 	condition = StringUtils::sprintf(
-	  "%s=%s", serverIdColumnName.c_str(),
-	  dbTermCodec->enc(serverId).c_str());
+	  "%s=%s", serverIdColumnName.c_str(), rhs(serverId));
 
 	string conditionHostgroup;
 	if (hostgroupId == ALL_HOST_GROUPS) {
@@ -372,7 +376,7 @@ string HostResourceQueryOption::makeConditionServer(
 	} else {
 		conditionHostgroup = StringUtils::sprintf(
 		  "%s=%s", hostgroupIdColumnName.c_str(),
-		  dbTermCodec->enc(hostgroupId).c_str());
+		  rhs(hostgroupId.c_str()));
 	}
 	if (!conditionHostgroup.empty()) {
 		return StringUtils::sprintf("(%s AND %s)",
@@ -388,9 +392,9 @@ string HostResourceQueryOption::makeCondition(
   const string &serverIdColumnName,
   const string &hostgroupIdColumnName,
   const string &hostIdColumnName,
-  ServerIdType targetServerId,
-  HostgroupIdType targetHostgroupId,
-  HostIdType targetHostId)
+  const ServerIdType    &targetServerId,
+  const HostgroupIdType &targetHostgroupId,
+  const LocalHostIdType &targetHostId) const
 {
 	// TODO: consider if we use isHostgroupEnumerationInCondition()
 	string condition;
@@ -427,12 +431,12 @@ string HostResourceQueryOption::makeCondition(
 		++numServers;
 	}
 
-	if (targetHostId != ALL_HOSTS) {
-		const DBTermCodec *dbTermCodec = Impl::dbTermCodec;
+	if (targetHostId != ALL_LOCAL_HOSTS) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
 		return StringUtils::sprintf(
-		  "((%s) AND %s=%s)",
-		  condition.c_str(), hostIdColumnName.c_str(),
-		  dbTermCodec->enc(targetHostId).c_str());
+		         "((%s) AND %s=%s)",
+		         condition.c_str(), hostIdColumnName.c_str(),
+		         rhs(targetHostId));
 	}
 
 	if (numServers == 1)
@@ -488,4 +492,16 @@ bool HostResourceQueryOption::isHostgroupEnumerationInCondition(void) const
 			return true;
 	}
 	return false;
+}
+
+string HostResourceQueryOption::getJoinClauseWithGlobalHostId(void) const
+{
+	const Synapse &synapse = m_impl->synapse;
+	return StringUtils::sprintf(
+	  "INNER JOIN %s ON %s=%s",
+	  synapse.hostgroupMapTableProfile.name,
+	  synapse.tableProfile.getFullColumnName(
+	    synapse.globalHostIdColumnIdx).c_str(),
+	  synapse.hostgroupMapTableProfile.getFullColumnName(
+	    synapse.hostgroupMapGlobalHostIdColumnIdx).c_str());
 }

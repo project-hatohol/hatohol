@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -35,6 +35,7 @@ enum {
 	CONF_MGR_ERROR_INVALID_PORT,
 	CONF_MGR_ERROR_INVALID_LOG_LEVEL,
 	CONF_MGR_ERROR_INTERNAL,
+	CONF_MGR_ERROR_INVALID_NUM_WORKERS,
 };
 
 const char *ConfigManager::HATOHOL_DB_DIR_ENV_VAR_NAME = "HATOHOL_DB_DIR";
@@ -78,11 +79,39 @@ static void showVersion(void)
 	       VERSION, __DATE__, __TIME__);
 }
 
+static gboolean parseFaceRestNumWorkers(
+  const gchar *option_name, const gchar *value,
+  gpointer data, GError **error)
+{
+	GQuark quark =
+	  g_quark_from_static_string("config-manager-quark");
+	CommandLineOptions *obj =
+	  static_cast<CommandLineOptions *>(data);
+	if (!value) {
+		g_set_error(error, quark, CONF_MGR_ERROR_NULL,
+		            "value is NULL.");
+		return FALSE;
+	}
+
+	int numWorkers = atoi(value);
+	if (numWorkers <= 0) {
+		g_set_error(error, quark, CONF_MGR_ERROR_INVALID_NUM_WORKERS,
+		            "value: %s, %d.", value, numWorkers);
+		return FALSE;
+	}
+
+	obj->faceRestNumWorkers = numWorkers;
+
+	return TRUE;
+}
+
+
 // ---------------------------------------------------------------------------
 // CommandLineOptions
 // ---------------------------------------------------------------------------
 CommandLineOptions::CommandLineOptions(void)
 : pidFilePath(NULL),
+  user(NULL),
   dbServer(NULL),
   dbName(NULL),
   dbUser(NULL),
@@ -91,7 +120,9 @@ CommandLineOptions::CommandLineOptions(void)
   testMode(FALSE),
   enableCopyOnDemand(FALSE),
   disableCopyOnDemand(FALSE),
-  faceRestPort(-1)
+  loadOldEvents(FALSE),
+  faceRestPort(-1),
+  faceRestNumWorkers(0)
 {
 }
 
@@ -111,7 +142,10 @@ struct ConfigManager::Impl {
 	bool                  testMode;
 	ConfigState           copyOnDemand;
 	AtomicValue<int>      faceRestPort;
+	string                user;
 	string                pidFilePath;
+	bool                  loadOldEvents;
+	int                   faceRestNumWorkers;
 
 	// methods
 	Impl(void)
@@ -121,7 +155,9 @@ struct ConfigManager::Impl {
 	  testMode(false),
 	  copyOnDemand(UNKNOWN),
 	  faceRestPort(0),
-	  pidFilePath(DEFAULT_PID_FILE_PATH)
+	  pidFilePath(DEFAULT_PID_FILE_PATH),
+	  loadOldEvents(false),
+	  faceRestNumWorkers(0)
 	{
 	}
 
@@ -180,6 +216,7 @@ struct ConfigManager::Impl {
 		}
 
 		loadConfigFileMySQLGroup(keyFile);
+		loadConfigFileFaceRestGroup(keyFile);
 
 		return true;
 	}
@@ -203,6 +240,12 @@ struct ConfigManager::Impl {
 			faceRestPort = cmdLineOpts.faceRestPort;
 		if (cmdLineOpts.pidFilePath)
 			pidFilePath = cmdLineOpts.pidFilePath;
+		if (cmdLineOpts.user)
+			user = cmdLineOpts.user;
+		if (cmdLineOpts.loadOldEvents)
+			loadOldEvents = cmdLineOpts.loadOldEvents;
+		if (cmdLineOpts.faceRestNumWorkers > 0)
+			faceRestNumWorkers = cmdLineOpts.faceRestNumWorkers;
 	}
 
 private:
@@ -223,6 +266,23 @@ private:
 		g_free(database);
 		g_free(user);
 		g_free(password);
+	}
+
+	void loadConfigFileFaceRestGroup(GKeyFile *keyFile)
+	{
+		const gchar *group = "FaceRest";
+
+		if (!g_key_file_has_group(keyFile, group))
+			return;
+
+		gint num = g_key_file_get_integer(keyFile, group,
+						  "workers", NULL);
+		if (num > 0) {
+			getInstance()->setFaceRestNumWorkers(num);
+			MLPL_INFO("ConfigFile: [FaceRest] workers=%d\n", num);
+		} else {
+			MLPL_WARN("ConfigFile: [FaceRest] workers=%d: Invalid value. Ignored.\n", num);
+		}
 	}
 };
 
@@ -272,9 +332,19 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 		{"face-rest-port",
 		 'r', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseFaceRestPort,
 		 "Port of FaceRest", NULL},
+		{"user",
+		 'U', 0, G_OPTION_ARG_STRING, &cmdLineOpts->user,
+		 "Run as another user", NULL},
 		{"log-level",
 		 'l', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseLogLevel,
 		 "Log level: DBG, INFO, WARN, ERR, CRIT, or BUG. ", NULL},
+		{"load-old-events",
+		 0, 0, G_OPTION_ARG_NONE,
+		 &cmdLineOpts->loadOldEvents,
+		 "Load old events when adding new monitoring server.", NULL},
+		{"face-rest-workers",
+		 'T', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseFaceRestNumWorkers,
+		 "Number of FaceRest worker threads", NULL},
 		{ NULL }
 	};
 
@@ -292,6 +362,7 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 			g_error_free(error);
 		return false;
 	}
+	g_option_context_free(optCtx);
 
 	if (showVersionFlag) {
 		showVersion();
@@ -304,12 +375,14 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 	return true;
 }
 
-void ConfigManager::reset(const CommandLineOptions *cmdLineOpts)
+void ConfigManager::reset(const CommandLineOptions *cmdLineOpts,
+			  bool loadConfigFile)
 {
 	delete Impl::instance;
 	Impl::instance = NULL;
 	ConfigManager *confMgr = getInstance();
-	confMgr->loadConfFile();
+	if (loadConfigFile)
+		confMgr->loadConfFile();
 
 	confMgr->m_impl->actionCommandDirectory =
 	  StringUtils::sprintf("%s/%s/action", LIBEXECDIR, PACKAGE);
@@ -427,6 +500,26 @@ void ConfigManager::setFaceRestPort(const int &port)
 string ConfigManager::getPidFilePath(void) const
 {
 	return m_impl->pidFilePath;
+}
+
+string ConfigManager::getUser(void) const
+{
+	return m_impl->user;
+}
+
+bool ConfigManager::getLoadOldEvents(void) const
+{
+	return m_impl->loadOldEvents;
+}
+
+int ConfigManager::getFaceRestNumWorkers(void) const
+{
+	return m_impl->faceRestNumWorkers;
+}
+
+void ConfigManager::setFaceRestNumWorkers(const int &num)
+{
+	m_impl->faceRestNumWorkers = num;
 }
 
 // ---------------------------------------------------------------------------

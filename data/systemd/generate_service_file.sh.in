@@ -1,0 +1,27 @@
+#!/bin/sh
+
+NAME=hatohol
+exec_prefix=@exec_prefix@
+prefix=@prefix@
+BIN_FILE=@sbindir@/${NAME}
+PID_FILE=@localstatedir@/run/hatohol/${NAME}.pid
+
+cat << EOF
+[Unit]
+Description=Hatohol server daemon
+Wants=network-online.target
+After=syslog.target network-online.target mysqld.service
+
+[Service]
+Environment="USER_NAME=hatohol"
+Environment="PID_FILE_PATH=${PID_FILE}"
+ExecStart=${BIN_FILE} --user \$USER_NAME --pid-file \$PID_FILE_PATH
+Type=forking
+PIDFile=${PID_FILE}
+Restart=always
+TimeoutStopSec=320s
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+EOF

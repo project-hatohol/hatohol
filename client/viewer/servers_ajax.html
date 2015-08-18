@@ -7,17 +7,17 @@
   This file is part of Hatohol.
 
   Hatohol is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 2 of the License, or
-  (at your option) any later version.
+  it under the terms of the GNU Lesser General Public License, version 3
+  as published by the Free Software Foundation.
 
   Hatohol is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
+  GNU Lesser General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU Lesser General Public
+  License along with Hatohol. If not, see
+  <http://www.gnu.org/licenses/>.
 {% endcomment %}
 
 {% block title %}
@@ -35,9 +35,19 @@
         {% trans "ADD MONITORING SERVER" %}
       </button>
 
+      <button id="bulkupload-server-button" type="button" class="btn btn-default" style="display: none;">
+        <span class="glyphicon glyphicon-plus"></span>
+        {% trans "ADD/UPDATE MULTIPLE MONITORING SERVERS" %}
+      </button>
+
       <button id="delete-server-button" type="button" class="btn btn-default" disabled style="display: none;">
         <span class="glyphicon glyphicon-remove"></span>
         {% trans "DELETE MONITORING SERVER" %}
+      </button>
+
+      <button id="update-tirgger-server-button" type="button" class="btn btn-default" disabled style="display: none;">
+        <span class="glyphicon glyphicon-repeat"></span>
+        {% trans "RELOAD ALL TRIGGERS FROM SERVER" %}
       </button>
     </div>
   </form>
@@ -53,12 +63,13 @@
     <thead>
       <tr>
         <th class="delete-selector" style='display:none;'> </th>
-        <th data-sort="string">{% trans "Connection status" %}</th>
-        <th data-sort="string">{% trans "Type" %}</th>
-        <th data-sort="string">{% trans "Hostname" %}</th>
-        <th data-sort="string">{% trans "IP Address" %}</th>
-        <th data-sort="string">{% trans "Nickname" %}</th>
+        <th>{% trans "Connection status" %}</th>
+        <th>{% trans "Type" %}</th>
+        <th>{% trans "Hostname" %}</th>
+        <th>{% trans "IP Address" %}</th>
+        <th>{% trans "Nickname" %}</th>
         <th>{% trans "Maps" %}</th>
+        <th class="server-info-column" style="display:none;"></th>
         <th class="edit-server-column" style="display:none;"></th>
       </tr>
     </thead>
@@ -72,6 +83,7 @@
 
 {% block option %}
   <script src="{{ STATIC_URL }}js/hatohol_server_edit_dialog_parameterized.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_server_bulkupload_dialog.js"></script>
 {% endblock %}
 
 {% block logic %}

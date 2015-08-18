@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <map>
@@ -96,6 +96,20 @@ struct IncidentSenderManager::Impl
 
 		return sender;
 	}
+
+	void deleteSender(const IncidentTrackerIdType &id)
+	{
+		AutoMutex autoMutex(&sendersLock);
+		map<IncidentTrackerIdType, IncidentSender*>::iterator it;
+		it = sendersMap.find(id);
+		if (it == sendersMap.end()) {
+			MLPL_ERR("Not found IncidentTrackerId: %"
+				 FMT_INCIDENT_TRACKER_ID "\n", id);
+			return;
+		}
+		sendersMap.erase(it);
+		delete it->second;
+	}
 };
 
 IncidentSenderManager IncidentSenderManager::Impl::instance;
@@ -113,7 +127,7 @@ void IncidentSenderManager::queue(
 	if (!sender) {
 		MLPL_ERR("Failed to queue sending an incident"
 			 " for the event: %" FMT_EVENT_ID "\n",
-			 eventInfo.id);
+			 eventInfo.id.c_str());
 		return;
 	}
 	sender->queue(eventInfo, callback, userData);
@@ -163,3 +177,15 @@ IncidentSender *IncidentSenderManager::getSender(
 	return m_impl->getSender(id, autoCreate);
 }
 
+void IncidentSenderManager::setOnChangedIncidentTracker(const IncidentTrackerIdType id)
+{
+	IncidentSender *sender = m_impl->getSender(id);
+	sender->setOnChangedIncidentTracker();
+}
+
+void IncidentSenderManager::deleteIncidentTracker(const IncidentTrackerIdType id)
+{
+	MLPL_DBG("Delete IncidentSender for: "
+		 "%" FMT_INCIDENT_TRACKER_ID "\n", id);
+	m_impl->deleteSender(id);
+}

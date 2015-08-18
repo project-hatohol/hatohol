@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 var OverviewTriggers = function(userProfile) {
@@ -28,6 +28,8 @@ var OverviewTriggers = function(userProfile) {
   };
   $.extend(self.baseQuery, getTriggersQueryInURI());
   self.lastQuery = undefined;
+  self.showToggleAutoRefreshButton();
+  self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -43,8 +45,8 @@ var OverviewTriggers = function(userProfile) {
 
   function parseData(replyData, minimum) {
     var parsedData = {};
-    var serverName, hostName, triggerName;
-    var serverNames, triggerNames, hostNames;
+    var nickName, hostName, triggerName;
+    var nickNames, triggerNames, hostNames;
     var server, trigger;
     var x;
     var targetSeverity = $("#select-severity").val();
@@ -53,7 +55,7 @@ var OverviewTriggers = function(userProfile) {
     parsedData.hosts  = {};
     parsedData.values = {};
 
-    serverNames = [];
+    nickNames = [];
     triggerNames = [];
     hostNames = {};
 
@@ -67,29 +69,29 @@ var OverviewTriggers = function(userProfile) {
       var serverId = trigger["serverId"];
       var hostId   = trigger["hostId"];
       server      = replyData["servers"][serverId];
-      serverName  = getServerName(server, serverId);
+      nickName    = getNickName(server, serverId);
       hostName    = getHostName(server, hostId);
       triggerName = trigger["brief"];
 
-      serverNames.push(serverName);
+      nickNames.push(nickName);
       triggerNames.push(triggerName);
-      if (!hostNames[serverName])
-        hostNames[serverName] = [];
-      hostNames[serverName].push(hostName);
+      if (!hostNames[nickName])
+        hostNames[nickName] = [];
+      hostNames[nickName].push(hostName);
 
-      if (!parsedData.values[serverName])
-        parsedData.values[serverName] = {};
-      if (!parsedData.values[serverName][hostName])
-        parsedData.values[serverName][hostName] = {};
+      if (!parsedData.values[nickName])
+        parsedData.values[nickName] = {};
+      if (!parsedData.values[nickName][hostName])
+        parsedData.values[nickName][hostName] = {};
 
-      if (!parsedData.values[serverName][hostName][triggerName])
-        parsedData.values[serverName][hostName][triggerName] = trigger;
-    }
+      if (!parsedData.values[nickName][hostName][triggerName])
+        parsedData.values[nickName][hostName][triggerName] = trigger;
+   }
 
-    parsedData.servers  = serverNames.uniq().sort();
+    parsedData.nicknames  = nickNames.uniq().sort();
     parsedData.triggers = triggerNames.uniq().sort();
-    for (serverName in hostNames)
-      parsedData.hosts[serverName] = hostNames[serverName].uniq().sort();
+    for (nickName in hostNames)
+      parsedData.hosts[nickName] = hostNames[nickName].uniq().sort();
 
     return parsedData;
   }
@@ -130,10 +132,10 @@ var OverviewTriggers = function(userProfile) {
 
     serversRow = "<tr><th></th>";
     hostsRow = "<tr><th></th>";
-    for (serverName in parsedData.hosts) {
-      hostNames = parsedData.hosts[serverName];
+    for (nickName in parsedData.hosts) {
+      hostNames = parsedData.hosts[nickName];
       serversRow += "<th style='text-align: center' colspan='" +
-        hostNames.length + "'>" + escapeHTML(serverName) + "</th>";
+        hostNames.length + "'>" + escapeHTML(nickName) + "</th>";
       for (x = 0; x < hostNames.length; ++x) {
         hostName  = hostNames[x];
         hostsRow += "<th>" + escapeHTML(hostName) + "</th>";

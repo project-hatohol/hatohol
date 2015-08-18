@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -72,7 +72,7 @@ void cut_teardown(void)
 
 void test_getURL(void)
 {
-	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
 	ArmRedmineTestee arm(tracker);
 	cppcut_assert_equal(string("http://localhost/issues.json"),
 			    arm.callGetURL());
@@ -102,7 +102,7 @@ static void _assertQuery(const string &expected, const string &actual)
 
 void test_baseQueryString(void)
 {
-	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
 	ArmRedmineTestee arm(tracker);
 	string expected =
 		"f%5B%5D=status_id&"
@@ -124,7 +124,7 @@ void test_baseQueryString(void)
 void test_oneProcWihNoUpdatedIssues(void)
 {
 	loadTestDBIncidents();
-	IncidentTrackerInfo &tracker = testIncidentTrackerInfo[2];
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[2];
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
 	ArmRedmineTestee arm(tracker);
 	cppcut_assert_equal(true, arm.callOneProc());

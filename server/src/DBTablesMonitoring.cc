@@ -1,24 +1,26 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <memory>
 #include <Mutex.h>
+#include <SeparatorInjector.h>
+#include "UnifiedDataStore.h"
 #include "DBAgentFactory.h"
 #include "DBTablesMonitoring.h"
 #include "DBTablesUser.h"
@@ -27,6 +29,7 @@
 #include "Params.h"
 #include "ItemGroupStream.h"
 #include "DBClientJoinBuilder.h"
+#include "DBTermCStringProvider.h"
 
 // TODO: rmeove the followin two include files!
 // This class should not be aware of it.
@@ -39,14 +42,20 @@ using namespace mlpl;
 const char *DBTablesMonitoring::TABLE_NAME_TRIGGERS   = "triggers";
 const char *DBTablesMonitoring::TABLE_NAME_EVENTS     = "events";
 const char *DBTablesMonitoring::TABLE_NAME_ITEMS      = "items";
-const char *DBTablesMonitoring::TABLE_NAME_HOSTS      = "hosts";
-const char *DBTablesMonitoring::TABLE_NAME_HOSTGROUPS = "hostgroups";
-const char *DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS
-                                                   = "map_hosts_hostgroups";
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 
-const int   DBTablesMonitoring::MONITORING_DB_VERSION = 8;
+// -> 1.0
+//   * remove IDX_TRIGGERS_HOST_ID,
+//   * add IDX_TRIGGERS_GLOBAL_HOST_ID and IDX_TRIGGERS_HOST_ID_IN_SERVER
+//   * add IDX_ITEMS_GLOBAL_HOST_ID and IDX_ITEMS_HOST_ID_IN_SERVER
+//   * triggers.id        -> VARCHAR
+//   * events.trigger_id  -> VARCHAR
+//   * events.id          -> VARCHAR
+//   * incidents.event_id -> VARCHAR
+//   * items.id           -> VARCHAR
+const int DBTablesMonitoring::MONITORING_DB_VERSION =
+  DBTables::Version::getPackedVer(0, 1, 1);
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -68,6 +77,13 @@ void operator>>(ItemGroupStream &itemGroupStream, HostValidity &rhs)
 	rhs = itemGroupStream.read<int, HostValidity>();
 }
 
+extern void operator>>(ItemGroupStream &itemGroupStream, HostStatus &rhs);
+
+void operator>>(ItemGroupStream &itemGroupStream, TriggerValidity &rhs)
+{
+	rhs = itemGroupStream.read<int, TriggerValidity>();
+}
+
 // ----------------------------------------------------------------------------
 // Table: triggers
 // ----------------------------------------------------------------------------
@@ -83,8 +99,8 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	NULL,                              // defaultValue
 }, {
 	"id",                              // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -127,9 +143,18 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"host_id",                         // columnName
+	"global_host_id",                  // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"host_id_in_server",               // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -153,7 +178,25 @@ static const ColumnDef COLUMN_DEF_TRIGGERS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
-}
+}, {
+	"extended_info",                   // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	32767,                             // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"validity",                        // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	"1",                               // defaultValue
+},
 };
 
 enum {
@@ -163,9 +206,12 @@ enum {
 	IDX_TRIGGERS_SEVERITY,
 	IDX_TRIGGERS_LAST_CHANGE_TIME_SEC,
 	IDX_TRIGGERS_LAST_CHANGE_TIME_NS,
-	IDX_TRIGGERS_HOST_ID,
+	IDX_TRIGGERS_GLOBAL_HOST_ID,
+	IDX_TRIGGERS_HOST_ID_IN_SERVER,
 	IDX_TRIGGERS_HOSTNAME,
 	IDX_TRIGGERS_BRIEF,
+	IDX_TRIGGERS_EXTENDED_INFO,
+	IDX_TRIGGERS_VALIDITY,
 	NUM_IDX_TRIGGERS,
 };
 
@@ -208,8 +254,8 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	"id",                              // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -244,8 +290,8 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	"trigger_id",                      // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -270,9 +316,18 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"host_id",                         // columnName
+	"global_host_id",                  // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"host_id_in_server",               // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -296,6 +351,15 @@ static const ColumnDef COLUMN_DEF_EVENTS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"extended_info",                   // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	32767,                             // columnLength
+	0,                                 // decFracLength
+	true,                              // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -309,9 +373,11 @@ enum {
 	IDX_EVENTS_TRIGGER_ID,
 	IDX_EVENTS_STATUS,
 	IDX_EVENTS_SEVERITY,
-	IDX_EVENTS_HOST_ID,
+	IDX_EVENTS_GLOBAL_HOST_ID,
+	IDX_EVENTS_HOST_ID_IN_SERVER,
 	IDX_EVENTS_HOST_NAME,
 	IDX_EVENTS_BRIEF,
+	IDX_EVENTS_EXTENDED_INFO,
 	NUM_IDX_EVENTS,
 };
 
@@ -319,8 +385,14 @@ static const int columnIndexesEventsUniqId[] = {
   IDX_EVENTS_SERVER_ID, IDX_EVENTS_ID, DBAgent::IndexDef::END,
 };
 
+static const int columnIndexesEventsTimeSequence[] = {
+  IDX_EVENTS_TIME_SEC, IDX_EVENTS_TIME_NS,
+  IDX_EVENTS_UNIFIED_ID, DBAgent::IndexDef::END,
+};
+
 static const DBAgent::IndexDef indexDefsEvents[] = {
   {"EventsId", (const int *)columnIndexesEventsUniqId, false},
+  {"EventsTimeSequence", (const int *)columnIndexesEventsTimeSequence, false},
   {NULL}
 };
 
@@ -345,6 +417,15 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	NULL,                              // defaultValue
 }, {
 	"id",                              // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"global_host_id",                  // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
 	0,                                 // decFracLength
@@ -353,9 +434,9 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"host_id",                         // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	"host_id_in_server",               // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -439,7 +520,8 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 enum {
 	IDX_ITEMS_SERVER_ID,
 	IDX_ITEMS_ID,
-	IDX_ITEMS_HOST_ID,
+	IDX_ITEMS_GLOBAL_HOST_ID,
+	IDX_ITEMS_HOST_ID_IN_SERVER,
 	IDX_ITEMS_BRIEF,
 	IDX_ITEMS_LAST_VALUE_TIME_SEC,
 	IDX_ITEMS_LAST_VALUE_TIME_NS,
@@ -465,215 +547,6 @@ static const DBAgent::TableProfile tableProfileItems =
 			    COLUMN_DEF_ITEMS,
 			    NUM_IDX_ITEMS,
 			    indexDefsItems);
-
-// ----------------------------------------------------------------------------
-// Table: hosts
-// ----------------------------------------------------------------------------
-static const ColumnDef COLUMN_DEF_HOSTS[] = {
-{
-	"id",                              // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_PRI,                       // keyType
-	SQL_COLUMN_FLAG_AUTO_INC,          // flags
-	NULL,                              // defaultValue
-}, {
-	"server_id",                       // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE, // indexDefsHosts    // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	"host_id",                         // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_IDX,                       // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	"host_name",                       // columnName
-	SQL_COLUMN_TYPE_VARCHAR,           // type
-	255,                               // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	"validity",                        // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_IDX,                       // keyType
-	0,                                 // flags
-	"1",                               // defaultValue
-},
-};
-enum {
-	IDX_HOSTS_ID,
-	IDX_HOSTS_SERVER_ID,
-	IDX_HOSTS_HOST_ID,
-	IDX_HOSTS_HOST_NAME,
-	IDX_HOSTS_VALIDITY,
-	NUM_IDX_HOSTS,
-};
-
-static const int columnIndexesHostsUniqId[] = {
-  IDX_HOSTS_SERVER_ID, IDX_HOSTS_HOST_ID, DBAgent::IndexDef::END,
-};
-
-static const DBAgent::IndexDef indexDefsHosts[] = {
-  {"HostsUniqId", (const int *)columnIndexesHostsUniqId, true},
-  {NULL}
-};
-
-static const DBAgent::TableProfile tableProfileHosts =
-  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_HOSTS,
-			    COLUMN_DEF_HOSTS,
-			    NUM_IDX_HOSTS,
-			    indexDefsHosts);
-
-// ----------------------------------------------------------------------------
-// Table: hostgroups
-// ----------------------------------------------------------------------------
-static const ColumnDef COLUMN_DEF_HOSTGROUPS[] = {
-{
-	"id",                              // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_PRI,                       // keyType
-	SQL_COLUMN_FLAG_AUTO_INC,          // flags
-	NULL,                              // defaultValue
-}, {
-	"server_id",                       // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE, // indexDefsHostgroups // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	"host_group_id",                   // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_IDX,                       // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	"group_name",                      // columnName
-	SQL_COLUMN_TYPE_VARCHAR,           // type
-	255,                               // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_IDX,                       // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-},
-};
-
-enum {
-	IDX_HOSTGROUPS_ID,
-	IDX_HOSTGROUPS_SERVER_ID,
-	IDX_HOSTGROUPS_GROUP_ID,
-	IDX_HOSTGROUPS_GROUP_NAME,
-	NUM_IDX_HOSTGROUPS,
-};
-
-static const int columnIndexesHostgroupsUniqId[] = {
-  IDX_HOSTGROUPS_SERVER_ID, IDX_HOSTGROUPS_GROUP_ID, DBAgent::IndexDef::END,
-};
-
-static const DBAgent::IndexDef indexDefsHostgroups[] = {
-  {"HostgroupsUniqId", (const int *)columnIndexesHostgroupsUniqId, true},
-  {NULL}
-};
-
-static const DBAgent::TableProfile tableProfileHostgroups =
-  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_HOSTGROUPS,
-			    COLUMN_DEF_HOSTGROUPS,
-			    NUM_IDX_HOSTGROUPS,
-			    indexDefsHostgroups);
-
-// ----------------------------------------------------------------------------
-// Table: map_hosts_hostgroups
-// ----------------------------------------------------------------------------
-static const ColumnDef COLUMN_DEF_MAP_HOSTS_HOSTGROUPS[] = {
-{
-	"id",                              // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_PRI,                       // keyType
-	SQL_COLUMN_FLAG_AUTO_INC,          // flags
-	NULL,                              // defaultValue
-}, {
-	"server_id",                       // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE, // indexDefsMapHostsHostgroups // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	"host_id",                         // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_IDX,                       // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
-	"host_group_id",                   // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_IDX,                       // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-},
-};
-
-enum {
-	IDX_MAP_HOSTS_HOSTGROUPS_ID,
-	IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID,
-	IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-	IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID,
-	NUM_IDX_MAP_HOSTS_HOSTGROUPS,
-};
-
-static const int columnIndexesMapHostsHostgroupsUniqId[] = {
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_ID,
-  DBAgent::IndexDef::END,
-};
-
-static const DBAgent::IndexDef indexDefsMapHostsHostgroups[] = {
-  {"MapHostsHostgroupsUniqId",
-   (const int *)columnIndexesMapHostsHostgroupsUniqId, true},
-  {NULL}
-};
-
-static const DBAgent::TableProfile tableProfileMapHostsHostgroups =
-  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
-			    COLUMN_DEF_MAP_HOSTS_HOSTGROUPS,
-			    NUM_IDX_MAP_HOSTS_HOSTGROUPS,
-			    indexDefsMapHostsHostgroups);
 
 // ----------------------------------------------------------------------------
 // Table: server_status
@@ -735,8 +608,8 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	"event_id",                        // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
@@ -744,8 +617,8 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	NULL,                              // defaultValue
 }, {
 	"trigger_id",                      // columnName
-	SQL_COLUMN_TYPE_BIGUINT,           // type
-	20,                                // columnLength
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_IDX,                       // keyType
@@ -841,6 +714,15 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"unified_event_id",                // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -859,15 +741,29 @@ enum {
 	IDX_INCIDENTS_UPDATED_AT_NS,
 	IDX_INCIDENTS_PRIORITY,
 	IDX_INCIDENTS_DONE_RATIO,
+	IDX_INCIDENTS_UNIFIED_EVENT_ID,
 	NUM_IDX_INCIDENTS,
 };
 
-static const int columnIndexesIncidentsUniqId[] = {
-  IDX_INCIDENTS_SERVER_ID, IDX_INCIDENTS_EVENT_ID, DBAgent::IndexDef::END,
+static const int columnIndexesIncidentsIdentifier[] = {
+  IDX_INCIDENTS_TRACKER_ID, IDX_INCIDENTS_IDENTIFIER, DBAgent::IndexDef::END,
+};
+
+static const int columnIndexesIncidentsUnifiedEventId[] = {
+  IDX_INCIDENTS_UNIFIED_EVENT_ID, DBAgent::IndexDef::END,
 };
 
 static const DBAgent::IndexDef indexDefsIncidents[] = {
-  {"IncidentsEventId", (const int *)columnIndexesIncidentsUniqId, true},
+  {
+    "IncidentsIdentifier",
+    (const int *)columnIndexesIncidentsIdentifier,
+    true
+  },
+  {
+    "IncidentsUnifiedEventId",
+    (const int *)columnIndexesIncidentsUnifiedEventId,
+    false
+  },
   {NULL}
 };
 
@@ -879,7 +775,9 @@ static const DBAgent::TableProfile tableProfileIncidents =
 
 struct DBTablesMonitoring::Impl
 {
+	bool storedHostsChanged;
 	Impl(void)
+	: storedHostsChanged(true)
 	{
 	}
 
@@ -895,14 +793,15 @@ void initEventInfo(EventInfo &eventInfo)
 {
 	eventInfo.unifiedId = 0;
 	eventInfo.serverId = 0;
-	eventInfo.id = 0;
+	eventInfo.id.clear();
 	eventInfo.time.tv_sec = 0;
 	eventInfo.time.tv_nsec = 0;
 	eventInfo.type = EVENT_TYPE_UNKNOWN;
-	eventInfo.triggerId = 0;
+	eventInfo.triggerId.clear();
 	eventInfo.status = TRIGGER_STATUS_UNKNOWN;
 	eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
-	eventInfo.hostId = INVALID_HOST_ID;
+	eventInfo.globalHostId = INVALID_HOST_ID;
+	eventInfo.hostIdInServer.clear();
 }
 
 // ---------------------------------------------------------------------------
@@ -915,27 +814,35 @@ void initEventInfo(EventInfo &eventInfo)
 static const HostResourceQueryOption::Synapse synapseEventsQueryOption(
   tableProfileEvents,
   IDX_EVENTS_UNIFIED_ID, IDX_EVENTS_SERVER_ID,
-  tableProfileTriggers,
-  IDX_TRIGGERS_HOST_ID, true,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+  tableProfileEvents,
+  IDX_EVENTS_HOST_ID_IN_SERVER, true,
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID,
+  IDX_EVENTS_GLOBAL_HOST_ID, IDX_HOSTGROUP_MEMBER_HOST_ID
+);
 
 struct EventsQueryOption::Impl {
 	uint64_t limitOfUnifiedId;
 	SortType sortType;
 	SortDirection sortDirection;
+	EventType type;
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
 	TriggerIdType triggerId;
+	timespec beginTime;
+	timespec endTime;
 
 	Impl()
 	: limitOfUnifiedId(NO_LIMIT),
 	  sortType(SORT_UNIFIED_ID),
 	  sortDirection(SORT_DONT_CARE),
+	  type(EVENT_TYPE_ALL),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
 	  triggerStatus(TRIGGER_STATUS_ALL),
-	  triggerId(ALL_TRIGGERS)
+	  triggerId(ALL_TRIGGERS),
+	  beginTime({0, 0}),
+	  endTime({0, 0})
 	{
 	}
 };
@@ -979,15 +886,22 @@ string EventsQueryOption::getCondition(void) const
 			m_impl->limitOfUnifiedId);
 	}
 
+	if (m_impl->type != EVENT_TYPE_ALL) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s=%d",
+			getColumnName(IDX_EVENTS_EVENT_TYPE).c_str(),
+			m_impl->type);
+	}
+
 	if (m_impl->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
 		if (!condition.empty())
 			condition += " AND ";
-		// Use triggers table because events tables doesn't contain
-		// correct severity.
+		// Use events table because events tables contains severity.
 		condition += StringUtils::sprintf(
-			"%s.%s>=%d",
-			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
-			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName,
+			"%s>=%d",
+			COLUMN_DEF_EVENTS[IDX_EVENTS_SEVERITY].columnName,
 			m_impl->minSeverity);
 	}
 
@@ -1003,12 +917,39 @@ string EventsQueryOption::getCondition(void) const
 	}
 
 	if (m_impl->triggerId != ALL_TRIGGERS) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
 		if (!condition.empty())
 			condition += " AND ";
 		condition += StringUtils::sprintf(
-			"%s=%" FMT_TRIGGER_ID,
+			"%s=%s",
 			getColumnName(IDX_EVENTS_TRIGGER_ID).c_str(),
-			m_impl->triggerId);
+			rhs(m_impl->triggerId));
+	}
+
+	if (m_impl->beginTime.tv_sec != 0 || m_impl->beginTime.tv_nsec != 0) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"(%s>%ld OR (%s=%ld AND %s>=%ld))",
+			getColumnName(IDX_EVENTS_TIME_SEC).c_str(),
+			m_impl->beginTime.tv_sec,
+			getColumnName(IDX_EVENTS_TIME_SEC).c_str(),
+			m_impl->beginTime.tv_sec,
+			getColumnName(IDX_EVENTS_TIME_NS).c_str(),
+			m_impl->beginTime.tv_nsec);
+	}
+
+	if (m_impl->endTime.tv_sec != 0 || m_impl->endTime.tv_nsec != 0) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"(%s<%ld OR (%s=%ld AND %s<=%ld))",
+			getColumnName(IDX_EVENTS_TIME_SEC).c_str(),
+			m_impl->endTime.tv_sec,
+			getColumnName(IDX_EVENTS_TIME_SEC).c_str(),
+			m_impl->endTime.tv_sec,
+			getColumnName(IDX_EVENTS_TIME_NS).c_str(),
+			m_impl->endTime.tv_nsec);
 	}
 
 	return condition;
@@ -1083,6 +1024,16 @@ TriggerSeverityType EventsQueryOption::getMinimumSeverity(void) const
 	return m_impl->minSeverity;
 }
 
+void EventsQueryOption::setType(const EventType &type)
+{
+	m_impl->type = type;
+}
+
+EventType EventsQueryOption::getType(void) const
+{
+	return m_impl->type;
+}
+
 void EventsQueryOption::setTriggerStatus(const TriggerStatusType &status)
 {
 	m_impl->triggerStatus = status;
@@ -1103,6 +1054,26 @@ TriggerIdType EventsQueryOption::getTriggerId(void) const
 	return m_impl->triggerId;
 }
 
+void EventsQueryOption::setBeginTime(const timespec &_beginTime)
+{
+	m_impl->beginTime = _beginTime;
+}
+
+const timespec &EventsQueryOption::getBeginTime(void)
+{
+	return m_impl->beginTime;
+}
+
+void EventsQueryOption::setEndTime(const timespec &_endTime)
+{
+	m_impl->endTime = _endTime;
+}
+
+const timespec &EventsQueryOption::getEndTime(void)
+{
+	return m_impl->endTime;
+}
+
 //
 // TriggersQueryOption
 //
@@ -1110,22 +1081,32 @@ static const HostResourceQueryOption::Synapse synapseTriggersQueryOption(
   tableProfileTriggers,
   IDX_TRIGGERS_ID, IDX_TRIGGERS_SERVER_ID,
   tableProfileTriggers,
-  IDX_TRIGGERS_HOST_ID,
+  IDX_TRIGGERS_HOST_ID_IN_SERVER,
   true,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID,
+  IDX_TRIGGERS_GLOBAL_HOST_ID, IDX_HOSTGROUP_MEMBER_HOST_ID);
 
 struct TriggersQueryOption::Impl {
 	TriggerIdType targetId;
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
+	ExcludeFlags excludeFlags;
 
 	Impl()
 	: targetId(ALL_TRIGGERS),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
-	  triggerStatus(TRIGGER_STATUS_ALL)
+	  triggerStatus(TRIGGER_STATUS_ALL),
+	  excludeFlags(NO_EXCLUDE_HOST)
 	{
+	}
+	bool shouldExcludeSelfMonitoring() {
+		return excludeFlags & EXCLUDE_SELF_MONITORING;
+	}
+
+	bool shouldExcludeInvalidHost() {
+		return excludeFlags & EXCLUDE_INVALID_HOST;
 	}
 };
 
@@ -1152,6 +1133,12 @@ TriggersQueryOption::~TriggersQueryOption()
 {
 }
 
+void TriggersQueryOption::setExcludeFlags(const ExcludeFlags &flg)
+{
+	m_impl->excludeFlags = flg;
+}
+
+
 string TriggersQueryOption::getCondition(void) const
 {
 	string condition = HostResourceQueryOption::getCondition();
@@ -1159,15 +1146,35 @@ string TriggersQueryOption::getCondition(void) const
 	if (DBHatohol::isAlwaysFalseCondition(condition))
 		return condition;
 
+	if (m_impl->shouldExcludeSelfMonitoring()) {
+		addCondition(
+		  condition,
+		  StringUtils::sprintf(
+		    "%s.%s!=%d",
+		    DBTablesMonitoring::TABLE_NAME_TRIGGERS,
+		    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_VALIDITY].columnName,
+		    TRIGGER_VALID_SELF_MONITORING));
+	}
+
+	if (m_impl->shouldExcludeInvalidHost()) {
+		addCondition(
+		  condition,
+		  StringUtils::sprintf(
+		    "%s.%s!=%d",
+		    DBTablesMonitoring::TABLE_NAME_TRIGGERS,
+		    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_VALIDITY].columnName,
+		    TRIGGER_INVALID));
+	}
+
 	if (m_impl->targetId != ALL_TRIGGERS) {
-		const DBTermCodec *dbTermCodec = getDBTermCodec();
+		DBTermCStringProvider rhs(*getDBTermCodec());
 		if (!condition.empty())
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s=%s",
 			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
-			dbTermCodec->enc(m_impl->targetId).c_str());
+			rhs(m_impl->targetId));
 	}
 
 	if (m_impl->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
@@ -1228,19 +1235,30 @@ TriggerStatusType TriggersQueryOption::getTriggerStatus(void) const
 //
 static const HostResourceQueryOption::Synapse synapseItemsQueryOption(
   tableProfileItems, IDX_ITEMS_ID, IDX_ITEMS_SERVER_ID,
-  tableProfileItems, IDX_ITEMS_HOST_ID,
+  tableProfileItems, IDX_ITEMS_HOST_ID_IN_SERVER,
   true,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
+  tableProfileHostgroupMember,
+  IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
+  IDX_HOSTGROUP_MEMBER_GROUP_ID,
+  IDX_ITEMS_GLOBAL_HOST_ID, IDX_HOSTGROUP_MEMBER_HOST_ID);
 
 struct ItemsQueryOption::Impl {
 	ItemIdType targetId;
 	string itemGroupName;
+	string appName;
+	ExcludeFlags excludeFlags;
 
 	Impl()
-	: targetId(ALL_ITEMS)
+	: targetId(ALL_ITEMS),
+	  excludeFlags(NO_EXCLUDE_HOST)
 	{
+	}
+	bool shouldExcludeSelfMonitoring() {
+		return excludeFlags & EXCLUDE_SELF_MONITORING;
+	}
+
+	bool shouldExcludeInvalidHost() {
+		return excludeFlags & EXCLUDE_INVALID_HOST;
 	}
 };
 
@@ -1274,27 +1292,47 @@ string ItemsQueryOption::getCondition(void) const
 	if (DBHatohol::isAlwaysFalseCondition(condition))
 		return condition;
 
+	if (m_impl->shouldExcludeInvalidHost()) {
+		addCondition(
+		  condition,
+		  StringUtils::sprintf(
+		    "%s!=%d",
+		    tableProfileServerHostDef.getFullColumnName(
+		      IDX_HOST_SERVER_HOST_DEF_HOST_STATUS).c_str(),
+		    HOST_STAT_REMOVED));
+	}
+
 	if (m_impl->targetId != ALL_ITEMS) {
-		const DBTermCodec *dbTermCodec = getDBTermCodec();
+		DBTermCStringProvider rhs(*getDBTermCodec());
 		if (!condition.empty())
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s=%s",
 			DBTablesMonitoring::TABLE_NAME_ITEMS,
 			COLUMN_DEF_ITEMS[IDX_ITEMS_ID].columnName,
-			dbTermCodec->enc(m_impl->targetId).c_str());
+			rhs(m_impl->targetId));
 	}
 
 	if (!m_impl->itemGroupName.empty()) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
 		if (!condition.empty())
 			condition += " AND ";
-		string escaped = StringUtils::replace(m_impl->itemGroupName,
-						      "'", "''");
 		condition += StringUtils::sprintf(
-			"%s.%s='%s'",
+			"%s.%s=%s",
 			DBTablesMonitoring::TABLE_NAME_ITEMS,
 			COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME].columnName,
-			escaped.c_str());
+			rhs(m_impl->itemGroupName));
+	}
+
+	if (!m_impl->appName.empty()){
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"%s.%s=%s",
+			DBTablesMonitoring::TABLE_NAME_ITEMS,
+			COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME].columnName,
+			rhs(m_impl->appName));
 	}
 
 	return condition;
@@ -1320,116 +1358,19 @@ const string &ItemsQueryOption::getTargetItemGroupName(void)
 	return m_impl->itemGroupName;
 }
 
-//
-// HostsQueryOption
-//
-static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
-  tableProfileHosts, IDX_HOSTS_ID, IDX_HOSTS_SERVER_ID,
-  tableProfileHosts, IDX_HOSTS_HOST_ID,
-  true,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
-
-struct HostsQueryOption::Impl {
-	HostValidity validity;
-
-	Impl()
-	: validity(HOST_ALL_VALID)
-	{
-	}
-};
-
-HostsQueryOption::HostsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseHostsQueryOption, userId),
-  m_impl(new Impl())
+void ItemsQueryOption::setAppName(const string &appName) const
 {
+	m_impl->appName = appName;
 }
 
-HostsQueryOption::HostsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseHostsQueryOption, dataQueryContext),
-  m_impl(new Impl())
+const string &ItemsQueryOption::getAppName(void) const
 {
+	return m_impl->appName;
 }
 
-HostsQueryOption::~HostsQueryOption(void)
+void ItemsQueryOption::setExcludeFlags(const ExcludeFlags &flg)
 {
-}
-
-string HostsQueryOption::getCondition(void) const
-{
-	string condition = HostResourceQueryOption::getCondition();
-	if (m_impl->validity == HOST_ANY_VALIDITY)
-		return condition;
-	if (!condition.empty())
-		condition += " AND ";
-
-	string columnName = COLUMN_DEF_HOSTS[IDX_HOSTS_VALIDITY].columnName;
-	if (m_impl->validity == HOST_ALL_VALID) {
-		condition += StringUtils::sprintf("%s>=%d",
-		  columnName.c_str(), HOST_VALID);
-	} else {
-		condition += StringUtils::sprintf("%s=%d",
-		  columnName.c_str(), HOST_VALID);
-	}
-	return condition;
-}
-
-void HostsQueryOption::setValidity(const HostValidity &validity)
-{
-	m_impl->validity = validity;
-}
-
-HostValidity HostsQueryOption::getValidity(void) const
-{
-	return m_impl->validity;
-}
-
-
-//
-// HostgroupsQueryOption
-//
-static const HostResourceQueryOption::Synapse synapseHostgroupsQueryOption(
-  tableProfileHostgroups,
-  IDX_HOSTGROUPS_GROUP_ID, IDX_HOSTGROUPS_SERVER_ID,
-  tableProfileHostgroups,
-  INVALID_COLUMN_IDX,
-  false,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
-
-HostgroupsQueryOption::HostgroupsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseHostgroupsQueryOption, userId)
-{
-}
-
-HostgroupsQueryOption::HostgroupsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseHostgroupsQueryOption, dataQueryContext)
-{
-}
-
-//
-// HostgroupElementQueryOption
-//
-static const HostResourceQueryOption::Synapse synapseHostgroupElementQueryOption(
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_ID, IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID, false,
-  tableProfileMapHostsHostgroups,
-  IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID, IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID,
-  IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
-
-HostgroupElementQueryOption::HostgroupElementQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseHostgroupElementQueryOption, userId)
-{
-}
-
-HostgroupElementQueryOption::HostgroupElementQueryOption(
-  DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseHostgroupElementQueryOption, dataQueryContext)
-{
+	m_impl->excludeFlags = flg;
 }
 
 //
@@ -1453,6 +1394,11 @@ void DBTablesMonitoring::reset(void)
 	getSetupInfo().initialized = false;
 }
 
+const DBTables::SetupInfo &DBTablesMonitoring::getConstSetupInfo(void)
+{
+	return getSetupInfo();
+}
+
 DBTablesMonitoring::DBTablesMonitoring(DBAgent &dbAgent)
 : DBTables(dbAgent, getSetupInfo()),
   m_impl(new Impl())
@@ -1463,43 +1409,12 @@ DBTablesMonitoring::~DBTablesMonitoring()
 {
 }
 
-void DBTablesMonitoring::getHostInfoList(HostInfoList &hostInfoList,
-				      const HostsQueryOption &option)
-{
-	DBAgent::SelectExArg arg(tableProfileHosts);
-	arg.tableField = option.getFromClause();
-	arg.useDistinct = option.isHostgroupUsed();
-	arg.useFullName = option.isHostgroupUsed();
-	arg.add(IDX_HOSTS_SERVER_ID);
-	arg.add(IDX_HOSTS_HOST_ID);
-	arg.add(IDX_HOSTS_HOST_NAME);
-	arg.add(IDX_HOSTS_VALIDITY);
-
-	// condition
-	arg.condition = option.getCondition();
-
-	getDBAgent().runTransaction(arg);
-
-	// get the result
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator itemGrpItr = grpList.begin();
-	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		ItemGroupStream itemGroupStream(*itemGrpItr);
-		hostInfoList.push_back(HostInfo());
-		HostInfo &hostInfo = hostInfoList.back();
-		itemGroupStream >> hostInfo.serverId;
-		itemGroupStream >> hostInfo.id;
-		itemGroupStream >> hostInfo.hostName;
-		itemGroupStream >> hostInfo.validity;
-	}
-}
-
-void DBTablesMonitoring::addTriggerInfo(TriggerInfo *triggerInfo)
+void DBTablesMonitoring::addTriggerInfo(const TriggerInfo *triggerInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
-		TriggerInfo *triggerInfo;
+		const TriggerInfo *triggerInfo;
 
-		TrxProc(TriggerInfo *_triggerInfo)
+		TrxProc(const TriggerInfo *_triggerInfo)
 		: triggerInfo(_triggerInfo)
 		{
 		}
@@ -1552,27 +1467,34 @@ bool DBTablesMonitoring::getTriggerInfo(TriggerInfo &triggerInfo,
 void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 					 const TriggersQueryOption &option)
 {
-	// build a condition
-	string condition = option.getCondition();
-	if (DBHatohol::isAlwaysFalseCondition(condition))
-		return;
+	DBClientJoinBuilder builder(tableProfileTriggers, &option);
+	builder.add(IDX_TRIGGERS_SERVER_ID);
+	builder.add(IDX_TRIGGERS_ID);
+	builder.add(IDX_TRIGGERS_STATUS);
+	builder.add(IDX_TRIGGERS_SEVERITY);
+	builder.add(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
+	builder.add(IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
+	builder.add(IDX_TRIGGERS_GLOBAL_HOST_ID);
+	builder.add(IDX_TRIGGERS_HOST_ID_IN_SERVER);
+	builder.add(IDX_TRIGGERS_HOSTNAME);
+	builder.add(IDX_TRIGGERS_BRIEF);
+	builder.add(IDX_TRIGGERS_EXTENDED_INFO);
+	builder.add(IDX_TRIGGERS_VALIDITY);
 
-	DBAgent::SelectExArg arg(tableProfileTriggers);
-	arg.tableField = option.getFromClause();
+	builder.addTable(
+	 tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	 tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
+	                       IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	 tableProfileTriggers, IDX_TRIGGERS_HOST_ID_IN_SERVER,
+	                       IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
+
+	DBAgent::SelectExArg &arg = builder.build();
 	arg.useDistinct = option.isHostgroupUsed();
 	arg.useFullName = option.isHostgroupUsed();
-	arg.add(IDX_TRIGGERS_SERVER_ID);
-	arg.add(IDX_TRIGGERS_ID);
-	arg.add(IDX_TRIGGERS_STATUS);
-	arg.add(IDX_TRIGGERS_SEVERITY);
-	arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_SEC);
-	arg.add(IDX_TRIGGERS_LAST_CHANGE_TIME_NS);
-	arg.add(IDX_TRIGGERS_HOST_ID);
-	arg.add(IDX_TRIGGERS_HOSTNAME);
-	arg.add(IDX_TRIGGERS_BRIEF);
 
-	// condition
-	arg.condition = condition;
+	// condition check
+	if (DBHatohol::isAlwaysFalseCondition(arg.condition))
+		return;
 
 	// Order By
 	arg.orderBy = option.getOrderBy();
@@ -1598,9 +1520,12 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 		itemGroupStream >> trigInfo.severity;
 		itemGroupStream >> trigInfo.lastChangeTime.tv_sec;
 		itemGroupStream >> trigInfo.lastChangeTime.tv_nsec;
-		itemGroupStream >> trigInfo.hostId;
+		itemGroupStream >> trigInfo.globalHostId;
+		itemGroupStream >> trigInfo.hostIdInServer;
 		itemGroupStream >> trigInfo.hostName;
 		itemGroupStream >> trigInfo.brief;
+		itemGroupStream >> trigInfo.extendedInfo;
+		itemGroupStream >> trigInfo.validity;
 
 		triggerInfoList.push_back(trigInfo);
 	}
@@ -1627,11 +1552,10 @@ void DBTablesMonitoring::setTriggerInfoList(
 		{
 			// TODO: This way is too rough and inefficient.
 			//       We should update only the changed triggers.
-			const DBTermCodec *dbTermCodec =
-			  dbAgent.getDBTermCodec();
+			DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
 			deleteArg.condition = StringUtils::sprintf("%s=%s",
 			  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
-			  dbTermCodec->enc(serverId).c_str());
+			  rhs(serverId));
 			return true;
 		}
 
@@ -1649,16 +1573,17 @@ void DBTablesMonitoring::setTriggerInfoList(
 
 int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	DBAgent::SelectExArg arg(tableProfileTriggers);
 	string stmt = StringUtils::sprintf("coalesce(max(%s), 0)",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName);
 	arg.add(stmt, COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].type);
-	arg.condition = StringUtils::sprintf("%s=%s AND %s < %" FMT_TRIGGER_ID,
+	arg.condition = StringUtils::sprintf(
+	    "%s=%s AND %s!=%d",
 	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
-	    dbTermCodec->enc(serverId).c_str(),
-	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
-	    FAILED_SELF_TRIGGER_ID_TERMINATION);
+	    rhs(serverId),
+	    COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_VALIDITY].columnName,
+	    TRIGGER_VALID_SELF_MONITORING);
 
 	getDBAgent().runTransaction(arg);
 
@@ -1671,6 +1596,198 @@ int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 	//       However, I don't have a good idea. Propably constexpr,
 	//       feature of C++11, may solve this problem.
 	return itemGroupStream.read<int>();
+}
+
+void DBTablesMonitoring::updateTrigger(const TriggerInfoList &triggerInfoList,
+				       const ServerIdType &serverId)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	option.setExcludeFlags(EXCLUDE_SELF_MONITORING);
+	TriggerInfoList currTrigger;
+	getTriggerInfoList(currTrigger, option);
+	TriggerIdInfoMap triggerMap;
+	TriggerInfoListIterator currTriggerItr = currTrigger.begin();
+	for (; currTriggerItr != currTrigger.end(); ++currTriggerItr){
+		TriggerInfo &triggerInfo = *currTriggerItr;
+		triggerMap[triggerInfo.id] = &triggerInfo;
+	}
+
+
+	TriggerInfoList updateTriggerList;
+	TriggerInfoListConstIterator newTriggerItr = triggerInfoList.begin();
+	for (; newTriggerItr != triggerInfoList.end(); ++newTriggerItr){
+		const TriggerInfo &newTriggerInfo = *newTriggerItr;
+		TriggerIdInfoMapIterator currTriggerItr =
+		  triggerMap.find(newTriggerInfo.id);
+		if (currTriggerItr != triggerMap.end()) {
+			const TriggerInfo *currTrigger = currTriggerItr->second;
+			const TriggerValidity validity = currTrigger->validity;
+			triggerMap.erase(currTriggerItr);
+			if (validity == TRIGGER_VALID)
+				continue;
+		}
+		updateTriggerList.push_back(newTriggerInfo);
+	}
+
+
+	TriggerIdInfoMapIterator invalidTriggerItr = triggerMap.begin();
+	for (; invalidTriggerItr != triggerMap.end(); ++invalidTriggerItr) {
+		TriggerInfo *invalidTrigger = invalidTriggerItr->second;
+		invalidTrigger->validity = TRIGGER_INVALID;
+		updateTriggerList.push_back(*invalidTrigger);
+	}
+
+	addTriggerInfoList(updateTriggerList);
+}
+
+static string makeTriggerIdListCondition(const TriggerIdList &idList)
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID];
+	SeparatorInjector commaInjector(",");
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	DBTermCodec codec;
+	for (auto id : idList) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%" FMT_TRIGGER_ID,
+						  codec.enc(id).c_str());
+	}
+
+	condition += ")";
+	return condition;
+}
+
+static string makeConditionForDelete(const TriggerIdList &idList,
+				     const ServerIdType &serverId)
+{
+	string condition = makeTriggerIdListCondition(idList);
+	condition += " AND ";
+	string columnName =
+		tableProfileTriggers.columnDefs[IDX_TRIGGERS_SERVER_ID].columnName;
+	condition += StringUtils::sprintf("%s=%" FMT_SERVER_ID,
+	                                  columnName.c_str(), serverId);
+
+	return condition;
+}
+
+HatoholError DBTablesMonitoring::deleteTriggerInfo(const TriggerIdList &idList,
+                                                   const ServerIdType &serverId)
+{
+	if (idList.empty()) {
+		MLPL_WARN("idList is empty.\n");
+		return HTERR_INVALID_PARAMETER;
+	}
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg arg;
+		uint64_t numAffectedRows;
+
+		TrxProc (void)
+		: arg(tableProfileTriggers),
+		  numAffectedRows(0)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(arg);
+			numAffectedRows = dbAgent.getNumberOfAffectedRows();
+		}
+	} trx;
+	trx.arg.condition = makeConditionForDelete(idList, serverId);
+	getDBAgent().runTransaction(trx);
+
+	// Check the result
+	if (trx.numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
+		         trx.numAffectedRows, idList.size());
+		return HTERR_DELETE_INCOMPLETE;
+	}
+
+	return HTERR_OK;
+}
+
+static bool isTriggerDescriptionChanged(
+  TriggerInfo trigger, map<TriggerIdType, const TriggerInfo *> currentTriggerMap)
+{
+	auto triggerItr = currentTriggerMap.find(trigger.id);
+	if (triggerItr != currentTriggerMap.end()) {
+		if (triggerItr->second->status != trigger.status) {
+			return true;
+		}
+		if (triggerItr->second->severity != trigger.severity) {
+			return true;
+		}
+		if (triggerItr->second->lastChangeTime.tv_sec !=
+		    trigger.lastChangeTime.tv_sec ||
+		    triggerItr->second->lastChangeTime.tv_nsec !=
+		    trigger.lastChangeTime.tv_nsec) {
+			return true;
+		}
+		if (triggerItr->second->globalHostId != trigger.globalHostId) {
+			return true;
+		}
+		if (triggerItr->second->hostIdInServer != trigger.hostIdInServer) {
+			return true;
+		}
+		if (triggerItr->second->hostName != trigger.hostName) {
+			return true;
+		}
+		if (triggerItr->second->brief != trigger.brief) {
+			return true;
+		}
+		if (triggerItr->second->extendedInfo != trigger.extendedInfo) {
+			return true;
+		}
+		if (triggerItr->second->validity != trigger.validity) {
+			return true;
+		}
+	}
+	return false;
+}
+
+HatoholError DBTablesMonitoring::syncTriggers(
+  const TriggerInfoList &incomingTriggerInfoList,
+  const ServerIdType &serverId)
+{
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(serverId);
+	TriggerInfoList _currTriggers;
+	getTriggerInfoList(_currTriggers, option);
+
+	const TriggerInfoList currTriggers = move(_currTriggers);
+
+	map<TriggerIdType, const TriggerInfo *> currentTriggerMap;
+	for (auto& trigger : currTriggers) {
+		currentTriggerMap[trigger.id] = &trigger;
+	}
+
+	// Pick up triggers to be added
+	TriggerInfoList serverTriggers;
+	for (auto trigger : incomingTriggerInfoList) {
+		if (!isTriggerDescriptionChanged(trigger, currentTriggerMap) &&
+		    currentTriggerMap.erase(trigger.id) >= 1) {
+			// If the hostgroup already exists of unmodified,
+			// we have nothing to do.
+			continue;
+		}
+		serverTriggers.push_back(move(trigger));
+	}
+
+	TriggerIdList invalidTriggerIdList;
+	map<TriggerIdType, const TriggerInfo *> invalidTriggerMap =
+		move(currentTriggerMap);
+	for (auto invalidTriggerPair : invalidTriggerMap) {
+		TriggerInfo invalidTrigger = *invalidTriggerPair.second;
+		invalidTriggerIdList.push_back(invalidTrigger.id);
+	}
+	HatoholError err = HTERR_OK;
+	if (invalidTriggerIdList.size() > 0)
+		err = deleteTriggerInfo(invalidTriggerIdList, serverId);
+	if (serverTriggers.size() > 0)
+		addTriggerInfoList(serverTriggers);
+	return err;
 }
 
 void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)
@@ -1691,19 +1808,19 @@ void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)
 	getDBAgent().runTransaction(trx);
 }
 
-void DBTablesMonitoring::addEventInfoList(const EventInfoList &eventInfoList)
+void DBTablesMonitoring::addEventInfoList(EventInfoList &eventInfoList)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
-		const EventInfoList &eventInfoList;
+		EventInfoList &eventInfoList;
 
-		TrxProc(const EventInfoList &_eventInfoList)
+		TrxProc(EventInfoList &_eventInfoList)
 		: eventInfoList(_eventInfoList)
 		{
 		}
 
 		void operator ()(DBAgent &dbAgent) override
 		{
-			EventInfoListConstIterator it = eventInfoList.begin();
+			EventInfoListIterator it = eventInfoList.begin();
 			for (; it != eventInfoList.end(); ++it)
 				addEventInfoWithoutTransaction(dbAgent, *it);
 		}
@@ -1725,26 +1842,16 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	builder.add(IDX_EVENTS_TRIGGER_ID);
 	builder.add(IDX_EVENTS_STATUS);
 	builder.add(IDX_EVENTS_SEVERITY);
-	builder.add(IDX_EVENTS_HOST_ID);
+	builder.add(IDX_EVENTS_GLOBAL_HOST_ID);
+	builder.add(IDX_EVENTS_HOST_ID_IN_SERVER);
 	builder.add(IDX_EVENTS_HOST_NAME);
 	builder.add(IDX_EVENTS_BRIEF);
-
-	builder.addTable(
-	  tableProfileTriggers, DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileEvents, IDX_EVENTS_SERVER_ID, IDX_TRIGGERS_SERVER_ID,
-	  tableProfileEvents, IDX_EVENTS_TRIGGER_ID, IDX_TRIGGERS_ID);
-	builder.add(IDX_TRIGGERS_STATUS);
-	builder.add(IDX_TRIGGERS_SEVERITY);
-	builder.add(IDX_TRIGGERS_HOST_ID);
-	builder.add(IDX_TRIGGERS_HOSTNAME);
-	builder.add(IDX_TRIGGERS_BRIEF);
+	builder.add(IDX_EVENTS_EXTENDED_INFO);
 
 	if (incidentInfoVect) {
 		builder.addTable(
 		  tableProfileIncidents, DBClientJoinBuilder::LEFT_JOIN,
-		  tableProfileEvents, IDX_EVENTS_SERVER_ID,
-		  IDX_INCIDENTS_SERVER_ID,
-		  tableProfileEvents, IDX_EVENTS_ID, IDX_INCIDENTS_EVENT_ID);
+		  tableProfileEvents, IDX_EVENTS_UNIFIED_ID, IDX_INCIDENTS_UNIFIED_EVENT_ID);
 		builder.add(IDX_INCIDENTS_TRACKER_ID);
 		builder.add(IDX_INCIDENTS_IDENTIFIER);
 		builder.add(IDX_INCIDENTS_LOCATION);
@@ -1756,6 +1863,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		builder.add(IDX_INCIDENTS_UPDATED_AT_NS);
 		builder.add(IDX_INCIDENTS_PRIORITY);
 		builder.add(IDX_INCIDENTS_DONE_RATIO);
+		builder.add(IDX_INCIDENTS_UNIFIED_EVENT_ID);
 	}
 
 	// Condition
@@ -1795,51 +1903,17 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		itemGroupStream >> eventInfo.time.tv_nsec;
 		itemGroupStream >> eventInfo.type;
 		itemGroupStream >> eventInfo.triggerId;
+		itemGroupStream >> eventInfo.status;
+		itemGroupStream >> eventInfo.severity;
+		itemGroupStream >> eventInfo.globalHostId;
+		itemGroupStream >> eventInfo.hostIdInServer;
+		itemGroupStream >> eventInfo.hostName;
+		itemGroupStream >> eventInfo.brief;
 
-		TriggerStatusType   eventStatus;
-		TriggerSeverityType eventSeverity;
-		HostIdType          eventHostId;
-		string              eventHostName;
-		string              eventBrief;
-		itemGroupStream >> eventStatus;
-		itemGroupStream >> eventSeverity;
-		itemGroupStream >> eventHostId;
-		itemGroupStream >> eventHostName;
-		itemGroupStream >> eventBrief;
-
-		TriggerStatusType   triggerStatus;
-		TriggerSeverityType triggerSeverity;
-		HostIdType          triggerHostId;
-		string              triggerHostName;
-		string              triggerBrief;
-		itemGroupStream >> triggerStatus;
-		itemGroupStream >> triggerSeverity;
-		itemGroupStream >> triggerHostId;
-		itemGroupStream >> triggerHostName;
-		itemGroupStream >> triggerBrief;
-
-		if (eventStatus != TRIGGER_STATUS_UNKNOWN) {
-			eventInfo.status = eventStatus;
-		} else {
-			eventInfo.status = triggerStatus;
-		}
-		if (eventSeverity != TRIGGER_SEVERITY_UNKNOWN) {
-			eventInfo.severity = eventSeverity;
-		} else {
-			eventInfo.severity = triggerSeverity;
-		}
-		if (eventHostId != 0 && eventHostId != INVALID_HOST_ID) {
-			eventInfo.hostId = eventHostId;
-			eventInfo.hostName = eventHostName;
-		} else {
-			eventInfo.hostId = triggerHostId;
-			eventInfo.hostName = triggerHostName;
-		}
-		if (!eventBrief.empty()) {
-			eventInfo.brief = eventBrief;
-		} else {
-			eventInfo.brief = triggerBrief;
-		}
+		string triggerExtendedInfo;
+		itemGroupStream >> triggerExtendedInfo;
+		if (!triggerExtendedInfo.empty())
+			eventInfo.extendedInfo = triggerExtendedInfo;
 
 		if (incidentInfoVect) {
 			incidentInfoVect->push_back(IncidentInfo());
@@ -1860,222 +1934,25 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 			incidentInfo.serverId  = eventInfo.serverId;
 			incidentInfo.eventId   = eventInfo.id;
 			incidentInfo.triggerId = eventInfo.triggerId;
+			incidentInfo.unifiedEventId = eventInfo.unifiedId;
 		}
 	}
 	return HatoholError(HTERR_OK);
 }
 
-// TODO: remove this fucntion (no longer used)
-void DBTablesMonitoring::setEventInfoList(
-  const EventInfoList &eventInfoList, const ServerIdType &serverId)
+EventIdType DBTablesMonitoring::getMaxEventId(const ServerIdType &serverId)
 {
-	struct TrxProc : public DBAgent::TransactionProc {
-		const EventInfoList &eventInfoList;
-		const ServerIdType &serverId;
-		DBAgent::DeleteArg deleteArg;
-
-		TrxProc(const EventInfoList &_eventInfoList,
-		        const ServerIdType &_serverId)
-		: eventInfoList(_eventInfoList),
-		  serverId(_serverId),
-		  deleteArg(tableProfileEvents)
-		{
-		}
-
-		virtual bool preproc(DBAgent &dbAgent) override
-		{
-			deleteArg.condition =
-			  StringUtils::sprintf("%s=%s",
-			    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
-			    dbAgent.getDBTermCodec()->enc(serverId).c_str());
-			return true;
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			dbAgent.deleteRows(deleteArg);
-			EventInfoListConstIterator it = eventInfoList.begin();
-			for (; it != eventInfoList.end(); ++it)
-				addEventInfoWithoutTransaction(dbAgent, *it);
-		}
-	} trx(eventInfoList, serverId);
-	getDBAgent().runTransaction(trx);
-}
-
-void DBTablesMonitoring::addHostgroupInfo(HostgroupInfo *groupInfo)
-{
-	struct TrxProc : public DBAgent::TransactionProc {
-		HostgroupInfo *groupInfo;
-		
-		TrxProc(HostgroupInfo *_groupInfo)
-		: groupInfo(_groupInfo)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			addHostgroupInfoWithoutTransaction(dbAgent, *groupInfo);
-		}
-	} trx(groupInfo);
-	getDBAgent().runTransaction(trx);
-}
-
-void DBTablesMonitoring::addHostgroupInfoList(
-  const HostgroupInfoList &groupInfoList)
-{
-	struct TrxProc : public DBAgent::TransactionProc {
-		const HostgroupInfoList &groupInfoList;
-		
-		TrxProc(const HostgroupInfoList &_groupInfoList)
-		: groupInfoList(_groupInfoList)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			HostgroupInfoListConstIterator it =
-			  groupInfoList.begin();
-			for (; it != groupInfoList.end(); ++it)
-				addHostgroupInfoWithoutTransaction(dbAgent, *it);
-		}
-	} trx(groupInfoList);
-	getDBAgent().runTransaction(trx);
-
-}
-
-void DBTablesMonitoring::addHostgroupElement(
-  HostgroupElement *hostgroupElement)
-{
-	struct TrxProc : public DBAgent::TransactionProc {
-		HostgroupElement *hostgroupElement;
-		
-		TrxProc(HostgroupElement *_hostgroupElement)
-		: hostgroupElement(_hostgroupElement)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			addHostgroupElementWithoutTransaction(
-			  dbAgent, *hostgroupElement);
-		}
-	} trx(hostgroupElement);
-	getDBAgent().runTransaction(trx);
-}
-
-void DBTablesMonitoring::addHostgroupElementList(
-  const HostgroupElementList &hostgroupElementList)
-{
-	struct TrxProc : public DBAgent::TransactionProc {
-		const HostgroupElementList &hostgroupElementList;
-		
-		TrxProc(const HostgroupElementList &_hostgroupElementList)
-		: hostgroupElementList(_hostgroupElementList)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			HostgroupElementListConstIterator it =
-			  hostgroupElementList.begin();
-			for (; it != hostgroupElementList.end(); ++it) {
-				addHostgroupElementWithoutTransaction(dbAgent,
-				                                      *it);
-			}
-		}
-	} trx(hostgroupElementList);
-	getDBAgent().runTransaction(trx);
-}
-
-void DBTablesMonitoring::addHostInfo(HostInfo *hostInfo)
-{
-	struct TrxProc : public DBAgent::TransactionProc {
-		HostInfo *hostInfo;
-		
-		TrxProc(HostInfo *_hostInfo)
-		: hostInfo(_hostInfo)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			addHostInfoWithoutTransaction(dbAgent, *hostInfo);
-		}
-	} trx(hostInfo);
-	getDBAgent().runTransaction(trx);
-}
-
-void DBTablesMonitoring::addHostInfoList(const HostInfoList &hostInfoList)
-{
-	struct TrxProc : public DBAgent::TransactionProc {
-		const HostInfoList &hostInfoList;
-		
-		TrxProc(const HostInfoList &_hostInfoList)
-		: hostInfoList(_hostInfoList)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			HostInfoListConstIterator it = hostInfoList.begin();
-			for(; it != hostInfoList.end(); ++it)
-				addHostInfoWithoutTransaction(dbAgent, *it);
-		}
-	} trx(hostInfoList);
-	getDBAgent().runTransaction(trx);
-}
-
-void DBTablesMonitoring::updateHosts(const HostInfoList &hostInfoList,
-                                     const ServerIdType &serverId)
-{
-	// TODO: We should update the host name if it's changed.
-
-	// Make a set that contains current hosts records
-	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setValidity(HOST_VALID);
-	option.setTargetServerId(serverId);
-	HostInfoList currHosts;
-	getHostInfoList(currHosts, option);
-	HostIdHostInfoMap currValidHosts;
-	HostInfoListConstIterator currHostsItr = currHosts.begin();
-	for (; currHostsItr != currHosts.end(); ++currHostsItr) {
-		const HostInfo &hostInfo = *currHostsItr;
-		currValidHosts[hostInfo.id] = &hostInfo;
-	}
-
-	// Pick up hosts to be added.
-	HostInfoList updatedHostInfoList;
-	HostInfoListConstIterator newHostsItr = hostInfoList.begin();
-	for (; newHostsItr != hostInfoList.end(); ++newHostsItr) {
-		const HostInfo &newHostInfo = *newHostsItr;
-		if (currValidHosts.erase(newHostInfo.id) >= 1) {
-			// The host already exits. We have nrothing to do.
-			continue;
-		}
-		updatedHostInfoList.push_back(newHostInfo);
-	}
-
-	// Add hosts to be marked as invalid
-	HostIdHostInfoMapIterator hostMapItr = currValidHosts.begin();
-	for (; hostMapItr != currValidHosts.end(); ++hostMapItr) {
-		HostInfo invalidHost = *hostMapItr->second;
-		invalidHost.validity = HOST_INVALID;
-		updatedHostInfoList.push_back(invalidHost);
-	}
-
-	addHostInfoList(updatedHostInfoList);
-}
-
-EventIdType DBTablesMonitoring::getLastEventId(const ServerIdType &serverId)
-{
-	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
+	using StringUtils::sprintf;
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	DBAgent::SelectExArg arg(tableProfileEvents);
-	string stmt = StringUtils::sprintf("coalesce(max(%s), -1)",
-	    COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName);
+	string stmt = sprintf("coalesce(max(%s), '%s')",
+	                      COLUMN_DEF_EVENTS[IDX_EVENTS_ID].columnName,
+	                      EVENT_NOT_FOUND.c_str());
 	arg.add(stmt, COLUMN_DEF_EVENTS[IDX_EVENTS_ID].type);
-	arg.condition = StringUtils::sprintf("%s=%s",
-	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName, 
-	    dbTermCodec->enc(serverId).c_str());
+	arg.condition =
+	  sprintf("%s=%s",
+	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
+	    rhs(serverId));
 
 	getDBAgent().runTransaction(arg);
 
@@ -2111,31 +1988,34 @@ SmartTime DBTablesMonitoring::getTimeOfLastEvent(
 			foundEvent = true;
 
 			ItemGroupStream itemGroupStream(*grpList.begin());
-			const EventIdType eventId =
-			  itemGroupStream.read<EventIdType>();
+			const UnifiedEventIdType unifiedId =
+			  itemGroupStream.read<UnifiedEventIdType>();
 
 			// Get the time
-			argTime.condition = sprintf("%s=%" FMT_EVENT_ID,
+			DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
+			argTime.condition = sprintf("%s=%" FMT_UNIFIED_EVENT_ID,
 			  COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID].columnName,
-			  eventId);
+			  unifiedId);
 			dbAgent.select(argTime);
 		}
 	} trx;
 
 	// First get the event ID.
 	// TODO: Get it with the one statemetn by using sub query.
-	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	const ColumnDef &colDefUniId = COLUMN_DEF_EVENTS[IDX_EVENTS_UNIFIED_ID];
 	const string stmt = sprintf("max(%s)", colDefUniId.columnName);
 	trx.argId.add(stmt, colDefUniId.type);
 
-	trx.argId.condition = sprintf("%s=%s",
+	trx.argId.condition = sprintf("%s=%s AND %s!=%s",
 	    COLUMN_DEF_EVENTS[IDX_EVENTS_SERVER_ID].columnName,
-	    dbTermCodec->enc(serverId).c_str());
+	    rhs(serverId),
+	    COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_ID_IN_SERVER].columnName,
+	    rhs(MONITORING_SELF_LOCAL_HOST_ID));
 	if (triggerId != ALL_TRIGGERS) {
 		trx.argId.condition += sprintf(" AND %s=%s",
 		    COLUMN_DEF_EVENTS[IDX_EVENTS_TRIGGER_ID].columnName,
-		    dbTermCodec->enc(triggerId).c_str());
+		    rhs(triggerId));
 	}
 
 	// Then get the time of the event ID.
@@ -2158,12 +2038,12 @@ SmartTime DBTablesMonitoring::getTimeOfLastEvent(
 	return SmartTime(ts);
 }
 
-void DBTablesMonitoring::addItemInfo(ItemInfo *itemInfo)
+void DBTablesMonitoring::addItemInfo(const ItemInfo *itemInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
-		ItemInfo *itemInfo;
-		
-		TrxProc(ItemInfo *_itemInfo)
+		const ItemInfo *itemInfo;
+
+		TrxProc(const ItemInfo *_itemInfo)
 		: itemInfo(_itemInfo)
 		{
 		}
@@ -2180,7 +2060,7 @@ void DBTablesMonitoring::addItemInfoList(const ItemInfoList &itemInfoList)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		const ItemInfoList &itemInfoList;
-		
+
 		TrxProc(const ItemInfoList &_itemInfoList)
 		: itemInfoList(_itemInfoList)
 		{
@@ -2199,24 +2079,30 @@ void DBTablesMonitoring::addItemInfoList(const ItemInfoList &itemInfoList)
 void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 				      const ItemsQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileItems);
-	arg.tableField = option.getFromClause();
+	DBClientJoinBuilder builder(tableProfileItems, &option);
+	builder.add(IDX_ITEMS_SERVER_ID);
+	builder.add(IDX_ITEMS_ID);
+	builder.add(IDX_ITEMS_GLOBAL_HOST_ID);
+	builder.add(IDX_ITEMS_HOST_ID_IN_SERVER);
+	builder.add(IDX_ITEMS_BRIEF);
+	builder.add(IDX_ITEMS_LAST_VALUE_TIME_SEC);
+	builder.add(IDX_ITEMS_LAST_VALUE_TIME_NS);
+	builder.add(IDX_ITEMS_LAST_VALUE);
+	builder.add(IDX_ITEMS_PREV_VALUE);
+	builder.add(IDX_ITEMS_ITEM_GROUP_NAME);
+	builder.add(IDX_ITEMS_VALUE_TYPE);
+	builder.add(IDX_ITEMS_UNIT);
+	builder.addTable(
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileItems, IDX_ITEMS_SERVER_ID,
+	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileItems, IDX_ITEMS_HOST_ID_IN_SERVER,
+	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
+
+	DBAgent::SelectExArg &arg = builder.build();
 	arg.useDistinct = option.isHostgroupUsed();
 	arg.useFullName = option.isHostgroupUsed();
-	arg.add(IDX_ITEMS_SERVER_ID);
-	arg.add(IDX_ITEMS_ID);
-	arg.add(IDX_ITEMS_HOST_ID);
-	arg.add(IDX_ITEMS_BRIEF);
-	arg.add(IDX_ITEMS_LAST_VALUE_TIME_SEC);
-	arg.add(IDX_ITEMS_LAST_VALUE_TIME_NS);
-	arg.add(IDX_ITEMS_LAST_VALUE);
-	arg.add(IDX_ITEMS_PREV_VALUE);
-	arg.add(IDX_ITEMS_ITEM_GROUP_NAME);
-	arg.add(IDX_ITEMS_VALUE_TYPE);
-	arg.add(IDX_ITEMS_UNIT);
 
-	// condition
-	arg.condition = option.getCondition();
 	if (DBHatohol::isAlwaysFalseCondition(arg.condition))
 		return;
 
@@ -2228,6 +2114,9 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	arg.offset = option.getOffset();
 	if (!arg.limit && arg.offset)
 		return;
+
+	// Application Name
+	arg.appName = option.getAppName();
 
 	getDBAgent().runTransaction(arg);
 
@@ -2241,7 +2130,8 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 
 		itemGroupStream >> itemInfo.serverId;
 		itemGroupStream >> itemInfo.id;
-		itemGroupStream >> itemInfo.hostId;
+		itemGroupStream >> itemInfo.globalHostId;
+		itemGroupStream >> itemInfo.hostIdInServer;
 		itemGroupStream >> itemInfo.brief;
 		itemGroupStream >> itemInfo.lastValueTime.tv_sec;
 		itemGroupStream >> itemInfo.lastValueTime.tv_nsec;
@@ -2255,13 +2145,54 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	}
 }
 
+void DBTablesMonitoring::getApplicationInfoVect(ApplicationInfoVect &applicationInfoVect,
+                                                const ItemsQueryOption &option)
+{
+	DBClientJoinBuilder builder(tableProfileItems, &option);
+	builder.add(IDX_ITEMS_ITEM_GROUP_NAME);
+	builder.addTable(
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileItems, IDX_ITEMS_SERVER_ID,
+	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileItems, IDX_ITEMS_HOST_ID_IN_SERVER,
+	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
+
+	DBAgent::SelectExArg &arg = builder.build();
+
+	arg.useDistinct = true;
+	arg.useFullName = option.isHostgroupUsed();
+
+	// condition
+	if (DBHatohol::isAlwaysFalseCondition(arg.condition))
+		return;
+
+	// Order by
+	arg.orderBy = option.getOrderBy();
+
+	// Limit and Offset
+	arg.limit = option.getMaximumNumber();
+	arg.offset = option.getOffset();
+	if (!arg.limit && arg.offset)
+		return;
+
+	getDBAgent().runTransaction(arg);
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	for (; itemGrpItr != grpList.end(); ++ itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		applicationInfoVect.push_back(ApplicationInfo());
+		ApplicationInfo &applicationInfo = applicationInfoVect.back();
+		itemGroupStream >> applicationInfo.applicationName;
+	}
+}
+
 void DBTablesMonitoring::addMonitoringServerStatus(
-  MonitoringServerStatus *serverStatus)
+  const MonitoringServerStatus &serverStatus)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
-		MonitoringServerStatus *serverStatus;
-		
-		TrxProc(MonitoringServerStatus *_serverStatus)
+		const MonitoringServerStatus &serverStatus;
+
+		TrxProc(const MonitoringServerStatus &_serverStatus)
 		: serverStatus(_serverStatus)
 		{
 		}
@@ -2269,7 +2200,7 @@ void DBTablesMonitoring::addMonitoringServerStatus(
 		void operator ()(DBAgent &dbAgent) override
 		{
 			addMonitoringServerStatusWithoutTransaction(
-			  dbAgent, *serverStatus);
+			  dbAgent, serverStatus);
 		}
 	} trx(serverStatus);
 	getDBAgent().runTransaction(trx);
@@ -2278,7 +2209,13 @@ void DBTablesMonitoring::addMonitoringServerStatus(
 size_t DBTablesMonitoring::getNumberOfTriggers(
   const TriggersQueryOption &option, const std::string &additionalCondition)
 {
-	DBAgent::SelectExArg arg(tableProfileTriggers);
+	DBClientJoinBuilder builder(tableProfileTriggers, &option);
+	builder.addTable(
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
+	                        IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileTriggers, IDX_TRIGGERS_HOST_ID_IN_SERVER,
+	                        IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt = "count(*)";
 	if (option.isHostgroupUsed()) {
 		// Because a same trigger can be counted multiple times in
@@ -2301,14 +2238,12 @@ size_t DBTablesMonitoring::getNumberOfTriggers(
 		stmt = StringUtils::sprintf(fmt,
 		  option.getColumnName(IDX_TRIGGERS_SERVER_ID).c_str(),
 		  option.getColumnName(IDX_TRIGGERS_ID).c_str());
+
 	}
+	DBAgent::SelectExArg  &arg = builder.build();
+
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
-	// from
-	arg.tableField = option.getFromClause();
-
-	// condition
-	arg.condition = option.getCondition();
 	if (!additionalCondition.empty()) {
 		if (!arg.condition.empty())
 			arg.condition += " and ";
@@ -2326,21 +2261,20 @@ size_t DBTablesMonitoring::getNumberOfBadTriggers(
   const TriggersQueryOption &option, TriggerSeverityType severity)
 {
 	string additionalCondition;
+	const string statusProblemCond = StringUtils::sprintf("%s=%d",
+	  tableProfileTriggers.getFullColumnName(IDX_TRIGGERS_STATUS).c_str(),
+	  TRIGGER_STATUS_PROBLEM);
 
 	if (severity == TRIGGER_SEVERITY_ALL) {
-		additionalCondition
-		  = StringUtils::sprintf(
-		      "%s=%d",
-		      option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
-		      TRIGGER_STATUS_PROBLEM);
+		additionalCondition = statusProblemCond;
 	} else {
 		additionalCondition
 		  = StringUtils::sprintf(
-		      "%s=%d and %s=%d",
-		      option.getColumnName(IDX_TRIGGERS_SEVERITY).c_str(),
+		      "%s=%d and %s",
+		      tableProfileTriggers.getFullColumnName(
+		        IDX_TRIGGERS_SEVERITY).c_str(),
 		      severity,
-		      option.getColumnName(IDX_TRIGGERS_STATUS).c_str(),
-		      TRIGGER_STATUS_PROBLEM);
+		      statusProblemCond.c_str());
 	}
 	return getNumberOfTriggers(option, additionalCondition);
 }
@@ -2353,17 +2287,18 @@ size_t DBTablesMonitoring::getNumberOfTriggers(const TriggersQueryOption &option
 size_t DBTablesMonitoring::getNumberOfHosts(const TriggersQueryOption &option)
 {
 	// TODO: consider if we can use hosts table.
-	DBAgent::SelectExArg arg(tableProfileTriggers);
+	DBClientJoinBuilder builder(tableProfileTriggers, &option);
+	builder.addTable(
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
+	                        IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileTriggers, IDX_TRIGGERS_HOST_ID_IN_SERVER,
+	                        IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
-	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
+	    option.getColumnName(IDX_TRIGGERS_HOST_ID_IN_SERVER).c_str());
+	DBAgent::SelectExArg &arg = builder.build();
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
-
-	// from
-	arg.tableField = option.getFromClause();
-
-	// condition
-	arg.condition = option.getCondition();
 
 	getDBAgent().runTransaction(arg);
 
@@ -2384,17 +2319,19 @@ size_t DBTablesMonitoring::getNumberOfGoodHosts(const TriggersQueryOption &optio
 
 size_t DBTablesMonitoring::getNumberOfBadHosts(const TriggersQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileTriggers);
+	DBClientJoinBuilder builder(tableProfileTriggers, &option);
+	builder.addTable(
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileTriggers, IDX_TRIGGERS_SERVER_ID,
+	                        IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileTriggers, IDX_TRIGGERS_HOST_ID_IN_SERVER,
+	                        IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
-	    option.getColumnName(IDX_TRIGGERS_HOST_ID).c_str());
+	    option.getColumnName(IDX_TRIGGERS_HOST_ID_IN_SERVER).c_str());
+	DBAgent::SelectExArg &arg = builder.build();
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
-	// from
-	arg.tableField = option.getFromClause();
-
-	// condition
-	arg.condition = option.getCondition();
 	if (!arg.condition.empty())
 		arg.condition += " AND ";
 
@@ -2413,7 +2350,13 @@ size_t DBTablesMonitoring::getNumberOfBadHosts(const TriggersQueryOption &option
 size_t DBTablesMonitoring::getNumberOfItems(
   const ItemsQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileTriggers);
+	DBClientJoinBuilder builder(tableProfileItems, &option);
+	builder.addTable(
+	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileItems, IDX_ITEMS_SERVER_ID,
+	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+	  tableProfileItems, IDX_ITEMS_HOST_ID_IN_SERVER,
+	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 	string stmt = "count(*)";
 	if (option.isHostgroupUsed()) {
 		// TODO: It has a same issue with getNumberOfTriggers();
@@ -2429,13 +2372,9 @@ size_t DBTablesMonitoring::getNumberOfItems(
 		  option.getColumnName(IDX_ITEMS_SERVER_ID).c_str(),
 		  option.getColumnName(IDX_ITEMS_ID).c_str());
 	}
+	DBAgent::SelectExArg  &arg = builder.build();
+
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
-
-	// from
-	arg.tableField = option.getFromClause();
-
-	// condition
-	arg.condition = option.getCondition();
 
 	getDBAgent().runTransaction(arg);
 
@@ -2477,47 +2416,11 @@ HatoholError DBTablesMonitoring::getNumberOfMonitoredItemsPerSecond
 	return HatoholError(HTERR_OK);
 }
 
-void DBTablesMonitoring::pickupAbsentHostIds(
-  vector<uint64_t> &absentHostIdVector, const vector<uint64_t> &hostIdVector)
-{
-	struct TrxProc : public DBAgent::TransactionProc {
-		const string tableName;
-		const string hostIdName;
-		vector<uint64_t> &absentHostIdVector;
-		const vector<uint64_t> &hostIdVector;
-		
-		TrxProc(vector<uint64_t> &_absentHostIdVector,
-		        const vector<uint64_t> &_hostIdVector)
-		: tableName(TABLE_NAME_HOSTS),
-		  hostIdName(COLUMN_DEF_HOSTS[IDX_HOSTS_HOST_ID].columnName),
-		  absentHostIdVector(_absentHostIdVector),
-		  hostIdVector(_hostIdVector)
-		{
-		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			for (size_t i = 0; i < hostIdVector.size(); i++)
-				addHostId(dbAgent, hostIdVector[i]);
-		}
-
-		void addHostId(DBAgent &dbAgent, const uint64_t &id)
-		{
-			string condition = hostIdName;
-			condition += StringUtils::sprintf("=%" PRIu64, id);
-			if (dbAgent.isRecordExisting(tableName, condition))
-				return;
-			absentHostIdVector.push_back(id);
-		}
-	} trx(absentHostIdVector, hostIdVector);
-	getDBAgent().runTransaction(trx);
-}
-
 void DBTablesMonitoring::addIncidentInfo(IncidentInfo *incidentInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		IncidentInfo *incidentInfo;
-		
+
 		TrxProc(IncidentInfo *_incidentInfo)
 		: incidentInfo(_incidentInfo)
 		{
@@ -2596,6 +2499,7 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 		itemGroupStream >> incidentInfo.updatedAt.tv_nsec;
 		itemGroupStream >> incidentInfo.priority;
 		itemGroupStream >> incidentInfo.doneRatio;
+		itemGroupStream >> incidentInfo.unifiedEventId;
 		incidentInfo.statusCode = IncidentInfo::STATUS_UNKNOWN; // TODO: add column?
 	}
 
@@ -2605,7 +2509,7 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 uint64_t DBTablesMonitoring::getLastUpdateTimeOfIncidents(
   const IncidentTrackerIdType &trackerId)
 {
-	const DBTermCodec *dbTermCodec = getDBAgent().getDBTermCodec();
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	DBAgent::SelectExArg arg(tableProfileIncidents);
 	string stmt = StringUtils::sprintf("coalesce(max(%s), 0)",
 	    COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_UPDATED_AT_SEC].columnName);
@@ -2613,7 +2517,7 @@ uint64_t DBTablesMonitoring::getLastUpdateTimeOfIncidents(
 	if (trackerId != ALL_INCIDENT_TRACKERS) {
 		arg.condition = StringUtils::sprintf("%s=%s",
 		    COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_TRACKER_ID].columnName,
-		    dbTermCodec->enc(trackerId).c_str());
+		    rhs(trackerId));
 	}
 
 	getDBAgent().runTransaction(arg);
@@ -2626,7 +2530,8 @@ uint64_t DBTablesMonitoring::getLastUpdateTimeOfIncidents(
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data);
+static bool updateDB(
+  DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data);
 
 DBTables::SetupInfo &DBTablesMonitoring::getSetupInfo(void)
 {
@@ -2637,12 +2542,6 @@ DBTables::SetupInfo &DBTablesMonitoring::getSetupInfo(void)
 		&tableProfileEvents,
 	}, {
 		&tableProfileItems,
-	}, {
-		&tableProfileHosts,
-	}, {
-		&tableProfileHostgroups,
-	}, {
-		&tableProfileMapHostsHostgroups,
 	}, {
 		&tableProfileServerStatus,
 	}, {
@@ -2670,16 +2569,21 @@ void DBTablesMonitoring::addTriggerInfoWithoutTransaction(
 	arg.add(triggerInfo.severity),
 	arg.add(triggerInfo.lastChangeTime.tv_sec);
 	arg.add(triggerInfo.lastChangeTime.tv_nsec);
-	arg.add(triggerInfo.hostId);
+	arg.add(triggerInfo.globalHostId);
+	arg.add(triggerInfo.hostIdInServer);
 	arg.add(triggerInfo.hostName);
 	arg.add(triggerInfo.brief);
+	arg.add(triggerInfo.extendedInfo);
+	arg.add(triggerInfo.validity);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
 
 void DBTablesMonitoring::addEventInfoWithoutTransaction(
-  DBAgent &dbAgent, const EventInfo &eventInfo)
+  DBAgent &dbAgent, EventInfo &eventInfo)
 {
+	mergeTriggerInfo(dbAgent, eventInfo);
+
 	DBAgent::InsertArg arg(tableProfileEvents);
 	arg.add(AUTO_INCREMENT_VALUE_U64);
 	arg.add(eventInfo.serverId);
@@ -2690,11 +2594,14 @@ void DBTablesMonitoring::addEventInfoWithoutTransaction(
 	arg.add(eventInfo.triggerId);
 	arg.add(eventInfo.status);
 	arg.add(eventInfo.severity);
-	arg.add(eventInfo.hostId);
+	arg.add(eventInfo.globalHostId);
+	arg.add(eventInfo.hostIdInServer);
 	arg.add(eventInfo.hostName);
 	arg.add(eventInfo.brief);
+	arg.add(eventInfo.extendedInfo);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
+	eventInfo.unifiedId = dbAgent.getLastInsertId();
 }
 
 void DBTablesMonitoring::addItemInfoWithoutTransaction(
@@ -2703,7 +2610,8 @@ void DBTablesMonitoring::addItemInfoWithoutTransaction(
 	DBAgent::InsertArg arg(tableProfileItems);
 	arg.add(itemInfo.serverId);
 	arg.add(itemInfo.id);
-	arg.add(itemInfo.hostId);
+	arg.add(itemInfo.globalHostId);
+	arg.add(itemInfo.hostIdInServer);
 	arg.add(itemInfo.brief);
 	arg.add(itemInfo.lastValueTime.tv_sec);
 	arg.add(itemInfo.lastValueTime.tv_nsec);
@@ -2712,53 +2620,6 @@ void DBTablesMonitoring::addItemInfoWithoutTransaction(
 	arg.add(itemInfo.itemGroupName);
 	arg.add(itemInfo.valueType);
 	arg.add(itemInfo.unit);
-	arg.upsertOnDuplicate = true;
-	dbAgent.insert(arg);
-}
-
-void DBTablesMonitoring::addHostgroupInfoWithoutTransaction(
-  DBAgent &dbAgent, const HostgroupInfo &groupInfo)
-{
-	DBAgent::InsertArg arg(tableProfileHostgroups);
-	arg.add(groupInfo.id);
-	arg.add(groupInfo.serverId);
-	arg.add(groupInfo.groupId);
-	arg.add(groupInfo.groupName);
-	arg.upsertOnDuplicate = true;
-	dbAgent.insert(arg);
-}
-
-void DBTablesMonitoring::addHostgroupElementWithoutTransaction(
-  DBAgent &dbAgent, const HostgroupElement &hostgroupElement)
-{
-	// TODO: create the condition outside of the transaction.
-	const DBTermCodec *dbTermCodec = dbAgent.getDBTermCodec();
-	string condition = StringUtils::sprintf(
-	  "server_id=%s AND host_id=%s AND host_group_id=%s",
-	  dbTermCodec->enc(hostgroupElement.serverId).c_str(),
-	  dbTermCodec->enc(hostgroupElement.hostId).c_str(),
-	  dbTermCodec->enc(hostgroupElement.groupId).c_str());
-
-	if (!dbAgent.isRecordExisting(TABLE_NAME_MAP_HOSTS_HOSTGROUPS,
-	                              condition)) {
-		DBAgent::InsertArg arg(tableProfileMapHostsHostgroups);
-		arg.add(hostgroupElement.id);
-		arg.add(hostgroupElement.serverId);
-		arg.add(hostgroupElement.hostId);
-		arg.add(hostgroupElement.groupId);
-		dbAgent.insert(arg);
-	}
-}
-
-void DBTablesMonitoring::addHostInfoWithoutTransaction(
-  DBAgent &dbAgent, const HostInfo &hostInfo)
-{
-	DBAgent::InsertArg arg(tableProfileHosts);
-	arg.add(AUTO_INCREMENT_VALUE);
-	arg.add(hostInfo.serverId);
-	arg.add(hostInfo.id);
-	arg.add(hostInfo.hostName);
-	arg.add(hostInfo.validity);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
@@ -2791,98 +2652,85 @@ void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
 	arg.add(incidentInfo.updatedAt.tv_nsec);
 	arg.add(incidentInfo.priority);
 	arg.add(incidentInfo.doneRatio);
+	arg.add(incidentInfo.unifiedEventId);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
 
-HatoholError DBTablesMonitoring::getHostgroupInfoList
-  (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
+static bool updateDB(
+  DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
 {
-	DBAgent::SelectExArg arg(tableProfileHostgroups);
-	arg.add(IDX_HOSTGROUPS_ID);
-	arg.add(IDX_HOSTGROUPS_SERVER_ID);
-	arg.add(IDX_HOSTGROUPS_GROUP_ID);
-	arg.add(IDX_HOSTGROUPS_GROUP_NAME);
-	arg.condition = option.getCondition();
-
-	getDBAgent().runTransaction(arg);
-
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator itemGrpItr = grpList.begin();
-	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		ItemGroupStream itemGroupStream(*itemGrpItr);
-		hostgroupInfoList.push_back(HostgroupInfo());
-		HostgroupInfo &hostgroupInfo = hostgroupInfoList.back();
-
-		itemGroupStream >> hostgroupInfo.id;
-		itemGroupStream >> hostgroupInfo.serverId;
-		itemGroupStream >> hostgroupInfo.groupId;
-		itemGroupStream >> hostgroupInfo.groupName;
+	const int &oldVer = oldPackedVer.getPackedVer();
+	if (oldVer <= DBTables::Version::getPackedVer(0, 1, 1)) {
+		// add a new column "extended_info" to events
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileEvents);
+		addColumnsArg.columnIndexes.push_back(IDX_EVENTS_EXTENDED_INFO);
+		dbAgent.addColumns(addColumnsArg);
+		return true;
 	}
-
-	return HTERR_OK;
+	return true;
 }
 
-// TODO: In this implementation, behavior of this function is inefficient.
-//       Because this function returns unnecessary informations.
-//       Add a new function which returns only hostgroupId.
-HatoholError DBTablesMonitoring::getHostgroupElementList
-  (HostgroupElementList &hostgroupElementList,
-   const HostgroupElementQueryOption &option)
+template <typename T>
+static void substIfNeeded(T &lhs, const T &rhs, const T &initialValue)
 {
-	DBAgent::SelectExArg arg(tableProfileMapHostsHostgroups);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_ID);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_SERVER_ID);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_HOST_ID);
-	arg.add(IDX_MAP_HOSTS_HOSTGROUPS_GROUP_ID);
-	arg.condition = option.getCondition();
-
-	getDBAgent().runTransaction(arg);
-
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator itemGrpItr = grpList.begin();
-	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		ItemGroupStream itemGroupStream(*itemGrpItr);
-		hostgroupElementList.push_back(HostgroupElement());
-		HostgroupElement &hostgroupElement = hostgroupElementList.back();
-		itemGroupStream >> hostgroupElement.id;
-		itemGroupStream >> hostgroupElement.serverId;
-		itemGroupStream >> hostgroupElement.hostId;
-		itemGroupStream >> hostgroupElement.groupId;
-	}
-
-	return HTERR_OK;
+	if (lhs == initialValue)
+		lhs = rhs;
 }
 
-static bool updateDB(DBAgent &dbAgent, const int &oldVer, void *data)
+bool DBTablesMonitoring::mergeTriggerInfo(
+  DBAgent &dbAgent, EventInfo &eventInfo)
 {
-	if (oldVer == 4) {
-		const string oldTableName = "issues";
-		if (dbAgent.isTableExisting(oldTableName)) {
-			dbAgent.renameTable(
-			  oldTableName,
-			  DBTablesMonitoring::TABLE_NAME_INCIDENTS);
+	struct {
+		void operator()(string &lhs, const string &rhs)
+		{
+			substIfNeeded<string>(lhs, rhs, "");
 		}
-	}
-	if (oldVer <= 5) {
-		// add new columns to incidents
-		DBAgent::AddColumnsArg addColumnsArg(tableProfileIncidents);
-		addColumnsArg.columnIndexes.push_back(IDX_INCIDENTS_PRIORITY);
-		addColumnsArg.columnIndexes.push_back(IDX_INCIDENTS_DONE_RATIO);
-		dbAgent.addColumns(addColumnsArg);
-	}
-	if (oldVer <= 6) {
-		// add new columns to hosts
-		DBAgent::AddColumnsArg addColumnsArg(tableProfileHosts);
-		addColumnsArg.columnIndexes.push_back(IDX_HOSTS_VALIDITY);
-		dbAgent.addColumns(addColumnsArg);
-	}
-	if (oldVer <= 7) {
-		// add new columns to items
-		DBAgent::AddColumnsArg addColumnsArg(tableProfileItems);
-		addColumnsArg.columnIndexes.push_back(IDX_ITEMS_VALUE_TYPE);
-		addColumnsArg.columnIndexes.push_back(IDX_ITEMS_UNIT);
-		dbAgent.addColumns(addColumnsArg);
-	}
+
+		void operator()(HostIdType &lhs, const HostIdType &rhs)
+		{
+			substIfNeeded<HostIdType>(lhs, rhs, INVALID_HOST_ID);
+		}
+
+		void operator()(
+		  TriggerSeverityType &lhs, const TriggerSeverityType &rhs)
+		{
+			substIfNeeded<TriggerSeverityType>(
+			  lhs, rhs, TRIGGER_SEVERITY_UNKNOWN);
+		}
+	} setIfNeeded;
+
+	// Get the corresponding trigger
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(eventInfo.serverId);
+	option.setTargetId(eventInfo.triggerId);
+	DBAgent::SelectExArg arg(tableProfileTriggers);
+	arg.add(IDX_TRIGGERS_SEVERITY);
+	arg.add(IDX_TRIGGERS_GLOBAL_HOST_ID);
+	arg.add(IDX_TRIGGERS_HOST_ID_IN_SERVER);
+	arg.add(IDX_TRIGGERS_HOSTNAME);
+	arg.add(IDX_TRIGGERS_BRIEF);
+	arg.add(IDX_TRIGGERS_EXTENDED_INFO);
+	arg.condition = option.getCondition();
+	dbAgent.select(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	if (grpList.empty())
+		return false;
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	TriggerInfo trigInfo;
+	itemGroupStream >> trigInfo.severity;
+	itemGroupStream >> trigInfo.globalHostId;
+	itemGroupStream >> trigInfo.hostIdInServer;
+	itemGroupStream >> trigInfo.hostName;
+	itemGroupStream >> trigInfo.brief;
+	itemGroupStream >> trigInfo.extendedInfo;
+
+	setIfNeeded(eventInfo.severity,       trigInfo.severity);
+	setIfNeeded(eventInfo.globalHostId,   trigInfo.globalHostId);
+	setIfNeeded(eventInfo.hostIdInServer, trigInfo.hostIdInServer);
+	setIfNeeded(eventInfo.hostName,       trigInfo.hostName);
+	setIfNeeded(eventInfo.brief,          trigInfo.brief);
+	setIfNeeded(eventInfo.extendedInfo,   trigInfo.extendedInfo);
 	return true;
 }

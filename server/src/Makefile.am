@@ -8,15 +8,15 @@ libhatohol_la_SOURCES = \
 	ActionExecArgMaker.cc ActionExecArgMaker.h \
 	ActionManager.cc ActionManager.h \
 	ActorCollector.cc ActorCollector.h \
+	ArmUtils.cc ArmUtils.h \
 	ArmBase.cc ArmBase.h \
 	ArmFake.cc ArmFake.h \
 	ArmIncidentTracker.cc ArmIncidentTracker.h \
 	ArmNagiosNDOUtils.cc ArmNagiosNDOUtils.h \
 	ArmRedmine.cc ArmRedmine.h \
 	ArmZabbixAPI.cc ArmZabbixAPI.h \
-	ArmCeilometer.cc ArmCeilometer.h \
 	ChildProcessManager.cc ChildProcessManager.h \
-	Closure.cc Closure.h \
+	Closure.h \
 	ThreadLocalDBCache.cc ThreadLocalDBCache.h \
 	ConfigManager.cc ConfigManager.h \
 	DataQueryContext.cc DataQueryContext.h \
@@ -33,8 +33,10 @@ libhatohol_la_SOURCES = \
 	DBTablesUser.cc DBTablesUser.h \
 	DBTablesMonitoring.cc DBTablesMonitoring.h \
 	DBTablesHost.cc DBTablesHost.h \
+	DBTablesLastInfo.cc DBTablesLastInfo.h \
 	DBClientJoinBuilder.cc DBClientJoinBuilder.h \
 	DBTermCodec.h DBTermCodec.cc \
+	DBTermCStringProvider.h DBTermCStringProvider.cc \
 	DataStore.cc DataStore.h \
 	DataStoreFactory.cc DataStoreFactory.h \
 	DataStoreManager.cc DataStoreManager.h \
@@ -46,7 +48,6 @@ libhatohol_la_SOURCES = \
 	FaceRestPrivate.h \
 	Hatohol.cc Hatohol.h \
 	HostResourceQueryOption.cc HostResourceQueryOption.h \
-	HatoholArmPluginGate.cc HatoholArmPluginGate.h \
 	HatoholServer.cc \
 	HatoholDBUtils.cc HatoholDBUtils.h \
 	HostInfoCache.cc HostInfoCache.h \
@@ -70,15 +71,19 @@ libhatohol_la_SOURCES = \
 	SessionManager.cc SessionManager.h \
 	SQLProcessorTypes.h \
 	SQLUtils.cc SQLUtils.h \
+	TriggerFetchWorker.cc TriggerFetchWorker.h \
 	UnifiedDataStore.cc UnifiedDataStore.h
+
+if WITH_QPID
+libhatohol_la_SOURCES += \
+	HatoholArmPluginGate.cc HatoholArmPluginGate.h
+endif
 
 if HAVE_LIBRABBITMQ
 libhatohol_la_SOURCES += \
-	AMQPConnectionInfo.cc AMQPConnectionInfo.h \
-	AMQPConsumer.cc AMQPConsumer.h \
-	AMQPMessageHandler.cc AMQPMessageHandler.h \
 	GateJSONEventMessage.cc GateJSONEventMessage.h \
-	HatoholArmPluginGateJSON.cc HatoholArmPluginGateJSON.h
+	HatoholArmPluginGateJSON.cc HatoholArmPluginGateJSON.h \
+	HatoholArmPluginGateHAPI2.cc HatoholArmPluginGateHAPI2.h
 endif
 
 AM_CXXFLAGS = \
@@ -103,3 +108,6 @@ hatohol_LDADD = \
 hatohol_resident_yard_LDADD = \
 	libhatohol.la \
 	$(top_builddir)/server/common/libhatohol-common.la
+
+$(top_builddir)/server/common/libhatohol-common.la:
+	$(MAKE) -C $(top_builddir)/server/common

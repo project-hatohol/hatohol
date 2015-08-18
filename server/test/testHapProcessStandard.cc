@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <errno.h>
@@ -93,7 +93,8 @@ public:
 	}
 
 	virtual HatoholError acquireData(
-	  const MessagingContext &msgCtx) override
+	  const MessagingContext &msgCtx,
+	  const SmartBuffer &cmdBuf) override
 	{
 		m_acquireSem.post();
 		if (m_params->callSyncCommandInAcquireData) {
@@ -112,12 +113,34 @@ public:
 		return m_returnValueOfAcquireData;
 	}
 
-	virtual HatoholError fetchItem(const MessagingContext &msgCtx) override
+	virtual HatoholError fetchItem(const MessagingContext &msgCtx,
+				       const SmartBuffer &cmdBuf) override
 	{
 		SmartBuffer resBuf;
 		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_ITEMS, &msgCtx);
 		appendItemTable(resBuf, ItemTablePtr());
 		appendItemTable(resBuf, ItemTablePtr()); // Item Category
+		reply(msgCtx, resBuf);
+		return HTERR_OK;
+	}
+
+	virtual HatoholError fetchHistory(const MessagingContext &msgCtx,
+					  const SmartBuffer &cmdBuf) override
+	{
+		SmartBuffer resBuf;
+		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_HISTORY,
+					  &msgCtx);
+		appendItemTable(resBuf, ItemTablePtr()); // empty history table
+		reply(msgCtx, resBuf);
+		return HTERR_OK;
+	}
+
+	virtual HatoholError fetchTrigger(const MessagingContext &msgCtx,
+					  const SmartBuffer &cmdBuf) override
+	{
+		SmartBuffer resBuf;
+		setupResponseBuffer<void>(resBuf, 0, HAPI_RES_TRIGGERS, &msgCtx);
+		appendItemTable(resBuf, ItemTablePtr());
 		reply(msgCtx, resBuf);
 		return HTERR_OK;
 	}
@@ -362,23 +385,64 @@ void test_hapPipeCatchErrorAndExit(void)
 	cppcut_assert_equal(true, pair.plugin->m_calledPipeWrErrCb);
 }
 
-struct FetchItemStarter : public HatoholThreadBase {
-	TestPair *pair;
-	GMainLoop *loop;
-	bool       succeeded;
-	bool       fetched;
+struct FetchStarter : public HatoholThreadBase {
+	typedef enum {
+		INVALID,
+		ITEM,
+		HISTORY,
+		TRIGGER,
+		NUM_RESOURCE_TYPES
+	} ResourceType;
 
-	FetchItemStarter(void)
+	TestPair    *pair;
+	GMainLoop   *loop;
+	bool         succeeded;
+	ResourceType fetched;
+	ResourceType resourceType;
+
+	FetchStarter(void)
 	: loop(NULL),
 	  succeeded(false),
-	  fetched(false)
+	  fetched(INVALID),
+	  resourceType(ITEM)
 	{
 		loop = g_main_loop_new(NULL, TRUE);
 	}
 
-	virtual ~FetchItemStarter()
+	virtual ~FetchStarter()
 	{
 		g_main_loop_unref(loop);
+	}
+
+	void startFetchItem(void) {
+		ClosureTemplate0<FetchStarter> *closure =
+		  new ClosureTemplate0<FetchStarter>(this,
+		    &FetchStarter::fetchItemCb);
+		pair->gate->startOnDemandFetchItems({}, closure);
+	}
+
+	void startFetchHistory(void) {
+		ClosureTemplate1<FetchStarter, HistoryInfoVect>
+		  *closure =
+		    new ClosureTemplate1<FetchStarter, HistoryInfoVect>(
+		      this, &FetchStarter::fetchHistoryCb);
+		ItemInfo itemInfo;
+		itemInfo.serverId = ALL_SERVERS; // dummy
+		itemInfo.globalHostId = ALL_HOSTS; // dummy
+		itemInfo.hostIdInServer = ALL_LOCAL_HOSTS; // dummy
+		itemInfo.id = 1;
+		itemInfo.valueType = ITEM_INFO_VALUE_TYPE_FLOAT;
+		time_t endTime = time(NULL);
+		time_t beginTime = endTime - 60 * 60;
+		pair->gate->startOnDemandFetchHistory(
+		  itemInfo, beginTime, endTime, closure);
+	}
+
+	void startFetchTrigger(void) {
+		ClosureTemplate0<FetchStarter> *closure =
+		  new ClosureTemplate0<FetchStarter>(this,
+		    &FetchStarter::fetchTriggerCb);
+		pair->gate->startOnDemandFetchTriggers({}, closure);
 	}
 
 	virtual gpointer mainThread(HatoholThreadArg *arg) override
@@ -386,15 +450,20 @@ struct FetchItemStarter : public HatoholThreadBase {
 		Reaper<GMainLoop> loopQuiter(loop, g_main_loop_quit);
 		if (!wait())
 			return NULL;
-		Closure<FetchItemStarter> *closure =
-		  new Closure<FetchItemStarter>(this,
-		    &FetchItemStarter::closureCb);
-		pair->gate->startOnDemandFetchItem(closure);
+		HATOHOL_ASSERT(resourceType > INVALID &&
+			       resourceType < NUM_RESOURCE_TYPES,
+			       "Invalid resourceType");
+		if (resourceType == ITEM)
+			startFetchItem();
+		else if (resourceType == HISTORY)
+			startFetchHistory();
+		else if (resourceType == TRIGGER)
+			startFetchTrigger();
 		pair->plugin->m_acquireSyncCommandSem.post();
 		if (!wait())
 			return NULL;
 		// wait for callback of colusreCb()
-		g_main_loop_run(loop);
+		g_main_loop_run(m_localLoop.getLoop());
 		succeeded = true;
 		return NULL;
 	}
@@ -410,16 +479,32 @@ struct FetchItemStarter : public HatoholThreadBase {
 		return true;
 	}
 
-	void closureCb(ClosureBase *closure)
+	void fetchItemCb(Closure0 *closure)
 	{
-		fetched = true;
-		g_main_loop_quit(loop);
+		fetched = ITEM;
+		g_main_loop_quit(m_localLoop.getLoop());
 	}
+
+	void fetchHistoryCb(Closure1<HistoryInfoVect> *closure,
+			    const HistoryInfoVect &historyInfoVect)
+	{
+		fetched = HISTORY;
+		g_main_loop_quit(m_localLoop.getLoop());
+	}
+
+	void fetchTriggerCb(Closure0 *closure)
+	{
+		fetched = TRIGGER;
+		g_main_loop_quit(m_localLoop.getLoop());
+	}
+
+private:
+	GLibMainLoop m_localLoop;
 };
 
 void test_reqFetchItemDuringAcquireData(void)
 {
-	FetchItemStarter fetchItemStarter;
+	FetchStarter fetchItemStarter;
 
 	GLibMainLoop glibMainLoopForGate;
 	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
@@ -435,7 +520,51 @@ void test_reqFetchItemDuringAcquireData(void)
 	// acquireData() is supposed to be invoked on this event loop.
 	g_main_loop_run(fetchItemStarter.loop);
 	cppcut_assert_equal(true, fetchItemStarter.succeeded);
-	cppcut_assert_equal(true, fetchItemStarter.fetched);
+	cppcut_assert_equal(FetchStarter::ITEM, fetchItemStarter.fetched);
+}
+
+void test_reqFetchHistoryDuringAcquireData(void)
+{
+	FetchStarter fetchHistoryStarter;
+	fetchHistoryStarter.resourceType = FetchStarter::HISTORY;
+
+	GLibMainLoop glibMainLoopForGate;
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestHapProcessStandard::CtorParams ctorParams;
+	ctorParams.callSyncCommandInAcquireData = true;
+	arg.hapClassParameters = &ctorParams;
+	arg.hapgCtx.glibMainContext = glibMainLoopForGate.getContext();
+	glibMainLoopForGate.start();
+	TestPair pair(arg);
+	fetchHistoryStarter.pair = &pair;
+	fetchHistoryStarter.start();
+
+	// acquireData() is supposed to be invoked on this event loop.
+	g_main_loop_run(fetchHistoryStarter.loop);
+	cppcut_assert_equal(true, fetchHistoryStarter.succeeded);
+	cppcut_assert_equal(FetchStarter::HISTORY, fetchHistoryStarter.fetched);
+}
+
+void test_reqFetchTriggerDuringAcquireData(void)
+{
+	FetchStarter fetchTriggerStarter;
+	fetchTriggerStarter.resourceType = FetchStarter::TRIGGER;
+
+	GLibMainLoop glibMainLoopForGate;
+	HatoholArmPluginTestPairArg arg(MONITORING_SYSTEM_HAPI_TEST_PASSIVE);
+	TestHapProcessStandard::CtorParams ctorParams;
+	ctorParams.callSyncCommandInAcquireData = true;
+	arg.hapClassParameters = &ctorParams;
+	arg.hapgCtx.glibMainContext = glibMainLoopForGate.getContext();
+	glibMainLoopForGate.start();
+	TestPair pair(arg);
+	fetchTriggerStarter.pair = &pair;
+	fetchTriggerStarter.start();
+
+	// acquireData() is supposed to be invoked on this event loop.
+	g_main_loop_run(fetchTriggerStarter.loop);
+	cppcut_assert_equal(true, fetchTriggerStarter.succeeded);
+	cppcut_assert_equal(FetchStarter::TRIGGER, fetchTriggerStarter.fetched);
 }
 
 } // namespace testHapProcessStandardPair

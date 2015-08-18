@@ -7,17 +7,17 @@
   This file is part of Hatohol.
 
   Hatohol is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 2 of the License, or
-  (at your option) any later version.
+  it under the terms of the GNU Lesser General Public License, version 3
+  as published by the Free Software Foundation.
 
   Hatohol is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
+  GNU Lesser General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU Lesser General Public
+  License along with Hatohol. If not, see
+  <http://www.gnu.org/licenses/>.
 {% endcomment %}
 
 {% block title %}
@@ -38,6 +38,10 @@
         <span class="glyphicon glyphicon-remove"></span>
         {% trans "DELETE USER" %}
       </button>
+      <button id="edit-user-roles-button" type="button" class="btn btn-default">
+        <span class="glyphicon glyphicon-cog"></span>
+        {% trans "EDIT USER ROLES" %}
+      </button>
     </div>
   </form>
 
@@ -52,10 +56,10 @@
     <thead>
       <tr>
         <th class="delete-selector" style='display:none;'>  </th>
-        <th data-sort="int">{% trans "ID" %}</th>
-        <th data-sort="string">{% trans "User name" %}</th>
-        <th data-sort="string">{% trans "User role" %}</th>
-        <th data-sort="string" class="privilege-column" style="display:none;">{% trans "Privileges" %}</th>
+        <th>{% trans "ID" %}</th>
+        <th>{% trans "User name" %}</th>
+        <th>{% trans "User role" %}</th>
+        <th class="privilege-column" style="display:none;">{% trans "Accessible monitoring servers / hostgroups" %}</th>
       </tr>
     </thead>
     <tbody>

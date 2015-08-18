@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -46,14 +46,16 @@ static const string triggerSeverityToString(TriggerSeverityType type)
 static string dumpTriggerInfo(const TriggerInfo &info)
 {
 	return StringUtils::sprintf(
-		"%" PRIu32 "|%" PRIu64 "|%s|%s|%lu|%ld|%" PRIu64 "|%s|%s\n",
+		"%" FMT_SERVER_ID "|%" FMT_TRIGGER_ID "|%s|%s"
+		"|%lu|%ld|%" FMT_LOCAL_HOST_ID
+		"|%s|%s\n",
 		info.serverId,
-		info.id,
+		info.id.c_str(),
 		triggerStatusToString(info.status).c_str(),
 		triggerSeverityToString(info.severity).c_str(),
 		info.lastChangeTime.tv_sec,
 		info.lastChangeTime.tv_nsec,
-		info.hostId,
+		info.hostIdInServer.c_str(),
 		info.hostName.c_str(),
 		info.brief.c_str());
 }
@@ -66,15 +68,17 @@ static string eventTypeToString(EventType type)
 static string dumpEventInfo(const EventInfo &info)
 {
 	return StringUtils::sprintf(
-		"%" PRIu32 "|%" PRIu64 "|%lu|%ld|%s|%s|%s|%" PRIu64 "|%s|%s\n",
+		"%" FMT_SERVER_ID "|%" FMT_EVENT_ID
+		"|%lu|%ld|%s|%s|%s|%" FMT_LOCAL_HOST_ID
+		"|%s|%s\n",
 		info.serverId,
-		info.id,
+		info.id.c_str(),
 		info.time.tv_sec,
 		info.time.tv_nsec,
 		eventTypeToString(info.type).c_str(),
 		triggerStatusToString(info.status).c_str(),
 		triggerSeverityToString(info.severity).c_str(),
-		info.hostId,
+		info.hostIdInServer.c_str(),
 		info.hostName.c_str(),
 		info.brief.c_str());
 }
@@ -82,10 +86,12 @@ static string dumpEventInfo(const EventInfo &info)
 static string dumpItemInfo(const ItemInfo &info)
 {
 	return StringUtils::sprintf(
-		"%" PRIu32 "|%" PRIu64 "|%" PRIu64 "|%s|%lu|%ld|%s|%s|%s\n",
+		"%" FMT_SERVER_ID "|%" FMT_ITEM_ID "|%" FMT_HOST_ID
+		"|%" FMT_LOCAL_HOST_ID "|%s|%lu|%ld|%s|%s|%s\n",
 		info.serverId,
-		info.id,
-		info.hostId,
+		info.id.c_str(),
+		info.globalHostId,
+		info.hostIdInServer.c_str(),
 		info.brief.c_str(),
 		info.lastValueTime.tv_sec,
 		info.lastValueTime.tv_nsec,
@@ -267,7 +273,7 @@ void test_getServerConnStatusVector(void)
 	cppcut_assert_equal(NumTestServerInfo, svConnStatVect.size());
 	ServerIdSet expectIdSet;
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
-		const ServerIdType expectId = i + 1;
+		const ServerIdType expectId = testServerInfo[i].id;
 		expectIdSet.insert(expectId);
 	}
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
@@ -275,6 +281,39 @@ void test_getServerConnStatusVector(void)
 		ServerIdSetIterator it = expectIdSet.find(svId);
 		cppcut_assert_equal(true, it != expectIdSet.end());
 		expectIdSet.erase(it);
+	}
+}
+
+void data_upsertHost(void)
+{
+	gcut_add_datum("Getting returned host ID",
+	               "getHostId", G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("Ignore returned host ID",
+	               "getHostId", G_TYPE_BOOLEAN, FALSE, NULL);
+}
+
+void test_upsertHost(gconstpointer data)
+{
+	const bool getHostId = gcut_data_get_boolean(data, "getHostId");
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	ServerHostDef svHostDef;
+	svHostDef.id = AUTO_INCREMENT_VALUE;
+	svHostDef.hostId = AUTO_ASSIGNED_ID;
+	svHostDef.serverId = 5;
+	svHostDef.hostIdInServer = "AiDee";
+	svHostDef.name = "GOHOUMEI";
+	svHostDef.status = HOST_STAT_NORMAL;
+
+	HostIdType returnedId = INVALID_HOST_ID;
+	HatoholError err =
+	  uds->upsertHost(svHostDef, getHostId ? & returnedId : NULL);
+	assertHatoholError(HTERR_OK, err);
+	if (getHostId) {
+		cppcut_assert_not_equal(INVALID_HOST_ID, returnedId);
+		cppcut_assert_equal(true, returnedId > 0,
+		                    cut_message("%" FMT_HOST_ID, returnedId));
+	} else {
+		cppcut_assert_equal(INVALID_HOST_ID, returnedId);
 	}
 }
 

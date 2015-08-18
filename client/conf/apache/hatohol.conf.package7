@@ -1,0 +1,15 @@
+WSGIScriptAlias / /usr/libexec/hatohol/client/conf/apache/django.wsgi
+WSGIPythonPath /usr/libexec/hatohol/client/
+<VirtualHost *:80>
+    DocumentRoot /usr/libexec/hatohol/client/
+    ProxyRequests Off
+    ProxyPreserveHost On
+    <Directory /usr/libexec/hatohol/client>
+        Require all granted
+    </Directory>
+    Alias /static/ /usr/libexec/hatohol/client/static/
+    ProxyPass /tunnel/ http://localhost:33194/
+    <Proxy *>
+        Require all granted
+    </Proxy>
+</VirtualHost>

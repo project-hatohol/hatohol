@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "HatoholError.h"
@@ -66,8 +66,14 @@ void HatoholError::init(void)
 		   "Invalid IP address.");
 	DEFINE_ERR(INVALID_HOST_NAME,
 		   "Invalid host name.");
-	DEFINE_ERR(INVALID_URI,
-		   "Invalid URI.");
+	DEFINE_ERR(INVALID_ARM_PLUGIN_TYPE,
+		   "Invalid arm plugin type.");
+	DEFINE_ERR(INVALID_ARM_PLUGIN_ID,
+		   "Invalid arm plugin ID.");
+	DEFINE_ERR(INVALID_ARM_PLUGIN_PATH,
+		   "Invalid arm plugin path.");
+	DEFINE_ERR(DIFFER_TYPE_SERVER_AND_ARM_PLUGIN,
+		   "Differ type server and arm plugin.");
 	DEFINE_ERR(NO_IP_ADDRESS_AND_HOST_NAME,
 		   "No IP address and host name.");
 	DEFINE_ERR(INVALID_INCIDENT_TRACKER_TYPE,
@@ -111,6 +117,12 @@ void HatoholError::init(void)
 	DEFINE_ERR(DELETE_INCOMPLETE,
 		   "The delete operation was incomplete.");
 
+	// ChildProcessManager
+	DEFINE_ERR(INVALID_ARGS,
+		   "Invalid args.");
+	DEFINE_ERR(FAILED_TO_SPAWN,
+		   "Failed to spawn.");
+
 	// FaceRest
 	DEFINE_ERR(UNSUPPORTED_FORMAT,
 		   "Unsupported format.");
@@ -126,10 +138,6 @@ void HatoholError::init(void)
 		   "Authentication failed.");
 	DEFINE_ERR(NOT_TEST_MODE,
 		   "Not test mode.");
-	DEFINE_ERR(NOT_FOUND_SERVER_TYPE,
-		   "The server type doesn't exist.");
-	DEFINE_ERR(INVALID_SERVER_TYPE,
-		   "The server type is invalid.");
 
 	// VirtualDataStore
 	DEFINE_ERR(FAILED_TO_CREATE_DATA_STORE,
@@ -161,6 +169,32 @@ void HatoholError::init(void)
 		   "Error test.");
 	DEFINE_ERR(ERROR_TEST_WITHOUT_MESSAGE,
 		   "");
+
+	// 14.12
+	DEFINE_ERR(NOT_FOUND_SERVER_TYPE,
+		   "The server type doesn't exist.");
+	DEFINE_ERR(INVALID_SERVER_TYPE,
+		   "The server type is invalid.");
+	DEFINE_ERR(NOT_FOUND_HYPERVISOR,
+		   "Not found hypervisor.");
+
+	// 15.03
+	DEFINE_ERR(DELETE_MYSELF,
+		   "A user cannot delete itself.");
+	DEFINE_ERR(INVALID_POLLING_INTERVAL,
+		   "Invalid polling interval.");
+	DEFINE_ERR(INVALID_RETRY_INTERVAL,
+		   "Invalid retry interval.");
+
+        // 15.06
+	DEFINE_ERR(VALID_DBAGENT_NO_LONGER_EXISTS, // DBAgentMySQL
+		   "Valid DBAgent no longer exists.");
+
+	// 15.11
+	DEFINE_ERR(FAILED_CONNECT_HAP2,
+		   "HAP2 connection unavailable.");
+	DEFINE_ERR(INVALID_OBJECT_PASSED_BY_HAP2,
+		   "Invalid object passed by HAP2.");
 }
 
 void HatoholError::defineError(const HatoholErrorCode errorCode,

@@ -1,0 +1,10 @@
+# How to run all test cases.
+$ test/run-test.sh
+
+# Example to run one test.
+$ PYTHONPATH=test:.. python -m unittest -v TestTransporter.TestTransporter.test_factory
+
+- How to setup for TestRabbitMQConnector for the test
+# sudo rabbitmqctl add_vhost test
+# sudo rabbitmqctl add_user test_user test_password
+# sudo rabbitmqctl set_permissions -p test test_user ".*" ".*" ".*"

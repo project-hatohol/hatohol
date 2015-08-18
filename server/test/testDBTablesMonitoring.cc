@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -43,31 +43,13 @@ static const string serverIdColumnName = "server_id";
 static const string hostgroupIdColumnName = "host_group_id";
 static const string hostIdColumnName = "host_id";
 
-static const int dupEventInfoType = 1;
-
-static void addTriggerInfo(TriggerInfo *triggerInfo)
+static void addTriggerInfo(const TriggerInfo *triggerInfo)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	dbMonitoring.addTriggerInfo(triggerInfo);
 }
 #define assertAddTriggerToDB(X) \
-cut_trace(_assertAddToDB<TriggerInfo>(X, addTriggerInfo))
-
-static string makeTriggerOutput(const TriggerInfo &triggerInfo)
-{
-	string expectedOut =
-	  StringUtils::sprintf(
-	    "%" FMT_SERVER_ID "|%" PRIu64 "|%d|%d|%ld|%lu|%" PRIu64 "|%s|%s\n",
-	    triggerInfo.serverId,
-	    triggerInfo.id,
-	    triggerInfo.status, triggerInfo.severity,
-	    triggerInfo.lastChangeTime.tv_sec,
-	    triggerInfo.lastChangeTime.tv_nsec,
-	    triggerInfo.hostId,
-	    triggerInfo.hostName.c_str(),
-	    triggerInfo.brief.c_str());
-	return expectedOut;
-}
+cut_trace(_assertAddToDB<const TriggerInfo>(X, addTriggerInfo))
 
 struct AssertGetTriggersArg
   : public AssertGetHostResourceArg<TriggerInfo, TriggersQueryOption>
@@ -79,9 +61,9 @@ struct AssertGetTriggersArg
 		setDataDrivenTestParam(ddtParam);
 	}
 
-	virtual HostIdType getHostId(const TriggerInfo &info) const override
+	virtual LocalHostIdType getHostId(const TriggerInfo &info) const override
 	{
-		return info.hostId;
+		return info.hostIdInServer;
 	}
 
 	virtual string makeOutputText(const TriggerInfo &triggerInfo)
@@ -110,11 +92,13 @@ static void _assertGetTriggersWithFilter(AssertGetTriggersArg &arg)
 cut_trace(_assertGetTriggersWithFilter(ARG))
 
 static void _assertGetTriggerInfoList(
-  gconstpointer ddtParam, uint32_t serverId, uint64_t hostId = ALL_HOSTS)
+  gconstpointer ddtParam,
+  const ServerIdType &serverId,
+  const HostIdType &hostId = ALL_HOSTS)
 {
 	loadTestDBTriggers();
-	loadTestDBHosts();
-	loadTestDBHostgroupElements();
+	loadTestDBServerHostDef();
+	loadTestDBHostgroupMember();
 
 	AssertGetTriggersArg arg(ddtParam);
 	arg.targetServerId = serverId;
@@ -153,24 +137,6 @@ static void _assertGetEventsWithFilter(AssertGetEventsArg &arg)
 #define assertGetEventsWithFilter(ARG) \
 cut_trace(_assertGetEventsWithFilter(ARG))
 
-static string makeItemOutput(const ItemInfo &itemInfo)
-{
-	string expectedOut =
-	  StringUtils::sprintf(
-	    "%" PRIu32 "|%" PRIu64 "|%" PRIu64 "|%s|%ld|%lu|%s|%s|%s|%d|%s\n",
-	    itemInfo.serverId, itemInfo.id,
-	    itemInfo.hostId,
-	    itemInfo.brief.c_str(),
-	    itemInfo.lastValueTime.tv_sec,
-	    itemInfo.lastValueTime.tv_nsec,
-	    itemInfo.lastValue.c_str(),
-	    itemInfo.prevValue.c_str(),
-	    itemInfo.itemGroupName.c_str(),
-	    static_cast<int>(itemInfo.valueType),
-	    itemInfo.unit.c_str());
-	return expectedOut;
-}
-
 struct AssertGetItemsArg
   : public AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
 {
@@ -190,7 +156,7 @@ struct AssertGetItemsArg
 		option.setTargetItemGroupName(itemGroupName);
 	}
 
-	virtual bool filterOutExpectedRecord(ItemInfo *info) override
+	virtual bool filterOutExpectedRecord(const ItemInfo *info) override
 	{
 		if (AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
 		      ::filterOutExpectedRecord(info)) {
@@ -210,9 +176,9 @@ struct AssertGetItemsArg
 		return false;
 	}
 
-	virtual HostIdType getHostId(const ItemInfo &info) const override
+	virtual LocalHostIdType getHostId(const ItemInfo &info) const override
 	{
-		return info.hostId;
+		return info.hostIdInServer;
 	}
 
 	virtual string makeOutputText(const ItemInfo &itemInfo) override
@@ -259,66 +225,12 @@ void _assertItemInfoList(gconstpointer data, uint32_t serverId)
 		itemInfoList.push_back(testItemInfo[i]);
 	dbMonitoring.addItemInfoList(itemInfoList);
 
-	HostgroupElementList hostgroupElementList;
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		hostgroupElementList.push_back(testHostgroupElement[i]);
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
-
-	HostgroupInfoList hostgroupInfoList;
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
-		hostgroupInfoList.push_back(testHostgroupInfo[i]);
-	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
-
 	AssertGetItemsArg arg(data);
 	arg.targetServerId = serverId;
 	assertGetItems(arg);
 }
 #define assertItemInfoList(DATA, SERVER_ID) \
 cut_trace(_assertItemInfoList(DATA, SERVER_ID))
-
-static string makeHostOutput(const HostInfo &hostInfo)
-{
-	string expectedOut =
-	  StringUtils::sprintf(
-	    "%" PRIu32 "|%" PRIu64 "|%s\n",
-	    hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str());
-	return expectedOut;
-}
-
-struct AssertGetHostsArg
-  : public AssertGetHostResourceArg<HostInfo, HostsQueryOption>
-{
-	HostInfoList expectedHostList;
-
-	AssertGetHostsArg(gconstpointer ddtParam)
-	{
-		fixtures = testHostInfo;
-		numberOfFixtures = NumTestHostInfo;
-		setDataDrivenTestParam(ddtParam);
-	}
-
-	virtual HostIdType getHostId(const HostInfo &info) const override
-	{
-		return info.id;
-	}
-
-	virtual string makeOutputText(const HostInfo &hostInfo)
-	{
-		return makeHostOutput(hostInfo);
-	}
-};
-
-static void _assertGetHosts(AssertGetHostsArg &arg)
-{
-	loadTestDBHosts();
-	loadTestDBHostgroupElements();
-
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	arg.fixup();
-	dbMonitoring.getHostInfoList(arg.actualRecordList, arg.option);
-	arg.assert();
-}
-#define assertGetHosts(A) cut_trace(_assertGetHosts(A))
 
 static void _assertGetNumberOfHostsWithUserAndStatus(UserIdType userId, bool status)
 {
@@ -357,46 +269,12 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 	                    actual.lastChangeTime.tv_sec);
 	cppcut_assert_equal(expect.lastChangeTime.tv_nsec,
 	                    actual.lastChangeTime.tv_nsec);
-	cppcut_assert_equal(expect.hostId, actual.hostId);
+	cppcut_assert_equal(expect.globalHostId, actual.globalHostId);
+	cppcut_assert_equal(expect.hostIdInServer, actual.hostIdInServer);
 	cppcut_assert_equal(expect.hostName, actual.hostName);
 	cppcut_assert_equal(expect.brief, actual.brief);
 }
 #define assertTriggerInfo(E,A) cut_trace(_assertTriggerInfo(E,A))
-
-static string makeHostgroupsOutput(const HostgroupInfo &hostgroupInfo, size_t id)
-{
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|%" FMT_SERVER_ID "|%" FMT_HOST_GROUP_ID "|%s\n",
-	  id + 1, hostgroupInfo.serverId,
-	  hostgroupInfo.groupId, hostgroupInfo.groupName.c_str());
-
-	return expectedOut;
-}
-
-static string makeMapHostsHostgroupsOutput
-  (const HostgroupElement &hostgroupElement, size_t id)
-{
-	HostgroupElementQueryOption option;
-	const DBTermCodec *dbTermCodec = option.getDBTermCodec();
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|%s|%s|%s\n",
-	  id + 1,
-	  dbTermCodec->enc(hostgroupElement.serverId).c_str(),
-	  dbTermCodec->enc(hostgroupElement.hostId).c_str(),
-	  dbTermCodec->enc(hostgroupElement.groupId).c_str());
-
-	return expectedOut;
-}
-
-static string makeHostsOutput(const HostInfo &hostInfo, size_t id)
-{
-	string expectedOut = StringUtils::sprintf(
-	  "%zd|%" FMT_SERVER_ID "|%" FMT_HOST_ID "|%s|%d\n",
-	  id + 1, hostInfo.serverId, hostInfo.id, hostInfo.hostName.c_str(),
-	  hostInfo.validity);
-
-	return expectedOut;
-}
 
 static void prepareDataForAllHostgroupIds(void)
 {
@@ -405,10 +283,10 @@ static void prepareDataForAllHostgroupIds(void)
 	set<HostgroupIdType>::const_iterator hostgrpIdItr =
 	  hostgroupIdSet.begin();
 	for (; hostgrpIdItr != hostgroupIdSet.end(); ++hostgrpIdItr) {
-		gcut_add_datum(
-		  StringUtils::sprintf("Hostgroup ID: %" FMT_HOST_GROUP_ID,
-		                       *hostgrpIdItr).c_str(),
-		  "hostgroupId", G_TYPE_UINT64, *hostgrpIdItr, NULL);
+		string label = "Hostgroup ID: ";
+		label += *hostgrpIdItr;
+		gcut_add_datum(label.c_str(), "hostgroupId",
+		               G_TYPE_STRING, hostgrpIdItr->c_str(), NULL);
 	}
 }
 
@@ -449,7 +327,7 @@ void test_addTriggerInfo(void)
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 
 	// added a record
-	TriggerInfo *testInfo = testTriggerInfo;
+	const TriggerInfo *testInfo = testTriggerInfo;
 	assertAddTriggerToDB(testInfo);
 
 	// confirm with the command line tool
@@ -458,14 +336,221 @@ void test_addTriggerInfo(void)
 	assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
 }
 
+void test_deleteTriggerInfo(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	loadTestDBTriggers();
+
+	TriggerIdList triggerIdList = { "2", "3" };
+	constexpr ServerIdType targetServerId = 1;
+
+	for (auto triggerId : triggerIdList) {
+		// check triggerInfo existence
+		string sql = StringUtils::sprintf("SELECT * FROM triggers");
+		sql += StringUtils::sprintf(
+		  " WHERE id = '%" FMT_TRIGGER_ID "'"
+		  " AND server_id = %" FMT_SERVER_ID,
+		  triggerId.c_str(), targetServerId);
+		uint64_t targetTestDataId = StringUtils::toUint64(triggerId) - 1;
+		string expectedOut;
+		expectedOut +=
+			makeTriggerOutput(testTriggerInfo[targetTestDataId]);
+		assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
+	}
+
+	HatoholError err =
+		dbMonitoring.deleteTriggerInfo(triggerIdList, targetServerId);
+	assertHatoholError(HTERR_OK, err);
+	for (auto triggerId : triggerIdList) {
+		string statement = StringUtils::sprintf("SELECT * FROM triggers");
+		statement += StringUtils::sprintf(
+		  " WHERE id = %" FMT_TRIGGER_ID " AND server_id = %" FMT_SERVER_ID,
+		  triggerId.c_str(), targetServerId);
+		string expected = "";
+		assertDBContent(&dbMonitoring.getDBAgent(), statement, expected);
+	}
+}
+
+void test_syncTriggers(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	loadTestDBTriggers();
+	constexpr const ServerIdType targetServerId = 1;
+	const TriggerIdType targetTriggerId = "2";
+	constexpr const int testTriggerDataId = 2;
+	const TriggerIdList targetServerTriggerIds = {"1", "2", "3", "4", "5"};
+
+	string sql = StringUtils::sprintf("SELECT * FROM triggers");
+	sql += StringUtils::sprintf(
+	  " WHERE server_id = %" FMT_SERVER_ID " ORDER BY server_id ASC",
+	  targetServerId);
+
+	string expectedOut;
+	// check triggerInfo existence
+	for (auto triggerId : targetServerTriggerIds) {
+		int64_t targetId = StringUtils::toUint64(triggerId) - 1;
+		expectedOut += makeTriggerOutput(testTriggerInfo[targetId]);
+	}
+	assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
+
+	map<TriggerIdType, const TriggerInfo *> triggerMap;
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		const TriggerInfo &svTriggerInfo = testTriggerInfo[i];
+		if (svTriggerInfo.serverId != targetServerId)
+			continue;
+		if (svTriggerInfo.id != targetTriggerId)
+			continue;
+		triggerMap[svTriggerInfo.id] = &svTriggerInfo;
+	}
+
+	TriggerInfoList svTriggers =
+	{
+		{
+			testTriggerInfo[testTriggerDataId - 1]
+		}
+	};
+
+	// sanity check if we use the proper data
+	cppcut_assert_equal(false, svTriggers.empty());
+	// Prepare for the expected result.
+	string expect;
+	for (auto triggerPair : triggerMap) {
+		const TriggerInfo svTrigger = *triggerPair.second;
+		expect += StringUtils::sprintf(
+		  "%" FMT_LOCAL_HOST_ID "|%s\n",
+		  svTrigger.hostIdInServer.c_str(), svTrigger.hostName.c_str());
+	}
+	HatoholError err = dbMonitoring.syncTriggers(svTriggers, targetServerId);
+	assertHatoholError(HTERR_OK, err);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+	string statement = StringUtils::sprintf(
+	  "select host_id_in_server,hostname from triggers"
+	  " where server_id=%" FMT_SERVER_ID " order by id asc;",
+	  targetServerId);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
+void test_syncTriggersAddNewTrigger(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	loadTestDBTriggers();
+	constexpr const ServerIdType targetServerId = 1;
+
+	TriggerInfo newTriggerInfo = {
+		1,                        // serverId
+		"7",                      // id
+		TRIGGER_STATUS_OK,        // status
+		TRIGGER_SEVERITY_INFO,    // severity
+		{1362958197,0},           // lastChangeTime
+		10,                       // globalHostId,
+		"235013",                 // hostIdInServer,
+		"hostX2",                 // hostName,
+		"TEST New Trigger 1",     // brief,
+		"",                       // extendedInfo
+		TRIGGER_VALID,            // validity
+	};
+
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		const TriggerInfo &svTriggerInfo = testTriggerInfo[i];
+		if (svTriggerInfo.serverId != targetServerId)
+			continue;
+		if (svTriggerInfo.id == newTriggerInfo.id)
+			cut_fail("We use the wrong test data");
+	}
+
+	string expect;
+	TriggerInfoList svTriggers;
+	{
+		size_t i = 0;
+		for (; i < NumTestTriggerInfo; i++) {
+			const TriggerInfo &svTriggerInfo = testTriggerInfo[i];
+			if (svTriggerInfo.serverId != targetServerId)
+				continue;
+			svTriggers.push_back(svTriggerInfo);
+			expect += makeTriggerOutput(svTriggerInfo);
+		}
+		// sanity check if we use the proper data
+		cppcut_assert_equal(false, svTriggers.empty());
+
+		// Add newTriggerInfo to the expected result
+		svTriggers.push_back(newTriggerInfo);
+		expect += makeTriggerOutput(newTriggerInfo);
+	}
+	HatoholError err = dbMonitoring.syncTriggers(svTriggers, targetServerId);
+	assertHatoholError(HTERR_OK, err);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+	string statement = StringUtils::sprintf(
+	  "select * from triggers"
+	  " where server_id=%" FMT_SERVER_ID " order by id asc;",
+	  targetServerId);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
+void test_syncTriggersModifiedTrigger(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	loadTestDBTriggers();
+	constexpr const ServerIdType targetServerId = 1;
+
+	TriggerInfo modifiedTriggerInfo = {
+		1,                        // serverId
+		"1",                      // id
+		TRIGGER_STATUS_OK,        // status
+		TRIGGER_SEVERITY_INFO,    // severity
+		{1362957197,0},           // lastChangeTime
+		10,                       // globalHostId,
+		"235012",                 // hostIdInServer,
+		"hostX1 revised",         // hostName,
+		"TEST Trigger 1 Revised", // brief,
+		"{\"expandedDescription\":\"Test Trigger on hostX1 revised\"}", // extendedInfo
+		TRIGGER_VALID,            // validity
+	};
+
+	// sanity check for test data
+	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
+		const TriggerInfo &svTriggerInfo = testTriggerInfo[i];
+		if (svTriggerInfo.serverId != targetServerId)
+			continue;
+		if (svTriggerInfo.brief == modifiedTriggerInfo.brief)
+			cut_fail("We use the wrong test data");
+	}
+
+	string expect;
+	TriggerInfoList svTriggers;
+	{
+		size_t i = 0;
+		// Add modifiedTriggerInfo to the expected result
+		svTriggers.push_back(modifiedTriggerInfo);
+		expect += makeTriggerOutput(modifiedTriggerInfo);
+
+		for (i = 1; i < NumTestTriggerInfo; i++) {
+			const TriggerInfo &svTriggerInfo = testTriggerInfo[i];
+			if (svTriggerInfo.serverId != targetServerId)
+				continue;
+			svTriggers.push_back(svTriggerInfo);
+			expect += makeTriggerOutput(svTriggerInfo);
+		}
+		// sanity check if we use the proper data
+		cppcut_assert_equal(false, svTriggers.empty());
+	}
+	HatoholError err = dbMonitoring.syncTriggers(svTriggers, targetServerId);
+	assertHatoholError(HTERR_OK, err);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+	string statement = StringUtils::sprintf(
+	  "select * from triggers"
+	  " where server_id=%" FMT_SERVER_ID " order by id asc;",
+	  targetServerId);
+	assertDBContent(&dbAgent, statement, expect);
+}
+
 void test_getTriggerInfo(void)
 {
 	loadTestDBTriggers();
-	loadTestDBHosts();
-	loadTestDBHostgroupElements();
+	loadTestDBServerHostDef();
+	loadTestDBHostgroupMember();
 
 	int targetIdx = 2;
-	TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
+	const TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
 	TriggerInfo triggerInfo;
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	TriggersQueryOption option(USER_ID_SYSTEM);
@@ -481,7 +566,7 @@ void test_getTriggerInfoNotFound(void)
 	loadTestDBTriggers();
 
 	const UserIdType invalidSvId = -1;
-	const TriggerIdType invalidTrigId = -1;
+	const TriggerIdType invalidTrigId;
 	TriggerInfo triggerInfo;
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	TriggersQueryOption option(invalidSvId);
@@ -519,7 +604,7 @@ void data_getTriggerInfoListForOneServerOneHost(void)
 void test_getTriggerInfoListForOneServerOneHost(gconstpointer data)
 {
 	const ServerIdType targetServerId = testTriggerInfo[1].serverId;
-	const HostIdType targetHostId = testTriggerInfo[1].hostId;
+	const HostIdType targetHostId = testTriggerInfo[1].globalHostId;
 	assertGetTriggerInfoList(data, targetServerId, targetHostId);
 }
 
@@ -536,16 +621,6 @@ void test_setTriggerInfoList(gconstpointer data)
 		triggerInfoList.push_back(testTriggerInfo[i]);
 	const ServerIdType serverId = testTriggerInfo[0].serverId;
 	dbMonitoring.setTriggerInfoList(triggerInfoList, serverId);
-
-	HostgroupElementList hostgroupElementList;
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		hostgroupElementList.push_back(testHostgroupElement[i]);
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
-
-	HostgroupInfoList hostgroupInfoList;
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
-		hostgroupInfoList.push_back(testHostgroupInfo[i]);
-	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
 
 	AssertGetTriggersArg arg(data);
 	assertGetTriggers(arg);
@@ -573,18 +648,6 @@ void test_addTriggerInfoList(gconstpointer data)
 	for (; i < NumTestTriggerInfo; i++)
 		triggerInfoList1.push_back(testTriggerInfo[i]);
 	dbMonitoring.addTriggerInfoList(triggerInfoList1);
-
-	// Add HostgroupElement
-	HostgroupElementList hostgroupElementList;
-	for (size_t j = 0; j < NumTestHostgroupElement; j++)
-		hostgroupElementList.push_back(testHostgroupElement[j]);
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
-
-	// Add HostgroupInfo
-	HostgroupInfoList hostgroupInfoList;
-	for (size_t j = 0; j < NumTestHostgroupInfo; j++)
-		hostgroupInfoList.push_back(testHostgroupInfo[j]);
-	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
 
 	// Check
 	AssertGetTriggersArg arg(data);
@@ -660,16 +723,6 @@ void test_addItemInfoList(gconstpointer data)
 	for (size_t i = 0; i < NumTestItemInfo; i++)
 		itemInfoList.push_back(testItemInfo[i]);
 	dbMonitoring.addItemInfoList(itemInfoList);
-
-	HostgroupElementList hostgroupElementList;
-	for (size_t i = 0; i < NumTestHostgroupElement; i++)
-		hostgroupElementList.push_back(testHostgroupElement[i]);
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
-
-	HostgroupInfoList hostgroupInfoList;
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++)
-		hostgroupInfoList.push_back(testHostgroupInfo[i]);
-	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
 
 	AssertGetItemsArg arg(data);
 	assertGetItems(arg);
@@ -794,6 +847,32 @@ void test_addEventInfoList(gconstpointer data)
 	assertGetEvents(arg);
 }
 
+void test_addEventInfoUnifiedId(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	EventInfoList eventInfoList;
+	for (size_t i = 0; i < NumTestEventInfo; i++)
+		eventInfoList.push_back(testEventInfo[i]);
+	dbMonitoring.addEventInfoList(eventInfoList);
+
+	EventInfoListIterator it = eventInfoList.begin();
+	string expected;
+	string actual;
+	for (int i = 1; it != eventInfoList.end(); it++, i++) {
+		if (!expected.empty())
+			expected += "\n";
+		if (!actual.empty())
+			actual += "\n";
+		expected += StringUtils::toString(i);
+		expected += string("|") + makeEventOutput(*it);
+		actual += StringUtils::toString(it->unifiedId);
+		actual += string("|") + makeEventOutput(*it);
+	}
+	cppcut_assert_equal(expected, actual);
+	assertDBContent(&dbMonitoring.getDBAgent(),
+			"select * from events", expected);
+}
+
 void data_addDupEventInfoList(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
@@ -819,21 +898,21 @@ void data_getLastEventId(void)
 	prepareTestDataForFilterForDataOfDefunctServers();
 }
 
-void test_getLastEventId(gconstpointer data)
+void test_getMaxEventId(gconstpointer data)
 {
 	test_addEventInfoList(data);
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	const ServerIdType serverid = 3;
 	cppcut_assert_equal(findLastEventId(serverid),
-	                    dbMonitoring.getLastEventId(serverid));
+	                    dbMonitoring.getMaxEventId(serverid));
 }
 
-void test_getLastEventIdWithNoEvent(void)
+void test_getMaxEventIdWithNoEvent(void)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	const ServerIdType serverid = 3;
 	cppcut_assert_equal(EVENT_NOT_FOUND,
-	                    dbMonitoring.getLastEventId(serverid));
+	                    dbMonitoring.getMaxEventId(serverid));
 }
 
 void test_getTimeOfLastEvent(void)
@@ -852,69 +931,10 @@ void test_getTimeOfLastEventWithTriggerId(void)
 
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	const ServerIdType serverId = 3;
-	const TriggerIdType triggerId = 3;
+	const TriggerIdType triggerId = "3";
 	cppcut_assert_equal(
 	  findTimeOfLastEvent(serverId, triggerId),
 	  dbMonitoring.getTimeOfLastEvent(serverId, triggerId));
-}
-
-void data_getHostInfoList(void)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_getHostInfoList(gconstpointer data)
-{
-	AssertGetHostsArg arg(data);
-	assertGetHosts(arg);
-}
-
-void data_getHostInfoListForOneServer(void)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_getHostInfoListForOneServer(gconstpointer data)
-{
-	AssertGetHostsArg arg(data);
-	arg.targetServerId = 1;
-	assertGetHosts(arg);
-}
-
-void data_getHostInfoListWithNoAuthorizedServer(void)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_getHostInfoListWithNoAuthorizedServer(gconstpointer data)
-{
-	AssertGetHostsArg arg(data);
-	arg.userId = 4;
-	assertGetHosts(arg);
-}
-
-void data_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_getHostInfoListWithOneAuthorizedServer(gconstpointer data)
-{
-	AssertGetHostsArg arg(data);
-	arg.userId = 5;
-	assertGetHosts(arg);
-}
-
-void data_getHostInfoListWithUserWhoCanAccessSomeHostgroups(void)
-{
-	prepareTestDataForFilterForDataOfDefunctServers();
-}
-
-void test_getHostInfoListWithUserWhoCanAccessSomeHostgroups(gpointer data)
-{
-	AssertGetHostsArg arg(data);
-	arg.userId = 3;
-	assertGetHosts(arg);
 }
 
 void data_getNumberOfTriggers(void)
@@ -925,27 +945,27 @@ void data_getNumberOfTriggers(void)
 void test_getNumberOfTriggers(gconstpointer data)
 {
 	loadTestDBTriggers();
-	loadTestDBHostgroupElements();
+	loadTestDBHostgroupMember();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId =
-	  gcut_data_get_int(data, "hostgroupId");
+	  gcut_data_get_string(data, "hostgroupId");
 
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostgroupId(hostgroupId);
 	cppcut_assert_equal(
-	  dbMonitoring.getNumberOfTriggers(option),
 	  getNumberOfTestTriggers(targetServerId, hostgroupId),
+	  dbMonitoring.getNumberOfTriggers(option),
 	  cut_message("sv: %" FMT_SERVER_ID ", hostgroup: %" FMT_HOST_GROUP_ID,
-		      targetServerId, hostgroupId));
+	              targetServerId, hostgroupId.c_str()));
 }
 
 void test_getNumberOfTriggersForMultipleAuthorizedHostgroups(void)
 {
 	loadTestDBTriggers();
-	loadTestDBHostgroupElements();
+	loadTestDBHostgroupMember();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId = ALL_HOST_GROUPS;
@@ -956,8 +976,8 @@ void test_getNumberOfTriggersForMultipleAuthorizedHostgroups(void)
 	option.setTargetHostgroupId(hostgroupId);
 
 	cppcut_assert_equal(
-	  dbMonitoring.getNumberOfTriggers(option),
-	  getNumberOfTestTriggers(targetServerId, hostgroupId));
+	  getNumberOfTestTriggers(targetServerId, hostgroupId),
+	  dbMonitoring.getNumberOfTriggers(option));
 }
 
 void data_getNumberOfTriggersBySeverity(void)
@@ -977,12 +997,14 @@ void _assertGetNumberOfTriggers(DBTablesMonitoring &dbMonitoring,
 	  dbMonitoring.getNumberOfBadTriggers(option, severity);
 	const size_t expect = getNumberOfTestTriggers(
 	  serverId, hostgroupId, severity);
+	if (isVerboseMode())
+		cut_notify("The expected number of triggesr: %zd\n", expect);
 	cppcut_assert_equal(expect, actual,
 			    cut_message(
 			      "sv: %" FMT_SERVER_ID ", "
 			      "hostgroup: %" FMT_HOST_GROUP_ID ", "
 			      "severity: %d",
-			      serverId, hostgroupId, severity));
+			      serverId, hostgroupId.c_str(), severity));
 }
 #define assertGetNumberOfTriggers(D,S,H,V) \
 cut_trace(_assertGetNumberOfTriggers(D,S,H,V))
@@ -990,11 +1012,11 @@ cut_trace(_assertGetNumberOfTriggers(D,S,H,V))
 void test_getNumberOfTriggersBySeverity(gconstpointer data)
 {
 	loadTestDBTriggers();
-	loadTestDBHostgroupElements();
+	loadTestDBHostgroupMember();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId =
-	  gcut_data_get_int(data, "hostgroupId");
+	  gcut_data_get_string(data, "hostgroupId");
 
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	for (int i = 0; i < NUM_TRIGGER_SEVERITY; i++) {
@@ -1013,11 +1035,11 @@ void data_getNumberOfAllBadTriggers(void)
 void test_getNumberOfAllBadTriggers(gconstpointer data)
 {
 	loadTestDBTriggers();
-	loadTestDBHostgroupElements();
+	loadTestDBHostgroupMember();
 
 	const ServerIdType targetServerId = testTriggerInfo[0].serverId;
 	const HostgroupIdType hostgroupId =
-	  gcut_data_get_int(data, "hostgroupId");
+	  gcut_data_get_string(data, "hostgroupId");
 
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	assertGetNumberOfTriggers(dbMonitoring, targetServerId, hostgroupId,
@@ -1274,6 +1296,18 @@ void test_getEventWithInvalidUserId(gconstpointer data)
 	assertGetEventsWithFilter(arg);
 }
 
+void data_getEventWithEventType(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithEventType(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
+	arg.type = EVENT_TYPE_BAD;
+	assertGetEventsWithFilter(arg);
+}
+
 void data_getEventWithMinSeverity(void)
 {
 	prepareTestDataForFilterForDataOfDefunctServers();
@@ -1295,6 +1329,19 @@ void test_getEventWithTriggerStatus(gconstpointer data)
 {
 	AssertGetEventsArg arg(data);
 	arg.triggerStatus = TRIGGER_STATUS_PROBLEM;
+	assertGetEventsWithFilter(arg);
+}
+
+void data_getEventWithTimeRange(void)
+{
+	prepareTestDataForFilterForDataOfDefunctServers();
+}
+
+void test_getEventWithTimeRange(gconstpointer data)
+{
+	AssertGetEventsArg arg(data);
+	arg.beginTime = {1363000000, 0};
+	arg.endTime = {1389123457, 0};
 	assertGetEventsWithFilter(arg);
 }
 
@@ -1335,138 +1382,6 @@ void test_getEventWithTriggerId(gconstpointer data)
 	assertGetEventsWithFilter(arg);
 }
 
-void test_addHostgroupInfo(void)
-{
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	HostgroupInfoList hostgroupInfoList;
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = "select * from hostgroups;";
-	string expect;
-
-	for (size_t i = 0; i < NumTestHostgroupInfo; i++) {
-		hostgroupInfoList.push_back(testHostgroupInfo[i]);
-		expect += makeHostgroupsOutput(testHostgroupInfo[i], i);
-	}
-	dbMonitoring.addHostgroupInfoList(hostgroupInfoList);
-	assertDBContent(&dbAgent, statement, expect);
-}
-
-void test_addHostgroupElement(void)
-{
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	HostgroupElementList hostgroupElementList;
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = "select * from map_hosts_hostgroups";
-	string expect;
-
-	for (size_t i = 0; i < NumTestHostgroupElement; i++) {
-		hostgroupElementList.push_back(testHostgroupElement[i]);
-		expect += makeMapHostsHostgroupsOutput(
-		            testHostgroupElement[i], i);
-	}
-	dbMonitoring.addHostgroupElementList(hostgroupElementList);
-	assertDBContent(&dbAgent, statement, expect);
-}
-
-void test_addHostInfo(void)
-{
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	HostInfoList hostInfoList;
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = "select * from hosts;";
-	string expect;
-
-	for(size_t i = 0; i < NumTestHostInfo; i++) {
-		hostInfoList.push_back(testHostInfo[i]);
-		expect += makeHostsOutput(testHostInfo[i], i);
-	}
-	dbMonitoring.addHostInfoList(hostInfoList);
-	assertDBContent(&dbAgent, statement, expect);
-}
-
-void test_updateHostsMarkInvalid(void)
-{
-	loadTestDBHosts();
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	const ServerIdType targetServerId = 1;
-
-	// We keep the valid status for the hosts whose id is even.
-	HostInfoList hostInfoList;
-	HostIdHostInfoMap hostMap;
-	for (size_t i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo &hostInfo = testHostInfo[i];
-		if (hostInfo.serverId != targetServerId)
-			continue;
-		hostMap[hostInfo.id] = &hostInfo;
-		if (hostInfo.id % 2)
-			continue;
-		hostInfoList.push_back(hostInfo);
-	}
-	// sanity check if we use the proper data
-	cppcut_assert_equal(false, hostInfoList.empty());
-
-	// Prepare for the expected result.
-	string expect;
-	HostIdHostInfoMapConstIterator hostMapItr = hostMap.begin();
-	for (; hostMapItr != hostMap.end(); ++hostMapItr) {
-		const HostInfo &hostInfo = *hostMapItr->second;
-		int valid = (hostInfo.id % 2 == 0) ? HOST_VALID : HOST_INVALID;
-		expect += StringUtils::sprintf(
-		  "%" FMT_HOST_ID "|%d\n", hostInfo.id, valid);
-	}
-
-	// Call the method to be tested and check the result
-	dbMonitoring.updateHosts(hostInfoList, targetServerId);
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = StringUtils::sprintf(
-	  "select host_id,validity from hosts where server_id=%" FMT_SERVER_ID
-	  " order by host_id asc;", targetServerId);
-	assertDBContent(&dbAgent, statement, expect);
-}
-
-void test_updateHostsAddNewHost(void)
-{
-	loadTestDBHosts();
-	DECLARE_DBTABLES_MONITORING(dbMonitoring);
-	const ServerIdType targetServerId = 1;
-	HostInfo newHost;
-	newHost.serverId = targetServerId;
-	newHost.id       = 123231;
-	newHost.hostName = "new test host";
-	newHost.validity = HOST_VALID;
-
-	// Sanity check the ID of the new host is not duplicated.
-	for (size_t i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo &hostInfo = testHostInfo[i];
-		if (hostInfo.serverId != targetServerId)
-			continue;
-		if (hostInfo.id == newHost.id)
-			cut_fail("We use the worng test data");
-	}
-
-	// Prepare for the test data and the expected result.
-	HostInfoList hostInfoList;
-	string expect;
-	size_t i;
-	for (i = 0; i < NumTestHostInfo; i++) {
-		const HostInfo &hostInfo = testHostInfo[i];
-		if (hostInfo.serverId != targetServerId)
-			continue;
-		hostInfoList.push_back(hostInfo);
-		expect += makeHostsOutput(hostInfo, i);
-	}
-	hostInfoList.push_back(newHost);
-	expect += makeHostsOutput(newHost, i);
-
-	// Call the method to be tested and check the result
-	dbMonitoring.updateHosts(hostInfoList, targetServerId);
-	DBAgent &dbAgent = dbMonitoring.getDBAgent();
-	string statement = StringUtils::sprintf(
-	  "select * from hosts where server_id=%" FMT_SERVER_ID
-	  " order by id asc;", targetServerId);
-	assertDBContent(&dbAgent, statement, expect);
-}
-
 void test_addIncidentInfo(void)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
@@ -1477,7 +1392,8 @@ void test_addIncidentInfo(void)
 	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
 		IncidentInfo expectedIncidentInfo = testIncidentInfo[i];
 		expect += makeIncidentOutput(expectedIncidentInfo);
-		dbMonitoring.addIncidentInfo(&testIncidentInfo[i]);
+		IncidentInfo incidentInfo = testIncidentInfo[i];
+		dbMonitoring.addIncidentInfo(&incidentInfo);
 	}
 	assertDBContent(&dbAgent, statement, expect);
 }

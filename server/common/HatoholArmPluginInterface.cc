@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cstring>
@@ -157,6 +157,11 @@ struct HatoholArmPluginInterface::Impl {
 		connected = false;
 		hapi->onSessionChanged(NULL);
 	}
+	
+	bool isConnected(void) {
+		AutoMutex autoMutex(&connectionLock);
+		return connected;
+	}
 
 	static void destroyReplyWaiter(ReplyWaiter *replyWaiter,
 	                               Impl *impl)
@@ -292,6 +297,11 @@ void HatoholArmPluginInterface::send(
 	m_impl->sender.send(request);
 }
 
+bool HatoholArmPluginInterface::isConnetced(void)
+{
+	return m_impl->isConnected();
+}
+
 bool HatoholArmPluginInterface::getMessagingContext(MessagingContext &msgCtx)
 {
 	HATOHOL_ASSERT(m_impl->currMessage,
@@ -320,6 +330,7 @@ void HatoholArmPluginInterface::reply(const MessagingContext &msgCtx,
 	reply.setContent(replyBuf.getPointer<char>(0), replyBuf.size());
 	Sender sender = m_impl->session.createSender(msgCtx.replyAddress);
 	sender.send(reply);
+	sender.close();
 }
 
 void HatoholArmPluginInterface::replyError(const HapiResponseCode &code)
@@ -540,7 +551,7 @@ ItemTablePtr HatoholArmPluginInterface::createItemTable(mlpl::SmartBuffer &sbuf)
 {
 	// read header
 	HATOHOL_ASSERT(sbuf.remainingSize() >= sizeof(HapiItemTableHeader),
-	 "Remain size (header) is too small: %zd\n", sbuf.remainingSize());
+	 "Remaining size (header) is too small: %zd\n", sbuf.remainingSize());
 	const size_t index0 = sbuf.index();
 	const HapiItemTableHeader *header =
 	  sbuf.getPointerAndIncIndex<HapiItemTableHeader>();

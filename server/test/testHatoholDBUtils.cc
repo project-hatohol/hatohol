@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -34,11 +34,6 @@ public:
 		HatoholDBUtils::extractItemKeys(params, key);
 	}
 
-	static int getItemVariable(const string &word) 
-	{
-		return HatoholDBUtils::getItemVariable(word);
-	}
-
 	static void testMakeItemBrief(const string &name, const string &key,
 	                              const string &expected)
 	{
@@ -53,7 +48,7 @@ public:
 	  const bool useItemCategoryNameMap)
 	{
 		const ItemCategoryIdType itemCategoryId =
-		  useItemCategoryNameMap ? 1234 : NO_ITEM_CATEGORY_ID;
+		  useItemCategoryNameMap ? "1234" : NO_ITEM_CATEGORY_ID;
 		ItemInfo expect = testItemInfo[0]; // make a copy
 		VariableItemGroupPtr item = convert(expect, itemCategoryId);
 
@@ -69,14 +64,19 @@ public:
 			expect.itemGroupName = "N/A";
 		}
 
+		HostInfoCache hostInfoCache;
+		loadHostInfoCache(hostInfoCache, actual.serverId);
 		bool succeeded =
 		   HatoholDBUtils::transformItemItemGroupToItemInfo(
-		     actual, item, itemCategoryNameMap);
+		     actual, item, itemCategoryNameMap,
+		     actual.serverId, hostInfoCache);
 		cppcut_assert_equal(true, succeeded);
 
 		cppcut_assert_equal(expect.serverId, actual.serverId);
 		cppcut_assert_equal(expect.id, actual.id);
-		cppcut_assert_equal(expect.hostId, actual.hostId);
+		cppcut_assert_equal(expect.globalHostId, actual.globalHostId);
+		cppcut_assert_equal(expect.hostIdInServer,
+		                    actual.hostIdInServer);
 		cppcut_assert_equal(expect.brief, actual.brief);
 		cppcut_assert_equal(expect.lastValueTime.tv_sec,
 		                    actual.lastValueTime.tv_sec);
@@ -97,55 +97,35 @@ void test_extractItemKeys(void)
 	StringVector vect;
 	HatoholDBUtilsTest::extractItemKeys
 	  (vect, "vm.memory.size[available]");
-	assertStringVectorVA(vect, "available", NULL);
+	assertStringVectorVA(&vect, "available", NULL);
 }
 
 void test_extractItemKeysNoBracket(void)
 {
 	StringVector vect;
 	HatoholDBUtilsTest::extractItemKeys(vect, "system.uname");
-	assertStringVectorVA(vect, NULL);
+	assertStringVectorVA(&vect, NULL);
 }
 
 void test_extractItemKeysNullParams(void)
 {
 	StringVector vect;
 	HatoholDBUtilsTest::extractItemKeys(vect, "proc.num[]");
-	assertStringVectorVA(vect, "", NULL);
+	assertStringVectorVA(&vect, "", NULL);
 }
 
 void test_extractItemKeysTwo(void)
 {
 	StringVector vect;
 	HatoholDBUtilsTest::extractItemKeys(vect, "vfs.fs.size[/boot,free]");
-	assertStringVectorVA(vect, "/boot", "free", NULL);
+	assertStringVectorVA(&vect, "/boot", "free", NULL);
 }
 
 void test_extractItemKeysWithEmptyParams(void)
 {
 	StringVector vect;
 	HatoholDBUtilsTest::extractItemKeys(vect, "proc.num[,,run]");
-	assertStringVectorVA(vect, "", "", "run", NULL);
-}
-
-void test_getItemVariable(void)
-{
-	cppcut_assert_equal(1, HatoholDBUtilsTest::getItemVariable("$1"));
-}
-
-void test_getItemVariableMultipleDigits(void)
-{
-	cppcut_assert_equal(123, HatoholDBUtilsTest::getItemVariable("$123"));
-}
-
-void test_getItemVariableWord(void)
-{
-	cppcut_assert_equal(-1, HatoholDBUtilsTest::getItemVariable("abc"));
-}
-
-void test_getItemVariableDoubleDollar(void)
-{
-	cppcut_assert_equal(-1, HatoholDBUtilsTest::getItemVariable("$$"));
+	assertStringVectorVA(&vect, "", "", "run", NULL);
 }
 
 void test_makeItemBrief(void)
@@ -155,11 +135,69 @@ void test_makeItemBrief(void)
 	  "CPU idle time");
 }
 
-void test_makeItemBriefOverNumVariable10(void)
+void test_makeItemBriefNoSpace(void)
 {
 	HatoholDBUtilsTest::testMakeItemBrief(
-	  "ABC $12", "foo[P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13]",
+	  "CPU $2time", "system.cpu.util[,idle]",
+	  "CPU idletime");
+}
+
+void test_makeItemBriefFromEmptyName(void)
+{
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "", "system.cpu.util[,idle]",
+	  "");
+}
+
+void test_makeItemBriefFromEmptyKey(void)
+{
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "CPU $2time", "",
+	  "CPU <INTERNAL ERROR>time");
+}
+
+void test_makeItemBriefFromEmptyNameAndKey(void)
+{
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "", "system.cpu.util[,idle]",
+	  "");
+}
+
+void test_makeItemBriefTrailingDollar(void)
+{
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "Trailing dollar $", "system.cpu.util[,idle]",
+	  "Trailing dollar $");
+}
+
+void test_makeItemBriefHeadingVariable(void)
+{
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "$2 time", "system.cpu.util[,idle]",
+	  "idle time");
+}
+
+void test_makeItemBriefContinuousVariable(void)
+{
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "$2$1 time", "system.cpu.util[0,idle]",
+	  "idle0 time");
+}
+
+void test_makeItemBriefOverNumVariable10(void)
+{
+	// Zabbix supports only $1 - $9, so "$12" should be treated as "$1" + "2"
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "ABC $12", "foo[P1,P2,P3,P4,P5,P6,P7,P8,P9,Pa,Pb,Pc,Pd]",
 	  "ABC P12");
+}
+
+void test_makeItemBriefNumVariable0(void)
+{
+	// Zabbix doesn't expand "$0"
+	HatoholDBUtilsTest::testMakeItemBrief(
+	  "ABC $0", "foo[P1,P2,P3,P4,P5,P6,P7,P8,P9,Pa,Pb,Pc,Pd]",
+	  "ABC $0");
 }
 
 void test_makeItemBriefTwoParam(void)

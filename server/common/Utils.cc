@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <StringUtils.h>
@@ -160,7 +160,7 @@ string Utils::getSelfExeDir(void)
 	if (bytesRead == -1) {
 		THROW_HATOHOL_EXCEPTION(
 		  "Failed to readlink(\"/proc/self/exe\"): %s",
-		  strerror(errno));
+		  g_strerror(errno));
 	}
 	p = memrchr(buf, '/', bytesRead);
 	if (!p) {
@@ -465,6 +465,21 @@ bool Utils::isValidURI(const string &uri)
 	return valid;
 }
 
+void Utils::conv(uint64_t &dest, const string &src)
+{
+	int numConv = sscanf(src.c_str(), "%" PRIu64, &dest);
+	if (numConv != 1) {
+		THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(
+		  HTERR_INTERNAL_ERROR, "Failed to convert %s.\n", src.c_str());
+	}
+}
+
+uint64_t Utils::sum(const string &num0, const uint64_t num1)
+{
+	uint64_t n;
+	conv(n, num0);
+	return n + num1;
+}
 
 // ---------------------------------------------------------------------------
 // Protected methods

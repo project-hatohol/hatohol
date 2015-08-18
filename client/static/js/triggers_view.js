@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 var TriggersView = function(userProfile) {
@@ -22,11 +22,14 @@ var TriggersView = function(userProfile) {
   var rawData;
 
   self.reloadIntervalSeconds = 60;
+  self.currentPage = 0;
   self.baseQuery = {
     limit: 50,
   };
   $.extend(self.baseQuery, getTriggersQueryInURI());
   self.lastQuery = undefined;
+  self.showToggleAutoRefreshButton();
+  self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -79,7 +82,7 @@ var TriggersView = function(userProfile) {
         load(page);
         if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
           self.baseQuery.limit = self.pager.numRecordsPerPage;
-          saveConfig({'num-triggers-per-page': self.baseQuery.limit})
+          saveConfig({'num-triggers-per-page': self.baseQuery.limit});
         }
       }
     });
@@ -150,9 +153,20 @@ var TriggersView = function(userProfile) {
     }
   }
 
+  function getTriggerName(trigger) {
+    var extendedInfo, name;
+
+    try {
+      extendedInfo = JSON.parse(trigger["extendedInfo"]);
+      name = extendedInfo["expandedDescription"];
+    } catch(e) {
+    }
+    return name ? name : trigger["brief"];
+  }
+
   function drawTableBody(replyData) {
-    var serverName, hostName, clock, status, severity;
-    var html, server, trigger;
+    var serverName, hostName, clock, status, severity, triggerName;
+    var html, server, trigger, severityClass;
     var x, serverId, hostId;
 
     html = "";
@@ -161,14 +175,18 @@ var TriggersView = function(userProfile) {
       serverId   = trigger["serverId"];
       hostId     = trigger["hostId"];
       server     = replyData["servers"][serverId];
-      serverName = getServerName(server, serverId);
+      nickName   = getNickName(server, serverId);
       hostName   = getHostName(server, hostId);
       clock      = trigger["lastChangeTime"];
       status     = trigger["status"];
       severity   = trigger["severity"];
+      severityClass = "severity";
+      if (status == hatohol.TRIGGER_STATUS_PROBLEM)
+	severityClass += escapeHTML(severity);
+      triggerName = getTriggerName(trigger);
 
-      html += "<tr><td>" + escapeHTML(serverName) + "</td>";
-      html += "<td class='severity" + escapeHTML(severity) +
+      html += "<tr><td>" + escapeHTML(nickName) + "</td>";
+      html += "<td class='" + severityClass +
         "' data-sort-value='" + escapeHTML(severity) + "'>" +
         severity_choices[Number(severity)] + "</td>";
       html += "<td class='status" + escapeHTML(status) +
@@ -178,9 +196,9 @@ var TriggersView = function(userProfile) {
         formatDate(clock) + "</td>";
       html += "<td>" + escapeHTML(hostName) + "</td>";
       html += "<td>"
-	+ "<a href='/ajax_events?serverId=" + escapeHTML(serverId)
+	+ "<a href='ajax_events?serverId=" + escapeHTML(serverId)
 	+ "&triggerId=" + escapeHTML(trigger["id"]) + "'>"
-	+ escapeHTML(trigger["brief"])
+	+ escapeHTML(triggerName)
 	+ "</a></td>";
       html += "</tr>";
     }
@@ -237,9 +255,13 @@ var TriggersView = function(userProfile) {
 
   function load(page) {
     self.displayUpdateTime();
-    self.startConnection(getQuery(page), updateCore);
     setLoading(true);
-    self.pager.update({ currentPage: isNaN(page) ? 0 : page });
+    if (!isNaN(page)) {
+      self.currentPage = page;
+    }
+    self.startConnection(getQuery(self.currentPage), updateCore);
+    self.pager.update({ currentPage: self.currentPage });
+    $(document.body).scrollTop(0);
   }
 };
 

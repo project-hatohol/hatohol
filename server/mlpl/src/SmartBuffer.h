@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef SmartBuffer_h
@@ -22,6 +22,8 @@
 
 #include <cstdlib>
 #include <stdint.h>
+#include <string>
+#include <stdexcept>
 
 namespace mlpl {
 
@@ -36,10 +38,16 @@ class SmartBuffer {
 	size_t   m_size;
 	size_t   m_watermark;
 public:
+	struct StringHeader {
+		uint32_t size;
+		int32_t  offset;
+	} __attribute__((__packed__));
+
 	SmartBuffer(void);
 	SmartBuffer(size_t size);
 	SmartBuffer(const SmartBuffer &smartBuffer);
 	virtual ~SmartBuffer();
+	const SmartBuffer &operator=(const SmartBuffer &rhs);
 	operator const char *() const;
 	operator char *() const;
 	operator uint8_t *() const;
@@ -104,6 +112,47 @@ public:
 	void add(const void *src, size_t len);
 	void addZero(size_t size);
 
+	/**
+	 * Add a string size followed by the content.
+	 *
+	 * @tparam T   A type of the size such as uint8_t and uint16_t
+	 * @param  str A message to be added.
+	 */
+	template<typename T>
+	void add(const std::string &str)
+	{
+		const size_t len = str.size();
+		const size_t maxLen = (1 << (8 * sizeof(T))) - 1;
+		if (len > maxLen) {
+			throw std::range_error(
+			        "The length of the string is too big.");
+		}
+		add(&len, sizeof(T));
+		add(str.c_str(), len);
+	}
+
+	/**
+	 * Add a string to the buffer with the size and the location.
+	 *
+	 * This method writes an unsigned 32bit string length and a signed
+	 * 32bit offset of the given string.
+	 * Then it writes the string body at the specified position given by
+	 * the paramter 'bodyIndex'. Although the NULL terminator of the string
+	 * is copied, the written length doesn't include the terminator.
+	 * After calling this method, the current position moves to the next
+	 * to the length and the offset fields.
+	 *
+	 * @param str       A string to be written.
+	 *
+	 * @param bodyIndex
+	 * A position where the string body is written from the top of
+	 * the buffer.
+	 *
+	 * @return
+	 * The offset next to the written string from the top of the buffer.
+	 */
+	size_t insertString(const std::string &str, const size_t &bodyIndex);
+
 	// 'addEx' families extend buffer if needed. They are useful when
 	// the total size of the buffer is unknown. Of course, because
 	// the reallocation might be called, performance is less than that of
@@ -149,6 +198,37 @@ public:
 		return *getPointerAndIncIndex<T>();
 	}
 
+	template <typename T>
+	std::string getString(const size_t &index = SMBUF_CURR_INDEX) const {
+		size_t pos = (index == SMBUF_CURR_INDEX) ? m_index : index;
+		T len = *getPointer<T>(pos);
+		return std::string(getPointer<char>(pos + sizeof(T)), len);
+	}
+
+	template <typename T> std::string getStringAndIncIndex(void)
+	{
+		std::string s = getString<T>();
+		m_index += (sizeof(T) + s.size());
+		return s;
+	}
+
+	/**
+	 * Read a string with the given length and the offset.
+	 * After this method is called, the current index is not changed.
+	 *
+	 * @param header A point to StringHeader region in the buffer.
+	 * @return a read string.
+	 */
+	std::string extractString(const StringHeader *header);
+
+	/**
+	 * Read a string with the length and the offset at the current index,
+	 * After this method is called, the current index is incremented.
+	 *
+	 * @return a read string.
+	 */
+	std::string extractStringAndIncIndex(void);
+
 	/**
 	 * Make a new SmartBuffer instance on the heap and the created instance
 	 * takes over the content of this buffer. After the call of this
@@ -172,6 +252,14 @@ public:
 
 
 protected:
+	/**
+	 * Update the warter mark if the given index is beyond the current
+	 * warter mark.
+	 *
+	 * @param index An index to be checked.
+	 */
+	void setWatermarkIfNeeded(const size_t &index);
+
 	void setWatermarkIfNeeded(void) {
 		if (m_index > m_watermark)
 			m_watermark = m_index;

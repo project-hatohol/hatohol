@@ -1,26 +1,27 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "IncidentSender.h"
 #include "StringUtils.h"
 #include "LabelUtils.h"
 #include "ThreadLocalDBCache.h"
+#include "UnifiedDataStore.h"
 #include <Mutex.h>
 #include "SimpleSemaphore.h"
 #include "Reaper.h"
@@ -75,7 +76,7 @@ struct IncidentSender::Job
 		if (eventInfo && createCallback)
 			createCallback(*eventInfo, status, userData);
 		else if (incidentInfo && updateCallback)
-			createCallback(*eventInfo, status, userData);
+			updateCallback(*incidentInfo, status, userData);
 	}
 
 	HatoholError send(IncidentSender &sender) const
@@ -98,6 +99,8 @@ struct IncidentSender::Impl
 	SimpleSemaphore jobSemaphore;
 	size_t retryLimit;
 	unsigned int retryIntervalMSec;
+	AtomicValue<bool> trackerChanged;
+	Mutex trackerLock;
 
 	Impl(IncidentSender &_sender)
 	: sender(_sender), runningJob(NULL), jobSemaphore(0),
@@ -105,7 +108,7 @@ struct IncidentSender::Impl
 	  retryIntervalMSec(DEFAULT_RETRY_INTERVAL_MSEC)
 	{
 	}
- 
+
 	~Impl()
 	{
 		queueLock.lock();
@@ -135,7 +138,8 @@ struct IncidentSender::Impl
 			queue.pop();
 		}
 		runningJob = job;
-		job->notifyStatus(JOB_STARTED);
+		if (job)
+			job->notifyStatus(JOB_STARTED);
 		queueLock.unlock();
 		return job;
 	}
@@ -225,9 +229,28 @@ bool IncidentSender::isIdling(void)
 	return !m_impl->runningJob;
 }
 
-const IncidentTrackerInfo &IncidentSender::getIncidentTrackerInfo(void)
+const IncidentTrackerInfo IncidentSender::getIncidentTrackerInfo(void)
 {
+	AutoMutex autoMutex(&m_impl->trackerLock);
+
+	if (!m_impl->trackerChanged)
+		return m_impl->incidentTrackerInfo;
+
+	IncidentTrackerInfo trackerInfo;
+	IncidentTrackerIdType trackerId = m_impl->incidentTrackerInfo.id;
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	if (dataStore->getIncidentTrackerInfo(trackerId, trackerInfo)) {
+		m_impl->incidentTrackerInfo = trackerInfo;
+		m_impl->trackerChanged = false;
+		return m_impl->incidentTrackerInfo;
+	}
+
 	return m_impl->incidentTrackerInfo;
+}
+
+void IncidentSender::setOnChangedIncidentTracker(void)
+{
+	m_impl->trackerChanged = true;
 }
 
 bool IncidentSender::getServerInfo(const EventInfo &event,
@@ -287,16 +310,16 @@ string IncidentSender::buildDescription(const EventInfo &event,
 	}
 	desc += "\n";
 	desc += StringUtils::sprintf(
-		  "Host ID: %" FMT_HOST_ID "\n"
+		  "Host ID: '%" FMT_LOCAL_HOST_ID "'\n"
 		  "    Hostname:   \"%s\"\n",
-		  event.hostId, event.hostName.c_str());
+		  event.hostIdInServer.c_str(), event.hostName.c_str());
 	desc += "\n";
 	desc += StringUtils::sprintf(
 		  "Event ID: %" FMT_EVENT_ID "\n"
 		  "    Time:       \"%ld.%09ld (%s)\"\n"
 		  "    Type:       \"%d (%s)\"\n"
 		  "    Brief:      \"%s\"\n",
-		  event.id,
+		  event.id.c_str(),
 		  event.time.tv_sec, event.time.tv_nsec, timeString,
 		  event.type,
 		  LabelUtils::getEventTypeLabel(event.type).c_str(),
@@ -306,7 +329,7 @@ string IncidentSender::buildDescription(const EventInfo &event,
 		  "Trigger ID: %" FMT_TRIGGER_ID "\n"
 		  "    Status:     \"%d (%s)\"\n"
 		  "    Severity:   \"%d (%s)\"\n",
-		  event.triggerId,
+		  event.triggerId.c_str(),
 		  event.status,
 		  LabelUtils::getTriggerStatusLabel(event.status).c_str(),
 		  event.severity,

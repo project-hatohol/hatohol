@@ -4,21 +4,25 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
+#include <cstdio>
 #include <cppcutter.h>
+#include <string>
+#include <gcutter.h>
 #include "SmartBuffer.h"
+using namespace std;
 using namespace mlpl;
 
 namespace testSmartBuffer {
@@ -208,6 +212,150 @@ void test_setIndex(void)
 	sbuf.alloc(100);
 	sbuf.setIndex(5);
 	cppcut_assert_equal((size_t)5, sbuf.index());
+}
+
+void test_addString(void)
+{
+	SmartBuffer sbuf(100);
+	string foo = "foo X1234";
+	sbuf.add<uint16_t>(foo);
+	const size_t expectSizeLen = sizeof(uint16_t);
+	const uint16_t expectStrLen = foo.size();
+	cppcut_assert_equal(expectSizeLen + expectStrLen, sbuf.index());
+	cppcut_assert_equal(expectStrLen, *sbuf.getPointer<const uint16_t>(0));
+	cppcut_assert_equal(
+	  foo, string(sbuf.getPointer<char>(expectSizeLen), expectStrLen));
+}
+
+void test_insertString(void)
+{
+	SmartBuffer sbuf(100);
+	const string str = "foo X1234";
+	const uint32_t dummyStuff = 0x12345678;
+	const size_t bodyIndex = 50;
+	sbuf.add32(dummyStuff);
+	const size_t nextIndex = sbuf.insertString(str, bodyIndex);
+
+	sbuf.setIndex(sizeof(dummyStuff));
+	cppcut_assert_equal(static_cast<uint32_t>(str.size()),
+	                    sbuf.getValueAndIncIndex<uint32_t>());
+	int32_t expectOffset = bodyIndex - sizeof(dummyStuff);
+	cppcut_assert_equal(expectOffset, sbuf.getValueAndIncIndex<int32_t>());
+	cppcut_assert_equal(str, string(sbuf.getPointer<char>(bodyIndex)));
+	cppcut_assert_equal(nextIndex, bodyIndex + str.size() + 1);
+	cppcut_assert_equal(nextIndex, sbuf.watermark());
+}
+
+void data_insertStringWithLongString(void)
+{
+	gcut_add_datum("2 characters (Within the limit)",
+	               "txt", G_TYPE_STRING, "A",
+	               "expectException", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("3 characters (Over the limit)",
+	               "txt", G_TYPE_STRING, "AB",
+	               "expectException", G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
+void test_insertStringWithLongString(gconstpointer data)
+{
+	const size_t bodyIndex = 10;
+	SmartBuffer sbuf(bodyIndex + 2);
+	const string txt = gcut_data_get_string(data, "txt");
+	const bool expectException =
+	  gcut_data_get_boolean(data, "expectException");
+
+	sbuf.add8(1);
+	bool gotException = false;
+	try {
+		sbuf.insertString(txt, bodyIndex);
+	} catch (const out_of_range &e) {
+		gotException = true;
+	}
+	cppcut_assert_equal(expectException, gotException);
+}
+
+void data_addTooLongString(void)
+{
+	gcut_add_datum("Maximum",
+	               "len", G_TYPE_INT, 255,
+	               "expectException", G_TYPE_BOOLEAN, FALSE, NULL);
+	gcut_add_datum("Over",
+	               "len", G_TYPE_INT, 256,
+	               "expectException", G_TYPE_BOOLEAN, TRUE, NULL);
+}
+
+void test_addTooLongString(gconstpointer data)
+{
+	const int len = gcut_data_get_int(data, "len");
+	const bool expectException =
+	  gcut_data_get_boolean(data, "expectException");
+
+	SmartBuffer sbuf(512);
+	string foo;
+	for (int i = 0; i < len; i++)
+		foo += 'X';
+	bool gotException = false;
+	try {
+		sbuf.add<uint8_t>(foo);
+	} catch (const range_error &e) {
+		gotException = true;
+	}
+	cppcut_assert_equal(expectException, gotException);
+}
+
+void test_getString(void)
+{
+	SmartBuffer sbuf(100);
+	string material = "ABC 123 xyz";
+	sbuf.add<uint16_t>(material);
+	const size_t indexPos = 25;
+	sbuf.setIndex(indexPos);
+	cppcut_assert_equal(material, sbuf.getString<uint16_t>(0));
+	cppcut_assert_equal(indexPos, sbuf.index());
+}
+
+void test_getStringAndIncIndex(void)
+{
+	SmartBuffer sbuf(100);
+	string material = "ABC 123 xyz";
+	sbuf.add<uint16_t>(material);
+	sbuf.resetIndex();
+	cppcut_assert_equal(material, sbuf.getStringAndIncIndex<uint16_t>());
+	const size_t expectIndex = sizeof(uint16_t) + material.size();
+	cppcut_assert_equal(expectIndex, sbuf.index());
+}
+
+void test_extractString(void)
+{
+	SmartBuffer sbuf(100);
+	const string str = "foo X1234";
+	const size_t bodyIndex = 50;
+	sbuf.insertString(str, bodyIndex);
+	sbuf.resetIndex(); // index -> 0
+	const SmartBuffer::StringHeader *header =
+	  sbuf.getPointer<SmartBuffer::StringHeader>();
+	cppcut_assert_equal(str, sbuf.extractString(header));
+
+	// check that the index is not changed.
+	cppcut_assert_equal((size_t)0, sbuf.index());
+}
+
+void test_extractStringAndIncIndex(void)
+{
+	SmartBuffer sbuf(100);
+	const string str = "foo X1234";
+	const uint32_t dummyStuff = 0x12345678;
+	const size_t bodyIndex = 50;
+	sbuf.add32(dummyStuff);
+	sbuf.insertString(str, bodyIndex);
+	sbuf.resetIndex();
+	cppcut_assert_equal(dummyStuff, sbuf.getValueAndIncIndex<uint32_t>());
+	cppcut_assert_equal(str, sbuf.extractStringAndIncIndex());
+
+	// check the index after the call
+	const size_t expectIndex =
+	  sizeof(dummyStuff) + sizeof(SmartBuffer::StringHeader);
+	cppcut_assert_equal(expectIndex, sbuf.index());
 }
 
 } // namespace testSmartBuffer

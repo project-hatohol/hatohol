@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef JSONParser_h
@@ -32,6 +32,18 @@
 class JSONParser
 {
 public:
+
+	enum ValueType {
+		VALUE_TYPE_UNKNOWN,
+		VALUE_TYPE_NULL,
+		VALUE_TYPE_BOOLEAN,
+		VALUE_TYPE_INT64,
+		VALUE_TYPE_DOUBLE,
+		VALUE_TYPE_STRING,
+		VALUE_TYPE_OBJECT,
+		VALUE_TYPE_ARRAY
+	};
+
 	class PositionStack {
 	public:
 		PositionStack(JSONParser &parser);
@@ -55,6 +67,7 @@ public:
 	bool read(const std::string &member, double &dest);
 	bool read(int index, std::string &dest);
 	bool isMember(const std::string &member);
+	ValueType getValueType(const std::string &member);
 
 	/**
 	 * checks whether the element is Null.

@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cstdlib>
@@ -24,6 +24,7 @@ using namespace std;
 using namespace mlpl;
 
 bool HatoholException::m_saveStackTrace = false;
+bool HatoholException::m_abort = false;
 const int HatoholException::UNKNOWN_LINE_NUMBER = -1;
 
 // ---------------------------------------------------------------------------
@@ -31,23 +32,35 @@ const int HatoholException::UNKNOWN_LINE_NUMBER = -1;
 // ---------------------------------------------------------------------------
 void HatoholException::init(void)
 {
-	char *env = getenv(HATOHOL_STACK_TRACE_SET_ENV);
-	if (!env)
-		return;
-	if (string("1") == env)
-		m_saveStackTrace = true;
+	struct {
+		void operator ()(const char *envStr, bool &var)
+		{
+			var = false;
+			char *env = getenv(envStr);
+			if (!env)
+				return;
+			if (string(env) == "1")
+				var = true;
+		}
+	} envChecker;
+
+	envChecker(HATOHOL_STACK_TRACE_SET_ENV, m_saveStackTrace);
+	envChecker(HATOHOL_EXCEPTION_ABORT_ENV, m_abort);
 }
 
 HatoholException::HatoholException(
   const string &brief, const string &sourceFileName, const int &lineNumber)
 : m_what(brief),
   m_sourceFileName(sourceFileName),
-  m_lineNumber(lineNumber)
+  m_lineNumber(lineNumber),
+  m_errCode(HTERR_UNKNOWN_REASON)
 {
 	MLPL_DBG("HatoholException: <%s:%d> %s\n", sourceFileName.c_str(), lineNumber,
 	         brief.c_str());
 	if (m_saveStackTrace)
 		saveStackTrace();
+	if (m_abort)
+		abort();
 }
 
 HatoholException::HatoholException(
@@ -61,6 +74,8 @@ HatoholException::HatoholException(
 	         lineNumber, brief.c_str());
 	if (m_saveStackTrace)
 		saveStackTrace();
+	if (m_abort)
+		abort();
 }
 
 HatoholException::~HatoholException() _HATOHOL_NOEXCEPT

@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "ArmRedmine.h"
@@ -302,6 +302,11 @@ RETRY:
 		 trackerInfo.id, trackerInfo.nickname.c_str(), url.c_str());
 
 	SoupMessage *msg = soup_message_new(SOUP_METHOD_GET, url.c_str());
+	if (!msg) {
+		MLPL_ERR("Can't prepare to connect to: %s\n",
+			 url.c_str());
+		return COLLECT_NG_DISCONNECT_REDMINE;
+	}
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
 	guint soupStatus = soup_session_send_message(m_impl->m_session, msg);

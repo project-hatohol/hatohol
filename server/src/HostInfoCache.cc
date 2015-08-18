@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cstdio>
@@ -23,11 +23,13 @@
 #include <ReadWriteLock.h>
 #include "Params.h"
 #include "HostInfoCache.h"
+#include "UnifiedDataStore.h"
+#include "HatoholException.h"
 
 using namespace std;
 using namespace mlpl;
 
-typedef map<HostIdType, string> HostIdNameMap;
+typedef map<LocalHostIdType, HostInfoCache::Element> HostIdNameMap;
 typedef HostIdNameMap::iterator HostIdNameMapIterator;
 
 struct HostInfoCache::Impl
@@ -39,37 +41,87 @@ struct HostInfoCache::Impl
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
-HostInfoCache::HostInfoCache(void)
+HostInfoCache::HostInfoCache(const ServerIdType *serverId)
 : m_impl(new Impl())
 {
+	if (!serverId)
+		return;
+
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(*serverId);
+	ServerHostDefVect svHostDefs;
+	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+	  uds->getServerHostDefs(svHostDefs, option));
+	update(svHostDefs);
 }
 
 HostInfoCache::~HostInfoCache()
 {
 }
 
-void HostInfoCache::update(const HostInfo &hostInfo)
+void HostInfoCache::update(const ServerHostDef &svHostDef,
+                           const HostIdType &hostId)
 {
 	bool doUpdate = true;
 	m_impl->lock.writeLock();
-	HostIdNameMapIterator it = m_impl->hostIdNameMap.find(hostInfo.id);
+	HostIdNameMapIterator it =
+	  m_impl->hostIdNameMap.find(svHostDef.hostIdInServer);
 	if (it != m_impl->hostIdNameMap.end()) {
-		const string &hostName = it->second;
-		if (hostName == hostInfo.hostName)
+		const Element &elem = it->second;
+		const string &hostName = elem.name;
+		if (hostName == svHostDef.name)
 			doUpdate = false;
 	}
-	if (doUpdate)
-		m_impl->hostIdNameMap[hostInfo.id] = hostInfo.hostName;;
+	if (doUpdate) {
+		Element elem;
+		elem.hostId =
+		  (hostId != INVALID_HOST_ID) ? hostId : svHostDef.hostId;
+		elem.name = svHostDef.name;
+		HATOHOL_ASSERT(elem.hostId != INVALID_HOST_ID,
+		               "INVALID_HOST_ID: server: %d, host: %s\n",
+		               svHostDef.serverId,
+		               svHostDef.hostIdInServer.c_str());
+		m_impl->hostIdNameMap[svHostDef.hostIdInServer] = elem;
+	}
 	m_impl->lock.unlock();
 }
 
-bool HostInfoCache::getName(const HostIdType &id, string &name) const
+void HostInfoCache::update(const ServerHostDefVect &svHostDefs,
+                           const HostHostIdMap *hostHostIdMapPtr)
+{
+	struct {
+		HostIdType operator()(
+		  const ServerHostDef &svHostDef,
+		  const HostHostIdMap *hostHostIdMapPtr)
+		{
+			HostIdType hostId = INVALID_HOST_ID;
+			if (!hostHostIdMapPtr)
+				return hostId;
+			HostHostIdMapConstIterator it =
+			  hostHostIdMapPtr->find(svHostDef.hostIdInServer);
+			if (it != hostHostIdMapPtr->end())
+				hostId = it->second;
+			return hostId;
+		}
+	} getHostId;
+
+	// TODO: consider if DBTablesHost should have the cache
+	ServerHostDefVectConstIterator svHostDefIt = svHostDefs.begin();
+	for (; svHostDefIt != svHostDefs.end(); ++svHostDefIt) {
+		const ServerHostDef &svHostDef = *svHostDefIt;
+		update(svHostDef, getHostId(svHostDef, hostHostIdMapPtr));
+	}
+}
+
+bool HostInfoCache::getName(
+  const LocalHostIdType &id, Element &elem) const
 {
 	bool found = false;
 	m_impl->lock.readLock();
 	HostIdNameMapIterator it = m_impl->hostIdNameMap.find(id);
 	if (it != m_impl->hostIdNameMap.end()) {
-		name = it->second;
+		elem = it->second;
 		found = true;
 	}
 	m_impl->lock.unlock();

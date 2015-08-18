@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef HatoholDBUtils_h
@@ -34,26 +34,26 @@ public:
 	  const ServerIdType &serverId);
 
 	static void transformGroupsToHatoholFormat(
-	  HostgroupInfoList &groupInfoList, const ItemTablePtr groups,
+	  HostgroupVect &hostgroups, const ItemTablePtr groups,
 	  const ServerIdType &serverId);
 
 	static void transformHostsGroupsToHatoholFormat(
-	  HostgroupElementList &hostgroupElementList,
+	  HostgroupMemberVect &hostgroupMembers,
 	  const ItemTablePtr mapHostHostgroups,
-	  const ServerIdType &serverId);
+	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
 
 	static void transformHostsToHatoholFormat(
-	  HostInfoList &hostInfoList, const ItemTablePtr hosts,
+	  ServerHostDefVect &svHostDefs, const ItemTablePtr hosts,
 	  const ServerIdType &serverId);
+
 	static void transformItemsToHatoholFormat(
 	  ItemInfoList &itemInfoList, MonitoringServerStatus &serverStatus,
-	  const ItemTablePtr items, const ItemTablePtr applications);
+	  const ItemTablePtr items, const ItemTablePtr applications,
+	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
 
-	static ItemInfoValueType transformItemValueTypeToHatoholFormat(
-	  const int &valueType);
-
-	static int transformItemValueTypeToZabbixFormat(
-	  const ItemInfoValueType &valueType);
+	static void transformHistoryToHatoholFormat(
+	  HistoryInfoVect &historyInfoVect, const ItemTablePtr items,
+	  const ServerIdType &serverId);
 
 protected:
 	static int getItemVariable(const std::string &word);
@@ -75,18 +75,19 @@ protected:
 	  EventInfo &eventInfo, const ItemGroup *event);
 
 	static void transformGroupItemGroupToHostgroupInfo(
-	  HostgroupInfo &groupInfo, const ItemGroup *groupItemGroup);
+	  Hostgroup &hostgroup, const ItemGroup *groupItemGroup);
 
 	static void transformHostsGroupsItemGroupToHatoholFormat(
-	  HostgroupElement &hostgroupElement,
-	  const ItemGroup *groupHostsGroups);
-
-	static void transformHostsItemGroupToHatoholFormat(
-	  HostInfo &hostInfo, const ItemGroup *groupHosts);
+	  HostgroupMember &hostgrpMember, const ItemGroup *groupHostsGroups,
+	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
 
 	static bool transformItemItemGroupToItemInfo(
 	  ItemInfo &itemInfo, const ItemGroup *item,
-	  const ItemCategoryNameMap &itemCategoryNameMap);
+	  const ItemCategoryNameMap &itemCategoryNameMap,
+	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
+
+	static void transformHistoryItemGroupToHistoryInfo(
+	  HistoryInfo &historyInfo, const ItemGroup *item);
 };
 
 #endif // HatoholDBUtils_h

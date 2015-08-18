@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef DBAgentMySQL_h
@@ -61,18 +61,38 @@ public:
 	virtual void select(const SelectExArg &selectExArg) override;
 	virtual void deleteRows(const DeleteArg &deleteArg) override;
 	virtual void addColumns(const AddColumnsArg &addColumnsArg);
+	virtual void changeColumnDef(const TableProfile &tableProfile,
+				     const std::string &oldColumnName,
+				     const size_t &columnIndex) override;
+	virtual void dropPrimaryKey(const std::string &tableName) override;
 	virtual void renameTable(const std::string &srcName,
 				 const std::string &destName);
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
+	virtual bool lastUpsertDidUpdate(void) override;
+	/**
+	 * Dispose DBAgentMySQL object and stop retrying connection to MySQL.
+	 *
+	 * If the owner thread is calling a method that communicates with
+	 * the DB server such as select(), insert(), and update(), a retry
+	 * in the method is aborted. In this case, a HatoholException with
+	 * an error code HTERR_VALID_DBAGENT_NO_LONGER_EXISTS
+	 * is thrown on the thread calling any of their methods.
+	 * Note that the instance must not be used after this method is called.
+	 */
+	void dispose(void);
 
 protected:
 	static const char *getCStringOrNullIfEmpty(const std::string &str);
 	void connect(void);
 	void sleepAndReconnect(unsigned int sleepTimeSec);
+	bool throwExceptionIfDisposed(void) const;
 	void queryWithRetry(const std::string &statement);
 
 	// virtual methods
+	virtual std::string getColumnValueString(
+	  const ColumnDef *columnDef, const ItemData *itemData) override;
+
 	virtual std::string
 	  makeCreateIndexStatement(const TableProfile &tableProfile,
 	                           const IndexDef &indexDef) override;
@@ -91,5 +111,3 @@ private:
 };
 
 #endif // DBAgentMySQL_h
-
-

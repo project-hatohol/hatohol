@@ -4,22 +4,23 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
 #include <gcutter.h>
 #include <StringUtils.h>
+#include <SeparatorInjector.h>
 #include "Hatohol.h"
 #include "HostResourceQueryOption.h"
 #include "TestHostResourceQueryOption.h"
@@ -81,7 +82,6 @@ enum {
 	NUM_IDX_TEST_TABLE,
 };
 
-const size_t NUM_COLUMNS_TEST = ARRAY_SIZE(COLUMN_DEF_TEST);
 const DBAgent::TableProfile tableProfileTest(
   TEST_PRIMARY_TABLE_NAME, COLUMN_DEF_TEST,
   NUM_IDX_TEST_TABLE
@@ -136,7 +136,6 @@ enum {
 	NUM_IDX_TEST_HGRP_TABLE,
 };
 
-const size_t NUM_COLUMNS_HGRP_TEST = ARRAY_SIZE(COLUMN_DEF_TEST_HGRP);
 const DBAgent::TableProfile tableProfileTestHGrp(
   TEST_HGRP_TABLE_NAME, COLUMN_DEF_TEST_HGRP,
   NUM_IDX_TEST_HGRP_TABLE
@@ -169,22 +168,32 @@ static const string hostIdColumnName = "host_id";
 // FIXME: Change order of parameter.
 static void _assertMakeCondition(
   const ServerHostGrpSetMap &srvHostGrpSetMap, const string &expect,
-  const ServerIdType targetServerId = ALL_SERVERS,
-  const HostIdType targetHostId = ALL_HOSTS,
-  const HostgroupIdType targetHostgroupId = ALL_HOST_GROUPS)
+  const ServerIdType &targetServerId = ALL_SERVERS,
+  const LocalHostIdType &targetHostId = ALL_LOCAL_HOSTS,
+  const HostgroupIdType &targetHostgroupId = ALL_HOST_GROUPS)
 {
-	string cond = TestHostResourceQueryOption::callMakeCondition(
-			srvHostGrpSetMap,
-			serverIdColumnName,
-			hostgroupIdColumnName,
-			hostIdColumnName,
-			targetServerId,
-			targetHostgroupId,
-			targetHostId);
+	TestHostResourceQueryOption option;
+	string cond = option.callMakeCondition(
+	  srvHostGrpSetMap, serverIdColumnName, hostgroupIdColumnName,
+	  hostIdColumnName, targetServerId, targetHostgroupId, targetHostId);
 	cppcut_assert_equal(expect, cond);
 }
 #define assertMakeCondition(M, ...) \
   cut_trace(_assertMakeCondition(M, ##__VA_ARGS__))
+
+static string makeInOpContent(const HostgroupIdSet &hostgrpIdSet)
+{
+	string s;
+	SeparatorInjector commaSeparator(",");
+	HostgroupIdSetConstIterator hostgrpIdItr = hostgrpIdSet.begin();
+	for (;hostgrpIdItr != hostgrpIdSet.end(); ++hostgrpIdItr) {
+		commaSeparator(s);
+		s += "'";
+		s += *hostgrpIdItr;
+		s += "'";
+	}
+	return s;
+}
 
 namespace testHostResourceQueryOption {
 
@@ -230,7 +239,8 @@ static string makeExpectedConditionForUser(
 	  nameBuilder(TEST_PRIMARY_TABLE_NAME, hostIdColumnName);
 	// TODO: consider that the following way (using a part of test
 	//       target method) is good.
-	const string exp = TestHostResourceQueryOption::callMakeCondition(
+	TestHostResourceQueryOption option;
+	const string exp = option.callMakeCondition(
 	  srvHostGrpSetMap, svIdColName, hgrpIdColName, hostIdColName);
 	return exp;
 }
@@ -316,7 +326,7 @@ void test_getFromClauseWithAllHostgroup(void)
 void test_getFromClauseWithSpecificHostgroup(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE);
-	option.setTargetHostgroupId(5);
+	option.setTargetHostgroupId("5");
 	const string expect = 
 	  "test_table_name INNER JOIN test_hgrp_table_name ON "
 	  "((test_table_name.server_id=test_hgrp_table_name.server_id) AND "
@@ -337,14 +347,14 @@ void test_isHostgroupUsed(gconstpointer data)
 	const bool useHostgroup = gcut_data_get_boolean(data, "useHostgroup");
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	if (useHostgroup)
-		option.setTargetHostgroupId(5);
+		option.setTargetHostgroupId("5");
 	cppcut_assert_equal(useHostgroup, option.isHostgroupUsed());
 }
 
 void test_isHostgroupUsedForHostgroupTable(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE_HGRP);
-	option.setTargetHostgroupId(5);
+	option.setTargetHostgroupId("5");
 	// It shall always be false.
 	cppcut_assert_equal(false, option.isHostgroupUsed());
 }
@@ -361,7 +371,7 @@ void test_getColumnNameWithTableName(void)
 {
 	const size_t idx = IDX_TEST_TABLE_HOST_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
-	option.setTargetHostgroupId(5);
+	option.setTargetHostgroupId("5");
 	string expect = TEST_PRIMARY_TABLE_NAME;
 	expect += ".";
 	expect += COLUMN_DEF_TEST[idx].columnName;
@@ -372,7 +382,7 @@ void test_getColumnNameFull(void)
 {
 	const size_t idx = IDX_TEST_TABLE_HOST_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
-	option.setTargetHostgroupId(5);
+	option.setTargetHostgroupId("5");
 	string expect = TEST_PRIMARY_TABLE_NAME;
 	expect += ".";
 	expect += COLUMN_DEF_TEST[idx].columnName;
@@ -404,7 +414,7 @@ void test_getHostgroupColumnNameWithTableName(gconstpointer data)
 	const size_t idx = IDX_TEST_HGRP_TABLE_SERVER_ID;
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	if (useHostgroup)
-		option.setTargetHostgroupId(5);
+		option.setTargetHostgroupId("5");
 	string expect;
 	if (useHostgroup) {
 		expect = TEST_HGRP_TABLE_NAME;
@@ -412,6 +422,15 @@ void test_getHostgroupColumnNameWithTableName(gconstpointer data)
 	}
 	expect += COLUMN_DEF_TEST_HGRP[idx].columnName;
 	cppcut_assert_equal(expect, option.getHostgroupColumnName(idx));
+}
+
+void test_getDBTermCodec(void)
+{
+	HostResourceQueryOption option(TEST_SYNAPSE);
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	cppcut_assert_equal(typeid(*dbMonitoring.getDBAgent().getDBTermCodec()),
+	                    typeid(*option.getDBTermCodec()));
 }
 
 } // namespace testHostResourceQueryOption
@@ -457,8 +476,9 @@ void test_makeConditionServer(void)
 	for (size_t i = 0; i < numServerIds; i++)
 		svIdSet.insert(serverIds[i]);
 
-	string actual = TestHostResourceQueryOption::callMakeConditionServer(
-	                  svIdSet, serverIdColumnName);
+	TestHostResourceQueryOption option;
+	string actual =
+	  option.callMakeConditionServer(svIdSet, serverIdColumnName);
 
 	// check
 	string expectHead = serverIdColumnName;
@@ -486,8 +506,8 @@ void test_makeConditionServer(void)
 void test_makeConditionServerWithEmptyIdSet(void)
 {
 	ServerIdSet svIdSet;
-	string actual = TestHostResourceQueryOption::callMakeConditionServer(
-	                  svIdSet, "meet");
+	TestHostResourceQueryOption option;
+	string actual = option.callMakeConditionServer(svIdSet, "meet");
 	cppcut_assert_equal(DBHatohol::getAlwaysFalseCondition(), actual);
 }
 
@@ -538,9 +558,9 @@ void test_makeConditionAllServers(void)
 void test_makeConditionAllServersWithOthers(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	srvHostGrpSetMap[1].insert(1);
-	srvHostGrpSetMap[1].insert(2);
-	srvHostGrpSetMap[3].insert(1);
+	srvHostGrpSetMap[1].insert("1");
+	srvHostGrpSetMap[1].insert("2");
+	srvHostGrpSetMap[3].insert("1");
 	srvHostGrpSetMap[ALL_SERVERS].insert(ALL_HOST_GROUPS);
 	string expect = "";
 	assertMakeCondition(srvHostGrpSetMap, expect);
@@ -549,7 +569,7 @@ void test_makeConditionAllServersWithOthers(void)
 void test_makeConditionAllServersWithSpecifiedHostgroup(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	srvHostGrpSetMap[ALL_SERVERS].insert(1);
+	srvHostGrpSetMap[ALL_SERVERS].insert("1");
 	string expect = "";
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
@@ -566,9 +586,9 @@ void test_makeConditionOneServerAllHostGrp(void)
 void test_makeConditionOneServerAndOneHostgroup(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	srvHostGrpSetMap[1].insert(3);
+	srvHostGrpSetMap[1].insert("3");
 	string expect =
-	  StringUtils::sprintf("(%s=1 AND %s IN (3))",
+	  StringUtils::sprintf("(%s=1 AND %s IN ('3'))",
 	  serverIdColumnName.c_str(),
 	  hostgroupIdColumnName.c_str());
 	assertMakeCondition(srvHostGrpSetMap, expect);
@@ -577,13 +597,14 @@ void test_makeConditionOneServerAndOneHostgroup(void)
 void test_makeConditionOneServerAndHostgroups(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	srvHostGrpSetMap[1].insert(3);
-	srvHostGrpSetMap[1].insert(1003);
-	srvHostGrpSetMap[1].insert(2048);
+	srvHostGrpSetMap[1].insert("3");
+	srvHostGrpSetMap[1].insert("1003");
+	srvHostGrpSetMap[1].insert("2048");
 	string expect =
-	  StringUtils::sprintf("(%s=1 AND %s IN (3,1003,2048))",
+	  StringUtils::sprintf("(%s=1 AND %s IN (%s))",
 	  serverIdColumnName.c_str(),
-	  hostgroupIdColumnName.c_str());
+	  hostgroupIdColumnName.c_str(),
+	  makeInOpContent(srvHostGrpSetMap[1]).c_str());
 	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
@@ -626,10 +647,10 @@ void test_makeConditionWithTargetServerAndHost(void)
 	srvHostGrpSetMap[5].insert(ALL_HOST_GROUPS);
 	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
 	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
-	string expect = StringUtils::sprintf("((%s=14) AND %s=21)",
+	string expect = StringUtils::sprintf("((%s=14) AND %s='21')",
 					     serverIdColumnName.c_str(),
 					     hostIdColumnName.c_str());
-	assertMakeCondition(srvHostGrpSetMap, expect, 14, 21);
+	assertMakeCondition(srvHostGrpSetMap, expect, 14, "21");
 }
 
 void data_conditionForAdminWithTargetServerAndHost(void)
@@ -646,8 +667,8 @@ void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
 	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
 	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
 	option.setTargetServerId(26);
-	option.setTargetHostId(32);
-	string expect = StringUtils::sprintf("%s=26 AND %s=32",
+	option.setTargetHostId("32");
+	string expect = StringUtils::sprintf("%s=26 AND %s='32'",
 					     serverIdColumnName.c_str(),
 					     hostIdColumnName.c_str());
 	cppcut_assert_equal(expect, option.getCondition());
@@ -656,38 +677,38 @@ void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
 void test_makeConditionComplicated(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
-	srvHostGrpSetMap[5].insert(205);
-	srvHostGrpSetMap[5].insert(800);
+	srvHostGrpSetMap[5].insert("205");
+	srvHostGrpSetMap[5].insert("800");
 	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
-	srvHostGrpSetMap[768].insert(817);
-	srvHostGrpSetMap[768].insert(818);
-	srvHostGrpSetMap[768].insert(12817);
+	srvHostGrpSetMap[768].insert("817");
+	srvHostGrpSetMap[768].insert("818");
+	srvHostGrpSetMap[768].insert("12817");
 	srvHostGrpSetMap[2000].insert(ALL_HOST_GROUPS);
 	srvHostGrpSetMap[2001].insert(ALL_HOST_GROUPS);
-	srvHostGrpSetMap[8192].insert(4096);
+	srvHostGrpSetMap[8192].insert("4096");
+
 	string expect = StringUtils::sprintf(
-	  "((%s=5 AND %s IN (205,800)) OR "
+	  "((%s=5 AND %s IN (%s)) OR ",
+	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str(),
+	  makeInOpContent(srvHostGrpSetMap[5]).c_str());
+
+	expect += StringUtils::sprintf(
 	  "%s=14 OR "
-	  "(%s=768 AND %s IN (817,818,12817)) OR "
+	  "(%s=768 AND %s IN (%s)) OR ",
+	  serverIdColumnName.c_str(),
+	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str(),
+	  makeInOpContent(srvHostGrpSetMap[768]).c_str());
+
+	expect += StringUtils::sprintf(
 	  "%s=2000 OR "
 	  "%s=2001 OR "
-	  "(%s=8192 AND %s IN (4096)))",
+	  "(%s=8192 AND %s IN (%s)))",
+	  serverIdColumnName.c_str(),
+	  serverIdColumnName.c_str(),
 	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str(),
-	  serverIdColumnName.c_str(),
-	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str(),
-	  serverIdColumnName.c_str(),
-	  serverIdColumnName.c_str(),
-	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str());
-	assertMakeCondition(srvHostGrpSetMap, expect);
-}
+	  makeInOpContent(srvHostGrpSetMap[8192]).c_str());
 
-void test_getDBTermCodec(void)
-{
-	HostResourceQueryOption option(TEST_SYNAPSE);
-	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	cppcut_assert_equal(typeid(*dbMonitoring.getDBAgent().getDBTermCodec()),
-	                    typeid(*option.getDBTermCodec()));
+	assertMakeCondition(srvHostGrpSetMap, expect);
 }
 
 } // namespace testHostResourceQueryOptionWithoutDBSetup

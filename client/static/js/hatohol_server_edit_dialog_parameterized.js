@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 var HatoholServerEditDialogParameterized = function(params) {
@@ -59,10 +59,26 @@ var HatoholServerEditDialogParameterized = function(params) {
     self.closeDialog();
   }
 
+  function isHAPI2(type) {
+    return isNaN(type) || type == hatohol.MONITORING_SYSTEM_HAPI2;
+  }
+
   function makeQueryData() {
     var paramObj = self.currParamObj;
     var type = $("#selectServerType").val();
-    var queryData = {'type':type, '_extra':{}};
+    var queryData;
+
+    if (isHAPI2(type)) {
+      queryData = {
+        'type': hatohol.MONITORING_SYSTEM_HAPI2,
+        'uuid': type,
+      };
+    } else {
+      queryData = {
+        'type': type,
+      };
+    }
+
     for (var i = 0; i < paramObj.length; i++) {
       var param = paramObj[i];
 
@@ -121,11 +137,14 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
   }
 
   function replyCallback(reply, parser) {
+    var type;
+
     if (!(reply.serverType instanceof Array)) {
       hatoholErrorMsgBox("[Malformed reply] Not found array: serverType");
       return;
     }
-    self.paramArray = []
+    self.paramArray = [];
+    self.uuidArray = [];
     for (var i = 0; i < reply.serverType.length; i ++) {
       var serverTypeInfo = reply.serverType[i];
       var name = serverTypeInfo.name;
@@ -133,7 +152,10 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
         hatoholErrorMsgBox("[Malformed reply] Not found element: name");
         return;
       }
-      var type = serverTypeInfo.type;
+
+      type = serverTypeInfo.type;
+      if (type == hatohol.MONITORING_SYSTEM_HAPI2)
+        type = serverTypeInfo.uuid;
       if (type == undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: type");
         return;
@@ -147,11 +169,16 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
 
       $('#selectServerType').append($('<option>').html(name).val(type));
       self.paramArray[type] = parameters;
+      self.uuidArray[type] = serverTypeInfo.uuid;
     }
+    self.fixupApplyButtonState();
 
     if (self.server) {
       var selectElem = $("#selectServerType");
-      selectElem.val(self.server.type);
+      type = self.server.type;
+      if (type == hatohol.MONITORING_SYSTEM_HAPI2)
+        type = self.server.uuid;
+      selectElem.val(type);
       selectElem.change();
     }
   }
@@ -235,13 +262,13 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
 
     var defaultValue = '';
     if (param.default != undefined)
-      defaultValue = param.default
+      defaultValue = param.default;
 
     var inputStyle = param.inputStyle;
     if (inputStyle == undefined)
       inputStyle = 'text';
 
-    var hint = ''
+    var hint = '';
     if (param.hint != undefined)
       hint = param.hint;
 

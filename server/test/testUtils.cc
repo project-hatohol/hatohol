@@ -1,23 +1,24 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
+#include <gcutter.h>
 #include <errno.h>
 #include <unistd.h>
 #include <sys/time.h>
@@ -418,6 +419,22 @@ void test_setGLibTimer(void)
 	cppcut_assert_not_equal(INVALID_EVENT_ID, id);
 	g_main_loop_run(gizmo.loop);
 	cppcut_assert_equal(true, gizmo.called);
+}
+
+void data_add(void)
+{
+	gcut_add_datum("Simple",
+	               "num0",   G_TYPE_STRING, "1",
+	               "num1",   G_TYPE_UINT64, 2,
+	               "expect", G_TYPE_UINT64, 3, NULL);
+}
+
+void test_sum(gconstpointer data)
+{
+	const gchar *num0 = gcut_data_get_string(data, "num0");
+	const uint64_t num1 = gcut_data_get_uint64(data, "num1");
+	const uint64_t expect = gcut_data_get_uint64(data, "expect");
+	cppcut_assert_equal(expect, Utils::sum(num0, num1));
 }
 
 } // namespace testUtils

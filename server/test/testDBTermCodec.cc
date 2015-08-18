@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -76,6 +76,42 @@ void test_getUint64(gconstpointer data)
 {
 	DBTermCodec dbTermCodec;
 	string actual = dbTermCodec.enc(gcut_data_get_uint64(data, "val"));
+	string expect = gcut_data_get_string(data, "expect");
+	cppcut_assert_equal(expect, actual);
+}
+
+void data_getString(void)
+{
+	gcut_add_datum("Empty",
+	               "val", G_TYPE_STRING, "",
+	               "expect", G_TYPE_STRING, "''",
+	               NULL);
+	gcut_add_datum("No quotations",
+	               "val", G_TYPE_STRING,    "ABC foo",
+	               "expect", G_TYPE_STRING, "'ABC foo'",
+	               NULL);
+	gcut_add_datum("At the first",
+	               "val", G_TYPE_STRING,    "'ABC foo",
+	               "expect", G_TYPE_STRING, "'''ABC foo'",
+	               NULL);
+	gcut_add_datum("At the last",
+	               "val", G_TYPE_STRING,    "ABC foo'",
+	               "expect", G_TYPE_STRING, "'ABC foo'''",
+	               NULL);
+	gcut_add_datum("At the middle",
+	               "val", G_TYPE_STRING,    "AB'C fo'o",
+	               "expect", G_TYPE_STRING, "'AB''C fo''o'",
+	               NULL);
+	gcut_add_datum("Consecutive",
+	               "val", G_TYPE_STRING,    "AB'''C fo''o",
+	               "expect", G_TYPE_STRING, "'AB''''''C fo''''o'",
+	               NULL);
+}
+
+void test_getString(gconstpointer data)
+{
+	DBTermCodec dbTermCodec;
+	string actual = dbTermCodec.enc(gcut_data_get_string(data, "val"));
 	string expect = gcut_data_get_string(data, "expect");
 	cppcut_assert_equal(expect, actual);
 }

@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <stdexcept>
@@ -28,12 +28,10 @@
 #include "ActionManager.h"
 #include "ThreadLocalDBCache.h"
 #include "ItemFetchWorker.h"
+#include "TriggerFetchWorker.h"
 #include "DataStoreFactory.h"
-#include "HatoholArmPluginGate.h" // TODO: remove after dynamic_cast is deleted
-#ifdef HAVE_LIBRABBITMQ
-#include "HatoholArmPluginGateJSON.h" // TODO: remove after dynamic_cast is deleted
-#endif
 #include "ArmIncidentTracker.h"
+#include "IncidentSenderManager.h"
 
 using namespace std;
 using namespace mlpl;
@@ -46,22 +44,7 @@ typedef ArmIncidentTrackerMap::iterator ArmIncidentTrackerMapIterator;
 
 static ArmInfo getArmInfo(DataStore *dataStore)
 {
-	// TODO: Too direct. Be elegant.
-	// HatoholArmPluginGate::getArmBase is stub to pass
-	// the build. So we can't use it.
-	// Our new design suggests that DataStore instance
-	// provides getArmStats() directly.
-	HatoholArmPluginGate *pluginGate =
-	  dynamic_cast<HatoholArmPluginGate *>(dataStore);
-	if (pluginGate)
-		return pluginGate->getArmStatus().getArmInfo();
-#ifdef HAVE_LIBRABBITMQ
-	HatoholArmPluginGateJSON *pluginGateJSON =
-	  dynamic_cast<HatoholArmPluginGateJSON *>(dataStore);
-	if (pluginGateJSON)
-		return pluginGateJSON->getArmStatus().getArmInfo();
-#endif
-	return dataStore->getArmBase().getArmStatus().getArmInfo();
+	return dataStore->getArmStatus().getArmInfo();
 }
 
 // ---------------------------------------------------------------------------
@@ -103,10 +86,11 @@ struct UnifiedDataStore::Impl
 
 	AtomicValue<bool>        isCopyOnDemandEnabled;
 	ItemFetchWorker          itemFetchWorker;
+	TriggerFetchWorker       triggerFetchWorker;
 
 	Impl()
 	: isCopyOnDemandEnabled(false), isStarted(false)
-	{ 
+	{
 		// TODO: When should the object be freed ?
 		UnifiedDataStoreEventProc *evtProc =
 		  new Impl::UnifiedDataStoreEventProc(
@@ -117,7 +101,7 @@ struct UnifiedDataStore::Impl
 	void addToDataStoreMap(DataStore *dataStore)
 	{
 		const ServerIdType serverId =
-		  dataStore->getArmBase().getServerInfo().id;
+		  dataStore->getMonitoringServerInfo().id;
 		pair<ServerIdDataStoreMapIterator, bool> result;
 		serverIdDataStoreMapLock.writeLock();
 		result = serverIdDataStoreMap.insert(
@@ -132,7 +116,7 @@ struct UnifiedDataStore::Impl
 	void removeFromDataStoreMap(DataStore *dataStore)
 	{
 		const ServerIdType serverId =
-		  dataStore->getArmBase().getServerInfo().id;
+		  dataStore->getMonitoringServerInfo().id;
 		serverIdDataStoreMapLock.writeLock();
 		ServerIdDataStoreMapIterator it =
 		  serverIdDataStoreMap.find(serverId);
@@ -186,11 +170,11 @@ struct UnifiedDataStore::Impl
 		if (!found)
 			return HTERR_INVALID_PARAMETER;
 
-		ArmBase &armBase = it->second->getArmBase();
-		const MonitoringServerInfo &svInfo = armBase.getServerInfo();
+		const MonitoringServerInfo &svInfo =
+		  it->second->getMonitoringServerInfo();
 		HATOHOL_ASSERT(
 		  svInfo.id == serverId,
-		  "svInfo.id: %" FMT_SERVER_ID ", serverId: %" FMT_SERVER_ID, 
+		  "svInfo.id: %" FMT_SERVER_ID ", serverId: %" FMT_SERVER_ID,
 		  svInfo.id, serverId);
 
 		if (isRunning)
@@ -268,9 +252,15 @@ struct UnifiedDataStore::Impl
 	void stopArmIncidentTrackerIfNeeded(
 	  const IncidentTrackerInfo &trackerInfo)
 	{
+		stopArmIncidentTrackerIfNeeded(trackerInfo.id);
+	}
+
+	void stopArmIncidentTrackerIfNeeded(
+	  const IncidentTrackerIdType &trackerId)
+	{
 		AutoMutex autoLock(&armIncidentTrackerMapMutex);
 		ArmIncidentTrackerMapIterator it
-		  = armIncidentTrackerMap.find(trackerInfo.id);
+		  = armIncidentTrackerMap.find(trackerId);
 		if (it == armIncidentTrackerMap.end())
 			return;
 		ArmIncidentTracker *arm = it->second;
@@ -422,22 +412,32 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 	cache.getMonitoring().getItemInfoList(itemList, option);
 }
 
-bool UnifiedDataStore::fetchItemsAsync(ClosureBase *closure,
-                                       const ServerIdType &targetServerId)
+void UnifiedDataStore::getApplicationVect(ApplicationInfoVect &ApplicationInfoVect,
+                                          const ItemsQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().getApplicationInfoVect(ApplicationInfoVect, option);
+}
+
+bool UnifiedDataStore::fetchItemsAsync(Closure0 *closure,
+                                       const ItemsQueryOption &option)
 {
 	if (!getCopyOnDemandEnabled())
 		return false;
 	if (!m_impl->itemFetchWorker.updateIsNeeded())
 		return false;
 
-	return m_impl->itemFetchWorker.start(targetServerId, closure);
+	return m_impl->itemFetchWorker.start(option, closure);
 }
 
-void UnifiedDataStore::getHostList(HostInfoList &hostInfoList,
-				   const HostsQueryOption &option)
+bool UnifiedDataStore::fetchTriggerAsync(Closure0 *closure,
+					 const TriggersQueryOption &option)
 {
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().getHostInfoList(hostInfoList, option);
+	const ServerIdType targetServerId = option.getTargetServerId();
+	if (!m_impl->triggerFetchWorker.updateIsNeeded())
+		return false;
+
+	return m_impl->triggerFetchWorker.start(targetServerId, closure);
 }
 
 HatoholError UnifiedDataStore::getActionList(
@@ -454,28 +454,108 @@ HatoholError UnifiedDataStore::deleteActionList(
 	return cache.getAction().deleteActions(actionIdList, privilege);
 }
 
+HatoholError UnifiedDataStore::updateAction(
+  ActionDef &actionDef, const OperationPrivilege &privilege)
+{
+	ThreadLocalDBCache cache;
+	return cache.getAction().updateAction(actionDef, privilege);
+}
+
 bool UnifiedDataStore::isIncidentSenderActionEnabled(void)
 {
 	ThreadLocalDBCache cache;
 	return cache.getAction().isIncidentSenderEnabled();
 }
 
-HatoholError UnifiedDataStore::getHostgroupInfoList
-  (HostgroupInfoList &hostgroupInfoList, const HostgroupsQueryOption &option)
+HatoholError UnifiedDataStore::upsertHost(const ServerHostDef &serverHostDef,
+                                          HostIdType *hostId)
 {
 	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	return dbMonitoring.getHostgroupInfoList(hostgroupInfoList,option);
+	const HostIdType returnedId = cache.getHost().upsertHost(serverHostDef);
+	if (hostId)
+		*hostId = returnedId;
+	return HTERR_OK;
 }
 
-HatoholError UnifiedDataStore::getHostgroupElementList(
-  HostgroupElementList &hostgroupElementList,
-  const HostgroupElementQueryOption &option)
+HatoholError UnifiedDataStore::getServerHostDefs(
+  ServerHostDefVect &svHostDefVect, const HostsQueryOption &option)
 {
 	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	return dbMonitoring.getHostgroupElementList(hostgroupElementList,
-	                                            option);
+	return cache.getHost().getServerHostDefs(svHostDefVect, option);
+}
+
+HatoholError UnifiedDataStore::getHostgroups(
+  HostgroupVect &hostgroups, const HostgroupsQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	return cache.getHost().getHostgroups(hostgroups, option);
+}
+
+HatoholError UnifiedDataStore::upsertHosts(
+  const ServerHostDefVect &serverHostDefs, HostHostIdMap *hostHostIdMapPtr)
+{
+	ThreadLocalDBCache cache;
+	cache.getHost().upsertHosts(serverHostDefs, hostHostIdMapPtr);
+	return HTERR_OK;
+}
+
+HatoholError UnifiedDataStore::syncHosts(
+  const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
+  HostInfoCache &hostInfoCache)
+{
+	ThreadLocalDBCache cache;
+	HostHostIdMap hostHostIdMap;
+	HatoholError err = cache.getHost().syncHosts(svHostDefs, serverId,
+	                                             &hostHostIdMap);
+	if (err != HTERR_OK)
+		return err;
+	hostInfoCache.update(svHostDefs, &hostHostIdMap);
+	return HTERR_OK;
+}
+
+bool UnifiedDataStore::wasStoredHostsChanged(void)
+{
+	ThreadLocalDBCache cache;
+	return cache.getHost().wasStoredHostsChanged();
+}
+
+HatoholError UnifiedDataStore::upsertHostgroups(const HostgroupVect &hostgroups)
+{
+	ThreadLocalDBCache cache;
+	cache.getHost().upsertHostgroups(hostgroups);
+	return HTERR_OK;
+}
+
+HatoholError UnifiedDataStore::syncHostgroups(const HostgroupVect &hostgroups,
+					      const ServerIdType &serverId)
+{
+	ThreadLocalDBCache cache;
+	return cache.getHost().syncHostgroups(hostgroups, serverId);
+}
+
+HatoholError UnifiedDataStore::upsertHostgroupMembers(
+  const HostgroupMemberVect &hostgroupMembers)
+{
+	ThreadLocalDBCache cache;
+	cache.getHost().upsertHostgroupMembers(hostgroupMembers);
+	return HTERR_OK;
+}
+
+HatoholError UnifiedDataStore::syncHostgroupMembers(
+  const HostgroupMemberVect &hostgroupMembers,
+  const ServerIdType &serverId)
+{
+	ThreadLocalDBCache cache;
+	return cache.getHost().syncHostgroupMembers(hostgroupMembers, serverId);
+}
+
+HatoholError UnifiedDataStore::getHostgroupMembers(
+  HostgroupMemberVect &hostgroupMembers,
+  const HostgroupMembersQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	cache.getHost().getHostgroupMembers(hostgroupMembers, option);
+	return HTERR_OK;
 }
 
 size_t UnifiedDataStore::getNumberOfBadTriggers(
@@ -490,6 +570,14 @@ size_t UnifiedDataStore::getNumberOfTriggers(const TriggersQueryOption &option)
 {
 	ThreadLocalDBCache cache;
 	return cache.getMonitoring().getNumberOfTriggers(option);
+}
+
+HatoholError UnifiedDataStore::syncTriggers(
+  const TriggerInfoList &triggerInfoList,
+  const ServerIdType &serverId)
+{
+	ThreadLocalDBCache cache;
+	return cache.getMonitoring().syncTriggers(triggerInfoList, serverId);
 }
 
 size_t UnifiedDataStore::getNumberOfGoodHosts(const TriggersQueryOption &option)
@@ -538,12 +626,12 @@ HatoholError UnifiedDataStore::addAction(ActionDef &actionDef,
 	return cache.getAction().addAction(actionDef, privilege);
 }
 
-void UnifiedDataStore::addEventList(const EventInfoList &eventList)
+void UnifiedDataStore::addEventList(EventInfoList &eventList)
 {
 	ThreadLocalDBCache cache;
 	ActionManager actionManager;
-	actionManager.checkEvents(eventList);
 	cache.getMonitoring().addEventInfoList(eventList);
+	actionManager.checkEvents(eventList);
 }
 
 void UnifiedDataStore::addItemList(const ItemInfoList &itemList)
@@ -551,6 +639,14 @@ void UnifiedDataStore::addItemList(const ItemInfoList &itemList)
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	dbMonitoring.addItemInfoList(itemList);
+}
+
+void UnifiedDataStore::addMonitoringServerStatus(
+  const MonitoringServerStatus &serverStatus)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	dbMonitoring.addMonitoringServerStatus(serverStatus);
 }
 
 void UnifiedDataStore::getUserList(UserInfoList &userList,
@@ -575,6 +671,15 @@ HatoholError UnifiedDataStore::updateUser(
 	ThreadLocalDBCache cache;
 	DBTablesUser &dbUser = cache.getUser();
 	return dbUser.updateUserInfo(userInfo, privilege);
+}
+
+HatoholError UnifiedDataStore::updateUserFlags(
+  OperationPrivilegeFlag &oldUserFlag, OperationPrivilegeFlag &updateUserFlag,
+  const OperationPrivilege &privilege)
+{
+	ThreadLocalDBCache cache;
+	DBTablesUser &dbUser = cache.getUser();
+	return dbUser.updateUserInfoFlags(oldUserFlag, updateUserFlag, privilege);
 }
 
 HatoholError UnifiedDataStore::deleteUser(
@@ -745,7 +850,15 @@ HatoholError UnifiedDataStore::updateIncidentTracker(
 {
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
-	return dbConfig.updateIncidentTracker(incidentTrackerInfo, privilege);
+	IncidentSenderManager &senderManager = IncidentSenderManager::getInstance();
+	HatoholError err =
+	  dbConfig.updateIncidentTracker(incidentTrackerInfo, privilege);
+	if (err != HTERR_OK)
+		return err;
+	stopArmIncidentTrackerIfNeeded(incidentTrackerInfo.id);
+	senderManager.setOnChangedIncidentTracker(incidentTrackerInfo.id);
+	startArmIncidentTrackerIfNeeded(incidentTrackerInfo.id);
+	return HTERR_OK;
 }
 
 HatoholError UnifiedDataStore::deleteIncidentTracker(
@@ -754,7 +867,14 @@ HatoholError UnifiedDataStore::deleteIncidentTracker(
 {
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
-	return dbConfig.deleteIncidentTracker(incidentTrackerId, privilege);
+	IncidentSenderManager &senderManager = IncidentSenderManager::getInstance();
+	HatoholError err =
+	  dbConfig.deleteIncidentTracker(incidentTrackerId, privilege);
+	if (err != HTERR_OK)
+		return err;
+	senderManager.deleteIncidentTracker(incidentTrackerId);
+	stopArmIncidentTrackerIfNeeded(incidentTrackerId);
+	return HTERR_OK;
 }
 
 uint64_t UnifiedDataStore::getLastUpdateTimeOfIncidents(
@@ -784,8 +904,8 @@ DataStorePtr UnifiedDataStore::getDataStore(const ServerIdType &serverId)
 	return m_impl->getDataStore(serverId);
 }
 
-static bool getIncidentTrackerInfo(const IncidentTrackerIdType &trackerId,
-				   IncidentTrackerInfo &trackerInfo)
+bool UnifiedDataStore::getIncidentTrackerInfo(const IncidentTrackerIdType &trackerId,
+					      IncidentTrackerInfo &trackerInfo)
 {
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
@@ -820,9 +940,7 @@ void UnifiedDataStore::startArmIncidentTrackerIfNeeded(
 void UnifiedDataStore::stopArmIncidentTrackerIfNeeded(
   const IncidentTrackerIdType &trackerId)
 {
-	IncidentTrackerInfo trackerInfo;
-	if (getIncidentTrackerInfo(trackerId, trackerInfo))
-		m_impl->stopArmIncidentTrackerIfNeeded(trackerInfo);
+	m_impl->stopArmIncidentTrackerIfNeeded(trackerId);
 }
 
 // ---------------------------------------------------------------------------

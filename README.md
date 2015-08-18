@@ -7,13 +7,14 @@ http://www.hatohol.org/
 - [Overview](#user-content-overview)
 - [Project Hatohol](#user-content-project-hatohol)
 - [Supported monitoring software](#user-content-supported-monitoring-software)
+- [Supported incident tacking software](#user-content-supported-incident-tracking-software)
 - [Supported platforms](#user-content-supported-platforms)
 - [Basic architecture](#user-content-basic-architecture)
 - [Screenshots](#user-content-screenshots)
 - [Installation](#user-content-installation)
-	- [Installation by RPM files (only for CentOS 6.5)](#user-content-installation-by-rpm-files-only-for-centos-65)
+	- [Installation by RPM files (only for CentOS 7)](#user-content-installation-by-rpm-files-only-for-centos-7)
 	- [Installation by building needed applications](#user-content-installation-by-building-needed-applications)
-	- [Upgrade by RPM files from ver.14.06 to ver.14.09(only for CentOS 6.5)](#user-content-upgrade-by-rpm-files-from-ver1406-to-ver1409only-for-centos-65)
+	- [About Upgrade on CentOS 7 (x86_64) from version 15.03 to version 15.06](#user-content-about-upgrade-on-centos-7-x86_64-from-version-1503-to-version-1506)
 - [Plans](#user-content-plans)
 - [Mailing Lists](#user-content-mailing-lists)
 
@@ -44,13 +45,19 @@ Hatohol is an open source software developed and copyrighted by Project Hatohol.
 We welcome participation in all stages of our development (bug fixes, bug reports, feature requests/suggestions/discussion, functional improvement, etc.) 
 
 ## Supported monitoring software
-- ZABBIX 2.0
+- Zabbix 2.0
+- Zabbix 2.2
+- Zabbix 2.4
 - Nagios3 (with NDOUtils)
+- Nagios4 (with NDOUtils)
 - Ceilometer (OpenStack)
 - Fluentd
 
+## Supported incident tracking software
+- Redmine
+
 ## Supported platforms
-- CentOS 6.5 (x86\_64)
+- CentOS 7 (x86\_64)
 - Ubuntu Server 12.04.5 LTS (64-bit)
 - Ubuntu 14.04 LTS (64-bit)
 
@@ -80,15 +87,15 @@ The architecture used, makes it easy to develop alternative clients. There is no
 Other pages are being constructed.
 
 ## Installation
-### Installation by RPM files (only for CentOS 6.5)
-The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/install/14.09/ja/index.md)
+### Installation by RPM files (only for CentOS 7)
+The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/install/15.06/en/index.md)
 
 ### Installation by building needed applications
 - [Server installation](server/README.md)
 - [Client (Web UI server) installation](client/README.md)
 
-### Upgrade by RPM files from ver.14.06 to ver.14.09(only for CentOS 6.5)
-The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/upgrade/14.09/ja/index.md) (Sorry, Japanese version only...)
+### About Upgrade on CentOS 7 (x86_64) from version 15.03 to version 15.06
+We are currently under investigation.
 
 ## Plans
 See [Milestone](https://github.com/project-hatohol/hatohol/milestones)

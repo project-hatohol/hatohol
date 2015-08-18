@@ -164,4 +164,40 @@ describe('IncidentSettingsView', function() {
     expect(deleteButton.is(":visible")).to.be(false);
     expect(checkboxes.is(":visible")).to.be(false);
   });
+
+  it('with update privilege', function() {
+    var operator = {
+      "userId": 1,
+      "name": "admin",
+      "flags": 1 << hatohol.OPPRVLG_UPDATE_INCIDENT_SETTING
+    };
+    var userProfile = new HatoholUserProfile(operator);
+    var view = new IncidentSettingsView(userProfile);
+    respond();
+
+    var editColumn = $('.edit-incident-setting-column');
+    var editButton = $('#edit-incident-setting1');
+    expect(editColumn).to.have.length(1);
+    expect(editButton).to.have.length(1);
+    expect(editColumn.is(":visible")).to.be(true);
+    expect(editButton.is(":visible")).to.be(true);
+  });
+
+  it('with no update privilege', function() {
+    var operator = {
+      "userId": 2,
+      "name": "guest",
+      "flags": 0
+    };
+    var userProfile = new HatoholUserProfile(operator);
+    var view = new IncidentSettingsView(userProfile);
+    respond();
+
+    var editColumn = $('.edit-incident-setting-column');
+    var editButton = $('#edit-incident-setting1');
+    expect(editColumn).to.have.length(1);
+    expect(editButton).to.have.length(1);
+    expect(editColumn.is(":visible")).to.be(false);
+    expect(editButton.is(":visible")).to.be(false);
+  });
 });

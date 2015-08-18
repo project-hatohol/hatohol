@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 var HatoholUserConfig = function(params) {
@@ -51,7 +51,7 @@ HatoholUserConfig.prototype.get = function(params) {
     connectErrorCallback: params.connectErrorCallback,
     replyParser: getInactionParser(),
   });
-}
+};
 
 HatoholUserConfig.prototype.store = function(params) {
   //
@@ -81,7 +81,7 @@ HatoholUserConfig.prototype.store = function(params) {
     connectErrorCallback: params.connectErrorCallback,
     replyParser: getInactionParser(),
   });
-}
+};
 
 HatoholUserConfig.prototype.findOrDefault = function(obj, confName, defaultVal) {
   if (!(confName in obj))
@@ -91,4 +91,4 @@ HatoholUserConfig.prototype.findOrDefault = function(obj, confName, defaultVal) 
   if (typeof confVal !== typeof defaultVal)
     return defaultVal;
   return confVal;
-}
+};

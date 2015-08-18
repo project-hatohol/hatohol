@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef ZabbixAPIEmulator_h
@@ -25,6 +25,7 @@
 #include <libsoup/soup.h>
 #include "JSONParser.h"
 #include "HttpServerStub.h"
+#include "HostInfoCache.h"
 
 enum OperationMode {
 	OPE_MODE_NORMAL,
@@ -60,10 +61,12 @@ public:
 	void setOperationMode(OperationMode mode);
 	void setAPIVersion(APIVersion version);
 	std::string getAPIVersionString(void);
-	void setExpectedFirstEventId(const EventIdType &id);
-	void setExpectedLastEventId(const EventIdType &id);
+	void setExpectedFirstEventId(const uint64_t &id);
+	void setExpectedLastEventId(const uint64_t &id);
 
 	static std::string getAPIVersionString(APIVersion version);
+	static void loadHostInfoCache(HostInfoCache &hostInfoCache,
+	                              const ServerIdType &serverId);
 
 protected:
 	virtual void setSoupHandlers(SoupServer *soupServer);
@@ -75,6 +78,9 @@ protected:
 	static bool hasParameter(APIHandlerArg &arg,
 	                         const std::string &paramName,
 	                         const std::string &expectedValue);
+	static bool hasParameter(APIHandlerArg &arg,
+	                         const std::string &paramName,
+	                         const int64_t &expectedValue);
 
 	std::string generateAuthToken(void);
 	void handlerAPIDispatch(APIHandlerArg &arg);
@@ -88,6 +94,7 @@ protected:
 	void APIHandlerEventGet(APIHandlerArg &arg);
 	void APIHandlerApplicationGet(APIHandlerArg &arg);
 	void APIHandlerHostgroupGet(APIHandlerArg &arg);
+	void APIHandlerHistoryGet(APIHandlerArg &arg);
 	void makeEventJSONData(const std::string &path);
 	std::string addJSONResponse(const std::string &slice,
 	                            APIHandlerArg &arg);

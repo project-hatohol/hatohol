@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef FaceRestPrivate_h
@@ -60,17 +60,19 @@ public:
 	std::string getResourceIdString(int nest = 0);
 	uint64_t    getResourceId(int nest = 0);
 
-	void replyError(const HatoholError &hatoholError);
+	void replyError(const HatoholError &hatoholError,
+			const guint &statusCode = SOUP_STATUS_OK);
 	void replyError(const HatoholErrorCode &errorCode,
-			const std::string &optionMessage = "");
+			const std::string &optionMessage = "",
+			const guint &statusCode = SOUP_STATUS_OK);
 	void replyHttpStatus(const guint &statusCode);
-	void replyJSONData(JSONBuilder &agent);
+	void replyJSONData(JSONBuilder &agent, const guint &statusCode = SOUP_STATUS_OK);
 	void addServersMap(JSONBuilder &agent,
 			   TriggerBriefMaps *triggerMaps = NULL,
 			   bool lookupTriggerBrief = false);
 	HatoholError addHostgroupsMap(JSONBuilder &outputJSON,
 				      const MonitoringServerInfo &serverInfo,
-				      HostgroupInfoList &hostgroupList /* out */);
+				      HostgroupVect &hostgroups /* out */);
 
 	static void addHatoholError(JSONBuilder &agent,
 	                            const HatoholError &err);
@@ -121,6 +123,15 @@ do { \
 } while (0)
 
 template<typename T>
+int scanParam(const char *value, const char *scanFmt, T &dest)
+{
+	return sscanf(value, scanFmt, &dest);
+}
+
+template<>
+int scanParam(const char *value, const char *scanFmt, std::string &dest);
+
+template<typename T>
 HatoholError getParam(
   GHashTable *query, const char *paramName, const char *scanFmt, T &dest)
 {
@@ -128,7 +139,7 @@ HatoholError getParam(
 	if (!value)
 		return HatoholError(HTERR_NOT_FOUND_PARAMETER, paramName);
 
-	if (sscanf(value, scanFmt, &dest) != 1) {
+	if (scanParam<T>(value, scanFmt, dest) != 1) {
 		std::string optMsg = mlpl::StringUtils::sprintf("%s: %s",
 		                                     paramName, value);
 		return HatoholError(HTERR_INVALID_PARAMETER, optMsg);
@@ -141,15 +152,15 @@ bool getParamWithErrorReply(
   FaceRest::ResourceHandler *job, const char *paramName, const char *scanFmt,
   T &dest, bool *exist)
 {
-	char *value = (char *)g_hash_table_lookup(job->m_query, paramName);
+	HatoholError err = getParam<T>(job->m_query, paramName, scanFmt, dest);
 	if (exist)
-		*exist = value;
-	if (!value)
+		*exist = (err != HTERR_NOT_FOUND_PARAMETER);
+	if (err == HTERR_NOT_FOUND_PARAMETER)
 		return true;
 
-	if (sscanf(value, scanFmt, &dest) != 1) {
-		REPLY_ERROR(job, HTERR_INVALID_PARAMETER,
-		            "%s: %s", paramName, value);
+	if (err != HTERR_OK) {
+		REPLY_ERROR(job, err.getCode(),
+		            "%s", err.getOptionMessage().c_str());
 		return false;
 	}
 	return true;

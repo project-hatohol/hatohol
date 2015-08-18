@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -227,6 +227,40 @@ JSONParser *getResponseAsJSONParser(RequestArg &arg)
 	return parser;
 }
 
+JSONParser *getServerResponseAsJSONParserWithFailure(RequestArg &arg)
+{
+	getServerResponse(arg);
+	cut_assert_false(SOUP_STATUS_IS_SUCCESSFUL(arg.httpStatusCode));
+
+	// if JSONP, check the callback name
+	if (!arg.callbackName.empty()) {
+		size_t lenCallbackName = arg.callbackName.size();
+		size_t minimumLen = lenCallbackName + 2; // +2 for ''(' and ')'
+		cppcut_assert_equal(true, arg.response.size() > minimumLen,
+		  cut_message("length: %zd, minmumLen: %zd\n%s",
+		              arg.response.size(), minimumLen,
+		              arg.response.c_str()));
+
+		cut_assert_equal_substring(
+		  arg.callbackName.c_str(), arg.response.c_str(),
+		  lenCallbackName);
+		cppcut_assert_equal(')', arg.response[arg.response.size()-1]);
+		arg.response = string(arg.response, lenCallbackName+1,
+		                      arg.response.size() - minimumLen);
+	}
+
+	// check the JSON body
+	if (isVerboseMode())
+		cut_notify("<<response>>\n%s\n", arg.response.c_str());
+	JSONParser *parser = new JSONParser(arg.response);
+	if (parser->hasError()) {
+		string parserErrMsg = parser->getErrorMessage();
+		delete parser;
+		cut_fail("%s\n%s", parserErrMsg.c_str(), arg.response.c_str());
+	}
+	return parser;
+}
+
 void _assertValueInParser(JSONParser *parser,
 			  const string &member, const bool expected)
 {
@@ -354,12 +388,24 @@ void _assertUpdateRecord(const StringMap &params, const string &baseUrl,
 
 void assertServersIdNameHashInParser(JSONParser *parser)
 {
+	int numPluginInfo = 0;
 	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
-		MonitoringServerInfo &svInfo = testServerInfo[i];
+		const MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertStartObject(parser, StringUtils::toString(svInfo.id));
 		assertValueInParser(parser, "name", svInfo.hostName);
+
+		const ArmPluginInfo *pluginInfo =
+		  findTestArmPluginInfo(svInfo.id);
+		if (pluginInfo) {
+			assertValueInParser(parser, "uuid", pluginInfo->uuid);
+			numPluginInfo++;
+		}
 		parser->endObject();
 	}
 	parser->endObject();
+
+	// We have to choose test data with the condition that
+	// there is at least one ArmPluginInfo is involved.
+	cppcut_assert_not_equal(numPluginInfo, 0);
 }

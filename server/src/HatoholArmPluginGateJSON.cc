@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <json-glib/json-glib.h>
@@ -38,30 +38,23 @@ class AMQPJSONMessageHandler : public AMQPMessageHandler
 public:
 	AMQPJSONMessageHandler(const MonitoringServerInfo &serverInfo)
 	: m_serverInfo(serverInfo),
-	  m_hosts(),
-	  m_largestHostID(0)
+	  m_hosts()
 	{
 		initializeHosts();
 	}
 
-	bool handle(const amqp_envelope_t *envelope)
+	bool handle(AMQPConsumer &consumer, const AMQPMessage &message)
 	{
-		const amqp_bytes_t *content_type =
-			&(envelope->message.properties.content_type);
 		// TODO: check content-type
-		const amqp_bytes_t *body = &(envelope->message.body);
-
-		MLPL_DBG("message: <%.*s>/<%.*s>\n",
-			 static_cast<int>(content_type->len),
-			 static_cast<char *>(content_type->bytes),
-			 static_cast<int>(body->len),
-			 static_cast<char *>(body->bytes));
+		MLPL_DBG("message: <%s>/<%s>\n",
+			 message.contentType.c_str(),
+			 message.body.c_str());
 
 		JsonParser *parser = json_parser_new();
 		GError *error = NULL;
 		if (json_parser_load_from_data(parser,
-					       static_cast<char *>(body->bytes),
-					       static_cast<int>(body->len),
+					       message.body.c_str(),
+					       message.body.size(),
 					       &error)) {
 			process(json_parser_get_root(parser));
 		} else {
@@ -74,24 +67,21 @@ public:
 private:
 	MonitoringServerInfo m_serverInfo;
 	map<string, HostIdType> m_hosts;
-	HostIdType m_largestHostID;
 
 	void initializeHosts()
 	{
-		ThreadLocalDBCache cache;
-		DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-		HostInfoList hostInfoList;
+		UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 		HostsQueryOption option;
 		option.setTargetServerId(m_serverInfo.id);
-		dbMonitoring.getHostInfoList(hostInfoList, option);
 
-		HostInfoListIterator it = hostInfoList.begin();
-		for (; it != hostInfoList.end(); ++it) {
-			const HostInfo &hostInfo = *it;
-			m_hosts[hostInfo.hostName] = hostInfo.id;
-			if (hostInfo.id > m_largestHostID) {
-				m_largestHostID = hostInfo.id;
-			}
+		ServerHostDefVect svHostDefVect;
+		THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+		  uds->getServerHostDefs(svHostDefVect, option));
+
+		ServerHostDefVectConstIterator it = svHostDefVect.begin();
+		for (; it != svHostDefVect.end(); ++it) {
+			const ServerHostDef &svHostDef = *it;
+			m_hosts[svHostDef.name] = svHostDef.hostId;
 		}
 	}
 
@@ -117,12 +107,13 @@ private:
 		EventInfo eventInfo;
 		initEventInfo(eventInfo);
 		eventInfo.serverId = m_serverInfo.id;
-		eventInfo.id = message.getID();
+		eventInfo.id = message.getIDString();
 		eventInfo.time = message.getTimestamp();
-		eventInfo.type = EVENT_TYPE_BAD;
+		eventInfo.type = message.getType();
 		eventInfo.severity = message.getSeverity();
 		eventInfo.hostName = message.getHostName();
-		eventInfo.hostId = findOrCreateHostID(eventInfo.hostName);
+		eventInfo.globalHostId = findOrCreateHostID(eventInfo.hostName);
+		eventInfo.hostIdInServer = eventInfo.hostName;
 		eventInfo.brief = message.getContent();
 		eventInfoList.push_back(eventInfo);
 		UnifiedDataStore::getInstance()->addEventList(eventInfoList);
@@ -130,25 +121,28 @@ private:
 
 	HostIdType findOrCreateHostID(const string &hostName)
 	{
+		if (hostName.empty())
+			return INVALID_HOST_ID;
+
 		map<string, HostIdType>::iterator it;
 		it = m_hosts.find(hostName);
 		if (it != m_hosts.end()) {
 			return it->second;
 		}
 
-		ThreadLocalDBCache cache;
-		DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-		HostInfo hostInfo;
-		hostInfo.serverId = m_serverInfo.id;
-		// TODO: This implementation doesn't work on multi-master
-		// architecture because new host ID is emitted on each
-		// Hatohol server.
-		hostInfo.id = ++m_largestHostID;
-		hostInfo.hostName = hostName;
-		hostInfo.validity = HOST_VALID_INAPPLICABLE;
-		dbMonitoring.addHostInfo(&hostInfo);
-		m_hosts[hostName] = m_largestHostID;
-		return m_largestHostID;
+		ServerHostDef svHostDef;
+		svHostDef.id = AUTO_INCREMENT_VALUE;
+		svHostDef.serverId = m_serverInfo.id;
+		svHostDef.hostId = AUTO_ASSIGNED_ID;
+		svHostDef.hostIdInServer = hostName;
+		svHostDef.name = hostName;
+		svHostDef.status = HOST_STAT_INAPPLICABLE;
+		UnifiedDataStore *uds = UnifiedDataStore::getInstance();
+		HostIdType hostId;
+		THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
+		  uds->upsertHost(svHostDef, &hostId));
+		m_hosts[hostName] = hostId;
+		return hostId;
 	}
 };
 
@@ -185,7 +179,7 @@ struct HatoholArmPluginGateJSON::Impl
 			queueName = generateQueueName(serverInfo);
 		else
 			queueName = armPluginInfo.staticQueueAddress;
-		m_connectionInfo.setQueueName(queueName);
+		m_connectionInfo.setConsumerQueueName(queueName);
 
 		m_connectionInfo.setTLSCertificatePath(
 			armPluginInfo.tlsCertificatePath);
@@ -239,9 +233,10 @@ HatoholArmPluginGateJSON::HatoholArmPluginGateJSON(
 	}
 }
 
-ArmBase &HatoholArmPluginGateJSON::getArmBase(void)
+const MonitoringServerInfo
+&HatoholArmPluginGateJSON::getMonitoringServerInfo(void) const
 {
-	return m_impl->m_armFake;
+	return m_impl->m_armFake.getServerInfo();
 }
 
 const ArmStatus &HatoholArmPluginGateJSON::getArmStatus(void) const

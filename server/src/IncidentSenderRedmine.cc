@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "IncidentSenderRedmine.h"
@@ -80,7 +80,7 @@ IncidentSenderRedmine::~IncidentSenderRedmine()
 
 string IncidentSenderRedmine::getProjectURL(void)
 {
-	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
+	const IncidentTrackerInfo trackerInfo = getIncidentTrackerInfo();
 	string url = trackerInfo.baseURL;
 	if (!StringUtils::hasSuffix(url, "/"))
 		url += "/";
@@ -98,7 +98,7 @@ string IncidentSenderRedmine::getProjectURL(void)
 
 string IncidentSenderRedmine::getIssuesJSONURL(void)
 {
-	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
+	const IncidentTrackerInfo trackerInfo = getIncidentTrackerInfo();
 	string url = trackerInfo.baseURL;
 	if (!StringUtils::hasSuffix(url, "/"))
 		url += "/";
@@ -108,7 +108,7 @@ string IncidentSenderRedmine::getIssuesJSONURL(void)
 
 string IncidentSenderRedmine::getIssueURL(const string &id)
 {
-	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
+	const IncidentTrackerInfo trackerInfo = getIncidentTrackerInfo();
 	return RedmineAPI::getIssueURL(trackerInfo, id);
 }
 
@@ -117,6 +117,8 @@ string IncidentSenderRedmine::buildURLMonitoringServerEvent(
   const EventInfo &event, const MonitoringServerInfo *server)
 {
 	if (!server)
+		return string();
+	if (event.id == DISCONNECT_SERVER_EVENT_ID)
 		return string();
 
 	// TODO: MonitoringServerInfo should have a base URL
@@ -135,8 +137,8 @@ string IncidentSenderRedmine::buildURLMonitoringServerEvent(
 		  "/zabbix/tr_events.php"
 		  "?triggerid=%" FMT_TRIGGER_ID
 		  "&eventid=%" FMT_EVENT_ID,
-		  event.triggerId,
-		  event.id);
+		  event.triggerId.c_str(),
+		  event.id.c_str());
 		break;
 	}
 	case MONITORING_SYSTEM_NAGIOS:
@@ -159,7 +161,7 @@ string IncidentSenderRedmine::buildDescription(
 		 "%a, %d %b %Y %T %z", &eventTime);
 
 	if (server) {
-		description += 
+		description +=
 		  StringUtils::sprintf(
 		    "h2. Monitoring server\n"
 		    "\n"
@@ -172,7 +174,7 @@ string IncidentSenderRedmine::buildDescription(
 		    server->ipAddress.c_str());
 	}
 
-	description += 
+	description +=
 	  StringUtils::sprintf(
 	    "h2. Event details\n"
 	    "\n"
@@ -193,22 +195,22 @@ string IncidentSenderRedmine::buildDescription(
 	    LabelUtils::getTriggerSeverityLabel(event.severity).c_str());
 
 	if (server) {
-		description += 
+		description +=
 		  StringUtils::sprintf(
 		    "|{background:#ddd}. Server ID|%" FMT_SERVER_ID "|\n",
 		    event.serverId);
 	}
 
-	description += 
+	description +=
 	  StringUtils::sprintf(
-	    "|{background:#ddd}. Host ID|%" FMT_HOST_ID "|\n"
+	    "|{background:#ddd}. Host ID|'%" FMT_LOCAL_HOST_ID "'|\n"
 	    "|{background:#ddd}. Trigger ID|%" FMT_TRIGGER_ID "|\n"
 	    "|{background:#ddd}. Event ID|%" FMT_EVENT_ID "|\n"
 	    "}}\n"
 	    "\n",
-	    event.hostId,
-	    event.triggerId,
-	    event.id);
+	    event.hostIdInServer.c_str(),
+	    event.triggerId.c_str(),
+	    event.id.c_str());
 
 	string monitoringServerEventPage
 	  = buildURLMonitoringServerEvent(event, server);
@@ -233,7 +235,7 @@ string IncidentSenderRedmine::buildJSON(const EventInfo &event)
 	if (getServerInfo(event, serverInfo))
 		server = &serverInfo;
 
-	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
+	const IncidentTrackerInfo trackerInfo = getIncidentTrackerInfo();
 	JSONBuilder agent;
 	agent.startObject();
 	agent.startObject("issue");
@@ -277,7 +279,7 @@ void IncidentSenderRedmine::Impl::authenticateCallback(
 {
 	IncidentSenderRedmine *sender
 	  = reinterpret_cast<IncidentSenderRedmine*>(user_data);
-	const IncidentTrackerInfo &tracker = sender->getIncidentTrackerInfo();
+	const IncidentTrackerInfo tracker = sender->getIncidentTrackerInfo();
 	soup_auth_authenticate(
 	  auth, tracker.userName.c_str(), tracker.password.c_str());
 }
@@ -322,11 +324,12 @@ HatoholError IncidentSenderRedmine::parseResponse(
 HatoholError IncidentSenderRedmine::buildIncidentInfo(
   IncidentInfo &incidentInfo, const string &response, const EventInfo &event)
 {
-	const IncidentTrackerInfo &tracker = getIncidentTrackerInfo();
+	const IncidentTrackerInfo tracker = getIncidentTrackerInfo();
 	incidentInfo.trackerId = tracker.id;
 	incidentInfo.serverId = event.serverId;
 	incidentInfo.eventId = event.id;
 	incidentInfo.triggerId = event.triggerId;
+	incidentInfo.unifiedEventId = event.unifiedId;
 	return parseResponse(incidentInfo, response);
 }
 
@@ -367,6 +370,11 @@ HatoholError IncidentSenderRedmine::Impl::send(const string &method, const strin
 					       const string &json, string &response)
 {
 	SoupMessage *msg = soup_message_new(method.c_str(), url.c_str());
+	if (!msg) {
+		MLPL_ERR("Can't prepare to connect to: %s\n",
+			 url.c_str());
+		return HTERR_FAILED_TO_SEND_INCIDENT;
+	}
 	soup_message_headers_set_content_type(msg->request_headers,
 	                                      MIME_JSON, NULL);
 	soup_message_body_append(msg->request_body, SOUP_MEMORY_TEMPORARY,
@@ -408,7 +416,7 @@ HatoholError IncidentSenderRedmine::send(const IncidentInfo &incident,
 	string json = buildJSON(incident, comment);
 	string response;
 
-	const IncidentTrackerInfo &trackerInfo = getIncidentTrackerInfo();
+	const IncidentTrackerInfo trackerInfo = getIncidentTrackerInfo();
 	if (incident.trackerId != trackerInfo.id)
 		return HTERR_FAILED_TO_SEND_INCIDENT;
 

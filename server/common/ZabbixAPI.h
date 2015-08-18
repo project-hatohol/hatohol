@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef ZabbixAPI_h
@@ -22,6 +22,7 @@
 
 #include <string>
 #include <libsoup/soup.h>
+#include "Monitoring.h"
 #include "MonitoringServerInfo.h"
 #include "ItemTablePtr.h"
 #include "JSONBuilder.h"
@@ -32,12 +33,29 @@
 class ZabbixAPI
 {
 public:
+	typedef enum {
+		VALUE_TYPE_UNKNOWN = -1,
+		VALUE_TYPE_FLOAT   = 0,
+		VALUE_TYPE_STRING  = 1,
+		VALUE_TYPE_LOG     = 2,
+		VALUE_TYPE_INTEGER = 3,
+		VALUE_TYPE_TEXT    = 4
+	} ValueType;
+	static const size_t EVENT_ID_DIGIT_NUM;
+
 	ZabbixAPI(void);
 	virtual ~ZabbixAPI();
 
 	static const uint64_t EVENT_ID_NOT_FOUND;
 
+	static ItemInfoValueType toItemValueType(
+	  const ZabbixAPI::ValueType &valueType);
+	static ZabbixAPI::ValueType fromItemValueType(
+	  const ItemInfoValueType &valueType);
+
 protected:
+	typedef std::map<const TriggerIdType, const ItemGroupPtr> TriggerIdItemGrpMap;
+	typedef TriggerIdItemGrpMap::const_iterator TriggerIdItemGrpMapConstIterator;
 	const static uint64_t UNLIMITED = -1;
 	void setMonitoringServerInfo(const MonitoringServerInfo &serverInfo);
 
@@ -97,6 +115,9 @@ protected:
 	 * @return The obtained triggers as an ItemTable format.
 	 */
 	ItemTablePtr getTrigger(int requestSince = 0);
+	ItemTablePtr getTriggerExpandedDescription(int requestSince = 0);
+	ItemTablePtr mergePlainTriggersAndExpandedDescriptions(
+	  const ItemTablePtr triggers, const ItemTablePtr expandedDescriptions);
 
 	/**
 	 * Get the items.
@@ -104,6 +125,17 @@ protected:
 	 * @return The obtained items as an ItemTable format.
 	 */
 	ItemTablePtr getItems(void);
+
+
+	/**
+	 * Get the history.
+	 *
+	 * @return The obtained history as an ItemTable format.
+	 */
+	ItemTablePtr getHistory(const ItemIdType &itemId,
+				const ZabbixAPI::ValueType &valueType,
+				const time_t &beginTime,
+				const time_t &endTime);
 
 	/**
 	 * Get the hosts and the host groups.
@@ -133,7 +165,7 @@ protected:
 	 *
 	 * @return The obtained triggers as an ItemTable format.
 	 */
-	ItemTablePtr getApplications(const std::vector<uint64_t> &appIdVector);
+	ItemTablePtr getApplications(const ItemCategoryIdVector &appIdVector);
 	ItemTablePtr getApplications(ItemTablePtr items);
 
 	/**
@@ -172,12 +204,37 @@ protected:
 	SoupMessage *queryTrigger(HatoholError &queryRet, int requestSince = 0);
 
 	/**
-	 * Get the triggers.
+	 * Get trigger expanded descriptions.
+	 *
+	 * @param requestSince
+	 * Triggers with timestamp after this parameter will be returned.
+	 *
+	 * @return
+	 * A SoupMessage object with Zabbix servers's trigger expanded
+	 * descriptions response.
+	 */
+
+	SoupMessage *queryTriggerExpandedDescription(HatoholError &queryRet,
+	                                           int requestSince = 0);
+	/**
+	 * Get the items.
 	 *
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
 	SoupMessage *queryItem(HatoholError &queryRet);
+
+	/**
+	 * Get the history.
+	 *
+	 * @return
+	 * A SoupMessage object with the raw Zabbix servers's response.
+	 */
+	SoupMessage *queryHistory(HatoholError &queryRet,
+				  const ItemIdType &itemId,
+				  const ZabbixAPI::ValueType &valueType,
+				  const time_t &beginTime,
+				  const time_t &endTime);
 
 	/**
 	 * Get the hosts.
@@ -201,7 +258,7 @@ protected:
 	 * @return
 	 * A SoupMessage object with the raw Zabbix servers's response.
 	 */
-	SoupMessage *queryApplication(const std::vector<uint64_t> &appIdVector,
+	SoupMessage *queryApplication(const ItemCategoryIdVector &appIdVector,
 				      HatoholError &queryRet);
 
 	/**
@@ -250,9 +307,34 @@ protected:
 	                    const std::string &name, const ItemId &itemId);
 	std::string pushString(JSONParser &parser, ItemGroup *itemGroup,
 	                       const std::string &name, const ItemId &itemId);
+
+	/**
+	 * Get the value form the JSONParser as a string, pad the specified
+	 * character to the head of the string, and add it to ItemGroup.
+	 *
+	 * @parser    A JSONParser.
+	 * @itemGroup A pointer to the ItemGroup.
+	 * @name      A name of the JSON element to be gotten.
+	 * @itemId    An item ID of the ItemData to be created.
+	 * @digitNum
+	 * A digit nubmer of the created string for the ItemData. If the
+	 * length of the original string is smaller than this value, the
+	 * specified character \padChar is filled at the head of the
+	 * created string.
+	 * @padChar   A character for padding.
+	 *
+	 * @return    A created string with padding.
+	 */
+	std::string pushString(
+	  JSONParser &parser, ItemGroup *itemGroup,
+	  const std::string &name, const ItemId &itemId,
+	  const size_t &digitNum, const char &padChar);
+
 	void parseAndPushTriggerData(
 	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
+	void parseAndPushTriggerExpandedDescriptionData(
+	  JSONParser &parser, VariableItemTablePtr &tablePtr, const int &index);
 	void parseAndPushItemsData(
 	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
@@ -272,12 +354,18 @@ protected:
 	  JSONParser &parser,
 	  VariableItemTablePtr &tablePtr, const int &index);
 
-	void pushTriggersHostid(JSONParser &parser, ItemGroup *itemGroup);
-	void pushApplicationid(JSONParser &parser, ItemGroup *itemGroup);
+	void pushTriggersHostId(JSONParser &parser, ItemGroup *itemGroup);
+	void pushApplicationId(JSONParser &parser, ItemGroup *itemGroup);
 
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
+
+	template <typename T>
+	void pushSomethingId(
+	  JSONParser &parser, ItemGroup *itemGroup, const ItemId &itemId,
+	  const std::string &objectName, const std::string &elementName,
+	  const T &dummyValue);
 };
 
 #endif // ZabbixAPI_h

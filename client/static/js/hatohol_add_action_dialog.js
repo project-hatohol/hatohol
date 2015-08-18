@@ -4,42 +4,51 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
-var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
+// TODO: use hash arguments
+var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionDef) {
   var self = this;
 
   var IDX_SELECTED_SERVER  = 0;
-  var IDX_SELECTED_HOST_GROUP = 1
+  var IDX_SELECTED_HOST_GROUP = 1;
   var IDX_SELECTED_HOST    = 2;
   var IDX_SELECTED_TRIGGER = 3;
   self.selectedId = new Array();
-  self.selectedId[IDX_SELECTED_SERVER]  = null;
-  self.selectedId[IDX_SELECTED_HOST_GROUP] = null;
-  self.selectedId[IDX_SELECTED_HOST]    = null;
-  self.selectedId[IDX_SELECTED_TRIGGER] = null;
+  self.selectedId[IDX_SELECTED_SERVER]  = actionDef ? actionDef.serverId : null;
+  self.selectedId[IDX_SELECTED_HOST_GROUP] = actionDef ? actionDef.hostgroupId : null;
+  self.selectedId[IDX_SELECTED_HOST]    = actionDef ? actionDef.hostId : null;
+  self.selectedId[IDX_SELECTED_TRIGGER] = actionDef ? actionDef.triggerId : null;
+  self.actionDef = actionDef ? actionDef : null;
+  self.applyButtonTitle = actionDef ? gettext("APPLY") : gettext("ADD");
+  self.targetId = actionDef ? actionDef.actionId : null;
 
   self.changedCallback = changedCallback;
   self.incidentTrackers = incidentTrackers;
   self.forIncidentSetting = !!incidentTrackers;
 
-  self.windowTitle = self.forIncidentSetting ?
-    gettext("ADD INCIDENT TRACKING SETTING") : gettext("ADD ACTION");
+  if (self.forIncidentSetting) {
+    self.windowTitle = self.targetId ?
+    gettext("EDIT INCIDENT TRACKING SETTING") : gettext("ADD INCIDENT TRACKING SETTING");
+  } else {
+    self.windowTitle = self.targetId ?
+    gettext("EDIT ACTION") : gettext("ADD ACTION");
+  }
 
   var dialogButtons = [{
-    text: gettext("ADD"),
-    click: addButtonClickedCb,
+    text: self.actionDef ? gettext("APPLY") : gettext("ADD"),
+    click: applyButtonClickedCb,
   }, {
     text: gettext("CANCEL"),
     click: cancelButtonClickedCb,
@@ -52,16 +61,20 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
            dialogButtons, dialogAttrs]);
 
   setTimeout(function() {
-    self.setAddButtonState(!!self.getCommand());
+    self.setApplyButtonState(!!self.getCommand());
   }, 1);
 
   //
   // Dialog button handlers
   //
-  function addButtonClickedCb() {
+  function applyButtonClickedCb() {
     if (validateAddParameters()) {
       makeQueryData();
-      hatoholInfoMsgBox(gettext("Now creating an action ..."));
+      if (self.actionDef) {
+        hatoholInfoMsgBox(gettext("Now updating an action ..."));
+      } else {
+        hatoholInfoMsgBox(gettext("Now creating an action ..."));
+      }
       postAddAction();
     }
   }
@@ -79,7 +92,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
       $("#selectTriggerSeverityCompType").css("visibility","visible");
     else
       $("#selectTriggerSeverityCompType").css("visibility","hidden");
-  })
+  });
 
   $("#selectServerId").change(function() {
     var val = $(this).val();
@@ -87,7 +100,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
       new HatoholServerSelector(serverSelectedCb);
     else
       setSelectedServerId(val);
-  })
+  });
 
   $("#selectHostgroupId").change(function() {
     var val = $(this).val();
@@ -97,7 +110,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
     } else {
       setSelectedHostgroupId(val);
     }
-  })
+  });
 
   $("#selectHostId").change(function() {
     var val = $(this).val();
@@ -108,7 +121,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
     } else {
       setSelectedHostId(val);
     }
-  })
+  });
 
   $("#selectTriggerId").change(function() {
     var val = $(this).val();
@@ -119,7 +132,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
     } else {
       setSelectedTriggerId(val);
     }
-  })
+  });
 
   function serverSelectedCb(serverInfo) {
     var label = "";
@@ -159,7 +172,6 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
                             label, fixupSelectBoxFunc, idName) {
     var numOptions = jQObjSelectId.children().length;
     var currSelectedId = self.selectedId[selectedIdIndex];
-    console.log(response);
     if (!response) {
       if (!currSelectedId)
         jQObjSelectId.val("ANY");
@@ -192,9 +204,9 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
       fixupSelectBoxFunc(value);
   }
 
-  function fixupSelectBox(jQObjSelect, newValue, selectedIdSetter) {
+  function fixupSelectBox(jQObjSelect, newValue, selectedIdSetter, ignoreAnySelected) {
     var numOptions = jQObjSelect.children().length;
-    if (newValue == "ANY") {
+    if (newValue == "ANY" && !ignoreAnySelected) {
       for (var i = numOptions; i > 1; i--)
         jQObjSelect.children('option:last-child').remove();
       jQObjSelect.val("ANY");
@@ -225,7 +237,9 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
   }
 
   function setSelectedHostgroupId(value) {
-    setSelectedId(IDX_SELECTED_HOST_GROUP, value, fixupSelectHostBox);
+    setSelectedId(IDX_SELECTED_HOST_GROUP, value, function (newServerId) {
+      fixupSelectBox($("#selectHostId"), newServerId, setSelectedHostId, true);
+    });
   }
 
   function fixupSelectHostBox(newServerId) {
@@ -258,7 +272,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
     case "ACTION_RESIDENT":
       return hatohol.ACTION_RESIDENT;
     default:
-      alert("Unknown command type: " + type);
+      hatoholErrorMsgBox(gettext("Unknown command type: ") + type);
     }
     return undefined;
   }
@@ -273,7 +287,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
     case "TRIGGER_STATUS_PROBLEM":
       return TRIGGER_STATUS_PROBLEM;
     default:
-      alert("Unknown status: " + status);
+      hatoholErrorMsgBox(gettext("Unknown status: ") + status);
     }
     return undefined;
   }
@@ -294,7 +308,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
     case "EMERGENCY":
       return TRIGGER_SEVERITY_EMERGENCY;
     default:
-      alert("Unknown severity: " + severity);
+      hatoholErrorMsgBox(gettext("Unknown severity: ") + severity);
     }
     return undefined;
   }
@@ -307,7 +321,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
     case "CMP_EQ_GT":
       return hatohol.CMP_EQ_GT;
     default:
-      alert("Unknown severity: " + severity);
+      hatoholErrorMsgBox(gettext("Unknown severity compare type: ") + compType);
     }
     return undefined;
   }
@@ -338,9 +352,12 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
   }
 
   function postAddAction() {
+    var url = "/action";
+    if (self.targetId)
+       url += "/" + self.targetId;
     new HatoholConnector({
-      url: "/action",
-      request: "POST",
+      url: url,
+      request: self.targetId ? "PUT" : "POST",
       data: makeQueryData(),
       replyCallback: replyCallback,
       parseErrorCallback: hatoholErrorMsgBoxForParser,
@@ -349,8 +366,11 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
 
   function replyCallback(reply, parser) {
     self.closeDialog();
-    hatoholInfoMsgBox(gettext("Successfully created."));
-
+    if (self.actionDef) {
+      hatoholInfoMsgBox(gettext("Successfully updated."));
+    } else {
+      hatoholInfoMsgBox(gettext("Successfully created."));
+    }
     if (self.changedCallback)
       self.changedCallback();
   }
@@ -362,98 +382,386 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers) {
     }
     return true;
   }
-}
+
+  function setupTimeOutValue(timeout) {
+    $("#inputTimeout").val(timeout / 1000);
+  }
+
+  function setupActionCommand(command) {
+    $("#inputActionCommand").val(command);
+  }
+
+  function setupWorkingDirectory(directory) {
+     $("#inputWorkingDir").val(directory);
+  }
+
+  function setupIncidentTracker(tracker) {
+    $("#selectIncidentTracker").val(tracker);
+  }
+
+  function setupCommandType(type) {
+    var typeSelector = $("#selectType");
+    switch(type) {
+    case hatohol.ACTION_COMMAND:
+      typeSelector.val("ACTION_COMMAND");
+      break;
+    case hatohol.ACTION_RESIDENT:
+      typeSelector.val("ACTION_RESIDENT");
+      break;
+    case hatohol.ACTION_INCIDENT_SENDER:
+      break;
+    default:
+      hatoholErrorMsgBox(gettext("Unknown command type: ") + type);
+      break;
+    }
+  }
+
+  function setupTriggerStatusValue(status) {
+    var statusSelector = $("#selectTriggerStatus");
+    switch(status) {
+    case null:
+      statusSelector.val("ANY");
+      break;
+    case hatohol.TRIGGER_STATUS_OK:
+      statusSelector.val("TRIGGER_STATUS_OK");
+      break;
+    case hatohol.TRIGGER_STATUS_PROBLEM:
+      statusSelector.val("TRIGGER_STATUS_PROBLEM");
+      break;
+    default:
+      hatoholErrorMsgBox(gettext("Unknown status: ") + status);
+      break;
+    }
+  }
+
+  function setupSeverityValue(severity) {
+    var severitySelector = $("#selectTriggerSeverity");
+    switch(severity) {
+    case null:
+      severitySelector.val("ANY");
+      break;
+    case hatohol.TRIGGER_SEVERITY_INFO:
+      severitySelector.val("INFO");
+      break;
+    case hatohol.TRIGGER_SEVERITY_WARNING:
+      severitySelector.val("WARNING");
+      break;
+    case hatohol.TRIGGER_SEVERITY_ERROR:
+      severitySelector.val("ERROR");
+      break;
+    case hatohol.TRIGGER_SEVERITY_CRITICAL:
+      severitySelector.val("CRITICAL");
+      break;
+    case hatohol.TRIGGER_SEVERITY_EMERGENCY:
+      severitySelector.val("EMERGENCY");
+      break;
+    default:
+      hatoholErrorMsgBox(gettext("Unknown severity: ") + severity);
+      break;
+    }
+    if (severity) {
+      $("#selectTriggerSeverityCompType").css("visibility","visible");
+    }
+  }
+
+  function setupSevertyCompTypeValue(compType) {
+    var compTypeSelector = $("#selectTriggerSeverityCompType");
+    switch(compType) {
+    case hatohol.CMP_EQ:
+      compTypeSelector.val("CMP_EQ");
+    case hatohol.CMP_EQ_GT:
+      compTypeSelector.val("CMP_EQ_GT");
+    }
+  }
+
+  // Fill value for update
+  if (self.actionDef) {
+    setupSeverityValue(self.actionDef.triggerSeverity);
+    setupSevertyCompTypeValue(self.actionDef.triggerSeverityComparatorType);
+    if (self.forIncidentSetting) {
+      setupIncidentTracker(self.actionDef.command);
+    } else {
+      setupCommandType(self.actionDef.type);
+      setupTriggerStatusValue(self.actionDef.triggerStatus);
+      setupTimeOutValue(self.actionDef.timeout);
+      setupActionCommand(self.actionDef.command);
+      setupWorkingDirectory(self.actionDef.workingDirectory);
+    }
+    self.setApplyButtonState(true);
+  }
+};
 
 HatoholAddActionDialog.prototype = Object.create(HatoholDialog.prototype);
 HatoholAddActionDialog.prototype.constructor = HatoholAddActionDialog;
 
 HatoholAddActionDialog.prototype.createMainElement = function() {
   var self = this;
+  if (self.actionDef) {
+    getServersAsync();
+    getHostGroupsAsync();
+    if (!self.forIncidentSetting) {
+      getHostsAsync();
+      getTriggersAsync();
+    }
+  }
+
   var div = $(makeMainDivHTML());
   return div;
 
+  //
+  // get server info when updating
+  //
+  function getServersAsync() {
+    new HatoholConnector({
+      url: "/server",
+      replyCallback: replyServerCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function getHostsAsync() {
+    new HatoholConnector({
+      url: "/host",
+      replyCallback: replyHostCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function getHostGroupsAsync() {
+    new HatoholConnector({
+      url: "/hostgroup",
+      replyCallback: replyHostGroupCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function getTriggersAsync() {
+    new HatoholConnector({
+      url: "/trigger",
+      replyCallback: replyTriggerCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function appendSelectElem(selector, infoId) {
+    if (infoId) {
+      var label = "== " + gettext("SELECT") + " ==";
+      selector.append($("<option>").html(label).val("SELECT"));
+    }
+  }
+
+  function replyServerCallback(reply, parser) {
+    if (!(reply.servers instanceof Array)) {
+      hatoholErrorMsgBox("[Malformed reply] Not found array: servers");
+      return;
+    }
+
+    appendSelectElem($("#selectHostgroupId"), self.actionDef.serverId);
+    appendSelectElem($("#selectHostId"), self.actionDef.serverId);
+
+    for (var i = 0; i < reply.servers.length; i++) {
+      if (reply.servers[i].id != self.actionDef.serverId)
+        continue;
+
+      var serverInfo = reply.servers[i];
+      var hostName = serverInfo.hostName;
+      if (!hostName) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: hostName");
+        return;
+      }
+      var serverId = serverInfo.id;
+      if (serverId == undefined) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: id");
+        return;
+      }
+
+      var displayName = serverId + ": " + hostName;
+      $('#selectServerId').append($('<option>').html(displayName).val(serverId));
+    }
+
+    setSelectedIdForUpdate($("#selectServerId"), self.actionDef.serverId);
+  }
+
+  function replyHostCallback(reply, parser) {
+    if (!(reply.hosts instanceof Array)) {
+      hatoholErrorMsgBox("[Malformed reply] Not found array: hosts");
+      return;
+    }
+
+    appendSelectElem($("#selectTriggerId"), self.actionDef.hostId);
+
+    for (var i = 0; i < reply.hosts.length; i ++) {
+      if (reply.hosts[i].id != self.actionDef.hostId)
+        continue;
+
+      var hostInfo = reply.hosts[i];
+      var hostName = hostInfo.hostName;
+      if (!hostName) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: hostName");
+        return;
+      }
+      var hostId = hostInfo.id;
+      if (hostId == undefined) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: id");
+        return;
+      }
+
+      var displayName = hostName;
+      $('#selectHostId').append($('<option>').html(displayName).val(hostId));
+    }
+
+    setSelectedIdForUpdate($("#selectHostId"), self.actionDef.hostId);
+  }
+
+  function replyHostGroupCallback(reply, parser) {
+    if (!(reply.hostgroups instanceof Array)) {
+      hatoholErrorMsgBox("[Malformed reply] Not found array: hostgroups");
+      return;
+    }
+
+    appendSelectElem($("#selectHostId"), self.actionDef.hostgroupId);
+
+    for (var i = 0; i < reply.hostgroups.length; i ++) {
+      if (reply.hostgroups[i].groupId != self.actionDef.hostgroupId)
+        continue;
+
+      var hostgroupInfo = reply.hostgroups[i];
+      var hostgroupName = hostgroupInfo.groupName;
+      if (!hostgroupName) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: hostgroupName");
+        return;
+      }
+      var hostgroupId = hostgroupInfo.groupId;
+      if (hostgroupId == undefined) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: hostgroupId");
+        return;
+      }
+
+      var displayName = hostgroupName;
+      $('#selectHostgroupId').append($('<option>').html(displayName).val(hostgroupId));
+    }
+
+    setSelectedIdForUpdate($("#selectHostgroupId"), self.actionDef.hostgroupId);
+  }
+
+  function replyTriggerCallback(reply, parser) {
+    if (!(reply.triggers instanceof Array)) {
+      hatoholErrorMsgBox("[Malformed reply] Not found array: triggers");
+      return;
+    }
+
+    for (var i = 0; i < reply.triggers.length; i ++) {
+      if (reply.triggers[i].id != self.actionDef.triggerId)
+        continue;
+
+      var triggerInfo = reply.triggers[i];
+      var triggerBrief = triggerInfo.brief;
+      if (!triggerBrief) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: brief");
+        return;
+      }
+      var triggerId = triggerInfo.id;
+      if (triggerId == undefined) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: id");
+        return;
+      }
+
+      var displayName = triggerBrief;
+      $('#selectTriggerId').append($('<option>').html(displayName).val(triggerId));
+    }
+
+    setSelectedIdForUpdate($("#selectTriggerId"), self.actionDef.triggerId);
+  }
+
+  function setSelectedIdForUpdate(jQObjSelectId, selectedIdIndex) {
+    if (selectedIdIndex) {
+      var selectElem = jQObjSelectId;
+      selectElem.val(selectedIdIndex);
+    }
+  }
+
   function makeTriggerConditionArea() {
     var s = "";
-    s += '<h3>' + gettext("Condition") + '</h3>'
-    s += '<form class="form-inline">'
-    s += '  <label>' + gettext("Server") + '</label>'
-    s += '  <select id="selectServerId">'
-    s += '    <option value="ANY">ANY</option>'
-    s += '    <option value="SELECT">== ' + gettext("SELECT") + ' ==</option>'
-    s += '  </select>'
+    s += '<h3>' + gettext("Condition") + '</h3>';
+    s += '<form class="form-inline">';
+    s += '  <label>' + gettext("Server") + '</label>';
+    s += '  <select id="selectServerId">';
+    s += '    <option value="ANY">ANY</option>';
+    s += '    <option value="SELECT">== ' + gettext("SELECT") + ' ==</option>';
+    s += '  </select>';
 
-    s += '  <label>' + gettext("Hostgroup") + '</label>'
-    s += '  <select id="selectHostgroupId">'
-    s += '    <option value="ANY">ANY</option>'
-    s += '  </select>'
+    s += '  <label>' + gettext("Hostgroup") + '</label>';
+    s += '  <select id="selectHostgroupId">';
+    s += '    <option value="ANY">ANY</option>';
+    s += '  </select>';
 
     if (!self.forIncidentSetting) {
-      s += '  <label>' + gettext("Host") + '</label>'
-      s += '  <select id="selectHostId">'
-      s += '    <option value="ANY">ANY</option>'
-      s += '  </select>'
+      s += '  <label>' + gettext("Host") + '</label>';
+      s += '  <select id="selectHostId">';
+      s += '    <option value="ANY">ANY</option>';
+      s += '  </select>';
 
-      s += '  <label>' + gettext("Trigger") + '</label>'
-      s += '  <select id="selectTriggerId">'
-      s += '    <option value="ANY">ANY</option>'
-      s += '  </select>'
+      s += '  <label>' + gettext("Trigger") + '</label>';
+      s += '  <select id="selectTriggerId">';
+      s += '    <option value="ANY">ANY</option>';
+      s += '  </select>';
     }
-    s += '</form>'
+    s += '</form>';
 
-    s += '<form class="form-inline">'
-    s += '  <label for="selectTriggerStatus">' + gettext("Status") + '</label>'
-    s += '  <select id="selectTriggerStatus">'
-    s += '    <option value="ANY">ANY</option>'
-    s += '    <option value="TRIGGER_STATUS_OK">' + gettext("OK") + '</option>'
-    s += '    <option value="TRIGGER_STATUS_PROBLEM">' + gettext("Problem") + '</option>'
-    s += '  </select>'
+    s += '<form class="form-inline">';
+    s += '  <label for="selectTriggerStatus">' + gettext("Status") + '</label>';
+    s += '  <select id="selectTriggerStatus">';
+    s += '    <option value="ANY">ANY</option>';
+    s += '    <option value="TRIGGER_STATUS_OK">' + gettext("OK") + '</option>';
+    s += '    <option value="TRIGGER_STATUS_PROBLEM">' + gettext("Problem") + '</option>';
+    s += '  </select>';
 
-    s += '  <label>' + gettext("Severity") + '</label>'
-    s += '  <select id="selectTriggerSeverity">'
-    s += '    <option value="ANY">ANY</option>'
-    s += '    <option value="INFO">' + gettext("Information") + '</option>'
-    s += '    <option value="WARNING">' + gettext("Warning") + '</option>'
-    s += '    <option value="ERROR">' + gettext("Average") + '</option>'
-    s += '    <option value="CRITICAL">' + gettext("High") + '</option>'
-    s += '    <option value="EMERGENCY">' + gettext("Disaster") + '</option>'
-    s += '  </select>'
-    s += '  <select id="selectTriggerSeverityCompType" style="visibility:hidden;">'
-    s += '    <option value="CMP_EQ">' + gettext("Equal to") + '</option>'
-    s += '    <option value="CMP_EQ_GT">' + gettext("Equal to or greater than") + '</option>'
-    s += '  </select>'
-    s += '</form>'
+    s += '  <label>' + gettext("Severity") + '</label>';
+    s += '  <select id="selectTriggerSeverity">';
+    s += '    <option value="ANY">ANY</option>';
+    s += '    <option value="INFO">' + gettext("Information") + '</option>';
+    s += '    <option value="WARNING">' + gettext("Warning") + '</option>';
+    s += '    <option value="ERROR">' + gettext("Average") + '</option>';
+    s += '    <option value="CRITICAL">' + gettext("High") + '</option>';
+    s += '    <option value="EMERGENCY">' + gettext("Disaster") + '</option>';
+    s += '  </select>';
+    s += '  <select id="selectTriggerSeverityCompType" style="visibility:hidden;">';
+    s += '    <option value="CMP_EQ">' + gettext("Equal to") + '</option>';
+    s += '    <option value="CMP_EQ_GT">' + gettext("Equal to or greater than") + '</option>';
+    s += '  </select>';
+    s += '</form>';
     return s;
   }
 
   function makeExecutionParameterArea() {
     var s = "";
-    s += '<h3>' + gettext("Execution parameters") + '</h3>'
-    s += '<form class="form-inline">'
-    s += '  <label>' + gettext("Templates ") + '</label>'
-    s += '  <input id="actor-mail-dialog-button" type="button" value=' + gettext("e-mail") + ' />'
-    s += '</form>'
+    s += '<h3>' + gettext("Execution parameters") + '</h3>';
+    s += '<form class="form-inline">';
+    s += '  <label>' + gettext("Templates ") + '</label>';
+    s += '  <input id="actor-mail-dialog-button" type="button" value=' + gettext("e-mail") + ' />';
+    s += '</form>';
 
-    s += '<form class="form-inline">'
-    s += '  <label>' + gettext("Type") + '</label>'
-    s += '  <select id="selectType">'
-    s += '    <option value="ACTION_COMMAND">' + gettext("COMMAND") + '</option>'
-    s += '    <option value="ACTION_RESIDENT">' + gettext("RESIDENT") + '</option>'
-    s += '  </select>'
+    s += '<form class="form-inline">';
+    s += '  <label>' + gettext("Type") + '</label>';
+    s += '  <select id="selectType">';
+    s += '    <option value="ACTION_COMMAND">' + gettext("COMMAND") + '</option>';
+    s += '    <option value="ACTION_RESIDENT">' + gettext("RESIDENT") + '</option>';
+    s += '  </select>';
 
-    s += '  <label for="inputTimeout">' + gettext("Time-out (sec)") + '</label>'
-    s += '  <input id="inputTimeout" type="text" value="0">'
-    s += '  <label for="inputTimeout">(0: ' + gettext("No limit") + ') </label>'
-    s += '</form>'
+    s += '  <label for="inputTimeout">' + gettext("Time-out (sec)") + '</label>';
+    s += '  <input id="inputTimeout" type="text" value="0">';
+    s += '  <label for="inputTimeout">(0: ' + gettext("No limit") + ') </label>';
+    s += '</form>';
 
-    s += '<form class="form-inline">'
-    s += '  <label for="inputActionCommand">' + gettext("Command parameter") + '</label>'
-    s += '  <input id="inputActionCommand" type="text" style="width:100%;" value="">'
-    s += '</form>'
+    s += '<form class="form-inline">';
+    s += '  <label for="inputActionCommand">' + gettext("Command parameter") + '</label>';
+    s += '  <input id="inputActionCommand" type="text" style="width:100%;" value="">';
+    s += '</form>';
 
-    s += '<form class="form-inline">'
-    s += '  <label for="inputWorkingDir">' + gettext("Execution directory") + '</label>'
-    s += '  <input id="inputWorkingDir" type="text" value="" style="width:100%;">'
-    s += '</form>'
+    s += '<form class="form-inline">';
+    s += '  <label for="inputWorkingDir">' + gettext("Execution directory") + '</label>';
+    s += '  <input id="inputWorkingDir" type="text" value="" style="width:100%;">';
+    s += '</form>';
     return s;
   }
 
@@ -463,32 +771,32 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '<form class="form-inline">';
     s += '<select id="selectIncidentTracker">';
     s += '</select>';
-    s += '<input id="editIncidentTrackers" type="button" '
+    s += '<input id="editIncidentTrackers" type="button" ';
     s += '       style="margin-left: 2px;" ';
     s +='        value="' + gettext('EDIT') + '" />';
-    s += '</form>'
+    s += '</form>';
     return s;
   }
 
   function makeMainDivHTML() {
     var s = "";
-    s += '<div id="add-action-div">'
+    s += '<div id="add-action-div">';
     s += makeTriggerConditionArea();
     if (self.forIncidentSetting)
       s += makeIncidentTrackerArea();
     else
       s += makeExecutionParameterArea();
-    s += '</div>'
+    s += '</div>';
     return s;
   }
-}
+};
 
 HatoholAddActionDialog.prototype.getCommand = function() {
   if (this.forIncidentSetting)
     return $("#selectIncidentTracker").val();
   else
     return $("#inputActionCommand").val();
-}
+};
 
 HatoholAddActionDialog.prototype.updateIncidentTrackers = function(incidentTrackers) {
   var label, incidentTraker;
@@ -511,28 +819,31 @@ HatoholAddActionDialog.prototype.updateIncidentTrackers = function(incidentTrack
       })
     );
   }
-}
+};
 
 HatoholAddActionDialog.prototype.setupIncidentTrackersEditor = function()
 {
   var self = this;
   var changedCallback = function(incidentTrackers) {
+    var command = $("#selectIncidentTracker").val();
     self.incidentTrackers = incidentTrackers;
     self.updateIncidentTrackers(incidentTrackers);
     if (self.changedCallback)
       self.changedCallback();
-    self.setAddButtonState(!!self.getCommand());
-  }
+    self.setApplyButtonState(!!self.getCommand());
+    if (command)
+      $("#selectIncidentTracker").val(command);
+  };
   $("#editIncidentTrackers").click(function() {
     new HatoholIncidentTrackersEditor({
       changedCallback: changedCallback,
     });
   });
   $("#selectIncidentTracker").change(function() {
-    self.setAddButtonState(!!self.getCommand());
+    self.setApplyButtonState(!!self.getCommand());
   });
   changedCallback(self.incidentTrackers);
-}
+};
 
 HatoholAddActionDialog.prototype.onAppendMainElement = function() {
   var self = this;
@@ -543,7 +854,7 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
   });
 
   $("#inputActionCommand").keyup(function() {
-    fixupAddButtonState();
+    fixupApplyButtonState();
   });
 
   function applyCallback(type, commandDesc) {
@@ -558,14 +869,14 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
       return;
     }
     $("#inputActionCommand").val(commandDesc);
-    fixupAddButtonState();
+    fixupApplyButtonState();
   }
 
-  function fixupAddButtonState() {
+  function fixupApplyButtonState() {
     if ($("#inputActionCommand").val())
-      self.setAddButtonState(true);
+      self.setApplyButtonState(true);
     else
-      self.setAddButtonState(false);
+      self.setApplyButtonState(false);
   }
 
   if (self.forIncidentSetting) {
@@ -575,11 +886,11 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
     $("label[for='selectTriggerStatus']").hide();
     $("#selectTriggerStatus").hide();
   }
-}
+};
 
-HatoholAddActionDialog.prototype.setAddButtonState = function(state) {
+HatoholAddActionDialog.prototype.setApplyButtonState = function(state) {
   var btn = $(".ui-dialog-buttonpane").find("button:contains(" +
-              gettext("ADD") + ")");
+            this.applyButtonTitle + ")");
   if (state) {
      btn.removeAttr("disabled");
      btn.removeClass("ui-state-disabled");
@@ -587,4 +898,4 @@ HatoholAddActionDialog.prototype.setAddButtonState = function(state) {
      btn.attr("disabled", "disabled");
      btn.addClass("ui-state-disabled");
   }
-}
+};

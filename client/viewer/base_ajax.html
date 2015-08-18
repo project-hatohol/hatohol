@@ -5,17 +5,17 @@
   This file is part of Hatohol.
 
   Hatohol is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 2 of the License, or
-  (at your option) any later version.
+  it under the terms of the GNU Lesser General Public License, version 3
+  as published by the Free Software Foundation.
 
   Hatohol is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
+  GNU Lesser General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU Lesser General Public
+  License along with Hatohol. If not, see
+  <http://www.gnu.org/licenses/>.
 {% endcomment %}
 
 {% load i18n %}
@@ -24,11 +24,16 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta http-equiv="Expires" content="Thu, 01 Jan 1970 00:00:00 GMT">
     <link href="{{ STATIC_URL }}images/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="{{ STATIC_URL }}css.external/bootstrap.css" rel="stylesheet" media="screen">
     <link href="{{ STATIC_URL }}css/hatohol.css" rel="stylesheet" media="screen">
     <link href="{{ STATIC_URL }}css/zabbix.css" rel="stylesheet" media="screen">
     <link href="{{ STATIC_URL }}css.external/themes/ui-lightness/jquery-ui.css" rel="stylesheet" media="screen">
+    <link href="{{ STATIC_URL }}css.external/jquery-ui-slider-pips.css" rel="stylesheet" media="screen">
+    <link href="{{ STATIC_URL }}css.external/jquery.datetimepicker.css" rel="stylesheet" media="screen">
     <title>
       {% block title %}{% endblock %} - {% trans "Hatohol" %}
     </title>
@@ -50,7 +55,14 @@
           </ul>
         </div>
 
-        <div class="pull-right btn-group" id ="userMenu">
+        <div class="pull-right btn-group" id="toggleAutoRefresh">
+          <button class="navbar-btn btn btn-primary active" id="toggleAutoRefreshButton" data-toggle="tooltip" data-placement="left" title="{% trans "toggle auto refresh" %}">
+            <i class="glyphicon glyphicon-refresh"></i>
+            <span id="toggleAutorefreshGlyphicon"></span>
+          </button>
+        </div>
+
+        <div class="pull-right btn-group" id="userMenu">
           <button class="navbar-btn btn dropdown-toggle btn-inverse" data-toggle="dropdown" id="userProfileButton">
             <i class="glyphicon glyphicon-user"></i>
             <span id="currentUserName">{% trans "Not logged in" %}</span>
@@ -73,6 +85,10 @@
     <div style="display: none;"><form>{% csrf_token %}</form></div>
     <div style="text-align: center;" id="update-time"> {% trans "Last update time:"%} None </div>
 
+    <noscript><div id="noscript-background">
+      <div id="noscript-notice">{% trans "JavaScript is disabled. Please turn on JavaScript." %}</div>
+    </div></noscript>
+
 {% block main %}
 {% endblock %}
 
@@ -80,6 +96,8 @@
     <script src="{{ STATIC_URL }}js.external/jquery.js"></script>
     <script src="{{ STATIC_URL }}js.external/stupidtable.js"></script>
     <script src="{{ STATIC_URL }}js.external/jquery-ui.min.js"></script>
+    <script src="{{ STATIC_URL }}js.external/jquery-deparam.min.js"></script>
+    <script src="{{ STATIC_URL }}js.external/jquery.datetimepicker.js"></script>
     <script src="{{ STATIC_URL }}js.external/bootstrap.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_def.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_message_box.js"></script>
@@ -93,10 +111,14 @@
     <script src="{{ STATIC_URL }}js/hatohol_navi.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_password_changer.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_item_remover.js"></script>
+    <script src="{{ STATIC_URL }}js/hatohol_item_update.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_monitoring_view.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_pager.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_version.js"></script>
     <script src="{{ STATIC_URL }}js/utils.js"></script>
+    {% for file in plugin_js_files %}
+    <script src="{{ STATIC_URL }}js.plugins/{{ file }}"></script>
+    {% endfor %}
     <script type="text/javascript">
       var userProfile;
       var params = deparam();
@@ -106,6 +128,8 @@
           new HatoholNavi(userProfile);
         });
       }
+      //toggleAutorefreshButton is hidden by default.
+      $("#toggleAutoRefreshButton").hide();
     </script>
 
 {% block templates %}
@@ -117,6 +141,6 @@
 {% block logic %}
 {% endblock %}
 
-    <div style="text-align: center;">Copyright &copy; 2013-2014 Project Hatohol</div>
+    <div class="copyright">Copyright &copy; 2013-2015 Project Hatohol</div>
   </body>
 </html>

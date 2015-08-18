@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 var IncidentSettingsView = function(userProfile) {
@@ -53,7 +53,7 @@ var IncidentSettingsView = function(userProfile) {
   });
 
   $("#delete-incident-setting-button").click(function() {
-    var msg = gettext("Do you delete the selected items ?");
+    var msg = gettext("Delete the selected items ?");
     hatoholNoYesMsgBox(msg, deleteActions);
   });
 
@@ -130,11 +130,11 @@ var IncidentSettingsView = function(userProfile) {
   //
   // parser of received json data
   //
-  function getServerNameFromAction(actionsPkt, actionDef) {
+  function getNickNameFromAction(actionsPkt, actionDef) {
     var serverId = actionDef["serverId"];
     if (!serverId)
       return "ANY";
-    return getServerName(actionsPkt["servers"][serverId], serverId);
+    return getNickName(actionsPkt["servers"][serverId], serverId);
   }
 
   function getHostgroupNameFromAction(actionsPkt, actionDef) {
@@ -161,7 +161,7 @@ var IncidentSettingsView = function(userProfile) {
         "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
       s += "<td>" + escapeHTML(actionDef.actionId) + "</td>";
 
-      var serverName = getServerNameFromAction(actionsPkt, actionDef);
+      var serverName = getNickNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(serverName) + "</td>";
 
       var hostgroupName = getHostgroupNameFromAction(actionsPkt, actionDef);
@@ -200,6 +200,13 @@ var IncidentSettingsView = function(userProfile) {
       }
       s += "</td>";
 
+      s += "<td class='edit-incident-setting-column' style='display:none;'>";
+      s += "<input id='edit-incident-setting" + escapeHTML(actionDef.actionId) + "'";
+      s += "  type='button' class='btn btn-default'";
+      s += "  actionId='" + escapeHTML(actionDef.actionId) + "'";
+      s += "  value='" + gettext("EDIT") + "' />";
+      s += "</td>";
+
       s += "</tr>";
     }
 
@@ -214,6 +221,26 @@ var IncidentSettingsView = function(userProfile) {
     return incidentTrackersMap;
   }
 
+  function setupEditButtons(incidentSettingsData) {
+    var i, id, actions = incidentSettingsData["actions"], actionsMap = {};
+    var incidentTrackers = self.incidentTrackersData.incidentTrackers;
+
+    for (i = 0; i < actions.length; ++i)
+      actionsMap[actions[i].actionId] = actions[i];
+
+    for (i = 0; i < actions.length; ++i) {
+      id = "#edit-incident-setting" + actions[i].actionId;
+      $(id).click(function() {
+        var actionId = this.getAttribute("actionId");
+        new HatoholAddActionDialog(load, incidentTrackers, actionsMap[actionId]);
+      });
+    }
+
+    if (userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_INCIDENT_SETTING)) {
+      $(".edit-incident-setting-column").show();
+    }
+  }
+
   function onGotIncidentTrackers(incidentTrackersData) {
     self.incidentTrackersData = incidentTrackersData;
     self.incidentTrackersMap = parseIncidentTrackers(self.incidentTrackersData);
@@ -222,11 +249,12 @@ var IncidentSettingsView = function(userProfile) {
     self.setupCheckboxForDelete($("#delete-incident-setting-button"));
     if (self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_INCIDENT_SETTING))
       $(".delete-selector").show();
+    setupEditButtons(self.incidentSettingsData);
   }
 
   function onGotIncidentSettings(incidentSettingsData) {
     self.incidentSettingsData = incidentSettingsData;
-    self.startConnection("incident-trackers", onGotIncidentTrackers);
+    self.startConnection("incident-tracker", onGotIncidentTrackers);
   }
 
   function getQuery() {

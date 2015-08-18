@@ -3,17 +3,17 @@
 # This file is part of Hatohol.
 #
 # Hatohol is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 2 of the License, or
-# (at your option) any later version.
+# it under the terms of the GNU Lesser General Public License, version 3
+# as published by the Free Software Foundation.
 #
 # Hatohol is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
+# GNU Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Lesser General Public
+# License along with Hatohol. If not, see
+# <http://www.gnu.org/licenses/>.
 
 
 # Django settings for hatohol project.
@@ -35,7 +35,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'hatohol_client',
-        'USER': 'hatohol',          
+        'USER': 'hatohol',
         'PASSWORD': 'hatohol',
         'HOST': '',                      # Set to empty string for localhost.
         'PORT': '',                      # Set to empty string for default.
@@ -101,7 +101,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -111,7 +111,7 @@ SECRET_KEY = '9xkobcf%(rj(u54^zf7+-c^@+59c9dqg&amp;he2ue65v88z&amp;dyy_k'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    # 'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -128,18 +128,19 @@ ROOT_URLCONF = 'hatohol.urls'
 WSGI_APPLICATION = 'hatohol.wsgi.application'
 
 TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Put strings here, like "/home/html/django_templates" or
+    # "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     PROJECT_HOME,
 )
 
 INSTALLED_APPS = (
-    #'django.contrib.auth',
-    #'django.contrib.contenttypes',
-    #'django.contrib.sessions',
-    #'django.contrib.sites',
-    #'django.contrib.messages',
+    # 'django.contrib.auth',
+    # 'django.contrib.contenttypes',
+    # 'django.contrib.sessions',
+    # 'django.contrib.sites',
+    # 'django.contrib.messages',
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
@@ -167,9 +168,9 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        'console':{
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
+        'console': {
+            'level': 'WARNING',
+            'class': 'logging.StreamHandler',
         },
         'syslog': {
             'level': 'INFO',
@@ -182,12 +183,12 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'hatohol' : {
+        'hatohol': {
             'handlers': ['syslog', 'console'],
             'level': 'INFO',
             'propagate': True,
         },
-        'viewer' : {
+        'viewer': {
             'handlers': ['syslog', 'console'],
             'level': 'INFO',
             'propagate': True,

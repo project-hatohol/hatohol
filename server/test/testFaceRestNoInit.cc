@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -32,6 +32,8 @@ using namespace mlpl;
 // ---------------------------------------------------------------------------
 namespace testFaceRestNoInit {
 
+static const char *FORCE_EMPTY_STRING = "#__EMPTY__";
+
 class TestFaceRestNoInit : public RestResourceHost {
 public:
 	static HatoholError callParseEventParameter(
@@ -41,6 +43,18 @@ public:
 		return parseEventParameter(option, query);
 	}
 };
+
+template<typename PARAM_TYPE>
+string format(const PARAM_TYPE &expectValue, const string &fmt)
+{
+	return StringUtils::sprintf(fmt.c_str(), expectValue);
+}
+
+template<>
+string format(const string &expectValue, const string &fmt)
+{
+	return expectValue;
+}
 
 template<typename PARAM_TYPE>
 void _assertParseEventParameterTempl(
@@ -55,7 +69,9 @@ void _assertParseEventParameterTempl(
 
 	string expectStr;
 	if (forceValueStr.empty())
-		expectStr =StringUtils::sprintf(fmt.c_str(), expectValue);
+		expectStr = format<PARAM_TYPE>(expectValue, fmt);
+	else if (forceValueStr == FORCE_EMPTY_STRING)
+		expectStr = "";
 	else
 		expectStr = forceValueStr;
 	g_hash_table_insert(query,
@@ -83,7 +99,7 @@ void _assertParseEventParameterTargetServerId(
 cut_trace(_assertParseEventParameterTargetServerId(E, ##__VA_ARGS__))
 
 void _assertParseEventParameterTargetHostgroupId(
-  const size_t &expectValue, const string &forceValueStr = "",
+  const HostgroupIdType &expectValue, const string &forceValueStr = "",
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
@@ -95,11 +111,11 @@ void _assertParseEventParameterTargetHostgroupId(
 cut_trace(_assertParseEventParameterTargetHostgroupId(E, ##__VA_ARGS__))
 
 void _assertParseEventParameterTargetHostId(
-  const size_t &expectValue, const string &forceValueStr = "",
+  const LocalHostIdType &expectValue, const string &forceValueStr = "",
   const HatoholErrorCode &expectCode = HTERR_OK)
 {
 	assertParseEventParameterTempl(
-	  HostIdType, expectValue, "%" FMT_HOST_ID, "hostId",
+	  LocalHostIdType, expectValue, "%" FMT_LOCAL_HOST_ID, "hostId",
 	  &EventsQueryOption::getTargetHostId, expectCode, forceValueStr);
 }
 #define assertParseEventParameterTargetHostId(E, ...) \
@@ -377,18 +393,18 @@ void test_parseEventParameterNoTargetHostId(void)
 	Reaper<GHashTable> queryReaper(query, g_hash_table_unref);
 	assertHatoholError(
 	  HTERR_OK, TestFaceRestNoInit::callParseEventParameter(option, query));
-	cppcut_assert_equal(ALL_HOSTS, option.getTargetHostId());
+	cppcut_assert_equal(ALL_LOCAL_HOSTS, option.getTargetHostId());
 }
 
 void test_parseEventParameterTargetHostId(void)
 {
-	assertParseEventParameterTargetHostId(456);
+	assertParseEventParameterTargetHostId("456");
 }
 
 void test_parseEventParameterInvalidTargetHostId(void)
 {
 	assertParseEventParameterTargetHostId(
-	  0, "hostid", HTERR_INVALID_PARAMETER);
+	  "", "", HTERR_INVALID_PARAMETER);
 }
 
 void test_parseEventParameterNoTargetHostgroupId(void)
@@ -403,13 +419,13 @@ void test_parseEventParameterNoTargetHostgroupId(void)
 
 void test_parseEventParameterTargetHostgroupId(void)
 {
-	assertParseEventParameterTargetHostgroupId(456);
+	assertParseEventParameterTargetHostgroupId("456");
 }
 
 void test_parseEventParameterInvalidTargetHostgroupId(void)
 {
 	assertParseEventParameterTargetHostgroupId(
-	  0, "hostgroupid", HTERR_INVALID_PARAMETER);
+	  "", "", HTERR_INVALID_PARAMETER);
 }
 
 void test_parseEventParameterNoMinimumSeverity(void)
@@ -468,16 +484,15 @@ void test_parseEventParameterNoTriggerId(void)
 
 void test_parseEventParameterTriggerId(void)
 {
-	TriggerIdType triggerId = 3;
+	TriggerIdType triggerId = "3";
 	assertParseEventParameterTriggerId(triggerId);
 }
 
 void test_parseEventParameterInvalidTriggerId(void)
 {
-	TriggerIdType triggerId = 3;
+	TriggerIdType triggerId = "3";
 	assertParseEventParameterTriggerId(
-	  triggerId, "problem",
-	  HTERR_INVALID_PARAMETER);
+	  triggerId, FORCE_EMPTY_STRING, HTERR_INVALID_PARAMETER);
 }
 
 } // namespace testFaceRestNoInit

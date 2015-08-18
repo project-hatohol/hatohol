@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef Helpers_h
@@ -36,6 +36,7 @@
 
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
 #define DBCONTENT_MAGIC_NULL          "#NULL#"
+#define DBCONTENT_MAGIC_ANY           "#ANY#"
 
 typedef std::pair<int,int>      IntIntPair;
 typedef std::vector<IntIntPair> IntIntPairVector;
@@ -44,7 +45,7 @@ void _assertStringVector(const mlpl::StringVector &expected,
                          const mlpl::StringVector &actual);
 #define assertStringVector(E,A) cut_trace(_assertStringVector(E,A))
 
-void _assertStringVectorVA(const mlpl::StringVector &actual, ...);
+void _assertStringVectorVA(const mlpl::StringVector *actual, ...);
 #define assertStringVectorVA(A,...) \
 cut_trace(_assertStringVectorVA(A,##__VA_ARGS__))
 
@@ -88,9 +89,11 @@ extern void _assertEqual(
   const MonitoringServerInfo &expect, const MonitoringServerInfo &actual);
 extern void _assertEqual(const ArmInfo &expect, const ArmInfo &actual);
 extern void _assertEqual(const ItemInfo &expect, const ItemInfo &actual);
+extern void _assertEqual(const TriggerInfo &expect, const TriggerInfo &actual);
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
 std::string executeCommand(const std::string &commandLine);
+std::string getBaseDir(void);
 std::string getFixturesDir(void);
 bool isVerboseMode(void);
 
@@ -103,8 +106,14 @@ std::string makeServerInfoOutput(const MonitoringServerInfo &serverInfo);
 std::string makeArmPluginInfoOutput(const ArmPluginInfo &armPluginInfo);
 std::string makeIncidentTrackerInfoOutput(const IncidentTrackerInfo &incidentTrackerInfo);
 std::string makeUserRoleInfoOutput(const UserRoleInfo &userRoleInfo);
+std::string makeTriggerOutput(const TriggerInfo &triggerInfo);
 std::string makeEventOutput(const EventInfo &eventInfo);
 std::string makeIncidentOutput(const IncidentInfo &incidentInfo);
+std::string makeHistoryOutput(const HistoryInfo &historyInfo);
+std::string makeItemOutput(const ItemInfo &itemInfo);
+std::string makeHostsOutput(const ServerHostDef &svHostDef, const size_t &id);
+std::string makeHostgroupsOutput(const Hostgroup &hostgrp, const size_t &id);
+std::string makeMapHostsHostgroupsOutput(const HostgroupMember &hostgrpMember, const size_t &id);
 
 void _assertDatetime(int expectedClock, int actualClock);
 #define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))
@@ -219,6 +228,39 @@ void _assertFileContent(const std::string &expect, const std::string &path);
 void _assertGError(const GError *error);
 #define assertGError(E) cut_trace(_assertGError(E))
 
+template<typename T0, typename T1>
+std::string _makeElementsComparisonString(const T0 &exp, const T1 &act)
+{
+	std::stringstream ss;
+	ss << "<<expect>>\n";
+	typename T0::const_iterator it0;
+	for (it0 = exp.begin(); it0 != exp.end(); ++it0) {
+		ss << *it0;
+		ss << ",";
+	}
+	typename T1::const_iterator it1;
+	ss << "\n<<actual>>\n";
+	for (it1 = act.begin(); it1 != act.end(); ++it1) {
+		ss << *it1;
+		ss << ",";
+	}
+	return ss.str();
+}
+#define makeElementsComparisonString(E,A) \
+  _makeElementsComparisonString<__typeof__(E), __typeof__(A)>(E,A)
+
+template<typename T0, typename T1>
+void _assertEqualSize(const T0 &exp, const T1 &act)
+{
+	std::string errMsg;
+	if (exp.size() != act.size())
+		errMsg = makeElementsComparisonString(exp, act);
+	cppcut_assert_equal(exp.size(), act.size(),
+	                    cut_message("%s", errMsg.c_str()));
+}
+#define assertEqualSize(E, A) \
+  cut_trace((_assertEqualSize<__typeof__(E), __typeof__(A)>(E,A)))
+
 void prepareDataWithAndWithoutArmPlugin(void);
 
 VariableItemGroupPtr convert(
@@ -226,6 +268,9 @@ VariableItemGroupPtr convert(
   const ItemCategoryIdType &itemCategoryId = NO_ITEM_CATEGORY_ID);
 
 ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap);
+
+VariableItemGroupPtr convert(const HistoryInfo &historyInfo);
+VariableItemGroupPtr convert(const TriggerInfo &triggerInfo);
 
 class Watcher {
 	bool expired;
@@ -347,7 +392,6 @@ private:
 	std::string m_envVarName;
 	std::string m_origString;
 	bool        m_hasOrigValue;
-	bool        m_changed;
 };
 
 #endif // Helpers_h

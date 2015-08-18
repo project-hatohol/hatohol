@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef HatoholArmPluginInterface_h
@@ -86,6 +86,20 @@ enum HapiCommandCode {
 	// Sv -> Cl
 	HAPI_CMD_REQ_FETCH_ITEMS,
 	HAPI_CMD_REQ_TERMINATE,
+
+	// Since 14.12
+	// Sv -> Cl
+	HAPI_CMD_REQ_FETCH_HISTORY,
+
+	// Since 15.03
+	// Sv -> Cl
+	HAPI_CMD_REQ_FETCH_TRIGGERS,
+	// Cl -> Sv
+	HAPI_CMD_SEND_ALL_TRIGGERS,
+	HAPI_CMD_GET_IF_HOSTS_CHANGED,
+	HAPI_CMD_GET_SHOULD_LOAD_OLD_EVENT,
+
+	// Sv -> Cl
 	NUM_HAPI_CMD
 };
 
@@ -99,6 +113,15 @@ enum HapiResponseCode {
 
 	// Cl -> Sv
 	HAPI_RES_ITEMS,
+
+	// Since 14.12
+	// Cl -> Sv
+	HAPI_RES_HISTORY,
+
+	// Since 15.03
+	// Cl -> Sv
+	HAPI_RES_TRIGGERS,
+
 	NUM_HAPI_CMD_RES
 };
 
@@ -186,7 +209,8 @@ struct HapiArmInfo {
 } __attribute__((__packed__));
 
 struct HapiParamTimeOfLastEvent {
-	uint64_t triggerId;
+	uint16_t triggerIdLength; // Not include the NULL terminator
+	uint16_t triggerIdOffset; // from the top of this structure
 } __attribute__((__packed__));
 
 struct HapiResponseHeader {
@@ -227,7 +251,9 @@ struct HapiResTimestampOfLastTrigger {
 } __attribute__((__packed__));
 
 struct HapiResLastEventId {
-	uint64_t lastEventId;
+	uint16_t lastEventIdLength;  // Not include the NULL terminator
+	uint16_t lastEventIdOffset;  // from the top of this structure
+	// Body of lastEventId (including NULL terminator)
 } __attribute__((__packed__));
 
 struct HapiResTimeOfLastEvent {
@@ -240,6 +266,25 @@ struct HapiHapSelfTriggers {
 	// Traling data is an array of HatoholArmPluginWatchType.
 } __attribute__((__packed__));
 
+struct HapiParamReqFetchHistory {
+	uint16_t hostIdLength;  // Not include the NULL terminator
+	uint16_t hostIdOffset;  // from the top of this structure
+	uint16_t itemIdLength;  // Not include the NULL terminator
+	uint16_t itemIdOffset;  // from the top of this structure
+	uint16_t valueType;
+	uint64_t beginTime;
+	uint64_t endTime;
+	// Body of hostId  (including NULL terminator)
+	// Body of itemId  (including NULL terminator)
+} __attribute__((__packed__));
+
+struct HapiTriggerCollect {
+	uint64_t type;
+} __attribute__((__packed__));
+
+struct HapiResShouldLoadOldEvent {
+	uint64_t type;
+} __attribute__((__packed__));
 
 class HatoholArmPluginInterface :
   public HatoholThreadBase, public EndianConverter {
@@ -295,6 +340,8 @@ public:
 	           const mlpl::SmartBuffer &replyBuf);
 	void replyError(const HapiResponseCode &code);
 	void replyOk(void);
+
+	bool isConnetced(void);
 
 	/**
 	 * Register a message receive callback method.

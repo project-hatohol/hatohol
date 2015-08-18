@@ -1,0 +1,83 @@
+{% extends "viewer/base_ajax.html" %}
+{% load i18n %}
+
+{% comment %}
+  Copyright (C) 2014 Project Hatohol
+
+  This file is part of Hatohol.
+
+  Hatohol is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License, version 3
+  as published by the Free Software Foundation.
+
+  Hatohol is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with Hatohol. If not, see
+  <http://www.gnu.org/licenses/>.
+{% endcomment %}
+
+{% block title %}
+{% trans "Log search systems" %}
+{% endblock %}
+
+{% block main %}
+<div id="main">
+  <h2>{% trans "Log search systems" %}</h2>
+
+  <form class="form-inline">
+    <div class="btn-toolbar" role="toolbar">
+      <button id="add-log-search-system-button"
+              type="button"
+              class="btn btn-default">
+        <span class="glyphicon glyphicon-plus"></span>
+        {% trans "ADD" %}
+      </button>
+      <button id="delete-log-search-system-button"
+              type="button"
+              class="btn btn-default"
+              style="display: none;"
+              disabled>
+        <span class="glyphicon glyphicon-remove"></span>
+        {% trans "DELETE" %}
+      </button>
+    </div>
+  </form>
+  <div id="msgbox" title="Message Box">
+    <p id="msgbox-text"></p>
+  </div>
+
+  <form id="add-log-search-system-form" method="post"> {% csrf_token %}
+  </form>
+
+  <table class="table table-condensed table-hover" id="table">
+    <thead>
+      <tr>
+        <th class="delete-selector" style="display:none;">  </th>
+        <th> ID </th>
+        <th> {% trans "Type" %} </th>
+        <th> {% trans "Base URL" %} </th>
+        <th class="edit-log-search-system-column" style="display:none;">  </th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block option %}
+  <script src="{{ STATIC_URL }}js/hatohol_log_search_system_editor.js"></script>
+{% endblock %}
+
+{% block logic %}
+  <script src="{{ STATIC_URL }}js/log_search_systems_view.js"></script>
+  <script type="text/javascript">
+    userProfile.addOnLoadCb(function() {
+      var view = new LogSearchSystemsView(userProfile);
+    });
+  </script>
+{% endblock %}

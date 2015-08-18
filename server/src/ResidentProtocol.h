@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef ResidentProtocol_h
@@ -22,6 +22,7 @@
 
 #include <cstdlib>
 #include <stdint.h>
+#include <SmartBuffer.h>
 
 // definitions of packet types
 enum
@@ -34,6 +35,12 @@ enum
 };
 
 static const uint16_t HATOHOL_SESSION_ID_LEN = 36;
+
+// This structure should be identical to mlpl::SmartBuffer::StringHeader
+struct ResidentStringHeader {
+	uint32_t size;
+	int32_t  offset;
+} __attribute__((__packed__)) ;
 
 // NOTE: Characters in Bytes column in this file means the following.
 //  'U': Unsigned integer.
@@ -106,7 +113,8 @@ static const size_t RESIDENT_PROTO_MODULE_LOADED_CODE_LEN = 4;
 
 static const size_t RESIDENT_PROTO_EVENT_ACTION_ID_LEN        = 4;
 static const size_t RESIDENT_PROTO_EVENT_SERVER_ID_LEN        = 4;
-static const size_t RESIDENT_PROTO_EVENT_HOST_ID              = 8;
+static const size_t RESIDENT_PROTO_EVENT_HOST_ID_HEADER_LEN
+                      = sizeof(ResidentStringHeader);
 static const size_t RESIDENT_PROTO_EVENT_EVENT_TIME_SEC_LEN   = 8;
 static const size_t RESIDENT_PROTO_EVENT_EVENT_TIME_NSEC_LEN  = 4;
 static const size_t RESIDENT_PROTO_EVENT_EVENT_ID_LEN         = 8;
@@ -115,10 +123,10 @@ static const size_t RESIDENT_PROTO_EVENT_TRIGGER_ID_LEN       = 8;
 static const size_t RESIDENT_PROTO_EVENT_TRIGGER_STATUS_LEN   = 2;
 static const size_t RESIDENT_PROTO_EVENT_TRIGGER_SEVERITY_LEN = 2;
 
-static const size_t RESIDENT_PROTO_EVENT_BODY_LEN =
+static const size_t RESIDENT_PROTO_EVENT_BODY_BASE_LEN =
  RESIDENT_PROTO_EVENT_ACTION_ID_LEN +
  RESIDENT_PROTO_EVENT_SERVER_ID_LEN +
- RESIDENT_PROTO_EVENT_HOST_ID +
+ RESIDENT_PROTO_EVENT_HOST_ID_HEADER_LEN +
  RESIDENT_PROTO_EVENT_EVENT_TIME_SEC_LEN +
  RESIDENT_PROTO_EVENT_EVENT_TIME_NSEC_LEN +
  RESIDENT_PROTO_EVENT_EVENT_ID_LEN  +
@@ -144,16 +152,16 @@ static const size_t RESIDENT_PROTO_EVENT_ACK_CODE_LEN = 4;
 #define RESIDENT_MODULE_SYMBOL_STR "hatohol_resident_module"
 
 // 1 -> 2: Add sessionId
-static const uint16_t RESIDENT_MODULE_VERSION = 2;
+static const uint16_t RESIDENT_MODULE_VERSION = 3;
 
 struct ResidentNotifyEventArg {
 	uint32_t actionId;
 	uint32_t serverId;
-	uint64_t hostId;
+	const char *hostIdInServer;
 	timespec time;
-	uint64_t eventId;
+	const char *eventId;
 	uint16_t eventType;
-	uint64_t triggerId;
+	const char *triggerId;
 	uint16_t triggerStatus;
 	uint16_t triggerSeverity;
 	char sessionId[HATOHOL_SESSION_ID_LEN+1]; // +1 means NULL terminator

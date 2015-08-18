@@ -1,3 +1,126 @@
+2015-07-10 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 15.06
+
+	* New Features
+	- [Server] Initial support of Hatohol Arm Plugin Interface 2.0("HAPI2.0")
+	  (https://github.com/project-hatohol/HAPI-2.0-Specification) over AMQP.
+	- [Hap2] Initial implementation of HAPI2.0 plugin for Zabbix, Nagios,
+	  Ceilometer and Fluentd.
+	- [Client] Remove "Previous value" column on LatestData page. (#945)
+	- [Client] Eliminate "self monitoring" from filtering list on "LatestData"
+	  and "Overview: Items" pages. (#922)
+
+	* Bug Fixes
+	- [Client] Solve a problem that reset sort order when page is updated.
+	  (#912, #953)
+
+	* Contributer
+	- Kazuhiro Yamato
+	- Takuro Ashie
+	- Hiroshi Hatake
+	- Masayuki Nakagawa
+	- Toshihiko Miyazawa
+
+2015-03-31 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 15.03
+
+	* New Features
+	- [LICENSE] Change the license to LGPLv3.
+	- [WebUI] Graph: Support multiple items.
+	- [Server] Graphs for Ceilometer items.
+	- [Server] Supress loading old events at first by default.
+        NOTE: You can restore old behavior by --load-old-events option.
+	- [WebUI] Colorize fired triggers and events only.
+	- [Server] Save some information such as Event IDs, Host IDs, and
+	  Trigger IDs as strings without irreversible integer transform.
+        NOTE: This breaks compatibility of DB schema with the previous
+	    versions of Hatohol. If you would like to migrate them, contact
+	    us via mailing lists or GitHub's issue.
+	- [WebUI][Server] Support editing actions and incident Settings. (#828)
+	- [WebUI][Server] Support Zabbix macro expansion in triggers and events
+	  page. (#958, #959, #967, #970, #974, #983)
+	- [Server] Support updating server_types individually. (#1000, 1002)
+	- [WebUI] Add event detail links for Zabbix web interface. (#1079)
+	- [Package] Experimental support for CentOS 7. (#757)
+	- [WebUI] Improve pagination. (#818)
+	- [Server] hatohol-db-initiator uses hatohol.conf. (#1004)
+	- [Server] Synchronize trigger of the monitoring server at user request.
+	  (#20)
+	- [Server] Hide the trigger and items of invalid host.
+
+	* Bug Fixes
+	- [Server] Fix a crash problem when an invalid URL is registered for an
+	  incident tracking server. (#955)
+	- [Server] "New values per second" shows appropriate value for HAPI
+	  Zabbix. (#1083)
+	- [WebUI] Resume deleting actions after session timeout and reconnect.
+	  (#938)
+	- [WebUI] Prevent clients (browsers/proxy servers) from caching web
+	  requests/responses.
+	- [WebUI][Server] Fix a bug which displays unknown user type after
+	  updating user privileges. (#890)
+	- [WebUI][Server] Fix a bug which is not reflecting change about
+	  incident monitoring server settings. (#839)
+	- [WebUI][Server] Support generating Nagios WebUI link by user specified
+	  URL. (#839)
+	- [WebUI] Prevent user from deleting hisown profile. (#767)
+	- [Server] Add a update process of hostname. (#815)
+	- [Server] Add disable Zabbix hosts to monitoring host. (#933)
+	- [Server] Avoid registering duplicate items, triggers hosts and
+	  hostgroups of Nagios (#1151)
+
+    * Contributer
+    - Hiroshi Hatake
+    - Kazuhiro Yamato
+    - Kouhei Sutou
+    - Masayuki Nakagawa
+    - Mnakagawa
+    - Noriki Nakamura
+    - Takuro Ashie
+    - Toshihiko Miyazawa
+    - YOSHIFUJI Hideaki
+    - o-wakabayashi
+
+2014-12-26 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12
+
+	* New Features
+	[Spec] Change package names to user friendly ones
+	[Server] Support items for Ceilometer (#668)
+	[Server] Log monitoring integration with Fluentd
+	[WebUI] Log search system integration (#792, #795)
+	[Server] Graphs for Zabbix items (#774)
+	[WebUI] Support adding multiple servers by uploading tab-saparated
+	value file (#789,#794)
+	[WebUI] Show units of item values (#749)
+	[WebUI] Add a button to open a dialog to edit user roles to "Users"
+	page (#754)
+	[Server] Move a client side filter on "Latest data" page to server side
+	(#835)
+	[WebUI] Add a toggle button to trun on/off auto reload (#822, #823)
+	[WebUI] Add menu items to show Hatohol's version & documents (#714)
+	[WebUI] Show last update time (#667)
+
+	* Bugfixes
+	[Server] Fix a problem in which child processes are not collected (#727)
+	[Server] Plug memory leaks (#747, #772, #838)
+	[Server] Validate URL of incident tracking servers to avoid crash (#665)
+	[Server] Fix a wrong count of bad hosts (#730)
+	[Server] Fix a bug that self monitoring events are tied to incorrect
+	incidents (#725)
+	[Server] Suppress generating needless self monitoring triggers
+	(#736, #805)
+	[WebUI] Fix invisible "DELETE" buttons on "Users", "Actions" and
+	"Monitoring servers" pages on certain conditions (#686, #691, #716)
+
+	* Contributer
+	- Hiroshi Hatake
+	- Kazuhiro Yamato
+	- Kouhei Sutou
+	- Masayuki Nakagawa
+	- Noriki Nakamura
+	- Takanori Suzuki
+	- Takuro Ashie
+	- YOSHIFUJI Hideaki
+	- Osamu Wakabayashi
+
 2014-09-25 Noriki Nakamura <noriki.nakamura@miraclelinux.com> 14.09
 
 	* New Features

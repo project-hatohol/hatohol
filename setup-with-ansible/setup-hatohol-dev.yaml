@@ -1,7 +1,11 @@
 - hosts: targets
   user: root
-  tasks:
-    - include: ubuntu.yml
-      when: ansible_distribution == "Ubuntu"
-    - include: centos.yml
-      when: ansible_distribution == "CentOS"
+
+  roles:
+    - upgrade-server
+    - software-properties-common
+    - toolchain
+    - libraries
+    - cutter
+    - python
+    - nodejs

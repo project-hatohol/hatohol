@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cppcutter.h>
@@ -25,7 +25,9 @@
 #include "ThreadLocalDBCache.h"
 #include "DBTablesTest.h"
 #include "UnifiedDataStore.h"
+#ifdef WITH_QPID
 #include "HatoholArmPluginInterface.h"
+#endif
 #include "FaceRestTestUtils.h"
 using namespace std;
 using namespace mlpl;
@@ -57,7 +59,8 @@ static void setupArmPluginInfo(
 	armPluginInfo.id = AUTO_INCREMENT_VALUE;
 	armPluginInfo.type = serverInfo.type;
 	armPluginInfo.path =
-	  DBTablesConfig::getDefaultPluginPath(armPluginInfo.type);
+	  DBTablesConfig::getDefaultPluginPath(armPluginInfo.type,
+					       armPluginInfo.uuid);
 	armPluginInfo.brokerUrl = "abc.example.com:22222";
 	armPluginInfo.staticQueueAddress = "";
 	armPluginInfo.serverId = serverInfo.id;
@@ -71,7 +74,7 @@ static void assertServersInParser(
 	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		parser->startElement(i);
-		MonitoringServerInfo &svInfo = testServerInfo[i];
+		const MonitoringServerInfo &svInfo = testServerInfo[i];
 		assertValueInParser(parser, "id",   svInfo.id);
 		assertValueInParser(parser, "type", svInfo.type);
 		assertValueInParser(parser, "hostName",  svInfo.hostName);
@@ -82,6 +85,10 @@ static void assertServersInParser(
 				    svInfo.pollingIntervalSec);
 		assertValueInParser(parser, "retryInterval",
 				    svInfo.retryIntervalSec);
+		assertValueInParser(parser, "baseURL",
+				    svInfo.baseURL);
+		assertValueInParser(parser, "extendedInfo",
+				    svInfo.extendedInfo);
 		if (shouldHaveAccountInfo) {
 			assertValueInParser(parser, "userName",
 					    svInfo.userName);
@@ -118,7 +125,8 @@ void _assertAddServerWithSetup(const StringMap &params,
 			       const HatoholErrorCode &expectCode)
 {
 	const UserIdType userId = findUserWith(OPPRVLG_CREATE_SERVER);
-	assertAddServer(params, userId, expectCode, NumTestServerInfo + 1);
+	assertAddServer(params, userId, expectCode,
+	                testServerInfo[NumTestServerInfo-1].id + 1);
 }
 #define assertAddServerWithSetup(P,C) cut_trace(_assertAddServerWithSetup(P,C))
 
@@ -195,13 +203,15 @@ static void serverInfo2StringMap(
 	  = StringUtils::toString(src.pollingIntervalSec);
 	dest["retryInterval"]
 	  = StringUtils::toString(src.retryIntervalSec);
+	dest["baseURL"] = src.baseURL;
+	dest["extendedInfo"] = src.extendedInfo;
 }
 
 void test_addServer(void)
 {
 	MonitoringServerInfo expected;
 	MonitoringServerInfo::initialize(expected);
-	expected.id = NumTestServerInfo + 1;
+	expected.id = testServerInfo[NumTestServerInfo-1].id + 1;
 	expected.type = MONITORING_SYSTEM_ZABBIX;
 
 	StringMap params;
@@ -217,11 +227,12 @@ void test_addServer(void)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
+#ifdef WITH_QPID
 void test_addServerWithHapiParams(void)
 {
 	MonitoringServerInfo expected;
 	MonitoringServerInfo::initialize(expected);
-	expected.id = NumTestServerInfo + 1;
+	expected.id = testServerInfo[NumTestServerInfo-1].id + 1;
 	expected.type = MONITORING_SYSTEM_HAPI_ZABBIX;
 
 	ArmPluginInfo armPluginInfo;
@@ -242,12 +253,13 @@ void test_addServerWithHapiParams(void)
 	string expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
+#endif
 
 void test_addServerHapiJSON(void)
 {
 	MonitoringServerInfo expected;
 	MonitoringServerInfo::initialize(expected);
-	expected.id = NumTestServerInfo + 1;
+	expected.id = testServerInfo[NumTestServerInfo-1].id + 1;
 	expected.type = MONITORING_SYSTEM_HAPI_JSON;
 	expected.nickname = "JSON";
 	expected.hostName = "";
@@ -269,6 +281,7 @@ void test_addServerHapiJSON(void)
 	params["tlsCACertificatePath"] = armPluginInfo.tlsCACertificatePath;
 	if (armPluginInfo.tlsEnableVerify)
 		params["tlsEnableVerify"] = "true";
+	params["uuid"] = armPluginInfo.uuid;
 
 #ifdef HAVE_LIBRABBITMQ
 	assertAddServerWithSetup(params, HTERR_OK);
@@ -319,6 +332,11 @@ void test_updateServer(gconstpointer data)
 	MonitoringServerInfo srcSvInfo = testServerInfo[serverIndex];
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	ArmPluginInfo *armPluginInfo = NULL;
+
+	// Although cut_setup() loads test servers in the DB, updateServer()
+	// needs the call of addTargetServer() before it. Or the internal
+	// state becomes wrong and an error is returned.
+	srcSvInfo.id = AUTO_INCREMENT_VALUE;
 	assertHatoholError(
 	  HTERR_OK,
 	  uds->addTargetServer(srcSvInfo, *armPluginInfo,
@@ -351,6 +369,7 @@ void test_updateServer(gconstpointer data)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
+#ifdef WITH_QPID
 void test_updateServerWithArmPlugin(void)
 {
 	startFaceRest();
@@ -403,6 +422,7 @@ void test_updateServerWithArmPlugin(void)
 	expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
+#endif
 
 void test_deleteServer(void)
 {
@@ -413,7 +433,7 @@ void test_deleteServer(void)
 
 	// a copy is necessary not to change the source.
 	MonitoringServerInfo targetSvInfo = testServerInfo[0];
-
+	targetSvInfo.id = AUTO_INCREMENT_VALUE;
 	assertHatoholError(
 	  HTERR_OK,
 	  uds->addTargetServer(targetSvInfo, *armPluginInfo,
@@ -456,6 +476,7 @@ void test_getServerType(void)
 		assertValueInParser(g_parser, "name", svTypeInfo.name);
 		assertValueInParser(g_parser, "parameters",
 		                    svTypeInfo.parameters);
+		assertValueInParser(g_parser, "uuid", svTypeInfo.uuid);
 		g_parser->endElement();
 	}
 	g_parser->endObject(); // serverType

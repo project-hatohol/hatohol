@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <gcutter.h>
@@ -243,6 +243,67 @@ void test_parseLogLevel(gconstpointer data)
 	cut_assert_errno();
 	cppcut_assert_not_null(currEnv);
 	cppcut_assert_equal(level, string(currEnv));
+}
+
+void test_parseFaceRestNumWorkersDefault(void)
+{
+	int actual = ConfigManager::getInstance()->getFaceRestNumWorkers();
+	if (actual > 0) {
+		cppcut_assert_equal(4, actual);
+	} else {
+		cppcut_assert_equal(0, actual);
+	}
+}
+
+void data_parseFaceRestNumWorkers(void)
+{
+	int expect = ConfigManager::getInstance()->getFaceRestNumWorkers();
+	gcut_add_datum("Negative",
+		       "data", G_TYPE_INT, -1,
+		       "expect", G_TYPE_INT, expect,
+		       NULL);
+	gcut_add_datum("Zero",
+		       "data", G_TYPE_INT, 0,
+		       "expect", G_TYPE_INT, expect,
+		       NULL);
+	gcut_add_datum("One",
+		       "data", G_TYPE_INT, 1,
+		       "expect", G_TYPE_INT, 1,
+		       NULL);
+}
+
+void test_parseFaceRestNumWorkers(gconstpointer data)
+{
+	int val = gcut_data_get_int(data, "data");
+	string str = StringUtils::sprintf("%d", val);
+	int expect = gcut_data_get_int(data, "expect");
+
+	CommandArgHelper cmds;
+	cmds << "--face-rest-workers";
+	cmds << str.c_str();
+	cmds.activate();
+
+	cppcut_assert_equal(
+		ConfigManager::getInstance()->getFaceRestNumWorkers(),
+		expect);
+}
+
+void test_setFaceRestNumWorkers(void)
+{
+	const int numWorker = 10;
+	ConfigManager *mng = ConfigManager::getInstance();
+	mng->setFaceRestNumWorkers(numWorker);
+	cppcut_assert_equal(numWorker, mng->getFaceRestNumWorkers());
+}
+
+void test_getFaceRestNumWorkers(void)
+{
+	ConfigManager *mng = ConfigManager::getInstance();
+	int numWorker = mng->getFaceRestNumWorkers();
+	int expect = numWorker + 5;
+	mng->setFaceRestNumWorkers(expect);
+	int actual = mng->getFaceRestNumWorkers();
+	cppcut_assert_equal(expect, actual);
 }
 
 } // namespace testConfigManager

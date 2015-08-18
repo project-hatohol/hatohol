@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef ArmBase_h
@@ -30,26 +30,15 @@ class ArmBase : public HatoholThreadBase
 {
 public:
 	typedef enum {
-		UPDATE_POLLING,
-		UPDATE_ITEM_REQUEST,
-	} UpdateType;
-
-	typedef enum {
 		COLLECT_NG_PARSER_ERROR = 0,
 		COLLECT_NG_DISCONNECT_ZABBIX,
 		COLLECT_NG_DISCONNECT_NAGIOS,
 		COLLECT_NG_DISCONNECT_REDMINE,
 		COLLECT_NG_INTERNAL_ERROR,
+		COLLECT_NG_OBJECT_GONE,
 		NUM_COLLECT_NG_KIND,
 		COLLECT_OK,
 	} ArmPollingResult;
-
-	struct ArmResultTriggerInfo {
-		TriggerStatusType statusType;
-		TriggerIdType triggerId;
-		std::string msg;
-	};
-
 public:
 	ArmBase(const std::string &name,
 	        const MonitoringServerInfo &serverInfo);
@@ -62,7 +51,12 @@ public:
 	const ArmStatus &getArmStatus(void) const;
 
 	virtual bool isFetchItemsSupported(void) const;
-	virtual void fetchItems(ClosureBase *closure = NULL);
+	virtual void fetchItems(Closure0 *closure = NULL);
+	virtual void fetchTriggers(Closure0 *closure = NULL);
+	virtual void fetchHistory(const ItemInfo &itemInfo,
+				  const time_t &beginTime,
+				  const time_t &endTime,
+				  Closure1<HistoryInfoVect> *closure);
 
 	void setPollingInterval(int sec);
 	int getPollingInterval(void) const;
@@ -78,6 +72,8 @@ public:
 	void registerAvailableTrigger(const ArmPollingResult &type,
 				      const TriggerIdType  &trrigerId,
 				      const HatoholError   &hatholError);
+	bool hasTrigger(const ArmPollingResult &type);
+
 protected:
 	/**
 	 * Request to exit the thread and wait for the complition.
@@ -98,20 +94,20 @@ protected:
 
 	// virtual methods defined in this class
 	virtual ArmPollingResult mainThreadOneProc(void) = 0;
-
-	UpdateType getUpdateType(void) const;
-	void       setUpdateType(UpdateType updateType);
+	virtual ArmPollingResult mainThreadOneProcFetchItems(void);
+	virtual ArmPollingResult mainThreadOneProcFetchHistory(
+	  HistoryInfoVect &historyInfoVect,
+	  const ItemInfo &itemInfo,
+	  const time_t &beginTime,
+	  const time_t &endTime);
+	virtual ArmPollingResult mainThreadOneProcFetchTriggers(void);
 
 	void getArmStatus(ArmStatus *&armStatus);
 	void setFailureInfo(
 	  const std::string &comment,
 	  const ArmWorkingStatus &status = ARM_WORK_STAT_FAILURE);
 	
-	void createTriggerInfo(const ArmResultTriggerInfo &resTrigger,
-			       TriggerInfoList &triggerInfoList);
-	void createEventInfo(const ArmResultTriggerInfo &resTrigger,
-			     EventInfoList &eventInfoList);
-	void setInitialTrrigerStatus(void);
+	void setInitialTriggerStatus(void);
 
 private:
 	struct Impl;

@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <errno.h>
@@ -28,20 +28,25 @@
 using namespace std;
 using namespace mlpl;
 
+struct FetcherJob {
+	LocalHostIdType hostId;
+	DataStore *dataStore;
+};
+
 struct ItemFetchWorker::Impl
 {
-	const static size_t      maxRunningArms    = 8;
+	const static size_t      maxRunningFetchers = 8;
 	const static timespec    minUpdateInterval;
 
-	ReadWriteLock   rwlock;
-	DataStoreVector updateArmsQueue;
-	size_t          remainingArmsCount;
-	SmartTime       nextAllowedUpdateTime;
-	sem_t           updatedSemaphore;
-	Signal          itemFetchedSignal;
+	ReadWriteLock           rwlock;
+	std::deque<FetcherJob>  fetcherJobQueue;
+	size_t                  remainingFetchersCount;
+	SmartTime               nextAllowedUpdateTime;
+	sem_t                   updatedSemaphore;
+	Signal0                 itemFetchedSignal;
 
 	Impl(void)
-	: remainingArmsCount(0)
+	: remainingFetchersCount(0)
 	{
 		sem_init(&updatedSemaphore, 0, 0);
 	}
@@ -67,10 +72,17 @@ ItemFetchWorker::~ItemFetchWorker()
 }
 
 bool ItemFetchWorker::start(
-  const ServerIdType &targetServerId, ClosureBase *closure)
+  const ItemsQueryOption &option, Closure0 *closure)
 {
 	DataStoreVector allDataStores =
 	  UnifiedDataStore::getInstance()->getDataStoreVector();
+
+	const ServerIdType targetServerId = option.getTargetServerId();
+	const LocalHostIdType targetHostId = option.getTargetHostId();
+	LocalHostIdVector targetHostIds;
+	if (targetHostId != ALL_LOCAL_HOSTS) {
+		targetHostIds.push_back(targetHostId);
+	}
 
 	if (allDataStores.empty())
 		return false;
@@ -78,31 +90,32 @@ bool ItemFetchWorker::start(
 	m_impl->rwlock.writeLock();
 	if (closure)
 		m_impl->itemFetchedSignal.connect(closure);
-	m_impl->remainingArmsCount = allDataStores.size();
+	m_impl->remainingFetchersCount = allDataStores.size();
 	for (size_t i = 0; i < allDataStores.size(); i++) {
 		DataStore *dataStore = allDataStores[i];
 
 		bool shouldWake = true;
-		ArmBase &arm = dataStore->getArmBase();
 		if (targetServerId != ALL_SERVERS &&
-		    targetServerId != arm.getServerInfo().id)
+		    targetServerId != dataStore->getMonitoringServerInfo().id)
 			shouldWake = false;
-		else if (!arm.isFetchItemsSupported())
+		else if (!dataStore->isFetchItemsSupported())
 			shouldWake = false;
 
 		if (!shouldWake) {
-			m_impl->remainingArmsCount--;
+			m_impl->remainingFetchersCount--;
 			dataStore->unref();
 			continue;
 		}
 
-		if (i < Impl::maxRunningArms)
-			wakeArm(dataStore);
-		else
-			m_impl->updateArmsQueue.push_back(dataStore);
+		if (i < Impl::maxRunningFetchers){
+			if (!runFetcher(targetHostIds, dataStore))
+				m_impl->remainingFetchersCount--;
+		} else {
+			m_impl->fetcherJobQueue.push_back({targetHostId, dataStore});
+		}
 	}
 
-	bool started = m_impl->remainingArmsCount > 0;
+	bool started = m_impl->remainingFetchersCount > 0;
 	m_impl->rwlock.unlock();
 
 	return started;
@@ -113,7 +126,7 @@ bool ItemFetchWorker::updateIsNeeded(void)
 	m_impl->rwlock.readLock();
 	Reaper<ReadWriteLock> lockReaper(&m_impl->rwlock, ReadWriteLock::unlock);
 
-	if (m_impl->remainingArmsCount > 0)
+	if (m_impl->remainingFetchersCount > 0)
 		return false;
 
 	SmartTime currTime(SmartTime::INIT_CURR_TIME);
@@ -129,19 +142,23 @@ void ItemFetchWorker::waitCompletion(void)
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void ItemFetchWorker::updatedCallback(ClosureBase *closure)
+void ItemFetchWorker::updatedCallback(Closure0 *closure)
 {
 	m_impl->rwlock.writeLock();
 	Reaper<ReadWriteLock> lockReaper(&m_impl->rwlock, ReadWriteLock::unlock);
 
-	DataStoreVector &updateArmsQueue = m_impl->updateArmsQueue;
-	if (!updateArmsQueue.empty()) {
-		wakeArm(updateArmsQueue.front());
-		updateArmsQueue.erase(updateArmsQueue.begin());
+	auto &fetcherJob = m_impl->fetcherJobQueue;
+	if (!fetcherJob.empty()) {
+		runFetcher({fetcherJob.front().hostId}, fetcherJob.front().dataStore);
+		fetcherJob.pop_front();
 	}
 
-	m_impl->remainingArmsCount--;
-	if (m_impl->remainingArmsCount > 0)
+	if (m_impl->remainingFetchersCount <= 0)
+		return;
+	else
+		m_impl->remainingFetchersCount--;
+
+	if (m_impl->remainingFetchersCount > 0)
 		return;
 
 	if (sem_post(&m_impl->updatedSemaphore) == -1)
@@ -152,15 +169,16 @@ void ItemFetchWorker::updatedCallback(ClosureBase *closure)
 	m_impl->itemFetchedSignal.clear();
 }
 
-void ItemFetchWorker::wakeArm(DataStore *dataStore)
+bool ItemFetchWorker::runFetcher(const LocalHostIdVector targetHostIds,
+				 DataStore *dataStore)
 {
-	struct ClosureWithDataStore : public Closure<ItemFetchWorker>
+	struct ClosureWithDataStore : public ClosureTemplate0<ItemFetchWorker>
 	{
 		DataStore *dataStore;
 
 		ClosureWithDataStore(ItemFetchWorker *impl, DataStore *ds)
-		: Closure<ItemFetchWorker>(impl,
-		                           &ItemFetchWorker::updatedCallback),
+		: ClosureTemplate0<ItemFetchWorker>(
+		    impl, &ItemFetchWorker::updatedCallback),
 		  dataStore(ds)
 		{
 		}
@@ -171,7 +189,6 @@ void ItemFetchWorker::wakeArm(DataStore *dataStore)
 		}
 	};
 
-	dataStore->startOnDemandFetchItem(
-	  new ClosureWithDataStore(this, dataStore));
+	return dataStore->startOnDemandFetchItems(
+	  targetHostIds, new ClosureWithDataStore(this, dataStore));
 }
-

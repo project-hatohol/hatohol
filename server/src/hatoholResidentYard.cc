@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -79,7 +79,7 @@ static gboolean readPipeCb
 	Impl *impl = static_cast<Impl *>(data);
 	MLPL_ERR("Error: condition: %x\n", condition);
 	requestQuit(impl);
-	return TRUE;
+	return G_SOURCE_REMOVE;
 }
 
 static gboolean writePipeCb
@@ -88,7 +88,7 @@ static gboolean writePipeCb
 	Impl *impl = static_cast<Impl *>(data);
 	MLPL_ERR("Error: condition: %x\n", condition);
 	requestQuit(impl);
-	return TRUE;
+	return G_SOURCE_REMOVE;
 }
 
 static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size,
@@ -100,12 +100,15 @@ static void gotNotifyEventBodyCb(GIOStatus stat, mlpl::SmartBuffer &sbuf,
 	ResidentNotifyEventArg arg;
 	arg.actionId        = *sbuf.getPointerAndIncIndex<uint32_t>();
 	arg.serverId        = *sbuf.getPointerAndIncIndex<uint32_t>();
-	arg.hostId          = *sbuf.getPointerAndIncIndex<uint64_t>();
+	const string hostIdInServer = sbuf.extractStringAndIncIndex();
+	arg.hostIdInServer  = hostIdInServer.c_str();
 	arg.time.tv_sec     = *sbuf.getPointerAndIncIndex<uint64_t>();
 	arg.time.tv_nsec    = *sbuf.getPointerAndIncIndex<uint32_t>();
-	arg.eventId         = *sbuf.getPointerAndIncIndex<uint64_t>();
+	const string eventId = sbuf.extractStringAndIncIndex();
+	arg.eventId         = eventId.c_str();
 	arg.eventType       = *sbuf.getPointerAndIncIndex<uint16_t>();
-	arg.triggerId       = *sbuf.getPointerAndIncIndex<uint64_t>();
+	const string triggerId = sbuf.extractStringAndIncIndex();
+	arg.triggerId       = triggerId.c_str();
 	arg.triggerStatus   = *sbuf.getPointerAndIncIndex<uint16_t>();
 	arg.triggerSeverity = *sbuf.getPointerAndIncIndex<uint16_t>();
 	memcpy(arg.sessionId, sbuf.getPointer<char>(), HATOHOL_SESSION_ID_LEN);
@@ -134,8 +137,8 @@ static void eventCb(GIOStatus stat, SmartBuffer &sbuf, size_t size,
 	int pktType = ResidentCommunicator::getPacketType(sbuf);
 	if (pktType == RESIDENT_PROTO_PKT_TYPE_NOTIFY_EVENT) {
 		// request to get the body
-		impl->pullData(RESIDENT_PROTO_EVENT_BODY_LEN,
-		              gotNotifyEventBodyCb);
+		impl->pullData(ResidentCommunicator::getBodySize(sbuf),
+		               gotNotifyEventBodyCb);
 	} else {
 		MLPL_ERR("Unexpected packet: %d\n", pktType);
 		requestQuit(impl);

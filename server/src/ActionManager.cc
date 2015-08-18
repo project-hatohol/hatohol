@@ -4,17 +4,17 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <cstring>
@@ -508,7 +508,7 @@ static bool shouldSkipIncidentSender(
 			 "Trigger:%" FMT_TRIGGER_ID " because "
 			 "IncidentSenderAction:%" FMT_ACTION_ID " has "
 			 "higher priority.",
-			 actionDef.id, eventInfo.triggerId,
+			 actionDef.id, eventInfo.triggerId.c_str(),
 			 incidentSenderActionId);
 		return true;
 	}
@@ -754,13 +754,12 @@ void ActionManager::execCommandAction(const ActionDef &actionDef,
 	argVect.push_back(NUM_COMMNAD_ACTION_EVENT_ARG_MAGIC);
 	argVect.push_back(StringUtils::sprintf("%d", actionDef.id));
 	argVect.push_back(StringUtils::sprintf("%" PRIu32, eventInfo.serverId));
-	argVect.push_back(StringUtils::sprintf("%" PRIu64, eventInfo.hostId));
+	argVect.push_back(eventInfo.hostIdInServer);
 	argVect.push_back(StringUtils::sprintf("%ld.%ld",
 	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec));
-	argVect.push_back(StringUtils::sprintf("%" PRIu64, eventInfo.id));
+	argVect.push_back(eventInfo.id);
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.type));
-	argVect.push_back(StringUtils::sprintf("%" PRIu64,
-	   eventInfo.triggerId));
+	argVect.push_back(eventInfo.triggerId);
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.status));
 	argVect.push_back(StringUtils::sprintf("%d", eventInfo.severity));
 
@@ -1474,7 +1473,7 @@ void ActionManager::closeResident(ResidentInfo *residentInfo)
 	// will be called back from ActorCollector::checkExitProcess().
 	pid_t pid = residentInfo->pid;
 	if (pid && kill(pid, SIGKILL))
-		MLPL_ERR("Failed to kill. pid: %d, %s\n", pid, strerror(errno));
+		MLPL_ERR("Failed to kill. pid: %d, %s\n", pid, g_strerror(errno));
 }
 
 /*
@@ -1538,19 +1537,19 @@ void ActionManager::postProcSpawnFailure(
 
 	// MLPL log
 	MLPL_ERR(
-	  "%s, action ID: %d, log ID: %" PRIu64 ", "
-	  "server ID: %d, event ID: %" PRIu64 ", "
+	  "%s, action ID: %d, log ID: %" FMT_ACTION_LOG_ID ", "
+	  "server ID: %" FMT_SERVER_ID ", event ID: %" FMT_EVENT_ID ", "
 	  "time: %ld.%09ld, type: %s, "
-	  "trigger ID: %" PRIu64 ", status: %s, severity: %s, "
-	  "host ID: %" PRIu64 "\n", 
+	  "trigger ID: %" FMT_TRIGGER_ID ", status: %s, severity: %s, "
+	  "host ID: %" FMT_LOCAL_HOST_ID "\n",
 	  error->message, actionDef.id, actorInfo->logId,
-	  eventInfo.serverId, eventInfo.id,
+	  eventInfo.serverId, eventInfo.id.c_str(),
 	  eventInfo.time.tv_sec, eventInfo.time.tv_nsec,
 	  LabelUtils::getEventTypeLabel(eventInfo.type).c_str(),
-	  eventInfo.triggerId,
+	  eventInfo.triggerId.c_str(),
 	  LabelUtils::getTriggerStatusLabel(eventInfo.status).c_str(),
 	  LabelUtils::getTriggerSeverityLabel(eventInfo.severity).c_str(),
-	  eventInfo.hostId);
+	  eventInfo.hostIdInServer.c_str());
 
 	// copy the log ID
 	if (logId)
@@ -1568,14 +1567,17 @@ void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 	bool succedded = dbMonitoring.getTriggerInfo(triggerInfo, option);
 	if (succedded) {
 		eventInfo.severity = triggerInfo.severity;
-		eventInfo.hostId   = triggerInfo.hostId;
+		eventInfo.globalHostId   = triggerInfo.globalHostId;
+		eventInfo.hostIdInServer = triggerInfo.hostIdInServer;
 		eventInfo.hostName = triggerInfo.hostName;
 		eventInfo.brief    = triggerInfo.brief;
 	} else {
-		MLPL_ERR("Not found: svID: %" PRIu32 ", trigID: %" PRIu64 "\n",
-		         eventInfo.serverId, eventInfo.triggerId);
+		MLPL_ERR("Not found: svID: %" FMT_SERVER_ID ", "
+		         "trigID: %" FMT_TRIGGER_ID "\n",
+		         eventInfo.serverId, eventInfo.triggerId.c_str());
 		eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
-		eventInfo.hostId   = INVALID_HOST_ID;
+		eventInfo.globalHostId = INVALID_HOST_ID;
+		eventInfo.hostIdInServer.clear();
 		eventInfo.hostName.clear();
 		eventInfo.brief.clear();
 	}

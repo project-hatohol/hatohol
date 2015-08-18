@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <vector>
@@ -31,15 +31,17 @@ struct AssertGetHostResourceArg {
 	TQueryOption option;
 	UserIdType userId;
 	ServerIdType targetServerId;
-	uint64_t targetHostId;
+	LocalHostIdType targetHostId;
 	DataQueryOption::SortDirection sortDirection;
 	size_t maxNumber;
 	size_t offset;
+	timespec beginTime;
+	timespec endTime;
 	HatoholErrorCode expectedErrorCode;
-	std::vector<TResourceType*> authorizedRecords;
-	std::vector<TResourceType*> expectedRecords;
+	std::vector<const TResourceType*> authorizedRecords;
+	std::vector<const TResourceType*> expectedRecords;
 	ServerHostGrpSetMap authMap;
-	TResourceType *fixtures;
+	const TResourceType *fixtures;
 	size_t numberOfFixtures;
 	gconstpointer ddtParam;
 	bool filterForDataOfDefunctSv;
@@ -48,10 +50,12 @@ struct AssertGetHostResourceArg {
 	AssertGetHostResourceArg(void)
 	: userId(USER_ID_SYSTEM),
 	  targetServerId(ALL_SERVERS),
-	  targetHostId(ALL_HOSTS),
+	  targetHostId(ALL_LOCAL_HOSTS),
 	  sortDirection(DataQueryOption::SORT_DONT_CARE),
 	  maxNumber(0),
 	  offset(0),
+	  beginTime({0, 0}),
+	  endTime({0, 0}),
 	  expectedErrorCode(HTERR_OK),
 	  fixtures(NULL),
 	  numberOfFixtures(0),
@@ -95,7 +99,7 @@ struct AssertGetHostResourceArg {
 		}
 	}
 
-	virtual bool filterOutExpectedRecord(TResourceType *info)
+	virtual bool filterOutExpectedRecord(const TResourceType *info)
 	{
 		if (filterForDataOfDefunctSv) {
 			if (!option.isValidServer(info->serverId))
@@ -107,14 +111,14 @@ struct AssertGetHostResourceArg {
 	virtual void fixupExpectedRecords(void)
 	{
 		for (size_t i = 0; i < authorizedRecords.size(); i++) {
-			TResourceType *record = authorizedRecords[i];
+			const TResourceType *record = authorizedRecords[i];
 			if (filterOutExpectedRecord(record))
 				continue;
 			if (targetServerId != ALL_SERVERS) {
 				if (record->serverId != targetServerId)
 					continue;
 			}
-			if (targetHostId != ALL_HOSTS) {
+			if (targetHostId != ALL_LOCAL_HOSTS) {
 				if (getHostId(*record) != targetHostId)
 					continue;
 			}
@@ -122,9 +126,10 @@ struct AssertGetHostResourceArg {
 		}
 	}
 
-	virtual HostIdType getHostId(const TResourceType &record) const = 0;
+	virtual LocalHostIdType
+	  getHostId(const TResourceType &record) const = 0;
 
-	virtual TResourceType &getExpectedRecord(size_t idx)
+	virtual const TResourceType &getExpectedRecord(size_t idx)
 	{
 		idx += offset;
 		if (sortDirection == DataQueryOption::SORT_DESCENDING)
@@ -143,6 +148,8 @@ struct AssertGetHostResourceArg {
 		if (maxNumber && maxNumber < expectedNum)
 			expectedNum = maxNumber;
 		cppcut_assert_equal(expectedNum, actualRecordList.size());
+		if (isVerboseMode())
+			cut_notify("expectedNum: %zd\n", expectedNum);
 	}
 
 	virtual std::string makeOutputText(const TResourceType &record) = 0;
@@ -159,7 +166,8 @@ struct AssertGetHostResourceArg {
 		  = actualRecordList.begin();
 		LinesComparator linesComparator;
 		for (size_t i = 0; it != actualRecordList.end(); i++, ++it) {
-			TResourceType &expectedRecord = getExpectedRecord(i);
+			const TResourceType &expectedRecord =
+			  getExpectedRecord(i);
 			linesComparator.add(makeOutputText(expectedRecord),
 			                    makeOutputText(*it));
 		}
@@ -183,18 +191,20 @@ struct AssertGetEventsArg
 {
 	uint64_t limitOfUnifiedId;
 	EventsQueryOption::SortType sortType;
+	EventType type;
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
 	TriggerIdType triggerId;
 	std::map<const EventInfo *, uint64_t> idMap;
 	IncidentInfoVect actualIncidentInfoVect;
 	bool withIncidentInfo;
-	std::map<std::string, IncidentInfo*> eventIncidentMap;
+	std::map<std::string, const IncidentInfo *> eventIncidentMap;
 
- AssertGetEventsArg(gconstpointer ddtParam, 
-		    EventInfo *eventInfo = testEventInfo, 
+ AssertGetEventsArg(gconstpointer ddtParam,
+		    const EventInfo *eventInfo = testEventInfo,
 		    size_t numEventInfo = NumTestEventInfo)
 	: limitOfUnifiedId(0), sortType(EventsQueryOption::SORT_UNIFIED_ID),
+	  type(EVENT_TYPE_ALL),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
 	  triggerStatus(TRIGGER_STATUS_ALL),
 	  triggerId(ALL_TRIGGERS),
@@ -225,19 +235,27 @@ struct AssertGetEventsArg
 			option.setOffset(offset);
 		if (limitOfUnifiedId)
 			option.setLimitOfUnifiedId(limitOfUnifiedId);
+		if (beginTime.tv_sec != 0 || beginTime.tv_nsec)
+			option.setBeginTime(beginTime);
+		if (endTime.tv_sec != 0 || endTime.tv_nsec)
+			option.setEndTime(endTime);
 		option.setSortType(sortType, sortDirection);
+		option.setType(type);
 		option.setMinimumSeverity(minSeverity);
 		option.setTriggerStatus(triggerStatus);
 		option.setTriggerId(triggerId);
 	}
 
-	virtual bool filterOutExpectedRecord(EventInfo *info) override
+	virtual bool filterOutExpectedRecord(const EventInfo *info) override
 	{
   		if (AssertGetHostResourceArg <EventInfo, EventsQueryOption>
 		      ::filterOutExpectedRecord(info)) {
 			return true;
 		}
 		if (limitOfUnifiedId && idMap[info] > limitOfUnifiedId)
+			return true;
+
+		if (type != EVENT_TYPE_ALL && info->type != type)
 			return true;
 
 		// TODO: Use TriggerInfo instead of EventInfo because actual
@@ -252,6 +270,22 @@ struct AssertGetEventsArg
 
 		if (triggerId != ALL_TRIGGERS && info->triggerId != triggerId)
 			return true;
+
+		if (beginTime.tv_sec != 0 || beginTime.tv_nsec != 0) {
+			if (info->time.tv_sec < beginTime.tv_sec ||
+			    (info->time.tv_sec == beginTime.tv_sec &&
+			     info->time.tv_nsec < beginTime.tv_nsec)) {
+				return true;
+			}
+		}
+
+		if (endTime.tv_sec != 0 || endTime.tv_nsec != 0) {
+			if (info->time.tv_sec > endTime.tv_sec ||
+			    (info->time.tv_sec == endTime.tv_sec &&
+			     info->time.tv_nsec > endTime.tv_nsec)) {
+				return true;
+			}
+		}
 
 		return false;
 	}
@@ -286,9 +320,9 @@ struct AssertGetEventsArg
 		makeEventIncidentMap(eventIncidentMap);
 	}
 
-	virtual HostIdType getHostId(const EventInfo &info) const override
+	virtual LocalHostIdType getHostId(const EventInfo &info) const override
 	{
-		return info.hostId;
+		return info.hostIdInServer;
 	}
 
 	virtual std::string makeOutputText(const EventInfo &eventInfo)
@@ -296,7 +330,7 @@ struct AssertGetEventsArg
 		return makeEventOutput(eventInfo);
 	}
 
-	IncidentInfo getExpectedIncidentInfo(EventInfo &event) {
+	IncidentInfo getExpectedIncidentInfo(const EventInfo &event) {
 		std::string key = makeEventIncidentMapKey(event);
 		if (eventIncidentMap.find(key) == eventIncidentMap.end()) {
 			IncidentInfo incident;
@@ -334,9 +368,26 @@ struct AssertGetEventsArg
 		for (; incidentIt != incidentEndIt; incidentIt++, eventIt++) {
 			IncidentInfo incident
 			  = getExpectedIncidentInfo(*eventIt);
+			// TODO: should get correct expected unifiedEventId
+			incident.unifiedEventId = incidentIt->unifiedEventId;
 			expected += makeIncidentOutput(incident);
 			actual += makeIncidentOutput(*incidentIt);
 		}
 		cppcut_assert_equal(expected, actual);
+	}
+
+	UnifiedEventIdType findLastUnifiedId(void)
+	{
+		UnifiedEventIdType lastId = -1;
+		for (size_t i = 0; i < numberOfFixtures; i++) {
+			if (!isAuthorized(fixtures[i]))
+				continue;
+			if (filterForDataOfDefunctSv &&
+			    !option.isValidServer(fixtures[i].serverId)) {
+				continue;
+			}
+			lastId = i + 1;
+		}
+		return lastId;
 	}
 };

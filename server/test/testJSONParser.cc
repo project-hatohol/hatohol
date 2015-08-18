@@ -4,22 +4,24 @@
  * This file is part of Hatohol.
  *
  * Hatohol is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
  *
  * Hatohol is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Hatohol. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include <fstream>
 #include <cppcutter.h>
+#include <gcutter.h>
 #include "JSONParser.h"
+#include "Helpers.h"
 using namespace std;
 
 namespace testJSONParser {
@@ -59,20 +61,27 @@ assertReadFile(JSON_MATERIAL, _json); \
 JSONParser parser(_json); \
 cppcut_assert_equal(false, PARSER.hasError());
 
+void cut_setup(void)
+{
+	cut_set_fixture_data_dir(getFixturesDir().c_str(), NULL);
+}
+
 
 // -------------------------------------------------------------------------
 // test cases
 // -------------------------------------------------------------------------
 void test_parseString(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON01.json");
+	const char *path = cut_build_fixture_path("testJSON01.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 	assertReadWord(string, parser, "name0", "string value");
 	assertReadWord(string, parser, "name1", "123");
 }
 
 void test_parseDouble(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON01.json");
+	const char *path = cut_build_fixture_path("testJSON01.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 	assertReadWord(double, parser, "double0", 0.0);
 	assertReadWord(double, parser, "double1", 123456789.0123);
 	assertReadWord(double, parser, "double2", -777333.555111);
@@ -80,7 +89,8 @@ void test_parseDouble(void)
 
 void test_parseStringInObject(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON02.json");
+	const char *path = cut_build_fixture_path("testJSON02.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 
 	cppcut_assert_equal(true, parser.startObject("object0"));
 	assertReadWord(string, parser, "food", "donuts");
@@ -93,7 +103,8 @@ void test_parseStringInObject(void)
 
 void test_parseStringInArray(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON03.json");
+	const char *path = cut_build_fixture_path("testJSON03.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 
 	cppcut_assert_equal(true, parser.startObject("array0"));
 	cppcut_assert_equal(3u, parser.countElements());
@@ -105,7 +116,8 @@ void test_parseStringInArray(void)
 
 void test_parseStringInObjectInArray(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON04.json");
+	const char *path = cut_build_fixture_path("testJSON04.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 
 	cppcut_assert_equal(true, parser.startObject("array0"));
 	cppcut_assert_equal(2u, parser.countElements());
@@ -125,7 +137,8 @@ void test_parseStringInObjectInArray(void)
 
 void test_checkParseSuccess(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON05.json");
+	const char *path = cut_build_fixture_path("testJSON05.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 
 	assertReadWord(bool, parser, "valid", true);
 	assertReadWord(int64_t, parser, "id", 1);
@@ -140,7 +153,8 @@ void test_checkParseSuccess(void)
 
 void test_checkResultWhenTrueFalseTrue(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON05.json");
+	const char *path = cut_build_fixture_path("testJSON05.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 	int64_t value;
 
 	assertReadWord(bool, parser, "valid", true);
@@ -156,7 +170,8 @@ void test_checkResultWhenTrueFalseTrue(void)
 
 void test_checkResultWhenFalseTrueFalse(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON05.json");
+	const char *path = cut_build_fixture_path("testJSON05.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 	string value1;
 	bool value2;
 
@@ -173,7 +188,8 @@ void test_checkResultWhenFalseTrueFalse(void)
 
 void test_checkResultWhenFalseFalseTrue(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON05.json");
+	const char *path = cut_build_fixture_path("testJSON05.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 	int64_t value1;
 	bool value2;
 
@@ -190,7 +206,8 @@ void test_checkResultWhenFalseFalseTrue(void)
 
 void test_checkIsMember(void)
 {
-	DEFINE_PARSER_AND_READ(parser, "fixtures/testJSON06.json");
+	const char *path = cut_build_fixture_path("testJSON06.json", NULL);
+	DEFINE_PARSER_AND_READ(parser, path);
 
 	cppcut_assert_equal(true, parser.isMember("name"));
 	cppcut_assert_equal(true, parser.isMember("prefecture"));
@@ -199,5 +216,58 @@ void test_checkIsMember(void)
 	cppcut_assert_equal(true, parser.isMember("ticketgate"));
 	cppcut_assert_equal(true, parser.isMember("greenwindows"));
 	parser.endObject();
+}
+
+void data_valueType(void)
+{
+	gcut_add_datum("null",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_NULL,
+		       "json", G_TYPE_STRING, "{\"value\":null}",
+		       NULL);
+	gcut_add_datum("int64",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_INT64,
+		       "json", G_TYPE_STRING, "{\"value\":123}",
+		       NULL);
+	gcut_add_datum("double",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_DOUBLE,
+		       "json", G_TYPE_STRING, "{\"value\":123.45}",
+		       NULL);
+	gcut_add_datum("string",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_STRING,
+		       "json", G_TYPE_STRING, "{\"value\":\"abc\"}",
+		       NULL);
+	gcut_add_datum("true",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_BOOLEAN,
+		       "json", G_TYPE_STRING, "{\"value\":true}",
+		       NULL);
+	gcut_add_datum("false",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_BOOLEAN,
+		       "json", G_TYPE_STRING, "{\"value\":false}",
+		       NULL);
+	gcut_add_datum("array",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_ARRAY,
+		       "json", G_TYPE_STRING, "{\"value\":[]}",
+		       NULL);
+	gcut_add_datum("object",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_OBJECT,
+		       "json", G_TYPE_STRING, "{\"value\":{}}",
+		       NULL);
+	gcut_add_datum("no member",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_UNKNOWN,
+		       "json", G_TYPE_STRING, "{\"hoge\":123}",
+		       NULL);
+	gcut_add_datum("invalid json",
+		       "expected", G_TYPE_INT, JSONParser::VALUE_TYPE_UNKNOWN,
+		       "json", G_TYPE_STRING, "{hoge:123}",
+		       NULL);
+}
+
+void test_valueType(gconstpointer data)
+{
+	JSONParser parser(gcut_data_get_string(data, "json"));
+	JSONParser::ValueType expected =
+	  static_cast<JSONParser::ValueType>(
+	    gcut_data_get_int(data, "expected"));
+	cppcut_assert_equal(expected, parser.getValueType("value"));
 }
 } //namespace testJSONParser
