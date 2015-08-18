@@ -1000,13 +1000,13 @@ void crash(void)
 #endif
 }
 
-void prepareTestDataForFilterForDataOfDefunctServers(void)
+void prepareTestDataExcludeDefunctServers(void)
 {
-	gcut_add_datum("Not filter data of defunct servers",
-		       "filterDataOfDefunctServers", G_TYPE_BOOLEAN, FALSE,
+	gcut_add_datum("Don't exclude defunct servers",
+		       "excludeDefunctServers", G_TYPE_BOOLEAN, FALSE,
 		       NULL);
-	gcut_add_datum("Filter data of defunct servers.",
-		       "filterDataOfDefunctServers", G_TYPE_BOOLEAN, TRUE,
+	gcut_add_datum("Exclude defunct servers",
+		       "excludeDefunctServers", G_TYPE_BOOLEAN, TRUE,
 		       NULL);
 }
 
@@ -1014,10 +1014,10 @@ void fixupForFilteringDefunctServer(
   gconstpointer data, string &expected, HostResourceQueryOption &option,
   const string &tableName)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
-	if (filterForDataOfDefunctSv)
+	const bool excludeDefunctServers =
+	  gcut_data_get_boolean(data, "excludeDefunctServers");
+	option.setExcludeDefunctServers(excludeDefunctServers);
+	if (excludeDefunctServers)
 		insertValidServerCond(expected, option, tableName);
 }
 

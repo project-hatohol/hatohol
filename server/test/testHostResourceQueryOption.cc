@@ -258,7 +258,7 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 void data_makeSelectConditionUserAdmin(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_makeSelectConditionUserAdmin(gconstpointer data)
@@ -272,7 +272,7 @@ void test_makeSelectConditionUserAdmin(gconstpointer data)
 
 void data_makeSelectConditionAllEvents(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_makeSelectConditionAllEvents(gconstpointer data)
@@ -295,22 +295,22 @@ void test_makeSelectConditionNoneUser(void)
 
 void data_makeSelectCondition(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_makeSelectCondition(gconstpointer data)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+	const bool excludeDefunctServers =
+	  gcut_data_get_boolean(data, "excludeDefunctServers");
 	HostResourceQueryOption option(TEST_SYNAPSE);
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
+	option.setExcludeDefunctServers(excludeDefunctServers);
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		UserIdType userId = i + 1;
 		option.setUserId(userId);
 		string actual = option.getCondition();
 		string expect = makeExpectedConditionForUser(
 		                  userId, testUserInfo[i].flags);
-		if (filterForDataOfDefunctSv)
+		if (excludeDefunctServers)
 			insertValidServerCond(expect, option);
 		cppcut_assert_equal(expect, actual);
 	}
@@ -518,13 +518,13 @@ void test_getPrimaryTableName(void)
 	                    option.getPrimaryTableName());
 }
 
-void test_defaultValueOfFilterForDataOfDefunctServers(void)
+void test_defaultValueOfExcludeDefunctServers(void)
 {
 	HostResourceQueryOption opt(TEST_SYNAPSE);
-	cppcut_assert_equal(true, opt.getFilterForDataOfDefunctServers());
+	cppcut_assert_equal(true, opt.getExcludeDefunctServers());
 }
 
-void data_setGetOfFilterForDataOfDefunctServers(void)
+void data_setAndGetExcludeDefunctServers(void)
 {
 	gcut_add_datum("Disable filtering",
 	               "enable", G_TYPE_BOOLEAN, FALSE, NULL);
@@ -532,12 +532,12 @@ void data_setGetOfFilterForDataOfDefunctServers(void)
 	               "enable", G_TYPE_BOOLEAN, TRUE, NULL);
 }
 
-void test_setGetOfFilterForDataOfDefunctServers(gconstpointer data)
+void test_setAndGetExcludeDefunctServers(gconstpointer data)
 {
 	HostResourceQueryOption opt(TEST_SYNAPSE);
 	bool enable = gcut_data_get_boolean(data, "enable");
-	opt.setFilterForDataOfDefunctServers(enable);
-	cppcut_assert_equal(enable, opt.getFilterForDataOfDefunctServers());
+	opt.setExcludeDefunctServers(enable);
+	cppcut_assert_equal(enable, opt.getExcludeDefunctServers());
 }
 
 void test_makeConditionEmpty(void)
@@ -655,17 +655,17 @@ void test_makeConditionWithTargetServerAndHost(void)
 
 void data_conditionForAdminWithTargetServerAndHost(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
-	if (filterForDataOfDefunctSv)
+	const bool excludeDefunctServers =
+	  gcut_data_get_boolean(data, "excludeDefunctServers");
+	if (excludeDefunctServers)
 		cut_omit("To be implemented");
 	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
+	option.setExcludeDefunctServers(excludeDefunctServers);
 	option.setTargetServerId(26);
 	option.setTargetHostId("32");
 	string expect = StringUtils::sprintf("%s=26 AND %s='32'",
