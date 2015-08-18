@@ -35,14 +35,11 @@ class StandardHap:
     DEFAULT_ERROR_SLEEP_TIME = 10
 
     def __init__(self, default_transporter="RabbitMQHapiConnector"):
-        hap.initialize_logger()
         self.__error_sleep_time = self.DEFAULT_ERROR_SLEEP_TIME
 
         parser = argparse.ArgumentParser()
+        hap.initialize_logger(parser)
 
-        choices = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
-        parser.add_argument("--log", dest="loglevel", choices=choices,
-                            default="INFO")
         parser.add_argument("-p", "--disable-poller", action="store_true")
 
         help_msg = """

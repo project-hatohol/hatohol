@@ -35,7 +35,13 @@ import multiprocessing
 
 logger = getLogger(__name__)
 
-def initialize_logger():
+def initialize_logger(parser=None):
+    """
+    Initialize logger for the module: hatohol.
+    @param parser
+    argparse.ArgumentParser object or None. If this parameter is not None,
+    arguments for configuring logging parameters is added to the parser.
+    """
     # This level is used until set_logger_level() is called.
     # TODO: Shoud be configurable. For example, by environment variable
     handler = logging.StreamHandler()
@@ -45,6 +51,11 @@ def initialize_logger():
     formatter = logging.Formatter(fmt)
     handler.setFormatter(formatter)
     getLogger("hatohol").addHandler(handler)
+
+    if parser is not None:
+        choices = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
+        parser.add_argument("--log", dest="loglevel", choices=choices,
+                            default="INFO")
 
 
 def setup_logger_level(args):
