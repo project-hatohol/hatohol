@@ -122,8 +122,8 @@ const char *HostResourceQueryOption::getPrimaryTableName(void) const
 
 string HostResourceQueryOption::getCondition(void) const
 {
-	DBTermCStringProvider rhs(*getDBTermCodec());
 	string condition;
+
 	if (getExcludeDefunctServers()) {
 		addCondition(
 		  condition,
@@ -133,41 +133,52 @@ string HostResourceQueryOption::getCondition(void) const
 		);
 	}
 
-	UserIdType userId = getUserId();
-
 	// TODO: consider if we cau use isHostgroupEnumerationInCondition()
 	if (has(OPPRVLG_GET_ALL_SERVER)) {
-		if (m_impl->targetServerId != ALL_SERVERS) {
-			addCondition(condition,
-			  StringUtils::sprintf(
-				"%s=%s",
-				getServerIdColumnName().c_str(),
-				rhs(m_impl->targetServerId))
-			);
-		}
-		if (m_impl->targetHostId != ALL_LOCAL_HOSTS) {
-			addCondition(condition,
-			  StringUtils::sprintf(
-				"%s=%s",
-				getHostIdColumnName().c_str(),
-				rhs(m_impl->targetHostId))
-			);
-		}
-		if (m_impl->targetHostgroupId != ALL_HOST_GROUPS) {
-			addCondition(condition,
-			  StringUtils::sprintf(
-				"%s=%s",
-				getHostgroupIdColumnName().c_str(),
-				rhs(m_impl->targetHostgroupId))
-			);
-		}
-		return condition;
-	}
-
-	if (userId == INVALID_USER_ID) {
+		return makeConditionForPrivilegedUser(condition);
+	} else if (getUserId() != INVALID_USER_ID) {
+		return makeConditionForNormalUser(condition);
+	} else {
 		MLPL_DBG("INVALID_USER_ID\n");
 		return DBHatohol::getAlwaysFalseCondition();
 	}
+}
+
+string HostResourceQueryOption::makeConditionForPrivilegedUser(
+  const string &formerCondition) const
+{
+	string condition(formerCondition);
+	DBTermCStringProvider rhs(*getDBTermCodec());
+
+	if (m_impl->targetServerId != ALL_SERVERS) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		      "%s=%s",
+		      getServerIdColumnName().c_str(),
+		      rhs(m_impl->targetServerId)));
+	}
+	if (m_impl->targetHostId != ALL_LOCAL_HOSTS) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getHostIdColumnName().c_str(),
+		    rhs(m_impl->targetHostId)));
+	}
+	if (m_impl->targetHostgroupId != ALL_HOST_GROUPS) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getHostgroupIdColumnName().c_str(),
+		    rhs(m_impl->targetHostgroupId)));
+	}
+
+	return condition;
+}
+
+string HostResourceQueryOption::makeConditionForNormalUser(
+  const string &formerCondition) const
+{
+	string condition(formerCondition);
 
 	// If the subclass doesn't have a valid hostIdColumnIdx,
 	// getHostIdColumnName() throws an exception. In that case,
@@ -186,6 +197,7 @@ string HostResourceQueryOption::getCondition(void) const
 	                           m_impl->targetServerId,
 	                           m_impl->targetHostgroupId,
 	                           m_impl->targetHostId));
+
 	return condition;
 }
 
