@@ -40,6 +40,10 @@ def initialize_logger():
     # TODO: Shoud be configurable. For example, by environment variable
     handler = logging.StreamHandler()
     handler.setLevel(logging.INFO)
+    fmt = "%(asctime)s %(levelname)8s [%(process)5d] %(name)s:%(lineno)d:  " \
+          "%(message)s"
+    formatter = logging.Formatter(fmt)
+    handler.setFormatter(formatter)
     getLogger("hatohol").addHandler(handler)
 
 
