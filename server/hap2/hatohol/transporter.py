@@ -18,7 +18,7 @@
   <http://www.gnu.org/licenses/>.
 """
 
-import logging
+from logging import getLogger
 import sys
 import os
 import imp
@@ -26,6 +26,8 @@ import imp
 DIR_BOTH = 0
 DIR_SEND = 1
 DIR_RECV = 2
+
+logger = getLogger(__name__)
 
 class Transporter:
     """
@@ -77,14 +79,14 @@ class Transporter:
         Call a RPC.
         @param mas A message to be sent.
         """
-        logging.debug("Called stub method: call().")
+        logger.debug("Called stub method: call().")
 
     def reply(self, msg):
         """
         Replay a message to a caller.
         @param msg A reply message.
         """
-        logging.debug("Called stub method: reply().")
+        logger.debug("Called stub method: reply().")
 
     def set_receiver(self, receiver):
         """
@@ -158,14 +160,14 @@ class Manager(object):
             if mod is None:
                 return None
             path = mod.__path__
-        logging.info("Loaded transporter module: %s", path[0])
+        logger.info("Loaded transporter module: %s", path[0])
 
     @classmethod
     def register(cls, transporter_cls):
         # NOTE: Currently a unique name is required.
         name = transporter_cls.__name__
         cls.__transporters[name] = transporter_cls
-        logging.info("Registered: %s" % name)
+        logger.info("Registered: %s" % name)
 
     @classmethod
     def import_module(cls, name, path):

@@ -18,10 +18,12 @@
   <http://www.gnu.org/licenses/>.
 """
 
-import logging
+from logging import getLogger
 import pika
 import hap
 from hatohol.transporter import Transporter
+
+logger = getLogger(__name__)
 
 MAX_BODY_SIZE = 50000
 MAX_FRAME_SIZE = 131072
@@ -58,7 +60,7 @@ class RabbitMQConnector(Transporter):
         user_name = transporter_args["amqp_user"]
         password = transporter_args["amqp_password"]
 
-        logging.debug("Called stub method: call().")
+        logger.debug("Called stub method: call().")
         self._queue_name = queue_name
         credentials = pika.credentials.PlainCredentials(user_name, password)
 
@@ -119,7 +121,7 @@ class RabbitMQConnector(Transporter):
     def __consume_handler(self, ch, method, properties, body):
         receiver = self.get_receiver()
         if receiver is None:
-            logging.warning("Receiver is not registered.")
+            logger.warning("Receiver is not registered.")
             return
         receiver(self._channel, body)
 
