@@ -7,16 +7,16 @@ with hyphen.
 """
 
 def is_valid_module_name(filename):
-    if filename[-3:] != ".py":
+    if not filename.endswith(".py"):
         return False
-    if filename[0:1] == "_":
+    if filename.startswith("_"):
         return False
     return True
 
 def extract_module_name(filename):
     if not is_valid_module_name(filename):
         return None
-    return filename[:-3]
+    return filename[:-3] # remove the extension ".py"
 
 file_dir = os.path.dirname(__file__)
 files = os.listdir(file_dir)
