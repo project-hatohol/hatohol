@@ -137,7 +137,9 @@ string HostResourceQueryOption::getCondition(void) const
 		addCondition(condition, makeConditionForPrivilegedUser());
 		return condition;
 	} else if (getUserId() != INVALID_USER_ID) {
-		addCondition(condition, makeConditionForNormalUser());
+		addCondition(condition,
+			     makeConditionForNormalUser(
+			       getAllowedServersAndHostgroups()));
 		return condition;
 	} else {
 		MLPL_DBG("INVALID_USER_ID\n");
@@ -173,13 +175,6 @@ string HostResourceQueryOption::makeConditionForPrivilegedUser(void) const
 	}
 
 	return condition;
-}
-
-string HostResourceQueryOption::makeConditionForNormalUser(void) const
-{
-	const ServerHostGrpSetMap &allowedServersAndHostgroups =
-	  getAllowedServersAndHostgroups();
-	return makeCondition(allowedServersAndHostgroups);
 }
 
 string HostResourceQueryOption::getFromClause(void) const
@@ -388,7 +383,7 @@ static inline bool isAllowedServer(
 		!= allowedServersAndHostgroups.end();
 }
 
-string HostResourceQueryOption::makeCondition(
+string HostResourceQueryOption::makeConditionForNormalUser(
   const ServerHostGrpSetMap &allowedServersAndHostgroups) const
 {
 	const string &serverIdColumnName = getServerIdColumnName();

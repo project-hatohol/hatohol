@@ -148,8 +148,7 @@ protected:
 	std::string getHostIdColumnName(void) const;
 
 	std::string makeConditionForPrivilegedUser(void) const;
-	std::string makeConditionForNormalUser(void) const;
-	std::string makeCondition(
+	std::string makeConditionForNormalUser(
 	  const ServerHostGrpSetMap &allowedServersAndHostgroups) const;
 	std::string makeConditionServer(
 	  const ServerIdSet &serverIdSet,

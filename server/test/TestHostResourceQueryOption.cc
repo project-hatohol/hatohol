@@ -42,5 +42,5 @@ string TestHostResourceQueryOption::callMakeConditionServer(
 string TestHostResourceQueryOption::callMakeCondition(
   const ServerHostGrpSetMap &srvHostGrpSetMap) const
 {
-	return makeCondition(srvHostGrpSetMap);
+	return makeConditionForNormalUser(srvHostGrpSetMap);
 }
