@@ -516,9 +516,9 @@ class HapiProcessor(unittest.TestCase):
         hapiproc.put_hosts(["test_host"])
 
     def test_put_host_groups(self):
-        self.reply_queue.put(True)
-        host_groups = ["test_host_group"]
-        testutils.assertNotRaises(self.processor.put_host_groups, host_groups)
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        hapiproc.put_host_groups(["test_host_group"])
 
     def test_put_host_group_membership(self):
         self.reply_queue.put(True)
