@@ -134,19 +134,20 @@ string HostResourceQueryOption::getCondition(void) const
 
 	// TODO: consider if we cau use isHostgroupEnumerationInCondition()
 	if (has(OPPRVLG_GET_ALL_SERVER)) {
-		return makeConditionForPrivilegedUser(condition);
+		addCondition(condition, makeConditionForPrivilegedUser());
+		return condition;
 	} else if (getUserId() != INVALID_USER_ID) {
-		return makeConditionForNormalUser(condition);
+		addCondition(condition, makeConditionForNormalUser());
+		return condition;
 	} else {
 		MLPL_DBG("INVALID_USER_ID\n");
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 }
 
-string HostResourceQueryOption::makeConditionForPrivilegedUser(
-  const string &formerCondition) const
+string HostResourceQueryOption::makeConditionForPrivilegedUser(void) const
 {
-	string condition(formerCondition);
+	string condition;
 	DBTermCStringProvider rhs(*getDBTermCodec());
 
 	if (m_impl->targetServerId != ALL_SERVERS) {
@@ -174,10 +175,9 @@ string HostResourceQueryOption::makeConditionForPrivilegedUser(
 	return condition;
 }
 
-string HostResourceQueryOption::makeConditionForNormalUser(
-  const string &formerCondition) const
+string HostResourceQueryOption::makeConditionForNormalUser(void) const
 {
-	string condition(formerCondition);
+	string condition;
 
 	// If the subclass doesn't have a valid hostIdColumnIdx
 	// (HostgroupsQueryOption doesn't have it), getHostIdColumnName()
@@ -190,14 +190,13 @@ string HostResourceQueryOption::makeConditionForNormalUser(
 
 	const ServerHostGrpSetMap &allowedServersAndHostgroups =
 	  getDataQueryContext().getServerHostGrpSetMap();
-	addCondition(condition,
-	             makeCondition(allowedServersAndHostgroups,
-	                           getServerIdColumnName(),
-	                           getHostgroupIdColumnName(),
-	                           hostIdColumnName,
-	                           m_impl->targetServerId,
-	                           m_impl->targetHostgroupId,
-	                           m_impl->targetHostId));
+	condition = makeCondition(allowedServersAndHostgroups,
+				  getServerIdColumnName(),
+				  getHostgroupIdColumnName(),
+				  hostIdColumnName,
+				  m_impl->targetServerId,
+				  m_impl->targetHostgroupId,
+				  m_impl->targetHostId);
 
 	return condition;
 }
