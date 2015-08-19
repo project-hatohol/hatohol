@@ -422,11 +422,15 @@ class HapiProcessor(unittest.TestCase):
         cls.sender.set_connector(cls.connector)
         cls.processor.reset()
 
-    def __create_test_instance(self):
+    def __create_test_instance(self, connector_class=None):
         sender = haplib.Sender({"class": transporter.Transporter})
         obj = haplib.HapiProcessor("test", 0x01, sender)
         obj.set_dispatch_queue(DummyQueue())
-        return obj
+        if not connector_class:
+            return obj
+        connector = connector_class(obj.get_reply_queue())
+        sender.set_connector(connector)
+        return obj, connector
 
     def test_reset(self):
         targets = ("__previous_hosts", "__previous_host_groups",
@@ -480,9 +484,11 @@ class HapiProcessor(unittest.TestCase):
                           testutils.get_priv_attr(hapiproc, "__sender"))
 
     def test_get_monitoring_server_info(self):
-        self.reply_queue.put(True)
-        self.connector.enable_ms_flag()
-        testutils.assertNotRaises(self.processor.get_monitoring_server_info)
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        connector.enable_ms_flag()
+        self.assertIsInstance(hapiproc.get_monitoring_server_info(),
+                              haplib.MonitoringServerInfo)
 
     def test_get_last_info(self):
         self.reply_queue.put(True)
