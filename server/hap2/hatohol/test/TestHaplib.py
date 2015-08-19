@@ -501,8 +501,9 @@ class HapiProcessor(unittest.TestCase):
         self.assertIsNone(hapiproc.exchange_profile("test_params"))
 
     def test_exchange_profile_response(self):
-        testutils.assertNotRaises(self.processor.exchange_profile,
-                                  "test_params", response_id=1)
+        hapiproc = self.__create_test_instance()
+        self.assertIsNone(
+            hapiproc.exchange_profile("test_params", response_id=1))
 
     def test_put_arm_info(self):
         self.reply_queue.put(True)
