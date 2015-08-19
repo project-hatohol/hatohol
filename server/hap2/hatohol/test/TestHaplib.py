@@ -521,15 +521,14 @@ class HapiProcessor(unittest.TestCase):
         hapiproc.put_host_groups(["test_host_group"])
 
     def test_put_host_group_membership(self):
-        self.reply_queue.put(True)
-        host_group_membership = ["test_host_group_membership"]
-        testutils.assertNotRaises(self.processor.put_host_group_membership,
-                               host_group_membership)
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        hapiproc.put_host_group_membership(["test_host_group_membership"])
 
     def test_put_triggers(self):
-        self.reply_queue.put(True)
-        triggers = ["test_triggers"]
-        testutils.assertNotRaises(self.processor.put_triggers, triggers, "ALL")
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        hapiproc.put_triggers(["test_triggers"], "ALL")
 
     def test_get_cached_event_last_info(self):
         self.reply_queue.put(True)
