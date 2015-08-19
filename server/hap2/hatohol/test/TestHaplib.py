@@ -536,9 +536,9 @@ class HapiProcessor(unittest.TestCase):
         self.assertEquals(hapiproc.get_cached_event_last_info(), "SUCCESS")
 
     def test_put_events(self):
-        self.reply_queue.put(True)
-        events = [{"eventId": 123, "test_events":"test"}]
-        testutils.assertNotRaises(self.processor.put_events, events)
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        hapiproc.put_events([{"eventId": 123, "test_events":"test"}])
 
     def test_put_items(self):
         self.reply_queue.put(True)
