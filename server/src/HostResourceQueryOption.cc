@@ -188,10 +188,10 @@ string HostResourceQueryOption::makeConditionForNormalUser(
 	  (m_impl->targetHostId != ALL_LOCAL_HOSTS) ?
 	    getHostIdColumnName() : "";
 
-	const ServerHostGrpSetMap &srvHostGrpSetMap =
+	const ServerHostGrpSetMap &allowedServersAndHostgroups =
 	  getDataQueryContext().getServerHostGrpSetMap();
 	addCondition(condition,
-	             makeCondition(srvHostGrpSetMap,
+	             makeCondition(allowedServersAndHostgroups,
 	                           getServerIdColumnName(),
 	                           getHostgroupIdColumnName(),
 	                           hostIdColumnName,
@@ -400,8 +400,16 @@ string HostResourceQueryOption::makeConditionServer(
 	}
 }
 
+static inline bool isAllowedServer(
+  const ServerHostGrpSetMap &allowedServersAndHostgroups,
+  const ServerIdType &targetServerId)
+{
+	return allowedServersAndHostgroups.find(targetServerId)
+		!= allowedServersAndHostgroups.end();
+}
+
 string HostResourceQueryOption::makeCondition(
-  const ServerHostGrpSetMap &srvHostGrpSetMap,
+  const ServerHostGrpSetMap &allowedServersAndHostgroups,
   const string &serverIdColumnName,
   const string &hostgroupIdColumnName,
   const string &hostIdColumnName,
@@ -412,21 +420,21 @@ string HostResourceQueryOption::makeCondition(
 	// TODO: consider if we use isHostgroupEnumerationInCondition()
 	string condition;
 
-	size_t numServers = srvHostGrpSetMap.size();
+	size_t numServers = allowedServersAndHostgroups.size();
 	if (numServers == 0) {
 		MLPL_DBG("No allowed server\n");
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 
 	if (targetServerId != ALL_SERVERS &&
-	    srvHostGrpSetMap.find(targetServerId) == srvHostGrpSetMap.end())
+	    !isAllowedServer(allowedServersAndHostgroups, targetServerId))
 	{
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 
 	numServers = 0;
-	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
-	for (; it != srvHostGrpSetMap.end(); ++it) {
+	ServerHostGrpSetMapConstIterator it = allowedServersAndHostgroups.begin();
+	for (; it != allowedServersAndHostgroups.end(); ++it) {
 		const ServerIdType &serverId = it->first;
 
 		if (targetServerId != ALL_SERVERS && targetServerId != serverId)
@@ -492,10 +500,11 @@ bool HostResourceQueryOption::isHostgroupEnumerationInCondition(void) const
 {
 	if (has(OPPRVLG_GET_ALL_SERVER))
 		return false;
-	const ServerHostGrpSetMap &srvHostGrpSetMap =
+	const ServerHostGrpSetMap &allowedServersAndHostgroups =
 	  getDataQueryContext().getServerHostGrpSetMap();
-	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
-	for (; it != srvHostGrpSetMap.end(); ++it) {
+	ServerHostGrpSetMapConstIterator it
+	  = allowedServersAndHostgroups.begin();
+	for (; it != allowedServersAndHostgroups.end(); ++it) {
 		const ServerIdType &serverId = it->first;
 		if (serverId == ALL_SERVERS)
 			continue;
