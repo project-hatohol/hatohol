@@ -99,7 +99,7 @@ class StandardHap:
 
     def __parse_argument(self):
         args = self.__parser.parse_args()
-        hap.setup_logger_level(args)
+        hap.setup_logger(args)
 
         self.on_parsed_argument(args)
         return args
