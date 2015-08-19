@@ -410,167 +410,171 @@ class Utils(unittest.TestCase):
 
 
 class HapiProcessor(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.__test_queue = DummyQueue()
-        transporter_args = {"class": transporter.Transporter}
-        cls.sender = haplib.Sender(transporter_args)
-        cls.processor = haplib.HapiProcessor("test", 0x01, cls.sender)
-        cls.processor.set_dispatch_queue(cls.__test_queue)
-        cls.reply_queue = cls.processor.get_reply_queue()
-        cls.connector = ConnectorForTest(cls.reply_queue)
-        cls.sender.set_connector(cls.connector)
-        cls.processor.reset()
+    def __create_test_instance(self, connector_class=None):
+        sender = haplib.Sender({"class": transporter.Transporter})
+        obj = haplib.HapiProcessor("test", 0x01, sender)
+        obj.set_dispatch_queue(DummyQueue())
+        if not connector_class:
+            return obj
+        connector = connector_class(obj.get_reply_queue())
+        sender.set_connector(connector)
+        return obj, connector
 
     def test_reset(self):
-        self.processor.reset()
-        prev_hosts = testutils.get_priv_attr(self.processor, "__previous_hosts")
-        prev_host_groups = testutils.get_priv_attr(self.processor,
-                                                   "__previous_host_groups")
-        prev_host_group_membership = \
-                testutils.get_priv_attr(self.processor,
-                                        "__previous_host_group_membership")
-        event_last_info = testutils.get_priv_attr(self.processor,
-                                                  "__event_last_info")
-        self.assertIsNone(prev_hosts)
-        self.assertIsNone(prev_host_groups)
-        self.assertIsNone(prev_host_group_membership)
-        self.assertIsNone(event_last_info)
+        targets = ("__previous_hosts", "__previous_host_groups",
+                   "__previous_host_group_membership", "__event_last_info")
+
+        # Set arbitary data to each member
+        hapiproc = self.__create_test_instance()
+        for attr_name in targets:
+            testutils.set_priv_attr(hapiproc, attr_name, "Test Data")
+
+        hapiproc.reset()
+        for attr_name in targets:
+            self.assertIsNone(testutils.get_priv_attr(hapiproc, attr_name))
 
     def test_set_ms_info(self):
-        exact_ms = "test_ms"
-        self.processor.set_ms_info(exact_ms)
-        result_ms = testutils.get_priv_attr(self.processor, "__ms_info")
-        self.assertEquals(exact_ms, result_ms)
+        hapiproc = self.__create_test_instance()
+        test_ms = "test_ms"
+        hapiproc.set_ms_info(test_ms)
+        self.assertEquals(test_ms,
+                          testutils.get_priv_attr(hapiproc, "__ms_info"))
 
-    def test_get_ms_Info(self):
-        result_ms = self.processor.get_ms_info()
-        exact_ms = testutils.get_priv_attr(self.processor, "__ms_info")
-        self.assertEquals(exact_ms, result_ms)
+    def test_get_ms_info(self):
+        hapiproc = self.__create_test_instance()
+        test_ms = "test_ms"
+        testutils.set_priv_attr(hapiproc, "__ms_info", test_ms)
+        self.assertEquals(hapiproc.get_ms_info(), test_ms)
 
     def test_set_dispatch_queue(self):
-        exact_dispatch_queue = DummyQueue()
-        self.processor.set_dispatch_queue(exact_dispatch_queue)
-        result_dispatch_queue = testutils.get_priv_attr(self.processor,
-                                                        "__dispatch_queue")
-        self.assertEquals(exact_dispatch_queue, result_dispatch_queue)
+        hapiproc = self.__create_test_instance()
+        test_dispatch_queue = DummyQueue()
+        hapiproc.set_dispatch_queue(test_dispatch_queue)
+        self.assertEquals(
+            testutils.get_priv_attr(hapiproc, "__dispatch_queue"),
+            test_dispatch_queue)
 
     def test_get_component_code(self):
-        result_component_code = self.processor.get_component_code()
-        exact_component_code = testutils.get_priv_attr(self.processor,
-                                                       "__component_code")
-        self.assertEquals(exact_component_code, result_component_code)
+        hapiproc = self.__create_test_instance()
+        self.assertEquals(
+            hapiproc.get_component_code(),
+            testutils.get_priv_attr(hapiproc, "__component_code"))
 
     def test_get_reply_queue(self):
-        result_queue = self.processor.get_reply_queue()
-        exact_queue = testutils.get_priv_attr(self.processor, "__reply_queue")
-        self.assertEquals(result_queue, exact_queue)
+        hapiproc = self.__create_test_instance()
+        self.assertEquals(
+            hapiproc.get_reply_queue(),
+            testutils.get_priv_attr(hapiproc, "__reply_queue"))
 
     def test_get_sender(self):
-        result_sender = self.processor.get_sender()
-        exact_sender = testutils.get_priv_attr(self.processor, "__sender")
-        self.assertEquals(result_sender, exact_sender)
+        hapiproc = self.__create_test_instance()
+        self.assertEquals(hapiproc.get_sender(),
+                          testutils.get_priv_attr(hapiproc, "__sender"))
 
     def test_get_monitoring_server_info(self):
-        self.reply_queue.put(True)
-        self.connector.enable_ms_flag()
-        testutils.assertNotRaises(self.processor.get_monitoring_server_info)
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        connector.enable_ms_flag()
+        self.assertIsInstance(hapiproc.get_monitoring_server_info(),
+                              haplib.MonitoringServerInfo)
 
     def test_get_last_info(self):
-        self.reply_queue.put(True)
-        testutils.assertNotRaises(self.processor.get_last_info, "test_element")
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        self.assertEquals(hapiproc.get_last_info("test_element"), "SUCCESS")
 
     def test_exchange_profile_request(self):
-        self.reply_queue.put(True)
-        testutils.assertNotRaises(self.processor.exchange_profile,
-                                  "test_params")
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        self.assertIsNone(hapiproc.exchange_profile("test_params"))
 
     def test_exchange_profile_response(self):
-        testutils.assertNotRaises(self.processor.exchange_profile,
-                                  "test_params", response_id=1)
+        hapiproc = self.__create_test_instance()
+        self.assertIsNone(
+            hapiproc.exchange_profile("test_params", response_id=1))
 
     def test_put_arm_info(self):
-        self.reply_queue.put(True)
-        test_arm_info = haplib.ArmInfo()
-        testutils.assertNotRaises(self.processor.put_arm_info, test_arm_info)
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        testutils.assertNotRaises(hapiproc.put_arm_info, haplib.ArmInfo())
 
     def test_put_hosts(self):
-        self.reply_queue.put(True)
-        hosts = ["test_host"]
-        testutils.assertNotRaises(self.processor.put_hosts, hosts)
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        hapiproc.put_hosts(["test_host"])
 
     def test_put_host_groups(self):
-        self.reply_queue.put(True)
-        host_groups = ["test_host_group"]
-        testutils.assertNotRaises(self.processor.put_host_groups, host_groups)
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        hapiproc.put_host_groups(["test_host_group"])
 
     def test_put_host_group_membership(self):
-        self.reply_queue.put(True)
-        host_group_membership = ["test_host_group_membership"]
-        testutils.assertNotRaises(self.processor.put_host_group_membership,
-                               host_group_membership)
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        hapiproc.put_host_group_membership(["test_host_group_membership"])
 
     def test_put_triggers(self):
-        self.reply_queue.put(True)
-        triggers = ["test_triggers"]
-        testutils.assertNotRaises(self.processor.put_triggers, triggers, "ALL")
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        hapiproc.put_triggers(["test_triggers"], "ALL")
 
     def test_get_cached_event_last_info(self):
-        self.reply_queue.put(True)
-        testutils.assertNotRaises(self.processor.get_cached_event_last_info)
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        self.assertEquals(hapiproc.get_cached_event_last_info(), "SUCCESS")
 
     def test_put_events(self):
-        self.reply_queue.put(True)
-        events = [{"eventId": 123, "test_events":"test"}]
-        testutils.assertNotRaises(self.processor.put_events, events)
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        hapiproc.put_events([{"eventId": 123, "test_events":"test"}])
 
     def test_put_items(self):
-        self.reply_queue.put(True)
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
         fetch_id = 543
         items = [{"itemId": "123", "host_id": "FOOOOOO"}]
-        testutils.assertNotRaises(self.processor.put_items, items, fetch_id)
+        hapiproc.put_items(items, fetch_id)
         # TODO: Check if fetch_id and items shall be passed to the lower layer
 
     def test_put_history(self):
-        self.reply_queue.put(True)
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
         fetch_id = 543
         item_id = 111
         samples = [{"value": "123", "time": "20150321151321"}]
-        testutils.assertNotRaises(self.processor.put_history,
-                               samples, item_id, fetch_id)
+        hapiproc.put_history(samples, item_id, fetch_id)
         # TODO: Check if fetch_id and items shall be passed to the lower layer
 
     def test_wait_acknowledge(self):
-        self.reply_queue.put(True)
-        wait_acknowledge = testutils.get_priv_attr(self.processor,
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        wait_acknowledge = testutils.get_priv_attr(hapiproc,
                                                    "__wait_acknowledge")
-        testutils.assertNotRaises(wait_acknowledge, 1)
+        wait_acknowledge(1)
 
     def test_wait_acknowledge_timeout(self):
-        self.processor.set_timeout_sec(1)
-        wait_acknowledge = testutils.get_priv_attr(self.processor,
+        hapiproc = self.__create_test_instance()
+        hapiproc.set_timeout_sec(1)
+        wait_acknowledge = testutils.get_priv_attr(hapiproc,
                                                    "__wait_acknowledge")
         self.assertRaises(Queue.Empty, wait_acknowledge, 1)
 
     def test_wait_response(self):
-        exact_result = "test_result"
-        exact_id = 1
-        reply_queue = self.reply_queue
+        hapiproc = self.__create_test_instance()
+        test_result = "test_result"
+        test_id = 1
         pm = haplib.ParsedMessage()
-        pm.message_dict = {"id": exact_id, "result": exact_result}
-        pm.message_id = exact_id
-        reply_queue.put(pm)
-        wait_response = testutils.get_priv_attr(self.processor,
-                                                "__wait_response")
-        output = wait_response(exact_id)
-
-        self.assertEquals(output, exact_result)
+        pm.message_dict = {"id": test_id, "result": test_result}
+        pm.message_id = test_id
+        hapiproc.get_reply_queue().put(pm)
+        wait_response = testutils.get_priv_attr(hapiproc, "__wait_response")
+        self.assertEquals(wait_response(test_id), test_result)
 
     def test_wait_response_timeout(self):
-        self.processor.set_timeout_sec(1)
+        hapiproc = self.__create_test_instance()
+        hapiproc.set_timeout_sec(1)
         test_id = 1
-        wait_response = testutils.get_priv_attr(self.processor,
-                                                "__wait_response")
+        wait_response = testutils.get_priv_attr(hapiproc, "__wait_response")
         self.assertRaises(Queue.Empty, wait_response, test_id)
 
 
