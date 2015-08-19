@@ -26,6 +26,7 @@ classes used in them have to be in this module.
 """
 
 import logging
+import logging.config
 from logging import getLogger
 import sys
 import errno
@@ -35,7 +36,13 @@ import multiprocessing
 
 logger = getLogger(__name__)
 
-def initialize_logger():
+def initialize_logger(parser=None):
+    """
+    Initialize logger for the module: hatohol.
+    @param parser
+    argparse.ArgumentParser object or None. If this parameter is not None,
+    arguments for configuring logging parameters is added to the parser.
+    """
     # This level is used until set_logger_level() is called.
     # TODO: Shoud be configurable. For example, by environment variable
     handler = logging.StreamHandler()
@@ -46,12 +53,22 @@ def initialize_logger():
     handler.setFormatter(formatter)
     getLogger("hatohol").addHandler(handler)
 
+    if parser is not None:
+        choices = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
+        parser.add_argument("--log", dest="loglevel", choices=choices,
+                            default="INFO")
+        parser.add_argument("--log-conf", dest="log_conf_file",
+                            help="The path of the logging configuration file.")
 
-def setup_logger_level(args):
+
+def setup_logger(args):
     numeric_level = getattr(logging, args.loglevel.upper(), None)
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % loglevel)
     getLogger("hatohol").setLevel(numeric_level)
+
+    if args.log_conf_file is not None:
+        logging.config.fileConfig(args.log_conf_file)
 
 
 def handle_exception(raises=(SystemExit,)):

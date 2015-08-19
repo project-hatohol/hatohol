@@ -35,14 +35,11 @@ class StandardHap:
     DEFAULT_ERROR_SLEEP_TIME = 10
 
     def __init__(self, default_transporter="RabbitMQHapiConnector"):
-        hap.initialize_logger()
         self.__error_sleep_time = self.DEFAULT_ERROR_SLEEP_TIME
 
         parser = argparse.ArgumentParser()
+        hap.initialize_logger(parser)
 
-        choices = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
-        parser.add_argument("--log", dest="loglevel", choices=choices,
-                            default="INFO")
         parser.add_argument("-p", "--disable-poller", action="store_true")
 
         help_msg = """
@@ -100,17 +97,18 @@ class StandardHap:
         if poller is not None:
             poller.set_ms_info(ms_info)
 
-    def __parse_argument(self):
+    def __setup(self):
         args = self.__parser.parse_args()
-        hap.setup_logger_level(args)
+        hap.setup_logger(args)
 
         self.on_parsed_argument(args)
         return args
 
     def __call__(self):
+        args = self.__setup()
         while True:
             try:
-                self.__run()
+                self.__run(args)
             except:
                 raises = (KeyboardInterrupt, AssertionError, SystemExit)
                 exctype, value = hap.handle_exception(raises=raises)
@@ -155,10 +153,9 @@ class StandardHap:
             raise SystemExit()
         signal.signal(signal.SIGTERM, handler)
 
-    def __run(self):
+    def __run(self, args):
         self.enable_handling_sigchld()
         self.enable_handling_terminate_signal()
-        args = self.__parse_argument()
         logger.info("Transporter: %s" % args.transporter)
         transporter_class = self.__transporter_manager.find(args.transporter)
         if transporter_class is None:
