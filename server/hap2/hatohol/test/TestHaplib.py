@@ -583,10 +583,10 @@ class HapiProcessor(unittest.TestCase):
         self.assertEquals(wait_response(test_id), test_result)
 
     def test_wait_response_timeout(self):
-        self.processor.set_timeout_sec(1)
+        hapiproc = self.__create_test_instance()
+        hapiproc.set_timeout_sec(1)
         test_id = 1
-        wait_response = testutils.get_priv_attr(self.processor,
-                                                "__wait_response")
+        wait_response = testutils.get_priv_attr(hapiproc, "__wait_response")
         self.assertRaises(Queue.Empty, wait_response, test_id)
 
 
