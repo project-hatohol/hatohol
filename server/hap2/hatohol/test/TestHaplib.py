@@ -455,11 +455,12 @@ class HapiProcessor(unittest.TestCase):
         self.assertEquals(hapiproc.get_ms_info(), test_ms)
 
     def test_set_dispatch_queue(self):
-        exact_dispatch_queue = DummyQueue()
-        self.processor.set_dispatch_queue(exact_dispatch_queue)
-        result_dispatch_queue = testutils.get_priv_attr(self.processor,
-                                                        "__dispatch_queue")
-        self.assertEquals(exact_dispatch_queue, result_dispatch_queue)
+        hapiproc = self.__create_test_instance()
+        test_dispatch_queue = DummyQueue()
+        hapiproc.set_dispatch_queue(test_dispatch_queue)
+        self.assertEquals(
+            testutils.get_priv_attr(hapiproc, "__dispatch_queue"),
+            test_dispatch_queue)
 
     def test_get_component_code(self):
         result_component_code = self.processor.get_component_code()
