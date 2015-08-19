@@ -506,9 +506,9 @@ class HapiProcessor(unittest.TestCase):
             hapiproc.exchange_profile("test_params", response_id=1))
 
     def test_put_arm_info(self):
-        self.reply_queue.put(True)
-        test_arm_info = haplib.ArmInfo()
-        testutils.assertNotRaises(self.processor.put_arm_info, test_arm_info)
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        testutils.assertNotRaises(hapiproc.put_arm_info, haplib.ArmInfo())
 
     def test_put_hosts(self):
         self.reply_queue.put(True)
