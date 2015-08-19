@@ -153,9 +153,9 @@ string HostResourceQueryOption::makeConditionForPrivilegedUser(void) const
 	if (m_impl->targetServerId != ALL_SERVERS) {
 		addCondition(condition,
 		  StringUtils::sprintf(
-		      "%s=%s",
-		      getServerIdColumnName().c_str(),
-		      rhs(m_impl->targetServerId)));
+		    "%s=%s",
+		    getServerIdColumnName().c_str(),
+		    rhs(m_impl->targetServerId)));
 	}
 	if (m_impl->targetHostId != ALL_LOCAL_HOSTS) {
 		addCondition(condition,
