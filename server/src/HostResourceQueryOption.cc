@@ -178,7 +178,7 @@ string HostResourceQueryOption::makeConditionForPrivilegedUser(void) const
 string HostResourceQueryOption::makeConditionForNormalUser(void) const
 {
 	const ServerHostGrpSetMap &allowedServersAndHostgroups =
-	  getDataQueryContext().getServerHostGrpSetMap();
+	  getAllowedServersAndHostgroups();
 	return makeCondition(allowedServersAndHostgroups);
 }
 
@@ -490,7 +490,7 @@ bool HostResourceQueryOption::isHostgroupEnumerationInCondition(void) const
 	if (has(OPPRVLG_GET_ALL_SERVER))
 		return false;
 	const ServerHostGrpSetMap &allowedServersAndHostgroups =
-	  getDataQueryContext().getServerHostGrpSetMap();
+	  getAllowedServersAndHostgroups();
 	ServerHostGrpSetMapConstIterator it
 	  = allowedServersAndHostgroups.begin();
 	for (; it != allowedServersAndHostgroups.end(); ++it) {
@@ -514,4 +514,10 @@ string HostResourceQueryOption::getJoinClauseWithGlobalHostId(void) const
 	    synapse.globalHostIdColumnIdx).c_str(),
 	  synapse.hostgroupMapTableProfile.getFullColumnName(
 	    synapse.hostgroupMapGlobalHostIdColumnIdx).c_str());
+}
+
+const ServerHostGrpSetMap &
+HostResourceQueryOption::getAllowedServersAndHostgroups(void) const
+{
+	return getDataQueryContext().getServerHostGrpSetMap();
 }

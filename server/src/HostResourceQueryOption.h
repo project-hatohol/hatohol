@@ -172,6 +172,8 @@ protected:
 	bool isHostgroupEnumerationInCondition(void) const;
 	std::string getJoinClauseWithGlobalHostId(void) const;
 
+	const ServerHostGrpSetMap &getAllowedServersAndHostgroups(void) const;
+
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
