@@ -37,10 +37,7 @@ public:
 	  const ServerHostGrpSetMap &srvHostGrpSetMap,
 	  const std::string &serverIdColumnName,
 	  const std::string &hostgroupIdColumnName,
-	  const std::string &hostIdColumnName,
-	  const ServerIdType &targetServerId = ALL_SERVERS,
-	  const HostgroupIdType &targetHostgroupId = ALL_HOST_GROUPS,
-	  const LocalHostIdType &targetHostId = ALL_LOCAL_HOSTS) const;
+	  const std::string &hostIdColumnName) const;
 };
 
 #endif // TestHostResourceQueryOption_h

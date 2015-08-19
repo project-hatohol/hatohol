@@ -173,9 +173,12 @@ static void _assertMakeCondition(
   const HostgroupIdType &targetHostgroupId = ALL_HOST_GROUPS)
 {
 	TestHostResourceQueryOption option;
+	option.setTargetServerId(targetServerId);
+	option.setTargetHostId(targetHostId);
+	option.setTargetHostgroupId(targetHostgroupId);
 	string cond = option.callMakeCondition(
 	  srvHostGrpSetMap, serverIdColumnName, hostgroupIdColumnName,
-	  hostIdColumnName, targetServerId, targetHostgroupId, targetHostId);
+	  hostIdColumnName);
 	cppcut_assert_equal(expect, cond);
 }
 #define assertMakeCondition(M, ...) \

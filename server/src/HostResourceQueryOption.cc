@@ -193,10 +193,7 @@ string HostResourceQueryOption::makeConditionForNormalUser(void) const
 	condition = makeCondition(allowedServersAndHostgroups,
 				  getServerIdColumnName(),
 				  getHostgroupIdColumnName(),
-				  hostIdColumnName,
-				  m_impl->targetServerId,
-				  m_impl->targetHostgroupId,
-				  m_impl->targetHostId);
+				  hostIdColumnName);
 
 	return condition;
 }
@@ -411,13 +408,13 @@ string HostResourceQueryOption::makeCondition(
   const ServerHostGrpSetMap &allowedServersAndHostgroups,
   const string &serverIdColumnName,
   const string &hostgroupIdColumnName,
-  const string &hostIdColumnName,
-  const ServerIdType    &targetServerId,
-  const HostgroupIdType &targetHostgroupId,
-  const LocalHostIdType &targetHostId) const
+  const string &hostIdColumnName) const
 {
 	// TODO: consider if we use isHostgroupEnumerationInCondition()
 	string condition;
+	const ServerIdType &targetServerId = m_impl->targetServerId;
+	const HostgroupIdType &targetHostgroupId = m_impl->targetHostgroupId;
+	const LocalHostIdType &targetHostId = m_impl->targetHostId;
 
 	size_t numServers = allowedServersAndHostgroups.size();
 	if (numServers == 0) {
