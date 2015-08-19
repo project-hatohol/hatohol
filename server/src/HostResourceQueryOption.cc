@@ -129,8 +129,7 @@ string HostResourceQueryOption::getCondition(void) const
 		  condition,
 		  makeConditionServer(
 		    getDataQueryContext().getValidServerIdSet(),
-		    getServerIdColumnName())
-		);
+		    getServerIdColumnName()));
 	}
 
 	// TODO: consider if we cau use isHostgroupEnumerationInCondition()
