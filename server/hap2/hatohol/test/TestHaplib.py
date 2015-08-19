@@ -442,10 +442,11 @@ class HapiProcessor(unittest.TestCase):
             self.assertIsNone(testutils.get_priv_attr(hapiproc, attr_name))
 
     def test_set_ms_info(self):
-        exact_ms = "test_ms"
-        self.processor.set_ms_info(exact_ms)
-        result_ms = testutils.get_priv_attr(self.processor, "__ms_info")
-        self.assertEquals(exact_ms, result_ms)
+        hapiproc = self.__create_test_instance()
+        test_ms = "test_ms"
+        hapiproc.set_ms_info(test_ms)
+        self.assertEquals(test_ms,
+                          testutils.get_priv_attr(hapiproc, "__ms_info"))
 
     def test_get_ms_Info(self):
         result_ms = self.processor.get_ms_info()
