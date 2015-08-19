@@ -558,10 +558,11 @@ class HapiProcessor(unittest.TestCase):
         # TODO: Check if fetch_id and items shall be passed to the lower layer
 
     def test_wait_acknowledge(self):
-        self.reply_queue.put(True)
-        wait_acknowledge = testutils.get_priv_attr(self.processor,
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        wait_acknowledge = testutils.get_priv_attr(hapiproc,
                                                    "__wait_acknowledge")
-        testutils.assertNotRaises(wait_acknowledge, 1)
+        wait_acknowledge(1)
 
     def test_wait_acknowledge_timeout(self):
         hapiproc = self.__create_test_instance()
