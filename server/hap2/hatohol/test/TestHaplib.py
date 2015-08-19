@@ -429,19 +429,17 @@ class HapiProcessor(unittest.TestCase):
         return obj
 
     def test_reset(self):
-        self.processor.reset()
-        prev_hosts = testutils.get_priv_attr(self.processor, "__previous_hosts")
-        prev_host_groups = testutils.get_priv_attr(self.processor,
-                                                   "__previous_host_groups")
-        prev_host_group_membership = \
-                testutils.get_priv_attr(self.processor,
-                                        "__previous_host_group_membership")
-        event_last_info = testutils.get_priv_attr(self.processor,
-                                                  "__event_last_info")
-        self.assertIsNone(prev_hosts)
-        self.assertIsNone(prev_host_groups)
-        self.assertIsNone(prev_host_group_membership)
-        self.assertIsNone(event_last_info)
+        targets = ("__previous_hosts", "__previous_host_groups",
+                   "__previous_host_group_membership", "__event_last_info")
+
+        # Set arbitary data to each member
+        hapiproc = self.__create_test_instance()
+        for attr_name in targets:
+            testutils.set_priv_attr(hapiproc, attr_name, "Test Data")
+
+        hapiproc.reset()
+        for attr_name in targets:
+            self.assertIsNone(testutils.get_priv_attr(hapiproc, attr_name))
 
     def test_set_ms_info(self):
         exact_ms = "test_ms"
