@@ -496,9 +496,9 @@ class HapiProcessor(unittest.TestCase):
         self.assertEquals(hapiproc.get_last_info("test_element"), "SUCCESS")
 
     def test_exchange_profile_request(self):
-        self.reply_queue.put(True)
-        testutils.assertNotRaises(self.processor.exchange_profile,
-                                  "test_params")
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        self.assertIsNone(hapiproc.exchange_profile("test_params"))
 
     def test_exchange_profile_response(self):
         testutils.assertNotRaises(self.processor.exchange_profile,
