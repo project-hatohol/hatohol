@@ -448,10 +448,11 @@ class HapiProcessor(unittest.TestCase):
         self.assertEquals(test_ms,
                           testutils.get_priv_attr(hapiproc, "__ms_info"))
 
-    def test_get_ms_Info(self):
-        result_ms = self.processor.get_ms_info()
-        exact_ms = testutils.get_priv_attr(self.processor, "__ms_info")
-        self.assertEquals(exact_ms, result_ms)
+    def test_get_ms_info(self):
+        hapiproc = self.__create_test_instance()
+        test_ms = "test_ms"
+        testutils.set_priv_attr(hapiproc, "__ms_info", test_ms)
+        self.assertEquals(hapiproc.get_ms_info(), test_ms)
 
     def test_set_dispatch_queue(self):
         exact_dispatch_queue = DummyQueue()
