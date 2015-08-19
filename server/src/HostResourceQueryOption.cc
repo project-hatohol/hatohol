@@ -180,9 +180,11 @@ string HostResourceQueryOption::makeConditionForNormalUser(
 {
 	string condition(formerCondition);
 
-	// If the subclass doesn't have a valid hostIdColumnIdx,
-	// getHostIdColumnName() throws an exception. In that case,
-	// targetHostId shall be ALL_HOSTS.
+	// If the subclass doesn't have a valid hostIdColumnIdx
+	// (HostgroupsQueryOption doesn't have it) getHostIdColumnName()
+	// throws an exception. In that case, targetHostId shall be ALL_HOSTS
+	// therefore hostIdColumnName isn't needed. So we use dummy
+	// hostIdColumnName in this case.
 	const string hostIdColumnName =
 	  (m_impl->targetHostId != ALL_LOCAL_HOSTS) ?
 	    getHostIdColumnName() : "";
