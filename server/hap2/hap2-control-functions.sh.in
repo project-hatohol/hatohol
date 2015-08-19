@@ -33,7 +33,7 @@ prepare_plugin_options() {
         PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --amqp-queue=$HAPI_AMQP_QUEUE"
     fi
 
-    if test -n "$HAPI_AMQP_PASSWORD"; then
+    if test -n "$HAPI_AMQP_VHOST"; then
         PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --amqp-vhost=$HAPI_AMQP_VHOST"
     fi
 }
