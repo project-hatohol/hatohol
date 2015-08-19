@@ -549,12 +549,12 @@ class HapiProcessor(unittest.TestCase):
         # TODO: Check if fetch_id and items shall be passed to the lower layer
 
     def test_put_history(self):
-        self.reply_queue.put(True)
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
         fetch_id = 543
         item_id = 111
         samples = [{"value": "123", "time": "20150321151321"}]
-        testutils.assertNotRaises(self.processor.put_history,
-                               samples, item_id, fetch_id)
+        hapiproc.put_history(samples, item_id, fetch_id)
         # TODO: Check if fetch_id and items shall be passed to the lower layer
 
     def test_wait_acknowledge(self):
