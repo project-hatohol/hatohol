@@ -19,6 +19,7 @@
 """
 
 from logging import getLogger
+import os
 import pika
 import hap
 from hatohol.transporter import Transporter
@@ -29,6 +30,7 @@ MAX_BODY_SIZE = 50000
 MAX_FRAME_SIZE = 131072
 
 class RabbitMQConnector(Transporter):
+    HAPI_AMQP_PASSWORD_ENV_NAME = "HAPI_AMQP_PASSWORD"
     def __init__(self):
         Transporter.__init__(self)
         self._channel = None
@@ -141,18 +143,30 @@ class RabbitMQConnector(Transporter):
 
     @classmethod
     def define_arguments(cls, parser):
+
+        password_help = \
+        """
+        A password for the AMQP connection. This option is deprecated for a
+        security reason. You should specify the password with the environment
+        variable: %s instead.
+        """ % cls.HAPI_AMQP_PASSWORD_ENV_NAME
+
         parser.add_argument("--amqp-broker", type=str, default="localhost")
         parser.add_argument("--amqp-port", type=int, default=None)
         parser.add_argument("--amqp-vhost", type=str, default=None)
         parser.add_argument("--amqp-queue", type=str, default="hap2-queue")
         parser.add_argument("--amqp-user", type=str, default="hatohol")
-        parser.add_argument("--amqp-password", type=str, default="hatohol")
+        parser.add_argument("--amqp-password", type=str, default="hatohol",
+                            help=password_help)
         parser.add_argument("--amqp-ssl-key", type=str)
         parser.add_argument("--amqp-ssl-cert", type=str)
         parser.add_argument("--amqp-ssl-ca", type=str)
 
     @classmethod
     def parse_arguments(cls, args):
+        args.amqp_password = \
+            os.getenv(cls.HAPI_AMQP_PASSWORD_ENV_NAME, args.amqp_password)
+
         return {"amqp_broker": args.amqp_broker,
                 "amqp_port": args.amqp_port,
                 "amqp_vhost": args.amqp_vhost,
