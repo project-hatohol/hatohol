@@ -97,7 +97,7 @@ class StandardHap:
         if poller is not None:
             poller.set_ms_info(ms_info)
 
-    def __parse_argument(self):
+    def __setup(self):
         args = self.__parser.parse_args()
         hap.setup_logger(args)
 
@@ -105,9 +105,10 @@ class StandardHap:
         return args
 
     def __call__(self):
+        args = self.__setup()
         while True:
             try:
-                self.__run()
+                self.__run(args)
             except:
                 raises = (KeyboardInterrupt, AssertionError, SystemExit)
                 exctype, value = hap.handle_exception(raises=raises)
@@ -152,10 +153,9 @@ class StandardHap:
             raise SystemExit()
         signal.signal(signal.SIGTERM, handler)
 
-    def __run(self):
+    def __run(self, args):
         self.enable_handling_sigchld()
         self.enable_handling_terminate_signal()
-        args = self.__parse_argument()
         logger.info("Transporter: %s" % args.transporter)
         transporter_class = self.__transporter_manager.find(args.transporter)
         if transporter_class is None:
