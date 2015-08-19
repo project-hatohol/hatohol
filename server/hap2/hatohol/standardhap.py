@@ -43,7 +43,7 @@ class StandardHap:
         parser.add_argument("-p", "--disable-poller", action="store_true")
 
         help_msg = """
-            Minimum status logger.interval in seconds.
+            Minimum status logging interval in seconds.
             The actual interval depends on the implementation and is
             typically larger than this parameter.
             """
