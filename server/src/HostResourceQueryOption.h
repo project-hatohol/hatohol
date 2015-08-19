@@ -150,10 +150,7 @@ protected:
 	std::string makeConditionForPrivilegedUser(void) const;
 	std::string makeConditionForNormalUser(void) const;
 	std::string makeCondition(
-	  const ServerHostGrpSetMap &allowedServersAndHostgroups,
-	  const std::string &serverIdColumnName,
-	  const std::string &hostgroupIdColumnName,
-	  const std::string &hostIdColumnName) const;
+	  const ServerHostGrpSetMap &allowedServersAndHostgroups) const;
 	std::string makeConditionServer(
 	  const ServerIdSet &serverIdSet,
 	  const std::string &serverIdColumnName) const;

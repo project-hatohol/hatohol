@@ -177,25 +177,9 @@ string HostResourceQueryOption::makeConditionForPrivilegedUser(void) const
 
 string HostResourceQueryOption::makeConditionForNormalUser(void) const
 {
-	string condition;
-
-	// If the subclass doesn't have a valid hostIdColumnIdx
-	// (HostgroupsQueryOption doesn't have it), getHostIdColumnName()
-	// throws an exception. In that case, targetHostId shall be ALL_HOSTS
-	// and hostIdColumnName shall not be needed. So we use dummy
-	// hostIdColumnName in this case.
-	const string hostIdColumnName =
-	  (m_impl->targetHostId != ALL_LOCAL_HOSTS) ?
-	    getHostIdColumnName() : "";
-
 	const ServerHostGrpSetMap &allowedServersAndHostgroups =
 	  getDataQueryContext().getServerHostGrpSetMap();
-	condition = makeCondition(allowedServersAndHostgroups,
-				  getServerIdColumnName(),
-				  getHostgroupIdColumnName(),
-				  hostIdColumnName);
-
-	return condition;
+	return makeCondition(allowedServersAndHostgroups);
 }
 
 string HostResourceQueryOption::getFromClause(void) const
@@ -405,11 +389,20 @@ static inline bool isAllowedServer(
 }
 
 string HostResourceQueryOption::makeCondition(
-  const ServerHostGrpSetMap &allowedServersAndHostgroups,
-  const string &serverIdColumnName,
-  const string &hostgroupIdColumnName,
-  const string &hostIdColumnName) const
+  const ServerHostGrpSetMap &allowedServersAndHostgroups) const
 {
+	const string &serverIdColumnName = getServerIdColumnName();
+	const string &hostgroupIdColumnName = getHostgroupIdColumnName();
+
+	// If the subclass doesn't have a valid hostIdColumnIdx
+	// (HostgroupsQueryOption doesn't have it), getHostIdColumnName()
+	// throws an exception. In that case, targetHostId shall be ALL_HOSTS
+	// and hostIdColumnName shall not be needed. So we use dummy
+	// hostIdColumnName in this case.
+	const string hostIdColumnName =
+	  (m_impl->targetHostId != ALL_LOCAL_HOSTS) ?
+	    getHostIdColumnName() : "";
+
 	// TODO: consider if we use isHostgroupEnumerationInCondition()
 	string condition;
 	const ServerIdType &targetServerId = m_impl->targetServerId;

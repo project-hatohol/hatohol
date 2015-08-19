@@ -165,24 +165,6 @@ static const string serverIdColumnName = "server_id";
 static const string hostgroupIdColumnName = "host_group_id";
 static const string hostIdColumnName = "host_id";
 
-static void _assertMakeCondition(
-  const string &expect, const ServerHostGrpSetMap &srvHostGrpSetMap,
-  const ServerIdType &targetServerId = ALL_SERVERS,
-  const HostgroupIdType &targetHostgroupId = ALL_HOST_GROUPS,
-  const LocalHostIdType &targetHostId = ALL_LOCAL_HOSTS)
-{
-	TestHostResourceQueryOption option;
-	option.setTargetServerId(targetServerId);
-	option.setTargetHostId(targetHostId);
-	option.setTargetHostgroupId(targetHostgroupId);
-	string cond = option.callMakeCondition(
-	  srvHostGrpSetMap, serverIdColumnName, hostgroupIdColumnName,
-	  hostIdColumnName);
-	cppcut_assert_equal(expect, cond);
-}
-#define assertMakeCondition(M, ...) \
-  cut_trace(_assertMakeCondition(M, ##__VA_ARGS__))
-
 static string makeInOpContent(const HostgroupIdSet &hostgrpIdSet)
 {
 	string s;
@@ -202,49 +184,49 @@ namespace testHostResourceQueryOption {
 static string makeExpectedConditionForUser(
   UserIdType userId, OperationPrivilegeFlag flags)
 {
-	struct {
-		bool useFullColumnName;
-		string operator()(const string &tableName,
-		                  const string &columnName) {
-			return useFullColumnName ?
-			       tableName + "." + columnName : columnName;
-		}
-	} nameBuilder;
-	nameBuilder.useFullColumnName = false;
+	size_t index = userId - 1;
+	// Shouldn't build them dynamically by the test.
+	// Because:
+	// 1. Easy to read. It will make easy to debug.
+	// 2. Avoid modifying them unexpectedly.
+	// 3. When the testee or the test data is changed, we should update them
+	//    manually to recognize the change.
+	string expected[] = {
+		// UserId: 1
+		"(test_table_name.server_id=1 AND"
+		" test_hgrp_table_name.host_group_id IN ('0','1'))",
+		// UserId: 2
+		"",
+		// UserId: 3
+		"(test_table_name.server_id=1 OR"
+		" (test_table_name.server_id=2 AND"
+		" test_hgrp_table_name.host_group_id IN ('1','2'))"
+		" OR (test_table_name.server_id=4 AND"
+		" test_hgrp_table_name.host_group_id IN ('1'))"
+		" OR (test_table_name.server_id=211 AND"
+		" test_hgrp_table_name.host_group_id IN ('123')))",
+		// UserId: 4
+		"0",
+		// UserId: 5
+		"server_id=1",
+		// UserId: 6
+		"",
+		// UserId: 7
+		"(test_table_name.server_id=1 AND"
+		" test_hgrp_table_name.host_group_id IN ('1','2'))",
+		// UserId: 8
+		"0",
+		// UserId: 9
+		"0",
+		// UserId: 10
+		"",
+	};
 
-	UserIdIndexMap userIdIndexMap;
-	makeTestUserIdIndexMap(userIdIndexMap);
-	UserIdIndexMapIterator it = userIdIndexMap.find(userId);
-	if (flags & (1 << OPPRVLG_GET_ALL_SERVER)) {
-		// Although it's not correct when a target*Id is specified,
-		// currently no target is specified in this function.
+	if (index >= 0 && index < ARRAY_SIZE(expected)) {
+		return expected[index];
+	} else {
 		return "";
 	}
-	if (it == userIdIndexMap.end())
-		return DBHatohol::getAlwaysFalseCondition();
-
-	ServerHostGrpSetMap srvHostGrpSetMap;
-	const set<int> &indexes = it->second;
-	set<int>::const_iterator jt = indexes.begin();
-	for (; jt != indexes.end(); ++jt) {
-		const AccessInfo &accInfo = testAccessInfo[*jt];
-		srvHostGrpSetMap[accInfo.serverId].insert(accInfo.hostgroupId);
-		if (accInfo.hostgroupId != ALL_HOST_GROUPS)
-			nameBuilder.useFullColumnName = true;
-	}
-
-	string svIdColName =
-	  nameBuilder(TEST_PRIMARY_TABLE_NAME, serverIdColumnName);
-	string hgrpIdColName =
-	  nameBuilder(TEST_HGRP_TABLE_NAME, hostgroupIdColumnName);
-	string hostIdColName =
-	  nameBuilder(TEST_PRIMARY_TABLE_NAME, hostIdColumnName);
-	// TODO: consider that the following way (using a part of test
-	//       target method) is good.
-	TestHostResourceQueryOption option;
-	const string exp = option.callMakeCondition(
-	  srvHostGrpSetMap, svIdColName, hgrpIdColName, hostIdColName);
-	return exp;
 }
 
 void cut_setup(void)
@@ -439,6 +421,23 @@ void test_getDBTermCodec(void)
 
 namespace testHostResourceQueryOptionWithoutDBSetup {
 
+static void _assertMakeCondition(
+  const string &expect, const ServerHostGrpSetMap &srvHostGrpSetMap,
+  const ServerIdType &targetServerId = ALL_SERVERS,
+  const HostgroupIdType &targetHostgroupId = ALL_HOST_GROUPS,
+  const LocalHostIdType &targetHostId = ALL_LOCAL_HOSTS)
+{
+	// TEST_SYNAPSE requires DB setup so we use TEST_SYNAPSE_HGRP here
+	TestHostResourceQueryOption option(TEST_SYNAPSE_HGRP);
+	option.setTargetServerId(targetServerId);
+	option.setTargetHostId(targetHostId);
+	option.setTargetHostgroupId(targetHostgroupId);
+	string cond = option.callMakeCondition(srvHostGrpSetMap);
+	cppcut_assert_equal(expect, cond);
+}
+#define assertMakeCondition(M, ...) \
+  cut_trace(_assertMakeCondition(M, ##__VA_ARGS__))
+
 void test_constructorDataQueryContext(void)
 {
 	const UserIdType userId = USER_ID_SYSTEM;
@@ -478,7 +477,7 @@ void test_makeConditionServer(void)
 	for (size_t i = 0; i < numServerIds; i++)
 		svIdSet.insert(serverIds[i]);
 
-	TestHostResourceQueryOption option;
+	TestHostResourceQueryOption option(TEST_SYNAPSE);
 	string actual =
 	  option.callMakeConditionServer(svIdSet, serverIdColumnName);
 
@@ -508,7 +507,7 @@ void test_makeConditionServer(void)
 void test_makeConditionServerWithEmptyIdSet(void)
 {
 	ServerIdSet svIdSet;
-	TestHostResourceQueryOption option;
+	TestHostResourceQueryOption option(TEST_SYNAPSE);
 	string actual = option.callMakeConditionServer(svIdSet, "meet");
 	cppcut_assert_equal(DBHatohol::getAlwaysFalseCondition(), actual);
 }
