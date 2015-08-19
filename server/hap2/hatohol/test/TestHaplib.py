@@ -469,9 +469,10 @@ class HapiProcessor(unittest.TestCase):
             testutils.get_priv_attr(self.processor, "__component_code"))
 
     def test_get_reply_queue(self):
-        result_queue = self.processor.get_reply_queue()
-        exact_queue = testutils.get_priv_attr(self.processor, "__reply_queue")
-        self.assertEquals(result_queue, exact_queue)
+        hapiproc = self.__create_test_instance()
+        self.assertEquals(
+            hapiproc.get_reply_queue(),
+            testutils.get_priv_attr(hapiproc, "__reply_queue"))
 
     def test_get_sender(self):
         result_sender = self.processor.get_sender()
