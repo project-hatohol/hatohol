@@ -410,18 +410,6 @@ class Utils(unittest.TestCase):
 
 
 class HapiProcessor(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.__test_queue = DummyQueue()
-        transporter_args = {"class": transporter.Transporter}
-        cls.sender = haplib.Sender(transporter_args)
-        cls.processor = haplib.HapiProcessor("test", 0x01, cls.sender)
-        cls.processor.set_dispatch_queue(cls.__test_queue)
-        cls.reply_queue = cls.processor.get_reply_queue()
-        cls.connector = ConnectorForTest(cls.reply_queue)
-        cls.sender.set_connector(cls.connector)
-        cls.processor.reset()
-
     def __create_test_instance(self, connector_class=None):
         sender = haplib.Sender({"class": transporter.Transporter})
         obj = haplib.HapiProcessor("test", 0x01, sender)
