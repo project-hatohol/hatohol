@@ -491,8 +491,9 @@ class HapiProcessor(unittest.TestCase):
                               haplib.MonitoringServerInfo)
 
     def test_get_last_info(self):
-        self.reply_queue.put(True)
-        testutils.assertNotRaises(self.processor.get_last_info, "test_element")
+        hapiproc, connector = self.__create_test_instance(ConnectorForTest)
+        hapiproc.get_reply_queue().put(True)
+        self.assertEquals(hapiproc.get_last_info("test_element"), "SUCCESS")
 
     def test_exchange_profile_request(self):
         self.reply_queue.put(True)
