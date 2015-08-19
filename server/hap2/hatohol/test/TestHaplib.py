@@ -572,18 +572,15 @@ class HapiProcessor(unittest.TestCase):
         self.assertRaises(Queue.Empty, wait_acknowledge, 1)
 
     def test_wait_response(self):
-        exact_result = "test_result"
-        exact_id = 1
-        reply_queue = self.reply_queue
+        hapiproc = self.__create_test_instance()
+        test_result = "test_result"
+        test_id = 1
         pm = haplib.ParsedMessage()
-        pm.message_dict = {"id": exact_id, "result": exact_result}
-        pm.message_id = exact_id
-        reply_queue.put(pm)
-        wait_response = testutils.get_priv_attr(self.processor,
-                                                "__wait_response")
-        output = wait_response(exact_id)
-
-        self.assertEquals(output, exact_result)
+        pm.message_dict = {"id": test_id, "result": test_result}
+        pm.message_id = test_id
+        hapiproc.get_reply_queue().put(pm)
+        wait_response = testutils.get_priv_attr(hapiproc, "__wait_response")
+        self.assertEquals(wait_response(test_id), test_result)
 
     def test_wait_response_timeout(self):
         self.processor.set_timeout_sec(1)
