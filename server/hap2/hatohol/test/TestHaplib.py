@@ -463,10 +463,10 @@ class HapiProcessor(unittest.TestCase):
             test_dispatch_queue)
 
     def test_get_component_code(self):
-        result_component_code = self.processor.get_component_code()
-        exact_component_code = testutils.get_priv_attr(self.processor,
-                                                       "__component_code")
-        self.assertEquals(exact_component_code, result_component_code)
+        hapiproc = self.__create_test_instance()
+        self.assertEquals(
+            hapiproc.get_component_code(),
+            testutils.get_priv_attr(self.processor, "__component_code"))
 
     def test_get_reply_queue(self):
         result_queue = self.processor.get_reply_queue()
