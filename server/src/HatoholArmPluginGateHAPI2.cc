@@ -1608,7 +1608,7 @@ static HostIdType getHostInfoCacheWithAdhocRegistration(
 
 static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfoList,
 				const MonitoringServerInfo &serverInfo,
-				const HostInfoCache &hostInfoCache,
+				HostInfoCache &hostInfoCache,
 				JSONRPCError &errObj)
 {
 	CHECK_MANDATORY_ARRAY_EXISTENCE("triggers", errObj);
@@ -1638,17 +1638,10 @@ static bool parseTriggersParams(JSONParser &parser, TriggerInfoList &triggerInfo
 
 		triggerInfo.validity = TRIGGER_VALID;
 
-		HostInfoCache::Element cacheElem;
-		const bool found =
-			hostInfoCache.getName(triggerInfo.hostIdInServer, cacheElem);
-		if (!found) {
-			MLPL_WARN(
-			  "Host cache: not found. server: %" FMT_SERVER_ID ", "
-			  "hostIdInServer: %" FMT_LOCAL_HOST_ID "\n",
-			  serverInfo.id, triggerInfo.hostIdInServer.c_str());
-			cacheElem.hostId = INVALID_HOST_ID;
-		}
-		triggerInfo.globalHostId = cacheElem.hostId;
+		triggerInfo.globalHostId =
+		    getHostInfoCacheWithAdhocRegistration(
+		      hostInfoCache, serverInfo.id,
+		      triggerInfo.hostIdInServer, triggerInfo.hostName);
 		triggerInfoList.push_back(triggerInfo);
 	}
 	parser.endObject(); // triggers
@@ -1667,9 +1660,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	parser.startObject("params");
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	const HostInfoCache &hostInfoCache = m_impl->hostInfoCache;
 	parseTriggersParams(parser, triggerInfoList,
-			    serverInfo, hostInfoCache, errObj);
+	                    serverInfo, m_impl->hostInfoCache, errObj);
 
 	string updateType;
 	bool checkInvalidTriggers = parseUpdateType(parser, updateType, errObj);
