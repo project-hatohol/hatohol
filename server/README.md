@@ -139,7 +139,7 @@ You can install them by the following command:
 ## How to build Hatohol
 First, you need to install Django.
 
-    $ pip3 install 
+    $ pip3 install django
 
 Second, you need to install required libraries.
 Then run the following commands to install Hatohol:
