@@ -132,6 +132,7 @@ void HostInfoCache::registerAdHoc(const LocalHostIdType &idInServer,
                                   const string &name, Element &elem)
 {
 	ServerHostDef svHostDef;
+	svHostDef.id             = -1;
 	svHostDef.hostId         = INVALID_HOST_ID;
 	svHostDef.serverId       = INVALID_SERVER_ID;
 	svHostDef.hostIdInServer = idInServer;
