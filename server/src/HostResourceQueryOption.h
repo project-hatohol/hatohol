@@ -147,14 +147,9 @@ protected:
 	std::string getHostgroupIdColumnName(void) const;
 	std::string getHostIdColumnName(void) const;
 
-	std::string makeCondition(
-	  const ServerHostGrpSetMap &srvHostGrpSetMap,
-	  const std::string &serverIdColumnName,
-	  const std::string &hostgroupIdColumnName,
-	  const std::string &hostIdColumnName,
-	  const ServerIdType &targetServerId = ALL_SERVERS,
-	  const HostgroupIdType &targetHostgroup = ALL_HOST_GROUPS,
-	  const LocalHostIdType &targetHostId = ALL_LOCAL_HOSTS) const;
+	std::string makeConditionForPrivilegedUser(void) const;
+	std::string makeConditionForNormalUser(
+	  const ServerHostGrpSetMap &allowedServersAndHostgroups) const;
 	std::string makeConditionServer(
 	  const ServerIdSet &serverIdSet,
 	  const std::string &serverIdColumnName) const;
@@ -175,6 +170,8 @@ protected:
 	  const DBAgent::TableProfile &tableProfile, const size_t &idx) const;
 	bool isHostgroupEnumerationInCondition(void) const;
 	std::string getJoinClauseWithGlobalHostId(void) const;
+
+	const ServerHostGrpSetMap &getAllowedServersAndHostgroups(void) const;
 
 private:
 	struct Impl;

@@ -25,7 +25,8 @@
 
 class TestHostResourceQueryOption : public HostResourceQueryOption {
 public:
-	TestHostResourceQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	TestHostResourceQueryOption(const Synapse &synapse,
+				    const UserIdType &userId = INVALID_USER_ID);
 
 	std::string callGetServerIdColumnName(void) const;
 
@@ -34,13 +35,7 @@ public:
 	  const std::string &serverIdColumnName) const;
 
 	std::string callMakeCondition(
-	  const ServerHostGrpSetMap &srvHostGrpSetMap,
-	  const std::string &serverIdColumnName,
-	  const std::string &hostgroupIdColumnName,
-	  const std::string &hostIdColumnName,
-	  const ServerIdType &targetServerId = ALL_SERVERS,
-	  const HostgroupIdType &targetHostgroupId = ALL_HOST_GROUPS,
-	  const LocalHostIdType &targetHostId = ALL_LOCAL_HOSTS) const;
+	  const ServerHostGrpSetMap &srvHostGrpSetMap) const;
 };
 
 #endif // TestHostResourceQueryOption_h
