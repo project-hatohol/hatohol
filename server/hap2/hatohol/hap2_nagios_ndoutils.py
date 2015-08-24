@@ -117,6 +117,16 @@ class Common:
 
         return server, port, database
 
+    def __convert_to_nagios_time(self, hatohol_time):
+        over_second= hatohol_time.split(".")[0]
+        time_array = [char for char in over_second]
+        time_array.insert(4, "-")
+        time_array.insert(7, "-")
+        time_array.insert(10, " ")
+        time_array.insert(13, ":")
+        time_array.insert(16, ":")
+        return "".join(time_array)
+
     def collect_hosts_and_put(self):
         sql = "SELECT host_object_id,display_name FROM nagios_hosts"
         self.__cursor.execute(sql)
