@@ -434,11 +434,15 @@ string HostResourceQueryOption::makeConditionForNormalUser(
 	for (; it != allowedServersAndHostgroups.end(); ++it) {
 		const ServerIdType &serverId = it->first;
 
-		if (targetServerId != ALL_SERVERS && targetServerId != serverId)
+		if (targetServerId != ALL_SERVERS && targetServerId != serverId) {
+			// It isn't the target server.
 			continue;
+		}
 
-		if (serverId == ALL_SERVERS)
+		if (serverId == ALL_SERVERS) {
+			// All servers are allowed
 			return "";
+		}
 
 		string conditionServer = makeConditionServer(
 					   serverId, it->second,
