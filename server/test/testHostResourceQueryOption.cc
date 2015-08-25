@@ -424,9 +424,10 @@ void test_excludeServers(void)
 	serverIdList.push_back(3);
 	serverIdList.push_back(4);
 	serverIdList.push_back(211);
-	option.setExcludeServerIdList(serverIdList);
+	const bool exclude = true;
+	option.setFilterServerIdList(serverIdList, exclude);
 	string expect("server_id IN (1,2,3,4,211,222,301)"
-		      " AND server_id<>3 AND server_id<>4 AND server_id<>211");
+		      " AND (server_id<>3 AND server_id<>4 AND server_id<>211)");
 	cppcut_assert_equal(expect, option.getCondition());
 }
 
@@ -437,7 +438,8 @@ void test_excludeServersWithoutPriviledge(void)
 	serverIdList.push_back(3);
 	serverIdList.push_back(4);
 	serverIdList.push_back(211);
-	option.setExcludeServerIdList(serverIdList);
+	const bool exclude = true;
+	option.setFilterServerIdList(serverIdList, exclude);
 	string expect("0");
 	cppcut_assert_equal(expect, option.getCondition());
 }

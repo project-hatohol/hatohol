@@ -120,9 +120,12 @@ public:
 	virtual HostgroupIdType getTargetHostgroupId(void) const;
 	virtual void setTargetHostgroupId(HostgroupIdType targetHostgroupId);
 
-	virtual void setExcludeServerIdList(
-	  const std::list<ServerIdType> &serverIdList);
-	virtual const std::list<ServerIdType> &getExcludeServerIdList(void);
+	virtual void setFilterServerIdList(
+	  const std::list<ServerIdType> &serverIdList,
+	  const bool exculde = false);
+	virtual void getFilterServerIdList(
+	  std::list<ServerIdType> &serverIdList,
+	  bool &exclude);
 
 	/**
 	 * Enable or disable the filter to exclude defunct servers.
@@ -177,7 +180,7 @@ protected:
 
 	const ServerHostGrpSetMap &getAllowedServersAndHostgroups(void) const;
 
-	std::string makeConditionExcludeServers() const;
+	std::string makeConditionServersFilterForPrivilegedUser(void) const;
 
 private:
 	struct Impl;

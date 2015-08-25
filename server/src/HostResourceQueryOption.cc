@@ -66,14 +66,16 @@ struct HostResourceQueryOption::Impl {
 	LocalHostIdType targetHostId;
 	HostgroupIdType targetHostgroupId;
 	bool            excludeDefunctServers;
-	list<ServerIdType> excludeServerIdList;
+	list<ServerIdType> filterServerIdList;
+	bool excludeServerIdList;
 
 	Impl(const Synapse &_synapse)
 	: synapse(_synapse),
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_LOCAL_HOSTS),
 	  targetHostgroupId(ALL_HOST_GROUPS),
-	  excludeDefunctServers(true)
+	  excludeDefunctServers(true),
+	  excludeServerIdList(false)
 	{
 	}
 
@@ -254,16 +256,18 @@ const bool &HostResourceQueryOption::getExcludeDefunctServers(void) const
 	return m_impl->excludeDefunctServers;
 }
 
-void HostResourceQueryOption::setExcludeServerIdList(
-  const std::list<ServerIdType> &serverIdList)
+void HostResourceQueryOption::setFilterServerIdList(
+  const std::list<ServerIdType> &serverIdList, const bool exclude)
 {
-	m_impl->excludeServerIdList = serverIdList;
+	m_impl->filterServerIdList = serverIdList;
+	m_impl->excludeServerIdList = exclude;
 }
 
-const std::list<ServerIdType> &
-HostResourceQueryOption::getExcludeServerIdList(void)
+void HostResourceQueryOption::getFilterServerIdList(
+  std::list<ServerIdType> &serverIdList, bool &exclude)
 {
-	return m_impl->excludeServerIdList;
+	serverIdList = m_impl->filterServerIdList;
+	exclude =m_impl->excludeServerIdList;
 }
 
 // ---------------------------------------------------------------------------
@@ -312,6 +316,9 @@ string HostResourceQueryOption::makeConditionForPrivilegedUser(void) const
 		    getHostgroupIdColumnName().c_str(),
 		    rhs(m_impl->targetHostgroupId)));
 	}
+
+	addCondition(condition, makeConditionServersFilterForPrivilegedUser(),
+		     ADD_TYPE_AND);
 
 	return condition;
 }
@@ -534,16 +541,31 @@ HostResourceQueryOption::getAllowedServersAndHostgroups(void) const
 	return getDataQueryContext().getServerHostGrpSetMap();
 }
 
-string HostResourceQueryOption::makeConditionExcludeServers() const
+string HostResourceQueryOption::makeConditionServersFilterForPrivilegedUser(void) const
 {
 	DBTermCStringProvider rhs(*getDBTermCodec());
 	string condition;
-	for (auto &serverId: m_impl->excludeServerIdList) {
-		addCondition(condition,
-			     StringUtils::sprintf(
-			       "%s<>%" FMT_SERVER_ID,
-			       getServerIdColumnName().c_str(),
-			       serverId));
+	if (m_impl->excludeServerIdList) {
+		for (auto &serverId: m_impl->filterServerIdList) {
+			addCondition(condition,
+				     StringUtils::sprintf(
+				       "%s<>%" FMT_SERVER_ID,
+				       getServerIdColumnName().c_str(),
+				       serverId));
+		}
+	} else {
+		for (auto &serverId: m_impl->filterServerIdList) {
+			addCondition(condition,
+				     StringUtils::sprintf(
+				       "%s=%" FMT_SERVER_ID,
+				       getServerIdColumnName().c_str(),
+				       serverId),
+				     ADD_TYPE_OR);
+		}
 	}
-	return condition;
+
+	if (condition.empty())
+		return condition;
+	else
+		return StringUtils::sprintf("(%s)", condition.c_str());
 }
