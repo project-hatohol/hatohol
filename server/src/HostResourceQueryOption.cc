@@ -148,36 +148,6 @@ string HostResourceQueryOption::getCondition(void) const
 	}
 }
 
-string HostResourceQueryOption::makeConditionForPrivilegedUser(void) const
-{
-	string condition;
-	DBTermCStringProvider rhs(*getDBTermCodec());
-
-	if (m_impl->targetServerId != ALL_SERVERS) {
-		addCondition(condition,
-		  StringUtils::sprintf(
-		    "%s=%s",
-		    getServerIdColumnName().c_str(),
-		    rhs(m_impl->targetServerId)));
-	}
-	if (m_impl->targetHostId != ALL_LOCAL_HOSTS) {
-		addCondition(condition,
-		  StringUtils::sprintf(
-		    "%s=%s",
-		    getHostIdColumnName().c_str(),
-		    rhs(m_impl->targetHostId)));
-	}
-	if (m_impl->targetHostgroupId != ALL_HOST_GROUPS) {
-		addCondition(condition,
-		  StringUtils::sprintf(
-		    "%s=%s",
-		    getHostgroupIdColumnName().c_str(),
-		    rhs(m_impl->targetHostgroupId)));
-	}
-
-	return condition;
-}
-
 string HostResourceQueryOption::getFromClause(void) const
 {
 	if (isHostgroupUsed())
@@ -314,6 +284,36 @@ string HostResourceQueryOption::getHostIdColumnName(void) const
 {
 	return getColumnNameCommon(m_impl->synapse.hostTableProfile,
 	                           m_impl->synapse.hostIdColumnIdx);
+}
+
+string HostResourceQueryOption::makeConditionForPrivilegedUser(void) const
+{
+	string condition;
+	DBTermCStringProvider rhs(*getDBTermCodec());
+
+	if (m_impl->targetServerId != ALL_SERVERS) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getServerIdColumnName().c_str(),
+		    rhs(m_impl->targetServerId)));
+	}
+	if (m_impl->targetHostId != ALL_LOCAL_HOSTS) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getHostIdColumnName().c_str(),
+		    rhs(m_impl->targetHostId)));
+	}
+	if (m_impl->targetHostgroupId != ALL_HOST_GROUPS) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getHostgroupIdColumnName().c_str(),
+		    rhs(m_impl->targetHostgroupId)));
+	}
+
+	return condition;
 }
 
 string HostResourceQueryOption::makeConditionHostgroup(
