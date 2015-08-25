@@ -529,3 +529,17 @@ HostResourceQueryOption::getAllowedServersAndHostgroups(void) const
 {
 	return getDataQueryContext().getServerHostGrpSetMap();
 }
+
+string HostResourceQueryOption::makeConditionExcludeServers() const
+{
+	DBTermCStringProvider rhs(*getDBTermCodec());
+	string condition;
+	for (auto &serverId: m_impl->excludeServerIdList) {
+		addCondition(condition,
+			     StringUtils::sprintf(
+			       "%s<>%" FMT_SERVER_ID,
+			       getServerIdColumnName().c_str(),
+			       serverId));
+	}
+	return condition;
+}

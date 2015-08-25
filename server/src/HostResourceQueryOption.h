@@ -177,6 +177,8 @@ protected:
 
 	const ServerHostGrpSetMap &getAllowedServersAndHostgroups(void) const;
 
+	std::string makeConditionExcludeServers() const;
+
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
