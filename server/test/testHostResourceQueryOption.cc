@@ -426,7 +426,7 @@ void test_excludeServers(void)
 	serverIdList.push_back(211);
 	option.setExcludeServerIdList(serverIdList);
 	string expect("server_id IN (1,2,3,4,211,222,301)"
-		      " AND serverId<>3 AND serverId<>4 AND serverId<>211");
+		      " AND server_id<>3 AND server_id<>4 AND server_id<>211");
 	cppcut_assert_equal(expect, option.getCondition());
 }
 
