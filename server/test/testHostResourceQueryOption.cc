@@ -251,7 +251,7 @@ void test_makeSelectConditionUserAdmin(gconstpointer data)
 	string expect = "";
 	fixupForFilteringDefunctServer(data, expect, option);
 	string actual = option.getCondition();
-	cppcut_assert_equal(actual, expect);
+	cppcut_assert_equal(expect, actual);
 }
 
 void data_makeSelectConditionAllEvents(void)
@@ -266,7 +266,7 @@ void test_makeSelectConditionAllEvents(gconstpointer data)
 	string expect = "";
 	fixupForFilteringDefunctServer(data, expect, option);
 	string actual = option.getCondition();
-	cppcut_assert_equal(actual, expect);
+	cppcut_assert_equal(expect, actual);
 }
 
 void test_makeSelectConditionNoneUser(void)
@@ -274,7 +274,7 @@ void test_makeSelectConditionNoneUser(void)
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	string actual = option.getCondition();
 	string expect = DBHatohol::getAlwaysFalseCondition();
-	cppcut_assert_equal(actual, expect);
+	cppcut_assert_equal(expect, actual);
 }
 
 void data_makeSelectCondition(void)
