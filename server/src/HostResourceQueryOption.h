@@ -159,7 +159,7 @@ protected:
 
 	std::string makeConditionTargetIds(void) const;
 	std::string makeConditionAllowedHosts(
-	  const ServerHostGrpSetMap &allowedServersAndHostgroups) const;
+	  const ServerHostGrpSetMap *allowedServersAndHostgroups = NULL) const;
 	std::string makeConditionServer(
 	  const ServerIdSet &serverIdSet,
 	  const std::string &serverIdColumnName) const;

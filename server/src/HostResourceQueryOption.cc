@@ -69,13 +69,17 @@ struct HostResourceQueryOption::Impl {
 	list<ServerIdType> filterServerIdList;
 	bool excludeServerIdList;
 
+	// TODO: Remove it, because it used only for tests
+	const ServerHostGrpSetMap *allowedServersAndHostgroups;
+
 	Impl(const Synapse &_synapse)
 	: synapse(_synapse),
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_LOCAL_HOSTS),
 	  targetHostgroupId(ALL_HOST_GROUPS),
 	  excludeDefunctServers(true),
-	  excludeServerIdList(false)
+	  excludeServerIdList(false),
+	  allowedServersAndHostgroups(NULL)
 	{
 	}
 
@@ -137,7 +141,7 @@ string HostResourceQueryOption::getCondition(void) const
 
 	if (!has(OPPRVLG_GET_ALL_SERVER)) {
 		string allowedHostsCondition =
-		  makeConditionAllowedHosts(getAllowedServersAndHostgroups());
+		  makeConditionAllowedHosts();
 
 		if (DBHatohol::isAlwaysFalseCondition(allowedHostsCondition))
 			return DBHatohol::getAlwaysFalseCondition();
@@ -425,8 +429,14 @@ string HostResourceQueryOption::makeConditionServer(
 }
 
 string HostResourceQueryOption::makeConditionAllowedHosts(
-  const ServerHostGrpSetMap &allowedServersAndHostgroups) const
+  const ServerHostGrpSetMap *allowedServersAndHostgroupsPtr) const
 {
+	if (allowedServersAndHostgroupsPtr)
+		m_impl->allowedServersAndHostgroups =
+			allowedServersAndHostgroupsPtr;
+	const ServerHostGrpSetMap &allowedServersAndHostgroups =
+	  getAllowedServersAndHostgroups();
+
 	const string &serverIdColumnName = getServerIdColumnName();
 	const string &hostgroupIdColumnName = getHostgroupIdColumnName();
 
@@ -548,6 +558,8 @@ string HostResourceQueryOption::getJoinClauseWithGlobalHostId(void) const
 const ServerHostGrpSetMap &
 HostResourceQueryOption::getAllowedServersAndHostgroups(void) const
 {
+	if (m_impl->allowedServersAndHostgroups)
+		return *m_impl->allowedServersAndHostgroups;
 	return getDataQueryContext().getServerHostGrpSetMap();
 }
 

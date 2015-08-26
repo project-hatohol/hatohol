@@ -462,7 +462,7 @@ void test_excludeServersWithoutPrivilege(void)
 
 namespace testHostResourceQueryOptionWithoutDBSetup {
 
-static void _assertMakeCondition(
+static void _assertAllowedServersAndHostgroups(
   const string &expect, const ServerHostGrpSetMap &srvHostGrpSetMap,
   const ServerIdType &targetServerId = ALL_SERVERS,
   const HostgroupIdType &targetHostgroupId = ALL_HOST_GROUPS,
@@ -476,8 +476,8 @@ static void _assertMakeCondition(
 	string cond = option.callMakeConditionAllowedHosts(srvHostGrpSetMap);
 	cppcut_assert_equal(expect, cond);
 }
-#define assertMakeCondition(M, ...) \
-  cut_trace(_assertMakeCondition(M, ##__VA_ARGS__))
+#define assertAllowedServersAndHostgroups(M, ...) \
+  cut_trace(_assertAllowedServersAndHostgroups(M, ##__VA_ARGS__))
 
 void test_constructorDataQueryContext(void)
 {
@@ -586,7 +586,7 @@ void test_makeConditionEmpty(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	string expect = DBHatohol::getAlwaysFalseCondition();
-	assertMakeCondition(expect, srvHostGrpSetMap);
+	assertAllowedServersAndHostgroups(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionAllServers(void)
@@ -594,7 +594,7 @@ void test_makeConditionAllServers(void)
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	srvHostGrpSetMap[ALL_SERVERS].insert(ALL_HOST_GROUPS);
 	string expect = "";
-	assertMakeCondition(expect, srvHostGrpSetMap);
+	assertAllowedServersAndHostgroups(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionAllServersWithOthers(void)
@@ -605,7 +605,7 @@ void test_makeConditionAllServersWithOthers(void)
 	srvHostGrpSetMap[3].insert("1");
 	srvHostGrpSetMap[ALL_SERVERS].insert(ALL_HOST_GROUPS);
 	string expect = "";
-	assertMakeCondition(expect, srvHostGrpSetMap);
+	assertAllowedServersAndHostgroups(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionAllServersWithSpecifiedHostgroup(void)
@@ -613,7 +613,7 @@ void test_makeConditionAllServersWithSpecifiedHostgroup(void)
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	srvHostGrpSetMap[ALL_SERVERS].insert("1");
 	string expect = "";
-	assertMakeCondition(expect, srvHostGrpSetMap);
+	assertAllowedServersAndHostgroups(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionOneServerAllHostGrp(void)
@@ -622,7 +622,7 @@ void test_makeConditionOneServerAllHostGrp(void)
 	srvHostGrpSetMap[1].insert(ALL_HOST_GROUPS);
 	string expect =
 	  StringUtils::sprintf("%s=1", serverIdColumnName.c_str());
-	assertMakeCondition(expect, srvHostGrpSetMap);
+	assertAllowedServersAndHostgroups(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionOneServerAndOneHostgroup(void)
@@ -633,7 +633,7 @@ void test_makeConditionOneServerAndOneHostgroup(void)
 	  StringUtils::sprintf("(%s=1 AND %s IN ('3'))",
 	  serverIdColumnName.c_str(),
 	  hostgroupIdColumnName.c_str());
-	assertMakeCondition(expect, srvHostGrpSetMap);
+	assertAllowedServersAndHostgroups(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionOneServerAndHostgroups(void)
@@ -647,7 +647,7 @@ void test_makeConditionOneServerAndHostgroups(void)
 	  serverIdColumnName.c_str(),
 	  hostgroupIdColumnName.c_str(),
 	  makeInOpContent(srvHostGrpSetMap[1]).c_str());
-	assertMakeCondition(expect, srvHostGrpSetMap);
+	assertAllowedServersAndHostgroups(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionMultipleServers(void)
@@ -660,7 +660,7 @@ void test_makeConditionMultipleServers(void)
 	  serverIdColumnName.c_str(),
 	  serverIdColumnName.c_str(),
 	  serverIdColumnName.c_str());
-	assertMakeCondition(expect, srvHostGrpSetMap);
+	assertAllowedServersAndHostgroups(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionWithTargetServer(void)
@@ -671,7 +671,7 @@ void test_makeConditionWithTargetServer(void)
 	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
 	string expect = StringUtils::sprintf("%s=14",
 	  serverIdColumnName.c_str());
-	assertMakeCondition(expect, srvHostGrpSetMap, 14);
+	assertAllowedServersAndHostgroups(expect, srvHostGrpSetMap, 14);
 }
 
 void test_makeConditionWithUnauthorizedTargetServer(void)
@@ -680,7 +680,7 @@ void test_makeConditionWithUnauthorizedTargetServer(void)
 	srvHostGrpSetMap[5].insert(ALL_HOST_GROUPS);
 	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
 	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
-	assertMakeCondition("0", srvHostGrpSetMap, 7);
+	assertAllowedServersAndHostgroups("0", srvHostGrpSetMap, 7);
 }
 
 void test_makeConditionWithTargetServerAndHost(void)
@@ -689,11 +689,12 @@ void test_makeConditionWithTargetServerAndHost(void)
 	srvHostGrpSetMap[5].insert(ALL_HOST_GROUPS);
 	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
 	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
-	string expect = StringUtils::sprintf("((%s=14) AND %s='21')",
-					     serverIdColumnName.c_str(),
-					     hostIdColumnName.c_str());
-	assertMakeCondition(expect, srvHostGrpSetMap,
-			    14, ALL_HOST_GROUPS, "21");
+	// makeAllowedServerAndHostgroups() ignores hostId.
+	// getCondition() adds it instead.
+	string expect = StringUtils::sprintf("%s=14",
+					     serverIdColumnName.c_str());
+	assertAllowedServersAndHostgroups(
+	  expect, srvHostGrpSetMap, 14, ALL_HOST_GROUPS, "21");
 }
 
 void data_conditionForAdminWithTargetServerAndHost(void)
@@ -711,7 +712,7 @@ void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
 	option.setExcludeDefunctServers(excludeDefunctServers);
 	option.setTargetServerId(26);
 	option.setTargetHostId("32");
-	string expect = StringUtils::sprintf("%s=26 AND %s='32'",
+	string expect = StringUtils::sprintf("(%s=26 AND %s='32')",
 					     serverIdColumnName.c_str(),
 					     hostIdColumnName.c_str());
 	cppcut_assert_equal(expect, option.getCondition());
@@ -751,7 +752,7 @@ void test_makeConditionComplicated(void)
 	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str(),
 	  makeInOpContent(srvHostGrpSetMap[8192]).c_str());
 
-	assertMakeCondition(expect, srvHostGrpSetMap);
+	assertAllowedServersAndHostgroups(expect, srvHostGrpSetMap);
 }
 
 void test_systemUserHasPrivilegeGettingAllServers(void)
