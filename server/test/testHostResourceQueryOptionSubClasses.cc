@@ -42,7 +42,7 @@ static void initParamChecker(
   gconstpointer data, HostResourceQueryOption &option)
 {
 	option.setTargetServerId(2);
-	string expected = "server_id=2";
+	string expected = "(server_id=2";
 	const type_info &optionType = typeid(option);
 	if (optionType != typeid(HostgroupsQueryOption)) {
 		option.setTargetHostId("4");
@@ -50,6 +50,7 @@ static void initParamChecker(
 		expected += StringUtils::sprintf(" AND %s='4'",
 		                                 hostIdColumnName);
 	}
+	expected += ")";
 	if (typeid(option) == typeid(HostsQueryOption)) {
 		HostsQueryOption &hostsQueryOption =
 		  dynamic_cast<HostsQueryOption &>(option);
@@ -458,7 +459,7 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 	option.setTargetHostgroupId("48");
 	option.setTargetHostId("32");
 	string expect = StringUtils::sprintf(
-	                  "%s.%s=26 AND %s.%s='32' AND %s.%s='48'",
+	                  "(%s.%s=26 AND %s.%s='32' AND %s.%s='48')",
 			  DBTablesMonitoring::TABLE_NAME_EVENTS,
 			  serverIdColumnName.c_str(),
 			  DBTablesMonitoring::TABLE_NAME_EVENTS,
