@@ -297,10 +297,13 @@ string HostResourceQueryOption::getHostIdColumnName(void) const
 bool HostResourceQueryOption::isAllowedServer(
   const ServerIdType &targetServerId) const
 {
+	if (has(OPPRVLG_GET_ALL_SERVER))
+		return true;
 	const ServerHostGrpSetMap &allowedServersAndHostgroups =
 	  getAllowedServersAndHostgroups();
-	return allowedServersAndHostgroups.find(targetServerId) !=
-		allowedServersAndHostgroups.end();
+	auto endIt = allowedServersAndHostgroups.end();
+	return (allowedServersAndHostgroups.find(ALL_SERVERS) != endIt) ||
+	       (allowedServersAndHostgroups.find(targetServerId) != endIt);
 }
 
 bool HostResourceQueryOption::isAllowedHostgroup(
@@ -309,8 +312,12 @@ bool HostResourceQueryOption::isAllowedHostgroup(
 {
 	const ServerHostGrpSetMap &allowedServersAndHostgroups =
 	  getAllowedServersAndHostgroups();
+	auto endServerIt(allowedServersAndHostgroups.end());
+	if (allowedServersAndHostgroups.find(ALL_SERVERS) != endServerIt)
+		return true;
 	auto serverIt(allowedServersAndHostgroups.find(targetServerId));
-	if (serverIt != allowedServersAndHostgroups.end())
+	if (!has(OPPRVLG_GET_ALL_SERVER) &&
+	    serverIt != allowedServersAndHostgroups.end())
 		return false;
 	const HostgroupIdSet &hostgroupSet = serverIt->second;
 	return hostgroupSet.find(targetHostgroupId) != hostgroupSet.end();
