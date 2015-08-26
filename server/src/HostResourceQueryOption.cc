@@ -138,14 +138,14 @@ string HostResourceQueryOption::getCondition(void) const
 	if (!has(OPPRVLG_GET_ALL_SERVER)) {
 		string allowedHostsCondition =
 		  makeConditionAllowedHosts(getAllowedServersAndHostgroups());
+
 		if (DBHatohol::isAlwaysFalseCondition(allowedHostsCondition))
 			return DBHatohol::getAlwaysFalseCondition();
+
 		addCondition(condition, allowedHostsCondition);
 	}
-	addCondition(condition, makeConditionTargetIds(),
-		     ADD_TYPE_AND, true);
-	addCondition(condition, makeConditionServersFilter(),
-		     ADD_TYPE_AND, true);
+	addCondition(condition, makeConditionTargetIds());
+	addCondition(condition, makeConditionServersFilter());
 
 	return condition;
 }
@@ -346,7 +346,9 @@ string HostResourceQueryOption::makeConditionTargetIds(void) const
 		    rhs(m_impl->targetHostgroupId)));
 	}
 
-	return condition;
+	if (condition.empty())
+		return condition;
+	return StringUtils::sprintf("(%s)", condition.c_str());
 }
 
 string HostResourceQueryOption::makeConditionHostgroup(
@@ -574,5 +576,7 @@ string HostResourceQueryOption::makeConditionServersFilter(void) const
 		}
 	}
 
-	return condition;
+	if (condition.empty())
+		return condition;
+	return StringUtils::sprintf("(%s)", condition.c_str());
 }
