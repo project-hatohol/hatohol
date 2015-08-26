@@ -417,7 +417,7 @@ void test_getDBTermCodec(void)
 	                    typeid(*option.getDBTermCodec()));
 }
 
-void test_selectPluralServers(void)
+void test_selectPluralServersWithPrivilege(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
 	list<ServerIdType> serverIdList;
@@ -431,7 +431,7 @@ void test_selectPluralServers(void)
 	cppcut_assert_equal(expect, option.getCondition());
 }
 
-void test_excludeServers(void)
+void test_excludeServersWithPrivilege(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
 	list<ServerIdType> serverIdList;
@@ -445,7 +445,7 @@ void test_excludeServers(void)
 	cppcut_assert_equal(expect, option.getCondition());
 }
 
-void test_excludeServersWithoutPriviledge(void)
+void test_excludeServersWithoutPrivilege(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE);
 	list<ServerIdType> serverIdList;
