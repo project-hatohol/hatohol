@@ -299,6 +299,19 @@ bool HostResourceQueryOption::isAllowedServer(
 		allowedServersAndHostgroups.end();
 }
 
+bool HostResourceQueryOption::isAllowedHostgroup(
+  const ServerIdType &targetServerId,
+  const HostgroupIdType &targetHostgroupId) const
+{
+	const ServerHostGrpSetMap &allowedServersAndHostgroups =
+	  getAllowedServersAndHostgroups();
+	auto serverIt(allowedServersAndHostgroups.find(targetServerId));
+	if (serverIt != allowedServersAndHostgroups.end())
+		return false;
+	const HostgroupIdSet &hostgroupSet = serverIt->second;
+	return hostgroupSet.find(targetHostgroupId) != hostgroupSet.end();
+}
+
 string HostResourceQueryOption::makeConditionForPrivilegedUser(void) const
 {
 	string condition;

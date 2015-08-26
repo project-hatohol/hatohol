@@ -154,6 +154,8 @@ protected:
 	std::string getHostgroupIdColumnName(void) const;
 	std::string getHostIdColumnName(void) const;
 	bool isAllowedServer(const ServerIdType &targetServerId) const;
+	bool isAllowedHostgroup(const ServerIdType &targetServerId,
+				const HostgroupIdType &targetHostgroupId) const;
 
 	std::string makeConditionForPrivilegedUser(void) const;
 	std::string makeConditionForNormalUser(
