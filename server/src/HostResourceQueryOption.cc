@@ -290,6 +290,15 @@ string HostResourceQueryOption::getHostIdColumnName(void) const
 	                           m_impl->synapse.hostIdColumnIdx);
 }
 
+bool HostResourceQueryOption::isAllowedServer(
+  const ServerIdType &targetServerId) const
+{
+	const ServerHostGrpSetMap &allowedServersAndHostgroups =
+	  getAllowedServersAndHostgroups();
+	return allowedServersAndHostgroups.find(targetServerId) !=
+		allowedServersAndHostgroups.end();
+}
+
 string HostResourceQueryOption::makeConditionForPrivilegedUser(void) const
 {
 	string condition;
@@ -395,14 +404,6 @@ string HostResourceQueryOption::makeConditionServer(
 	}
 }
 
-static inline bool isAllowedServer(
-  const ServerHostGrpSetMap &allowedServersAndHostgroups,
-  const ServerIdType &targetServerId)
-{
-	return allowedServersAndHostgroups.find(targetServerId)
-		!= allowedServersAndHostgroups.end();
-}
-
 string HostResourceQueryOption::makeConditionForNormalUser(
   const ServerHostGrpSetMap &allowedServersAndHostgroups) const
 {
@@ -430,9 +431,7 @@ string HostResourceQueryOption::makeConditionForNormalUser(
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 
-	if (targetServerId != ALL_SERVERS &&
-	    !isAllowedServer(allowedServersAndHostgroups, targetServerId))
-	{
+	if (targetServerId != ALL_SERVERS && !isAllowedServer(targetServerId)) {
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 

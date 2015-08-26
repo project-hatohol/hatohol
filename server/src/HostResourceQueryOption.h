@@ -153,6 +153,7 @@ protected:
 	std::string getServerIdColumnName(void) const;
 	std::string getHostgroupIdColumnName(void) const;
 	std::string getHostIdColumnName(void) const;
+	bool isAllowedServer(const ServerIdType &targetServerId) const;
 
 	std::string makeConditionForPrivilegedUser(void) const;
 	std::string makeConditionForNormalUser(
