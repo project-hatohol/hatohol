@@ -34,7 +34,7 @@ public:
 	  const ServerIdSet &serverIdSet,
 	  const std::string &serverIdColumnName) const;
 
-	std::string callMakeCondition(
+	std::string callMakeConditionAllowedHosts(
 	  const ServerHostGrpSetMap &srvHostGrpSetMap) const;
 };
 

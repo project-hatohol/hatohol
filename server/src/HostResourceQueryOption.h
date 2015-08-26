@@ -157,8 +157,8 @@ protected:
 	bool isAllowedHostgroup(const ServerIdType &targetServerId,
 				const HostgroupIdType &targetHostgroupId) const;
 
-	std::string makeConditionForPrivilegedUser(void) const;
-	std::string makeConditionForNormalUser(
+	std::string makeConditionTargetIds(void) const;
+	std::string makeConditionAllowedHosts(
 	  const ServerHostGrpSetMap &allowedServersAndHostgroups) const;
 	std::string makeConditionServer(
 	  const ServerIdSet &serverIdSet,

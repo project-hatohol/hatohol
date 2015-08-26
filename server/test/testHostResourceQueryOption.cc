@@ -294,7 +294,7 @@ void test_makeSelectCondition(gconstpointer data)
 		string actual = option.getCondition();
 		string expect = makeExpectedConditionForUser(
 		                  userId, testUserInfo[i].flags);
-		if (excludeDefunctServers)
+		if (expect != "0" && excludeDefunctServers)
 			insertValidServerCond(expect, option);
 		cppcut_assert_equal(expect, actual);
 	}
@@ -473,7 +473,7 @@ static void _assertMakeCondition(
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostId(targetHostId);
 	option.setTargetHostgroupId(targetHostgroupId);
-	string cond = option.callMakeCondition(srvHostGrpSetMap);
+	string cond = option.callMakeConditionAllowedHosts(srvHostGrpSetMap);
 	cppcut_assert_equal(expect, cond);
 }
 #define assertMakeCondition(M, ...) \

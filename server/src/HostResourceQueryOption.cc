@@ -135,23 +135,19 @@ string HostResourceQueryOption::getCondition(void) const
 		    getServerIdColumnName()));
 	}
 
-	// TODO: consider if we cau use isHostgroupEnumerationInCondition()
-	if (has(OPPRVLG_GET_ALL_SERVER)) {
-		addCondition(condition, makeConditionForPrivilegedUser());
-		addCondition(condition, makeConditionServersFilter(),
-			     ADD_TYPE_AND);
-		return condition;
-	} else if (getUserId() != INVALID_USER_ID) {
-		addCondition(condition,
-			     makeConditionForNormalUser(
-			       getAllowedServersAndHostgroups()));
-		addCondition(condition, makeConditionServersFilter(),
-			     ADD_TYPE_AND);
-		return condition;
-	} else {
-		MLPL_DBG("INVALID_USER_ID\n");
-		return DBHatohol::getAlwaysFalseCondition();
+	if (!has(OPPRVLG_GET_ALL_SERVER)) {
+		string allowedHostsCondition =
+		  makeConditionAllowedHosts(getAllowedServersAndHostgroups());
+		if (DBHatohol::isAlwaysFalseCondition(allowedHostsCondition))
+			return DBHatohol::getAlwaysFalseCondition();
+		addCondition(condition, allowedHostsCondition);
 	}
+	addCondition(condition, makeConditionTargetIds(),
+		     ADD_TYPE_AND, true);
+	addCondition(condition, makeConditionServersFilter(),
+		     ADD_TYPE_AND, true);
+
+	return condition;
 }
 
 string HostResourceQueryOption::getFromClause(void) const
@@ -323,7 +319,7 @@ bool HostResourceQueryOption::isAllowedHostgroup(
 	return hostgroupSet.find(targetHostgroupId) != hostgroupSet.end();
 }
 
-string HostResourceQueryOption::makeConditionForPrivilegedUser(void) const
+string HostResourceQueryOption::makeConditionTargetIds(void) const
 {
 	string condition;
 	DBTermCStringProvider rhs(*getDBTermCodec());
@@ -423,9 +419,10 @@ string HostResourceQueryOption::makeConditionServer(
 	} else {
 		return condition;
 	}
+	return condition;
 }
 
-string HostResourceQueryOption::makeConditionForNormalUser(
+string HostResourceQueryOption::makeConditionAllowedHosts(
   const ServerHostGrpSetMap &allowedServersAndHostgroups) const
 {
 	const string &serverIdColumnName = getServerIdColumnName();
@@ -444,7 +441,6 @@ string HostResourceQueryOption::makeConditionForNormalUser(
 	string condition;
 	const ServerIdType &targetServerId = m_impl->targetServerId;
 	const HostgroupIdType &targetHostgroupId = m_impl->targetHostgroupId;
-	const LocalHostIdType &targetHostId = m_impl->targetHostId;
 
 	size_t numServers = allowedServersAndHostgroups.size();
 	if (numServers == 0) {
@@ -462,7 +458,7 @@ string HostResourceQueryOption::makeConditionForNormalUser(
 		const ServerIdType &serverId = it->first;
 
 		if (targetServerId != ALL_SERVERS && targetServerId != serverId) {
-			// It isn't the target server.
+			// Omit it because it isn't the target server.
 			continue;
 		}
 
@@ -478,14 +474,6 @@ string HostResourceQueryOption::makeConditionForNormalUser(
 					   targetHostgroupId);
 		addCondition(condition, conditionServer, ADD_TYPE_OR);
 		++numServers;
-	}
-
-	if (targetHostId != ALL_LOCAL_HOSTS) {
-		DBTermCStringProvider rhs(*getDBTermCodec());
-		return StringUtils::sprintf(
-		         "((%s) AND %s=%s)",
-		         condition.c_str(), hostIdColumnName.c_str(),
-		         rhs(targetHostId));
 	}
 
 	if (numServers == 1)
@@ -586,8 +574,5 @@ string HostResourceQueryOption::makeConditionServersFilter(void) const
 		}
 	}
 
-	if (condition.empty())
-		return condition;
-	else
-		return StringUtils::sprintf("(%s)", condition.c_str());
+	return condition;
 }
