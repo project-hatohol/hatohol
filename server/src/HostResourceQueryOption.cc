@@ -138,11 +138,15 @@ string HostResourceQueryOption::getCondition(void) const
 	// TODO: consider if we cau use isHostgroupEnumerationInCondition()
 	if (has(OPPRVLG_GET_ALL_SERVER)) {
 		addCondition(condition, makeConditionForPrivilegedUser());
+		addCondition(condition, makeConditionServersFilter(),
+			     ADD_TYPE_AND);
 		return condition;
 	} else if (getUserId() != INVALID_USER_ID) {
 		addCondition(condition,
 			     makeConditionForNormalUser(
 			       getAllowedServersAndHostgroups()));
+		addCondition(condition, makeConditionServersFilter(),
+			     ADD_TYPE_AND);
 		return condition;
 	} else {
 		MLPL_DBG("INVALID_USER_ID\n");
@@ -338,9 +342,6 @@ string HostResourceQueryOption::makeConditionForPrivilegedUser(void) const
 		    getHostgroupIdColumnName().c_str(),
 		    rhs(m_impl->targetHostgroupId)));
 	}
-
-	addCondition(condition, makeConditionServersFilterForPrivilegedUser(),
-		     ADD_TYPE_AND);
 
 	return condition;
 }
@@ -553,12 +554,14 @@ HostResourceQueryOption::getAllowedServersAndHostgroups(void) const
 	return getDataQueryContext().getServerHostGrpSetMap();
 }
 
-string HostResourceQueryOption::makeConditionServersFilterForPrivilegedUser(void) const
+string HostResourceQueryOption::makeConditionServersFilter(void) const
 {
 	DBTermCStringProvider rhs(*getDBTermCodec());
 	string condition;
 	if (m_impl->excludeServerIdList) {
 		for (auto &serverId: m_impl->filterServerIdList) {
+			if (!isAllowedServer(serverId))
+				continue;
 			addCondition(condition,
 				     StringUtils::sprintf(
 				       "%s<>%" FMT_SERVER_ID,

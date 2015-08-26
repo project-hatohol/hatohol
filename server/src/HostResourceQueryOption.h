@@ -183,7 +183,7 @@ protected:
 
 	const ServerHostGrpSetMap &getAllowedServersAndHostgroups(void) const;
 
-	std::string makeConditionServersFilterForPrivilegedUser(void) const;
+	std::string makeConditionServersFilter(void) const;
 
 private:
 	struct Impl;
