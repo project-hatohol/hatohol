@@ -417,6 +417,20 @@ void test_getDBTermCodec(void)
 	                    typeid(*option.getDBTermCodec()));
 }
 
+void test_selectPluralServers(void)
+{
+	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
+	list<ServerIdType> serverIdList;
+	serverIdList.push_back(3);
+	serverIdList.push_back(4);
+	serverIdList.push_back(211);
+	const bool exclude = true;
+	option.setFilterServerIdList(serverIdList, !exclude);
+	string expect("server_id IN (1,2,3,4,211,222,301)"
+		      " AND (server_id=3 OR server_id=4 OR server_id=211)");
+	cppcut_assert_equal(expect, option.getCondition());
+}
+
 void test_excludeServers(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
