@@ -132,15 +132,15 @@ string HostResourceQueryOption::getCondition(void) const
 	string condition;
 
 	if (getExcludeDefunctServers()) {
-		addCondition(
-		  condition,
+		string validServersCondition(
 		  makeConditionServer(
 		    getDataQueryContext().getValidServerIdSet(),
 		    getServerIdColumnName()));
+		addCondition(condition, validServersCondition);
 	}
 
 	if (!has(OPPRVLG_GET_ALL_SERVER)) {
-		string allowedHostsCondition = makeConditionAllowedHosts();
+		string allowedHostsCondition(makeConditionAllowedHosts());
 
 		if (DBHatohol::isAlwaysFalseCondition(allowedHostsCondition))
 			return allowedHostsCondition;
