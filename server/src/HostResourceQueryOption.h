@@ -138,6 +138,40 @@ public:
 	  bool &exclude);
 
 	/**
+	 * Set a list of IDs of hostgroups to select or exclude.
+	 *
+	 * @param hostgroupIdList
+	 * A list of IDs of hostgroups to select or exclude.
+	 *
+	 * @param exclude
+	 * If the parameter is false, only the specified hostgroups are
+	 * selected. Otherwise they are excluded.
+	 */
+	virtual void setFilterHostgroupIdList(
+	  const std::list<GenericIdType> &hostgroupIdList,
+	  const bool exculde = false);
+	virtual void getFilterHostgroupIdList(
+	  std::list<GenericIdType> &hostgroupIdList,
+	  bool &exclude);
+
+	/**
+	 * Set a list of IDs of hosts to select or exclude.
+	 *
+	 * @param hostIdList
+	 * A list of IDs of hosts to select or exclude.
+	 *
+	 * @param exclude
+	 * If the parameter is false, only the specified hosts are
+	 * selected. Otherwise they are excluded.
+	 */
+	virtual void setFilterHostIdList(
+	  const std::list<GenericIdType> &hostIdList,
+	  const bool exculde = false);
+	virtual void getFilterHostIdList(
+	  std::list<GenericIdType> &hostIdList,
+	  bool &exclude);
+
+	/**
 	 * Enable or disable the filter to exclude defunct servers.
 	 *
 	 * @param enable

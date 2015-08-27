@@ -273,6 +273,27 @@ void HostResourceQueryOption::getFilterServerIdList(
 	exclude =m_impl->excludeServerIdList;
 }
 
+void HostResourceQueryOption::setFilterHostgroupIdList(
+  const std::list<GenericIdType> &hostgroupIdList, const bool exculde)
+{
+}
+
+void HostResourceQueryOption::getFilterHostgroupIdList(
+  std::list<GenericIdType> &hostgroupIdList, bool &exclude)
+{
+}
+
+void HostResourceQueryOption::setFilterHostIdList(
+  const std::list<GenericIdType> &hostIdList, const bool exculde)
+{
+}
+
+void HostResourceQueryOption::getFilterHostIdList(
+  std::list<GenericIdType> &hostIdList, bool &exclude)
+{
+}
+
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
