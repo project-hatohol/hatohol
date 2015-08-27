@@ -143,7 +143,7 @@ string HostResourceQueryOption::getCondition(void) const
 		string allowedHostsCondition = makeConditionAllowedHosts();
 
 		if (DBHatohol::isAlwaysFalseCondition(allowedHostsCondition))
-			return DBHatohol::getAlwaysFalseCondition();
+			return allowedHostsCondition;
 
 		addCondition(condition, allowedHostsCondition);
 	}
