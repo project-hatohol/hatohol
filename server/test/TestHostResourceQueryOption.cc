@@ -22,13 +22,8 @@
 
 using namespace std;
 
-// This is just to pass the build and won't work.
-static HostResourceQueryOption::Synapse synapse(
-  tableProfileTest, 0, 0,
-  tableProfileTest, 0, false,
-  tableProfileTest, 0, 0, 0);
-
-TestHostResourceQueryOption::TestHostResourceQueryOption(const UserIdType &userId)
+TestHostResourceQueryOption::TestHostResourceQueryOption(
+  const Synapse &synapse, const UserIdType &userId)
 : HostResourceQueryOption(synapse, userId)
 {
 }
@@ -45,19 +40,7 @@ string TestHostResourceQueryOption::callMakeConditionServer(
 }
 
 string TestHostResourceQueryOption::callMakeCondition(
-  const ServerHostGrpSetMap &srvHostGrpSetMap,
-  const string &serverIdColumnName,
-  const string &hostgroupIdColumnName,
-  const string &hostIdColumnName,
-  const ServerIdType &targetServerId,
-  const HostgroupIdType &targetHostgroupId,
-  const LocalHostIdType &targetHostId) const
+  const ServerHostGrpSetMap &srvHostGrpSetMap) const
 {
-	return makeCondition(srvHostGrpSetMap,
-	                     serverIdColumnName,
-	                     hostgroupIdColumnName,
-	                     hostIdColumnName,
-	                     targetServerId,
-	                     targetHostgroupId,
-	                     targetHostId);
+	return makeConditionForNormalUser(srvHostGrpSetMap);
 }

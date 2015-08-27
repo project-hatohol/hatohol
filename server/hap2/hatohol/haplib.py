@@ -25,7 +25,7 @@ basic ones.
 """
 
 import time
-import logging
+from logging import getLogger
 import multiprocessing
 import Queue
 import json
@@ -39,6 +39,8 @@ import copy
 from hatohol import hap
 from hatohol import transporter
 from hatohol.rabbitmqconnector import OverCapacity
+
+logger = getLogger(__name__)
 
 SERVER_PROCEDURES = {"exchangeProfile": True,
                      "getMonitoringServerInfo": True,
@@ -391,7 +393,7 @@ class HapiProcessor:
         if isinstance(timeout_sec, int) and 0 < timeout_sec:
             self.__timeout_sec = timeout_sec
         else:
-            logging.error("Inputed value is invalid.")
+            logger.error("Inputed value is invalid.")
 
     def get_monitoring_server_info(self):
         """
@@ -439,7 +441,7 @@ class HapiProcessor:
     def put_hosts(self, hosts):
         hosts.sort()
         if self.__previous_hosts == hosts:
-            logging.debug("hosts are not changed.")
+            logger.debug("hosts are not changed.")
             return
         hosts_params = {"updateType": "ALL", "hosts": hosts}
         request_id = Utils.generate_request_id(self.__component_code)
@@ -451,7 +453,7 @@ class HapiProcessor:
     def put_host_groups(self, host_groups):
         host_groups.sort()
         if self.__previous_host_groups == host_groups:
-            logging.debug("Host groups are not changed.")
+            logger.debug("Host groups are not changed.")
             return
         params = {"updateType": "ALL", "hostGroups": host_groups}
         request_id = Utils.generate_request_id(self.__component_code)
@@ -464,7 +466,7 @@ class HapiProcessor:
     def put_host_group_membership(self, hg_membership):
         hg_membership.sort()
         if self.__previous_host_group_membership == hg_membership:
-            logging.debug("Host group membership is not changed.")
+            logger.debug("Host group membership is not changed.")
             return
 
         hg_membership_params = {"updateType": "ALL",
@@ -584,7 +586,7 @@ class HapiProcessor:
             else:
                 raise
         except Queue.Empty:
-            logging.error("Request(ID: %d) is not accepted." % request_id)
+            logger.error("Request(ID: %d) is not accepted." % request_id)
             raise
 
     def __wait_response(self, request_id):
@@ -592,15 +594,15 @@ class HapiProcessor:
             pm = self.__reply_queue.get(True, self.__timeout_sec)
             if pm.message_id != request_id:
                 msg = "Got unexpected repsponse. req: " + str(request_id)
-                logging.error(msg)
+                logger.error(msg)
                 raise Exception(msg)
             return pm.message_dict["result"]
 
         except ValueError as exception:
-            logging.error("Got invalid response.")
+            logger.error("Got invalid response.")
             raise
         except Queue.Empty:
-            logging.error("Request failed.")
+            logger.error("Request failed.")
             raise
 
 class ChildProcess:
@@ -614,7 +616,7 @@ class ChildProcess:
         self.__process = multiprocessing.Process(target=self)
         self.__process.daemon = True
         self.__process.start()
-        logging.info("deamonized: %s (%s)" % \
+        logger.info("deamonized: %s (%s)" % \
                      (self.__process.pid, self.__class__.__name__))
 
     def terminate(self):
@@ -623,7 +625,7 @@ class ChildProcess:
         self.__process.terminate()
         self.__process.join()
         self.__process = None
-        logging.info("terminated: %s", self.__class__.__name__)
+        logger.info("terminated: %s", self.__class__.__name__)
 
 
 class Receiver(ChildProcess):
@@ -643,7 +645,7 @@ class Receiver(ChildProcess):
         parsed = Utils.parse_received_message(message,
                                               self.__allowed_procedures)
         if parsed.message_id is None and parsed.error_message is not None:
-            logging.error(parsed.error_message)
+            logger.error(parsed.error_message)
             return
         self.__dispatch_queue.put(("Receiver", parsed))
 
@@ -672,14 +674,14 @@ class Dispatcher(ChildProcess):
     def __acknowledge(self, message):
         wait_id = message[1]
         if wait_id in self.__id_res_q_map:
-            logging.error("Ignored duplicated ID: " + str(wait_id))
+            logger.error("Ignored duplicated ID: " + str(wait_id))
             return
 
         try:
             target_queue = self.__destination_q_map[message[0]]
         except KeyError:
             msg = message[0] + " is not registered."
-            logging_error(msg)
+            logger.error(msg)
             return
         self.__id_res_q_map[wait_id] = target_queue
         target_queue.put(True)
@@ -708,8 +710,8 @@ class Dispatcher(ChildProcess):
         # RPC shall has 'method'
         if target_queue == self.__rpc_queue:
             if "method" not in contents.message_dict:
-                logging.warning("Drop a received message w/o 'method'")
-                logging.warning(contents.message_dict)
+                logger.warning("Drop a received message w/o 'method'")
+                logger.warning(contents.message_dict)
                 return
 
         target_queue.put(contents)
@@ -794,7 +796,7 @@ class BaseMainPlugin(HapiProcessor):
             if procedure_name is None:
                 continue
             implement[procedure_name] = eval("self.%s" % func_name)
-            logging.info("Detected procedure: %s" % func_name)
+            logger.info("Detected procedure: %s" % func_name)
         self.__implemented_procedures = implement
 
     def get_sender(self):
@@ -853,7 +855,7 @@ class BaseMainPlugin(HapiProcessor):
 
             if msg.error_code is not None:
                 self.hap_return_error(msg.error_code, msg.message_id)
-                logging.error(msg.get_error_message())
+                logger.error(msg.get_error_message())
                 continue
 
             request = msg.message_dict
@@ -885,7 +887,7 @@ class BasePoller(HapiProcessor, ChildProcess):
         self.__next_log_status_time = datetime.now()
         interval = kwargs.get("status_log_interval",
                               self.__DEFAULT_STATUS_LOG_INTERVAL)
-        logging.info("Minimum status logging interval: %d" % interval)
+        logger.info("Minimum status logging interval: %d" % interval)
         self.__log_status_interval = timedelta(seconds=interval)
 
     def poll(self):
@@ -927,7 +929,7 @@ class BasePoller(HapiProcessor, ChildProcess):
         """
         now = datetime.now()
         if now >= self.__next_log_status_time:
-            logging.info(arm_info.get_summary())
+            logger.info(arm_info.get_summary())
             self.__next_log_status_time = now + self.__log_status_interval
 
     def set_ms_info(self, ms_info):
@@ -937,7 +939,7 @@ class BasePoller(HapiProcessor, ChildProcess):
         HapiProcessor.set_ms_info(self, ms_info)
         self.__pollingInterval = ms_info.polling_interval_sec
         self.__retryInterval = ms_info.retry_interval_sec
-        logging.info("Polling inverval: %d/%d",
+        logger.info("Polling inverval: %d/%d",
                      self.__pollingInterval, self.__retryInterval)
         raise hap.Signal(restart=True)
 

@@ -19,7 +19,7 @@
   <http://www.gnu.org/licenses/>.
 """
 import subprocess
-import logging
+from logging import getLogger
 import multiprocessing
 import datetime
 import json
@@ -29,6 +29,8 @@ import signal
 from hatohol import hap
 from hatohol import haplib
 from hatohol import standardhap
+
+logger = getLogger(__name__)
 
 class Hap2FluentdMain(haplib.BaseMainPlugin):
 
@@ -67,7 +69,7 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
 
     def __setup_log_status_timer(self):
         def __timer_handler(signum, frame):
-            logging.info(self.__arm_info.get_summary())
+            logger.info(self.__arm_info.get_summary())
 
         signal.signal(signal.SIGALRM, __timer_handler)
         interval = self.__status_log_interval
@@ -84,12 +86,12 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
                 time.sleep(self.__ms_info.retry_interval_sec)
 
     def __fluentd_manager_main_in_try_block(self):
-        logging.info("Started fluentd manger process.")
+        logger.info("Started fluentd manger process.")
         fluentd = subprocess.Popen(self.__launch_args, stdout=subprocess.PIPE)
         while True:
             line = fluentd.stdout.readline()
             if len(line) == 0:
-                logging.warning("The child process seems to have gone away.")
+                logger.warning("The child process seems to have gone away.")
                 fluentd.kill() # To make sure that the child terminates
                 raise hap.Signal()
             timestamp, tag, raw_msg = self.__parse_line(line)
@@ -138,7 +140,7 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
     def __get_parameter(self, msg, key, default_value, candidates):
         param = msg.get(key, default_value)
         if param not in candidates:
-            logging.error("Unknown parameter: %s for key: %s" % (param, key))
+            logger.error("Unknown parameter: %s for key: %s" % (param, key))
             param = default_value
         return param
 

@@ -65,23 +65,23 @@ struct HostResourceQueryOption::Impl {
 	ServerIdType    targetServerId;
 	LocalHostIdType targetHostId;
 	HostgroupIdType targetHostgroupId;
-	bool            filterDataOfDefunctServers;
+	bool            excludeDefunctServers;
 
 	Impl(const Synapse &_synapse)
 	: synapse(_synapse),
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_LOCAL_HOSTS),
 	  targetHostgroupId(ALL_HOST_GROUPS),
-	  filterDataOfDefunctServers(true)
+	  excludeDefunctServers(true)
 	{
 	}
 
 	Impl &operator=(const Impl &rhs)
 	{
-		targetServerId             = rhs.targetServerId;
-		targetHostId               = rhs.targetHostId;
-		targetHostgroupId          = rhs.targetHostgroupId;
-		filterDataOfDefunctServers = rhs.filterDataOfDefunctServers;
+		targetServerId        = rhs.targetServerId;
+		targetHostId          = rhs.targetHostId;
+		targetHostgroupId     = rhs.targetHostgroupId;
+		excludeDefunctServers = rhs.excludeDefunctServers;
 		return *this;
 	}
 };
@@ -122,70 +122,58 @@ const char *HostResourceQueryOption::getPrimaryTableName(void) const
 
 string HostResourceQueryOption::getCondition(void) const
 {
-	DBTermCStringProvider rhs(*getDBTermCodec());
 	string condition;
-	if (getFilterForDataOfDefunctServers()) {
+
+	if (getExcludeDefunctServers()) {
 		addCondition(
 		  condition,
 		  makeConditionServer(
 		    getDataQueryContext().getValidServerIdSet(),
-		    getServerIdColumnName())
-		);
+		    getServerIdColumnName()));
 	}
-
-	UserIdType userId = getUserId();
 
 	// TODO: consider if we cau use isHostgroupEnumerationInCondition()
-	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER)) {
-		if (m_impl->targetServerId != ALL_SERVERS) {
-			addCondition(condition,
-			  StringUtils::sprintf(
-				"%s=%s",
-				getServerIdColumnName().c_str(),
-				rhs(m_impl->targetServerId))
-			);
-		}
-		if (m_impl->targetHostId != ALL_LOCAL_HOSTS) {
-			addCondition(condition,
-			  StringUtils::sprintf(
-				"%s=%s",
-				getHostIdColumnName().c_str(),
-				rhs(m_impl->targetHostId))
-			);
-		}
-		if (m_impl->targetHostgroupId != ALL_HOST_GROUPS) {
-			addCondition(condition,
-			  StringUtils::sprintf(
-				"%s=%s",
-				getHostgroupIdColumnName().c_str(),
-				rhs(m_impl->targetHostgroupId))
-			);
-		}
+	if (has(OPPRVLG_GET_ALL_SERVER)) {
+		addCondition(condition, makeConditionForPrivilegedUser());
 		return condition;
-	}
-
-	if (userId == INVALID_USER_ID) {
+	} else if (getUserId() != INVALID_USER_ID) {
+		addCondition(condition,
+			     makeConditionForNormalUser(
+			       getAllowedServersAndHostgroups()));
+		return condition;
+	} else {
 		MLPL_DBG("INVALID_USER_ID\n");
 		return DBHatohol::getAlwaysFalseCondition();
 	}
+}
 
-	// If the subclass doesn't have a valid hostIdColumnIdx,
-	// getHostIdColumnName() throws an exception. In that case,
-	// targetHostId shall be ALL_HOSTS.
-	const string hostIdColumnName =
-	  (m_impl->targetHostId != ALL_LOCAL_HOSTS) ?
-	    getHostIdColumnName() : "";
+string HostResourceQueryOption::makeConditionForPrivilegedUser(void) const
+{
+	string condition;
+	DBTermCStringProvider rhs(*getDBTermCodec());
 
-	const ServerHostGrpSetMap &srvHostGrpSetMap =
-	  getDataQueryContext().getServerHostGrpSetMap();
-	addCondition(condition,
-	             makeCondition(srvHostGrpSetMap,
-	                           getServerIdColumnName(),
-	                           getHostgroupIdColumnName(),
-	                           hostIdColumnName,
-	                           m_impl->targetServerId,
-	                           m_impl->targetHostgroupId,
-	                           m_impl->targetHostId));
+	if (m_impl->targetServerId != ALL_SERVERS) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getServerIdColumnName().c_str(),
+		    rhs(m_impl->targetServerId)));
+	}
+	if (m_impl->targetHostId != ALL_LOCAL_HOSTS) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getHostIdColumnName().c_str(),
+		    rhs(m_impl->targetHostId)));
+	}
+	if (m_impl->targetHostgroupId != ALL_HOST_GROUPS) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getHostgroupIdColumnName().c_str(),
+		    rhs(m_impl->targetHostgroupId)));
+	}
+
 	return condition;
 }
 
@@ -284,15 +272,15 @@ void HostResourceQueryOption::setTargetHostgroupId(
 	m_impl->targetHostgroupId = targetHostgroupId;
 }
 
-void HostResourceQueryOption::setFilterForDataOfDefunctServers(
+void HostResourceQueryOption::setExcludeDefunctServers(
   const bool &enable)
 {
-	m_impl->filterDataOfDefunctServers = enable;
+	m_impl->excludeDefunctServers = enable;
 }
 
-const bool &HostResourceQueryOption::getFilterForDataOfDefunctServers(void) const
+const bool &HostResourceQueryOption::getExcludeDefunctServers(void) const
 {
-	return m_impl->filterDataOfDefunctServers;
+	return m_impl->excludeDefunctServers;
 }
 
 // ---------------------------------------------------------------------------
@@ -387,33 +375,50 @@ string HostResourceQueryOption::makeConditionServer(
 	}
 }
 
-string HostResourceQueryOption::makeCondition(
-  const ServerHostGrpSetMap &srvHostGrpSetMap,
-  const string &serverIdColumnName,
-  const string &hostgroupIdColumnName,
-  const string &hostIdColumnName,
-  const ServerIdType    &targetServerId,
-  const HostgroupIdType &targetHostgroupId,
-  const LocalHostIdType &targetHostId) const
+static inline bool isAllowedServer(
+  const ServerHostGrpSetMap &allowedServersAndHostgroups,
+  const ServerIdType &targetServerId)
 {
+	return allowedServersAndHostgroups.find(targetServerId)
+		!= allowedServersAndHostgroups.end();
+}
+
+string HostResourceQueryOption::makeConditionForNormalUser(
+  const ServerHostGrpSetMap &allowedServersAndHostgroups) const
+{
+	const string &serverIdColumnName = getServerIdColumnName();
+	const string &hostgroupIdColumnName = getHostgroupIdColumnName();
+
+	// If the subclass doesn't have a valid hostIdColumnIdx
+	// (HostgroupsQueryOption doesn't have it), getHostIdColumnName()
+	// throws an exception. In that case, targetHostId shall be ALL_HOSTS
+	// and hostIdColumnName shall not be needed. So we use dummy
+	// hostIdColumnName in this case.
+	const string hostIdColumnName =
+	  (m_impl->targetHostId != ALL_LOCAL_HOSTS) ?
+	    getHostIdColumnName() : "";
+
 	// TODO: consider if we use isHostgroupEnumerationInCondition()
 	string condition;
+	const ServerIdType &targetServerId = m_impl->targetServerId;
+	const HostgroupIdType &targetHostgroupId = m_impl->targetHostgroupId;
+	const LocalHostIdType &targetHostId = m_impl->targetHostId;
 
-	size_t numServers = srvHostGrpSetMap.size();
+	size_t numServers = allowedServersAndHostgroups.size();
 	if (numServers == 0) {
 		MLPL_DBG("No allowed server\n");
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 
 	if (targetServerId != ALL_SERVERS &&
-	    srvHostGrpSetMap.find(targetServerId) == srvHostGrpSetMap.end())
+	    !isAllowedServer(allowedServersAndHostgroups, targetServerId))
 	{
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 
 	numServers = 0;
-	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
-	for (; it != srvHostGrpSetMap.end(); ++it) {
+	ServerHostGrpSetMapConstIterator it = allowedServersAndHostgroups.begin();
+	for (; it != allowedServersAndHostgroups.end(); ++it) {
 		const ServerIdType &serverId = it->first;
 
 		if (targetServerId != ALL_SERVERS && targetServerId != serverId)
@@ -477,13 +482,13 @@ string HostResourceQueryOption::getColumnNameCommon(
 
 bool HostResourceQueryOption::isHostgroupEnumerationInCondition(void) const
 {
-	const UserIdType &userId = getUserId();
-	if (userId == USER_ID_SYSTEM || has(OPPRVLG_GET_ALL_SERVER))
+	if (has(OPPRVLG_GET_ALL_SERVER))
 		return false;
-	const ServerHostGrpSetMap &srvHostGrpSetMap =
-	  getDataQueryContext().getServerHostGrpSetMap();
-	ServerHostGrpSetMapConstIterator it = srvHostGrpSetMap.begin();
-	for (; it != srvHostGrpSetMap.end(); ++it) {
+	const ServerHostGrpSetMap &allowedServersAndHostgroups =
+	  getAllowedServersAndHostgroups();
+	ServerHostGrpSetMapConstIterator it
+	  = allowedServersAndHostgroups.begin();
+	for (; it != allowedServersAndHostgroups.end(); ++it) {
 		const ServerIdType &serverId = it->first;
 		if (serverId == ALL_SERVERS)
 			continue;
@@ -504,4 +509,10 @@ string HostResourceQueryOption::getJoinClauseWithGlobalHostId(void) const
 	    synapse.globalHostIdColumnIdx).c_str(),
 	  synapse.hostgroupMapTableProfile.getFullColumnName(
 	    synapse.hostgroupMapGlobalHostIdColumnIdx).c_str());
+}
+
+const ServerHostGrpSetMap &
+HostResourceQueryOption::getAllowedServersAndHostgroups(void) const
+{
+	return getDataQueryContext().getServerHostGrpSetMap();
 }

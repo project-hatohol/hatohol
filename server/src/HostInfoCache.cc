@@ -61,7 +61,7 @@ HostInfoCache::~HostInfoCache()
 }
 
 void HostInfoCache::update(const ServerHostDef &svHostDef,
-                           const HostIdType &hostId)
+                           const HostIdType &hostId, const bool &adhoc)
 {
 	bool doUpdate = true;
 	m_impl->lock.writeLock();
@@ -78,7 +78,7 @@ void HostInfoCache::update(const ServerHostDef &svHostDef,
 		elem.hostId =
 		  (hostId != INVALID_HOST_ID) ? hostId : svHostDef.hostId;
 		elem.name = svHostDef.name;
-		HATOHOL_ASSERT(elem.hostId != INVALID_HOST_ID,
+		HATOHOL_ASSERT(adhoc || elem.hostId != INVALID_HOST_ID,
 		               "INVALID_HOST_ID: server: %d, host: %s\n",
 		               svHostDef.serverId,
 		               svHostDef.hostIdInServer.c_str());
@@ -126,6 +126,22 @@ bool HostInfoCache::getName(
 	}
 	m_impl->lock.unlock();
 	return found;
+}
+
+void HostInfoCache::registerAdHoc(const LocalHostIdType &idInServer,
+                                  const string &name, Element &elem)
+{
+	ServerHostDef svHostDef;
+	svHostDef.id             = -1;
+	svHostDef.hostId         = INVALID_HOST_ID;
+	svHostDef.serverId       = INVALID_SERVER_ID;
+	svHostDef.hostIdInServer = idInServer;
+	svHostDef.name           = name;
+	svHostDef.status         = HOST_STAT_INAPPLICABLE;
+	update(svHostDef, INVALID_HOST_ID, true);
+
+	elem.hostId = svHostDef.hostId;
+	elem.name   = svHostDef.name;
 }
 
 // ---------------------------------------------------------------------------

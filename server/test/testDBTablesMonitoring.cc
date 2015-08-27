@@ -168,7 +168,7 @@ struct AssertGetItemsArg
 			return true;
 		}
 
-		if (filterForDataOfDefunctSv) {
+		if (excludeDefunctServers) {
 			if (!option.isValidServer(info->serverId))
 				return true;
 		}
@@ -577,7 +577,7 @@ void test_getTriggerInfoNotFound(void)
 
 void data_getTriggerInfoList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getTriggerInfoList(gconstpointer data)
@@ -587,7 +587,7 @@ void test_getTriggerInfoList(gconstpointer data)
 
 void data_getTriggerInfoListForOneServer(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getTriggerInfoListForOneServer(gconstpointer data)
@@ -598,7 +598,7 @@ void test_getTriggerInfoListForOneServer(gconstpointer data)
 
 void data_getTriggerInfoListForOneServerOneHost(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getTriggerInfoListForOneServerOneHost(gconstpointer data)
@@ -610,7 +610,7 @@ void test_getTriggerInfoListForOneServerOneHost(gconstpointer data)
 
 void data_setTriggerInfoList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_setTriggerInfoList(gconstpointer data)
@@ -628,7 +628,7 @@ void test_setTriggerInfoList(gconstpointer data)
 
 void data_addTriggerInfoList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_addTriggerInfoList(gconstpointer data)
@@ -656,7 +656,7 @@ void test_addTriggerInfoList(gconstpointer data)
 
 void data_getTriggerWithOneAuthorizedServer(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getTriggerWithOneAuthorizedServer(gconstpointer data)
@@ -668,7 +668,7 @@ void test_getTriggerWithOneAuthorizedServer(gconstpointer data)
 
 void data_getTriggerWithNoAuthorizedServer(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getTriggerWithNoAuthorizedServer(gconstpointer data)
@@ -680,7 +680,7 @@ void test_getTriggerWithNoAuthorizedServer(gconstpointer data)
 
 void data_getTriggerWithInvalidUserId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getTriggerWithInvalidUserId(gconstpointer data)
@@ -692,7 +692,7 @@ void test_getTriggerWithInvalidUserId(gconstpointer data)
 
 void data_itemInfoList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_itemInfoList(gconstpointer data)
@@ -702,7 +702,7 @@ void test_itemInfoList(gconstpointer data)
 
 void data_itemInfoListForOneServer(gconstpointer data)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_itemInfoListForOneServer(gconstpointer data)
@@ -713,7 +713,7 @@ void test_itemInfoListForOneServer(gconstpointer data)
 
 void data_addItemInfoList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_addItemInfoList(gconstpointer data)
@@ -730,7 +730,7 @@ void test_addItemInfoList(gconstpointer data)
 
 void data_getItemsWithOneAuthorizedServer(gconstpointer data)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getItemsWithOneAuthorizedServer(gconstpointer data)
@@ -742,7 +742,7 @@ void test_getItemsWithOneAuthorizedServer(gconstpointer data)
 
 void data_getItemWithNoAuthorizedServer(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getItemWithNoAuthorizedServer(gconstpointer data)
@@ -754,7 +754,7 @@ void test_getItemWithNoAuthorizedServer(gconstpointer data)
 
 void data_getItemWithInvalidUserId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getItemWithInvalidUserId(gconstpointer data)
@@ -766,7 +766,7 @@ void test_getItemWithInvalidUserId(gconstpointer data)
 
 void data_getItemWithItemGroupName(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getItemWithItemGroupName(gconstpointer data)
@@ -778,7 +778,7 @@ void test_getItemWithItemGroupName(gconstpointer data)
 
 void data_getNumberOfItemsWithOneAuthorizedServer(gconstpointer data)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getNumberOfItemsWithOneAuthorizedServer(gconstpointer data)
@@ -790,7 +790,7 @@ void test_getNumberOfItemsWithOneAuthorizedServer(gconstpointer data)
 
 void data_getNumberOfItemWithNoAuthorizedServer(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getNumberOfItemWithNoAuthorizedServer(gconstpointer data)
@@ -802,7 +802,7 @@ void test_getNumberOfItemWithNoAuthorizedServer(gconstpointer data)
 
 void data_getNumberOfItemWithInvalidUserId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getNumberOfItemWithInvalidUserId(gconstpointer data)
@@ -814,7 +814,7 @@ void test_getNumberOfItemWithInvalidUserId(gconstpointer data)
 
 void data_getNumberOfItemsWithItemGroupName(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getNumberOfItemsWithItemGroupName(gconstpointer data)
@@ -826,7 +826,7 @@ void test_getNumberOfItemsWithItemGroupName(gconstpointer data)
 
 void data_addEventInfoList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_addEventInfoList(gconstpointer data)
@@ -875,7 +875,7 @@ void test_addEventInfoUnifiedId(void)
 
 void data_addDupEventInfoList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_addDupEventInfoList(gconstpointer data)
@@ -895,7 +895,7 @@ void test_addDupEventInfoList(gconstpointer data)
 
 void data_getLastEventId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getMaxEventId(gconstpointer data)
@@ -1114,7 +1114,7 @@ void test_getNumberOfBadHostsWithOneAuthorizedServer(void)
 
 void test_getEventSortAscending(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventSortAscending(gconstpointer data)
@@ -1126,7 +1126,7 @@ void test_getEventSortAscending(gconstpointer data)
 
 void data_getEventSortDescending(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventSortDescending(gconstpointer data)
@@ -1138,7 +1138,7 @@ void test_getEventSortDescending(gconstpointer data)
 
 void data_getEventWithMaximumNumber(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithMaximumNumber(gconstpointer data)
@@ -1153,7 +1153,7 @@ void test_getEventWithMaximumNumber(gconstpointer data)
 
 void data_getEventWithMaximumNumberDescending(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithMaximumNumberDescending(gconstpointer data)
@@ -1166,7 +1166,7 @@ void test_getEventWithMaximumNumberDescending(gconstpointer data)
 
 void data_getEventWithMaximumNumberAndOffsetAscending(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithMaximumNumberAndOffsetAscending(gconstpointer data)
@@ -1180,7 +1180,7 @@ void test_getEventWithMaximumNumberAndOffsetAscending(gconstpointer data)
 
 void data_getEventWithMaximumNumberAndOffsetDescending(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithMaximumNumberAndOffsetDescending(gconstpointer data)
@@ -1194,7 +1194,7 @@ void test_getEventWithMaximumNumberAndOffsetDescending(gconstpointer data)
 
 void data_getEventWithLimitOfUnifiedIdAscending(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithLimitOfUnifiedIdAscending(gconstpointer data)
@@ -1207,7 +1207,7 @@ void test_getEventWithLimitOfUnifiedIdAscending(gconstpointer data)
 
 void data_getEventWithSortTimeAscending(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithSortTimeAscending(gconstpointer data)
@@ -1220,7 +1220,7 @@ void test_getEventWithSortTimeAscending(gconstpointer data)
 
 void data_getEventWithSortTimeDescending(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithSortTimeDescending(gconstpointer data)
@@ -1233,7 +1233,7 @@ void test_getEventWithSortTimeDescending(gconstpointer data)
 
 void data_getEventWithOffsetWithoutLimit(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithOffsetWithoutLimit(gconstpointer data)
@@ -1246,7 +1246,7 @@ void test_getEventWithOffsetWithoutLimit(gconstpointer data)
 
 void data_getEventWithMaxNumAndOffsetAndLimitOfUnifiedIdDescending(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithMaxNumAndOffsetAndLimitOfUnifiedIdDescending(
@@ -1262,7 +1262,7 @@ void test_getEventWithMaxNumAndOffsetAndLimitOfUnifiedIdDescending(
 
 void data_getEventWithOneAuthorizedServer(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithOneAuthorizedServer(gconstpointer data)
@@ -1274,7 +1274,7 @@ void test_getEventWithOneAuthorizedServer(gconstpointer data)
 
 void data_getEventWithNoAuthorizedServer(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithNoAuthorizedServer(gconstpointer data)
@@ -1286,7 +1286,7 @@ void test_getEventWithNoAuthorizedServer(gconstpointer data)
 
 void data_getEventWithInvalidUserId(gconstpointer data)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithInvalidUserId(gconstpointer data)
@@ -1298,7 +1298,7 @@ void test_getEventWithInvalidUserId(gconstpointer data)
 
 void data_getEventWithEventType(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithEventType(gconstpointer data)
@@ -1310,7 +1310,7 @@ void test_getEventWithEventType(gconstpointer data)
 
 void data_getEventWithMinSeverity(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithMinSeverity(gconstpointer data)
@@ -1322,7 +1322,7 @@ void test_getEventWithMinSeverity(gconstpointer data)
 
 void data_getEventWithTriggerStatus(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithTriggerStatus(gconstpointer data)
@@ -1334,7 +1334,7 @@ void test_getEventWithTriggerStatus(gconstpointer data)
 
 void data_getEventWithTimeRange(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithTimeRange(gconstpointer data)
@@ -1347,7 +1347,7 @@ void test_getEventWithTimeRange(gconstpointer data)
 
 void data_getEventsWithIncidentInfo(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventsWithIncidentInfo(gconstpointer data)
@@ -1359,7 +1359,7 @@ void test_getEventsWithIncidentInfo(gconstpointer data)
 
 void data_getEventsWithIncidentInfoByAuthorizedUser(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventsWithIncidentInfoByAuthorizedUser(gconstpointer data)
@@ -1372,7 +1372,7 @@ void test_getEventsWithIncidentInfoByAuthorizedUser(gconstpointer data)
 
 void data_getEventWithTriggerId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventWithTriggerId(gconstpointer data)

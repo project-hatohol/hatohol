@@ -21,8 +21,10 @@
 
 import urllib2
 import json
-import logging
+from logging import getLogger
 from hatohol.haplib import Utils
+
+logger = getLogger(__name__)
 
 TRIGGER_SEVERITY = {"-1": "ALL", "0": "UNKNOWN", "1": "INFO", "2": "WARNING",
                     "3": "ERROR", "4": "CRITICAL", "5": "EMERGENCY"}
@@ -42,7 +44,7 @@ class ZabbixAPI:
 
         self.result = check_response(res_dict)
         if not self.result:
-            logging.error("Authenticate failure: %s" % res_dict)
+            logger.error("Authenticate failure: %s" % res_dict)
             return
 
         return res_dict["result"]
@@ -208,7 +210,7 @@ class ZabbixAPI:
                                  "brief": trigger["description"],
                                  "extendedInfo": description})
             except KeyError:
-                logging.warning("Get a imperfect trigger: %s" % trigger)
+                logger.warning("Get a imperfect trigger: %s" % trigger)
 
         return triggers
 
@@ -272,7 +274,7 @@ class ZabbixAPI:
                                "brief": trigger["description"],
                                "extendedInfo": ""})
             except KeyError:
-                logging.warning("Get a imperfect event: %s" % event)
+                logger.warning("Get a imperfect event: %s" % event)
 
         return events
 

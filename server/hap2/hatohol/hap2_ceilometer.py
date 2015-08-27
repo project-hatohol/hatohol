@@ -21,7 +21,7 @@
 
 import sys
 import time
-import logging
+from logging import getLogger
 import urllib2
 import json
 import datetime
@@ -30,6 +30,8 @@ import base64
 from hatohol import hap
 from hatohol import haplib
 from hatohol import standardhap
+
+logger = getLogger(__name__)
 
 class Common:
 
@@ -73,7 +75,7 @@ class Common:
         self.__ms_info = self.get_ms_info()
         ms_info = self.__ms_info
         if ms_info is None:
-            logging.error("Not found: MonitoringServerInfo.")
+            logger.error("Not found: MonitoringServerInfo.")
             raise hap.Signal()
 
         auth_url = ms_info.url + "/tokens"
@@ -96,7 +98,7 @@ class Common:
         expires = response["access"]["token"]["expires"]
         self.__expires = datetime.datetime.strptime(expires,
                                                     "%Y-%m-%dT%H:%M:%SZ")
-        logging.info("Got token, expires: %s" % self.__expires)
+        logger.info("Got token, expires: %s" % self.__expires)
 
         # Extract endpoints
         target_eps = {"nova": self.__set_nova_ep,
@@ -112,12 +114,12 @@ class Common:
             del target_eps[name]
 
         if len(target_eps) > 0:
-            logging.error("Not found Endpoints: Nova: %s, Ceiloemeter: %s" % \
+            logger.error("Not found Endpoints: Nova: %s, Ceiloemeter: %s" % \
                           (self.__nova_ep, self.__ceilometer_ep))
             raise hap.Signal()
 
-        logging.info("EP: Nova: %s", self.__nova_ep)
-        logging.info("EP: Ceiloemeter: %s", self.__ceilometer_ep)
+        logger.info("EP: Nova: %s", self.__nova_ep)
+        logger.info("EP: Ceiloemeter: %s", self.__ceilometer_ep)
 
     def __set_nova_ep(self, ep):
         self.__nova_ep = ep
@@ -264,12 +266,12 @@ class Common:
         response = self.__request(url)
         len_resources = len(response)
         if len_resources == 0:
-            logging.warning("Number of resources: %s: 0." % rel)
+            logger.warning("Number of resources: %s: 0." % rel)
             return None
         if len_resources >= 2:
             msg = "Number of resources: %s: %d. We use the first one" \
                   % (rel, len_resources)
-            logging.warning(msg)
+            logger.warning(msg)
         return response[0]
 
     def __decode_last_alarm_timestamp_map(self, last_info):
@@ -279,7 +281,7 @@ class Common:
             pickled = base64.b64decode(last_info)
             last_alarm_timestamp_map = cPickle.loads(pickled)
         except Exception as e:
-            logging.error("Failed to decode: %s."  % e)
+            logger.error("Failed to decode: %s."  % e)
             raise
         return last_alarm_timestamp_map
 
@@ -419,7 +421,7 @@ class Common:
         if value is None:
             return None
         if op != "eq":
-            logging.info("Unknown eperator: %s" % op)
+            logger.info("Unknown eperator: %s" % op)
             return None
         return value
 

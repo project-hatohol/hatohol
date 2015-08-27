@@ -121,24 +121,24 @@ public:
 	virtual void setTargetHostgroupId(HostgroupIdType targetHostgroupId);
 
 	/**
-	 * Enable or disable the filter for the data of defunct servers.
+	 * Enable or disable the filter to exclude defunct servers.
 	 *
 	 * @param enable
 	 * If the parameter is true, the filter is enabled. Otherwise,
 	 * it is disabled.
 	 *
 	 */
-	void setFilterForDataOfDefunctServers(const bool &enable = true);
+	void setExcludeDefunctServers(const bool &enable = true);
 
 	/**
-	 * Get the filter status for the data of defunct servers.
+	 * Get the status of the filter to exclude defunct servers.
 	 *
 	 * @return
 	 * If the filter is enabled, true is returned, Otherwise,
 	 * false is returned.
 	 *
 	 */
-	const bool &getFilterForDataOfDefunctServers(void) const;
+	const bool &getExcludeDefunctServers(void) const;
 
 	std::string getJoinClause(void) const;
 
@@ -147,14 +147,9 @@ protected:
 	std::string getHostgroupIdColumnName(void) const;
 	std::string getHostIdColumnName(void) const;
 
-	std::string makeCondition(
-	  const ServerHostGrpSetMap &srvHostGrpSetMap,
-	  const std::string &serverIdColumnName,
-	  const std::string &hostgroupIdColumnName,
-	  const std::string &hostIdColumnName,
-	  const ServerIdType &targetServerId = ALL_SERVERS,
-	  const HostgroupIdType &targetHostgroup = ALL_HOST_GROUPS,
-	  const LocalHostIdType &targetHostId = ALL_LOCAL_HOSTS) const;
+	std::string makeConditionForPrivilegedUser(void) const;
+	std::string makeConditionForNormalUser(
+	  const ServerHostGrpSetMap &allowedServersAndHostgroups) const;
 	std::string makeConditionServer(
 	  const ServerIdSet &serverIdSet,
 	  const std::string &serverIdColumnName) const;
@@ -175,6 +170,8 @@ protected:
 	  const DBAgent::TableProfile &tableProfile, const size_t &idx) const;
 	bool isHostgroupEnumerationInCondition(void) const;
 	std::string getJoinClauseWithGlobalHostId(void) const;
+
+	const ServerHostGrpSetMap &getAllowedServersAndHostgroups(void) const;
 
 private:
 	struct Impl;

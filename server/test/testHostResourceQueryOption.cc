@@ -165,22 +165,6 @@ static const string serverIdColumnName = "server_id";
 static const string hostgroupIdColumnName = "host_group_id";
 static const string hostIdColumnName = "host_id";
 
-// FIXME: Change order of parameter.
-static void _assertMakeCondition(
-  const ServerHostGrpSetMap &srvHostGrpSetMap, const string &expect,
-  const ServerIdType &targetServerId = ALL_SERVERS,
-  const LocalHostIdType &targetHostId = ALL_LOCAL_HOSTS,
-  const HostgroupIdType &targetHostgroupId = ALL_HOST_GROUPS)
-{
-	TestHostResourceQueryOption option;
-	string cond = option.callMakeCondition(
-	  srvHostGrpSetMap, serverIdColumnName, hostgroupIdColumnName,
-	  hostIdColumnName, targetServerId, targetHostgroupId, targetHostId);
-	cppcut_assert_equal(expect, cond);
-}
-#define assertMakeCondition(M, ...) \
-  cut_trace(_assertMakeCondition(M, ##__VA_ARGS__))
-
 static string makeInOpContent(const HostgroupIdSet &hostgrpIdSet)
 {
 	string s;
@@ -200,49 +184,49 @@ namespace testHostResourceQueryOption {
 static string makeExpectedConditionForUser(
   UserIdType userId, OperationPrivilegeFlag flags)
 {
-	struct {
-		bool useFullColumnName;
-		string operator()(const string &tableName,
-		                  const string &columnName) {
-			return useFullColumnName ?
-			       tableName + "." + columnName : columnName;
-		}
-	} nameBuilder;
-	nameBuilder.useFullColumnName = false;
+	size_t index = userId - 1;
+	// Shouldn't build them dynamically by the test.
+	// Because:
+	// 1. Easy to read. It will make easy to debug.
+	// 2. Avoid modifying them unexpectedly.
+	// 3. When the testee or the test data is changed, we should update them
+	//    manually to recognize the change.
+	string expected[] = {
+		// UserId: 1
+		"(test_table_name.server_id=1 AND"
+		" test_hgrp_table_name.host_group_id IN ('0','1'))",
+		// UserId: 2
+		"",
+		// UserId: 3
+		"(test_table_name.server_id=1 OR"
+		" (test_table_name.server_id=2 AND"
+		" test_hgrp_table_name.host_group_id IN ('1','2'))"
+		" OR (test_table_name.server_id=4 AND"
+		" test_hgrp_table_name.host_group_id IN ('1'))"
+		" OR (test_table_name.server_id=211 AND"
+		" test_hgrp_table_name.host_group_id IN ('123')))",
+		// UserId: 4
+		"0",
+		// UserId: 5
+		"server_id=1",
+		// UserId: 6
+		"",
+		// UserId: 7
+		"(test_table_name.server_id=1 AND"
+		" test_hgrp_table_name.host_group_id IN ('1','2'))",
+		// UserId: 8
+		"0",
+		// UserId: 9
+		"0",
+		// UserId: 10
+		"",
+	};
 
-	UserIdIndexMap userIdIndexMap;
-	makeTestUserIdIndexMap(userIdIndexMap);
-	UserIdIndexMapIterator it = userIdIndexMap.find(userId);
-	if (flags & (1 << OPPRVLG_GET_ALL_SERVER)) {
-		// Although it's not correct when a target*Id is specified,
-		// currently no target is specified in this function.
+	if (index >= 0 && index < ARRAY_SIZE(expected)) {
+		return expected[index];
+	} else {
 		return "";
 	}
-	if (it == userIdIndexMap.end())
-		return DBHatohol::getAlwaysFalseCondition();
-
-	ServerHostGrpSetMap srvHostGrpSetMap;
-	const set<int> &indexes = it->second;
-	set<int>::const_iterator jt = indexes.begin();
-	for (; jt != indexes.end(); ++jt) {
-		const AccessInfo &accInfo = testAccessInfo[*jt];
-		srvHostGrpSetMap[accInfo.serverId].insert(accInfo.hostgroupId);
-		if (accInfo.hostgroupId != ALL_HOST_GROUPS)
-			nameBuilder.useFullColumnName = true;
-	}
-
-	string svIdColName =
-	  nameBuilder(TEST_PRIMARY_TABLE_NAME, serverIdColumnName);
-	string hgrpIdColName =
-	  nameBuilder(TEST_HGRP_TABLE_NAME, hostgroupIdColumnName);
-	string hostIdColName =
-	  nameBuilder(TEST_PRIMARY_TABLE_NAME, hostIdColumnName);
-	// TODO: consider that the following way (using a part of test
-	//       target method) is good.
-	TestHostResourceQueryOption option;
-	const string exp = option.callMakeCondition(
-	  srvHostGrpSetMap, svIdColName, hgrpIdColName, hostIdColName);
-	return exp;
 }
 
 void cut_setup(void)
@@ -258,7 +242,7 @@ void cut_setup(void)
 // ---------------------------------------------------------------------------
 void data_makeSelectConditionUserAdmin(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_makeSelectConditionUserAdmin(gconstpointer data)
@@ -272,7 +256,7 @@ void test_makeSelectConditionUserAdmin(gconstpointer data)
 
 void data_makeSelectConditionAllEvents(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_makeSelectConditionAllEvents(gconstpointer data)
@@ -295,22 +279,22 @@ void test_makeSelectConditionNoneUser(void)
 
 void data_makeSelectCondition(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_makeSelectCondition(gconstpointer data)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+	const bool excludeDefunctServers =
+	  gcut_data_get_boolean(data, "excludeDefunctServers");
 	HostResourceQueryOption option(TEST_SYNAPSE);
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
+	option.setExcludeDefunctServers(excludeDefunctServers);
 	for (size_t i = 0; i < NumTestUserInfo; i++) {
 		UserIdType userId = i + 1;
 		option.setUserId(userId);
 		string actual = option.getCondition();
 		string expect = makeExpectedConditionForUser(
 		                  userId, testUserInfo[i].flags);
-		if (filterForDataOfDefunctSv)
+		if (excludeDefunctServers)
 			insertValidServerCond(expect, option);
 		cppcut_assert_equal(expect, actual);
 	}
@@ -437,6 +421,23 @@ void test_getDBTermCodec(void)
 
 namespace testHostResourceQueryOptionWithoutDBSetup {
 
+static void _assertMakeCondition(
+  const string &expect, const ServerHostGrpSetMap &srvHostGrpSetMap,
+  const ServerIdType &targetServerId = ALL_SERVERS,
+  const HostgroupIdType &targetHostgroupId = ALL_HOST_GROUPS,
+  const LocalHostIdType &targetHostId = ALL_LOCAL_HOSTS)
+{
+	// TEST_SYNAPSE requires DB setup so we use TEST_SYNAPSE_HGRP here
+	TestHostResourceQueryOption option(TEST_SYNAPSE_HGRP);
+	option.setTargetServerId(targetServerId);
+	option.setTargetHostId(targetHostId);
+	option.setTargetHostgroupId(targetHostgroupId);
+	string cond = option.callMakeCondition(srvHostGrpSetMap);
+	cppcut_assert_equal(expect, cond);
+}
+#define assertMakeCondition(M, ...) \
+  cut_trace(_assertMakeCondition(M, ##__VA_ARGS__))
+
 void test_constructorDataQueryContext(void)
 {
 	const UserIdType userId = USER_ID_SYSTEM;
@@ -476,7 +477,7 @@ void test_makeConditionServer(void)
 	for (size_t i = 0; i < numServerIds; i++)
 		svIdSet.insert(serverIds[i]);
 
-	TestHostResourceQueryOption option;
+	TestHostResourceQueryOption option(TEST_SYNAPSE);
 	string actual =
 	  option.callMakeConditionServer(svIdSet, serverIdColumnName);
 
@@ -506,7 +507,7 @@ void test_makeConditionServer(void)
 void test_makeConditionServerWithEmptyIdSet(void)
 {
 	ServerIdSet svIdSet;
-	TestHostResourceQueryOption option;
+	TestHostResourceQueryOption option(TEST_SYNAPSE);
 	string actual = option.callMakeConditionServer(svIdSet, "meet");
 	cppcut_assert_equal(DBHatohol::getAlwaysFalseCondition(), actual);
 }
@@ -518,13 +519,13 @@ void test_getPrimaryTableName(void)
 	                    option.getPrimaryTableName());
 }
 
-void test_defaultValueOfFilterForDataOfDefunctServers(void)
+void test_defaultValueOfExcludeDefunctServers(void)
 {
 	HostResourceQueryOption opt(TEST_SYNAPSE);
-	cppcut_assert_equal(true, opt.getFilterForDataOfDefunctServers());
+	cppcut_assert_equal(true, opt.getExcludeDefunctServers());
 }
 
-void data_setGetOfFilterForDataOfDefunctServers(void)
+void data_setAndGetExcludeDefunctServers(void)
 {
 	gcut_add_datum("Disable filtering",
 	               "enable", G_TYPE_BOOLEAN, FALSE, NULL);
@@ -532,19 +533,19 @@ void data_setGetOfFilterForDataOfDefunctServers(void)
 	               "enable", G_TYPE_BOOLEAN, TRUE, NULL);
 }
 
-void test_setGetOfFilterForDataOfDefunctServers(gconstpointer data)
+void test_setAndGetExcludeDefunctServers(gconstpointer data)
 {
 	HostResourceQueryOption opt(TEST_SYNAPSE);
 	bool enable = gcut_data_get_boolean(data, "enable");
-	opt.setFilterForDataOfDefunctServers(enable);
-	cppcut_assert_equal(enable, opt.getFilterForDataOfDefunctServers());
+	opt.setExcludeDefunctServers(enable);
+	cppcut_assert_equal(enable, opt.getExcludeDefunctServers());
 }
 
 void test_makeConditionEmpty(void)
 {
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	string expect = DBHatohol::getAlwaysFalseCondition();
-	assertMakeCondition(srvHostGrpSetMap, expect);
+	assertMakeCondition(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionAllServers(void)
@@ -552,7 +553,7 @@ void test_makeConditionAllServers(void)
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	srvHostGrpSetMap[ALL_SERVERS].insert(ALL_HOST_GROUPS);
 	string expect = "";
-	assertMakeCondition(srvHostGrpSetMap, expect);
+	assertMakeCondition(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionAllServersWithOthers(void)
@@ -563,7 +564,7 @@ void test_makeConditionAllServersWithOthers(void)
 	srvHostGrpSetMap[3].insert("1");
 	srvHostGrpSetMap[ALL_SERVERS].insert(ALL_HOST_GROUPS);
 	string expect = "";
-	assertMakeCondition(srvHostGrpSetMap, expect);
+	assertMakeCondition(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionAllServersWithSpecifiedHostgroup(void)
@@ -571,7 +572,7 @@ void test_makeConditionAllServersWithSpecifiedHostgroup(void)
 	ServerHostGrpSetMap srvHostGrpSetMap;
 	srvHostGrpSetMap[ALL_SERVERS].insert("1");
 	string expect = "";
-	assertMakeCondition(srvHostGrpSetMap, expect);
+	assertMakeCondition(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionOneServerAllHostGrp(void)
@@ -580,7 +581,7 @@ void test_makeConditionOneServerAllHostGrp(void)
 	srvHostGrpSetMap[1].insert(ALL_HOST_GROUPS);
 	string expect =
 	  StringUtils::sprintf("%s=1", serverIdColumnName.c_str());
-	assertMakeCondition(srvHostGrpSetMap, expect);
+	assertMakeCondition(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionOneServerAndOneHostgroup(void)
@@ -591,7 +592,7 @@ void test_makeConditionOneServerAndOneHostgroup(void)
 	  StringUtils::sprintf("(%s=1 AND %s IN ('3'))",
 	  serverIdColumnName.c_str(),
 	  hostgroupIdColumnName.c_str());
-	assertMakeCondition(srvHostGrpSetMap, expect);
+	assertMakeCondition(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionOneServerAndHostgroups(void)
@@ -605,7 +606,7 @@ void test_makeConditionOneServerAndHostgroups(void)
 	  serverIdColumnName.c_str(),
 	  hostgroupIdColumnName.c_str(),
 	  makeInOpContent(srvHostGrpSetMap[1]).c_str());
-	assertMakeCondition(srvHostGrpSetMap, expect);
+	assertMakeCondition(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionMultipleServers(void)
@@ -618,7 +619,7 @@ void test_makeConditionMultipleServers(void)
 	  serverIdColumnName.c_str(),
 	  serverIdColumnName.c_str(),
 	  serverIdColumnName.c_str());
-	assertMakeCondition(srvHostGrpSetMap, expect);
+	assertMakeCondition(expect, srvHostGrpSetMap);
 }
 
 void test_makeConditionWithTargetServer(void)
@@ -629,7 +630,7 @@ void test_makeConditionWithTargetServer(void)
 	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
 	string expect = StringUtils::sprintf("%s=14",
 	  serverIdColumnName.c_str());
-	assertMakeCondition(srvHostGrpSetMap, expect, 14);
+	assertMakeCondition(expect, srvHostGrpSetMap, 14);
 }
 
 void test_makeConditionWithUnauthorizedTargetServer(void)
@@ -638,7 +639,7 @@ void test_makeConditionWithUnauthorizedTargetServer(void)
 	srvHostGrpSetMap[5].insert(ALL_HOST_GROUPS);
 	srvHostGrpSetMap[14].insert(ALL_HOST_GROUPS);
 	srvHostGrpSetMap[768].insert(ALL_HOST_GROUPS);
-	assertMakeCondition(srvHostGrpSetMap, "0", 7);
+	assertMakeCondition("0", srvHostGrpSetMap, 7);
 }
 
 void test_makeConditionWithTargetServerAndHost(void)
@@ -650,22 +651,23 @@ void test_makeConditionWithTargetServerAndHost(void)
 	string expect = StringUtils::sprintf("((%s=14) AND %s='21')",
 					     serverIdColumnName.c_str(),
 					     hostIdColumnName.c_str());
-	assertMakeCondition(srvHostGrpSetMap, expect, 14, "21");
+	assertMakeCondition(expect, srvHostGrpSetMap,
+			    14, ALL_HOST_GROUPS, "21");
 }
 
 void data_conditionForAdminWithTargetServerAndHost(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
 {
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
-	if (filterForDataOfDefunctSv)
+	const bool excludeDefunctServers =
+	  gcut_data_get_boolean(data, "excludeDefunctServers");
+	if (excludeDefunctServers)
 		cut_omit("To be implemented");
 	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
+	option.setExcludeDefunctServers(excludeDefunctServers);
 	option.setTargetServerId(26);
 	option.setTargetHostId("32");
 	string expect = StringUtils::sprintf("%s=26 AND %s='32'",
@@ -708,7 +710,14 @@ void test_makeConditionComplicated(void)
 	  serverIdColumnName.c_str(), hostgroupIdColumnName.c_str(),
 	  makeInOpContent(srvHostGrpSetMap[8192]).c_str());
 
-	assertMakeCondition(srvHostGrpSetMap, expect);
+	assertMakeCondition(expect, srvHostGrpSetMap);
+}
+
+void test_systemUserHasPrivilegeGettingAllServers(void)
+{
+	ServerHostGrpSetMap allowedServersAndHostgroupsMap;
+	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
+	cppcut_assert_equal(true, option.has(OPPRVLG_GET_ALL_SERVER));
 }
 
 } // namespace testHostResourceQueryOptionWithoutDBSetup
