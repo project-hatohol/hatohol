@@ -39,8 +39,13 @@ string TestHostResourceQueryOption::callMakeConditionServer(
 	return makeConditionServer(serverIdSet, serverIdColumnName);
 }
 
-string TestHostResourceQueryOption::callMakeConditionAllowedHosts(
-  const ServerHostGrpSetMap &srvHostGrpSetMap) const
+string TestHostResourceQueryOption::callMakeConditionAllowedHosts(void) const
 {
-	return makeConditionAllowedHosts(&srvHostGrpSetMap);
+	return makeConditionAllowedHosts();
+}
+
+void TestHostResourceQueryOption::callSetAllowedServersAndHostgroups(
+  const ServerHostGrpSetMap *map)
+{
+	setAllowedServersAndHostgroups(map);
 }

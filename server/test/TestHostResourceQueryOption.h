@@ -34,8 +34,9 @@ public:
 	  const ServerIdSet &serverIdSet,
 	  const std::string &serverIdColumnName) const;
 
-	std::string callMakeConditionAllowedHosts(
-	  const ServerHostGrpSetMap &srvHostGrpSetMap) const;
+	std::string callMakeConditionAllowedHosts(void) const;
+	void callSetAllowedServersAndHostgroups(
+	  const ServerHostGrpSetMap *map);
 };
 
 #endif // TestHostResourceQueryOption_h

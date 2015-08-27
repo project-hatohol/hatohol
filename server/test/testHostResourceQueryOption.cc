@@ -470,10 +470,11 @@ static void _assertAllowedServersAndHostgroups(
 {
 	// TEST_SYNAPSE requires DB setup so we use TEST_SYNAPSE_HGRP here
 	TestHostResourceQueryOption option(TEST_SYNAPSE_HGRP);
+	option.callSetAllowedServersAndHostgroups(&srvHostGrpSetMap);
 	option.setTargetServerId(targetServerId);
 	option.setTargetHostId(targetHostId);
 	option.setTargetHostgroupId(targetHostgroupId);
-	string cond = option.callMakeConditionAllowedHosts(srvHostGrpSetMap);
+	string cond = option.callMakeConditionAllowedHosts();
 	cppcut_assert_equal(expect, cond);
 }
 #define assertAllowedServersAndHostgroups(M, ...) \

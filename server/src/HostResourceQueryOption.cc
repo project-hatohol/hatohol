@@ -448,12 +448,8 @@ string HostResourceQueryOption::makeConditionServer(
 	return condition;
 }
 
-string HostResourceQueryOption::makeConditionAllowedHosts(
-  const ServerHostGrpSetMap *allowedServersAndHostgroupsPtr) const
+string HostResourceQueryOption::makeConditionAllowedHosts(void) const
 {
-	if (allowedServersAndHostgroupsPtr)
-		m_impl->allowedServersAndHostgroups =
-			allowedServersAndHostgroupsPtr;
 	const ServerHostGrpSetMap &allowedServersAndHostgroups =
 	  getAllowedServersAndHostgroups();
 
@@ -611,4 +607,11 @@ string HostResourceQueryOption::makeConditionServersFilter(void) const
 	if (condition.empty())
 		return condition;
 	return StringUtils::sprintf("(%s)", condition.c_str());
+}
+
+// For test use only
+void HostResourceQueryOption::setAllowedServersAndHostgroups (
+  const ServerHostGrpSetMap *map)
+{
+	m_impl->allowedServersAndHostgroups = map;
 }

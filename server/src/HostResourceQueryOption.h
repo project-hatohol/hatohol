@@ -202,8 +202,7 @@ protected:
 				const HostgroupIdType &targetHostgroupId) const;
 
 	std::string makeConditionTargetIds(void) const;
-	std::string makeConditionAllowedHosts(
-	  const ServerHostGrpSetMap *allowedServersAndHostgroups = NULL) const;
+	std::string makeConditionAllowedHosts(void) const;
 	std::string makeConditionServer(
 	  const ServerIdSet &serverIdSet,
 	  const std::string &serverIdColumnName) const;
@@ -228,6 +227,9 @@ protected:
 	const ServerHostGrpSetMap &getAllowedServersAndHostgroups(void) const;
 
 	std::string makeConditionServersFilter(void) const;
+
+	// For test use only
+	void setAllowedServersAndHostgroups(const ServerHostGrpSetMap *map);
 
 private:
 	struct Impl;
