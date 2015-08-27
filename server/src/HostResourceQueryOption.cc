@@ -140,8 +140,7 @@ string HostResourceQueryOption::getCondition(void) const
 	}
 
 	if (!has(OPPRVLG_GET_ALL_SERVER)) {
-		string allowedHostsCondition =
-		  makeConditionAllowedHosts();
+		string allowedHostsCondition = makeConditionAllowedHosts();
 
 		if (DBHatohol::isAlwaysFalseCondition(allowedHostsCondition))
 			return DBHatohol::getAlwaysFalseCondition();
