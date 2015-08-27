@@ -68,6 +68,10 @@ struct HostResourceQueryOption::Impl {
 	bool            excludeDefunctServers;
 	list<ServerIdType> filterServerIdList;
 	bool excludeServerIdList;
+	list<GenericIdType> filterHostgroupIdList;
+	bool excludeHostgroupIdList;
+	list<GenericIdType> filterHostIdList;
+	bool excludeHostIdList;
 
 	// TODO: Remove it, because it used only for tests
 	const ServerIdSet *validServerIdSet;
@@ -80,6 +84,8 @@ struct HostResourceQueryOption::Impl {
 	  targetHostgroupId(ALL_HOST_GROUPS),
 	  excludeDefunctServers(true),
 	  excludeServerIdList(false),
+	  excludeHostgroupIdList(false),
+	  excludeHostIdList(false),
 	  validServerIdSet(NULL),
 	  allowedServersAndHostgroups(NULL)
 	{
@@ -271,27 +277,35 @@ void HostResourceQueryOption::getFilterServerIdList(
   std::list<ServerIdType> &serverIdList, bool &exclude)
 {
 	serverIdList = m_impl->filterServerIdList;
-	exclude =m_impl->excludeServerIdList;
+	exclude = m_impl->excludeServerIdList;
 }
 
 void HostResourceQueryOption::setFilterHostgroupIdList(
-  const std::list<GenericIdType> &hostgroupIdList, const bool exculde)
+  const std::list<GenericIdType> &hostgroupIdList, const bool exclude)
 {
+	m_impl->filterHostgroupIdList = hostgroupIdList;
+	m_impl->excludeHostgroupIdList = exclude;
 }
 
 void HostResourceQueryOption::getFilterHostgroupIdList(
   std::list<GenericIdType> &hostgroupIdList, bool &exclude)
 {
+	hostgroupIdList = m_impl->filterHostgroupIdList;
+	exclude = m_impl->excludeHostgroupIdList;
 }
 
 void HostResourceQueryOption::setFilterHostIdList(
-  const std::list<GenericIdType> &hostIdList, const bool exculde)
+  const std::list<GenericIdType> &hostIdList, const bool exclude)
 {
+	m_impl->filterHostIdList = hostIdList;
+	m_impl->excludeHostIdList = exclude;
 }
 
 void HostResourceQueryOption::getFilterHostIdList(
   std::list<GenericIdType> &hostIdList, bool &exclude)
 {
+	hostIdList = m_impl->filterHostIdList;
+	exclude = m_impl->excludeHostIdList;
 }
 
 

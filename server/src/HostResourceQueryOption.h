@@ -132,7 +132,7 @@ public:
 	 */
 	virtual void setFilterServerIdList(
 	  const std::list<ServerIdType> &serverIdList,
-	  const bool exculde = false);
+	  const bool exclude = false);
 	virtual void getFilterServerIdList(
 	  std::list<ServerIdType> &serverIdList,
 	  bool &exclude);
@@ -149,7 +149,7 @@ public:
 	 */
 	virtual void setFilterHostgroupIdList(
 	  const std::list<GenericIdType> &hostgroupIdList,
-	  const bool exculde = false);
+	  const bool exclude = false);
 	virtual void getFilterHostgroupIdList(
 	  std::list<GenericIdType> &hostgroupIdList,
 	  bool &exclude);
@@ -166,7 +166,7 @@ public:
 	 */
 	virtual void setFilterHostIdList(
 	  const std::list<GenericIdType> &hostIdList,
-	  const bool exculde = false);
+	  const bool exclude = false);
 	virtual void getFilterHostIdList(
 	  std::list<GenericIdType> &hostIdList,
 	  bool &exclude);
