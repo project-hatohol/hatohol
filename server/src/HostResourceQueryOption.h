@@ -120,6 +120,16 @@ public:
 	virtual HostgroupIdType getTargetHostgroupId(void) const;
 	virtual void setTargetHostgroupId(HostgroupIdType targetHostgroupId);
 
+	/**
+	 * Set a list of IDs of monitoring servers to select or exclude.
+	 *
+	 * @param serverIdList
+	 * A list of IDs of monitoring servers to select or exclude.
+	 *
+	 * @param exclude
+	 * If the parameter is false, only the specified monitoring servers are
+	 * selected. Otherwise they are excluded.
+	 */
 	virtual void setFilterServerIdList(
 	  const std::list<ServerIdType> &serverIdList,
 	  const bool exculde = false);
