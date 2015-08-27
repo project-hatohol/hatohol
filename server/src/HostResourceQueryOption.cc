@@ -66,8 +66,8 @@ struct HostResourceQueryOption::Impl {
 	LocalHostIdType targetHostId;
 	HostgroupIdType targetHostgroupId;
 	bool            excludeDefunctServers;
-	list<ServerIdType> filterServerIdList;
-	bool excludeServerIdList;
+	ServerIdSet filterServerIdSet;
+	bool excludeServerIdSet;
 	ServerHostGrpSetMap filterServerHostgroupSetMap;
 	bool excludeServerHostgroupSetMap;
 	ServerHostSetMap filterServerHostSetMap;
@@ -83,7 +83,7 @@ struct HostResourceQueryOption::Impl {
 	  targetHostId(ALL_LOCAL_HOSTS),
 	  targetHostgroupId(ALL_HOST_GROUPS),
 	  excludeDefunctServers(true),
-	  excludeServerIdList(false),
+	  excludeServerIdSet(false),
 	  excludeServerHostgroupSetMap(false),
 	  excludeServerHostSetMap(false),
 	  validServerIdSet(NULL),
@@ -266,18 +266,18 @@ const bool &HostResourceQueryOption::getExcludeDefunctServers(void) const
 	return m_impl->excludeDefunctServers;
 }
 
-void HostResourceQueryOption::setFilterServerIdList(
-  const std::list<ServerIdType> &serverIdList, const bool exclude)
+void HostResourceQueryOption::setFilterServerIds(
+  const ServerIdSet &serverIds, const bool exclude)
 {
-	m_impl->filterServerIdList = serverIdList;
-	m_impl->excludeServerIdList = exclude;
+	m_impl->filterServerIdSet = serverIds;
+	m_impl->excludeServerIdSet = exclude;
 }
 
-void HostResourceQueryOption::getFilterServerIdList(
-  std::list<ServerIdType> &serverIdList, bool &exclude)
+void HostResourceQueryOption::getFilterServerIds(
+  ServerIdSet &serverIds, bool &exclude)
 {
-	serverIdList = m_impl->filterServerIdList;
-	exclude = m_impl->excludeServerIdList;
+	serverIds = m_impl->filterServerIdSet;
+	exclude = m_impl->excludeServerIdSet;
 }
 
 void HostResourceQueryOption::setFilterHostgroupIds(
@@ -605,8 +605,8 @@ string HostResourceQueryOption::makeConditionServersFilter(void) const
 {
 	DBTermCStringProvider rhs(*getDBTermCodec());
 	string condition;
-	if (m_impl->excludeServerIdList) {
-		for (auto &serverId: m_impl->filterServerIdList) {
+	if (m_impl->excludeServerIdSet) {
+		for (auto &serverId: m_impl->filterServerIdSet) {
 			if (!isAllowedServer(serverId))
 				continue;
 			addCondition(condition,
@@ -616,7 +616,7 @@ string HostResourceQueryOption::makeConditionServersFilter(void) const
 				       serverId));
 		}
 	} else {
-		for (auto &serverId: m_impl->filterServerIdList) {
+		for (auto &serverId: m_impl->filterServerIdSet) {
 			addCondition(condition,
 				     StringUtils::sprintf(
 				       "%s=%" FMT_SERVER_ID,

@@ -420,12 +420,12 @@ void test_getDBTermCodec(void)
 void test_selectPluralServersWithPrivilege(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
-	list<ServerIdType> serverIdList;
-	serverIdList.push_back(3);
-	serverIdList.push_back(4);
-	serverIdList.push_back(211);
+	ServerIdSet serverIdSet;
+	serverIdSet.insert(3);
+	serverIdSet.insert(4);
+	serverIdSet.insert(211);
 	const bool exclude = true;
-	option.setFilterServerIdList(serverIdList, !exclude);
+	option.setFilterServerIds(serverIdSet, !exclude);
 	string expect("server_id IN (1,2,3,4,211,222,301)"
 		      " AND (server_id=3 OR server_id=4 OR server_id=211)");
 	cppcut_assert_equal(expect, option.getCondition());
@@ -434,12 +434,12 @@ void test_selectPluralServersWithPrivilege(void)
 void test_excludeServersWithPrivilege(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
-	list<ServerIdType> serverIdList;
-	serverIdList.push_back(3);
-	serverIdList.push_back(4);
-	serverIdList.push_back(211);
+	ServerIdSet serverIdSet;
+	serverIdSet.insert(3);
+	serverIdSet.insert(4);
+	serverIdSet.insert(211);
 	const bool exclude = true;
-	option.setFilterServerIdList(serverIdList, exclude);
+	option.setFilterServerIds(serverIdSet, exclude);
 	string expect("server_id IN (1,2,3,4,211,222,301)"
 		      " AND (server_id<>3 AND server_id<>4 AND server_id<>211)");
 	cppcut_assert_equal(expect, option.getCondition());
@@ -448,12 +448,12 @@ void test_excludeServersWithPrivilege(void)
 void test_excludeServersWithoutPrivilege(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE);
-	list<ServerIdType> serverIdList;
-	serverIdList.push_back(3);
-	serverIdList.push_back(4);
-	serverIdList.push_back(211);
+	ServerIdSet serverIdSet;
+	serverIdSet.insert(3);
+	serverIdSet.insert(4);
+	serverIdSet.insert(211);
 	const bool exclude = true;
-	option.setFilterServerIdList(serverIdList, exclude);
+	option.setFilterServerIds(serverIdSet, exclude);
 	string expect("0");
 	cppcut_assert_equal(expect, option.getCondition());
 }

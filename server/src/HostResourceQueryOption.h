@@ -123,18 +123,18 @@ public:
 	/**
 	 * Set a list of IDs of monitoring servers to select or exclude.
 	 *
-	 * @param serverIdList
+	 * @param serverIds
 	 * A list of IDs of monitoring servers to select or exclude.
 	 *
 	 * @param exclude
 	 * If the parameter is false, only the specified monitoring servers are
 	 * selected. Otherwise they are excluded.
 	 */
-	virtual void setFilterServerIdList(
-	  const std::list<ServerIdType> &serverIdList,
+	virtual void setFilterServerIds(
+	  const ServerIdSet &serverIds,
 	  const bool exclude = false);
-	virtual void getFilterServerIdList(
-	  std::list<ServerIdType> &serverIdList,
+	virtual void getFilterServerIds(
+	  ServerIdSet &serverIds,
 	  bool &exclude);
 
 	/**
