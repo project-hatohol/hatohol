@@ -1,5 +1,5 @@
 =========================
-Event
+GET-Event
 =========================
 
 Request
@@ -35,23 +35,42 @@ Parameters
      - N/A
      - N/A
      - Mandatory
+   * - limit
+     - N/A
+     - N/A
+     - N/A
+     - N/A
+   * - offset
+     - N/A
+     - N/A
+     - N/A
+     - N/A
+   * - limitOfUnifiedId
+     - N/A 
+     - N/A
+     - N/A
+     - N/A
+   * - sortType
+     - N/A
+     - N/A
+     - N/A
+     - N/A
    * - sortOrder
      - Any of `Sort order`_.
      - The default value is SORT_DONT_CARE.
      - If startId is specified, SORT_ASCENDING or SORT_DESCENDING has to be
        specified. Otherwise optional.
      - <-
-   * - maximumNumber
-     - A maximum number of returned events.
-     - If this paramters is omitted, all events will be returned.
-     - Optional
-     - <-
-   * - startId
-     - A start ID of returned events.
-     - - This ID is included in the returned events if it exists.
-       - sortOrder has to be specified when this paramter is used.
-     - Optional
-     - <-
+   * - minimumSeverity
+     - N/A
+     - N/A
+     - N/A
+     - N/A
+   * - type
+     - N/A
+     - N/A
+     - N/A
+     - N/A
 
 Sort order
 ----------
@@ -66,9 +85,11 @@ Sort order
 
 Response
 ========
-
 Repsponse structure
 -------------------
+-----------
+Zabbix
+-----------
 .. list-table::
    :header-rows: 1
 
@@ -79,17 +100,25 @@ Repsponse structure
    * - apiVersion
      - Number
      - An API version of this URL.
-       This document is written for version **3**.
+       This document is written for version **4**.
      - Always
-   * - result
+   * - haveIncident
      - Boolean
      - True on success. Otherwise False and the reason is shown in the
-       element: message.
+       element: errorMessage.
      - Always
-   * - message
+   * - errorMessage
      - String
      - Error message. This key is reply only when result is False.
      - False
+   * - errorCode
+     - Number
+     - N/A
+     - N/A
+   * - lastUnifiedEventlId
+     - Number
+     - N/A
+     - N/A
    * - numberOfEvents
      - Number
      - The number of events.
@@ -104,6 +133,7 @@ Repsponse structure
      - True
 
 .. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.
+
 
 Event object
 -------------
@@ -129,12 +159,24 @@ Event object
    * - triggerId
      - Number
      - The trigger ID.
+   * - eventId
+     - Number
+     - The event ID.
+   * - status
+     - Number
+     - N/A
+   * - severity
+     - Number
+     - N/A
    * - hostId
      - Number
      - A host ID.
    * - brief
      - String
      - A brief of the event.
+   * - extendedInfo
+     - String
+     - N/A
 
 Server object
 -------------
@@ -147,9 +189,24 @@ Server object
    * - name
      - String
      - A hostname of the server.
+   * - nickname
+     - String
+     - N/A
+   * - type
+     - Number
+     - N/A
+   * - ipAddress
+     - String
+     - An IP Address of the server.
+   * - baseURL
+     - String
+     - N/A
    * - hosts
      - Object
      - List of `Host object`_. Keys for each `Host object`_ are host IDs which corresponds to hostId values in `Event object`_.
+   * - groups
+     - Object
+     - N/A
 
 Host object
 -------------
@@ -165,9 +222,19 @@ Host object
    * - type
      - Number
      - A `Server type`_.
-   * - ipAddress
+
+
+Group object
+-------------
+.. list-table::
+   :header-rows: 1
+
+   * - Key
+     - Value type
+     - Brief
+   * - name
      - String
-     - An IP Address of the server.
+     - A hostname of the host.
 
 Event type
 -------------

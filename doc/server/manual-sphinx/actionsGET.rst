@@ -1,6 +1,7 @@
 =========================
-Trigger
+GET-Action
 =========================
+ **Please refer when you Get an Action.**
 
 Request
 =======
@@ -12,7 +13,7 @@ Path
 
    * - URL
      - Comments
-   * - /trigger
+   * - /action
      - N/A
 
 Parameters
@@ -35,6 +36,20 @@ Parameters
      - N/A
      - N/A
      - Mandatory
+   * - type
+     - N/A
+     - If you want `Incident tracking`, it value must be `2`.
+     - Optional 
+     - Optional 
+
+Parameter type
+-------------
+.. list-table::
+
+   * - N/A
+     - Action
+   * - 2
+     - Incident tracking
 
 Response
 ========
@@ -51,33 +66,32 @@ Repsponse structure
    * - apiVersion
      - Number
      - An API version of this URL.
-       This document is written for version **2**.
+       This document is written for version **4**.
      - Always
-   * - result
-     - Boolean
-     - True on success. Otherwise False and the reason is shown in the
-       element: message.
-     - Always
-   * - message
-     - String
-     - Error message. This key is reply only when result is False.
-     - False
-   * - numberOfTriggers
+   * - errorCode
      - Number
-     - The number of triggers.
+     - N/A
+     - Always
+   * - errorMessage
+     - String
+     - N/A
+     - False
+   * - numberOfActions
+     - Number
+     - N/A
      - True
-   * - triggers
+   * - actions
      - Array
-     - The array of `Trigger object`_.
+     - N/A
      - True
    * - servers
-     - Object
-     - List of `Server object`_. Keys for each `Server object`_ are server IDs which corresponds to serverId values in `Trigger object`_.
+     - Array
+     - N/A
      - True
 
 .. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.
 
-Trigger object
+Action object
 --------------
 .. list-table::
    :header-rows: 1
@@ -85,24 +99,48 @@ Trigger object
    * - Key
      - Value type
      - Brief
-   * - status
+   * - actionId
      - Number
-     - A `Trigger status`_.
-   * - severity
+     - N/A
+   * - enableBits
      - Number
-     - A `Trigger severity`_.
-   * - lastChangeTime
-     - Number
-     - A last change time of the trigger.
+     - N/A
    * - serverId
      - Number
      - A server ID.
    * - hostId
-     - Number
-     - A host ID.
-   * - brief
      - String
-     - A brief of the trigger.
+     - A host ID.
+   * - hostgroupId
+     - String
+     - A host ID.
+   * - triggerId
+     - String
+     - N/A
+   * - triggerStatus
+     - Number
+     - N/A
+   * - triggerSeverity
+     - Number
+     - N/A
+   * - triggerSeverityComparatorType
+     - Number
+     - N/A
+   * - type
+     - Number
+     - N/A
+   * - workingDirectory
+     - String
+     - N/A
+   * - command
+     - String
+     - N/A
+   * - timeout
+     - Number
+     - N/A
+   * - ownerUserId
+     - Number
+     - N/A
 
 Server object
 -------------
@@ -115,15 +153,27 @@ Server object
    * - name
      - String
      - A hostname of the server.
+   * - nickname
+     - String
+     - A nickname of the server.
    * - type
      - Number
      - A `Server type`_.
    * - ipAddress
      - String
      - An IP Address of the server.
+   * - baseURL
+     - String
+     - N/A
    * - hosts
      - Object
      - List of `Host object`_. Keys for each `Host object`_ are host IDs which corresponds to hostId values in `Trigger object`_.
+   * - triggers
+     - Object
+     - N/A
+   * - groups
+     - Array
+     - N/A
 
 Host object
 -------------
@@ -136,6 +186,30 @@ Host object
    * - name
      - String
      - A hostname of the host.
+
+Trigger object
+-------------
+.. list-table::
+   :header-rows: 1
+
+   * - Key
+     - Value type
+     - Brief
+   * - brief
+     - String
+     - N/A
+
+Group object
+-------------
+.. list-table::
+   :header-rows: 1
+
+   * - Key
+     - Value type
+     - Brief
+   * - name
+     - String
+     - N/A
 
 Trigger status
 --------------

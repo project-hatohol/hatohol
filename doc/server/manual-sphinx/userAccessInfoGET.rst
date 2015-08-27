@@ -1,6 +1,7 @@
 =========================
-Servers
+GET-User_access_info
 =========================
+ **Please refer when you Get an User Access Info.**
 
 Request
 =======
@@ -12,9 +13,8 @@ Path
 
    * - URL
      - Comments
-   * - /server
+   * - /user/<userId>/access-info
      - N/A
-
 
 Parameters
 ----------
@@ -52,57 +52,33 @@ Repsponse structure
    * - apiVersion
      - Number
      - An API version of this URL.
-       This document is written for version **2**.
+       This document is written for version **4**.
      - Always
-   * - result
-     - Boolean
-     - True on success. Otherwise False and the reason is shown in the
-       element: message.
-     - Always
-   * - message
-     - String
-     - Error message. This key is reply only when result is False.
-     - False
-   * - numberOfServers
+   * - errorCode
      - Number
-     - The number of servers.
-     - True
-   * - servers
+     - N/A
+     - Always
+   * - errorMessage
+     - String
+     - N/A
+     - False
+   * - allowedServers
      - Array
-     - The array of `Server object`_.
+     - N/A
      - True
 
 .. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.
 
-Server object
--------------
+Allow server object
+--------------
 .. list-table::
    :header-rows: 1
 
    * - Key
      - Value type
      - Brief
-   * - id
-     - Number
-     - A unique server ID.
-   * - type
-     - Number
-     - Any of `Server type`_.
-   * - hostName
-     - String
-     - A host name.
-   * - ipAddress
-     - String
-     - An IP Address of the server.
-   * - nickname
-     - String
-     - Arbitrary nickname of the server.
+   * - <serverId>
+     - Array
+     - Array of `allowedHostgroups`.
 
-Server type
--------------
-.. list-table::
 
-   * - 0
-     - Zabbix
-   * - 1
-     - Nagios

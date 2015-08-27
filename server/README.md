@@ -137,7 +137,11 @@ You can install them by the following command:
     $ sudo apt-get install librabbitmq-dev rabbitmq-server
 
 ## How to build Hatohol
-First, you need to install required libraries.
+First, you need to install Django.
+
+    $ pip3 install django
+
+Second, you need to install required libraries.
 Then run the following commands to install Hatohol:
 
     $ ./autogen.sh
@@ -149,19 +153,24 @@ Then run the following commands to install Hatohol:
 
 ## How to start
 (0.1) Run MySQL server for storing configuration.
+Type the following comannds to run MySQL server.
+
+    # mysqld
 
 (0.2) Set QPid's setting
 (0.2.a) Disable authentification
 Add the following line in /etc/qpid/qpidd.conf
+In line 33, change #auto=yes to
 
     auth=no
 
 (0.2.b) Allow all yours (Setting of ACL)
 Example of /etc/qpid/qpidd.acl
+Change line 33.
 
     acl allow all all
 
-NOTE: You have to restart qpidd after you edit /etc/qpid/qpiid.acl.
+NOTE: You have to restart qpidd after you edit /etc/qpid/qpidd.acl.
 
 (0.3) Set RabbitMQ's setting
 
