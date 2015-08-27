@@ -73,7 +73,7 @@ struct HostResourceQueryOption::Impl {
 	list<GenericIdType> filterHostIdList;
 	bool excludeHostIdList;
 
-	// TODO: Remove it, because it used only for tests
+	// For unit tests
 	const ServerIdSet *validServerIdSet;
 	const ServerHostGrpSetMap *allowedServersAndHostgroups;
 
