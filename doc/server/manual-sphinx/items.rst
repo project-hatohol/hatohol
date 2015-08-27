@@ -1,5 +1,5 @@
 =========================
-Item
+GET-Item
 =========================
 
 Request
@@ -35,6 +35,16 @@ Parameters
      - N/A
      - N/A
      - Mandatory
+   * - limit
+     - N/A
+     - N/A
+     - N/A
+     - N/A
+   * - offset
+     - N/A 
+     - N/A
+     - N/A
+     - N/A
 
 Response
 ========
@@ -51,14 +61,13 @@ Repsponse structure
    * - apiVersion
      - Number
      - An API version of this URL.
-       This document is written for version **2**.
+       This document is written for version **4**.
      - Always
-   * - result
-     - Boolean
-     - True on success. Otherwise False and the reason is shown in the
-       element: message.
+   * - errorCode
+     - String
+     - N/A
      - Always
-   * - message
+   * - errorMessage
      - String
      - Error message. This key is reply only when result is False.
      - False
@@ -70,6 +79,14 @@ Repsponse structure
      - Array
      - The array of `Item object`_.
      - True
+   * - applications 
+     - Object
+     - N/A
+     - N/A
+   * - totalNumberOfItems
+     - Number
+     - N/A
+     - N/A
    * - servers
      - Object
      - List of `Server object`_. Keys for each `Server object`_ are server IDs which corresponds to serverId values in `Item object`_.
@@ -85,6 +102,9 @@ Item object
    * - Key
      - Value type
      - Brief
+   * - id
+     - Number
+     - N/A
    * - serverId
      - Number
      - A server ID.
@@ -100,9 +120,6 @@ Item object
    * - lastValue
      - String
      - The last value.
-   * - prevValue
-     - String
-     - The previous value.
    * - itemGroupName
      - String
      - The item group name.
@@ -126,6 +143,18 @@ Value type
    * - 3
      - ITEM_INFO_VALUE_TYPE_STRING
 
+Application object
+-------------
+.. list-table::
+   :header-rows: 1
+
+   * - Key
+     - Value type
+     - Brief
+   * - name
+     - String
+     - A hostname of the server.
+
 Server object
 -------------
 .. list-table::
@@ -137,12 +166,48 @@ Server object
    * - name
      - String
      - A hostname of the server.
+   * - nickname
+     - String
+     - N/A
    * - type
      - Number
      - A `Server type`_.
    * - ipAddress
      - String
      - An IP Address of the server.
+   * - baseURL
+     - String
+     - N/A
+   * - hosts
+     - Object
+     - N/A
+   * - groups
+     - Object
+     - N/A
+
+Host object
+-------------
+.. list-table::
+   :header-rows: 1
+
+   * - Key
+     - Value type
+     - Brief
+   * - name
+     - String
+     - A hostname of the hosts.
+
+Group object
+-------------
+.. list-table::
+   :header-rows: 1
+
+   * - Key
+     - Value type
+     - Brief
+   * - name
+     - String
+     - A grouotname of the grouop.
 
 Server type
 -------------
