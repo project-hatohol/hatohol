@@ -140,35 +140,35 @@ public:
 	/**
 	 * Set a list of IDs of hostgroups to select or exclude.
 	 *
-	 * @param hostgroupIdList
+	 * @param hostgroupIds
 	 * A list of IDs of hostgroups to select or exclude.
 	 *
 	 * @param exclude
 	 * If the parameter is false, only the specified hostgroups are
 	 * selected. Otherwise they are excluded.
 	 */
-	virtual void setFilterHostgroupIdList(
-	  const std::list<GenericIdType> &hostgroupIdList,
+	virtual void setFilterHostgroupIds(
+	  const ServerHostGrpSetMap &hostgroupIds,
 	  const bool exclude = false);
-	virtual void getFilterHostgroupIdList(
-	  std::list<GenericIdType> &hostgroupIdList,
+	virtual void getFilterHostgroupIds(
+	  ServerHostGrpSetMap &hostgroupIds,
 	  bool &exclude);
 
 	/**
 	 * Set a list of IDs of hosts to select or exclude.
 	 *
-	 * @param hostIdList
+	 * @param hostIds
 	 * A list of IDs of hosts to select or exclude.
 	 *
 	 * @param exclude
 	 * If the parameter is false, only the specified hosts are
 	 * selected. Otherwise they are excluded.
 	 */
-	virtual void setFilterHostIdList(
-	  const std::list<GenericIdType> &hostIdList,
+	virtual void setFilterHostIds(
+	  const ServerHostSetMap &hostIds,
 	  const bool exclude = false);
-	virtual void getFilterHostIdList(
-	  std::list<GenericIdType> &hostIdList,
+	virtual void getFilterHostIds(
+	  ServerHostSetMap &hostIds,
 	  bool &exclude);
 
 	/**

@@ -68,10 +68,10 @@ struct HostResourceQueryOption::Impl {
 	bool            excludeDefunctServers;
 	list<ServerIdType> filterServerIdList;
 	bool excludeServerIdList;
-	list<GenericIdType> filterHostgroupIdList;
-	bool excludeHostgroupIdList;
-	list<GenericIdType> filterHostIdList;
-	bool excludeHostIdList;
+	ServerHostGrpSetMap filterServerHostgroupSetMap;
+	bool excludeServerHostgroupSetMap;
+	ServerHostSetMap filterServerHostSetMap;
+	bool excludeServerHostSetMap;
 
 	// For unit tests
 	const ServerIdSet *validServerIdSet;
@@ -84,8 +84,8 @@ struct HostResourceQueryOption::Impl {
 	  targetHostgroupId(ALL_HOST_GROUPS),
 	  excludeDefunctServers(true),
 	  excludeServerIdList(false),
-	  excludeHostgroupIdList(false),
-	  excludeHostIdList(false),
+	  excludeServerHostgroupSetMap(false),
+	  excludeServerHostSetMap(false),
 	  validServerIdSet(NULL),
 	  allowedServersAndHostgroups(NULL)
 	{
@@ -280,32 +280,32 @@ void HostResourceQueryOption::getFilterServerIdList(
 	exclude = m_impl->excludeServerIdList;
 }
 
-void HostResourceQueryOption::setFilterHostgroupIdList(
-  const std::list<GenericIdType> &hostgroupIdList, const bool exclude)
+void HostResourceQueryOption::setFilterHostgroupIds(
+  const ServerHostGrpSetMap &hostgroupIds, const bool exclude)
 {
-	m_impl->filterHostgroupIdList = hostgroupIdList;
-	m_impl->excludeHostgroupIdList = exclude;
+	m_impl->filterServerHostgroupSetMap = hostgroupIds;
+	m_impl->excludeServerHostgroupSetMap = exclude;
 }
 
-void HostResourceQueryOption::getFilterHostgroupIdList(
-  std::list<GenericIdType> &hostgroupIdList, bool &exclude)
+void HostResourceQueryOption::getFilterHostgroupIds(
+  ServerHostGrpSetMap &hostgroupIds, bool &exclude)
 {
-	hostgroupIdList = m_impl->filterHostgroupIdList;
-	exclude = m_impl->excludeHostgroupIdList;
+	hostgroupIds = m_impl->filterServerHostgroupSetMap;
+	exclude = m_impl->excludeServerHostgroupSetMap;
 }
 
-void HostResourceQueryOption::setFilterHostIdList(
-  const std::list<GenericIdType> &hostIdList, const bool exclude)
+void HostResourceQueryOption::setFilterHostIds(
+  const ServerHostSetMap &hostIds, const bool exclude)
 {
-	m_impl->filterHostIdList = hostIdList;
-	m_impl->excludeHostIdList = exclude;
+	m_impl->filterServerHostSetMap = hostIds;
+	m_impl->excludeServerHostSetMap = exclude;
 }
 
-void HostResourceQueryOption::getFilterHostIdList(
-  std::list<GenericIdType> &hostIdList, bool &exclude)
+void HostResourceQueryOption::getFilterHostIds(
+  ServerHostSetMap &hostIds, bool &exclude)
 {
-	hostIdList = m_impl->filterHostIdList;
-	exclude = m_impl->excludeHostIdList;
+	hostIds = m_impl->filterServerHostSetMap;
+	exclude = m_impl->excludeServerHostSetMap;
 }
 
 

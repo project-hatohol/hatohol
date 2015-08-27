@@ -213,6 +213,10 @@ typedef std::map<ServerIdType, HostgroupIdSet> ServerHostGrpSetMap;
 typedef ServerHostGrpSetMap::iterator       ServerHostGrpSetMapIterator;
 typedef ServerHostGrpSetMap::const_iterator ServerHostGrpSetMapConstIterator;
 
+typedef std::map<ServerIdType, HostIdSet> ServerHostSetMap;
+typedef ServerHostSetMap::iterator       ServerHostSetMapIterator;
+typedef ServerHostSetMap::const_iterator ServerHostSetMapConstIterator;
+
 typedef std::vector<ItemCategoryIdType>      ItemCategoryIdVector;
 typedef ItemCategoryIdVector::iterator       ItemCategoryIdVecotrIterator;
 typedef ItemCategoryIdVector::const_iterator ItemCategoryIdVecotrConstIterator;
