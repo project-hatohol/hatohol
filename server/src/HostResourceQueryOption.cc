@@ -617,6 +617,8 @@ string HostResourceQueryOption::makeConditionServersFilter(void) const
 		}
 	} else {
 		for (auto &serverId: m_impl->filterServerIdSet) {
+			if (!isAllowedServer(serverId))
+				continue;
 			addCondition(condition,
 				     StringUtils::sprintf(
 				       "%s=%" FMT_SERVER_ID,
