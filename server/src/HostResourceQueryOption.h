@@ -224,11 +224,13 @@ protected:
 	bool isHostgroupEnumerationInCondition(void) const;
 	std::string getJoinClauseWithGlobalHostId(void) const;
 
+	const ServerIdSet &getValidServerIdSet(void) const;
 	const ServerHostGrpSetMap &getAllowedServersAndHostgroups(void) const;
 
 	std::string makeConditionServersFilter(void) const;
 
 	// For test use only
+	void setValidServerIdSet(const ServerIdSet *set);
 	void setAllowedServersAndHostgroups(const ServerHostGrpSetMap *map);
 
 private:

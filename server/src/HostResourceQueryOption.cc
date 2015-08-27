@@ -70,6 +70,7 @@ struct HostResourceQueryOption::Impl {
 	bool excludeServerIdList;
 
 	// TODO: Remove it, because it used only for tests
+	const ServerIdSet *validServerIdSet;
 	const ServerHostGrpSetMap *allowedServersAndHostgroups;
 
 	Impl(const Synapse &_synapse)
@@ -79,6 +80,7 @@ struct HostResourceQueryOption::Impl {
 	  targetHostgroupId(ALL_HOST_GROUPS),
 	  excludeDefunctServers(true),
 	  excludeServerIdList(false),
+	  validServerIdSet(NULL),
 	  allowedServersAndHostgroups(NULL)
 	{
 	}
@@ -133,9 +135,8 @@ string HostResourceQueryOption::getCondition(void) const
 
 	if (getExcludeDefunctServers()) {
 		string validServersCondition(
-		  makeConditionServer(
-		    getDataQueryContext().getValidServerIdSet(),
-		    getServerIdColumnName()));
+		  makeConditionServer(getValidServerIdSet(),
+				      getServerIdColumnName()));
 		addCondition(condition, validServersCondition);
 	}
 
@@ -571,6 +572,13 @@ string HostResourceQueryOption::getJoinClauseWithGlobalHostId(void) const
 	    synapse.hostgroupMapGlobalHostIdColumnIdx).c_str());
 }
 
+const ServerIdSet &HostResourceQueryOption::getValidServerIdSet(void) const
+{
+	if (m_impl->validServerIdSet)
+		return *m_impl->validServerIdSet;
+	return getDataQueryContext().getValidServerIdSet();
+}
+
 const ServerHostGrpSetMap &
 HostResourceQueryOption::getAllowedServersAndHostgroups(void) const
 {
@@ -610,6 +618,11 @@ string HostResourceQueryOption::makeConditionServersFilter(void) const
 }
 
 // For test use only
+void HostResourceQueryOption::setValidServerIdSet(const ServerIdSet *set)
+{
+	m_impl->validServerIdSet = set;
+}
+
 void HostResourceQueryOption::setAllowedServersAndHostgroups (
   const ServerHostGrpSetMap *map)
 {
