@@ -638,7 +638,7 @@ string HostResourceQueryOption::makeConditionHostgroupsFilter(void) const
 	DBTermCStringProvider rhs(*getDBTermCodec());
 	string condition;
 	string serverIdColumnName = getServerIdColumnName();
-	string hostgroupIdColumnName = getServerIdColumnName();
+	string hostgroupIdColumnName = getHostgroupIdColumnName();
 
 	if (m_impl->excludeServerHostgroupSetMap) {
 		for (auto &pair: m_impl->filterServerHostgroupSetMap) {
@@ -647,7 +647,7 @@ string HostResourceQueryOption::makeConditionHostgroupsFilter(void) const
 			for (auto &hostgroupId: pair.second) {
 				addCondition(condition,
 					     StringUtils::sprintf(
-					       "NOT (%s<>%s AND %s<>%s)",
+					       "NOT (%s=%s AND %s=%s)",
 					       serverIdColumnName.c_str(),
 					       rhs(pair.first),
 					       hostgroupIdColumnName.c_str(),
@@ -681,7 +681,7 @@ string HostResourceQueryOption::makeConditionHostsFilter(void) const
 	DBTermCStringProvider rhs(*getDBTermCodec());
 	string condition;
 	string serverIdColumnName = getServerIdColumnName();
-	string hostIdColumnName = getServerIdColumnName();
+	string hostIdColumnName = getHostIdColumnName();
 
 	if (m_impl->excludeServerHostSetMap) {
 		for (auto &pair: m_impl->filterServerHostSetMap) {
@@ -690,7 +690,7 @@ string HostResourceQueryOption::makeConditionHostsFilter(void) const
 			for (auto &hostId: pair.second) {
 				addCondition(condition,
 					     StringUtils::sprintf(
-					       "NOT (%s<>%s AND %s<>%s)",
+					       "NOT (%s=%s AND %s=%s)",
 					       serverIdColumnName.c_str(),
 					       rhs(pair.first),
 					       hostIdColumnName.c_str(),
@@ -722,7 +722,7 @@ string HostResourceQueryOption::makeConditionHostsFilter(void) const
 string HostResourceQueryOption::makeConditionFilter(void) const
 {
 	string condition, nextCondition;
-	bool numFilters = 0;
+	size_t numFilters = 0;
 
 	AddConditionType addType = m_impl->excludeServerIdSet ?
 		ADD_TYPE_AND : ADD_TYPE_OR;

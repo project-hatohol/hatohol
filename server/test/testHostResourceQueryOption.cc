@@ -458,6 +458,126 @@ void test_excludeServersWithoutPrivilege(void)
 	cppcut_assert_equal(expect, option.getCondition());
 }
 
+void test_selectPluralHostgroupsWithPrivilege(void)
+{
+	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
+	ServerIdSet serverIdSet;
+	serverIdSet.insert(3);
+	serverIdSet.insert(4);
+	serverIdSet.insert(211);
+	HostgroupIdSet hostgroupIdSet1, hostgroupIdSet2;
+	hostgroupIdSet1.insert("101");
+	hostgroupIdSet1.insert("102");
+	hostgroupIdSet2.insert("103");
+	hostgroupIdSet2.insert("104");
+	ServerHostGrpSetMap map;
+	map[5] = hostgroupIdSet1;
+	map[6] = hostgroupIdSet2;
+	const bool exclude = true;
+	option.setFilterServerIds(serverIdSet, !exclude);
+	option.setFilterHostgroupIds(map, !exclude);
+	string expect("server_id IN (1,2,3,4,211,222,301)"
+		      " AND ("
+		      "(server_id=3 OR server_id=4 OR server_id=211)"
+		      " OR "
+		      "((server_id=5 AND host_group_id='101') OR"
+		      " (server_id=5 AND host_group_id='102') OR"
+		      " (server_id=6 AND host_group_id='103') OR"
+		      " (server_id=6 AND host_group_id='104'))"
+		      ")");
+	cppcut_assert_equal(expect, option.getCondition());
+}
+
+void test_excludePluralHostgroupsWithPrivilege(void)
+{
+	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
+	ServerIdSet serverIdSet;
+	serverIdSet.insert(3);
+	serverIdSet.insert(4);
+	serverIdSet.insert(211);
+	HostgroupIdSet hostgroupIdSet1, hostgroupIdSet2;
+	hostgroupIdSet1.insert("101");
+	hostgroupIdSet1.insert("102");
+	hostgroupIdSet2.insert("103");
+	hostgroupIdSet2.insert("104");
+	ServerHostGrpSetMap map;
+	map[5] = hostgroupIdSet1;
+	map[6] = hostgroupIdSet2;
+	const bool exclude = true;
+	option.setFilterServerIds(serverIdSet, exclude);
+	option.setFilterHostgroupIds(map, exclude);
+	string expect("server_id IN (1,2,3,4,211,222,301)"
+		      " AND ("
+		      "(server_id<>3 AND server_id<>4 AND server_id<>211)"
+		      " AND "
+		      "(NOT (server_id=5 AND host_group_id='101') AND"
+		      " NOT (server_id=5 AND host_group_id='102') AND"
+		      " NOT (server_id=6 AND host_group_id='103') AND"
+		      " NOT (server_id=6 AND host_group_id='104'))"
+		      ")");
+	cppcut_assert_equal(expect, option.getCondition());
+}
+
+void test_selectPluralHostsWithPrivilege(void)
+{
+	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
+	ServerIdSet serverIdSet;
+	serverIdSet.insert(3);
+	serverIdSet.insert(4);
+	serverIdSet.insert(211);
+	LocalHostIdSet hostIdSet1, hostIdSet2;
+	hostIdSet1.insert("101");
+	hostIdSet1.insert("102");
+	hostIdSet2.insert("103");
+	hostIdSet2.insert("104");
+	ServerHostSetMap map;
+	map[5] = hostIdSet1;
+	map[6] = hostIdSet2;
+	const bool exclude = true;
+	option.setFilterServerIds(serverIdSet, !exclude);
+	option.setFilterHostIds(map, !exclude);
+	string expect("server_id IN (1,2,3,4,211,222,301)"
+		      " AND ("
+		      "(server_id=3 OR server_id=4 OR server_id=211)"
+		      " OR "
+		      "((server_id=5 AND host_id='101') OR"
+		      " (server_id=5 AND host_id='102') OR"
+		      " (server_id=6 AND host_id='103') OR"
+		      " (server_id=6 AND host_id='104'))"
+		      ")");
+	cppcut_assert_equal(expect, option.getCondition());
+}
+
+void test_excludePluralHostsWithPrivilege(void)
+{
+	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
+	ServerIdSet serverIdSet;
+	serverIdSet.insert(3);
+	serverIdSet.insert(4);
+	serverIdSet.insert(211);
+	LocalHostIdSet hostIdSet1, hostIdSet2;
+	hostIdSet1.insert("101");
+	hostIdSet1.insert("102");
+	hostIdSet2.insert("103");
+	hostIdSet2.insert("104");
+	ServerHostSetMap map;
+	map[5] = hostIdSet1;
+	map[6] = hostIdSet2;
+	const bool exclude = true;
+	option.setFilterServerIds(serverIdSet, exclude);
+	option.setFilterHostIds(map, exclude);
+	string expect("server_id IN (1,2,3,4,211,222,301)"
+		      " AND ("
+		      "(server_id<>3 AND server_id<>4 AND server_id<>211)"
+		      " AND "
+		      "(NOT (server_id=5 AND host_id='101') AND"
+		      " NOT (server_id=5 AND host_id='102') AND"
+		      " NOT (server_id=6 AND host_id='103') AND"
+		      " NOT (server_id=6 AND host_id='104'))"
+		      ")");
+	cppcut_assert_equal(expect, option.getCondition());
+}
+
 } // namespace testHostResourceQueryOption
 
 namespace testHostResourceQueryOptionWithoutDBSetup {
