@@ -59,6 +59,7 @@ class Common:
         self.__db_user = self.DEFAULT_USER
         self.__db_passwd = ""
         self.__time_offset = datetime.timedelta(seconds=time.timezone)
+        self.__trigger_last_info = None
 
     def close_connection(self):
         if self.__cursor is not None:
@@ -116,6 +117,17 @@ class Common:
             server = server[0:colon_idx]
 
         return server, port, database
+
+    def __convert_to_nagios_time(self, hatohol_time):
+        over_second = hatohol_time.split(".")[0]
+        time_array = [char for char in over_second]
+        time_array.insert(4, "-")
+        time_array.insert(7, "-")
+        time_array.insert(10, " ")
+        time_array.insert(13, ":")
+        time_array.insert(16, ":")
+
+        return "".join(time_array)
 
     def collect_hosts_and_put(self):
         sql = "SELECT host_object_id,display_name FROM nagios_hosts"
@@ -182,12 +194,19 @@ class Common:
             in_cond = "','".join(host_ids)
             sql += " WHERE %s.host_object_id in ('%s')" % (t2, in_cond)
 
-        # NOTE: The update time in the output is renewed every status
-        #       check in Nagios even if the value is not changed.
-        # TODO by 15.09:
-        #   We should has the previous result and compare it here in order to
-        #   improve performance. Or other columns such as last_state_change in
-        #   nagios_servicestatus might be used.
+        def all_triggers_should_send():
+            return fetch_id is None
+
+        update_type = "ALL"
+        if all_triggers_should_send():
+            if self.__trigger_last_info is None:
+                self.__trigger_last_info = self.get_last_info("trigger")
+
+            if len(self.__trigger_last_info):
+                nag_time = self.__convert_to_nagios_time(self.__trigger_last_info)
+                sql += " WHERE status_update_time >= '%s'" % nag_time
+                update_type = "UPDATED"
+
         self.__cursor.execute(sql)
         result = self.__cursor.fetchall()
 
@@ -210,9 +229,12 @@ class Common:
                 "brief": msg,
                 "extendedInfo": ""
             })
-        # TODO by 15.09: Implement UPDATED mode.
-        update_type = "ALL"
-        self.put_triggers(triggers, update_type=update_type, fetch_id=fetch_id)
+        self.__trigger_last_info = \
+            haplib.Utils.get_biggest_num_of_dict_array(triggers,
+                                                       "lastChangeTime")
+        self.put_triggers(triggers, update_type=update_type,
+                          last_info=self.__trigger_last_info,
+                          fetch_id=fetch_id)
 
     def collect_events_and_put(self, fetch_id=None, last_info=None,
                                count=None, direction="ASC"):
