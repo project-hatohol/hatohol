@@ -525,83 +525,6 @@ string HostResourceQueryOption::makeConditionAllowedHosts(void) const
 	return StringUtils::sprintf("(%s)", condition.c_str());
 }
 
-string HostResourceQueryOption::getFromClauseForOneTable(void) const
-{
-	return getPrimaryTableName();
-}
-
-string HostResourceQueryOption::getFromClauseWithHostgroup(void) const
-{
-	const Synapse &synapse = m_impl->synapse;
-
-	return StringUtils::sprintf(
-	  "%s %s",
-	  synapse.tableProfile.name,
-	  getJoinClause().c_str());
-}
-
-string HostResourceQueryOption::getColumnNameCommon(
-  const DBAgent::TableProfile &tableProfile, const size_t &idx) const
-{
-	HATOHOL_ASSERT(idx < tableProfile.numColumns,
-	               "idx: %zd, numColumns: %zd, table: %s",
-	               idx, tableProfile.numColumns, tableProfile.name);
-	string name;
-	if (getTableNameAlways() || isHostgroupUsed()) {
-		name = tableProfile.getFullColumnName(idx);
-	} else {
-		const ColumnDef *columnDefs = tableProfile.columnDefs;
-		name = columnDefs[idx].columnName;
-	}
-	return name;
-}
-
-bool HostResourceQueryOption::isHostgroupEnumerationInCondition(void) const
-{
-	if (has(OPPRVLG_GET_ALL_SERVER))
-		return false;
-	const ServerHostGrpSetMap &allowedServersAndHostgroups =
-	  getAllowedServersAndHostgroups();
-	ServerHostGrpSetMapConstIterator it
-	  = allowedServersAndHostgroups.begin();
-	for (; it != allowedServersAndHostgroups.end(); ++it) {
-		const ServerIdType &serverId = it->first;
-		if (serverId == ALL_SERVERS)
-			continue;
-		const HostgroupIdSet &hostgrpIdSet = it->second;
-		if (hostgrpIdSet.find(ALL_HOST_GROUPS) == hostgrpIdSet.end())
-			return true;
-	}
-	return false;
-}
-
-string HostResourceQueryOption::getJoinClauseWithGlobalHostId(void) const
-{
-	const Synapse &synapse = m_impl->synapse;
-	return StringUtils::sprintf(
-	  "INNER JOIN %s ON %s=%s",
-	  synapse.hostgroupMapTableProfile.name,
-	  synapse.tableProfile.getFullColumnName(
-	    synapse.globalHostIdColumnIdx).c_str(),
-	  synapse.hostgroupMapTableProfile.getFullColumnName(
-	    synapse.hostgroupMapGlobalHostIdColumnIdx).c_str());
-}
-
-const ServerIdSet &HostResourceQueryOption::getValidServerIdSet(void) const
-{
-	if (m_impl->validServerIdSet)
-		return *m_impl->validServerIdSet;
-	return getDataQueryContext().getValidServerIdSet();
-}
-
-const ServerHostGrpSetMap &
-HostResourceQueryOption::getAllowedServersAndHostgroups(void) const
-{
-	if (m_impl->allowedServersAndHostgroups)
-		return *m_impl->allowedServersAndHostgroups;
-	return getDataQueryContext().getServerHostGrpSetMap();
-}
-
 string HostResourceQueryOption::makeConditionServersFilter(void) const
 {
 	if (m_impl->filterServerIdSet.empty())
@@ -766,6 +689,83 @@ string HostResourceQueryOption::makeConditionFilter(void) const
 		return StringUtils::sprintf("(%s)", condition.c_str());
 	else
 		return condition;
+}
+
+string HostResourceQueryOption::getFromClauseForOneTable(void) const
+{
+	return getPrimaryTableName();
+}
+
+string HostResourceQueryOption::getFromClauseWithHostgroup(void) const
+{
+	const Synapse &synapse = m_impl->synapse;
+
+	return StringUtils::sprintf(
+	  "%s %s",
+	  synapse.tableProfile.name,
+	  getJoinClause().c_str());
+}
+
+string HostResourceQueryOption::getColumnNameCommon(
+  const DBAgent::TableProfile &tableProfile, const size_t &idx) const
+{
+	HATOHOL_ASSERT(idx < tableProfile.numColumns,
+	               "idx: %zd, numColumns: %zd, table: %s",
+	               idx, tableProfile.numColumns, tableProfile.name);
+	string name;
+	if (getTableNameAlways() || isHostgroupUsed()) {
+		name = tableProfile.getFullColumnName(idx);
+	} else {
+		const ColumnDef *columnDefs = tableProfile.columnDefs;
+		name = columnDefs[idx].columnName;
+	}
+	return name;
+}
+
+bool HostResourceQueryOption::isHostgroupEnumerationInCondition(void) const
+{
+	if (has(OPPRVLG_GET_ALL_SERVER))
+		return false;
+	const ServerHostGrpSetMap &allowedServersAndHostgroups =
+	  getAllowedServersAndHostgroups();
+	ServerHostGrpSetMapConstIterator it
+	  = allowedServersAndHostgroups.begin();
+	for (; it != allowedServersAndHostgroups.end(); ++it) {
+		const ServerIdType &serverId = it->first;
+		if (serverId == ALL_SERVERS)
+			continue;
+		const HostgroupIdSet &hostgrpIdSet = it->second;
+		if (hostgrpIdSet.find(ALL_HOST_GROUPS) == hostgrpIdSet.end())
+			return true;
+	}
+	return false;
+}
+
+string HostResourceQueryOption::getJoinClauseWithGlobalHostId(void) const
+{
+	const Synapse &synapse = m_impl->synapse;
+	return StringUtils::sprintf(
+	  "INNER JOIN %s ON %s=%s",
+	  synapse.hostgroupMapTableProfile.name,
+	  synapse.tableProfile.getFullColumnName(
+	    synapse.globalHostIdColumnIdx).c_str(),
+	  synapse.hostgroupMapTableProfile.getFullColumnName(
+	    synapse.hostgroupMapGlobalHostIdColumnIdx).c_str());
+}
+
+const ServerIdSet &HostResourceQueryOption::getValidServerIdSet(void) const
+{
+	if (m_impl->validServerIdSet)
+		return *m_impl->validServerIdSet;
+	return getDataQueryContext().getValidServerIdSet();
+}
+
+const ServerHostGrpSetMap &
+HostResourceQueryOption::getAllowedServersAndHostgroups(void) const
+{
+	if (m_impl->allowedServersAndHostgroups)
+		return *m_impl->allowedServersAndHostgroups;
+	return getDataQueryContext().getServerHostGrpSetMap();
 }
 
 // For test use only

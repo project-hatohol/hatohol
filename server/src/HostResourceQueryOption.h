@@ -216,6 +216,11 @@ protected:
 	  const HostgroupIdSet &hostgroupIdSet,
 	  const std::string &hostgroupIdColumnName) const;
 
+	std::string makeConditionServersFilter(void) const;
+	std::string makeConditionHostgroupsFilter(void) const;
+	std::string makeConditionHostsFilter(void) const;
+	std::string makeConditionFilter(void) const;
+
 	virtual std::string getFromClauseForOneTable(void) const;
 	virtual std::string getFromClauseWithHostgroup(void) const;
 
@@ -226,11 +231,6 @@ protected:
 
 	const ServerIdSet &getValidServerIdSet(void) const;
 	const ServerHostGrpSetMap &getAllowedServersAndHostgroups(void) const;
-
-	std::string makeConditionServersFilter(void) const;
-	std::string makeConditionHostgroupsFilter(void) const;
-	std::string makeConditionHostsFilter(void) const;
-	std::string makeConditionFilter(void) const;
 
 	// For test use only
 	void setValidServerIdSet(const ServerIdSet *set);
