@@ -228,6 +228,9 @@ protected:
 	const ServerHostGrpSetMap &getAllowedServersAndHostgroups(void) const;
 
 	std::string makeConditionServersFilter(void) const;
+	std::string makeConditionHostgroupsFilter(void) const;
+	std::string makeConditionHostsFilter(void) const;
+	std::string makeConditionFilter(void) const;
 
 	// For test use only
 	void setValidServerIdSet(const ServerIdSet *set);
