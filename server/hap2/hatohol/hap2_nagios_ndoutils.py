@@ -119,7 +119,7 @@ class Common:
         return server, port, database
 
     def __convert_to_nagios_time(self, hatohol_time):
-        over_second= hatohol_time.split(".")[0]
+        over_second = hatohol_time.split(".")[0]
         time_array = [char for char in over_second]
         time_array.insert(4, "-")
         time_array.insert(7, "-")
@@ -194,8 +194,11 @@ class Common:
             in_cond = "','".join(host_ids)
             sql += " WHERE %s.host_object_id in ('%s')" % (t2, in_cond)
 
+        def all_triggers_should_send():
+            return fetch_id is None
+
         update_type = "ALL"
-        if fetch_id is None:
+        if all_triggers_should_send():
             if self.__trigger_last_info is None:
                 self.__trigger_last_info = self.get_last_info("trigger")
 
