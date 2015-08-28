@@ -843,15 +843,27 @@ void test_conditionForAdminWithTargetServerAndHost(gconstpointer data)
 {
 	const bool excludeDefunctServers =
 	  gcut_data_get_boolean(data, "excludeDefunctServers");
-	if (excludeDefunctServers)
-		cut_omit("To be implemented");
-	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
+	string expect;
+	TestHostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
+	ServerIdSet validServerIdSet;
+	if (excludeDefunctServers) {
+		validServerIdSet.insert(1);
+		validServerIdSet.insert(26);
+		option.callSetValidServerIdSet(&validServerIdSet);
+		expect = StringUtils::sprintf("%s IN (1,26)"
+					      " AND "
+					      "(%s=26 AND %s='32')",
+					      serverIdColumnName.c_str(),
+					      serverIdColumnName.c_str(),
+					      hostIdColumnName.c_str());
+	} else {
+		expect = StringUtils::sprintf("(%s=26 AND %s='32')",
+					      serverIdColumnName.c_str(),
+					      hostIdColumnName.c_str());
+	}
 	option.setExcludeDefunctServers(excludeDefunctServers);
 	option.setTargetServerId(26);
 	option.setTargetHostId("32");
-	string expect = StringUtils::sprintf("(%s=26 AND %s='32')",
-					     serverIdColumnName.c_str(),
-					     hostIdColumnName.c_str());
 	cppcut_assert_equal(expect, option.getCondition());
 }
 

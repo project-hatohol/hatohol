@@ -49,3 +49,9 @@ void TestHostResourceQueryOption::callSetAllowedServersAndHostgroups(
 {
 	setAllowedServersAndHostgroups(map);
 }
+
+void TestHostResourceQueryOption::callSetValidServerIdSet(
+  const ServerIdSet *set)
+{
+	setValidServerIdSet(set);
+}

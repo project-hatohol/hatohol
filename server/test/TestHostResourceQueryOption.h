@@ -37,6 +37,7 @@ public:
 	std::string callMakeConditionAllowedHosts(void) const;
 	void callSetAllowedServersAndHostgroups(
 	  const ServerHostGrpSetMap *map);
+	void callSetValidServerIdSet(const ServerIdSet *set);
 };
 
 #endif // TestHostResourceQueryOption_h
