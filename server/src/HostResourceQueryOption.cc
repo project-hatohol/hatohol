@@ -603,6 +603,9 @@ HostResourceQueryOption::getAllowedServersAndHostgroups(void) const
 
 string HostResourceQueryOption::makeConditionServersFilter(void) const
 {
+	if (m_impl->filterServerIdSet.empty())
+		return string();
+
 	DBTermCStringProvider rhs(*getDBTermCodec());
 	string condition;
 	if (m_impl->excludeServerIdSet) {
@@ -635,6 +638,9 @@ string HostResourceQueryOption::makeConditionServersFilter(void) const
 
 string HostResourceQueryOption::makeConditionHostgroupsFilter(void) const
 {
+	if (m_impl->filterServerHostgroupSetMap.empty())
+		return string();
+
 	DBTermCStringProvider rhs(*getDBTermCodec());
 	string condition;
 	string serverIdColumnName = getServerIdColumnName();
@@ -678,6 +684,9 @@ string HostResourceQueryOption::makeConditionHostgroupsFilter(void) const
 
 string HostResourceQueryOption::makeConditionHostsFilter(void) const
 {
+	if (m_impl->filterServerHostSetMap.empty())
+		return string();
+
 	DBTermCStringProvider rhs(*getDBTermCodec());
 	string condition;
 	string serverIdColumnName = getServerIdColumnName();
