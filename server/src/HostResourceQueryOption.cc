@@ -345,14 +345,15 @@ bool HostResourceQueryOption::isAllowedHostgroup(
   const ServerIdType &targetServerId,
   const HostgroupIdType &targetHostgroupId) const
 {
+	if (has(OPPRVLG_GET_ALL_SERVER))
+		return true;
 	const ServerHostGrpSetMap &allowedServersAndHostgroups =
 	  getAllowedServersAndHostgroups();
 	auto endServerIt(allowedServersAndHostgroups.end());
 	if (allowedServersAndHostgroups.find(ALL_SERVERS) != endServerIt)
 		return true;
 	auto serverIt(allowedServersAndHostgroups.find(targetServerId));
-	if (!has(OPPRVLG_GET_ALL_SERVER) &&
-	    serverIt != allowedServersAndHostgroups.end())
+	if (serverIt != allowedServersAndHostgroups.end())
 		return false;
 	const HostgroupIdSet &hostgroupSet = serverIt->second;
 	return hostgroupSet.find(targetHostgroupId) != hostgroupSet.end();
@@ -631,9 +632,10 @@ string HostResourceQueryOption::makeConditionServersFilter(void) const
 		}
 	}
 
-	if (condition.empty())
+	if (m_impl->filterServerIdSet.size() > 1)
+		return StringUtils::sprintf("(%s)", condition.c_str());
+	else
 		return condition;
-	return StringUtils::sprintf("(%s)", condition.c_str());
 }
 
 string HostResourceQueryOption::makeConditionHostgroupsFilter(void) const
@@ -651,6 +653,8 @@ string HostResourceQueryOption::makeConditionHostgroupsFilter(void) const
 			if (!isAllowedServer(pair.first))
 				continue;
 			for (auto &hostgroupId: pair.second) {
+				if (!isAllowedHostgroup(pair.first, hostgroupId))
+					continue;
 				addCondition(condition,
 					     StringUtils::sprintf(
 					       "NOT (%s=%s AND %s=%s)",
@@ -665,6 +669,8 @@ string HostResourceQueryOption::makeConditionHostgroupsFilter(void) const
 			if (!isAllowedServer(pair.first))
 				continue;
 			for (auto &hostgroupId: pair.second) {
+				if (!isAllowedHostgroup(pair.first, hostgroupId))
+					continue;
 				addCondition(condition,
 					     StringUtils::sprintf(
 					       "(%s=%s AND %s=%s)",
@@ -677,9 +683,10 @@ string HostResourceQueryOption::makeConditionHostgroupsFilter(void) const
 		}
 	}
 
-	if (condition.empty())
+	if (m_impl->filterServerHostgroupSetMap.size() > 1)
+		return StringUtils::sprintf("(%s)", condition.c_str());
+	else
 		return condition;
-	return StringUtils::sprintf("(%s)", condition.c_str());
 }
 
 string HostResourceQueryOption::makeConditionHostsFilter(void) const
@@ -723,9 +730,10 @@ string HostResourceQueryOption::makeConditionHostsFilter(void) const
 		}
 	}
 
-	if (condition.empty())
+	if (m_impl->filterServerHostSetMap.size() > 1)
+		return StringUtils::sprintf("(%s)", condition.c_str());
+	else
 		return condition;
-	return StringUtils::sprintf("(%s)", condition.c_str());
 }
 
 string HostResourceQueryOption::makeConditionFilter(void) const
