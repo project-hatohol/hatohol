@@ -471,12 +471,16 @@ void test_selectPluralHostgroups(void)
 	map[6] = hostgroupIdSet2;
 	const bool exclude = true;
 	option.setFilterHostgroupIds(map, !exclude);
-	string expect("server_id IN (1,2,3,4,211,222,301)"
+	string expect("test_table_name.server_id IN (1,2,3,4,211,222,301)"
 		      " AND "
-		      "((server_id=5 AND host_group_id='101') OR"
-		      " (server_id=5 AND host_group_id='102') OR"
-		      " (server_id=6 AND host_group_id='103') OR"
-		      " (server_id=6 AND host_group_id='104'))");
+		      "((test_table_name.server_id=5 AND"
+		      " test_hgrp_table_name.host_group_id='101') OR"
+		      " (test_table_name.server_id=5 AND"
+		      " test_hgrp_table_name.host_group_id='102') OR"
+		      " (test_table_name.server_id=6 AND"
+		      " test_hgrp_table_name.host_group_id='103') OR"
+		      " (test_table_name.server_id=6 AND"
+		      " test_hgrp_table_name.host_group_id='104'))");
 	cppcut_assert_equal(expect, option.getCondition());
 }
 
@@ -493,12 +497,16 @@ void test_excludePluralHostgroups(void)
 	map[6] = hostgroupIdSet2;
 	const bool exclude = true;
 	option.setFilterHostgroupIds(map, exclude);
-	string expect("server_id IN (1,2,3,4,211,222,301)"
+	string expect("test_table_name.server_id IN (1,2,3,4,211,222,301)"
 		      " AND "
-		      "(NOT (server_id=5 AND host_group_id='101') AND"
-		      " NOT (server_id=5 AND host_group_id='102') AND"
-		      " NOT (server_id=6 AND host_group_id='103') AND"
-		      " NOT (server_id=6 AND host_group_id='104'))");
+		      "(NOT (test_table_name.server_id=5 AND"
+		      " test_hgrp_table_name.host_group_id='101') AND"
+		      " NOT (test_table_name.server_id=5 AND"
+		      " test_hgrp_table_name.host_group_id='102') AND"
+		      " NOT (test_table_name.server_id=6 AND"
+		      " test_hgrp_table_name.host_group_id='103') AND"
+		      " NOT (test_table_name.server_id=6 AND"
+		      " test_hgrp_table_name.host_group_id='104'))");
 	cppcut_assert_equal(expect, option.getCondition());
 }
 
@@ -577,19 +585,29 @@ void test_selectPluralServerAndGroupsAndHosts(void)
 	option.setFilterHostgroupIds(groupsMap, !exclude);
 	option.setFilterHostIds(hostsMap, !exclude);
 
-	string expect("server_id IN (1,2,3,4,211,222,301)"
+	string expect("test_table_name.server_id IN (1,2,3,4,211,222,301)"
 		      " AND ("
-		      "(server_id=1 OR server_id=2 OR server_id=211)"
+		      "(test_table_name.server_id=1 OR"
+		      " test_table_name.server_id=2 OR"
+		      " test_table_name.server_id=211)"
 		      " OR "
-		      "((server_id=3 AND host_group_id='101') OR"
-		      " (server_id=3 AND host_group_id='102') OR"
-		      " (server_id=4 AND host_group_id='103') OR"
-		      " (server_id=4 AND host_group_id='104'))"
+		      "((test_table_name.server_id=3 AND"
+		      " test_hgrp_table_name.host_group_id='101') OR"
+		      " (test_table_name.server_id=3 AND"
+		      " test_hgrp_table_name.host_group_id='102') OR"
+		      " (test_table_name.server_id=4 AND"
+		      " test_hgrp_table_name.host_group_id='103') OR"
+		      " (test_table_name.server_id=4 AND"
+		      " test_hgrp_table_name.host_group_id='104'))"
 		      " OR "
-		      "((server_id=5 AND host_id='1001') OR"
-		      " (server_id=5 AND host_id='1002') OR"
-		      " (server_id=6 AND host_id='1003') OR"
-		      " (server_id=6 AND host_id='1004'))"
+		      "((test_table_name.server_id=5 AND"
+		      " test_table_name.host_id='1001') OR"
+		      " (test_table_name.server_id=5 AND"
+		      " test_table_name.host_id='1002') OR"
+		      " (test_table_name.server_id=6 AND"
+		      " test_table_name.host_id='1003') OR"
+		      " (test_table_name.server_id=6 AND"
+		      " test_table_name.host_id='1004'))"
 		      ")");
 	cppcut_assert_equal(expect, option.getCondition());
 }
