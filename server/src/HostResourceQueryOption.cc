@@ -139,6 +139,7 @@ string HostResourceQueryOption::getCondition(void) const
 {
 	string condition;
 
+	// Select only alive servers
 	if (getExcludeDefunctServers()) {
 		string validServersCondition(
 		  makeConditionServer(getValidServerIdSet(),
@@ -146,6 +147,7 @@ string HostResourceQueryOption::getCondition(void) const
 		addCondition(condition, validServersCondition);
 	}
 
+	// Select only allowed servers and hostgroups
 	if (!has(OPPRVLG_GET_ALL_SERVER)) {
 		string allowedHostsCondition(makeConditionAllowedHosts());
 
@@ -154,6 +156,8 @@ string HostResourceQueryOption::getCondition(void) const
 
 		addCondition(condition, allowedHostsCondition);
 	}
+
+	// Select servers, hostgroups and hosts sepcified by the caller
 	addCondition(condition, makeConditionTargetIds());
 	addCondition(condition, makeConditionFilter());
 
