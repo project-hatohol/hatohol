@@ -115,6 +115,137 @@ static HatoholError parseSortOrderFromQuery(
 	return HatoholError(HTERR_OK);
 }
 
+struct SelectedHosts {
+	struct FilterSet {
+		map<string, map<string, string> > stringMap;
+		ServerIdSet servers;
+		ServerHostGrpSetMap hostgroups;
+		ServerHostSetMap hosts;
+	};
+
+	FilterSet selected;
+	FilterSet excluded;
+
+	SelectedHosts(GHashTable *query)
+	{
+		parse(query);
+	}
+
+	void parse(GHashTable *query)
+	{
+		g_hash_table_foreach(query, gHashForeachFunc, this);
+		convert();
+	}
+
+	static void gHashForeachFunc(gpointer key, gpointer value,
+				     gpointer userData)
+	{
+		if (!key || !value)
+			return;
+
+		SelectedHosts &data =
+		  *static_cast<SelectedHosts *>(userData);
+		const string keyStr(static_cast<const char *>(key));
+		const string valueStr(static_cast<const char *>(value));
+		const string selectHosts("selectHosts");
+		const string excludeHosts("excludeHosts");
+
+		if (StringUtils::hasPrefix(keyStr, selectHosts)) {
+			parseHostQuery(data.selected.stringMap,
+				       keyStr, valueStr, selectHosts);
+		} else if (StringUtils::hasPrefix(keyStr, excludeHosts)) {
+			parseHostQuery(data.excluded.stringMap,
+				       keyStr, valueStr, excludeHosts);
+		}
+	}
+
+	static void parseHostQuery(map<string, map<string, string> > &hostsMap,
+				   const string &key, const string &value,
+				   const string &selectType)
+	{
+		parseId(hostsMap, key, value,
+			selectType, string("serverId"));
+		parseId(hostsMap, key, value,
+			selectType, string("hostgroupId"));
+		parseId(hostsMap, key, value,
+			selectType, string("hostId"));
+	}
+
+	static void parseId(map<string, map<string, string> > &hostsMap,
+			    const string &key, const string &value,
+			    const string &selectType, const string &idType)
+	{
+		// TODO: Should report errors
+		string prefix(selectType + string("["));
+		string suffix(StringUtils::sprintf("][%s]", idType.c_str()));
+		if (!StringUtils::hasPrefix(key, prefix))
+			return;
+		if (!StringUtils::hasSuffix(key, suffix))
+			return;
+		size_t idLength = key.size() - prefix.size() - suffix.size();
+		string index = key.substr(prefix.size(), idLength);
+		if (index.empty())
+			return;
+		if (!StringUtils::isNumber(index))
+			return;
+		if (idType == "serverId" && !StringUtils::isNumber(value))
+			return;
+		hostsMap[index][idType] = value;
+	}
+
+	void convert(FilterSet &filterSet)
+	{
+		for (auto &pair: filterSet.stringMap) {
+			map<string, string> &idMap = pair.second;
+			if (idMap.find("serverId") == idMap.end()) {
+				// TODO: it's an invalid query, should report it
+				continue;
+			}
+			if (idMap.find("hostgroupId") != idMap.end() &&
+			    idMap.find("hostId") != idMap.end()) {
+				// TODO: it's an invalid query, should report it
+				continue;
+			}
+
+			ServerIdType serverId =
+			  StringUtils::toUint64(idMap["serverId"]);
+
+			if (idMap.find("hostgroupId") != idMap.end()) {
+				filterSet.hostgroups[serverId].insert(
+				  idMap["hostgroupId"]);
+			} else if (idMap.find("hostId") != idMap.end()) {
+				filterSet.hosts[serverId].insert(
+				  idMap["hostId"]);
+			} else {
+				filterSet.servers.insert(serverId);
+			}
+		}
+	}
+
+	void convert(void)
+	{
+		convert(selected);
+		convert(excluded);
+	}
+};
+
+static HatoholError parseHostsFilter(
+  HostResourceQueryOption &option, GHashTable *query)
+{
+	SelectedHosts data(query);
+
+	option.setSelectedServerIds(data.selected.servers);
+	option.setExcludedServerIds(data.excluded.servers);
+
+	option.setSelectedHostgroupIds(data.selected.hostgroups);
+	option.setExcludedHostgroupIds(data.excluded.hostgroups);
+
+	option.setSelectedHostIds(data.selected.hosts);
+	option.setExcludedHostIds(data.excluded.hosts);
+
+	return HTERR_OK;
+}
+
 static HatoholError parseHostResourceQueryParameter(
   HostResourceQueryOption &option, GHashTable *query)
 {
@@ -148,6 +279,11 @@ static HatoholError parseHostResourceQueryParameter(
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 	option.setTargetHostId(targetHostId);
+
+	// Plural hosts filter
+	err = parseHostsFilter(option, query);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
 
 	// maximum number
 	size_t maximumNumber = 0;
