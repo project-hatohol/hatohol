@@ -209,7 +209,9 @@ bool HostResourceQueryOption::isHostgroupUsed(void) const
 		return false;
 	if (isHostgroupEnumerationInCondition())
 		return true;
-	return m_impl->targetHostgroupId != ALL_HOST_GROUPS;
+	return
+	  m_impl->targetHostgroupId != ALL_HOST_GROUPS ||
+	  !m_impl->filterServerHostgroupSetMap.empty();
 }
 
 string HostResourceQueryOption::getColumnName(const size_t &idx) const
