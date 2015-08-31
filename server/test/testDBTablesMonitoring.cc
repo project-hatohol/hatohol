@@ -1497,8 +1497,7 @@ void test_getEventsSelectByHosts(void)
 	ServerHostSetMap map;
 	map[1] = hostIdSet1;
 	map[3] = hostIdSet3;
-	const bool exclude = true;
-	option.setFilterHostIds(map, !exclude);
+	option.setSelectedHostIds(map);
 
 	EventInfoList events;
 	dbMonitoring.getEventInfoList(events, option, NULL);
@@ -1524,8 +1523,7 @@ void test_getEventsExcludeByHosts(void)
 	ServerHostSetMap map;
 	map[1] = hostIdSet1;
 	map[3] = hostIdSet3;
-	const bool exclude = true;
-	option.setFilterHostIds(map, exclude);
+	option.setExcludedHostIds(map);
 
 	EventInfoList events;
 	dbMonitoring.getEventInfoList(events, option, NULL);
@@ -1553,9 +1551,8 @@ void test_getEventsSelectByServersAndHosts(void)
 	hostIdSet1.insert("235013");
 	ServerHostSetMap hostsMap;
 	hostsMap[1] = hostIdSet1;
-	const bool exclude = true;
-	option.setFilterServerIds(serverIdSet, !exclude);
-	option.setFilterHostIds(hostsMap, !exclude);
+	option.setSelectedServerIds(serverIdSet);
+	option.setSelectedHostIds(hostsMap);
 
 	EventInfoList events;
 	dbMonitoring.getEventInfoList(events, option, NULL);
@@ -1588,9 +1585,8 @@ void test_getEventsExcludeByServersAndSelectByHosts(void)
 	hostIdSet1.insert("235013");
 	ServerHostSetMap hostsMap;
 	hostsMap[1] = hostIdSet1;
-	const bool exclude = true;
-	option.setFilterServerIds(serverIdSet, exclude);
-	option.setFilterHostIds(hostsMap, !exclude);
+	option.setExcludedServerIds(serverIdSet);
+	option.setSelectedHostIds(hostsMap);
 
 	EventInfoList events;
 	dbMonitoring.getEventInfoList(events, option, NULL);
@@ -1617,9 +1613,8 @@ void test_getEventsSelectByServersAndExcludeByHosts(void)
 	hostIdSet1.insert("235012");
 	ServerHostSetMap hostsMap;
 	hostsMap[1] = hostIdSet1;
-	const bool exclude = true;
-	option.setFilterServerIds(serverIdSet, !exclude);
-	option.setFilterHostIds(hostsMap, exclude);
+	option.setSelectedServerIds(serverIdSet);
+	option.setExcludedHostIds(hostsMap);
 
 	EventInfoList events;
 	dbMonitoring.getEventInfoList(events, option, NULL);
@@ -1645,8 +1640,7 @@ void test_getEventsSelectByHostgroup(void)
 	hostgroupIdSet.insert("1");
 	ServerHostSetMap map;
 	map[1] = hostgroupIdSet;
-	const bool exclude = true;
-	option.setFilterHostgroupIds(map, !exclude);
+	option.setSelectedHostgroupIds(map);
 
 	EventInfoList events;
 	dbMonitoring.getEventInfoList(events, option, NULL);
@@ -1677,8 +1671,7 @@ void test_getEventsExcludeByHostgroup(void)
 	ServerHostSetMap map;
 	map[1] = hostgroupIdSet1;
 	map[3] = hostgroupIdSet3;
-	const bool exclude = true;
-	option.setFilterHostgroupIds(map, exclude);
+	option.setExcludedHostgroupIds(map);
 
 	EventInfoList events;
 	dbMonitoring.getEventInfoList(events, option, NULL);

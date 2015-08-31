@@ -121,55 +121,60 @@ public:
 	virtual void setTargetHostgroupId(HostgroupIdType targetHostgroupId);
 
 	/**
-	 * Set a list of IDs of monitoring servers to select or exclude.
+	 * Set a list of IDs of monitoring servers to select.
 	 *
 	 * @param serverIds
-	 * A list of IDs of monitoring servers to select or exclude.
-	 *
-	 * @param exclude
-	 * If the parameter is false, only the specified monitoring servers are
-	 * selected. Otherwise they are excluded.
+	 * A list of IDs of monitoring servers to select.
 	 */
-	virtual void setFilterServerIds(
-	  const ServerIdSet &serverIds,
-	  const bool exclude = false);
-	virtual void getFilterServerIds(
-	  ServerIdSet &serverIds,
-	  bool &exclude);
+	virtual void setSelectedServerIds(const ServerIdSet &serverIds);
+	virtual const ServerIdSet &getSelectedServerIds(void);
 
 	/**
-	 * Set a list of IDs of hostgroups to select or exclude.
+	 * Set a list of IDs of monitoring servers to exclude.
+	 *
+	 * @param serverIds
+	 * A list of IDs of monitoring servers to exclude.
+	 */
+	virtual void setExcludedServerIds(const ServerIdSet &serverIds);
+	virtual const ServerIdSet &getExcludedServerIds(void);
+
+	/**
+	 * Set a list of IDs of hostgroups to select.
 	 *
 	 * @param hostgroupIds
-	 * A list of IDs of hostgroups to select or exclude.
-	 *
-	 * @param exclude
-	 * If the parameter is false, only the specified hostgroups are
-	 * selected. Otherwise they are excluded.
+	 * A list of IDs of hostgroups to select.
 	 */
-	virtual void setFilterHostgroupIds(
-	  const ServerHostGrpSetMap &hostgroupIds,
-	  const bool exclude = false);
-	virtual void getFilterHostgroupIds(
-	  ServerHostGrpSetMap &hostgroupIds,
-	  bool &exclude);
+	virtual void setSelectedHostgroupIds(
+	  const ServerHostGrpSetMap &hostgroupIds);
+	virtual const ServerHostGrpSetMap &getSelectedHostgroupIds(void);
 
 	/**
-	 * Set a list of IDs of hosts to select or exclude.
+	 * Set a list of IDs of hostgroups to exclude.
+	 *
+	 * @param hostgroupIds
+	 * A list of IDs of hostgroups to exclude.
+	 */
+	virtual void setExcludedHostgroupIds(
+	  const ServerHostGrpSetMap &hostgroupIds);
+	virtual const ServerHostGrpSetMap &getExcludedHostgroupIds(void);
+
+	/**
+	 * Set a list of IDs of hosts to select.
 	 *
 	 * @param hostIds
-	 * A list of IDs of hosts to select or exclude.
-	 *
-	 * @param exclude
-	 * If the parameter is false, only the specified hosts are
-	 * selected. Otherwise they are excluded.
+	 * A list of IDs of hosts to select.
 	 */
-	virtual void setFilterHostIds(
-	  const ServerHostSetMap &hostIds,
-	  const bool exclude = false);
-	virtual void getFilterHostIds(
-	  ServerHostSetMap &hostIds,
-	  bool &exclude);
+	virtual void setSelectedHostIds(const ServerHostSetMap &hostIds);
+	virtual const ServerHostSetMap &getSelectedHostIds(void);
+
+	/**
+	 * Set a list of IDs of hosts to exclude.
+	 *
+	 * @param hostIds
+	 * A list of IDs of hosts to exclude.
+	 */
+	virtual void setExcludedHostIds(const ServerHostSetMap &hostIds);
+	virtual const ServerHostSetMap &getExcludedHostIds(void);
 
 	/**
 	 * Enable or disable the filter to exclude defunct servers.
@@ -216,10 +221,13 @@ protected:
 	  const HostgroupIdSet &hostgroupIdSet,
 	  const std::string &hostgroupIdColumnName) const;
 
-	std::string makeConditionServersFilter(void) const;
-	std::string makeConditionHostgroupsFilter(void) const;
+	std::string makeConditionSelectedServers(void) const;
+	std::string makeConditionExcludedServers(void) const;
+	std::string makeConditionSelectedHostgroups(void) const;
+	std::string makeConditionExcludedHostgroups(void) const;
+	std::string makeConditionSelectedHosts(void) const;
+	std::string makeConditionExcludedHosts(void) const;
 	std::string makeConditionHostsFilter(void) const;
-	std::string makeConditionFilter(void) const;
 
 	virtual std::string getFromClauseForOneTable(void) const;
 	virtual std::string getFromClauseWithHostgroup(void) const;

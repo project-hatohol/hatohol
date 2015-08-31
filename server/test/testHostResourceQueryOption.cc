@@ -424,8 +424,7 @@ void test_selectPluralServers(void)
 	serverIdSet.insert(3);
 	serverIdSet.insert(4);
 	serverIdSet.insert(211);
-	const bool exclude = true;
-	option.setFilterServerIds(serverIdSet, !exclude);
+	option.setSelectedServerIds(serverIdSet);
 	string expect("server_id IN (1,2,3,4,211,222,301)"
 		      " AND (server_id=3 OR server_id=4 OR server_id=211)");
 	cppcut_assert_equal(expect, option.getCondition());
@@ -438,8 +437,7 @@ void test_excludeServers(void)
 	serverIdSet.insert(3);
 	serverIdSet.insert(4);
 	serverIdSet.insert(211);
-	const bool exclude = true;
-	option.setFilterServerIds(serverIdSet, exclude);
+	option.setExcludedServerIds(serverIdSet);
 	string expect("server_id IN (1,2,3,4,211,222,301)"
 		      " AND (server_id<>3 AND server_id<>4 AND server_id<>211)");
 	cppcut_assert_equal(expect, option.getCondition());
@@ -452,8 +450,7 @@ void test_excludeServersWithoutPrivilege(void)
 	serverIdSet.insert(3);
 	serverIdSet.insert(4);
 	serverIdSet.insert(211);
-	const bool exclude = true;
-	option.setFilterServerIds(serverIdSet, exclude);
+	option.setExcludedServerIds(serverIdSet);
 	string expect("0");
 	cppcut_assert_equal(expect, option.getCondition());
 }
@@ -469,8 +466,7 @@ void test_selectPluralHostgroups(void)
 	ServerHostGrpSetMap map;
 	map[5] = hostgroupIdSet1;
 	map[6] = hostgroupIdSet2;
-	const bool exclude = true;
-	option.setFilterHostgroupIds(map, !exclude);
+	option.setSelectedHostgroupIds(map);
 	string expect("test_table_name.server_id IN (1,2,3,4,211,222,301)"
 		      " AND "
 		      "((test_table_name.server_id=5 AND"
@@ -495,8 +491,7 @@ void test_excludePluralHostgroups(void)
 	ServerHostGrpSetMap map;
 	map[5] = hostgroupIdSet1;
 	map[6] = hostgroupIdSet2;
-	const bool exclude = true;
-	option.setFilterHostgroupIds(map, exclude);
+	option.setExcludedHostgroupIds(map);
 	string expect("test_table_name.server_id IN (1,2,3,4,211,222,301)"
 		      " AND "
 		      "(NOT (test_table_name.server_id=5 AND"
@@ -521,8 +516,7 @@ void test_selectPluralHosts(void)
 	ServerHostSetMap map;
 	map[5] = hostIdSet1;
 	map[6] = hostIdSet2;
-	const bool exclude = true;
-	option.setFilterHostIds(map, !exclude);
+	option.setSelectedHostIds(map);
 	string expect("server_id IN (1,2,3,4,211,222,301)"
 		      " AND "
 		      "((server_id=5 AND host_id='101') OR"
@@ -543,14 +537,13 @@ void test_excludePluralHosts(void)
 	ServerHostSetMap hostsMap;
 	hostsMap[5] = hostIdSet1;
 	hostsMap[6] = hostIdSet2;
-	const bool exclude = true;
-	option.setFilterHostIds(hostsMap, !exclude);
+	option.setExcludedHostIds(hostsMap);
 	string expect("server_id IN (1,2,3,4,211,222,301)"
 		      " AND "
-		      "((server_id=5 AND host_id='101') OR"
-		      " (server_id=5 AND host_id='102') OR"
-		      " (server_id=6 AND host_id='103') OR"
-		      " (server_id=6 AND host_id='104'))");
+		      "(NOT (server_id=5 AND host_id='101') AND"
+		      " NOT (server_id=5 AND host_id='102') AND"
+		      " NOT (server_id=6 AND host_id='103') AND"
+		      " NOT (server_id=6 AND host_id='104'))");
 	cppcut_assert_equal(expect, option.getCondition());
 }
 
@@ -580,10 +573,9 @@ void test_selectPluralServerAndGroupsAndHosts(void)
 	ServerHostSetMap hostsMap;
 	hostsMap[5] = hostIdSet1;
 	hostsMap[6] = hostIdSet2;
-	const bool exclude = true;
-	option.setFilterServerIds(serverIdSet, !exclude);
-	option.setFilterHostgroupIds(groupsMap, !exclude);
-	option.setFilterHostIds(hostsMap, !exclude);
+	option.setSelectedServerIds(serverIdSet);
+	option.setSelectedHostgroupIds(groupsMap);
+	option.setSelectedHostIds(hostsMap);
 
 	string expect("test_table_name.server_id IN (1,2,3,4,211,222,301)"
 		      " AND ("
