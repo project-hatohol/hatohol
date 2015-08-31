@@ -1631,4 +1631,65 @@ void test_getEventsSelectByServersAndExcludeByHosts(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_getEventsSelectByHostgroup(void)
+{
+	loadTestDBServerHostDef();
+	loadTestDBHostgroup();
+	loadTestDBHostgroupMember();
+	loadTestDBEvents();
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+
+	EventsQueryOption option(USER_ID_SYSTEM);
+	HostgroupIdSet hostgroupIdSet;
+	hostgroupIdSet.insert("1");
+	ServerHostSetMap map;
+	map[1] = hostgroupIdSet;
+	const bool exclude = true;
+	option.setFilterHostgroupIds(map, !exclude);
+
+	EventInfoList events;
+	dbMonitoring.getEventInfoList(events, option, NULL);
+	string actual;
+	for (auto &event: events)
+		actual += makeEventOutput(event);
+	string expected(
+	  "1|1|1363123456|0|0|2|1|1|10|235012|hostX1|TEST Trigger 1a|"
+	    "{\"expandedDescription\":\"Test Trigger on hostX1\"}\n"
+	  "1|2|1378900022|0|0|1|0|1|10|235012|hostX1|TEST Trigger 1|\n");
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_getEventsExcludeByHostgroup(void)
+{
+	loadTestDBServerHostDef();
+	loadTestDBHostgroup();
+	loadTestDBHostgroupMember();
+	loadTestDBEvents();
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+
+	EventsQueryOption option(USER_ID_SYSTEM);
+	HostgroupIdSet hostgroupIdSet1, hostgroupIdSet3;
+	hostgroupIdSet1.insert("2");
+	hostgroupIdSet3.insert("1");
+	hostgroupIdSet3.insert("2");
+	ServerHostSetMap map;
+	map[1] = hostgroupIdSet1;
+	map[3] = hostgroupIdSet3;
+	const bool exclude = true;
+	option.setFilterHostgroupIds(map, exclude);
+
+	EventInfoList events;
+	dbMonitoring.getEventInfoList(events, option, NULL);
+	string actual;
+	for (auto &event: events)
+		actual += makeEventOutput(event);
+	string expected(
+	  "1|1|1363123456|0|0|2|1|1|10|235012|hostX1|TEST Trigger 1a|"
+	    "{\"expandedDescription\":\"Test Trigger on hostX1\"}\n"
+	  "1|2|1378900022|0|0|1|0|1|10|235012|hostX1|TEST Trigger 1|\n");
+	cppcut_assert_equal(expected, actual);
+}
+
 } // namespace testDBTablesMonitoring
