@@ -39,8 +39,19 @@ string TestHostResourceQueryOption::callMakeConditionServer(
 	return makeConditionServer(serverIdSet, serverIdColumnName);
 }
 
-string TestHostResourceQueryOption::callMakeCondition(
-  const ServerHostGrpSetMap &srvHostGrpSetMap) const
+string TestHostResourceQueryOption::callMakeConditionAllowedHosts(void) const
 {
-	return makeConditionForNormalUser(srvHostGrpSetMap);
+	return makeConditionAllowedHosts();
+}
+
+void TestHostResourceQueryOption::callSetAllowedServersAndHostgroups(
+  const ServerHostGrpSetMap *map)
+{
+	setAllowedServersAndHostgroups(map);
+}
+
+void TestHostResourceQueryOption::callSetValidServerIdSet(
+  const ServerIdSet *set)
+{
+	setValidServerIdSet(set);
 }

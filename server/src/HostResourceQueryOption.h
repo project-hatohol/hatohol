@@ -121,6 +121,57 @@ public:
 	virtual void setTargetHostgroupId(HostgroupIdType targetHostgroupId);
 
 	/**
+	 * Set a list of IDs of monitoring servers to select or exclude.
+	 *
+	 * @param serverIds
+	 * A list of IDs of monitoring servers to select or exclude.
+	 *
+	 * @param exclude
+	 * If the parameter is false, only the specified monitoring servers are
+	 * selected. Otherwise they are excluded.
+	 */
+	virtual void setFilterServerIds(
+	  const ServerIdSet &serverIds,
+	  const bool exclude = false);
+	virtual void getFilterServerIds(
+	  ServerIdSet &serverIds,
+	  bool &exclude);
+
+	/**
+	 * Set a list of IDs of hostgroups to select or exclude.
+	 *
+	 * @param hostgroupIds
+	 * A list of IDs of hostgroups to select or exclude.
+	 *
+	 * @param exclude
+	 * If the parameter is false, only the specified hostgroups are
+	 * selected. Otherwise they are excluded.
+	 */
+	virtual void setFilterHostgroupIds(
+	  const ServerHostGrpSetMap &hostgroupIds,
+	  const bool exclude = false);
+	virtual void getFilterHostgroupIds(
+	  ServerHostGrpSetMap &hostgroupIds,
+	  bool &exclude);
+
+	/**
+	 * Set a list of IDs of hosts to select or exclude.
+	 *
+	 * @param hostIds
+	 * A list of IDs of hosts to select or exclude.
+	 *
+	 * @param exclude
+	 * If the parameter is false, only the specified hosts are
+	 * selected. Otherwise they are excluded.
+	 */
+	virtual void setFilterHostIds(
+	  const ServerHostSetMap &hostIds,
+	  const bool exclude = false);
+	virtual void getFilterHostIds(
+	  ServerHostSetMap &hostIds,
+	  bool &exclude);
+
+	/**
 	 * Enable or disable the filter to exclude defunct servers.
 	 *
 	 * @param enable
@@ -146,10 +197,12 @@ protected:
 	std::string getServerIdColumnName(void) const;
 	std::string getHostgroupIdColumnName(void) const;
 	std::string getHostIdColumnName(void) const;
+	bool isAllowedServer(const ServerIdType &targetServerId) const;
+	bool isAllowedHostgroup(const ServerIdType &targetServerId,
+				const HostgroupIdType &targetHostgroupId) const;
 
-	std::string makeConditionForPrivilegedUser(void) const;
-	std::string makeConditionForNormalUser(
-	  const ServerHostGrpSetMap &allowedServersAndHostgroups) const;
+	std::string makeConditionTargetIds(void) const;
+	std::string makeConditionAllowedHosts(void) const;
 	std::string makeConditionServer(
 	  const ServerIdSet &serverIdSet,
 	  const std::string &serverIdColumnName) const;
@@ -163,6 +216,11 @@ protected:
 	  const HostgroupIdSet &hostgroupIdSet,
 	  const std::string &hostgroupIdColumnName) const;
 
+	std::string makeConditionServersFilter(void) const;
+	std::string makeConditionHostgroupsFilter(void) const;
+	std::string makeConditionHostsFilter(void) const;
+	std::string makeConditionFilter(void) const;
+
 	virtual std::string getFromClauseForOneTable(void) const;
 	virtual std::string getFromClauseWithHostgroup(void) const;
 
@@ -171,7 +229,12 @@ protected:
 	bool isHostgroupEnumerationInCondition(void) const;
 	std::string getJoinClauseWithGlobalHostId(void) const;
 
+	const ServerIdSet &getValidServerIdSet(void) const;
 	const ServerHostGrpSetMap &getAllowedServersAndHostgroups(void) const;
+
+	// For test use only
+	void setValidServerIdSet(const ServerIdSet *set);
+	void setAllowedServersAndHostgroups(const ServerHostGrpSetMap *map);
 
 private:
 	struct Impl;

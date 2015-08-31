@@ -66,13 +66,28 @@ struct HostResourceQueryOption::Impl {
 	LocalHostIdType targetHostId;
 	HostgroupIdType targetHostgroupId;
 	bool            excludeDefunctServers;
+	ServerIdSet filterServerIdSet;
+	bool excludeServerIdSet;
+	ServerHostGrpSetMap filterServerHostgroupSetMap;
+	bool excludeServerHostgroupSetMap;
+	ServerHostSetMap filterServerHostSetMap;
+	bool excludeServerHostSetMap;
+
+	// For unit tests
+	const ServerIdSet *validServerIdSet;
+	const ServerHostGrpSetMap *allowedServersAndHostgroups;
 
 	Impl(const Synapse &_synapse)
 	: synapse(_synapse),
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_LOCAL_HOSTS),
 	  targetHostgroupId(ALL_HOST_GROUPS),
-	  excludeDefunctServers(true)
+	  excludeDefunctServers(true),
+	  excludeServerIdSet(false),
+	  excludeServerHostgroupSetMap(false),
+	  excludeServerHostSetMap(false),
+	  validServerIdSet(NULL),
+	  allowedServersAndHostgroups(NULL)
 	{
 	}
 
@@ -124,55 +139,27 @@ string HostResourceQueryOption::getCondition(void) const
 {
 	string condition;
 
+	// Select only alive servers
 	if (getExcludeDefunctServers()) {
-		addCondition(
-		  condition,
-		  makeConditionServer(
-		    getDataQueryContext().getValidServerIdSet(),
-		    getServerIdColumnName()));
+		string validServersCondition(
+		  makeConditionServer(getValidServerIdSet(),
+				      getServerIdColumnName()));
+		addCondition(condition, validServersCondition);
 	}
 
-	// TODO: consider if we cau use isHostgroupEnumerationInCondition()
-	if (has(OPPRVLG_GET_ALL_SERVER)) {
-		addCondition(condition, makeConditionForPrivilegedUser());
-		return condition;
-	} else if (getUserId() != INVALID_USER_ID) {
-		addCondition(condition,
-			     makeConditionForNormalUser(
-			       getAllowedServersAndHostgroups()));
-		return condition;
-	} else {
-		MLPL_DBG("INVALID_USER_ID\n");
-		return DBHatohol::getAlwaysFalseCondition();
-	}
-}
+	// Select only allowed servers and hostgroups
+	if (!has(OPPRVLG_GET_ALL_SERVER)) {
+		string allowedHostsCondition(makeConditionAllowedHosts());
 
-string HostResourceQueryOption::makeConditionForPrivilegedUser(void) const
-{
-	string condition;
-	DBTermCStringProvider rhs(*getDBTermCodec());
+		if (DBHatohol::isAlwaysFalseCondition(allowedHostsCondition))
+			return allowedHostsCondition;
 
-	if (m_impl->targetServerId != ALL_SERVERS) {
-		addCondition(condition,
-		  StringUtils::sprintf(
-		    "%s=%s",
-		    getServerIdColumnName().c_str(),
-		    rhs(m_impl->targetServerId)));
+		addCondition(condition, allowedHostsCondition);
 	}
-	if (m_impl->targetHostId != ALL_LOCAL_HOSTS) {
-		addCondition(condition,
-		  StringUtils::sprintf(
-		    "%s=%s",
-		    getHostIdColumnName().c_str(),
-		    rhs(m_impl->targetHostId)));
-	}
-	if (m_impl->targetHostgroupId != ALL_HOST_GROUPS) {
-		addCondition(condition,
-		  StringUtils::sprintf(
-		    "%s=%s",
-		    getHostgroupIdColumnName().c_str(),
-		    rhs(m_impl->targetHostgroupId)));
-	}
+
+	// Select servers, hostgroups and hosts sepcified by the caller
+	addCondition(condition, makeConditionTargetIds());
+	addCondition(condition, makeConditionFilter());
 
 	return condition;
 }
@@ -226,7 +213,9 @@ bool HostResourceQueryOption::isHostgroupUsed(void) const
 		return false;
 	if (isHostgroupEnumerationInCondition())
 		return true;
-	return m_impl->targetHostgroupId != ALL_HOST_GROUPS;
+	return
+	  m_impl->targetHostgroupId != ALL_HOST_GROUPS ||
+	  !m_impl->filterServerHostgroupSetMap.empty();
 }
 
 string HostResourceQueryOption::getColumnName(const size_t &idx) const
@@ -283,6 +272,49 @@ const bool &HostResourceQueryOption::getExcludeDefunctServers(void) const
 	return m_impl->excludeDefunctServers;
 }
 
+void HostResourceQueryOption::setFilterServerIds(
+  const ServerIdSet &serverIds, const bool exclude)
+{
+	m_impl->filterServerIdSet = serverIds;
+	m_impl->excludeServerIdSet = exclude;
+}
+
+void HostResourceQueryOption::getFilterServerIds(
+  ServerIdSet &serverIds, bool &exclude)
+{
+	serverIds = m_impl->filterServerIdSet;
+	exclude = m_impl->excludeServerIdSet;
+}
+
+void HostResourceQueryOption::setFilterHostgroupIds(
+  const ServerHostGrpSetMap &hostgroupIds, const bool exclude)
+{
+	m_impl->filterServerHostgroupSetMap = hostgroupIds;
+	m_impl->excludeServerHostgroupSetMap = exclude;
+}
+
+void HostResourceQueryOption::getFilterHostgroupIds(
+  ServerHostGrpSetMap &hostgroupIds, bool &exclude)
+{
+	hostgroupIds = m_impl->filterServerHostgroupSetMap;
+	exclude = m_impl->excludeServerHostgroupSetMap;
+}
+
+void HostResourceQueryOption::setFilterHostIds(
+  const ServerHostSetMap &hostIds, const bool exclude)
+{
+	m_impl->filterServerHostSetMap = hostIds;
+	m_impl->excludeServerHostSetMap = exclude;
+}
+
+void HostResourceQueryOption::getFilterHostIds(
+  ServerHostSetMap &hostIds, bool &exclude)
+{
+	hostIds = m_impl->filterServerHostSetMap;
+	exclude = m_impl->excludeServerHostSetMap;
+}
+
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -301,6 +333,68 @@ string HostResourceQueryOption::getHostIdColumnName(void) const
 {
 	return getColumnNameCommon(m_impl->synapse.hostTableProfile,
 	                           m_impl->synapse.hostIdColumnIdx);
+}
+
+bool HostResourceQueryOption::isAllowedServer(
+  const ServerIdType &targetServerId) const
+{
+	if (has(OPPRVLG_GET_ALL_SERVER))
+		return true;
+	const ServerHostGrpSetMap &allowedServersAndHostgroups =
+	  getAllowedServersAndHostgroups();
+	auto endIt = allowedServersAndHostgroups.end();
+	return (allowedServersAndHostgroups.find(ALL_SERVERS) != endIt) ||
+	       (allowedServersAndHostgroups.find(targetServerId) != endIt);
+}
+
+bool HostResourceQueryOption::isAllowedHostgroup(
+  const ServerIdType &targetServerId,
+  const HostgroupIdType &targetHostgroupId) const
+{
+	if (has(OPPRVLG_GET_ALL_SERVER))
+		return true;
+	const ServerHostGrpSetMap &allowedServersAndHostgroups =
+	  getAllowedServersAndHostgroups();
+	auto endServerIt(allowedServersAndHostgroups.end());
+	if (allowedServersAndHostgroups.find(ALL_SERVERS) != endServerIt)
+		return true;
+	auto serverIt(allowedServersAndHostgroups.find(targetServerId));
+	if (serverIt != allowedServersAndHostgroups.end())
+		return false;
+	const HostgroupIdSet &hostgroupSet = serverIt->second;
+	return hostgroupSet.find(targetHostgroupId) != hostgroupSet.end();
+}
+
+string HostResourceQueryOption::makeConditionTargetIds(void) const
+{
+	string condition;
+	DBTermCStringProvider rhs(*getDBTermCodec());
+
+	if (m_impl->targetServerId != ALL_SERVERS) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getServerIdColumnName().c_str(),
+		    rhs(m_impl->targetServerId)));
+	}
+	if (m_impl->targetHostId != ALL_LOCAL_HOSTS) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getHostIdColumnName().c_str(),
+		    rhs(m_impl->targetHostId)));
+	}
+	if (m_impl->targetHostgroupId != ALL_HOST_GROUPS) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getHostgroupIdColumnName().c_str(),
+		    rhs(m_impl->targetHostgroupId)));
+	}
+
+	if (condition.empty())
+		return condition;
+	return StringUtils::sprintf("(%s)", condition.c_str());
 }
 
 string HostResourceQueryOption::makeConditionHostgroup(
@@ -373,19 +467,14 @@ string HostResourceQueryOption::makeConditionServer(
 	} else {
 		return condition;
 	}
+	return condition;
 }
 
-static inline bool isAllowedServer(
-  const ServerHostGrpSetMap &allowedServersAndHostgroups,
-  const ServerIdType &targetServerId)
+string HostResourceQueryOption::makeConditionAllowedHosts(void) const
 {
-	return allowedServersAndHostgroups.find(targetServerId)
-		!= allowedServersAndHostgroups.end();
-}
+	const ServerHostGrpSetMap &allowedServersAndHostgroups =
+	  getAllowedServersAndHostgroups();
 
-string HostResourceQueryOption::makeConditionForNormalUser(
-  const ServerHostGrpSetMap &allowedServersAndHostgroups) const
-{
 	const string &serverIdColumnName = getServerIdColumnName();
 	const string &hostgroupIdColumnName = getHostgroupIdColumnName();
 
@@ -402,7 +491,6 @@ string HostResourceQueryOption::makeConditionForNormalUser(
 	string condition;
 	const ServerIdType &targetServerId = m_impl->targetServerId;
 	const HostgroupIdType &targetHostgroupId = m_impl->targetHostgroupId;
-	const LocalHostIdType &targetHostId = m_impl->targetHostId;
 
 	size_t numServers = allowedServersAndHostgroups.size();
 	if (numServers == 0) {
@@ -410,9 +498,7 @@ string HostResourceQueryOption::makeConditionForNormalUser(
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 
-	if (targetServerId != ALL_SERVERS &&
-	    !isAllowedServer(allowedServersAndHostgroups, targetServerId))
-	{
+	if (targetServerId != ALL_SERVERS && !isAllowedServer(targetServerId)) {
 		return DBHatohol::getAlwaysFalseCondition();
 	}
 
@@ -421,11 +507,15 @@ string HostResourceQueryOption::makeConditionForNormalUser(
 	for (; it != allowedServersAndHostgroups.end(); ++it) {
 		const ServerIdType &serverId = it->first;
 
-		if (targetServerId != ALL_SERVERS && targetServerId != serverId)
+		if (targetServerId != ALL_SERVERS && targetServerId != serverId) {
+			// Omit it because it isn't the target server.
 			continue;
+		}
 
-		if (serverId == ALL_SERVERS)
+		if (serverId == ALL_SERVERS) {
+			// All servers are allowed
 			return "";
+		}
 
 		string conditionServer = makeConditionServer(
 					   serverId, it->second,
@@ -436,17 +526,175 @@ string HostResourceQueryOption::makeConditionForNormalUser(
 		++numServers;
 	}
 
-	if (targetHostId != ALL_LOCAL_HOSTS) {
-		DBTermCStringProvider rhs(*getDBTermCodec());
-		return StringUtils::sprintf(
-		         "((%s) AND %s=%s)",
-		         condition.c_str(), hostIdColumnName.c_str(),
-		         rhs(targetHostId));
-	}
-
 	if (numServers == 1)
 		return condition;
 	return StringUtils::sprintf("(%s)", condition.c_str());
+}
+
+string HostResourceQueryOption::makeConditionServersFilter(void) const
+{
+	if (m_impl->filterServerIdSet.empty())
+		return string();
+
+	DBTermCStringProvider rhs(*getDBTermCodec());
+	string condition;
+	if (m_impl->excludeServerIdSet) {
+		for (auto &serverId: m_impl->filterServerIdSet) {
+			if (!isAllowedServer(serverId))
+				continue;
+			addCondition(condition,
+				     StringUtils::sprintf(
+				       "%s<>%s",
+				       getServerIdColumnName().c_str(),
+				       rhs(serverId)));
+		}
+	} else {
+		for (auto &serverId: m_impl->filterServerIdSet) {
+			if (!isAllowedServer(serverId))
+				continue;
+			addCondition(condition,
+				     StringUtils::sprintf(
+				       "%s=%s",
+				       getServerIdColumnName().c_str(),
+				       rhs(serverId)),
+				     ADD_TYPE_OR);
+		}
+	}
+
+	if (m_impl->filterServerIdSet.size() > 1)
+		return StringUtils::sprintf("(%s)", condition.c_str());
+	else
+		return condition;
+}
+
+string HostResourceQueryOption::makeConditionHostgroupsFilter(void) const
+{
+	if (m_impl->filterServerHostgroupSetMap.empty())
+		return string();
+
+	DBTermCStringProvider rhs(*getDBTermCodec());
+	string condition;
+	string serverIdColumnName = getServerIdColumnName();
+	string hostgroupIdColumnName = getHostgroupIdColumnName();
+
+	if (m_impl->excludeServerHostgroupSetMap) {
+		for (auto &pair: m_impl->filterServerHostgroupSetMap) {
+			if (!isAllowedServer(pair.first))
+				continue;
+			for (auto &hostgroupId: pair.second) {
+				if (!isAllowedHostgroup(pair.first, hostgroupId))
+					continue;
+				addCondition(condition,
+					     StringUtils::sprintf(
+					       "NOT (%s=%s AND %s=%s)",
+					       serverIdColumnName.c_str(),
+					       rhs(pair.first),
+					       hostgroupIdColumnName.c_str(),
+					       rhs(hostgroupId)));
+			}
+		}
+	} else {
+		for (auto &pair: m_impl->filterServerHostgroupSetMap) {
+			if (!isAllowedServer(pair.first))
+				continue;
+			for (auto &hostgroupId: pair.second) {
+				if (!isAllowedHostgroup(pair.first, hostgroupId))
+					continue;
+				addCondition(condition,
+					     StringUtils::sprintf(
+					       "(%s=%s AND %s=%s)",
+					       serverIdColumnName.c_str(),
+					       rhs(pair.first),
+					       hostgroupIdColumnName.c_str(),
+					       rhs(hostgroupId)),
+					     ADD_TYPE_OR);
+			}
+		}
+	}
+
+	if (m_impl->filterServerHostgroupSetMap.size() > 1)
+		return StringUtils::sprintf("(%s)", condition.c_str());
+	else
+		return condition;
+}
+
+string HostResourceQueryOption::makeConditionHostsFilter(void) const
+{
+	if (m_impl->filterServerHostSetMap.empty())
+		return string();
+
+	DBTermCStringProvider rhs(*getDBTermCodec());
+	string condition;
+	string serverIdColumnName = getServerIdColumnName();
+	string hostIdColumnName = getHostIdColumnName();
+
+	if (m_impl->excludeServerHostSetMap) {
+		for (auto &pair: m_impl->filterServerHostSetMap) {
+			if (!isAllowedServer(pair.first))
+				continue;
+			for (auto &hostId: pair.second) {
+				addCondition(condition,
+					     StringUtils::sprintf(
+					       "NOT (%s=%s AND %s=%s)",
+					       serverIdColumnName.c_str(),
+					       rhs(pair.first),
+					       hostIdColumnName.c_str(),
+					       rhs(hostId)));
+			}
+		}
+	} else {
+		for (auto &pair: m_impl->filterServerHostSetMap) {
+			if (!isAllowedServer(pair.first))
+				continue;
+			for (auto &hostId: pair.second) {
+				addCondition(condition,
+					     StringUtils::sprintf(
+					       "(%s=%s AND %s=%s)",
+					       serverIdColumnName.c_str(),
+					       rhs(pair.first),
+					       hostIdColumnName.c_str(),
+					       rhs(hostId)),
+					     ADD_TYPE_OR);
+			}
+		}
+	}
+
+	if (m_impl->filterServerHostSetMap.size() > 1)
+		return StringUtils::sprintf("(%s)", condition.c_str());
+	else
+		return condition;
+}
+
+string HostResourceQueryOption::makeConditionFilter(void) const
+{
+	string condition, nextCondition;
+	size_t numFilters = 0;
+
+	AddConditionType addType = m_impl->excludeServerIdSet ?
+		ADD_TYPE_AND : ADD_TYPE_OR;
+	nextCondition = makeConditionServersFilter();
+	if (!nextCondition.empty())
+		++numFilters;
+	addCondition(condition, nextCondition, addType);
+
+	addType = m_impl->excludeServerHostgroupSetMap ?
+		ADD_TYPE_AND : ADD_TYPE_OR;
+	nextCondition = makeConditionHostgroupsFilter();
+	if (!nextCondition.empty())
+		++numFilters;
+	addCondition(condition, nextCondition, addType);
+
+	addType = m_impl->excludeServerHostSetMap ?
+		ADD_TYPE_AND : ADD_TYPE_OR;
+	nextCondition = makeConditionHostsFilter();
+	if (!nextCondition.empty())
+		++numFilters;
+	addCondition(condition, nextCondition, addType);
+
+	if (numFilters > 1)
+		return StringUtils::sprintf("(%s)", condition.c_str());
+	else
+		return condition;
 }
 
 string HostResourceQueryOption::getFromClauseForOneTable(void) const
@@ -511,8 +759,29 @@ string HostResourceQueryOption::getJoinClauseWithGlobalHostId(void) const
 	    synapse.hostgroupMapGlobalHostIdColumnIdx).c_str());
 }
 
+const ServerIdSet &HostResourceQueryOption::getValidServerIdSet(void) const
+{
+	if (m_impl->validServerIdSet)
+		return *m_impl->validServerIdSet;
+	return getDataQueryContext().getValidServerIdSet();
+}
+
 const ServerHostGrpSetMap &
 HostResourceQueryOption::getAllowedServersAndHostgroups(void) const
 {
+	if (m_impl->allowedServersAndHostgroups)
+		return *m_impl->allowedServersAndHostgroups;
 	return getDataQueryContext().getServerHostGrpSetMap();
+}
+
+// For test use only
+void HostResourceQueryOption::setValidServerIdSet(const ServerIdSet *set)
+{
+	m_impl->validServerIdSet = set;
+}
+
+void HostResourceQueryOption::setAllowedServersAndHostgroups (
+  const ServerHostGrpSetMap *map)
+{
+	m_impl->allowedServersAndHostgroups = map;
 }

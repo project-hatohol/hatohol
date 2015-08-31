@@ -423,7 +423,7 @@ const EventInfo testEventInfo[] = {
 	"2",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
-	4,                        // globalHostId,
+	35,                       // globalHostId,
 	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
@@ -437,7 +437,7 @@ const EventInfo testEventInfo[] = {
 	"3",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	6,                        // globalHostId,
+	41,                       // globalHostId,
 	"10002",                  // hostIdInServer,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
@@ -451,7 +451,7 @@ const EventInfo testEventInfo[] = {
 	"2",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	1,                        // globalHostId,
+	10,                       // globalHostId,
 	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1a",        // brief,
@@ -465,7 +465,7 @@ const EventInfo testEventInfo[] = {
 	"1",                      // triggerId
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	1,                        // globalHostId,
+	10,                       // globalHostId,
 	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1",         // brief,
@@ -479,7 +479,7 @@ const EventInfo testEventInfo[] = {
 	"3",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	2,                        // globalHostId,
+	11,                       // globalHostId,
 	"235013",                 // hostIdInServer,
 	"hostX2",                 // hostName,
 	"TEST Trigger 1b",        // brief,
@@ -492,7 +492,7 @@ const EventInfo testEventInfo[] = {
 	"2",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
-	4,                        // globalHostId,
+	35,                       // globalHostId,
 	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
