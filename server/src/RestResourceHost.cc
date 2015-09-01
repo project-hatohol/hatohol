@@ -265,14 +265,20 @@ static HatoholError parseHostsFilter(
 		return data.errors[0];
 	}
 
-	option.setSelectedServerIds(data.selected.servers);
-	option.setExcludedServerIds(data.excluded.servers);
+	if (!data.selected.servers.empty())
+		option.setSelectedServerIds(data.selected.servers);
+	if (!data.excluded.servers.empty())
+		option.setExcludedServerIds(data.excluded.servers);
 
-	option.setSelectedHostgroupIds(data.selected.hostgroups);
-	option.setExcludedHostgroupIds(data.excluded.hostgroups);
+	if (!data.selected.hostgroups.empty())
+		option.setSelectedHostgroupIds(data.selected.hostgroups);
+	if (!data.excluded.hostgroups.empty())
+		option.setExcludedHostgroupIds(data.excluded.hostgroups);
 
-	option.setSelectedHostIds(data.selected.hosts);
-	option.setExcludedHostIds(data.excluded.hosts);
+	if (!data.selected.hosts.empty())
+		option.setSelectedHostIds(data.selected.hosts);
+	if (!data.excluded.hosts.empty())
+		option.setExcludedHostIds(data.excluded.hosts);
 
 	return HTERR_OK;
 }
