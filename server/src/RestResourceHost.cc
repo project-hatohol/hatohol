@@ -126,6 +126,8 @@ struct SelectedHosts {
 	FilterSet selected;
 	FilterSet excluded;
 
+	vector<HatoholError> errors;
+
 	SelectedHosts(GHashTable *query)
 	{
 		parse(query);
@@ -151,17 +153,17 @@ struct SelectedHosts {
 		const string excludeHosts("excludeHosts");
 
 		if (StringUtils::hasPrefix(keyStr, selectHosts)) {
-			parseHostQuery(data.selected.stringMap,
-				       keyStr, valueStr, selectHosts);
+			data.parseHostQuery(data.selected.stringMap,
+					    keyStr, valueStr, selectHosts);
 		} else if (StringUtils::hasPrefix(keyStr, excludeHosts)) {
-			parseHostQuery(data.excluded.stringMap,
-				       keyStr, valueStr, excludeHosts);
+			data.parseHostQuery(data.excluded.stringMap,
+					    keyStr, valueStr, excludeHosts);
 		}
 	}
 
-	static void parseHostQuery(map<string, map<string, string> > &hostsMap,
-				   const string &key, const string &value,
-				   const string &selectType)
+	void parseHostQuery(map<string, map<string, string> > &hostsMap,
+			    const string &key, const string &value,
+			    const string &selectType)
 	{
 		parseId(hostsMap, key, value,
 			selectType, string("serverId"));
@@ -171,11 +173,10 @@ struct SelectedHosts {
 			selectType, string("hostId"));
 	}
 
-	static void parseId(map<string, map<string, string> > &hostsMap,
-			    const string &key, const string &value,
-			    const string &selectType, const string &idType)
+	void parseId(map<string, map<string, string> > &hostsMap,
+		     const string &key, const string &value,
+		     const string &selectType, const string &idType)
 	{
-		// TODO: Should report errors
 		string prefix(selectType + string("["));
 		string suffix(StringUtils::sprintf("][%s]", idType.c_str()));
 		if (!StringUtils::hasPrefix(key, prefix))
@@ -184,12 +185,30 @@ struct SelectedHosts {
 			return;
 		size_t idLength = key.size() - prefix.size() - suffix.size();
 		string index = key.substr(prefix.size(), idLength);
-		if (index.empty())
+		if (index.empty()) {
+			string message = StringUtils::sprintf(
+			  "An index for a host filter is missing!: %s=%s",
+			  key.c_str(), value.c_str());
+			HatoholError err(HTERR_INVALID_PARAMETER, message);
+			errors.push_back(err);
 			return;
-		if (!StringUtils::isNumber(index))
+		}
+		if (!StringUtils::isNumber(index)) {
+			string message(
+			  "An index for a host filter isn't numeric!: ");
+			message += index;
+			HatoholError err(HTERR_INVALID_PARAMETER, message);
+			errors.push_back(err);
 			return;
-		if (idType == "serverId" && !StringUtils::isNumber(value))
+		}
+		if (idType == "serverId" && !StringUtils::isNumber(value)) {
+			string message(
+			  "A serverId for a host filter isn't numeric!: ");
+			message += value;
+			HatoholError err(HTERR_INVALID_PARAMETER, message);
+			errors.push_back(err);
 			return;
+		}
 		hostsMap[index][idType] = value;
 	}
 
@@ -198,12 +217,19 @@ struct SelectedHosts {
 		for (auto &pair: filterSet.stringMap) {
 			map<string, string> &idMap = pair.second;
 			if (idMap.find("serverId") == idMap.end()) {
-				// TODO: it's an invalid query, should report it
+				HatoholError err(
+				  HTERR_INVALID_PARAMETER,
+				  "serverId is missing for a host filter!");
+				errors.push_back(err);
 				continue;
 			}
 			if (idMap.find("hostgroupId") != idMap.end() &&
 			    idMap.find("hostId") != idMap.end()) {
-				// TODO: it's an invalid query, should report it
+				HatoholError err(
+				  HTERR_INVALID_PARAMETER,
+				  "Both hostgroupId and hostId can't be "
+				  "specified for a host filter!");
+				errors.push_back(err);
 				continue;
 			}
 
@@ -233,6 +259,11 @@ static HatoholError parseHostsFilter(
   HostResourceQueryOption &option, GHashTable *query)
 {
 	SelectedHosts data(query);
+
+	if (!data.errors.empty()) {
+		// TODO: We should report all errors.
+		return data.errors[0];
+	}
 
 	option.setSelectedServerIds(data.selected.servers);
 	option.setExcludedServerIds(data.excluded.servers);
