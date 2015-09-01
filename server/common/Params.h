@@ -200,6 +200,10 @@ typedef std::set<HostIdType>      HostIdSet;
 typedef HostIdSet::iterator       HostIdSetIterator;
 typedef HostIdSet::const_iterator HostIdSetConstIterator;
 
+typedef std::set<LocalHostIdType>      LocalHostIdSet;
+typedef LocalHostIdSet::iterator       LocalHostIdSetIterator;
+typedef LocalHostIdSet::const_iterator LocalHostIdSetConstIterator;
+
 typedef std::set<IncidentTrackerIdType>      IncidentTrackerIdSet;
 typedef IncidentTrackerIdSet::iterator       IncidentTrackerIdSetIterator;
 typedef IncidentTrackerIdSet::const_iterator IncidentTrackerIdSetConstIterator;
@@ -212,6 +216,10 @@ typedef HostgroupIdSet::const_iterator      HostgroupIdSetConstIterator;
 typedef std::map<ServerIdType, HostgroupIdSet> ServerHostGrpSetMap;
 typedef ServerHostGrpSetMap::iterator       ServerHostGrpSetMapIterator;
 typedef ServerHostGrpSetMap::const_iterator ServerHostGrpSetMapConstIterator;
+
+typedef std::map<ServerIdType, LocalHostIdSet> ServerHostSetMap;
+typedef ServerHostSetMap::iterator       ServerHostSetMapIterator;
+typedef ServerHostSetMap::const_iterator ServerHostSetMapConstIterator;
 
 typedef std::vector<ItemCategoryIdType>      ItemCategoryIdVector;
 typedef ItemCategoryIdVector::iterator       ItemCategoryIdVecotrIterator;
