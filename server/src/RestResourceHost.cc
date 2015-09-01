@@ -133,12 +133,12 @@ struct SelectedHosts {
 
 	void parse(GHashTable *query)
 	{
-		g_hash_table_foreach(query, gHashForeachFunc, this);
+		g_hash_table_foreach(query, gHashTableForeachFunc, this);
 		convert();
 	}
 
-	static void gHashForeachFunc(gpointer key, gpointer value,
-				     gpointer userData)
+	static void gHashTableForeachFunc(gpointer key, gpointer value,
+					  gpointer userData)
 	{
 		if (!key || !value)
 			return;
