@@ -71,8 +71,7 @@ struct IncidentSenderHatohol::Impl
 		incidentInfo.doneRatio = 0;
 		incidentInfo.createdAt.tv_sec = currentTime.tv_sec;
 		incidentInfo.createdAt.tv_nsec = currentTime.tv_nsec;
-		incidentInfo.updatedAt.tv_sec = currentTime.tv_sec;
-		incidentInfo.updatedAt.tv_nsec = currentTime.tv_nsec;
+		incidentInfo.updatedAt = incidentInfo.createdAt;
 		incidentInfo.statusCode = IncidentInfo::STATUS_OPENED;
 		incidentInfo.unifiedEventId = eventInfo.unifiedId;
 	}
