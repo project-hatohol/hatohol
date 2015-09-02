@@ -18,6 +18,8 @@
  */
 
 #include "IncidentSenderHatohol.h"
+#include "UnifiedDataStore.h"
+#include "SmartTime.h"
 
 using namespace std;
 using namespace mlpl;
@@ -53,6 +55,28 @@ struct IncidentSenderHatohol::Impl
 	{
 	}
 
+	void buildNewIncidentInfo(IncidentInfo &incidentInfo,
+				  const EventInfo &eventInfo)
+	{
+		timespec currentTime = SmartTime::getCurrTime().getAsTimespec();
+		incidentInfo.trackerId = m_sender.getIncidentTrackerInfo().id;
+		incidentInfo.serverId = eventInfo.serverId;
+		incidentInfo.eventId = eventInfo.id;
+		incidentInfo.triggerId = eventInfo.triggerId;
+		incidentInfo.identifier = StringUtils::toString(eventInfo.unifiedId);
+		incidentInfo.location = "";
+		incidentInfo.status = definedStatuses[0].label;
+		incidentInfo.priority = "";
+		incidentInfo.assignee = "";
+		incidentInfo.doneRatio = 0;
+		incidentInfo.createdAt.tv_sec = currentTime.tv_sec;
+		incidentInfo.createdAt.tv_nsec = currentTime.tv_nsec;
+		incidentInfo.updatedAt.tv_sec = currentTime.tv_sec;
+		incidentInfo.updatedAt.tv_nsec = currentTime.tv_nsec;
+		incidentInfo.statusCode = IncidentInfo::STATUS_OPENED;
+		incidentInfo.unifiedEventId = eventInfo.unifiedId;
+	}
+
 	IncidentSenderHatohol &m_sender;
 };
 
@@ -68,7 +92,11 @@ IncidentSenderHatohol::~IncidentSenderHatohol()
 
 HatoholError IncidentSenderHatohol::send(const EventInfo &event)
 {
-	return HTERR_NOT_IMPLEMENTED;
+	IncidentInfo incidentInfo;
+	m_impl->buildNewIncidentInfo(incidentInfo, event);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->addIncidentInfo(incidentInfo);
+	return HTERR_OK;
 }
 
 HatoholError IncidentSenderHatohol::send(const IncidentInfo &incident,
