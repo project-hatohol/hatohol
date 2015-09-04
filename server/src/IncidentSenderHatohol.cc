@@ -57,15 +57,28 @@ struct IncidentSenderHatohol::Impl
 
 	HatoholError validate(const IncidentInfo &incident)
 	{
-		using namespace StringUtils;
 		const IncidentTrackerInfo &tracker
 		  = m_sender.getIncidentTrackerInfo();
 		if (incident.trackerId != tracker.id) {
-			string message(sprintf(
+			string message(StringUtils::sprintf(
 			  "Unmatched tarcker ID: %" FMT_INCIDENT_TRACKER_ID,
 			  incident.trackerId));
 			return HatoholError(HTERR_INVALID_PARAMETER, message);
 		}
+
+		bool knownStatus = false;
+		for (size_t i = 0; i < ARRAY_SIZE(definedStatuses); i++) {
+			if (incident.status == definedStatuses[i].label) {
+				knownStatus = true;
+				break;
+			}
+		}
+		if (!knownStatus) {
+			string message(StringUtils::sprintf(
+			  "Unknown status: %s", incident.status.c_str()));
+			return HatoholError(HTERR_INVALID_PARAMETER, message);
+		}
+
 		return HTERR_OK;
 	}
 

@@ -121,4 +121,17 @@ void test_updateUnmatchedIncidentTracker(void)
 	assertDBNotChanged();
 }
 
+void test_updateUnknownStatus(void)
+{
+	loadTestDBIncidents();
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[4];
+	IncidentInfo incidentInfo = testIncidentInfo[2];
+	incidentInfo.status = "Unknown status";
+	IncidentSenderHatohol sender(tracker);
+	HatoholError err = sender.send(incidentInfo, "");
+
+	cppcut_assert_equal(HTERR_INVALID_PARAMETER, err.getCode());
+	assertDBNotChanged();
+}
+
 }
