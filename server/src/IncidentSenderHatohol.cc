@@ -103,6 +103,9 @@ HatoholError IncidentSenderHatohol::send(const IncidentInfo &incident,
 {
 	// IncidentSenderHatohol doesn't support "comment", ignore it.
 	IncidentInfo incidentInfo = incident;
+	timespec currentTime = SmartTime::getCurrTime().getAsTimespec();
+	incidentInfo.updatedAt.tv_sec = currentTime.tv_sec;
+	incidentInfo.updatedAt.tv_nsec = currentTime.tv_nsec;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	return dataStore->updateIncidentInfo(incidentInfo);
 }
