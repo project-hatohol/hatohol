@@ -104,6 +104,5 @@ HatoholError IncidentSenderHatohol::send(const IncidentInfo &incident,
 	// IncidentSenderHatohol doesn't support "comment", ignore it.
 	IncidentInfo incidentInfo = incident;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->updateIncidentInfo(incidentInfo);
-	return HTERR_OK;
+	return dataStore->updateIncidentInfo(incidentInfo);
 }
