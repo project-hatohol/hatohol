@@ -710,4 +710,130 @@ void test_getHistoryWithInvalidItemId(void)
 	assertErrorCode(parser, HTERR_NOT_FOUND_TARGET_RECORD);
 }
 
+static string getExpectedServers(void)
+{
+	return string("\"servers\":{"
+
+		      "\"1\":{"
+		      "\"name\":\"pochi.dog.com\","
+		      "\"nickname\":\"POCHI\","
+		      "\"type\":0,"
+		      "\"ipAddress\":\"192.168.0.5\","
+		      "\"baseURL\":\"\","
+		      "\"uuid\":\"144b2a3f-0cc9-4392-be91-137c75142772\","
+		      "\"hosts\":{"
+		      "\"1129\":{\"name\":\"hostX3\"},"
+		      "\"235012\":{\"name\":\"hostX1\"},"
+		      "\"235013\":{\"name\":\"hostX2\"}},"
+		      "\"groups\":{}},"
+
+		      "\"2\":{"
+		      "\"name\":\"mike.dog.com\","
+		      "\"nickname\":\"MIKE\","
+		      "\"type\":0,"
+		      "\"ipAddress\":\"192.168.1.5\","
+		      "\"baseURL\":\"\","
+		      "\"hosts\":{"
+		      "\"512\":{\"name\":\"multi-host group\"},"
+		      "\"9920249034889494527\":{\"name\":\"hostQ1\"}},"
+		      "\"groups\":{}},"
+
+		      "\"3\":{"
+		      "\"name\":\"hachi.dog.com\","
+		      "\"nickname\":\"8\","
+		      "\"type\":0,"
+		      "\"ipAddress\":\"192.168.10.1\","
+		      "\"baseURL\":\"\","
+		      "\"uuid\":\"\","
+		      "\"hosts\":{"
+		      "\"100\":{\"name\":\"dolphin\"},"
+		      "\"10001\":{\"name\":\"hostZ1\"},"
+		      "\"10002\":{\"name\":\"hostZ2\"},"
+		      "\"5\":{\"name\":\"frog\"}},"
+		      "\"groups\":{}},"
+
+		      "\"4\":{"
+		      "\"name\":\"mosquito.example.com\","
+		      "\"nickname\":\"KA\","
+		      "\"type\":0,"
+		      "\"ipAddress\":\"10.100.10.52\","
+		      "\"baseURL\":\"\","
+		      "\"hosts\":{"
+		      "\"100\":{\"name\":\"squirrel\"}},"
+		      "\"groups\":{}},"
+
+		      "\"211\":{"
+		      "\"name\":\"x-men.example.com\","
+		      "\"nickname\":\"(^_^)\","
+		      "\"type\":0,"
+		      "\"ipAddress\":\"172.16.32.51\","
+		      "\"baseURL\":\"\","
+		      "\"hosts\":{"
+		      "\"12111\":{\"name\":\"host 12111\"},"
+		      "\"12112\":{\"name\":\"host 12112\"},"
+		      "\"12113\":{\"name\":\"host 12113\"},"
+		      "\"200\":{\"name\":\"host 200\"}},"
+		      "\"groups\":{}},"
+
+		      "\"222\":{"
+		      "\"name\":\"zoo.example.com\","
+		      "\"nickname\":\"Akira\","
+		      "\"type\":0,"
+		      "\"ipAddress\":\"10.0.0.48\","
+		      "\"baseURL\":\"\","
+		      "\"hosts\":{"
+		      "\"110005\":{\"name\":\"host 110005\"}},"
+		      "\"groups\":{}},"
+
+		      "\"301\":{"
+		      "\"name\":\"nagios.example.com\","
+		      "\"nickname\":\"Akira\","
+		      "\"type\":1,"
+		      "\"ipAddress\":\"10.0.0.32\","
+		      "\"baseURL\":\"http://10.0.0.32/nagios3\","
+		      "\"hosts\":{},"
+		      "\"groups\":{}}"
+
+		      "}");
+}
+
+void test_eventsWithHostsFilter(void)
+{
+	loadTestDBArmPlugin();
+	loadTestDBTriggers();
+	loadTestDBEvents();
+	loadTestDBServerHostDef();
+	startFaceRest();
+
+	RequestArg arg("/event"
+		       "?excludeHosts%5B0%5D%5BserverId%5D=1"
+		       "&excludeHosts%5B1%5D%5BserverId%5D=3"
+		       "&selectHosts%5B2%5D%5BserverId%5D=1"
+		       "&selectHosts%5B2%5D%5BhostId%5D=235013");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	getServerResponse(arg);
+	string expected("{"
+			"\"apiVersion\":4,"
+			"\"errorCode\":0,"
+			"\"lastUnifiedEventId\":6,"
+			"\"haveIncident\":false,"
+			"\"events\":"
+			"[{"
+			"\"unifiedId\":5,"
+			"\"serverId\":1,"
+			"\"time\":1389123457,"
+			"\"type\":0,"
+			"\"triggerId\":\"3\","
+			"\"eventId\":\"3\","
+			"\"status\":1,"
+			"\"severity\":1,"
+			"\"hostId\":\"235013\","
+			"\"brief\":\"TEST Trigger 1b\","
+			"\"extendedInfo\":\"\""
+			"}],"
+			"\"numberOfEvents\":1,");
+	expected += getExpectedServers() + "}";
+	cppcut_assert_equal(expected, arg.response);
+}
+
 } // namespace testFaceRestHost
