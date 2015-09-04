@@ -47,7 +47,9 @@ void test_send(void)
 	EventInfo eventInfo = testEventInfo[0];
 	eventInfo.unifiedId = 931;
 	IncidentSenderHatohol sender(tracker);
-	sender.send(eventInfo);
+	HatoholError err = sender.send(eventInfo);
+
+	cppcut_assert_equal(HTERR_OK, err.getCode());
 
 	string expected =
 	  "^1\\|3\\|1\\|2\\|931\\|\\|NONE\\|\\|\\d+\\|\\d+\\|\\d+\\|\\d+\\|\\|0\\|931$";
@@ -65,7 +67,9 @@ void test_updateStatus(void)
 	IncidentInfo incidentInfo = testIncidentInfo[2];
 	incidentInfo.status = "IN PROGRESS";
 	IncidentSenderHatohol sender(tracker);
-	sender.send(incidentInfo, "");
+	HatoholError err = sender.send(incidentInfo, "");
+
+	cppcut_assert_equal(HTERR_OK, err.getCode());
 
 	string expected =
 	  "^5\\|2\\|2\\|3\\|123\\|\\|IN PROGRESS\\|\\|1412957360\\|0\\|\\d+\\|\\d+\\|\\|0\\|123$";
@@ -85,7 +89,9 @@ void test_updateUnknownIncident(void)
 	incidentInfo.identifier = "Unknown incident";
 	incidentInfo.status = "IN PROGRESS";
 	IncidentSenderHatohol sender(tracker);
-	sender.send(incidentInfo, "");
+	HatoholError err = sender.send(incidentInfo, "");
+
+	cppcut_assert_equal(HTERR_NOT_FOUND_TARGET_RECORD, err.getCode());
 
 	string expected;
 	for (size_t i = 0; i < NumTestIncidentInfo; i++)
