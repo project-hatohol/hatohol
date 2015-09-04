@@ -28,6 +28,7 @@ const char *RestResourceHost::pathForOverview  = "/overview";
 const char *RestResourceHost::pathForHost      = "/host";
 const char *RestResourceHost::pathForTrigger   = "/trigger";
 const char *RestResourceHost::pathForEvent     = "/event";
+const char *RestResourceHost::pathForIncident  = "/incident";
 const char *RestResourceHost::pathForItem      = "/item";
 const char *RestResourceHost::pathForHistory   = "/history";
 const char *RestResourceHost::pathForHostgroup = "/hostgroup";
@@ -54,6 +55,10 @@ void RestResourceHost::registerFactories(FaceRest *faceRest)
 	  pathForEvent,
 	  new RestResourceHostFactory(
 	    faceRest, &RestResourceHost::handlerGetEvent));
+	faceRest->addResourceHandlerFactory(
+	  pathForIncident,
+	  new RestResourceHostFactory(
+	    faceRest, &RestResourceHost::handlerIncident));
 	faceRest->addResourceHandlerFactory(
 	  pathForItem,
 	  new RestResourceHostFactory(
@@ -851,6 +856,21 @@ void RestResourceHost::handlerGetEvent(void)
 	agent.endObject();
 
 	replyJSONData(agent);
+}
+
+void RestResourceHost::handlerIncident(void)
+{
+	if (httpMethodIs("PUT")) {
+		handlerPutIncident();
+	} else {
+		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
+	}
+}
+
+void RestResourceHost::handlerPutIncident(void)
+{
+	// TODO
+	replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 }
 
 // TODO: Add a macro or template to simplify the definition

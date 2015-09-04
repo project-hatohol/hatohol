@@ -37,6 +37,8 @@ struct RestResourceHost : public FaceRest::ResourceHandler
 	void handlerGetHost(void);
 	void handlerGetTrigger(void);
 	void handlerGetEvent(void);
+	void handlerIncident(void);
+	void handlerPutIncident(void);
 	void handlerGetHostgroup(void);
 	void handlerGetItem(void);
 	void replyGetItem(void);
@@ -54,6 +56,7 @@ struct RestResourceHost : public FaceRest::ResourceHandler
 	static const char *pathForHost;
 	static const char *pathForTrigger;
 	static const char *pathForEvent;
+	static const char *pathForIncident;
 	static const char *pathForItem;
 	static const char *pathForHistory;
 	static const char *pathForHostgroup;
