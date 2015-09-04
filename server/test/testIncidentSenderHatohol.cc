@@ -41,6 +41,18 @@ void cut_teardown(void)
 {
 }
 
+static void assertDBNotChanged(void)
+{
+	string expected;
+	for (size_t i = 0; i < NumTestIncidentInfo; i++)
+		expected += makeIncidentOutput(testIncidentInfo[i]);
+	DBHatohol dbHatohol;
+	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
+	assertDBContent(&dbMonitoring.getDBAgent(),
+			"select * from incidents",
+			expected);
+}
+
 void test_send(void)
 {
 	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
@@ -92,15 +104,21 @@ void test_updateUnknownIncident(void)
 	HatoholError err = sender.send(incidentInfo, "");
 
 	cppcut_assert_equal(HTERR_NOT_FOUND_TARGET_RECORD, err.getCode());
+	assertDBNotChanged();
+}
 
-	string expected;
-	for (size_t i = 0; i < NumTestIncidentInfo; i++)
-		expected += makeIncidentOutput(testIncidentInfo[i]);
-	DBHatohol dbHatohol;
-	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
-	assertDBContent(&dbMonitoring.getDBAgent(),
-			"select * from incidents",
-			expected);
+void test_updateUnmatchedIncidentTracker(void)
+{
+	loadTestDBIncidents();
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[4];
+	IncidentInfo incidentInfo = testIncidentInfo[1];
+	incidentInfo.identifier = "Unknown incident";
+	incidentInfo.status = "IN PROGRESS";
+	IncidentSenderHatohol sender(tracker);
+	HatoholError err = sender.send(incidentInfo, "");
+
+	cppcut_assert_equal(HTERR_INVALID_PARAMETER, err.getCode());
+	assertDBNotChanged();
 }
 
 }

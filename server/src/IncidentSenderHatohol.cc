@@ -55,6 +55,20 @@ struct IncidentSenderHatohol::Impl
 	{
 	}
 
+	HatoholError validate(const IncidentInfo &incident)
+	{
+		using namespace StringUtils;
+		const IncidentTrackerInfo &tracker
+		  = m_sender.getIncidentTrackerInfo();
+		if (incident.trackerId != tracker.id) {
+			string message(sprintf(
+			  "Unmatched tarcker ID: %" FMT_INCIDENT_TRACKER_ID,
+			  incident.trackerId));
+			return HatoholError(HTERR_INVALID_PARAMETER, message);
+		}
+		return HTERR_OK;
+	}
+
 	void buildNewIncidentInfo(IncidentInfo &incidentInfo,
 				  const EventInfo &eventInfo)
 	{
@@ -106,6 +120,9 @@ HatoholError IncidentSenderHatohol::send(const IncidentInfo &incident,
 	timespec currentTime = SmartTime::getCurrTime().getAsTimespec();
 	incidentInfo.updatedAt.tv_sec = currentTime.tv_sec;
 	incidentInfo.updatedAt.tv_nsec = currentTime.tv_nsec;
+	HatoholError err = m_impl->validate(incidentInfo);
+	if (err != HTERR_OK)
+		return err;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	return dataStore->updateIncidentInfo(incidentInfo);
 }
