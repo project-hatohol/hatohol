@@ -1052,6 +1052,15 @@ const IncidentTrackerInfo testIncidentTrackerInfo[] = {
 	"2",                      // TrackerId
 	"hatohol",                // user_name
 	"o.o662L6q1V7E",          // password
+},{
+	5,                        // id
+	INCIDENT_TRACKER_HATOHOL, // type
+	"Internal",               // nickname
+	"",                       // baseURL
+	"",                       // projectId
+	"",                       // TrackerId
+	"",                       // user_name
+	"",                       // password
 }
 };
 const size_t NumTestIncidentTrackerInfo = ARRAY_SIZE(testIncidentTrackerInfo);
