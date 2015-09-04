@@ -169,6 +169,7 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, INCIDENT_TRACKER_UNKNOWN);
 	ADD_LINE(s, langType, INCIDENT_TRACKER_FAKE);
 	ADD_LINE(s, langType, INCIDENT_TRACKER_REDMINE);
+	ADD_LINE(s, langType, INCIDENT_TRACKER_HATOHOL);
 	APPEND(s, "\n");
 
 	//
