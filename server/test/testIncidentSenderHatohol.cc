@@ -72,19 +72,38 @@ void test_send(void)
 	cut_assert_match(expected.c_str(), actual.c_str());
 }
 
-void test_updateStatus(void)
+void data_updateStatus(void)
 {
+	gcut_add_datum("NONE",
+	               "status", G_TYPE_STRING, "NONE",
+		       NULL);
+	gcut_add_datum("HOLD",
+	               "status", G_TYPE_STRING, "HOLD",
+		       NULL);
+	gcut_add_datum("IN PROGERSS",
+	               "status", G_TYPE_STRING, "IN PROGRESS",
+		       NULL);
+	gcut_add_datum("DONE",
+	               "status", G_TYPE_STRING, "DONE",
+		       NULL);
+}
+
+void test_updateStatus(gconstpointer data)
+{
+	const string status = gcut_data_get_string(data, "status");
 	loadTestDBIncidents();
 	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[4];
 	IncidentInfo incidentInfo = testIncidentInfo[2];
-	incidentInfo.status = "IN PROGRESS";
+	incidentInfo.status = status;
 	IncidentSenderHatohol sender(tracker);
 	HatoholError err = sender.send(incidentInfo, "");
 
 	cppcut_assert_equal(HTERR_OK, err.getCode());
 
-	string expected =
-	  "^5\\|2\\|2\\|3\\|123\\|\\|IN PROGRESS\\|\\|1412957360\\|0\\|\\d+\\|\\d+\\|\\|0\\|123$";
+	string expected(
+	  string("^5\\|2\\|2\\|3\\|123\\|\\|") +
+	  string(status) +
+	  string ("\\|\\|1412957360\\|0\\|\\d+\\|\\d+\\|\\|0\\|123$"));
 	DBHatohol dbHatohol;
 	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
 	string actual = execSQL(&dbMonitoring.getDBAgent(),
