@@ -894,6 +894,13 @@ void UnifiedDataStore::addIncidentInfo(IncidentInfo &incidentInfo)
 		startArmIncidentTrackerIfNeeded(incidentInfo.trackerId);
 }
 
+void UnifiedDataStore::updateIncidentInfo(IncidentInfo &incidentInfo)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	dbMonitoring.updateIncidentInfo(incidentInfo);
+}
+
 DataStoreVector UnifiedDataStore::getDataStoreVector(void)
 {
 	return m_impl->getDataStoreVector();

@@ -101,5 +101,9 @@ HatoholError IncidentSenderHatohol::send(const EventInfo &event)
 HatoholError IncidentSenderHatohol::send(const IncidentInfo &incident,
 					 const std::string &comment)
 {
-	return HTERR_NOT_IMPLEMENTED;
+	// IncidentSenderHatohol doesn't support "comment", ignore it.
+	IncidentInfo incidentInfo = incident;
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->updateIncidentInfo(incidentInfo);
+	return HTERR_OK;
 }

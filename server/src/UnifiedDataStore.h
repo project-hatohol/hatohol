@@ -267,6 +267,7 @@ public:
 	uint64_t getLastUpdateTimeOfIncidents(
 	  const IncidentTrackerIdType &trackerId);
 	void addIncidentInfo(IncidentInfo &incidentInfo);
+	void updateIncidentInfo(IncidentInfo &incidentInfo);
 
 	/**
 	 * get a vector of pointers of DataStore instance.
