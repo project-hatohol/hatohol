@@ -1,0 +1,61 @@
+/*
+ * Copyright (C) 2015 Project Hatohol
+ *
+ * This file is part of Hatohol.
+ *
+ * Hatohol is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License, version 3
+ * as published by the Free Software Foundation.
+ *
+ * Hatohol is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Hatohol. If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+#include <cppcutter.h>
+#include <gcutter.h>
+#include <Hatohol.h>
+#include <IncidentSenderHatohol.h>
+#include <ThreadLocalDBCache.h>
+#include "DBTablesTest.h"
+#include "Helpers.h"
+
+using namespace std;
+using namespace mlpl;
+
+namespace testIncidentSenderHatohol {
+
+void cut_setup(void)
+{
+	hatoholInit();
+	setupTestDB();
+	loadTestDBTablesConfig();
+}
+
+void cut_teardown(void)
+{
+}
+
+void test_send(void)
+{
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[0];
+	EventInfo eventInfo = testEventInfo[0];
+	eventInfo.unifiedId = 931;
+	IncidentSenderHatohol sender(tracker);
+	sender.send(eventInfo);
+
+	string expected =
+	  "^1\\|3\\|1\\|2\\|931\\|\\|NONE\\|\\|\\d+\\|\\d+\\|\\d+\\|\\d+\\|\\|0\\|931$";
+	DBHatohol dbHatohol;
+	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incidents;");
+	cut_assert_match(expected.c_str(), actual.c_str());
+}
+
+}
