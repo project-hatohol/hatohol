@@ -1434,6 +1434,27 @@ void test_updateIncidentInfoByDedicatedFuction(void)
 	assertDBContent(&dbAgent, statement, expect);
 }
 
+void test_updateNonExistentIncidentInfo(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+
+	IncidentInfo incidentInfo = testIncidentInfo[0];
+	dbMonitoring.addIncidentInfo(&incidentInfo);
+	incidentInfo.identifier = "8888"; // non existent identifier
+	incidentInfo.status = "Assigned";
+	incidentInfo.assignee = "hikeshi";
+	incidentInfo.updatedAt.tv_sec = time(NULL);
+	incidentInfo.updatedAt.tv_nsec = 0;
+
+	// Should return an error
+	dbMonitoring.updateIncidentInfo(incidentInfo);
+
+	string statement("select * from incidents;");
+	string expect(makeIncidentOutput(testIncidentInfo[0]));
+	assertDBContent(&dbAgent, statement, expect);
+}
+
 void test_getIncidentInfo(void)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
