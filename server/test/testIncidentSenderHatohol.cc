@@ -58,4 +58,43 @@ void test_send(void)
 	cut_assert_match(expected.c_str(), actual.c_str());
 }
 
+void test_updateStatus(void)
+{
+	loadTestDBIncidents();
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[4];
+	IncidentInfo incidentInfo = testIncidentInfo[2];
+	incidentInfo.status = "IN PROGRESS";
+	IncidentSenderHatohol sender(tracker);
+	sender.send(incidentInfo, "");
+
+	string expected =
+	  "^5\\|2\\|2\\|3\\|123\\|\\|IN PROGRESS\\|\\|1412957360\\|0\\|\\d+\\|\\d+\\|\\|0\\|123$";
+	DBHatohol dbHatohol;
+	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incidents"
+				" where tracker_id=5 AND identifier='123';");
+	cut_assert_match(expected.c_str(), actual.c_str());
+}
+
+void test_updateUnknownIncident(void)
+{
+	loadTestDBIncidents();
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[4];
+	IncidentInfo incidentInfo = testIncidentInfo[2];
+	incidentInfo.identifier = "Unknown incident";
+	incidentInfo.status = "IN PROGRESS";
+	IncidentSenderHatohol sender(tracker);
+	sender.send(incidentInfo, "");
+
+	string expected;
+	for (size_t i = 0; i < NumTestIncidentInfo; i++)
+		expected += makeIncidentOutput(testIncidentInfo[i]);
+	DBHatohol dbHatohol;
+	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
+	assertDBContent(&dbMonitoring.getDBAgent(),
+			"select * from incidents",
+			expected);
+}
+
 }

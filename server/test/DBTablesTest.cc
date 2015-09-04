@@ -1104,15 +1104,15 @@ const IncidentInfo testIncidentInfo[] = {
 	"2",                      // eventId
 	"3",                      // triggerId
 	"123",                    // identifier
-	"http://localhost/issues/123", // location
-	"New",                    // status
-	"Normal",                 // priority
-	"drake",                  // assignee
+	"",                       // location
+	"NONE",                   // status
+	"",                       // priority
+	"",                       // assignee
 	0,                        // doneRatio
 	{1412957360, 0},          // createdAt
 	{1412957360, 0},          // updatedAt
 	IncidentInfo::STATUS_OPENED,// statusCode
-	0,                        // unifiedId
+	123,                      // unifiedId
 },
 };
 const size_t NumTestIncidentInfo = ARRAY_SIZE(testIncidentInfo);
