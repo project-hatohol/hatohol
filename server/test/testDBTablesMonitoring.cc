@@ -1427,10 +1427,49 @@ void test_updateIncidentInfoByDedicatedFuction(void)
 	incidentInfo.assignee = "hikeshi";
 	incidentInfo.updatedAt.tv_sec = time(NULL);
 	incidentInfo.updatedAt.tv_nsec = 0;
-	dbMonitoring.updateIncidentInfo(incidentInfo);
+	HatoholError err = dbMonitoring.updateIncidentInfo(incidentInfo);
 
+	cppcut_assert_equal(HTERR_OK, err.getCode());
 	string statement("select * from incidents;");
 	string expect(makeIncidentOutput(incidentInfo));
+	assertDBContent(&dbAgent, statement, expect);
+}
+
+void test_updateIncidentInfoWithSpace(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+
+	IncidentInfo incidentInfo = testIncidentInfo[0];
+	dbMonitoring.addIncidentInfo(&incidentInfo);
+	incidentInfo.status = "Status With Space";
+	HatoholError err = dbMonitoring.updateIncidentInfo(incidentInfo);
+
+	cppcut_assert_equal(HTERR_OK, err.getCode());
+	string statement("select * from incidents;");
+	string expect(makeIncidentOutput(incidentInfo));
+	assertDBContent(&dbAgent, statement, expect);
+}
+
+void test_updateNonExistentIncidentInfo(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+
+	IncidentInfo incidentInfo = testIncidentInfo[0];
+	dbMonitoring.addIncidentInfo(&incidentInfo);
+	incidentInfo.identifier = "8888"; // non existent identifier
+	incidentInfo.status = "Assigned";
+	incidentInfo.assignee = "hikeshi";
+	incidentInfo.updatedAt.tv_sec = time(NULL);
+	incidentInfo.updatedAt.tv_nsec = 0;
+
+	// Should return an error
+	HatoholError err = dbMonitoring.updateIncidentInfo(incidentInfo);
+
+	cppcut_assert_equal(HTERR_NOT_FOUND_TARGET_RECORD, err.getCode());
+	string statement("select * from incidents;");
+	string expect(makeIncidentOutput(testIncidentInfo[0]));
 	assertDBContent(&dbAgent, statement, expect);
 }
 

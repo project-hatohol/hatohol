@@ -894,6 +894,13 @@ void UnifiedDataStore::addIncidentInfo(IncidentInfo &incidentInfo)
 		startArmIncidentTrackerIfNeeded(incidentInfo.trackerId);
 }
 
+HatoholError UnifiedDataStore::updateIncidentInfo(IncidentInfo &incidentInfo)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	return dbMonitoring.updateIncidentInfo(incidentInfo);
+}
+
 DataStoreVector UnifiedDataStore::getDataStoreVector(void)
 {
 	return m_impl->getDataStoreVector();

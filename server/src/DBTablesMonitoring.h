@@ -256,8 +256,10 @@ public:
 	 *
 	 * @param incidentInfo
 	 * An IncidentInfo to update.
+	 *
+	 * @rerurn A HatoholError insntace.
 	 */
-	void updateIncidentInfo(IncidentInfo &incidentInfo);
+	HatoholError updateIncidentInfo(IncidentInfo &incidentInfo);
 
 protected:
 	static SetupInfo &getSetupInfo(void);

@@ -54,6 +54,7 @@ libhatohol_la_SOURCES = \
 	IncidentSender.cc IncidentSender.h \
 	IncidentSenderManager.cc IncidentSenderManager.h \
 	IncidentSenderRedmine.cc IncidentSenderRedmine.h \
+	IncidentSenderHatohol.cc IncidentSenderHatohol.h \
 	ItemFetchWorker.cc ItemFetchWorker.h \
 	ItemGroupStream.cc ItemGroupStream.h \
 	ItemGroupEnum.h \
