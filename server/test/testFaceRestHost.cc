@@ -867,9 +867,8 @@ void test_putIncident(void)
 	size_t index = 2;
 	IncidentInfo expected = testIncidentInfo[index];
 	string path(
-	  StringUtils::sprintf("/incident/%" FMT_INCIDENT_TRACKER_ID "/%s",
-			       expected.trackerId,
-			       expected.identifier.c_str()));
+	  StringUtils::sprintf("/incident/%" FMT_UNIFIED_EVENT_ID,
+			       expected.unifiedEventId));
 	RequestArg arg(path);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	arg.request = "PUT";
