@@ -930,9 +930,6 @@ static void updateIncidentCallback(const IncidentInfo &info,
 {
 	RestResourceHost *job = static_cast<RestResourceHost *>(userData);
 
-
-	HatoholError err = HTERR_OK;
-
 	// make a response
 	if (status == IncidentSender::JOB_SUCCEEDED) {
 		JSONBuilder agent;
