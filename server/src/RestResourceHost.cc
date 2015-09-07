@@ -940,11 +940,13 @@ static void updateIncidentCallback(const IncidentInfo &info,
 		agent.add("unifiedEventId", info.unifiedEventId);
 		agent.endObject();
 		job->replyJSONData(agent);
+		job->unpauseResponse();
 		break;
 	}
 	case IncidentSender::JOB_FAILED:
 		// TODO: Should return detailed message
 		job->replyError(HTERR_FAILED_TO_SEND_INCIDENT);
+		job->unpauseResponse();
 		break;
 	default:
 		break;
