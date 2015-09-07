@@ -159,6 +159,8 @@ struct IncidentSender::Impl
 			result = job.send(sender);
 			if (result == HTERR_OK)
 				break;
+			if (result != HTERR_FAILED_TO_SEND_INCIDENT)
+				break;
 			if (i == retryLimit)
 				break;
 			if (sender.isExitRequested())
