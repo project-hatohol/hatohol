@@ -1496,6 +1496,29 @@ void test_getIncidentInfo(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_getIncidentInfoWithUnifiedEventId(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	size_t index = 2;
+	IncidentInfo expectedIncidentInfo = testIncidentInfo[index];
+	IncidentInfoVect incidents;
+	IncidentsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetUnifiedEventId(expectedIncidentInfo.unifiedEventId);
+	string expected, actual;
+
+	loadTestDBIncidents();
+	expected = makeIncidentOutput(expectedIncidentInfo);
+
+	dbMonitoring.getIncidentInfoVect(incidents, option);
+	IncidentInfoVectIterator it = incidents.begin();
+	for (; it != incidents.end(); ++it) {
+		IncidentInfo &actualIncidentInfo = *it;
+		actual += makeIncidentOutput(actualIncidentInfo);
+	}
+
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_getLastUpdateTimeOfIncidents(void)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
