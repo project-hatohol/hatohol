@@ -865,36 +865,40 @@ void test_putIncident(void)
 	startFaceRest();
 
 	size_t index = 2;
-	IncidentInfo expected = testIncidentInfo[index];
+	IncidentInfo expectedIncident = testIncidentInfo[index];
+	expectedIncident.status = "IN PROGRESS";
+	expectedIncident.priority = "HIGH";
+	expectedIncident.assignee = "taro";
+	expectedIncident.doneRatio = 30;
 	string path(
 	  StringUtils::sprintf("/incident/%" FMT_UNIFIED_EVENT_ID,
-			       expected.unifiedEventId));
+			       expectedIncident.unifiedEventId));
 	RequestArg arg(path);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	arg.request = "PUT";
-	incidentInfo2StringMap(expected, arg.parameters);
+	incidentInfo2StringMap(expectedIncident, arg.parameters);
 
 	// check the response
 	getServerResponse(arg);
 	string expectedResponse(
 	  "{"
 	  "\"apiVersion\":4,"
-	  "\"errorCode\":0"
+	  "\"errorCode\":0,"
+	  "\"unifiedEventId\":123"
 	  "}");
 	cppcut_assert_equal(200, arg.httpStatusCode);
 	cppcut_assert_equal(expectedResponse, arg.response);
 
 	// check the content in the DB
 	ThreadLocalDBCache cache;
-	DBTablesConfig &dbConfig = cache.getConfig();
-	string statement = "select * from incidents";
-	string expectedOutput;
-	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
-		const IncidentInfo &incident = (i == index) ?
-			expected : testIncidentInfo[i];
-		expectedOutput += makeIncidentOutput(incident);
-	}
-	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incidents"
+				" where unified_event_id=123");
+	string expected =
+		"^5\\|2\\|2\\|3\\|123\\|\\|IN PROGRESS\\|taro\\|"
+		"1412957360\\|0\\|\\d+\\|\\d+\\|HIGH\\|30\\|123$";
+	cut_assert_match(expected.c_str(), actual.c_str());
 }
 
 void test_getIncident(void)

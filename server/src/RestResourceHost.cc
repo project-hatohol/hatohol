@@ -19,6 +19,7 @@
 
 #include "RestResourceHost.h"
 #include "UnifiedDataStore.h"
+#include "IncidentSenderManager.h"
 #include <string.h>
 
 using namespace std;
@@ -867,10 +868,105 @@ void RestResourceHost::handlerIncident(void)
 	}
 }
 
+static HatoholError parseIncidentParameter(
+  IncidentInfo &incidentInfo, GHashTable *query, const bool &forUpdate = false)
+{
+	const bool allowEmpty = forUpdate;
+	string key;
+	const char *value;
+
+	// status
+	key = "status";
+	value = static_cast<const char *>(
+		  g_hash_table_lookup(query, key.c_str()));
+	if (!value && !allowEmpty)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		incidentInfo.status = value;
+
+	// priority
+	key = "priority";
+	value = static_cast<const char *>(
+		  g_hash_table_lookup(query, key.c_str()));
+	if (!value && !allowEmpty)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		incidentInfo.priority = value;
+
+	// assignee
+	key = "assignee";
+	value = static_cast<const char *>(
+		  g_hash_table_lookup(query, key.c_str()));
+	if (!value && !allowEmpty)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		incidentInfo.assignee = value;
+
+	// doneRatio
+	key = "doneRatio";
+	HatoholError err = getParam<int>(
+		query, key.c_str(), "%d", incidentInfo.doneRatio);
+	if (err != HTERR_OK) {
+		if (err != HTERR_NOT_FOUND_PARAMETER && !allowEmpty)
+			return err;
+	}
+
+	/* Other parameters are frozen */
+
+	return HTERR_OK;
+}
+
 void RestResourceHost::handlerPutIncident(void)
 {
-	// TODO
-	replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
+	uint64_t unifiedEventId = getResourceId();
+	if (unifiedEventId == INVALID_ID) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", getResourceIdString().c_str());
+		return;
+	}
+
+	// check the existing record
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	IncidentInfoVect incidents;
+	IncidentsQueryOption option(m_dataQueryContextPtr);
+	option.setTargetUnifiedEventId(unifiedEventId);
+	dataStore->getIncidents(incidents, option);
+	if (incidents.empty()) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
+		            "id: %" FMT_UNIFIED_EVENT_ID,
+			    unifiedEventId);
+		return;
+	}
+
+	IncidentInfo incidentInfo;
+	incidentInfo = *incidents.begin();
+	incidentInfo.unifiedEventId = unifiedEventId;
+
+	// check the request
+	bool allowEmpty = true;
+	HatoholError err = parseIncidentParameter(incidentInfo, m_query,
+						  allowEmpty);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	// try to update
+	IncidentSenderManager &senderManager
+	  = IncidentSenderManager::getInstance();
+	string comment;
+	// TODO: Set a callback function to check the status
+	senderManager.queue(incidentInfo, comment);
+
+	// make a response
+	JSONBuilder agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	agent.add("unifiedEventId", incidentInfo.unifiedEventId);
+	agent.endObject();
+	replyJSONData(agent);
+
+	replyHttpStatus(SOUP_STATUS_OK);
 }
 
 // TODO: Add a macro or template to simplify the definition
