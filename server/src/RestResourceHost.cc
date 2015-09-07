@@ -916,6 +916,29 @@ static HatoholError parseIncidentParameter(
 	return HTERR_OK;
 }
 
+static void updateIncidentCallback(const IncidentInfo &info,
+				   const IncidentSender::JobStatus &status,
+				   void *userData)
+{
+	RestResourceHost *job = static_cast<RestResourceHost *>(userData);
+
+
+	HatoholError err = HTERR_OK;
+
+	// make a response
+	if (status == IncidentSender::JOB_SUCCEEDED) {
+		JSONBuilder agent;
+		agent.startObject();
+		job->addHatoholError(agent, HTERR_OK);
+		agent.add("unifiedEventId", info.unifiedEventId);
+		agent.endObject();
+		job->replyJSONData(agent);
+	} else {
+		// TODO: Should return detailed message
+		job->replyError(HTERR_FAILED_TO_SEND_INCIDENT);
+	}
+}
+
 void RestResourceHost::handlerPutIncident(void)
 {
 	uint64_t unifiedEventId = getResourceId();
@@ -955,18 +978,8 @@ void RestResourceHost::handlerPutIncident(void)
 	IncidentSenderManager &senderManager
 	  = IncidentSenderManager::getInstance();
 	string comment;
-	// TODO: Set a callback function to check the status
-	senderManager.queue(incidentInfo, comment);
-
-	// make a response
-	JSONBuilder agent;
-	agent.startObject();
-	addHatoholError(agent, err);
-	agent.add("unifiedEventId", incidentInfo.unifiedEventId);
-	agent.endObject();
-	replyJSONData(agent);
-
-	replyHttpStatus(SOUP_STATUS_OK);
+	senderManager.queue(incidentInfo, comment,
+			    updateIncidentCallback, this);
 }
 
 // TODO: Add a macro or template to simplify the definition
