@@ -82,11 +82,13 @@ struct IncidentSender::Job
 
 	HatoholError send(IncidentSender &sender) const
 	{
+		HatoholError err(HTERR_NOT_IMPLEMENTED);
 		if (eventInfo)
-			return sender.send(*eventInfo);
+			err = sender.send(*eventInfo);
 		else if (incidentInfo)
-			return sender.send(*incidentInfo, comment);
-		return HTERR_NOT_IMPLEMENTED;
+			err = sender.send(*incidentInfo, comment);
+		sender.setLastResult(err);
+		return sender.getLastResult();
 	}
 };
 
@@ -102,6 +104,7 @@ struct IncidentSender::Impl
 	unsigned int retryIntervalMSec;
 	AtomicValue<bool> trackerChanged;
 	Mutex trackerLock;
+	HatoholError lastResult;
 
 	Impl(IncidentSender &_sender)
 	: sender(_sender), runningJob(NULL), jobSemaphore(0),
@@ -338,6 +341,16 @@ string IncidentSender::buildDescription(const EventInfo &event,
 		  event.severity,
 		  LabelUtils::getTriggerSeverityLabel(event.severity).c_str());
 	return desc;
+}
+
+const HatoholError &IncidentSender::getLastResult(void) const
+{
+	return m_impl->lastResult;
+}
+
+void IncidentSender::setLastResult(const HatoholError &err)
+{
+	m_impl->lastResult = err;
 }
 
 gpointer IncidentSender::mainThread(HatoholThreadArg *arg)

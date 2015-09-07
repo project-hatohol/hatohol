@@ -158,6 +158,8 @@ public:
 	const IncidentTrackerInfo getIncidentTrackerInfo(void);
 	void setOnChangedIncidentTracker(void);
 
+	const HatoholError &getLastResult(void) const;
+
 protected:
 	bool getServerInfo(const EventInfo &event,
 			   MonitoringServerInfo &server);
@@ -167,6 +169,7 @@ protected:
 	virtual std::string buildDescription(
 	  const EventInfo &event,
 	  const MonitoringServerInfo *server);
+	void setLastResult(const HatoholError &err);
 
 	virtual gpointer mainThread(HatoholThreadArg *arg) override;
 
