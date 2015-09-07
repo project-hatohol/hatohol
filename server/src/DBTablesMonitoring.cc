@@ -1382,7 +1382,7 @@ struct IncidentsQueryOption::Impl {
 	UnifiedEventIdType unifiedEventId;
 
 	Impl()
-	: unifiedEventId(-1)
+	: unifiedEventId(ALL_INCIDENTS)
 	{
 	}
 };
