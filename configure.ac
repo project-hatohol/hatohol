@@ -1,6 +1,6 @@
 AC_PREREQ(2.63)
 
-AC_INIT(hatohol,  m4_esyscmd_s([./version-generator.sh]))
+AC_INIT(hatohol,  m4_esyscmd([./version-generator.sh]))
 AM_INIT_AUTOMAKE([1.9 foreign no-dist-gzip dist-bzip2 tar-pax])
 
 AC_CONFIG_HEADER(config.h)
