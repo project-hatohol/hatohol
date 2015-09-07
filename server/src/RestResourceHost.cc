@@ -931,16 +931,23 @@ static void updateIncidentCallback(const IncidentInfo &info,
 	RestResourceHost *job = static_cast<RestResourceHost *>(userData);
 
 	// make a response
-	if (status == IncidentSender::JOB_SUCCEEDED) {
+	switch (status) {
+	case IncidentSender::JOB_SUCCEEDED:
+	{
 		JSONBuilder agent;
 		agent.startObject();
 		job->addHatoholError(agent, HTERR_OK);
 		agent.add("unifiedEventId", info.unifiedEventId);
 		agent.endObject();
 		job->replyJSONData(agent);
-	} else {
+		break;
+	}
+	case IncidentSender::JOB_FAILED:
 		// TODO: Should return detailed message
 		job->replyError(HTERR_FAILED_TO_SEND_INCIDENT);
+		break;
+	default:
+		break;
 	}
 }
 
