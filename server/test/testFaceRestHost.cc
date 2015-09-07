@@ -901,6 +901,44 @@ void test_putIncident(void)
 	cut_assert_match(expected.c_str(), actual.c_str());
 }
 
+void test_putInvalidIncident(void)
+{
+	loadTestDBIncidents();
+	startFaceRest();
+
+	size_t index = 2;
+	IncidentInfo expectedIncident = testIncidentInfo[index];
+	expectedIncident.status = "INVALID STATUS";
+	string path(
+	  StringUtils::sprintf("/incident/%" FMT_UNIFIED_EVENT_ID,
+			       expectedIncident.unifiedEventId));
+	RequestArg arg(path);
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "PUT";
+	incidentInfo2StringMap(expectedIncident, arg.parameters);
+
+	// check the response
+	getServerResponse(arg);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":48,"
+	  "\"errorMessage\":"
+	  "\"Failed to send an incident to an incident tracker.\""
+	  "}");
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	cppcut_assert_equal(expectedResponse, arg.response);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incidents"
+				" where unified_event_id=123");
+	string expected = makeIncidentOutput(testIncidentInfo[index]);
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_getIncident(void)
 {
 	loadTestDBIncidents();
