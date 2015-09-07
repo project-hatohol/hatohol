@@ -836,4 +836,78 @@ void test_eventsWithHostsFilter(void)
 	cppcut_assert_equal(expected, arg.response);
 }
 
+static void incidentInfo2StringMap(
+  const IncidentInfo &src, StringMap &dest)
+{
+	dest["trackerId"] = StringUtils::toString(src.trackerId);
+	dest["status"] = src.status;
+	dest["priority"] = src.priority;
+	dest["assignee"] = src.assignee;
+	dest["doneRatio"] = StringUtils::toString(src.doneRatio);
+
+	/* Hatohol doesn't allow changing following properties:
+	dest["serverId"] = StringUtils::toString(serc.serverId);
+	dest["eventId"] = src.eventId;
+	dest["triggerId"] = src.triggerId;
+	dest["identifier"] = src.identifier;
+	dest["location"] = src.location;
+	dest["createdAtSec"] = src.createdAt.tv_sec;
+	dest["createdAtNSec"] = src.createdAt.tv_nsec;
+	dest["updatedAtSec"] = src.updatedAt.tv_sec;
+	dest["updatedAtNSec"] = src.updatedAt.tv_nsec;
+	dest["unifiedEventId"] = src.unifiedEventId;
+	*/
+}
+
+void test_putIncident(void)
+{
+	loadTestDBIncidents();
+	startFaceRest();
+
+	size_t index = 2;
+	IncidentInfo expected = testIncidentInfo[index];
+	string path(
+	  StringUtils::sprintf("/incident/%" FMT_INCIDENT_TRACKER_ID "/%s",
+			       expected.trackerId,
+			       expected.identifier.c_str()));
+	RequestArg arg(path);
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "PUT";
+	incidentInfo2StringMap(expected, arg.parameters);
+
+	// check the response
+	getServerResponse(arg);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0"
+	  "}");
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	cppcut_assert_equal(expectedResponse, arg.response);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	string statement = "select * from incidents";
+	string expectedOutput;
+	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
+		const IncidentInfo &incident = (i == index) ?
+			expected : testIncidentInfo[i];
+		expectedOutput += makeIncidentOutput(incident);
+	}
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
+}
+
+void test_getIncident(void)
+{
+	loadTestDBIncidents();
+	startFaceRest();
+
+	RequestArg arg("/incident");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "GET";
+	getServerResponse(arg);
+	cppcut_assert_equal(405, arg.httpStatusCode); // Method Not Allowed
+}
+
 } // namespace testFaceRestHost
