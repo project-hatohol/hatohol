@@ -37,10 +37,12 @@ public:
 		JOB_FAILED,
 	} JobStatus;
 
-	typedef void (*CreateIncidentCallback)(const EventInfo &info,
+	typedef void (*CreateIncidentCallback)(const IncidentSender &sender,
+					       const EventInfo &info,
 					       const JobStatus &status,
 					       void *userData);
-	typedef void (*UpdateIncidentCallback)(const IncidentInfo &info,
+	typedef void (*UpdateIncidentCallback)(const IncidentSender &sender,
+					       const IncidentInfo &info,
 					       const JobStatus &status,
 					       void *userData);
 

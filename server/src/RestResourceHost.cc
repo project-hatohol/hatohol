@@ -924,7 +924,8 @@ static HatoholError parseIncidentParameter(
 	return HTERR_OK;
 }
 
-static void updateIncidentCallback(const IncidentInfo &info,
+static void updateIncidentCallback(const IncidentSender &sender,
+				   const IncidentInfo &info,
 				   const IncidentSender::JobStatus &status,
 				   void *userData)
 {

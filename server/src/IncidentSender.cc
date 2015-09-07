@@ -71,12 +71,13 @@ struct IncidentSender::Job
 		delete incidentInfo;
 	}
 
-	void notifyStatus(const JobStatus &status) const
+	void notifyStatus(const IncidentSender &sender,
+			  const JobStatus &status) const
 	{
 		if (eventInfo && createCallback)
-			createCallback(*eventInfo, status, userData);
+			createCallback(sender, *eventInfo, status, userData);
 		else if (incidentInfo && updateCallback)
-			updateCallback(*incidentInfo, status, userData);
+			updateCallback(sender, *incidentInfo, status, userData);
 	}
 
 	HatoholError send(IncidentSender &sender) const
@@ -124,7 +125,7 @@ struct IncidentSender::Impl
 	{
 		queueLock.lock();
 		queue.push(job);
-		job->notifyStatus(JOB_QUEUED);
+		job->notifyStatus(sender, JOB_QUEUED);
 		jobSemaphore.post();
 		queueLock.unlock();
 	}
@@ -139,7 +140,7 @@ struct IncidentSender::Impl
 		}
 		runningJob = job;
 		if (job)
-			job->notifyStatus(JOB_STARTED);
+			job->notifyStatus(sender, JOB_STARTED);
 		queueLock.unlock();
 		return job;
 	}
@@ -166,17 +167,17 @@ struct IncidentSender::Impl
 			if (sender.isExitRequested())
 				break;
 
-			job.notifyStatus(JOB_WAITING_RETRY);
+			job.notifyStatus(sender, JOB_WAITING_RETRY);
 			usleep(retryIntervalMSec * 1000);
 
 			if (sender.isExitRequested())
 				break;
-			job.notifyStatus(JOB_RETRYING);
+			job.notifyStatus(sender, JOB_RETRYING);
 		}
 		if (result == HTERR_OK)
-			job.notifyStatus(JOB_SUCCEEDED);
+			job.notifyStatus(sender, JOB_SUCCEEDED);
 		else
-			job.notifyStatus(JOB_FAILED);
+			job.notifyStatus(sender, JOB_FAILED);
 		return result;
 	}
 };
