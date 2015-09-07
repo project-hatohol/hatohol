@@ -22,6 +22,7 @@
 #include "Reaper.h"
 #include "IncidentSenderManager.h"
 #include "IncidentSenderRedmine.h"
+#include "IncidentSenderHatohol.h"
 #include "ThreadLocalDBCache.h"
 
 using namespace std;
@@ -69,6 +70,9 @@ struct IncidentSenderManager::Impl
 		switch (tracker.type) {
 		case INCIDENT_TRACKER_REDMINE:
 			sender = new IncidentSenderRedmine(tracker);
+			break;
+		case INCIDENT_TRACKER_HATOHOL:
+			sender = new IncidentSenderHatohol(tracker);
 			break;
 		default:
 			MLPL_ERR("Invalid IncidentTracker type: %d\n",

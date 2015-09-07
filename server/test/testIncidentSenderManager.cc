@@ -22,6 +22,7 @@
 #include "IncidentSenderManager.h"
 #include "Hatohol.h"
 #include "Helpers.h"
+#include "DBHatohol.h"
 #include "DBTablesTest.h"
 #include "RedmineAPIEmulator.h"
 
@@ -94,6 +95,29 @@ void test_sendRedmineIncident(void)
 	const string &json = g_redmineEmulator.getLastResponseBody();
 	cppcut_assert_equal(true, succeeded);
 	cppcut_assert_equal(false, json.empty());
+}
+
+void test_sendHatholIncident(void)
+{
+	IncidentTrackerIdType trackerId = 5;
+	EventInfo eventInfo = testEventInfo[0];
+	eventInfo.unifiedId = 193;
+	TestIncidentSenderManager manager;
+	bool succeeded = false;
+	manager.queue(trackerId, eventInfo,
+		      statusCallback, (void*)&succeeded);
+	while (!manager.isIdling())
+		usleep(100 * 1000);
+
+	cppcut_assert_equal(true, succeeded);
+
+	string expected =
+	  "^5\\|3\\|1\\|2\\|193\\|\\|NONE\\|\\|\\d+\\|\\d+\\|\\d+\\|\\d+\\|\\|0\\|193$";
+	DBHatohol dbHatohol;
+	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incidents;");
+	cut_assert_match(expected.c_str(), actual.c_str());
 }
 
 void test_createMultiThreads(void)

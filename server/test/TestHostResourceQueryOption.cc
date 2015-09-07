@@ -22,13 +22,8 @@
 
 using namespace std;
 
-// This is just to pass the build and won't work.
-static HostResourceQueryOption::Synapse synapse(
-  tableProfileTest, 0, 0,
-  tableProfileTest, 0, false,
-  tableProfileTest, 0, 0, 0);
-
-TestHostResourceQueryOption::TestHostResourceQueryOption(const UserIdType &userId)
+TestHostResourceQueryOption::TestHostResourceQueryOption(
+  const Synapse &synapse, const UserIdType &userId)
 : HostResourceQueryOption(synapse, userId)
 {
 }
@@ -44,20 +39,19 @@ string TestHostResourceQueryOption::callMakeConditionServer(
 	return makeConditionServer(serverIdSet, serverIdColumnName);
 }
 
-string TestHostResourceQueryOption::callMakeCondition(
-  const ServerHostGrpSetMap &srvHostGrpSetMap,
-  const string &serverIdColumnName,
-  const string &hostgroupIdColumnName,
-  const string &hostIdColumnName,
-  const ServerIdType &targetServerId,
-  const HostgroupIdType &targetHostgroupId,
-  const LocalHostIdType &targetHostId) const
+string TestHostResourceQueryOption::callMakeConditionAllowedHosts(void) const
 {
-	return makeCondition(srvHostGrpSetMap,
-	                     serverIdColumnName,
-	                     hostgroupIdColumnName,
-	                     hostIdColumnName,
-	                     targetServerId,
-	                     targetHostgroupId,
-	                     targetHostId);
+	return makeConditionAllowedHosts();
+}
+
+void TestHostResourceQueryOption::callSetAllowedServersAndHostgroups(
+  const ServerHostGrpSetMap *map)
+{
+	setAllowedServersAndHostgroups(map);
+}
+
+void TestHostResourceQueryOption::callSetValidServerIdSet(
+  const ServerIdSet *set)
+{
+	setValidServerIdSet(set);
 }

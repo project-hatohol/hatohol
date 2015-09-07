@@ -24,16 +24,11 @@ prepare_plugin_options() {
         PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --amqp-user=$HAPI_AMQP_USER"
     fi
 
-    # TODO: Shouldn't use command line options to pass it
-    if test -n "$HAPI_AMQP_PASSWORD"; then
-        PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --amqp-password=$HAPI_AMQP_PASSWORD"
-    fi
-
     if test -n "$HAPI_AMQP_QUEUE"; then
         PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --amqp-queue=$HAPI_AMQP_QUEUE"
     fi
 
-    if test -n "$HAPI_AMQP_PASSWORD"; then
+    if test -n "$HAPI_AMQP_VHOST"; then
         PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --amqp-vhost=$HAPI_AMQP_VHOST"
     fi
 }

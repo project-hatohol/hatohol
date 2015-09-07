@@ -2435,9 +2435,38 @@ void DBTablesMonitoring::addIncidentInfo(IncidentInfo *incidentInfo)
 	getDBAgent().runTransaction(trx);
 }
 
-void DBTablesMonitoring::updateIncidentInfo(IncidentInfo &incidentInfo)
+HatoholError DBTablesMonitoring::updateIncidentInfo(IncidentInfo &incidentInfo)
 {
-	DBAgent::UpdateArg arg(tableProfileIncidents);
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError err;
+		DBAgent::UpdateArg arg;
+
+		TrxProc(void)
+		: arg(tableProfileIncidents)
+		{
+		}
+
+		bool hasRecord(DBAgent &dbAgent)
+		{
+			return dbAgent.isRecordExisting(
+				 TABLE_NAME_INCIDENTS,
+				 arg.condition);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			if (!hasRecord(dbAgent)) {
+				err = HTERR_NOT_FOUND_TARGET_RECORD;
+				return;
+			}
+			dbAgent.update(arg);
+			err = HTERR_OK;
+		}
+	} trx;
+
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
+	DBAgent::UpdateArg &arg = trx.arg;
 	arg.add(IDX_INCIDENTS_STATUS, incidentInfo.status);
 	arg.add(IDX_INCIDENTS_ASSIGNEE, incidentInfo.assignee);
 	arg.add(IDX_INCIDENTS_CREATED_AT_SEC, incidentInfo.createdAt.tv_sec);
@@ -2447,12 +2476,13 @@ void DBTablesMonitoring::updateIncidentInfo(IncidentInfo &incidentInfo)
 	arg.add(IDX_INCIDENTS_PRIORITY, incidentInfo.priority);
 	arg.add(IDX_INCIDENTS_DONE_RATIO, incidentInfo.doneRatio);
 	arg.condition = StringUtils::sprintf(
-	  "%s=%" FMT_INCIDENT_TRACKER_ID " AND %s=%s",
+	  "%s=%s AND %s=%s",
 	  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_TRACKER_ID].columnName,
-	  incidentInfo.trackerId,
+	  rhs(incidentInfo.trackerId),
 	  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_IDENTIFIER].columnName,
-	  incidentInfo.identifier.c_str());
-	getDBAgent().runTransaction(arg);
+	  rhs(incidentInfo.identifier));
+	getDBAgent().runTransaction(trx);
+	return trx.err;
 }
 
 HatoholError DBTablesMonitoring::getIncidentInfoVect(

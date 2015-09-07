@@ -37,7 +37,8 @@ public:
 	HostInfoCache(const ServerIdType *serverId = NULL);
 	virtual ~HostInfoCache();
 	void update(const ServerHostDef &svHostDef,
-	            const HostIdType &hostId = INVALID_HOST_ID);
+	            const HostIdType &hostId = INVALID_HOST_ID,
+	            const bool &adhoc = false);
 	void update(const ServerHostDefVect &svHostDefs,
 	            const HostHostIdMap *hostHostIdMapPtr = NULL);
 
@@ -50,6 +51,19 @@ public:
 	 * @return true if the host is found, or false.
 	 */
 	bool getName(const LocalHostIdType &idInServer, Element &elem) const;
+
+	/**
+	 * Register host information temporarily.
+	 *
+	 * The host is typically supposed not to be stored in the DB.
+	 *
+	 * @param idInServer A target host ID in the server.
+	 * @param name       A host name
+	 * @param elem
+	 * The information about the host is stored in this paramter.
+	 */
+	void registerAdHoc(const LocalHostIdType &idInServer,
+	                   const std::string &name, Element &elem);
 
 private:
 	struct Impl;

@@ -69,6 +69,7 @@ testHatohol_la_SOURCES = \
 	testFaceRestServer.cc testFaceRestUser.cc testFaceRestNoInit.cc \
 	testFaceRestIncidentTracker.cc testSessionManager.cc \
 	testIncidentSenderRedmine.cc \
+	testIncidentSenderHatohol.cc \
 	testIncidentSenderManager.cc \
 	testItemData.cc testItemGroup.cc testItemGroupStream.cc \
 	testItemDataPtr.cc testItemGroupType.cc testItemTable.cc \

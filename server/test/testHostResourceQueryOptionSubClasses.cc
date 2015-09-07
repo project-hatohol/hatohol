@@ -42,7 +42,7 @@ static void initParamChecker(
   gconstpointer data, HostResourceQueryOption &option)
 {
 	option.setTargetServerId(2);
-	string expected = "server_id=2";
+	string expected = "(server_id=2";
 	const type_info &optionType = typeid(option);
 	if (optionType != typeid(HostgroupsQueryOption)) {
 		option.setTargetHostId("4");
@@ -50,6 +50,7 @@ static void initParamChecker(
 		expected += StringUtils::sprintf(" AND %s='4'",
 		                                 hostIdColumnName);
 	}
+	expected += ")";
 	if (typeid(option) == typeid(HostsQueryOption)) {
 		HostsQueryOption &hostsQueryOption =
 		  dynamic_cast<HostsQueryOption &>(option);
@@ -179,7 +180,7 @@ void cut_setup(void)
 //
 void data_triggersQueryOptionConstructorWithUserId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_triggersQueryOptionConstructorWithUserId(gconstpointer data)
@@ -189,7 +190,7 @@ void test_triggersQueryOptionConstructorWithUserId(gconstpointer data)
 
 void data_triggersQueryOptionFromDataQueryContext(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_triggersQueryOptionFromDataQueryContext(gconstpointer data)
@@ -199,7 +200,7 @@ void test_triggersQueryOptionFromDataQueryContext(gconstpointer data)
 
 void data_triggersQueryOptionCopyConstructor(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_triggersQueryOptionCopyConstructor(gconstpointer data)
@@ -209,7 +210,7 @@ void test_triggersQueryOptionCopyConstructor(gconstpointer data)
 
 void data_triggersQueryOptionWithTargetId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_triggersQueryOptionWithTargetId(gconstpointer data)
@@ -226,7 +227,7 @@ void test_triggersQueryOptionWithTargetId(gconstpointer data)
 
 void data_triggersQueryOptionDefaultMinimumSeverity(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_triggersQueryOptionDefaultMinimumSeverity(gconstpointer data)
@@ -241,7 +242,7 @@ void test_triggersQueryOptionDefaultMinimumSeverity(gconstpointer data)
 
 void data_triggersQueryOptionWithMinimumSeverity(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_triggersQueryOptionWithMinimumSeverity(gconstpointer data)
@@ -257,7 +258,7 @@ void test_triggersQueryOptionWithMinimumSeverity(gconstpointer data)
 
 void data_triggersQueryOptionDefaultStatus(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_triggersQueryOptionDefaultStatus(gconstpointer data)
@@ -272,7 +273,7 @@ void test_triggersQueryOptionDefaultStatus(gconstpointer data)
 
 void data_triggersQueryOptionWithStatus(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_triggersQueryOptionWithStatus(gconstpointer data)
@@ -291,7 +292,7 @@ void test_triggersQueryOptionWithStatus(gconstpointer data)
 //
 void data_eventQueryOptionConstructorWithUserId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_eventQueryOptionConstructorWithUserId(gconstpointer data)
@@ -301,7 +302,7 @@ void test_eventQueryOptionConstructorWithUserId(gconstpointer data)
 
 void data_eventQueryOptionFromDataQueryContext(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_eventQueryOptionFromDataQueryContext(gconstpointer data)
@@ -311,7 +312,7 @@ void test_eventQueryOptionFromDataQueryContext(gconstpointer data)
 
 void data_eventQueryOptionCopyConstructor(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_eventQueryOptionCopyConstructor(gconstpointer data)
@@ -321,7 +322,7 @@ void test_eventQueryOptionCopyConstructor(gconstpointer data)
 
 void data_eventQueryOptionDefaultMinimumSeverity(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_eventQueryOptionWithNoSortType(void)
@@ -360,7 +361,7 @@ void test_eventQueryOptionWithSortTypeTime(void)
 
 void data_eventQueryOptionDefaultEventType(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_eventQueryOptionDefaultEentType(gconstpointer data)
@@ -375,7 +376,7 @@ void test_eventQueryOptionDefaultEentType(gconstpointer data)
 
 void data_eventQueryOptionWithEventType(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_eventQueryOptionWithEventType(gconstpointer data)
@@ -401,7 +402,7 @@ void test_eventQueryOptionDefaultMinimumSeverity(gconstpointer data)
 
 void data_eventQueryOptionWithMinimumSeverity(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_eventQueryOptionWithMinimumSeverity(gconstpointer data)
@@ -417,7 +418,7 @@ void test_eventQueryOptionWithMinimumSeverity(gconstpointer data)
 
 void data_eventQueryOptionDefaultTriggerStatus(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_eventQueryOptionDefaultTriggerStatus(gconstpointer data)
@@ -432,7 +433,7 @@ void test_eventQueryOptionDefaultTriggerStatus(gconstpointer data)
 
 void data_eventQueryOptionWithTriggerStatus(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_eventQueryOptionWithTriggerStatus(gconstpointer data)
@@ -448,7 +449,7 @@ void test_eventQueryOptionWithTriggerStatus(gconstpointer data)
 
 void data_eventQueryOptionGetServerIdColumnName(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
@@ -458,7 +459,7 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 	option.setTargetHostgroupId("48");
 	option.setTargetHostId("32");
 	string expect = StringUtils::sprintf(
-	                  "%s.%s=26 AND %s.%s='32' AND %s.%s='48'",
+	                  "(%s.%s=26 AND %s.%s='32' AND %s.%s='48')",
 			  DBTablesMonitoring::TABLE_NAME_EVENTS,
 			  serverIdColumnName.c_str(),
 			  DBTablesMonitoring::TABLE_NAME_EVENTS,
@@ -471,7 +472,7 @@ void test_eventQueryOptionGetServerIdColumnName(gconstpointer data)
 
 void data_eventQueryOptionWithBeginTime(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_eventQueryOptionWithBeginTime(gconstpointer data)
@@ -486,7 +487,7 @@ void test_eventQueryOptionWithBeginTime(gconstpointer data)
 
 void data_eventQueryOptionWithEndTime(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_eventQueryOptionWithEndTime(gconstpointer data)
@@ -501,7 +502,7 @@ void test_eventQueryOptionWithEndTime(gconstpointer data)
 
 void data_eventQueryOptionWithBeginTimeAndEndTime(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_eventQueryOptionWithBeginTimeAndEndTime(gconstpointer data)
@@ -544,7 +545,7 @@ void test_eventQueryOptionGetEndTime(void)
 //
 void data_itemsQueryOptionConstructorWithUserId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_itemsQueryOptionConstructorWithUserId(gconstpointer data)
@@ -554,7 +555,7 @@ void test_itemsQueryOptionConstructorWithUserId(gconstpointer data)
 
 void data_itemsQueryOptionFromDataQueryContext(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_itemsQueryOptionFromDataQueryContext(gconstpointer data)
@@ -564,7 +565,7 @@ void test_itemsQueryOptionFromDataQueryContext(gconstpointer data)
 
 void data_itemsQueryOptionCopyConstructor(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_itemsQueryOptionCopyConstructor(gconstpointer data)
@@ -574,7 +575,7 @@ void test_itemsQueryOptionCopyConstructor(gconstpointer data)
 
 void data_itemsQueryOptionWithTargetId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_itemsQueryOptionWithTargetId(gconstpointer data)
@@ -591,7 +592,7 @@ void test_itemsQueryOptionWithTargetId(gconstpointer data)
 
 void data_itemsQueryOptionWithItemGroupName(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_itemsQueryOptionWithItemGroupName(gconstpointer data)
@@ -610,7 +611,7 @@ void test_itemsQueryOptionWithItemGroupName(gconstpointer data)
 //
 void data_hostsQueryOptionConstructorWithUserId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_hostsQueryOptionConstructorWithUserId(gconstpointer data)
@@ -620,7 +621,7 @@ void test_hostsQueryOptionConstructorWithUserId(gconstpointer data)
 
 void data_hostsQueryOptionFromDataQueryContext(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_hostsQueryOptionFromDataQueryContext(gconstpointer data)
@@ -643,7 +644,7 @@ void test_hostsQueryOptionSetGetValidty(void)
 
 void data_hostsQueryOptionGetConditionForHostValid(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_hostsQueryOptionGetConditionForHostValid(gconstpointer data)
@@ -660,7 +661,7 @@ void test_hostsQueryOptionGetConditionForHostValid(gconstpointer data)
 //
 void data_hostgroupsQueryOptionConstructorWithUserId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_hostgroupsQueryOptionConstructorWithUserId(gconstpointer data)
@@ -670,7 +671,7 @@ void test_hostgroupsQueryOptionConstructorWithUserId(gconstpointer data)
 
 void data_hostgroupsQueryOptionFromDataQueryContext(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_hostgroupsQueryOptionFromDataQueryContext(gconstpointer data)
@@ -684,7 +685,7 @@ void test_hostgroupsQueryOptionCallGetConditionFromUserWithoutAllServers(void)
 
 	const UserIdType userId = findUserWithout(OPPRVLG_GET_ALL_SERVER);
 	HostgroupsQueryOption option(userId);
-	option.setFilterForDataOfDefunctServers(false);
+	option.setExcludeDefunctServers(false);
 	const string actual = option.getCondition();
 	const string expect = "(server_id=1 AND id_in_server IN ('0','1'))";
 	cppcut_assert_equal(expect, actual);
@@ -695,7 +696,7 @@ void test_hostgroupsQueryOptionCallGetConditionFromUserWithoutAllServers(void)
 //
 void data_hostgroupMembersQueryOptionConstructorWithUserId(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_hostgroupMembersQueryOptionConstructorWithUserId(gconstpointer data)
@@ -706,7 +707,7 @@ void test_hostgroupMembersQueryOptionConstructorWithUserId(gconstpointer data)
 
 void data_hostgroupMembersQueryOptionFromDataQueryContext(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_hostgroupMembersQueryOptionFromDataQueryContext(gconstpointer data)

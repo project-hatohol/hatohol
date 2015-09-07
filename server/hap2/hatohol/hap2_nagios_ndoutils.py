@@ -22,11 +22,13 @@
 import sys
 import MySQLdb
 import time
-import logging
+from logging import getLogger
 import datetime
 from hatohol import hap
 from hatohol import haplib
 from hatohol import standardhap
+
+logger = getLogger(__name__)
 
 class Common:
 
@@ -57,6 +59,7 @@ class Common:
         self.__db_user = self.DEFAULT_USER
         self.__db_passwd = ""
         self.__time_offset = datetime.timedelta(seconds=time.timezone)
+        self.__trigger_last_info = None
 
     def close_connection(self):
         if self.__cursor is not None:
@@ -73,14 +76,14 @@ class Common:
         # load MonitoringServerInfo
         ms_info = self.get_ms_info()
         if ms_info is None:
-            logging.info("Use default connection parameters.")
+            logger.info("Use default connection parameters.")
         else:
             self.__db_server, self.__db_port, self.__db_name = \
                 self.__parse_url(ms_info.url)
             self.__db_user = ms_info.user_name
             self.__db_passwd = ms_info.password
 
-        logging.info("Try to connection: Sv: %s, DB: %s, User: %s" %
+        logger.info("Try to connection: Sv: %s, DB: %s, User: %s" %
                      (self.__db_server, self.__db_name, self.__db_user))
 
         try:
@@ -91,7 +94,7 @@ class Common:
                                         passwd=self.__db_passwd)
             self.__cursor = self.__db.cursor()
         except MySQLdb.Error as (errno, msg):
-            logging.error('MySQL Error [%d]: %s' % (errno, msg))
+            logger.error('MySQL Error [%d]: %s' % (errno, msg))
             raise hap.Signal
 
     def __parse_url(self, url):
@@ -114,6 +117,11 @@ class Common:
             server = server[0:colon_idx]
 
         return server, port, database
+
+    def __convert_to_nagios_time(self, hatohol_time):
+        over_second = hatohol_time.split(".")[0]
+        nag_datetime = datetime.datetime.strptime(over_second, '%Y%m%d%H%M%S')
+        return nag_datetime.strftime("%Y-%m-%d %H:%M:%S")
 
     def collect_hosts_and_put(self):
         sql = "SELECT host_object_id,display_name FROM nagios_hosts"
@@ -155,7 +163,7 @@ class Common:
     def collect_triggers_and_put(self, fetch_id=None, host_ids=None):
 
         if host_ids is not None and not self.__validate_object_ids(host_ids):
-            logging.error("Invalid: host_ids: %s" % host_ids)
+            logger.error("Invalid: host_ids: %s" % host_ids)
             # TODO by 15.09 (*1): send error
             # There's no definition to send error in HAPI 2.0.
             # We have to extend the specification to enable this.
@@ -180,12 +188,17 @@ class Common:
             in_cond = "','".join(host_ids)
             sql += " WHERE %s.host_object_id in ('%s')" % (t2, in_cond)
 
-        # NOTE: The update time in the output is renewed every status
-        #       check in Nagios even if the value is not changed.
-        # TODO by 15.09:
-        #   We should has the previous result and compare it here in order to
-        #   improve performance. Or other columns such as last_state_change in
-        #   nagios_servicestatus might be used.
+        all_triggers_should_send = lambda: fetch_id is None
+        update_type = "ALL"
+        if all_triggers_should_send():
+            if self.__trigger_last_info is None:
+                self.__trigger_last_info = self.get_last_info("trigger")
+
+            if len(self.__trigger_last_info):
+                nag_time = self.__convert_to_nagios_time(self.__trigger_last_info)
+                sql += " WHERE status_update_time >= '%s'" % nag_time
+                update_type = "UPDATED"
+
         self.__cursor.execute(sql)
         result = self.__cursor.fetchall()
 
@@ -208,9 +221,12 @@ class Common:
                 "brief": msg,
                 "extendedInfo": ""
             })
-        # TODO by 15.09: Implement UPDATED mode.
-        update_type = "ALL"
-        self.put_triggers(triggers, update_type=update_type, fetch_id=fetch_id)
+        self.__trigger_last_info = \
+            haplib.Utils.get_biggest_num_of_dict_array(triggers,
+                                                       "lastChangeTime")
+        self.put_triggers(triggers, update_type=update_type,
+                          last_info=self.__trigger_last_info,
+                          fetch_id=fetch_id)
 
     def collect_events_and_put(self, fetch_id=None, last_info=None,
                                count=None, direction="ASC"):
@@ -245,9 +261,9 @@ class Common:
             # validate it here.
             last_cond = self.__extract_validated_event_last_info(raw_last_info)
             if last_cond is None:
-                logging.error("Malformed last_info: '%s'",
+                logger.error("Malformed last_info: '%s'",
                               str(raw_last_info))
-                logging.error("Getting events was aborted.")
+                logger.error("Getting events was aborted.")
                 # TODO by 15.09: notify error to the caller
                 # See  also TODO (*1)
                 return
@@ -262,7 +278,7 @@ class Common:
         if count is not None:
             sql += " LIMIT %d" % count
 
-        logging.debug(sql)
+        logger.debug(sql)
         self.__cursor.execute(sql)
         result = self.__cursor.fetchall()
 
@@ -321,12 +337,12 @@ class Common:
     def __parse_status_and_severity(self, status):
         hapi_status = self.STATUS_MAP.get(status)
         if hapi_status is None:
-            logging.warning("Unknown status: " + str(status))
+            logger.warning("Unknown status: " + str(status))
             hapi_status = "UNKNOWN"
 
         hapi_severity = self.SEVERITY_MAP.get(status)
         if hapi_severity is None:
-            logging.warning("Unknown status: " + str(status))
+            logger.warning("Unknown status: " + str(status))
             hapi_severity = "UNKNOWN"
 
         return (hapi_status, hapi_severity)

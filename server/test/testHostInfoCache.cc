@@ -128,4 +128,20 @@ void test_getNameFromMany(void)
 	}
 }
 
+void test_registerAdHoc(void)
+{
+	HostInfoCache hiCache;
+	HostInfoCache::Element elem;
+	const LocalHostIdType hostIdInServer = "host ideee";
+	const string name = "onamae";
+	hiCache.registerAdHoc(hostIdInServer, name, elem);
+	cppcut_assert_equal(INVALID_HOST_ID, elem.hostId);
+	cppcut_assert_equal(name, elem.name);
+
+	HostInfoCache::Element elem2;
+	cppcut_assert_equal(true, hiCache.getName(hostIdInServer, elem2));
+	cppcut_assert_equal(INVALID_HOST_ID, elem2.hostId);
+	cppcut_assert_equal(name, elem2.name);
+}
+
 } // namespace testHostInfoCache

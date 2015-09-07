@@ -104,12 +104,12 @@ template<class T>
 static void collectValidResourceInfoString(
   vector<string> &outStringVect,
   const size_t &numTestResourceData, const T *testResourceData,
-  const bool &filterForDataOfDefunctSv, const DataQueryOption &option,
+  const bool &excludeDefunctServers, const DataQueryOption &option,
   string (*dumpResourceFunc)(const T &)) 
 {
 	for (size_t i = 0; i < numTestResourceData; i++) {
 		const T &testResource = testResourceData[i];
-		if (filterForDataOfDefunctSv) {
+		if (excludeDefunctServers) {
 			if (!option.isValidServer(testResource.serverId))
 				continue;
 		}
@@ -154,24 +154,24 @@ void test_singleton(void) {
 
 void data_getTriggerList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getTriggerList(gconstpointer data)
 {
 	loadTestDBTriggers();
 
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+	const bool excludeDefunctServers =
+	  gcut_data_get_boolean(data, "excludeDefunctServers");
 	vector<string> expectedStrVec;
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	collectValidResourceInfoString<TriggerInfo>(
 	  expectedStrVec, NumTestTriggerInfo, testTriggerInfo,
-	  filterForDataOfDefunctSv, option, dumpTriggerInfo);
+	  excludeDefunctServers, option, dumpTriggerInfo);
 	
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList list;
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
+	option.setExcludeDefunctServers(excludeDefunctServers);
 	dataStore->getTriggerList(list, option);
 
 	assertLines<TriggerInfo>(expectedStrVec, list, dumpTriggerInfo);
@@ -179,7 +179,7 @@ void test_getTriggerList(gconstpointer data)
 
 void data_getEventList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getEventList(gconstpointer data)
@@ -187,17 +187,17 @@ void test_getEventList(gconstpointer data)
 	loadTestDBTriggers();
 	loadTestDBEvents();
 
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+	const bool excludeDefunctServers =
+	  gcut_data_get_boolean(data, "excludeDefunctServers");
 	vector<string> expectedStrVec;
 	EventsQueryOption option(USER_ID_SYSTEM);
 	collectValidResourceInfoString<EventInfo>(
 	  expectedStrVec, NumTestEventInfo, testEventInfo,
-	  filterForDataOfDefunctSv, option, dumpEventInfo);
+	  excludeDefunctServers, option, dumpEventInfo);
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList list;
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
+	option.setExcludeDefunctServers(excludeDefunctServers);
 	dataStore->getEventList(list, option);
 
 	assertLines<EventInfo>(expectedStrVec, list, dumpEventInfo);
@@ -205,24 +205,24 @@ void test_getEventList(gconstpointer data)
 
 void data_getItemList(void)
 {
-	prepareTestDataForFilterForDataOfDefunctServers();
+	prepareTestDataExcludeDefunctServers();
 }
 
 void test_getItemList(gconstpointer data)
 {
 	loadTestDBItems();
 
-	const bool filterForDataOfDefunctSv =
-	  gcut_data_get_boolean(data, "filterDataOfDefunctServers");
+	const bool excludeDefunctServers =
+	  gcut_data_get_boolean(data, "excludeDefunctServers");
 	ItemsQueryOption option(USER_ID_SYSTEM);
 	vector<string> expectedStrVec;
 	collectValidResourceInfoString<ItemInfo>(
 	  expectedStrVec, NumTestItemInfo, testItemInfo,
-	  filterForDataOfDefunctSv, option, dumpItemInfo);
+	  excludeDefunctServers, option, dumpItemInfo);
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ItemInfoList list;
-	option.setFilterForDataOfDefunctServers(filterForDataOfDefunctSv);
+	option.setExcludeDefunctServers(excludeDefunctServers);
 	dataStore->getItemList(list, option);
 
 	assertLines<ItemInfo>(expectedStrVec, list, dumpItemInfo);

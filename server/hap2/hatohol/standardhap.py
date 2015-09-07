@@ -20,7 +20,7 @@
 
 import multiprocessing
 import argparse
-import logging
+from logging import getLogger
 import time
 import sys
 import traceback
@@ -29,21 +29,17 @@ from hatohol import hap
 from hatohol import haplib
 from hatohol import transporter
 
+logger = getLogger(__name__)
+
 class StandardHap:
     DEFAULT_ERROR_SLEEP_TIME = 10
 
     def __init__(self, default_transporter="RabbitMQHapiConnector"):
-        # This level is used until __parse_argument() is called. 
-        # TODO: Shoud be configurable. For example, by environment variable
-        logging.basicConfig(level="INFO")
-
         self.__error_sleep_time = self.DEFAULT_ERROR_SLEEP_TIME
 
         parser = argparse.ArgumentParser()
+        hap.initialize_logger(parser)
 
-        choices = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
-        parser.add_argument("--log", dest="loglevel", choices=choices,
-                            default="INFO")
         parser.add_argument("-p", "--disable-poller", action="store_true")
 
         help_msg = """
@@ -101,23 +97,18 @@ class StandardHap:
         if poller is not None:
             poller.set_ms_info(ms_info)
 
-    def __setup_logging_level(self, args):
-        numeric_level = getattr(logging, args.loglevel.upper(), None)
-        if not isinstance(numeric_level, int):
-            raise ValueError('Invalid log level: %s' % loglevel)
-        logging.basicConfig(level=numeric_level)
-
-    def __parse_argument(self):
+    def __setup(self):
         args = self.__parser.parse_args()
-        self.__setup_logging_level(args)
+        hap.setup_logger(args)
 
         self.on_parsed_argument(args)
         return args
 
     def __call__(self):
+        args = self.__setup()
         while True:
             try:
-                self.__run()
+                self.__run(args)
             except:
                 raises = (KeyboardInterrupt, AssertionError, SystemExit)
                 exctype, value = hap.handle_exception(raises=raises)
@@ -132,7 +123,7 @@ class StandardHap:
                 self.__poller.terminate()
                 self.__poller = None
 
-            logging.info("Rerun after %d sec" % self.__error_sleep_time)
+            logger.info("Rerun after %d sec" % self.__error_sleep_time)
             time.sleep(self.__error_sleep_time)
 
     def __create_poller(self, sender, dispatcher, status_log_interval):
@@ -141,14 +132,14 @@ class StandardHap:
                                     status_log_interval=status_log_interval)
         if poller is None:
             return
-        logging.info("created poller plugin.")
+        logger.info("created poller plugin.")
         dispatcher.attach_destination(poller.get_reply_queue(), "Poller")
         poller.set_dispatch_queue(dispatcher.get_dispatch_queue())
         return poller
 
     def enable_handling_sigchld(self, enable=True):
         def handler(signum, frame):
-            logging.warning("Got SIGCHLD")
+            logger.warning("Got SIGCHLD")
             raise hap.Signal()
         if enable:
             _handler = handler
@@ -158,18 +149,17 @@ class StandardHap:
 
     def enable_handling_terminate_signal(self):
         def handler(signum, frame):
-            logging.warning("Got SIGTERM")
+            logger.warning("Got SIGTERM")
             raise SystemExit()
         signal.signal(signal.SIGTERM, handler)
 
-    def __run(self):
+    def __run(self, args):
         self.enable_handling_sigchld()
         self.enable_handling_terminate_signal()
-        args = self.__parse_argument()
-        logging.info("Transporter: %s" % args.transporter)
+        logger.info("Transporter: %s" % args.transporter)
         transporter_class = self.__transporter_manager.find(args.transporter)
         if transporter_class is None:
-            logging.critical("Not found transporter: %s" % args.transporter)
+            logger.critical("Not found transporter: %s" % args.transporter)
             raise SystemExit()
         transporter_args = {"class": transporter_class}
         transporter_args.update(transporter_class.parse_arguments(args))
@@ -179,10 +169,10 @@ class StandardHap:
         self.__main_plugin.register_callback(
             haplib.BaseMainPlugin.CB_UPDATE_MONITORING_SERVER_INFO,
             self.on_got_monitoring_server_info)
-        logging.info("created main plugin.")
+        logger.info("created main plugin.")
 
         if args.disable_poller:
-            logging.info("Disabled: poller plugin.")
+            logger.info("Disabled: poller plugin.")
         else:
             self.__poller = self.__create_poller(
                                 self.__main_plugin.get_sender(),
@@ -190,19 +180,19 @@ class StandardHap:
                                 args.status_log_interval)
 
         self.__main_plugin.start_dispatcher()
-        logging.info("started dispatcher process.")
+        logger.info("started dispatcher process.")
         self.__main_plugin.start_receiver()
-        logging.info("started receiver process.")
+        logger.info("started receiver process.")
 
         self.__main_plugin.exchange_profile()
-        logging.info("exchanged profile.")
+        logger.info("exchanged profile.")
 
         ms_info = self.__main_plugin.get_monitoring_server_info()
-        logging.info("got monitoring server info.")
+        logger.info("got monitoring server info.")
         self.on_got_monitoring_server_info(ms_info)
 
         if self.__poller is not None:
             self.__poller.daemonize()
-            logging.info("started poller plugin.")
+            logger.info("started poller plugin.")
 
         self.__main_plugin()

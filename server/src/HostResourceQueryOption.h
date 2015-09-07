@@ -121,24 +121,80 @@ public:
 	virtual void setTargetHostgroupId(HostgroupIdType targetHostgroupId);
 
 	/**
-	 * Enable or disable the filter for the data of defunct servers.
+	 * Set a list of IDs of monitoring servers to select.
+	 *
+	 * @param serverIds
+	 * A list of IDs of monitoring servers to select.
+	 */
+	virtual void setSelectedServerIds(const ServerIdSet &serverIds);
+	virtual const ServerIdSet &getSelectedServerIds(void);
+
+	/**
+	 * Set a list of IDs of monitoring servers to exclude.
+	 *
+	 * @param serverIds
+	 * A list of IDs of monitoring servers to exclude.
+	 */
+	virtual void setExcludedServerIds(const ServerIdSet &serverIds);
+	virtual const ServerIdSet &getExcludedServerIds(void);
+
+	/**
+	 * Set a list of IDs of hostgroups to select.
+	 *
+	 * @param hostgroupIds
+	 * A list of IDs of hostgroups to select.
+	 */
+	virtual void setSelectedHostgroupIds(
+	  const ServerHostGrpSetMap &hostgroupIds);
+	virtual const ServerHostGrpSetMap &getSelectedHostgroupIds(void);
+
+	/**
+	 * Set a list of IDs of hostgroups to exclude.
+	 *
+	 * @param hostgroupIds
+	 * A list of IDs of hostgroups to exclude.
+	 */
+	virtual void setExcludedHostgroupIds(
+	  const ServerHostGrpSetMap &hostgroupIds);
+	virtual const ServerHostGrpSetMap &getExcludedHostgroupIds(void);
+
+	/**
+	 * Set a list of IDs of hosts to select.
+	 *
+	 * @param hostIds
+	 * A list of IDs of hosts to select.
+	 */
+	virtual void setSelectedHostIds(const ServerHostSetMap &hostIds);
+	virtual const ServerHostSetMap &getSelectedHostIds(void);
+
+	/**
+	 * Set a list of IDs of hosts to exclude.
+	 *
+	 * @param hostIds
+	 * A list of IDs of hosts to exclude.
+	 */
+	virtual void setExcludedHostIds(const ServerHostSetMap &hostIds);
+	virtual const ServerHostSetMap &getExcludedHostIds(void);
+
+	/**
+	 * Enable or disable the filter to exclude defunct servers.
 	 *
 	 * @param enable
 	 * If the parameter is true, the filter is enabled. Otherwise,
 	 * it is disabled.
 	 *
 	 */
-	void setFilterForDataOfDefunctServers(const bool &enable = true);
+	void setExcludeDefunctServers(const bool &enable = true);
 
 	/**
-	 * Get the filter status for the data of defunct servers.
+	 * Get the status of the filter to exclude defunct servers.
 	 *
 	 * @return
 	 * If the filter is enabled, true is returned, Otherwise,
 	 * false is returned.
 	 *
 	 */
-	const bool &getFilterForDataOfDefunctServers(void) const;
+	const bool &getExcludeDefunctServers(void) const;
 
 	std::string getJoinClause(void) const;
 
@@ -146,15 +202,12 @@ protected:
 	std::string getServerIdColumnName(void) const;
 	std::string getHostgroupIdColumnName(void) const;
 	std::string getHostIdColumnName(void) const;
+	bool isAllowedServer(const ServerIdType &targetServerId) const;
+	bool isAllowedHostgroup(const ServerIdType &targetServerId,
+				const HostgroupIdType &targetHostgroupId) const;
 
-	std::string makeCondition(
-	  const ServerHostGrpSetMap &srvHostGrpSetMap,
-	  const std::string &serverIdColumnName,
-	  const std::string &hostgroupIdColumnName,
-	  const std::string &hostIdColumnName,
-	  const ServerIdType &targetServerId = ALL_SERVERS,
-	  const HostgroupIdType &targetHostgroup = ALL_HOST_GROUPS,
-	  const LocalHostIdType &targetHostId = ALL_LOCAL_HOSTS) const;
+	std::string makeConditionTargetIds(void) const;
+	std::string makeConditionAllowedHosts(void) const;
 	std::string makeConditionServer(
 	  const ServerIdSet &serverIdSet,
 	  const std::string &serverIdColumnName) const;
@@ -168,6 +221,14 @@ protected:
 	  const HostgroupIdSet &hostgroupIdSet,
 	  const std::string &hostgroupIdColumnName) const;
 
+	std::string makeConditionSelectedServers(void) const;
+	std::string makeConditionExcludedServers(void) const;
+	std::string makeConditionSelectedHostgroups(void) const;
+	std::string makeConditionExcludedHostgroups(void) const;
+	std::string makeConditionSelectedHosts(void) const;
+	std::string makeConditionExcludedHosts(void) const;
+	std::string makeConditionHostsFilter(void) const;
+
 	virtual std::string getFromClauseForOneTable(void) const;
 	virtual std::string getFromClauseWithHostgroup(void) const;
 
@@ -175,6 +236,13 @@ protected:
 	  const DBAgent::TableProfile &tableProfile, const size_t &idx) const;
 	bool isHostgroupEnumerationInCondition(void) const;
 	std::string getJoinClauseWithGlobalHostId(void) const;
+
+	const ServerIdSet &getValidServerIdSet(void) const;
+	const ServerHostGrpSetMap &getAllowedServersAndHostgroups(void) const;
+
+	// For test use only
+	void setValidServerIdSet(const ServerIdSet *set);
+	void setAllowedServersAndHostgroups(const ServerHostGrpSetMap *map);
 
 private:
 	struct Impl;

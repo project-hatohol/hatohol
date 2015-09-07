@@ -423,7 +423,7 @@ const EventInfo testEventInfo[] = {
 	"2",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
-	4,                        // globalHostId,
+	35,                       // globalHostId,
 	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
@@ -437,7 +437,7 @@ const EventInfo testEventInfo[] = {
 	"3",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	6,                        // globalHostId,
+	41,                       // globalHostId,
 	"10002",                  // hostIdInServer,
 	"hostZ2",                 // hostName,
 	"TEST Trigger 3",         // brief,
@@ -451,7 +451,7 @@ const EventInfo testEventInfo[] = {
 	"2",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	1,                        // globalHostId,
+	10,                       // globalHostId,
 	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1a",        // brief,
@@ -465,7 +465,7 @@ const EventInfo testEventInfo[] = {
 	"1",                      // triggerId
 	TRIGGER_STATUS_OK,        // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	1,                        // globalHostId,
+	10,                       // globalHostId,
 	"235012",                 // hostIdInServer,
 	"hostX1",                 // hostName,
 	"TEST Trigger 1",         // brief,
@@ -479,7 +479,7 @@ const EventInfo testEventInfo[] = {
 	"3",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_INFO,    // severity
-	2,                        // globalHostId,
+	11,                       // globalHostId,
 	"235013",                 // hostIdInServer,
 	"hostX2",                 // hostName,
 	"TEST Trigger 1b",        // brief,
@@ -492,7 +492,7 @@ const EventInfo testEventInfo[] = {
 	"2",                      // triggerId
 	TRIGGER_STATUS_PROBLEM,   // status
 	TRIGGER_SEVERITY_WARNING, // severity
-	4,                        // globalHostId,
+	35,                       // globalHostId,
 	"10001",                  // hostIdInServer,
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
@@ -1052,6 +1052,15 @@ const IncidentTrackerInfo testIncidentTrackerInfo[] = {
 	"2",                      // TrackerId
 	"hatohol",                // user_name
 	"o.o662L6q1V7E",          // password
+},{
+	5,                        // id
+	INCIDENT_TRACKER_HATOHOL, // type
+	"Internal",               // nickname
+	"",                       // baseURL
+	"",                       // projectId
+	"",                       // TrackerId
+	"",                       // user_name
+	"",                       // password
 }
 };
 const size_t NumTestIncidentTrackerInfo = ARRAY_SIZE(testIncidentTrackerInfo);
@@ -1095,15 +1104,15 @@ const IncidentInfo testIncidentInfo[] = {
 	"2",                      // eventId
 	"3",                      // triggerId
 	"123",                    // identifier
-	"http://localhost/issues/123", // location
-	"New",                    // status
-	"Normal",                 // priority
-	"drake",                  // assignee
+	"",                       // location
+	"NONE",                   // status
+	"",                       // priority
+	"",                       // assignee
 	0,                        // doneRatio
 	{1412957360, 0},          // createdAt
 	{1412957360, 0},          // updatedAt
 	IncidentInfo::STATUS_OPENED,// statusCode
-	0,                        // unifiedId
+	123,                      // unifiedId
 },
 };
 const size_t NumTestIncidentInfo = ARRAY_SIZE(testIncidentInfo);

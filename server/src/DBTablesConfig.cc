@@ -1412,10 +1412,13 @@ HatoholError validIncidentTrackerInfo(
 	if (incidentTrackerInfo.type <= INCIDENT_TRACKER_UNKNOWN ||
 	    incidentTrackerInfo.type >= NUM_INCIDENT_TRACKERS)
 		return HTERR_INVALID_INCIDENT_TRACKER_TYPE;
-	if (incidentTrackerInfo.baseURL.empty())
-		return HTERR_NO_INCIDENT_TRACKER_LOCATION;
-	if (!Utils::isValidURI(incidentTrackerInfo.baseURL))
-		return HTERR_INVALID_URL;
+
+	if (incidentTrackerInfo.type != INCIDENT_TRACKER_HATOHOL) {
+		if (incidentTrackerInfo.baseURL.empty())
+			return HTERR_NO_INCIDENT_TRACKER_LOCATION;
+		if (!Utils::isValidURI(incidentTrackerInfo.baseURL))
+			return HTERR_INVALID_URL;
+	}
 	return HTERR_OK;
 }
 
