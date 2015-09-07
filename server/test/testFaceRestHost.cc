@@ -922,9 +922,9 @@ void test_putInvalidIncident(void)
 	string expectedResponse(
 	  "{"
 	  "\"apiVersion\":4,"
-	  "\"errorCode\":48,"
-	  "\"errorMessage\":"
-	  "\"Failed to send an incident to an incident tracker.\""
+	  "\"errorCode\":42,"
+	  "\"errorMessage\":\"Invalid parameter.\","
+	  "\"optionMessages\":\"Unknown status: INVALID STATUS\""
 	  "}");
 	cppcut_assert_equal(200, arg.httpStatusCode);
 	cppcut_assert_equal(expectedResponse, arg.response);

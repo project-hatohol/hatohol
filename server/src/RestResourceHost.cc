@@ -945,8 +945,7 @@ static void updateIncidentCallback(const IncidentSender &sender,
 		break;
 	}
 	case IncidentSender::JOB_FAILED:
-		// TODO: Should return detailed message
-		job->replyError(HTERR_FAILED_TO_SEND_INCIDENT);
+		job->replyError(sender.getLastResult());
 		job->unpauseResponse();
 		break;
 	default:
