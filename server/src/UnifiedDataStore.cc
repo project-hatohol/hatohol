@@ -885,6 +885,14 @@ uint64_t UnifiedDataStore::getLastUpdateTimeOfIncidents(
 	return dbMonitoring.getLastUpdateTimeOfIncidents(trackerId);
 }
 
+HatoholError UnifiedDataStore::getIncidents(
+  IncidentInfoVect &incidentInfoVect, const IncidentsQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	return dbMonitoring.getIncidentInfoVect(incidentInfoVect, option);
+}
+
 void UnifiedDataStore::addIncidentInfo(IncidentInfo &incidentInfo)
 {
 	ThreadLocalDBCache cache;

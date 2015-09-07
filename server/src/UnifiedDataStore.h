@@ -264,6 +264,8 @@ public:
 	  const OperationPrivilege &privilege);
 
 	// Incident
+	HatoholError getIncidents(IncidentInfoVect &incidentInfoVect,
+				  const IncidentsQueryOption &option);
 	uint64_t getLastUpdateTimeOfIncidents(
 	  const IncidentTrackerIdType &trackerId);
 	void addIncidentInfo(IncidentInfo &incidentInfo);
