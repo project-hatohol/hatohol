@@ -839,13 +839,13 @@ void test_eventsWithHostsFilter(void)
 static void incidentInfo2StringMap(
   const IncidentInfo &src, StringMap &dest)
 {
-	dest["trackerId"] = StringUtils::toString(src.trackerId);
 	dest["status"] = src.status;
 	dest["priority"] = src.priority;
 	dest["assignee"] = src.assignee;
 	dest["doneRatio"] = StringUtils::toString(src.doneRatio);
 
 	/* Hatohol doesn't allow changing following properties:
+	dest["trackerId"] = StringUtils::toString(src.trackerId);
 	dest["serverId"] = StringUtils::toString(serc.serverId);
 	dest["eventId"] = src.eventId;
 	dest["triggerId"] = src.triggerId;
