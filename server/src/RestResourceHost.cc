@@ -869,7 +869,8 @@ void RestResourceHost::handlerIncident(void)
 }
 
 static HatoholError parseIncidentParameter(
-  IncidentInfo &incidentInfo, GHashTable *query, const bool &forUpdate = false)
+  IncidentInfo &incidentInfo, string comment,
+  GHashTable *query, const bool &forUpdate = false)
 {
 	const bool allowEmpty = forUpdate;
 	string key;
@@ -910,6 +911,13 @@ static HatoholError parseIncidentParameter(
 		if (err != HTERR_NOT_FOUND_PARAMETER && !allowEmpty)
 			return err;
 	}
+
+	// comment
+	key = "comment";
+	value = static_cast<const char *>(
+		  g_hash_table_lookup(query, key.c_str()));
+	if (value)
+		comment = value;
 
 	/* Other parameters are frozen */
 
@@ -967,8 +975,9 @@ void RestResourceHost::handlerPutIncident(void)
 
 	// check the request
 	bool allowEmpty = true;
-	HatoholError err = parseIncidentParameter(incidentInfo, m_query,
-						  allowEmpty);
+	string comment;
+	HatoholError err = parseIncidentParameter(incidentInfo, comment,
+						  m_query, allowEmpty);
 	if (err != HTERR_OK) {
 		replyError(err);
 		return;
@@ -977,7 +986,6 @@ void RestResourceHost::handlerPutIncident(void)
 	// try to update
 	IncidentSenderManager &senderManager
 	  = IncidentSenderManager::getInstance();
-	string comment;
 	senderManager.queue(incidentInfo, comment,
 			    updateIncidentCallback, this);
 }
