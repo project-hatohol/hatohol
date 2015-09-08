@@ -19,6 +19,7 @@
 
 #include "RestResourceHost.h"
 #include "UnifiedDataStore.h"
+#include "IncidentSenderManager.h"
 #include <string.h>
 
 using namespace std;
@@ -28,6 +29,7 @@ const char *RestResourceHost::pathForOverview  = "/overview";
 const char *RestResourceHost::pathForHost      = "/host";
 const char *RestResourceHost::pathForTrigger   = "/trigger";
 const char *RestResourceHost::pathForEvent     = "/event";
+const char *RestResourceHost::pathForIncident  = "/incident";
 const char *RestResourceHost::pathForItem      = "/item";
 const char *RestResourceHost::pathForHistory   = "/history";
 const char *RestResourceHost::pathForHostgroup = "/hostgroup";
@@ -54,6 +56,10 @@ void RestResourceHost::registerFactories(FaceRest *faceRest)
 	  pathForEvent,
 	  new RestResourceHostFactory(
 	    faceRest, &RestResourceHost::handlerGetEvent));
+	faceRest->addResourceHandlerFactory(
+	  pathForIncident,
+	  new RestResourceHostFactory(
+	    faceRest, &RestResourceHost::handlerIncident));
 	faceRest->addResourceHandlerFactory(
 	  pathForItem,
 	  new RestResourceHostFactory(
@@ -851,6 +857,143 @@ void RestResourceHost::handlerGetEvent(void)
 	agent.endObject();
 
 	replyJSONData(agent);
+}
+
+void RestResourceHost::handlerIncident(void)
+{
+	if (httpMethodIs("PUT")) {
+		handlerPutIncident();
+	} else {
+		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
+	}
+}
+
+static HatoholError parseIncidentParameter(
+  IncidentInfo &incidentInfo, string comment,
+  GHashTable *query, const bool &forUpdate = false)
+{
+	const bool allowEmpty = forUpdate;
+	string key;
+	const char *value;
+
+	// status
+	key = "status";
+	value = static_cast<const char *>(
+		  g_hash_table_lookup(query, key.c_str()));
+	if (!value && !allowEmpty)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		incidentInfo.status = value;
+
+	// priority
+	key = "priority";
+	value = static_cast<const char *>(
+		  g_hash_table_lookup(query, key.c_str()));
+	if (!value && !allowEmpty)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		incidentInfo.priority = value;
+
+	// assignee
+	key = "assignee";
+	value = static_cast<const char *>(
+		  g_hash_table_lookup(query, key.c_str()));
+	if (!value && !allowEmpty)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	if (value)
+		incidentInfo.assignee = value;
+
+	// doneRatio
+	key = "doneRatio";
+	HatoholError err = getParam<int>(
+		query, key.c_str(), "%d", incidentInfo.doneRatio);
+	if (err != HTERR_OK) {
+		if (err != HTERR_NOT_FOUND_PARAMETER && !allowEmpty)
+			return err;
+	}
+
+	// comment
+	key = "comment";
+	value = static_cast<const char *>(
+		  g_hash_table_lookup(query, key.c_str()));
+	if (value)
+		comment = value;
+
+	/* Other parameters are frozen */
+
+	return HTERR_OK;
+}
+
+static void updateIncidentCallback(const IncidentSender &sender,
+				   const IncidentInfo &info,
+				   const IncidentSender::JobStatus &status,
+				   void *userData)
+{
+	RestResourceHost *job = static_cast<RestResourceHost *>(userData);
+
+	// make a response
+	switch (status) {
+	case IncidentSender::JOB_SUCCEEDED:
+	{
+		JSONBuilder agent;
+		agent.startObject();
+		job->addHatoholError(agent, HTERR_OK);
+		agent.add("unifiedEventId", info.unifiedEventId);
+		agent.endObject();
+		job->replyJSONData(agent);
+		job->unpauseResponse();
+		break;
+	}
+	case IncidentSender::JOB_FAILED:
+		job->replyError(sender.getLastResult());
+		job->unpauseResponse();
+		break;
+	default:
+		break;
+	}
+}
+
+void RestResourceHost::handlerPutIncident(void)
+{
+	uint64_t unifiedEventId = getResourceId();
+	if (unifiedEventId == INVALID_ID) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", getResourceIdString().c_str());
+		return;
+	}
+
+	// check the existing record
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	IncidentInfoVect incidents;
+	IncidentsQueryOption option(m_dataQueryContextPtr);
+	option.setTargetUnifiedEventId(unifiedEventId);
+	dataStore->getIncidents(incidents, option);
+	if (incidents.empty()) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
+		            "id: %" FMT_UNIFIED_EVENT_ID,
+			    unifiedEventId);
+		return;
+	}
+
+	IncidentInfo incidentInfo;
+	incidentInfo = *incidents.begin();
+	incidentInfo.unifiedEventId = unifiedEventId;
+
+	// check the request
+	bool allowEmpty = true;
+	string comment;
+	HatoholError err = parseIncidentParameter(incidentInfo, comment,
+						  m_query, allowEmpty);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	// try to update
+	IncidentSenderManager &senderManager
+	  = IncidentSenderManager::getInstance();
+	senderManager.queue(incidentInfo, comment,
+			    updateIncidentCallback, this);
 }
 
 // TODO: Add a macro or template to simplify the definition

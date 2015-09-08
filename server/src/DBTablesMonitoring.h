@@ -118,8 +118,22 @@ private:
 
 class IncidentsQueryOption : public DataQueryOption {
 public:
+	static const UnifiedEventIdType ALL_INCIDENTS;
+
+public:
 	IncidentsQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	IncidentsQueryOption(DataQueryContext *dataQueryContext);
+	IncidentsQueryOption(const IncidentsQueryOption &src);
+	~IncidentsQueryOption();
+
+	void setTargetUnifiedEventId(const UnifiedEventIdType &id);
+	const UnifiedEventIdType getTargetUnifiedEventId(void);
+
+	virtual std::string getCondition(void) const override;
+
+private:
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class DBTablesMonitoring : public DBTables {

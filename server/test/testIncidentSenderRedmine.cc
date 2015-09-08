@@ -377,7 +377,8 @@ struct CallbackData
 	}
 };
 
-static void statusCallback(const EventInfo &info,
+static void statusCallback(const IncidentSender &sender,
+			   const EventInfo &info,
 			   const IncidentSender::JobStatus &status,
 			   void *userData)
 {

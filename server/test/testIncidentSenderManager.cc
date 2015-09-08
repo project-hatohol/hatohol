@@ -65,7 +65,8 @@ void test_instanceIsSingleton(void)
 	cppcut_assert_equal(&manager1, &manager2);
 }
 
-static void statusCallback(const EventInfo &info,
+static void statusCallback(const IncidentSender &sender,
+			   const EventInfo &info,
 			   const IncidentSender::JobStatus &status,
 			   void *userData)
 {

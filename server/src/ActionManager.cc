@@ -1305,8 +1305,8 @@ void ActionManager::notifyEvent(ResidentInfo *residentInfo,
  * - IncidentSender thread
  */
 static void onIncidentSenderJobStatusChanged(
-  const EventInfo &info, const IncidentSender::JobStatus &status,
-  void *userData)
+  const IncidentSender &sender, const EventInfo &info,
+  const IncidentSender::JobStatus &status, void *userData)
 {
 	DBTablesAction::LogEndExecActionArg *logArg
 	  = static_cast<DBTablesAction::LogEndExecActionArg *>(userData);

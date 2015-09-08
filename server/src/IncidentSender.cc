@@ -71,21 +71,24 @@ struct IncidentSender::Job
 		delete incidentInfo;
 	}
 
-	void notifyStatus(const JobStatus &status) const
+	void notifyStatus(const IncidentSender &sender,
+			  const JobStatus &status) const
 	{
 		if (eventInfo && createCallback)
-			createCallback(*eventInfo, status, userData);
+			createCallback(sender, *eventInfo, status, userData);
 		else if (incidentInfo && updateCallback)
-			updateCallback(*incidentInfo, status, userData);
+			updateCallback(sender, *incidentInfo, status, userData);
 	}
 
 	HatoholError send(IncidentSender &sender) const
 	{
+		HatoholError err(HTERR_NOT_IMPLEMENTED);
 		if (eventInfo)
-			return sender.send(*eventInfo);
+			err = sender.send(*eventInfo);
 		else if (incidentInfo)
-			return sender.send(*incidentInfo, comment);
-		return HTERR_NOT_IMPLEMENTED;
+			err = sender.send(*incidentInfo, comment);
+		sender.setLastResult(err);
+		return sender.getLastResult();
 	}
 };
 
@@ -101,6 +104,7 @@ struct IncidentSender::Impl
 	unsigned int retryIntervalMSec;
 	AtomicValue<bool> trackerChanged;
 	Mutex trackerLock;
+	HatoholError lastResult;
 
 	Impl(IncidentSender &_sender)
 	: sender(_sender), runningJob(NULL), jobSemaphore(0),
@@ -124,7 +128,7 @@ struct IncidentSender::Impl
 	{
 		queueLock.lock();
 		queue.push(job);
-		job->notifyStatus(JOB_QUEUED);
+		job->notifyStatus(sender, JOB_QUEUED);
 		jobSemaphore.post();
 		queueLock.unlock();
 	}
@@ -139,7 +143,7 @@ struct IncidentSender::Impl
 		}
 		runningJob = job;
 		if (job)
-			job->notifyStatus(JOB_STARTED);
+			job->notifyStatus(sender, JOB_STARTED);
 		queueLock.unlock();
 		return job;
 	}
@@ -159,22 +163,24 @@ struct IncidentSender::Impl
 			result = job.send(sender);
 			if (result == HTERR_OK)
 				break;
+			if (result != HTERR_FAILED_TO_SEND_INCIDENT)
+				break;
 			if (i == retryLimit)
 				break;
 			if (sender.isExitRequested())
 				break;
 
-			job.notifyStatus(JOB_WAITING_RETRY);
+			job.notifyStatus(sender, JOB_WAITING_RETRY);
 			usleep(retryIntervalMSec * 1000);
 
 			if (sender.isExitRequested())
 				break;
-			job.notifyStatus(JOB_RETRYING);
+			job.notifyStatus(sender, JOB_RETRYING);
 		}
 		if (result == HTERR_OK)
-			job.notifyStatus(JOB_SUCCEEDED);
+			job.notifyStatus(sender, JOB_SUCCEEDED);
 		else
-			job.notifyStatus(JOB_FAILED);
+			job.notifyStatus(sender, JOB_FAILED);
 		return result;
 	}
 };
@@ -335,6 +341,16 @@ string IncidentSender::buildDescription(const EventInfo &event,
 		  event.severity,
 		  LabelUtils::getTriggerSeverityLabel(event.severity).c_str());
 	return desc;
+}
+
+const HatoholError &IncidentSender::getLastResult(void) const
+{
+	return m_impl->lastResult;
+}
+
+void IncidentSender::setLastResult(const HatoholError &err)
+{
+	m_impl->lastResult = err;
 }
 
 gpointer IncidentSender::mainThread(HatoholThreadArg *arg)

@@ -1376,14 +1376,63 @@ void ItemsQueryOption::setExcludeFlags(const ExcludeFlags &flg)
 //
 // IncidentsQueryOption
 //
+const UnifiedEventIdType IncidentsQueryOption::ALL_INCIDENTS = -1;
+
+struct IncidentsQueryOption::Impl {
+	UnifiedEventIdType unifiedEventId;
+
+	Impl()
+	: unifiedEventId(ALL_INCIDENTS)
+	{
+	}
+};
+
 IncidentsQueryOption::IncidentsQueryOption(const UserIdType &userId)
-: DataQueryOption(userId)
+: DataQueryOption(userId),
+  m_impl(new Impl())
 {
 }
 
 IncidentsQueryOption::IncidentsQueryOption(DataQueryContext *dataQueryContext)
-: DataQueryOption(dataQueryContext)
+: DataQueryOption(dataQueryContext),
+  m_impl(new Impl())
 {
+}
+
+IncidentsQueryOption::IncidentsQueryOption(const IncidentsQueryOption &src)
+: DataQueryOption(src),
+  m_impl(new Impl())
+{
+	*m_impl = *src.m_impl;
+}
+
+IncidentsQueryOption::~IncidentsQueryOption()
+{
+}
+
+void IncidentsQueryOption::setTargetUnifiedEventId(const UnifiedEventIdType &id)
+{
+	m_impl->unifiedEventId = id;
+}
+
+const UnifiedEventIdType IncidentsQueryOption::getTargetUnifiedEventId(void)
+{
+	return m_impl->unifiedEventId;
+}
+
+string IncidentsQueryOption::getCondition(void) const
+{
+	string condition = DataQueryOption::getCondition();
+	if (m_impl->unifiedEventId != ALL_INCIDENTS) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		string eventIdCondition =
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_UNIFIED_EVENT_ID].columnName,
+		    rhs(m_impl->unifiedEventId));
+		addCondition(condition, eventIdCondition);
+	}
+	return condition;
 }
 
 // ---------------------------------------------------------------------------

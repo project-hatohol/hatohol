@@ -836,4 +836,119 @@ void test_eventsWithHostsFilter(void)
 	cppcut_assert_equal(expected, arg.response);
 }
 
+static void incidentInfo2StringMap(
+  const IncidentInfo &src, StringMap &dest)
+{
+	dest["status"] = src.status;
+	dest["priority"] = src.priority;
+	dest["assignee"] = src.assignee;
+	dest["doneRatio"] = StringUtils::toString(src.doneRatio);
+
+	/* Hatohol doesn't allow changing following properties:
+	dest["trackerId"] = StringUtils::toString(src.trackerId);
+	dest["serverId"] = StringUtils::toString(serc.serverId);
+	dest["eventId"] = src.eventId;
+	dest["triggerId"] = src.triggerId;
+	dest["identifier"] = src.identifier;
+	dest["location"] = src.location;
+	dest["createdAtSec"] = src.createdAt.tv_sec;
+	dest["createdAtNSec"] = src.createdAt.tv_nsec;
+	dest["updatedAtSec"] = src.updatedAt.tv_sec;
+	dest["updatedAtNSec"] = src.updatedAt.tv_nsec;
+	dest["unifiedEventId"] = src.unifiedEventId;
+	*/
+}
+
+void test_putIncident(void)
+{
+	loadTestDBIncidents();
+	startFaceRest();
+
+	size_t index = 2;
+	IncidentInfo expectedIncident = testIncidentInfo[index];
+	expectedIncident.status = "IN PROGRESS";
+	expectedIncident.priority = "HIGH";
+	expectedIncident.assignee = "taro";
+	expectedIncident.doneRatio = 30;
+	string path(
+	  StringUtils::sprintf("/incident/%" FMT_UNIFIED_EVENT_ID,
+			       expectedIncident.unifiedEventId));
+	RequestArg arg(path);
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "PUT";
+	incidentInfo2StringMap(expectedIncident, arg.parameters);
+
+	// check the response
+	getServerResponse(arg);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"unifiedEventId\":123"
+	  "}");
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	cppcut_assert_equal(expectedResponse, arg.response);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incidents"
+				" where unified_event_id=123");
+	string expected =
+		"^5\\|2\\|2\\|3\\|123\\|\\|IN PROGRESS\\|taro\\|"
+		"1412957360\\|0\\|\\d+\\|\\d+\\|HIGH\\|30\\|123$";
+	cut_assert_match(expected.c_str(), actual.c_str());
+}
+
+void test_putInvalidIncident(void)
+{
+	loadTestDBIncidents();
+	startFaceRest();
+
+	size_t index = 2;
+	IncidentInfo expectedIncident = testIncidentInfo[index];
+	expectedIncident.status = "INVALID STATUS";
+	string path(
+	  StringUtils::sprintf("/incident/%" FMT_UNIFIED_EVENT_ID,
+			       expectedIncident.unifiedEventId));
+	RequestArg arg(path);
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "PUT";
+	incidentInfo2StringMap(expectedIncident, arg.parameters);
+
+	// check the response
+	getServerResponse(arg);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":42,"
+	  "\"errorMessage\":\"Invalid parameter.\","
+	  "\"optionMessages\":\"Unknown status: INVALID STATUS\""
+	  "}");
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	cppcut_assert_equal(expectedResponse, arg.response);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incidents"
+				" where unified_event_id=123");
+	string expected = makeIncidentOutput(testIncidentInfo[index]);
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_getIncident(void)
+{
+	loadTestDBIncidents();
+	startFaceRest();
+
+	RequestArg arg("/incident");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "GET";
+	getServerResponse(arg);
+	cppcut_assert_equal(405, arg.httpStatusCode); // Method Not Allowed
+}
+
 } // namespace testFaceRestHost
