@@ -540,6 +540,25 @@ void test_eventQueryOptionGetEndTime(void)
 	cppcut_assert_equal(expected.tv_nsec, actual.tv_nsec);
 }
 
+void data_eventQueryOptionWithSeverities(void)
+{
+	prepareTestDataExcludeDefunctServers();
+}
+
+void test_eventQueryOptionWithSeverities(gconstpointer data)
+{
+	EventsQueryOption option(USER_ID_SYSTEM);
+	set<TriggerSeverityType> severities;
+	severities.insert(TRIGGER_SEVERITY_UNKNOWN);
+	severities.insert(TRIGGER_SEVERITY_WARNING);
+	severities.insert(TRIGGER_SEVERITY_ERROR);
+	option.setSeverities(severities);
+
+	string expected = "(severity=0 OR severity=2 OR severity=3)";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
 //
 // ItemsQueryOption
 //

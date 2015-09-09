@@ -832,6 +832,7 @@ struct EventsQueryOption::Impl {
 	TriggerIdType triggerId;
 	timespec beginTime;
 	timespec endTime;
+	set<TriggerSeverityType> triggerSeverities;
 
 	Impl()
 	: limitOfUnifiedId(NO_LIMIT),
@@ -951,6 +952,20 @@ string EventsQueryOption::getCondition(void) const
 			getColumnName(IDX_EVENTS_TIME_NS).c_str(),
 			m_impl->endTime.tv_nsec);
 	}
+
+	string severityCondition;
+	for (auto severity: m_impl->triggerSeverities) {
+		addCondition(
+		  severityCondition,
+		  StringUtils::sprintf(
+		    "%s=%d",
+		    COLUMN_DEF_EVENTS[IDX_EVENTS_SEVERITY].columnName,
+		    severity),
+		  ADD_TYPE_OR);
+	}
+	if (m_impl->triggerSeverities.size() > 1)
+		severityCondition = string("(") + severityCondition + string(")");
+	addCondition(condition, severityCondition);
 
 	return condition;
 }
@@ -1072,6 +1087,16 @@ void EventsQueryOption::setEndTime(const timespec &_endTime)
 const timespec &EventsQueryOption::getEndTime(void)
 {
 	return m_impl->endTime;
+}
+
+void EventsQueryOption::setSeverities(const set<TriggerSeverityType> &severities)
+{
+	m_impl->triggerSeverities = severities;
+}
+
+const set<TriggerSeverityType> &EventsQueryOption::getSeverities(void)
+{
+	return m_impl->triggerSeverities;
 }
 
 //
