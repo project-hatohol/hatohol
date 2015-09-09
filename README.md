@@ -105,9 +105,9 @@ We will continue to add, what we believe are, useful features. If you have reque
 ## Mailing Lists
 Below are the mailing lists to discuss Hatohol:
 
-* hatohol-users@lists.sourceforge.jp
+* hatohol-users@lists.osdn.me
   * Discuss anything related to installing and using Hatohol (for Japanese users).
-  * How to subscribe: http://lists.sourceforge.jp/mailman/listinfo/hatohol-users
+  * How to subscribe: http://lists.osdn.me/mailman/listinfo/hatohol-users
 * hatohol-users@lists.sourceforge.net
   * Discuss anything related to installing and using Hatohol (for English speaking users).
   * How to subscribe: https://lists.sourceforge.net/lists/listinfo/hatohol-users
