@@ -72,6 +72,7 @@ libhatohol_la_SOURCES = \
 	SessionManager.cc SessionManager.h \
 	SQLProcessorTypes.h \
 	SQLUtils.cc SQLUtils.h \
+	StatisticsCounter.cc StatisticsCounter.h \
 	TriggerFetchWorker.cc TriggerFetchWorker.h \
 	UnifiedDataStore.cc UnifiedDataStore.h
 
