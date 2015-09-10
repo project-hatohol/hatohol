@@ -835,6 +835,59 @@ void test_eventsWithHostsFilter(void)
 	expected += getExpectedServers() + "}";
 	cppcut_assert_equal(expected, arg.response);
 }
+void test_eventsWithSeverityFilter(void)
+{
+	loadTestDBArmPlugin();
+	loadTestDBTriggers();
+	loadTestDBEvents();
+	loadTestDBServerHostDef();
+	startFaceRest();
+
+	RequestArg arg("/event?severities=2%2C3");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	getServerResponse(arg);
+	string expected(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"lastUnifiedEventId\":6,"
+	  "\"haveIncident\":false,"
+	  "\"events\":"
+	  "["
+	  "{"
+	  "\"unifiedId\":6,"
+	  "\"serverId\":3,"
+	  "\"time\":1390000000,"
+	  "\"type\":1,"
+	  "\"triggerId\":\"2\","
+	  "\"eventId\":\"3\","
+	  "\"status\":1,"
+	  "\"severity\":2,"
+	  "\"hostId\":\"10001\","
+	  "\"brief\":\"TEST Trigger 2\","
+	  "\"extendedInfo\":"
+	  "\"{\\\"expandedDescription\\\":\\\"Test Trigger on hostZ1\\\"}\""
+	  "},"
+	  "{"
+	  "\"unifiedId\":1,"
+	  "\"serverId\":3,"
+	  "\"time\":1362957200,"
+	  "\"type\":0,"
+	  "\"triggerId\":\"2\","
+	  "\"eventId\":\"1\","
+	  "\"status\":1,"
+	  "\"severity\":2,"
+	  "\"hostId\":\"10001\","
+	  "\"brief\":\"TEST Trigger 2\","
+	  "\"extendedInfo\":"
+	  "\"{\\\"expandedDescription\\\":\\\"Test Trigger on hostZ1\\\"}\""
+	  "}"
+	  "],"
+	  "\"numberOfEvents\":2,");
+
+	expected += getExpectedServers() + "}";
+	cppcut_assert_equal(expected, arg.response);
+}
 
 static void incidentInfo2StringMap(
   const IncidentInfo &src, StringMap &dest)
