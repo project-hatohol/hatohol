@@ -889,6 +889,41 @@ void test_eventsWithSeveritiesFilter(void)
 	expected += getExpectedServers() + "}";
 	cppcut_assert_equal(expected, arg.response);
 }
+void test_eventsWithStatusesFilter(void)
+{
+	loadTestDBArmPlugin();
+	loadTestDBTriggers();
+	loadTestDBEvents();
+	loadTestDBServerHostDef();
+	startFaceRest();
+
+	RequestArg arg("/event?statuses=0%2C2");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	getServerResponse(arg);
+	string expected(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"lastUnifiedEventId\":6,"
+	  "\"haveIncident\":false,"
+	  "\"events\":"
+	  "["
+	  "{"
+	  "\"unifiedId\":4,"
+	  "\"serverId\":1,"
+	  "\"time\":1378900022,"
+	  "\"type\":0,"
+	  "\"triggerId\":\"1\","
+	  "\"eventId\":\"2\","
+	  "\"status\":0,"
+	  "\"severity\":1,"
+	  "\"hostId\":\"235012\","
+	  "\"brief\":\"TEST Trigger 1\","
+	  "\"extendedInfo\":\"\"}],\"numberOfEvents\":1,");
+
+	expected += getExpectedServers() + "}";
+	cppcut_assert_equal(expected, arg.response);
+}
 
 static void incidentInfo2StringMap(
   const IncidentInfo &src, StringMap &dest)
