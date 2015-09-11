@@ -80,7 +80,7 @@ testHatohol_la_SOURCES = \
 	testNamedPipe.cc \
 	testArmUtils.cc testArmBase.cc \
 	testArmZabbixAPI.cc testArmNagiosNDOUtils.cc testArmRedmine.cc \
-	testArmStatus.cc \
+	testArmStatus.cc testStatisticsCounter.cc \
 	testUsedCountable.cc \
 	testUnifiedDataStore.cc testMain.cc \
 	testZabbixAPI.cc
