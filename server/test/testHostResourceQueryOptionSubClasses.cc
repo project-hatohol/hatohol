@@ -559,6 +559,25 @@ void test_eventQueryOptionWithSeverities(gconstpointer data)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
+void data_eventQueryOptionWithStatuses(void)
+{
+	prepareTestDataExcludeDefunctServers();
+}
+
+void test_eventQueryOptionWithStatuses(gconstpointer data)
+{
+	EventsQueryOption option(USER_ID_SYSTEM);
+	set<TriggerStatusType> statuses;
+	statuses.insert(TRIGGER_STATUS_UNKNOWN);
+	statuses.insert(TRIGGER_STATUS_OK);
+	statuses.insert(TRIGGER_STATUS_PROBLEM);
+	option.setTriggerStatuses(statuses);
+
+	string expected = "(status=0 OR status=1 OR status=2)";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
 //
 // ItemsQueryOption
 //

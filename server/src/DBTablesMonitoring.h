@@ -69,6 +69,8 @@ public:
 
 	void setTriggerSeverities(const std::set<TriggerSeverityType> &severities);
 	const std::set<TriggerSeverityType> &getTriggerSeverities(void);
+	void setTriggerStatuses(const std::set<TriggerStatusType> &statuses);
+	const std::set<TriggerStatusType> &getTriggerStatuses(void);
 
 private:
 	struct Impl;
