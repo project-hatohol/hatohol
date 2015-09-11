@@ -835,7 +835,8 @@ void test_eventsWithHostsFilter(void)
 	expected += getExpectedServers() + "}";
 	cppcut_assert_equal(expected, arg.response);
 }
-void test_eventsWithSeverityFilter(void)
+
+void test_eventsWithSeveritiesFilter(void)
 {
 	loadTestDBArmPlugin();
 	loadTestDBTriggers();
