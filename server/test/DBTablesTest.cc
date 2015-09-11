@@ -1714,6 +1714,8 @@ size_t getNumberOfTestTriggers(const ServerIdType &serverId,
 				continue;
 			if (trigInfo.status == TRIGGER_STATUS_OK)
 				continue;
+			if (trigInfo.status == TRIGGER_STATUS_UNKNOWN)
+				continue;
 		}
 		if (!isInHostgroup(trigInfo, hostgroupId))
 			continue;
