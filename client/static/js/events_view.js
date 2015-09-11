@@ -107,11 +107,11 @@ var EventsView = function(userProfile, options) {
       numRecords: self.rawData ? self.rawData["numberOfEvents"] : -1,
       numRecordsPerPage: self.baseQuery.limit,
       selectPageCallback: function(page) {
-        load(page);
         if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
           self.baseQuery.limit = self.pager.numRecordsPerPage;
           saveConfig({'num-records-per-page': self.baseQuery.limit});
         }
+        load(page);
       }
     });
   }
