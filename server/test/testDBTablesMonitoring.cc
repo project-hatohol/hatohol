@@ -1747,4 +1747,34 @@ void test_getEventsExcludeByHostgroup(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_getSystemInfo(void)
+{
+	// get the current number of the events
+	DBTablesMonitoring::SystemInfo systemInfo0;
+	DBTablesMonitoring::getSystemInfo(systemInfo0);
+
+	// write events
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	EventInfoList eventInfoList;
+	for (size_t i = 0; i < NumTestEventInfo; i++)
+		eventInfoList.push_back(testEventInfo[i]);
+	dbMonitoring.addEventInfoList(eventInfoList);
+
+	// get the latest one
+	DBTablesMonitoring::SystemInfo systemInfo1;
+	DBTablesMonitoring::getSystemInfo(systemInfo1);
+
+	for (size_t i = 0; i < DBTablesMonitoring::NUM_EVENTS_COUNTERS; i++) {
+		uint64_t diffPrev =
+		  systemInfo1.eventsCounterPrevSlots[i].number
+		  - systemInfo0.eventsCounterPrevSlots[i].number;
+		cppcut_assert_equal(static_cast<uint64_t>(0), diffPrev);
+
+		uint64_t diffCurr =
+		   systemInfo1.eventsCounterCurrSlots[i].number
+		   - systemInfo0.eventsCounterCurrSlots[i].number;
+		cppcut_assert_equal(NumTestEventInfo, diffCurr);
+	}
+}
+
 } // namespace testDBTablesMonitoring

@@ -29,6 +29,7 @@
 #include "SmartTime.h"
 #include "Monitoring.h"
 #include "DBTablesHost.h"
+#include "StatisticsCounter.h"
 
 class EventsQueryOption : public HostResourceQueryOption {
 public:
@@ -139,6 +140,7 @@ private:
 class DBTablesMonitoring : public DBTables {
 public:
 	static const int         MONITORING_DB_VERSION;
+	static constexpr size_t  NUM_EVENTS_COUNTERS = 3;
 	static void reset(void);
 	static const SetupInfo &getConstSetupInfo(void);
 
@@ -274,6 +276,13 @@ public:
 	 * @rerurn A HatoholError insntace.
 	 */
 	HatoholError updateIncidentInfo(IncidentInfo &incidentInfo);
+
+	struct SystemInfo {
+		StatisticsCounter::Slot
+		  eventsCounterPrevSlots[NUM_EVENTS_COUNTERS],
+		  eventsCounterCurrSlots[NUM_EVENTS_COUNTERS];
+	};
+	static void getSystemInfo(SystemInfo &info);
 
 protected:
 	static SetupInfo &getSetupInfo(void);

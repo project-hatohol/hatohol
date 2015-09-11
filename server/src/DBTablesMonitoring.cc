@@ -30,6 +30,7 @@
 #include "ItemGroupStream.h"
 #include "DBClientJoinBuilder.h"
 #include "DBTermCStringProvider.h"
+#include "StatisticsCounter.h"
 
 // TODO: rmeove the followin two include files!
 // This class should not be aware of it.
@@ -56,6 +57,14 @@ const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 //   * items.id           -> VARCHAR
 const int DBTablesMonitoring::MONITORING_DB_VERSION =
   DBTables::Version::getPackedVer(0, 1, 1);
+
+static StatisticsCounter *eventsCounters[] = {
+  new StatisticsCounter(10),
+  new StatisticsCounter(100),
+  new StatisticsCounter(1000),
+};
+static size_t _check = HATOHOL_BUILD_EXPECT(
+  ARRAY_SIZE(eventsCounters), DBTablesMonitoring::NUM_EVENTS_COUNTERS);
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -776,6 +785,7 @@ static const DBAgent::TableProfile tableProfileIncidents =
 struct DBTablesMonitoring::Impl
 {
 	bool storedHostsChanged;
+
 	Impl(void)
 	: storedHostsChanged(true)
 	{
@@ -783,6 +793,12 @@ struct DBTablesMonitoring::Impl
 
 	virtual ~Impl()
 	{
+	}
+
+	static void addEventStatistics(const uint64_t &number)
+	{
+		for (auto &counter : eventsCounters)
+			counter->add(number);
 	}
 };
 
@@ -1843,38 +1859,45 @@ void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		EventInfo *eventInfo;
+		uint64_t numAdded;
 
 		TrxProc(EventInfo *_eventInfo)
-		: eventInfo(_eventInfo)
+		: eventInfo(_eventInfo),
+		  numAdded(0)
 		{
 		}
 
 		void operator ()(DBAgent &dbAgent) override
 		{
 			addEventInfoWithoutTransaction(dbAgent, *eventInfo);
+			numAdded = 1;
 		}
 	} trx(eventInfo);
 	getDBAgent().runTransaction(trx);
+	m_impl->addEventStatistics(trx.numAdded);
 }
 
 void DBTablesMonitoring::addEventInfoList(EventInfoList &eventInfoList)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		EventInfoList &eventInfoList;
+		uint64_t numAdded;
 
 		TrxProc(EventInfoList &_eventInfoList)
-		: eventInfoList(_eventInfoList)
+		: eventInfoList(_eventInfoList),
+		  numAdded(0)
 		{
 		}
 
 		void operator ()(DBAgent &dbAgent) override
 		{
 			EventInfoListIterator it = eventInfoList.begin();
-			for (; it != eventInfoList.end(); ++it)
+			for (; it != eventInfoList.end(); ++it, numAdded++)
 				addEventInfoWithoutTransaction(dbAgent, *it);
 		}
 	} trx(eventInfoList);
 	getDBAgent().runTransaction(trx);
+	m_impl->addEventStatistics(trx.numAdded);
 }
 
 HatoholError DBTablesMonitoring::getEventInfoList(
@@ -2604,6 +2627,18 @@ uint64_t DBTablesMonitoring::getLastUpdateTimeOfIncidents(
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
 	return itemGroupStream.read<uint64_t>();
+}
+
+void DBTablesMonitoring::getSystemInfo(
+  DBTablesMonitoring::SystemInfo &systemInfo)
+{
+	StatisticsCounter::Slot *prevSlot = NULL;
+	StatisticsCounter::Slot *currSlot = NULL;
+	for (size_t i = 0; i < NUM_EVENTS_COUNTERS; i++) {
+		prevSlot = &systemInfo.eventsCounterPrevSlots[i];
+		currSlot = &systemInfo.eventsCounterCurrSlots[i];
+		eventsCounters[i]->get(prevSlot, currSlot);
+	}
 }
 
 // ---------------------------------------------------------------------------
