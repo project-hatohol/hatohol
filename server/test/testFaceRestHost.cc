@@ -844,7 +844,7 @@ void test_eventsWithSeveritiesFilter(void)
 	loadTestDBServerHostDef();
 	startFaceRest();
 
-	RequestArg arg("/event?severities=2%2C3");
+	RequestArg arg("/event?severities=2%2C4");
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	getServerResponse(arg);
 	string expected(
@@ -855,6 +855,19 @@ void test_eventsWithSeveritiesFilter(void)
 	  "\"haveIncident\":false,"
 	  "\"events\":"
 	  "["
+	  "{"
+	  "\"unifiedId\":7,"
+	  "\"serverId\":3,"
+	  "\"time\":1390000100,"
+	  "\"type\":2,"
+	  "\"triggerId\":\"4\","
+	  "\"eventId\":\"4\","
+	  "\"status\":2,"
+	  "\"severity\":4,"
+	  "\"hostId\":\"10002\","
+	  "\"brief\":\"Status:Unknown, Severity:Critical\","
+	  "\"extendedInfo\":\"\""
+	  "},"
 	  "{"
 	  "\"unifiedId\":6,"
 	  "\"serverId\":3,"
@@ -884,7 +897,7 @@ void test_eventsWithSeveritiesFilter(void)
 	  "\"{\\\"expandedDescription\\\":\\\"Test Trigger on hostZ1\\\"}\""
 	  "}"
 	  "],"
-	  "\"numberOfEvents\":2,");
+	  "\"numberOfEvents\":3,");
 
 	expected += getExpectedServers() + "}";
 	cppcut_assert_equal(expected, arg.response);
