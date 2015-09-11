@@ -815,7 +815,7 @@ void test_eventsWithHostsFilter(void)
 	string expected("{"
 			"\"apiVersion\":4,"
 			"\"errorCode\":0,"
-			"\"lastUnifiedEventId\":6,"
+			"\"lastUnifiedEventId\":7,"
 			"\"haveIncident\":false,"
 			"\"events\":"
 			"[{"
