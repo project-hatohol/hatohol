@@ -1089,12 +1089,13 @@ const timespec &EventsQueryOption::getEndTime(void)
 	return m_impl->endTime;
 }
 
-void EventsQueryOption::setSeverities(const set<TriggerSeverityType> &severities)
+void EventsQueryOption::setTriggerSeverities(
+  const set<TriggerSeverityType> &severities)
 {
 	m_impl->triggerSeverities = severities;
 }
 
-const set<TriggerSeverityType> &EventsQueryOption::getSeverities(void)
+const set<TriggerSeverityType> &EventsQueryOption::getTriggerSeverities(void)
 {
 	return m_impl->triggerSeverities;
 }

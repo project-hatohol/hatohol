@@ -473,7 +473,7 @@ HatoholError RestResourceHost::parseEventParameter(EventsQueryOption &option,
 			uint64_t v = StringUtils::toUint64(severity);
 			severities.insert(static_cast<TriggerSeverityType>(v));
 		}
-		option.setSeverities(severities);
+		option.setTriggerSeverities(severities);
 	}
 
 	return HatoholError(HTERR_OK);

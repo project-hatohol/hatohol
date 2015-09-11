@@ -67,8 +67,8 @@ public:
 	void setEndTime(const timespec &endTime);
 	const timespec &getEndTime(void);
 
-	void setSeverities(const std::set<TriggerSeverityType> &severities);
-	const std::set<TriggerSeverityType> &getSeverities(void);
+	void setTriggerSeverities(const std::set<TriggerSeverityType> &severities);
+	const std::set<TriggerSeverityType> &getTriggerSeverities(void);
 
 private:
 	struct Impl;

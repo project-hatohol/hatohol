@@ -552,7 +552,7 @@ void test_eventQueryOptionWithSeverities(gconstpointer data)
 	severities.insert(TRIGGER_SEVERITY_UNKNOWN);
 	severities.insert(TRIGGER_SEVERITY_WARNING);
 	severities.insert(TRIGGER_SEVERITY_ERROR);
-	option.setSeverities(severities);
+	option.setTriggerSeverities(severities);
 
 	string expected = "(severity=0 OR severity=2 OR severity=3)";
 	fixupForFilteringDefunctServer(data, expected, option);
