@@ -1568,7 +1568,9 @@ void test_getEventsSelectByHosts(void)
 		actual += makeEventOutput(event);
 	string expected(
 	  "3|2|1362958000|0|0|3|1|1|41|10002|hostZ2|TEST Trigger 3|\n"
-	  "1|3|1389123457|0|0|3|1|1|11|235013|hostX2|TEST Trigger 1b|\n");
+	  "1|3|1389123457|0|0|3|1|1|11|235013|hostX2|TEST Trigger 1b|\n"
+	  "3|4|1390000100|123456789|2|4|2|4|41|10002|hostZ2|"
+	    "Status:Unknown, Severity:Critical|\n");
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -1594,7 +1596,9 @@ void test_getEventsExcludeByHosts(void)
 		actual += makeEventOutput(event);
 	string expected(
 	  "3|2|1362958000|0|0|3|1|1|41|10002|hostZ2|TEST Trigger 3|\n"
-	  "1|3|1389123457|0|0|3|1|1|11|235013|hostX2|TEST Trigger 1b|\n");
+	  "1|3|1389123457|0|0|3|1|1|11|235013|hostX2|TEST Trigger 1b|\n"
+	  "3|4|1390000100|123456789|2|4|2|4|41|10002|hostZ2|"
+	    "Status:Unknown, Severity:Critical|\n");
 	cppcut_assert_equal(expected, actual);
 }
 
@@ -1627,7 +1631,9 @@ void test_getEventsSelectByServersAndHosts(void)
 	  "3|2|1362958000|0|0|3|1|1|41|10002|hostZ2|TEST Trigger 3|\n"
 	  "1|3|1389123457|0|0|3|1|1|11|235013|hostX2|TEST Trigger 1b|\n"
 	  "3|3|1390000000|123456789|1|2|1|2|35|10001|hostZ1|TEST Trigger 2|"
-	    "{\"expandedDescription\":\"Test Trigger on hostZ1\"}\n");
+	    "{\"expandedDescription\":\"Test Trigger on hostZ1\"}\n"
+	  "3|4|1390000100|123456789|2|4|2|4|41|10002|hostZ2|"
+	    "Status:Unknown, Severity:Critical|\n");
 	cppcut_assert_equal(expected, actual);
 }
 
