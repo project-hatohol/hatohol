@@ -119,7 +119,11 @@ var EventsView = function(userProfile, options) {
 
   function start() {
     self.userConfig.get({
-      itemNames:['num-records-per-page', 'event-sort-order'],
+      itemNames: [
+        'num-records-per-page',
+        'event-sort-type',
+        'event-sort-order'
+      ],
       successCallback: function(conf) {
         self.baseQuery.limit =
           self.userConfig.findOrDefault(conf, 'num-records-per-page',
