@@ -434,50 +434,110 @@ var EventsView = function(userProfile, options) {
     return name ? name : event["brief"];
   }
 
+  function renderTableDataMonitoringServer(event, server) {
+    var html;
+    var serverId = event["serverId"];
+    var serverURL = getServerLocation(server);
+    var nickName = getNickName(server, serverId);
+
+    if (serverURL) {
+      html = "<td><a href='" + serverURL + "' target='_blank'>" +
+        escapeHTML(nickName) + "</a></td>";
+    } else {
+      html = "<td>" + escapeHTML(nickName)+ "</td>";
+    }
+
+    return html;
+  }
+
+  function renderTableDataEventTime(event, server) {
+      var html;
+      var serverURL = getServerLocation(server);
+      var hostId = event["hostId"];
+      var triggerId = event["triggerId"];
+      var eventId = event["eventId"];
+      var clock = event["time"];
+
+      if (serverURL) {
+        html = generateTimeColumn(serverURL, hostId, triggerId, eventId, clock);
+      } else {
+        html = "<td data-sort-value='" + escapeHTML(clock) + "'>" +
+          formatDate(clock) + "</td>";
+      }
+
+      return html;
+  }
+
+  function renderTableDataHostName(event, server) {
+    var html;
+    var hostId = event["hostId"];
+    var serverURL = getServerLocation(server);
+    var hostName = getHostName(server, hostId);
+
+    if (serverURL) {
+      html = generateHostColumn(serverURL, hostId, hostName);
+    } else {
+      html = "<td>" + escapeHTML(hostName) + "</td>";
+    }
+
+    return html;
+  }
+
+  function renderTableDataEventDescription(event, server) {
+    var description = getEventDescription(event);
+
+    return "<td>" + escapeHTML(description) + "</td>";
+  }
+
+  function renderTableDataEventStatus(event, server) {
+    var status = event["type"];
+
+    return "<td class='status" + escapeHTML(status) +
+      "' data-sort-value='" + escapeHTML(status) + "'>" +
+      status_choices[Number(status)] + "</td>";
+  }
+
+  function renderTableDataEventSeverity(event, server) {
+    var status = event["type"];
+    var severity = event["severity"];
+    var severityClass = "severity";
+
+    if (status == hatohol.EVENT_TYPE_BAD)
+      severityClass += escapeHTML(severity);
+
+    return "<td class='" + severityClass +
+      "' data-sort-value='" + escapeHTML(severity) + "'>" +
+      severity_choices[Number(severity)] + "</td>";
+  }
+
+  function renderTableDataEventDuration(event, server) {
+    var serverId = event["serverId"];
+    var triggerId  = event["triggerId"];
+    var clock = event["time"];
+    var duration = self.durations[serverId][triggerId][clock];
+
+    return "<td data-sort-value='" + duration + "'>" +
+      formatSecond(duration) + "</td>";
+  }
+
   function drawTableBody() {
-    var serverName, nickName, hostName, clock, status, severity, incident, duration, description;
-    var server, event, eventId, serverId, serverURL, hostId, triggerId, html = "";
-    var x, severityClass;
+    var x, serverId, server, event, incident;
+    var html = "";
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
-      event      = self.rawData["events"][x];
-      serverId   = event["serverId"];
-      hostId     = event["hostId"];
-      triggerId  = event["triggerId"];
-      eventId    = event["eventId"];
-      server     = self.rawData["servers"][serverId];
-      nickName   = getNickName(server, serverId);
-      serverURL  = getServerLocation(server);
-      hostName   = getHostName(server, hostId);
-      clock      = event["time"];
-      status     = event["type"];
-      severity   = event["severity"];
-      duration   = self.durations[serverId][event["triggerId"]][clock];
-      incident   = event["incident"];
-      severityClass = "severity";
-      if (status == hatohol.EVENT_TYPE_BAD)
-        severityClass += escapeHTML(severity);
-      description = getEventDescription(event);
-      if (serverURL) {
-        html += "<tr><td><a href='" + serverURL + "' target='_blank'>" + escapeHTML(nickName)
-                + "</a></td>";
-        html += generateTimeColumn(serverURL, hostId, triggerId, eventId, clock);
-        html += generateHostColumn(serverURL, hostId, hostName);
-      } else {
-        html += "<tr><td>" + escapeHTML(nickName)+ "</td>";
-        html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
-                formatDate(clock) + "</td>";
-        html += "<td>" + escapeHTML(hostName) + "</td>";
-      }
-      html += "<td>" + escapeHTML(description) + "</td>";
-      html += "<td class='status" + escapeHTML(status) +
-        "' data-sort-value='" + escapeHTML(status) + "'>" +
-        status_choices[Number(status)] + "</td>";
-      html += "<td class='" + severityClass +
-        "' data-sort-value='" + escapeHTML(severity) + "'>" +
-        severity_choices[Number(severity)] + "</td>";
-      html += "<td data-sort-value='" + duration + "'>" +
-        formatSecond(duration) + "</td>";
+      event = self.rawData["events"][x];
+      serverId = event["serverId"];
+      server = self.rawData["servers"][serverId];
+      incident = event["incident"];
+
+      html += "<tr>"
+      html += renderTableDataMonitoringServer(event, server);
+      html += renderTableDataEventTime(event, server);
+      html += renderTableDataHostName(event, server);
+      html += renderTableDataEventDescription(event, server);
+      html += renderTableDataEventStatus(event, server);
+      html += renderTableDataEventSeverity(event, server);
+      html += renderTableDataEventDuration(event, server);
       html += generateIncidentColumns(self.rawData["haveIncident"], incident);
       html += "</tr>";
     }
