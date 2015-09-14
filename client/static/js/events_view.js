@@ -490,7 +490,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function getIncident(event) {
-    if (self.rawData["haveIncident"])
+    if (!self.rawData["haveIncident"])
       return null;
     else
       return event["incident"];
@@ -653,8 +653,11 @@ var EventsView = function(userProfile, options) {
         continue;
       }
 
-      if (columnName.indexOf("incident") == 0)
+      if (columnName.indexOf("incident") == 0) {
+        if (!self.rawData["haveIncident"])
+          continue;
         isIncident = true;
+      }
 
       header += '<th';
       if (definition.sortType)

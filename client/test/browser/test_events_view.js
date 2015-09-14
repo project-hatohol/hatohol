@@ -44,9 +44,15 @@ describe('EventsView', function() {
   // TODO: we should use actual server response to follow changes of the json
   //       format automatically
   function eventsJson(events, servers) {
+    var i, haveIncident = false;
+    for (i = 0; events && i < events.length; i++) {
+      if (events[i].incident)
+	haveIncident = true;
+    }
     return JSON.stringify({
       apiVersion: 3,
       errorCode: hatohol.HTERR_OK,
+      haveIncident: haveIncident,
       events: events ? events : [],
       servers: servers ? servers : {}
     });
@@ -282,7 +288,7 @@ describe('EventsView', function() {
     var view = new EventsView(getOperator(), testOptions);
     respond(eventsJson(dummyEventInfo, getDummyServerInfo(0)));
     expect($('tr :eq(0)').text()).to.be(
-      "Monitoring ServerTimeHostBriefStatusSeverityDurationIncidentPriorityAssignee% Done");
+      "Monitoring ServerTimeHostBriefStatusSeverityDuration");
     expect($('tr :eq(1)').text()).to.be(
       "Server2014/11/12 08:44:56HostTest discription.ProblemInformation02:46:40");
   });
@@ -298,5 +304,28 @@ describe('EventsView', function() {
       "DurationSeverityStatusBriefHostTimeMonitoring Server");
     expect($('tr :eq(1)').text()).to.be(
       "02:46:40InformationProblemTest discription.Host2014/11/12 08:44:56Server");
+  });
+
+  it('Incident columns', function() {
+    var view = new EventsView(getOperator(), testOptions);
+    var events = [
+      $.extend({}, dummyEventInfo[0], {
+	incident: {
+	  status: "NONE",
+	  priority: "HIGH",
+	  assignee: "Tom",
+	  doneRatio: 5,
+	}
+      })
+    ];
+    var configJson =
+      '{"event-columns":"eventId,' +
+      'incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio"}';
+    respond(eventsJson(events, getDummyServerInfo(0)),
+	    configJson);
+    expect($('tr :eq(0)').text()).to.be(
+      "Event IDIncidentPriorityAssignee% Done");
+    expect($('tr :eq(1)').text()).to.be(
+      "12332NONEHIGHTom5%");
   });
 });
