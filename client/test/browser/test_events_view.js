@@ -109,6 +109,23 @@ describe('EventsView', function() {
     return dummyServerInfo;
   }
 
+  function getEventTimeString(event) {
+    var date = new Date(event.time * 1000);
+    var dateString = "";
+    dateString += date.getFullYear();
+    dateString += "/";
+    dateString += padDigit(date.getMonth() + 1, 2);
+    dateString += "/";
+    dateString += padDigit(date.getDate(), 2);
+    dateString += " ";
+    dateString += padDigit(date.getHours(), 2);
+    dateString += ":";
+    dateString += padDigit(date.getMinutes(), 2);
+    dateString += ":";
+    dateString += padDigit(date.getSeconds(), 2);
+    return dateString;
+  }
+
   function testTableContents(serverURL, hostURL, dummyServerInfo, params){
     var view = new EventsView(getOperator(), testOptions);
     var expected;
@@ -290,7 +307,8 @@ describe('EventsView', function() {
     expect($('tr :eq(0)').text()).to.be(
       "Monitoring ServerTimeHostBriefStatusSeverityDuration");
     expect($('tr :eq(1)').text()).to.be(
-      "Server2014/11/12 08:44:56HostTest discription.ProblemInformation02:46:40");
+      "Server" + getEventTimeString(dummyEventInfo[0]) +
+      "HostTest discription.ProblemInformation02:46:40");
   });
 
   it('Customize columns', function() {
@@ -303,7 +321,9 @@ describe('EventsView', function() {
     expect($('tr :eq(0)').text()).to.be(
       "DurationSeverityStatusBriefHostTimeMonitoring Server");
     expect($('tr :eq(1)').text()).to.be(
-      "02:46:40InformationProblemTest discription.Host2014/11/12 08:44:56Server");
+      "02:46:40InformationProblemTest discription.Host" +
+      getEventTimeString(dummyEventInfo[0]) +
+      "Server");
   });
 
   it('Incident columns', function() {
