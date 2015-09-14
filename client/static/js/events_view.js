@@ -49,6 +49,12 @@ var EventsView = function(userProfile, options) {
     gettext('Not classified'), gettext('Information'), gettext('Warning'),
     gettext('Average'), gettext('High'), gettext('Disaster')];
 
+  var defaultColumns =
+    "monitoringServerName,time,hostName," +
+    "description,status,severity,duration," +
+    "incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio";
+  var columns = defaultColumns.split(",");
+
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
@@ -59,6 +65,58 @@ var EventsView = function(userProfile, options) {
   //
   // Private functions
   //
+  var columnDefinitions = {
+    "monitoringServerName": {
+      header: gettext("Monitoring Server"),
+      body: renderTableDataMonitoringServer,
+    },
+    "eventId": {
+      header: gettext("Event ID"),
+      body: renderTableDataEventId,
+    },
+    "time": {
+      header: gettext("Time"),
+      body: renderTableDataEventTime,
+      sortType: "int",
+    },
+    "hostName": {
+      header: gettext("Host"),
+      body: renderTableDataHostName,
+    },
+    "description": {
+      header: gettext("Brief"),
+      body: renderTableDataEventDescription,
+    },
+    "status": {
+      header: gettext("Status"),
+      body: renderTableDataEventStatus,
+    },
+    "severity": {
+      header: gettext("Severity"),
+      body: renderTableDataEventSeverity,
+    },
+    "duration": {
+      header: gettext("Duration"),
+      body: renderTableDataEventDuration,
+    },
+    "incidentStatus": {
+      header: gettext("Incident"),
+      body: renderTableDataIncidentStatus,
+    },
+    "incidentPriority": {
+      header: gettext("Priority"),
+      body: renderTableDataIncidentPriority,
+    },
+    "incidentAssignee": {
+      header: gettext("Assignee"),
+      body: renderTableDataIncidentAssignee,
+    },
+    "incidentDoneRatio": {
+      header: gettext("% Done"),
+      body: renderTableDataIncidentDoneRatio,
+    },
+  };
+
   function start() {
     self.userConfig.get({
       itemNames:['num-records-per-page', 'event-sort-order'],
@@ -412,6 +470,13 @@ var EventsView = function(userProfile, options) {
     return name ? name : event["brief"];
   }
 
+  function getIncident(event) {
+    if (self.rawData["haveIncident"])
+      return null;
+    else
+      return event["incident"];
+  }
+
   function renderTableDataMonitoringServer(event, server) {
     var html;
     var serverId = event["serverId"];
@@ -502,13 +567,6 @@ var EventsView = function(userProfile, options) {
       formatSecond(duration) + "</td>";
   }
 
-  function getIncident(event) {
-    if (self.rawData["haveIncident"])
-      return null;
-    else
-      return event["incident"];
-  }
-
   function renderTableDataIncidentStatus(event, server) {
     var html = "", incident = getIncident(event);
 
@@ -564,29 +622,42 @@ var EventsView = function(userProfile, options) {
     return html;
   }
 
+  function drawTableHeader() {
+    var i, definition, isIncident = false;
+    var header = '<tr>';
+
+    for (i = 0; i < columns.length; i++) {
+      definition = columnDefinitions[columns[i]];
+      if (!definition) {
+        // TODO:
+        // Should verify columns before rendering the table.
+        // When the "columns" is invalid, we should use the default setting.
+        console.error("Unknown column: " + columns[i]);
+        continue;
+      }
+
+      if (columns[i].indexOf("incident") == 0)
+        isIncident = true;
+
+      header += '<th';
+      if (definition.sortType)
+        header += ' data-sort="' + definition.sortType + '"';
+      if (isIncident)
+        header += ' class="incident" style="display:none;"';
+      header += '>';
+      header += definition.header;
+      header += '</th>';
+    }
+
+    header += '</tr>';
+
+    return header;
+  }
+
   function drawTableBody() {
     var html = "";
-    var x, y, serverId, server, event, renderer;
+    var x, y, serverId, server, event, definition;
     var haveIncident = self.rawData["haveIncident"];
-    var columnRenderers = {
-      "monitoringServerName": renderTableDataMonitoringServer,
-      "eventId": renderTableDataEventId,
-      "time": renderTableDataEventTime,
-      "hostName": renderTableDataHostName,
-      "description": renderTableDataEventDescription,
-      "status": renderTableDataEventStatus,
-      "severity": renderTableDataEventSeverity,
-      "duration": renderTableDataEventDuration,
-      "incidentStatus": renderTableDataIncidentStatus,
-      "incidentPriority": renderTableDataIncidentPriority,
-      "incidentAssignee": renderTableDataIncidentAssignee,
-      "incidentDoneRatio": renderTableDataIncidentDoneRatio,
-    };
-    var defaultColumns =
-      "monitoringServerName,time,hostName," +
-      "description,status,severity,duration," +
-      "incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio";
-    var columns = defaultColumns.split(",");
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
       event = self.rawData["events"][x];
@@ -595,17 +666,12 @@ var EventsView = function(userProfile, options) {
 
       html += "<tr>"
       for (y = 0; y < columns.length; y++) {
-        renderer = columnRenderers[columns[y]];
-        if (!renderer) {
-          // TODO:
-          // Should verify columns before rendering the table.
-          // When the "columns" is invalid, we should use the default setting.
-          console.error("Unknown column: " + columns[y]);
+        definition = columnDefinitions[columns[y]];
+        if (!definition)
           continue;
-        }
         if (columns[y].indexOf("incident") == 0 && !haveIncident)
           continue;
-        html += renderer(event, server);
+        html += definition.body(event, server);
       }
       html += "</tr>";
     }
@@ -614,11 +680,13 @@ var EventsView = function(userProfile, options) {
   }
 
   function drawTableContents() {
+    $("#table thead").empty();
+    $("#table thead").append(drawTableHeader());
+    $("#table tbody").empty();
+    $("#table tbody").append(drawTableBody());
     if (self.rawData["haveIncident"]) {
       $(".incident").show();
     }
-    $("#table tbody").empty();
-    $("#table tbody").append(drawTableBody());
   }
 
   function updateCore(reply) {
