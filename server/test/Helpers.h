@@ -190,6 +190,8 @@ std::string joinStringVector(const mlpl::StringVector &strVect,
                              const std::string &pad = "",
                              bool isPaddingTail = true);
 
+std::string sortedJoin(const EventInfoList &events);
+
 void crash(void);
 void prepareTestDataExcludeDefunctServers(void);
 void fixupForFilteringDefunctServer(

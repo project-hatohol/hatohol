@@ -1563,12 +1563,10 @@ void test_getEventsSelectByHosts(void)
 
 	EventInfoList events;
 	dbMonitoring.getEventInfoList(events, option, NULL);
-	string actual;
-	for (auto &event: events)
-		actual += makeEventOutput(event);
+	string actual = sortedJoin(events);
 	string expected(
-	  "3|2|1362958000|0|0|3|1|1|41|10002|hostZ2|TEST Trigger 3|\n"
 	  "1|3|1389123457|0|0|3|1|1|11|235013|hostX2|TEST Trigger 1b|\n"
+	  "3|2|1362958000|0|0|3|1|1|41|10002|hostZ2|TEST Trigger 3|\n"
 	  "3|4|1390000100|123456789|2|4|2|4|41|10002|hostZ2|"
 	    "Status:Unknown, Severity:Critical|\n");
 	cppcut_assert_equal(expected, actual);
@@ -1591,12 +1589,10 @@ void test_getEventsExcludeByHosts(void)
 
 	EventInfoList events;
 	dbMonitoring.getEventInfoList(events, option, NULL);
-	string actual;
-	for (auto &event: events)
-		actual += makeEventOutput(event);
+	string actual = sortedJoin(events);
 	string expected(
-	  "3|2|1362958000|0|0|3|1|1|41|10002|hostZ2|TEST Trigger 3|\n"
 	  "1|3|1389123457|0|0|3|1|1|11|235013|hostX2|TEST Trigger 1b|\n"
+	  "3|2|1362958000|0|0|3|1|1|41|10002|hostZ2|TEST Trigger 3|\n"
 	  "3|4|1390000100|123456789|2|4|2|4|41|10002|hostZ2|"
 	    "Status:Unknown, Severity:Critical|\n");
 	cppcut_assert_equal(expected, actual);
@@ -1622,14 +1618,12 @@ void test_getEventsSelectByServersAndHosts(void)
 
 	EventInfoList events;
 	dbMonitoring.getEventInfoList(events, option, NULL);
-	string actual;
-	for (auto &event: events)
-		actual += makeEventOutput(event);
+	string actual = sortedJoin(events);
 	string expected(
+	  "1|3|1389123457|0|0|3|1|1|11|235013|hostX2|TEST Trigger 1b|\n"
 	  "3|1|1362957200|0|0|2|1|2|35|10001|hostZ1|TEST Trigger 2|"
 	    "{\"expandedDescription\":\"Test Trigger on hostZ1\"}\n"
 	  "3|2|1362958000|0|0|3|1|1|41|10002|hostZ2|TEST Trigger 3|\n"
-	  "1|3|1389123457|0|0|3|1|1|11|235013|hostX2|TEST Trigger 1b|\n"
 	  "3|3|1390000000|123456789|1|2|1|2|35|10001|hostZ1|TEST Trigger 2|"
 	    "{\"expandedDescription\":\"Test Trigger on hostZ1\"}\n"
 	  "3|4|1390000100|123456789|2|4|2|4|41|10002|hostZ2|"
@@ -1658,9 +1652,7 @@ void test_getEventsExcludeByServersAndSelectByHosts(void)
 
 	EventInfoList events;
 	dbMonitoring.getEventInfoList(events, option, NULL);
-	string actual;
-	for (auto &event: events)
-		actual += makeEventOutput(event);
+	string actual = sortedJoin(events);
 	string expected(
 	  "1|3|1389123457|0|0|3|1|1|11|235013|hostX2|TEST Trigger 1b|\n");
 	cppcut_assert_equal(expected, actual);
@@ -1686,9 +1678,7 @@ void test_getEventsSelectByServersAndExcludeByHosts(void)
 
 	EventInfoList events;
 	dbMonitoring.getEventInfoList(events, option, NULL);
-	string actual;
-	for (auto &event: events)
-		actual += makeEventOutput(event);
+	string actual = sortedJoin(events);
 	string expected(
 	  "1|3|1389123457|0|0|3|1|1|11|235013|hostX2|TEST Trigger 1b|\n");
 	cppcut_assert_equal(expected, actual);
@@ -1712,9 +1702,7 @@ void test_getEventsSelectByHostgroup(void)
 
 	EventInfoList events;
 	dbMonitoring.getEventInfoList(events, option, NULL);
-	string actual;
-	for (auto &event: events)
-		actual += makeEventOutput(event);
+	string actual = sortedJoin(events);
 	string expected(
 	  "1|1|1363123456|0|0|2|1|1|10|235012|hostX1|TEST Trigger 1a|"
 	    "{\"expandedDescription\":\"Test Trigger on hostX1\"}\n"
@@ -1743,9 +1731,7 @@ void test_getEventsExcludeByHostgroup(void)
 
 	EventInfoList events;
 	dbMonitoring.getEventInfoList(events, option, NULL);
-	string actual;
-	for (auto &event: events)
-		actual += makeEventOutput(event);
+	string actual = sortedJoin(events);
 	string expected(
 	  "1|1|1363123456|0|0|2|1|1|10|235012|hostX1|TEST Trigger 1a|"
 	    "{\"expandedDescription\":\"Test Trigger on hostX1\"}\n"

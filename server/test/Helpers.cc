@@ -984,6 +984,17 @@ string joinStringVector(const StringVector &strVect, const string &pad,
 	return output;
 }
 
+string sortedJoin(const EventInfoList &events)
+{
+	set<string> strSet;
+	for (auto &event: events)
+		strSet.insert(makeEventOutput(event));
+	string joined;
+	for (auto &output : strSet)
+		joined += output;
+	return joined;
+}
+
 void crash(void)
 {
 	// Accessing the invalid address (NULL) finally causes SIGILL
