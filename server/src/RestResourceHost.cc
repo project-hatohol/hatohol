@@ -462,6 +462,34 @@ HatoholError RestResourceHost::parseEventParameter(EventsQueryOption &option,
 		return err;
 	option.setEndTime(endTime);
 
+	// severities
+	const gchar *value = static_cast<const gchar*>(
+	  g_hash_table_lookup(query, "severities"));
+	if (value && *value) {
+		StringVector values;
+		StringUtils::split(values, value, ',');
+		std::set<TriggerSeverityType> severities;
+		for (auto &severity: values) {
+			uint64_t v = StringUtils::toUint64(severity);
+			severities.insert(static_cast<TriggerSeverityType>(v));
+		}
+		option.setTriggerSeverities(severities);
+	}
+
+	// statuses
+	value = static_cast<const gchar*>(
+	  g_hash_table_lookup(query, "statuses"));
+	if (value && *value) {
+		StringVector values;
+		StringUtils::split(values, value, ',');
+		std::set<TriggerStatusType> statuses;
+		for (auto &status: values) {
+			uint64_t v = StringUtils::toUint64(status);
+			statuses.insert(static_cast<TriggerStatusType>(v));
+		}
+		option.setTriggerStatuses(statuses);
+	}
+
 	return HatoholError(HTERR_OK);
 }
 

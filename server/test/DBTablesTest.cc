@@ -357,6 +357,18 @@ const TriggerInfo testTriggerInfo[] =
 	"",                       // extendedInfo
 	TRIGGER_VALID,          // validity
 },{
+	3,                        // serverId
+	"4",                      // id
+	TRIGGER_STATUS_UNKNOWN,   // status
+	TRIGGER_SEVERITY_CRITICAL,// severity
+	{1362951000,0},           // lastChangeTime
+	41,                       // globalHostId,
+	"10002",                  // hostIdInServer,
+	"hostZ2",                 // hostName,
+	"Status:Unknown, Severity:Critical", // brief,
+	"",                       // extendedInfo
+	TRIGGER_VALID,          // validity
+},{
 	2,                        // serverId
 	"1147797409030816545", // 0xfedcba987654321 // id
 	TRIGGER_STATUS_OK,        // status
@@ -497,6 +509,20 @@ const EventInfo testEventInfo[] = {
 	"hostZ1",                 // hostName,
 	"TEST Trigger 2",         // brief,
 	"{\"expandedDescription\":\"Test Trigger on hostZ1\"}", // extendedInfo
+}, {
+	AUTO_INCREMENT_VALUE,     // unifiedId
+	3,                        // serverId
+	"4",                      // id
+	{1390000100,123456789},   // time
+	EVENT_TYPE_UNKNOWN,       // type
+	"4",                      // triggerId
+	TRIGGER_STATUS_UNKNOWN,   // status
+	TRIGGER_SEVERITY_CRITICAL, // severity
+	41,                       // globalHostId,
+	"10002",                  // hostIdInServer,
+	"hostZ2",                 // hostName,
+	"Status:Unknown, Severity:Critical", // brief,
+	"", // extendedInfo
 }, {
 	// This entry is for tests with a defunct server
 	AUTO_INCREMENT_VALUE,     // unifiedId
@@ -1687,6 +1713,8 @@ size_t getNumberOfTestTriggers(const ServerIdType &serverId,
 			    severity != TRIGGER_SEVERITY_ALL)
 				continue;
 			if (trigInfo.status == TRIGGER_STATUS_OK)
+				continue;
+			if (trigInfo.status == TRIGGER_STATUS_UNKNOWN)
 				continue;
 		}
 		if (!isInHostgroup(trigInfo, hostgroupId))

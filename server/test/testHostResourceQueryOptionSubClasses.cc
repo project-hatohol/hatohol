@@ -540,6 +540,44 @@ void test_eventQueryOptionGetEndTime(void)
 	cppcut_assert_equal(expected.tv_nsec, actual.tv_nsec);
 }
 
+void data_eventQueryOptionWithSeverities(void)
+{
+	prepareTestDataExcludeDefunctServers();
+}
+
+void test_eventQueryOptionWithSeverities(gconstpointer data)
+{
+	EventsQueryOption option(USER_ID_SYSTEM);
+	set<TriggerSeverityType> severities;
+	severities.insert(TRIGGER_SEVERITY_UNKNOWN);
+	severities.insert(TRIGGER_SEVERITY_WARNING);
+	severities.insert(TRIGGER_SEVERITY_ERROR);
+	option.setTriggerSeverities(severities);
+
+	string expected = "(severity=0 OR severity=2 OR severity=3)";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
+void data_eventQueryOptionWithStatuses(void)
+{
+	prepareTestDataExcludeDefunctServers();
+}
+
+void test_eventQueryOptionWithStatuses(gconstpointer data)
+{
+	EventsQueryOption option(USER_ID_SYSTEM);
+	set<TriggerStatusType> statuses;
+	statuses.insert(TRIGGER_STATUS_UNKNOWN);
+	statuses.insert(TRIGGER_STATUS_OK);
+	statuses.insert(TRIGGER_STATUS_PROBLEM);
+	option.setTriggerStatuses(statuses);
+
+	string expected = "(status=0 OR status=1 OR status=2)";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
 //
 // ItemsQueryOption
 //
