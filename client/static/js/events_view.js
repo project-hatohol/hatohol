@@ -428,6 +428,10 @@ var EventsView = function(userProfile, options) {
     return html;
   }
 
+  function renderTableDataEventId(event, server) {
+      return "<td>" + escapeHTML(event["eventId"]) + "</td>";
+  }
+
   function renderTableDataEventTime(event, server) {
       var html;
       var serverURL = getServerLocation(server);
@@ -566,6 +570,7 @@ var EventsView = function(userProfile, options) {
     var haveIncident = self.rawData["haveIncident"];
     var columnRenderers = {
       "monitoringServerName": renderTableDataMonitoringServer,
+      "eventId": renderTableDataEventId,
       "time": renderTableDataEventTime,
       "hostName": renderTableDataHostName,
       "description": renderTableDataEventDescription,
