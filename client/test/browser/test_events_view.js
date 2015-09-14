@@ -277,4 +277,26 @@ describe('EventsView', function() {
     expect($('tr')).to.have.length(events.length + 1);
     expect($('tr :eq(1)').html()).to.contain(expected);
   });
+
+  it('Default columns', function() {
+    var view = new EventsView(getOperator(), testOptions);
+    respond(eventsJson(dummyEventInfo, getDummyServerInfo(0)));
+    expect($('tr :eq(0)').text()).to.be(
+      "Monitoring ServerTimeHostBriefStatusSeverityDurationIncidentPriorityAssignee% Done");
+    expect($('tr :eq(1)').text()).to.be(
+      "Server2014/11/12 08:44:56HostTest discription.ProblemInformation02:46:40");
+  });
+
+  it('Customize columns', function() {
+    var view = new EventsView(getOperator(), testOptions);
+    var configJson =
+      '{"event-columns":"duration,severity,status,description,' +
+      'hostName,time,monitoringServerName"}';
+    respond(eventsJson(dummyEventInfo, getDummyServerInfo(0)),
+	    configJson);
+    expect($('tr :eq(0)').text()).to.be(
+      "DurationSeverityStatusBriefHostTimeMonitoring Server");
+    expect($('tr :eq(1)').text()).to.be(
+      "02:46:40InformationProblemTest discription.Host2014/11/12 08:44:56Server");
+  });
 });
