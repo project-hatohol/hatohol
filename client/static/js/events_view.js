@@ -401,28 +401,6 @@ var EventsView = function(userProfile, options) {
     return html;
   }
 
-  function generateIncidentColumns(haveIncident, incident) {
-    var html = "";
-    if (haveIncident) {
-      html += "<td class='incident'>";
-      html += "<a href='" + escapeHTML(incident.location)
-              + "' target='_blank'>";
-      html += escapeHTML(incident.status) + "</a>";
-      html += "</td>";
-      html += "<td class='incident'>";
-      html += escapeHTML(incident.priority);
-      html += "</td>";
-      html += "<td class='incident'>";
-      html += escapeHTML(incident.assignee);
-      html += "</td>";
-      html += "<td class='incident'>";
-      if (incident.status)
-        html += escapeHTML(incident.doneRatio) + "%";
-      html += "</td>";
-    }
-    return html;
-  }
-
   function getEventDescription(event) {
     var extendedInfo, name;
 
@@ -520,15 +498,76 @@ var EventsView = function(userProfile, options) {
       formatSecond(duration) + "</td>";
   }
 
+  function getIncident(event) {
+    if (self.rawData["haveIncident"])
+      return null;
+    else
+      return event["incident"];
+  }
+
+  function renderIncindetStatus(event, server) {
+    var html = "", incident = getIncident(event);
+
+    if (!incident)
+      return "<td></td>";
+
+    html += "<td class='incident'>";
+    html += "<a href='" + escapeHTML(incident.location)
+      + "' target='_blank'>";
+    html += escapeHTML(incident.status) + "</a>";
+    html += "</td>";
+
+    return html;
+  }
+
+  function renderIncindetPriority(event, server) {
+    var html = "", incident = getIncident(event);
+
+    if (!incident)
+      return "<td></td>";
+
+    html += "<td class='incident'>";
+    html += escapeHTML(incident.priority);
+    html += "</td>";
+
+    return html;
+  }
+
+  function renderIncindetAssignee(event, server) {
+    var html = "", incident = getIncident(event);
+
+    if (!incident)
+      return "<td></td>";
+
+    html += "<td class='incident'>";
+    html += escapeHTML(incident.assignee);
+    html += "</td>";
+
+    return html;
+  }
+
+  function renderIncindetDoneRatio(event, server) {
+    var html = "", incident = getIncident(event);
+
+    if (!incident)
+      return "<td></td>";
+
+    html += "<td class='incident'>";
+    if (incident.status)
+      html += escapeHTML(incident.doneRatio) + "%";
+    html += "</td>";
+
+    return html;
+  }
+
   function drawTableBody() {
-    var x, serverId, server, event, incident;
+    var x, serverId, server, event;
     var html = "";
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
       event = self.rawData["events"][x];
       serverId = event["serverId"];
       server = self.rawData["servers"][serverId];
-      incident = event["incident"];
 
       html += "<tr>"
       html += renderTableDataMonitoringServer(event, server);
@@ -538,7 +577,12 @@ var EventsView = function(userProfile, options) {
       html += renderTableDataEventStatus(event, server);
       html += renderTableDataEventSeverity(event, server);
       html += renderTableDataEventDuration(event, server);
-      html += generateIncidentColumns(self.rawData["haveIncident"], incident);
+      if (self.rawData["haveIncident"]) {
+        html += renderIncindetStatus(event, server);
+        html += renderIncindetPriority(event, server);
+        html += renderIncindetAssignee(event, server);
+        html += renderIncindetDoneRatio(event, server);
+      }
       html += "</tr>";
     }
 
