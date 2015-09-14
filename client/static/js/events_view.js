@@ -53,7 +53,7 @@ var EventsView = function(userProfile, options) {
     "monitoringServerName,time,hostName," +
     "description,status,severity,duration," +
     "incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio";
-  var columns = defaultColumns.split(",");
+  var columnNames = defaultColumns.split(",");
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -630,17 +630,17 @@ var EventsView = function(userProfile, options) {
     var i, definition, isIncident = false;
     var header = '<tr>';
 
-    for (i = 0; i < columns.length; i++) {
-      definition = columnDefinitions[columns[i]];
+    for (i = 0; i < columnNames.length; i++) {
+      definition = columnDefinitions[columnNames[i]];
       if (!definition) {
         // TODO:
-        // Should verify columns before rendering the table.
-        // When the "columns" is invalid, we should use the default setting.
-        console.error("Unknown column: " + columns[i]);
+        // Should verify columnNames before rendering the table.
+        // When the "columnNames" is invalid, we should use the default setting.
+        console.error("Unknown column: " + columnNames[i]);
         continue;
       }
 
-      if (columns[i].indexOf("incident") == 0)
+      if (columnNames[i].indexOf("incident") == 0)
         isIncident = true;
 
       header += '<th';
@@ -669,11 +669,11 @@ var EventsView = function(userProfile, options) {
       server = self.rawData["servers"][serverId];
 
       html += "<tr>"
-      for (y = 0; y < columns.length; y++) {
-        definition = columnDefinitions[columns[y]];
+      for (y = 0; y < columnNames.length; y++) {
+        definition = columnDefinitions[columnNames[y]];
         if (!definition)
           continue;
-        if (columns[y].indexOf("incident") == 0 && !haveIncident)
+        if (columnNames[y].indexOf("incident") == 0 && !haveIncident)
           continue;
         html += definition.body(event, server);
       }
