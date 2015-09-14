@@ -53,7 +53,9 @@ var EventsView = function(userProfile, options) {
     "monitoringServerName,time,hostName," +
     "description,status,severity,duration," +
     "incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio";
-  var columnNames = defaultColumns.split(",");
+
+  self.columnsConfig = defaultColumns;
+  self.columnNames = self.columnsConfig.split(",");
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -134,6 +136,11 @@ var EventsView = function(userProfile, options) {
         self.baseQuery.sortOrder =
           self.userConfig.findOrDefault(conf, 'event-sort-order',
                                         self.baseQuery.sortOrder);
+        self.columnsConfig =
+          self.userConfig.findOrDefault(conf, 'event-columns',
+                                        defaultColumns);
+        self.columnNames = self.columnsConfig.split(",");
+
         updatePager();
         setupFilterValues();
         setupCallbacks();
@@ -627,17 +634,18 @@ var EventsView = function(userProfile, options) {
   }
 
   function drawTableHeader() {
-    var i, definition, isIncident = false;
+    var i, definition, columnName, isIncident = false;
     var header = '<tr>';
 
-    for (i = 0; i < columnNames.length; i++) {
-      definition = columnDefinitions[columnNames[i]];
+    for (i = 0; i < self.columnNames.length; i++) {
+      columnName = self.columnNames[i];
+      definition = columnDefinitions[columnName];
       if (!definition) {
-        console.error("Unknown column: " + columnNames[i]);
+        console.error("Unknown column: " + columnName);
         continue;
       }
 
-      if (columnNames[i].indexOf("incident") == 0)
+      if (columnName.indexOf("incident") == 0)
         isIncident = true;
 
       header += '<th';
@@ -657,7 +665,7 @@ var EventsView = function(userProfile, options) {
 
   function drawTableBody() {
     var html = "";
-    var x, y, serverId, server, event, definition;
+    var x, y, serverId, server, event, columnName, definition;
     var haveIncident = self.rawData["haveIncident"];
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
@@ -666,11 +674,12 @@ var EventsView = function(userProfile, options) {
       server = self.rawData["servers"][serverId];
 
       html += "<tr>"
-      for (y = 0; y < columnNames.length; y++) {
-        definition = columnDefinitions[columnNames[y]];
+      for (y = 0; y < self.columnNames.length; y++) {
+        columnName = self.columnNames[y];
+        definition = columnDefinitions[columnName];
         if (!definition)
           continue;
-        if (columnNames[y].indexOf("incident") == 0 && !haveIncident)
+        if (columnName.indexOf("incident") == 0 && !haveIncident)
           continue;
         html += definition.body(event, server);
       }
