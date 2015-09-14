@@ -505,7 +505,7 @@ var EventsView = function(userProfile, options) {
       return event["incident"];
   }
 
-  function renderIncindetStatus(event, server) {
+  function renderTableDataIncidentStatus(event, server) {
     var html = "", incident = getIncident(event);
 
     if (!incident)
@@ -520,7 +520,7 @@ var EventsView = function(userProfile, options) {
     return html;
   }
 
-  function renderIncindetPriority(event, server) {
+  function renderTableDataIncidentPriority(event, server) {
     var html = "", incident = getIncident(event);
 
     if (!incident)
@@ -533,7 +533,7 @@ var EventsView = function(userProfile, options) {
     return html;
   }
 
-  function renderIncindetAssignee(event, server) {
+  function renderTableDataIncidentAssignee(event, server) {
     var html = "", incident = getIncident(event);
 
     if (!incident)
@@ -546,7 +546,7 @@ var EventsView = function(userProfile, options) {
     return html;
   }
 
-  function renderIncindetDoneRatio(event, server) {
+  function renderTableDataIncidentDoneRatio(event, server) {
     var html = "", incident = getIncident(event);
 
     if (!incident)
@@ -561,8 +561,27 @@ var EventsView = function(userProfile, options) {
   }
 
   function drawTableBody() {
-    var x, serverId, server, event;
     var html = "";
+    var x, y, serverId, server, event, renderer;
+    var haveIncident = self.rawData["haveIncident"];
+    var columnRenderers = {
+      "monitoringServerName": renderTableDataMonitoringServer,
+      "time": renderTableDataEventTime,
+      "hostName": renderTableDataHostName,
+      "description": renderTableDataEventDescription,
+      "status": renderTableDataEventStatus,
+      "severity": renderTableDataEventSeverity,
+      "duration": renderTableDataEventDuration,
+      "incidentStatus": renderTableDataIncidentStatus,
+      "incidentPriority": renderTableDataIncidentPriority,
+      "incidentAssignee": renderTableDataIncidentAssignee,
+      "incidentDoneRatio": renderTableDataIncidentDoneRatio,
+    };
+    var defaultColumns =
+      "monitoringServerName,time,hostName," +
+      "description,status,severity,duration," +
+      "incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio";
+    var columns = defaultColumns.split(",");
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
       event = self.rawData["events"][x];
@@ -570,18 +589,18 @@ var EventsView = function(userProfile, options) {
       server = self.rawData["servers"][serverId];
 
       html += "<tr>"
-      html += renderTableDataMonitoringServer(event, server);
-      html += renderTableDataEventTime(event, server);
-      html += renderTableDataHostName(event, server);
-      html += renderTableDataEventDescription(event, server);
-      html += renderTableDataEventStatus(event, server);
-      html += renderTableDataEventSeverity(event, server);
-      html += renderTableDataEventDuration(event, server);
-      if (self.rawData["haveIncident"]) {
-        html += renderIncindetStatus(event, server);
-        html += renderIncindetPriority(event, server);
-        html += renderIncindetAssignee(event, server);
-        html += renderIncindetDoneRatio(event, server);
+      for (y = 0; y < columns.length; y++) {
+        renderer = columnRenderers[columns[y]];
+        if (!renderer) {
+          // TODO:
+          // Should verify columns before rendering the table.
+          // When the "columns" is invalid, we should use the default setting.
+          console.error("Unknown column: " + columns[y]);
+          continue;
+        }
+        if (columns[y].indexOf("incident") == 0 && !haveIncident)
+          continue;
+        html += renderer(event, server);
       }
       html += "</tr>";
     }
