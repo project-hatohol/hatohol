@@ -54,6 +54,14 @@ var EventsView = function(userProfile, options) {
     "description,status,severity,duration," +
     "incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio";
 
+  // TODO: Replace defaultColumns when the cutomization UI is implemented.
+  /*
+  var defaultColumns =
+    "incidentStatus,status,severity,time," +
+    "monitoringServerName,hostName," +
+    "description";
+  */
+
   self.columnsConfig = defaultColumns;
   self.columnNames = self.columnsConfig.split(",");
 
