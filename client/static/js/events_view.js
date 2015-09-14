@@ -633,9 +633,6 @@ var EventsView = function(userProfile, options) {
     for (i = 0; i < columnNames.length; i++) {
       definition = columnDefinitions[columnNames[i]];
       if (!definition) {
-        // TODO:
-        // Should verify columnNames before rendering the table.
-        // When the "columnNames" is invalid, we should use the default setting.
         console.error("Unknown column: " + columnNames[i]);
         continue;
       }
