@@ -36,7 +36,7 @@ void RestResourceAction::registerFactories(FaceRest *faceRest)
 }
 
 RestResourceAction::RestResourceAction(FaceRest *faceRest)
-: FaceRest::ResourceHandler(faceRest, NULL)
+: FaceRest::ResourceHandler(faceRest)
 {
 }
 

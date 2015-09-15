@@ -50,18 +50,13 @@ const string &RestResourceUser::getPathForUserMe(void)
 }
 
 RestResourceUser::RestResourceUser(FaceRest *faceRest, HandlerFunc handler)
-: FaceRest::ResourceHandler(faceRest, NULL), m_handlerFunc(handler)
+: FaceRest::ResourceHandler(
+    faceRest, NULL, static_cast<RestMemberHandler>(handler))
 {
 }
 
 RestResourceUser::~RestResourceUser()
 {
-}
-
-void RestResourceUser::handle(void)
-{
-	HATOHOL_ASSERT(m_handlerFunc, "No handler function!");
-	(this->*m_handlerFunc)();
 }
 
 bool RestResourceUser::pathIsUserMe(void)

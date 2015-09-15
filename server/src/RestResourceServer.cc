@@ -54,18 +54,13 @@ void RestResourceServer::registerFactories(FaceRest *faceRest)
 
 RestResourceServer::RestResourceServer(
   FaceRest *faceRest, RestResourceServer::HandlerFunc handler)
-: FaceRest::ResourceHandler(faceRest, NULL), m_handlerFunc(handler)
+: FaceRest::ResourceHandler(
+    faceRest, NULL, static_cast<RestMemberHandler>(handler))
 {
 }
 
 RestResourceServer::~RestResourceServer()
 {
-}
-
-void RestResourceServer::handle(void)
-{
-	HATOHOL_ASSERT(m_handlerFunc, "No handler function!");
-	(this->*m_handlerFunc)();
 }
 
 static bool canUpdateServer(

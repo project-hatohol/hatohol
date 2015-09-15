@@ -32,8 +32,6 @@ struct RestResourceUser : public FaceRest::ResourceHandler
 	RestResourceUser(FaceRest *faceRest, HandlerFunc handler);
 	virtual ~RestResourceUser();
 
-	virtual void handle(void) override;
-
 	bool pathIsUserMe(void);
 
 	void handlerUser(void);
@@ -72,8 +70,6 @@ struct RestResourceUser : public FaceRest::ResourceHandler
 	static const char *pathForUser;
 	static const char *pathForUserRole;
 	static const std::string pathForUserMe;
-
-	HandlerFunc m_handlerFunc;
 };
 
 #endif // RestResourceUser_h

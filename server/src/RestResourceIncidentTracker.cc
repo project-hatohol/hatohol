@@ -39,7 +39,7 @@ void RestResourceIncidentTracker::registerFactories(FaceRest *faceRest)
 }
 
 RestResourceIncidentTracker::RestResourceIncidentTracker(FaceRest *faceRest)
-: FaceRest::ResourceHandler(faceRest, NULL)
+: FaceRest::ResourceHandler(faceRest)
 {
 }
 

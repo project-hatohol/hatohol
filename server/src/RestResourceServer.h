@@ -31,8 +31,6 @@ struct RestResourceServer : public FaceRest::ResourceHandler
 	RestResourceServer(FaceRest *faceRest, HandlerFunc handler);
 	virtual ~RestResourceServer();
 
-	virtual void handle(void) override;
-
 	void handlerServer(void);
 	void handlerGetServer(void);
 	void handlerPostServer(void);
@@ -47,8 +45,6 @@ struct RestResourceServer : public FaceRest::ResourceHandler
 	static const char *pathForServerConnStat;
 
 	void triggerFetchedCallback(Closure0 *closure);
-
-	HandlerFunc m_handlerFunc;
 };
 
 #endif // RestResourceServer_h
