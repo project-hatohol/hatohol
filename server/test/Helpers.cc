@@ -1160,6 +1160,19 @@ UserIdType findUserWith(const OperationPrivilegeType &type,
 	return findUserCommon(type, true, excludeFlags);
 }
 
+UserIdType findUserWith(const OperationPrivilegeFlag &privFlag)
+{
+	UserIdType userId = INVALID_USER_ID;
+	for (size_t i = 0; i < NumTestUserInfo; i++) {
+		const UserInfo &userInfo = testUserInfo[i];
+		if (userInfo.flags == privFlag)
+			userId = i + 1;
+	}
+	cppcut_assert_not_equal(INVALID_USER_ID, userId);
+	cppcut_assert_not_equal(USER_ID_SYSTEM, userId);
+	return userId;
+}
+
 UserIdType findUserWithout(const OperationPrivilegeType &type)
 {
 	return findUserCommon(type, false);

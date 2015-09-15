@@ -1741,9 +1741,11 @@ void test_getEventsExcludeByHostgroup(void)
 
 void test_getSystemInfo(void)
 {
+	DataQueryOption option(findUserWith(OPPRVLG_GET_SYSTEM_INFO));
 	// get the current number of the events
 	DBTablesMonitoring::SystemInfo systemInfo0;
-	DBTablesMonitoring::getSystemInfo(systemInfo0);
+	assertHatoholError(
+	  HTERR_OK, DBTablesMonitoring::getSystemInfo(systemInfo0, option));
 
 	// write events
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
@@ -1754,7 +1756,8 @@ void test_getSystemInfo(void)
 
 	// get the latest one
 	DBTablesMonitoring::SystemInfo systemInfo1;
-	DBTablesMonitoring::getSystemInfo(systemInfo1);
+	assertHatoholError(
+	  HTERR_OK, DBTablesMonitoring::getSystemInfo(systemInfo1, option));
 
 	for (size_t i = 0; i < DBTablesMonitoring::NUM_EVENTS_COUNTERS; i++) {
 		uint64_t diffPrev =
@@ -1768,6 +1771,15 @@ void test_getSystemInfo(void)
 		cppcut_assert_equal(static_cast<uint64_t>(NumTestEventInfo),
 				    diffCurr);
 	}
+}
+
+void test_getSystemInfoByInvalidUser(void)
+{
+	DataQueryOption option(findUserWithout(OPPRVLG_GET_SYSTEM_INFO));
+	DBTablesMonitoring::SystemInfo systemInfo;
+	assertHatoholError(
+	  HTERR_INVALID_USER,
+	  DBTablesMonitoring::getSystemInfo(systemInfo, option));
 }
 
 } // namespace testDBTablesMonitoring

@@ -2681,9 +2681,12 @@ uint64_t DBTablesMonitoring::getLastUpdateTimeOfIncidents(
 	return itemGroupStream.read<uint64_t>();
 }
 
-void DBTablesMonitoring::getSystemInfo(
-  DBTablesMonitoring::SystemInfo &systemInfo)
+HatoholError DBTablesMonitoring::getSystemInfo(
+  DBTablesMonitoring::SystemInfo &systemInfo, const DataQueryOption &option)
 {
+	if (!option.has(OPPRVLG_GET_SYSTEM_INFO))
+		return HatoholError(HTERR_INVALID_USER);
+
 	StatisticsCounter::Slot *prevSlot = NULL;
 	StatisticsCounter::Slot *currSlot = NULL;
 	for (size_t i = 0; i < NUM_EVENTS_COUNTERS; i++) {
@@ -2691,6 +2694,7 @@ void DBTablesMonitoring::getSystemInfo(
 		currSlot = &systemInfo.eventsCounterCurrSlots[i];
 		eventsCounters[i]->get(prevSlot, currSlot);
 	}
+	return HatoholError(HTERR_OK);
 }
 
 // ---------------------------------------------------------------------------

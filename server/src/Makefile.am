@@ -68,6 +68,7 @@ libhatohol_la_SOURCES = \
 	RestResourceHost.cc RestResourceHost.h \
 	RestResourceIncidentTracker.cc RestResourceIncidentTracker.h \
 	RestResourceServer.cc RestResourceServer.h \
+	RestResourceSystem.cc RestResourceSystem.h \
 	RestResourceUser.cc RestResourceUser.h \
 	SessionManager.cc SessionManager.h \
 	SQLProcessorTypes.h \
