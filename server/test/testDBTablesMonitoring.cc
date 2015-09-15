@@ -1765,7 +1765,8 @@ void test_getSystemInfo(void)
 		uint64_t diffCurr =
 		   systemInfo1.eventsCounterCurrSlots[i].number
 		   - systemInfo0.eventsCounterCurrSlots[i].number;
-		cppcut_assert_equal(NumTestEventInfo, diffCurr);
+		cppcut_assert_equal(static_cast<uint64_t>(NumTestEventInfo),
+				    diffCurr);
 	}
 }
 
