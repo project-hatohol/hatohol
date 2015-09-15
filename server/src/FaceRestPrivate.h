@@ -116,6 +116,21 @@ struct FaceRest::ResourceHandlerFactory
 };
 
 template <class T>
+struct FaceRestResourceHandlerArg0FactoryTemplate :
+  public FaceRest::ResourceHandlerFactory
+{
+	FaceRestResourceHandlerArg0FactoryTemplate(FaceRest *faceRest)
+	: FaceRest::ResourceHandlerFactory(faceRest, NULL)
+	{
+	}
+
+	virtual FaceRest::ResourceHandler *createHandler(void) override
+	{
+		return new T(m_faceRest);
+	}
+};
+
+template <class T>
 struct FaceRestResourceHandlerSimpleFactoryTemplate :
   public FaceRest::ResourceHandlerFactory
 {
