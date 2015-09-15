@@ -49,6 +49,22 @@ var EventsView = function(userProfile, options) {
     gettext('Not classified'), gettext('Information'), gettext('Warning'),
     gettext('Average'), gettext('High'), gettext('Disaster')];
 
+  var defaultColumns =
+    "monitoringServerName,time,hostName," +
+    "description,status,severity,duration," +
+    "incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio";
+
+  // TODO: Replace defaultColumns when the cutomization UI is implemented.
+  /*
+  var defaultColumns =
+    "incidentStatus,status,severity,time," +
+    "monitoringServerName,hostName," +
+    "description";
+  */
+
+  self.columnsConfig = defaultColumns;
+  self.columnNames = self.columnsConfig.split(",");
+
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
@@ -59,9 +75,65 @@ var EventsView = function(userProfile, options) {
   //
   // Private functions
   //
+  var columnDefinitions = {
+    "monitoringServerName": {
+      header: gettext("Monitoring Server"),
+      body: renderTableDataMonitoringServer,
+    },
+    "eventId": {
+      header: gettext("Event ID"),
+      body: renderTableDataEventId,
+    },
+    "time": {
+      header: gettext("Time"),
+      body: renderTableDataEventTime,
+      sortType: "int",
+    },
+    "hostName": {
+      header: gettext("Host"),
+      body: renderTableDataHostName,
+    },
+    "description": {
+      header: gettext("Brief"),
+      body: renderTableDataEventDescription,
+    },
+    "status": {
+      header: gettext("Status"),
+      body: renderTableDataEventStatus,
+    },
+    "severity": {
+      header: gettext("Severity"),
+      body: renderTableDataEventSeverity,
+    },
+    "duration": {
+      header: gettext("Duration"),
+      body: renderTableDataEventDuration,
+    },
+    "incidentStatus": {
+      header: gettext("Incident"),
+      body: renderTableDataIncidentStatus,
+    },
+    "incidentPriority": {
+      header: gettext("Priority"),
+      body: renderTableDataIncidentPriority,
+    },
+    "incidentAssignee": {
+      header: gettext("Assignee"),
+      body: renderTableDataIncidentAssignee,
+    },
+    "incidentDoneRatio": {
+      header: gettext("% Done"),
+      body: renderTableDataIncidentDoneRatio,
+    },
+  };
+
   function start() {
     self.userConfig.get({
-      itemNames:['num-records-per-page', 'event-sort-order'],
+      itemNames: [
+        'num-records-per-page',
+        'event-sort-type',
+        'event-sort-order'
+      ],
       successCallback: function(conf) {
         self.baseQuery.limit =
           self.userConfig.findOrDefault(conf, 'num-records-per-page',
@@ -72,6 +144,11 @@ var EventsView = function(userProfile, options) {
         self.baseQuery.sortOrder =
           self.userConfig.findOrDefault(conf, 'event-sort-order',
                                         self.baseQuery.sortOrder);
+        self.columnsConfig =
+          self.userConfig.findOrDefault(conf, 'event-columns',
+                                        defaultColumns);
+        self.columnNames = self.columnsConfig.split(",");
+
         updatePager();
         setupFilterValues();
         setupCallbacks();
@@ -401,28 +478,6 @@ var EventsView = function(userProfile, options) {
     return html;
   }
 
-  function generateIncidentColumns(haveIncident, incident) {
-    var html = "";
-    if (haveIncident) {
-      html += "<td class='incident'>";
-      html += "<a href='" + escapeHTML(incident.location)
-              + "' target='_blank'>";
-      html += escapeHTML(incident.status) + "</a>";
-      html += "</td>";
-      html += "<td class='incident'>";
-      html += escapeHTML(incident.priority);
-      html += "</td>";
-      html += "<td class='incident'>";
-      html += escapeHTML(incident.assignee);
-      html += "</td>";
-      html += "<td class='incident'>";
-      if (incident.status)
-        html += escapeHTML(incident.doneRatio) + "%";
-      html += "</td>";
-    }
-    return html;
-  }
-
   function getEventDescription(event) {
     var extendedInfo, name;
 
@@ -434,51 +489,211 @@ var EventsView = function(userProfile, options) {
     return name ? name : event["brief"];
   }
 
+  function getIncident(event) {
+    if (!self.rawData["haveIncident"])
+      return null;
+    else
+      return event["incident"];
+  }
+
+  function renderTableDataMonitoringServer(event, server) {
+    var html;
+    var serverId = event["serverId"];
+    var serverURL = getServerLocation(server);
+    var nickName = getNickName(server, serverId);
+
+    if (serverURL) {
+      html = "<td><a href='" + serverURL + "' target='_blank'>" +
+        escapeHTML(nickName) + "</a></td>";
+    } else {
+      html = "<td>" + escapeHTML(nickName)+ "</td>";
+    }
+
+    return html;
+  }
+
+  function renderTableDataEventId(event, server) {
+      return "<td>" + escapeHTML(event["eventId"]) + "</td>";
+  }
+
+  function renderTableDataEventTime(event, server) {
+      var html;
+      var serverURL = getServerLocation(server);
+      var hostId = event["hostId"];
+      var triggerId = event["triggerId"];
+      var eventId = event["eventId"];
+      var clock = event["time"];
+
+      if (serverURL) {
+        html = generateTimeColumn(serverURL, hostId, triggerId, eventId, clock);
+      } else {
+        html = "<td data-sort-value='" + escapeHTML(clock) + "'>" +
+          formatDate(clock) + "</td>";
+      }
+
+      return html;
+  }
+
+  function renderTableDataHostName(event, server) {
+    var html;
+    var hostId = event["hostId"];
+    var serverURL = getServerLocation(server);
+    var hostName = getHostName(server, hostId);
+
+    if (serverURL) {
+      html = generateHostColumn(serverURL, hostId, hostName);
+    } else {
+      html = "<td>" + escapeHTML(hostName) + "</td>";
+    }
+
+    return html;
+  }
+
+  function renderTableDataEventDescription(event, server) {
+    var description = getEventDescription(event);
+
+    return "<td>" + escapeHTML(description) + "</td>";
+  }
+
+  function renderTableDataEventStatus(event, server) {
+    var status = event["type"];
+
+    return "<td class='status" + escapeHTML(status) +
+      "' data-sort-value='" + escapeHTML(status) + "'>" +
+      status_choices[Number(status)] + "</td>";
+  }
+
+  function renderTableDataEventSeverity(event, server) {
+    var status = event["type"];
+    var severity = event["severity"];
+    var severityClass = "severity";
+
+    if (status == hatohol.EVENT_TYPE_BAD)
+      severityClass += escapeHTML(severity);
+
+    return "<td class='" + severityClass +
+      "' data-sort-value='" + escapeHTML(severity) + "'>" +
+      severity_choices[Number(severity)] + "</td>";
+  }
+
+  function renderTableDataEventDuration(event, server) {
+    var serverId = event["serverId"];
+    var triggerId  = event["triggerId"];
+    var clock = event["time"];
+    var duration = self.durations[serverId][triggerId][clock];
+
+    return "<td data-sort-value='" + duration + "'>" +
+      formatSecond(duration) + "</td>";
+  }
+
+  function renderTableDataIncidentStatus(event, server) {
+    var html = "", incident = getIncident(event);
+
+    if (!incident)
+      return "<td></td>";
+
+    html += "<td class='incident'>";
+    html += "<a href='" + escapeHTML(incident.location)
+      + "' target='_blank'>";
+    html += escapeHTML(incident.status) + "</a>";
+    html += "</td>";
+
+    return html;
+  }
+
+  function renderTableDataIncidentPriority(event, server) {
+    var html = "", incident = getIncident(event);
+
+    if (!incident)
+      return "<td></td>";
+
+    html += "<td class='incident'>";
+    html += escapeHTML(incident.priority);
+    html += "</td>";
+
+    return html;
+  }
+
+  function renderTableDataIncidentAssignee(event, server) {
+    var html = "", incident = getIncident(event);
+
+    if (!incident)
+      return "<td></td>";
+
+    html += "<td class='incident'>";
+    html += escapeHTML(incident.assignee);
+    html += "</td>";
+
+    return html;
+  }
+
+  function renderTableDataIncidentDoneRatio(event, server) {
+    var html = "", incident = getIncident(event);
+
+    if (!incident)
+      return "<td></td>";
+
+    html += "<td class='incident'>";
+    if (incident.status)
+      html += escapeHTML(incident.doneRatio) + "%";
+    html += "</td>";
+
+    return html;
+  }
+
+  function drawTableHeader() {
+    var i, definition, columnName, isIncident = false;
+    var header = '<tr>';
+
+    for (i = 0; i < self.columnNames.length; i++) {
+      columnName = self.columnNames[i];
+      definition = columnDefinitions[columnName];
+      if (!definition) {
+        console.error("Unknown column: " + columnName);
+        continue;
+      }
+
+      if (columnName.indexOf("incident") == 0) {
+        if (!self.rawData["haveIncident"])
+          continue;
+        isIncident = true;
+      }
+
+      header += '<th';
+      if (definition.sortType)
+        header += ' data-sort="' + definition.sortType + '"';
+      if (isIncident)
+        header += ' class="incident" style="display:none;"';
+      header += '>';
+      header += definition.header;
+      header += '</th>';
+    }
+
+    header += '</tr>';
+
+    return header;
+  }
+
   function drawTableBody() {
-    var serverName, nickName, hostName, clock, status, severity, incident, duration, description;
-    var server, event, eventId, serverId, serverURL, hostId, triggerId, html = "";
-    var x, severityClass;
+    var html = "";
+    var x, y, serverId, server, event, columnName, definition;
+    var haveIncident = self.rawData["haveIncident"];
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
-      event      = self.rawData["events"][x];
-      serverId   = event["serverId"];
-      hostId     = event["hostId"];
-      triggerId  = event["triggerId"];
-      eventId    = event["eventId"];
-      server     = self.rawData["servers"][serverId];
-      nickName   = getNickName(server, serverId);
-      serverURL  = getServerLocation(server);
-      hostName   = getHostName(server, hostId);
-      clock      = event["time"];
-      status     = event["type"];
-      severity   = event["severity"];
-      duration   = self.durations[serverId][event["triggerId"]][clock];
-      incident   = event["incident"];
-      severityClass = "severity";
-      if (status == hatohol.EVENT_TYPE_BAD)
-        severityClass += escapeHTML(severity);
-      description = getEventDescription(event);
-      if (serverURL) {
-        html += "<tr><td><a href='" + serverURL + "' target='_blank'>" + escapeHTML(nickName)
-                + "</a></td>";
-        html += generateTimeColumn(serverURL, hostId, triggerId, eventId, clock);
-        html += generateHostColumn(serverURL, hostId, hostName);
-      } else {
-        html += "<tr><td>" + escapeHTML(nickName)+ "</td>";
-        html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
-                formatDate(clock) + "</td>";
-        html += "<td>" + escapeHTML(hostName) + "</td>";
+      event = self.rawData["events"][x];
+      serverId = event["serverId"];
+      server = self.rawData["servers"][serverId];
+
+      html += "<tr>"
+      for (y = 0; y < self.columnNames.length; y++) {
+        columnName = self.columnNames[y];
+        definition = columnDefinitions[columnName];
+        if (!definition)
+          continue;
+        if (columnName.indexOf("incident") == 0 && !haveIncident)
+          continue;
+        html += definition.body(event, server);
       }
-      html += "<td>" + escapeHTML(description) + "</td>";
-      html += "<td class='status" + escapeHTML(status) +
-        "' data-sort-value='" + escapeHTML(status) + "'>" +
-        status_choices[Number(status)] + "</td>";
-      html += "<td class='" + severityClass +
-        "' data-sort-value='" + escapeHTML(severity) + "'>" +
-        severity_choices[Number(severity)] + "</td>";
-      html += "<td data-sort-value='" + duration + "'>" +
-        formatSecond(duration) + "</td>";
-      html += generateIncidentColumns(self.rawData["haveIncident"], incident);
       html += "</tr>";
     }
 
@@ -486,11 +701,13 @@ var EventsView = function(userProfile, options) {
   }
 
   function drawTableContents() {
+    $("#table thead").empty();
+    $("#table thead").append(drawTableHeader());
+    $("#table tbody").empty();
+    $("#table tbody").append(drawTableBody());
     if (self.rawData["haveIncident"]) {
       $(".incident").show();
     }
-    $("#table tbody").empty();
-    $("#table tbody").append(drawTableBody());
   }
 
   function updateCore(reply) {

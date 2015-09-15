@@ -44,9 +44,15 @@ describe('EventsView', function() {
   // TODO: we should use actual server response to follow changes of the json
   //       format automatically
   function eventsJson(events, servers) {
+    var i, haveIncident = false;
+    for (i = 0; events && i < events.length; i++) {
+      if (events[i].incident)
+	haveIncident = true;
+    }
     return JSON.stringify({
       apiVersion: 3,
       errorCode: hatohol.HTERR_OK,
+      haveIncident: haveIncident,
       events: events ? events : [],
       servers: servers ? servers : {}
     });
@@ -101,6 +107,23 @@ describe('EventsView', function() {
       },
     };
     return dummyServerInfo;
+  }
+
+  function getEventTimeString(event) {
+    var date = new Date(event.time * 1000);
+    var dateString = "";
+    dateString += date.getFullYear();
+    dateString += "/";
+    dateString += padDigit(date.getMonth() + 1, 2);
+    dateString += "/";
+    dateString += padDigit(date.getDate(), 2);
+    dateString += " ";
+    dateString += padDigit(date.getHours(), 2);
+    dateString += ":";
+    dateString += padDigit(date.getMinutes(), 2);
+    dateString += ":";
+    dateString += padDigit(date.getSeconds(), 2);
+    return dateString;
   }
 
   function testTableContents(serverURL, hostURL, dummyServerInfo, params){
@@ -276,5 +299,53 @@ describe('EventsView', function() {
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(events.length + 1);
     expect($('tr :eq(1)').html()).to.contain(expected);
+  });
+
+  it('Default columns', function() {
+    var view = new EventsView(getOperator(), testOptions);
+    respond(eventsJson(dummyEventInfo, getDummyServerInfo(0)));
+    expect($('tr :eq(0)').text()).to.be(
+      "Monitoring ServerTimeHostBriefStatusSeverityDuration");
+    expect($('tr :eq(1)').text()).to.be(
+      "Server" + getEventTimeString(dummyEventInfo[0]) +
+      "HostTest discription.ProblemInformation02:46:40");
+  });
+
+  it('Customize columns', function() {
+    var view = new EventsView(getOperator(), testOptions);
+    var configJson =
+      '{"event-columns":"duration,severity,status,description,' +
+      'hostName,time,monitoringServerName"}';
+    respond(eventsJson(dummyEventInfo, getDummyServerInfo(0)),
+	    configJson);
+    expect($('tr :eq(0)').text()).to.be(
+      "DurationSeverityStatusBriefHostTimeMonitoring Server");
+    expect($('tr :eq(1)').text()).to.be(
+      "02:46:40InformationProblemTest discription.Host" +
+      getEventTimeString(dummyEventInfo[0]) +
+      "Server");
+  });
+
+  it('Incident columns', function() {
+    var view = new EventsView(getOperator(), testOptions);
+    var events = [
+      $.extend({}, dummyEventInfo[0], {
+	incident: {
+	  status: "NONE",
+	  priority: "HIGH",
+	  assignee: "Tom",
+	  doneRatio: 5,
+	}
+      })
+    ];
+    var configJson =
+      '{"event-columns":"eventId,' +
+      'incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio"}';
+    respond(eventsJson(events, getDummyServerInfo(0)),
+	    configJson);
+    expect($('tr :eq(0)').text()).to.be(
+      "Event IDIncidentPriorityAssignee% Done");
+    expect($('tr :eq(1)').text()).to.be(
+      "12332NONEHIGHTom5%");
   });
 });
