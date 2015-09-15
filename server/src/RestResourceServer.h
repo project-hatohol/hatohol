@@ -51,13 +51,4 @@ struct RestResourceServer : public FaceRest::ResourceHandler
 	HandlerFunc m_handlerFunc;
 };
 
-struct RestResourceServerFactory : public FaceRest::ResourceHandlerFactory
-{
-	RestResourceServerFactory(FaceRest *faceRest,
-				  RestResourceServer::HandlerFunc handler);
-	virtual FaceRest::ResourceHandler *createHandler(void) override;
-
-	RestResourceServer::HandlerFunc m_handlerFunc;
-};
-
 #endif // RestResourceServer_h

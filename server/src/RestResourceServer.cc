@@ -29,6 +29,9 @@
 using namespace std;
 using namespace mlpl;
 
+typedef FaceRestResourceHandlerSimpleFactoryTemplate<RestResourceServer>
+  RestResourceServerFactory;
+
 const char *RestResourceServer::pathForServer         = "/server";
 const char *RestResourceServer::pathForServerType     = "/server-type";
 const char *RestResourceServer::pathForServerConnStat = "/server-conn-stat";
@@ -745,14 +748,3 @@ void RestResourceServer::handlerServerConnStat(void)
 	replyJSONData(agent);
 }
 
-RestResourceServerFactory::RestResourceServerFactory(
-  FaceRest *faceRest, RestResourceServer::HandlerFunc handler)
-: FaceRest::ResourceHandlerFactory(faceRest, NULL),
-  m_handlerFunc(handler)
-{
-}
-
-FaceRest::ResourceHandler *RestResourceServerFactory::createHandler()
-{
-	return new RestResourceServer(m_faceRest, m_handlerFunc);
-}
