@@ -74,18 +74,13 @@ void RestResourceHost::registerFactories(FaceRest *faceRest)
 }
 
 RestResourceHost::RestResourceHost(FaceRest *faceRest, HandlerFunc handler)
-: FaceRest::ResourceHandler(faceRest, NULL), m_handlerFunc(handler)
+: FaceRest::ResourceHandler(faceRest, NULL,
+                            static_cast<RestMemberHandler>(handler))
 {
 }
 
 RestResourceHost::~RestResourceHost()
 {
-}
-
-void RestResourceHost::handle(void)
-{
-	HATOHOL_ASSERT(m_handlerFunc, "No handler function!");
-	(this->*m_handlerFunc)();
 }
 
 static HatoholError parseSortTypeFromQuery(

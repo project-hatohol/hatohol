@@ -30,6 +30,7 @@ typedef std::map<TriggerIdType, std::string> TriggerBriefMap;
 typedef std::map<ServerIdType, TriggerBriefMap> TriggerBriefMaps;
 
 typedef void (*RestHandlerFunc) (FaceRest::ResourceHandler *job);
+typedef void (FaceRest::ResourceHandler::*RestMemberHandler)(void);
 
 enum FormatType {
 	FORMAT_HTML,
@@ -40,7 +41,18 @@ enum FormatType {
 struct FaceRest::ResourceHandler : public UsedCountable
 {
 public:
-	ResourceHandler(FaceRest *faceRest, RestHandlerFunc handler);
+	/**
+	 * Constructor of ResourceHandler.
+	 *
+	 * At least handler or memberHandler should be non-NULL. When both
+	 * are set, memberHandler is used on handle().
+	 *
+	 * @param faceRest A FaceRest instance.
+	 * @param handler  A handler (a static function).
+	 * @param memberHandler A handler (a member function).
+	 */
+	ResourceHandler(FaceRest *faceRest, RestHandlerFunc handler = NULL,
+	                RestMemberHandler memberHandler = NULL);
 	virtual ~ResourceHandler();
 	virtual bool setRequest(SoupMessage *msg,
 				const char *path,
@@ -80,6 +92,7 @@ public:
 public:
 	FaceRest          *m_faceRest;
 	RestHandlerFunc    m_staticHandlerFunc;
+	RestMemberHandler  m_memberHandler;
 
 	// arguments of SoupServerCallback
 	SoupMessage       *m_message;
@@ -106,13 +119,15 @@ protected:
 
 struct FaceRest::ResourceHandlerFactory
 {
-	ResourceHandlerFactory(FaceRest *faceRest, RestHandlerFunc handler);
+	ResourceHandlerFactory(FaceRest *faceRest, RestHandlerFunc handler,
+	                       RestMemberHandler memberHandler = NULL);
 	virtual ~ResourceHandlerFactory();
 	virtual ResourceHandler *createHandler(void);
 	static void destroy(gpointer data);
 
-	FaceRest        *m_faceRest;
-	RestHandlerFunc  m_staticHandlerFunc;
+	FaceRest         *m_faceRest;
+	RestHandlerFunc   m_staticHandlerFunc;
+	RestMemberHandler m_memberHandler;
 };
 
 template <class T>
@@ -136,17 +151,15 @@ struct FaceRestResourceHandlerSimpleFactoryTemplate :
 {
 	FaceRestResourceHandlerSimpleFactoryTemplate(
 	  FaceRest *faceRest, typename T::HandlerFunc handler)
-	: FaceRest::ResourceHandlerFactory(faceRest, NULL),
-	  m_handlerFunc(handler)
+	: FaceRest::ResourceHandlerFactory(
+	    faceRest, NULL, static_cast<RestMemberHandler>(handler))
 	{
 	}
 
 	virtual FaceRest::ResourceHandler *createHandler(void) override
 	{
-		return new T(m_faceRest, m_handlerFunc);
+		return new T(m_faceRest, m_memberHandler);
 	}
-
-	typename T::HandlerFunc m_handlerFunc;
 };
 
 #define REPLY_ERROR(JOB, ERR_CODE, ERR_MSG_FMT, ...) \

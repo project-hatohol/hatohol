@@ -31,8 +31,6 @@ struct RestResourceHost : public FaceRest::ResourceHandler
 	RestResourceHost(FaceRest *faceRest, HandlerFunc handler);
 	virtual ~RestResourceHost();
 
-	virtual void handle(void) override;
-
 	void handlerGetOverview(void);
 	void handlerGetHost(void);
 	void handlerGetTrigger(void);
