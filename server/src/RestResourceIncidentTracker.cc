@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -24,6 +24,9 @@
 
 using namespace std;
 using namespace mlpl;
+
+typedef FaceRestResourceHandlerArg0FactoryTemplate<RestResourceIncidentTracker>
+  RestResourceIncidentTrackerFactory;
 
 const char *RestResourceIncidentTracker::pathForIncidentTracker =
   "/incident-tracker";
@@ -230,15 +233,4 @@ void RestResourceIncidentTracker::handleDelete(void)
 	agent.add("id", incidentTrackerId);
 	agent.endObject();
 	replyJSONData(agent);
-}
-
-RestResourceIncidentTrackerFactory::RestResourceIncidentTrackerFactory(
-  FaceRest *faceRest)
-: FaceRest::ResourceHandlerFactory(faceRest, NULL)
-{
-}
-
-FaceRest::ResourceHandler *RestResourceIncidentTrackerFactory::createHandler()
-{
-	return new RestResourceIncidentTracker(m_faceRest);
 }
