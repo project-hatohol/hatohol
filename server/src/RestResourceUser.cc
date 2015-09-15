@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -23,6 +23,9 @@
 
 using namespace std;
 using namespace mlpl;
+
+typedef FaceRestResourceHandlerSimpleFactoryTemplate<RestResourceUser>
+  RestResourceUserFactory;
 
 const char *RestResourceUser::pathForUser     = "/user";
 const char *RestResourceUser::pathForUserRole = "/user-role";
@@ -612,15 +615,4 @@ HatoholError RestResourceUser::updateOrAddUser(GHashTable *query,
 	if (err != HTERR_OK)
 		return err;
 	return HatoholError(HTERR_OK);
-}
-
-RestResourceUserFactory::RestResourceUserFactory(
-  FaceRest *faceRest, RestResourceUser::HandlerFunc handler)
-: FaceRest::ResourceHandlerFactory(faceRest, NULL), m_handlerFunc(handler)
-{
-}
-
-FaceRest::ResourceHandler *RestResourceUserFactory::createHandler()
-{
-	return new RestResourceUser(m_faceRest, m_handlerFunc);
 }

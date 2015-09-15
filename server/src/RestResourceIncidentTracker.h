@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -37,13 +37,6 @@ struct RestResourceIncidentTracker : public FaceRest::ResourceHandler
 	void handleDelete(void);
 
 	static const char *pathForIncidentTracker;
-};
-
-struct RestResourceIncidentTrackerFactory
-: public FaceRest::ResourceHandlerFactory
-{
-	RestResourceIncidentTrackerFactory(FaceRest *faceRest);
-	virtual FaceRest::ResourceHandler *createHandler(void) override;
 };
 
 #endif // RestResourceIncidentTracker_h

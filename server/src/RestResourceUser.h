@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -74,15 +74,6 @@ struct RestResourceUser : public FaceRest::ResourceHandler
 	static const std::string pathForUserMe;
 
 	HandlerFunc m_handlerFunc;
-};
-
-struct RestResourceUserFactory : public FaceRest::ResourceHandlerFactory
-{
-	RestResourceUserFactory(FaceRest *faceRest,
-				RestResourceUser::HandlerFunc handler);
-	virtual FaceRest::ResourceHandler *createHandler(void) override;
-
-	RestResourceUser::HandlerFunc m_handlerFunc;
 };
 
 #endif // RestResourceUser_h

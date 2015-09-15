@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -23,6 +23,9 @@
 
 using namespace std;
 using namespace mlpl;
+
+typedef FaceRestResourceHandlerArg0FactoryTemplate<RestResourceAction>
+  RestResourceActionFactory;
 
 const char *RestResourceAction::pathForAction = "/action";
 
@@ -375,14 +378,4 @@ void RestResourceAction::handlePut(void)
 	agent.add("id", actionDef.id);
 	agent.endObject();
 	replyJSONData(agent);
-}
-
-RestResourceActionFactory::RestResourceActionFactory(FaceRest *faceRest)
-: FaceRest::ResourceHandlerFactory(faceRest, NULL)
-{
-}
-
-FaceRest::ResourceHandler *RestResourceActionFactory::createHandler()
-{
-	return new RestResourceAction(m_faceRest);
 }

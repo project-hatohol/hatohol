@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -113,6 +113,40 @@ struct FaceRest::ResourceHandlerFactory
 
 	FaceRest        *m_faceRest;
 	RestHandlerFunc  m_staticHandlerFunc;
+};
+
+template <class T>
+struct FaceRestResourceHandlerArg0FactoryTemplate :
+  public FaceRest::ResourceHandlerFactory
+{
+	FaceRestResourceHandlerArg0FactoryTemplate(FaceRest *faceRest)
+	: FaceRest::ResourceHandlerFactory(faceRest, NULL)
+	{
+	}
+
+	virtual FaceRest::ResourceHandler *createHandler(void) override
+	{
+		return new T(m_faceRest);
+	}
+};
+
+template <class T>
+struct FaceRestResourceHandlerSimpleFactoryTemplate :
+  public FaceRest::ResourceHandlerFactory
+{
+	FaceRestResourceHandlerSimpleFactoryTemplate(
+	  FaceRest *faceRest, typename T::HandlerFunc handler)
+	: FaceRest::ResourceHandlerFactory(faceRest, NULL),
+	  m_handlerFunc(handler)
+	{
+	}
+
+	virtual FaceRest::ResourceHandler *createHandler(void) override
+	{
+		return new T(m_faceRest, m_handlerFunc);
+	}
+
+	typename T::HandlerFunc m_handlerFunc;
 };
 
 #define REPLY_ERROR(JOB, ERR_CODE, ERR_MSG_FMT, ...) \

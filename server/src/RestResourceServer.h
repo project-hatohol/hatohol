@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -49,15 +49,6 @@ struct RestResourceServer : public FaceRest::ResourceHandler
 	void triggerFetchedCallback(Closure0 *closure);
 
 	HandlerFunc m_handlerFunc;
-};
-
-struct RestResourceServerFactory : public FaceRest::ResourceHandlerFactory
-{
-	RestResourceServerFactory(FaceRest *faceRest,
-				  RestResourceServer::HandlerFunc handler);
-	virtual FaceRest::ResourceHandler *createHandler(void) override;
-
-	RestResourceServer::HandlerFunc m_handlerFunc;
 };
 
 #endif // RestResourceServer_h
