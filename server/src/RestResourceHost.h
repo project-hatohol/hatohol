@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -62,15 +62,6 @@ struct RestResourceHost : public FaceRest::ResourceHandler
 	static const char *pathForHostgroup;
 
 	HandlerFunc m_handlerFunc;
-};
-
-struct RestResourceHostFactory : public FaceRest::ResourceHandlerFactory
-{
-	RestResourceHostFactory(FaceRest *faceRest,
-				RestResourceHost::HandlerFunc handler);
-	virtual FaceRest::ResourceHandler *createHandler(void) override;
-
-	RestResourceHost::HandlerFunc m_handlerFunc;
 };
 
 #endif // RestResourceHost_h
