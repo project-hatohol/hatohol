@@ -115,6 +115,25 @@ struct FaceRest::ResourceHandlerFactory
 	RestHandlerFunc  m_staticHandlerFunc;
 };
 
+template <class T>
+struct FaceRestResourceHandlerSimpleFactoryTemplate :
+  public FaceRest::ResourceHandlerFactory
+{
+	FaceRestResourceHandlerSimpleFactoryTemplate(
+	  FaceRest *faceRest, typename T::HandlerFunc handler)
+	: FaceRest::ResourceHandlerFactory(faceRest, NULL),
+	  m_handlerFunc(handler)
+	{
+	}
+
+	virtual FaceRest::ResourceHandler *createHandler(void) override
+	{
+		return new T(m_faceRest, m_handlerFunc);
+	}
+
+	typename T::HandlerFunc m_handlerFunc;
+};
+
 #define REPLY_ERROR(JOB, ERR_CODE, ERR_MSG_FMT, ...) \
 do { \
 	std::string optMsg \
