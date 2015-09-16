@@ -386,14 +386,18 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	               m_impl->port, errno, g_strerror(errno));
 	soup_server_add_handler(m_impl->soupServer, NULL,
 	                        handlerDefault, this, NULL);
-	m_impl->addHandler("/hello.html",
-			  new ResourceHandlerFactory(this, &handlerHelloPage));
-	m_impl->addHandler(pathForTest,
-			  new ResourceHandlerFactory(this, handlerTest));
-	m_impl->addHandler(pathForLogin,
-			  new ResourceHandlerFactory(this, handlerLogin));
-	m_impl->addHandler(pathForLogout,
-			  new ResourceHandlerFactory(this, handlerLogout));
+	m_impl->addHandler(
+	  "/hello.html",
+	  new RestResourceStaticHandlerFactory(this, &handlerHelloPage));
+	m_impl->addHandler(
+	  pathForTest,
+	  new RestResourceStaticHandlerFactory(this, handlerTest));
+	m_impl->addHandler(
+	  pathForLogin,
+	  new RestResourceStaticHandlerFactory(this, handlerLogin));
+	m_impl->addHandler(
+	  pathForLogout,
+	  new RestResourceStaticHandlerFactory(this, handlerLogout));
 	RestResourceUser::registerFactories(this);
 	RestResourceServer::registerFactories(this);
 	RestResourceHost::registerFactories(this);
@@ -614,12 +618,8 @@ void FaceRest::handlerLogout(ResourceHandler *job)
 // ---------------------------------------------------------------------------
 // FaceRest::ResourceHandler
 // ---------------------------------------------------------------------------
-
-FaceRest::ResourceHandler::ResourceHandler(
-  FaceRest *faceRest,
-  RestStaticHandler staticHandler, RestMemberHandler memberHandler)
-: m_faceRest(faceRest), m_staticHandler(staticHandler),
-  m_memberHandler(memberHandler), m_message(NULL),
+FaceRest::ResourceHandler::ResourceHandler(FaceRest *faceRest)
+: m_faceRest(faceRest), m_message(NULL),
   m_path(), m_query(NULL), m_client(NULL), m_mimeType(NULL),
   m_userId(INVALID_USER_ID), m_replyIsPrepared(false)
 {
@@ -648,16 +648,6 @@ bool FaceRest::ResourceHandler::setRequest(
 	// inclement reference count of them.
 
 	return parseRequest();
-}
-
-void FaceRest::ResourceHandler::handle(void)
-{
-	if (m_memberHandler) {
-		(this->*m_memberHandler)();
-		return;
-	}
-	HATOHOL_ASSERT(m_staticHandler, "No handler!");
-	m_staticHandler(this);
 }
 
 void FaceRest::ResourceHandler::handleInTryBlock(void)
@@ -1097,11 +1087,21 @@ void FaceRest::ResourceHandler::addServersMap(
 	agent.endObject();
 }
 
-FaceRest::ResourceHandlerFactory::ResourceHandlerFactory(
-  FaceRest *faceRest,
-  RestStaticHandler staticHandler, RestMemberHandler memberHandler)
-: m_faceRest(faceRest),
-  m_staticHandler(staticHandler), m_memberHandler(memberHandler)
+
+template <>
+void FaceRest::ResourceHandlerTemplate<RestStaticHandler>::handle(void)
+{
+	m_handler(this);
+}
+
+template <>
+void FaceRest::ResourceHandlerTemplate<RestMemberHandler>::handle(void)
+{
+	(this->*m_handler)();
+}
+
+FaceRest::ResourceHandlerFactory::ResourceHandlerFactory(FaceRest *faceRest)
+: m_faceRest(faceRest)
 {
 }
 
@@ -1114,10 +1114,4 @@ void FaceRest::ResourceHandlerFactory::destroy(gpointer data)
 	ResourceHandlerFactory *factory
 		= static_cast<ResourceHandlerFactory *>(data);
 	delete factory;
-}
-
-FaceRest::ResourceHandler *
-FaceRest::ResourceHandlerFactory::createHandler(void)
-{
-	return new ResourceHandler(m_faceRest, m_staticHandler, m_memberHandler);
 }

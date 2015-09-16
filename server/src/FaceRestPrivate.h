@@ -41,26 +41,14 @@ enum FormatType {
 struct FaceRest::ResourceHandler : public UsedCountable
 {
 public:
-	/**
-	 * Constructor of ResourceHandler.
-	 *
-	 * At least staticHandler or memberHandler should be non-NULL.
-	 * When both are set, memberHandler is used on handle().
-	 *
-	 * @param faceRest A FaceRest instance.
-	 * @param staticHandler A handler (a static function).
-	 * @param memberHandler A handler (a member function).
-	 */
-	ResourceHandler(FaceRest *faceRest,
-	                RestStaticHandler staticHandler = NULL,
-	                RestMemberHandler memberHandler = NULL);
+	ResourceHandler(FaceRest *faceRest);
 	virtual ~ResourceHandler();
 	virtual bool setRequest(SoupMessage *msg,
 				const char *path,
 				GHashTable *query,
 				SoupClientContext *client);
 
-	virtual void handle(void);
+	virtual void handle(void) = 0;
 	void handleInTryBlock(void);
 
 	SoupServer *getSoupServer(void);
@@ -92,8 +80,6 @@ public:
 
 public:
 	FaceRest          *m_faceRest;
-	RestStaticHandler  m_staticHandler;
-	RestMemberHandler  m_memberHandler;
 
 	// arguments of SoupServerCallback
 	SoupMessage       *m_message;
@@ -118,26 +104,63 @@ protected:
 	bool parseFormatType(void);
 };
 
+template <typename T>
+struct FaceRest::ResourceHandlerTemplate : public FaceRest::ResourceHandler {
+	ResourceHandlerTemplate(FaceRest *faceRest, T handler)
+	: ResourceHandler(faceRest),
+	  m_handler(handler)
+	{
+	}
+
+	void handle(void) override;
+
+	T m_handler;
+};
+
+typedef FaceRest::ResourceHandlerTemplate<RestStaticHandler>
+  RestResourceStaticHandler;
+typedef FaceRest::ResourceHandlerTemplate<RestMemberHandler>
+  RestResourceMemberHandler;
+
 struct FaceRest::ResourceHandlerFactory
 {
-	ResourceHandlerFactory(FaceRest *faceRest,
-	                       RestStaticHandler staticHandler = NULL,
-	                       RestMemberHandler memberHandler = NULL);
+	ResourceHandlerFactory(FaceRest *faceRest);
 	virtual ~ResourceHandlerFactory();
-	virtual ResourceHandler *createHandler(void);
+	virtual ResourceHandler *createHandler(void) = 0;
 	static void destroy(gpointer data);
 
 	FaceRest         *m_faceRest;
-	RestStaticHandler m_staticHandler;
-	RestMemberHandler m_memberHandler;
 };
+
+template<typename T>
+struct FaceRest::ResourceHandlerFactoryTemplate :
+  public FaceRest::ResourceHandlerFactory
+{
+	ResourceHandlerFactoryTemplate(FaceRest *faceRest, T handler)
+	: ResourceHandlerFactory(faceRest),
+	  m_handler(handler)
+	{
+	}
+
+	virtual ResourceHandler *createHandler(void) override
+	{
+		return new ResourceHandlerTemplate<T>(m_faceRest, m_handler);
+	}
+
+	T m_handler;
+};
+
+typedef FaceRest::ResourceHandlerFactoryTemplate<RestStaticHandler>
+  RestResourceStaticHandlerFactory;
+typedef FaceRest::ResourceHandlerFactoryTemplate<RestMemberHandler>
+  RestResourceMemberHandlerFactory;
 
 template <class T>
 struct FaceRestResourceHandlerArg0FactoryTemplate :
-  public FaceRest::ResourceHandlerFactory
+  public RestResourceStaticHandlerFactory
 {
 	FaceRestResourceHandlerArg0FactoryTemplate(FaceRest *faceRest)
-	: FaceRest::ResourceHandlerFactory(faceRest, NULL)
+	: RestResourceStaticHandlerFactory(faceRest, NULL)
 	{
 	}
 
@@ -149,18 +172,13 @@ struct FaceRestResourceHandlerArg0FactoryTemplate :
 
 template <class T>
 struct FaceRestResourceHandlerSimpleFactoryTemplate :
-  public FaceRest::ResourceHandlerFactory
+  public RestResourceMemberHandlerFactory
 {
 	FaceRestResourceHandlerSimpleFactoryTemplate(
 	  FaceRest *faceRest, typename T::HandlerFunc handler)
-	: FaceRest::ResourceHandlerFactory(
-	    faceRest, NULL, static_cast<RestMemberHandler>(handler))
+	: RestResourceMemberHandlerFactory(
+	    faceRest, static_cast<RestMemberHandler>(handler))
 	{
-	}
-
-	virtual FaceRest::ResourceHandler *createHandler(void) override
-	{
-		return new T(m_faceRest, m_memberHandler);
 	}
 };
 

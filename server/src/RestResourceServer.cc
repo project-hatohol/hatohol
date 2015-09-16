@@ -54,8 +54,7 @@ void RestResourceServer::registerFactories(FaceRest *faceRest)
 
 RestResourceServer::RestResourceServer(
   FaceRest *faceRest, RestResourceServer::HandlerFunc handler)
-: FaceRest::ResourceHandler(
-    faceRest, NULL, static_cast<RestMemberHandler>(handler))
+: RestResourceMemberHandler(faceRest, static_cast<RestMemberHandler>(handler))
 {
 }
 

@@ -50,8 +50,7 @@ const string &RestResourceUser::getPathForUserMe(void)
 }
 
 RestResourceUser::RestResourceUser(FaceRest *faceRest, HandlerFunc handler)
-: FaceRest::ResourceHandler(
-    faceRest, NULL, static_cast<RestMemberHandler>(handler))
+: RestResourceMemberHandler(faceRest, static_cast<RestMemberHandler>(handler))
 {
 }
 

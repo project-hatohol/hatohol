@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -42,7 +42,9 @@ struct FaceRestParam {
 class FaceRest : public FaceBase {
 public:
 	struct ResourceHandlerFactory;
+	template<typename T> struct ResourceHandlerFactoryTemplate;
 	struct ResourceHandler;
+	template<typename T> struct ResourceHandlerTemplate;
 
 	static int API_VERSION;
 	static const char *SESSION_ID_HEADER_NAME;
