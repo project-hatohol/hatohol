@@ -29,7 +29,7 @@ static const uint64_t INVALID_ID = -1;
 typedef std::map<TriggerIdType, std::string> TriggerBriefMap;
 typedef std::map<ServerIdType, TriggerBriefMap> TriggerBriefMaps;
 
-typedef void (*RestHandlerFunc) (FaceRest::ResourceHandler *job);
+typedef void (*RestStaticHandler)(FaceRest::ResourceHandler *job);
 typedef void (FaceRest::ResourceHandler::*RestMemberHandler)(void);
 
 enum FormatType {
@@ -44,14 +44,15 @@ public:
 	/**
 	 * Constructor of ResourceHandler.
 	 *
-	 * At least handler or memberHandler should be non-NULL. When both
-	 * are set, memberHandler is used on handle().
+	 * At least staticHandler or memberHandler should be non-NULL.
+	 * When both are set, memberHandler is used on handle().
 	 *
 	 * @param faceRest A FaceRest instance.
-	 * @param handler  A handler (a static function).
+	 * @param staticHandler A handler (a static function).
 	 * @param memberHandler A handler (a member function).
 	 */
-	ResourceHandler(FaceRest *faceRest, RestHandlerFunc handler = NULL,
+	ResourceHandler(FaceRest *faceRest,
+	                RestStaticHandler staticHandler = NULL,
 	                RestMemberHandler memberHandler = NULL);
 	virtual ~ResourceHandler();
 	virtual bool setRequest(SoupMessage *msg,
@@ -91,7 +92,7 @@ public:
 
 public:
 	FaceRest          *m_faceRest;
-	RestHandlerFunc    m_staticHandlerFunc;
+	RestStaticHandler  m_staticHandler;
 	RestMemberHandler  m_memberHandler;
 
 	// arguments of SoupServerCallback
@@ -119,14 +120,15 @@ protected:
 
 struct FaceRest::ResourceHandlerFactory
 {
-	ResourceHandlerFactory(FaceRest *faceRest, RestHandlerFunc handler,
+	ResourceHandlerFactory(FaceRest *faceRest,
+	                       RestStaticHandler staticHandler = NULL,
 	                       RestMemberHandler memberHandler = NULL);
 	virtual ~ResourceHandlerFactory();
 	virtual ResourceHandler *createHandler(void);
 	static void destroy(gpointer data);
 
 	FaceRest         *m_faceRest;
-	RestHandlerFunc   m_staticHandlerFunc;
+	RestStaticHandler m_staticHandler;
 	RestMemberHandler m_memberHandler;
 };
 
