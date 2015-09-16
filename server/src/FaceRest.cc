@@ -616,8 +616,9 @@ void FaceRest::handlerLogout(ResourceHandler *job)
 // ---------------------------------------------------------------------------
 
 FaceRest::ResourceHandler::ResourceHandler(
-  FaceRest *faceRest, RestHandlerFunc handler, RestMemberHandler memberHandler)
-: m_faceRest(faceRest), m_staticHandlerFunc(handler),
+  FaceRest *faceRest,
+  RestStaticHandler staticHandler, RestMemberHandler memberHandler)
+: m_faceRest(faceRest), m_staticHandler(staticHandler),
   m_memberHandler(memberHandler), m_message(NULL),
   m_path(), m_query(NULL), m_client(NULL), m_mimeType(NULL),
   m_userId(INVALID_USER_ID), m_replyIsPrepared(false)
@@ -655,8 +656,8 @@ void FaceRest::ResourceHandler::handle(void)
 		(this->*m_memberHandler)();
 		return;
 	}
-	HATOHOL_ASSERT(m_staticHandlerFunc, "No handler function!");
-	m_staticHandlerFunc(this);
+	HATOHOL_ASSERT(m_staticHandler, "No handler!");
+	m_staticHandler(this);
 }
 
 void FaceRest::ResourceHandler::handleInTryBlock(void)
@@ -1097,9 +1098,10 @@ void FaceRest::ResourceHandler::addServersMap(
 }
 
 FaceRest::ResourceHandlerFactory::ResourceHandlerFactory(
-  FaceRest *faceRest, RestHandlerFunc handler, RestMemberHandler memberHandler)
-: m_faceRest(faceRest), m_staticHandlerFunc(handler),
-  m_memberHandler(memberHandler)
+  FaceRest *faceRest,
+  RestStaticHandler staticHandler, RestMemberHandler memberHandler)
+: m_faceRest(faceRest),
+  m_staticHandler(staticHandler), m_memberHandler(memberHandler)
 {
 }
 
@@ -1117,6 +1119,5 @@ void FaceRest::ResourceHandlerFactory::destroy(gpointer data)
 FaceRest::ResourceHandler *
 FaceRest::ResourceHandlerFactory::createHandler(void)
 {
-	return new ResourceHandler(m_faceRest, m_staticHandlerFunc,
-	                           m_memberHandler);
+	return new ResourceHandler(m_faceRest, m_staticHandler, m_memberHandler);
 }
