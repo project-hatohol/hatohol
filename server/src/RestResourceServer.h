@@ -22,7 +22,7 @@
 
 #include "FaceRestPrivate.h"
 
-struct RestResourceServer : public FaceRest::ResourceHandler
+struct RestResourceServer : public RestResourceMemberHandler
 {
 	typedef void (RestResourceServer::*HandlerFunc)(void);
 

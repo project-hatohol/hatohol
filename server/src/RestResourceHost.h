@@ -22,7 +22,7 @@
 
 #include "FaceRestPrivate.h"
 
-struct RestResourceHost : public FaceRest::ResourceHandler
+struct RestResourceHost : public RestResourceMemberHandler
 {
 	typedef void (RestResourceHost::*HandlerFunc)(void);
 
@@ -58,8 +58,6 @@ struct RestResourceHost : public FaceRest::ResourceHandler
 	static const char *pathForItem;
 	static const char *pathForHistory;
 	static const char *pathForHostgroup;
-
-	HandlerFunc m_handlerFunc;
 };
 
 #endif // RestResourceHost_h
