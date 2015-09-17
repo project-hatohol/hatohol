@@ -54,14 +54,6 @@ var EventsView = function(userProfile, options) {
     "description,status,severity,duration," +
     "incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio";
 
-  // TODO: Replace defaultColumns when the cutomization UI is implemented.
-  /*
-  var defaultColumns =
-    "incidentStatus,status,severity,time," +
-    "monitoringServerName,hostName," +
-    "description";
-  */
-
   self.columnsConfig = defaultColumns;
   self.columnNames = self.columnsConfig.split(",");
 
@@ -69,8 +61,7 @@ var EventsView = function(userProfile, options) {
   HatoholMonitoringView.apply(this, [userProfile]);
 
   self.pager = new HatoholEventPager();
-  self.userConfig = new HatoholUserConfig();
-  self.configDialog = new HatoholEventsViewConfig();
+  self.userConfig = new HatoholEventsViewConfig();
   start();
 
   //

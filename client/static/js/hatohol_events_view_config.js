@@ -18,13 +18,14 @@
  */
 
 var HatoholEventsViewConfig = function(options) {
-  var autoReloadInterval = 60;
+  var self = this;
   var minAutoReloadInterval = 5;
   var maxAutoReloadInterval = 600;
-  var numRowsPerPage = 300;
+
+  HatoholUserConfig.apply(this, options);
+  self.config = self.getDefaultConfig();
 
   $("#auto-reload-interval-slider").slider({
-    value: autoReloadInterval,
     min: minAutoReloadInterval,
     max: maxAutoReloadInterval,
     step: 1,
@@ -32,6 +33,7 @@ var HatoholEventsViewConfig = function(options) {
       $("#auto-reload-interval").val(ui.value);
     },
   });
+
   $("#auto-reload-interval").change(function() {
     var value = $("#auto-reload-interval").val();
 
@@ -47,6 +49,74 @@ var HatoholEventsViewConfig = function(options) {
     $("#auto-reload-interval-slider").slider("value", value);
   });
 
-  $("#auto-reload-interval").val(autoReloadInterval);
-  $("#num-rows-per-page").val(numRowsPerPage);
+  $("#config-save").click(function() {
+    self.saveAll();
+  });
+
+  self.loadAll();
 };
+
+HatoholEventsViewConfig.prototype = Object.create(HatoholUserConfig.prototype);
+HatoholEventsViewConfig.prototype.constructor = HatoholEventsViewConfig;
+
+HatoholEventsViewConfig.prototype.loadAll = function() {
+  var self = this;
+  self.get({
+    itemNames: [
+      'events.auto-reload.interval',
+      'events.num-rows-per-page',
+      'events.sort.type',
+      'events.sort.order',
+    ],
+    successCallback: function(config) {
+      $.extend(self.config, config);
+      self.reset();
+    },
+    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+      self.showXHRError(XMLHttpRequest);
+    },
+  })
+}
+
+HatoholEventsViewConfig.prototype.saveAll = function() {
+  var self = this;
+  $.extend(self.config, {
+    'events.auto-reload.interval': $("#auto-reload-interval").val(),
+    'events.num-rows-per-page': $("#num-rows-per-page").val(),
+  })
+  self.store({
+    items: self.config,
+    successCallback: function(reply) {
+      $("#events-view-config").modal("hide");
+    },
+    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+      self.showXHRError(XMLHttpRequest);
+    },
+  });
+}
+
+HatoholEventsViewConfig.prototype.reset = function() {
+  var self = this;
+  var autoReloadInterval = self.config['events.auto-reload.interval']
+  $("#auto-reload-interval-slider").slider("value", autoReloadInterval);
+  $("#auto-reload-interval").val(autoReloadInterval);
+  $("#num-rows-per-page").val(self.config['events.num-rows-per-page']);
+}
+
+HatoholEventsViewConfig.prototype.getDefaultConfig = function() {
+  return {
+    'events.auto-reload.interval': 60,
+    'events.num-rows-per-page': 300,
+    'events.columns':
+      "incidentStatus,status,severity,time," +
+      "monitoringServerName,hostName,description",
+    'events.sort.type': "time",
+    'events.sort.order': hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
+  }
+}
+
+HatoholEventsViewConfig.prototype.showXHRError = function (XMLHttpRequest) {
+  var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
+    XMLHttpRequest.statusText;
+  hatoholErrorMsgBox(errorMsg);
+}
