@@ -25,6 +25,10 @@ var HatoholEventsViewConfig = function(options) {
   HatoholUserConfig.apply(this, options);
   self.config = self.getDefaultConfig();
 
+  $('#events-view-config').on('hidden.bs.modal', function (event) {
+    self.reset();
+  });
+
   $("#auto-reload-interval-slider").slider({
     min: minAutoReloadInterval,
     max: maxAutoReloadInterval,
