@@ -117,21 +117,23 @@
 	  </ul>
 	  <div class="tab-content">
 	    <div class="tab-pane fade in active" id="view-config">
+	      <div class="boxed-group">
 	      <p><label for="auto-reload-interval">{% trans "Auto reload interval (5 - 600 sec)" %}</label><p>
 	      <p>
 		<div id="auto-reload-interval-slider"></div>
 		<span style="float: right;">
-		<input id="auto-reload-interval" type="text" class="form-control" value="300">
+		<input id="auto-reload-interval" type="text" class="form-control">
 		<label class="unit">{% trans "seconds" %}</label>
 		</span>
 	      <p>
+	      </div>
 	      <hr>
 	      <p>
 		<span>
 		<label for="num-rows-per-page">{% trans "Number of rows per page" %}</label>
 		</span>
 		<span style="float: right;">
-		<input id="num-rows-per-page" type="text" class="form-control" value="300">
+		<input id="num-rows-per-page" type="text" class="form-control">
 		<label class="unit">rows<label>
 		</span>
 	      <p>
@@ -167,6 +169,7 @@
 
 {% block logic %}
   <script src="{{ STATIC_URL }}js/events_view.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_events_view_config.js"></script>
   <script type="text/javascript">
     userProfile.addOnLoadCb(function() {
       var view = new EventsView(userProfile);

@@ -70,6 +70,7 @@ var EventsView = function(userProfile, options) {
 
   self.pager = new HatoholEventPager();
   self.userConfig = new HatoholUserConfig();
+  self.configDialog = new HatoholEventsViewConfig();
   start();
 
   //
@@ -330,9 +331,6 @@ var EventsView = function(userProfile, options) {
     $('button.latest-button').click(function() {
       load();
     });
-
-    // TODO: will be moved to hatoho_events_view_config.js
-    $( "#auto-reload-interval-slider" ).slider();
   }
 
   function formatDateTimeWithZeroSecond(d) {
