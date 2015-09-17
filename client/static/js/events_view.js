@@ -54,19 +54,6 @@ var EventsView = function(userProfile, options) {
     "description,status,severity,duration," +
     "incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio";
 
-  self.columnsConfig = defaultColumns;
-  self.columnNames = self.columnsConfig.split(",");
-
-  // call the constructor of the super class
-  HatoholMonitoringView.apply(this, [userProfile]);
-
-  self.pager = new HatoholEventPager();
-  self.userConfig = new HatoholEventsViewConfig();
-  start();
-
-  //
-  // Private functions
-  //
   var columnDefinitions = {
     "monitoringServerName": {
       header: gettext("Monitoring Server"),
@@ -119,6 +106,21 @@ var EventsView = function(userProfile, options) {
     },
   };
 
+  self.columnsConfig = defaultColumns;
+  self.columnNames = self.columnsConfig.split(",");
+
+  // call the constructor of the super class
+  HatoholMonitoringView.apply(this, [userProfile]);
+
+  self.pager = new HatoholEventPager();
+  self.userConfig = new HatoholEventsViewConfig({
+    columnDefinitions: columnDefinitions,
+  });
+  start();
+
+  //
+  // Private functions
+  //
   function start() {
     self.userConfig.get({
       itemNames: [

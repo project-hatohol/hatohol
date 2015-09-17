@@ -21,6 +21,7 @@ var HatoholEventsViewConfig = function(options) {
   var self = this;
   var minAutoReloadInterval = 5;
   var maxAutoReloadInterval = 600;
+  var key;
 
   HatoholUserConfig.apply(this, options);
   self.config = self.getDefaultConfig();
@@ -51,6 +52,16 @@ var HatoholEventsViewConfig = function(options) {
     }
 
     $("#auto-reload-interval-slider").slider("value", value);
+  });
+
+  for (key in options.columnDefinitions) {
+    $("<option/>", {
+      text: options.columnDefinitions[key].header,
+      value: key,
+    }).appendTo("#colselector");
+  }
+  $('#colselector').multiselect({
+    sort: false,
   });
 
   $("#config-save").click(function() {
