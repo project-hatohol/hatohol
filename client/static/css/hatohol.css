@@ -77,6 +77,22 @@ div.dialog {
     width: 100%;
 }
 
+#events-view-config .tab-content {
+    padding: 16px 4px 16px 4px;
+}
+
+#events-view-config input[type="text"] {
+    width:4em;
+    display: inline-block;
+}
+
+#auto-reload-internal-slider {
+    width: 300px;
+    margin-left: 8px;
+    margin-right:8px;
+    display: inline-block;
+}
+
 /* no scirpt */
 div#noscript-background
 {

@@ -330,6 +330,9 @@ var EventsView = function(userProfile, options) {
     $('button.latest-button').click(function() {
       load();
     });
+
+    // TODO: will be moved to hatoho_events_view_config.js
+    $( "#auto-reload-interval-slider" ).slider();
   }
 
   function formatDateTimeWithZeroSecond(d) {

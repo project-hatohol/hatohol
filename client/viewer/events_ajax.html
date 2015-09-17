@@ -117,7 +117,18 @@
 	  </ul>
 	  <div class="tab-content">
 	    <div class="tab-pane fade in active" id="view-config">
-	      <p>View Config</p>
+	      <p><label for="auto-reload-interval">{% trans "Auto reload interval (5 - 600 sec)" %}</label><p>
+	      <p>
+		<div id="auto-reload-interval-slider" style="width: 300px; margin-left: 8px; margin-right:8px; display: inline-block;"></div>
+		<input id="auto-reload-interval" type="text" class="form-control" value="300"> <label>{% trans "seconds" %}</label>
+	      <p>
+	      <hr>
+	      <p>
+		<label for="num-rows-per-page">{% trans "Number of rows per page" %}</label>
+		<input id="num-rows-per-page" type="text" class="form-control" value="300">
+		<label>rows<label>
+	      <p>
+	      <hr>
 	    </div>
 	    <div class="tab-pane fade" id="filter-config">
 	      <p>Filter Config</p>
