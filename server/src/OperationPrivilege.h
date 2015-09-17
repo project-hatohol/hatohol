@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013,2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -64,6 +64,10 @@ enum OperationPrivilegeType
 	OPPRVLG_UPDATE_INCIDENT_SETTING,  // can update IncidentTracker & IncidentSender
 	OPPRVLG_DELETE_INCIDENT_SETTING,  // can delete IncidentTracker & IncidentSender
 	OPPRVLG_GET_ALL_INCIDENT_SETTINGS,// can get all IncidentTracker & IncidentSender
+
+	// Othrer
+	OPPRVLG_GET_SYSTEM_INFO,
+	OPPRVLG_SYSTEM_OPERATION,
 
 	NUM_OPPRVLG,
 };

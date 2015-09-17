@@ -294,6 +294,13 @@ public:
 	bool getIncidentTrackerInfo(const IncidentTrackerIdType &trackerId,
                                     IncidentTrackerInfo &trackerInfo);
 
+
+	struct SystemInfo {
+		DBTablesMonitoring::SystemInfo monitoring;
+	};
+	void getSystemInfo(SystemInfo &systemInfo,
+	                   const DataQueryOption &option);
+
 protected:
 	void fetchItems(const ServerIdType &targetServerId = ALL_SERVERS);
 

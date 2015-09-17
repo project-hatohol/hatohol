@@ -287,7 +287,8 @@ public:
 		  eventsCounterPrevSlots[NUM_EVENTS_COUNTERS],
 		  eventsCounterCurrSlots[NUM_EVENTS_COUNTERS];
 	};
-	static void getSystemInfo(SystemInfo &info);
+	static HatoholError getSystemInfo(SystemInfo &info,
+	                                  const DataQueryOption &option);
 
 protected:
 	static SetupInfo &getSetupInfo(void);

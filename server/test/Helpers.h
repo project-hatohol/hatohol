@@ -220,6 +220,7 @@ void releaseDefaultContext(void);
 UserIdType searchMaxTestUserId(void);
 UserIdType findUserWith(const OperationPrivilegeType &type,
                         const OperationPrivilegeFlag &excludeFlags = 0);
+UserIdType findUserWith(const OperationPrivilegeFlag &privFlag);
 UserIdType findUserWithout(const OperationPrivilegeType &type);
 void initActionDef(ActionDef &actionDef);
 std::string getSyslogTail(size_t numLines);

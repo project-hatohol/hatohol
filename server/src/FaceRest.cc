@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -43,6 +43,7 @@
 #include "HatoholArmPluginInterface.h"
 #include "HatoholArmPluginGate.h"
 #endif
+#include "RestResourceSystem.h"
 #include "RestResourceAction.h"
 #include "RestResourceHost.h"
 #include "RestResourceIncidentTracker.h"
@@ -398,6 +399,7 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	m_impl->addHandler(
 	  pathForLogout,
 	  new RestResourceStaticHandlerFactory(this, handlerLogout));
+	RestResourceSystem::registerFactories(this);
 	RestResourceUser::registerFactories(this);
 	RestResourceServer::registerFactories(this);
 	RestResourceHost::registerFactories(this);

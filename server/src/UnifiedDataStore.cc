@@ -919,6 +919,12 @@ DataStorePtr UnifiedDataStore::getDataStore(const ServerIdType &serverId)
 	return m_impl->getDataStore(serverId);
 }
 
+void UnifiedDataStore::getSystemInfo(
+  SystemInfo &systemInfo, const DataQueryOption &option)
+{
+	DBTablesMonitoring::getSystemInfo(systemInfo.monitoring, option);
+}
+
 bool UnifiedDataStore::getIncidentTrackerInfo(const IncidentTrackerIdType &trackerId,
 					      IncidentTrackerInfo &trackerInfo)
 {

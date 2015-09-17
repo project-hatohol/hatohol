@@ -210,6 +210,11 @@ def server_conn_stat(url, args):
     return {"url": url, "postproc": open_url_and_show_response}
 
 
+def system_info(url, args):
+    url = url + "/system-info"
+    return {"url": url, "postproc": open_url_and_show_response}
+
+
 command_map = {
     "test": do_test,
     "login": login,
@@ -226,6 +231,7 @@ command_map = {
     "add-user": add_user,
     "del-user": del_user,
     "server-conn-stat": server_conn_stat,
+    "system-info": system_info,
 }
 
 
@@ -295,6 +301,9 @@ def main(arg_list=None, exec_postproc=True):
 
     # server-conn-stat
     sub_svconnstat = subparsers.add_parser("server-conn-stat")
+
+    # system-info
+    sub_system_info = subparsers.add_parser("system-info")
 
     args = parser.parse_args(arg_list)
     cmd_ctx = command_map[args.sub_command](args.server_url, args)

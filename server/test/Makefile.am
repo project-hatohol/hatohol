@@ -65,7 +65,8 @@ testHatohol_la_SOURCES = \
 	testOperationPrivilege.cc \
 	testSQLUtils.cc \
 	testMySQLWorkerZabbix.cc \
-	testFaceRest.cc testFaceRestAction.cc testFaceRestHost.cc \
+	testFaceRest.cc \
+	testFaceRestSystem.cc testFaceRestAction.cc testFaceRestHost.cc \
 	testFaceRestServer.cc testFaceRestUser.cc testFaceRestNoInit.cc \
 	testFaceRestIncidentTracker.cc testSessionManager.cc \
 	testIncidentSenderRedmine.cc \
