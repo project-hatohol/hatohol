@@ -120,13 +120,20 @@
 	      <p><label for="auto-reload-interval">{% trans "Auto reload interval (5 - 600 sec)" %}</label><p>
 	      <p>
 		<div id="auto-reload-interval-slider"></div>
-		<input id="auto-reload-interval" type="text" class="form-control" value="300"> <label>{% trans "seconds" %}</label>
+		<span style="float: right;">
+		<input id="auto-reload-interval" type="text" class="form-control" value="300">
+		<label class="unit">{% trans "seconds" %}</label>
+		</span>
 	      <p>
 	      <hr>
 	      <p>
+		<span>
 		<label for="num-rows-per-page">{% trans "Number of rows per page" %}</label>
+		</span>
+		<span style="float: right;">
 		<input id="num-rows-per-page" type="text" class="form-control" value="300">
-		<label>rows<label>
+		<label class="unit">rows<label>
+		</span>
 	      <p>
 	      <hr>
 	    </div>
