@@ -58,6 +58,8 @@ nobase_dist_hatohol_client_DATA = \
 	static/js.external/jquery.flot.selection.js \
 	static/js.external/jquery-deparam.js \
 	static/js.external/jquery-deparam.min.js \
+	static/js.external/multiselect.js \
+	static/js.external/multiselect.min.js \
 	static/js.external/bootstrap.js \
 	static/js.external/bootstrap.min.js \
 	static/js.plugins/hap1-ceilometer.js \
