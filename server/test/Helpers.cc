@@ -193,7 +193,35 @@ extern void _assertEqualJSONString(const string &expect, const string &actual)
 	JSONParser actualParser(actual);
 
 	map<JSONParser::ValueType, function<void(const string &)>> assertMap;
-	assertMap[JSONParser::VALUE_TYPE_NULL] = [&](const string &name){};
+	function<void()> assertObject = [&]() {
+		set<string> expectMembers;
+		set<string> actualMembers;
+		expectParser.getMemberNames(expectMembers);
+		expectParser.getMemberNames(actualMembers);
+		assertEqual(expectMembers, actualMembers);
+		for (auto name : expectMembers) {
+			auto expectType = expectParser.getValueType(name);
+			auto actualType = actualParser.getValueType(name);
+			cppcut_assert_equal(expectType, actualType);
+			auto assertionFuncItr = assertMap.find(expectType);
+			if (assertionFuncItr == assertMap.end()) {
+				cut_fail("Unknown type: %d (%s)",
+				         expectType, name.c_str());
+			}
+			(assertionFuncItr->second)(name);
+		}
+	};
+
+	auto startBothObjects = [&](const string &name) {
+		expectParser.startObject(name);
+		actualParser.startObject(name);
+	};
+	auto endBothObjects = [&]() {
+		expectParser.endObject();
+		actualParser.endObject();
+	};
+	assertMap[JSONParser::VALUE_TYPE_NULL] = [&](const string &name){
+	};
 	assertMap[JSONParser::VALUE_TYPE_BOOLEAN] = [&](const string &name) {
 		assertJSONParser<bool>(expectParser, actualParser, name);
 	};
@@ -206,41 +234,25 @@ extern void _assertEqualJSONString(const string &expect, const string &actual)
 	assertMap[JSONParser::VALUE_TYPE_STRING] = [&](const string &name) {
 		assertJSONParser<string>(expectParser, actualParser, name);
 	};
-
-	function<void()> assertObject = [&]() {
-		set<string> expectMembers;
-		set<string> actualMembers;
-		expectParser.getMemberNames(expectMembers);
-		expectParser.getMemberNames(actualMembers);
-		assertEqual(expectMembers, actualMembers);
-		for (auto name : expectMembers) {
-			printf("******** name: %s\n", name.c_str());
-			auto expectType = expectParser.getValueType(name);
-			auto actualType = actualParser.getValueType(name);
-			cppcut_assert_equal(expectType, actualType);
-			auto assertionFuncItr = assertMap.find(expectType);
-			printf("A1\n");
-			if (assertionFuncItr != assertMap.end()) {
-				printf("A2\n");
-				auto assertionFunc = assertionFuncItr->second;
-				assertionFunc(name);
-				continue;
-			}
-			printf("A3\n");
-			if (expectType == JSONParser::VALUE_TYPE_OBJECT) {
-				expectParser.startObject(name);
-				actualParser.startObject(name);
-				assertObject();
-				expectParser.endObject();
-				actualParser.endObject();
-			} else if (expectType == JSONParser::VALUE_TYPE_ARRAY) {
-				cut_fail("Array comapriasion: Not implemented");
-			} else {
-				cut_fail("Unknown type: %d (%s)",
-				         expectType, name.c_str());
-			}
-		}
+	assertMap[JSONParser::VALUE_TYPE_OBJECT] = [&](const string &name) {
+		startBothObjects(name);
+		assertObject();
+		endBothObjects();
 	};
+	assertMap[JSONParser::VALUE_TYPE_ARRAY] = [&](const string &name) {
+		startBothObjects(name);
+		const unsigned int size = expectParser.countElements();
+		cppcut_assert_equal(size, actualParser.countElements());
+		for (unsigned int i = 0; i < size; i++) {
+			expectParser.startElement(i);
+			actualParser.startElement(i);
+			assertObject();
+			expectParser.endElement();
+			actualParser.endElement();
+		}
+		endBothObjects();
+	};
+
 	assertObject();
 }
 
