@@ -73,6 +73,10 @@ div.dialog {
   margin-top: 8px;
 }
 
+#events-view-config ul.nav-tabs {
+    width: 100%;
+}
+
 /* no scirpt */
 div#noscript-background
 {
