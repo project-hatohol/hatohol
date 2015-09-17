@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013,2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -210,6 +210,23 @@ JSONParser::ValueType JSONParser::getValueType(const std::string &member)
 
 	endObject();
 	return type;
+}
+
+bool JSONParser::getMemberNames(set<string> &members) const
+{
+	struct {
+		static void func(gpointer data, gpointer priv) {
+			set<string> *members = static_cast<set<string> *>(priv);
+			const gchar *name = static_cast<const gchar *>(data);
+			members->insert(name);
+		}
+	} s;
+
+	JsonObject *obj = json_node_get_object(m_impl->currentNode);
+	GList *memberList = json_object_get_members(obj);
+	g_list_foreach(memberList, s.func, &members);
+	g_list_free(memberList);
+	return true;
 }
 
 bool JSONParser::startObject(const string &member)

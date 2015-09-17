@@ -270,4 +270,15 @@ void test_valueType(gconstpointer data)
 	    gcut_data_get_int(data, "expected"));
 	cppcut_assert_equal(expected, parser.getValueType("value"));
 }
+
+void test_getMemberNames(void)
+{
+	JSONParser parser("{\"foo\":1, \"dog\":\"cat\", \"book\":[1,2,3]}");
+	set<string> names;
+	parser.getMemberNames(names);
+
+	const set<string> expect = {"foo", "dog", "book"};
+	assertEqual(expect, names);
+}
+
 } //namespace testJSONParser

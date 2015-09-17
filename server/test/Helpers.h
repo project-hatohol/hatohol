@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -85,6 +85,8 @@ extern void _assertItemTable(
   const ItemTablePtr &expect, const ItemTablePtr &actual);
 #define assertItemTable(E,A) cut_trace(_assertItemTable(E,A))
 
+extern void _assertEqual(const std::set<std::string> &expect,
+                         const std::set<std::string> &actual);
 extern void _assertEqual(
   const MonitoringServerInfo &expect, const MonitoringServerInfo &actual);
 extern void _assertEqual(const ArmInfo &expect, const ArmInfo &actual);

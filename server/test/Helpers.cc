@@ -101,6 +101,17 @@ void _assertItemTable(const ItemTablePtr &expect, const ItemTablePtr &actual)
 }
 
 // TODO: We should prepare '== operator' and cppcut_assert_equal() ?
+void _assertEqual(const set<string> &expect, const set<string> &actual)
+{
+	cppcut_assert_equal(expect.size(), actual.size());
+	for (auto val : expect) {
+		cppcut_assert_equal(
+		  true, actual.find(val) != actual.end(),
+		  cut_message("Not found: %s", val.c_str()));
+	}
+	cppcut_assert_equal(expect.size(), actual.size());
+}
+
 void _assertEqual(
   const MonitoringServerInfo &expect, const MonitoringServerInfo &actual)
 {

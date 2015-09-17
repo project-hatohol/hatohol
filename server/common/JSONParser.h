@@ -68,6 +68,7 @@ public:
 	bool read(int index, std::string &dest);
 	bool isMember(const std::string &member);
 	ValueType getValueType(const std::string &member);
+	bool getMemberNames(std::set<std::string> &members) const;
 
 	/**
 	 * checks whether the element is Null.
