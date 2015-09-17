@@ -833,7 +833,6 @@ void test_eventsWithHostsFilter(void)
 			"}],"
 			"\"numberOfEvents\":1,");
 	expected += getExpectedServers() + "}";
-	printf("arg.response: %s\n", arg.response.c_str());
 	assertEqualJSONString(expected, arg.response);
 }
 
@@ -901,7 +900,7 @@ void test_eventsWithSeveritiesFilter(void)
 	  "\"numberOfEvents\":3,");
 
 	expected += getExpectedServers() + "}";
-	cppcut_assert_equal(expected, arg.response);
+	assertEqualJSONString(expected, arg.response);
 }
 void test_eventsWithStatusesFilter(void)
 {
@@ -952,7 +951,7 @@ void test_eventsWithStatusesFilter(void)
 	  "\"numberOfEvents\":2,");
 
 	expected += getExpectedServers() + "}";
-	cppcut_assert_equal(expected, arg.response);
+	assertEqualJSONString(expected, arg.response);
 }
 
 static void incidentInfo2StringMap(
