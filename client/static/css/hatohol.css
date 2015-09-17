@@ -86,7 +86,7 @@ div.dialog {
     display: inline-block;
 }
 
-#auto-reload-internal-slider {
+#auto-reload-interval-slider {
     width: 300px;
     margin-left: 8px;
     margin-right:8px;
