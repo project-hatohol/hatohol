@@ -833,7 +833,8 @@ void test_eventsWithHostsFilter(void)
 			"}],"
 			"\"numberOfEvents\":1,");
 	expected += getExpectedServers() + "}";
-	cppcut_assert_equal(expected, arg.response);
+	printf("arg.response: %s\n", arg.response.c_str());
+	assertEqualJSONString(expected, arg.response);
 }
 
 void test_eventsWithSeveritiesFilter(void)

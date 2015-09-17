@@ -176,6 +176,74 @@ void _assertEqual(const TriggerInfo &expect, const TriggerInfo &actual)
 	cppcut_assert_equal(TRIGGER_VALID,       actual.validity);
 }
 
+template <typename T>
+void assertJSONParser(JSONParser &expectParser, JSONParser &actualParser,
+                      const string &member)
+{
+	T actual;
+	T expect;
+	cppcut_assert_equal(true, expectParser.read(member, expect));
+	cppcut_assert_equal(true, actualParser.read(member, actual));
+	cppcut_assert_equal(expect, actual);
+}
+
+extern void _assertEqualJSONString(const string &expect, const string &actual)
+{
+	JSONParser expectParser(expect);
+	JSONParser actualParser(actual);
+
+	map<JSONParser::ValueType, function<void(const string &)>> assertMap;
+	assertMap[JSONParser::VALUE_TYPE_NULL] = [&](const string &name){};
+	assertMap[JSONParser::VALUE_TYPE_BOOLEAN] = [&](const string &name) {
+		assertJSONParser<bool>(expectParser, actualParser, name);
+	};
+	assertMap[JSONParser::VALUE_TYPE_INT64] = [&](const string &name) {
+		assertJSONParser<int64_t>(expectParser, actualParser, name);
+	};
+	assertMap[JSONParser::VALUE_TYPE_DOUBLE] = [&](const string &name) {
+		assertJSONParser<double>(expectParser, actualParser, name);
+	};
+	assertMap[JSONParser::VALUE_TYPE_STRING] = [&](const string &name) {
+		assertJSONParser<string>(expectParser, actualParser, name);
+	};
+
+	function<void()> assertObject = [&]() {
+		set<string> expectMembers;
+		set<string> actualMembers;
+		expectParser.getMemberNames(expectMembers);
+		expectParser.getMemberNames(actualMembers);
+		assertEqual(expectMembers, actualMembers);
+		for (auto name : expectMembers) {
+			printf("******** name: %s\n", name.c_str());
+			auto expectType = expectParser.getValueType(name);
+			auto actualType = actualParser.getValueType(name);
+			cppcut_assert_equal(expectType, actualType);
+			auto assertionFuncItr = assertMap.find(expectType);
+			printf("A1\n");
+			if (assertionFuncItr != assertMap.end()) {
+				printf("A2\n");
+				auto assertionFunc = assertionFuncItr->second;
+				assertionFunc(name);
+				continue;
+			}
+			printf("A3\n");
+			if (expectType == JSONParser::VALUE_TYPE_OBJECT) {
+				expectParser.startObject(name);
+				actualParser.startObject(name);
+				assertObject();
+				expectParser.endObject();
+				actualParser.endObject();
+			} else if (expectType == JSONParser::VALUE_TYPE_ARRAY) {
+				cut_fail("Array comapriasion: Not implemented");
+			} else {
+				cut_fail("Unknown type: %d (%s)",
+				         expectType, name.c_str());
+			}
+		}
+	};
+	assertObject();
+}
+
 struct SpawnSyncContext {
 	bool running;
 	bool hasError;

@@ -94,6 +94,10 @@ extern void _assertEqual(const ItemInfo &expect, const ItemInfo &actual);
 extern void _assertEqual(const TriggerInfo &expect, const TriggerInfo &actual);
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
+extern void _assertEqualJSONString(
+  const std::string &expect, const std::string &actual);
+#define assertEqualJSONString(E,A) cut_trace(_assertEqualJSONString(E,A))
+
 std::string executeCommand(const std::string &commandLine);
 std::string getBaseDir(void);
 std::string getFixturesDir(void);
