@@ -91,7 +91,7 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
       self.showXHRError(XMLHttpRequest);
     },
   });
-}
+};
 
 HatoholEventsViewConfig.prototype.saveAll = function() {
   var self = this;
@@ -108,15 +108,15 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
       self.showXHRError(XMLHttpRequest);
     },
   });
-}
+};
 
 HatoholEventsViewConfig.prototype.reset = function() {
   var self = this;
-  var autoReloadInterval = self.config['events.auto-reload.interval']
+  var autoReloadInterval = self.config['events.auto-reload.interval'];
   $("#auto-reload-interval-slider").slider("value", autoReloadInterval);
   $("#auto-reload-interval").val(autoReloadInterval);
   $("#num-rows-per-page").val(self.config['events.num-rows-per-page']);
-}
+};
 
 HatoholEventsViewConfig.prototype.getDefaultConfig = function() {
   return {
@@ -128,10 +128,10 @@ HatoholEventsViewConfig.prototype.getDefaultConfig = function() {
     'events.sort.type': "time",
     'events.sort.order': hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
   };
-}
+};
 
 HatoholEventsViewConfig.prototype.showXHRError = function (XMLHttpRequest) {
   var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
     XMLHttpRequest.statusText;
   hatoholErrorMsgBox(errorMsg);
-}
+};
