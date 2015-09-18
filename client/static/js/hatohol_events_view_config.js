@@ -24,6 +24,7 @@ var HatoholEventsViewConfig = function(options) {
   var key;
 
   HatoholUserConfig.apply(this, options);
+  self.options = options;
   self.config = self.getDefaultConfig();
 
   $('#events-view-config').on('hidden.bs.modal', function (event) {
@@ -118,9 +119,20 @@ HatoholEventsViewConfig.prototype.getValue = function(key) {
 HatoholEventsViewConfig.prototype.reset = function() {
   var self = this;
   var autoReloadInterval = self.getValue('events.auto-reload.interval');
+  var key;
+
   $("#auto-reload-interval-slider").slider("value", autoReloadInterval);
   $("#auto-reload-interval").val(autoReloadInterval);
   $("#num-rows-per-page").val(self.getValue('events.num-rows-per-page'));
+
+  $("#colselector").empty();
+  $("#colselector_to").empty();
+  for (key in self.options.columnDefinitions) {
+    $("<option/>", {
+      text: self.options.columnDefinitions[key].header,
+      value: key,
+    }).appendTo("#colselector");
+  }
 };
 
 HatoholEventsViewConfig.prototype.getDefaultConfig = function() {
