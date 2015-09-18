@@ -90,7 +90,7 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
       self.showXHRError(XMLHttpRequest);
     },
-  })
+  });
 }
 
 HatoholEventsViewConfig.prototype.saveAll = function() {
@@ -98,7 +98,7 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
   $.extend(self.config, {
     'events.auto-reload.interval': $("#auto-reload-interval").val(),
     'events.num-rows-per-page': $("#num-rows-per-page").val(),
-  })
+  });
   self.store({
     items: self.config,
     successCallback: function(reply) {
@@ -127,7 +127,7 @@ HatoholEventsViewConfig.prototype.getDefaultConfig = function() {
       "monitoringServerName,hostName,description",
     'events.sort.type': "time",
     'events.sort.order': hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
-  }
+  };
 }
 
 HatoholEventsViewConfig.prototype.showXHRError = function (XMLHttpRequest) {
