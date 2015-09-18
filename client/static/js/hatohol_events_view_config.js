@@ -59,10 +59,11 @@ var HatoholEventsViewConfig = function(options) {
     $("<option/>", {
       text: options.columnDefinitions[key].header,
       value: key,
-    }).appendTo("#colselector");
+    }).appendTo("#column-selector");
   }
-  $('#colselector').multiselect({
+  $('#column-selector').multiselect({
     sort: false,
+    right: "#column-selector-right",
   });
 
   $("#config-save").click(function() {
@@ -125,13 +126,13 @@ HatoholEventsViewConfig.prototype.reset = function() {
   $("#auto-reload-interval").val(autoReloadInterval);
   $("#num-rows-per-page").val(self.getValue('events.num-rows-per-page'));
 
-  $("#colselector").empty();
-  $("#colselector_to").empty();
+  $("#column-selector").empty();
+  $("#column-selector_to").empty();
   for (key in self.options.columnDefinitions) {
     $("<option/>", {
       text: self.options.columnDefinitions[key].header,
       value: key,
-    }).appendTo("#colselector");
+    }).appendTo("#column-selector");
   }
 };
 
