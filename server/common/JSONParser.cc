@@ -214,17 +214,15 @@ JSONParser::ValueType JSONParser::getValueType(const std::string &member)
 
 bool JSONParser::getMemberNames(set<string> &members) const
 {
-	struct {
-		static void func(gpointer data, gpointer priv) {
-			set<string> *members = static_cast<set<string> *>(priv);
-			const gchar *name = static_cast<const gchar *>(data);
-			members->insert(name);
-		}
-	} s;
+	auto memberCollector = [] (gpointer data, gpointer priv) {
+		const gchar *name = static_cast<const gchar *>(data);
+		set<string> *members = static_cast<set<string> *>(priv);
+		members->insert(name);
+	};
 
 	JsonObject *obj = json_node_get_object(m_impl->currentNode);
 	GList *memberList = json_object_get_members(obj);
-	g_list_foreach(memberList, s.func, &members);
+	g_list_foreach(memberList, memberCollector, &members);
 	g_list_free(memberList);
 	return true;
 }
