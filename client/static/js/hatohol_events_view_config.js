@@ -110,12 +110,17 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
   });
 };
 
+HatoholEventsViewConfig.prototype.getValue = function(key) {
+    var defaultConfig = this.getDefaultConfig();
+    return this.findOrDefault(this.config, key, defaultConfig[key]);
+};
+
 HatoholEventsViewConfig.prototype.reset = function() {
   var self = this;
-  var autoReloadInterval = self.config['events.auto-reload.interval'];
+  var autoReloadInterval = self.getValue('events.auto-reload.interval');
   $("#auto-reload-interval-slider").slider("value", autoReloadInterval);
   $("#auto-reload-interval").val(autoReloadInterval);
-  $("#num-rows-per-page").val(self.config['events.num-rows-per-page']);
+  $("#num-rows-per-page").val(self.getValue('events.num-rows-per-page'));
 };
 
 HatoholEventsViewConfig.prototype.getDefaultConfig = function() {
