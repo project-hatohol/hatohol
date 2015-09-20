@@ -63,7 +63,7 @@ var HatoholEventsViewConfig = function(options) {
   }
   $('#column-selector').multiselect({
     sort: false,
-    right: "#column-selector-right",
+    right: "#column-selector-selected",
   });
 
   $("#config-save").click(function() {
@@ -127,7 +127,7 @@ HatoholEventsViewConfig.prototype.reset = function() {
   $("#num-rows-per-page").val(self.getValue('events.num-rows-per-page'));
 
   $("#column-selector").empty();
-  $("#column-selector_to").empty();
+  $("#column-selector-selected").empty();
   for (key in self.options.columnDefinitions) {
     $("<option/>", {
       text: self.options.columnDefinitions[key].header,
