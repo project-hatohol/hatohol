@@ -5,4 +5,5 @@ build:
         name: Build a CentOS 6.6 Docker Hatohol image box
         code: |
           docker -v
+          echo ${WERCKER_GIT_COMMIT} > wercker/GIT_REVISION
           docker build -t centos66/build-hatohol wercker/
