@@ -371,19 +371,6 @@ var EventsView = function(userProfile, options) {
     return  hostId == "__SELF_MONITOR";
   }
 
-  function generateTimeColumn(serverURL, hostId, triggerId, eventId, clock) {
-    var html = "";
-    if (serverURL.indexOf("zabbix") >= 1 && !isSelfMonitoringHost(hostId)) {
-      html += "<td><a href='" + serverURL + "tr_events.php?&triggerid="
-              + triggerId + "&eventid=" + eventId
-              + "' target='_blank'>" + escapeHTML(formatDate(clock))
-              + "</a></td>";
-    } else {
-      html += "<td>" + formatDate(clock) + "</td>";
-    }
-    return html;
-  }
-
   function generateHostColumn(serverURL, hostId, hostName) {
     var html = "";
     if (serverURL.indexOf("zabbix") >= 0 && !isSelfMonitoringHost(hostId)) {
