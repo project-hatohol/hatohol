@@ -128,69 +128,70 @@ describe('EventsView', function() {
 
   function testTableContents(serverURL, hostURL, dummyServerInfo, params){
     var view = new EventsView(getOperator(), testOptions);
-    var expected;
+    var expected = "";
 
-    if (serverURL) {
-      expected =
-        '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>';
-    } else {
-      expected = '<td>Server</td>';
-    }
+    expected += '<td class="status1">Problem</td>';
+    expected += '<td class="severity1">Information</td>';
 
     if (params) {
       expected += '<td><a href="' + escapeHTML(params.eventURL) +
                   '" target="_blank">' + escapeHTML(formatDate(1415749496)) +
                   '</a></td>';
     } else {
-      expected += '<td data-sort-value="1415749496">' +
+      expected += '<td>' +
                   formatDate(1415749496) + '</td>';
     }
 
-    if (hostURL) {
-      expected =
-	'<td><a href="' + escapeHTML(hostURL) + '" target="_blank">Host</a></td>';
+    if (serverURL) {
+      expected +=
+        '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>';
     } else {
-      expected = '<td>Host</td>';
+      expected += '<td>Server</td>';
     }
 
-    expected +=
-      '<td>Test discription.</td>' +
-      '<td class="status1" data-sort-value="1">Problem</td>' +
-      '<td class="severity1" data-sort-value="1">Information</td>';
+    if (hostURL) {
+      expected +=
+	'<td><a href="' + escapeHTML(hostURL) + '" target="_blank">Host</a></td>';
+    } else {
+      expected += '<td>Host</td>';
+    }
+
+    expected += '<td>Test discription.</td>';
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(dummyEventInfo.length + 1);
     expect($('tr :eq(1)').html()).to.contain(expected);
-    expect($('td :eq(6)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
+    expect($('td :eq(2)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
   }
 
   function testTableContentsWithExpandedDescription(serverURL, hostURL,
                                                     dummyServerInfo, params)
   {
     var view = new EventsView(getOperator(), testOptions);
-    var expected =
-      '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>';
+    var expected = "";
+
+    expected += '<td class="status1">Problem</td>';
+    expected += '<td class="severity1">Information</td>';
     if (params) {
       expected += '<td><a href="' + escapeHTML(params.eventURL) +
                   '" target="_blank">' + escapeHTML(formatDate(1415759496)) +
                   '</a></td>';
     } else {
-      expected += '<td data-sort-value="1415759496">' +
+      expected += '<td>' +
                   formatDate(1415759496) +
                   '</td>';
     }
+    expected += '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>';
     expected += '<td><a href="' + escapeHTML(hostURL) +
-                '" target="_blank">Host2</a></td>' +
-                '<td>Expanded test description 2.</td>' +
-                '<td class="status1" data-sort-value="1">Problem</td>' +
-                '<td class="severity1" data-sort-value="1">Information</td>';
+                '" target="_blank">Host2</a></td>';
+    expected += '<td>Expanded test description 2.</td>';
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(dummyEventInfo.length + 1);
     expect($('tr :eq(2)').html()).to.contain(expected);
-    expect($('td :eq(6)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
+    expect($('td :eq(2)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
   }
 
   beforeEach(function(done) {
@@ -238,7 +239,6 @@ describe('EventsView', function() {
     //TODO: It requires valid gettext()
     //expect(heads.first().text()).to.be(gettext("event"));
     expect($('#table')).to.have.length(1);
-    expect($('#num-records-per-page').val()).to.be("50");
   });
 
   it('new with fake zabbix data', function() {
@@ -260,14 +260,12 @@ describe('EventsView', function() {
                                              getDummyServerInfo(0), params);
   });
 
-  it('new with fake nagios data', function() {
-    // issue #839
-    //var nagiosURL = "http://192.168.1.100/nagios/";
-    //var nagiosStatusURL =
-    //  "http://192.168.1.100/nagios/cgi-bin/status.cgi?host=Host";
+  it('new with nagios data without baseURL', function() {
     var nagiosURL = undefined;
     var nagiosStatusURL = undefined;
-    testTableContents(nagiosURL, nagiosStatusURL, getDummyServerInfo(1));
+    var serverInfo = getDummyServerInfo(1);
+    serverInfo["1"]["baseURL"] = undefined;
+    testTableContents(nagiosURL, nagiosStatusURL, serverInfo);
   });
 
   it('new with nagios data included baseURL', function() {
@@ -284,14 +282,14 @@ describe('EventsView', function() {
     var eventURL =
       "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=12332";
     var expected =
-      '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>' +
+      '<td class="status0">OK</td>' +
+      '<td class="severity">Information</td>' +
       '<td><a href="' + escapeHTML(eventURL) +
       '" target="_blank">' + escapeHTML(formatDate(1415749496)) +
       '</a></td>' +
+      '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>' +
       '<td><a href="' + escapeHTML(hostURL) + '" target="_blank">Host</a></td>' +
-      '<td>Test discription.</td>' +
-      '<td class="status0" data-sort-value="0">OK</td>' +
-      '<td class="severity" data-sort-value="1">Information</td>';
+      '<td>Test discription.</td>';
     var events = [
       $.extend({}, dummyEventInfo[0], { type: hatohol.EVENT_TYPE_GOOD })
     ];
@@ -305,16 +303,16 @@ describe('EventsView', function() {
     var view = new EventsView(getOperator(), testOptions);
     respond(eventsJson(dummyEventInfo, getDummyServerInfo(0)));
     expect($('tr :eq(0)').text()).to.be(
-      "Monitoring ServerTimeHostBriefStatusSeverityDuration");
+      "StatusSeverityTimeMonitoring ServerHostBrief");
     expect($('tr :eq(1)').text()).to.be(
-      "Server" + getEventTimeString(dummyEventInfo[0]) +
-      "HostTest discription.ProblemInformation02:46:40");
+      "ProblemInformation" + getEventTimeString(dummyEventInfo[0]) +
+      "ServerHostTest discription.");
   });
 
   it('Customize columns', function() {
     var view = new EventsView(getOperator(), testOptions);
     var configJson =
-      '{"event-columns":"duration,severity,status,description,' +
+      '{"events.columns":"duration,severity,status,description,' +
       'hostName,time,monitoringServerName"}';
     respond(eventsJson(dummyEventInfo, getDummyServerInfo(0)),
 	    configJson);
@@ -339,7 +337,7 @@ describe('EventsView', function() {
       })
     ];
     var configJson =
-      '{"event-columns":"eventId,' +
+      '{"events.columns":"eventId,' +
       'incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio"}';
     respond(eventsJson(events, getDummyServerInfo(0)),
 	    configJson);
