@@ -12,7 +12,7 @@ describe('EventsView', function() {
       "status":1,
       "severity":1,
       "hostId":"10105",
-      "brief":"Test discription.",
+      "brief":"Test description.",
     },
     {
       "unifiedId":43,
@@ -24,7 +24,7 @@ describe('EventsView', function() {
       "status":1,
       "severity":1,
       "hostId":"10106",
-      "brief":"Test discription 2.",
+      "brief":"Test description 2.",
       "extendedInfo":"{\"expandedDescription\": \"Expanded test description 2.\"}",
     },
   ];
@@ -156,7 +156,7 @@ describe('EventsView', function() {
       expected += '<td>Host</td>';
     }
 
-    expected += '<td>Test discription.</td>';
+    expected += '<td>Test description.</td>';
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
@@ -289,7 +289,7 @@ describe('EventsView', function() {
       '</a></td>' +
       '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>' +
       '<td><a href="' + escapeHTML(hostURL) + '" target="_blank">Host</a></td>' +
-      '<td>Test discription.</td>';
+      '<td>Test description.</td>';
     var events = [
       $.extend({}, dummyEventInfo[0], { type: hatohol.EVENT_TYPE_GOOD })
     ];
@@ -306,7 +306,7 @@ describe('EventsView', function() {
       "StatusSeverityTimeMonitoring ServerHostBrief");
     expect($('tr :eq(1)').text()).to.be(
       "ProblemInformation" + getEventTimeString(dummyEventInfo[0]) +
-      "ServerHostTest discription.");
+      "ServerHostTest description.");
   });
 
   it('Customize columns', function() {
@@ -319,7 +319,7 @@ describe('EventsView', function() {
     expect($('tr :eq(0)').text()).to.be(
       "DurationSeverityStatusBriefHostTimeMonitoring Server");
     expect($('tr :eq(1)').text()).to.be(
-      "02:46:40InformationProblemTest discription.Host" +
+      "02:46:40InformationProblemTest description.Host" +
       getEventTimeString(dummyEventInfo[0]) +
       "Server");
   });
