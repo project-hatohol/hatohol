@@ -27,7 +27,7 @@ var HatoholEventsViewConfig = function(options) {
   self.options = options;
   self.config = self.getDefaultConfig();
 
-  $('#events-view-config').on('hidden.bs.modal', function (event) {
+  $('#events-view-config').on('show.bs.modal', function (event) {
     self.reset();
   });
 
