@@ -23,7 +23,7 @@ var HatoholEventsViewConfig = function(options) {
   var maxAutoReloadInterval = 600;
   var key;
 
-  HatoholUserConfig.apply(this, options);
+  HatoholUserConfig.apply(this, [options]);
   self.options = options;
   self.config = self.getDefaultConfig();
 
