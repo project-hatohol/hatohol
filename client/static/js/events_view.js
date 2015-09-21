@@ -625,14 +625,14 @@ var EventsView = function(userProfile, options) {
     var icon;
     var currentOrder = self.baseQuery.sortOrder;
 
-    if (currentOrder == hatohol.DATA_QUERY_OPTION_SORT_ASCENDING) {
-      icon = "down";
-      self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
+    if (currentOrder == hatohol.DATA_QUERY_OPTION_SORT_DESCENDING) {
+      icon = "up";
+      self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_ASCENDING;
       self.userConfig.saveValue('events.sort.order', self.baseQuery.sortOrder);
       self.startConnection(getQuery(self.currentPage), updateCore);
     } else {
-      icon = "up";
-      self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_ASCENDING;
+      icon = "down";
+      self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
       self.userConfig.saveValue('events.sort.order', self.baseQuery.sortOrder);
       self.startConnection(getQuery(self.currentPage), updateCore);
     }
