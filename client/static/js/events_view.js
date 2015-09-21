@@ -445,10 +445,15 @@ var EventsView = function(userProfile, options) {
       var eventId = event["eventId"];
       var clock = event["time"];
 
-      if (serverURL) {
-        html = generateTimeColumn(serverURL, hostId, triggerId, eventId, clock);
+      if (serverURL && serverURL.indexOf("zabbix") >= 1 &&
+	  !isSelfMonitoringHost(hostId)) {
+        html +=
+          "<td><a href='" + serverURL + "tr_events.php?&triggerid=" +
+          triggerId + "&eventid=" + eventId +
+          "' target='_blank'>" + escapeHTML(formatDate(clock)) +
+          "</a></td>";
       } else {
-        html = "<td>" + formatDate(clock) + "</td>";
+        html += "<td>" + formatDate(clock) + "</td>";
       }
 
       return html;
