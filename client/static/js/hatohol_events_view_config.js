@@ -89,6 +89,8 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
     successCallback: function(config) {
       $.extend(self.config, config);
       self.reset();
+      if (self.options.loadedCallback)
+        self.options.loadedCallback(self);
     },
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
       self.showXHRError(XMLHttpRequest);
@@ -109,6 +111,9 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
     items: self.config,
     successCallback: function(reply) {
       $("#events-view-config").modal("hide");
+
+      if (self.options.savedCallback)
+        self.options.savedCallback(self);
     },
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
       self.showXHRError(XMLHttpRequest);

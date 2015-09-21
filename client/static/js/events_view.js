@@ -113,50 +113,41 @@ var EventsView = function(userProfile, options) {
   HatoholMonitoringView.apply(this, [userProfile]);
 
   self.pager = new HatoholEventPager();
-  self.userConfig = new HatoholEventsViewConfig({
-    columnDefinitions: columnDefinitions,
-  });
+  self.userConfig = null;
   start();
+
+  function applyConfig(config) {
+    self.reloadIntervalSeconds = config.getValue('events.auto-reload.interval');
+    self.baseQuery.limit = config.getValue('events.num-rows-per-page');
+    self.baseQuery.sortType = config.getValue('events.sort.type');
+    self.baseQuery.sortOrder = config.getValue('events.sort.order');
+    self.columnNames = config.getValue('events.columns').split(',');
+  }
 
   //
   // Private functions
   //
   function start() {
-    self.userConfig.get({
-      itemNames: [
-        'num-records-per-page',
-        'event-sort-type',
-        'event-sort-order'
-      ],
-      successCallback: function(conf) {
-        self.baseQuery.limit =
-          self.userConfig.findOrDefault(conf, 'num-records-per-page',
-                                        self.baseQuery.limit);
-        self.baseQuery.sortType =
-          self.userConfig.findOrDefault(conf, 'event-sort-type',
-                                        self.baseQuery.sortType);
-        self.baseQuery.sortOrder =
-          self.userConfig.findOrDefault(conf, 'event-sort-order',
-                                        self.baseQuery.sortOrder);
-        self.columnsConfig =
-          self.userConfig.findOrDefault(conf, 'event-columns',
-                                        defaultColumns);
-        self.columnNames = self.columnsConfig.split(",");
+    self.userConfig = new HatoholEventsViewConfig({
+      columnDefinitions: columnDefinitions,
+	loadedCallback: function(config) {
+	  applyConfig(config);
 
-        updatePager();
-        setupFilterValues();
-        setupCallbacks();
+	  updatePager();
+	  setupFilterValues();
+	  setupCallbacks();
 
-        var direction =
-          (self.baseQuery.sortOrder == hatohol.DATA_QUERY_OPTION_SORT_ASCENDING) ? "asc" : "desc";
-        var thTime = $("#table").find("thead th").eq(1);
-        thTime.stupidsort(direction);
+	  var direction =
+            (self.baseQuery.sortOrder == hatohol.DATA_QUERY_OPTION_SORT_ASCENDING) ? "asc" : "desc";
+	  var thTime = $("#table").find("thead th").eq(1);
+	  thTime.stupidsort(direction);
 
-        load();
-      },
-      connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
-        showXHRError(XMLHttpRequest);
-      },
+	  load();
+	},
+	savedCallback: function(config) {
+	  applyConfig(config);
+	  load();
+	},
     });
   }
 
@@ -178,10 +169,8 @@ var EventsView = function(userProfile, options) {
       numRecords: self.rawData ? self.rawData["numberOfEvents"] : -1,
       numRecordsPerPage: self.baseQuery.limit,
       selectPageCallback: function(page) {
-        if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
+        if (self.pager.numRecordsPerPage != self.baseQuery.limit)
           self.baseQuery.limit = self.pager.numRecordsPerPage;
-          saveConfig({'num-records-per-page': self.baseQuery.limit});
-        }
         load(page);
       }
     });
@@ -262,8 +251,6 @@ var EventsView = function(userProfile, options) {
 
     self.setupHostFilters(servers, query);
 
-    if ('limit' in query)
-      $('#num-records-per-page').val(query.limit);
     if ("minimumSeverity" in query)
       $("#select-severity").val(query.minimumSeverity);
     if ("status" in query)
@@ -302,24 +289,6 @@ var EventsView = function(userProfile, options) {
     });
     self.setupHostQuerySelectorCallback(
       load, '#select-server', '#select-host-group', '#select-host');
-
-    $('#num-records-per-page').change(function() {
-      var val = parseInt($('#num-records-per-page').val());
-      if (!isFinite(val))
-        val = self.baseQuery.limit;
-      $('#num-records-per-page').val(val);
-      self.baseQuery.limit = val;
-
-      var params = {
-        items: {'num-records-per-page': val},
-        successCallback: function(){ /* we just ignore it */ },
-        connectErrorCallback: function(XMLHttpRequest, textStatus,
-                                       errorThrown) {
-          showXHRError(XMLHttpRequest);
-        },
-      };
-      self.userConfig.store(params);
-    });
 
     $('button.latest-button').click(function() {
       load();
@@ -372,7 +341,6 @@ var EventsView = function(userProfile, options) {
       $("#select-status").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
-      $("#num-records-per-page").attr("disabled", "disabled");
       $("#latest-events-button1").attr("disabled", "disabled");
       $("#latest-events-button2").attr("disabled", "disabled");
     } else {
@@ -381,7 +349,6 @@ var EventsView = function(userProfile, options) {
       $("#select-server").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
-      $("#num-records-per-page").removeAttr("disabled");
       $("#latest-events-button1").removeAttr("disabled");
       $("#latest-events-button2").removeAttr("disabled");
     }
