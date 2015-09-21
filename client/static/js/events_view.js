@@ -479,10 +479,11 @@ var EventsView = function(userProfile, options) {
   function renderTableDataIncidentStatus(event, server) {
     var html = "", incident = getIncident(event);
 
-    if (!incident)
-      return "<td></td>";
+    html += "<td class='incident' style='display:none;'>";
 
-    html += "<td class='incident'>";
+    if (!incident)
+      return html + "</td>";
+
     html += "<a href='" + escapeHTML(incident.location)
       + "' target='_blank'>";
     html += escapeHTML(incident.status) + "</a>";
@@ -494,10 +495,11 @@ var EventsView = function(userProfile, options) {
   function renderTableDataIncidentPriority(event, server) {
     var html = "", incident = getIncident(event);
 
-    if (!incident)
-      return "<td></td>";
+    html += "<td class='incident' style='display:none;'>";
 
-    html += "<td class='incident'>";
+    if (!incident)
+      return html + "</td>";
+
     html += escapeHTML(incident.priority);
     html += "</td>";
 
@@ -507,10 +509,11 @@ var EventsView = function(userProfile, options) {
   function renderTableDataIncidentAssignee(event, server) {
     var html = "", incident = getIncident(event);
 
-    if (!incident)
-      return "<td></td>";
+    html += "<td class='incident' style='display:none;'>";
 
-    html += "<td class='incident'>";
+    if (!incident)
+      return html + "</td>";
+
     html += escapeHTML(incident.assignee);
     html += "</td>";
 
@@ -520,10 +523,11 @@ var EventsView = function(userProfile, options) {
   function renderTableDataIncidentDoneRatio(event, server) {
     var html = "", incident = getIncident(event);
 
-    if (!incident)
-      return "<td></td>";
+    html += "<td class='incident' style='display:none;'>";
 
-    html += "<td class='incident'>";
+    if (!incident)
+      return html + "</td>";
+
     if (incident.status)
       html += escapeHTML(incident.doneRatio) + "%";
     html += "</td>";
@@ -543,11 +547,8 @@ var EventsView = function(userProfile, options) {
         continue;
       }
 
-      if (columnName.indexOf("incident") == 0) {
-        if (!self.rawData["haveIncident"])
-          continue;
+      if (columnName.indexOf("incident") == 0)
         isIncident = true;
-      }
 
       header += '<th';
       header += ' id="column_' + columnName + '"';
@@ -579,8 +580,6 @@ var EventsView = function(userProfile, options) {
         definition = columnDefinitions[columnName];
         if (!definition)
           continue;
-        if (columnName.indexOf("incident") == 0 && !haveIncident)
-          continue;
         html += definition.body(event, server);
       }
       html += "</tr>";
@@ -611,8 +610,11 @@ var EventsView = function(userProfile, options) {
     $("#table thead").append(drawTableHeader());
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody());
+
     if (self.rawData["haveIncident"]) {
       $(".incident").show();
+    } else {
+      $(".incident").hide();
     }
 
     setupSortColumn();

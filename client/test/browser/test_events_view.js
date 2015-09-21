@@ -162,7 +162,7 @@ describe('EventsView', function() {
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(dummyEventInfo.length + 1);
     expect($('tr :eq(1)').html()).to.contain(expected);
-    expect($('td :eq(2)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
+    expect($('td :eq(3)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
   }
 
   function testTableContentsWithExpandedDescription(serverURL, hostURL,
@@ -191,7 +191,7 @@ describe('EventsView', function() {
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(dummyEventInfo.length + 1);
     expect($('tr :eq(2)').html()).to.contain(expected);
-    expect($('td :eq(2)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
+    expect($('td :eq(3)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
   }
 
   beforeEach(function(done) {
@@ -303,7 +303,7 @@ describe('EventsView', function() {
     var view = new EventsView(getOperator(), testOptions);
     respond(eventsJson(dummyEventInfo, getDummyServerInfo(0)));
     expect($('tr :eq(0)').text()).to.be(
-      "StatusSeverityTimeMonitoring ServerHostBrief");
+      "IncidentStatusSeverityTimeMonitoring ServerHostBrief");
     expect($('tr :eq(1)').text()).to.be(
       "ProblemInformation" + getEventTimeString(dummyEventInfo[0]) +
       "ServerHostTest description.");
