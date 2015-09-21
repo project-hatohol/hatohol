@@ -20,6 +20,8 @@
 var EventsView = function(userProfile, options) {
   var self = this;
   self.options = options || {};
+  self.userConfig = null;
+  self.columnNames = [];
   self.reloadIntervalSeconds = 60;
   self.currentPage = 0;
   self.limitOfUnifiedId = 0;
@@ -48,11 +50,6 @@ var EventsView = function(userProfile, options) {
   var severity_choices = [
     gettext('Not classified'), gettext('Information'), gettext('Warning'),
     gettext('Average'), gettext('High'), gettext('Disaster')];
-
-  var defaultColumns =
-    "monitoringServerName,time,hostName," +
-    "description,status,severity,duration," +
-    "incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio";
 
   var columnDefinitions = {
     "monitoringServerName": {
@@ -105,14 +102,10 @@ var EventsView = function(userProfile, options) {
     },
   };
 
-  self.columnsConfig = defaultColumns;
-  self.columnNames = self.columnsConfig.split(",");
-
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
   self.pager = new HatoholEventPager();
-  self.userConfig = null;
   start();
 
   //
@@ -127,11 +120,6 @@ var EventsView = function(userProfile, options) {
 	  updatePager();
 	  setupFilterValues();
 	  setupCallbacks();
-
-	  var direction =
-            (self.baseQuery.sortOrder == hatohol.DATA_QUERY_OPTION_SORT_ASCENDING) ? "asc" : "desc";
-	  var thTime = $("#table").find("thead th").eq(1);
-	  thTime.stupidsort(direction);
 
 	  load();
 	},
