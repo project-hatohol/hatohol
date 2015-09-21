@@ -547,8 +547,7 @@ var EventsView = function(userProfile, options) {
         continue;
       }
 
-      if (columnName.indexOf("incident") == 0)
-        isIncident = true;
+      isIncident = (columnName.indexOf("incident") == 0);
 
       header += '<th';
       header += ' id="column_' + columnName + '"';
