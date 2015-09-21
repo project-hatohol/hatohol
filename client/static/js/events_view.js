@@ -66,7 +66,6 @@ var EventsView = function(userProfile, options) {
     "time": {
       header: gettext("Time"),
       body: renderTableDataEventTime,
-      sortType: "int",
     },
     "hostName": {
       header: gettext("Host"),
@@ -246,32 +245,6 @@ var EventsView = function(userProfile, options) {
   }
 
   function setupCallbacks() {
-    $("#table").stupidtable();
-    $("#table").bind('aftertablesort', function(event, data) {
-      var icon;
-      if (self.columnNames[data.column] == "time") {
-        if (data.direction === "asc") {
-          icon = "up";
-          if (self.baseQuery.sortOrder != hatohol.DATA_QUERY_OPTION_SORT_ASCENDING) {
-            self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_ASCENDING;
-            self.userConfig.saveValue('events.sort.order', self.baseQuery.sortOrder);
-            self.startConnection(getQuery(self.currentPage), updateCore);
-          }
-        } else {
-          icon = "down";
-          if (self.baseQuery.sortOrder != hatohol.DATA_QUERY_OPTION_SORT_DESCENDING) {
-            self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
-            self.userConfig.saveValue('events.sort.order', self.baseQuery.sortOrder);
-            self.startConnection(getQuery(self.currentPage), updateCore);
-          }
-        }
-      }
-      var th = $(this).find("th");
-      th.find("i.sort").remove();
-      if (icon)
-        th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
-    });
-
     $("#select-severity, #select-status").change(function() {
       load();
     });
@@ -609,8 +582,7 @@ var EventsView = function(userProfile, options) {
       }
 
       header += '<th';
-      if (definition.sortType)
-        header += ' data-sort="' + definition.sortType + '"';
+      header += ' id="column_' + columnName + '"';
       if (isIncident)
         header += ' class="incident" style="display:none;"';
       header += '>';
@@ -649,6 +621,23 @@ var EventsView = function(userProfile, options) {
     return html;
   }
 
+  function switchSort() {
+    var icon;
+    var currentOrder = self.baseQuery.sortOrder;
+
+    if (currentOrder == hatohol.DATA_QUERY_OPTION_SORT_ASCENDING) {
+      icon = "down";
+      self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
+      self.userConfig.saveValue('events.sort.order', self.baseQuery.sortOrder);
+      self.startConnection(getQuery(self.currentPage), updateCore);
+    } else {
+      icon = "up";
+      self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_ASCENDING;
+      self.userConfig.saveValue('events.sort.order', self.baseQuery.sortOrder);
+      self.startConnection(getQuery(self.currentPage), updateCore);
+    }
+  }
+
   function drawTableContents() {
     $("#table thead").empty();
     $("#table thead").append(drawTableHeader());
@@ -656,6 +645,20 @@ var EventsView = function(userProfile, options) {
     $("#table tbody").append(drawTableBody());
     if (self.rawData["haveIncident"]) {
       $(".incident").show();
+    }
+
+    setupSortColumn();
+
+    function setupSortColumn() {
+      var th = $("#column_time");
+      var icon = "down";
+      if (self.baseQuery.sortOrder == hatohol.DATA_QUERY_OPTION_SORT_ASCENDING)
+        icon = "up";
+      th.find("i.sort").remove();
+      th.append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
+      th.click(function() {
+        switchSort();
+      });
     }
   }
 
