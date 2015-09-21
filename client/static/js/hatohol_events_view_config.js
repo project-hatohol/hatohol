@@ -84,6 +84,7 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
       'events.num-rows-per-page',
       'events.sort.type',
       'events.sort.order',
+      'events.columns',
     ],
     successCallback: function(config) {
       $.extend(self.config, config);
@@ -97,10 +98,13 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
 
 HatoholEventsViewConfig.prototype.saveAll = function() {
   var self = this;
+
   $.extend(self.config, {
     'events.auto-reload.interval': $("#auto-reload-interval").val(),
     'events.num-rows-per-page': $("#num-rows-per-page").val(),
+    'events.columns': buildSelectedColumns(),
   });
+
   self.store({
     items: self.config,
     successCallback: function(reply) {
@@ -110,6 +114,12 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
       self.showXHRError(XMLHttpRequest);
     },
   });
+
+  function buildSelectedColumns() {
+    var selected = $("#column-selector-selected option");
+    var values = $.map(selected, function(option) { return $(option).val(); });
+    return values.join(',');
+  }
 };
 
 HatoholEventsViewConfig.prototype.getValue = function(key) {
