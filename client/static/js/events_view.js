@@ -116,14 +116,6 @@ var EventsView = function(userProfile, options) {
   self.userConfig = null;
   start();
 
-  function applyConfig(config) {
-    self.reloadIntervalSeconds = config.getValue('events.auto-reload.interval');
-    self.baseQuery.limit = config.getValue('events.num-rows-per-page');
-    self.baseQuery.sortType = config.getValue('events.sort.type');
-    self.baseQuery.sortOrder = config.getValue('events.sort.order');
-    self.columnNames = config.getValue('events.columns').split(',');
-  }
-
   //
   // Private functions
   //
@@ -151,16 +143,12 @@ var EventsView = function(userProfile, options) {
     });
   }
 
-  function saveConfig(items) {
-    self.userConfig.store({
-      items: items,
-      successCallback: function() {
-        // we just ignore it
-      },
-      connectErrorCallback: function(XMLHttpRequest) {
-        showXHRError(XMLHttpRequest);
-      },
-    });
+  function applyConfig(config) {
+    self.reloadIntervalSeconds = config.getValue('events.auto-reload.interval');
+    self.baseQuery.limit = config.getValue('events.num-rows-per-page');
+    self.baseQuery.sortType = config.getValue('events.sort.type');
+    self.baseQuery.sortOrder = config.getValue('events.sort.order');
+    self.columnNames = config.getValue('events.columns').split(',');
   }
 
   function updatePager() {
@@ -261,19 +249,19 @@ var EventsView = function(userProfile, options) {
     $("#table").stupidtable();
     $("#table").bind('aftertablesort', function(event, data) {
       var icon;
-      if (data.column == 1) { // "Time" column
+      if (self.columnNames[data.column] == "time") {
         if (data.direction === "asc") {
           icon = "up";
           if (self.baseQuery.sortOrder != hatohol.DATA_QUERY_OPTION_SORT_ASCENDING) {
             self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_ASCENDING;
-            saveConfig({'event-sort-order': self.baseQuery.sortOrder});
+            self.userConfig.saveValue('events.sort.order', self.baseQuery.sortOrder);
             self.startConnection(getQuery(self.currentPage), updateCore);
           }
         } else {
           icon = "down";
           if (self.baseQuery.sortOrder != hatohol.DATA_QUERY_OPTION_SORT_DESCENDING) {
             self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
-            saveConfig({'event-sort-order': self.baseQuery.sortOrder});
+            self.userConfig.saveValue('events.sort.order', self.baseQuery.sortOrder);
             self.startConnection(getQuery(self.currentPage), updateCore);
           }
         }

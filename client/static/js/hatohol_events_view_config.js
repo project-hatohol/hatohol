@@ -146,6 +146,21 @@ HatoholEventsViewConfig.prototype.getValue = function(key) {
     return this.findOrDefault(this.config, key, defaultConfig[key]);
 };
 
+HatoholEventsViewConfig.prototype.saveValue = function(key, value) {
+  var self = this;
+
+  self.config[key] = "" + value;
+
+  self.store({
+    items: self.config,
+    successCallback: function(reply) {
+    },
+    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+      self.showXHRError(XMLHttpRequest);
+    },
+  });
+};
+
 HatoholEventsViewConfig.prototype.reset = function() {
   var self = this;
   var autoReloadInterval = self.getValue('events.auto-reload.interval');
