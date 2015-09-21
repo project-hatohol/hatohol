@@ -122,17 +122,51 @@ HatoholEventsViewConfig.prototype.reset = function() {
   var autoReloadInterval = self.getValue('events.auto-reload.interval');
   var key;
 
-  $("#auto-reload-interval-slider").slider("value", autoReloadInterval);
-  $("#auto-reload-interval").val(autoReloadInterval);
-  $("#num-rows-per-page").val(self.getValue('events.num-rows-per-page'));
+  resetAutoReloadInterval();
+  resetNumRowsPerPage();
+  resetColumnSelector();
 
-  $("#column-selector").empty();
-  $("#column-selector-selected").empty();
-  for (key in self.options.columnDefinitions) {
-    $("<option/>", {
-      text: self.options.columnDefinitions[key].header,
-      value: key,
-    }).appendTo("#column-selector");
+  function resetAutoReloadInterval() {
+    $("#auto-reload-interval-slider").slider("value", autoReloadInterval);
+    $("#auto-reload-interval").val(autoReloadInterval);
+  }
+
+  function resetNumRowsPerPage() {
+    $("#num-rows-per-page").val(self.getValue('events.num-rows-per-page'));
+  }
+
+  function resetColumnSelector() {
+    var definitions = self.options.columnDefinitions;
+    var columns = self.getValue('events.columns').split(",");
+    var selectedColumns = {}, i, column, def;
+
+    $("#column-selector").empty();
+    $("#column-selector-selected").empty();
+
+    // set selected columns (right side)
+    for (i = 0; i < columns.length; i++) {
+      column = columns[i];
+      def = definitions[columns[i]];
+      selectedColumns[column] = true;
+      if (!def)
+        continue;
+      if (column in definitions)
+        addItem(column, "#column-selector-selected");
+    }
+
+    // set candidate columns (left side)
+    for (key in definitions) {
+      if (key in selectedColumns)
+        continue;
+      addItem(key, "#column-selector");
+    }
+
+    function addItem(key, parentId) {
+      $("<option/>", {
+        text: definitions[key].header,
+        value: key,
+      }).appendTo(parentId);
+    }
   }
 };
 
