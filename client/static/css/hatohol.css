@@ -96,6 +96,11 @@ label.unit {
     width: 5em;
 }
 
+.column-selector-buttons {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
 /* no scirpt */
 div#noscript-background
 {

@@ -66,6 +66,20 @@ var HatoholEventsViewConfig = function(options) {
     right: "#column-selector-selected",
   });
 
+  $('#column-selector-up').click(function() {
+    var selected = $("#column-selector-selected option:selected");
+    if (!selected || selected.length != 1)
+      return;
+    selected.insertBefore(selected.prev());
+  });
+
+  $('#column-selector-down').click(function() {
+    var selected = $("#column-selector-selected option:selected");
+    if (!selected || selected.length != 1)
+      return;
+    selected.insertAfter(selected.next());
+  });
+
   $("#config-save").click(function() {
     self.saveAll();
   });
