@@ -56,21 +56,13 @@ var EventsView = function(userProfile, options) {
       header: gettext("Monitoring Server"),
       body: renderTableDataMonitoringServer,
     },
-    "eventId": {
-      header: gettext("Event ID"),
-      body: renderTableDataEventId,
-    },
-    "time": {
-      header: gettext("Time"),
-      body: renderTableDataEventTime,
-    },
     "hostName": {
       header: gettext("Host"),
       body: renderTableDataHostName,
     },
-    "description": {
-      header: gettext("Brief"),
-      body: renderTableDataEventDescription,
+    "eventId": {
+      header: gettext("Event ID"),
+      body: renderTableDataEventId,
     },
     "status": {
       header: gettext("Status"),
@@ -79,6 +71,14 @@ var EventsView = function(userProfile, options) {
     "severity": {
       header: gettext("Severity"),
       body: renderTableDataEventSeverity,
+    },
+    "time": {
+      header: gettext("Time"),
+      body: renderTableDataEventTime,
+    },
+    "description": {
+      header: gettext("Brief"),
+      body: renderTableDataEventDescription,
     },
     "duration": {
       header: gettext("Duration"),
