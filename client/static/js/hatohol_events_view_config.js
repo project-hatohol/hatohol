@@ -18,7 +18,26 @@
  */
 
 var HatoholEventsViewConfig = function(options) {
-  var self = this;
+  //
+  // options has the following parameters.
+  //
+  // columnDefinitions: <array> [mandatory]
+  //   Choices for visible columns.
+  //   e.g.)
+  //   {
+  //     "monitoringServerName": {
+  //       header: gettext("Monitoring Server")
+  //     },
+  //     ...
+  //   }
+  //
+  // loadedCallback: <function> [optional]
+  //   A callback function that is called on the loaded.
+  //
+  // savedCallback: <function> [optional]
+  //   A callback function that is called on the saved.
+  //
+ var self = this;
   var minAutoReloadInterval = 5;
   var maxAutoReloadInterval = 600;
   var key;
