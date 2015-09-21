@@ -379,8 +379,7 @@ var EventsView = function(userProfile, options) {
               + "' target='_blank'>" + escapeHTML(formatDate(clock))
               + "</a></td>";
     } else {
-      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
-              formatDate(clock) + "</td>";
+      html += "<td>" + formatDate(clock) + "</td>";
     }
     return html;
   }
@@ -449,8 +448,7 @@ var EventsView = function(userProfile, options) {
       if (serverURL) {
         html = generateTimeColumn(serverURL, hostId, triggerId, eventId, clock);
       } else {
-        html = "<td data-sort-value='" + escapeHTML(clock) + "'>" +
-          formatDate(clock) + "</td>";
+        html = "<td>" + formatDate(clock) + "</td>";
       }
 
       return html;
@@ -480,8 +478,7 @@ var EventsView = function(userProfile, options) {
   function renderTableDataEventStatus(event, server) {
     var status = event["type"];
 
-    return "<td class='status" + escapeHTML(status) +
-      "' data-sort-value='" + escapeHTML(status) + "'>" +
+    return "<td class='status" + escapeHTML(status) + "'>" +
       status_choices[Number(status)] + "</td>";
   }
 
@@ -493,8 +490,7 @@ var EventsView = function(userProfile, options) {
     if (status == hatohol.EVENT_TYPE_BAD)
       severityClass += escapeHTML(severity);
 
-    return "<td class='" + severityClass +
-      "' data-sort-value='" + escapeHTML(severity) + "'>" +
+    return "<td class='" + severityClass + "'>" +
       severity_choices[Number(severity)] + "</td>";
   }
 
@@ -504,8 +500,7 @@ var EventsView = function(userProfile, options) {
     var clock = event["time"];
     var duration = self.durations[serverId][triggerId][clock];
 
-    return "<td data-sort-value='" + duration + "'>" +
-      formatSecond(duration) + "</td>";
+    return "<td>" + formatSecond(duration) + "</td>";
   }
 
   function renderTableDataIncidentStatus(event, server) {
