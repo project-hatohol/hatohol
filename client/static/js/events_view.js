@@ -371,21 +371,6 @@ var EventsView = function(userProfile, options) {
     return  hostId == "__SELF_MONITOR";
   }
 
-  function generateHostColumn(serverURL, hostId, hostName) {
-    var html = "";
-    if (serverURL.indexOf("zabbix") >= 0 && !isSelfMonitoringHost(hostId)) {
-      html += "<td><a href='" + serverURL + "latest.php?&hostid="
-              + hostId + "' target='_blank'>" + escapeHTML(hostName)
-              + "</a></td>";
-    } else if (serverURL.indexOf("nagios") >= 0 && !isSelfMonitoringHost(hostId)) {
-      html += "<td><a href='" + serverURL + "cgi-bin/status.cgi?host="
-        + hostName + "' target='_blank'>" + escapeHTML(hostName) + "</a></td>";
-    } else {
-      html += "<td>" + escapeHTML(hostName) + "</td>";
-    }
-    return html;
-  }
-
   function getEventDescription(event) {
     var extendedInfo, name;
 
@@ -425,7 +410,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function renderTableDataEventTime(event, server) {
-      var html;
+      var html = "";
       var serverURL = getServerLocation(server);
       var hostId = event["hostId"];
       var triggerId = event["triggerId"];
@@ -447,15 +432,23 @@ var EventsView = function(userProfile, options) {
   }
 
   function renderTableDataHostName(event, server) {
-    var html;
+    var html = "";
     var hostId = event["hostId"];
     var serverURL = getServerLocation(server);
     var hostName = getHostName(server, hostId);
 
-    if (serverURL) {
-      html = generateHostColumn(serverURL, hostId, hostName);
+    // TODO: Should be built by plugins
+    if (serverURL && serverURL.indexOf("zabbix") >= 0 &&
+        !isSelfMonitoringHost(hostId)) {
+      html += "<td><a href='" + serverURL + "latest.php?&hostid="
+              + hostId + "' target='_blank'>" + escapeHTML(hostName)
+              + "</a></td>";
+    } else if (serverURL && serverURL.indexOf("nagios") >= 0 &&
+               !isSelfMonitoringHost(hostId)) {
+      html += "<td><a href='" + serverURL + "cgi-bin/status.cgi?host="
+        + hostName + "' target='_blank'>" + escapeHTML(hostName) + "</a></td>";
     } else {
-      html = "<td>" + escapeHTML(hostName) + "</td>";
+      html += "<td>" + escapeHTML(hostName) + "</td>";
     }
 
     return html;
