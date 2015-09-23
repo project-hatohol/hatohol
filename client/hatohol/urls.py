@@ -66,6 +66,8 @@ urlpatterns = patterns(
         'hatohol.views.log_search_systems'),
     url(r'^graphs/(?P<id>\d+)?$',
         'hatohol.views.graphs'),
+    url(r'^event-filters/(?P<id>\d+)?$',
+        'hatohol.views.event_filters'),
     url(r'^userconfig$', 'viewer.userconfig.index'),
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog'),
     url(r'', include('viewer.urls')),

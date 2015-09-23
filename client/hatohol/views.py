@@ -24,7 +24,7 @@ from django.db import models
 from django.forms import ModelForm
 from django.core.exceptions import ValidationError
 
-from hatohol.models import LogSearchSystem, Graph
+from hatohol.models import LogSearchSystem, Graph, EventFilter
 from hatohol import hatoholserver
 from viewer.userconfig import get_user_id_from_hatohol_server
 from viewer.userconfig import NoHatoholUser, NoHatoholSession
@@ -122,7 +122,7 @@ def log_search_systems(request, id):
         return http.HttpResponse(to_json(response), content_type=content_type)
 
 
-def graphs(request, id):
+def json_settings_handler(request, id, model_class, view_path):
 
     content_type = 'application/json'
 
@@ -132,18 +132,18 @@ def graphs(request, id):
         return http.HttpResponseForbidden(content_type=content_type)
 
     if request.method == 'POST':
-        graph = Graph(user_id=user_id, settings_json=request.body)
+        model = model_class(user_id=user_id, settings_json=request.body)
         try:
-            graph.full_clean()
+            model.full_clean()
         except ValidationError as e:
             return http.HttpResponseBadRequest(json.dumps(e.messages),
                                                content_type=content_type)
-        graph.save()
-        response = http.HttpResponse(to_json(graph),
+        model.save()
+        response = http.HttpResponse(to_json(model),
                                      content_type=content_type,
                                      status=201)
         response['Location'] = reverse('hatohol.views.graphs',
-                                       args=[graph.id])
+                                       args=[model.id])
         return response
     elif request.method == 'PUT':
         if id is None:
@@ -151,15 +151,15 @@ def graphs(request, id):
             return http.HttpResponseBadRequest(to_json(message),
                                                content_type=content_type)
         try:
-            graph = Graph.objects.get(id=id)
-            if graph.user_id != user_id:
+            model = model_class.objects.get(id=id)
+            if model.user_id != user_id:
                 return http.HttpResponseForbidden(content_type=content_type)
-            graph.settings_json = request.body
-            graph.full_clean()
-            graph.save()
-            return http.HttpResponse(to_json(graph),
+            model.settings_json = request.body
+            model.full_clean()
+            model.save()
+            return http.HttpResponse(to_json(model),
                                      content_type=content_type)
-        except Graph.DoesNotExist:
+        except model_class.DoesNotExist:
             return http.HttpResponseNotFound(content_type=content_type)
         except ValidationError as e:
             return http.HttpResponseBadRequest(json.dumps(e.messages),
@@ -170,24 +170,34 @@ def graphs(request, id):
             return http.HttpResponseBadRequest(to_json(message),
                                                content_type=content_type)
         try:
-            graph = Graph.objects.get(id=id)
-        except Graph.DoesNotExist:
+            model = model_class.objects.get(id=id)
+        except model_class.DoesNotExist:
             return http.HttpResponseNotFound()
         else:
-            if graph.user_id != user_id:
+            if model.user_id != user_id:
                 return http.HttpResponseForbidden(content_type=content_type)
-            graph.delete()
+            model.delete()
             return http.HttpResponse()
     else:
         if id:
             try:
-                graph = Graph.objects.get(id=id)
-            except Graph.DoesNotExist:
+                model = model_class.objects.get(id=id)
+            except model_class.DoesNotExist:
                 return http.HttpResponseNotFound()
-            if graph.user_id != user_id:
+            if model.user_id != user_id:
                 return http.HttpResponseForbidden(content_type=content_type)
-            response = graph
+            response = model
         else:
-            graphs = Graph.objects.filter(user_id=user_id).order_by('id')
-            response = graphs
+            models = model_class.objects.filter(user_id=user_id).order_by('id')
+            response = models
         return http.HttpResponse(to_json(response), content_type=content_type)
+
+
+def graphs(request, id):
+    return json_settings_handler(request, id, Graph,
+                                 'hatohol.views.graphs')
+
+
+def event_filters(request, id):
+    return json_settings_handler(request, id, EventFilter,
+                                 'hatohol.views.evnet_filters')
