@@ -51,7 +51,7 @@ describe('LatestView', function() {
 
   function itemsJson(items, servers, applications) {
     return JSON.stringify({
-      apiVersion: 3,
+      apiVersion: hatohol.FACE_REST_API_VERSION,
       errorCode: hatohol.HTERR_OK,
       items: items ? items : [],
       servers: servers ? servers : {},

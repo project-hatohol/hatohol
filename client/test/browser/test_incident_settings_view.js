@@ -33,7 +33,7 @@ describe('IncidentSettingsView', function() {
 
   function getActionsJson(actions) {
     return JSON.stringify({
-      apiVersion: 3,
+      apiVersion: hatohol.FACE_REST_API_VERSION,
       errorCode: hatohol.HTERR_OK,
       actions: actions ? actions : defaultActions,
     });
@@ -41,7 +41,7 @@ describe('IncidentSettingsView', function() {
 
   function getIncidentTrackersJson(incidentTrackers) {
     return JSON.stringify({
-      apiVersion: 3,
+      apiVersion: hatohol.FACE_REST_API_VERSION,
       errorCode: hatohol.HTERR_OK,
       incidentTrackers: incidentTrackers ?
         incidentTrackers : defaultIncidentTrackers,

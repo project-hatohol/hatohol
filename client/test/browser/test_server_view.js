@@ -48,7 +48,7 @@ describe('ServerView', function() {
 
   function getServersJson(servers) {
     return JSON.stringify({
-      apiVersion: 3,
+      apiVersion: hatohol.FACE_REST_API_VERSION,
       errorCode: hatohol.HTERR_OK,
       servers: servers ? servers : defaultServers,
     });
