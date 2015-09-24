@@ -46,7 +46,8 @@ struct RestResourceHost : public RestResourceMemberHandler
 				    const HistoryInfoVect &historyInfoVect);
 
 	static HatoholError parseEventParameter(EventsQueryOption &option,
-						GHashTable *query);
+						GHashTable *query,
+						bool &isCountOnly);
 	static bool parseExtendedInfo(const std::string &extendedInfo,
 	                              std::string &extendedInfoValue);
 

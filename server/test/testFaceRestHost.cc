@@ -1069,4 +1069,24 @@ void test_getIncident(void)
 	cppcut_assert_equal(405, arg.httpStatusCode); // Method Not Allowed
 }
 
+void test_getNumberOfEvents(void)
+{
+	loadTestDBEvents();
+	startFaceRest();
+
+	RequestArg arg("/events?countOnly=true&serverId=3");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "GET";
+	getServerResponse(arg);
+
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"numberOfEvents:4\""
+	  "}");
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	cppcut_assert_equal(expectedResponse, arg.response);
+}
+
 } // namespace testFaceRestHost
