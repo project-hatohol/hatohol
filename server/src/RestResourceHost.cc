@@ -488,6 +488,18 @@ HatoholError RestResourceHost::parseEventParameter(EventsQueryOption &option,
 		option.setTriggerStatuses(statuses);
 	}
 
+	// statuses
+	value = static_cast<const gchar*>(
+	  g_hash_table_lookup(query, "incidentStatuses"));
+	if (value && *value) {
+		StringVector values;
+		StringUtils::split(values, value, ',');
+		std::set<string> statuses;
+		for (auto &status: values)
+			statuses.insert(status);
+		option.setIncidentStatuses(statuses);
+	}
+
 	// countOnly
 	value = static_cast<const gchar*>(
 	  g_hash_table_lookup(query, "countOnly"));

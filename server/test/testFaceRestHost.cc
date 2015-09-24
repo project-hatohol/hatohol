@@ -955,6 +955,61 @@ void test_eventsWithStatusesFilter(void)
 	assertEqualJSONString(expected, arg.response);
 }
 
+void test_eventsWithIncidentStatusesFilter(void)
+{
+	loadTestDBArmPlugin();
+	loadTestDBTriggers();
+	loadTestDBEvents();
+	loadTestDBIncidents();
+	loadTestDBServerHostDef();
+	startFaceRest();
+
+	RequestArg arg("/event?incidentStatuses=New%2CNONE"
+		       "&sortOrder=1&sortType=time");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	getServerResponse(arg);
+	string expected(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"lastUnifiedEventId\":7,"
+	  "\"haveIncident\":false,"
+	  "\"events\":"
+	  "["
+	  "{"
+	  "\"unifiedId\":3,"
+	  "\"serverId\":1,"
+	  "\"time\":1363123456,"
+	  "\"type\":0,"
+	  "\"triggerId\":\"2\","
+	  "\"eventId\":\"1\","
+	  "\"status\":1,"
+	  "\"severity\":1,"
+	  "\"hostId\":\"235012\","
+	  "\"brief\":\"TEST Trigger 1a\","
+	  "\"extendedInfo\":"
+	  "\"{\\\"expandedDescription\\\":\\\"Test Trigger on hostX1\\\"}\""
+	  "},"
+	  "{"
+	  "\"unifiedId\":4,"
+	  "\"serverId\":1,"
+	  "\"time\":1378900022,"
+	  "\"type\":0,"
+	  "\"triggerId\":\"1\","
+	  "\"eventId\":\"2\","
+	  "\"status\":0,"
+	  "\"severity\":1,"
+	  "\"hostId\":\"235012\","
+	  "\"brief\":\"TEST Trigger 1\","
+	  "\"extendedInfo\":\"\""
+	  "}"
+	  "],"
+	  "\"numberOfEvents\":2,");
+
+	expected += getExpectedServers() + "}";
+	cppcut_assert_equal(expected, arg.response);
+}
+
 static void incidentInfo2StringMap(
   const IncidentInfo &src, StringMap &dest)
 {
