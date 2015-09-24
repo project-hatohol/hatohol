@@ -1083,7 +1083,7 @@ void test_getNumberOfEvents(void)
 	  "{"
 	  "\"apiVersion\":4,"
 	  "\"errorCode\":0,"
-	  "\"numberOfEvents:4\""
+	  "\"numberOfEvents\":4"
 	  "}");
 	cppcut_assert_equal(200, arg.httpStatusCode);
 	cppcut_assert_equal(expectedResponse, arg.response);
