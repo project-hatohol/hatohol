@@ -1793,4 +1793,17 @@ void test_getNumberOfEvents(void)
 			    dbMonitoring.getNumberOfEvents(option));
 }
 
+void test_getNumberOfEventsWithHostgroup(void)
+{
+	loadTestDBEvents();
+	loadTestDBHostgroupMember();
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(3);
+	option.setTargetHostgroupId("1");
+	cppcut_assert_equal(static_cast<size_t>(2),
+			    dbMonitoring.getNumberOfEvents(option));
+}
+
 } // namespace testDBTablesMonitoring
