@@ -491,8 +491,15 @@ HatoholError RestResourceHost::parseEventParameter(EventsQueryOption &option,
 	// countOnly
 	value = static_cast<const gchar*>(
 	  g_hash_table_lookup(query, "countOnly"));
-	if (value && *value && string(value) == "true") {
-		isCountOnly = true;
+	if (value) {
+		string val(value);
+		isCountOnly = (val == "true");
+		if (val != "true" && val != "false") {
+			string message(
+			  StringUtils::sprintf(
+			    "Invalid value for countOnly: %s", value));
+			return HatoholError(HTERR_INVALID_PARAMETER, message);
+		}
 	}
 
 	return HatoholError(HTERR_OK);
