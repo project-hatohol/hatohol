@@ -411,26 +411,26 @@ var EventsView = function(userProfile, options) {
   }
 
   function renderTableDataEventTime(event, server) {
-      var html = "";
-      var serverURL = getServerLocation(server);
-      var hostId = event["hostId"];
-      var triggerId = event["triggerId"];
-      var eventId = event["eventId"];
-      var clock = event["time"];
+    var html = "";
+    var serverURL = getServerLocation(server);
+    var hostId = event["hostId"];
+    var triggerId = event["triggerId"];
+    var eventId = event["eventId"];
+    var clock = event["time"];
 
-      html += "<td class='" + getSeverityClass(event) + "'>";
-      if (serverURL && serverURL.indexOf("zabbix") >= 1 &&
-	  !isSelfMonitoringHost(hostId)) {
-        html +=
-          "<a href='" + serverURL + "tr_events.php?&triggerid=" +
-          triggerId + "&eventid=" + eventId +
-          "' target='_blank'>" + escapeHTML(formatDate(clock)) +
-          "</a></td>";
-      } else {
-        html += formatDate(clock) + "</td>";
-      }
+    html += "<td class='" + getSeverityClass(event) + "'>";
+    if (serverURL && serverURL.indexOf("zabbix") >= 1 &&
+	!isSelfMonitoringHost(hostId)) {
+      html +=
+      "<a href='" + serverURL + "tr_events.php?&triggerid=" +
+        triggerId + "&eventid=" + eventId +
+        "' target='_blank'>" + escapeHTML(formatDate(clock)) +
+        "</a></td>";
+    } else {
+      html += formatDate(clock) + "</td>";
+    }
 
-      return html;
+    return html;
   }
 
   function renderTableDataHostName(event, server) {
@@ -467,16 +467,14 @@ var EventsView = function(userProfile, options) {
   function renderTableDataEventStatus(event, server) {
     var status = event["type"];
 
-    return "<td class='" + getSeverityClass(event) +
-      "' data-sort-value='" + escapeHTML(status) + "'>" +
+    return "<td class='" + getSeverityClass(event) + "'>" +
       status_choices[Number(status)] + "</td>";
   }
 
   function renderTableDataEventSeverity(event, server) {
     var severity = event["severity"];
 
-    return "<td class='" + getSeverityClass(event) +
-      "' data-sort-value='" + escapeHTML(severity) + "'>" +
+    return "<td class='" + getSeverityClass(event) + "'>" +
       severity_choices[Number(severity)] + "</td>";
   }
 
@@ -486,8 +484,8 @@ var EventsView = function(userProfile, options) {
     var clock = event["time"];
     var duration = self.durations[serverId][triggerId][clock];
 
-    return "<td class='" + getSeverityClass(event) + "' data-sort-value='" +
-      duration + "'>" + formatSecond(duration) + "</td>";
+    return "<td class='" + getSeverityClass(event) + "'>" +
+      formatSecond(duration) + "</td>";
   }
 
   function renderTableDataIncidentStatus(event, server) {
