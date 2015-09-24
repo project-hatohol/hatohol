@@ -378,7 +378,8 @@ static HatoholError parseTriggerParameter(TriggersQueryOption &option,
 }
 
 HatoholError RestResourceHost::parseEventParameter(EventsQueryOption &option,
-						   GHashTable *query)
+						   GHashTable *query,
+						   bool &isCountOnly)
 {
 	if (!query)
 		return HatoholError(HTERR_OK);
@@ -485,6 +486,20 @@ HatoholError RestResourceHost::parseEventParameter(EventsQueryOption &option,
 			statuses.insert(static_cast<TriggerStatusType>(v));
 		}
 		option.setTriggerStatuses(statuses);
+	}
+
+	// countOnly
+	value = static_cast<const gchar*>(
+	  g_hash_table_lookup(query, "countOnly"));
+	if (value) {
+		string val(value);
+		isCountOnly = (val == "true");
+		if (val != "true" && val != "false") {
+			string message(
+			  StringUtils::sprintf(
+			    "Invalid value for countOnly: %s", value));
+			return HatoholError(HTERR_INVALID_PARAMETER, message);
+		}
 	}
 
 	return HatoholError(HTERR_OK);
@@ -826,9 +841,20 @@ void RestResourceHost::handlerGetEvent(void)
 
 	EventInfoList eventList;
 	EventsQueryOption option(m_dataQueryContextPtr);
-	HatoholError err = parseEventParameter(option, m_query);
+	bool isCountOnly = false;
+	HatoholError err = parseEventParameter(option, m_query, isCountOnly);
 	if (err != HTERR_OK) {
 		replyError(err);
+		return;
+	}
+
+	if (isCountOnly) {
+		JSONBuilder agent;
+		agent.startObject();
+		addHatoholError(agent, HatoholError(HTERR_OK));
+		agent.add("numberOfEvents", dataStore->getNumberOfEvents(option));
+		agent.endObject();
+		replyJSONData(agent);
 		return;
 	}
 

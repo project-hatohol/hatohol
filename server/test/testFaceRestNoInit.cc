@@ -40,7 +40,8 @@ public:
 		EventsQueryOption &option,
 		GHashTable *query)
 	{
-		return parseEventParameter(option, query);
+		bool countOnly = false;
+		return parseEventParameter(option, query, countOnly);
 	}
 };
 

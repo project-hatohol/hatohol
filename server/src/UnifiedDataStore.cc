@@ -609,6 +609,13 @@ HatoholError UnifiedDataStore::getNumberOfMonitoredItemsPerSecond(
 	return dbMonitoring.getNumberOfMonitoredItemsPerSecond(option, serverStatus);
 }
 
+size_t UnifiedDataStore::getNumberOfEvents(const EventsQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	return dbMonitoring.getNumberOfEvents(option);
+}
+
 bool UnifiedDataStore::getCopyOnDemandEnabled(void) const
 {
 	return m_impl->isCopyOnDemandEnabled;

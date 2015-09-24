@@ -262,6 +262,7 @@ public:
 	HatoholError getNumberOfMonitoredItemsPerSecond(
 	  const DataQueryOption &option,
 	  MonitoringServerStatus &serverStatus);
+	size_t getNumberOfEvents(const EventsQueryOption &option);
 
 	void addIncidentInfo(IncidentInfo *incidentInfo);
 	HatoholError getIncidentInfoVect(IncidentInfoVect &incidentInfoVect,

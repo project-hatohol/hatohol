@@ -1782,4 +1782,28 @@ void test_getSystemInfoByInvalidUser(void)
 	  DBTablesMonitoring::getSystemInfo(systemInfo, option));
 }
 
+void test_getNumberOfEvents(void)
+{
+	loadTestDBEvents();
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(1);
+	cppcut_assert_equal(static_cast<size_t>(3),
+			    dbMonitoring.getNumberOfEvents(option));
+}
+
+void test_getNumberOfEventsWithHostgroup(void)
+{
+	loadTestDBEvents();
+	loadTestDBHostgroupMember();
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(3);
+	option.setTargetHostgroupId("1");
+	cppcut_assert_equal(static_cast<size_t>(2),
+			    dbMonitoring.getNumberOfEvents(option));
+}
+
 } // namespace testDBTablesMonitoring

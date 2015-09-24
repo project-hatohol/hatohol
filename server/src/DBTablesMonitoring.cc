@@ -2540,6 +2540,23 @@ HatoholError DBTablesMonitoring::getNumberOfMonitoredItemsPerSecond
 	return HatoholError(HTERR_OK);
 }
 
+size_t DBTablesMonitoring::getNumberOfEvents(const EventsQueryOption &option)
+{
+	DBClientJoinBuilder builder(tableProfileEvents, &option);
+	string stmt =
+	  StringUtils::sprintf("count(distinct %s)",
+	    option.getColumnName(IDX_EVENTS_UNIFIED_ID).c_str());
+	DBAgent::SelectExArg &arg = builder.build();
+	arg.add(stmt, SQL_COLUMN_TYPE_INT);
+
+	getDBAgent().runTransaction(arg);
+
+	// get the result
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
+}
+
 void DBTablesMonitoring::addIncidentInfo(IncidentInfo *incidentInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {

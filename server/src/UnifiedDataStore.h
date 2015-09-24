@@ -197,6 +197,7 @@ public:
 				bool fetchItemsSynchronously = false);
 	HatoholError getNumberOfMonitoredItemsPerSecond(const DataQueryOption &option,
 	                                                MonitoringServerStatus &serverStatus);
+	size_t getNumberOfEvents(const EventsQueryOption &option);
 
 	// User
 	void getUserList(UserInfoList &userList,
