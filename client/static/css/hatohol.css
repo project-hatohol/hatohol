@@ -73,6 +73,34 @@ div.dialog {
   margin-top: 8px;
 }
 
+#events-view-config ul.nav-tabs {
+    width: 100%;
+}
+
+#events-view-config .tab-content {
+    padding: 16px 4px 16px 4px;
+}
+
+#events-view-config input[type="text"] {
+    width: 4em;
+    display: inline-block;
+}
+
+#auto-reload-interval-slider {
+    width: 400px;
+    margin: 10px 8px;
+    display: inline-block;
+}
+
+label.unit {
+    width: 5em;
+}
+
+.column-selector-buttons {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
 /* no scirpt */
 div#noscript-background
 {

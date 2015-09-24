@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -20,6 +20,8 @@
 var EventsView = function(userProfile, options) {
   var self = this;
   self.options = options || {};
+  self.userConfig = null;
+  self.columnNames = [];
   self.reloadIntervalSeconds = 60;
   self.currentPage = 0;
   self.limitOfUnifiedId = 0;
@@ -49,53 +51,18 @@ var EventsView = function(userProfile, options) {
     gettext('Not classified'), gettext('Information'), gettext('Warning'),
     gettext('Average'), gettext('High'), gettext('Disaster')];
 
-  var defaultColumns =
-    "monitoringServerName,time,hostName," +
-    "description,status,severity,duration," +
-    "incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio";
-
-  // TODO: Replace defaultColumns when the cutomization UI is implemented.
-  /*
-  var defaultColumns =
-    "incidentStatus,status,severity,time," +
-    "monitoringServerName,hostName," +
-    "description";
-  */
-
-  self.columnsConfig = defaultColumns;
-  self.columnNames = self.columnsConfig.split(",");
-
-  // call the constructor of the super class
-  HatoholMonitoringView.apply(this, [userProfile]);
-
-  self.pager = new HatoholEventPager();
-  self.userConfig = new HatoholUserConfig();
-  start();
-
-  //
-  // Private functions
-  //
   var columnDefinitions = {
     "monitoringServerName": {
       header: gettext("Monitoring Server"),
       body: renderTableDataMonitoringServer,
     },
-    "eventId": {
-      header: gettext("Event ID"),
-      body: renderTableDataEventId,
-    },
-    "time": {
-      header: gettext("Time"),
-      body: renderTableDataEventTime,
-      sortType: "int",
-    },
     "hostName": {
       header: gettext("Host"),
       body: renderTableDataHostName,
     },
-    "description": {
-      header: gettext("Brief"),
-      body: renderTableDataEventDescription,
+    "eventId": {
+      header: gettext("Event ID"),
+      body: renderTableDataEventId,
     },
     "status": {
       header: gettext("Status"),
@@ -104,6 +71,14 @@ var EventsView = function(userProfile, options) {
     "severity": {
       header: gettext("Severity"),
       body: renderTableDataEventSeverity,
+    },
+    "time": {
+      header: gettext("Time"),
+      body: renderTableDataEventTime,
+    },
+    "description": {
+      header: gettext("Brief"),
+      body: renderTableDataEventDescription,
     },
     "duration": {
       header: gettext("Duration"),
@@ -127,55 +102,40 @@ var EventsView = function(userProfile, options) {
     },
   };
 
+  // call the constructor of the super class
+  HatoholMonitoringView.apply(this, [userProfile]);
+
+  self.pager = new HatoholEventPager();
+  start();
+
+  //
+  // Private functions
+  //
   function start() {
-    self.userConfig.get({
-      itemNames: [
-        'num-records-per-page',
-        'event-sort-type',
-        'event-sort-order'
-      ],
-      successCallback: function(conf) {
-        self.baseQuery.limit =
-          self.userConfig.findOrDefault(conf, 'num-records-per-page',
-                                        self.baseQuery.limit);
-        self.baseQuery.sortType =
-          self.userConfig.findOrDefault(conf, 'event-sort-type',
-                                        self.baseQuery.sortType);
-        self.baseQuery.sortOrder =
-          self.userConfig.findOrDefault(conf, 'event-sort-order',
-                                        self.baseQuery.sortOrder);
-        self.columnsConfig =
-          self.userConfig.findOrDefault(conf, 'event-columns',
-                                        defaultColumns);
-        self.columnNames = self.columnsConfig.split(",");
+    self.userConfig = new HatoholEventsViewConfig({
+      columnDefinitions: columnDefinitions,
+	loadedCallback: function(config) {
+	  applyConfig(config);
 
-        updatePager();
-        setupFilterValues();
-        setupCallbacks();
+	  updatePager();
+	  setupFilterValues();
+	  setupCallbacks();
 
-        var direction =
-          (self.baseQuery.sortOrder == hatohol.DATA_QUERY_OPTION_SORT_ASCENDING) ? "asc" : "desc";
-        var thTime = $("#table").find("thead th").eq(1);
-        thTime.stupidsort(direction);
-
-        load();
-      },
-      connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
-        showXHRError(XMLHttpRequest);
-      },
+	  load();
+	},
+	savedCallback: function(config) {
+	  applyConfig(config);
+	  load();
+	},
     });
   }
 
-  function saveConfig(items) {
-    self.userConfig.store({
-      items: items,
-      successCallback: function() {
-        // we just ignore it
-      },
-      connectErrorCallback: function(XMLHttpRequest) {
-        showXHRError(XMLHttpRequest);
-      },
-    });
+  function applyConfig(config) {
+    self.reloadIntervalSeconds = config.getValue('events.auto-reload.interval');
+    self.baseQuery.limit = config.getValue('events.num-rows-per-page');
+    self.baseQuery.sortType = config.getValue('events.sort.type');
+    self.baseQuery.sortOrder = config.getValue('events.sort.order');
+    self.columnNames = config.getValue('events.columns').split(',');
   }
 
   function updatePager() {
@@ -184,10 +144,8 @@ var EventsView = function(userProfile, options) {
       numRecords: self.rawData ? self.rawData["numberOfEvents"] : -1,
       numRecordsPerPage: self.baseQuery.limit,
       selectPageCallback: function(page) {
-        if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
+        if (self.pager.numRecordsPerPage != self.baseQuery.limit)
           self.baseQuery.limit = self.pager.numRecordsPerPage;
-          saveConfig({'num-records-per-page': self.baseQuery.limit});
-        }
         load(page);
       }
     });
@@ -268,8 +226,6 @@ var EventsView = function(userProfile, options) {
 
     self.setupHostFilters(servers, query);
 
-    if ('limit' in query)
-      $('#num-records-per-page').val(query.limit);
     if ("minimumSeverity" in query)
       $("#select-severity").val(query.minimumSeverity);
     if ("status" in query)
@@ -277,55 +233,11 @@ var EventsView = function(userProfile, options) {
   }
 
   function setupCallbacks() {
-    $("#table").stupidtable();
-    $("#table").bind('aftertablesort', function(event, data) {
-      var icon;
-      if (data.column == 1) { // "Time" column
-        if (data.direction === "asc") {
-          icon = "up";
-          if (self.baseQuery.sortOrder != hatohol.DATA_QUERY_OPTION_SORT_ASCENDING) {
-            self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_ASCENDING;
-            saveConfig({'event-sort-order': self.baseQuery.sortOrder});
-            self.startConnection(getQuery(self.currentPage), updateCore);
-          }
-        } else {
-          icon = "down";
-          if (self.baseQuery.sortOrder != hatohol.DATA_QUERY_OPTION_SORT_DESCENDING) {
-            self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
-            saveConfig({'event-sort-order': self.baseQuery.sortOrder});
-            self.startConnection(getQuery(self.currentPage), updateCore);
-          }
-        }
-      }
-      var th = $(this).find("th");
-      th.find("i.sort").remove();
-      if (icon)
-        th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
-    });
-
     $("#select-severity, #select-status").change(function() {
       load();
     });
     self.setupHostQuerySelectorCallback(
       load, '#select-server', '#select-host-group', '#select-host');
-
-    $('#num-records-per-page').change(function() {
-      var val = parseInt($('#num-records-per-page').val());
-      if (!isFinite(val))
-        val = self.baseQuery.limit;
-      $('#num-records-per-page').val(val);
-      self.baseQuery.limit = val;
-
-      var params = {
-        items: {'num-records-per-page': val},
-        successCallback: function(){ /* we just ignore it */ },
-        connectErrorCallback: function(XMLHttpRequest, textStatus,
-                                       errorThrown) {
-          showXHRError(XMLHttpRequest);
-        },
-      };
-      self.userConfig.store(params);
-    });
 
     $('button.latest-button').click(function() {
       load();
@@ -378,7 +290,6 @@ var EventsView = function(userProfile, options) {
       $("#select-status").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
-      $("#num-records-per-page").attr("disabled", "disabled");
       $("#latest-events-button1").attr("disabled", "disabled");
       $("#latest-events-button2").attr("disabled", "disabled");
     } else {
@@ -387,7 +298,6 @@ var EventsView = function(userProfile, options) {
       $("#select-server").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
-      $("#num-records-per-page").removeAttr("disabled");
       $("#latest-events-button1").removeAttr("disabled");
       $("#latest-events-button2").removeAttr("disabled");
     }
@@ -449,35 +359,6 @@ var EventsView = function(userProfile, options) {
     return  hostId == "__SELF_MONITOR";
   }
 
-  function generateTimeColumn(serverURL, hostId, triggerId, eventId, clock) {
-    var html = "";
-    if (serverURL.indexOf("zabbix") >= 1 && !isSelfMonitoringHost(hostId)) {
-      html += "<td><a href='" + serverURL + "tr_events.php?&triggerid="
-              + triggerId + "&eventid=" + eventId
-              + "' target='_blank'>" + escapeHTML(formatDate(clock))
-              + "</a></td>";
-    } else {
-      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
-              formatDate(clock) + "</td>";
-    }
-    return html;
-  }
-
-  function generateHostColumn(serverURL, hostId, hostName) {
-    var html = "";
-    if (serverURL.indexOf("zabbix") >= 0 && !isSelfMonitoringHost(hostId)) {
-      html += "<td><a href='" + serverURL + "latest.php?&hostid="
-              + hostId + "' target='_blank'>" + escapeHTML(hostName)
-              + "</a></td>";
-    } else if (serverURL.indexOf("nagios") >= 0 && !isSelfMonitoringHost(hostId)) {
-      html += "<td><a href='" + serverURL + "cgi-bin/status.cgi?host="
-        + hostName + "' target='_blank'>" + escapeHTML(hostName) + "</a></td>";
-    } else {
-      html += "<td>" + escapeHTML(hostName) + "</td>";
-    }
-    return html;
-  }
-
   function getEventDescription(event) {
     var extendedInfo, name;
 
@@ -517,33 +398,45 @@ var EventsView = function(userProfile, options) {
   }
 
   function renderTableDataEventTime(event, server) {
-      var html;
+      var html = "";
       var serverURL = getServerLocation(server);
       var hostId = event["hostId"];
       var triggerId = event["triggerId"];
       var eventId = event["eventId"];
       var clock = event["time"];
 
-      if (serverURL) {
-        html = generateTimeColumn(serverURL, hostId, triggerId, eventId, clock);
+      if (serverURL && serverURL.indexOf("zabbix") >= 1 &&
+	  !isSelfMonitoringHost(hostId)) {
+        html +=
+          "<td><a href='" + serverURL + "tr_events.php?&triggerid=" +
+          triggerId + "&eventid=" + eventId +
+          "' target='_blank'>" + escapeHTML(formatDate(clock)) +
+          "</a></td>";
       } else {
-        html = "<td data-sort-value='" + escapeHTML(clock) + "'>" +
-          formatDate(clock) + "</td>";
+        html += "<td>" + formatDate(clock) + "</td>";
       }
 
       return html;
   }
 
   function renderTableDataHostName(event, server) {
-    var html;
+    var html = "";
     var hostId = event["hostId"];
     var serverURL = getServerLocation(server);
     var hostName = getHostName(server, hostId);
 
-    if (serverURL) {
-      html = generateHostColumn(serverURL, hostId, hostName);
+    // TODO: Should be built by plugins
+    if (serverURL && serverURL.indexOf("zabbix") >= 0 &&
+        !isSelfMonitoringHost(hostId)) {
+      html += "<td><a href='" + serverURL + "latest.php?&hostid="
+              + hostId + "' target='_blank'>" + escapeHTML(hostName)
+              + "</a></td>";
+    } else if (serverURL && serverURL.indexOf("nagios") >= 0 &&
+               !isSelfMonitoringHost(hostId)) {
+      html += "<td><a href='" + serverURL + "cgi-bin/status.cgi?host="
+        + hostName + "' target='_blank'>" + escapeHTML(hostName) + "</a></td>";
     } else {
-      html = "<td>" + escapeHTML(hostName) + "</td>";
+      html += "<td>" + escapeHTML(hostName) + "</td>";
     }
 
     return html;
@@ -558,8 +451,7 @@ var EventsView = function(userProfile, options) {
   function renderTableDataEventStatus(event, server) {
     var status = event["type"];
 
-    return "<td class='status" + escapeHTML(status) +
-      "' data-sort-value='" + escapeHTML(status) + "'>" +
+    return "<td class='status" + escapeHTML(status) + "'>" +
       status_choices[Number(status)] + "</td>";
   }
 
@@ -571,8 +463,7 @@ var EventsView = function(userProfile, options) {
     if (status == hatohol.EVENT_TYPE_BAD)
       severityClass += escapeHTML(severity);
 
-    return "<td class='" + severityClass +
-      "' data-sort-value='" + escapeHTML(severity) + "'>" +
+    return "<td class='" + severityClass + "'>" +
       severity_choices[Number(severity)] + "</td>";
   }
 
@@ -582,17 +473,17 @@ var EventsView = function(userProfile, options) {
     var clock = event["time"];
     var duration = self.durations[serverId][triggerId][clock];
 
-    return "<td data-sort-value='" + duration + "'>" +
-      formatSecond(duration) + "</td>";
+    return "<td>" + formatSecond(duration) + "</td>";
   }
 
   function renderTableDataIncidentStatus(event, server) {
     var html = "", incident = getIncident(event);
 
-    if (!incident)
-      return "<td></td>";
+    html += "<td class='incident' style='display:none;'>";
 
-    html += "<td class='incident'>";
+    if (!incident)
+      return html + "</td>";
+
     html += "<a href='" + escapeHTML(incident.location)
       + "' target='_blank'>";
     html += escapeHTML(incident.status) + "</a>";
@@ -604,10 +495,11 @@ var EventsView = function(userProfile, options) {
   function renderTableDataIncidentPriority(event, server) {
     var html = "", incident = getIncident(event);
 
-    if (!incident)
-      return "<td></td>";
+    html += "<td class='incident' style='display:none;'>";
 
-    html += "<td class='incident'>";
+    if (!incident)
+      return html + "</td>";
+
     html += escapeHTML(incident.priority);
     html += "</td>";
 
@@ -617,10 +509,11 @@ var EventsView = function(userProfile, options) {
   function renderTableDataIncidentAssignee(event, server) {
     var html = "", incident = getIncident(event);
 
-    if (!incident)
-      return "<td></td>";
+    html += "<td class='incident' style='display:none;'>";
 
-    html += "<td class='incident'>";
+    if (!incident)
+      return html + "</td>";
+
     html += escapeHTML(incident.assignee);
     html += "</td>";
 
@@ -630,10 +523,11 @@ var EventsView = function(userProfile, options) {
   function renderTableDataIncidentDoneRatio(event, server) {
     var html = "", incident = getIncident(event);
 
-    if (!incident)
-      return "<td></td>";
+    html += "<td class='incident' style='display:none;'>";
 
-    html += "<td class='incident'>";
+    if (!incident)
+      return html + "</td>";
+
     if (incident.status)
       html += escapeHTML(incident.doneRatio) + "%";
     html += "</td>";
@@ -653,15 +547,10 @@ var EventsView = function(userProfile, options) {
         continue;
       }
 
-      if (columnName.indexOf("incident") == 0) {
-        if (!self.rawData["haveIncident"])
-          continue;
-        isIncident = true;
-      }
+      isIncident = (columnName.indexOf("incident") == 0);
 
       header += '<th';
-      if (definition.sortType)
-        header += ' data-sort="' + definition.sortType + '"';
+      header += ' id="column_' + columnName + '"';
       if (isIncident)
         header += ' class="incident" style="display:none;"';
       header += '>';
@@ -690,8 +579,6 @@ var EventsView = function(userProfile, options) {
         definition = columnDefinitions[columnName];
         if (!definition)
           continue;
-        if (columnName.indexOf("incident") == 0 && !haveIncident)
-          continue;
         html += definition.body(event, server);
       }
       html += "</tr>";
@@ -700,13 +587,47 @@ var EventsView = function(userProfile, options) {
     return html;
   }
 
+  function switchSort() {
+    var icon;
+    var currentOrder = self.baseQuery.sortOrder;
+
+    if (currentOrder == hatohol.DATA_QUERY_OPTION_SORT_DESCENDING) {
+      icon = "up";
+      self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_ASCENDING;
+      self.userConfig.saveValue('events.sort.order', self.baseQuery.sortOrder);
+      self.startConnection(getQuery(self.currentPage), updateCore);
+    } else {
+      icon = "down";
+      self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
+      self.userConfig.saveValue('events.sort.order', self.baseQuery.sortOrder);
+      self.startConnection(getQuery(self.currentPage), updateCore);
+    }
+  }
+
   function drawTableContents() {
     $("#table thead").empty();
     $("#table thead").append(drawTableHeader());
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody());
+
     if (self.rawData["haveIncident"]) {
       $(".incident").show();
+    } else {
+      $(".incident").hide();
+    }
+
+    setupSortColumn();
+
+    function setupSortColumn() {
+      var th = $("#column_time");
+      var icon = "down";
+      if (self.baseQuery.sortOrder == hatohol.DATA_QUERY_OPTION_SORT_ASCENDING)
+        icon = "up";
+      th.find("i.sort").remove();
+      th.append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
+      th.click(function() {
+        switchSort();
+      });
     }
   }
 
