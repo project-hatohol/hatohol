@@ -1146,7 +1146,7 @@ void EventsQueryOption::setTriggerSeverities(
 	m_impl->triggerSeverities = severities;
 }
 
-const set<TriggerSeverityType> &EventsQueryOption::getTriggerSeverities(void)
+const set<TriggerSeverityType> &EventsQueryOption::getTriggerSeverities(void) const
 {
 	return m_impl->triggerSeverities;
 }
@@ -1157,7 +1157,7 @@ void EventsQueryOption::setTriggerStatuses(
 	m_impl->triggerStatuses = statuses;
 }
 
-const std::set<TriggerStatusType> &EventsQueryOption::getTriggerStatuses(void)
+const std::set<TriggerStatusType> &EventsQueryOption::getTriggerStatuses(void) const
 {
 	return m_impl->triggerStatuses;
 }
