@@ -850,6 +850,7 @@ struct EventsQueryOption::Impl {
 	timespec endTime;
 	set<TriggerSeverityType> triggerSeverities;
 	set<TriggerStatusType> triggerStatuses;
+	set<string> incidentStatuses;
 
 	Impl()
 	: limitOfUnifiedId(NO_LIMIT),
@@ -998,6 +999,25 @@ string EventsQueryOption::getCondition(void) const
 		statusCondition = string("(") + statusCondition + string(")");
 	addCondition(condition, statusCondition);
 
+	string incidentStatusCondition;
+	for (auto status: m_impl->incidentStatuses) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		addCondition(
+		  incidentStatusCondition,
+		  StringUtils::sprintf(
+		    "%s.%s=%s",
+		    DBTablesMonitoring::TABLE_NAME_INCIDENTS,
+		    COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_STATUS].columnName,
+		    rhs(status)),
+		  ADD_TYPE_OR);
+	}
+	if (m_impl->incidentStatuses.size() > 1)
+		incidentStatusCondition =
+			string("(") +
+			incidentStatusCondition +
+			string(")");
+	addCondition(condition, incidentStatusCondition);
+
 	return condition;
 }
 
@@ -1140,6 +1160,16 @@ void EventsQueryOption::setTriggerStatuses(
 const std::set<TriggerStatusType> &EventsQueryOption::getTriggerStatuses(void)
 {
 	return m_impl->triggerStatuses;
+}
+
+void EventsQueryOption::setIncidentStatuses(const std::set<std::string> &statuses)
+{
+	m_impl->incidentStatuses = statuses;
+}
+
+const std::set<std::string> &EventsQueryOption::getIncidentStatuses(void) const
+{
+	return m_impl->incidentStatuses;
 }
 
 //
@@ -1972,7 +2002,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 	builder.add(IDX_EVENTS_BRIEF);
 	builder.add(IDX_EVENTS_EXTENDED_INFO);
 
-	if (incidentInfoVect) {
+	if (incidentInfoVect || !option.getIncidentStatuses().empty()) {
 		builder.addTable(
 		  tableProfileIncidents, DBClientJoinBuilder::LEFT_JOIN,
 		  tableProfileEvents, IDX_EVENTS_UNIFIED_ID, IDX_INCIDENTS_UNIFIED_EVENT_ID);

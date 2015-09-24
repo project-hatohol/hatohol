@@ -73,6 +73,9 @@ public:
 	void setTriggerStatuses(const std::set<TriggerStatusType> &statuses);
 	const std::set<TriggerStatusType> &getTriggerStatuses(void);
 
+	void setIncidentStatuses(const std::set<std::string> &statuses);
+	const std::set<std::string> &getIncidentStatuses(void) const;
+
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
