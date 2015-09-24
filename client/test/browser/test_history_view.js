@@ -46,7 +46,7 @@ describe('HistoryView', function() {
 
   function itemsJson(items, servers) {
     return JSON.stringify({
-      apiVersion: 3,
+      apiVersion: hatohol.FACE_REST_API_VERSION,
       errorCode: hatohol.HTERR_OK,
       items: items ? items : defaultItems,
       servers: servers ? servers : defaultServers
@@ -55,7 +55,7 @@ describe('HistoryView', function() {
 
   function historyJson(history) {
     return JSON.stringify({
-      apiVersion: 3,
+      apiVersion: hatohol.FACE_REST_API_VERSION,
       errorCode: hatohol.HTERR_OK,
       history: history ? history : defaultHistory,
     });

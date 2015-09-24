@@ -22,7 +22,7 @@ describe('ActionsView', function() {
 
   function getActionsJson(actions) {
     return JSON.stringify({
-      apiVersion: 3,
+      apiVersion: hatohol.FACE_REST_API_VERSION,
       errorCode: hatohol.HTERR_OK,
       actions: actions ? actions : defaultActions,
     });

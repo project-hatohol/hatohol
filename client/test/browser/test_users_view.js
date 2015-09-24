@@ -22,7 +22,7 @@ describe('UsersView', function() {
 
   function getUsersJson(users) {
     return JSON.stringify({
-      apiVersion: 3,
+      apiVersion: hatohol.FACE_REST_API_VERSION,
       errorCode: hatohol.HTERR_OK,
       users: users ? users : defaultUsers,
     });
