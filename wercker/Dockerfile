@@ -24,14 +24,17 @@ RUN yum install -y cutter tar
 RUN git clone https://github.com/project-hatohol/hatohol.git ~/hatohol
 # set CI terget to WERCKER_GIT_COMMIT
 ADD ./GIT_REVISION /root/hatohol/wercker/
-RUN cd ~/hatohol && git fetch origin
-RUN cd ~/hatohol && git checkout -qf `cat ~/hatohol/wercker/GIT_REVISION`
+# change work dir
+WORKDIR /root/hatohol
+# checkout target branch
+RUN git fetch origin
+RUN git checkout -qf `cat ~/hatohol/wercker/GIT_REVISION`
 # build
-RUN cd ~/hatohol && libtoolize && autoreconf -i
-RUN cd ~/hatohol && scl enable devtoolset-2 "./configure"
-RUN cd ~/hatohol && scl enable devtoolset-2 "make -j `cat /proc/cpuinfo | grep processor | wc -l`"
-RUN cd ~/hatohol && make dist -j `cat /proc/cpuinfo | grep processor | wc -l`
+RUN libtoolize && autoreconf -i
+RUN scl enable devtoolset-2 "./configure"
+RUN scl enable devtoolset-2 "make -j `cat /proc/cpuinfo | grep processor | wc -l`"
+RUN make dist -j `cat /proc/cpuinfo | grep processor | wc -l`
 # rpm build
 RUN yum install -y rpm-build
-RUN cd ~/hatohol && scl enable devtoolset-2 "MAKEFLAGS=\"-j `cat /proc/cpuinfo | grep processor | wc -l`\" rpmbuild -tb hatohol-*.tar.bz2"
+RUN scl enable devtoolset-2 "MAKEFLAGS=\"-j `cat /proc/cpuinfo | grep processor | wc -l`\" rpmbuild -tb hatohol-*.tar.bz2"
 RUN scl enable devtoolset-2 "gcc --version"
