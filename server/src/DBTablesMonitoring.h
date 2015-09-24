@@ -69,9 +69,9 @@ public:
 	const timespec &getEndTime(void);
 
 	void setTriggerSeverities(const std::set<TriggerSeverityType> &severities);
-	const std::set<TriggerSeverityType> &getTriggerSeverities(void);
+	const std::set<TriggerSeverityType> &getTriggerSeverities(void) const;
 	void setTriggerStatuses(const std::set<TriggerStatusType> &statuses);
-	const std::set<TriggerStatusType> &getTriggerStatuses(void);
+	const std::set<TriggerStatusType> &getTriggerStatuses(void) const;
 
 	void setIncidentStatuses(const std::set<std::string> &statuses);
 	const std::set<std::string> &getIncidentStatuses(void) const;
