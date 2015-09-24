@@ -902,6 +902,7 @@ void test_eventsWithSeveritiesFilter(void)
 	expected += getExpectedServers() + "}";
 	assertEqualJSONString(expected, arg.response);
 }
+
 void test_eventsWithStatusesFilter(void)
 {
 	loadTestDBArmPlugin();
