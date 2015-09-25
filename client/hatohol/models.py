@@ -122,3 +122,14 @@ class Graph(models.Model):
             json.loads(self.settings_json)
         except ValueError as e:
             raise ValidationError('Broken JSON')
+
+
+class EventFilter(models.Model):
+    user_id = models.IntegerField(db_index=True)
+    settings_json = models.TextField()
+
+    def clean(self):
+        try:
+            json.loads(self.settings_json)
+        except ValueError as e:
+            raise ValidationError('Broken JSON')
