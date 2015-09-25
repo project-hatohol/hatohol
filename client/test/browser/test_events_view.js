@@ -130,33 +130,36 @@ describe('EventsView', function() {
     var view = new EventsView(getOperator(), testOptions);
     var expected = "";
 
-    expected += '<td class="status1">Problem</td>';
+    expected += '<td class="incident severity1" style="display:none;"></td>';
+    expected += '<td class="severity1 status1">Problem</td>';
     expected += '<td class="severity1">Information</td>';
 
     if (params) {
-      expected += '<td><a href="' + escapeHTML(params.eventURL) +
+      expected += '<td class="severity1"><a href="' + escapeHTML(params.eventURL) +
                   '" target="_blank">' + escapeHTML(formatDate(1415749496)) +
                   '</a></td>';
     } else {
-      expected += '<td>' +
+      expected += '<td class="severity1">' +
                   formatDate(1415749496) + '</td>';
     }
 
     if (serverURL) {
       expected +=
-        '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>';
+        '<td class="severity1"><a href="' + escapeHTML(serverURL) + '"' +
+        ' target="_blank">Server</a></td>';
     } else {
-      expected += '<td>Server</td>';
+      expected += '<td class="severity1">Server</td>';
     }
 
     if (hostURL) {
       expected +=
-	'<td><a href="' + escapeHTML(hostURL) + '" target="_blank">Host</a></td>';
+	'<td class="severity1"><a href="' + escapeHTML(hostURL) + '"' +
+        ' target="_blank">Host</a></td>';
     } else {
-      expected += '<td>Host</td>';
+      expected += '<td class="severity1">Host</td>';
     }
 
-    expected += '<td>Test description.</td>';
+    expected += '<td class="severity1">Test description.</td>';
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
@@ -171,21 +174,24 @@ describe('EventsView', function() {
     var view = new EventsView(getOperator(), testOptions);
     var expected = "";
 
-    expected += '<td class="status1">Problem</td>';
+    expected += '<td class="incident severity1" style="display:none;"></td>';
+    expected += '<td class="severity1 status1">Problem</td>';
     expected += '<td class="severity1">Information</td>';
     if (params) {
-      expected += '<td><a href="' + escapeHTML(params.eventURL) +
+      expected += '<td class="severity1"><a href="' + escapeHTML(params.eventURL) +
                   '" target="_blank">' + escapeHTML(formatDate(1415759496)) +
                   '</a></td>';
     } else {
-      expected += '<td>' +
+      expected += '<td class="severity1">' +
                   formatDate(1415759496) +
                   '</td>';
     }
-    expected += '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>';
-    expected += '<td><a href="' + escapeHTML(hostURL) +
+    expected +=
+      '<td class="severity1"><a href="' + escapeHTML(serverURL) + '"' +
+      ' target="_blank">Server</a></td>';
+    expected += '<td class="severity1"><a href="' + escapeHTML(hostURL) +
                 '" target="_blank">Host2</a></td>';
-    expected += '<td>Expanded test description 2.</td>';
+    expected += '<td class="severity1">Expanded test description 2.</td>';
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
@@ -282,14 +288,15 @@ describe('EventsView', function() {
     var eventURL =
       "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=12332";
     var expected =
-      '<td class="status0">OK</td>' +
-      '<td class="severity">Information</td>' +
-      '<td><a href="' + escapeHTML(eventURL) +
+      '<td class="incident " style="display:none;"></td>' +
+      '<td class=" status1">OK</td>' +
+      '<td class="">Information</td>' +
+      '<td class=""><a href="' + escapeHTML(eventURL) +
       '" target="_blank">' + escapeHTML(formatDate(1415749496)) +
       '</a></td>' +
-      '<td><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>' +
-      '<td><a href="' + escapeHTML(hostURL) + '" target="_blank">Host</a></td>' +
-      '<td>Test description.</td>';
+      '<td class=""><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>' +
+      '<td class=""><a href="' + escapeHTML(hostURL) + '" target="_blank">Host</a></td>' +
+      '<td class="">Test description.</td>';
     var events = [
       $.extend({}, dummyEventInfo[0], { type: hatohol.EVENT_TYPE_GOOD })
     ];
