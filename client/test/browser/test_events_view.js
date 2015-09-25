@@ -130,7 +130,7 @@ describe('EventsView', function() {
     var view = new EventsView(getOperator(), testOptions);
     var expected = "";
 
-    expected += '<td class="severity1">Problem</td>';
+    expected += '<td class="severity1 status1">Problem</td>';
     expected += '<td class="severity1">Information</td>';
 
     if (params) {
@@ -173,7 +173,7 @@ describe('EventsView', function() {
     var view = new EventsView(getOperator(), testOptions);
     var expected = "";
 
-    expected += '<td class="severity1">Problem</td>';
+    expected += '<td class="severity1 status1">Problem</td>';
     expected += '<td class="severity1">Information</td>';
     if (params) {
       expected += '<td class="severity1"><a href="' + escapeHTML(params.eventURL) +
@@ -286,7 +286,7 @@ describe('EventsView', function() {
     var eventURL =
       "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=12332";
     var expected =
-      '<td class="">OK</td>' +
+      '<td class=" status1">OK</td>' +
       '<td class="">Information</td>' +
       '<td class=""><a href="' + escapeHTML(eventURL) +
       '" target="_blank">' + escapeHTML(formatDate(1415749496)) +
