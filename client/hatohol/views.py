@@ -122,6 +122,7 @@ def log_search_systems(request, id):
         return http.HttpResponse(to_json(response), content_type=content_type)
 
 
+# TODO: should use class-based view
 def json_settings_handler(request, id, model_class, view_path):
 
     content_type = 'application/json'
