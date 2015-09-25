@@ -85,7 +85,7 @@ class TestEventFiltersViewAuthorized(TestEventFiltersView):
     def test_get(self):
         event_filter = EventFilter(
             user_id=5,
-            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+            settings_json='{"server_id":1,"host_id":2,"hostgroup_id":3}')
         event_filter.save()
         response = self._get(None)
         self.assertEquals(response.status_code, httplib.OK)
@@ -94,7 +94,7 @@ class TestEventFiltersViewAuthorized(TestEventFiltersView):
             'user_id': event_filter.user_id,
             'server_id': 1,
             'host_id': 2,
-            'item_id': 3,
+            'hostgroup_id': 3,
         }
         self.assertEquals(json.loads(response.content),
                           [record])
@@ -102,7 +102,7 @@ class TestEventFiltersViewAuthorized(TestEventFiltersView):
     def test_get_without_own_record(self):
         event_filter = EventFilter(
             user_id=4,
-            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+            settings_json='{"server_id":1,"host_id":2,"hostgroup_id":3}')
         event_filter.save()
         response = self._get(None)
         self.assertEquals(response.status_code, httplib.OK)
@@ -112,7 +112,7 @@ class TestEventFiltersViewAuthorized(TestEventFiltersView):
     def test_get_with_id(self):
         event_filter = EventFilter(
             user_id=5,
-            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+            settings_json='{"server_id":1,"host_id":2,"hostgroup_id":3}')
         event_filter.save()
         response = self._get(event_filter.id)
         self.assertEquals(response.status_code, httplib.OK)
@@ -121,7 +121,7 @@ class TestEventFiltersViewAuthorized(TestEventFiltersView):
             'user_id': event_filter.user_id,
             'server_id': 1,
             'host_id': 2,
-            'item_id': 3
+            'hostgroup_id': 3
         }
         self.assertEquals(json.loads(response.content),
                           record)
@@ -129,7 +129,7 @@ class TestEventFiltersViewAuthorized(TestEventFiltersView):
     def test_get_event_filter_with_id_nonowner(self):
         event_filter = EventFilter(
             user_id=4,
-            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+            settings_json='{"server_id":1,"host_id":2,"hostgroup_id":3}')
         event_filter.save()
         response = self._get(event_filter.id)
         self.assertEquals(response.status_code, httplib.FORBIDDEN)
@@ -137,7 +137,7 @@ class TestEventFiltersViewAuthorized(TestEventFiltersView):
     def test_get_with_id_nonexsitent(self):
         event_filter = EventFilter(
             user_id=5,
-            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+            settings_json='{"server_id":1,"host_id":2,"hostgroup_id":3}')
         event_filter.save()
         id = event_filter.id
         event_filter.delete()
@@ -149,7 +149,7 @@ class TestEventFiltersViewAuthorized(TestEventFiltersView):
         record = {
             'server_id': 1,
             'host_id': 2,
-            'item_id': 3,
+            'hostgroup_id': 3,
         }
         response = self._post(json.dumps(record))
         self.assertEquals(response.status_code, httplib.CREATED)
@@ -160,7 +160,7 @@ class TestEventFiltersViewAuthorized(TestEventFiltersView):
                           record)
 
     def test_post_broken_json(self):
-        broken_json = '{server_id:1,host_id:2,item_id:3}'
+        broken_json = '{server_id:1,host_id:2,hostgroup_id:3}'
         response = self._post(broken_json)
         self.assertEquals(response.status_code, httplib.BAD_REQUEST)
 
@@ -168,7 +168,7 @@ class TestEventFiltersViewAuthorized(TestEventFiltersView):
         record = {
             'server_id': 1,
             'host_id': 2,
-            'item_id': 3,
+            'hostgroup_id': 3,
         }
         response = self._put(None, json.dumps(record))
         self.assertEquals(response.status_code, httplib.BAD_REQUEST)
@@ -176,12 +176,12 @@ class TestEventFiltersViewAuthorized(TestEventFiltersView):
     def test_put_with_id(self):
         event_filter = EventFilter(
             user_id=5,
-            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+            settings_json='{"server_id":1,"host_id":2,"hostgroup_id":3}')
         event_filter.save()
         new_record = {
             'server_id': 4,
             'host_id': 5,
-            'item_id': 6,
+            'hostgroup_id': 6,
         }
         settings_json = json.dumps(new_record)
         response = self._put(event_filter.id, settings_json)
@@ -197,12 +197,12 @@ class TestEventFiltersViewAuthorized(TestEventFiltersView):
     def test_put_with_id_nonowner(self):
         event_filter = EventFilter(
             user_id=4,
-            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+            settings_json='{"server_id":1,"host_id":2,"hostgroup_id":3}')
         event_filter.save()
         new_record = {
             'server_id': 4,
             'host_id': 5,
-            'item_id': 6,
+            'hostgroup_id': 6,
         }
         settings_json = json.dumps(new_record)
         response = self._put(event_filter.id, settings_json)
@@ -213,14 +213,14 @@ class TestEventFiltersViewAuthorized(TestEventFiltersView):
     def test_put_with_id_nonexistent(self):
         event_filter = EventFilter(
             user_id=5,
-            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+            settings_json='{"server_id":1,"host_id":2,"hostgroup_id":3}')
         event_filter.save()
         nonexistent_id = event_filter.id
         event_filter.delete()
         record = {
             'server_id': 4,
             'host_id': 5,
-            'item_id': 6,
+            'hostgroup_id': 6,
         }
         response = self._put(nonexistent_id, record)
         self.assertEquals(response.status_code, httplib.NOT_FOUND)
@@ -232,7 +232,7 @@ class TestEventFiltersViewAuthorized(TestEventFiltersView):
     def test_delete_with_id(self):
         event_filter = EventFilter(
             user_id=5,
-            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+            settings_json='{"server_id":1,"host_id":2,"hostgroup_id":3}')
         event_filter.save()
         response = self._delete(event_filter.id)
         self.assertEquals(response.status_code, httplib.OK)
@@ -242,7 +242,7 @@ class TestEventFiltersViewAuthorized(TestEventFiltersView):
     def test_delete_with_id_nonowner(self):
         event_filter = EventFilter(
             user_id=4,
-            settings_json='{"server_id":1,"host_id":2,"item_id":3}')
+            settings_json='{"server_id":1,"host_id":2,"hostgroup_id":3}')
         event_filter.save()
         response = self._delete(event_filter.id)
         self.assertEquals(response.status_code, httplib.FORBIDDEN)
