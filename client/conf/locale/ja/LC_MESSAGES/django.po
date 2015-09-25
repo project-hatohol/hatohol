@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-14 07:30-0500\n"
-"PO-Revision-Date: 2015-09-14 21:44+0900\n"
+"POT-Creation-Date: 2015-09-24 22:24-0500\n"
+"PO-Revision-Date: 2015-09-25 12:25+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -183,67 +183,115 @@ msgstr "障害あり"
 msgid "Total"
 msgstr "合計"
 
-#: viewer/events_ajax.html:24 viewer/events_ajax.html.py:29
+#: viewer/events_ajax.html:24 viewer/events_ajax.html.py:36
 msgid "Events"
 msgstr "イベント"
 
-#: viewer/events_ajax.html:32 viewer/overview_items_ajax.html:33
+#: viewer/events_ajax.html:32
+msgid "Config"
+msgstr "設定"
+
+#: viewer/events_ajax.html:41 viewer/overview_items_ajax.html:33
 #: viewer/overview_triggers_ajax.html:32 viewer/triggers_ajax.html:32
 msgid "Minimum Severity:"
 msgstr "最小の深刻度:"
 
-#: viewer/events_ajax.html:41 viewer/overview_triggers_ajax.html:41
+#: viewer/events_ajax.html:50 viewer/overview_triggers_ajax.html:41
 #: viewer/triggers_ajax.html:41
 msgid "Status:"
 msgstr "ステータス:"
 
-#: viewer/events_ajax.html:44 viewer/overview_triggers_ajax.html:44
+#: viewer/events_ajax.html:53 viewer/overview_triggers_ajax.html:44
 #: viewer/triggers_ajax.html:44
 msgid "OK"
 msgstr "正常"
 
-#: viewer/events_ajax.html:45 viewer/overview_triggers_ajax.html:45
+#: viewer/events_ajax.html:54 viewer/overview_triggers_ajax.html:45
 #: viewer/triggers_ajax.html:45
 msgid "Problem"
 msgstr "障害"
 
-#: viewer/events_ajax.html:46
+#: viewer/events_ajax.html:55
 msgid "Unknown"
 msgstr "不明"
 
-#: viewer/events_ajax.html:48 viewer/latest_ajax.html:32
+#: viewer/events_ajax.html:57 viewer/latest_ajax.html:32
 #: viewer/overview_items_ajax.html:42 viewer/overview_triggers_ajax.html:47
 #: viewer/triggers_ajax.html:47
 msgid "Monitoring Server:"
 msgstr "監視サーバー:"
 
-#: viewer/events_ajax.html:52 viewer/latest_ajax.html:37
+#: viewer/events_ajax.html:61 viewer/latest_ajax.html:37
 #: viewer/overview_items_ajax.html:46 viewer/overview_triggers_ajax.html:51
 #: viewer/triggers_ajax.html:51
 msgid "Group:"
 msgstr "グループ:"
 
-#: viewer/events_ajax.html:56 viewer/latest_ajax.html:42
+#: viewer/events_ajax.html:65 viewer/latest_ajax.html:42
 #: viewer/overview_items_ajax.html:50 viewer/overview_triggers_ajax.html:55
 #: viewer/triggers_ajax.html:55
 msgid "Host:"
 msgstr "ホスト:"
 
-#: viewer/events_ajax.html:60
-msgid "# of events per page"
-msgstr "ページ毎のイベント数"
-
-#: viewer/events_ajax.html:63
+#: viewer/events_ajax.html:70
 msgid "Begin time"
 msgstr "開始時刻"
 
-#: viewer/events_ajax.html:65
+#: viewer/events_ajax.html:72
 msgid "End time"
 msgstr "終了時刻"
 
-#: viewer/events_ajax.html:72 viewer/events_ajax.html.py:88
+#: viewer/events_ajax.html:79 viewer/events_ajax.html.py:95
 msgid "Latest events"
 msgstr "最新イベント"
+
+#: viewer/events_ajax.html:110
+msgid "Customize Events View"
+msgstr "イベント画面の設定"
+
+#: viewer/events_ajax.html:116
+msgid "View"
+msgstr "画面表示"
+
+#: viewer/events_ajax.html:117
+msgid "Filter"
+msgstr "フィルター"
+
+#: viewer/events_ajax.html:118
+msgid "Default filter"
+msgstr "デフォルトフィルター"
+
+#: viewer/events_ajax.html:124
+msgid "Auto reload interval (5 - 600 sec)"
+msgstr "自動更新間隔の指定（5～600秒）"
+
+#: viewer/events_ajax.html:129
+msgid "seconds"
+msgstr "秒"
+
+#: viewer/events_ajax.html:136
+msgid "Number of rows per page"
+msgstr "1ページの表示行数"
+
+#: viewer/events_ajax.html:140
+msgid "rows"
+msgstr "行"
+
+#: viewer/events_ajax.html:148
+msgid "Select visible columns"
+msgstr "表示項目の選択"
+
+#: viewer/events_ajax.html:172
+msgid "Selected columns"
+msgstr "選択済み項目"
+
+#: viewer/events_ajax.html:201
+msgid "Close"
+msgstr "閉じる"
+
+#: viewer/events_ajax.html:204
+msgid "Save changes"
+msgstr "変更を保存"
 
 #: viewer/graphs_ajax.html:24 viewer/graphs_ajax.html.py:29
 msgid "Graphs"
@@ -454,6 +502,9 @@ msgstr "ユーザー種別"
 #: viewer/users_ajax.html:62
 msgid "Accessible monitoring servers / hostgroups"
 msgstr "アクセス可能な監視サーバー / ホストグループ"
+
+#~ msgid "# of events per page"
+#~ msgstr "ページ毎のイベント数"
 
 #~ msgid "Time"
 #~ msgstr "時間"
