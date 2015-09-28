@@ -116,7 +116,8 @@ var HatoholEventsViewConfig = function(options) {
   function quickHostFilter(word) {
     var setVisible = function(option) {
       var obj = $(option);
-      if (word.length == 0 || obj.text().indexOf(word) >= 0) {
+      var text = obj.text().toLowerCase();
+      if (word.length == 0 || text.indexOf(word.toLowerCase()) >= 0) {
 	obj.show();
       } else {
 	obj.hide();
