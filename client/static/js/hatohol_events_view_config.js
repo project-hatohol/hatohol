@@ -113,8 +113,7 @@ var HatoholEventsViewConfig = function(options) {
     });
   });
 
-  $("#quick-host-search-submit").click(function() {
-    var word = $("#quick-host-search-entry").val();
+  function quickHostFilter(word) {
     var setVisible = function(option) {
       var obj = $(option);
       if (word.length == 0 || obj.text().indexOf(word) >= 0) {
@@ -125,6 +124,16 @@ var HatoholEventsViewConfig = function(options) {
     }
     $.map($("#host-filter-selector option"), setVisible)
     $.map($("#host-filter-selector-selected option"), setVisible)
+  }
+
+  $("#quick-host-search-submit").click(function() {
+    var word = $("#quick-host-search-entry").val();
+    quickHostFilter(word);
+  });
+
+  $("#quick-host-search-clear").click(function() {
+    $("#quick-host-search-entry").val("");
+    quickHostFilter("");
   });
 
   self.loadAll();
