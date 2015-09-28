@@ -103,6 +103,16 @@ var HatoholEventsViewConfig = function(options) {
     self.saveAll();
   });
 
+  var filterSelectors = [
+    "incident", "status", "severity", "server", "hostgroup", "host"
+  ];
+  $.map(filterSelectors, function(selector) {
+    $('#' + selector + '-filter-selector').multiselect({
+      right: "#" + selector + "-filter-selector-selected",
+    });
+  });
+  self.setCurrentFilter();
+
   self.loadAll();
 };
 
@@ -244,6 +254,54 @@ HatoholEventsViewConfig.prototype.getDefaultConfig = function() {
     'events.sort.order': "" + hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
   };
 };
+
+HatoholEventsViewConfig.prototype.setCurrentFilter = function(filter) {
+  var self = this;
+
+  var incidents = [
+    { value: "NONE",        label: gettext("NONE") },
+    { value: "HOLD",        label: gettext("HOLD") },
+    { value: "IN PROGRESS", label: gettext("IN PROGRESS") },
+    { value: "DONE",        label: gettext("DONE") },
+  ];
+  var statuses = [
+    { value: "0", label: gettext("OK") },
+    { value: "1", label: gettext("Problem") },
+    { value: "2", label: gettext("Unknown") },
+    { value: "3", label: gettext("Notification") },
+  ];
+  var severities = [
+    { value: "0", label: gettext("Not classified") },
+    { value: "1", label: gettext("Information") },
+    { value: "2", label: gettext("Warning") },
+    { value: "3", label: gettext("Average") },
+    { value: "4", label: gettext("High") },
+    { value: "5", label: gettext("Disaster") },
+  ];
+
+  resetSelector("incident", incidents);
+  resetSelector("status", statuses);
+  resetSelector("severity", severities);
+
+  function resetSelector(filterName, choices) {
+    var i;
+
+    $("#" + filterName + "-fitler-selector").empty();
+    $("#" + filterName + "-filter-selector-selected").empty();
+
+    // set candidate columns (left side)
+    for (i = 0; i < choices.length; i++) {
+      addItem(choices[i], "#" + filterName + "-filter-selector");
+    }
+
+    function addItem(choice, parentId) {
+      $("<option/>", {
+        text: choice.label,
+        value: choice.value,
+      }).appendTo(parentId);
+    }
+  }
+}
 
 HatoholEventsViewConfig.prototype.showXHRError = function (XMLHttpRequest) {
   var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
