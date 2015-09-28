@@ -42,10 +42,14 @@ public:
 	 * @param dbName   A database name.
 	 * @param user     A user name used to connect with a DB server.
 	 * @param password A password used to connect with a DB server.
+	 * @param host     A DB server or NULL for localhost.
+	 * @param port     A DB port of zero for the default port.
 	 */
 	static void setDefaultDBParams(const char *dbName,
 	                               const char *user = NULL,
-	                               const char *password = NULL);
+	                               const char *password = NULL,
+	                               const char *host = NULL,
+	                               const int  &port = 0);
 
 	DBHatohol(void);
 	virtual ~DBHatohol();

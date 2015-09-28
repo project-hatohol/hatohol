@@ -262,10 +262,21 @@ private:
 			g_key_file_get_string(keyFile, group, "user", NULL);
 		gchar *password =
 			g_key_file_get_string(keyFile, group, "password", NULL);
-		DBHatohol::setDefaultDBParams(database, user, password);
+		gchar *host =
+			g_key_file_get_string(keyFile, group, "host", NULL);
+		gint port =
+			g_key_file_get_integer(keyFile, group, "port", NULL);
+
+		if (host)
+			dbServerAddress = host;
+		if (port > 0)
+			dbServerPort = port;
+		DBHatohol::setDefaultDBParams(database, user, password,
+		                              host, port);
 		g_free(database);
 		g_free(user);
 		g_free(password);
+		g_free(host);
 	}
 
 	void loadConfigFileFaceRestGroup(GKeyFile *keyFile)

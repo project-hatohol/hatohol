@@ -74,10 +74,12 @@ DB::SetupContext DBHatohol::Impl::setupCtx(typeid(DBHatohol));
 // ---------------------------------------------------------------------------
 extern "C"
 int createDBHatohol(
-  const char *dbName, const char *user, const char *password)
+  const char *dbName, const char *user, const char *password,
+  const char *host, const int port)
 {
 	try {
-		DBHatohol::setDefaultDBParams(dbName, user, password);
+		DBHatohol::setDefaultDBParams(dbName, user, password,
+		                              host, port);
 		DBHatohol db; // Create all DBTables instances to create tables
 	} catch (...) {
 		return -1;
@@ -103,7 +105,8 @@ void DBHatohol::reset(void)
 }
 
 void DBHatohol::setDefaultDBParams(
-  const char *dbName, const char *user, const char *password)
+  const char *dbName, const char *user, const char *password,
+  const char *host, const int &port)
 {
 	DBConnectInfo &connInfo = Impl::setupCtx.connectInfo;
 	if (dbName)
@@ -112,6 +115,10 @@ void DBHatohol::setDefaultDBParams(
 		connInfo.user     = user;
 	if (password)
 		connInfo.password = password;
+	if (host)
+		connInfo.host     = host;
+	if (port > 0)
+		connInfo.port     = port;
 }
 
 DBHatohol::DBHatohol(void)
