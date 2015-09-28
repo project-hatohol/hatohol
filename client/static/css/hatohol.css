@@ -141,7 +141,16 @@ input#term-filter-setting {
 
 .select-exclude-radio label {
     margin-top: 0px;
-};
+}
+
+div#quick-host-search {
+    margin-top: 14px;
+}
+
+input#quick-host-search-entry {
+    width: 85%;
+    display: inline-block;
+}
 
 /* no scirpt */
 div#noscript-background
