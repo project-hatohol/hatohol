@@ -135,6 +135,14 @@ input#term-filter-setting {
     display: inline-block;
 }
 
+.select-exclude-radio {
+    margin-bottom: 12px;
+}
+
+.select-exclude-radio label {
+    margin-top: 0px;
+};
+
 /* no scirpt */
 div#noscript-background
 {
