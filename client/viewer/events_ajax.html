@@ -202,7 +202,7 @@
 		  </div>
 		  <div id="collapseTermFilter" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="termFilterPane">
 		    <div class="panel-body">
-		      <label for="term-filter-setting">{% trans "The term to show (recent)" %}</label>
+		      <label for="term-filter-setting">{% trans "The term to show (recent days)" %}</label>
 		      <span style="float: right;">
 			<input id="term-filter-setting" type="text" class="form-control">
 			<label for="term-filter-setting" class="unit">{% trans "days" %}</label>
@@ -346,6 +346,145 @@
 		    </div>
 		  </div>
 		</div>
+
+		<!-- Monitoring server filter config -->
+		<div class="panel panel-default">
+		  <div class="panel-heading" role="tab" id="serverFilterPane">
+		    <h4 class="panel-title">
+		      <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"\
+			 href="#collapseServerFilter" aria-expanded="false" aria-controls="collapseServerFilter">
+			{% trans "Monitoring Server" %}
+		      </a>
+		    </h4>
+		  </div>
+		  <div id="collapseServerFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="serverFilterPane">
+		    <div class="panel-body">
+		      <p>
+			<input type="checkbox" id="enable-server-filter-selector">
+			<label for="enable-server-filter-selector">
+			  {% trans 'Include "Monitoring server" to the filter condition' %}
+			</label>
+		      </p>
+		      <div class="row">
+			<div class="col-xs-5">
+			  <p><label for="server-filter-selector">{% trans "Candidates" %}<label></p>
+			  <select name="from[]" id="server-filter-selector"
+				  class="form-control" size="10" multiple="multiple">
+			  </select>
+			</div>
+
+			<div class="server-filter-selector-buttons col-xs-2" style="margin-top: 60px;">
+			  <button type="button" id="server-filter-selector_rightSelected" class="btn btn-block">
+			    <i class="glyphicon glyphicon-chevron-right"></i>
+			  </button>
+			  <button type="button" id="server-filter-selector_leftSelected" class="btn btn-block">
+			    <i class="glyphicon glyphicon-chevron-left"></i>
+			  </button>
+			</div>
+
+			<div class="col-xs-5">
+			  <p><label for="server-filter-selector-selected">{% trans "Selected" %}<label></p>
+			  <select name="to[]" id="server-filter-selector-selected"
+				  class="form-control" size="10" multiple="multiple">
+			  </select>
+			</div>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
+		<!-- Hostgroup filter config -->
+		<div class="panel panel-default">
+		  <div class="panel-heading" role="tab" id="hostgroupFilterPane">
+		    <h4 class="panel-title">
+		      <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"\
+			 href="#collapseHostgroupFilter" aria-expanded="false" aria-controls="collapseHostgroupFilter">
+			{% trans "Hostgroup" %}
+		      </a>
+		    </h4>
+		  </div>
+		  <div id="collapseHostgroupFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="hostgroupFilterPane">
+		    <div class="panel-body">
+		      <p>
+			<input type="checkbox" id="enable-hostgroup-filter-selector">
+			<label for="enable-hostgroup-filter-selector">
+			  {% trans 'Include "Hostgroup" to the filter condition' %}
+			</label>
+		      </p>
+		      <div class="row">
+			<div class="col-xs-5">
+			  <p><label for="hostgroup-filter-selector">{% trans "Candidates" %}<label></p>
+			  <select name="from[]" id="hostgroup-filter-selector"
+				  class="form-control" size="10" multiple="multiple">
+			  </select>
+			</div>
+
+			<div class="hostgroup-filter-selector-buttons col-xs-2" style="margin-top: 60px;">
+			  <button type="button" id="hostgroup-filter-selector_rightSelected" class="btn btn-block">
+			    <i class="glyphicon glyphicon-chevron-right"></i>
+			  </button>
+			  <button type="button" id="hostgroup-filter-selector_leftSelected" class="btn btn-block">
+			    <i class="glyphicon glyphicon-chevron-left"></i>
+			  </button>
+			</div>
+
+			<div class="col-xs-5">
+			  <p><label for="hostgroup-filter-selector-selected">{% trans "Selected" %}<label></p>
+			  <select name="to[]" id="hostgroup-filter-selector-selected"
+				  class="form-control" size="10" multiple="multiple">
+			  </select>
+			</div>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
+		<!-- Host filter config -->
+		<div class="panel panel-default">
+		  <div class="panel-heading" role="tab" id="hostFilterPane">
+		    <h4 class="panel-title">
+		      <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"\
+			 href="#collapseHostFilter" aria-expanded="false" aria-controls="collapseHostFilter">
+			{% trans "Host" %}
+		      </a>
+		    </h4>
+		  </div>
+		  <div id="collapseHostFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="hostFilterPane">
+		    <div class="panel-body">
+		      <p>
+			<input type="checkbox" id="enable-host-filter-selector">
+			<label for="enable-host-filter-selector">
+			  {% trans 'Include "Host" to the filter condition' %}
+			</label>
+		      </p>
+		      <div class="row">
+			<div class="col-xs-5">
+			  <p><label for="host-filter-selector">{% trans "Candidates" %}<label></p>
+			  <select name="from[]" id="host-filter-selector"
+				  class="form-control" size="10" multiple="multiple">
+			  </select>
+			</div>
+
+			<div class="host-filter-selector-buttons col-xs-2" style="margin-top: 60px;">
+			  <button type="button" id="host-filter-selector_rightSelected" class="btn btn-block">
+			    <i class="glyphicon glyphicon-chevron-right"></i>
+			  </button>
+			  <button type="button" id="host-filter-selector_leftSelected" class="btn btn-block">
+			    <i class="glyphicon glyphicon-chevron-left"></i>
+			  </button>
+			</div>
+
+			<div class="col-xs-5">
+			  <p><label for="host-filter-selector-selected">{% trans "Selected" %}<label></p>
+			  <select name="to[]" id="host-filter-selector-selected"
+				  class="form-control" size="10" multiple="multiple">
+			  </select>
+			</div>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
 	      </div>
 	    </div>
 
