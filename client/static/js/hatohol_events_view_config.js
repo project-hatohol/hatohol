@@ -113,6 +113,20 @@ var HatoholEventsViewConfig = function(options) {
     });
   });
 
+  $("#quick-host-search-submit").click(function() {
+    var word = $("#quick-host-search-entry").val();
+    var setVisible = function(option) {
+      var obj = $(option);
+      if (word.length == 0 || obj.text().indexOf(word) >= 0) {
+	obj.show();
+      } else {
+	obj.hide();
+      }
+    }
+    $.map($("#host-filter-selector option"), setVisible)
+    $.map($("#host-filter-selector-selected option"), setVisible)
+  });
+
   self.loadAll();
 };
 
