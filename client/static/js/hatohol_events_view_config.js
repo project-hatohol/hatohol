@@ -299,6 +299,8 @@ HatoholEventsViewConfig.prototype.setCurrentFilter = function(filter) {
   ];
   var serverKey, groupKey, hostKey, servers = [], hostgroups = [], hosts = [];
 
+  filter = filter || {};
+
   for (serverKey in self.servers) {
     servers.push({
       value: serverKey,
@@ -323,12 +325,18 @@ HatoholEventsViewConfig.prototype.setCurrentFilter = function(filter) {
     }
   }
 
-  resetSelector("incident", incidents);
-  resetSelector("status", statuses);
-  resetSelector("severity", severities);
-  resetSelector("server", servers);
-  resetSelector("hostgroup", hostgroups);
-  resetSelector("host", hosts);
+  resetSelector("incident", incidents,
+                collectSelectedValue(filter.incidents));
+  resetSelector("status", statuses,
+                collectSelectedValue(filter.statuses));
+  resetSelector("severity", severities,
+                collectSelectedValue(filter.severities));
+  resetSelector("server", servers,
+                collectSelectedValue(filter.servers));
+  resetSelector("hostgroup", hostgroups,
+                collectSelectedValue(filter.hostgroups));
+  resetSelector("host", hosts,
+                collectSelectedValue(filter.hosts));
 
   function buildComplexId(serverId, id) {
     // We don't need escape the separator (","). Because the serverId is a
@@ -336,15 +344,37 @@ HatoholEventsViewConfig.prototype.setCurrentFilter = function(filter) {
     return "" + serverId + "," + id;
   }
 
-  function resetSelector(filterName, choices) {
+  function collectSelectedValue(list) {
+    var selected = {};
+    if (!(list instanceof Array))
+      return selected;
+
+    $.map(list, function(item) {
+      if (item instanceof String) {
+        selected[item] = true;
+      } else if (item instanceof Object) {
+        selected[buildComplexId(item.serverId, item.id)] = true;
+      }
+    });
+    return selected;
+  }
+
+  function resetSelector(filterName, choices, selected) {
     var i;
 
     $("#" + filterName + "-filter-selector").empty();
     $("#" + filterName + "-filter-selector-selected").empty();
 
-    // set candidate columns (left side)
+    // set candidate items (left side)
     for (i = 0; i < choices.length; i++) {
-      addItem(choices[i], "#" + filterName + "-filter-selector");
+      if (!selected[choices.value])
+        addItem(choices[i], "#" + filterName + "-filter-selector");
+    }
+
+    // set selected items (right side)
+    for (i = 0; i < choices.length; i++) {
+      if (selected[choices.value])
+        addItem(choices[i], "#" + filterName + "-filter-selector-selected");
     }
 
     function addItem(choice, parentId) {
