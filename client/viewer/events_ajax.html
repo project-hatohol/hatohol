@@ -186,98 +186,165 @@
 	      </div>
 	    </div>
 
+	    <!-- Filter config tab -->
 	    <div class="tab-pane fade" id="filter-config">
-	      <!-- Incident filter config -->
-	      <p>
-	      <input type="checkbox" id="enable-incident-filter-selector">
-	      <label for="enable-incident-filter-selector">{% trans 'Include "Incident status" to the filter condition' %}</label>
-	      </p>
-	      <div class="row">
-		<div class="col-xs-5">
-		  <p><label for="incident-filter-selector">{% trans "Candidates" %}<label></p>
-		  <select name="from[]" id="incident-filter-selector"
-		    class="form-control" size="4" multiple="multiple">
-		  </select>
+	      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+		<!-- Term filter config -->
+		<div class="panel panel-default">
+		  <div class="panel-heading" role="tab" id="termFilterPane">
+		    <h4 class="panel-title">
+		      <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTermFilter"
+			 aria-expanded="true" aria-controls="collapseTermFilter">
+			{% trans "Term" %}
+		      </a>
+		    </h4>
+		  </div>
+		  <div id="collapseTermFilter" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="termFilterPane">
+		    <div class="panel-body">
+		      <label for="term-filter-setting">{% trans "The term to show (recent)" %}</label>
+		      <span style="float: right;">
+			<input id="term-filter-setting" type="text" class="form-control">
+			<label for="term-filter-setting" class="unit">{% trans "days" %}</label>
+		      </span>
+		    </div>
+		  </div>
 		</div>
 
-		<div class="incident-filter-selector-buttons col-xs-2" style="margin-top: 45px;">
-		  <button type="button" id="incident-filter-selector_rightSelected" class="btn btn-block">
-		    <i class="glyphicon glyphicon-chevron-right"></i>
-		  </button>
-		  <button type="button" id="incident-filter-selector_leftSelected" class="btn btn-block">
-		    <i class="glyphicon glyphicon-chevron-left"></i>
-		  </button>
+		<!-- Incident filter config -->
+		<div class="panel panel-default">
+		  <div class="panel-heading" role="tab" id="incidentFilterPane">
+		    <h4 class="panel-title">
+		      <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseIncidentFilter"
+			 aria-expanded="false" aria-controls="collapseIncidentFilter">
+			{% trans "Incident" %}
+		      </a>
+		    </h4>
+		  </div>
+		  <div id="collapseIncidentFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="incidentFilterPane">
+		    <div class="panel-body">
+		      <p>
+			<input type="checkbox" id="enable-incident-filter-selector">
+			<label for="enable-incident-filter-selector">
+			  {% trans 'Include "Incident status" to the filter condition' %}
+			</label>
+		      </p>
+		      <div class="row">
+			<div class="col-xs-5">
+			  <p><label for="incident-filter-selector">{% trans "Candidates" %}<label></p>
+			  <select name="from[]" id="incident-filter-selector"
+				  class="form-control" size="4" multiple="multiple">
+			  </select>
+			</div>
+
+			<div class="incident-filter-selector-buttons col-xs-2" style="margin-top: 45px;">
+			  <button type="button" id="incident-filter-selector_rightSelected" class="btn btn-block">
+			    <i class="glyphicon glyphicon-chevron-right"></i>
+			  </button>
+			  <button type="button" id="incident-filter-selector_leftSelected" class="btn btn-block">
+			    <i class="glyphicon glyphicon-chevron-left"></i>
+			  </button>
+			</div>
+
+			<div class="col-xs-5">
+			  <p><label for="incident-filter-selector-selected">{% trans "Selected" %}<label></p>
+			  <select name="to[]" id="incident-filter-selector-selected"
+				  class="form-control" size="4" multiple="multiple">
+			  </select>
+			</div>
+		      </div>
+		    </div>
+		  </div>
 		</div>
 
-		<div class="col-xs-5">
-		  <p><label for="incident-filter-selector-selected">{% trans "Selected" %}<label></p>
-		  <select name="to[]" id="incident-filter-selector-selected"
-		    class="form-control" size="4" multiple="multiple">
-		  </select>
-		</div>
-	      </div>
+		<!-- Status filter config -->
+		<div class="panel panel-default">
+		  <div class="panel-heading" role="tab" id="statusFilterPane">
+		    <h4 class="panel-title">
+		      <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+			 href="#collapseStatusFilter" aria-expanded="false" aria-controls="collapseStatusFilter">
+			{% trans "Status" %}
+		      </a>
+		    </h4>
+		  </div>
+		  <div id="collapseStatusFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="statusFilterPane">
+		    <div class="panel-body">
+		      <p>
+			<input type="checkbox" id="enable-status-filter-selector">
+			<label for="enable-status-filter-selector">{% trans 'Include "Status" to the filter condition' %}</label>
+		      </p>
+		      <div class="row">
+			<div class="col-xs-5">
+			  <p><label for="status-filter-selector">{% trans "Candidates" %}<label></p>
+			  <select name="from[]" id="status-filter-selector"
+				  class="form-control" size="3" multiple="multiple">
+			  </select>
+			</div>
 
-	      <hr>
+			<div class="status-filter-selector-buttons col-xs-2" style="margin-top: 38px;">
+			  <button type="button" id="status-filter-selector_rightSelected" class="btn btn-block">
+			    <i class="glyphicon glyphicon-chevron-right"></i>
+			  </button>
+			  <button type="button" id="status-filter-selector_leftSelected" class="btn btn-block">
+			    <i class="glyphicon glyphicon-chevron-left"></i>
+			  </button>
+			</div>
 
-	      <!-- Status filter config -->
-	      <p>
-	      <input type="checkbox" id="enable-status-filter-selector">
-	      <label for="enable-status-filter-selector">{% trans 'Include "Status" to the filter condition' %}</label>
-	      </p>
-	      <div class="row">
-		<div class="col-xs-5">
-		  <p><label for="status-filter-selector">{% trans "Candidates" %}<label></p>
-		  <select name="from[]" id="status-filter-selector"
-		    class="form-control" size="3" multiple="multiple">
-		  </select>
-		</div>
-
-		<div class="status-filter-selector-buttons col-xs-2" style="margin-top: 38px;">
-		  <button type="button" id="status-filter-selector_rightSelected" class="btn btn-block">
-		    <i class="glyphicon glyphicon-chevron-right"></i>
-		  </button>
-		  <button type="button" id="status-filter-selector_leftSelected" class="btn btn-block">
-		    <i class="glyphicon glyphicon-chevron-left"></i>
-		  </button>
-		</div>
-
-		<div class="col-xs-5">
-		  <p><label for="status-filter-selector-selected">{% trans "Selected" %}<label></p>
-		  <select name="to[]" id="status-filter-selector-selected"
-		    class="form-control" size="3" multiple="multiple">
-		  </select>
-		</div>
-	      </div>
-
-	      <hr>
-
-	      <!-- Severity filter config -->
-	      <p>
-	      <input type="checkbox" id="enable-severity-filter-selector">
-	      <label for="enable-severity-filter-selector">{% trans 'Include "Severity" to the filter condition' %}</label>
-	      </p>
-	      <div class="row">
-		<div class="col-xs-5">
-		  <p><label for="severity-filter-selector">{% trans "Candidates" %}<label></p>
-		  <select name="from[]" id="severity-filter-selector"
-		    class="form-control" size="6" multiple="multiple">
-		  </select>
+			<div class="col-xs-5">
+			  <p><label for="status-filter-selector-selected">{% trans "Selected" %}<label></p>
+			  <select name="to[]" id="status-filter-selector-selected"
+				  class="form-control" size="3" multiple="multiple">
+			  </select>
+			</div>
+		      </div>
+		    </div>
+		  </div>
 		</div>
 
-		<div class="severity-filter-selector-buttons col-xs-2" style="margin-top: 60px;">
-		  <button type="button" id="severity-filter-selector_rightSelected" class="btn btn-block">
-		    <i class="glyphicon glyphicon-chevron-right"></i>
-		  </button>
-		  <button type="button" id="severity-filter-selector_leftSelected" class="btn btn-block">
-		    <i class="glyphicon glyphicon-chevron-left"></i>
-		  </button>
-		</div>
+		<!-- Severity filter config -->
+		<div class="panel panel-default">
+		  <div class="panel-heading" role="tab" id="severityFilterPane">
+		    <h4 class="panel-title">
+		      <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"\
+			 href="#collapseSeverityFilter" aria-expanded="false" aria-controls="collapseSeverityFilter">
+			{% trans "Severity" %}
+		      </a>
+		    </h4>
+		  </div>
+		  <div id="collapseSeverityFilter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="severityFilterPane">
+		    <div class="panel-body">
+		      <p>
+			<input type="checkbox" id="enable-severity-filter-selector">
+			<label for="enable-severity-filter-selector">
+			  {% trans 'Include "Severity" to the filter condition' %}
+			</label>
+		      </p>
+		      <div class="row">
+			<div class="col-xs-5">
+			  <p><label for="severity-filter-selector">{% trans "Candidates" %}<label></p>
+			  <select name="from[]" id="severity-filter-selector"
+				  class="form-control" size="6" multiple="multiple">
+			  </select>
+			</div>
 
-		<div class="col-xs-5">
-		  <p><label for="severity-filter-selector-selected">{% trans "Selected" %}<label></p>
-		  <select name="to[]" id="severity-filter-selector-selected"
-		    class="form-control" size="6" multiple="multiple">
-		  </select>
+			<div class="severity-filter-selector-buttons col-xs-2" style="margin-top: 60px;">
+			  <button type="button" id="severity-filter-selector_rightSelected" class="btn btn-block">
+			    <i class="glyphicon glyphicon-chevron-right"></i>
+			  </button>
+			  <button type="button" id="severity-filter-selector_leftSelected" class="btn btn-block">
+			    <i class="glyphicon glyphicon-chevron-left"></i>
+			  </button>
+			</div>
+
+			<div class="col-xs-5">
+			  <p><label for="severity-filter-selector-selected">{% trans "Selected" %}<label></p>
+			  <select name="to[]" id="severity-filter-selector-selected"
+				  class="form-control" size="6" multiple="multiple">
+			  </select>
+			</div>
+		      </div>
+		    </div>
+		  </div>
 		</div>
 	      </div>
 	    </div>
