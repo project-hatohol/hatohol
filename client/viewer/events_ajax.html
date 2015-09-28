@@ -190,6 +190,22 @@
 	    <div class="tab-pane fade" id="filter-config">
 	      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
 
+		<!-- Filter name -->
+		<div id="filter-name-config" class="btn-group">
+		  <label for="filter-name-entry">{% trans "Filter name" %}</label>
+		  <input id="filter-name-entry" class="form-control" type="text">
+		  <button id="filter-name-list-button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+		    <span class="caret"></span>
+		  </button>
+		  <ul class="dropdown-menu" aria-labelledby="filter-name-list-button">
+		    <li><a href="#">Filter 1</a></li>
+		    <li><a href="#">Filter 2</a></li>
+		    <li><a href="#">Filter 3</a></li>
+		    <li class="divider"></li>
+		    <li><a href="#">Add a new filter...</a></li>
+		  </ul>
+		</div>
+
 		<!-- Term filter config -->
 		<div class="panel panel-default">
 		  <div class="panel-heading" role="tab" id="termFilterPane">
