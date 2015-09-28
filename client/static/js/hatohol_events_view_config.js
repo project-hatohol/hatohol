@@ -45,6 +45,7 @@ var HatoholEventsViewConfig = function(options) {
   HatoholUserConfig.apply(this, [options]);
   self.options = options;
   self.config = self.getDefaultConfig();
+  self.servers = null;
 
   $('#events-view-config').on('show.bs.modal', function (event) {
     self.reset();
@@ -111,7 +112,6 @@ var HatoholEventsViewConfig = function(options) {
       right: "#" + selector + "-filter-selector-selected",
     });
   });
-  self.setCurrentFilter();
 
   self.loadAll();
 };
@@ -198,6 +198,7 @@ HatoholEventsViewConfig.prototype.reset = function() {
   resetAutoReloadInterval();
   resetNumRowsPerPage();
   resetColumnSelector();
+  self.setCurrentFilter();
 
   function resetAutoReloadInterval() {
     $("#auto-reload-interval-slider").slider("value", autoReloadInterval);
@@ -255,6 +256,10 @@ HatoholEventsViewConfig.prototype.getDefaultConfig = function() {
   };
 };
 
+HatoholEventsViewConfig.prototype.setServers = function(servers) {
+  this.servers = servers;
+}
+
 HatoholEventsViewConfig.prototype.setCurrentFilter = function(filter) {
   var self = this;
 
@@ -278,15 +283,49 @@ HatoholEventsViewConfig.prototype.setCurrentFilter = function(filter) {
     { value: "4", label: gettext("High") },
     { value: "5", label: gettext("Disaster") },
   ];
+  var serverKey, groupKey, hostKey, servers = [], hostgroups = [], hosts = [];
+
+  for (serverKey in self.servers) {
+    servers.push({
+      value: serverKey,
+      label: getNickName(self.servers[serverKey], serverKey),
+    });
+
+    for (groupKey in self.servers[serverKey].groups) {
+      hostgroups.push({
+        value: buildComplexId(serverKey, groupKey),
+        label: getHostgroupName(self.servers[serverKey], groupKey) + 
+          " (" + getNickName(self.servers[serverKey], serverKey) + ")",
+      });
+    }
+
+    for (hostKey in self.servers[serverKey].hosts) {
+      hosts.push({
+        value: buildComplexId(serverKey, hostKey),
+        label:
+          getHostName(self.servers[serverKey], hostKey) +
+          " (" + getNickName(self.servers[serverKey], serverKey) + ")",
+      });
+    }
+  }
 
   resetSelector("incident", incidents);
   resetSelector("status", statuses);
   resetSelector("severity", severities);
+  resetSelector("server", servers);
+  resetSelector("hostgroup", hostgroups);
+  resetSelector("host", hosts);
+
+  function buildComplexId(serverId, id) {
+    // We don't need escape the separator (","). Because the serverId is a
+    // number, the first "," is always a separator, not a part of the later ID.
+    return "" + serverId + "," + id;
+  }
 
   function resetSelector(filterName, choices) {
     var i;
 
-    $("#" + filterName + "-fitler-selector").empty();
+    $("#" + filterName + "-filter-selector").empty();
     $("#" + filterName + "-filter-selector-selected").empty();
 
     // set candidate columns (left side)
