@@ -57,8 +57,40 @@ sql_file_list = [
      'target': 'hapi2-zabbix'},
 ]
 
-not_found_config_file = False
-fallback_default_params = {'user': 'hatohol', 'password': 'hatohol'}
+config_map = {
+    'db_login_user': 'root',
+    'db_login_password': '',
+    'database': 'hatohol',
+    'user': 'hatohol',
+    'password': 'hatohol',
+    'host': 'localhost',
+    'port': 0
+}
+
+
+def get_default_conf():
+    return '@expanded_sysconfdir@/hatohol/hatohol.conf'
+
+
+def init_config_map():
+    config_file = get_default_conf()
+    if not os.access(config_file, os.R_OK):
+        return
+
+    config = ConfigParser.ConfigParser()
+    config.read(config_file)
+    data = (
+        ('database', 'mysql', 'database'),
+        ('user', 'mysql', 'user'),
+        ('password','mysql', 'password'),
+        ('host', 'mysql', 'host'),
+        ('port', 'mysql', 'port'),
+    )
+    global config_map
+    for key, section, option in data:
+        if not config.has_option(section, option):
+            continue
+        config_map[key] = config.get(section, option)
 
 
 def create_db_if_needed(cursor, args):
@@ -71,10 +103,12 @@ def create_db_if_needed(cursor, args):
     if found:
         print 'DB already exists: %s' % args.db_name
     else:
+        if not args.skip_fix_privileges:
+            cursor.execute(
+                'GRANT ALL PRIVILEGES ON %s.* TO %s@\'%s\' IDENTIFIED BY \'%s\''
+                % (args.db_name, args.hatohol_db_user,
+                   args.hatohol_db_user_host,  args.hatohol_db_password))
         cursor.execute('CREATE DATABASE %s' % args.db_name)
-        cursor.execute(
-            'GRANT ALL PRIVILEGES ON %s.* TO %s@localhost IDENTIFIED BY \'%s\''
-            % (args.db_name, args.hatohol_db_user, args.hatohol_db_password))
         print 'Created DB: %s' % args.db_name
     cursor.execute('USE %s' % args.db_name)
 
@@ -83,7 +117,9 @@ def create_hatohol_tables(args):
     hatohol = cdll.LoadLibrary('libhatohol.so.0')
     ret = hatohol.createDBHatohol(c_char_p(args.db_name),
                                   c_char_p(args.db_user),
-                                  c_char_p(args.db_password))
+                                  c_char_p(args.db_password),
+                                  c_char_p(args.host),
+                                  c_int(args.port))
     if ret == -1:
         print 'Failed to create DBHatohol object'
         sys.exit(-1)
@@ -152,35 +188,8 @@ def add_sql_directory(args, sql_file_list):
         sql_file['file_name'] = args.sql_dir + '/' + sql_file['file_name']
 
 
-def get_default_conf():
-    return '@expanded_sysconfdir@/hatohol/hatohol.conf'
-
-
-def parse_default_conf():
-    config_file = get_default_conf()
-    if not os.access(config_file, os.R_OK):
-        return None
-
-    config_list = []
-    config = ConfigParser.ConfigParser()
-    config.read(config_file)
-    config_list.append({'database': config.get('mysql', 'database'),
-                        'user':     config.get('mysql', 'user'),
-                        'password': config.get('mysql', 'password')})
-    return config_list
-
-
 def get_default_conf_item(item_name):
-    config = parse_default_conf()
-    if config is None:
-        global not_found_config_file
-        global fallback_default_params
-        not_found_config_file = True
-        return fallback_default_params.get(item_name, '<Unknown>')
-
-    for conf in config:
-        item = conf[item_name]
-    return item
+    return config_map.get(item_name)
 
 
 def start(args):
@@ -223,42 +232,41 @@ def get_target_list():
     return target_list
 
 if __name__ == '__main__':
+    init_config_map()
 
     parser = argparse.ArgumentParser(description='Hatohol DB Initiator')
-    parser.add_argument('--db_name', default=get_default_conf_item('database'),
-                        type=str,
+    parser.add_argument('--db-name', type=str,
+                        default=get_default_conf_item('database'),
                         help='A database name to be initialized.')
-    parser.add_argument('--db_user', default=get_default_conf_item('user'),
-                        type=str,
-                        help='A user for the database server.')
-    parser.add_argument('--db_password', default=get_default_conf_item('password'),
-                        type=str,
-                        help='A password for the database server.'
-                        ' If the password is not set, give \'\' for this argument.')
-    parser.add_argument('--host', default='localhost', type=str,
+    parser.add_argument('--db-user', type=str,
+                        default=get_default_conf_item('db_login_user'),
+                        help='A user to log in to the database server.')
+    parser.add_argument('--db-password', type=str,
+                        default=get_default_conf_item('db_login_password'),
+                        help='A password to log in to the database server.')
+    parser.add_argument('--host', type=str,
+                        default=get_default_conf_item('host'),
                         help='A database server.')
-    parser.add_argument('--sql-dir', default=get_default_sql_dir(), type=str,
+    parser.add_argument('--port', type=int,
+                        default=get_default_conf_item('port'),
+                        help='A database port.')
+    parser.add_argument('--sql-dir', type=str,
+                        default=get_default_sql_dir(),
                         help='A directory that contains SQL files.')
-    parser.add_argument('--hatohol-db-user',
+    parser.add_argument('--hatohol-db-user', type=str,
                         default=get_default_conf_item('user'),
-                        type=str,
                         help='A user who is allowed to access the database.')
-    parser.add_argument('--hatohol-db-password',
+    parser.add_argument('--hatohol-db-password', type=str,
                         default=get_default_conf_item('password'),
-                        type=str,
                         help='A password that is used to access the database.')
+    parser.add_argument('-s', '--skip-fix-privileges', action='store_true')
+    parser.add_argument('--hatohol-db-user-host', type=str,
+                        default='localhost')
     parser.add_argument('-f', '--force', action='store_true',
                         help='Delete existing data in a table before the initial data are inserted. '
                         'By default, this tool skips to insert data if the table is not empty.')
     parser.add_argument('-t', '--target', choices=get_target_list(),
                         help='Only the specified table is initialized.')
-    parser.add_argument('-c', '--continue-no-conf', action='store_true',
-                        help='Continue this program even if the configuration file is not found.')
     args = parser.parse_args()
-
-    # Check the existence of the config file here to show the command line help
-    if not_found_config_file and not args.continue_no_conf:
-        print "Could not read %s." % get_default_conf()
-        sys.exit(-1)
 
     start(args)
