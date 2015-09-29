@@ -222,7 +222,7 @@ HatoholEventsViewConfig.prototype.reset = function() {
   resetAutoReloadInterval();
   resetNumRowsPerPage();
   resetColumnSelector();
-  self.setCurrentFilter();
+  self.setCurrentFilterSettings();
 
   function resetAutoReloadInterval() {
     $("#auto-reload-interval-slider").slider("value", autoReloadInterval);
@@ -284,7 +284,7 @@ HatoholEventsViewConfig.prototype.setServers = function(servers) {
   this.servers = servers;
 }
 
-HatoholEventsViewConfig.prototype.setCurrentFilter = function(filter) {
+HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
   var self = this;
 
   var incidents = [
