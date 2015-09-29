@@ -217,13 +217,14 @@ HatoholEventsViewConfig.prototype.saveValue = function(key, value) {
 
 HatoholEventsViewConfig.prototype.reset = function() {
   var self = this;
+  var filter = self.getDefaultFilterSettings();
   var autoReloadInterval = self.getValue('events.auto-reload.interval');
   var key;
 
   resetAutoReloadInterval();
   resetNumRowsPerPage();
   resetColumnSelector();
-  self.setCurrentFilterSettings();
+  self.setCurrentFilterSettings(filter);
 
   function resetAutoReloadInterval() {
     $("#auto-reload-interval-slider").slider("value", autoReloadInterval);
@@ -406,6 +407,40 @@ HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
       }).appendTo(parentId);
     }
   }
+};
+
+HatoholEventsViewConfig.prototype.getDefaultFilterSettings = function() {
+  return {
+    name: gettext("ALL (31 days)"),
+    days: 31,
+    incident: {
+      enable: false,
+      selected: []
+    },
+    status: {
+      enable: false,
+      selected: []
+    },
+    severity: {
+      enable: false,
+      selected: []
+    },
+    server: {
+      enable: false,
+      exclude: false,
+      selected: []
+      },
+    hostgroup: {
+      enable: false,
+      exclude: false,
+      selected: []
+    },
+    host: {
+      enable: false,
+      exclude: false,
+      selected: []
+    }
+  };
 };
 
 HatoholEventsViewConfig.prototype.getCurrentFilterSettings = function() {
