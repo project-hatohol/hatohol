@@ -369,15 +369,19 @@ HatoholEventsViewConfig.prototype.setCurrentFilter = function(filter) {
   }
 
   function resetSelector(filterName, choices, config) {
-    var i, selected;
+    var i, selected, exclude;
 
     config = config || {};
     selected = collectSelectedValues(config.selected);
+    exclude = config.exclude ? "1" : "0";
 
     $("#" + filterName + "-filter-selector").empty();
     $("#" + filterName + "-filter-selector-selected").empty();
 
     $("#enable-" + filterName + "-filter-selector").prop("cheched", config.enable);
+    $("input:radio" +
+      "[name=" + filterName + "-filter-select-options]" +
+      "[value=" + exclude + "]").attr('checked', true);
 
     // set candidate items (left side)
     for (i = 0; i < choices.length; i++) {
