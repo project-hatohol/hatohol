@@ -80,12 +80,20 @@ describe('EventsViewConfig', function() {
         "type": type,
         "ipAddress": "192.168.1.100",
         "baseURL": "http://192.168.1.100/base/",
+        "groups": {
+          "101": {
+            "name": "group1"
+          },
+          "102": {
+            "name": "group2"
+          }
+        },
         "hosts": {
           "10105": {
-            "name": "Host",
+            "name": "Host"
           },
           "10106": {
-            "name": "Host2",
+            "name": "Host2"
           }
         },
       },
@@ -176,5 +184,47 @@ describe('EventsViewConfig', function() {
         selected: []
       }
     });
+  });
+
+  it('set and get current filter', function() {
+    var config = new HatoholEventsViewConfig({
+      columnDefinitions: testColumnDefinitions,
+    });
+    var expected = {
+      name: "Sample Filter",
+      days: 60,
+      incident: {
+        enable: true,
+        selected: ["NONE", "IN PROGRESS"]
+      },
+      status: {
+        enable: true,
+        selected: ["0", "1"]
+      },
+      severity: {
+        enable: true,
+        selected: ["2", "3"]
+      },
+      server: {
+        enable: true,
+        exclude: true,
+        selected: ["1"]
+      },
+      hostgroup: {
+        enable: true,
+        exclude: true,
+        selected: ["1,101"]
+      },
+      host: {
+        enable: true,
+        exclude: true,
+        selected: ["1,10106"]
+      }
+    };
+    respond();
+    config.setServers(getDummyServerInfo());
+    config.reset();
+    config.setCurrentFilterSettings(expected);
+    expect(config.getCurrentFilterSettings()).to.eql(expected);
   });
 });

@@ -359,9 +359,9 @@ HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
       return selected;
 
     $.map(list, function(item) {
-      if (item instanceof String) {
+      if (typeof item == "string") {
         selected[item] = true;
-      } else if (item instanceof Object) {
+      } else if (typeof item == "object") {
         selected[buildComplexId(item.serverId, item.id)] = true;
       }
     });
@@ -378,20 +378,20 @@ HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
     $("#" + filterName + "-filter-selector").empty();
     $("#" + filterName + "-filter-selector-selected").empty();
 
-    $("#enable-" + filterName + "-filter-selector").prop("cheched", config.enable);
+    $("#enable-" + filterName + "-filter-selector").prop("checked", config.enable);
     $("input:radio" +
       "[name=" + filterName + "-filter-select-options]" +
       "[value=" + exclude + "]").attr('checked', true);
 
     // set candidate items (left side)
     for (i = 0; i < choices.length; i++) {
-      if (!selected[choices.value])
+      if (!selected[choices[i].value])
         addItem(choices[i], "#" + filterName + "-filter-selector");
     }
 
     // set selected items (right side)
     for (i = 0; i < choices.length; i++) {
-      if (selected[choices.value])
+      if (selected[choices[i].value])
         addItem(choices[i], "#" + filterName + "-filter-selector-selected");
     }
 
