@@ -217,14 +217,15 @@ HatoholEventsViewConfig.prototype.saveValue = function(key, value) {
 
 HatoholEventsViewConfig.prototype.reset = function() {
   var self = this;
-  var filter = self.getDefaultFilterSettings();
+  var defaultFilter = self.getDefaultFilterSettings();
   var autoReloadInterval = self.getValue('events.auto-reload.interval');
   var key;
 
   resetAutoReloadInterval();
   resetNumRowsPerPage();
   resetColumnSelector();
-  self.setCurrentFilterSettings(filter);
+  resetFilterList();
+  self.setCurrentFilterSettings(defaultFilter);
 
   function resetAutoReloadInterval() {
     $("#auto-reload-interval-slider").slider("value", autoReloadInterval);
@@ -268,6 +269,22 @@ HatoholEventsViewConfig.prototype.reset = function() {
         value: key,
       }).appendTo(parentId);
     }
+  }
+
+  function resetFilterList() {
+    var filters = self.getAllFilterSettingsList();
+    $("#filter-name-list").empty();
+    $.map(filters, function(filter) {
+      $("<li/>").append(
+        $("<a>", {
+          text: filter.name,
+          href: "#",
+          click: function(obj) {
+            self.setCurrentFilterSettings(filter);
+          },
+        })
+      ).appendTo("#filter-name-list");
+    });
   }
 };
 
@@ -444,6 +461,14 @@ HatoholEventsViewConfig.prototype.getDefaultFilterSettings = function() {
     }
   };
 };
+
+HatoholEventsViewConfig.prototype.getAllFilterSettingsList = function() {
+  var self = this;
+  var filters = [self.getDefaultFilterSettings()];
+  // TODO: load from Django
+  return filters;
+};
+
 
 HatoholEventsViewConfig.prototype.getCurrentFilterSettings = function() {
   var self = this;
