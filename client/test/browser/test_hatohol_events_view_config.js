@@ -79,7 +79,7 @@ describe('EventsViewConfig', function() {
 
   function respond(configJson, filtersJson) {
     respondUserConfig(configJson);
-    respondFilters(configJson);
+    respondFilters(filtersJson);
   }
 
   function getDummyServerInfo(type){
