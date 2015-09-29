@@ -1,4 +1,4 @@
-# Copyright (C) 2013 Project Hatohol
+# Copyright (C) 2013,2015 Project Hatohol
 #
 # This file is part of Hatohol.
 #
@@ -18,6 +18,7 @@
 import urllib
 import urllib2
 from django.http import HttpResponse
+from django.http import HttpResponseServerError
 import hatoholserver
 import hatohol_def
 
@@ -59,7 +60,8 @@ def jsonforward(request, path):
 
         response = HttpResponse(content, content_type='application/json')
     except urllib2.URLError, e:
-        response = HttpResponse(e.read(), content_type='application/json', status=e.code)
+        print e.reason
+        response = HttpResponseServerError()
 
     response['Pragma'] = 'no-cache'
     response['Cache-Control'] = 'no-cache'
