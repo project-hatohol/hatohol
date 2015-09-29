@@ -349,7 +349,7 @@ HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
   }
 
   $.map(self.multiselectFilterTypes, function(type) {
-      resetSelector(type, candidates[type], filter[type]);
+    resetSelector(type, candidates[type], filter[type]);
   });
 
   function buildComplexId(serverId, id) {
