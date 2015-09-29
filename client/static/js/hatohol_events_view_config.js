@@ -311,8 +311,8 @@ HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
 
   filter = filter || {};
 
-  $("filter-name-entry").val(filter.name);
-  $("term-filter-setting").val(filter.days);
+  $("#filter-name-entry").val(filter.name);
+  $("#term-filter-setting").val(filter.days);
 
   // collect candidate servers/hostgroups/hosts
   for (serverKey in self.servers) {
