@@ -154,8 +154,8 @@ describe('EventsViewConfig', function() {
     config.reset();
     respond();
     expect(config.getCurrentFilterSettings()).to.eql({
-      name: "",
-      days: 0,
+      name: "ALL (31 days)",
+      days: 31,
       incident: {
         enable: false,
         selected: []
