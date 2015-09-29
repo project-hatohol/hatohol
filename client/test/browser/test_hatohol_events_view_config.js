@@ -137,4 +137,44 @@ describe('EventsViewConfig', function() {
     respond();
     expect(loaded).to.be(true);
   });
+
+  it('getCurrentFilterSettings with empty data', function() {
+    var config = new HatoholEventsViewConfig({
+      columnDefinitions: testColumnDefinitions,
+    });
+    config.setServers(getDummyServerInfo());
+    config.reset();
+    respond();
+    expect(config.getCurrentFilterSettings()).to.eql({
+      name: "",
+      days: 0,
+      incident: {
+        enable: false,
+        selected: []
+      },
+      status: {
+        enable: false,
+        selected: []
+      },
+      severity: {
+        enable: false,
+        selected: []
+      },
+      server: {
+        enable: false,
+        exclude: false,
+        selected: []
+      },
+      hostgroup: {
+        enable: false,
+        exclude: false,
+        selected: []
+      },
+      host: {
+        enable: false,
+        exclude: false,
+        selected: []
+      }
+    });
+  });
 });
