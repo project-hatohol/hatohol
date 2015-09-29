@@ -121,13 +121,17 @@ div#filter-name-config {
 }
 
 input#filter-name-entry {
-    width: 420px;
+    width: 380px;
     margin-right: -6px;
     display: inline-block;
 }
 
 button#filter-name-list-button {
     margin-bottom: 2px;
+}
+
+button#filter-name-list-delete-button {
+    margin-bottom: 6px;
 }
 
 input#term-filter-setting {

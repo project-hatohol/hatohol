@@ -145,6 +145,18 @@ var HatoholEventsViewConfig = function(options) {
     self.resetFilterList();
   });
 
+  $("#filter-name-list-delete-button").click(function () {
+    var i;
+    for (i = 0; i < self.filterList.length; i++) {
+      if (self.filterList[i] === self.selectedFilterSettings) {
+	self.filterList.splice(i, 1);
+        self.setCurrentFilterSettings(self.filterList[0]);
+	self.resetFilterList();
+        return;
+      }
+    }
+  });
+
   self.loadAll();
 };
 
