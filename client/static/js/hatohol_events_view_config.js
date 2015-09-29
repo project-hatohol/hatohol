@@ -78,6 +78,7 @@ var HatoholEventsViewConfig = function(options) {
   for (key in options.columnDefinitions) {
     $("<option/>", {
       text: options.columnDefinitions[key].header,
+      title: options.columnDefinitions[key].header,
       value: key,
     }).appendTo("#column-selector");
   }
@@ -262,6 +263,7 @@ HatoholEventsViewConfig.prototype.reset = function() {
     function addItem(key, parentId) {
       $("<option/>", {
         text: definitions[key].header,
+        title: definitions[key].header,
         value: key,
       }).appendTo(parentId);
     }
@@ -324,8 +326,9 @@ HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
     for (groupKey in self.servers[serverKey].groups) {
       hostgroups.push({
         value: buildComplexId(serverKey, groupKey),
-        label: getHostgroupName(self.servers[serverKey], groupKey) + 
-          " (" + getNickName(self.servers[serverKey], serverKey) + ")",
+        label:
+          getNickName(self.servers[serverKey], serverKey) + ": " +
+          getHostgroupName(self.servers[serverKey], groupKey)
       });
     }
 
@@ -333,8 +336,8 @@ HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
       hosts.push({
         value: buildComplexId(serverKey, hostKey),
         label:
-          getHostName(self.servers[serverKey], hostKey) +
-          " (" + getNickName(self.servers[serverKey], serverKey) + ")",
+          getNickName(self.servers[serverKey], serverKey) + ": " +
+          getHostName(self.servers[serverKey], hostKey)
       });
     }
   }
@@ -398,6 +401,7 @@ HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
     function addItem(choice, parentId) {
       $("<option/>", {
         text: choice.label,
+        title: choice.label,
         value: choice.value,
       }).appendTo(parentId);
     }
