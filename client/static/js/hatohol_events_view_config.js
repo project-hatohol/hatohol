@@ -37,7 +37,7 @@ var HatoholEventsViewConfig = function(options) {
   // savedCallback: <function> [optional]
   //   A callback function that is called on the saved.
   //
- var self = this;
+  var self = this;
   var minAutoReloadInterval = 5;
   var maxAutoReloadInterval = 600;
   var key;
