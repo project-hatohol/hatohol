@@ -122,7 +122,7 @@ var HatoholEventsViewConfig = function(options) {
       } else {
 	obj.hide();
       }
-    }
+    };
     $.map($("#host-filter-selector option"), setVisible)
     $.map($("#host-filter-selector-selected option"), setVisible)
   }
@@ -282,7 +282,7 @@ HatoholEventsViewConfig.prototype.getDefaultConfig = function() {
 
 HatoholEventsViewConfig.prototype.setServers = function(servers) {
   this.servers = servers;
-}
+};
 
 HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
   var self = this;
@@ -402,7 +402,7 @@ HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
       }).appendTo(parentId);
     }
   }
-}
+};
 
 HatoholEventsViewConfig.prototype.showXHRError = function (XMLHttpRequest) {
   var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
