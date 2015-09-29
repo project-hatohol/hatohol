@@ -49,6 +49,7 @@ var HatoholEventsViewConfig = function(options) {
   self.multiselectFilterTypes = [
     "incident", "status", "severity", "server", "hostgroup", "host"
   ];
+  self.filterList = [self.getDefaultFilterSettings()];
 
   $('#events-view-config').on('show.bs.modal', function (event) {
     self.reset();
@@ -272,8 +273,9 @@ HatoholEventsViewConfig.prototype.reset = function() {
   }
 
   function resetFilterList() {
-    var filters = self.getAllFilterSettingsList();
+    var filters = self.filterList;
     $("#filter-name-list").empty();
+
     $.map(filters, function(filter) {
       $("<li/>").append(
         $("<a>", {
@@ -285,6 +287,22 @@ HatoholEventsViewConfig.prototype.reset = function() {
         })
       ).appendTo("#filter-name-list");
     });
+
+    $("<li/>", {"class": "divider"}).appendTo("#filter-name-list");
+
+    $("<li/>").append(
+      $("<a>", {
+        text: gettext("Add a new filter"),
+        href: "#",
+        click: function(obj) {
+          var newFilter = self.getDefaultFilterSettings();
+          newFilter.name = gettext("New filter");
+          self.filterList.push(newFilter);
+          resetFilterList();
+          self.setCurrentFilterSettings(newFilter);
+        },
+      })
+    ).appendTo("#filter-name-list");
   }
 };
 
@@ -460,13 +478,6 @@ HatoholEventsViewConfig.prototype.getDefaultFilterSettings = function() {
       selected: []
     }
   };
-};
-
-HatoholEventsViewConfig.prototype.getAllFilterSettingsList = function() {
-  var self = this;
-  var filters = [self.getDefaultFilterSettings()];
-  // TODO: load from Django
-  return filters;
 };
 
 
