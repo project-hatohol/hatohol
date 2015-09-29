@@ -404,6 +404,43 @@ HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
   }
 };
 
+HatoholEventsViewConfig.prototype.getCurrentFilterSettings = function() {
+  var filter = {};
+
+  filter.name = $("#filter-name-entry").val();
+  filter.days = parseInt($("#term-filter-setting").val());
+  if (isNaN(filter.days))
+    filter.days = 0;
+  addFilterSetting("incident");
+  addFilterSetting("status");
+  addFilterSetting("severity");
+  addFilterSetting("server");
+  addFilterSetting("hostgroup");
+  addFilterSetting("host");
+
+  function addFilterSetting(filterName) {
+    var config = {};
+    config.enable = $("#enable-" + filterName +
+                      "-filter-selector").prop("checked");
+
+    var exclude = $("input:radio[name=" + filterName +
+                    "-filter-select-options]:checked").val();
+    if (exclude == "1")
+      config.exclude = true;
+    else if (exclude == "0")
+      config.exclude = false;
+
+    var selected = $("#" + filterName + "-filter-selector-selected option");
+    config.selected = $.map(selected, function(option) {
+      return $(option).val();
+    });
+
+    filter[filterName] = config;
+  }
+
+  return filter;
+};
+
 HatoholEventsViewConfig.prototype.showXHRError = function (XMLHttpRequest) {
   var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
     XMLHttpRequest.statusText;
