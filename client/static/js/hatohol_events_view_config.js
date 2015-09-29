@@ -337,8 +337,10 @@ HatoholEventsViewConfig.prototype.resetFilterList = function(filter) {
         var newFilter = self.getDefaultFilterSettings();
         newFilter.name = gettext("New filter");
         self.filterList.push(newFilter);
-        self.resetFilterList();
+        $.extend(self.selectedFilterSettings,
+                 self.getCurrentFilterSettings());
         self.setCurrentFilterSettings(newFilter);
+        self.resetFilterList();
       },
     })
   ).appendTo("#filter-name-list");
