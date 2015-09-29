@@ -339,18 +339,12 @@ HatoholEventsViewConfig.prototype.setCurrentFilter = function(filter) {
     }
   }
 
-  resetSelector("incident", incidents,
-                collectSelectedValue(filter.incidents));
-  resetSelector("status", statuses,
-                collectSelectedValue(filter.statuses));
-  resetSelector("severity", severities,
-                collectSelectedValue(filter.severities));
-  resetSelector("server", servers,
-                collectSelectedValue(filter.servers));
-  resetSelector("hostgroup", hostgroups,
-                collectSelectedValue(filter.hostgroups));
-  resetSelector("host", hosts,
-                collectSelectedValue(filter.hosts));
+  resetSelector("incident", incidents, filter.incidents);
+  resetSelector("status", statuses, filter.statuses);
+  resetSelector("severity", severities, filter.severities);
+  resetSelector("server", servers, filter.servers);
+  resetSelector("hostgroup", hostgroups, filter.hostgroups);
+  resetSelector("host", hosts, filter.hosts);
 
   function buildComplexId(serverId, id) {
     // We don't need escape the separator (","). Because the serverId is a
@@ -358,8 +352,9 @@ HatoholEventsViewConfig.prototype.setCurrentFilter = function(filter) {
     return "" + serverId + "," + id;
   }
 
-  function collectSelectedValue(list) {
+  function collectSelectedValues(list) {
     var selected = {};
+
     if (!(list instanceof Array))
       return selected;
 
@@ -373,11 +368,16 @@ HatoholEventsViewConfig.prototype.setCurrentFilter = function(filter) {
     return selected;
   }
 
-  function resetSelector(filterName, choices, selected) {
-    var i;
+  function resetSelector(filterName, choices, config) {
+    var i, selected;
+
+    config = config || {};
+    selected = collectSelectedValues(config.selected);
 
     $("#" + filterName + "-filter-selector").empty();
     $("#" + filterName + "-filter-selector-selected").empty();
+
+    $("#enable-" + filterName + "-filter-selector").prop("cheched", config.enable);
 
     // set candidate items (left side)
     for (i = 0; i < choices.length; i++) {
