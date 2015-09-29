@@ -46,6 +46,9 @@ var HatoholEventsViewConfig = function(options) {
   self.options = options;
   self.config = self.getDefaultConfig();
   self.servers = null;
+  self.multiselectFilterTypes = [
+    "incident", "status", "severity", "server", "hostgroup", "host"
+  ];
 
   $('#events-view-config').on('show.bs.modal', function (event) {
     self.reset();
@@ -105,10 +108,7 @@ var HatoholEventsViewConfig = function(options) {
     self.saveAll();
   });
 
-  var filterSelectors = [
-    "incident", "status", "severity", "server", "hostgroup", "host"
-  ];
-  $.map(filterSelectors, function(selector) {
+  $.map(self.multiselectFilterTypes, function(selector) {
     $('#' + selector + '-filter-selector').multiselect({
       right: "#" + selector + "-filter-selector-selected",
     });
@@ -290,27 +290,32 @@ HatoholEventsViewConfig.prototype.setServers = function(servers) {
 HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
   var self = this;
 
-  var incidents = [
-    { value: "NONE",        label: gettext("NONE") },
-    { value: "HOLD",        label: gettext("HOLD") },
-    { value: "IN PROGRESS", label: gettext("IN PROGRESS") },
-    { value: "DONE",        label: gettext("DONE") },
-  ];
-  var statuses = [
-    { value: "0", label: gettext("OK") },
-    { value: "1", label: gettext("Problem") },
-    { value: "2", label: gettext("Unknown") },
-    { value: "3", label: gettext("Notification") },
-  ];
-  var severities = [
-    { value: "0", label: gettext("Not classified") },
-    { value: "1", label: gettext("Information") },
-    { value: "2", label: gettext("Warning") },
-    { value: "3", label: gettext("Average") },
-    { value: "4", label: gettext("High") },
-    { value: "5", label: gettext("Disaster") },
-  ];
-  var serverKey, groupKey, hostKey, servers = [], hostgroups = [], hosts = [];
+  var candidates = {
+    incident: [
+      { value: "NONE",        label: gettext("NONE") },
+      { value: "HOLD",        label: gettext("HOLD") },
+      { value: "IN PROGRESS", label: gettext("IN PROGRESS") },
+      { value: "DONE",        label: gettext("DONE") },
+    ],
+    status: [
+      { value: "0", label: gettext("OK") },
+      { value: "1", label: gettext("Problem") },
+      { value: "2", label: gettext("Unknown") },
+      { value: "3", label: gettext("Notification") },
+    ],
+    severity: [
+      { value: "0", label: gettext("Not classified") },
+      { value: "1", label: gettext("Information") },
+      { value: "2", label: gettext("Warning") },
+      { value: "3", label: gettext("Average") },
+      { value: "4", label: gettext("High") },
+      { value: "5", label: gettext("Disaster") },
+    ],
+    server: [],
+    hostgroup: [],
+    host: [],
+  };
+  var serverKey, groupKey, hostKey;
 
   filter = filter || {};
 
@@ -319,13 +324,13 @@ HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
 
   // collect candidate servers/hostgroups/hosts
   for (serverKey in self.servers) {
-    servers.push({
+    candidates.server.push({
       value: serverKey,
       label: getNickName(self.servers[serverKey], serverKey),
     });
 
     for (groupKey in self.servers[serverKey].groups) {
-      hostgroups.push({
+      candidates.hostgroup.push({
         value: buildComplexId(serverKey, groupKey),
         label:
           getNickName(self.servers[serverKey], serverKey) + ": " +
@@ -334,7 +339,7 @@ HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
     }
 
     for (hostKey in self.servers[serverKey].hosts) {
-      hosts.push({
+      candidates.host.push({
         value: buildComplexId(serverKey, hostKey),
         label:
           getNickName(self.servers[serverKey], serverKey) + ": " +
@@ -343,12 +348,9 @@ HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
     }
   }
 
-  resetSelector("incident", incidents, filter.incident);
-  resetSelector("status", statuses, filter.status);
-  resetSelector("severity", severities, filter.severity);
-  resetSelector("server", servers, filter.server);
-  resetSelector("hostgroup", hostgroups, filter.hostgroup);
-  resetSelector("host", hosts, filter.host);
+  $.map(self.multiselectFilterTypes, function(type) {
+      resetSelector(type, candidates[type], filter[type]);
+  });
 
   function buildComplexId(serverId, id) {
     // We don't need escape the separator (","). Because the serverId is a
@@ -444,18 +446,16 @@ HatoholEventsViewConfig.prototype.getDefaultFilterSettings = function() {
 };
 
 HatoholEventsViewConfig.prototype.getCurrentFilterSettings = function() {
+  var self = this;
   var filter = {};
 
   filter.name = $("#filter-name-entry").val();
   filter.days = parseInt($("#term-filter-setting").val());
   if (isNaN(filter.days))
     filter.days = 0;
-  addFilterSetting("incident");
-  addFilterSetting("status");
-  addFilterSetting("severity");
-  addFilterSetting("server");
-  addFilterSetting("hostgroup");
-  addFilterSetting("host");
+  $.map(self.multiselectFilterTypes, function(type) {
+    addFilterSetting(type);
+  });
 
   function addFilterSetting(filterName) {
     var config = {};
