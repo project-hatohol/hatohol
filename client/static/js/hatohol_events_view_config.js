@@ -339,12 +339,12 @@ HatoholEventsViewConfig.prototype.setCurrentFilter = function(filter) {
     }
   }
 
-  resetSelector("incident", incidents, filter.incidents);
-  resetSelector("status", statuses, filter.statuses);
-  resetSelector("severity", severities, filter.severities);
-  resetSelector("server", servers, filter.servers);
-  resetSelector("hostgroup", hostgroups, filter.hostgroups);
-  resetSelector("host", hosts, filter.hosts);
+  resetSelector("incident", incidents, filter.incident);
+  resetSelector("status", statuses, filter.status);
+  resetSelector("severity", severities, filter.severity);
+  resetSelector("server", servers, filter.server);
+  resetSelector("hostgroup", hostgroups, filter.hostgroup);
+  resetSelector("host", hosts, filter.host);
 
   function buildComplexId(serverId, id) {
     // We don't need escape the separator (","). Because the serverId is a
