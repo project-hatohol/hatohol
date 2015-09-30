@@ -169,6 +169,9 @@ HatoholEventsViewConfig.prototype.constructor = HatoholEventsViewConfig;
 
 HatoholEventsViewConfig.prototype.loadAll = function() {
   var self = this;
+  var configDeferred = new $.Deferred;
+  var filterDeferred = new $.Deferred;
+
   self.get({
     itemNames: [
       'events.auto-reload.interval',
@@ -180,24 +183,28 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
     successCallback: function(config) {
       $.extend(self.config, config);
       self.reset();
-      if (self.options.loadedCallback)
-        self.options.loadedCallback(self);
+      configDeferred.resolve();
     },
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
       self.showXHRError(XMLHttpRequest);
     },
   });
 
-  // TODO: Wait and handle the result properly
   new HatoholConnector({
     pathPrefix: '',
     url: '/event-filters',
     replyCallback: function(reply, parser) {
       self.filterList = reply;
+      filterDeferred.resolve();
     },
     parseErrorCallback: function(reply, parser) {
       hatoholErrorMsgBoxForParser(reply, parser);
     },
+  });
+
+  $.when(configDeferred.promise(), filterDeferred.promise()).done(function() {
+    if (self.options.loadedCallback)
+      self.options.loadedCallback(self);
   });
 };
 
