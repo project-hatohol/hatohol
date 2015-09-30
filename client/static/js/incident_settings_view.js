@@ -190,7 +190,11 @@ var IncidentSettingsView = function(userProfile) {
       s += "<td>";
       if (incidentTracker) {
 	s += incidentTracker.nickname;
-        s += " (" + gettext("Project: ") + incidentTracker.projectId;
+        if (incidentTracker.projectId) {
+          s += " (" + gettext("Project: ") + incidentTracker.projectId;
+        } else {
+          s += " (" + gettext("Hatohol");
+        }
         if (incidentTracker.trackerId) {
           s += ", " + gettext("Tracker: ") + incidentTracker.trackerId;
         }
