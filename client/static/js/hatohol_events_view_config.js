@@ -198,7 +198,10 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
     pathPrefix: '',
     url: '/event-filters',
     replyCallback: function(reply, parser) {
-      self.filterList = reply;
+      if (reply.length > 0)
+        self.filterList = reply;
+      else
+        self.filterList = [self.getDefaultFilterSettings()];
     },
     parseErrorCallback: function(reply, parser) {
       hatoholErrorMsgBoxForParser(reply, parser);
