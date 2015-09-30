@@ -295,6 +295,8 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
     return deferred.promise();
   });
   $.when.apply($, promises).done(function() {
+    self.filterList = self.editingFilterList;
+    self.resetEditingFilterList();
     if (self.options.savedCallback)
       self.options.savedCallback(self);
   });
