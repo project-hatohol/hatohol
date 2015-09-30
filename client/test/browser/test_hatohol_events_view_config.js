@@ -69,8 +69,17 @@ describe('EventsViewConfig', function() {
                     configJson);
   }
 
-  function respond(eventsJson, configJson) {
+  function respondFilters(filtersJson) {
+    var request = this.requests[1];
+    if (!filtersJson)
+      filtersJson = '[]';
+    request.respond(200, { "Content-Type": "application/json" },
+                    filtersJson);
+  }
+
+  function respond(configJson, filtersJson) {
     respondUserConfig(configJson);
+    respondFilters(configJson);
   }
 
   function getDummyServerInfo(type){

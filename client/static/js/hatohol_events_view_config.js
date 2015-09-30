@@ -183,10 +183,12 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
     successCallback: function(config) {
       $.extend(self.config, config);
       self.reset();
-      configDeferred.resolve();
     },
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
       self.showXHRError(XMLHttpRequest);
+    },
+    completionCallback: function() {
+      configDeferred.resolve();
     },
   });
 
@@ -195,10 +197,12 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
     url: '/event-filters',
     replyCallback: function(reply, parser) {
       self.filterList = reply;
-      filterDeferred.resolve();
     },
     parseErrorCallback: function(reply, parser) {
       hatoholErrorMsgBoxForParser(reply, parser);
+    },
+    completionCallback: function() {
+      filterDeferred.resolve();
     },
   });
 

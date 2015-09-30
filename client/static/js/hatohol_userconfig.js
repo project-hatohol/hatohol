@@ -49,6 +49,8 @@ HatoholUserConfig.prototype.get = function(params) {
       return params.successCallback(reply);
     },
     connectErrorCallback: params.connectErrorCallback,
+    parseErrorCallback: params.parseErrorCallback,
+    completionCallback: params.completionCallback,
     replyParser: getInactionParser(),
   });
 };
@@ -79,6 +81,8 @@ HatoholUserConfig.prototype.store = function(params) {
           params.successCallback(reply);
     },
     connectErrorCallback: params.connectErrorCallback,
+    parseErrorCallback: params.parseErrorCallback,
+    completionCallback: params.completionCallback,
     replyParser: getInactionParser(),
   });
 };
