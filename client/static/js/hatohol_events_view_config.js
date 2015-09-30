@@ -184,6 +184,18 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
       self.showXHRError(XMLHttpRequest);
     },
   });
+
+  // TODO: Wait and handle the result properly
+  new HatoholConnector({
+    pathPrefix: '',
+    url: '/event-filters',
+    replyCallback: function(reply, parser) {
+      self.filterList = reply;
+    },
+    parseErrorCallback: function(reply, parser) {
+      hatoholErrorMsgBoxForParser(reply, parser);
+    },
+  });
 };
 
 HatoholEventsViewConfig.prototype.saveAll = function() {
@@ -207,6 +219,27 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
       self.showXHRError(XMLHttpRequest);
     },
   });
+
+  // TODO: Wait and handle the result properly
+  // TODO: Remove deleted filters
+  $.map(self.filterList, function(filter) {
+    var path = "/event-filters/";
+
+    if (filter.id)
+      path += filter.id;
+
+    new HatoholConnector({
+      pathPrefix: "",
+      url: path,
+      request: filter.id ? "PUT" : "POST",
+      data: JSON.stringify(filter),
+      replyCallback: function(reply, parser) {
+      },
+      parseErrorCallback: function(reply, parser) {
+        hatoholErrorMsgBoxForParser(reply, parser);
+      }
+    });
+  })
 
   function buildSelectedColumns() {
     var selected = $("#column-selector-selected option");
