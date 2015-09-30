@@ -423,11 +423,9 @@ HatoholIncidentTrackerEditor.prototype.onAppendMainElement = function() {
 };
 
 HatoholIncidentTrackerEditor.prototype.toggleEditIncidentTrackerArea = function() {
+  var self = this;
   $("#selectIncidentTrackerType").change(function() {
-    if ($(this).val() == hatohol.INCIDENT_TRACKER_HATOHOL)
-      $("#editIncidentTrackerArea").attr("style", "display: none");
-    else
-      $("#editIncidentTrackerArea").removeAttr("style");
+    self.applyEditIncidentTrackerAreaState();
   });
 };
 
