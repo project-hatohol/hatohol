@@ -222,6 +222,9 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
     'events.columns': buildSelectedColumns(),
   });
 
+  $.extend(self.selectedFilterSettings,
+           self.getCurrentFilterSettings());
+
   self.store({
     items: self.config,
     successCallback: function(reply) {
