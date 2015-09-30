@@ -255,6 +255,7 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
       request: filter.id ? "PUT" : "POST",
       data: JSON.stringify(filter),
       replyCallback: function(reply, parser) {
+        $.extend(filter, reply);
       },
       parseErrorCallback: function(reply, parser) {
         hatoholErrorMsgBoxForParser(reply, parser);
