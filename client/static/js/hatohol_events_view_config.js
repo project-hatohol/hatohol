@@ -207,6 +207,7 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
   });
 
   $.when(configDeferred.promise(), filterDeferred.promise()).done(function() {
+    self.removedFilters = {};
     if (self.options.loadedCallback)
       self.options.loadedCallback(self);
   });
