@@ -42,6 +42,14 @@ var HatoholEventsViewConfig = function(options) {
   var maxAutoReloadInterval = 600;
   var key;
 
+  // TODO: Remove it when we complete to implement the config dialog.
+  var params = deparam();
+  if (params && (params.devel == "true")) {
+    $("#config-tab-list").show();
+  } else {
+    $("#config-tab-list").hide();
+  }
+
   HatoholUserConfig.apply(this, [options]);
   self.options = options;
   self.config = self.getDefaultConfig();
