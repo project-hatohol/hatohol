@@ -194,7 +194,12 @@ HatoholIncidentTrackersEditor.prototype.generateTableRows = function(data) {
 
   for (var i = 0; i < data.incidentTrackers.length; i++) {
     tracker = data.incidentTrackers[i];
-    type = tracker.type == 0 ? gettext("Redmine") : gettext("Unknown");
+    type = gettext("Unknown");
+    if (tracker.type == hatohol.INCIDENT_TRACKER_REDMINE) {
+      type = gettext("Redmine");
+    } else if (tracker.type == hatohol.INCIDENT_TRACKER_HATOHOL) {
+      type = gettext("Hatohol");
+    }
     html +=
     '<tr>' +
     '<td class="deleteIncidentTracker">' +
