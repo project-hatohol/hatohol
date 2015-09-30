@@ -214,6 +214,7 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
 
 HatoholEventsViewConfig.prototype.saveAll = function() {
   var self = this;
+  var deferreds = [new $.Deferred];
 
   $.extend(self.config, {
     'events.auto-reload.interval': $("#auto-reload-interval").val(),
@@ -225,22 +226,24 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
     items: self.config,
     successCallback: function(reply) {
       $("#events-view-config").modal("hide");
-
-      if (self.options.savedCallback)
-        self.options.savedCallback(self);
     },
     connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
       self.showXHRError(XMLHttpRequest);
+    },
+    completionCallback: function() {
+      deferreds[0].resolve();
     },
   });
 
   // TODO: Wait and handle the result properly
   $.map(self.filterList, function(filter) {
     var path = "/event-filters/";
+    var deferred = new $.Deferred;
 
     if (filter.id)
       path += filter.id;
 
+    deferreds.push(deferred);
     new HatoholConnector({
       pathPrefix: "",
       url: path,
@@ -251,11 +254,15 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
       parseErrorCallback: function(reply, parser) {
         hatoholErrorMsgBoxForParser(reply, parser);
       },
+      completionCallback: function() {
+        deferred.resolve();
+      },
     });
   });
 
-  // TODO: Wait and handle the result properly
   $.map(self.removedFilters, function(val, id) {
+    var deferred = new $.Deferred;
+
     new HatoholConnector({
       pathPrefix: "",
       url: "/event-filters/" + id,
@@ -266,7 +273,18 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
       parseErrorCallback: function(reply, parser) {
         hatoholErrorMsgBoxForParser(reply, parser);
       },
+      completionCallback: function() {
+        deferred.resolve();
+      },
     });
+  });
+
+  var promises = $.map(deferreds, function(deferred) {
+    return deferred.promise();
+  });
+  $.when.apply($, promises).done(function() {
+    if (self.options.savedCallback)
+      self.options.savedCallback(self);
   });
 
   function buildSelectedColumns() {
