@@ -76,10 +76,15 @@ describe('EventsView', function() {
       configJson = '{}';
     request.respond(200, { "Content-Type": "application/json" },
                     configJson);
+
+    // fitlers
+    request = this.requests[1];
+    request.respond(200, { "Content-Type": "application/json" },
+                    "[]");
   }
 
   function respondEvents(eventsJson) {
-    var request = this.requests[1];
+    var request = this.requests[2];
     request.respond(200, { "Content-Type": "application/json" },
                     eventsJson);
   }
