@@ -418,6 +418,7 @@ HatoholIncidentTrackerEditor.prototype.onAppendMainElement = function() {
   this.setIncidentTracker(this.incidentTracker);
   this.resetWidgetState();
 
+  this.applyEditIncidentTrackerAreaState();
   this.toggleEditIncidentTrackerArea();
 };
 
@@ -428,6 +429,13 @@ HatoholIncidentTrackerEditor.prototype.toggleEditIncidentTrackerArea = function(
     else
       $("#editIncidentTrackerArea").removeAttr("style");
   });
+};
+
+HatoholIncidentTrackerEditor.prototype.applyEditIncidentTrackerAreaState = function() {
+  if ($("#selectIncidentTrackerType").val() == hatohol.INCIDENT_TRACKER_HATOHOL)
+    $("#editIncidentTrackerArea").attr("style", "display: none");
+  else
+    $("#editIncidentTrackerArea").removeAttr("style");
 };
 
 HatoholIncidentTrackerEditor.prototype.resetWidgetState = function() {
