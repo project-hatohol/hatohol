@@ -204,22 +204,22 @@
 		   {% trans "Delete" %}
 		</button>
 
-		<!-- Term filter config -->
+		<!-- Period filter config -->
 		<div class="panel panel-default">
-		  <div class="panel-heading" role="tab" id="term-filter-pane">
+		  <div class="panel-heading" role="tab" id="period-filter-pane">
 		    <h4 class="panel-title">
-		      <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-term-filter"
-			 aria-expanded="true" aria-controls="collapse-term-filter">
-			{% trans "Term" %}
+		      <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-period-filter"
+			 aria-expanded="true" aria-controls="collapse-period-filter">
+			{% trans "Search period" %}
 		      </a>
 		    </h4>
 		  </div>
-		  <div id="collapse-term-filter" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="term-filter-pane">
+		  <div id="collapse-period-filter" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="period-filter-pane">
 		    <div class="panel-body">
-		      <label for="term-filter-setting">{% trans "The term to show (recent days)" %}</label>
+		      <label for="period-filter-setting">{% trans "The period to show (recent days)" %}</label>
 		      <span style="float: right;">
-			<input id="term-filter-setting" type="text" class="form-control">
-			<label for="term-filter-setting" class="unit">{% trans "days" %}</label>
+			<input id="period-filter-setting" type="text" class="form-control">
+			<label for="period-filter-setting" class="unit">{% trans "days" %}</label>
 		      </span>
 		    </div>
 		  </div>
