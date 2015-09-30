@@ -311,6 +311,10 @@ var HatoholIncidentTrackerEditor = function(params) {
   function validateParameters() {
     var label;
 
+    if($("#selectIncidentTrackerType").val() == hatohol.INCIDENT_TRACKER_HATOHOL) {
+      return true;
+    }
+
     if ($("#editIncidentTrackerNickname").val() == "") {
       hatoholErrorMsgBox(gettext("Nickname is empty!"));
       return false;
