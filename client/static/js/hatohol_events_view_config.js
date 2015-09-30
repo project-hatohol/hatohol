@@ -50,6 +50,7 @@ var HatoholEventsViewConfig = function(options) {
     "incident", "status", "severity", "server", "hostgroup", "host"
   ];
   self.filterList = [self.getDefaultFilterSettings()];
+  self.selectedFilterSettings = null;
 
   $('#events-view-config').on('show.bs.modal', function (event) {
     self.reset();
@@ -318,8 +319,6 @@ HatoholEventsViewConfig.prototype.resetFilterList = function(filter) {
         href: "#",
         click: function(obj) {
           self.selectedFilterNameElement = this;
-          $.extend(self.selectedFilterSettings,
-                   self.getCurrentFilterSettings());
           self.setCurrentFilterSettings(filter);
           self.resetFilterList();
         },
@@ -337,8 +336,6 @@ HatoholEventsViewConfig.prototype.resetFilterList = function(filter) {
         var newFilter = self.getDefaultFilterSettings();
         newFilter.name = gettext("New filter");
         self.filterList.push(newFilter);
-        $.extend(self.selectedFilterSettings,
-                 self.getCurrentFilterSettings());
         self.setCurrentFilterSettings(newFilter);
         self.resetFilterList();
       },
@@ -377,6 +374,10 @@ HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
   var serverKey, groupKey, hostKey;
 
   filter = filter || {};
+
+  if (self.selectedFilterSettings)
+    $.extend(self.selectedFilterSettings,
+             self.getCurrentFilterSettings());
 
   $("#filter-name-entry").val(filter.name);
   $("#period-filter-setting").val(filter.days);
