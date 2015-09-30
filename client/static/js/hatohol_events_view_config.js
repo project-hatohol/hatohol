@@ -241,7 +241,6 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
     },
   });
 
-  // TODO: Wait and handle the result properly
   $.map(self.filterList, function(filter) {
     var path = "/event-filters/";
     var deferred = new $.Deferred;
