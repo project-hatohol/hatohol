@@ -51,6 +51,7 @@ var HatoholEventsViewConfig = function(options) {
   ];
   self.filterList = [self.getDefaultFilterSettings()];
   self.selectedFilterSettings = null;
+  self.removedFilters = {};
 
   $('#events-view-config').on('show.bs.modal', function (event) {
     self.reset();
@@ -147,12 +148,14 @@ var HatoholEventsViewConfig = function(options) {
   });
 
   $("#filter-name-list-delete-button").click(function () {
-    var i;
+    var i, removedFilters;
     for (i = 0; i < self.filterList.length; i++) {
       if (self.filterList[i] === self.selectedFilterSettings) {
-	self.filterList.splice(i, 1);
+        removedFilters = self.filterList.splice(i, 1);
+        if (removedFilters.length == 1 && removedFilters[0].id)
+          self.removedFilters[removedFilters[0].id] = true;
         self.setCurrentFilterSettings(self.filterList[0]);
-	self.resetFilterList();
+        self.resetFilterList();
         return;
       }
     }
@@ -221,7 +224,6 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
   });
 
   // TODO: Wait and handle the result properly
-  // TODO: Remove deleted filters
   $.map(self.filterList, function(filter) {
     var path = "/event-filters/";
 
@@ -237,9 +239,24 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
       },
       parseErrorCallback: function(reply, parser) {
         hatoholErrorMsgBoxForParser(reply, parser);
-      }
+      },
     });
-  })
+  });
+
+  // TODO: Wait and handle the result properly
+  $.map(self.removedFilters, function(val, id) {
+    new HatoholConnector({
+      pathPrefix: "",
+      url: "/event-filters/" + id,
+      request: "DELETE",
+      replyCallback: function(reply, parser) {
+        delete self.removedFilters[id]
+      },
+      parseErrorCallback: function(reply, parser) {
+        hatoholErrorMsgBoxForParser(reply, parser);
+      },
+    });
+  });
 
   function buildSelectedColumns() {
     var selected = $("#column-selector-selected option");
