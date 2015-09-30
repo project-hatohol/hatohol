@@ -379,7 +379,7 @@ HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
   filter = filter || {};
 
   $("#filter-name-entry").val(filter.name);
-  $("#term-filter-setting").val(filter.days);
+  $("#period-filter-setting").val(filter.days);
 
   // collect candidate servers/hostgroups/hosts
   for (serverKey in self.servers) {
@@ -512,7 +512,7 @@ HatoholEventsViewConfig.prototype.getCurrentFilterSettings = function() {
   var filter = {};
 
   filter.name = $("#filter-name-entry").val();
-  filter.days = parseInt($("#term-filter-setting").val());
+  filter.days = parseInt($("#period-filter-setting").val());
   if (isNaN(filter.days))
     filter.days = 0;
   $.map(self.multiselectFilterTypes, function(type) {
