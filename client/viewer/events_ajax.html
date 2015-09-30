@@ -662,7 +662,53 @@
 	    </div>
 
 	    <div class="tab-pane fade" id="default-filter-config">
-	      <p>Default Filter Config</p>
+
+	      <div>
+		<p>{% trans 'Select a filter to apply as the default filter of the summary view.' %}</p>
+		<div class="view-layout-mock">
+		  <table class="table-bordered view-layout-mock">
+		    <tr><td rowspan="2" class="sidebar highlight"></td><td class="controlbar"></td></tr>
+		    <tr><td></td></tr>
+		  </table>
+		</div>
+		<select size="8" class="default-filter-selector">
+		  <option>Filter 1</option>
+		  <option>Filter 2</option>
+		  <option>Filter 3</option>
+		  <option>Filter 4</option>
+		  <option>Filter 5</option>
+		  <option>Filter 6</option>
+		  <option>Filter 7</option>
+		  <option>Filter 8</option>
+		  <option>Filter 9</option>
+		  <option selected>Filter 10</option>
+		</select>
+	      </div>
+
+	      <hr>
+
+	      <div>
+		<p>{% trans 'Select a filter to apply as the default filter of the event list view.' %}</p>
+		<div class="view-layout-mock">
+		  <table class="table-bordered view-layout-mock">
+		    <tr><td rowspan="2" class="sidebar"></td><td class="controlbar"></td></tr>
+		    <tr><td class="highlight"></td></tr>
+		  </table>
+		</div>
+		<select size="8" class="default-filter-selector">
+		  <option>Filter 1</option>
+		  <option>Filter 2</option>
+		  <option>Filter 3</option>
+		  <option>Filter 4</option>
+		  <option>Filter 5</option>
+		  <option selected>Filter 6</option>
+		  <option>Filter 7</option>
+		  <option>Filter 8</option>
+		  <option>Filter 9</option>
+		  <option>Filter 10</option>
+		</select>
+	      </div>
+
 	    </div>
 	  </div>
 
