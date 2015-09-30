@@ -154,6 +154,8 @@ var HatoholEventsViewConfig = function(options) {
         removedFilters = self.filterList.splice(i, 1);
         if (removedFilters.length == 1 && removedFilters[0].id)
           self.removedFilters[removedFilters[0].id] = true;
+	if (self.filterList.length == 0)
+	  self.filterList.push(self.getDefaultFilterSettings());
         self.setCurrentFilterSettings(self.filterList[0]);
         self.resetFilterList();
         return;
