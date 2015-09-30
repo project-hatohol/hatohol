@@ -20,4 +20,18 @@ describe('HatoholIncidentTrackerEditor', function() {
     expect(buttons[0].text).to.be(gettext("ADD"));
     expect(buttons[1].text).to.be(gettext("CANCEL"));
   });
+
+  it('change to Hatohol incident tracker type', function() {
+    var expectedId = "#incident-tracker-editor";
+    var editFormsArea = "#editIncidentTrackerArea";
+    editor = new HatoholIncidentTrackerEditor({});
+    expect(editor).not.to.be(undefined);
+    expect($(expectedId)).to.have.length(1);
+    var buttons = $(expectedId).dialog("option", "buttons");
+    $("#selectIncidentTrackerType").val(gettext("Hatohol")).change();
+    // Make synchronous
+    setTimeout(function() {
+      expect($(editFormsArea).css('display')).to.be("none");
+    }, 0);
+  });
 });
