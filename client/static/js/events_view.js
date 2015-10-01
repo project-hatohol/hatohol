@@ -637,6 +637,10 @@ var EventsView = function(userProfile, options) {
       $(".incident").hide();
     }
 
+    $('.incident').on('click', function() {
+      $(this).toggleClass('selected');
+    });
+
     setupSortColumn();
 
     function setupSortColumn() {
