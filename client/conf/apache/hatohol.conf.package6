@@ -9,9 +9,4 @@ WSGIPythonPath /usr/libexec/hatohol/client/
         Allow from all
     </Directory>
     Alias /static/ /usr/libexec/hatohol/client/static/
-    ProxyPass /tunnel/ http://localhost:33194/
-    <Proxy *>
-        Order allow,deny
-        allow from all
-    </Proxy>
 </VirtualHost>

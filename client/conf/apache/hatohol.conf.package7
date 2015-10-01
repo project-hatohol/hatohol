@@ -8,8 +8,4 @@ WSGIPythonPath /usr/libexec/hatohol/client/
         Require all granted
     </Directory>
     Alias /static/ /usr/libexec/hatohol/client/static/
-    ProxyPass /tunnel/ http://localhost:33194/
-    <Proxy *>
-        Require all granted
-    </Proxy>
 </VirtualHost>
