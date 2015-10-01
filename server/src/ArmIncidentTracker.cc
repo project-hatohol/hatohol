@@ -93,6 +93,7 @@ ArmIncidentTracker *ArmIncidentTracker::create(
 		// TODO: should treat more appropriate way
 		MLPL_INFO("Hatohol incident tracking system selected: %d\n",
 			 trackerInfo.type);
+		break;
 	default:
 		MLPL_BUG("Invalid incident tracking system: %d\n",
 			 trackerInfo.type);
