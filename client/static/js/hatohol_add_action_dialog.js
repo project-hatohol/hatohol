@@ -808,10 +808,15 @@ HatoholAddActionDialog.prototype.updateIncidentTrackers = function(incidentTrack
   for (i = 0; i < incidentTrackers.length; i++) {
     incidentTracker = incidentTrackers[i];
     label = "" + incidentTracker.id + ": " + incidentTracker.nickname;
-    if (incidentTracker.type == hatohol.INCIDENT_TRACKER_REDMINE) {
+    switch (incidentTracker.type) {
+    case hatohol.INCIDENT_TRACKER_REDMINE:
       label += " (" + gettext("Project: ") + incidentTracker.projectId;
-    } else {
+      break;
+    case hatohol.INCIDENT_TRACKER_HATOHOL:
       label += " (" + gettext("Hatohol");
+      break;
+    default:
+      label += " (" + gettext("Unknown");
     }
     if (incidentTracker.trackerId)
       label += ", " + gettext("Tracker: ") + incidentTracker.trackerId;
