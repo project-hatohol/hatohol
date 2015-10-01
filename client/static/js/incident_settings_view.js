@@ -190,10 +190,15 @@ var IncidentSettingsView = function(userProfile) {
       s += "<td>";
       if (incidentTracker) {
 	s += incidentTracker.nickname;
-        if (incidentTracker.type == hatohol.INCIDENT_TRACKER_REDMINE) {
+        switch (incidentTracker.type) {
+        case hatohol.INCIDENT_TRACKER_REDMINE:
           s += " (" + gettext("Project: ") + incidentTracker.projectId;
-        } else {
+          break;
+        case hatohol.INCIDENT_TRACKER_HATOHOL:
           s += " (" + gettext("Hatohol");
+          break;
+        default:
+          s += " (" + gettext("Unknown");
         }
         if (incidentTracker.trackerId) {
           s += ", " + gettext("Tracker: ") + incidentTracker.trackerId;
