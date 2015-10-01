@@ -229,8 +229,12 @@ struct UnifiedDataStore::Impl
 		  = armIncidentTrackerMap.find(trackerInfo.id);
 		ArmIncidentTracker *arm = NULL;
 		if (it == armIncidentTrackerMap.end()) {
-			arm = ArmIncidentTracker::create(trackerInfo);
-			armIncidentTrackerMap[trackerInfo.id] = arm;
+			if (trackerInfo.type == INCIDENT_TRACKER_REDMINE) {
+				arm = ArmIncidentTracker::create(trackerInfo);
+				armIncidentTrackerMap[trackerInfo.id] = arm;
+			} else {
+				return;
+			}
 		} else {
 			arm = it->second;
 		}

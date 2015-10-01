@@ -194,7 +194,12 @@ HatoholIncidentTrackersEditor.prototype.generateTableRows = function(data) {
 
   for (var i = 0; i < data.incidentTrackers.length; i++) {
     tracker = data.incidentTrackers[i];
-    type = tracker.type == 0 ? gettext("Redmine") : gettext("Unknown");
+    type = gettext("Unknown");
+    if (tracker.type == hatohol.INCIDENT_TRACKER_REDMINE) {
+      type = gettext("Redmine");
+    } else if (tracker.type == hatohol.INCIDENT_TRACKER_HATOHOL) {
+      type = gettext("Hatohol");
+    }
     html +=
     '<tr>' +
     '<td class="deleteIncidentTracker">' +
@@ -311,6 +316,10 @@ var HatoholIncidentTrackerEditor = function(params) {
   function validateParameters() {
     var label;
 
+    if($("#selectIncidentTrackerType").val() == hatohol.INCIDENT_TRACKER_HATOHOL) {
+      return true;
+    }
+
     if ($("#editIncidentTrackerNickname").val() == "") {
       hatoholErrorMsgBox(gettext("Nickname is empty!"));
       return false;
@@ -363,8 +372,11 @@ HatoholIncidentTrackerEditor.prototype.createMainElement = function() {
   '<select id="selectIncidentTrackerType" style="width:10em">' +
   '  <option value="' + hatohol.INCIDENT_TRACKER_REDMINE + '">' +
     gettext("Redmine") + '</option>' +
+  '  <option value="' + hatohol.INCIDENT_TRACKER_HATOHOL + '">' +
+    gettext("Hatohol") + '</option>' +
   '</select>' +
   '</div>' +
+  '<div id="editIncidentTrackerArea">' +
   '<div>' +
   '<label for="editIncidentTrackerNickname">' + gettext("Nickname") + '</label>' +
   '<input id="editIncidentTrackerNickname" type="text" ' +
@@ -396,6 +408,7 @@ HatoholIncidentTrackerEditor.prototype.createMainElement = function() {
   '<input id="editIncidentTrackerPassword" type="password" ' +
   '       class="input-xlarge">' +
   '<input type="checkbox" id="editIncidentTrackerPasswordCheckbox"> ' +
+  '</div>' +
   '</div>';
 
   return html;
@@ -404,6 +417,23 @@ HatoholIncidentTrackerEditor.prototype.createMainElement = function() {
 HatoholIncidentTrackerEditor.prototype.onAppendMainElement = function() {
   this.setIncidentTracker(this.incidentTracker);
   this.resetWidgetState();
+
+  this.applyEditIncidentTrackerAreaState();
+  this.toggleEditIncidentTrackerArea();
+};
+
+HatoholIncidentTrackerEditor.prototype.toggleEditIncidentTrackerArea = function() {
+  var self = this;
+  $("#selectIncidentTrackerType").change(function() {
+    self.applyEditIncidentTrackerAreaState();
+  });
+};
+
+HatoholIncidentTrackerEditor.prototype.applyEditIncidentTrackerAreaState = function() {
+  if ($("#selectIncidentTrackerType").val() == hatohol.INCIDENT_TRACKER_HATOHOL)
+    $("#editIncidentTrackerArea").attr("style", "display: none");
+  else
+    $("#editIncidentTrackerArea").removeAttr("style");
 };
 
 HatoholIncidentTrackerEditor.prototype.resetWidgetState = function() {
