@@ -799,7 +799,7 @@ HatoholAddActionDialog.prototype.getCommand = function() {
 };
 
 HatoholAddActionDialog.prototype.updateIncidentTrackers = function(incidentTrackers) {
-  var label, incidentTraker;
+  var label, incidentTracker;
 
   if (!this.forIncidentSetting)
     return;
