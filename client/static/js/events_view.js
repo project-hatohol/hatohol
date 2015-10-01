@@ -493,7 +493,7 @@ var EventsView = function(userProfile, options) {
   function renderTableDataIncidentStatus(event, server) {
     var html = "", incident = getIncident(event);
 
-    html += "<td class='incident " + getSeverityClass(event) + "'";
+    html += "<td class='selectable incident " + getSeverityClass(event) + "'";
     html += " style='display:none;'>";
 
     if (!incident)
@@ -637,7 +637,7 @@ var EventsView = function(userProfile, options) {
       $(".incident").hide();
     }
 
-    $('.incident').on('click', function() {
+    $('.incident.selectable').on('click', function() {
       $(this).toggleClass('selected');
     });
 
