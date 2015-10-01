@@ -808,7 +808,7 @@ HatoholAddActionDialog.prototype.updateIncidentTrackers = function(incidentTrack
   for (i = 0; i < incidentTrackers.length; i++) {
     incidentTracker = incidentTrackers[i];
     label = "" + incidentTracker.id + ": " + incidentTracker.nickname;
-    if (incidentTracker.projectId) {
+    if (incidentTracker.type == hatohol.INCIDENT_TRACKER_REDMINE) {
       label += " (" + gettext("Project: ") + incidentTracker.projectId;
     } else {
       label += " (" + gettext("Hatohol");

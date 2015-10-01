@@ -190,7 +190,7 @@ var IncidentSettingsView = function(userProfile) {
       s += "<td>";
       if (incidentTracker) {
 	s += incidentTracker.nickname;
-        if (incidentTracker.projectId) {
+        if (incidentTracker.type == hatohol.INCIDENT_TRACKER_REDMINE) {
           s += " (" + gettext("Project: ") + incidentTracker.projectId;
         } else {
           s += " (" + gettext("Hatohol");
