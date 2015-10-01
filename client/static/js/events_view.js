@@ -499,6 +499,9 @@ var EventsView = function(userProfile, options) {
     if (!incident)
       return html + "</td>";
 
+    if (!incident.localtion)
+      return html + escapeHTML(incident.status) + "</td>";
+
     html += "<a href='" + escapeHTML(incident.location)
       + "' target='_blank'>";
     html += escapeHTML(incident.status) + "</a>";
