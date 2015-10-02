@@ -492,8 +492,10 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataIncidentStatus(event, server) {
     var html = "", incident = getIncident(event);
+    var unifiedId = event["unifiedId"];
 
     html += "<td class='selectable incident " + getSeverityClass(event) + "'";
+    html += "data='" + unifiedId + "'";
     html += " style='display:none;'>";
 
     if (!incident)
