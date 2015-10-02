@@ -28,10 +28,7 @@ describe('HatoholIncidentTrackerEditor', function() {
     expect(editor).not.to.be(undefined);
     expect($(expectedId)).to.have.length(1);
     var buttons = $(expectedId).dialog("option", "buttons");
-    $("#selectIncidentTrackerType").val(gettext("Hatohol")).change();
-    // Make synchronous
-    setTimeout(function() {
-      expect($(editFormsArea).css('display')).to.be("none");
-    }, 0);
+    $("#selectIncidentTrackerType").val(hatohol.INCIDENT_TRACKER_HATOHOL).change();
+    expect($(editFormsArea).css("display")).to.be("none");
   });
 });

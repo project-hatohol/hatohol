@@ -431,9 +431,9 @@ HatoholIncidentTrackerEditor.prototype.toggleEditIncidentTrackerArea = function(
 
 HatoholIncidentTrackerEditor.prototype.applyEditIncidentTrackerAreaState = function() {
   if ($("#selectIncidentTrackerType").val() == hatohol.INCIDENT_TRACKER_HATOHOL)
-    $("#editIncidentTrackerArea").attr("style", "display: none");
+    $("#editIncidentTrackerArea").hide();
   else
-    $("#editIncidentTrackerArea").removeAttr("style");
+    $("#editIncidentTrackerArea").show();
 };
 
 HatoholIncidentTrackerEditor.prototype.resetWidgetState = function() {
