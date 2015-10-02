@@ -242,6 +242,71 @@ var EventsView = function(userProfile, options) {
     $('button.latest-button').click(function() {
       load();
     });
+
+    $("#select-incident").change(function() {
+      updateIncidentApproval();
+    });
+  }
+
+  function updateIncidentApproval() {
+    var updateIncidentIds = [], unifiedId;
+    var incidents = $(".incident.selected");
+
+    for (var i = 0; i < incidents.length; i++) {
+      unifiedId = incidents[i].getAttribute("data");
+      updateIncidentIds.push(unifiedId);
+    }
+
+    for (var idx = 0; idx < updateIncidentIds.length; idx++) {
+      applyIncidentApprovalStatus(updateIncidentIds[idx]);
+    }
+
+    hatoholInfoMsgBox("Reloading...");
+  }
+
+  function parseIncidentStatus(rawIncidentStatus) {
+    var status = rawIncidentStatus;
+    switch (status) {
+    case "0":
+      return "NONE";
+    case "1":
+      return "HOLD";
+    case "2":
+      return "IN PROGRESS";
+    case "3":
+      return "DONE";
+    default:
+      return "NONE";
+    }
+  }
+
+  function makeQueryData() {
+    var queryData = {};
+    queryData.status = parseIncidentStatus($("#select-incident").val());
+    return queryData;
+  }
+
+  function applyIncidentApprovalStatus(updateIncidentId) {
+    var url = "/incident";
+    url += "/" + updateIncidentId;
+    new HatoholConnector({
+      url: url,
+      request: "PUT",
+      data: makeQueryData(),
+      replyCallback: replyCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser,
+      completionCallback: load,
+    });
+  }
+
+  function replyCallback(reply, parser) {
+    if (self.incidentTracker)
+      hatoholInfoMsgBox(gettext("Successfully updated."));
+    else
+      hatoholInfoMsgBox(gettext("Successfully created."));
+
+    if (self.succeededCallback)
+      self.succeededCallback();
   }
 
   function formatDateTimeWithZeroSecond(d) {
