@@ -244,11 +244,11 @@ var EventsView = function(userProfile, options) {
     });
 
     $("#select-incident").change(function() {
-      updateIncidentApproval();
+      updateIncidentStatus();
     });
   }
 
-  function updateIncidentApproval() {
+  function updateIncidentStatus() {
     var updateIncidentIds = [], unifiedId;
     var incidents = $(".incident.selected");
 
@@ -258,7 +258,7 @@ var EventsView = function(userProfile, options) {
     }
 
     for (var idx = 0; idx < updateIncidentIds.length; idx++) {
-      applyIncidentApprovalStatus(updateIncidentIds[idx]);
+      applyIncidentStatus(updateIncidentIds[idx]);
     }
 
     hatoholInfoMsgBox("Reloading...");
@@ -286,7 +286,7 @@ var EventsView = function(userProfile, options) {
     return queryData;
   }
 
-  function applyIncidentApprovalStatus(updateIncidentId) {
+  function applyIncidentStatus(updateIncidentId) {
     var url = "/incident";
     url += "/" + updateIncidentId;
     new HatoholConnector({
