@@ -85,7 +85,7 @@ var EventsView = function(userProfile, options) {
       body: renderTableDataEventDuration,
     },
     "incidentStatus": {
-      header: gettext("Incident"),
+      header: gettext("Treatment"),
       body: renderTableDataIncidentStatus,
     },
     "incidentPriority": {
