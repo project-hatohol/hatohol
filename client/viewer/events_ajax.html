@@ -38,13 +38,6 @@
   <hr>
 
   <form class="form-inline hatohol-filter-toolbar">
-    <label>{% trans "Treatment:" %}</label>
-    <select id="select-incident" class="form-control">
-      <option value="NONE">{% trans "NONE" %}</option>
-      <option value="HOLD">{% trans "HOLD" %}</option>
-      <option value="IN PROGRESS">{% trans "IN PROGRESS" %}</option>
-      <option value="DONE">{% trans "DONE" %}</option>
-    </select>
     <label>{% trans "Minimum Severity:" %}</label>
     <select id="select-severity" class="form-control">
       <option value="0">0</option>
@@ -79,6 +72,18 @@
     <input type="text" id="end-time" class="form-control" placeholder="{% trans "End time" %}">
     <p>
   </form>
+
+  <div>
+    <form class="form-inline hatohol-filter-toolbar">
+      <label>{% trans "Change Treatment:" %}</label>
+      <select id="select-incident" class="form-control">
+	<option value="NONE">{% trans "NONE" %}</option>
+	<option value="HOLD">{% trans "HOLD" %}</option>
+	<option value="IN PROGRESS">{% trans "IN PROGRESS" %}</option>
+	<option value="DONE">{% trans "DONE" %}</option>
+      </select>
+    </form>
+  </div>
 
   <form class="form-inline" style="text-align: center;">
     <button id="latest-events-button1" type="button" class="btn btn-info latest-button">
