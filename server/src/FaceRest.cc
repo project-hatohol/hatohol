@@ -1089,6 +1089,26 @@ void FaceRest::ResourceHandler::addServersMap(
 	agent.endObject();
 }
 
+void FaceRest::ResourceHandler::addIncidentTrackersMap(JSONBuilder &agent)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	IncidentTrackerInfoVect trackers;
+	IncidentTrackerQueryOption option(m_dataQueryContextPtr);
+	dataStore->getIncidentTrackers(trackers, option);
+
+	HatoholError err;
+	agent.startObject("incidentTrackers");
+	for (auto &tracker : trackers) {
+		agent.startObject(StringUtils::toString(tracker.id));
+		agent.add("type", tracker.type);
+		agent.add("nickname", tracker.nickname);
+		agent.add("baseURL", tracker.baseURL);
+		agent.add("projectId", tracker.projectId);
+		agent.add("trackerId", tracker.trackerId);
+		agent.endObject();
+	}
+	agent.endObject();
+}
 
 template <>
 void FaceRest::ResourceHandlerTemplate<RestStaticHandler>::handle(void)
