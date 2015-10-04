@@ -454,6 +454,21 @@ HatoholEventsViewConfig.prototype.resetFilterList = function() {
       },
     })
   ).appendTo("#filter-name-list");
+
+  resetDefaultFilterList("summary");
+  resetDefaultFilterList("events");
+
+  function resetDefaultFilterList(type) {
+    var elementId = "#" + type + "-default-filter-selector";
+    $(elementId).empty();
+    $.map(filters, function(filter) {
+      $("<option/>", {
+        text: filter.name,
+      }).val(filter.id).appendTo(elementId);
+      // TODO: filter.id is empty when the filter isn't saved yet
+      // TODO: add "selected" attribute to the selected filter
+    });
+  };
 };
 
 HatoholEventsViewConfig.prototype.setCurrentFilterSettings = function(filter) {
