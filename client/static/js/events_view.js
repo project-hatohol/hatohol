@@ -261,7 +261,8 @@ var EventsView = function(userProfile, options) {
       applyIncidentStatus(updateIncidentIds[idx]);
     }
 
-    hatoholInfoMsgBox(gettext("Reloading..."));
+    if (updateIncidentIds.length > 0)
+      hatoholInfoMsgBox(gettext("Appling the treatment..."));
   }
 
   function makeQueryData() {
