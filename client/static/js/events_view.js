@@ -251,6 +251,8 @@ var EventsView = function(userProfile, options) {
   function updateIncidentStatus() {
     var updateIncidentIds = [], unifiedId;
     var incidents = $(".incident.selected");
+    var promise, promises = [], errors = [];
+    var errorMessage;
 
     for (var i = 0; i < incidents.length; i++) {
       unifiedId = incidents[i].getAttribute("data-unified-id");
@@ -258,11 +260,25 @@ var EventsView = function(userProfile, options) {
     }
 
     for (var idx = 0; idx < updateIncidentIds.length; idx++) {
-      applyIncidentStatus(updateIncidentIds[idx]);
+      promise = applyIncidentStatus(updateIncidentIds[idx], errors);
+      promises.push(promise);
     }
 
-    if (updateIncidentIds.length > 0)
+    if (promises.length > 0) {
       hatoholInfoMsgBox(gettext("Appling the treatment..."));
+      $.when.apply($, promises).done(function() {
+        if (errors.length == 0) {
+          hatoholInfoMsgBox(gettext("Successfully updated."));
+        } else {
+          if (errors.length == 1)
+            errorMessage = gettext("Failed to update a treatment");
+          else
+            errorMessage = gettext("Failed to update treatments");
+          hatoholErrorMsgBox(errorMessage, { optionMessages: errors });
+        }
+        load();
+      });
+    }
   }
 
   function makeQueryData() {
@@ -271,17 +287,34 @@ var EventsView = function(userProfile, options) {
     return queryData;
   }
 
-  function applyIncidentStatus(updateIncidentId) {
+  function applyIncidentStatus(updateIncidentId, errors) {
+    var deferred = new $.Deferred;
     var url = "/incident";
     url += "/" + updateIncidentId;
     new HatoholConnector({
       url: url,
       request: "PUT",
       data: makeQueryData(),
-      replyCallback: replyCallback,
-      parseErrorCallback: hatoholErrorMsgBoxForParser,
-      completionCallback: load,
+      replyCallback: function() {
+        // nothing to do
+      },
+      parseErrorCallback: function(reply, parser)  {
+        var message = parser.getMessage();
+        if (!message) {
+          message =
+            gettext("An unknown error is occured on changing " +
+                    "a treatment of an event with ID: ") +
+            updateIncidentId;
+        }
+        if (parser.optionMessages)
+          message += " " + parser.optionMessages;
+        errors.push(message);
+      },
+      completionCallback: function() {
+        deferred.resolve();
+      },
     });
+    return deferred.promise();
   }
 
   function replyCallback(reply, parser) {
