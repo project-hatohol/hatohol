@@ -264,25 +264,9 @@ var EventsView = function(userProfile, options) {
     hatoholInfoMsgBox("Reloading...");
   }
 
-  function parseIncidentStatus(rawIncidentStatus) {
-    var status = rawIncidentStatus;
-    switch (status) {
-    case "0":
-      return "NONE";
-    case "1":
-      return "HOLD";
-    case "2":
-      return "IN PROGRESS";
-    case "3":
-      return "DONE";
-    default:
-      return "NONE";
-    }
-  }
-
   function makeQueryData() {
     var queryData = {};
-    queryData.status = parseIncidentStatus($("#select-incident").val());
+    queryData.status = $("#select-incident").val();
     return queryData;
   }
 
