@@ -232,6 +232,38 @@ var EventsView = function(userProfile, options) {
       $("#select-status").val(query.status);
   }
 
+  function setupTreatmentMenu() {
+    var trackers = self.rawData.incidentTrackers;
+    var enableIncident = self.rawData["haveIncident"];
+    var hasIncidentTypeHatohol = false;
+    var hasIncidentTypeOthers = false;
+
+    if (!self.rawData["haveIncident"]) {
+      $("#select-incident-container").hide();
+      return;
+    }
+
+    if (typeof trackers == "object") {
+      $.map(trackers, function(tracker, key) {
+        switch (tracker.type) {
+        case hatohol.INCIDENT_TRACKER_HATOHOL:
+          hasIncidentTypeHatohol = true;
+          break;
+        case hatohol.INCIDENT_TRACKER_REDMINE:
+        default:
+          hasIncidentTypeOthers = true;
+          break;
+        }
+      });
+    }
+
+    if (hasIncidentTypeHatohol && !hasIncidentTypeOthers) {
+      $("#select-incident-container").show();
+    } else {
+      $("#select-incident-container").hide();
+    }
+  }
+
   function setupCallbacks() {
     $("#select-severity, #select-status").change(function() {
       load();
@@ -746,6 +778,7 @@ var EventsView = function(userProfile, options) {
     self.durations = parseData(self.rawData);
 
     setupFilterValues();
+    setupTreatmentMenu();
     drawTableContents();
     updatePager();
     setLoading(false);
