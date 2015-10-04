@@ -253,7 +253,7 @@ var EventsView = function(userProfile, options) {
     var incidents = $(".incident.selected");
 
     for (var i = 0; i < incidents.length; i++) {
-      unifiedId = incidents[i].getAttribute("data");
+      unifiedId = incidents[i].getAttribute("data-unified-id");
       updateIncidentIds.push(unifiedId);
     }
 
@@ -545,7 +545,7 @@ var EventsView = function(userProfile, options) {
     var unifiedId = event["unifiedId"];
 
     html += "<td class='selectable incident " + getSeverityClass(event) + "'";
-    html += "data='" + unifiedId + "'";
+    html += "data-unified-id='" + unifiedId + "'";
     html += " style='display:none;'>";
 
     if (!incident)
