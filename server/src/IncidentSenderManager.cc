@@ -143,7 +143,7 @@ void IncidentSenderManager::queue(
 {
 	IncidentSender *sender = m_impl->getSender(incidentInfo.trackerId);
 	if (!sender) {
-		MLPL_ERR("Can't find create or find IncidentSender for: "
+		MLPL_ERR("Can't find or create IncidentSender for: "
 			 "%" FMT_INCIDENT_TRACKER_ID "\n",
 			 incidentInfo.trackerId);
 		return;
