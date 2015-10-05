@@ -46,6 +46,7 @@ var EventsView = function(userProfile, options) {
   }
   setupToggleFilter();
   setupToggleSidebar();
+  setupCircleGraph();
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
                         gettext('Notification')];
@@ -415,6 +416,11 @@ var EventsView = function(userProfile, options) {
       $("#event-table-area").toggleClass("col-md-12");
       $("#event-table-area").toggleClass("col-md-10");
     });
+  }
+
+  function setupCircleGraph() {
+    Pizza.init();
+    Pizza.init(document.body, {always_show_text:true});
   }
 
   function setLoading(loading) {
