@@ -36,6 +36,57 @@
   <h2>{% trans "Events" %}</h2>
 
   <hr>
+  <div class="col-sm-3 col-md-2 sidebar">
+    <ul class="nav nav-sidebar">
+      <li class="active"><a href="#" class="list-group-item list-group-item-warning">{% trans "Important event(s) index" %}<span class="sr-only">(current)</span></a></li>
+      <li>
+        <a href="#" color="black">
+          {% trans "Total amount of non assigned important event(s)" %}<br><span class="badge progress-bar-info">N/A</span><br>
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          {% trans "Total amount of important event(s)" %}<br><span class="badge progress-bar-warning">N/A</span><br>
+        </a>
+      </li>
+      <li>
+        <a href="#">{% trans "A percentage not assigned in the important event(s)" %}</a>
+      </li>
+      <li>
+        <div class="progress">
+          <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0"
+               aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+            N/A%
+          </div>
+        </div>
+      </li>
+      <li>
+        <a href="#">
+          {% trans "A number of host(s) which causes important event(s)" %}<br><span class="badge progress-bar-error">N/A</span><br>
+        </a>
+      </li>
+      <li>
+        <a href="#">{% trans "A percentage host which causes the important event(s)" %}</a>
+      </li>
+      <li>
+        <div class="progress">
+          <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0"
+               aria-valuemin="0" aria-valuemax="100" style="">
+            N/A
+          </div>
+        </div>
+      </li>
+      <li>
+        <a href="#">{% trans "A percentage the important event(s)" %}</a></a>
+      </li>
+      <li>
+        <div id="pizza"></div>
+        <ul data-graph data-pie-id="pizza">
+          <li data-value="100"></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
 
   <form class="form-inline hatohol-filter-toolbar">
     <button id="hide" type="button" class="btn btn-primary dropdown-toggle btn-sm"

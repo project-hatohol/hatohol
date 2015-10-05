@@ -243,3 +243,19 @@ h2.hatohol-graph {
 .selected {
     background: #bdf !important;
 }
+
+ul[data-graph] li:nth-child(1) {
+  color: #FF0000;
+}
+
+ul[data-graph] li:nth-child(2) {
+  color: #FF9900;
+}
+
+ul[data-graph] li:nth-child(3) {
+  color: #FFFF00;
+}
+
+ul[data-graph] li:nth-child(4) {
+  color: #02E86E;
+}
