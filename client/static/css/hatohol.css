@@ -244,6 +244,12 @@ h2.hatohol-graph {
     background: #bdf !important;
 }
 
+.calendar-element {
+    display: inline-block;
+    *display:inline;
+    text-align: left;
+}
+
 ul[data-graph] li:nth-child(1) {
   color: #FF0000;
 }

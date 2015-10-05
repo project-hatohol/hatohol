@@ -96,11 +96,14 @@
       {% trans "Filter" %} <span class="caret"></span>
     </button>
     <div class="pull-right">
-      <p class="time-range-filter">
-      <input type="text" id="begin-time" class="form-control" placeholder="{% trans "Begin time" %}">
-      -
-      <input type="text" id="end-time" class="form-control" placeholder="{% trans "End time" %}">
-      <p>
+      <div class="calendar-element">
+        <p><label>{% trans "Begin time:" %}</label></p>
+        <input type="text" id="begin-time" class="form-control">
+      </div>～
+      <div class="calendar-element">
+        <p><label>{% trans "End time:" %}</label></p>
+        <input type="text" id="end-time" class="form-control">
+      </div>
     </div>
     <div id="hideDiv">
       <label>{% trans "Minimum Severity:" %}</label>
