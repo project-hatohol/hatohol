@@ -235,6 +235,12 @@ h2.hatohol-graph {
   padding: 2px;
 }
 
+.event-table-content {
+    height: auto;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
 /* Override bootstrap's default value */
 .popover {
     max-width: 550px;
