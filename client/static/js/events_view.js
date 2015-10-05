@@ -44,6 +44,7 @@ var EventsView = function(userProfile, options) {
   } else {
     setupTimeRangeFilter();
   }
+  setupToggleFilter();
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
                         gettext('Notification')];
@@ -396,6 +397,13 @@ var EventsView = function(userProfile, options) {
       onChangeDateTime: function(currentTime, $input) {
         load();
       }
+    });
+  }
+
+  function setupToggleFilter() {
+    $("#hideDiv").hide();
+    $('#hide').click(function(){
+      $("#hideDiv").slideToggle();
     });
   }
 

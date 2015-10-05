@@ -38,6 +38,12 @@
   <hr>
 
   <form class="form-inline hatohol-filter-toolbar">
+    <button id="hide" type="button" class="btn btn-primary dropdown-toggle btn-sm"
+      data-toggle="dropdown">
+      {% trans "Filter" %} <span class="caret"></span>
+    </button>
+
+    <div id="hideDiv">
     <label>{% trans "Minimum Severity:" %}</label>
     <select id="select-severity" class="form-control">
       <option value="0">0</option>
@@ -71,6 +77,7 @@
     -
     <input type="text" id="end-time" class="form-control" placeholder="{% trans "End time" %}">
     <p>
+    </div>
   </form>
 
   <div id="select-incident-container">
