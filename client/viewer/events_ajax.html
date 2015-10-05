@@ -73,6 +73,18 @@
     <p>
   </form>
 
+  <div id="select-incident-container">
+    <form class="form-inline hatohol-filter-toolbar">
+      <label>{% trans "Change Treatment:" %}</label>
+      <select id="select-incident" class="form-control">
+	<option value="NONE">{% trans "NONE" %}</option>
+	<option value="HOLD">{% trans "HOLD" %}</option>
+	<option value="IN PROGRESS">{% trans "IN PROGRESS" %}</option>
+	<option value="DONE">{% trans "DONE" %}</option>
+      </select>
+    </form>
+  </div>
+
   <form class="form-inline" style="text-align: center;">
     <button id="latest-events-button1" type="button" class="btn btn-info latest-button">
       <span class="glyphicon glyphicon-refresh"></span>

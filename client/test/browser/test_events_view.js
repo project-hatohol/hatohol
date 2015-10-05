@@ -306,7 +306,7 @@ describe('EventsView', function() {
     var view = new EventsView(getOperator(), testOptions);
     respond(eventsJson(dummyEventInfo, getDummyServerInfo(0)));
     expect($('tr :eq(0)').text()).to.be(
-      "IncidentStatusSeverityTimeMonitoring ServerHostBrief");
+      "TreatmentStatusSeverityTimeMonitoring ServerHostBrief");
     expect($('tr :eq(1)').text()).to.be(
       "ProblemInformation" + getEventTimeString(dummyEventInfo[0]) +
       "ServerHostTest description.");
@@ -327,7 +327,7 @@ describe('EventsView', function() {
       "Server");
   });
 
-  it('Incident columns', function() {
+  it('Treatment columns', function() {
     var view = new EventsView(getOperator(), testOptions);
     var events = [
       $.extend({}, dummyEventInfo[0], {
@@ -345,7 +345,7 @@ describe('EventsView', function() {
     respond(eventsJson(events, getDummyServerInfo(0)),
 	    configJson);
     expect($('tr :eq(0)').text()).to.be(
-      "Event IDIncidentPriorityAssignee% Done");
+      "Event IDTreatmentPriorityAssignee% Done");
     expect($('tr :eq(1)').text()).to.be(
       "12332NONEHIGHTom5%");
   });

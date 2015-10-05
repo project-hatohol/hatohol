@@ -905,6 +905,7 @@ void RestResourceHost::handlerGetEvent(void)
 	agent.endArray();
 	agent.add("numberOfEvents", eventList.size());
 	addServersMap(agent, NULL, false);
+	addIncidentTrackersMap(agent);
 	agent.endObject();
 
 	replyJSONData(agent);

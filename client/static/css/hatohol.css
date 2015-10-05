@@ -239,3 +239,7 @@ h2.hatohol-graph {
 .popover {
     max-width: 550px;
 }
+
+.selected {
+    background: #bdf !important;
+}

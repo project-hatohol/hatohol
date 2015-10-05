@@ -85,7 +85,7 @@ var EventsView = function(userProfile, options) {
       body: renderTableDataEventDuration,
     },
     "incidentStatus": {
-      header: gettext("Incident"),
+      header: gettext("Treatment"),
       body: renderTableDataIncidentStatus,
     },
     "incidentPriority": {
@@ -232,6 +232,38 @@ var EventsView = function(userProfile, options) {
       $("#select-status").val(query.status);
   }
 
+  function setupTreatmentMenu() {
+    var trackers = self.rawData.incidentTrackers;
+    var enableIncident = self.rawData["haveIncident"];
+    var hasIncidentTypeHatohol = false;
+    var hasIncidentTypeOthers = false;
+
+    if (!self.rawData["haveIncident"]) {
+      $("#select-incident-container").hide();
+      return;
+    }
+
+    if (typeof trackers == "object") {
+      $.map(trackers, function(tracker, key) {
+        switch (tracker.type) {
+        case hatohol.INCIDENT_TRACKER_HATOHOL:
+          hasIncidentTypeHatohol = true;
+          break;
+        case hatohol.INCIDENT_TRACKER_REDMINE:
+        default:
+          hasIncidentTypeOthers = true;
+          break;
+        }
+      });
+    }
+
+    if (hasIncidentTypeHatohol && !hasIncidentTypeOthers) {
+      $("#select-incident-container").show();
+    } else {
+      $("#select-incident-container").hide();
+    }
+  }
+
   function setupCallbacks() {
     $("#select-severity, #select-status").change(function() {
       load();
@@ -242,6 +274,89 @@ var EventsView = function(userProfile, options) {
     $('button.latest-button').click(function() {
       load();
     });
+
+    $("#select-incident").change(function() {
+      updateIncidentStatus();
+    });
+  }
+
+  function updateIncidentStatus() {
+    var updateIncidentIds = [], unifiedId;
+    var incidents = $(".incident.selected");
+    var promise, promises = [], errors = [];
+    var errorMessage;
+
+    for (var i = 0; i < incidents.length; i++) {
+      unifiedId = incidents[i].getAttribute("data-unified-id");
+      updateIncidentIds.push(unifiedId);
+    }
+
+    for (var idx = 0; idx < updateIncidentIds.length; idx++) {
+      promise = applyIncidentStatus(updateIncidentIds[idx], errors);
+      promises.push(promise);
+    }
+
+    if (promises.length > 0) {
+      hatoholInfoMsgBox(gettext("Appling the treatment..."));
+      $.when.apply($, promises).done(function() {
+        if (errors.length == 0) {
+          hatoholInfoMsgBox(gettext("Successfully updated."));
+        } else {
+          if (errors.length == 1)
+            errorMessage = gettext("Failed to update a treatment");
+          else
+            errorMessage = gettext("Failed to update treatments");
+          hatoholErrorMsgBox(errorMessage, { optionMessages: errors });
+        }
+        load();
+      });
+    }
+  }
+
+  function makeQueryData() {
+    var queryData = {};
+    queryData.status = $("#select-incident").val();
+    return queryData;
+  }
+
+  function applyIncidentStatus(updateIncidentId, errors) {
+    var deferred = new $.Deferred;
+    var url = "/incident";
+    url += "/" + updateIncidentId;
+    new HatoholConnector({
+      url: url,
+      request: "PUT",
+      data: makeQueryData(),
+      replyCallback: function() {
+        // nothing to do
+      },
+      parseErrorCallback: function(reply, parser)  {
+        var message = parser.getMessage();
+        if (!message) {
+          message =
+            gettext("An unknown error is occured on changing " +
+                    "a treatment of an event with ID: ") +
+            updateIncidentId;
+        }
+        if (parser.optionMessages)
+          message += " " + parser.optionMessages;
+        errors.push(message);
+      },
+      completionCallback: function() {
+        deferred.resolve();
+      },
+    });
+    return deferred.promise();
+  }
+
+  function replyCallback(reply, parser) {
+    if (self.incidentTracker)
+      hatoholInfoMsgBox(gettext("Successfully updated."));
+    else
+      hatoholInfoMsgBox(gettext("Successfully created."));
+
+    if (self.succeededCallback)
+      self.succeededCallback();
   }
 
   function formatDateTimeWithZeroSecond(d) {
@@ -492,12 +607,17 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataIncidentStatus(event, server) {
     var html = "", incident = getIncident(event);
+    var unifiedId = event["unifiedId"];
 
-    html += "<td class='incident " + getSeverityClass(event) + "'";
+    html += "<td class='selectable incident " + getSeverityClass(event) + "'";
+    html += "data-unified-id='" + unifiedId + "'";
     html += " style='display:none;'>";
 
     if (!incident)
       return html + "</td>";
+
+    if (!incident.localtion)
+      return html + escapeHTML(incident.status) + "</td>";
 
     html += "<a href='" + escapeHTML(incident.location)
       + "' target='_blank'>";
@@ -634,6 +754,10 @@ var EventsView = function(userProfile, options) {
       $(".incident").hide();
     }
 
+    $('.incident.selectable').on('click', function() {
+      $(this).toggleClass('selected');
+    });
+
     setupSortColumn();
 
     function setupSortColumn() {
@@ -655,6 +779,7 @@ var EventsView = function(userProfile, options) {
     self.durations = parseData(self.rawData);
 
     setupFilterValues();
+    setupTreatmentMenu();
     drawTableContents();
     updatePager();
     setLoading(false);
