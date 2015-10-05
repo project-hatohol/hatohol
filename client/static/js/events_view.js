@@ -651,6 +651,7 @@ var EventsView = function(userProfile, options) {
 
   function updateCore(reply) {
     self.rawData = reply;
+    self.userConfig.setServers(reply.servers);
     self.durations = parseData(self.rawData);
 
     setupFilterValues();

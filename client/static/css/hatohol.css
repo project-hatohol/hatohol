@@ -81,7 +81,7 @@ div.dialog {
     padding: 16px 4px 16px 4px;
 }
 
-#events-view-config input[type="text"] {
+#view-config input[type="text"] {
     width: 4em;
     display: inline-block;
 }
@@ -99,6 +99,61 @@ label.unit {
 .column-selector-buttons {
     padding-left: 0px;
     padding-right: 0px;
+}
+
+div#filter-name-config {
+    margin-top: 16px;
+    margin-bottom: 20px;
+}
+
+#filter-name-config .btn.dropdown-toggle {
+    float: none;
+}
+
+#filter-name-config ul {
+    width: 380px;
+    left: initial;
+    right: 32px;
+}
+
+#filter-name-config li {
+    display: block;
+}
+
+input#filter-name-entry {
+    width: 380px;
+    margin-right: -6px;
+    display: inline-block;
+}
+
+button#filter-name-list-button {
+    margin-bottom: 2px;
+}
+
+button#filter-name-list-delete-button {
+    margin-bottom: 6px;
+}
+
+input#period-filter-setting {
+    width: 4em;
+    display: inline-block;
+}
+
+.select-exclude-radio {
+    margin-bottom: 12px;
+}
+
+.select-exclude-radio label {
+    margin-top: 0px;
+}
+
+div#quick-host-search {
+    margin-top: 14px;
+}
+
+input#quick-host-search-entry {
+    width: 70%;
+    display: inline-block;
 }
 
 /* no scirpt */
