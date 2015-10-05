@@ -250,6 +250,10 @@ h2.hatohol-graph {
     text-align: left;
 }
 
+.btn-toggle-sidebar {
+    margin-right: 10px;
+}
+
 ul[data-graph] li:nth-child(1) {
   color: #FF0000;
 }

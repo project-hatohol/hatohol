@@ -45,6 +45,7 @@ var EventsView = function(userProfile, options) {
     setupTimeRangeFilter();
   }
   setupToggleFilter();
+  setupToggleSidebar();
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
                         gettext('Notification')];
@@ -404,6 +405,15 @@ var EventsView = function(userProfile, options) {
     $("#hideDiv").hide();
     $('#hide').click(function(){
       $("#hideDiv").slideToggle();
+    });
+  }
+
+  function setupToggleSidebar() {
+    $("#SummarySidebar").show();
+    $("#toggle-sidebar").click(function(){
+      $("#SummarySidebar").toggle();
+      $("#event-table-area").toggleClass("col-md-12");
+      $("#event-table-area").toggleClass("col-md-10");
     });
   }
 
