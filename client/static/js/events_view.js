@@ -48,6 +48,7 @@ var EventsView = function(userProfile, options) {
   setupToggleFilter();
   setupToggleSidebar();
   if (self.options.disablePieChart) {
+    // Don't enable piechart for tests.
   } else {
     setupPieChart();
   }
