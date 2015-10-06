@@ -287,7 +287,7 @@ var EventsView = function(userProfile, options) {
 
   function setupCallbacks() {
     $("#select-severity, #select-status").change(function() {
-      if (params && params.oldfilter == "true")
+      if (params && params.legacy == "true")
         load();
     });
 
@@ -295,7 +295,7 @@ var EventsView = function(userProfile, options) {
       load, '#select-server');
 
     $('#select-host-group', '#select-host').change(function() {
-      if (params && params.oldfilter == "true")
+      if (params && params.legacy == "true")
         load();
     });
 
@@ -478,7 +478,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function setupApplyFilterButton() {
-    if (params && (params.oldfilter == "true")) {
+    if (params && (params.legacy == "true")) {
       $('button.btn-apply-all-filter').hide();
     }
   }
