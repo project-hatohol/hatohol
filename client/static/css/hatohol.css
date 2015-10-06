@@ -236,8 +236,7 @@ h2.hatohol-graph {
 }
 
 .event-table-content {
-    height: auto;
-    max-height: 500px;
+    min-height: 300px;
     overflow-y: auto;
 }
 

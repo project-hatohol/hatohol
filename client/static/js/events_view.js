@@ -45,6 +45,7 @@ var EventsView = function(userProfile, options) {
   } else {
     setupTimeRangeFilter();
   }
+  setupEventsTable();
   setupToggleFilter();
   setupToggleSidebar();
   if (self.options.disablePieChart) {
@@ -404,6 +405,18 @@ var EventsView = function(userProfile, options) {
       onChangeDateTime: function(currentTime, $input) {
         load();
       }
+    });
+  }
+
+  function setupEventsTable() {
+    function fixupEventsTableHeight() {
+      var height = $(window).height() - 400;
+      $(".event-table-content").height(height);
+    }
+
+    fixupEventsTableHeight();
+    $(window).resize(function () {
+      fixupEventsTableHeight();
     });
   }
 
