@@ -286,10 +286,17 @@ var EventsView = function(userProfile, options) {
 
   function setupCallbacks() {
     $("#select-severity, #select-status").change(function() {
-      load();
+      if (params && params.oldfilter == "true")
+        load();
     });
+
     self.setupHostQuerySelectorCallback(
-      load, '#select-server', '#select-host-group', '#select-host');
+      load, '#select-server');
+
+    $('#select-host-group', '#select-host').change(function() {
+      if (params && params.oldfilter == "true")
+        load();
+    });
 
     $('button.latest-button').click(function() {
       load();
@@ -297,6 +304,10 @@ var EventsView = function(userProfile, options) {
 
     $("#select-incident").change(function() {
       updateIncidentStatus();
+    });
+
+    $('button.btn-apply-all-filter').click(function() {
+      load();
     });
   }
 
