@@ -972,7 +972,7 @@ string EventsQueryOption::getCondition(void) const
 	}
 
 	string severityCondition;
-	for (auto severity: m_impl->triggerSeverities) {
+	for (const auto &severity: m_impl->triggerSeverities) {
 		addCondition(
 		  severityCondition,
 		  StringUtils::sprintf(
@@ -986,7 +986,7 @@ string EventsQueryOption::getCondition(void) const
 	addCondition(condition, severityCondition);
 
 	string statusCondition;
-	for (auto status: m_impl->triggerStatuses) {
+	for (const auto &status: m_impl->triggerStatuses) {
 		addCondition(
 		  statusCondition,
 		  StringUtils::sprintf(
@@ -1000,7 +1000,7 @@ string EventsQueryOption::getCondition(void) const
 	addCondition(condition, statusCondition);
 
 	string incidentStatusCondition;
-	for (auto status: m_impl->incidentStatuses) {
+	for (const auto &status: m_impl->incidentStatuses) {
 		DBTermCStringProvider rhs(*getDBTermCodec());
 		addCondition(
 		  incidentStatusCondition,
