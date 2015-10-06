@@ -411,6 +411,8 @@ var EventsView = function(userProfile, options) {
     $("#hideDiv").hide();
     $('#hide').click(function(){
       $("#hideDiv").slideToggle();
+      $("#filter-right-glyph").toggle();
+      $("#filter-down-glyph").toggle();
     });
   }
 
