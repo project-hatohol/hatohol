@@ -256,6 +256,13 @@ h2.hatohol-graph {
     text-align: left;
 }
 
+.filter-element {
+    display: inline-block;
+    *display:inline;
+    text-align: left;
+    margin-right: 10px;
+}
+
 .btn-toggle-sidebar {
     margin-right: 10px;
 }
