@@ -80,11 +80,11 @@
         <a href="#">{% trans "A percentage the important event(s)" %}</a></a>
       </li>
       <li>
-        <div id="pizza"></div>
         <ul data-graph data-pie-id="pizza">
           <li data-value="100"></li>
         </ul>
       </li>
+      <div id="pizza"></div>
     </ul>
   </div>
 
@@ -672,5 +672,8 @@
     userProfile.addOnLoadCb(function() {
       var view = new EventsView(userProfile);
     });
+    $(window).load(function() {
+      Pizza.init();
+    })
   </script>
 {% endblock %}
