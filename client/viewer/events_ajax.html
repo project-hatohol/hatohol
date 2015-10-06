@@ -104,11 +104,11 @@
 	<div class="pull-right">
 	  <div class="calendar-element">
             <p><label>{% trans "Begin time:" %}</label></p>
-            <input type="text" id="begin-time" class="form-control">
+            <input type="text" id="begin-time" class="form-control filter-time-range">
 	  </div>～
 	  <div class="calendar-element">
             <p><label>{% trans "End time:" %}</label></p>
-            <input type="text" id="end-time" class="form-control">
+            <input type="text" id="end-time" class="form-control filter-time-range">
 	  </div>
 	</div>
 	<br><br>
@@ -156,7 +156,7 @@
 
       <div id="select-incident-container">
       	<form class="form-inline hatohol-filter-toolbar">
-	  <div class="filter-element">
+	  <div class="filter-element change-treatment">
             <p><label>{% trans "Change Treatment:" %}</label></p>
             <select id="select-incident" class="form-control">
               <option value="NONE">{% trans "NONE" %}</option>

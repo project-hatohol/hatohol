@@ -256,11 +256,24 @@ h2.hatohol-graph {
     text-align: left;
 }
 
+.calendar-element > p,
+.filter-element > p {
+    margin-bottom: -3px;
+}
+
 .filter-element {
     display: inline-block;
     *display:inline;
     text-align: left;
     margin-right: 10px;
+}
+
+.change-treatment {
+    margin-top: 10px;
+}
+
+.filter-time-range {
+    width: 150px !important;
 }
 
 .btn-toggle-sidebar {
