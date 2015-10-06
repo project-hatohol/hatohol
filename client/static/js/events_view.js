@@ -46,7 +46,10 @@ var EventsView = function(userProfile, options) {
   }
   setupToggleFilter();
   setupToggleSidebar();
-  setupCircleGraph();
+  if (self.options.disablePieChart) {
+  } else {
+    setupPieChart();
+  }
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
                         gettext('Notification')];
@@ -418,8 +421,7 @@ var EventsView = function(userProfile, options) {
     });
   }
 
-  function setupCircleGraph() {
-    Pizza.init();
+  function setupPieChart() {
     Pizza.init(document.body, {always_show_text:true});
   }
 

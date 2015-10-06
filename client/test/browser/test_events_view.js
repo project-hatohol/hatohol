@@ -30,6 +30,7 @@ describe('EventsView', function() {
   ];
   var testOptions = {
     disableTimeRangeFilter: true,
+    disablePieChart: true,
   };
 
   function getOperator() {
