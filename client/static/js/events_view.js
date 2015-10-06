@@ -40,14 +40,16 @@ var EventsView = function(userProfile, options) {
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
+  setupEventsTable();
+  setupToggleFilter();
+  setupToggleSidebar();
+
   if (self.options.disableTimeRangeFilter) {
    // Don't enable datetimepicker for tests.
   } else {
     setupTimeRangeFilter();
   }
-  setupEventsTable();
-  setupToggleFilter();
-  setupToggleSidebar();
+
   if (self.options.disablePieChart) {
     // Don't enable piechart for tests.
   } else {
