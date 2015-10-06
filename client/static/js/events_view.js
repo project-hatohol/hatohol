@@ -61,6 +61,7 @@ var EventsView = function(userProfile, options) {
       setTimeout(setupPieChart, 100);
     }
   }
+  setupApplyFilterButton();
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
                         gettext('Notification')];
@@ -474,6 +475,12 @@ var EventsView = function(userProfile, options) {
 
   function setupPieChart() {
     Pizza.init(document.body, {always_show_text:true});
+  }
+
+  function setupApplyFilterButton() {
+    if (params && (params.oldfilter == "true")) {
+      $('button.btn-apply-all-filter').hide();
+    }
   }
 
   function setLoading(loading) {
