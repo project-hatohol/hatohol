@@ -427,6 +427,8 @@ var EventsView = function(userProfile, options) {
       $("#SummarySidebar").toggle();
       $("#event-table-area").toggleClass("col-md-12");
       $("#event-table-area").toggleClass("col-md-10");
+      $("#sidebar-left-glyph").toggle();
+      $("#sidebar-right-glyph").toggle();
     });
   }
 
