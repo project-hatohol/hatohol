@@ -19,6 +19,7 @@
 
 var EventsView = function(userProfile, options) {
   var self = this;
+  var params = deparam();
   self.options = options || {};
   self.userConfig = null;
   self.columnNames = [];
@@ -413,6 +414,13 @@ var EventsView = function(userProfile, options) {
   }
 
   function setupToggleSidebar() {
+    if (params && (params.devel != "true")) {
+      $("#event-table-area").removeClass("col-md-10");
+      $("#event-table-area").addClass("col-md-12");
+      $("#toggle-sidebar").hide();
+      return;
+    }
+
     $("#SummarySidebar").show();
     $("#toggle-sidebar").click(function(){
       $("#SummarySidebar").toggle();
