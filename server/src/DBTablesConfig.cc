@@ -40,7 +40,7 @@ static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 static const char *TABLE_NAME_SEVERITY_RANKS = "severity_ranks";
 
-int DBTablesConfig::CONFIG_DB_VERSION = 16;
+int DBTablesConfig::CONFIG_DB_VERSION = 17;
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
 const ServerIdSet EMPTY_INCIDENT_TRACKER_ID_SET;
@@ -702,6 +702,9 @@ static bool updateDB(
 		addArgForArmPlugins.columnIndexes.push_back(
 			IDX_ARM_PLUGINS_UUID);
 		dbAgent.addColumns(addArgForArmPlugins);
+	}
+	if (oldVer < 17) {
+		dbAgent.createTable(tableProfileSeverityRanks);
 	}
 	return true;
 }
