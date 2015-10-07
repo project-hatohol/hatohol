@@ -38,6 +38,7 @@ static const char *TABLE_NAME_SERVER_TYPES = "server_types";
 static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
+static const char *TABLE_NAME_SEVERITY_RANKS = "severity_ranks";
 
 int DBTablesConfig::CONFIG_DB_VERSION = 16;
 
@@ -566,6 +567,51 @@ static const DBAgent::TableProfile tableProfileIncidentTrackers =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_INCIDENT_TRACKERS,
 			    COLUMN_DEF_INCIDENT_TRACKERS,
 			    NUM_IDX_INCIDENT_TRACKERS);
+
+static const ColumnDef COLUMN_DEF_SEVERITY_RANKS[] = {
+{
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+},
+{
+	"status",                          // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+{
+	"color",                           // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+enum {
+	IDX_SEVERITY_RANK_ID,
+	IDX_SEVERITY_RANK_STATUS,
+	IDX_SEVERITY_RANK_COLOR,
+	NUM_IDX_SEVERITY_RANKS,
+};
+
+static const DBAgent::TableProfile tableProfileSeverityRanks =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SEVERITY_RANKS,
+			    COLUMN_DEF_SEVERITY_RANKS,
+			    NUM_IDX_SEVERITY_RANKS);
 
 struct DBTablesConfig::Impl
 {
