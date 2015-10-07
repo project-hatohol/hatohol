@@ -50,10 +50,16 @@ var EventsView = function(userProfile, options) {
     setupTimeRangeFilter();
   }
 
-  if (self.options.disablePieChart) {
-    // Don't enable piechart for tests.
-  } else {
-    setupPieChart();
+  if (params && (params.devel == "true")) {
+    // I'm not sure why, but sometimes Pizza doesn't work correctly without this
+    // hack, especially on Safari. We should investigate & fix it before we
+    // enable this feature by default.
+    Pizza.init();
+    if (self.options.disablePieChart) {
+      // Don't enable piechart for tests.
+    } else {
+      setTimeout(setupPieChart, 100);
+    }
   }
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),

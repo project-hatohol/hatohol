@@ -671,11 +671,18 @@
   <script src="{{ STATIC_URL }}js/events_view.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_events_view_config.js"></script>
   <script type="text/javascript">
-    userProfile.addOnLoadCb(function() {
-      var view = new EventsView(userProfile);
-    });
-    $(window).load(function() {
-      Pizza.init();
-    })
+    (function() {
+      var deferred1 = new $.Deferred;
+      var deferred2 = new $.Deferred;
+      userProfile.addOnLoadCb(function() {
+	deferred1.resolve();
+      });
+      $(window).load(function() {
+	deferred2.resolve();
+      });
+      $.when(deferred1.promise(), deferred2.promise()).done(function() {
+	var view = new EventsView(userProfile);
+      });
+    }());
   </script>
 {% endblock %}
