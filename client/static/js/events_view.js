@@ -257,6 +257,7 @@ var EventsView = function(userProfile, options) {
 
     if (!self.rawData["haveIncident"]) {
       $("#select-incident-container").hide();
+      fixupEventsTableHeight();
       return;
     }
 
@@ -276,8 +277,10 @@ var EventsView = function(userProfile, options) {
 
     if (hasIncidentTypeHatohol && !hasIncidentTypeOthers) {
       $("#select-incident-container").show();
+      fixupEventsTableHeight();
     } else {
       $("#select-incident-container").hide();
+      fixupEventsTableHeight();
     }
   }
 
@@ -416,12 +419,13 @@ var EventsView = function(userProfile, options) {
     });
   }
 
-  function setupEventsTable() {
-    function fixupEventsTableHeight() {
-      var height = $(window).height() - 400;
-      $(".event-table-content").height(height);
-    }
+  function fixupEventsTableHeight() {
+    // TODO: calcurate it more strictly
+    var height = $(window).height() - 300 - $(".change-treatment").height();
+    $(".event-table-content").height(height);
+  }
 
+  function setupEventsTable() {
     fixupEventsTableHeight();
     $(window).resize(function () {
       fixupEventsTableHeight();
