@@ -292,11 +292,7 @@ var EventsView = function(userProfile, options) {
       });
 
       self.setupHostQuerySelectorCallback(
-        load, '#select-server');
-
-      $('#select-host-group', '#select-host').change(function() {
-        load();
-      });
+        load, '#select-server', '#select-host-group', '#select-host');
     }
 
     $('#select-server').change(function() {
