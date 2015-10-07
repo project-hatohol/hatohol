@@ -293,15 +293,13 @@ var EventsView = function(userProfile, options) {
 
       self.setupHostQuerySelectorCallback(
         load, '#select-server', '#select-host-group', '#select-host');
-    }
-
-    $('#select-server').change(function() {
-      if (params && params.legacy == "true") {
-        load();
-      } else {
+    } else {
+      $('#select-server').change(function() {
+        // prevent using previous query
+        self.lastQuery = undefined;
         setupFilterValues();
-      }
-    });
+      });
+    }
 
     $('button.latest-button').click(function() {
       load();
