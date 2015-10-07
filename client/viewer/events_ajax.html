@@ -36,80 +36,160 @@
   <h2>{% trans "Events" %}</h2>
 
   <hr>
-
-  <form class="form-inline hatohol-filter-toolbar">
-    <label>{% trans "Minimum Severity:" %}</label>
-    <select id="select-severity" class="form-control">
-      <option value="0">0</option>
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-    </select>
-    <label>{% trans "Status:" %}</label>
-    <select id="select-status" class="form-control">
-      <option value="-1">---------</option>
-      <option value="0">{% trans "OK" %}</option>
-      <option value="1">{% trans "Problem" %}</option>
-      <option value="2">{% trans "Unknown" %}</option>
-    </select>
-    <label>{% trans "Monitoring Server:" %}</label>
-    <select id="select-server" class="form-control">
-      <option>---------</option>
-    </select>
-    <label>{% trans "Group:" %}</label>
-    <select id="select-host-group" class="form-control">
-      <option>---------</option>
-    </select>
-    <label>{% trans "Host:" %}</label>
-    <select id="select-host" class="form-control">
-      <option>---------</option>
-    </select>
-    <p class="time-range-filter">
-    <input type="text" id="begin-time" class="form-control" placeholder="{% trans "Begin time" %}">
-    -
-    <input type="text" id="end-time" class="form-control" placeholder="{% trans "End time" %}">
-    <p>
-  </form>
-
-  <div id="select-incident-container">
-    <form class="form-inline hatohol-filter-toolbar">
-      <label>{% trans "Change Treatment:" %}</label>
-      <select id="select-incident" class="form-control">
-	<option value="NONE">{% trans "NONE" %}</option>
-	<option value="HOLD">{% trans "HOLD" %}</option>
-	<option value="IN PROGRESS">{% trans "IN PROGRESS" %}</option>
-	<option value="DONE">{% trans "DONE" %}</option>
-      </select>
-    </form>
+  <div class="col-sm-3 col-md-2 sidebar" id="SummarySidebar" style="display: none;">
+    <ul class="nav nav-sidebar">
+      <li class="active"><a href="#" class="list-group-item list-group-item-warning">{% trans "Important event(s) index" %}<span class="sr-only">(current)</span></a></li>
+      <li>
+        <a href="#" color="black">
+          {% trans "Total amount of non assigned important event(s)" %}<br><span class="badge progress-bar-info">N/A</span><br>
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          {% trans "Total amount of important event(s)" %}<br><span class="badge progress-bar-warning">N/A</span><br>
+        </a>
+      </li>
+      <li>
+        <a href="#">{% trans "A percentage not assigned in the important event(s)" %}</a>
+      </li>
+      <li>
+        <div class="progress">
+          <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0"
+               aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+            N/A%
+          </div>
+        </div>
+      </li>
+      <li>
+        <a href="#">
+          {% trans "A number of host(s) which causes important event(s)" %}<br><span class="badge progress-bar-error">N/A</span><br>
+        </a>
+      </li>
+      <li>
+        <a href="#">{% trans "A percentage host which causes the important event(s)" %}</a>
+      </li>
+      <li>
+        <div class="progress">
+          <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0"
+               aria-valuemin="0" aria-valuemax="100" style="">
+            N/A
+          </div>
+        </div>
+      </li>
+      <li>
+        <a href="#">{% trans "A percentage the important event(s)" %}</a></a>
+      </li>
+      <li>
+        <ul data-graph data-pie-id="pizza">
+          <li data-value="100"></li>
+        </ul>
+      </li>
+      <div id="pizza"></div>
+    </ul>
   </div>
 
-  <form class="form-inline" style="text-align: center;">
-    <button id="latest-events-button1" type="button" class="btn btn-info latest-button">
-      <span class="glyphicon glyphicon-refresh"></span>
-      {% trans "Latest events" %}
-    </button>
-    <ul class="pagination">
-    </ul>
-  </form>
+  <div class="container-fluid">
+    <div class="col-sm-10 col-md-10 main" id="event-table-area">
+      <div class="pull-left">
+	<button id="toggle-sidebar" type="button" class="btn btn-info dropdown-toggle btn-sm btn-toggle-sidebar"
+		data-toggle="dropdown">
+	  <span class="glyphicon glyphicon-chevron-left" id="sidebar-left-glyph"></span>
+	  <span class="glyphicon glyphicon-chevron-right" id="sidebar-right-glyph" style="display: none;"></span>
+	</button>
+      </div>
+      <form class="form-inline hatohol-filter-toolbar">
+	<button id="hide" type="button" class="btn btn-primary dropdown-toggle btn-sm"
+		data-toggle="dropdown">
+	  {% trans "Filter" %} <span class="glyphicon glyphicon-chevron-right" id="filter-right-glyph"></span>
+	  <span class="glyphicon glyphicon-chevron-down" id="filter-down-glyph" style="display: none;"></span>
+	</button>
+	<div class="pull-right" style="margin-top: -10px;">
+	  <div class="calendar-element">
+            <p><label>{% trans "Begin time:" %}</label></p>
+            <input type="text" id="begin-time" class="form-control filter-time-range">
+	  </div>～
+	  <div class="calendar-element">
+            <p><label>{% trans "End time:" %}</label></p>
+            <input type="text" id="end-time" class="form-control filter-time-range">
+	  </div>
+	</div>
+	<br><br>
+	<div id="hideDiv"  style="display: none; margin-bottom: 16px;">
+	  <div class="filter-element">
+	    <p><label>{% trans "Minimum Severity:" %}</label></p>
+	    <select id="select-severity" class="form-control">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+	    </select>
+	  </div>
+	  <div class="filter-element">
+	    <p><label>{% trans "Status:" %}</label></p>
+	    <select id="select-status" class="form-control">
+              <option value="-1">---------</option>
+              <option value="0">{% trans "OK" %}</option>
+              <option value="1">{% trans "Problem" %}</option>
+              <option value="2">{% trans "Unknown" %}</option>
+	    </select>
+	  </div>
+	  <div class="filter-element">
+	    <p><label>{% trans "Monitoring Server:" %}</label></p>
+	    <select id="select-server" class="form-control">
+              <option>---------</option>
+	    </select>
+	  </div>
+	  <div class="filter-element">
+	    <p><label>{% trans "Group:" %}</label></p>
+	    <select id="select-host-group" class="form-control">
+              <option>---------</option>
+	    </select>
+	  </div>
+	  <div class="filter-element">
+	    <p><label>{% trans "Host:" %}</label></p>
+	    <select id="select-host" class="form-control">
+              <option>---------</option>
+	    </select>
+	  </div>
+	</div>
+      </form>
 
-  <table class="table table-condensed table-hover" id="table">
-    <thead>
-    </thead>
-    <tbody>
-    </tbody>
-  </table>
+      <div id="select-incident-container" style="display: none;">
+      	<form class="form-inline hatohol-filter-toolbar">
+	  <div class="filter-element change-treatment">
+            <p><label>{% trans "Change Treatment:" %}</label></p>
+            <select id="select-incident" class="form-control">
+              <option value="NONE">{% trans "NONE" %}</option>
+              <option value="HOLD">{% trans "HOLD" %}</option>
+              <option value="IN PROGRESS">{% trans "IN PROGRESS" %}</option>
+              <option value="DONE">{% trans "DONE" %}</option>
+            </select>
+	  </div>
+      	</form>
+      </div>
 
-  <form class="form-inline" style="text-align: center;">
-    <button id="latest-events-button2" type="button" class="btn btn-info latest-button">
-      <span class="glyphicon glyphicon-refresh"></span>
-      {% trans "Latest events" %}
-    </button>
-    <ul class="pagination">
-    </ul>
-  </form>
-  <br>
+      <div class="event-table-content">
+	<table class="table table-condensed table-hover" id="table">
+	  <thead>
+	  </thead>
+	  <tbody>
+	  </tbody>
+	</table>
+      </div>
+
+      <form class="form-inline" style="text-align: center;">
+	<button id="latest-events-button2" type="button" class="btn btn-info latest-button">
+	  <span class="glyphicon glyphicon-refresh"></span>
+	  {% trans "Latest events" %}
+	</button>
+	<ul class="pagination">
+	</ul>
+      </form>
+      <br>
+    </div>
+  </div>
 
   <div class="modal fade" id="events-view-config" tabindex="-1" role="dialog"
        aria-labelledby="events-view-config-label">
@@ -583,14 +663,26 @@
 
 {% block option %}
   <script src="{{ STATIC_URL }}js.external/multiselect.min.js"></script>
+  <script src="{{ STATIC_URL }}js.external/snap.svg.js"></script>
+  <script src="{{ STATIC_URL }}js.external/pizza.js"></script>
 {% endblock %}
 
 {% block logic %}
   <script src="{{ STATIC_URL }}js/events_view.js"></script>
   <script src="{{ STATIC_URL }}js/hatohol_events_view_config.js"></script>
   <script type="text/javascript">
-    userProfile.addOnLoadCb(function() {
-      var view = new EventsView(userProfile);
-    });
+    (function() {
+      var deferred1 = new $.Deferred;
+      var deferred2 = new $.Deferred;
+      userProfile.addOnLoadCb(function() {
+	deferred1.resolve();
+      });
+      $(window).load(function() {
+	deferred2.resolve();
+      });
+      $.when(deferred1.promise(), deferred2.promise()).done(function() {
+	var view = new EventsView(userProfile);
+      });
+    }());
   </script>
 {% endblock %}

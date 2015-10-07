@@ -19,6 +19,7 @@
 
 var EventsView = function(userProfile, options) {
   var self = this;
+  var params = deparam();
   self.options = options || {};
   self.userConfig = null;
   self.columnNames = [];
@@ -39,10 +40,26 @@ var EventsView = function(userProfile, options) {
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
+  setupEventsTable();
+  setupToggleFilter();
+  setupToggleSidebar();
+
   if (self.options.disableTimeRangeFilter) {
    // Don't enable datetimepicker for tests.
   } else {
     setupTimeRangeFilter();
+  }
+
+  if (params && (params.devel == "true")) {
+    // I'm not sure why, but sometimes Pizza doesn't work correctly without this
+    // hack, especially on Safari. We should investigate & fix it before we
+    // enable this feature by default.
+    Pizza.init();
+    if (self.options.disablePieChart) {
+      // Don't enable piechart for tests.
+    } else {
+      setTimeout(setupPieChart, 100);
+    }
   }
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
@@ -240,6 +257,7 @@ var EventsView = function(userProfile, options) {
 
     if (!self.rawData["haveIncident"]) {
       $("#select-incident-container").hide();
+      fixupEventsTableHeight();
       return;
     }
 
@@ -259,8 +277,10 @@ var EventsView = function(userProfile, options) {
 
     if (hasIncidentTypeHatohol && !hasIncidentTypeOthers) {
       $("#select-incident-container").show();
+      fixupEventsTableHeight();
     } else {
       $("#select-incident-container").hide();
+      fixupEventsTableHeight();
     }
   }
 
@@ -397,6 +417,50 @@ var EventsView = function(userProfile, options) {
         load();
       }
     });
+  }
+
+  function fixupEventsTableHeight() {
+    // TODO: calcurate it more strictly
+    var height = $(window).height() - 300 - $(".change-treatment").height();
+    $(".event-table-content").height(height);
+  }
+
+  function setupEventsTable() {
+    fixupEventsTableHeight();
+    $(window).resize(function () {
+      fixupEventsTableHeight();
+    });
+  }
+
+  function setupToggleFilter() {
+    $("#hideDiv").hide();
+    $('#hide').click(function(){
+      $("#hideDiv").slideToggle();
+      $("#filter-right-glyph").toggle();
+      $("#filter-down-glyph").toggle();
+    });
+  }
+
+  function setupToggleSidebar() {
+    if (params && (params.devel != "true")) {
+      $("#event-table-area").removeClass("col-md-10");
+      $("#event-table-area").addClass("col-md-12");
+      $("#toggle-sidebar").hide();
+      return;
+    }
+
+    $("#SummarySidebar").show();
+    $("#toggle-sidebar").click(function(){
+      $("#SummarySidebar").toggle();
+      $("#event-table-area").toggleClass("col-md-12");
+      $("#event-table-area").toggleClass("col-md-10");
+      $("#sidebar-left-glyph").toggle();
+      $("#sidebar-right-glyph").toggle();
+    });
+  }
+
+  function setupPieChart() {
+    Pizza.init(document.body, {always_show_text:true});
   }
 
   function setLoading(loading) {

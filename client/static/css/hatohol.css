@@ -235,6 +235,11 @@ h2.hatohol-graph {
   padding: 2px;
 }
 
+.event-table-content {
+    min-height: 300px;
+    overflow-y: auto;
+}
+
 /* Override bootstrap's default value */
 .popover {
     max-width: 550px;
@@ -242,4 +247,46 @@ h2.hatohol-graph {
 
 .selected {
     background: #bdf !important;
+}
+
+.calendar-element {
+    display: inline-block;
+    *display:inline;
+    text-align: left;
+}
+
+.calendar-element > p,
+.filter-element > p {
+    margin-bottom: -3px;
+}
+
+.filter-element {
+    display: inline-block;
+    *display:inline;
+    text-align: left;
+    margin-right: 10px;
+}
+
+.filter-time-range {
+    width: 150px !important;
+}
+
+.btn-toggle-sidebar {
+    margin-right: 10px;
+}
+
+ul[data-graph] li:nth-child(1) {
+  color: #FF0000;
+}
+
+ul[data-graph] li:nth-child(2) {
+  color: #FF9900;
+}
+
+ul[data-graph] li:nth-child(3) {
+  color: #FFFF00;
+}
+
+ul[data-graph] li:nth-child(4) {
+  color: #02E86E;
 }
