@@ -286,14 +286,17 @@ var EventsView = function(userProfile, options) {
   }
 
   function setupCallbacks() {
-    $("#select-severity, #select-status").change(function() {
-      if (params && params.legacy == "true")
+    if (params && params.legacy == "true") {
+      $("#select-severity, #select-status").change(function() {
         load();
-    });
+      });
 
-    if (params && params.legacy == "true"){
       self.setupHostQuerySelectorCallback(
         load, '#select-server');
+
+      $('#select-host-group', '#select-host').change(function() {
+        load();
+      });
     }
 
     $('#select-server').change(function() {
@@ -302,11 +305,6 @@ var EventsView = function(userProfile, options) {
       } else {
         setupFilterValues();
       }
-    });
-
-    $('#select-host-group', '#select-host').change(function() {
-      if (params && params.legacy == "true")
-        load();
     });
 
     $('button.latest-button').click(function() {
