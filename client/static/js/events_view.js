@@ -43,6 +43,7 @@ var EventsView = function(userProfile, options) {
   setupEventsTable();
   setupToggleFilter();
   setupToggleSidebar();
+  setupApplyFilterButton();
 
   if (self.options.disableTimeRangeFilter) {
    // Don't enable datetimepicker for tests.
@@ -61,7 +62,6 @@ var EventsView = function(userProfile, options) {
       setTimeout(setupPieChart, 100);
     }
   }
-  setupApplyFilterButton();
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
                         gettext('Notification')];
