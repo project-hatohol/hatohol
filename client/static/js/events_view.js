@@ -291,8 +291,18 @@ var EventsView = function(userProfile, options) {
         load();
     });
 
-    self.setupHostQuerySelectorCallback(
-      load, '#select-server');
+    if (params && params.legacy == "true"){
+      self.setupHostQuerySelectorCallback(
+        load, '#select-server');
+    }
+
+    $('#select-server').change(function() {
+      if (params && params.legacy == "true") {
+        load();
+      } else {
+        setupFilterValues();
+      }
+    });
 
     $('#select-host-group', '#select-host').change(function() {
       if (params && params.legacy == "true")
