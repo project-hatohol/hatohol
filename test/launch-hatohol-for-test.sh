@@ -36,7 +36,7 @@ server_pid=$!
 
 cd $client_dir
 ./manage.py syncdb
-HATOHOL_DEBUG=1 ./manage.py runserver 0.0.0.0:8000 &
+HATOHOL_DEBUG=1 ./manage.py runserver --insecure 0.0.0.0:8000 &
 client_pid=$!
 
 # wait for the boot completion

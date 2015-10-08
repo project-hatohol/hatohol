@@ -67,7 +67,7 @@ You must change the current directory to "client" under the top directory.
 
     $ ./manage.py syncdb
 
-## How to run
+## How to run as a test
 Hatohol Client is a standard Django project. So you can run it on any WSGI
 compliant application server.
 
@@ -75,11 +75,11 @@ You must change the current directory to "client" under the top directory.
 
 Alternatively you can run with a runserver sub-command of Django's manage.py.
 
-	$ ./manage.py runserver
+	$ ./manage.py runserver --insecure
 
 If you allow to access from the outside, you need specifying the address like
 
-	$ ./manage.py runserver 0.0.0.0:8000
+	$ ./manage.py runserver --insecure 0.0.0.0:8000
 
 ## Hints
 ### How to set a Hatohol server address and the port
