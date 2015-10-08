@@ -64,6 +64,14 @@ typedef std::vector<ServerTypeInfo>        ServerTypeInfoVect;
 typedef ServerTypeInfoVect::iterator       ServerTypeInfoVectIterator;
 typedef ServerTypeInfoVect::const_iterator ServerTypeInfoVectConstIterator;
 
+struct SeverityRankInfo {
+	SeverityRankIdType id;
+	int                status;
+	std::string        color;
+};
+
+typedef std::vector<SeverityRankInfo> SeverityRankInfoVect;
+
 class ServerQueryOption : public DataQueryOption {
 public:
 	ServerQueryOption(const UserIdType &userId = INVALID_USER_ID);
