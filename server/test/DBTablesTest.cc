@@ -2419,3 +2419,12 @@ void loadTestDBLastInfo(void)
 	for (auto lastInfoDef : testLastInfoDef)
 		dbLastInfo.upsertLastInfo(lastInfoDef, privilege);
 }
+
+void loadTestDBSeverityRankInfo(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	for (auto severityRankInfo : testSeverityRankInfoDef)
+		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
+}
