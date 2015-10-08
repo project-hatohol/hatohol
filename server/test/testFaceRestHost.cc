@@ -797,6 +797,47 @@ static string getExpectedServers(void)
 		      "}");
 }
 
+static string getExpectedIncidentTrackers(void)
+{
+	return string("\"incidentTrackers\":{"
+
+		       "\"1\":{"
+		       "\"type\":0,"
+		       "\"nickname\":\"Numerical ID\","
+		       "\"baseURL\":\"http://localhost\","
+		       "\"projectId\":\"1\","
+		       "\"trackerId\":\"3\"},"
+
+		      "\"2\":{"
+		      "\"type\":0,"
+		      "\"nickname\":\"String project ID\","
+		      "\"baseURL\":\"http://localhost\","
+		      "\"projectId\":\"hatohol\","
+		      "\"trackerId\":\"3\"},"
+
+		      "\"3\":{"
+		      "\"type\":0,"
+		      "\"nickname\":\"Redmine Emulator\","
+		      "\"baseURL\":\"http://localhost:44444\","
+		      "\"projectId\":\"hatoholtestproject\","
+		      "\"trackerId\":\"1\"},"
+
+		      "\"4\":{"
+		      "\"type\":0,\"nickname\":\"Redmine Emulator\","
+		      "\"baseURL\":\"http://localhost:44444\","
+		      "\"projectId\":\"hatoholtestproject\","
+		      "\"trackerId\":\"2\"},"
+
+		      "\"5\":{"
+		      "\"type\":1,"
+		      "\"nickname\":\"Internal\","
+		      "\"baseURL\":\"\","
+		      "\"projectId\":\"\","
+		      "\"trackerId\":\"\"}"
+
+		      "}");
+}
+
 void test_eventsWithHostsFilter(void)
 {
 	loadTestDBArmPlugin();
@@ -832,7 +873,8 @@ void test_eventsWithHostsFilter(void)
 			"\"extendedInfo\":\"\""
 			"}],"
 			"\"numberOfEvents\":1,");
-	expected += getExpectedServers() + "}";
+	expected += getExpectedServers() + ",";
+	expected += getExpectedIncidentTrackers() + "}";
 	assertEqualJSONString(expected, arg.response);
 }
 
@@ -899,7 +941,8 @@ void test_eventsWithSeveritiesFilter(void)
 	  "],"
 	  "\"numberOfEvents\":3,");
 
-	expected += getExpectedServers() + "}";
+	expected += getExpectedServers() + ",";
+	expected += getExpectedIncidentTrackers() + "}";
 	assertEqualJSONString(expected, arg.response);
 }
 
@@ -951,7 +994,8 @@ void test_eventsWithStatusesFilter(void)
 	  "],"
 	  "\"numberOfEvents\":2,");
 
-	expected += getExpectedServers() + "}";
+	expected += getExpectedServers() + ",";
+	expected += getExpectedIncidentTrackers() + "}";
 	assertEqualJSONString(expected, arg.response);
 }
 
@@ -1006,7 +1050,8 @@ void test_eventsWithIncidentStatusesFilter(void)
 	  "],"
 	  "\"numberOfEvents\":2,");
 
-	expected += getExpectedServers() + "}";
+	expected += getExpectedServers() + ",";
+	expected += getExpectedIncidentTrackers() + "}";
 	cppcut_assert_equal(expected, arg.response);
 }
 
