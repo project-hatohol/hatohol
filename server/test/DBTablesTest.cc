@@ -1510,6 +1510,40 @@ const LastInfoDef testLastInfoDef[] = {
 };
 const size_t NumTestLastInfoDef = ARRAY_SIZE(testLastInfoDef);
 
+const SeverityRankInfo testSeverityRankInfoDef[] = {
+{
+	AUTO_INCREMENT_VALUE,     // id
+	TRIGGER_SEVERITY_UNKNOWN, // status
+        "#BCBCBC"
+},
+{
+	AUTO_INCREMENT_VALUE,      // id
+	TRIGGER_SEVERITY_INFO,     // status
+        "#CCE2CC"
+},
+{
+	AUTO_INCREMENT_VALUE,      // id
+	TRIGGER_SEVERITY_WARNING,  // status
+        "#FDFD96"
+},
+{
+	AUTO_INCREMENT_VALUE,      // id
+	TRIGGER_SEVERITY_ERROR,    // status
+        "#DDAAAA"
+},
+{
+	AUTO_INCREMENT_VALUE,      // id
+	TRIGGER_SEVERITY_CRITICAL, // status
+        "#FF8888"
+},
+{
+	AUTO_INCREMENT_VALUE,      // id
+	TRIGGER_SEVERITY_CRITICAL, // status
+        "#FF0000"
+},
+};
+const size_t NumTestSeverityRankInfoDef = ARRAY_SIZE(testSeverityRankInfoDef);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
