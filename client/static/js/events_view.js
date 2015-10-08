@@ -420,8 +420,8 @@ var EventsView = function(userProfile, options) {
   }
 
   function fixupEventsTableHeight() {
-    // TODO: calcurate it more strictly
-    var height = $(window).height() - 300 - $(".change-treatment").height();
+    var offset = $(".event-table-content").offset();
+    var height = $(window).height() - offset.top - $("#events-pager").height();
     $(".event-table-content").height(height);
   }
 
@@ -435,7 +435,9 @@ var EventsView = function(userProfile, options) {
   function setupToggleFilter() {
     $("#hideDiv").hide();
     $('#hide').click(function(){
-      $("#hideDiv").slideToggle();
+      $("#hideDiv").slideToggle(function() {
+        fixupEventsTableHeight();
+      });
       $("#filter-right-glyph").toggle();
       $("#filter-down-glyph").toggle();
     });
