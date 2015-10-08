@@ -1632,6 +1632,8 @@ DBTables::SetupInfo &DBTablesConfig::getSetupInfo(void)
 		&tableProfileArmPlugins,
 	}, {
 		&tableProfileIncidentTrackers,
+	}, {
+		&tableProfileSeverityRanks,
 	}
 	};
 
