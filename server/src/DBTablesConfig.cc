@@ -19,6 +19,7 @@
 
 #include <memory>
 
+#include <SeparatorInjector.h>
 #include <Mutex.h>
 #include "DBAgentFactory.h"
 #include "DBTablesConfig.h"
@@ -1613,6 +1614,169 @@ void DBTablesConfig::getIncidentTrackerIdSet(
 		const IncidentTrackerInfo &incidentTrackerInfo = *it;
 		incidentTrackerIdSet.insert(incidentTrackerInfo.id);
 	}
+}
+
+SeverityRankIdType DBTablesConfig::upsertSeverityRankInfo(
+  SeverityRankInfo &severityRankInfo,
+  const OperationPrivilege &privilege)
+{
+	HatoholError err = checkPrivilegeForAdd(privilege, severityRankInfo);
+	if (err != HTERR_OK)
+		return INVALID_SEVERITY_RANK_ID;
+
+	DBAgent::InsertArg arg(tableProfileSeverityRanks);
+
+	SeverityRankIdType severityRankId;
+	arg.add(severityRankInfo.id);
+	arg.add(severityRankInfo.status);
+	arg.add(severityRankInfo.color);
+	arg.upsertOnDuplicate = true;
+
+	getDBAgent().runTransaction(arg, &severityRankId);
+	return severityRankId;
+}
+
+HatoholError DBTablesConfig::updateSeverityRankInfo(
+  SeverityRankInfo &severityRankInfo,
+  const OperationPrivilege &privilege)
+{
+	HatoholError err = checkPrivilegeForUpdate(privilege, severityRankInfo);
+	if (err != HTERR_OK)
+		return err;
+
+	DBAgent::UpdateArg arg(tableProfileSeverityRanks);
+
+	const char *severityRankInfoIdColumnName =
+	  COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_ID].columnName;
+	arg.condition = StringUtils::sprintf("%s=%" FMT_SEVERITY_RANK_ID,
+	                                     severityRankInfoIdColumnName,
+	                                     severityRankInfo.id);
+	arg.add(IDX_SEVERITY_RANK_STATUS, severityRankInfo.status);
+	arg.add(IDX_SEVERITY_RANK_COLOR, severityRankInfo.color);
+
+	getDBAgent().runTransaction(arg);
+	return HTERR_OK;
+}
+
+void DBTablesConfig::getSeverityRankInfo(SeverityRankInfoVect &severityRankInfoVect)
+{
+	DBAgent::SelectExArg arg(tableProfileSeverityRanks);
+	arg.add(IDX_SEVERITY_RANK_ID);
+	arg.add(IDX_SEVERITY_RANK_STATUS);
+	arg.add(IDX_SEVERITY_RANK_COLOR);
+
+	getDBAgent().runTransaction(arg);
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	severityRankInfoVect.reserve(grpList.size());
+	for (auto itemGrp : grpList) {
+		ItemGroupStream itemGroupStream(itemGrp);
+		SeverityRankInfo severityRankInfo;
+
+		itemGroupStream >> severityRankInfo.id;
+		itemGroupStream >> severityRankInfo.status;
+		itemGroupStream >> severityRankInfo.color;
+
+		severityRankInfoVect.push_back(severityRankInfo);
+	}
+}
+
+static string makeIdListCondition(const std::list<SeverityRankIdType> &idList)
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_ID];
+	SeparatorInjector commaInjector(",");
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	for (auto id : idList) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%" FMT_SEVERITY_RANK_ID, id);
+	}
+
+	condition += ")";
+	return condition;
+}
+
+static string makeConditionForDelete(const std::list<SeverityRankIdType> &idList,
+				     const OperationPrivilege &privilege)
+{
+	string condition = makeIdListCondition(idList);
+
+	return condition;
+}
+
+HatoholError DBTablesConfig::checkPrivilegeForAdd(
+  const OperationPrivilege &privilege,
+  const SeverityRankInfo &severityRankInfo)
+{
+	const UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	return HTERR_OK;
+}
+
+HatoholError DBTablesConfig::checkPrivilegeForDelete(
+  const OperationPrivilege &privilege, const std::list<SeverityRankIdType> &idList)
+{
+	const UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	return HTERR_OK;
+}
+
+HatoholError DBTablesConfig::checkPrivilegeForUpdate(
+  const OperationPrivilege &privilege,
+  const SeverityRankInfo &severityRankInfo)
+{
+	const UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	return HTERR_OK;
+}
+
+HatoholError DBTablesConfig::deleteSeverityRanks(
+  const std::list<SeverityRankIdType> &idList,
+  const OperationPrivilege &privilege)
+{
+	HatoholError err = checkPrivilegeForDelete(privilege, idList);
+	if (err != HTERR_OK)
+		return err;
+
+	if (idList.empty()) {
+		MLPL_WARN("idList is empty.\n");
+		return HTERR_INVALID_PARAMETER;
+	}
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg arg;
+		uint64_t numAffectedRows;
+
+		TrxProc (void)
+		: arg(tableProfileSeverityRanks),
+		  numAffectedRows(0)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(arg);
+			numAffectedRows = dbAgent.getNumberOfAffectedRows();
+		}
+	} trx;
+	trx.arg.condition = makeConditionForDelete(idList, privilege);
+	getDBAgent().runTransaction(trx);
+
+	// Check the result
+	if (trx.numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
+		         trx.numAffectedRows, idList.size());
+		return HTERR_DELETE_INCOMPLETE;
+	}
+
+	return HTERR_OK;
 }
 
 // ---------------------------------------------------------------------------

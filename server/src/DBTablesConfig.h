@@ -71,6 +71,7 @@ struct SeverityRankInfo {
 };
 
 typedef std::vector<SeverityRankInfo> SeverityRankInfoVect;
+constexpr const static SeverityRankIdType INVALID_SEVERITY_RANK_ID = -1;
 
 class ServerQueryOption : public DataQueryOption {
 public:
@@ -272,6 +273,14 @@ public:
 	void getIncidentTrackerIdSet(
 	  IncidentTrackerIdSet &incidentTrackerIdSet);
 
+	SeverityRankIdType upsertSeverityRankInfo(
+	  SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege);
+	HatoholError updateSeverityRankInfo(
+	  SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege);
+	void getSeverityRankInfo(SeverityRankInfoVect &severityRankInfoVect);
+	HatoholError deleteSeverityRanks(
+          const std::list<SeverityRankIdType> &idList, const OperationPrivilege &privilege);
+
 protected:
 	static SetupInfo &getSetupInfo(void);
 	static void tableInitializerSystem(DBAgent &dbAgent, void *data);
@@ -300,6 +309,16 @@ protected:
 	void preprocForDeleteArmPluginInfo(
 	  const ServerIdType &serverId, std::string &condition);
 	void deleteArmPluginInfoWithoutTransaction(const std::string &condition);
+
+	HatoholError checkPrivilegeForAdd(
+	  const OperationPrivilege &privilege,
+	  const SeverityRankInfo &severityRankInfo);
+	HatoholError checkPrivilegeForDelete(
+	  const OperationPrivilege &privilege,
+	  const std::list<SeverityRankIdType> &idList);
+	HatoholError checkPrivilegeForUpdate(
+	  const OperationPrivilege &privilege,
+	  const SeverityRankInfo &severityRankInfo);
 
 private:
 	struct Impl;
