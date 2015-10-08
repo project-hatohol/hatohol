@@ -578,6 +578,28 @@ void test_eventQueryOptionWithStatuses(gconstpointer data)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
+void data_eventQueryOptionWithIncidentStatuses(void)
+{
+	prepareTestDataExcludeDefunctServers();
+}
+
+void test_eventQueryOptionWithIncidentStatuses(gconstpointer data)
+{
+	EventsQueryOption option(USER_ID_SYSTEM);
+	set<string> statuses;
+	statuses.insert("DONE");
+	statuses.insert("IN PROGRESS");
+	statuses.insert("HOLD");
+	option.setIncidentStatuses(statuses);
+
+	string expected =
+	  "(incidents.status='DONE' OR"
+	  " incidents.status='HOLD' OR"
+	  " incidents.status='IN PROGRESS')";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
 //
 // ItemsQueryOption
 //

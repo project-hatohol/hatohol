@@ -1739,6 +1739,32 @@ void test_getEventsExcludeByHostgroup(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_getEventsSelectByIncidentStatuses(void)
+{
+	loadTestDBServerHostDef();
+	loadTestDBHostgroup();
+	loadTestDBHostgroupMember();
+	loadTestDBEvents();
+	loadTestDBIncidents();
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+
+	EventsQueryOption option(USER_ID_SYSTEM);
+	set<string> statuses;
+	statuses.insert("New");
+	statuses.insert("NONE");
+	option.setIncidentStatuses(statuses);
+
+	EventInfoList events;
+	dbMonitoring.getEventInfoList(events, option, NULL);
+	string actual = sortedJoin(events);
+	string expected(
+	  "1|1|1363123456|0|0|2|1|1|10|235012|hostX1|TEST Trigger 1a|"
+	    "{\"expandedDescription\":\"Test Trigger on hostX1\"}\n"
+	  "1|2|1378900022|0|0|1|0|1|10|235012|hostX1|TEST Trigger 1|\n");
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_getSystemInfo(void)
 {
 	DataQueryOption option(findUserWith(OPPRVLG_GET_SYSTEM_INFO));

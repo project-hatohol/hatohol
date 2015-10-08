@@ -797,6 +797,47 @@ static string getExpectedServers(void)
 		      "}");
 }
 
+static string getExpectedIncidentTrackers(void)
+{
+	return string("\"incidentTrackers\":{"
+
+		       "\"1\":{"
+		       "\"type\":0,"
+		       "\"nickname\":\"Numerical ID\","
+		       "\"baseURL\":\"http://localhost\","
+		       "\"projectId\":\"1\","
+		       "\"trackerId\":\"3\"},"
+
+		      "\"2\":{"
+		      "\"type\":0,"
+		      "\"nickname\":\"String project ID\","
+		      "\"baseURL\":\"http://localhost\","
+		      "\"projectId\":\"hatohol\","
+		      "\"trackerId\":\"3\"},"
+
+		      "\"3\":{"
+		      "\"type\":0,"
+		      "\"nickname\":\"Redmine Emulator\","
+		      "\"baseURL\":\"http://localhost:44444\","
+		      "\"projectId\":\"hatoholtestproject\","
+		      "\"trackerId\":\"1\"},"
+
+		      "\"4\":{"
+		      "\"type\":0,\"nickname\":\"Redmine Emulator\","
+		      "\"baseURL\":\"http://localhost:44444\","
+		      "\"projectId\":\"hatoholtestproject\","
+		      "\"trackerId\":\"2\"},"
+
+		      "\"5\":{"
+		      "\"type\":1,"
+		      "\"nickname\":\"Internal\","
+		      "\"baseURL\":\"\","
+		      "\"projectId\":\"\","
+		      "\"trackerId\":\"\"}"
+
+		      "}");
+}
+
 void test_eventsWithHostsFilter(void)
 {
 	loadTestDBArmPlugin();
@@ -832,7 +873,8 @@ void test_eventsWithHostsFilter(void)
 			"\"extendedInfo\":\"\""
 			"}],"
 			"\"numberOfEvents\":1,");
-	expected += getExpectedServers() + "}";
+	expected += getExpectedServers() + ",";
+	expected += getExpectedIncidentTrackers() + "}";
 	assertEqualJSONString(expected, arg.response);
 }
 
@@ -899,9 +941,11 @@ void test_eventsWithSeveritiesFilter(void)
 	  "],"
 	  "\"numberOfEvents\":3,");
 
-	expected += getExpectedServers() + "}";
+	expected += getExpectedServers() + ",";
+	expected += getExpectedIncidentTrackers() + "}";
 	assertEqualJSONString(expected, arg.response);
 }
+
 void test_eventsWithStatusesFilter(void)
 {
 	loadTestDBArmPlugin();
@@ -950,8 +994,65 @@ void test_eventsWithStatusesFilter(void)
 	  "],"
 	  "\"numberOfEvents\":2,");
 
-	expected += getExpectedServers() + "}";
+	expected += getExpectedServers() + ",";
+	expected += getExpectedIncidentTrackers() + "}";
 	assertEqualJSONString(expected, arg.response);
+}
+
+void test_eventsWithIncidentStatusesFilter(void)
+{
+	loadTestDBArmPlugin();
+	loadTestDBTriggers();
+	loadTestDBEvents();
+	loadTestDBIncidents();
+	loadTestDBServerHostDef();
+	startFaceRest();
+
+	RequestArg arg("/event?incidentStatuses=New%2CNONE"
+		       "&sortOrder=1&sortType=time");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	getServerResponse(arg);
+	string expected(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"lastUnifiedEventId\":7,"
+	  "\"haveIncident\":false,"
+	  "\"events\":"
+	  "["
+	  "{"
+	  "\"unifiedId\":3,"
+	  "\"serverId\":1,"
+	  "\"time\":1363123456,"
+	  "\"type\":0,"
+	  "\"triggerId\":\"2\","
+	  "\"eventId\":\"1\","
+	  "\"status\":1,"
+	  "\"severity\":1,"
+	  "\"hostId\":\"235012\","
+	  "\"brief\":\"TEST Trigger 1a\","
+	  "\"extendedInfo\":"
+	  "\"{\\\"expandedDescription\\\":\\\"Test Trigger on hostX1\\\"}\""
+	  "},"
+	  "{"
+	  "\"unifiedId\":4,"
+	  "\"serverId\":1,"
+	  "\"time\":1378900022,"
+	  "\"type\":0,"
+	  "\"triggerId\":\"1\","
+	  "\"eventId\":\"2\","
+	  "\"status\":0,"
+	  "\"severity\":1,"
+	  "\"hostId\":\"235012\","
+	  "\"brief\":\"TEST Trigger 1\","
+	  "\"extendedInfo\":\"\""
+	  "}"
+	  "],"
+	  "\"numberOfEvents\":2,");
+
+	expected += getExpectedServers() + ",";
+	expected += getExpectedIncidentTrackers() + "}";
+	cppcut_assert_equal(expected, arg.response);
 }
 
 static void incidentInfo2StringMap(
