@@ -1458,7 +1458,8 @@ void test_getSeverityRankInfo(void)
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 
 	SeverityRankInfoVect severityRankInfoVect;
-	dbConfig.getSeverityRankInfo(severityRankInfoVect);
+	SeverityRankQueryOption option(USER_ID_SYSTEM);
+	dbConfig.getSeverityRankInfo(severityRankInfoVect, option);
 	{
 		size_t i = 0;
 		for (auto severityRankInfo : severityRankInfoVect) {
