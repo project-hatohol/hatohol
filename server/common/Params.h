@@ -99,6 +99,9 @@ typedef int LastInfoServerIdType;
 typedef int SeverityRankIdType;
 #define FMT_SEVERITY_RANK_ID "d"
 
+typedef int SeverityRankStatusType;
+#define FMT_SEVERITY_RANK_Status "d"
+
 // Special Server IDs =========================================================
 static const ServerIdType ALL_SERVERS       = -1;
 static const ServerIdType INVALID_SERVER_ID = -2;

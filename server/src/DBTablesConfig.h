@@ -65,9 +65,9 @@ typedef ServerTypeInfoVect::iterator       ServerTypeInfoVectIterator;
 typedef ServerTypeInfoVect::const_iterator ServerTypeInfoVectConstIterator;
 
 struct SeverityRankInfo {
-	SeverityRankIdType  id;
-	TriggerSeverityType status;
-	std::string         color;
+	SeverityRankIdType     id;
+	SeverityRankStatusType status;
+	std::string            color;
 };
 
 typedef std::vector<SeverityRankInfo> SeverityRankInfoVect;
