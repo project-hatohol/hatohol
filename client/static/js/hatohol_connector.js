@@ -119,7 +119,7 @@ HatoholConnector.prototype.start = function(connectParams) {
 
   function loginReadyCallback(user, password) {
     $.ajax({
-      url: "/tunnel/login",
+      url: HATOHOL_PROJECT_TOP_PATH + "/tunnel/login",
       data: { user: user, password: password, },
       processData: true,
       type: "POST",
@@ -176,7 +176,7 @@ HatoholConnector.prototype.start = function(connectParams) {
       pathPrefix = connectParams.pathPrefix;
     else
       pathPrefix = "/tunnel";
-    var url = pathPrefix + connectParams.url;
+    var url = HATOHOL_PROJECT_TOP_PATH + pathPrefix + connectParams.url;
     var hdrs = {};
     hdrs[hatohol.FACE_REST_SESSION_ID_HEADER_NAME] =
        HatoholSessionManager.get();

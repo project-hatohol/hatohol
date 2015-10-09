@@ -2,10 +2,9 @@ WSGIScriptAlias / /path/to/hatohol/client/conf/apache/django.wsgi
 WSGIPythonPath /usr/libexec/hatohol/client/
 
 <VirtualHost *:80>
-    DocumentRoot /path/to/hatohol
     <Directory /path/to/hatohol>
         Order deny,allow
         Allow from all
     </Directory>
-    Alias /static/ /path/to/hatohol/static/
+    Alias /hatohol/static/ /path/to/hatohol/static/
 </VirtualHost>
