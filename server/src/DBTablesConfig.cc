@@ -1616,25 +1616,25 @@ void DBTablesConfig::getIncidentTrackerIdSet(
 	}
 }
 
-SeverityRankIdType DBTablesConfig::upsertSeverityRankInfo(
+HatoholError DBTablesConfig::upsertSeverityRankInfo(
   SeverityRankInfo &severityRankInfo,
-  const OperationPrivilege &privilege)
+  const OperationPrivilege &privilege,
+  SeverityRankIdType &severityRankId)
 {
 	HatoholError err =
 		checkPrivilegeForSeverityRankAdd(privilege, severityRankInfo);
 	if (err != HTERR_OK)
-		return INVALID_SEVERITY_RANK_ID;
+		return err;
 
 	DBAgent::InsertArg arg(tableProfileSeverityRanks);
 
-	SeverityRankIdType severityRankId;
 	arg.add(severityRankInfo.id);
 	arg.add(severityRankInfo.status);
 	arg.add(severityRankInfo.color);
 	arg.upsertOnDuplicate = true;
 
 	getDBAgent().runTransaction(arg, &severityRankId);
-	return severityRankId;
+	return err;
 }
 
 HatoholError DBTablesConfig::updateSeverityRankInfo(

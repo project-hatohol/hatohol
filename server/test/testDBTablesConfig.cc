@@ -1388,8 +1388,8 @@ void test_upsertSeverityRankInfo(void)
 	severityRankInfo.color = "#00FF00";
 
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	SeverityRankIdType severityRankId =
-		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
+	SeverityRankIdType severityRankId;
+	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege, severityRankId);
 	const string statement = "SELECT * FROM severity_ranks WHERE id = "+
 		StringUtils::toString(static_cast<int>(NumTestSeverityRankInfoDef + 1));
 	const string expect =
@@ -1415,9 +1415,11 @@ void test_upsertSeverityRankInfoWithoutPrivilege(void)
 	flags &= ~(1 << OPPRVLG_CREATE_SEVERITY_RANK);
 	OperationPrivilege privilege(flags);
 
-	SeverityRankIdType severityRankId =
-		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
-	cppcut_assert_equal(INVALID_SEVERITY_RANK_ID, severityRankId);
+	SeverityRankIdType severityRankId;
+	HatoholError err =
+		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege,
+		                                severityRankId);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
 }
 
 void test_upsertSeverityRankInfoUpdate(void)
@@ -1431,11 +1433,11 @@ void test_upsertSeverityRankInfoUpdate(void)
 	severityRankInfo.color = "#00FF00";
 
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	SeverityRankIdType id0 =
-		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
+	SeverityRankIdType id0;
+	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege, id0);
 	severityRankInfo.id = id0;
-	SeverityRankIdType id1 =
-		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
+	SeverityRankIdType id1;
+	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege, id1);
 	const string statement = "SELECT * FROM severity_ranks WHERE id = "+
 		StringUtils::toString(static_cast<int>(NumTestSeverityRankInfoDef + 1));
 	const string expect =

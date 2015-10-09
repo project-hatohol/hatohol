@@ -294,8 +294,9 @@ public:
 	void getIncidentTrackerIdSet(
 	  IncidentTrackerIdSet &incidentTrackerIdSet);
 
-	SeverityRankIdType upsertSeverityRankInfo(
-	  SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege);
+	HatoholError upsertSeverityRankInfo(
+          SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege,
+          SeverityRankIdType &severityRankId);
 	HatoholError updateSeverityRankInfo(
 	  SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege);
 	void getSeverityRankInfo(
