@@ -1,4 +1,4 @@
-WSGIScriptAlias / /path/to/hatohol/client/conf/apache/django.wsgi
+WSGIScriptAlias /hatohol /path/to/hatohol/client/conf/apache/django.wsgi
 WSGIPythonPath /usr/libexec/hatohol/client/
 
 <VirtualHost *:80>
