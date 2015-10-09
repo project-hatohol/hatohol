@@ -42,6 +42,7 @@ const UserRoleIdSet EMPTY_USER_ROLE_ID_SET;
 //   * access_list.host_group_id -> VARCHAR
 // 1.0 -> 1.1
 //   * NUM_OPPRVLG:23 -> 29
+//   * Included GET SYSTEM_INFO & SYSTEM_OPERATION privileges migration
 
 const int DBTablesUser::USER_DB_VERSION =
   DBTables::Version::getPackedVer(0, 1, 1);
