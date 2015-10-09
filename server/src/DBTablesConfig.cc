@@ -1758,10 +1758,10 @@ HatoholError DBTablesConfig::deleteSeverityRanks(
 struct SeverityRankQueryOption::Impl {
 	static const string conditionTemplate;
 
-	SeverityRankQueryOption           *option;
-	TriggerSeverityType               status;
+	SeverityRankQueryOption       *option;
+	TriggerSeverityType           status;
 	std::list<SeverityRankIdType> idList;
-	string                            color;
+	string                        color;
 
 	Impl(SeverityRankQueryOption *_option)
 	: option(_option), status(TRIGGER_SEVERITY_ALL)
