@@ -1808,7 +1808,7 @@ string SeverityRankQueryOption::Impl::getSeverityRankStatusCondition(void)
 	case TRIGGER_SEVERITY_ALL:
 		return condition;
 	default:
-		condition += StringUtils::sprintf("status=%d", (int)status);
+		condition += StringUtils::sprintf("status=%d", static_cast<int>(status));
 		return condition;
 	}
 }
