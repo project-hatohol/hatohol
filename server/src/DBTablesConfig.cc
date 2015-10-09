@@ -1709,38 +1709,6 @@ static string makeConditionForSeverityRankDelete(
 	return condition;
 }
 
-HatoholError DBTablesConfig::checkPrivilegeForSeverityRankAdd(
-  const OperationPrivilege &privilege,
-  const SeverityRankInfo &severityRankInfo)
-{
-	const UserIdType userId = privilege.getUserId();
-	if (userId == INVALID_USER_ID)
-		return HTERR_INVALID_USER;
-
-	return HTERR_OK;
-}
-
-HatoholError DBTablesConfig::checkPrivilegeForSeverityRankDelete(
-  const OperationPrivilege &privilege, const std::list<SeverityRankIdType> &idList)
-{
-	const UserIdType userId = privilege.getUserId();
-	if (userId == INVALID_USER_ID)
-		return HTERR_INVALID_USER;
-
-	return HTERR_OK;
-}
-
-HatoholError DBTablesConfig::checkPrivilegeForSeverityRankUpdate(
-  const OperationPrivilege &privilege,
-  const SeverityRankInfo &severityRankInfo)
-{
-	const UserIdType userId = privilege.getUserId();
-	if (userId == INVALID_USER_ID)
-		return HTERR_INVALID_USER;
-
-	return HTERR_OK;
-}
-
 HatoholError DBTablesConfig::deleteSeverityRanks(
   const std::list<SeverityRankIdType> &idList,
   const OperationPrivilege &privilege)
@@ -1994,4 +1962,36 @@ void DBTablesConfig::deleteArmPluginInfoWithoutTransaction(
 	DBAgent::DeleteArg arg(tableProfileArmPlugins);
 	arg.condition = condition;
 	deleteRows(arg);
+}
+
+HatoholError DBTablesConfig::checkPrivilegeForSeverityRankAdd(
+  const OperationPrivilege &privilege,
+  const SeverityRankInfo &severityRankInfo)
+{
+	const UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	return HTERR_OK;
+}
+
+HatoholError DBTablesConfig::checkPrivilegeForSeverityRankDelete(
+  const OperationPrivilege &privilege, const std::list<SeverityRankIdType> &idList)
+{
+	const UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	return HTERR_OK;
+}
+
+HatoholError DBTablesConfig::checkPrivilegeForSeverityRankUpdate(
+  const OperationPrivilege &privilege,
+  const SeverityRankInfo &severityRankInfo)
+{
+	const UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	return HTERR_OK;
 }
