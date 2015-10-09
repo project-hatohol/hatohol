@@ -1773,7 +1773,6 @@ struct SeverityRankQueryOption::Impl {
 
 	static string makeConditionTemplate(void);
 	string getSeverityRankStatusCondition(void);
-	string getSeverityRankColorCondition(void);
 };
 
 const string SeverityRankQueryOption::Impl::conditionTemplate
@@ -1812,15 +1811,6 @@ string SeverityRankQueryOption::Impl::getSeverityRankStatusCondition(void)
 		condition += StringUtils::sprintf("status=%d", (int)status);
 		return condition;
 	}
-}
-
-string SeverityRankQueryOption::Impl::getSeverityRankColorCondition(void)
-{
-	string condition;
-	return StringUtils::sprintf(
-		"%s=%s",
-		COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_COLOR].columnName,
-		color.c_str());
 }
 
 SeverityRankQueryOption::SeverityRankQueryOption(const UserIdType &userId)
@@ -1878,7 +1868,12 @@ string SeverityRankQueryOption::getCondition(void) const
 
 	string severityRankColorCondition = m_impl->getSeverityRankColorCondition();
 	if (!m_impl->color.empty()) {
-		addCondition(condition, severityRankColorCondition);
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		string colorCondition = StringUtils::sprintf(
+		  "%s=%s",
+		  COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_COLOR].columnName,
+		  rhs(m_impl->color.c_str()));
+		addCondition(condition, colorCondition);
 	}
 
 	return condition;
