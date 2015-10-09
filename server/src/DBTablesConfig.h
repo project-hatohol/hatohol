@@ -106,6 +106,27 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
+class SeverityRankQueryOption : public DataQueryOption {
+public:
+	SeverityRankQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	SeverityRankQueryOption(DataQueryContext *dataQueryContext);
+	virtual ~SeverityRankQueryOption();
+
+	void setTargetStatus(const TriggerSeverityType &status);
+	const TriggerSeverityType getTargetStatus(void);
+	void setTargetColor(const std::string &color);
+	const std::string getTargetColor(void);
+
+	virtual std::string getCondition(void) const override;
+
+protected:
+	bool hasPrivilegeCondition(std::string &condition) const;
+
+private:
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
+};
+
 class DBTablesConfig : public DBTables {
 public:
 	static int CONFIG_DB_VERSION;

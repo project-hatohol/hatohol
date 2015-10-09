@@ -1752,6 +1752,136 @@ HatoholError DBTablesConfig::deleteSeverityRanks(
 }
 
 // ---------------------------------------------------------------------------
+// SeverityRankQueryOption
+// ---------------------------------------------------------------------------
+
+struct SeverityRankQueryOption::Impl {
+	static const string conditionTemplate;
+
+	SeverityRankQueryOption           *option;
+	TriggerSeverityType               status;
+	std::list<SeverityRankIdType> idList;
+	string                            color;
+
+	Impl(SeverityRankQueryOption *_option)
+	: option(_option), status(TRIGGER_SEVERITY_ALL)
+	{
+	}
+
+	static string makeConditionTemplate(void);
+	string getSeverityRankStatusCondition(void);
+	string getSeverityRankColorCondition(void);
+};
+
+const string SeverityRankQueryOption::Impl::conditionTemplate
+  = makeConditionTemplate();
+
+string SeverityRankQueryOption::Impl::makeConditionTemplate(void)
+{
+	string cond;
+
+	// status;
+	const ColumnDef &colDefStatus =
+	  COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_STATUS];
+	cond += StringUtils::sprintf(
+	  "((%s IS NULL) OR (%s=%%d))",
+	  colDefStatus.columnName, colDefStatus.columnName);
+	cond += " AND ";
+
+	// color;
+	const ColumnDef &colDefColor =
+		COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_COLOR];
+	cond += StringUtils::sprintf(
+	  "((%s IS NULL) OR (%s=%%s))",
+	  colDefColor.columnName, colDefColor.columnName);
+	cond += " AND ";
+
+	return cond;
+}
+
+string SeverityRankQueryOption::Impl::getSeverityRankStatusCondition(void)
+{
+	string condition;
+	switch(status) {
+	case TRIGGER_SEVERITY_ALL:
+		return condition;
+	default:
+		condition += StringUtils::sprintf("status=%d", (int)status);
+		return condition;
+	}
+}
+
+string SeverityRankQueryOption::Impl::getSeverityRankColorCondition(void)
+{
+	string condition;
+	return StringUtils::sprintf(
+		"%s=%s",
+		COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_COLOR].columnName,
+		color.c_str());
+}
+
+SeverityRankQueryOption::SeverityRankQueryOption(const UserIdType &userId)
+: DataQueryOption(userId), m_impl(new Impl(this))
+{
+}
+
+SeverityRankQueryOption::SeverityRankQueryOption(DataQueryContext *dataQueryContext)
+: DataQueryOption(dataQueryContext), m_impl(new Impl(this))
+{
+}
+
+SeverityRankQueryOption::~SeverityRankQueryOption()
+{
+}
+
+void SeverityRankQueryOption::setTargetStatus(const TriggerSeverityType &status)
+{
+	m_impl->status = status;
+}
+
+const TriggerSeverityType SeverityRankQueryOption::getTargetStatus(void)
+{
+	return m_impl->status;
+}
+
+void SeverityRankQueryOption::setTargetColor(const string &color)
+{
+	m_impl->color = color;
+}
+
+const string SeverityRankQueryOption::getTargetColor(void)
+{
+	return m_impl->color;
+}
+
+string SeverityRankQueryOption::getCondition(void) const
+{
+	string condition = DataQueryOption::getCondition();
+
+	// filter by status
+	string severityRankStatusCondition = m_impl->getSeverityRankStatusCondition();
+	if (!severityRankStatusCondition.empty()) {
+		addCondition(condition, severityRankStatusCondition);
+	}
+
+	// filter by ID list
+	if (!m_impl->idList.empty()) {
+		addCondition(condition,
+		             makeSeverityRankIdListCondition(m_impl->idList));
+	}
+
+	HATOHOL_ASSERT(!m_impl->conditionTemplate.empty(),
+	               "SeverityRank condition template is empty.");
+
+	string severityRankColorCondition = m_impl->getSeverityRankColorCondition();
+	if (!m_impl->color.empty()) {
+		addCondition(condition, severityRankColorCondition);
+	}
+
+	return condition;
+}
+
+// ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
 DBTables::SetupInfo &DBTablesConfig::getSetupInfo(void)
