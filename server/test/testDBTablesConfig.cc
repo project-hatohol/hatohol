@@ -1472,7 +1472,7 @@ void test_getSeverityRankInfoWithoutOption(void)
 	}
 }
 
-void test_getSeverityRankInfoWithOption(void)
+void test_getSeverityRankInfoWithStatusOption(void)
 {
 	loadTestDBSeverityRankInfo();
 
