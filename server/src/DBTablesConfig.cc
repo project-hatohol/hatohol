@@ -2098,6 +2098,8 @@ HatoholError DBTablesConfig::checkPrivilegeForSeverityRankAdd(
 	const UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
+	if (!privilege.has(OPPRVLG_CREATE_SEVERITY_RANK))
+		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	return HTERR_OK;
 }
@@ -2108,6 +2110,8 @@ HatoholError DBTablesConfig::checkPrivilegeForSeverityRankDelete(
 	const UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
+	if (!privilege.has(OPPRVLG_DELETE_SEVERITY_RANK))
+		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	return HTERR_OK;
 }
@@ -2119,6 +2123,8 @@ HatoholError DBTablesConfig::checkPrivilegeForSeverityRankUpdate(
 	const UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
+	if (!privilege.has(OPPRVLG_UPDATE_SEVERITY_RANK))
+		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	return HTERR_OK;
 }
