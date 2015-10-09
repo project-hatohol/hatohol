@@ -13,5 +13,8 @@ class HatoholView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(HatoholView, self).get_context_data(**kwargs)
-        context.update({'plugin_js_files': self.plugin_js_files})
+        context.update({
+            'plugin_js_files': self.plugin_js_files,
+            'project_top_path': self.request.META.get("SCRIPT_NAME", ""),
+        })
         return context

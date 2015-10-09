@@ -115,16 +115,17 @@ var HatoholNavi = function(userProfile, currentPage) {
     {
       return null;
     }
+    var href = HATOHOL_PROJECT_TOP_PATH + "/" + menuItem.href
 
     if (menuItem.children) {
       title = '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
         menuItem.title + '<span class="caret"></span>' + '</a>';
       klass = 'dropdown';
-    } else if (menuItem.href == self.currentPage) {
+    } else if (href == self.currentPage) {
       title = '<a>' + menuItem.title + '</a>';
       klass = "active";
     } else {
-      title = '<a href=' + menuItem.href + '>' +
+      title = '<a href=' + href + '>' +
 	menuItem.title + '</a>';
       klass = undefined;
     }
