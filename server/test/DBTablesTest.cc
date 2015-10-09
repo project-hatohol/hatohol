@@ -1537,9 +1537,9 @@ const SeverityRankInfo testSeverityRankInfoDef[] = {
 	"#FF8888"                  // color
 },
 {
-	AUTO_INCREMENT_VALUE,      // id
-	TRIGGER_SEVERITY_CRITICAL, // status
-	"#FF0000"                  // color
+	AUTO_INCREMENT_VALUE,       // id
+	TRIGGER_SEVERITY_EMERGENCY, // status
+	"#FF0000"                   // color
 },
 };
 const size_t NumTestSeverityRankInfoDef = ARRAY_SIZE(testSeverityRankInfoDef);
