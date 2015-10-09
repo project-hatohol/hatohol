@@ -1451,7 +1451,7 @@ void test_updateSeverityRankInfo(void)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
 }
 
-void test_getSeverityRankInfo(void)
+void test_getSeverityRankInfoWithoutOption(void)
 {
 	loadTestDBSeverityRankInfo();
 
