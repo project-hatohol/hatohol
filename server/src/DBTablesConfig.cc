@@ -2095,11 +2095,12 @@ HatoholError DBTablesConfig::checkPrivilegeForSeverityRankAdd(
   const OperationPrivilege &privilege,
   const SeverityRankInfo &severityRankInfo)
 {
+	if (!privilege.has(OPPRVLG_CREATE_SEVERITY_RANK))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
 	const UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
-	if (!privilege.has(OPPRVLG_CREATE_SEVERITY_RANK))
-		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	return HTERR_OK;
 }
@@ -2107,11 +2108,12 @@ HatoholError DBTablesConfig::checkPrivilegeForSeverityRankAdd(
 HatoholError DBTablesConfig::checkPrivilegeForSeverityRankDelete(
   const OperationPrivilege &privilege, const std::list<SeverityRankIdType> &idList)
 {
+	if (!privilege.has(OPPRVLG_DELETE_SEVERITY_RANK))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
 	const UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
-	if (!privilege.has(OPPRVLG_DELETE_SEVERITY_RANK))
-		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	return HTERR_OK;
 }
@@ -2120,11 +2122,12 @@ HatoholError DBTablesConfig::checkPrivilegeForSeverityRankUpdate(
   const OperationPrivilege &privilege,
   const SeverityRankInfo &severityRankInfo)
 {
+	if (!privilege.has(OPPRVLG_UPDATE_SEVERITY_RANK))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
 	const UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
-	if (!privilege.has(OPPRVLG_UPDATE_SEVERITY_RANK))
-		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	return HTERR_OK;
 }
