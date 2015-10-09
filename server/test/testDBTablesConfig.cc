@@ -1401,6 +1401,25 @@ void test_upsertSeverityRankInfo(void)
 				severityRankId);
 }
 
+void test_upsertSeverityRankInfoWithoutPrivilege(void)
+{
+	loadTestDBSeverityRankInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	SeverityRankInfo severityRankInfo;
+	severityRankInfo.id = AUTO_INCREMENT_VALUE;
+	severityRankInfo.status = TRIGGER_SEVERITY_INFO;
+	severityRankInfo.color = "#00FF00";
+
+	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	flags &= ~(1 << OPPRVLG_CREATE_SEVERITY_RANK);
+	OperationPrivilege privilege(flags);
+
+	SeverityRankIdType severityRankId =
+		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
+	cppcut_assert_equal(INVALID_SEVERITY_RANK_ID, severityRankId);
+}
+
 void test_upsertSeverityRankInfoUpdate(void)
 {
 	loadTestDBSeverityRankInfo();
@@ -1449,6 +1468,24 @@ void test_updateSeverityRankInfo(void)
 			       severityRankInfo.id, severityRankInfo.status,
 			       severityRankInfo.color.c_str());
 	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
+}
+
+void test_updateSeverityRankInfoWithoutPrivilege(void)
+{
+	loadTestDBSeverityRankInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	SeverityRankInfo severityRankInfo;
+	SeverityRankIdType targetId = 3;
+	severityRankInfo.id = targetId;
+	severityRankInfo.status = TRIGGER_SEVERITY_CRITICAL;
+	severityRankInfo.color = "#AABC00";
+
+	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	flags &= ~(1 << OPPRVLG_UPDATE_SEVERITY_RANK);
+	OperationPrivilege privilege(flags);
+	assertHatoholError(HTERR_NO_PRIVILEGE,
+			   dbConfig.updateSeverityRankInfo(severityRankInfo, privilege));
 }
 
 void test_getSeverityRankInfoWithoutOption(void)
@@ -1544,5 +1581,23 @@ void test_deleteSeverityRankInfo(void)
 	const string afterDeleteExpect = "";
 	assertDBContent(&dbConfig.getDBAgent(),
 	                afterDeleteStatement, afterDeleteExpect);
+}
+
+void test_deleteSeverityRankInfoWithoutPrivilege(void)
+{
+	loadTestDBSeverityRankInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	SeverityRankInfo severityRankInfo;
+	SeverityRankIdType targetId = 2;
+	SeverityRankIdType actualId = targetId + 1;
+
+	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	flags &= ~(1 << OPPRVLG_DELETE_SEVERITY_RANK);
+	OperationPrivilege privilege(flags);
+
+	std::list<SeverityRankIdType> idList = {actualId};
+	assertHatoholError(HTERR_NO_PRIVILEGE,
+			   dbConfig.deleteSeverityRanks(idList, privilege));
 }
 } // namespace testDBTablesConfig
