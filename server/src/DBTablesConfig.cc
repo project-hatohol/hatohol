@@ -1620,7 +1620,8 @@ SeverityRankIdType DBTablesConfig::upsertSeverityRankInfo(
   SeverityRankInfo &severityRankInfo,
   const OperationPrivilege &privilege)
 {
-	HatoholError err = checkPrivilegeForAdd(privilege, severityRankInfo);
+	HatoholError err =
+		checkPrivilegeForSeverityRankAdd(privilege, severityRankInfo);
 	if (err != HTERR_OK)
 		return INVALID_SEVERITY_RANK_ID;
 
@@ -1640,7 +1641,8 @@ HatoholError DBTablesConfig::updateSeverityRankInfo(
   SeverityRankInfo &severityRankInfo,
   const OperationPrivilege &privilege)
 {
-	HatoholError err = checkPrivilegeForUpdate(privilege, severityRankInfo);
+	HatoholError err =
+		checkPrivilegeForSeverityRankUpdate(privilege, severityRankInfo);
 	if (err != HTERR_OK)
 		return err;
 
@@ -1682,7 +1684,8 @@ void DBTablesConfig::getSeverityRankInfo(SeverityRankInfoVect &severityRankInfoV
 	}
 }
 
-static string makeIdListCondition(const std::list<SeverityRankIdType> &idList)
+static string makeSeverityRankIdListCondition(
+  const std::list<SeverityRankIdType> &idList)
 {
 	string condition;
 	const ColumnDef &colId = COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_ID];
@@ -1697,15 +1700,16 @@ static string makeIdListCondition(const std::list<SeverityRankIdType> &idList)
 	return condition;
 }
 
-static string makeConditionForDelete(const std::list<SeverityRankIdType> &idList,
-				     const OperationPrivilege &privilege)
+static string makeConditionForSeverityRankDelete(
+  const std::list<SeverityRankIdType> &idList,
+  const OperationPrivilege &privilege)
 {
-	string condition = makeIdListCondition(idList);
+	string condition = makeSeverityRankIdListCondition(idList);
 
 	return condition;
 }
 
-HatoholError DBTablesConfig::checkPrivilegeForAdd(
+HatoholError DBTablesConfig::checkPrivilegeForSeverityRankAdd(
   const OperationPrivilege &privilege,
   const SeverityRankInfo &severityRankInfo)
 {
@@ -1716,7 +1720,7 @@ HatoholError DBTablesConfig::checkPrivilegeForAdd(
 	return HTERR_OK;
 }
 
-HatoholError DBTablesConfig::checkPrivilegeForDelete(
+HatoholError DBTablesConfig::checkPrivilegeForSeverityRankDelete(
   const OperationPrivilege &privilege, const std::list<SeverityRankIdType> &idList)
 {
 	const UserIdType userId = privilege.getUserId();
@@ -1726,7 +1730,7 @@ HatoholError DBTablesConfig::checkPrivilegeForDelete(
 	return HTERR_OK;
 }
 
-HatoholError DBTablesConfig::checkPrivilegeForUpdate(
+HatoholError DBTablesConfig::checkPrivilegeForSeverityRankUpdate(
   const OperationPrivilege &privilege,
   const SeverityRankInfo &severityRankInfo)
 {
@@ -1741,7 +1745,7 @@ HatoholError DBTablesConfig::deleteSeverityRanks(
   const std::list<SeverityRankIdType> &idList,
   const OperationPrivilege &privilege)
 {
-	HatoholError err = checkPrivilegeForDelete(privilege, idList);
+	HatoholError err = checkPrivilegeForSeverityRankDelete(privilege, idList);
 	if (err != HTERR_OK)
 		return err;
 
@@ -1766,7 +1770,7 @@ HatoholError DBTablesConfig::deleteSeverityRanks(
 			numAffectedRows = dbAgent.getNumberOfAffectedRows();
 		}
 	} trx;
-	trx.arg.condition = makeConditionForDelete(idList, privilege);
+	trx.arg.condition = makeConditionForSeverityRankDelete(idList, privilege);
 	getDBAgent().runTransaction(trx);
 
 	// Check the result

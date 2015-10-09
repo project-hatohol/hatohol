@@ -310,13 +310,13 @@ protected:
 	  const ServerIdType &serverId, std::string &condition);
 	void deleteArmPluginInfoWithoutTransaction(const std::string &condition);
 
-	HatoholError checkPrivilegeForAdd(
+	HatoholError checkPrivilegeForSeverityRankAdd(
 	  const OperationPrivilege &privilege,
 	  const SeverityRankInfo &severityRankInfo);
-	HatoholError checkPrivilegeForDelete(
+	HatoholError checkPrivilegeForSeverityRankDelete(
 	  const OperationPrivilege &privilege,
 	  const std::list<SeverityRankIdType> &idList);
-	HatoholError checkPrivilegeForUpdate(
+	HatoholError checkPrivilegeForSeverityRankUpdate(
 	  const OperationPrivilege &privilege,
 	  const SeverityRankInfo &severityRankInfo);
 
