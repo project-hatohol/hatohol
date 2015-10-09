@@ -1660,12 +1660,15 @@ HatoholError DBTablesConfig::updateSeverityRankInfo(
 	return HTERR_OK;
 }
 
-void DBTablesConfig::getSeverityRankInfo(SeverityRankInfoVect &severityRankInfoVect)
+void DBTablesConfig::getSeverityRankInfo(
+  SeverityRankInfoVect &severityRankInfoVect,
+  const SeverityRankQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileSeverityRanks);
 	arg.add(IDX_SEVERITY_RANK_ID);
 	arg.add(IDX_SEVERITY_RANK_STATUS);
 	arg.add(IDX_SEVERITY_RANK_COLOR);
+	arg.condition = option.getCondition();
 
 	getDBAgent().runTransaction(arg);
 

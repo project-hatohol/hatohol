@@ -298,7 +298,9 @@ public:
 	  SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege);
 	HatoholError updateSeverityRankInfo(
 	  SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege);
-	void getSeverityRankInfo(SeverityRankInfoVect &severityRankInfoVect);
+	void getSeverityRankInfo(
+	  SeverityRankInfoVect &severityRankInfoVect,
+	  const SeverityRankQueryOption &option);
 	HatoholError deleteSeverityRanks(
           const std::list<SeverityRankIdType> &idList, const OperationPrivilege &privilege);
 
