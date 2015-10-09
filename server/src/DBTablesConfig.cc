@@ -1866,7 +1866,6 @@ string SeverityRankQueryOption::getCondition(void) const
 	HATOHOL_ASSERT(!m_impl->conditionTemplate.empty(),
 	               "SeverityRank condition template is empty.");
 
-	string severityRankColorCondition = m_impl->getSeverityRankColorCondition();
 	if (!m_impl->color.empty()) {
 		DBTermCStringProvider rhs(*getDBTermCodec());
 		string colorCondition = StringUtils::sprintf(
