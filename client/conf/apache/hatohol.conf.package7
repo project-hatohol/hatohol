@@ -1,9 +1,8 @@
 WSGIScriptAlias / /usr/libexec/hatohol/client/conf/apache/django.wsgi
 WSGIPythonPath /usr/libexec/hatohol/client/
 <VirtualHost *:80>
-    DocumentRoot /usr/libexec/hatohol/client/
     <Directory /usr/libexec/hatohol/client>
         Require all granted
     </Directory>
-    Alias /static/ /usr/libexec/hatohol/client/static/
+    Alias /hatohol/static/ /usr/libexec/hatohol/client/static/
 </VirtualHost>

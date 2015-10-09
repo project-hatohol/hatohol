@@ -92,6 +92,11 @@
 {% block main %}
 {% endblock %}
 
+    <script type="text/javascript">
+    <!--
+    HATOHOL_PROJECT_TOP_PATH = "{{ project_top_path }}"
+    // -->
+    </script>
     <script src="{% url "django.views.i18n.javascript_catalog" %}"></script>
     <script src="{{ STATIC_URL }}js.external/jquery.js"></script>
     <script src="{{ STATIC_URL }}js.external/stupidtable.js"></script>
