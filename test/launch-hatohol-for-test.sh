@@ -33,11 +33,13 @@ fi
 
 HATOHOL_DB_DIR=/tmp $server_dir/src/.libs/hatohol --pid-file /tmp/hatohol.pid --foreground --test-mode &
 server_pid=$!
+test ! -z $PIDS_FILE && echo $server_pid >> $PIDS_FILE
 
 cd $client_dir
 ./manage.py syncdb
 HATOHOL_DEBUG=1 ./manage.py runserver 0.0.0.0:8000 &
 client_pid=$!
+test ! -z $PIDS_FILE && echo $client_pid >> $PIDS_FILE
 
 # wait for the boot completion
 NUM_RETRY=30
