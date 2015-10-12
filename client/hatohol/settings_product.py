@@ -20,3 +20,5 @@ from base_settings import *
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
+
+STATIC_URL = '/hatohol/static/'

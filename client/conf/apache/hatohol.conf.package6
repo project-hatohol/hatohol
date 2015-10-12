@@ -1,12 +1,9 @@
-WSGIScriptAlias / /usr/libexec/hatohol/client/conf/apache/django.wsgi
+WSGIScriptAlias /hatohol /usr/libexec/hatohol/client/conf/apache/django.wsgi
 WSGIPythonPath /usr/libexec/hatohol/client/
 <VirtualHost *:80>
-    DocumentRoot /usr/libexec/hatohol/client/
-    ProxyRequests Off
-    ProxyPreserveHost On
     <Directory /usr/libexec/hatohol/client>
         Order deny,allow
         Allow from all
     </Directory>
-    Alias /static/ /usr/libexec/hatohol/client/static/
+    Alias /hatohol/static/ /usr/libexec/hatohol/client/static/
 </VirtualHost>
