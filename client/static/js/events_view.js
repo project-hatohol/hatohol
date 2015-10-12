@@ -43,6 +43,7 @@ var EventsView = function(userProfile, options) {
   setupEventsTable();
   setupToggleFilter();
   setupToggleSidebar();
+  setupApplyFilterButton();
 
   if (self.options.disableTimeRangeFilter) {
    // Don't enable datetimepicker for tests.
@@ -163,7 +164,7 @@ var EventsView = function(userProfile, options) {
       selectPageCallback: function(page) {
         if (self.pager.numRecordsPerPage != self.baseQuery.limit)
           self.baseQuery.limit = self.pager.numRecordsPerPage;
-        load(page);
+        load({ page: page });
       }
     });
   }
@@ -189,15 +190,41 @@ var EventsView = function(userProfile, options) {
     return query;
   }
 
-  function getQuery(page) {
-    if (!page) {
+  function getQuery(options) {
+    var query = {}, applyFilter = false;
+
+    options = options || {};
+
+    if (self.lastQuery) {
+      if (options.applyFilter)
+        applyFilter = true;
+      if (params && (params.legacy == "true"))
+        applyFilter = true;
+    } else {
+      // It's the first query, so it's not needed to apply the filter.
+      applyFilter = false;
+    }
+
+    if (!options.page) {
       self.limitOfUnifiedId = 0;
     } else {
       if (!self.limitOfUnifiedId)
         self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
     }
 
-    var query = $.extend({}, self.baseQuery, {
+    if (!applyFilter) {
+      // Filter isn't changed but the page or config values may be changed.
+      // We need to apply it.
+      $.extend(query, self.baseQuery, self.lastQuery, {
+        offset:           self.baseQuery.limit * self.currentPage,
+        limit:            self.baseQuery.limit,
+        limitOfUnifiedId: self.limitOfUnifiedId,
+      });
+      self.lastQuery = query;
+      return 'events?' + $.param(query);
+    }
+
+    var query = $.extend(query, self.baseQuery, {
       minimumSeverity:  $("#select-severity").val(),
       type:             $("#select-status").val(),
       offset:           self.baseQuery.limit * self.currentPage,
@@ -214,23 +241,26 @@ var EventsView = function(userProfile, options) {
       query.endTime = parseInt(endTime.getTime() / 1000);
     }
 
-    if (self.lastQuery)
-      $.extend(query, self.getHostFilterQuery());
+    $.extend(query, self.getHostFilterQuery());
+
     self.lastQuery = query;
 
     return 'events?' + $.param(query);
   };
 
-  function load(page) {
+  function load(options) {
+    var query;
+    options = options || {};
     self.displayUpdateTime();
     setLoading(true);
-    if (!isNaN(page)) {
-      self.currentPage = page;
+    if (!isNaN(options.page)) {
+      self.currentPage = options.page;
       self.disableAutoRefresh();
     } else {
+      options.page = 0;
       self.currentPage = 0;
     }
-    self.startConnection(getQuery(self.currentPage), updateCore);
+    self.startConnection(getQuery(options), updateCore);
     $(document.body).scrollTop(0);
   }
 
@@ -285,11 +315,18 @@ var EventsView = function(userProfile, options) {
   }
 
   function setupCallbacks() {
-    $("#select-severity, #select-status").change(function() {
-      load();
-    });
-    self.setupHostQuerySelectorCallback(
-      load, '#select-server', '#select-host-group', '#select-host');
+    if (params && params.legacy == "true") {
+      $("#select-severity, #select-status").change(function() {
+        load();
+      });
+
+      self.setupHostQuerySelectorCallback(
+        load, '#select-server', '#select-host-group', '#select-host');
+    } else {
+      $('#select-server').change(function() {
+        setupFilterValues(undefined, {});
+      });
+    }
 
     $('button.latest-button').click(function() {
       load();
@@ -297,6 +334,10 @@ var EventsView = function(userProfile, options) {
 
     $("#select-incident").change(function() {
       updateIncidentStatus();
+    });
+
+    $('button.btn-apply-all-filter').click(function() {
+      load({ applyFilter: true });
     });
   }
 
@@ -402,7 +443,8 @@ var EventsView = function(userProfile, options) {
         $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
       },
       onChangeDateTime: function(currentTime, $input) {
-        load();
+        if (params && (params.legacy == "true"))
+          load();
       }
     });
     $('#end-time').datetimepicker({
@@ -414,7 +456,8 @@ var EventsView = function(userProfile, options) {
         $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
       },
       onChangeDateTime: function(currentTime, $input) {
-        load();
+        if (params && (params.legacy == "true"))
+          load();
       }
     });
   }
@@ -465,6 +508,12 @@ var EventsView = function(userProfile, options) {
 
   function setupPieChart() {
     Pizza.init(document.body, {always_show_text:true});
+  }
+
+  function setupApplyFilterButton() {
+    if (params && (params.legacy == "true")) {
+      $('button.btn-apply-all-filter').hide();
+    }
   }
 
   function setLoading(loading) {
@@ -801,12 +850,12 @@ var EventsView = function(userProfile, options) {
       icon = "up";
       self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_ASCENDING;
       self.userConfig.saveValue('events.sort.order', self.baseQuery.sortOrder);
-      self.startConnection(getQuery(self.currentPage), updateCore);
+      self.startConnection(getQuery({ page: self.currentPage }), updateCore);
     } else {
       icon = "down";
       self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
       self.userConfig.saveValue('events.sort.order', self.baseQuery.sortOrder);
-      self.startConnection(getQuery(self.currentPage), updateCore);
+      self.startConnection(getQuery({ page: self.currentPage }), updateCore);
     }
   }
 

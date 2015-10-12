@@ -260,6 +260,10 @@ h2.hatohol-graph {
     margin-bottom: -3px;
 }
 
+.calendar-group {
+    margin-top: -15px;
+}
+
 .filter-element {
     display: inline-block;
     *display:inline;
