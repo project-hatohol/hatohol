@@ -193,8 +193,10 @@ var EventsView = function(userProfile, options) {
   function getQuery(options) {
     var query = {}, applyFilter = false;
 
+    options = options || {};
+
     if (self.lastQuery) {
-      if (options && options.applyFilter)
+      if (options.applyFilter)
         applyFilter = true;
       if (params && (params.legacy == "true"))
         applyFilter = true;
