@@ -19,6 +19,7 @@
 
 #include <memory>
 
+#include <SeparatorInjector.h>
 #include <Mutex.h>
 #include "DBAgentFactory.h"
 #include "DBTablesConfig.h"
@@ -38,8 +39,9 @@ static const char *TABLE_NAME_SERVER_TYPES = "server_types";
 static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
+static const char *TABLE_NAME_SEVERITY_RANKS = "severity_ranks";
 
-int DBTablesConfig::CONFIG_DB_VERSION = 16;
+int DBTablesConfig::CONFIG_DB_VERSION = 17;
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
 const ServerIdSet EMPTY_INCIDENT_TRACKER_ID_SET;
@@ -567,6 +569,51 @@ static const DBAgent::TableProfile tableProfileIncidentTrackers =
 			    COLUMN_DEF_INCIDENT_TRACKERS,
 			    NUM_IDX_INCIDENT_TRACKERS);
 
+static const ColumnDef COLUMN_DEF_SEVERITY_RANKS[] = {
+{
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+},
+{
+	"status",                          // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+{
+	"color",                           // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+enum {
+	IDX_SEVERITY_RANK_ID,
+	IDX_SEVERITY_RANK_STATUS,
+	IDX_SEVERITY_RANK_COLOR,
+	NUM_IDX_SEVERITY_RANKS,
+};
+
+static const DBAgent::TableProfile tableProfileSeverityRanks =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SEVERITY_RANKS,
+			    COLUMN_DEF_SEVERITY_RANKS,
+			    NUM_IDX_SEVERITY_RANKS);
+
 struct DBTablesConfig::Impl
 {
 	Impl(void)
@@ -656,6 +703,9 @@ static bool updateDB(
 		addArgForArmPlugins.columnIndexes.push_back(
 			IDX_ARM_PLUGINS_UUID);
 		dbAgent.addColumns(addArgForArmPlugins);
+	}
+	if (oldVer < 17) {
+		dbAgent.createTable(tableProfileSeverityRanks);
 	}
 	return true;
 }
@@ -1566,6 +1616,268 @@ void DBTablesConfig::getIncidentTrackerIdSet(
 	}
 }
 
+SeverityRankIdType DBTablesConfig::upsertSeverityRankInfo(
+  SeverityRankInfo &severityRankInfo,
+  const OperationPrivilege &privilege)
+{
+	HatoholError err =
+		checkPrivilegeForSeverityRankAdd(privilege, severityRankInfo);
+	if (err != HTERR_OK)
+		return INVALID_SEVERITY_RANK_ID;
+
+	DBAgent::InsertArg arg(tableProfileSeverityRanks);
+
+	SeverityRankIdType severityRankId;
+	arg.add(severityRankInfo.id);
+	arg.add(severityRankInfo.status);
+	arg.add(severityRankInfo.color);
+	arg.upsertOnDuplicate = true;
+
+	getDBAgent().runTransaction(arg, &severityRankId);
+	return severityRankId;
+}
+
+HatoholError DBTablesConfig::updateSeverityRankInfo(
+  SeverityRankInfo &severityRankInfo,
+  const OperationPrivilege &privilege)
+{
+	HatoholError err =
+		checkPrivilegeForSeverityRankUpdate(privilege, severityRankInfo);
+	if (err != HTERR_OK)
+		return err;
+
+	DBAgent::UpdateArg arg(tableProfileSeverityRanks);
+
+	const char *severityRankInfoIdColumnName =
+	  COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_ID].columnName;
+	arg.condition = StringUtils::sprintf("%s=%" FMT_SEVERITY_RANK_ID,
+	                                     severityRankInfoIdColumnName,
+	                                     severityRankInfo.id);
+	arg.add(IDX_SEVERITY_RANK_STATUS, severityRankInfo.status);
+	arg.add(IDX_SEVERITY_RANK_COLOR, severityRankInfo.color);
+
+	getDBAgent().runTransaction(arg);
+	return HTERR_OK;
+}
+
+void DBTablesConfig::getSeverityRankInfo(
+  SeverityRankInfoVect &severityRankInfoVect,
+  const SeverityRankQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileSeverityRanks);
+	arg.add(IDX_SEVERITY_RANK_ID);
+	arg.add(IDX_SEVERITY_RANK_STATUS);
+	arg.add(IDX_SEVERITY_RANK_COLOR);
+	arg.condition = option.getCondition();
+
+	getDBAgent().runTransaction(arg);
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	severityRankInfoVect.reserve(grpList.size());
+	for (auto itemGrp : grpList) {
+		ItemGroupStream itemGroupStream(itemGrp);
+		SeverityRankInfo severityRankInfo;
+
+		itemGroupStream >> severityRankInfo.id;
+		itemGroupStream >> severityRankInfo.status;
+		itemGroupStream >> severityRankInfo.color;
+
+		severityRankInfoVect.push_back(severityRankInfo);
+	}
+}
+
+static string makeSeverityRankIdListCondition(
+  const std::list<SeverityRankIdType> &idList)
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_ID];
+	SeparatorInjector commaInjector(",");
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	for (auto id : idList) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%" FMT_SEVERITY_RANK_ID, id);
+	}
+
+	condition += ")";
+	return condition;
+}
+
+static string makeConditionForSeverityRankDelete(
+  const std::list<SeverityRankIdType> &idList,
+  const OperationPrivilege &privilege)
+{
+	string condition = makeSeverityRankIdListCondition(idList);
+
+	return condition;
+}
+
+HatoholError DBTablesConfig::deleteSeverityRanks(
+  const std::list<SeverityRankIdType> &idList,
+  const OperationPrivilege &privilege)
+{
+	HatoholError err = checkPrivilegeForSeverityRankDelete(privilege, idList);
+	if (err != HTERR_OK)
+		return err;
+
+	if (idList.empty()) {
+		MLPL_WARN("idList is empty.\n");
+		return HTERR_INVALID_PARAMETER;
+	}
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg arg;
+		uint64_t numAffectedRows;
+
+		TrxProc (void)
+		: arg(tableProfileSeverityRanks),
+		  numAffectedRows(0)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(arg);
+			numAffectedRows = dbAgent.getNumberOfAffectedRows();
+		}
+	} trx;
+	trx.arg.condition = makeConditionForSeverityRankDelete(idList, privilege);
+	getDBAgent().runTransaction(trx);
+
+	// Check the result
+	if (trx.numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
+		         trx.numAffectedRows, idList.size());
+		return HTERR_DELETE_INCOMPLETE;
+	}
+
+	return HTERR_OK;
+}
+
+// ---------------------------------------------------------------------------
+// SeverityRankQueryOption
+// ---------------------------------------------------------------------------
+
+struct SeverityRankQueryOption::Impl {
+	static const string conditionTemplate;
+
+	SeverityRankQueryOption       *option;
+	TriggerSeverityType           status;
+	std::list<SeverityRankIdType> idList;
+	string                        color;
+
+	Impl(SeverityRankQueryOption *_option)
+	: option(_option), status(TRIGGER_SEVERITY_ALL)
+	{
+	}
+
+	static string makeConditionTemplate(void);
+	string getSeverityRankStatusCondition(void);
+};
+
+const string SeverityRankQueryOption::Impl::conditionTemplate
+  = makeConditionTemplate();
+
+string SeverityRankQueryOption::Impl::makeConditionTemplate(void)
+{
+	string cond;
+
+	// status;
+	const ColumnDef &colDefStatus =
+	  COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_STATUS];
+	cond += StringUtils::sprintf(
+	  "((%s IS NULL) OR (%s=%%d))",
+	  colDefStatus.columnName, colDefStatus.columnName);
+	cond += " AND ";
+
+	// color;
+	const ColumnDef &colDefColor =
+		COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_COLOR];
+	cond += StringUtils::sprintf(
+	  "((%s IS NULL) OR (%s=%%s))",
+	  colDefColor.columnName, colDefColor.columnName);
+	cond += " AND ";
+
+	return cond;
+}
+
+string SeverityRankQueryOption::Impl::getSeverityRankStatusCondition(void)
+{
+	string condition;
+	switch(status) {
+	case TRIGGER_SEVERITY_ALL:
+		return condition;
+	default:
+		condition += StringUtils::sprintf("status=%d", static_cast<int>(status));
+		return condition;
+	}
+}
+
+SeverityRankQueryOption::SeverityRankQueryOption(const UserIdType &userId)
+: DataQueryOption(userId), m_impl(new Impl(this))
+{
+}
+
+SeverityRankQueryOption::SeverityRankQueryOption(DataQueryContext *dataQueryContext)
+: DataQueryOption(dataQueryContext), m_impl(new Impl(this))
+{
+}
+
+SeverityRankQueryOption::~SeverityRankQueryOption()
+{
+}
+
+void SeverityRankQueryOption::setTargetStatus(const TriggerSeverityType &status)
+{
+	m_impl->status = status;
+}
+
+const TriggerSeverityType SeverityRankQueryOption::getTargetStatus(void)
+{
+	return m_impl->status;
+}
+
+void SeverityRankQueryOption::setTargetColor(const string &color)
+{
+	m_impl->color = color;
+}
+
+const string SeverityRankQueryOption::getTargetColor(void)
+{
+	return m_impl->color;
+}
+
+string SeverityRankQueryOption::getCondition(void) const
+{
+	string condition = DataQueryOption::getCondition();
+
+	// filter by status
+	string severityRankStatusCondition = m_impl->getSeverityRankStatusCondition();
+	if (!severityRankStatusCondition.empty()) {
+		addCondition(condition, severityRankStatusCondition);
+	}
+
+	// filter by ID list
+	if (!m_impl->idList.empty()) {
+		addCondition(condition,
+		             makeSeverityRankIdListCondition(m_impl->idList));
+	}
+
+	HATOHOL_ASSERT(!m_impl->conditionTemplate.empty(),
+	               "SeverityRank condition template is empty.");
+
+	if (!m_impl->color.empty()) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		string colorCondition = StringUtils::sprintf(
+		  "%s=%s",
+		  COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_COLOR].columnName,
+		  rhs(m_impl->color.c_str()));
+		addCondition(condition, colorCondition);
+	}
+
+	return condition;
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
@@ -1583,6 +1895,8 @@ DBTables::SetupInfo &DBTablesConfig::getSetupInfo(void)
 		&tableProfileArmPlugins,
 	}, {
 		&tableProfileIncidentTrackers,
+	}, {
+		&tableProfileSeverityRanks,
 	}
 	};
 
@@ -1775,4 +2089,36 @@ void DBTablesConfig::deleteArmPluginInfoWithoutTransaction(
 	DBAgent::DeleteArg arg(tableProfileArmPlugins);
 	arg.condition = condition;
 	deleteRows(arg);
+}
+
+HatoholError DBTablesConfig::checkPrivilegeForSeverityRankAdd(
+  const OperationPrivilege &privilege,
+  const SeverityRankInfo &severityRankInfo)
+{
+	const UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	return HTERR_OK;
+}
+
+HatoholError DBTablesConfig::checkPrivilegeForSeverityRankDelete(
+  const OperationPrivilege &privilege, const std::list<SeverityRankIdType> &idList)
+{
+	const UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	return HTERR_OK;
+}
+
+HatoholError DBTablesConfig::checkPrivilegeForSeverityRankUpdate(
+  const OperationPrivilege &privilege,
+  const SeverityRankInfo &severityRankInfo)
+{
+	const UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	return HTERR_OK;
 }

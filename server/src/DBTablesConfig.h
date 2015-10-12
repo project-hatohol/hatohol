@@ -64,6 +64,15 @@ typedef std::vector<ServerTypeInfo>        ServerTypeInfoVect;
 typedef ServerTypeInfoVect::iterator       ServerTypeInfoVectIterator;
 typedef ServerTypeInfoVect::const_iterator ServerTypeInfoVectConstIterator;
 
+struct SeverityRankInfo {
+	SeverityRankIdType     id;
+	SeverityRankStatusType status;
+	std::string            color;
+};
+
+typedef std::vector<SeverityRankInfo> SeverityRankInfoVect;
+constexpr const static SeverityRankIdType INVALID_SEVERITY_RANK_ID = -1;
+
 class ServerQueryOption : public DataQueryOption {
 public:
 	ServerQueryOption(const UserIdType &userId = INVALID_USER_ID);
@@ -91,6 +100,27 @@ public:
 	void setTargetId(const IncidentTrackerIdType &targetId);
 
 	virtual std::string getCondition(void) const; //overrride
+
+private:
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
+};
+
+class SeverityRankQueryOption : public DataQueryOption {
+public:
+	SeverityRankQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	SeverityRankQueryOption(DataQueryContext *dataQueryContext);
+	virtual ~SeverityRankQueryOption();
+
+	void setTargetStatus(const TriggerSeverityType &status);
+	const TriggerSeverityType getTargetStatus(void);
+	void setTargetColor(const std::string &color);
+	const std::string getTargetColor(void);
+
+	virtual std::string getCondition(void) const override;
+
+protected:
+	bool hasPrivilegeCondition(std::string &condition) const;
 
 private:
 	struct Impl;
@@ -264,6 +294,16 @@ public:
 	void getIncidentTrackerIdSet(
 	  IncidentTrackerIdSet &incidentTrackerIdSet);
 
+	SeverityRankIdType upsertSeverityRankInfo(
+	  SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege);
+	HatoholError updateSeverityRankInfo(
+	  SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege);
+	void getSeverityRankInfo(
+	  SeverityRankInfoVect &severityRankInfoVect,
+	  const SeverityRankQueryOption &option);
+	HatoholError deleteSeverityRanks(
+          const std::list<SeverityRankIdType> &idList, const OperationPrivilege &privilege);
+
 protected:
 	static SetupInfo &getSetupInfo(void);
 	static void tableInitializerSystem(DBAgent &dbAgent, void *data);
@@ -292,6 +332,16 @@ protected:
 	void preprocForDeleteArmPluginInfo(
 	  const ServerIdType &serverId, std::string &condition);
 	void deleteArmPluginInfoWithoutTransaction(const std::string &condition);
+
+	HatoholError checkPrivilegeForSeverityRankAdd(
+	  const OperationPrivilege &privilege,
+	  const SeverityRankInfo &severityRankInfo);
+	HatoholError checkPrivilegeForSeverityRankDelete(
+	  const OperationPrivilege &privilege,
+	  const std::list<SeverityRankIdType> &idList);
+	HatoholError checkPrivilegeForSeverityRankUpdate(
+	  const OperationPrivilege &privilege,
+	  const SeverityRankInfo &severityRankInfo);
 
 private:
 	struct Impl;

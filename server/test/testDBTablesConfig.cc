@@ -1356,4 +1356,193 @@ void test_deleteIncidentTrackerWithoutPrivilege(void)
 	assertIncidentTrackersInDB(EMPTY_INCIDENT_TRACKER_ID_SET);
 }
 
+static void _assertSeverityRankInfo(
+  const SeverityRankInfo &expect, const SeverityRankInfo &actual)
+{
+	cppcut_assert_equal(expect.id, actual.id);
+	cppcut_assert_equal(expect.status, actual.status);
+	cppcut_assert_equal(expect.color, actual.color);
+}
+#define assertSeverityRankInfo(E,A) cut_trace(_assertSeverityRankInfo(E,A))
+
+void test_createTableSeverityRanks(void)
+{
+	const string tableName = "severity_ranks";
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	assertCreateTable(&dbConfig.getDBAgent(), tableName);
+
+	// check content
+	const string statement = "SELECT * FROM " + tableName;
+	const string expectedOut = ""; // currently no data
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
+}
+
+void test_upsertSeverityRankInfo(void)
+{
+	loadTestDBSeverityRankInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	SeverityRankInfo severityRankInfo;
+	severityRankInfo.id = AUTO_INCREMENT_VALUE;
+	severityRankInfo.status = TRIGGER_SEVERITY_INFO;
+	severityRankInfo.color = "#00FF00";
+
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	SeverityRankIdType severityRankId =
+		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
+	const string statement = "SELECT * FROM severity_ranks WHERE id = "+
+		StringUtils::toString(static_cast<int>(NumTestSeverityRankInfoDef + 1));
+	const string expect =
+	  StringUtils::sprintf("%" FMT_SEVERITY_RANK_ID "|%d|%s",
+			       severityRankId, severityRankInfo.status,
+			       severityRankInfo.color.c_str());
+	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
+	cppcut_assert_not_equal((SeverityRankIdType)AUTO_INCREMENT_VALUE,
+				severityRankId);
+}
+
+void test_upsertSeverityRankInfoUpdate(void)
+{
+	loadTestDBSeverityRankInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	SeverityRankInfo severityRankInfo;
+	severityRankInfo.id = AUTO_INCREMENT_VALUE;
+	severityRankInfo.status = TRIGGER_SEVERITY_INFO;
+	severityRankInfo.color = "#00FF00";
+
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	SeverityRankIdType id0 =
+		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
+	severityRankInfo.id = id0;
+	SeverityRankIdType id1 =
+		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
+	const string statement = "SELECT * FROM severity_ranks WHERE id = "+
+		StringUtils::toString(static_cast<int>(NumTestSeverityRankInfoDef + 1));
+	const string expect =
+	  StringUtils::sprintf("%" FMT_SEVERITY_RANK_ID "|%d|%s",
+			       id1, severityRankInfo.status,
+			       severityRankInfo.color.c_str());
+	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
+	cppcut_assert_not_equal((SeverityRankIdType)AUTO_INCREMENT_VALUE, id1);
+}
+
+void test_updateSeverityRankInfo(void)
+{
+	loadTestDBSeverityRankInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	SeverityRankInfo severityRankInfo;
+	SeverityRankIdType targetId = 3;
+	severityRankInfo.id = targetId;
+	severityRankInfo.status = TRIGGER_SEVERITY_CRITICAL;
+	severityRankInfo.color = "#AABC00";
+
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	dbConfig.updateSeverityRankInfo(severityRankInfo, privilege);
+	const string statement =
+	  StringUtils::sprintf(
+	    "SELECT * FROM severity_ranks WHERE id = %" FMT_SEVERITY_RANK_ID,
+	    targetId);
+	const string expect =
+	  StringUtils::sprintf("%" FMT_SEVERITY_RANK_ID "|%d|%s",
+			       severityRankInfo.id, severityRankInfo.status,
+			       severityRankInfo.color.c_str());
+	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
+}
+
+void test_getSeverityRankInfoWithoutOption(void)
+{
+	loadTestDBSeverityRankInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+
+	SeverityRankInfoVect severityRankInfoVect;
+	SeverityRankQueryOption option(USER_ID_SYSTEM);
+	dbConfig.getSeverityRankInfo(severityRankInfoVect, option);
+	{
+		size_t i = 0;
+		for (auto severityRankInfo : severityRankInfoVect) {
+			// ignore id assertion. Because id is auto increment.
+			severityRankInfo.id = 0;
+			assertSeverityRankInfo(testSeverityRankInfoDef[i],
+					       severityRankInfo);
+			i++;
+		}
+	}
+}
+
+void test_getSeverityRankInfoWithStatusOption(void)
+{
+	loadTestDBSeverityRankInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+
+	SeverityRankInfoVect severityRankInfoVect;
+	SeverityRankQueryOption option(USER_ID_SYSTEM);
+	option.setTargetStatus(TRIGGER_SEVERITY_ERROR);
+	dbConfig.getSeverityRankInfo(severityRankInfoVect, option);
+	cppcut_assert_equal((size_t)1, severityRankInfoVect.size());
+	for (auto severityRankInfo : severityRankInfoVect) {
+		// ignore id assertion. Because id is auto increment.
+		severityRankInfo.id = 0;
+		int targetId = 3;
+		assertSeverityRankInfo(testSeverityRankInfoDef[targetId],
+				       severityRankInfo);
+	}
+}
+
+void test_getSeverityRankInfoWithColorOption(void)
+{
+	loadTestDBSeverityRankInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+
+	SeverityRankInfoVect severityRankInfoVect;
+	SeverityRankQueryOption option(USER_ID_SYSTEM);
+	option.setTargetColor("#DDAAAA");
+	dbConfig.getSeverityRankInfo(severityRankInfoVect, option);
+	cppcut_assert_equal((size_t)1, severityRankInfoVect.size());
+	for (auto severityRankInfo : severityRankInfoVect) {
+		// ignore id assertion. Because id is auto increment.
+		severityRankInfo.id = 0;
+		int targetId = 3;
+		assertSeverityRankInfo(testSeverityRankInfoDef[targetId],
+				       severityRankInfo);
+	}
+}
+
+void test_deleteSeverityRankInfo(void)
+{
+	loadTestDBSeverityRankInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	SeverityRankInfo severityRankInfo;
+	SeverityRankIdType targetId = 2;
+	SeverityRankIdType actualId = targetId + 1;
+
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	const string statement =
+	  StringUtils::sprintf(
+	    "SELECT * FROM severity_ranks WHERE id = %" FMT_SEVERITY_RANK_ID,
+	    actualId);
+	// ignore id assertion. Because id is auto incremnt
+	const string expect =
+	  StringUtils::sprintf("%" FMT_SEVERITY_RANK_ID "|%d|%s",
+			       actualId,
+			       testSeverityRankInfoDef[targetId].status,
+			       testSeverityRankInfoDef[targetId].color.c_str());
+	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
+
+	std::list<SeverityRankIdType> idList = {actualId};
+	dbConfig.deleteSeverityRanks(idList, privilege);
+
+	const string afterDeleteStatement =
+	  StringUtils::sprintf(
+	    "SELECT * FROM severity_ranks WHERE id = %" FMT_SEVERITY_RANK_ID,
+	    actualId);
+	const string afterDeleteExpect = "";
+	assertDBContent(&dbConfig.getDBAgent(),
+	                afterDeleteStatement, afterDeleteExpect);
+}
 } // namespace testDBTablesConfig
