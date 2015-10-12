@@ -441,7 +441,8 @@ var EventsView = function(userProfile, options) {
         $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
       },
       onChangeDateTime: function(currentTime, $input) {
-        load();
+        if (params && (params.legacy == "true"))
+          load();
       }
     });
     $('#end-time').datetimepicker({
@@ -453,7 +454,8 @@ var EventsView = function(userProfile, options) {
         $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
       },
       onChangeDateTime: function(currentTime, $input) {
-        load();
+        if (params && (params.legacy == "true"))
+          load();
       }
     });
   }
