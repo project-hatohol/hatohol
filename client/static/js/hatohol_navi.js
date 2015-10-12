@@ -115,7 +115,11 @@ var HatoholNavi = function(userProfile, currentPage) {
     {
       return null;
     }
-    var href = HATOHOL_PROJECT_TOP_PATH + "/" + menuItem.href
+
+    var href = "";
+    if (HATOHOL_PROJECT_TOP_PATH.length > 0)
+        href = HATOHOL_PROJECT_TOP_PATH + "/";
+    href = href + menuItem.href;
 
     if (menuItem.children) {
       title = '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
