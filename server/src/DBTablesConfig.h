@@ -116,6 +116,8 @@ public:
 	const TriggerSeverityType getTargetStatus(void);
 	void setTargetColor(const std::string &color);
 	const std::string getTargetColor(void);
+	void setTargetIdList(std::list<SeverityRankIdType> idList);
+	const std::list<SeverityRankIdType> getTargetIdList(void);
 
 	virtual std::string getCondition(void) const override;
 
