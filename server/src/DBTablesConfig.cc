@@ -1845,6 +1845,15 @@ void SeverityRankQueryOption::setTargetColor(const string &color)
 const string SeverityRankQueryOption::getTargetColor(void)
 {
 	return m_impl->color;
+
+}
+
+void SeverityRankQueryOption::setTargetIdList(list<SeverityRankIdType> idList) {
+	m_impl->idList = idList;
+}
+
+const list<SeverityRankIdType> SeverityRankQueryOption::getTargetIdList(void) {
+	return m_impl->idList;
 }
 
 string SeverityRankQueryOption::getCondition(void) const
