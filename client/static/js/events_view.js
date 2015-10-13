@@ -286,7 +286,7 @@ var EventsView = function(userProfile, options) {
     var hasIncidentTypeOthers = false;
 
     if (!self.rawData["haveIncident"]) {
-      $("#select-incident-container").hide();
+      $("#change-incident-container").hide();
       fixupEventsTableHeight();
       return;
     }
@@ -306,10 +306,10 @@ var EventsView = function(userProfile, options) {
     }
 
     if (hasIncidentTypeHatohol && !hasIncidentTypeOthers) {
-      $("#select-incident-container").show();
+      $("#change-incident-container").show();
       fixupEventsTableHeight();
     } else {
-      $("#select-incident-container").hide();
+      $("#change-incident-container").hide();
       fixupEventsTableHeight();
     }
   }
@@ -332,7 +332,7 @@ var EventsView = function(userProfile, options) {
       load();
     });
 
-    $("#select-incident").change(function() {
+    $("#change-incident").change(function() {
       updateIncidentStatus();
     });
 
@@ -376,7 +376,7 @@ var EventsView = function(userProfile, options) {
 
   function makeQueryData() {
     var queryData = {};
-    queryData.status = $("#select-incident").val();
+    queryData.status = $("#change-incident").val();
     return queryData;
   }
 
