@@ -494,6 +494,26 @@ HatoholUserRoleEditor.prototype.hatoholPrivileges = [
     message: gettext("Get all incident tracking settings"),
     category: gettext("Incident tracking")
   },
+  {
+    flag: hatohol.OPPRVLG_CREATE_SEVERITY_RANK,
+    message: gettext("Create severity rank"),
+    category: gettext("Severity rank")
+  },
+  {
+    flag: hatohol.OPPRVLG_UPDATE_SEVERITY_RANK,
+    message: gettext("Update severity rank"),
+    category: gettext("Severity rank")
+  },
+  {
+    flag: hatohol.OPPRVLG_DELETE_SEVERITY_RANK,
+    message: gettext("Delete severity rank"),
+    category: gettext("Severity rank")
+  },
+  {
+    flag: hatohol.OPPRVLG_GET_ALL_SEVERITY_RANK,
+    message: gettext("Get all severity rank"),
+    category: gettext("Severity rank")
+  },
 ];
 
 HatoholUserRoleEditor.prototype.createMainElement = function() {

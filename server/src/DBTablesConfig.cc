@@ -1616,25 +1616,25 @@ void DBTablesConfig::getIncidentTrackerIdSet(
 	}
 }
 
-SeverityRankIdType DBTablesConfig::upsertSeverityRankInfo(
+HatoholError DBTablesConfig::upsertSeverityRankInfo(
   SeverityRankInfo &severityRankInfo,
-  const OperationPrivilege &privilege)
+  const OperationPrivilege &privilege,
+  SeverityRankIdType &severityRankId)
 {
 	HatoholError err =
 		checkPrivilegeForSeverityRankAdd(privilege, severityRankInfo);
 	if (err != HTERR_OK)
-		return INVALID_SEVERITY_RANK_ID;
+		return err;
 
 	DBAgent::InsertArg arg(tableProfileSeverityRanks);
 
-	SeverityRankIdType severityRankId;
 	arg.add(severityRankInfo.id);
 	arg.add(severityRankInfo.status);
 	arg.add(severityRankInfo.color);
 	arg.upsertOnDuplicate = true;
 
 	getDBAgent().runTransaction(arg, &severityRankId);
-	return severityRankId;
+	return err;
 }
 
 HatoholError DBTablesConfig::updateSeverityRankInfo(
@@ -2095,6 +2095,9 @@ HatoholError DBTablesConfig::checkPrivilegeForSeverityRankAdd(
   const OperationPrivilege &privilege,
   const SeverityRankInfo &severityRankInfo)
 {
+	if (!privilege.has(OPPRVLG_CREATE_SEVERITY_RANK))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
 	const UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
@@ -2105,6 +2108,9 @@ HatoholError DBTablesConfig::checkPrivilegeForSeverityRankAdd(
 HatoholError DBTablesConfig::checkPrivilegeForSeverityRankDelete(
   const OperationPrivilege &privilege, const std::list<SeverityRankIdType> &idList)
 {
+	if (!privilege.has(OPPRVLG_DELETE_SEVERITY_RANK))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
 	const UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
@@ -2116,6 +2122,9 @@ HatoholError DBTablesConfig::checkPrivilegeForSeverityRankUpdate(
   const OperationPrivilege &privilege,
   const SeverityRankInfo &severityRankInfo)
 {
+	if (!privilege.has(OPPRVLG_UPDATE_SEVERITY_RANK))
+		return HatoholError(HTERR_NO_PRIVILEGE);
+
 	const UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;

@@ -1388,8 +1388,8 @@ void test_upsertSeverityRankInfo(void)
 	severityRankInfo.color = "#00FF00";
 
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	SeverityRankIdType severityRankId =
-		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
+	SeverityRankIdType severityRankId;
+	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege, severityRankId);
 	const string statement = "SELECT * FROM severity_ranks WHERE id = "+
 		StringUtils::toString(static_cast<int>(NumTestSeverityRankInfoDef + 1));
 	const string expect =
@@ -1399,6 +1399,27 @@ void test_upsertSeverityRankInfo(void)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((SeverityRankIdType)AUTO_INCREMENT_VALUE,
 				severityRankId);
+}
+
+void test_upsertSeverityRankInfoWithoutPrivilege(void)
+{
+	loadTestDBSeverityRankInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	SeverityRankInfo severityRankInfo;
+	severityRankInfo.id = AUTO_INCREMENT_VALUE;
+	severityRankInfo.status = TRIGGER_SEVERITY_INFO;
+	severityRankInfo.color = "#00FF00";
+
+	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	flags &= ~(1 << OPPRVLG_CREATE_SEVERITY_RANK);
+	OperationPrivilege privilege(flags);
+
+	SeverityRankIdType severityRankId;
+	HatoholError err =
+		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege,
+		                                severityRankId);
+	assertHatoholError(HTERR_NO_PRIVILEGE, err);
 }
 
 void test_upsertSeverityRankInfoUpdate(void)
@@ -1412,11 +1433,11 @@ void test_upsertSeverityRankInfoUpdate(void)
 	severityRankInfo.color = "#00FF00";
 
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	SeverityRankIdType id0 =
-		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
+	SeverityRankIdType id0;
+	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege, id0);
 	severityRankInfo.id = id0;
-	SeverityRankIdType id1 =
-		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
+	SeverityRankIdType id1;
+	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege, id1);
 	const string statement = "SELECT * FROM severity_ranks WHERE id = "+
 		StringUtils::toString(static_cast<int>(NumTestSeverityRankInfoDef + 1));
 	const string expect =
@@ -1449,6 +1470,24 @@ void test_updateSeverityRankInfo(void)
 			       severityRankInfo.id, severityRankInfo.status,
 			       severityRankInfo.color.c_str());
 	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
+}
+
+void test_updateSeverityRankInfoWithoutPrivilege(void)
+{
+	loadTestDBSeverityRankInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	SeverityRankInfo severityRankInfo;
+	SeverityRankIdType targetId = 3;
+	severityRankInfo.id = targetId;
+	severityRankInfo.status = TRIGGER_SEVERITY_CRITICAL;
+	severityRankInfo.color = "#AABC00";
+
+	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	flags &= ~(1 << OPPRVLG_UPDATE_SEVERITY_RANK);
+	OperationPrivilege privilege(flags);
+	assertHatoholError(HTERR_NO_PRIVILEGE,
+			   dbConfig.updateSeverityRankInfo(severityRankInfo, privilege));
 }
 
 void test_getSeverityRankInfoWithoutOption(void)
@@ -1544,5 +1583,23 @@ void test_deleteSeverityRankInfo(void)
 	const string afterDeleteExpect = "";
 	assertDBContent(&dbConfig.getDBAgent(),
 	                afterDeleteStatement, afterDeleteExpect);
+}
+
+void test_deleteSeverityRankInfoWithoutPrivilege(void)
+{
+	loadTestDBSeverityRankInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	SeverityRankInfo severityRankInfo;
+	SeverityRankIdType targetId = 2;
+	SeverityRankIdType actualId = targetId + 1;
+
+	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	flags &= ~(1 << OPPRVLG_DELETE_SEVERITY_RANK);
+	OperationPrivilege privilege(flags);
+
+	std::list<SeverityRankIdType> idList = {actualId};
+	assertHatoholError(HTERR_NO_PRIVILEGE,
+			   dbConfig.deleteSeverityRanks(idList, privilege));
 }
 } // namespace testDBTablesConfig
