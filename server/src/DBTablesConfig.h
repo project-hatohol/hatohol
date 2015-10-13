@@ -299,7 +299,7 @@ public:
           SeverityRankIdType &severityRankId);
 	HatoholError updateSeverityRankInfo(
 	  SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege);
-	void getSeverityRankInfo(
+	void getSeverityRanks(
 	  SeverityRankInfoVect &severityRankInfoVect,
 	  const SeverityRankQueryOption &option);
 	HatoholError deleteSeverityRanks(
