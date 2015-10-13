@@ -981,7 +981,7 @@ HatoholError UnifiedDataStore::getSeverityRanks(
   SeverityRankInfoVect &severityRankInfoVect, const SeverityRankQueryOption &option)
 {
 	ThreadLocalDBCache cache;
-	cache.getConfig().getSeverityRankInfo(severityRankInfoVect, option);
+	cache.getConfig().getSeverityRanks(severityRankInfoVect, option);
 
 	return HTERR_OK;
 }
