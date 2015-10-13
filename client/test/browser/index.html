@@ -18,6 +18,9 @@
 <script>mocha.setup('bdd');</script>
 <script src="sinon.js"></script>
 <script>
+  if (typeof(HATOHOL_PROJECT_TOP_PATH) == "undefined")
+    HATOHOL_PROJECT_TOP_PATH = ""
+
   // TODO: consider that we should use gettext() by django
   function gettext(msg) {
     return msg;
