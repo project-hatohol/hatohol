@@ -301,6 +301,16 @@ public:
 	};
 	void getSystemInfo(SystemInfo &systemInfo,
 	                   const DataQueryOption &option);
+	// SeverityRank
+	HatoholError upsertSeverityRank(SeverityRankInfo &severityRankInfo,
+	                                const OperationPrivilege privilege,
+	                                SeverityRankIdType &severityRankId);
+	HatoholError updateSeverityRank(SeverityRankInfo &severityRankInfo,
+	                                const OperationPrivilege privilege);
+	HatoholError getSeverityRanks(SeverityRankInfoVect &severityRankInfoVect,
+	                              const SeverityRankQueryOption &option);
+	HatoholError deleteSeverityRanks(std::list<SeverityRankIdType> &idList,
+	                                 const OperationPrivilege privilege);
 
 protected:
 	void fetchItems(const ServerIdType &targetServerId = ALL_SERVERS);

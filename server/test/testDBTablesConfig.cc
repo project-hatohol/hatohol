@@ -1498,7 +1498,7 @@ void test_getSeverityRankInfoWithoutOption(void)
 
 	SeverityRankInfoVect severityRankInfoVect;
 	SeverityRankQueryOption option(USER_ID_SYSTEM);
-	dbConfig.getSeverityRankInfo(severityRankInfoVect, option);
+	dbConfig.getSeverityRanks(severityRankInfoVect, option);
 	{
 		size_t i = 0;
 		for (auto severityRankInfo : severityRankInfoVect) {
@@ -1520,7 +1520,7 @@ void test_getSeverityRankInfoWithStatusOption(void)
 	SeverityRankInfoVect severityRankInfoVect;
 	SeverityRankQueryOption option(USER_ID_SYSTEM);
 	option.setTargetStatus(TRIGGER_SEVERITY_ERROR);
-	dbConfig.getSeverityRankInfo(severityRankInfoVect, option);
+	dbConfig.getSeverityRanks(severityRankInfoVect, option);
 	cppcut_assert_equal((size_t)1, severityRankInfoVect.size());
 	for (auto severityRankInfo : severityRankInfoVect) {
 		// ignore id assertion. Because id is auto increment.
@@ -1540,7 +1540,7 @@ void test_getSeverityRankInfoWithColorOption(void)
 	SeverityRankInfoVect severityRankInfoVect;
 	SeverityRankQueryOption option(USER_ID_SYSTEM);
 	option.setTargetColor("#DDAAAA");
-	dbConfig.getSeverityRankInfo(severityRankInfoVect, option);
+	dbConfig.getSeverityRanks(severityRankInfoVect, option);
 	cppcut_assert_equal((size_t)1, severityRankInfoVect.size());
 	for (auto severityRankInfo : severityRankInfoVect) {
 		// ignore id assertion. Because id is auto increment.

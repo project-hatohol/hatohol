@@ -1660,7 +1660,7 @@ HatoholError DBTablesConfig::updateSeverityRankInfo(
 	return HTERR_OK;
 }
 
-void DBTablesConfig::getSeverityRankInfo(
+void DBTablesConfig::getSeverityRanks(
   SeverityRankInfoVect &severityRankInfoVect,
   const SeverityRankQueryOption &option)
 {
