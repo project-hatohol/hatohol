@@ -2425,8 +2425,6 @@ void loadTestDBSeverityRankInfo(void)
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	SeverityRankIdType severityRankId;
 	for (auto severityRankInfo : testSeverityRankInfoDef)
-		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege,
-		                                severityRankId);
+		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
 }
