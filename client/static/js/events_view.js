@@ -287,6 +287,7 @@ var EventsView = function(userProfile, options) {
     var hasIncidentTypeOthers = false;
 
     if (!self.rawData["haveIncident"]) {
+      $("#select-incident-container").hide();
       $("#change-incident-container").hide();
       fixupEventsTableHeight();
       return;
@@ -307,9 +308,11 @@ var EventsView = function(userProfile, options) {
     }
 
     if (hasIncidentTypeHatohol && !hasIncidentTypeOthers) {
+      $("#select-incident-container").show();
       $("#change-incident-container").show();
       fixupEventsTableHeight();
     } else {
+      $("#select-incident-container").hide();
       $("#change-incident-container").hide();
       fixupEventsTableHeight();
     }
