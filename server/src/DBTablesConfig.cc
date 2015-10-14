@@ -609,10 +609,20 @@ enum {
 	NUM_IDX_SEVERITY_RANKS,
 };
 
+static const int columnIndexesSeverityRanksUniqId[] = {
+  IDX_SEVERITY_RANK_STATUS, IDX_SEVERITY_RANK_COLOR, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsSeverityRanks[] = {
+  {"SeverityRanksUniqId", (const int *)columnIndexesSeverityRanksUniqId, true},
+  {NULL}
+};
+
 static const DBAgent::TableProfile tableProfileSeverityRanks =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SEVERITY_RANKS,
 			    COLUMN_DEF_SEVERITY_RANKS,
-			    NUM_IDX_SEVERITY_RANKS);
+			    NUM_IDX_SEVERITY_RANKS,
+			    indexDefsSeverityRanks);
 
 struct DBTablesConfig::Impl
 {
