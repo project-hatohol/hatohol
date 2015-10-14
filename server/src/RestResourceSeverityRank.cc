@@ -163,7 +163,7 @@ void RestResourceSeverityRank::handlePut(void)
 
 	SeverityRankInfoVect severityRanks;
 	SeverityRankQueryOption option(m_dataQueryContextPtr);
-	option.setTargetStatus(static_cast<TriggerSeverityType>(severityRankInfo.status));
+	option.setTargetIdList({severityRankInfo.id});
 	ThreadLocalDBCache cache;
 	cache.getConfig().getSeverityRanks(severityRanks, option);
 	if (severityRanks.empty()) {
