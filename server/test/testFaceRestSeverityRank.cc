@@ -31,4 +31,149 @@ using namespace mlpl;
 
 namespace testFaceRestSeverityRank {
 
+static JSONParser *g_parser = NULL;
+
+void cut_setup(void)
+{
+	hatoholInit();
+	setupTestDB();
+	loadTestDBSeverityRankInfo();
+	loadTestDBTablesUser();
+}
+
+void cut_teardown(void)
+{
+	stopFaceRest();
+
+	delete g_parser;
+	g_parser = NULL;
+}
+
+static void _assertSeverityRanks(
+  const string &path = "/severity-rank", const string &callbackName = "")
+{
+	startFaceRest();
+	RequestArg arg(path, callbackName);
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SEVERITY_RANK);
+	OperationPrivilege privilege(arg.userId);
+	g_parser = getResponseAsJSONParser(arg);
+	assertErrorCode(g_parser);
+	assertStartObject(g_parser, "SeverityRanks");
+	for (size_t i = 0; i < NumTestSeverityRankInfoDef; i++) {
+		const SeverityRankInfo &severityRank = testSeverityRankInfoDef[i];
+		g_parser->startElement(i);
+		assertValueInParser(g_parser, "id", i + 1);
+		assertValueInParser(g_parser, "status", severityRank.status);
+		assertValueInParser(g_parser, "color", severityRank.color);
+		g_parser->endElement();
+	}
+	g_parser->endObject();
+}
+#define assertSeverityRanks(P,...) \
+cut_trace(_assertSeverityRanks(P,##__VA_ARGS__))
+
+#define assertAddSeverityRank(P, ...) \
+cut_trace(_assertAddRecord(P, "/severity-rank", ##__VA_ARGS__))
+
+#define assertUpdateSeverityRank(P, ...) \
+cut_trace(_assertUpdateRecord(P, "/severity-rank", ##__VA_ARGS__))
+
+static void _assertSeverityRankInfoInDB(
+  const SeverityRankInfo &expectedSeverityRankInfo,
+  const SeverityRankIdType &targetId = ALL_SEVERITY_RANKS)
+{
+	string statement;
+
+	if (targetId == ALL_SEVERITY_RANKS) {
+		statement = "select * from severity_ranks "
+			    "order by id desc limit 1";
+	} else {
+		statement = StringUtils::sprintf(
+			      "select * from severity_ranks where id=%"
+			      FMT_SEVERITY_RANK_ID,
+			      targetId);
+	}
+	string expected = makeSeverityRankInfoOutput(
+			    expectedSeverityRankInfo);
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getConfig().getDBAgent(), statement, expected);
+}
+#define assertSeverityRankInDB(E, ...) \
+cut_trace(_assertSeverityRankInfoInDB(E, ##__VA_ARGS__))
+
+
+void _assertSeverityRanksInDB(const set<SeverityRankIdType> &excludeSeverityRankIdSet)
+{
+	string statement = "select * from severity_ranks ";
+	statement += " ORDER BY id ASC";
+	string expect;
+	for (size_t i = 0; i < NumTestSeverityRankInfoDef; i++) {
+		SeverityRankIdType severityRankId = i + 1;
+		SeverityRankInfo severityRankInfo
+		  = testSeverityRankInfoDef[i];
+		severityRankInfo.id = severityRankId;
+		set<SeverityRankIdType>::iterator it
+		  = excludeSeverityRankIdSet.find(severityRankId);
+		if (it != excludeSeverityRankIdSet.end())
+			continue;
+		expect += makeSeverityRankInfoOutput(severityRankInfo);
+	}
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getConfig().getDBAgent(), statement, expect);
+}
+#define assertSeverityRanksInDB(E) cut_trace(_assertSeverityRanksInDB(E))
+
+void test_getSeverityRankInfo()
+{
+	assertSeverityRanks();
+}
+
+static void createTestSeverityRank(SeverityRankInfo &severityRank)
+{
+	severityRank.id     = AUTO_INCREMENT_VALUE;
+	severityRank.status = TRIGGER_SEVERITY_INFO;
+	severityRank.color  = "#00FF00";
+}
+
+static void createPostData(const SeverityRankInfo &severityRank,
+			   StringMap &params)
+{
+	params["id"]     = StringUtils::toString(severityRank.id);
+	params["status"] = StringUtils::toString(static_cast<int>(severityRank.status));
+	params["color"]  = severityRank.color;
+}
+
+void test_updateSeverityRank(void)
+{
+	UserIdType userId = findUserWith(OPPRVLG_UPDATE_SEVERITY_RANK);
+	const SeverityRankIdType targetId = 2;
+	SeverityRankInfo severityRank
+	  = testSeverityRankInfoDef[targetId - 1];
+	severityRank.id    = targetId;
+	severityRank.color = "#00FAFA";
+	StringMap params;
+	createPostData(severityRank, params);
+
+	assertUpdateSeverityRank(params, targetId, userId, HTERR_OK);
+	assertSeverityRankInDB(severityRank, targetId);
+}
+
+void test_deleteSeverityRank(void)
+{
+	startFaceRest();
+
+	const SeverityRankIdType severityRankId = 1;
+	string url = StringUtils::sprintf(
+	  "/severity-rank/%" FMT_SEVERITY_RANK_ID, severityRankId);
+	RequestArg arg(url, "cbname");
+	arg.request = "DELETE";
+	arg.userId = findUserWith(OPPRVLG_DELETE_SEVERITY_RANK);
+	g_parser = getResponseAsJSONParser(arg);
+
+	assertErrorCode(g_parser);
+	set<SeverityRankIdType> severityRankIdSet;
+	severityRankIdSet.insert(severityRankId);
+	assertSeverityRanksInDB(severityRankIdSet);
+}
+
 } // namespace testFaceRestSeverityRank
