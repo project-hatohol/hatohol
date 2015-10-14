@@ -131,10 +131,8 @@ void RestResourceSeverityRank::handlePost(void)
 	}
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	SeverityRankIdType severityRankId;
 	err = dataStore->upsertSeverityRank(
-	   severityRankInfo, m_dataQueryContextPtr->getOperationPrivilege(),
-	   severityRankId);
+	  severityRankInfo, m_dataQueryContextPtr->getOperationPrivilege());
 
 	if (err != HTERR_OK) {
 		replyError(err);
