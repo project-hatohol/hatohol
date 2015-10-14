@@ -1618,8 +1618,7 @@ void DBTablesConfig::getIncidentTrackerIdSet(
 
 HatoholError DBTablesConfig::upsertSeverityRankInfo(
   SeverityRankInfo &severityRankInfo,
-  const OperationPrivilege &privilege,
-  SeverityRankIdType &severityRankId)
+  const OperationPrivilege &privilege)
 {
 	HatoholError err =
 		checkPrivilegeForSeverityRankAdd(privilege, severityRankInfo);
@@ -1633,7 +1632,7 @@ HatoholError DBTablesConfig::upsertSeverityRankInfo(
 	arg.add(severityRankInfo.color);
 	arg.upsertOnDuplicate = true;
 
-	getDBAgent().runTransaction(arg, &severityRankId);
+	getDBAgent().runTransaction(arg, &severityRankInfo.id);
 	return err;
 }
 

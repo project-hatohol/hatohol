@@ -297,8 +297,7 @@ public:
 	  IncidentTrackerIdSet &incidentTrackerIdSet);
 
 	HatoholError upsertSeverityRankInfo(
-          SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege,
-          SeverityRankIdType &severityRankId);
+	  SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege);
 	HatoholError updateSeverityRankInfo(
 	  SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege);
 	void getSeverityRanks(
