@@ -1551,6 +1551,27 @@ void test_getSeverityRankInfoWithColorOption(void)
 	}
 }
 
+void test_getSeverityRankInfoWithidListOption(void)
+{
+	loadTestDBSeverityRankInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+
+	SeverityRankInfoVect severityRankInfoVect;
+	SeverityRankQueryOption option(USER_ID_SYSTEM);
+	SeverityRankIdType targetId = 4;
+	option.setTargetIdList({targetId});
+	dbConfig.getSeverityRanks(severityRankInfoVect, option);
+	cppcut_assert_equal((size_t)1, severityRankInfoVect.size());
+	for (auto severityRankInfo : severityRankInfoVect) {
+		// ignore id assertion. Because id is auto increment.
+		severityRankInfo.id = 0;
+		int actualId = targetId - 1;
+		assertSeverityRankInfo(testSeverityRankInfoDef[actualId],
+				       severityRankInfo);
+	}
+}
+
 void test_deleteSeverityRankInfo(void)
 {
 	loadTestDBSeverityRankInfo();
