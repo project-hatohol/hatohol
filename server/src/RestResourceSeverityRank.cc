@@ -220,7 +220,7 @@ void RestResourceSeverityRank::handleDelete(void)
 		return;
 	}
 
-	// replay
+	// reply
 	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, err);
