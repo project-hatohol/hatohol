@@ -54,6 +54,11 @@ div.dialog {
   display: none;
 }
 
+div#controller-container
+{
+  min-height: 110px;
+}
+
 .hatohol-filter-toolbar select,
 .hatohol-filter-toolbar input
 {
