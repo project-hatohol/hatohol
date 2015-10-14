@@ -225,6 +225,7 @@ var EventsView = function(userProfile, options) {
     }
 
     var query = $.extend(query, self.baseQuery, {
+      incidentStatuses: $("#select-incident").val(),
       minimumSeverity:  $("#select-severity").val(),
       type:             $("#select-status").val(),
       offset:           self.baseQuery.limit * self.currentPage,
@@ -316,7 +317,7 @@ var EventsView = function(userProfile, options) {
 
   function setupCallbacks() {
     if (params && params.legacy == "true") {
-      $("#select-severity, #select-status").change(function() {
+      $("#select-incident, #select-severity, #select-status").change(function() {
         load();
       });
 
@@ -518,6 +519,7 @@ var EventsView = function(userProfile, options) {
 
   function setLoading(loading) {
     if (loading) {
+      $("#select-incident").attr("disabled", "disabled");
       $("#select-severity").attr("disabled", "disabled");
       $("#select-status").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
@@ -525,6 +527,7 @@ var EventsView = function(userProfile, options) {
       $("#latest-events-button1").attr("disabled", "disabled");
       $("#latest-events-button2").attr("disabled", "disabled");
     } else {
+      $("#select-incident").removeAttr("disabled");
       $("#select-severity").removeAttr("disabled");
       $("#select-status").removeAttr("disabled");
       $("#select-server").removeAttr("disabled");
