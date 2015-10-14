@@ -143,6 +143,21 @@ static void createPostData(const SeverityRankInfo &severityRank,
 	params["color"]  = severityRank.color;
 }
 
+void test_addSeverityRank(void)
+{
+	const SeverityRankIdType expectedId
+	  = NumTestSeverityRankInfoDef + 1;
+	SeverityRankInfo severityRank;
+	StringMap params;
+	UserIdType userId = findUserWith(OPPRVLG_CREATE_SEVERITY_RANK);
+	createTestSeverityRank(severityRank);
+	createPostData(severityRank, params);
+
+	assertAddSeverityRank(params, userId, HTERR_OK, expectedId);
+	severityRank.id = expectedId;
+	assertSeverityRankInDB(severityRank);
+}
+
 void test_updateSeverityRank(void)
 {
 	UserIdType userId = findUserWith(OPPRVLG_UPDATE_SEVERITY_RANK);
