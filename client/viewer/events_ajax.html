@@ -90,100 +90,103 @@
 
   <div class="container-fluid">
     <div class="col-sm-10 col-md-10 main" id="event-table-area">
-      <div class="pull-left">
-	<button id="toggle-sidebar" type="button" class="btn btn-info dropdown-toggle btn-sm btn-toggle-sidebar"
-		data-toggle="dropdown" style="display: none;">
-	  <span class="glyphicon glyphicon-chevron-left" id="sidebar-left-glyph"></span>
-	  <span class="glyphicon glyphicon-chevron-right" id="sidebar-right-glyph" style="display: none;"></span>
-	</button>
-      </div>
-      <form class="form-inline hatohol-filter-toolbar">
-	<button id="hide" type="button" class="btn btn-primary dropdown-toggle btn-sm"
-		data-toggle="dropdown">
-	  {% trans "Filter" %} <span class="glyphicon glyphicon-chevron-right" id="filter-right-glyph"></span>
-	  <span class="glyphicon glyphicon-chevron-down" id="filter-down-glyph" style="display: none;"></span>
-	</button>
-	<div class="pull-right" style="margin-top: -10px;">
-	  <div class="calendar-element">
-            <p><label>{% trans "Begin time:" %}</label></p>
-            <input type="text" id="begin-time" class="form-control filter-time-range">
-	  </div>～
-	  <div class="calendar-element">
-            <p><label>{% trans "End time:" %}</label></p>
-            <input type="text" id="end-time" class="form-control filter-time-range">
+
+      <div id="controller-container">
+	<div class="pull-left">
+	  <button id="toggle-sidebar" type="button" class="btn btn-info dropdown-toggle btn-sm btn-toggle-sidebar"
+		  data-toggle="dropdown" style="display: none;">
+	    <span class="glyphicon glyphicon-chevron-left" id="sidebar-left-glyph"></span>
+	    <span class="glyphicon glyphicon-chevron-right" id="sidebar-right-glyph" style="display: none;"></span>
+	  </button>
+	</div>
+	<form class="form-inline hatohol-filter-toolbar">
+	  <button id="hide" type="button" class="btn btn-primary dropdown-toggle btn-sm"
+		  data-toggle="dropdown">
+	    {% trans "Filter" %} <span class="glyphicon glyphicon-chevron-right" id="filter-right-glyph"></span>
+	    <span class="glyphicon glyphicon-chevron-down" id="filter-down-glyph" style="display: none;"></span>
+	  </button>
+	  <div class="pull-right" style="margin-top: -10px;">
+	    <div class="calendar-element">
+              <p><label>{% trans "Begin time:" %}</label></p>
+              <input type="text" id="begin-time" class="form-control filter-time-range">
+	    </div>～
+	    <div class="calendar-element">
+              <p><label>{% trans "End time:" %}</label></p>
+              <input type="text" id="end-time" class="form-control filter-time-range">
+	    </div>
+	    <br><br>
+	    <div class="pull-right">
+	      <button id="apply-all-filter" type="button" class="btn btn-info btn-apply-all-filter">
+		{% trans "Apply filter(s)" %} <span class="glyphicon glyphicon-ok-circle" id="sidebar-left-glyph"></span>
+	      </button>
+	    </div>
 	  </div>
 	  <br><br>
-	  <div class="pull-right">
-	    <button id="apply-all-filter" type="button" class="btn btn-info btn-apply-all-filter">
-	      {% trans "Apply filter(s)" %} <span class="glyphicon glyphicon-ok-circle" id="sidebar-left-glyph"></span>
-	    </button>
+	  <div id="hideDiv"  style="display: none; margin-bottom: 16px;">
+	    <div id="select-incident-container" class="filter-element" style="display: none;">
+	      <p><label>{% trans "Treatment:" %}</label></p>
+	      <select id="select-incident" class="form-control">
+		<option value="">---------</option>
+		<option value="NONE">{% trans "NONE" %}</option>
+		<option value="IN PROGRESS">{% trans "IN PROGRESS" %}</option>
+		<option value="DONE">{% trans "DONE" %}</option>
+		<option value="HOLD">{% trans "HOLD" %}</option>
+	      </select>
+	    </div>
+	    <div class="filter-element">
+	      <p><label>{% trans "Status:" %}</label></p>
+	      <select id="select-status" class="form-control">
+		<option value="-1">---------</option>
+		<option value="0">{% trans "OK" %}</option>
+		<option value="1">{% trans "Problem" %}</option>
+		<option value="2">{% trans "Unknown" %}</option>
+	      </select>
+	    </div>
+	    <div class="filter-element">
+	      <p><label>{% trans "Minimum Severity:" %}</label></p>
+	      <select id="select-severity" class="form-control">
+		<option value="0">0</option>
+		<option value="1">1</option>
+		<option value="2">2</option>
+		<option value="3">3</option>
+		<option value="4">4</option>
+		<option value="5">5</option>
+	      </select>
+	    </div>
+	    <div class="filter-element">
+	      <p><label>{% trans "Monitoring Server:" %}</label></p>
+	      <select id="select-server" class="form-control">
+		<option>---------</option>
+	      </select>
+	    </div>
+	    <div class="filter-element">
+	      <p><label>{% trans "Group:" %}</label></p>
+	      <select id="select-host-group" class="form-control">
+		<option>---------</option>
+	      </select>
+	    </div>
+	    <div class="filter-element">
+	      <p><label>{% trans "Host:" %}</label></p>
+	      <select id="select-host" class="form-control">
+		<option>---------</option>
+	      </select>
+	    </div>
 	  </div>
-	</div>
-	<br><br>
-	<div id="hideDiv"  style="display: none; margin-bottom: 16px;">
-	  <div id="select-incident-container" class="filter-element" style="display: none;">
-	    <p><label>{% trans "Treatment:" %}</label></p>
-	    <select id="select-incident" class="form-control">
-              <option value="">---------</option>
-              <option value="NONE">{% trans "NONE" %}</option>
-              <option value="IN PROGRESS">{% trans "IN PROGRESS" %}</option>
-              <option value="DONE">{% trans "DONE" %}</option>
-              <option value="HOLD">{% trans "HOLD" %}</option>
-	    </select>
-	  </div>
-	  <div class="filter-element">
-	    <p><label>{% trans "Status:" %}</label></p>
-	    <select id="select-status" class="form-control">
-              <option value="-1">---------</option>
-              <option value="0">{% trans "OK" %}</option>
-              <option value="1">{% trans "Problem" %}</option>
-              <option value="2">{% trans "Unknown" %}</option>
-	    </select>
-	  </div>
-	  <div class="filter-element">
-	    <p><label>{% trans "Minimum Severity:" %}</label></p>
-	    <select id="select-severity" class="form-control">
-              <option value="0">0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-	    </select>
-	  </div>
-	  <div class="filter-element">
-	    <p><label>{% trans "Monitoring Server:" %}</label></p>
-	    <select id="select-server" class="form-control">
-              <option>---------</option>
-	    </select>
-	  </div>
-	  <div class="filter-element">
-	    <p><label>{% trans "Group:" %}</label></p>
-	    <select id="select-host-group" class="form-control">
-              <option>---------</option>
-	    </select>
-	  </div>
-	  <div class="filter-element">
-	    <p><label>{% trans "Host:" %}</label></p>
-	    <select id="select-host" class="form-control">
-              <option>---------</option>
-	    </select>
-	  </div>
-	</div>
-      </form>
+	</form>
 
-      <div id="change-incident-container" style="display: none;">
-      	<form class="form-inline hatohol-filter-toolbar">
-	  <div class="filter-element change-treatment">
-            <p><label>{% trans "Change Treatment:" %}</label></p>
-            <select id="change-incident" class="form-control">
-              <option value="NONE">{% trans "NONE" %}</option>
-              <option value="IN PROGRESS">{% trans "IN PROGRESS" %}</option>
-              <option value="DONE">{% trans "DONE" %}</option>
-              <option value="HOLD">{% trans "HOLD" %}</option>
-            </select>
-	  </div>
-      	</form>
+	<div id="change-incident-container" style="display: none;">
+      	  <form class="form-inline hatohol-filter-toolbar">
+	    <div class="filter-element change-treatment">
+              <p><label>{% trans "Change Treatment:" %}</label></p>
+              <select id="change-incident" class="form-control">
+		<option value="NONE">{% trans "NONE" %}</option>
+		<option value="IN PROGRESS">{% trans "IN PROGRESS" %}</option>
+		<option value="DONE">{% trans "DONE" %}</option>
+		<option value="HOLD">{% trans "HOLD" %}</option>
+              </select>
+	    </div>
+      	  </form>
+	</div>
       </div>
 
       <div class="event-table-content">
