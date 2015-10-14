@@ -124,6 +124,16 @@
 	<br><br>
 	<div id="hideDiv"  style="display: none; margin-bottom: 16px;">
 	  <div class="filter-element">
+	    <p><label>{% trans "Treatment:" %}</label></p>
+	    <select id="select-incident" class="form-control">
+              <option value="">---------</option>
+              <option value="NONE">{% trans "NONE" %}</option>
+              <option value="IN PROGRESS">{% trans "IN PROGRESS" %}</option>
+              <option value="DONE">{% trans "DONE" %}</option>
+              <option value="HOLD">{% trans "HOLD" %}</option>
+	    </select>
+	  </div>
+	  <div class="filter-element">
 	    <p><label>{% trans "Minimum Severity:" %}</label></p>
 	    <select id="select-severity" class="form-control">
               <option value="0">0</option>
