@@ -2,8 +2,8 @@ box: wercker-labs/docker
 build:
   steps:
     - script:
-        name: Build a CentOS 6.6 Docker Hatohol image box
+        name: Build a CentOS 6.7 Docker Hatohol image box
         code: |
           docker -v
           echo ${WERCKER_GIT_COMMIT} > wercker/GIT_REVISION
-          docker build -t centos66/build-hatohol wercker/
+          docker build -t centos67/build-hatohol wercker/
