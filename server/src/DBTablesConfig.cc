@@ -610,7 +610,7 @@ enum {
 };
 
 static const int columnIndexesSeverityRanksUniqId[] = {
-  IDX_SEVERITY_RANK_STATUS, IDX_SEVERITY_RANK_COLOR, DBAgent::IndexDef::END,
+  IDX_SEVERITY_RANK_STATUS, DBAgent::IndexDef::END,
 };
 
 static const DBAgent::IndexDef indexDefsSeverityRanks[] = {
