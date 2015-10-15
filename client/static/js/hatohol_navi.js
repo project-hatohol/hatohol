@@ -79,6 +79,14 @@ var HatoholNavi = function(userProfile, currentPage) {
             (1 << hatohol.OPPRVLG_DELETE_USER) |
             (1 << hatohol.OPPRVLG_GET_ALL_USERS)
         },
+        {
+          title: gettext("Severity Ranks"),
+          href:  "ajax_severity_ranks",
+          flags: (1 << hatohol.OPPRVLG_CREATE_SEVERITY_RANK) |
+            (1 << hatohol.OPPRVLG_UPDATE_SEVERITY_RANK) |
+            (1 << hatohol.OPPRVLG_DELETE_SEVERITY_RANK) |
+            (1 << hatohol.OPPRVLG_GET_ALL_SEVERITY_RANK)
+        },
       ]
     },
     {
