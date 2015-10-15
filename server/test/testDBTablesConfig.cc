@@ -1420,20 +1420,22 @@ void test_upsertSeverityRankInfoUpdate(void)
 
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	SeverityRankInfo severityRankInfo;
-	severityRankInfo.id = AUTO_INCREMENT_VALUE;
+	constexpr int targetId = 1;
+	constexpr int actualId = targetId + 1;
+	severityRankInfo.id = actualId;
 	severityRankInfo.status = TRIGGER_SEVERITY_INFO;
 	severityRankInfo.color = "#00FF00";
 
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
+	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
 	const string statement = "SELECT * FROM severity_ranks WHERE id = "+
-		StringUtils::toString(static_cast<int>(NumTestSeverityRankInfoDef + 1));
+		StringUtils::toString(static_cast<int>(actualId));
 	const string expect =
 	  StringUtils::sprintf("%" FMT_SEVERITY_RANK_ID "|%d|%s",
-			       severityRankInfo.id, severityRankInfo.status,
+			       actualId, severityRankInfo.status,
 			       severityRankInfo.color.c_str());
 	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
-	cppcut_assert_not_equal((SeverityRankIdType)AUTO_INCREMENT_VALUE, severityRankInfo.id);
 }
 
 void test_updateSeverityRankInfo(void)
