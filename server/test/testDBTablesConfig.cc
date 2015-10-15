@@ -1379,8 +1379,6 @@ void test_createTableSeverityRanks(void)
 
 void test_upsertSeverityRankInfo(void)
 {
-	loadTestDBSeverityRankInfo();
-
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	SeverityRankInfo severityRankInfo;
 	severityRankInfo.id = AUTO_INCREMENT_VALUE;
@@ -1389,8 +1387,7 @@ void test_upsertSeverityRankInfo(void)
 
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
-	const string statement = "SELECT * FROM severity_ranks WHERE id = "+
-		StringUtils::toString(static_cast<int>(NumTestSeverityRankInfoDef + 1));
+	const string statement = "SELECT * FROM severity_ranks WHERE id = 1";
 	const string expect =
 	  StringUtils::sprintf("%" FMT_SEVERITY_RANK_ID "|%d|%s",
 			       severityRankInfo.id, severityRankInfo.status,
@@ -1402,8 +1399,6 @@ void test_upsertSeverityRankInfo(void)
 
 void test_upsertSeverityRankInfoWithoutPrivilege(void)
 {
-	loadTestDBSeverityRankInfo();
-
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	SeverityRankInfo severityRankInfo;
 	severityRankInfo.id = AUTO_INCREMENT_VALUE;
@@ -1447,7 +1442,7 @@ void test_updateSeverityRankInfo(void)
 
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	SeverityRankInfo severityRankInfo;
-	SeverityRankIdType targetId = 3;
+	SeverityRankIdType targetId = 5;
 	severityRankInfo.id = targetId;
 	severityRankInfo.status = TRIGGER_SEVERITY_CRITICAL;
 	severityRankInfo.color = "#AABC00";
