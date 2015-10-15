@@ -131,7 +131,8 @@ void test_getSeverityRankInfo()
 static void createTestSeverityRank(SeverityRankInfo &severityRank)
 {
 	severityRank.id     = AUTO_INCREMENT_VALUE;
-	severityRank.status = TRIGGER_SEVERITY_INFO;
+	// should be create new status value
+	severityRank.status = static_cast<int>(TRIGGER_SEVERITY_EMERGENCY) + 1;
 	severityRank.color  = "#00FF00";
 }
 
