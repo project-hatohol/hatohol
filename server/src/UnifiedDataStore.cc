@@ -962,12 +962,10 @@ bool UnifiedDataStore::getIncidentTrackerInfo(const IncidentTrackerIdType &track
 }
 
 HatoholError UnifiedDataStore::upsertSeverityRank(
-  SeverityRankInfo &severityRankInfo, const OperationPrivilege privilege,
-  SeverityRankIdType &severityRankId)
+  SeverityRankInfo &severityRankInfo, const OperationPrivilege privilege)
 {
 	ThreadLocalDBCache cache;
-	return cache.getConfig().upsertSeverityRankInfo(severityRankInfo, privilege,
-							severityRankId);
+	return cache.getConfig().upsertSeverityRankInfo(severityRankInfo, privilege);
 }
 
 HatoholError UnifiedDataStore::updateSeverityRank(

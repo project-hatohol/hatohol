@@ -1388,17 +1388,16 @@ void test_upsertSeverityRankInfo(void)
 	severityRankInfo.color = "#00FF00";
 
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	SeverityRankIdType severityRankId;
-	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege, severityRankId);
+	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
 	const string statement = "SELECT * FROM severity_ranks WHERE id = "+
 		StringUtils::toString(static_cast<int>(NumTestSeverityRankInfoDef + 1));
 	const string expect =
 	  StringUtils::sprintf("%" FMT_SEVERITY_RANK_ID "|%d|%s",
-			       severityRankId, severityRankInfo.status,
+			       severityRankInfo.id, severityRankInfo.status,
 			       severityRankInfo.color.c_str());
 	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
 	cppcut_assert_not_equal((SeverityRankIdType)AUTO_INCREMENT_VALUE,
-				severityRankId);
+				severityRankInfo.id);
 }
 
 void test_upsertSeverityRankInfoWithoutPrivilege(void)
@@ -1415,10 +1414,8 @@ void test_upsertSeverityRankInfoWithoutPrivilege(void)
 	flags &= ~(1 << OPPRVLG_CREATE_SEVERITY_RANK);
 	OperationPrivilege privilege(flags);
 
-	SeverityRankIdType severityRankId;
 	HatoholError err =
-		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege,
-		                                severityRankId);
+		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
 	assertHatoholError(HTERR_NO_PRIVILEGE, err);
 }
 
@@ -1433,19 +1430,15 @@ void test_upsertSeverityRankInfoUpdate(void)
 	severityRankInfo.color = "#00FF00";
 
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	SeverityRankIdType id0;
-	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege, id0);
-	severityRankInfo.id = id0;
-	SeverityRankIdType id1;
-	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege, id1);
+	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
 	const string statement = "SELECT * FROM severity_ranks WHERE id = "+
 		StringUtils::toString(static_cast<int>(NumTestSeverityRankInfoDef + 1));
 	const string expect =
 	  StringUtils::sprintf("%" FMT_SEVERITY_RANK_ID "|%d|%s",
-			       id1, severityRankInfo.status,
+			       severityRankInfo.id, severityRankInfo.status,
 			       severityRankInfo.color.c_str());
 	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
-	cppcut_assert_not_equal((SeverityRankIdType)AUTO_INCREMENT_VALUE, id1);
+	cppcut_assert_not_equal((SeverityRankIdType)AUTO_INCREMENT_VALUE, severityRankInfo.id);
 }
 
 void test_updateSeverityRankInfo(void)
@@ -1547,6 +1540,27 @@ void test_getSeverityRankInfoWithColorOption(void)
 		severityRankInfo.id = 0;
 		int targetId = 3;
 		assertSeverityRankInfo(testSeverityRankInfoDef[targetId],
+				       severityRankInfo);
+	}
+}
+
+void test_getSeverityRankInfoWithidListOption(void)
+{
+	loadTestDBSeverityRankInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+
+	SeverityRankInfoVect severityRankInfoVect;
+	SeverityRankQueryOption option(USER_ID_SYSTEM);
+	SeverityRankIdType targetId = 4;
+	option.setTargetIdList({targetId});
+	dbConfig.getSeverityRanks(severityRankInfoVect, option);
+	cppcut_assert_equal((size_t)1, severityRankInfoVect.size());
+	for (auto severityRankInfo : severityRankInfoVect) {
+		// ignore id assertion. Because id is auto increment.
+		severityRankInfo.id = 0;
+		int actualId = targetId - 1;
+		assertSeverityRankInfo(testSeverityRankInfoDef[actualId],
 				       severityRankInfo);
 	}
 }

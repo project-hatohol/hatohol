@@ -116,6 +116,8 @@ public:
 	const TriggerSeverityType getTargetStatus(void);
 	void setTargetColor(const std::string &color);
 	const std::string getTargetColor(void);
+	void setTargetIdList(std::list<SeverityRankIdType> idList);
+	const std::list<SeverityRankIdType> getTargetIdList(void);
 
 	virtual std::string getCondition(void) const override;
 
@@ -295,8 +297,7 @@ public:
 	  IncidentTrackerIdSet &incidentTrackerIdSet);
 
 	HatoholError upsertSeverityRankInfo(
-          SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege,
-          SeverityRankIdType &severityRankId);
+	  SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege);
 	HatoholError updateSeverityRankInfo(
 	  SeverityRankInfo &severityRankInfo, const OperationPrivilege &privilege);
 	void getSeverityRanks(
