@@ -272,7 +272,16 @@ h2.hatohol-graph {
 }
 
 .filter-time-range {
-    width: 150px !important;
+    width: 160px !important;
+}
+
+.clear-button {
+    margin-left: -3px;
+    margin-right: -15px;
+    top: 3px;
+    right: 23px;
+    cursor: pointer;
+    color: #888888;
 }
 
 .btn-toggle-sidebar {

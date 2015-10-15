@@ -447,6 +447,7 @@ var EventsView = function(userProfile, options) {
           load();
       }
     });
+
     $('#end-time').datetimepicker({
       format: 'Y/m/d H:i:s',
       onDateTime: function(currentTime, $input) {
@@ -459,6 +460,15 @@ var EventsView = function(userProfile, options) {
         if (params && (params.legacy == "true"))
           load();
       }
+    });
+
+    $(".filter-time-range").change(function () {
+      var input = $(this);
+      input.next('span').toggle(!!(input.val()));
+    });
+    $(".clear-button").click(function(){
+      $(this).prev('input').val('');
+      $(this).hide();
     });
   }
 
