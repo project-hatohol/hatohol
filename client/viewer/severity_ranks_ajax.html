@@ -1,0 +1,54 @@
+{% extends "viewer/base_ajax.html" %}
+{% load i18n %}
+
+{% comment %}
+  Copyright (C) 2015 Project Hatohol
+
+  This file is part of Hatohol.
+
+  Hatohol is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License, version 3
+  as published by the Free Software Foundation.
+
+  Hatohol is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with Hatohol. If not, see
+  <http://www.gnu.org/licenses/>.
+{% endcomment %}
+
+{% block title %}
+{% trans "Severity Ranks Settings" %}
+{% endblock %}
+
+{% block main %}
+<div id="main">
+  <h2>{% trans "Severity Ranks Settings" %}</h2>
+
+  <table class="table table-condensed table-hover" id="table">
+    <thead>
+      <tr>
+        <th> {% trans "Severity Ranks" %} </th>
+        <th> {% trans "Display Colors" %} </th>
+        <th> {% trans "Display Label Names" %} </th>
+        <th> {% trans "Important or Not" %} </th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}
+
+{% block logic %}
+  <script src="{{ STATIC_URL }}js/severity_ranks_view.js"></script>
+  <script type="text/javascript">
+    userProfile.addOnLoadCb(function() {
+      var view = new SeverityRanksView(userProfile);
+    });
+  </script>
+{% endblock %}
