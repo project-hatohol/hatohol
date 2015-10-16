@@ -80,6 +80,9 @@ void RestResourceSeverityRank::handleGet(void)
 		agent.add("id", severityRank.id);
 		agent.add("status", severityRank.status);
 		agent.add("color", severityRank.color);
+		agent.add("label", severityRank.label);
+		agent.add("asImportant", severityRank.asImportant);
+
 		agent.endObject();
 	}
 	agent.endArray();
@@ -116,6 +119,8 @@ static HatoholError parseSeverityRankParameter(
 
 	PARSE_VALUE(severityRankInfo, status, SeverityRankStatusType, allowEmpty);
 	PARSE_STRING_VALUE(severityRankInfo, color, allowEmpty);
+	PARSE_STRING_VALUE(severityRankInfo, label, allowEmpty);
+	PARSE_VALUE(severityRankInfo, asImportant, bool, allowEmpty);
 
 	return HatoholError(HTERR_OK);
 }
