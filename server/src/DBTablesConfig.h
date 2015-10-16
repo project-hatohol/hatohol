@@ -68,6 +68,8 @@ struct SeverityRankInfo {
 	SeverityRankIdType     id;
 	SeverityRankStatusType status;
 	std::string            color;
+	std::string            label;
+	bool                   asImportant;
 };
 
 typedef std::vector<SeverityRankInfo> SeverityRankInfoVect;
