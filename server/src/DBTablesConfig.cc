@@ -1814,6 +1814,7 @@ struct SeverityRankQueryOption::Impl {
 	TriggerSeverityType           status;
 	std::list<SeverityRankIdType> idList;
 	string                        color;
+	string                        label;
 
 	Impl(SeverityRankQueryOption *_option)
 	: option(_option), status(TRIGGER_SEVERITY_ALL)
@@ -1845,6 +1846,14 @@ string SeverityRankQueryOption::Impl::makeConditionTemplate(void)
 	cond += StringUtils::sprintf(
 	  "((%s IS NULL) OR (%s=%%s))",
 	  colDefColor.columnName, colDefColor.columnName);
+	cond += " AND ";
+
+	// label;
+	const ColumnDef &colDefLabel =
+		COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_LABEL];
+	cond += StringUtils::sprintf(
+	  "((%s IS NULL) OR (%s=%%s))",
+	  colDefLabel.columnName, colDefLabel.columnName);
 	cond += " AND ";
 
 	return cond;
@@ -1904,6 +1913,16 @@ const list<SeverityRankIdType> SeverityRankQueryOption::getTargetIdList(void) {
 	return m_impl->idList;
 }
 
+void SeverityRankQueryOption::setTargetLabel(const string &label)
+{
+	m_impl->label = label;
+}
+
+const string SeverityRankQueryOption::getTargetLabel(void)
+{
+	return m_impl->label;
+}
+
 string SeverityRankQueryOption::getCondition(void) const
 {
 	string condition = DataQueryOption::getCondition();
@@ -1929,6 +1948,15 @@ string SeverityRankQueryOption::getCondition(void) const
 		  "%s=%s",
 		  COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_COLOR].columnName,
 		  rhs(m_impl->color.c_str()));
+		addCondition(condition, colorCondition);
+	}
+
+	if (!m_impl->label.empty()) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		string colorCondition = StringUtils::sprintf(
+		  "%s=%s",
+		  COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_LABEL].columnName,
+		  rhs(m_impl->label.c_str()));
 		addCondition(condition, colorCondition);
 	}
 

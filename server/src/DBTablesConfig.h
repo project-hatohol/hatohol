@@ -120,6 +120,8 @@ public:
 	const std::string getTargetColor(void);
 	void setTargetIdList(std::list<SeverityRankIdType> idList);
 	const std::list<SeverityRankIdType> getTargetIdList(void);
+	void setTargetLabel(const std::string &label);
+	const std::string getTargetLabel(void);
 
 	virtual std::string getCondition(void) const override;
 
