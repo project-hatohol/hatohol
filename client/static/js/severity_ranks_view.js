@@ -48,7 +48,7 @@ var SeverityRanksView = function(userProfile) {
     var html, severityRankId, status, color, label, isImportant;
     html = "";
 
-    for (var x; x < replyData["SeverityRanks"].length; ++x) {
+    for (var x = 0; x < replyData["SeverityRanks"].length; ++x) {
       severityRankId = replyData["id"][x];
       status = replyData["status"][x];
       color = replyData["color"][x];
