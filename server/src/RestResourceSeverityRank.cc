@@ -128,6 +128,7 @@ static HatoholError parseSeverityRankParameter(
 void RestResourceSeverityRank::handlePost(void)
 {
 	SeverityRankInfo severityRankInfo;
+	SeverityRankInfo::initialize(severityRankInfo);
 	severityRankInfo.id = AUTO_INCREMENT_VALUE;
 	HatoholError err = parseSeverityRankParameter(severityRankInfo,
 							 m_query);
@@ -163,6 +164,7 @@ void RestResourceSeverityRank::handlePut(void)
 	}
 
 	SeverityRankInfo severityRankInfo;
+	SeverityRankInfo::initialize(severityRankInfo);
 	severityRankInfo.id = severityRankId;
 
 	SeverityRankInfoVect severityRanks;
