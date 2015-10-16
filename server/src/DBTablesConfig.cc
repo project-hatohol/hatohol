@@ -1962,11 +1962,11 @@ string SeverityRankQueryOption::getCondition(void) const
 
 	if (!m_impl->label.empty()) {
 		DBTermCStringProvider rhs(*getDBTermCodec());
-		string colorCondition = StringUtils::sprintf(
+		string labelCondition = StringUtils::sprintf(
 		  "%s=%s",
 		  COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_LABEL].columnName,
 		  rhs(m_impl->label.c_str()));
-		addCondition(condition, colorCondition);
+		addCondition(condition, labelCondition);
 	}
 
 	return condition;
