@@ -1670,6 +1670,8 @@ HatoholError DBTablesConfig::upsertSeverityRankInfo(
 	arg.add(severityRankInfo.id);
 	arg.add(severityRankInfo.status);
 	arg.add(severityRankInfo.color);
+	arg.add(severityRankInfo.label);
+	arg.add(severityRankInfo.asImportant);
 	arg.upsertOnDuplicate = true;
 
 	getDBAgent().runTransaction(arg, &severityRankInfo.id);
@@ -1694,6 +1696,8 @@ HatoholError DBTablesConfig::updateSeverityRankInfo(
 	                                     severityRankInfo.id);
 	arg.add(IDX_SEVERITY_RANK_STATUS, severityRankInfo.status);
 	arg.add(IDX_SEVERITY_RANK_COLOR, severityRankInfo.color);
+	arg.add(IDX_SEVERITY_RANK_LABEL, severityRankInfo.label);
+	arg.add(IDX_SEVERITY_RANK_AS_IMPORTANT, severityRankInfo.asImportant);
 
 	getDBAgent().runTransaction(arg);
 	return HTERR_OK;
@@ -1707,6 +1711,8 @@ void DBTablesConfig::getSeverityRanks(
 	arg.add(IDX_SEVERITY_RANK_ID);
 	arg.add(IDX_SEVERITY_RANK_STATUS);
 	arg.add(IDX_SEVERITY_RANK_COLOR);
+	arg.add(IDX_SEVERITY_RANK_LABEL);
+	arg.add(IDX_SEVERITY_RANK_AS_IMPORTANT);
 	arg.condition = option.getCondition();
 
 	getDBAgent().runTransaction(arg);
@@ -1721,6 +1727,8 @@ void DBTablesConfig::getSeverityRanks(
 		itemGroupStream >> severityRankInfo.id;
 		itemGroupStream >> severityRankInfo.status;
 		itemGroupStream >> severityRankInfo.color;
+		itemGroupStream >> severityRankInfo.label;
+		itemGroupStream >> severityRankInfo.asImportant;
 
 		severityRankInfoVect.push_back(severityRankInfo);
 	}
