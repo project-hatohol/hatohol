@@ -303,8 +303,7 @@ public:
 	                   const DataQueryOption &option);
 	// SeverityRank
 	HatoholError upsertSeverityRank(SeverityRankInfo &severityRankInfo,
-	                                const OperationPrivilege privilege,
-	                                SeverityRankIdType &severityRankId);
+	                                const OperationPrivilege privilege);
 	HatoholError updateSeverityRank(SeverityRankInfo &severityRankInfo,
 	                                const OperationPrivilege privilege);
 	HatoholError getSeverityRanks(SeverityRankInfoVect &severityRankInfoVect,

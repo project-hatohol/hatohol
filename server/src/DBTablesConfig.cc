@@ -609,10 +609,20 @@ enum {
 	NUM_IDX_SEVERITY_RANKS,
 };
 
+static const int columnIndexesSeverityRanksUniqId[] = {
+  IDX_SEVERITY_RANK_STATUS, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsSeverityRanks[] = {
+  {"SeverityRanksUniqId", (const int *)columnIndexesSeverityRanksUniqId, true},
+  {NULL}
+};
+
 static const DBAgent::TableProfile tableProfileSeverityRanks =
   DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_SEVERITY_RANKS,
 			    COLUMN_DEF_SEVERITY_RANKS,
-			    NUM_IDX_SEVERITY_RANKS);
+			    NUM_IDX_SEVERITY_RANKS,
+			    indexDefsSeverityRanks);
 
 struct DBTablesConfig::Impl
 {
@@ -1618,8 +1628,7 @@ void DBTablesConfig::getIncidentTrackerIdSet(
 
 HatoholError DBTablesConfig::upsertSeverityRankInfo(
   SeverityRankInfo &severityRankInfo,
-  const OperationPrivilege &privilege,
-  SeverityRankIdType &severityRankId)
+  const OperationPrivilege &privilege)
 {
 	HatoholError err =
 		checkPrivilegeForSeverityRankAdd(privilege, severityRankInfo);
@@ -1633,7 +1642,7 @@ HatoholError DBTablesConfig::upsertSeverityRankInfo(
 	arg.add(severityRankInfo.color);
 	arg.upsertOnDuplicate = true;
 
-	getDBAgent().runTransaction(arg, &severityRankId);
+	getDBAgent().runTransaction(arg, &severityRankInfo.id);
 	return err;
 }
 
@@ -1845,6 +1854,14 @@ void SeverityRankQueryOption::setTargetColor(const string &color)
 const string SeverityRankQueryOption::getTargetColor(void)
 {
 	return m_impl->color;
+}
+
+void SeverityRankQueryOption::setTargetIdList(list<SeverityRankIdType> idList) {
+	m_impl->idList = idList;
+}
+
+const list<SeverityRankIdType> SeverityRankQueryOption::getTargetIdList(void) {
+	return m_impl->idList;
 }
 
 string SeverityRankQueryOption::getCondition(void) const

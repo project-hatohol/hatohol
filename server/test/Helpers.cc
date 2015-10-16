@@ -696,6 +696,14 @@ string makeMapHostsHostgroupsOutput(
 	return expectedOut;
 }
 
+std::string makeSeverityRankInfoOutput(const SeverityRankInfo &severityRankInfo)
+{
+	return StringUtils::sprintf(
+		 "%" FMT_SEVERITY_RANK_ID "|%d|%s\n",
+		 severityRankInfo.id, severityRankInfo.status,
+		 severityRankInfo.color.c_str());
+}
+
 static void assertDBContentForComponets(const string &expect,
                                         const string &actual,
                                         DBAgent *dbAgent)
