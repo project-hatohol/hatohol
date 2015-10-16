@@ -81,7 +81,11 @@ void RestResourceSeverityRank::handleGet(void)
 		agent.add("status", severityRank.status);
 		agent.add("color", severityRank.color);
 		agent.add("label", severityRank.label);
-		agent.add("asImportant", severityRank.asImportant);
+		if (severityRank.asImportant) {
+			agent.addTrue("asImportant");
+		} else {
+			agent.addFalse("asImportant");
+		}
 
 		agent.endObject();
 	}
