@@ -600,12 +600,34 @@ static const ColumnDef COLUMN_DEF_SEVERITY_RANKS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 },
+{
+	"label",                           // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+{
+	"as_important",                    // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"1",                               // defaultValue
+},
 };
 
 enum {
 	IDX_SEVERITY_RANK_ID,
 	IDX_SEVERITY_RANK_STATUS,
 	IDX_SEVERITY_RANK_COLOR,
+	IDX_SEVERITY_RANK_LABEL,
+	IDX_SEVERITY_RANK_AS_IMPORTANT,
 	NUM_IDX_SEVERITY_RANKS,
 };
 
