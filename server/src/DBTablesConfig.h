@@ -70,10 +70,13 @@ struct SeverityRankInfo {
 	std::string            color;
 	std::string            label;
 	bool                   asImportant;
+
+	static void initialize(SeverityRankInfo &severityRankInfo);
 };
 
 typedef std::vector<SeverityRankInfo> SeverityRankInfoVect;
 constexpr const static SeverityRankIdType INVALID_SEVERITY_RANK_ID = -1;
+constexpr const static SeverityRankStatusType INVALID_SEVERITY_STATUS_TYPE = -1;
 
 class ServerQueryOption : public DataQueryOption {
 public:

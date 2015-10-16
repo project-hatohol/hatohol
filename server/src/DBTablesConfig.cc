@@ -1656,6 +1656,15 @@ void DBTablesConfig::getIncidentTrackerIdSet(
 	}
 }
 
+void SeverityRankInfo::initialize(SeverityRankInfo &severityRankInfo)
+{
+	severityRankInfo.id = INVALID_SEVERITY_RANK_ID;
+	severityRankInfo.status = INVALID_SEVERITY_STATUS_TYPE;
+	severityRankInfo.color = "#000000";
+	severityRankInfo.label = "";
+	severityRankInfo.asImportant = false;
+}
+
 HatoholError DBTablesConfig::upsertSeverityRankInfo(
   SeverityRankInfo &severityRankInfo,
   const OperationPrivilege &privilege)
