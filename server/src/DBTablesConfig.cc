@@ -1723,12 +1723,14 @@ void DBTablesConfig::getSeverityRanks(
 	for (auto itemGrp : grpList) {
 		ItemGroupStream itemGroupStream(itemGrp);
 		SeverityRankInfo severityRankInfo;
+		int asImportant;
 
 		itemGroupStream >> severityRankInfo.id;
 		itemGroupStream >> severityRankInfo.status;
 		itemGroupStream >> severityRankInfo.color;
 		itemGroupStream >> severityRankInfo.label;
-		itemGroupStream >> severityRankInfo.asImportant;
+		itemGroupStream >> asImportant;
+		severityRankInfo.asImportant = static_cast<bool>(asImportant);
 
 		severityRankInfoVect.push_back(severityRankInfo);
 	}
