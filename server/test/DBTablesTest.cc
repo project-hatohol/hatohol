@@ -1514,32 +1514,44 @@ const SeverityRankInfo testSeverityRankInfoDef[] = {
 {
 	AUTO_INCREMENT_VALUE,      // id
 	TRIGGER_SEVERITY_UNKNOWN,  // status
-	"#BCBCBC"                  // color
+	"#BCBCBC",                 // color
+	"Not classified",          // label
+	false                      // asImportant
 },
 {
 	AUTO_INCREMENT_VALUE,      // id
 	TRIGGER_SEVERITY_INFO,     // status
-	"#CCE2CC"                  // color
+	"#CCE2CC",                 // color
+	"Information",             // label
+	false                      // asImportant
 },
 {
 	AUTO_INCREMENT_VALUE,      // id
 	TRIGGER_SEVERITY_WARNING,  // status
-	"#FDFD96"                  // color
+	"#FDFD96",                 // color
+	"Warning",                 // label
+	false                      // asImportant
 },
 {
 	AUTO_INCREMENT_VALUE,      // id
 	TRIGGER_SEVERITY_ERROR,    // status
-	"#DDAAAA"                  // color
+	"#DDAAAA",                 // color
+	"Error",                   // label
+	true                       // asImportant
 },
 {
 	AUTO_INCREMENT_VALUE,      // id
 	TRIGGER_SEVERITY_CRITICAL, // status
-	"#FF8888"                  // color
+	"#FF8888",                 // color
+	"Critical",                // label
+	true                       // asImportant
 },
 {
 	AUTO_INCREMENT_VALUE,       // id
 	TRIGGER_SEVERITY_EMERGENCY, // status
-	"#FF0000"                   // color
+	"#FF0000",                   // color
+	"Emergency",                // label
+	true                        // asImportant
 },
 };
 const size_t NumTestSeverityRankInfoDef = ARRAY_SIZE(testSeverityRankInfoDef);

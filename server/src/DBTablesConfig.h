@@ -68,10 +68,15 @@ struct SeverityRankInfo {
 	SeverityRankIdType     id;
 	SeverityRankStatusType status;
 	std::string            color;
+	std::string            label;
+	bool                   asImportant;
+
+	static void initialize(SeverityRankInfo &severityRankInfo);
 };
 
 typedef std::vector<SeverityRankInfo> SeverityRankInfoVect;
 constexpr const static SeverityRankIdType INVALID_SEVERITY_RANK_ID = -1;
+constexpr const static SeverityRankStatusType INVALID_SEVERITY_STATUS_TYPE = -1;
 
 class ServerQueryOption : public DataQueryOption {
 public:
@@ -118,6 +123,8 @@ public:
 	const std::string getTargetColor(void);
 	void setTargetIdList(std::list<SeverityRankIdType> idList);
 	const std::list<SeverityRankIdType> getTargetIdList(void);
+	void setTargetLabel(const std::string &label);
+	const std::string getTargetLabel(void);
 
 	virtual std::string getCondition(void) const override;
 

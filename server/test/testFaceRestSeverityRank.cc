@@ -65,6 +65,8 @@ static void _assertSeverityRanks(
 		assertValueInParser(g_parser, "id", i + 1);
 		assertValueInParser(g_parser, "status", severityRank.status);
 		assertValueInParser(g_parser, "color", severityRank.color);
+		assertValueInParser(g_parser, "label", severityRank.label);
+		assertValueInParser(g_parser, "asImportant", severityRank.asImportant);
 		g_parser->endElement();
 	}
 	g_parser->endObject();
@@ -134,6 +136,8 @@ static void createTestSeverityRank(SeverityRankInfo &severityRank)
 	// should be create new status value
 	severityRank.status = static_cast<int>(TRIGGER_SEVERITY_EMERGENCY) + 1;
 	severityRank.color  = "#00FF00";
+	severityRank.label  = "UserDefined 1";
+	severityRank.asImportant  = true;
 }
 
 static void createPostData(const SeverityRankInfo &severityRank,
@@ -142,6 +146,9 @@ static void createPostData(const SeverityRankInfo &severityRank,
 	params["id"]     = StringUtils::toString(severityRank.id);
 	params["status"] = StringUtils::toString(static_cast<int>(severityRank.status));
 	params["color"]  = severityRank.color;
+	params["label"]  = severityRank.label;
+	params["asImportant"] =
+		StringUtils::toString(static_cast<int>(severityRank.asImportant));
 }
 
 void test_addSeverityRank(void)
@@ -167,6 +174,8 @@ void test_updateSeverityRank(void)
 	  = testSeverityRankInfoDef[targetId - 1];
 	severityRank.id    = targetId;
 	severityRank.color = "#00FAFA";
+	severityRank.label = "Information";
+	severityRank.asImportant = false;
 	StringMap params;
 	createPostData(severityRank, params);
 

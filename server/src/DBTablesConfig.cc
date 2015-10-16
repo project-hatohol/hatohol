@@ -41,7 +41,7 @@ static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 static const char *TABLE_NAME_SEVERITY_RANKS = "severity_ranks";
 
-int DBTablesConfig::CONFIG_DB_VERSION = 17;
+int DBTablesConfig::CONFIG_DB_VERSION = 18;
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
 const ServerIdSet EMPTY_INCIDENT_TRACKER_ID_SET;
@@ -600,12 +600,34 @@ static const ColumnDef COLUMN_DEF_SEVERITY_RANKS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 },
+{
+	"label",                           // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+{
+	"as_important",                    // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	"1",                               // defaultValue
+},
 };
 
 enum {
 	IDX_SEVERITY_RANK_ID,
 	IDX_SEVERITY_RANK_STATUS,
 	IDX_SEVERITY_RANK_COLOR,
+	IDX_SEVERITY_RANK_LABEL,
+	IDX_SEVERITY_RANK_AS_IMPORTANT,
 	NUM_IDX_SEVERITY_RANKS,
 };
 
@@ -716,6 +738,14 @@ static bool updateDB(
 	}
 	if (oldVer < 17) {
 		dbAgent.createTable(tableProfileSeverityRanks);
+	}
+	if (oldVer < 18) {
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileSeverityRanks);
+		addColumnsArg.columnIndexes.push_back(
+			IDX_SEVERITY_RANK_LABEL);
+		addColumnsArg.columnIndexes.push_back(
+			IDX_SEVERITY_RANK_AS_IMPORTANT);
+		dbAgent.addColumns(addColumnsArg);
 	}
 	return true;
 }
@@ -1626,6 +1656,15 @@ void DBTablesConfig::getIncidentTrackerIdSet(
 	}
 }
 
+void SeverityRankInfo::initialize(SeverityRankInfo &severityRankInfo)
+{
+	severityRankInfo.id = INVALID_SEVERITY_RANK_ID;
+	severityRankInfo.status = INVALID_SEVERITY_STATUS_TYPE;
+	severityRankInfo.color = "#000000";
+	severityRankInfo.label = "";
+	severityRankInfo.asImportant = false;
+}
+
 HatoholError DBTablesConfig::upsertSeverityRankInfo(
   SeverityRankInfo &severityRankInfo,
   const OperationPrivilege &privilege)
@@ -1640,6 +1679,8 @@ HatoholError DBTablesConfig::upsertSeverityRankInfo(
 	arg.add(severityRankInfo.id);
 	arg.add(severityRankInfo.status);
 	arg.add(severityRankInfo.color);
+	arg.add(severityRankInfo.label);
+	arg.add(severityRankInfo.asImportant);
 	arg.upsertOnDuplicate = true;
 
 	getDBAgent().runTransaction(arg, &severityRankInfo.id);
@@ -1664,6 +1705,8 @@ HatoholError DBTablesConfig::updateSeverityRankInfo(
 	                                     severityRankInfo.id);
 	arg.add(IDX_SEVERITY_RANK_STATUS, severityRankInfo.status);
 	arg.add(IDX_SEVERITY_RANK_COLOR, severityRankInfo.color);
+	arg.add(IDX_SEVERITY_RANK_LABEL, severityRankInfo.label);
+	arg.add(IDX_SEVERITY_RANK_AS_IMPORTANT, severityRankInfo.asImportant);
 
 	getDBAgent().runTransaction(arg);
 	return HTERR_OK;
@@ -1677,6 +1720,8 @@ void DBTablesConfig::getSeverityRanks(
 	arg.add(IDX_SEVERITY_RANK_ID);
 	arg.add(IDX_SEVERITY_RANK_STATUS);
 	arg.add(IDX_SEVERITY_RANK_COLOR);
+	arg.add(IDX_SEVERITY_RANK_LABEL);
+	arg.add(IDX_SEVERITY_RANK_AS_IMPORTANT);
 	arg.condition = option.getCondition();
 
 	getDBAgent().runTransaction(arg);
@@ -1687,10 +1732,14 @@ void DBTablesConfig::getSeverityRanks(
 	for (auto itemGrp : grpList) {
 		ItemGroupStream itemGroupStream(itemGrp);
 		SeverityRankInfo severityRankInfo;
+		int asImportant;
 
 		itemGroupStream >> severityRankInfo.id;
 		itemGroupStream >> severityRankInfo.status;
 		itemGroupStream >> severityRankInfo.color;
+		itemGroupStream >> severityRankInfo.label;
+		itemGroupStream >> asImportant;
+		severityRankInfo.asImportant = static_cast<bool>(asImportant);
 
 		severityRankInfoVect.push_back(severityRankInfo);
 	}
@@ -1774,6 +1823,7 @@ struct SeverityRankQueryOption::Impl {
 	TriggerSeverityType           status;
 	std::list<SeverityRankIdType> idList;
 	string                        color;
+	string                        label;
 
 	Impl(SeverityRankQueryOption *_option)
 	: option(_option), status(TRIGGER_SEVERITY_ALL)
@@ -1805,6 +1855,14 @@ string SeverityRankQueryOption::Impl::makeConditionTemplate(void)
 	cond += StringUtils::sprintf(
 	  "((%s IS NULL) OR (%s=%%s))",
 	  colDefColor.columnName, colDefColor.columnName);
+	cond += " AND ";
+
+	// label;
+	const ColumnDef &colDefLabel =
+		COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_LABEL];
+	cond += StringUtils::sprintf(
+	  "((%s IS NULL) OR (%s=%%s))",
+	  colDefLabel.columnName, colDefLabel.columnName);
 	cond += " AND ";
 
 	return cond;
@@ -1864,6 +1922,16 @@ const list<SeverityRankIdType> SeverityRankQueryOption::getTargetIdList(void) {
 	return m_impl->idList;
 }
 
+void SeverityRankQueryOption::setTargetLabel(const string &label)
+{
+	m_impl->label = label;
+}
+
+const string SeverityRankQueryOption::getTargetLabel(void)
+{
+	return m_impl->label;
+}
+
 string SeverityRankQueryOption::getCondition(void) const
 {
 	string condition = DataQueryOption::getCondition();
@@ -1890,6 +1958,15 @@ string SeverityRankQueryOption::getCondition(void) const
 		  COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_COLOR].columnName,
 		  rhs(m_impl->color.c_str()));
 		addCondition(condition, colorCondition);
+	}
+
+	if (!m_impl->label.empty()) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		string labelCondition = StringUtils::sprintf(
+		  "%s=%s",
+		  COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_LABEL].columnName,
+		  rhs(m_impl->label.c_str()));
+		addCondition(condition, labelCondition);
 	}
 
 	return condition;

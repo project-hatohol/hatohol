@@ -80,6 +80,13 @@ void RestResourceSeverityRank::handleGet(void)
 		agent.add("id", severityRank.id);
 		agent.add("status", severityRank.status);
 		agent.add("color", severityRank.color);
+		agent.add("label", severityRank.label);
+		if (severityRank.asImportant) {
+			agent.addTrue("asImportant");
+		} else {
+			agent.addFalse("asImportant");
+		}
+
 		agent.endObject();
 	}
 	agent.endArray();
@@ -116,6 +123,8 @@ static HatoholError parseSeverityRankParameter(
 
 	PARSE_VALUE(severityRankInfo, status, SeverityRankStatusType, allowEmpty);
 	PARSE_STRING_VALUE(severityRankInfo, color, allowEmpty);
+	PARSE_STRING_VALUE(severityRankInfo, label, allowEmpty);
+	PARSE_VALUE(severityRankInfo, asImportant, bool, allowEmpty);
 
 	return HatoholError(HTERR_OK);
 }
@@ -123,6 +132,7 @@ static HatoholError parseSeverityRankParameter(
 void RestResourceSeverityRank::handlePost(void)
 {
 	SeverityRankInfo severityRankInfo;
+	SeverityRankInfo::initialize(severityRankInfo);
 	severityRankInfo.id = AUTO_INCREMENT_VALUE;
 	HatoholError err = parseSeverityRankParameter(severityRankInfo,
 							 m_query);
@@ -158,6 +168,7 @@ void RestResourceSeverityRank::handlePut(void)
 	}
 
 	SeverityRankInfo severityRankInfo;
+	SeverityRankInfo::initialize(severityRankInfo);
 	severityRankInfo.id = severityRankId;
 
 	SeverityRankInfoVect severityRanks;
