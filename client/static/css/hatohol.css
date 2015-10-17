@@ -54,6 +54,11 @@ div.dialog {
   display: none;
 }
 
+.page-config-button {
+    float: right;
+    margin-right: 24px;
+}
+
 div#controller-container
 {
   min-height: 110px;
@@ -238,6 +243,11 @@ h2.hatohol-graph {
 
 .legend table td {
   padding: 2px;
+}
+
+#event-table-area {
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 .event-table-content {
