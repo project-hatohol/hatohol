@@ -36,7 +36,7 @@ var EventsView = function(userProfile, options) {
     sortOrder:        hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
   };
   $.extend(self.baseQuery, getEventsQueryInURI());
-  self.lastBaseFilterId = null;
+  self.lastFilterId = null;
   self.lastQuickFilter = {};
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
@@ -157,7 +157,7 @@ var EventsView = function(userProfile, options) {
     self.columnNames = config.getValue('events.columns').split(',');
 
     // Reset filter menu
-    self.lastBaseFilterId = defaultFilterId;
+    self.lastFilterId = defaultFilterId;
     $("#select-filter").empty();
     $.map(config.filterList, function(filter) {
       var option = $("<option/>", {
@@ -241,13 +241,13 @@ var EventsView = function(userProfile, options) {
         self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
     }
 
-    if (!self.lastBaseFilterId)
-      self.lastBaseFilterId = self.userConfig.getValue("events.default-filter-id");
+    if (!self.lastFilterId)
+      self.lastFilterId = self.userConfig.getValue("events.default-filter-id");
     if (options.applyFilter) {
-      self.lastBaseFilterId = $("#select-filter").val();
+      self.lastFilterId = $("#select-filter").val();
       self.lastQuickFilter = getQuickFilter();
     }
-    baseFilter = self.userConfig.getFilter(self.lastBaseFilterId);
+    baseFilter = self.userConfig.getFilter(self.lastFilterId);
 
     $.extend(query, self.baseQuery, baseFilter, self.lastQuickFilter, {
       offset:           self.baseQuery.limit * self.currentPage,
