@@ -544,20 +544,26 @@ var EventsView = function(userProfile, options) {
 
   function setLoading(loading) {
     if (loading) {
+      $("#begin-time").attr("disabled", "disabled");
+      $("#end-time").attr("disabled", "disabled");
       $("#select-incident").attr("disabled", "disabled");
       $("#select-severity").attr("disabled", "disabled");
       $("#select-status").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
+      $("#select-filter").attr("disabled", "disabled");
       $("#latest-events-button1").attr("disabled", "disabled");
       $("#latest-events-button2").attr("disabled", "disabled");
     } else {
+      $("#begin-time").removeAttr("disabled");
+      $("#end-time").removeAttr("disabled");
       $("#select-incident").removeAttr("disabled");
       $("#select-severity").removeAttr("disabled");
       $("#select-status").removeAttr("disabled");
       $("#select-server").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
+      $("#select-filter").removeAttr("disabled");
       $("#latest-events-button1").removeAttr("disabled");
       $("#latest-events-button2").removeAttr("disabled");
     }
