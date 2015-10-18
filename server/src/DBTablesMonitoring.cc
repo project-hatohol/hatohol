@@ -977,7 +977,7 @@ string EventsQueryOption::getCondition(void) const
 		  severityCondition,
 		  StringUtils::sprintf(
 		    "%s=%d",
-		    COLUMN_DEF_EVENTS[IDX_EVENTS_SEVERITY].columnName,
+		    getColumnName(IDX_EVENTS_SEVERITY).c_str(),
 		    severity),
 		  ADD_TYPE_OR);
 	}
@@ -991,7 +991,7 @@ string EventsQueryOption::getCondition(void) const
 		  statusCondition,
 		  StringUtils::sprintf(
 		    "%s=%d",
-		    COLUMN_DEF_EVENTS[IDX_EVENTS_STATUS].columnName,
+		    getColumnName(IDX_EVENTS_STATUS).c_str(),
 		    status),
 		  ADD_TYPE_OR);
 	}
