@@ -168,7 +168,7 @@ describe('EventsView', function() {
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
-    expect($('tr')).to.have.length(dummyEventInfo.length + 1);
+    expect($('#table tr')).to.have.length(dummyEventInfo.length + 1);
     expect($('tr :eq(1)').html()).to.contain(expected);
     expect($('td :eq(3)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
   }
@@ -199,7 +199,7 @@ describe('EventsView', function() {
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
-    expect($('tr')).to.have.length(dummyEventInfo.length + 1);
+    expect($('#table tr')).to.have.length(dummyEventInfo.length + 1);
     expect($('tr :eq(2)').html()).to.contain(expected);
     expect($('td :eq(3)').html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
   }
@@ -299,7 +299,7 @@ describe('EventsView', function() {
     ];
     respond(eventsJson(events, getDummyServerInfo(0)));
     expect($('#table')).to.have.length(1);
-    expect($('tr')).to.have.length(events.length + 1);
+    expect($('#table tr')).to.have.length(events.length + 1);
     expect($('tr :eq(1)').html()).to.contain(expected);
   });
 
