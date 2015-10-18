@@ -285,7 +285,7 @@ var EventsView = function(userProfile, options) {
       return 'events?' + $.param(query);
     }
 
-    var query = $.extend(query, self.baseQuery, {
+    query = $.extend(query, self.baseQuery, {
       incidentStatuses: $("#select-incident").val(),
       minimumSeverity:  $("#select-severity").val(),
       type:             $("#select-status").val(),
