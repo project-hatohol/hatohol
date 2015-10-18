@@ -43,7 +43,6 @@ var EventsView = function(userProfile, options) {
   setupEventsTable();
   setupToggleFilter();
   setupToggleSidebar();
-  setupApplyFilterButton();
 
   if (self.options.disableTimeRangeFilter) {
    // Don't enable datetimepicker for tests.
@@ -205,11 +204,8 @@ var EventsView = function(userProfile, options) {
 
     options = options || {};
 
-    if (self.lastQuery) {
-      if (options.applyFilter)
-        applyFilter = true;
-      if (params && (params.legacy == "true"))
-        applyFilter = true;
+    if (self.lastQuery && options.applyFilter) {
+      applyFilter = true;
     } else {
       // It's the first query, so it's not needed to apply the filter.
       applyFilter = false;
@@ -329,18 +325,9 @@ var EventsView = function(userProfile, options) {
   }
 
   function setupCallbacks() {
-    if (params && params.legacy == "true") {
-      $("#select-incident, #select-severity, #select-status").change(function() {
-        load();
-      });
-
-      self.setupHostQuerySelectorCallback(
-        load, '#select-server', '#select-host-group', '#select-host');
-    } else {
-      $('#select-server').change(function() {
-        setupFilterValues(undefined, {});
-      });
-    }
+    $('#select-server').change(function() {
+      setupFilterValues(undefined, {});
+    });
 
     $('button.latest-button').click(function() {
       load();
@@ -457,10 +444,6 @@ var EventsView = function(userProfile, options) {
       onSelectTime: function(currentTime, $input) {
         $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
       },
-      onChangeDateTime: function(currentTime, $input) {
-        if (params && (params.legacy == "true"))
-          load();
-      }
     });
 
     $('#end-time').datetimepicker({
@@ -472,10 +455,6 @@ var EventsView = function(userProfile, options) {
       onSelectTime: function(currentTime, $input) {
         $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
       },
-      onChangeDateTime: function(currentTime, $input) {
-        if (params && (params.legacy == "true"))
-          load();
-      }
     });
 
     $(".filter-time-range").change(function () {
@@ -534,12 +513,6 @@ var EventsView = function(userProfile, options) {
 
   function setupPieChart() {
     Pizza.init(document.body, {always_show_text:true});
-  }
-
-  function setupApplyFilterButton() {
-    if (params && (params.legacy == "true")) {
-      $('button.btn-apply-all-filter').hide();
-    }
   }
 
   function setLoading(loading) {
