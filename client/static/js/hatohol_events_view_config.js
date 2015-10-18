@@ -226,6 +226,7 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
 HatoholEventsViewConfig.prototype.saveAll = function() {
   var self = this;
 
+  // Synchronize UI & internal data
   $.extend(self.selectedFilterConfig,
            self.getCurrentFilterConfig());
 
