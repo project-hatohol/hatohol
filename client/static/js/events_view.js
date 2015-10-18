@@ -440,6 +440,7 @@ var EventsView = function(userProfile, options) {
   function setupTimeRangeFilter() {
     $('#begin-time').datetimepicker({
       format: 'Y/m/d H:i:s',
+      closeOnDateSelect: true,
       onSelectDate: function(currentTime, $input) {
         $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
       },
@@ -454,6 +455,7 @@ var EventsView = function(userProfile, options) {
 
     $('#end-time').datetimepicker({
       format: 'Y/m/d H:i:s',
+      closeOnDateSelect: true,
       onDateTime: function(currentTime, $input) {
         $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
       },
