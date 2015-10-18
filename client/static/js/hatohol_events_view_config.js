@@ -184,15 +184,7 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
   var filterDeferred = new $.Deferred;
 
   self.get({
-    itemNames: [
-      'events.auto-reload.interval',
-      'events.num-rows-per-page',
-      'events.sort.type',
-      'events.sort.order',
-      'events.columns',
-      'events.summary.default-filter-id',
-      'events.default-filter-id',
-    ],
+    itemNames: Object.keys(self.getDefaultConfig()),
     successCallback: function(config) {
       $.extend(self.config, config);
       self.reset();
