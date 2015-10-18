@@ -190,6 +190,8 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
       'events.sort.type',
       'events.sort.order',
       'events.columns',
+      'events.summary.default-filter-id',
+      'events.default-filter-id',
     ],
     successCallback: function(config) {
       $.extend(self.config, config);
@@ -231,89 +233,116 @@ HatoholEventsViewConfig.prototype.loadAll = function() {
 
 HatoholEventsViewConfig.prototype.saveAll = function() {
   var self = this;
-  var deferreds = [new $.Deferred];
-
-  $.extend(self.config, {
-    'events.auto-reload.interval': $("#auto-reload-interval").val(),
-    'events.num-rows-per-page': $("#num-rows-per-page").val(),
-    'events.columns': buildSelectedColumns(),
-  });
 
   $.extend(self.selectedFilterSettings,
            self.getCurrentFilterSettings());
 
-  self.store({
-    items: self.config,
-    successCallback: function(reply) {
-      $("#events-view-config").modal("hide");
-    },
-    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
-      self.showXHRError(XMLHttpRequest);
-    },
-    completionCallback: function() {
-      deferreds[0].resolve();
-    },
-  });
-
-  $.map(self.editingFilterList, function(filter) {
-    var path = "/event-filters/";
-    var deferred = new $.Deferred;
-
-    if (filter.id)
-      path += filter.id;
-
-    deferreds.push(deferred);
-    new HatoholConnector({
-      pathPrefix: "",
-      url: path,
-      request: filter.id ? "PUT" : "POST",
-      data: JSON.stringify(filter),
-      replyCallback: function(reply, parser) {
-        $.extend(filter, reply);
-      },
-      parseErrorCallback: function(reply, parser) {
-        hatoholErrorMsgBoxForParser(reply, parser);
-      },
-      completionCallback: function() {
-        deferred.resolve();
-      },
-    });
-  });
-
-  $.map(self.removedFilters, function(val, id) {
-    var deferred = new $.Deferred;
-
-    deferreds.push(deferred);
-    new HatoholConnector({
-      pathPrefix: "",
-      url: "/event-filters/" + id,
-      request: "DELETE",
-      replyCallback: function(reply, parser) {
-        delete self.removedFilters[id]
-      },
-      parseErrorCallback: function(reply, parser) {
-        hatoholErrorMsgBoxForParser(reply, parser);
-      },
-      completionCallback: function() {
-        deferred.resolve();
-      },
-    });
-  });
-
-  var promises = $.map(deferreds, function(deferred) {
-    return deferred.promise();
-  });
-  $.when.apply($, promises).done(function() {
+  // Save filters at first to determine filter IDs
+  $.when(saveFilters(), removeFilters()).done(function() {
     self.filterList = self.editingFilterList;
     self.resetEditingFilterList();
-    if (self.options.savedCallback)
-      self.options.savedCallback(self);
+
+    // Then save remaining config values
+    var idx1 = $("#summary-default-filter-selector").val();
+    var idx2 = $("#events-default-filter-selector").val();
+    var id1 = idx1 ? self.filterList[idx1].id : 0;
+    var id2 = idx2 ? self.filterList[idx2].id : 0;
+
+    $.extend(self.config, {
+      'events.auto-reload.interval': $("#auto-reload-interval").val(),
+      'events.num-rows-per-page': $("#num-rows-per-page").val(),
+      'events.columns': buildSelectedColumns(),
+      'events.summary.default-filter-id': "" + id1,
+      'events.default-filter-id': "" + id2,
+    });
+
+    self.store({
+      items: self.config,
+      successCallback: function(reply) {
+        $("#events-view-config").modal("hide");
+      },
+      connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+        self.showXHRError(XMLHttpRequest);
+      },
+      completionCallback: function() {
+        if (self.options.savedCallback)
+          self.options.savedCallback(self);
+      },
+    });
   });
 
   function buildSelectedColumns() {
     var selected = $("#column-selector-selected option");
     var values = $.map(selected, function(option) { return $(option).val(); });
     return values.join(',');
+  }
+
+  function saveFilters() {
+    var deferred = new $.Deferred;
+
+    var promises = $.map(self.editingFilterList, function(filter) {
+      var path = "/event-filters/";
+      var deferred = new $.Deferred;
+
+      if (filter.id)
+        path += filter.id;
+
+      new HatoholConnector({
+        pathPrefix: "",
+        url: path,
+        request: filter.id ? "PUT" : "POST",
+        data: JSON.stringify(filter),
+        replyCallback: function(reply, parser) {
+          $.extend(filter, reply);
+        },
+        parseErrorCallback: function(reply, parser) {
+          hatoholErrorMsgBoxForParser(reply, parser);
+        },
+        completionCallback: function() {
+          deferred.resolve();
+        },
+      });
+
+      return deferred.promise();
+    });
+
+    $.when.apply($, promises).done(function() {
+      deferred.resolve();
+    });
+
+    return deferred.promise();
+  }
+
+  function removeFilters() {
+    var deferred = new $.Deferred;
+
+    var promises = $.map(self.removedFilters, function(val, id) {
+      var deferred = new $.Deferred;
+
+      deferreds.push(deferred);
+      new HatoholConnector({
+        pathPrefix: "",
+        url: "/event-filters/" + id,
+        request: "DELETE",
+        replyCallback: function(reply, parser) {
+          delete self.removedFilters[id]
+        },
+        parseErrorCallback: function(reply, parser) {
+          hatoholErrorMsgBoxForParser(reply, parser);
+        },
+        completionCallback: function() {
+          deferred.resolve();
+        },
+      });
+
+      return deferred.promise();
+    });
+
+    $.when.apply($, promises).done(function() {
+      deferred.resolve();
+    });
+
+    return deferred.promise();
   }
 };
 
@@ -406,6 +435,8 @@ HatoholEventsViewConfig.prototype.getDefaultConfig = function() {
       "monitoringServerName,hostName,description",
     'events.sort.type': "time",
     'events.sort.order': "" + hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
+    'events.default-filter-id': "0",
+    'events.summary.default-filter-id': "0",
   };
 };
 
@@ -456,18 +487,25 @@ HatoholEventsViewConfig.prototype.resetFilterList = function() {
     })
   ).appendTo("#filter-name-list");
 
-  resetDefaultFilterList("summary");
-  resetDefaultFilterList("events");
+  resetDefaultFilterList(
+    "summary", self.getValue('events.summary.default-filter-id'));
+  resetDefaultFilterList(
+    "events", self.getValue('events.default-filter-id'));
 
-  function resetDefaultFilterList(type) {
+  function resetDefaultFilterList(type, defaultFilterId) {
     var elementId = "#" + type + "-default-filter-selector";
     $(elementId).empty();
-    $.map(filters, function(filter) {
-      $("<option/>", {
+    $.map(filters, function(filter, i) {
+      var option = $("<option/>", {
         text: filter.name,
-      }).val(filter.id).appendTo(elementId);
-      // TODO: filter.id is empty when the filter isn't saved yet
-      // TODO: add "selected" attribute to the selected filter
+      }).val(i).appendTo(elementId);
+
+      if (defaultFilterId && defaultFilterId > 0) {
+        if (defaultFilterId == filter.id)
+          option.attr("selected", true);
+      } else if (i == 0) {
+        option.attr("selected", true);
+      }
     });
   };
 };
