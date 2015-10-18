@@ -155,14 +155,14 @@ describe('EventsViewConfig', function() {
     expect(loaded).to.be(true);
   });
 
-  it('getCurrentFilterSettings with empty data', function() {
+  it('getCurrentFilterConfig with empty data', function() {
     var config = new HatoholEventsViewConfig({
       columnDefinitions: testColumnDefinitions,
     });
     config.setServers(getDummyServerInfo());
     config.reset();
     respond();
-    expect(config.getCurrentFilterSettings()).to.eql({
+    expect(config.getCurrentFilterConfig()).to.eql({
       name: "ALL (31 days)",
       days: 31,
       incident: {
@@ -233,7 +233,7 @@ describe('EventsViewConfig', function() {
     respond();
     config.setServers(getDummyServerInfo());
     config.reset();
-    config.setCurrentFilterSettings(expected);
-    expect(config.getCurrentFilterSettings()).to.eql(expected);
+    config.setCurrentFilterConfig(expected);
+    expect(config.getCurrentFilterConfig()).to.eql(expected);
   });
 });
