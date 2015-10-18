@@ -706,6 +706,62 @@ HatoholEventsViewConfig.prototype.getFilterConfig = function(id, filterList) {
       return filterList[i];
   }
   return null;
+};
+
+HatoholEventsViewConfig.prototype.createFilter = function(filterConfig) {
+  var conf = filterConfig;
+  var filter = {}, selectHosts = [], excludeHosts = [], hostList;
+  var secondsInDay = 60 * 60 * 24;
+  var now = parseInt(Date.now() / 1000, 10);
+
+  if (conf.days > 0)
+    filter["beginTime"] = parseInt(now - secondsInDay * conf.days, 10);
+
+  if (conf.incident.enable && conf.incident.selected.length > 0)
+    filter["incidentStatuses"] = conf.incident.selected.join(",");
+
+  if (conf.status.enable && conf.status.selected.length > 0)
+    filter["statuses"] = conf.status.selected.join(",");
+
+  if (conf.severity.enable && conf.severity.selected.length > 0)
+    filter["severities"] = conf.severity.selected.join(",");
+
+  if (conf.server.enable) {
+    hostList = conf.server.exclude ? excludeHosts : selectHosts;
+    $.map(conf.server.selected, function(id) {
+      hostList.push({ serverId: id });
+    });
+  }
+
+  if (conf.hostgroup.enable) {
+    hostList = conf.hostgroup.exclude ? excludeHosts : selectHosts;
+    $.map(conf.hostgroup.selected, function(item) {
+      var pair = item.split(",", 2);
+      hostList.push({ serverId: pair[0], hostgroupId: pair[1] });
+    });
+  }
+
+  if (conf.host.enable) {
+    hostList = conf.host.exclude ? excludeHosts : selectHosts;
+    $.map(conf.host.selected, function(item) {
+      var pair = item.split(",", 2);
+      hostList.push({ serverId: pair[0], hostId: pair[1] });
+    });
+  }
+
+  if (selectHosts.length > 0)
+    filter["selectHosts"] = selectHosts;
+  if (excludeHosts.length > 0)
+    filter["excludeHosts"] = excludeHosts;
+
+  return filter;
+};
+
+HatoholEventsViewConfig.prototype.getFilter = function(filterId) {
+  var self = this;
+  var filterConfig = self.getFilterConfig(filterId);
+  filterConfig = filterConfig || self.getDefaultFilterConfig();
+  return self.createFilter(filterConfig);
 }
 
 HatoholEventsViewConfig.prototype.showXHRError = function (XMLHttpRequest) {
