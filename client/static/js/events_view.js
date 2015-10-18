@@ -149,11 +149,21 @@ var EventsView = function(userProfile, options) {
   }
 
   function applyConfig(config) {
+    var defaultFilterId = config.getValue('events.default-filter-id');
     self.reloadIntervalSeconds = config.getValue('events.auto-reload.interval');
     self.baseQuery.limit = config.getValue('events.num-rows-per-page');
     self.baseQuery.sortType = config.getValue('events.sort.type');
     self.baseQuery.sortOrder = config.getValue('events.sort.order');
     self.columnNames = config.getValue('events.columns').split(',');
+
+    $("#select-filter").empty();
+    $.map(config.filterList, function(filter) {
+      var option = $("<option/>", {
+        text: filter.name,
+      }).val(filter.id).appendTo("#select-filter");
+      if (filter.id == defaultFilterId)
+        option.attr("selected", true)
+    });
   }
 
   function updatePager() {
