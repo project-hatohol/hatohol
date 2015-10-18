@@ -36,7 +36,8 @@ var EventsView = function(userProfile, options) {
     sortOrder:        hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
   };
   $.extend(self.baseQuery, getEventsQueryInURI());
-  self.lastQuery = undefined;
+  self.lastBaseFilter = null;
+  self.lastQuickFilter = {};
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
@@ -254,44 +255,17 @@ var EventsView = function(userProfile, options) {
     return createFilter(filterConfig);
   }
 
-  function getQuery(options) {
-    var query = {}, applyFilter = false;
+  function getQuickFilter() {
+    var query = {};
 
-    options = options || {};
+    if ($("#select-incident").val())
+      query.incidentStatuses = $("#select-incident").val();
 
-    if (self.lastQuery && options.applyFilter) {
-      applyFilter = true;
-    } else {
-      // It's the first query, so it's not needed to apply the filter.
-      applyFilter = false;
-    }
+    if ($("#select-status").val())
+      query.type = $("#select-status").val();
 
-    if (!options.page) {
-      self.limitOfUnifiedId = 0;
-    } else {
-      if (!self.limitOfUnifiedId)
-        self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
-    }
-
-    if (!applyFilter) {
-      // Filter isn't changed but the page or config values may be changed.
-      // We need to apply it.
-      $.extend(query, self.baseQuery, self.lastQuery, {
-        offset:           self.baseQuery.limit * self.currentPage,
-        limit:            self.baseQuery.limit,
-        limitOfUnifiedId: self.limitOfUnifiedId,
-      });
-      self.lastQuery = query;
-      return 'events?' + $.param(query);
-    }
-
-    query = $.extend(query, self.baseQuery, {
-      incidentStatuses: $("#select-incident").val(),
-      minimumSeverity:  $("#select-severity").val(),
-      type:             $("#select-status").val(),
-      offset:           self.baseQuery.limit * self.currentPage,
-      limitOfUnifiedId: self.limitOfUnifiedId,
-    });
+    if ($("#select-severity").val())
+      query.minimumSeverity =  $("#select-severity").val();
 
     var beginTime, endTime;
     if ($('#begin-time').val()) {
@@ -305,7 +279,35 @@ var EventsView = function(userProfile, options) {
 
     $.extend(query, self.getHostFilterQuery());
 
-    self.lastQuery = query;
+    return query;
+  }
+
+  function getQuery(options) {
+    var query = {}, defaultFilterId;
+
+    options = options || {};
+
+    if (!options.page) {
+      self.limitOfUnifiedId = 0;
+    } else {
+      if (!self.limitOfUnifiedId)
+        self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
+    }
+
+    if (!self.lastBaseFilter) {
+      defaultFilterId = self.userConfig.getValue("events.default-filter-id");
+      self.lastBaseFilter = getFilter(defaultFilterId);
+    }
+    if (options.applyFilter) {
+      self.lastBaseFilter = getFilter($("#select-filter").val());
+      self.lastQuickFilter = getQuickFilter();
+    }
+
+    $.extend(query, self.baseQuery, self.lastBaseFilter, self.lastQuickFilter, {
+      offset:           self.baseQuery.limit * self.currentPage,
+      limit:            self.baseQuery.limit,
+      limitOfUnifiedId: self.limitOfUnifiedId,
+    });
 
     return 'events?' + $.param(query);
   };
@@ -331,7 +333,7 @@ var EventsView = function(userProfile, options) {
       servers = self.rawData.servers;
 
     if (!query)
-      query = self.lastQuery ? self.lastQuery : self.baseQuery;
+      query = self.lastQuickFilter ? self.lastQuickFilter : self.baseQuery;
 
     self.setupHostFilters(servers, query);
 
