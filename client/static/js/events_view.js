@@ -36,14 +36,14 @@ var EventsView = function(userProfile, options) {
     sortOrder:        hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
   };
   $.extend(self.baseQuery, getEventsQueryInURI());
-  self.lastQuery = undefined;
+  self.lastFilterId = null;
+  self.lastQuickFilter = {};
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
   setupEventsTable();
   setupToggleFilter();
   setupToggleSidebar();
-  setupApplyFilterButton();
 
   if (self.options.disableTimeRangeFilter) {
    // Don't enable datetimepicker for tests.
@@ -149,11 +149,23 @@ var EventsView = function(userProfile, options) {
   }
 
   function applyConfig(config) {
+    var defaultFilterId = config.getValue('events.default-filter-id');
     self.reloadIntervalSeconds = config.getValue('events.auto-reload.interval');
     self.baseQuery.limit = config.getValue('events.num-rows-per-page');
     self.baseQuery.sortType = config.getValue('events.sort.type');
     self.baseQuery.sortOrder = config.getValue('events.sort.order');
     self.columnNames = config.getValue('events.columns').split(',');
+
+    // Reset filter menu
+    self.lastFilterId = defaultFilterId;
+    $("#select-filter").empty();
+    $.map(config.filterList, function(filter) {
+      var option = $("<option/>", {
+        text: filter.name,
+      }).val(filter.id).appendTo("#select-filter");
+      if (filter.id == defaultFilterId)
+        option.attr("selected", true)
+    });
   }
 
   function updatePager() {
@@ -190,47 +202,17 @@ var EventsView = function(userProfile, options) {
     return query;
   }
 
-  function getQuery(options) {
-    var query = {}, applyFilter = false;
+  function getQuickFilter() {
+    var query = {};
 
-    options = options || {};
+    if ($("#select-incident").val())
+      query.incidentStatuses = $("#select-incident").val();
 
-    if (self.lastQuery) {
-      if (options.applyFilter)
-        applyFilter = true;
-      if (params && (params.legacy == "true"))
-        applyFilter = true;
-    } else {
-      // It's the first query, so it's not needed to apply the filter.
-      applyFilter = false;
-    }
+    if ($("#select-status").val())
+      query.type = $("#select-status").val();
 
-    if (!options.page) {
-      self.limitOfUnifiedId = 0;
-    } else {
-      if (!self.limitOfUnifiedId)
-        self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
-    }
-
-    if (!applyFilter) {
-      // Filter isn't changed but the page or config values may be changed.
-      // We need to apply it.
-      $.extend(query, self.baseQuery, self.lastQuery, {
-        offset:           self.baseQuery.limit * self.currentPage,
-        limit:            self.baseQuery.limit,
-        limitOfUnifiedId: self.limitOfUnifiedId,
-      });
-      self.lastQuery = query;
-      return 'events?' + $.param(query);
-    }
-
-    var query = $.extend(query, self.baseQuery, {
-      incidentStatuses: $("#select-incident").val(),
-      minimumSeverity:  $("#select-severity").val(),
-      type:             $("#select-status").val(),
-      offset:           self.baseQuery.limit * self.currentPage,
-      limitOfUnifiedId: self.limitOfUnifiedId,
-    });
+    if ($("#select-severity").val())
+      query.minimumSeverity =  $("#select-severity").val();
 
     var beginTime, endTime;
     if ($('#begin-time').val()) {
@@ -244,7 +226,34 @@ var EventsView = function(userProfile, options) {
 
     $.extend(query, self.getHostFilterQuery());
 
-    self.lastQuery = query;
+    return query;
+  }
+
+  function getQuery(options) {
+    var query = {}, baseFilter;
+
+    options = options || {};
+
+    if (!options.page) {
+      self.limitOfUnifiedId = 0;
+    } else {
+      if (!self.limitOfUnifiedId)
+        self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
+    }
+
+    if (!self.lastFilterId)
+      self.lastFilterId = self.userConfig.getValue("events.default-filter-id");
+    if (options.applyFilter) {
+      self.lastFilterId = $("#select-filter").val();
+      self.lastQuickFilter = getQuickFilter();
+    }
+    baseFilter = self.userConfig.getFilter(self.lastFilterId);
+
+    $.extend(query, self.baseQuery, baseFilter, self.lastQuickFilter, {
+      offset:           self.baseQuery.limit * self.currentPage,
+      limit:            self.baseQuery.limit,
+      limitOfUnifiedId: self.limitOfUnifiedId,
+    });
 
     return 'events?' + $.param(query);
   };
@@ -270,7 +279,7 @@ var EventsView = function(userProfile, options) {
       servers = self.rawData.servers;
 
     if (!query)
-      query = self.lastQuery ? self.lastQuery : self.baseQuery;
+      query = self.lastQuickFilter ? self.lastQuickFilter : self.baseQuery;
 
     self.setupHostFilters(servers, query);
 
@@ -319,18 +328,9 @@ var EventsView = function(userProfile, options) {
   }
 
   function setupCallbacks() {
-    if (params && params.legacy == "true") {
-      $("#select-incident, #select-severity, #select-status").change(function() {
-        load();
-      });
-
-      self.setupHostQuerySelectorCallback(
-        load, '#select-server', '#select-host-group', '#select-host');
-    } else {
-      $('#select-server').change(function() {
-        setupFilterValues(undefined, {});
-      });
-    }
+    $('#select-server').change(function() {
+      setupFilterValues(undefined, {});
+    });
 
     $('button.latest-button').click(function() {
       load();
@@ -447,10 +447,6 @@ var EventsView = function(userProfile, options) {
       onSelectTime: function(currentTime, $input) {
         $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
       },
-      onChangeDateTime: function(currentTime, $input) {
-        if (params && (params.legacy == "true"))
-          load();
-      }
     });
 
     $('#end-time').datetimepicker({
@@ -462,10 +458,6 @@ var EventsView = function(userProfile, options) {
       onSelectTime: function(currentTime, $input) {
         $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
       },
-      onChangeDateTime: function(currentTime, $input) {
-        if (params && (params.legacy == "true"))
-          load();
-      }
     });
 
     $(".filter-time-range").change(function () {
@@ -526,28 +518,28 @@ var EventsView = function(userProfile, options) {
     Pizza.init(document.body, {always_show_text:true});
   }
 
-  function setupApplyFilterButton() {
-    if (params && (params.legacy == "true")) {
-      $('button.btn-apply-all-filter').hide();
-    }
-  }
-
   function setLoading(loading) {
     if (loading) {
+      $("#begin-time").attr("disabled", "disabled");
+      $("#end-time").attr("disabled", "disabled");
       $("#select-incident").attr("disabled", "disabled");
       $("#select-severity").attr("disabled", "disabled");
       $("#select-status").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
+      $("#select-filter").attr("disabled", "disabled");
       $("#latest-events-button1").attr("disabled", "disabled");
       $("#latest-events-button2").attr("disabled", "disabled");
     } else {
+      $("#begin-time").removeAttr("disabled");
+      $("#end-time").removeAttr("disabled");
       $("#select-incident").removeAttr("disabled");
       $("#select-severity").removeAttr("disabled");
       $("#select-status").removeAttr("disabled");
       $("#select-server").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
+      $("#select-filter").removeAttr("disabled");
       $("#latest-events-button1").removeAttr("disabled");
       $("#latest-events-button2").removeAttr("disabled");
     }

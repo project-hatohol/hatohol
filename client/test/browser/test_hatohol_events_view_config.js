@@ -79,7 +79,7 @@ describe('EventsViewConfig', function() {
 
   function respond(configJson, filtersJson) {
     respondUserConfig(configJson);
-    respondFilters(configJson);
+    respondFilters(filtersJson);
   }
 
   function getDummyServerInfo(type){
@@ -155,14 +155,14 @@ describe('EventsViewConfig', function() {
     expect(loaded).to.be(true);
   });
 
-  it('getCurrentFilterSettings with empty data', function() {
+  it('getCurrentFilterConfig with empty data', function() {
     var config = new HatoholEventsViewConfig({
       columnDefinitions: testColumnDefinitions,
     });
     config.setServers(getDummyServerInfo());
     config.reset();
     respond();
-    expect(config.getCurrentFilterSettings()).to.eql({
+    expect(config.getCurrentFilterConfig()).to.eql({
       name: "ALL (31 days)",
       days: 31,
       incident: {
@@ -233,7 +233,62 @@ describe('EventsViewConfig', function() {
     respond();
     config.setServers(getDummyServerInfo());
     config.reset();
-    config.setCurrentFilterSettings(expected);
-    expect(config.getCurrentFilterSettings()).to.eql(expected);
+    config.setCurrentFilterConfig(expected);
+    expect(config.getCurrentFilterConfig()).to.eql(expected);
+  });
+
+  it('convert filter config to filter', function() {
+    var config = new HatoholEventsViewConfig({});
+    var filterConfig = {
+      name: "Sample Filter",
+      days: 60,
+      incident: {
+        enable: true,
+        selected: ["NONE", "IN PROGRESS", "DONE"]
+      },
+      status: {
+        enable: true,
+        selected: ["0", "1"]
+      },
+      severity: {
+        enable: true,
+        selected: ["2", "3"]
+      },
+      server: {
+        enable: true,
+        exclude: false,
+        selected: ["1"]
+      },
+      hostgroup: {
+        enable: true,
+        exclude: true,
+        selected: ["1,101"]
+      },
+      host: {
+        enable: true,
+        exclude: false,
+        selected: ["1,10106"]
+      }
+    };
+    var expected = {
+      incidentStatuses: "NONE,IN PROGRESS,DONE",
+      statuses: "0,1",
+      severities: "2,3",
+      selectHosts: [
+        { serverId: "1", },
+        { serverId: "1", hostId: "10106" },
+      ],
+      excludeHosts: [
+        { serverId: "1", hostgroupId: "101" },
+      ],
+    };
+    var now = Date.now();
+    var expectedTime = parseInt(now / 1000 - 60 * 60 * 24 * filterConfig.days, 10);
+    var actual = config.createFilter(filterConfig);
+    var time = actual.beginTime;
+    expected.beginTime = time;
+
+    expect(actual).to.eql(expected);
+    expect(time >= expectedTime && time <= expectedTime + 1).to.be(true);
   });
 });

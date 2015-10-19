@@ -173,6 +173,11 @@
 		<option>---------</option>
 	      </select>
 	    </div>
+	    <div class="filter-element">
+	      <p><label>{% trans "Filter:" %}</label></p>
+	      <select id="select-filter" class="form-control">
+	      </select>
+	    </div>
 	  </div>
 	</form>
 
@@ -662,7 +667,35 @@
 	    </div>
 
 	    <div class="tab-pane fade" id="default-filter-config">
-	      <p>Default Filter Config</p>
+
+	      <div>
+		<p>{% trans 'Select a filter to apply as the default filter of the summary view.' %}
+		<span style="color: #ff0000">(Not implemented yet)</span>
+		</p>
+		<div class="view-layout-mock">
+		  <table class="table-bordered view-layout-mock">
+		    <tr><td rowspan="2" class="sidebar highlight"></td><td class="controlbar"></td></tr>
+		    <tr><td></td></tr>
+		  </table>
+		</div>
+		<select size="8" id="summary-default-filter-selector" class="default-filter-selector">
+		</select>
+	      </div>
+
+	      <hr>
+
+	      <div>
+		<p>{% trans 'Select a filter to apply as the default filter of the event list view.' %}</p>
+		<div class="view-layout-mock">
+		  <table class="table-bordered view-layout-mock">
+		    <tr><td rowspan="2" class="sidebar"></td><td class="controlbar"></td></tr>
+		    <tr><td class="highlight"></td></tr>
+		  </table>
+		</div>
+		<select size="8" id="events-default-filter-selector" class="default-filter-selector">
+		</select>
+	      </div>
+
 	    </div>
 	  </div>
 

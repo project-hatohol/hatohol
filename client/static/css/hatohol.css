@@ -166,6 +166,42 @@ input#quick-host-search-entry {
     display: inline-block;
 }
 
+div.view-layout-mock {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+table.view-layout-mock {
+    border-width: 2px;
+    border-color: #aaaaaa;
+    width: 150px;
+    height:120px;
+}
+
+table.view-layout-mock td.sidebar {
+    border-width: 2px;
+    border-color: #aaaaaa;
+    width: 50px;
+}
+
+table.view-layout-mock td.controlbar {
+    border-width: 2px;
+    border-color: #aaaaaa;
+    height: 40px;
+}
+
+table.view-layout-mock td.highlight {
+    border-width: 4px !important;
+    border-color: red !important;
+}
+
+select.default-filter-selector {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 40px;
+    width: 200px;
+}
+
 /* no scirpt */
 div#noscript-background
 {
