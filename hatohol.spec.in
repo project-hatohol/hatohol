@@ -273,6 +273,7 @@ rm -rf %{buildroot}
 %{_datadir}/hatohol/sql/create-db.sql
 %{_datadir}/hatohol/sql/init-user.sql
 %{_datadir}/hatohol/sql/server-type-*.sql
+%{_datadir}/hatohol/sql/severity-ranks.sql
 
 %files arm-zabbix
 %{_sbindir}/hatohol-arm-plugin-zabbix
