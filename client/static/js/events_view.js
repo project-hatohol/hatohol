@@ -710,7 +710,8 @@ var EventsView = function(userProfile, options) {
   function renderTableDataEventDescription(event, server) {
     var description = getEventDescription(event);
 
-    return "<td class='" + getSeverityClass(event) + "'>" +
+    return "<td class='" + getSeverityClass(event) +
+      "' title='" + escapeHTML(description) + "'>" +
       escapeHTML(description) + "</td>";
   }
 
