@@ -164,7 +164,7 @@ describe('EventsView', function() {
       expected += '<td class="severity1">Host</td>';
     }
 
-    expected += '<td class="severity1">Test description.</td>';
+    expected += '<td class="severity1" title="Test description.">Test description.</td>';
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
@@ -195,7 +195,8 @@ describe('EventsView', function() {
       ' target="_blank">Server</a></td>';
     expected += '<td class="severity1"><a href="' + escapeHTML(hostURL) +
                 '" target="_blank">Host2</a></td>';
-    expected += '<td class="severity1">Expanded test description 2.</td>';
+    expected += '<td class="severity1" title="Expanded test description 2.">';
+    expected += 'Expanded test description 2.</td>';
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
@@ -293,7 +294,7 @@ describe('EventsView', function() {
       '</a></td>' +
       '<td class=""><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>' +
       '<td class=""><a href="' + escapeHTML(hostURL) + '" target="_blank">Host</a></td>' +
-      '<td class="">Test description.</td>';
+      '<td class="" title="Test description.">Test description.</td>';
     var events = [
       $.extend({}, dummyEventInfo[0], { type: hatohol.EVENT_TYPE_GOOD })
     ];
