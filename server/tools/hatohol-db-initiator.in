@@ -55,6 +55,9 @@ sql_file_list = [
     {'table_name': 'server_types',
      'file_name': 'server-type-hap2-zabbix.sql',
      'target': 'hapi2-zabbix'},
+    {'table_name': 'severity_ranks',
+     'file_name': 'severity-ranks.sql',
+     'target': 'severity-ranks'},
 ]
 
 config_map = {
