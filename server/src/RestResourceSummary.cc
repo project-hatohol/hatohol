@@ -47,13 +47,32 @@ void RestResourceSummary::handlerSummary(void)
 	}
 
 	EventsQueryOption option(m_dataQueryContextPtr);
+	SeverityRankQueryOption severityRankOption(m_dataQueryContextPtr);
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->getNumberOfEvents(option);
+	SeverityRankInfoVect importantSeverityRanks, notImportantSeverityRanks;
+	severityRankOption.setTargetAsImportant(static_cast<int>(true));
+	dataStore->getSeverityRanks(importantSeverityRanks, severityRankOption);
+	severityRankOption.setTargetAsImportant(static_cast<int>(false));
+	dataStore->getSeverityRanks(notImportantSeverityRanks, severityRankOption);
+	std::set<TriggerSeverityType> importantStatusSet, notImportantStatusSet;
+	for (auto &severityRank : importantSeverityRanks) {
+		importantStatusSet.insert(static_cast<TriggerSeverityType>(severityRank.status));
+	}
+	option.setTriggerSeverities(importantStatusSet);
+	int64_t numOfImportantEvents = dataStore->getNumberOfEvents(option);
+
+	for (auto &severityRank : notImportantSeverityRanks) {
+		notImportantStatusSet.insert(static_cast<TriggerSeverityType>(severityRank.status));
+	}
+	option.setTriggerSeverities(notImportantStatusSet);
+	int64_t numOfNotImportantEvents = dataStore->getNumberOfEvents(option);
 
 	JSONBuilder reply;
 	reply.startObject();
 	reply.startArray("summary");
+	reply.add("numOfImportantEvents", numOfImportantEvents);
+	reply.add("numOfNotImportantEvents", numOfNotImportantEvents);
 	reply.endArray(); // summary
 
 	addHatoholError(reply, HatoholError(HTERR_OK));
