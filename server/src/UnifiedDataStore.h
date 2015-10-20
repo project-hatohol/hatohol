@@ -173,9 +173,12 @@ public:
 	                            DBAgent::TransactionHooks *hooks = NULL);
 
 	HatoholError upsertHostgroupMembers(
-	  const HostgroupMemberVect &hostgroupMembers);
-	HatoholError syncHostgroupMembers(const HostgroupMemberVect &hostgroups,
-	                                  const ServerIdType &serverId);
+	  const HostgroupMemberVect &hostgroupMembers,
+	  DBAgent::TransactionHooks *hooks = NULL);
+	HatoholError syncHostgroupMembers(
+	  const HostgroupMemberVect &hostgroups,
+	  const ServerIdType &serverId,
+	  DBAgent::TransactionHooks *hooks = NULL);
 
 	HatoholError getHostgroupMembers(
 	  HostgroupMemberVect &hostgroupMembers,

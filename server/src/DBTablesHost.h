@@ -323,7 +323,8 @@ public:
 	  const bool &useTransaction = true);
 
 	void upsertHostgroupMembers(
-	  const HostgroupMemberVect &hostgroupMembers);
+	  const HostgroupMemberVect &hostgroupMembers,
+	  DBAgent::TransactionHooks *hooks = NULL);
 
 	HatoholError getHostgroupMembers(
 	  HostgroupMemberVect &hostgrpMembers,
@@ -400,8 +401,10 @@ public:
 	HatoholError syncHostgroups(const HostgroupVect &hostgroups,
 	                            const ServerIdType &serverId,
 	                            DBAgent::TransactionHooks *hooks = NULL);
-	HatoholError syncHostgroupMembers(const HostgroupMemberVect &hostgroupMembers,
-	                                  const ServerIdType &serverId);
+	HatoholError syncHostgroupMembers(
+	  const HostgroupMemberVect &hostgroupMembers,
+	  const ServerIdType &serverId,
+	  DBAgent::TransactionHooks *hooks = NULL);
 
 protected:
 	static SetupInfo &getSetupInfo(void);

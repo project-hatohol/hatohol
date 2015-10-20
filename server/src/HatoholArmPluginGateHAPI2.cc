@@ -1517,7 +1517,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostgroupMemberVect hostgroupMembershipVect;
 	JSONRPCError errObj;
-	string lastInfo;
+	Impl::UpsertLastInfoHook
+	 lastInfoUpserter(*m_impl, LAST_INFO_HOST_GROUP_MEMBERSHIP);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1531,7 +1532,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	bool checkInvalidHostGroupMembership =
 		parseUpdateType(parser, updateType, errObj);
 	if (parser.isMember("lastInfo")) {
-		parser.read("lastInfo", lastInfo);
+		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
 	parser.endObject(); // params
 
@@ -1548,13 +1549,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 
 	// TODO: reflect error in response
 	if (checkInvalidHostGroupMembership) {
-		dataStore->syncHostgroupMembers(hostgroupMembershipVect, serverInfo.id);
+		dataStore->syncHostgroupMembers(hostgroupMembershipVect,
+		                                serverInfo.id,
+		                                lastInfoUpserter);
 	} else {
-		dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
-	}
-
-	if (!lastInfo.empty()) {
-		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP_MEMBERSHIP);
+		dataStore->upsertHostgroupMembers(hostgroupMembershipVect,
+		                                  lastInfoUpserter);
 	}
 
 	// add error clause

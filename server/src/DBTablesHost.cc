@@ -1036,7 +1036,8 @@ GenericIdType DBTablesHost::upsertHostgroupMember(
 }
 
 void DBTablesHost::upsertHostgroupMembers(
-  const HostgroupMemberVect &hostgroupMembers)
+  const HostgroupMemberVect &hostgroupMembers,
+  DBAgent::TransactionHooks *hooks)
 {
 	struct Proc : public DBAgent::TransactionProc {
 		DBTablesHost &dbHost;
@@ -1057,7 +1058,7 @@ void DBTablesHost::upsertHostgroupMembers(
 				dbHost.upsertHostgroupMember(*hgrpMemIt, false);
 		}
 	} proc(*this, hostgroupMembers);
-	getDBAgent().runTransaction(proc);
+	getDBAgent().runTransaction(proc, hooks);
 }
 
 HatoholError DBTablesHost::getHostgroupMembers(
@@ -1458,7 +1459,8 @@ HatoholError DBTablesHost::syncHostgroups(
 
 HatoholError DBTablesHost::syncHostgroupMembers(
   const HostgroupMemberVect &incomingHostgroupMembers,
-  const ServerIdType &serverId)
+  const ServerIdType &serverId,
+  DBAgent::TransactionHooks *hooks)
 {
 	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(serverId);
@@ -1496,7 +1498,7 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 	if (invalidHostgroupMemberIdList.size() > 0)
 		err = deleteHostgroupMemberList(invalidHostgroupMemberIdList);
 	if (serverHostgroupMembers.size() > 0)
-		upsertHostgroupMembers(serverHostgroupMembers);
+		upsertHostgroupMembers(serverHostgroupMembers, hooks);
 	return HTERR_OK;
 }
 
