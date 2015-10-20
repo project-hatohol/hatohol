@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -20,6 +20,7 @@
 #include <cppcutter.h>
 #include <string>
 #include <StringUtils.h>
+#include <gcutter.h>
 #include "DBAgent.h"
 #include "DBAgentTest.h"
 using namespace std;
@@ -385,6 +386,46 @@ private:
 
 const size_t TestDBAgent::m_numTestColumns;
 
+struct TransactionHookTestBase : DBAgent::TransactionHooks {
+	bool called;
+	bool return_value;
+
+	TransactionHookTestBase(void)
+	: called(false),
+	  return_value(true)
+	{
+	}
+
+	virtual bool preAction(DBAgent &dbAgent) override
+	{
+		called = true;
+		return return_value;
+	}
+};
+
+static void assertRunTransactionWithHooks(TransactionHookTestBase &hooks,
+                                          gconstpointer data)
+{
+	hooks.return_value = gcut_data_get_boolean(data, "hookReturn");
+
+	struct : DBAgent::TransactionProc {
+		bool called;
+		void operator ()(DBAgent &dbAgent) override
+		{
+			called = true;
+		}
+	} trx;
+	trx.called = false;
+
+	TestDBAgent dbAgent;
+	dbAgent.runTransaction(trx, &hooks);
+
+	cppcut_assert_equal(
+	  (bool)gcut_data_get_boolean(data, "expectHookCalled"), hooks.called);
+	cppcut_assert_equal(
+	  (bool)gcut_data_get_boolean(data, "expectTrxCalled"), trx.called);
+}
+
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
@@ -657,6 +698,54 @@ void test_runTransactionCatchException(void)
 		caughtException = true;
 	}
 	cppcut_assert_equal(true, caughtException);
+}
+
+static void data_runTransactionWithHooks(void)
+{
+	gcut_add_datum("Normal",
+	                "hookReturn", G_TYPE_BOOLEAN, true,
+	                "expectHookCalled", G_TYPE_BOOLEAN, true,
+	                "expectTrxCalled", G_TYPE_BOOLEAN, true,
+	                NULL);
+	gcut_add_datum("Aborted",
+	                "hookReturn", G_TYPE_BOOLEAN, false,
+	                "expectHookCalled", G_TYPE_BOOLEAN, true,
+	                "expectTrxCalled", G_TYPE_BOOLEAN, false,
+	                NULL);
+}
+
+void data_runTransactionWithPreHook(void)
+{
+	data_runTransactionWithHooks();
+}
+
+void test_runTransactionWithPreHook(gconstpointer data)
+{
+	struct : TransactionHookTestBase {
+		virtual bool preAction(DBAgent &dbAgent) override
+		{
+			called = true;
+			return return_value;
+		}
+	} hooks;
+	assertRunTransactionWithHooks(hooks, data);
+}
+
+void data_runTransactionWithPostHook(void)
+{
+	data_runTransactionWithHooks();
+}
+
+void test_runTransactionWithPostHook(gconstpointer data)
+{
+	struct : TransactionHookTestBase {
+		virtual bool postAction(DBAgent &dbAgent) override
+		{
+			called = true;
+			return return_value;
+		}
+	} hooks;
+	assertRunTransactionWithHooks(hooks, data);
 }
 
 namespace testTableProfile
