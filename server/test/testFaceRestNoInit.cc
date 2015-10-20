@@ -21,6 +21,7 @@
 #include <Reaper.h>
 #include "Helpers.h"
 #include "RestResourceHost.h"
+#include "RestResourceHostUtils.h"
 using namespace std;
 using namespace mlpl;
 
@@ -41,7 +42,7 @@ public:
 		GHashTable *query)
 	{
 		bool countOnly = false;
-		return parseEventParameter(option, query, countOnly);
+		return RestResourceHostUtils::parseEventParameter(option, query, countOnly);
 	}
 };
 
