@@ -109,7 +109,8 @@ public:
 	DBTablesLastInfo(DBAgent &dbAgent);
 	virtual ~DBTablesLastInfo();
 	LastInfoIdType upsertLastInfo(LastInfoDef &lastInfoDef,
-	                              const OperationPrivilege &privilege);
+	                              const OperationPrivilege &privilege,
+	                              const bool &useTransaction = true);
 	HatoholError getLastInfoList(LastInfoDefList &lastInfoDefList,
 	                             const LastInfoQueryOption &option);
 	HatoholError deleteLastInfoList(const LastInfoIdList &idList,

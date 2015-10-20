@@ -162,14 +162,16 @@ public:
 	virtual ~DBTablesMonitoring();
 
 	void addTriggerInfo(const TriggerInfo *triggerInfo);
-	void addTriggerInfoList(const TriggerInfoList &triggerInfoList);
+	void addTriggerInfoList(const TriggerInfoList &triggerInfoList,
+	                        DBAgent::TransactionHooks *hooks = NULL);
 
 	void updateTrigger(const TriggerInfoList &triggerInfoList,
 			   const ServerIdType &serverId);
 	HatoholError deleteTriggerInfo(const TriggerIdList &idList,
 	                               const ServerIdType &serverId);
 	HatoholError syncTriggers(const TriggerInfoList &triggerInfoList,
-	                          const ServerIdType &serverId);
+	                          const ServerIdType &serverId,
+	                          DBAgent::TransactionHooks *hooks = NULL);
 
 	/**
 	 * Get the trigger information with the specified server ID and
@@ -201,7 +203,8 @@ public:
 	int  getLastChangeTimeOfTrigger(const ServerIdType &serverId);
 
 	void addEventInfo(EventInfo *eventInfo);
-	void addEventInfoList(EventInfoList &eventInfoList);
+	void addEventInfoList(EventInfoList &eventInfoList,
+	                      DBAgent::TransactionHooks *hooks = NULL);
 	HatoholError getEventInfoList(EventInfoList &eventInfoList,
 	                              const EventsQueryOption &option,
 				      IncidentInfoVect *incidentInfoVect = NULL);

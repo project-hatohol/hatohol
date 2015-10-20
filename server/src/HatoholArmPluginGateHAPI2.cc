@@ -647,6 +647,45 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		return false;
 	}
+
+	void upsertLastInfo(const string &lastInfoValue,
+	                    const LastInfoType &type)
+	{
+		ThreadLocalDBCache cache;
+		DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
+		OperationPrivilege privilege(USER_ID_SYSTEM);
+		const MonitoringServerInfo &serverInfo = m_serverInfo;
+		LastInfoDef lastInfo;
+		lastInfo.id = AUTO_INCREMENT_VALUE;
+		lastInfo.dataType = type;
+		lastInfo.value = lastInfoValue;
+		lastInfo.serverId = serverInfo.id;
+		const bool useTransaction = false;
+		dbLastInfo.upsertLastInfo(lastInfo, privilege, useTransaction);
+	}
+
+	struct UpsertLastInfoHook : public DBAgent::TransactionHooks {
+		Impl &impl;
+		const LastInfoType &type;
+		string lastInfo;
+
+		UpsertLastInfoHook(Impl &_impl, const LastInfoType &_type)
+		: impl(_impl),
+		  type(_type)
+		{
+		}
+
+		virtual bool postAction(DBAgent &dbAgent) override
+		{
+			impl.upsertLastInfo(lastInfo, type);
+			return true;
+		}
+
+		operator DBAgent::TransactionHooks *()
+		{
+			return lastInfo.empty() ? NULL : this;
+		}
+	};
 };
 
 // ---------------------------------------------------------------------------
@@ -1293,7 +1332,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerHostDefVect hostInfoVect;
 	JSONRPCError errObj;
-	string lastInfo;
+	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_HOST);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1303,7 +1342,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	string updateType;
 	bool checkInvalidHosts = parseUpdateType(parser, updateType, errObj);
 	if (parser.isMember("lastInfo")) {
-		parser.read("lastInfo", lastInfo);
+		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
 	parser.endObject(); // params
 
@@ -1318,17 +1357,14 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 		  &errObj.getErrors(), &parser);
 	}
 
-	if (!lastInfo.empty()) {
-		upsertLastInfo(lastInfo, LAST_INFO_HOST);
-	}
-
 	// TODO: reflect error in response
 	if (checkInvalidHosts) {
 		dataStore->syncHosts(hostInfoVect, serverInfo.id,
-				     m_impl->hostInfoCache);
+	                             m_impl->hostInfoCache, lastInfoUpserter);
 	} else {
 		HostHostIdMap hostsMap;
-		dataStore->upsertHosts(hostInfoVect, &hostsMap);
+		dataStore->upsertHosts(hostInfoVect, &hostsMap,
+		                       lastInfoUpserter);
 		m_impl->hostInfoCache.update(hostInfoVect, &hostsMap);
 	}
 
@@ -1378,7 +1414,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostgroupVect hostgroupVect;
 	JSONRPCError errObj;
-	string lastInfo;
+	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_HOST_GROUP);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1387,7 +1423,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	string updateType;
 	bool checkInvalidHostGroups = parseUpdateType(parser, updateType, errObj);
 	if (parser.isMember("lastInfo")) {
-		parser.read("lastInfo", lastInfo);
+		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
 	parser.endObject(); // params
 
@@ -1402,15 +1438,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 		  &errObj.getErrors(), &parser);
 	}
 
-	if (!lastInfo.empty()) {
-		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP);
-	}
-
 	// TODO: reflect error in response
 	if (checkInvalidHostGroups) {
-		dataStore->syncHostgroups(hostgroupVect, serverInfo.id);
+		dataStore->syncHostgroups(hostgroupVect, serverInfo.id,
+		                          lastInfoUpserter);
 	} else {
-		dataStore->upsertHostgroups(hostgroupVect);
+		dataStore->upsertHostgroups(hostgroupVect, lastInfoUpserter);
 	}
 
 	// TODO: Add failure clause
@@ -1481,7 +1514,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostgroupMemberVect hostgroupMembershipVect;
 	JSONRPCError errObj;
-	string lastInfo;
+	Impl::UpsertLastInfoHook
+	 lastInfoUpserter(*m_impl, LAST_INFO_HOST_GROUP_MEMBERSHIP);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1495,7 +1529,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	bool checkInvalidHostGroupMembership =
 		parseUpdateType(parser, updateType, errObj);
 	if (parser.isMember("lastInfo")) {
-		parser.read("lastInfo", lastInfo);
+		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
 	parser.endObject(); // params
 
@@ -1512,13 +1546,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 
 	// TODO: reflect error in response
 	if (checkInvalidHostGroupMembership) {
-		dataStore->syncHostgroupMembers(hostgroupMembershipVect, serverInfo.id);
+		dataStore->syncHostgroupMembers(hostgroupMembershipVect,
+		                                serverInfo.id,
+		                                lastInfoUpserter);
 	} else {
-		dataStore->upsertHostgroupMembers(hostgroupMembershipVect);
-	}
-
-	if (!lastInfo.empty()) {
-		upsertLastInfo(lastInfo, LAST_INFO_HOST_GROUP_MEMBERSHIP);
+		dataStore->upsertHostgroupMembers(hostgroupMembershipVect,
+		                                  lastInfoUpserter);
 	}
 
 	// add error clause
@@ -1649,10 +1682,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
   JSONParser &parser)
 {
 	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList triggerInfoList;
 	JSONRPCError errObj;
-	string lastInfo;
+	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_TRIGGER);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1667,7 +1700,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		parser.read("fetchId", fetchId);
 	}
 	if (parser.isMember("lastInfo")) {
-		parser.read("lastInfo", lastInfo);
+		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
 	parser.endObject(); // params
 
@@ -1682,15 +1715,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		  &errObj.getErrors(), &parser);
 	}
 
-	if (!lastInfo.empty()) {
-		upsertLastInfo(lastInfo, LAST_INFO_TRIGGER);
-	}
-
 	// TODO: reflect error in response
 	if (checkInvalidTriggers) {
-		dbMonitoring.syncTriggers(triggerInfoList, serverInfo.id);
+		dataStore->syncTriggers(triggerInfoList, serverInfo.id,
+		                        lastInfoUpserter);
 	} else {
-		dbMonitoring.addTriggerInfoList(triggerInfoList);
+		dataStore->addTriggers(triggerInfoList, lastInfoUpserter);
 	}
 
 	if (!fetchId.empty()) {
@@ -1795,7 +1825,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList eventInfoList;
 	JSONRPCError errObj;
-	string fetchId, lastInfo;
+	string fetchId;
+	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_EVENT);
 	bool mayMoreFlag = false;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
@@ -1813,7 +1844,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		}
 	}
 	if (parser.isMember("lastInfo")) {
-		parser.read("lastInfo", lastInfo);
+		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
 	parser.endObject(); // params
 
@@ -1828,11 +1859,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		  &errObj.getErrors(), &parser);
 	}
 
-	if (!lastInfo.empty()) {
-		upsertLastInfo(lastInfo, LAST_INFO_EVENT);
-	}
-
-	dataStore->addEventList(eventInfoList);
+	dataStore->addEventList(eventInfoList, lastInfoUpserter);
 
 	if (!mayMoreFlag)
 		m_impl->runFetchCallback(fetchId);
@@ -1888,7 +1915,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	DBTablesHost &dbHost = cache.getHost();
 	VMInfoVect vmInfoVect;
 	JSONRPCError errObj;
-	string lastInfo;
+	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl,
+	                                          LAST_INFO_HOST_PARENT);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1897,7 +1925,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	string updateType;
 	bool checkInvalidHostParents = parseUpdateType(parser, updateType, errObj);
 	if (parser.isMember("lastInfo")) {
-		parser.read("lastInfo", lastInfo);
+		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
 	parser.endObject(); // params
 
@@ -1912,12 +1940,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 		  &errObj.getErrors(), &parser);
 	}
 
-	// TODO: implement validation for hostParents
-	for (auto vmInfo : vmInfoVect)
-		dbHost.upsertVMInfo(vmInfo);
-	if (!lastInfo.empty()) {
-		upsertLastInfo(lastInfo, LAST_INFO_HOST_PARENT);
-	}
+	dbHost.upsertVMInfoVect(vmInfoVect, lastInfoUpserter);
 
 	// TODO: make failure clause
 	string result = "SUCCESS";
@@ -2006,21 +2029,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-
-void HatoholArmPluginGateHAPI2::upsertLastInfo(string lastInfoValue, LastInfoType type)
-{
-	ThreadLocalDBCache cache;
-	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
-	OperationPrivilege privilege(USER_ID_SYSTEM);
-	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	LastInfoDef lastInfo;
-	lastInfo.id = AUTO_INCREMENT_VALUE;
-	lastInfo.dataType = type;
-	lastInfo.value = lastInfoValue;
-	lastInfo.serverId = serverInfo.id;
-	dbLastInfo.upsertLastInfo(lastInfo, privilege);
-}
-
 void HatoholArmPluginGateHAPI2::updateSelfMonitoringTrigger(
   bool hasError,
   const HAPI2PluginCollectType &type,

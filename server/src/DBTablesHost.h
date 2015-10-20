@@ -228,9 +228,11 @@ public:
 	 * @param hostHostIdMapPtr
 	 * If this parameter is not NULL, the address of the ServerHostDef
 	 * and the corresponding host IDs are stored in it.
+	 * @param hook Transaction hook functions.
 	 */
 	void upsertHosts(const ServerHostDefVect &serverHostDefs,
-	                 HostHostIdMap *hostHostIdMapPtr = NULL);
+	                 HostHostIdMap *hostHostIdMapPtr = NULL,
+	                 DBAgent::TransactionHooks *hooks = NULL);
 
 	/**
 	 * Insert or update a record to/in the server-host-definition table
@@ -266,10 +268,15 @@ public:
 	 * the record is updated.
 	 *
 	 * @param vmInfo A data to be inserted/updated.
+	 * @param useTransaction A flag to use a transaction.
 	 * @return
 	 * The ID of inserted/updated record.
 	 */
-	GenericIdType upsertVMInfo(const VMInfo &vmInfo);
+	GenericIdType upsertVMInfo(const VMInfo &vmInfo,
+	                           const bool &useTransaction = true);
+
+	void upsertVMInfoVect(const VMInfoVect &vmInfoVect,
+	                      DBAgent::TransactionHooks *hooks);
 
 	/**
 	 * Insert or update a record to/in the hostgroup_list table
@@ -285,7 +292,8 @@ public:
 	GenericIdType upsertHostgroup(const Hostgroup &hostgroup,
 	                              const bool &useTransaction = true);
 
-	void upsertHostgroups(const HostgroupVect &hostgroups);
+	void upsertHostgroups(const HostgroupVect &hostgroups,
+	                      DBAgent::TransactionHooks *hooks = NULL);
 
 	/**
 	 * Get hostgroups.
@@ -315,7 +323,8 @@ public:
 	  const bool &useTransaction = true);
 
 	void upsertHostgroupMembers(
-	  const HostgroupMemberVect &hostgroupMembers);
+	  const HostgroupMemberVect &hostgroupMembers,
+	  DBAgent::TransactionHooks *hooks = NULL);
 
 	HatoholError getHostgroupMembers(
 	  HostgroupMemberVect &hostgrpMembers,
@@ -387,11 +396,15 @@ public:
 	 */
 	HatoholError syncHosts(
 	  const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
-	  HostHostIdMap *hostHostIdMapPtr = NULL);
+	  HostHostIdMap *hostHostIdMapPtr = NULL,
+	  DBAgent::TransactionHooks *hooks = NULL);
 	HatoholError syncHostgroups(const HostgroupVect &hostgroups,
-	                            const ServerIdType &serverId);
-	HatoholError syncHostgroupMembers(const HostgroupMemberVect &hostgroupMembers,
-	                                  const ServerIdType &serverId);
+	                            const ServerIdType &serverId,
+	                            DBAgent::TransactionHooks *hooks = NULL);
+	HatoholError syncHostgroupMembers(
+	  const HostgroupMemberVect &hostgroupMembers,
+	  const ServerIdType &serverId,
+	  DBAgent::TransactionHooks *hooks = NULL);
 
 protected:
 	static SetupInfo &getSetupInfo(void);

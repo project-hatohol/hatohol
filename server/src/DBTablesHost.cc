@@ -385,6 +385,36 @@ static bool updateDB(
 	return true;
 }
 
+template <typename T, typename SEQ_TYPE>
+struct SeqTransactionProc : public DBAgent::TransactionProc {
+	DBTablesHost *dbHost;
+	const SEQ_TYPE *seq;
+
+	SeqTransactionProc(void)
+	: dbHost(NULL),
+	  seq(NULL)
+	{
+	}
+
+	void init(DBTablesHost *_dbHost, const SEQ_TYPE *_seq)
+	{
+		dbHost = _dbHost;
+		seq = _seq;
+	}
+
+	virtual void operator ()(DBAgent &dbAgent) override
+	{
+		HATOHOL_ASSERT(seq, "Sequence is NULL");
+		typename SEQ_TYPE::const_iterator itr = seq->begin();
+		for (; itr != seq->end(); ++itr)
+			foreach(dbAgent, *itr);
+	}
+
+	virtual void foreach(DBAgent &dbAgent, const T &elem)
+	{
+	}
+};
+
 // ---------------------------------------------------------------------------
 // HostsQueryOption
 // ---------------------------------------------------------------------------
@@ -750,7 +780,7 @@ HostIdType DBTablesHost::upsertHost(
 
 void DBTablesHost::upsertHosts(
   const ServerHostDefVect &serverHostDefs,
-  HostHostIdMap *hostHostIdMapPtr)
+  HostHostIdMap *hostHostIdMapPtr, DBAgent::TransactionHooks *hooks)
 {
 	struct Proc : public DBAgent::TransactionProc {
 		DBTablesHost &dbHost;
@@ -785,7 +815,7 @@ void DBTablesHost::upsertHosts(
 			(*hostHostIdMapPtr)[svHostDef.hostIdInServer] = hostId;
 		}
 	} proc(*this, serverHostDefs, hostHostIdMapPtr);
-	getDBAgent().runTransaction(proc);
+	getDBAgent().runTransaction(proc, hooks);
 }
 
 GenericIdType DBTablesHost::upsertServerHostDef(
@@ -817,7 +847,8 @@ GenericIdType DBTablesHost::upsertHostAccess(const HostAccess &hostAccess)
 	return id;
 }
 
-GenericIdType DBTablesHost::upsertVMInfo(const VMInfo &vmInfo)
+GenericIdType DBTablesHost::upsertVMInfo(const VMInfo &vmInfo,
+                                         const bool &useTransaction)
 {
 	GenericIdType id;
 	DBAgent::InsertArg arg(tableProfileVMList);
@@ -825,8 +856,28 @@ GenericIdType DBTablesHost::upsertVMInfo(const VMInfo &vmInfo)
 	arg.add(vmInfo.hostId);
 	arg.add(vmInfo.hypervisorHostId);
 	arg.upsertOnDuplicate = true;
-	getDBAgent().runTransaction(arg, &id);
+
+	DBAgent &dbAgent = getDBAgent();
+	if (useTransaction) {
+		dbAgent.runTransaction(arg, &id);
+	} else {
+		dbAgent.insert(arg);
+		id = dbAgent.getLastInsertId();
+	}
 	return id;
+}
+
+void DBTablesHost::upsertVMInfoVect(const VMInfoVect &vmInfoVect,
+                                    DBAgent::TransactionHooks *hooks)
+{
+	struct : public SeqTransactionProc<VMInfo, VMInfoVect> {
+		void foreach(DBAgent &dbAgent, const VMInfo &vminfo) override
+		{
+			dbHost->upsertVMInfo(vminfo, false);
+		}
+	} proc;
+	proc.init(this, &vmInfoVect);
+	getDBAgent().runTransaction(proc, hooks);
 }
 
 GenericIdType DBTablesHost::upsertHostgroup(const Hostgroup &hostgroup,
@@ -851,7 +902,8 @@ GenericIdType DBTablesHost::upsertHostgroup(const Hostgroup &hostgroup,
 	return id;
 }
 
-void DBTablesHost::upsertHostgroups(const HostgroupVect &hostgroups)
+void DBTablesHost::upsertHostgroups(const HostgroupVect &hostgroups,
+                                    DBAgent::TransactionHooks *hooks)
 {
 	struct Proc : public DBAgent::TransactionProc {
 		DBTablesHost &dbHost;
@@ -871,7 +923,7 @@ void DBTablesHost::upsertHostgroups(const HostgroupVect &hostgroups)
 				dbHost.upsertHostgroup(*hostgrpItr, false);
 		}
 	} proc(*this, hostgroups);
-	getDBAgent().runTransaction(proc);
+	getDBAgent().runTransaction(proc, hooks);
 }
 
 HatoholError DBTablesHost::getHostgroups(HostgroupVect &hostgroups,
@@ -984,7 +1036,8 @@ GenericIdType DBTablesHost::upsertHostgroupMember(
 }
 
 void DBTablesHost::upsertHostgroupMembers(
-  const HostgroupMemberVect &hostgroupMembers)
+  const HostgroupMemberVect &hostgroupMembers,
+  DBAgent::TransactionHooks *hooks)
 {
 	struct Proc : public DBAgent::TransactionProc {
 		DBTablesHost &dbHost;
@@ -1005,7 +1058,7 @@ void DBTablesHost::upsertHostgroupMembers(
 				dbHost.upsertHostgroupMember(*hgrpMemIt, false);
 		}
 	} proc(*this, hostgroupMembers);
-	getDBAgent().runTransaction(proc);
+	getDBAgent().runTransaction(proc, hooks);
 }
 
 HatoholError DBTablesHost::getHostgroupMembers(
@@ -1303,7 +1356,7 @@ static bool isHostNameChanged(
 
 HatoholError DBTablesHost::syncHosts(
   const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
-  HostHostIdMap *hostHostIdMapPtr)
+  HostHostIdMap *hostHostIdMapPtr, DBAgent::TransactionHooks *hooks)
 {
 	// Make a set that contains current hosts records
 	HostsQueryOption option(USER_ID_SYSTEM);
@@ -1344,7 +1397,7 @@ HatoholError DBTablesHost::syncHosts(
 		m_impl->storedHostsChanged = true;
 		return HTERR_OK;
 	}
-	upsertHosts(serverHostDefs, hostHostIdMapPtr);
+	upsertHosts(serverHostDefs, hostHostIdMapPtr, hooks);
 	m_impl->storedHostsChanged = false;
 	return HTERR_OK;
 }
@@ -1363,7 +1416,7 @@ static bool isHostgroupNameChanged(
 
 HatoholError DBTablesHost::syncHostgroups(
   const HostgroupVect &incomingHostgroups,
-  const ServerIdType &serverId)
+  const ServerIdType &serverId, DBAgent::TransactionHooks *hooks)
 {
 	HostgroupsQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(serverId);
@@ -1400,13 +1453,14 @@ HatoholError DBTablesHost::syncHostgroups(
 	if (invalidHostgroupIdList.size() > 0)
 		err = deleteHostgroupList(invalidHostgroupIdList);
 	if (serverHostgroups.size() > 0)
-		upsertHostgroups(serverHostgroups);
+		upsertHostgroups(serverHostgroups, hooks);
 	return err;
 }
 
 HatoholError DBTablesHost::syncHostgroupMembers(
   const HostgroupMemberVect &incomingHostgroupMembers,
-  const ServerIdType &serverId)
+  const ServerIdType &serverId,
+  DBAgent::TransactionHooks *hooks)
 {
 	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(serverId);
@@ -1444,7 +1498,7 @@ HatoholError DBTablesHost::syncHostgroupMembers(
 	if (invalidHostgroupMemberIdList.size() > 0)
 		err = deleteHostgroupMemberList(invalidHostgroupMemberIdList);
 	if (serverHostgroupMembers.size() > 0)
-		upsertHostgroupMembers(serverHostgroupMembers);
+		upsertHostgroupMembers(serverHostgroupMembers, hooks);
 	return HTERR_OK;
 }
 

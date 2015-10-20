@@ -63,8 +63,10 @@ public:
 	 * Add events in the Hatohol DB and executes action if needed.
 	 *
 	 * @param eventList A list of EventInfo.
+	 * @param hooks     Transaction hook functions.
 	 */
-	void addEventList(EventInfoList &eventList);
+	void addEventList(EventInfoList &eventList,
+	                  DBAgent::TransactionHooks *hooks = NULL);
 
 	void addItemList(const ItemInfoList &itemList);
 
@@ -138,7 +140,7 @@ public:
 	                        HostIdType *hostId = NULL);
 
 	/**
-	 * Add hosts. If there's hosts already exist, they will be updated.
+	 * Add hosts. Already exisiting hosts are updated.
 	 *
 	 * See also DBTablesHost::upsert().
 	 *
@@ -146,29 +148,37 @@ public:
 	 * @param hostHostIdMapPtr
 	 * If this parameter is not NULL, the address of the ServerHostDef
 	 * and the corresponding host IDs are stored in it.
+	 * @param hook Transaction hook functions.
 	 *
 	 * @return The result of the call.
 	 */
 	HatoholError
 	  upsertHosts(const ServerHostDefVect &serverHostDefs,
-	              HostHostIdMap *hostHostIdMapPtr = NULL);
+	              HostHostIdMap *hostHostIdMapPtr = NULL,
+	              DBAgent::TransactionHooks *hooks = NULL);
 
 	/**
 	 * call upsertHosts for given hosts and update HostInfoCache.
 	 */
 	HatoholError syncHosts(
 	  const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
-	  HostInfoCache &hostInfoCache);
+	  HostInfoCache &hostInfoCache,
+	  DBAgent::TransactionHooks *hooks = NULL);
 	bool wasStoredHostsChanged(void);
 
-	HatoholError upsertHostgroups(const HostgroupVect &hostgroups);
+	HatoholError upsertHostgroups(const HostgroupVect &hostgroups,
+	                              DBAgent::TransactionHooks *hooks = NULL);
 	HatoholError syncHostgroups(const HostgroupVect &hostgroups,
-	                            const ServerIdType &serverId);
+	                            const ServerIdType &serverId,
+	                            DBAgent::TransactionHooks *hooks = NULL);
 
 	HatoholError upsertHostgroupMembers(
-	  const HostgroupMemberVect &hostgroupMembers);
-	HatoholError syncHostgroupMembers(const HostgroupMemberVect &hostgroups,
-	                                  const ServerIdType &serverId);
+	  const HostgroupMemberVect &hostgroupMembers,
+	  DBAgent::TransactionHooks *hooks = NULL);
+	HatoholError syncHostgroupMembers(
+	  const HostgroupMemberVect &hostgroups,
+	  const ServerIdType &serverId,
+	  DBAgent::TransactionHooks *hooks = NULL);
 
 	HatoholError getHostgroupMembers(
 	  HostgroupMemberVect &hostgroupMembers,
@@ -189,8 +199,11 @@ public:
 	size_t getNumberOfBadTriggers(const TriggersQueryOption &option,
 				      TriggerSeverityType severity);
 	size_t getNumberOfTriggers(const TriggersQueryOption &option);
+	void addTriggers(const TriggerInfoList &triggerInfoList,
+	                 DBAgent::TransactionHooks *hooks = NULL);
 	HatoholError syncTriggers(const TriggerInfoList &triggerInfoList,
-	                          const ServerIdType &serverId);
+	                          const ServerIdType &serverId,
+	                          DBAgent::TransactionHooks *hooks = NULL);
 	size_t getNumberOfGoodHosts(const TriggersQueryOption &option);
 	size_t getNumberOfBadHosts(const TriggersQueryOption &option);
 	size_t getNumberOfItems(const ItemsQueryOption &option,
