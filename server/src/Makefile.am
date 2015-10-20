@@ -70,6 +70,7 @@ libhatohol_la_SOURCES = \
 	RestResourceServer.cc RestResourceServer.h \
 	RestResourceSystem.cc RestResourceSystem.h \
 	RestResourceSeverityRank.cc RestResourceSeverityRank.h \
+	RestResourceSummary.cc RestResourceSummary.h \
 	RestResourceUser.cc RestResourceUser.h \
 	SessionManager.cc SessionManager.h \
 	SQLProcessorTypes.h \
