@@ -2590,6 +2590,27 @@ size_t DBTablesMonitoring::getNumberOfEvents(const EventsQueryOption &option)
 	return itemGroupStream.read<int>();
 }
 
+size_t DBTablesMonitoring::getNumberOfHostsWithSpecifiedEvents(
+  const EventsQueryOption &option)
+{
+	DBClientJoinBuilder builder(tableProfileEvents, &option);
+	builder.addTable(
+	  tableProfileIncidents, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileEvents, IDX_EVENTS_UNIFIED_ID, IDX_INCIDENTS_UNIFIED_EVENT_ID);
+	string stmt =
+	  StringUtils::sprintf("count(distinct %s)",
+	    option.getColumnName(IDX_EVENTS_GLOBAL_HOST_ID).c_str());
+	DBAgent::SelectExArg &arg = builder.build();
+	arg.add(stmt, SQL_COLUMN_TYPE_INT);
+
+	getDBAgent().runTransaction(arg);
+
+	// get the result
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
+}
+
 void DBTablesMonitoring::addIncidentInfo(IncidentInfo *incidentInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
