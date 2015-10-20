@@ -385,6 +385,36 @@ static bool updateDB(
 	return true;
 }
 
+template <typename T, typename SEQ_TYPE>
+struct SeqTransactionProc : public DBAgent::TransactionProc {
+	DBTablesHost *dbHost;
+	const SEQ_TYPE *seq;
+
+	SeqTransactionProc(void)
+	: dbHost(NULL),
+	  seq(NULL)
+	{
+	}
+
+	void init(DBTablesHost *_dbHost, const SEQ_TYPE *_seq)
+	{
+		dbHost = _dbHost;
+		seq = _seq;
+	}
+
+	virtual void operator ()(DBAgent &dbAgent) override
+	{
+		HATOHOL_ASSERT(seq, "Sequence is NULL");
+		typename SEQ_TYPE::const_iterator itr = seq->begin();
+		for (; itr != seq->end(); ++itr)
+			foreach(dbAgent, *itr);
+	}
+
+	virtual void foreach(DBAgent &dbAgent, const T &elem)
+	{
+	}
+};
+
 // ---------------------------------------------------------------------------
 // HostsQueryOption
 // ---------------------------------------------------------------------------
@@ -817,7 +847,8 @@ GenericIdType DBTablesHost::upsertHostAccess(const HostAccess &hostAccess)
 	return id;
 }
 
-GenericIdType DBTablesHost::upsertVMInfo(const VMInfo &vmInfo)
+GenericIdType DBTablesHost::upsertVMInfo(const VMInfo &vmInfo,
+                                         const bool &useTransaction)
 {
 	GenericIdType id;
 	DBAgent::InsertArg arg(tableProfileVMList);
@@ -825,8 +856,28 @@ GenericIdType DBTablesHost::upsertVMInfo(const VMInfo &vmInfo)
 	arg.add(vmInfo.hostId);
 	arg.add(vmInfo.hypervisorHostId);
 	arg.upsertOnDuplicate = true;
-	getDBAgent().runTransaction(arg, &id);
+
+	DBAgent &dbAgent = getDBAgent();
+	if (useTransaction) {
+		dbAgent.runTransaction(arg, &id);
+	} else {
+		dbAgent.insert(arg);
+		id = dbAgent.getLastInsertId();
+	}
 	return id;
+}
+
+void DBTablesHost::upsertVMInfoVect(const VMInfoVect &vmInfoVect,
+                                    DBAgent::TransactionHooks *hooks)
+{
+	struct : public SeqTransactionProc<VMInfo, VMInfoVect> {
+		void foreach(DBAgent &dbAgent, const VMInfo &vminfo) override
+		{
+			dbHost->upsertVMInfo(vminfo, false);
+		}
+	} proc;
+	proc.init(this, &vmInfoVect);
+	getDBAgent().runTransaction(proc, hooks);
 }
 
 GenericIdType DBTablesHost::upsertHostgroup(const Hostgroup &hostgroup,
