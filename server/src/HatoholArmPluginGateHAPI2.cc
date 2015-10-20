@@ -2032,22 +2032,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-
-// TODO: Remove all the upsertLastaInfo() are replaced ones in Impl.
-void HatoholArmPluginGateHAPI2::upsertLastInfo(string lastInfoValue, LastInfoType type)
-{
-	ThreadLocalDBCache cache;
-	DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
-	OperationPrivilege privilege(USER_ID_SYSTEM);
-	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
-	LastInfoDef lastInfo;
-	lastInfo.id = AUTO_INCREMENT_VALUE;
-	lastInfo.dataType = type;
-	lastInfo.value = lastInfoValue;
-	lastInfo.serverId = serverInfo.id;
-	dbLastInfo.upsertLastInfo(lastInfo, privilege);
-}
-
 void HatoholArmPluginGateHAPI2::updateSelfMonitoringTrigger(
   bool hasError,
   const HAPI2PluginCollectType &type,
