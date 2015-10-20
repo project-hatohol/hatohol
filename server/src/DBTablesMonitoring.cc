@@ -2573,6 +2573,9 @@ HatoholError DBTablesMonitoring::getNumberOfMonitoredItemsPerSecond
 size_t DBTablesMonitoring::getNumberOfEvents(const EventsQueryOption &option)
 {
 	DBClientJoinBuilder builder(tableProfileEvents, &option);
+	builder.addTable(
+	  tableProfileIncidents, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileEvents, IDX_EVENTS_UNIFIED_ID, IDX_INCIDENTS_UNIFIED_EVENT_ID);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
 	    option.getColumnName(IDX_EVENTS_UNIFIED_ID).c_str());
