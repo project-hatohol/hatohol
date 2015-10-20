@@ -1332,7 +1332,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerHostDefVect hostInfoVect;
 	JSONRPCError errObj;
-	string lastInfo;
+	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_HOST);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1342,7 +1342,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	string updateType;
 	bool checkInvalidHosts = parseUpdateType(parser, updateType, errObj);
 	if (parser.isMember("lastInfo")) {
-		parser.read("lastInfo", lastInfo);
+		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
 	parser.endObject(); // params
 
@@ -1357,17 +1357,14 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 		  &errObj.getErrors(), &parser);
 	}
 
-	if (!lastInfo.empty()) {
-		upsertLastInfo(lastInfo, LAST_INFO_HOST);
-	}
-
 	// TODO: reflect error in response
 	if (checkInvalidHosts) {
 		dataStore->syncHosts(hostInfoVect, serverInfo.id,
-				     m_impl->hostInfoCache);
+	                             m_impl->hostInfoCache, lastInfoUpserter);
 	} else {
 		HostHostIdMap hostsMap;
-		dataStore->upsertHosts(hostInfoVect, &hostsMap);
+		dataStore->upsertHosts(hostInfoVect, &hostsMap,
+	                               lastInfoUpserter);
 		m_impl->hostInfoCache.update(hostInfoVect, &hostsMap);
 	}
 

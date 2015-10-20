@@ -228,9 +228,11 @@ public:
 	 * @param hostHostIdMapPtr
 	 * If this parameter is not NULL, the address of the ServerHostDef
 	 * and the corresponding host IDs are stored in it.
+	 * @param hook Transaction hook functions.
 	 */
 	void upsertHosts(const ServerHostDefVect &serverHostDefs,
-	                 HostHostIdMap *hostHostIdMapPtr = NULL);
+	                 HostHostIdMap *hostHostIdMapPtr = NULL,
+	                 DBAgent::TransactionHooks *hooks = NULL);
 
 	/**
 	 * Insert or update a record to/in the server-host-definition table
@@ -387,7 +389,8 @@ public:
 	 */
 	HatoholError syncHosts(
 	  const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
-	  HostHostIdMap *hostHostIdMapPtr = NULL);
+	  HostHostIdMap *hostHostIdMapPtr = NULL,
+	  DBAgent::TransactionHooks *hooks = NULL);
 	HatoholError syncHostgroups(const HostgroupVect &hostgroups,
 	                            const ServerIdType &serverId);
 	HatoholError syncHostgroupMembers(const HostgroupMemberVect &hostgroupMembers,
