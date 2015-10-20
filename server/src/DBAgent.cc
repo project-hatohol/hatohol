@@ -436,7 +436,7 @@ void DBAgent::runTransaction(TransactionProc &proc)
 	begin();
 	try {
 		proc(*this);
-	} catch(...) {
+	} catch (...) {
 		rollback();
 		throw;
 	};
