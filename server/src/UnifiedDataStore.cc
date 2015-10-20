@@ -541,19 +541,22 @@ HatoholError UnifiedDataStore::syncHostgroups(
 }
 
 HatoholError UnifiedDataStore::upsertHostgroupMembers(
-  const HostgroupMemberVect &hostgroupMembers)
+  const HostgroupMemberVect &hostgroupMembers,
+  DBAgent::TransactionHooks *hooks)
 {
 	ThreadLocalDBCache cache;
-	cache.getHost().upsertHostgroupMembers(hostgroupMembers);
+	cache.getHost().upsertHostgroupMembers(hostgroupMembers, hooks);
 	return HTERR_OK;
 }
 
 HatoholError UnifiedDataStore::syncHostgroupMembers(
   const HostgroupMemberVect &hostgroupMembers,
-  const ServerIdType &serverId)
+  const ServerIdType &serverId,
+  DBAgent::TransactionHooks *hooks)
 {
 	ThreadLocalDBCache cache;
-	return cache.getHost().syncHostgroupMembers(hostgroupMembers, serverId);
+	return cache.getHost().syncHostgroupMembers(hostgroupMembers, serverId,
+	                                            hooks);
 }
 
 HatoholError UnifiedDataStore::getHostgroupMembers(
