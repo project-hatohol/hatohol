@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -320,6 +320,19 @@ DBAgent::AddColumnsArg::AddColumnsArg(const TableProfile &profile)
 }
 
 // ---------------------------------------------------------------------------
+// TransactionHooks
+// ---------------------------------------------------------------------------
+bool DBAgent::TransactionHooks::preAction(DBAgent &dbAgent)
+{
+	return true;
+}
+
+bool DBAgent::TransactionHooks::postAction(DBAgent &dbAgent)
+{
+	return true;
+}
+
+// ---------------------------------------------------------------------------
 // TransactionProc
 // ---------------------------------------------------------------------------
 bool DBAgent::TransactionProc::preproc(DBAgent &dbAgent)
@@ -429,13 +442,28 @@ void DBAgent::fixupIndexes(const TableProfile &tableProfile)
 	}
 }
 
-void DBAgent::runTransaction(TransactionProc &proc)
+void DBAgent::runTransaction(TransactionProc &proc, TransactionHooks *hooks)
 {
+	auto preAction = [&] {
+		if (hooks && !hooks->preAction(*this))
+			throw TransactionAbort();
+	};
+
+	auto postAction = [&] {
+		if (hooks && !hooks->postAction(*this))
+			throw TransactionAbort();
+	};
+
 	if (!proc.preproc(*this))
 		return;
 	begin();
 	try {
+		preAction();
 		proc(*this);
+		postAction();
+	} catch (const TransactionAbort &e) {
+		rollback();
+		return;
 	} catch (...) {
 		rollback();
 		throw;
