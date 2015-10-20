@@ -63,8 +63,10 @@ public:
 	 * Add events in the Hatohol DB and executes action if needed.
 	 *
 	 * @param eventList A list of EventInfo.
+	 * @param hooks     Transaction hook functions.
 	 */
-	void addEventList(EventInfoList &eventList);
+	void addEventList(EventInfoList &eventList,
+	                  DBAgent::TransactionHooks *hooks = NULL);
 
 	void addItemList(const ItemInfoList &itemList);
 

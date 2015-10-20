@@ -647,6 +647,45 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		return false;
 	}
+
+	void upsertLastInfo(const string &lastInfoValue,
+	                    const LastInfoType &type)
+	{
+		ThreadLocalDBCache cache;
+		DBTablesLastInfo &dbLastInfo = cache.getLastInfo();
+		OperationPrivilege privilege(USER_ID_SYSTEM);
+		const MonitoringServerInfo &serverInfo = m_serverInfo;
+		LastInfoDef lastInfo;
+		lastInfo.id = AUTO_INCREMENT_VALUE;
+		lastInfo.dataType = type;
+		lastInfo.value = lastInfoValue;
+		lastInfo.serverId = serverInfo.id;
+		const bool useTransaction = false;
+		dbLastInfo.upsertLastInfo(lastInfo, privilege, useTransaction);
+	}
+
+	struct UpsertLastInfoHook : public DBAgent::TransactionHooks {
+		Impl &impl;
+		const LastInfoType &type;
+		string lastInfo;
+
+		UpsertLastInfoHook(Impl &_impl, const LastInfoType &_type)
+		: impl(_impl),
+		  type(_type)
+		{
+		}
+
+		virtual bool postAction(DBAgent &dbAgent) override
+		{
+			impl.upsertLastInfo(lastInfo, type);
+			return true;
+		}
+
+		operator DBAgent::TransactionHooks *()
+		{
+			return lastInfo.empty() ? NULL : this;
+		}
+	};
 };
 
 // ---------------------------------------------------------------------------
@@ -1834,12 +1873,6 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	if (!lastInfo.empty()) {
 		upsertLastInfo(lastInfo, LAST_INFO_EVENT);
 	}
-
-	struct : DBAgent::TransactionHooks {
-		virtual bool postAction(DBAgent &dbAgent) override
-		{
-		}
-	} _hooks;
 
 	dataStore->addEventList(eventInfoList);
 

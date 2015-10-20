@@ -201,7 +201,8 @@ public:
 	int  getLastChangeTimeOfTrigger(const ServerIdType &serverId);
 
 	void addEventInfo(EventInfo *eventInfo);
-	void addEventInfoList(EventInfoList &eventInfoList);
+	void addEventInfoList(EventInfoList &eventInfoList,
+	                      DBAgent::TransactionHooks *hooks = NULL);
 	HatoholError getEventInfoList(EventInfoList &eventInfoList,
 	                              const EventsQueryOption &option,
 				      IncidentInfoVect *incidentInfoVect = NULL);
