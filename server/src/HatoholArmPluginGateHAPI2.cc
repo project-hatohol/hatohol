@@ -1837,7 +1837,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList eventInfoList;
 	JSONRPCError errObj;
-	string fetchId, lastInfo;
+	string fetchId;
+	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_EVENT);
 	bool mayMoreFlag = false;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
@@ -1855,7 +1856,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		}
 	}
 	if (parser.isMember("lastInfo")) {
-		parser.read("lastInfo", lastInfo);
+		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
 	parser.endObject(); // params
 
@@ -1870,11 +1871,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		  &errObj.getErrors(), &parser);
 	}
 
-	if (!lastInfo.empty()) {
-		upsertLastInfo(lastInfo, LAST_INFO_EVENT);
-	}
-
-	dataStore->addEventList(eventInfoList);
+	dataStore->addEventList(eventInfoList, lastInfoUpserter);
 
 	if (!mayMoreFlag)
 		m_impl->runFetchCallback(fetchId);
@@ -2049,6 +2046,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 // Protected methods
 // ---------------------------------------------------------------------------
 
+// TODO: Remove all the upsertLastaInfo() are replaced ones in Impl.
 void HatoholArmPluginGateHAPI2::upsertLastInfo(string lastInfoValue, LastInfoType type)
 {
 	ThreadLocalDBCache cache;
