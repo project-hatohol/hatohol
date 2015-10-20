@@ -1824,14 +1824,17 @@ struct SeverityRankQueryOption::Impl {
 	std::list<SeverityRankIdType> idList;
 	string                        color;
 	string                        label;
+	int                           asImportant;
 
 	Impl(SeverityRankQueryOption *_option)
-	: option(_option), status(TRIGGER_SEVERITY_ALL)
+	: option(_option), status(TRIGGER_SEVERITY_ALL),
+	  asImportant(ALL_SEVERITY_RANK_AS_IMPORTANT)
 	{
 	}
 
 	static string makeConditionTemplate(void);
 	string getSeverityRankStatusCondition(void);
+	string getSeverityRankAsImportantCondition(void);
 };
 
 const string SeverityRankQueryOption::Impl::conditionTemplate
@@ -1865,6 +1868,13 @@ string SeverityRankQueryOption::Impl::makeConditionTemplate(void)
 	  colDefLabel.columnName, colDefLabel.columnName);
 	cond += " AND ";
 
+	// asImportant
+	const ColumnDef &colDefAsImportant =
+		COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_AS_IMPORTANT];
+	cond += StringUtils::sprintf(
+	  "((%s IS NULL) OR (%s=%%s))",
+	  colDefAsImportant.columnName, colDefAsImportant.columnName);
+	cond += " AND ";
 	return cond;
 }
 
@@ -1876,6 +1886,19 @@ string SeverityRankQueryOption::Impl::getSeverityRankStatusCondition(void)
 		return condition;
 	default:
 		condition += StringUtils::sprintf("status=%d", static_cast<int>(status));
+		return condition;
+	}
+}
+
+string SeverityRankQueryOption::Impl::getSeverityRankAsImportantCondition(void)
+{
+	string condition;
+	switch(asImportant) {
+	case ALL_SEVERITY_RANK_AS_IMPORTANT :
+		return condition;
+	default:
+		condition += StringUtils::sprintf(
+		  "as_important=%d", static_cast<int>(asImportant));
 		return condition;
 	}
 }
@@ -1932,6 +1955,16 @@ const string SeverityRankQueryOption::getTargetLabel(void)
 	return m_impl->label;
 }
 
+void SeverityRankQueryOption::setTargetAsImportant(const int &asImportant)
+{
+	m_impl->asImportant = asImportant;
+}
+
+const int SeverityRankQueryOption::getTargetAsImportant(void)
+{
+	return m_impl->asImportant;
+}
+
 string SeverityRankQueryOption::getCondition(void) const
 {
 	string condition = DataQueryOption::getCondition();
@@ -1968,6 +2001,14 @@ string SeverityRankQueryOption::getCondition(void) const
 		  rhs(m_impl->label.c_str()));
 		addCondition(condition, labelCondition);
 	}
+
+	// filter by asImportant
+	string severityRankAsImportantCondition =
+		m_impl->getSeverityRankAsImportantCondition();
+	if (!severityRankAsImportantCondition.empty()) {
+		addCondition(condition, severityRankAsImportantCondition);
+	}
+
 
 	return condition;
 }
