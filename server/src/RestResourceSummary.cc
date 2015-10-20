@@ -18,6 +18,7 @@
  */
 
 #include "RestResourceSummary.h"
+#include "RestResourceHostUtils.h"
 #include "UnifiedDataStore.h"
 
 typedef FaceRestResourceHandlerSimpleFactoryTemplate<RestResourceSummary>
@@ -55,6 +56,14 @@ void RestResourceSummary::handlerSummary(void)
 	dataStore->getSeverityRanks(importantSeverityRanks, severityRankOption);
 	severityRankOption.setTargetAsImportant(static_cast<int>(false));
 	dataStore->getSeverityRanks(notImportantSeverityRanks, severityRankOption);
+	bool isCountOnly = false;
+	HatoholError err =
+	  RestResourceHostUtils::parseEventParameter(option, m_query, isCountOnly);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
 	std::set<TriggerSeverityType> importantStatusSet, notImportantStatusSet;
 	for (auto &severityRank : importantSeverityRanks) {
 		importantStatusSet.insert(static_cast<TriggerSeverityType>(severityRank.status));
