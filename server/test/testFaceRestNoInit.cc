@@ -35,7 +35,7 @@ namespace testFaceRestNoInit {
 
 static const char *FORCE_EMPTY_STRING = "#__EMPTY__";
 
-class TestFaceRestNoInit : public RestResourceHost {
+class TestFaceRestNoInit {
 public:
 	static HatoholError callParseEventParameter(
 		EventsQueryOption &option,
