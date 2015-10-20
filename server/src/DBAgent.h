@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -282,6 +282,40 @@ public:
 
 	virtual const DBTermCodec *getDBTermCodec(void) const;
 
+	/**
+	 * A exception that stops the running transaction and rolls back.
+	 * After this exception is thrown in a transaction,
+	 * TransactionProc::postproc() is not invoked.
+	 */
+	class TransactionAbort : public std::exception {
+	};
+
+	struct TransactionHooks {
+		/**
+		 * Called just before TransactionProc::operator() in a
+		 * transaction.
+		 *
+		 * @param dbAgent A DBAgent instance.
+		 *
+		 * @return
+		 * If the false is returned, the transaction is rolled back.
+		 * The subsequent TransactionProc::operator() and postAction()
+		 * are not carried out.
+		 */
+		virtual bool preAction(DBAgent &dbAgent);
+
+		/**
+		 * Called just after TransactionProc::operator() in a
+		 * transaction.
+		 *
+		 * @param dbAgent A DBAgent instance.
+		 *
+		 * @return
+		 * If the false is returned, the transaction is rolled back.
+		 */
+		virtual bool postAction(DBAgent &dbAgent);
+	};
+
 	struct TransactionProc {
 		/**
 		 * This method is called before the runTransaction.
@@ -299,7 +333,8 @@ public:
 		virtual void operator ()(DBAgent &dbAgent) = 0;
 	};
 
-	void runTransaction(TransactionProc &proc);
+	void runTransaction(TransactionProc &proc,
+	                    TransactionHooks *hooks = NULL);
 
 	template <typename T, void (DBAgent::*OPERATION)(const T &)>
 	void _runTransaction(T &arg)

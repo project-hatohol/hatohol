@@ -1835,6 +1835,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		upsertLastInfo(lastInfo, LAST_INFO_EVENT);
 	}
 
+	struct : DBAgent::TransactionHooks {
+		virtual bool postAction(DBAgent &dbAgent) override
+		{
+		}
+	} _hooks;
+
 	dataStore->addEventList(eventInfoList);
 
 	if (!mayMoreFlag)
