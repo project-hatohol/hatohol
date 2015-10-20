@@ -199,8 +199,11 @@ public:
 	size_t getNumberOfBadTriggers(const TriggersQueryOption &option,
 				      TriggerSeverityType severity);
 	size_t getNumberOfTriggers(const TriggersQueryOption &option);
+	void addTriggers(const TriggerInfoList &triggerInfoList,
+	                 DBAgent::TransactionHooks *hooks = NULL);
 	HatoholError syncTriggers(const TriggerInfoList &triggerInfoList,
-	                          const ServerIdType &serverId);
+	                          const ServerIdType &serverId,
+	                          DBAgent::TransactionHooks *hooks = NULL);
 	size_t getNumberOfGoodHosts(const TriggersQueryOption &option);
 	size_t getNumberOfBadHosts(const TriggersQueryOption &option);
 	size_t getNumberOfItems(const ItemsQueryOption &option,

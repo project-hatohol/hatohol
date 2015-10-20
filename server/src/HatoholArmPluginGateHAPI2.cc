@@ -1685,10 +1685,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
   JSONParser &parser)
 {
 	ThreadLocalDBCache cache;
-	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList triggerInfoList;
 	JSONRPCError errObj;
-	string lastInfo;
+	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_TRIGGER);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1703,7 +1703,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		parser.read("fetchId", fetchId);
 	}
 	if (parser.isMember("lastInfo")) {
-		parser.read("lastInfo", lastInfo);
+		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
 	parser.endObject(); // params
 
@@ -1718,15 +1718,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		  &errObj.getErrors(), &parser);
 	}
 
-	if (!lastInfo.empty()) {
-		upsertLastInfo(lastInfo, LAST_INFO_TRIGGER);
-	}
-
 	// TODO: reflect error in response
 	if (checkInvalidTriggers) {
-		dbMonitoring.syncTriggers(triggerInfoList, serverInfo.id);
+		dataStore->syncTriggers(triggerInfoList, serverInfo.id,
+		                        lastInfoUpserter);
 	} else {
-		dbMonitoring.addTriggerInfoList(triggerInfoList);
+		dataStore->addTriggers(triggerInfoList, lastInfoUpserter);
 	}
 
 	if (!fetchId.empty()) {

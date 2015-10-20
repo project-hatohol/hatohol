@@ -582,12 +582,22 @@ size_t UnifiedDataStore::getNumberOfTriggers(const TriggersQueryOption &option)
 	return cache.getMonitoring().getNumberOfTriggers(option);
 }
 
-HatoholError UnifiedDataStore::syncTriggers(
+void UnifiedDataStore::addTriggers(
   const TriggerInfoList &triggerInfoList,
-  const ServerIdType &serverId)
+  DBAgent::TransactionHooks *hooks)
 {
 	ThreadLocalDBCache cache;
-	return cache.getMonitoring().syncTriggers(triggerInfoList, serverId);
+	return cache.getMonitoring().addTriggerInfoList(triggerInfoList, hooks);
+}
+
+HatoholError UnifiedDataStore::syncTriggers(
+  const TriggerInfoList &triggerInfoList,
+  const ServerIdType &serverId,
+  DBAgent::TransactionHooks *hooks)
+{
+	ThreadLocalDBCache cache;
+	return cache.getMonitoring().syncTriggers(triggerInfoList, serverId,
+	                                          hooks);
 }
 
 size_t UnifiedDataStore::getNumberOfGoodHosts(const TriggersQueryOption &option)
