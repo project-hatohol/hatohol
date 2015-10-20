@@ -268,10 +268,15 @@ public:
 	 * the record is updated.
 	 *
 	 * @param vmInfo A data to be inserted/updated.
+	 * @param useTransaction A flag to use a transaction.
 	 * @return
 	 * The ID of inserted/updated record.
 	 */
-	GenericIdType upsertVMInfo(const VMInfo &vmInfo);
+	GenericIdType upsertVMInfo(const VMInfo &vmInfo,
+	                           const bool &useTransaction = true);
+
+	void upsertVMInfoVect(const VMInfoVect &vmInfoVect,
+	                      DBAgent::TransactionHooks *hooks);
 
 	/**
 	 * Insert or update a record to/in the hostgroup_list table

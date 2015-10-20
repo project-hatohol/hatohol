@@ -1364,7 +1364,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	} else {
 		HostHostIdMap hostsMap;
 		dataStore->upsertHosts(hostInfoVect, &hostsMap,
-	                               lastInfoUpserter);
+		                       lastInfoUpserter);
 		m_impl->hostInfoCache.update(hostInfoVect, &hostsMap);
 	}
 
@@ -1918,7 +1918,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	DBTablesHost &dbHost = cache.getHost();
 	VMInfoVect vmInfoVect;
 	JSONRPCError errObj;
-	string lastInfo;
+	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl,
+	                                          LAST_INFO_HOST_PARENT);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1927,7 +1928,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	string updateType;
 	bool checkInvalidHostParents = parseUpdateType(parser, updateType, errObj);
 	if (parser.isMember("lastInfo")) {
-		parser.read("lastInfo", lastInfo);
+		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
 	parser.endObject(); // params
 
@@ -1942,12 +1943,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 		  &errObj.getErrors(), &parser);
 	}
 
-	// TODO: implement validation for hostParents
-	for (auto vmInfo : vmInfoVect)
-		dbHost.upsertVMInfo(vmInfo);
-	if (!lastInfo.empty()) {
-		upsertLastInfo(lastInfo, LAST_INFO_HOST_PARENT);
-	}
+	dbHost.upsertVMInfoVect(vmInfoVect, lastInfoUpserter);
 
 	// TODO: make failure clause
 	string result = "SUCCESS";
