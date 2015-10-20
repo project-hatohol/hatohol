@@ -166,9 +166,11 @@ public:
 	  DBAgent::TransactionHooks *hooks = NULL);
 	bool wasStoredHostsChanged(void);
 
-	HatoholError upsertHostgroups(const HostgroupVect &hostgroups);
+	HatoholError upsertHostgroups(const HostgroupVect &hostgroups,
+	                              DBAgent::TransactionHooks *hooks = NULL);
 	HatoholError syncHostgroups(const HostgroupVect &hostgroups,
-	                            const ServerIdType &serverId);
+	                            const ServerIdType &serverId,
+	                            DBAgent::TransactionHooks *hooks = NULL);
 
 	HatoholError upsertHostgroupMembers(
 	  const HostgroupMemberVect &hostgroupMembers);

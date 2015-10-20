@@ -524,18 +524,20 @@ bool UnifiedDataStore::wasStoredHostsChanged(void)
 	return cache.getHost().wasStoredHostsChanged();
 }
 
-HatoholError UnifiedDataStore::upsertHostgroups(const HostgroupVect &hostgroups)
+HatoholError UnifiedDataStore::upsertHostgroups(
+  const HostgroupVect &hostgroups, DBAgent::TransactionHooks *hooks)
 {
 	ThreadLocalDBCache cache;
-	cache.getHost().upsertHostgroups(hostgroups);
+	cache.getHost().upsertHostgroups(hostgroups, hooks);
 	return HTERR_OK;
 }
 
-HatoholError UnifiedDataStore::syncHostgroups(const HostgroupVect &hostgroups,
-					      const ServerIdType &serverId)
+HatoholError UnifiedDataStore::syncHostgroups(
+  const HostgroupVect &hostgroups, const ServerIdType &serverId,
+  DBAgent::TransactionHooks *hooks)
 {
 	ThreadLocalDBCache cache;
-	return cache.getHost().syncHostgroups(hostgroups, serverId);
+	return cache.getHost().syncHostgroups(hostgroups, serverId, hooks);
 }
 
 HatoholError UnifiedDataStore::upsertHostgroupMembers(
