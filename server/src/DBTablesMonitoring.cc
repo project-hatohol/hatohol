@@ -1959,7 +1959,8 @@ void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)
 	m_impl->addEventStatistics(trx.numAdded);
 }
 
-void DBTablesMonitoring::addEventInfoList(EventInfoList &eventInfoList)
+void DBTablesMonitoring::addEventInfoList(EventInfoList &eventInfoList,
+                                          DBAgent::TransactionHooks *hooks)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		EventInfoList &eventInfoList;
@@ -1978,7 +1979,7 @@ void DBTablesMonitoring::addEventInfoList(EventInfoList &eventInfoList)
 				addEventInfoWithoutTransaction(dbAgent, *it);
 		}
 	} trx(eventInfoList);
-	getDBAgent().runTransaction(trx);
+	getDBAgent().runTransaction(trx, hooks);
 	m_impl->addEventStatistics(trx.numAdded);
 }
 

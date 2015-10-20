@@ -637,11 +637,12 @@ HatoholError UnifiedDataStore::addAction(ActionDef &actionDef,
 	return cache.getAction().addAction(actionDef, privilege);
 }
 
-void UnifiedDataStore::addEventList(EventInfoList &eventList)
+void UnifiedDataStore::addEventList(EventInfoList &eventList,
+                                    DBAgent::TransactionHooks *hooks)
 {
 	ThreadLocalDBCache cache;
 	ActionManager actionManager;
-	cache.getMonitoring().addEventInfoList(eventList);
+	cache.getMonitoring().addEventInfoList(eventList, hooks);
 	actionManager.checkEvents(eventList);
 }
 
