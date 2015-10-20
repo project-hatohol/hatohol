@@ -140,7 +140,7 @@ public:
 	                        HostIdType *hostId = NULL);
 
 	/**
-	 * Add hosts. If there's hosts already exist, they will be updated.
+	 * Add hosts. Already exisiting hosts are updated.
 	 *
 	 * See also DBTablesHost::upsert().
 	 *
@@ -148,19 +148,22 @@ public:
 	 * @param hostHostIdMapPtr
 	 * If this parameter is not NULL, the address of the ServerHostDef
 	 * and the corresponding host IDs are stored in it.
+	 * @param hook Transaction hook functions.
 	 *
 	 * @return The result of the call.
 	 */
 	HatoholError
 	  upsertHosts(const ServerHostDefVect &serverHostDefs,
-	              HostHostIdMap *hostHostIdMapPtr = NULL);
+	              HostHostIdMap *hostHostIdMapPtr = NULL,
+	              DBAgent::TransactionHooks *hooks = NULL);
 
 	/**
 	 * call upsertHosts for given hosts and update HostInfoCache.
 	 */
 	HatoholError syncHosts(
 	  const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
-	  HostInfoCache &hostInfoCache);
+	  HostInfoCache &hostInfoCache,
+	  DBAgent::TransactionHooks *hooks = NULL);
 	bool wasStoredHostsChanged(void);
 
 	HatoholError upsertHostgroups(const HostgroupVect &hostgroups);

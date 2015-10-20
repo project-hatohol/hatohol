@@ -750,7 +750,7 @@ HostIdType DBTablesHost::upsertHost(
 
 void DBTablesHost::upsertHosts(
   const ServerHostDefVect &serverHostDefs,
-  HostHostIdMap *hostHostIdMapPtr)
+  HostHostIdMap *hostHostIdMapPtr, DBAgent::TransactionHooks *hooks)
 {
 	struct Proc : public DBAgent::TransactionProc {
 		DBTablesHost &dbHost;
@@ -785,7 +785,7 @@ void DBTablesHost::upsertHosts(
 			(*hostHostIdMapPtr)[svHostDef.hostIdInServer] = hostId;
 		}
 	} proc(*this, serverHostDefs, hostHostIdMapPtr);
-	getDBAgent().runTransaction(proc);
+	getDBAgent().runTransaction(proc, hooks);
 }
 
 GenericIdType DBTablesHost::upsertServerHostDef(
@@ -1303,7 +1303,7 @@ static bool isHostNameChanged(
 
 HatoholError DBTablesHost::syncHosts(
   const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
-  HostHostIdMap *hostHostIdMapPtr)
+  HostHostIdMap *hostHostIdMapPtr, DBAgent::TransactionHooks *hooks)
 {
 	// Make a set that contains current hosts records
 	HostsQueryOption option(USER_ID_SYSTEM);
@@ -1344,7 +1344,7 @@ HatoholError DBTablesHost::syncHosts(
 		m_impl->storedHostsChanged = true;
 		return HTERR_OK;
 	}
-	upsertHosts(serverHostDefs, hostHostIdMapPtr);
+	upsertHosts(serverHostDefs, hostHostIdMapPtr, hooks);
 	m_impl->storedHostsChanged = false;
 	return HTERR_OK;
 }
