@@ -77,11 +77,22 @@ void RestResourceSummary::handlerSummary(void)
 	option.setTriggerSeverities(notImportantStatusSet);
 	int64_t numOfNotImportantEvents = dataStore->getNumberOfEvents(option);
 
+	std::set<std::string> assignedStatusSet, unAssignedStatusSet;
+	assignedStatusSet.insert(definedStatuses[static_cast<int>(Status::IN_PROGRESS)].label.c_str());
+	option.setIncidentStatuses(assignedStatusSet);
+	int64_t numOfAssignedEvents = dataStore->getNumberOfEvents(option);
+	unAssignedStatusSet.insert(definedStatuses[static_cast<int>(Status::NONE)].label.c_str());
+	unAssignedStatusSet.insert(definedStatuses[static_cast<int>(Status::HOLD)].label.c_str());
+	option.setIncidentStatuses(unAssignedStatusSet);
+	int64_t numOfUnAssignedEvents = dataStore->getNumberOfEvents(option);
+
 	JSONBuilder reply;
 	reply.startObject();
 	reply.startArray("summary");
 	reply.add("numOfImportantEvents", numOfImportantEvents);
 	reply.add("numOfNotImportantEvents", numOfNotImportantEvents);
+	reply.add("numOfAssignedEvents", numOfAssignedEvents);
+	reply.add("numOfUnAssignedEvents", numOfUnAssignedEvents);
 	reply.endArray(); // summary
 
 	addHatoholError(reply, HatoholError(HTERR_OK));
