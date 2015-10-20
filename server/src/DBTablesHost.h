@@ -287,7 +287,8 @@ public:
 	GenericIdType upsertHostgroup(const Hostgroup &hostgroup,
 	                              const bool &useTransaction = true);
 
-	void upsertHostgroups(const HostgroupVect &hostgroups);
+	void upsertHostgroups(const HostgroupVect &hostgroups,
+	                      DBAgent::TransactionHooks *hooks = NULL);
 
 	/**
 	 * Get hostgroups.
@@ -392,7 +393,8 @@ public:
 	  HostHostIdMap *hostHostIdMapPtr = NULL,
 	  DBAgent::TransactionHooks *hooks = NULL);
 	HatoholError syncHostgroups(const HostgroupVect &hostgroups,
-	                            const ServerIdType &serverId);
+	                            const ServerIdType &serverId,
+	                            DBAgent::TransactionHooks *hooks = NULL);
 	HatoholError syncHostgroupMembers(const HostgroupMemberVect &hostgroupMembers,
 	                                  const ServerIdType &serverId);
 
