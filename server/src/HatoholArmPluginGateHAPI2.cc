@@ -1896,6 +1896,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 
 	string updateType;
 	bool checkInvalidHostParents = parseUpdateType(parser, updateType, errObj);
+	MLPL_BUG("Take into account the result: checkInvalidHostParents: %d.",
+	         checkInvalidHostParents);
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfo);
 	}
