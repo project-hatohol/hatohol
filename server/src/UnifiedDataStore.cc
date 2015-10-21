@@ -496,21 +496,22 @@ HatoholError UnifiedDataStore::getHostgroups(
 }
 
 HatoholError UnifiedDataStore::upsertHosts(
-  const ServerHostDefVect &serverHostDefs, HostHostIdMap *hostHostIdMapPtr)
+  const ServerHostDefVect &serverHostDefs, HostHostIdMap *hostHostIdMapPtr,
+  DBAgent::TransactionHooks *hooks)
 {
 	ThreadLocalDBCache cache;
-	cache.getHost().upsertHosts(serverHostDefs, hostHostIdMapPtr);
+	cache.getHost().upsertHosts(serverHostDefs, hostHostIdMapPtr, hooks);
 	return HTERR_OK;
 }
 
 HatoholError UnifiedDataStore::syncHosts(
   const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
-  HostInfoCache &hostInfoCache)
+  HostInfoCache &hostInfoCache, DBAgent::TransactionHooks *hooks)
 {
 	ThreadLocalDBCache cache;
 	HostHostIdMap hostHostIdMap;
 	HatoholError err = cache.getHost().syncHosts(svHostDefs, serverId,
-	                                             &hostHostIdMap);
+	                                             &hostHostIdMap, hooks);
 	if (err != HTERR_OK)
 		return err;
 	hostInfoCache.update(svHostDefs, &hostHostIdMap);
@@ -523,34 +524,39 @@ bool UnifiedDataStore::wasStoredHostsChanged(void)
 	return cache.getHost().wasStoredHostsChanged();
 }
 
-HatoholError UnifiedDataStore::upsertHostgroups(const HostgroupVect &hostgroups)
+HatoholError UnifiedDataStore::upsertHostgroups(
+  const HostgroupVect &hostgroups, DBAgent::TransactionHooks *hooks)
 {
 	ThreadLocalDBCache cache;
-	cache.getHost().upsertHostgroups(hostgroups);
+	cache.getHost().upsertHostgroups(hostgroups, hooks);
 	return HTERR_OK;
 }
 
-HatoholError UnifiedDataStore::syncHostgroups(const HostgroupVect &hostgroups,
-					      const ServerIdType &serverId)
+HatoholError UnifiedDataStore::syncHostgroups(
+  const HostgroupVect &hostgroups, const ServerIdType &serverId,
+  DBAgent::TransactionHooks *hooks)
 {
 	ThreadLocalDBCache cache;
-	return cache.getHost().syncHostgroups(hostgroups, serverId);
+	return cache.getHost().syncHostgroups(hostgroups, serverId, hooks);
 }
 
 HatoholError UnifiedDataStore::upsertHostgroupMembers(
-  const HostgroupMemberVect &hostgroupMembers)
+  const HostgroupMemberVect &hostgroupMembers,
+  DBAgent::TransactionHooks *hooks)
 {
 	ThreadLocalDBCache cache;
-	cache.getHost().upsertHostgroupMembers(hostgroupMembers);
+	cache.getHost().upsertHostgroupMembers(hostgroupMembers, hooks);
 	return HTERR_OK;
 }
 
 HatoholError UnifiedDataStore::syncHostgroupMembers(
   const HostgroupMemberVect &hostgroupMembers,
-  const ServerIdType &serverId)
+  const ServerIdType &serverId,
+  DBAgent::TransactionHooks *hooks)
 {
 	ThreadLocalDBCache cache;
-	return cache.getHost().syncHostgroupMembers(hostgroupMembers, serverId);
+	return cache.getHost().syncHostgroupMembers(hostgroupMembers, serverId,
+	                                            hooks);
 }
 
 HatoholError UnifiedDataStore::getHostgroupMembers(
@@ -576,12 +582,22 @@ size_t UnifiedDataStore::getNumberOfTriggers(const TriggersQueryOption &option)
 	return cache.getMonitoring().getNumberOfTriggers(option);
 }
 
-HatoholError UnifiedDataStore::syncTriggers(
+void UnifiedDataStore::addTriggers(
   const TriggerInfoList &triggerInfoList,
-  const ServerIdType &serverId)
+  DBAgent::TransactionHooks *hooks)
 {
 	ThreadLocalDBCache cache;
-	return cache.getMonitoring().syncTriggers(triggerInfoList, serverId);
+	return cache.getMonitoring().addTriggerInfoList(triggerInfoList, hooks);
+}
+
+HatoholError UnifiedDataStore::syncTriggers(
+  const TriggerInfoList &triggerInfoList,
+  const ServerIdType &serverId,
+  DBAgent::TransactionHooks *hooks)
+{
+	ThreadLocalDBCache cache;
+	return cache.getMonitoring().syncTriggers(triggerInfoList, serverId,
+	                                          hooks);
 }
 
 size_t UnifiedDataStore::getNumberOfGoodHosts(const TriggersQueryOption &option)
@@ -637,11 +653,12 @@ HatoholError UnifiedDataStore::addAction(ActionDef &actionDef,
 	return cache.getAction().addAction(actionDef, privilege);
 }
 
-void UnifiedDataStore::addEventList(EventInfoList &eventList)
+void UnifiedDataStore::addEventList(EventInfoList &eventList,
+                                    DBAgent::TransactionHooks *hooks)
 {
 	ThreadLocalDBCache cache;
 	ActionManager actionManager;
-	cache.getMonitoring().addEventInfoList(eventList);
+	cache.getMonitoring().addEventInfoList(eventList, hooks);
 	actionManager.checkEvents(eventList);
 }
 

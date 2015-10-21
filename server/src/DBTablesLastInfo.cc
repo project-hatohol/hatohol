@@ -151,8 +151,9 @@ DBTablesLastInfo::~DBTablesLastInfo()
 {
 }
 
-LastInfoIdType DBTablesLastInfo::upsertLastInfo(LastInfoDef &lastInfoDef,
-                                                const OperationPrivilege &privilege)
+LastInfoIdType DBTablesLastInfo::upsertLastInfo(
+  LastInfoDef &lastInfoDef, const OperationPrivilege &privilege,
+  const bool &useTransaction)
 {
 	HatoholError err = checkPrivilegeForAdd(privilege, lastInfoDef);
 	if (err != HTERR_OK)
@@ -166,7 +167,13 @@ LastInfoIdType DBTablesLastInfo::upsertLastInfo(LastInfoDef &lastInfoDef,
 	arg.add(lastInfoDef.serverId);
 	arg.upsertOnDuplicate = true;
 
-	getDBAgent().runTransaction(arg, &lastInfoId);
+	DBAgent &dbAgent = getDBAgent();
+	if (useTransaction) {
+		dbAgent.runTransaction(arg, &lastInfoId);
+	} else {
+		dbAgent.insert(arg);
+		lastInfoId = dbAgent.getLastInsertId();
+	}
 	return lastInfoId;
 }
 

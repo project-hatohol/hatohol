@@ -1574,7 +1574,9 @@ void DBTablesMonitoring::addTriggerInfo(const TriggerInfo *triggerInfo)
 	getDBAgent().runTransaction(trx);
 }
 
-void DBTablesMonitoring::addTriggerInfoList(const TriggerInfoList &triggerInfoList)
+void DBTablesMonitoring::addTriggerInfoList(
+  const TriggerInfoList &triggerInfoList,
+  DBAgent::TransactionHooks *hooks)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		const TriggerInfoList &triggerInfoList;
@@ -1592,7 +1594,7 @@ void DBTablesMonitoring::addTriggerInfoList(const TriggerInfoList &triggerInfoLi
 				addTriggerInfoWithoutTransaction(dbAgent, *it);
 		}
 	} trx(triggerInfoList);
-	getDBAgent().runTransaction(trx);
+	getDBAgent().runTransaction(trx, hooks);
 }
 
 bool DBTablesMonitoring::getTriggerInfo(TriggerInfo &triggerInfo,
@@ -1896,7 +1898,8 @@ static bool isTriggerDescriptionChanged(
 
 HatoholError DBTablesMonitoring::syncTriggers(
   const TriggerInfoList &incomingTriggerInfoList,
-  const ServerIdType &serverId)
+  const ServerIdType &serverId,
+  DBAgent::TransactionHooks *hooks)
 {
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(serverId);
@@ -1933,7 +1936,7 @@ HatoholError DBTablesMonitoring::syncTriggers(
 	if (invalidTriggerIdList.size() > 0)
 		err = deleteTriggerInfo(invalidTriggerIdList, serverId);
 	if (serverTriggers.size() > 0)
-		addTriggerInfoList(serverTriggers);
+		addTriggerInfoList(serverTriggers, hooks);
 	return err;
 }
 
@@ -1959,7 +1962,8 @@ void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)
 	m_impl->addEventStatistics(trx.numAdded);
 }
 
-void DBTablesMonitoring::addEventInfoList(EventInfoList &eventInfoList)
+void DBTablesMonitoring::addEventInfoList(EventInfoList &eventInfoList,
+                                          DBAgent::TransactionHooks *hooks)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		EventInfoList &eventInfoList;
@@ -1978,7 +1982,7 @@ void DBTablesMonitoring::addEventInfoList(EventInfoList &eventInfoList)
 				addEventInfoWithoutTransaction(dbAgent, *it);
 		}
 	} trx(eventInfoList);
-	getDBAgent().runTransaction(trx);
+	getDBAgent().runTransaction(trx, hooks);
 	m_impl->addEventStatistics(trx.numAdded);
 }
 
