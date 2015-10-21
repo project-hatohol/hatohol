@@ -70,12 +70,16 @@ void RestResourceSummary::handlerSummary(void)
 	}
 	option.setTriggerSeverities(importantStatusSet);
 	int64_t numOfImportantEvents = dataStore->getNumberOfEvents(option);
+	int64_t numOfImportantEventOccurredHosts =
+		dataStore->getNumberOfHostsWithSpecifiedEvents(option);
 
 	for (auto &severityRank : notImportantSeverityRanks) {
 		notImportantStatusSet.insert(static_cast<TriggerSeverityType>(severityRank.status));
 	}
 	option.setTriggerSeverities(notImportantStatusSet);
 	int64_t numOfNotImportantEvents = dataStore->getNumberOfEvents(option);
+	int64_t numOfNotImportantEventOccurredHosts =
+		dataStore->getNumberOfHostsWithSpecifiedEvents(option);
 
 	std::set<std::string> assignedStatusSet, unAssignedStatusSet;
 	assignedStatusSet.insert(definedStatuses[static_cast<int>(Status::IN_PROGRESS)].label.c_str());
@@ -90,7 +94,11 @@ void RestResourceSummary::handlerSummary(void)
 	reply.startObject();
 	reply.startArray("summary");
 	reply.add("numOfImportantEvents", numOfImportantEvents);
+	reply.add("numOfImportantEventOccurredHosts",
+		  numOfImportantEventOccurredHosts);
 	reply.add("numOfNotImportantEvents", numOfNotImportantEvents);
+	reply.add("numOfNotImportantEventOccurredHosts",
+		  numOfNotImportantEventOccurredHosts);
 	reply.add("numOfAssignedEvents", numOfAssignedEvents);
 	reply.add("numOfUnAssignedEvents", numOfUnAssignedEvents);
 	reply.endArray(); // summary
