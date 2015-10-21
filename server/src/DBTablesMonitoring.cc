@@ -851,6 +851,7 @@ struct EventsQueryOption::Impl {
 	set<TriggerSeverityType> triggerSeverities;
 	set<TriggerStatusType> triggerStatuses;
 	set<string> incidentStatuses;
+	vector<string> groupByColumns;
 
 	Impl()
 	: limitOfUnifiedId(NO_LIMIT),
@@ -1078,6 +1079,23 @@ EventsQueryOption::SortType EventsQueryOption::getSortType(void) const
 DataQueryOption::SortDirection EventsQueryOption::getSortDirection(void) const
 {
 	return m_impl->sortDirection;
+}
+
+void EventsQueryOption::setGroupByColumns(const std::vector<std::string> &columns)
+{
+	m_impl->groupByColumns = columns;
+
+	vector<GroupBy> groupByVect;
+	for (auto &column : columns) {
+		GroupBy groupBy(column);
+		groupByVect.push_back(groupBy);
+	}
+	setGroupByVect(groupByVect);
+}
+
+std::vector<std::string> EventsQueryOption::getGroupByColumns(void) const
+{
+	return m_impl->groupByColumns;
 }
 
 void EventsQueryOption::setMinimumSeverity(const TriggerSeverityType &severity)

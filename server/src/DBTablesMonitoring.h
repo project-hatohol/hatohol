@@ -52,6 +52,8 @@ public:
 	void setSortType(const SortType &type, const SortDirection &direction);
 	SortType getSortType(void) const;
 	SortDirection getSortDirection(void) const;
+	void setGroupByColumns(const std::vector<std::string> &columns);
+	std::vector<std::string> getGroupByColumns(void) const;
 
 	void setType(const EventType &type);
 	EventType getType(void) const;
