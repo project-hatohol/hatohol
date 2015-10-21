@@ -1833,6 +1833,33 @@ void test_getNumberOfHostsWithSpecifiedEvents(void)
 			    dbMonitoring.getNumberOfHostsWithSpecifiedEvents(option));
 }
 
+void test_getEventSeverityStatisticsWithOutImportantSeverityRankOption(void)
+{
+	loadTestDBEvents();
+
+	DBTablesMonitoring::EventSeverityStatistics
+	expectedSeverityStatistics[] = {
+		{TRIGGER_SEVERITY_INFO, 4},
+		{TRIGGER_SEVERITY_WARNING, 2},
+		{TRIGGER_SEVERITY_CRITICAL, 1},
+	};
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	EventsQueryOption option(USER_ID_SYSTEM);
+	std::vector<DBTablesMonitoring::EventSeverityStatistics> severityStatisticsVect;
+	dbMonitoring.getEventSeverityStatistics(severityStatisticsVect, option);
+	{
+		size_t i = 0;
+		for (auto statistics : severityStatisticsVect) {
+			cppcut_assert_equal(expectedSeverityStatistics[i].severity,
+					    statistics.severity);
+			cppcut_assert_equal(expectedSeverityStatistics[i].num,
+					    statistics.num);
+			++i;
+		}
+	}
+}
+
 void test_getNumberOfEventsWithHostgroup(void)
 {
 	loadTestDBEvents();
