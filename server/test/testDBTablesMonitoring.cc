@@ -1819,6 +1819,20 @@ void test_getNumberOfEvents(void)
 			    dbMonitoring.getNumberOfEvents(option));
 }
 
+void test_getNumberOfHostsWithSpecifiedEvents(void)
+{
+	loadTestDBEvents();
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	EventsQueryOption option(USER_ID_SYSTEM);
+	std::set<TriggerSeverityType> severitiesSet;
+	severitiesSet.insert(TRIGGER_SEVERITY_WARNING);
+	severitiesSet.insert(TRIGGER_SEVERITY_CRITICAL);
+	option.setTriggerSeverities(severitiesSet);
+	cppcut_assert_equal(static_cast<size_t>(2),
+			    dbMonitoring.getNumberOfHostsWithSpecifiedEvents(option));
+}
+
 void test_getNumberOfEventsWithHostgroup(void)
 {
 	loadTestDBEvents();
