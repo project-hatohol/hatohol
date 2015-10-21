@@ -284,8 +284,7 @@ void test_parseFaceRestNumWorkers(gconstpointer data)
 	cmds.activate();
 
 	cppcut_assert_equal(
-		ConfigManager::getInstance()->getFaceRestNumWorkers(),
-		expect);
+	  expect, ConfigManager::getInstance()->getFaceRestNumWorkers());
 }
 
 void test_setFaceRestNumWorkers(void)
