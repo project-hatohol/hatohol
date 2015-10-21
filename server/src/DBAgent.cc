@@ -562,6 +562,10 @@ string DBAgent::makeSelectStatement(const SelectExArg &selectExArg)
 		sql += " WHERE ";
 		sql += selectExArg.condition;
 	}
+	if (!selectExArg.groupBy.empty()) {
+		sql += " GROUP BY ";
+		sql += selectExArg.groupBy;
+	}
 	if (!selectExArg.orderBy.empty()) {
 		sql += " ORDER BY ";
 		sql += selectExArg.orderBy;
