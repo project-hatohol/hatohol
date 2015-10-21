@@ -115,6 +115,13 @@ static void getTestSortOrderVect(DataQueryOption::SortOrderVect &sortOrderVect)
 	  "column2", DataQueryOption::SORT_DESCENDING));
 }
 
+static void getTestGroupByVect(DataQueryOption::GroupByVect &groupByVect)
+{
+	groupByVect.push_back(DataQueryOption::GroupBy("column1"));
+	groupByVect.push_back(DataQueryOption::GroupBy("column3"));
+	groupByVect.push_back(DataQueryOption::GroupBy("column2"));
+}
+
 void cut_setup(void)
 {
 	hatoholInit();
@@ -222,6 +229,24 @@ void test_getOrderByWithMultipleColumns(void)
 	option.setSortOrderVect(sortOrderVect);
 	cppcut_assert_equal("column1 DESC, column3 ASC, column2 DESC",
 			    option.getOrderBy().c_str());
+}
+
+void test_getGroupBy(void)
+{
+	DataQueryOption option;
+	DataQueryOption::GroupBy groupBy("column1");
+	option.setGroupBy(groupBy);
+	cppcut_assert_equal("column1", option.getGroupBy().c_str());
+}
+
+void test_getGroupByWithMultipleColumns(void)
+{
+	DataQueryOption option;
+	DataQueryOption::GroupByVect groupByVect;
+	getTestGroupByVect(groupByVect);
+	option.setGroupByVect(groupByVect);
+	cppcut_assert_equal("column1, column3, column2",
+			    option.getGroupBy().c_str());
 }
 
 void test_getDataQueryContextOfDefaultConstructor(void)
