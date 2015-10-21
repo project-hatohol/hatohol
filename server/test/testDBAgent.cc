@@ -94,6 +94,7 @@ public:
 		cppcut_assert_equal(true, arg.statements.empty());
 		cppcut_assert_equal(true, arg.columnTypes.empty());
 		cppcut_assert_equal(true, arg.condition.empty());
+		cppcut_assert_equal(true, arg.groupBy.empty());
 		cppcut_assert_equal(true, arg.orderBy.empty());
 		cppcut_assert_equal((size_t)0, arg.limit);
 		cppcut_assert_equal((size_t)0, arg.offset);

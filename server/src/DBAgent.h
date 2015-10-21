@@ -162,6 +162,7 @@ public:
 		std::vector<SQLColumnType> columnTypes;
 		std::string                condition;
 		std::string                orderBy;
+		std::string                groupBy;
 		size_t                     limit;
 		size_t                     offset;
 		std::string                appName;
