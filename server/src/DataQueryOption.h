@@ -45,6 +45,12 @@ public:
 	typedef std::vector<SortOrder>::iterator SortOrderVectIterator;
 	typedef std::vector<SortOrder>::const_iterator SortOrderVectConstIterator;
 
+	struct GroupBy {
+		std::string columnName;
+		GroupBy(const std::string &columnName);
+	};
+	typedef std::vector<GroupBy> GroupByVect;
+
 	DataQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	DataQueryOption(DataQueryContext *dataQueryContext);
 	DataQueryOption(const DataQueryOption &src);
@@ -121,6 +127,22 @@ public:
 	const SortOrderVect &getSortOrderVect(void) const;
 
 	/**
+	 * Set a vector of GroupBy to build "GROUP BY" statement.
+	 *
+	 * @param groupByVect A vector of GroupBy.
+	 */
+	void setGroupByVect(const GroupByVect &groupByVect);
+
+	/**
+	 * Set a GroupBy to build "GROUP BY" statement.
+	 * The list of GroupBy which is currently set to this object will be
+	 * cleared.
+	 *
+	 * @param groupBy A GroupBy.
+	 */
+	void setGroupBy(const GroupBy &groupBy);
+
+	/**
 	 * Set the offset of the returned elements.
 	 *
 	 * @param offset A offset number of returned elements.
@@ -147,6 +169,13 @@ public:
 	 * @return a string for 'order by' in an SQL statment.
 	 */
 	virtual std::string getOrderBy(void) const;
+
+	/**
+	 * Get a string for 'group by' clause of an SQL statement.
+	 *
+	 * @return a string for 'group by' in an SQL statment.
+	 */
+	virtual std::string getGroupBy(void) const;
 
 	/**
 	 * Set the flag always to use the table name.
