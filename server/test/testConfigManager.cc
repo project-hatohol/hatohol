@@ -33,6 +33,14 @@ namespace testConfigManager {
 void cut_setup(void)
 {
 	hatoholInit();
+
+	// In hatoholInit(), ConfigManager::reset() is invoked with
+	// loadConfigFile = true. This makes the test results depned on
+	// contents of the configuration file.
+	// Here, we call reset() with loadConfigFile = false in order to
+	// eliminate the dependency and makes sure the same conditions.
+	const bool loadConfigFile = false;
+	ConfigManager::reset(NULL, loadConfigFile);
 }
 
 // ---------------------------------------------------------------------------
@@ -284,8 +292,7 @@ void test_parseFaceRestNumWorkers(gconstpointer data)
 	cmds.activate();
 
 	cppcut_assert_equal(
-		ConfigManager::getInstance()->getFaceRestNumWorkers(),
-		expect);
+	  expect, ConfigManager::getInstance()->getFaceRestNumWorkers());
 }
 
 void test_setFaceRestNumWorkers(void)
