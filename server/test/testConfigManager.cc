@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -33,6 +33,14 @@ namespace testConfigManager {
 void cut_setup(void)
 {
 	hatoholInit();
+
+	// In hatoholInit(), ConfigManager::reset() is invoked with
+	// loadConfigFile = true. This makes the test results depend on
+	// contents of the configuration file.
+	// Here, we call reset() with loadConfigFile = false in order to
+	// eliminate the dependency and makes sure the same conditions.
+	const bool loadConfigFile = false;
+	ConfigManager::reset(NULL, loadConfigFile);
 }
 
 // ---------------------------------------------------------------------------
