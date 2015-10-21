@@ -198,6 +198,7 @@ public:
 	HatoholError getNumberOfMonitoredItemsPerSecond(const DataQueryOption &option,
 	                                                MonitoringServerStatus &serverStatus);
 	size_t getNumberOfEvents(const EventsQueryOption &option);
+	size_t getNumberOfHostsWithSpecifiedEvents(const EventsQueryOption &option);
 
 	// User
 	void getUserList(UserInfoList &userList,
