@@ -236,14 +236,14 @@ std::string DataQueryOption::getOrderBy(void) const
 
 std::string DataQueryOption::getGroupBy(void) const
 {
-	std::vector<GroupBy>::iterator it = m_impl->groupByVect.begin();
+	auto it = begin(m_impl->groupByVect);
 	std::string groupBy;
-	for (; it != m_impl->groupByVect.end(); ++it) {
+	for (; it != end(m_impl->groupByVect); ++it) {
 		if (it->columnName.empty()) {
 			MLPL_ERR("Empty group by column name.\n");
 			continue;
 		}
-		if (it != m_impl->groupByVect.begin())
+		if (it != begin(m_impl->groupByVect))
 			groupBy += ", ";
 		groupBy += it->columnName;
 	}
