@@ -1008,25 +1008,24 @@ string HatoholArmPluginGateHAPI2::procedureHandlerMonitoringServerInfo(
 	return builder.generate();
 }
 
+static const map<string, LastInfoType> LastInfoLabelMap = {
+	{"host",                LAST_INFO_HOST},
+	{"hostGroup",           LAST_INFO_HOST_GROUP},
+	{"hostGroupMembership", LAST_INFO_HOST_GROUP_MEMBERSHIP},
+	{"trigger",             LAST_INFO_TRIGGER},
+	{"event",               LAST_INFO_EVENT},
+	{"hostParent",          LAST_INFO_HOST_PARENT},
+};
+
 bool HatoholArmPluginGateHAPI2::convertLastInfoStrToType(
   const string &type, LastInfoType &lastInfoType)
 {
-	if (type == "host")
-		lastInfoType = LAST_INFO_HOST;
-	else if (type == "hostGroup")
-		lastInfoType = LAST_INFO_HOST_GROUP;
-	else if (type == "hostGroupMembership")
-		lastInfoType = LAST_INFO_HOST_GROUP_MEMBERSHIP;
-	else if (type == "trigger")
-		lastInfoType = LAST_INFO_TRIGGER;
-	else if (type == "event")
-		lastInfoType = LAST_INFO_EVENT;
-	else if (type == "hostParent")
-		lastInfoType = LAST_INFO_HOST_PARENT;
-	else {
+	auto typeItr = LastInfoLabelMap.find(type);
+	if (typeItr == LastInfoLabelMap.end()) {
 		lastInfoType = LAST_INFO_ALL;
 		return false;
 	}
+	lastInfoType = typeItr->second;
 	return true;
 }
 
