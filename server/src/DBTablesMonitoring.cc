@@ -2629,6 +2629,43 @@ size_t DBTablesMonitoring::getNumberOfHostsWithSpecifiedEvents(
 	return itemGroupStream.read<int>();
 }
 
+HatoholError DBTablesMonitoring::getEventSeverityStatistics(
+  std::vector<DBTablesMonitoring::EventSeverityStatistics> &severityStatisticsVect,
+  const EventsQueryOption &option)
+{
+	DBClientJoinBuilder builder(tableProfileEvents, &option);
+	builder.add(IDX_EVENTS_SEVERITY);
+	builder.addTable(
+	  tableProfileIncidents, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileEvents, IDX_EVENTS_UNIFIED_ID, IDX_INCIDENTS_UNIFIED_EVENT_ID);
+	string severityColumnName =
+	  option.getColumnName(IDX_EVENTS_SEVERITY).c_str();
+	string stmt =
+	  StringUtils::sprintf("count(%s)",
+	    severityColumnName.c_str());
+	DBAgent::SelectExArg &arg = builder.build();
+	arg.add(stmt, SQL_COLUMN_TYPE_INT);
+
+	// generate new non const EventsQueryOption to set target GroupBy columns
+	EventsQueryOption groupByOption(option);
+	groupByOption.setGroupByColumns({severityColumnName});
+	arg.groupBy = groupByOption.getGroupBy();
+
+	getDBAgent().runTransaction(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	for (auto itemGrp : grpList) {
+		ItemGroupStream itemGroupStream(itemGrp);
+		DBTablesMonitoring::EventSeverityStatistics statistics;
+
+		itemGroupStream >> statistics.severity;
+		itemGroupStream >> statistics.num;
+
+		severityStatisticsVect.push_back(statistics);
+	}
+	return HatoholError(HTERR_OK);
+}
+
 void DBTablesMonitoring::addIncidentInfo(IncidentInfo *incidentInfo)
 {
 	struct TrxProc : public DBAgent::TransactionProc {

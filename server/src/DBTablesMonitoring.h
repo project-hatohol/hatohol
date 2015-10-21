@@ -269,6 +269,13 @@ public:
 	  MonitoringServerStatus &serverStatus);
 	size_t getNumberOfEvents(const EventsQueryOption &option);
 	size_t getNumberOfHostsWithSpecifiedEvents(const EventsQueryOption &option);
+	struct EventSeverityStatistics {
+		TriggerSeverityType severity;
+		int64_t num;
+	};
+	HatoholError getEventSeverityStatistics(
+	  std::vector<EventSeverityStatistics> &importantEventGroupVect,
+	  const EventsQueryOption &option);
 
 	void addIncidentInfo(IncidentInfo *incidentInfo);
 	HatoholError getIncidentInfoVect(IncidentInfoVect &incidentInfoVect,
