@@ -109,8 +109,6 @@ void RestResourceSummary::handlerSummary(void)
 
 	JSONBuilder reply;
 	reply.startObject();
-	reply.startArray("summary");
-	reply.startObject();
 	reply.add("numOfImportantEvents", numOfImportantEvents);
 	reply.add("numOfImportantEventOccurredHosts",
 		  numOfImportantEventOccurredHosts);
@@ -119,8 +117,6 @@ void RestResourceSummary::handlerSummary(void)
 		  numOfNotImportantEventOccurredHosts);
 	reply.add("numOfAssignedEvents", numOfAssignedEvents);
 	reply.add("numOfUnAssignedEvents", numOfUnAssignedEvents);
-	reply.endObject();
-	reply.startObject();
 	reply.startArray("statistics");
 	for (auto &statistics : severityStatisticsVect) {
 		reply.startObject();
@@ -129,8 +125,6 @@ void RestResourceSummary::handlerSummary(void)
 		reply.endObject();
 	}
 	reply.endArray(); // statistics
-	reply.endObject();
-	reply.endArray(); // summary
 
 	addHatoholError(reply, HatoholError(HTERR_OK));
 	reply.endObject();
