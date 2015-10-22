@@ -27,6 +27,7 @@ var EventsView = function(userProfile, options) {
   self.currentPage = 0;
   self.limitOfUnifiedId = 0;
   self.rawData = {};
+  self.rawSummaryData = {};
   self.durations = {};
   self.baseQuery = {
     limit:            50,
@@ -271,6 +272,7 @@ var EventsView = function(userProfile, options) {
       self.currentPage = 0;
     }
     self.startConnection(getQuery(options), updateCore);
+    self.startConnection("summary", updateSummary);
     $(document.body).scrollTop(0);
   }
 
@@ -898,6 +900,40 @@ var EventsView = function(userProfile, options) {
         switchSort();
       });
     }
+  }
+
+  function setupStatictics() {
+    // Assign/UnAssign events statistics
+    var numOfUnAssignedEvents = self.rawSummaryData["numOfUnAssignedEvents"];
+    $("#numOfUnAssignedEvents").text(numOfUnAssignedEvents);
+    var numOfAssignedEvents = self.rawSummaryData["numOfAssignedEvents"];
+    var totalNumOfAssignEvents = numOfUnAssignedEvents + numOfAssignedEvents;
+    var unAssignedEventsPercentage =
+          (numOfUnAssignedEvents/totalNumOfAssignEvents*100).toFixed(2);
+    $("#unAssignedEventsPercentage").text(unAssignedEventsPercentage + "%");
+    $("#unAssignedEventsPercentage").css("width", unAssignedEventsPercentage+"%");
+
+    // Important/NotImportant events statistics
+    var numOfImportantEvents = self.rawSummaryData["numOfImportantEvents"];
+    $("#numOfImportantEvents").text(numOfImportantEvents);
+    var numOfImportantEventOccurredHosts =
+          self.rawSummaryData["numOfImportantEventOccurredHosts"];
+    $("#numOfImportantEventOccurredHosts").text(numOfImportantEventOccurredHosts);
+    var numOfNotImportantEventOccurredHosts =
+          self.rawSummaryData["numOfNotImportantEventOccurredHosts"];
+    var totalNumOfEventOccurredHosts =
+          numOfImportantEventOccurredHosts + numOfNotImportantEventOccurredHosts;
+    var importantEventOccurredHostsPercentage =
+          (numOfImportantEventOccurredHosts/totalNumOfEventOccurredHosts*100)
+          .toFixed(2);
+    $("#importantEventOccurredHostsPercentage").text(importantEventOccurredHostsPercentage+"%");
+     $("#importantEventOccurredHostsPercentage").css("width", importantEventOccurredHostsPercentage+"%");
+  }
+
+  function updateSummary(reply) {
+    self.rawSummaryData = reply;
+
+    setupStatictics();
   }
 
   function updateCore(reply) {
