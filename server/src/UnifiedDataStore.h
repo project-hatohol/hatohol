@@ -199,6 +199,9 @@ public:
 	                                                MonitoringServerStatus &serverStatus);
 	size_t getNumberOfEvents(const EventsQueryOption &option);
 	size_t getNumberOfHostsWithSpecifiedEvents(const EventsQueryOption &option);
+	HatoholError getEventSeverityStatistics(
+	  std::vector<DBTablesMonitoring::EventSeverityStatistics> &importantEventGroupVect,
+	  const EventsQueryOption &option);
 
 	// User
 	void getUserList(UserInfoList &userList,
