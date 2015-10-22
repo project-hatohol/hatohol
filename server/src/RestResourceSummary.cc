@@ -64,38 +64,48 @@ void RestResourceSummary::handlerSummary(void)
 		return;
 	}
 
+	EventsQueryOption importantEventOption(option);
 	std::set<TriggerSeverityType> importantStatusSet, notImportantStatusSet;
 	for (auto &severityRank : importantSeverityRanks) {
 		importantStatusSet.insert(static_cast<TriggerSeverityType>(severityRank.status));
 	}
-	option.setTriggerSeverities(importantStatusSet);
-	int64_t numOfImportantEvents = dataStore->getNumberOfEvents(option);
+	importantEventOption.setTriggerSeverities(importantStatusSet);
+	int64_t numOfImportantEvents =
+	  dataStore->getNumberOfEvents(importantEventOption);
 	int64_t numOfImportantEventOccurredHosts =
-		dataStore->getNumberOfHostsWithSpecifiedEvents(option);
+	  dataStore->getNumberOfHostsWithSpecifiedEvents(importantEventOption);
 	std::vector<DBTablesMonitoring::EventSeverityStatistics> severityStatisticsVect;
 	err =
-	  dataStore->getEventSeverityStatistics(severityStatisticsVect, option);
+	  dataStore->getEventSeverityStatistics(severityStatisticsVect,
+	                                        importantEventOption);
 	if (err != HTERR_OK) {
 		replyError(err);
 		return;
 	}
 
+	EventsQueryOption notImportantEventOption(option);
 	for (auto &severityRank : notImportantSeverityRanks) {
 		notImportantStatusSet.insert(static_cast<TriggerSeverityType>(severityRank.status));
 	}
-	option.setTriggerSeverities(notImportantStatusSet);
-	int64_t numOfNotImportantEvents = dataStore->getNumberOfEvents(option);
+	notImportantEventOption.setTriggerSeverities(notImportantStatusSet);
+	int64_t numOfNotImportantEvents =
+	  dataStore->getNumberOfEvents(notImportantEventOption);
 	int64_t numOfNotImportantEventOccurredHosts =
-		dataStore->getNumberOfHostsWithSpecifiedEvents(option);
+	  dataStore->getNumberOfHostsWithSpecifiedEvents(notImportantEventOption);
 
+	EventsQueryOption assignedEventOption(option);
 	std::set<std::string> assignedStatusSet, unAssignedStatusSet;
 	assignedStatusSet.insert(definedStatuses[static_cast<int>(Status::IN_PROGRESS)].label.c_str());
-	option.setIncidentStatuses(assignedStatusSet);
-	int64_t numOfAssignedEvents = dataStore->getNumberOfEvents(option);
+	assignedEventOption.setIncidentStatuses(assignedStatusSet);
+	int64_t numOfAssignedEvents =
+	  dataStore->getNumberOfEvents(assignedEventOption);
+
+	EventsQueryOption unAssignedEventOption(option);
 	unAssignedStatusSet.insert(definedStatuses[static_cast<int>(Status::NONE)].label.c_str());
 	unAssignedStatusSet.insert(definedStatuses[static_cast<int>(Status::HOLD)].label.c_str());
-	option.setIncidentStatuses(unAssignedStatusSet);
-	int64_t numOfUnAssignedEvents = dataStore->getNumberOfEvents(option);
+	unAssignedEventOption.setIncidentStatuses(unAssignedStatusSet);
+	int64_t numOfUnAssignedEvents =
+	  dataStore->getNumberOfEvents(unAssignedEventOption);
 
 	JSONBuilder reply;
 	reply.startObject();
