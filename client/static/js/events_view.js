@@ -930,10 +930,35 @@ var EventsView = function(userProfile, options) {
      $("#importantEventOccurredHostsPercentage").css("width", importantEventOccurredHostsPercentage+"%");
   }
 
+  function setupPieChart() {
+    var item, severity, times, severityStatMap = {}, pieChartDataMap = {};
+    var preDefinedSeverityArray = [
+      hatohol.TRIGGER_SEVERITY_UNKNOWN,
+      hatohol.TRIGGER_SEVERITY_INFO,
+      hatohol.TRIGGER_SEVERITY_WARNING,
+      hatohol.TRIGGER_SEVERITY_ERROR,
+      hatohol.TRIGGER_SEVERITY_CRITICAL,
+      hatohol.TRIGGER_SEVERITY_EMERGENCY,
+    ];
+    var statisticsSize = self.rawSummaryData["statistics"].length;
+    for (var x = 0; x < statisticsSize; ++x) {
+      item = self.rawSummaryData["statistics"][x];
+      severity = item["severity"];
+      times = item["times"];
+
+      severityStatMap[severity] = times;
+    }
+
+    for (var idx = 0; idx < preDefinedSeverityArray.length; ++idx) {
+      pieChartDataMap[idx] = severityStatMap[idx] ? severityStatMap[idx] : 0;
+    }
+  }
+
   function updateSummary(reply) {
     self.rawSummaryData = reply;
 
     setupStatictics();
+    setupPieChart();
   }
 
   function updateCore(reply) {
