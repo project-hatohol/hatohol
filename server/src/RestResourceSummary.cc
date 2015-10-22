@@ -72,6 +72,13 @@ void RestResourceSummary::handlerSummary(void)
 	int64_t numOfImportantEvents = dataStore->getNumberOfEvents(option);
 	int64_t numOfImportantEventOccurredHosts =
 		dataStore->getNumberOfHostsWithSpecifiedEvents(option);
+	std::vector<DBTablesMonitoring::EventSeverityStatistics> severityStatisticsVect;
+	err =
+	  dataStore->getEventSeverityStatistics(severityStatisticsVect, option);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
 
 	for (auto &severityRank : notImportantSeverityRanks) {
 		notImportantStatusSet.insert(static_cast<TriggerSeverityType>(severityRank.status));
@@ -101,6 +108,12 @@ void RestResourceSummary::handlerSummary(void)
 		  numOfNotImportantEventOccurredHosts);
 	reply.add("numOfAssignedEvents", numOfAssignedEvents);
 	reply.add("numOfUnAssignedEvents", numOfUnAssignedEvents);
+	reply.startArray("statistics");
+	for (auto &statistics : severityStatisticsVect) {
+		reply.add("severity", statistics.severity);
+		reply.add("times", statistics.num);
+	}
+	reply.endArray(); // statistics
 	reply.endArray(); // summary
 
 	addHatoholError(reply, HatoholError(HTERR_OK));
