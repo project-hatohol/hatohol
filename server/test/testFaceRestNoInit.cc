@@ -31,6 +31,7 @@ using namespace mlpl;
 // which takes a little time.
 // ---------------------------------------------------------------------------
 namespace testFaceRestNoInit {
+namespace testFaceRestHostUtil {
 
 static const char *FORCE_EMPTY_STRING = "#__EMPTY__";
 
@@ -496,4 +497,5 @@ void test_parseEventParameterInvalidTriggerId(void)
 	  triggerId, FORCE_EMPTY_STRING, HTERR_INVALID_PARAMETER);
 }
 
+} // namespace testFaceRestHostUtil
 } // namespace testFaceRestNoInit
