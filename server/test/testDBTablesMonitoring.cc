@@ -1833,6 +1833,45 @@ void test_getNumberOfHostsWithSpecifiedEvents(void)
 			    dbMonitoring.getNumberOfHostsWithSpecifiedEvents(option));
 }
 
+void test_getEventSeverityStatisticsWithImportantSeverityRankOption(void)
+{
+	loadTestDBEvents();
+	loadTestDBSeverityRankInfo();
+
+	DBTablesMonitoring::EventSeverityStatistics
+	expectedSeverityStatistics[] = {
+		{TRIGGER_SEVERITY_CRITICAL, 1},
+	};
+
+	DBHatohol dbHatohol;
+	DBTablesConfig &dbConfig = dbHatohol.getDBTablesConfig();
+
+	SeverityRankQueryOption severityRankOption(USER_ID_SYSTEM);
+	severityRankOption.setTargetAsImportant(static_cast<int>(true));
+	SeverityRankInfoVect importantSeverityRanks;
+	dbConfig.getSeverityRanks(importantSeverityRanks, severityRankOption);
+	std::set<TriggerSeverityType> importantStatusSet;
+	for (auto &severityRank : importantSeverityRanks) {
+		importantStatusSet.insert(static_cast<TriggerSeverityType>(severityRank.status));
+	}
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setTriggerSeverities(importantStatusSet);
+	std::vector<DBTablesMonitoring::EventSeverityStatistics> severityStatisticsVect;
+	dbMonitoring.getEventSeverityStatistics(severityStatisticsVect, option);
+	{
+		size_t i = 0;
+		for (auto statistics : severityStatisticsVect) {
+			cppcut_assert_equal(expectedSeverityStatistics[i].severity,
+					    statistics.severity);
+			cppcut_assert_equal(expectedSeverityStatistics[i].num,
+					    statistics.num);
+			++i;
+		}
+	}
+}
+
 void test_getEventSeverityStatisticsWithOutImportantSeverityRankOption(void)
 {
 	loadTestDBEvents();
