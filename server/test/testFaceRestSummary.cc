@@ -67,6 +67,17 @@ void test_summary(void)
 	assertValueInParser(parser, "numOfAssignedEvents", 0);
 	assertValueInParser(parser, "numOfUnAssignedEvents", 0);
 	assertStartObject(parser, "statistics");
+	{
+		size_t i = 0;
+		for (auto &statistic : expectedSeverityStatistics) {
+			parser->startElement(i);
+			assertValueInParser(parser, "severity", statistic.severity);
+			uint64_t num = statistic.num;
+			assertValueInParser(parser, "times", num);
+			parser->endElement();
+			++i;
+		}
+	}
 	parser->endObject();
 }
 
