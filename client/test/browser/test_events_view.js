@@ -230,6 +230,8 @@ describe('EventsView', function() {
     var setupFixture = function() {
       $("#" + TEST_FIXTURE_ID).append($("<div>", { id: contentId }));
       $("#" + contentId).html(viewHTML);
+      $("#severityStatChart").width(200);
+      $("#severityStatChart").height(200);
       fakeAjax();
       done();
     };
