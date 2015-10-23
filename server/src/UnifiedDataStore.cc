@@ -636,6 +636,23 @@ size_t UnifiedDataStore::getNumberOfEvents(const EventsQueryOption &option)
 	return dbMonitoring.getNumberOfEvents(option);
 }
 
+size_t UnifiedDataStore::getNumberOfHostsWithSpecifiedEvents(
+  const EventsQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	return dbMonitoring.getNumberOfHostsWithSpecifiedEvents(option);
+}
+
+HatoholError UnifiedDataStore::getEventSeverityStatistics(
+  std::vector<DBTablesMonitoring::EventSeverityStatistics> &severityStatisticsVect,
+  const EventsQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	return dbMonitoring.getEventSeverityStatistics(severityStatisticsVect, option);
+}
+
 bool UnifiedDataStore::getCopyOnDemandEnabled(void) const
 {
 	return m_impl->isCopyOnDemandEnabled;

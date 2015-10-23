@@ -20,7 +20,7 @@
 #include <cppcutter.h>
 #include <Reaper.h>
 #include "Helpers.h"
-#include "RestResourceHost.h"
+#include "RestResourceHostUtils.h"
 using namespace std;
 using namespace mlpl;
 
@@ -31,17 +31,18 @@ using namespace mlpl;
 // which takes a little time.
 // ---------------------------------------------------------------------------
 namespace testFaceRestNoInit {
+namespace testFaceRestHostUtil {
 
 static const char *FORCE_EMPTY_STRING = "#__EMPTY__";
 
-class TestFaceRestNoInit : public RestResourceHost {
+class TestFaceRestNoInit {
 public:
 	static HatoholError callParseEventParameter(
 		EventsQueryOption &option,
 		GHashTable *query)
 	{
 		bool countOnly = false;
-		return parseEventParameter(option, query, countOnly);
+		return RestResourceHostUtils::parseEventParameter(option, query, countOnly);
 	}
 };
 
@@ -496,4 +497,5 @@ void test_parseEventParameterInvalidTriggerId(void)
 	  triggerId, FORCE_EMPTY_STRING, HTERR_INVALID_PARAMETER);
 }
 
+} // namespace testFaceRestHostUtil
 } // namespace testFaceRestNoInit

@@ -851,6 +851,7 @@ struct EventsQueryOption::Impl {
 	set<TriggerSeverityType> triggerSeverities;
 	set<TriggerStatusType> triggerStatuses;
 	set<string> incidentStatuses;
+	vector<string> groupByColumns;
 
 	Impl()
 	: limitOfUnifiedId(NO_LIMIT),
@@ -1078,6 +1079,23 @@ EventsQueryOption::SortType EventsQueryOption::getSortType(void) const
 DataQueryOption::SortDirection EventsQueryOption::getSortDirection(void) const
 {
 	return m_impl->sortDirection;
+}
+
+void EventsQueryOption::setGroupByColumns(const std::vector<std::string> &columns)
+{
+	m_impl->groupByColumns = columns;
+
+	vector<GroupBy> groupByVect;
+	for (auto &column : columns) {
+		GroupBy groupBy(column);
+		groupByVect.push_back(groupBy);
+	}
+	setGroupByVect(groupByVect);
+}
+
+std::vector<std::string> EventsQueryOption::getGroupByColumns(void) const
+{
+	return m_impl->groupByColumns;
 }
 
 void EventsQueryOption::setMinimumSeverity(const TriggerSeverityType &severity)
@@ -2577,6 +2595,9 @@ HatoholError DBTablesMonitoring::getNumberOfMonitoredItemsPerSecond
 size_t DBTablesMonitoring::getNumberOfEvents(const EventsQueryOption &option)
 {
 	DBClientJoinBuilder builder(tableProfileEvents, &option);
+	builder.addTable(
+	  tableProfileIncidents, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileEvents, IDX_EVENTS_UNIFIED_ID, IDX_INCIDENTS_UNIFIED_EVENT_ID);
 	string stmt =
 	  StringUtils::sprintf("count(distinct %s)",
 	    option.getColumnName(IDX_EVENTS_UNIFIED_ID).c_str());
@@ -2589,6 +2610,66 @@ size_t DBTablesMonitoring::getNumberOfEvents(const EventsQueryOption &option)
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupStream itemGroupStream(*grpList.begin());
 	return itemGroupStream.read<int>();
+}
+
+size_t DBTablesMonitoring::getNumberOfHostsWithSpecifiedEvents(
+  const EventsQueryOption &option)
+{
+	DBClientJoinBuilder builder(tableProfileEvents, &option);
+	builder.addTable(
+	  tableProfileIncidents, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileEvents, IDX_EVENTS_UNIFIED_ID, IDX_INCIDENTS_UNIFIED_EVENT_ID);
+	string stmt =
+	  StringUtils::sprintf("count(distinct %s)",
+	    option.getColumnName(IDX_EVENTS_GLOBAL_HOST_ID).c_str());
+	DBAgent::SelectExArg &arg = builder.build();
+	arg.add(stmt, SQL_COLUMN_TYPE_INT);
+
+	getDBAgent().runTransaction(arg);
+
+	// get the result
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
+}
+
+HatoholError DBTablesMonitoring::getEventSeverityStatistics(
+  std::vector<DBTablesMonitoring::EventSeverityStatistics> &severityStatisticsVect,
+  const EventsQueryOption &option)
+{
+	DBClientJoinBuilder builder(tableProfileEvents, &option);
+	builder.add(IDX_EVENTS_SEVERITY);
+	builder.addTable(
+	  tableProfileIncidents, DBClientJoinBuilder::LEFT_JOIN,
+	  tableProfileEvents, IDX_EVENTS_UNIFIED_ID, IDX_INCIDENTS_UNIFIED_EVENT_ID);
+	string severityColumnName =
+	  option.getColumnName(IDX_EVENTS_SEVERITY).c_str();
+	string stmt =
+	  StringUtils::sprintf("count(%s)",
+	    severityColumnName.c_str());
+	DBAgent::SelectExArg &arg = builder.build();
+	arg.add(stmt, SQL_COLUMN_TYPE_INT);
+
+	// generate new non const EventsQueryOption to set target GroupBy columns
+	EventsQueryOption groupByOption(option);
+	groupByOption.setGroupByColumns({severityColumnName});
+	arg.groupBy = groupByOption.getGroupBy();
+
+	getDBAgent().runTransaction(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	for (auto itemGrp : grpList) {
+		ItemGroupStream itemGroupStream(itemGrp);
+		DBTablesMonitoring::EventSeverityStatistics statistics;
+
+		int64_t num;
+		itemGroupStream >> statistics.severity;
+		itemGroupStream >> num;
+		statistics.num = num;
+
+		severityStatisticsVect.push_back(statistics);
+	}
+	return HatoholError(HTERR_OK);
 }
 
 void DBTablesMonitoring::addIncidentInfo(IncidentInfo *incidentInfo)

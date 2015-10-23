@@ -52,6 +52,8 @@ public:
 	void setSortType(const SortType &type, const SortDirection &direction);
 	SortType getSortType(void) const;
 	SortDirection getSortDirection(void) const;
+	void setGroupByColumns(const std::vector<std::string> &columns);
+	std::vector<std::string> getGroupByColumns(void) const;
 
 	void setType(const EventType &type);
 	EventType getType(void) const;
@@ -269,6 +271,14 @@ public:
 	  const DataQueryOption &option,
 	  MonitoringServerStatus &serverStatus);
 	size_t getNumberOfEvents(const EventsQueryOption &option);
+	size_t getNumberOfHostsWithSpecifiedEvents(const EventsQueryOption &option);
+	struct EventSeverityStatistics {
+		TriggerSeverityType severity;
+		int64_t num;
+	};
+	HatoholError getEventSeverityStatistics(
+	  std::vector<EventSeverityStatistics> &importantEventGroupVect,
+	  const EventsQueryOption &option);
 
 	void addIncidentInfo(IncidentInfo *incidentInfo);
 	HatoholError getIncidentInfoVect(IncidentInfoVect &incidentInfoVect,

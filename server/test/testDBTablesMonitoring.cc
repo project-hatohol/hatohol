@@ -1819,6 +1819,86 @@ void test_getNumberOfEvents(void)
 			    dbMonitoring.getNumberOfEvents(option));
 }
 
+void test_getNumberOfHostsWithSpecifiedEvents(void)
+{
+	loadTestDBEvents();
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	EventsQueryOption option(USER_ID_SYSTEM);
+	std::set<TriggerSeverityType> severitiesSet;
+	severitiesSet.insert(TRIGGER_SEVERITY_WARNING);
+	severitiesSet.insert(TRIGGER_SEVERITY_CRITICAL);
+	option.setTriggerSeverities(severitiesSet);
+	cppcut_assert_equal(static_cast<size_t>(2),
+			    dbMonitoring.getNumberOfHostsWithSpecifiedEvents(option));
+}
+
+void test_getEventSeverityStatisticsWithImportantSeverityRankOption(void)
+{
+	loadTestDBEvents();
+	loadTestDBSeverityRankInfo();
+
+	DBTablesMonitoring::EventSeverityStatistics
+	expectedSeverityStatistics[] = {
+		{TRIGGER_SEVERITY_CRITICAL, 1},
+	};
+
+	DBHatohol dbHatohol;
+	DBTablesConfig &dbConfig = dbHatohol.getDBTablesConfig();
+
+	SeverityRankQueryOption severityRankOption(USER_ID_SYSTEM);
+	severityRankOption.setTargetAsImportant(static_cast<int>(true));
+	SeverityRankInfoVect importantSeverityRanks;
+	dbConfig.getSeverityRanks(importantSeverityRanks, severityRankOption);
+	std::set<TriggerSeverityType> importantStatusSet;
+	for (auto &severityRank : importantSeverityRanks) {
+		importantStatusSet.insert(static_cast<TriggerSeverityType>(severityRank.status));
+	}
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setTriggerSeverities(importantStatusSet);
+	std::vector<DBTablesMonitoring::EventSeverityStatistics> severityStatisticsVect;
+	dbMonitoring.getEventSeverityStatistics(severityStatisticsVect, option);
+	{
+		size_t i = 0;
+		for (auto statistics : severityStatisticsVect) {
+			cppcut_assert_equal(expectedSeverityStatistics[i].severity,
+					    statistics.severity);
+			cppcut_assert_equal(expectedSeverityStatistics[i].num,
+					    statistics.num);
+			++i;
+		}
+	}
+}
+
+void test_getEventSeverityStatisticsWithOutImportantSeverityRankOption(void)
+{
+	loadTestDBEvents();
+
+	DBTablesMonitoring::EventSeverityStatistics
+	expectedSeverityStatistics[] = {
+		{TRIGGER_SEVERITY_INFO, 4},
+		{TRIGGER_SEVERITY_WARNING, 2},
+		{TRIGGER_SEVERITY_CRITICAL, 1},
+	};
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	EventsQueryOption option(USER_ID_SYSTEM);
+	std::vector<DBTablesMonitoring::EventSeverityStatistics> severityStatisticsVect;
+	dbMonitoring.getEventSeverityStatistics(severityStatisticsVect, option);
+	{
+		size_t i = 0;
+		for (auto statistics : severityStatisticsVect) {
+			cppcut_assert_equal(expectedSeverityStatistics[i].severity,
+					    statistics.severity);
+			cppcut_assert_equal(expectedSeverityStatistics[i].num,
+					    statistics.num);
+			++i;
+		}
+	}
+}
+
 void test_getNumberOfEventsWithHostgroup(void)
 {
 	loadTestDBEvents();

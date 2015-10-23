@@ -77,6 +77,7 @@ struct SeverityRankInfo {
 typedef std::vector<SeverityRankInfo> SeverityRankInfoVect;
 constexpr const static SeverityRankIdType INVALID_SEVERITY_RANK_ID = -1;
 constexpr const static SeverityRankStatusType INVALID_SEVERITY_STATUS_TYPE = -1;
+constexpr const static int ALL_SEVERITY_RANK_AS_IMPORTANT = -1;
 
 class ServerQueryOption : public DataQueryOption {
 public:
@@ -125,6 +126,8 @@ public:
 	const std::list<SeverityRankIdType> getTargetIdList(void);
 	void setTargetLabel(const std::string &label);
 	const std::string getTargetLabel(void);
+	void setTargetAsImportant(const int &asImportant);
+	const int getTargetAsImportant(void);
 
 	virtual std::string getCondition(void) const override;
 

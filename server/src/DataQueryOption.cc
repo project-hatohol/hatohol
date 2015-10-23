@@ -31,6 +31,7 @@ struct DataQueryOption::Impl {
 	size_t maxNumber;
 	size_t offset;
 	SortOrderVect sortOrderVect;
+	GroupByVect   groupByVect;
 	DataQueryContextPtr dataQueryCtxPtr; // The body is shared
 	const DBTermCodec *dbTermCodec;
 	bool               tableNameAlways;
@@ -70,6 +71,11 @@ const size_t DataQueryOption::NO_LIMIT = 0;
 DataQueryOption::SortOrder::SortOrder(
   const std::string &aColumnName, const SortDirection &aDirection)
 : columnName(aColumnName), direction(aDirection)
+{
+}
+
+DataQueryOption::GroupBy::GroupBy(const std::string &aColumnName)
+: columnName(aColumnName)
 {
 }
 
@@ -192,6 +198,17 @@ const DataQueryOption::SortOrderVect &DataQueryOption::getSortOrderVect(void)
 	return m_impl->sortOrderVect;
 }
 
+void DataQueryOption::setGroupByVect(const GroupByVect &groupByVect)
+{
+	m_impl->groupByVect = groupByVect;
+}
+
+void DataQueryOption::setGroupBy(const GroupBy &groupBy)
+{
+	m_impl->groupByVect.clear();
+	m_impl->groupByVect.push_back(groupBy);
+}
+
 std::string DataQueryOption::getOrderBy(void) const
 {
 	SortOrderVectIterator it = m_impl->sortOrderVect.begin();
@@ -215,6 +232,22 @@ std::string DataQueryOption::getOrderBy(void) const
 		}
 	}
 	return orderBy;
+}
+
+std::string DataQueryOption::getGroupBy(void) const
+{
+	auto it = begin(m_impl->groupByVect);
+	std::string groupBy;
+	for (; it != end(m_impl->groupByVect); ++it) {
+		if (it->columnName.empty()) {
+			MLPL_ERR("Empty group by column name.\n");
+			continue;
+		}
+		if (it != begin(m_impl->groupByVect))
+			groupBy += ", ";
+		groupBy += it->columnName;
+	}
+	return groupBy;
 }
 
 void DataQueryOption::setTableNameAlways(const bool &enable) const

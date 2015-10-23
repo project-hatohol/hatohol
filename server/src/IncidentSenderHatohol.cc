@@ -24,27 +24,6 @@
 using namespace std;
 using namespace mlpl;
 
-enum Status {
-	NONE,
-	HOLD,
-	IN_PROGRESS,
-	DONE,
-	USER_DEFINED_BEGIN
-};
-
-struct StatusDef {
-	Status status;
-	string indicator;
-	string label;
-};
-
-static const StatusDef definedStatuses[] = {
-	{ NONE,        "",  "NONE" },
-	{ HOLD,        "H", "HOLD" },
-	{ IN_PROGRESS, "P", "IN PROGRESS" },
-	{ DONE,        "*", "DONE" },
-};
-
 struct IncidentSenderHatohol::Impl
 {
 	Impl(IncidentSenderHatohol &sender)

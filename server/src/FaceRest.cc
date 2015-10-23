@@ -49,6 +49,7 @@
 #include "RestResourceIncidentTracker.h"
 #include "RestResourceServer.h"
 #include "RestResourceSeverityRank.h"
+#include "RestResourceSummary.h"
 #include "RestResourceUser.h"
 #include "ConfigManager.h"
 
@@ -407,6 +408,7 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	RestResourceAction::registerFactories(this);
 	RestResourceIncidentTracker::registerFactories(this);
 	RestResourceSeverityRank::registerFactories(this);
+	RestResourceSummary::registerFactories(this);
 
 	if (m_impl->param)
 		m_impl->param->setupDoneNotifyFunc();

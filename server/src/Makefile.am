@@ -66,10 +66,12 @@ libhatohol_la_SOURCES = \
 	ResidentCommunicator.cc ResidentCommunicator.h \
 	RestResourceAction.cc RestResourceAction.h \
 	RestResourceHost.cc RestResourceHost.h \
+	RestResourceHostUtils.cc RestResourceHostUtils.h \
 	RestResourceIncidentTracker.cc RestResourceIncidentTracker.h \
 	RestResourceServer.cc RestResourceServer.h \
 	RestResourceSystem.cc RestResourceSystem.h \
 	RestResourceSeverityRank.cc RestResourceSeverityRank.h \
+	RestResourceSummary.cc RestResourceSummary.h \
 	RestResourceUser.cc RestResourceUser.h \
 	SessionManager.cc SessionManager.h \
 	SQLProcessorTypes.h \
