@@ -28,6 +28,20 @@ describe('EventsView', function() {
       "extendedInfo":"{\"expandedDescription\": \"Expanded test description 2.\"}",
     },
   ];
+  var dummySummary = {
+    "numOfImportantEvents": 0,
+    "numOfImportantEventOccurredHosts": 0,
+    "numOfNotImportantEvents": 0,
+    "numOfNotImportantEventOccurredHosts": 0,
+    "numOfAssignedEvents": 0,
+    "numOfUnAssignedEvents": 0,
+    "statistics": [
+      {"severity": 3,"times": 0},
+      {"severity": 5,"times": 0}
+    ],
+    "apiVersion":4,
+    "errorCode":0
+  }
   var testOptions = {
     disableTimeRangeFilter: true,
   };
@@ -89,9 +103,16 @@ describe('EventsView', function() {
                     eventsJson);
   }
 
+  function respondSummary(summaryJson) {
+    var request = this.requests[3];
+    request.respond(200, { "Content-Type": "application/json" },
+                    summaryJson);
+  }
+
   function respond(eventsJson, configJson) {
     respondUserConfig(configJson);
     respondEvents(eventsJson);
+    respondSummary(JSON.stringify(dummySummary));
   }
 
   function getDummyServerInfo(type){
