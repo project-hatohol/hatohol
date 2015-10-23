@@ -23,6 +23,7 @@
 #include "DBTablesTest.h"
 #include "RestResourceSummary.h"
 #include "FaceRestTestUtils.h"
+#include <ThreadLocalDBCache.h>
 
 using namespace std;
 using namespace mlpl;
@@ -37,6 +38,35 @@ void cut_setup(void)
 	loadTestDBTablesUser();
 }
 
+const IncidentInfo unAssignedIncidentInfo[] = {
+{
+	5,                        // trackerId
+	2,                        // serverId
+	"2",                      // eventId
+	"3",                      // triggerId
+	"7",                      // identifier
+	"",                       // location
+	"NONE",                   // status
+	"",                       // priority
+	"",                       // assignee
+	0,                        // doneRatio
+	{1412957360, 0},          // createdAt
+	{1412957360, 0},          // updatedAt
+	IncidentInfo::STATUS_UNKNOWN, // statusCode
+	7,                        // unifiedId
+},
+};
+const size_t NumUnAssginedTestIncidentInfo = ARRAY_SIZE(unAssignedIncidentInfo);
+
+void loadUnAssignedIncidentInfo(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	for (auto incidentInfo : unAssignedIncidentInfo) {
+		dbMonitoring.addIncidentInfo(&incidentInfo);
+	}
+};
+
 void cut_teardown(void)
 {
 	stopFaceRest();
@@ -48,6 +78,7 @@ void test_summary(void)
 	loadTestDBEvents();
 	loadTestDBIncidents();
 	loadTestDBIncidentTracker();
+	loadUnAssignedIncidentInfo();
 
 	DBTablesMonitoring::EventSeverityStatistics
 	expectedSeverityStatistics[] = {
