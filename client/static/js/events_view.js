@@ -485,14 +485,6 @@ var EventsView = function(userProfile, options) {
   }
 
   function setupToggleSidebar() {
-    if (params && (params.devel != "true")) {
-      $("#event-table-area").removeClass("col-md-10");
-      $("#event-table-area").addClass("col-md-12");
-      $("#SummarySidebar").hide();
-      $("#toggle-sidebar").hide();
-      return;
-    }
-
     $("#SummarySidebar").show();
     $("#toggle-sidebar").show();
     $("#toggle-sidebar").click(function(){
