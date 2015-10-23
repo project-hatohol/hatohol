@@ -937,12 +937,24 @@ var EventsView = function(userProfile, options) {
       pieChartDataMap[idx] = severityStatMap[idx] ? severityStatMap[idx] : 0;
     }
     var dataSet = [
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_EMERGENCY)], data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_EMERGENCY], color: "#FF0000" },
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_CRITICAL)], data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_CRITIAL], color: "#FF9900" },
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_ERROR)], data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_ERROR], color: "#FFFF00" },
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_WARNING)], data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_WARNING], color: "#FDFD96" },
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_INFO)], data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_INFO], color: "#CCE2CC" },
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_UNKNOWN)], data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_UNKNOWN], color: "#BCBCBC" },
+      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_EMERGENCY)],
+        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_EMERGENCY],
+        color: "#FF0000" },
+      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_CRITICAL)],
+        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_CRITIAL],
+        color: "#FF9900" },
+      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_ERROR)],
+        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_ERROR],
+        color: "#FFFF00" },
+      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_WARNING)],
+        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_WARNING],
+        color: "#FDFD96" },
+      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_INFO)],
+        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_INFO],
+        color: "#CCE2CC" },
+      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_UNKNOWN)],
+        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_UNKNOWN],
+        color: "#BCBCBC" },
     ];
 
     var options = {
