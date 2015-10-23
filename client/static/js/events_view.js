@@ -320,10 +320,16 @@ var EventsView = function(userProfile, options) {
     if (hasIncidentTypeHatohol && !hasIncidentTypeOthers) {
       $("#select-incident-container").show();
       $("#change-incident-container").show();
+      $("#IncidentTypeHatoholNotAssignedEventLabel").show();
+      $("#IncidentTypeHatoholImportantEventLabel").show();
+      $("#IncidentTypeHatoholImportantEventProgress").show();
       fixupEventsTableHeight();
     } else {
       $("#select-incident-container").hide();
       $("#change-incident-container").hide();
+      $("#IncidentTypeHatoholNotAssignedEventLabel").hide();
+      $("#IncidentTypeHatoholImportantEventLabel").hide();
+      $("#IncidentTypeHatoholImportantEventProgress").hide();
       fixupEventsTableHeight();
     }
   }
