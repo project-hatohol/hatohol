@@ -82,11 +82,8 @@
         <a href="#">{% trans "A percentage the important event(s)" %}</a></a>
       </li>
       <li>
-        <ul data-graph data-pie-id="pizza">
-          <li data-value="100"></li>
-        </ul>
+        <div id="severityStatChart"></div>
       </li>
-      <div id="pizza"></div>
     </ul>
   </div>
 
@@ -721,6 +718,8 @@
   <script src="{{ STATIC_URL }}js.external/multiselect.min.js"></script>
   <script src="{{ STATIC_URL }}js.external/snap.svg.js"></script>
   <script src="{{ STATIC_URL }}js.external/pizza.js"></script>
+  <script src="{{ STATIC_URL }}js.external/jquery.flot.js"></script>
+  <script src="{{ STATIC_URL }}js.external/jquery.flot.pie.js"></script>
 {% endblock %}
 
 {% block logic %}

@@ -952,6 +952,33 @@ var EventsView = function(userProfile, options) {
     for (var idx = 0; idx < preDefinedSeverityArray.length; ++idx) {
       pieChartDataMap[idx] = severityStatMap[idx] ? severityStatMap[idx] : 0;
     }
+    var dataSet = [
+      { label: "EMERGENCY", data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_EMERGENCY], color: "#FF0000" },
+      { label: "CRITICAL", data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_CRITIAL], color: "#FF9900" },
+      { label: "ERROR", data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_ERROR], color: "#FFFF00" },
+      { label: "WARNING", data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_WARNING], color: "#FDFD96" },
+      { label: "INFO", data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_INFO], color: "#CCE2CC" },
+      { label: "UNKNOWN", data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_UNKNOWN], color: "#BCBCBC" },
+    ];
+
+    var options = {
+      series: {
+        pie: {
+          show: true,
+          label: {
+            show: true,
+            background: {
+              opacity: 0.8,
+              color: '#000'
+            }
+          }
+        }
+      },
+      legend: {
+        show: false
+      },
+    };
+    $.plot($("#severityStatChart"), dataSet, options);
   }
 
   function updateSummary(reply) {

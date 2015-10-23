@@ -354,3 +354,9 @@ ul[data-graph] li:nth-child(3) {
 ul[data-graph] li:nth-child(4) {
   color: #02E86E;
 }
+
+div#severityStatChart {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+}
