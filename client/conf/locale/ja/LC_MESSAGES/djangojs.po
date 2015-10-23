@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-23 00:59-0500\n"
-"PO-Revision-Date: 2015-10-23 14:59+0900\n"
+"POT-Creation-Date: 2015-10-23 01:57-0500\n"
+"PO-Revision-Date: 2015-10-23 15:57+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -797,7 +797,7 @@ msgid "IN PROGRESS"
 msgstr "処理中"
 
 #: static/js/hatohol_events_view_config.js:510
-#: static/js/hatohol_monitoring_view.js:283
+msgctxt "Incident"
 msgid "DONE"
 msgstr "対処済"
 
@@ -1059,6 +1059,11 @@ msgstr "描画"
 #: static/js/hatohol_monitoring_view.js:276
 msgid "Drawing"
 msgstr "描画中"
+
+#: static/js/hatohol_monitoring_view.js:283
+msgctxt "Indicator"
+msgid "DONE"
+msgstr "完了"
 
 #: static/js/hatohol_monitoring_view.js:295
 msgid "LOAD"
