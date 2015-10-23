@@ -247,6 +247,16 @@ var EventsView = function(userProfile, options) {
     return 'events?' + $.param(query);
   };
 
+  function getSummaryQuery() {
+    var query = {}, baseFilterId, baseFilter;
+
+    baseFilterId = self.userConfig.getValue("events.summary.default-filter-id");
+    baseFilter = self.userConfig.getFilter(baseFilterId);
+    $.extend(query, baseFilter);
+
+    return 'summary?' + $.param(query);
+  }
+
   function load(options) {
     var query;
     options = options || {};
@@ -260,7 +270,8 @@ var EventsView = function(userProfile, options) {
       self.currentPage = 0;
     }
     self.startConnection(getQuery(options), updateCore);
-    self.startConnection("summary", updateSummary);
+    self.startConnection(getSummaryQuery(), updateSummary);
+    getSummaryQuery();
     $(document.body).scrollTop(0);
   }
 
